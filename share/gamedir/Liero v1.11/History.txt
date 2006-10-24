@@ -1,0 +1,27 @@
+History:
+
+(*) v1.11 2004-05-26 - 3rd Release, 48 weapons, 166 (258) projectiles, 23 custom gfx, 1 custom sfx, size 29kb.
+
+Minor changes 18 weapons:
+	Bazooka: Less direct hit damage.
+	Chaingun: Shorter and less variating damage delay.
+	Cannon: A bit more damage, faster and start speed, less damage delay.
+	Dirt Ball: Faster reload.
+	Doomsday: Shorter and less variating damage delay, a bit less damage.
+	Explosives: Less parts, more damage, a bit faster reload.
+	Flamer: Shorter and less variating damage delay.
+	Gauss Gun: Less damage delay, a bit slower movements.
+	Greenball: Faster reload.
+	Handgun: A bit faster reload, less gravity, a bit more damage.
+	Hellraider: Trail does more damage.
+	Mini Nuke: A bit slower reload.
+	Mini Rockets: Shorter and less variating damage delay.
+	Minigun: Slower ROF, shorter and less variating damage delay.
+	Spikeballs: Shorter and less variating damage delay.
+	Shotgun: A bit faster reload time and ROF.
+	Uzi: A bit slower ROF, shorter and less variating damage delay.
+	Zimm: Shorter but more variating timer.
+
+Major changes 2 weapons:
+	Napalm: Slower reload, shorter but more variating flames, some variating explosion damage delay.
+	RB Rampage: No dampening, more bounce and added casing drops.
