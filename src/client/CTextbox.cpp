@@ -334,7 +334,7 @@ int CTextbox::KeyDown(int c)
         return TXT_CHANGE;
     }
 
-	if((char)c > 31 && (char)c <126)
+	if((char)c > 31 && (char)c <127)
 		// Insert character
 		Insert((char) c);
 
@@ -572,7 +572,7 @@ void CTextbox::setText(char *buf)
 	// Copy the text and ignore unknown characters
 	int j=0;
 	for (int i=0; i<(int)strlen(buf); i++)
-		if(buf[i] > 31 && buf[i] <126)
+		if(buf[i] > 31 && buf[i] <127)
 			sText[j++] = buf[i];
 
 	sText[j] = '\0';

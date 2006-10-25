@@ -122,7 +122,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     }
 
 	// Reload weapons when we can't shoot
-	//if(iAiGameType == GAM_RIFLES)
 	AI_ReloadWeapons();
 
     // Increase the last target change time
@@ -300,7 +299,9 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 {
 	CWorm	*w = cClient->getRemoteWorms();
 	CWorm	*trg = NULL;
+	CWorm	*nonsight_trg = NULL;
 	float	fDistance = 99999;
+	float	fSightDistance = 99999;
 
 	int NumTeams = 0;
 	for (int i=0; i<4; i++)
@@ -333,20 +334,38 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 
 		// Don't choose the same worm, if we can't
 		if(w->getID() == iLastTargetID && iForceTargetChange)
-			continue;
-
-		// Don't find targets right above us, because it causes stuck
-		/*if(((int)w->getPos().GetX()-10) < (int)vPos.GetX() && ((int)w->getPos().GetX()+10) > (int)vPos.GetX())
-			continue;*/
-		
+			continue;		
 
 		// Calculate distance between us two
 		float l = CalculateDistance(w->getPos(), vPos);
 
-		if(l < fDistance) {
-			trg = w;
-			fDistance = l;
+		// Prefer targets we have free line of sight to
+		float length;
+		int type;
+		traceLine(w->getPos(),pcMap,&length,&type,1);
+		if (type != PX_ROCK)  {
+			// Line of sight not blocked
+			if (l < fSightDistance)  {
+				trg = w;
+				fSightDistance = l;
+				if (l < fDistance)  {
+					nonsight_trg = w;
+					fDistance = l;
+				}
+			}
 		}
+		else
+			// Line of sight blocked
+			if(l < fDistance) {
+				nonsight_trg = w;
+				fDistance = l;
+			}
+	}
+
+	// If the target we have line of sight to is too far, switch back to the closest target
+	if ((fSightDistance-fDistance > 50.0f) || trg == NULL)  {
+		if (nonsight_trg)
+			trg = nonsight_trg;
 	}
 
 	// Reset the target time
@@ -1119,7 +1138,7 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
     }
 
     // Walk only if the target is a good distance on either side
-    if(abs(nCurrentCell[0] - nTargetCell[0]) > 4)
+    if(abs(nCurrentCell[0] - nTargetCell[0]) > 3)
         ws->iMove = true;
 
     
@@ -1171,14 +1190,15 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
     if(length < dist && type == PX_DIRT) {
         ws->iJump = true;
         ws->iMove = true;
+		ws->iCarve = true; // Carve
         
         // Shoot a path
-        int wpn;
+        /*int wpn;
         if((wpn = AI_FindClearingWeapon()) != -1) {
             iCurrentWeapon = wpn;
             ws->iShoot = true;
             cNinjaRope.Release();
-        }
+        }*/
     }
 
 
@@ -1369,6 +1389,7 @@ bool CWorm::AI_SetAim(CVec cPos)
 // A simpler method to get to a target
 // Used if we have no path
 float fLastTurn = 0;  // Time when we last tried to change the direction
+float fLastJump = 0;  // Time when we last tried to jump
 void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
 {
     worm_state_t *ws = &tState;
@@ -1399,10 +1420,8 @@ void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
 
         // Change direction
 		if (bHaveTarget && (tLX->fCurTime-fLastTurn) > 1.0)  {
-			if(iDirection == DIR_LEFT)  iDirection = DIR_RIGHT;
-			else iDirection = DIR_LEFT;
+			iDirection = !iDirection;
 			fLastTurn = tLX->fCurTime;
-			cNinjaRope.Release();  // Release the rope
 		}
 
         // Look up for a ninja throw
@@ -1416,6 +1435,16 @@ void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
 
             cNinjaRope.Shoot(vPos,dir);
         }
+
+		// Jump and move
+		else  {
+			if (tLX->fCurTime-fLastJump > 3.0)  {
+				ws->iJump = true;
+				fLastJump = tLX->fCurTime;
+			}
+			ws->iMove = true;
+			cNinjaRope.Release();
+		}
 
         return;
     }
@@ -1550,6 +1579,12 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
         bDirect = false;
 	}
 
+	// If target is blocked by large amount of dirt, we can't shoot it with rifle
+	if (iAiGameType == GAM_RIFLES && nType == PX_DIRT)  {
+		if(d-fDist > 40.0f)
+			return false;
+	}
+
 	// In mortar game there must be enought of free cells around us
 	// BUT, if the target is really close, risk it
 	if(iAiGameType == GAM_MORTARS && d > 50.0f)  {
@@ -1611,6 +1646,14 @@ void CWorm::AI_Shoot(CMap *pcMap)
     //
     bool    bAim = AI_SetAim(cTrgPos);
     if(!bAim)  {
+
+		// In mortars we can hit the target below us
+		if (iAiGameType == GAM_MORTARS)  {
+			if (cTrgPos.GetY() > (vPos.GetY()-20.0f))
+				tState.iShoot = true;
+			return;
+		}
+
 		tState.iMove = true;
 		fBadAimTime += tLX->fDeltaTime;
 		if((fBadAimTime) > 4) {
@@ -1627,9 +1670,10 @@ void CWorm::AI_Shoot(CMap *pcMap)
 	fBadAimTime = 0;
 
     // Shoot
-    tState.iShoot = true;
-	fLastShoot = tLX->fCurTime;
-
+	if (tLX->fCurTime-fLastShoot > 0.005f)  {  // Don't shoot so often
+		tState.iShoot = true;
+		fLastShoot = tLX->fCurTime;
+	}
 }
 
 
@@ -1667,7 +1711,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 	if (iAiGameType == GAM_100LT)  {
 		// We're above the worm
 		if (vPos.GetY() < (cTrgPos.GetY()-50.0f))  {
-			// We're turned to left
+			// We're turned left
 			if(iDirection == DIR_LEFT)  {
 				// Aiming down
 				int iFreeCells = 0;
@@ -1908,28 +1952,6 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
     // If we're at a medium distance, use any weapon, but prefer the exact ones
     //
     if(fDistance < 150 && bDirect) {
-        // Blaster
-
-        // Non-empty cells near the target?
-        /*bool    bEmpty = true;
-        cx = (int)(cTrgPos.GetX() / pcMap->getGridWidth());
-        cy = (int)(cTrgPos.GetY() / pcMap->getGridHeight());
-        for(y=cy-1; y<cy+1; y++) {
-            for(x=cx-1; x<cx+1; x++) {
-                if(y<0 || y>=pcMap->getGridHeight())
-                    break;
-                if(x<0 || x>=pcMap->getGridWidth())
-                    continue;
-
-                // Get the cell
-                uchar   *f = pcMap->getGridFlags() + y*pcMap->getGridWidth()+x;
-                if(*f != PX_EMPTY)
-                    bEmpty = false;
-            }
-        }
-
-        if(!tWeapons[3].Reloading && !bEmpty)
-            return 3;*/
 
 		// First try beam
 		for (int i=0; i<5; i++)
@@ -2100,6 +2122,7 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 
 	for(int i=0; i<nTotalLength; i+=divisions) {
 		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		//pcMap->PutImagePixel((int)pos.GetX(), (int)pos.GetY(), MakeColour(255,0,0));
 
         if(px & PX_DIRT || px & PX_ROCK) {
             *fDist = (float)i / (float)nTotalLength;

@@ -224,6 +224,10 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	CWorm *vict = &cWorms[victim];
 	CWorm *kill = &cWorms[killer];
 
+	// Cheat prevention, game behaves weird if this happens
+	if(!vict->getAlive() || vict->getKills() < 0)
+		return;
+
 	
 	// Kill
 	if (strcmp(NetworkTexts->sKilled,"<none>"))  { // Take care of the <none> tag
@@ -283,7 +287,8 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 			switch (iGameType)  {
 			case GMT_DEATHMATCH:
 				if (strcmp(NetworkTexts->sPlayerHasWon,"<none>"))  {
-					replacemax(NetworkTexts->sPlayerHasWon,"<player>",kill->getName(),buf,1);
+					CWorm *winner = cWorms + wormid;
+					replacemax(NetworkTexts->sPlayerHasWon,"<player>",winner->getName(),buf,1);
 					SendGlobalText(buf,TXT_NORMAL);
 				}
 			break;  // DEATHMATCH

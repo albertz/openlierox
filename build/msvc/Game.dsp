@@ -666,47 +666,47 @@ SOURCE=..\..\src\client\MenuSystem.cpp
 # PROP Default_Filter "lib"
 # Begin Source File
 
-SOURCE=.\libs\bass.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\bass.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\HawkNL.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\HawkNL.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\NLstatic.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\NLstatic.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\pthreadVCE.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\pthreadVCE.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\SDL.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\SDL.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\SDL_image.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\SDL_image.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\SDLmain.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\SDLmain.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\zlibstat.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\zlibstat.lib
 # End Source File
 # Begin Source File
 
-SOURCE=".\libs\SHLWAPI.LIB"
+SOURCE="C:\Program Files\Microsoft Visual Studio\VC98\Lib\SHLWAPI.LIB"
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\CrashRpt.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\CrashRpt.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\bgd.lib
+SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\bgd.lib
 # End Source File
 # End Group
 # Begin Group "Resources"

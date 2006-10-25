@@ -6,11 +6,1245 @@
 --------------------Configuration: Game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSPBD.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"obj/Debug/" /Fp"obj/Debug/Game.pch" /YX /Fo"obj/Debug/" /Fd"obj/Debug/" /FD /GZ /c 
+"C:\Moje\Programovani\OpenLieroX\src\client\AuxLib.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Cache.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CBytestream.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CChannel.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CFont.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\ConfigHandler.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Error.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\GfxPrimitives.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Graphics.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\server\CBanList.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CBonus.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CChatBox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CClient.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CClient_Game.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CClient_Parse.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CClient_Send.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CGameScript.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CMap.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CNinjaRope.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CProjectile.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\server\CServer.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\server\CServer_Game.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\server\CServer_Parse.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\server\CServer_Send.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CShootList.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CViewport.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CWeather.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CWorm.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CWorm_AI.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CWorm_SendRecv.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CWorm_Simulate.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CWpnRest.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Entity.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\ProfileSystem.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CBrowser.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CButton.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CCheckbox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CCombobox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CGuiLayout.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CInputBox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CListview.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CMenu.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CScrollbar.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CSlider.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CTextbox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CTitleButton.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CWidget.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Main.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Join.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Main.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_News.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\MenuSystem.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\Command.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\Console.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\main.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\Misc.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\Networking.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Options.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Sounds.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSPBD.tmp" 
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSPBE.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../share/gamedir/Game.exe" /MAPINFO:LINES /MAPINFO:EXPORTS 
+.\obj\Debug\2xsai.obj
+.\obj\Debug\AuxLib.obj
+.\obj\Debug\Cache.obj
+.\obj\Debug\CBytestream.obj
+.\obj\Debug\CChannel.obj
+.\obj\Debug\CFont.obj
+.\obj\Debug\CInput.obj
+.\obj\Debug\ConfigHandler.obj
+.\obj\Debug\Error.obj
+.\obj\Debug\FindFile.obj
+.\obj\Debug\GfxPrimitives.obj
+.\obj\Debug\Graphics.obj
+.\obj\Debug\Ini.obj
+.\obj\Debug\MathLib.obj
+.\obj\Debug\Timer.obj
+.\obj\Debug\CBanList.obj
+.\obj\Debug\CBonus.obj
+.\obj\Debug\CChatBox.obj
+.\obj\Debug\CClient.obj
+.\obj\Debug\CClient_Draw.obj
+.\obj\Debug\CClient_Game.obj
+.\obj\Debug\CClient_Parse.obj
+.\obj\Debug\CClient_Send.obj
+.\obj\Debug\CGameScript.obj
+.\obj\Debug\CMap.obj
+.\obj\Debug\CNinjaRope.obj
+.\obj\Debug\CProjectile.obj
+.\obj\Debug\CServer.obj
+.\obj\Debug\CServer_Game.obj
+.\obj\Debug\CServer_Parse.obj
+.\obj\Debug\CServer_Send.obj
+.\obj\Debug\CShootList.obj
+.\obj\Debug\CViewport.obj
+.\obj\Debug\CWeather.obj
+.\obj\Debug\CWorm.obj
+.\obj\Debug\CWorm_AI.obj
+.\obj\Debug\CWorm_SendRecv.obj
+.\obj\Debug\CWorm_Simulate.obj
+.\obj\Debug\CWpnRest.obj
+.\obj\Debug\Entity.obj
+.\obj\Debug\ProfileSystem.obj
+.\obj\Debug\CBrowser.obj
+.\obj\Debug\CButton.obj
+.\obj\Debug\CCheckbox.obj
+.\obj\Debug\CCombobox.obj
+.\obj\Debug\CGuiLayout.obj
+.\obj\Debug\CGUISkin.obj
+.\obj\Debug\CInputBox.obj
+.\obj\Debug\CListview.obj
+.\obj\Debug\CMenu.obj
+.\obj\Debug\CScrollbar.obj
+.\obj\Debug\CSlider.obj
+.\obj\Debug\CTextbox.obj
+.\obj\Debug\CTitleButton.obj
+.\obj\Debug\CWidget.obj
+.\obj\Debug\Menu_Local.obj
+.\obj\Debug\Menu_Main.obj
+.\obj\Debug\Menu_Mapeditor.obj
+.\obj\Debug\Menu_Net.obj
+.\obj\Debug\Menu_Net_Favourites.obj
+.\obj\Debug\Menu_Net_Host.obj
+.\obj\Debug\Menu_Net_Internet.obj
+.\obj\Debug\Menu_Net_Join.obj
+.\obj\Debug\Menu_Net_Lan.obj
+.\obj\Debug\Menu_Net_Main.obj
+.\obj\Debug\Menu_Net_News.obj
+.\obj\Debug\Menu_Options.obj
+.\obj\Debug\Menu_Player.obj
+.\obj\Debug\MenuSystem.obj
+.\obj\Debug\Command.obj
+.\obj\Debug\Console.obj
+.\obj\Debug\main.obj
+.\obj\Debug\Misc.obj
+.\obj\Debug\Networking.obj
+.\obj\Debug\Options.obj
+.\obj\Debug\Sounds.obj
+.\obj\Debug\resource.res
+"..\..\..\..\..\Program Files\Microsoft Visual Studio\VC98\Lib\SHLWAPI.LIB"
+]
+Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSPBE.tmp"
+<h3>Output Window</h3>
+Compiling...
+AuxLib.cpp
+C:\Moje\Programovani\OpenLieroX\src\client\AuxLib.cpp(68) : error C2065: 'BASS_Init' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\AuxLib.cpp(74) : error C2065: 'BASS_Start' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\AuxLib.cpp(75) : error C2065: 'BASS_SetVolume' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\AuxLib.cpp(501) : error C2065: '_mkdir' : undeclared identifier
+Cache.cpp
+C:\Moje\Programovani\OpenLieroX\src\client\Cache.cpp(128) : error C2065: 'BASS_SampleLoad' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Cache.cpp(158) : error C2065: 'BASS_SampleFree' : undeclared identifier
+CBytestream.cpp
+C:\Moje\Programovani\OpenLieroX\src\common\CBytestream.cpp(129) : error C2664: 'nl_writeShort' : cannot convert parameter 1 from 'unsigned char [4]' to 'char *'
+        Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+C:\Moje\Programovani\OpenLieroX\src\common\CBytestream.cpp(244) : error C2664: 'nl_readShort' : cannot convert parameter 1 from 'unsigned char [4]' to 'char *'
+        Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+CChannel.cpp
+CFont.cpp
+ConfigHandler.cpp
+Error.cpp
+C:\Moje\Programovani\OpenLieroX\src\client\Error.cpp(53) : error C2065: 'MessageBox' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Error.cpp(53) : error C2065: 'MB_OK' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Error.cpp(53) : error C2065: 'MB_ICONEXCLAMATION' : undeclared identifier
+FindFile.cpp
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(27) : error C2079: 'fileinfo' uses undefined struct '_finddata_t'
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(42) : error C2065: '_findfirst' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(48) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(49) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(52) : error C2228: left of '.attrib' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(52) : error C2065: '_A_SUBDIR' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(54) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(60) : error C2065: '_findnext' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(77) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(78) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(81) : error C2228: left of '.attrib' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(83) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(110) : error C2079: 'fileinfo2' uses undefined struct '_finddata_t'
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(131) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(132) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(135) : error C2228: left of '.attrib' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(137) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(160) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(161) : error C2228: left of '.name' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(164) : error C2228: left of '.attrib' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\FindFile.cpp(166) : error C2228: left of '.name' must have class/struct/union type
+GfxPrimitives.cpp
+C:\Moje\Programovani\OpenLieroX\src\client\GfxPrimitives.cpp(1284) : error C2065: 'TRUE' : undeclared identifier
+Graphics.cpp
+Timer.cpp
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(46) : error C2065: 'SYSTEMTIME' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(46) : error C2146: syntax error : missing ';' before identifier 'st'
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(46) : error C2065: 'st' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(46) : error C2059: syntax error : '{'
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(46) : error C2143: syntax error : missing ';' before '{'
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(46) : error C2143: syntax error : missing ';' before '}'
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(47) : error C2039: 'GetSystemTime' : is not a member of '`global namespace''
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(47) : error C2065: 'GetSystemTime' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(49) : error C2228: left of '.wYear' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(49) : error C2228: left of '.wMonth' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(49) : error C2228: left of '.wDay' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(49) : error C2228: left of '.wDayOfWeek' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(49) : error C2228: left of '.wHour' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(49) : error C2228: left of '.wMinute' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(49) : error C2228: left of '.wSecond' must have class/struct/union type
+C:\Moje\Programovani\OpenLieroX\src\common\Timer.cpp(49) : error C2228: left of '.wMilliseconds' must have class/struct/union type
+CBanList.cpp
+CBonus.cpp
+CChatBox.cpp
+CClient.cpp
+CClient_Draw.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1012) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1012) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1012) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1014) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1014) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1015) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1015) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1016) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1016) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1025) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1025) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1027) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1027) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1028) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1028) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1029) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1029) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1037) : error C2146: syntax error : missing ')' before identifier 'cRemoteWorms'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1037) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1038) : error C2146: syntax error : missing ')' before identifier 'cRemoteWorms'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1038) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1039) : error C2146: syntax error : missing ')' before identifier 'cRemoteWorms'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1039) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1040) : error C2146: syntax error : missing ')' before identifier 'cRemoteWorms'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1040) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1045) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1051) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1057) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1058) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1060) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1111) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1121) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1124) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1125) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1126) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1127) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp(1128) : error C2660: 'SendMessage' : function does not take 4 parameters
+CClient_Game.cpp
+C:\Moje\Programovani\OpenLieroX\src\client\CClient_Game.cpp(103) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+CClient_Parse.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+CClient_Send.cpp
+CGameScript.cpp
+CMap.cpp
+c:\program files\microsoft visual studio\vc98\include\rpcndr.h(172) : error C2371: 'byte' : redefinition; different basic types
+        c:\moje\programovani\openlierox\include\types.h(26) : see declaration of 'byte'
+C:\Moje\Programovani\OpenLieroX\src\common\CMap.cpp(245) : error C2660: 'LoadImageA' : function does not take 2 parameters
+C:\Moje\Programovani\OpenLieroX\src\common\CMap.cpp(247) : error C2660: 'LoadImageA' : function does not take 2 parameters
+C:\Moje\Programovani\OpenLieroX\src\common\CMap.cpp(256) : error C2660: 'LoadImageA' : function does not take 2 parameters
+C:\Moje\Programovani\OpenLieroX\src\common\CMap.cpp(265) : error C2660: 'LoadImageA' : function does not take 2 parameters
+C:\Moje\Programovani\OpenLieroX\src\common\CMap.cpp(290) : error C2660: 'LoadImageA' : function does not take 2 parameters
+C:\Moje\Programovani\OpenLieroX\src\common\CMap.cpp(295) : error C2660: 'LoadImageA' : function does not take 2 parameters
+CNinjaRope.cpp
+CProjectile.cpp
+CServer.cpp
+CServer_Game.cpp
+CServer_Parse.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+CServer_Send.cpp
+CShootList.cpp
+CViewport.cpp
+CWeather.cpp
+CWorm.cpp
+CWorm_AI.cpp
+CWorm_SendRecv.cpp
+CWorm_Simulate.cpp
+C:\Moje\Programovani\OpenLieroX\src\common\CWorm_Simulate.cpp(227) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+CWpnRest.cpp
+Entity.cpp
+ProfileSystem.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+CBrowser.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CBrowser.cpp(52) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CBrowser.cpp(58) : error C2065: 'Param1' : undeclared identifier
+CButton.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+CCheckbox.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+CCombobox.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CCombobox.cpp(388) : error C2065: 'ChrCmpI' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\CCombobox.cpp(416) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CCombobox.cpp(423) : error C2065: 'Param1' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\CCombobox.cpp(423) : error C2065: 'Param2' : undeclared identifier
+CGuiLayout.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CGuiLayout.cpp(395) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CGuiLayout.cpp(409) : error C2065: 'Param1' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\CGuiLayout.cpp(415) : error C2065: 'Param2' : undeclared identifier
+CInputBox.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+CListview.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CListview.cpp(727) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CListview.cpp(735) : error C2065: 'Param1' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\CListview.cpp(735) : error C2065: 'Param2' : undeclared identifier
+CMenu.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CMenu.cpp(37) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CMenu.cpp(43) : error C2065: 'Param1' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\CMenu.cpp(43) : error C2065: 'Param2' : undeclared identifier
+CScrollbar.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CScrollbar.cpp(280) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CScrollbar.cpp(291) : error C2065: 'Param1' : undeclared identifier
+CSlider.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CSlider.cpp(66) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CSlider.cpp(76) : error C2065: 'Param1' : undeclared identifier
+CTextbox.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CTextbox.cpp(591) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\CTextbox.cpp(599) : error C2065: 'Param1' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\CTextbox.cpp(599) : error C2065: 'Param2' : undeclared identifier
+CTitleButton.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+CWidget.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+Menu_Local.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(93) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(93) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(93) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(94) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(94) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(95) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(95) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(97) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(97) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(98) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(98) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(101) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(101) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(102) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(102) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(103) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(103) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(104) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(104) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(109) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(217) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(354) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(387) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(412) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(412) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(413) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(413) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(414) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(414) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(427) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(427) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(491) : error C2146: syntax error : missing ')' before identifier 'tGameInfo'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(491) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(540) : error C2146: syntax error : missing ')' before identifier 'tLXOptions'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(540) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(545) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(552) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(628) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(742) : error C2065: '_getcwd' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(844) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(845) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(847) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(850) : error C2146: syntax error : missing ')' before identifier 'itoa'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(850) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(852) : error C2146: syntax error : missing ')' before identifier 'itoa'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(852) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(905) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(908) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(908) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(923) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(936) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(936) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(941) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(941) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(947) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(950) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(959) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(961) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(961) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(962) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(962) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(964) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(965) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(1059) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(1100) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(1101) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(1103) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(1105) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(1223) : error C2065: '_mkdir' : undeclared identifier
+Menu_Main.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Main.cpp(93) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+Menu_Mapeditor.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp(124) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp(477) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp(478) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp(489) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp(489) : error C2146: syntax error : missing ')' before identifier 'd'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp(489) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp(501) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp(557) : error C2660: 'SendMessage' : function does not take 4 parameters
+Menu_Net.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+Menu_Net_Favourites.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(64) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(64) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(64) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(65) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(65) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(68) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(84) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(84) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(85) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(85) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(86) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(86) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(87) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(87) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(88) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(88) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(89) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(89) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(106) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(154) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(159) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(201) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(201) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(225) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(225) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(235) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(235) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(242) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(242) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(243) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(243) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(244) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(244) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(245) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(245) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(246) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(246) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(247) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(247) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(265) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(294) : error C2146: syntax error : missing ')' before identifier 'Nick'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(294) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(312) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(331) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(434) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(435) : error C2146: syntax error : missing ')' before identifier 'szName'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(435) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(469) : error C2146: syntax error : missing ')' before identifier 'szName'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(469) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(535) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(536) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(572) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(572) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(573) : error C2146: syntax error : missing ')' before identifier 'name'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp(573) : error C2059: syntax error : ')'
+Menu_Net_Host.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(89) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(91) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(92) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(95) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(95) : error C2146: syntax error : missing ')' before identifier 'itoa'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(95) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(96) : error C2146: syntax error : missing ')' before identifier 'tLXOptions'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(96) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(97) : error C2146: syntax error : missing ')' before identifier 'tLXOptions'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(97) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(98) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(99) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(103) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(103) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(104) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(104) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(105) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(105) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(106) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(106) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(114) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(114) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(115) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(115) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(116) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(116) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(268) : error C2146: syntax error : missing ')' before identifier 'tGameInfo'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(268) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(269) : error C2146: syntax error : missing ')' before identifier 'tGameInfo'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(269) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(274) : error C2146: syntax error : missing ')' before identifier 'tLXOptions'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(274) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(275) : error C2146: syntax error : missing ')' before identifier 'tLXOptions'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(275) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(277) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(277) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(283) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(284) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(463) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(466) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(466) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(467) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(467) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(468) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(468) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(482) : error C2146: syntax error : missing ')' before identifier 'gl'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(482) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(483) : error C2146: syntax error : missing ')' before identifier 'gl'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(483) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(484) : error C2146: syntax error : missing ')' before identifier 'gl'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(484) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(485) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(682) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(682) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(689) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(689) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(707) : error C2146: syntax error : missing ')' before identifier 'cServer'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(707) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(715) : error C2146: syntax error : missing ')' before identifier 'cServer'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(715) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(716) : error C2146: syntax error : missing ')' before identifier 'cServer'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(716) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(724) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(734) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(734) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(749) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(749) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(780) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(818) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(826) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(830) : error C2146: syntax error : missing ')' before identifier 'tGameInfo'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(830) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(832) : error C2146: syntax error : missing ')' before identifier 'tLXOptions'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(832) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(877) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(982) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(982) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(983) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(983) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(986) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(986) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(988) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(988) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(1064) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(1064) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(1192) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(1193) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp(1193) : fatal error C1003: error count exceeds 100; stopping compilation
+Menu_Net_Internet.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(76) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(76) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(76) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(77) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(77) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(80) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(84) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(84) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(85) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(85) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(86) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(86) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(87) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(87) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(88) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(88) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(89) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(89) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(111) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(169) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(207) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(207) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(237) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(237) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(250) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(250) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(257) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(257) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(258) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(258) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(259) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(259) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(260) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(260) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(261) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(261) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(262) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(262) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(305) : error C2146: syntax error : missing ')' before identifier 'Nick'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(305) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(323) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(354) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(408) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(443) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp(443) : error C2059: syntax error : ')'
+Menu_Net_Join.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Join.cpp(498) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Join.cpp(809) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Join.cpp(809) : error C2146: syntax error : missing ')' before identifier 'buf'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Join.cpp(809) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Join.cpp(816) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Join.cpp(816) : error C2059: syntax error : ')'
+Menu_Net_Lan.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(63) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(63) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(63) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(64) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(64) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(67) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(83) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(83) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(84) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(84) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(85) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(85) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(86) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(86) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(87) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(87) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(88) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(88) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(103) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(149) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(154) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(182) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(182) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(206) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(206) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(216) : error C2146: syntax error : missing ')' before identifier 'addr'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(216) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(223) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(223) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(224) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(224) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(225) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(225) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(226) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(226) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(227) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(227) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(228) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(228) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(271) : error C2146: syntax error : missing ')' before identifier 'Nick'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(271) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(289) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp(309) : error C2660: 'SendMessage' : function does not take 4 parameters
+Menu_Net_Main.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Main.cpp(110) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+Menu_Net_News.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+Menu_Options.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(220) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(239) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(239) : error C2146: syntax error : missing ')' before identifier 'NetworkSpeeds'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(239) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(241) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(244) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(244) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(245) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(245) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(246) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(246) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(247) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(247) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(249) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(275) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(319) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(393) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(416) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(448) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(455) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(461) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(467) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(526) : error C2065: 'BASS_Start' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(528) : error C2065: 'BASS_Stop' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(539) : error C2065: 'BASS_SetVolume' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(546) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(552) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(558) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(578) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(588) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(590) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp(599) : error C2660: 'SendMessage' : function does not take 4 parameters
+Menu_Player.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(99) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(119) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(120) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(121) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(124) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(125) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(126) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(155) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(166) : error C2065: 'DWORD' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(166) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(166) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(167) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(167) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(168) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(168) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(169) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(169) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(202) : error C2065: 'BASS_SamplePlay' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(220) : error C2143: syntax error : missing ')' before 'string'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(220) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(221) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(222) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(223) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(224) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(260) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(263) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(263) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(265) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(266) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(267) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(268) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(269) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(270) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(270) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(336) : error C2146: syntax error : missing ')' before identifier 'skin'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(336) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(339) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(340) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(358) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(371) : error C2146: syntax error : missing ')' before identifier 'skin'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(371) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(405) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(408) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(503) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(506) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(506) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(507) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(508) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(509) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(510) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(511) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(537) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(540) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(540) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(541) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(542) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(543) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(544) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(545) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(546) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(546) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(552) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(581) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(584) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(584) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(585) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(586) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(587) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(588) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(589) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(590) : error C2146: syntax error : missing ')' before identifier 'p'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(590) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(608) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(621) : error C2146: syntax error : missing ')' before identifier 'skin'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(621) : error C2059: syntax error : ')'
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(662) : error C2660: 'SendMessage' : function does not take 4 parameters
+C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp(665) : error C2660: 'SendMessage' : function does not take 4 parameters
+MenuSystem.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+Command.cpp
+Console.cpp
+C:\Moje\Programovani\OpenLieroX\src\common\Console.cpp(262) : error C2065: 'isprint' : undeclared identifier
+main.cpp
+c:\moje\programovani\openlierox\include\cwidget.h(103) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cguilayout.h(91) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctitlebutton.h(62) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbutton.h(69) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cscrollbar.h(92) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clistview.h(154) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ctextbox.h(112) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\clabel.h(63) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cslider.h(68) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccheckbox.h(67) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cinputbox.h(75) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cbrowser.h(120) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\ccombobox.h(116) : error C2061: syntax error : identifier 'DWORD'
+c:\moje\programovani\openlierox\include\cmenu.h(73) : error C2061: syntax error : identifier 'DWORD'
+c:\program files\microsoft visual studio\vc98\include\rpcndr.h(172) : error C2371: 'byte' : redefinition; different basic types
+        c:\moje\programovani\openlierox\include\types.h(26) : see declaration of 'byte'
+C:\Moje\Programovani\OpenLieroX\src\main.cpp(51) : error C2065: 'chdir' : undeclared identifier
+Misc.cpp
+C:\Moje\Programovani\OpenLieroX\src\common\Misc.cpp(282) : error C2065: 'isgraph' : undeclared identifier
+C:\Moje\Programovani\OpenLieroX\src\common\Misc.cpp(282) : error C2065: 'isspace' : undeclared identifier
+Networking.cpp
+C:\Moje\Programovani\OpenLieroX\src\common\Networking.cpp(258) : error C2065: 'isalnum' : undeclared identifier
+Options.cpp
+Sounds.cpp
+C:\Moje\Programovani\OpenLieroX\src\client\Sounds.cpp(81) : error C2065: 'BASS_SamplePlayEx' : undeclared identifier
+Error executing cl.exe.
 
 
 
 <h3>Results</h3>
-Game.exe - 0 error(s), 0 warning(s)
+Game.exe - 997 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

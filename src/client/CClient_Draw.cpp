@@ -650,7 +650,6 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	// Teams
 	Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
 	char *teamnames[] = {"Blue", "Red", "Green", "Yellow"};
-//    char buf[64];
 
 	int width = bmpImage->w;
 	int height = bmpImage->h;
@@ -662,7 +661,8 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	DrawImage(bmpDest,bmpImage,x,y);
 
 	// Deathmatch scoreboard
-	if(iGameType == GMT_DEATHMATCH) {
+	switch(iGameType) {
+	case GMT_DEATHMATCH:  {
 
 		tLX->cFont.Draw(bmpDest, x+15, y+45, 0xffff,"%s","Players");
 		if(iLives != WRM_UNLIM)
@@ -704,10 +704,11 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			j+=20;
 		}
 	}
+	break; // TEAM DEATHMATCH
 
 
     // Demolitions scoreboard
-	if(iGameType == GMT_DEMOLITION) {
+	case GMT_DEMOLITION: {
 
 		tLX->cFont.Draw(bmpDest, x+15, y+45, 0xffff,"%s","Players");
 		if(iLives != WRM_UNLIM)
@@ -746,10 +747,11 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
         tLX->cFont.Draw(bmpDest, x+250, j, 0xffff,"%s","Total");
         tLX->cFont.DrawCentre(bmpDest, x+372, j, 0xffff,"%dk / %.0fk", dirtcount / 1000, ((float)cMap->GetDirtCount()*0.8f) / 1000);
 	}
+	break;  // DEMOLITIONS
 
 
 	// Tag scoreboard
-	if(iGameType == GMT_TAG) {
+	case GMT_TAG: {
 
 		tLX->cFont.Draw(bmpDest, x+15, y+45, 0xffff,"%s","Players");
 		if(iLives != WRM_UNLIM)
@@ -807,10 +809,11 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			j+=20;
 		}
 	}
+	break;  // TAG
 
 
 	// Team deathmatch scoreboard
-	if(iGameType == GMT_TEAMDEATH) {
+	case GMT_TEAMDEATH: {
 
 		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,0xffff);
 
@@ -870,6 +873,8 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			j+=15;
 		}
 	}
+	break; // DEATHMATCH
+	} // switch
 }
 
 

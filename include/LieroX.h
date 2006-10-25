@@ -43,7 +43,7 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #include "ProfileSystem.h"
 #include "Networking.h"
 #include "CGameScript.h"
-#include "CChatBox.h"
+#include "CChatbox.h"
 #include "Frame.h"
 #include "CViewport.h"
 #include "CMap.h"
@@ -128,6 +128,7 @@ extern  networktexts_t  *NetworkTexts;
 extern	CServer			*cServer;
 extern	CClient			*cClient;
 extern  CInput			cTakeScreenshot;
+extern  CInput			cSwitchMode;
 extern  int				nDisableSound;
 
 

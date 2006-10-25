@@ -73,7 +73,8 @@ enum {
 	Gen_Health,
 	Gen_CurSettings,
 	Gen_TakeScreenshot,
-	Gen_ViewportManager
+	Gen_ViewportManager,
+	Gen_SwitchMode
 };
 
 
@@ -160,27 +161,31 @@ int Menu_OptionsInitialize(void)
 	// General Controls
 	cOpt_Controls.Add( new CLabel("Chat", 0xffff), Static, 380, 190, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_CHAT, tLXOptions->sGeneralControls[SIN_CHAT], tMenu->bmpInputbox, "Chat"),
-						   Gen_Chat, 505, 190, 50,17);
+						   Gen_Chat, 515, 190, 50,17);
 
     cOpt_Controls.Add( new CLabel("Scoreboard", 0xffff), Static, 380, 215, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCORE, tLXOptions->sGeneralControls[SIN_SCORE], tMenu->bmpInputbox, "Scoreboard"),
-						   Gen_Score, 505, 215, 50,17);
+						   Gen_Score, 515, 215, 50,17);
 
     cOpt_Controls.Add( new CLabel("Health bar", 0xffff), Static, 380, 240, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_HEALTH, tLXOptions->sGeneralControls[SIN_HEALTH], tMenu->bmpInputbox, "Health bar"),
-						   Gen_Health, 505, 240, 50,17);
+						   Gen_Health, 515, 240, 50,17);
 
     cOpt_Controls.Add( new CLabel("Current settings", 0xffff), Static, 380, 265, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SETTINGS, tLXOptions->sGeneralControls[SIN_SETTINGS], tMenu->bmpInputbox, "Current settings"),
-						   Gen_CurSettings, 505, 265, 50,17);
+						   Gen_CurSettings, 515, 265, 50,17);
 
     cOpt_Controls.Add( new CLabel("Take screenshot", 0xffff), Static, 380, 290, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCREENSHOTS, tLXOptions->sGeneralControls[SIN_SCREENSHOTS], tMenu->bmpInputbox, "Take Screenshot"),
-						   Gen_TakeScreenshot, 505, 290, 50,17);
+						   Gen_TakeScreenshot, 515, 290, 50,17);
 
     cOpt_Controls.Add( new CLabel("Viewport manager", 0xffff), Static, 380, 315, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_VIEWPORTS, tLXOptions->sGeneralControls[SIN_VIEWPORTS], tMenu->bmpInputbox, "Viewport Manager"),
-						   Gen_ViewportManager, 505, 315, 50,17);
+						   Gen_ViewportManager, 515, 315, 50,17);
+
+    cOpt_Controls.Add( new CLabel("Switch video mode", 0xffff), Static, 380, 340, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch video mode"),
+						   Gen_SwitchMode, 515, 340, 50,17);
 	
 
 

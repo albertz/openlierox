@@ -28,8 +28,8 @@ int LoadOptions(void)
     char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     char    *ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
     char    *ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
-    char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",   "ViewportManager"};
-    char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2"};
+    char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode"};
+    char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
     int     i;
 
 	tLXOptions = new options_t;
@@ -69,7 +69,7 @@ int LoadOptions(void)
     }
 
     // General controls
-    for(i=0; i<6; i++)
+    for(i=0; i<7; i++)
         ReadString(f, "GeneralControls", gen_keys[i], tLXOptions->sGeneralControls[i], gen_def[i]);
 
     // Game
@@ -135,7 +135,7 @@ void ShutdownOptions(void)
 void SaveOptions(void)
 {
     char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager"};
+    char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode"};
     int     i;
 
     if(tLXOptions == NULL)
@@ -182,7 +182,7 @@ void SaveOptions(void)
     fprintf(fp, "\n");
 
     fprintf(fp, "[GeneralControls]\n");
-    for(i=0; i<6; i++)
+    for(i=0; i<7; i++)
         fprintf(fp, "%s = %s\n", gen_keys[i], tLXOptions->sGeneralControls[i]);
     fprintf(fp, "\n");
 

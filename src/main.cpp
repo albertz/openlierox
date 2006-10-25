@@ -1,6 +1,5 @@
 // OpenLieroX
 
-
 // Main entry point
 // Created 28/6/02
 // Jason Boettcher
@@ -13,7 +12,7 @@
 
 #ifdef WIN32
   #include "crashrpt.h"
-  #pragma comment(lib, "libs/crashrpt")
+  #pragma comment(lib, "./libs/crashrpt")
 #endif
 
 
@@ -22,6 +21,7 @@ CServer		*cServer = NULL;
 lierox_t	*tLX = NULL;
 game_t		tGameInfo;
 CInput		cTakeScreenshot;
+CInput		cSwitchMode;
 
 int         nDisableSound = false;
 
@@ -44,13 +44,11 @@ int main(int argc, char *argv[])
 	  Install(NULL,"karel.petranek@tiscali.cz","LXP Crash Report");
     #endif
 
-	#ifdef WIN32
-		// Reset the current working directory (remove the filename first!!!)
-		// Note: Windows give the exe path and name in the first parameter
-		char *slashpos = strrchr(argv[0],'\\');
-		*slashpos = 0;
-		chdir(argv[0]);
-	#endif
+	// Reset the current working directory (remove the filename first!!!)
+	// Note: Windows give the exe path and name in the first parameter
+	char *slashpos = strrchr(argv[0],'\\');
+	*slashpos = 0;
+	chdir(argv[0]);
 
 	// Load options and other settings
 	if(!LoadOptions())
@@ -90,8 +88,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	// Setup the Take Screenshot key
+	// Setup the global keys
 	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 
 	while(!tLX->iQuitGame) {
 
@@ -278,10 +277,8 @@ int InitializeLieroX(void)
 }
 
 
-/**
- * Start the game
- * @param  
- */
+///////////////////
+// Start the game
 void StartGame(void)
 {
     // Clear the screen
@@ -290,23 +287,18 @@ void StartGame(void)
 	// Local game
 	if(tGameInfo.iGameType == GME_LOCAL) {
 
-	//TODO: uniform message system
-
 		// Start the server
 		if(!cServer->StartServer( "local", tLXOptions->iNetworkPort, 8, false )) {
 			// ERROR
-// TODO: make message
-//			MessageBox(NULL, "Error: Could not start server", "Liero Xtreme Error", MB_OK);
-			printf("Error: Could not start server\n");
+			MessageBox(NULL, "Error: Could not start server", "Liero Xtreme Error", MB_OK);
 			return;
 		}
 
 		// Setup the client
 		if(!cClient->Initialize()) {
 			// ERROR
-// TODO: make message
-//			MessageBox(NULL, "Error: Could not initialize client", "Liero Xtreme Error", MB_OK);
-			printf("Error: Could not initialize client\n");
+
+			MessageBox(NULL, "Error: Could not initialize client", "Liero Xtreme Error", MB_OK);
 			return;
 		}
 
@@ -314,7 +306,6 @@ void StartGame(void)
 		cClient->Connect("127.0.0.1");
 	}
 }
-
 
 
 ///////////////////
@@ -362,8 +353,7 @@ void GameLoop(void)
 	} // SWITCH
 
 	// Switch between window and fullscreen mode
-	keyboard_t *Keyboard = GetKeyboard();
-	if( Keyboard->KeyDown[SDLK_LALT] && Keyboard->KeyUp[SDLK_RETURN])  {
+	if( cSwitchMode.isDown() )  {
 		// Set to fullscreen
 		tLXOptions->iFullscreen = !tLXOptions->iFullscreen;
 

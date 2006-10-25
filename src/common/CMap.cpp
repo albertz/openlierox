@@ -2183,7 +2183,7 @@ int CMap::LoadOriginal(FILE *fp)
 // DEBUG: Draw the pixel flags
 void CMap::DEBUG_DrawPixelFlags(void)
 {
-	int x,y;
+	//int x,y;
 
     
     /*for(y=0;y<Height;y+=30) {
@@ -2208,7 +2208,7 @@ void CMap::DEBUG_DrawPixelFlags(void)
 		}
 	}*/
 
-    for(y=0; y<nGridRows; y++) {
+    /*for(y=0; y<nGridRows; y++) {
         for(x=0; x<nGridCols; x++) {
 
             if(GridFlags[y*nGridCols+x] == PX_EMPTY)
@@ -2220,7 +2220,7 @@ void CMap::DEBUG_DrawPixelFlags(void)
             //DrawRect(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, 0);
 			//DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
         }
-    }
+    }*/
 }
 
 

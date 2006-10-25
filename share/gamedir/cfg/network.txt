@@ -1,0 +1,23 @@
+[NetworkTexts]
+HasConnected = <player> has connected
+HasLeft = <player> has left
+HasTimedOut = <player> has timed out
+
+HasBeenKicked = <player> has been kicked out
+HasBeenBanned = <player> has been banned
+HasBeenMuted = <player> has been muted
+HasBeenUnmuted = <player> has been unmuted
+KickedYou = You have been kicked
+BannedYou = You have been banned
+YouQuit = You have quit
+YouTimed = You timed out
+
+Killed = <killer> killed <victim>
+CommitedSuicide = <player> commited suicide
+FirstBlood = <player> drew first blood
+TeamKill = <player> is an ugly teamkiller
+
+PlayerOut = <player> is out of the game
+TeamOut = The <team> team is out of the game
+PlayerHasWon = <player> has won the match
+TeamHasWon = The <team> team has won the match

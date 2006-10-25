@@ -142,7 +142,7 @@ gui_event_t *CGuiLayout::Process(void)
 
 	// Switch between window and fullscreen mode
 	keyboard_t *Keyboard = GetKeyboard();
-	if( Keyboard->KeyDown[SDLK_LALT] && Keyboard->KeyUp[SDLK_RETURN])  {
+	if( cSwitchMode.isDown() )  {
 		// Set to fullscreen
 		tLXOptions->iFullscreen = !tLXOptions->iFullscreen;
 
