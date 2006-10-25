@@ -59,12 +59,12 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 
 // Auxiliary Core components
+#include "types.h"
 #include "AuxLib.h"
 #include "Cache.h"
 #include "Error.h"
 #include "GfxPrimitives.h"
 #include "Timer.h"
-#include "types.h"
 
 
 

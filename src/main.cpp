@@ -1,11 +1,4 @@
-/////////////////////////////////////////
-//
-//             Liero Xtreme
-//
-//     Copyright Auxiliary Software 2002
-//
-//
-/////////////////////////////////////////
+// OpenLieroX
 
 
 // Main entry point
@@ -51,11 +44,13 @@ int main(int argc, char *argv[])
 	  Install(NULL,"karel.petranek@tiscali.cz","LXP Crash Report");
     #endif
 
-	// Reset the current working directory (remove the filename first!!!)
-	// Note: Windows give the exe path and name in the first parameter
-	char *slashpos = strrchr(argv[0],'\\');
-	*slashpos = 0;
-	chdir(argv[0]);
+	#ifdef WIN32
+		// Reset the current working directory (remove the filename first!!!)
+		// Note: Windows give the exe path and name in the first parameter
+		char *slashpos = strrchr(argv[0],'\\');
+		*slashpos = 0;
+		chdir(argv[0]);
+	#endif
 
 	// Load options and other settings
 	if(!LoadOptions())
@@ -296,7 +291,8 @@ void StartGame(void)
 		// Start the server
 		if(!cServer->StartServer( "local", tLXOptions->iNetworkPort, 8, false )) {
 			// ERROR
-			MessageBox(NULL, "Error: Could not start server", "Liero Xtreme Error", MB_OK);
+// TODO: make message
+//			MessageBox(NULL, "Error: Could not start server", "Liero Xtreme Error", MB_OK);
 			return;
 		}
 
@@ -304,7 +300,8 @@ void StartGame(void)
 		if(!cClient->Initialize()) {
 			// ERROR
 
-			MessageBox(NULL, "Error: Could not initialize client", "Liero Xtreme Error", MB_OK);
+// TODO: make message
+//			MessageBox(NULL, "Error: Could not initialize client", "Liero Xtreme Error", MB_OK);
 			return;
 		}
 
@@ -312,6 +309,7 @@ void StartGame(void)
 		cClient->Connect("127.0.0.1");
 	}
 }
+
 
 
 ///////////////////

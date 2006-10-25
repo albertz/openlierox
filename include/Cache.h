@@ -53,7 +53,6 @@ private:
 	HSAMPLE			Sample;
 
 
-
 public:
 	// Methods
 

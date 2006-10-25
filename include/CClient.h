@@ -94,7 +94,7 @@ public:
 		iChat_CursorVisible = true;
         iClientError = false;
 		bInServer = false;
-		cIConnectedBuf[0] = (char)"\0";
+		cIConnectedBuf[0] = '\0';
 		iNetSpeed = 3;
 		iPing = 0;
 
