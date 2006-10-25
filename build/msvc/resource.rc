@@ -112,8 +112,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_LARGE               ICON    DISCARDABLE     "icon1.ico"
-IDI_SMALL               ICON    DISCARDABLE     "ico00001.ico"
+IDI_LARGE               ICON    DISCARDABLE     "..\..\share\icon1.ico"
+IDI_SMALL               ICON    DISCARDABLE     "..\..\share\ico00001.ico"
 #endif    // English (Australia) resources
 /////////////////////////////////////////////////////////////////////////////
 

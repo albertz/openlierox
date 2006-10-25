@@ -39,22 +39,22 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "obj/Release"
+# PROP Output_Dir "../../distrib/win32/"
 # PROP Intermediate_Dir "obj/Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "blast" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FR /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "../../include" /I "blast" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0xc09 /d "NDEBUG"
 # ADD RSC /l 0xc09 /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
+# ADD BSC32 /nologo /o"obj/debug/Game.bsc"
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBC" /out:"obj/Release/LieroX.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBC" /out:"../../distrib/win32/LieroX.exe"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "Game - Win32 Debug"
@@ -66,12 +66,12 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "obj/Debug"
+# PROP Output_Dir "../../share/gamedir/"
 # PROP Intermediate_Dir "obj/Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0xc09 /d "_DEBUG"
@@ -81,8 +81,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /MAPINFO:LINES /MAPINFO:EXPORTS
-# SUBTRACT LINK32 /pdb:none /incremental:no
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /MAPINFO:LINES /MAPINFO:EXPORTS
+# SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "Game - Win32 Profile"
 
@@ -123,135 +123,131 @@ LINK32=link.exe
 # PROP Default_Filter "cpp, h"
 # Begin Source File
 
-SOURCE=.\common\2xsai.cpp
+SOURCE=..\..\src\common\2xsai.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\2xsai.h
+SOURCE=..\..\include\2xsai.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\AuxLib.cpp
+SOURCE=..\..\src\client\AuxLib.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\AuxLib.h
+SOURCE=..\..\include\AuxLib.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\bass.h
+SOURCE=..\..\src\client\Cache.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Cache.cpp
+SOURCE=..\..\include\Cache.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Cache.h
+SOURCE=..\..\src\common\CBytestream.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CBytestream.cpp
+SOURCE=..\..\include\CBytestream.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CBytestream.h
+SOURCE=..\..\src\common\CChannel.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CChannel.cpp
+SOURCE=..\..\include\CChannel.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CChannel.h
+SOURCE=..\..\src\client\CFont.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CFont.cpp
+SOURCE=..\..\include\CFont.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CFont.h
+SOURCE=..\..\src\client\CInput.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CInput.cpp
+SOURCE=..\..\include\CInput.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CInput.h
+SOURCE=..\..\src\common\ConfigHandler.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\ConfigHandler.cpp
+SOURCE=..\..\include\CrashRpt.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CrashRpt.h
+SOURCE=..\..\include\CVec.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CVec.h
+SOURCE=..\..\include\defs.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\defs.h
+SOURCE=..\..\src\client\Error.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Error.cpp
+SOURCE=..\..\include\Error.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Error.h
+SOURCE=..\..\src\common\FindFile.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\FindFile.cpp
+SOURCE=..\..\include\FindFile.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\FindFile.h
+SOURCE=..\..\include\gd\gd.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\gd\gd.h
+SOURCE=..\..\src\client\GfxPrimitives.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\GfxPrimitives.cpp
+SOURCE=..\..\include\GfxPrimitives.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\GfxPrimitives.h
+SOURCE=..\..\src\client\Graphics.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Graphics.cpp
+SOURCE=..\..\include\Graphics.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Graphics.h
+SOURCE=..\..\src\common\Ini.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\Ini.cpp
+SOURCE=..\..\include\Ini.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Ini.h
+SOURCE=..\..\src\common\MathLib.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\MathLib.cpp
+SOURCE=..\..\include\MathLib.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\MathLib.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\common\mmgr.cpp
+SOURCE=..\..\src\common\mmgr.cpp
 
 !IF  "$(CFG)" == "Game - Win32 Release"
 
@@ -271,23 +267,23 @@ SOURCE=.\common\mmgr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\nl.h
+SOURCE=..\..\include\nl.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\RandomNumberList.h
+SOURCE=..\..\include\RandomNumberList.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\Timer.cpp
+SOURCE=..\..\src\common\Timer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Timer.h
+SOURCE=..\..\include\Timer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\types.h
+SOURCE=..\..\include\types.h
 # End Source File
 # End Group
 # Begin Group "Game files"
@@ -295,139 +291,139 @@ SOURCE=.\include\types.h
 # PROP Default_Filter "cpp; h"
 # Begin Source File
 
-SOURCE=.\server\CBanList.cpp
+SOURCE=..\..\src\server\CBanList.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CBanList.h
+SOURCE=..\..\include\CBanList.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CBonus.cpp
+SOURCE=..\..\src\common\CBonus.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CBonus.h
+SOURCE=..\..\include\CBonus.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CChatBox.cpp
+SOURCE=..\..\src\client\CChatBox.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CChatBox.h
+SOURCE=..\..\include\CChatBox.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CClient.cpp
+SOURCE=..\..\src\common\CClient.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CClient.h
+SOURCE=..\..\include\CClient.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CClient_Draw.cpp
+SOURCE=..\..\src\client\CClient_Draw.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CClient_Game.cpp
+SOURCE=..\..\src\client\CClient_Game.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CClient_Parse.cpp
+SOURCE=..\..\src\client\CClient_Parse.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CClient_Send.cpp
+SOURCE=..\..\src\client\CClient_Send.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CGameScript.cpp
+SOURCE=..\..\src\common\CGameScript.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CGameScript.h
+SOURCE=..\..\include\CGameScript.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CMap.cpp
+SOURCE=..\..\src\common\CMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CMap.h
+SOURCE=..\..\include\CMap.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CNinjaRope.cpp
+SOURCE=..\..\src\client\CNinjaRope.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CNinjaRope.h
+SOURCE=..\..\include\CNinjaRope.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CProjectile.cpp
+SOURCE=..\..\src\common\CProjectile.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CProjectile.h
+SOURCE=..\..\include\CProjectile.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\server\CServer.cpp
+SOURCE=..\..\src\server\CServer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CServer.h
+SOURCE=..\..\include\CServer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\server\CServer_Game.cpp
+SOURCE=..\..\src\server\CServer_Game.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\server\CServer_Parse.cpp
+SOURCE=..\..\src\server\CServer_Parse.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\server\CServer_Send.cpp
+SOURCE=..\..\src\server\CServer_Send.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CShootList.cpp
+SOURCE=..\..\src\common\CShootList.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CShootList.h
+SOURCE=..\..\include\CShootList.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CViewport.cpp
+SOURCE=..\..\src\client\CViewport.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CViewport.h
+SOURCE=..\..\include\CViewport.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CWeather.cpp
+SOURCE=..\..\src\client\CWeather.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CWeather.h
+SOURCE=..\..\include\CWeather.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CWorm.cpp
+SOURCE=..\..\src\common\CWorm.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CWorm.h
+SOURCE=..\..\include\CWorm.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CWorm_AI.cpp
+SOURCE=..\..\src\common\CWorm_AI.cpp
 
 !IF  "$(CFG)" == "Game - Win32 Release"
 
@@ -442,47 +438,47 @@ SOURCE=.\common\CWorm_AI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CWorm_SendRecv.cpp
+SOURCE=..\..\src\common\CWorm_SendRecv.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CWorm_Simulate.cpp
+SOURCE=..\..\src\common\CWorm_Simulate.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CWpnRest.cpp
+SOURCE=..\..\src\common\CWpnRest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CWpnRest.h
+SOURCE=..\..\include\CWpnRest.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Entity.cpp
+SOURCE=..\..\src\client\Entity.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Entity.h
+SOURCE=..\..\include\Entity.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\GameRules.h
+SOURCE=..\..\include\GameRules.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\ProfileSystem.cpp
+SOURCE=..\..\src\client\ProfileSystem.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\ProfileSystem.h
+SOURCE=..\..\include\ProfileSystem.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Protocol.h
+SOURCE=..\..\include\Protocol.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\SVClient.h
+SOURCE=..\..\include\SVClient.h
 # End Source File
 # End Group
 # Begin Group "Frontend"
@@ -490,179 +486,179 @@ SOURCE=.\include\SVClient.h
 # PROP Default_Filter "cpp; h"
 # Begin Source File
 
-SOURCE=.\client\CBrowser.cpp
+SOURCE=..\..\src\client\CBrowser.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CBrowser.h
+SOURCE=..\..\include\CBrowser.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CButton.cpp
+SOURCE=..\..\src\client\CButton.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CButton.h
+SOURCE=..\..\include\CButton.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CCheckbox.cpp
+SOURCE=..\..\src\client\CCheckbox.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CCheckbox.h
+SOURCE=..\..\include\CCheckbox.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CCombobox.cpp
+SOURCE=..\..\src\client\CCombobox.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CCombobox.h
+SOURCE=..\..\include\CCombobox.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CGuiLayout.cpp
+SOURCE=..\..\src\client\CGuiLayout.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CGuiLayout.h
+SOURCE=..\..\include\CGuiLayout.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\CGUISkin.cpp
+SOURCE=..\..\src\common\CGUISkin.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CGUISkin.h
+SOURCE=..\..\include\CGUISkin.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CInputBox.cpp
+SOURCE=..\..\src\client\CInputBox.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CInputBox.h
+SOURCE=..\..\include\CInputBox.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CLabel.h
+SOURCE=..\..\include\CLabel.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CListview.cpp
+SOURCE=..\..\src\client\CListview.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CListview.h
+SOURCE=..\..\include\CListview.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CMenu.cpp
+SOURCE=..\..\src\client\CMenu.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CMenu.h
+SOURCE=..\..\include\CMenu.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CScrollbar.cpp
+SOURCE=..\..\src\client\CScrollbar.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CScrollbar.h
+SOURCE=..\..\include\CScrollbar.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CSlider.cpp
+SOURCE=..\..\src\client\CSlider.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CSlider.h
+SOURCE=..\..\include\CSlider.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CTextbox.cpp
+SOURCE=..\..\src\client\CTextbox.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CTextbox.h
+SOURCE=..\..\include\CTextbox.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CTitleButton.cpp
+SOURCE=..\..\src\client\CTitleButton.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CTitleButton.h
+SOURCE=..\..\include\CTitleButton.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\CWidget.cpp
+SOURCE=..\..\src\client\CWidget.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\CWidget.h
+SOURCE=..\..\include\CWidget.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Menu.h
+SOURCE=..\..\include\Menu.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Local.cpp
+SOURCE=..\..\src\client\Menu_Local.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Main.cpp
+SOURCE=..\..\src\client\Menu_Main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Mapeditor.cpp
+SOURCE=..\..\src\client\Menu_Mapeditor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Net.cpp
+SOURCE=..\..\src\client\Menu_Net.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Net_Favourites.cpp
+SOURCE=..\..\src\client\Menu_Net_Favourites.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Net_Host.cpp
+SOURCE=..\..\src\client\Menu_Net_Host.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Net_Internet.cpp
+SOURCE=..\..\src\client\Menu_Net_Internet.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Net_Join.cpp
+SOURCE=..\..\src\client\Menu_Net_Join.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Net_Lan.cpp
+SOURCE=..\..\src\client\Menu_Net_Lan.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Net_Main.cpp
+SOURCE=..\..\src\client\Menu_Net_Main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Net_News.cpp
+SOURCE=..\..\src\client\Menu_Net_News.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Options.cpp
+SOURCE=..\..\src\client\Menu_Options.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Menu_Player.cpp
+SOURCE=..\..\src\client\Menu_Player.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\MenuSystem.cpp
+SOURCE=..\..\src\client\MenuSystem.cpp
 # End Source File
 # End Group
 # Begin Group "Libraries"
@@ -702,7 +698,7 @@ SOURCE=.\libs\zlibstat.lib
 # End Source File
 # Begin Source File
 
-SOURCE="..\..\..\..\Program Files\Microsoft Visual Studio\VC98\Lib\SHLWAPI.LIB"
+SOURCE=".\libs\SHLWAPI.LIB"
 # End Source File
 # Begin Source File
 
@@ -718,11 +714,11 @@ SOURCE=.\libs\bgd.lib
 # PROP Default_Filter "*"
 # Begin Source File
 
-SOURCE=.\ico00001.ico
+SOURCE=..\..\share\ico00001.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\icon1.ico
+SOURCE=..\..\share\icon1.ico
 # End Source File
 # Begin Source File
 
@@ -738,59 +734,59 @@ SOURCE=.\resource.rc
 # PROP Default_Filter "cpp, h"
 # Begin Source File
 
-SOURCE=.\common\Command.cpp
+SOURCE=..\..\src\common\Command.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\con_cmd.h
+SOURCE=..\..\include\con_cmd.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\Console.cpp
+SOURCE=..\..\src\common\Console.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Console.h
+SOURCE=..\..\include\Console.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\main.cpp
+SOURCE=..\..\src\main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\main.h
+SOURCE=..\..\include\main.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\Misc.cpp
+SOURCE=..\..\src\common\Misc.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Misc.h
+SOURCE=..\..\include\Misc.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\Networking.cpp
+SOURCE=..\..\src\common\Networking.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Networking.h
+SOURCE=..\..\include\Networking.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Options.cpp
+SOURCE=..\..\src\client\Options.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Options.h
+SOURCE=..\..\include\Options.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\client\Sounds.cpp
+SOURCE=..\..\src\client\Sounds.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\Sounds.h
+SOURCE=..\..\include\Sounds.h
 # End Source File
 # End Group
 # End Target
