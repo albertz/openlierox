@@ -44,11 +44,18 @@ int main(int argc, char *argv[])
 	  Install(NULL,"karel.petranek@tiscali.cz","LXP Crash Report");
     #endif
 
-	// Reset the current working directory (remove the filename first!!!)
-	// Note: Windows give the exe path and name in the first parameter
-	char *slashpos = strrchr(argv[0],'\\');
-	*slashpos = 0;
-	chdir(argv[0]);
+	// this behavior only make sense for a win-system
+	// under unix, the bin and the data are seperate
+	#ifdef WIN32
+		// Reset the current working directory (remove the filename first!!!)
+		// Note: Windows give the exe path and name in the first parameter
+		char *slashpos = strrchr(argv[0],'\\');
+		*slashpos = 0;
+		chdir(argv[0]);
+	#else
+		// TODO: set and handles the following search pathes:
+		// ~/.OpenLieroX , /usr/share/OpenLieroX
+	#endif
 
 	// Load options and other settings
 	if(!LoadOptions())
@@ -287,18 +294,21 @@ void StartGame(void)
 	// Local game
 	if(tGameInfo.iGameType == GME_LOCAL) {
 
+		// TODO: uniform message system
+
 		// Start the server
 		if(!cServer->StartServer( "local", tLXOptions->iNetworkPort, 8, false )) {
 			// ERROR
-			MessageBox(NULL, "Error: Could not start server", "Liero Xtreme Error", MB_OK);
+			//MessageBox(NULL, "Error: Could not start server", "Liero Xtreme Error", MB_OK);
+			printf("Error: Could not start server\n");
 			return;
 		}
 
 		// Setup the client
 		if(!cClient->Initialize()) {
 			// ERROR
-
-			MessageBox(NULL, "Error: Could not initialize client", "Liero Xtreme Error", MB_OK);
+			//MessageBox(NULL, "Error: Could not initialize client", "Liero Xtreme Error", MB_OK);
+			printf("Error: Could not initialize client\n");
 			return;
 		}
 
