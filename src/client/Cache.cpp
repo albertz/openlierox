@@ -125,7 +125,8 @@ HSAMPLE CCache::LoadSample(char *_file, int maxplaying)
 	strcpy(Filename,_file);
 
 	// Load the sample
-	Sample = BASS_SampleLoad(false,Filename,0,0,maxplaying,0);
+	// TODO: load it
+	//Sample = BASS_SampleLoad(false,Filename,0,0,maxplaying,0);
 
 	if(Sample)
 		Used = true;
@@ -154,8 +155,9 @@ void CCache::Shutdown(void)
 
 		// Sample
 		case CCH_SOUND:
-			if(Sample)
-				BASS_SampleFree(Sample);
+			// TODO: free the sample
+			//if(Sample)
+			//	BASS_SampleFree(Sample);
 			Sample = 0;
 			break;
 	}

@@ -80,7 +80,9 @@ void SystemError(char *fmt, ...)
 	va_end(va);
 
 	SDL_ShowCursor(SDL_ENABLE);	
-	MessageBox(NULL,buf,"Liero Xtreme",MB_OK | MB_ICONEXCLAMATION);
+	// TODO: uniform message system
+	printf("SystemError: %s\n", buf);
+	//MessageBox(NULL,buf,"Liero Xtreme",MB_OK | MB_ICONEXCLAMATION);
 
 
 	// Shutdown the game

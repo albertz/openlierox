@@ -124,7 +124,7 @@ int CBytestream::writeInt(int value, int numbytes)
 // Write a short to the stream
 int CBytestream::writeShort(short value)
 {
-	uchar data[4];
+	char data[4];
 	int a=0;
 	nl_writeShort(data,a,value);
 
@@ -234,7 +234,7 @@ int CBytestream::readInt(int numbytes)
 // Read a short from the stream
 short CBytestream::readShort(void)
 {
-	uchar data[4];
+	char data[4];
 	short value = 0;
 
 	data[0] = readByte();

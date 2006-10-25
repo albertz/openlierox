@@ -12,6 +12,11 @@
 
 #include "defs.h"
 
+#ifdef WIN32
+#	include <io.h>
+#else
+	// TODO: i already coded it, i will place it here tommorrow or ...
+#endif
 
 
 /*
