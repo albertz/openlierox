@@ -20,9 +20,11 @@ typedef unsigned char	uchar;
 typedef unsigned long	ulong;
 
 
+// used by sound-system; TODO: replace it
+typedef int HSAMPLE;
+
 #ifndef WIN32
 typedef char byte;
-typedef int HSAMPLE;
 typedef int DWORD;
 #endif
 
