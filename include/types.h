@@ -20,7 +20,11 @@ typedef unsigned char	uchar;
 typedef unsigned long	ulong;
 
 
-
+#ifndef WIN32
+typedef char byte;
+typedef int HSAMPLE; // TODO: correct?
+#endif
 
 
 #endif  // __TYPES_H__
+
