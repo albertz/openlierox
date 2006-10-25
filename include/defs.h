@@ -98,4 +98,12 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 void		d_printf(char *fmt, ...);
 
+
+#ifndef WIN32
+// TODO: these are only workarounds. we have to produce better code! :)
+#	define		itoa		SDL_itoa
+#	define		stricmp		strcasecmp
+#endif
+
+
 #endif  //  __DEFS_H__

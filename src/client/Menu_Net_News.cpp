@@ -82,7 +82,8 @@ void Menu_Net_NewsFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Shutdown
 					cNews.Shutdown();

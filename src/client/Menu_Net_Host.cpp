@@ -179,7 +179,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Shutdown
 					cHostPly.Shutdown();
@@ -285,7 +286,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 						cHostPly.Shutdown();
 
 						// Click
-						BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//						BASS_SamplePlay(sfxGeneral.smpClick);
 
 						// Start the lobby
 						Menu_Net_HostLobbyInitialize();
@@ -648,7 +650,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			case Back2:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Shutdown
 					cHostLobby.Shutdown();

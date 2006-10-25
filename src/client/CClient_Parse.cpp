@@ -413,7 +413,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 
 	// Initialize the worms weapon selection menu & other stuff
-	for(int i=0;i<iNumWorms;i++) {
+	int i;
+	for(i=0;i<iNumWorms;i++) {
 		cLocalWorms[i]->setGameScript(&cGameScript);
         cLocalWorms[i]->setWpnRest(&cWeaponRestrictions);
 		cLocalWorms[i]->Prepare(cMap);
@@ -762,11 +763,11 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		char cTime[26];
 		GetTime(cTime);
 		fprintf(f,"\" jointime=\"%s\">\r\n",cTime);
-		if(cIConnectedBuf[0] != (char)"\0")  {
+		if(cIConnectedBuf[0] != '\0')  {
 			fputs("    <message type=\"NETWORK\" text=\"",f);
 			fputs(cIConnectedBuf,f);
 			fputs("\" />\r\n",f);
-			cIConnectedBuf[0] = (char)"\0";
+			cIConnectedBuf[0] = '\0';
 		}
 		fclose(f);
 	}
@@ -833,7 +834,9 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 	if (!gl)  {
 		return;
-		MessageBox(0,"Could not find lobby","Error",MB_OK);
+		//TODO: uniform message system
+		//MessageBox(0,"Could not find lobby","Error",MB_OK);
+		printf("Could not find lobby\n");
 	}
 
 	gl->nSet = true;

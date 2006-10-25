@@ -16,7 +16,8 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
-#include <shlwapi.h>
+
+//#include <shlwapi.h> //TODO: doesn't exist
 
 
 ///////////////////

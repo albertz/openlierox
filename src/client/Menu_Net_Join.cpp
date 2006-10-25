@@ -15,7 +15,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
-#include "menu.h"
+#include "Menu.h"
 
 
 /*
@@ -395,7 +395,8 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Shutdown
 					cConnecting.Shutdown();
@@ -764,7 +765,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cClient->Disconnect();
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Shutdown
 					cJoinLobby.Shutdown();

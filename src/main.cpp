@@ -278,8 +278,10 @@ int InitializeLieroX(void)
 }
 
 
-///////////////////
-// Start the game
+/**
+ * Start the game
+ * @param  
+ */
 void StartGame(void)
 {
     // Clear the screen
@@ -288,20 +290,23 @@ void StartGame(void)
 	// Local game
 	if(tGameInfo.iGameType == GME_LOCAL) {
 
+	//TODO: uniform message system
+
 		// Start the server
 		if(!cServer->StartServer( "local", tLXOptions->iNetworkPort, 8, false )) {
 			// ERROR
 // TODO: make message
 //			MessageBox(NULL, "Error: Could not start server", "Liero Xtreme Error", MB_OK);
+			printf("Error: Could not start server\n");
 			return;
 		}
 
 		// Setup the client
 		if(!cClient->Initialize()) {
 			// ERROR
-
 // TODO: make message
 //			MessageBox(NULL, "Error: Could not initialize client", "Liero Xtreme Error", MB_OK);
+			printf("Error: Could not initialize client\n");
 			return;
 		}
 
