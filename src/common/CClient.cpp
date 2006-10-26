@@ -23,7 +23,8 @@
 void CClient::Clear(void)
 {
 	iNumWorms = 0;
-	for(int i=0;i<MAX_PLAYERS;i++)
+	int i;
+	for(i=0;i<MAX_PLAYERS;i++)
 		cLocalWorms[i] = NULL;
 	cRemoteWorms = NULL;
 	cProjectiles = NULL;
@@ -37,7 +38,7 @@ void CClient::Clear(void)
 	cBonuses = NULL;
     nTopProjectile = 0;
 
-	tSocket = NULL;
+	tSocket = (NLsocket)NULL;
 
 	pChatbox = &cChatbox;
     cChatbox.setWidth(500);
@@ -107,7 +108,8 @@ void CClient::MinorClear(void)
 	iChat_Numlines = 0;
 	cChatbox.Clear();
 
-	for(int i=0; i<MAX_WORMS; i++)  {
+	int i;
+	for(i=0; i<MAX_WORMS; i++)  {
 		cRemoteWorms[i].setGameReady(false);
 		cRemoteWorms[i].setTagIT(false);
 		cRemoteWorms[i].setTagTime(0);
@@ -534,7 +536,7 @@ void CClient::Shutdown(void)
 	// Close the socket
 	if(tSocket)
 		nlClose(tSocket);
-	tSocket = NULL;
+	tSocket = (NLsocket)NULL;
 
 	// Log this
 	if (tLXOptions->iLogConvos)  {

@@ -47,7 +47,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
 
-	unsigned int i;
+	int i;
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
@@ -84,7 +84,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 	// The scrollpos can be 0 and the text still overlapps
 	// User can move in the editbox using keys/mouse
-	int i=iLength-1;
+	i=iLength-1;
 	strip(text,iWidth-5);
 
 	// Determine the cursor position in pixels

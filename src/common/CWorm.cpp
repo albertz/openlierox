@@ -73,7 +73,8 @@ void CWorm::Clear(void)
 	//pcViewport = NULL;//.Setup(0,0,640,480);
 	tProfile = NULL;
 
-	for(int i=0;i<NUM_FRAMES;i++)
+	int i;
+	for(i=0;i<NUM_FRAMES;i++)
 		fFrameTimes[i] = -99999.0f;
 
 	for(i=0; i<5; i++)
@@ -406,7 +407,8 @@ void CWorm::InitWeaponSelection(void)
 	iNumWeaponSlots = 5;
 
 	// Load previous settings from profile
-	for(int i=0;i<iNumWeaponSlots;i++) {
+	int i;
+	for(i=0;i<iNumWeaponSlots;i++) {
 
 		tWeapons[i].Weapon = cGameScript->FindWeapon( tProfile->sWeaponSlots[i] );
 

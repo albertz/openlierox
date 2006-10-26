@@ -275,7 +275,8 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 		int wormsleft = 0;
 		int wormid = 0;
 		CWorm *w = cWorms;
-		for(int i=0;i<MAX_WORMS;i++,w++) {
+		int i;
+		for(i=0;i<MAX_WORMS;i++,w++) {
 			if(w->isUsed() && w->getLives() != WRM_OUT) {
 				wormsleft++;
 				wormid = i;
@@ -820,7 +821,8 @@ void CServer::ParseConnect(CBytestream *bs)
 
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];
-		for(int i=0;i<numworms;i++) {
+		int i;
+		for(i=0;i<numworms;i++) {
 			
 			w = cWorms;
 			for(p=0;p<MAX_WORMS;p++,w++) {

@@ -15,7 +15,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
-#include <zlib/zlib.h>
+#include <zlib.h>
 
 
 ///////////////////

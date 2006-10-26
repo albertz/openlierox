@@ -94,7 +94,8 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 	}
 	
 	// Initialize the bonuses
-	for(int i=0;i<MAX_BONUSES;i++)
+	int i;
+	for(i=0;i<MAX_BONUSES;i++)
 		cBonuses[i].setUsed(false);
 
 	// Shooting list
@@ -200,7 +201,8 @@ int CServer::StartGame(void)
     
 
 	// Set some info on the worms
-	for(int i=0;i<MAX_WORMS;i++) {
+	int i;
+	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(iLives);
             cWorms[i].setKills(0);

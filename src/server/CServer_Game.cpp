@@ -96,7 +96,8 @@ void CServer::SimulateGame(void)
 
 	// Process worms
 	CWorm *w = cWorms;
-	for(int i=0;i<MAX_WORMS;i++,w++) {
+	int i;
+	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed())
 			continue;
         if(iGameOver)
@@ -422,7 +423,8 @@ void CServer::gotoLobby(void)
 	// Clear the info
 	iState = SVS_LOBBY;
 
-	for(int i=0;i<MAX_WORMS;i++) {
+	int i;
+	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].getLobby()->iReady = false;
 			cWorms[i].setGameReady(false);

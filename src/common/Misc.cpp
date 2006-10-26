@@ -283,7 +283,8 @@ char *TrimSpaces(char *szLine)
         szLine++;
 
     // Get rid of the ending spaces
-    for( int i=strlen(szLine)-1; i>=0; i--) {
+	int i;
+    for(i=strlen(szLine)-1; i>=0; i--) {
         if( isgraph(szLine[i]) || !isspace(szLine[i]) )
             break;
     }
@@ -400,5 +401,5 @@ int chrcasecmp(const char c1, const char c2)
 	buf1[0] = c1; buf1[1] = '\0';
 	buf2[0] = c2; buf2[1] = '\0';
 	
-	return strcasecmp(&buf1, &buf2);
+	return strcasecmp(&buf1[0], &buf2[0]);
 }

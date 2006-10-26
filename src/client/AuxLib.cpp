@@ -9,6 +9,9 @@
 // Created 12/11/01
 // By Jason Boettcher
 
+// this is the new file!
+
+
 
 #include "defs.h"
 #include <SDL/SDL_syswm.h>
@@ -193,6 +196,8 @@ void ProcessEvents(void)
 			}  // switch 
 		 }  // if
 
+        
+#ifdef WIN32        
         // System events
         if(Event.type == SDL_SYSWMEVENT) {
             SDL_SysWMmsg *msg = Event.syswm.msg;
@@ -211,7 +216,9 @@ void ProcessEvents(void)
 
             }
         }
-
+#else
+	// TODO: ignore it?
+#endif
 
         // Keyboard events
 		if(Event.type == SDL_KEYUP || Event.type == SDL_KEYDOWN) {
@@ -494,7 +501,7 @@ int SetClipboardText(char *szText)
 void TakeScreenshot(void)
 {
 	char		picname[80]; 
-	char		checkname[_MAX_PATH];
+	char		checkname[255];
 	char		extension[5];
 	int			i;
 	FILE		*f;

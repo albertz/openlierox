@@ -11,7 +11,7 @@
 
 
 #include "defs.h"
-#include "lierox.h"
+#include "LieroX.h"
 #include "console.h"
 
 command_t	*Commands = NULL;

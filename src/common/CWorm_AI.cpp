@@ -304,7 +304,8 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 	float	fSightDistance = 99999;
 
 	int NumTeams = 0;
-	for (int i=0; i<4; i++)
+	int i;
+	for (i=0; i<4; i++)
 		if (cClient->getTeamScore(i) > -1)
 			NumTeams++;
 
@@ -1934,7 +1935,8 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
     //
     if(fDistance < 100 && bDirect) {
         // First try beam
-		for (int i=0; i<5; i++)
+		int i;
+		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_BEAM)
 					return i;
@@ -1954,7 +1956,8 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
     if(fDistance < 150 && bDirect) {
 
 		// First try beam
-		for (int i=0; i<5; i++)
+		int i;
+		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_BEAM)
 					return i;
@@ -1983,7 +1986,8 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
         if(!tWeapons[1].Reloading)
             return 1;*/
 		// First try projectile
-		for (int i=0; i<5; i++)
+		int i;
+		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
 					return i;
@@ -2033,7 +2037,8 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
     //
 
     // Shoot a beam (we cant suicide with that)
-	for (int i=0; i<5; i++)
+	int i;
+	for (i=0; i<5; i++)
 		if (!tWeapons[i].Reloading && tWeapons[i].Weapon->Type == WPN_BEAM)  
 			return i;
     
