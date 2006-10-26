@@ -519,7 +519,7 @@ void CServer::RecheckGame(void)
 
 				w = cWorms;
 
-				for(int i=0;i<4;i++)
+				for(i=0;i<4;i++)
 					TeamCount[i]=0;
 
 				// Check if anyone else is left on the team

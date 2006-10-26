@@ -12,6 +12,9 @@
 // this is the new file!
 
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "defs.h"
 #include <SDL/SDL_syswm.h>
@@ -516,7 +519,7 @@ void TakeScreenshot(void)
 	}
 
     // Create the 'scrshots' directory if it doesn't exist
-    _mkdir("scrshots");
+    mkdir("scrshots", 0);
 
 	// Create the file name
     for(i=0; 1; i++) {

@@ -12,6 +12,9 @@
 // Created 30/6/02
 // Jason Boettcher
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -735,14 +738,14 @@ void Menu_Local_FillModList( CCombobox *cb )
 {
 	// Find all directories in the the lierox
 	char dir[256];
-	char curdir[_MAX_PATH];
+	char curdir[256];
 	char *d;
 	char name[32];
 	CGameScript gs;
 	int baseid = 0;
 	int i=0;
 
-	_getcwd(curdir,_MAX_PATH);
+	getcwd(curdir,256);
 
 	if(FindFirstDir(curdir,dir)) {
 		while(1) {
@@ -1223,7 +1226,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	char	filename[256];
 	char	name[64];
 
-	_mkdir("cfg/presets/");
+	mkdir("cfg/presets", 0);
 
 	int done = false;
 	if(!FindFirst("cfg/presets/","*.*",filename))

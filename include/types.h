@@ -9,10 +9,13 @@
 // Created on 29/11/01
 // By Jason Boettcher
 
+// changed by US
+
 
 #ifndef __TYPES_H__
 #define __TYPES_H__
 
+#include <SDL/SDL_stdinc.h>
 
 
 typedef unsigned int	uint;

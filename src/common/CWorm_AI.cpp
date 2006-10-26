@@ -2101,7 +2101,8 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 	// Rifle game
 	if(iAiGameType == GAM_RIFLES && divisions == 5)  {
 		divisions = 10;  // if we're close to a wall, we can shoot it through
-		for(int i=0; i<nTotalLength; i+=divisions) {
+		int i;
+		for(i=0; i<nTotalLength; i+=divisions) {
 			uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
 
 			if (i>10)  // we aren't close to a wall, so we can shoot through only thin wall
@@ -2125,7 +2126,8 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 	if(iAiGameType == GAM_MORTARS && divisions == 5)
 		divisions = 2;
 
-	for(int i=0; i<nTotalLength; i+=divisions) {
+	int i;
+	for(i=0; i<nTotalLength; i+=divisions) {
 		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
 		//pcMap->PutImagePixel((int)pos.GetX(), (int)pos.GetY(), MakeColour(255,0,0));
 

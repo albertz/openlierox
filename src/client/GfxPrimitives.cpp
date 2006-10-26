@@ -11,7 +11,7 @@
 
 
 #include "defs.h"
-#include <gd/gd.h>
+#include <gd.h>
 
 
 ///////////////////

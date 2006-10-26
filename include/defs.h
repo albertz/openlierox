@@ -12,6 +12,8 @@
 // Created 28/6/02
 // Jason Boettcher
 
+// changed by US
+
 
 #ifndef __DEFS_H__
 #define __DEFS_H__
@@ -105,6 +107,34 @@ int chrcasecmp(const char c1, const char c2);
 #	define		itoa		SDL_itoa
 #	define		stricmp		strcasecmp
 #endif
+
+#include <endian.h>
+
+#define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
+
+void ByteSwap(unsigned char * b, int n);
+extern unsigned char byteswap_buffer[16];
+template <typename T>
+inline T* GetByteSwapped(const T b)
+{
+	*((T*)byteswap_buffer) = b;
+	ByteSwap(byteswap_buffer, sizeof(T));
+	return (T*)byteswap_buffer;
+}
+
+#if !defined(__BYTE_ORDER)
+#	error __BYTE_ORDER not defined
+#endif
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#	define EndianSwap(x)		;
+#	define GetEndianSwapped(x)	(&x)
+#elif __BYTE_ORDER == __BIG_ENDIAN
+#	define EndianSwap(x)		ByteSwap5(x);
+#	define GetEndianSwapped(x)	(GetByteSwapped(x))
+#else
+#	error unknown ENDIAN type
+#endif
+
 
 
 #endif  //  __DEFS_H__

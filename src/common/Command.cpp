@@ -490,7 +490,8 @@ void Cmd_Suicide(void)
 			int number;
 			arg = Cmd_GetArg(1);
 			int j = 0;
-			for (int i=0; i<(int)strlen(arg) && j<6; i++)
+			int i;
+			for (i=0; i<(int)strlen(arg) && j<6; i++)
 				if (arg[i] >= 48 && arg[i] <= 57)  {
 					cNumber[j] = arg[i];
 					j++;
