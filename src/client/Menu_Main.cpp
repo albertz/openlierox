@@ -90,7 +90,8 @@ void Menu_MainFrame(void)
                 mouseover = true;
                 img=0;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-                    BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//                    BASS_SamplePlay(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_LocalInitialize();
 				    return;
@@ -102,7 +103,8 @@ void Menu_MainFrame(void)
                 mouseover = true;
                 img=1;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-                    BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//                    BASS_SamplePlay(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_NetInitialize();
 				    return;
@@ -112,7 +114,8 @@ void Menu_MainFrame(void)
 			// Player
 			case 2:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-                    BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//                    BASS_SamplePlay(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_PlayerInitialize();
 				    return;
@@ -122,7 +125,8 @@ void Menu_MainFrame(void)
 			// Level editor
 			case 3:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-                    BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+                    //BASS_SamplePlay(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_MapEdInitialize();
 				    return;
@@ -132,7 +136,8 @@ void Menu_MainFrame(void)
 			// Options
 			case 4:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-                    BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+//                    BASS_SamplePlay(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_OptionsInitialize();
 				    return;
@@ -142,7 +147,8 @@ void Menu_MainFrame(void)
             // Quit
 			case 5:
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
-                    BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: implement sound system
+        //            BASS_SamplePlay(sfxGeneral.smpClick);
 				
                     cMainMenu.Draw(tMenu->bmpBuffer);
 

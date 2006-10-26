@@ -14,8 +14,8 @@
 
 
 #include "defs.h"
-#include "lierox.h"
-#include "menu.h"
+#include "LieroX.h"
+#include "Menu.h"
 
 
 ///////////////////

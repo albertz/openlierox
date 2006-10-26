@@ -407,7 +407,8 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 	int maxwidthline = 0;
 	char lines[8][512];
 	int j = 0;
-	for (unsigned int i=0; i<strlen(sText) && linescount < 8; i++)  {
+	unsigned int i;
+	for (i=0; i<strlen(sText) && linescount < 8; i++)  {
 		if (*(sText+i) == '\n')  { // linebreak
 			lines[linescount][j] = '\0';  // add terminating character at the end of line
 
