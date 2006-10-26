@@ -278,7 +278,7 @@ HSAMPLE LoadSample(char *_filename, int maxplaying)
 	// Not enough free spaces
 	if(n == MAX_CACHE-1) {
 		printf("Error: The cache ran out of free spaces\n");
-		return NULL;
+		return 0;
 	}
 
 	return cach->LoadSample(_filename,maxplaying);

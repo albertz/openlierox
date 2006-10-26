@@ -14,7 +14,7 @@
 
 
 #include "defs.h"
-#include "lierox.h"
+#include "LieroX.h"
 #include "console.h"
 
 console_t	*Console = NULL;

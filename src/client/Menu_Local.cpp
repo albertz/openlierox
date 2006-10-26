@@ -214,7 +214,8 @@ void Menu_LocalFrame(void)
 					cLocalMenu.Shutdown();
 
 					// Leave
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 					Menu_MainInitialize();
 					return;
 				}
@@ -223,7 +224,8 @@ void Menu_LocalFrame(void)
 			// Start
 			case Start:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 					// Start the game
 					Menu_LocalStartGame();
 				}
@@ -707,7 +709,8 @@ int Menu_LocalGetTeam(int count)
 	CListview *lv = (CListview *)cLocalMenu.getWidget(Playing);
 	lv_item_t *items = lv->getItems();
 
-	for(int i=0;i<count;i++)
+	int i;
+	for(i=0;i<count;i++)
 		items=items->tNext;
 
 	if(items) {
@@ -1276,7 +1279,8 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 				// Cancel
 				case 0:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
-						BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//						BASS_SamplePlay(sfxGeneral.smpClick);
 						quitloop = true;
 					}
 					break;
@@ -1294,8 +1298,9 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 				if((ev->iEventMsg == BTN_MOUSEUP && ev->iControlID == 1) || ev->iEventMsg == LV_DOUBLECLK) {
 
 					// Play the sound only for OK button
-					if (ev->iControlID == 1)
-						BASS_SamplePlay(sfxGeneral.smpClick);
+					if (ev->iControlID == 1) {}
+// TODO: sound
+//						BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Don't process when nothing is selected
 					if(strlen(t->getText()) > 0) {

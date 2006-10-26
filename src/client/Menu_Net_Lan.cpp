@@ -151,7 +151,8 @@ void Menu_Net_LANFrame(int mouse)
 						tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Shutdown
 					cLan.Shutdown();
@@ -166,7 +167,8 @@ void Menu_Net_LANFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Send out a ping over the lan
 					Menu_SvrList_Clear();
@@ -183,7 +185,8 @@ void Menu_Net_LANFrame(int mouse)
 					if(result != -1 && addr[0]) {
 						
 						// Click!
-						BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//						BASS_SamplePlay(sfxGeneral.smpClick);
 
 						// Join
 						Menu_Net_LANJoinServer(addr);

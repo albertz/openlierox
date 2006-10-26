@@ -100,7 +100,8 @@ void CClient::Simulation(void)
 						if( w->GiveBonus(b) ) {
 
 							// Pickup noise
-							BASS_SamplePlay(sfxGame.smpPickup);
+// TODO: sound
+//							BASS_SamplePlay(sfxGame.smpPickup);
 
 							DestroyBonus(n, local, w->getID());
 						}
@@ -269,8 +270,9 @@ void CClient::SimulateProjectiles(float dt)
 					shake = pi->Hit_Shake;
 
 				// Play the hit sound
-				if(pi->Hit_UseSound)
-					BASS_SamplePlay(pi->smpSample);
+				if(pi->Hit_UseSound) {}
+// TODO: sound
+//					BASS_SamplePlay(pi->smpSample);
 			}
 
 			// Bounce
@@ -884,7 +886,8 @@ void CClient::DrawBeam(CWorm *w)
 
 	int stopbeam = false;
 
-	for(int i=0; i<Slot->Weapon->Bm_Length; i+=divisions) {
+	int i;
+	for(i=0; i<Slot->Weapon->Bm_Length; i+=divisions) {
 		uchar px = cMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
 
 		// Don't draw explosion when damage is -1
@@ -1188,7 +1191,8 @@ void CClient::LaserSight(CWorm *w)
 
 	int stopbeam = false;
 
-	for(int i=0; i<9999; i+=divisions) {
+	int i;
+	for(i=0; i<9999; i+=divisions) {
 		uchar px = cMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
 
 		if(px & PX_DIRT || px & PX_ROCK)			
@@ -1632,8 +1636,9 @@ CVec CClient::FindNearestSpot(CWorm *w)
 	y = (int) (w->getPos().GetY()-4.0f);
 	int RockPixels = 0;
 
-	for(int i=0; i<9 && x < cMap->GetWidth(); i++,x++)  {
-		for (int j=0; j<8 && y<cMap->GetHeight(); j++,y++)  {
+	int i,j;
+	for(i=0; i<9 && x < cMap->GetWidth(); i++,x++)  {
+		for (j=0; j<8 && y<cMap->GetHeight(); j++,y++)  {
 			if(cMap->GetPixelFlag(x,y) & PX_ROCK)  {
 				//cMap->PutImagePixel(x,y,MakeColour(255,0,0));
 				RockPixels++;

@@ -47,10 +47,11 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
 
+	unsigned int i;
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
-		for(unsigned int i=0;i<strlen(sText);i++)
+		for(i=0;i<strlen(sText);i++)
 			text[i]='*';
 		text[i+1] = '\0';
 	}

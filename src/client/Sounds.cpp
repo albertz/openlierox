@@ -78,5 +78,6 @@ void StartSound(HSAMPLE smp, CVec pos, int local, int volume, CWorm *me)
 			return;*/
 	}
 
-	BASS_SamplePlayEx(smp,0,-1,volume,pan,-1);
+	// TODO: sound implementation!
+	//BASS_SamplePlayEx(smp,0,-1,volume,pan,-1);
 }

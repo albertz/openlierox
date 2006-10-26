@@ -49,10 +49,16 @@ void ShowError(void)
 {
 	SDL_ShowCursor(SDL_ENABLE);
 
-	if(GotError)
-		MessageBox(NULL,ErrorMsg,"Liero Xtreme",MB_OK | MB_ICONEXCLAMATION);
-	else
-		MessageBox(NULL,"Unkown Error",GetGameName(),MB_OK | MB_ICONEXCLAMATION);
+	// TODO: uniform message system
+
+	if(GotError) {
+		printf("SDL: Error: %s\n", ErrorMsg);
+		//MessageBox(NULL,ErrorMsg,"Liero Xtreme",MB_OK | MB_ICONEXCLAMATION);
+	}
+	else {
+		printf("SDL: Sad: unknown error\n");
+		//MessageBox(NULL,"Unkown Error",GetGameName(),MB_OK | MB_ICONEXCLAMATION);
+	}
 
 	SDL_ShowCursor(SDL_DISABLE);
 }

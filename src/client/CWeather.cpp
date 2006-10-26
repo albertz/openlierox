@@ -14,7 +14,7 @@
 
 
 #include "defs.h"
-#include "lierox.h"
+#include "LieroX.h"
 
 
 ///////////////////
@@ -141,7 +141,8 @@ void CWeather::SpawnParticle(int nType, int nType2, CVec cVel, CVec cPos)
     // Find an unused particle    
     wthpart_t *psPart = m_psParticles;
 
-    for(int i=0; i<MAX_WEATHERPARTS; i++, psPart++) {
+	int i;
+    for(i=0; i<MAX_WEATHERPARTS; i++, psPart++) {
         if( !psPart->bUsed )
             break;
     }
