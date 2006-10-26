@@ -450,7 +450,8 @@ void Menu_Player_ViewPlayers(int mouse)
 					//SaveProfiles();
 
 					// Leave
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 					Menu_MainInitialize();
 					return;
 				}

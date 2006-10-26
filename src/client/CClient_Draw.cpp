@@ -263,7 +263,8 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	cMap->Draw(bmpDest, v);
 
     // Process the viewports
-	for(int i=0;i<NUM_VIEWPORTS;i++) {
+	int i;
+	for(i=0;i<NUM_VIEWPORTS;i++) {
         if(cViewports[i].getUsed() && !iGameOver)
             cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
     }
@@ -987,7 +988,8 @@ void CClient::InitializeViewportManager(void)
     bool v2On = true;
     // If there is only 1 player total, turn the second viewport off
     int count = 0;
-    for(int i=0; i<MAX_WORMS; i++ ) {
+	int i;
+    for(i=0; i<MAX_WORMS; i++ ) {
         if(cRemoteWorms[i].isUsed())
             count++;
     }

@@ -79,7 +79,8 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 	}
 	
 	// Find a free entity
-	for(int e=0;e<MAX_ENTITIES;e++,ent++) {
+	int e;
+	for(e=0;e<MAX_ENTITIES;e++,ent++) {
 		if(!ent->iUsed)
 			break;
 	}

@@ -96,8 +96,9 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #define		MIN(a,b)	(a)<(b) ? (a) : (b)
 #define		MAX(a,b)	(a)>(b) ? (a) : (b)
 
-void		d_printf(char *fmt, ...);
+void d_printf(char *fmt, ...);
 
+int chrcasecmp(const char c1, const char c2);
 
 #ifndef WIN32
 // TODO: these are only workarounds. we have to produce better code! :)

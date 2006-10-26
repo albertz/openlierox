@@ -156,7 +156,8 @@ void Menu_Net_FavouritesFrame(int mouse)
 						tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Save the list
 					Menu_SvrList_SaveList("cfg/favourites.dat");
@@ -174,7 +175,8 @@ void Menu_Net_FavouritesFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					Menu_Net_FavouritesAddServer();
 				}
@@ -185,7 +187,8 @@ void Menu_Net_FavouritesFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+//					BASS_SamplePlay(sfxGeneral.smpClick);
 
 					// Send out a ping
 					Menu_SvrList_RefreshList();
@@ -202,7 +205,8 @@ void Menu_Net_FavouritesFrame(int mouse)
 					if(result != -1 && addr[0]) {
 						
 						// Click!
-						BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+						//BASS_SamplePlay(sfxGeneral.smpClick);
 
 						// Join
 						Menu_Net_FavouritesJoinServer(addr);
@@ -471,7 +475,8 @@ void Menu_Net_RenameServer(char *szName)
 						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
 
 						// Click!
-						BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+						//BASS_SamplePlay(sfxGeneral.smpClick);
 
 						renameServerMsg = false;
 					}
@@ -481,7 +486,8 @@ void Menu_Net_RenameServer(char *szName)
 				case 1:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
-						BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+						//BASS_SamplePlay(sfxGeneral.smpClick);
 
 						renameServerMsg = false;
 					}
@@ -576,7 +582,8 @@ void Menu_Net_FavouritesAddServer(void)
 						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
 
 						// Click!
-						BASS_SamplePlay(sfxGeneral.smpClick);
+						// TODO: sound
+						//BASS_SamplePlay(sfxGeneral.smpClick);
 
 						addServerMsg = false;
 					}
@@ -586,7 +593,8 @@ void Menu_Net_FavouritesAddServer(void)
 				case 1:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
-						BASS_SamplePlay(sfxGeneral.smpClick);
+// TODO: sound
+						//BASS_SamplePlay(sfxGeneral.smpClick);
 
 						addServerMsg = false;
 					}

@@ -277,7 +277,7 @@ void ProcessEvents(void)
 
     // If we don't have focus, don't update as often
     if(!nFocus)
-        Sleep(10);
+        SDL_Delay(10);
 
 
 	// Mouse
@@ -399,6 +399,7 @@ int GetClipboardText(char *szText, int nMaxLength)
     if( !szText )
         return 0;
 
+#ifdef WIN32
     // Get the window handle
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
@@ -432,6 +433,9 @@ int GetClipboardText(char *szText, int nMaxLength)
             }
         }
     }
+#else
+	// TODO: how to do on linux?
+#endif
 
     return 0;
 }
@@ -444,6 +448,7 @@ int SetClipboardText(char *szText)
     if( !szText )
         return 0;
 
+#ifdef WIN32    
     // Get the window handle
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
@@ -477,6 +482,10 @@ int SetClipboardText(char *szText)
 	SetClipboardData(CF_TEXT, hglbCopy); 
 
     return strlen(szText);
+#else
+	// TODO: what is with linux here?
+	return 0;
+#endif
 }
 
 

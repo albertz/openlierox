@@ -17,8 +17,6 @@
 #include "LieroX.h"
 #include "Menu.h"
 
-//#include <shlwapi.h> //TODO: doesn't exist
-
 
 ///////////////////
 // Draw the combo box
@@ -385,7 +383,7 @@ int CCombobox::KeyDown(int c)
 	int count = 0;
 	cb_item_t *item = tSelected->tNext;
 	for(;item;item=item->tNext)  {
-		if (!ChrCmpI(item->sName[0],c))  {
+		if (!chrcasecmp(item->sName[0],c))  {
 			setCurItem(item->iIndex);
 			cScrollbar.setValue( item->iIndex - cScrollbar.getItemsperbox() / 2 );
 			iKeySelectedItem = item->iIndex;
@@ -397,7 +395,7 @@ int CCombobox::KeyDown(int c)
 	item = tItems;
 	count = 0;
 	for (;item && item->iIndex != tSelected->iIndex;item=item->tNext)  {
-		if (!ChrCmpI(item->sName[0],c))  {
+		if (!chrcasecmp(item->sName[0],c))  {
 			setCurItem(item->iIndex);
 			cScrollbar.setValue( count - cScrollbar.getItemsperbox() / 2 );
 			iKeySelectedItem = item->iIndex;
