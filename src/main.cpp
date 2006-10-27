@@ -411,6 +411,8 @@ void QuittoMenu(void)
 // Shutdown the game
 void ShutdownLieroX(void)
 {
+	printf("Shutting me down...\n");	
+	
 	if (tLXOptions->iLogConvos)  {
 		FILE *f;
 
@@ -459,4 +461,8 @@ void ShutdownLieroX(void)
 	nlShutdown();
 	
 	ShutdownAuxLib();
+
+	printf("Everything was shutted down\n");
+	printf("Good Bye and enjoy your day...\n");
+	
 }
