@@ -10,11 +10,6 @@
 #include "Menu.h"
 #include "console.h"
 
-#ifdef WIN32
-  #include "crashrpt.h"
-  #pragma comment(lib, "./libs/crashrpt")
-#endif
-
 
 CClient		*cClient = NULL;
 CServer		*cServer = NULL;
@@ -39,11 +34,6 @@ int main(int argc, char *argv[])
     int     startgame = false;
     float   fMaxFPS = 85;
 
-	// Install the CrashRpt library
-    #ifdef WIN32
-	  Install(NULL,"karel.petranek@tiscali.cz","LXP Crash Report");
-    #endif
-
 	// this behavior only make sense for a win-system
 	// under unix, the bin and the data are seperate
 	#ifdef WIN32
@@ -54,7 +44,10 @@ int main(int argc, char *argv[])
 		chdir(argv[0]);
 	#else
 		// TODO: set and handles the following search pathes:
-		// ~/.OpenLieroX , /usr/share/OpenLieroX
+		// . , ~/.OpenLieroX , /usr/share/OpenLieroX
+		// for the moment, only the actual path will be used
+		// we need a abstract resource system to handle this
+		// Quake3 make it very well, should we copy it?
 	#endif
 
 	// Load options and other settings
@@ -196,9 +189,31 @@ void ParseArguments(int argc, char *argv[])
 // Initialize the game
 int InitializeLieroX(void)
 {
+        printf("Hello there, I am initializing me now...\n");
+
+#ifndef WIN32
+        struct stat s;
+        char fname[256];
+        GetExactFileName("data", fname);
+        if(stat(fname, &s) != 0)
+        {
+                SystemError("ERROR: data-directory not found");
+                return false;
+        }
+        if(!(s.st_mode & S_IFDIR))
+        {
+                SystemError("ERROR: very strange: data is no directory");
+                return false;
+        }
+#else // WIN32
+	// TODO: ...
+#endif
+	
 	// Initialize the aux library
-	if(!InitializeAuxLib("Liero Xtreme","config.cfg",16,0))
+	if(!InitializeAuxLib("Liero Xtreme","config.cfg",16,0)) {
+        SystemError("strange problems with the aux library");	
 		return false;
+	}
 
 	// Initialize the network
     if(!nlInit()) {
@@ -279,6 +294,7 @@ int InitializeLieroX(void)
 	tGameInfo.iNumPlayers = 0;
     tGameInfo.sMapRandom.psObjects = NULL;
 
+	printf("Initializing ready\n");
 
 	return true;
 }

@@ -13,7 +13,7 @@
 #include "defs.h"
 
 
-// TODO: Little endian support
+// TODO: Big endian support
 
 
 ///////////////////

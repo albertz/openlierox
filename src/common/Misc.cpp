@@ -367,10 +367,12 @@ bool stripdot(char *buf, int width)
 }
 
 ///////////////////
-// Changes the strnig to have all first letters upper case
+// Changes the string to have all first letters upper case
 // Returns text
+// TODO: the parameter will be changed directly; that's bad stile
 char *ucfirst(char *text)
 {
+#IFDEF WIN32	
 	strlwr(text);
 
 	char buf[2]; 
@@ -387,10 +389,25 @@ char *ucfirst(char *text)
 			strupr(buf);
 			*(text+i+1) = buf[0];
 		}
-
+#ELSE
+	// TODO: ...
+#ENDIF
+	
 	return text;
 }
 
+
+void ByteSwap(unsigned char * b, int n)
+{
+   register int i = 0;
+   register int j = n-1;
+   register char tmp;
+   while (i<j)
+   {
+      tmp = b[i]; b[i] = b[j]; b[j] = tmp;
+      i++, j--;
+   }
+}
 
 
 // chrcasecmp - like strcasecomp, but for a single char

@@ -20,10 +20,11 @@
 
 
 // Global compile defines
+// TODO: is the '=' correct?
 #define DEBUG	= 1;
 
+
 // Standard includes
-//#include <io.h> //TODO: does not exist under Linux
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,9 +32,6 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-//#include <direct.h> //TODO: does not exist under Linux
-
-//#include "mmgr.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -122,6 +120,7 @@ inline T* GetByteSwapped(const T b)
 	return (T*)byteswap_buffer;
 }
 
+// TODO: WIN32 compatible?
 #if !defined(__BYTE_ORDER)
 #	error __BYTE_ORDER not defined
 #endif

@@ -11,13 +11,17 @@
 
 
 #include "defs.h"
-
 #ifdef WIN32
 #	include <io.h>
+#	include <direct.h>
 #else
-	// TODO: i already coded it, i will place it here tommorrow or ...
+#	include <sys/dir.h>
+#	include <sys/stat.h>
+#	include <unistd.h>
 #endif
 
+
+#ifndef WIN32
 
 /*
 ==========================
@@ -28,43 +32,38 @@
 */
 
 char	_dir[256];
-long	handle = 0;
-struct _finddata_t fileinfo;
-
+DIR*	handle = NULL;
+dirent* entry = NULL;
+struct stat	entrystat;
 
 ///////////////////
 // Find the first file
 int FindFirst(char *dir, char *ext, char *filename)
 {
-	char basepath[256];
+	GetExactFileName(dir, _dir);
+	
+	if(strcmp(ext, "*") != 0)
+		printf("FindFirst: ERROR: I can't handle anything else than * \n");
 
-	strcpy(_dir,dir);
-
-	strcpy(basepath, dir);
-	strcat(basepath, "/");
-	strcat(basepath, ext);
-
-	if((handle = _findfirst(basepath, &fileinfo)) < 0)
+	if((handle = opendir(_dir)) == 0)
 		return false;
 
-	do
+	while(entry = readdir(handle)) // Keep going until we found the first file
 	{
 		//If file is not self-directory or parent-directory
-		if(strcmp(fileinfo.name, "."))
-		 if(strcmp(fileinfo.name, ".."))
+		if(strcmp(entry->d_name, "."))
+		 if(strcmp(entry->d_name, ".."))
 		 {
-			//If found file is not a directory
-			if(!(fileinfo.attrib & _A_SUBDIR))
-			{
-				sprintf(filename,"%s\\%s",_dir,fileinfo.name);
-
+			sprintf(filename,"%s/%s",_dir,entry->d_name);
+					
+			//If found file is a file
+			if(stat(filename, &entrystat) == 0 && entrystat.st_mode & S_IFREG)
 				return true;
-			}
 		}
 
-	} while(!_findnext(handle, &fileinfo));		// Keep going until we found the first file
+	}
 
-
+	closedir(handle);
 	return false;
 }
 
@@ -73,26 +72,21 @@ int FindFirst(char *dir, char *ext, char *filename)
 // Find the next file
 int FindNext(char *filename)
 {
-	if(_findnext(handle, &fileinfo))
-		return false;
-
-	do
+	while(entry = readdir(handle))	// Keep going until we found the next file
 	{
 		//If file is not self-directory or parent-directory
-		if(strcmp(fileinfo.name, "."))
-		 if(strcmp(fileinfo.name, ".."))
+		if(strcmp(entry->d_name, "."))
+		 if(strcmp(entry->d_name, ".."))
 		 {
-			//If found file is not a directory
-			if(!(fileinfo.attrib & _A_SUBDIR))
-			{
-				sprintf(filename,"%s\\%s",_dir,fileinfo.name);
-
+			sprintf(filename,"%s/%s",_dir,entry->d_name);
+		
+			//If found file is a file
+			if(stat(filename, &entrystat) == 0 && entrystat.st_mode & S_IFREG)
 				return true;
-			}
 		}
-	} while(!_findnext(handle, &fileinfo));		// Keep going until we found the next file
+	}
 
-
+	closedir(handle);
 	return false;
 }
 
@@ -111,43 +105,35 @@ int FindNext(char *filename)
 
 // Here if we even need to search files & dirs at the same time
 char	_dir2[256];
-long	handle2 = 0;
-struct _finddata_t fileinfo2;
-
+DIR*	handle2 = NULL;
+dirent* entry2 = NULL;
+struct stat	entry2stat;
 
 ///////////////////
 // Find the first dir
 int FindFirstDir(char *dir, char *name)
 {
-	char basepath[256];
-
-	strcpy(_dir,dir);
-
-	strcpy(basepath, dir);
-	strcat(basepath, "/");
-	strcat(basepath, "*.*");
-
-	if((handle2 = _findfirst(basepath, &fileinfo2)) < 0)
+	GetExactFileName(dir, _dir2);
+	
+	if((handle2 = opendir(_dir2)) == 0)
 		return false;
 
-	do
+	while(entry2 = readdir(handle2))	// Keep going until we found the next dir
 	{
 		//If file is not self-directory or parent-directory
-		if(strcmp(fileinfo2.name, "."))
-		 if(strcmp(fileinfo2.name, ".."))
-		 {
+		if(strcmp(entry2->d_name, "."))
+		 if(strcmp(entry2->d_name, ".."))
+		 {			
+			sprintf(name,"%s/%s",_dir2,entry2->d_name);
+			
 			//If found file is a directory
-			if(fileinfo2.attrib & _A_SUBDIR)
-			{
-				sprintf(name,"%s\\%s",_dir,fileinfo2.name);
-
+			if(stat(name, &entry2stat) == 0 && entry2stat.st_mode & S_IFDIR)
 				return true;
-			}
 		}
 
-	} while(!_findnext(handle2, &fileinfo2));		// Keep going until we found the first dir
+	}
 
-
+	closedir(handle2);
 	return false;
 }
 
@@ -156,25 +142,277 @@ int FindFirstDir(char *dir, char *name)
 // Find the next dir
 int FindNextDir(char *name)
 {
-	if(_findnext(handle2, &fileinfo2))
-		return false;
-
-	do
+	
+	while(entry2 = readdir(handle2))	// Keep going until we found the next dir
 	{
 		//If file is not self-directory or parent-directory
-		if(strcmp(fileinfo2.name, "."))
-		 if(strcmp(fileinfo2.name, ".."))
+		if(strcmp(entry2->d_name, "."))
+		 if(strcmp(entry2->d_name, ".."))
 		 {
+			sprintf(name,"%s/%s",_dir2,entry2->d_name);
+		
 			//If found file is a directory
-			if(fileinfo2.attrib & _A_SUBDIR)
-			{
-				sprintf(name,"%s\\%s",_dir,fileinfo2.name);
-
+			if(stat(name, &entry2stat) == 0 && entry2stat.st_mode & S_IFDIR)
 				return true;
-			}
 		}
-	} while(!_findnext(handle2, &fileinfo2));		// Keep going until we found the next dir
+	}
 
-
+	closedir(handle2);
 	return false;
 }
+
+
+
+int GetNextName(const char* fullname, const char** seperators, char* nextname)
+{
+	int pos;
+	int i;
+
+	for(pos = 0; fullname[pos] != '\0'; pos++)
+	{
+		for(i = 0; seperators[i] != NULL; i++)
+			if(strncasecmp(&fullname[pos], seperators[i], strlen(seperators[i])) == 0)
+			{
+				nextname[pos] = '\0';
+				return pos + strlen(seperators[i]);
+			}
+
+		nextname[pos] = fullname[pos];
+	}
+	
+	nextname[pos] = '\0';
+	return 0;
+}
+
+
+int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
+{
+	if(strcmp(searchname, "") == 0)
+	{
+		strcpy(filename, "");
+		return true;
+	}
+	
+	DIR* dirhandle;
+	dirhandle = opendir((strcmp(dir, "") == 0) ? "." : dir);		
+	if(dirhandle == 0) return false;
+	
+	dirent* direntry;
+	while(direntry = readdir(dirhandle))
+	{
+		if(strcasecmp(direntry->d_name, searchname) == 0)
+		{
+			strcpy(filename, direntry->d_name);
+			closedir(dirhandle);	
+			return true;
+		}	
+	}
+	
+	closedir(dirhandle);	
+	return false;
+}
+
+
+// does case insensitive search for file
+int GetExactFileName(const char* searchname, char* filename)
+{	
+	const char* seps[] = {"\\", "/", (char*)NULL};
+	char nextname[256] = "";
+	char nextexactname[256] = "";
+	strcpy(filename, "");
+	int pos = 0;
+	int npos = 0;
+	do
+	{
+		pos += npos;
+		if(npos > 0) strcat(filename, "/");
+
+		npos = GetNextName(&searchname[pos], seps, nextname);
+		
+		if(!CaseInsFindFile(filename, nextname, nextexactname))
+		{
+			strcat(filename, &searchname[pos]);
+			return true;
+		}
+		
+		strcat(filename, nextexactname);
+		
+	} while(npos > 0);
+	
+	return true;
+}
+
+
+char fname[256] = "";
+FILE *fopen_i(const char *path, const char *mode)
+{
+//	printf("fopen %s\n", path);
+	GetExactFileName(path, fname);
+//	printf("fopen -> %s\n", fname);
+	return fopen(fname, mode);
+}
+
+#else // WIN32
+
+
+/*
+==========================
+
+	  File Finding
+
+==========================
+*/
+
+char	_dir[256];
+long	handle = 0;
+struct _finddata_t fileinfo;
+
+
+///////////////////
+// Find the first file
+int FindFirst(char *dir, char *ext, char *filename)
+{
+	char basepath[256];
+
+	strcpy(_dir,dir);
+
+	strcpy(basepath, dir);
+	strcat(basepath, "/");
+	strcat(basepath, ext);
+
+	if((handle = _findfirst(basepath, &fileinfo)) < 0)
+		return false;
+
+	do
+	{
+		//If file is not self-directory or parent-directory
+		if(strcmp(fileinfo.name, "."))
+		 if(strcmp(fileinfo.name, ".."))
+		 {
+			//If found file is not a directory
+			if(!(fileinfo.attrib & _A_SUBDIR))
+			{
+				sprintf(filename,"%s\\%s",_dir,fileinfo.name);
+
+				return true;
+			}
+		}
+
+	} while(!_findnext(handle, &fileinfo));		// Keep going until we found the first file
+
+
+	return false;
+}
+
+
+///////////////////
+// Find the next file
+int FindNext(char *filename)
+{
+	if(_findnext(handle, &fileinfo))
+		return false;
+
+	do
+	{
+		//If file is not self-directory or parent-directory
+		if(strcmp(fileinfo.name, "."))
+		 if(strcmp(fileinfo.name, ".."))
+		 {
+			//If found file is not a directory
+			if(!(fileinfo.attrib & _A_SUBDIR))
+			{
+				sprintf(filename,"%s\\%s",_dir,fileinfo.name);
+
+				return true;
+			}
+		}
+	} while(!_findnext(handle, &fileinfo));		// Keep going until we found the next file
+
+
+	return false;
+}
+
+
+
+
+
+/*
+==========================
+
+	Directory Finding
+
+==========================
+*/
+
+
+// Here if we even need to search files & dirs at the same time
+char	_dir2[256];
+long	handle2 = 0;
+struct _finddata_t fileinfo2;
+
+
+///////////////////
+// Find the first dir
+int FindFirstDir(char *dir, char *name)
+{
+	char basepath[256];
+
+	strcpy(_dir,dir);
+
+	strcpy(basepath, dir);
+	strcat(basepath, "/");
+	strcat(basepath, "*.*");
+
+	if((handle2 = _findfirst(basepath, &fileinfo2)) < 0)
+		return false;
+
+	do
+	{
+		//If file is not self-directory or parent-directory
+		if(strcmp(fileinfo2.name, "."))
+		 if(strcmp(fileinfo2.name, ".."))
+		 {
+			//If found file is a directory
+			if(fileinfo2.attrib & _A_SUBDIR)
+			{
+				sprintf(name,"%s\\%s",_dir,fileinfo2.name);
+
+				return true;
+			}
+		}
+
+	} while(!_findnext(handle2, &fileinfo2));		// Keep going until we found the first dir
+
+
+	return false;
+}
+
+
+///////////////////
+// Find the next dir
+int FindNextDir(char *name)
+{
+	if(_findnext(handle2, &fileinfo2))
+		return false;
+
+	do
+	{
+		//If file is not self-directory or parent-directory
+		if(strcmp(fileinfo2.name, "."))
+		 if(strcmp(fileinfo2.name, ".."))
+		 {
+			//If found file is a directory
+			if(fileinfo2.attrib & _A_SUBDIR)
+			{
+				sprintf(name,"%s\\%s",_dir,fileinfo2.name);
+
+				return true;
+			}
+		}
+	} while(!_findnext(handle2, &fileinfo2));		// Keep going until we found the next dir
+
+
+	return false;
+}
+
+#endif
