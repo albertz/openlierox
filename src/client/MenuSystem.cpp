@@ -279,7 +279,7 @@ char *Menu_GetLevelName(char *filename)
 	if(strlen(filename) > 512)
 		return NULL;
 
-	sprintf(&fn[0],"%s%s","levels\\",filename);
+	sprintf(&fn[0],"%s%s","levels/",filename);
 	fn[1023] = '\0';
 	Path = fn;
 
@@ -313,7 +313,7 @@ char *Menu_GetLevelName(char *filename)
 			// 176402 is worm hole maps (same, but 2 bytes bigger)
 			// 177178 is a powerlevel
 			if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-				char *f = strrchr(filename,'\\');
+				char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
 				if(f)
 					return f+1;
 			}
@@ -575,7 +575,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 	// Load the level list
 	int done = false;
-	if(!FindFirst("levels","*.*",filename))
+	if(!FindFirst("levels","*",filename))
 		done = true;
 
 	while(!done) {
@@ -590,7 +590,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 				if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
 					// Remove the 'levels' bit from the filename
-					char *f = strrchr(filename,'\\');
+					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
 					if(f) {
 						cmb->addItem(index++, f+1, name);
 
@@ -619,7 +619,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 				// 177178 is a powerlevel
 				if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
 
-					char *f = strrchr(filename,'\\');
+					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
 					if(f) {
 						cmb->addItem(index++, f+1, f+1);
 

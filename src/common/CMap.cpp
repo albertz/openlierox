@@ -311,10 +311,10 @@ char *CMap::findRandomTheme(char *buf)
     int count=-1;
 	
     // Count the number of themes
-    if(FindFirstDir("data\\themes",dir)) {
+    if(FindFirstDir("data/themes",dir)) {
         count = 0;
 		while(1) {
-			d = strrchr(dir,'\\')+1;
+			d = MAX(strrchr(dir,'/'),strrchr(dir, '\\'))+1;
             // Make sure the theme is valid
             if( validateTheme(d) )
 			    count++;
@@ -328,11 +328,11 @@ char *CMap::findRandomTheme(char *buf)
     int t = GetRandomInt(count);
 
     // Count the number of themes
-    if(FindFirstDir("data\\themes",dir)) {
+    if(FindFirstDir("data/themes",dir)) {
         count = 0;
 		while(1) {
-			d = strrchr(dir,'\\')+1;
-            // Make sure the theme is valid
+			d = MAX(strrchr(dir,'/'),strrchr(dir, '\\'))+1;
+           	// Make sure the theme is valid
             if( validateTheme(d) ) {
 
                 // Is this the theme to choose?

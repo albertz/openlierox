@@ -751,7 +751,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 		while(1) {
 			
             // Remove the full directory section so we only have the mod dir name
-			d = strrchr(dir,'\\')+1;
+			d = MAX(strrchr(dir,'\\'),strrchr(dir,'/'))+1;
             if(!d)
                d = dir;
 
@@ -1229,7 +1229,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	mkdir("cfg/presets", 0);
 
 	int done = false;
-	if(!FindFirst("cfg/presets/","*.*",filename))
+	if(!FindFirst("cfg/presets/","*",filename))
 		done = true;
 	CListview *lv = (CListview *)cg.getWidget(2);
 	lv->AddColumn("Weapon presets",60);

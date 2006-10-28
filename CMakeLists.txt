@@ -1,4 +1,5 @@
 PROJECT(openlierox)
+SET(CMAKE_C++_LINK_EXECUTABLE ld)
 
 INCLUDE_DIRECTORIES(include)
 

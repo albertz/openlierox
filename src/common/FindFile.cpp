@@ -321,7 +321,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 
 			{
 
-				sprintf(filename,"%s\\%s",_dir,fileinfo.name);
+				sprintf(filename,"%s/%s",_dir,fileinfo.name);
 
 
 
@@ -379,7 +379,7 @@ int FindNext(char *filename)
 
 			{
 
-				sprintf(filename,"%s\\%s",_dir,fileinfo.name);
+				sprintf(filename,"%s/%s",_dir,fileinfo.name);
 
 
 
@@ -487,7 +487,7 @@ int FindFirstDir(char *dir, char *name)
 
 			{
 
-				sprintf(name,"%s\\%s",_dir,fileinfo2.name);
+				sprintf(name,"%s/%s",_dir,fileinfo2.name);
 
 
 
@@ -545,7 +545,7 @@ int FindNextDir(char *name)
 
 			{
 
-				sprintf(name,"%s\\%s",_dir,fileinfo2.name);
+				sprintf(name,"%s/%s",_dir,fileinfo2.name);
 
 
 

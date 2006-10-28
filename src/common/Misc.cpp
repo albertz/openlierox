@@ -372,7 +372,7 @@ bool stripdot(char *buf, int width)
 // TODO: the parameter will be changed directly; that's bad stile
 char *ucfirst(char *text)
 {
-#IFDEF WIN32	
+#ifdef WIN32	
 	strlwr(text);
 
 	char buf[2]; 
@@ -389,9 +389,9 @@ char *ucfirst(char *text)
 			strupr(buf);
 			*(text+i+1) = buf[0];
 		}
-#ELSE
+#else
 	// TODO: ...
-#ENDIF
+#endif
 	
 	return text;
 }

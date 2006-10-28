@@ -484,10 +484,10 @@ void Menu_MapEd_New(void)
 	// Find directories in the theme dir
 	char dir[256];
 	char *d;
-	if(FindFirstDir("data\\themes",dir)) {
+	if(FindFirstDir("data/themes",dir)) {
 		i=0;
 		while(1) {
-			d = strrchr(dir,'\\')+1;
+			d = MAX(strrchr(dir,'\\'),strrchr(dir,'/'))+1;
 			cg.SendMessage(4,CBM_ADDITEM,i,(DWORD)d);
 
 			if(stricmp(d,"dirt") == 0)
@@ -631,7 +631,7 @@ void Menu_MapEd_LoadSave(int save)
 	int		version;
 
 	int done = false;
-	if(!FindFirst("levels","*.*",filename))
+	if(!FindFirst("levels","*",filename))
 		done = true;
 	CListview *lv = (CListview *)cg.getWidget(2);
 	lv->AddColumn("Levels",60);
@@ -650,7 +650,7 @@ void Menu_MapEd_LoadSave(int save)
 
 				if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
 					 // Remove the 'levels' bit from the filename
-					char *f = strrchr(filename,'\\');
+					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
 					if(f) {
 						lv->AddItem(f+1,0,0xffff);
 						lv->AddSubitem(LVS_TEXT,name,NULL);
@@ -675,7 +675,7 @@ void Menu_MapEd_LoadSave(int save)
 				// 177178 is a powerlevel
 				if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
 
-					char *f = strrchr(filename,'\\');
+					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
 					if(f) {
 						lv->AddItem(f+1,0,0xffff);
 						lv->AddSubitem(LVS_TEXT,f+1,NULL);

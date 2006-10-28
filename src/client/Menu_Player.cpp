@@ -752,7 +752,7 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
 
     cb->clear();
 
-    if( !FindFirst("skins", "*.*", szFilename) )
+    if( !FindFirst("skins", "*", szFilename) )
         return;
 
     int index = 0;
@@ -774,8 +774,8 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
             szName[strlen(szName)-4] = '\0';
 
             // Remove the dir
-            char *n = strrchr(szName,'\\');
-            char *f = strrchr(szFilename,'\\');
+            char *n = MAX(strrchr(szName,'\\'),strrchr(szName,'/'));
+            char *f = MAX(strrchr(szFilename,'\\'),strrchr(szFilename,'/'));
             cb->addItem(index++, f+1, n+1);
 
             // If this is the default skin, store the index for selection later

@@ -201,9 +201,12 @@ void CParser::ReadTag(void)
 		sName[i++] = sData[iPos++];
 	}
 
+#ifdef WIN32
 	// Convert the name to lower case
 	strlwr(sName);
-
+#else
+	// TODO ...
+#endif
 			
 	// Some tags contain properties (and not the end tags)
 	if(stricmp(sName,"frame") == 0 ||
@@ -240,9 +243,13 @@ void CParser::ReadTag(void)
 					TrimSpaces(cProperties[curProperty].sValue);
 					TrimSpaces(cProperties[curProperty].sName);
 
+#ifdef WIN32
 					// Convert to lower case
 					strlwr(cProperties[curProperty].sName);
 					strlwr(cProperties[curProperty].sValue);
+#else
+	// TODO ...
+#endif
 
 					// Convert the value to numeric (if possible)
 					// Must be after TrimSpaces

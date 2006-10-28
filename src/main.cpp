@@ -10,6 +10,10 @@
 #include "Menu.h"
 #include "console.h"
 
+#ifndef WIN32
+#include <sys/dir.h>
+#include <sys/stat.h>
+#endif
 
 // TODO: i hate globals ...
 // we have to create a basic class CGame or something
