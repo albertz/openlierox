@@ -563,7 +563,7 @@ void Menu_OptionsFrame(void)
 						tLXOptions->iLogConvos = cOpt_System.SendMessage(LogConvos, CKM_GETCHECK, 0, 0);
 						FILE *f;
 						
-						f = fopen("Conversations.log","a");
+						f = fopen_i("Conversations.log","a");
 						if (f)  {
 							if (tLXOptions->iLogConvos)  {
 								char cTime[26];

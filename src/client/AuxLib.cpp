@@ -107,7 +107,7 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 	/*
 		Temp thing to create a random number table
 	*/
-	/*FILE *fp = fopen("randomnum.cpp", "wt");
+	/*FILE *fp = fopen_i("randomnum.cpp", "wt");
 
 	fprintf(fp, "float RandomNumbers[] = { ");
 	for(int i=0;i<256; i++) {
@@ -525,7 +525,7 @@ void TakeScreenshot(void)
     for(i=0; 1; i++) {
 		sprintf(picname,"%s%d%s","lierox",i,extension);
 		sprintf(checkname, "scrshots/%s", picname);
-		f = fopen(checkname, "rb");
+		f = fopen_i(checkname, "rb");
 		if (!f)
 			break;	// file doesn't exist
 		fclose(f);

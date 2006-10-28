@@ -445,7 +445,7 @@ void CServer::RegisterServer(void)
     bServerRegistered = false;
 
     // Get the first server from the master server list
-    FILE *fp = fopen("cfg/masterservers.txt","rt");
+    FILE *fp = fopen_i("cfg/masterservers.txt","rt");
     if( !fp ) {
         bRegServer = false;
         notifyLog("Could not register with master server: 'Could not open master server file'");
@@ -538,7 +538,7 @@ bool CServer::DeRegisterServer(void)
 	bServerRegistered = false;
 
 	// Get the first server from the master server list
-    FILE *fp = fopen("cfg/masterservers.txt","rt");
+    FILE *fp = fopen_i("cfg/masterservers.txt","rt");
     if( !fp )
         return false;
 
@@ -1013,7 +1013,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 	int num_ip = ip_parts[0] * 16777216 + ip_parts[1] * 65536 + ip_parts[2] * 256 + ip_parts[3];
 
 	// Open the database
-	FILE *fp = fopen("ip_to_country.csv","r");
+	FILE *fp = fopen_i("ip_to_country.csv","r");
 	if (!fp)
 		return;
 

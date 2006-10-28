@@ -202,7 +202,7 @@ void CBanList::removeBanned(char *szAddress)
 void CBanList::saveList(char *szFilename)
 {
     // Save it as plain text
-    FILE *fp = fopen(szFilename, "wt");
+    FILE *fp = fopen_i(szFilename, "wt");
     if( !fp )
         return;
 
@@ -228,7 +228,7 @@ void CBanList::loadList(char *szFilename)
     // Shutdown the list first
     Shutdown();
 
-    FILE *fp = fopen(szFilename, "rt");
+    FILE *fp = fopen_i(szFilename, "rt");
     if( !fp )
         return;
 

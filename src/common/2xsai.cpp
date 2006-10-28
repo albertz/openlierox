@@ -1,3 +1,5 @@
+// TODO: do we realy need this file?
+
 /*
  * Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
  *

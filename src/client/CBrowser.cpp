@@ -70,7 +70,7 @@ int CBrowser::Load(char *sFilename)
 	FILE *fp;
 	
 	// Open the file
-	fp = fopen(sFilename,"rb");
+	fp = fopen_i(sFilename,"rb");
 	if(fp == NULL)
 		return false;
 

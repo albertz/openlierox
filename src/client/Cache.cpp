@@ -13,6 +13,10 @@
 #include "defs.h"
 //#include "corona.h"
 
+#ifndef WIN32
+#include <sys/stat.h>
+#endif
+
 CCache		*Cache = NULL;
 
 
@@ -60,7 +64,23 @@ SDL_Surface *_LoadImage(char *filename)
 
     return psSurf;*/
 
+#ifndef WIN32
+	static char exactfname[255];
+	GetExactFileName(filename, exactfname);
+	struct stat s;
+	if(stat(exactfname, &s) == 0)
+	{
+		//printf("_LoadImage(%s): %0.1f kBytes\n", exactfname, s.st_size / 1024.0f);
+	    return IMG_Load(exactfname);
+	}
+	else
+	{
+		//printf("_LoadImage(%s): ERROR: cannot stat the file\n", exactfname);
+		return NULL;
+	}
+#else // WIN32
     return IMG_Load(filename);
+#endif
 }
 
 
@@ -70,7 +90,7 @@ SDL_Surface *_LoadImage(char *filename)
 SDL_Surface *CCache::LoadImg(char *_file)
 {
 	Type = CCH_IMAGE;
-	strcpy(Filename,_file);
+	GetExactFileName(_file, Filename);
 
      
 	// Load the image
@@ -78,8 +98,8 @@ SDL_Surface *CCache::LoadImg(char *_file)
 
 	if(Image)
 		Used = true;
-	//else
-		//printf("Error loading file: %s",_file);
+	else
+		printf("CCache::LoadImg: Error loading file: %s\n",Filename);
 
 	return Image;
 }
@@ -92,7 +112,7 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 	SDL_Surface *img;
 
 	Type = CCH_IMAGE;
-	strcpy(Filename,_file);
+	GetExactFileName(_file, Filename);
 
 	// Load the image
 	img = _LoadImage(Filename);
@@ -100,7 +120,7 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 	if(img)
 		Used = true;
 	else {
-		//printf("Error loading file: %s",_file);
+		printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename);
 		return NULL;
 	}
 
@@ -122,12 +142,13 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 HSAMPLE CCache::LoadSample(char *_file, int maxplaying)
 {
 	Type = CCH_SOUND;
-	strcpy(Filename,_file);
+	GetExactFileName(_file, Filename);
 
 	// Load the sample
 	// TODO: load it
 	//Sample = BASS_SampleLoad(false,Filename,0,0,maxplaying,0);
-
+	Sample = 0;
+	
 	if(Sample)
 		Used = true;
 	//else

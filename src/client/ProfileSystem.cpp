@@ -30,7 +30,7 @@ int LoadProfiles(void)
 	//
 	// Open the file
 	//
-	FILE *fp = fopen("cfg/players.dat","rb");
+	FILE *fp = fopen_i("cfg/players.dat","rb");
 	if(fp == NULL) {
 
         // Add the default players
@@ -128,7 +128,7 @@ void SaveProfiles(void)
 	//
 	// Open the file
 	//
-	FILE *fp = fopen("cfg/players.dat","wb");
+	FILE *fp = fopen_i("cfg/players.dat","wb");
 	if(fp == NULL)
 		return;
 
@@ -170,7 +170,7 @@ void ShutdownProfiles(void)
 	//
 	// Open the file
 	//
-	FILE *fp = fopen("cfg/players.dat","wb");
+	FILE *fp = fopen_i("cfg/players.dat","wb");
 	if(fp == NULL)
 		return;
 

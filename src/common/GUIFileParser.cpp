@@ -56,7 +56,7 @@ int CParser::Load(char *sFilename)
 	FILE *fp;
 	
 	// Open the file
-	fp = fopen(sFilename,"rb");
+	fp = fopen_i(sFilename,"rb");
 	if(fp == NULL)  {
 		Error(1,"Could not open file: %s",sFilename);
 		return false;

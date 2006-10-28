@@ -88,10 +88,10 @@ int LoadGraphics(void)
 /*int write_png(char *file_name, png_bytep *rows, int w, int h, int colortype,int bitdepth) {
   png_structp png_ptr;
   png_infop info_ptr;
-  FILE *fp = fopen(file_name, "wb");
+  FILE *fp = fopen_i(file_name, "wb");
   char *doing = "open for writing";
 
-  if (!(fp = fopen(file_name, "wb"))) goto fail;
+  if (!(fp = fopen_i(file_name, "wb"))) goto fail;
   doing = "create png write struct";
   if (!(png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL))) goto fail;
   doing = "create png info struct";

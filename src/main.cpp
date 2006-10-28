@@ -11,6 +11,9 @@
 #include "console.h"
 
 
+// TODO: i hate globals ...
+// we have to create a basic class CGame or something
+
 CClient		*cClient = NULL;
 CServer		*cServer = NULL;
 lierox_t	*tLX = NULL;
@@ -77,7 +80,7 @@ int main(int argc, char *argv[])
 	if (tLXOptions->iLogConvos)  {
 		FILE *f;
 
-		f = fopen("Conversations.log","a");
+		f = fopen_i("Conversations.log","a");
 		if (f)  {	
 			char cTime[26];
 			GetTime(cTime);
@@ -416,7 +419,7 @@ void ShutdownLieroX(void)
 	if (tLXOptions->iLogConvos)  {
 		FILE *f;
 
-		f = fopen("Conversations.log","a");
+		f = fopen_i("Conversations.log","a");
 		if (f)  { 
 			fputs("</game>\r\n",f);
 			fclose(f);

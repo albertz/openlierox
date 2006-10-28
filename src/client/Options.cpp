@@ -141,7 +141,7 @@ void SaveOptions(void)
     if(tLXOptions == NULL)
 		return;
 
-    FILE *fp = fopen("cfg/options.cfg", "wt");
+    FILE *fp = fopen_i("cfg/options.cfg", "wt");
     if(fp == NULL)
         return;
 

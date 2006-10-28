@@ -131,7 +131,7 @@ int GetString(char *filename, char *section, char *key, char *string)
 	if(strcmp(filename,"") == 0)
 		return false;
 
-	config = fopen(filename,"rt");
+	config = fopen_i(filename,"rt");
 	if(!config)	
 		return false;
 

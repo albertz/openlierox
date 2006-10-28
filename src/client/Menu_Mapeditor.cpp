@@ -642,7 +642,7 @@ void Menu_MapEd_LoadSave(int save)
 		// Liero Xtreme level
 		if( stricmp(filename + strlen(filename)-4, ".lxl") == 0) {
 
-			FILE *fp = fopen(filename,"rb");
+			FILE *fp = fopen_i(filename,"rb");
 			if(fp) {
 				fread(id,			sizeof(char),	32,	fp);
 				fread(&version,	sizeof(int),	1,	fp);
@@ -664,7 +664,7 @@ void Menu_MapEd_LoadSave(int save)
 
 		// Liero level
 		if( stricmp(filename + strlen(filename)-4, ".lev") == 0) {
-			FILE *fp = fopen(filename,"rb");
+			FILE *fp = fopen_i(filename,"rb");
 			
 			if(fp) {
 
@@ -792,7 +792,7 @@ int Menu_MapEd_OkSave(char *szFilename)
 	if( stricmp( szFilename + strlen(szFilename) - 4, ".lxl") != 0)
 		strcat(szFilename,".lxl");
 
-	FILE *fp = fopen(szFilename,"rb");
+	FILE *fp = fopen_i(szFilename,"rb");
 	if( fp == NULL)
 		// File doesn't exist, ok to save
 		return true;
