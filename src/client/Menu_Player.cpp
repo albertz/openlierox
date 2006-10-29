@@ -738,9 +738,9 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 			g2 = (float)ColG * dg;
 			b2 = (float)ColB * db;
 
-			r2 = MIN(255,r2);
-			g2 = MIN(255,g2);
-			b2 = MIN(255,b2);
+			r2 = MIN((float)255,r2);
+			g2 = MIN((float)255,g2);
+			b2 = MIN((float)255,b2);
 
 
 			// Bit of a hack to make sure it isn't completey pink (see through)

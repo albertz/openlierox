@@ -435,7 +435,7 @@ void CClient::SimulateHud(void)
 
 	for(int i=0;i<iChat_Numlines;i++) {
 		tChatLines[i].fScroll += dt*ScrollSpeed;
-		tChatLines[i].fScroll = MIN(1,tChatLines[i].fScroll);
+		tChatLines[i].fScroll = MIN((float)1,tChatLines[i].fScroll);
 		
 		if(tChatLines[i].fTime + 4 < tLX->fCurTime) {
 			iChat_Numlines--;
@@ -564,7 +564,7 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 
 	// Draw a timer when we're going back to the lobby
 	float timeleft = LX_ENDWAIT - (tLX->fCurTime - fGameOverTime);
-	timeleft = MAX(timeleft,0);
+	timeleft = MAX(timeleft,(float)0);
 	tLX->cFont.Draw(bmpDest, x+width-180, j+2, MakeColour(200,200,200), "Returning to lobby in %d", (int)timeleft);
 
 	

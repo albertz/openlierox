@@ -55,8 +55,8 @@ void CWorm::getInput(/*worm_state_t *ws*/)
         fAngleSpeed += 500 * dt;
 		//fAngle += wd->AngleSpeed * dt;		
     } else {
-        fAngleSpeed = MIN(fAngleSpeed,100);
-        fAngleSpeed = MAX(fAngleSpeed,-100);
+        fAngleSpeed = MIN(fAngleSpeed,(float)100);
+        fAngleSpeed = MAX(fAngleSpeed,(float)-100);
         if( fAngleSpeed > 0 )
             fAngleSpeed -= 200*dt;
         else if( fAngleSpeed < 0 )
@@ -767,8 +767,8 @@ void CWorm::getMouseInput(void)
 
 	// Change angle
 	fAngle += DeltaY;
-	fAngle = MAX(fAngle,-90);
-	fAngle = MIN(fAngle,60);
+	fAngle = MAX(fAngle,(float)-90);
+	fAngle = MIN(fAngle,(float)60);
 
 	int Right = DeltaX > 0;
 	int Left = DeltaX < 0;

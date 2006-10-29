@@ -378,9 +378,9 @@ SDL_Surface *CWorm::ChangeGraphics(char *filename, int team)
 			g2 = (float)ColG * dg;
 			b2 = (float)ColB * db;
 
-			r2 = MIN(255,r2);
-			g2 = MIN(255,g2);
-			b2 = MIN(255,b2);
+			r2 = MIN((float)255,r2);
+			g2 = MIN((float)255,g2);
+			b2 = MIN((float)255,b2);
 
 			// Make sure it isn't exactly 'magic pink'
 			if(MakeColour((int)r2, (int)g2, (int)b2) == MakeColour(255,0,255)) {

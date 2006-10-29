@@ -137,11 +137,11 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 		PlayerAttached = false;
 
 		// Make the hook stay at an edge
-		HookPos.SetX( MAX(0,HookPos.GetX()) );
-		HookPos.SetY( MAX(0,HookPos.GetY()) );
+		HookPos.SetX( MAX((float)0,HookPos.GetX()) );
+		HookPos.SetY( MAX((float)0,HookPos.GetY()) );
 
-		HookPos.SetX( MIN(map->GetWidth()-1,HookPos.GetX()) );
-		HookPos.SetY( MIN(map->GetHeight()-1,HookPos.GetY()) );
+		HookPos.SetX( MIN(map->GetWidth()-(float)1,HookPos.GetX()) );
+		HookPos.SetY( MIN(map->GetHeight()-(float)1,HookPos.GetY()) );
 
         outsideMap = true;
 	}
@@ -275,7 +275,7 @@ CVec CNinjaRope::CalculateForce(CVec playerpos, CVec hookpos)
 	dir = playerpos-hookpos;
 	NormalizeVector(&dir);
 
-	float l = MIN(0,RestLength-length);
+	float l = MIN((float)0,RestLength-length);
 
 	if(length < RestLength)
 		return CVec(0,0);

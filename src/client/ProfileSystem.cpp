@@ -564,9 +564,9 @@ SDL_Surface *LoadSkin(char *szSkin, int colR, int colG, int colB)
 			g2 = (float)colG * dg;
 			b2 = (float)colB * db;
 
-			r2 = MIN(255,r2);
-			g2 = MIN(255,g2);
-			b2 = MIN(255,b2);
+			r2 = MIN((float)255,r2);
+			g2 = MIN((float)255,g2);
+			b2 = MIN((float)255,b2);
 
 
 			// Bit of a hack to make sure it isn't completey pink (see through)

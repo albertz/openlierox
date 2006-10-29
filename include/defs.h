@@ -110,8 +110,8 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #define		LOAD_IMAGE(bmp,name) bmp = LoadImage(name,0); if(bmp == NULL) return false
 #define		LOAD_IMAGE_BPP(bmp,name) bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); if(bmp == NULL) return false
 
-#define		MIN(a,b)	(a)<(b) ? (a) : (b)
-#define		MAX(a,b)	(a)>(b) ? (a) : (b)
+template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
+template <typename T> inline T MAX(T a, T b) { return a>b?a:b; }
 
 void d_printf(char *fmt, ...);
 

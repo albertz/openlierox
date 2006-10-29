@@ -227,7 +227,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         float l = NormalizeVector(&dir);
         
         float speed = l*2.5f;
-        speed = MIN(300,speed);
+        speed = MIN((float)300,speed);
         
         if( l > 2 )
             curPos += dir*speed * tLX->fDeltaTime;
@@ -252,10 +252,10 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
             curPos += CVec(scrollSpeed,0);
 
         // Clamp our movement
-        curPos.SetX( MAX(0,curPos.GetX()) );
-        curPos.SetY( MAX(0,curPos.GetY()) );
-        curPos.SetX( MIN(MWidth-Width,curPos.GetX()) );
-        curPos.SetY( MIN(MHeight-Height,curPos.GetY()) );
+        curPos.SetX( MAX((float)0,curPos.GetX()) );
+        curPos.SetY( MAX((float)0,curPos.GetY()) );
+        curPos.SetX( MIN((float)MWidth-Width,curPos.GetX()) );
+        curPos.SetY( MIN((float)MHeight-Height,curPos.GetY()) );
         
         WorldX = (int)curPos.GetX();
         WorldY = (int)curPos.GetY();

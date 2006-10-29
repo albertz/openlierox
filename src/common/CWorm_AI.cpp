@@ -1117,8 +1117,8 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
             
             fAngle -= 45;
             // Clamp the angle
-	        fAngle = MIN(60,fAngle);
-	        fAngle = MAX(-90,fAngle);
+	        fAngle = MIN((float)60,fAngle);
+	        fAngle = MAX((float)-90,fAngle);
 
             // Recalculate the path
             AI_InitMoveToTarget(pcMap);
@@ -1364,7 +1364,7 @@ bool CWorm::AI_SetAim(CVec cPos)
 		ang = -ang + 90;
 
 	// Clamp the angle
-	ang = MAX(-90, ang);
+	ang = MAX((float)-90, ang);
 
 	// Move the angle at the same speed humans are allowed to move the angle
 	if(ang > fAngle)
@@ -1379,8 +1379,8 @@ bool CWorm::AI_SetAim(CVec cPos)
     }
 
 	// Clamp the angle
-	fAngle = MIN(60,fAngle);
-	fAngle = MAX(-90,fAngle);
+	fAngle = MIN((float)60,fAngle);
+	fAngle = MAX((float)-90,fAngle);
 
     return goodAim;
 }

@@ -1652,8 +1652,8 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
         mx = (float)floor(mx);
         my = (float)floor(my);
 
-		mx = MIN(mw-1,mx); mx = MAX(0,mx);
-		my = MIN(mh-1,my); my = MAX(0,my);
+		mx = MIN(mw-(float)1,mx); mx = MAX((float)0,mx);
+		my = MIN(mh-(float)1,my); my = MAX((float)0,my);
 		i=(int)mx + x;
 		j=(int)my + y;
 		// Snap it to the nearest 2nd pixel (prevent 'jumping')

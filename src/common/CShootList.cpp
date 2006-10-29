@@ -461,6 +461,7 @@ void CShootList::readSingle( CBytestream *bs )
 
 
 	// Convert the pos
+	// TODO: ????? documentation needed
 	int x = pos[0] + ((pos[1]&15)<<8);
 	int y = (pos[1]>>4) + (pos[2]<<4);
 	psShot->cPos = CVec( (float)x, (float)y );

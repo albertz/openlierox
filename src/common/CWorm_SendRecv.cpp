@@ -318,8 +318,8 @@ void CWorm::readWeapons(CBytestream *bs)
 void CWorm::writeStatUpdate(CBytestream *bs)
 {
 	byte charge = (int) (tWeapons[iCurrentWeapon].Charge * 100.0f);
-    charge = MAX(charge, 0);
-    charge = MIN(charge, 100);
+    charge = MAX(charge, (byte)0);
+    charge = MIN(charge, (byte)100);
 
 	if(tWeapons[iCurrentWeapon].Reloading)
 		charge |= 0x80;
