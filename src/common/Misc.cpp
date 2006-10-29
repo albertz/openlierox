@@ -397,6 +397,9 @@ char *ucfirst(char *text)
 }
 
 
+// for GetByteSwapped, declared in defs.h
+unsigned char byteswap_buffer[16];
+
 void ByteSwap(unsigned char * b, int n)
 {
    register int i = 0;
