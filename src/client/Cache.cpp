@@ -120,7 +120,7 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 	if(img)
 		Used = true;
 	else {
-		printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename);
+		//printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename);
 		return NULL;
 	}
 
