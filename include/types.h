@@ -26,10 +26,10 @@ typedef unsigned long	ulong;
 // used by sound-system; TODO: replace it
 typedef int HSAMPLE;
 // BASS also typedefed this; TODO: this has to be changed!
-//typedef char byte;
 
 #ifndef WIN32
 typedef int DWORD;
+typedef char byte;
 #endif
 
 

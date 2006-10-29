@@ -383,7 +383,7 @@ enum  {
 	na_Cancel=0,
 	na_Add,
 	na_Address
-}
+};
 
 void Menu_Net_NETAddServer(void)
 {

@@ -98,6 +98,7 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 void d_printf(char *fmt, ...);
 
+// like strcasecmp, but for a char
 int chrcasecmp(const char c1, const char c2);
 
 #ifndef WIN32
@@ -106,7 +107,12 @@ int chrcasecmp(const char c1, const char c2);
 #	define		stricmp		strcasecmp
 #endif
 
+// --------------------------------------------
+// Endian checks and conversions
+
+#ifndef WIN32
 #include <endian.h>
+#endif
 
 #define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
 
@@ -120,7 +126,11 @@ inline T* GetByteSwapped(const T b)
 	return (T*)byteswap_buffer;
 }
 
-// TODO: WIN32 compatible?
+#ifdef WIN32
+// WIN32 doesn't define this, endian.h doesn't exist there
+#define	__BYTE_ORDER	__LITTLE_ENDIAn
+#endif
+
 #if !defined(__BYTE_ORDER)
 #	error __BYTE_ORDER not defined
 #endif
