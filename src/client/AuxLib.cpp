@@ -11,10 +11,11 @@
 
 // this is the new file!
 
-
+#ifndef WIN32
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#endif
 
 #include "defs.h"
 #include <SDL/SDL_syswm.h>
