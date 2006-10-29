@@ -33,6 +33,10 @@
 #include <math.h>
 #include <time.h>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
