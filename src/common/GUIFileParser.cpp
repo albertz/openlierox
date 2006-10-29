@@ -18,6 +18,234 @@
 #include "Menu.h"
 #include "GUIFileParser.h"
 
+/*						*/
+/*	Helpful functions	*/
+/*						*/
+//////////////////
+// Reads common events, that are available for almost every widget
+void ReadEvents(xmlNodePtr Node, generic_events_t *Events)
+{
+	// Load the values
+	xmlChar *onmouseover = xmlGetProp(Node,(const xmlChar *)"onmouseover");
+	xmlChar *onmouseout  = xmlGetProp(Node,(const xmlChar *)"onmouseout");
+	xmlChar *onmousedown = xmlGetProp(Node,(const xmlChar *)"onmousedown");
+	xmlChar *onclick	 = xmlGetProp(Node,(const xmlChar *)"onclick");
+
+	// Copy the values into the events
+	if (Events->onmouseover)
+		strcpy(Events->onmouseover, (char *)onmouseover);
+	else
+		strcpy(Events->onmouseover, "");
+
+	if (Events->onmouseout)
+		strcpy(Events->onmouseout, (char *)onmouseout);
+	else
+		strcpy(Events->onmouseout, "");
+
+	if (Events->onmousedown)
+		strcpy(Events->onmousedown, (char *)onmousedown);
+	else
+		strcpy(Events->onmousedown, "");
+
+	if (Events->onclick)
+		strcpy(Events->onclick, (char *)onclick);
+	else
+		strcpy(Events->onclick, "");
+
+	// Free the data
+	xmlFree(onmouseover);
+	xmlFree(onmouseout);
+	xmlFree(onmousedown);
+	xmlFree(onclick);
+}
+
+/*					 */
+/*	Widget IDs list  */
+/*					 */
+
+//////////////////
+// Adds a new item to the widget ID list
+// Returns the id of added item
+int CWidgetList::Add(char *Name)
+{
+	// Find the ID of the new item
+	int id = iCount+1;
+
+	// Create new item
+	widget_item_t *new_item = new widget_item_t;
+	if (!new_item)
+		return -1;
+
+	// Fill in the item details
+	new_item->iID = id;
+	new_item->sName = new char[strlen(Name)+1];
+	if(!new_item->sName)
+		return -1;
+	strcpy(new_item->sName,Name);
+	new_item->tNext = NULL;  // It will be the last item
+
+	// Link it in
+	widget_item_t *last_item = tItems;
+
+	// Add the new item at the end of the list
+	if(last_item)  {
+		while(last_item->tNext)  {
+			last_item = last_item->tNext;
+		}
+		last_item->tNext = new_item;
+	}
+
+	// The list is emtpy
+	else  {
+		tItems = new_item;
+	}
+
+	// Successfully added
+	iCount++;
+
+	return id;
+}
+
+////////////////
+// Get the name of widget by it's ID
+char *CWidgetList::getName(int ID)
+{
+	// The list is empty
+	if (!tItems)
+		return NULL;
+
+	// Go through the items
+	widget_item_t *item = tItems;
+	while(item)  {
+		if (item->iID == ID)
+			return item->sName;
+		item = item->tNext;
+	}
+
+	// Not found
+	return NULL;
+}
+
+////////////////
+// Get the ID of widget by it's name
+int	CWidgetList::getID(const char *Name)
+{
+	// The list is empty
+	if (!tItems)
+		return -1;
+
+	// No name specified
+	if (!Name)
+		return -1;
+
+	// Go through the items
+	widget_item_t *item = tItems;
+	while(item)  {
+		if (!stricmp(Name,item->sName))
+			return item->iID;
+		item = item->tNext;
+	}
+
+	// Not found
+	return -1;
+}
+
+///////////////
+// Shutdown the widget IDs list
+void CWidgetList::Shutdown(void)
+{
+	// The list is already empty
+	if (!tItems)
+		return;
+
+	// Go through the list an delete each item
+	widget_item_t *item = tItems;
+	widget_item_t *next = NULL;
+	for(;item;item=next)  {
+		// Delete the name
+		if (item->sName)
+			delete[] item->sName;
+
+		// Delete the item
+		next = item->tNext;
+		delete item;
+	}
+}
+
+/*							*/
+/*  Helpful XML functions	*/
+/*							*/
+
+///////////////////
+// Get an integer from the specified property
+int xmlGetInt(xmlNodePtr Node, const char *Name)
+{
+	xmlChar *sValue;
+	sValue = xmlGetProp(Node,(const xmlChar *)Name);
+	if(!sValue)
+		return 0;
+	int result = atoi((const char *)sValue);
+	xmlFree(sValue);
+	return result;
+}
+
+///////////////////
+// Get a float from the specified property
+float xmlGetFloat(xmlNodePtr Node, const char *Name)
+{
+	xmlChar *sValue;
+	sValue = xmlGetProp(Node,(const xmlChar *)Name);
+	if (!sValue)
+		return 0;
+	float result = (float)atof((const char *)sValue);
+	xmlFree(sValue);
+	return result;
+}
+
+///////////////////
+// Get a colour from the specified property
+Uint32 xmlGetColour(xmlNodePtr Node, const char *Name)
+{
+	char *sValue,*org_val;
+	char tmp[3];
+	int r,g,b;
+	tmp[2] = 0;  // Third character is terminating
+
+	// Get the value
+	sValue = (char *)xmlGetProp(Node,(const xmlChar *)Name);
+	org_val = sValue; // Save the original pointer
+
+	// By default return black
+	if(!sValue)
+		return 0;
+
+	// Ignore the # character
+	if (*sValue == '#')
+		sValue++;
+
+	// R value
+	strncpy(tmp,sValue,2);
+	r = atoi(tmp);
+
+	// G value
+	strncpy(tmp,sValue+2,2);
+	g = atoi(tmp);
+
+	// B value
+	strncpy(tmp,sValue+4,2);
+	b = atoi(tmp);
+
+	// Make the colour
+	Uint32 result = MakeColour(r,g,b);
+
+	xmlFree((xmlChar *)sValue);
+	return result;
+}
+
+
+/*					  */
+/*	The Parser class  */
+/*					  */
 
 ///////////////////
 // The create event
@@ -25,13 +253,6 @@ void CParser::Create(void)
 {
 	// Destroy any previous data
 	Destroy();
-
-	iLines = -1;
-
-	tObjects = NULL;
-	
-	iPos = iLength = 0;
-	sData = NULL;
 }
 
 ////////////////////
@@ -50,51 +271,226 @@ void CParser::Error(int Code, char *Format,...)
 
 
 ///////////////////
-// Load the cmht file
-int CParser::Load(char *sFilename)
+// Load the XML file
+int CParser::BuildLayout(CGuiLayout *Layout, char *sFilename)
 {
-	FILE *fp;
-	
-	// Open the file
-	fp = fopen_i(sFilename,"rb");
-	if(fp == NULL)  {
-		Error(1,"Could not open file: %s",sFilename);
+	// Parse the document
+	tDocument = xmlParseFile(sFilename);
+	if (tDocument == NULL)  {
+		Error(ERR_COULDNOTPARSE,"Could not parse the document %s",sFilename);
 		return false;
 	}
 
-	fseek(fp,0,SEEK_END);
-	iLength = ftell(fp);
-	fseek(fp,0,SEEK_SET);
-
-	// Allocate room for the data
-	sData = new char[iLength];
-	if(sData == NULL) {
-		fclose(fp);
-		Error(2,"%s","Not enough of free memory.");
+	// Get the root node
+	tCurrentNode = xmlDocGetRootElement(tDocument);
+	if (tCurrentNode == NULL)  {
+		Error(ERR_EMPTYDOC,"The '%s' document is empty",sFilename);
 		return false;
 	}
 
-	// Load the data
-	fread(sData,sizeof(char),iLength,fp);
-	fclose(fp);
-
-
-	// Go through the file
-	iPos=0;
-	iLines=-1;
-	while(iPos<iLength) {
-		ReadObject();
-		iPos++;
+	// Validate the root node
+	if (CMP(tCurrentNode->name,"skin"))  {
+		Error(ERR_INVALIDROOT,"The document '%s' contains invalid parent node: %s",sFilename,tCurrentNode->name);
+		return false;
 	}
 
+	// Get the first child
+	tCurrentNode = tCurrentNode->xmlChildrenNode;
 
-	// Free the data
-	if(sData) {
-		delete[] sData;
-		sData = NULL;
+	// Get all the nodes in document and create widgets in layout
+	while (tCurrentNode != NULL)  {
+
+		// Box
+		if (CMP(tCurrentNode->name,"box"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			int round  = xmlGetInt(tCurrentNode,"round");
+			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor");
+			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor");
+			Uint32 bgcolour = xmlGetColour(tCurrentNode,"bgcolor");
+			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CBox(round,light_colour,dark_colour,bgcolour),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+		// Frame
+		if (CMP(tCurrentNode->name,"frame"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			int round  = xmlGetInt(tCurrentNode,"round");
+			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor");
+			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor");
+
+			//Layout->Add(new CFrame(round,light_colour,dark_colour),-1,left,top,width,height);
+		}
+
+		// Image
+		if (CMP(tCurrentNode->name,"img"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			xmlChar *src  = xmlGetProp(tCurrentNode,(const xmlChar *)"src");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			//Layout->Add(new CImage((char *) src, Events),AssignIdToName(name),left,top,width,height);
+			xmlFree(name);
+			xmlFree(src);
+
+		}
+
+		// Button
+		if (CMP(tCurrentNode->name,"button"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name	 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			xmlChar *src	 = xmlGetProp(tCurrentNode,(const xmlChar *)"src");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			//Layout->Add(new CButton((char *) src, Events),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+			xmlFree(src);
+		}
+
+
+		// Checkbox
+		if (CMP(tCurrentNode->name,"checkbox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CCheckbox(false),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+
+		// Combobox
+		if (CMP(tCurrentNode->name,"combobox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CCombobox(),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+		// Inputbox
+		if (CMP(tCurrentNode->name,"checkbox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CInputbox(),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+		// Label
+		if (CMP(tCurrentNode->name,"checkbox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			//Layout->Add(new CLabel(Events),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+		// Listview
+		if (CMP(tCurrentNode->name,"listview"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CListview(),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+		// Scrollbar
+		if (CMP(tCurrentNode->name,"scrollbar"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name	= xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CScrollbar(),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+		// Slider
+		if (CMP(tCurrentNode->name,"slider"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CSlider(),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+		// Textbox
+		if (CMP(tCurrentNode->name,"checkbox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name	= xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CTextbox(),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+
+		tCurrentNode = tCurrentNode->next;
 	}
-	
+
 	return true;
+}
+
+////////////////////
+// Get the widget list for specified layout
+CWidgetList *CParser::GetLayoutWidgets(int LayoutID)
+{ 
+	if (LayoutID >=0 && LayoutID <= L_MESSAGEBOXYESNO)
+		return &LayoutWidgets[LayoutID];
+	else 
+		return NULL;
+}
+
+////////////////////
+// Get the widget ID
+int CParser::GetIdByName(char *Name,int LayoutID)
+{
+	int ID = -1;
+	// Find the standard or previously added widget
+	ID = LayoutWidgets[LayoutID].getID(Name);
+
+	// Non-standard widget, add it to the list
+	if (ID == -1)
+		ID = LayoutWidgets[LayoutID].Add(Name);
+	return ID;
 }
 
 
@@ -102,590 +498,14 @@ int CParser::Load(char *sFilename)
 // Destroy function
 void CParser::Destroy(void)
 {
-	// Go through freeing each object
-	tag_object_t *obj = tObjects;
-	tag_object_t *o;
+	// Free the XML data
+	if (tDocument != NULL)
+		xmlFreeDoc(tDocument);
+	tDocument = NULL;
+	tCurrentNode = NULL;
 
-	for(; obj ; obj=o) {
-		o = obj->tNext;
-		
-		if(obj->strText) {
-			delete[] obj->strText;
-			obj->strText = NULL;
-		}
-		
-		if(obj)
-			delete obj;
-	}
-	
-	tObjects = NULL;
+	// Shutdown the layouts
+	for (int i=0; i<L_MESSAGEBOXYESNO; i++)
+		LayoutWidgets[i].Shutdown();
 }
 
-
-///////////////////
-// Read an object
-void CParser::ReadObject(void)
-{
-	// Check first character
-	char c = sData[iPos];
-
-	// Comment
-	if(c == '/' && sData[iPos+1] == '/') {
-		// Read until the end of the line
-		ReadNewline();
-		return;
-	}
-
-	// Tag
-	if(c == '<') {
-		ReadTag();
-		return;
-	}
-
-	// Newline
-	if(c == '\n' || c == '\r') {
-		return;
-	}
-
-	// Normal text
-	ReadText();
-}
-
-
-///////////////////
-// Set the position to the next line
-void CParser::ReadNewline(void)
-{
-	while(iPos < iLength) {
-		if(sData[iPos] == '\n') {
-			iPos--;
-			return;
-		}
-		iPos++;
-	}
-}
-
-
-///////////////////
-// Read a tag
-void CParser::ReadTag(void)
-{
-	char sName[32];
-	property_t cProperties[16];
-	int i = 0;
-	int val = 0;
-	int end = false;
-	int iNumProperties = 0;
-	
-	sName[0] = 0;
-
-	// Tag list
-	char	*sTags[] = {"b","u","i","s","frame","img","button","checkbox","combobox","inputbox","label","listview","menu","scrollbar","slider","textbox"};
-	int		iNumTags = 15;
-
-	iPos++;
-
-	// Check if it's an end tag
-	if(sData[iPos] == '/') {
-		end=true;
-		iPos++;
-	}
-
-	// Read the tag name until a space, arrow or newline
-	while(iPos < iLength) {
-		if(sData[iPos] == ' ' || sData[iPos] == '>' || sData[iPos] == '\r' || sData[iPos] == '\n') {
-			sName[i] = '\0';
-			break;
-		}
-
-		sName[i++] = sData[iPos++];
-	}
-
-#ifdef WIN32
-	// Convert the name to lower case
-	strlwr(sName);
-#else
-	// TODO ...
-#endif
-			
-	// Some tags contain properties (and not the end tags)
-	if(stricmp(sName,"frame") == 0 ||
-	   stricmp(sName,"img") == 0 ||
-	   stricmp(sName,"button") == 0 ||
-	   stricmp(sName,"checkbox") == 0 ||
-	   stricmp(sName,"combobox") == 0 ||
-	   stricmp(sName,"inputbox") == 0 ||
-	   stricmp(sName,"label") == 0 ||
-	   stricmp(sName,"listview") == 0 ||
-	   stricmp(sName,"scrollbar") == 0 ||
-	   stricmp(sName,"slider") == 0 ||
-	   stricmp(sName,"textbox") == 0  &&
-	   !end) {
-		
-		iPos++;
-		i=0;
-		int curProperty = 0;
-		iNumProperties = 1;
-		bool quotesOpened = false;
-		bool readingName = true;
-		bool escapeSeq = false;
-
-		//
-		// Read the tag properties
-		//
-		while(iPos < iLength) {
-			if(sData[iPos] == ' ' || sData[iPos] == '>' || sData[iPos] == '\n' || sData[iPos] == '\r') {
-				// Ignore these characters when they're in quotes
-				if(!quotesOpened)  {
-					cProperties[curProperty].sValue[i] = '\0';  // Finalize the value
-
-					// Remove spaces
-					TrimSpaces(cProperties[curProperty].sValue);
-					TrimSpaces(cProperties[curProperty].sName);
-
-#ifdef WIN32
-					// Convert to lower case
-					strlwr(cProperties[curProperty].sName);
-					strlwr(cProperties[curProperty].sValue);
-#else
-	// TODO ...
-#endif
-
-					// Convert the value to numeric (if possible)
-					// Must be after TrimSpaces
-					cProperties[curProperty].iValue = atoi(cProperties[curProperty].sValue);
-
-					// End of tag?
-					if (sData[iPos] == '>')
-						break;
-
-					// Read next value
-					else  {
-						// Ignore blank properties (for example two spaces in a row)
-						if(strlen(cProperties[curProperty].sName) > 1)  {
-							curProperty++;
-							iNumProperties++;
-						}
-
-						// Reset variables and check for errors
-						i = 0;
-						if(readingName)
-							Error(4,"The %s property doesn't have any value",cProperties[curProperty].sName);
-						readingName = true;
-						if (escapeSeq)
-							Error(5,"%s","The backslash character in the wrong position");
-						escapeSeq = false;
-						continue;
-					}
-				// Ignore the \r and \n characters in any case
-				} else if (sData[iPos] == '\n' || sData[iPos] == '\r')  {
-					iPos++;
-					continue;
-				}
-			}
-
-			// Escape sequence
-			if(sData[iPos] == '\\' && !readingName && !escapeSeq)  {
-				escapeSeq = true;
-				iPos++;
-				continue;
-			}
-
-			// Quote character
-			if(sData[iPos] == '\"' && !escapeSeq)  {
-				quotesOpened = !quotesOpened;
-				continue;
-			}
-
-			// Character '='
-			if(sData[iPos] == '=' && !quotesOpened)  {
-				readingName = false;
-				cProperties[curProperty].sName[i] = '\0';  // Finalize the property name
-				i = 0;
-				continue;
-			}
-
-
-			// Read the property name and value
-			if (readingName)
-				cProperties[curProperty].sName[i++]  = sData[iPos++];
-			else
-				cProperties[curProperty].sValue[i++] = sData[iPos++];
-		}
-	}
-
-	// Find the tag id
-	int id = -1;
-	for(i=0;i<iNumTags;i++) {
-		if(stricmp(sTags[i],sName) == 0) {
-			id = i+O_BOLD;
-			break;
-		}
-	}
-
-	if(id == -1) {
-		// Error
-		Error(3,"Unknown tag: %s",sName);
-		return;
-	}
-
-
-	// Add the object to the list
-	AddObject(sName,cProperties,iNumProperties,id,end);
-}
-
-
-///////////////////
-// Read text as an object
-void CParser::ReadText(void)
-{
-	char	sText[4096];
-	int i=0;
-
-	// Read the text until a tag
-	while(iPos < iLength) {
-		if(sData[iPos] == '<') {
-			iPos--;
-			break;
-		}
-
-		sText[i++] = sData[iPos++];
-
-		if(i>=4095)
-			break;
-	}
-	sText[i] = '\0';
-
-	AddObject(sText,NULL,0,HTO_TEXT,0);
-}
-
-
-///////////////////
-// Add an object to the list
-void CParser::AddObject(char *sText, property_t *cProperties, int iNumProperties, int iType, int iEnd)
-{
-	tag_object_t *obj;
-//	int r,g,b;
-
-	// Allocate a new object
-	obj = new tag_object_t;
-	if(obj == NULL) {
-		// Out of memory
-		Error(ERR_OUTOFMEMORY,"Out of memory");
-		return;
-	}
-
-	// Allocate room for the text
-	obj->strText = new char[strlen(sText)+1];
-	if(obj->strText == NULL) {
-		// Out of memory
-		Error(ERR_OUTOFMEMORY,"Out of memory");
-		return;
-	}
-
-	// Set the properties
-	strcpy(obj->strText,sText);
-	obj->iType = iType;
-	obj->iEnd = iEnd;
-	obj->iNumProperties = iNumProperties;
-	obj->tNext = NULL;
-
-	// Allocate the tag properties
-	obj->cProperties = new property_t[iNumProperties];
-	if (!obj->cProperties)  {
-		// Out of memory
-		Error(ERR_OUTOFMEMORY,"Out of memory");
-		return;
-	}
-
-	// Copy the tag properties
-	for (int i=0; i<iNumProperties; i++)  {
-		obj->cProperties[i].iValue = cProperties[i].iValue;
-		strcpy(obj->cProperties[i].sValue,cProperties[i].sValue);
-		strcpy(obj->cProperties[i].sName,cProperties[i].sName);
-	}
-		
-
-	// Values get translated differently for different types of objects
-	// End tags don't get translated
-	/*if(!iEnd) {
-		switch(iType) {
-
-			// Normal integer
-			case HTO_TAB:
-			case HTO_STAB:
-				obj->iValue = atoi(sVal);
-				break;
-
-			// Triple value
-			case HTO_COLOUR:
-			case HTO_BOX:
-				char *tok = strtok(sVal,",");
-				if(tok)	r = atoi(tok);	tok = strtok(NULL,",");
-				if(tok)	g = atoi(tok);  tok = strtok(NULL,",");
-				if(tok)	b = atoi(tok);
-
-				obj->iValue = MakeColour(r,g,b);
-				break;
-		}
-	}*/
-
-
-	// Add this object to the list
-	if(tObjects) {
-		tag_object_t *o = tObjects;
-		for(;o; o = o->tNext) {
-			if(o->tNext == NULL) {
-				o->tNext = obj;
-				break;
-			}
-		}
-	} else
-		tObjects = obj;
-}
-
-int CParser::GetIdByName(char *name)
-{
- // TODO: get the widget id according to its name
-	return 0;	
-}
-
-/////////////////////
-// Creates widgets specified in the loaded file
-void CParser::BuildLayout(CGuiLayout *Layout)
-{
-	tag_object_t *obj = tObjects;
-
-	// Go through all objects
-	for(;obj;obj=obj->tNext) {
-
-	// Button
-	if(!strcmp(obj->strText,"button")) {
-		int left,top,width,height;
-		char onclick[32],name[32];
-
-		for (int i=0; i<obj->iNumProperties; i++)  {
-			if (strcmp(obj->cProperties[i].sName,"left"))  left = obj->cProperties[i].iValue;
-			else if (strcmp(obj->cProperties[i].sName,"top"))   top = obj->cProperties[i].iValue;
-			else if (strcmp(obj->cProperties[i].sName,"width")) width = obj->cProperties[i].iValue;
-			else if (strcmp(obj->cProperties[i].sName,"height"))  height = obj->cProperties[i].iValue;
-			else if (strcmp(obj->cProperties[i].sName,"onclick"))  strcpy(onclick,obj->cProperties[i].sValue);
-			else if (strcmp(obj->cProperties[i].sName,"name"))  strcpy(name,obj->cProperties[i].sValue);
-			else Error(ERR_UNKNOWNPROPERTY,"Unknown property %s in tag %s",obj->cProperties[i].sName,obj->strText);
-		}
-
-		Layout->Add(new CButton(),GetIdByName(name),left,top,width,height);
-	}
-
-	// Checkbox
-	else if(!strcmp(obj->strText,"checkbox")) {
-		int left,top,width,height;
-		char onclick[32],name[32];
-
-		for (int i=0; i<obj->iNumProperties; i++)  {
-			if (strcmp(obj->cProperties[i].sName,"left"))  left = obj->cProperties[i].iValue;
-			else if (strcmp(obj->cProperties[i].sName,"top"))   top = obj->cProperties[i].iValue;
-			else if (strcmp(obj->cProperties[i].sName,"width")) width = obj->cProperties[i].iValue;
-			else if (strcmp(obj->cProperties[i].sName,"height"))  height = obj->cProperties[i].iValue;
-			else if (strcmp(obj->cProperties[i].sName,"onclick"))  strcpy(onclick,obj->cProperties[i].sValue);
-			else if (strcmp(obj->cProperties[i].sName,"name"))  strcpy(name,obj->cProperties[i].sValue);
-			else Error(ERR_UNKNOWNPROPERTY,"Unknown property %s in tag %s",obj->cProperties[i].sName,obj->strText);
-		}
-
-		Layout->Add(new CCheckbox(false),GetIdByName(name),left,top,width,height);
-	}
-
-	// TODO: other tags
-
-
-
-	}
-
-}
-
-
-
-///////////////////
-// Render the browser
-/*void CBrowser::Draw(SDL_Surface *bmpDest)
-{
-	int x,y,s,p,w,c;
-	ht_object_t *obj = tObjects;
-	CFont *fnt = &tLX->cFont;
-	char buf[64];
-	int lcount = 0;
-
-	DrawRectFill(bmpDest, iX+1, iY+1, iX+iWidth-1, iY+iHeight-1, 0xffff);
-	
-	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
-
-	// Setup the clipping rectangle
-	SDL_Rect r;
-	r.x = iX+2;
-	r.y = iY+2;
-	r.w = iWidth-3;
-	r.h = iHeight-3;
-	SDL_SetClipRect(bmpDest,&r);
-
-
-	// 10 pixel margin
-	int Margin = 6;
-	x=iX + Margin;
-	y=iY + Margin - cScrollbar.getValue();
-
-	int RightWidth = iX + iWidth - Margin;
-	if(iUseScroll)
-		RightWidth -= 14;
-
-
-	iProperties=0;
-	iTextColour = 0;
-
-	if(iUseScroll)
-		cScrollbar.Draw(bmpDest);
-
-	// Go through rendering each object
-	for(;obj;obj=obj->tNext) {
-
-		if(y > iY+iHeight+Margin && iLines>=0)
-			break;
-
-		switch(obj->iType) {
-
-			// Property - Bold
-			case HTO_BOLD:
-				if(obj->iEnd)
-					iProperties &= ~PRP_BOLD;
-				else
-					iProperties |= PRP_BOLD;
-				break;
-
-			// Property - Underline
-			case HTO_UNDERLINE:
-				if(obj->iEnd)
-					iProperties &= ~PRP_UNDERLINE;
-				else
-					iProperties |= PRP_UNDERLINE;
-				break;
-
-			// Property - Shadow
-			case HTO_SHADOW:
-				if(obj->iEnd)
-					iProperties &= ~PRP_SHADOW;
-				else
-					iProperties |= PRP_SHADOW;
-				break;
-
-			// Colour
-			case HTO_COLOUR:
-				iTextColour = obj->iValue;
-				break;
-
-			// Tab
-			case HTO_TAB:
-				s =	fnt->GetWidth(" ");
-				p = x + (obj->iValue*4)*s;
-				p/=4;
-				p*=4;
-				x = p;
-				break;
-
-			// Start line Tab
-			case HTO_STAB:
-				s =	fnt->GetWidth(" ");
-				p = (obj->iValue*4)*s;
-				p/=4;
-				p*=4;
-				x = iX+p;
-				break;
-
-			// Line
-			case HTO_LINE:
-				if(y > iY-fnt->GetHeight() && iLines>=0) {
-					DrawHLine(bmpDest,iX+Margin,RightWidth,y,MakeColour(28,36,47));
-					DrawHLine(bmpDest,iX+Margin,RightWidth,y+1,MakeColour(50,65,82));
-				}
-				break;
-
-			// Box
-			case HTO_BOX:
-				if(y > iY-fnt->GetHeight() && iLines>=0)
-					DrawRectFill(bmpDest,iX+Margin,y,RightWidth,y+fnt->GetHeight(),obj->iValue);
-				break;
-
-			// Newline
-			case HTO_NEWLINE:
-				x = iX + Margin;
-				y += fnt->GetHeight();
-				lcount++;
-				break;
-			
-
-			// Text
-			case HTO_TEXT:
-
-				// Go through each word in the text
-				// If a word is going to be over the window border, move the word down a line and
-				// to the start
-
-				p=0;
-				s = strlen(obj->strText);
-				while(p<s) {
-
-					// Go through until a space
-					for(c=p;c<s;c++) {
-						if(obj->strText[c] == ' ') {
-							c++;
-							break;
-						}
-					}
-					strncpy(buf,obj->strText+p,c-p);
-					buf[c-p]='\0';
-					p=c;
-
-					w = fnt->GetWidth(buf);
-					if(x+w > RightWidth) {
-						// Drop down a line
-						x = iX+Margin;
-						y += fnt->GetHeight();
-						lcount++;
-					}
-
-					// Make sure it's within the window
-					if(y > iY-fnt->GetHeight() && iLines>=0) {
-
-						// Draw the properties
-						if(iProperties & PRP_SHADOW)
-							fnt->Draw(bmpDest,x+1,y+1,MakeColour(200,200,200),"%s",buf);					
-						if(iProperties & PRP_BOLD)
-							fnt->Draw(bmpDest,x+1,y+1,iTextColour,"%s",buf);
-						if(iProperties & PRP_UNDERLINE)
-							DrawHLine(bmpDest,x,x+w,y+fnt->GetHeight()-1,iTextColour);
-				
-						// Draw the text
-						fnt->Draw(bmpDest,x,y,iTextColour,"%s",buf);
-					}
-				
-					x+=w;
-				}
-				break;
-		}
-	}
-
-
-	// If this is the first render, set the scrollbar to show the number of lines
-	if(iLines == -1) {
-		cScrollbar.setMax((lcount+1) * fnt->GetHeight() + Margin);
-		iLines = lcount;
-
-		if(cScrollbar.getMax() > iHeight)
-			iUseScroll = true;
-
-		//printl("Browser size: %d",iHeight);
-		//printl("Page size: %d",lcount * fnt->GetHeight());
-	}
-
-
-	// Reset the clipping rectangle to full size
-	SDL_SetClipRect(bmpDest,NULL);
-}*/

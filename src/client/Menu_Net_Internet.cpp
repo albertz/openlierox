@@ -21,7 +21,7 @@
 CGuiLayout	cInternet;
 char        szNetCurServer[128];
 
-// Lan widgets
+// Internet widgets
 enum {
 	Join=0,
 	ServerList,
@@ -379,6 +379,12 @@ extern CButton	cNetButtons[5];
 
 ///////////////////
 // Show an 'add server' box to enter in an address
+enum  {
+	na_Cancel=0,
+	na_Add,
+	na_Address
+}
+
 void Menu_Net_NETAddServer(void)
 {
 	CGuiLayout	cAddSvr;
@@ -399,11 +405,11 @@ void Menu_Net_NETAddServer(void)
 
 
 	cAddSvr.Initialize();
-	cAddSvr.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	0, 220, 320, 40,15);
-	cAddSvr.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),1, 350, 320, 70,15);
+	cAddSvr.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	na_Add, 220, 320, 40,15);
+	cAddSvr.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),na_Cancel, 350, 320, 70,15);
 	cAddSvr.Add( new CLabel("Add a server", 0xffff),		-1,275, 225, 0, 0);
 	cAddSvr.Add( new CLabel("Address", 0xffff),				-1,215, 267, 0, 0);
-	cAddSvr.Add( new CTextbox(),							2, 280, 265, 140, 20);
+	cAddSvr.Add( new CTextbox(),							na_Address, 280, 265, 140, 20);
 
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
 
@@ -436,11 +442,11 @@ void Menu_Net_NETAddServer(void)
 			switch(ev->iControlID) {
 
 				// Add
-				case 0:
+				case na_Add:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
 						char addr[512];
-						cAddSvr.SendMessage(2, TXM_GETTEXT, (DWORD)addr, sizeof(addr));
+						cAddSvr.SendMessage(na_Address, TXM_GETTEXT, (DWORD)addr, sizeof(addr));
 
 						Menu_SvrList_AddServer(addr, true);
 						Menu_SvrList_FillList( (CListview *)cInternet.getWidget( ServerList ) );
@@ -454,7 +460,7 @@ void Menu_Net_NETAddServer(void)
 					break;
 
 				// Cancel
-				case 1:
+				case na_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
 // TODO: implement sound

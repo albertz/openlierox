@@ -446,6 +446,14 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 
 ///////////////////
 // Show a 'new' dialog box
+enum {
+	mn_Cancel=0,
+	mn_Ok,
+	mn_Width,
+	mn_Height,
+	mn_Scheme
+};
+
 void Menu_MapEd_New(void)
 {
 	keyboard_t *kb = GetKeyboard();
@@ -470,11 +478,11 @@ void Menu_MapEd_New(void)
 
 	cg.Initialize();
 
-	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), 0, 220,285, 75,15);
-	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     1, 390,285, 40,15);
-	cg.Add( new CTextbox(),                             2, 280,200, 100,20);
-	cg.Add( new CTextbox(),                             3, 280,230, 100,20);
-	cg.Add( new CCombobox(),							4, 280,260, 120,17);
+	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), mn_Cancel, 220,285, 75,15);
+	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     mn_Ok, 390,285, 40,15);
+	cg.Add( new CTextbox(),                             mn_Width, 280,200, 100,20);
+	cg.Add( new CTextbox(),                             mn_Height, 280,230, 100,20);
+	cg.Add( new CCombobox(),							mn_Scheme, 280,260, 120,17);
 
 	cg.SendMessage(2,TXM_SETMAX,64,0);
 	cg.SendMessage(3,TXM_SETMAX,64,0);
@@ -541,7 +549,7 @@ void Menu_MapEd_New(void)
 			switch(ev->iControlID) {
 
 				// Cancel
-				case 0:
+				case mn_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 // TODO: sound
 //						BASS_SamplePlay(sfxGeneral.smpClick);
@@ -550,7 +558,7 @@ void Menu_MapEd_New(void)
 					break;
 
 				// OK
-				case 1:
+				case mn_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 // TODO: sound
 //						BASS_SamplePlay(sfxGeneral.smpClick);
@@ -597,6 +605,13 @@ void Menu_MapEd_New(void)
 
 ///////////////////
 // File save/load dialog
+enum  {
+	sl_Cancel=0,
+	sl_Ok,
+	sl_FileList,
+	sl_FileName
+};
+
 void Menu_MapEd_LoadSave(int save)
 {
 	keyboard_t *kb = GetKeyboard();
@@ -717,7 +732,7 @@ void Menu_MapEd_LoadSave(int save)
 			switch(ev->iControlID) {
 
 				// Cancel
-				case 0:
+				case sl_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 // TODO: sound
 //						BASS_SamplePlay(sfxGeneral.smpClick);
@@ -726,7 +741,7 @@ void Menu_MapEd_LoadSave(int save)
 					break;
 
 				// OK
-				case 1:
+				case sl_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 // TODO: sound
 //						BASS_SamplePlay(sfxGeneral.smpClick);
@@ -756,7 +771,7 @@ void Menu_MapEd_LoadSave(int save)
 					break;
 
 				// Level list
-				case 2:
+				case sl_FileList:
 					if(ev->iEventMsg != LV_NONE) {
 						t->setText( lv->getCurSIndex() );
 					}

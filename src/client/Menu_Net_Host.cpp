@@ -1290,10 +1290,10 @@ CBanList        *cBanList;
 
 // Ban List
 enum {
-	wr_Close,
-	wr_Clear,
-	wr_Unban,
-	wr_ListBox
+	bl_Close=0,
+	bl_Clear,
+	bl_Unban,
+	bl_ListBox
 };
 
 
@@ -1315,10 +1315,10 @@ void Menu_BanList(void)
 
 	cBanListGui.Initialize();
 	cBanListGui.Add( new CLabel("Ban List", 0xffff),     -1,        275,135,  0, 0);	
-    cBanListGui.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  wr_Close,   400,420, 60,15);
-    cBanListGui.Add( new CButton(BUT_CLEAR, tMenu->bmpButtons),	  wr_Clear,     180,420, 60,15);
-	cBanListGui.Add( new CButton(BUT_UNBAN, tMenu->bmpButtons),	  wr_Unban,     260,420, 60,15);
-	cBanListGui.Add( tListBox,									  wr_ListBox,125,155, 380,260);
+    cBanListGui.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  bl_Close,   400,420, 60,15);
+    cBanListGui.Add( new CButton(BUT_CLEAR, tMenu->bmpButtons),	  bl_Clear,     180,420, 60,15);
+	cBanListGui.Add( new CButton(BUT_UNBAN, tMenu->bmpButtons),	  bl_Unban,     260,420, 60,15);
+	cBanListGui.Add( tListBox,									  bl_ListBox,125,155, 380,260);
 
 	
 	tListBox->AddColumn("IP Address",130);
@@ -1371,8 +1371,8 @@ bool Menu_BanList_Frame(void)
 
 		switch(ev->iControlID) {
 
-			// OK, done
-			case wr_Close:
+			// Close
+			case bl_Close:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					cBanListGui.Shutdown();
@@ -1383,7 +1383,7 @@ bool Menu_BanList_Frame(void)
 				}
 				break;
 			// Unban
-			case wr_Unban:
+			case bl_Unban:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					if (tListBox->getItemCount() > 0)  {
@@ -1395,7 +1395,7 @@ bool Menu_BanList_Frame(void)
 				}
 				break;
 			// Clear
-			case wr_Clear:
+			case bl_Clear:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					(*cBanList).Clear();
 

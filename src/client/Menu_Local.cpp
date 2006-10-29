@@ -1196,6 +1196,13 @@ bool Menu_WeaponsRestrictions_Frame(void)
 ///////////////////
 // Weapon presets load/save
 // For both local and host
+enum  {
+	wp_Cancel=0,
+	wp_Ok,
+	wp_PresetList,
+	wp_PresetName
+}
+
 void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 {
 	if (!wpnrest)
@@ -1217,12 +1224,12 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 
 	cg.Initialize();
 
-	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), 0, 180,310, 75,15);
-	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     1, 430,310, 40,15);
-	cg.Add( new CListview(),                            2, 180,170, 280,110+(!save)*20);
-	cg.Add( new CTextbox(),                             3, 270,285, 190,20);
+	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), wp_Cancel, 180,310, 75,15);
+	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     wp_Ok, 430,310, 40,15);
+	cg.Add( new CListview(),                            wp_PresetList, 180,170, 280,110+(!save)*20);
+	cg.Add( new CTextbox(),                             wp_PresetName, 270,285, 190,20);
 	
-	t = (CTextbox *)cg.getWidget(3);
+	t = (CTextbox *)cg.getWidget(wp_PresetName);
 
 	// Hide the textbox for Load
 	t->setEnabled(save);
@@ -1285,7 +1292,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 
 			switch(ev->iControlID) {
 				// Cancel
-				case 0:
+				case wp_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 // TODO: sound
 //						BASS_SamplePlay(sfxGeneral.smpClick);
@@ -1294,7 +1301,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 					break;
 
 				// Presets list
-				case 2:
+				case wp_PresetList:
 					if(ev->iEventMsg != LV_NONE) {
 						t->setText( lv->getCurSIndex() );
 					}
@@ -1302,11 +1309,11 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 			}
 
 			// OK and double click on listview
-			if (ev->iControlID == 1 || ev->iControlID == 2)  {
+			if (ev->iControlID == wp_Ok || ev->iControlID == wp_PresetList)  {
 				if((ev->iEventMsg == BTN_MOUSEUP && ev->iControlID == 1) || ev->iEventMsg == LV_DOUBLECLK) {
 
 					// Play the sound only for OK button
-					if (ev->iControlID == 1) {}
+					if (ev->iControlID == wp_Ok) {}
 // TODO: sound
 //						BASS_SamplePlay(sfxGeneral.smpClick);
 

@@ -16,9 +16,15 @@
 #ifndef __CPARSER_H__
 #define __CPARSER_H__
 
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+
 
 // Notes: Everything is an object. Tags are objects & strings of text are objects
 // The renderer goes through each object. Tag objects setup the properties, and string objects get drawn
+
+// Macros
+#define CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
 
 
 // Objects
@@ -45,7 +51,10 @@ enum {
 // Errors
 enum {
 	ERR_OUTOFMEMORY=0,
-	ERR_UNKNOWNPROPERTY
+	ERR_UNKNOWNPROPERTY,
+	ERR_COULDNOTPARSE,
+	ERR_EMPTYDOC,
+	ERR_INVALIDROOT
 };
 
 // Property flags
@@ -55,26 +64,81 @@ enum {
 	PROP_SHADOW =    0x0004
 };
 
+// Layout IDs
+enum {
+	L_MAINMENU=0,
+	L_LOCALPLAY,
+	L_GAMESETTINGS,
+	L_WEAPONOPTIONS,
+	L_LOADWEAPONS,
+	L_SAVEWEAPONS,
+	L_NET,
+	L_NETINTERNET,
+	L_INTERNETDETAILS,
+	L_ADDSERVER,
+	L_NETLAN,
+	L_LANDETAILS,
+	L_NETHOST,
+	L_NETFAVOURITES,
+	L_FAVOURITESDETAILS,
+	L_RENAMESERVER,
+	L_ADDFAVOURITE,
+	L_CONNECTING,
+	L_NETJOINLOBBY,
+	L_NETHOSTLOBBY,
+	L_SERVERSETTINGS,
+	L_BANLIST,
+	L_PLAYERPROFILES,
+	L_CREATEPLAYER,
+	L_VIEWPLAYERS,
+	L_LEVELEDITOR,
+	L_NEWDIALOG,
+	L_SAVELOADLEVEL,
+	L_OPTIONS,
+	L_OPTIONSCONTROLS,
+	L_OPTIONSGAME,
+	L_OPTIONSSYSTEM,
+	L_MESSAGEBOXOK,
+	L_MESSAGEBOXYESNO,
+	LAYOUT_COUNT
+};
 
-// Value structure
-typedef struct  property_s {
-	int		iValue;
-	char	sValue[32];
-	char	sName[32];
-} property_t;
+// Generic events
+typedef struct generic_events_s {
+	char	onmouseover[64];
+	char	onmouseout[64];
+	char	onmousedown[64];
+	char	onclick[64];
+} generic_events_t;
 
-// Object structure
-typedef struct  tag_object_s {
-	int			iType;
-	int			iEnd;
-	property_t	*cProperties;
-	int			iNumProperties;
-	char		*strText;
+// Widget list item structure
+typedef struct widget_item_s {
+	int				iID;
+	char			*sName;
+	widget_item_s	*tNext;
+} widget_item_t;
 
-	struct  tag_object_s *tNext;
+// Widget list class
+class CWidgetList {
+public:
+	CWidgetList() {
+		tItems = NULL;
+		iCount = 0;
+	}
 
-} tag_object_t;
+private:
+	// Attributes
+	widget_item_t	*tItems;
+	int				iCount;
 
+public:
+	// Methods
+	int		getCount(void)	{return iCount; }
+	int		Add(char *Name);
+	char	*getName(int ID);
+	int		getID(const char *Name);
+	void	Shutdown(void);
+};
 
 
 // Browser class
@@ -82,45 +146,29 @@ class CParser {
 public:
 	// Constructor
 	CParser() {
-		tObjects = NULL;
+
 	}
 
 private:
 	// Attributes
+	xmlDocPtr	tDocument;
+	xmlNodePtr	tCurrentNode;
 
-	// Objects
-	tag_object_t *tObjects;
-
-
-	// Reading
-	int			iLines;
-	long		iPos;
-	long		iLength;
-	char		*sData;
-
+	CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 
 
 public:
+	// Contructor and destructor
+	void		Create(void);
+	void		Destroy(void);
+
 	// Methods
-
-
-	void	Create(void);
-	void	Destroy(void);
-
-	void	BuildLayout(CGuiLayout *Layout);
-	int		GetIdByName(char *name);
+	int			BuildLayout(CGuiLayout *Layout, char *sFilename);
+	int			GetIdByName(char *Name,int LayoutID);
+	CWidgetList	*GetLayoutWidgets(int LayoutID);
 
 	// Error handling
 	void	Error(int Code, char *Format, ...);
-
-	// Loading
-	int			Load(char *sFilename);
-	void		ReadObject(void);
-	void		ReadNewline(void);
-	void		ReadTag(void);
-	void		ReadText(void);
-	void		AddObject(char *sText, property_t *cProperties, int iNumProperties, int iType, int iEnd);
-
 };
 
 

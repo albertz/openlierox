@@ -411,6 +411,12 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
 
 ///////////////////
 // Show an 'rename server' box
+enum  {
+	rs_Cancel=0,
+	rs_Ok,
+	rs_NewName
+};
+
 void Menu_Net_RenameServer(char *szName)
 {
 	CGuiLayout	cRename;
@@ -429,11 +435,11 @@ void Menu_Net_RenameServer(char *szName)
 
 
 	cRename.Initialize();
-	cRename.Add( new CButton(BUT_OK, tMenu->bmpButtons),	0, 220, 310, 40,15);
-	cRename.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),1, 350, 310, 70,15);
+	cRename.Add( new CButton(BUT_OK, tMenu->bmpButtons),	rs_Ok, 220, 310, 40,15);
+	cRename.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),rs_Cancel, 350, 310, 70,15);
 	cRename.Add( new CLabel("Rename a server", 0xffff),		-1,275, 225, 0, 0);
 	cRename.Add( new CLabel("New name", 0xffff),			-1,215, 267, 0, 0);
-	cRename.Add( new CTextbox(),							2, 300, 265, 150, 20);
+	cRename.Add( new CTextbox(),							rs_NewName, 300, 265, 150, 20);
 
 	cRename.SendMessage(2,TXM_SETMAX,30,0);
 	cRename.SendMessage(2,TXM_SETTEXT,(DWORD)szName,0); // Fill in the current server name
@@ -467,7 +473,7 @@ void Menu_Net_RenameServer(char *szName)
 			switch(ev->iControlID) {
 
 				// Ok
-				case 0:
+				case rs_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
 						cRename.SendMessage(2, TXM_GETTEXT, (DWORD)szName, cRename.SendMessage(2, TXM_GETTEXTLENGTH, 0, 0)+1);
@@ -483,7 +489,7 @@ void Menu_Net_RenameServer(char *szName)
 					break;
 
 				// Cancel
-				case 1:
+				case rs_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
 // TODO: sound
@@ -512,6 +518,13 @@ void Menu_Net_RenameServer(char *szName)
 
 ///////////////////
 // Show an 'add server' box to enter in an address and name
+enum  {
+	fa_Cancel=0,
+	fa_Add,
+	fa_Address,
+	fa_Name
+};
+
 void Menu_Net_FavouritesAddServer(void)
 {
 	CGuiLayout	cAddSvr;
@@ -530,13 +543,13 @@ void Menu_Net_FavouritesAddServer(void)
 
 
 	cAddSvr.Initialize();
-	cAddSvr.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	0, 220, 320, 40,15);
-	cAddSvr.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),1, 350, 320, 70,15);
+	cAddSvr.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	fa_Add, 220, 320, 40,15);
+	cAddSvr.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),fa_Cancel, 350, 320, 70,15);
 	cAddSvr.Add( new CLabel("Add a server", 0xffff),		-1,275, 225, 0, 0);
 	cAddSvr.Add( new CLabel("Address", 0xffff),				-1,215, 267, 0, 0);
-	cAddSvr.Add( new CTextbox(),							2, 280, 265, 140, 20);
+	cAddSvr.Add( new CTextbox(),							fa_Address, 280, 265, 140, 20);
 	cAddSvr.Add( new CLabel("Name", 0xffff),				-1,215, 290, 0, 0);
-	cAddSvr.Add( new CTextbox(),							3, 280, 288, 140, 20);
+	cAddSvr.Add( new CTextbox(),							fa_Name, 280, 288, 140, 20);
 
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
 	cAddSvr.SendMessage(3,TXM_SETMAX,32,0);
@@ -570,7 +583,7 @@ void Menu_Net_FavouritesAddServer(void)
 			switch(ev->iControlID) {
 
 				// Add
-				case 0:
+				case fa_Add:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
 						char addr[512];
@@ -590,7 +603,7 @@ void Menu_Net_FavouritesAddServer(void)
 					break;
 
 				// Cancel
-				case 1:
+				case fa_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
 // TODO: sound

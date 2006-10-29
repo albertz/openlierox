@@ -231,6 +231,14 @@ SOURCE=..\..\include\Graphics.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\GUIFileParser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\GUIFileParser.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\Ini.cpp
 # End Source File
 # Begin Source File
@@ -666,47 +674,47 @@ SOURCE=..\..\src\client\MenuSystem.cpp
 # PROP Default_Filter "lib"
 # Begin Source File
 
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\bass.lib
+SOURCE=C:\Program
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\HawkNL.lib
+SOURCE=C:\Program
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\NLstatic.lib
+SOURCE=C:\Program
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\pthreadVCE.lib
+SOURCE=C:\Program
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\SDL.lib
+SOURCE=C:\Program
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\SDL_image.lib
+SOURCE=C:\Program
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\SDLmain.lib
+SOURCE=C:\Program
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\zlibstat.lib
+SOURCE=C:\Program
+# End Source File
+# Begin Source File
+
+SOURCE=C:\Program
+# End Source File
+# Begin Source File
+
+SOURCE=C:\Program
 # End Source File
 # Begin Source File
 
 SOURCE="C:\Program Files\Microsoft Visual Studio\VC98\Lib\SHLWAPI.LIB"
-# End Source File
-# Begin Source File
-
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\CrashRpt.lib
-# End Source File
-# Begin Source File
-
-SOURCE=C:\Program Files\Microsoft Visual Studio\VC98\Lib\bgd.lib
 # End Source File
 # End Group
 # Begin Group "Resources"
