@@ -81,7 +81,7 @@ int CBytestream::writeByte(uchar byte)
 // Writes a boolean value to the stream
 int CBytestream::writeBool(bool value)
 {
-	return writeByte((uchar)*GetEndianSwapped(value));
+	return writeByte((uchar)value);
 }
 
 
@@ -199,7 +199,7 @@ uchar CBytestream::readByte(void)
 // Reads a boolean value from the stream
 bool CBytestream::readBool(void)
 {
-	return (bool)*GetEndianSwapped(readByte());
+	return (bool)readByte();
 }
 
 
@@ -255,22 +255,18 @@ short CBytestream::readShort(void)
 // Read a float value from the stream
 float CBytestream::readFloat(void)
 {
-	// Create a 4 byte union
-	union
-	{
-		uchar	b[4];
-		float	f;
-		int		l;
-	} dat;
+	char dat[4];
+	dat[0] = readByte();
+	dat[1] = readByte();
+	dat[2] = readByte();
+	dat[3] = readByte();
 
-	dat.b[0] = readByte();
-	dat.b[1] = readByte();
-	dat.b[2] = readByte();
-	dat.b[3] = readByte();
 
-	EndianSwap(dat.f);
-	
-	return dat.f;   
+	int a=0;
+	float value;
+	nl_readFloat(dat,a,value);
+		
+	return value;
 }
 
 
