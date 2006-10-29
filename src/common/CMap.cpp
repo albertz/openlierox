@@ -2111,6 +2111,7 @@ int CMap::LoadOriginal(FILE *fp)
 
 	palette = new uchar[768];
 	if( palette == NULL) {
+		printf("CMap::LoadOriginal: ERROR: not enough memory for palette\n");
 		fclose(fp);
 		return false;
 	}
@@ -2130,6 +2131,7 @@ int CMap::LoadOriginal(FILE *fp)
 	// Load the image map
 	uchar *bytearr = new uchar[Width*Height];
 	if(bytearr == NULL) {
+		printf("CMap::LoadOriginal: ERROR: not enough memory for bytearr\n");
 		delete[] palette;
 		fclose(fp);
 		return false;
