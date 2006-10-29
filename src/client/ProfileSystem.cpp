@@ -57,6 +57,7 @@ int LoadProfiles(void)
 	// Check version
 	int ver = 0;
 	fread(&ver, sizeof(int), 1, fp);
+	EndianSwap(ver);
 	if(ver != PROFILE_VERSION) {
 
         // Add the default players
@@ -68,7 +69,7 @@ int LoadProfiles(void)
 	// Get number of profiles
 	int num = 0;
 	fread(&num,	sizeof(int), 1, fp);
-
+	EndianSwap(num);
 
 	// Safety check
 	if(num < 0) {
@@ -137,7 +138,7 @@ void SaveProfiles(void)
 	fwrite(id, sizeof(char), 32, fp);
 
 	int ver = PROFILE_VERSION;
-	fwrite(&ver, sizeof(int), 1, fp);
+	fwrite(GetEndianSwapped(ver), sizeof(int), 1, fp);
 
 
 	// Count how many profiles we have
@@ -145,7 +146,7 @@ void SaveProfiles(void)
 	for(;p;p=p->tNext)
         Num++;
 
-	fwrite(&Num, sizeof(int), 1, fp);
+	fwrite(GetEndianSwapped(Num), sizeof(int), 1, fp);
 
 
 	p = tProfiles;
@@ -179,7 +180,7 @@ void ShutdownProfiles(void)
 	fwrite(id, sizeof(char), 32, fp);
 
 	int ver = PROFILE_VERSION;
-	fwrite(&ver, sizeof(int), 1, fp);
+	fwrite(GetEndianSwapped(ver), sizeof(int), 1, fp);
 
 
 	// Count how many profiles we have
@@ -187,7 +188,7 @@ void ShutdownProfiles(void)
 	for(;p;p=p->tNext)
         Num++;
 
-	fwrite(&Num, sizeof(int), 1, fp);
+	fwrite(GetEndianSwapped(Num), sizeof(int), 1, fp);
 
 
 	p = tProfiles;
@@ -233,17 +234,22 @@ void LoadProfile(FILE *fp, int id)
 	fread(p->sName,		sizeof(char),	32,	fp);
     fread(p->szSkin,    sizeof(char),   128,fp);
     fread(&p->iType,    sizeof(int),    1,  fp);
+    EndianSwap(p->iType);
     fread(&p->nDifficulty,sizeof(int),  1,  fp);
-
+	EndianSwap(p->nDifficulty);
+	
 	// Multiplayer
 	fread(p->sUsername, sizeof(char),	16, fp);
 	fread(p->sPassword, sizeof(char),	16, fp);
 
 	// Colour
 	fread(&p->R,		sizeof(Uint8),	1,	fp);
+	EndianSwap(p->R);
 	fread(&p->G,		sizeof(Uint8),	1,	fp);
+	EndianSwap(p->G);
 	fread(&p->B,		sizeof(Uint8),	1,	fp);
-
+	EndianSwap(p->B);
+	
 	// Weapons
 	for(int i=0; i<5; i++)
 		fread(p->sWeaponSlots[i],	sizeof(char),	64,	fp);
@@ -275,17 +281,17 @@ void SaveProfile(FILE *fp, profile_t *p)
 	// Name & Type
 	fwrite(p->sName,	sizeof(char),	32,	fp);
     fwrite(p->szSkin,   sizeof(char),   128,fp);
-    fwrite(&p->iType,   sizeof(int),    1,  fp);
-    fwrite(&p->nDifficulty,sizeof(int), 1,  fp);
+    fwrite(GetEndianSwapped(p->iType),   sizeof(int),    1,  fp);
+    fwrite(GetEndianSwapped(p->nDifficulty),sizeof(int), 1,  fp);
 
 	// Multiplayer
 	fwrite(p->sUsername, sizeof(char),	16, fp);
 	fwrite(p->sPassword, sizeof(char),	16, fp);
 
 	// Colour
-	fwrite(&p->R,		sizeof(Uint8),	1,	fp);
-	fwrite(&p->G,		sizeof(Uint8),	1,	fp);
-	fwrite(&p->B,		sizeof(Uint8),	1,	fp);
+	fwrite(GetEndianSwapped(p->R),		sizeof(Uint8),	1,	fp);
+	fwrite(GetEndianSwapped(p->G),		sizeof(Uint8),	1,	fp);
+	fwrite(GetEndianSwapped(p->B),		sizeof(Uint8),	1,	fp);
 
 	// Weapons		
 	for(int i=0; i<5; i++)

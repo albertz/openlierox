@@ -13,7 +13,6 @@
 #include "defs.h"
 
 
-// TODO: Big endian support
 
 
 ///////////////////
@@ -80,9 +79,9 @@ int CBytestream::writeByte(uchar byte)
 
 ///////////////////
 // Writes a boolean value to the stream
-int CBytestream::writeBool(int value)
+int CBytestream::writeBool(bool value)
 {
-	return writeByte((uchar) value);
+	return writeByte((uchar)*GetEndianSwapped(value));
 }
 
 
@@ -105,6 +104,8 @@ int CBytestream::writeInt(int value, int numbytes)
 	// Numbytes cannot be more then 4
 	if(numbytes <= 0 || numbytes >= 5)
 		return false;
+
+	EndianSwap(value);
 
 	// Copy the interger into individual bytes
 	bytes[0] = value & 0xff;
@@ -139,15 +140,15 @@ int CBytestream::writeShort(short value)
 // Writes a float to the stream
 int CBytestream::writeFloat(float value)
 {
-	// Create a 4 byte union
-	union
-	{
-		float   f;
-		int     l;
-	} dat;
+	char data[sizeof(float)];
+	register int a=0;
+	nl_writeFloat(data,a,value);
 
-	dat.f = value;
-	return writeInt(dat.l,4);
+	for(a=0;a<sizeof(float);a++) {
+		writeByte(data[a]);
+	}
+	
+	return true;
 }
 
 
@@ -196,9 +197,9 @@ uchar CBytestream::readByte(void)
 
 ///////////////////
 // Reads a boolean value from the stream
-int CBytestream::readBool(void)
+bool CBytestream::readBool(void)
 {
-	return readByte();
+	return (bool)*GetEndianSwapped(readByte());
 }
 
 
@@ -225,7 +226,9 @@ int CBytestream::readInt(int numbytes)
 		value+= (int)bytes[2]<<16;
 	if(numbytes>3)
 		value+= (int)bytes[3]<<24;
-		
+	
+	EndianSwap(value);
+	
 	return value;
 }
 
@@ -265,6 +268,8 @@ float CBytestream::readFloat(void)
 	dat.b[2] = readByte();
 	dat.b[3] = readByte();
 
+	EndianSwap(dat.f);
+	
 	return dat.f;   
 }
 

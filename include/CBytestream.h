@@ -56,7 +56,7 @@ public:
 
 	// Writes
 	int			writeByte(uchar byte);
-	int			writeBool(int value);
+	int			writeBool(bool value);
 	int			writeInt(int value, int numbytes);
 	int			writeShort(short value);
 	int			writeFloat(float value);
@@ -65,7 +65,7 @@ public:
 
 	// Reads
 	uchar		readByte(void);
-	int			readBool(void);
+	bool		readBool(void);
 	int			readInt(int numbytes);
 	short		readShort(void);
 	float		readFloat(void);

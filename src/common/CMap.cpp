@@ -33,23 +33,38 @@ int CMap::New(int _width, int _height, char *_theme)
 
 	Objects = new object_t[MAX_OBJECTS];
 	if(Objects == NULL)
+	{
+		printf("CMap::New:: ERROR: cannot create object array\n");
 		return false;
+	}
 
 	// Load the tiles
 	if(!LoadTheme(_theme))
+	{
+		printf("CMap::New:: ERROR: cannot create titles/theme\n");
 		return false;
-
+	}
+	
 	// Create the surface
 	if(!CreateSurface())
+	{
+		printf("CMap::New:: ERROR: cannot create surface\n");
 		return false;
+	}
 
 	// Create the pixel flags
 	if(!CreatePixelFlags())
+	{
+		printf("CMap::New:: ERROR: cannot create pixel flags\n");
 		return false;
+	}
 
     // Create the AI Grid
     if(!createGrid())
-        return false;
+	{
+		printf("CMap::New:: ERROR: cannot create AI grid\n");
+		return false;
+	}
 
 	// Place default tiles
 	TileMap();
@@ -77,8 +92,6 @@ int CMap::New(int _width, int _height, char *_theme)
 
 	memset(m_pnWater1, 0, sizeof(int) * Width);
 	memset(m_pnWater2, 0, sizeof(int) * Width);
-
-
 
 
 
@@ -402,13 +415,17 @@ bool CMap::validateTheme(char *name)
 int CMap::CreateSurface(void)
 {
 	SDL_Surface *screen = SDL_GetVideoSurface();
+	if(screen == NULL)
+		printf("CMap::CreateSurface: ERROR: screen is nothing\n");
 	SDL_PixelFormat *fmt = screen->format;
-
-	bmpImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, fmt->BitsPerPixel, 
-									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+	if(fmt == NULL)
+		printf("CMap::CreateSurface: ERROR: fmt is nothing\n");
+		
+	bmpImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height,
+		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpImage == NULL) {
-		SetError("CMap::CreateSurface(): Out of memory");
+		SetError("CMap::CreateSurface(): bmpImage creation failed, perhaps out of memory");
 		return false;
 	}
 
@@ -416,7 +433,7 @@ int CMap::CreateSurface(void)
 										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpDrawImage == NULL) {
-		SetError("CMap::CreateSurface(): Out of memory");
+		SetError("CMap::CreateSurface(): bmpDrawImage creation failed, perhaps out of memory");
 		return false;
 	}
 
@@ -424,7 +441,7 @@ int CMap::CreateSurface(void)
 									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpBackImage == NULL) {
-		SetError("CMap::CreateSurface(): Out of memory");
+		SetError("CMap::CreateSurface(): bmpBackImage creation failed, perhaps out of memory");
 		return false;
 	}
 
@@ -432,7 +449,7 @@ int CMap::CreateSurface(void)
 									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpMiniMap == NULL) {
-		SetError("CMap::CreateSurface(): Out of memory");
+		SetError("CMap::CreateSurface(): bmpMiniMap creation failed, perhaps out of memory");
 		return false;
 	}
 
@@ -440,7 +457,7 @@ int CMap::CreateSurface(void)
 									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpShadowMap == NULL) {
-		SetError("CMap::CreateSurface(): Out of memory");
+		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
 		return false;
 	}
 
@@ -1698,26 +1715,45 @@ int CMap::Load(char *filename)
 
 	// Check to make sure it's a valid level file
 	if(strcmp(id,"LieroX Level") != 0 || version != MAP_VERSION) {
+		printf("CMap::Load (%s): ERROR: not a valid level file or wrong version\n", filename);
 		fclose(fp);
 		return false;
 	}
 
 	fread(Name,			sizeof(char),	64,	fp);
 	fread(&Width,		sizeof(int),	1,	fp);
+	EndianSwap(Width);
 	fread(&Height,		sizeof(int),	1,	fp);
+	EndianSwap(Height);
 	fread(&Type,		sizeof(int),	1,	fp);
+	EndianSwap(Type);
 	fread(Theme_Name,	sizeof(char),	32,	fp);
 	fread(&numobj,		sizeof(int),	1,	fp);
+	EndianSwap(numobj);
 
+	printf("Level info:\n");
+	printf("  id = %s\n", id);
+	printf("  version = %i\n", version);
+	printf("  Name = %s\n", Name);
+	printf("  Width = %i\n", Width);
+	printf("  Height = %i\n", Height);
+	printf("  Type = %i\n", Type);
+	printf("  Theme_Name = %s\n", Theme_Name);
+	printf("  numobj = %i\n", numobj);
+	
 	// Create the map
 	if(!New(Width, Height, Theme_Name)) {
+		printf("CMap::Load (%s): ERROR: cannot create map\n", filename);
 		fclose(fp);
 		return false;
 	}
 
 	// Load the images if in an image format
 	if(Type == MPT_IMAGE)
+	{
+		printf("CMap::Load (%s): HINT: level is in image format\n", filename);
 		return LoadImageFormat(fp);
+	}			
 				
 
 	// Dirt map
@@ -1752,9 +1788,13 @@ int CMap::Load(char *filename)
 	NumObjects = 0;
 	for(int i=0;i<numobj;i++) {
 		fread(&o.Type,	sizeof(int),	1,	fp);
+		EndianSwap(o.Type);
 		fread(&o.Size,	sizeof(int),	1,	fp);
+		EndianSwap(o.Size);
 		fread(&o.X,	    sizeof(int),	1,	fp);
+		EndianSwap(o.X);
         fread(&o.Y,	    sizeof(int),	1,	fp);
+		EndianSwap(o.Y);
 
 		// Place the object
 		if(o.Type == OBJ_STONE)
@@ -1797,13 +1837,13 @@ int CMap::Save(char *name, char *filename)
 	strcpy(id,"LieroX Level");
 
 	fwrite(id,			sizeof(char),	32,	fp);
-	fwrite(&version,	sizeof(int),	1,	fp);
+	fwrite(GetEndianSwapped(version),	sizeof(int),	1,	fp);
 	fwrite(name,		sizeof(char),	64,	fp);
-	fwrite(&Width,		sizeof(int),	1,	fp);
-	fwrite(&Height,		sizeof(int),	1,	fp);
-	fwrite(&Type,		sizeof(int),	1,	fp);
+	fwrite(GetEndianSwapped(Width),		sizeof(int),	1,	fp);
+	fwrite(GetEndianSwapped(Height),		sizeof(int),	1,	fp);
+	fwrite(GetEndianSwapped(Type),		sizeof(int),	1,	fp);
 	fwrite(Theme.name,	sizeof(char),	32,	fp);
-	fwrite(&NumObjects,	sizeof(int),	1,	fp);
+	fwrite(GetEndianSwapped(NumObjects),	sizeof(int),	1,	fp);
 
 
 	// Save the images if in an image format
@@ -1830,10 +1870,10 @@ int CMap::Save(char *name, char *filename)
 	// Objects
 	object_t *o = Objects;
 	for(int i=0;i<NumObjects;i++,o++) {
-		fwrite(&o->Type,sizeof(int),	1,	fp);
-		fwrite(&o->Size,sizeof(int),	1,	fp);
-		fwrite(&o->X,	sizeof(int),	1,	fp);
-        fwrite(&o->Y,	sizeof(int),	1,	fp);
+		fwrite(GetEndianSwapped(o->Type),sizeof(int),	1,	fp);
+		fwrite(GetEndianSwapped(o->Size),sizeof(int),	1,	fp);
+		fwrite(GetEndianSwapped(o->X),	sizeof(int),	1,	fp);
+        fwrite(GetEndianSwapped(o->Y),	sizeof(int),	1,	fp);
 	}
 
 
@@ -1912,8 +1952,8 @@ int CMap::SaveImageFormat(FILE *fp)
 	}
 	
 	// Write out the details & the data
-	fwrite(&destsize, sizeof(ulong), 1, fp);
-	fwrite(&size, sizeof(ulong), 1, fp);
+	fwrite(GetEndianSwapped(destsize), sizeof(ulong), 1, fp);
+	fwrite(GetEndianSwapped(size), sizeof(ulong), 1, fp);
 	fwrite(pDest, sizeof(uchar), destsize, fp);
 
 	delete[] pSource;
@@ -2257,8 +2297,8 @@ void CMap::Send(CBytestream *bs)
 		
 		
 		fwrite(&b,sizeof(uchar),1,fp);
-		fwrite(&p1,sizeof(unsigned short),1,fp);
-		fwrite(&p2,sizeof(unsigned short),1,fp);
+		fwrite(GetEndianSwapped(p1),sizeof(unsigned short),1,fp);
+		fwrite(GetEndianSwapped(p2),sizeof(unsigned short),1,fp);
 
 	}
 	uchar b;

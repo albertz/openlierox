@@ -289,6 +289,7 @@ char *Menu_GetLevelName(char *filename)
 		if(fp) {
 			fread(id,		sizeof(char),	32,	fp);
 			fread(&version,	sizeof(int),	1,	fp);
+			EndianSwap(version);
 			fread(name,		sizeof(char),	64,	fp);
 
 			if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
