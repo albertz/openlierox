@@ -11,14 +11,6 @@
 
 
 #include "defs.h"
-#ifdef WIN32
-#	include <io.h>
-#	include <direct.h>
-#else
-#	include <sys/dir.h>
-#	include <sys/stat.h>
-#	include <unistd.h>
-#endif
 
 
 #ifndef WIN32

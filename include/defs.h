@@ -34,7 +34,19 @@
 #include <time.h>
 
 #ifdef WIN32
-#include <windows.h>
+#	include <windows.h>
+#	include <io.h>
+#	include <direct.h>
+// wrappers to provide the standards
+inline int mkdir(const char *path, int mode) { return _mkdir(path); }
+inline char *getcwd(char *buf, size_t size) {
+	// WARNING: not exactly the same like in POSIX
+	return _getcwd(buf, size);
+}
+#else
+#	include <sys/types.h>
+#	include <sys/stat.h>
+#	include <unistd.h>
 #endif
 
 #include <SDL/SDL.h>
