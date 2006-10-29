@@ -12,8 +12,10 @@
 // Created 30/6/02
 // Jason Boettcher
 
+#ifndef WIN32
 #include <sys/types.h>
 #include <sys/stat.h>
+#endif
 #include <unistd.h>
 
 #include "defs.h"
@@ -744,16 +746,19 @@ void Menu_Local_FillModList( CCombobox *cb )
 	CGameScript gs;
 	int baseid = 0;
 	int i=0;
-
+	
 	getcwd(curdir,256);
-
+	printf("curdir = %s\n", curdir);
+	
 	if(FindFirstDir(curdir,dir)) {
 		while(1) {
 			
+			printf("dir = %s\n", dir);
             // Remove the full directory section so we only have the mod dir name
 			d = MAX(strrchr(dir,'\\'),strrchr(dir,'/'))+1;
             if(!d)
                d = dir;
+			printf("-> dir = %s\n", dir);
 
 			// Check if this dir has a valid script.lgs file in it
 			if(gs.CheckFile(dir,name)) {

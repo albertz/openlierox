@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	// TODO: abstract the logging, make an uniform message system
 	// Log the game start
 	if (tLXOptions->iLogConvos)  {
 		FILE *f;
@@ -245,13 +246,13 @@ int InitializeLieroX(void)
 
 	cServer = new CServer;
     if(cServer == NULL) {
-        SystemError("Error: InitializeLieroX() Out of memory");
+        SystemError("Error: InitializeLieroX() Out of memory on creating CServer");
 		return false;
     }
 
 	// Initialize the entities
     if(!InitializeEntities()) {
-        SystemError("Error: InitializeEntities() Out of memory");
+        SystemError("Error: InitializeEntities() Out of memory on initializing the entities");
 		return false;
     }
 
@@ -259,7 +260,7 @@ int InitializeLieroX(void)
 	// Initialize the LieroX structure
 	tLX = new lierox_t;
     if(tLX == NULL) {
-        SystemError("Error: InitializeLieroX() Out of memory");
+        SystemError("Error: InitializeLieroX() Out of memory on creating lierox_t");
 		return false;
     }
 	tLX->iQuitGame = false;
@@ -350,7 +351,6 @@ void GameLoop(void)
 
 	// Local
 	switch (tGameInfo.iGameType)  {
-	//if(tGameInfo.iGameType == GME_LOCAL) {
 	case GME_LOCAL:
 		cClient->Frame();
 
@@ -363,7 +363,7 @@ void GameLoop(void)
 		}
 
 		cClient->Draw(Screen);
-	break;
+		break;
 
 
 	// Hosting
@@ -373,14 +373,14 @@ void GameLoop(void)
 		cServer->Frame();
 
 		cClient->Draw(Screen);
-	break;
+		break;
 
 	// Joined
 	//if(tGameInfo.iGameType == GME_JOIN) {
 	case GME_JOIN:
 		cClient->Frame();
 		cClient->Draw(Screen);
-	break;
+		break;
 
 
 	} // SWITCH
