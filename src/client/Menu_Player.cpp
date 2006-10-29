@@ -24,6 +24,7 @@ int			iPlayerMode = 0;
 float       fPlayerSkinFrame=0;
 bool        bPlayerSkinAnimation = false;
 
+// Generic
 enum {
 	Static=-1,
 	NewPlayerTab=0,
@@ -40,8 +41,8 @@ enum {
 	np_AIDiffLbl,
 	np_AIDiff,
 	np_PlySkin,
-	//np_UserName,
-	//np_Password
+	np_Username,
+	np_Password
 };
 
 // View players widgets
@@ -56,7 +57,7 @@ enum {
 	vp_AIDiffLbl,
 	vp_AIDiff,
 	vp_PlySkin
-}
+};
 
 ///////////////////
 // Initialize the player menu
@@ -373,7 +374,7 @@ void Menu_Player_NewPlayer(int mouse)
             case np_Type:
                 if(ev->iEventMsg == CMB_CHANGED) {
 
-                    int type = cNewPlayer.SendMessage(Type,CBM_GETCURINDEX,0,0);
+                    int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,0,0);
 
                     // Hide the AI stuff if it is a human type of player
                     cNewPlayer.getWidget(np_AIDiffLbl)->setEnabled(type == PRF_COMPUTER);

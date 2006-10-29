@@ -1201,7 +1201,7 @@ enum  {
 	wp_Ok,
 	wp_PresetList,
 	wp_PresetName
-}
+};
 
 void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 {

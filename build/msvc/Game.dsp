@@ -239,14 +239,6 @@ SOURCE=..\..\include\GUIFileParser.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\Ini.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ini.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\common\MathLib.cpp
 # End Source File
 # Begin Source File

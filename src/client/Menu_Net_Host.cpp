@@ -1352,7 +1352,7 @@ bool Menu_BanList_Frame(void)
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
     Uint32 blue = MakeColour(0,138,251);
-	CListview *tListBox = (CListview *)cBanListGui.getWidget(wr_ListBox);
+	CListview *tListBox = (CListview *)cBanListGui.getWidget(bl_ListBox);
 
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
