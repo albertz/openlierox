@@ -1712,7 +1712,8 @@ int CMap::Load(char *filename)
 
 	fread(id,			sizeof(char),	32,	fp);
 	fread(&version,		sizeof(int),	1,	fp);
-
+	EndianSwap(version);
+	
 	// Check to make sure it's a valid level file
 	if(strcmp(id,"LieroX Level") != 0 || version != MAP_VERSION) {
 		printf("CMap::Load (%s): ERROR: not a valid level file or wrong version\n", filename);
@@ -1765,7 +1766,8 @@ int CMap::Load(char *filename)
 		uchar t;
 
 		fread(&t,		sizeof(uchar),	1,	fp);	
-
+		EndianSwap(t);
+		
 		// 1 bit == 1 pixel with a yes/no dirt flag
 		for(int i=0;i<8;i++) {
 
@@ -1863,7 +1865,7 @@ int CMap::Save(char *name, char *filename)
 			t |= (value << i);
 		}
 
-		fwrite(&t,		sizeof(uchar),	1,	fp);	
+		fwrite(GetEndianSwapped(t),	sizeof(uchar),	1,	fp);	
 	}
 
 
@@ -1904,6 +1906,7 @@ int CMap::SaveImageFormat(FILE *fp)
 	uchar *pDest = new uchar[destsize];
 
 	if(!pSource || !pDest) {
+		printf("CMap::SaveImageFormat: ERROR: not enough memory for pSource and pDest\n");
 		fclose(fp);
 		return false;
 	}
@@ -1914,9 +1917,9 @@ int CMap::SaveImageFormat(FILE *fp)
 		for(x=0; x<Width; x++) {
 			GetColour4( GetPixel(bmpBackImage,x,y), bmpBackImage, &r, &g, &b ,&a );
 
-			pSource[p++] = r;
-			pSource[p++] = g;
-			pSource[p++] = b;
+			pSource[p++] = *GetEndianSwapped(r);
+			pSource[p++] = *GetEndianSwapped(g);
+			pSource[p++] = *GetEndianSwapped(b);
 		}
 	}
 
@@ -1924,20 +1927,20 @@ int CMap::SaveImageFormat(FILE *fp)
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
 			GetColour4( GetPixel(bmpImage,x,y), bmpImage, &r, &g, &b ,&a );
-			pSource[p++] = r;
-			pSource[p++] = g;
-			pSource[p++] = b;
+			pSource[p++] = *GetEndianSwapped(r);
+			pSource[p++] = *GetEndianSwapped(g);
+			pSource[p++] = *GetEndianSwapped(b);
 		}
 	}
 
 	// Save the pixel flags		
 	for(n=0;n<Width*Height;n++) {
-		uchar t = PX_EMPTY;
+		uchar t = *GetEndianSwapped(PX_EMPTY);
 
 		if(PixelFlags[n] & PX_DIRT)
-			t = PX_DIRT;
+			t = *GetEndianSwapped(PX_DIRT);
 		if(PixelFlags[n] & PX_ROCK)
-			t = PX_ROCK;
+			t = *GetEndianSwapped(PX_ROCK);
 
 		pSource[p++] = t;
 	}
@@ -1974,8 +1977,10 @@ int CMap::LoadImageFormat(FILE *fp)
 	Uint8 r,g,b;
 
 	fread(&size, sizeof(ulong), 1, fp);
+	EndianSwap(size);
 	fread(&destsize, sizeof(ulong), 1, fp);
-
+	EndianSwap(destsize);
+	
 	// Allocate the memory
 	uchar *pSource = new uchar[size];
 	uchar *pDest = new uchar[destsize];
@@ -2002,9 +2007,9 @@ int CMap::LoadImageFormat(FILE *fp)
 	p=0;
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
-			r = pDest[p++];
-			g = pDest[p++];
-			b = pDest[p++];
+			r = *GetEndianSwapped(pDest[p++]);
+			g = *GetEndianSwapped(pDest[p++]);
+			b = *GetEndianSwapped(pDest[p++]);
 
 			PutPixel( bmpBackImage, x,y, MakeColour(r,g,b));
 		}
@@ -2013,9 +2018,9 @@ int CMap::LoadImageFormat(FILE *fp)
 	// Save the front image
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
-			r = pDest[p++];
-			g = pDest[p++];
-			b = pDest[p++];
+			r = *GetEndianSwapped(pDest[p++]);
+			g = *GetEndianSwapped(pDest[p++]);
+			b = *GetEndianSwapped(pDest[p++]);
 
 			PutPixel( bmpImage, x,y, MakeColour(r,g,b));
 		}
@@ -2034,7 +2039,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
 		
-			uchar t = pDest[p++];
+			uchar t = *GetEndianSwapped(pDest[p++]);
 			PixelFlags[n++] = t;
 
 			if(t == PX_EMPTY)
@@ -2190,10 +2195,13 @@ int CMap::LoadOriginal(FILE *fp)
 		}
 	}
 
+	// LOL :)
+/*
 	// Dump the palette
 	for(n=0;n<256;n++) {
 		//printf("Index: %d =  %d, %d, %d\n",n,palette[n*3], palette[n*3+1], palette[n*3+2]);
 	}
+*/
 
 	// Apply shadow
 	ApplyShadow(0,0,Width,Height);
