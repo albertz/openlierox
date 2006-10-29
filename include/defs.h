@@ -46,6 +46,7 @@ inline char *getcwd(char *buf, size_t size) {
 #else
 #	include <sys/types.h>
 #	include <sys/stat.h>
+#	include <sys/dir.h>
 #	include <unistd.h>
 #endif
 

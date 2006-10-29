@@ -12,12 +12,6 @@
 // Created 30/6/02
 // Jason Boettcher
 
-#ifndef WIN32
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#endif
-
 #include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
