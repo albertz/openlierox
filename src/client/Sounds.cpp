@@ -83,9 +83,9 @@ int	FreeSoundSample(SoundSample* sample) {
 }
 
 int	PlaySoundSample(SoundSample* sample) {
-	if(sample->sample == NULL)
+	if(sample == NULL || sample->sample == NULL)
 		return false;
-		
+
 	if(Mix_PlayChannel(-1, sample->sample, 0) != 0) {
 		printf("PlaySoundSample: Error: %s\n",Mix_GetError());
 		return false;
