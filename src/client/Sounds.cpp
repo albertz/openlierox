@@ -59,9 +59,11 @@ int	QuitSoundSystem() {
 SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
 	Mix_Chunk* sample = Mix_LoadWAV(filename);
 	if(!sample) {
+		// TODO: only print this error, if file is existing
+		//printf("LoadSoundSample: Error while loading %s: %s\n", filename, Mix_GetError());
 		return NULL;
 	}
-	
+		
 	SoundSample* ret = new SoundSample;
 	ret->sample = sample;
 	ret->maxsimulplays = maxsimulplays;
@@ -81,7 +83,14 @@ int	FreeSoundSample(SoundSample* sample) {
 }
 
 int	PlaySoundSample(SoundSample* sample) {
-
+	if(sample->sample == NULL)
+		return false;
+		
+	if(Mix_PlayChannel(-1, sample->sample, 0) != 0) {
+		printf("PlaySoundSample: Error: %s\n",Mix_GetError());
+		return false;
+	}
+	
 	return true;
 }
 

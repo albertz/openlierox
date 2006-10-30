@@ -1935,12 +1935,12 @@ int CMap::SaveImageFormat(FILE *fp)
 
 	// Save the pixel flags		
 	for(n=0;n<Width*Height;n++) {
-		uchar t = *GetEndianSwapped(PX_EMPTY);
+		uchar t = PX_EMPTY;
 
 		if(PixelFlags[n] & PX_DIRT)
-			t = *GetEndianSwapped(PX_DIRT);
+			t = PX_DIRT;
 		if(PixelFlags[n] & PX_ROCK)
-			t = *GetEndianSwapped(PX_ROCK);
+			t = PX_ROCK;
 
 		pSource[p++] = t;
 	}
