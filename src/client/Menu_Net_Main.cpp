@@ -108,7 +108,7 @@ void Menu_Net_MainFrame(int mouse)
 
 					// Click!
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cMain.Shutdown();

@@ -152,7 +152,7 @@ void Menu_Net_LANFrame(int mouse)
 
 					// Click!
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cLan.Shutdown();
@@ -168,7 +168,7 @@ void Menu_Net_LANFrame(int mouse)
 
 					// Click!
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Send out a ping over the lan
 					Menu_SvrList_Clear();
@@ -186,7 +186,7 @@ void Menu_Net_LANFrame(int mouse)
 						
 						// Click!
 // TODO: sound
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 						// Join
 						Menu_Net_LANJoinServer(addr);

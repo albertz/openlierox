@@ -317,7 +317,7 @@ void Menu_OptionsFrame(void)
                 DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 				OptionsMode = i;
 // TODO: sound
-//				BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 			}
 		}
 	}
@@ -347,7 +347,7 @@ void Menu_OptionsFrame(void)
 
 					// Leave
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 					Menu_MainInitialize();
 					return;
 				}
@@ -504,7 +504,7 @@ void Menu_OptionsFrame(void)
 						// Set to fullscreen
 						tLXOptions->iFullscreen = fullscr;
 // TODO: sound
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 						// Set the new video mode
 						SetVideoMode();
@@ -525,11 +525,10 @@ void Menu_OptionsFrame(void)
 						tLXOptions->iSoundOn = c->getValue();
 
 						if(old != tLXOptions->iSoundOn) {
-							// TODO: sound!
-						/*	if(tLXOptions->iSoundOn)
-								BASS_Start();
+							if(tLXOptions->iSoundOn)
+								StartSoundSystem();
 							else
-								BASS_Stop(); */
+								StopSoundSystem();
 						}
 					}
 					break;
@@ -540,8 +539,7 @@ void Menu_OptionsFrame(void)
 						CSlider *s = (CSlider *)cOpt_System.getWidget(SoundVolume);
 						tLXOptions->iSoundVolume = s->getValue();
 
-				// TODO: sound
-						//BASS_SetVolume( tLXOptions->iSoundVolume );
+						SetSoundVolume( tLXOptions->iSoundVolume );
 					}
 					break;
 

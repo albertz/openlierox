@@ -744,9 +744,9 @@ SDL_Surface *CGameScript::LoadGSImage(char *dir, char *filename)
 
 ///////////////////
 // Load a sample
-HSAMPLE CGameScript::LoadGSSample(char *dir, char *filename)
+SoundSample* CGameScript::LoadGSSample(char *dir, char *filename)
 {
-	HSAMPLE smp = 0;
+	SoundSample* smp = NULL;
 	char buf[256];
 
 	// First, check the sfx directory in the mod dir

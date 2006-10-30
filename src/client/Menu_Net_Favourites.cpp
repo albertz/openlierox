@@ -157,7 +157,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 					// Click!
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Save the list
 					Menu_SvrList_SaveList("cfg/favourites.dat");
@@ -176,7 +176,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 					// Click!
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					Menu_Net_FavouritesAddServer();
 				}
@@ -188,7 +188,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 					// Click!
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Send out a ping
 					Menu_SvrList_RefreshList();
@@ -206,7 +206,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 						
 						// Click!
 // TODO: sound
-						//BASS_SamplePlay(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Join
 						Menu_Net_FavouritesJoinServer(addr);
@@ -482,7 +482,7 @@ void Menu_Net_RenameServer(char *szName)
 
 						// Click!
 // TODO: sound
-						//BASS_SamplePlay(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						renameServerMsg = false;
 					}
@@ -493,7 +493,7 @@ void Menu_Net_RenameServer(char *szName)
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
 // TODO: sound
-						//BASS_SamplePlay(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						renameServerMsg = false;
 					}
@@ -596,7 +596,7 @@ void Menu_Net_FavouritesAddServer(void)
 
 						// Click!
 						// TODO: sound
-						//BASS_SamplePlay(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						addServerMsg = false;
 					}
@@ -607,7 +607,7 @@ void Menu_Net_FavouritesAddServer(void)
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
 // TODO: sound
-						//BASS_SamplePlay(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						addServerMsg = false;
 					}

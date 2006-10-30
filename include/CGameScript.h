@@ -192,7 +192,7 @@ typedef struct proj_s {
 
 #ifndef _CONSOLE
 	SDL_Surface	*bmpImage;
-	HSAMPLE		smpSample;
+	SoundSample*		smpSample;
 #endif
 	
 
@@ -232,7 +232,7 @@ typedef struct {
 	gs_special_t tSpecial;
 
 #ifndef _CONSOLE
-	HSAMPLE	smpSample;
+	SoundSample*	smpSample;
 #endif
 
 } weapon_t;
@@ -306,7 +306,7 @@ public:
 
 #ifndef _CONSOLE
 	SDL_Surface	*LoadGSImage(char *dir, char *filename);
-	HSAMPLE		LoadGSSample(char *dir, char *filename);
+	SoundSample*		LoadGSSample(char *dir, char *filename);
 #endif
 
 

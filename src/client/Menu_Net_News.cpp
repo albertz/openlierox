@@ -83,7 +83,7 @@ void Menu_Net_NewsFrame(int mouse)
 
 					// Click!
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cNews.Shutdown();

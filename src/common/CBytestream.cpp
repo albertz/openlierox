@@ -264,7 +264,7 @@ float CBytestream::readFloat(void)
 
 
 	int a=0;
-	float value;
+	float value=0;
 	nl_readFloat(dat,a,value);
 		
 	return value;

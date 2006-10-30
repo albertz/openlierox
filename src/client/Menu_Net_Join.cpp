@@ -175,7 +175,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-					BASS_SamplePlay(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cPlayerSel.Shutdown();
@@ -264,7 +264,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 
 						
 						// Click
-						BASS_SamplePlay(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Connect to the server
 						Menu_Net_JoinConnectionInitialize();
@@ -396,7 +396,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 					// Click!
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cConnecting.Shutdown();
@@ -766,7 +766,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 					// Click!
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cJoinLobby.Shutdown();

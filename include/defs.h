@@ -53,7 +53,7 @@ inline char *getcwd(char *buf, size_t size) {
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
-//TODO: HINT: include of bass-header was removed here; new soundsystem is needed
+
 #include <nl.h>
 // workaraound for bad named makros by nl.h
 // makros are bad, esp the names (reserved/used by CBytestream)

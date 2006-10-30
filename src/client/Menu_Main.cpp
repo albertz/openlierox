@@ -91,7 +91,7 @@ void Menu_MainFrame(void)
                 img=0;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 // TODO: implement sound system
-//                    BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_LocalInitialize();
 				    return;
@@ -104,7 +104,7 @@ void Menu_MainFrame(void)
                 img=1;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 // TODO: implement sound system
-//                    BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_NetInitialize();
 				    return;
@@ -115,7 +115,7 @@ void Menu_MainFrame(void)
 			case 2:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 // TODO: implement sound system
-//                    BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_PlayerInitialize();
 				    return;
@@ -126,7 +126,7 @@ void Menu_MainFrame(void)
 			case 3:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 // TODO: implement sound system
-                    //BASS_SamplePlay(sfxGeneral.smpClick);
+                    PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_MapEdInitialize();
 				    return;
@@ -137,7 +137,7 @@ void Menu_MainFrame(void)
 			case 4:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 // TODO: implement sound system
-//                    BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_OptionsInitialize();
 				    return;
@@ -148,7 +148,7 @@ void Menu_MainFrame(void)
 			case 5:
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
 // TODO: implement sound system
-        //            BASS_SamplePlay(sfxGeneral.smpClick);
+        PlaySoundSample(sfxGeneral.smpClick);
 				
                     cMainMenu.Draw(tMenu->bmpBuffer);
 

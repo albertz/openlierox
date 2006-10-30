@@ -155,7 +155,7 @@ void Menu_Net_NETFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Click!
 // TODO: implement sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					Menu_Net_NETAddServer();
 				}
@@ -175,7 +175,7 @@ void Menu_Net_NETFrame(int mouse)
 
 					// Click!
 // TODO: implement sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cInternet.Shutdown();
@@ -191,7 +191,7 @@ void Menu_Net_NETFrame(int mouse)
 
 					// Click!
 // TODO: implement sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Refresh the currently visible servers
 					Menu_SvrList_RefreshList();
@@ -212,7 +212,7 @@ void Menu_Net_NETFrame(int mouse)
 						
 						// Click!
 // TODO: implement sound
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 						// Join
 						Menu_Net_NETJoinServer(addr);
@@ -329,7 +329,7 @@ void Menu_Net_NETFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Click!
 // TODO: implement sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					Menu_Net_NETUpdateList();
 				}
@@ -453,7 +453,7 @@ void Menu_Net_NETAddServer(void)
 
 						// Click!
 // TODO: implement sound
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 						addServerMsg = false;
 					}
@@ -464,7 +464,7 @@ void Menu_Net_NETAddServer(void)
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
 // TODO: implement sound
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 						addServerMsg = false;
 					}
@@ -623,7 +623,7 @@ void Menu_Net_NETUpdateList(void)
 						
 						// Click!
 // TODO: implement sound
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 						http_result = 0;
 						updateList = false;

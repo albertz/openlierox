@@ -23,8 +23,9 @@
 
 #define		MAX_CACHE		1024
 
-
-
+// this forward-declaration is needed here
+// it will be declared in Sounds.h
+struct SoundSample;
 
 // The item class (can be surface, sample)
 class CCache {
@@ -50,7 +51,7 @@ private:
 	SDL_Surface		*Image;
 
 	// Sample
-	HSAMPLE			Sample;
+	SoundSample*	Sample;
 
 
 public:
@@ -60,7 +61,7 @@ public:
 	// Loading
 	SDL_Surface		*LoadImg(char *_file);
 	SDL_Surface		*LoadImgBPP(char *_file, int bpp);
-	HSAMPLE			LoadSample(char *_file, int maxplaying);
+	SoundSample*			LoadSample(char *_file, int maxplaying);
 
 
 	// Shutdowning
@@ -73,7 +74,7 @@ public:
 	char			*getFilename(void)		{ return Filename; }
 
 	SDL_Surface		*GetImage(void)			{ return Image; }
-	HSAMPLE			GetSample(void)			{ return Sample; }
+	SoundSample*			GetSample(void)			{ return Sample; }
 };
 
 
@@ -91,7 +92,7 @@ void	ShutdownCache(void);
 SDL_Surface     *_LoadImage(char *filename);
 
 SDL_Surface		*LoadImage(char *_filename, int correctbpp);
-HSAMPLE			LoadSample(char *_filename, int maxplaying);
+SoundSample*			LoadSample(char *_filename, int maxplaying);
 
 
 

@@ -101,7 +101,7 @@ void CClient::Simulation(void)
 
 							// Pickup noise
 // TODO: sound
-//							BASS_SamplePlay(sfxGame.smpPickup);
+PlaySoundSample(sfxGame.smpPickup);
 
 							DestroyBonus(n, local, w->getID());
 						}
@@ -272,7 +272,7 @@ void CClient::SimulateProjectiles(float dt)
 				// Play the hit sound
 				if(pi->Hit_UseSound) {}
 // TODO: sound
-//					BASS_SamplePlay(pi->smpSample);
+PlaySoundSample(pi->smpSample);
 			}
 
 			// Bounce
@@ -328,7 +328,7 @@ void CClient::SimulateProjectiles(float dt)
 
 				// Play the Explode sound
 				if(pi->Exp_UseSound)
-					BASS_SamplePlay(pi->smpSample);
+					PlaySoundSample(pi->smpSample);
 			}
 
 			// Carve

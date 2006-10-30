@@ -12,10 +12,7 @@
 
 #include "defs.h"
 //#include "corona.h"
-
-#ifndef WIN32
-#include <sys/stat.h>
-#endif
+#include "Sounds.h"
 
 CCache		*Cache = NULL;
 
@@ -139,20 +136,18 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 
 ///////////////////
 // Load a sample
-HSAMPLE CCache::LoadSample(char *_file, int maxplaying)
+SoundSample* CCache::LoadSample(char *_file, int maxplaying)
 {
 	Type = CCH_SOUND;
 	GetExactFileName(_file, Filename);
 
 	// Load the sample
-	// TODO: load it
-	//Sample = BASS_SampleLoad(false,Filename,0,0,maxplaying,0);
-	Sample = 0;
+	Sample = LoadSoundSample(Filename,maxplaying);
 	
 	if(Sample)
 		Used = true;
-	//else
-		//SetError("Error loading sample: %s",_file);
+	else
+		SetError("Error loading sample: %s",_file);
 
 	return Sample;
 }
@@ -176,10 +171,9 @@ void CCache::Shutdown(void)
 
 		// Sample
 		case CCH_SOUND:
-			// TODO: free the sample
-			//if(Sample)
-			//	BASS_SampleFree(Sample);
-			Sample = 0;
+			if(Sample)
+				FreeSoundSample(Sample);
+			Sample = NULL;
 			break;
 	}
 }
@@ -274,7 +268,7 @@ SDL_Surface *LoadImage(char *_filename, int correctbpp)
 
 ///////////////////
 // Load a sample
-HSAMPLE LoadSample(char *_filename, int maxplaying)
+SoundSample* LoadSample(char *_filename, int maxplaying)
 {
 	int n;
 	CCache *cach;

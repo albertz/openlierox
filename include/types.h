@@ -20,9 +20,6 @@ typedef unsigned int	uint;
 typedef unsigned char	uchar;
 typedef unsigned long	ulong;
 
-// used by sound-system; TODO: replace it
-typedef int HSAMPLE;
-
 #ifndef WIN32
 // WIN32 defines this in windows.h
 typedef int DWORD;

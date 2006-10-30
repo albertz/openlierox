@@ -225,7 +225,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				
 			// Throw sound
 //TODO : sound
-//			BASS_SamplePlay(sfxGame.smpNinja);
+PlaySoundSample(sfxGame.smpNinja);
 		}
 
 
@@ -237,7 +237,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			cNinjaRope.Shoot(vPos,dir);
 			// Throw sound
 //TODO : sound
-//			BASS_SamplePlay(sfxGame.smpNinja);
+PlaySoundSample(sfxGame.smpNinja);
 		}
 	}
 
@@ -878,7 +878,7 @@ void CWorm::getMouseInput(void)
 		cNinjaRope.Shoot(vPos,dir);
 		// Throw sound
 //TODO : sound
-//		BASS_SamplePlay(sfxGame.smpNinja);
+PlaySoundSample(sfxGame.smpNinja);
 		RopeDown = true;
 	}
 

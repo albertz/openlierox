@@ -152,7 +152,7 @@ void Menu_NetFrame(void)
 				mouse = 1;
 				if(Mouse->Up) {					
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Call a shutdown on all the highest net menu's
 					Menu_Net_MainShutdown();

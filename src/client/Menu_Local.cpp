@@ -214,7 +214,7 @@ void Menu_LocalFrame(void)
 
 					// Leave
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 					Menu_MainInitialize();
 					return;
 				}
@@ -224,7 +224,7 @@ void Menu_LocalFrame(void)
 			case Start:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 					// Start the game
 					Menu_LocalStartGame();
 				}
@@ -1286,7 +1286,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 				case wp_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 // TODO: sound
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 						quitloop = true;
 					}
 					break;
@@ -1306,7 +1306,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 					// Play the sound only for OK button
 					if (ev->iControlID == wp_Ok) {}
 // TODO: sound
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Don't process when nothing is selected
 					if(strlen(t->getText()) > 0) {

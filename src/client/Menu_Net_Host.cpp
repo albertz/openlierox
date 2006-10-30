@@ -180,7 +180,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 					// Click!
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cHostPly.Shutdown();
@@ -287,7 +287,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 						// Click
 // TODO: implement sound system
-//						BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 						// Start the lobby
 						Menu_Net_HostLobbyInitialize();
@@ -651,7 +651,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Click!
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cHostLobby.Shutdown();

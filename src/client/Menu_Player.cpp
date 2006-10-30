@@ -216,7 +216,7 @@ void Menu_PlayerFrame(void)
                 else
                     Menu_Player_ViewPlayerInit();
 // TODO: implement sound system
-//				BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 			}
 		}
 	}
@@ -337,7 +337,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 					// Leave
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 					Menu_MainInitialize();
 					return;
 				}
@@ -347,7 +347,7 @@ void Menu_Player_NewPlayer(int mouse)
 			case np_Create:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 
 					// Get the details
 					char *name = ((CTextbox *)cNewPlayer.getWidget(np_Name))->getText();
@@ -467,7 +467,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 					// Leave
 // TODO: sound
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 					Menu_MainInitialize();
 					return;
 				}
@@ -547,7 +547,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 					// Play a click
 // TODO: implement sound system
-//					BASS_SamplePlay(sfxGeneral.smpClick);
+PlaySoundSample(sfxGeneral.smpClick);
 				}
 				break;
 

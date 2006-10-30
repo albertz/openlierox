@@ -16,8 +16,75 @@
 #include "defs.h"
 #include "LieroX.h"
 
+
 sfxgame_t	sfxGame;
 sfxgen_t	sfxGeneral;
+
+
+int	InitSoundSystem(int rate, int channels, int buffers) {
+	// HINT: other SDL stuff is already inited, we don't care here
+	if( SDL_Init(SDL_INIT_AUDIO) != 0 ) {
+		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
+		return false;
+	}
+	
+	if(Mix_OpenAudio(rate, AUDIO_S16, channels, buffers)) {
+		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
+    	return false;
+	}
+		
+	return true;
+}
+
+int	StartSoundSystem() {
+
+	return true;
+}
+
+int	StopSoundSystem() {
+
+	return true;
+}
+
+int	SetSoundVolume(int vol) {
+	
+	return true;
+}
+
+int	QuitSoundSystem() {
+	Mix_CloseAudio();
+	return true;
+}
+
+SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
+	Mix_Chunk* sample = Mix_LoadWAV(filename);
+	if(!sample) {
+		return NULL;
+	}
+	
+	SoundSample* ret = new SoundSample;
+	ret->sample = sample;
+	ret->maxsimulplays = maxsimulplays;
+	return ret;
+}
+
+int	FreeSoundSample(SoundSample* sample) {
+	// no sample, so we are ready
+	if(!sample) return true;
+	
+	if(!sample->sample) {
+		Mix_FreeChunk(sample->sample);
+		sample->sample = NULL;	
+	}
+	delete sample;
+	return true;
+}
+
+int	PlaySoundSample(SoundSample* sample) {
+
+	return true;
+}
+
 
 
 ///////////////////
@@ -41,7 +108,7 @@ int LoadSounds(void)
 
 ///////////////////
 // Play a sound in the viewport
-void StartSound(HSAMPLE smp, CVec pos, int local, int volume, CWorm *me)
+void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 {
 	int pan = 0;
 	int maxhearing = 750;	// Maximum distance for hearing
@@ -78,6 +145,9 @@ void StartSound(HSAMPLE smp, CVec pos, int local, int volume, CWorm *me)
 			return;*/
 	}
 
-	// TODO: sound implementation!
-	//BASS_SamplePlayEx(smp,0,-1,volume,pan,-1);
+	// TODO: implement a PlayExSoundSample for this
+	// this was the old call (using BASS_SamplePlayEx):
+	//PlayExSampleSoundEx(smp,0,-1,volume,pan,-1);
+	// we are using a workaround here
+	PlaySoundSample(smp);
 }

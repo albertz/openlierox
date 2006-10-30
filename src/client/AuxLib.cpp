@@ -65,17 +65,15 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 	Init_2xSaI(565);
 
     if( !nDisableSound ) {
-	    // Initialize BASS
-		// TODO: init sound
-/*	    if(!BASS_Init(-1,44100,0,GetForegroundWindow())) {
-		    printf("Warning: Failed the initialize the sound library");
-	    } */
+	    // Initialize sound
+		if(!InitSoundSystem(44100, 2, 4096)) {
+		    printf("Warning: Failed the initialize the sound system\n");
+		}
     }
 
 	if( tLXOptions->iSoundOn ) {
-		// TODO: manage sound
-		/* BASS_Start();
-		BASS_SetVolume( tLXOptions->iSoundVolume ); */
+		StartSoundSystem();
+		SetSoundVolume( tLXOptions->iSoundVolume );
 	}
 
 
@@ -346,6 +344,8 @@ void ShutdownAuxLib(void)
 {
 	if(bmpIcon)
 		SDL_FreeSurface(bmpIcon);
+
+	QuitSoundSystem();
 
 	// Shutdown the error system
 	EndError();
