@@ -104,15 +104,14 @@ int CBytestream::writeInt(int value, int numbytes)
 	// Numbytes cannot be more then 4
 	if(numbytes <= 0 || numbytes >= 5)
 		return false;
-
-	EndianSwap(value);
-
+	
 	// Copy the interger into individual bytes
+	// HINT: this is endian independent
 	bytes[0] = value & 0xff;
-	bytes[1] = (value>>8) & 0xff;
-	bytes[2] = (value>>16) & 0xff;
-	bytes[3] = value>>24;
-
+	bytes[1] = (value & 0xff00) / 0x100;
+	bytes[2] = (value & 0xff0000) / 0x10000;
+	bytes[3] = (value & 0xff000000) / 0x1000000;
+	
 	for(n=0;n<numbytes;n++)
 		if(!writeByte(bytes[n]))
 			return false;
@@ -218,16 +217,18 @@ int CBytestream::readInt(int numbytes)
 	for(n=0;n<numbytes;n++)
 		bytes[n] = readByte();
 
+	// HINT: this is endian independent
 	if(numbytes>0)
 		value = (int)bytes[0];
 	if(numbytes>1)
-		value+= (int)bytes[1]<<8;
+		value+= (int)bytes[1] * 0x100;
 	if(numbytes>2)
-		value+= (int)bytes[2]<<16;
+		value+= (int)bytes[2] * 0x10000;
 	if(numbytes>3)
-		value+= (int)bytes[3]<<24;
+		value+= (int)bytes[3] * 0x1000000;
 	
-	EndianSwap(value);
+	
+	//EndianSwap(value);
 	
 	return value;
 }

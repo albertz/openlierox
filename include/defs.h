@@ -153,9 +153,11 @@ inline T* GetByteSwapped(const T b)
 #endif
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #	define EndianSwap(x)		;
+#	define BEndianSwap(x)		ByteSwap5(x);
 #	define GetEndianSwapped(x)	(&x)
 #elif __BYTE_ORDER == __BIG_ENDIAN
 #	define EndianSwap(x)		ByteSwap5(x);
+#	define BEndianSwap(x)		;
 #	define GetEndianSwapped(x)	(GetByteSwapped(x))
 #else
 #	error unknown ENDIAN type
