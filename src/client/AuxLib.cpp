@@ -66,7 +66,7 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 
     if( !nDisableSound ) {
 	    // Initialize sound
-		if(!InitSoundSystem(44100, 2, 4096)) {
+		if(!InitSoundSystem(22050, 1, 512)) {
 		    printf("Warning: Failed the initialize the sound system\n");
 		}
     }
