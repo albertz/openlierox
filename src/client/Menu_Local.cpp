@@ -27,17 +27,18 @@ enum {
 	Playing,
 	PlayerList,
 	LevelList,
-	//LoadingTimes,
-	//LoadingTimeLabel,
 	Gametype,
 	ModName,
+	GameSettings,
+    WeaponOptions
+
+	//LoadingTimes,
+	//LoadingTimeLabel,
 	//Lives,
 	//MaxKills,
 	//TimeLimit,
 	//TagLimitLbl,
 	//TagLimitTxt,
-	GameSettings,
-    WeaponOptions
 };
 
 int iGameType = GMT_DEATHMATCH;
@@ -213,8 +214,7 @@ void Menu_LocalFrame(void)
 					cLocalMenu.Shutdown();
 
 					// Leave
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 					Menu_MainInitialize();
 					return;
 				}
@@ -223,8 +223,8 @@ PlaySoundSample(sfxGeneral.smpClick);
 			// Start
 			case Start:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
+					
 					// Start the game
 					Menu_LocalStartGame();
 				}

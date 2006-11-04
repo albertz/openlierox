@@ -87,7 +87,7 @@ int	PlaySoundSample(SoundSample* sample) {
 		return false;
 
 	if(Mix_PlayChannel(-1, sample->sample, 0) != 0) {
-		printf("PlaySoundSample: Error: %s\n",Mix_GetError());
+		//printf("PlaySoundSample: Error: %s\n",Mix_GetError());
 		return false;
 	}
 	

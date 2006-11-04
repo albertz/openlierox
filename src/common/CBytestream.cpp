@@ -107,11 +107,11 @@ int CBytestream::writeInt(int value, int numbytes)
 	
 	// Copy the interger into individual bytes
 	// HINT: this is endian independent
-	bytes[0] = value & 0xff;
-	bytes[1] = (value & 0xff00) / 0x100;
-	bytes[2] = (value & 0xff0000) / 0x10000;
-	bytes[3] = (value & 0xff000000) / 0x1000000;
-	
+	bytes[0] = (uint)value & 0xff;
+	bytes[1] = ((uint)value & 0xff00) / 0x100;
+	bytes[2] = ((uint)value & 0xff0000) / 0x10000;
+	bytes[3] = ((uint)value & 0xff000000) / 0x1000000;
+
 	for(n=0;n<numbytes;n++)
 		if(!writeByte(bytes[n]))
 			return false;
@@ -128,8 +128,8 @@ int CBytestream::writeShort(short value)
 	int a=0;
 	nl_writeShort(data,a,value);
 
-	writeByte(data[0]);
-	writeByte(data[1]);
+	if(!writeByte(data[0])) return false;
+	if(!writeByte(data[1])) return false;
 
 	return true;
 }
@@ -144,7 +144,7 @@ int CBytestream::writeFloat(float value)
 	nl_writeFloat(data,a,value);
 
 	for(a=0;a<sizeof(float);a++) {
-		writeByte(data[a]);
+		if(!writeByte(data[a])) return false;
 	}
 	
 	return true;
@@ -174,6 +174,18 @@ int CBytestream::writeString(char *fmt,...)
 	return true;
 }
 
+// cast 2 int12 to 3 bytes
+int	CBytestream::write2Int12(short x, short y) {
+	if(!writeByte(x & 0xff)) return false;
+	if(!writeByte(((x & 0xf00) / 0x100) + (y & 0xf) * 0x10)) return false;
+	if(!writeByte((y & 0xff0) / 0x10)) return false;
+	return true;
+}
+
+// cast 2 int4 to 1 byte
+int CBytestream::write2Int4(short x, short y) {
+	return writeByte((x & 0xf) + (y & 0xf) * 0x10);
+}
 
 
 
@@ -217,18 +229,18 @@ int CBytestream::readInt(int numbytes)
 	for(n=0;n<numbytes;n++)
 		bytes[n] = readByte();
 
+	uint ret = 0;
+	
 	// HINT: this is endian independent
 	if(numbytes>0)
-		value = (int)bytes[0];
+		ret = (uint)bytes[0];
 	if(numbytes>1)
-		value+= (int)bytes[1] * 0x100;
+		ret += (uint)bytes[1] * 0x100;
 	if(numbytes>2)
-		value+= (int)bytes[2] * 0x10000;
+		ret += (uint)bytes[2] * 0x10000;
 	if(numbytes>3)
-		value+= (int)bytes[3] * 0x1000000;
-	
-	
-	//EndianSwap(value);
+		ret += (uint)bytes[3] * 0x1000000;
+	value = (int)ret;
 	
 	return value;
 }
@@ -287,4 +299,21 @@ char *CBytestream::readString(char *str)
 	CurByte += strlen(str)+1;
 
 	return str;
+}
+
+
+// cast 3 bytes to 2 int12
+void CBytestream::read2Int12(short& x, short& y) {
+	x = readByte();
+	uchar tmp = readByte();
+	x += tmp & 0xf;
+	y = (tmp & 0xf0) / 0x10;
+	y += readByte() * 0x10;
+}
+
+// cast 1 byte to 2 int4
+void CBytestream::read2Int4(short& x, short& y) {
+	uchar tmp = readByte();
+	x = tmp & 0xf;
+	y = (tmp & 0xf0) / 0x10;
 }

@@ -78,6 +78,8 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 	nlGetLocalAddr(tSocket,&addr);
 	nlAddrToString(&addr, tLX->debug_string);
 
+	printf("HINT: server startet on %s:%i\n", tLX->debug_string, port);
+
 
 	// Initialize the clients
 	cClients = new CClient[MAX_CLIENTS];

@@ -45,7 +45,7 @@
 
 // Functions
 float	GetFixedRandomNum(int index);
-byte	Position2Byte( CVec position, int bytenum );
+//byte	Position2Byte( CVec position, int bytenum );
 
 
 // HTTP Request

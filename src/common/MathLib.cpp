@@ -12,7 +12,6 @@
 
 #include "defs.h"
 
-
 const int HALF_RAND = (RAND_MAX / 2);
 
 
@@ -25,14 +24,19 @@ const int HALF_RAND = (RAND_MAX / 2);
 // Faster SQRT function
 float fastSQRT(float x)
 {
-    float xhalf = 0.5f*x;
+// this is bullshit, why don't use the std::pow or std::sqrt?
+// std::pow/sqrt should use the CPU-accelerated floatingpoint-functions
+// also, this is endian-dependent!
+/*  
+	float xhalf = 0.5f*x;
     int i = *(int*)&x;
     i = 0x5f3759df - (i >> 1);
     x = *(float*)&i;
     x = x*(1.5f - xhalf*x*x);
     if( x == 0 )
         return 0;
-    return 1.0f / x;
+    return 1.0f / x; */
+	return sqrt(x);
 }
 
 

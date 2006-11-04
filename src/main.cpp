@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
 		
 		if(startgame) {
 			// Start the game
+			// this means, start the local server and connect to it
 			StartGame();
 
 		} else {
@@ -353,7 +354,6 @@ void GameLoop(void)
 	switch (tGameInfo.iGameType)  {
 	case GME_LOCAL:
 		cClient->Frame();
-
 		cServer->Frame();
 
 		// If we are connected, just start the game straight away (bypass lobby in local)
@@ -367,7 +367,6 @@ void GameLoop(void)
 
 
 	// Hosting
-	//if(tGameInfo.iGameType == GME_HOST) {
 	case GME_HOST:
 		cClient->Frame();
 		cServer->Frame();
@@ -376,7 +375,6 @@ void GameLoop(void)
 		break;
 
 	// Joined
-	//if(tGameInfo.iGameType == GME_JOIN) {
 	case GME_JOIN:
 		cClient->Frame();
 		cClient->Draw(Screen);

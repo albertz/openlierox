@@ -2039,7 +2039,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
 		
-			uchar t = *GetEndianSwapped(pDest[p++]);
+			uchar t = pDest[p++];
 			PixelFlags[n++] = t;
 
 			if(t == PX_EMPTY)

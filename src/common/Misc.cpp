@@ -404,7 +404,7 @@ void ByteSwap(unsigned char * b, int n)
 {
    register int i = 0;
    register int j = n-1;
-   register char tmp;
+   register unsigned char tmp;
    while (i<j)
    {
       tmp = b[i]; b[i] = b[j]; b[j] = tmp;

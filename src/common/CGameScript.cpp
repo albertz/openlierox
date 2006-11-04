@@ -814,9 +814,9 @@ void CGameScript::writeString(char *szString, FILE *fp)
 {
     assert( szString );
 
-    char length = strlen(szString);
+    uchar length = strlen(szString);
 
-    fwrite( &length, sizeof(char), 1, fp );
+    fwrite( &length, sizeof(uchar), 1, fp );
     fwrite( szString,sizeof(char), length, fp );
 }
 
@@ -827,8 +827,8 @@ char *CGameScript::readString(char *szString, FILE *fp)
 {
     assert( szString );
 
-    char length;
-    fread( &length, sizeof(char), 1, fp );
+    uchar length;
+    fread( &length, sizeof(uchar), 1, fp );
     fread( szString,sizeof(char), length, fp );
 
     szString[length] = '\0';

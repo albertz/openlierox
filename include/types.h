@@ -23,7 +23,7 @@ typedef unsigned long	ulong;
 #ifndef WIN32
 // WIN32 defines this in windows.h
 typedef int DWORD;
-typedef char byte;
+typedef uchar byte;
 #endif
 
 

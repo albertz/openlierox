@@ -81,15 +81,13 @@ void CWorm::readScore(CBytestream *bs)
 // Write a packet out
 void CWorm::writePacket(CBytestream *bs)
 {
-	int x = (int)vPos.GetX();
-	int y = (int)vPos.GetY();
+	short x = (short)vPos.GetX();
+	short y = (short)vPos.GetY();
 
 	// Note: This method of saving 1 byte in position, limits the map size to just under 4096x4096
 
 	// Position
-	bs->writeByte( x );
-	bs->writeByte( (x>>8) | (y<<4) );
-	bs->writeByte( (y>>4) );
+	bs->write2Int12( x, y );
 
 	// Angle
 	bs->writeInt( (int)fAngle+90, 1);
@@ -133,15 +131,13 @@ void CWorm::writePacket(CBytestream *bs)
 // Write a packet out (from client 2 server)
 /*void CWorm::writeC2SUpdate(CBytestream *bs)
 {
-	int x = (int)vPos.GetX();
-	int y = (int)vPos.GetY();
+	short x = (short)vPos.GetX();
+	short y = (short)vPos.GetY();
 
 	// Note: This method of saving 1 byte in position, limits the map size to just under 4096x4096
 
 	// Position
-	bs->writeByte( x );
-	bs->writeByte( (x>>8) | (y<<4) );
-	bs->writeByte( (y>>4) );
+	bs->write2Int12( x, y );
 
 	// Angle
 	bs->writeInt( (int)fAngle+90, 1);
@@ -175,13 +171,8 @@ void CWorm::writePacket(CBytestream *bs)
 void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 {
 	// Position
-	uchar pos[3];
-	for(int i=0;i<3;i++)
-		pos[i] = bs->readByte();
-
-	int x = pos[0] + ((pos[1]&15)<<8);
-	int y = (pos[1]>>4) + (pos[2]<<4);
-
+	short x, y;
+	bs->read2Int12( x, y );
 	vPos.SetX( (float)x );
 	vPos.SetY( (float)y );	
 
@@ -223,13 +214,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 {
 	// Position
-	uchar pos[3];
-	for(int i=0;i<3;i++)
-		pos[i] = bs->readByte();
-
-	int x = pos[0] + ((pos[1]&15)<<8);
-	int y = (pos[1]>>4) + (pos[2]<<4);
-
+	short x, y;
+	bs->read2Int12( x, y );
 	vPos.SetX( (float)x );
 	vPos.SetY( (float)y );
 

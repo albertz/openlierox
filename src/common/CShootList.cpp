@@ -153,10 +153,10 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 		flags |= SMF_NEGSPEED;				// Negative speed
 
 
-	int x = (int)psShot->cPos.GetX();
-	int y = (int)psShot->cPos.GetY();
-	int vx = (int)psShot->cWormVel.GetX();
-	int vy = (int)psShot->cWormVel.GetY();
+	short x = (short)psShot->cPos.GetX();
+	short y = (short)psShot->cPos.GetY();
+	short vx = (short)psShot->cWormVel.GetX();
+	short vy = (short)psShot->cWormVel.GetY();
 	
 	// Write the packet
 	bs->writeByte( S2C_SINGLESHOOT );
@@ -164,9 +164,7 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 	bs->writeByte( psShot->nWormID );
 	bs->writeFloat( psShot->fTime );
 	bs->writeByte( psShot->nWeapon );
-	bs->writeByte( x );
-	bs->writeByte( (x>>8) | (y<<4) );
-	bs->writeByte( (y>>4) );
+	bs->write2Int12( x, y );
 	bs->writeShort( vx );
 	bs->writeShort( vy );
 	bs->writeByte( psShot->nRandom );
@@ -252,10 +250,10 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 		flags |= SMF_NEGSPEED;				// Negative speed
 
 
-	int x = (int)psShot->cPos.GetX();
-	int y = (int)psShot->cPos.GetY();
-	int vx = (int)psShot->cWormVel.GetX();
-	int vy = (int)psShot->cWormVel.GetY();
+	short x = (short)psShot->cPos.GetX();
+	short y = (short)psShot->cPos.GetY();
+	short vx = (short)psShot->cWormVel.GetX();
+	short vy = (short)psShot->cWormVel.GetY();
 
 	// Write the packet
 	bs->writeByte( S2C_MULTISHOOT );
@@ -264,9 +262,7 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 	bs->writeFloat( psShot->fTime );
 	bs->writeByte( psShot->nWeapon );
 	bs->writeByte( num );
-	bs->writeByte( x );
-	bs->writeByte( (x>>8) | (y<<4) );
-	bs->writeByte( (y>>4) );
+	bs->write2Int12( x, y );
 	bs->writeShort( vx );
 	bs->writeShort( vy );
 	bs->writeByte( psShot->nRandom );
@@ -393,7 +389,7 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	// X & Y Small offset
 	if( (flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF) && (flags & SHF_YPOSOFF || flags & SHF_NG_YPOSOFF) ) {
 		if( !(extraflags & SHF_LARGEXOFF) && !(extraflags & SHF_LARGEYOFF) )
-			bs->writeByte( xoff | (yoff<<4) );
+			bs->write2Int4( xoff, yoff );
 	}
 
 	if( flags & SHF_ANGLEOFF )
@@ -426,8 +422,8 @@ void CShootList::readSingle( CBytestream *bs )
 	Clear();
 	
 	byte	flags = 0;
-	byte	pos[3];
 	short	vx, vy;
+	short x, y;
 	shoot_t *psShot = &m_psShoot[0];
 
 
@@ -436,9 +432,7 @@ void CShootList::readSingle( CBytestream *bs )
 	psShot->nWormID = bs->readByte();
 	psShot->fTime = bs->readFloat();
 	psShot->nWeapon = bs->readByte();
-	pos[0] = bs->readByte();
-	pos[1] = bs->readByte();
-	pos[2] = bs->readByte();
+	bs->read2Int12( x, y );
 	vx = bs->readShort();
 	vy = bs->readShort();
 	psShot->nRandom = bs->readByte();
@@ -461,9 +455,6 @@ void CShootList::readSingle( CBytestream *bs )
 
 
 	// Convert the pos
-	// TODO: ????? documentation needed
-	int x = pos[0] + ((pos[1]&15)<<8);
-	int y = (pos[1]>>4) + (pos[2]<<4);
 	psShot->cPos = CVec( (float)x, (float)y );
 
 	// Convert the velocity	
@@ -482,8 +473,7 @@ void CShootList::readMulti( CBytestream *bs )
 
 	// Read the header
 	byte	flags = 0;
-	byte	pos[3];
-	short	vx, vy;
+	short	x, y, vx, vy;
 	int		i;
 	int		num = 0;
 	shoot_t *psShot = m_psShoot;
@@ -493,9 +483,7 @@ void CShootList::readMulti( CBytestream *bs )
 	psShot->fTime = bs->readFloat();
 	psShot->nWeapon = bs->readByte();
 	num = bs->readByte();
-	pos[0] = bs->readByte();
-	pos[1] = bs->readByte();
-	pos[2] = bs->readByte();
+	bs->read2Int12( x, y );
 	vx = bs->readShort();
 	vy = bs->readShort();
 	psShot->nRandom = bs->readByte();
@@ -517,8 +505,6 @@ void CShootList::readMulti( CBytestream *bs )
 	}	
 
 	// Convert the pos
-	int x = pos[0] + ((pos[1]&15)<<8);
-	int y = (pos[1]>>4) + (pos[2]<<4);
 	psShot->cPos = CVec( (float)x, (float)y );
 
 	// Convert the velocity
@@ -540,7 +526,6 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	byte	extraflags = 0;
 	int		x = 0;
 	int		y = 0;
-	int		pos;
 
 	shoot_t	*psShot = &m_psShoot[index];
 
@@ -573,9 +558,9 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	// X & Y Small offset
 	if( (flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF) && (flags & SHF_YPOSOFF || flags & SHF_NG_YPOSOFF) ) {
 		if( !(extraflags & SHF_LARGEXOFF) && !(extraflags & SHF_LARGEYOFF) ) {
-			pos = bs->readByte();
-			x = pos & 15;
-			y = pos >> 4;
+			short sx, sy;
+			bs->read2Int4( sx, sy );
+			x = sx; y = sy;
 		}
 	}
 

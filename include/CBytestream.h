@@ -61,8 +61,9 @@ public:
 	int			writeShort(short value);
 	int			writeFloat(float value);
 	int			writeString(char *fmt,...);
-
-
+	int			write2Int12(short x, short y);
+	int			write2Int4(short x, short y);
+	
 	// Reads
 	uchar		readByte(void);
 	bool		readBool(void);
@@ -70,8 +71,9 @@ public:
 	short		readShort(void);
 	float		readFloat(void);
 	char		*readString(char *str);
-
-
+	void		read2Int12(short& x, short& y);
+	void		read2Int4(short& x, short& y);
+	
 	// Networking stuff
 	void		Send(NLsocket sock)		{ nlWrite(sock,Data,Length); }
 	int			Read(NLsocket sock)		{ Clear(); Length = nlRead(sock,Data,MAX_DATA); return Length; }

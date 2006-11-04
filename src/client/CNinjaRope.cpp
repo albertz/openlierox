@@ -311,13 +311,11 @@ void CNinjaRope::write(CBytestream *bs)
 	bs->writeByte( type );
 
 	// Position
-	int x = (int)HookPos.GetX();
-	int y = (int)HookPos.GetY();
+	short x = (short)HookPos.GetX();
+	short y = (short)HookPos.GetY();
 	
 	// Write out position of the hook
-	bs->writeByte( x );
-	bs->writeByte( (x>>8) | (y<<4) );
-	bs->writeByte( (y>>4) );
+	bs->write2Int12( x, y );
 
 
 	// Calculate the heading angle that the hook is travelling
@@ -376,13 +374,8 @@ void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 	}
 
 	// Position
-	uchar pos[3];
-	for(int i=0;i<3;i++)
-		pos[i] = bs->readByte();
-
-	int x = pos[0] + ((pos[1]&15)<<8);
-	int y = (pos[1]>>4) + (pos[2]<<4);
-
+	short x, y;
+	bs->read2Int12( x, y );
 	HookPos.SetX( (float)x );
 	HookPos.SetY( (float)y );
 

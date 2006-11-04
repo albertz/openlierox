@@ -344,7 +344,7 @@ void CClient::Connecting(void)
 		return;
 
 
-	// If we have tried 10 times (10x3 = 30secs) just quit trying
+	// If we have tried 10 times (10*3 = 30secs) just quit trying
 	if(iNumConnects >= 10) {
 		iNetStatus = NET_DISCONNECTED;
 		return;
