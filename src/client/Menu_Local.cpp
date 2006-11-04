@@ -1285,8 +1285,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 				// Cancel
 				case wp_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 						quitloop = true;
 					}
 					break;

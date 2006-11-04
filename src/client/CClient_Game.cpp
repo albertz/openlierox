@@ -100,8 +100,7 @@ void CClient::Simulation(void)
 						if( w->GiveBonus(b) ) {
 
 							// Pickup noise
-// TODO: sound
-PlaySoundSample(sfxGame.smpPickup);
+							PlaySoundSample(sfxGame.smpPickup);
 
 							DestroyBonus(n, local, w->getID());
 						}

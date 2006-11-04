@@ -121,8 +121,8 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 			}
 		}
 		if(Mouse->Up && down >= 0) {
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+			PlaySoundSample(sfxGeneral.smpClick);
+			
 			tMenu->iEditMode = down;
 		}
 	}
@@ -550,8 +550,7 @@ void Menu_MapEd_New(void)
 				// Cancel
 				case mn_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 						quitloop = true;
 					}
 					break;
@@ -559,8 +558,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				// OK
 				case mn_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 						int w = atoi(t1->getText());
 						int h = atoi(t2->getText());
 						char theme[128];
@@ -734,8 +732,7 @@ void Menu_MapEd_LoadSave(int save)
 				// Cancel
 				case sl_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 						quitloop = true;
 					}
 					break;
@@ -743,8 +740,8 @@ PlaySoundSample(sfxGeneral.smpClick);
 				// OK
 				case sl_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
+						
 						if(strlen(t->getText()) > 0) {
 
 							quitloop = true;
