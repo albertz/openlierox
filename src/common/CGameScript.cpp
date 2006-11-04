@@ -584,8 +584,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			
             if(proj->smpSample == 0) {
 				proj->Hit_UseSound = false;
-                // TODO: while sound is not implemented, no message
-		//modLog("Could not open sound '%s'",proj->Hit_SndFilename);
+				modLog("Could not open sound '%s'",proj->Hit_SndFilename);
             }
 		}
 	}

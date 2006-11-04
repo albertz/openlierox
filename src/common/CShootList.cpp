@@ -432,7 +432,7 @@ void CShootList::readSingle( CBytestream *bs )
 	psShot->nWormID = bs->readByte();
 	psShot->fTime = bs->readFloat();
 	psShot->nWeapon = bs->readByte();
-	bs->read2Int12( x, y );
+	bs->read2Int12( x, y );	
 	vx = bs->readShort();
 	vy = bs->readShort();
 	psShot->nRandom = bs->readByte();
