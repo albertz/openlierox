@@ -56,7 +56,7 @@ void Menu_MainInitialize(void)
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), 5, 25,440, 50,15);
 
 	// Temp
-	cMainMenu.Add( new CFrame(50,30,MakeColour(255,0,0),MakeColour(64,0,0)),10,100,100,100,100);
+	cMainMenu.Add( new CFrame(10,30,MakeColour(255,0,0),MakeColour(64,0,0)),10,100,100,100,100);
 
 }
 
