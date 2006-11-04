@@ -481,9 +481,9 @@ Uint32 xmlGetColour(xmlNodePtr Node, const char *Name)
 	sValue = (char *)xmlGetProp(Node,(const xmlChar *)Name);
 	org_val = sValue; // Save the original pointer
 
-	// By default return black
+	// By default return pink
 	if(!sValue)
-		return 0;
+		return MakeColour(255,0,255);
 
 	// Ignore the # character
 	if (*sValue == '#')

@@ -283,26 +283,12 @@ bool CGuiLayout::Build(void)
 			int width  = xmlGetInt(tCurrentNode,"width");
 			int height = xmlGetInt(tCurrentNode,"height");
 			int round  = xmlGetInt(tCurrentNode,"round");
+			int border = xmlGetInt(tCurrentNode,"border");
 			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor");
 			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor");
 			Uint32 bgcolour = xmlGetColour(tCurrentNode,"bgcolor");
-			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 
-			//Layout->Add(new CBox(round,light_colour,dark_colour,bgcolour),GetIdByName(name),left,top,width,height);
-			xmlFree(name);
-		}
-
-		// Frame
-		if (CMP(tCurrentNode->name,"frame"))  {
-			int left   = xmlGetInt(tCurrentNode,"left");
-			int top    = xmlGetInt(tCurrentNode,"top");
-			int width  = xmlGetInt(tCurrentNode,"width");
-			int height = xmlGetInt(tCurrentNode,"height");
-			int round  = xmlGetInt(tCurrentNode,"round");
-			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor");
-			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor");
-
-			//Layout->Add(new CFrame(round,light_colour,dark_colour),-1,left,top,width,height);
+			Add(new CBox(round,border,light_colour,dark_colour,bgcolour),-1,left,top,width,height);
 		}
 
 		// Image
@@ -722,6 +708,7 @@ gui_event_t *CGuiLayout::Process(void)
 				// For the current Mouse over widget this means a mouse out event
 				if(cMouseOverWidget)
 					cMouseOverWidget->ProcessEvent(OnMouseOut);
+
 				cMouseOverWidget = w;
 			}
 
@@ -730,7 +717,9 @@ gui_event_t *CGuiLayout::Process(void)
 				return tEvent;
 			}
 
-			return NULL;
+			// -2 - the widget says, that no event happened (various reasons)
+			if (ev != -2)
+				return NULL;
 		}
 	}
 

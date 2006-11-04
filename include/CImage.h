@@ -30,7 +30,7 @@ public:
 		sPath = NULL;
 		tImage = NULL;
 		if (Path)  {
-			tImage = LoadImage(Path,1);
+			tImage = LoadImage(Path,0);
 			sPath = new char[strlen(Path)+1];
 			strcpy(sPath,Path);
 

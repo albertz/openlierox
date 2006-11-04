@@ -6,25 +6,27 @@
 // Dark Charlie
 
 
-#ifndef __CFRAME_H__
-#define __CFRAME_H__
+#ifndef __CBOX_H__
+#define __CBOX_H__
 
 
 // Event types
 enum {
-	FRM_NONE=-1,
+	BOX_NOEVENT=-2,
+	BOX_NONE=-1,
 };
 
 
-class CFrame : public CWidget {
+class CBox : public CWidget {
 public:
 	// Constructor
-	CFrame(int round,int border,Uint32 lightcolour,Uint32 darkcolour) {
+	CBox(int round,int border,Uint32 lightcolour,Uint32 darkcolour, Uint32 bgcolour) {
 		iType = wid_Frame;
 		iRound = round;
 		iBorder = border;
 		iLightColour = lightcolour;
 		iDarkColour = darkcolour;
+		iBgColour = bgcolour;
 		bmpBuffer = NULL;
 	}
 
@@ -57,21 +59,23 @@ public:
 	int				getBgColour(void)			{ return iBgColour; }
 
 	//These events return an event id, otherwise they return -1
-	int		MouseOver(mouse_t *tMouse)				{ return IMG_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown)		{ return IMG_NONE; }
-	int		MouseDown(mouse_t *tMouse, int nDown)	{ return IMG_NONE; }
-	int		MouseWheelDown(mouse_t *tMouse)			{ return IMG_NONE; }
-	int		MouseWheelUp(mouse_t *tMouse)			{ return IMG_NONE; }
-	int		KeyDown(int c)							{ return IMG_NONE; }
-	int		KeyUp(int c)							{ return IMG_NONE; }
+	int		MouseOver(mouse_t *tMouse)				{ return CheckEvent(); }
+	int		MouseUp(mouse_t *tMouse, int nDown)		{ return CheckEvent(); }
+	int		MouseDown(mouse_t *tMouse, int nDown)	{ return CheckEvent(); }
+	int		MouseWheelDown(mouse_t *tMouse)			{ return CheckEvent(); }
+	int		MouseWheelUp(mouse_t *tMouse)			{ return CheckEvent(); }
+	int		KeyDown(int c)							{ return BOX_NONE; }
+	int		KeyUp(int c)							{ return BOX_NONE; }
 
 	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
+
+	int		CheckEvent(void);
     
 	void	PreDraw(void);
 	void	Draw(SDL_Surface *bmpDest);
 };
 
 
-#endif  //  __CIMAGE_H__
+#endif  //  __CBOX_H__
 
 
