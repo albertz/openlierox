@@ -78,7 +78,7 @@ LINK32=link.exe
 # ADD RSC /l 0xc09 /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
+# ADD BSC32 /nologo /o"obj/debug/Game.bsc"
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /MAPINFO:LINES /MAPINFO:EXPORTS
@@ -228,14 +228,6 @@ SOURCE=..\..\src\client\Graphics.cpp
 # Begin Source File
 
 SOURCE=..\..\include\Graphics.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\src\common\GUIFileParser.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\GUIFileParser.h
 # End Source File
 # Begin Source File
 
@@ -486,6 +478,14 @@ SOURCE=..\..\include\SVClient.h
 # PROP Default_Filter "cpp; h"
 # Begin Source File
 
+SOURCE=..\..\src\client\CBox.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CBox.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\CBrowser.cpp
 # End Source File
 # Begin Source File
@@ -526,11 +526,11 @@ SOURCE=..\..\include\CGuiLayout.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\CGUISkin.cpp
+SOURCE=..\..\src\client\CImage.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\CGUISkin.h
+SOURCE=..\..\include\CImage.h
 # End Source File
 # Begin Source File
 
@@ -602,6 +602,14 @@ SOURCE=..\..\include\CWidget.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\client\CWidgetList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CWidgetList.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Menu.h
 # End Source File
 # Begin Source File
@@ -666,47 +674,47 @@ SOURCE=..\..\src\client\MenuSystem.cpp
 # PROP Default_Filter "lib"
 # Begin Source File
 
-SOURCE=C:\Program
+SOURCE=.\libs\pthreadVCE.lib
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program
+SOURCE=.\libs\SDL.lib
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program
+SOURCE=.\libs\SDL_image.lib
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program
+SOURCE=.\libs\SDLmain.lib
 # End Source File
 # Begin Source File
 
-SOURCE=C:\Program
-# End Source File
-# Begin Source File
-
-SOURCE=C:\Program
-# End Source File
-# Begin Source File
-
-SOURCE=C:\Program
-# End Source File
-# Begin Source File
-
-SOURCE=C:\Program
-# End Source File
-# Begin Source File
-
-SOURCE=C:\Program
-# End Source File
-# Begin Source File
-
-SOURCE=C:\Program
+SOURCE=.\libs\zlibstat.lib
 # End Source File
 # Begin Source File
 
 SOURCE="C:\Program Files\Microsoft Visual Studio\VC98\Lib\SHLWAPI.LIB"
+# End Source File
+# Begin Source File
+
+SOURCE=.\libs\bgd.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\libs\libxml2.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\libs\NLstatic.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\libs\SDL_mixer.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\libs\lua5.1.lib
 # End Source File
 # End Group
 # Begin Group "Resources"
@@ -747,6 +755,10 @@ SOURCE=..\..\src\common\Console.cpp
 # Begin Source File
 
 SOURCE=..\..\include\Console.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\LieroX.h
 # End Source File
 # Begin Source File
 

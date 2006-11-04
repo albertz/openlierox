@@ -423,3 +423,87 @@ int chrcasecmp(const char c1, const char c2)
 	
 	return stricmp(&buf1[0], &buf2[0]);
 }
+
+//////////////////
+// Gets the string <beginning of text,searched character)
+void ReadUntil(const char *text, char until_character, char *result)
+{
+	int i=0;
+	while(*(text+i) != until_character && i<strlen(text)) {
+		*(result+i) = *(text+i);
+		i++;
+	}
+	*(result+i) = '\0';
+}
+
+// ==============================
+//
+// Useful XML functions	
+//
+// ==============================
+
+///////////////////
+// Get an integer from the specified property
+int xmlGetInt(xmlNodePtr Node, const char *Name)
+{
+	xmlChar *sValue;
+	sValue = xmlGetProp(Node,(const xmlChar *)Name);
+	if(!sValue)
+		return 0;
+	int result = atoi((const char *)sValue);
+	xmlFree(sValue);
+	return result;
+}
+
+///////////////////
+// Get a float from the specified property
+float xmlGetFloat(xmlNodePtr Node, const char *Name)
+{
+	xmlChar *sValue;
+	sValue = xmlGetProp(Node,(const xmlChar *)Name);
+	if (!sValue)
+		return 0;
+	float result = (float)atof((const char *)sValue);
+	xmlFree(sValue);
+	return result;
+}
+
+///////////////////
+// Get a colour from the specified property
+Uint32 xmlGetColour(xmlNodePtr Node, const char *Name)
+{
+	char *sValue,*org_val;
+	char tmp[3];
+	int r,g,b;
+	tmp[2] = 0;  // Third character is terminating
+
+	// Get the value
+	sValue = (char *)xmlGetProp(Node,(const xmlChar *)Name);
+	org_val = sValue; // Save the original pointer
+
+	// By default return black
+	if(!sValue)
+		return 0;
+
+	// Ignore the # character
+	if (*sValue == '#')
+		sValue++;
+
+	// R value
+	strncpy(tmp,sValue,2);
+	r = atoi(tmp);
+
+	// G value
+	strncpy(tmp,sValue+2,2);
+	g = atoi(tmp);
+
+	// B value
+	strncpy(tmp,sValue+4,2);
+	b = atoi(tmp);
+
+	// Make the colour
+	Uint32 result = MakeColour(r,g,b);
+
+	xmlFree((xmlChar *)sValue);
+	return result;
+}

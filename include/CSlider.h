@@ -69,6 +69,8 @@ public:
 
 	int		getValue(void)						{ return iValue; }
 	void	setValue(int v)						{ iValue = v; }
+
+	void	setMax(int _m)						{ iMax = _m; }
 };
 
 

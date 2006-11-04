@@ -64,7 +64,9 @@ public:
 							if(iMsg==LBM_SETTEXT) strcpy(sText, (char *)Param1); return 0;
 						}
 
-	// Draw the title button
+	void	ChangeColour(Uint32 col)			{ iColour = col; }
+
+	// Draw the label
 	void	Draw(SDL_Surface *bmpDest) {
 				tLX->cFont.Draw(bmpDest, iX, iY, iColour,"%s", sText); 
 	}

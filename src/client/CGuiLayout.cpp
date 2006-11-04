@@ -20,9 +20,11 @@
 
 ///////////////////
 // Initialize the layout
-void CGuiLayout::Initialize(void)
+void CGuiLayout::Initialize(int LayoutID)
 {
 	Shutdown();
+
+	iID = LayoutID;
 
 	cWidgets = NULL;
 	tEvent = new gui_event_t;
@@ -42,6 +44,7 @@ void CGuiLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 {
 	widget->Setup(id, x, y, w, h);
 	widget->Create();
+	widget->setParent(this);
 
 	// Link the widget in
 	widget->setPrev(NULL);
@@ -127,6 +130,380 @@ void CGuiLayout::Draw(SDL_Surface *bmpDest)
 		if(w->getEnabled() && w)
 			w->Draw(bmpDest);
 	}
+}
+
+//////////////////
+// Reads common events, that are available for almost every widget
+void CGuiLayout::ReadEvents(xmlNodePtr Node, generic_events_t *Events)
+{
+	// Load the values
+	xmlChar *onmouseover = xmlGetProp(Node,(const xmlChar *)"onmouseover");
+	xmlChar *onmouseout  = xmlGetProp(Node,(const xmlChar *)"onmouseout");
+	xmlChar *onmousedown = xmlGetProp(Node,(const xmlChar *)"onmousedown");
+	xmlChar *onclick	 = xmlGetProp(Node,(const xmlChar *)"onclick");
+
+	// Copy the values into the events
+	if (Events->onmouseover)
+		strcpy(Events->onmouseover, (char *)onmouseover);
+	else
+		strcpy(Events->onmouseover, "");
+
+	if (Events->onmouseout)
+		strcpy(Events->onmouseout, (char *)onmouseout);
+	else
+		strcpy(Events->onmouseout, "");
+
+	if (Events->onmousedown)
+		strcpy(Events->onmousedown, (char *)onmousedown);
+	else
+		strcpy(Events->onmousedown, "");
+
+	if (Events->onclick)
+		strcpy(Events->onclick, (char *)onclick);
+	else
+		strcpy(Events->onclick, "");
+
+	// Free the data
+	xmlFree(onmouseover);
+	xmlFree(onmouseout);
+	xmlFree(onmousedown);
+	xmlFree(onclick);
+}
+
+//////////////////
+// Build the layout according to code specified in skin file
+bool CGuiLayout::Build(void)
+{
+
+	//
+	//	1. Get the file to parse
+	//
+
+	char *sFilename = NULL;
+
+	// Default skin extension
+	char sExtension[4];
+	strcpy(sExtension,"skn");
+
+	// Get the skin path
+	char *path = new char[strlen(tLXOptions->sSkinPath)+strlen(tLXOptions->sResolution)+1];
+	if (!path)  {
+		Error(ERR_OUTOFMEMORY,"%s","Out of memory.");
+		return false;
+	}
+	sprintf(path,"%s%s",tLXOptions->sSkinPath,tLXOptions->sResolution);
+
+	// Temp
+	char file[32];
+
+	// Get the file name of the skin file
+	switch (iID)  {
+		case L_MAINMENU: strcpy(file,"mainmenu"); break;
+		case L_LOCALPLAY: strcpy(file,"localplay"); break;
+		case L_GAMESETTINGS: strcpy(file,"gamesettings"); break;
+		case L_WEAPONOPTIONS: strcpy(file,"weaponoptions"); break;
+		case L_LOADWEAPONS: strcpy(file,"loadweapons"); break;
+		case L_SAVEWEAPONS: strcpy(file,"saveweapons"); break;
+		case L_NET: strcpy(file,"net"); break;
+		case L_NETINTERNET: strcpy(file,"netinternet"); break;
+		case L_INTERNETDETAILS: strcpy(file,"internetdetails"); break;
+		case L_ADDSERVER: strcpy(file,"addserver"); break;
+		case L_NETLAN: strcpy(file,"netlan"); break;
+		case L_LANDETAILS: strcpy(file,"landetails"); break;
+		case L_NETHOST: strcpy(file,"nethost"); break;
+		case L_NETFAVOURITES: strcpy(file,"netfavourites"); break;
+		case L_FAVOURITESDETAILS: strcpy(file,"favouritesdetails"); break;
+		case L_RENAMESERVER: strcpy(file,"renameserver"); break;
+		case L_ADDFAVOURITE: strcpy(file,"addfavourite"); break;
+		case L_CONNECTING: strcpy(file,"connecting"); break;
+		case L_NETJOINLOBBY: strcpy(file,"netjoinlobby"); break;
+		case L_NETHOSTLOBBY: strcpy(file,"nethostlobby"); break;
+		case L_SERVERSETTINGS: strcpy(file,"serversettings"); break;
+		case L_BANLIST: strcpy(file,"banlist"); break;
+		case L_PLAYERPROFILES: strcpy(file,"playerprofiles"); break;
+		case L_CREATEPLAYER: strcpy(file,"createplayer"); break;
+		case L_VIEWPLAYERS: strcpy(file,"viewplayers"); break;
+		case L_LEVELEDITOR: strcpy(file,"leveleditor"); break;
+		case L_NEWDIALOG: strcpy(file,"newdialog"); break;
+		case L_SAVELOADLEVEL: strcpy(file,"saveloadlevel"); break;
+		case L_OPTIONS: strcpy(file,"options"); break;
+		case L_OPTIONSCONTROLS: strcpy(file,"optionscontrols"); break;
+		case L_OPTIONSGAME: strcpy(file,"optionsgame"); break;
+		case L_OPTIONSSYSTEM: strcpy(file,"optionssystem"); break;
+		case L_MESSAGEBOXOK: strcpy(file,"messageboxok"); break;
+		case L_MESSAGEBOXYESNO: strcpy(file,"messageboxyesno"); break;
+	}
+
+	// Get the Filename + Path
+	sFilename = new char[strlen(path)+strlen(file)+strlen(sExtension)+1];
+	if(!sFilename)  {
+		Error(ERR_OUTOFMEMORY,"%s","Out of memory.");
+		return false;
+	}
+	sprintf(sFilename,"%s/%s.%s",path,file,sExtension);
+
+
+	//
+	//	2. Parse the file
+	//
+
+	xmlDocPtr	tDocument;
+	xmlNodePtr	tCurrentNode;
+
+	// Parse the document
+	tDocument = xmlParseFile(sFilename);
+	if (tDocument == NULL)  {
+		Error(ERR_COULDNOTPARSE,"Could not parse the document %s",sFilename);
+		return false;
+	}
+
+	// Get the root node
+	tCurrentNode = xmlDocGetRootElement(tDocument);
+	if (tCurrentNode == NULL)  {
+		Error(ERR_EMPTYDOC,"The '%s' document is empty",sFilename);
+		return false;
+	}
+
+	// Validate the root node
+	if (CMP(tCurrentNode->name,"skin"))  {
+		Error(ERR_INVALIDROOT,"The document '%s' contains invalid parent node: %s",sFilename,tCurrentNode->name);
+		return false;
+	}
+
+	// Get the first child
+	tCurrentNode = tCurrentNode->xmlChildrenNode;
+
+	// Get all the nodes in document and create widgets in layout
+	while (tCurrentNode != NULL)  {
+
+		// Box
+		if (CMP(tCurrentNode->name,"box"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			int round  = xmlGetInt(tCurrentNode,"round");
+			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor");
+			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor");
+			Uint32 bgcolour = xmlGetColour(tCurrentNode,"bgcolor");
+			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+
+			//Layout->Add(new CBox(round,light_colour,dark_colour,bgcolour),GetIdByName(name),left,top,width,height);
+			xmlFree(name);
+		}
+
+		// Frame
+		if (CMP(tCurrentNode->name,"frame"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			int round  = xmlGetInt(tCurrentNode,"round");
+			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor");
+			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor");
+
+			//Layout->Add(new CFrame(round,light_colour,dark_colour),-1,left,top,width,height);
+		}
+
+		// Image
+		if (CMP(tCurrentNode->name,"img"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			xmlChar *src  = xmlGetProp(tCurrentNode,(const xmlChar *)"src");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the image
+			CImage *Image = new CImage((char *) src);
+			Add(Image,GetIdByName(name),left,top,width,height);
+			Image->SetupEvents(&Events);
+
+			// Free resources
+			xmlFree(name);
+			xmlFree(src);
+
+		}
+
+		// Button
+		if (CMP(tCurrentNode->name,"button"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name	 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			xmlChar *src	 = xmlGetProp(tCurrentNode,(const xmlChar *)"src");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the button
+			CButton *Button = new CButton((char *)src);
+			Add(Button,GetIdByName(name),left,top,width,height);
+			Button->SetupEvents(&Events);
+
+			xmlFree(name);
+			xmlFree(src);
+		}
+
+
+		// Checkbox
+		if (CMP(tCurrentNode->name,"checkbox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the checkbox
+			CCheckbox *Checkbox = new CCheckbox(false);
+			Add(Checkbox,GetIdByName(name),left,top,width,height);
+			Checkbox->SetupEvents(&Events);
+
+			xmlFree(name);
+		}
+
+
+		// Combobox
+		if (CMP(tCurrentNode->name,"combobox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the combobox
+			CCombobox *Combobox = new CCombobox();
+			Add(Combobox,GetIdByName(name),left,top,width,height);
+			Combobox->SetupEvents(&Events);
+
+			xmlFree(name);
+		}
+
+		// Inputbox
+		if (CMP(tCurrentNode->name,"inputbox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name	 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			xmlChar *image	 = xmlGetProp(tCurrentNode,(const xmlChar *)"image");
+			xmlChar *title	 = xmlGetProp(tCurrentNode,(const xmlChar *)"title");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			//CInputbox *Inputbox = new CInputbox(0,"",(char *)image,(char *)title);
+			//Add(Inputbox,GetIdByName(name),left,top,width,height);
+			//Inputbox->SetupEvents(&Events);
+
+			xmlFree(name);
+			xmlFree(image);
+			xmlFree(title);
+		}
+
+		// Label
+		if (CMP(tCurrentNode->name,"label"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			xmlChar *text = xmlGetProp(tCurrentNode,(const xmlChar *)"text");
+			Uint32 colour = xmlGetColour(tCurrentNode,"color");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the label
+			CLabel *Label = new CLabel((char *)text,colour);
+			Add(Label,GetIdByName(name),left,top,width,height);
+			Label->SetupEvents(&Events);
+
+			xmlFree(name);
+			xmlFree(text);
+		}
+
+		// Listview
+		if (CMP(tCurrentNode->name,"listview"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the listview
+			CListview *Listview = new CListview();
+			Add(Listview,GetIdByName(name),left,top,width,height);
+			Listview->SetupEvents(&Events);
+
+			xmlFree(name);
+		}
+
+		// Scrollbar
+		if (CMP(tCurrentNode->name,"scrollbar"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name	= xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the scrollbar
+			CScrollbar *Scrollbar = new CScrollbar();
+			Add(Scrollbar,GetIdByName(name),left,top,width,height);
+			Scrollbar->SetupEvents(&Events);
+
+			xmlFree(name);
+		}
+
+		// Slider
+		if (CMP(tCurrentNode->name,"slider"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the slider
+			CSlider *Slider = new CSlider(1);
+			Add(Slider,GetIdByName(name),left,top,width,height);
+			Slider->SetupEvents(&Events);
+
+			xmlFree(name);
+		}
+
+		// Textbox
+		if (CMP(tCurrentNode->name,"checkbox"))  {
+			int left   = xmlGetInt(tCurrentNode,"left");
+			int top    = xmlGetInt(tCurrentNode,"top");
+			int width  = xmlGetInt(tCurrentNode,"width");
+			int height = xmlGetInt(tCurrentNode,"height");
+			xmlChar *name	= xmlGetProp(tCurrentNode,(const xmlChar *)"name");
+			generic_events_t Events;
+			ReadEvents(tCurrentNode,&Events);
+
+			// Add the textbox
+			CTextbox *Textbox = new CTextbox();
+			Add(Textbox,GetIdByName(name),left,top,width,height);
+			Textbox->SetupEvents(&Events);
+
+			xmlFree(name);
+		}
+
+
+		tCurrentNode = tCurrentNode->next;
+	}
+
+	return true;
 }
 
 
@@ -215,6 +592,7 @@ gui_event_t *CGuiLayout::Process(void)
 					if (Keyboard->keyQueue[i] != input)
 						ev = cFocused->KeyDown(Keyboard->keyQueue[i]);
 				
+				// Keydown
 				if(Event->type == SDL_KEYDOWN)  {
 					ev = cFocused->KeyDown(input);
 				}
@@ -240,6 +618,9 @@ gui_event_t *CGuiLayout::Process(void)
 		// Special mouse button event first (for focused widgets)
 		if(tMouse->Down && cFocused == w && !iCanFocus && !w->InBox(tMouse->X,tMouse->Y)) {
 			widget = true;
+
+			// Process the skin-defined code
+			w->ProcessEvent(OnMouseDown);
 
 			if( (ev=w->MouseDown(tMouse, tMouse->Down)) >= 0) {
 				tEvent->iEventMsg = ev;
@@ -299,6 +680,9 @@ gui_event_t *CGuiLayout::Process(void)
 
 				}
 
+				// Process the skin defined code
+				w->ProcessEvent(OnMouseDown);
+
 				if( (ev=w->MouseDown(tMouse, tMouse->Down)) >= 0) {
 					tEvent->iEventMsg = ev;
 					return tEvent;
@@ -321,6 +705,8 @@ gui_event_t *CGuiLayout::Process(void)
 					cFocused = w;
 				}
 
+				// Process the skin defined code
+				w->ProcessEvent(OnClick);
 
 				if( (ev=w->MouseUp(tMouse, tMouse->Up)) >= 0) {
 					tEvent->iEventMsg = ev;
@@ -328,7 +714,17 @@ gui_event_t *CGuiLayout::Process(void)
 				}				
 			}
 
+
 			// Mouse over
+			if (w != cMouseOverWidget)  {
+				w->ProcessEvent(OnMouseOver);
+
+				// For the current Mouse over widget this means a mouse out event
+				if(cMouseOverWidget)
+					cMouseOverWidget->ProcessEvent(OnMouseOut);
+				cMouseOverWidget = w;
+			}
+
 			if( (ev=w->MouseOver(tMouse)) >= 0) {
 				tEvent->iEventMsg = ev;
 				return tEvent;
@@ -336,6 +732,12 @@ gui_event_t *CGuiLayout::Process(void)
 
 			return NULL;
 		}
+	}
+
+	// If mouse is over empty space it means, it's not over any widget ;-)
+	if (cMouseOverWidget)  {
+		cMouseOverWidget->ProcessEvent(OnMouseOut);
+		cMouseOverWidget = NULL;
 	}
 
 	// If the mouse is clicked on empty space, take the focus of off the widget (if we can)
@@ -387,6 +789,35 @@ CWidget *CGuiLayout::getWidget(int id)
 	}
 
 	return NULL;
+}
+
+////////////////////
+// Get the widget ID
+int	CGuiLayout::GetIdByName(xmlChar *Name)
+{
+	int ID = -1;
+	// Find the standard or previously added widget
+	ID = LayoutWidgets[iID].getID((char *)Name);
+
+	// Non-standard widget, add it to the list
+	if (ID == -1)
+		ID = LayoutWidgets[iID].Add((char *)Name);
+	return ID;
+}
+
+////////////////////
+// Notifies about the error that occured
+void CGuiLayout::Error(int ErrorCode, char *Format, ...)
+{
+	char buf[512];
+	va_list	va;
+
+	va_start(va,Format);
+	vsprintf(buf,Format,va);
+	va_end(va);
+
+	// TODO: this better
+	printf("%i: %s",ErrorCode,buf);
 }
 
 

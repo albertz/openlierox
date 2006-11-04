@@ -17,10 +17,24 @@
 #define __CWIDGET_H__
 
 
-
 // Widget messages
 #define		WDM_SETENABLE	-1
 
+// Generic events
+typedef struct generic_events_s {
+	char	onmouseover[64];
+	char	onmouseout[64];
+	char	onmousedown[64];
+	char	onclick[64];
+} generic_events_t;
+
+// Generic event IDs
+enum {
+	OnMouseOver=0,
+	OnMouseOut,
+	OnMouseDown,
+	OnClick
+};
 
 
 class CWidget {
@@ -50,11 +64,14 @@ public:
 
 
 private:
-	int		iID;
-	int		iEnabled;
+	int					iID;
+	int					iEnabled;
 
-	CWidget	*cNext;
-	CWidget	*cPrev;
+	generic_events_t	tEvents;
+	void				*cParent;
+
+	CWidget				*cNext;
+	CWidget				*cPrev;
 
 
 public:
@@ -67,22 +84,28 @@ public:
 
     void            redrawBuffer(void);
 
-	void			setNext(CWidget *w)		{ cNext = w; }
-	CWidget			*getNext(void)			{ return cNext; }
-	void			setPrev(CWidget *w)		{ cPrev = w; }
-	CWidget			*getPrev(void)			{ return cPrev; }
+	void			setNext(CWidget *w)				{ cNext = w; }
+	CWidget			*getNext(void)					{ return cNext; }
+	void			setPrev(CWidget *w)				{ cPrev = w; }
+	CWidget			*getPrev(void)					{ return cPrev; }
 
-	int				getID(void)				{ return iID; }
-	int				getType(void)			{ return iType; }
+	int				getID(void)						{ return iID; }
+	int				getType(void)					{ return iType; }
 
-	void			setFocused(int _f)		{ iFocused = _f; }
-	int				getFocused(void)		{ return iFocused; }
+	void			setFocused(int _f)				{ iFocused = _f; }
+	int				getFocused(void)				{ return iFocused; }
 
-	int				getEnabled(void)		{ return iEnabled; }
-	void			setEnabled(int _e)		{ iEnabled = _e; }
+	int				getEnabled(void)				{ return iEnabled; }
+	void			setEnabled(int _e)				{ iEnabled = _e; }
 
-	int				CanLoseFocus(void)		{ return iCanLoseFocus; }
-	void			setLoseFocus(int _f)	{ iCanLoseFocus = _f; }
+	void			*getParent(void)				{ return cParent; }
+	void			setParent(void *l)				{ cParent = l; }
+
+	int				CanLoseFocus(void)				{ return iCanLoseFocus; }
+	void			setLoseFocus(int _f)			{ iCanLoseFocus = _f; }
+
+	void			SetupEvents(generic_events_t *Events);
+	void			ProcessEvent(int Event);
 
 
 	// Virtual functions

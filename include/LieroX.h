@@ -153,13 +153,17 @@ void    lx_strncpy(char *dest, char *src, int count);
 bool    MouseInRect(int x, int y, int w, int h);
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
-/*char		*sumchar(char *Pointer1,char *Pointer2);
-void		SumChar(char *Pointer1,char *Pointer2, char *Result);*/
 char	*replace(char *text, char *what, char *with, char *result);
 char	*replacemax(char *text, char *what, char *with, char *result, int max);
 char	*strip(char *buf, int width);
 bool	stripdot(char *buf, int width);
 char	*ucfirst(char *text);
+void	ReadUntil(const char *text, char until_character, char *result);
+
+// Useful XML functions
+int		xmlGetInt(xmlNodePtr Node, const char *Name);
+float	xmlGetFloat(xmlNodePtr Node, const char *Name);
+Uint32	xmlGetColour(xmlNodePtr Node, const char *Name);
 
 
 #endif  //  __LIEROX_H__

@@ -6,15 +6,13 @@
 --------------------Configuration: Game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP74.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP4.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"obj/Debug/" /Fp"obj/Debug/Game.pch" /YX /Fo"obj/Debug/" /Fd"obj/Debug/" /FD /GZ /c 
 "C:\Moje\Programovani\OpenLieroX\src\client\AuxLib.cpp"
-"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp"
-"C:\Moje\Programovani\OpenLieroX\src\main.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP74.tmp" 
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP75.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP4.tmp" 
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP5.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../share/gamedir/Game.exe" /MAPINFO:LINES /MAPINFO:EXPORTS 
 .\obj\Debug\2xsai.obj
@@ -29,7 +27,6 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\obj\Debug\FindFile.obj
 .\obj\Debug\GfxPrimitives.obj
 .\obj\Debug\Graphics.obj
-.\obj\Debug\GUIFileParser.obj
 .\obj\Debug\MathLib.obj
 .\obj\Debug\Timer.obj
 .\obj\Debug\CBanList.obj
@@ -58,12 +55,13 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\obj\Debug\CWpnRest.obj
 .\obj\Debug\Entity.obj
 .\obj\Debug\ProfileSystem.obj
+.\obj\Debug\CBox.obj
 .\obj\Debug\CBrowser.obj
 .\obj\Debug\CButton.obj
 .\obj\Debug\CCheckbox.obj
 .\obj\Debug\CCombobox.obj
 .\obj\Debug\CGuiLayout.obj
-.\obj\Debug\CGUISkin.obj
+.\obj\Debug\CImage.obj
 .\obj\Debug\CInputBox.obj
 .\obj\Debug\CListview.obj
 .\obj\Debug\CMenu.obj
@@ -72,6 +70,7 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\obj\Debug\CTextbox.obj
 .\obj\Debug\CTitleButton.obj
 .\obj\Debug\CWidget.obj
+.\obj\Debug\CWidgetList.obj
 .\obj\Debug\Menu_Local.obj
 .\obj\Debug\Menu_Main.obj
 .\obj\Debug\Menu_Mapeditor.obj
@@ -94,22 +93,27 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\obj\Debug\Options.obj
 .\obj\Debug\Sounds.obj
 .\obj\Debug\resource.res
+.\libs\pthreadVCE.lib
+.\libs\SDL.lib
+.\libs\SDL_image.lib
+.\libs\SDLmain.lib
+.\libs\zlibstat.lib
 "..\..\..\..\..\Program Files\Microsoft Visual Studio\VC98\Lib\SHLWAPI.LIB"
+.\libs\bgd.lib
+.\libs\libxml2.lib
+.\libs\NLstatic.lib
+.\libs\SDL_mixer.lib
+.\libs\lua5.1.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP75.tmp"
+Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP5.tmp"
 <h3>Output Window</h3>
 Compiling...
 AuxLib.cpp
-C:\Moje\Programovani\OpenLieroX\src\client\AuxLib.cpp(523) : error C2065: 'mkdir' : undeclared identifier
-Menu_Local.cpp
-C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(750) : error C2065: 'getcwd' : undeclared identifier
-C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp(1241) : error C2065: 'mkdir' : undeclared identifier
-main.cpp
-C:\Moje\Programovani\OpenLieroX\src\main.cpp(51) : error C2065: 'chdir' : undeclared identifier
-Error executing cl.exe.
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP76.tmp" with contents
+Linking...
+LINK : warning LNK4075: ignoring /INCREMENTAL due to /DEBUGTYPE specification
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP7.tmp" with contents
 [
-/nologo /o"../../share/gamedir/Game.bsc" 
+/nologo /o"obj/debug/Game.bsc" 
 .\obj\Debug\2xsai.sbr
 .\obj\Debug\AuxLib.sbr
 .\obj\Debug\Cache.sbr
@@ -122,7 +126,6 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP76.tmp" with cont
 .\obj\Debug\FindFile.sbr
 .\obj\Debug\GfxPrimitives.sbr
 .\obj\Debug\Graphics.sbr
-.\obj\Debug\GUIFileParser.sbr
 .\obj\Debug\MathLib.sbr
 .\obj\Debug\Timer.sbr
 .\obj\Debug\CBanList.sbr
@@ -151,12 +154,13 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP76.tmp" with cont
 .\obj\Debug\CWpnRest.sbr
 .\obj\Debug\Entity.sbr
 .\obj\Debug\ProfileSystem.sbr
+.\obj\Debug\CBox.sbr
 .\obj\Debug\CBrowser.sbr
 .\obj\Debug\CButton.sbr
 .\obj\Debug\CCheckbox.sbr
 .\obj\Debug\CCombobox.sbr
 .\obj\Debug\CGuiLayout.sbr
-.\obj\Debug\CGUISkin.sbr
+.\obj\Debug\CImage.sbr
 .\obj\Debug\CInputBox.sbr
 .\obj\Debug\CListview.sbr
 .\obj\Debug\CMenu.sbr
@@ -165,6 +169,7 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP76.tmp" with cont
 .\obj\Debug\CTextbox.sbr
 .\obj\Debug\CTitleButton.sbr
 .\obj\Debug\CWidget.sbr
+.\obj\Debug\CWidgetList.sbr
 .\obj\Debug\Menu_Local.sbr
 .\obj\Debug\Menu_Main.sbr
 .\obj\Debug\Menu_Mapeditor.sbr
@@ -186,19 +191,14 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP76.tmp" with cont
 .\obj\Debug\Networking.sbr
 .\obj\Debug\Options.sbr
 .\obj\Debug\Sounds.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP76.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP7.tmp"
 Creating browse info file...
-BSCMAKE: warning BK4502 : truncated .SBR file '.\obj\Debug\2xsai.sbr' not in ../../share/gamedir/Game.bsc
-BSCMAKE: error BK1513 : nonincremental update requires all .SBR files
-Error executing bscmake.exe.
 <h3>Output Window</h3>
-Build : warning : failed to (or don't know how to) build 'C:\Moje\Programovani\OpenLieroX\src\common\CGUISkin.cpp'
-
 
 
 
 <h3>Results</h3>
-Game.exe - 5 error(s), 2 warning(s)
+Game.exe - 0 error(s), 1 warning(s)
 </pre>
 </body>
 </html>

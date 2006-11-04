@@ -443,7 +443,7 @@ void ShutdownLieroX(void)
 
     tGameInfo.sMapRandom.psObjects = NULL;
 
-	// Free the client & server
+	// Free the client & server & gui parser
 	if(cClient) {
 		cClient->Shutdown();
 		delete cClient;
@@ -455,6 +455,7 @@ void ShutdownLieroX(void)
 		delete cServer;
 		cServer = NULL;
 	}
+
 
 	ShutdownOptions();
 

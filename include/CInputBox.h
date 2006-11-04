@@ -90,7 +90,9 @@ public:
 
 
 	int		getValue(void)						{ return iKeyvalue; }
+	void	setValue(int _v)					{ iKeyvalue = _v; }
 	char	*getText(void)						{ return sText; }
+	void	setText(char *_t)					{ if(_t) strcpy(sText,_t); }
 	char	*getName(void)						{ return sName; }
 
 };

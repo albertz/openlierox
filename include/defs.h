@@ -75,6 +75,11 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readString
 
 
+// XML parsing library
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+
+
 // Auxiliary Core components
 #include "types.h"
 #include "AuxLib.h"
@@ -109,6 +114,7 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 // Helpful Macros
 #define		LOAD_IMAGE(bmp,name) bmp = LoadImage(name,0); if(bmp == NULL) return false
 #define		LOAD_IMAGE_BPP(bmp,name) bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); if(bmp == NULL) return false
+#define		CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
 
 template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
 template <typename T> inline T MAX(T a, T b) { return a>b?a:b; }

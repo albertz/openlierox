@@ -21,7 +21,11 @@
 ///////////////////
 // Draw the button
 void CButton::Draw(SDL_Surface *bmpDest)
-{     
+{
+	// Don't draw empty image
+	if (!bmpImage)
+		return;
+
 	int y2 = 5+iImageID*40;
     if(iMouseOver)
 	    y2+=20;
@@ -36,7 +40,11 @@ void CButton::Draw(SDL_Surface *bmpDest)
 ///////////////////
 // Draw the button, without the buffer update
 void CButton::Draw2(SDL_Surface *bmpDest)
-{     
+{  
+	// Don't draw empty image
+	if (!bmpImage)
+		return;
+
 	int y2 = 5+iImageID*40;
     if(iMouseOver)
 	    y2+=20;

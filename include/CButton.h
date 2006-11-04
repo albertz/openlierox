@@ -32,6 +32,7 @@ public:
 		iMouseOver = false;
 		iType = wid_Button;
         iGoodWidth = 250;
+		bFreeSurface = false;
 	}
 
 	CButton(int imgid, SDL_Surface *image) {
@@ -40,6 +41,16 @@ public:
 		iMouseOver = false;
 		iType = wid_Button;
         iGoodWidth = 250;
+		bFreeSurface = false;
+	}
+
+	CButton(char *path) {
+		iImageID = 0;
+		bmpImage = LoadImage(path,1);
+		iMouseOver = false;
+		iType = wid_Button;
+        iGoodWidth = 250;
+		bFreeSurface = true;
 	}
 
 
@@ -50,12 +61,13 @@ private:
 	SDL_Surface	*bmpImage;
 	int			iImageID;
     int         iGoodWidth;
+	bool		bFreeSurface;
 
 public:
 	// Methods
 
 	void	Create(void);
-	void	Destroy(void) { }
+	void	Destroy(void) { if(bFreeSurface && bmpImage) SDL_FreeSurface(bmpImage); }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ iMouseOver=true; return BTN_MOUSEOVER; }

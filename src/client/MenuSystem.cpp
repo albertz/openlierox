@@ -20,8 +20,9 @@
 menu_t	*tMenu = NULL;
 
 
-int		*iGame = NULL;
-int		iSkipStart = false;
+int			*iGame = NULL;
+int			iSkipStart = false;
+CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 
 
 ///////////////////
@@ -103,6 +104,9 @@ int Menu_Initialize(int *game)
 		return false;
 	}
 
+	// Add default widget IDs to the widget list
+	Menu_AddDefaultWidgets();
+
 	return true;
 }
 
@@ -136,6 +140,10 @@ void Menu_Shutdown(void)
 		delete tMenu;
 		tMenu = NULL;
 	}
+
+	// Shutdown the layouts
+	for (int i=0; i<LAYOUT_COUNT; i++)
+		LayoutWidgets[i].Shutdown();
 
 	Menu_SvrList_Shutdown();
 
@@ -556,6 +564,288 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 
 
 	return ret;
+}
+
+///////////////////
+// Add all the default widgets
+void Menu_AddDefaultWidgets(void)
+{
+// 34 layouts total
+
+// L_MAINMENU: 6 widgets
+    LayoutWidgets[L_MAINMENU].Add("LocalPlay");
+    LayoutWidgets[L_MAINMENU].Add("NetPlay");
+    LayoutWidgets[L_MAINMENU].Add("PlayerProfiles");
+    LayoutWidgets[L_MAINMENU].Add("LevelEditor");
+    LayoutWidgets[L_MAINMENU].Add("Options");
+    LayoutWidgets[L_MAINMENU].Add("Quit");
+
+// L_LOCALPLAY: 9 widgets
+    LayoutWidgets[L_LOCALPLAY].Add("Back");
+    LayoutWidgets[L_LOCALPLAY].Add("Start");
+    LayoutWidgets[L_LOCALPLAY].Add("Playing");
+    LayoutWidgets[L_LOCALPLAY].Add("PlayerList");
+    LayoutWidgets[L_LOCALPLAY].Add("LevelList");
+    LayoutWidgets[L_LOCALPLAY].Add("Gametype");
+    LayoutWidgets[L_LOCALPLAY].Add("ModName");
+    LayoutWidgets[L_LOCALPLAY].Add("GameSettings");
+    LayoutWidgets[L_LOCALPLAY].Add("WeaponOptions");
+
+// L_GAMESETTINGS: 9 widgets
+    LayoutWidgets[L_GAMESETTINGS].Add("gs_Ok");
+    LayoutWidgets[L_GAMESETTINGS].Add("gs_Default");
+    LayoutWidgets[L_GAMESETTINGS].Add("Lives");
+    LayoutWidgets[L_GAMESETTINGS].Add("MaxKills");
+    LayoutWidgets[L_GAMESETTINGS].Add("LoadingTime");
+    LayoutWidgets[L_GAMESETTINGS].Add("LoadingTimeLabel");
+    LayoutWidgets[L_GAMESETTINGS].Add("Bonuses");
+    LayoutWidgets[L_GAMESETTINGS].Add("ShowBonusNames");
+    LayoutWidgets[L_GAMESETTINGS].Add("MaxTime");
+
+// L_WEAPONOPTIONS: 8 widgets
+    LayoutWidgets[L_WEAPONOPTIONS].Add("wr_Ok");
+    LayoutWidgets[L_WEAPONOPTIONS].Add("wr_Scroll");
+    LayoutWidgets[L_WEAPONOPTIONS].Add("wr_Reset");
+    LayoutWidgets[L_WEAPONOPTIONS].Add("wr_ListBox");
+    LayoutWidgets[L_WEAPONOPTIONS].Add("wr_Cancel");
+    LayoutWidgets[L_WEAPONOPTIONS].Add("wr_Random");
+    LayoutWidgets[L_WEAPONOPTIONS].Add("wr_Load");
+    LayoutWidgets[L_WEAPONOPTIONS].Add("wr_Save");
+
+// L_LOADWEAPONS: 4 widgets
+    LayoutWidgets[L_LOADWEAPONS].Add("wp_Cancel");
+    LayoutWidgets[L_LOADWEAPONS].Add("wp_Ok");
+    LayoutWidgets[L_LOADWEAPONS].Add("wp_PresetList");
+    LayoutWidgets[L_LOADWEAPONS].Add("wp_PresetName");
+
+// L_SAVEWEAPONS: 4 widgets
+    LayoutWidgets[L_SAVEWEAPONS].Add("wp_Cancel");
+    LayoutWidgets[L_SAVEWEAPONS].Add("wp_Ok");
+    LayoutWidgets[L_SAVEWEAPONS].Add("wp_PresetList");
+    LayoutWidgets[L_SAVEWEAPONS].Add("wp_PresetName");
+
+// L_NET: 4 widgets
+    LayoutWidgets[L_NET].Add("InternetTab");
+    LayoutWidgets[L_NET].Add("LANTab");
+    LayoutWidgets[L_NET].Add("HostTab");
+    LayoutWidgets[L_NET].Add("FavouritesTab");
+
+// L_NETINTERNET: 8 widgets
+    LayoutWidgets[L_NETINTERNET].Add("Join");
+    LayoutWidgets[L_NETINTERNET].Add("ServerList");
+    LayoutWidgets[L_NETINTERNET].Add("Refresh");
+    LayoutWidgets[L_NETINTERNET].Add("UpdateList");
+    LayoutWidgets[L_NETINTERNET].Add("AddServer");
+    LayoutWidgets[L_NETINTERNET].Add("Back");
+    LayoutWidgets[L_NETINTERNET].Add("PopupMenu");
+    LayoutWidgets[L_NETINTERNET].Add("PlayerSelection");
+
+// L_INTERNETDETAILS: 1 widgets
+    LayoutWidgets[L_INTERNETDETAILS].Add("id_Ok");
+
+// L_ADDSERVER: 3 widgets
+    LayoutWidgets[L_ADDSERVER].Add("na_Cancel");
+    LayoutWidgets[L_ADDSERVER].Add("na_Add");
+    LayoutWidgets[L_ADDSERVER].Add("na_Address");
+
+// L_NETLAN: 6 widgets
+    LayoutWidgets[L_NETLAN].Add("Join");
+    LayoutWidgets[L_NETLAN].Add("ServerList");
+    LayoutWidgets[L_NETLAN].Add("Refresh");
+    LayoutWidgets[L_NETLAN].Add("Back");
+    LayoutWidgets[L_NETLAN].Add("PopupMenu");
+    LayoutWidgets[L_NETLAN].Add("PlayerSelection");
+
+// L_LANDETAILS: 1 widgets
+    LayoutWidgets[L_LANDETAILS].Add("ld_Ok");
+
+// L_NETHOST: 10 widgets
+    LayoutWidgets[L_NETHOST].Add("Back");
+    LayoutWidgets[L_NETHOST].Add("Ok");
+    LayoutWidgets[L_NETHOST].Add("PlayerList");
+    LayoutWidgets[L_NETHOST].Add("Playing");
+    LayoutWidgets[L_NETHOST].Add("Servername");
+    LayoutWidgets[L_NETHOST].Add("MaxPlayers");
+    LayoutWidgets[L_NETHOST].Add("Register");
+    LayoutWidgets[L_NETHOST].Add("Password");
+    LayoutWidgets[L_NETHOST].Add("WelcomeMessage");
+    LayoutWidgets[L_NETHOST].Add("AllowWantsJoin");
+
+// L_NETFAVOURITES: 7 widgets
+    LayoutWidgets[L_NETFAVOURITES].Add("Join");
+    LayoutWidgets[L_NETFAVOURITES].Add("ServerList");
+    LayoutWidgets[L_NETFAVOURITES].Add("Refresh");
+    LayoutWidgets[L_NETFAVOURITES].Add("Add");
+    LayoutWidgets[L_NETFAVOURITES].Add("Back");
+    LayoutWidgets[L_NETFAVOURITES].Add("PopupMenu");
+    LayoutWidgets[L_NETFAVOURITES].Add("PlayerSelection");
+
+// L_FAVOURITESDETAILS: 1 widgets
+    LayoutWidgets[L_FAVOURITESDETAILS].Add("fd_Ok");
+
+// L_RENAMESERVER: 3 widgets
+    LayoutWidgets[L_RENAMESERVER].Add("rs_Cancel");
+    LayoutWidgets[L_RENAMESERVER].Add("rs_Ok");
+    LayoutWidgets[L_RENAMESERVER].Add("rs_NewName");
+
+// L_ADDFAVOURITE: 4 widgets
+    LayoutWidgets[L_ADDFAVOURITE].Add("fa_Cancel");
+    LayoutWidgets[L_ADDFAVOURITE].Add("fa_Add");
+    LayoutWidgets[L_ADDFAVOURITE].Add("fa_Address");
+    LayoutWidgets[L_ADDFAVOURITE].Add("fa_Name");
+
+// L_CONNECTING: 1 widgets
+    LayoutWidgets[L_CONNECTING].Add("Cancel");
+
+// L_NETJOINLOBBY: 4 widgets
+    LayoutWidgets[L_NETJOINLOBBY].Add("Back2");
+    LayoutWidgets[L_NETJOINLOBBY].Add("Ready");
+    LayoutWidgets[L_NETJOINLOBBY].Add("ChatText");
+    LayoutWidgets[L_NETJOINLOBBY].Add("ChatList");
+
+// L_NETHOSTLOBBY: 14 widgets
+    LayoutWidgets[L_NETHOSTLOBBY].Add("Back2");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("Start");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("ChatText");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("ChatList");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("LevelList");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("Lives");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("MaxKills");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("ModName");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("Gametype");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("GameSettings");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("WeaponOptions");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("PopupMenu");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("Banned");
+    LayoutWidgets[L_NETHOSTLOBBY].Add("ServerSettings");
+
+// L_SERVERSETTINGS: 7 widgets
+    LayoutWidgets[L_SERVERSETTINGS].Add("ss_Ok");
+    LayoutWidgets[L_SERVERSETTINGS].Add("ss_Cancel");
+    LayoutWidgets[L_SERVERSETTINGS].Add("ss_AllowOnlyList");
+    LayoutWidgets[L_SERVERSETTINGS].Add("ss_WelcomeMessage");
+    LayoutWidgets[L_SERVERSETTINGS].Add("ss_ServerName");
+    LayoutWidgets[L_SERVERSETTINGS].Add("ss_AllowWantsJoin");
+    LayoutWidgets[L_SERVERSETTINGS].Add("ss_MaxPlayers");
+
+// L_BANLIST: 4 widgets
+    LayoutWidgets[L_BANLIST].Add("bl_Close");
+    LayoutWidgets[L_BANLIST].Add("bl_Clear");
+    LayoutWidgets[L_BANLIST].Add("bl_Unban");
+    LayoutWidgets[L_BANLIST].Add("bl_ListBox");
+
+// L_PLAYERPROFILES: 2 widgets
+    LayoutWidgets[L_PLAYERPROFILES].Add("NewPlayerTab");
+    LayoutWidgets[L_PLAYERPROFILES].Add("ViewPlayersTab");
+
+// L_CREATEPLAYER: 12 widgets
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Back");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Create");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Name");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Red");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Blue");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Green");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Type");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_AIDiffLbl");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_AIDiff");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_PlySkin");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Username");
+    LayoutWidgets[L_CREATEPLAYER].Add("np_Password");
+
+// L_VIEWPLAYERS: 12 widgets
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Back");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Name");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Red");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Blue");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Green");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Players");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Delete");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Apply");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_Type");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_AIDiffLbl");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_AIDiff");
+    LayoutWidgets[L_VIEWPLAYERS].Add("vp_PlySkin");
+
+// L_LEVELEDITOR: 5 widgets
+    LayoutWidgets[L_LEVELEDITOR].Add("map_new");
+    LayoutWidgets[L_LEVELEDITOR].Add("map_random");
+    LayoutWidgets[L_LEVELEDITOR].Add("map_load");
+    LayoutWidgets[L_LEVELEDITOR].Add("map_save");
+    LayoutWidgets[L_LEVELEDITOR].Add("map_quit");
+
+// L_NEWDIALOG: 5 widgets
+    LayoutWidgets[L_NEWDIALOG].Add("mn_Cancel");
+    LayoutWidgets[L_NEWDIALOG].Add("mn_Ok");
+    LayoutWidgets[L_NEWDIALOG].Add("mn_Width");
+    LayoutWidgets[L_NEWDIALOG].Add("mn_Height");
+    LayoutWidgets[L_NEWDIALOG].Add("mn_Scheme");
+
+// L_SAVELOADLEVEL: 4 widgets
+    LayoutWidgets[L_SAVELOADLEVEL].Add("sl_Cancel");
+    LayoutWidgets[L_SAVELOADLEVEL].Add("sl_Ok");
+    LayoutWidgets[L_SAVELOADLEVEL].Add("sl_FileList");
+    LayoutWidgets[L_SAVELOADLEVEL].Add("sl_FileName");
+
+// L_OPTIONS: 3 widgets
+    LayoutWidgets[L_OPTIONS].Add("ControlsTab");
+    LayoutWidgets[L_OPTIONS].Add("GameTab");
+    LayoutWidgets[L_OPTIONS].Add("SystemTab");
+
+// L_OPTIONSCONTROLS: 23 widgets
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply1_Up");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply1_Down");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply1_Left");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply1_Right");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply1_Shoot");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply1_Jump");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply1_Selweapon");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply1_Rope");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply2_Up");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply2_Down");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply2_Left");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply2_Right");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply2_Shoot");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply2_Jump");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply2_Selweapon");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Ply2_Rope");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Gen_Chat");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Gen_Score");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Gen_Health");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Gen_CurSettings");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Gen_TakeScreenshot");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Gen_ViewportManager");
+    LayoutWidgets[L_OPTIONSCONTROLS].Add("Gen_SwitchMode");
+
+// L_OPTIONSGAME: 9 widgets
+    LayoutWidgets[L_OPTIONSGAME].Add("BloodAmount");
+    LayoutWidgets[L_OPTIONSGAME].Add("Shadows");
+    LayoutWidgets[L_OPTIONSGAME].Add("Particles");
+    LayoutWidgets[L_OPTIONSGAME].Add("OldSkoolRope");
+    LayoutWidgets[L_OPTIONSGAME].Add("AIDifficulty");
+    LayoutWidgets[L_OPTIONSGAME].Add("ShowWormHealth");
+    LayoutWidgets[L_OPTIONSGAME].Add("ColorizeNicks");
+    LayoutWidgets[L_OPTIONSGAME].Add("AutoTyping");
+    LayoutWidgets[L_OPTIONSGAME].Add("ScreenshotFormat");
+
+// L_OPTIONSSYSTEM: 11 widgets
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("Back");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("Fullscreen");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("SoundOn");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("SoundVolume");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("NetworkPort");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("NetworkSpeed");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("ShowFPS");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("ShowPing");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("Filtered");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("LogConvos");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("Apply");
+
+// L_MESSAGEBOXOK: 1 widgets
+    LayoutWidgets[L_MESSAGEBOXOK].Add("mb_Ok");
+
+// L_MESSAGEBOXYESNO: 2 widgets
+    LayoutWidgets[L_MESSAGEBOXYESNO].Add("mb_Yes");
+    LayoutWidgets[L_MESSAGEBOXYESNO].Add("mb_No");
 }
 
 

@@ -26,6 +26,16 @@ typedef struct {
 } gui_event_t;
 
 
+// Errors
+enum {
+	ERR_OUTOFMEMORY=0,
+	ERR_UNKNOWNPROPERTY,
+	ERR_COULDNOTPARSE,
+	ERR_EMPTYDOC,
+	ERR_INVALIDROOT
+};
+
+
 // Widget types
 enum {
 	wid_Button=0,
@@ -36,7 +46,9 @@ enum {
 	wid_Textbox,
 	wid_Titlebutton,
 	wid_Checkbox,
-	wid_Inputbox
+	wid_Inputbox,
+	wid_Image,
+	wid_Frame
 };
 
 
@@ -47,7 +59,9 @@ public:
 		tEvent = NULL;
 		cFocused = NULL;
 		cWidgets = NULL;
+		cMouseOverWidget = NULL;
 		iCanFocus = true;
+		iID = -1;
 		//Initialize();
 	}
 
@@ -63,6 +77,9 @@ private:
 	CWidget		*cWidgets;
 	gui_event_t	*tEvent;
 	CWidget		*cFocused;
+	CWidget		*cMouseOverWidget;
+
+	int			iID;
 
 	// Mouse button repeats
 	int			nMouseButtons;
@@ -71,15 +88,22 @@ private:
 	// Can we set focus to another widget?
 	int			iCanFocus;
 
+	// Methods
+	void		ReadEvents(xmlNodePtr Node, generic_events_t *Events);
+
 
 public:
 	// Methods
 
-	void		Initialize(void);
+	void		Initialize(int LayoutID = -1);
+
+	bool		Build(void);
 
 	void		Add(CWidget *widget, int id, int x, int y, int w, int h);
 	CWidget		*getWidget(int id);
     void        removeWidget(int id);
+	int			GetIdByName(xmlChar *Name);
+	void		Error(int ErrorCode, char *Format, ...);
 
 	gui_event_t	*Process(void);
 	void		Draw(SDL_Surface *bmpDest);

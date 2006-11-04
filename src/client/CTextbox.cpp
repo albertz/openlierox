@@ -51,7 +51,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
-		for(i=0;i<strlen(sText);i++)
+		for(i=0;i<(int)strlen(sText);i++)
 			text[i]='*';
 		text[i+1] = '\0';
 	}

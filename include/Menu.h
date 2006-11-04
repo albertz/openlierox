@@ -19,6 +19,7 @@
 
 #include "CWidget.h"
 #include "CGuiLayout.h"
+#include "CWidgetList.h"
 #include "CTitleButton.h"
 #include "CButton.h"
 #include "CScrollbar.h"
@@ -31,6 +32,8 @@
 #include "CBrowser.h"
 #include "CCombobox.h"
 #include "CMenu.h"
+#include "CImage.h"
+#include "CBox.h"
 
 
 // Menu sockets
@@ -45,6 +48,46 @@ enum {
 	MNU_PLAYER,
 	MNU_OPTIONS,
 	MNU_MAPED
+};
+
+
+// Layout IDs
+enum {
+	L_MAINMENU=0,
+	L_LOCALPLAY,
+	L_GAMESETTINGS,
+	L_WEAPONOPTIONS,
+	L_LOADWEAPONS,
+	L_SAVEWEAPONS,
+	L_NET,
+	L_NETINTERNET,
+	L_INTERNETDETAILS,
+	L_ADDSERVER,
+	L_NETLAN,
+	L_LANDETAILS,
+	L_NETHOST,
+	L_NETFAVOURITES,
+	L_FAVOURITESDETAILS,
+	L_RENAMESERVER,
+	L_ADDFAVOURITE,
+	L_CONNECTING,
+	L_NETJOINLOBBY,
+	L_NETHOSTLOBBY,
+	L_SERVERSETTINGS,
+	L_BANLIST,
+	L_PLAYERPROFILES,
+	L_CREATEPLAYER,
+	L_VIEWPLAYERS,
+	L_LEVELEDITOR,
+	L_NEWDIALOG,
+	L_SAVELOADLEVEL,
+	L_OPTIONS,
+	L_OPTIONSCONTROLS,
+	L_OPTIONSGAME,
+	L_OPTIONSSYSTEM,
+	L_MESSAGEBOXOK,
+	L_MESSAGEBOXYESNO,
+	LAYOUT_COUNT
 };
 
 
@@ -221,17 +264,16 @@ typedef struct {
 } local_ply_t;
 
 
-
-
 // Menu globals
-extern	menu_t	*tMenu;
-extern	int		*iGame;
-extern	int		iNetMode;
-extern	int		iJoinMenu;
-extern	int		iHostType;
-extern	int		iSkipStart;
-extern  int		iHost_Recolorize;
-extern	int		iJoin_Recolorize;
+extern	menu_t		*tMenu;
+extern	int			*iGame;
+extern	int			iNetMode;
+extern	int			iJoinMenu;
+extern	int			iHostType;
+extern	int			iSkipStart;
+extern  int			iHost_Recolorize;
+extern	int			iJoin_Recolorize;
+extern  CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 
 
 // Routines
@@ -248,6 +290,7 @@ void    Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
 void    Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool down);
 int		Menu_LoadWormGfx(profile_t *ply);
 int		Menu_MessageBox(char *sTitle, char *sText, int type);
+void	Menu_AddDefaultWidgets(void);
 void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
 char	*Menu_GetLevelName(char *filename);
