@@ -1304,9 +1304,8 @@ PlaySoundSample(sfxGeneral.smpClick);
 				if((ev->iEventMsg == BTN_MOUSEUP && ev->iControlID == 1) || ev->iEventMsg == LV_DOUBLECLK) {
 
 					// Play the sound only for OK button
-					if (ev->iControlID == wp_Ok) {}
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+					if (ev->iControlID == wp_Ok)
+						PlaySoundSample(sfxGeneral.smpClick);
 
 					// Don't process when nothing is selected
 					if(strlen(t->getText()) > 0) {

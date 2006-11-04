@@ -315,9 +315,8 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 		if(ev->cWidget->getType() == wid_Button) {
 			mouse = 1;
-			if(ev->iEventMsg == BTN_MOUSEUP) {}
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+			if(ev->iEventMsg == BTN_MOUSEUP)
+				PlaySoundSample(sfxGeneral.smpClick);
 		}
 		if(ev->cWidget->getType() == wid_Textbox)
 			mouse = 2;

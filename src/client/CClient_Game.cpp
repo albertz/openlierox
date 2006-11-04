@@ -270,9 +270,8 @@ void CClient::SimulateProjectiles(float dt)
 					shake = pi->Hit_Shake;
 
 				// Play the hit sound
-				if(pi->Hit_UseSound) {}
-// TODO: sound
-PlaySoundSample(pi->smpSample);
+				if(pi->Hit_UseSound)
+					PlaySoundSample(pi->smpSample);
 			}
 
 			// Bounce
