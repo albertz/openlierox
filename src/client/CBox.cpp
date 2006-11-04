@@ -54,7 +54,8 @@ void CFrame::PreDraw(void)
 	}
 
 	// Top line
-	for (int j=0; j<iBorder; j++)  {
+	int j;
+	for (j=0; j<iBorder; j++)  {
 		DrawHLine(bmpBuffer,line_left,line_right,iY+j,cur_col);
 		cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 	}
@@ -95,11 +96,12 @@ void CFrame::PreDraw(void)
 	// Top left
 	// (1,3/2*PI)
 	float step = 1/(PI*iRound*(iBorder+0.0000001));
-	for (float i=1.00;i<1.5;i+=step)  {
+	float i;
+	for (i=1.00;i<1.5;i+=step)  {
 		cur_col = iDarkColour;
-		for (j=0; j<iBorder; j++)  {
-			x = (iRound-j)*sin(PI*i)-1;
-			y = (iRound-j)*cos(PI*i)-1;
+		for (j=0; j<(int)iBorder; j++)  {
+			x = (int)((iRound-j)*sin(PI*i)-1);
+			y = (int)((iRound-j)*cos(PI*i)-1);
 			PutPixel(bmpBuffer,x+iRound,y+iRound,cur_col);
 			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 		}
@@ -110,8 +112,8 @@ void CFrame::PreDraw(void)
 	for (i=0.50;i<1;i+=step)  {
 		cur_col = iDarkColour;
 		for (j=0; j<iBorder; j++)  {
-			x = (iRound-j)*sin(PI*i)+1;
-			y = (iRound-j)*cos(PI*i)-1;
+			x = (int)((iRound-j)*sin(PI*i)+1);
+			y = (int)((iRound-j)*cos(PI*i)-1);
 			PutPixel(bmpBuffer,x+iWidth-iRound,y+iRound,cur_col);
 			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 		}
@@ -122,8 +124,8 @@ void CFrame::PreDraw(void)
 	for (i=1.50;i<2;i+=step)  {
 		cur_col = iDarkColour;
 		for (j=0; j<iBorder; j++)  {
-			x = (iRound-j)*sin(PI*i)-1;
-			y = (iRound-j)*cos(PI*i)+1;
+			x = (int)((iRound-j)*sin(PI*i)-1);
+			y = (int)((iRound-j)*cos(PI*i)+1);
 			PutPixel(bmpBuffer,x+iRound,y+iHeight-iRound,cur_col);
 			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 		}
@@ -134,8 +136,8 @@ void CFrame::PreDraw(void)
 	for (i=-0.01;i<0.5;i+=step)  {
 		cur_col = iDarkColour;
 		for (j=0; j<iBorder; j++)  {
-			x = (iRound-j)*sin(PI*i)+1;
-			y = (iRound-j)*cos(PI*i)+1;
+			x = (int)((iRound-j)*sin(PI*i)+1);
+			y = (int)((iRound-j)*cos(PI*i)+1);
 			PutPixel(bmpBuffer,x+iWidth-iRound,y+iHeight-iRound,cur_col);
 			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
 		}
