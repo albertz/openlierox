@@ -75,7 +75,6 @@ void Menu_MainFrame(void)
 	ev = cMainMenu.Process();
 	cMainMenu.Draw(tMenu->bmpScreen);
 
-
 	int mouseover = false;
 	int img = lastimg;
 	int mouse = 0;

@@ -139,7 +139,7 @@ int CBytestream::writeShort(short value)
 // Writes a float to the stream
 int CBytestream::writeFloat(float value)
 {
-	char data[sizeof(float)];
+	/*char data[sizeof(float)];
 	register int a=0;
 	nl_writeFloat(data,a,value);
 
@@ -147,6 +147,17 @@ int CBytestream::writeFloat(float value)
 		if(!writeByte(data[a])) return false;
 	}
 	
+	return true;*/
+
+	// Split the float to two parts - integer part and float part and write it as two integers
+
+	int integer_part = (int)floor(value);
+	int float_part = (int)((value-integer_part)*1000000000);
+	if (!writeInt(integer_part,4)) 
+		return false;
+	if (!writeInt(float_part,4))
+		return false;
+
 	return true;
 }
 
@@ -268,7 +279,7 @@ short CBytestream::readShort(void)
 // Read a float value from the stream
 float CBytestream::readFloat(void)
 {
-	char dat[4];
+/*	char dat[4];
 	dat[0] = readByte();
 	dat[1] = readByte();
 	dat[2] = readByte();
@@ -276,10 +287,18 @@ float CBytestream::readFloat(void)
 
 
 	int a=0;
-	float value=0;
+	NLfloat value=0;
 	nl_readFloat(dat,a,value);
 		
+	return value;*/
+
+	// Read the float split to two parts - integer part and float part
+	float value = 0.0f;
+	value = (float)readInt(4);
+	value += ((float)readInt(4)/1000000000);
+
 	return value;
+
 }
 
 

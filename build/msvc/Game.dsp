@@ -183,10 +183,6 @@ SOURCE=..\..\src\common\ConfigHandler.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\CrashRpt.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\CVec.h
 # End Source File
 # Begin Source File
@@ -771,10 +767,6 @@ SOURCE=..\..\include\main.h
 # Begin Source File
 
 SOURCE=..\..\src\common\Misc.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Misc.h
 # End Source File
 # Begin Source File
 

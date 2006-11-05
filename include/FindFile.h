@@ -32,7 +32,13 @@ int GetExactFileName(const char* searchname, char* filename);
 // on Windows, we don't need it, so does a simple strcpy
 inline int GetExactFileName(const char* searchname, char* filename) {
 	strcpy(filename, searchname);
-	// TODO: return false, if file doesn't exist
+
+	// Return false, if file doesn't exist
+	FILE *f = fopen(searchname,"r");
+	if (!f)
+		return false;
+	fclose(f);
+
 	return true;
 }
 #endif
