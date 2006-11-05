@@ -26,6 +26,7 @@
 #include "CListview.h"
 #include "CTextbox.h"
 #include "CLabel.h"
+#include "CLine.h"
 #include "CSlider.h"
 #include "CCheckbox.h"
 #include "CInputBox.h"

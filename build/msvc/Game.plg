@@ -6,13 +6,47 @@
 --------------------Configuration: Game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2F1.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP397.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"obj/Debug/" /Fp"obj/Debug/Game.pch" /YX /Fo"obj/Debug/" /Fd"obj/Debug/" /FD /GZ /c 
+"C:\Moje\Programovani\OpenLieroX\src\client\CClient_Draw.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CClient_Parse.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\server\CServer_Parse.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\ProfileSystem.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CBox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CBrowser.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CButton.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CCheckbox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CCombobox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CGuiLayout.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CImage.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CInputBox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CListview.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CMenu.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CScrollbar.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CSlider.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CTextbox.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CTitleButton.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CWidget.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\CWidgetList.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Local.cpp"
 "C:\Moje\Programovani\OpenLieroX\src\client\Menu_Main.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Mapeditor.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Favourites.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Host.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Join.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Lan.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Main.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_News.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Options.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Player.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\MenuSystem.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\main.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2F1.tmp" 
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2F2.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP397.tmp" 
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP398.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../share/gamedir/Game.exe" /MAPINFO:LINES /MAPINFO:EXPORTS 
 .\obj\Debug\2xsai.obj
@@ -105,13 +139,47 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\libs\SDL_mixer.lib
 .\libs\lua5.1.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2F2.tmp"
+Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP398.tmp"
 <h3>Output Window</h3>
 Compiling...
+CServer_Parse.cpp
 Menu_Main.cpp
+CClient_Draw.cpp
+CClient_Parse.cpp
+ProfileSystem.cpp
+CBox.cpp
+CBrowser.cpp
+CButton.cpp
+CCheckbox.cpp
+CCombobox.cpp
+CGuiLayout.cpp
+CImage.cpp
+CInputBox.cpp
+CListview.cpp
+CMenu.cpp
+CScrollbar.cpp
+CSlider.cpp
+CTextbox.cpp
+CTitleButton.cpp
+CWidget.cpp
+CWidgetList.cpp
+Menu_Local.cpp
+Menu_Mapeditor.cpp
+Menu_Net.cpp
+Menu_Net_Favourites.cpp
+Menu_Net_Host.cpp
+Menu_Net_Internet.cpp
+Menu_Net_Join.cpp
+Menu_Net_Lan.cpp
+Menu_Net_Main.cpp
+Menu_Net_News.cpp
+Menu_Options.cpp
+Menu_Player.cpp
+MenuSystem.cpp
+main.cpp
 Linking...
 LINK : warning LNK4075: ignoring /INCREMENTAL due to /DEBUGTYPE specification
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2F4.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP39A.tmp" with contents
 [
 /nologo /o"obj/debug/Game.bsc" 
 .\obj\Debug\2xsai.sbr
@@ -191,7 +259,7 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2F4.tmp" with con
 .\obj\Debug\Networking.sbr
 .\obj\Debug\Options.sbr
 .\obj\Debug\Sounds.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2F4.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP39A.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 

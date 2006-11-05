@@ -542,6 +542,10 @@ SOURCE=..\..\include\CLabel.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\CLine.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\CListview.cpp
 # End Source File
 # Begin Source File
