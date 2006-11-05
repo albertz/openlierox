@@ -75,6 +75,15 @@ void Menu_MainFrame(void)
 	ev = cMainMenu.Process();
 	cMainMenu.Draw(tMenu->bmpScreen);
 
+	/*CBytestream bs;
+	bs.Clear();
+	bs.write2Int12(1234,4095);
+	short x=0;
+	short y=0;
+	bs.SetPos(0);
+	bs.read2Int12(x,y);
+	tLX->cFont.Draw(tMenu->bmpScreen,10,10,0xffff,"%i\n%i",x,y);*/
+
 	int mouseover = false;
 	int img = lastimg;
 	int mouse = 0;

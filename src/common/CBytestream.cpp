@@ -323,11 +323,18 @@ char *CBytestream::readString(char *str)
 
 // cast 3 bytes to 2 int12
 void CBytestream::read2Int12(short& x, short& y) {
-	x = readByte();
+/*	x = readByte();
 	uchar tmp = readByte();
 	x += tmp & 0xf;
 	y = (tmp & 0xf0) / 0x10;
-	y += readByte() * 0x10;
+	y += readByte() * 0x10;*/
+	short dat[3];
+	dat[0] = readByte();
+	dat[1] = readByte();
+	dat[2] = readByte();
+
+	x = dat[0] + ((dat[1] & 15) * 0x100);
+	y = ((dat[1] & 0xf0) / 0x10) + dat[2] * 0x10;
 }
 
 // cast 1 byte to 2 int4

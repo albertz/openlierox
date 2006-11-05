@@ -1659,23 +1659,6 @@ CVec CClient::FindNearestSpot(CWorm *w)
 	py = (int) fabs((w->getPos().GetY())/gh);
 
 	if (bInMap)  {
-		/*if (w->IsEmpty(CELL_UP,cMap))
-			return CVec((float)px*gw+gw/2, (float)((py-1)*gh+gh/2));
-		else if (w->IsEmpty(CELL_LEFT,cMap))
-			return CVec((float)((px-1)*gw+gw/2), (float)py*gh+gh/2);
-		else if (w->IsEmpty(CELL_RIGHT,cMap))
-			return CVec((float)((px+1)*gw+gw/2), (float)py*gh+gh/2);
-		else if (w->IsEmpty(CELL_DOWN,cMap))
-			return CVec((float)px*gw+gw/2, (float)((py+1)*gh+gh/2));
-		else if (w->IsEmpty(CELL_LEFTUP,cMap))
-			return CVec((float)((px-1)*gw+gw/2), (float)((py-1)*gh+gh/2));
-		else if (w->IsEmpty(CELL_RIGHTUP,cMap))
-			return CVec((float)((px+1)*gw+gw/2), (float)((py-1)*gh+gh/2));
-		else if (w->IsEmpty(CELL_LEFTDOWN,cMap))
-			return CVec((float)((px-1)*gw+gw/2), (float)((py+1)*gh+gh/2));
-		else if (w->IsEmpty(CELL_RIGHTDOWN,cMap))
-			return CVec((float)((px+1)*gw+gw/2), (float)((py+1)*gh+gh/2));*/
-
 		// Check the closest cells
 		int tmp_x = px-1;
 		int tmp_y = py-1;
