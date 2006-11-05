@@ -210,7 +210,7 @@ uchar CBytestream::readByte(void)
 // Reads a boolean value from the stream
 bool CBytestream::readBool(void)
 {
-	return (bool)readByte();
+	return readByte() != 0;
 }
 
 

@@ -225,7 +225,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	CWorm *kill = &cWorms[killer];
 
 	// Cheat prevention, game behaves weird if this happens
-	if(!vict->getAlive() || vict->getKills() < 0)
+	if(vict->getLives() < 0)
 		return;
 
 	

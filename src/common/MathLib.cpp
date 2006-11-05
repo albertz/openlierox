@@ -36,7 +36,7 @@ float fastSQRT(float x)
     if( x == 0 )
         return 0;
     return 1.0f / x; */
-	return sqrt(x);
+	return (float)sqrt(x);
 }
 
 

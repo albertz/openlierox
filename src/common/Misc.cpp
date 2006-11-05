@@ -429,7 +429,7 @@ int chrcasecmp(const char c1, const char c2)
 void ReadUntil(const char *text, char until_character, char *result)
 {
 	int i=0;
-	while(*(text+i) != until_character && i<strlen(text)) {
+	while(*(text+i) != until_character && i<(int)strlen(text)) {
 		*(result+i) = *(text+i);
 		i++;
 	}
