@@ -124,14 +124,6 @@ int CBytestream::writeInt(int value, int numbytes)
 // Write a short to the stream
 int CBytestream::writeShort(short value)
 {
-	/*char data[4];
-	int a=0;
-	nl_writeShort(data,a,value);
-
-	if(!writeByte(data[0])) return false;
-	if(!writeByte(data[1])) return false;
-
-	return true;*/
 	return writeInt(value,2);
 }
 
@@ -140,25 +132,20 @@ int CBytestream::writeShort(short value)
 // Writes a float to the stream
 int CBytestream::writeFloat(float value)
 {
-	/*char data[sizeof(float)];
-	register int a=0;
-	nl_writeFloat(data,a,value);
+	// TODO: how to do this only for the precompiler?
+	assert( sizeof(float) == 4 );
 
-	for(a=0;a<sizeof(float);a++) {
-		if(!writeByte(data[a])) return false;
-	}
+	union {
+		uchar bin[sizeof(float)];
+		float val;
+	} tmp;
 	
-	return true;*/
-
-	// Split the float to two parts - integer part and float part and write it as two integers
-
-	int integer_part = (int)floor(value);
-	int float_part = (int)((value-integer_part)*1000000000);
-	if (!writeInt(integer_part,4)) 
-		return false;
-	if (!writeInt(float_part,4))
-		return false;
-
+	tmp.val = value;
+	BEndianSwap(tmp.bin);
+	for(short i = 0; i < sizeof(float); i++)
+		if(!writeByte(tmp.bin[i]))
+			return false;
+			
 	return true;
 }
 
@@ -271,26 +258,18 @@ short CBytestream::readShort(void)
 // Read a float value from the stream
 float CBytestream::readFloat(void)
 {
-/*	char dat[4];
-	dat[0] = readByte();
-	dat[1] = readByte();
-	dat[2] = readByte();
-	dat[3] = readByte();
+	// TODO: how to do this only for the precompiler?
+	assert( sizeof(float) == 4 );
 
-
-	int a=0;
-	NLfloat value=0;
-	nl_readFloat(dat,a,value);
-		
-	return value;*/
-
-	// Read the float split to two parts - integer part and float part
-	float value = 0.0f;
-	value = (float)readInt(4);
-	value += ((float)readInt(4)/1000000000);
-
-	return value;
-
+	union {
+		uchar bin[sizeof(float)];
+		float val;
+	} tmp;
+	
+	for(short i = 0; i < sizeof(float); i++)
+		tmp.bin[i] = readByte();
+	BEndianSwap(tmp.bin);
+	return tmp.val;
 }
 
 
@@ -315,17 +294,12 @@ char *CBytestream::readString(char *str)
 
 // cast 3 bytes to 2 int12
 void CBytestream::read2Int12(short& x, short& y) {
-/*	x = readByte();
-	uchar tmp = readByte();
-	x += tmp & 0xf;
-	y = (tmp & 0xf0) / 0x10;
-	y += readByte() * 0x10;*/
 	short dat[3];
 	dat[0] = readByte();
 	dat[1] = readByte();
 	dat[2] = readByte();
 
-	x = dat[0] + ((dat[1] & 15) * 0x100);
+	x = dat[0] + ((dat[1] & 0xf) * 0x100);
 	y = ((dat[1] & 0xf0) / 0x10) + dat[2] * 0x10;
 }
 

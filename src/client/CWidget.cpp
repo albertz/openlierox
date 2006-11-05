@@ -172,3 +172,4 @@ void CWidget::ProcessEvent(int Event)
 	}
 
 }
+

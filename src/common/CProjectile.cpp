@@ -41,7 +41,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	if(iRemote)
 		fRemoteFrameTime = _remotetime;
 
-
+	// this produce a memory leak
 	fSpeed = VectorLength(_vel);
 
 	fFrame = 0;

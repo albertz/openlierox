@@ -57,6 +57,8 @@ inline char *getcwd(char *buf, size_t size) {
 #include <nl.h>
 // workaraound for bad named makros by nl.h
 // makros are bad, esp the names (reserved/used by CBytestream)
+// TODO: they seem to not work correctly!
+// all use of it in CBytestream was removed
 inline void nl_writeShort(char* x, int& y, NLushort z)		{ writeShort(x, y, z); }
 inline void nl_writeLong(char* x, int& y, NLulong z)		{ writeLong(x, y, z); }
 inline void nl_writeFloat(char* x, int& y, NLfloat z)		{ writeFloat(x, y, z); }
