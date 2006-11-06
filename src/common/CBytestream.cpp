@@ -124,7 +124,17 @@ int CBytestream::writeInt(int value, int numbytes)
 // Write a short to the stream
 int CBytestream::writeShort(short value)
 {
-	return writeInt(value,2);
+	uchar dat[2];
+	memcpy(&dat[0],&value,2);
+	
+	// Write the bytes in reverse order
+	if (!writeByte(dat[1]))
+		return false;
+
+	if (!writeByte(dat[0]))
+		return false;
+
+	return true;
 }
 
 
@@ -249,7 +259,15 @@ int CBytestream::readInt(int numbytes)
 // Read a short from the stream
 short CBytestream::readShort(void)
 {
-	return (short)readInt(2);
+	// NOTE: Does this work for big endian??
+	uchar dat[2];
+	dat[1] = readByte();
+	dat[0] = readByte();
+
+	short value = 0;
+	memcpy(&value,&dat[0],2);
+
+	return value;
 }
 
 

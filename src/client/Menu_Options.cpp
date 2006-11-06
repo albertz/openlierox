@@ -377,9 +377,11 @@ PlaySoundSample(sfxGeneral.smpClick);
 					// Get an input
 					CInputbox *b = (CInputbox *)ev->cWidget;
 					Menu_OptionsWaitInput(ply, b->getName(), b);
-					// Re-setup the Take Screenshot key
+					// Re-setup the Take Screenshot key and switch mode
 					if (ev->iControlID == Gen_TakeScreenshot)
 						cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+					if (ev->iControlID == Gen_SwitchMode)
+						cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 				}
 			}
 		}

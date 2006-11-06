@@ -185,6 +185,14 @@ int CInput::Wait(char *strText)
 	}
 	
 	// Keyboard
+
+	// Check for RALT first (else it's detected as lctrl and lalt by newest SDL)
+	if(kb->KeyUp[SDLK_RALT])  {
+		strcpy(strText,Keys[79].text);
+		return true;
+	}
+
+	// Other keys
 	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
 		if(kb->KeyUp[Keys[n].value]) {
 			strcpy(strText,Keys[n].text);

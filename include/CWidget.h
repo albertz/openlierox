@@ -20,22 +20,19 @@
 // Widget messages
 #define		WDM_SETENABLE	-1
 
-// Generic events
-typedef struct generic_events_s {
-	char	onmouseover[64];
-	char	onmouseout[64];
-	char	onmousedown[64];
-	char	onclick[64];
-} generic_events_t;
-
 // Generic event IDs
 enum {
 	OnMouseOver=0,
 	OnMouseOut,
 	OnMouseDown,
-	OnClick
+	OnClick,
+	NumEvents
 };
 
+// Generic events
+typedef struct generic_events_s {
+	char Events[NumEvents][128];
+} generic_events_t;
 
 class CWidget {
 public:

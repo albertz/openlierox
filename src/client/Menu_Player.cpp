@@ -141,6 +141,10 @@ void Menu_PlayerInitialize(void)
 	cNewPlayer.SendMessage( np_Green,	SLM_SETVALUE, 128, 0);
 	cNewPlayer.SendMessage( np_Blue,	SLM_SETVALUE, 128, 0);
 
+	// Player type
+    cNewPlayer.SendMessage( np_Type, CBM_ADDITEM, PRF_HUMAN, (DWORD)"Human" );
+    cNewPlayer.SendMessage( np_Type, CBM_ADDITEM, PRF_COMPUTER, (DWORD)"Computer" );
+
     Menu_Player_NewPlayerInit();
 
 	// View players
@@ -179,8 +183,6 @@ void Menu_PlayerInitialize(void)
 	lv->AddColumn("Players",22);
 	lv->AddColumn("",60);
 
-    cNewPlayer.SendMessage( vp_Type, CBM_ADDITEM, PRF_HUMAN, (DWORD)"Human" );
-    cNewPlayer.SendMessage( vp_Type, CBM_ADDITEM, PRF_COMPUTER, (DWORD)"Computer" );
     cViewPlayers.SendMessage( vp_Type, CBM_ADDITEM, PRF_HUMAN, (DWORD)"Human" );
     cViewPlayers.SendMessage( vp_Type, CBM_ADDITEM, PRF_COMPUTER, (DWORD)"Computer" );
 }

@@ -114,6 +114,10 @@ public:
 	// Messaging
 	int			SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2);
 
+	// Variables
+	int			getID(void)		{ return iID; }
+	void		setID(int _id)	{ iID = _id; }
+
 };
 
 

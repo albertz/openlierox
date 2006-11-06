@@ -27,7 +27,12 @@ void CWidget::Setup(int id, int x, int y, int w, int h)
 	iY = y;
 	iWidth = w;
 	iHeight = h;
-	iEnabled = true;	
+	iEnabled = true;
+
+	// Reset the events
+	int i;
+	for (i=0;i<NumEvents;i++)
+		strcpy(tEvents.Events[i],"");
 }
 
 
@@ -54,36 +59,21 @@ void CWidget::redrawBuffer(void)
 // Setup the events
 void CWidget::SetupEvents(generic_events_t *Events)
 {
-	strcpy(tEvents.onclick,Events->onclick);
-	strcpy(tEvents.onmouseover,Events->onmouseover);
-	strcpy(tEvents.onmouseout,Events->onmouseout);
-	strcpy(tEvents.onmousedown,Events->onmousedown);
+	int i;
+	for (i=0; i<NumEvents; i++)
+		strcpy(tEvents.Events[i],Events->Events[i]);
 }
 
 /////////////////
 // Process the specified event
 void CWidget::ProcessEvent(int Event)
 {
-	return;
+	// TODO: Use LUA
 	char *Code;
 	CGuiLayout *Parent = (CGuiLayout *)cParent;
 
 	// Get the event source code
-	switch (Event)  {
-	case OnMouseOver:
-		Code = &tEvents.onmouseover[0];
-	break;
-	case OnMouseOut:
-		Code = &tEvents.onmouseout[0];
-	break;
-	case OnMouseDown:
-		Code = &tEvents.onmousedown[0];
-	break;
-	case OnClick:
-		Code = &tEvents.onclick[0];
-	break;
-	}
-
+	Code = &tEvents.Events[Event][0];
 	TrimSpaces(Code);
 
 	// Nothing to process
@@ -105,7 +95,7 @@ void CWidget::ProcessEvent(int Event)
 		TrimSpaces(WidgetName);
 
 		// Get the widget ID
-		int ID = -1;//cParser->LayoutWidgets[Parent->getID()].getID(WidgetName);
+		int ID = LayoutWidgets[Parent->getID()].getID(WidgetName);
 		if (ID == -1)
 			return;
 
@@ -158,7 +148,7 @@ void CWidget::ProcessEvent(int Event)
 
 
 		// Get the widget ID
-		int ID = -1;//cParser->LayoutWidgets[Parent->getID()].getID(WidgetName);
+		int ID = LayoutWidgets[Parent->getID()].getID(WidgetName);
 		if (ID == -1)
 			return;
 

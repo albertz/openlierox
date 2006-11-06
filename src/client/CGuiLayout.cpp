@@ -137,37 +137,26 @@ void CGuiLayout::Draw(SDL_Surface *bmpDest)
 void CGuiLayout::ReadEvents(xmlNodePtr Node, generic_events_t *Events)
 {
 	// Load the values
-	xmlChar *onmouseover = xmlGetProp(Node,(const xmlChar *)"onmouseover");
-	xmlChar *onmouseout  = xmlGetProp(Node,(const xmlChar *)"onmouseout");
-	xmlChar *onmousedown = xmlGetProp(Node,(const xmlChar *)"onmousedown");
-	xmlChar *onclick	 = xmlGetProp(Node,(const xmlChar *)"onclick");
+	xmlChar *evs[NumEvents];
+	evs[OnMouseOver] = xmlGetProp(Node,(const xmlChar *)"onmouseover");
+	evs[OnMouseOut]  = xmlGetProp(Node,(const xmlChar *)"onmouseout");
+	evs[OnMouseDown] = xmlGetProp(Node,(const xmlChar *)"onmousedown");
+	evs[OnClick]	  = xmlGetProp(Node,(const xmlChar *)"onclick");
 
 	// Copy the values into the events
-	if (Events->onmouseover)
-		strcpy(Events->onmouseover, (char *)onmouseover);
-	else
-		strcpy(Events->onmouseover, "");
-
-	if (Events->onmouseout)
-		strcpy(Events->onmouseout, (char *)onmouseout);
-	else
-		strcpy(Events->onmouseout, "");
-
-	if (Events->onmousedown)
-		strcpy(Events->onmousedown, (char *)onmousedown);
-	else
-		strcpy(Events->onmousedown, "");
-
-	if (Events->onclick)
-		strcpy(Events->onclick, (char *)onclick);
-	else
-		strcpy(Events->onclick, "");
+	int i;
+	for (i=0;i<NumEvents;i++)  {
+		if (evs[i])
+			strcpy(Events->Events[i], (char *)evs[i]);
+		else
+			strcpy(Events->Events[i], "");
+	}
 
 	// Free the data
-	xmlFree(onmouseover);
-	xmlFree(onmouseout);
-	xmlFree(onmousedown);
-	xmlFree(onclick);
+	xmlFree(evs[OnMouseOver]);
+	xmlFree(evs[OnMouseOut]);
+	xmlFree(evs[OnMouseDown]);
+	xmlFree(evs[OnClick]);
 }
 
 //////////////////
