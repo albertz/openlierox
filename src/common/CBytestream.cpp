@@ -98,21 +98,19 @@ int CBytestream::writeBool(bool value)
 // Writes an integer to the stream
 int CBytestream::writeInt(int value, int numbytes)
 {
-	uchar bytes[4];
-	int n;
-
 	// Numbytes cannot be more then 4
 	if(numbytes <= 0 || numbytes >= 5)
 		return false;
-	
+
 	// Copy the interger into individual bytes
-	// HINT: this is endian independent
+	// HINT: this is endian independent code; it uses little endian
+	uchar bytes[4];
 	bytes[0] = (uint)value & 0xff;
 	bytes[1] = ((uint)value & 0xff00) / 0x100;
 	bytes[2] = ((uint)value & 0xff0000) / 0x10000;
 	bytes[3] = ((uint)value & 0xff000000) / 0x1000000;
 
-	for(n=0;n<numbytes;n++)
+	for(short n=0;n<numbytes;n++)
 		if(!writeByte(bytes[n]))
 			return false;
 
@@ -124,14 +122,15 @@ int CBytestream::writeInt(int value, int numbytes)
 // Write a short to the stream
 int CBytestream::writeShort(short value)
 {
+	// HINT: this time, the value is stored in big endian
 	uchar dat[2];
-	memcpy(&dat[0],&value,2);
-	
-	// Write the bytes in reverse order
-	if (!writeByte(dat[1]))
-		return false;
+	dat[1] = (unsigned short)value & 0xff;
+	dat[0] = ((unsigned short)value & 0xff00) / 0x100;
 
 	if (!writeByte(dat[0]))
+		return false;
+
+	if (!writeByte(dat[1]))
 		return false;
 
 	return true;
@@ -142,17 +141,16 @@ int CBytestream::writeShort(short value)
 // Writes a float to the stream
 int CBytestream::writeFloat(float value)
 {
-	// TODO: how to do this only for the precompiler?
-	assert( sizeof(float) == 4 );
-
 	union {
-		uchar bin[sizeof(float)];
+		uchar bin[4];
 		float val;
 	} tmp;
-	
 	tmp.val = value;
-	BEndianSwap(tmp.bin);
-	for(short i = 0; i < sizeof(float); i++)
+
+	// HINT: original LX uses little endian floats over network
+	EndianSwap(tmp.bin);
+
+	for(short i = 0; i < 4; i++)
 		if(!writeByte(tmp.bin[i]))
 			return false;
 			
@@ -227,20 +225,16 @@ bool CBytestream::readBool(void)
 // Reads an interger value from the stream
 int CBytestream::readInt(int numbytes)
 {
-	uchar bytes[4];
-	int n;
-	int value;
-
 	// Numbytes cannot be more than 4
 	if(numbytes <= 0 || numbytes >= 5)
-		return false;
+		return 0;
 
-	for(n=0;n<numbytes;n++)
+	uchar bytes[4];
+	for(short n=0;n<numbytes;n++)
 		bytes[n] = readByte();
 
-	uint ret = 0;
-	
-	// HINT: this is endian independent
+	// HINT: this is endian independent; value is stored in little endian
+	uint ret = 0;	
 	if(numbytes>0)
 		ret = (uint)bytes[0];
 	if(numbytes>1)
@@ -249,9 +243,8 @@ int CBytestream::readInt(int numbytes)
 		ret += (uint)bytes[2] * 0x10000;
 	if(numbytes>3)
 		ret += (uint)bytes[3] * 0x1000000;
-	value = (int)ret;
 	
-	return value;
+	return (int)ret;
 }
 
 
@@ -259,15 +252,16 @@ int CBytestream::readInt(int numbytes)
 // Read a short from the stream
 short CBytestream::readShort(void)
 {
-	// NOTE: Does this work for big endian??
+	// HINT: this time, the value is stored in big endian
 	uchar dat[2];
 	dat[1] = readByte();
 	dat[0] = readByte();
 
-	short value = 0;
-	memcpy(&value,&dat[0],2);
+	unsigned short value;
+	value = dat[0];
+	value += dat[1] * 0x100;
 
-	return value;
+	return (short)value;
 }
 
 
@@ -276,17 +270,17 @@ short CBytestream::readShort(void)
 // Read a float value from the stream
 float CBytestream::readFloat(void)
 {
-	// TODO: how to do this only for the precompiler?
-	assert( sizeof(float) == 4 );
-
 	union {
-		uchar bin[sizeof(float)];
+		uchar bin[4];
 		float val;
 	} tmp;
 	
-	for(short i = 0; i < sizeof(float); i++)
+	for(short i = 0; i < 4; i++)
 		tmp.bin[i] = readByte();
-	BEndianSwap(tmp.bin);
+
+	// HINT: original LX uses little endian floats over network
+	EndianSwap(tmp.bin);
+
 	return tmp.val;
 }
 
