@@ -147,6 +147,9 @@ void CServer::ParsePacket(CClient *cl, CBytestream *bs)
 // Parse a 'im ready' packet
 void CServer::ParseImReady(CClient *cl, CBytestream *bs)
 {
+	if (iState != SVS_GAME)
+		return;
+
 	int i;
 	// Note: This isn't a lobby ready
 
@@ -199,6 +202,10 @@ void CServer::ParseUpdate(CClient *cl, CBytestream *bs)
 // Parse a death packet
 void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 {
+	// No kills in lobby
+	if (iState != SVS_PLAYING)
+		return;
+
 	char buf[128];
 	CBytestream byte;
 	int victim = bs->readInt(1);
@@ -207,8 +214,6 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	// Team names
 	char *TeamNames[] = {"blue", "red", "green", "yellow"};
 	int TeamCount[4];
-
-	// TODO: Cheat prevention check: Make sure the victim is one of the client's worms
 
     // If the game is already over, ignore this
     if(iGameOver)
@@ -223,6 +228,8 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 	CWorm *vict = &cWorms[victim];
 	CWorm *kill = &cWorms[killer];
+
+	// TODO: Cheat prevention check: Make sure the victim is one of the client's worms
 
 	// Cheat prevention, game behaves weird if this happens
 	if(vict->getLives() < 0)
@@ -455,6 +462,10 @@ void CServer::ParseChatText(CClient *cl, CBytestream *bs)
 // Parse a 'update lobby' packet
 void CServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 {
+	// Must be in lobby
+	if (iState != SVS_LOBBY)
+		return;
+
 	int ready = bs->readByte();
 	int i;
 
@@ -506,6 +517,9 @@ void CServer::ParseWeaponList(CClient *cl, CBytestream *bs)
 // Parse a 'grab bonus' packet
 void CServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 {
+	if (iState != SVS_PLAYING)
+		return;
+
 	int id = bs->readByte();
 	int wormid = bs->readByte();
 	int curwpn = bs->readByte();
@@ -976,6 +990,8 @@ void CServer::ParsePing(void)
 // Parse a "wants join" packet
 void CServer::ParseWantsJoin(CBytestream *bs)
 {
+	// Accept these messages from banned clients?
+
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;
 	char Nick[128];
@@ -1014,6 +1030,8 @@ void CServer::ParseQuery(CBytestream *bs)
 // Parse a get_info packet
 void CServer::ParseGetInfo(void)
 {
+	// TODO: more info
+
     CBytestream     bs;
     game_lobby_t    *gl = &tGameLobby;
 
@@ -1045,6 +1063,7 @@ void CServer::ParseGetInfo(void)
 	    bs.writeShort(iLoadingTimes);
         bs.writeByte(iBonusesOn);
     }
+	// Loading
 	else {
         bs.writeString("%s",tGameInfo.sMapname);
         bs.writeString("%s",tGameInfo.sModName);

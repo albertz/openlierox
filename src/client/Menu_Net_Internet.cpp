@@ -531,7 +531,7 @@ void Menu_Net_NETUpdateList(void)
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
     DrawRectFill(tMenu->bmpBuffer, 202, 222, 439, 339, 0);
     Menu_DrawBox(tMenu->bmpBuffer, 220, 280, 420, 300);
-	for(int i=1;i<5;i++)
+	for(int i=0;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
 	Menu_RedrawMouse(true);
 

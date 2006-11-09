@@ -288,6 +288,10 @@ void CClient::ParsePacket(CBytestream *bs)
 // Parse a prepare game packet
 bool CClient::ParsePrepareGame(CBytestream *bs)
 {
+	// We already got this packet
+	if (iGameReady)
+		return true;
+
 	int random = bs->readInt(1);
 
 	// Clear any previous instances of the map
@@ -342,6 +346,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		char buf[256];
 		bs->readString(buf);
 
+		// Invalid packet
+		if (!strlen(buf))
+			return false;
+
 		if(tGameInfo.iGameType == GME_JOIN) {
 			if(!cMap->Load(buf)) {
 				// Show a cannot load level error message
@@ -382,10 +390,11 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// Load the gamescript
 	bs->readString(sModName);
 
+	// Bad packet
+	if (!strlen(sModName))
+		return false;
+
 	int result = cGameScript.Load(sModName);
-	if(result != GSE_OK)
-		strcpy(&sModName[0],&tGameInfo.sModDir[0]);
-	result = cGameScript.Load(sModName);
 
 	if(result != GSE_OK) {
 
@@ -455,6 +464,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 // Parse a start game packet
 void CClient::ParseStartGame(CBytestream *bs)
 {
+	// Already got this
+	if (iNetStatus == NET_PLAYING)
+		return;
+
 	iNetStatus = NET_PLAYING;
 
 	// Set the local players to dead so we wait until the server spawns us
@@ -475,6 +488,12 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	int x = bs->readInt(2);
 	int y = bs->readInt(2);
 
+	// Is the spawnpoint in the map?
+	if (x > cMap->GetWidth() || x < 0)
+		return;
+	if (y > cMap->GetHeight() || y < 0)
+		return;
+
 	CVec p = CVec( (float)x, (float)y );
 
 	cRemoteWorms[id].setAlive(true);
@@ -494,6 +513,10 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 void CClient::ParseWormInfo(CBytestream *bs)
 {
 	int id = bs->readInt(1);
+
+	// Validate the id
+	if (id < 0 || id >= MAX_WORMS)
+		return;
 
 	cRemoteWorms[id].setUsed(true);
 	cRemoteWorms[id].readInfo(bs);
@@ -605,7 +628,7 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 {
 	int id = bs->readInt(1);
 	
-	if(id >=0 || id<=MAX_WORMS-1)
+	if(id >= 0 && id < MAX_WORMS)
 		cRemoteWorms[id].readScore(bs);
 
 	UpdateScoreboard();
@@ -656,11 +679,17 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 // Parse a tag update packet
 void CClient::ParseTagUpdate(CBytestream *bs)
 {
+	if (iNetStatus != NET_PLAYING)
+		return;
+
 	int id = bs->readInt(1);
 	float time = bs->readFloat();
 
 	// Safety check
 	if(id <0 || id >= MAX_WORMS)
+		return;
+
+	if (tGameInfo.iGameMode != GMT_TAG)
 		return;
 
 	// Set all the worms 'tag' property to false
@@ -713,6 +742,9 @@ void CClient::ParseCLReady(CBytestream *bs)
 // Parse an update-lobby packet
 void CClient::ParseUpdateLobby(CBytestream *bs)
 {
+	if (iNetStatus != NET_CONNECTED)
+		return;
+
 	int numworms = bs->readByte();
 	int ready = bs->readByte();
 
@@ -817,6 +849,9 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 	for(int i=0;i<count;i++) {
 		int id = bs->readByte();
 
+		if (id < 0 || id >= MAX_WORMS)
+			continue;
+
 		cRemoteWorms[id].readPacketState(bs,cRemoteWorms);
 	}
 
@@ -828,6 +863,9 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 // Parse an 'update game lobby' packet
 void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 {
+	if (iNetStatus != NET_CONNECTED)
+		return;
+
 	game_lobby_t    *gl = &tGameLobby;
     char            buf[256];
     FILE            *fp = NULL;
@@ -862,6 +900,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     else
         fclose(fp);
 
+	// Convert the map filename to map name
 	if (gl->bHaveMap)  {
 		char *MapName;
 		MapName = Menu_GetLevelName(gl->szMapName);
@@ -888,6 +927,10 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 // Parse a 'worm down' packet
 void CClient::ParseWormDown(CBytestream *bs)
 {
+	// Don't allow anyone to kill us in lobby
+	if (iNetStatus != NET_PLAYING)
+		return;
+
 	int id = bs->readByte();
 
 	if(id >= 0 && id < MAX_WORMS) {
@@ -946,6 +989,9 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 // Parse a 'single shot' packet
 void CClient::ParseSingleShot(CBytestream *bs)
 {
+	if(iNetStatus != NET_PLAYING)
+		return;
+
 	cShootList.readSingle(bs);
 
 	// Process the shots
@@ -958,6 +1004,9 @@ void CClient::ParseSingleShot(CBytestream *bs)
 // Parse a 'multi shot' packet
 void CClient::ParseMultiShot(CBytestream *bs)
 {
+	if(iNetStatus != NET_PLAYING)
+		return;
+
 	cShootList.readMulti(bs);
 
 	// Process the shots
@@ -970,6 +1019,7 @@ void CClient::ParseMultiShot(CBytestream *bs)
 void CClient::ParseUpdateStats(CBytestream *bs)
 {
 	int num = bs->readByte();
+	num = MIN(num,MAX_PLAYERS-1);
 
 	for(int i=0; i<num; i++)
 		getWorm(i)->readStatUpdate(bs);

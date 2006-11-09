@@ -289,13 +289,17 @@ float CBytestream::readFloat(void)
 // Read a string from the stream
 char *CBytestream::readString(char *str)
 {
+	// Validate that there is some terminating character
 	bool valid = false;
 	for (int i=CurByte; i<GetLength(); i++)
 		if(Data[i] == '\0')
 			valid = true;
 
-	if (!valid)
-		return "";
+	// Invalid
+	if (!valid)  {
+		strcpy(str,"");
+		return str;
+	}
 
 	strcpy(str,(char *)Data+CurByte);
 	CurByte += strlen(str)+1;
