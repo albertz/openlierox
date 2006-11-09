@@ -27,54 +27,65 @@ CButton		TopButtons[3];
 
 // Control id's
 enum {
+	op_Back = -2,
 	Static = -1,
-	Back = 0,
-	Fullscreen,
-	SoundOn,
-	SoundVolume,
-	NetworkPort,
-	NetworkSpeed,
-	ShowFPS,
-	ShowPing,
-	Filtered,
-	LogConvos,
-	Apply,
+	op_Controls=0,
+	op_Game,
+	op_System
+};
 
-	BloodAmount,
-	Shadows,
-	Particles,
-	OldSkoolRope,
-	AIDifficulty,
-	ShowWormHealth,
-	ColorizeNicks,
-	AutoTyping,
-	ScreenshotFormat,
+enum {
+	os_Fullscreen,
+	os_SoundOn,
+	os_SoundVolume,
+	os_NetworkPort,
+	os_NetworkSpeed,
+	os_ShowFPS,
+	os_ShowPing,
+	os_Filtered,
+	os_LogConvos,
+	os_ScreenshotFormat,
+	os_Apply,
+};
 
-	Ply1_Up,
-	Ply1_Down,
-	Ply1_Left,
-	Ply1_Right,
-	Ply1_Shoot,
-	Ply1_Jump,
-	Ply1_Selweapon,
-	Ply1_Rope,
+enum {
+	og_BloodAmount,
+	og_Shadows,
+	og_Particles,
+	og_OldSkoolRope,
+	og_AIDifficulty,
+	og_ShowWormHealth,
+	og_ColorizeNicks,
+	og_AutoTyping,
+	og_ScreenshotFormat
+};
 
-	Ply2_Up,
-	Ply2_Down,
-	Ply2_Left,
-	Ply2_Right,
-	Ply2_Shoot,
-	Ply2_Jump,
-	Ply2_Selweapon,
-	Ply2_Rope,
+enum {
+	oc_Ply1_Up,
+	oc_Ply1_Down,
+	oc_Ply1_Left,
+	oc_Ply1_Right,
+	oc_Ply1_Shoot,
+	oc_Ply1_Jump,
+	oc_Ply1_Selweapon,
+	oc_Ply1_Rope,
 
-	Gen_Chat,
-    Gen_Score,
-	Gen_Health,
-	Gen_CurSettings,
-	Gen_TakeScreenshot,
-	Gen_ViewportManager,
-	Gen_SwitchMode
+	oc_Ply2_Up,
+	oc_Ply2_Down,
+	oc_Ply2_Left,
+	oc_Ply2_Right,
+	oc_Ply2_Shoot,
+	oc_Ply2_Jump,
+	oc_Ply2_Selweapon,
+	oc_Ply2_Rope,
+
+	oc_Gen_Chat,
+    oc_Gen_Score,
+	oc_Gen_Health,
+	oc_Gen_CurSettings,
+	oc_Gen_TakeScreenshot,
+	oc_Gen_ViewportManager,
+	oc_Gen_SwitchMode
 };
 
 
@@ -114,14 +125,14 @@ int Menu_OptionsInitialize(void)
 	Menu_RedrawMouse(true);
 
 	// Setup the top buttons
-	TopButtons[0] = CButton(BUT_CONTROLS,	tMenu->bmpButtons);
-	TopButtons[1] = CButton(BUT_GAME,		tMenu->bmpButtons);
-	TopButtons[2] = CButton(BUT_SYSTEM,		tMenu->bmpButtons);
+	TopButtons[op_Controls] =	CButton(BUT_CONTROLS,	tMenu->bmpButtons);
+	TopButtons[op_Game] =		CButton(BUT_GAME,		tMenu->bmpButtons);
+	TopButtons[op_System] =		CButton(BUT_SYSTEM,		tMenu->bmpButtons);
 
-	TopButtons[0].Setup(0, 180, 110, 100, 15);
-	TopButtons[1].Setup(1, 310, 110, 50, 15);
-	TopButtons[2].Setup(2, 390, 110, 70, 15);
-    for(i=0; i<3; i++)
+	TopButtons[0].Setup(op_Controls, 180, 110, 100, 15);
+	TopButtons[1].Setup(op_Game, 310, 110, 50, 15);
+	TopButtons[2].Setup(op_System, 390, 110, 70, 15);
+    for(i=op_Controls; i<=op_System; i++)
         TopButtons[i].Create();
 
 	cOptions.Shutdown();
@@ -138,7 +149,7 @@ int Menu_OptionsInitialize(void)
 
 
 	// Add the controls
-	cOptions.Add( new CButton(BUT_BACK, tMenu->bmpButtons), Back, 25,440, 50,15);
+	cOptions.Add( new CButton(BUT_BACK, tMenu->bmpButtons), op_Back, 25,440, 50,15);
 
 
 	// Controls
@@ -152,40 +163,40 @@ int Menu_OptionsInitialize(void)
 		cOpt_Controls.Add( new CLabel(InputNames[i],0xffff), Static, 40, y, 0,0);
 
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayer1Controls[SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
-			               Ply1_Up+i, 165, y, 50,17);
+			               oc_Ply1_Up+i, 165, y, 50,17);
 
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayer2Controls[SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
-			               Ply2_Up+i, 270, y, 50,17);
+			               oc_Ply2_Up+i, 270, y, 50,17);
 	}
 
 	// General Controls
 	cOpt_Controls.Add( new CLabel("Chat", 0xffff), Static, 380, 190, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_CHAT, tLXOptions->sGeneralControls[SIN_CHAT], tMenu->bmpInputbox, "Chat"),
-						   Gen_Chat, 515, 190, 50,17);
+						   oc_Gen_Chat, 515, 190, 50,17);
 
     cOpt_Controls.Add( new CLabel("Scoreboard", 0xffff), Static, 380, 215, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCORE, tLXOptions->sGeneralControls[SIN_SCORE], tMenu->bmpInputbox, "Scoreboard"),
-						   Gen_Score, 515, 215, 50,17);
+						   oc_Gen_Score, 515, 215, 50,17);
 
     cOpt_Controls.Add( new CLabel("Health bar", 0xffff), Static, 380, 240, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_HEALTH, tLXOptions->sGeneralControls[SIN_HEALTH], tMenu->bmpInputbox, "Health bar"),
-						   Gen_Health, 515, 240, 50,17);
+						   oc_Gen_Health, 515, 240, 50,17);
 
     cOpt_Controls.Add( new CLabel("Current settings", 0xffff), Static, 380, 265, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SETTINGS, tLXOptions->sGeneralControls[SIN_SETTINGS], tMenu->bmpInputbox, "Current settings"),
-						   Gen_CurSettings, 515, 265, 50,17);
+						   oc_Gen_CurSettings, 515, 265, 50,17);
 
     cOpt_Controls.Add( new CLabel("Take screenshot", 0xffff), Static, 380, 290, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCREENSHOTS, tLXOptions->sGeneralControls[SIN_SCREENSHOTS], tMenu->bmpInputbox, "Take Screenshot"),
-						   Gen_TakeScreenshot, 515, 290, 50,17);
+						   oc_Gen_TakeScreenshot, 515, 290, 50,17);
 
     cOpt_Controls.Add( new CLabel("Viewport manager", 0xffff), Static, 380, 315, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_VIEWPORTS, tLXOptions->sGeneralControls[SIN_VIEWPORTS], tMenu->bmpInputbox, "Viewport Manager"),
-						   Gen_ViewportManager, 515, 315, 50,17);
+						   oc_Gen_ViewportManager, 515, 315, 50,17);
 
     cOpt_Controls.Add( new CLabel("Switch video mode", 0xffff), Static, 380, 340, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch video mode"),
-						   Gen_SwitchMode, 515, 340, 50,17);
+						   oc_Gen_SwitchMode, 515, 340, 50,17);
 	
 
 
@@ -193,87 +204,87 @@ int Menu_OptionsInitialize(void)
 	// System	
 	cOpt_System.Add( new CLabel("Video",blue),              Static, 40, 150, 0,0);
 	cOpt_System.Add( new CLabel("Fullscreen",0xffff),       Static, 60, 170, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),Fullscreen, 170, 170, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 170, 170, 17,17);
 
 	cOpt_System.Add( new CLabel("Audio",blue),              Static, 40, 205, 0,0);
 	cOpt_System.Add( new CLabel("Sound on",0xffff),         Static, 60, 225, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iSoundOn),   SoundOn, 170, 225, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iSoundOn),   os_SoundOn, 170, 225, 17,17);
 	cOpt_System.Add( new CLabel("Sound volume",0xffff),     Static, 60, 245, 0,0);
-	cOpt_System.Add( new CSlider(100),                      SoundVolume, 165, 242, 110, 20);
+	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 165, 242, 110, 20);
 
 	cOpt_System.Add( new CLabel("Network",blue),            Static, 40, 280, 0,0);
 	cOpt_System.Add( new CLabel("Network port",0xffff),     Static, 60, 300, 0,0);
-	cOpt_System.Add( new CTextbox(),                        NetworkPort, 170, 297, 100,20);
+	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 297, 100,20);
 	cOpt_System.Add( new CLabel("Network speed",0xffff),    Static, 60,330, 0,0);	
 	
 	cOpt_System.Add( new CLabel("Miscellanous",blue),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",0xffff),         Static, 60, 385, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iShowFPS),   ShowFPS, 170, 385, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iShowFPS),   os_ShowFPS, 170, 385, 17,17);
 	cOpt_System.Add( new CLabel("Filtered level",0xffff),   Static, 60, 415, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iFiltered),  Filtered, 170, 415, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iFiltered),  os_Filtered, 170, 415, 17,17);
 	cOpt_System.Add( new CLabel("Show ping",0xffff),		Static, 215, 385, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iShowPing),  ShowPing, 355,385,17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iShowPing),  os_ShowPing, 355,385,17,17);
 	cOpt_System.Add( new CLabel("Log Conversations",0xffff),Static, 215, 415, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iLogConvos), LogConvos, 355,415,17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iLogConvos), os_LogConvos, 355,415,17,17);
 	cOpt_System.Add( new CLabel("Screenshot format",0xffff),Static, 395,385, 0,0);	
 
-	cOpt_System.SendMessage(NetworkPort,TXM_SETMAX,8,0);
+	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);
 
-	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), Apply, 555,440, 60,15);
+	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
 
 	// Put the combo box after the other widgets to get around the problem with widget layering
-	cOpt_System.Add( new CCombobox(), NetworkSpeed, 170, 327, 130,17);
-	cOpt_System.Add( new CCombobox(), ScreenshotFormat, 530, 383, 70,17);
+	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 327, 130,17);
+	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 530, 383, 70,17);
 
 	// Set the values
-	CSlider *s = (CSlider *)cOpt_System.getWidget(SoundVolume);
+	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
 	s->setValue( tLXOptions->iSoundVolume );
 
-	CTextbox *t = (CTextbox *)cOpt_System.getWidget(NetworkPort);
+	CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 	char buf[64];
 	sprintf(buf,"%d",tLXOptions->iNetworkPort);
 	t->setText( buf );
 
 	// Network speed
 	for(i=0; i<3; i++)
-		cOpt_System.SendMessage(NetworkSpeed, CBM_ADDITEM, i, (DWORD)NetworkSpeeds[i]);
+		cOpt_System.SendMessage(os_NetworkSpeed, CBM_ADDITEM, i, (DWORD)NetworkSpeeds[i]);
 
-	cOpt_System.SendMessage(NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
+	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
 
 	// Screenshot format
-	cOpt_System.SendMessage(ScreenshotFormat, CBM_ADDITEM, FMT_BMP, (DWORD)"Bmp");
-	cOpt_System.SendMessage(ScreenshotFormat, CBM_ADDITEM, FMT_PNG, (DWORD)"Png");
-	cOpt_System.SendMessage(ScreenshotFormat, CBM_ADDITEM, FMT_GIF, (DWORD)"Gif");
-	cOpt_System.SendMessage(ScreenshotFormat, CBM_ADDITEM, FMT_JPG, (DWORD)"Jpg");
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_BMP, (DWORD)"Bmp");
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_PNG, (DWORD)"Png");
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_GIF, (DWORD)"Gif");
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_JPG, (DWORD)"Jpg");
 
-	cOpt_System.SendMessage(ScreenshotFormat, CBM_SETCURSEL, tLXOptions->iScreenshotFormat, 0);
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURSEL, tLXOptions->iScreenshotFormat, 0);
 
 
 	// Disable apply for now
-	cOpt_System.getWidget(Apply)->setEnabled(false);
+	cOpt_System.getWidget(os_Apply)->setEnabled(false);
 
 
 	// Game
 	cOpt_Game.Add( new CLabel("Blood Amount",0xffff),       Static, 40, 150, 0,0);
-	cOpt_Game.Add( new CSlider(5000),                       BloodAmount, 175, 147, 210, 20);
+	cOpt_Game.Add( new CSlider(5000),                       og_BloodAmount, 175, 147, 210, 20);
 	cOpt_Game.Add( new CLabel("Shadows",0xffff),            Static, 40, 180, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iShadows),     Shadows, 280, 180, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->iShadows),     og_Shadows, 280, 180, 17,17);
 	cOpt_Game.Add( new CLabel("Particles",0xffff),          Static, 40, 210, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iParticles),   Particles, 280, 210, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->iParticles),   og_Particles, 280, 210, 17,17);
 	cOpt_Game.Add( new CLabel("Classic Rope throw",0xffff), Static, 40, 240, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iOldSkoolRope),OldSkoolRope, 280, 240, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->iOldSkoolRope),og_OldSkoolRope, 280, 240, 17,17);
 	//cOpt_Game.Add( new CLabel("Show worm's health",0xffff), Static, 40, 270, 0,0);
-	//cOpt_Game.Add( new CCheckbox(tLXOptions->iShowHealth),  ShowWormHealth, 280, 270, 17,17);
+	//cOpt_Game.Add( new CCheckbox(tLXOptions->iShowHealth),  og_ShowWormHealth, 280, 270, 17,17);
 	cOpt_Game.Add( new CLabel("Colorize nicks by teams",0xffff), Static, 40, 270, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iColorizeNicks),ColorizeNicks, 280, 270, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->iColorizeNicks),og_ColorizeNicks, 280, 270, 17,17);
 	cOpt_Game.Add( new CLabel("Start typing after any key press",0xffff), Static, 40, 300, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iAutoTyping),AutoTyping, 280, 300, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->iAutoTyping),og_AutoTyping, 280, 300, 17,17);
 	//cOpt_Game.Add( new CLabel("AI Difficulty",0xffff), Static, 40, 270, 0,0);
-	//cOpt_Game.Add( new CSlider(3), AIDifficulty,   175, 267, 100, 20);
+	//cOpt_Game.Add( new CSlider(3), og_AIDifficulty,   175, 267, 100, 20);
 
 	// Set the values	
-	cOpt_Game.SendMessage( BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
-	//cOpt_Game.SendMessage( AIDifficulty, SLM_SETVALUE, tLXOptions->iAIDifficulty, 0);
+	cOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
+	//cOpt_Game.SendMessage( og_AIDifficulty, SLM_SETVALUE, tLXOptions->iAIDifficulty, 0);
 
 	
 
@@ -303,7 +314,7 @@ void Menu_OptionsFrame(void)
 	
 	// Process the top buttons
 	TopButtons[OptionsMode].MouseOver(Mouse);
-	for(int i=0;i<3;i++) {
+	for(int i=op_Controls;i<=op_System;i++) {
 		
 		TopButtons[i].Draw(tMenu->bmpScreen);
 
@@ -338,7 +349,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 		switch(ev->iControlID) {
 
 			// Back button
-			case Back:
+			case op_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Shutdown & save
@@ -369,18 +380,18 @@ PlaySoundSample(sfxGeneral.smpClick);
 				if(ev->iEventMsg == INB_MOUSEUP) {
 
 					int ply = 0;
-					if(ev->iControlID >= Ply2_Up && ev->iControlID <= Ply2_Rope)
+					if(ev->iControlID >= oc_Ply2_Up && ev->iControlID <= oc_Ply2_Rope)
 						ply = 1;
-					if(ev->iControlID >= Gen_Chat)
+					if(ev->iControlID >= oc_Gen_Chat)
 						ply = 2;
 
 					// Get an input
 					CInputbox *b = (CInputbox *)ev->cWidget;
 					Menu_OptionsWaitInput(ply, b->getName(), b);
 					// Re-setup the Take Screenshot key and switch mode
-					if (ev->iControlID == Gen_TakeScreenshot)
+					if (ev->iControlID == oc_Gen_TakeScreenshot)
 						cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-					if (ev->iControlID == Gen_SwitchMode)
+					if (ev->iControlID == oc_Gen_SwitchMode)
 						cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 				}
 			}
@@ -394,12 +405,12 @@ PlaySoundSample(sfxGeneral.smpClick);
 		ev = cOpt_Game.Process();
 		cOpt_Game.Draw(tMenu->bmpScreen);
 
-		val = cOpt_Game.SendMessage(BloodAmount, SLM_GETVALUE, 0, 0);
-		//s = (CSlider *)cOpt_Game.getWidget(BloodAmount);
+		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, 0, 0);
+		//s = (CSlider *)cOpt_Game.getWidget(og_BloodAmount);
         DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 385,140, 385,140, 70,50);
 		tLX->cFont.Draw(tMenu->bmpScreen,385, 148, 0xffff,"%d%%",val);
 
-		//val = cOpt_Game.SendMessage(AIDifficulty, SLM_GETVALUE, 0, 0);
+		//val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
         //DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 285,260, 285,260, 100,50);
 		//tLX->cFont.Draw(tMenu->bmpScreen,285, 268, 0xffff,"%s",Difficulties[val]);
 
@@ -415,60 +426,60 @@ PlaySoundSample(sfxGeneral.smpClick);
 			switch(ev->iControlID) {
 
 				// Blood amount
-				case BloodAmount:
+				case og_BloodAmount:
 					if(ev->iEventMsg == SLD_CHANGE) {
-						val = cOpt_Game.SendMessage(BloodAmount, SLM_GETVALUE, 0, 0);
+						val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, 0, 0);
 						tLXOptions->iBloodAmount = val;
 					}
 					break;
 
 				// Shadows
-				case Shadows:
+				case og_Shadows:
 					if(ev->iEventMsg == CHK_CHANGED) {
-						c = (CCheckbox *)cOpt_Game.getWidget(Shadows);
+						c = (CCheckbox *)cOpt_Game.getWidget(og_Shadows);
 						tLXOptions->iShadows = c->getValue();
 					}
 					break;
 
 				// Particles
-				case Particles:
+				case og_Particles:
 					if(ev->iEventMsg == CHK_CHANGED) {
-						c = (CCheckbox *)cOpt_Game.getWidget(Particles);
+						c = (CCheckbox *)cOpt_Game.getWidget(og_Particles);
 						tLXOptions->iParticles = c->getValue();
 					}
 					break;
 
 				// AI Difficulty
-				/*case AIDifficulty:
+				/*case og_AIDifficulty:
 					if(ev->iEventMsg == SLD_CHANGE) {
-						val = cOpt_Game.SendMessage(AIDifficulty, SLM_GETVALUE, 0, 0);
+						val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
 						tLXOptions->iAIDifficulty = val;
 					}
 					break;*/
 
 				// Old skool rope throw
-				case OldSkoolRope:
+				case og_OldSkoolRope:
 					if(ev->iEventMsg == CHK_CHANGED) {
-						tLXOptions->iOldSkoolRope = cOpt_Game.SendMessage(OldSkoolRope,CKM_GETCHECK,0,0);
+						tLXOptions->iOldSkoolRope = cOpt_Game.SendMessage(og_OldSkoolRope,CKM_GETCHECK,0,0);
 					}
 					break;
 
 				// Show the worm's health below name
-				case ShowWormHealth:
+/*				case og_ShowWormHealth:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowHealth = cOpt_Game.SendMessage(ShowWormHealth, CKM_GETCHECK, 0, 0);
-					break;
+						tLXOptions->iShowHealth = cOpt_Game.SendMessage(og_ShowWormHealth, CKM_GETCHECK, 0, 0);
+					break;*/
 
 				// TDM nick colorizing
-				case ColorizeNicks:
+				case og_ColorizeNicks:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iColorizeNicks = cOpt_Game.SendMessage(ColorizeNicks, CKM_GETCHECK, 0, 0);
+						tLXOptions->iColorizeNicks = cOpt_Game.SendMessage(og_ColorizeNicks, CKM_GETCHECK, 0, 0);
 					break;
 
 				// Auto typing
-				case AutoTyping:
+				case og_AutoTyping:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iAutoTyping = cOpt_Game.SendMessage(AutoTyping, CKM_GETCHECK, 0, 0);
+						tLXOptions->iAutoTyping = cOpt_Game.SendMessage(og_AutoTyping, CKM_GETCHECK, 0, 0);
 					break;
 
 			}
@@ -481,7 +492,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 	if(OptionsMode == 2) {
 
 		// Fullscreen value
-		c = (CCheckbox *)cOpt_System.getWidget(Fullscreen);
+		c = (CCheckbox *)cOpt_System.getWidget(os_Fullscreen);
 		int fullscr = c->getValue();
 
 
@@ -500,7 +511,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 			switch(ev->iControlID) {
 
 				// Apply
-				case Apply:
+				case os_Apply:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
 						// Set to fullscreen
@@ -518,12 +529,12 @@ PlaySoundSample(sfxGeneral.smpClick);
 					break;
 
 				// Sound on/off
-				case SoundOn:
+				case os_SoundOn:
 					if(ev->iEventMsg == CHK_CHANGED) {
 
 						int old = tLXOptions->iSoundOn;
 						
-						c = (CCheckbox *)cOpt_System.getWidget(SoundOn);
+						c = (CCheckbox *)cOpt_System.getWidget(os_SoundOn);
 						tLXOptions->iSoundOn = c->getValue();
 
 						if(old != tLXOptions->iSoundOn) {
@@ -536,9 +547,9 @@ PlaySoundSample(sfxGeneral.smpClick);
 					break;
 
 				// Sound volume
-				case SoundVolume:
+				case os_SoundVolume:
 					if(ev->iEventMsg == SLD_CHANGE) {
-						CSlider *s = (CSlider *)cOpt_System.getWidget(SoundVolume);
+						CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
 						tLXOptions->iSoundVolume = s->getValue();
 
 						SetSoundVolume( tLXOptions->iSoundVolume );
@@ -546,21 +557,21 @@ PlaySoundSample(sfxGeneral.smpClick);
 					break;
 
 				// Show FPS
-				case ShowFPS:
+				case os_ShowFPS:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowFPS = cOpt_System.SendMessage(ShowFPS, CKM_GETCHECK, 0, 0);
+						tLXOptions->iShowFPS = cOpt_System.SendMessage(os_ShowFPS, CKM_GETCHECK, 0, 0);
 					break;
 
 				// Filtered
-				case Filtered:
+				case os_Filtered:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iFiltered = cOpt_System.SendMessage(Filtered, CKM_GETCHECK, 0, 0);
+						tLXOptions->iFiltered = cOpt_System.SendMessage(os_Filtered, CKM_GETCHECK, 0, 0);
 					break;
 					
 				// Logging
-				case LogConvos:
+				case os_LogConvos:
 					if(ev->iEventMsg == CHK_CHANGED)  {
-						tLXOptions->iLogConvos = cOpt_System.SendMessage(LogConvos, CKM_GETCHECK, 0, 0);
+						tLXOptions->iLogConvos = cOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, 0, 0);
 						FILE *f;
 						
 						f = fopen_i("Conversations.log","a");
@@ -578,30 +589,30 @@ PlaySoundSample(sfxGeneral.smpClick);
 					break;
 
 				// Show ping
-				case ShowPing:
+				case os_ShowPing:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowPing = cOpt_System.SendMessage(ShowPing, CKM_GETCHECK, 0, 0);
+						tLXOptions->iShowPing = cOpt_System.SendMessage(os_ShowPing, CKM_GETCHECK, 0, 0);
 					break;
 			}
 		}
 
 
 		// Get the values
-		CTextbox *t = (CTextbox *)cOpt_System.getWidget(NetworkPort);
+		CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 		tLXOptions->iNetworkPort = atoi(t->getText());
 		
-		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(NetworkSpeed, CBM_GETCURINDEX,0,0);
+		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,0,0);
 
-		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(ScreenshotFormat, CBM_GETCURINDEX,0,0);
+		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,0,0);
 		
 
 		if(fullscr != tLXOptions->iFullscreen)
-			cOpt_System.getWidget(Apply)->setEnabled(true);
+			cOpt_System.getWidget(os_Apply)->setEnabled(true);
         else {
-			cOpt_System.getWidget(Apply)->setEnabled(false);
+			cOpt_System.getWidget(os_Apply)->setEnabled(false);
             
             // Redraw the section around the apply button
-			if (!cOpt_System.SendMessage(ScreenshotFormat, CBM_ISDROPPED,0,0))
+			if (!cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ISDROPPED,0,0))
 				Menu_redrawBufferRect(550,435, 80,25);
         }
 	}

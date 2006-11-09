@@ -68,6 +68,7 @@ void CWidget::SetupEvents(generic_events_t *Events)
 // Process the specified event
 void CWidget::ProcessEvent(int Event)
 {
+	return;
 	// TODO: Use LUA
 	char *Code;
 	CGuiLayout *Parent = (CGuiLayout *)cParent;

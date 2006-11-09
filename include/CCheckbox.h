@@ -81,6 +81,8 @@ public:
 	// Draw the title button
 	void	Draw(SDL_Surface *bmpDest);
 
+	void	LoadStyle(void) {}
+
 
 	int		getValue(void)						{ return iValue; }
 

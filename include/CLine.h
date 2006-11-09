@@ -58,6 +58,8 @@ public:
 				DrawLine(bmpDest,iX1,iY1,iX2,iY2,iColour); 
 	}
 
+	void	LoadStyle(void) {}
+
 };
 
 

@@ -6,13 +6,7 @@
 --------------------Configuration: Game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP37B.tmp" with contents
-[
-/nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"obj/Debug/" /Fp"obj/Debug/Game.pch" /YX /Fo"obj/Debug/" /Fd"obj/Debug/" /FD /GZ /c 
-"C:\Moje\Programovani\OpenLieroX\src\client\CWidget.cpp"
-]
-Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP37B.tmp" 
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP37C.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP55.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../share/gamedir/Game.exe" /MAPINFO:LINES /MAPINFO:EXPORTS 
 .\obj\Debug\2xsai.obj
@@ -105,95 +99,10 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\libs\SDL_mixer.lib
 .\libs\lua5.1.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP37C.tmp"
+Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP55.tmp"
 <h3>Output Window</h3>
-Compiling...
-CWidget.cpp
 Linking...
 LINK : warning LNK4075: ignoring /INCREMENTAL due to /DEBUGTYPE specification
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP37F.tmp" with contents
-[
-/nologo /o"obj/debug/Game.bsc" 
-.\obj\Debug\2xsai.sbr
-.\obj\Debug\AuxLib.sbr
-.\obj\Debug\Cache.sbr
-.\obj\Debug\CBytestream.sbr
-.\obj\Debug\CChannel.sbr
-.\obj\Debug\CFont.sbr
-.\obj\Debug\CInput.sbr
-.\obj\Debug\ConfigHandler.sbr
-.\obj\Debug\Error.sbr
-.\obj\Debug\FindFile.sbr
-.\obj\Debug\GfxPrimitives.sbr
-.\obj\Debug\Graphics.sbr
-.\obj\Debug\MathLib.sbr
-.\obj\Debug\Timer.sbr
-.\obj\Debug\CBanList.sbr
-.\obj\Debug\CBonus.sbr
-.\obj\Debug\CChatBox.sbr
-.\obj\Debug\CClient.sbr
-.\obj\Debug\CClient_Draw.sbr
-.\obj\Debug\CClient_Game.sbr
-.\obj\Debug\CClient_Parse.sbr
-.\obj\Debug\CClient_Send.sbr
-.\obj\Debug\CGameScript.sbr
-.\obj\Debug\CMap.sbr
-.\obj\Debug\CNinjaRope.sbr
-.\obj\Debug\CProjectile.sbr
-.\obj\Debug\CServer.sbr
-.\obj\Debug\CServer_Game.sbr
-.\obj\Debug\CServer_Parse.sbr
-.\obj\Debug\CServer_Send.sbr
-.\obj\Debug\CShootList.sbr
-.\obj\Debug\CViewport.sbr
-.\obj\Debug\CWeather.sbr
-.\obj\Debug\CWorm.sbr
-.\obj\Debug\CWorm_AI.sbr
-.\obj\Debug\CWorm_SendRecv.sbr
-.\obj\Debug\CWorm_Simulate.sbr
-.\obj\Debug\CWpnRest.sbr
-.\obj\Debug\Entity.sbr
-.\obj\Debug\ProfileSystem.sbr
-.\obj\Debug\CBox.sbr
-.\obj\Debug\CBrowser.sbr
-.\obj\Debug\CButton.sbr
-.\obj\Debug\CCheckbox.sbr
-.\obj\Debug\CCombobox.sbr
-.\obj\Debug\CGuiLayout.sbr
-.\obj\Debug\CImage.sbr
-.\obj\Debug\CInputBox.sbr
-.\obj\Debug\CListview.sbr
-.\obj\Debug\CMenu.sbr
-.\obj\Debug\CScrollbar.sbr
-.\obj\Debug\CSlider.sbr
-.\obj\Debug\CTextbox.sbr
-.\obj\Debug\CTitleButton.sbr
-.\obj\Debug\CWidget.sbr
-.\obj\Debug\CWidgetList.sbr
-.\obj\Debug\Menu_Local.sbr
-.\obj\Debug\Menu_Main.sbr
-.\obj\Debug\Menu_Mapeditor.sbr
-.\obj\Debug\Menu_Net.sbr
-.\obj\Debug\Menu_Net_Favourites.sbr
-.\obj\Debug\Menu_Net_Host.sbr
-.\obj\Debug\Menu_Net_Internet.sbr
-.\obj\Debug\Menu_Net_Join.sbr
-.\obj\Debug\Menu_Net_Lan.sbr
-.\obj\Debug\Menu_Net_Main.sbr
-.\obj\Debug\Menu_Net_News.sbr
-.\obj\Debug\Menu_Options.sbr
-.\obj\Debug\Menu_Player.sbr
-.\obj\Debug\MenuSystem.sbr
-.\obj\Debug\Command.sbr
-.\obj\Debug\Console.sbr
-.\obj\Debug\main.sbr
-.\obj\Debug\Misc.sbr
-.\obj\Debug\Networking.sbr
-.\obj\Debug\Options.sbr
-.\obj\Debug\Sounds.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP37F.tmp"
-Creating browse info file...
-<h3>Output Window</h3>
 
 
 

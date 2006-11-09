@@ -109,6 +109,8 @@ public:
 
 	void	Draw(SDL_Surface *bmpDest);
 
+	void	LoadStyle(void) {}
+
 	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 
 	void	Backspace(void);

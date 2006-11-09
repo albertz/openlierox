@@ -84,6 +84,8 @@ public:
 	void	Draw(SDL_Surface *bmpDest);
     void	Draw2(SDL_Surface *bmpDest);
 
+	void	LoadStyle(void) {}
+
 
 
 };

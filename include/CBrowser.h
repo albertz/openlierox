@@ -120,6 +120,7 @@ public:
 	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 
 	void	Draw(SDL_Surface *bmpDest);
+	void	LoadStyle(void) {}
 
 	// Loading
 	int			Load(char *sFilename);

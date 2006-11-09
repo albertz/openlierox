@@ -71,6 +71,8 @@ public:
 				tLX->cFont.Draw(bmpDest, iX, iY, iColour,"%s", sText); 
 	}
 
+	void	LoadStyle(void) {}
+
 };
 
 

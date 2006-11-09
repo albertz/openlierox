@@ -88,6 +88,8 @@ public:
 	// Draw the title button
 	void	Draw(SDL_Surface *bmpDest);
 
+	void	LoadStyle(void) {}
+
 
 	int		getValue(void)						{ return iKeyvalue; }
 	void	setValue(int _v)					{ iKeyvalue = _v; }

@@ -24,13 +24,13 @@ char        szFavouritesCurServer[128];
 
 // Widgets
 enum {
-	Join=0,
-	ServerList,
-	Refresh,
-	Add,
-	Back,
-    PopupMenu,
-	PlayerSelection
+	mf_Join=0,
+	mf_ServerList,
+	mf_Refresh,
+	mf_Add,
+	mf_Back,
+    mf_PopupMenu,
+	mf_PlayerSelection
 };
 
 
@@ -46,13 +46,13 @@ int Menu_Net_FavouritesInitialize(void)
 	cFavourites.Shutdown();
 	cFavourites.Initialize();
 
-	cFavourites.Add( new CButton(BUT_BACK, tMenu->bmpButtons),    Back,        25, 440, 50,  15);
-	cFavourites.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	  Add,		   190,440, 83,  15);
-	cFavourites.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), Refresh,	   350,440, 83,  15);
-	cFavourites.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    Join,	   570,440, 43,  15);
-	cFavourites.Add( new CListview(),							   ServerList, 40, 180, 560, 240);
+	cFavourites.Add( new CButton(BUT_BACK, tMenu->bmpButtons),    mf_Back,        25, 440, 50,  15);
+	cFavourites.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	  mf_Add,		   190,440, 83,  15);
+	cFavourites.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mf_Refresh,	   350,440, 83,  15);
+	cFavourites.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    mf_Join,	   570,440, 43,  15);
+	cFavourites.Add( new CListview(),							   mf_ServerList, 40, 180, 560, 240);
 	cFavourites.Add( new CLabel("Select player:",0xffff),-1,		125, 152, 180,15);
-	cFavourites.Add( new CCombobox(),								PlayerSelection,		225,150, 170,  19);
+	cFavourites.Add( new CCombobox(),								mf_PlayerSelection,		225,150, 170,  19);
 
 
 	// Fill the players box
@@ -61,11 +61,11 @@ int Menu_Net_FavouritesInitialize(void)
 		if(p->iType == PRF_COMPUTER)
 			continue;
 
-		cFavourites.SendMessage( PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)p->sName);
-		cFavourites.SendMessage( PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
+		cFavourites.SendMessage( mf_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)p->sName);
+		cFavourites.SendMessage( mf_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
 	}
 
-	cFavourites.SendMessage( PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.iLastSelectedPlayer, 0);
+	cFavourites.SendMessage( mf_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.iLastSelectedPlayer, 0);
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 
@@ -81,17 +81,17 @@ int Menu_Net_FavouritesInitialize(void)
 	  Address
     */
 
-	cFavourites.SendMessage( ServerList, LVM_ADDCOLUMN, (DWORD)"", 32);
-	cFavourites.SendMessage( ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", 180);
-	cFavourites.SendMessage( ServerList, LVM_ADDCOLUMN, (DWORD)"State", 70);
-	cFavourites.SendMessage( ServerList, LVM_ADDCOLUMN, (DWORD)"Players", 80);
-	cFavourites.SendMessage( ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", 60);
-	cFavourites.SendMessage( ServerList, LVM_ADDCOLUMN, (DWORD)"Address", 150);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"", 32);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", 180);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"State", 70);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", 80);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", 60);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", 150);
 
 	// Fill the server list
 	Menu_SvrList_Clear();
 	Menu_SvrList_LoadList("cfg/favourites.dat");
-	Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
+	Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 	Menu_SvrList_RefreshList();
 
 	return true;
@@ -103,7 +103,7 @@ int Menu_Net_FavouritesInitialize(void)
 void Menu_Net_FavouritesShutdown(void)
 {
 	// Save the selected player
-	cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(PlayerSelection,CBM_GETCURITEM,0,0);
+	cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,0,0);
 	if (item)
 		tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
@@ -131,7 +131,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 	// Process the server list
 	if( Menu_SvrList_Process() ) {
 		// Add the servers to the listview
-		Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
+		Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 	}
 
 
@@ -148,10 +148,10 @@ void Menu_Net_FavouritesFrame(int mouse)
 		switch(ev->iControlID) {
 
 			// Back
-			case Back:
+			case mf_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(PlayerSelection,CBM_GETCURITEM,0,0);
+					cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,0,0);
 					if (item)
 						tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
@@ -171,7 +171,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Add
-			case Add:
+			case mf_Add:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
@@ -183,7 +183,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Refresh
-			case Refresh:
+			case mf_Refresh:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
@@ -192,16 +192,16 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 					// Send out a ping
 					Menu_SvrList_RefreshList();
-					Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
+					Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 				}
 				break;
 
 			// Join
-			case Join:
+			case mf_Join:
 				if(ev->iEventMsg == BTN_MOUSEUP) {				
 
 					addr[0] = 0;
-					int result = cFavourites.SendMessage(ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					if(result != -1 && addr[0]) {
 						
 						// Click!
@@ -216,7 +216,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Serverlist
-			case ServerList:
+			case mf_ServerList:
 				if(ev->iEventMsg == LV_DOUBLECLK) {
 
 					/*
@@ -226,7 +226,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 					// Just join for the moment
 					addr[0] = 0;
-					int result = cFavourites.SendMessage(ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					if(result != -1 && addr[0]) {
 						Menu_Net_FavouritesJoinServer(addr);
 						return;
@@ -236,25 +236,25 @@ PlaySoundSample(sfxGeneral.smpClick);
                 // Right click
                 if( ev->iEventMsg == LV_RIGHTCLK ) {
                     addr[0] = 0;
-					int result = cFavourites.SendMessage(ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					if(result && addr[0]) {
                         // Display a menu
                         strcpy(szFavouritesCurServer, addr);
                         mouse_t *m = GetMouse();
                         
-                        cFavourites.Add( new CMenu(m->X, m->Y), PopupMenu, 0,0, 640,480 );
-                        cFavourites.SendMessage( PopupMenu, MNM_ADDITEM, 0, (DWORD)"Remove from favourites" );
-						cFavourites.SendMessage( PopupMenu, MNM_ADDITEM, 1, (DWORD)"Rename server" );
-                        cFavourites.SendMessage( PopupMenu, MNM_ADDITEM, 2, (DWORD)"Refresh server" );
-                        cFavourites.SendMessage( PopupMenu, MNM_ADDITEM, 3, (DWORD)"Join server" );
-						cFavourites.SendMessage( PopupMenu, MNM_ADDITEM, 4, (DWORD)"Send \"I want join\" message" );
-                        cFavourites.SendMessage( PopupMenu, MNM_ADDITEM, 5, (DWORD)"Server details" );
+                        cFavourites.Add( new CMenu(m->X, m->Y), mf_PopupMenu, 0,0, 640,480 );
+                        cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 0, (DWORD)"Remove from favourites" );
+						cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 1, (DWORD)"Rename server" );
+                        cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 2, (DWORD)"Refresh server" );
+                        cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 3, (DWORD)"Join server" );
+						cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 4, (DWORD)"Send \"I want join\" message" );
+                        cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Server details" );
                     }
                 }
 				break;
 
             // Popup menu
-            case PopupMenu:
+            case mf_PopupMenu:
                 switch( ev->iEventMsg ) {
                      // Remove server from favourites
                     case MNU_USER+0:
@@ -266,8 +266,8 @@ PlaySoundSample(sfxGeneral.smpClick);
                     case MNU_USER+1:  
 						{
 							// Remove the menu widget
-							cFavourites.SendMessage(PopupMenu, MNM_REDRAWBUFFER, 0, 0);
-							cFavourites.removeWidget(PopupMenu);
+							cFavourites.SendMessage(mf_PopupMenu, MNM_REDRAWBUFFER, 0, 0);
+							cFavourites.removeWidget(mf_PopupMenu);
 
 							server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
 							Menu_Net_RenameServer(sv->szName);
@@ -295,7 +295,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
 							char Nick[256];
-							cFavourites.SendMessage(PlayerSelection, CBM_GETCURNAME, (DWORD)Nick, sizeof(Nick));
+							cFavourites.SendMessage(mf_PlayerSelection, CBM_GETCURNAME, (DWORD)Nick, sizeof(Nick));
 							Nick[255] = '\0'; // safety
 							char *sNick = Nick;
 							if (sv)
@@ -310,11 +310,11 @@ PlaySoundSample(sfxGeneral.smpClick);
                 }
 
                 // Re-Fill the server list
-                Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
+                Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 
                 // Remove the menu widget
-                cFavourites.SendMessage(PopupMenu, MNM_REDRAWBUFFER, 0, 0);
-                cFavourites.removeWidget(PopupMenu);
+                cFavourites.SendMessage(mf_PopupMenu, MNM_REDRAWBUFFER, 0, 0);
+                cFavourites.removeWidget(mf_PopupMenu);
                 break;
 		}
 
@@ -332,7 +332,7 @@ void Menu_Net_FavouritesJoinServer(char *sAddress)
 	tGameInfo.iNumPlayers = 1;
 
 	// Fill in the game structure												
-	cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(PlayerSelection,CBM_GETCURITEM,0,0);
+	cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,0,0);
 		
 	// Add the player to the list
 	if (item)  {
@@ -357,6 +357,10 @@ void Menu_Net_FavouritesJoinServer(char *sAddress)
 	Menu_Net_JoinConnectionInitialize(sAddress);
 }
 
+enum  {
+	fd_Ok
+};
+
 ///////////////////
 // Show a server's details
 void Menu_Net_FavouritesShowServer(char *szAddress)
@@ -376,7 +380,7 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    1,      260,400, 40,15);
+    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    fd_Ok,      260,400, 40,15);
 
 
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE]) {
@@ -391,7 +395,7 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
             if(ev->cWidget->getType() == wid_Button)
                 nMouseCur = 1;
 
-            if(ev->iControlID == 1 && ev->iEventMsg == BTN_MOUSEUP) {
+            if(ev->iControlID == fd_Ok && ev->iEventMsg == BTN_MOUSEUP) {
                 break;
             }
         }
@@ -454,7 +458,7 @@ void Menu_Net_RenameServer(char *szName)
 		// Process the server list
 		if( Menu_SvrList_Process() ) {
 			// Add the servers to the listview
-			Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
+			Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 		}
 
 
@@ -478,7 +482,7 @@ void Menu_Net_RenameServer(char *szName)
 
 						cRename.SendMessage(2, TXM_GETTEXT, (DWORD)szName, cRename.SendMessage(2, TXM_GETTEXTLENGTH, 0, 0)+1);
 
-						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
+						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 
 						// Click!
 // TODO: sound
@@ -564,7 +568,7 @@ void Menu_Net_FavouritesAddServer(void)
 		// Process the server list
 		if( Menu_SvrList_Process() ) {
 			// Add the servers to the listview
-			Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
+			Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 		}
 
 
@@ -592,7 +596,7 @@ void Menu_Net_FavouritesAddServer(void)
 						cAddSvr.SendMessage(3, TXM_GETTEXT, (DWORD)name, sizeof(name));
 
 						Menu_SvrList_AddNamedServer(addr, name);
-						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( ServerList ) );
+						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 
 						// Click!
 						// TODO: sound

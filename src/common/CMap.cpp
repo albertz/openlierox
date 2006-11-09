@@ -283,7 +283,7 @@ int CMap::LoadTheme(char *_theme)
 	// Calculate the default colour from a non-pink, non-black colour in the hole image
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	SDL_Surface *hole = Theme.bmpHoles[0];
-	Uint16 pink = MakeColour(255,0,255);
+	Uint16 pink = (Uint16)MakeColour(255,0,255);
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
 			for(x=0; x<hole->w; x++) {
@@ -705,7 +705,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
     int dtx = (wx - v_wx)*2;
     int dty = (wy - v_wy)*2;
   
-    Uint16 pink = MakeColour(255,0,255);
+    Uint16 pink = (Uint16)MakeColour(255,0,255);
 
     int x,y,dx,dy,i,j;
     
@@ -845,7 +845,7 @@ int CMap::CarveHole(int size, CVec pos)
 
 			// Put pixels that are not black/pink (eg, brown)
 			if(pixel != 0 && pixel != pink && (flag & PX_DIRT))
-				*(Uint16 *)p2 = pixel;
+				*(Uint16 *)p2 = (Uint16)pixel;
 
 			p+=2;
 			p2+=2;
@@ -1001,12 +1001,12 @@ int CMap::PlaceDirt(int size, CVec pos)
 				*(uchar *)px = PX_DIRT;
 				
 				// Place the dirt image
-				*(Uint16 *)p2 = GetPixel(Theme.bmpFronttile,ix,iy);
+				*(Uint16 *)p2 = (Uint16)GetPixel(Theme.bmpFronttile,ix,iy);
 			}
 
 			// Put pixels that are not black/pink (eg, brown)
             if(pixel != 0 && pixel != pink && flag & PX_EMPTY) {
-				*(Uint16 *)p2 = pixel;
+				*(Uint16 *)p2 = (Uint16)pixel;
                 *(uchar *)px = PX_DIRT;
                 nDirtCount++;
             }
@@ -1112,12 +1112,12 @@ int CMap::PlaceGreenDirt(CVec pos)
                 Uint32 gr = greens[ GetRandomInt(3) ];
 				
 				// Place the dirt image
-				*(Uint16 *)p2 = gr;
+				*(Uint16 *)p2 = (Uint16)gr;
 			}
 
 			// Put pixels that are not green/pink (eg, dark green)
             if(pixel != green && pixel != pink && flag & PX_EMPTY) {
-				*(Uint16 *)p2 = pixel;
+				*(Uint16 *)p2 = (Uint16)pixel;
                 *(uchar *)px = PX_DIRT;
                 nGreenCount++;
             }
@@ -1289,7 +1289,7 @@ void CMap::CalculateShadowMap(void)
 			if( Amask )
 				A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
 
-			*pixel= R | G | B | A;
+			*pixel= (Uint16)(R | G | B | A);
         }
     }
 

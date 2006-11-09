@@ -40,16 +40,16 @@ CGuiLayout	cHostPly;
 
 // Player gui
 enum {
-	Back=0,
-	Ok,
-	PlayerList,
-	Playing,
-	Servername,
-	MaxPlayers,
-	Register,
-    Password,
-	WelcomeMessage,
-	AllowWantsJoin
+	hs_Back=0,
+	hs_Ok,
+	hs_PlayerList,
+	hs_Playing,
+	hs_Servername,
+	hs_MaxPlayers,
+	hs_Register,
+    hs_Password,
+	hs_WelcomeMessage,
+	hs_AllowWantsJoin
 };
 
 
@@ -68,42 +68,42 @@ int Menu_Net_HostInitialize(void)
 
     cHostPly.Add( new CLabel("Player settings",MakeColour(0,138,251)), -1, 350,140,0,0);
 	cHostPly.Add( new CLabel("Server settings",MakeColour(0,138,251)), -1, 30, 140,0,0);
-	cHostPly.Add( new CButton(BUT_BACK, tMenu->bmpButtons), Back,		25, 440,50, 15);
-	cHostPly.Add( new CButton(BUT_OK, tMenu->bmpButtons),   Ok,			585,440,30, 15);
+	cHostPly.Add( new CButton(BUT_BACK, tMenu->bmpButtons), hs_Back,	25, 440,50, 15);
+	cHostPly.Add( new CButton(BUT_OK, tMenu->bmpButtons),   hs_Ok,			585,440,30, 15);
 
-	cHostPly.Add( new CListview(),							PlayerList,	360,160,200,130);
-	cHostPly.Add( new CListview(),							Playing,	360,310,200,70);	
+	cHostPly.Add( new CListview(),							hs_PlayerList,	360,160,200,130);
+	cHostPly.Add( new CListview(),							hs_Playing,		360,310,200,70);	
 	cHostPly.Add( new CLabel("Server name",	0xffff),		-1,			40, 178,0,  0);
-	cHostPly.Add( new CTextbox(),							Servername, 175,175,140,20);
-	cHostPly.Add( new CLabel("Max Players",	0xffff),		-1,			40, 208,0,  0);
-	cHostPly.Add( new CTextbox(),							MaxPlayers, 175,205,140,20);
+	cHostPly.Add( new CTextbox(),							hs_Servername,	175,175,140,20);
+	cHostPly.Add( new CLabel("Max Players",	0xffff),		-1,			40,	208,0,  0);
+	cHostPly.Add( new CTextbox(),							hs_MaxPlayers,	175,205,140,20);
     //cHostPly.Add( new CLabel("Password",	0xffff),	    -1,			40, 238,0,  0);
-	//cHostPly.Add( new CTextbox(),		                    Password,	175,235,140,20);
+	//cHostPly.Add( new CTextbox(),		                    hs_Password,	175,235,140,20);
 	cHostPly.Add( new CLabel("Welcome message",	0xffff),		-1,			40, 238,0,  0);
-	cHostPly.Add( new CTextbox(),							WelcomeMessage, 175,235,140,20);
+	cHostPly.Add( new CTextbox(),							hs_WelcomeMessage, 175,235,140,20);
 	cHostPly.Add( new CLabel("Register Server",	0xffff),	-1,			153, 268,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    Register,	270,265,17, 17);    
+	cHostPly.Add( new CCheckbox(0),		                    hs_Register,	270,265,17, 17);    
 	cHostPly.Add( new CLabel("Allow \"Wants join\" messages",	0xffff),-1,	60, 298,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    AllowWantsJoin,	270,295,17, 17);
+	cHostPly.Add( new CCheckbox(0),		                    hs_AllowWantsJoin,	270,295,17, 17);
 
-	cHostPly.SendMessage(Servername,TXM_SETMAX,32,0);
-	//cHostPly.SendMessage(Password,TXM_SETMAX,32,0);
-	cHostPly.SendMessage(MaxPlayers,TXM_SETMAX,6,0);
-	cHostPly.SendMessage(WelcomeMessage,TXM_SETMAX,128,0);
+	cHostPly.SendMessage(hs_Servername,TXM_SETMAX,32,0);
+	//cHostPly.SendMessage(hs_Password,TXM_SETMAX,32,0);
+	cHostPly.SendMessage(hs_MaxPlayers,TXM_SETMAX,6,0);
+	cHostPly.SendMessage(hs_WelcomeMessage,TXM_SETMAX,128,0);
 
 	// Use previous settings
-	cHostPly.SendMessage( MaxPlayers, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iMaxPlayers,buf,10), 0);
-	cHostPly.SendMessage( Servername, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, 0);	
-	cHostPly.SendMessage( WelcomeMessage, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, 0);	
-	cHostPly.SendMessage( Register,   CKM_SETCHECK, tLXOptions->tGameinfo.bRegServer, 0);
-	cHostPly.SendMessage( AllowWantsJoin,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
-    //cHostPly.SendMessage( Password,   TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.szPassword, 0 );
+	cHostPly.SendMessage( hs_MaxPlayers, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iMaxPlayers,buf,10), 0);
+	cHostPly.SendMessage( hs_Servername, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, 0);	
+	cHostPly.SendMessage( hs_WelcomeMessage, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, 0);	
+	cHostPly.SendMessage( hs_Register,   CKM_SETCHECK, tLXOptions->tGameinfo.bRegServer, 0);
+	cHostPly.SendMessage( hs_AllowWantsJoin,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
+    //cHostPly.SendMessage( hs_Password,   TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.szPassword, 0 );
 
 	// Add columns
-	cHostPly.SendMessage( PlayerList,   LVM_ADDCOLUMN, (DWORD)"Players",22);
-	cHostPly.SendMessage( PlayerList,   LVM_ADDCOLUMN, (DWORD)"",60);
-	cHostPly.SendMessage( Playing,      LVM_ADDCOLUMN, (DWORD)"Playing",22);
-	cHostPly.SendMessage( Playing,      LVM_ADDCOLUMN, (DWORD)"",60);	
+	cHostPly.SendMessage( hs_PlayerList,   LVM_ADDCOLUMN, (DWORD)"Players",22);
+	cHostPly.SendMessage( hs_PlayerList,   LVM_ADDCOLUMN, (DWORD)"",60);
+	cHostPly.SendMessage( hs_Playing,      LVM_ADDCOLUMN, (DWORD)"Playing",22);
+	cHostPly.SendMessage( hs_Playing,      LVM_ADDCOLUMN, (DWORD)"",60);	
 
 	// Add players to the list
 	profile_t *p = GetProfiles();
@@ -111,9 +111,9 @@ int Menu_Net_HostInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cHostPly.SendMessage( PlayerList, LVM_ADDITEM, (DWORD)"", p->iID);
-		cHostPly.SendMessage( PlayerList, LVM_ADDSUBITEM, LVS_IMAGE, (DWORD)p->bmpWorm);
-		cHostPly.SendMessage( PlayerList, LVM_ADDSUBITEM, LVS_TEXT,  (DWORD)p->sName);
+		cHostPly.SendMessage( hs_PlayerList, LVM_ADDITEM, (DWORD)"", p->iID);
+		cHostPly.SendMessage( hs_PlayerList, LVM_ADDSUBITEM, LVS_IMAGE, (DWORD)p->bmpWorm);
+		cHostPly.SendMessage( hs_PlayerList, LVM_ADDSUBITEM, LVS_TEXT,  (DWORD)p->sName);
 	}
 
 
@@ -175,7 +175,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 		switch(ev->iControlID) {
 
 			// Back
-			case Back:
+			case hs_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
@@ -192,11 +192,11 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 
 			// Player list
-			case PlayerList:
+			case hs_PlayerList:
 				if(ev->iEventMsg == LV_DOUBLECLK) {
 					// Add the item to the players list
-					lv = (CListview *)cHostPly.getWidget(PlayerList);
-					lv2 = (CListview *)cHostPly.getWidget(Playing);
+					lv = (CListview *)cHostPly.getWidget(hs_PlayerList);
+					lv2 = (CListview *)cHostPly.getWidget(hs_Playing);
 					int index = lv->getCurIndex();
 
 					// Make sure there is 0-1 players in the list
@@ -218,11 +218,11 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 
 			// Playing list
-			case Playing:
+			case hs_Playing:
 				if(ev->iEventMsg == LV_DOUBLECLK) {
 					// Add the item to the players list
-					lv = (CListview *)cHostPly.getWidget(Playing);
-					lv2 = (CListview *)cHostPly.getWidget(PlayerList);
+					lv = (CListview *)cHostPly.getWidget(hs_Playing);
+					lv2 = (CListview *)cHostPly.getWidget(hs_PlayerList);
 					int index = lv->getCurIndex();
 
 					// Remove the item from the list
@@ -239,10 +239,10 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Ok
-			case Ok:
+			case hs_Ok:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					lv = (CListview *)cHostPly.getWidget(Playing);
+					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 
 					// Make sure there is 1-2 players in the list
 					if(lv->getItemCount() > 0 && lv->getItemCount() < 3) {
@@ -265,23 +265,23 @@ PlaySoundSample(sfxGeneral.smpClick);
 						}
 
 						// Get the server name
-						cHostPly.SendMessage( Servername, TXM_GETTEXT, (DWORD)tGameInfo.sServername, sizeof(tGameInfo.sServername));
-						cHostPly.SendMessage( WelcomeMessage, TXM_GETTEXT, (DWORD)tGameInfo.sWelcomeMessage, sizeof(tGameInfo.sWelcomeMessage));
-                        //cHostPly.SendMessage( Password, TXM_GETTEXT, (DWORD)tGameInfo.sPassword, sizeof(tGameInfo.sPassword));
+						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)tGameInfo.sServername, sizeof(tGameInfo.sServername));
+						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)tGameInfo.sWelcomeMessage, sizeof(tGameInfo.sWelcomeMessage));
+                        //cHostPly.SendMessage( hs_Password, TXM_GETTEXT, (DWORD)tGameInfo.sPassword, sizeof(tGameInfo.sPassword));
 						
 						// Save the info
 						char buf[64];
-						cHostPly.SendMessage( Servername, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName));
-						cHostPly.SendMessage( WelcomeMessage, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage));
-                        //cHostPly.SendMessage( Password, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.szPassword, sizeof(tLXOptions->tGameinfo.szPassword));
-						cHostPly.SendMessage( MaxPlayers, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName));
+						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage));
+                        //cHostPly.SendMessage( hs_Password, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.szPassword, sizeof(tLXOptions->tGameinfo.szPassword));
+						cHostPly.SendMessage( hs_MaxPlayers, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
 						
 						tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
 						// At least 2 players, and max 8
 						tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
 						tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,8);
-						tLXOptions->tGameinfo.bRegServer =  cHostPly.SendMessage( Register, CKM_GETCHECK, 0, 0) != 0;
-						tLXOptions->tGameinfo.bAllowWantsJoinMsg = cHostPly.SendMessage( AllowWantsJoin, CKM_GETCHECK, 0, 0);
+						tLXOptions->tGameinfo.bRegServer =  cHostPly.SendMessage( hs_Register, CKM_GETCHECK, 0, 0) != 0;
+						tLXOptions->tGameinfo.bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, 0, 0);
 
 						cHostPly.Shutdown();
 
@@ -317,20 +317,20 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 // Lobby gui
 enum {
-	Back2=0,
-	Start,
-	ChatText,
-	ChatList,
-	LevelList,
-	Lives,
-	MaxKills,
-	ModName,
-	Gametype,
-	GameSettings,
-    WeaponOptions,
-    PopupMenu,
-	Banned,
-	ServerSettings
+	hl_Back=0,
+	hl_Start,
+	hl_ChatText,
+	hl_ChatList,
+	hl_LevelList,
+	hl_Lives,
+	hl_MaxKills,
+	hl_ModName,
+	hl_Gametype,
+	hl_GameSettings,
+    hl_WeaponOptions,
+    hl_PopupMenu,
+	hl_Banned,
+	hl_ServerSettings
 };
 
 bool		bHostGameSettings = false;
@@ -442,47 +442,47 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Shutdown();
 	cHostLobby.Initialize();
 
-	cHostLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),Back2,	15,  450, 60,  15);
-	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),Start,	560, 450, 60,  15);
-	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),Banned,	450, 450, 90,  15);	
-	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),ServerSettings,	250, 450, 190, 15);	
+	cHostLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),hl_Back,	15,  450, 60,  15);
+	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),hl_Start,	560, 450, 60,  15);
+	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);	
+	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);	
 	cHostLobby.Add( new CLabel("Players",blue),				  -1,		15,  15,  0,   0);
-	cHostLobby.Add( new CTextbox(),							  ChatText, 15,  421, 610, 20);
-    cHostLobby.Add( new CListview(),                          ChatList, 15,  253, 610, 165);
+	cHostLobby.Add( new CTextbox(),							  hl_ChatText, 15,  421, 610, 20);
+    cHostLobby.Add( new CListview(),                          hl_ChatList, 15,  253, 610, 165);
 
-	cHostLobby.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), GameSettings, 360, 210, 170,15);
-    cHostLobby.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), WeaponOptions,360, 235, 185,15);
+	cHostLobby.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, 210, 170,15);
+    cHostLobby.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, 235, 185,15);
 
 	cHostLobby.Add( new CLabel("Mod",0xffff),	    -1,         360, 180, 0,   0);
-	cHostLobby.Add( new CCombobox(),				ModName,    440, 179, 170, 17);
+	cHostLobby.Add( new CCombobox(),				hl_ModName,    440, 179, 170, 17);
 	cHostLobby.Add( new CLabel("Game type",0xffff),	-1,         360, 158, 0,   0);
-	cHostLobby.Add( new CCombobox(),				Gametype,   440, 157, 170, 17);
+	cHostLobby.Add( new CCombobox(),				hl_Gametype,   440, 157, 170, 17);
     cHostLobby.Add( new CLabel("Level",0xffff),	    -1,         360, 136, 0,   0);
-    cHostLobby.Add( new CCombobox(),				LevelList,  440, 135, 170, 17);
+    cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
 
-	cHostLobby.SendMessage(ChatText,TXM_SETMAX,64,0);
+	cHostLobby.SendMessage(hl_ChatText,TXM_SETMAX,64,0);
 
 	// Fill in the game details
-	cHostLobby.SendMessage(Gametype,    CBM_ADDITEM,   GMT_DEATHMATCH, (DWORD)"Deathmatch");
-	cHostLobby.SendMessage(Gametype,    CBM_ADDITEM,   GMT_TEAMDEATH,  (DWORD)"Team Deathmatch");
-	cHostLobby.SendMessage(Gametype,    CBM_ADDITEM,   GMT_TAG,        (DWORD)"Tag");
+	cHostLobby.SendMessage(hl_Gametype,    CBM_ADDITEM,   GMT_DEATHMATCH, (DWORD)"Deathmatch");
+	cHostLobby.SendMessage(hl_Gametype,    CBM_ADDITEM,   GMT_TEAMDEATH,  (DWORD)"Team Deathmatch");
+	cHostLobby.SendMessage(hl_Gametype,    CBM_ADDITEM,   GMT_TAG,        (DWORD)"Tag");
 
 	// Fill in the mod list
-	Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(ModName));
+	Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
 
 	// Fill in the levels list
-	Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(LevelList), false);
+	Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 	Menu_HostShowMinimap();
     
     // Don't show chat box selection
-    CListview *lv = (CListview *)cHostLobby.getWidget(ChatList);
+    CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
     lv->setShowSelect(false);
 
     game_lobby_t *gl = cServer->getLobby();
-    cHostLobby.SendMessage(LevelList, CBM_GETCURSINDEX, (DWORD)gl->szMapName, sizeof(gl->szMapName));
-    cHostLobby.SendMessage(ModName, CBM_GETCURNAME, (DWORD)gl->szModName, sizeof(gl->szModName));
-    cHostLobby.SendMessage(ModName, CBM_GETCURSINDEX, (DWORD)gl->szModDir, sizeof(gl->szModDir));
-    cHostLobby.SendMessage(Gametype, CBM_SETCURINDEX, gl->nGameMode, 0);
+    cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)gl->szMapName, sizeof(gl->szMapName));
+    cHostLobby.SendMessage(hl_ModName,	 CBM_GETCURNAME, (DWORD)gl->szModName, sizeof(gl->szModName));
+    cHostLobby.SendMessage(hl_ModName,	 CBM_GETCURSINDEX, (DWORD)gl->szModDir, sizeof(gl->szModDir));
+    cHostLobby.SendMessage(hl_Gametype,  CBM_SETCURINDEX, gl->nGameMode, 0);
 }
 
 
@@ -598,7 +598,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		line_t *l = cChat.GetLine(i);
 		if(l->iUsed) {
             l->iUsed = false;
-            CListview *lv = (CListview *)cHostLobby.getWidget(ChatList);
+            CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
 
             if(lv->getLastItem())
                 lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
@@ -647,7 +647,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		switch(ev->iControlID) {
 
 			// Back
-			case Back2:
+			case hl_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Click!
 // TODO: implement sound system
@@ -673,20 +673,20 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 
 			// Chat textbox
-			case ChatText:
+			case hl_ChatText:
 				if(ev->iEventMsg == TXT_ENTER && iSpeaking >= 0) {
 					// Send the msg to the server
 
 					// Get the text
 					char buf[128];
-					cHostLobby.SendMessage(ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+					cHostLobby.SendMessage(hl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
                     
                     // Don't send empty messages
                     if(strlen(buf) == 0)
                         break;
 
 					// Clear the text box
-					cHostLobby.SendMessage(ChatText, TXM_SETTEXT, (DWORD)"", 0);
+					cHostLobby.SendMessage(hl_ChatText, TXM_SETTEXT, (DWORD)"", 0);
 
 					// Get name
 					char text[256];
@@ -700,38 +700,38 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Level change
-			case LevelList:
+			case hl_LevelList:
 				if(ev->iEventMsg == CMB_CHANGED) {
 					Menu_HostShowMinimap();
 					
-					cHostLobby.SendMessage(LevelList, CBM_GETCURSINDEX, (DWORD)cServer->getLobby()->szMapName, sizeof(cServer->getLobby()->szMapName));
+					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)cServer->getLobby()->szMapName, sizeof(cServer->getLobby()->szMapName));
 					cServer->UpdateGameLobby();
 				}
 				break;
 
             // Mod change
-            case ModName:
+            case hl_ModName:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    cHostLobby.SendMessage(ModName, CBM_GETCURNAME, (DWORD)cServer->getLobby()->szModName, sizeof(cServer->getLobby()->szModName));
-                    cHostLobby.SendMessage(ModName, CBM_GETCURSINDEX, (DWORD)cServer->getLobby()->szModDir, sizeof(cServer->getLobby()->szModDir));
+                    cHostLobby.SendMessage(hl_ModName, CBM_GETCURNAME, (DWORD)cServer->getLobby()->szModName, sizeof(cServer->getLobby()->szModName));
+                    cHostLobby.SendMessage(hl_ModName, CBM_GETCURSINDEX, (DWORD)cServer->getLobby()->szModDir, sizeof(cServer->getLobby()->szModDir));
 					cServer->UpdateGameLobby();
                 }
                 break;
 
 			// Game type change
-			case Gametype:
+			case hl_Gametype:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					cServer->getLobby()->nGameMode = cHostLobby.SendMessage(Gametype, CBM_GETCURINDEX, 0, 0);
+					cServer->getLobby()->nGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, 0, 0);
 					iHost_Recolorize = true;
 					cServer->UpdateGameLobby();
 				}
 				break;
 
 			// Lives change
-			case Lives:
+			case hl_Lives:
 				if(ev->iEventMsg == TXT_CHANGE) {
 					char buf[128];
-					cHostLobby.SendMessage(Lives, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+					cHostLobby.SendMessage(hl_Lives, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
 					if(*buf)
 						cServer->getLobby()->nLives = atoi(buf);
 					else
@@ -743,10 +743,10 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 
 			// Max Kills
-			case MaxKills:
+			case hl_MaxKills:
 				if(ev->iEventMsg == TXT_CHANGE) {
 					char buf[128];
-					cHostLobby.SendMessage(MaxKills, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+					cHostLobby.SendMessage(hl_MaxKills, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
 					if(*buf)
 						cServer->getLobby()->nMaxKills = atoi(buf);
 					else
@@ -757,7 +757,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Game Settings
-			case GameSettings:
+			case hl_GameSettings:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Draw the lobby screen to the buffer
@@ -770,14 +770,14 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
             // Weapon restrictions
-            case WeaponOptions:
+            case hl_WeaponOptions:
                 if(ev->iEventMsg == BTN_MOUSEUP) {
 
                     // Draw the lobby screen to the buffer
 					cHostLobby.Draw( tMenu->bmpBuffer);
 					Menu_HostDrawLobby(tMenu->bmpBuffer);
 
-                    cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(ModName,CBM_GETCURITEM,0,0);
+                    cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,0,0);
                     if(it) {
 		                bHostWeaponRest = true;
 					    Menu_WeaponsRestrictions(it->sIndex);
@@ -786,7 +786,7 @@ PlaySoundSample(sfxGeneral.smpClick);
                 break;
 
 			// Ban list
-			case Banned:
+			case hl_Banned:
 				if(ev->iEventMsg == BTN_MOUSEUP)   {
                     // Draw the lobby screen to the buffer
 					cHostLobby.Draw( tMenu->bmpBuffer);
@@ -798,7 +798,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Server settings
-			case ServerSettings:
+			case hl_ServerSettings:
 				if(ev->iEventMsg == BTN_MOUSEUP)   {
                     // Draw the lobby screen to the buffer
 					cHostLobby.Draw( tMenu->bmpBuffer);
@@ -811,11 +811,11 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 
 			// Start the game
-			case Start:
+			case hl_Start:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Get the mod
-					cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(ModName,CBM_GETCURITEM,0,0);
+					cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,0,0);
                     if(it) {
 		                strcpy(tGameInfo.sModName,it->sIndex);
 						strcpy(tGameInfo.sModDir,it->sIndex);
@@ -823,13 +823,13 @@ PlaySoundSample(sfxGeneral.smpClick);
                     }
 
                     // Get the game type
-                    tGameInfo.iGameMode = cHostLobby.SendMessage(Gametype, CBM_GETCURINDEX, 0, 0);
+                    tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, 0, 0);
                     tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
 					
 					// Get the map name
-					cHostLobby.SendMessage(LevelList, CBM_GETCURSINDEX, (DWORD)tGameInfo.sMapname, sizeof(tGameInfo.sMapname));
+					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)tGameInfo.sMapname, sizeof(tGameInfo.sMapname));
 					// Save the current level in the options
-					cHostLobby.SendMessage(LevelList, CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));
+					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));
 					cHostLobby.Shutdown();
 
                     // Setup the client
@@ -848,7 +848,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
             // Popup menu
-            case PopupMenu:
+            case hl_PopupMenu:
                 switch( ev->iEventMsg ) {
                     // Kick the player
                     case MNU_USER+0:
@@ -874,8 +874,8 @@ PlaySoundSample(sfxGeneral.smpClick);
                 }
 
                 // Remove the menu widget
-                cHostLobby.SendMessage( PopupMenu, MNM_REDRAWBUFFER, 0, 0);
-                cHostLobby.removeWidget(PopupMenu);
+                cHostLobby.SendMessage( hl_PopupMenu, MNM_REDRAWBUFFER, 0, 0);
+                cHostLobby.removeWidget(hl_PopupMenu);
                 break;
 		}
 	}
@@ -974,18 +974,18 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
                 if( MouseInRect(x,y,10,10) && Mouse->Up && i > 0 ) {
                     g_nLobbyWorm = i;
                     // Remove old popup menu
-                    cHostLobby.removeWidget(PopupMenu);
+                    cHostLobby.removeWidget(hl_PopupMenu);
 
 					CClient *remote_cl = cServer->getClient(i);
 
-                    cHostLobby.Add( new CMenu(Mouse->X, Mouse->Y), PopupMenu, 0,0, 640,480 );
-                    cHostLobby.SendMessage( PopupMenu, MNM_ADDITEM, 0, (DWORD)"Kick player" );
-					cHostLobby.SendMessage( PopupMenu, MNM_ADDITEM, 1, (DWORD)"Ban player" );
+                    cHostLobby.Add( new CMenu(Mouse->X, Mouse->Y), hl_PopupMenu, 0,0, 640,480 );
+                    cHostLobby.SendMessage( hl_PopupMenu, MNM_ADDITEM, 0, (DWORD)"Kick player" );
+					cHostLobby.SendMessage( hl_PopupMenu, MNM_ADDITEM, 1, (DWORD)"Ban player" );
 					if (remote_cl)  {
 						if (remote_cl->getMuted())
-							cHostLobby.SendMessage( PopupMenu, MNM_ADDITEM, 2, (DWORD)"Unmute player" );
+							cHostLobby.SendMessage( hl_PopupMenu, MNM_ADDITEM, 2, (DWORD)"Unmute player" );
 						else
-							cHostLobby.SendMessage( PopupMenu, MNM_ADDITEM, 2, (DWORD)"Mute player" );
+							cHostLobby.SendMessage( hl_PopupMenu, MNM_ADDITEM, 2, (DWORD)"Mute player" );
 					}
 
                 }
@@ -1061,7 +1061,7 @@ void Menu_HostShowMinimap(void)
 	char buf[256];
 	char blah[256];
 
-	cHostLobby.SendMessage(LevelList, CBM_GETCURSINDEX, (DWORD)buf, sizeof(buf));					
+	cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)buf, sizeof(buf));					
 
 	// Draw a background over the old minimap
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 463,32,463,32,128,96);

@@ -20,8 +20,8 @@
 CGuiLayout	cNews;
 
 enum {
-	Back = 0,
-	NewsBrowser
+	nw_Back = 0,
+	nw_NewsBrowser
 };
 
 
@@ -35,12 +35,12 @@ int Menu_Net_NewsInitialize(void)
 	cNews.Shutdown();
 	cNews.Initialize();
 
-	cNews.Add( new CButton(BUT_BACK, tMenu->bmpButtons), Back, 25,440, 50,15);
-	cNews.Add( new CBrowser(), NewsBrowser, 50, 160, 540, 260);
+	cNews.Add( new CButton(BUT_BACK, tMenu->bmpButtons), nw_Back, 25,440, 50,15);
+	cNews.Add( new CBrowser(), nw_NewsBrowser, 50, 160, 540, 260);
 
 
 	// Load the news
-	CBrowser *b = (CBrowser *)cNews.getWidget(NewsBrowser);
+	CBrowser *b = (CBrowser *)cNews.getWidget(nw_NewsBrowser);
 	b->Load("news/news.txt");
  
 
@@ -78,7 +78,7 @@ void Menu_Net_NewsFrame(int mouse)
 		switch(ev->iControlID) {
 
 			// Back
-			case Back:
+			case nw_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!

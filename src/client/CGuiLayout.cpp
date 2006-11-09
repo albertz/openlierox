@@ -141,7 +141,7 @@ void CGuiLayout::ReadEvents(xmlNodePtr Node, generic_events_t *Events)
 	evs[OnMouseOver] = xmlGetProp(Node,(const xmlChar *)"onmouseover");
 	evs[OnMouseOut]  = xmlGetProp(Node,(const xmlChar *)"onmouseout");
 	evs[OnMouseDown] = xmlGetProp(Node,(const xmlChar *)"onmousedown");
-	evs[OnClick]	  = xmlGetProp(Node,(const xmlChar *)"onclick");
+	evs[OnClick]	 = xmlGetProp(Node,(const xmlChar *)"onclick");
 
 	// Copy the values into the events
 	int i;

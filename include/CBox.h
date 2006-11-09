@@ -73,6 +73,8 @@ public:
     
 	void	PreDraw(void);
 	void	Draw(SDL_Surface *bmpDest);
+
+	void	LoadStyle(void) {}
 };
 
 

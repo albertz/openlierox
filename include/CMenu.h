@@ -74,6 +74,8 @@ public:
     
 	void	Draw(SDL_Surface *bmpDest);
 
+	void	LoadStyle(void) {}
+
 
     void    addItem(int nID, char *szName);
 

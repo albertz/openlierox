@@ -118,6 +118,7 @@ public:
 	virtual	int		KeyDown(int c) = 0;
 	virtual	int		KeyUp(int c) = 0;
 
+	virtual	void	LoadStyle(void) = 0;
 	virtual	void	Draw(SDL_Surface *bmpDest) = 0;
 
 	virtual int		SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;

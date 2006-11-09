@@ -27,8 +27,8 @@ bool        bPlayerSkinAnimation = false;
 // Generic
 enum {
 	Static=-1,
-	NewPlayerTab=0,
-	ViewPlayersTab
+	pp_NewPlayerTab=0,
+	pp_ViewPlayersTab
 };
 
 // New player widgets
@@ -80,13 +80,13 @@ void Menu_PlayerInitialize(void)
 
 
 	// Setup the top buttons
-	cPlyButtons[NewPlayerTab]   = CButton(BUT_NEWPLAYER,	tMenu->bmpButtons);
-	cPlyButtons[ViewPlayersTab] = CButton(BUT_VIEWPLAYERS,	tMenu->bmpButtons);	
+	cPlyButtons[pp_NewPlayerTab]   = CButton(BUT_NEWPLAYER,	tMenu->bmpButtons);
+	cPlyButtons[pp_ViewPlayersTab] = CButton(BUT_VIEWPLAYERS,	tMenu->bmpButtons);	
 
-	cPlyButtons[NewPlayerTab].Setup(0, 150, 110, 120, 15);
-	cPlyButtons[ViewPlayersTab].Setup(1, 370, 110, 135, 15);
-    cPlyButtons[NewPlayerTab].Create();
-    cPlyButtons[ViewPlayersTab].Create();
+	cPlyButtons[pp_NewPlayerTab].Setup(0, 150, 110, 120, 15);
+	cPlyButtons[pp_ViewPlayersTab].Setup(1, 370, 110, 135, 15);
+    cPlyButtons[pp_NewPlayerTab].Create();
+    cPlyButtons[pp_ViewPlayersTab].Create();
 
 
 	// New player

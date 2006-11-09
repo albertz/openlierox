@@ -18,6 +18,14 @@
 #include "Menu.h"
 
 
+enum {
+	mn_Internet=0,
+	mn_LAN,
+	mn_Host,
+	mn_Favourites
+};
+
+
 int		iNetMode = net_main;
 int		iHostType = 0;
 CButton	cNetButtons[5];
@@ -37,16 +45,16 @@ int Menu_NetInitialize(void)
 	Menu_RedrawMouse(true);
 
 	// Setup the top buttons
-    for(int i=0; i<5; i++) {
-		cNetButtons[i] = CButton(BUT_MAIN+i,	tMenu->bmpButtons);
+    for(int i=mn_Internet; i<=mn_Favourites; i++) {
+		cNetButtons[i] = CButton(BUT_INTERNET+i,	tMenu->bmpButtons);
         cNetButtons[i].Create();
     }
 	
-	cNetButtons[0].Setup(0, 70, 110, 55, 15);
-	cNetButtons[1].Setup(1, 145, 110, 95, 15);
-	cNetButtons[2].Setup(2, 260, 110, 40, 15);
-	cNetButtons[3].Setup(3, 325, 110, 50, 15);
-	cNetButtons[4].Setup(4, 400, 110, 105, 15);
+	cNetButtons[mn_Internet].Setup(mn_Internet, 145, 110, 95, 15);
+	cNetButtons[mn_LAN].Setup(mn_LAN, 260, 110, 40, 15);
+	cNetButtons[mn_Host].Setup(mn_Host, 325, 110, 50, 15);
+	cNetButtons[mn_Favourites].Setup(mn_Favourites, 400, 110, 105, 15);
+	//cNetButtons[4].Setup(4, 400, 110, 105, 15);
 
 
 	Menu_Net_NETInitialize();
@@ -71,14 +79,14 @@ void Menu_Net_GotoHostLobby(void)
 	Menu_RedrawMouse(true);
 
 	// Setup the top buttons
-	for(int i=0; i<5; i++)
+	for(int i=mn_Internet; i<=mn_Favourites; i++)
 		cNetButtons[i] = CButton(BUT_MAIN+i,	tMenu->bmpButtons);
 	
-	cNetButtons[0].Setup(0, 130, 110, 55, 15);
-	cNetButtons[1].Setup(1, 205, 110, 95, 15);
-	cNetButtons[2].Setup(2, 320, 110, 40, 15);
-	cNetButtons[3].Setup(3, 385, 110, 50, 15);
-	cNetButtons[4].Setup(4, 460, 110, 50, 15);
+	cNetButtons[mn_Internet].Setup(0, 205, 110, 95, 15);
+	cNetButtons[mn_LAN].Setup(1, 320, 110, 40, 15);
+	cNetButtons[mn_Host].Setup(2, 385, 110, 50, 15);
+	cNetButtons[mn_Favourites].Setup(3, 460, 110, 50, 15);
+	//cNetButtons[4].Setup(4, 460, 110, 50, 15);
 
 	Menu_Net_HostGotoLobby();
 
@@ -109,11 +117,11 @@ void Menu_Net_GotoJoinLobby(void)
 	for(int i=0; i<5; i++)
 		cNetButtons[i] = CButton(BUT_MAIN+i,	tMenu->bmpButtons);
 	
-	cNetButtons[0].Setup(0, 130, 110, 55, 15);
-	cNetButtons[1].Setup(1, 205, 110, 95, 15);
-	cNetButtons[2].Setup(2, 320, 110, 40, 15);
-	cNetButtons[3].Setup(3, 385, 110, 50, 15);
-	cNetButtons[4].Setup(4, 460, 110, 50, 15);
+	cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
+	cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
+	cNetButtons[mn_Host].Setup(mn_Host, 385, 110, 50, 15);
+	cNetButtons[mn_Favourites].Setup(mn_Favourites, 460, 110, 50, 15);
+	//cNetButtons[4].Setup(4, 460, 110, 50, 15);
 
 	Menu_Net_JoinGotoLobby();
 
@@ -139,12 +147,12 @@ void Menu_NetFrame(void)
 	if((iNetMode != net_host || iHostType == 0) &&
 	   (iNetMode != net_join)) {
 
-		cNetButtons[iNetMode].MouseOver(Mouse);
-		for(int i=1;i<5;i++) {
+		cNetButtons[iNetMode-1].MouseOver(Mouse);
+		for(int i=mn_Internet;i<=mn_Favourites;i++) {
 		
 			cNetButtons[i].Draw(tMenu->bmpScreen);
 
-			if(i==iNetMode)
+			if(i==iNetMode-1)
 				continue;
 
 			if(cNetButtons[i].InBox(Mouse->X,Mouse->Y)) {
@@ -161,7 +169,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 					Menu_Net_HostShutdown();
 					Menu_Net_FavouritesShutdown();
 
-                    iNetMode = i;
+                    iNetMode = i+1;
 
                     // Redraw the window section
                     DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140,  20,140,  620,340);

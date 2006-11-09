@@ -738,7 +738,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 
 
-	Uint16 PlayerPink = MakeColour(255,0,255);
+	Uint16 PlayerPink = (Uint16)MakeColour(255,0,255);
 
 
 	int a = (int)fAngle;

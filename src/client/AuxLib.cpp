@@ -280,7 +280,7 @@ void ProcessEvents(void)
 
     // If we don't have focus, don't update as often
     if(!nFocus)
-        SDL_Delay(10);
+        SDL_Delay(14);
 
 
 	// Mouse

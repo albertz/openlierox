@@ -20,9 +20,9 @@
 CGuiLayout	cMain;
 
 enum {
-	Back = 0,
-	PlayerList,
-    NewsBrowser
+	nm_Back = 0,
+	nm_PlayerList,
+    nm_NewsBrowser
 };
 
 
@@ -36,12 +36,12 @@ int Menu_Net_MainInitialize(void)
 	cMain.Shutdown();
 	cMain.Initialize();
 
-	cMain.Add( new CButton(BUT_BACK, tMenu->bmpButtons),	Back, 25,440, 50,15);
-   	cMain.Add( new CBrowser(), NewsBrowser, 40, 160, 560, 270);
+	cMain.Add( new CButton(BUT_BACK, tMenu->bmpButtons),	nm_Back, 25,440, 50,15);
+   	cMain.Add( new CBrowser(), nm_NewsBrowser, 40, 160, 560, 270);
 
 
 	// Load the news
-	CBrowser *b = (CBrowser *)cMain.getWidget(NewsBrowser);
+	CBrowser *b = (CBrowser *)cMain.getWidget(nm_NewsBrowser);
 	b->Load("cfg/news.txt");
  
 	/*cMain.Add( new CListview(),								PlayerList, 40,150,150,150);
@@ -103,7 +103,7 @@ void Menu_Net_MainFrame(int mouse)
 		switch(ev->iControlID) {
 
 			// Back
-			case Back:
+			case nm_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!

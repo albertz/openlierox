@@ -294,7 +294,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 
 CGuiLayout cConnecting;
 enum {
-	Cancel=0
+	cm_Cancel=0
 };
 
 
@@ -308,7 +308,7 @@ int Menu_Net_JoinConnectionInitialize(char *sAddress)
 	cConnecting.Shutdown();
 	cConnecting.Initialize();
 
-	cConnecting.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),	Cancel, 	25, 440, 75,15);
+	cConnecting.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),	cm_Cancel, 	25, 440, 75,15);
 
 	if(!cClient->Initialize()) {
 		// Error
@@ -391,7 +391,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 		switch(ev->iControlID) {
 
 			// Cancel
-			case Cancel:
+			case cm_Cancel:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
@@ -430,10 +430,10 @@ CChatBox	cJoinChat;
 int			iJoinSpeaking=-1;
 int			iJoin_Recolorize = true;
 enum {
-	Back2=0,
-	Ready,
-	ChatText,
-	ChatList
+	jl_Back=0,
+	jl_Ready,
+	jl_ChatText,
+	jl_ChatList
 };
 
 
@@ -489,13 +489,13 @@ void Menu_Net_JoinLobbyCreateGui(void)
     cJoinLobby.Shutdown();
 	cJoinLobby.Initialize();
 
-	cJoinLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),Back2,	15,  450, 60,  15);
-    cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),Ready,	560, 450, 65,  15);    
+	cJoinLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),jl_Back,	15,  450, 60,  15);
+    cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);    
 	cJoinLobby.Add( new CLabel("Players",blue),				  -1,		15,  15,  0,   0);
-	cJoinLobby.Add( new CTextbox(),							  ChatText, 15,  421, 610, 20);
-    cJoinLobby.Add( new CListview(),                          ChatList, 15,  253, 610, 165);	
+	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, 20);
+    cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  253, 610, 165);	
 
-	cJoinLobby.SendMessage(ChatText,TXM_SETMAX,64,0);
+	cJoinLobby.SendMessage(jl_ChatText,TXM_SETMAX,64,0);
 }
 
 
@@ -585,7 +585,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		line_t *l = cJoinChat.GetLine(i);
 		if(l->iUsed) {
             l->iUsed = false;
-            CListview *lv = (CListview *)cJoinLobby.getWidget(ChatList);
+            CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
 
             if(lv->getLastItem())
                 lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
@@ -677,6 +677,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					DrawImage(tMenu->bmpScreen, tMenu->bmpTeamColours[l->iTeam], x+200, y-2);
 				}
 				else  {
+					// Recolorize the skin
 					if (iJoin_Recolorize) {
 						w->LoadGraphics(gl->nGameMode);
 						bRecolorized = true;
@@ -759,7 +760,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		switch(ev->iControlID) {
 
 			// Back
-			case Back2:
+			case jl_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Disconnect
 					cClient->Disconnect();
@@ -781,7 +782,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Ready
-			case Ready:
+			case jl_Ready:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Let the server know that my worms are now ready
 					CBytestream bs;
@@ -792,7 +793,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 					
 
 					// Hide the ready button
-					CButton *btn = (CButton *)cJoinLobby.getWidget(Ready);
+					CButton *btn = (CButton *)cJoinLobby.getWidget(jl_Ready);
 					btn->setEnabled(false);
                     btn->redrawBuffer();
 				}
@@ -800,20 +801,20 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 
 			// Chat textbox
-			case ChatText:
+			case jl_ChatText:
 				if(ev->iEventMsg == TXT_ENTER && iJoinSpeaking >= 0) {
 					// Send the msg to the server
 
 					// Get the text
 					char buf[128];
-					cJoinLobby.SendMessage(ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+					cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
 
                     // Don't send empty messages
                     if(strlen(buf) == 0)
                         break;
 
 					// Clear the text box
-					cJoinLobby.SendMessage(ChatText, TXM_SETTEXT, (DWORD)"", 0);
+					cJoinLobby.SendMessage(jl_ChatText, TXM_SETTEXT, (DWORD)"", 0);
 
 					// Get name
 					char text[256];

@@ -89,7 +89,7 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	// Colour key
 	Uint16 ckey = -1;
 	if(bmpSrc->flags & SDL_SRCCOLORKEY)
-		ckey = bmpSrc->format->colorkey;
+		ckey = (Uint16)bmpSrc->format->colorkey;
 
 	// Do clipping on the DEST surface
 	if(dx+w<cx || dy+h<cy) return;
@@ -449,7 +449,7 @@ void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color
 	        if( Amask )
 		        A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
 
-	        *pixel= R | G | B | A;
+	        *pixel= (Uint16)(R | G | B | A);
         }
     }
 }
@@ -1094,7 +1094,7 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 		// 8bpp
 		case 1:
 			for(; x < dx; x++, pixel += pixx) {
-				*pixel = color;
+				*pixel = (Uint8)color;
 				y += dy; 
 				if (y >= dx) {
 					y -= dx; pixel += pixy;
@@ -1107,10 +1107,10 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 			for (; x < dx; x++, pixel += pixx) {
 
 				// Assumes this is the ninja rope
-				*(Uint16*)pixel = color;
-				*(Uint16*)(pixel+2) = color;
-				*(Uint16*)(pixel+pixy) = color;
-				*(Uint16*)(pixel+pixy+2) = color;
+				*(Uint16*)pixel = (Uint16)color;
+				*(Uint16*)(pixel+2) = (Uint16)color;
+				*(Uint16*)(pixel+pixy) = (Uint16)color;
+				*(Uint16*)(pixel+pixy+2) = (Uint16)color;
 				y += dy; 
 				if (y >= dx) {
 					y -= dx;
@@ -1123,13 +1123,13 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 		case 3:
 			for(; x < dx; x++, pixel += pixx) {
 				if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-					pixel[0] = (color >> 16) & 0xff;
-					pixel[1] = (color >> 8) & 0xff;
-					pixel[2] = color & 0xff;
+					pixel[0] = (Uint8)((color >> 16) & 0xff);
+					pixel[1] = (Uint8)((color >> 8) & 0xff);
+					pixel[2] = (Uint8)(color & 0xff);
 				} else {
-					pixel[0] = color & 0xff;
-					pixel[1] = (color >> 8) & 0xff;
-					pixel[2] = (color >> 16) & 0xff;
+					pixel[0] = (Uint8)(color & 0xff);
+					pixel[1] = (Uint8)((color >> 8) & 0xff);
+					pixel[2] = (Uint8)((color >> 16) & 0xff);
 				}
 				y += dy; 
 				if (y >= dx) {

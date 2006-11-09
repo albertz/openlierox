@@ -24,16 +24,16 @@ const int HALF_RAND = (RAND_MAX / 2);
 // Faster SQRT function
 float fastSQRT(float x)
 {
-/*    
-    if(x <= 0) return 0;
+    
+    /*if(x <= 0) return 0;
     
 	float tmp = x / 2;
 	for(short i = 0; i<=10; i++) {
 		tmp = tmp + x / tmp;
 		tmp = tmp / 2;
 	}
-	return tmp;
-*/
+	return tmp;*/
+
 	
 	return (float)sqrt(x);
 }

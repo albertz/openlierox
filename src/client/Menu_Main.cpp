@@ -22,6 +22,15 @@ CGuiLayout	cMainMenu;
 float		alpha = 0;
 int			lastimg = -1;
 
+enum {
+	mm_LocalPlay=0,
+	mm_NetPlay,
+	mm_PlayerProfiles,
+	mm_LevelEditor,
+	mm_Options,
+	mm_Quit
+};
+
 
 ///////////////////
 // Initialize the main menu
@@ -49,11 +58,12 @@ void Menu_MainInitialize(void)
 	cMainMenu.Shutdown();
 	cMainMenu.Initialize();
 
-	for(i=0;i<5;i++)
+	// Menu buttons
+	for(i=mm_LocalPlay;i<mm_Quit;i++)
 		cMainMenu.Add( new CTitleButton(i, tMenu->bmpMainTitles), i, 50, 160+i*60, tMenu->bmpMainTitles->w, 35);
 
 	// Quit
-	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), 5, 25,440, 50,15);
+	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
 
 	// Temp
 	//cMainMenu.Add( new CBox(10,2,MakeColour(128,128,128),MakeColour(64,64,64),MakeColour(0,0,0)),10,100,100,100,100);
@@ -89,7 +99,7 @@ void Menu_MainFrame(void)
 		switch(ev->iControlID) {
 
 			// local
-			case 0:
+			case mm_LocalPlay:
                 mouseover = true;
                 img=0;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
@@ -102,7 +112,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Network
-			case 1:
+			case mm_NetPlay:
                 mouseover = true;
                 img=1;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
@@ -115,7 +125,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Player
-			case 2:
+			case mm_PlayerProfiles:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 // TODO: implement sound system
 PlaySoundSample(sfxGeneral.smpClick);
@@ -126,7 +136,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Level editor
-			case 3:
+			case mm_LevelEditor:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 // TODO: implement sound system
                     PlaySoundSample(sfxGeneral.smpClick);
@@ -137,7 +147,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
 
 			// Options
-			case 4:
+			case mm_Options:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
 // TODO: implement sound system
 PlaySoundSample(sfxGeneral.smpClick);
@@ -148,7 +158,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				break;
             
             // Quit
-			case 5:
+			case mm_Quit:
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
 // TODO: implement sound system
         PlaySoundSample(sfxGeneral.smpClick);
