@@ -39,7 +39,7 @@ private:
 	// Attributes
 	NLaddress	RemoteAddr;
 	int			iPort;
-	NLsocket	Socket;
+	NetworkSocket	Socket;
 
 	
 	// Bandwidth Estimation
@@ -79,7 +79,7 @@ private:
 
 public:
 	// Methods
-	void		Create(address_t *_adr, int _port, NLsocket _sock);
+	void		Create(address_t *_adr, int _port, NetworkSocket _sock);
 	void		Transmit( CBytestream *bs );
 	int			Process(CBytestream *bs);
 	void		Clear(void)				{ fLastPckRecvd = 0; iPort = 23400; Socket = 0;
@@ -104,7 +104,7 @@ public:
 	int			getOutoing(void)		{ return iOutgoingBytes; }
 	int			getIncoming(void)		{ return iIncomingBytes; }
 
-	NLsocket	getSocket(void)			{ return Socket; }
+	NetworkSocket	getSocket(void)			{ return Socket; }
 };
 
 

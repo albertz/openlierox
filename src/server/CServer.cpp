@@ -35,7 +35,7 @@ void CServer::Clear(void)
 	iGameOver = false;
 	iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
-	tSocket = NL_INVALID;
+	tSocket = InvalidNetworkState;
 	tGameLobby.nSet = false;
 	bRegServer = false;
 	bServerRegistered = false;
@@ -65,20 +65,19 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 
 
 	// Open the socket
-	tSocket = nlOpen(port, NL_UNRELIABLE);
-	if(tSocket == NL_INVALID) {
+	tSocket = OpenUnreliableSocket(port);
+	if(tSocket == InvalidNetworkState) {
 		SystemError("Error: Could not open UDP socket");
 		return false;
 	}
-	if(!nlListen(tSocket)) {
+	if(!ListenSocket(tSocket)) {
 		return false;
 	}
 
-	NLaddress addr;    
+	NLaddress addr;
 	nlGetLocalAddr(tSocket,&addr);
 	nlAddrToString(&addr, tLX->debug_string);
-
-	printf("HINT: server startet on %s:%i\n", tLX->debug_string, port);
+	printf("HINT: server startet on %s\n", tLX->debug_string);
 
 
 	// Initialize the clients
@@ -1112,9 +1111,9 @@ void CServer::Shutdown(void)
 		cMap = NULL;
 	}
 
-	if(tSocket != NL_INVALID)
-		nlClose(tSocket);
-	tSocket = NL_INVALID;
+	if(tSocket != InvalidNetworkState)
+		CloseSocket(tSocket);
+	tSocket = InvalidNetworkState;
 
 	if(cClients) {
 		for(i=0;i<MAX_CLIENTS;i++)

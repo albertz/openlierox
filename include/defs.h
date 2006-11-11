@@ -78,7 +78,7 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readShort
 #undef readFloat
 #undef readString
-
+#include "Networking.h"
 
 // XML parsing library
 #include <libxml/xmlmemory.h>

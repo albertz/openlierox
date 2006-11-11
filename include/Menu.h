@@ -208,7 +208,7 @@ typedef struct {
 	int				iCurDirt;
 
 	// Socket for pinging
-	NLsocket		tSocket[2];
+	NetworkSocket		tSocket[2];
 
 } menu_t;
 
@@ -306,7 +306,7 @@ server_t	*Menu_SvrList_AddNamedServer(char *address, char *name);
 server_t    *Menu_SvrList_FindServerStr(char *szAddress);
 void        Menu_SvrList_RemoveServer(char *szAddress);
 bool		Menu_SvrList_Process(void);
-int			Menu_SvrList_ParsePacket(CBytestream *bs, NLsocket sock);
+int			Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
 server_t	*Menu_SvrList_FindServer(NLaddress *addr);
 void		Menu_SvrList_PingServer(server_t *svr);
 void		Menu_SvrList_WantsJoin(char *Nick, server_t *svr);

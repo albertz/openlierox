@@ -38,7 +38,7 @@ void CClient::Clear(void)
 	cBonuses = NULL;
     nTopProjectile = 0;
 
-	tSocket = (NLsocket)NULL;
+	tSocket = (NetworkSocket)NULL;
 
 	pChatbox = &cChatbox;
     cChatbox.setWidth(500);
@@ -192,8 +192,8 @@ int CClient::Initialize(void)
 
 
 	// Open a new socket
-	tSocket = nlOpen(0,NL_UNRELIABLE);
-	if(tSocket == NL_INVALID) {
+	tSocket = OpenUnreliableSocket(0);
+	if(tSocket == InvalidNetworkState) {
 		SetError("Error: Could not open UDP socket!");
 		return false;
 	}
@@ -535,8 +535,8 @@ void CClient::Shutdown(void)
 	
 	// Close the socket
 	if(tSocket)
-		nlClose(tSocket);
-	tSocket = (NLsocket)NULL;
+		CloseSocket(tSocket);
+	tSocket = (NetworkSocket)NULL;
 
 	// Log this
 	if (tLXOptions->iLogConvos)  {

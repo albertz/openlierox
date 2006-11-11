@@ -225,16 +225,10 @@ int InitializeLieroX(void)
 	}
 
 	// Initialize the network
-    if(!nlInit()) {
+    if(!InitNetworkSystem()) {
         SystemError("Error: Failed to initialize the network library");
 		return false;
     }
-
-    if(!nlSelectNetwork(NL_IP)) {
-        SystemError("Error: Failed to initialize the network library\nCould not select IP");
-		return false;
-    }
-
 
 	// Allocate the client & server
 	cClient = new CClient;

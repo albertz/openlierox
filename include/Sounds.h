@@ -52,14 +52,14 @@ typedef struct {
 
 
 // Routines
-int		InitSoundSystem(int rate, int channels, int buffers);
-int		StartSoundSystem();
-int		StopSoundSystem();
-int		SetSoundVolume(int vol);
-int		QuitSoundSystem();
+bool	InitSoundSystem(int rate, int channels, int buffers);
+bool	StartSoundSystem();
+bool	StopSoundSystem();
+bool	SetSoundVolume(int vol);
+bool	QuitSoundSystem();
 SoundSample* LoadSoundSample(char* filename, int maxsimulplays);
-int		FreeSoundSample(SoundSample* sample);
-int		PlaySoundSample(SoundSample* sample);
+bool	FreeSoundSample(SoundSample* sample);
+bool	PlaySoundSample(SoundSample* sample);
 // TODO: the music part, for example:
 // int	LoadSoundMusic();
 // int	PlaySoundMusic();

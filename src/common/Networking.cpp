@@ -48,7 +48,7 @@ float GetFixedRandomNum(int index)
 
 
 NLaddress		http_RemoteAddress;
-NLsocket		http_Socket = NL_INVALID;
+NetworkSocket		http_Socket = InvalidNetworkState;
 bool			http_Connected;
 bool			http_Requested;
 bool			http_SocketReady;
@@ -75,8 +75,8 @@ bool http_InitializeRequest(char *host, char *url)
 
 	
 	// Open the socket
-	http_Socket = nlOpen(0,NL_RELIABLE);
-	if(http_Socket == NL_INVALID)
+	http_Socket = OpenReliableSocket(0);
+	if(http_Socket == InvalidNetworkState)
 		return false;
 
 	// Resolve the address
@@ -227,9 +227,9 @@ bool http_SendRequest(void)
 // Quit the http request
 void http_Quit(void)
 {
-	if( http_Socket != NL_INVALID ) {
-		nlClose(http_Socket);
-		http_Socket = NL_INVALID;
+	if( http_Socket != InvalidNetworkState ) {
+		CloseSocket(http_Socket);
+		http_Socket = InvalidNetworkState;
 	}
 
 	http_RemoveHeader();
@@ -331,3 +331,44 @@ char *http_GetContent(void)
 {
 	return http_content;
 }
+
+
+bool InitNetworkSystem() {
+    if(!nlInit()) {
+    	SystemError("nlInit failed");
+    	return false;
+    }
+    
+    if(!nlSelectNetwork(NL_IP)) {
+        SystemError("could not select IP-based network");
+		return false;
+    }
+	
+	return true;
+}
+
+bool QuitNetworkSystem() {
+	// TODO
+	return true;
+}
+
+NetworkSocket OpenReliableSocket(unsigned short port) {
+	return nlOpen(port, NL_RELIABLE);
+}
+
+NetworkSocket OpenUnreliableSocket(unsigned short port) {
+	return nlOpen(port, NL_UNRELIABLE);
+}
+
+NetworkSocket OpenBroadcastSocket(unsigned short port) {
+	return nlOpen(port, NL_BROADCAST);
+}
+
+bool ListenSocket(NetworkSocket sock) {
+	return nlListen(sock);
+}
+
+bool CloseSocket(NetworkSocket sock) {
+	return nlClose(sock);
+}
+

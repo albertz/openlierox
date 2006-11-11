@@ -95,11 +95,11 @@ int Menu_Initialize(int *game)
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
 	// Open a socket for broadcasting over a LAN (UDP)	
-	tMenu->tSocket[SCK_LAN] = nlOpen(0, NL_BROADCAST);
+	tMenu->tSocket[SCK_LAN] = OpenBroadcastSocket(0);
 	// Open a socket for communicating over the net (UDP)	
-	tMenu->tSocket[SCK_NET] = nlOpen(0, NL_UNRELIABLE);
+	tMenu->tSocket[SCK_NET] = OpenUnreliableSocket(0);
 
-	if(tMenu->tSocket[SCK_LAN] == NL_INVALID || tMenu->tSocket[SCK_NET] == NL_INVALID) {
+	if(tMenu->tSocket[SCK_LAN] == InvalidNetworkState || tMenu->tSocket[SCK_NET] == InvalidNetworkState) {
 		SystemError("Error: Failed to open a socket for networking");
 		return false;
 	}
@@ -127,13 +127,13 @@ void Menu_Shutdown(void)
         if(tMenu->bmpMiniMapBuffer)
 			SDL_FreeSurface(tMenu->bmpMiniMapBuffer);
 
-		if(tMenu->tSocket[SCK_LAN] != NL_INVALID)
-			nlClose(tMenu->tSocket[SCK_LAN]);
-		if(tMenu->tSocket[SCK_NET] != NL_INVALID)
-			nlClose(tMenu->tSocket[SCK_NET]);
+		if(tMenu->tSocket[SCK_LAN] != InvalidNetworkState)
+			CloseSocket(tMenu->tSocket[SCK_LAN]);
+		if(tMenu->tSocket[SCK_NET] != InvalidNetworkState)
+			CloseSocket(tMenu->tSocket[SCK_NET]);
 
-		tMenu->tSocket[SCK_LAN] = NL_INVALID;
-		tMenu->tSocket[SCK_NET] = NL_INVALID;
+		tMenu->tSocket[SCK_LAN] = InvalidNetworkState;
+		tMenu->tSocket[SCK_NET] = InvalidNetworkState;
 
 		// The rest get free'd in the cache
 		assert(tMenu);
@@ -1463,7 +1463,7 @@ bool Menu_SvrList_Process(void)
 ///////////////////
 // Parse a packet
 // Returns true if we should update the list
-int Menu_SvrList_ParsePacket(CBytestream *bs, NLsocket sock)
+int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 {
 	char			cmd[128], buf[128];
 	NLaddress		adrFrom;

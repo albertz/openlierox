@@ -212,7 +212,7 @@ private:
 	float		fConnectTime;
 	int			iChallenge;
 	float		fLastReceived;
-	NLsocket	tSocket;
+	NetworkSocket	tSocket;
 	CChannel	cNetChan;
 	CBytestream	bsUnreliable;
 	CShootList	cShootList;

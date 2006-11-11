@@ -101,7 +101,7 @@ private:
 	float		fLastBonusTime;
 
 	// Network
-	NLsocket	tSocket;
+	NetworkSocket	tSocket;
 	int			nPort;
 	challenge_t	tChallenges[MAX_CHALLENGES];
 	game_lobby_t tGameLobby;

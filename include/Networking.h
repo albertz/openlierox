@@ -45,7 +45,6 @@
 
 // Functions
 float	GetFixedRandomNum(int index);
-//byte	Position2Byte( CVec position, int bytenum );
 
 
 // HTTP Request
@@ -58,6 +57,18 @@ char	*http_GetContent(void);
 void    http_CreateHostUrl(char *host, char *url);
 void	http_Quit(void);
 
+// socket type; the structure/type itself will be given around
+#define NetworkSocket NLsocket
+#define InvalidNetworkState NL_INVALID
+
+// generell networking
+bool	InitNetworkSystem();
+bool	QuitNetworkSystem();
+NetworkSocket	OpenReliableSocket(unsigned short port);
+NetworkSocket	OpenUnreliableSocket(unsigned short port);
+NetworkSocket	OpenBroadcastSocket(unsigned short port);
+bool	ListenSocket(NetworkSocket sock);
+bool	CloseSocket(NetworkSocket sock);
 
 
 #endif  //  __NETWORKING_H__

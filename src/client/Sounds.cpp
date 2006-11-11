@@ -21,7 +21,7 @@ sfxgame_t	sfxGame;
 sfxgen_t	sfxGeneral;
 
 
-int	InitSoundSystem(int rate, int channels, int buffers) {
+bool InitSoundSystem(int rate, int channels, int buffers) {
 	// HINT: other SDL stuff is already inited, we don't care here
 	if( SDL_Init(SDL_INIT_AUDIO) != 0 ) {
 		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
@@ -36,22 +36,22 @@ int	InitSoundSystem(int rate, int channels, int buffers) {
 	return true;
 }
 
-int	StartSoundSystem() {
-
+bool StartSoundSystem() {
+	// TODO start sound
 	return true;
 }
 
-int	StopSoundSystem() {
-
+bool StopSoundSystem() {
+	// TODO stop sound
 	return true;
 }
 
-int	SetSoundVolume(int vol) {
-	
+bool SetSoundVolume(int vol) {
+	// TODO set volume
 	return true;
 }
 
-int	QuitSoundSystem() {
+bool QuitSoundSystem() {
 	Mix_CloseAudio();
 	return true;
 }
@@ -70,7 +70,7 @@ SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
 	return ret;
 }
 
-int	FreeSoundSample(SoundSample* sample) {
+bool FreeSoundSample(SoundSample* sample) {
 	// no sample, so we are ready
 	if(!sample) return true;
 	
@@ -82,7 +82,7 @@ int	FreeSoundSample(SoundSample* sample) {
 	return true;
 }
 
-int	PlaySoundSample(SoundSample* sample) {
+bool PlaySoundSample(SoundSample* sample) {
 	if(sample == NULL || sample->sample == NULL)
 		return false;
 
