@@ -130,8 +130,12 @@ void d_printf(char *fmt, ...);
 int chrcasecmp(const char c1, const char c2);
 
 #ifndef WIN32
-// TODO: these are only workarounds. we have to produce better code! :)
-#	define		itoa		SDL_itoa
+inline char* itoa(int val, char* buf, int base) {
+	int i = 30;
+	for(; val && i ; --i, val /= base)	
+		buf[i] = "0123456789abcdef"[val % base];	
+	return &buf[i+1];	
+}
 #	define		stricmp		strcasecmp
 #endif
 
