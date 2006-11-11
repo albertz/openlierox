@@ -458,7 +458,7 @@ void ShutdownLieroX(void)
 		tLX = NULL;
 	}
 
-	nlShutdown();
+	QuitNetworkSystem();
 	
 	ShutdownAuxLib();
 

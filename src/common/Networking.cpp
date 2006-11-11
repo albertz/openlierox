@@ -118,7 +118,7 @@ int http_ProcessRequest(char *szError)
     
 	// Make sure the socket is ready for writing
 	if( !http_SocketReady && http_Connected) {
-		if( nlWrite(http_Socket, "", 0) >= 0) {
+		if( WriteSocket(http_Socket, "", 0) >= 0) {
 			http_SocketReady = true;
 		}
 		else {
@@ -173,11 +173,11 @@ int http_ProcessRequest(char *szError)
 	// Check if we have a response
 	char data[1024];
 	data[0] = 0;
-	int count = nlRead(http_Socket, data, 1023);
+	int count = ReadSocket(http_Socket, data, 1023);
 	
 	// Error, or end of connection?
 	if( count < 0 ) {
-		int err = nlGetError();
+		int err = GetSocketErrorNr();
 		if( err == NL_MESSAGE_END ) {
 			// End of connection
 			// Complete!
@@ -186,7 +186,7 @@ int http_ProcessRequest(char *szError)
 		} else {
 			// Error
             if(szError)
-                sprintf(szError, "NetError \"%s\"", nlGetErrorStr(err));
+                sprintf(szError, "NetError \"%s\"", GetSocketErrorStr(err));
 			http_Quit();
 			return -1;
 		}
@@ -213,7 +213,7 @@ bool http_SendRequest(void)
 
 	// Build the url
 	sprintf(request, "GET %s HTTP/1.0\nHost: %s\n\n", http_url,http_host);
-	int count = nlWrite( http_Socket, request, strlen(request) );
+	int count = WriteSocket( http_Socket, request, strlen(request) );
 
 	// Anything written?
 	if( count < 0 )
@@ -348,7 +348,7 @@ bool InitNetworkSystem() {
 }
 
 bool QuitNetworkSystem() {
-	// TODO
+	nlShutdown();
 	return true;
 }
 
@@ -372,3 +372,18 @@ bool CloseSocket(NetworkSocket sock) {
 	return nlClose(sock);
 }
 
+int WriteSocket(NetworkSocket sock, const char* buffer, int nbytes) {
+	return nlWrite(sock, buffer, nbytes);
+}
+
+int ReadSocket(NetworkSocket sock, char* buffer, int nbytes) {
+	return nlRead(sock, buffer, nbytes);
+}
+
+int GetSocketErrorNr() {
+	return nlGetError();
+}
+
+const char*	GetSocketErrorStr() {
+	return nlGetErrorStr();
+}

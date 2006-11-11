@@ -75,8 +75,8 @@ public:
 	void		read2Int4(short& x, short& y);
 	
 	// Networking stuff
-	void		Send(NetworkSocket sock)		{ nlWrite(sock,Data,Length); }
-	int			Read(NetworkSocket sock)		{ Clear(); Length = nlRead(sock,Data,MAX_DATA); return Length; }
+	void		Send(NetworkSocket sock)		{ WriteSocket(sock,Data,Length); }
+	int			Read(NetworkSocket sock)		{ Clear(); Length = ReadSocket(sock,Data,MAX_DATA); return Length; }
 	
 
 
