@@ -32,6 +32,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include <ctype.h>
 
 #ifdef WIN32
 #	include <windows.h>
@@ -43,6 +44,8 @@ inline char *getcwd(char *buf, size_t size) {
 	// WARNING: not exactly the same like in POSIX
 	return _getcwd(buf, size);
 }
+// TODO: inline
+#	define vsnprintf _vsnprintf
 #else
 #	include <sys/types.h>
 #	include <sys/stat.h>

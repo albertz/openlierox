@@ -35,7 +35,7 @@ void CWorm::writeInfo(CBytestream *bs)
 // Read info from a bytestream
 void CWorm::readInfo(CBytestream *bs)
 {
-	bs->readString(sName);	
+	bs->readString(sName);
 
 	iType = bs->readInt(1);
 	iTeam = bs->readInt(1);
@@ -68,6 +68,7 @@ void CWorm::writeScore(CBytestream *bs)
 // Read my score
 void CWorm::readScore(CBytestream *bs)
 {
+	// TODO: why is this not the same behavior than writeScore?
 	iLives = bs->readShort();
 	iKills = bs->readInt(1);
 }

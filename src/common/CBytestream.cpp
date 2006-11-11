@@ -166,7 +166,7 @@ int CBytestream::writeString(char *fmt,...)
 	va_list	va;
 
 	va_start(va,fmt);
-	vsprintf(buf,fmt,va);
+	vsnprintf(buf,1024,fmt,va);	
 	va_end(va);
 
 	int len = strlen(buf);
@@ -174,7 +174,7 @@ int CBytestream::writeString(char *fmt,...)
 	if(len+CurByte >= MAX_DATA)
 		return false;
 
-	strcpy((char *)Data+CurByte,buf);
+	memcpy((char *)Data+CurByte,buf,len+1);
 	CurByte+=len+1;
 	Length+=len+1;
 
@@ -291,9 +291,14 @@ char *CBytestream::readString(char *str)
 {
 	// Validate that there is some terminating character
 	bool valid = false;
-	for (int i=CurByte; i<GetLength(); i++)
-		if(Data[i] == '\0')
+	size_t len = 0;
+	for (len=CurByte; len<GetLength(); len++)
+		if(Data[len] == '\0')
+		{
 			valid = true;
+			len -= CurByte;
+			break;	
+		}
 
 	// Invalid
 	if (!valid)  {
@@ -301,8 +306,8 @@ char *CBytestream::readString(char *str)
 		return str;
 	}
 
-	strcpy(str,(char *)Data+CurByte);
-	CurByte += strlen(str)+1;
+	memcpy(str,(char *)Data+CurByte, len+1);
+	CurByte += len+1;
 
 	return str;
 }

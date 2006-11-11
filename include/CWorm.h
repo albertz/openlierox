@@ -17,7 +17,7 @@
 #define __CWORM_H__
 
 #ifndef _AI_DEBUG
-#define _AI_DEBUG
+// #define _AI_DEBUG
 #endif  // _AI_DEBUG
 
 
