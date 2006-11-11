@@ -462,7 +462,7 @@ void ShutdownLieroX(void)
 	
 	ShutdownAuxLib();
 
-	printf("Everything was shutted down\n");
+	printf("Everything was shut down\n");
 	printf("Good Bye and enjoy your day...\n");
 	
 }
