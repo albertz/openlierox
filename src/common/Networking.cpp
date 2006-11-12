@@ -384,6 +384,6 @@ int GetSocketErrorNr() {
 	return nlGetError();
 }
 
-const char*	GetSocketErrorStr() {
-	return nlGetErrorStr();
+const char*	GetSocketErrorStr(int errnr) {
+	return nlGetErrorStr(errnr);
 }

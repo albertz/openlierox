@@ -72,6 +72,6 @@ bool	CloseSocket(NetworkSocket sock);
 int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
 int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
 int		GetSocketErrorNr();
-const char*	GetSocketErrorStr();
+const char*	GetSocketErrorStr(int errnr);
 
 #endif  //  __NETWORKING_H__
