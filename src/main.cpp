@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	if(!LoadOptions())
 		return -1;
 
-	if	(!LoadNetworkStrings())
+	if(!LoadNetworkStrings())
 		return -1;
 
     // Parse the arguments

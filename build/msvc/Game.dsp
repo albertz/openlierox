@@ -183,6 +183,14 @@ SOURCE=..\..\src\common\ConfigHandler.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\CssParser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CssParser.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\CVec.h
 # End Source File
 # Begin Source File
@@ -204,10 +212,6 @@ SOURCE=..\..\src\common\FindFile.cpp
 # Begin Source File
 
 SOURCE=..\..\include\FindFile.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\gd\gd.h
 # End Source File
 # Begin Source File
 
@@ -252,10 +256,6 @@ SOURCE=..\..\src\common\mmgr.cpp
 
 !ENDIF 
 
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\nl.h
 # End Source File
 # Begin Source File
 

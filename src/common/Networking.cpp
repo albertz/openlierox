@@ -365,11 +365,11 @@ NetworkSocket OpenBroadcastSocket(unsigned short port) {
 }
 
 bool ListenSocket(NetworkSocket sock) {
-	return nlListen(sock);
+	return nlListen(sock) != 0;
 }
 
 bool CloseSocket(NetworkSocket sock) {
-	return nlClose(sock);
+	return nlClose(sock) != 0;
 }
 
 int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {

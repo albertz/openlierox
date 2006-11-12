@@ -128,7 +128,6 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 	SDL_BlitSurface(img,NULL,Image,NULL);
 	SDL_FreeSurface(img);
 
-
 	return Image;
 }
 

@@ -6,13 +6,13 @@
 --------------------Configuration: Game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSPFE.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2A9.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"obj/Debug/" /Fp"obj/Debug/Game.pch" /YX /Fo"obj/Debug/" /Fd"obj/Debug/" /FD /GZ /c 
-"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Net_Internet.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\CssParser.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSPFE.tmp" 
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSPFF.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2A9.tmp" 
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2AA.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../share/gamedir/Game.exe" /MAPINFO:LINES /MAPINFO:EXPORTS 
 .\obj\Debug\2xsai.obj
@@ -23,6 +23,7 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\obj\Debug\CFont.obj
 .\obj\Debug\CInput.obj
 .\obj\Debug\ConfigHandler.obj
+.\obj\Debug\CssParser.obj
 .\obj\Debug\Error.obj
 .\obj\Debug\FindFile.obj
 .\obj\Debug\GfxPrimitives.obj
@@ -105,13 +106,13 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\libs\SDL_mixer.lib
 .\libs\lua5.1.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSPFF.tmp"
+Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2AA.tmp"
 <h3>Output Window</h3>
 Compiling...
-Menu_Net_Internet.cpp
+CssParser.cpp
 Linking...
 LINK : warning LNK4075: ignoring /INCREMENTAL due to /DEBUGTYPE specification
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP101.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2AC.tmp" with contents
 [
 /nologo /o"obj/debug/Game.bsc" 
 .\obj\Debug\2xsai.sbr
@@ -122,6 +123,7 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP101.tmp" with con
 .\obj\Debug\CFont.sbr
 .\obj\Debug\CInput.sbr
 .\obj\Debug\ConfigHandler.sbr
+.\obj\Debug\CssParser.sbr
 .\obj\Debug\Error.sbr
 .\obj\Debug\FindFile.sbr
 .\obj\Debug\GfxPrimitives.sbr
@@ -191,7 +193,7 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP101.tmp" with con
 .\obj\Debug\Networking.sbr
 .\obj\Debug\Options.sbr
 .\obj\Debug\Sounds.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP101.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP2AC.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 

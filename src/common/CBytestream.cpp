@@ -292,7 +292,7 @@ char *CBytestream::readString(char *str)
 	// Validate that there is some terminating character
 	bool valid = false;
 	size_t len = 0;
-	for (len=CurByte; len<GetLength(); len++)
+	for (len=CurByte; len<(size_t)GetLength(); len++)
 		if(Data[len] == '\0')
 		{
 			valid = true;

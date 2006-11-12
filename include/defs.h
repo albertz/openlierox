@@ -18,7 +18,6 @@
 #ifndef __DEFS_H__
 #define __DEFS_H__
 
-
 // Global compile defines
 // TODO: is the '=' correct?
 #define DEBUG	= 1;
@@ -111,6 +110,7 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #include "CFont.h"
 
 #include "FindFile.h"
+#include "CssParser.h"
 
 
 
@@ -160,7 +160,7 @@ inline T* GetByteSwapped(const T b)
 
 #ifdef WIN32
 // WIN32 doesn't define this, endian.h doesn't exist there
-#define	__BYTE_ORDER	__LITTLE_ENDIAn
+#define	__BYTE_ORDER	__LITTLE_ENDIAN
 #endif
 
 #if !defined(__BYTE_ORDER)
