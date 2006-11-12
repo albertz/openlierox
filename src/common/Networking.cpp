@@ -372,11 +372,11 @@ bool CloseSocket(NetworkSocket sock) {
 	return nlClose(sock);
 }
 
-int WriteSocket(NetworkSocket sock, const char* buffer, int nbytes) {
+int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 	return nlWrite(sock, buffer, nbytes);
 }
 
-int ReadSocket(NetworkSocket sock, char* buffer, int nbytes) {
+int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 	return nlRead(sock, buffer, nbytes);
 }
 

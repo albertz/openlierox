@@ -69,8 +69,8 @@ NetworkSocket	OpenUnreliableSocket(unsigned short port);
 NetworkSocket	OpenBroadcastSocket(unsigned short port);
 bool	ListenSocket(NetworkSocket sock);
 bool	CloseSocket(NetworkSocket sock);
-int		WriteSocket(NetworkSocket sock, const char* buffer, int nbytes);
-int		ReadSocket(NetworkSocket sock, char* buffer, int nbytes);
+int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
+int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
 int		GetSocketErrorNr();
 const char*	GetSocketErrorStr();
 
