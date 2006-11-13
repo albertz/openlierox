@@ -14,12 +14,13 @@
 #define	__ERROR_H__
 
 
-
 void SetError(char *fmt, ...);
 void ShowError(void);
 void EndError(void);
 
 void SystemError(char *fmt, ...);
+
+void GuiSkinError(char *fmt, ...);
 
 void LxSetLastError(char *desc);
 char *LxGetLastError(void);

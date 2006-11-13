@@ -294,15 +294,18 @@ char *TrimSpaces(char *szLine)
 }
 
 ///////////////////
-// Replace a string in text, returns result
-char *replace(char *text, char *what, char *with, char *result)
+// Replace a string in text, returns true, if something was replaced
+bool replace(char *text, const char *what, const char *with, char *result)
 {
+  bool ret = false;
+
   strcpy(result,text);
 
   int pos = (int) (strstr(result,what)-result); // Position of the string being replaced
 
   // Replace while the "what" string exists in result
   while (strstr(result,what) != NULL)  {
+	ret = true;
 	// Make space for "with" string (move the result+pos string strlen(with) characters to right)
 	memmove(result+pos+strlen(with),result+pos,strlen(result)-pos+strlen(with));
 	// Copy the "with" string into the above created space (without terminating character)
@@ -313,7 +316,7 @@ char *replace(char *text, char *what, char *with, char *result)
 	pos = (int) (strstr(result,what)-result);
   }
 
-  return result;
+  return ret;
 }
 
 ///////////////////
@@ -436,6 +439,52 @@ void ReadUntil(const char *text, char until_character, char *result)
 	*(result+i) = '\0';
 }
 
+//////////////////
+// Converts a string to a colour
+Uint32 StrToCol(char *str)
+{
+	char *org_val = NULL;
+	char tmp[3];
+	int r,g,b;
+	tmp[2] = 0;  // Third character is terminating
+
+	org_val = str; // Save the original pointer
+
+	// By default return pink
+	if(!str)
+		return MakeColour(255,0,255);
+	if(strlen(str) < 6)
+		return MakeColour(255,0,255);
+
+	// Ignore the # character
+	if (*str == '#')
+		str++;
+
+	// Check again
+	if(strlen(str) < 6)
+		return MakeColour(255,0,255);
+
+	// R value
+	strncpy(tmp,str,2);
+	r = atoi(tmp);
+
+	// G value
+	strncpy(tmp,str+2,2);
+	g = atoi(tmp);
+
+	// B value
+	strncpy(tmp,str+4,2);
+	b = atoi(tmp);
+
+	// Make the colour
+	Uint32 result = MakeColour(r,g,b);
+
+	// Restore the original value
+	str = org_val;
+
+	return result;
+}
+
 // ==============================
 //
 // Useful XML functions	
@@ -472,38 +521,13 @@ float xmlGetFloat(xmlNodePtr Node, const char *Name)
 // Get a colour from the specified property
 Uint32 xmlGetColour(xmlNodePtr Node, const char *Name)
 {
-	char *sValue,*org_val;
-	char tmp[3];
-	int r,g,b;
-	tmp[2] = 0;  // Third character is terminating
+	xmlChar *sValue;
 
 	// Get the value
-	sValue = (char *)xmlGetProp(Node,(const xmlChar *)Name);
-	org_val = sValue; // Save the original pointer
+	sValue = xmlGetProp(Node,(const xmlChar *)Name);
 
-	// By default return pink
-	if(!sValue)
-		return MakeColour(255,0,255);
+	Uint32 result = StrToCol((char *)sValue);
 
-	// Ignore the # character
-	if (*sValue == '#')
-		sValue++;
-
-	// R value
-	strncpy(tmp,sValue,2);
-	r = atoi(tmp);
-
-	// G value
-	strncpy(tmp,sValue+2,2);
-	g = atoi(tmp);
-
-	// B value
-	strncpy(tmp,sValue+4,2);
-	b = atoi(tmp);
-
-	// Make the colour
-	Uint32 result = MakeColour(r,g,b);
-
-	xmlFree((xmlChar *)sValue);
+	xmlFree(sValue);
 	return result;
 }

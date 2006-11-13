@@ -51,6 +51,7 @@ public:
 	void		Clear(void);
 
 	bool		Parse(char *sFilename);
+	void		BorderProperties(char *val,int *border,Uint32 *LightColour,Uint32 *DarkColour,uchar *type);
 	node_t		*FindNode(char *sNodeName);
 	node_t		*FindClass(char *sClassName);
 	property_t	*GetProperty(char *sPropertyName, node_t *tNode);

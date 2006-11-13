@@ -153,12 +153,13 @@ void    lx_strncpy(char *dest, char *src, int count);
 bool    MouseInRect(int x, int y, int w, int h);
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
-char	*replace(char *text, char *what, char *with, char *result);
+bool	replace(char *text, const char *what, const char *with, char *result);
 char	*replacemax(char *text, char *what, char *with, char *result, int max);
 char	*strip(char *buf, int width);
 bool	stripdot(char *buf, int width);
 char	*ucfirst(char *text);
 void	ReadUntil(const char *text, char until_character, char *result);
+Uint32	StrToCol(char *str);
 
 // Useful XML functions
 int		xmlGetInt(xmlNodePtr Node, const char *Name);

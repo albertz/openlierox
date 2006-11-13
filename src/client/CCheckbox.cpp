@@ -37,3 +37,26 @@ void CCheckbox::Create(void)
 {
     bmpImage = LoadImage("data/frontend/checkbox.png",16);
 }
+
+///////////////////
+// Load the style
+void CCheckbox::LoadStyle(void)
+{
+	// Find the checkbox class
+	node_t *my_node = cWidgetStyles.FindClass("checkbox");
+	if (!my_node)
+		return;
+
+	// Read properties
+	property_t *prop = my_node->tProperties;
+	for(;prop;prop=prop->tNext) {
+		// Image
+		if (!stricmp(prop->sName,"image"))  {
+			bmpImage = LoadImage(prop->sValue,16);
+		}
+		// Unknown
+		else {
+			GuiSkinError("Warning: Unknown property %s in main Checkbox class",prop->sName);
+		}
+	}
+}

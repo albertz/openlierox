@@ -23,6 +23,7 @@ menu_t	*tMenu = NULL;
 int			*iGame = NULL;
 int			iSkipStart = false;
 CWidgetList	LayoutWidgets[LAYOUT_COUNT];
+CCssParser	cWidgetStyles;
 
 
 ///////////////////
@@ -33,6 +34,13 @@ int Menu_Initialize(int *game)
 	*iGame = false;
 	iJoin_Recolorize = true;
 	iHost_Recolorize = true;
+
+	// Load the CSS of all widgets
+	cWidgetStyles.Clear();
+	char path[64];
+	path[0] = '\0';
+	//sprintf(path,"%s/%s/widgets.css",tLXOptions->sSkinPath,tLXOptions->sResolution);
+	cWidgetStyles.Parse(path);
 
 
 	// Allocate the menu structure
@@ -330,6 +338,47 @@ char *Menu_GetLevelName(char *filename)
 		} // if(fp)
 	}
   return NULL;
+}
+
+////////////////
+// Draws advanced box
+void Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type)
+{
+	// First draw the background
+	if (BgColour != MakeColour(255,0,255))
+		DrawRectFill(bmpDest,x+border,y+border,x2-border+1,y2-border+1,BgColour);
+
+	if (!border)
+		return;
+
+	int i;
+
+	// Switch the light and dark colour when inset
+	if (type == BX_INSET)  {
+		Uint32 tmp = LightColour;
+		LightColour = DarkColour;
+		DarkColour = tmp;
+	}
+
+	// Create gradient when needed
+	int r_step,g_step,b_step;
+	Uint8 r1,g1,b1,r2,g2,b2;
+	SDL_GetRGB(DarkColour,bmpDest->format,&r1,&g1,&b1);
+	SDL_GetRGB(LightColour,bmpDest->format,&r2,&g2,&b2);
+
+	if (type != BX_SOLID)  {
+		r_step = (r2-r1)/border;
+		g_step = (g2-g1)/border;
+		b_step = (b2-b1)/border;
+	}
+	else {
+		r_step = g_step = b_step = 0;
+	}
+
+
+	// Draw the box
+	for (i=0;i<border;i++)
+		DrawRect(bmpDest,x+i,y+i,x2-i,y2-i,MakeColour(r1+r_step*i,g1+g_step*i,b1+b_step*i));
 }
 
 

@@ -1,6 +1,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "Menu.h"
 
 /////////////////////
 // Clears the parser
@@ -497,6 +498,8 @@ bool CCssParser::Parse(char *sFilename)
 	// Check parameters
 	if (!sFilename)
 		return false;
+	if (!strcmp("",sFilename))
+		return false;
 
 	// Open the file
 	FILE *fp = fopen_i(sFilename,"rb");
@@ -535,4 +538,56 @@ bool CCssParser::Parse(char *sFilename)
 	iLength = 0;
 
 	return true;
+}
+
+/////////////////
+// Parses border properties from a string
+void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint32 *DarkColour,uchar *type)
+{
+	// Defaults
+	*border = 2;
+	*LightColour = MakeColour(200,200,200);
+	*DarkColour = MakeColour(64,64,64);
+	*type = BX_OUTSET; // Outset
+
+	// Check
+	if (!val)
+		return;
+
+	// Trim spaces
+	TrimSpaces(val);
+
+	// Remove duplicate spaces
+	while (replace(val,"  "," ",val))
+		continue;
+
+	char *tok = strtok(val," ");
+	if (!tok)
+		return;
+
+	// Border width
+	*border = atoi(tok); tok = strtok(NULL," ");
+	if (!tok)
+		return;
+
+	// Border type
+	if (!stricmp("solid",tok)) *type = BX_SOLID;
+	else if (!stricmp("inset",tok)) *type = BX_INSET;
+	else *type = BX_OUTSET;
+	tok = strtok(NULL," ");
+	if (!tok)
+		return;
+
+	// Dark colour
+	*DarkColour = StrToCol(tok);
+	tok = strtok(NULL," ");
+	if (!tok)
+		return;
+
+	// Light colour
+	if (*type != BX_SOLID)  {
+		*LightColour = StrToCol(tok);
+	}
+	else
+		*LightColour = *DarkColour;
 }

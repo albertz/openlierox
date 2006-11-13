@@ -91,6 +91,13 @@ enum {
 	LAYOUT_COUNT
 };
 
+// Box types
+enum {
+	BX_OUTSET = 0,
+	BX_INSET,
+	BX_SOLID
+};
+
 
 // Sub title id's
 enum {
@@ -275,6 +282,7 @@ extern	int			iSkipStart;
 extern  int			iHost_Recolorize;
 extern	int			iJoin_Recolorize;
 extern  CWidgetList	LayoutWidgets[LAYOUT_COUNT];
+extern	CCssParser	cWidgetStyles;
 
 
 // Routines
@@ -287,6 +295,7 @@ void    Menu_SetSkipStart(int s);
 void	Menu_DrawSubTitle(SDL_Surface *bmpDest, int id);
 void    Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y);
 void	Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
+void	Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type);
 void    Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
 void    Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool down);
 int		Menu_LoadWormGfx(profile_t *ply);

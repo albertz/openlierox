@@ -96,6 +96,40 @@ void SystemError(char *fmt, ...)
 	exit(1);
 }
 
+// List of GUI errors & warnings
+char GUIErrors[64][64];
+// Points to first free slot for error/warning
+int iErrPointer = 0;
+
+/////////////////////
+// Show a window informing about skin error
+void GuiSkinError(char *fmt, ...)
+{
+	char buf[512];
+	va_list	va;
+
+	va_start(va,fmt);
+	vsprintf(buf,fmt,va);
+	va_end(va);
+
+	iErrPointer++;
+
+	// Too many errors, shift the list
+	if(iErrPointer == 64)  {
+		int i;
+		for (i=0;i<62;i++)
+			strcpy(GUIErrors[i],GUIErrors[i+1]);
+		iErrPointer = 63;
+	}
+
+	// Copy the error
+	strcpy(GUIErrors[iErrPointer],buf);
+
+	// TODO: this better
+	printf("%s\r\n",buf);
+
+}
+
 void LxSetLastError(char *desc)
 {
 	if (strlen(desc) < 1024)
