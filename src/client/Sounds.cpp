@@ -28,18 +28,11 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 		return false;
 	}
 	
-#ifndef WIN32
 	if(Mix_OpenAudio(rate, AUDIO_S16, channels, buffers)) {
 		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
     	return false;
 	}
-#endif
-#ifdef WIN32
-	if(Mix_OpenAudio(rate, MIX_DEFAULT_FORMAT, 2, 512)) {
-		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
-    	return false;
-	}
-#endif
+
 		
 	return true;
 }
