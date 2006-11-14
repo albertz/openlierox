@@ -267,3 +267,45 @@ int	CBox::CheckEvent(void)
 		return BOX_NONE;
 
 }
+
+///////////////////
+// Load the style
+void CBox::LoadStyle(void/*node_t *cssNode*/)
+{
+	node_t *cssNode = NULL;
+	// Find the default checkbox class, if none specified
+	if (!cssNode) {
+		cssNode = cWidgetStyles.FindNode("box");
+		if (!cssNode)
+			return;
+	}
+
+	// Read properties
+	property_t *prop = cssNode->tProperties;
+	for(;prop;prop=prop->tNext) {
+		// Border
+		if (!stricmp(prop->sName,"thickness"))  {
+			iBorder = atoi(prop->sValue);
+		}
+		// Round
+		if (!stricmp(prop->sName,"round"))  {
+			iRound = atoi(prop->sValue);
+		}
+		// Light colour
+		if (!stricmp(prop->sName,"lightcolor"))  {
+			iLightColour = StrToCol(prop->sValue);
+		}
+		// Dark colour
+		if (!stricmp(prop->sName,"darkcolor"))  {
+			iDarkColour = StrToCol(prop->sValue);
+		}
+		// Bg colour
+		if (!stricmp(prop->sName,"bgcolor"))  {
+			iBgColour = StrToCol(prop->sValue);
+		}
+		// Unknown
+		else {
+			GuiSkinError("Warning: Unknown property %s in main Checkbox class",prop->sName);
+		}
+	}
+}

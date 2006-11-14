@@ -6,13 +6,13 @@
 --------------------Configuration: Game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP18B.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP1AE.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"obj/Debug/" /Fp"obj/Debug/Game.pch" /YX /Fo"obj/Debug/" /Fd"obj/Debug/" /FD /GZ /c 
-"C:\Moje\Programovani\OpenLieroX\src\client\Menu_Main.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\common\Misc.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP18B.tmp" 
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP18C.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP1AE.tmp" 
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP1AF.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../share/gamedir/Game.exe" /MAPINFO:LINES /MAPINFO:EXPORTS 
 .\obj\Debug\2xsai.obj
@@ -106,13 +106,15 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\libs\SDL_mixer.lib
 .\libs\lua5.1.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP18C.tmp"
+Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP1AF.tmp"
 <h3>Output Window</h3>
 Compiling...
-Menu_Main.cpp
-Linking...
-LINK : warning LNK4075: ignoring /INCREMENTAL due to /DEBUGTYPE specification
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP18E.tmp" with contents
+Misc.cpp
+C:\Moje\Programovani\OpenLieroX\src\common\Misc.cpp(501) : error C2061: syntax error : identifier 'ArgumentNullException'
+C:\Moje\Programovani\OpenLieroX\src\common\Misc.cpp(501) : error C2310: catch handlers must specify one type
+C:\Moje\Programovani\OpenLieroX\src\common\Misc.cpp(505) : error C2317: 'try' block starting on line '497' has no catch handlers
+Error executing cl.exe.
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP1B0.tmp" with contents
 [
 /nologo /o"obj/debug/Game.bsc" 
 .\obj\Debug\2xsai.sbr
@@ -193,14 +195,14 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP18E.tmp" with con
 .\obj\Debug\Networking.sbr
 .\obj\Debug\Options.sbr
 .\obj\Debug\Sounds.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP18E.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP1B0.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 
 
 
 <h3>Results</h3>
-Game.exe - 0 error(s), 1 warning(s)
+Game.exe - 3 error(s), 0 warning(s)
 </pre>
 </body>
 </html>

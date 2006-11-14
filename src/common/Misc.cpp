@@ -485,6 +485,7 @@ Uint32 StrToCol(char *str)
 	return result;
 }
 
+
 // ==============================
 //
 // Useful XML functions	

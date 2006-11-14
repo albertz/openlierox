@@ -40,19 +40,26 @@ void CCheckbox::Create(void)
 
 ///////////////////
 // Load the style
-void CCheckbox::LoadStyle(void)
+void CCheckbox::LoadStyle(void/*node_t *cssNode*/)
 {
-	// Find the checkbox class
-	node_t *my_node = cWidgetStyles.FindClass("checkbox");
-	if (!my_node)
-		return;
+	node_t *cssNode = NULL;
+	// Find the default checkbox class, if none specified
+	if (!cssNode) {
+		cssNode = cWidgetStyles.FindNode("checkbox");
+		if (!cssNode)
+			return;
+	}
 
 	// Read properties
-	property_t *prop = my_node->tProperties;
+	property_t *prop = cssNode->tProperties;
 	for(;prop;prop=prop->tNext) {
 		// Image
 		if (!stricmp(prop->sName,"image"))  {
 			bmpImage = LoadImage(prop->sValue,16);
+		}
+		// Image width
+		if (!stricmp(prop->sName,"image-width"))  {
+			//iImgWidth = atoi(prop->sValue);
 		}
 		// Unknown
 		else {

@@ -2368,6 +2368,18 @@ void CMap::Shutdown(void)
         }
 
 	}
+	// Safety
+	else  {
+		bmpImage = NULL;
+		bmpDrawImage = NULL;
+		bmpBackImage = NULL;
+		bmpShadowMap = NULL;
+		bmpMiniMap = NULL;
+		PixelFlags = NULL;
+		GridFlags = NULL;
+		Objects = NULL;
+		sRandomLayout.psObjects = NULL;
+	}
 
 	Created = false;
 }

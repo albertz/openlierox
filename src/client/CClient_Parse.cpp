@@ -16,6 +16,7 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
+#include "Console.h"
 
 
 ///////////////////
@@ -1043,6 +1044,9 @@ void CClient::ParseGotoLobby(CBytestream *bs)
 {
 	// Do a minor clean up
 	MinorClear();
+
+	// Hide the console
+	Con_Hide();
 
 	if(tGameInfo.iGameType == GME_HOST) {
 		// Goto the host lobby
