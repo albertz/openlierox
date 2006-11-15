@@ -42,6 +42,11 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 
 	strcpy(ConfigFile,config);
 
+	// Solves problem with FPS in fullscreen
+#ifdef WIN32
+	SDL_putenv("SDL_VIDEODRIVER=directx");
+#endif
+
 	
 	// Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == -1) {
@@ -126,6 +131,7 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 // Set the video mode
 int SetVideoMode(void)
 {
+	// TODO: Use DOUBLEBUF and hardware surfaces
 	int HardwareBuf = false;
 	int DoubleBuf = false;
 	int vidflags = 0;
