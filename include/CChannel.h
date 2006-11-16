@@ -37,7 +37,7 @@ public:
 
 private:
 	// Attributes
-	NLaddress	RemoteAddr;
+	NetworkAddr	RemoteAddr;
 	int			iPort;
 	NetworkSocket	Socket;
 
@@ -89,7 +89,7 @@ public:
 	int			getPacketLoss(void)		{ return iPacketsDropped; }
 	float		getLastReceived(void)	{ return fLastPckRecvd; }
 	float		getLastSent(void)		{ return fLastSent; }
-	NLaddress	*getAddress(void)		{ return &RemoteAddr; }	
+	NetworkAddr	*getAddress(void)		{ return &RemoteAddr; }	
 
 	// Packets
 	CBytestream	*getMessageBS(void)		{ return &Message; }

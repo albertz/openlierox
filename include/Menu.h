@@ -249,7 +249,7 @@ typedef struct server_s {
 
 	// Server address
 	char	szAddress[256];
-	NLaddress	sAddress;
+	NetworkAddr	sAddress;
 
 	// Server details
 	char	szName[32];
@@ -316,7 +316,7 @@ server_t    *Menu_SvrList_FindServerStr(char *szAddress);
 void        Menu_SvrList_RemoveServer(char *szAddress);
 bool		Menu_SvrList_Process(void);
 int			Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
-server_t	*Menu_SvrList_FindServer(NLaddress *addr);
+server_t	*Menu_SvrList_FindServer(NetworkAddr *addr);
 void		Menu_SvrList_PingServer(server_t *svr);
 void		Menu_SvrList_WantsJoin(char *Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);

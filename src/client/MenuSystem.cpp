@@ -1081,10 +1081,10 @@ void Menu_SvrList_PingLAN(void)
 	bs.writeString("%s","lx::ping");
 
 	char addr[] = {"255.255.255.255"}; 
-	NLaddress a;
-	nlStringToAddr(addr,&a);
-	nlSetAddrPort(&a,LX_PORT);
-	nlSetRemoteAddr(tMenu->tSocket[SCK_LAN],&a);
+	NetworkAddr a;
+	StringToNetAddr(addr,&a);
+	SetNetAddrPort(&a,LX_PORT);
+	SetRemoteNetAddr(tMenu->tSocket[SCK_LAN],&a);
 
 	// Send the ping
 	bs.Send(tMenu->tSocket[SCK_LAN]);
@@ -1095,7 +1095,7 @@ void Menu_SvrList_PingLAN(void)
 // Ping a server
 void Menu_SvrList_PingServer(server_t *svr)
 {
-	nlSetRemoteAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
+	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
 	
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1111,7 +1111,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 // Send Wants Join message
 void Menu_SvrList_WantsJoin(char *Nick, server_t *svr)
 {
-	nlSetRemoteAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
+	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
 	
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1125,7 +1125,7 @@ void Menu_SvrList_WantsJoin(char *Nick, server_t *svr)
 // Query a server
 void Menu_SvrList_QueryServer(server_t *svr)
 {
-	nlSetRemoteAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
+	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
 	
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1176,12 +1176,12 @@ server_t *Menu_SvrList_AddServer(char *address, bool bManual)
     // Check if the server is already in the list
     // If it is, don't bother adding it
     server_t *sv = psServerList;
-    NLaddress ad;
+    NetworkAddr ad;
     TrimSpaces(address);
-    nlStringToAddr(address, &ad);
+    StringToNetAddr(address, &ad);
 
     for(; sv; sv=sv->psNext) {
-        if( nlAddrCompare(&sv->sAddress, &ad) )
+        if( AreNetAddrEqual(&sv->sAddress, &ad) )
             return sv;
     }
 
@@ -1213,7 +1213,7 @@ server_t *Menu_SvrList_AddServer(char *address, bool bManual)
 		strcat(svr->szAddress,itoa(LX_PORT,buf,10));
 	}
 
-	nlStringToAddr(address, &svr->sAddress);
+	StringToNetAddr(address, &svr->sAddress);
 
 
 	// Default game details
@@ -1225,8 +1225,8 @@ server_t *Menu_SvrList_AddServer(char *address, bool bManual)
 
 
 	// If the address doesn't have a port number set, use the default lierox port number
-	if(nlGetPortFromAddr(&svr->sAddress) == 0)
-		nlSetAddrPort(&svr->sAddress, LX_PORT);	
+	if(GetNetAddrPort(&svr->sAddress) == 0)
+		SetNetAddrPort(&svr->sAddress, LX_PORT);	
 
 
 	// Link it in at the end of the list
@@ -1252,12 +1252,12 @@ server_t *Menu_SvrList_AddNamedServer(char *address, char *name)
     // Check if the server is already in the list
     // If it is, don't bother adding it
     server_t *sv = psServerList;
-    NLaddress ad;
+    NetworkAddr ad;
     TrimSpaces(address);
-    nlStringToAddr(address, &ad);
+    StringToNetAddr(address, &ad);
 
     for(; sv; sv=sv->psNext) {
-        if( nlAddrCompare(&sv->sAddress, &ad) )
+        if( AreNetAddrEqual(&sv->sAddress, &ad) )
             return sv;
     }
 
@@ -1290,7 +1290,7 @@ server_t *Menu_SvrList_AddNamedServer(char *address, char *name)
 		strcat(svr->szAddress,itoa(LX_PORT,buf,10));
 	}
 
-	nlStringToAddr(address, &svr->sAddress);
+	StringToNetAddr(address, &svr->sAddress);
 
 
 	// Default game details
@@ -1301,8 +1301,8 @@ server_t *Menu_SvrList_AddNamedServer(char *address, char *name)
 
 
 	// If the address doesn't have a port number set, use the default lierox port number
-	if(nlGetPortFromAddr(&svr->sAddress) == 0)
-		nlSetAddrPort(&svr->sAddress, LX_PORT);	
+	if(GetNetAddrPort(&svr->sAddress) == 0)
+		SetNetAddrPort(&svr->sAddress, LX_PORT);	
 
 
 	// Link it in at the end of the list
@@ -1387,8 +1387,8 @@ void Menu_SvrList_FillList(CListview *lv)
 			num = 3;
 		
 		// Address
-		//nlGetRemoteAddr(tMenu->tSocket, &s->sAddress);
-		//nlAddrToString(&s->sAddress, addr);
+		//GetRemoteNetAddr(tMenu->tSocket, &s->sAddress);
+		//NetAddrToString(&s->sAddress, addr);
 
 		// Remove the port from the address (save space)
 		strcpy(addr, s->szAddress);
@@ -1515,7 +1515,7 @@ bool Menu_SvrList_Process(void)
 int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 {
 	char			cmd[128], buf[128];
-	NLaddress		adrFrom;
+	NetworkAddr		adrFrom;
 	int				update = false;
 
 	// Check for connectionless packet header
@@ -1523,7 +1523,7 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 		bs->SetPos(4);
 		bs->readString(cmd);
 
-		nlGetRemoteAddr(sock,&adrFrom);
+		GetRemoteNetAddr(sock,&adrFrom);
 
 		// Check for a pong
 		if(strcmp(cmd, "lx::pong") == 0) {
@@ -1538,7 +1538,7 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 			} else {
 
 				// If we didn't ping this server directly (eg, subnet), add the server to the list
-				nlAddrToString( &adrFrom, buf );
+				NetAddrToString( &adrFrom, buf );
 				svr = Menu_SvrList_AddServer(buf, false);
 
 				if( svr ) {
@@ -1579,15 +1579,15 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 
 ///////////////////
 // Find a server from the list by address
-server_t *Menu_SvrList_FindServer(NLaddress *addr)
+server_t *Menu_SvrList_FindServer(NetworkAddr *addr)
 {
 	server_t *s = psServerList;
 
 	for(; s; s=s->psNext) {
 
-		nlStringToAddr(s->szAddress, &s->sAddress);
+		StringToNetAddr(s->szAddress, &s->sAddress);
 
-		if( nlAddrCompare( addr, &s->sAddress ) )
+		if( AreNetAddrEqual( addr, &s->sAddress ) )
 			return s;
 	}
 
@@ -1728,7 +1728,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
     CWorm   cWorms[MAX_WORMS];
 
     CBytestream inbs;
-    NLaddress   addr;
+    NetworkAddr   addr;
 
 
     float   fStart = -99999;
@@ -1749,9 +1749,9 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 
             // Send a getinfo request
             TrimSpaces(szAddress);
-            nlStringToAddr(szAddress, &addr);
+            StringToNetAddr(szAddress, &addr);
 
-            nlSetRemoteAddr(tMenu->tSocket[SCK_NET], &addr);
+            SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &addr);
 	
 	        CBytestream bs;
 	        bs.writeInt(-1,4);
@@ -1768,7 +1768,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 		        inbs.readString(cmd);
 
 
-		        nlGetRemoteAddr(tMenu->tSocket[SCK_NET],&addr);
+		        GetRemoteNetAddr(tMenu->tSocket[SCK_NET],&addr);
 
 		        // Check for server info
 		        if(strcmp(cmd, "lx::serverinfo") == 0) {

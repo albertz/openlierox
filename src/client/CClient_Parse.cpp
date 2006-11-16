@@ -16,7 +16,7 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
-#include "Console.h"
+#include "console.h"
 
 
 ///////////////////
@@ -86,7 +86,7 @@ void CClient::ParseChallenge(CBytestream *bs)
 // Parse a connected packet
 void CClient::ParseConnected(CBytestream *bs)
 {
-	NLaddress addr;
+	NetworkAddr addr;
 
 	
 	// Setup the client
@@ -116,6 +116,7 @@ void CClient::ParseConnected(CBytestream *bs)
 		cLocalWorms[1]->SetupInputs( tLXOptions->sPlayer2Controls );
 		
 	// Create my channel
+	GetRemoteNetAddr(tSocket, &addr);
 	nlGetRemoteAddr(tSocket,&addr);
 	cNetChan.Create(&addr,0,tSocket);
 

@@ -601,12 +601,12 @@ void CServer::ParseConnectionlessPacket(CBytestream *bs)
 void CServer::ParseGetChallenge(void)
 {
 	int			i;
-	NLaddress	adrFrom;
+	NetworkAddr	adrFrom;
 	float		OldestTime = 99999;
 	int			OldestChallenge = 0;
 	CBytestream	bs;
 
-	nlGetRemoteAddr(tSocket,&adrFrom);
+	GetRemoteNetAddr(tSocket,&adrFrom);
 
 	// If were in the game, deny challenges
 	if(iState != SVS_LOBBY) {
@@ -622,7 +622,7 @@ void CServer::ParseGetChallenge(void)
 	// see if we already have a challenge for this ip
 	for(i=0;i<MAX_CHALLENGES;i++) {
 		
-		if(nlAddrCompare(&adrFrom, &tChallenges[i].Address))
+		if(AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
 			break;
 		if(tChallenges[i].fTime < OldestTime) {
 			OldestTime = tChallenges[i].fTime;
@@ -642,7 +642,7 @@ void CServer::ParseGetChallenge(void)
 
 	
 	// Send the challenge details back to the client
-	nlSetRemoteAddr(tSocket,&adrFrom);
+	SetRemoteNetAddr(tSocket,&adrFrom);
 
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::challenge");
@@ -656,7 +656,7 @@ void CServer::ParseGetChallenge(void)
 void CServer::ParseConnect(CBytestream *bs)
 {
 	CBytestream		bytestr;
-	NLaddress		adrFrom;
+	NetworkAddr		adrFrom;
 	int				i,p,player=-1;
 	int				numplayers;
 	CClient			*cl,*newcl;
@@ -674,7 +674,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// User Info to get
 	
-	nlGetRemoteAddr(tSocket,&adrFrom);
+	GetRemoteNetAddr(tSocket,&adrFrom);
 
 	// Read packet
 	ProtocolVersion = bs->readInt(1);
@@ -690,7 +690,7 @@ void CServer::ParseConnect(CBytestream *bs)
 	}
 
 	char szAddress[21];
-	nlAddrToString(&adrFrom,szAddress);
+	NetAddrToString(&adrFrom,szAddress);
 
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
@@ -727,7 +727,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// See if the challenge is valid
 	for(i=0;i<MAX_CHALLENGES;i++) {
-		if(nlAddrCompare(&adrFrom, &tChallenges[i].Address)) {
+		if(AreNetAddrEqual(&adrFrom, &tChallenges[i].Address)) {
 
 			if(ChallId == tChallenges[i].iNum)
 				break;		// good
@@ -758,7 +758,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
-		if(nlAddrCompare(&adrFrom, cl->getChannel()->getAddress())) {
+		if(AreNetAddrEqual(&adrFrom, cl->getChannel()->getAddress())) {
 
 			// Must not have got the connection good packet, tis ok though
 			if(cl->getStatus() == NET_CONNECTED) {
@@ -931,7 +931,7 @@ void CServer::ParseConnect(CBytestream *bs)
 			if (strstr(buf,"<country>") != NULL)  {
 				char country[128];
 				char str_addr[22];
-				nlAddrToString(newcl->getChannel()->getAddress(),str_addr);
+				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
 				if (strlen(str_addr))  {
 					GetCountryFromIP(str_addr,country);
 					replacemax(buf,"<country>",country,buf,1);
@@ -944,7 +944,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 				// Address
 				char str_addr[22];
-				nlAddrToString(newcl->getChannel()->getAddress(),str_addr);
+				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
 				// Remove port
 				char* pos = strrchr(str_addr,':');
 				if(pos != NULL)

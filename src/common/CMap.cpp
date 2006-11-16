@@ -2168,7 +2168,7 @@ int CMap::LoadOriginal(FILE *fp)
 		for(x=0;x<Width;x++) {
 			uchar p = bytearr[n];
 			int type = PX_EMPTY;
-			if(p >= 0 && p <= 255) {
+			//if(p >= 0 && p <= 255) {
 
 				// Dirt
 				if( (p >= 12 && p <= 18) ||
@@ -2192,7 +2192,7 @@ int CMap::LoadOriginal(FILE *fp)
 				if(type == PX_EMPTY)
 					PutPixel(bmpBackImage,x,y, MakeColour(palette[p*3], palette[p*3+1], palette[p*3+2]));
 				SetPixelFlag(x,y,type);
-			}
+			//}
 			n++;
 		}
 	}

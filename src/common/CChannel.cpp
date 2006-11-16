@@ -103,7 +103,7 @@ void CChannel::Transmit( CBytestream *bs )
 
 	// Send the packet
 
-	nlSetRemoteAddr(Socket,&RemoteAddr);
+	SetRemoteNetAddr(Socket,&RemoteAddr);
 	outpack.Send(Socket);
 
 	iOutgoingBytes += outpack.GetLength();

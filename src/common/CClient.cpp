@@ -333,7 +333,7 @@ void CClient::Connect(char *address)
 // Connecting process
 void CClient::Connecting(void)
 {
-	NLaddress addr;
+	NetworkAddr addr;
 
 	// Check if we are connecting
 	if(iNetStatus != NET_CONNECTING)
@@ -350,9 +350,9 @@ void CClient::Connecting(void)
 		return;
 	}
 
-	nlStringToAddr(strServerAddr,&addr);
-	if(nlGetPortFromAddr(&addr) == 0)
-		nlSetAddrPort(&addr,tLXOptions->iNetworkPort);			// Potential error; What if we are 
+	StringToNetAddr(strServerAddr,&addr);
+	if(GetNetAddrPort(&addr) == 0)
+		SetNetAddrPort(&addr,tLXOptions->iNetworkPort);			// TODO: Potential error; What if we are 
 																// connecting remotely?
 
 	fConnectTime = tLX->fCurTime;
@@ -363,7 +363,7 @@ void CClient::Connecting(void)
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::getchallenge");
 	
-	nlSetRemoteAddr(tSocket,&addr);
+	SetRemoteNetAddr(tSocket,&addr);
 	bs.Send(tSocket);
 }
 

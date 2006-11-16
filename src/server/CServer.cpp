@@ -74,9 +74,9 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 		return false;
 	}
 
-	NLaddress addr;
-	nlGetLocalAddr(tSocket,&addr);
-	nlAddrToString(&addr, tLX->debug_string);
+	NetworkAddr addr;
+	GetLocalNetAddr(tSocket,&addr);
+	NetAddrToString(&addr, tLX->debug_string);
 	printf("HINT: server startet on %s\n", tLX->debug_string);
 
 
@@ -351,12 +351,12 @@ void CServer::Frame(void)
 void CServer::ReadPackets(void)
 {
 	CBytestream bs;
-	NLaddress adrFrom;
+	NetworkAddr adrFrom;
 	int c;
 	
 	while(bs.Read(tSocket)) {
 
-		nlGetRemoteAddr(tSocket,&adrFrom);
+		GetRemoteNetAddr(tSocket,&adrFrom);
 		
 		// Check for connectionless packets (four leading 0xff's)
 		if(*(int *)bs.GetData() == -1) {
@@ -375,7 +375,7 @@ void CServer::ReadPackets(void)
 				continue;
 
 			// Check if the packet is from this player
-			if(!nlAddrCompare(&adrFrom,cl->getChannel()->getAddress()))
+			if(!AreNetAddrEqual(&adrFrom,cl->getChannel()->getAddress()))
 				continue;
 
 			
@@ -437,11 +437,11 @@ void CServer::RegisterServer(void)
     char svr[1024];
 	char buf[512];
 
-	NLaddress addr;
+	NetworkAddr addr;
 
-	nlGetLocalAddr(tSocket,&addr);	
+	GetLocalNetAddr(tSocket,&addr);	
 
-	sprintf(url, "%s?port=%d&addr=%s", LX_SVRREG, nPort, nlAddrToString(&addr, buf));
+	sprintf(url, "%s?port=%d&addr=%s", LX_SVRREG, nPort, NetAddrToString(&addr, buf));
 
     bServerRegistered = false;
 
@@ -529,11 +529,11 @@ bool CServer::DeRegisterServer(void)
     char svr[1024];
 	char buf[512];
 
-	NLaddress addr;
+	NetworkAddr addr;
 
-	nlGetLocalAddr(tSocket,&addr);	
+	GetLocalNetAddr(tSocket,&addr);	
 
-	sprintf(url, "%s?port=%d&addr=%s", LX_SVRDEREG, nPort, nlAddrToString(&addr, buf));
+	sprintf(url, "%s?port=%d&addr=%s", LX_SVRDEREG, nPort, NetAddrToString(&addr, buf));
 
 	// Initialize the request
 	bServerRegistered = false;
@@ -773,7 +773,7 @@ void CServer::banWorm(int wormID)
         return;
 
 	char szAddress[21];
-	nlAddrToString(cl->getChannel()->getAddress(),&szAddress[0]);
+	NetAddrToString(cl->getChannel()->getAddress(),&szAddress[0]);
 
 	if (!w->getName() || !szAddress)
 		return;

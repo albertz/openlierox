@@ -57,21 +57,38 @@ char	*http_GetContent(void);
 void    http_CreateHostUrl(char *host, char *url);
 void	http_Quit(void);
 
+
 // socket type; the structure/type itself will be given around
+// TODO: this defines are workarounds for the moment
 #define NetworkSocket NLsocket
 #define InvalidNetworkState NL_INVALID
+#define NetworkAddr NLaddress
 
-// generell networking
+// general networking
 bool	InitNetworkSystem();
 bool	QuitNetworkSystem();
 NetworkSocket	OpenReliableSocket(unsigned short port);
 NetworkSocket	OpenUnreliableSocket(unsigned short port);
 NetworkSocket	OpenBroadcastSocket(unsigned short port);
+bool	ConnectSocket(NetworkSocket sock, const NetworkAddr* addr);
 bool	ListenSocket(NetworkSocket sock);
 bool	CloseSocket(NetworkSocket sock);
 int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
 int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
+
 int		GetSocketErrorNr();
 const char*	GetSocketErrorStr(int errnr);
+
+bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr);
+bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr* addr);
+bool	SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr* addr);
+bool	IsNetAddrValid(NetworkAddr* addr);
+bool	SetNetAddrValid(NetworkAddr* addr, bool valid);
+bool	StringToNetAddr(const char* string, NetworkAddr* addr);
+bool	NetAddrToString(const NetworkAddr* addr, char* string);
+unsigned short GetNetAddrPort(NetworkAddr* addr);
+bool	SetNetAddrPort(NetworkAddr* addr, unsigned short port);
+bool	AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2);
+bool	GetNetAddrFromNameAsync(const char* name, NetworkAddr* addr);
 
 #endif  //  __NETWORKING_H__
