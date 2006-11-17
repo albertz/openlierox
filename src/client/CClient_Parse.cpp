@@ -117,7 +117,6 @@ void CClient::ParseConnected(CBytestream *bs)
 		
 	// Create my channel
 	GetRemoteNetAddr(tSocket, &addr);
-	nlGetRemoteAddr(tSocket,&addr);
 	cNetChan.Create(&addr,0,tSocket);
 
 	iJoin_Recolorize = true;

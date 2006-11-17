@@ -146,8 +146,7 @@ int http_ProcessRequest(char *szError)
 
 		// Connect to the destination
 		if( !http_Connected ) {
-			int ret = ConnectSocket( http_Socket, &http_RemoteAddress );
-			if(ret == NL_FALSE) {
+			if(!ConnectSocket( http_Socket, &http_RemoteAddress )) {
                 if(szError)
                     strcpy(szError, "Could not connect to the server");
 				http_Quit();
@@ -178,7 +177,7 @@ int http_ProcessRequest(char *szError)
 	// Error, or end of connection?
 	if( count < 0 ) {
 		int err = GetSocketErrorNr();
-		if( err == NL_MESSAGE_END ) {
+		if( IsMessageEndSocketErrorNr(err) ) {
 			// End of connection
 			// Complete!
 			http_Quit();
@@ -390,6 +389,10 @@ int GetSocketErrorNr() {
 
 const char*	GetSocketErrorStr(int errnr) {
 	return nlGetErrorStr(errnr);
+}
+
+bool IsMessageEndSocketErrorNr(int errnr) {
+	return (errnr == NL_MESSAGE_END);
 }
 
 bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr) {

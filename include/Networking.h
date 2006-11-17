@@ -78,6 +78,7 @@ int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
 
 int		GetSocketErrorNr();
 const char*	GetSocketErrorStr(int errnr);
+bool	IsMessageEndSocketErrorNr(int errnr);
 
 bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr);
 bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr* addr);
