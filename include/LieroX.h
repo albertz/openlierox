@@ -16,6 +16,9 @@
 #ifndef __LIEROX_H__
 #define __LIEROX_H__
 
+
+#define		_AI_DEBUG
+
 #define		LX_PORT			23400
 #define		SPAWN_HOLESIZE	4
 #define		LX_VERSION		0.57

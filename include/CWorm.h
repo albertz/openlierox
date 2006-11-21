@@ -1,4 +1,4 @@
-/////////////////////////////////////////
+	/////////////////////////////////////////
 //
 //             Liero Xtreme
 //
@@ -15,11 +15,6 @@
 
 #ifndef __CWORM_H__
 #define __CWORM_H__
-
-#ifndef _AI_DEBUG
-// #define _AI_DEBUG
-#endif  // _AI_DEBUG
-
 
 #define		MAX_WEAPONSLOTS		10
 #define		MAX_WORMS			32
@@ -119,6 +114,11 @@ typedef struct ai_node_s {
     struct ai_node_s    *psChildren[8];
 
 } ai_node_t;
+
+typedef struct NEW_ai_node_s {
+	float fX,fY;
+	struct NEW_ai_node_s *psPrev, *psNext;
+} NEW_ai_node_t;
 
 
 
@@ -256,6 +256,7 @@ private:
 	int			iAiGame;
 	int			iAiTeams;
 	int			iAiTag;
+	int			iAiDiffLevel;
 
 	int			iLastTargetID;
 	int			iForceTargetChange;
@@ -270,6 +271,11 @@ private:
     int         *pnOpenCloseGrid;
     ai_node_t   *psCurrentNode;
 	float       fLastPathUpdate;
+	int			iProcessedNodes;
+
+	NEW_ai_node_t	*NEW_psPath;
+	NEW_ai_node_t	*NEW_psCurrentNode;
+	NEW_ai_node_t	*NEW_psLastNode;
 
 
 public:
@@ -389,8 +395,21 @@ public:
 
     CWorm       *findTarget(int gametype, int teamgame, int taggame, CMap *pcMap);   
     int         traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs = 5);
+	int         traceWormLine(CVec target, CVec start, CMap *pcMap);
 	bool		IsEmpty(int Cell, CMap *pcMap);
     //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
+
+	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap);
+	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap);
+	int			NEW_AI_CreatePath(CMap *pcMap);
+	void		NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap);
+	void		NEW_AI_CleanupPath(void);
+	void		NEW_AI_SimplifyPath(CMap *pcMap);
+	void		NEW_AI_MoveToTarget(CMap *pcMap);
+#ifdef _AI_DEBUG
+	void		NEW_AI_DrawPath(CMap *pcMap);
+#endif
+
 
 
     //int         getBestWeapon(int nGameType, float fDistance, CVec cTarget, CMap *pcMap);

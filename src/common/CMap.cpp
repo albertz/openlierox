@@ -429,6 +429,19 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
+#ifdef _AI_DEBUG
+	bmpDebugImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Width*2, Height*2, fmt->BitsPerPixel, 
+										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+	
+	if (bmpDebugImage == NULL)  {
+		SetError("CMap::CreateSurface(): bmpDebugImage creation failed perhaps out of memory");
+		return false;
+	}
+
+	SDL_SetColorKey(bmpDebugImage, SDL_SRCCOLORKEY, SDL_MapRGB(bmpDebugImage->format,255,0,255));
+	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,MakeColour(255,0,255));
+#endif
+
 	bmpDrawImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Width*2, Height*2, fmt->BitsPerPixel, 
 										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
@@ -663,6 +676,9 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 		//								view->GetLeft(),view->GetTop(), view->GetWidth(), view->GetHeight());
 		//DEBUG_DrawPixelFlags();
 		DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
+#ifdef _AI_DEBUG
+		DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
+#endif
 	}
 
 	// Filtered
@@ -2335,6 +2351,12 @@ void CMap::Shutdown(void)
 			SDL_FreeSurface(bmpDrawImage);
 		bmpDrawImage = NULL;
 
+#ifdef _AI_DEBUG
+		if (bmpDebugImage)
+			SDL_FreeSurface(bmpDebugImage);
+		bmpDebugImage = NULL;
+#endif
+
 		if(bmpBackImage)
 			SDL_FreeSurface(bmpBackImage);
 		bmpBackImage = NULL;
@@ -2372,6 +2394,9 @@ void CMap::Shutdown(void)
 	else  {
 		bmpImage = NULL;
 		bmpDrawImage = NULL;
+#ifdef _AI_DEBUG
+		bmpDebugImage = NULL;
+#endif
 		bmpBackImage = NULL;
 		bmpShadowMap = NULL;
 		bmpMiniMap = NULL;

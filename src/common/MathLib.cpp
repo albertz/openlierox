@@ -58,6 +58,13 @@ int GetRandomInt(int max)
 	return MIN(max, abs((int)f) );
 }
 
+//////////////////
+// Round the number
+int Round(float x)
+{
+        return (int) ceil((double)x-0.5f); 
+}
+
 
 //#ifdef VEC2D
 
@@ -121,6 +128,18 @@ void GetAngles(int yaw,CVec *forward, CVec *right)
 		*right = CVec((-1*sr*sp*cy+-1*cr*-sy),(-1*sr*sp*sy+-1*cr*cy));
 }
 
+//////////////////
+// Get the angle (in radians) of the two vectors
+float VectorAngle(CVec vec1, CVec vec2)
+{
+	//return (float)acos(vec1.GetX()*vec2.GetX()+vec1.GetY()*vec2.GetY())/(VectorLength(vec1)*VectorLength(vec2));
+	float scalar = vec1.GetX()*vec2.GetX() + vec1.GetY()*vec2.GetY();
+	float len1 = VectorLength(vec1);
+	float len2 = VectorLength(vec2);
+	float result = (float)acos(scalar/(len1*len2));
+	return result;
+}
+
 
 ///////////////////
 // Get the length of a vector
@@ -129,12 +148,6 @@ float VectorLength(CVec vec)
 	return (float)fastSQRT( vec.GetX()*vec.GetX() + vec.GetY()*vec.GetY() );
 }
 
-//////////////////
-// Round the number
-int Round(float x)
-{
-        return (int) ceil((double)x-0.5f); 
-}
 
 
 

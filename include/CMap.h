@@ -96,6 +96,9 @@ public:
 		Created = false;
 
 		bmpImage = NULL;
+#ifdef _AI_DEBUG
+		bmpDebugImage = NULL;
+#endif
 		bmpBackImage = NULL;
 		bmpMiniMap = NULL;
 		PixelFlags = NULL;
@@ -130,6 +133,9 @@ private:
     SDL_Surface *bmpGreenMask;
 	uchar		*PixelFlags;    
     SDL_Surface *bmpShadowMap;
+#ifdef _AI_DEBUG
+	SDL_Surface *bmpDebugImage;
+#endif
 
     // AI Grid
     int         nGridWidth, nGridHeight;
@@ -198,6 +204,9 @@ public:
 	SDL_Surface	*GetDrawImage(void)		{ return bmpDrawImage; }
 	SDL_Surface	*GetImage(void)			{ return bmpImage; }
 	SDL_Surface	*GetMiniMap(void)		{ return bmpMiniMap; }
+#ifdef _AI_DEBUG
+	SDL_Surface *GetDebugImage(void)	{ return bmpDebugImage; }
+#endif
 
 	void		AddObject(int type, int size, CVec pos);
 

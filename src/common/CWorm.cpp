@@ -86,6 +86,10 @@ void CWorm::Clear(void)
 	fLastCarve = -9999;
     pnOpenCloseGrid = NULL;
     //fLastWeaponSwitch = -9999;
+	NEW_psPath = NULL;
+	NEW_psCurrentNode = NULL;
+	NEW_psLastNode = NULL;
+	iProcessedNodes = 0;
 
 	bmpWorm = NULL;
 	bmpGibs = NULL;

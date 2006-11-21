@@ -239,26 +239,6 @@ SOURCE=..\..\include\MathLib.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\mmgr.cpp
-
-!IF  "$(CFG)" == "Game - Win32 Release"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Game - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ELSEIF  "$(CFG)" == "Game - Win32 Profile"
-
-# PROP BASE Exclude_From_Build 1
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\RandomNumberList.h
 # End Source File
 # Begin Source File
