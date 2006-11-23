@@ -1212,7 +1212,6 @@ void CClient::LaserSight(CWorm *w)
 
 				// We have a target
 				w->setTarget(true);
-				w->setTargetID(w->getID()); // for AI
 				break;
 			}
 		}

@@ -137,6 +137,8 @@ float VectorAngle(CVec vec1, CVec vec2)
 	float len1 = VectorLength(vec1);
 	float len2 = VectorLength(vec2);
 	float result = (float)acos(scalar/(len1*len2));
+	while (result > (float)PI/2)
+		result -= (float)PI/2;
 	return result;
 }
 

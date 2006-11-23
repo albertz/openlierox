@@ -106,12 +106,10 @@ void CWorm::Clear(void)
 
 	fLastFace = 0;
 	fBadAimTime = 0;
-	iTargetID = -1;
-	fTargetTime = 0;
-	iLastTargetID = -1;
-	iForceTargetChange = false;
 
 	fLastShoot = 0; // for AI
+	fLastJump = 999999;
+	fLastWeaponChange = 0;
 }
 
 

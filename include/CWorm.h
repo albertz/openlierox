@@ -252,17 +252,14 @@ private:
 	float		fSpawnTime;
 	float		fBadAimTime;
     int			iAiGameType; // AI game type, we have predefined behaviour for mostly played settings
-	int			iTargetID;  // for GAM_RIFLES, checking whether someone aims at us
 	int			iAiGame;
 	int			iAiTeams;
 	int			iAiTag;
 	int			iAiDiffLevel;
 
-	int			iLastTargetID;
-	int			iForceTargetChange;
-	float		fTargetTime;
-
 	float		fLastShoot;
+	float		fLastJump;
+	float		fLastWeaponChange;
 
 
     // Path Finding
@@ -395,11 +392,13 @@ public:
 
     CWorm       *findTarget(int gametype, int teamgame, int taggame, CMap *pcMap);   
     int         traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs = 5);
+	int			traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType);
 	int         traceWormLine(CVec target, CVec start, CMap *pcMap);
 	bool		IsEmpty(int Cell, CMap *pcMap);
     //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
 
 	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap);
+	bool		NEW_AI_CheckFreeCells(int Num,CMap *pcMap);
 	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap);
 	int			NEW_AI_CreatePath(CMap *pcMap);
 	void		NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap);
@@ -501,8 +500,6 @@ public:
     int         getDirtCount(void)          { return iDirtCount; }
 
 	void		setTarget(int _t)			{ iGotTarget = _t; }
-	void		setTargetID(int _id)		{ iTargetID = _id; }
-	int			getTargetID(void)			{ return iTargetID; }
 
 	float		getTagTime(void)			{ return fTagTime; }
 	void		setTagTime(float _t)		{ fTagTime = _t; }
