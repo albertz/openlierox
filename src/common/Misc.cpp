@@ -372,29 +372,22 @@ bool stripdot(char *buf, int width)
 ///////////////////
 // Changes the string to have all first letters upper case
 // Returns text
-// TODO: the parameter will be changed directly; that's bad stile
+// TODO: the parameter will be changed directly; that's bad style
 char *ucfirst(char *text)
 {
-#ifdef WIN32	
-	strlwr(text);
-
-	char buf[2]; 
-	buf[0] = text[0];
-	buf[1] = '\0';
-	strupr(buf);
-
-	text[0] = buf[0];
-
-	for(int i=0; i<(int)strlen(text)-1; i++)
-		if (*(text+i) == ' ' || *(text+i) == '.')  {
-			buf[0] = *(text+i+1);
-			buf[1] = '\0';
-			strupr(buf);
-			*(text+i+1) = buf[0];
+	size_t i = 0;
+	bool make_upper = true;
+	
+	for(; text[i] != '\0'; i++) {
+		if(text[i] == ' ' || text[i] == '.') {
+			make_upper = true;
+		} else if(make_upper) {
+			text[i] = toupper(text[i]);			
+			make_upper = false;
+		} else {
+			text[i] = tolower(text[i]);
 		}
-#else
-	// TODO: ...
-#endif
+	}
 	
 	return text;
 }
@@ -419,6 +412,7 @@ void ByteSwap(unsigned char * b, int n)
 // chrcasecmp - like strcasecomp, but for a single char
 int chrcasecmp(const char c1, const char c2)
 {
+	// TODO: this should be made better
 	register char buf1[2];
 	register char buf2[2];
 	buf1[0] = c1; buf1[1] = '\0';
@@ -431,12 +425,10 @@ int chrcasecmp(const char c1, const char c2)
 // Gets the string <beginning of text,searched character)
 void ReadUntil(const char *text, char until_character, char *result)
 {
-	int i=0;
-	while(*(text+i) != until_character && i<(int)strlen(text)) {
-		*(result+i) = *(text+i);
-		i++;
-	}
-	*(result+i) = '\0';
+	size_t i = 0;
+	for(; text[i] != until_character && text[i] != '\0'; i++)
+		result[i] = text[i];
+	result[i] = '\0';
 }
 
 //////////////////

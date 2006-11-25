@@ -19,8 +19,7 @@
 #define __DEFS_H__
 
 // Global compile defines
-// TODO: is the '=' correct?
-#define DEBUG	= 1;
+#define DEBUG	1
 
 
 // Standard includes
