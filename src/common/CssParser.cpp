@@ -591,3 +591,4 @@ void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint
 	else
 		*LightColour = *DarkColour;
 }
+

@@ -131,10 +131,13 @@ int chrcasecmp(const char c1, const char c2);
 
 #ifndef WIN32
 inline char* itoa(int val, char* buf, int base) {
-	int i = 30;
+	size_t i = 30; // TODO: bad style!
+	buf[i+1] = '\0';
+
 	for(; val && i ; --i, val /= base)	
-		buf[i] = "0123456789abcdef"[val % base];	
-	return &buf[i+1];	
+		buf[i] = "0123456789abcdef"[val % base];
+	
+	return &buf[i+1];
 }
 #	define		stricmp		strcasecmp
 #endif

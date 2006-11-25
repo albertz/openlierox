@@ -3056,3 +3056,4 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
 	
 }
+
