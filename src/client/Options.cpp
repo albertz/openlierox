@@ -30,18 +30,41 @@ int LoadOptions(void)
     char    *ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
     char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode"};
     char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
+    
     int     i;
-
+	
 	tLXOptions = new options_t;
 	if(tLXOptions == NULL) {
 		return false;
 	}
 
 
-    char    *f = {"cfg/options.cfg"};
+
+    char *f = "cfg/options.cfg";
 
   	AddKeyword("true",true);
 	AddKeyword("false",false);
+
+
+	// File handling
+	// read this first, because perhaps we will have new searchpaths
+	InitBaseSearchPaths();
+	char tmp[20], tmp2[30];
+	strcpy(tmp, "SearchPath"); i = 1;
+	filelist_t** spath = &tLXOptions->tSearchPaths;
+    while(true) {
+    	 // &tmp[10] is the end of "SearchPath"
+    	strcpy(&tmp[10], itoa(i, tmp2, 10));
+    	*spath = new filelist_t;
+        if(!ReadString(f, "FileHandling", tmp, (*spath)->filename, NULL)) {
+        	delete *spath; *spath = NULL;     	
+        	break;
+        }
+		i++; spath = &(*spath)->next;
+	}
+	for(spath = &basesearchpaths; *spath != NULL; spath = &(*spath)->next)
+		if(!FileListIncludes(tLXOptions->tSearchPaths, (*spath)->filename))
+			AddToFileList(&tLXOptions->tSearchPaths, (*spath)->filename);
 
 
     // Video
@@ -113,6 +136,13 @@ int LoadOptions(void)
 	return true;
 }
 
+// shutdown a filelist_t structure
+void ShutdownFilenameStruct(filelist_t* f) {
+	if(f != NULL) {
+		ShutdownFilenameStruct(f->next);
+		delete f;
+	}
+}
 
 ///////////////////
 // Save & shutdown the options
@@ -125,8 +155,12 @@ void ShutdownOptions(void)
 
 	// Free the structure
 	assert(tLXOptions);
+	ShutdownFilenameStruct(tLXOptions->tSearchPaths);
 	delete tLXOptions;
 	tLXOptions = NULL;
+	
+	ShutdownFilenameStruct(basesearchpaths);
+	basesearchpaths = NULL;
 }
 
 
@@ -141,7 +175,7 @@ void SaveOptions(void)
     if(tLXOptions == NULL)
 		return;
 
-    FILE *fp = fopen_i("cfg/options.cfg", "wt");
+    FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
     if(fp == NULL)
         return;
 
@@ -169,6 +203,12 @@ void SaveOptions(void)
 	fprintf(fp,"LogConversations = %s\n",	tLXOptions->iLogConvos ? "true" : "false");
 	fprintf(fp,"ShowPing = %s\n",			tLXOptions->iShowPing ? "true" : "false");
 	fprintf(fp,"ScreenshotFormat = %d\n",	tLXOptions->iScreenshotFormat);
+	fprintf(fp,"\n");
+
+	fprintf(fp, "[FileHandling]\n");
+	filelist_t* spath = tLXOptions->tSearchPaths;
+	for(i = 1; spath != NULL; i++, spath = spath->next)
+    	fprintf(fp, "SearchPath%i = %s\n", i, spath->filename);	
 	fprintf(fp,"\n");
 
     fprintf(fp, "[Ply1Controls]\n");
@@ -256,3 +296,4 @@ bool LoadNetworkStrings(void)
 
 	return true;
 }
+

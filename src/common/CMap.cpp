@@ -385,21 +385,21 @@ bool CMap::validateTheme(char *name)
 
     // Backtile.png
     sprintf(buf,"%s/backtile.png", thm);
-    fp = fopen_i(buf,"rb");
+    fp = OpenGameFile(buf,"rb");
     if( !fp )
         return false;
     fclose(fp);
 
     // Fronttile.png
     sprintf(buf,"%s/fronttile.png", thm);
-    fp = fopen_i(buf,"rb");
+    fp = OpenGameFile(buf,"rb");
     if( !fp )
         return false;
     fclose(fp);
 
     // Theme.txt
     sprintf(buf,"%s/theme.txt", thm);
-    fp = fopen_i(buf,"rt");
+    fp = OpenGameFile(buf,"rt");
     if( !fp )
         return false;
     fclose(fp);
@@ -1707,7 +1707,7 @@ int CMap::Load(char *filename)
 	if (strlen(filename) == 0)
 		return true;
 
-	FILE *fp = fopen_i(filename,"rb");
+	FILE *fp = OpenGameFile(filename,"rb");
 	if(fp == NULL)
 		return false;
 
@@ -1843,7 +1843,7 @@ int CMap::Load(char *filename)
 // Save the map
 int CMap::Save(char *name, char *filename)
 {
-	FILE *fp = fopen_i(filename,"wb");
+	FILE *fp = OpenGameFile(filename,"wb");
 	if(fp == NULL)
 		return false;
 
@@ -2134,7 +2134,7 @@ int CMap::LoadOriginal(FILE *fp)
 
 	// Load the palette
 	if(!Powerlevel) {
-		FILE *pal = fopen_i("data/lieropal.act","rb");
+		FILE *pal = OpenGameFile("data/lieropal.act","rb");
 		if(!pal) {
 			fclose(fp);
 			return false;
@@ -2296,7 +2296,7 @@ void CMap::Send(CBytestream *bs)
 {
 	// At the moment, just write the data to a file and compress it to see how big it is
 	FILE *fp;
-	fp = fopen_i("tempmap.dat","wb");
+	fp = OpenGameFile("tempmap.dat","wb");
 
 	int n;
 	

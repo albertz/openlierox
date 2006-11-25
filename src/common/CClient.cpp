@@ -392,7 +392,7 @@ void CClient::Disconnect(void)
 		if(!bInServer)
 			return;
 
-		f = fopen_i("Conversations.log","a");
+		f = OpenGameFile("Conversations.log","a");
 		if (!f) 
 			return;
 		fputs("  </server>\r\n",f);
@@ -547,7 +547,7 @@ void CClient::Shutdown(void)
 		if(!bInServer)
 			return;
 
-		f = fopen_i("Conversations.log","a");
+		f = OpenGameFile("Conversations.log","a");
 		if (!f) 
 			return;
 		fputs("  </server>\r\n",f);

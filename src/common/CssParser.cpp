@@ -502,7 +502,7 @@ bool CCssParser::Parse(char *sFilename)
 		return false;
 
 	// Open the file
-	FILE *fp = fopen_i(sFilename,"rb");
+	FILE *fp = OpenGameFile(sFilename,"rb");
 	if (!fp)
 		return false;
 

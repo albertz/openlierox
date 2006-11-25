@@ -1405,7 +1405,7 @@ bool SavePNG(SDL_Surface *image, char *FileName)
   FILE *out;
   int size;
   char *data;
-  out = fopen_i(FileName, "wb");
+  out = OpenGameFile(FileName, "wb");
   if (!out) {
     return false;
   }
@@ -1442,7 +1442,7 @@ bool SaveJPG(SDL_Surface *image, char *FileName, int Quality)
   FILE *out;
   int size;
   char *data;
-  out = fopen_i(FileName, "wb");
+  out = OpenGameFile(FileName, "wb");
   if (!out) {
     return false;
   }
@@ -1479,7 +1479,7 @@ bool SaveGIF(SDL_Surface *image, char *FileName)
   FILE *out;
   int size;
   char *data;
-  out = fopen_i(FileName, "wb");
+  out = OpenGameFile(FileName, "wb");
   if (!out) {
     return false;
   }

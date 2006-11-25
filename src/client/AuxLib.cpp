@@ -44,6 +44,7 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 
 	// Solves problem with FPS in fullscreen
 #ifdef WIN32
+	// TODO: do it better
 	SDL_putenv("SDL_VIDEODRIVER=directx");
 #endif
 
@@ -105,7 +106,7 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 	/*
 		Temp thing to create a random number table
 	*/
-	/*FILE *fp = fopen_i("randomnum.cpp", "wt");
+	/*FILE *fp = OpenGameFile("randomnum.cpp", "wt");
 
 	fprintf(fp, "float RandomNumbers[] = { ");
 	for(int i=0;i<256; i++) {
@@ -526,7 +527,7 @@ void TakeScreenshot(void)
     for(i=0; 1; i++) {
 		sprintf(picname,"%s%d%s","lierox",i,extension);
 		sprintf(checkname, "scrshots/%s", picname);
-		f = fopen_i(checkname, "rb");
+		f = OpenGameFile(checkname, "rb");
 		if (!f)
 			break;	// file doesn't exist
 		fclose(f);

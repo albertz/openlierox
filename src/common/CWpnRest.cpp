@@ -164,7 +164,7 @@ void CWpnRest::addWeapon(char *szName, int nState)
 void CWpnRest::saveList(char *szFilename)
 {
     // Save it as plain text
-    FILE *fp = fopen_i(szFilename, "wt");
+    FILE *fp = OpenGameFile(szFilename, "wt");
     if( !fp )
         return;
 
@@ -185,7 +185,7 @@ void CWpnRest::loadList(char *szFilename)
     // Shutdown the list first
     Shutdown();
 
-    FILE *fp = fopen_i(szFilename, "rt");
+    FILE *fp = OpenGameFile(szFilename, "rt");
     if( !fp )
         return;
 

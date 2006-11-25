@@ -32,7 +32,7 @@ SDL_Surface	*Screen;
 
 CVec		vGravity = CVec(0,4);
 
-
+char*		argv0;
 
 ///////////////////
 // Main entry point
@@ -41,22 +41,8 @@ int main(int argc, char *argv[])
     int     startgame = false;
     float   fMaxFPS = 85;
 
-	// this behavior only make sense for a win-system
-	// under unix, the bin and the data are seperate
-	#ifdef WIN32
-		// Reset the current working directory (remove the filename first!!!)
-		// Note: Windows give the exe path and name in the first parameter
-		char *slashpos = strrchr(argv[0],'\\');
-		*slashpos = 0;
-		chdir(argv[0]);
-	#else
-		// TODO: set and handles the following search pathes:
-		// . , ~/.OpenLieroX , /usr/share/OpenLieroX
-		// for the moment, only the actual path will be used
-		// we need a abstract resource system to handle this
-		// Quake3 make it very well, should we copy it?
-	#endif
-
+	argv0 = argv[0];
+	
 	// Load options and other settings
 	if(!LoadOptions())
 		return -1;
@@ -85,7 +71,7 @@ int main(int argc, char *argv[])
 	if (tLXOptions->iLogConvos)  {
 		FILE *f;
 
-		f = fopen_i("Conversations.log","a");
+		f = OpenGameFile("Conversations.log","a");
 		if (f)  {	
 			char cTime[26];
 			GetTime(cTime);
@@ -198,25 +184,8 @@ void ParseArguments(int argc, char *argv[])
 // Initialize the game
 int InitializeLieroX(void)
 {
-        printf("Hello there, I am initializing me now...\n");
+	printf("Hello there, I am initializing me now...\n");
 
-#ifndef WIN32
-        struct stat s;
-        char fname[256];
-        GetExactFileName("data", fname);
-        if(stat(fname, &s) != 0)
-        {
-                SystemError("ERROR: data-directory not found");
-                return false;
-        }
-        if(!(s.st_mode & S_IFDIR))
-        {
-                SystemError("ERROR: very strange: data is no directory");
-                return false;
-        }
-#else // WIN32
-	// TODO: ...
-#endif
 	
 	// Initialize the aux library
 	if(!InitializeAuxLib("Liero Xtreme","config.cfg",16,0)) {
@@ -415,7 +384,7 @@ void ShutdownLieroX(void)
 	if (tLXOptions->iLogConvos)  {
 		FILE *f;
 
-		f = fopen_i("Conversations.log","a");
+		f = OpenGameFile("Conversations.log","a");
 		if (f)  { 
 			fputs("</game>\r\n",f);
 			fclose(f);
@@ -448,9 +417,6 @@ void ShutdownLieroX(void)
 		cServer = NULL;
 	}
 
-
-	ShutdownOptions();
-
 	ShutdownEntities();
 	
 	if(tLX) {
@@ -461,6 +427,8 @@ void ShutdownLieroX(void)
 	QuitNetworkSystem();
 	
 	ShutdownAuxLib();
+
+	ShutdownOptions();
 
 	printf("Everything was shut down\n");
 	printf("Good Bye and enjoy your day...\n");

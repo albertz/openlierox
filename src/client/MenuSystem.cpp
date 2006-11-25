@@ -301,7 +301,7 @@ char *Menu_GetLevelName(char *filename)
 
  // Liero Xtreme level
 	if( stricmp(filename + strlen(filename)-4, ".lxl") == 0) {
-		FILE *fp = fopen_i(Path,"rb");
+		FILE *fp = OpenGameFile(Path,"rb");
 		if(fp) {
 			fread(id,		sizeof(char),	32,	fp);
 			fread(&version,	sizeof(int),	1,	fp);
@@ -320,7 +320,7 @@ char *Menu_GetLevelName(char *filename)
 
  // Liero level
 	if( stricmp(filename + strlen(filename)-4, ".lev") == 0) {
-		FILE *fp = fopen_i(filename,"rb");
+		FILE *fp = OpenGameFile(filename,"rb");
 			
 		if(fp) {
 
@@ -922,7 +922,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 		// Liero Xtreme level
 		if( stricmp(filename + strlen(filename)-4, ".lxl") == 0) {
-			FILE *fp = fopen_i(filename,"rb");
+			FILE *fp = OpenGameFile(filename,"rb");
 			if(fp) {
 				 fread(id,			sizeof(char),	32,	fp);
 				fread(&version,	sizeof(int),	1,	fp);
@@ -948,7 +948,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 		// Liero level
 		if( stricmp(filename + strlen(filename)-4, ".lev") == 0) {
-			FILE *fp = fopen_i(filename,"rb");
+			FILE *fp = OpenGameFile(filename,"rb");
 			
 			if(fp) {
 
@@ -1627,7 +1627,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 // Save the server list
 void Menu_SvrList_SaveList(char *szFilename)
 {
-    FILE *fp = fopen_i(szFilename,"wt");
+    FILE *fp = OpenGameFile(szFilename,"wt");
     if( !fp )
         return;
 
@@ -1643,9 +1643,9 @@ void Menu_SvrList_SaveList(char *szFilename)
 // Add a favourite server
 void Menu_SvrList_AddFavourite(char *szName, char *szAddress)
 {
-    FILE *fp = fopen_i("cfg/favourites.dat","a");  // We're appending
+    FILE *fp = OpenGameFile("cfg/favourites.dat","a");  // We're appending
     if( !fp )  {
-        fp = fopen_i("cfg/favourites.dat","wb");  // Try to create the file
+        fp = OpenGameFile("cfg/favourites.dat","wb");  // Try to create the file
 		if (!fp)
 			return;
 	}
@@ -1661,7 +1661,7 @@ void Menu_SvrList_AddFavourite(char *szName, char *szAddress)
 // Load the server list
 void Menu_SvrList_LoadList(char *szFilename)
 {
-    FILE *fp = fopen_i(szFilename,"rt");
+    FILE *fp = OpenGameFile(szFilename,"rt");
     if( !fp )
         return;
 

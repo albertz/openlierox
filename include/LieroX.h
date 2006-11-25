@@ -134,7 +134,7 @@ extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern  int				nDisableSound;
 
-
+extern	char*	argv0;
 
 
 // Main Routines

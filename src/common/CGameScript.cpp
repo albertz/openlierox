@@ -26,7 +26,7 @@ int CGameScript::Save(char *filename)
 
 
 	// Open it
-	fp = fopen_i(filename,"wb");
+	fp = OpenGameFile(filename,"wb");
 	if(fp == NULL) {
 		printf("Error: Could not open %s for writing\n",filename);
 		return false;
@@ -305,7 +305,7 @@ int CGameScript::Load(char *dir)
 	strcpy(sDirectory, dir);
 
 	// Open it
-	fp = fopen_i(filename,"rb");
+	fp = OpenGameFile(filename,"rb");
 	if(fp == NULL) {
 		SetError("CGameScript::Load(): Could not load file %s",filename);
 		return GSE_FILE;
@@ -885,7 +885,7 @@ int CGameScript::CheckFile(char *dir, char *name)
 	sprintf(filename,"%s/script.lgs",dir);
 
 	// Open it
-	FILE *fp = fopen_i(filename,"rb");
+	FILE *fp = OpenGameFile(filename,"rb");
 	if(fp == NULL)
 		return false;
 
@@ -960,7 +960,7 @@ void CGameScript::modLog(char *fmt, ...)
 	printf("%s\n", buf);
 	
 	if(!pModLog) {
-		pModLog = fopen_i("modlog.txt","wt");
+		pModLog = OpenGameFile("modlog.txt","wt");
 		if(!pModLog)
 			return;
 		fprintf(pModLog,"Log file for mod:\n%s\n--------------------------------\n",Header.ModName);

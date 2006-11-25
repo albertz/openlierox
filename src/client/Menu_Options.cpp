@@ -574,7 +574,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 						tLXOptions->iLogConvos = cOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, 0, 0);
 						FILE *f;
 						
-						f = fopen_i("Conversations.log","a");
+						f = OpenGameFile("Conversations.log","a");
 						if (f)  {
 							if (tLXOptions->iLogConvos)  {
 								char cTime[26];

@@ -599,7 +599,7 @@ void CClient::ParseText(CBytestream *bs)
 			return;
 		}
 
-		f = fopen_i("Conversations.log","a");
+		f = OpenGameFile("Conversations.log","a");
 		if (!f) 
 			return;
 		fputs("    <message type=\"",f);
@@ -788,7 +788,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 
 		FILE *f;
 
-		f = fopen_i("Conversations.log","a");
+		f = OpenGameFile("Conversations.log","a");
 		if (!f) 
 			return;
 		fputs("  <server hostname=\"",f);
@@ -895,7 +895,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     
     // Does the level file exist
     sprintf(buf, "levels/%s",gl->szMapName);
-    fp = fopen_i(buf,"rb");
+    fp = OpenGameFile(buf,"rb");
     if(!fp)
         gl->bHaveMap = false;
     else
@@ -913,7 +913,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
     // Does the 'script.lgs' file exist in the mod dir?
     sprintf(buf, "%s/script.lgs",gl->szModDir);
-    fp = fopen_i(buf,"rb");
+    fp = OpenGameFile(buf,"rb");
     if(!fp)
         gl->bHaveMod = false;
     else
@@ -976,7 +976,7 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 
 		FILE *f;
 
-		f = fopen_i("Conversations.log","a");
+		f = OpenGameFile("Conversations.log","a");
 		if (!f) 
 			return;
 		fputs("  </server>\r\n",f);
@@ -1087,7 +1087,7 @@ void CClient::ParseDropped(CBytestream *bs)
 
 		FILE *f;
 
-		f = fopen_i("Conversations.log","a");
+		f = OpenGameFile("Conversations.log","a");
 		if (!f) 
 			return;
 		fputs("    <message type=\"NETWORK\" text=\"",f);

@@ -507,7 +507,7 @@ void Menu_Net_NETUpdateList(void)
     int CurServer = 0;
     bool SentRequest = false;
     char szLine[1024];
-    FILE *fp = fopen_i("cfg/masterservers.txt","rt");
+    FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
     if( !fp )
         return;
 

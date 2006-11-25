@@ -33,7 +33,7 @@ void SetError(char *fmt, ...)
 
 
 	if(ErrorFile == NULL) {
-		ErrorFile = fopen_i("Error.txt","wt");
+		ErrorFile = OpenGameFile("Error.txt","wt");
 		if(ErrorFile == NULL)
 			return;
 		fprintf(ErrorFile,"%s error file\n----------------------\n",GetGameName());

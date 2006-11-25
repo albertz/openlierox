@@ -60,7 +60,6 @@ enum {
 };
 
 
-
 // Options structure
 typedef struct {
 
@@ -101,6 +100,9 @@ typedef struct {
 	int     iLogConvos;
 	int		iShowPing;
 	int		iScreenshotFormat;
+	
+	// File handling
+	filelist_t*	tSearchPaths;
 
 	// Last used game details
 	struct {

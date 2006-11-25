@@ -9,9 +9,19 @@
 // Created 30/9/01
 // By Jason Boettcher
 
+// TODO: rename this file
 
 #ifndef __FINDFILE_H__
 #define __FINDFILE_H__
+
+
+struct filelist_t {
+	char filename[64]; // TODO: enough?
+	filelist_t* next;
+}; 
+
+void	AddToFileList(filelist_t** l, const char* f);
+bool	FileListIncludes(const filelist_t* l, const char* f);
 
 
 // Routines
@@ -23,14 +33,17 @@ int		FindNextDir(char *name);
 
 
 #ifndef WIN32
+
 // mostly all system but Windows use case sensitive file systems
 // this game uses also filenames ignoring the case sensitivity
 // this function gives the case sensitive right name of a file
 // returns false if no success, true else
-int GetExactFileName(const char* searchname, char* filename);
+bool GetExactFileName(const char* searchname, char* filename);
+
 #else // WIN32
+
 // on Windows, we don't need it, so does a simple strcpy
-inline int GetExactFileName(const char* searchname, char* filename) {
+inline bool GetExactFileName(const char* searchname, char* filename) {
 	strcpy(filename, searchname);
 
 	// Return false, if file doesn't exist
@@ -43,18 +56,14 @@ inline int GetExactFileName(const char* searchname, char* filename) {
 }
 #endif
 
-// case insensitive fopen
-inline FILE *fopen_i(const char *path, const char *mode) {
-#ifndef WIN32	
-	static char fname[256] = "";
-//	printf("fopen %s\n", path);
-	GetExactFileName(path, fname);
-//	printf("fopen -> %s\n", fname);
-	return fopen(fname, mode);
-#else
-	return fopen(path, mode);
-#endif
-}
+
+extern filelist_t*	basesearchpaths;
+void	InitBaseSearchPaths();
+
+// replacement for the simple fopen
+// this does a search on all searchpaths for the file and opens the first one; if none was found, NULL will be returned
+// related to tLXOptions->tSearchPaths
+FILE	*OpenGameFile(const char *path, const char *mode);
 
 
 #endif  //  __FINDFILE_H__

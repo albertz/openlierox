@@ -79,7 +79,7 @@ int ReadInteger(char *filename, char *section, char *key, int *value, int defaul
 // Read a string from a file
 int ReadString(char *filename, char *section, char *key, char *value, char *defaultv)
 {
-	strcpy(value,defaultv);
+	if(defaultv != NULL) strcpy(value,defaultv);
 
 	return GetString(filename,section,key,value);
 
@@ -131,7 +131,7 @@ int GetString(char *filename, char *section, char *key, char *string)
 	if(strcmp(filename,"") == 0)
 		return false;
 
-	config = fopen_i(filename,"rt");
+	config = OpenGameFile(filename,"rt");
 	if(!config)	
 		return false;
 

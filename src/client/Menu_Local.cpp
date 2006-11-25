@@ -1358,7 +1358,7 @@ int Menu_WeaponPresetsOkSave(char *szFilename)
 	if( stricmp( szFilename + strlen(szFilename) - 4, ".wps") != 0)
 		strcat(szFilename,".wps");
 
-	FILE *fp = fopen_i(szFilename,"rb");
+	FILE *fp = OpenGameFile(szFilename,"rb");
 	if( fp == NULL)
 		// File doesn't exist, ok to save
 		return true;
