@@ -365,6 +365,8 @@ void CClient::Connecting(void)
 	
 	SetRemoteNetAddr(tSocket,&addr);
 	bs.Send(tSocket);
+
+	printf("HINT: sending challenge request to %s\n", strServerAddr);
 }
 
 

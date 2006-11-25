@@ -71,6 +71,7 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 		return false;
 	}
 	if(!ListenSocket(tSocket)) {
+		SystemError( "Error: cannot start listening" );
 		return false;
 	}
 
@@ -119,8 +120,10 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 		cClients[i].Clear();
 
 		// Initialize the shooting list
-		if( !cClients[i].getShootList()->Initialize() )
+		if( !cClients[i].getShootList()->Initialize() ) {
+			SystemError( "cannot initialize the shooting list of some client" );
 			return false;
+		}
 	}
 
 
@@ -184,6 +187,7 @@ int CServer::StartGame(void)
 		strcpy(sMapFilename,"levels/");
 		strcat(sMapFilename, tGameInfo.sMapname);
 		if(!cMap->Load(sMapFilename)) {
+			printf("Error: Could not load the '%s' level\n",sMapFilename);
 			return false;
 		}
 	}
