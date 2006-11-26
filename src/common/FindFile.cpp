@@ -472,17 +472,29 @@ void InitBaseSearchPaths() {
 	assert(basesearchpaths == NULL);
 	
 #ifndef WIN32
-	AddToFileList(&basesearchpaths, ".");
 	AddToFileList(&basesearchpaths, GetHomeDir());
+	AddToFileList(&basesearchpaths, ".");
 	AddToFileList(&basesearchpaths, "/usr/share/OpenLieroX");
 #else // Win32
-	AddToFileList(&basesearchpaths, ".");
 	AddToFileList(&basesearchpaths, GetHomeDir());
+	AddToFileList(&basesearchpaths, ".");
 	// add EXE-file path
 	char *slashpos = strrchr(argv0,'\\');
 	*slashpos = 0;
 	AddToFileList(&basesearchpaths, argv0);
 #endif
+}
+
+void CreateRecDir(char* f) {
+	static char tmp[256];	
+	for(size_t i = 0; f[i] != '\0'; i++) {
+		tmp[i] = f[i];
+		if(tmp[i] == '\\' || tmp[i] == '/') {
+			tmp[i] = '\0';
+			mkdir(tmp, 0777);
+			tmp[i] = f[i];
+		}
+	}
 }
 
 FILE *OpenGameFile(const char *path, const char *mode) {
@@ -494,6 +506,7 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 		strcat(tmp, "/");
 		strcat(tmp, path);
 		GetExactFileName(tmp, fname);
+		CreateRecDir(fname);
 		return fopen(fname, mode);
 	}		
 	
@@ -559,7 +572,8 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 char* GetHomeDir() {
 	static char tmp[256];
 #ifndef WIN32
-	strcpy(tmp, "~/.OpenLieroX");
+	strcpy(tmp, getenv("HOME"));
+	strcat(tmp, "/.OpenLieroX");
 #else
 	// TODO ...
 #endif
