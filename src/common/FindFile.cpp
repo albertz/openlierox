@@ -13,6 +13,29 @@
 #include "defs.h"
 #include "LieroX.h"
 
+bool reset_nextsearchpath = true;
+filelist_t* nextsearchpath = NULL;
+
+// TODO: this does not handle the FindFile and FindDir seperatly
+char* GetFullFileName(const char* f) {
+	static char tmp[256];
+	if(nextsearchpath != NULL) {
+		strcpy(tmp, nextsearchpath->filename);
+		strcat(tmp, "/");
+		strcat(tmp, f);
+		return tmp;	
+	} else
+		return NULL;
+}
+
+bool CanReadFile(const char* f) {
+	FILE* h = OpenGameFile(f, "r");
+	if(!h) return false;
+	fclose(h);
+	return true;
+}
+
+
 #ifndef WIN32
 
 /*
@@ -26,37 +49,43 @@
 char	_dir[256];
 DIR*	handle = NULL;
 dirent* entry = NULL;
-struct stat	entrystat;
 
 ///////////////////
 // Find the first file
 int FindFirst(char *dir, char *ext, char *filename)
 {
-	GetExactFileName(dir, _dir);
+	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
+	GetExactFileName(GetFullFileName(dir), _dir);
+	if(_dir[0] == '\0')
+		return false;
 	
 	if(strcmp(ext, "*") != 0)
-		printf("FindFirst: ERROR: I can't handle anything else than * \n");
+		printf("FindFirst: WARNING: I can't handle anything else than * as ext \n");
 
-	if((handle = opendir(_dir)) == 0)
-		return false;
-
-	while(entry = readdir(handle)) // Keep going until we found the first file
+	handle = opendir(_dir);
+	strcpy(_dir, dir);
+	
+	while(handle != 0 && (entry = readdir(handle)) != 0) // Keep going until we found the first file
 	{
 		//If file is not self-directory or parent-directory
 		if(strcmp(entry->d_name, "."))
 		 if(strcmp(entry->d_name, ".."))
 		 {
 			sprintf(filename,"%s/%s",_dir,entry->d_name);
-					
-			//If found file is a file
-			if(stat(filename, &entrystat) == 0 && entrystat.st_mode & S_IFREG)
+
+			if(CanReadFile(filename))
 				return true;
 		}
 
 	}
 
-	closedir(handle);
-	return false;
+	if(handle) closedir(handle);
+	nextsearchpath = nextsearchpath->next;
+	reset_nextsearchpath = false;
+	static char tmp[256]; strcpy(tmp, _dir);
+	int ret = FindFirst(tmp, "*", filename);
+	reset_nextsearchpath = true;	
+	return ret;
 }
 
 
@@ -72,14 +101,18 @@ int FindNext(char *filename)
 		 {
 			sprintf(filename,"%s/%s",_dir,entry->d_name);
 		
-			//If found file is a file
-			if(stat(filename, &entrystat) == 0 && entrystat.st_mode & S_IFREG)
+			if(CanReadFile(filename))
 				return true;
 		}
 	}
 
 	closedir(handle);
-	return false;
+	nextsearchpath = nextsearchpath->next;
+	reset_nextsearchpath = false;
+	static char tmp[256]; strcpy(tmp, _dir);
+	int ret = FindFirst(tmp, "*", filename);
+	reset_nextsearchpath = true;	
+	return ret;
 }
 
 
@@ -99,18 +132,20 @@ int FindNext(char *filename)
 char	_dir2[256];
 DIR*	handle2 = NULL;
 dirent* entry2 = NULL;
-struct stat	entry2stat;
 
 ///////////////////
 // Find the first dir
 int FindFirstDir(char *dir, char *name)
 {
-	GetExactFileName(dir, _dir2);
-	
-	if((handle2 = opendir(_dir2)) == 0)
+	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
+	GetExactFileName(GetFullFileName(dir), _dir2);
+	if(_dir2[0] == '\0')
 		return false;
+			
+	handle2 = opendir(_dir2);
+	strcpy(_dir2, dir);
 
-	while(entry2 = readdir(handle2))	// Keep going until we found the next dir
+	while(handle2 != 0 && (entry2 = readdir(handle2)) != 0)	// Keep going until we found the next dir
 	{
 		//If file is not self-directory or parent-directory
 		if(strcmp(entry2->d_name, "."))
@@ -118,15 +153,20 @@ int FindFirstDir(char *dir, char *name)
 		 {			
 			sprintf(name,"%s/%s",_dir2,entry2->d_name);
 			
-			//If found file is a directory
-			if(stat(name, &entry2stat) == 0 && entry2stat.st_mode & S_IFDIR)
+			// TODO: this should test, if it is a directory
+			if(!CanReadFile(name))
 				return true;
 		}
 
 	}
 
-	closedir(handle2);
-	return false;
+	if(handle2) closedir(handle2);
+	nextsearchpath = nextsearchpath->next;
+	reset_nextsearchpath = false;
+	static char tmp[256]; strcpy(tmp, _dir2);
+	int ret = FindFirstDir(tmp, name);
+	reset_nextsearchpath = true;	
+	return ret;
 }
 
 
@@ -143,18 +183,23 @@ int FindNextDir(char *name)
 		 {
 			sprintf(name,"%s/%s",_dir2,entry2->d_name);
 		
-			//If found file is a directory
-			if(stat(name, &entry2stat) == 0 && entry2stat.st_mode & S_IFDIR)
+			// TODO: this should test, if it is a directory
+			if(!CanReadFile(name))
 				return true;
 		}
 	}
 
 	closedir(handle2);
-	return false;
+	nextsearchpath = nextsearchpath->next;
+	reset_nextsearchpath = false;
+	static char tmp[256]; strcpy(tmp, _dir2);
+	int ret = FindFirstDir(tmp, name);
+	reset_nextsearchpath = true;	
+	return ret;
 }
 
 
-
+// used by unix-GetExactFileName
 int GetNextName(const char* fullname, const char** seperators, char* nextname)
 {
 	int pos;
@@ -177,6 +222,7 @@ int GetNextName(const char* fullname, const char** seperators, char* nextname)
 }
 
 
+// used by unix-GetExactFileName
 int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
 {
 	if(strcmp(searchname, "") == 0)
@@ -207,7 +253,13 @@ int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
 
 // does case insensitive search for file
 bool GetExactFileName(const char* searchname, char* filename)
-{	
+{
+	if(searchname == NULL) {
+		if(filename != NULL)
+			filename[0] = '\0';
+		return false;
+	}
+
 	const char* seps[] = {"\\", "/", (char*)NULL};
 	char nextname[256] = "";
 	char nextexactname[256] = "";
@@ -257,18 +309,22 @@ struct _finddata_t fileinfo;
 // Find the first file
 int FindFirst(char *dir, char *ext, char *filename)
 {
-	char basepath[256];
+	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
+	GetExactFileName(GetFullFileName(dir), _dir);
+	if(_dir[0] == '\0')
+		return false;
+	
+	static char basepath[256];
 
-	strcpy(_dir,dir);
-
-	strcpy(basepath, dir);
+	strcpy(basepath, _dir);
 	strcat(basepath, "/");
 	strcat(basepath, ext);
 
-	if((handle = _findfirst(basepath, &fileinfo)) < 0)
-		return false;
-
-	do
+	handle = _findfirst(basepath, &fileinfo));
+	strcpy(_dir, dir);
+	
+	// Keep going until we found the first file
+	while(handle >= 0 && !_findnext(handle, &fileinfo))
 	{
 		//If file is not self-directory or parent-directory
 		if(strcmp(fileinfo.name, "."))
@@ -281,9 +337,14 @@ int FindFirst(char *dir, char *ext, char *filename)
 				return true;
 			}
 		}
-	} while(!_findnext(handle, &fileinfo));		// Keep going until we found the first file
+	}
 
-	return false;
+	nextsearchpath = nextsearchpath->next;
+	reset_nextsearchpath = false;
+	static char tmp[256]; strcpy(tmp, _dir);
+	int ret = FindFirst(tmp, filename);
+	reset_nextsearchpath = true;	
+	return ret;
 }
 
 
@@ -291,10 +352,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 // Find the next file
 int FindNext(char *filename)
 {
-	if(_findnext(handle, &fileinfo))
-		return false;
-
-	do	{
+	while(!_findnext(handle, &fileinfo)) {
 		//If file is not self-directory or parent-directory
 		if(strcmp(fileinfo.name, "."))
 		 if(strcmp(fileinfo.name, ".."))
@@ -306,9 +364,14 @@ int FindNext(char *filename)
 				return true;
 			}
 		}
-	} while(!_findnext(handle, &fileinfo));		// Keep going until we found the next file
+	};		// Keep going until we found the next file
 
-	return false;
+	nextsearchpath = nextsearchpath->next;
+	reset_nextsearchpath = false;
+	static char tmp[256]; strcpy(tmp, _dir);
+	int ret = FindFirst(tmp, filename);
+	reset_nextsearchpath = true;	
+	return ret;
 }
 
 
@@ -334,43 +397,21 @@ struct _finddata_t fileinfo2;
 // Find the first dir
 int FindFirstDir(char *dir, char *name)
 {
-	char basepath[256];
+	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
+	GetExactFileName(GetFullFileName(dir), _dir2);
+	if(_dir2[0] == '\0')
+		return false;
+	
+	static char basepath[256];
 
-	strcpy(_dir,dir);
-	strcpy(basepath, dir);
+	strcpy(basepath, _dir2);
 	strcat(basepath, "/");
 	strcat(basepath, "*.*");
 
-	if((handle2 = _findfirst(basepath, &fileinfo2)) < 0)
-		return false;
-
-	do {
-		//If file is not self-directory or parent-directory
-		if(strcmp(fileinfo2.name, "."))
-		 if(strcmp(fileinfo2.name, ".."))
-		 {
-			//If found file is a directory
-			if(fileinfo2.attrib & _A_SUBDIR)
-			{
-				sprintf(name,"%s/%s",_dir,fileinfo2.name);
-				return true;
-			}
-		}
-	} while(!_findnext(handle2, &fileinfo2));		// Keep going until we found the first dir
-
-	return false;
-}
-
-
-
-///////////////////
-// Find the next dir
-int FindNextDir(char *name)
-{
-	if(_findnext(handle2, &fileinfo2))
-		return false;
-
-	do
+	handle2 = _findfirst(basepath, &fileinfo2);
+	strcpy(_dir2, dir);
+	
+	while(handle2 >= 0 && !_findnext(handle2, &fileinfo2)) // Keep going until we found the first dir
 	{
 		//If file is not self-directory or parent-directory
 		if(strcmp(fileinfo2.name, "."))
@@ -379,14 +420,48 @@ int FindNextDir(char *name)
 			//If found file is a directory
 			if(fileinfo2.attrib & _A_SUBDIR)
 			{
-				sprintf(name,"%s/%s",_dir,fileinfo2.name);
+				sprintf(name,"%s/%s",_dir2,fileinfo2.name);
+				return true;
+			}
+		}
+	}
+
+	nextsearchpath = nextsearchpath->next;
+	reset_nextsearchpath = false;
+	static char tmp[256]; strcpy(tmp, _dir2);
+	int ret = FindFirstDir(tmp, name);
+	reset_nextsearchpath = true;	
+	return ret;
+}
+
+
+
+///////////////////
+// Find the next dir
+int FindNextDir(char *name)
+{
+	// Keep going until we found the next dir
+	while(!_findnext(handle2, &fileinfo2)) {
+		//If file is not self-directory or parent-directory
+		if(strcmp(fileinfo2.name, "."))
+		 if(strcmp(fileinfo2.name, ".."))
+		 {
+			//If found file is a directory
+			if(fileinfo2.attrib & _A_SUBDIR)
+			{
+				sprintf(name,"%s/%s",_dir2,fileinfo2.name);
 				return true;
 			}
 		}
 
-	} while(!_findnext(handle2, &fileinfo2));		// Keep going until we found the next dir
+	}
 
-	return false;
+	nextsearchpath = nextsearchpath->next;
+	reset_nextsearchpath = false;
+	static char tmp[256]; strcpy(tmp, _dir2);
+	int ret = FindFirstDir(tmp, name);
+	reset_nextsearchpath = true;	
+	return ret;
 }
 
 #endif
@@ -398,11 +473,11 @@ void InitBaseSearchPaths() {
 	
 #ifndef WIN32
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, "~");
+	AddToFileList(&basesearchpaths, GetHomeDir());
 	AddToFileList(&basesearchpaths, "/usr/share/OpenLieroX");
 #else // Win32
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, "~");
+	AddToFileList(&basesearchpaths, GetHomeDir());
 	// add EXE-file path
 	char *slashpos = strrchr(argv0,'\\');
 	*slashpos = 0;
@@ -414,6 +489,14 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 	static char fname[256] = "";
 	static char tmp[256] = "";
 	
+	if(strchr(mode, 'w')) {
+		strcpy(tmp, GetHomeDir());
+		strcat(tmp, "/");
+		strcat(tmp, path);
+		GetExactFileName(tmp, fname);
+		return fopen(fname, mode);
+	}		
+	
 	filelist_t* spath = tLXOptions->tSearchPaths;
 	if(spath == NULL) spath = basesearchpaths;
 	assert(spath != NULL);
@@ -423,7 +506,17 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 		strcat(tmp, path);
 		if(GetExactFileName(tmp, fname)) {
 			// we got here, if the file exists
-			printf("fopen -> %s\n", fname);
+//			printf("fopen -> %s\n", fname);
+#ifndef WIN32
+			// if it is a directory, return NULL
+			DIR* h = opendir(fname);
+			if(h) {
+				closedir(h);
+				return NULL;
+			}
+#else
+			// TODO: fopen returns NULL on windows in this case, is that right?
+#endif
 			return fopen(fname, mode);			
 		}
 	}
@@ -463,3 +556,12 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 	return false;
 }
 
+char* GetHomeDir() {
+	static char tmp[256];
+#ifndef WIN32
+	strcpy(tmp, "~/.OpenLieroX");
+#else
+	// TODO ...
+#endif
+	return tmp;
+}

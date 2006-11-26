@@ -741,9 +741,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 	int baseid = 0;
 	int i=0;
 	
-	getcwd(curdir,256);
-	
-	if(FindFirstDir(curdir,dir)) {
+	if(FindFirstDir(".",dir)) {
 		while(1) {
 			
             // Remove the full directory section so we only have the mod dir name
@@ -1229,7 +1227,9 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	char	filename[256];
 	char	name[64];
 
-	mkdir("cfg/presets", 0);
+	strcpy(filename, GetHomeDir());
+	strcat(filename, "/cfg/presets");
+	mkdir(filename, 0);
 
 	int done = false;
 	if(!FindFirst("cfg/presets/","*",filename))

@@ -186,6 +186,7 @@ int InitializeLieroX(void)
 {
 	printf("Hello there, I am initializing me now...\n");
 
+	mkdir(GetHomeDir(), 0);
 	
 	// Initialize the aux library
 	if(!InitializeAuxLib("Liero Xtreme","config.cfg",16,0)) {

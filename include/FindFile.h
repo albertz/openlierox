@@ -44,9 +44,16 @@ bool GetExactFileName(const char* searchname, char* filename);
 
 // on Windows, we don't need it, so does a simple strcpy
 inline bool GetExactFileName(const char* searchname, char* filename) {
+	if(searchname == NULL) {
+		if(filename != NULL)
+			filename[0] = '\0';
+		return false;
+	}
+	
 	strcpy(filename, searchname);
 
 	// Return false, if file doesn't exist
+	// TODO: it should also not return false for directories
 	FILE *f = fopen(searchname,"r");
 	if (!f)
 		return false;
@@ -63,7 +70,9 @@ void	InitBaseSearchPaths();
 // replacement for the simple fopen
 // this does a search on all searchpaths for the file and opens the first one; if none was found, NULL will be returned
 // related to tLXOptions->tSearchPaths
-FILE	*OpenGameFile(const char *path, const char *mode);
+FILE*	OpenGameFile(const char *path, const char *mode);
 
+// returns the gamedir in the home-directory (on unix: ~/.OpenLieroX)
+char*	GetHomeDir();
 
 #endif  //  __FINDFILE_H__

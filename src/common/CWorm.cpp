@@ -510,13 +510,13 @@ void CWorm::GetRandomWeapons(int Result[MAX_WEAPONSLOTS])
 				lastenabled = n;
 			}
 
-			n++;
-
 			// We made a whole loop
 			if(n == num) {
 			   n = lastenabled;
 			   break;
 			}	
+
+			n++;
 
 			// Wrap around
 			if(n >= cGameScript->GetNumWeapons())  

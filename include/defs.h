@@ -38,10 +38,6 @@
 #	include <direct.h>
 // wrappers to provide the standards
 inline int mkdir(const char *path, int mode) { return _mkdir(path); }
-inline char *getcwd(char *buf, size_t size) {
-	// WARNING: not exactly the same like in POSIX
-	return _getcwd(buf, size);
-}
 // TODO: inline
 #	define vsnprintf _vsnprintf
 #else
