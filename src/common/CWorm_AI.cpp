@@ -3038,6 +3038,8 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 // Move to the target
 void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 {
+	printf("Moving to target");
+
     worm_state_t *ws = &tState;
 
 	// Better target?
@@ -3072,6 +3074,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
     // If we're stuck, just get out of wherever we are
     if(bStuck) {
+		printf("Stucked");
+
         ws->iMove = true;
 		if (tLX->fCurTime-fLastJump > 1.0f)  {
 			ws->iJump = true;
@@ -3113,8 +3117,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	}
     
 	// Check
-	if (!NEW_psPath || !NEW_psLastNode)
+	if (!NEW_psPath || !NEW_psLastNode)  {
+		printf("Pathfinding problem");
 		return;
+	}
 
 	// Deviated?
 	if(fabs(NEW_psPath->fX-vPos.GetX()) > nDeviation || fabs(NEW_psPath->fY-vPos.GetY()) > nDeviation)
@@ -3140,9 +3146,11 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     if(NEW_psPath == NULL) {
         // If we don't have a path, resort to simpler AI methods
         AI_SimpleMove(pcMap,psAITarget != NULL);
+		printf("Pathfinding problem");
         return;
     }
 
+	printf("We should move now...");
 
 	// Get the target node position
     CVec nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
