@@ -13,6 +13,10 @@
 #include "defs.h"
 #include "LieroX.h"
 
+#ifdef WIN32
+	#include <shlobj.h>
+#endif
+
 bool reset_nextsearchpath = true;
 filelist_t* nextsearchpath = NULL;
 
@@ -342,7 +346,8 @@ int FindFirst(char *dir, char *ext, char *filename)
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
 	static char tmp[256]; strcpy(tmp, _dir);
-	int ret = FindFirst(tmp, filename);
+	// TODO: this better
+	int ret = FindFirst(tmp,"*", filename);
 	reset_nextsearchpath = true;	
 	return ret;
 }
@@ -369,7 +374,8 @@ int FindNext(char *filename)
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
 	static char tmp[256]; strcpy(tmp, _dir);
-	int ret = FindFirst(tmp, filename);
+	// TODO: this better
+	int ret = FindFirst(tmp,"*", filename);
 	reset_nextsearchpath = true;	
 	return ret;
 }
@@ -575,7 +581,8 @@ char* GetHomeDir() {
 	strcpy(tmp, getenv("HOME"));
 	strcat(tmp, "/.OpenLieroX");
 #else
-	// TODO ...
+	SHGetSpecialFolderPath(NULL,(LPTSTR)&tmp,CSIDL_PERSONAL,FALSE);
+	strcat(tmp,"/OpenLieroX");
 #endif
 	return tmp;
 }

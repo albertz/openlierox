@@ -734,7 +734,6 @@ void Menu_Local_FillModList( CCombobox *cb )
 {
 	// Find all directories in the the lierox
 	char dir[256];
-	char curdir[256];
 	char *d;
 	char name[32];
 	CGameScript gs;

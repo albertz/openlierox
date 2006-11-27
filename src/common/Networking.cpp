@@ -416,7 +416,7 @@ bool IsNetAddrValid(NetworkAddr* addr) {
 
 bool SetNetAddrValid(NetworkAddr* addr, bool valid) {
 	if(!addr) return false;
-	addr->valid == valid ? NL_TRUE : NL_FALSE;
+	addr->valid = valid ? NL_TRUE : NL_FALSE;
 	return true;
 }
 
