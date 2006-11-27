@@ -1242,8 +1242,8 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		if( stricmp(filename + strlen(filename)-4, ".wps") == 0) {
 			// Remove the path
 			char *f = strrchr(filename,'/');
-			strncpy(name,f+2,strlen(f)-5);
-			name[strlen(f)-6] = '\0';
+			strncpy(name,f+1,strlen(f)-4);
+			name[strlen(f)-5] = '\0';
 			if(f) {
 				lv->AddItem(f+1,0,0xffff);
 				lv->AddSubitem(LVS_TEXT,name,NULL);

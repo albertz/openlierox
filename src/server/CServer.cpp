@@ -444,8 +444,9 @@ void CServer::RegisterServer(void)
 	NetworkAddr addr;
 
 	GetLocalNetAddr(tSocket,&addr);	
+	NetAddrToString(&addr, buf);
 
-	sprintf(url, "%s?port=%d&addr=%s", LX_SVRREG, nPort, NetAddrToString(&addr, buf));
+	sprintf(url, "%s?port=%i&addr=%s", LX_SVRREG, nPort, buf);
 
     bServerRegistered = false;
 
@@ -535,9 +536,10 @@ bool CServer::DeRegisterServer(void)
 
 	NetworkAddr addr;
 
-	GetLocalNetAddr(tSocket,&addr);	
+	GetLocalNetAddr(tSocket,&addr);
+	NetAddrToString(&addr, buf);
 
-	sprintf(url, "%s?port=%d&addr=%s", LX_SVRDEREG, nPort, NetAddrToString(&addr, buf));
+	sprintf(url, "%s?port=%d&addr=%s", LX_SVRDEREG, nPort, buf);
 
 	// Initialize the request
 	bServerRegistered = false;

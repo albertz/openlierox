@@ -194,8 +194,11 @@ void CWpnRest::loadList(char *szFilename)
     while( !feof(fp) ) {
         fscanf(fp, "%[^\n]\n",line);
         char *tok = strtok(line,",");
-        if( tok )
-            addWeapon( tok, atoi(strtok(NULL,",")) );
+        if( tok )  {
+			char *tok2 = strtok(NULL,",");
+			if (tok2)
+				addWeapon( tok, atoi(tok2) );
+		}
     }
 
     fclose(fp);

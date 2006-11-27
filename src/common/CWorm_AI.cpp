@@ -2311,8 +2311,8 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap)
 #endif*/
 
 	// If the positions are really close, just return true
-	if (CalculateDistance(target,start) < 3)
-		return true;
+	/*if (CalculateDistance(target,start) < 3)
+		return true;*/
 
 	const int worm_size = 10;
 
@@ -2337,7 +2337,11 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap)
 			px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
 
 			if(px & PX_ROCK) {
-				num_good--;
+				// If we almost reached the target, just take it as if we reached it really
+				if (nTotalLength-i > 8)
+					num_good--;
+				if (num_good < 8)
+					return false;
 				break;
 			}
 
@@ -2363,7 +2367,7 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap)
 }
 
 ////////////////////////
-// Checks if there is enought of free cells around us to shoot
+// Checks if there is enough free cells around us to shoot
 bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
 {
 	// Get the cell
@@ -2493,40 +2497,254 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 		DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,MakeColour(255,0,255));
 #endif*/
 
+
 	NEW_AI_CleanupPath();
+	//NEW_AI_ProcessPathNonRec(trg,pos,pcMap);
 	NEW_AI_ProcessPath(trg,pos,pcMap);
 	NEW_AI_SimplifyPath(pcMap);
 
-	// Find the last node in the path
-	NEW_psLastNode = NEW_psPath;
-	if (NEW_psPath)
-		for (;NEW_psLastNode->psNext;NEW_psLastNode = NEW_psLastNode->psNext)
-			continue;
-/*#ifdef _AI_DEBUG
-	if (bmpDest && NEW_psLastNode)
-		DrawRectFill(bmpDest,(int)NEW_psLastNode->fX-4,(int)NEW_psLastNode->fY-4,(int)NEW_psLastNode->fX+4,(int)NEW_psLastNode->fY+4,MakeColour(64,64,255));
-#endif*/
+#ifdef _AI_DEBUG
+	NEW_AI_DrawPath(pcMap);
+#endif
 
 	// Set the current node to the beginning of the path
 	NEW_psCurrentNode = NEW_psPath;
 
-	//NEW_AI_DrawPath(pcMap);
 	return NEW_psPath != NULL;
+}
+
+//////////////////////
+// Adds a new node
+NEW_ai_node_t *CWorm::NEW_AI_AddNode(CVec Pos,NEW_ai_node_t *psPrev,NEW_ai_node_t *psNext)
+{
+	// Create the node
+	NEW_ai_node_t *temp = new NEW_ai_node_t;
+	if (!temp)
+		return NULL;
+
+	// Fill in the details
+	temp->fX = Pos.GetX();
+	temp->fY = Pos.GetY();
+	temp->psPrev = psPrev;
+	temp->psNext = psNext;
+
+	if (psPrev)
+		psPrev->psNext = temp;
+	if (psNext)
+		psNext->psPrev = temp;
+
+	return temp;
+}
+
+int GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
+{
+    assert( pcMap );
+
+	int result = 0;
+
+    // Trace a line from the worm to length or until it hits something
+	CVec    dir = trg-pos;
+    int     nTotalLength = (int)NormalizeVector(&dir);
+
+	const int divisions = 4;			// How many pixels we go through each check (less = slower)
+
+	int i;
+	for(i=0; i<nTotalLength; i+=divisions) {
+		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		//pcMap->PutImagePixel((int)pos.GetX(), (int)pos.GetY(), MakeColour(255,0,0));
+
+        if (px & PX_ROCK)
+			result++;
+
+        pos = pos + dir * (float)divisions;
+    }
+
+	return result;
+}
+
+CVec NEW_AI_FindBestSpot(CVec trg, CVec pos, CMap *pcMap)
+{
+	// Get the midpoint
+	CVec middle = CVec((pos.GetX()+trg.GetX())/2,(pos.GetY()+trg.GetY())/2);
+	
+	float a = CalculateDistance(middle,pos);
+	float b = a;
+	float step = DEG2RAD(20);
+	int min = 99999999;
+	CVec result = CVec(0,0);
+
+	// We make a circle and check from the points the way with least rock
+	float i;
+	float x,y;
+	for (;b > 10.0f; b-=b/2)
+		for (i=0;i<2*PI; i+=step)  {
+			x = a*(float)sin(2*PI*i)+middle.GetX();
+			y = b*(float)cos(2*PI*i)+middle.GetY();
+			CVec point = CVec(x,y);
+			if (pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() ) == PX_ROCK)
+				continue;
+
+			int rock_pixels = GetRockBetween(point,pos,pcMap)+GetRockBetween(point,trg,pcMap);
+			if (rock_pixels < min)  {
+				min = rock_pixels;
+				result.SetX(point.GetX());
+				result.SetY(point.GetY());
+
+				if (!min)
+					return result;
+			}
+		}
+
+	return result;
+}
+
+///////////////////////
+// Creates the path
+void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
+{
+	// How many times we've processed the path
+	int Cycles = 0;
+
+#ifdef _AI_DEBUG
+	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+	if (!bmpDest)
+		return;
+	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,MakeColour(255,0,255));
+#endif
+
+	// Add the start node to the path
+	NEW_psPath = NEW_AI_AddNode(pos,NULL,NULL);
+	if (!NEW_psPath)
+		return;
+
+	// Add the target node to the path
+	// The target node will be the last node
+	NEW_psLastNode = NEW_AI_AddNode(trg,NEW_psPath,NULL); 
+	if (!NEW_psLastNode)
+		return;
+
+	// Points to the first node in the path that need to be processed
+	NEW_ai_node_t *ptr = NEW_psPath;
+	
+	while (Cycles < 25) {
+		// Check
+		if (!ptr)
+			break;
+		if (!ptr->psNext)
+			break;
+
+		if (traceWormLine(CVec(ptr->psNext->fX,ptr->psNext->fY),CVec(ptr->fX,ptr->fY),pcMap))  {
+			ptr = ptr->psNext;
+			// Path found
+			if (!ptr)
+				break;
+			if (!ptr->psNext)
+				break;
+
+			// The two nodes are visible from each other so we won't add a new node
+			continue;
+		}
+
+		// Get the position of first two nodes in the temporary path
+		CVec pos = CVec(ptr->fX,ptr->fY);
+		CVec trg = CVec(ptr->psNext->fX,ptr->psNext->fY);
+
+		// Get the midpoint
+		//CVec middle = CVec((pos.GetX()+trg.GetX())/2,(pos.GetY()+trg.GetY())/2);
+		//CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX());
+
+		// Get nearest free spot to the midpoint and create a new node there
+		//CVec cNewNodePos1 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_LEFT);
+		//CVec cNewNodePos2 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_RIGHT);
+		//CVec cNewNodePos = NEW_AI_FindClosestFreeCell(middle,pcMap);
+		CVec cNewNodePos = NEW_AI_FindBestSpot(pos,trg,pcMap);
+
+	
+		//
+		// Now decide, which one of the two spots is better
+		//
+
+		/*CVec *cNewNodePos;
+
+		// We can see the Node1 from the current end of the path, so it will be PROBABLY better
+		if (traceWormLine(cNewNodePos1,CVec(ptr->fX,ptr->fY),pcMap))  {
+			// If we can see also the target node, this is definitelly better spot
+			if (traceWormLine(CVec(ptr->psNext->fX,ptr->psNext->fY),cNewNodePos1,pcMap))
+				cNewNodePos = &cNewNodePos1;
+			// If the second node can be also seen from the current end of the path, choose the one closer to the final target
+			else if (traceWormLine(cNewNodePos2,CVec(ptr->fX,ptr->fY),pcMap))  {
+				// Y distance only has bigger priority
+				if (ptr->fY - ptr->psNext->fY > 20)  {
+					if (cNewNodePos1.GetY() < cNewNodePos2.GetY())
+						cNewNodePos = &cNewNodePos1;
+					else
+						cNewNodePos = &cNewNodePos2;
+				}
+				else  {
+					if (CalculateDistance(cNewNodePos1,CVec(ptr->psNext->fX,ptr->psNext->fY)) < CalculateDistance(cNewNodePos2,CVec(ptr->psNext->fX,ptr->psNext->fY)))
+						cNewNodePos = &cNewNodePos1;
+					else
+						cNewNodePos = &cNewNodePos2;
+				}
+			}
+			// The Node1 is better
+			else {
+				cNewNodePos = &cNewNodePos1;
+			}
+		}
+		// Node2 can be seen from the current end of the path and Node1 not, so Node2 is better
+		else if (traceWormLine(cNewNodePos2,CVec(ptr->fX,ptr->fY),pcMap))  {
+			cNewNodePos = &cNewNodePos2;
+		}
+		// None of the two nodes can be seen from the current end of the path, choose the one closer to final target
+		else  {
+			// Y distance only has bigger priority
+			if (ptr->fY - ptr->psNext->fY > 20)  {
+				if (cNewNodePos1.GetY() < cNewNodePos2.GetY())
+					cNewNodePos = &cNewNodePos1;
+				else
+					cNewNodePos = &cNewNodePos2;
+			}
+			else  {
+				if (CalculateDistance(cNewNodePos1,CVec(ptr->psNext->fX,ptr->psNext->fY)) < CalculateDistance(cNewNodePos2,CVec(ptr->psNext->fX,ptr->psNext->fY)))
+					cNewNodePos = &cNewNodePos1;
+				else
+					cNewNodePos = &cNewNodePos2;
+			}
+		}*/
+
+
+
+
+#ifdef _AI_DEBUG
+		DrawRectFill(bmpDest,(int)cNewNodePos.GetX()*2-8,(int)cNewNodePos.GetY()*2-8,(int)cNewNodePos.GetX()*2+8,(int)cNewNodePos.GetY()*2+8,MakeColour(0,0,255));
+		tLX->cFont.DrawCentre(bmpDest,(int)cNewNodePos.GetX()*2,(int)cNewNodePos.GetY()*2-8,0xffff,"%i",Cycles);
+#endif
+
+		// Add the node to the path
+		if (!NEW_AI_AddNode(cNewNodePos,ptr,ptr->psNext))
+			break;
+
+		Cycles++;
+	}
+
 }
 
 //////////////////
 // Finds the closest free spot, looking only in one direction
-CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap)
+CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap, int Direction = -1)
 {
 #ifdef _AI_DEBUG
-	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+//	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 #endif
 
 	NormalizeVector(&vDirection);
+	//CVec vDev = CVec(vDirection.GetX()*5,vDirection.GetY()*5);
+	CVec vDev = CVec(0,0);
 
 	int i;
 	int emptyPixels = 0;
-	CVec pos = vPoint;
+	CVec pos = vPoint+vDev;
 	int firstClosest = 9999;
 	int secondClosest = 9999;
 	CVec rememberPos1 = CVec(0,0);
@@ -2544,10 +2762,12 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 		}
 		// Rock pixel? This spot isn't good
 		else {
-			emptyPixels = 0;
 #ifdef _AI_DEBUG
 			//PutPixel(bmpDest,pos.GetX()*2,pos.GetY()*2,MakeColour(255,0,0));
 #endif
+			if (emptyPixels >= 10)
+				break;
+			emptyPixels = 0;
 			rememberPos1.SetX(0);
 			rememberPos1.SetY(0);
 		}
@@ -2555,7 +2775,10 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 		// Good spot
 		if (emptyPixels >= 10)  {
 			firstClosest = i-emptyPixels;
-			break;
+			if (emptyPixels >= 30)
+				break;
+			rememberPos1.SetX(rememberPos1.GetX()+vDirection.GetX());
+			rememberPos1.SetY(rememberPos1.GetY()+vDirection.GetY());
 		}
 
 		if (emptyPixels == 5)  {
@@ -2571,12 +2794,17 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 			break;
 	}
 
+	if (firstClosest != 9999 && Direction == DIR_LEFT)
+		return rememberPos1;
+
 	emptyPixels = 0;
 	vDirection.SetY(-vDirection.GetY());
 	vDirection.SetX(-vDirection.GetX());
-	pos = vPoint;
+	vDev.SetX(-vDev.GetX());
+	vDev.SetY(-vDev.GetY());
+	pos = vPoint+vDev;
 
-	for(i=0; i <= firstClosest; i++) {
+	for(i=0; 1; i++) {
 		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
 
 		// Empty pixel? Add it to the count
@@ -2591,6 +2819,9 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 #ifdef _AI_DEBUG
 			//PutPixel(bmpDest,pos.GetX()*2,pos.GetY()*2,MakeColour(255,0,0));
 #endif
+			if (emptyPixels >= 10)  
+				break;
+
 			rememberPos2.SetX(0);
 			rememberPos2.SetY(0);
 			emptyPixels = 0;
@@ -2599,7 +2830,10 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 		// Good spot
 		if (emptyPixels > 10)  {
 			secondClosest = i-emptyPixels;
-			break;
+			if (emptyPixels >= 30)
+				break;
+			rememberPos2.SetX(rememberPos2.GetX()+vDirection.GetX());
+			rememberPos2.SetY(rememberPos2.GetY()+vDirection.GetY());
 		}
 
 		// Remember this special position (in the middle of possible free spot)
@@ -2616,6 +2850,9 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 			break;
 	}
 
+	if (secondClosest != 9999 && Direction == DIR_RIGHT)
+		return rememberPos2;
+
 	// In what direction was the closest spot?
 	if (firstClosest < secondClosest)
 		return rememberPos1;
@@ -2629,7 +2866,7 @@ void CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap)
 {
 	// Too many recursions? End
 	iProcessedNodes++;
-	if (iProcessedNodes > 100)
+	if (iProcessedNodes > 20)
 		return;
 
 	// Trivial task, end the recursion
@@ -2655,6 +2892,8 @@ void CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap)
 
 		if (NEW_psPath)
 			NEW_psPath->psPrev = target;
+		else
+			NEW_psLastNode = target;
 
 		NEW_psPath = start;
 
@@ -2669,7 +2908,14 @@ void CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap)
 	CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX());
 
 	// Get nearest free spot to the midpoint and create a new node there
-	CVec cNewNodePos = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap);
+	CVec cNewNodePos1 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_LEFT);
+	CVec cNewNodePos2 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_RIGHT);
+	CVec *cNewNodePos;
+
+	if (GetRockBetween(pos,cNewNodePos1,pcMap)+GetRockBetween(trg,cNewNodePos1,pcMap) > GetRockBetween(pos,cNewNodePos2,pcMap)+GetRockBetween(trg,cNewNodePos2,pcMap))
+		cNewNodePos = &cNewNodePos2;
+	else
+		cNewNodePos = &cNewNodePos1;
 
 #ifdef _AI_DEBUG
 	/*SDL_Surface *bmpDest = pcMap->GetDebugImage();
@@ -2689,8 +2935,8 @@ void CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap)
 #endif
 
 	// Must be in this order
-	NEW_AI_ProcessPath(trg,cNewNodePos,pcMap);  // From new node to the target
-	NEW_AI_ProcessPath(cNewNodePos,pos,pcMap);  // From the start to new node
+	NEW_AI_ProcessPath(trg,*cNewNodePos,pcMap);  // From new node to the target
+	NEW_AI_ProcessPath(*cNewNodePos,pos,pcMap);  // From the start to new node
 }
 
 ////////////////
@@ -2846,7 +3092,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       Or, enough time has passed since the last path update:
       recalculate the path
     */
-    int     nDeviation = 50;     // Maximum deviation allowance
+    int     nDeviation = 40;     // Maximum deviation allowance
     bool    recalculate = false;
 
 	// If our or target's velocity is high, don't check so often
@@ -2865,11 +3111,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 				nDeviation = (int)len*5;
 		}
 	}
-
-	// If the distance between us and the target is big, don't update so often
-	if (psAITarget)
-		if (CalculateDistance(vPos,psAITarget->getPos()) > 200)
-			nDeviation = 80;
     
 	// Check
 	if (!NEW_psPath || !NEW_psLastNode)
@@ -2893,6 +3134,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       Because the path finding isn't perfect we can sometimes skip a whole group of nodes.
       If we are close to other nodes that are _ahead_ in the list, we can skip straight to that node.
     */
+
+	//return;
 
     if(NEW_psPath == NULL) {
         // If we don't have a path, resort to simpler AI methods
@@ -2971,13 +3214,21 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 	// If the node is above us by a little, jump
 	if ((vPos.GetY()-NEW_psCurrentNode->fY) <= 20 && (vPos.GetY()-NEW_psCurrentNode->fY) > 0)
-		ws->iJump = true;
+		// Don't jump so often
+		if (tLX->fCurTime - fLastJump > 1.0f)  {
+			ws->iJump = true;
+			fLastJump = tLX->fCurTime;
+		}
 
 	// If the next node is above us by a little, jump too
 	NEW_ai_node_t *nextNode = NEW_psCurrentNode->psNext;
 	if (nextNode)  {
 		if ((vPos.GetY()-nextNode->fY) <= 30 && (vPos.GetY()-nextNode->fY) > 0)
-			ws->iJump = true;
+			// Don't jump so often
+			if (tLX->fCurTime - fLastJump > 1.0f)  {
+				ws->iJump = true;
+				fLastJump = tLX->fCurTime;
+			}
 	}
     
     // If the node is above us by a lot, we should use the ninja rope
@@ -2985,6 +3236,19 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     if(NEW_psCurrentNode->fY+20 < vPos.GetY() || (fabs(NEW_psCurrentNode->fX-vPos.GetX()) >= 50)) {
         
         bool fireNinja = true;
+
+		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
+
+		// If the node is above us, get an average position of the two nodes
+		if (vPos.GetY() > NEW_psCurrentNode->fY) 
+			if (NEW_psCurrentNode->psNext) {
+				cAimPos.SetX((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
+				cAimPos.SetY((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
+			}
+
+		// Aim
+		AI_SetAim(cAimPos);
+
 
         CVec dir;
         dir.SetX( (float)cos(fAngle * (PI/180)) );
@@ -3036,6 +3300,16 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			ws->iCarve = false;
 			ws->iJump = false;
 		}
+
+		// If the node is right above us, use a carving weapon
+		if (v.GetX()-20 <= vPos.GetX() && v.GetX()+20 >= vPos.GetX()) 
+			if (v.GetY() < vPos.GetY())  {
+				int wpn;
+				if((wpn = AI_FindClearingWeapon()) != -1) {
+					iCurrentWeapon = wpn;
+					ws->iShoot = true;
+				}
+			}
     }
 
 

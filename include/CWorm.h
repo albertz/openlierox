@@ -399,9 +399,11 @@ public:
 
 	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap);
 	bool		NEW_AI_CheckFreeCells(int Num,CMap *pcMap);
-	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap);
+	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
 	int			NEW_AI_CreatePath(CMap *pcMap);
 	void		NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap);
+	void		NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap);
+	NEW_ai_node_t *NEW_AI_AddNode(CVec Pos,NEW_ai_node_t *psPrev,NEW_ai_node_t *psNext);
 	void		NEW_AI_CleanupPath(void);
 	void		NEW_AI_SimplifyPath(CMap *pcMap);
 	void		NEW_AI_MoveToTarget(CMap *pcMap);

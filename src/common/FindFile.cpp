@@ -320,7 +320,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	strcat(basepath, "/");
 	strcat(basepath, ext);
 
-	handle = _findfirst(basepath, &fileinfo));
+	handle = _findfirst(basepath, &fileinfo);
 	strcpy(_dir, dir);
 	
 	// Keep going until we found the first file
