@@ -56,6 +56,7 @@ int LoadOptions(void)
     	 // &tmp[10] is the end of "SearchPath"
     	strcpy(&tmp[10], itoa(i, tmp2, 10));
     	*spath = new filelist_t;
+		(*spath)->next = NULL;
         if(!ReadString(f, "FileHandling", tmp, (*spath)->filename, NULL)) {
         	delete *spath; *spath = NULL;     	
         	break;

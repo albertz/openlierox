@@ -126,7 +126,7 @@ int chrcasecmp(const char c1, const char c2);
 
 #ifndef WIN32
 inline char* itoa(int val, char* buf, int base) {
-	size_t i = 29; // TODO: bad style!
+	int i = 29; // TODO: bad style!
 	buf[i+1] = '\0';
 
 	for(; val && i ; --i, val /= base)	

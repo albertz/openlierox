@@ -42,6 +42,12 @@ int main(int argc, char *argv[])
     float   fMaxFPS = 85;
 
 	argv0 = argv[0];
+
+	// JUST TEMPORARY
+#ifdef WIN32
+	*(strrchr(argv0,'\\')) = '\0';
+	chdir(argv0);
+#endif
 	
 	// Load options and other settings
 	if(!LoadOptions())
