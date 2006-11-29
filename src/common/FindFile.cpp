@@ -21,7 +21,7 @@ bool reset_nextsearchpath = true;
 filelist_t* nextsearchpath = NULL;
 
 // TODO: this does not handle the FindFile and FindDir seperatly
-char* GetFullFileName(const char* f) {
+char* getNextFullFileName(const char* f) {
 	static char tmp[256];
 	if(nextsearchpath != NULL) {
 		strcpy(tmp, nextsearchpath->filename);
@@ -59,7 +59,7 @@ dirent* entry = NULL;
 int FindFirst(char *dir, char *ext, char *filename)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	GetExactFileName(GetFullFileName(dir), _dir);
+	GetExactFileName(getNextFullFileName(dir), _dir);
 	if(_dir[0] == '\0')
 		return false;
 	
@@ -142,7 +142,7 @@ dirent* entry2 = NULL;
 int FindFirstDir(char *dir, char *name)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	GetExactFileName(GetFullFileName(dir), _dir2);
+	GetExactFileName(getNextFullFileName(dir), _dir2);
 	if(_dir2[0] == '\0')
 		return false;
 			
@@ -314,7 +314,7 @@ struct _finddata_t fileinfo;
 int FindFirst(char *dir, char *ext, char *filename)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	GetExactFileName(GetFullFileName(dir), _dir);
+	GetExactFileName(getNextFullFileName(dir), _dir);
 	if(_dir[0] == '\0')
 		return false;
 	
@@ -404,7 +404,7 @@ struct _finddata_t fileinfo2;
 int FindFirstDir(char *dir, char *name)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	GetExactFileName(GetFullFileName(dir), _dir2);
+	GetExactFileName(getNextFullFileName(dir), _dir2);
 	if(_dir2[0] == '\0')
 		return false;
 	
@@ -503,19 +503,13 @@ void CreateRecDir(char* f) {
 	}
 }
 
-FILE *OpenGameFile(const char *path, const char *mode) {
+char* GetFullFileName(const char* path) {
 	static char fname[256] = "";
 	static char tmp[256] = "";
 	
-	if(strchr(mode, 'w')) {
-		strcpy(tmp, GetHomeDir());
-		strcat(tmp, "/");
-		strcat(tmp, path);
-		GetExactFileName(tmp, fname);
-		CreateRecDir(fname);
-		return fopen(fname, mode);
-	}		
-	
+	if(path == NULL || path[0] == '\0')
+		return NULL;
+
 	filelist_t* spath = tLXOptions->tSearchPaths;
 	if(spath == NULL) spath = basesearchpaths;
 	assert(spath != NULL);
@@ -525,7 +519,6 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 		strcat(tmp, path);
 		if(GetExactFileName(tmp, fname)) {
 			// we got here, if the file exists
-//			printf("fopen -> %s\n", fname);
 #ifndef WIN32
 			// if it is a directory, return NULL
 			DIR* h = opendir(fname);
@@ -534,13 +527,38 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 				return NULL;
 			}
 #else
-			// TODO: fopen returns NULL on windows in this case, is that right?
+			// fopen will return NULL on Windows, if fname is a dir
 #endif
-			return fopen(fname, mode);			
+			FILE* f = fopen(fname, "r");
+			if(f) {
+				fclose(f);
+				return fname;
+			}
+			
+			return NULL;
 		}
 	}
+
+	return NULL;
+}
+
+FILE *OpenGameFile(const char *path, const char *mode) {
+	static char fname[256] = "";
+	static char tmp[256] = "";
 	
-	return NULL;	
+	if(path == NULL || path[0] == '\0')
+		return NULL;
+	
+	if(strchr(mode, 'w')) {
+		strcpy(tmp, GetHomeDir());
+		strcat(tmp, "/");
+		strcat(tmp, path);
+		GetExactFileName(tmp, fname);
+		CreateRecDir(fname);
+		return fopen(fname, mode);
+	}		
+		
+	return fopen(GetFullFileName(path), mode);
 }
 
 
@@ -552,7 +570,7 @@ void AddToFileList(filelist_t** l, const char* f) {
 	strcpy((*fl)->filename, f);
 }
 
-void RemoveEndingSlashes(char* s) {
+void removeEndingSlashes(char* s) {
 	for(
 		int i = strlen(s) - 1;
 		i > 0 && (s[i] == '\\' || s[i] == '/');
@@ -564,10 +582,10 @@ void RemoveEndingSlashes(char* s) {
 bool FileListIncludes(const filelist_t* l, const char* f) {
 	static char tmp1[64] = ""; // TODO: enough?
 	static char tmp2[64] = ""; // TODO: enough?
-	strcpy(tmp1, f); RemoveEndingSlashes(tmp1);
+	strcpy(tmp1, f); removeEndingSlashes(tmp1);
 	
 	for(const filelist_t* fl = l; fl != NULL; fl = fl->next) {
-		strcpy(tmp2, fl->filename); RemoveEndingSlashes(tmp2);
+		strcpy(tmp2, fl->filename); removeEndingSlashes(tmp2);
 		if(strcasecmp(tmp1, tmp2) == 0)
 			return true;
 	}

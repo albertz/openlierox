@@ -33,22 +33,48 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
     	return false;
 	}
 
+	Mix_AllocateChannels(1000); // TODO: enough?
 		
 	return true;
 }
 
+bool SoundSystemStarted = false;
+int SoundSystemVolume = 100;
+
 bool StartSoundSystem() {
-	// TODO start sound
+	// TODO: this is only a workaround
+	SoundSystemStarted = true;	
+	SetSoundVolume(SoundSystemVolume);
 	return true;
 }
 
 bool StopSoundSystem() {
-	// TODO stop sound
+	// TODO: this is only a workaround
+	SetSoundVolume(0);
+	SoundSystemStarted = false;
 	return true;
 }
 
 bool SetSoundVolume(int vol) {
-	// TODO set volume
+	SoundSystemVolume = vol;
+	if(!SoundSystemStarted)
+		return false;
+	
+	// The volume to use from 0 to MIX_MAX_VOLUME(128).
+	// We got here values from 0 to 100; TODO: should we maximize it?
+	Mix_Volume(-1, vol);
+
+/*
+	// Go through and set every sound-chunk-volume to vol
+	register unsigned short n;
+	CCache* cach;
+	for(cach=Cache,n=0; n<MAX_CACHE; n++,cach++) {
+		if(cach->isUsed() && cach->getType() == CCH_SOUND) {
+			 Mix_VolumeChunk(cach->GetSample()->sample, vol);
+		}
+	}
+*/
+	
 	return true;
 }
 
@@ -58,17 +84,21 @@ bool QuitSoundSystem() {
 }
 
 SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
-	Mix_Chunk* sample = Mix_LoadWAV(filename);
-	if(!sample) {
-		// TODO: only print this error, if file is existing
-		//printf("LoadSoundSample: Error while loading %s: %s\n", filename, Mix_GetError());
-		return NULL;
-	}
+	char* fullfname = GetFullFileName(filename);
+	if(fullfname != NULL) {
+		Mix_Chunk* sample = Mix_LoadWAV(fullfname);
+		if(!sample) {
+			printf("LoadSoundSample: Error while loading %s: %s\n", filename, Mix_GetError());
+			return NULL;
+		}
 		
-	SoundSample* ret = new SoundSample;
-	ret->sample = sample;
-	ret->maxsimulplays = maxsimulplays;
-	return ret;
+		SoundSample* ret = new SoundSample;
+		ret->sample = sample;
+		ret->maxsimulplays = maxsimulplays;
+		return ret;
+	
+	} else
+		return NULL;
 }
 
 bool FreeSoundSample(SoundSample* sample) {
@@ -88,7 +118,7 @@ bool PlaySoundSample(SoundSample* sample) {
 		return false;
 
 	if(Mix_PlayChannel(-1, sample->sample, 0) != 0) {
-		//printf("PlaySoundSample: Error: %s\n",Mix_GetError());
+		//printf("PlaySoundSample: Error playing %s\n", Mix_GetError());
 		return false;
 	}
 	

@@ -77,7 +77,7 @@ public:
 	SoundSample*			GetSample(void)			{ return Sample; }
 };
 
-
+extern CCache* Cache;
 
 
 

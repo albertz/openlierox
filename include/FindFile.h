@@ -67,6 +67,9 @@ inline bool GetExactFileName(const char* searchname, char* filename) {
 extern filelist_t*	basesearchpaths;
 void	InitBaseSearchPaths();
 
+// this does a search on all searchpaths for the file and returns the first one found; if none was found, NULL will be returned
+char*	GetFullFileName(const char* path);
+
 // replacement for the simple fopen
 // this does a search on all searchpaths for the file and opens the first one; if none was found, NULL will be returned
 // related to tLXOptions->tSearchPaths
@@ -74,5 +77,9 @@ FILE*	OpenGameFile(const char *path, const char *mode);
 
 // returns the gamedir in the home-directory (on unix: ~/.OpenLieroX)
 char*	GetHomeDir();
+
+// the dir will be created recursivly
+void	CreateRecDir(char* f);
+
 
 #endif  //  __FINDFILE_H__

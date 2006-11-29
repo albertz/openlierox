@@ -61,14 +61,13 @@ SDL_Surface *_LoadImage(char *filename)
 
     return psSurf;*/
 
+	char* fname = GetFullFileName(filename);
 #ifndef WIN32
-	static char exactfname[255];
-	GetExactFileName(filename, exactfname);
 	struct stat s;
-	if(stat(exactfname, &s) == 0)
+	if(stat(fname, &s) == 0)
 	{
 		//printf("_LoadImage(%s): %0.1f kBytes\n", exactfname, s.st_size / 1024.0f);
-	    return IMG_Load(exactfname);
+	    return IMG_Load(fname);
 	}
 	else
 	{
@@ -76,7 +75,7 @@ SDL_Surface *_LoadImage(char *filename)
 		return NULL;
 	}
 #else // WIN32
-    return IMG_Load(filename);
+    return IMG_Load(fname);
 #endif
 }
 
@@ -87,8 +86,8 @@ SDL_Surface *_LoadImage(char *filename)
 SDL_Surface *CCache::LoadImg(char *_file)
 {
 	Type = CCH_IMAGE;
-	GetExactFileName(_file, Filename);
-
+	
+	strcpy(Filename, _file);
      
 	// Load the image
 	Image = _LoadImage(Filename);
@@ -109,7 +108,7 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 	SDL_Surface *img;
 
 	Type = CCH_IMAGE;
-	GetExactFileName(_file, Filename);
+	strcpy(Filename, _file);
 
 	// Load the image
 	img = _LoadImage(Filename);
@@ -138,10 +137,10 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 SoundSample* CCache::LoadSample(char *_file, int maxplaying)
 {
 	Type = CCH_SOUND;
-	GetExactFileName(_file, Filename);
-
+	strcpy(Filename, _file);
+	
 	// Load the sample
-	Sample = LoadSoundSample(Filename,maxplaying);
+	Sample = LoadSoundSample(Filename, maxplaying);
 	
 	if(Sample)
 		Used = true;
@@ -272,7 +271,7 @@ SoundSample* LoadSample(char *_filename, int maxplaying)
 	int n;
 	CCache *cach;
 
-	// Go through and see if we can find the same image already loaded
+	// Go through and see if we can find the same sound already loaded
 	cach = Cache;
 	for(n=0;n<MAX_CACHE;n++,cach++) {
 		if(cach->isUsed() && cach->getType() == CCH_SOUND) {
