@@ -85,7 +85,7 @@ bool QuitSoundSystem() {
 
 SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
 	char* fullfname = GetFullFileName(filename);
-	if(fullfname != NULL) {
+	if(fullfname != NULL && fullfname[0] != '\0') {
 		Mix_Chunk* sample = Mix_LoadWAV(fullfname);
 		if(!sample) {
 			printf("LoadSoundSample: Error while loading %s: %s\n", filename, Mix_GetError());

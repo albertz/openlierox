@@ -558,8 +558,12 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 		CreateRecDir(fname);
 		return fopen(fname, mode);
 	}		
-		
-	return fopen(GetFullFileName(path), mode);
+
+	char* fullfn = GetFullFileName(path);
+	if(fullfn != NULL && fullfn[0] != '\0')
+		return fopen(fullfn, mode);
+	else
+		return NULL;
 }
 
 

@@ -62,12 +62,14 @@ SDL_Surface *_LoadImage(char *filename)
     return psSurf;*/
 
 	char* fname = GetFullFileName(filename);
+	if(fname == NULL || fname[0] == '\0')
+		return NULL;
 #ifndef WIN32
 	struct stat s;
 	if(stat(fname, &s) == 0)
 	{
 		//printf("_LoadImage(%s): %0.1f kBytes\n", exactfname, s.st_size / 1024.0f);
-	    return IMG_Load(fname);
+		return IMG_Load(fname);
 	}
 	else
 	{
@@ -75,7 +77,7 @@ SDL_Surface *_LoadImage(char *filename)
 		return NULL;
 	}
 #else // WIN32
-    return IMG_Load(fname);
+	return IMG_Load(fname);
 #endif
 }
 
