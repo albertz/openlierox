@@ -58,7 +58,6 @@ void CWorm::Clear(void)
 	iNumWeaponSlots = 2;
 	iCurrentWeapon = 0;
 	iGameReady = false;
-	iRandomizing = false;
 
 	iGotTarget = false;
 	iHooked = false;
@@ -483,7 +482,6 @@ void CWorm::InitWeaponSelection(void)
 // Randomize the weapons
 void CWorm::GetRandomWeapons(int Result[MAX_WEAPONSLOTS])
 {
-	iRandomizing = true;
 	wpnslot_t tRandWeaps[MAX_WEAPONSLOTS];
 	int lastenabled = 0;
 
@@ -494,6 +492,10 @@ void CWorm::GetRandomWeapons(int Result[MAX_WEAPONSLOTS])
         int n=num;
 		lastenabled = 0;
 		while(1) {
+			// Wrap around
+			if(n >= cGameScript->GetNumWeapons())  
+ 			   n = 0;
+
 			// Have we already got this weapon?
 			bool bSelected = false;
 			for(int k=0; k<i; k++) {
@@ -510,24 +512,19 @@ void CWorm::GetRandomWeapons(int Result[MAX_WEAPONSLOTS])
 				lastenabled = n;
 			}
 
+			n++;
+
 			// We made a whole loop
 			if(n == num) {
 			   n = lastenabled;
 			   break;
 			}	
-
-			n++;
-
-			// Wrap around
-			if(n >= cGameScript->GetNumWeapons())  
- 			   n = 0;
 											
 		}  // while
 		tRandWeaps[i].Weapon = cGameScript->GetWeapons()+n;
 		Result[i] = n;
 	}
 
-	iRandomizing = false;
 }
 
 ///////////////////

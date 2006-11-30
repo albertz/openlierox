@@ -53,6 +53,7 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 	fLastJump = -9999;
 	fLastCarve = -9999;
     bStuck = false;
+	bPathFinished = true;
 	//iAiGameType = GAM_OTHER;
 
     return true;
@@ -1536,11 +1537,12 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 
     // If target is blocked by rock we can't use direct firing
     if(nType == PX_ROCK)  {
-		if(iAiGameType == GAM_RIFLES || iAiGameType == GAM_MORTARS)
+		/*if(iAiGameType == GAM_RIFLES || iAiGameType == GAM_MORTARS)
 			return false;
 		if (((float)length/d) < 0.7f)
 			return false;
-        bDirect = false;
+        bDirect = false;*/
+		return false;
 	}
 
 	// Don't shoot teammates
@@ -1564,14 +1566,14 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 
 	// If our velocity is big and we shoot in the direction of the flight, we can suicide
 	// We will avoid this here
-	if (vVelocity.GetY() > 30 && fAngle >= 50)
+	/*if (vVelocity.GetY() > 30 && fAngle >= 50)
 		return false;
 	if (vVelocity.GetY() < -30 && fAngle <= 10)
 		return false;
 	if (vVelocity.GetX() < -30 && iDirection == DIR_LEFT && fAngle > 20)
 		return false;
 	if (vVelocity.GetX() > 30 && iDirection == DIR_RIGHT && fAngle > 20)
-		return false;
+		return false;*/
 
     // Set the best weapon for the situation
     // If there is no good weapon, we can't shoot
@@ -1588,6 +1590,82 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
     return true;
 }
 
+////////////////////
+// Returns true, if the weapon can hit the target
+bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
+{
+	// Get the target position
+	if(!psAITarget)
+		return false;
+    CVec cTrgPos = psAITarget->getPos();
+
+	// Check
+	if (fabs(alpha) == 1 || speed == 0)
+		return false;
+
+	// Convert the alpha to radians
+	alpha = DEG2RAD(alpha);
+	// Get the maximal X
+	int max_x = (int)(cTrgPos.GetX()-vPos.GetX());
+	// If we're in the X coordinate of the target, we can shoot (else we wouldn't be called)
+	if (max_x == 0)
+		return true;
+	// Get the maximal Y
+	int max_y = (int)(vPos.GetY()-cTrgPos.GetY());
+
+	// Check the pixels in the projectile trajectory
+	int x,y;
+
+#ifdef _AI_DEBUG
+	DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
+#endif
+
+	// Target on left
+	if (max_x < 0)  {
+		for (x=0;x>max_x;x--)  {
+			y = -x*(int)tan(alpha)+(gravity*x*x)/(int)(2*speed*speed*cos(alpha)*cos(alpha));
+			// If we have reached the target, the trajectory is free
+			if (max_y < 0)  {
+				if (y < max_y)
+					return true;
+			} else  {
+				if (y > max_y)
+					return true;
+			}
+#ifdef _AI_DEBUG
+			PutPixel(pcMap->GetDebugImage(),x*2+(int)vPos.GetX()*2,y*2+(int)vPos.GetY()*2,0xffff);
+#endif
+			// Rock, trajectory not free
+			if (pcMap->GetPixelFlag(x+(int)vPos.GetX(),y+(int)vPos.GetY()) == PX_ROCK)  {
+				return false;
+			}
+		}
+	}
+	// Target on right
+	else  {
+		for (x=0;x<max_x;x++)  {
+			y = -x*(int)tan(alpha)+(gravity*x*x)/(int)(2*speed*speed*cos(alpha)*cos(alpha));
+			// If we have reached the target, the trajectory is free
+			if (max_y < 0)  {
+				if (y < max_y)
+					return true;
+			} else  {
+				if (y > max_y)
+					return true;
+			}
+#ifdef _AI_DEBUG
+			PutPixel(pcMap->GetDebugImage(),x*2+(int)vPos.GetX()*2,y*2+(int)vPos.GetY()*2,0xffff);
+#endif
+			// Rock, trajectory not free
+			if (pcMap->GetPixelFlag(x+(int)vPos.GetX(),y+(int)vPos.GetY()) == PX_ROCK)  {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 
 ///////////////////
 // Shoot!
@@ -1600,10 +1678,10 @@ void CWorm::AI_Shoot(CMap *pcMap)
     //
     // Aim at the target
     //
-    bool    bAim = false;//AI_SetAim(cTrgPos);
+    bool    bAim = true;//AI_SetAim(cTrgPos);
 
     // TODO: Aim in the right direction to account of weapon speed, gravity and worm velocity
-/*	weapon_t *weap = getCurWeapon()->Weapon;
+	weapon_t *weap = getCurWeapon()->Weapon;
 	switch (weap->Type)  {
 	case WPN_BEAM:
 		// Direct aim
@@ -1623,82 +1701,55 @@ void CWorm::AI_Shoot(CMap *pcMap)
 			// Enemy speed
 			float EnemySpeed = VectorLength(*psAITarget->getVelocity());
 			// Projectile speed
-			float ProjSpeed = (float)weap->ProjSpeed+(float)weap->ProjSpeedVar*GetFixedRandomNum(Random);
+			float v = (float)weap->ProjSpeed+(float)weap->ProjSpeedVar*GetFixedRandomNum(Random)*weap->Projectile->Dampening;
 			// Projectile spread
 			float Spread = (float)GetFixedRandomNum(Random)*(float)weap->ProjSpread;
 			// Gravity
-			int	  Gravity = 100;
+			int	  g = 100;
 			if (weap->Projectile->UseCustomGravity)
-				Gravity = weap->Projectile->Gravity;
-			// Time of the projectile flight
-			//float X_Distance = (float)fabs(vPos.GetX()-cTrgPos.GetX());
-			//float Y_Distance = (float)fabs(vPos.GetY()-cTrgPos.GetY());
-			/*CVec ProjVelocity = CVec(0,0);
-			ProjVelocity.SetX((1.41421356*fastSQRT(X_Distance*X_Distance*fastSQRT(ProjSpeed*ProjSpeed*(2*Gravity*Y_Distance+ProjSpeed*ProjSpeed)-X_Distance*X_Distance*Gravity*Gravity)+X_Distance*X_Distance*(ProjSpeed*ProjSpeed-Gravity*Y_Distance)+2*Y_Distance*Y_Distance*ProjSpeed*ProjSpeed))/(2*fastSQRT(X_Distance*X_Distance+Y_Distance*Y_Distance)));
-			ProjVelocity.SetY(fastSQRT(ProjSpeed*ProjSpeed-ProjVelocity.GetX()*ProjVelocity.GetX()));
-			float Time = fastSQRT((2*Y_Distance+ProjVelocity.GetY()*ProjVelocity.GetY()/Gravity)/Gravity) + ProjVelocity.GetY()/Gravity;
-			NormalizeVector(&ProjVelocity);
-			ProjVelocity = ProjVelocity*10;
-			CVec cAimPos = CVec(vPos.GetX()+ProjVelocity.GetX(),vPos.GetY()+ProjVelocity.GetY());*/
+				g = weap->Projectile->Gravity;
+			// Distance
+			float x = (cTrgPos.GetX()-vPos.GetX());
+			float y = (vPos.GetY()-cTrgPos.GetY());
 
-			// Workaround for now
-			/*float Time = CalculateDistance(vPos,cTrgPos)/(ProjSpeed/2*CalculateDistance(vPos,cTrgPos));
-			CVec cAimPos = CVec(cTrgPos.GetX(),cTrgPos.GetY()-Gravity*Time-Spread);*/
+			// Get the alpha
+			float alpha=(float)atan(sqrt(-pow(x,2)*sqrt(-pow(g,2)*pow(x,2)-2*g*pow(v,2)*y+pow(v,4))+pow(x,2)*(g*y+pow(v,2))+2*pow(v,2)*pow(y,2))/(x*sqrt(sqrt(-pow(g,2)*pow(x,2)-2*g*pow(v,2)*y+pow(v,4))-g*y+pow(v,2))));
+			if (y > 0)
+				alpha = -alpha;
+			if (x < 0)
+				alpha = -alpha;
 
+			// Convert to degrees
+			alpha = RAD2DEG(alpha);
 
-			// Shooting angle
-			/*float speed = (float)weap->ProjSpeed+(float)weap->ProjSpeedVar*GetFixedRandomNum(Random);
-			if (speed == 0)
-				speed = 0.0000001f;
-			float shootTime = CalculateDistance(vPos,cTrgPos)/(speed);
-			CVec newTrgPos = CVec(cTrgPos.GetX()+psAITarget->getVelocity()->GetX()*shootTime,   cPosTarget.GetY()+psAITarget->getVelocity()->GetY()*shootTime);
-			//CVec projDirection = CVec(newTrgPos.GetX()-vPos.GetX(),newTrgPos.GetY()-vPos.GetY());
-			CVec projDirection = CVec(cTrgPos.GetX()-vPos.GetX(),cTrgPos.GetY()-vPos.GetY());
-			if (weap->Projectile->UseCustomGravity)
-				projDirection.AddY(-(weap->Projectile->Gravity)*shootTime);
-			else
-				projDirection.AddY(-100*shootTime);
-			CVec cAimPos = CVec(vPos.GetX()+projDirection.GetX(),vPos.GetY()+projDirection.GetY());
-			*/
-/*#ifdef _AI_DEBUG
-			SDL_Surface *bmpDest = pcMap->GetDebugImage();
-			if (bmpDest)  {
-				DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,MakeColour(255,0,255));
-				DrawRectFill(bmpDest,cAimPos.GetX()*2,cAimPos.GetY()*2,cAimPos.GetX()*2+4,cAimPos.GetY()*2+4,MakeColour(255,255,0));
-				//DrawRectFill(bmpDest,newTrgPos.GetX()*2,newTrgPos.GetY()*2,newTrgPos.GetX()*2+4,newTrgPos.GetY()*2+4,MakeColour(255,255,0));
+			// We can't aim it
+			if (alpha > 60 || alpha < -90)  {
+				bAim = false;
+				break;
 			}
-#endif
-			bAim = AI_SetAim(cAimPos);
+			// Aim
+			else
+				fAngle = alpha;
+
+			// Face the target
+			if (x < 0)
+				iDirection = DIR_LEFT;
+			else
+				iDirection = DIR_RIGHT;
+
+			// Can we hit the target?
+			bAim = weaponCanHit(alpha,g,v,pcMap);
+
+			/*strcpy(tLX->debug_string,weap->Name);
+			if (tLX->fCurTime-flast > 1.0f)  {
+				tLX->debug_float = alpha;
+				flast = tLX->fCurTime;
+			}*/
 		break;
 		}
 	}
 	break;
 	}
-
-	// The aiming is different for some weapons
-	/*CVec cAimPos;
-	wpnslot_t *weap = getCurWeapon();
-	if (!stricmp(weap->Weapon->Name,"napalm")) {
-		float dist = CalculateDistance(cPosTarget,vPos);
-		float time = dist/(100+vVelocity.GetX());
-		cAimPos = CVec(cPosTarget.GetX(),cPosTarget.GetY()-time*100);
-	} else if (!stricmp(weap->Weapon->Name,"cannon")) {
-		float dist = CalculateDistance(cPosTarget,vPos);
-		float time = dist/(200+vVelocity.GetX());
-		cAimPos = CVec(cPosTarget.GetX(),cPosTarget.GetY()-time*110);
-	} else if (!stricmp(weap->Weapon->Name,"mortar launcher")) {
-		float dist = CalculateDistance(cPosTarget,vPos);
-		float time = dist/(200+vVelocity.GetX());
-		cAimPos = CVec(cPosTarget.GetX(),cPosTarget.GetY()-time*130);
-	} else if (!stricmp(weap->Weapon->Name,"chaingun")) {
-		float dist = CalculateDistance(cPosTarget,vPos);
-		float time = dist/250;
-		cAimPos = CVec(cPosTarget.GetX(),cPosTarget.GetY()-time*60);
-	} else
-		cAimPos = cPosTarget;*/
-
-
-	bAim = AI_SetAim(cTrgPos);
 
     if(!bAim)  {
 
@@ -2484,12 +2535,20 @@ void CWorm::NEW_AI_CleanupPath(void)
 
 ////////////////////
 // Creates the path
+float fLastCreated = -9999;
 int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 {
+	// Don't create the path so often!
+	if (tLX->fCurTime - fLastCreated <= 2.0f)  {
+		fLastCreated = tLX->fCurTime;
+		return false;
+	}
+
 	CVec trg = AI_GetTargetPos();
 	CVec pos = vPos;
 
 	iProcessedNodes = 0;
+	bPathFinished = true;
 
 /*#ifdef _AI_DEBUG
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
@@ -2864,10 +2923,13 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 // Process the path
 void CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap)
 {
+	bPathFinished = true;
 	// Too many recursions? End
 	iProcessedNodes++;
-	if (iProcessedNodes > 20)
+	if (iProcessedNodes > 20)  {
+		bPathFinished = false;
 		return;
+	}
 
 	// Trivial task, end the recursion
 	if(traceWormLine(trg,pos,pcMap))  {
@@ -3034,8 +3096,89 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 }
 #endif
 
+////////////////////
+// Finds the nearest spot to the target, where the rope can be hooked
+CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap)
+{
+	CVec dir = trg-vPos;
+	NormalizeVector(&dir);
+	dir = dir*10;
+	while (CalculateDistance(vPos,trg) >= cNinjaRope.getRestLength()) 
+		trg = trg-dir;
+
+	//
+	// Find the nearest cell with rock or dirt
+	//
+
+	// Get the current cell
+	uchar tmp_pf = PX_ROCK;
+	int cellX = (int) (trg.GetX())/pcMap->getGridWidth();
+	int cellY = (int) (trg.GetY())/pcMap->getGridHeight();
+	
+	// Clipping means rock
+	if (cellX > pcMap->getGridCols() || cellX < 0)
+		return trg;
+	if (cellY > pcMap->getGridRows() || cellY < 0)
+		return trg;
+
+	// Check the current cell first
+	tmp_pf = *(pcMap->getGridFlags() + cellY*pcMap->getGridCols() +cellX);
+	if (tmp_pf == PX_ROCK || tmp_pf == PX_DIRT)
+		return trg;
+
+	// Note: unoptimized
+
+	const int numCells = pcMap->getGridCols() * pcMap->getGridRows();
+	int i=1;
+	int x,y;
+	bool bFound = false;
+	while (!bFound) {
+		for (y=cellY-i;y<=cellY+i;y++)  {
+
+			// Clipping means rock
+			if (y > pcMap->getGridRows())  {
+				bFound = true;
+				break;
+			}
+			if (y < 0)  {
+				bFound = true;
+				break;
+			}
+
+
+			for (x=cellX-i;x<=cellX+i;x++)  {
+				// Don't check the entry cell
+				if (x == cellX && y == cellY)
+					continue;
+
+				// Clipping means rock
+				if (x > pcMap->getGridCols())  {
+					bFound = true;
+					break;
+				}
+				if (x < 0)  {
+					bFound = true;
+					break;
+				}
+
+				// Get the pixel flag of the cell
+				tmp_pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() +x);
+				if (tmp_pf == PX_ROCK || tmp_pf == PX_DIRT)  {
+					bFound = true;
+					break;
+				}	
+			}
+		}
+		i++;
+	}
+
+	return CVec((float)x*pcMap->getGridWidth()+pcMap->getGridWidth()/2, (float)y*pcMap->getGridHeight()+pcMap->getGridHeight()/2);
+
+}
+
 /////////////////////
 // Move to the target
+float fLastCompleting = -9999;
 void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 {
 //	printf("Moving to target");
@@ -3133,6 +3276,16 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     if(recalculate)
         NEW_AI_CreatePath(pcMap);
 
+	// If the CreatePath hasn't created whole path, we'll try to finish it
+/*	if (!bPathFinished && !recalculate && (tLX->fCurTime-fLastCompleting <= 0.2f))  {
+		fLastCompleting = tLX->fCurTime;
+		NEW_AI_ProcessPath(CVec(NEW_psPath->fX,NEW_psPath->fY),vPos,pcMap);
+		if (!NEW_psPath || !NEW_psLastNode)
+			return;
+#ifdef _AI_DEBUG
+		NEW_AI_DrawPath(pcMap);
+#endif
+	}*/
 
     /*
       Move through the path.
@@ -3241,18 +3394,23 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     
     // If the node is above us by a lot, we should use the ninja rope
 	// If the node is far, use the rope, too
-    if(NEW_psCurrentNode->fY+20 < vPos.GetY() || (fabs(NEW_psCurrentNode->fX-vPos.GetX()) >= 50)) {
+    if(NEW_psCurrentNode->fY+20 < vPos.GetY()/* || (fabs(NEW_psCurrentNode->fX-vPos.GetX()) >= 50)*/) {
         
         bool fireNinja = true;
 
 		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 
-		// If the node is above us, get an average position of the two nodes
+		// If the path is going up, get an average position of the two nodes
 		if (vPos.GetY() > NEW_psCurrentNode->fY) 
 			if (NEW_psCurrentNode->psNext) {
-				cAimPos.SetX((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
-				cAimPos.SetY((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
+				if (NEW_psCurrentNode->fY-20 > NEW_psCurrentNode->psNext->fY)  {
+					cAimPos.SetX((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
+					cAimPos.SetY((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
+				}
 			}
+
+		cAimPos = NEW_AI_GetNearestRopeSpot(cAimPos,pcMap);
+
 
 		// Aim
 		AI_SetAim(cAimPos);

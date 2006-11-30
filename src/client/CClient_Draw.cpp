@@ -233,7 +233,6 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
-
     //tLX->cOutlineFont.Draw(bmpDest, 4,20, 0xffff, "%s",tLX->debug_string);
     //tLX->cOutlineFont.Draw(bmpDest, 4,40, 0xffff, "%f",tLX->debug_float);
 }

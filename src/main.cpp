@@ -38,6 +38,8 @@ char*		argv0;
 // Main entry point
 int main(int argc, char *argv[])
 {
+	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+
     int     startgame = false;
     float   fMaxFPS = 85;
 
@@ -430,6 +432,8 @@ void ShutdownLieroX(void)
 		delete tLX;
 		tLX = NULL;
 	}
+
+	Cmd_Free();
 
 	QuitNetworkSystem();
 	

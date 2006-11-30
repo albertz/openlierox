@@ -221,7 +221,6 @@ private:
     CWpnRest    *cWeaponRest;
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
-	int			iRandomizing;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
     
     // Force the showing of the current weapon
@@ -269,6 +268,7 @@ private:
     ai_node_t   *psCurrentNode;
 	float       fLastPathUpdate;
 	int			iProcessedNodes;
+	bool		bPathFinished;
 
 	NEW_ai_node_t	*NEW_psPath;
 	NEW_ai_node_t	*NEW_psCurrentNode;
@@ -394,6 +394,7 @@ public:
     int         traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs = 5);
 	int			traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType);
 	int         traceWormLine(CVec target, CVec start, CMap *pcMap);
+	bool		weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap);
 	bool		IsEmpty(int Cell, CMap *pcMap);
     //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
 
@@ -407,6 +408,7 @@ public:
 	void		NEW_AI_CleanupPath(void);
 	void		NEW_AI_SimplifyPath(CMap *pcMap);
 	void		NEW_AI_MoveToTarget(CMap *pcMap);
+	CVec		NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap);
 #ifdef _AI_DEBUG
 	void		NEW_AI_DrawPath(CMap *pcMap);
 #endif

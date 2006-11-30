@@ -38,6 +38,7 @@ int LoadOptions(void)
 		return false;
 	}
 	tLXOptions->tSearchPaths = NULL;
+	tLXOptions->tSearchPaths = NULL;
 
 
     char *f = "cfg/options.cfg";
@@ -160,6 +161,10 @@ void ShutdownOptions(void)
 	delete tLXOptions;
 	tLXOptions = NULL;
 	
+	if (NetworkTexts)
+		delete NetworkTexts;
+	NetworkTexts = NULL;
+
 	ShutdownFilenameStruct(basesearchpaths);
 	basesearchpaths = NULL;
 }

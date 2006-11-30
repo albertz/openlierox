@@ -497,6 +497,9 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 
 	CVec p = CVec( (float)x, (float)y );
 
+	if (id < 0 || id > MAX_PLAYERS)
+		return;
+
 	cRemoteWorms[id].setAlive(true);
 	cRemoteWorms[id].Spawn(p);
 
