@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEST=albertzeyer@shell.sourceforge.net:/home/groups/o/op/openlierox/
+DEST=albertzeyer@shell.sourceforge.net:/home/groups/o/op/openlierox/htdocs/
 
 rsync -avP additions/* $DEST
 rsync -avP tarball/* $DEST
