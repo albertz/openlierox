@@ -15,6 +15,11 @@
 #define __FINDFILE_H__
 
 
+#ifndef SYSTEM_DATA_DIR
+#	define	SYSTEM_DATA_DIR	"/usr/share/"
+#endif
+
+
 struct filelist_t {
 	char filename[64]; // TODO: enough?
 	filelist_t* next;
@@ -62,6 +67,7 @@ inline bool GetExactFileName(const char* searchname, char* filename) {
 	return true;
 }
 #endif
+
 
 
 extern filelist_t*	basesearchpaths;

@@ -37,7 +37,7 @@ int LoadOptions(void)
 	if(tLXOptions == NULL) {
 		return false;
 	}
-
+	tLXOptions->tSearchPaths = NULL;
 
 
     char *f = "cfg/options.cfg";

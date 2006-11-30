@@ -1,0 +1,35 @@
+Liero Xtreme
+By Auxiliary Software 2002-2003
+
+http://lieroxtreme.thegaminguniverse.com
+
+-------------------------------------
+
+
+Here are some not so obvious things that you can do in Liero Xtreme:
+
+
+-Viewport Manager
+You can press F2 during a game to access the viewport manager
+
+
+-Screenshots
+F12 will take a screenshot
+
+
+-Level editor
+You can drag the level around by using the middle mouse button
+
+
+-Weapons
+Keys 1 to 5 can be used to select a weapon
+Holding the 'select weapon' key while selecting weapons will skip through the weapon list 5 weapons at a time
+
+
+-Console
+The host of a network game can use a console to execute commands.
+Press the tilde key for the console (~).
+Currently the only command is:
+
+Kick <worm_name>
+Kicks a worm out of the server

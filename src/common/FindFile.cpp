@@ -480,7 +480,7 @@ void InitBaseSearchPaths() {
 #ifndef WIN32
 	AddToFileList(&basesearchpaths, GetHomeDir());
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, "/usr/share/OpenLieroX");
+	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX");
 #else // Win32
 	AddToFileList(&basesearchpaths, GetHomeDir());
 	AddToFileList(&basesearchpaths, ".");
@@ -510,7 +510,8 @@ char* GetFullFileName(const char* path) {
 	if(path == NULL || path[0] == '\0')
 		return NULL;
 
-	filelist_t* spath = tLXOptions->tSearchPaths;
+	filelist_t* spath;
+	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
 	if(spath == NULL) spath = basesearchpaths;
 	assert(spath != NULL);
 	for(; spath != NULL; spath = spath->next) {

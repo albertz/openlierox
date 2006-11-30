@@ -1,11 +1,39 @@
 #!/bin/bash
 
-if [ ! -d bin ]; then mkdir bin; fi
+# this is the compile-script for a simple compilation of the game
+# the following variables will be used:
+#   SYSTEM_DATA_DIR		- the global data dir for the game; default=/usr/share
+#	CPPFLAGS			- some other g++ flags
+
+# do some simple checks
+type g++ 1>/dev/null 2>/dev/null || \
+	{ echo "ERROR: g++ not found" >&2; exit -1; }
+[ -d /usr/include/libxml2 ] || \
+	{ echo "ERROR: libxml2 headers not found" >&2; exit -1; }
+[ -d /usr/include/SDL ] || \
+	{ echo "ERROR: SDL headers not found" >&2; exit -1; }
+[ -e /usr/include/SDL/SDL_image.h ] || \
+	{ echo "ERROR: SDL_image.h not found" >&2; exit -1; }
+[ -e /usr/include/SDL/SDL_mixer.h ] || \
+	{ echo "ERROR: SDL_image.h not found" >&2; exit -1; }
+[ -e /usr/include/nl.h ] || \
+	{ echo "ERROR: HawkNL header not found" >&2; exit -1; }
+[ -e /usr/include/zlib.h ] || \
+	{ echo "ERROR: zlib header not found" >&2; exit -1; }
+[ -e /usr/include/gd.h ] || \
+	{ echo "ERROR: gd header not found" >&2; exit -1; }
+
+# check variables and set default values if unset
+[ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
+
+mkdir -p bin
 
 echo ">>> compiling now, this could take a little time ..."
 if g++ src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-I include -I /usr/include/libxml2 \
 	-lSDL -lSDL_image -lSDL_mixer -lNL -lz -lgd -lxml2 \
+	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
+	$CPPFLAGS \
 	-o bin/openlierox
 then
 	echo ">>> success"
@@ -14,3 +42,4 @@ else
 	echo ">>> error(s) reported, check the output above"
 	exit -1
 fi
+
