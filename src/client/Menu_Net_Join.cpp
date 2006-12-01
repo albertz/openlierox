@@ -395,8 +395,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-// TODO: implement sound system
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cConnecting.Shutdown();
@@ -766,8 +765,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cClient->Disconnect();
 
 					// Click!
-// TODO: implement sound system
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cJoinLobby.Shutdown();

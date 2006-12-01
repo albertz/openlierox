@@ -480,6 +480,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj_t *proj = new proj_t;
 	if(proj == NULL)
 		return NULL;
+	
 
 	fread(&proj->Type,			sizeof(int),  1,fp);
 	EndianSwap(proj->Type);
@@ -505,7 +506,9 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Timer_Projectiles = false;
 	proj->PlyHit_Projectiles = false;
 	proj->Animating = false;
-
+	proj->Rotating = 0;
+	proj->RotIncrement = 0;
+	
 	if(proj->Type == PRJ_PIXEL) {
 		fread(&proj->NumColours, sizeof(int), 1, fp);
 		EndianSwap(proj->NumColours);
@@ -520,8 +523,8 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			EndianSwap(proj->Colour2[1]);
 			EndianSwap(proj->Colour2[2]);
 		}
-	}
 
+	}
 	else if(proj->Type == PRJ_IMAGE) {
         readString(proj->ImgFilename, fp);
 		

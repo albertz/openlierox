@@ -159,8 +159,7 @@ void Menu_NetFrame(void)
 				cNetButtons[i].MouseOver(Mouse);
 				mouse = 1;
 				if(Mouse->Up) {					
-// TODO: implement sound system
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Call a shutdown on all the highest net menu's
 					Menu_Net_MainShutdown();

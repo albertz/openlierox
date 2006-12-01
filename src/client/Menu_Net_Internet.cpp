@@ -154,8 +154,7 @@ void Menu_Net_NETFrame(int mouse)
 			case mi_AddServer:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Click!
-// TODO: implement sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					Menu_Net_NETAddServer();
 				}
@@ -174,8 +173,7 @@ PlaySoundSample(sfxGeneral.smpClick);
                     Menu_SvrList_SaveList("cfg/svrlist.dat");
 
 					// Click!
-// TODO: implement sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cInternet.Shutdown();
@@ -190,8 +188,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-// TODO: implement sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Refresh the currently visible servers
 					Menu_SvrList_RefreshList();
@@ -211,8 +208,7 @@ PlaySoundSample(sfxGeneral.smpClick);
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
 						
 						// Click!
-// TODO: implement sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Join
 						Menu_Net_NETJoinServer(addr);
@@ -328,8 +324,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 			case mi_UpdateList:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Click!
-// TODO: implement sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					Menu_Net_NETUpdateList();
 				}
@@ -452,8 +447,7 @@ void Menu_Net_NETAddServer(void)
 						Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 
 						// Click!
-// TODO: implement sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						addServerMsg = false;
 					}
@@ -463,8 +457,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				case na_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
-// TODO: implement sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						addServerMsg = false;
 					}
@@ -622,8 +615,7 @@ void Menu_Net_NETUpdateList(void)
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						
 						// Click!
-// TODO: implement sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						http_result = 0;
 						updateList = false;

@@ -461,20 +461,6 @@ int CClient::OwnsWorm(CWorm *w)
 	return false;
 }
 
-///////////////////
-// Get the current client's ping
-int CClient::getPing(void)
-{
-	return iPing;
-}
-
-///////////////////
-// Set the current client's ping
-void CClient::setPing(int Ping)
-{
-	iPing = Ping;
-}
-
 
 ///////////////////
 // Setup the worms (server func)

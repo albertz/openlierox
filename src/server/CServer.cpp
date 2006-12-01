@@ -23,6 +23,8 @@
 // Clear the server
 void CServer::Clear(void)
 {
+	int i;
+
 	cClients = NULL;
 	cMap = NULL;
 	//cProjectiles = NULL;
@@ -46,6 +48,13 @@ void CServer::Clear(void)
 	cShootList.Clear();
 
 	bFirstBlood = true;
+
+	for(i=0; i<MAX_CHALLENGES; i++) {
+		SetNetAddrValid(&tChallenges[i].Address, false);
+		tChallenges[i].fTime = 0;
+		tChallenges[i].iNum = 0;
+	}
+
 }
 
 
@@ -1139,8 +1148,8 @@ void CServer::Shutdown(void)
     
     cWeaponRestrictions.Shutdown();
 
-
-	/*if(cProjectiles) {
+	/*
+	if(cProjectiles) {
 		delete[] cProjectiles;
 		cProjectiles = NULL;
 	}*/

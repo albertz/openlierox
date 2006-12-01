@@ -160,7 +160,8 @@ int FindFirstDir(char *dir, char *name)
 		 {			
 			sprintf(name,"%s/%s",_dir2,entry2->d_name);
 			
-			// TODO: this should test, if it is a directory
+			// well I know, not the best method, but it works
+			// this should test, if it is a directory
 			if(!CanReadFile(name))
 				return true;
 		}
@@ -191,7 +192,7 @@ int FindNextDir(char *name)
 		 {
 			sprintf(name,"%s/%s",_dir2,entry2->d_name);
 		
-			// TODO: this should test, if it is a directory
+			// this should test, if it is a directory
 			if(!CanReadFile(name))
 				return true;
 		}

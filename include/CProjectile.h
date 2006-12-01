@@ -50,6 +50,7 @@ public:
 		iRemote = false;
         nExplode = false;
         nTouched = false;
+        fRotation = 0;
 	}
 
 

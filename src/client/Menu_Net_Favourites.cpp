@@ -156,8 +156,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 						tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
 					// Click!
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Save the list
 					Menu_SvrList_SaveList("cfg/favourites.dat");
@@ -175,8 +174,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					Menu_Net_FavouritesAddServer();
 				}
@@ -187,8 +185,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Send out a ping
 					Menu_SvrList_RefreshList();
@@ -205,7 +202,6 @@ PlaySoundSample(sfxGeneral.smpClick);
 					if(result != -1 && addr[0]) {
 						
 						// Click!
-// TODO: sound
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Join
@@ -485,7 +481,6 @@ void Menu_Net_RenameServer(char *szName)
 						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 
 						// Click!
-// TODO: sound
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						renameServerMsg = false;
@@ -496,7 +491,6 @@ void Menu_Net_RenameServer(char *szName)
 				case rs_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
-// TODO: sound
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						renameServerMsg = false;
@@ -599,7 +593,6 @@ void Menu_Net_FavouritesAddServer(void)
 						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 
 						// Click!
-						// TODO: sound
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						addServerMsg = false;
@@ -610,7 +603,6 @@ void Menu_Net_FavouritesAddServer(void)
 				case fa_Cancel:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						// Click!
-// TODO: sound
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						addServerMsg = false;

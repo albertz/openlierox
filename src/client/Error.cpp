@@ -125,7 +125,7 @@ void GuiSkinError(char *fmt, ...)
 	// Copy the error
 	strcpy(GUIErrors[iErrPointer],buf);
 
-	// TODO: this better
+	// TODO: make this better
 	printf("%s\r\n",buf);
 
 }

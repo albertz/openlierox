@@ -327,8 +327,7 @@ void Menu_OptionsFrame(void)
 			if(Mouse->Up) {
                 DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 				OptionsMode = i;
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+				PlaySoundSample(sfxGeneral.smpClick);
 			}
 		}
 	}
@@ -357,8 +356,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 					SaveOptions();
 
 					// Leave
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 					Menu_MainInitialize();
 					return;
 				}
@@ -516,8 +514,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 						// Set to fullscreen
 						tLXOptions->iFullscreen = fullscr;
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Set the new video mode
 						SetVideoMode();

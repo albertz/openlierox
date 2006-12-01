@@ -136,13 +136,10 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	if(tProjInfo->Dampening != 1)
 		vVelocity = vVelocity * tProjInfo->Dampening;
 
-		// TODO: valgrind says, something is uninit here
 	if(tProjInfo->Rotating)
 		fRotation += (float)tProjInfo->RotSpeed*dt;
-		// TODO: valgrind says, something is uninit here
 	if(fRotation < 0)
 		fRotation = 360;
-		// TODO: valgrind says, something is uninit here
 	if(fRotation > 360)
 		fRotation = 0;
 

@@ -241,7 +241,9 @@ int InitializeLieroX(void)
     }
 	tLX->iQuitGame = false;
 	tLX->debug_string[0] = 0;
-
+	// TODO: more initiation of the values
+	tLX->fCurTime = 0;
+	
 	// Load the graphics
     if(!LoadGraphics()) {
         SystemError("Error: Error loading graphics");

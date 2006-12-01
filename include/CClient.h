@@ -96,14 +96,16 @@ public:
 		bInServer = false;
 		cIConnectedBuf[0] = '\0';
 		iNetSpeed = 3;
-		iPing = 0;
-
+		
 		tPing.bInitialized = false;
 		tPing.iSequence = 0;
-
+		tPing.fSentTime = 0;
+		
 		iMyPing = 0;
 		fMyPingRefreshed = 0;
 		fMyPingSent = 0;
+		iPing = 0;
+		fTimePingUpdated = 0;
 
 		iCanToggle = true;
 
@@ -113,6 +115,7 @@ public:
 		fSendWait = 0;
 
 		iMuted = false;
+		
 	}
 
 
@@ -326,8 +329,6 @@ public:
 	void		SendText(char *sText);
 	void		Disconnect(void);
 	int			OwnsWorm(CWorm *w);
-	int			getPing(void);
-	void		setPing(int Ping);
 
 	// Sending
 	void		SendWormDetails(void);
@@ -422,6 +423,10 @@ public:
 
 	int			getMuted(void)				{ return iMuted; }
 	void		setMuted(int _m)			{ iMuted = _m; }
+
+	inline int	getPing(void)				{ return iPing; }
+	inline void	setPing(int Ping)			{ iPing = Ping; }
+
 };
 
 

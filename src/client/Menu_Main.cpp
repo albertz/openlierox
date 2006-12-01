@@ -103,8 +103,7 @@ void Menu_MainFrame(void)
                 mouseover = true;
                 img=0;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-// TODO: implement sound system
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_LocalInitialize();
 				    return;
@@ -116,8 +115,7 @@ PlaySoundSample(sfxGeneral.smpClick);
                 mouseover = true;
                 img=1;
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-// TODO: implement sound system
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_NetInitialize();
 				    return;
@@ -127,8 +125,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 			// Player
 			case mm_PlayerProfiles:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-// TODO: implement sound system
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_PlayerInitialize();
 				    return;
@@ -138,7 +135,6 @@ PlaySoundSample(sfxGeneral.smpClick);
 			// Level editor
 			case mm_LevelEditor:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-// TODO: implement sound system
                     PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_MapEdInitialize();
@@ -149,8 +145,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 			// Options
 			case mm_Options:
                 if( ev->iEventMsg == TBT_MOUSEUP ) {
-// TODO: implement sound system
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 				    cMainMenu.Shutdown();
 				    Menu_OptionsInitialize();
 				    return;
@@ -160,8 +155,7 @@ PlaySoundSample(sfxGeneral.smpClick);
             // Quit
 			case mm_Quit:
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
-// TODO: implement sound system
-        PlaySoundSample(sfxGeneral.smpClick);
+			        PlaySoundSample(sfxGeneral.smpClick);
 				
                     cMainMenu.Draw(tMenu->bmpBuffer);
 

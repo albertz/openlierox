@@ -107,8 +107,7 @@ void Menu_Net_MainFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Click!
-// TODO: sound
-PlaySoundSample(sfxGeneral.smpClick);
+					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
 					cMain.Shutdown();

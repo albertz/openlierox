@@ -36,23 +36,18 @@ void CServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 	// Calculate the ping time
 	ping = cl->getPingStruct();
 	if (ping->iSequence <= chan->getInAck())  {
-		// TODO: valgrind says, something is uninit here
 		if ((tLX->fCurTime - cl->getLastPingTime()) > 1)  {  // Update ping once per second
-			int png = (int) ((tLX->fCurTime - ping->fSentTime)*1000-20);
+			int png = (int)((tLX->fCurTime - ping->fSentTime)*1000-20);
 
-		// TODO: valgrind says, something is uninit here
 			if (cl->getPing() > 99999)
 				cl->setPing(0);
 
 			// Make the ping slighter
-		// TODO: valgrind says, something is uninit here
 			if (png - cl->getPing() > 5 && cl->getPing() && png)
 				png = (png + cl->getPing() + cl->getPing())/3;
-		// TODO: valgrind says, something is uninit here
 			if (cl->getPing() - png > 5 && cl->getPing() && png)
 				png = (png + png + cl->getPing())/3;
 
-		// TODO: valgrind says, something is uninit here
 			if (png > 99999)
 				png = 0;
 
@@ -608,7 +603,7 @@ void CServer::ParseGetChallenge(void)
 	int			i;
 	NetworkAddr	adrFrom;
 	float		OldestTime = 99999;
-	int			OldestChallenge = 0;
+	int			ChallengeToSet = -1;
 	CBytestream	bs;
 
 	GetRemoteNetAddr(tSocket,&adrFrom);
@@ -627,23 +622,27 @@ void CServer::ParseGetChallenge(void)
 	// see if we already have a challenge for this ip
 	for(i=0;i<MAX_CHALLENGES;i++) {
 		
-		// TODO: possible memory leak? valgrid says, these values are uninit here
-		if(AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
+		if(IsNetAddrValid(&tChallenges[i].Address)) {
+			if(AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
+				break;
+			if(ChallengeToSet < 0 || tChallenges[i].fTime < OldestTime) {
+				OldestTime = tChallenges[i].fTime;
+				ChallengeToSet = i;
+			}
+		} else {
+			ChallengeToSet = i;
 			break;
-		if(tChallenges[i].fTime < OldestTime) {
-			OldestTime = tChallenges[i].fTime;
-			OldestChallenge = i;
 		}
 	}
 
-	if(i == MAX_CHALLENGES) {
+	if(ChallengeToSet >= 0) {
 		
 		// overwrite the oldest
-		tChallenges[OldestChallenge].iNum = (rand() << 16) ^ rand();
-		tChallenges[OldestChallenge].Address = adrFrom;
-		tChallenges[OldestChallenge].fTime = tLX->fCurTime;
+		tChallenges[ChallengeToSet].iNum = (rand() << 16) ^ rand();
+		tChallenges[ChallengeToSet].Address = adrFrom;
+		tChallenges[ChallengeToSet].fTime = tLX->fCurTime;
 		
-		i = OldestChallenge;
+		i = ChallengeToSet;
 	}
 
 	
@@ -733,11 +732,12 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// See if the challenge is valid
 	for(i=0;i<MAX_CHALLENGES;i++) {
-		if(AreNetAddrEqual(&adrFrom, &tChallenges[i].Address)) {
+		if(IsNetAddrValid(&tChallenges[i].Address) && AreNetAddrEqual(&adrFrom, &tChallenges[i].Address)) {
 
 			if(ChallId == tChallenges[i].iNum)
 				break;		// good
-			
+
+			printf("Bad connection verification of client\n");
 			bytestr.Clear();
 			bytestr.writeInt(-1,4);
 			bytestr.writeString("%s","lx::badconnect");
@@ -749,6 +749,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// Ran out of challenges
 	if(i == MAX_CHALLENGES-1) {
+		printf("No connection verification for client found\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
