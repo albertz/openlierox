@@ -21,7 +21,7 @@
 #define		MAX_CHALLENGES		1024
 // Challenge structure
 typedef struct {
-	address_t	Address;
+	NetworkAddr	Address;
 	float		fTime;
 	int			iNum;
 } challenge_t;

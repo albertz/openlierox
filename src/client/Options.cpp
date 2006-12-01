@@ -58,6 +58,7 @@ int LoadOptions(void)
     	strcpy(&tmp[10], itoa(i, tmp2, 10));
     	*spath = new filelist_t;
 		(*spath)->next = NULL;
+		(*spath)->filename[0] = '\0';
         if(!ReadString(f, "FileHandling", tmp, (*spath)->filename, NULL)) {
         	delete *spath; *spath = NULL;     	
         	break;

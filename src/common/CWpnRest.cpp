@@ -116,7 +116,8 @@ wpnrest_t *CWpnRest::findWeapon(char *szName)
 {
     assert( szName );
 
-    char name[256];
+    static char name[256];
+    static char tmp[256];
     lx_strncpy(name, szName, 255);
 
     wpnrest_t *psWpn = m_psWeaponList;
@@ -125,8 +126,8 @@ wpnrest_t *CWpnRest::findWeapon(char *szName)
 
         // We need to be a bit lenient here in case some simple mistakes in different game scripts occur
         // Like case & leading/trailing spaces
-        strcpy(name, TrimSpaces( name ));
-        if( stricmp(psWpn->szName, name) == 0 )
+        strcpy(tmp, TrimSpaces( name ));
+        if( stricmp(psWpn->szName, tmp) == 0 )
             return psWpn;
     }
 

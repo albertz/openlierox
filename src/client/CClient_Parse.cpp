@@ -871,7 +871,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 		return;
 
 	game_lobby_t    *gl = &tGameLobby;
-    char            buf[256];
+    static char		buf[256];
     FILE            *fp = NULL;
 
 	if (!gl)  {
@@ -1076,7 +1076,7 @@ void CClient::ParseGotoLobby(CBytestream *bs)
 // Parse a 'dropped' packet
 void CClient::ParseDropped(CBytestream *bs)
 {
-    char buf[256];
+    static char buf[256] = "";
 
     // Set the server error details
 	

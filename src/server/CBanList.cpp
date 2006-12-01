@@ -232,7 +232,7 @@ void CBanList::loadList(char *szFilename)
     if( !fp )
         return;
 
-    char line[256];
+    char line[256] = "";
 
     while( !feof(fp) ) {
         fscanf(fp, "%[^\n]\n",line);

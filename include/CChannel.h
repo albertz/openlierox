@@ -79,7 +79,7 @@ private:
 
 public:
 	// Methods
-	void		Create(address_t *_adr, int _port, NetworkSocket _sock);
+	void		Create(NetworkAddr *_adr, int _port, NetworkSocket _sock);
 	void		Transmit( CBytestream *bs );
 	int			Process(CBytestream *bs);
 	void		Clear(void)				{ fLastPckRecvd = 0; iPort = 23400; Socket = 0;

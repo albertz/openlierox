@@ -323,7 +323,8 @@ bool replace(char *text, const char *what, const char *with, char *result)
 // Replace a string in text, returns result, replaces maximally max occurences
 char *replacemax(char *text, char *what, char *with, char *result, int max)
 {
-  strcpy(result,text);
+	if(result != text)
+		strcpy(result,text);
 
   int pos = (int) (strstr(result,what)-result);
   int occurences = 0;

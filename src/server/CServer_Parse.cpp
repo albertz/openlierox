@@ -36,6 +36,7 @@ void CServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 	// Calculate the ping time
 	ping = cl->getPingStruct();
 	if (ping->iSequence <= chan->getInAck())  {
+		// TODO: valgrind says, something is uninit here
 		if ((tLX->fCurTime - cl->getLastPingTime()) > 1)  {  // Update ping once per second
 			int png = (int) ((tLX->fCurTime - ping->fSentTime)*1000-20);
 
@@ -43,8 +44,10 @@ void CServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 				cl->setPing(0);
 
 			// Make the ping slighter
+		// TODO: valgrind says, something is uninit here
 			if (png - cl->getPing() > 5 && cl->getPing() && png)
 				png = (png + cl->getPing() + cl->getPing())/3;
+		// TODO: valgrind says, something is uninit here
 			if (cl->getPing() - png > 5 && cl->getPing() && png)
 				png = (png + png + cl->getPing())/3;
 
@@ -622,6 +625,7 @@ void CServer::ParseGetChallenge(void)
 	// see if we already have a challenge for this ip
 	for(i=0;i<MAX_CHALLENGES;i++) {
 		
+		// TODO: possible memory leak? valgrid says, these values are uninit here
 		if(AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
 			break;
 		if(tChallenges[i].fTime < OldestTime) {

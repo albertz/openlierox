@@ -1665,13 +1665,15 @@ void Menu_SvrList_LoadList(char *szFilename)
     if( !fp )
         return;
 
-    char szLine[1024];
-
+    static char szLine[1024] = "";
+	static char tmp[1024] = "";
+    static char address[256] = "";
+	
     // Go through every line
-    while( fgets(szLine, 1024, fp) ) {
+    while( fgets(tmp, 1024, fp) ) {
 
-        strcpy(szLine, StripLine(szLine));
-        if( strlen(szLine) == 0 )
+        strcpy(szLine, StripLine(tmp));
+        if( szLine[0] == '\0' )
             continue;
 
         char *man = strtok(szLine,",");
@@ -1679,16 +1681,15 @@ void Menu_SvrList_LoadList(char *szFilename)
         char *addr = strtok(NULL,",");
 
         if( man && name && addr ) {
-            char address[256];
-            strcpy(address,addr);
-            strcpy(address,TrimSpaces(address));
+            strcpy(tmp, addr);
+            strcpy(address,TrimSpaces(tmp));
 
             server_t *sv = Menu_SvrList_AddServer(address, man[0] == '1');
 
             // Fill in the name
             if( sv ) {
-                strcpy(sv->szName, name);
-                strcpy(sv->szName, TrimSpaces(sv->szName));
+                strcpy(tmp, name);
+                strcpy(sv->szName, TrimSpaces(tmp));
             }
         }
     }

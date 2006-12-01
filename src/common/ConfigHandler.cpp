@@ -121,6 +121,7 @@ int GetString(char *filename, char *section, char *key, char *string)
 {
 	FILE	*config;
 	char	Line[MAX_STRING_LENGTH];
+	char	tmpLine[MAX_STRING_LENGTH];
 	char	curSection[256];
 	char	temp[MAX_STRING_LENGTH];
 	char	curKey[MAX_STRING_LENGTH];
@@ -144,9 +145,8 @@ int GetString(char *filename, char *section, char *key, char *string)
 	while(!feof(config))
 	{
 		// Parse the lines
-		fscanf(config,"%[^\n]\n",Line);
-		strcpy(Line, TrimSpaces(Line));
-		
+		fscanf(config,"%[^\n]\n",tmpLine);
+		strcpy(Line, TrimSpaces(tmpLine));
 		
 		///////////////////
 		// Comment, Ignore
@@ -170,16 +170,16 @@ int GetString(char *filename, char *section, char *key, char *string)
 		{
 			// Key
 			Position = chardest - Line + 1;
-			strcpy(curKey,Line);
-			curKey[Position-1] = '\0';
-			strcpy(curKey, TrimSpaces(curKey));
+			strcpy(tmpLine,Line);
+			tmpLine[Position-1] = '\0';
+			strcpy(curKey, TrimSpaces(tmpLine));
 
 			// Check if this is the key were looking for under the section were looking for
 			if(stricmp(curKey,key) == 0 && stricmp(curSection,section) == 0)
 			{				
 				// Get the value
-				strcpy(string,Line+Position);
-				strcpy(string, TrimSpaces(string));
+				strcpy(tmpLine,Line+Position);
+				strcpy(string, TrimSpaces(tmpLine));
 				found = true;
 				break;
 			}

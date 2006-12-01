@@ -39,19 +39,20 @@ void CTextbox::Create(void)
 // Draw the text box
 void CTextbox::Draw(SDL_Surface *bmpDest)
 {
-	char buf[MAX_TEXTLENGTH];
-	char text[MAX_TEXTLENGTH];
+	static char buf[MAX_TEXTLENGTH];
+	static char text[MAX_TEXTLENGTH];
 
 	strcpy(text, sText);
 
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
 
-	int i;
+	int i, len;
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
-		for(i=0;i<(int)strlen(sText);i++)
+		len = (int)strlen(sText);
+		for(i=0;i<len;i++)
 			text[i]='*';
 		text[i+1] = '\0';
 	}
@@ -80,8 +81,10 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	}*/
 	
 	// Shift the text, if it overlapps
-	strcpy(&text[0],&text[iScrollPos]);
-
+	static char tmp[MAX_TEXTLENGTH];
+	strcpy(tmp,&text[iScrollPos]);
+	strcpy(text, tmp);
+	
 	// The scrollpos can be 0 and the text still overlapps
 	// User can move in the editbox using keys/mouse
 	i=iLength-1;

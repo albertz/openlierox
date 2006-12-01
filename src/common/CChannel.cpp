@@ -19,7 +19,7 @@
 
 ///////////////////
 // Setup the channel
-void CChannel::Create(address_t *_adr, int _port, NetworkSocket _sock)
+void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 {
 	RemoteAddr = *_adr;
 	iPort = _port;

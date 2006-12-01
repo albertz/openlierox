@@ -38,7 +38,9 @@ char*		argv0;
 // Main entry point
 int main(int argc, char *argv[])
 {
+#ifdef WIN32
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+#endif
 
     int     startgame = false;
     float   fMaxFPS = 85;
@@ -47,8 +49,9 @@ int main(int argc, char *argv[])
 
 	// JUST TEMPORARY
 #ifdef WIN32
-	*(strrchr(argv0,'\\')) = '\0';
-	chdir(argv0);
+	// TODO: remove this completly, if it works now
+	//*(strrchr(argv0,'\\')) = '\0';
+	//chdir(argv0);
 #endif
 	
 	// Load options and other settings
