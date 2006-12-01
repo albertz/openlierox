@@ -469,8 +469,8 @@ void CServer::RegisterServer(void)
 
     // Find the first line
     svr[0] = '\0';
-    while( fgets(svr, 1023, fp) ) {
-        strcpy( svr, StripLine(svr) );
+    while( fgets(buf, 1023, fp) ) {
+        strcpy( svr, StripLine(buf) );
         if( strlen(svr) > 0 ) {
             if( !http_InitializeRequest(svr, url) ) {
                 bRegServer = false;

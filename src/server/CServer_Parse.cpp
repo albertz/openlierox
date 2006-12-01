@@ -684,11 +684,11 @@ void CServer::ParseConnect(CBytestream *bs)
 	// Read packet
 	ProtocolVersion = bs->readInt(1);
 	if(ProtocolVersion != PROTOCOL_VERSION) {
+		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);		
 		// Wrong protocol version, don't connect client
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-
 		bytestr.writeString("%s","Wrong protocol version, server protocol version is %d",PROTOCOL_VERSION);
 		bytestr.Send(tSocket);
 		return;
@@ -699,10 +699,10 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
+		printf("Banned client was trying to connect\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-
 		bytestr.writeString("%s","You are banned on this server");
 		bytestr.Send(tSocket);
 		return;
@@ -812,6 +812,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// Ran out of slots
 	if(!newcl) {
+		printf("I have no more open slots for the new client\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
@@ -822,6 +823,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// Server full (maxed already, or the number of extra worms wanting to join will go over the max)
 	if(numplayers >= iMaxWorms || numplayers+numworms > iMaxWorms) {
+		printf("I am full, so the new client cannot join\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");

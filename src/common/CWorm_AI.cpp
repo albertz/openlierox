@@ -1623,7 +1623,10 @@ bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
 	// Target on left
 	if (max_x < 0)  {
 		for (x=0;x>max_x;x--)  {
-			y = -x*(int)tan(alpha)+(gravity*x*x)/(int)(2*speed*speed*cos(alpha)*cos(alpha));
+			if(2*speed*speed*cos(alpha)*cos(alpha) != 0) // please do such checks
+				y = -x*(int)tan(alpha)+(gravity*x*x)/(int)(2*speed*speed*cos(alpha)*cos(alpha));
+			else
+				y = 0;
 			// If we have reached the target, the trajectory is free
 			if (max_y < 0)  {
 				if (y < max_y)

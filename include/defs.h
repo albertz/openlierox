@@ -19,8 +19,9 @@
 #define __DEFS_H__
 
 // Global compile defines
+#ifndef DEBUG
 #define DEBUG	1
-
+#endif
 
 // Standard includes
 #include <assert.h>

@@ -4,6 +4,7 @@
 # the following variables will be used:
 #   SYSTEM_DATA_DIR		- the global data dir for the game; default=/usr/share
 #	CPPFLAGS			- some other g++ flags
+#	DEBUG				- if set to 1, the game will compiled with debug-info
 
 # do some simple checks
 type g++ 1>/dev/null 2>/dev/null || \
@@ -25,14 +26,16 @@ type g++ 1>/dev/null 2>/dev/null || \
 
 # check variables and set default values if unset
 [ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
+[ "$DEBUG" == "" ] && DEBUG=0
 
 mkdir -p bin
 
-echo ">>> compiling now, this could take a little time ..."
+echo ">>> compiling now, this could take some time ..."
 if g++ src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-I include -I /usr/include/libxml2 \
 	-lSDL -lSDL_image -lSDL_mixer -lNL -lz -lgd -lxml2 \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
+	-DDEBUG="$DEBUG" \
 	$CPPFLAGS \
 	-o bin/openlierox
 then

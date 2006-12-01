@@ -22,8 +22,9 @@
 #include <crtdbg.h>
 #endif
 
-
+#if DEBUG == 1
 #define		_AI_DEBUG
+#endif
 
 #define		LX_PORT			23400
 #define		SPAWN_HOLESIZE	4

@@ -508,6 +508,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Animating = false;
 	proj->Rotating = 0;
 	proj->RotIncrement = 0;
+	proj->Timer_Shake = 0;
 	
 	if(proj->Type == PRJ_PIXEL) {
 		fread(&proj->NumColours, sizeof(int), 1, fp);
