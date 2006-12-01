@@ -87,6 +87,7 @@ int CMap::New(int _width, int _height, char *_theme)
 	//---------------------
 
 
+	// TODO: valgrind says, this two arrays got lost
 	m_pnWater1 = new int[Width];
 	m_pnWater2 = new int[Width];
 
@@ -508,7 +509,7 @@ bool CMap::createGrid(void)
         return false;
     }
     for(register unsigned int i = 0; i < nGridCols*nGridRows; i++)
-    	GridFlags[i] == PX_EMPTY;   	
+    	GridFlags[i] = PX_EMPTY;
 
     return true;
 }

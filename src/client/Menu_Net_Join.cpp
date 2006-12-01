@@ -188,7 +188,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 
 			// Player list
 			case PlayerList:
-				if(ev->iEventMsg == LV_DOUBLECLK) {
+				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
 					// Add the item to the players list
 					lv = (CListview *)cPlayerSel.getWidget(PlayerList);
 					lv2 = (CListview *)cPlayerSel.getWidget(Playing);
@@ -214,7 +214,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 
 			// Playing list
 			case Playing:
-				if(ev->iEventMsg == LV_DOUBLECLK) {
+				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
 					// Add the item to the players list
 					lv = (CListview *)cPlayerSel.getWidget(Playing);
 					lv2 = (CListview *)cPlayerSel.getWidget(PlayerList);

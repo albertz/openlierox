@@ -39,8 +39,8 @@ void CTextbox::Create(void)
 // Draw the text box
 void CTextbox::Draw(SDL_Surface *bmpDest)
 {
-	static char buf[MAX_TEXTLENGTH];
-	static char text[MAX_TEXTLENGTH];
+	static char buf[MAX_TEXTLENGTH] = "";
+	static char text[MAX_TEXTLENGTH] = "";
 
 	strcpy(text, sText);
 
@@ -81,7 +81,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	}*/
 	
 	// Shift the text, if it overlapps
-	static char tmp[MAX_TEXTLENGTH];
+	static char tmp[MAX_TEXTLENGTH] = "";
 	strcpy(tmp,&text[iScrollPos]);
 	strcpy(text, tmp);
 	

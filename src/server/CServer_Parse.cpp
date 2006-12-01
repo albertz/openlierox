@@ -40,6 +40,7 @@ void CServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 		if ((tLX->fCurTime - cl->getLastPingTime()) > 1)  {  // Update ping once per second
 			int png = (int) ((tLX->fCurTime - ping->fSentTime)*1000-20);
 
+		// TODO: valgrind says, something is uninit here
 			if (cl->getPing() > 99999)
 				cl->setPing(0);
 
@@ -51,6 +52,7 @@ void CServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 			if (cl->getPing() - png > 5 && cl->getPing() && png)
 				png = (png + png + cl->getPing())/3;
 
+		// TODO: valgrind says, something is uninit here
 			if (png > 99999)
 				png = 0;
 

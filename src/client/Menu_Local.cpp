@@ -232,7 +232,7 @@ void Menu_LocalFrame(void)
 
 			// Player list
 			case ml_PlayerList:
-				if(ev->iEventMsg == LV_DOUBLECLK) {
+				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
 					// Add the item to the players list
 					lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
 					int index = lv->getCurIndex();
@@ -285,7 +285,7 @@ void Menu_LocalFrame(void)
 
 			// Playing list
 			/*case ml_Playing:
-				if(ev->iEventMsg == LV_DOUBLECLK) {
+				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
 
 					// Put the player back into the players list
 					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);

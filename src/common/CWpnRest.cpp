@@ -116,8 +116,8 @@ wpnrest_t *CWpnRest::findWeapon(char *szName)
 {
     assert( szName );
 
-    static char name[256];
-    static char tmp[256];
+    static char name[256] = "";
+    static char tmp[256] = "";
     lx_strncpy(name, szName, 255);
 
     wpnrest_t *psWpn = m_psWeaponList;
@@ -297,6 +297,7 @@ void CWpnRest::sortList(void)
         m_nCount++;
 
     // Allocate the sorted list
+    // TODO: valgrid says, this got lost
     m_psSortedList = new wpnrest_t[m_nCount];
     if( !m_psSortedList )
         return;

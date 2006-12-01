@@ -193,7 +193,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 			// Player list
 			case hs_PlayerList:
-				if(ev->iEventMsg == LV_DOUBLECLK) {
+				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
 					// Add the item to the players list
 					lv = (CListview *)cHostPly.getWidget(hs_PlayerList);
 					lv2 = (CListview *)cHostPly.getWidget(hs_Playing);
@@ -219,7 +219,7 @@ PlaySoundSample(sfxGeneral.smpClick);
 
 			// Playing list
 			case hs_Playing:
-				if(ev->iEventMsg == LV_DOUBLECLK) {
+				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
 					// Add the item to the players list
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 					lv2 = (CListview *)cHostPly.getWidget(hs_PlayerList);

@@ -1299,11 +1299,14 @@ void CClient::ProcessShot(shoot_t *shot)
 
 		// Calculate a random starting angle for the projectile rotation (if used)
 		if(wpn->Projectile) {
+		// TODO: valgrind says, something is uninit here
 			if(wpn->Projectile->Rotating) {
 
 				// Prevent div by zero
+		// TODO: valgrind says, something is uninit here
 				if(wpn->Projectile->RotIncrement == 0)
 					wpn->Projectile->RotIncrement = 1;
+		// TODO: valgrind says, something is uninit here (arg of GetRandomInt)
 				rot = GetRandomInt( 360 / wpn->Projectile->RotIncrement ) * wpn->Projectile->RotIncrement;
 			}
 		}

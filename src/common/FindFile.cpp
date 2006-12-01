@@ -17,6 +17,8 @@
 	#include <shlobj.h>
 #endif
 
+// TODO: merge windows and linux code in this file
+
 bool reset_nextsearchpath = true;
 filelist_t* nextsearchpath = NULL;
 
@@ -84,6 +86,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	}
 
 	if(handle) closedir(handle);
+	handle = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
 	static char tmp[256]; strcpy(tmp, _dir);
@@ -110,7 +113,7 @@ int FindNext(char *filename)
 		}
 	}
 
-	closedir(handle);
+	closedir(handle); handle = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
 	static char tmp[256]; strcpy(tmp, _dir);
@@ -165,6 +168,7 @@ int FindFirstDir(char *dir, char *name)
 	}
 
 	if(handle2) closedir(handle2);
+	handle2 = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
 	static char tmp[256]; strcpy(tmp, _dir2);
@@ -193,7 +197,7 @@ int FindNextDir(char *name)
 		}
 	}
 
-	closedir(handle2);
+	closedir(handle2); handle2 = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
 	static char tmp[256]; strcpy(tmp, _dir2);

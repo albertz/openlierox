@@ -871,7 +871,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 		return;
 
 	game_lobby_t    *gl = &tGameLobby;
-    static char		buf[256];
+    static char		buf[256] = "";
     FILE            *fp = NULL;
 
 	if (!gl)  {
