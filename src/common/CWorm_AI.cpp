@@ -1048,8 +1048,10 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
         avgCell[0] += node->nX;
         avgCell[1] += node->nY;
     }
-    avgCell[0] /= i;
-    avgCell[1] /= i;
+    if(i != 0) {
+    	avgCell[0] /= i;
+    	avgCell[1] /= i;
+    }
     //nTargetCell[0] = avgCell[0];
     //nTargetCell[1] = avgCell[1];
     
@@ -1621,10 +1623,12 @@ bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
 #endif
 
 	// Target on left
+	int tmp;
 	if (max_x < 0)  {
 		for (x=0;x>max_x;x--)  {
-			if(2*speed*speed*cos(alpha)*cos(alpha) != 0) // please do such checks
-				y = -x*(int)tan(alpha)+(gravity*x*x)/(int)(2*speed*speed*cos(alpha)*cos(alpha));
+			tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
+			if(tmp != 0) // please do such checks
+				y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
 			else
 				y = 0;
 			// If we have reached the target, the trajectory is free
@@ -1647,7 +1651,11 @@ bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
 	// Target on right
 	else  {
 		for (x=0;x<max_x;x++)  {
-			y = -x*(int)tan(alpha)+(gravity*x*x)/(int)(2*speed*speed*cos(alpha)*cos(alpha));
+			tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
+			if(tmp != 0)
+				y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
+			else
+				y = 0;
 			// If we have reached the target, the trajectory is free
 			if (max_y < 0)  {
 				if (y < max_y)
@@ -1716,7 +1724,27 @@ void CWorm::AI_Shoot(CMap *pcMap)
 			float y = (vPos.GetY()-cTrgPos.GetY());
 
 			// Get the alpha
-			float alpha=(float)atan(sqrt(-pow(x,2)*sqrt(-pow(g,2)*pow(x,2)-2*g*pow(v,2)*y+pow(v,4))+pow(x,2)*(g*y+pow(v,2))+2*pow(v,2)*pow(y,2))/(x*sqrt(sqrt(-pow(g,2)*pow(x,2)-2*g*pow(v,2)*y+pow(v,4))-g*y+pow(v,2))));
+			float tmp =
+				(x*sqrt(fabs(
+						sqrt(fabs(
+							-pow(g,2)*pow(x,2)
+							-2*g*pow(v,2)*y
+							+pow(v,4)))
+						-g*y
+						+pow(v,2))));
+			float alpha = PI/2; // the value, if tmp == 0
+			if(tmp != 0)
+				alpha = 
+					(float)atan(
+						sqrt(fabs(
+							- pow(x,2) * sqrt(fabs(
+								-pow(g,2)*pow(x,2)
+								- 2*g*pow(v,2)*y
+								+ pow(v,4)))
+							+ pow(x,2) * (g*y+pow(v,2))
+							+ 2 * pow(v,2) * pow(y,2)))
+						/ tmp);
+				
 			if (y > 0)
 				alpha = -alpha;
 			if (x < 0)
@@ -2123,7 +2151,10 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 		//pcMap->PutImagePixel((int)pos.GetX(), (int)pos.GetY(), MakeColour(255,0,0));
 
         if(px & PX_DIRT || px & PX_ROCK) {
-            *fDist = (float)i / (float)nTotalLength;
+        	if(nTotalLength != 0)
+            	*fDist = (float)i / (float)nTotalLength;
+            else
+            	*fDist = 0;
             *nType = px;
             return i;
         }
@@ -2133,7 +2164,10 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 
 
     // Full length    
-    *fDist = (float)i / (float)nTotalLength;
+	if(nTotalLength != 0)
+		*fDist = (float)i / (float)nTotalLength;
+	else
+		*fDist = 0;
     return nTotalLength;
 }
 
@@ -2329,7 +2363,10 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 
 		// Dirt or rock
 		if(px & PX_DIRT || px & PX_ROCK) {
-			*fDist = (float)i / (float)nTotalLength;
+        	if(nTotalLength != 0)
+            	*fDist = (float)i / (float)nTotalLength;
+            else
+            	*fDist = 0;
 			*nType = px;
 			return i;
 		}
@@ -2337,7 +2374,10 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 		// Friendly worm
 		for (j=0;j<WormCount;j++) {
 			if (CalculateDistance(pos,WormsPos[j]) < 15.0f)  {
-				*fDist = (float)i / (float)nTotalLength;
+				if(nTotalLength != 0)
+					*fDist = (float)i / (float)nTotalLength;
+				else
+					*fDist = 0;
 				*nType = PX_WORM;
 				return i;
 			}
@@ -2347,7 +2387,10 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 	}
 
 	// Full length
-	*fDist = (float)i / (float)nTotalLength;
+	if(nTotalLength != 0)
+		*fDist = (float)i / (float)nTotalLength;
+	else
+		*fDist = 0;
 	return nTotalLength;
 }
 

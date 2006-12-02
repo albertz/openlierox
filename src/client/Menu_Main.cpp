@@ -202,11 +202,11 @@ void Menu_MainFrame(void)
 
 
 	// Draw the version number
-	tLX->cFont.Draw(tMenu->bmpScreen, 380, 391, MakeColour(150,150,150), "  OpenLieroX v%.2f",LX_VERSION);
-	tLX->cFont.Draw(tMenu->bmpScreen, 380, 404, MakeColour(96,96,96),"%s", "+ Original code by Jason Boetcher");
-	tLX->cFont.Draw(tMenu->bmpScreen, 380, 417, MakeColour(96,96,96),"%s", "+ Ported and enhanced by");
-	tLX->cFont.Draw(tMenu->bmpScreen, 380, 430, MakeColour(96,96,96),"%s", "  Dark Charlie and Albert Zeyer");
-	tLX->cFont.Draw(tMenu->bmpScreen, 380, 443, MakeColour(96,96,96),"%s", "+ Supported by the [RIP] clan");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 391, MakeColour(150,150,150), "  OpenLieroX v%.2f",LX_VERSION);
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 404, MakeColour(96,96,96),"%s", "+ Original code by Jason Boettcher");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 417, MakeColour(96,96,96),"%s", "+ Ported and enhanced by");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 430, MakeColour(96,96,96),"%s", "  Dark Charlie and Albert Zeyer");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 443, MakeColour(96,96,96),"%s", "+ Supported by the [RIP] clan");
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
