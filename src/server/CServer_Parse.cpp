@@ -575,7 +575,12 @@ void CServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 void CServer::ParseConnectionlessPacket(CBytestream *bs)
 {
 	char cmd[128];
+	NetworkAddr	adrFrom;
 	bool valid = false;
+
+	// This solves the problem with hosting!
+	GetRemoteNetAddr(tSocket,&adrFrom);
+	SetRemoteNetAddr(tSocket,&adrFrom);
 
 	bs->readString(cmd);
 
@@ -607,6 +612,9 @@ void CServer::ParseGetChallenge(void)
 	CBytestream	bs;
 
 	GetRemoteNetAddr(tSocket,&adrFrom);
+
+	// Send the challenge details back to the client
+	SetRemoteNetAddr(tSocket,&adrFrom);
 
 	// If were in the game, deny challenges
 	if(iState != SVS_LOBBY) {
@@ -645,9 +653,6 @@ void CServer::ParseGetChallenge(void)
 		i = ChallengeToSet;
 	}
 
-	
-	// Send the challenge details back to the client
-	SetRemoteNetAddr(tSocket,&adrFrom);
 
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::challenge");
@@ -719,13 +724,9 @@ void CServer::ParseConnect(CBytestream *bs)
 	
 	// Get user info
 	int numworms = bs->readInt(1);
+	MIN(numworms,MAX_PLAYERS-1);
 	CWorm worms[MAX_PLAYERS];
 	for(i=0;i<numworms;i++) {
-
-		// Safety
-		if(i>=MAX_PLAYERS)
-			break;
-
 		worms[i].readInfo(bs);
 	}
 
@@ -986,6 +987,12 @@ void CServer::ParseConnect(CBytestream *bs)
 // Parse a ping packet
 void CServer::ParsePing(void)
 {
+	NetworkAddr		adrFrom;
+	GetRemoteNetAddr(tSocket,&adrFrom);
+
+	// Send the challenge details back to the client
+	SetRemoteNetAddr(tSocket,&adrFrom);
+
 	CBytestream bs;
 
 	bs.Clear();
@@ -999,7 +1006,7 @@ void CServer::ParsePing(void)
 // Parse a "wants join" packet
 void CServer::ParseWantsJoin(CBytestream *bs)
 {
-	// Accept these messages from banned clients?
+	// TODO: Accept these messages from banned clients?
 
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;

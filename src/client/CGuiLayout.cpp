@@ -492,6 +492,12 @@ gui_event_t *CGuiLayout::Process(void)
 	int ev=-1;
 	int widget = false;
 
+	if (!tEvent)  {
+		tEvent = new gui_event_t;
+		if (!tEvent)
+			return NULL;
+	}
+
 	// Switch between window and fullscreen mode
 	keyboard_t *Keyboard = GetKeyboard();
 	if( cSwitchMode.isDown() )  {
@@ -579,7 +585,6 @@ gui_event_t *CGuiLayout::Process(void)
 			}
 		}
 	}
-
 
 	// Go through all the widgets
 	for(w=cWidgets ; w ; w=w->getNext()) {

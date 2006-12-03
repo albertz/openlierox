@@ -55,9 +55,6 @@ void Menu_MainInitialize(void)
 	alpha = 0;
 	lastimg = -1;
 
-	cMainMenu.Shutdown();
-	cMainMenu.Initialize();
-
 	// Menu buttons
 	for(i=mm_LocalPlay;i<mm_Quit;i++)
 		cMainMenu.Add( new CTitleButton(i, tMenu->bmpMainTitles), i, 50, 160+i*60, tMenu->bmpMainTitles->w, 35);
@@ -88,7 +85,6 @@ void Menu_MainFrame(void)
 	int mouseover = false;
 	int img = lastimg;
 	int mouse = 0;
-
 
 	if(ev) {
 

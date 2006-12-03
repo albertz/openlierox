@@ -73,6 +73,8 @@ void CClient::Clear(void)
 	// Clear the message sizes
 	memset(nMessageSizes, 0, sizeof(int)*RATE_NUMMSGS);
 
+	cShootList.Shutdown();
+
     for(i=0; i<NUM_VIEWPORTS; i++) {
         cViewports[i].setUsed(false);
         cViewports[i].setID(i);

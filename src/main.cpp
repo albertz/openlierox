@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
 {
 #ifdef WIN32
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	//_CrtSetBreakAlloc(2134);
 #endif
 
     int     startgame = false;
@@ -47,13 +48,6 @@ int main(int argc, char *argv[])
 
 	argv0 = argv[0];
 
-	// JUST TEMPORARY
-#ifdef WIN32
-	// TODO: remove this completly, if it works now
-	//*(strrchr(argv0,'\\')) = '\0';
-	//chdir(argv0);
-#endif
-	
 	// Load options and other settings
 	if(!LoadOptions())
 		return -1;
@@ -418,7 +412,7 @@ void ShutdownLieroX(void)
 
     tGameInfo.sMapRandom.psObjects = NULL;
 
-	// Free the client & server & gui parser
+	// Free the client & server
 	if(cClient) {
 		cClient->Shutdown();
 		delete cClient;

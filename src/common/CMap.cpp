@@ -508,7 +508,7 @@ bool CMap::createGrid(void)
         SetError("CMap::CreateGrid(): Out of memory");
         return false;
     }
-    for(register unsigned int i = 0; i < nGridCols*nGridRows; i++)
+    for(register unsigned int i = 0; i < (unsigned int)nGridCols*nGridRows; i++)
     	GridFlags[i] = PX_EMPTY;
 
     return true;

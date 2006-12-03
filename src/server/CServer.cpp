@@ -1154,5 +1154,7 @@ void CServer::Shutdown(void)
 		cProjectiles = NULL;
 	}*/
 
+	cBanList.Shutdown();
+
 	cGameScript.Shutdown();
 }
