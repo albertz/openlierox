@@ -507,35 +507,16 @@ void Menu_LocalStartGame(void)
 
     int count = 0;
     
-    // Add the human players onto the list    
+    // Add the players onto the list    
     for(i=0; i<MAX_PLAYERS; i++) {
         if(!sLocalPlayers[i].bUsed)
             continue;
         
         if(sLocalPlayers[i].psProfile) {
-            if(sLocalPlayers[i].psProfile->iType == PRF_HUMAN) {
-
-                tGameInfo.cPlayers[count++] = sLocalPlayers[i].psProfile;
-                sLocalPlayers[i].psProfile->iTeam = sLocalPlayers[i].nTeam;
-            }
+            tGameInfo.cPlayers[count++] = sLocalPlayers[i].psProfile;
+            sLocalPlayers[i].psProfile->iTeam = sLocalPlayers[i].nTeam;
         }
     }
-
-    // Add the AI players onto the list
-    for(i=0; i<MAX_PLAYERS; i++) {
-        if(!sLocalPlayers[i].bUsed)
-            continue;
-        
-        if(sLocalPlayers[i].psProfile) {
-            if(sLocalPlayers[i].psProfile->iType == PRF_COMPUTER) {
-
-                tGameInfo.cPlayers[count++] = sLocalPlayers[i].psProfile;
-                sLocalPlayers[i].psProfile->iTeam = sLocalPlayers[i].nTeam;
-            }
-        }
-    }
-
-
 
 	// Save the current level in the options
 	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));

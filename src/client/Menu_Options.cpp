@@ -42,7 +42,6 @@ enum {
 	os_NetworkSpeed,
 	os_ShowFPS,
 	os_ShowPing,
-	os_Filtered,
 	os_LogConvos,
 	os_ScreenshotFormat,
 	os_Apply,
@@ -219,14 +218,12 @@ int Menu_OptionsInitialize(void)
 	
 	cOpt_System.Add( new CLabel("Miscellanous",blue),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",0xffff),         Static, 60, 385, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iShowFPS),   os_ShowFPS, 170, 385, 17,17);
-	cOpt_System.Add( new CLabel("Filtered level",0xffff),   Static, 60, 415, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iFiltered),  os_Filtered, 170, 415, 17,17);
-	cOpt_System.Add( new CLabel("Show ping",0xffff),		Static, 215, 385, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iShowPing),  os_ShowPing, 355,385,17,17);
-	cOpt_System.Add( new CLabel("Log Conversations",0xffff),Static, 215, 415, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iLogConvos), os_LogConvos, 355,415,17,17);
-	cOpt_System.Add( new CLabel("Screenshot format",0xffff),Static, 395,385, 0,0);	
+	cOpt_System.Add( new CCheckbox(tLXOptions->iShowFPS),   os_ShowFPS, 200, 385, 17,17);
+	cOpt_System.Add( new CLabel("Log Conversations",0xffff),Static, 60, 415, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iLogConvos), os_LogConvos, 200,415,17,17);
+	cOpt_System.Add( new CLabel("Show ping",0xffff),		Static, 230, 385, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iShowPing),  os_ShowPing, 365,385,17,17);
+	cOpt_System.Add( new CLabel("Screenshot format",0xffff),Static, 230,415, 0,0);	
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);
 
@@ -234,7 +231,7 @@ int Menu_OptionsInitialize(void)
 
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 327, 130,17);
-	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 530, 383, 70,17);
+	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 413, 70,17);
 
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
@@ -559,12 +556,6 @@ void Menu_OptionsFrame(void)
 						tLXOptions->iShowFPS = cOpt_System.SendMessage(os_ShowFPS, CKM_GETCHECK, 0, 0);
 					break;
 
-				// Filtered
-				case os_Filtered:
-					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iFiltered = cOpt_System.SendMessage(os_Filtered, CKM_GETCHECK, 0, 0);
-					break;
-					
 				// Logging
 				case os_LogConvos:
 					if(ev->iEventMsg == CHK_CHANGED)  {

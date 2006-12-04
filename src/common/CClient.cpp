@@ -74,6 +74,8 @@ void CClient::Clear(void)
 	memset(nMessageSizes, 0, sizeof(int)*RATE_NUMMSGS);
 
 	cShootList.Shutdown();
+	cGameScript.Shutdown();
+	cWeaponRestrictions.Shutdown();
 
     for(i=0; i<NUM_VIEWPORTS; i++) {
         cViewports[i].setUsed(false);
@@ -522,6 +524,9 @@ void CClient::Shutdown(void)
 
 	// Gamescript
 	cGameScript.Shutdown();
+
+	// Weapon restrictions
+	cWeaponRestrictions.Shutdown();
 	
 	// Close the socket
 	if(tSocket)

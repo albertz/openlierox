@@ -67,9 +67,6 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
 
-	// Initialize the 2xsai system
-	Init_2xSaI(565);
-
     if( !nDisableSound ) {
 	    // Initialize sound
 		//if(!InitSoundSystem(22050, 1, 512)) {

@@ -123,14 +123,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp, h"
 # Begin Source File
 
-SOURCE=..\..\src\common\2xsai.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\2xsai.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\client\AuxLib.cpp
 # End Source File
 # Begin Source File

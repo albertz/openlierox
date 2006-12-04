@@ -1601,19 +1601,25 @@ bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
 		return false;
     CVec cTrgPos = psAITarget->getPos();
 
-	// Check
-	if (fabs(alpha) == 1 || speed == 0)
-		return false;
+	CVec *from = &vPos;
+	CVec *to = &cTrgPos;
+	if (vPos.GetX() > cTrgPos.GetX())  {
+		from = &cTrgPos;
+		to = &vPos;
+	}
 
 	// Convert the alpha to radians
 	alpha = DEG2RAD(alpha);
 	// Get the maximal X
-	int max_x = (int)(cTrgPos.GetX()-vPos.GetX());
+	int max_x = (int)(to->GetX()-from->GetX());
 	// If we're in the X coordinate of the target, we can shoot (else we wouldn't be called)
 	if (max_x == 0)
 		return true;
 	// Get the maximal Y
-	int max_y = (int)(vPos.GetY()-cTrgPos.GetY());
+	int max_y = (int)(from->GetY()-to->GetY());
+
+	if (max_y > 0)
+		alpha = 180-alpha;
 
 	// Check the pixels in the projectile trajectory
 	int x,y;
@@ -1622,58 +1628,34 @@ bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
 	DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
 #endif
 
-	// Target on left
+
 	int tmp;
-	if (max_x < 0)  {
-		for (x=0;x>max_x;x--)  {
-			tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
-			if(tmp != 0) // please do such checks
-				y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
-			else
-				y = 0;
-			// If we have reached the target, the trajectory is free
-			if (max_y < 0)  {
-				if (y < max_y)
-					return true;
-			} else  {
-				if (y > max_y)
-					return true;
-			}
-#ifdef _AI_DEBUG
-			PutPixel(pcMap->GetDebugImage(),x*2+(int)vPos.GetX()*2,y*2+(int)vPos.GetY()*2,0xffff);
-#endif
-			// Rock, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)vPos.GetX(),y+(int)vPos.GetY()) == PX_ROCK)  {
-				return false;
-			}
+	for (x=0;x<max_x;x++)  {
+		tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
+		if(tmp != 0) // please do such checks
+			y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
+		else
+			y = 0;
+		// If we have reached the target, the trajectory is free
+		if (max_y < 0)  {
+			if (y < max_y)
+				return true;
+		} else  {
+			if (y > max_y)
+				return true;
 		}
-	}
-	// Target on right
-	else  {
-		for (x=0;x<max_x;x++)  {
-			tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
-			if(tmp != 0)
-				y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
-			else
-				y = 0;
-			// If we have reached the target, the trajectory is free
-			if (max_y < 0)  {
-				if (y < max_y)
-					return true;
-			} else  {
-				if (y > max_y)
-					return true;
-			}
-#ifdef _AI_DEBUG
-			PutPixel(pcMap->GetDebugImage(),x*2+(int)vPos.GetX()*2,y*2+(int)vPos.GetY()*2,0xffff);
-#endif
-			// Rock, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)vPos.GetX(),y+(int)vPos.GetY()) == PX_ROCK)  {
-				return false;
-			}
+
+		// Rock, trajectory not free
+		if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) == PX_ROCK)  {
+			return false;
 		}
+
+#ifdef _AI_DEBUG
+		PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
+#endif
 	}
 
+	// Target reached
 	return true;
 }
 
@@ -1745,10 +1727,8 @@ void CWorm::AI_Shoot(CMap *pcMap)
 							+ 2 * pow(v,2) * pow(y,2)))
 						/ tmp);
 				
-			if (y > 0)
-				alpha = -alpha;
 			if (x < 0)
-				alpha = -alpha;
+				alpha = alpha+PI;
 
 			// Convert to degrees
 			alpha = RAD2DEG(alpha);
@@ -1804,7 +1784,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
 	fBadAimTime = 0;
 
     // Shoot
-	tState.iShoot = true;
+	//tState.iShoot = true;
 	fLastShoot = tLX->fCurTime;
 }
 

@@ -197,7 +197,7 @@ void Super2xSaI(Uint8 *srcPtr, Uint32 srcPitch,
 	    bP = (Uint16 *) srcPtr;
 	    dP = (Uint8 *) dstPtr;
 
-	    for (finish = width; finish; finish -= inc_bP)
+	    for (finish = width; finish > 0; finish -= inc_bP)
 	    {
 		Uint32 color4, color5, color6;
 		Uint32 color1, color2, color3;

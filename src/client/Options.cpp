@@ -73,7 +73,6 @@ int LoadOptions(void)
     // Video
     ReadKeyword(f, "Video", "Fullscreen",   &tLXOptions->iFullscreen, true);
     ReadKeyword(f, "Video", "ShowFPS",      &tLXOptions->iShowFPS, false);
-    ReadKeyword(f, "Video", "Filtered",     &tLXOptions->iFiltered, false);
 
     // Network
     ReadInteger(f, "Network", "Port",       &tLXOptions->iNetworkPort, LX_PORT);
@@ -192,8 +191,7 @@ void SaveOptions(void)
 
     fprintf(fp, "[Video]\n");
     fprintf(fp, "Fullscreen = %s\n",tLXOptions->iFullscreen ? "true" : "false");
-    fprintf(fp, "ShowFPS = %s\n",   tLXOptions->iShowFPS ? "true" : "false");
-    fprintf(fp, "Filtered = %s\n",  tLXOptions->iFiltered ? "true" : "false");
+    fprintf(fp, "ShowFPS = %s\n",tLXOptions->iShowFPS ? "true" : "false");
     fprintf(fp, "\n");
 
     fprintf(fp, "[Network]\n");

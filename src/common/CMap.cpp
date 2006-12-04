@@ -88,6 +88,7 @@ int CMap::New(int _width, int _height, char *_theme)
 
 
 	// TODO: valgrind says, this two arrays got lost
+	// TODO: implement water?
 	m_pnWater1 = new int[Width];
 	m_pnWater2 = new int[Width];
 
@@ -673,29 +674,11 @@ uchar CMap::GetPixelFlag(int x, int y)
 // Draw the map
 void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 {
-	// Normal
-	if(!tLXOptions->iFiltered)  {
-		//DrawImageStretch2(bmpDest, bmpImage, view->GetWorldX(), view->GetWorldY(),
-		//								view->GetLeft(),view->GetTop(), view->GetWidth(), view->GetHeight());
 		//DEBUG_DrawPixelFlags();
 		DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #ifdef _AI_DEBUG
 		DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #endif
-	}
-
-	// Filtered
-	if(tLXOptions->iFiltered) {	
-		int bpp = bmpImage->format->BytesPerPixel;
-
-		// Clamp the viewport for a filtered draw
-		view->ClampFiltered(Width, Height);
-
-		Uint8 *ptrSrc = (Uint8 *)bmpImage->pixels + view->GetWorldY()*bmpImage->pitch + view->GetWorldX()*bpp;
-		Uint8 *ptrDst = (Uint8 *)bmpDest->pixels + view->GetTop()*bmpDest->pitch + view->GetLeft()*bpp;
-
-		Super2xSaI( ptrSrc, bmpImage->pitch, ptrDst, bmpDest->pitch, view->GetWidth(), view->GetHeight());
-	}
 }
 
 
@@ -2384,6 +2367,13 @@ void CMap::Shutdown(void)
 			delete[] Objects;
 		Objects = NULL;
 		NumObjects = 0;
+
+		if (m_pnWater1)
+			delete[] m_pnWater1;
+		if (m_pnWater2)
+			delete[] m_pnWater2;
+		m_pnWater1 = NULL;
+		m_pnWater2 = NULL;
 
         if( sRandomLayout.bUsed ) {
             sRandomLayout.bUsed = false;

@@ -6,16 +6,15 @@
 --------------------Configuration: Game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP3BC.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP238.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"obj/Debug/" /Fp"obj/Debug/Game.pch" /YX /Fo"obj/Debug/" /Fd"obj/Debug/" /FD /GZ /c 
-"C:\Moje\Programovani\OpenLieroX\src\server\CServer_Parse.cpp"
+"C:\Moje\Programovani\OpenLieroX\src\client\AuxLib.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP3BC.tmp" 
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP3BD.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP238.tmp" 
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP239.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../share/gamedir/Game.exe" /MAPINFO:LINES /MAPINFO:EXPORTS 
-.\obj\Debug\2xsai.obj
 .\obj\Debug\AuxLib.obj
 .\obj\Debug\Cache.obj
 .\obj\Debug\CBytestream.obj
@@ -106,16 +105,15 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\libs\SDL_mixer.lib
 .\libs\lua5.1.lib
 ]
-Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP3BD.tmp"
+Creating command line "link.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP239.tmp"
 <h3>Output Window</h3>
 Compiling...
-CServer_Parse.cpp
+AuxLib.cpp
 Linking...
 LINK : warning LNK4075: ignoring /INCREMENTAL due to /DEBUGTYPE specification
-Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP3BF.tmp" with contents
+Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP23B.tmp" with contents
 [
 /nologo /o"obj/debug/Game.bsc" 
-.\obj\Debug\2xsai.sbr
 .\obj\Debug\AuxLib.sbr
 .\obj\Debug\Cache.sbr
 .\obj\Debug\CBytestream.sbr
@@ -193,7 +191,7 @@ Creating temporary file "C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP3BF.tmp" with con
 .\obj\Debug\Networking.sbr
 .\obj\Debug\Options.sbr
 .\obj\Debug\Sounds.sbr]
-Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP3BF.tmp"
+Creating command line "bscmake.exe @C:\DOCUME~1\KARELP~1\LOCALS~1\Temp\RSP23B.tmp"
 Creating browse info file...
 <h3>Output Window</h3>
 
