@@ -49,7 +49,6 @@ const float	R2D(5.729578e+1f); // radians to degrees
 
 
 // Game includes
-#include "2xsai.h"
 #include "ProfileSystem.h"
 #include "Networking.h"
 #include "CGameScript.h"

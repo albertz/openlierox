@@ -14,7 +14,6 @@
 #include "defs.h"
 #include <SDL/SDL_syswm.h>
 #include "LieroX.h"
-#include "2xsai.h"
 //#include "corona.h"
 
 
