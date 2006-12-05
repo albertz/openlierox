@@ -50,32 +50,29 @@ bool StartSoundSystem() {
 
 bool StopSoundSystem() {
 	// TODO: this is only a workaround
-	SetSoundVolume(0);
 	SoundSystemStarted = false;
+	SetSoundVolume(0);
 	return true;
 }
 
 bool SetSoundVolume(int vol) {
-	SoundSystemVolume = vol;
-	if(!SoundSystemStarted)
-		return false;
-	
-	// The volume to use from 0 to MIX_MAX_VOLUME(128).
-	// We got here values from 0 to 100; TODO: should we maximize it?
-	Mix_Volume(-1, vol);
+	if(SoundSystemStarted) {
+		SoundSystemVolume = vol;
+		
+		// The volume to use from 0 to MIX_MAX_VOLUME(128).
+		// We got here values from 0 to 100; TODO: should we maximize it?
+		Mix_Volume(-1, vol);
 
-/*
-	// Go through and set every sound-chunk-volume to vol
-	register unsigned short n;
-	CCache* cach;
-	for(cach=Cache,n=0; n<MAX_CACHE; n++,cach++) {
-		if(cach->isUsed() && cach->getType() == CCH_SOUND) {
-			 Mix_VolumeChunk(cach->GetSample()->sample, vol);
-		}
-	}
-*/
+		return true;
+
+	} else { // not SoundSystemStarted
+		if(vol == 0) {
+			Mix_Volume(-1, 0);
+			return true;
+		} else
+			return false;
 	
-	return true;
+	}
 }
 
 bool QuitSoundSystem() {
@@ -84,9 +81,8 @@ bool QuitSoundSystem() {
 }
 
 SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
-	char* fullfname = GetFullFileName(filename);
-	if(fullfname != NULL && fullfname[0] != '\0') {
-		Mix_Chunk* sample = Mix_LoadWAV(fullfname);
+	if(filename != NULL && filename[0] != '\0') {
+		Mix_Chunk* sample = Mix_LoadWAV(filename);
 		if(!sample) {
 			printf("LoadSoundSample: Error while loading %s: %s\n", filename, Mix_GetError());
 			return NULL;

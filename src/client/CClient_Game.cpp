@@ -1610,10 +1610,12 @@ void CClient::processChatCharacter(int c, bool bDown)
     
     // Normal key
     if(iChat_Pos < ChatMaxLength-1 && c !=0 ) {
-		memmove(sChat_Text+iChat_Pos+1,sChat_Text+iChat_Pos,strlen(sChat_Text)-iChat_Pos+1);
+		int len = strlen(sChat_Text);
+		if(iChat_Pos < len) memmove(sChat_Text+iChat_Pos+1,sChat_Text+iChat_Pos,len-iChat_Pos);
+		else iChat_Pos = len; // just for security
 	
 		sChat_Text[iChat_Pos++] = c;
-		sChat_Text[strlen(sChat_Text)+1] = '\0';
+		sChat_Text[len+1] = '\0';
     }
 }
 

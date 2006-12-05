@@ -64,6 +64,7 @@ SDL_Surface *_LoadImage(char *filename)
 	char* fname = GetFullFileName(filename);
 	if(fname == NULL || fname[0] == '\0')
 		return NULL;
+		
 #ifndef WIN32
 	struct stat s;
 	if(stat(fname, &s) == 0)
@@ -141,8 +142,15 @@ SoundSample* CCache::LoadSample(char *_file, int maxplaying)
 	Type = CCH_SOUND;
 	strcpy(Filename, _file);
 	
+	char* fullfname = GetFullFileName(Filename);
+	if(fullfname == NULL || fullfname[0] == '\0')
+	{
+		SetError("Error loading sample %s: file not found", _file);
+		return NULL;
+	}
+	
 	// Load the sample
-	Sample = LoadSoundSample(Filename, maxplaying);
+	Sample = LoadSoundSample(fullfname, maxplaying);
 	
 	if(Sample)
 		Used = true;
