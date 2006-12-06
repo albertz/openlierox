@@ -107,7 +107,7 @@ int Menu_Initialize(int *game)
 	// Open a socket for communicating over the net (UDP)	
 	tMenu->tSocket[SCK_NET] = OpenUnreliableSocket(0);
 
-	if(tMenu->tSocket[SCK_LAN] == InvalidNetworkState || tMenu->tSocket[SCK_NET] == InvalidNetworkState) {
+	if(!IsSocketStateValid(tMenu->tSocket[SCK_LAN]) || !IsSocketStateValid(tMenu->tSocket[SCK_NET])) {
 		SystemError("Error: Failed to open a socket for networking");
 		return false;
 	}
@@ -135,13 +135,13 @@ void Menu_Shutdown(void)
         if(tMenu->bmpMiniMapBuffer)
 			SDL_FreeSurface(tMenu->bmpMiniMapBuffer);
 
-		if(tMenu->tSocket[SCK_LAN] != InvalidNetworkState)
+		if(IsSocketStateValid(tMenu->tSocket[SCK_LAN]))
 			CloseSocket(tMenu->tSocket[SCK_LAN]);
-		if(tMenu->tSocket[SCK_NET] != InvalidNetworkState)
+		if(IsSocketStateValid(tMenu->tSocket[SCK_NET]))
 			CloseSocket(tMenu->tSocket[SCK_NET]);
 
-		tMenu->tSocket[SCK_LAN] = InvalidNetworkState;
-		tMenu->tSocket[SCK_NET] = InvalidNetworkState;
+		SetSocketStateValid(tMenu->tSocket[SCK_LAN], false);
+		SetSocketStateValid(tMenu->tSocket[SCK_NET], false);
 
 		// The rest get free'd in the cache
 		assert(tMenu);

@@ -48,6 +48,7 @@ float	GetFixedRandomNum(int index);
 
 
 // HTTP Request
+void	http_Init();
 bool	http_InitializeRequest(char *host, char *url);
 void	http_ConvertUrl(char *dest, char *url);
 int		http_ProcessRequest(char *szError);
@@ -58,11 +59,15 @@ void    http_CreateHostUrl(char *host, char *url);
 void	http_Quit(void);
 
 
-// socket type; the structure/type itself will be given around
-// TODO: this defines are workarounds for the moment
-#define NetworkSocket NLsocket
-#define InvalidNetworkState NL_INVALID
-#define NetworkAddr NLaddress
+// socket itself; the structure/type itself will be given around
+struct NetworkSocket {
+	NLsocket socket;
+};
+
+// socket address; this type will be given around as pointer
+struct NetworkAddr {
+	NLaddress adr;
+};
 
 // general networking
 bool	InitNetworkSystem();
@@ -75,6 +80,8 @@ bool	ListenSocket(NetworkSocket sock);
 bool	CloseSocket(NetworkSocket sock);
 int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
 int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
+bool	IsSocketStateValid(NetworkSocket sock);
+void	SetSocketStateValid(NetworkSocket& sock, bool valid);
 
 int		GetSocketErrorNr();
 const char*	GetSocketErrorStr(int errnr);

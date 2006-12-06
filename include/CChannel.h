@@ -16,15 +16,15 @@
 #ifndef __CCHANNEL_H__
 #define __CCHANNEL_H__
 
+// TODO: where is this class used effectivly?
+// NOTE: in no part of the whole code is the Socket set 
+
 
 class CChannel {
 public:
 	// Constructor
 	CChannel() {
-		iPort = 23400;
-		fLastPckRecvd = 0;
-		iPacketsDropped = 0;
-		iPacketsGood = 0;
+		Clear();
 		iOutgoingSequence = 0;
 		iReliableSequence = 0;
 		iLast_ReliableSequence = 0;
@@ -82,7 +82,8 @@ public:
 	void		Create(NetworkAddr *_adr, int _port, NetworkSocket _sock);
 	void		Transmit( CBytestream *bs );
 	int			Process(CBytestream *bs);
-	void		Clear(void)				{ fLastPckRecvd = 0; iPort = 23400; Socket = 0;
+	void		Clear(void)				{ fLastPckRecvd = 0;
+		iPort = 23400; SetSocketStateValid(Socket, false);
 										  iPacketsDropped = 0; iPacketsGood = 0; }
 
 

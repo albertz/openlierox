@@ -37,7 +37,7 @@ void CServer::Clear(void)
 	iGameOver = false;
 	iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
-	tSocket = InvalidNetworkState;
+	SetSocketStateValid(tSocket, false);
 	tGameLobby.nSet = false;
 	bRegServer = false;
 	bServerRegistered = false;
@@ -75,7 +75,7 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 
 	// Open the socket
 	tSocket = OpenUnreliableSocket(port);
-	if(tSocket == InvalidNetworkState) {
+	if(!IsSocketStateValid(tSocket)) {
 		SystemError("Error: Could not open UDP socket");
 		return false;
 	}
@@ -1126,9 +1126,9 @@ void CServer::Shutdown(void)
 		cMap = NULL;
 	}
 
-	if(tSocket != InvalidNetworkState)
+	if(IsSocketStateValid(tSocket))
 		CloseSocket(tSocket);
-	tSocket = InvalidNetworkState;
+	SetSocketStateValid(tSocket, false);
 
 	if(cClients) {
 		for(i=0;i<MAX_CLIENTS;i++)

@@ -40,6 +40,8 @@ void SetError(char *fmt, ...)
 	}
 	
 	fprintf(ErrorFile,"%s\n",ErrorMsg);
+	printf("Error: %s\n", ErrorMsg);
+	
 }
 
 

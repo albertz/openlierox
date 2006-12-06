@@ -48,7 +48,7 @@ float GetFixedRandomNum(int index)
 
 
 NetworkAddr		http_RemoteAddress;
-NetworkSocket		http_Socket = InvalidNetworkState;
+NetworkSocket	http_Socket;
 bool			http_Connected;
 bool			http_Requested;
 bool			http_SocketReady;
@@ -56,6 +56,13 @@ char			http_url[1024];
 char			http_host[1024];
 char			http_content[1024];
 float           http_ResolveTime = -9999;
+
+
+
+void http_Init() {
+	SetSocketStateValid(http_Socket, false);
+	// TODO ...
+}
 
 
 ///////////////////
@@ -76,7 +83,7 @@ bool http_InitializeRequest(char *host, char *url)
 	
 	// Open the socket
 	http_Socket = OpenReliableSocket(0);
-	if(http_Socket == InvalidNetworkState)
+	if(!IsSocketStateValid(http_Socket))
 		return false;
 
 	// Resolve the address
@@ -226,9 +233,9 @@ bool http_SendRequest(void)
 // Quit the http request
 void http_Quit(void)
 {
-	if( http_Socket != InvalidNetworkState ) {
+	if( IsSocketStateValid(http_Socket) ) {
 		CloseSocket(http_Socket);
-		http_Socket = InvalidNetworkState;
+		SetSocketStateValid(http_Socket, false);
 	}
 
 	http_RemoveHeader();
@@ -332,6 +339,8 @@ char *http_GetContent(void)
 }
 
 
+
+
 bool InitNetworkSystem() {
     if(!nlInit()) {
     	SystemError("nlInit failed");
@@ -343,6 +352,8 @@ bool InitNetworkSystem() {
 		return false;
     }
 	
+	http_Init();
+	
 	return true;
 }
 
@@ -352,35 +363,52 @@ bool QuitNetworkSystem() {
 }
 
 NetworkSocket OpenReliableSocket(unsigned short port) {
-	return nlOpen(port, NL_RELIABLE);
+	NetworkSocket ret;
+	ret.socket = nlOpen(port, NL_RELIABLE);
+	return ret;
 }
 
 NetworkSocket OpenUnreliableSocket(unsigned short port) {
-	return nlOpen(port, NL_UNRELIABLE);
+	NetworkSocket ret;
+	ret.socket = nlOpen(port, NL_UNRELIABLE);
+	return ret;
 }
 
 NetworkSocket OpenBroadcastSocket(unsigned short port) {
-	return nlOpen(port, NL_BROADCAST);
+	NetworkSocket ret;
+	ret.socket = nlOpen(port, NL_BROADCAST);
+	return ret;
 }
 
 bool ConnectSocket(NetworkSocket sock, const NetworkAddr* addr) {
-	return (nlConnect(sock, addr) != NL_FALSE);
+	if(addr == NULL)
+		return false;
+	else
+		return (nlConnect(sock.socket, &addr->adr) != NL_FALSE);
 }
 
 bool ListenSocket(NetworkSocket sock) {
-	return (nlListen(sock) != NL_FALSE);
+	return (nlListen(sock.socket) != NL_FALSE);
 }
 
 bool CloseSocket(NetworkSocket sock) {
-	return (nlClose(sock) != NL_FALSE);
+	return (nlClose(sock.socket) != NL_FALSE);
 }
 
 int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
-	return nlWrite(sock, buffer, nbytes);
+	return nlWrite(sock.socket, buffer, nbytes);
 }
 
 int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
-	return nlRead(sock, buffer, nbytes);
+	return nlRead(sock.socket, buffer, nbytes);
+}
+
+bool IsSocketStateValid(NetworkSocket sock) {
+	return (sock.socket != NL_INVALID);
+}
+
+void SetSocketStateValid(NetworkSocket& sock, bool valid) {
+	sock.socket = NL_INVALID;
 }
 
 int GetSocketErrorNr() {
@@ -396,51 +424,83 @@ bool IsMessageEndSocketErrorNr(int errnr) {
 }
 
 bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr) {
-	return (nlGetLocalAddr(sock, addr) != NL_FALSE);
+	if(addr == NULL)
+		return false;
+	else
+		return (nlGetLocalAddr(sock.socket, &addr->adr) != NL_FALSE);
 }
 
 bool GetRemoteNetAddr(NetworkSocket sock, NetworkAddr* addr) {
-	return (nlGetRemoteAddr(sock, addr) != NL_FALSE);
+	if(addr == NULL)
+		return false;
+	else
+		return (nlGetRemoteAddr(sock.socket, &addr->adr) != NL_FALSE);
 }
 
 bool SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr* addr) {
-	return (nlSetRemoteAddr(sock, addr) != NL_FALSE);
+	if(addr == NULL)
+		return false;
+	else
+		return (nlSetRemoteAddr(sock.socket, &addr->adr) != NL_FALSE);
 }
 
 bool IsNetAddrValid(NetworkAddr* addr) {
 	if(addr)
-		return (addr->valid != NL_FALSE);
+		return (addr->adr.valid != NL_FALSE);
 	else
 		return false;
 }
 
 bool SetNetAddrValid(NetworkAddr* addr, bool valid) {
 	if(!addr) return false;
-	addr->valid = valid ? NL_TRUE : NL_FALSE;
+	addr->adr.valid = valid ? NL_TRUE : NL_FALSE;
 	return true;
 }
 
 bool StringToNetAddr(const char* string, NetworkAddr* addr) {
-	return (nlStringToAddr(string, addr) != NL_FALSE);
+	if(addr == NULL) {
+		return false;
+	} else	
+		return (nlStringToAddr(string, &addr->adr) != NL_FALSE);
 }
 
 bool NetAddrToString(const NetworkAddr* addr, char* string) {
-	nlAddrToString(addr, string);
+	if(addr == NULL) {
+		strcpy(string, "");
+		return false;
+	}
+	nlAddrToString(&addr->adr, string);
 	return true; // TODO: check it
 }
 
 unsigned short GetNetAddrPort(NetworkAddr* addr) {
-	return nlGetPortFromAddr(addr);
+	if(addr == NULL)
+		return 0;
+	else
+		return nlGetPortFromAddr(&addr->adr);
 }
 
 bool SetNetAddrPort(NetworkAddr* addr, unsigned short port) {
-	return (nlSetAddrPort(addr, port) != NL_FALSE);
+	if(addr == NULL)
+		return false;
+	else
+		return (nlSetAddrPort(&addr->adr, port) != NL_FALSE);
 }
 
 bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
-	return (nlAddrCompare(addr1, addr2) != NL_FALSE);
+	if(addr1 == addr2)
+		return true;
+	else {
+	if(addr1 == NULL || addr2 == NULL)
+		return false;
+	else
+		return (nlAddrCompare(&addr1->adr, &addr2->adr) != NL_FALSE);
+	}
 }
 
 bool GetNetAddrFromNameAsync(const char* name, NetworkAddr* addr) {
-	return (nlGetAddrFromNameAsync(name, addr) != NL_FALSE);
+	if(addr == NULL)
+		return false;
+	else
+		return (nlGetAddrFromNameAsync(name, &addr->adr) != NL_FALSE);
 }

@@ -26,7 +26,7 @@ test_include_file SDL/SDL.h || \
 test_include_file SDL/SDL_image.h || \
 	{ echo "ERROR: SDL_image.h not found" >&2; exit -1; }
 test_include_file SDL/SDL_mixer.h || \
-	{ echo "ERROR: SDL_image.h not found" >&2; exit -1; }
+	{ echo "ERROR: SDL_mixer.h not found" >&2; exit -1; }
 test_include_file nl.h || \
 	{ echo "ERROR: HawkNL header not found" >&2; exit -1; }
 test_include_file zlib.h || \

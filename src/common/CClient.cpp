@@ -38,7 +38,7 @@ void CClient::Clear(void)
 	cBonuses = NULL;
     nTopProjectile = 0;
 
-	tSocket = (NetworkSocket)NULL;
+	SetSocketStateValid(tSocket, false);
 
 	pChatbox = &cChatbox;
     cChatbox.setWidth(500);
@@ -197,7 +197,7 @@ int CClient::Initialize(void)
 
 	// Open a new socket
 	tSocket = OpenUnreliableSocket(0);
-	if(tSocket == InvalidNetworkState) {
+	if(!IsSocketStateValid(tSocket)) {
 		SetError("Error: Could not open UDP socket!");
 		return false;
 	}
@@ -529,9 +529,9 @@ void CClient::Shutdown(void)
 	cWeaponRestrictions.Shutdown();
 	
 	// Close the socket
-	if(tSocket)
+	if(IsSocketStateValid(tSocket))
 		CloseSocket(tSocket);
-	tSocket = (NetworkSocket)NULL;
+	SetSocketStateValid(tSocket, false);
 
 	// Log this
 	if (tLXOptions->iLogConvos)  {
