@@ -1784,7 +1784,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
 	fBadAimTime = 0;
 
     // Shoot
-	//tState.iShoot = true;
+	tState.iShoot = true;
 	fLastShoot = tLX->fCurTime;
 }
 
