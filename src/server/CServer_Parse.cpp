@@ -613,9 +613,6 @@ void CServer::ParseGetChallenge(void)
 
 	GetRemoteNetAddr(tSocket,&adrFrom);
 
-	// Send the challenge details back to the client
-	SetRemoteNetAddr(tSocket,&adrFrom);
-
 	// If were in the game, deny challenges
 	if(iState != SVS_LOBBY) {
 		bs.Clear();
@@ -652,6 +649,9 @@ void CServer::ParseGetChallenge(void)
 		
 		i = ChallengeToSet;
 	}
+
+	// Send the challenge details back to the client
+	SetRemoteNetAddr(tSocket,&adrFrom);
 
 
 	bs.writeInt(-1,4);

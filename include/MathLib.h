@@ -20,11 +20,18 @@
 
 
 
-
 // Routines
 float	GetRandomNum(void);
 int		GetRandomInt(int max);
 int		Round(float x);
+
+/*#ifdef WIN32
+float	cos(float _v)  {return cosf(_v); }
+float	sin(float _v)  {return sinf(_v); }
+float	tan(float _v)  {return tanf(_v); }
+float	atan(float _v)  {return atanf(_v); }
+float	sqrt(float _v)  {return sqrtf(_v); }
+#endif*/
 
 
 float	CalculateDistance(CVec p1, CVec p2);

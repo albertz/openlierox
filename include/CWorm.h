@@ -394,7 +394,7 @@ public:
     int         traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs = 5);
 	int			traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType);
 	int         traceWormLine(CVec target, CVec start, CMap *pcMap);
-	bool		weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap);
+	bool		weaponCanHit(int gravity,float speed,CMap *pcMap);
 	bool		IsEmpty(int Cell, CMap *pcMap);
     //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
 

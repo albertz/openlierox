@@ -84,7 +84,7 @@ node_t *CCssParser::FindClass(char *sClassName)
 		return NULL;
 
 	// Find the class
-	node_t *node;
+	node_t *node = tNodes;
 	for(;node;node=node->tNext)
 		if (!strcmp(node->sName,sClassName) && node->bClass)
 			return node;
@@ -102,7 +102,7 @@ node_t *CCssParser::FindNode(char *sNodeName)
 		return NULL;
 
 	// Find the node
-	node_t *node;
+	node_t *node = tNodes;
 	for(;node;node=node->tNext)
 		if (!strcmp(node->sName,sNodeName))
 			return node;

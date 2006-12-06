@@ -1476,10 +1476,13 @@ int CWorm::AI_FindClearingWeapon(void)
 {
 	if(iAiGameType == GAM_MORTARS)
 		return -1;
-    //if(!strcmp(tWeapons[0].Name,"Rifle"))
-        for (int i=0; i<5; i++)
+	int type = PRJ_PIXEL;
+    for (int i=0; i<5; i++)  {
+		type = tWeapons[i].Weapon->Projectile->Type;
+		if (type != PJ_EXPLODE && type != PJ_DIRT && type != PJ_GREENDIRT)
 			if(!tWeapons[i].Reloading)
 				return i;
+	}
 
     // No suitable weapons
     return -1;
@@ -1594,7 +1597,7 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 
 ////////////////////
 // Returns true, if the weapon can hit the target
-bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
+bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 {
 	// Get the target position
 	if(!psAITarget)
@@ -1603,13 +1606,9 @@ bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
 
 	CVec *from = &vPos;
 	CVec *to = &cTrgPos;
-	if (vPos.GetX() > cTrgPos.GetX())  {
-		from = &cTrgPos;
-		to = &vPos;
-	}
 
 	// Convert the alpha to radians
-	alpha = DEG2RAD(alpha);
+	float alpha = DEG2RAD(fAngle);
 	// Get the maximal X
 	int max_x = (int)(to->GetX()-from->GetX());
 	// If we're in the X coordinate of the target, we can shoot (else we wouldn't be called)
@@ -1618,8 +1617,8 @@ bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
 	// Get the maximal Y
 	int max_y = (int)(from->GetY()-to->GetY());
 
-	if (max_y > 0)
-		alpha = 180-alpha;
+	/*if (max_y > 0)
+		alpha = 180-alpha;*/
 
 	// Check the pixels in the projectile trajectory
 	int x,y;
@@ -1630,35 +1629,134 @@ bool CWorm::weaponCanHit(float alpha,int gravity,float speed,CMap *pcMap)
 
 
 	int tmp;
-	for (x=0;x<max_x;x++)  {
-		tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
-		if(tmp != 0) // please do such checks
-			y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
-		else
-			y = 0;
-		// If we have reached the target, the trajectory is free
-		if (max_y < 0)  {
-			if (y < max_y)
-				return true;
-		} else  {
-			if (y > max_y)
-				return true;
-		}
+	if (max_x > 0)  {
+		for (x=0;x<max_x;x++)  {
+			tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
+			if(tmp != 0)
+				y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
+			else
+				y = 0;
+			// If we have reached the target, the trajectory is free
+			if (max_y < 0)  {
+				if (y < max_y)
+					return true;
+			} else  {
+				if (y > max_y)
+					return true;
+			}
 
-		// Rock, trajectory not free
-		if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) == PX_ROCK)  {
-			return false;
-		}
+			// Rock, trajectory not free
+			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) == PX_ROCK)  {
+				return false;
+			}
 
-#ifdef _AI_DEBUG
-		PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
-#endif
+	#ifdef _AI_DEBUG
+			PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
+	#endif
+		}
+	}
+	else  {
+		for (x=0;x>max_x;x--)  {
+			tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
+			if(tmp != 0)
+				y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
+			else
+				y = 0;
+			// If we have reached the target, the trajectory is free
+			if (max_y < 0)  {
+				if (y < max_y)
+					return true;
+			} else  {
+				if (y > max_y)
+					return true;
+			}
+
+			// Rock, trajectory not free
+			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) == PX_ROCK)  {
+				return false;
+			}
+
+	#ifdef _AI_DEBUG
+			PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
+	#endif
+		}
 	}
 
 	// Target reached
 	return true;
 }
 
+
+bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
+{
+
+	// The target is too far to aim
+	float vy = v*(float)sin(PI/4);
+	float d = 2*vy*vy/g;
+	if (fabs(x) >= d)  {
+		*angle = 0;
+		return false;
+	}
+
+	float v2 = v*v;
+	float x2 = x*x;
+	float g2 = (float)(g*g);
+	float y2 = y*y;
+
+	// Small hack - for small y-distance we want positive numbers
+	if (fabs(y) < 3)  {
+		if (y <= 0)
+			y = -y;
+	}
+
+	float tmp1 = (float)fabs(-2*v2*y*g-g2*x2+v2*v2);
+
+	// Validity check
+	if (tmp1 < 0)  {
+		*angle = 0;
+		return false;
+	}
+
+	float tmp2 = -x2*(float)sqrt(tmp1)+x2*y*g+v2*(x2+2*y2);
+
+	// Validity check
+	if (tmp2 < 0)  {
+		*angle = 0;
+		return false;
+	}
+
+	float tmp3 = (float)sqrt(tmp1)-y*g+v2;
+
+	// Validity check
+	if (tmp3 <= 0 || x == 0)  {
+		*angle = 60;
+		return false;
+	}
+
+	// Get the angle
+	*angle = (float)atan((float)sqrt(tmp2)/(x*(float)sqrt(tmp3)));
+	if (x < 0)
+		*angle = -(*angle);
+	if (y > 0)
+		*angle = -(*angle);
+
+	// Convert to degrees
+	*angle *= R2D;
+
+	// Clamp the angle
+	if (*angle > 60)  {
+		*angle = 60;
+		return false;
+	}
+	if (*angle < -90)  {
+		*angle = -90;
+		return false;
+	}
+
+	// Ok!
+	return true;
+
+}
 
 ///////////////////
 // Shoot!
@@ -1673,7 +1771,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
     //
     bool    bAim = true;//AI_SetAim(cTrgPos);
 
-    // TODO: Aim in the right direction to account of weapon speed, gravity and worm velocity
+    // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	weapon_t *weap = getCurWeapon()->Weapon;
 	switch (weap->Type)  {
 	case WPN_BEAM:
@@ -1687,58 +1785,42 @@ void CWorm::AI_Shoot(CMap *pcMap)
 		case PJ_DIRT:
 			return;
 		default:
-			// Random
-			int	  Random = GetRandomInt(255);
+			// TODO: move the aim with the speed humans are allowed to
+			// TODO: count with the worm velocities
+
 			// Worm speed
 			float MySpeed = VectorLength(vVelocity);
 			// Enemy speed
 			float EnemySpeed = VectorLength(*psAITarget->getVelocity());
 			// Projectile speed
-			float v = (float)weap->ProjSpeed+(float)weap->ProjSpeedVar*GetFixedRandomNum(Random)*weap->Projectile->Dampening;
-			// Projectile spread
-			float Spread = (float)GetFixedRandomNum(Random)*(float)weap->ProjSpread;
+			float v = (float)weap->ProjSpeed*weap->Projectile->Dampening;
 			// Gravity
 			int	  g = 100;
 			if (weap->Projectile->UseCustomGravity)
 				g = weap->Projectile->Gravity;
+			if (iAiGameType == GAM_MORTARS)
+				g = 100;
 			// Distance
 			float x = (cTrgPos.GetX()-vPos.GetX());
 			float y = (vPos.GetY()-cTrgPos.GetY());
 
 			// Get the alpha
-			float tmp =
-				(x*sqrt(fabs(
-						sqrt(fabs(
-							-pow(g,2)*pow(x,2)
-							-2*g*pow(v,2)*y
-							+pow(v,4)))
-						-g*y
-						+pow(v,2))));
-			float alpha = PI/2; // the value, if tmp == 0
-			if(tmp != 0)
-				alpha = 
-					(float)atan(
-						sqrt(fabs(
-							- pow(x,2) * sqrt(fabs(
-								-pow(g,2)*pow(x,2)
-								- 2*g*pow(v,2)*y
-								+ pow(v,4)))
-							+ pow(x,2) * (g*y+pow(v,2))
-							+ 2 * pow(v,2) * pow(y,2)))
-						/ tmp);
-				
-			if (x < 0)
-				alpha = alpha+PI;
-
-			// Convert to degrees
-			alpha = RAD2DEG(alpha);
-
-			// We can't aim it
-			if (alpha > 60 || alpha < -90)  {
-				bAim = false;
+			float alpha = 0;
+			bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
+			if (!bAim)
 				break;
+			
+			gs_worm_t *wd = cGameScript->getWorm();
+			if (!wd)
+				return;
+
+			if (fabs(fAngle-alpha) > 5.0)  {
+				// Move the angle at the same speed humans are allowed to move the angle
+				if(alpha > fAngle)
+					fAngle += wd->AngleSpeed * tLX->fDeltaTime;
+				else if(alpha < fAngle)
+					fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
 			}
-			// Aim
 			else
 				fAngle = alpha;
 
@@ -1749,7 +1831,14 @@ void CWorm::AI_Shoot(CMap *pcMap)
 				iDirection = DIR_RIGHT;
 
 			// Can we hit the target?
-			bAim = weaponCanHit(alpha,g,v,pcMap);
+			if (g <= 5)  {
+				int type = PX_EMPTY;
+				float d;
+				traceWeaponLine(cTrgPos,pcMap,&d,&type);
+				bAim = type == PX_EMPTY;
+			}
+			else
+				bAim = true;//weaponCanHit(g,v,pcMap);
 
 			/*strcpy(tLX->debug_string,weap->Name);
 			if (tLX->fCurTime-flast > 1.0f)  {
@@ -1794,11 +1883,6 @@ void CWorm::AI_Shoot(CMap *pcMap)
 // Returns weapon id or -1 if no weapon is suitable for the situation
 int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *pcMap, float fTraceDist)
 {
-    // Note: This assumes that the weapons are the same as when we started the game
-    // We could have picked up bonuses, but we will assume we havn't
-    // (which will lead to interesting game scenarios if we have)
-
-
     // We need to wait a certain time before we change weapon
     if( tLX->fCurTime - fLastWeaponChange > 0.15f )
         fLastWeaponChange = tLX->fCurTime;
@@ -1820,7 +1904,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		// We're above the worm
 
 		// If we are close enough, shoot the napalm
-		if (CalculateDistance(vPos,cTrgPos) < 40 && vPos.GetY() <= cTrgPos.GetY())  {
+		/*if (CalculateDistance(vPos,cTrgPos) < 40 && vPos.GetY() <= cTrgPos.GetY())  {
 			// If we are not above enough, jump
 			if (fabs(vPos.GetY() - cTrgPos.GetY()) < 20)  {
 				tState.iJump = true;
@@ -1831,7 +1915,14 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 			if (NEW_AI_CheckFreeCells(2,pcMap) && !tWeapons[1].Reloading)  {
 				return 1;
 			}
+		}*/
+		if (vPos.GetY() <= cTrgPos.GetY() && CalculateDistance(vPos,cTrgPos) < 100.0f)  {
+			if (traceWormLine(cTrgPos,vPos,pcMap) && !tWeapons[1].Reloading)
+				if (psAITarget)
+					if (psAITarget->CheckOnGround(pcMap))
+						return 1;
 		}
+
 
 
 		float d = CalculateDistance(vPos,cTrgPos);
@@ -1880,8 +1971,6 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 				if (!tWeapons[2].Reloading)
 					// Don't use cannon when we're on ninja rope, we will avoid suicides
 					if (!cNinjaRope.isReleased())  {
-						// Aim a bit up
-						AI_SetAim(CVec(cTrgPos.GetX(),cTrgPos.GetY()+5.0f));
 						tState.iMove = false;  // Don't move, avoid suicides
 						return 2;
 					}
@@ -1893,7 +1982,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 				// As for almost last, try doomsday
 				if (!tWeapons[3].Reloading)
 					// Don't use doomsday when we're on ninja rope, we will avoid suicides
-					if (!cNinjaRope.isShooting())  {
+					if (!cNinjaRope.isAttached())  {
 						tState.iMove = false;  // Don't move, avoid suicides
 						return 3;
 					}
@@ -2583,9 +2672,14 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 #endif*/
 
 
+	// Delete old path
 	NEW_AI_CleanupPath();
+
+	// Create a new path
 	//NEW_AI_ProcessPathNonRec(trg,pos,pcMap);
 	NEW_AI_ProcessPath(trg,pos,pcMap);
+
+	// Simplify the found path
 	NEW_AI_SimplifyPath(pcMap);
 
 #ifdef _AI_DEBUG
@@ -2634,8 +2728,9 @@ int GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
 	const int divisions = 4;			// How many pixels we go through each check (less = slower)
 
 	int i;
+	uchar px = PX_EMPTY;
 	for(i=0; i<nTotalLength; i+=divisions) {
-		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
 		//pcMap->PutImagePixel((int)pos.GetX(), (int)pos.GetY(), MakeColour(255,0,0));
 
         if (px & PX_ROCK)
@@ -3081,7 +3176,7 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 // Draw the AI path
 void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 {
-	//return;
+	return;
 	if (!NEW_psPath)
 		return;
 
@@ -3251,8 +3346,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			fLastJump = tLX->fCurTime;
 		}
 		// Try to unstuck
-		if (cClient)
-			cClient->FindNearestSpot(this);
+		//if (cClient)
+		//	vPos = cClient->FindNearestSpot(this);
         if(tLX->fCurTime - fStuckPause > 2)
             bStuck = false;
         return;
@@ -3287,7 +3382,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     
 	// Check
 	if (!NEW_psPath || !NEW_psLastNode)  {
-		printf("Pathfinding problem 1; ");
+		printf("Pathfinding problem 1; \n");
 		return;
 	}
 
@@ -3359,8 +3454,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
             fStuckPause = tLX->fCurTime;
 
 			// Try to use unstuck command
-			if (cClient)
-				cClient->FindNearestSpot(this);
+			//if (cClient)
+			//	vPos = cClient->FindNearestSpot(this);
 
 			iDirection = !iDirection;
             
@@ -3435,7 +3530,12 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 				}
 			}
 
-		cAimPos = NEW_AI_GetNearestRopeSpot(cAimPos,pcMap);
+		//cAimPos = NEW_AI_GetNearestRopeSpot(cAimPos,pcMap);
+#ifdef _AI_DEBUG
+		//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
+		//if (cAimPos.GetX() > 0 && cAimPos.GetY() > 0 && cAimPos.GetY() < pcMap->GetHeight()-4 && cAimPos.GetX() < pcMap->GetWidth()-4)
+		//	DrawRectFill(pcMap->GetDebugImage(),(int)cAimPos.GetX()*2,(int)cAimPos.GetY()*2,(int)cAimPos.GetX()*2+4,(int)cAimPos.GetY()*2+4,MakeColour(0,0,255));
+#endif
 
 
 		// Aim

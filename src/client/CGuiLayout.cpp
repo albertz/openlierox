@@ -29,6 +29,7 @@ void CGuiLayout::Initialize(int LayoutID)
 	cWidgets = NULL;
 	tEvent = new gui_event_t;
 	cFocused = NULL;
+	cMouseOverWidget = NULL;
 
 	// Reset mouse repeats
 	nMouseButtons = 0;
@@ -107,6 +108,9 @@ void CGuiLayout::Shutdown(void)
 		delete tEvent;
 		tEvent = NULL;
 	}
+
+	cFocused = NULL;
+	cMouseOverWidget = NULL;
 }
 
 
@@ -486,6 +490,10 @@ bool CGuiLayout::Build(void)
 // Process all the widgets
 gui_event_t *CGuiLayout::Process(void)
 {
+	// No processing when quit
+	if (!tMenu->iMenuRunning)
+		return NULL;
+
 	CWidget *w;
 	mouse_t *tMouse = GetMouse();
 	SDL_Event *Event = GetEvent();
