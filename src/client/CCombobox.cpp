@@ -66,6 +66,12 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 		if (iItemCount < display_count)
 			display_count = iItemCount;
 		iHeight = ItemHeight*(display_count+1)+5;
+		// Screen clipping
+		while (iHeight+iY > bmpDest->h)  {
+			display_count--;
+			iGotScrollbar = true;
+			iHeight = ItemHeight*(display_count+1)+5;
+		}
 		cScrollbar.Setup(0, iX+iWidth-16, iY+ItemHeight+4, 14, iHeight-22);
 
 
