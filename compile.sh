@@ -42,6 +42,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-lSDL -lSDL_image -lSDL_mixer -lNL -lz -lgd -lxml2 \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
+	$( [ "$DEBUG" == "1" ] && echo -ggdb ) \
 	$CPPFLAGS \
 	-o bin/openlierox
 then
