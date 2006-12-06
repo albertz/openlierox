@@ -199,7 +199,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					int index = lv->getCurIndex();
 
 					// Make sure there is 0-1 players in the list
-					if(lv2->getItemCount() < 1) {
+		//			if(lv2->getItemCount() < 1) {
 
 						// Remove the item from the list
 						lv->RemoveItem(index);
@@ -211,7 +211,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 							lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 							lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 						}
-					}
+		//			}
 				}
 				break;
 
@@ -244,25 +244,37 @@ void Menu_Net_HostPlyFrame(int mouse)
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 
 					// Make sure there is 1-2 players in the list
-					if(lv->getItemCount() > 0 && lv->getItemCount() < 3) {
+			//		if(lv->getItemCount() > 0 && lv->getItemCount() < 3) {
 
 						tGameInfo.iNumPlayers = lv->getItemCount();
 
 						// Fill in the game structure												
-						lv_item_t *item = lv->getItems();
-		
-						// Add the players to the list
+						lv_item_t* item;
 						int count=0;
-						for(;item;item=item->tNext) {
+		
+						// Add the human players to the list
+						for(item = lv->getItems(); item != NULL; item = item->tNext) {
 							if(item->iIndex < 0)
 								continue;
 
 							profile_t *ply = FindProfile(item->iIndex);
 	
-							if(ply)
+							if(ply != NULL && ply->iType == PRF_HUMAN)
 								tGameInfo.cPlayers[count++] = ply;
 						}
 
+						// Add the unhuman players to the list
+						for(item = lv->getItems(); item != NULL; item = item->tNext) {
+							if(item->iIndex < 0)
+								continue;
+
+							profile_t *ply = FindProfile(item->iIndex);
+	
+							if(ply != NULL && ply->iType != PRF_HUMAN)
+								tGameInfo.cPlayers[count++] = ply;
+						}			
+			
+			
 						// Get the server name
 						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)tGameInfo.sServername, sizeof(tGameInfo.sServername));
 						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)tGameInfo.sWelcomeMessage, sizeof(tGameInfo.sWelcomeMessage));
@@ -289,7 +301,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 						// Start the lobby
 						Menu_Net_HostLobbyInitialize();
-					}
+			//		}
 				}
 				break;
 		}
