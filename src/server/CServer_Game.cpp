@@ -67,7 +67,7 @@ CVec CServer::FindSpot(void)
             first = false;
 
             uchar pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
-            if(pf != PX_ROCK)
+            if(!(pf & PX_ROCK))
                 return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
             
             if(++x >= cols) {

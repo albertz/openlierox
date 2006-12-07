@@ -2250,7 +2250,7 @@ void CMap::DEBUG_DrawPixelFlags(void)
 	for(y=0;y<Height;y++) {
 		for(x=0;x<Width;x++) {
 
-			switch(PixelFlags[n]) {
+			switch(PixelFlags[n]) { //NOOO
 
 				case PX_EMPTY:	PutPixel(bmpImage,x,y,0);	break;
 				case PX_DIRT:	PutPixel(bmpImage,x,y,MakeColour(255,0,0));	break;
@@ -2265,9 +2265,9 @@ void CMap::DEBUG_DrawPixelFlags(void)
 
             if(GridFlags[y*nGridCols+x] == PX_EMPTY)
                 DrawRectFill(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, MakeColour(0,0,128));
-            if(GridFlags[y*nGridCols+x] == PX_DIRT)
+            if(GridFlags[y*nGridCols+x] & PX_DIRT)
                 DrawRectFill(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, MakeColour(255,0,0));
-            if(GridFlags[y*nGridCols+x] == PX_ROCK)
+            if(GridFlags[y*nGridCols+x] & PX_ROCK)
                 DrawRectFill(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, MakeColour(128,128,128));
             //DrawRect(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, 0);
 			//DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);

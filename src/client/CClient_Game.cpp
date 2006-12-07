@@ -1672,7 +1672,7 @@ CVec CClient::FindNearestSpot(CWorm *w)
 					continue;
 
 				tmp_pf = *(cMap->getGridFlags() + tmp_y*cMap->getGridCols() +tmp_x);
-				if (tmp_pf != PX_ROCK)
+				if (!(tmp_pf & PX_ROCK))
 					return CVec((float)tmp_x*gw+gw/2, (float)tmp_y*gh+gh/2);
 			}
 			tmp_x -= 3;
@@ -1711,7 +1711,7 @@ CVec CClient::FindNearestSpot(CWorm *w)
             first = false;
 
             uchar pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
-            if(pf != PX_ROCK)
+            if(!(pf & PX_ROCK))
                 return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
             
             if(++x >= cols) {

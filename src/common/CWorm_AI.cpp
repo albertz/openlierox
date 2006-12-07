@@ -496,7 +496,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
             first = false;
 
             uchar pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() + x);
-            if(pf != PX_ROCK)  {
+            if(!(pf & PX_ROCK))  {
                 resultPos = CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
 				breakme = true;
 				break;
@@ -649,7 +649,7 @@ ai_node_t *CWorm::AI_ProcessNode(CMap *pcMap, ai_node_t *psParent, int curX, int
 
     // Is this node impassable (rock)?
     uchar pf = *(pcMap->getGridFlags() + (curY*nGridCols) + curX);
-    if(pf == PX_ROCK && !bFound) {
+    if(pf & PX_ROCK && !bFound) {
         if(psParent != NULL)  // Parent can be on rock
             return NULL;
     }
@@ -1477,12 +1477,21 @@ int CWorm::AI_FindClearingWeapon(void)
 	if(iAiGameType == GAM_MORTARS)
 		return -1;
 	int type = PRJ_PIXEL;
-    for (int i=0; i<5; i++)  {
-		type = tWeapons[i].Weapon->Projectile->Type;
-		if (type != PJ_EXPLODE && type != PJ_DIRT && type != PJ_GREENDIRT)
-			if(!tWeapons[i].Reloading)
-				return i;
+	
+	// search a good projectile weapon
+    for (int i=0; i<5; i++) {
+    	if(tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
+			type = tWeapons[i].Weapon->Projectile->Type;
+			if (type != PJ_EXPLODE && type != PJ_DIRT && type != PJ_GREENDIRT)
+				if(!tWeapons[i].Reloading)
+					return i;
+		}
 	}
+
+	// accept also beam-weapons as a second choice
+    for (int i=0; i<5; i++)
+ 		if(tWeapons[i].Weapon->Type == WPN_BEAM)
+			return i;
 
     // No suitable weapons
     return -1;
@@ -1541,7 +1550,7 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 	length = traceWeaponLine(cTrgPos, pcMap, &fDist, &nType);
 
     // If target is blocked by rock we can't use direct firing
-    if(nType == PX_ROCK)  {
+    if(nType & PX_ROCK)  {
 		/*if(iAiGameType == GAM_RIFLES || iAiGameType == GAM_MORTARS)
 			return false;
 		if (((float)length/d) < 0.7f)
@@ -1646,7 +1655,7 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 			}
 
 			// Rock, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) == PX_ROCK)  {
+			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) & PX_ROCK)  {
 				return false;
 			}
 
@@ -1672,7 +1681,7 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 			}
 
 			// Rock, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) == PX_ROCK)  {
+			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) & PX_ROCK)  {
 				return false;
 			}
 
@@ -2346,7 +2355,7 @@ CVec CWorm::NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap)
 					continue;
 
 				tmp_pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() +x);
-				if (tmp_pf != PX_ROCK)
+				if (!(tmp_pf & PX_ROCK))
 					return CVec((float)x*pcMap->getGridWidth()+pcMap->getGridWidth()/2, (float)y*pcMap->getGridHeight()+pcMap->getGridHeight()/2);
 			}
 		}
@@ -2548,7 +2557,7 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
 	int cellY = (int) fabs((vPos.GetY())/pcMap->getGridHeight());
 
 	// First of all, check our current cell
-	if (*(pcMap->getGridFlags() + cellY*pcMap->getGridCols() +cellX) == PX_ROCK)
+	if (*(pcMap->getGridFlags() + cellY*pcMap->getGridCols() +cellX) & PX_ROCK)
 		return false;
 	
 /*#ifdef _AI_DEBUG
@@ -2588,7 +2597,7 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
 					return false;
 
 				// Clipping means rock
-				if (*(pcMap->getGridFlags() + y*pcMap->getGridCols() +x) == PX_ROCK)
+				if (*(pcMap->getGridFlags() + y*pcMap->getGridCols() +x) & PX_ROCK)
 					return false;
 			}
 		}
@@ -2624,7 +2633,7 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
 					return false;
 
 				// Rock cell
-				if (*(pcMap->getGridFlags() + y*pcMap->getGridCols() +x) == PX_ROCK)
+				if (*(pcMap->getGridFlags() + y*pcMap->getGridCols() +x) & PX_ROCK)
 					return false;
 			}
 		}
@@ -2768,7 +2777,7 @@ CVec NEW_AI_FindBestSpot(CVec trg, CVec pos, CMap *pcMap)
 			x = a*(float)sin(2*PI*i)+middle.GetX();
 			y = b*(float)cos(2*PI*i)+middle.GetY();
 			CVec point = CVec(x,y);
-			if (pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() ) == PX_ROCK)
+			if (pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() ) & PX_ROCK)
 				continue;
 
 			int rock_pixels = GetRockBetween(point,pos,pcMap)+GetRockBetween(point,trg,pcMap);
@@ -3611,8 +3620,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 					iCurrentWeapon = wpn;
 					ws->iShoot = true;
 				} else
-					bStuck = true; // no weapon found, so move around
-					//AI_SimpleMove(pcMap,psAITarget != NULL);
+					AI_SimpleMove(pcMap,psAITarget != NULL); // no weapon found, so move around
 			}
     }
 
