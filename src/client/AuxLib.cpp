@@ -358,7 +358,9 @@ void ShutdownAuxLib(void)
 	ShutdownCache();
 
 	// Shutdown the SDL system
-	SDL_Quit();
+	// this is a workaround to prevent the default segfault-routine
+	try { SDL_Quit(); }
+	catch(...) {}
 }
 
 

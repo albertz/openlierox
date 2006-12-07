@@ -1883,6 +1883,10 @@ void CWorm::AI_Shoot(CMap *pcMap)
 // Returns weapon id or -1 if no weapon is suitable for the situation
 int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *pcMap, float fTraceDist)
 {
+	// if we are to close to the target, don't selct any weapon (=> move away)
+	if(fDistance < 5)
+		return -1;
+
     // We need to wait a certain time before we change weapon
     if( tLX->fCurTime - fLastWeaponChange > 0.15f )
         fLastWeaponChange = tLX->fCurTime;
@@ -2069,13 +2073,15 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_BEAM)
-					return i;
+					if( tWeapons[i].Weapon->Projectile->Type != PJ_DIRT
+					&& tWeapons[i].Weapon->Projectile->Type != PJ_GREENDIRT)
+						return i;
 
 		// If beam not available, try projectile
 		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if (tWeapons[i].Weapon->Type == PRJ_PIXEL)
+					if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL)
 						return i;
     }
 
@@ -2090,7 +2096,9 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_BEAM)
-					return i;
+					if( tWeapons[i].Weapon->Projectile->Type != PJ_DIRT
+					&& tWeapons[i].Weapon->Projectile->Type != PJ_GREENDIRT)
+						return i;
 
 		// If beam not available, try projectile
 		for (i=0; i<5; i++)
@@ -2099,10 +2107,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 					if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL || tWeapons[i].Weapon->Projectile->Type == PJ_BOUNCE)
 						return i;
 
-		// If everything fails, try any weapon
-		for (i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)  
-				return i;
+		// don't return here, try selection by other, not optimal fitting cases
     }
 
 
@@ -2115,18 +2120,26 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					return i;
+					if( tWeapons[i].Weapon->Projectile->Type != PJ_DIRT
+					&& tWeapons[i].Weapon->Projectile->Type != PJ_GREENDIRT)
+						return i;
 
 		// If projectile not available, try beam
 		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_BEAM)
-					return i;
+					if( tWeapons[i].Weapon->Projectile->Type != PJ_DIRT
+					&& tWeapons[i].Weapon->Projectile->Type != PJ_GREENDIRT)
+						return i;
+//...........
 
-		// If everything fails, try any weapon
-		for (i=0; i<5; i++)
-			if (!tWeapons[i].Reloading)  
-				return i;
+		// If everything fails, try some random weapons
+		int num;
+		for (i=0; i<5; i++, num=GetRandomInt(4))
+			if (!tWeapons[num].Reloading)  
+				return num;
+				
+		//return -1;
     }
 
 
@@ -2138,15 +2151,16 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
     // If we're above the target, try any special weapon, for Liero mod try napalm
     // BUT only if our health is looking good
     // AND if there is no rock/dirt nearby
-    if(fDistance > 190 && iHealth > 25 && fTraceDist > 0.5f && !bDirect && (cTrgPos.GetY()-20) > vPos.GetY()) {
+    if(fDistance > 190 && iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.GetY()-20) > vPos.GetY() ) {
         if (!NEW_AI_CheckFreeCells(5,pcMap))
 			return -1;
 
+		// try projectile weapons
 		for (int i=0; i<5; i++)
 			if (!tWeapons[i].Reloading && tWeapons[i].Weapon->Type == WPN_PROJECTILE)
 				if (tWeapons[i].Weapon->Projectile->Type == PJ_EXPLODE || tWeapons[i].Weapon->Projectile->Type == PJ_BOUNCE)
 					return i;
-
+					
     }
 
 
@@ -3495,12 +3509,14 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         ws->iMove = true;
 
 	// If the node is above us by a little, jump
-	if ((vPos.GetY()-NEW_psCurrentNode->fY) <= 20 && (vPos.GetY()-NEW_psCurrentNode->fY) > 0)
+	if ((vPos.GetY()-NEW_psCurrentNode->fY) <= 20 && (vPos.GetY()-NEW_psCurrentNode->fY) > 0) {
 		// Don't jump so often
 		if (tLX->fCurTime - fLastJump > 1.0f)  {
 			ws->iJump = true;
 			fLastJump = tLX->fCurTime;
-		}
+		} else
+			ws->iMove = true; // if we should not jump, move
+	}
 
 	// If the next node is above us by a little, jump too
 	NEW_ai_node_t *nextNode = NEW_psCurrentNode->psNext;
@@ -3510,7 +3526,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			if (tLX->fCurTime - fLastJump > 1.0f)  {
 				ws->iJump = true;
 				fLastJump = tLX->fCurTime;
-			}
+			} else
+				ws->iMove = true; // if we should not jump, move
 	}
     
     // If the node is above us by a lot, we should use the ninja rope
@@ -3577,7 +3594,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     CVec v = CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY);
     int length = traceLine(v, pcMap, &traceDist, &type);
     float dist = CalculateDistance(v, vPos);
-    if(length < dist && type == PX_DIRT) {
+    if((float)length <= dist && type == PX_DIRT) {
 		cNinjaRope.Release();
         ws->iJump = true;
         ws->iMove = true;
@@ -3594,13 +3611,14 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		}
 
 		// If the node is right above us, use a carving weapon
-		if (v.GetX()-20 <= vPos.GetX() && v.GetX()+20 >= vPos.GetX()) 
+		if (abs(v.GetX()-vPos.GetX()) <= 50) 
 			if (v.GetY() < vPos.GetY())  {
 				int wpn;
 				if((wpn = AI_FindClearingWeapon()) != -1) {
 					iCurrentWeapon = wpn;
 					ws->iShoot = true;
-				}
+				} else
+					bStuck = true; // no weapon found, so move around
 			}
     }
 

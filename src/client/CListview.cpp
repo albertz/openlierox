@@ -263,7 +263,7 @@ void CListview::ReadjustScrollbar(void)
 	}
 
 	// Buffer size on top & bottom
-	size += 5;
+	size += 17;
 
 	iGotScrollbar = false;
 	if(size >= iHeight)

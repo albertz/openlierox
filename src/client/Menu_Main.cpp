@@ -155,10 +155,11 @@ void Menu_MainFrame(void)
 				
                     cMainMenu.Draw(tMenu->bmpBuffer);
 
-                    if( Menu_MessageBox("Liero Xtreme","Quit Liero Xtreme?", LMB_YESNO) == MBR_YES ) {
+                    if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
 					    tMenu->iMenuRunning = false;
 					    cMainMenu.Shutdown();
 				    } else {
+				    
 					    // Create the buffer
 					    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
                         Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);

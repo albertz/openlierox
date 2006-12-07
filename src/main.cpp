@@ -194,7 +194,7 @@ int InitializeLieroX(void)
 	mkdir(GetHomeDir(), 0777);
 	
 	// Initialize the aux library
-	if(!InitializeAuxLib("Liero Xtreme","config.cfg",16,0)) {
+	if(!InitializeAuxLib("OpenLieroX","config.cfg",16,0)) {
         SystemError("strange problems with the aux library");	
 		return false;
 	}
@@ -295,7 +295,7 @@ void StartGame(void)
 		// Start the server
 		if(!cServer->StartServer( "local", tLXOptions->iNetworkPort, 8, false )) {
 			// ERROR
-			//MessageBox(NULL, "Error: Could not start server", "Liero Xtreme Error", MB_OK);
+			//MessageBox(NULL, "Error: Could not start server", "OpenLieroX Error", MB_OK);
 			printf("Error: Could not start server\n");
 			return;
 		}
@@ -303,7 +303,7 @@ void StartGame(void)
 		// Setup the client
 		if(!cClient->Initialize()) {
 			// ERROR
-			//MessageBox(NULL, "Error: Could not initialize client", "Liero Xtreme Error", MB_OK);
+			//MessageBox(NULL, "Error: Could not initialize client", "OpenLieroX Error", MB_OK);
 			printf("Error: Could not initialize client\n");
 			return;
 		}

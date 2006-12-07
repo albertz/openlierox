@@ -62,7 +62,7 @@ int Menu_Net_MainInitialize(void)
 		lv->AddSubitem(LVS_TEXT, p->sName, NULL);
 	}*/
 
-	cMain.Add( new CLabel("Liero Xtreme News", 0xffff), -1, 255, 140, 0,0);
+	cMain.Add( new CLabel("OpenLieroX News", 0xffff), -1, 255, 140, 0,0);
 
 
 	return true;

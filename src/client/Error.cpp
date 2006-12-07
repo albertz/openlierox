@@ -55,7 +55,7 @@ void ShowError(void)
 
 	if(GotError) {
 		printf("SDL: Error: %s\n", ErrorMsg);
-		//MessageBox(NULL,ErrorMsg,"Liero Xtreme",MB_OK | MB_ICONEXCLAMATION);
+		//MessageBox(NULL,ErrorMsg,GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 	}
 	else {
 		printf("SDL: Sad: unknown error\n");
@@ -90,7 +90,7 @@ void SystemError(char *fmt, ...)
 	SDL_ShowCursor(SDL_ENABLE);	
 	// TODO: uniform message system
 	printf("SystemError: %s\n", buf);
-	//MessageBox(NULL,buf,"Liero Xtreme",MB_OK | MB_ICONEXCLAMATION);
+	//MessageBox(NULL,buf,GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 
 
 	// Shutdown the game
