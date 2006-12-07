@@ -125,12 +125,13 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
         // Shoot
         AI_Shoot(pcMap);
-        return;
+        //return;
+    } else {
+    
+		// Reload weapons when we can't shoot
+		AI_ReloadWeapons();
     }
-
-	// Reload weapons when we can't shoot
-	AI_ReloadWeapons();
-
+    
     // Process depending on our current state
     switch(nAIState) {
 
@@ -1438,10 +1439,20 @@ void CWorm::AI_PreciseMove(CMap *pcMap)
     ws->iMove = false;
     ws->iCarve = false;
     
+ 
     // If we're insanely close, just stop
-    if(fabs(vPos.GetX() - cPosTarget.GetX()) < 10 && fabs(vPos.GetY() - cPosTarget.GetY()) < 10)
+    if(fabs(vPos.GetX() - cPosTarget.GetX()) < 10 && fabs(vPos.GetY() - cPosTarget.GetY()) < 10) {
+ 		if (tLX->fCurTime - fLastDirChange > 2.0f)  {
+			if (GetRandomNum() < 0)
+				iDirection = DIR_LEFT;
+			else
+				iDirection = DIR_RIGHT;
+			fLastDirChange = tLX->fCurTime;
+		}
+		ws->iMove = true;
+   
         return;
-
+    }
 
     // Aim at the target
     //bool aim = AI_SetAim(cPosTarget);
@@ -1482,7 +1493,8 @@ int CWorm::AI_FindClearingWeapon(void)
 	int i = 0;
     for (i=0; i<5; i++) {
     	if(tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
-			type = tWeapons[i].Weapon->Projectile->Type;
+			// TODO: not really all cases...
+			type = tWeapons[i].Weapon->Projectile->Hit_Type;
 			if (type != PJ_EXPLODE && type != PJ_DIRT && type != PJ_GREENDIRT)
 				if(!tWeapons[i].Reloading)
 					return i;
@@ -1789,11 +1801,11 @@ void CWorm::AI_Shoot(CMap *pcMap)
 		bAim = AI_SetAim(cTrgPos);
 	break;
 	case WPN_PROJECTILE:  {
-		switch (weap->Projectile->Type)  {
+		switch (weap->Projectile->Hit_Type)  {
 		case PJ_NOTHING:
 		case PJ_CARVE:
 		case PJ_DIRT:
-			return;
+			break;
 		default:
 			// TODO: count with the worm velocities
 
@@ -2061,7 +2073,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (int i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if (tWeapons[i].Weapon->Projectile->Type == PJ_EXPLODE)
+					if (tWeapons[i].Weapon->Projectile->Hit_Type == PJ_EXPLODE)
 						return i;
     }
 
@@ -2088,9 +2100,13 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL)
-						return i;
-    }
+					if( tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
+					&& tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
+					//if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL)
+					return i;
+ 		
+ 		// don't return here, try selection by other, not optimal fitting cases
+   }
 
 
     //
@@ -2109,7 +2125,9 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL || tWeapons[i].Weapon->Projectile->Type == PJ_BOUNCE)
+					if( tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
+					&& tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
+					/*if (tWeapons[i].Weapon->Projectile->Type == PRJ_PIXEL || tWeapons[i].Weapon->Projectile->Hit_Type == PJ_BOUNCE)*/
 						return i;
 
 		// don't return here, try selection by other, not optimal fitting cases
@@ -2125,8 +2143,8 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-					if( tWeapons[i].Weapon->Projectile->Type != PJ_DIRT
-					&& tWeapons[i].Weapon->Projectile->Type != PJ_GREENDIRT)
+					if( tWeapons[i].Weapon->Projectile->Hit_Type != PJ_DIRT
+					&& tWeapons[i].Weapon->Projectile->Hit_Type != PJ_GREENDIRT)
 						return i;
 
 		// If projectile not available, try beam
@@ -2160,7 +2178,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		// try projectile weapons
 		for (int i=0; i<5; i++)
 			if (!tWeapons[i].Reloading && tWeapons[i].Weapon->Type == WPN_PROJECTILE)
-				if (tWeapons[i].Weapon->Projectile->Type == PJ_EXPLODE || tWeapons[i].Weapon->Projectile->Type == PJ_BOUNCE)
+				if (tWeapons[i].Weapon->Projectile->Hit_Type == PJ_EXPLODE || tWeapons[i].Weapon->Projectile->Hit_Type == PJ_BOUNCE)
 					return i;
 					
     }
@@ -2184,6 +2202,13 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		{	
 			return i;
 		}*/
+		
+	// If everything fails, try some random weapons
+	int num;
+	for (i=0; i<5; i++, num=GetRandomInt(4))
+		if (!tWeapons[num].Reloading)  
+			return num;
+
 
     return -1;
 }
