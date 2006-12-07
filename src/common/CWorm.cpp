@@ -311,6 +311,7 @@ SDL_Surface *CWorm::ChangeGraphics(char *filename, int team)
 	tmp = _LoadImage(filename);
 	if(tmp == NULL) {
 		// Error: Couldn't load image
+		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename);
 		return NULL;
 	}
 
