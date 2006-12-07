@@ -656,7 +656,7 @@ ai_node_t *CWorm::AI_ProcessNode(CMap *pcMap, ai_node_t *psParent, int curX, int
 
     int movecost = 1;
     // Dirt is a higher cost
-    if(pf == PX_DIRT)
+    if(pf & PX_DIRT)
         movecost = 2;
 
     // Is this node closed?    
@@ -1555,7 +1555,7 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 		return false;
 
 	// If target is blocked by large amount of dirt, we can't shoot it with rifle
-	if (nType == PX_DIRT)  {
+	if (nType & PX_DIRT)  {
 		if(d-fDist > 40.0f)
 			return false;
 	}
@@ -2226,7 +2226,7 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
 		//pcMap->PutImagePixel((int)pos.GetX(), (int)pos.GetY(), MakeColour(255,0,0));
 
-        if(px & PX_DIRT || px & PX_ROCK) {
+        if((px & PX_DIRT) || (px & PX_ROCK)) {
         	if(nTotalLength != 0)
             	*fDist = (float)i / (float)nTotalLength;
             else
@@ -2438,7 +2438,7 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 			divs = divisions;
 
 		// Dirt or rock
-		if(px & PX_DIRT || px & PX_ROCK) {
+		if((px & PX_DIRT) || (px & PX_ROCK)) {
         	if(nTotalLength != 0)
             	*fDist = (float)i / (float)nTotalLength;
             else
@@ -3251,7 +3251,7 @@ CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap)
 
 	// Check the current cell first
 	tmp_pf = *(pcMap->getGridFlags() + cellY*pcMap->getGridCols() +cellX);
-	if (tmp_pf == PX_ROCK || tmp_pf == PX_DIRT)
+	if ((tmp_pf & PX_ROCK) || (tmp_pf & PX_DIRT))
 		return trg;
 
 	// Note: unoptimized
@@ -3291,7 +3291,7 @@ CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap)
 
 				// Get the pixel flag of the cell
 				tmp_pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() +x);
-				if (tmp_pf == PX_ROCK || tmp_pf == PX_DIRT)  {
+				if ((tmp_pf & PX_ROCK) || (tmp_pf & PX_DIRT))  {
 					bFound = true;
 					break;
 				}	
