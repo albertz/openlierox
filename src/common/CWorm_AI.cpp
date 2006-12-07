@@ -1794,7 +1794,6 @@ void CWorm::AI_Shoot(CMap *pcMap)
 		case PJ_DIRT:
 			return;
 		default:
-			// TODO: move the aim with the speed humans are allowed to
 			// TODO: count with the worm velocities
 
 			// Worm speed
@@ -1847,7 +1846,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
 				bAim = type == PX_EMPTY;
 			}
 			else
-				bAim = true;//weaponCanHit(g,v,pcMap);
+				bAim = weaponCanHit(g,v,pcMap);
 
 			/*strcpy(tLX->debug_string,weap->Name);
 			if (tLX->fCurTime-flast > 1.0f)  {

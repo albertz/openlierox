@@ -105,6 +105,10 @@ void CBonus::Simulate(CMap *map, float dt)
 	px = (int)vPos.GetX();
 	py = (int)vPos.GetY();
 
+	// Initialize
+	x = px-2;
+	y = py-2;
+
 	
 	mw = map->GetWidth();
 	mh = map->GetHeight();

@@ -218,9 +218,6 @@ int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 
 
 	return SCR_CHANGE;
-
-
-	return SCR_NONE;
 }
 
 ///////////////////

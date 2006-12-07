@@ -289,7 +289,7 @@ void CClient::ParsePacket(CBytestream *bs)
 // Parse a prepare game packet
 bool CClient::ParsePrepareGame(CBytestream *bs)
 {
-	// We already got this packet
+	// We've already got this packet
 	if (iGameReady)
 		return true;
 

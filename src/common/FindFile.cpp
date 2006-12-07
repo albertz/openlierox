@@ -515,7 +515,7 @@ char* GetFullFileName(const char* path) {
 	if(path == NULL || path[0] == '\0')
 		return NULL;
 
-	filelist_t* spath;
+	filelist_t* spath = NULL;
 	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
 	if(spath == NULL) spath = basesearchpaths;
 	assert(spath != NULL);

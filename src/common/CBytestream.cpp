@@ -274,6 +274,8 @@ float CBytestream::readFloat(void)
 		uchar bin[4];
 		float val;
 	} tmp;
+
+	tmp.val = 0;
 	
 	for(short i = 0; i < 4; i++)
 		tmp.bin[i] = readByte();
@@ -321,12 +323,12 @@ void CBytestream::read2Int12(short& x, short& y) {
 	dat[2] = readByte();
 
 	x = dat[0] + ((dat[1] & 0xf) * 0x100);
-	y = ((dat[1] & 0xf0) / 0x10) + dat[2] * 0x10;
+	y = (short)(((dat[1] & 0xf0) / 0x10) + dat[2] * 0x10);
 }
 
 // cast 1 byte to 2 int4
 void CBytestream::read2Int4(short& x, short& y) {
 	uchar tmp = readByte();
 	x = tmp & 0xf;
-	y = (tmp & 0xf0) / 0x10;
+	y = (short)((tmp & 0xf0) / 0x10);
 }
