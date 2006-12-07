@@ -1479,7 +1479,8 @@ int CWorm::AI_FindClearingWeapon(void)
 	int type = PRJ_PIXEL;
 	
 	// search a good projectile weapon
-    for (int i=0; i<5; i++) {
+	int i = 0;
+    for (i=0; i<5; i++) {
     	if(tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
 			type = tWeapons[i].Weapon->Projectile->Type;
 			if (type != PJ_EXPLODE && type != PJ_DIRT && type != PJ_GREENDIRT)
@@ -1489,7 +1490,7 @@ int CWorm::AI_FindClearingWeapon(void)
 	}
 
 	// accept also beam-weapons as a second choice
-    for (int i=0; i<5; i++)
+    for (i=0; i<5; i++)
  		if(tWeapons[i].Weapon->Type == WPN_BEAM)
 			return i;
 
