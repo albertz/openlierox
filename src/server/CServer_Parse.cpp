@@ -919,6 +919,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		// TODO: This better
 
 		char buf[256];
+		char buf2[256];
 		// "Has connected" message
 		if (strcmp(NetworkTexts->sHasConnected,"<none>"))  {
 			for(i=0;i<numworms;i++) {
@@ -948,21 +949,24 @@ void CServer::ParseConnect(CBytestream *bs)
 				}
 			}
 
-			for(int i=0; i<numworms; i++)  {
-				// Player name
-				replacemax(buf,"<player>",worms[i].getName(),buf,1);
+			// Address
+			char str_addr[22];
+			NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
+			// Remove port
+			char* pos = strrchr(str_addr,':');
+			if(pos != NULL)
+				str_addr[(int) (pos-str_addr)] = '\0';
+			replacemax(buf,"<ip>",str_addr,buf,1);
 
-				// Address
-				char str_addr[22];
-				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
-				// Remove port
-				char* pos = strrchr(str_addr,':');
-				if(pos != NULL)
-					str_addr[(int) (pos-str_addr)] = '\0';
-				replacemax(buf,"<ip>",str_addr,buf,1);
+
+			for(int i=0; i<numworms; i++)  {
+				strcpy(buf2,buf);
+
+				// Player name
+				replacemax(buf2,"<player>",worms[i].getName(),buf2,1);
 
 				// Send the welcome message
-				SendGlobalText(buf,TXT_NETWORK);
+				SendGlobalText(buf2,TXT_NETWORK);
 			}
 		}
 

@@ -731,6 +731,60 @@ void CServer::kickWorm(int wormID)
     if( !cl )
         return;
 
+	// Local worms are handled another way
+	if (cClient)  {
+		if (cClient->OwnsWorm(w))  {
+
+			// Delete the worm from client and server
+			CWorm *localworm = cClient->getWorm(w->getID());
+			if (!localworm)
+				return;
+			localworm->setAlive(false);
+			localworm->setKills(0);
+			localworm->setLives(WRM_OUT);
+			//localworm->setID(-1);
+			localworm->setUsed(false);
+			w->setAlive(false);
+			w->setKills(0);
+			w->setLives(WRM_OUT);
+			//w->setID(-1);
+			w->setUsed(false);
+
+			CWorm *serverworm = cWorms;
+
+			for(int p=0;p<MAX_WORMS;p++,serverworm++) {
+				if(serverworm->isUsed())
+					if (serverworm->getID() == w->getID())
+						break;
+			}
+			serverworm->setKills(0);
+			serverworm->setAlive(false);
+			serverworm->setLives(WRM_OUT);
+			serverworm->setUsed(false);
+
+			// Update the number of players on server/client
+			iNumPlayers--;
+			cClient->setNumWorms(cClient->getNumWorms()-1);
+			cl->setNumWorms(cl->getNumWorms()-1);
+
+			// Send the message
+			char buf[256];
+			replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), buf, 1);
+			SendGlobalText(buf,TXT_NETWORK);
+
+			// Now that a player has left, re-check the game status
+			RecheckGame();
+
+			// If we're waiting for players to be ready, check again
+			if(iState == SVS_GAME)
+				CheckReadyClient();
+
+			// End here
+			return;
+		}
+	}
+
+
     // Drop the client
     DropClient(cl, CLL_KICK);
 }
@@ -787,6 +841,48 @@ void CServer::banWorm(int wormID)
     if( !cl )
         return;
 
+	// Local worms are handled another way
+	// We just kick the worm, banning has no sense
+	if (cClient)  {
+		if (cClient->OwnsWorm(w))  {
+
+			// Delete the worm from client and server
+			CWorm *localworm = cClient->getWorm(w->getID());
+			if (!localworm)
+				return;
+			localworm->setAlive(false);
+			localworm->setKills(0);
+			localworm->setLives(WRM_OUT);
+			localworm->setID(-1);
+			localworm->setUsed(false);
+			w->setAlive(false);
+			w->setKills(0);
+			w->setLives(WRM_OUT);
+			w->setID(-1);
+			w->setUsed(false);
+
+			// Update the number of players on server/client
+			iNumPlayers--;
+			cClient->setNumWorms(cClient->getNumWorms()-1);
+			cl->setNumWorms(cl->getNumWorms()-1);
+
+			// Send the message
+			char buf[256];
+			replacemax(NetworkTexts->sHasBeenBanned,"<player>", w->getName(), buf, 1);
+			SendGlobalText(buf,TXT_NETWORK);
+
+			// Now that a player has left, re-check the game status
+			RecheckGame();
+
+			// If we're waiting for players to be ready, check again
+			if(iState == SVS_GAME)
+				CheckReadyClient();
+
+			// End here
+			return;
+		}
+	}
+
 	char szAddress[21];
 	NetAddrToString(cl->getChannel()->getAddress(),&szAddress[0]);
 
@@ -834,7 +930,7 @@ void CServer::muteWorm(int wormID)
 
 	/*if (!wormID)  {
 		Con_Printf(CNC_NOTIFY,"You can't mute yourself.");
-		return;  // Don't ban ourself
+		return;  // Don't mute ourself
 	}*/
 
     // Get the worm
@@ -852,6 +948,20 @@ void CServer::muteWorm(int wormID)
     CClient *cl = w->getClient();
     if( !cl )
         return;
+
+	// Local worms are handled in an other way
+	// We just say, the worm is muted, but do not do anything actually
+	if (cClient)  {
+		if (cClient->OwnsWorm(w))  {
+			// Send the message
+			char buf[256];
+			replacemax(NetworkTexts->sHasBeenMuted,"<player>", w->getName(), buf, 1);
+			SendGlobalText(buf,TXT_NETWORK);
+
+			// End here
+			return;
+		}
+	}
 
 	// Mute
 	cl->setMuted(true);

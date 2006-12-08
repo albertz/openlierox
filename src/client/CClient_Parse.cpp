@@ -497,7 +497,7 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 
 	CVec p = CVec( (float)x, (float)y );
 
-	if (id < 0 || id > MAX_PLAYERS)
+	if (id < 0 || id >= MAX_PLAYERS)
 		return;
 
 	cRemoteWorms[id].setAlive(true);
@@ -715,7 +715,7 @@ void CClient::ParseCLReady(CBytestream *bs)
 {
 	int numworms = bs->readByte();
 
-	if((numworms < 1 || numworms > 2) && tGameInfo.iGameType != GME_LOCAL) {
+	if((numworms < 1 || numworms > MAX_PLAYERS) && tGameInfo.iGameType != GME_LOCAL) {
 		// bad packet
 		printf("Bad numworms count on CLREADY packet\n");
 		return;
