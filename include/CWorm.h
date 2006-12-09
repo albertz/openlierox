@@ -120,6 +120,8 @@ typedef struct NEW_ai_node_s {
 	struct NEW_ai_node_s *psPrev, *psNext;
 } NEW_ai_node_t;
 
+NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n);
+void delete_ai_nodes(NEW_ai_node_t* start);
 
 
 class CWorm {
@@ -267,7 +269,6 @@ private:
     int         *pnOpenCloseGrid;
     ai_node_t   *psCurrentNode;
 	float       fLastPathUpdate;
-	int			iProcessedNodes;
 	bool		bPathFinished;
 
 	NEW_ai_node_t	*NEW_psPath;
@@ -393,7 +394,7 @@ public:
     CWorm       *findTarget(int gametype, int teamgame, int taggame, CMap *pcMap);   
     int         traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs = 5);
 	int			traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType);
-	int         traceWormLine(CVec target, CVec start, CMap *pcMap);
+	int         traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision = NULL);
 	bool		weaponCanHit(int gravity,float speed,CMap *pcMap);
 	bool		IsEmpty(int Cell, CMap *pcMap);
     //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
@@ -402,7 +403,7 @@ public:
 	bool		NEW_AI_CheckFreeCells(int Num,CMap *pcMap);
 	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
 	int			NEW_AI_CreatePath(CMap *pcMap);
-	void		NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap);
+	NEW_ai_node_t*	NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep = 0);
 	void		NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap);
 	NEW_ai_node_t *NEW_AI_AddNode(CVec Pos,NEW_ai_node_t *psPrev,NEW_ai_node_t *psNext);
 	void		NEW_AI_CleanupPath(void);

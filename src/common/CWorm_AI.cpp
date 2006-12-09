@@ -55,7 +55,9 @@ bool CWorm::AI_Initialize(CMap *pcMap)
     bStuck = false;
 	bPathFinished = true;
 	//iAiGameType = GAM_OTHER;
-
+	nAITargetType = AIT_NONE;
+	nAIState = AI_THINK;
+	
     return true;
 }
 
@@ -601,12 +603,12 @@ void CWorm::AI_InitMoveToTarget(CMap *pcMap)
     cPosTarget = AI_GetTargetPos();
 
     // Put the target into a cell position
-    int tarX = (int) cPosTarget.GetX() / pcMap->getGridWidth();
-    int tarY = (int) cPosTarget.GetY() / pcMap->getGridHeight();
+    int tarX = (int) (cPosTarget.GetX() / pcMap->getGridWidth());
+    int tarY = (int) (cPosTarget.GetY() / pcMap->getGridHeight());
 
     // Current position cell
-    int curX = (int) vPos.GetX() / pcMap->getGridWidth();
-    int curY = (int) vPos.GetY() / pcMap->getGridHeight();
+    int curX = (int) (vPos.GetX() / pcMap->getGridWidth());
+    int curY = (int) (vPos.GetY() / pcMap->getGridHeight());
 
     nPathStart[0] = curX;
     nPathStart[1] = curY;
@@ -1442,14 +1444,14 @@ void CWorm::AI_PreciseMove(CMap *pcMap)
  
     // If we're insanely close, just stop
     if(fabs(vPos.GetX() - cPosTarget.GetX()) < 10 && fabs(vPos.GetY() - cPosTarget.GetY()) < 10) {
- 		if (tLX->fCurTime - fLastDirChange > 2.0f)  {
+ 		/*if (tLX->fCurTime - fLastDirChange > 2.0f)  {
 			if (GetRandomNum() < 0)
 				iDirection = DIR_LEFT;
 			else
 				iDirection = DIR_RIGHT;
 			fLastDirChange = tLX->fCurTime;
 		}
-		ws->iMove = true;
+		ws->iMove = true; */
    
         return;
     }
@@ -2506,7 +2508,7 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 
 ////////////////////
 // Trace the line with worm width
-int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap)
+int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 {
 
 /*#ifdef _AI_DEBUG
@@ -2529,14 +2531,22 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap)
 	float x_ratio = (float)sin(fi);
 	float y_ratio = (float)cos(fi);*/
 
+	// Get the positions
+	CVec    pos;
+	CVec    dir = target-start;
+	int     nTotalLength = (int)NormalizeVector(&dir);
+
+
 	int j;
 	int num_good = worm_size;
-	for (j=0;j<worm_size;j++)  {
-		// Get the positions
-		CVec    pos = start+CVec((float)(j-worm_size/2),(float)(j-worm_size/2));
-		CVec    dir = target-start;
-		int     nTotalLength = (int)NormalizeVector(&dir);
+	
+/*	for (j=0;j<worm_size;j++)  {
 
+		// this is not correct this way...
+		pos = start+CVec((float)(j-worm_size/2),(float)(j-worm_size/2));
+*/
+	pos = start;
+	
 		// Trace the line
 		int i;
 		uchar px;
@@ -2547,9 +2557,14 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap)
 				// If we almost reached the target, just take it as if we reached it really
 				if (nTotalLength-i > 8)
 					num_good--;
-				if (num_good < 8)
-					return false;
-				break;
+				if (num_good < 8) {
+					if(collision) {
+						collision->SetX(pos.GetX()-dir.GetX());
+						collision->SetY(pos.GetY()-dir.GetY());					
+					}
+					return false;				
+				}
+				//break;
 			}
 
 			pos = pos + dir;
@@ -2566,10 +2581,16 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap)
 			PutPixel(bmpDest,_x,_y+1, MakeColour(255,j*15,0));
 			PutPixel(bmpDest,_x+1, _y+1, MakeColour(255,j*15,0));
 #endif*/
-		}
+	/*	}
+	*/
 	}
 
-	return num_good >= 8;
+	if(collision) {
+		collision->SetX(target.GetX());
+		collision->SetY(target.GetY());
+	}
+
+	return true;
 
 }
 
@@ -2703,8 +2724,6 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	CVec trg = AI_GetTargetPos();
 	CVec pos = vPos;
 
-	iProcessedNodes = 0;
-	bPathFinished = true;
 
 /*#ifdef _AI_DEBUG
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
@@ -2718,8 +2737,18 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 
 	// Create a new path
 	//NEW_AI_ProcessPathNonRec(trg,pos,pcMap);
-	NEW_AI_ProcessPath(trg,pos,pcMap);
-
+	bPathFinished = false;
+	NEW_psPath = NEW_AI_ProcessPath(trg,pos,pcMap);
+	NEW_psLastNode = NULL;
+	for(NEW_ai_node_t* n = NEW_psPath; n; n = n->psNext) {
+		if(n->psNext)
+			n->psNext->psPrev = n;
+		else
+			NEW_psLastNode = n;
+	}
+	if(NEW_psLastNode && NEW_psLastNode->fX == trg.GetX() && NEW_psLastNode->fY == trg.GetY())
+		bPathFinished = true;
+	
 	// Simplify the found path
 	NEW_AI_SimplifyPath(pcMap);
 
@@ -3083,52 +3112,37 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 
 ///////////////////
 // Process the path
-void CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap)
+NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
-	bPathFinished = true;
 	// Too many recursions? End
-	iProcessedNodes++;
-	if (iProcessedNodes > 20)  {
-		bPathFinished = false;
-		return;
+	if (recDeep > 20)  {
+		return NULL;
 	}
-
+	
+	CVec col;
+	
 	// Trivial task, end the recursion
-	if(traceWormLine(trg,pos,pcMap))  {
+	if(traceWormLine(trg,pos,pcMap,&col))  {
 
-		// Build the path from Start to Target and add the path to the global path
+		// build a node representing the target
+		
 		NEW_ai_node_t *target = new NEW_ai_node_t;
 		if (!target)
-			return;
-		NEW_ai_node_t *start = new NEW_ai_node_t;
-		if (!start)
-			return;
-
-		start->fX = pos.GetX();
-		start->fY = pos.GetY();
-		start->psNext = target;
-		start->psPrev = NULL;
-
+			return NULL;
+		
 		target->fX = trg.GetX();
 		target->fY = trg.GetY();
-		target->psNext = NEW_psPath;
-		target->psPrev = start;
-
-		if (NEW_psPath)
-			NEW_psPath->psPrev = target;
-		else
-			NEW_psLastNode = target;
-
-		NEW_psPath = start;
-
-		return;
+		target->psNext = NULL;
+		target->psPrev = NULL;
+		
+		return target;
 	}
 
 	
 	// The two nodes are not visible from each other
 
 	// Get the midpoint
-	CVec middle = CVec((pos.GetX()+trg.GetX())/2,(pos.GetY()+trg.GetY())/2);
+	CVec middle = col; //CVec((pos.GetX()+trg.GetX())/2,(pos.GetY()+trg.GetY())/2);
 	CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX());
 
 	// Get nearest free spot to the midpoint and create a new node there
@@ -3157,10 +3171,26 @@ void CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap)
 	}*/
 
 #endif
-
-	// Must be in this order
-	NEW_AI_ProcessPath(trg,*cNewNodePos,pcMap);  // From new node to the target
-	NEW_AI_ProcessPath(*cNewNodePos,pos,pcMap);  // From the start to new node
+	
+	  // From the start to new node
+	NEW_ai_node_t* newNode1 = NEW_AI_ProcessPath(*cNewNodePos,pos,pcMap,recDeep+1);
+	  // From new node to the target
+	NEW_ai_node_t* newNode2 = NEW_AI_ProcessPath(trg,*cNewNodePos,pcMap,recDeep+1);
+	
+	if(newNode1 && newNode2) { // ah, perfect, we did it...
+		newNode2->psPrev = get_last_ai_node(newNode1);
+		newNode2->psPrev->psNext = newNode2;
+		return newNode1;
+	} else {
+		if((recDeep == 0) && newNode1) { // not perfect, but at least something...
+			// we don't have to care about newNode2, because it is NULL here
+			return newNode1;
+		}
+		if(!newNode1) delete_ai_nodes(newNode1);
+		if(!newNode2) delete_ai_nodes(newNode2);	
+	}
+	
+	return NULL;
 }
 
 ////////////////
@@ -3441,7 +3471,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	// If the CreatePath hasn't created whole path, we'll try to finish it
 /*	if (!bPathFinished && !recalculate && (tLX->fCurTime-fLastCompleting <= 0.2f))  {
 		fLastCompleting = tLX->fCurTime;
-		NEW_AI_ProcessPath(CVec(NEW_psPath->fX,NEW_psPath->fY),vPos,pcMap);
+// this will not work anymore
+//		NEW_AI_ProcessPath(CVec(NEW_psPath->fX,NEW_psPath->fY),vPos,pcMap);
 		if (!NEW_psPath || !NEW_psLastNode)
 			return;
 #ifdef _AI_DEBUG
@@ -3668,3 +3699,14 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	
 }
 
+NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n) {
+	if(!n) return NULL;
+	for(;n->psNext;n=n->psNext) {}
+	return n;
+}
+
+void delete_ai_nodes(NEW_ai_node_t* start) {
+	if(!start) return;
+	delete_ai_nodes(start->psNext);
+	delete start;
+}

@@ -88,7 +88,6 @@ void CWorm::Clear(void)
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;
 	NEW_psLastNode = NULL;
-	iProcessedNodes = 0;
 
 	bmpWorm = NULL;
 	bmpGibs = NULL;
