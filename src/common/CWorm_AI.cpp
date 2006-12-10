@@ -2994,8 +2994,8 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, 
 	CVec end, possible_end;
 	traceWormLine(vTarget,vPoint,pcMap,&end);
 	CVec backdir = vPoint - vTarget;
-	NormalizeVector(&backdir);
-	NormalizeVector(&vDirection);
+	backdir = backdir*5 / backdir.GetLength();
+	vDirection = vDirection*2 / vDirection.GetLength();
 	while(true) {
 		vPoint += vDirection;
 		i++;
@@ -3161,8 +3161,15 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 // Process the path
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
+/*
+	TODO: (this will realy fast this up)
+	
+	give a complete search tree around and check, if we can avoid double searchpaths
+
+*/
+
 	// Too many recursions? End
-	if (recDeep > 5)  {
+	if (recDeep > 10)  {
 		return NULL;
 	}
 	
