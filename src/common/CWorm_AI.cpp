@@ -123,6 +123,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
 
     // If we have a good shooting 'solution', shoot
+	// TODO: join AI_CanShoot and AI_Shoot
     if(AI_CanShoot(pcMap, gametype)) {
 
         // Shoot
@@ -373,7 +374,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 	}
 
 	// If the target we have line of sight to is too far, switch back to the closest target
-	if ((fSightDistance-fDistance > 50.0f) || trg == NULL)  {
+	if (fSightDistance-fDistance > 50.0f || iAiGameType == GAM_RIFLES || trg == NULL)  {
 		if (nonsight_trg)
 			trg = nonsight_trg;
 	}
@@ -422,8 +423,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
 		NEW_AI_CreatePath(pcMap);
         return;
     }
-
-	if(!psAITarget)
+	else
 		fLastShoot = 0;
 
 
@@ -1383,12 +1383,6 @@ void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
     //strcpy(tLX->debug_string, "AI_SimpleMove invoked");
 
     cPosTarget = AI_GetTargetPos();
-  
-    // We carve every few milliseconds so we don't go too fast
-	if(tLX->fCurTime - fLastCarve > 0.35f) {
-		fLastCarve = tLX->fCurTime;
-		ws->iCarve = true;
-	}
     
     // Aim at the node
     bool aim = AI_SetAim(cPosTarget);
@@ -1572,11 +1566,6 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 
     // If target is blocked by rock we can't use direct firing
     if(nType & PX_ROCK)  {
-		/*if(iAiGameType == GAM_RIFLES || iAiGameType == GAM_MORTARS)
-			return false;
-		if (((float)length/d) < 0.7f)
-			return false;
-        bDirect = false;*/
 		return false;
 	}
 
@@ -1937,18 +1926,6 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		// We're above the worm
 
 		// If we are close enough, shoot the napalm
-		/*if (CalculateDistance(vPos,cTrgPos) < 40 && vPos.GetY() <= cTrgPos.GetY())  {
-			// If we are not above enough, jump
-			if (fabs(vPos.GetY() - cTrgPos.GetY()) < 20)  {
-				tState.iJump = true;
-				return -1;
-			}
-			
-			// Check that there is enough of free cells in the direction of our shooting
-			if (NEW_AI_CheckFreeCells(2,pcMap) && !tWeapons[1].Reloading)  {
-				return 1;
-			}
-		}*/
 		if (vPos.GetY() <= cTrgPos.GetY() && CalculateDistance(vPos,cTrgPos) < 100.0f)  {
 			if (traceWormLine(cTrgPos,vPos,pcMap) && !tWeapons[1].Reloading)
 				if (psAITarget)
@@ -2491,7 +2468,7 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 
 		// Friendly worm
 		for (j=0;j<WormCount;j++) {
-			if (CalculateDistance(pos,WormsPos[j]) < 15.0f)  {
+			if (CalculateDistance(pos,WormsPos[j]) < 20.0f)  {
 				if(nTotalLength != 0)
 					*fDist = (float)i / (float)nTotalLength;
 				else
@@ -2752,8 +2729,9 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 		else
 			NEW_psLastNode = n;
 	}
-	if(NEW_psLastNode && NEW_psLastNode->fX == trg.GetX() && NEW_psLastNode->fY == trg.GetY())
-		bPathFinished = true;
+	if(NEW_psLastNode)
+		if (NEW_psLastNode->fX == trg.GetX() && NEW_psLastNode->fY == trg.GetY())
+			bPathFinished = true;
 	
 	// Simplify the found path
 	NEW_AI_SimplifyPath(pcMap);
@@ -2797,7 +2775,7 @@ int GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
 
 	int result = 0;
 
-    // Trace a line from the worm to length or until it hits something
+    // Trace a line from the worm to the target
 	CVec    dir = trg-pos;
     int     nTotalLength = (int)NormalizeVector(&dir);
 
@@ -3162,9 +3140,11 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
 /*
-	TODO: (this will realy fast this up)
+	TODO: (this will really fast this up)
 	
 	give a complete search tree around and check, if we can avoid double searchpaths
+
+	TODO: there are memory leaks somewhere here
 
 */
 
@@ -3198,7 +3178,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	
 	// The two nodes are not visible from each other
 
-	CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90Â°
+	CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90°
 
 	// Get best free spot to the collision and create a new node there
 	CVec newtrg1, newtrg2;
@@ -3245,7 +3225,11 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	target->fX = cNewNodePos->GetX();
 	target->fY = cNewNodePos->GetY();
 	target->psNext = new NEW_ai_node_t;
-	if(!target->psNext) return NULL;
+	if(!target->psNext)  {
+		// Don't forget to free allocated memory
+		delete_ai_nodes(newNode);
+		return NULL;
+	}
 	target->psNext->psPrev = NULL;
 	target->psNext->psNext = newNode;
 	target->psNext->fX = newtrg->GetX();
@@ -3496,9 +3480,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			ws->iJump = true;
 			fLastJump = tLX->fCurTime;
 		}
-		// Try to unstuck
-		//if (cClient)
-		//	vPos = cClient->FindNearestSpot(this);
+
         if(tLX->fCurTime - fStuckPause > 2)
             bStuck = false;
         return;
@@ -3605,10 +3587,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
             bStuck = true;
             fStuckPause = tLX->fCurTime;
 
-			// Try to use unstuck command
-			//if (cClient)
-			//	vPos = cClient->FindNearestSpot(this);
-
 			iDirection = !iDirection;
             
             fAngle -= 45;
@@ -3617,7 +3595,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	        fAngle = MAX((float)-90,fAngle);
 
             // Recalculate the path
-            AI_InitMoveToTarget(pcMap);
+            NEW_AI_CreatePath(pcMap);
             fStuckTime = 0;
         }
     }
