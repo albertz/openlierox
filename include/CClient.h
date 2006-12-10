@@ -83,6 +83,7 @@ public:
 		iGameType = GMT_DEATHMATCH;
 		iGameReady = false;
         nTopProjectile = 0;
+		bMapGrabbed = false;
 
 		cNetChan.Clear();
 		iNetStatus = NET_DISCONNECTED;
@@ -96,6 +97,7 @@ public:
 		bInServer = false;
 		cIConnectedBuf[0] = '\0';
 		iNetSpeed = 3;
+		fLastUpdateSent = -9999;
 		
 		tPing.bInitialized = false;
 		tPing.iSequence = 0;
@@ -135,6 +137,7 @@ private:
 
 	// Map
 	CMap		*cMap;
+	bool		bMapGrabbed;
 
 	// Projectiles
 	CProjectile	*cProjectiles;
@@ -222,6 +225,7 @@ private:
 	int			nMessageSizes[RATE_NUMMSGS];
     float       fZombieTime;
 	float		fSendWait;
+	float		fLastUpdateSent;
 
 	// Ping
 	ping_t		tPing;

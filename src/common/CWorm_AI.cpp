@@ -2804,7 +2804,7 @@ int GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
 	return result;
 }
 
-CVec NEW_AI_FindBestSpot(CVec trg, CVec pos, CMap *pcMap)
+/*CVec NEW_AI_FindBestSpot(CVec trg, CVec pos, CMap *pcMap)
 {
 	// Get the midpoint
 	CVec middle = CVec((pos.GetX()+trg.GetX())/2,(pos.GetY()+trg.GetY())/2);
@@ -2838,7 +2838,7 @@ CVec NEW_AI_FindBestSpot(CVec trg, CVec pos, CMap *pcMap)
 		}
 
 	return result;
-}
+}*/
 
 ///////////////////////
 // Creates the path
@@ -2899,7 +2899,7 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 		//CVec cNewNodePos1 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_LEFT);
 		//CVec cNewNodePos2 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_RIGHT);
 		//CVec cNewNodePos = NEW_AI_FindClosestFreeCell(middle,pcMap);
-		CVec cNewNodePos = NEW_AI_FindBestSpot(pos,trg,pcMap);
+		CVec cNewNodePos;// = NEW_AI_FindBestSpot(pos,trg,pcMap);
 
 	
 		//
@@ -2995,7 +2995,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, 
 	bool lastWasMissingCon = false;
 	while(true) {
 #ifdef _AI_DEBUG
-		PutPixel(bmpDest,(int)pos.GetX()*2,(int)pos.GetY()*2,MakeColour(255,255,0));
+		//PutPixel(bmpDest,(int)pos.GetX()*2,(int)pos.GetY()*2,MakeColour(255,255,0));
 #endif
 
 		if(!lastWasObstacle && !lastWasMissingCon) pos += vDirection;
@@ -3296,7 +3296,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	if(newNode) newNode->psPrev = target->psNext;
 
 
-#ifdef _AI_DEBUG
+/*#ifdef _AI_DEBUG
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 	if (bmpDest)  {
 		int x = (int)target->fX;
@@ -3313,7 +3313,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		//return;
 	}
 
-#endif
+#endif*/
 		
 	return target;
 }
@@ -3372,7 +3372,7 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 // Draw the AI path
 void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 {
-	return;
+	//return;
 	if (!NEW_psPath)
 		return;
 

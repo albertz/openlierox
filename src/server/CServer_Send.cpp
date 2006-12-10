@@ -59,6 +59,13 @@ bool CServer::SendUpdate(CClient *cl)
 {
 	int i;
 
+	// Don't update so often
+	if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
+		if (tGameInfo.iGameType != GME_LOCAL)  {
+			fLastUpdateSent = tLX->fCurTime;
+			return false;
+		}
+
 	// Delays for different net speeds
 	float	shootDelay[] = {0.025f, 0.010f, 0.005f, -1.0f};
 

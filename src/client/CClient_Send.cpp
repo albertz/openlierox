@@ -21,6 +21,13 @@
 // Send the worm details
 void CClient::SendWormDetails(void)
 {
+	// Don't flood packets so often
+	if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
+		if (tGameInfo.iGameType != GME_LOCAL)  {
+			fLastUpdateSent = tLX->fCurTime;
+			return;
+		}
+
 	CBytestream bs;
 	CWorm *w;
 	int i;

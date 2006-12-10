@@ -135,6 +135,9 @@ int LoadOptions(void)
 	if (tLXOptions->iJpegQuality > 100)
 		tLXOptions->iJpegQuality = 100;
 
+	// Workaround for now
+	tLXOptions->fUpdatePeriod = 0.1f;
+
 	return true;
 }
 

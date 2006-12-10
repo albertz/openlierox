@@ -371,6 +371,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
             // Grab the server's copy of the map
 			cMap = cServer->getMap();
+			bMapGrabbed = true;
 		}
 
 	}

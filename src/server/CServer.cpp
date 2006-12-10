@@ -44,6 +44,8 @@ void CServer::Clear(void)
 	fLastRegister = 0;
 	nPort = LX_PORT;
 
+	fLastUpdateSent = -9999;
+
 	cBanList.loadList("cfg/ban.lst");
 	cShootList.Clear();
 

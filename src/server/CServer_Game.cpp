@@ -437,6 +437,8 @@ void CServer::gotoLobby(void)
 		cClients[i].setGameReady(false);
 	}
 
+	fLastUpdateSent = -9999;
+
 	SendWormLobbyUpdate();
 
 

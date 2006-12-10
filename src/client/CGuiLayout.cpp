@@ -490,10 +490,6 @@ bool CGuiLayout::Build(void)
 // Process all the widgets
 gui_event_t *CGuiLayout::Process(void)
 {
-	// No processing when quit
-	if (!tMenu->iMenuRunning)
-		return NULL;
-
 	CWidget *w;
 	mouse_t *tMouse = GetMouse();
 	SDL_Event *Event = GetEvent();

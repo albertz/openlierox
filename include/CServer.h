@@ -108,6 +108,7 @@ private:
 	CShootList	cShootList;
 
 	CBanList	cBanList;
+	float		fLastUpdateSent;
 
 	bool		bRegServer;	
 	int			bServerRegistered;

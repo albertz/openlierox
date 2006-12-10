@@ -340,7 +340,8 @@ char *http_GetContent(void)
 
 
 
-
+/////////////////////
+// Initializes network
 bool InitNetworkSystem() {
     if(!nlInit()) {
     	SystemError("nlInit failed");
@@ -357,6 +358,8 @@ bool InitNetworkSystem() {
 	return true;
 }
 
+//////////////////
+// Shutdowns the network system
 bool QuitNetworkSystem() {
 	nlShutdown();
 	return true;
@@ -383,8 +386,9 @@ NetworkSocket OpenBroadcastSocket(unsigned short port) {
 bool ConnectSocket(NetworkSocket sock, const NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
-	else
+	else  {
 		return (nlConnect(sock.socket, &addr->adr) != NL_FALSE);
+	}
 }
 
 bool ListenSocket(NetworkSocket sock) {
@@ -491,10 +495,10 @@ bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
 	if(addr1 == addr2)
 		return true;
 	else {
-	if(addr1 == NULL || addr2 == NULL)
-		return false;
-	else
-		return (nlAddrCompare(&addr1->adr, &addr2->adr) != NL_FALSE);
+		if(addr1 == NULL || addr2 == NULL)
+			return false;
+		else
+			return (nlAddrCompare(&addr1->adr, &addr2->adr) != NL_FALSE);
 	}
 }
 

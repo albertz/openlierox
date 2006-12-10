@@ -58,15 +58,14 @@ char	*http_GetContent(void);
 void    http_CreateHostUrl(char *host, char *url);
 void	http_Quit(void);
 
+// socket address; this type will be given around as pointer
+struct NetworkAddr {
+	NLaddress adr;
+};
 
 // socket itself; the structure/type itself will be given around
 struct NetworkSocket {
 	NLsocket socket;
-};
-
-// socket address; this type will be given around as pointer
-struct NetworkAddr {
-	NLaddress adr;
 };
 
 // general networking

@@ -29,6 +29,7 @@ void CClient::Clear(void)
 	cRemoteWorms = NULL;
 	cProjectiles = NULL;
 	cMap = NULL;
+	bMapGrabbed = false;
 	cNetChan.Clear();
 	iNetStatus = NET_DISCONNECTED;
 	bsUnreliable.Clear();
@@ -60,6 +61,7 @@ void CClient::Clear(void)
 	fLastReceived = 99999;
 	iPing = 0;
 	fSendWait = 0;
+	fLastUpdateSent = -9999;
 
 	iCanToggle = true;
 
@@ -503,13 +505,12 @@ void CClient::Shutdown(void)
 
 	// Map
 	if(tGameInfo.iGameType == GME_JOIN) {
-		if(cMap) {
-			int bCreated = cMap->getCreated() > 0;
+		if(cMap && !bMapGrabbed) {
 			cMap->Shutdown();
-			if (bCreated)
-				delete cMap;
-			cMap = NULL;
+			delete cMap;
 		}
+		bMapGrabbed = false;
+		cMap = NULL;
 	}
 
 	// Shooting list
