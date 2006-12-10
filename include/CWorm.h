@@ -122,7 +122,9 @@ typedef struct NEW_ai_node_s {
 
 NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n);
 void delete_ai_nodes(NEW_ai_node_t* start);
-
+float get_ai_nodes_length(NEW_ai_node_t* start);
+// this do the same as the fct above exept that it don't do the sqrt
+float get_ai_nodes_length2(NEW_ai_node_t* start);
 
 class CWorm {
 public:
@@ -402,6 +404,7 @@ public:
 	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap);
 	bool		NEW_AI_CheckFreeCells(int Num,CMap *pcMap);
 	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
+	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap);
 	int			NEW_AI_CreatePath(CMap *pcMap);
 	NEW_ai_node_t*	NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep = 0);
 	void		NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap);

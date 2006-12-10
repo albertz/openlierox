@@ -127,7 +127,13 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
         // Shoot
         AI_Shoot(pcMap);
-        //return;
+        
+        // jump, move and carve around
+    	ws->iJump = true;
+    	ws->iMove = true;
+    	ws->iCarve = true;
+        return;
+        
     } else {
     
 		// Reload weapons when we can't shoot
@@ -2980,6 +2986,47 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 
 }
 
+
+CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap) {
+	
+	unsigned short i = 0;
+	CVec best = vPoint;
+	CVec end, possible_end;
+	traceWormLine(vTarget,vPoint,pcMap,&end);
+	CVec backdir = vPoint - vTarget;
+	NormalizeVector(&backdir);
+	NormalizeVector(&vDirection);
+	while(true) {
+		vPoint += vDirection;
+		i++;
+		
+		// obstacle...
+		if(PX_ROCK & pcMap->GetPixelFlag( (int)vPoint.GetX(), (int)vPoint.GetY() ))
+			vPoint += backdir;
+		
+		// Clipping		
+		if (vPoint.GetX() > pcMap->GetWidth() || vPoint.GetX() < 0)
+			break;
+		if (vPoint.GetY() > pcMap->GetHeight() || vPoint.GetY() < 0)
+			break;
+		
+		// don't search to wide
+		if(i > 100)
+			break;
+		
+		traceWormLine(vTarget,vPoint,pcMap,&possible_end);
+		if(possible_end.GetLength2() > end.GetLength2()) {
+			end = possible_end;
+			best = vPoint;
+		}
+	}
+	
+	if(vEndPoint)
+		*vEndPoint = end;
+	
+	return best;
+}
+
 //////////////////
 // Finds the closest free spot, looking only in one direction
 CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap, int Direction = -1)
@@ -3115,25 +3162,28 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
 	// Too many recursions? End
-	if (recDeep > 20)  {
+	if (recDeep > 5)  {
 		return NULL;
 	}
 	
+	if(trg == pos)	// we did it already
+		return NULL;
+	
 	CVec col;
+	NEW_ai_node_t *target = new NEW_ai_node_t;
+	if (!target)
+		return NULL;
+	target->fX = 0;
+	target->fY = 0;
+	target->psNext = NULL;
+	target->psPrev = NULL;
 	
 	// Trivial task, end the recursion
 	if(traceWormLine(trg,pos,pcMap,&col))  {
 
-		// build a node representing the target
-		
-		NEW_ai_node_t *target = new NEW_ai_node_t;
-		if (!target)
-			return NULL;
-		
+		// build a node representing the target				
 		target->fX = trg.GetX();
 		target->fY = trg.GetY();
-		target->psNext = NULL;
-		target->psPrev = NULL;
 		
 		return target;
 	}
@@ -3141,56 +3191,79 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	
 	// The two nodes are not visible from each other
 
-	// Get the midpoint
-	CVec middle = col; //CVec((pos.GetX()+trg.GetX())/2,(pos.GetY()+trg.GetY())/2);
-	CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX());
+	CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90°
 
-	// Get nearest free spot to the midpoint and create a new node there
-	CVec cNewNodePos1 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_LEFT);
-	CVec cNewNodePos2 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_RIGHT);
-	CVec *cNewNodePos;
-
-	if (GetRockBetween(pos,cNewNodePos1,pcMap)+GetRockBetween(trg,cNewNodePos1,pcMap) > GetRockBetween(pos,cNewNodePos2,pcMap)+GetRockBetween(trg,cNewNodePos2,pcMap))
+	// Get best free spot to the collision and create a new node there
+	CVec newtrg1, newtrg2;
+	CVec* cNewNodePos = NULL;
+	CVec* newtrg = NULL;
+	NEW_ai_node_t* newNode = NULL;
+	
+	// turn left and look
+	CVec cNewNodePos1 = NEW_AI_FindBestFreeSpot(col,-dir,trg,&newtrg1,pcMap);
+	// turn right and look
+	CVec cNewNodePos2 = NEW_AI_FindBestFreeSpot(col,dir,trg,&newtrg2,pcMap);
+	
+	  // From newtrg1 to trg
+	NEW_ai_node_t* newNode1 = NEW_AI_ProcessPath(trg,newtrg1,pcMap,recDeep+1);
+	  // From newtrg2 to trg
+	NEW_ai_node_t* newNode2 = NEW_AI_ProcessPath(trg,newtrg2,pcMap,recDeep+1);
+	
+	if(newNode1 && (!newNode2 || (get_ai_nodes_length2(newNode1) <= get_ai_nodes_length2(newNode2)))) {
+		newNode = newNode1;
+		newtrg = &newtrg1;
+		cNewNodePos = &cNewNodePos1;	
+		if(!newNode2) delete_ai_nodes(newNode2);	
+	} else if(!newNode1 && !newNode2) { // we got nothing
+			
+		if(recDeep == 0 || newtrg1 == trg || newtrg2 == trg) {
+			// so, at least we could set the both found points
+			if((newtrg1-trg).GetLength2() <= (newtrg2-trg).GetLength2()) {
+				cNewNodePos = &cNewNodePos1;
+				newtrg = &newtrg1;
+			} else {
+				cNewNodePos = &cNewNodePos2;			
+				newtrg = &newtrg2;
+			}
+		} else
+			return NULL; // life is bad
+		
+	} else { // newNode2 is better
+		newNode = newNode2;
+		newtrg = &newtrg2;
 		cNewNodePos = &cNewNodePos2;
-	else
-		cNewNodePos = &cNewNodePos1;
-
+		if(!newNode1) delete_ai_nodes(newNode1);
+	}
+	
+	target->fX = cNewNodePos->GetX();
+	target->fY = cNewNodePos->GetY();
+	target->psNext = new NEW_ai_node_t;
+	if(!target->psNext) return NULL;
+	target->psNext->psPrev = NULL;
+	target->psNext->psNext = newNode;
+	target->psNext->fX = newtrg->GetX();
+	target->psNext->fY = newtrg->GetY();	
+	
 #ifdef _AI_DEBUG
-	/*SDL_Surface *bmpDest = pcMap->GetDebugImage();
+	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 	if (bmpDest)  {
+		int x = (int)target->fX;
+		int y = (int)target->fY;
 		if (x >= 0 && x*2 <= bmpDest->w)
 			if (y >= 0 && y*2 <= bmpDest->h)  {
 				DrawRectFill(bmpDest,x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(0,255,0));
 				if (pos.GetX()*2 < bmpDest->w && pos.GetY()*2 < bmpDest->h)
-					DrawLine(bmpDest,pos.GetX()*2,pos.GetY()*2,x*2,y*2,0xffff);
+					DrawLine(bmpDest,(int)pos.GetX()*2,(int)pos.GetY()*2,x*2,y*2,0xffff);
 				if (trg.GetX()*2 < bmpDest->w && trg.GetY()*2 < bmpDest->h)
-					DrawLine(bmpDest,trg.GetX()*2,trg.GetY()*2,x*2,y*2,0xffff);
+					DrawLine(bmpDest,(int)trg.GetX()*2,(int)trg.GetY()*2,x*2,y*2,0xffff);
 			}
 		//DrawRectFill(bmpDest,(int)cNewNodePos.GetX()*2-4,(int)cNewNodePos.GetY()*2-4,(int)cNewNodePos.GetX()*2+4,(int)cNewNodePos.GetY()*2+4,MakeColour(0,255,0));
 		//return;
-	}*/
+	}
 
 #endif
-	
-	  // From the start to new node
-	NEW_ai_node_t* newNode1 = NEW_AI_ProcessPath(*cNewNodePos,pos,pcMap,recDeep+1);
-	  // From new node to the target
-	NEW_ai_node_t* newNode2 = NEW_AI_ProcessPath(trg,*cNewNodePos,pcMap,recDeep+1);
-	
-	if(newNode1 && newNode2) { // ah, perfect, we did it...
-		newNode2->psPrev = get_last_ai_node(newNode1);
-		newNode2->psPrev->psNext = newNode2;
-		return newNode1;
-	} else {
-		if((recDeep == 0) && newNode1) { // not perfect, but at least something...
-			// we don't have to care about newNode2, because it is NULL here
-			return newNode1;
-		}
-		if(!newNode1) delete_ai_nodes(newNode1);
-		if(!newNode2) delete_ai_nodes(newNode2);	
-	}
-	
-	return NULL;
+		
+	return target;
 }
 
 ////////////////
@@ -3709,4 +3782,18 @@ void delete_ai_nodes(NEW_ai_node_t* start) {
 	if(!start) return;
 	delete_ai_nodes(start->psNext);
 	delete start;
+}
+
+float get_ai_nodes_length(NEW_ai_node_t* start) {
+	float l;
+	for(l=0;start;start=start->psNext)
+		l+= sqrt(start->fX*start->fX + start->fY*start->fY);
+	return l;
+}
+
+float get_ai_nodes_length2(NEW_ai_node_t* start) {
+	float l;
+	for(l=0;start;start=start->psNext)
+		l+= start->fX*start->fX + start->fY*start->fY;
+	return l;
 }

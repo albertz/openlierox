@@ -198,15 +198,35 @@ public:
     void        DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy);
     void		DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worms, int gametype);
 
-	void		SetPixelFlag(int x, int y, int flag);
-	uchar		GetPixelFlag(int x, int y);
-	uchar		*GetPixelFlags(void)	{ return PixelFlags; }
+	inline void		SetPixelFlag(int x, int y, int flag)	
+	{
+		// Check edges
+		if(x < 0 || y < 0)
+			return;
+		if(x >= Width || y >= Height)
+			return;
+	
+		PixelFlags[y * Width + x] = flag;
+	}
 
-	SDL_Surface	*GetDrawImage(void)		{ return bmpDrawImage; }
-	SDL_Surface	*GetImage(void)			{ return bmpImage; }
-	SDL_Surface	*GetMiniMap(void)		{ return bmpMiniMap; }
+	inline uchar		GetPixelFlag(int x, int y)
+	{
+		// Checking edges
+		if(x < 0 || y < 0)
+			return PX_ROCK;
+		if(x >= Width || y >= Height)
+			return PX_ROCK;
+	
+		return PixelFlags[y * Width + x];
+	}
+
+	inline uchar	*GetPixelFlags(void)	{ return PixelFlags; }
+
+	inline SDL_Surface	*GetDrawImage(void)		{ return bmpDrawImage; }
+	inline SDL_Surface	*GetImage(void)			{ return bmpImage; }
+	inline SDL_Surface	*GetMiniMap(void)		{ return bmpMiniMap; }
 #ifdef _AI_DEBUG
-	SDL_Surface *GetDebugImage(void)	{ return bmpDebugImage; }
+	inline SDL_Surface *GetDebugImage(void)	{ return bmpDebugImage; }
 #endif
 
 	void		AddObject(int type, int size, CVec pos);
@@ -221,24 +241,24 @@ public:
 	void		DeleteObject(CVec pos);
 	void		DeleteStone(object_t *obj);
 
-	theme_t		*GetTheme(void)		{ return &Theme; }
+	inline theme_t		*GetTheme(void)		{ return &Theme; }
 
 	void		DEBUG_DrawPixelFlags(void);
 
-    maprandom_t *getRandomLayout(void)  { return &sRandomLayout; }
+    inline maprandom_t *getRandomLayout(void)  { return &sRandomLayout; }
 
 
-	int			GetWidth(void)		{ return Width; }
-	int			GetHeight(void)		{ return Height; }
-    int         GetDirtCount(void)  { return nTotalDirtCount; }
+	inline int			GetWidth(void)		{ return Width; }
+	inline int			GetHeight(void)		{ return Height; }
+    inline int         GetDirtCount(void)  { return nTotalDirtCount; }
 
-    int         getGridCols(void)   { return nGridCols; }
-    int         getGridRows(void)   { return nGridRows; }
-    int         getGridWidth(void)  { return nGridWidth; }
-    int         getGridHeight(void) { return nGridHeight; }
-    uchar       *getGridFlags(void) { return GridFlags; }
+    inline int         getGridCols(void)   { return nGridCols; }
+    inline int         getGridRows(void)   { return nGridRows; }
+    inline int         getGridWidth(void)  { return nGridWidth; }
+    inline int         getGridHeight(void) { return nGridHeight; }
+    inline uchar       *getGridFlags(void) { return GridFlags; }
 
-	int			getCreated(void)	{ return Created; }
+	inline int			getCreated(void)	{ return Created; }
 
 
 };

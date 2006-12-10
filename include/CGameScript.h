@@ -310,25 +310,25 @@ public:
 #endif
 
 
-	gs_header_t	*GetHeader(void)				{ return &Header; }
+	inline gs_header_t	*GetHeader(void)				{ return &Header; }
 
-	int			GetNumWeapons(void)				{ return NumWeapons; }
-	weapon_t	*GetWeapons(void)				{ return Weapons; }
+	inline int			GetNumWeapons(void)				{ return NumWeapons; }
+	inline weapon_t	*GetWeapons(void)				{ return Weapons; }
 
-	void		SetNumWeapons(int _w)			{ NumWeapons = _w; }
-	void		SetWeapons(weapon_t *_w)		{ Weapons = _w; }
+	inline void		SetNumWeapons(int _w)			{ NumWeapons = _w; }
+	inline void		SetWeapons(weapon_t *_w)		{ Weapons = _w; }
 
 
 	// Ninja Rope settings
-	void		SetRopeLength(int _l)			{ RopeLength = _l; }
-	void		SetRestLength(int _l)			{ RestLength = _l; }
-	void		SetStrength(float _s)			{ Strength = _s; }
+	inline void		SetRopeLength(int _l)			{ RopeLength = _l; }
+	inline void		SetRestLength(int _l)			{ RestLength = _l; }
+	inline void		SetStrength(float _s)			{ Strength = _s; }
 
-	int			getRopeLength(void)				{ return RopeLength; }
-	int			getRestLength(void)				{ return RestLength; }
-	float		getStrength(void)				{ return Strength; }
+	inline int			getRopeLength(void)				{ return RopeLength; }
+	inline int			getRestLength(void)				{ return RestLength; }
+	inline float		getStrength(void)				{ return Strength; }
 
-	gs_worm_t	*getWorm(void)					{ return &Worm; }
+	inline gs_worm_t	*getWorm(void)					{ return &Worm; }
 	
 
 };

@@ -640,35 +640,6 @@ void CMap::CalculateDirtCount(void)
 }
 
 
-///////////////////
-// Sets a pixel flag for a certain pixel
-void CMap::SetPixelFlag(int x, int y, int flag)
-{
-    // Check edges
-	if(x < 0 || y < 0)
-		return;
-	if(x >= Width || y >= Height)
-		return;
-
-	PixelFlags[y * Width + x] = flag;
-}
-
-
-///////////////////
-// Gets a pixel flag for a certain pixel
-uchar CMap::GetPixelFlag(int x, int y)
-{
-	// Checking edges
-	if(x < 0 || y < 0)
-		return PX_ROCK;
-	if(x >= Width || y >= Height)
-		return PX_ROCK;
-
-
-	return PixelFlags[y * Width + x];
-}
-
-
 
 ///////////////////
 // Draw the map
