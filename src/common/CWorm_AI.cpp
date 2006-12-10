@@ -93,6 +93,7 @@ void CWorm::AI_Shutdown(void)
 
 ///////////////////
 // Simulate the AI
+float fLastTurn = 0;  // Time when we last tried to change the direction
 void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 {
 	// Behave like humans and don't play immediatelly after spawn
@@ -133,6 +134,13 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     	ws->iJump = true;
     	ws->iMove = true;
     	ws->iCarve = true;
+
+	// change direction after some time
+	if ((tLX->fCurTime-fLastTurn) > 1.0)  {
+		iDirection = !iDirection;
+		fLastTurn = tLX->fCurTime;
+	}
+
         return;
         
     } else {
@@ -1369,7 +1377,6 @@ bool CWorm::AI_SetAim(CVec cPos)
 ///////////////////
 // A simpler method to get to a target
 // Used if we have no path
-float fLastTurn = 0;  // Time when we last tried to change the direction
 float fLastJump = 0;  // Time when we last tried to jump
 void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
 {
@@ -2968,34 +2975,49 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap) {
 	
 	unsigned short i = 0;
+	float map_w = pcMap->GetWidth();
+	float map_h = pcMap->GetHeight();
+	CVec pos = vPoint;
 	CVec best = vPoint;
 	CVec end, possible_end;
 	traceWormLine(vTarget,vPoint,pcMap,&end);
 	CVec backdir = vPoint - vTarget;
-	backdir = backdir*5 / backdir.GetLength();
-	vDirection = vDirection*2 / vDirection.GetLength();
+	backdir = backdir / backdir.GetLength();
+	vDirection = vDirection / vDirection.GetLength();
+	bool lastWasObstacle = false;
 	while(true) {
-		vPoint += vDirection;
+		if(!lastWasObstacle) pos += vDirection;
 		i++;
-		
-		// obstacle...
-		if(PX_ROCK & pcMap->GetPixelFlag( (int)vPoint.GetX(), (int)vPoint.GetY() ))
-			vPoint += backdir;
-		
-		// Clipping		
-		if (vPoint.GetX() > pcMap->GetWidth() || vPoint.GetX() < 0)
-			break;
-		if (vPoint.GetY() > pcMap->GetHeight() || vPoint.GetY() < 0)
-			break;
-		
+
 		// don't search to wide
-		if(i > 100)
+		if(i > 200)
 			break;
+
+		// Clipping		
+		if (pos.GetX() > map_w || pos.GetX() < 0)
+			break;
+		if (pos.GetY() > map_h || pos.GetY() < 0)
+			break;
+
+		// obstacle...
+		if(PX_ROCK & pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() )) {
+			pos += backdir;
+			lastWasObstacle = true;
+			continue;
+		} else
+			lastWasObstacle = false;
 		
-		traceWormLine(vTarget,vPoint,pcMap,&possible_end);
-		if(possible_end.GetLength2() > end.GetLength2()) {
-			end = possible_end;
-			best = vPoint;
+		// do we still have a direct connection to the start?
+		if(!traceWormLine(vPoint,pos,pcMap))
+			break;
+
+		// don't check to often
+		if(i % 4 == 0) {
+			traceWormLine(vTarget,pos,pcMap,&possible_end);
+			if((possible_end-pos).GetLength2() > (end-pos).GetLength2()) {
+				end = possible_end;
+				best = pos;
+			}
 		}
 	}
 	
@@ -3149,7 +3171,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 */
 
 	// Too many recursions? End
-	if (recDeep > 10)  {
+	if (recDeep > 5)  {
 		return NULL;
 	}
 	
@@ -3183,7 +3205,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	// Get best free spot to the collision and create a new node there
 	CVec newtrg1, newtrg2;
 	CVec* cNewNodePos = NULL;
-	CVec* newtrg = NULL;
+//	CVec* newtrg = NULL;
 	NEW_ai_node_t* newNode = NULL;
 	
 	// turn left and look
@@ -3192,13 +3214,13 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	CVec cNewNodePos2 = NEW_AI_FindBestFreeSpot(col,dir,trg,&newtrg2,pcMap);
 	
 	  // From newtrg1 to trg
-	NEW_ai_node_t* newNode1 = NEW_AI_ProcessPath(trg,newtrg1,pcMap,recDeep+1);
+	NEW_ai_node_t* newNode1 = NEW_AI_ProcessPath(trg,cNewNodePos1,pcMap,recDeep+1);
 	  // From newtrg2 to trg
-	NEW_ai_node_t* newNode2 = NEW_AI_ProcessPath(trg,newtrg2,pcMap,recDeep+1);
+	NEW_ai_node_t* newNode2 = NEW_AI_ProcessPath(trg,cNewNodePos2,pcMap,recDeep+1);
 	
 	if(newNode1 && (!newNode2 || (get_ai_nodes_length2(newNode1) <= get_ai_nodes_length2(newNode2)))) {
 		newNode = newNode1;
-		newtrg = &newtrg1;
+		//newtrg = &newtrg1;
 		cNewNodePos = &cNewNodePos1;	
 		if(!newNode2) delete_ai_nodes(newNode2);	
 	} else if(!newNode1 && !newNode2) { // we got nothing
@@ -3207,33 +3229,25 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 			// so, at least we could set the both found points
 			if((newtrg1-trg).GetLength2() <= (newtrg2-trg).GetLength2()) {
 				cNewNodePos = &cNewNodePos1;
-				newtrg = &newtrg1;
+				//newtrg = &newtrg1;
 			} else {
 				cNewNodePos = &cNewNodePos2;			
-				newtrg = &newtrg2;
+				//newtrg = &newtrg2;
 			}
 		} else
 			return NULL; // life is bad
 		
 	} else { // newNode2 is better
 		newNode = newNode2;
-		newtrg = &newtrg2;
+		//newtrg = &newtrg2;
 		cNewNodePos = &cNewNodePos2;
 		if(!newNode1) delete_ai_nodes(newNode1);
 	}
 	
 	target->fX = cNewNodePos->GetX();
 	target->fY = cNewNodePos->GetY();
-	target->psNext = new NEW_ai_node_t;
-	if(!target->psNext)  {
-		// Don't forget to free allocated memory
-		delete_ai_nodes(newNode);
-		return NULL;
-	}
-	target->psNext->psPrev = NULL;
-	target->psNext->psNext = newNode;
-	target->psNext->fX = newtrg->GetX();
-	target->psNext->fY = newtrg->GetY();	
+	target->psNext = newNode;
+	target->psPrev = NULL;
 	
 #ifdef _AI_DEBUG
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
@@ -3770,15 +3784,27 @@ void delete_ai_nodes(NEW_ai_node_t* start) {
 }
 
 float get_ai_nodes_length(NEW_ai_node_t* start) {
-	float l;
-	for(l=0;start;start=start->psNext)
-		l+= sqrt(start->fX*start->fX + start->fY*start->fY);
+	float l,dx,dy;
+	for(l=0;start;start=start->psNext) {
+		if(start->psNext) {
+			dx = start->fX - start->psNext->fX;
+			dy = start->fY - start->psNext->fY;			
+			l += sqrt(dx*dx + dy*dy);		
+		} else
+			break;
+	}
 	return l;
 }
 
 float get_ai_nodes_length2(NEW_ai_node_t* start) {
-	float l;
-	for(l=0;start;start=start->psNext)
-		l+= start->fX*start->fX + start->fY*start->fY;
+	float l,dx,dy;
+	for(l=0;start;start=start->psNext) {
+		if(start->psNext) {
+			dx = start->fX - start->psNext->fX;
+			dy = start->fY - start->psNext->fY;			
+			l += dx*dx + dy*dy;
+		} else
+			break;
+	}
 	return l;
 }
