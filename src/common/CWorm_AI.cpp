@@ -1561,9 +1561,10 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
     if(d > 300.0f && iAiGameType != GAM_RIFLES)
         return false;
 
-	// If we're on the target, simply shoot
+/*	// If we're on the target, simply shoot // this doesn't work in every case
 	if(d < 10.0f)
 		return true;
+*/
 
     float fDist;
     int nType = -1;
@@ -2974,6 +2975,10 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 
 CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap) {
 	
+#ifdef _AI_DEBUG
+	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+#endif
+
 	unsigned short i = 0;
 	float map_w = pcMap->GetWidth();
 	float map_h = pcMap->GetHeight();
@@ -2983,14 +2988,27 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, 
 	traceWormLine(vTarget,vPoint,pcMap,&end);
 	CVec backdir = vPoint - vTarget;
 	backdir = backdir / backdir.GetLength();
+	end -= backdir*3;
+	float best_length = (end-pos).GetLength2();
 	vDirection = vDirection / vDirection.GetLength();
 	bool lastWasObstacle = false;
+	bool lastWasMissingCon = false;
 	while(true) {
-		if(!lastWasObstacle) pos += vDirection;
+#ifdef _AI_DEBUG
+		PutPixel(bmpDest,(int)pos.GetX()*2,(int)pos.GetY()*2,MakeColour(255,255,0));
+#endif
+
+		if(!lastWasObstacle && !lastWasMissingCon) pos += vDirection;
 		i++;
 
+		// make the search-dist greater, if we are far away
+		if(i >= 32 && i % 16 == 0) {
+			backdir = backdir * 2;
+			vDirection = vDirection * 2;
+		}
+
 		// don't search to wide
-		if(i > 200)
+		if(i > 100)
 			break;
 
 		// Clipping		
@@ -3006,17 +3024,33 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, 
 			continue;
 		} else
 			lastWasObstacle = false;
-		
-		// do we still have a direct connection to the start?
-		if(!traceWormLine(vPoint,pos,pcMap))
-			break;
+					
+
+		if(i % 4 == 0 || lastWasMissingCon) {
+			// do we still have a direct connection to the start?
+			if(!traceWormLine(vPoint,pos,pcMap)) {
+				// perhaps we are behind an edge (because auf backdir)
+				// then go a little more to backdir
+				pos += backdir;
+				lastWasMissingCon = true;
+				continue;
+			} else
+				lastWasMissingCon = false;
+		}
 
 		// don't check to often
 		if(i % 4 == 0) {
-			traceWormLine(vTarget,pos,pcMap,&possible_end);
-			if((possible_end-pos).GetLength2() > (end-pos).GetLength2()) {
+			// this is the parallel to backdir
+			traceWormLine(pos-backdir*1000,pos,pcMap,&possible_end);
+			possible_end += backdir*3/backdir.GetLength();
+#ifdef _AI_DEBUG
+			PutPixel(bmpDest,(int)possible_end.GetX()*2,(int)possible_end.GetY()*2,MakeColour(255,0,255));
+#endif
+			// 'best' is, if we have much free way infront of pos
+			if((possible_end-pos).GetLength2() > best_length) {
 				end = possible_end;
 				best = pos;
+				best_length = (possible_end-pos).GetLength2();
 			}
 		}
 	}
@@ -3171,7 +3205,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 */
 
 	// Too many recursions? End
-	if (recDeep > 5)  {
+	if (recDeep > 6)  {
 		return NULL;
 	}
 	
@@ -3197,15 +3231,17 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		return target;
 	}
 
+	CVec dir = trg-pos;
+	col -= dir*3/dir.GetLength();
 	
 	// The two nodes are not visible from each other
 
-	CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90°
+	dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90°
 
 	// Get best free spot to the collision and create a new node there
 	CVec newtrg1, newtrg2;
 	CVec* cNewNodePos = NULL;
-//	CVec* newtrg = NULL;
+	CVec* newtrg = NULL;
 	NEW_ai_node_t* newNode = NULL;
 	
 	// turn left and look
@@ -3214,41 +3250,52 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	CVec cNewNodePos2 = NEW_AI_FindBestFreeSpot(col,dir,trg,&newtrg2,pcMap);
 	
 	  // From newtrg1 to trg
-	NEW_ai_node_t* newNode1 = NEW_AI_ProcessPath(trg,cNewNodePos1,pcMap,recDeep+1);
+	NEW_ai_node_t* newNode1 = NEW_AI_ProcessPath(trg,newtrg1,pcMap,recDeep+1);
 	  // From newtrg2 to trg
-	NEW_ai_node_t* newNode2 = NEW_AI_ProcessPath(trg,cNewNodePos2,pcMap,recDeep+1);
+	NEW_ai_node_t* newNode2 = NEW_AI_ProcessPath(trg,newtrg2,pcMap,recDeep+1);
 	
 	if(newNode1 && (!newNode2 || (get_ai_nodes_length2(newNode1) <= get_ai_nodes_length2(newNode2)))) {
 		newNode = newNode1;
-		//newtrg = &newtrg1;
+		newtrg = &newtrg1;
 		cNewNodePos = &cNewNodePos1;	
 		if(!newNode2) delete_ai_nodes(newNode2);	
 	} else if(!newNode1 && !newNode2) { // we got nothing
 			
 		if(recDeep == 0 || newtrg1 == trg || newtrg2 == trg) {
 			// so, at least we could set the both found points
-			if((newtrg1-trg).GetLength2() <= (newtrg2-trg).GetLength2()) {
+			// to a longer wayis in most cases a better strategy
+			if((newtrg1-cNewNodePos1).GetLength2() >= (newtrg2-cNewNodePos2).GetLength2()) {
 				cNewNodePos = &cNewNodePos1;
-				//newtrg = &newtrg1;
+				newtrg = &newtrg1;
 			} else {
 				cNewNodePos = &cNewNodePos2;			
-				//newtrg = &newtrg2;
+				newtrg = &newtrg2;
 			}
 		} else
 			return NULL; // life is bad
 		
 	} else { // newNode2 is better
 		newNode = newNode2;
-		//newtrg = &newtrg2;
+		newtrg = &newtrg2;
 		cNewNodePos = &cNewNodePos2;
 		if(!newNode1) delete_ai_nodes(newNode1);
 	}
 	
 	target->fX = cNewNodePos->GetX();
 	target->fY = cNewNodePos->GetY();
-	target->psNext = newNode;
 	target->psPrev = NULL;
-	
+	target->psNext = new NEW_ai_node_t;
+	if(!target->psNext) {
+		delete target;
+		return NULL;
+	}
+	target->psNext->fX = newtrg->GetX();
+	target->psNext->fY = newtrg->GetY();
+	target->psNext->psPrev = target;
+	target->psNext->psNext = newNode;
+	if(newNode) newNode->psPrev = target->psNext;
+
+
 #ifdef _AI_DEBUG
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 	if (bmpDest)  {
