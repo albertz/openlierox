@@ -123,7 +123,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
         nAIState = AI_THINK;
 
-
     // If we have a good shooting 'solution', shoot
 	// TODO: join AI_CanShoot and AI_Shoot
     if(AI_CanShoot(pcMap, gametype)) {
@@ -150,6 +149,15 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 		AI_ReloadWeapons();
     
     }
+    
+	// if the last search for a path was not finished, try to finish it now
+	if(!bPathFinished) {
+		NEW_AI_CreatePath(pcMap);
+		// if we have a node, where we can go to, go there
+		if(NEW_psPath)
+			NEW_AI_MoveToTarget(pcMap);
+		return;
+	}    
     
     // Process depending on our current state
     switch(nAIState) {
@@ -2477,7 +2485,7 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 			}
 		}
 
-		pos = pos + dir * (float)divs;
+		pos += dir * (float)divs;
 	}
 
 	// Full length
@@ -2707,7 +2715,7 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	// Don't create the path so often!
 	if (tLX->fCurTime - fLastCreated <= 2.0f)  {
 		fLastCreated = tLX->fCurTime;
-		return false;
+		return NEW_psPath != NULL;
 	}
 
 	CVec trg = AI_GetTargetPos();
@@ -2721,8 +2729,10 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 #endif*/
 
 
+	
 	// Create a new path
-	//NEW_AI_ProcessPathNonRec(trg,pos,pcMap);
+	if(bPathFinished)
+		NEW_AI_CleanupStoredNodes();		
 	bPathFinished = false;
 	NEW_psPath = NEW_AI_ProcessPath(trg,pos,pcMap);
 	NEW_psLastNode = get_last_ai_node(NEW_psPath);
@@ -2731,7 +2741,7 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 			bPathFinished = true;
 	
 	// Simplify the found path
-	NEW_AI_SimplifyPath(pcMap);
+	//NEW_AI_SimplifyPath(pcMap);
 
 #ifdef _AI_DEBUG
 	NEW_AI_DrawPath(pcMap);
@@ -3222,11 +3232,6 @@ void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 // Process the path
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
-	if(recDeep == 0) {
-		// do some init-stuff here
-		NEW_AI_CleanupStoredNodes();		
-	}
-
 	// Too many recursions? End
 	if (recDeep > 6)
 		return NULL;
@@ -3708,7 +3713,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     bool aim = AI_SetAim(nodePos);
 
     // If we are stuck in the same position for a while, take measures to get out of being stuck
-    if(fabs(cStuckPos.GetX() - vPos.GetX()) < 25 && fabs(cStuckPos.GetY() - vPos.GetY()) < 25) {
+    if(fabs(cStuckPos.GetX() - vPos.GetX()) < 5 && fabs(cStuckPos.GetY() - vPos.GetY()) < 5) {
         fStuckTime += tLX->fDeltaTime;
 
         // Have we been stuck for a few seconds?
@@ -3779,6 +3784,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			ws->iMove = true; // if we should not jump, move
 	}
 
+/*
 	// If the next node is above us by a little, jump too
 	NEW_ai_node_t *nextNode = NEW_psCurrentNode->psNext;
 	if (nextNode)  {
@@ -3790,6 +3796,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			} else
 				ws->iMove = true; // if we should not jump, move
 	}
+*/
 
 	if (ws->iMove || ws->iJump)
 		cNinjaRope.Release();
@@ -3802,6 +3809,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 
+/*
 		// If the path is going up, get an average position of the two nodes
 		if (vPos.GetY() > NEW_psCurrentNode->fY) 
 			if (NEW_psCurrentNode->psNext) {
@@ -3810,6 +3818,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 					cAimPos.SetY((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
 				}
 			}
+*/
 
 		//cAimPos = NEW_AI_GetNearestRopeSpot(cAimPos,pcMap);
 #ifdef _AI_DEBUG
@@ -3917,12 +3926,12 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 }
 
 void CWorm::NEW_AI_CleanupStoredNodes() {
-	for(nodes_map::iterator it = storedNodes.begin(); it != storedNodes.end(); ++it) {
+	for(nodes_map::iterator it = storedNodes.begin(); it != storedNodes.end(); ++it)
 		if(it->second) {
 			free(it->second);
 			it->second = NULL;		
 		}
-	}
+
 	storedNodes.clear();
 }
 
