@@ -276,7 +276,7 @@ private:
 	float		fLastShoot;
 	float		fLastJump;
 	float		fLastWeaponChange;
-
+	float		fLastCreated;
 
     // Path Finding
     int         nGridCols, nGridRows;

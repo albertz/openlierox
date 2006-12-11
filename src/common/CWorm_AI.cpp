@@ -52,6 +52,7 @@ bool CWorm::AI_Initialize(CMap *pcMap)
     fLastPathUpdate = -9999;
 	fLastJump = -9999;
 	fLastCarve = -9999;
+	fLastCreated = -9999;
     bStuck = false;
 	bPathFinished = true;
 	//iAiGameType = GAM_OTHER;
@@ -2709,12 +2710,10 @@ void CWorm::NEW_AI_CleanupPath(void)
 
 ////////////////////
 // Creates the path
-float fLastCreated = -9999;  // TODO: this is global for all worms (which is not what is wanted)
 int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 {
 	// Don't create the path so often!
 	if (tLX->fCurTime - fLastCreated <= 2.0f)  {
-		fLastCreated = tLX->fCurTime;
 		return NEW_psPath != NULL;
 	}
 
@@ -2732,7 +2731,7 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	
 	// Create a new path
 	if(bPathFinished)
-		NEW_AI_CleanupStoredNodes();		
+		NEW_AI_CleanupStoredNodes(); // start a new search
 	bPathFinished = false;
 	NEW_psPath = NEW_AI_ProcessPath(trg,pos,pcMap);
 	NEW_psLastNode = get_last_ai_node(NEW_psPath);
@@ -2740,8 +2739,11 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 		if (NEW_psLastNode->fX == trg.GetX() && NEW_psLastNode->fY == trg.GetY())
 			bPathFinished = true;
 	
-	// Simplify the found path
-	//NEW_AI_SimplifyPath(pcMap);
+	if(bPathFinished) {
+		fLastCreated = tLX->fCurTime;
+		// Simplify the found path
+		NEW_AI_SimplifyPath(pcMap);	
+	}
 
 #ifdef _AI_DEBUG
 	NEW_AI_DrawPath(pcMap);
@@ -3399,9 +3401,10 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 		return;
 
 	// Go through the path
-	NEW_ai_node_t *node = NEW_psPath;
+	NEW_ai_node_t* node = NEW_psPath;
+	NEW_ai_node_t* closest_node = NULL;
 	for(;node;node=node->psNext)  {
-		NEW_ai_node_t *closest_node = node->psNext;
+		closest_node = node->psNext;
 		// Short path
 		if (!closest_node)
 			return;
@@ -3412,7 +3415,6 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 		// While we see the two nodes, delete all nodes between them and skip to next node
 		while (traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
 			node->psNext = closest_node;
-			//delete closest_node->psPrev;
 			closest_node->psPrev = node;
 			closest_node=closest_node->psNext;
 			if (!closest_node)
@@ -3635,6 +3637,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       Or, enough time has passed since the last path update:
       recalculate the path
     */
+/*    
     int     nDeviation = 40;     // Maximum deviation allowance
     bool    recalculate = false;
 
@@ -3654,6 +3657,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 				nDeviation = (int)len*5;
 		}
 	}
+*/
     
 	// Check
 	if (!NEW_psPath || !NEW_psLastNode)  {
@@ -3661,6 +3665,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		return;
 	}
 
+/*
 	// Deviated?
 	if(fabs(NEW_psPath->fX-vPos.GetX()) > nDeviation || fabs(NEW_psPath->fY-vPos.GetY()) > nDeviation)
 		recalculate = true;
@@ -3671,6 +3676,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     // Re-calculate the path?
     if(recalculate)
         NEW_AI_CreatePath(pcMap);
+*/
 
 	// If the CreatePath hasn't created whole path, we'll try to finish it
 /*	if (!bPathFinished && !recalculate && (tLX->fCurTime-fLastCompleting <= 0.2f))  {
@@ -3700,6 +3706,18 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 //	printf("We should move now...");
 
+	// If some of the next nodes is closer than the current one, just skip to it
+	NEW_ai_node_t *next_node = NEW_psCurrentNode->psNext;
+	while (next_node)  {
+		if (CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) >= CalculateDistance(vPos,CVec(next_node->fX,next_node->fY)))
+			if (traceWormLine(CVec(next_node->fX,next_node->fY),CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY),pcMap))  {
+				NEW_psCurrentNode = next_node;
+				break;
+			}
+		next_node = next_node->psNext;
+	}
+	
+	
 	// Get the target node position
     CVec nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 
@@ -3905,17 +3923,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         // Walk in the direction of the node
         ws->iMove = true;
     }
-
-	// If some of the next nodes is closer than the current one, just skip to it
-	NEW_ai_node_t *next_node = NEW_psCurrentNode->psNext;
-	while (next_node)  {
-		if (CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) >= CalculateDistance(vPos,CVec(next_node->fX,next_node->fY)))
-			if (traceWormLine(CVec(next_node->fX,next_node->fY),CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY),pcMap))  {
-				NEW_psCurrentNode = next_node;
-				break;
-			}
-		next_node = next_node->psNext;
-	}
 
    
 	// Move to next node, if we arrived at the current
