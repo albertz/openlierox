@@ -3211,7 +3211,7 @@ void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 	
 	for(NEW_ai_node_t* n = start; n; n = n->psNext) {
 		storedNodes.insert(nodes_pair(CVec(n->fX,n->fY)/nodesGridWidth, n));
-		if(n->psNext == end) break;
+		if(n == end) break;
 	}
 }
 
@@ -3260,12 +3260,10 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	CVec dir = trg-pos;
 	col -= dir*3/dir.GetLength(); // go some steps back, that we don't sit in a rock
 
-	dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90
-
 	// check if we found already one here (at col) (stored in storedNodes)
 	nodes_map::iterator it1; short x1, y1;
 	CVec ipos = col/nodesGridWidth - CVec(1,1);
-		
+	
 	// go through stored nodes near me
 	// (this loops looks complicated and slow, but they should be fast, they contain not much steps)
 	for(x1 = -1; x1 <= 1; x1++, ipos += CVec(1,0))
@@ -3295,7 +3293,8 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 
 			NEW_ai_node_t* last = get_last_ai_node(target);
 			last->psNext = NEW_AI_ProcessPath(trg, CVec(last->fX,last->fY), pcMap, recDeep+1);
-			last->psNext->psPrev = last;
+			if(last->psNext)
+				last->psNext->psPrev = last;
 			
 			return target;
 		}
@@ -3309,6 +3308,8 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	CVec* cNewNodePos = NULL;
 	CVec* newtrg = NULL;
 	NEW_ai_node_t* newNode = NULL;
+	
+	dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90 deg
 	
 	// turn left and look
 	CVec cNewNodePos1 = NEW_AI_FindBestFreeSpot(col,-dir,trg,&newtrg1,pcMap);
