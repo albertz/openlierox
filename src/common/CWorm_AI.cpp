@@ -149,17 +149,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 		// Reload weapons when we can't shoot
 		AI_ReloadWeapons();
     
-        // jump, move and carve around
-    	ws->iJump = true;
-    	ws->iMove = true;
-    	ws->iCarve = true;
-
-		// change direction after some time
-		if ((tLX->fCurTime-fLastTurn) > 1.0)  {
-			iDirection = !iDirection;
-			fLastTurn = tLX->fCurTime;
-		}
-
     }
     
     // Process depending on our current state
@@ -3223,12 +3212,7 @@ void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
 /*
-	TODO: (this will really fast this up)
-	
-	give a complete search tree around and check, if we can avoid double searchpaths
-
 	TODO: there are memory leaks somewhere here
-
 */
 
 	if(recDeep == 0) {
@@ -3277,14 +3261,14 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	// go through stored nodes near me
 	// (this loops looks complicated and slow, but they should be fast, they contain not much steps)
 	for(x1 = -1; x1 <= 1; x1++, ipos += CVec(1,0))
-	for(y1 = -1; y1 <= 1; y1++, ipos += CVec(0,1))	
+	for(y1 = -1; y1 <= 1; y1++, ipos += CVec(0,1))
 	for(it1 = storedNodes.lower_bound(ipos); it1 != storedNodes.upper_bound(ipos); ++it1) {
 		if(it1->second->fX == col.GetX() && it1->second->fY == col.GetY()) {
-			// a little bit strange, we were exactly here...
+			// a little bit strange that we were exactly here...
 			target = it1->second;
 		}
 		
-		if(traceWormLine(CVec(it1->second->fX,it1->second->fY),col,pcMap)) {
+		if(!target && traceWormLine(CVec(it1->second->fX,it1->second->fY),col,pcMap)) {
 			// perfect, we found a direct connection
 			
 			target = new NEW_ai_node_t;
@@ -3303,10 +3287,13 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 
 			NEW_ai_node_t* last = get_last_ai_node(target);
 			last->psNext = NEW_AI_ProcessPath(trg, CVec(last->fX,last->fY), pcMap, recDeep+1);
+			last->psNext->psPrev = last;
 			
 			return target;
 		}
 
+		// look at the loops; we need that here
+		ipos -= CVec(0,2);
 	}
 
 	// Get best free spot to the collision and create a new node there
@@ -3414,7 +3401,7 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 		// While we see the two nodes, delete all nodes between them and skip to next node
 		while (traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
 			node->psNext = closest_node;
-			delete closest_node->psPrev;
+			//delete closest_node->psPrev;
 			closest_node->psPrev = node;
 			closest_node=closest_node->psNext;
 			if (!closest_node)
@@ -3894,8 +3881,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 void CWorm::NEW_AI_CleanupStoredNodes() {
 	for(nodes_map::iterator it = storedNodes.begin(); it != storedNodes.end(); ++it) {
-		delete it->second;
-		it->second = NULL;
+		if(it->second) {
+			delete it->second;
+			it->second = NULL;		
+		}
 	}
 	storedNodes.clear();
 }
