@@ -2746,7 +2746,7 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	}
 
 #ifdef _AI_DEBUG
-	NEW_AI_DrawPath(pcMap);
+	//NEW_AI_DrawPath(pcMap);
 #endif
 
 	// Set the current node to the beginning of the path
@@ -3405,13 +3405,13 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 	NEW_ai_node_t* closest_node = NULL;
 	for(;node;node=node->psNext)  {
 		closest_node = node->psNext;
-		// Short path
+/*		// Short path
 		if (!closest_node)
 			return;
 		closest_node = closest_node->psNext;
 		// Short path
 		if (!closest_node)
-			return;
+			return; */
 		// While we see the two nodes, delete all nodes between them and skip to next node
 		while (traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
 			node->psNext = closest_node;
@@ -3461,7 +3461,7 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,transparent);
 
 	// Go down the path
-	NEW_ai_node_t *node = NEW_psPath;
+	NEW_ai_node_t *node = NEW_psCurrentNode;
 	int node_x = 0;
 	int node_y = 0;
 	for (;node;node=node->psNext)  {
@@ -3716,6 +3716,11 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			}
 		next_node = next_node->psNext;
 	}
+	
+
+#ifdef _AI_DEBUG
+	NEW_AI_DrawPath(pcMap);
+#endif
 	
 	
 	// Get the target node position
