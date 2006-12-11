@@ -2514,6 +2514,9 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 	CVec    dir = target-start;
 	int     nTotalLength = (int)NormalizeVector(&dir);
 
+	uchar* pxflags = pcMap->GetPixelFlags();
+	int map_w = pcMap->GetWidth();
+	int map_h = pcMap->GetHeight();
 
 	//int j;
 	short num_good = worm_size;
@@ -2529,7 +2532,11 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 		int i;
 		uchar px;
 		for(i=0; i<nTotalLength; i++) {
-			px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+			if( (int)pos.GetX() < 0 || (int)pos.GetX() >= map_w 
+			|| (int)pos.GetY() < 0 || (int)pos.GetY() >= map_h )
+				px = PX_ROCK;
+			else
+				px = pxflags[(int)pos.GetX() + map_w*(int)pos.GetY()];
 
 			if(px & PX_ROCK) {
 				// If we almost reached the target, just take it as if we reached it really
@@ -2959,8 +2966,9 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, 
 #endif
 
 	unsigned short i = 0;
-	float map_w = pcMap->GetWidth();
-	float map_h = pcMap->GetHeight();
+	int map_w = pcMap->GetWidth();
+	int map_h = pcMap->GetHeight();
+	uchar* pxflags = pcMap->GetPixelFlags();
 	CVec pos = vPoint;
 	CVec best = vPoint;
 	CVec end, possible_end;
@@ -2991,13 +2999,12 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, 
 			break;
 
 		// Clipping		
-		if (pos.GetX() > map_w || pos.GetX() < 0)
-			break;
-		if (pos.GetY() > map_h || pos.GetY() < 0)
+		if( (int)pos.GetX() < 0 || (int)pos.GetX() >= map_w 
+		|| (int)pos.GetY() < 0 || (int)pos.GetY() >= map_h )
 			break;
 
 		// obstacle...
-		if(PX_ROCK & pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() )) {
+		if(PX_ROCK & pxflags[(int)pos.GetX() + map_w*(int)pos.GetY()]) {
 			pos += backdir;
 			lastWasObstacle = true;
 			continue;
@@ -3317,7 +3324,6 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		newNode = newNode1;
 		newtrg = &newtrg1;
 		cNewNodePos = &cNewNodePos1;	
-//		if(!newNode2) delete_ai_nodes(newNode2);	
 	} else if(!newNode1 && !newNode2) { // we got nothing
 			
 		if(recDeep == 0 || newtrg1 == trg || newtrg2 == trg) {
@@ -3337,7 +3343,6 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		newNode = newNode2;
 		newtrg = &newtrg2;
 		cNewNodePos = &cNewNodePos2;
-//		if(!newNode1) delete_ai_nodes(newNode1);
 	}
 	
 	target = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
