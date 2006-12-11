@@ -2518,7 +2518,6 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 	int map_w = pcMap->GetWidth();
 	int map_h = pcMap->GetHeight();
 
-	//int j;
 	short num_good = worm_size;
 	
 /*	for (j=0;j<worm_size;j++)  {
@@ -3030,7 +3029,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, 
 			traceWormLine(pos-backdir*1000,pos,pcMap,&possible_end);
 			possible_end += backdir*3/backdir.GetLength();
 #ifdef _AI_DEBUG
-			PutPixel(bmpDest,(int)possible_end.GetX()*2,(int)possible_end.GetY()*2,MakeColour(255,0,255));
+			//PutPixel(bmpDest,(int)possible_end.GetX()*2,(int)possible_end.GetY()*2,MakeColour(255,0,255));
 #endif
 			// 'best' is, if we have much free way infront of pos
 			if((possible_end-pos).GetLength2() > best_length) {
@@ -3219,10 +3218,6 @@ void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 // Process the path
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
-/*
-	TODO: there are memory leaks somewhere here
-*/
-
 	if(recDeep == 0) {
 		// do some init-stuff here
 		NEW_AI_CleanupStoredNodes();		
@@ -3329,7 +3324,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 			
 		if(recDeep == 0 || newtrg1 == trg || newtrg2 == trg) {
 			// so, at least we could set the both found points
-			// to a longer wayis in most cases a better strategy
+			// to a longer ways in most cases a better strategy
 			if((newtrg1-cNewNodePos1).GetLength2() >= (newtrg2-cNewNodePos2).GetLength2()) {
 				cNewNodePos = &cNewNodePos1;
 				newtrg = &newtrg1;
@@ -3674,8 +3669,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     /*
       Move through the path.
       We have a current node that we must get to. If we go onto the node, we go to the next node, and so on.
-      Because the path finding isn't perfect we can sometimes skip a whole group of nodes.
-      If we are close to other nodes that are _ahead_ in the list, we can skip straight to that node.
     */
 
 	//return;
@@ -3877,6 +3870,11 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         // Walk in the direction of the node
         ws->iMove = true;
     }
+
+	// If the next node is closer than the current, just skip to it
+	if (NEW_psCurrentNode->psNext)
+		if (CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) >= CalculateDistance(vPos,CVec(NEW_psCurrentNode->psNext->fX,NEW_psCurrentNode->psNext->fY)))
+			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
 
    
 	// Move to next node, if we arrived at the current
