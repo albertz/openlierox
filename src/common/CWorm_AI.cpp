@@ -66,8 +66,8 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 // Shutdown the AI stuff
 void CWorm::AI_Shutdown(void)
 {
+	NEW_AI_CleanupStoredNodes();
     AI_CleanupPath(psPath);
-	NEW_AI_CleanupPath();
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;
 	NEW_psLastNode = NULL;
@@ -93,6 +93,7 @@ void CWorm::AI_Shutdown(void)
 
 ///////////////////
 // Simulate the AI
+ // TODO: this is global for all worms (which is not what is wanted)
 float fLastTurn = 0;  // Time when we last tried to change the direction
 void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 {
@@ -135,11 +136,11 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     	ws->iMove = true;
     	ws->iCarve = true;
 
-	// change direction after some time
-	if ((tLX->fCurTime-fLastTurn) > 1.0)  {
-		iDirection = !iDirection;
-		fLastTurn = tLX->fCurTime;
-	}
+		// change direction after some time
+		if ((tLX->fCurTime-fLastTurn) > 1.0)  {
+			iDirection = !iDirection;
+			fLastTurn = tLX->fCurTime;
+		}
 
         return;
         
@@ -147,6 +148,18 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     
 		// Reload weapons when we can't shoot
 		AI_ReloadWeapons();
+    
+        // jump, move and carve around
+    	ws->iJump = true;
+    	ws->iMove = true;
+    	ws->iCarve = true;
+
+		// change direction after some time
+		if ((tLX->fCurTime-fLastTurn) > 1.0)  {
+			iDirection = !iDirection;
+			fLastTurn = tLX->fCurTime;
+		}
+
     }
     
     // Process depending on our current state
@@ -1228,22 +1241,6 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
     
 
 
-
-
-
-    
-
-
-
-
-
-
-    
-
-  
-
-
-
 }
 
 
@@ -1377,6 +1374,7 @@ bool CWorm::AI_SetAim(CVec cPos)
 ///////////////////
 // A simpler method to get to a target
 // Used if we have no path
+ // TODO: this is global for all worms (which is not what is wanted)
 float fLastJump = 0;  // Time when we last tried to jump
 void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
 {
@@ -2703,7 +2701,7 @@ void CWorm::NEW_AI_CleanupPath(void)
 
 ////////////////////
 // Creates the path
-float fLastCreated = -9999;
+float fLastCreated = -9999;  // TODO: this is global for all worms (which is not what is wanted)
 int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 {
 	// Don't create the path so often!
@@ -2723,20 +2721,11 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 #endif*/
 
 
-	// Delete old path
-	NEW_AI_CleanupPath();
-
 	// Create a new path
 	//NEW_AI_ProcessPathNonRec(trg,pos,pcMap);
 	bPathFinished = false;
 	NEW_psPath = NEW_AI_ProcessPath(trg,pos,pcMap);
-	NEW_psLastNode = NULL;
-	for(NEW_ai_node_t* n = NEW_psPath; n; n = n->psNext) {
-		if(n->psNext)
-			n->psNext->psPrev = n;
-		else
-			NEW_psLastNode = n;
-	}
+	NEW_psLastNode = get_last_ai_node(NEW_psPath);
 	if(NEW_psLastNode)
 		if (NEW_psLastNode->fX == trg.GetX() && NEW_psLastNode->fY == trg.GetY())
 			bPathFinished = true;
@@ -3191,6 +3180,44 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 		return rememberPos2;
 }
 
+const float nodesGridWidth = 10;
+
+void CWorm::AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
+	NEW_ai_node_t* tmpnode = NULL;
+	short s1, s2;
+	for(NEW_ai_node_t* n = start; n && n->psNext && n != end; n = n->psNext) {
+		s1 = (n->fX > n->psNext->fX) ? 1 : -1;
+		s2 = (n->fY > n->psNext->fY) ? 1 : -1;		
+		if(s1*(n->fX - n->psNext->fX) > nodesGridWidth || s2*(n->fY - n->psNext->fY) > nodesGridWidth) {
+			tmpnode = new NEW_ai_node_t;
+			if(tmpnode) {
+				if(s1*(n->fX - n->psNext->fX) >= s2*(n->fY - n->psNext->fY)) {
+					tmpnode->fX = n->fX - s1*nodesGridWidth;
+					tmpnode->fY = n->fY
+						- s1*nodesGridWidth*(n->fY - n->psNext->fY)/(n->fX - n->psNext->fX);
+				} else {
+					tmpnode->fY = n->fY - s2*nodesGridWidth;
+					tmpnode->fX = n->fX
+						- s2*nodesGridWidth*(n->fX - n->psNext->fX)/(n->fY - n->psNext->fY);
+				}
+				tmpnode->psNext = n->psNext;
+				tmpnode->psPrev = n;
+				n->psNext->psPrev = tmpnode;
+				n->psNext = tmpnode;
+			}			
+		}
+	}
+}
+
+void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
+	AI_splitUpNodes(start, end);
+	
+	for(NEW_ai_node_t* n = start; n; n = n->psNext) {
+		storedNodes.insert(nodes_pair(CVec(n->fX,n->fY)/nodesGridWidth, n));
+		if(n->psNext == end) break;
+	}
+}
+
 ///////////////////
 // Process the path
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
@@ -3204,39 +3231,83 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 
 */
 
-	// Too many recursions? End
-	if (recDeep > 6)  {
-		return NULL;
+	if(recDeep == 0) {
+		// do some init-stuff here
+		NEW_AI_CleanupStoredNodes();		
 	}
+
+	// Too many recursions? End
+	if (recDeep > 6)
+		return NULL;
 	
 	if(trg == pos)	// we did it already
 		return NULL;
 	
 	CVec col;
-	NEW_ai_node_t *target = new NEW_ai_node_t;
-	if (!target)
-		return NULL;
-	target->fX = 0;
-	target->fY = 0;
-	target->psNext = NULL;
-	target->psPrev = NULL;
+	NEW_ai_node_t *target = NULL;
 	
 	// Trivial task, end the recursion
 	if(traceWormLine(trg,pos,pcMap,&col))  {
 
 		// build a node representing the target				
+		target = new NEW_ai_node_t;
+		if (!target)
+			return NULL;
+
 		target->fX = trg.GetX();
 		target->fY = trg.GetY();
+		target->psNext = NULL;
+		target->psPrev = NULL;
+		AI_storeNodes(target, target);
 		
 		return target;
 	}
 
-	CVec dir = trg-pos;
-	col -= dir*3/dir.GetLength();
-	
 	// The two nodes are not visible from each other
+	
+	CVec dir = trg-pos;
+	col -= dir*3/dir.GetLength(); // go some steps back, that we don't sit in a rock
 
-	dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90°
+	dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90
+
+	// check if we found already one here (at col) (stored in storedNodes)
+	nodes_map::iterator it1; short x1, y1;
+	CVec ipos = col/nodesGridWidth - CVec(1,1);
+		
+	// go through stored nodes near me
+	// (this loops looks complicated and slow, but they should be fast, they contain not much steps)
+	for(x1 = -1; x1 <= 1; x1++, ipos += CVec(1,0))
+	for(y1 = -1; y1 <= 1; y1++, ipos += CVec(0,1))	
+	for(it1 = storedNodes.lower_bound(ipos); it1 != storedNodes.upper_bound(ipos); ++it1) {
+		if(it1->second->fX == col.GetX() && it1->second->fY == col.GetY()) {
+			// a little bit strange, we were exactly here...
+			target = it1->second;
+		}
+		
+		if(traceWormLine(CVec(it1->second->fX,it1->second->fY),col,pcMap)) {
+			// perfect, we found a direct connection
+			
+			target = new NEW_ai_node_t;
+			if (!target)
+				return NULL;
+
+			target->fX = col.GetX();
+			target->fY = col.GetY();
+			target->psNext = it1->second;
+			target->psPrev = NULL;
+			AI_storeNodes(target, target);
+		}
+
+		if(target) {
+			// if we got here, we can use the already found way and start at its end
+
+			NEW_ai_node_t* last = get_last_ai_node(target);
+			last->psNext = NEW_AI_ProcessPath(trg, CVec(last->fX,last->fY), pcMap, recDeep+1);
+			
+			return target;
+		}
+
+	}
 
 	// Get best free spot to the collision and create a new node there
 	CVec newtrg1, newtrg2;
@@ -3258,7 +3329,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		newNode = newNode1;
 		newtrg = &newtrg1;
 		cNewNodePos = &cNewNodePos1;	
-		if(!newNode2) delete_ai_nodes(newNode2);	
+//		if(!newNode2) delete_ai_nodes(newNode2);	
 	} else if(!newNode1 && !newNode2) { // we got nothing
 			
 		if(recDeep == 0 || newtrg1 == trg || newtrg2 == trg) {
@@ -3278,9 +3349,12 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		newNode = newNode2;
 		newtrg = &newtrg2;
 		cNewNodePos = &cNewNodePos2;
-		if(!newNode1) delete_ai_nodes(newNode1);
+//		if(!newNode1) delete_ai_nodes(newNode1);
 	}
 	
+	target = new NEW_ai_node_t;
+	if (!target)
+		return NULL;
 	target->fX = cNewNodePos->GetX();
 	target->fY = cNewNodePos->GetY();
 	target->psPrev = NULL;
@@ -3294,7 +3368,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	target->psNext->psPrev = target;
 	target->psNext->psNext = newNode;
 	if(newNode) newNode->psPrev = target->psNext;
-
+	AI_storeNodes(target, target->psNext);
 
 /*#ifdef _AI_DEBUG
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
@@ -3495,7 +3569,7 @@ CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap)
 
 /////////////////////
 // Move to the target
-float fLastCompleting = -9999;
+float fLastCompleting = -9999; // TODO: this is global for all worms (which is not what is wanted)
 void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 {
 //	printf("Moving to target");
@@ -3816,6 +3890,14 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		if (NEW_psCurrentNode->psNext)
 			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
 	
+}
+
+void CWorm::NEW_AI_CleanupStoredNodes() {
+	for(nodes_map::iterator it = storedNodes.begin(); it != storedNodes.end(); ++it) {
+		delete it->second;
+		it->second = NULL;
+	}
+	storedNodes.clear();
 }
 
 NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n) {

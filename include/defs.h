@@ -32,6 +32,7 @@
 #include <math.h>
 #include <time.h>
 #include <ctype.h>
+#include <map>
 
 #ifdef WIN32
 #	include <windows.h>

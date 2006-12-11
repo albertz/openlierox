@@ -126,6 +126,18 @@ float get_ai_nodes_length(NEW_ai_node_t* start);
 // this do the same as the fct above exept that it don't do the sqrt
 float get_ai_nodes_length2(NEW_ai_node_t* start);
 
+
+	// i love functors :)
+struct CVec_less {
+	inline bool operator()(CVec a, CVec b) {
+		return ((a.GetY() == b.GetY() && (a.GetX() < b.GetX()))
+				|| a.GetY() < b.GetY()); }
+};
+typedef std::multimap<CVec, NEW_ai_node_t*, CVec_less> nodes_map;
+typedef std::pair<const CVec, NEW_ai_node_t*> nodes_pair;
+
+
+
 class CWorm {
 public:
 	// Constructor
@@ -272,6 +284,7 @@ private:
     ai_node_t   *psCurrentNode;
 	float       fLastPathUpdate;
 	bool		bPathFinished;
+	nodes_map storedNodes;
 
 	NEW_ai_node_t	*NEW_psPath;
 	NEW_ai_node_t	*NEW_psCurrentNode;
@@ -380,6 +393,8 @@ public:
     
     ai_node_t   *AI_ProcessNode(CMap *pcMap, ai_node_t *psParent, int curX, int curY, int tarX, int tarY);
     void        AI_CleanupPath(ai_node_t *node);
+    void		AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
+    void		AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
     
     int         AI_FindClearingWeapon(void);
     bool        AI_CanShoot(CMap *pcMap, int nGameType);
@@ -410,6 +425,7 @@ public:
 	void		NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap);
 	NEW_ai_node_t *NEW_AI_AddNode(CVec Pos,NEW_ai_node_t *psPrev,NEW_ai_node_t *psNext);
 	void		NEW_AI_CleanupPath(void);
+	void		NEW_AI_CleanupStoredNodes();
 	void		NEW_AI_SimplifyPath(CMap *pcMap);
 	void		NEW_AI_MoveToTarget(CMap *pcMap);
 	CVec		NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap);
