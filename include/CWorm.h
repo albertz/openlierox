@@ -127,15 +127,15 @@ float get_ai_nodes_length(NEW_ai_node_t* start);
 float get_ai_nodes_length2(NEW_ai_node_t* start);
 
 
-	// i love functors :)
 class CVec_less {
 public:
-	inline bool operator()(CVec a, CVec b) {
+	// this is a well-defined transitive ordering
+	inline bool operator()(const CVec a, const CVec b) const {
 		return ((a.GetY() == b.GetY() && (a.GetX() < b.GetX()))
 				|| a.GetY() < b.GetY()); }
 };
-typedef std::multimap<CVec, NEW_ai_node_t*, CVec_less> nodes_map;
-typedef std::pair<const CVec, NEW_ai_node_t*> nodes_pair;
+typedef std::multimap< CVec, NEW_ai_node_t*, CVec_less > nodes_map;
+typedef std::pair< const CVec, NEW_ai_node_t* > nodes_pair;
 
 
 

@@ -2515,7 +2515,7 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 	int     nTotalLength = (int)NormalizeVector(&dir);
 
 
-	int j;
+	//int j;
 	int num_good = worm_size;
 	
 /*	for (j=0;j<worm_size;j++)  {

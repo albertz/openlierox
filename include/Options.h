@@ -71,7 +71,7 @@ typedef struct {
 	// Network
 	int		iNetworkPort;
 	int		iNetworkSpeed;
-	int		fUpdatePeriod;
+	float	fUpdatePeriod;
 
 	// Audio
 	int		iSoundOn;
