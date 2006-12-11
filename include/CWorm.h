@@ -278,6 +278,10 @@ private:
 	float		fLastWeaponChange;
 	float		fLastCreated;
 
+	float		fRopeAttachedTime;
+	float		fRopeHookFallingTime;
+
+
     // Path Finding
     int         nGridCols, nGridRows;
     ai_node_t   *psPath;

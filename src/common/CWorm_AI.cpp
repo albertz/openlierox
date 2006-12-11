@@ -58,6 +58,10 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 	//iAiGameType = GAM_OTHER;
 	nAITargetType = AIT_NONE;
 	nAIState = AI_THINK;
+
+	fRopeAttachedTime = 0;
+	fRopeHookFallingTime = 0;
+
 	
     return true;
 }
@@ -3596,6 +3600,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	ws->iShoot = false;
 	ws->iJump = false;
 
+	// If the rope hook is attached, increase the attached time
+	if (cNinjaRope.isAttached())
+		fRopeAttachedTime += tLX->fDeltaTime;
+	else
+		fRopeAttachedTime = 0;
+			
+
     cPosTarget = AI_GetTargetPos();
 
     // If we're really close to the target, perform a more precise type of movement
@@ -3693,7 +3704,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       We have a current node that we must get to. If we go onto the node, we go to the next node, and so on.
     */
 
-	//return;
+	//return; // Uncomment this when you don't want the AI to move
 
     if(NEW_psPath == NULL) {
         // If we don't have a path, resort to simpler AI methods
@@ -3708,7 +3719,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	NEW_ai_node_t *next_node = NEW_psCurrentNode->psNext;
 	while (next_node)  {
 		if (CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) >= CalculateDistance(vPos,CVec(next_node->fX,next_node->fY)))
-			if (traceWormLine(CVec(next_node->fX,next_node->fY),CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY),pcMap))  {
+			if (traceWormLine(CVec(next_node->fX,next_node->fY),vPos,pcMap))  {
 				NEW_psCurrentNode = next_node;
 				break;
 			}
@@ -3779,9 +3790,16 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
     // If the ninja rope hook is falling, release it & walk
     if(!cNinjaRope.isAttached() && !cNinjaRope.isShooting()) {
-        cNinjaRope.Release();
+		fRopeHookFallingTime += tLX->fDeltaTime;
+    } else
+		fRopeHookFallingTime = 0;
+
+	if (fRopeHookFallingTime >= 2.0f)  {
+		// Release & walk
+		cNinjaRope.Release();
         ws->iMove = true;
-    }
+		fRopeHookFallingTime = 0;
+	}
 
 	// If the rope is hooked wrong, release it
 	/*if (cNinjaRope.isAttached())  {
@@ -3793,7 +3811,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
     // Walk only if the target is a good distance on either side
     if(fabs(vPos.GetX() - NEW_psCurrentNode->fX) > 30)
-        ws->iMove = true;
+		ws->iMove = true;
 
 	// If the node is above us by a little, jump
 	if ((vPos.GetY()-NEW_psCurrentNode->fY) <= 20 && (vPos.GetY()-NEW_psCurrentNode->fY) > 0) {
@@ -3819,14 +3837,35 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	}
 */
 
-	if (ws->iMove || ws->iJump)
+	// If we're moving or jumping, we should release the rope, because it could do bad things with us
+	if ((ws->iMove || ws->iJump) && fRopeAttachedTime > 2.0f)
 		cNinjaRope.Release();
     
+
+	//
+	//	Shooting the rope
+	//
+
     // If the node is above us by a lot, we should use the ninja rope
-	// If the node is far, use the rope, too
-    if(NEW_psCurrentNode->fY+20 < vPos.GetY()/* || (fabs(NEW_psCurrentNode->fX-vPos.GetX()) >= 50)*/) {
+	// If the node is far, jump and use the rope, too
+	bool fireNinja = NEW_psCurrentNode->fY+20 < vPos.GetY();
+	if (!fireNinja && (fabs(NEW_psCurrentNode->fX-vPos.GetX()) >= 50))  {
+		// On ground? Jump
+		if (CheckOnGround(pcMap))  {
+			if (tLX->fCurTime - fLastJump > 1.0f)  {
+				ws->iJump = true;
+				fLastJump = tLX->fCurTime;
+				// Rope will happen soon
+			}
+		}
+		// Not on ground? Shoot the rope
+		else 
+			fireNinja = true;
+	}
+
+
+    if(fireNinja) {
         
-        bool fireNinja = true;
 
 		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 
@@ -3834,7 +3873,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		// If the path is going up, get an average position of the two nodes
 		if (vPos.GetY() > NEW_psCurrentNode->fY) 
 			if (NEW_psCurrentNode->psNext) {
-				if (NEW_psCurrentNode->fY-20 > NEW_psCurrentNode->psNext->fY)  {
+				if (NEW_psCurrentNode->fY-30 > NEW_psCurrentNode->psNext->fY)  {
 					cAimPos.SetX((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
 					cAimPos.SetY((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
 				}
@@ -3850,7 +3889,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 
 		// Aim
-		AI_SetAim(cAimPos);
+		bool aim = AI_SetAim(cAimPos);
 
 
         CVec dir;
@@ -3864,7 +3903,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
           We shoot a ninja rope if it isn't shot
           Or if it is, we make sure it has pulled us up and that it is attached
         */
-        if(fireNinja) {
+        if(aim) {
             if(!cNinjaRope.isReleased())
                 cNinjaRope.Shoot(vPos,dir);
             else {
@@ -3927,7 +3966,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         ws->iMove = true;
     }
 
-   
+  
 	// Move to next node, if we arrived at the current
 	if(CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) < 10)
 		if (NEW_psCurrentNode->psNext)
