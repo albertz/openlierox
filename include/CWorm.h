@@ -128,7 +128,8 @@ float get_ai_nodes_length2(NEW_ai_node_t* start);
 
 
 	// i love functors :)
-struct CVec_less {
+class CVec_less {
+public:
 	inline bool operator()(CVec a, CVec b) {
 		return ((a.GetY() == b.GetY() && (a.GetX() < b.GetX()))
 				|| a.GetY() < b.GetY()); }
