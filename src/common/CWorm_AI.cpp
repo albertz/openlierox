@@ -3407,38 +3407,16 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 	// Go through the path
 	NEW_ai_node_t* node = NEW_psPath;
 	NEW_ai_node_t* closest_node = NULL;
+	unsigned short count = 0;
 	for(;node;node=node->psNext)  {
-		closest_node = node->psNext;
-/*		// Short path
-		if (!closest_node)
-			return;
-		closest_node = closest_node->psNext;
-		// Short path
-		if (!closest_node)
-			return; */
 		// While we see the two nodes, delete all nodes between them and skip to next node
-		while (closest_node && traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
-			node->psNext = closest_node;
-			closest_node->psPrev = node;
-			closest_node=closest_node->psNext;
-		}
-
-		// test
-		/*for (;closest_node;closest_node=closest_node->psNext)  {
-			if (traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
-				NEW_ai_node_t *next = NULL;
-				NEW_ai_node_t *delete_node = node->psNext;
-				for (;delete_node && delete_node != closest_node;delete_node = next)  {
-					next = delete_node->psNext;
-					delete delete_node;
-				}
+		for(closest_node = node, count = 0; closest_node; closest_node = closest_node->psNext, count++)
+			if(count >= 3
+			&& CVec(closest_node->fX-node->fX,closest_node->fY-node->fY).GetLength2() <= 250
+			&& traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap)) {
+				node->psNext = closest_node;
+				closest_node->psPrev = node;
 			}
-			closest_node->psPrev = node;
-			node->psNext = closest_node;
-
-		}*/
-
-
 	}
 
 }
