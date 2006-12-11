@@ -3179,7 +3179,7 @@ void CWorm::AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 		s1 = (n->fX > n->psNext->fX) ? 1 : -1;
 		s2 = (n->fY > n->psNext->fY) ? 1 : -1;		
 		if(s1*(n->fX - n->psNext->fX) > nodesGridWidth || s2*(n->fY - n->psNext->fY) > nodesGridWidth) {
-			tmpnode = (NEW_ai_node_t*)malloc(sizeof (struct NEW_ai_node_t));
+			tmpnode = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 			if(tmpnode) {
 				if(s1*(n->fX - n->psNext->fX) >= s2*(n->fY - n->psNext->fY)) {
 					tmpnode->fX = n->fX - s1*nodesGridWidth;
@@ -3235,7 +3235,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	if(traceWormLine(trg,pos,pcMap,&col))  {
 
 		// build a node representing the target				
-		target = (NEW_ai_node_t*)malloc(sizeof (struct NEW_ai_node_t));
+		target = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 		if (!target)
 			return NULL;
 
@@ -3272,7 +3272,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		if(!target && traceWormLine(CVec(it1->second->fX,it1->second->fY),col,pcMap)) {
 			// perfect, we found a direct connection
 				
-			target = (NEW_ai_node_t*)malloc(sizeof (struct NEW_ai_node_t));
+			target = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 			if (!target)
 				return NULL;
 
@@ -3340,13 +3340,13 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 //		if(!newNode1) delete_ai_nodes(newNode1);
 	}
 	
-	target = (NEW_ai_node_t*)malloc(sizeof (struct NEW_ai_node_t));
+	target = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 	if (!target)
 		return NULL;
 	target->fX = cNewNodePos->GetX();
 	target->fY = cNewNodePos->GetY();
 	target->psPrev = NULL;
-	target->psNext = (NEW_ai_node_t*)malloc(sizeof (struct NEW_ai_node_t));
+	target->psNext = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 	if(!target->psNext) {
 		free(target);
 		return NULL;
