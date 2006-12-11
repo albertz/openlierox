@@ -2717,7 +2717,7 @@ void CWorm::NEW_AI_CleanupPath(void)
 int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 {
 	// Don't create the path so often!
-	if (tLX->fCurTime - fLastCreated <= 2.0f)  {
+	if (tLX->fCurTime - fLastCreated <= 5.0f)  {
 		return NEW_psPath != NULL;
 	}
 
@@ -3238,8 +3238,13 @@ void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 // Process the path
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
+/*
+	TODO: return, if we got into a cycle
+	
+*/
+	
 	// Too many recursions? End
-	if (recDeep > 6)
+	if (recDeep > 7)
 		return NULL;
 	
 	if(trg == pos)	// we did it already
@@ -3405,10 +3410,10 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 		return;
 
 	// Go through the path
-	NEW_ai_node_t* node = NEW_psPath;
+	NEW_ai_node_t* node = NULL;
 	NEW_ai_node_t* closest_node = NULL;
 	unsigned short count = 0;
-	for(;node;node=node->psNext)  {
+	for(node = NEW_psPath;node;node=node->psNext)  {
 		// While we see the two nodes, delete all nodes between them and skip to next node
 		for(closest_node = node, count = 0; closest_node; closest_node = closest_node->psNext, count++)
 			if(count >= 3
@@ -3419,6 +3424,22 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 			}
 	}
 
+	for(node = NEW_psPath;node;node=node->psNext)  {
+  		closest_node = node->psNext;
+  		// Short path
+  		if (!closest_node)
+  			return;
+  		closest_node = closest_node->psNext;
+  		// Short path
+  		if (!closest_node)
+ 			return;
+  		// While we see the two nodes, delete all nodes between them and skip to next node
+  		while (closest_node && traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
+  			node->psNext = closest_node;
+  			closest_node->psPrev = node;
+			closest_node=closest_node->psNext;
+ 		}
+	}
 }
 
 #ifdef _AI_DEBUG
