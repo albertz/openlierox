@@ -1659,8 +1659,12 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 					return true;
 			}
 
-			// Rock, trajectory not free
+			// Rock or dirt, trajectory not free
 			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) & PX_ROCK)  {
+				return false;
+			}
+
+			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) & PX_DIRT)  {
 				return false;
 			}
 
@@ -3605,7 +3609,16 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			fLastJump = tLX->fCurTime;
 		}
 
-        if(tLX->fCurTime - fStuckPause > 2)
+		// Don't carve so fast!
+		if (tLX->fCurTime-fLastCarve > 0.2f)  {
+			fLastCarve = tLX->fCurTime;
+			ws->iCarve = true; // Carve
+		}
+		else  {
+			ws->iCarve = false;
+		}
+
+        if(tLX->fCurTime - fStuckPause > 2.0f)
             bStuck = false;
         return;
     }
@@ -3700,12 +3713,22 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
         // Have we been stuck for a few seconds?
         if(fStuckTime > 3) {
-            // Jump, move, switch directions and release the ninja rope
+            // Jump, move, carve, switch directions and release the ninja rope
 			if (tLX->fCurTime-fLastJump > 1.0f)  {
 				ws->iJump = true;
 				fLastJump = tLX->fCurTime;
 			}
             ws->iMove = true;
+
+			// Don't carve so fast!
+			if (tLX->fCurTime-fLastCarve > 0.2f)  {
+				fLastCarve = tLX->fCurTime;
+				ws->iCarve = true; // Carve
+			}
+			else  {
+				ws->iCarve = false;
+			}
+
             bStuck = true;
             fStuckPause = tLX->fCurTime;
 
@@ -3767,6 +3790,9 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			} else
 				ws->iMove = true; // if we should not jump, move
 	}
+
+	if (ws->iMove || ws->iJump)
+		cNinjaRope.Release();
     
     // If the node is above us by a lot, we should use the ninja rope
 	// If the node is far, use the rope, too
@@ -3871,10 +3897,16 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         ws->iMove = true;
     }
 
-	// If the next node is closer than the current, just skip to it
-	if (NEW_psCurrentNode->psNext)
-		if (CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) >= CalculateDistance(vPos,CVec(NEW_psCurrentNode->psNext->fX,NEW_psCurrentNode->psNext->fY)))
-			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
+	// If some of the next nodes is closer than the current one, just skip to it
+	NEW_ai_node_t *next_node = NEW_psCurrentNode->psNext;
+	while (next_node)  {
+		if (CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) >= CalculateDistance(vPos,CVec(next_node->fX,next_node->fY)))
+			if (traceWormLine(CVec(next_node->fX,next_node->fY),CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY),pcMap))  {
+				NEW_psCurrentNode = next_node;
+				break;
+			}
+		next_node = next_node->psNext;
+	}
 
    
 	// Move to next node, if we arrived at the current
