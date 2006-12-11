@@ -32,6 +32,12 @@
 #include <math.h>
 #include <time.h>
 #include <ctype.h>
+
+// Disable this silly warning
+#ifdef WIN32
+#pragma warning(disable: 4786)
+#endif
+
 #include <map>
 
 #ifdef WIN32
