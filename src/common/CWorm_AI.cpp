@@ -3413,12 +3413,10 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 		if (!closest_node)
 			return; */
 		// While we see the two nodes, delete all nodes between them and skip to next node
-		while (traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
+		while (closest_node && traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
 			node->psNext = closest_node;
 			closest_node->psPrev = node;
 			closest_node=closest_node->psNext;
-			if (!closest_node)
-				break;
 		}
 
 		// test
