@@ -1651,7 +1651,7 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 	int x,y;
 
 #ifdef _AI_DEBUG
-	DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
+	//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
 #endif
 
 
@@ -1682,7 +1682,7 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 			}
 
 	#ifdef _AI_DEBUG
-			PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
+			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
 	#endif
 		}
 	}
@@ -1708,7 +1708,7 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 			}
 
 	#ifdef _AI_DEBUG
-			PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
+			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
 	#endif
 		}
 	}
@@ -3447,7 +3447,7 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 // Draw the AI path
 void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 {
-	//return;
+	return;
 	if (!NEW_psPath)
 		return;
 
@@ -3487,6 +3487,49 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 	
 }
 #endif
+
+CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
+{
+	// TODO: not yet tested
+	int iRadius = 10;
+
+	int x,y;
+
+	const float step = 0.05f*(float)PI;
+
+	float ang = 0;
+
+	CVec dir = trg-vPos;
+
+	// Get the start and end angle
+	float start_angle = VectorAngle(dir,CVec(1,0))+(float)PI/2;
+	float end_angle = VectorAngle(dir,CVec(1,0))+(float)PI*3/2;
+
+	uchar px = PX_EMPTY;
+
+	// Draw a half-circle in the direction of the target
+	for (iRadius = 10;iRadius < 50;iRadius+=5)  {
+		for (ang=start_angle;ang<end_angle;ang+=step)  {
+			x = iRadius*sin(ang)+trg.GetX();
+			y = iRadius*cos(ang)+trg.GetY();
+
+			px = pcMap->GetPixelFlag(x,y);
+
+#ifdef _AI_DEBUG
+			if (x >= 0 && x <= pcMap->GetWidth())
+				if (y >= 0 &&  y <= pcMap->GetHeight()) 
+					PutPixel(pcMap->GetDebugImage(),x*2,y*2,MakeColour(255,0,128));
+#endif
+
+			if (px & PX_ROCK || px & PX_DIRT)  {
+				return CVec((float)x,(float)y);
+			}
+		}
+	}
+
+	// Can't get here
+	return trg;
+}
 
 ////////////////////
 // Finds the nearest spot to the target, where the rope can be hooked
@@ -3867,6 +3910,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         
 
 		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
+
+		// Get the best spot to shoot the rope to
+		pcMap->ClearDebugImage();
+		cAimPos = NEW_AI_GetBestRopeSpot(cAimPos,pcMap);
 
 /*
 		// If the path is going up, get an average position of the two nodes

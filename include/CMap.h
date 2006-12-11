@@ -227,6 +227,8 @@ public:
 	inline SDL_Surface	*GetMiniMap(void)		{ return bmpMiniMap; }
 #ifdef _AI_DEBUG
 	inline SDL_Surface *GetDebugImage(void)	{ return bmpDebugImage; }
+
+	void		ClearDebugImage(void)  { if (bmpDebugImage) { DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,MakeColour(255,0,255));}}
 #endif
 
 	void		AddObject(int type, int size, CVec pos);

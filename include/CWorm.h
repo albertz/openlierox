@@ -421,6 +421,7 @@ public:
 	bool		IsEmpty(int Cell, CMap *pcMap);
     //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
 
+	CVec		NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap);
 	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap);
 	bool		NEW_AI_CheckFreeCells(int Num,CMap *pcMap);
 	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
