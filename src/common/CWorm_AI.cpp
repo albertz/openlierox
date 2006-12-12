@@ -3447,7 +3447,7 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 // Draw the AI path
 void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 {
-	return;
+	//return;
 	if (!NEW_psPath)
 		return;
 
@@ -3488,6 +3488,8 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 }
 #endif
 
+/////////////////////////
+// Finds the best spot to shoot rope to if we want to get to trg
 CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 {
 	// Get the direction angle
@@ -3524,11 +3526,11 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 
 			px = pcMap->GetPixelFlag(x,y);
 
-#ifdef _AI_DEBUG
+/*#ifdef _AI_DEBUG
 			if (x >= 0 && x <= pcMap->GetWidth())
 				if (y >= 0 &&  y <= pcMap->GetHeight()) 
 					PutPixel(pcMap->GetDebugImage(),x*2,y*2,MakeColour(255,0,0));
-#endif
+#endif*/
 
 			// Rock or dirt? We've found it
 			if (px & PX_ROCK || px & PX_DIRT)  {
@@ -3988,7 +3990,14 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     float dist = CalculateDistance(v, vPos);
     if((float)length <= dist && (type & PX_DIRT)) {
 		cNinjaRope.Release();
-        ws->iJump = true;
+
+		// Jump, if the node is above us
+		if (v.GetY()+10.0f < vPos.GetY())
+			if (tLX->fCurTime - fLastJump > 1.0f)  {
+				ws->iJump = true;
+				fLastJump = tLX->fCurTime;
+			}
+
         ws->iMove = true;
 		// Don't carve so fast!
 		if (tLX->fCurTime-fLastCarve > 0.2f)  {
