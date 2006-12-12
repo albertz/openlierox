@@ -3490,25 +3490,34 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 
 CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 {
-	// TODO: not yet tested
-	int iRadius = 10;
-
-	int x,y;
-
-	const float step = 0.05f*(float)PI;
-
-	float ang = 0;
-
+	// Get the direction angle
 	CVec dir = trg-vPos;
 
-	// Get the start and end angle
-	float start_angle = VectorAngle(dir,CVec(1,0))+(float)PI/2;
-	float end_angle = VectorAngle(dir,CVec(1,0))+(float)PI*3/2;
+	// Normalize
+	dir = dir*3/dir.GetLength();
 
+	// Take care of the maximal rope length
+	while (CalculateDistance(vPos,trg) >= cNinjaRope.getMaxLength())
+		trg -= dir;
+
+	// Get the start and end angle
+	float direction_angle = (float)atan2(dir.GetX(), dir.GetY())+(float)PI/2;
+	if(trg.GetX() > trg.GetX())
+		direction_angle = -direction_angle + (float)PI/2;
+	else
+		direction_angle += (float)PI/2;
+	float start_angle = direction_angle+(float)PI/2;
+	float end_angle = direction_angle+(float)PI*3/2;
+
+	// Variables
+	int iRadius = 10;
+	int x,y;
+	float step = 0.05f*(float)PI;
+	float ang = 0;
 	uchar px = PX_EMPTY;
 
 	// Draw a half-circle in the direction of the target
-	for (iRadius = 10;iRadius < 50;iRadius+=5)  {
+	while(1)  {
 		for (ang=start_angle;ang<end_angle;ang+=step)  {
 			x = iRadius*sin(ang)+trg.GetX();
 			y = iRadius*cos(ang)+trg.GetY();
@@ -3518,13 +3527,16 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 #ifdef _AI_DEBUG
 			if (x >= 0 && x <= pcMap->GetWidth())
 				if (y >= 0 &&  y <= pcMap->GetHeight()) 
-					PutPixel(pcMap->GetDebugImage(),x*2,y*2,MakeColour(255,0,128));
+					PutPixel(pcMap->GetDebugImage(),x*2,y*2,MakeColour(255,0,0));
 #endif
 
+			// Rock or dirt? We've found it
 			if (px & PX_ROCK || px & PX_DIRT)  {
 				return CVec((float)x,(float)y);
 			}
 		}
+		iRadius += 5;
+		step /= 2;
 	}
 
 	// Can't get here
@@ -3935,6 +3947,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 
 		// Aim
+		
 		bool aim = AI_SetAim(cAimPos);
 
 

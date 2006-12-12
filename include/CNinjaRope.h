@@ -73,6 +73,7 @@ public:
     int         isAttached(void)        { return HookAttached; }
     int         isShooting(void)        { return HookShooting; }
     float       getRestLength(void)     { return RestLength; }
+	float		getMaxLength(void)		{ return RopeLength; }
 
 
 
