@@ -289,7 +289,10 @@ private:
     ai_node_t   *psCurrentNode;
 	float       fLastPathUpdate;
 	bool		bPathFinished;
+
 	nodes_map storedNodes;
+	static const float nodesGridWidth = 10; // used by storedNodes
+
 
 	NEW_ai_node_t	*NEW_psPath;
 	NEW_ai_node_t	*NEW_psCurrentNode;
@@ -425,7 +428,7 @@ public:
 	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap);
 	bool		NEW_AI_CheckFreeCells(int Num,CMap *pcMap);
 	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
-	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap);
+	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap);
 	int			NEW_AI_CreatePath(CMap *pcMap);
 	NEW_ai_node_t*	NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep = 0);
 	void		NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap);

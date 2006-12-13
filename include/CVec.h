@@ -25,9 +25,7 @@ public:
 		x=_x;
 		y=_y;
 	}
-
-
-private:
+	
 	// Attributes
 
 	float	x, y;
@@ -49,22 +47,22 @@ public:
 	inline float GetLength2() const { return x*x + y*y; };
 
 	// Overloads
-	inline CVec operator*(const float scalar) {		
+	inline CVec operator*(const float scalar) const {		
 		return CVec(x*scalar,y*scalar);
 	}
-	inline CVec operator*(const CVec vec) {
+	inline CVec operator*(const CVec vec) const {
 		return CVec(x*vec.GetX(),y*vec.GetY());
 	}
-	inline CVec operator/(const float scalar) {		
+	inline CVec operator/(const float scalar) const {		
 		return CVec(x/scalar,y/scalar);
 	}
-	inline CVec operator+(const CVec vec) {
+	inline CVec operator+(const CVec vec) const {
 		return CVec(x+vec.GetX(),y+vec.GetY());
 	}
-	inline CVec operator-(const CVec vec) {
+	inline CVec operator-(const CVec vec) const {
 		return CVec(x-vec.GetX(),y-vec.GetY());
 	}
-	inline CVec operator-() {
+	inline CVec operator-() const {
 		return CVec(-x,-y);
 	}
     inline CVec& operator+=(const CVec vec) {
@@ -76,13 +74,13 @@ public:
 		return *this;
 	}
 
-	inline bool operator<(const CVec op) {
+	inline bool operator<(const CVec op) const {
 		if(x<op.GetX() && y<op.GetY())
 			return true;
 		return false;
 	}
 	
-	inline bool operator==(const CVec op) {
+	inline bool operator==(const CVec op) const {
 		return (x==op.GetX() && y==op.GetY());
 	}
 	

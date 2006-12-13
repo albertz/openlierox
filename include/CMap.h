@@ -106,7 +106,8 @@ public:
         bmpGreenMask = NULL;
         bmpShadowMap = NULL;
         GridFlags = NULL;
-
+		AbsoluteGridFlags = NULL;
+		
 		NumObjects = 0;
 		Objects = NULL;
 
@@ -141,7 +142,8 @@ private:
     // AI Grid
     int         nGridWidth, nGridHeight;
     int         nGridCols, nGridRows;
-    uchar       *GridFlags;
+	uchar		*GridFlags;
+	uchar		*AbsoluteGridFlags;
 
     maprandom_t sRandomLayout;
 
@@ -259,7 +261,7 @@ public:
     inline int         getGridWidth(void)  { return nGridWidth; }
     inline int         getGridHeight(void) { return nGridHeight; }
     inline uchar       *getGridFlags(void) { return GridFlags; }
-
+	inline uchar		*getAbsoluteGridFlags() { return AbsoluteGridFlags; }
 	inline int			getCreated(void)	{ return Created; }
 
 

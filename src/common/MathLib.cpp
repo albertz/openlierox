@@ -151,5 +151,4 @@ float VectorLength(CVec vec)
 
 
 
-
 //#endif  //  VEC2D

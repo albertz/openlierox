@@ -46,10 +46,49 @@ float   fastSQRT(float x);
 #define SQR(x) ((x)*(x))
 
 
-
-
-
-
+class SquareMatrix {
+public:	
+	CVec v1, v2;
+	SquareMatrix(CVec _v1=CVec(0,0), CVec _v2=CVec(0,0)) {
+		v1 = _v1; v2 = _v2;
+	}
+	
+	static SquareMatrix Identity() {
+		 return SquareMatrix(CVec(1,0),CVec(0,1));
+	}
+	
+	static SquareMatrix RotateMatrix(float angle) {
+		SquareMatrix m;
+		m.v1.x = cos(angle);
+		m.v1.y = sin(angle);
+		m.v2.x = -m.v1.y;
+		m.v2.y = m.v1.x;
+		return m;	
+	}
+	
+	inline CVec operator()(const CVec v) const {
+		return CVec(v.x*v1.x + v.y*v2.x, v.x*v1.y + v.y*v2.y);
+	}
+	inline SquareMatrix operator*(const SquareMatrix m) const {
+		return SquareMatrix((*this)(m.v1), (*this)(m.v2));
+	}
+	inline SquareMatrix operator*(const float m) const {
+		return SquareMatrix(v1*m, v2*m);
+	}
+	inline SquareMatrix operator/(const float m) const {
+		return SquareMatrix(v1/m, v2/m);
+	}
+	inline float det() {
+		return v1.x*v2.y - v1.y*v2.x;
+	}
+	inline SquareMatrix inverse() {
+		float tdet = det();
+		if(tdet == 0)
+			return SquareMatrix();
+		else
+			return SquareMatrix(CVec(v2.y,-v1.y),CVec(-v2.x,v1.x))/tdet;
+	}
+};
 
 
 

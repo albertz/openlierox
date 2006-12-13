@@ -505,12 +505,15 @@ bool CMap::createGrid(void)
     nGridRows = Height/nGridHeight + 1;
 
     GridFlags = new uchar[nGridCols * nGridRows];
-    if(GridFlags == NULL) {
+    AbsoluteGridFlags = new uchar[nGridCols * nGridRows];
+    if(GridFlags == NULL || AbsoluteGridFlags == NULL) {
         SetError("CMap::CreateGrid(): Out of memory");
         return false;
     }
-    for(register unsigned int i = 0; i < (unsigned int)nGridCols*nGridRows; i++)
+    for(register unsigned int i = 0; i < (unsigned int)nGridCols*nGridRows; i++) {
     	GridFlags[i] = PX_EMPTY;
+    	AbsoluteGridFlags[i] = PX_EMPTY;
+    }
 
     return true;
 }
@@ -546,6 +549,7 @@ void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
     y = j*nGridHeight;
 
     uchar *cell = GridFlags + j*nGridCols + i;
+    uchar *abs_cell = AbsoluteGridFlags + j*nGridCols + i;
 
     // Skip empty cells?
     if(*cell == PX_EMPTY && bSkipEmpty)
@@ -575,6 +579,12 @@ void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
                 rockCount++;
         }
     }
+    
+    *abs_cell = PX_EMPTY;
+    if(dirtCount > 0)
+    	*abs_cell |= PX_DIRT;
+    if(rockCount > 0)
+    	*abs_cell |= PX_ROCK;
     
     int size = nGridWidth*nGridHeight / 10;
 
@@ -2334,6 +2344,11 @@ void CMap::Shutdown(void)
             delete[] GridFlags;
         GridFlags = NULL;
 
+        if(AbsoluteGridFlags)
+            delete[] AbsoluteGridFlags;
+        AbsoluteGridFlags = NULL;
+
+
 		if(Objects)
 			delete[] Objects;
 		Objects = NULL;
@@ -2366,6 +2381,7 @@ void CMap::Shutdown(void)
 		bmpMiniMap = NULL;
 		PixelFlags = NULL;
 		GridFlags = NULL;
+		AbsoluteGridFlags = NULL;
 		Objects = NULL;
 		sRandomLayout.psObjects = NULL;
 	}

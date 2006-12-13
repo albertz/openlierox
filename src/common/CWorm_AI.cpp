@@ -2457,7 +2457,6 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 		}
 	}
 
-			
 
 	// Trace the line
 	int divs = first_division;
@@ -2501,31 +2500,201 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 	return nTotalLength;
 }
 
+/*
+	this traces the given line
+	_action is a functor, used for the checkflag_action
+	it will be called, if we have a flag fitting to checkflag, with (int x, int y) as param
+	if the returned value is false, the loop will break
+*/
+template<class _action>
+_action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _action checkflag_action) {
+	enum { X_DOM=-1, Y_DOM=1 } dom; // which is dominating?
+	CVec dir = target-start;
+	if(dir.GetX() == 0 && dir.GetY() == 0)
+		return checkflag_action;
+		
+	float quot;
+	short s_x = (dir.GetX()>=0) ? 1 : -1;
+	short s_y = (dir.GetY()>=0) ? 1 : -1;	
+	// ensure, that |quot| <= 1 (we swap the whole map virtuelly for this, this is, what dom saves)
+	if(s_x*dir.GetX() >= s_y*dir.GetY()) {
+		dom = X_DOM;
+		quot = dir.GetY()/dir.GetX();
+	} else {
+		dom = Y_DOM;
+		quot = dir.GetX()/dir.GetY();
+	}
+	
+#ifdef _AI_DEBUG
+	//SDL_Surface *bmpDest = pcMap->GetDebugImage();
+#endif
+	
+	uchar* pxflags = pcMap->GetPixelFlags();
+	uchar* gridflags = pcMap->getAbsoluteGridFlags();
+	int map_w = pcMap->GetWidth();
+	int map_h = pcMap->GetHeight();	
+    int grid_w = pcMap->getGridWidth();
+    int grid_h = pcMap->getGridHeight();
+	int grid_cols = pcMap->getGridCols();
+	
+	int start_x = (int)start.GetX();
+	int start_y = (int)start.GetY();
+	int last_gridflag_i = -1;
+	int gridflag_i;
+	int pos_x, pos_y;
+	int grid_x, grid_y;
+	register int x = 0;
+	register int y = 0;
+	while(true) {
+		// is all done?
+		if(s_x*x > s_x*(int)dir.GetX()
+		|| s_y*y > s_y*(int)dir.GetY())
+		{
+			break;
+		}
+		
+		// this is my current pos
+		pos_x = start_x + x;
+		pos_y = start_y + y;
+			
+		// clipping?
+		if(pos_x < 0 || pos_x >= map_w
+		|| pos_y < 0 || pos_y >= map_h)
+		{
+			break;
+		}
+		
+#ifdef _AI_DEBUG
+		//PutPixel(bmpDest,pos_x*2,pos_y*2,MakeColour(255,255,0));
+#endif
+			
+		// inside the grid
+		grid_x = pos_x / grid_w;
+		grid_y = pos_y / grid_h;
+
+		// got we some usefull info from our grid?
+		gridflag_i = grid_y*grid_cols + grid_x;
+		if(last_gridflag_i != gridflag_i) {
+			last_gridflag_i = gridflag_i;
+			if(!(gridflags[gridflag_i] & checkflag)) {
+				// yes, we did, no checkflag inside
+				// go behind this grid-cell
+				// the following checks works, because |quot| <= 1
+				// make some pictures, then you will belive me :)
+				if(dom != Y_DOM) { // X_DOM
+					if(s_x > 0) {
+						if(s_y > 0) {
+							if( pos_x != (grid_x+1)*grid_w &&
+							(float(pos_y - (grid_y+1)*grid_h))/float(pos_x - (grid_x+1)*grid_w) <= quot )
+								x += int(float((grid_y+1)*grid_h - pos_y)/quot) + 1; // down
+							else
+								x = (grid_x+1)*grid_w - start_x; // right
+						} else { // s_y < 0
+							if( pos_x != (grid_x+1)*grid_w &&
+							(float(pos_y - grid_y*grid_h))/float(pos_x - (grid_x+1)*grid_w) >= quot )
+								x += int(float(grid_y*grid_h - pos_y)/quot) + 1; // up
+							else
+								x = (grid_x+1)*grid_w - start_x; // right
+						}
+					} else { // s_x < 0
+						if(s_y > 0) {
+							if( pos_x != grid_x*grid_w &&
+							(float(pos_y - (grid_y+1)*grid_h))/float(pos_x - grid_x*grid_w) >= quot )
+								x += int(float((grid_y+1)*grid_h - pos_y)/quot) - 1; // down
+							else
+								x = grid_x*grid_w - start_x - 1; // left
+						} else { // s_y < 0
+							if( pos_x != grid_x*grid_w &&
+							(float(pos_y - grid_y*grid_h))/float(pos_x - grid_x*grid_w) <= quot )
+								x += int(float(grid_y*grid_h - pos_y)/quot) - 1; // up
+							else
+								x = grid_x*grid_w - start_x - 1; // left
+						}
+					}
+				} else { // Y_DOM
+					if(s_y > 0) {
+						if(s_x > 0) {
+							if( pos_y != (grid_y+1)*grid_h &&
+							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - (grid_y+1)*grid_h) <= quot )
+								y += int(float((grid_x+1)*grid_w - pos_x)/quot) + 1; // right
+							else
+								y = (grid_y+1)*grid_h - start_y; // down
+						} else { // s_y < 0
+							if( pos_y != (grid_y+1)*grid_h &&
+							(float(pos_x - grid_x*grid_w))/float(pos_y - (grid_y+1)*grid_h) >= quot )
+								y += int(float(grid_x*grid_w - pos_x)/quot) + 1; // left
+							else
+								y = (grid_y+1)*grid_h - start_y; // down
+						}
+					} else { // s_y < 0
+						if(s_x > 0) {
+							if( pos_y != grid_y*grid_h &&
+							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - grid_y*grid_h) >= quot )
+								y += int(float((grid_x+1)*grid_w - pos_x)/quot) - 1; // right
+							else
+								y = grid_y*grid_h - start_y - 1; // up
+						} else { // s_y < 0
+							if( pos_y != grid_y*grid_h &&
+							(float(pos_x - grid_x*grid_w))/float(pos_y - grid_y*grid_h) <= quot )
+								y += int(float(grid_x*grid_w - pos_x)/quot) - 1; // left
+							else
+								y = grid_y*grid_h - start_y - 1; // up
+						}
+					}
+				}
+				continue;
+			}		
+		}
+		
+		// is the checkflag fitting to our current flag?
+		if(pxflags[pos_y*map_w + pos_x] & checkflag)
+			// do the given action; break if false
+			if(!checkflag_action(pos_x, pos_y))
+				break;
+		
+		// go ahead
+		if(dom != Y_DOM) { // X_DOM
+			x += s_x;
+			y = (int)(quot*(float)x);
+		} else { // Y_DOM
+			y += s_y;
+			x = (int)(quot*(float)y);
+		}
+	}
+	
+	return checkflag_action;
+}
+
+
+
+class set_col_and_break {
+public:
+	CVec* collision;
+	bool hit;
+	
+	set_col_and_break(CVec* col) : collision(col), hit(false) {}
+	bool operator()(int x, int y) {
+		hit = true;
+		if(collision) {
+			collision->SetX(x);
+			collision->SetY(y);			
+		}
+		return false;
+	}
+};
+
+
 ////////////////////
 // Trace the line with worm width
 int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
-{
-
-/*#ifdef _AI_DEBUG
-	SDL_Surface *bmpDest = pcMap->GetDebugImage();
-	if (!bmpDest)
-		return true;
-
-	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,MakeColour(255,0,255));
-#endif*/
-
-	// If the positions are really close, just return true
-	/*if (CalculateDistance(target,start) < 3)
-		return true;*/
-
-	const short worm_size = 10;
-
-    // Trace lines from worm to the target
-	/*float fi = VectorAngle(CVec(target.GetX()-start.GetX(),target.GetY()-start.GetY()),CVec(1,0));
-	float debug_fi = RAD2DEG(fi);
-	float x_ratio = (float)sin(fi);
-	float y_ratio = (float)cos(fi);*/
-
+{	
+	if(collision) {
+		collision->SetX(target.GetX());
+		collision->SetY(target.GetY());
+	}
+	return !fastTraceLine(target, start, pcMap, (uchar)PX_ROCK, set_col_and_break(collision)).hit;
+	
+/*	
 	// Get the positions
 	CVec    pos;
 	CVec    dir = target-start;
@@ -2534,57 +2703,29 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 	uchar* pxflags = pcMap->GetPixelFlags();
 	int map_w = pcMap->GetWidth();
 	int map_h = pcMap->GetHeight();
-
-	short num_good = worm_size;
 	
-/*	for (j=0;j<worm_size;j++)  {
 
-		// this is not correct this way...
-		pos = start+CVec((float)(j-worm_size/2),(float)(j-worm_size/2));
-*/
 	pos = start;
 	
-		// Trace the line
-		int i;
-		uchar px;
-		for(i=0; i<nTotalLength; i++) {
-			if( (int)pos.GetX() < 0 || (int)pos.GetX() >= map_w 
-			|| (int)pos.GetY() < 0 || (int)pos.GetY() >= map_h )
-				px = PX_ROCK;
-			else
-				px = pxflags[(int)pos.GetX() + map_w*(int)pos.GetY()];
+	// Trace the line
+	int i;
+	uchar px;
+	for(i=0; i<nTotalLength; i++) {
+		if( (int)pos.GetX() < 0 || (int)pos.GetX() >= map_w 
+		|| (int)pos.GetY() < 0 || (int)pos.GetY() >= map_h )
+			px = PX_ROCK;
+		else
+			px = pxflags[(int)pos.GetX() + map_w*(int)pos.GetY()];
 
-			if(px & PX_ROCK) {
-				// If we almost reached the target, just take it as if we reached it really
-				if (nTotalLength-i > 8)
-					num_good--;
-				/*if (num_good < 8) {*/
-				if(num_good < worm_size) { // test, if it also works that exactly
-					if(collision) {
-						collision->SetX(pos.GetX()-dir.GetX());
-						collision->SetY(pos.GetY()-dir.GetY());					
-					}
-					return false;				
-				}
-				//break;
+		if(px & PX_ROCK) {
+			if(collision) {
+				collision->SetX(pos.GetX()-dir.GetX());
+				collision->SetY(pos.GetY()-dir.GetY());					
 			}
+			return false;				
+		}
 
-			pos += dir;
-
-/*#ifdef _AI_DEBUG
-			int _x = 2*(int)pos.GetX();
-			int _y = 2*(int)pos.GetY();
-			if (_x < 0 || _x > bmpDest->w)
-				continue;
-			if (_y < 0 || _y > bmpDest->h)
-				continue;
-			PutPixel(bmpDest,_x, _y, MakeColour(255,j*15,0));
-			PutPixel(bmpDest,_x+1,_y, MakeColour(255,j*15,0));
-			PutPixel(bmpDest,_x,_y+1, MakeColour(255,j*15,0));
-			PutPixel(bmpDest,_x+1, _y+1, MakeColour(255,j*15,0));
-#endif*/
-	/*	}
-	*/
+		pos += dir;
 	}
 
 	if(collision) {
@@ -2593,7 +2734,7 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 	}
 
 	return true;
-
+*/
 }
 
 ////////////////////////
@@ -2720,24 +2861,21 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	if (tLX->fCurTime - fLastCreated <= 5.0f)  {
 		return NEW_psPath != NULL;
 	}
-
+	
 	CVec trg = AI_GetTargetPos();
-	CVec pos = vPos;
-
-
-/*#ifdef _AI_DEBUG
-	SDL_Surface *bmpDest = pcMap->GetDebugImage();
-	if (bmpDest)
-		DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,MakeColour(255,0,255));
-#endif*/
-
-
 	
 	// Create a new path
-	if(bPathFinished)
+	//if(bPathFinished) // TODO: this will work perhaps later
 		NEW_AI_CleanupStoredNodes(); // start a new search
 	bPathFinished = false;
-	NEW_psPath = NEW_AI_ProcessPath(trg,pos,pcMap);
+	NEW_psPath = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
+	if (!NEW_psPath) return false;
+	NEW_psPath->fX = vPos.GetX();
+	NEW_psPath->fY = vPos.GetY();
+	NEW_psPath->psPrev = NULL;
+	NEW_psPath->psNext = NULL;
+	AI_storeNodes(NEW_psPath, NEW_psPath);
+	NEW_psPath->psNext = NEW_AI_ProcessPath(trg,vPos,pcMap);
 	NEW_psLastNode = get_last_ai_node(NEW_psPath);
 	if(NEW_psLastNode)
 		if (NEW_psLastNode->fX == trg.GetX() && NEW_psLastNode->fY == trg.GetY())
@@ -2750,7 +2888,7 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	}
 
 #ifdef _AI_DEBUG
-	//NEW_AI_DrawPath(pcMap);
+	NEW_AI_DrawPath(pcMap);
 #endif
 
 	// Set the current node to the beginning of the path
@@ -2856,7 +2994,7 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 	if (!bmpDest)
 		return;
-	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,MakeColour(255,0,255));
+//	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,MakeColour(255,0,255));
 #endif
 
 	// Add the start node to the path
@@ -2978,21 +3116,25 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 }
 
 
-CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap) {
+CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap) {
+	
+	/*
+		TODO: the algo can made a bit more general, which would increase the finding		
+	*/
 	
 #ifdef _AI_DEBUG
-	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+	//SDL_Surface *bmpDest = pcMap->GetDebugImage();
 #endif
 
 	unsigned short i = 0;
 	int map_w = pcMap->GetWidth();
 	int map_h = pcMap->GetHeight();
 	uchar* pxflags = pcMap->GetPixelFlags();
-	CVec pos = vPoint;
-	CVec best = vPoint;
+	CVec pos = vStart;
+	CVec best = vStart;
 	CVec end, possible_end;
-	traceWormLine(vTarget,vPoint,pcMap,&end);
-	CVec backdir = vPoint - vTarget;
+	traceWormLine(vTarget,vStart,pcMap,&end);
+	CVec backdir = vStart - vTarget;
 	backdir = backdir / backdir.GetLength();
 	end -= backdir*3;
 	float best_length = (end-pos).GetLength2();
@@ -3196,8 +3338,6 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 		return rememberPos2;
 }
 
-const float nodesGridWidth = 10;
-
 void CWorm::AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 	NEW_ai_node_t* tmpnode = NULL;
 	short s1, s2;
@@ -3238,11 +3378,6 @@ void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 // Process the path
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
-/*
-	TODO: return, if we got into a cycle
-	
-*/
-	
 	// Too many recursions? End
 	if (recDeep > 7)
 		return NULL;
@@ -3284,6 +3419,10 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	for(x1 = -1; x1 <= 1; x1++, ipos += CVec(1,0))
 	for(y1 = -1; y1 <= 1; y1++, ipos += CVec(0,1))
 	for(it1 = storedNodes.lower_bound(ipos); it1 != storedNodes.upper_bound(ipos); ++it1) {
+		// if the found node doesn't know better, ignore
+		if(!it1->second->psNext)
+			continue;
+	
 		if(it1->second->fX == col.GetX() && it1->second->fY == col.GetY()) {
 			// a little bit strange that we were exactly here...
 			target = it1->second;
@@ -3306,6 +3445,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		if(target) {
 			// if we got here, we can use the already found way and start at its end
 
+	// TODO: only do this, if no one else do atm
 			NEW_ai_node_t* last = get_last_ai_node(target);
 			last->psNext = NEW_AI_ProcessPath(trg, CVec(last->fX,last->fY), pcMap, recDeep+1);
 			if(last->psNext)
@@ -3327,9 +3467,9 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90 deg
 	
 	// turn left and look
-	CVec cNewNodePos1 = NEW_AI_FindBestFreeSpot(col,-dir,trg,&newtrg1,pcMap);
+	CVec cNewNodePos1 = NEW_AI_FindBestFreeSpot(pos,col,-dir,trg,&newtrg1,pcMap);
 	// turn right and look
-	CVec cNewNodePos2 = NEW_AI_FindBestFreeSpot(col,dir,trg,&newtrg2,pcMap);
+	CVec cNewNodePos2 = NEW_AI_FindBestFreeSpot(pos,col,dir,trg,&newtrg2,pcMap);
 	
 	  // From newtrg1 to trg
 	NEW_ai_node_t* newNode1 = NEW_AI_ProcessPath(trg,newtrg1,pcMap,recDeep+1);
@@ -3447,7 +3587,6 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 // Draw the AI path
 void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 {
-	//return;
 	if (!NEW_psPath)
 		return;
 
@@ -3459,7 +3598,7 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 	const int LineColour = 0xffff;
 	const int transparent = MakeColour(255,0,255);
 
-	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,transparent);
+	//(bmpDest,0,0,bmpDest->w,bmpDest->h,transparent);
 
 	// Go down the path
 	NEW_ai_node_t *node = NEW_psCurrentNode;
@@ -3488,49 +3627,41 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 }
 #endif
 
+
 /////////////////////////
 // Finds the best spot to shoot rope to if we want to get to trg
 CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 {
 	// Get the direction angle
-	CVec dir = trg-vPos;
+	CVec start_dir = trg-vPos;
 
 	// Normalize
-	dir = dir*3/dir.GetLength();
-
-	// Take care of the maximal rope length
-	while (CalculateDistance(vPos,trg) >= cNinjaRope.getMaxLength())
-		trg -= dir;
-
-	// Get the start and end angle
-	float direction_angle = (float)atan2(dir.GetX(), dir.GetY())+(float)PI/2;
-	if(trg.GetX() > trg.GetX())
-		direction_angle = -direction_angle + (float)PI/2;
-	else
-		direction_angle += (float)PI/2;
-	float start_angle = direction_angle+(float)PI/2;
-	float end_angle = direction_angle+(float)PI*3/2;
-
+	start_dir = start_dir*3/start_dir.GetLength();
+	start_dir = CVec(-start_dir.y,start_dir.x); // rotate reverse-clockwise by 90 deg
+	
 	// Variables
 	int iRadius = 10;
 	int x,y;
 	float step = 0.05f*(float)PI;
 	float ang = 0;
 	uchar px = PX_EMPTY;
-
+	
+	SquareMatrix step_m = SquareMatrix::RotateMatrix(-step);
+	CVec dir;
+	 
 	// Draw a half-circle in the direction of the target
-	while(1)  {
-		for (ang=start_angle;ang<end_angle;ang+=step)  {
-			x = iRadius*sin(ang)+trg.GetX();
-			y = iRadius*cos(ang)+trg.GetY();
+	while(iRadius < cNinjaRope.getMaxLength())  {
+		for(dir=start_dir*iRadius,ang=0;ang<(float)PI;dir=step_m(dir),ang+=step) {
+			x = (int)(dir.x+vPos.x);
+			y = (int)(dir.y+vPos.y);
 
 			px = pcMap->GetPixelFlag(x,y);
 
-/*#ifdef _AI_DEBUG
+#ifdef _AI_DEBUG
 			if (x >= 0 && x <= pcMap->GetWidth())
 				if (y >= 0 &&  y <= pcMap->GetHeight()) 
 					PutPixel(pcMap->GetDebugImage(),x*2,y*2,MakeColour(255,0,0));
-#endif*/
+#endif
 
 			// Rock or dirt? We've found it
 			if (px & PX_ROCK || px & PX_DIRT)  {
