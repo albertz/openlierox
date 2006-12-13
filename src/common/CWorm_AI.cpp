@@ -2707,14 +2707,15 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 class set_col_and_break {
 public:
 	CVec* collision;
+	CVec start;
 	bool hit;
 	
-	set_col_and_break(CVec* col) : collision(col), hit(false) {}
+	set_col_and_break(CVec st, CVec* col) : start(st), collision(col), hit(false) {}
 	bool operator()(int x, int y) {
 		hit = true;
-		if(collision) {
-			collision->x=(x);
-			collision->y=(y);			
+		if(collision && (*collision - start).GetLength2() > x*x + y*y) {
+			collision->x = x;
+			collision->y = y;			
 		}
 		return false;
 	}
@@ -2725,11 +2726,21 @@ public:
 // Trace the line with worm width
 int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 {	
+	static const unsigned short wormsize = 5;
+
 	if(collision) {
-		collision->x=(target.x);
-		collision->y=(target.y);
+		collision->x = target.x;
+		collision->y = target.y;
 	}
-	return !fastTraceLine(target, start, pcMap, (uchar)PX_ROCK, set_col_and_break(collision)).hit;
+	
+	CVec dir = CVec(target.y-start.y,start.x-target.x); // rotate clockwise by 90 deg
+	NormalizeVector(&dir);
+	set_col_and_break action = set_col_and_break(start - dir*(wormsize-1)/2, collision);
+	target -= dir*(wormsize-1)/2;
+	for(register unsigned short i = 0; i < wormsize; i++, action.start += dir, target += dir)
+		action = fastTraceLine(target, action.start, pcMap, (uchar)PX_ROCK, action);
+	
+	return !action.hit;
 	
 /*	
 	// Get the positions
@@ -2901,22 +2912,28 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	
 	CVec trg = AI_GetTargetPos();
 	
+	bPathFinished = true; // treat it like this; TODO: this will work perhaps later
+	
 	// Create a new path
-	//if(bPathFinished) // TODO: this will work perhaps later
+	if(bPathFinished) // this indicates, that we should start a new one
 		NEW_AI_CleanupStoredNodes(); // start a new search
-	bPathFinished = false;
+	
 	NEW_psPath = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
-	if (!NEW_psPath) return false;
+	if (!NEW_psPath) return false;	
 	NEW_psPath->fX = vPos.x;
 	NEW_psPath->fY = vPos.y;
 	NEW_psPath->psPrev = NULL;
 	NEW_psPath->psNext = NULL;
 	AI_storeNodes(NEW_psPath, NEW_psPath);
+
+	if(bPathFinished)
+		// Set the current node to the beginning of the path, because we aare starting a new one
+		NEW_psCurrentNode = NEW_psPath;
+	
 	NEW_psPath->psNext = NEW_AI_ProcessPath(trg,vPos,pcMap);
 	NEW_psLastNode = get_last_ai_node(NEW_psPath);
-	if(NEW_psLastNode)
-		if (NEW_psLastNode->fX == trg.x && NEW_psLastNode->fY == trg.y)
-			bPathFinished = true;
+	if (NEW_psLastNode->fX == trg.x && NEW_psLastNode->fY == trg.y)
+		bPathFinished = true;
 	
 	if(bPathFinished) {
 		fLastCreated = tLX->fCurTime;
@@ -2927,9 +2944,6 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 #ifdef _AI_DEBUG
 	NEW_AI_DrawPath(pcMap);
 #endif
-
-	// Set the current node to the beginning of the path
-	NEW_psCurrentNode = NEW_psPath;
 
 	return NEW_psPath != NULL;
 }
@@ -3169,12 +3183,12 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 	uchar* pxflags = pcMap->GetPixelFlags();
 	CVec pos = vStart;
 	CVec best = vStart;
-	CVec end, possible_end;
-	traceWormLine(vTarget,vStart,pcMap,&end);
+	CVec end = pos;
+	CVec possible_end;
 	CVec backdir = vStart - vTarget;
 	backdir = backdir / backdir.GetLength();
-	end -= backdir*3;
-	float best_length = (end-pos).GetLength2();
+	end -= backdir*6;
+	float best_length = -1; // the higher it is, the better it is
 	vDirection = vDirection / vDirection.GetLength();
 	bool lastWasObstacle = false;
 	bool lastWasMissingCon = false;
@@ -3211,7 +3225,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 					
 
 		if(i % 4 == 0 || lastWasMissingCon) {
-			// do we still have a direct connection to the start?
+			// do we still have a direct connection to the point?
 			if(!traceWormLine(vPoint,pos,pcMap)) {
 				// perhaps we are behind an edge (because auf backdir)
 				// then go a little more to backdir
@@ -3226,15 +3240,16 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 		if(i % 4 == 0) {
 			// this is the parallel to backdir
 			traceWormLine(pos-backdir*1000,pos,pcMap,&possible_end);
-			possible_end += backdir*3/backdir.GetLength();
+			possible_end += backdir*5/backdir.GetLength();
 #ifdef _AI_DEBUG
 			//PutPixel(bmpDest,(int)possible_end.x*2,(int)possible_end.y*2,MakeColour(255,0,255));
 #endif
 			// 'best' is, if we have much free way infront of pos
-			if((possible_end-pos).GetLength2() > best_length) {
+			// and if we are not so far away from the start
+			if((possible_end-pos).GetLength2()/(pos-vPoint).GetLength2() > best_length) {
 				end = possible_end;
 				best = pos;
-				best_length = (possible_end-pos).GetLength2();
+				best_length = (possible_end-pos).GetLength2()/(pos-vPoint).GetLength2();
 			}
 		}
 	}
@@ -3416,6 +3431,7 @@ void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
 	// Too many recursions? End
+	// (but: a higher value can result in more results which can also be faster)
 	if (recDeep > 7)
 		return NULL;
 	
@@ -3445,7 +3461,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	// The two nodes are not visible from each other
 	
 	CVec dir = trg-pos;
-	col -= dir*3/dir.GetLength(); // go some steps back, that we don't sit in a rock
+	col -= dir*5/dir.GetLength(); // go some steps back, that we don't sit in a rock
 
 	// check if we found already one here (at col) (stored in storedNodes)
 	nodes_map::iterator it1; short x1, y1;
@@ -4094,7 +4110,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 
 		// Get the best spot to shoot the rope to
-		pcMap->ClearDebugImage();
+	//	pcMap->ClearDebugImage();
 		cAimPos = NEW_AI_GetBestRopeSpot(cAimPos,pcMap);
 
 /*
