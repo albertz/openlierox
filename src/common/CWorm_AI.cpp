@@ -3716,8 +3716,8 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 			px = pcMap->GetPixelFlag(x,y);
 
 #ifdef _AI_DEBUG
-			if (x >= 0 && x <= pcMap->GetWidth())
-				if (y >= 0 &&  y <= pcMap->GetHeight()) 
+			if (x > 0 && x < pcMap->GetWidth())
+				if (y > 0 &&  y < pcMap->GetHeight()) 
 					PutPixel(pcMap->GetDebugImage(),x*2,y*2,MakeColour(255,0,0));
 #endif
 

@@ -152,6 +152,17 @@ typedef struct {
 	char sPlayerHasWon[64];
 	char sTeamOut[64];
 	char sTeamHasWon[64];
+
+	char sWormIsIt[64];
+
+	char sServerFull[64];
+	char sNoEmptySlots[64];
+	char sWrongProtocol[64];
+	char sBadVerification[64];
+	char sNoIpVerification[64];
+	char sGameInProgress[64];
+	char sYouAreBanned[64];
+	char sWantsJoin[64];
 } networktexts_t;
 
 

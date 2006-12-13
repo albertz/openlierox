@@ -21,3 +21,14 @@ PlayerOut = <player> is out of the game
 TeamOut = The <team> team is out of the game
 PlayerHasWon = <player> has won the match
 TeamHasWon = The <team> team has won the match
+
+WormIsIt = <player> is IT!
+
+ServerFull = Server is full
+NoEmptySlots = Server has no empty slots
+WrongProtocol = Wrong protocol version. The server protocol version is <version>
+BadVerification = Bad connection verification
+NoIpVerification = No verification for address
+GameInProgress = Cannot join, the game is currently in progress
+YouAreBanned = You are banned on this server
+WantsJoin = <player> wants join the server

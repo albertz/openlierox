@@ -302,6 +302,17 @@ bool LoadNetworkStrings(void)
 	ReadString (f, "NetworkTexts", "PlayerHasWon",	  NetworkTexts->sPlayerHasWon,	 "<player> has won the match");
 	ReadString (f, "NetworkTexts", "TeamHasWon",	  NetworkTexts->sTeamHasWon,	 "The <team> team has won the match");
 
+	ReadString (f, "NetworkTexts", "WormIsIt",		  NetworkTexts->sWormIsIt,		 "<player> is IT!");
+
+	ReadString (f, "NetworkTexts", "ServerFull",	  NetworkTexts->sServerFull,	 "Server is full");
+	ReadString (f, "NetworkTexts", "NoEmptySlots",	  NetworkTexts->sNoEmptySlots,	 "The server has no emtpy slots");
+	ReadString (f, "NetworkTexts", "WrongProtocol",	  NetworkTexts->sWrongProtocol,	 "Wrong protocol version. Server protocol version is <version>.");
+	ReadString (f, "NetworkTexts", "BadVerification", NetworkTexts->sBadVerification,"Bad connection verification");
+	ReadString (f, "NetworkTexts", "NoIpVerification",NetworkTexts->sNoIpVerification,"No verification for address");
+	ReadString (f, "NetworkTexts", "GameInProgress",  NetworkTexts->sGameInProgress, "Cannot join, the game is currently in progress");
+	ReadString (f, "NetworkTexts", "YouAreBanned",	  NetworkTexts->sYouAreBanned,	 "You are banned on this server");
+	ReadString (f, "NetworkTexts", "WantsJoin",		  NetworkTexts->sWantsJoin,		 "<player> wants join the server");
+
 	return true;
 }
 

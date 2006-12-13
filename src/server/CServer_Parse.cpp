@@ -618,7 +618,7 @@ void CServer::ParseGetChallenge(void)
 		bs.Clear();
 		bs.writeInt(-1,4);
 		bs.writeString("%s","lx::badconnect");
-		bs.writeString("%s","Cannot join, the game is currently in progress");
+		bs.writeString("%s",NetworkTexts->sGameInProgress);
 		bs.Send(tSocket);
 		return;
 	}
@@ -689,12 +689,23 @@ void CServer::ParseConnect(CBytestream *bs)
 	// Read packet
 	ProtocolVersion = bs->readInt(1);
 	if(ProtocolVersion != PROTOCOL_VERSION) {
-		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);		
+		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);
+		
+		// Get the string to send
+		char buf[256];
+		if (strcmp(NetworkTexts->sTeamHasWon,"<none>"))  {
+			char buf2[3];
+			sprintf(buf2,"%d",PROTOCOL_VERSION);
+			replacemax(NetworkTexts->sWrongProtocol,"<version>",buf2,buf,1);
+		}
+		else
+			strcpy(buf," ");
+
 		// Wrong protocol version, don't connect client
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s","Wrong protocol version, server protocol version is %d",PROTOCOL_VERSION);
+		bytestr.writeString("%s",buf);
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -708,7 +719,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s","You are banned on this server");
+		bytestr.writeString("%s",NetworkTexts->sYouAreBanned);
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -742,7 +753,7 @@ void CServer::ParseConnect(CBytestream *bs)
 			bytestr.Clear();
 			bytestr.writeInt(-1,4);
 			bytestr.writeString("%s","lx::badconnect");
-			bytestr.writeString("%s","Bad connection verification");
+			bytestr.writeString("%s",NetworkTexts->sBadVerification);
 			bytestr.Send(tSocket);
 			return;
 		}
@@ -754,7 +765,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s","No verification for address");
+		bytestr.writeString("%s",NetworkTexts->sNoIpVerification);
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -817,7 +828,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s","Server has no empty slots");
+		bytestr.writeString("%s",NetworkTexts->sNoEmptySlots);
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -828,7 +839,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s","Server is full");
+		bytestr.writeString("%s",NetworkTexts->sServerFull);
 		bytestr.Send(tSocket);
 		return;
 	}	
@@ -1015,10 +1026,14 @@ void CServer::ParseWantsJoin(CBytestream *bs)
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;
 	char Nick[128];
-	bs->readString(&Nick[0]);
+	bs->readString(Nick);
 	char buf[256];
-	sprintf(&buf[0],"%s wants join the server",&Nick);
-	SendGlobalText(buf, TXT_NORMAL);
+
+	// Notify about the wants join
+	if (strcmp(NetworkTexts->sWantsJoin,"<none>"))  {
+		replacemax(NetworkTexts->sWantsJoin,"<player>",Nick,buf,1);
+		SendGlobalText(buf,TXT_NORMAL);
+	}
 }
 
 
