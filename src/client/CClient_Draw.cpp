@@ -369,8 +369,8 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	int t = view->GetTop();
 	
 	CVec vPosition = tLX->debug_pos;
-	x=((int)vPosition.GetX()-wx)*2+l;
-	y=((int)vPosition.GetY()-wy)*2+t;
+	x=((int)vPosition.x-wx)*2+l;
+	y=((int)vPosition.y-wy)*2+t;
 
 	DrawRectFill(bmpDest, x-2,y-2,x+2,y+2,0xffff);*/
 }

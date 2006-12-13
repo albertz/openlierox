@@ -153,10 +153,10 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 		flags |= SMF_NEGSPEED;				// Negative speed
 
 
-	short x = (short)psShot->cPos.GetX();
-	short y = (short)psShot->cPos.GetY();
-	short vx = (short)psShot->cWormVel.GetX();
-	short vy = (short)psShot->cWormVel.GetY();
+	short x = (short)psShot->cPos.x;
+	short y = (short)psShot->cPos.y;
+	short vx = (short)psShot->cWormVel.x;
+	short vy = (short)psShot->cWormVel.y;
 	
 	// Write the packet
 	bs->writeByte( S2C_SINGLESHOOT );
@@ -215,8 +215,8 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 			(m_psShoot[i].fTime - m_psShoot[i-1].fTime)*1000 > 255 ||
 			abs(m_psShoot[i].nAngle - m_psShoot[i-1].nAngle) > 255 ||
 			abs(m_psShoot[i].nSpeed - m_psShoot[i-1].nSpeed) > 255 ||
-			abs((int)m_psShoot[i].cWormVel.GetX() - (int)m_psShoot[i-1].cWormVel.GetX()) > 255 ||
-			abs((int)m_psShoot[i].cWormVel.GetY() - (int)m_psShoot[i-1].cWormVel.GetY()) > 255 ||
+			abs((int)m_psShoot[i].cWormVel.x - (int)m_psShoot[i-1].cWormVel.x) > 255 ||
+			abs((int)m_psShoot[i].cWormVel.y - (int)m_psShoot[i-1].cWormVel.y) > 255 ||
 			num > 255) {
 
 			break;
@@ -250,10 +250,10 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 		flags |= SMF_NEGSPEED;				// Negative speed
 
 
-	short x = (short)psShot->cPos.GetX();
-	short y = (short)psShot->cPos.GetY();
-	short vx = (short)psShot->cWormVel.GetX();
-	short vy = (short)psShot->cWormVel.GetY();
+	short x = (short)psShot->cPos.x;
+	short y = (short)psShot->cPos.y;
+	short vx = (short)psShot->cWormVel.x;
+	short vy = (short)psShot->cWormVel.y;
 
 	// Write the packet
 	bs->writeByte( S2C_MULTISHOOT );
@@ -306,27 +306,27 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	shoot_t	*psShot = &m_psShoot[index];
 
 	
-	int xoff = (int)( psShot->cPos.GetX() - psFirst->cPos.GetX() );
-	int yoff = (int)( psShot->cPos.GetX() - psFirst->cPos.GetX() );
+	int xoff = (int)( psShot->cPos.x - psFirst->cPos.x );
+	int yoff = (int)( psShot->cPos.x - psFirst->cPos.x );
 	xoff = abs(xoff);
 	yoff = abs(yoff);
 
 	// Set the flags
 	if( psShot->fTime != psFirst->fTime )
 		flags |= SHF_TIMEOFF;
-	if( (int)psShot->cPos.GetX() != (int)psFirst->cPos.GetX() )
+	if( (int)psShot->cPos.x != (int)psFirst->cPos.x )
 		flags |= SHF_XPOSOFF;
-	if( (int)psShot->cPos.GetY() != (int)psFirst->cPos.GetY() )
+	if( (int)psShot->cPos.y != (int)psFirst->cPos.y )
 		flags |= SHF_YPOSOFF;
 	if( psShot->nAngle != psFirst->nAngle )
 		flags |= SHF_ANGLEOFF;
 	if( psShot->nSpeed != psFirst->nSpeed )
 		flags |= SHF_SPEEDOFF;
-	if( (int)psShot->cPos.GetX() < (int)psShot->cPos.GetX() ) {
+	if( (int)psShot->cPos.x < (int)psShot->cPos.x ) {
 		flags |= SHF_NG_XPOSOFF;
 		flags &= ~SHF_XPOSOFF;
 	}
-	if( (int)psShot->cPos.GetY() < (int)psShot->cPos.GetY() ) {
+	if( (int)psShot->cPos.y < (int)psShot->cPos.y ) {
 		flags |= SHF_NG_YPOSOFF;
 		flags &= ~SHF_YPOSOFF;
 	}
@@ -345,15 +345,15 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	if( yoff >= 32 )
 		extraflags |= SHF_LARGEYOFF;
 
-	if( (int)psShot->cWormVel.GetX() != (int)psFirst->cWormVel.GetX() )
+	if( (int)psShot->cWormVel.x != (int)psFirst->cWormVel.x )
 		flags |= SHF_XWRMVEL;
-	if( (int)psShot->cWormVel.GetY() != (int)psFirst->cWormVel.GetY() )
+	if( (int)psShot->cWormVel.y != (int)psFirst->cWormVel.y )
 		flags |= SHF_YWRMVEL;
-	if( (int)psShot->cWormVel.GetX() < (int)psFirst->cWormVel.GetX() ) {
+	if( (int)psShot->cWormVel.x < (int)psFirst->cWormVel.x ) {
 		extraflags &= ~SHF_XWRMVEL;
 		extraflags |= SHF_NG_XWRMVEL;
 	}
-	if( (int)psShot->cWormVel.GetY() < (int)psFirst->cWormVel.GetY() ) {
+	if( (int)psShot->cWormVel.y < (int)psFirst->cWormVel.y ) {
 		extraflags &= ~SHF_YWRMVEL;
 		extraflags |= SHF_NG_YWRMVEL;
 	}
@@ -403,13 +403,13 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	
 	// Worm velocity
 	if( extraflags & SHF_XWRMVEL )
-		bs->writeByte( (int)psShot->cWormVel.GetX() - (int)psFirst->cWormVel.GetX() );
+		bs->writeByte( (int)psShot->cWormVel.x - (int)psFirst->cWormVel.x );
 	if( extraflags & SHF_YWRMVEL )
-		bs->writeByte( (int)psShot->cWormVel.GetY() - (int)psFirst->cWormVel.GetY() );
+		bs->writeByte( (int)psShot->cWormVel.y - (int)psFirst->cWormVel.y );
 	if( extraflags & SHF_NG_XWRMVEL )
-		bs->writeByte( (int)psFirst->cWormVel.GetX() - (int)psShot->cWormVel.GetX() );
+		bs->writeByte( (int)psFirst->cWormVel.x - (int)psShot->cWormVel.x );
 	if( extraflags & SHF_NG_YWRMVEL )
-		bs->writeByte( (int)psFirst->cWormVel.GetY() - (int)psShot->cWormVel.GetY() );
+		bs->writeByte( (int)psFirst->cWormVel.y - (int)psShot->cWormVel.y );
 }
 
 
@@ -592,19 +592,19 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 	// Worm velocity
 	if( extraflags & SHF_XWRMVEL ) {
 		int velx = bs->readByte();
-		psShot->cWormVel.SetX( psShot->cWormVel.GetX() + (float)velx );
+		psShot->cWormVel.x=( psShot->cWormVel.x + (float)velx );
 	}
 	if( extraflags & SHF_YWRMVEL ) {
 		int vely = bs->readByte();
-		psShot->cWormVel.SetY( psShot->cWormVel.GetY() + (float)vely );
+		psShot->cWormVel.y=( psShot->cWormVel.y + (float)vely );
 	}
 	if( extraflags & SHF_NG_XWRMVEL ) {
 		int velx = bs->readByte();
-		psShot->cWormVel.SetX( psShot->cWormVel.GetX() - (float)velx );
+		psShot->cWormVel.x=( psShot->cWormVel.x - (float)velx );
 	}
 	if( extraflags & SHF_NG_YWRMVEL ) {
 		int vely = bs->readByte();
-		psShot->cWormVel.SetY( psShot->cWormVel.GetY() - (float)vely );
+		psShot->cWormVel.y=( psShot->cWormVel.y - (float)vely );
 	}
 
 	m_nNumShootings++;

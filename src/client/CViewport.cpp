@@ -114,8 +114,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         // Follow the worm
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
-	            WorldX = (int)floor(pcTargetWorm->getPos().GetX()-hx);
-	            WorldY = Round(pcTargetWorm->getPos().GetY()-hy);
+	            WorldX = (int)floor(pcTargetWorm->getPos().x-hx);
+	            WorldY = Round(pcTargetWorm->getPos().y-hy);
 										
 
                 // Clear the timer
@@ -164,8 +164,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         // Follow the worm
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
-	            WorldX = (int)floor(pcTargetWorm->getPos().GetX()-hx);
-	            WorldY = Round(pcTargetWorm->getPos().GetY()-hy);
+	            WorldX = (int)floor(pcTargetWorm->getPos().x-hx);
+	            WorldY = Round(pcTargetWorm->getPos().y-hy);
 
                 // Clear the timer
                 fTimer = -1;
@@ -232,8 +232,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         if( l > 2 )
             curPos += dir*speed * tLX->fDeltaTime;
         
-        WorldX = (int)floor(curPos.GetX()-hx);
-        WorldY = Round(curPos.GetY()-hy);
+        WorldX = (int)floor(curPos.x-hx);
+        WorldY = Round(curPos.y-hy);
     }
 
 
@@ -252,13 +252,13 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
             curPos += CVec(scrollSpeed,0);
 
         // Clamp our movement
-        curPos.SetX( MAX((float)0,curPos.GetX()) );
-        curPos.SetY( MAX((float)0,curPos.GetY()) );
-        curPos.SetX( MIN((float)MWidth-Width,curPos.GetX()) );
-        curPos.SetY( MIN((float)MHeight-Height,curPos.GetY()) );
+        curPos.x=( MAX((float)0,curPos.x) );
+        curPos.y=( MAX((float)0,curPos.y) );
+        curPos.x=( MIN((float)MWidth-Width,curPos.x) );
+        curPos.y=( MIN((float)MHeight-Height,curPos.y) );
         
-        WorldX = (int)curPos.GetX();
-        WorldY = (int)curPos.GetY();
+        WorldX = (int)curPos.x;
+        WorldY = (int)curPos.y;
     }
 
 
@@ -390,8 +390,8 @@ void CViewport::Shake(int amount)
 // Check if a point is inside this viewport
 int CViewport::inView(CVec pos)
 {
-	int x = (int)pos.GetX();
-	int y = (int)pos.GetY();
+	int x = (int)pos.x;
+	int y = (int)pos.y;
 
 	if(x >= WorldX &&
 	   y >= WorldY &&

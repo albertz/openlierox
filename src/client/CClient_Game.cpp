@@ -473,7 +473,7 @@ void CClient::SimulateProjectiles(float dt)
 			// Calculate the angle of the direction the projectile is heading
 			float heading = 0;
 			if(pi->ProjUseangle) {
-				heading = (float)( -atan2(v.GetX(),v.GetY()) * (180.0f/PI) );
+				heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
 				heading+=90;
 				if(heading < 0)
 					heading+=360;
@@ -506,10 +506,10 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
     int     gotDirt = false;
 	
 	// Go through until we find dirt to throw around
-	y = MIN((int)pos.GetY(),cMap->GetHeight()-1);
+	y = MIN((int)pos.y,cMap->GetHeight()-1);
 	y = MAX(y,0);	
 
-	px = (int)pos.GetX();
+	px = (int)pos.x;
 
 	for(x=px-2; x<px+2; x++) {
 		// Clipping
@@ -530,9 +530,9 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 			if(!b->getUsed())
 				continue;
 
-			if( fabs(b->getPosition().GetX() - pos.GetX()) > 15 )
+			if( fabs(b->getPosition().x - pos.x) > 15 )
 				continue;
-			if( fabs(b->getPosition().GetY() - pos.GetY()) > 15 )
+			if( fabs(b->getPosition().y - pos.y) > 15 )
 				continue;
 
 			b->setUsed(false);
@@ -547,9 +547,9 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
         if( !prj->isUsed() )
             continue;
 
-        if( fabs(prj->GetPosition().GetX() - pos.GetX()) > 15 )
+        if( fabs(prj->GetPosition().x - pos.x) > 15 )
             continue;
-        if( fabs(prj->GetPosition().GetY() - pos.GetY()) > 15 )
+        if( fabs(prj->GetPosition().y - pos.y) > 15 )
             continue;
 
         prj->setExplode( tLX->fCurTime + CalculateDistance(prj->GetPosition(),pos) / 500.0f, true);
@@ -691,9 +691,9 @@ void CClient::SendCarve(CVec pos)
 	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
 	
 	// Go through until we find dirt to throw around
-	y = MIN((int)pos.GetY(),cMap->GetHeight()-1);
+	y = MIN((int)pos.y,cMap->GetHeight()-1);
 	y = MAX(y,0);
-	px = (int)pos.GetX();
+	px = (int)pos.x;
 
 	for(x=px-2; x<=px+2; x++) {
 		// Clipping
@@ -758,8 +758,8 @@ void CClient::PlayerShoot(CWorm *w)
 	GetAngles(Angle,&dir,NULL);
 	CVec pos = w->getPos() + dir*8;
 
-	pos.SetX( (int)pos.GetX() - (int)pos.GetX() % 2 );
-	pos.SetY( (int)pos.GetY() - (int)pos.GetY() % 2 );
+	pos.x=( (int)pos.x - (int)pos.x % 2 );
+	pos.y=( (int)pos.y - (int)pos.y % 2 );
 
 	int rot = 0;
 
@@ -786,8 +786,8 @@ void CClient::PlayerShoot(CWorm *w)
 		float speed = Slot->Weapon->ProjSpeed + Slot->Weapon->ProjSpeedVar*GetRandomNum();
 
 		CVec p = sprd*speed + *w->getVelocity();
-		//d_printf("Projectile vector = %f, %f\n", p.GetX(), p.GetY() );
-		//d_printf("Worm vector = %f, %f\n", w->getVelocity()->GetX(), w->getVelocity()->GetY() );
+		//d_printf("Projectile vector = %f, %f\n", p.x, p.y );
+		//d_printf("Worm vector = %f, %f\n", w->getVelocity()->x, w->getVelocity()->y );
 
 		SpawnProjectile(pos, sprd*speed + *w->getVelocity(), rot, w->getID(), Slot->Weapon->Projectile);
 	}
@@ -886,17 +886,17 @@ void CClient::DrawBeam(CWorm *w)
 
 	int i;
 	for(i=0; i<Slot->Weapon->Bm_Length; i+=divisions) {
-		uchar px = cMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Don't draw explosion when damage is -1
 		if (Slot->Weapon->Bm_Damage != -1)  {
-			if ((int)pos.GetX() <= 0)  {
+			if ((int)pos.x <= 0)  {
 				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 				stopbeam = true;
 				break;
 			}
 
-			if ((int)pos.GetY() <= 0)  {
+			if ((int)pos.y <= 0)  {
 				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 				stopbeam = true;
 				break;
@@ -1191,7 +1191,7 @@ void CClient::LaserSight(CWorm *w)
 
 	int i;
 	for(i=0; i<9999; i+=divisions) {
-		uchar px = cMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		if(px & PX_DIRT || px & PX_ROCK)			
 			break;
@@ -1349,7 +1349,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	int stopbeam = false;
 
 	for(int i=0; i<wpn->Bm_Length; i+=divisions) {
-		uchar px = cMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Check bonus colision and destroy the bonus, if damage isn't -1
 		if (wpn->Bm_Damage != -1)  {
@@ -1359,7 +1359,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 					continue;
 
 				float bonussize = 3;
-				if(fabs(pos.GetX() - b->getPosition().GetX()) < bonussize) {
+				if(fabs(pos.x - b->getPosition().x) < bonussize) {
 					Explosion(pos,0,5,w->getID()); // Destroy the bonus by an explosion
 					break;
 				}
@@ -1627,12 +1627,12 @@ CVec CClient::FindNearestSpot(CWorm *w)
 
 	// Are we in the map?
 	bool bInMap = true;
-	bInMap = (w->getPos().GetX() <= cMap->GetWidth()) && (w->getPos().GetX() >= 0);
-	bInMap = bInMap && (w->getPos().GetY() <= cMap->GetHeight()) && (w->getPos().GetY() >= 0);
+	bInMap = (w->getPos().x <= cMap->GetWidth()) && (w->getPos().x >= 0);
+	bInMap = bInMap && (w->getPos().y <= cMap->GetHeight()) && (w->getPos().y >= 0);
 
 	// Is the current spot good?
-	x = (int) (w->getPos().GetX()-4.5f);
-	y = (int) (w->getPos().GetY()-4.0f);
+	x = (int) (w->getPos().x-4.5f);
+	y = (int) (w->getPos().y-4.0f);
 	int RockPixels = 0;
 
 	int i,j;
@@ -1656,8 +1656,8 @@ CVec CClient::FindNearestSpot(CWorm *w)
     int     gw = cMap->getGridWidth();
     int     gh = cMap->getGridHeight();
 
-    px = (int) fabs((w->getPos().GetX())/gw);
-	py = (int) fabs((w->getPos().GetY())/gh);
+    px = (int) fabs((w->getPos().x)/gw);
+	py = (int) fabs((w->getPos().y)/gh);
 
 	if (bInMap)  {
 		// Check the closest cells
@@ -1688,8 +1688,8 @@ CVec CClient::FindNearestSpot(CWorm *w)
     
     // Set our current cell as default
 	if (bInMap)  {
-		px = (int) fabs((w->getPos().GetX())/gw);
-		py = (int) fabs((w->getPos().GetY())/gh);
+		px = (int) fabs((w->getPos().x)/gw);
+		py = (int) fabs((w->getPos().y)/gh);
 	}
 	else  {
 		px = 0;

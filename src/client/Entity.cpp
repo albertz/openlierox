@@ -136,8 +136,8 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 		if(ent->iUsed)  {
 			//continue;}
 
-			x=((int)ent->vPos.GetX()-wx)*2+l;
-			y=((int)ent->vPos.GetY()-wy)*2+t;
+			x=((int)ent->vPos.x-wx)*2+l;
+			y=((int)ent->vPos.y-wy)*2+t;
 
 			// Clipping
 			if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
@@ -202,16 +202,16 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 				// Beam
 				case ENT_BEAM:
 					end = ent->vPos + ent->vVel*(float)ent->iType2;
-					x2=((int)end.GetX()-wx)*2+l;
-					y2=((int)end.GetY()-wy)*2+t;
+					x2=((int)end.x-wx)*2+l;
+					y2=((int)end.y-wy)*2+t;
 					DrawBeam(bmpDest, x,y, x2,y2, ent->iColour);
 					break;
 
 				// Laser Sight
 				case ENT_LASERSIGHT:
 					end = ent->vPos + ent->vVel*(float)ent->iType2;
-					x2=((int)end.GetX()-wx)*2+l;
-					y2=((int)end.GetY()-wy)*2+t;
+					x2=((int)end.x-wx)*2+l;
+					y2=((int)end.y-wy)*2+t;
 					DrawLaserSight(bmpDest, x,y, x2,y2, ent->iColour);
 					break;
 			}
@@ -250,14 +250,14 @@ void SimulateEntities(float dt, CMap *map)
 			
 
 				// Clipping
-				if(ent->vPos.GetX() < 0 || ent->vPos.GetY() < 0 ||
-					(int)ent->vPos.GetX() >= map->GetWidth() || (int)ent->vPos.GetY() >= map->GetHeight()) {
+				if(ent->vPos.x < 0 || ent->vPos.y < 0 ||
+					(int)ent->vPos.x >= map->GetWidth() || (int)ent->vPos.y >= map->GetHeight()) {
 					ent->iUsed = false;
 					continue;
 				}
 
 				// Check if the particle has hit the map
-				uchar pf = map->GetPixelFlag((int)ent->vPos.GetX(),(int)ent->vPos.GetY());
+				uchar pf = map->GetPixelFlag((int)ent->vPos.x,(int)ent->vPos.y);
 
 				if(pf & PX_ROCK || pf & PX_DIRT) {
 					ent->iUsed = false;
@@ -266,12 +266,12 @@ void SimulateEntities(float dt, CMap *map)
 
 						// Blood
 						case ENT_BLOOD:
-							PutPixel(map->GetImage(),(int)ent->vPos.GetX(), (int)ent->vPos.GetY(),ent->iColour);
+							PutPixel(map->GetImage(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
 
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.GetX()*2, (int)ent->vPos.GetY()*2,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.GetX()*2+1, (int)ent->vPos.GetY()*2,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.GetX()*2, (int)ent->vPos.GetY()*2+1,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.GetX()*2+1, (int)ent->vPos.GetY()*2+1,ent->iColour);
+							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2, (int)ent->vPos.y*2,ent->iColour);
+							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2+1, (int)ent->vPos.y*2,ent->iColour);
+							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2, (int)ent->vPos.y*2+1,ent->iColour);
+							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2+1, (int)ent->vPos.y*2+1,ent->iColour);
 							break;
 
 						// Giblet
@@ -280,8 +280,8 @@ void SimulateEntities(float dt, CMap *map)
 								EntityBounce(ent);
 							else {
 								// Add the gib to the map
-								int x = (int)ent->vPos.GetX()-1;
-								int y = (int)ent->vPos.GetY()-1;
+								int x = (int)ent->vPos.x-1;
+								int y = (int)ent->vPos.y-1;
 
 								// Clipping
 								if(x < 0)

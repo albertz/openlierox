@@ -522,7 +522,7 @@ void TakeScreenshot(void)
     // Create the 'scrshots' directory if it doesn't exist
     strcpy(checkname, GetHomeDir());
     strcat(checkname, "/scrshots");
-    mkdir(checkname, 0);
+    mkdir(checkname, 0777);
 
 	// Create the file name
     for(i=0; 1; i++) {

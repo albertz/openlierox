@@ -1209,7 +1209,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 
 	strcpy(filename, GetHomeDir());
 	strcat(filename, "/cfg/presets");
-	mkdir(filename, 0);
+	mkdir(filename, 0777);
 
 	int done = false;
 	if(!FindFirst("cfg/presets/","*",filename))

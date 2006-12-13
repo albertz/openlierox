@@ -34,6 +34,7 @@ public:
 public:
 	// Methods
 
+/*
 	inline float	GetX(void)	const		{ return x; }
 	inline float	GetY(void)	const		{ return y; }
 	inline void	SetX(float _x)				{ x = _x; }
@@ -41,7 +42,7 @@ public:
 	
 	inline void	AddX(float _x)				{ x+=_x; }
 	inline void	AddY(float _y)				{ y+=_y; }
-
+*/
 
 	inline float GetLength() const { return sqrt(x*x + y*y); }
 	inline float GetLength2() const { return x*x + y*y; };
@@ -51,37 +52,37 @@ public:
 		return CVec(x*scalar,y*scalar);
 	}
 	inline CVec operator*(const CVec vec) const {
-		return CVec(x*vec.GetX(),y*vec.GetY());
+		return CVec(x*vec.x,y*vec.y);
 	}
 	inline CVec operator/(const float scalar) const {		
 		return CVec(x/scalar,y/scalar);
 	}
 	inline CVec operator+(const CVec vec) const {
-		return CVec(x+vec.GetX(),y+vec.GetY());
+		return CVec(x+vec.x,y+vec.y);
 	}
 	inline CVec operator-(const CVec vec) const {
-		return CVec(x-vec.GetX(),y-vec.GetY());
+		return CVec(x-vec.x,y-vec.y);
 	}
 	inline CVec operator-() const {
 		return CVec(-x,-y);
 	}
     inline CVec& operator+=(const CVec vec) {
-		x+=vec.GetX(); y+=vec.GetY();
+		x+=vec.x; y+=vec.y;
 		return *this;
 	}
 	inline CVec& operator-=(const CVec vec) {
-		x-=vec.GetX(); y-=vec.GetY();
+		x-=vec.x; y-=vec.y;
 		return *this;
 	}
 
 	inline bool operator<(const CVec op) const {
-		if(x<op.GetX() && y<op.GetY())
+		if(x<op.x && y<op.y)
 			return true;
 		return false;
 	}
 	
 	inline bool operator==(const CVec op) const {
-		return (x==op.GetX() && y==op.GetY());
+		return (x==op.x && y==op.y);
 	}
 	
 };

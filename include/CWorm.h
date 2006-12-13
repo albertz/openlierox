@@ -131,8 +131,8 @@ class CVec_less {
 public:
 	// this is a well-defined transitive ordering
 	inline bool operator()(const CVec a, const CVec b) const {
-		return ((a.GetY() == b.GetY() && (a.GetX() < b.GetX()))
-				|| a.GetY() < b.GetY()); }
+		return ((a.y == b.y && (a.x < b.x))
+				|| a.y < b.y); }
 };
 typedef std::multimap< CVec, NEW_ai_node_t*, CVec_less > nodes_map;
 typedef std::pair< const CVec, NEW_ai_node_t* > nodes_pair;

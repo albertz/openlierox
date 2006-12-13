@@ -222,8 +222,8 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 
 	// Hack!!!
 	if(tProjInfo->Hit_Type == PJ_EXPLODE && tProjInfo->Type == PRJ_PIXEL) {
-		int px = (int)vPosition.GetX();
-		int py = (int)vPosition.GetY();
+		int px = (int)vPosition.x;
+		int py = (int)vPosition.y;
 		
 		// Edge checks
 		if(px<=0 || py<=0 || px>=map->GetWidth()-1 || py>=map->GetHeight()-1) {
@@ -295,8 +295,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 
 	w=h=2;
 
-	px=(int)pos.GetX();
-	py=(int)pos.GetY();
+	px=(int)pos.x;
+	py=(int)pos.y;
 
 	CollisionSide = 0;
 	int top,bottom,left,right;
@@ -389,35 +389,35 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 			vPosition = pos;
 		
 		// Find the collision side
-		if( (left>right || left>2) && left>1 && vVelocity.GetX() < 0) {
+		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
 			if(tProjInfo->Hit_Type == PJ_BOUNCE)
-				vPosition.SetX( pos.GetX() );
+				vPosition.x=( pos.x );
 			CollisionSide |= COL_LEFT;
 		}
 		
-		if( (right>left || right>2) && right>1 && vVelocity.GetX() > 0) {
+		if( (right>left || right>2) && right>1 && vVelocity.x > 0) {
 			if(tProjInfo->Hit_Type == PJ_BOUNCE)
-				vPosition.SetX( pos.GetX() );
+				vPosition.x=( pos.x );
 			CollisionSide |= COL_RIGHT;
 		}
 
-		if(top>1 && vVelocity.GetY() < 0) {
+		if(top>1 && vVelocity.y < 0) {
 			if(tProjInfo->Hit_Type == PJ_BOUNCE)
-				vPosition.SetY( pos.GetY() );
+				vPosition.y=( pos.y );
 			CollisionSide |= COL_TOP;
 		}
 
-		if(bottom>1 && vVelocity.GetY() > 0) {
+		if(bottom>1 && vVelocity.y > 0) {
 			if(tProjInfo->Hit_Type == PJ_BOUNCE)
-				vPosition.SetY( pos.GetY() );
+				vPosition.y=( pos.y );
 			CollisionSide |= COL_BOTTOM;
 		}		
 
 		// If the velocity is too low, just stop me
-		/*if(fabs(vVelocity.GetX()) < 2)
-			vVelocity.SetX(0);
-		if(fabs(vVelocity.GetY()) < 2)
-			vVelocity.SetY(0);*/
+		/*if(fabs(vVelocity.x) < 2)
+			vVelocity.x=(0);
+		if(fabs(vVelocity.y) < 2)
+			vVelocity.y=(0);*/
 
 		return true;
 	}
@@ -436,8 +436,8 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 	int t = view->GetTop();
 	float framestep;
 
-	int x=((int)vPosition.GetX()-wx)*2+l;
-	int y=((int)vPosition.GetY()-wy)*2+t;
+	int x=((int)vPosition.x-wx)*2+l;
+	int y=((int)vPosition.y-wy)*2+t;
 
 	// Clipping on the viewport
 	if(x<l || x>l+view->GetVirtW())
@@ -455,7 +455,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 			return;
 
 		// Spinning projectile only when moving
-		if(tProjInfo->Rotating && (fabs(vVelocity.GetX()) > 1 || fabs(vVelocity.GetY()) > 1))
+		if(tProjInfo->Rotating && (fabs(vVelocity.x) > 1 || fabs(vVelocity.y) > 1))
 			framestep = fRotation / (float)tProjInfo->RotIncrement;
 		else
 			framestep = 0;
@@ -463,7 +463,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 		// Directed in the direction the projectile is travelling
 		if(tProjInfo->UseAngle) {
 			CVec dir = vVelocity;
-			float angle = (float)( -atan2(dir.GetX(),dir.GetY()) * (180.0f/PI) );
+			float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
 			float offset = 360.0f / (float)tProjInfo->AngleImages;
 
 			if(angle < 0)
@@ -483,7 +483,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 		// of image index's from the centre
 		if(tProjInfo->UseSpecAngle) {
 			CVec dir = vVelocity;
-			float angle = (float)( -atan2(dir.GetX(),dir.GetY()) * (180.0f/PI) );
+			float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
 			int direct = 0;
 
 			if(angle > 0)
@@ -529,8 +529,8 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 	int l = view->GetLeft();
 	int t = view->GetTop();
 
-    int x=((int)vPosition.GetX()-wx)*2+l;
-	int y=((int)vPosition.GetY()-wy)*2+t;
+    int x=((int)vPosition.x-wx)*2+l;
+	int y=((int)vPosition.y-wy)*2+t;
 
 	// Clipping on the viewport
 	if(x<l || x>l+view->GetVirtW())
@@ -540,7 +540,7 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 
     // Pixel
     if(tProjInfo->Type == PRJ_PIXEL)        
-        map->DrawPixelShadow(bmpDest, view, (int)vPosition.GetX(), (int)vPosition.GetY());
+        map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
 
     // Image
     if(tProjInfo->Type == PRJ_IMAGE) {
@@ -549,7 +549,7 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 
         int size = tProjInfo->bmpImage->h;
         int half = size/2;
-        map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.GetX()-(half>>1), (int)vPosition.GetY()-(half>>1));
+        map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
     }
 }
 
@@ -577,23 +577,23 @@ void CProjectile::Bounce(float fCoeff)
 	CVec pos = vPosition;
 	if(CollisionSide & COL_TOP) {
 		x=Bounce; y=-Bounce;
-		//vPosition.SetY( vOldPos.GetY() );
+		//vPosition.y=( vOldPos.y );
 	}
 	if(CollisionSide & COL_BOTTOM) {
 		x=Bounce; y=-Bounce;
-		//vPosition.SetY( vOldPos.GetY() );
+		//vPosition.y=( vOldPos.y );
 	}
 
 	if(CollisionSide & COL_LEFT) {
 		x=-Bounce; y=Bounce;
-		//vPosition.SetX( vOldPos.GetX() );
+		//vPosition.x=( vOldPos.x );
 	}
 	if(CollisionSide & COL_RIGHT) {
 		x=-Bounce; y=Bounce;
-		//vPosition.SetX( vOldPos.GetX() );
+		//vPosition.x=( vOldPos.x );
 	}
 
-	vVelocity = CVec(vVelocity.GetX()*x, vVelocity.GetY()*y);
+	vVelocity = CVec(vVelocity.x*x, vVelocity.y*y);
 
 	CVec dir = vVelocity;
 	NormalizeVector(&dir);
@@ -634,8 +634,8 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 // Lower level projectile-worm collision test
 int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 {
-	int px = (int)pos.GetX();
-	int py = (int)pos.GetY();
+	int px = (int)pos.x;
+	int py = (int)pos.y;
 	int wx,wy;
 	CWorm *w = worms;
 
@@ -645,8 +645,8 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 		if(!w->isUsed() || !w->getAlive())
 			continue;
 
-		wx = (int)w->getPos().GetX();
-		wy = (int)w->getPos().GetY(); 
+		wx = (int)w->getPos().x;
+		wy = (int)w->getPos().y; 
 
 		// AABB - Point test
 		if( abs(wx-px) < wsize && abs(wy-py) < wsize) {		

@@ -44,8 +44,8 @@ void CBonus::Draw(SDL_Surface *bmpDest, CViewport *v, int showname)
 	int l = v->GetLeft();
 	int t = v->GetTop();
 
-	int x=((int)vPos.GetX()-wx)*2+l;
-	int y=((int)vPos.GetY()-wy)*2+t;
+	int x=((int)vPos.x-wx)*2+l;
+	int y=((int)vPos.y-wy)*2+t;
 
 	// If we are in a flashing mode, don't show it on an 'off' flash mode
 	if(fLife > BONUS_LIFETIME-3) {
@@ -102,8 +102,8 @@ void CBonus::Simulate(CMap *map, float dt)
 	//
 
 
-	px = (int)vPos.GetX();
-	py = (int)vPos.GetY();
+	px = (int)vPos.x;
+	py = (int)vPos.y;
 
 	// Initialize
 	x = px-2;
@@ -153,5 +153,5 @@ void CBonus::Simulate(CMap *map, float dt)
 void CBonus::Collide(int x, int y)
 {
 	vVelocity = CVec(0,0);
-	vPos = CVec(vPos.GetX(), (float)y-2);
+	vPos = CVec(vPos.x, (float)y-2);
 }

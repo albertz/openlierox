@@ -29,8 +29,8 @@ void CServer::SpawnWorm(CWorm *Worm)
 	CBytestream bs;
 	bs.writeByte(S2C_SPAWNWORM);
 	bs.writeInt(Worm->getID(),1);
-	bs.writeInt( (int)pos.GetX(), 2);
-	bs.writeInt( (int)pos.GetY(), 2);
+	bs.writeInt( (int)pos.x, 2);
+	bs.writeInt( (int)pos.y, 2);
 	SendGlobalPacket(&bs);
 }
 
@@ -218,8 +218,8 @@ void CServer::SpawnBonus(void)
 		bs.writeInt(wpn,1);
 	bs.writeInt(spot,1);
 
-	bs.writeInt((int)pos.GetX(), 2);
-	bs.writeInt((int)pos.GetY(), 2);
+	bs.writeInt((int)pos.x, 2);
+	bs.writeInt((int)pos.y, 2);
 
 	SendGlobalPacket(&bs);
 }
@@ -340,7 +340,7 @@ void CServer::WormShoot(CWorm *w)
 	// Add the shot to the shooting list
 	dir = *w->getVelocity();
 	float speed = NormalizeVector( &dir );
-	//Angle = (float)-atan2(dir.GetX(),dir.GetY()) * (180.0f/PI);
+	//Angle = (float)-atan2(dir.x,dir.y) * (180.0f/PI);
 	//Angle += GetRandomNum() * (float)Slot->Weapon->ProjSpread;
 
 

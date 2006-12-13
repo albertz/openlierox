@@ -78,7 +78,7 @@ int Round(float x)
 float CalculateDistance(CVec p1, CVec p2)
 {
 	CVec dist = p2-p1;
-	return (float)fastSQRT( (dist.GetX()*dist.GetX()) + (dist.GetY()*dist.GetY()) );
+	return (float)fastSQRT( (dist.x*dist.x) + (dist.y*dist.y) );
 }
 
 
@@ -88,11 +88,11 @@ float NormalizeVector(CVec *vec)
 {
 	float length;
 
-	length = (float)fastSQRT( vec->GetX()*vec->GetX() + vec->GetY()*vec->GetY() );
+	length = (float)fastSQRT( vec->x*vec->x + vec->y*vec->y );
 
 	if(length) {
-		vec->SetX( vec->GetX() / length );
-		vec->SetY( vec->GetY() / length );
+		vec->x=( vec->x / length );
+		vec->y=( vec->y / length );
 	}
 
 	return length;
@@ -132,8 +132,8 @@ void GetAngles(int yaw,CVec *forward, CVec *right)
 // Get the angle (in radians) of two vectors
 float VectorAngle(CVec vec1, CVec vec2)
 {
-	//return (float)acos(vec1.GetX()*vec2.GetX()+vec1.GetY()*vec2.GetY())/(VectorLength(vec1)*VectorLength(vec2));
-	float scalar = vec1.GetX()*vec2.GetX() + vec1.GetY()*vec2.GetY();
+	//return (float)acos(vec1.x*vec2.x+vec1.y*vec2.y)/(VectorLength(vec1)*VectorLength(vec2));
+	float scalar = vec1.x*vec2.x + vec1.y*vec2.y;
 	float len1 = VectorLength(vec1);
 	float len2 = VectorLength(vec2);
 	float result = (float)acos(scalar/(len1*len2));
@@ -145,7 +145,7 @@ float VectorAngle(CVec vec1, CVec vec2)
 // Get the length of a vector
 float VectorLength(CVec vec)
 {
-	return (float)fastSQRT( vec.GetX()*vec.GetX() + vec.GetY()*vec.GetY() );
+	return (float)fastSQRT( vec.x*vec.x + vec.y*vec.y );
 }
 
 

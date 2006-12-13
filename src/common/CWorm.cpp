@@ -729,8 +729,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 
 	// Are we inside the viewport?
-	x = (int)vPos.GetX() - wx;
-	y = (int)vPos.GetY() - wy;
+	x = (int)vPos.x - wx;
+	y = (int)vPos.y - wy;
 	x*=2;
 	y*=2;
 
@@ -796,8 +796,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	GetAngles(a,&forw,NULL);
 	forw = forw*16.0f;
 
-	int cx = (int)forw.GetX() + (int)vPos.GetX();
-	int cy = (int)forw.GetY() + (int)vPos.GetY();
+	int cx = (int)forw.x + (int)vPos.x;
+	int cy = (int)forw.y + (int)vPos.y;
 
 	cx = (cx-wx)*2+l;
 	cy = (cy-wy)*2+t;
@@ -819,8 +819,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	//
 	// Draw the worm
 	//
-	x = (int) ( (vPos.GetX()-wx)*2+l );
-	y = (int) ( (vPos.GetY()-wy)*2+t );
+	x = (int) ( (vPos.x-wx)*2+l );
+	y = (int) ( (vPos.y-wy)*2+t );
 
 	// Find the right pic
 	f = ((int)fFrame*7)*32;
@@ -850,15 +850,15 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 	
 	// Debug: Show the actual worm pos
-	/*x = (int)( (vPos.GetX()-wx)*2+l );
-	y = (int)( (vPos.GetY()-wy)*2+t );
+	/*x = (int)( (vPos.x-wx)*2+l );
+	y = (int)( (vPos.y-wy)*2+t );
 	
 	// Snap the position to a slighter bigger pixel grid (2x2)
 	x -= x % 2;
 	y -= y % 2;*/
 
-    /*x = (int)( (tLX->debug_pos.GetX()-wx)*2+l );
-	y = (int)( (tLX->debug_pos.GetY()-wy)*2+t );
+    /*x = (int)( (tLX->debug_pos.x-wx)*2+l );
+	y = (int)( (tLX->debug_pos.y-wy)*2+t );
     DrawRectFill(bmpDest, x-5,y-5,x+5,y+5,0);*/
 
 
@@ -948,7 +948,7 @@ void CWorm::DrawShadow(SDL_Surface *bmpDest, CMap *map, CViewport *v)
         return;
 
     if( tLXOptions->iShadows )
-        map->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.GetX()-9,(int) vPos.GetY()-5);
+        map->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
 
@@ -956,8 +956,8 @@ void CWorm::DrawShadow(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 // Quickly check if we are on the ground
 int CWorm::CheckOnGround(CMap *map)
 {
-	int px = (int)vPos.GetX();
-	int py = (int)vPos.GetY();
+	int px = (int)vPos.x;
+	int py = (int)vPos.y;
 
 	for(int y=6;y>0;y--) {
 
@@ -1014,8 +1014,8 @@ int CWorm::CheckBonusCollision(CBonus *b)
 {
 	CVec diff = vPos - b->getPosition();
 
-	if(fabs(diff.GetX()) < 7 &&
-	   fabs(diff.GetY()) < 7)
+	if(fabs(diff.x) < 7 &&
+	   fabs(diff.y) < 7)
 		return true;
 
 	return false;

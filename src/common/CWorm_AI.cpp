@@ -83,6 +83,173 @@ void CWorm::AI_Shutdown(void)
 }
 
 
+/*
+	this traces the given line
+	_action is a functor, used for the checkflag_action
+	it will be called, if we have a flag fitting to checkflag, with (int x, int y) as param
+	if the returned value is false, the loop will break
+*/
+template<class _action>
+_action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _action checkflag_action) {
+	enum { X_DOM=-1, Y_DOM=1 } dom; // which is dominating?
+	CVec dir = target-start;
+	if(dir.x == 0 && dir.y == 0)
+		return checkflag_action;
+		
+	float quot;
+	short s_x = (dir.x>=0) ? 1 : -1;
+	short s_y = (dir.y>=0) ? 1 : -1;	
+	// ensure, that |quot| <= 1 (we swap the whole map virtuelly for this, this is, what dom saves)
+	if(s_x*dir.x >= s_y*dir.y) {
+		dom = X_DOM;
+		quot = dir.y/dir.x;
+	} else {
+		dom = Y_DOM;
+		quot = dir.x/dir.y;
+	}
+	
+#ifdef _AI_DEBUG
+	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+#endif
+	
+	uchar* pxflags = pcMap->GetPixelFlags();
+	uchar* gridflags = pcMap->getAbsoluteGridFlags();
+	int map_w = pcMap->GetWidth();
+	int map_h = pcMap->GetHeight();	
+    int grid_w = pcMap->getGridWidth();
+    int grid_h = pcMap->getGridHeight();
+	int grid_cols = pcMap->getGridCols();
+	
+	int start_x = (int)start.x;
+	int start_y = (int)start.y;
+	int last_gridflag_i = -1;
+	int gridflag_i;
+	int pos_x, pos_y;
+	int grid_x, grid_y;
+	register int x = 0;
+	register int y = 0;
+	while(true) {
+		// is all done?
+		if(s_x*x > s_x*(int)dir.x
+		|| s_y*y > s_y*(int)dir.y)
+		{
+			break;
+		}
+		
+		// this is my current pos
+		pos_x = start_x + x;
+		pos_y = start_y + y;
+			
+		// clipping?
+		if(pos_x < 0 || pos_x >= map_w
+		|| pos_y < 0 || pos_y >= map_h)
+		{
+			break;
+		}
+		
+#ifdef _AI_DEBUG
+		PutPixel(bmpDest,pos_x*2,pos_y*2,MakeColour(255,255,0));
+#endif
+			
+		// inside the grid
+		grid_x = pos_x / grid_w;
+		grid_y = pos_y / grid_h;
+
+		// got we some usefull info from our grid?
+		gridflag_i = grid_y*grid_cols + grid_x;
+		if(last_gridflag_i != gridflag_i) {
+			last_gridflag_i = gridflag_i;
+			if(!(gridflags[gridflag_i] & checkflag)) {				
+				// yes, we did, no checkflag inside
+#ifdef _AI_DEBUG
+				DrawRectFill(bmpDest,grid_x*grid_w*2,grid_y*grid_h*2,(grid_x+1)*grid_w*2+4,(grid_y+1)*grid_h*2,MakeColour(150,150,0));	
+#endif
+				// go behind this grid-cell
+				// the following checks works, because |quot| <= 1
+				// make some pictures, then you will belive me :)
+				if(dom != Y_DOM) { // X_DOM
+					if(s_x > 0) {
+						if(s_y > 0) {
+							if( pos_x != (grid_x+1)*grid_w &&
+							(float(pos_y - (grid_y+1)*grid_h))/float(pos_x - (grid_x+1)*grid_w) <= quot )
+								x += int(float((grid_y+1)*grid_h - pos_y)/quot) + 1; // down
+							else
+								x = (grid_x+1)*grid_w - start_x; // right
+						} else { // s_y < 0
+							if( pos_x != (grid_x+1)*grid_w &&
+							(float(pos_y - grid_y*grid_h))/float(pos_x - (grid_x+1)*grid_w) >= quot )
+								x += int(float(grid_y*grid_h - pos_y)/quot) + 1; // up
+							else
+								x = (grid_x+1)*grid_w - start_x; // right
+						}
+					} else { // s_x < 0
+						if(s_y > 0) {
+							if( pos_x != grid_x*grid_w &&
+							(float(pos_y - (grid_y+1)*grid_h))/float(pos_x - grid_x*grid_w) >= quot )
+								x += int(float((grid_y+1)*grid_h - pos_y)/quot) - 1; // down
+							else
+								x = grid_x*grid_w - start_x - 1; // left
+						} else { // s_y < 0
+							if( pos_x != grid_x*grid_w &&
+							(float(pos_y - grid_y*grid_h))/float(pos_x - grid_x*grid_w) <= quot )
+								x += int(float(grid_y*grid_h - pos_y)/quot) - 1; // up
+							else
+								x = grid_x*grid_w - start_x - 1; // left
+						}
+					}
+				} else { // Y_DOM
+					if(s_y > 0) {
+						if(s_x > 0) {
+							if( pos_y != (grid_y+1)*grid_h &&
+							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - (grid_y+1)*grid_h) <= quot )
+								y += int(float((grid_x+1)*grid_w - pos_x)/quot); // right
+							else
+								y = (grid_y+1)*grid_h - start_y; // down
+						} else { // s_y < 0
+							if( pos_y != (grid_y+1)*grid_h &&
+							(float(pos_x - grid_x*grid_w))/float(pos_y - (grid_y+1)*grid_h) >= quot )
+								y += int(float(grid_x*grid_w - pos_x)/quot); // left
+							else
+								y = (grid_y+1)*grid_h - start_y; // down
+						}
+					} else { // s_y < 0
+						if(s_x > 0) {
+							if( pos_y != grid_y*grid_h &&
+							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - grid_y*grid_h) >= quot )
+								y += int(float((grid_x+1)*grid_w - pos_x)/quot); // right
+							else
+								y = grid_y*grid_h - start_y; // up
+						} else { // s_y < 0
+							if( pos_y != grid_y*grid_h &&
+							(float(pos_x - grid_x*grid_w))/float(pos_y - grid_y*grid_h) <= quot )
+								y += int(float(grid_x*grid_w - pos_x)/quot); // left
+							else
+								y = grid_y*grid_h - start_y; // up
+						}
+					}
+				}
+			}		
+		}
+		
+		// is the checkflag fitting to our current flag?
+		if(pxflags[pos_y*map_w + pos_x] & checkflag)
+			// do the given action; break if false
+			if(!checkflag_action(pos_x, pos_y))
+				break;
+		
+		// go ahead
+		if(dom != Y_DOM) { // X_DOM
+			x += s_x;
+			y = (int)(quot*(float)x);
+		} else { // Y_DOM
+			y += s_y;
+			x = (int)(quot*(float)y);
+		}
+	}
+	
+	return checkflag_action;
+}
+
 
 
 /*
@@ -95,6 +262,30 @@ void CWorm::AI_Shutdown(void)
 
 */
 
+#ifdef _AI_DEBUG
+class debug_print_col {
+public:
+	SDL_Surface *bmpDest;
+	debug_print_col(SDL_Surface* dest=NULL) : bmpDest(dest) {}
+	
+	bool operator()(int x, int y) const {
+		if(!bmpDest) return false;
+		DrawRectFill(bmpDest,x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(255,255,0));
+		return true;
+	}
+};
+
+void do_some_tests_with_fastTraceLine(CMap *pcMap) {
+	CVec start, target;
+	start.x = rand() % pcMap->GetWidth();
+	start.y = rand() % pcMap->GetHeight();
+	target.x = rand() % pcMap->GetWidth();
+	target.y = rand() % pcMap->GetHeight();
+	
+	fastTraceLine(target, start, pcMap, PX_ROCK,  debug_print_col(pcMap->GetDebugImage()));
+}
+#endif
+
 
 ///////////////////
 // Simulate the AI
@@ -106,6 +297,13 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 	if ((tLX->fCurTime-fSpawnTime) < 0.4)
 		return;
 
+#ifdef _AI_DEBUG
+/*	DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
+	do_some_tests_with_fastTraceLine(pcMap);
+	usleep(1000000);	
+	return; */
+#endif
+		
 	worm_state_t *ws = &tState;
 	gs_worm_t *wd = cGameScript->getWorm();
 
@@ -155,6 +353,8 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     
     }
     
+	// TODO: uncomment, if this works
+/* 
 	// if the last search for a path was not finished, try to finish it now
 	if(!bPathFinished) {
 		NEW_AI_CreatePath(pcMap);
@@ -163,7 +363,8 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 			NEW_AI_MoveToTarget(pcMap);
 		return;
 	}    
-    
+*/  
+  
     // Process depending on our current state
     switch(nAIState) {
 
@@ -219,14 +420,14 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 	float   fDistance = NormalizeVector(&tgDir);
 	
 	// Make me face the target
-	if(tgPos.GetX() > vPos.GetX())
+	if(tgPos.x > vPos.x)
 		iDirection = DIR_RIGHT;
 	else
 		iDirection = DIR_LEFT;
 
 
 	// Aim at the target
-	float ang = (float)atan2(tgDir.GetX(), tgDir.GetY());
+	float ang = (float)atan2(tgDir.x, tgDir.y);
 	ang = RAD2DEG(ang);
 
 	if(iDirection == DIR_LEFT)
@@ -304,14 +505,14 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
 
 	// If the target is above us, we point up & use the ninja rope
-	if(fAngle < -60 && (vPos - tgPos).GetY() > 50) {
+	if(fAngle < -60 && (vPos - tgPos).y > 50) {
 		
 		fAngle = -90;
         CVec dir;
-        dir.SetX( (float)cos(fAngle * (PI/180)) );
-	    dir.SetY( (float)sin(fAngle * (PI/180)) );
+        dir.x=( (float)cos(fAngle * (PI/180)) );
+	    dir.y=( (float)sin(fAngle * (PI/180)) );
 	    if(iDirection==DIR_LEFT)
-		    dir.SetX(-dir.GetX());
+		    dir.x=(-dir.x);
 
         if( !cNinjaRope.isReleased() )
             cNinjaRope.Shoot(vPos,dir);
@@ -319,12 +520,12 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
 
     // If the hook of the ninja rope is below us, release it
-    if( cNinjaRope.isReleased() && cNinjaRope.isAttached() && cNinjaRope.getHookPos().GetY() > vPos.GetY() ) {
+    if( cNinjaRope.isReleased() && cNinjaRope.isAttached() && cNinjaRope.getHookPos().y > vPos.y ) {
         cNinjaRope.Release();
     }
 
     // If the target is not too far above us, we should release the ninja rope
-    if( (vPos - tgPos).GetY() < 30 && cNinjaRope.isAttached() && cNinjaRope.isReleased() ) {
+    if( (vPos - tgPos).y < 30 && cNinjaRope.isAttached() && cNinjaRope.isReleased() ) {
         cNinjaRope.Release();
     }*/
 }
@@ -467,7 +668,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
     //
     
     // Our target already on high ground?
-    if(cPosTarget.GetY() < pcMap->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
+    if(cPosTarget.y < pcMap->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
 
 		// Nothing todo, so go find some health if we even slightly need it
 		if(iHealth < 100) {
@@ -632,12 +833,12 @@ void CWorm::AI_InitMoveToTarget(CMap *pcMap)
     cPosTarget = AI_GetTargetPos();
 
     // Put the target into a cell position
-    int tarX = (int) (cPosTarget.GetX() / pcMap->getGridWidth());
-    int tarY = (int) (cPosTarget.GetY() / pcMap->getGridHeight());
+    int tarX = (int) (cPosTarget.x / pcMap->getGridWidth());
+    int tarY = (int) (cPosTarget.y / pcMap->getGridHeight());
 
     // Current position cell
-    int curX = (int) (vPos.GetX() / pcMap->getGridWidth());
-    int curY = (int) (vPos.GetY() / pcMap->getGridHeight());
+    int curX = (int) (vPos.x / pcMap->getGridWidth());
+    int curY = (int) (vPos.y / pcMap->getGridHeight());
 
     nPathStart[0] = curX;
     nPathStart[1] = curY;
@@ -938,7 +1139,7 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
     cPosTarget = AI_GetTargetPos();
 
     // If we're really close to the target, perform a more precise type of movement
-    if(fabs(vPos.GetX() - cPosTarget.GetX()) < 20 && fabs(vPos.GetY() - cPosTarget.GetY()) < 20) {
+    if(fabs(vPos.x - cPosTarget.x) < 20 && fabs(vPos.y - cPosTarget.y) < 20) {
         AI_PreciseMove(pcMap);
         return;
     }
@@ -966,12 +1167,12 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
 
     
     // Cell positions
-    nTargetCell[0] = (int)cPosTarget.GetX() / pcMap->getGridWidth();
-    nTargetCell[1] = (int)cPosTarget.GetY() / pcMap->getGridHeight();
-    nCurrentCell[0] = (int)vPos.GetX() / pcMap->getGridWidth();
-    nCurrentCell[1] = (int)vPos.GetY() / pcMap->getGridHeight();
-    nFinalTarget[0] = (int)cPosTarget.GetX() / pcMap->getGridWidth();
-    nFinalTarget[1] = (int)cPosTarget.GetY() / pcMap->getGridHeight();
+    nTargetCell[0] = (int)cPosTarget.x / pcMap->getGridWidth();
+    nTargetCell[1] = (int)cPosTarget.y / pcMap->getGridHeight();
+    nCurrentCell[0] = (int)vPos.x / pcMap->getGridWidth();
+    nCurrentCell[1] = (int)vPos.y / pcMap->getGridHeight();
+    nFinalTarget[0] = (int)cPosTarget.x / pcMap->getGridWidth();
+    nFinalTarget[1] = (int)cPosTarget.y / pcMap->getGridHeight();
 
     for(i=0 ;i<2; i++) {
         if(abs(nPathStart[i] - nCurrentCell[i]) > nDeviation ||
@@ -1102,7 +1303,7 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
     bool aim = AI_SetAim(CVec((float)(nTargetCell[0]*pcMap->getGridWidth()+hgw), (float)(nTargetCell[1]*pcMap->getGridHeight()+hgh)));
 
     // If we are stuck in the same position for a while, take measures to get out of being stuck
-    if(fabs(cStuckPos.GetX() - vPos.GetX()) < 25 && fabs(cStuckPos.GetY() - vPos.GetY()) < 25) {
+    if(fabs(cStuckPos.x - vPos.x) < 25 && fabs(cStuckPos.y - vPos.y) < 25) {
         fStuckTime += tLX->fDeltaTime;
 
         // Have we been stuck for a few seconds?
@@ -1154,10 +1355,10 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
         bool fireNinja = true;
 
         CVec dir;
-        dir.SetX( (float)cos(fAngle * (PI/180)) );
-	    dir.SetY( (float)sin(fAngle * (PI/180)) );
+        dir.x=( (float)cos(fAngle * (PI/180)) );
+	    dir.y=( (float)sin(fAngle * (PI/180)) );
 	    if(iDirection == DIR_LEFT)
-		    dir.SetX(-dir.GetX());
+		    dir.x=(-dir.x);
        
         /*
           Got aim, so shoot a ninja rope
@@ -1170,7 +1371,7 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
             else {
                 float length = CalculateDistance(vPos, cNinjaRope.getHookPos());
                 if(cNinjaRope.isAttached()) {
-                    if(length < cNinjaRope.getRestLength() && vVelocity.GetY()<-10)
+                    if(length < cNinjaRope.getRestLength() && vVelocity.y<-10)
                         cNinjaRope.Shoot(vPos,dir);
                 }
             }
@@ -1328,12 +1529,12 @@ bool CWorm::AI_SetAim(CVec cPos)
 	float   fDistance = NormalizeVector(&tgDir);
 
 	// We can't aim target straight below us
-	if(tgPos.GetX()-10 < vPos.GetX() && tgPos.GetX()+10 > vPos.GetX())
+	if(tgPos.x-10 < vPos.x && tgPos.x+10 > vPos.x)
 		return false;
 	
 	if (tLX->fCurTime - fLastFace > 0.1)  {  // prevent turning
 	// Make me face the target
-		if(tgPos.GetX() > vPos.GetX())
+		if(tgPos.x > vPos.x)
 			iDirection = DIR_RIGHT;
 		else
 			iDirection = DIR_LEFT;
@@ -1342,7 +1543,7 @@ bool CWorm::AI_SetAim(CVec cPos)
 	}
 
 	// Aim at the target
-	float ang = (float)atan2(tgDir.GetX(), tgDir.GetY());
+	float ang = (float)atan2(tgDir.x, tgDir.y);
 	ang = RAD2DEG(ang);
 
 	if(iDirection == DIR_LEFT)
@@ -1398,7 +1599,7 @@ void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
     float fDist = 0;
     int type = 0;
     int nLength = traceLine(cPosTarget, pcMap, &fDist, &type, 1);
-    if(fDist < 0.75f || cPosTarget.GetY() < vPos.GetY()) {
+    if(fDist < 0.75f || cPosTarget.y < vPos.y) {
 
         // Change direction
 		if (bHaveTarget && (tLX->fCurTime-fLastTurn) > 1.0)  {
@@ -1410,10 +1611,10 @@ void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
         aim = AI_SetAim(vPos+CVec(GetRandomNum()*10,GetRandomNum()*10+10));
         if(aim) {
             CVec dir;
-            dir.SetX( (float)cos(fAngle * (PI/180)) );
-	        dir.SetY( (float)sin(fAngle * (PI/180)) );
+            dir.x=( (float)cos(fAngle * (PI/180)) );
+	        dir.y=( (float)sin(fAngle * (PI/180)) );
 	        if(iDirection==DIR_LEFT)
-		        dir.SetX(-dir.GetX());
+		        dir.x=(-dir.x);
 
             cNinjaRope.Shoot(vPos,dir);
         }
@@ -1450,7 +1651,7 @@ void CWorm::AI_PreciseMove(CMap *pcMap)
     
  
     // If we're insanely close, just stop
-    if(fabs(vPos.GetX() - cPosTarget.GetX()) < 10 && fabs(vPos.GetY() - cPosTarget.GetY()) < 10) {
+    if(fabs(vPos.x - cPosTarget.x) < 10 && fabs(vPos.y - cPosTarget.y) < 10) {
  		/*if (tLX->fCurTime - fLastDirChange > 2.0f)  {
 			if (GetRandomNum() < 0)
 				iDirection = DIR_LEFT;
@@ -1471,7 +1672,7 @@ void CWorm::AI_PreciseMove(CMap *pcMap)
         ws->iMove = true;
 
         // If the target is above us, jump
-        if(fabs(vPos.GetX() - cPosTarget.GetX()) < 10 && vPos.GetY() - cPosTarget.GetY() > 5)
+        if(fabs(vPos.x - cPosTarget.x) < 10 && vPos.y - cPosTarget.y > 5)
             ws->iJump = true;
     } else  {
 		ws->iJump = true;
@@ -1598,13 +1799,13 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 
 	// If our velocity is big and we shoot in the direction of the flight, we can suicide
 	// We will avoid this here
-	/*if (vVelocity.GetY() > 30 && fAngle >= 50)
+	/*if (vVelocity.y > 30 && fAngle >= 50)
 		return false;
-	if (vVelocity.GetY() < -30 && fAngle <= 10)
+	if (vVelocity.y < -30 && fAngle <= 10)
 		return false;
-	if (vVelocity.GetX() < -30 && iDirection == DIR_LEFT && fAngle > 20)
+	if (vVelocity.x < -30 && iDirection == DIR_LEFT && fAngle > 20)
 		return false;
-	if (vVelocity.GetX() > 30 && iDirection == DIR_RIGHT && fAngle > 20)
+	if (vVelocity.x > 30 && iDirection == DIR_RIGHT && fAngle > 20)
 		return false;*/
 
     // Set the best weapon for the situation
@@ -1637,12 +1838,12 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 	// Convert the alpha to radians
 	float alpha = DEG2RAD(fAngle);
 	// Get the maximal X
-	int max_x = (int)(to->GetX()-from->GetX());
+	int max_x = (int)(to->x-from->x);
 	// If we're in the X coordinate of the target, we can shoot (else we wouldn't be called)
 	if (max_x == 0)
 		return true;
 	// Get the maximal Y
-	int max_y = (int)(from->GetY()-to->GetY());
+	int max_y = (int)(from->y-to->y);
 
 	/*if (max_y > 0)
 		alpha = 180-alpha;*/
@@ -1673,16 +1874,16 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 			}
 
 			// Rock or dirt, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) & PX_ROCK)  {
+			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & PX_ROCK)  {
 				return false;
 			}
 
-			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) & PX_DIRT)  {
+			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & PX_DIRT)  {
 				return false;
 			}
 
 	#ifdef _AI_DEBUG
-			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
+			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,0xffff);
 	#endif
 		}
 	}
@@ -1703,12 +1904,12 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 			}
 
 			// Rock, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)from->GetX(),y+(int)from->GetY()) & PX_ROCK)  {
+			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & PX_ROCK)  {
 				return false;
 			}
 
 	#ifdef _AI_DEBUG
-			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->GetX()*2,y*2+(int)from->GetY()*2,0xffff);
+			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,0xffff);
 	#endif
 		}
 	}
@@ -1831,8 +2032,8 @@ void CWorm::AI_Shoot(CMap *pcMap)
 			if (iAiGameType == GAM_MORTARS)
 				g = 100;
 			// Distance
-			float x = (cTrgPos.GetX()-vPos.GetX());
-			float y = (vPos.GetY()-cTrgPos.GetY());
+			float x = (cTrgPos.x-vPos.x);
+			float y = (vPos.y-cTrgPos.y);
 
 			// Get the alpha
 			float alpha = 0;
@@ -1885,7 +2086,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
 
 		// In mortars we can hit the target below us
 		if (iAiGameType == GAM_MORTARS)  {
-			if (cTrgPos.GetY() > (vPos.GetY()-20.0f))
+			if (cTrgPos.y > (vPos.y-20.0f))
 				tState.iShoot = true;
 			return;
 		}
@@ -1938,7 +2139,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		// We're above the worm
 
 		// If we are close enough, shoot the napalm
-		if (vPos.GetY() <= cTrgPos.GetY() && CalculateDistance(vPos,cTrgPos) < 100.0f)  {
+		if (vPos.y <= cTrgPos.y && CalculateDistance(vPos,cTrgPos) < 100.0f)  {
 			if (traceWormLine(cTrgPos,vPos,pcMap) && !tWeapons[1].Reloading)
 				if (psAITarget)
 					if (psAITarget->CheckOnGround(pcMap))
@@ -2038,7 +2239,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 				// Don't use cannon when we're on ninja rope, we will avoid suicides
 				if (!cNinjaRope.isReleased())  {
 					// Aim a bit up
-					AI_SetAim(CVec(cTrgPos.GetX(),cTrgPos.GetY()+5.0f));
+					AI_SetAim(CVec(cTrgPos.x,cTrgPos.y+5.0f));
 					tState.iMove = false;  // Don't move, avoid suicides
 					return 2;
 				}
@@ -2066,7 +2267,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
     //
     // Case 1: The target is on the bottom of the level, a perfect spot to lob an indirect weapon
     //
-    if(cTrgPos.GetY() > pcMap->GetHeight()-50 && fDistance < 200) {
+    if(cTrgPos.y > pcMap->GetHeight()-50 && fDistance < 200) {
 		for (int i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				if (tWeapons[i].Weapon->Type == WPN_PROJECTILE)
@@ -2168,7 +2369,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
     // If we're above the target, try any special weapon, for Liero mod try napalm
     // BUT only if our health is looking good
     // AND if there is no rock/dirt nearby
-    if(fDistance > 190 && iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.GetY()-20) > vPos.GetY() ) {
+    if(fDistance > 190 && iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > vPos.y ) {
         if (!NEW_AI_CheckFreeCells(5,pcMap))
 			return -1;
 
@@ -2254,8 +2455,8 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 
 	int i;
 	for(i=0; i<nTotalLength; i+=divisions) {
-		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
-		//pcMap->PutImagePixel((int)pos.GetX(), (int)pos.GetY(), MakeColour(255,0,0));
+		uchar px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+		//pcMap->PutImagePixel((int)pos.x, (int)pos.y, MakeColour(255,0,0));
 
         if((px & PX_DIRT) || (px & PX_ROCK)) {
         	if(nTotalLength != 0)
@@ -2284,8 +2485,8 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 bool CWorm::IsEmpty(int Cell, CMap *pcMap)
 {
   bool bEmpty = false;
-  int cx = (int)(vPos.GetX() / pcMap->getGridWidth());
-  int cy = (int)(vPos.GetY() / pcMap->getGridHeight());
+  int cx = (int)(vPos.x / pcMap->getGridWidth());
+  int cy = (int)(vPos.y / pcMap->getGridHeight());
 
   switch (Cell)  {
   case CELL_LEFT:
@@ -2348,8 +2549,8 @@ CVec CWorm::NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap)
 	// NOTE: highly unoptimized, looks many times to the same cells
 
 	// Get the cell
-	int cellX = (int) fabs((vPoint.GetX())/pcMap->getGridWidth());
-	int cellY = (int) fabs((vPoint.GetY())/pcMap->getGridHeight());	
+	int cellX = (int) fabs((vPoint.x)/pcMap->getGridWidth());
+	int cellY = (int) fabs((vPoint.y)/pcMap->getGridHeight());	
 
 	int cellsSearched = 1;
 	const int numCells = pcMap->getGridCols() * pcMap->getGridRows();
@@ -2462,7 +2663,7 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 	int divs = first_division;
 	int j;
 	for(i=0; i<nTotalLength; i+=divs) {
-		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		uchar px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		if (i>first_division)  // we aren't close to a wall, so we can shoot through only thin wall
 			divs = divisions;
@@ -2500,170 +2701,6 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 	return nTotalLength;
 }
 
-/*
-	this traces the given line
-	_action is a functor, used for the checkflag_action
-	it will be called, if we have a flag fitting to checkflag, with (int x, int y) as param
-	if the returned value is false, the loop will break
-*/
-template<class _action>
-_action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _action checkflag_action) {
-	enum { X_DOM=-1, Y_DOM=1 } dom; // which is dominating?
-	CVec dir = target-start;
-	if(dir.GetX() == 0 && dir.GetY() == 0)
-		return checkflag_action;
-		
-	float quot;
-	short s_x = (dir.GetX()>=0) ? 1 : -1;
-	short s_y = (dir.GetY()>=0) ? 1 : -1;	
-	// ensure, that |quot| <= 1 (we swap the whole map virtuelly for this, this is, what dom saves)
-	if(s_x*dir.GetX() >= s_y*dir.GetY()) {
-		dom = X_DOM;
-		quot = dir.GetY()/dir.GetX();
-	} else {
-		dom = Y_DOM;
-		quot = dir.GetX()/dir.GetY();
-	}
-	
-#ifdef _AI_DEBUG
-	//SDL_Surface *bmpDest = pcMap->GetDebugImage();
-#endif
-	
-	uchar* pxflags = pcMap->GetPixelFlags();
-	uchar* gridflags = pcMap->getAbsoluteGridFlags();
-	int map_w = pcMap->GetWidth();
-	int map_h = pcMap->GetHeight();	
-    int grid_w = pcMap->getGridWidth();
-    int grid_h = pcMap->getGridHeight();
-	int grid_cols = pcMap->getGridCols();
-	
-	int start_x = (int)start.GetX();
-	int start_y = (int)start.GetY();
-	int last_gridflag_i = -1;
-	int gridflag_i;
-	int pos_x, pos_y;
-	int grid_x, grid_y;
-	register int x = 0;
-	register int y = 0;
-	while(true) {
-		// is all done?
-		if(s_x*x > s_x*(int)dir.GetX()
-		|| s_y*y > s_y*(int)dir.GetY())
-		{
-			break;
-		}
-		
-		// this is my current pos
-		pos_x = start_x + x;
-		pos_y = start_y + y;
-			
-		// clipping?
-		if(pos_x < 0 || pos_x >= map_w
-		|| pos_y < 0 || pos_y >= map_h)
-		{
-			break;
-		}
-		
-#ifdef _AI_DEBUG
-		//PutPixel(bmpDest,pos_x*2,pos_y*2,MakeColour(255,255,0));
-#endif
-			
-		// inside the grid
-		grid_x = pos_x / grid_w;
-		grid_y = pos_y / grid_h;
-
-		// got we some usefull info from our grid?
-		gridflag_i = grid_y*grid_cols + grid_x;
-		if(last_gridflag_i != gridflag_i) {
-			last_gridflag_i = gridflag_i;
-			if(!(gridflags[gridflag_i] & checkflag)) {
-				// yes, we did, no checkflag inside
-				// go behind this grid-cell
-				// the following checks works, because |quot| <= 1
-				// make some pictures, then you will belive me :)
-				if(dom != Y_DOM) { // X_DOM
-					if(s_x > 0) {
-						if(s_y > 0) {
-							if( pos_x != (grid_x+1)*grid_w &&
-							(float(pos_y - (grid_y+1)*grid_h))/float(pos_x - (grid_x+1)*grid_w) <= quot )
-								x += int(float((grid_y+1)*grid_h - pos_y)/quot) + 1; // down
-							else
-								x = (grid_x+1)*grid_w - start_x; // right
-						} else { // s_y < 0
-							if( pos_x != (grid_x+1)*grid_w &&
-							(float(pos_y - grid_y*grid_h))/float(pos_x - (grid_x+1)*grid_w) >= quot )
-								x += int(float(grid_y*grid_h - pos_y)/quot) + 1; // up
-							else
-								x = (grid_x+1)*grid_w - start_x; // right
-						}
-					} else { // s_x < 0
-						if(s_y > 0) {
-							if( pos_x != grid_x*grid_w &&
-							(float(pos_y - (grid_y+1)*grid_h))/float(pos_x - grid_x*grid_w) >= quot )
-								x += int(float((grid_y+1)*grid_h - pos_y)/quot) - 1; // down
-							else
-								x = grid_x*grid_w - start_x - 1; // left
-						} else { // s_y < 0
-							if( pos_x != grid_x*grid_w &&
-							(float(pos_y - grid_y*grid_h))/float(pos_x - grid_x*grid_w) <= quot )
-								x += int(float(grid_y*grid_h - pos_y)/quot) - 1; // up
-							else
-								x = grid_x*grid_w - start_x - 1; // left
-						}
-					}
-				} else { // Y_DOM
-					if(s_y > 0) {
-						if(s_x > 0) {
-							if( pos_y != (grid_y+1)*grid_h &&
-							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - (grid_y+1)*grid_h) <= quot )
-								y += int(float((grid_x+1)*grid_w - pos_x)/quot) + 1; // right
-							else
-								y = (grid_y+1)*grid_h - start_y; // down
-						} else { // s_y < 0
-							if( pos_y != (grid_y+1)*grid_h &&
-							(float(pos_x - grid_x*grid_w))/float(pos_y - (grid_y+1)*grid_h) >= quot )
-								y += int(float(grid_x*grid_w - pos_x)/quot) + 1; // left
-							else
-								y = (grid_y+1)*grid_h - start_y; // down
-						}
-					} else { // s_y < 0
-						if(s_x > 0) {
-							if( pos_y != grid_y*grid_h &&
-							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - grid_y*grid_h) >= quot )
-								y += int(float((grid_x+1)*grid_w - pos_x)/quot) - 1; // right
-							else
-								y = grid_y*grid_h - start_y - 1; // up
-						} else { // s_y < 0
-							if( pos_y != grid_y*grid_h &&
-							(float(pos_x - grid_x*grid_w))/float(pos_y - grid_y*grid_h) <= quot )
-								y += int(float(grid_x*grid_w - pos_x)/quot) - 1; // left
-							else
-								y = grid_y*grid_h - start_y - 1; // up
-						}
-					}
-				}
-				continue;
-			}		
-		}
-		
-		// is the checkflag fitting to our current flag?
-		if(pxflags[pos_y*map_w + pos_x] & checkflag)
-			// do the given action; break if false
-			if(!checkflag_action(pos_x, pos_y))
-				break;
-		
-		// go ahead
-		if(dom != Y_DOM) { // X_DOM
-			x += s_x;
-			y = (int)(quot*(float)x);
-		} else { // Y_DOM
-			y += s_y;
-			x = (int)(quot*(float)y);
-		}
-	}
-	
-	return checkflag_action;
-}
 
 
 
@@ -2676,8 +2713,8 @@ public:
 	bool operator()(int x, int y) {
 		hit = true;
 		if(collision) {
-			collision->SetX(x);
-			collision->SetY(y);			
+			collision->x=(x);
+			collision->y=(y);			
 		}
 		return false;
 	}
@@ -2688,13 +2725,13 @@ public:
 // Trace the line with worm width
 int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 {	
-	if(collision) {
-		collision->SetX(target.GetX());
-		collision->SetY(target.GetY());
+/*	if(collision) {
+		collision->x=(target.x);
+		collision->y=(target.y);
 	}
 	return !fastTraceLine(target, start, pcMap, (uchar)PX_ROCK, set_col_and_break(collision)).hit;
+*/	
 	
-/*	
 	// Get the positions
 	CVec    pos;
 	CVec    dir = target-start;
@@ -2711,16 +2748,16 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 	int i;
 	uchar px;
 	for(i=0; i<nTotalLength; i++) {
-		if( (int)pos.GetX() < 0 || (int)pos.GetX() >= map_w 
-		|| (int)pos.GetY() < 0 || (int)pos.GetY() >= map_h )
+		if( (int)pos.x < 0 || (int)pos.x >= map_w 
+		|| (int)pos.y < 0 || (int)pos.y >= map_h )
 			px = PX_ROCK;
 		else
-			px = pxflags[(int)pos.GetX() + map_w*(int)pos.GetY()];
+			px = pxflags[(int)pos.x + map_w*(int)pos.y];
 
 		if(px & PX_ROCK) {
 			if(collision) {
-				collision->SetX(pos.GetX()-dir.GetX());
-				collision->SetY(pos.GetY()-dir.GetY());					
+				collision->x=(pos.x-dir.x);
+				collision->y=(pos.y-dir.y);					
 			}
 			return false;				
 		}
@@ -2729,12 +2766,12 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 	}
 
 	if(collision) {
-		collision->SetX(target.GetX());
-		collision->SetY(target.GetY());
+		collision->x=(target.x);
+		collision->y=(target.y);
 	}
 
 	return true;
-*/
+
 }
 
 ////////////////////////
@@ -2742,8 +2779,8 @@ int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
 {
 	// Get the cell
-	int cellX = (int) fabs((vPos.GetX())/pcMap->getGridWidth());
-	int cellY = (int) fabs((vPos.GetY())/pcMap->getGridHeight());
+	int cellX = (int) fabs((vPos.x)/pcMap->getGridWidth());
+	int cellY = (int) fabs((vPos.y)/pcMap->getGridHeight());
 
 	// First of all, check our current cell
 	if (*(pcMap->getGridFlags() + cellY*pcMap->getGridCols() +cellX) & PX_ROCK)
@@ -2870,15 +2907,15 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	bPathFinished = false;
 	NEW_psPath = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 	if (!NEW_psPath) return false;
-	NEW_psPath->fX = vPos.GetX();
-	NEW_psPath->fY = vPos.GetY();
+	NEW_psPath->fX = vPos.x;
+	NEW_psPath->fY = vPos.y;
 	NEW_psPath->psPrev = NULL;
 	NEW_psPath->psNext = NULL;
 	AI_storeNodes(NEW_psPath, NEW_psPath);
 	NEW_psPath->psNext = NEW_AI_ProcessPath(trg,vPos,pcMap);
 	NEW_psLastNode = get_last_ai_node(NEW_psPath);
 	if(NEW_psLastNode)
-		if (NEW_psLastNode->fX == trg.GetX() && NEW_psLastNode->fY == trg.GetY())
+		if (NEW_psLastNode->fX == trg.x && NEW_psLastNode->fY == trg.y)
 			bPathFinished = true;
 	
 	if(bPathFinished) {
@@ -2907,8 +2944,8 @@ NEW_ai_node_t *CWorm::NEW_AI_AddNode(CVec Pos,NEW_ai_node_t *psPrev,NEW_ai_node_
 		return NULL;
 
 	// Fill in the details
-	temp->fX = Pos.GetX();
-	temp->fY = Pos.GetY();
+	temp->fX = Pos.x;
+	temp->fY = Pos.y;
 	temp->psPrev = psPrev;
 	temp->psNext = psNext;
 
@@ -2935,8 +2972,8 @@ int GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
 	int i;
 	uchar px = PX_EMPTY;
 	for(i=0; i<nTotalLength; i+=divisions) {
-		px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
-		//pcMap->PutImagePixel((int)pos.GetX(), (int)pos.GetY(), MakeColour(255,0,0));
+		px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+		//pcMap->PutImagePixel((int)pos.x, (int)pos.y, MakeColour(255,0,0));
 
         if (px & PX_ROCK)
 			result++;
@@ -2950,7 +2987,7 @@ int GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
 /*CVec NEW_AI_FindBestSpot(CVec trg, CVec pos, CMap *pcMap)
 {
 	// Get the midpoint
-	CVec middle = CVec((pos.GetX()+trg.GetX())/2,(pos.GetY()+trg.GetY())/2);
+	CVec middle = CVec((pos.x+trg.x)/2,(pos.y+trg.y)/2);
 	
 	float a = CalculateDistance(middle,pos);
 	float b = a;
@@ -2963,17 +3000,17 @@ int GetRockBetween(CVec pos,CVec trg, CMap *pcMap)
 	float x,y;
 	for (;b > 10.0f; b-=b/2)
 		for (i=0;i<2*PI; i+=step)  {
-			x = a*(float)sin(2*PI*i)+middle.GetX();
-			y = b*(float)cos(2*PI*i)+middle.GetY();
+			x = a*(float)sin(2*PI*i)+middle.x;
+			y = b*(float)cos(2*PI*i)+middle.y;
 			CVec point = CVec(x,y);
-			if (pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() ) & PX_ROCK)
+			if (pcMap->GetPixelFlag( (int)pos.x, (int)pos.y ) & PX_ROCK)
 				continue;
 
 			int rock_pixels = GetRockBetween(point,pos,pcMap)+GetRockBetween(point,trg,pcMap);
 			if (rock_pixels < min)  {
 				min = rock_pixels;
-				result.SetX(point.GetX());
-				result.SetY(point.GetY());
+				result.x=(point.x);
+				result.y=(point.y);
 
 				if (!min)
 					return result;
@@ -3035,8 +3072,8 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 		CVec trg = CVec(ptr->psNext->fX,ptr->psNext->fY);
 
 		// Get the midpoint
-		//CVec middle = CVec((pos.GetX()+trg.GetX())/2,(pos.GetY()+trg.GetY())/2);
-		//CVec dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX());
+		//CVec middle = CVec((pos.x+trg.x)/2,(pos.y+trg.y)/2);
+		//CVec dir = CVec(trg.y-pos.y,pos.x-trg.x);
 
 		// Get nearest free spot to the midpoint and create a new node there
 		//CVec cNewNodePos1 = NEW_AI_FindClosestFreeSpotDir(middle,dir,pcMap,DIR_LEFT);
@@ -3060,7 +3097,7 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 			else if (traceWormLine(cNewNodePos2,CVec(ptr->fX,ptr->fY),pcMap))  {
 				// Y distance only has bigger priority
 				if (ptr->fY - ptr->psNext->fY > 20)  {
-					if (cNewNodePos1.GetY() < cNewNodePos2.GetY())
+					if (cNewNodePos1.y < cNewNodePos2.y)
 						cNewNodePos = &cNewNodePos1;
 					else
 						cNewNodePos = &cNewNodePos2;
@@ -3085,7 +3122,7 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 		else  {
 			// Y distance only has bigger priority
 			if (ptr->fY - ptr->psNext->fY > 20)  {
-				if (cNewNodePos1.GetY() < cNewNodePos2.GetY())
+				if (cNewNodePos1.y < cNewNodePos2.y)
 					cNewNodePos = &cNewNodePos1;
 				else
 					cNewNodePos = &cNewNodePos2;
@@ -3102,8 +3139,8 @@ void CWorm::NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap)
 
 
 #ifdef _AI_DEBUG
-		DrawRectFill(bmpDest,(int)cNewNodePos.GetX()*2-8,(int)cNewNodePos.GetY()*2-8,(int)cNewNodePos.GetX()*2+8,(int)cNewNodePos.GetY()*2+8,MakeColour(0,0,255));
-		tLX->cFont.DrawCentre(bmpDest,(int)cNewNodePos.GetX()*2,(int)cNewNodePos.GetY()*2-8,0xffff,"%i",Cycles);
+		DrawRectFill(bmpDest,(int)cNewNodePos.x*2-8,(int)cNewNodePos.y*2-8,(int)cNewNodePos.x*2+8,(int)cNewNodePos.y*2+8,MakeColour(0,0,255));
+		tLX->cFont.DrawCentre(bmpDest,(int)cNewNodePos.x*2,(int)cNewNodePos.y*2-8,0xffff,"%i",Cycles);
 #endif
 
 		// Add the node to the path
@@ -3143,7 +3180,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 	bool lastWasMissingCon = false;
 	while(true) {
 #ifdef _AI_DEBUG
-		//PutPixel(bmpDest,(int)pos.GetX()*2,(int)pos.GetY()*2,MakeColour(255,255,0));
+		//PutPixel(bmpDest,(int)pos.x*2,(int)pos.y*2,MakeColour(255,255,0));
 #endif
 
 		if(!lastWasObstacle && !lastWasMissingCon) pos += vDirection;
@@ -3160,12 +3197,12 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 			break;
 
 		// Clipping		
-		if( (int)pos.GetX() < 0 || (int)pos.GetX() >= map_w 
-		|| (int)pos.GetY() < 0 || (int)pos.GetY() >= map_h )
+		if( (int)pos.x < 0 || (int)pos.x >= map_w 
+		|| (int)pos.y < 0 || (int)pos.y >= map_h )
 			break;
 
 		// obstacle...
-		if(PX_ROCK & pxflags[(int)pos.GetX() + map_w*(int)pos.GetY()]) {
+		if(PX_ROCK & pxflags[(int)pos.x + map_w*(int)pos.y]) {
 			pos += backdir;
 			lastWasObstacle = true;
 			continue;
@@ -3191,7 +3228,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 			traceWormLine(pos-backdir*1000,pos,pcMap,&possible_end);
 			possible_end += backdir*3/backdir.GetLength();
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,(int)possible_end.GetX()*2,(int)possible_end.GetY()*2,MakeColour(255,0,255));
+			//PutPixel(bmpDest,(int)possible_end.x*2,(int)possible_end.y*2,MakeColour(255,0,255));
 #endif
 			// 'best' is, if we have much free way infront of pos
 			if((possible_end-pos).GetLength2() > best_length) {
@@ -3217,7 +3254,7 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 #endif
 
 	NormalizeVector(&vDirection);
-	//CVec vDev = CVec(vDirection.GetX()*5,vDirection.GetY()*5);
+	//CVec vDev = CVec(vDirection.x*5,vDirection.y*5);
 	CVec vDev = CVec(0,0);
 
 	int i;
@@ -3229,25 +3266,25 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 	CVec rememberPos2 = CVec(0,0);
 
 	for(i=0; 1; i++) {
-		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		uchar px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Empty pixel? Add it to the count
 		if(!(px & PX_ROCK)) {
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,pos.GetX()*2,pos.GetY()*2,MakeColour(255,255,0));
+			//PutPixel(bmpDest,pos.x*2,pos.y*2,MakeColour(255,255,0));
 #endif
 			emptyPixels++;
 		}
 		// Rock pixel? This spot isn't good
 		else {
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,pos.GetX()*2,pos.GetY()*2,MakeColour(255,0,0));
+			//PutPixel(bmpDest,pos.x*2,pos.y*2,MakeColour(255,0,0));
 #endif
 			if (emptyPixels >= 10)
 				break;
 			emptyPixels = 0;
-			rememberPos1.SetX(0);
-			rememberPos1.SetY(0);
+			rememberPos1.x=(0);
+			rememberPos1.y=(0);
 		}
 
 		// Good spot
@@ -3255,20 +3292,20 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 			firstClosest = i-emptyPixels;
 			if (emptyPixels >= 30)
 				break;
-			rememberPos1.SetX(rememberPos1.GetX()+vDirection.GetX());
-			rememberPos1.SetY(rememberPos1.GetY()+vDirection.GetY());
+			rememberPos1.x=(rememberPos1.x+vDirection.x);
+			rememberPos1.y=(rememberPos1.y+vDirection.y);
 		}
 
 		if (emptyPixels == 5)  {
-			rememberPos1.SetX(pos.GetX());
-			rememberPos1.SetY(pos.GetY());
+			rememberPos1.x=(pos.x);
+			rememberPos1.y=(pos.y);
 		}
 
 		pos = pos + vDirection;
 		// Clipping
-		if (pos.GetX() > pcMap->GetWidth() || pos.GetX() < 0)
+		if (pos.x > pcMap->GetWidth() || pos.x < 0)
 			break;
-		if (pos.GetY() > pcMap->GetHeight() || pos.GetY() < 0)
+		if (pos.y > pcMap->GetHeight() || pos.y < 0)
 			break;
 	}
 
@@ -3276,32 +3313,32 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 		return rememberPos1;
 
 	emptyPixels = 0;
-	vDirection.SetY(-vDirection.GetY());
-	vDirection.SetX(-vDirection.GetX());
-	vDev.SetX(-vDev.GetX());
-	vDev.SetY(-vDev.GetY());
+	vDirection.y=(-vDirection.y);
+	vDirection.x=(-vDirection.x);
+	vDev.x=(-vDev.x);
+	vDev.y=(-vDev.y);
 	pos = vPoint+vDev;
 
 	for(i=0; 1; i++) {
-		uchar px = pcMap->GetPixelFlag( (int)pos.GetX(), (int)pos.GetY() );
+		uchar px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Empty pixel? Add it to the count
 		if(!(px & PX_ROCK)) {
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,pos.GetX()*2,pos.GetY()*2,MakeColour(255,255,0));
+			//PutPixel(bmpDest,pos.x*2,pos.y*2,MakeColour(255,255,0));
 #endif
 			emptyPixels++;
 		}
 		// Rock pixel? This spot isn't good
 		else {
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,pos.GetX()*2,pos.GetY()*2,MakeColour(255,0,0));
+			//PutPixel(bmpDest,pos.x*2,pos.y*2,MakeColour(255,0,0));
 #endif
 			if (emptyPixels >= 10)  
 				break;
 
-			rememberPos2.SetX(0);
-			rememberPos2.SetY(0);
+			rememberPos2.x=(0);
+			rememberPos2.y=(0);
 			emptyPixels = 0;
 		}
 
@@ -3310,21 +3347,21 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 			secondClosest = i-emptyPixels;
 			if (emptyPixels >= 30)
 				break;
-			rememberPos2.SetX(rememberPos2.GetX()+vDirection.GetX());
-			rememberPos2.SetY(rememberPos2.GetY()+vDirection.GetY());
+			rememberPos2.x=(rememberPos2.x+vDirection.x);
+			rememberPos2.y=(rememberPos2.y+vDirection.y);
 		}
 
 		// Remember this special position (in the middle of possible free spot)
 		if (emptyPixels == 5)  {
-			rememberPos2.SetX(pos.GetX());
-			rememberPos2.SetY(pos.GetY());
+			rememberPos2.x=(pos.x);
+			rememberPos2.y=(pos.y);
 		}
 
 		pos = pos + vDirection;
 		// Clipping
-		if (pos.GetX() > pcMap->GetWidth() || pos.GetX() < 0)
+		if (pos.x > pcMap->GetWidth() || pos.x < 0)
 			break;
-		if (pos.GetY() > pcMap->GetHeight() || pos.GetY() < 0)
+		if (pos.y > pcMap->GetHeight() || pos.y < 0)
 			break;
 	}
 
@@ -3396,8 +3433,8 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		if (!target)
 			return NULL;
 
-		target->fX = trg.GetX();
-		target->fY = trg.GetY();
+		target->fX = trg.x;
+		target->fY = trg.y;
 		target->psNext = NULL;
 		target->psPrev = NULL;
 		AI_storeNodes(target, target);
@@ -3423,7 +3460,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		if(!it1->second->psNext)
 			continue;
 	
-		if(it1->second->fX == col.GetX() && it1->second->fY == col.GetY()) {
+		if(it1->second->fX == col.x && it1->second->fY == col.y) {
 			// a little bit strange that we were exactly here...
 			target = it1->second;
 		}
@@ -3435,8 +3472,8 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 			if (!target)
 				return NULL;
 
-			target->fX = col.GetX();
-			target->fY = col.GetY();
+			target->fX = col.x;
+			target->fY = col.y;
 			target->psNext = it1->second;
 			target->psPrev = NULL;
 			AI_storeNodes(target, target);
@@ -3464,7 +3501,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	CVec* newtrg = NULL;
 	NEW_ai_node_t* newNode = NULL;
 	
-	dir = CVec(trg.GetY()-pos.GetY(),pos.GetX()-trg.GetX()); // rotate clockwise by 90 deg
+	dir = CVec(trg.y-pos.y,pos.x-trg.x); // rotate clockwise by 90 deg
 	
 	// turn left and look
 	CVec cNewNodePos1 = NEW_AI_FindBestFreeSpot(pos,col,-dir,trg,&newtrg1,pcMap);
@@ -3504,16 +3541,16 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	target = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 	if (!target)
 		return NULL;
-	target->fX = cNewNodePos->GetX();
-	target->fY = cNewNodePos->GetY();
+	target->fX = cNewNodePos->x;
+	target->fY = cNewNodePos->y;
 	target->psPrev = NULL;
 	target->psNext = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 	if(!target->psNext) {
 		free(target);
 		return NULL;
 	}
-	target->psNext->fX = newtrg->GetX();
-	target->psNext->fY = newtrg->GetY();
+	target->psNext->fX = newtrg->x;
+	target->psNext->fY = newtrg->y;
 	target->psNext->psPrev = target;
 	target->psNext->psNext = newNode;
 	if(newNode) newNode->psPrev = target->psNext;
@@ -3527,12 +3564,12 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 		if (x >= 0 && x*2 <= bmpDest->w)
 			if (y >= 0 && y*2 <= bmpDest->h)  {
 				DrawRectFill(bmpDest,x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(0,255,0));
-				if (pos.GetX()*2 < bmpDest->w && pos.GetY()*2 < bmpDest->h)
-					DrawLine(bmpDest,(int)pos.GetX()*2,(int)pos.GetY()*2,x*2,y*2,0xffff);
-				if (trg.GetX()*2 < bmpDest->w && trg.GetY()*2 < bmpDest->h)
-					DrawLine(bmpDest,(int)trg.GetX()*2,(int)trg.GetY()*2,x*2,y*2,0xffff);
+				if (pos.x*2 < bmpDest->w && pos.y*2 < bmpDest->h)
+					DrawLine(bmpDest,(int)pos.x*2,(int)pos.y*2,x*2,y*2,0xffff);
+				if (trg.x*2 < bmpDest->w && trg.y*2 < bmpDest->h)
+					DrawLine(bmpDest,(int)trg.x*2,(int)trg.y*2,x*2,y*2,0xffff);
 			}
-		//DrawRectFill(bmpDest,(int)cNewNodePos.GetX()*2-4,(int)cNewNodePos.GetY()*2-4,(int)cNewNodePos.GetX()*2+4,(int)cNewNodePos.GetY()*2+4,MakeColour(0,255,0));
+		//DrawRectFill(bmpDest,(int)cNewNodePos.x*2-4,(int)cNewNodePos.y*2-4,(int)cNewNodePos.x*2+4,(int)cNewNodePos.y*2+4,MakeColour(0,255,0));
 		//return;
 	}
 
@@ -3692,8 +3729,8 @@ CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap)
 
 	// Get the current cell
 	uchar tmp_pf = PX_ROCK;
-	int cellX = (int) (trg.GetX())/pcMap->getGridWidth();
-	int cellY = (int) (trg.GetY())/pcMap->getGridHeight();
+	int cellX = (int) (trg.x)/pcMap->getGridWidth();
+	int cellY = (int) (trg.y)/pcMap->getGridHeight();
 	
 	// Clipping means rock
 	if (cellX > pcMap->getGridCols() || cellX < 0)
@@ -3797,7 +3834,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     cPosTarget = AI_GetTargetPos();
 
     // If we're really close to the target, perform a more precise type of movement
-    if(fabs(vPos.GetX() - cPosTarget.GetX()) < 20 && fabs(vPos.GetY() - cPosTarget.GetY()) < 20) {
+    if(fabs(vPos.x - cPosTarget.x) < 20 && fabs(vPos.y - cPosTarget.y) < 20) {
         AI_PreciseMove(pcMap);
         return;
     }
@@ -3863,10 +3900,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 /*
 	// Deviated?
-	if(fabs(NEW_psPath->fX-vPos.GetX()) > nDeviation || fabs(NEW_psPath->fY-vPos.GetY()) > nDeviation)
+	if(fabs(NEW_psPath->fX-vPos.x) > nDeviation || fabs(NEW_psPath->fY-vPos.y) > nDeviation)
 		recalculate = true;
 
-	if(fabs(NEW_psLastNode->fX-cPosTarget.GetX()) > nDeviation || fabs(NEW_psLastNode->fY-cPosTarget.GetY()) > nDeviation)
+	if(fabs(NEW_psLastNode->fX-cPosTarget.x) > nDeviation || fabs(NEW_psLastNode->fY-cPosTarget.y) > nDeviation)
 		recalculate = true;
 
     // Re-calculate the path?
@@ -3932,7 +3969,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     bool aim = AI_SetAim(nodePos);
 
     // If we are stuck in the same position for a while, take measures to get out of being stuck
-    if(fabs(cStuckPos.GetX() - vPos.GetX()) < 5 && fabs(cStuckPos.GetY() - vPos.GetY()) < 5) {
+    if(fabs(cStuckPos.x - vPos.x) < 5 && fabs(cStuckPos.y - vPos.y) < 5) {
         fStuckTime += tLX->fDeltaTime;
 
         // Have we been stuck for a few seconds?
@@ -3990,18 +4027,18 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 	// If the rope is hooked wrong, release it
 	/*if (cNinjaRope.isAttached())  {
-		if (cNinjaRope.getHookPos().GetX()+20 < vPos.GetX() && cNinjaRope.getHookPos().GetX()+20 < NEW_psCurrentNode->fX)
+		if (cNinjaRope.getHookPos().x+20 < vPos.x && cNinjaRope.getHookPos().x+20 < NEW_psCurrentNode->fX)
 			cNinjaRope.Release();
-		else if (cNinjaRope.getHookPos().GetX()-20 > vPos.GetX() && cNinjaRope.getHookPos().GetX()-20 > NEW_psCurrentNode->fX)
+		else if (cNinjaRope.getHookPos().x-20 > vPos.x && cNinjaRope.getHookPos().x-20 > NEW_psCurrentNode->fX)
 			cNinjaRope.Release();
 	}*/
 
     // Walk only if the target is a good distance on either side
-    if(fabs(vPos.GetX() - NEW_psCurrentNode->fX) > 30)
+    if(fabs(vPos.x - NEW_psCurrentNode->fX) > 30)
 		ws->iMove = true;
 
 	// If the node is above us by a little, jump
-	if ((vPos.GetY()-NEW_psCurrentNode->fY) <= 20 && (vPos.GetY()-NEW_psCurrentNode->fY) > 0) {
+	if ((vPos.y-NEW_psCurrentNode->fY) <= 20 && (vPos.y-NEW_psCurrentNode->fY) > 0) {
 		// Don't jump so often
 		if (tLX->fCurTime - fLastJump > 1.0f)  {
 			ws->iJump = true;
@@ -4014,7 +4051,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	// If the next node is above us by a little, jump too
 	NEW_ai_node_t *nextNode = NEW_psCurrentNode->psNext;
 	if (nextNode)  {
-		if ((vPos.GetY()-nextNode->fY) <= 30 && (vPos.GetY()-nextNode->fY) > 0)
+		if ((vPos.y-nextNode->fY) <= 30 && (vPos.y-nextNode->fY) > 0)
 			// Don't jump so often
 			if (tLX->fCurTime - fLastJump > 1.0f)  {
 				ws->iJump = true;
@@ -4035,8 +4072,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
     // If the node is above us by a lot, we should use the ninja rope
 	// If the node is far, jump and use the rope, too
-	bool fireNinja = NEW_psCurrentNode->fY+20 < vPos.GetY();
-	if (!fireNinja && (fabs(NEW_psCurrentNode->fX-vPos.GetX()) >= 50))  {
+	bool fireNinja = NEW_psCurrentNode->fY+20 < vPos.y;
+	if (!fireNinja && (fabs(NEW_psCurrentNode->fX-vPos.x) >= 50))  {
 		// On ground? Jump
 		if (CheckOnGround(pcMap))  {
 			if (tLX->fCurTime - fLastJump > 1.0f)  {
@@ -4062,11 +4099,11 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 /*
 		// If the path is going up, get an average position of the two nodes
-		if (vPos.GetY() > NEW_psCurrentNode->fY) 
+		if (vPos.y > NEW_psCurrentNode->fY) 
 			if (NEW_psCurrentNode->psNext) {
 				if (NEW_psCurrentNode->fY-30 > NEW_psCurrentNode->psNext->fY)  {
-					cAimPos.SetX((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
-					cAimPos.SetY((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
+					cAimPos.x=((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
+					cAimPos.y=((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
 				}
 			}
 */
@@ -4074,8 +4111,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		//cAimPos = NEW_AI_GetNearestRopeSpot(cAimPos,pcMap);
 #ifdef _AI_DEBUG
 		//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
-		//if (cAimPos.GetX() > 0 && cAimPos.GetY() > 0 && cAimPos.GetY() < pcMap->GetHeight()-4 && cAimPos.GetX() < pcMap->GetWidth()-4)
-		//	DrawRectFill(pcMap->GetDebugImage(),(int)cAimPos.GetX()*2,(int)cAimPos.GetY()*2,(int)cAimPos.GetX()*2+4,(int)cAimPos.GetY()*2+4,MakeColour(0,0,255));
+		//if (cAimPos.x > 0 && cAimPos.y > 0 && cAimPos.y < pcMap->GetHeight()-4 && cAimPos.x < pcMap->GetWidth()-4)
+		//	DrawRectFill(pcMap->GetDebugImage(),(int)cAimPos.x*2,(int)cAimPos.y*2,(int)cAimPos.x*2+4,(int)cAimPos.y*2+4,MakeColour(0,0,255));
 #endif
 
 
@@ -4085,10 +4122,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 
         CVec dir;
-        dir.SetX( (float)cos(fAngle * (PI/180)) );
-	    dir.SetY( (float)sin(fAngle * (PI/180)) );
+        dir.x=( (float)cos(fAngle * (PI/180)) );
+	    dir.y=( (float)sin(fAngle * (PI/180)) );
 	    if(iDirection == DIR_LEFT)
-		    dir.SetX(-dir.GetX());
+		    dir.x=(-dir.x);
        
         /*
           Got aim, so shoot a ninja rope
@@ -4101,7 +4138,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
             else {
                 float length = CalculateDistance(vPos, cNinjaRope.getHookPos());
                 if(cNinjaRope.isAttached()) {
-                    if(length < cNinjaRope.getRestLength() && vVelocity.GetY()<-10)
+                    if(length < cNinjaRope.getRestLength() && vVelocity.y<-10)
                         cNinjaRope.Shoot(vPos,dir);
                 }
             }
@@ -4123,7 +4160,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		cNinjaRope.Release();
 
 		// Jump, if the node is above us
-		if (v.GetY()+10.0f < vPos.GetY())
+		if (v.y+10.0f < vPos.y)
 			if (tLX->fCurTime - fLastJump > 1.0f)  {
 				ws->iJump = true;
 				fLastJump = tLX->fCurTime;
@@ -4134,7 +4171,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		if (tLX->fCurTime-fLastCarve > 0.2f)  {
 			fLastCarve = tLX->fCurTime;
 			ws->iCarve = true; // Carve
-			if (NEW_psCurrentNode->fY < vPos.GetY())
+			if (NEW_psCurrentNode->fY < vPos.y)
 				ws->iJump = true;
 		}
 		else  {
@@ -4143,8 +4180,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		}
 
 		// If the node is right above us, use a carving weapon
-		if (fabs(v.GetX()-vPos.GetX()) <= 50) 
-			if (v.GetY() < vPos.GetY())  {
+		if (fabs(v.x-vPos.x) <= 50) 
+			if (v.y < vPos.y)  {
 				int wpn;
 				if((wpn = AI_FindClearingWeapon()) != -1) {
 					iCurrentWeapon = wpn;
@@ -4157,7 +4194,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 
     // If we're above the node, let go of the rope and move towards to node
-    if(NEW_psCurrentNode->fY >= vPos.GetY()) {
+    if(NEW_psCurrentNode->fY >= vPos.y) {
         // Let go of any rope
         cNinjaRope.Release();
 

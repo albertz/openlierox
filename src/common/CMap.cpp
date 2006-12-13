@@ -781,8 +781,8 @@ int CMap::CarveHole(int size, CVec pos)
 	w = hole->w;
 	h = hole->h;
 
-	sx = (int)pos.GetX()-(hole->w>>1);
-	sy = (int)pos.GetY()-(hole->h>>1);
+	sx = (int)pos.x-(hole->w>>1);
+	sy = (int)pos.y-(hole->h>>1);
 
 	
 	if(SDL_MUSTLOCK(hole))
@@ -939,8 +939,8 @@ int CMap::PlaceDirt(int size, CVec pos)
 	w = hole->w;
 	h = hole->h;
 
-	sx = (int)pos.GetX()-(hole->w>>1);
-	sy = (int)pos.GetY()-(hole->h>>1);
+	sx = (int)pos.x-(hole->w>>1);
+	sy = (int)pos.y-(hole->h>>1);
 
 	
 	if(SDL_MUSTLOCK(hole))
@@ -1052,8 +1052,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 	w = bmpGreenMask->w;
 	h = bmpGreenMask->h;
 
-	sx = (int)pos.GetX()-(w>>1);
-	sy = (int)pos.GetY()-(h>>1);
+	sx = (int)pos.x-(w>>1);
+	sy = (int)pos.y-(h>>1);
 
 	
 	if(SDL_MUSTLOCK(bmpGreenMask))
@@ -1306,8 +1306,8 @@ void CMap::PlaceStone(int size, CVec pos)
 		object_t *o = &Objects[NumObjects++];
 		o->Type = OBJ_STONE;
 		o->Size = size;
-		o->X = (int) pos.GetX();
-        o->Y = (int) pos.GetY();
+		o->X = (int) pos.x;
+        o->Y = (int) pos.y;
 	}
 
 
@@ -1317,8 +1317,8 @@ void CMap::PlaceStone(int size, CVec pos)
 	w = stone->w;
 	h = stone->h;
 
-	sx = (int)pos.GetX()-(stone->w>>1);
-	sy = (int)pos.GetY()-(stone->h>>1);
+	sx = (int)pos.x-(stone->w>>1);
+	sy = (int)pos.y-(stone->h>>1);
 
 
 	if(SDL_MUSTLOCK(stone))
@@ -1397,8 +1397,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 		object_t *o = &Objects[NumObjects++];
 		o->Type = OBJ_MISC;
 		o->Size = id;
-		o->X = (int) pos.GetX();
-        o->Y = (int) pos.GetY();
+		o->X = (int) pos.x;
+        o->Y = (int) pos.y;
 	}
 
 
@@ -1407,8 +1407,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 	w = misc->w;
 	h = misc->h;
 
-	sx = (int)pos.GetX()-(misc->w>>1);
-	sy = (int)pos.GetY()-(misc->h>>1);
+	sx = (int)pos.x-(misc->w>>1);
+	sy = (int)pos.y-(misc->h>>1);
 
 
 	if(SDL_MUSTLOCK(misc))
@@ -1483,8 +1483,8 @@ void CMap::DeleteObject(CVec pos)
 				break;
 		}
 
-		if((int)fabs(pos.GetX() - obj->X) < w &&
-			(int)fabs(pos.GetY() - obj->Y) < h) {
+		if((int)fabs(pos.x - obj->X) < w &&
+			(int)fabs(pos.y - obj->Y) < h) {
 
 			if(obj->Type == OBJ_STONE)
 				DeleteStone(obj);
@@ -1630,8 +1630,8 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
 		g = g + (int)( (float)dg*(time*2.0f));
 		b = b + (int)( (float)db*(time*2.0f));
 
-		mx = w->getPos().GetX()/xstep;
-		my = w->getPos().GetY()/ystep;
+		mx = w->getPos().x/xstep;
+		my = w->getPos().y/ystep;
         mx = (float)floor(mx);
         my = (float)floor(my);
 

@@ -122,10 +122,10 @@ void CWeather::SimulateSnow(float dt, CMap *pcMap)
             // Snow particle
             case wpt_snowpart:
                 // Have we hit some dirt/rock?
-                byte flag = pcMap->GetPixelFlag( (int)psPart->cPos.GetX(), (int)psPart->cPos.GetY() );
+                byte flag = pcMap->GetPixelFlag( (int)psPart->cPos.x, (int)psPart->cPos.y );
                 if( flag & PX_DIRT || flag & PX_ROCK ) {
                     // Leave a white dot
-                    pcMap->PutImagePixel( (int)psPart->cPos.GetX(), (int)psPart->cPos.GetY(), 0xffff );
+                    pcMap->PutImagePixel( (int)psPart->cPos.x, (int)psPart->cPos.y, 0xffff );
                     psPart->bUsed = false;
                 }
                 break;
@@ -175,8 +175,8 @@ void CWeather::Draw(SDL_Surface *psDest, CViewport *view)
         if( !psPart->bUsed )
             continue;
 
-        int x=((int)psPart->cPos.GetX()-wx)*2+l;
-    	int y=((int)psPart->cPos.GetY()-wy)*2+t;
+        int x=((int)psPart->cPos.x-wx)*2+l;
+    	int y=((int)psPart->cPos.y-wy)*2+t;
 
 
         switch( psPart->nType ) {

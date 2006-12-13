@@ -130,18 +130,18 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
     bool outsideMap = false;
 	
 	// Hack to see if the hook went out of the map
-	if(HookPos.GetX() <= 0 || HookPos.GetY() <= 0 ||
-	   HookPos.GetX() >= map->GetWidth()-1 || HookPos.GetY() >= map->GetHeight()-1) {
+	if(HookPos.x <= 0 || HookPos.y <= 0 ||
+	   HookPos.x >= map->GetWidth()-1 || HookPos.y >= map->GetHeight()-1) {
 		HookShooting = false;
 		HookAttached = true;
 		PlayerAttached = false;
 
 		// Make the hook stay at an edge
-		HookPos.SetX( MAX((float)0,HookPos.GetX()) );
-		HookPos.SetY( MAX((float)0,HookPos.GetY()) );
+		HookPos.x=( MAX((float)0,HookPos.x) );
+		HookPos.y=( MAX((float)0,HookPos.y) );
 
-		HookPos.SetX( MIN(map->GetWidth()-(float)1,HookPos.GetX()) );
-		HookPos.SetY( MIN(map->GetHeight()-(float)1,HookPos.GetY()) );
+		HookPos.x=( MIN(map->GetWidth()-(float)1,HookPos.x) );
+		HookPos.y=( MIN(map->GetHeight()-(float)1,HookPos.y) );
 
         outsideMap = true;
 	}
@@ -151,7 +151,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	if(!PlayerAttached)
 		HookAttached = false;
 
-	int px = map->GetPixelFlag((int)HookPos.GetX(),(int)HookPos.GetY());
+	int px = map->GetPixelFlag((int)HookPos.x,(int)HookPos.y);
 	if((px & PX_ROCK || px & PX_DIRT || outsideMap) && !PlayerAttached) {
 		HookShooting = false;
 		HookAttached = true;
@@ -159,7 +159,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 		HookVelocity = CVec(0,0);
 
 		if(px & PX_DIRT && firsthit) {
-			Uint32 col = GetPixel(map->GetImage(),(int)HookPos.GetX(),(int)HookPos.GetY());
+			Uint32 col = GetPixel(map->GetImage(),(int)HookPos.x,(int)HookPos.y);
             for( int i=0; i<5; i++ )
 			    SpawnEntity(ENT_PARTICLE,0,HookPos+CVec(0,2),CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 		}
@@ -219,14 +219,14 @@ void CNinjaRope::Draw(SDL_Surface *bmpDest, CViewport *view, CVec ppos)
 	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
 
-	int hx = (int)HookPos.GetX();
-	int hy = (int)HookPos.GetY();
+	int hx = (int)HookPos.x;
+	int hy = (int)HookPos.y;
 
-	int px = (int)ppos.GetX();
-	int py = (int)ppos.GetY();
+	int px = (int)ppos.x;
+	int py = (int)ppos.y;
 
-	px = ((int)ppos.GetX()-wx)*2+l;
-	py = ((int)ppos.GetY()-wy)*2+t;
+	px = ((int)ppos.x-wx)*2+l;
+	py = ((int)ppos.y-wy)*2+t;
 
 	hx = (hx-wx)*2+l;
 	hy = (hy-wy)*2+t;
@@ -311,15 +311,15 @@ void CNinjaRope::write(CBytestream *bs)
 	bs->writeByte( type );
 
 	// Position
-	short x = (short)HookPos.GetX();
-	short y = (short)HookPos.GetY();
+	short x = (short)HookPos.x;
+	short y = (short)HookPos.y;
 	
 	// Write out position of the hook
 	bs->write2Int12( x, y );
 
 
 	// Calculate the heading angle that the hook is travelling
-	float heading = (float)( -atan2(HookDir.GetX(),HookDir.GetY()) * (180.0f/PI) );
+	float heading = (float)( -atan2(HookDir.x,HookDir.y) * (180.0f/PI) );
 	heading+=90;
 	if(heading < 0)
 		heading+=360;
@@ -376,8 +376,8 @@ void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
-	HookPos.SetX( (float)x );
-	HookPos.SetY( (float)y );
+	HookPos.x=( (float)x );
+	HookPos.y=( (float)y );
 
 	// Angle
 	if(type == ROP_SHOOTING) {

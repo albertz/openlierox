@@ -82,8 +82,8 @@ void CWorm::readScore(CBytestream *bs)
 // Write a packet out
 void CWorm::writePacket(CBytestream *bs)
 {
-	short x = (short)vPos.GetX();
-	short y = (short)vPos.GetY();
+	short x = (short)vPos.x;
+	short y = (short)vPos.y;
 
 	// Note: This method of saving 1 byte in position, limits the map size to just under 4096x4096
 
@@ -122,8 +122,8 @@ void CWorm::writePacket(CBytestream *bs)
 	// So only send the velocity if our shoot flag is set
 	if(tState.iShoot) {
 		CVec v = vVelocity;
-		bs->writeShort( (short)v.GetX() );
-		bs->writeShort( (short)v.GetY() );
+		bs->writeShort( (short)v.x );
+		bs->writeShort( (short)v.y );
 	}
 }
 
@@ -132,8 +132,8 @@ void CWorm::writePacket(CBytestream *bs)
 // Write a packet out (from client 2 server)
 /*void CWorm::writeC2SUpdate(CBytestream *bs)
 {
-	short x = (short)vPos.GetX();
-	short y = (short)vPos.GetY();
+	short x = (short)vPos.x;
+	short y = (short)vPos.y;
 
 	// Note: This method of saving 1 byte in position, limits the map size to just under 4096x4096
 
@@ -174,8 +174,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
-	vPos.SetX( (float)x );
-	vPos.SetY( (float)y );	
+	vPos.x=( (float)x );
+	vPos.y=( (float)y );	
 
 	// Angle
 	fAngle = (float)bs->readInt(1) - 90;
@@ -217,8 +217,8 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
-	vPos.SetX( (float)x );
-	vPos.SetY( (float)y );
+	vPos.x=( (float)x );
+	vPos.y=( (float)y );
 
 	// Angle
 	tState.iAngle = bs->readInt(1) - 90;

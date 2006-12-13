@@ -147,7 +147,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			iDirection = DIR_RIGHT;
 			ws->iMove = true;
 
-			//if(vVelocity.GetX()<75)
+			//if(vVelocity.x<75)
 			//	vVelocity = vVelocity + CVec(speed,0);
 			//fFrame+=5*dt;
 			move = true;
@@ -169,17 +169,17 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		iDirection = DIR_LEFT;
 		ws->iMove = true;
 
-		//if(vVelocity.GetX()>-75)
+		//if(vVelocity.x>-75)
 		//	vVelocity = vVelocity + CVec(-speed,0);
 		//fFrame+=5*dt;
 		move = true;
 	}
 
 	// Calculate dir
-	dir.SetX( (float)cos(fAngle * (PI/180)) );
-	dir.SetY( (float)sin(fAngle * (PI/180)) );
+	dir.x=( (float)cos(fAngle * (PI/180)) );
+	dir.y=( (float)sin(fAngle * (PI/180)) );
 	if(iDirection==DIR_LEFT)
-		dir.SetX(-dir.GetX());
+		dir.x=(-dir.x);
 
 	int oldskool = tLXOptions->iOldSkoolRope;
 
@@ -241,8 +241,8 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 
 	ws->iAngle = (int)fAngle;
-	ws->iX = (int)vPos.GetX();
-	ws->iY = (int)vPos.GetY();
+	ws->iX = (int)vPos.x;
+	ws->iY = (int)vPos.y;
 	
 }
 
@@ -319,10 +319,10 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 
 	// Calculate dir
-	dir.SetX( (float)cos(fAngle * (PI/180)) );
-	dir.SetY( (float)sin(fAngle * (PI/180)) );
+	dir.x=( (float)cos(fAngle * (PI/180)) );
+	dir.y=( (float)sin(fAngle * (PI/180)) );
 	if(iDirection==DIR_LEFT)
-		dir.SetX(-dir.GetX());
+		dir.x=(-dir.x);
 
 	if(iOnGround)
 		speed = wd->GroundSpeed;
@@ -357,13 +357,13 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 		if(iDirection == DIR_RIGHT) {
 
 			// Right
-			if(vVelocity.GetX()<30)
+			if(vVelocity.x<30)
 				vVelocity = vVelocity + CVec(speed,0);
 			fFrame += fFrameRate * dt;
 		} else {
 
 			// Left
-			if(vVelocity.GetX()>-30)
+			if(vVelocity.x>-30)
 				vVelocity = vVelocity + CVec(-speed,0);
 			fFrame += fFrameRate * dt;
 		}
@@ -373,8 +373,8 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	// Process the jump
 	if(ws->iJump) {
 		if(CheckOnGround(map)) {
-			//vVelocity.SetX(0);
-			vVelocity.SetY(0);
+			//vVelocity.x=(0);
+			vVelocity.y=(0);
 			vVelocity = vVelocity + CVec(0,wd->JumpForce);
 			iOnGround = false;
 			jump = true;
@@ -386,8 +386,8 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	float Drag = wd->AirFriction;
 
 	if(!iOnGround)	{
-		vVelocity.SetX( vVelocity.GetX() - SQR(vVelocity.GetX()) * SIGN(vVelocity.GetX()) * Drag * dt );
-		vVelocity.SetY( vVelocity.GetY() + (-SQR(vVelocity.GetY()) * SIGN(vVelocity.GetY()) * Drag) * dt );	
+		vVelocity.x=( vVelocity.x - SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag * dt );
+		vVelocity.y=( vVelocity.y + (-SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag) * dt );	
 	}
 
 
@@ -427,17 +427,17 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 		// Left & Right
 		if(coll & COL_LEFT  ||  coll & COL_RIGHT) {	
-			if(fabs(vVelocity.GetX()) > 160)
+			if(fabs(vVelocity.x) > 160)
 				vVelocity = vVelocity * CVec(-0.4f,1);
 			else
-				vVelocity.SetX(0);
+				vVelocity.x=(0);
 		}
 	}
 
 	tLX->debug_int = coll;*/
 
-	/*x = newpos.GetX()+4;
-	y = newpos.GetY();
+	/*x = newpos.x+4;
+	y = newpos.y;
 	int clip = 0;
 
 	if(y >= 0 && y < map->GetHeight()) {
@@ -445,23 +445,23 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 			// Optimize: pixelflag++
 
 			// Clipping
-			if(newpos.GetX()+x < 0 || newpos.GetX()+x >= map->GetWidth())
+			if(newpos.x+x < 0 || newpos.x+x >= map->GetWidth())
 				continue;
 
-			if(!(map->GetPixelFlag(newpos.GetX()+x,y) & PX_EMPTY)) {
-				if(fabs(vVelocity.GetX()) > 40)
+			if(!(map->GetPixelFlag(newpos.x+x,y) & PX_EMPTY)) {
+				if(fabs(vVelocity.x) > 40)
 					vVelocity = vVelocity * CVec(-0.4f,1);
 				else
-					vVelocity.SetX(0);
+					vVelocity.x=(0);
 
 				int width = 4;
 				if(x<0) {
 					clip |= 0x01;
-					vPos.SetX( newpos.GetX()+x+width );
+					vPos.x=( newpos.x+x+width );
 				}
 				else {
 					clip |= 0x02;
-					vPos.SetX( newpos.GetX()+x-width );
+					vPos.x=( newpos.x+x-width );
 				}
 				break;
 			}
@@ -471,21 +471,21 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	iOnGround = false;
 	
 	int hit = false;
-	x = newpos.GetX();
+	x = newpos.x;
 	
 	if(x >= 0 && x < map->GetWidth()) {
 		for(y=4;y>-5;y--) {
 			// Optimize: pixelflag + Width
 
 			// Clipping
-			if(newpos.GetY()+y < 0 || newpos.GetY()+y >= map->GetHeight())
+			if(newpos.y+y < 0 || newpos.y+y >= map->GetHeight())
 				continue;
 		
-			if(!(map->GetPixelFlag(x,newpos.GetY()+y) & PX_EMPTY)) {
-				if(fabs(vVelocity.GetY()) > 40 && !hit && !jump)
+			if(!(map->GetPixelFlag(x,newpos.y+y) & PX_EMPTY)) {
+				if(fabs(vVelocity.y) > 40 && !hit && !jump)
 					vVelocity = vVelocity * CVec(1,-0.4f);
 				else if(!jump)
-					vVelocity.SetY(0);
+					vVelocity.y=(0);
 
 				hit = true;
 				iOnGround = true;
@@ -493,16 +493,16 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 				int height = 5;
 				if(y<0) {
 					clip |= 0x04;
-					vPos.SetY( newpos.GetY()+y+height );
+					vPos.y=( newpos.y+y+height );
 				}
 				else {
 					clip |= 0x08;
-					vPos.SetY( newpos.GetY()+y-height );
+					vPos.y=( newpos.y+y-height );
 				}
 
 				//if(y>3 && !jump) {
-					//vVelocity.SetY(-10);
-					//Velocity.SetY(0);
+					//vVelocity.y=(-10);
+					//Velocity.y=(0);
 				//	break;
 				//}
 			}
@@ -519,7 +519,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 		vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 
 		// Too slow, just stop
-		if(fabs(vVelocity.GetX()) < 5 && !ws->iMove)
+		if(fabs(vVelocity.x) < 5 && !ws->iMove)
 			vVelocity = vVelocity * CVec(0,1);
 	}
 
@@ -531,8 +531,8 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	if(local) {
 		ws->iAngle = (int)fAngle;
 		ws->iDirection = iDirection;
-		ws->iX = (int)vPos.GetX();
-		ws->iY = (int)vPos.GetY();
+		ws->iX = (int)vPos.x;
+		ws->iY = (int)vPos.y;
 	}
 }
 
@@ -587,8 +587,8 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 	vPos = pos;
 
 
-	x = (int)pos.GetX()+4;
-	y = (int)pos.GetY();
+	x = (int)pos.x+4;
+	y = (int)pos.y;
 	int clip = 0;
 	int coll = false;
 
@@ -597,46 +597,46 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 			// Optimize: pixelflag++
 
 			// Left side clipping
-			if(pos.GetX()+x <= 2) {
-				vPos.SetX( 5 );
+			if(pos.x+x <= 2) {
+				vPos.x=( 5 );
 				coll = true;
-				if(fabs(vel->GetX()) > 40)
+				if(fabs(vel->x) > 40)
 					*vel = *vel * CVec(-0.4f,1);
 				else
-					vel->SetX(0);
+					vel->x=(0);
 				break;
 			}
 
 			// Right side clipping
-			if(pos.GetX()+x >= map->GetWidth()) {
-				vPos.SetX( (float)map->GetWidth() - 5 );
+			if(pos.x+x >= map->GetWidth()) {
+				vPos.x=( (float)map->GetWidth() - 5 );
 				coll = true;
-				if(fabs(vel->GetX()) > 40)
+				if(fabs(vel->x) > 40)
 					*vel = *vel * CVec(-0.4f,1);
 				else
-					vel->SetX(0);
+					vel->x=(0);
 				break;
 			}
 
 
-			if(!(map->GetPixelFlag((int)pos.GetX()+x,y) & PX_EMPTY)) {
+			if(!(map->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
 
 				coll = true;
 
 				// Bounce
-				if(fabs(vel->GetX()) > 30)
+				if(fabs(vel->x) > 30)
 					*vel = *vel * CVec(-0.4f,1);
 				else
-					vel->SetX(0);				
+					vel->x=(0);				
 
 				int width = 4;
 				if(x<0) {
 					clip |= 0x01;
-					vPos.SetX( pos.GetX()+x+width );
+					vPos.x=( pos.x+x+width );
 				}
 				else {
 					clip |= 0x02;
-					vPos.SetX( pos.GetX()+x-width );
+					vPos.x=( pos.x+x-width );
 				}
 				break;
 			}
@@ -646,42 +646,42 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 	iOnGround = false;
 	
 	int hit = false;
-	x = (int)pos.GetX();
+	x = (int)pos.x;
 	
 	if(x >= 0 && x < map->GetWidth()) {
 		for(y=5;y>-5;y--) {
 			// Optimize: pixelflag + Width
 
 			// Top side clipping
-			if(pos.GetY()+y <= 1) {
-				vPos.SetY( 6 );
+			if(pos.y+y <= 1) {
+				vPos.y=( 6 );
 				coll = true;
-				if(fabs(vel->GetY()) > 40)
+				if(fabs(vel->y) > 40)
 					*vel = *vel * CVec(1,-0.4f);
 				break;
 			}
 
 			// Bottom side clipping
-			if(pos.GetY()+y >= map->GetHeight()) {
-				vPos.SetY( (float)map->GetHeight() - 5 );
+			if(pos.y+y >= map->GetHeight()) {
+				vPos.y=( (float)map->GetHeight() - 5 );
 				coll = true;
                 iOnGround = true;
-				if(fabs(vel->GetY()) > 40)
+				if(fabs(vel->y) > 40)
 					*vel = *vel * CVec(1,-0.4f);
 				else
-					vel->SetY(0);
+					vel->y=(0);
 				break;
 			}
 
 		
-			if(!(map->GetPixelFlag(x,(int)pos.GetY()+y) & PX_EMPTY)) {
+			if(!(map->GetPixelFlag(x,(int)pos.y+y) & PX_EMPTY)) {
 				coll = true;
 
                 if(!hit && !jump) {
-				    if(fabs(vel->GetY()) > 40 && ((vel->GetY() > 0 && y>0) || (vel->GetY() < 0 && y<0)))
+				    if(fabs(vel->y) > 40 && ((vel->y > 0 && y>0) || (vel->y < 0 && y<0)))
 					    *vel = *vel * CVec(1,-0.4f);
 				    else
-					    vel->SetY(0);
+					    vel->y=(0);
                 }
 
 				hit = true;
@@ -690,16 +690,16 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 				int height = 5;
 				if(y<0) {
 					clip |= 0x04;
-					vPos.SetY( pos.GetY()+y+height );
+					vPos.y=( pos.y+y+height );
 				}
 				else {
 					clip |= 0x08;
-					vPos.SetY( pos.GetY()+y-height );
+					vPos.y=( pos.y+y-height );
 				}
 
 				//if(y>3 && !jump) {
-					//vVelocity.SetY(-10);
-					//Velocity.SetY(0);
+					//vVelocity.y=(-10);
+					//Velocity.y=(0);
 				//	break;
 				//}
 			}
@@ -712,9 +712,9 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 
 	// If we collided with the ground and we were going pretty fast, make a bump sound
 	if(coll) {
-		if( fabs(vel->GetX()) > 30 && (clip & 0x01 || clip & 0x02) )
+		if( fabs(vel->x) > 30 && (clip & 0x01 || clip & 0x02) )
 			StartSound( sfxGame.smpBump, vPos, getLocal(), -1, this );
-		else if( fabs(vel->GetY()) > 30 && (clip & 0x04 || clip & 0x08) )
+		else if( fabs(vel->y) > 30 && (clip & 0x04 || clip & 0x08) )
 			StartSound( sfxGame.smpBump, vPos, getLocal(), -1, this );
 	}
 
@@ -832,7 +832,7 @@ void CWorm::getMouseInput(void)
 			iDirection = DIR_RIGHT;
 			ws->iMove = true;
 
-			//if(vVelocity.GetX()<75)
+			//if(vVelocity.x<75)
 			//	vVelocity = vVelocity + CVec(speed,0);
 			//fFrame+=5*dt;
 			move = true;
@@ -854,17 +854,17 @@ void CWorm::getMouseInput(void)
 		iDirection = DIR_LEFT;
 		ws->iMove = true;
 
-		//if(vVelocity.GetX()>-75)
+		//if(vVelocity.x>-75)
 		//	vVelocity = vVelocity + CVec(-speed,0);
 		//fFrame+=5*dt;
 		move = true;
 	}
 
 	// Calculate dir
-	dir.SetX( (float)cos(fAngle * (PI/180)) );
-	dir.SetY( (float)sin(fAngle * (PI/180)) );
+	dir.x=( (float)cos(fAngle * (PI/180)) );
+	dir.y=( (float)sin(fAngle * (PI/180)) );
 	if(iDirection==DIR_LEFT)
-		dir.SetX(-dir.GetX());
+		dir.x=(-dir.x);
 
 	if(Jump) {
 		ws->iJump = true;
@@ -884,6 +884,6 @@ void CWorm::getMouseInput(void)
 
 
 	ws->iAngle = (int)fAngle;
-	ws->iX = (int)vPos.GetX();
-	ws->iY = (int)vPos.GetY();
+	ws->iX = (int)vPos.x;
+	ws->iY = (int)vPos.y;
 }

@@ -39,8 +39,8 @@ int CheckCollision(CVec pos, CVec vel, int width, int height, CMap *map)
 	int		px,py, x,y, w,h;
 	int		top,bottom,left,right;
 
-	px=(int)pos.GetX();
-	py=(int)pos.GetY();
+	px=(int)pos.x;
+	py=(int)pos.y;
 		
 	top=bottom=left=right=0;
 
@@ -114,16 +114,16 @@ int CheckCollision(CVec pos, CVec vel, int width, int height, CMap *map)
 
 
 		// Find the collision side
-		if( (left>right || left>2) && left>1 && vel.GetX() < 0)
+		if( (left>right || left>2) && left>1 && vel.x < 0)
 			CollisionSide = COL_LEFT;
 		
-		if( (right>left || right>2) && right>1 && vel.GetX() > 0)
+		if( (right>left || right>2) && right>1 && vel.x > 0)
 			CollisionSide = COL_RIGHT;
 
-		if(top>1 && vel.GetY() < 0)
+		if(top>1 && vel.y < 0)
 			CollisionSide = COL_TOP;
 
-		if(bottom>1 && vel.GetY() > 0)
+		if(bottom>1 && vel.y > 0)
 			CollisionSide = COL_BOTTOM;
 	}
 
@@ -169,16 +169,16 @@ int CarveHole(CMap *cMap, CVec pos)
 	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
 	
 	// Go through until we find dirt to throw around
-	y = MIN((int)pos.GetY(),cMap->GetHeight()-1);
+	y = MIN((int)pos.y,cMap->GetHeight()-1);
 	y = MAX(y,0);
 
-	for(x=(int)pos.GetX()-2;x<=(int)pos.GetX()+2;x++) {
+	for(x=(int)pos.x-2;x<=(int)pos.x+2;x++) {
 		// Clipping
 		if(x<0)	continue;
 		if(x>=cMap->GetWidth())	break;
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = GetPixel(cMap->GetImage(),x,(int)pos.GetY());
+			Colour = GetPixel(cMap->GetImage(),x,(int)pos.y);
 			for(n=0;n<3;n++)
 				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
 			break;

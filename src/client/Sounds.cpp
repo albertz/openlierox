@@ -151,7 +151,7 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 
 	// If this wasn't a sound by me, setup the volume & pan based on position
 	if(!local) {
-		/*float side = pos.GetX() - me->getPos().GetX();
+		/*float side = pos.x - me->getPos().x;
 		float distance = CalculateDistance(pos,me->getPos());
 
 		// To far
@@ -170,8 +170,8 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 		int t = v->GetTop();
 
 		// Are we inside the viewport?
-		int x = (int)pos.GetX() - wx;
-		int y = (int)pos.GetY() - wy;
+		int x = (int)pos.x - wx;
+		int y = (int)pos.y - wy;
 		x*=2;
 		y*=2;
 
