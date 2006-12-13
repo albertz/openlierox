@@ -2,7 +2,7 @@
 
 DEST=albertzeyer@shell.sourceforge.net:/home/groups/o/op/openlierox/htdocs/
 
-rsync -avP additions/* $DEST
-rsync -avP tarball/* $DEST
-rsync -avP ebuild/* $DEST
-rsync -avP deb/* $DEST
+rsync -avP --exclude .svn additions/* $DEST
+rsync -avP --exclude .svn tarball/* $DEST
+rsync -avP --exclude .svn ebuild/* $DEST
+rsync -avP --exclude .svn deb/* $DEST
