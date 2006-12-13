@@ -129,10 +129,15 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 	register int x = 0;
 	register int y = 0;
 	while(true) {
+		if(dom != Y_DOM) { // X_DOM
+			y = (int)(quot*(float)x);
+		} else { // Y_DOM
+			x = (int)(quot*(float)y);
+		}
+		
 		// is all done?
 		if(s_x*x > s_x*(int)dir.x
-		|| s_y*y > s_y*(int)dir.y)
-		{
+		|| s_y*y > s_y*(int)dir.y) {
 			break;
 		}
 		
@@ -142,9 +147,9 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 			
 		// clipping?
 		if(pos_x < 0 || pos_x >= map_w
-		|| pos_y < 0 || pos_y >= map_h)
-		{
-			break;
+		|| pos_y < 0 || pos_y >= map_h) {
+			if(!checkflag_action(pos_x, pos_y))
+				break;
 		}
 		
 #ifdef _AI_DEBUG
@@ -240,10 +245,8 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 		// go ahead
 		if(dom != Y_DOM) { // X_DOM
 			x += s_x;
-			y = (int)(quot*(float)x);
 		} else { // Y_DOM
 			y += s_y;
-			x = (int)(quot*(float)y);
 		}
 	}
 	
@@ -269,8 +272,13 @@ public:
 	debug_print_col(SDL_Surface* dest=NULL) : bmpDest(dest) {}
 	
 	bool operator()(int x, int y) const {
-		if(!bmpDest) return false;
-		DrawRectFill(bmpDest,x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(255,255,0));
+		if(!bmpDest)
+			return false;
+		if(x*2-4 >= 0 && x*2+4 < bmpDest->w
+		&& y*2-4 >= 0 && y*2+4 < bmpDest->h)
+			DrawRectFill(bmpDest,x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(255,255,0));
+		else
+			return false;
 		return true;
 	}
 };
