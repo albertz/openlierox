@@ -291,7 +291,7 @@ private:
 	bool		bPathFinished;
 
 	nodes_map storedNodes;
-	static const float nodesGridWidth = 10; // used by storedNodes
+	float nodesGridWidth; // used by storedNodes
 
 
 	NEW_ai_node_t	*NEW_psPath;

@@ -323,6 +323,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 	float dt = tLX->fDeltaTime;
 
     // Every 3 seconds we run the think function
+	// TODO: this can be a problem for pathfinding
     if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
         nAIState = AI_THINK;
 
@@ -677,6 +678,10 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
 		}
         return;
 	}
+
+	// TODO:
+	// If there's no target worm and bonuses are off, this is run every frame
+	// The pathfinding is then run very often and it terribly slows down
 
     // Find a random spot to go to high in the level
     int x, y;

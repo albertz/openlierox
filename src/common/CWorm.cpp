@@ -67,6 +67,9 @@ void CWorm::Clear(void)
 	fLastSparkle = -99999;
     iDirtCount = 0;
 
+	// Have to initialize it here, VC++ doesn't allow const in class declaration
+	nodesGridWidth = 10;
+
 	fLastBlood = -9999;
 
 	//pcViewport = NULL;//.Setup(0,0,640,480);

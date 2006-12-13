@@ -44,8 +44,10 @@ public:
 	inline void	AddY(float _y)				{ y+=_y; }
 */
 
-	inline float GetLength() const { return sqrt(x*x + y*y); }
+	inline float GetLength() const { return (float)sqrt(x*x + y*y); }
 	inline float GetLength2() const { return x*x + y*y; };
+
+	inline float GetAngle() const { return (float)atan2(y,x); }
 
 	// Overloads
 	inline CVec operator*(const float scalar) const {		
@@ -76,9 +78,7 @@ public:
 	}
 
 	inline bool operator<(const CVec op) const {
-		if(x<op.x && y<op.y)
-			return true;
-		return false;
+		return (x<op.x && y<op.y);
 	}
 	
 	inline bool operator==(const CVec op) const {
