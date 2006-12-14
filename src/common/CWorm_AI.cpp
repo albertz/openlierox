@@ -161,7 +161,7 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 		grid_y = pos_y / grid_h;
 
 		// got we some usefull info from our grid?
-		gridflag_i = grid_y*grid_cols + grid_x;
+/*		gridflag_i = grid_y*grid_cols + grid_x;
 		if(last_gridflag_i != gridflag_i) {
 			last_gridflag_i = gridflag_i;
 			if(!(gridflags[gridflag_i] & checkflag)) {				
@@ -232,9 +232,9 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 								y = grid_y*grid_h - start_y; // up
 						}
 					}
-				}
+				}	
 			}		
-		}
+		} */
 		
 		// is the checkflag fitting to our current flag?
 		if(pxflags[pos_y*map_w + pos_x] & checkflag)
@@ -2726,7 +2726,7 @@ public:
 	set_col_and_break(CVec st, CVec* col) : start(st), collision(col), hit(false) {}
 	bool operator()(int x, int y) {
 		hit = true;
-		if(collision && (*collision - start).GetLength2() > x*x + y*y) {
+		if(collision && (*collision - start).GetLength2() > (float)x*x + (float)y*y) {
 			collision->x = x;
 			collision->y = y;			
 		}
@@ -2739,6 +2739,13 @@ public:
 // Trace the line with worm width
 int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 {	
+/*	if(collision) {
+		collision->x = target.x;
+		collision->y = target.y;
+	}
+		
+	return !fastTraceLine(target, start, pcMap, (uchar)PX_ROCK, set_col_and_break(start, collision)).hit;
+*/	
 	static const unsigned short wormsize = 5;
 
 	if(collision) {
