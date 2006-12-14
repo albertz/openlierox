@@ -91,14 +91,14 @@ void CWorm::AI_Shutdown(void)
 */
 template<class _action>
 _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _action checkflag_action) {
-	enum { X_DOM=-1, Y_DOM=1 } dom; // which is dominating?
-	CVec dir = target-start;
+	static enum { X_DOM=-1, Y_DOM=1 } dom; // which is dominating?
+	static CVec dir; dir = target-start;
 	if(dir.x == 0 && dir.y == 0)
 		return checkflag_action;
 		
-	float quot;
-	short s_x = (dir.x>=0) ? 1 : -1;
-	short s_y = (dir.y>=0) ? 1 : -1;	
+	static float quot;
+	static int s_x; s_x = (dir.x>=0) ? 1 : -1;
+	static int s_y; s_y = (dir.y>=0) ? 1 : -1;	
 	// ensure, that |quot| <= 1 (we swap the whole map virtuelly for this, this is, what dom saves)
 	if(s_x*dir.x >= s_y*dir.y) {
 		dom = X_DOM;
@@ -114,18 +114,18 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 	
 	uchar* pxflags = pcMap->GetPixelFlags();
 	uchar* gridflags = pcMap->getAbsoluteGridFlags();
-	int map_w = pcMap->GetWidth();
-	int map_h = pcMap->GetHeight();	
-    int grid_w = pcMap->getGridWidth();
-    int grid_h = pcMap->getGridHeight();
-	int grid_cols = pcMap->getGridCols();
+	static int map_w; map_w = pcMap->GetWidth();
+	static int map_h; map_h = pcMap->GetHeight();	
+    static int grid_w; grid_w = pcMap->getGridWidth();
+    static int grid_h; grid_h = pcMap->getGridHeight();
+	static int grid_cols; grid_cols = pcMap->getGridCols();
 	
-	int start_x = (int)start.x;
-	int start_y = (int)start.y;
-	int last_gridflag_i = -1;
-	int gridflag_i;
-	int pos_x, pos_y;
-	int grid_x, grid_y;
+	static int start_x; start_x = (int)start.x;
+	static int start_y; start_y = (int)start.y;
+	static int last_gridflag_i; last_gridflag_i = -1;
+	static int gridflag_i;
+	static int pos_x, pos_y;
+	static int grid_x, grid_y;
 	register int x = 0;
 	register int y = 0;
 	while(true) {
@@ -161,7 +161,7 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 		grid_y = pos_y / grid_h;
 
 		// got we some usefull info from our grid?
-/*		gridflag_i = grid_y*grid_cols + grid_x;
+		gridflag_i = grid_y*grid_cols + grid_x;
 		if(last_gridflag_i != gridflag_i) {
 			last_gridflag_i = gridflag_i;
 			if(!(gridflags[gridflag_i] & checkflag)) {				
@@ -234,7 +234,7 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 					}
 				}	
 			}		
-		} */
+		} 
 		
 		// is the checkflag fitting to our current flag?
 		if(pxflags[pos_y*map_w + pos_x] & checkflag)
@@ -2726,7 +2726,7 @@ public:
 	set_col_and_break(CVec st, CVec* col) : start(st), collision(col), hit(false) {}
 	bool operator()(int x, int y) {
 		hit = true;
-		if(collision && (*collision - start).GetLength2() > (float)x*x + (float)y*y) {
+		if(collision && (*collision - start).GetLength2() > (CVec(x,y) - start).GetLength2()) {
 			collision->x = x;
 			collision->y = y;			
 		}
