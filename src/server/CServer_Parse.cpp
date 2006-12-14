@@ -739,6 +739,16 @@ void CServer::ParseConnect(CBytestream *bs)
 	CWorm worms[MAX_PLAYERS];
 	for(i=0;i<numworms;i++) {
 		worms[i].readInfo(bs);
+		// If bots aren't allowed, disconnect the client
+		if (worms[i].getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strstr(szAddress,"127.0.0.1"))  {
+			printf("Bot was trying to connect\n");
+			bytestr.Clear();
+			bytestr.writeInt(-1,4);
+			bytestr.writeString("%s","lx::badconnect");
+			bytestr.writeString("%s",NetworkTexts->sBotsNotAllowed);
+			bytestr.Send(tSocket);
+			return;
+		}
 	}
 
 

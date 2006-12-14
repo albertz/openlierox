@@ -56,8 +56,20 @@ int Menu_NetInitialize(void)
 	cNetButtons[mn_Favourites].Setup(mn_Favourites, 400, 110, 105, 15);
 	//cNetButtons[4].Setup(4, 400, 110, 105, 15);
 
-
-	Menu_Net_NETInitialize();
+	// Return back to the menu we came from
+	switch(tMenu->iReturnTo)  {
+	case net_internet:
+		Menu_Net_NETInitialize();
+	break;
+	case net_lan:
+		Menu_Net_LANInitialize();
+	break;
+	case net_favourites:
+		Menu_Net_FavouritesInitialize();
+	break;
+	default:
+		Menu_Net_NETInitialize();
+	}
 
 	return true;
 }

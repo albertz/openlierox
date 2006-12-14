@@ -320,6 +320,8 @@ void Menu_Net_LANJoinServer(char *sAddress)
 	// Shutdown
 	cLan.Shutdown();
 
+	tMenu->iReturnTo = net_lan;
+
 	Menu_Net_JoinInitialize(sAddress);
 }
 

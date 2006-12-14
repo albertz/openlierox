@@ -262,6 +262,7 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("crash", Cmd_Crash);
 	Cmd_AddCommand("suicide", Cmd_Suicide);
 	Cmd_AddCommand("unstuck", Cmd_Unstuck);
+	Cmd_AddCommand("wantsjoin", Cmd_WantsJoin);
 
 	// Load the sounds
 	LoadSounds();

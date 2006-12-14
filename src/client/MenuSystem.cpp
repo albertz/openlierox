@@ -50,6 +50,8 @@ int Menu_Initialize(int *game)
 		return false;
     }
 
+	tMenu->iReturnTo = net_internet;
+
 	// Load the images
 	//LOAD_IMAGE_BPP(tMenu->bmpMainBack,"data/frontend/background.png");
     //LOAD_IMAGE_BPP(tMenu->bmpMainBack_lg,"data/frontend/background_lg.png");

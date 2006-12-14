@@ -45,6 +45,7 @@ typedef struct {
 
 int		AddKeyword(char *key, int value);
 int		ReadKeyword(char *filename, char *section, char *key, int *value, int defaultv);
+bool	ReadKeyword(char *filename, char *section, char *key, bool *value, bool defaultv);
 
 
 

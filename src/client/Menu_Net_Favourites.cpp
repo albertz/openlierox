@@ -58,8 +58,8 @@ int Menu_Net_FavouritesInitialize(void)
 	// Fill the players box
 	profile_t *p = GetProfiles();
 	for(;p;p=p->tNext) {
-		if(p->iType == PRF_COMPUTER)
-			continue;
+		/*if(p->iType == PRF_COMPUTER)
+			continue;*/
 
 		cFavourites.SendMessage( mf_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)p->sName);
 		cFavourites.SendMessage( mf_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
@@ -348,6 +348,8 @@ void Menu_Net_FavouritesJoinServer(char *sAddress)
 
 	// Save the list
 	Menu_SvrList_SaveList("cfg/favourites.dat");
+
+	tMenu->iReturnTo = net_favourites;
 
 	// Connect to the server
 	Menu_Net_JoinConnectionInitialize(sAddress);

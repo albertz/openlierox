@@ -31,4 +31,5 @@ BadVerification = Bad connection verification
 NoIpVerification = No verification for address
 GameInProgress = Cannot join, the game is currently in progress
 YouAreBanned = You are banned on this server
+BotsNotAllowed = Sorry, bots are not allowed on this server
 WantsJoin = <player> wants join the server

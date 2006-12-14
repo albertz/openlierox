@@ -57,6 +57,29 @@ int ReadKeyword(char *filename, char *section, char *key, int *value, int defaul
 	return false;
 }
 
+///////////////////
+// Read a keyword from a file (bool version)
+bool ReadKeyword(char *filename, char *section, char *key, bool *value, bool defaultv)
+{
+	int n;
+	char string[MAX_MINOR_LENGTH];
+	
+	*value = defaultv;
+
+	if(!GetString(filename,section,key,string))
+		return false;
+
+	// Try and find a keyword with matching keys
+	for(n=0;n<NumKeywords;n++) {
+		if(stricmp(string,Keywords[n].key) == 0) {
+			*value = Keywords[n].Value != 0;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 ///////////////////
 // Read an interger from a file

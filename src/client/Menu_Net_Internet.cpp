@@ -364,6 +364,8 @@ void Menu_Net_NETJoinServer(char *sAddress)
 
 	iNetMode = net_join;
 
+	tMenu->iReturnTo = net_internet;
+
 	// Connect to the server
 	Menu_Net_JoinConnectionInitialize(sAddress);
 }

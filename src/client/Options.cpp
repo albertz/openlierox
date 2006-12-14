@@ -121,22 +121,21 @@ int LoadOptions(void)
     ReadInteger(f, "LastGame", "GameType",  &tLXOptions->tGameinfo.nGameType, GMT_DEATHMATCH);
     ReadString (f, "LastGame", "ModName",   tLXOptions->tGameinfo.szModName, "Classic");
     ReadString (f, "LastGame", "Password",  tLXOptions->tGameinfo.szPassword, "");
-    ReadKeyword(f, "LastGame", "RegisterServer",(int *)&tLXOptions->tGameinfo.bRegServer, true);
+    ReadKeyword(f, "LastGame", "RegisterServer",&tLXOptions->tGameinfo.bRegServer, true);
 	ReadInteger(f, "LastGame", "LastSelectedPlayer",&tLXOptions->tGameinfo.iLastSelectedPlayer, 0);
 	ReadKeyword(f, "LastGame", "AllowWantsJoinMsg",&tLXOptions->tGameinfo.bAllowWantsJoinMsg, true);
+	ReadKeyword(f, "LastGame", "AllowRemoteBots", &tLXOptions->tGameinfo.bAllowRemoteBots, true);
 
     // Advanced
     ReadInteger(f, "Advanced", "MaxFPS",    &tLXOptions->nMaxFPS, 95);
 	ReadInteger(f, "Advanced", "JpegQuality", &tLXOptions->iJpegQuality, 80);
+	ReadFloat  (f, "Advanced", "NetworkUpdatePeriod", &tLXOptions->fUpdatePeriod,0.1f);
 
 	// Clamp the Jpeg quality
 	if (tLXOptions->iJpegQuality < 1)
 		tLXOptions->iJpegQuality = 1;
 	if (tLXOptions->iJpegQuality > 100)
 		tLXOptions->iJpegQuality = 100;
-
-	// Workaround for now
-	tLXOptions->fUpdatePeriod = 0.1f;
 
 	return true;
 }
@@ -262,11 +261,13 @@ void SaveOptions(void)
     fprintf(fp, "RegisterServer = %s\n",tLXOptions->tGameinfo.bRegServer ? "true" : "false");
 	fprintf(fp, "LastSelectedPlayer = %d\n",tLXOptions->tGameinfo.iLastSelectedPlayer);
 	fprintf(fp, "AllowWantsJoinMsg = %s\n",tLXOptions->tGameinfo.bAllowWantsJoinMsg ? "true" : "false");
+	fprintf(fp, "AllowRemoteBots = %s\n",tLXOptions->tGameinfo.bAllowRemoteBots ? "true" : "false");
     fprintf(fp, "\n");
 
     fprintf(fp, "[Advanced]\n");
     fprintf(fp, "MaxFPS = %d\n",    tLXOptions->nMaxFPS);
 	fprintf(fp, "JpegQuality = %d\n", tLXOptions->iJpegQuality);
+	fprintf(fp, "NetworkUpdatePeriod = %f\n", tLXOptions->fUpdatePeriod);
 
     fclose(fp);
 }
@@ -311,6 +312,7 @@ bool LoadNetworkStrings(void)
 	ReadString (f, "NetworkTexts", "NoIpVerification",NetworkTexts->sNoIpVerification,"No verification for address");
 	ReadString (f, "NetworkTexts", "GameInProgress",  NetworkTexts->sGameInProgress, "Cannot join, the game is currently in progress");
 	ReadString (f, "NetworkTexts", "YouAreBanned",	  NetworkTexts->sYouAreBanned,	 "You are banned on this server");
+	ReadString (f, "NetworkTexts", "BotsNotAllowed",  NetworkTexts->sBotsNotAllowed, "Sorry, bots are not allowed on this server");
 	ReadString (f, "NetworkTexts", "WantsJoin",		  NetworkTexts->sWantsJoin,		 "<player> wants join the server");
 
 	return true;

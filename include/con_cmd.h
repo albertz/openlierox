@@ -57,6 +57,7 @@ void	Cmd_UnmuteId(void);
 void	Cmd_Crash(void);
 void	Cmd_Suicide(void);
 void	Cmd_Unstuck(void);
+void	Cmd_WantsJoin(void);
 
 
 #endif  //  __CON_COMMAND_H__

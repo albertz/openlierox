@@ -49,7 +49,8 @@ enum {
 	hs_Register,
     hs_Password,
 	hs_WelcomeMessage,
-	hs_AllowWantsJoin
+	hs_AllowWantsJoin,
+	hs_AllowRemoteBots
 };
 
 
@@ -85,6 +86,8 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CCheckbox(0),		                    hs_Register,	270,265,17, 17);    
 	cHostPly.Add( new CLabel("Allow \"Wants join\" messages",	0xffff),-1,	60, 298,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowWantsJoin,	270,295,17, 17);
+	cHostPly.Add( new CLabel("Allow bots in server",			0xffff),-1,	110, 328,0,  0);
+	cHostPly.Add( new CCheckbox(0),		                    hs_AllowRemoteBots,	270,325,17, 17);
 
 	cHostPly.SendMessage(hs_Servername,TXM_SETMAX,32,0);
 	//cHostPly.SendMessage(hs_Password,TXM_SETMAX,32,0);
@@ -97,6 +100,7 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.SendMessage( hs_WelcomeMessage, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, 0);	
 	cHostPly.SendMessage( hs_Register,   CKM_SETCHECK, tLXOptions->tGameinfo.bRegServer, 0);
 	cHostPly.SendMessage( hs_AllowWantsJoin,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
+	cHostPly.SendMessage( hs_AllowRemoteBots,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
     //cHostPly.SendMessage( hs_Password,   TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.szPassword, 0 );
 
 	// Add columns
@@ -292,7 +296,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 						tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
 						tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,8);
 						tLXOptions->tGameinfo.bRegServer =  cHostPly.SendMessage( hs_Register, CKM_GETCHECK, 0, 0) != 0;
-						tLXOptions->tGameinfo.bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, 0, 0);
+						tLXOptions->tGameinfo.bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, 0, 0) != 0;
+						tLXOptions->tGameinfo.bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, 0, 0) != 0;
 
 						cHostPly.Shutdown();
 
@@ -1165,6 +1170,7 @@ enum {
 	ss_WelcomeMessage,
 	ss_ServerName,
 	ss_AllowWantsJoin,
+	ss_AllowRemoteBots,
 	ss_MaxPlayers
 };
 
@@ -1178,8 +1184,8 @@ void Menu_ServerSettings(void)
 
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,130,120,130, 400,200);
-	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,305, 0, 200);
-	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,305);
+	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,325, 0, 200);
+	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,325);
 
     CListview *tListBox = new CListview();
 
@@ -1187,8 +1193,8 @@ void Menu_ServerSettings(void)
 
 	cServerSettings.Initialize();
 	cServerSettings.Add( new CLabel("Server settings", 0xffff),		  -1,        275,140,  0, 0);	
-    cServerSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  ss_Ok,	 360,280,  60,15);
-	cServerSettings.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),  ss_Cancel, 220,280,  70,15);
+    cServerSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  ss_Ok,	 360,300,  60,15);
+	cServerSettings.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),  ss_Cancel, 220,300,  70,15);
 	cServerSettings.Add( new CLabel("Server name:", 0xffff),		  -1,        130,165,  0, 0);
 	cServerSettings.Add( new CLabel("Welcome message:", 0xffff),	  -1,        130,193,  0, 0);
 	cServerSettings.Add( new CLabel("Max. Players:", 0xffff),		  -1,        130,218,  0, 0);
@@ -1197,12 +1203,15 @@ void Menu_ServerSettings(void)
 	cServerSettings.Add( new CTextbox(),							  ss_MaxPlayers, 265,215,  50, 20);
 	cServerSettings.Add( new CLabel("Allow \"Wants join\" messages",	0xffff),-1,	130, 245,0,  0);
 	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowWantsJoin,	340,245,17, 17);
+	cServerSettings.Add( new CLabel("Allow bots in server",				0xffff),-1,	130, 275,0,  0);
+	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowRemoteBots,	340,275,17, 17);
 
 	cServerSettings.SendMessage(ss_ServerName,TXM_SETMAX,32,0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXM_SETMAX,256,0);
 
 	// Use the actual settings as default
 	cServerSettings.SendMessage(ss_AllowWantsJoin, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
+	cServerSettings.SendMessage(ss_AllowRemoteBots, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
 	cServerSettings.SendMessage(ss_ServerName,TXM_SETTEXT,(DWORD) tGameInfo.sServername, 0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXM_SETTEXT,(DWORD) tGameInfo.sWelcomeMessage, 0);
 	char buf[4];
@@ -1259,7 +1268,8 @@ bool Menu_ServerSettings_Frame(void)
 						cServer->setMaxWorms(tLXOptions->tGameinfo.iMaxPlayers);
 					}
 
-					tLXOptions->tGameinfo.bAllowWantsJoinMsg = cServerSettings.SendMessage( ss_AllowWantsJoin, CKM_GETCHECK, 0, 0);
+					tLXOptions->tGameinfo.bAllowWantsJoinMsg = cServerSettings.SendMessage( ss_AllowWantsJoin, CKM_GETCHECK, 0, 0) != 0;
+					tLXOptions->tGameinfo.bAllowRemoteBots = cServerSettings.SendMessage( ss_AllowRemoteBots, CKM_GETCHECK, 0, 0) != 0;
 
 					cServerSettings.Shutdown();							
 

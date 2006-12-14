@@ -122,7 +122,8 @@ typedef struct {
         char    szPassword[32];
 		bool	bRegServer;
 		int		iLastSelectedPlayer;
-		int		bAllowWantsJoinMsg;
+		bool	bAllowWantsJoinMsg;
+		bool	bAllowRemoteBots;
 	} tGameinfo;
 
 } options_t;
@@ -162,6 +163,7 @@ typedef struct {
 	char sNoIpVerification[64];
 	char sGameInProgress[64];
 	char sYouAreBanned[64];
+	char sBotsNotAllowed[64];
 	char sWantsJoin[64];
 } networktexts_t;
 

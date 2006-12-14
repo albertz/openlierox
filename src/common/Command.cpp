@@ -533,3 +533,25 @@ void Cmd_Unstuck(void)
 			w->setPos(cClient->FindNearestSpot(w));
 	}
 }
+
+/////////////////////
+// Enables or disables wants join messages
+void Cmd_WantsJoin(void)
+{
+	// Check arguments
+	if (Cmd_GetNumArgs() == 1)  {
+		Con_Printf(CNC_NORMAL,"%s","Usage: wantsjoin <on/off>");
+	}
+
+	char *arg = "";
+	arg = Cmd_GetArg(1);
+
+	if (!stricmp(arg,"on") || !stricmp(arg,"true") || !stricmp(arg,"1") || !stricmp(arg,"yes"))  {
+		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
+		Con_Printf(CNC_NORMAL,"%s","\"Wants join\" messages have been enabled");
+	}
+	else  {
+		tLXOptions->tGameinfo.bAllowWantsJoinMsg = false;
+		Con_Printf(CNC_NORMAL,"%s","\"Wants join\" messages have been disabled");
+	}
+}
