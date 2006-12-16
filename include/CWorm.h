@@ -127,14 +127,8 @@ float get_ai_nodes_length(NEW_ai_node_t* start);
 float get_ai_nodes_length2(NEW_ai_node_t* start);
 
 
-class CVec_less {
-public:
-	// this is a well-defined transitive ordering
-	inline bool operator()(const CVec a, const CVec b) const {
-		return ((a.y == b.y && (a.x < b.x))
-				|| a.y < b.y); }
-};
-typedef std::multimap< CVec, NEW_ai_node_t*, CVec_less > nodes_map;
+
+typedef std::multimap< CVec, NEW_ai_node_t* > nodes_map;
 typedef std::pair< const CVec, NEW_ai_node_t* > nodes_pair;
 
 
@@ -419,7 +413,6 @@ public:
     CWorm       *findTarget(int gametype, int teamgame, int taggame, CMap *pcMap);   
     int         traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs = 5);
 	int			traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType);
-	int         traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision = NULL);
 	bool		weaponCanHit(int gravity,float speed,CMap *pcMap);
 	bool		IsEmpty(int Cell, CMap *pcMap);
     //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
@@ -542,6 +535,7 @@ public:
 };
 
 
+int traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision = NULL);
 
 
 #endif  //  __CWORM_H__

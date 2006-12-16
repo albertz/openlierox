@@ -11,10 +11,19 @@
 // Worm class - AI
 // Created 13/3/03
 // Jason Boettcher
+// Dark Charlie
+// Albert Zeyer
+
+
+#include <set>
 
 
 #include "defs.h"
 #include "LieroX.h"
+
+// we need it here for some debugging...
+// we cannot define this globaly because some X11-header also defines this (which is not included here, so this works)
+extern	SDL_Surface		*Screen;
 
 
 
@@ -71,7 +80,8 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 // Shutdown the AI stuff
 void CWorm::AI_Shutdown(void)
 {
-	NEW_AI_CleanupStoredNodes();
+//	NEW_AI_CleanupStoredNodes();
+    NEW_AI_CleanupPath();
     AI_CleanupPath(psPath);
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;
@@ -207,13 +217,13 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 						if(s_x > 0) {
 							if( pos_y != (grid_y+1)*grid_h &&
 							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - (grid_y+1)*grid_h) <= quot )
-								y += int(float((grid_x+1)*grid_w - pos_x)/quot); // right
+								y += int(float((grid_x+1)*grid_w - pos_x)/quot) + 1; // right
 							else
 								y = (grid_y+1)*grid_h - start_y; // down
 						} else { // s_y < 0
 							if( pos_y != (grid_y+1)*grid_h &&
 							(float(pos_x - grid_x*grid_w))/float(pos_y - (grid_y+1)*grid_h) >= quot )
-								y += int(float(grid_x*grid_w - pos_x)/quot); // left
+								y += int(float(grid_x*grid_w - pos_x)/quot) + 1; // left
 							else
 								y = (grid_y+1)*grid_h - start_y; // down
 						}
@@ -221,19 +231,20 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 						if(s_x > 0) {
 							if( pos_y != grid_y*grid_h &&
 							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - grid_y*grid_h) >= quot )
-								y += int(float((grid_x+1)*grid_w - pos_x)/quot); // right
+								y += int(float((grid_x+1)*grid_w - pos_x)/quot) - 1; // right
 							else
-								y = grid_y*grid_h - start_y; // up
+								y = grid_y*grid_h - start_y - 1; // up
 						} else { // s_y < 0
 							if( pos_y != grid_y*grid_h &&
 							(float(pos_x - grid_x*grid_w))/float(pos_y - grid_y*grid_h) <= quot )
-								y += int(float(grid_x*grid_w - pos_x)/quot); // left
+								y += int(float(grid_x*grid_w - pos_x)/quot) - 1; // left
 							else
-								y = grid_y*grid_h - start_y; // up
+								y = grid_y*grid_h - start_y - 1; // up
 						}
 					}
 				}	
-			}		
+			}
+			continue;		
 		} 
 		
 		// is the checkflag fitting to our current flag?
@@ -252,6 +263,399 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 	
 	return checkflag_action;
 }
+
+
+// returns the maximal possible free rectangle with the given point inside
+// (not in every case, but in most)
+// the return-value of type SquareMatrix consists of the top-left and upper-right pixel
+// WARNING: if the given point is not in the map, the returned 
+// area is also not in the map (but it will handle it correctly)
+SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) {
+	// yes I know, statics are not good style,
+	// but I will not recursivly use it and
+	// the whole game is singlethreaded
+	static int map_w; map_w = pcMap->GetWidth();
+	static int map_h; map_h = pcMap->GetHeight();	
+    static int grid_w; grid_w = pcMap->getGridWidth();
+    static int grid_h; grid_h = pcMap->getGridHeight();
+	static int grid_cols; grid_cols = pcMap->getGridCols();
+	uchar* pxflags = pcMap->GetPixelFlags();
+	uchar* gridflags = pcMap->getAbsoluteGridFlags();
+	
+	static SquareMatrix<int> ret;
+	ret.v1 = p; ret.v2 = p;
+	
+	enum { GO_RIGHT=0, GO_DOWN, GO_LEFT, GO_UP }; static short dir;
+	register int x, y;
+	static int grid_x, grid_y;
+	static bool avoided_all_grids, col;
+	
+	col = false; dir = GO_RIGHT;
+	while(true) {
+		// set start pos
+		switch(dir) {
+		case GO_RIGHT: x=ret.v2.x+1; y=ret.v1.y; break;
+		case GO_DOWN: x=ret.v1.x; y=ret.v2.y+1; break;
+		case GO_LEFT: x=ret.v1.x-1; y=ret.v1.y; break;
+		case GO_UP: x=ret.v1.x; y=ret.v1.y-1; break;
+		}
+		
+		// check if still inside the map (than nothing can happen)
+		if(x < 0 || x >= map_w
+		|| y < 0 || y >= map_h)
+			break;
+		
+		avoided_all_grids = true;
+		while(true) {
+			// break if ready
+			if(dir == GO_RIGHT || dir == GO_LEFT) {
+				if(y > ret.v2.y) break;
+			} else // GO_UP / GO_DOWN
+				if(x > ret.v2.x) break;
+				
+			// check if we can avoid this gridcell
+			grid_x = x / grid_w; grid_y = y / grid_h;
+			if(!(gridflags[grid_y*grid_cols + grid_x] & checkflag)) {
+				// yes we can and do now
+				switch(dir) {
+				case GO_RIGHT: case GO_LEFT: y=(grid_y+1)*grid_h; break;
+				case GO_DOWN: case GO_UP: x=(grid_x+1)*grid_w; break;
+				}
+				continue;
+			} else
+				avoided_all_grids = false;
+
+			// is there some obstacle?
+			if(pxflags[y*map_w + x] & checkflag) {
+				col = true;
+				break;
+			}
+
+			// inc the pos (trace the aligned line)
+			switch(dir) {
+			case GO_RIGHT: case GO_LEFT: y++; break;
+			case GO_DOWN: case GO_UP: x++; break;
+			}			
+		}
+		
+		if(avoided_all_grids) {
+			// we can jump to the end of the grids in this case
+			// grid_x/grid_y was already set here by the last loop
+			switch(dir) {
+			case GO_RIGHT: ret.v2.x=(grid_x+1)*grid_w-1; break;
+			case GO_DOWN: ret.v2.y=(grid_y+1)*grid_h-1; break;
+			case GO_LEFT: ret.v1.x=grid_x*grid_w; break;
+			case GO_UP: ret.v1.y=grid_y*grid_h; break;
+			}
+			
+		} else if(!col) { // not avoided_all_grids
+			// simple inc 1 pixel in the checked direction
+			switch(dir) {
+			case GO_RIGHT: ret.v2.x++; break;
+			case GO_DOWN: ret.v2.y++; break;
+			case GO_LEFT: ret.v1.x--; break;
+			case GO_UP: ret.v1.y--; break;
+			}
+			
+		} else // collision
+			break;
+		
+		// change direction
+		dir++; dir %= 4;
+	}
+	
+	// cut the area if outer space...
+	if(ret.v1.x < 0) ret.v1.x = 0;
+	if(ret.v1.y < 0) ret.v1.y = 0;
+	if(ret.v2.x >= map_w) ret.v2.x = map_w-1;
+	if(ret.v2.y >= map_h) ret.v2.y = map_h-1;
+	
+	return ret;
+}
+
+
+
+
+NEW_ai_node_t* createNewAiNode(float x, float y, NEW_ai_node_t* next = NULL, NEW_ai_node_t* prev = NULL) {
+	NEW_ai_node_t* tmp = new NEW_ai_node_t;
+	tmp->fX = x; tmp->fY = y;
+	tmp->psNext = next; tmp->psPrev = prev;
+	return tmp;
+}
+
+NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
+	if(!base) return NULL;
+	NEW_ai_node_t* tmp = new NEW_ai_node_t;
+	tmp->fX = base->fX; tmp->fY = base->fY;
+	tmp->psNext = base->psNext; tmp->psPrev = base->psPrev;
+	return tmp;
+}
+
+
+// returns true, if the given line is free or not
+// these function will either go parallel to the x-axe or parallel to the y-axe
+// (depends on which of them is the absolute greatest)
+inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
+	uchar* pxflags = pcMap->GetPixelFlags();
+	static int map_w; map_w = pcMap->GetWidth();
+	static int map_h; map_h = pcMap->GetHeight();	
+	
+	if(abs(dist.x) >= abs(dist.y)) {
+		if(dist.x < 0) { // avoid anoying checks
+			start.x += dist.x;
+			dist.x = -dist.x;
+		}
+		if(start.x < 0 || start.y < 0 || start.y >= map_h)
+			return false;
+		for(register int x = 0; x <= dist.x; x++) {
+			if(start.x + x >= map_w)
+				return false;
+			if(pxflags[start.y*map_w + start.x + x] & checkflag)
+				return false;
+		}
+	} else { // y is greater
+		if(dist.y < 0) { // avoid anoying checks
+			start.y += dist.y;
+			dist.y = -dist.y;
+		}
+		if(start.y < 0 || start.x < 0 || start.x >= map_w)
+			return false;
+		for(register int y = 0; y <= dist.y; y++) {
+			if(start.y + y >= map_h)
+				return false;
+			if(pxflags[(start.y+y)*map_w + start.x] & checkflag)
+				return false;
+		}	
+	}
+	return true;
+}
+
+
+class searchpath_base {
+public:
+			
+	class area_item {
+	public:
+				
+		// needed for area_set
+		class less {
+		public:			
+			// this is a well-defined transitive ordering after the v1-vector of the matrix
+			inline bool operator()(const area_item* a, const area_item* b) const {
+				if(!a || !b) return false; // this isn't handled correctly, but this should never hapen
+				return a->area.v1 < b->area.v1;
+			}
+		};
+		
+		// this will save the state, if we still have to check a specific end
+		// at the rectangle or not
+		short checklistRows;
+		short checklistRowStart;
+		short checklistColWidth;
+		short checklistCols;
+		short checklistColStart;
+		short checklistRowHeight;
+	
+		SquareMatrix<int> area;
+		bool inUse; // indicates, that some recursive tree is using this area as a base
+		NEW_ai_node_t* bestNode; // the best way from here to the target
+		VectorD2<int> bestPos; // the start-pos of the best way		
+		
+		void initChecklists() {
+			VectorD2<int> size = area.v2 - area.v1;
+			checklistCols = size.x / checklistColWidth + 1;
+			checklistRows = size.y / checklistRowHeight + 1;
+			checklistColStart = (size.x - (checklistCols-1)*checklistColWidth) / 2;
+			checklistRowStart = (size.y - (checklistRows-1)*checklistRowHeight) / 2;
+		}
+		
+		searchpath_base* base;
+		
+		area_item(searchpath_base* b) :
+			inUse(false),
+			base(b),
+			bestNode(NULL),
+			checklistRows(0),
+			checklistRowStart(0),
+			checklistRowHeight(10),
+			checklistCols(0),
+			checklistColStart(0),
+			checklistColWidth(10) {}
+				
+		// iterates over all checklist points
+		// calls given action with 2 parameters:
+		//    VectorD2<int> p, VectorD2<int> dist
+		// p is the point inside of the area, dist the change to the target
+		// if the returned value by the action is false, it will break
+		template<typename _action>
+		void forEachChecklistItem(_action action) {
+			register int i;
+			VectorD2<int> p1, dist;
+
+			// left
+			p1.x = area.v1.x;
+			dist.x = -checklistRowHeight; dist.y = 0;
+			for(i = 0; i < checklistRows; i++) {
+				p1.y = area.v1.y + checklistRowStart + i*checklistRowHeight;
+				if(!action(p1, dist)) return;
+			}
+			
+			// right
+			p1.x = area.v2.x;
+			dist.x = checklistRowHeight; dist.y = 0;
+			for(i = 0; i < checklistRows; i++) {
+				p1.y = area.v1.y + checklistRowStart + i*checklistRowHeight;
+				if(!action(p1, dist)) return;
+			}
+			
+			// top
+			p1.y = area.v1.y;
+			dist.x = 0; dist.y = -checklistColWidth;
+			for(i = 0; i < checklistCols; i++) {
+				p1.x = area.v1.x + checklistColStart + i*checklistColWidth;
+				if(!action(p1, dist)) return;
+			}
+			
+			// bottom
+			p1.y = area.v2.y;
+			dist.x = 0; dist.y = checklistColWidth;
+			for(i = 0; i < checklistCols; i++) {
+				p1.x = area.v1.x + checklistColStart + i*checklistColWidth;
+				if(!action(p1, dist)) return;
+			}
+		}
+		
+		class check_checkpoint {
+		public:
+			area_item* myArea;
+			searchpath_base* base;
+			float bestNodeLen; // this can be done better...
+			
+			check_checkpoint(searchpath_base* b, area_item* a) :
+				base(b),
+				myArea(a),
+				bestNodeLen(-1) {}
+					
+			// this will be called by forEachChecklistItem
+			// pt is the checkpoint and dist the change to the new target
+			// it will search for the best node starting at the specific pos
+			inline bool operator()(VectorD2<int> pt, VectorD2<int> dist) {
+				if(simpleTraceLine(base->pcMap, pt, dist, PX_ROCK)) {
+					// we can start a new search from this point (targ)
+					NEW_ai_node_t* node = base->findPath(pt + dist);
+					if(node) {
+						// good, we find a new path
+						// check now, if it is better then the last found
+						float node_len = get_ai_nodes_length(node);
+						
+						if(bestNodeLen < 0 || node_len < bestNodeLen) {
+							// yes, it is better
+							// delete an old node if present							
+							if(myArea->bestNode)
+								delete myArea->bestNode;
+							// save the new info
+							bestNodeLen = node_len;
+							myArea->bestPos = pt;
+							myArea->bestNode = node;
+						
+							// TODO: this is only temp; the result is, that the algo will break with the first found path
+							return false;
+						} else {
+							// we found something, but it is not good
+							// clean up (we ensure in the rest of the code, that we got a new node here)
+							delete node;
+						}
+					}
+				}
+				return true;
+			}
+		}; // class check_checkpoint
+				
+		NEW_ai_node_t* process() {
+			// search the best path
+			inUse = true;
+			forEachChecklistItem(check_checkpoint(base, this));
+			inUse = false;
+			
+			// did we find any?
+			if(bestNode) {
+				// start at the pos inside of the area and return it
+				return bestNode = createNewAiNode(bestPos.x, bestPos.y, bestNode);
+			}
+			
+			// nothing found
+			return NULL;
+		}		
+		
+	}; // class area_item
+	
+	typedef std::set< area_item*, area_item::less > area_set;
+
+	// these neccessary attributes have to be set manually
+	CMap* pcMap;
+	area_set areas;
+	VectorD2<int> target;
+	
+	searchpath_base() :
+		pcMap(NULL) {}
+		
+	~searchpath_base() {
+		clear();
+	}
+	
+	void clear() {
+		for(area_set::iterator it = areas.begin(); it != areas.end(); it++) {
+			delete *it;
+		}
+		areas.clear();	
+	}
+	
+	// searches for an overleading area and returns the first
+	// returns NULL, if none found
+	area_item* getArea(VectorD2<int> p) {
+		for(area_set::iterator it = areas.begin(); it != areas.end() && (*it)->area.v1 <= p; it++) {
+			if((*it)->area.v1.x <= p.x && (*it)->area.v1.y <= p.y
+			&& (*it)->area.v2.x >= p.x && (*it)->area.v2.y >= p.y)
+				return *it;
+		}
+		return NULL;
+	}
+		
+	NEW_ai_node_t* findPath(VectorD2<int> start) {		
+		// can we just finish with the search?
+		if(traceWormLine(target, start, pcMap)) {
+			// yippieh!
+			return createNewAiNode(target.x, target.y);
+		}
+		
+		// look around for an existing area here
+		area_item* a = getArea(start);		
+		if(a) { // we found an area which includes this point
+			// are we started somewhere from here?
+			if(a->inUse)
+				return NULL;
+
+			// we have already found out the best path from here
+			// copy it to ensure, that it is a new node - needed for a correct cleaning up by check_checkpoint
+			return createNewAiNode(a->bestNode);
+		}
+		
+		// get the max area (rectangle) around us
+		a = new area_item(this);
+		a->area = getMaxFreeArea(start, pcMap, PX_ROCK);
+		a->initChecklists();
+		areas.insert(a);		
+#ifdef _AI_DEBUG
+/*		DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
+		cClient->Draw(Screen); // dirty dirty...
+		FlipScreen(Screen); */
+#endif
+		
+		// and search 
+		return a->process();
+	}
+
+}; // class searchpath_base
 
 
 
@@ -2737,15 +3141,8 @@ public:
 
 ////////////////////
 // Trace the line with worm width
-int CWorm::traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
+int traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 {	
-/*	if(collision) {
-		collision->x = target.x;
-		collision->y = target.y;
-	}
-		
-	return !fastTraceLine(target, start, pcMap, (uchar)PX_ROCK, set_col_and_break(start, collision)).hit;
-*/	
 	static const unsigned short wormsize = 5;
 
 	if(collision) {
@@ -2934,31 +3331,38 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	
 	bPathFinished = true; // treat it like this; TODO: this will work perhaps later
 	
+#ifdef _AI_DEBUG	
+	pcMap->ClearDebugImage();	
+#endif
+
 	// Create a new path
 	if(bPathFinished) // this indicates, that we should start a new one
-		NEW_AI_CleanupStoredNodes(); // start a new search
+//		NEW_AI_CleanupStoredNodes(); // start a new search
+		NEW_AI_CleanupPath();
 	
-	NEW_psPath = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
-	if (!NEW_psPath) return false;	
-	NEW_psPath->fX = vPos.x;
-	NEW_psPath->fY = vPos.y;
-	NEW_psPath->psPrev = NULL;
-	NEW_psPath->psNext = NULL;
-	AI_storeNodes(NEW_psPath, NEW_psPath);
+	NEW_psPath = createNewAiNode(vPos.x, vPos.y);
+//	AI_storeNodes(NEW_psPath, NEW_psPath);
 
 	if(bPathFinished)
-		// Set the current node to the beginning of the path, because we aare starting a new one
+		// Set the current node to the beginning of the path, because we are starting a new one
 		NEW_psCurrentNode = NEW_psPath;
 	
-	NEW_psPath->psNext = NEW_AI_ProcessPath(trg,vPos,pcMap);
+//	NEW_psPath->psNext = NEW_AI_ProcessPath(trg,vPos,pcMap);
+	searchpath_base* search = new searchpath_base;
+	search->pcMap = pcMap;
+	search->target.x = (int)trg.x;
+	search->target.y = (int)trg.y;
+	NEW_psPath->psNext = search->findPath(VectorD2<int>(vPos));
+	delete search;
 	NEW_psLastNode = get_last_ai_node(NEW_psPath);
-	if (NEW_psLastNode->fX == trg.x && NEW_psLastNode->fY == trg.y)
+//	if(NEW_psLastNode->fX == trg.x && NEW_psLastNode->fY == trg.y)
+	if(NEW_psPath->psNext)	
 		bPathFinished = true;
 	
 	if(bPathFinished) {
 		fLastCreated = tLX->fCurTime;
 		// Simplify the found path
-		NEW_AI_SimplifyPath(pcMap);	
+//		NEW_AI_SimplifyPath(pcMap);	
 	}
 
 #ifdef _AI_DEBUG
@@ -3693,8 +4097,8 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 		DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4,NodeColour);
 
 		// Draw the line
-		if (node->psPrev)
-			DrawLine(bmpDest,MIN(Round(node->psPrev->fX*2),bmpDest->w),MIN(Round(node->psPrev->fY*2),bmpDest->h),node_x,node_y,LineColour);
+		if (node->psNext)
+			DrawLine(bmpDest,MIN(Round(node->psNext->fX*2),bmpDest->w),MIN(Round(node->psNext->fY*2),bmpDest->h),node_x,node_y,LineColour);
 	}
 	
 }
@@ -3719,9 +4123,9 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 	float ang = 0;
 	uchar px = PX_EMPTY;
 	
-	SquareMatrix step_m = SquareMatrix::RotateMatrix(-step);
+	SquareMatrix<float> step_m = SquareMatrix<float>::RotateMatrix(-step);
 	CVec dir;
-	 
+
 	// Draw a half-circle in the direction of the target
 	while(iRadius < cNinjaRope.getMaxLength())  {
 		for(dir=start_dir*iRadius,ang=0;ang<(float)PI;dir=step_m(dir),ang+=step) {
@@ -3731,9 +4135,9 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 			px = pcMap->GetPixelFlag(x,y);
 
 #ifdef _AI_DEBUG
-			if (x > 0 && x < pcMap->GetWidth())
+/*			if (x > 0 && x < pcMap->GetWidth())
 				if (y > 0 &&  y < pcMap->GetHeight()) 
-					PutPixel(pcMap->GetDebugImage(),x*2,y*2,MakeColour(255,0,0));
+					PutPixel(pcMap->GetDebugImage(),x*2,y*2,MakeColour(255,0,0)); */
 #endif
 
 			// Rock or dirt? We've found it

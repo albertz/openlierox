@@ -8,6 +8,7 @@
 // Mathematics Library
 // Created 20/12/01
 // Jason Boettcher
+// Albert Zeyer
 
 
 #ifndef __MATHLIB_H__
@@ -46,15 +47,16 @@ float   fastSQRT(float x);
 #define SQR(x) ((x)*(x))
 
 
+template<typename _T>
 class SquareMatrix {
 public:	
-	CVec v1, v2;
-	SquareMatrix(CVec _v1=CVec(0,0), CVec _v2=CVec(0,0)) {
+	VectorD2<_T> v1, v2;
+	SquareMatrix(VectorD2<_T> _v1 = VectorD2<_T>(0,0), VectorD2<_T> _v2 = VectorD2<_T>(0,0)) {
 		v1 = _v1; v2 = _v2;
 	}
 	
 	static SquareMatrix Identity() {
-		 return SquareMatrix(CVec(1,0),CVec(0,1));
+		 return SquareMatrix(VectorD2<_T>(1,0), VectorD2<_T>(0,1));
 	}
 	
 	static SquareMatrix RotateMatrix(float angle) {
@@ -66,7 +68,7 @@ public:
 		return m;	
 	}
 	
-	inline CVec operator()(const CVec v) const {
+	inline CVec operator()(const VectorD2<_T> v) const {
 		return CVec(v.x*v1.x + v.y*v2.x, v.x*v1.y + v.y*v2.y);
 	}
 	inline SquareMatrix operator*(const SquareMatrix m) const {
@@ -75,21 +77,26 @@ public:
 	inline SquareMatrix operator*(const float m) const {
 		return SquareMatrix(v1*m, v2*m);
 	}
+	inline SquareMatrix operator*(const int m) const {
+		return SquareMatrix(v1*m, v2*m);
+	}
 	inline SquareMatrix operator/(const float m) const {
 		return SquareMatrix(v1/m, v2/m);
 	}
-	inline float det() {
+	inline SquareMatrix operator/(const int m) const {
+		return SquareMatrix(v1/m, v2/m);
+	}
+	inline _T det() {
 		return v1.x*v2.y - v1.y*v2.x;
 	}
 	inline SquareMatrix inverse() {
-		float tdet = det();
+		_T tdet = det();
 		if(tdet == 0)
 			return SquareMatrix();
 		else
-			return SquareMatrix(CVec(v2.y,-v1.y),CVec(-v2.x,v1.x))/tdet;
+			return SquareMatrix(VectorD2<_T>(v2.y,-v1.y),VectorD2<_T>(-v2.x,v1.x))/tdet;
 	}
 };
-
 
 
 
