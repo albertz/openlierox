@@ -191,6 +191,7 @@ int InitializeLieroX(void)
 {
 	printf("Hello there, I am initializing me now...\n");
 
+	// Create the home dir if it doesn't exist
 	mkdir(GetHomeDir(), 0777);
 	
 	// Initialize the aux library

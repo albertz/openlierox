@@ -1806,6 +1806,9 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 						break;
 					}
 
+					// Check
+					MIN(nNumPlayers,MAX_WORMS);
+
                     for(int i=0; i<nNumPlayers; i++) {
                         inbs.readString(cWorms[i].getName());
                         cWorms[i].setKills(inbs.readInt(2));

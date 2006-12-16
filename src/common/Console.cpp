@@ -285,6 +285,7 @@ void Con_Process(float dt)
 			Console->Line[0].Colour = CNC_NORMAL;
 			strcpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
 			Console->iCurLength = strlen(Console->Line[0].strText);
+			Console->iCurpos = Console->iCurLength;
 		}
 	}
 
@@ -304,7 +305,7 @@ void Con_Process(float dt)
 	}
 
 	if(Ev->key.state == SDL_RELEASED && Ev->type == SDL_KEYUP)
-		Console->iLastchar = 0;
+		Console->iLastchar = '\0';
 }
 
 

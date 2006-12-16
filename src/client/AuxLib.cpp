@@ -14,6 +14,7 @@
 #include "defs.h"
 #include <SDL/SDL_syswm.h>
 #include "LieroX.h"
+#include "Menu.h"
 //#include "corona.h"
 
 
@@ -133,11 +134,12 @@ int SetVideoMode(void)
 	int HardwareBuf = false;
 	int DoubleBuf = false;
 	int vidflags = 0;
+	int bpp = 16;
 
 	// Initialize the video
 	if(tLXOptions->iFullscreen)
 		vidflags |= SDL_FULLSCREEN;
-
+	
 	vidflags |= SDL_SWSURFACE;
 	
 	/*if(HardwareBuf)
@@ -149,13 +151,14 @@ int SetVideoMode(void)
 		vidflags |= SDL_DOUBLEBUF;*/
 
 
-	if( SDL_SetVideoMode(640,480, 16,vidflags) == NULL) {
+	if( SDL_SetVideoMode(640,480, bpp,vidflags) == NULL) {
 		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, 16,SDL_GetError());
 		return false;
 	}
 
 
 	SDL_EnableUNICODE(1);
+	SDL_EnableKeyRepeat(200,20);
 	SDL_WM_SetCaption(GameName,NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
