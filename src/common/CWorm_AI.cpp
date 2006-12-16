@@ -285,12 +285,13 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 	static SquareMatrix<int> ret;
 	ret.v1 = p; ret.v2 = p;
 	
-	enum { GO_RIGHT=0, GO_DOWN, GO_LEFT, GO_UP }; static short dir;
+	enum { GO_RIGHT=1, GO_DOWN=2, GO_LEFT=4, GO_UP=8 }; static short dir;
+	static unsigned short col;
 	register int x, y;
 	static int grid_x, grid_y;
-	static bool avoided_all_grids, col;
+	static bool avoided_all_grids;
 	
-	col = false; dir = GO_RIGHT;
+	col = 0; dir = GO_RIGHT;
 	while(true) {
 		// set start pos
 		switch(dir) {
@@ -327,7 +328,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 
 			// is there some obstacle?
 			if(pxflags[y*map_w + x] & checkflag) {
-				col = true;
+				col &= dir;
 				break;
 			}
 
@@ -346,22 +347,25 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 			case GO_DOWN: ret.v2.y=(grid_y+1)*grid_h-1; break;
 			case GO_LEFT: ret.v1.x=grid_x*grid_w; break;
 			case GO_UP: ret.v1.y=grid_y*grid_h; break;
-			}
-			
-		} else if(!col) { // not avoided_all_grids
+			}			
+		}
+		 
+		if(!(col & dir)) { // not avoided_all_grids
 			// simple inc 1 pixel in the checked direction
 			switch(dir) {
 			case GO_RIGHT: ret.v2.x++; break;
 			case GO_DOWN: ret.v2.y++; break;
 			case GO_LEFT: ret.v1.x--; break;
 			case GO_UP: ret.v1.y--; break;
-			}
-			
+			}			
 		} else // collision
-			break;
+			if(col == 15) // all dirs
+				break;
 		
 		// change direction
-		dir++; dir %= 4;
+		do {
+			dir++; dir %= 4;
+		} while(col & dir);
 	}
 	
 	// cut the area if outer space...
@@ -405,11 +409,9 @@ inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist
 			start.x += dist.x;
 			dist.x = -dist.x;
 		}
-		if(start.x < 0 || start.y < 0 || start.y >= map_h)
+		if(start.x < 0 || start.x + dist.x >= map_w || start.y < 0 || start.y >= map_h)
 			return false;
 		for(register int x = 0; x <= dist.x; x++) {
-			if(start.x + x >= map_w)
-				return false;
 			if(pxflags[start.y*map_w + start.x + x] & checkflag)
 				return false;
 		}
@@ -418,11 +420,9 @@ inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist
 			start.y += dist.y;
 			dist.y = -dist.y;
 		}
-		if(start.y < 0 || start.x < 0 || start.x >= map_w)
+		if(start.y < 0 || start.y + dist.y >= map_h || start.x < 0 || start.x >= map_w)
 			return false;
 		for(register int y = 0; y <= dist.y; y++) {
-			if(start.y + y >= map_h)
-				return false;
 			if(pxflags[(start.y+y)*map_w + start.x] & checkflag)
 				return false;
 		}	
@@ -540,6 +540,7 @@ public:
 			// pt is the checkpoint and dist the change to the new target
 			// it will search for the best node starting at the specific pos
 			inline bool operator()(VectorD2<int> pt, VectorD2<int> dist) {
+				// this check also ensures, that we are inside of the map
 				if(simpleTraceLine(base->pcMap, pt, dist, PX_ROCK)) {
 					// we can start a new search from this point (targ)
 					NEW_ai_node_t* node = base->findPath(pt + dist);
@@ -560,6 +561,7 @@ public:
 						
 							// TODO: this is only temp; the result is, that the algo will break with the first found path
 							return false;
+						
 						} else {
 							// we found something, but it is not good
 							// clean up (we ensure in the rest of the code, that we got a new node here)
@@ -701,7 +703,7 @@ void do_some_tests_with_fastTraceLine(CMap *pcMap) {
 
 ///////////////////
 // Simulate the AI
- // TODO: this is global for all worms (which is not what is wanted)
+// TODO: this is global for all worms (which is not what is wanted)
 float fLastTurn = 0;  // Time when we last tried to change the direction
 void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 {
@@ -736,7 +738,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
     // Every 3 seconds we run the think function
 	// TODO: this can be a problem for pathfinding
-    if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
+    if(tLX->fCurTime - fLastThink > 1 && nAIState != AI_THINK)
         nAIState = AI_THINK;
 
     // If we have a good shooting 'solution', shoot
@@ -3323,9 +3325,9 @@ void CWorm::NEW_AI_CleanupPath(void)
 int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 {
 	// Don't create the path so often!
-	if (tLX->fCurTime - fLastCreated <= 5.0f)  {
+/*	if (tLX->fCurTime - fLastCreated <= 5.0f)  {
 		return NEW_psPath != NULL;
-	}
+	} */
 	
 	CVec trg = AI_GetTargetPos();
 	
