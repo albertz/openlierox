@@ -160,6 +160,7 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 		|| pos_y < 0 || pos_y >= map_h) {
 			if(!checkflag_action(pos_x, pos_y))
 				break;
+			continue;
 		}
 		
 #ifdef _AI_DEBUG
@@ -291,8 +292,18 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 	static int grid_x, grid_y;
 	static bool avoided_all_grids;
 	
-	col = 0; dir = GO_RIGHT;
+	col = 0; dir = 1;
+	// loop over all directions until there is some obstacle
 	while(true) {
+		if(col == 15) // got we collisions in all directions?
+			break;		
+		
+		// change direction
+		do {
+			dir = dir << 1;
+			if(dir > 8) dir = 1;
+		} while(col & dir);		
+		
 		// set start pos
 		switch(dir) {
 		case GO_RIGHT: x=ret.v2.x+1; y=ret.v1.y; break;
@@ -301,11 +312,14 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 		case GO_UP: x=ret.v1.x; y=ret.v1.y-1; break;
 		}
 		
-		// check if still inside the map (than nothing can happen)
+		// check if still inside the map (than nothing bad can happen)
 		if(x < 0 || x >= map_w
-		|| y < 0 || y >= map_h)
-			break;
+		|| y < 0 || y >= map_h) {
+			col |= dir;
+			continue;			
+		}
 		
+		// loop over all pxflags of the aligned line and check for an obstacle
 		avoided_all_grids = true;
 		while(true) {
 			// break if ready
@@ -328,7 +342,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 
 			// is there some obstacle?
 			if(pxflags[y*map_w + x] & checkflag) {
-				col &= dir;
+				col |= dir;
 				break;
 			}
 
@@ -348,24 +362,16 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 			case GO_LEFT: ret.v1.x=grid_x*grid_w; break;
 			case GO_UP: ret.v1.y=grid_y*grid_h; break;
 			}			
-		}
-		 
-		if(!(col & dir)) { // not avoided_all_grids
+		} else if(!(col & dir)) { // not avoided_all_grids
 			// simple inc 1 pixel in the checked direction
 			switch(dir) {
 			case GO_RIGHT: ret.v2.x++; break;
 			case GO_DOWN: ret.v2.y++; break;
 			case GO_LEFT: ret.v1.x--; break;
 			case GO_UP: ret.v1.y--; break;
-			}			
-		} else // collision
-			if(col == 15) // all dirs
-				break;
-		
-		// change direction
-		do {
-			dir++; dir %= 4;
-		} while(col & dir);
+			}
+		}	
+			
 	}
 	
 	// cut the area if outer space...
