@@ -286,14 +286,19 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 	static SquareMatrix<int> ret;
 	ret.v1 = p; ret.v2 = p;
 	
+	// just return if we are outside
+	if(p.x < 0 || p.x >= map_w
+	|| p.y < 0 || p.y >= map_h)
+		return ret;
+	
 	enum { GO_RIGHT=1, GO_DOWN=2, GO_LEFT=4, GO_UP=8 }; static short dir;
 	static unsigned short col;
 	register int x, y;
 	static int grid_x, grid_y;
 	static bool avoided_all_grids;
 	
-	col = 0; dir = 1;
 	// loop over all directions until there is some obstacle
+	col = 0; dir = 1;
 	while(true) {
 		if(col == 15) // got we collisions in all directions?
 			break;		
@@ -353,26 +358,28 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 			}			
 		}
 		
-		if(avoided_all_grids) {
-			// we can jump to the end of the grids in this case
-			// grid_x/grid_y was already set here by the last loop
-			switch(dir) {
-			case GO_RIGHT: ret.v2.x=(grid_x+1)*grid_w-1; break;
-			case GO_DOWN: ret.v2.y=(grid_y+1)*grid_h-1; break;
-			case GO_LEFT: ret.v1.x=grid_x*grid_w; break;
-			case GO_UP: ret.v1.y=grid_y*grid_h; break;
-			}			
-		} else if(!(col & dir)) { // not avoided_all_grids
-			// simple inc 1 pixel in the checked direction
-			switch(dir) {
-			case GO_RIGHT: ret.v2.x++; break;
-			case GO_DOWN: ret.v2.y++; break;
-			case GO_LEFT: ret.v1.x--; break;
-			case GO_UP: ret.v1.y--; break;
-			}
-		}	
-			
-	}
+		if(!(col & dir)) {
+			if(avoided_all_grids) {
+				// we can jump to the end of the grids in this case
+				// grid_x/grid_y was already set here by the last loop
+				switch(dir) {
+				case GO_RIGHT: ret.v2.x=(grid_x+1)*grid_w-1; break;
+				case GO_DOWN: ret.v2.y=(grid_y+1)*grid_h-1; break;
+				case GO_LEFT: ret.v1.x=grid_x*grid_w; break;
+				case GO_UP: ret.v1.y=grid_y*grid_h; break;
+				}			
+			} else { // not avoided_all_grids
+				// simple inc 1 pixel in the checked direction
+				switch(dir) {
+				case GO_RIGHT: ret.v2.x++; break;
+				case GO_DOWN: ret.v2.y++; break;
+				case GO_LEFT: ret.v1.x--; break;
+				case GO_UP: ret.v1.y--; break;
+				}
+			}	
+		}
+		
+	} // loop over directions
 	
 	// cut the area if outer space...
 	if(ret.v1.x < 0) ret.v1.x = 0;
@@ -626,6 +633,20 @@ public:
 			&& (*it)->area.v2.x >= p.x && (*it)->area.v2.y >= p.y)
 				return *it;
 		}
+		
+#ifdef _AI_DEBUG
+		printf("getArea( %i, %i )\n", p.x, p.y);
+		printf("  don't find an underlying area\n");
+		printf("  areas = {\n");
+		for(area_set::iterator it = areas.begin(); it != areas.end(); it++) {
+			printf("		( %i, %i, %i, %i )%s,\n",
+				(*it)->area.v1.x, (*it)->area.v1.y,
+				(*it)->area.v2.x, (*it)->area.v2.y,
+				((*it)->area.v1 <= p) ? "" : " (*)");
+		}
+		printf("     }\n");
+#endif		
+
 		return NULL;
 	}
 		
