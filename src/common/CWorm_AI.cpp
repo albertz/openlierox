@@ -630,6 +630,11 @@ public:
 	}
 		
 	NEW_ai_node_t* findPath(VectorD2<int> start) {		
+		// is the start inside of the map?
+		if(start.x < 0 || start.x >= pcMap->GetWidth() 
+		|| start.y < 0 || start.y >= pcMap->GetHeight())
+			return NULL;
+		
 		// can we just finish with the search?
 		if(traceWormLine(target, start, pcMap)) {
 			// yippieh!
