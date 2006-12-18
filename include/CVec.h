@@ -36,7 +36,7 @@ public:
 	// Methods
 
 	template<typename _T2>
-	VectorD2(_T2& cp) {
+	VectorD2(const _T2& cp) {
 		x = (_T)cp.x; y = (_T)cp.y;
 	}
 
