@@ -604,11 +604,11 @@ public:
 		
 	}; // class area_item
 	
-	typedef std::set< area_item*, area_item::less > area_set;
+	typedef std::multiset< area_item*, area_item::less > area_mset;
 
 	// these neccessary attributes have to be set manually
 	CMap* pcMap;
-	area_set areas;
+	area_mset areas;
 	VectorD2<int> target;
 	
 	searchpath_base() :
@@ -619,7 +619,7 @@ public:
 	}
 	
 	void clear() {
-		for(area_set::iterator it = areas.begin(); it != areas.end(); it++) {
+		for(area_mset::iterator it = areas.begin(); it != areas.end(); it++) {
 			delete *it;
 		}
 		areas.clear();	
@@ -628,23 +628,23 @@ public:
 	// searches for an overleading area and returns the first
 	// returns NULL, if none found
 	area_item* getArea(VectorD2<int> p) {
-		for(area_set::iterator it = areas.begin(); it != areas.end() && (*it)->area.v1 <= p; it++) {
+		for(area_mset::iterator it = areas.begin(); it != areas.end() && (*it)->area.v1 <= p; it++) {
 			if((*it)->area.v1.x <= p.x && (*it)->area.v1.y <= p.y
 			&& (*it)->area.v2.x >= p.x && (*it)->area.v2.y >= p.y)
 				return *it;
 		}
 		
 #ifdef _AI_DEBUG
-		printf("getArea( %i, %i )\n", p.x, p.y);
+/*		printf("getArea( %i, %i )\n", p.x, p.y);
 		printf("  don't find an underlying area\n");
 		printf("  areas = {\n");
-		for(area_set::iterator it = areas.begin(); it != areas.end(); it++) {
+		for(area_mset::iterator it = areas.begin(); it != areas.end(); it++) {
 			printf("		( %i, %i, %i, %i )%s,\n",
 				(*it)->area.v1.x, (*it)->area.v1.y,
 				(*it)->area.v2.x, (*it)->area.v2.y,
 				((*it)->area.v1 <= p) ? "" : " (*)");
 		}
-		printf("     }\n");
+		printf("     }\n"); */
 #endif		
 
 		return NULL;
@@ -680,6 +680,9 @@ public:
 		a->initChecklists();
 		areas.insert(a);		
 #ifdef _AI_DEBUG
+/*		printf("findPath( %i, %i )\n", start.x, start.y);
+		printf("   new area:\n");
+		printf("   ( %i, %i, %i, %i )\n", a->area.v1.x, a->area.v1.y, a->area.v2.x, a->area.v2.y); */
 /*		DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
 		cClient->Draw(Screen); // dirty dirty...
 		FlipScreen(Screen); */
