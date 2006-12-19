@@ -11,6 +11,7 @@
 
 
 #include "defs.h"
+#include "LieroX.h"
 #include <gd.h>
 
 
@@ -1391,30 +1392,73 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface *sdl_surface,gdImagePtr gd_image)
 }
 
 ///////////////////////
-// Saves the surface in PNG format
-bool SavePNG(SDL_Surface *image, char *FileName)
+// Saves the surface into the specified file with the specified format
+bool SaveSurface(SDL_Surface *image, char *FileName, int Format, bool Tournament)
 {
-  gdImagePtr png_image = NULL;
+  if (Format == FMT_BMP)  {
+		//strcat(FileName,".bmp");
+		SDL_SaveBMP(image,FileName);
 
-  png_image = SDLSurface2GDImage(image,png_image);
-  if (!png_image)
+		// Log
+		if (Tournament && cServer)  {
+			FILE *f = OpenGameFile(FileName,"wb");
+			if (!f)
+				return false;
+			if (!cServer->WriteLogToFile(f))
+				return false;
+			fclose(f);
+		}
+
+		return true;
+  }
+
+  gdImagePtr gd_image = NULL;
+
+  gd_image = SDLSurface2GDImage(image,gd_image);
+  if (!gd_image)
 	  return false;
 
-  // Save the PNG
+  // Save the image
   FILE *out;
   int size;
-  char *data;
+  char *data = NULL;
   out = OpenGameFile(FileName, "wb");
   if (!out) {
     return false;
   }
-  data = (char *) gdImagePngPtr(png_image, &size);
+
+  switch (Format) {
+  case FMT_PNG:
+	//strcat(FileName,".png");
+	data = (char *) gdImagePngPtr(gd_image, &size);
+	break;
+  case FMT_JPG:
+	//strcat(FileName,".jpg");
+	data = (char *) gdImageJpegPtr(gd_image, &size,tLXOptions->iJpegQuality);
+	break;
+  case FMT_GIF:
+	//strcat(FileName,".gif");
+	data = (char *) gdImageGifPtr(gd_image, &size);
+	break;
+  default:
+	  data = (char *) gdImagePngPtr(gd_image, &size);
+	  break;
+  }
+
   if (!data) {
     return false;
   }
   if ((int)fwrite(data, 1, size, out) != size) {
     return false;
   }
+
+  // Write info about the game
+  if (Tournament && cServer)  {
+	  cServer->setTakeScreenshot(false);
+	  if (!cServer->WriteLogToFile(out))
+		  return false;
+  }
+
   if (fclose(out) != 0) {
     return false;
   }
@@ -1422,81 +1466,7 @@ bool SavePNG(SDL_Surface *image, char *FileName)
   // Free everything
   gdFree(data);  
 
-  gdImageDestroy(png_image);
-
-  return true;
-}
-
-///////////////////////
-// Saves the surface in JPG format
-bool SaveJPG(SDL_Surface *image, char *FileName, int Quality)
-{
-  gdImagePtr jpg_image = NULL;
-
-  jpg_image = SDLSurface2GDImage(image,jpg_image);
-  if (!jpg_image)
-	  return false;
-
-  // Save the JPG
-  FILE *out;
-  int size;
-  char *data;
-  out = OpenGameFile(FileName, "wb");
-  if (!out) {
-    return false;
-  }
-  data = (char *) gdImageJpegPtr(jpg_image, &size, Quality);
-  if (!data) {
-    return false;
-  }
-  if ((int)fwrite(data, 1, size, out) != size) {
-    return false;
-  }
-  if (fclose(out) != 0) {
-    return false;
-  }
-
-  // Free everything
-  gdFree(data);  
-
-  gdImageDestroy(jpg_image);
-
-  return true;
-}
-
-///////////////////////
-// Saves the surface in GIF format
-bool SaveGIF(SDL_Surface *image, char *FileName)
-{
-  gdImagePtr gif_image = NULL;
-
-  gif_image = SDLSurface2GDImage(image,gif_image);
-  if (!gif_image)
-	  return false;
-
-  // Save the GIF
-  FILE *out;
-  int size;
-  char *data;
-  out = OpenGameFile(FileName, "wb");
-  if (!out) {
-    return false;
-  }
-  data = (char *) gdImageGifPtr(gif_image, &size);
-  if (!data) {
-    return false;
-  }
-  if ((int)fwrite(data, 1, size, out) != size) {
-    return false;
-  }
-  if (fclose(out) != 0) {
-    return false;
-  }
-
-  // Free everything
-  gdFree(data);  
-
-  gdImageDestroy(gif_image);
+  gdImageDestroy(gd_image);
 
   return true;
 }

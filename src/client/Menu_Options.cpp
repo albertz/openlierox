@@ -247,6 +247,7 @@ int Menu_OptionsInitialize(void)
 		cOpt_System.SendMessage(os_NetworkSpeed, CBM_ADDITEM, i, (DWORD)NetworkSpeeds[i]);
 
 	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
+	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURINDEX, tLXOptions->iNetworkSpeed, 0);
 
 	// Screenshot format
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_BMP, (DWORD)"Bmp");
@@ -255,6 +256,7 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_JPG, (DWORD)"Jpg");
 
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURSEL, tLXOptions->iScreenshotFormat, 0);
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURINDEX, tLXOptions->iScreenshotFormat, 0);
 
 
 	// Disable apply for now

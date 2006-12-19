@@ -78,7 +78,7 @@ int Round(float x)
 float CalculateDistance(CVec p1, CVec p2)
 {
 	CVec dist = p2-p1;
-	return (float)fastSQRT( (dist.x*dist.x) + (dist.y*dist.y) );
+	return fastSQRT( (dist.x*dist.x) + (dist.y*dist.y) );
 }
 
 

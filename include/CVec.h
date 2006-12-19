@@ -83,7 +83,7 @@ public:
 	template<typename _T2>
 	inline bool operator<(const VectorD2<_T2> op) const {
 		return ((y == op.y && (x < op.x))
-				|| y < op.y);;
+				|| y < op.y);
 	}
 	
 	template<typename _T2>
@@ -93,7 +93,7 @@ public:
 	
 	template<typename _T2>
 	inline bool operator<=(const VectorD2<_T2> op) const {
-		return (*this < op) || (*this == op);
+		return ((*this < op) || (*this == op));
 	}
 				
 };

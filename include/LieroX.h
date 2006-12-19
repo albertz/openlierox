@@ -116,6 +116,7 @@ typedef struct {
 	char		sServername[32];
 	char		sWelcomeMessage[256];
 	bool		bRegServer;
+	bool		bTournament;
 
 	int			iLives;
 	int			iKillLimit;

@@ -339,7 +339,9 @@ void FlipScreen(SDL_Surface *psScreen)
     // We do this here, because there are so many graphics loops, but this function is common
     // to all of them
     if( cTakeScreenshot.isDownOnce() )
-        TakeScreenshot();
+        TakeScreenshot(false);
+	else if (cServer->getTakeScreenshot() && cServer->getGameOver() && tLX->fCurTime-cServer->getGameOverTime() > GAMEOVER_WAIT+tLX->fDeltaTime+0.05) 
+		TakeScreenshot(true);
 
     SDL_Flip( psScreen );
 }
@@ -505,7 +507,7 @@ int SetClipboardText(char *szText)
 
 ///////////////////
 // Take a screenshot
-void TakeScreenshot(void)
+void TakeScreenshot(bool Tournament)
 {
 	char		picname[80]; 
 	char		checkname[255];
@@ -524,13 +526,21 @@ void TakeScreenshot(void)
 
     // Create the 'scrshots' directory if it doesn't exist
     strcpy(checkname, GetHomeDir());
-    strcat(checkname, "/scrshots");
+	if (Tournament)
+		strcat(checkname,"/tourny_scrshots");
+	else
+		strcat(checkname, "/scrshots");
     mkdir(checkname, 0777);
 
 	// Create the file name
     for(i=0; 1; i++) {
 		sprintf(picname,"%s%d%s","lierox",i,extension);
-		sprintf(checkname, "scrshots/%s", picname);
+
+		if (Tournament)
+			sprintf(checkname, "tourny_scrshots/%s", picname);
+		else
+			sprintf(checkname, "scrshots/%s", picname);
+
 		f = OpenGameFile(checkname, "rb");
 		if (!f)
 			break;	// file doesn't exist
@@ -538,12 +548,5 @@ void TakeScreenshot(void)
 	}
 
 	// Save the surface
-	switch (tLXOptions->iScreenshotFormat)  {
-	case FMT_BMP: SDL_SaveBMP( SDL_GetVideoSurface(), checkname ); break;
-	case FMT_PNG: SavePNG(SDL_GetVideoSurface(),checkname); break;
-	case FMT_JPG: SaveJPG(SDL_GetVideoSurface(),checkname, tLXOptions->iJpegQuality); break;
-	case FMT_GIF: SaveGIF(SDL_GetVideoSurface(),checkname); break;
-	default: SavePNG(SDL_GetVideoSurface(),checkname);
-	}
+	SaveSurface(SDL_GetVideoSurface(),checkname,tLXOptions->iScreenshotFormat,Tournament);
 }
-

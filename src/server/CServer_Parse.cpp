@@ -228,6 +228,8 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 	CWorm *vict = &cWorms[victim];
 	CWorm *kill = &cWorms[killer];
+	log_worm_t *log_vict = GetLogWorm(vict->getID());
+	log_worm_t *log_kill = GetLogWorm(kill->getID());
 
 	// TODO: Cheat prevention check: Make sure the victim is one of the client's worms
 
@@ -264,13 +266,22 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 		}
 	}
 
-	if(killer != victim)
+	if(killer != victim)  {
 		kill->AddKill();
-
-    // Clear the victims shoot list
-    //vict->getShoot
+		if (log_kill)
+			log_kill->iKills++;
+	} else {
+		// Log the suicide
+		if (log_vict)
+			log_vict->iSuicides++;
+	}
 
 	if(vict->Kill()) {
+
+		// Log
+		if (log_vict)
+			log_vict->iLives--;
+
 
 		// This worm is out of the game
 		if(strcmp(NetworkTexts->sPlayerOut,"<none>")) {

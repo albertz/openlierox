@@ -14,7 +14,9 @@
 // Dark Charlie
 // Albert Zeyer
 
-
+#ifdef WIN32
+#pragma warning(disable: 4786)
+#endif
 #include <set>
 
 

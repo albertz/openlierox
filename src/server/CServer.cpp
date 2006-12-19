@@ -44,6 +44,10 @@ void CServer::Clear(void)
 	fLastRegister = 0;
 	nPort = LX_PORT;
 
+	tGameLog = NULL;
+	bTakeScreenshot = false;
+	bTournament = false;
+
 	fLastUpdateSent = -9999;
 
 	cBanList.loadList("cfg/ban.lst");
@@ -160,6 +164,52 @@ int CServer::StartGame(void)
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
 	iBonusesOn =	 tGameInfo.iBonusesOn;
 	iShowBonusName = tGameInfo.iShowBonusName;
+	bTournament =	 tGameInfo.bTournament;
+
+	//
+	// Start the logging
+	//
+	tGameLog = new game_log_t;
+	if (!tGameLog)  {
+		printf("%s","Out of memory while allocating log");
+		return false;
+	}
+	tGameLog->tWorms = NULL;
+	tGameLog->fGameStart = tLX->fCurTime;
+	tGameLog->iNumWorms = iNumPlayers;
+	GetTime(tGameLog->sGameStart);
+
+	// Take the screenshot only when a tournament is played and we're hosting
+	bTakeScreenshot = bTournament && (tGameInfo.iGameType == GME_HOST);
+
+	// Check
+	if (!cWorms)
+		return false;
+
+	// Allocate the log worms
+	int i;
+	tGameLog->tWorms = new log_worm_t[iNumPlayers];
+	if (!tGameLog->tWorms)
+		return false;
+
+	// Initialize the log worms
+	for (i=0;i<iNumPlayers;i++)  {
+		tGameLog->tWorms[i].bLeft = false;
+		tGameLog->tWorms[i].iID = cWorms[i].getID();
+		strcpy(tGameLog->tWorms[i].sName, cWorms[i].getName());
+		tGameLog->tWorms[i].iKills = 0;
+		tGameLog->tWorms[i].iLives = iLives;
+		tGameLog->tWorms[i].iLeavingReason = -1;
+		tGameLog->tWorms[i].iSuicides = 0;
+		tGameLog->tWorms[i].bTagIT = false;
+		if (tGameInfo.iGameMode == GMT_TEAMDEATH)
+			tGameLog->tWorms[i].iTeam = cWorms[i].getTeam();
+		else
+			tGameLog->tWorms[i].iTeam = -1;
+		tGameLog->tWorms[i].fTagTime = 0.0f;
+	}
+
+	
 
 	// Reset the first blood
 	bFirstBlood = true;
@@ -217,7 +267,6 @@ int CServer::StartGame(void)
     
 
 	// Set some info on the worms
-	int i;
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(iLives);
@@ -635,6 +684,13 @@ void CServer::DropClient(CClient *cl, int reason)
 	int i;    
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
+
+		// Log worm leaving
+		log_worm_t *logworm = GetLogWorm(cl->getWorm(i)->getID());
+		if (logworm)  {
+			logworm->bLeft = true;
+			logworm->iLeavingReason = reason;
+		}
 
         switch(reason) {
 
@@ -1092,6 +1148,38 @@ CClient *CServer::getClient(int iWormID)
 }
 
 
+/////////////////
+// Writes the log into the specified file
+bool CServer::WriteLogToFile(FILE *f)
+{
+	if (!f || !tGameLog)
+		return false;
+
+	if (!tGameLog->tWorms)
+		return false;
+
+	// Save the game info
+	fprintf(f,"<game datetime=\"%s\" length=\"%f\" loading=\"%i\" lives=\"%i\" maxkills=\"%i\" bonuses=\"%i\" bonusnames=\"%i\" level=\"%s\" mod=\"%s\" gamemode=\"%i\">",
+				tGameLog->sGameStart,fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,sMapFilename,sModName,iGameType);
+
+	// Save the general players info
+	fprintf(f,"<players startcount=\"%i\" endcount=\"%i\">",tGameLog->iNumWorms,iNumPlayers);
+
+	// Info for each player
+	int i;
+	for (i=0;i<tGameLog->iNumWorms;i++)  {
+		fprintf(f,"<player name=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" />",
+		tGameLog->tWorms[i].sName,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason);
+	}
+
+	// End tags
+	fprintf(f,"</players>");
+	fprintf(f,"</game>");
+
+	return true;
+}
+
+
 //////////////////////
 // Returns the country for the specified IP
 void CServer::GetCountryFromIP(char *Address, char *Result)
@@ -1212,6 +1300,44 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 	fclose(fp);
 }
 
+//////////////////
+// Returns the log worm with the specified id
+log_worm_t *CServer::GetLogWorm(int id)
+{
+	// Check
+	if (!tGameLog)
+		return NULL;
+	if (!tGameLog->tWorms)
+		return NULL;
+
+	// Go through the worms, checking the IDs
+	log_worm_t *w = tGameLog->tWorms;
+	int i;
+	for(i=0;i<tGameLog->iNumWorms;i++,w++)
+		if (w->iID == id)
+			return w;
+
+	// Not found
+	return NULL;
+}
+
+///////////////////
+// Shutdown the log structure
+void CServer::ShutdownLog(void)
+{
+	if (!tGameLog)
+		return;
+
+	// Free the worms
+	if (tGameLog->tWorms)
+		delete[] tGameLog->tWorms;
+
+	// Free the log structure
+	delete tGameLog;
+
+	tGameLog = NULL;
+}
+
 
 ///////////////////
 // Shutdown the server
@@ -1243,6 +1369,8 @@ void CServer::Shutdown(void)
 		delete[] cWorms;
 		cWorms = NULL;
 	}
+
+	ShutdownLog();
 
 	cShootList.Shutdown();
     

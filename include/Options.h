@@ -114,6 +114,7 @@ typedef struct {
 		int		iBonusesOn;
 		int		iShowBonusName;
 		int		iMaxPlayers;
+		bool	bTournament;
 		char	sServerName[32];
 		char	sWelcomeMessage[256];
 		char	sMapName[128];

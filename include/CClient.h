@@ -53,7 +53,7 @@ typedef struct {
 	int		iSequence;
 } ping_t;
 
-
+// Game lobby structure
 typedef struct {
 	int		nSet;
 	int		nGameMode;
@@ -68,6 +68,7 @@ typedef struct {
 	char	szModDir[256];
 	bool	bHaveMap;
 	bool	bHaveMod;
+	bool	bTournament;
 } game_lobby_t;
 
 

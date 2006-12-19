@@ -110,8 +110,14 @@ void CServer::SimulateGame(void)
 		}
 
 		// Add their time in a game of tag
-		if(iGameType == GMT_TAG && w->getTagIT())
+		if(iGameType == GMT_TAG && w->getTagIT())  {
 			w->incrementTagTime(tLX->fDeltaTime);
+
+			// Log
+			log_worm_t *logworm = GetLogWorm(w->getID());
+			if (logworm)
+				logworm->fTagTime += tLX->fDeltaTime;
+		}
 
 		// Simulate the worm's weapons
 		w->SimulateWeapon( tLX->fDeltaTime );
@@ -235,11 +241,25 @@ void CServer::TagWorm(int id)
 
 	CWorm *w = &cWorms[id];
 
+	int i;
+
 	// Go through all the worms, setting their tag to false
-	for(int i=0;i<MAX_WORMS;i++) {
-		if(cWorms[i].isUsed())
+	for(i=0;i<MAX_WORMS;i++) {
+		if(cWorms[i].isUsed())  {
 			cWorms[i].setTagIT(false);
+		}
 	}
+
+	// Log this
+	if (tGameLog)
+		if (tGameLog->tWorms)  {
+			for (i=0;i<tGameLog->iNumWorms;i++)  {
+				if (tGameLog->tWorms[i].iID == id)
+					tGameLog->tWorms[i].bTagIT = true;
+				else
+					tGameLog->tWorms[i].bTagIT = false;
+			}
+		}
 
 
 	w->setTagIT(true);
@@ -423,6 +443,9 @@ void CServer::gotoLobby(void)
 	bs.writeByte(S2C_GOTOLOBBY);
 	SendGlobalPacket(&bs);
 
+	// Shutdown the log
+	ShutdownLog();
+
 	// Clear the info
 	iState = SVS_LOBBY;
 
@@ -447,6 +470,8 @@ void CServer::gotoLobby(void)
 
 	// Shutdown the game items
 	cGameScript.Shutdown();
+
+	bTakeScreenshot = false;
 }
 
 

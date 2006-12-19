@@ -74,7 +74,7 @@ char		*GetConfigFile(void);
 
 int         GetClipboardText(char *szText, int nMaxLength);
 int         SetClipboardText(char *szText);
-void        TakeScreenshot(void);
+void        TakeScreenshot(bool Tournament);
 
 
 #endif  //  __AUXLIB_H__

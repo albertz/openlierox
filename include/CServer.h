@@ -41,6 +41,27 @@ enum {
 	CLL_BAN
 };
 
+// Structure for logging worms
+typedef struct log_worm_s {
+	char		sName[64];
+	int			iLives;
+	int			iKills;
+	int			iID;
+	int			iSuicides;
+	int			iTeam;
+	bool		bTagIT;
+	float		fTagTime;
+	bool		bLeft;
+	int			iLeavingReason;
+} log_worm_t;
+
+// Game log structure
+typedef struct game_log_s {
+	log_worm_t	*tWorms;
+	int			iNumWorms;
+	float		fGameStart;
+	char		sGameStart[64];
+} game_log_t;
 
 class CServer {
 public:
@@ -57,6 +78,10 @@ private:
 	char		sName[32];	
 	int			iState;
 
+	// Logging
+	game_log_t	*tGameLog;
+	bool		bTakeScreenshot;
+
 	// Game rules
 	int			iGameOver;
 	float		fGameOverTime;
@@ -72,6 +97,8 @@ private:
 	char		sModName[128];
 	CGameScript	cGameScript;
     CWpnRest    cWeaponRestrictions;
+
+	bool		bTournament;
 
 	// Special messages
 	bool		bFirstBlood;
@@ -102,10 +129,10 @@ private:
 
 	// Network
 	NetworkSocket	tSocket;
-	int			nPort;
-	challenge_t	tChallenges[MAX_CHALLENGES];
-	game_lobby_t tGameLobby;
-	CShootList	cShootList;
+	int				nPort;
+	challenge_t		tChallenges[MAX_CHALLENGES];
+	game_lobby_t	tGameLobby;
+	CShootList		cShootList;
 
 	CBanList	cBanList;
 	float		fLastUpdateSent;
@@ -123,6 +150,12 @@ public:
 	void		Shutdown(void);	
 
     void        notifyLog(char *fmt, ...);
+
+	// Logging
+	void				ShutdownLog(void);
+	log_worm_t			*GetLogWorm(int id);
+	bool				WriteLogToFile(FILE *f);
+
 
 
 	// Game
@@ -208,6 +241,10 @@ public:
 	void		setName(char *_name){ strncpy(sName,_name,sizeof(sName)); sName[sizeof(sName)-1] = '\0'; }
 	int			getMaxWorms(void)	{ return iMaxWorms; }
 	void		setMaxWorms(int _n) { iMaxWorms = _n; }
+	bool		getGameOver(void)	{ return iGameOver != 0; }
+	float		getGameOverTime(void) { return fGameOverTime; }
+	bool		getTakeScreenshot(void)	{ return bTakeScreenshot; }
+	void		setTakeScreenshot(bool _s) { bTakeScreenshot = _s; }
 };
 
 

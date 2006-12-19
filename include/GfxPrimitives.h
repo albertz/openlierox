@@ -63,9 +63,7 @@ void	DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	do_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface *, int, int, int));
 
-bool	SavePNG(SDL_Surface *image, char *FileName);
-bool	SaveJPG(SDL_Surface *image, char *FileName, int Quality);
-bool	SaveGIF(SDL_Surface *image, char *FileName);
+bool	SaveSurface(SDL_Surface *Image, char *FileName, int Format, bool Tournament);
 //bool	SaveBMP(SDL_Surface *image, char *FileName)  {return SDL_SaveBMP(image,FileName) != -1; }
 
 #endif  //  __GFXPRIMITIVES_H__

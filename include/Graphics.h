@@ -53,7 +53,6 @@ extern	gfxgame_t	gfxGame;
 
 // Routines
 int		LoadGraphics(void);
-bool	SavePng(char *FileName,SDL_Surface *img);
 void	ShutdownGraphics(void);
 
 
