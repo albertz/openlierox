@@ -506,8 +506,8 @@ public:
 			register int i;
 			VectorD2<int> p, dist;
 
-			typedef std::multiset< VectorD2<int>, VectorD2<int>::absolute_less > p_mset;
-			p_mset points(VectorD2<int>::absolute_less(base->target));
+			typedef std::multiset< VectorD2<int>, VectorD2__absolute_less<int> > p_mset;
+			p_mset points(VectorD2__absolute_less<int>(base->target));
 
 			// insert now the points to the list
 			// the list will sort itself
