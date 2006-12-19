@@ -122,6 +122,7 @@ typedef struct NEW_ai_node_s {
 
 NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n);
 void delete_ai_nodes(NEW_ai_node_t* start);
+void delete_ai_nodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
 float get_ai_nodes_length(NEW_ai_node_t* start);
 // this do the same as the fct above exept that it don't do the sqrt
 float get_ai_nodes_length2(NEW_ai_node_t* start);

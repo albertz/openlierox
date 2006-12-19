@@ -41,7 +41,7 @@ public:
 	}
 
 	inline float GetLength() const { return (float)sqrt((float)x*x + (float)y*y); }
-	inline float GetLength2() const { return (float)x*x + (float)y*y; };
+	inline _T GetLength2() const { return x*x + y*y; };
 
 	inline float GetAngle() const { return (float)atan2((float)y,(float)x); }
 
@@ -96,10 +96,23 @@ public:
 		return (*this < op) || (*this == op);
 	}
 	
+	class absolute_less {
+	public:
+		VectorD2 zero;
+		absolute_less(VectorD2 z = VectorD2<_T>(0,0)) : zero(z) {}
+		
+		inline bool operator()(const VectorD2 v1, const VectorD2 v2) {
+			return (v1-zero).GetLength2() < (v2-zero).GetLength2();		
+		}
+	};
+	
+	
+	
 };
 
 
 typedef VectorD2<float> CVec;
+
 
 
 
