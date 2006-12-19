@@ -2020,8 +2020,8 @@ bool CWorm::AI_SetAim(CVec cPos)
 	float   fDistance = NormalizeVector(&tgDir);
 
 	// We can't aim target straight below us
-	if(tgPos.x-10 < vPos.x && tgPos.x+10 > vPos.x)
-		return false;
+//	if(tgPos.x-10 < vPos.x && tgPos.x+10 > vPos.x)
+//		return false;
 	
 	if (tLX->fCurTime - fLastFace > 0.1)  {  // prevent turning
 	// Make me face the target
