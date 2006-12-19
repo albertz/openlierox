@@ -2047,6 +2047,12 @@ bool CWorm::AI_SetAim(CVec cPos)
 	// Clamp the angle
 	ang = MAX((float)-90, ang);
 
+	// If the angle is within +/- 3 degrees, just snap it
+    if( fabs(fAngle - ang) < 3) {
+		fAngle = ang;
+        goodAim = true;
+    }
+
 	// Move the angle at the same speed humans are allowed to move the angle
 	if(ang > fAngle)
 		fAngle += wd->AngleSpeed * dt;
@@ -2495,6 +2501,16 @@ void CWorm::AI_Shoot(CMap *pcMap)
     // Aim at the target
     //
     bool    bAim = true;//AI_SetAim(cTrgPos);
+	
+	// Distance
+	float x = (cTrgPos.x-vPos.x);
+	float y = (vPos.y-cTrgPos.y);
+	
+	float alpha = 0;
+
+	gs_worm_t *wd = cGameScript->getWorm();
+	if (!wd)
+		return;
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	weapon_t *weap = getCurWeapon()->Weapon;
@@ -2524,19 +2540,23 @@ void CWorm::AI_Shoot(CMap *pcMap)
 				g = weap->Projectile->Gravity;
 			if (iAiGameType == GAM_MORTARS)
 				g = 100;
-			// Distance
-			float x = (cTrgPos.x-vPos.x);
-			float y = (vPos.y-cTrgPos.y);
 
 			// Get the alpha
-			float alpha = 0;
 			bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
 			if (!bAim)
 				break;
 			
-			gs_worm_t *wd = cGameScript->getWorm();
-			if (!wd)
-				return;
+			// Can we hit the target?
+			if (g <= 5)  {
+				int type = PX_EMPTY;
+				float d;
+				traceWeaponLine(cTrgPos,pcMap,&d,&type);
+				bAim = type == PX_EMPTY;
+			}
+			else
+				bAim = weaponCanHit(g,v,pcMap);
+			if (!bAim)
+				break;
 
 			if (fabs(fAngle-alpha) > 5.0)  {
 				// Move the angle at the same speed humans are allowed to move the angle
@@ -2554,16 +2574,6 @@ void CWorm::AI_Shoot(CMap *pcMap)
 			else
 				iDirection = DIR_RIGHT;
 
-			// Can we hit the target?
-			if (g <= 5)  {
-				int type = PX_EMPTY;
-				float d;
-				traceWeaponLine(cTrgPos,pcMap,&d,&type);
-				bAim = type == PX_EMPTY;
-			}
-			else
-				bAim = weaponCanHit(g,v,pcMap);
-
 			/*strcpy(tLX->debug_string,weap->Name);
 			if (tLX->fCurTime-flast > 1.0f)  {
 				tLX->debug_float = alpha;
@@ -2579,8 +2589,26 @@ void CWorm::AI_Shoot(CMap *pcMap)
 
 		// In mortars we can hit the target below us
 		if (iAiGameType == GAM_MORTARS)  {
-			if (cTrgPos.y > (vPos.y-20.0f))
-				tState.iShoot = true;
+			if (cTrgPos.y > (vPos.y-20.0f)) {
+				// aim
+				if (fabs(fAngle-alpha) > 5.0)  {
+					// Move the angle at the same speed humans are allowed to move the angle
+					if(alpha > fAngle)
+						fAngle += wd->AngleSpeed * tLX->fDeltaTime;
+					else if(alpha < fAngle)
+						fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
+				}
+				else
+					fAngle = alpha;
+					
+				// Face the target
+				if (x < 0)
+					iDirection = DIR_LEFT;
+				else
+					iDirection = DIR_RIGHT;
+					
+				tState.iShoot = true;			
+			}
 			return;
 		}
 
@@ -4176,11 +4204,11 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 
 class bestropespot_collision_action {
 public:
-	CVec start, best;
-	bestropespot_collision_action(CVec s) : start(s), best(s) {}
+	CVec target, best;
+	bestropespot_collision_action(CVec t) : target(t), best(-1,-1) {}
 	
 	bool operator()(int x, int y) {
-		if((CVec(x,y)-start).GetLength2() >= (best-start).GetLength2())
+		if(best.x < 0 || (CVec(x,y)-target).GetLength2() < (best-target).GetLength2())
 			best = CVec(x,y);
 				
 		return false;
@@ -4201,13 +4229,14 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 	float ang = 0;
 	
 	SquareMatrix<float> step_m = SquareMatrix<float>::RotateMatrix(-step);
-	bestropespot_collision_action action(vPos);
+	bestropespot_collision_action action(trg+CVec(0,-10));
 	
 	for(ang=0; ang<(float)PI; dir=step_m(dir),ang+=step)
 		action = fastTraceLine(vPos+dir, vPos, pcMap, PX_ROCK|PX_DIRT|PX_WORM, action);
 
 	// TODO: what if we don't find any possible spot?
-	return action.best;	
+	//return action.best;
+	return trg;
 }
 
 ////////////////////
@@ -4462,6 +4491,91 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       We have walking, jumping, move-through-air, and a ninja rope to help us.
     */   
 
+    
+    
+	//
+	//	Shooting the rope
+	//
+
+    // If the node is above us by a lot, we should use the ninja rope
+	// If the node is far, jump and use the rope, too
+	bool fireNinja = NEW_psCurrentNode->fY+20 < vPos.y;
+	if (!fireNinja && (fabs(NEW_psCurrentNode->fX-vPos.x) >= 50))  {
+		// On ground? Jump
+		if (CheckOnGround(pcMap))  {
+			if (tLX->fCurTime - fLastJump > 1.0f)  {
+				ws->iJump = true;
+				fLastJump = tLX->fCurTime;
+				// Rope will happen soon
+			}
+		}
+		// Not on ground? Shoot the rope
+		else 
+			fireNinja = true;
+	}
+
+
+    if(fireNinja) {
+        
+
+		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
+
+		// Get the best spot to shoot the rope to
+	//	pcMap->ClearDebugImage();
+		cAimPos = NEW_AI_GetBestRopeSpot(cAimPos,pcMap);
+
+/*
+		// If the path is going up, get an average position of the two nodes
+		if (vPos.y > NEW_psCurrentNode->fY) 
+			if (NEW_psCurrentNode->psNext) {
+				if (NEW_psCurrentNode->fY-30 > NEW_psCurrentNode->psNext->fY)  {
+					cAimPos.x=((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
+					cAimPos.y=((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
+				}
+			}
+*/
+
+		//cAimPos = NEW_AI_GetNearestRopeSpot(cAimPos,pcMap);
+#ifdef _AI_DEBUG
+		//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
+		//if (cAimPos.x > 0 && cAimPos.y > 0 && cAimPos.y < pcMap->GetHeight()-4 && cAimPos.x < pcMap->GetWidth()-4)
+		//	DrawRectFill(pcMap->GetDebugImage(),(int)cAimPos.x*2,(int)cAimPos.y*2,(int)cAimPos.x*2+4,(int)cAimPos.y*2+4,MakeColour(0,0,255));
+#endif
+
+
+		// Aim
+		
+		bool aim = AI_SetAim(cAimPos);
+
+
+        CVec dir;
+        dir.x=( (float)cos(fAngle * (PI/180)) );
+	    dir.y=( (float)sin(fAngle * (PI/180)) );
+	    if(iDirection == DIR_LEFT)
+		    dir.x=(-dir.x);
+       
+        /*
+          Got aim, so shoot a ninja rope
+          We shoot a ninja rope if it isn't shot
+          Or if it is, we make sure it has pulled us up and that it is attached
+        */
+        if(aim) {
+            if(!cNinjaRope.isReleased())
+                cNinjaRope.Shoot(vPos,dir);
+            else {
+                float length = CalculateDistance(vPos, cNinjaRope.getHookPos());
+                if(cNinjaRope.isAttached()) {
+                    if(length < cNinjaRope.getRestLength() && vVelocity.y<-10)
+                        cNinjaRope.Shoot(vPos,dir);
+                }
+            }
+        }
+        
+        return;
+    }    
+    
+    
+    
     // Aim at the node
     bool aim = AI_SetAim(nodePos);
 
@@ -4565,84 +4679,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		cNinjaRope.Release();
     
 
-	//
-	//	Shooting the rope
-	//
-
-    // If the node is above us by a lot, we should use the ninja rope
-	// If the node is far, jump and use the rope, too
-	bool fireNinja = NEW_psCurrentNode->fY+20 < vPos.y;
-	if (!fireNinja && (fabs(NEW_psCurrentNode->fX-vPos.x) >= 50))  {
-		// On ground? Jump
-		if (CheckOnGround(pcMap))  {
-			if (tLX->fCurTime - fLastJump > 1.0f)  {
-				ws->iJump = true;
-				fLastJump = tLX->fCurTime;
-				// Rope will happen soon
-			}
-		}
-		// Not on ground? Shoot the rope
-		else 
-			fireNinja = true;
-	}
-
-
-    if(fireNinja) {
-        
-
-		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
-
-		// Get the best spot to shoot the rope to
-	//	pcMap->ClearDebugImage();
-		cAimPos = NEW_AI_GetBestRopeSpot(cAimPos,pcMap);
-
-/*
-		// If the path is going up, get an average position of the two nodes
-		if (vPos.y > NEW_psCurrentNode->fY) 
-			if (NEW_psCurrentNode->psNext) {
-				if (NEW_psCurrentNode->fY-30 > NEW_psCurrentNode->psNext->fY)  {
-					cAimPos.x=((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
-					cAimPos.y=((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
-				}
-			}
-*/
-
-		//cAimPos = NEW_AI_GetNearestRopeSpot(cAimPos,pcMap);
-#ifdef _AI_DEBUG
-		//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
-		//if (cAimPos.x > 0 && cAimPos.y > 0 && cAimPos.y < pcMap->GetHeight()-4 && cAimPos.x < pcMap->GetWidth()-4)
-		//	DrawRectFill(pcMap->GetDebugImage(),(int)cAimPos.x*2,(int)cAimPos.y*2,(int)cAimPos.x*2+4,(int)cAimPos.y*2+4,MakeColour(0,0,255));
-#endif
-
-
-		// Aim
-		
-		bool aim = AI_SetAim(cAimPos);
-
-
-        CVec dir;
-        dir.x=( (float)cos(fAngle * (PI/180)) );
-	    dir.y=( (float)sin(fAngle * (PI/180)) );
-	    if(iDirection == DIR_LEFT)
-		    dir.x=(-dir.x);
-       
-        /*
-          Got aim, so shoot a ninja rope
-          We shoot a ninja rope if it isn't shot
-          Or if it is, we make sure it has pulled us up and that it is attached
-        */
-        if(aim) {
-            if(!cNinjaRope.isReleased())
-                cNinjaRope.Shoot(vPos,dir);
-            else {
-                float length = CalculateDistance(vPos, cNinjaRope.getHookPos());
-                if(cNinjaRope.isAttached()) {
-                    if(length < cNinjaRope.getRestLength() && vVelocity.y<-10)
-                        cNinjaRope.Shoot(vPos,dir);
-                }
-            }
-        }
-    }    
 
     /*
       If there is dirt between us and the next node, don't shoot a ninja rope

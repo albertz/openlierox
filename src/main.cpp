@@ -138,6 +138,9 @@ int main(int argc, char *argv[])
 			// Timing
 			tLX->fDeltaTime = tLX->fCurTime - oldtime;
 			oldtime = tLX->fCurTime;
+			
+			// cap the delta
+			tLX->fDeltaTime = MIN(tLX->fDeltaTime, (float)1000);
 
 			// Main frame
 			GameLoop();

@@ -506,13 +506,18 @@ void Menu_LocalStartGame(void)
 		return;
 
     int count = 0;
-    
-    // Add the players onto the list    
+      
+    // Add the human players onto the list    
     for(i=0; i<MAX_PLAYERS; i++) {
-        if(!sLocalPlayers[i].bUsed)
-            continue;
+		if(sLocalPlayers[i].bUsed && sLocalPlayers[i].psProfile && sLocalPlayers[i].psProfile->iType == PRF_HUMAN) {
+            tGameInfo.cPlayers[count++] = sLocalPlayers[i].psProfile;
+            sLocalPlayers[i].psProfile->iTeam = sLocalPlayers[i].nTeam;
+        }
+    }
         
-        if(sLocalPlayers[i].psProfile) {
+    // Add the unhuman players onto the list    
+    for(i=0; i<MAX_PLAYERS; i++) {
+		if(sLocalPlayers[i].bUsed && sLocalPlayers[i].psProfile && sLocalPlayers[i].psProfile->iType != PRF_HUMAN) {
             tGameInfo.cPlayers[count++] = sLocalPlayers[i].psProfile;
             sLocalPlayers[i].psProfile->iTeam = sLocalPlayers[i].nTeam;
         }
