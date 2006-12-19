@@ -98,10 +98,10 @@ public:
 	
 	class absolute_less {
 	public:
-		VectorD2 zero;
-		absolute_less(VectorD2 z = VectorD2<_T>(0,0)) : zero(z) {}
+		VectorD2<_T> zero;
+		absolute_less(VectorD2<_T> z = VectorD2<_T>(0,0)) : zero(z) {}
 		
-		inline bool operator()(const VectorD2 v1, const VectorD2 v2) {
+		inline bool operator()(const VectorD2<_T> v1, const VectorD2<_T> v2) {
 			return (v1-zero).GetLength2() < (v2-zero).GetLength2();		
 		}
 	};
