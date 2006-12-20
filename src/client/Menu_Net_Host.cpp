@@ -364,6 +364,7 @@ int			iHost_Recolorize = false;
 int Menu_Net_HostLobbyInitialize(void)
 {
 	tGameInfo.iGameType = GME_HOST;
+	tGameInfo.bTournament = tLXOptions->tGameinfo.bTournament;
 	iNetMode = net_host;
 	iHostType = 1;
 	bHostGameSettings = false;

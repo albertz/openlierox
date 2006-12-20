@@ -81,6 +81,7 @@ private:
 	// Logging
 	game_log_t	*tGameLog;
 	bool		bTakeScreenshot;
+	bool		bScreenshotToken;
 
 	// Game rules
 	int			iGameOver;
@@ -245,6 +246,8 @@ public:
 	float		getGameOverTime(void) { return fGameOverTime; }
 	bool		getTakeScreenshot(void)	{ return bTakeScreenshot; }
 	void		setTakeScreenshot(bool _s) { bTakeScreenshot = _s; }
+	bool		getScreenshotToken(void) { return bScreenshotToken; }
+	void		setScreenshotToken(bool _s) { bScreenshotToken = _s; }
 };
 
 

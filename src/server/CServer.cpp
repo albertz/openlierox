@@ -46,6 +46,7 @@ void CServer::Clear(void)
 
 	tGameLog = NULL;
 	bTakeScreenshot = false;
+	bScreenshotToken = false;
 	bTournament = false;
 
 	fLastUpdateSent = -9999;
@@ -179,8 +180,8 @@ int CServer::StartGame(void)
 	tGameLog->iNumWorms = iNumPlayers;
 	GetTime(tGameLog->sGameStart);
 
-	// Take the screenshot only when a tournament is played and we're hosting
-	bTakeScreenshot = bTournament && (tGameInfo.iGameType == GME_HOST);
+	bTakeScreenshot = false;
+	bScreenshotToken = false;
 
 	// Check
 	if (!cWorms)

@@ -139,6 +139,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
         if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)  {
 			bScoreAndSett = false;
 		    DrawGameOver(bmpDest);
+			if (cServer)
+				if (!cServer->getScreenshotToken() && tGameInfo.iGameType == GME_HOST && tGameInfo.bTournament)
+					cServer->setTakeScreenshot(true);
 		}
         else
             tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, 0xffff,"%s", "Game Over");

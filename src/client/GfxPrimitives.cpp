@@ -1397,16 +1397,22 @@ bool SaveSurface(SDL_Surface *image, char *FileName, int Format, bool Tournament
 {
   if (Format == FMT_BMP)  {
 		//strcat(FileName,".bmp");
-		SDL_SaveBMP(image,FileName);
+		char buf[256];
+		sprintf(buf,"%s/%s",GetHomeDir(),FileName);
+		SDL_SaveBMP(image,buf);
 
 		// Log
 		if (Tournament && cServer)  {
-			FILE *f = OpenGameFile(FileName,"wb");
+			cServer->setTakeScreenshot(false);
+			cServer->setScreenshotToken(true);
+
+			FILE *f = OpenGameFile(FileName,"ab");
 			if (!f)
 				return false;
 			if (!cServer->WriteLogToFile(f))
 				return false;
 			fclose(f);
+
 		}
 
 		return true;
@@ -1455,6 +1461,7 @@ bool SaveSurface(SDL_Surface *image, char *FileName, int Format, bool Tournament
   // Write info about the game
   if (Tournament && cServer)  {
 	  cServer->setTakeScreenshot(false);
+	  cServer->setScreenshotToken(true);
 	  if (!cServer->WriteLogToFile(out))
 		  return false;
   }

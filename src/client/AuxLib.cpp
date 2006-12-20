@@ -338,10 +338,8 @@ void FlipScreen(SDL_Surface *psScreen)
     // Take a screenshot?
     // We do this here, because there are so many graphics loops, but this function is common
     // to all of them
-    if( cTakeScreenshot.isDownOnce() )
-        TakeScreenshot(false);
-	else if (cServer->getTakeScreenshot() && cServer->getGameOver() && tLX->fCurTime-cServer->getGameOverTime() > GAMEOVER_WAIT+tLX->fDeltaTime+0.05) 
-		TakeScreenshot(true);
+    if( cTakeScreenshot.isDownOnce() || cServer->getTakeScreenshot() )
+        TakeScreenshot(tGameInfo.bTournament);
 
     SDL_Flip( psScreen );
 }
