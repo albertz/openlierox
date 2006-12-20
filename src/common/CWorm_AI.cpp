@@ -18,7 +18,7 @@
 #pragma warning(disable: 4786)
 #endif
 #include <set>
-
+#include <SDL/SDL_thread.h>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -303,7 +303,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 	col = 0; dir = 1;
 	while(true) {
 		if(col == 15) // got we collisions in all directions?
-			break;		
+			break;
 		
 		// change direction
 		do {
@@ -446,9 +446,16 @@ inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist
 }
 
 
+/*
+this class do the whole pathfinding (idea by AZ)
+you can use the findPath-function directly,
+or you can use the function StartThreadSearch, which
+start the search in an own thread; you can ask
+for the state with IsReady
+*/
 class searchpath_base {
 public:
-			
+
 	class area_item {
 	public:
 				
@@ -487,6 +494,10 @@ public:
 			checklistRowStart = (size.y - (checklistRows-1)*checklistRowHeight) / 2;
 		}
 				
+		inline VectorD2<int> getCenter() {
+			return (area.v1+area.v2)/2;
+		}
+		
 		area_item(searchpath_base* b) :
 			inUse(false),
 			base(b),
@@ -497,19 +508,20 @@ public:
 			checklistCols(0),
 			checklistColStart(0),
 			checklistColWidth(10) {}
-						
+		
 		// iterates over all checklist points
 		// calls given action with 2 parameters:
 		//    VectorD2<int> p, VectorD2<int> dist
 		// p is the point inside of the area, dist the change to the target
 		// if the returned value by the action is false, it will break
 		template<typename _action>
-		void forEachChecklistItem(_action action) {
+		void forEachChecklistItem(_action action, VectorD2<int> start) {
 			register int i;
 			VectorD2<int> p, dist;
 
-			typedef std::multiset< VectorD2<int>, VectorD2__absolute_less<int> > p_mset;
-			p_mset points(VectorD2__absolute_less<int>(base->target));
+			typedef std::multiset< VectorD2<int>, VectorD2__absolute_less<int> > p_mset;			
+			// the set point here defines, where the 'best' point is (the sorting depends on it)
+			p_mset points(VectorD2__absolute_less<int>((base->target + getCenter()*2 - start) / 2));
 
 			// insert now the points to the list
 			// the list will sort itself
@@ -622,10 +634,10 @@ public:
 			}
 		}; // class check_checkpoint
 				
-		NEW_ai_node_t* process() {
+		NEW_ai_node_t* process(VectorD2<int> start) {
 			// search the best path
 			inUse = true;
-			forEachChecklistItem(check_checkpoint(base, this));
+			forEachChecklistItem(check_checkpoint(base, this), start);
 			inUse = false;
 			
 			// did we find any?
@@ -647,16 +659,30 @@ public:
 	// these neccessary attributes have to be set manually
 	CMap* pcMap;
 	area_mset areas;
-	VectorD2<int> target;
+	VectorD2<int> start, target;
 	
 	searchpath_base() :
-		pcMap(NULL) {}
+		pcMap(NULL),
+		thread_is_ready(true),
+		resulted_path(NULL) {
+		thread_mut = SDL_CreateMutex();
+	}
 		
 	~searchpath_base() {
-		clear();
+		// thread cleaning up
+		if(!IsReady()) {
+			Lock();
+			thread_is_ready = true;
+			Unlock();
+			SDL_WaitThread(thread, NULL);
+		}
+		SDL_DestroyMutex(thread_mut);
+		
+		clear_areas();
 	}
 	
-	void clear() {
+private:	
+	void clear_areas() {
 		for(area_mset::iterator it = areas.begin(); it != areas.end(); it++) {
 			delete *it;
 		}
@@ -689,6 +715,7 @@ public:
 		return NULL;
 	}
 		
+public:	
 	NEW_ai_node_t* findPath(VectorD2<int> start) {		
 		// is the start inside of the map?
 		if(start.x < 0 || start.x >= pcMap->GetWidth() 
@@ -728,9 +755,65 @@ public:
 #endif
 		
 		// and search 
-		return a->process();
+		return a->process(start);
 	}
 
+	
+	// this function will start the search, if it was not started right now
+	void StartThreadSearch() {
+		if(!IsReady()) return;
+		
+		resulted_path = NULL;
+		thread_is_ready = false;
+		thread = SDL_CreateThread(ThreadSearch, this);
+	}
+
+	// main-function used by the thread
+	static int ThreadSearch(void* b) {
+		searchpath_base* base = (searchpath_base*)b;
+		
+		// start the main search
+		base->resulted_path = base->findPath(base->start);
+		
+		// we are ready now
+		base->Lock();
+		base->thread_is_ready = true;
+		base->Unlock();
+		
+		return 0;
+	}
+	
+	inline bool IsReady() {
+		bool ret = false;
+		Lock();
+		ret = thread_is_ready;
+		Unlock();
+		return ret;
+	}
+
+	inline NEW_ai_node_t* ResultedPath() {
+		// WARNING: not thread safe; call IsReady before
+		return resulted_path;	
+	}
+
+private:
+	NEW_ai_node_t* resulted_path;
+	SDL_Thread* thread;
+	SDL_mutex* thread_mut;
+	bool thread_is_ready;
+
+	inline bool ShouldBreakThread() {
+		return IsReady();
+	}
+
+	inline void Lock() {
+		SDL_mutexP(thread_mut);	
+	}
+	
+	inline void Unlock() {
+		SDL_mutexV(thread_mut);
+	}
+	
 }; // class searchpath_base
 
 
@@ -827,11 +910,13 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     	ws->iMove = true;
     	ws->iCarve = true;
 
+/*
 		// change direction after some time
 		if ((tLX->fCurTime-fLastTurn) > 1.0)  {
 			iDirection = !iDirection;
 			fLastTurn = tLX->fCurTime;
 		}
+*/
 
         return;
         
@@ -841,19 +926,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 		AI_ReloadWeapons();
     
     }
-    
-	// TODO: uncomment, if this works
-/* 
-	// if the last search for a path was not finished, try to finish it now
-	if(!bPathFinished) {
-		NEW_AI_CreatePath(pcMap);
-		// if we have a node, where we can go to, go there
-		if(NEW_psPath)
-			NEW_AI_MoveToTarget(pcMap);
-		return;
-	}    
-*/  
-  
+      
     // Process depending on our current state
     switch(nAIState) {
 
@@ -2022,8 +2095,8 @@ bool CWorm::AI_SetAim(CVec cPos)
 	float   fDistance = NormalizeVector(&tgDir);
 
 	// We can't aim target straight below us
-//	if(tgPos.x-10 < vPos.x && tgPos.x+10 > vPos.x)
-//		return false;
+	if(tgPos.x-10 < vPos.x && tgPos.x+10 > vPos.x && tgPos.y > vPos.y)
+		return false;
 	
 	if (tLX->fCurTime - fLastFace > 0.1)  {  // prevent turning
 	// Make me face the target
@@ -2046,6 +2119,12 @@ bool CWorm::AI_SetAim(CVec cPos)
 
 	// Clamp the angle
 	ang = MAX((float)-90, ang);
+
+/*
+	printf("AI_SetAim\n");
+	printf("   ang = %f\n", ang);
+	printf("   fAngle = %f\n", fAngle);
+*/
 
 	// If the angle is within +/- 3 degrees, just snap it
     if( fabs(fAngle - ang) < 3) {
@@ -4207,7 +4286,15 @@ public:
 	CVec target, best;
 	bestropespot_collision_action(CVec t) : target(t), best(-1,-1) {}
 	
+#ifdef _AI_DEBUG
+	CMap* pcMap;
+#endif
+	
 	bool operator()(int x, int y) {
+#ifdef _AI_DEBUG		
+		DrawRectFill(pcMap->GetDebugImage(),x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(0,240,0));		
+#endif		
+	
 		if(best.x < 0 || (CVec(x,y)-target).GetLength2() < (best-target).GetLength2())
 			best = CVec(x,y);
 				
@@ -4230,13 +4317,18 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 	
 	SquareMatrix<float> step_m = SquareMatrix<float>::RotateMatrix(-step);
 	bestropespot_collision_action action(trg+CVec(0,-10));
-	
-	for(ang=0; ang<(float)PI; dir=step_m(dir),ang+=step)
-		action = fastTraceLine(vPos+dir, vPos, pcMap, PX_ROCK|PX_DIRT|PX_WORM, action);
+#ifdef _AI_DEBUG
+	action.pcMap = pcMap;	
+#endif
 
-	// TODO: what if we don't find any possible spot?
-	//return action.best;
-	return trg;
+	for(ang=0; ang<(float)PI; dir=step_m(dir),ang+=step) {
+		action = fastTraceLine(vPos+dir, vPos, pcMap, PX_ROCK|PX_DIRT, action);
+	}
+
+	if(action.best.x < 0) // we don't find any spot
+		return trg;
+	else
+		return action.best;
 }
 
 ////////////////////
@@ -4356,6 +4448,12 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	else
 		fRopeAttachedTime = 0;
 			
+	if (fRopeHookFallingTime >= 2.0f)  {
+		// Release & walk
+		cNinjaRope.Release();
+        ws->iMove = true;
+		fRopeHookFallingTime = 0;
+	}
 
     cPosTarget = AI_GetTargetPos();
 
@@ -4420,7 +4518,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     
 	// Check
 	if (!NEW_psPath || !NEW_psLastNode)  {
-		printf("Pathfinding problem 1; \n");
+		//printf("Pathfinding problem 1; \n");
 		return;
 	}
 
@@ -4459,7 +4557,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     if(NEW_psPath == NULL || NEW_psCurrentNode == NULL) {
         // If we don't have a path, resort to simpler AI methods
         AI_SimpleMove(pcMap,psAITarget != NULL);
-		printf("Pathfinding problem 2; ");
+		//printf("Pathfinding problem 2; ");
         return;
     }
 
@@ -4471,7 +4569,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		//if (CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) >= CalculateDistance(vPos,CVec(next_node->fX,next_node->fY)))
 			if(traceWormLine(CVec(next_node->fX,next_node->fY),vPos,pcMap))  {
 				NEW_psCurrentNode = next_node;
-				break;
+				//break;
 			}
 		next_node = next_node->psNext;
 	}
@@ -4492,7 +4590,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     */   
 
     
-    
+     
 	//
 	//	Shooting the rope
 	//
@@ -4514,6 +4612,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			fireNinja = true;
 	}
 
+	bool aim = false;
 
     if(fireNinja) {
         
@@ -4544,8 +4643,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 
 		// Aim
-		
-		bool aim = AI_SetAim(cAimPos);
+		aim = AI_SetAim(cAimPos);
 
 
         CVec dir;
@@ -4571,13 +4669,22 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
             }
         }
         
-        return;
-    }    
-    
-    
-    
-    // Aim at the node
-    bool aim = AI_SetAim(nodePos);
+    } else { // not fireNinja
+        
+		// Aim at the node
+		aim = AI_SetAim(nodePos);
+	
+		// If the node is above us by a little, jump
+		if ((vPos.y-NEW_psCurrentNode->fY) <= 20 && (vPos.y-NEW_psCurrentNode->fY) > 0) {
+			// Don't jump so often
+			if (tLX->fCurTime - fLastJump > 1.0f)  {
+				ws->iJump = true;
+				fLastJump = tLX->fCurTime;
+			} else
+				ws->iMove = true; // if we should not jump, move
+		}
+	}
+	
 
     // If we are stuck in the same position for a while, take measures to get out of being stuck
     if(fabs(cStuckPos.x - vPos.x) < 5 && fabs(cStuckPos.y - vPos.y) < 5) {
@@ -4625,19 +4732,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     }
 
 
-    // If the ninja rope hook is falling, release it & walk
-    if(!cNinjaRope.isAttached() && !cNinjaRope.isShooting()) {
-		fRopeHookFallingTime += tLX->fDeltaTime;
-    } else
-		fRopeHookFallingTime = 0;
-
-	if (fRopeHookFallingTime >= 2.0f)  {
-		// Release & walk
-		cNinjaRope.Release();
-        ws->iMove = true;
-		fRopeHookFallingTime = 0;
-	}
-
 	// If the rope is hooked wrong, release it
 	/*if (cNinjaRope.isAttached())  {
 		if (cNinjaRope.getHookPos().x+20 < vPos.x && cNinjaRope.getHookPos().x+20 < NEW_psCurrentNode->fX)
@@ -4650,15 +4744,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     if(fabs(vPos.x - NEW_psCurrentNode->fX) > 30)
 		ws->iMove = true;
 
-	// If the node is above us by a little, jump
-	if ((vPos.y-NEW_psCurrentNode->fY) <= 20 && (vPos.y-NEW_psCurrentNode->fY) > 0) {
-		// Don't jump so often
-		if (tLX->fCurTime - fLastJump > 1.0f)  {
-			ws->iJump = true;
-			fLastJump = tLX->fCurTime;
-		} else
-			ws->iMove = true; // if we should not jump, move
-	}
 
 /*
 	// If the next node is above us by a little, jump too
@@ -4738,11 +4823,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     }
 
   
+/*	
+	// TODO: do we realy need this? there is a loop above, which checks for direct connections to new nodes
 	// Move to next node, if we arrived at the current
 	if(CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) < 10)
 		if(NEW_psCurrentNode->psNext)
 			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
-	
+*/	
 }
 
 void CWorm::NEW_AI_CleanupStoredNodes() {
