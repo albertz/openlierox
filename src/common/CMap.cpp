@@ -510,6 +510,7 @@ bool CMap::createGrid(void)
     GridFlags = new uchar[nGridCols * nGridRows];
     AbsoluteGridFlags = new uchar[nGridCols * nGridRows];
     if(GridFlags == NULL || AbsoluteGridFlags == NULL) {
+		unlockFlags();
         SetError("CMap::CreateGrid(): Out of memory");
         return false;
     }
@@ -2341,6 +2342,8 @@ void CMap::Shutdown(void)
 	lockFlags();
 	
 	if(Created) {
+
+		//printf("some created map is shutting down...\n");
 
 		if(bmpImage)
 			SDL_FreeSurface(bmpImage);

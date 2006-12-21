@@ -189,7 +189,10 @@ public:
 	int			CreatePixelFlags(void);
     bool        createGrid(void);
     void        calculateGrid(void);
+private:
+	// not thread-safe    
     void        calculateGridCell(int x, int y, bool bSkipEmpty);
+public:	
 	void		TileMap(void);
     
     void        CalculateDirtCount();
@@ -267,16 +270,16 @@ public:
     inline maprandom_t *getRandomLayout(void)  { return &sRandomLayout; }
 
 
-	inline int			GetWidth(void)		{ return Width; }
-	inline int			GetHeight(void)		{ return Height; }
-    inline int         GetDirtCount(void)  { return nTotalDirtCount; }
+	inline int			GetWidth(void) const	{ return Width; }
+	inline int			GetHeight(void)	const	{ return Height; }
+    inline int         GetDirtCount(void) const { return nTotalDirtCount; }
 
-    inline int         getGridCols(void)   { return nGridCols; }
-    inline int         getGridRows(void)   { return nGridRows; }
-    inline int         getGridWidth(void)  { return nGridWidth; }
-    inline int         getGridHeight(void) { return nGridHeight; }
-    inline const uchar *getGridFlags(void) { return GridFlags; }
-	inline const uchar	*getAbsoluteGridFlags() { return AbsoluteGridFlags; }
+    inline int         getGridCols(void) const  { return nGridCols; }
+    inline int         getGridRows(void) const  { return nGridRows; }
+    inline int         getGridWidth(void) const { return nGridWidth; }
+    inline int         getGridHeight(void) const { return nGridHeight; }
+    inline const uchar *getGridFlags(void) const { return GridFlags; }
+	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
 	inline int			getCreated(void)	{ return Created; }
 
 

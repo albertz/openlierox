@@ -141,6 +141,9 @@ public:
 		Clear();
 	}
 
+	~CWorm() {
+		Shutdown();
+	}
 
 private:
 	// Attributes
@@ -285,7 +288,7 @@ private:
 	float       fLastPathUpdate;
 	bool		bPathFinished;
 	
-	// it's type is searchpath_base*; defined in CWorm_AI.cpp
+	// its type is searchpath_base*; defined in CWorm_AI.cpp
 	void*		pathSearcher;
 
 	NEW_ai_node_t	*NEW_psPath;

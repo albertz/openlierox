@@ -609,20 +609,19 @@ public:
 		pcMap(NULL),
 		thread_is_ready(true),
 		resulted_path(NULL),
-		thread(NULL) {
+		break_thread_signal(0) {
 		thread_mut = SDL_CreateMutex();
+		//printf("starting thread for %i ...\n", (long)this);
+		thread = SDL_CreateThread(threadSearch, this);
 	}
-		
+	
 	~searchpath_base() {
 		// thread cleaning up
-		if(!isReady()) {
-			lock();
-			thread_is_ready = true;
-			unlock();
-			SDL_WaitThread(thread, NULL);
-			thread = NULL;
-		}
-		if(thread) SDL_WaitThread(thread, NULL);
+		//printf("breaking thread for %i ...\n", (long)this);
+		breakThreadSignal();
+		SDL_WaitThread(thread, NULL);
+		//printf("thread for %i finished\n", (long)this);		
+		thread = NULL;
 		SDL_DestroyMutex(thread_mut);
 		
 		clear_areas();
@@ -713,38 +712,51 @@ public:
 		// and search 
 		return a->process(start);
 	}
-
 	
 	// this function will start the search, if it was not started right now
 	void startThreadSearch() {
-		// if some other thread still isn't ready, do nothing (let him finish)
+		// if we are still searching, do nothing
 		if(!isReady()) return;
-		
-		// this wait is only needed, if the thread still 'hangs' at the last lines
-		if(thread) SDL_WaitThread(thread, NULL);
-		
-		clear_areas();
-		
+				
+		clear_areas();		
 		resulted_path = NULL;
-		thread_is_ready = false;
-		thread = SDL_CreateThread(threadSearch, this);
+		
+		// this is the signal to start the search
+		setReady(false);
 	}
 
+private:
 	// main-function used by the thread
 	static int threadSearch(void* b) {
 		searchpath_base* base = (searchpath_base*)b;
+		NEW_ai_node_t* ret;
 		
-		// start the main search
-		base->resulted_path = base->findPath(base->start);
-		
-		// we are ready now
-		base->lock();
-		base->thread_is_ready = true;
-		base->unlock();
-		
-		return 0;
+		while(true) {
+			// sleep a little bit while we have nothing to do...
+			while(base->isReady()) {
+				SDL_Delay(100);
+				if(base->shouldBreakThread()) {
+					//printf("got break signal(1) for %i\n", (long)base);
+					return 0;				
+				}
+			}
+			
+			// start the main search
+			ret = base->findPath(base->start);
+			
+			// was there a break-signal?
+			if(base->shouldBreakThread()) {
+				//printf("got break signal(2) for %i\n", (long)base);
+				return 0;			
+			}
+
+			// we are ready now
+			base->resulted_path = ret;
+			base->setReady(true);
+		}
 	}
 	
+public:	
 	inline bool isReady() {
 		bool ret = false;
 		lock();
@@ -753,9 +765,15 @@ public:
 		return ret;
 	}
 
+	inline void setReady(bool state) {
+		lock();
+		thread_is_ready = state;
+		unlock();		
+	}
+
+	// WARNING: not thread safe; call isReady before
 	inline NEW_ai_node_t* resultedPath() {
-		// WARNING: not thread safe; call IsReady before
-		return resulted_path;	
+		return resulted_path;
 	}
 
 private:
@@ -763,9 +781,15 @@ private:
 	SDL_Thread* thread;
 	SDL_mutex* thread_mut;
 	bool thread_is_ready;
+	int break_thread_signal;
+	
+	inline void breakThreadSignal() {
+		// we don't need more thread-safety here, because this will not fail
+		break_thread_signal = 1;
+	}
 
 	inline bool shouldBreakThread() {
-		return isReady();
+		return (break_thread_signal != 0);
 	}
 
 	inline void lock() {
@@ -840,7 +864,8 @@ void CWorm::AI_Shutdown(void)
     psPath = NULL;
     psCurrentNode = NULL;
     if(pnOpenCloseGrid)
-        delete[] pnOpenCloseGrid;	
+        delete[] pnOpenCloseGrid;
+    pnOpenCloseGrid = NULL;
 }
 
 
@@ -3550,10 +3575,6 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 		if(((searchpath_base*)pathSearcher)->isReady()) {
 			NEW_psPath = ((searchpath_base*)pathSearcher)->resultedPath();
 	
-#ifdef _AI_DEBUG
-			pcMap->ClearDebugImage();	
-			NEW_AI_DrawPath(pcMap);
-#endif
 			// have we found something?
 			if(NEW_psPath) {
 				bPathFinished = true;
@@ -3563,13 +3584,19 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 				// Set the current node to the beginning of the path, because we are starting a new one
 				NEW_psCurrentNode = NEW_psPath;
 				
+#ifdef _AI_DEBUG
+				pcMap->ClearDebugImage();	
+				NEW_AI_DrawPath(pcMap);
+#endif
+								
 				fLastCreated = tLX->fCurTime;
 				
 				// Simplify the found path
 				NEW_AI_SimplifyPath(pcMap);					
 				
 				return true;
-			}		
+			}
+			// we don't find anything, so don't return here, but start a new search
 		} else { // the searcher is still searching ...
 			return false;
 		}		
@@ -3578,8 +3605,9 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	// if we are here, we want to start a new search
 	bPathFinished = false;
 	
+	// we are either ready with a current search or we haven't started one, so this is save
 	NEW_AI_CleanupPath();
-		
+	
 	// start a new search
 	((searchpath_base*)pathSearcher)->target.x = (int)trg.x;
 	((searchpath_base*)pathSearcher)->target.y = (int)trg.y;
