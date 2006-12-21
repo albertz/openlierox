@@ -531,21 +531,32 @@ public:
 			// pt is the checkpoint and dist the change to the new target
 			// it will search for the best node starting at the specific pos
 			inline bool operator()(VectorD2<int> pt, VectorD2<int> dist) {
-				static const unsigned short wormsize = 1;
+				static const unsigned short wormsize = 10;
 				bool trace = true;	
-				VectorD2<int> dir;
+				VectorD2<int> dir, start;
+				unsigned short left, right;
 				if(abs(dist.x) >= abs(dist.y))
 					dir.y = 1;
 				else
 					dir.x = 1;
-				pt -= dir*(wormsize-1)/2;	
+				start = pt;
+				pt += dir;
 				
+				// ensure, that the way has at least the width of wormsize
 				base->pcMap->lockFlags();				
-				for(unsigned short i = 0; trace && i < wormsize; i++, pt += dir)
+				trace = simpleTraceLine(base->pcMap, pt, dist, PX_ROCK);
+				for(left = 0; trace && left < wormsize; pt += dir) {
 					trace = simpleTraceLine(base->pcMap, pt, dist, PX_ROCK);
+					if(trace) left++;			
+				}
+				pt = start - dir; trace = true;
+				for(right = 0; trace && right < (wormsize-left); right++, pt -= dir) {
+					trace = simpleTraceLine(base->pcMap, pt, dist, PX_ROCK);
+					if(trace) right++;
+				}				
 				base->pcMap->unlockFlags();
 				
-				if(trace) {
+				if(left+right >= wormsize) {
 					// we can start a new search from this point (targ)
 					NEW_ai_node_t* node = base->findPath(pt + dist);
 					if(node) {
@@ -699,7 +710,8 @@ public:
 		a = new area_item(this);
 		pcMap->lockFlags();
 		a->area = getMaxFreeArea(start, pcMap, PX_ROCK);
-		pcMap->unlockFlags();
+		pcMap->unlockFlags();		
+		// TODO: check if good enough
 		a->initChecklists();
 		areas.insert(a);		
 #ifdef _AI_DEBUG
@@ -960,10 +972,10 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     // If we have a good shooting 'solution', shoot
 	// TODO: join AI_CanShoot and AI_Shoot
     if(AI_CanShoot(pcMap, gametype)) {
-
+ 
         // Shoot
         AI_Shoot(pcMap);
-        
+  
         // jump, move and carve around
     	ws->iJump = true;
     	ws->iMove = true;
@@ -975,8 +987,8 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 			iDirection = !iDirection;
 			fLastTurn = tLX->fCurTime;
 		}
-*/
-
+*/  
+  
         return;
         
     } else {
@@ -2757,6 +2769,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
 				tState.iJump = true;
 			fBadAimTime = 0;
 		}
+  
         return;
 	}
 
@@ -4518,6 +4531,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	else
 		fRopeAttachedTime = 0;
 			
+	// release the rope if we used it to long
+	if (fRopeAttachedTime > 2.0f)
+		cNinjaRope.Release();
+			
 	if (fRopeHookFallingTime >= 2.0f)  {
 		// Release & walk
 		cNinjaRope.Release();
@@ -4527,11 +4544,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
     cPosTarget = AI_GetTargetPos();
 
+/*    
     // If we're really close to the target, perform a more precise type of movement
     if(fabs(vPos.x - cPosTarget.x) < 20 && fabs(vPos.y - cPosTarget.y) < 20) {
         AI_PreciseMove(pcMap);
         return;
     }
+*/
 
     // If we're stuck, just get out of wherever we are
     if(bStuck) {
@@ -4586,12 +4605,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	}
 */
     
-	// Check
-	if (!NEW_psPath || !NEW_psLastNode)  {
-		//printf("Pathfinding problem 1; \n");
-		return;
-	}
-
 /*
 	// Deviated?
 	if(fabs(NEW_psPath->fX-vPos.x) > nDeviation || fabs(NEW_psPath->fY-vPos.y) > nDeviation)
@@ -4605,17 +4618,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         NEW_AI_CreatePath(pcMap);
 */
 
-	// If the CreatePath hasn't created whole path, we'll try to finish it
-/*	if (!bPathFinished && !recalculate && (tLX->fCurTime-fLastCompleting <= 0.2f))  {
-		fLastCompleting = tLX->fCurTime;
-// this will not work anymore
-//		NEW_AI_ProcessPath(CVec(NEW_psPath->fX,NEW_psPath->fY),vPos,pcMap);
-		if (!NEW_psPath || !NEW_psLastNode)
-			return;
-#ifdef _AI_DEBUG
-		NEW_AI_DrawPath(pcMap);
-#endif
-	}*/
 
     /*
       Move through the path.
@@ -4659,7 +4661,56 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       We have walking, jumping, move-through-air, and a ninja rope to help us.
     */   
 
-    
+    /*
+      If there is dirt between us and the next node, don't shoot a ninja rope
+      Instead, carve
+    */
+    bool fireNinja = true;
+    float traceDist = -1;
+    int type = 0;
+	if (!NEW_psCurrentNode)
+		return;
+    CVec v = CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY);
+    int length = traceLine(v, pcMap, &traceDist, &type);
+    float dist = CalculateDistance(v, vPos);
+    if((float)length <= dist && (type & PX_DIRT)) {
+		// release rope, if it is atached and above
+		if(cNinjaRope.isAttached() && cNinjaRope.getHookPos().y - 5.0f > v.y)
+			cNinjaRope.Release();
+		fireNinja = false;
+		
+		// Jump, if the node is above us
+		if (v.y+10.0f < vPos.y)
+			if (tLX->fCurTime - fLastJump > 1.0f)  {
+				ws->iJump = true;
+				fLastJump = tLX->fCurTime;
+			}
+
+        ws->iMove = true;
+		// Don't carve so fast!
+		if (tLX->fCurTime-fLastCarve > 0.2f)  {
+			fLastCarve = tLX->fCurTime;
+			ws->iCarve = true; // Carve
+			if (NEW_psCurrentNode->fY < vPos.y)
+				ws->iJump = true;
+		}
+		else  {
+			ws->iCarve = false;
+			//ws->iJump = false;
+		}
+
+		// If the node is right above us, use a carving weapon
+		if (fabs(v.x-vPos.x) <= 50) 
+			if (v.y < vPos.y)  {
+				int wpn;
+				if((wpn = AI_FindClearingWeapon()) != -1) {
+					iCurrentWeapon = wpn;
+					ws->iShoot = true;
+				} else
+					AI_SimpleMove(pcMap,psAITarget != NULL); // no weapon found, so move around
+			}
+    }
+ 
      
 	//
 	//	Shooting the rope
@@ -4667,31 +4718,29 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
     // If the node is above us by a lot, we should use the ninja rope
 	// If the node is far, jump and use the rope, too
-	bool fireNinja = NEW_psCurrentNode->fY+20 < vPos.y;
-	if (!fireNinja && (fabs(NEW_psCurrentNode->fX-vPos.x) >= 50))  {
-		// On ground? Jump
-		if (CheckOnGround(pcMap))  {
-			if (tLX->fCurTime - fLastJump > 1.0f)  {
-				ws->iJump = true;
-				fLastJump = tLX->fCurTime;
-				// Rope will happen soon
+	if(fireNinja) {
+		fireNinja = (NEW_psCurrentNode->fY+20 < vPos.y);
+		if (!fireNinja && (fabs(NEW_psCurrentNode->fX-vPos.x) >= 50))  {
+			// On ground? Jump
+			if(CheckOnGround(pcMap)) {
+				if (tLX->fCurTime - fLastJump > 1.0f)  {
+					ws->iJump = true;
+					fLastJump = tLX->fCurTime;
+					// Rope will happen soon
+				}
 			}
+			// Not on ground? Shoot the rope
+			else 
+				fireNinja = true;
 		}
-		// Not on ground? Shoot the rope
-		else 
-			fireNinja = true;
 	}
-
+	
 	bool aim = false;
 
     if(fireNinja) {
-        
-
-		CVec cAimPos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
-
+ 
 		// Get the best spot to shoot the rope to
-	//	pcMap->ClearDebugImage();
-		cAimPos = NEW_AI_GetBestRopeSpot(cAimPos,pcMap);
+		CVec cAimPos = NEW_AI_GetBestRopeSpot(nodePos,pcMap);
 
 /*
 		// If the path is going up, get an average position of the two nodes
@@ -4737,6 +4786,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
                         cNinjaRope.Shoot(vPos,dir);
                 }
             }
+            ws->iJump = true;
         }
         
     } else { // not fireNinja
@@ -4810,9 +4860,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			cNinjaRope.Release();
 	}*/
 
-    // Walk only if the target is a good distance on either side
-    if(fabs(vPos.x - NEW_psCurrentNode->fX) > 30)
-		ws->iMove = true;
+	ws->iMove = true;
 
 
 /*
@@ -4829,60 +4877,12 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	}
 */
 
-	// If we're moving or jumping, we should release the rope, because it could do bad things with us
-	if ((ws->iMove || ws->iJump) && fRopeAttachedTime > 2.0f)
-		cNinjaRope.Release();
     
 
 
-    /*
-      If there is dirt between us and the next node, don't shoot a ninja rope
-      Instead, carve
-    */
-    float traceDist = -1;
-    int type = 0;
-	if (!NEW_psCurrentNode)
-		return;
-    CVec v = CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY);
-    int length = traceLine(v, pcMap, &traceDist, &type);
-    float dist = CalculateDistance(v, vPos);
-    if((float)length <= dist && (type & PX_DIRT)) {
-		cNinjaRope.Release();
-
-		// Jump, if the node is above us
-		if (v.y+10.0f < vPos.y)
-			if (tLX->fCurTime - fLastJump > 1.0f)  {
-				ws->iJump = true;
-				fLastJump = tLX->fCurTime;
-			}
-
-        ws->iMove = true;
-		// Don't carve so fast!
-		if (tLX->fCurTime-fLastCarve > 0.2f)  {
-			fLastCarve = tLX->fCurTime;
-			ws->iCarve = true; // Carve
-			if (NEW_psCurrentNode->fY < vPos.y)
-				ws->iJump = true;
-		}
-		else  {
-			ws->iCarve = false;
-			ws->iJump = false;
-		}
-
-		// If the node is right above us, use a carving weapon
-		if (fabs(v.x-vPos.x) <= 50) 
-			if (v.y < vPos.y)  {
-				int wpn;
-				if((wpn = AI_FindClearingWeapon()) != -1) {
-					iCurrentWeapon = wpn;
-					ws->iShoot = true;
-				} else
-					AI_SimpleMove(pcMap,psAITarget != NULL); // no weapon found, so move around
-			}
-    }
 
 
-
+/*
     // If we're above the node, let go of the rope and move towards to node
     if(NEW_psCurrentNode->fY >= vPos.y) {
         // Let go of any rope
@@ -4891,7 +4891,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         // Walk in the direction of the node
         ws->iMove = true;
     }
-
+*/
   
 /*	
 	// TODO: do we realy need this? there is a loop above, which checks for direct connections to new nodes

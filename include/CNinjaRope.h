@@ -69,11 +69,11 @@ public:
 	void		write(CBytestream *bs);
 	void		read(CBytestream *bs, CWorm *worms, int owner);
 
-    CVec        getHookPos(void)        { return HookPos; }
-    int         isAttached(void)        { return HookAttached; }
-    int         isShooting(void)        { return HookShooting; }
-    float       getRestLength(void)     { return RestLength; }
-	float		getMaxLength(void)		{ return RopeLength; }
+    inline CVec getHookPos(void) const       { return HookPos; }
+    inline int   isAttached(void) const       { return HookAttached; }
+    inline int   isShooting(void)  const      { return HookShooting; }
+    inline float getRestLength(void) const    { return RestLength; }
+	inline float getMaxLength(void)	const	{ return RopeLength; }
 
 
 
