@@ -338,7 +338,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 
 
 NEW_ai_node_t* createNewAiNode(float x, float y, NEW_ai_node_t* next = NULL, NEW_ai_node_t* prev = NULL) {
-	NEW_ai_node_t* tmp = new NEW_ai_node_t;
+	NEW_ai_node_t* tmp = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 	tmp->fX = x; tmp->fY = y;
 	tmp->psNext = next; tmp->psPrev = prev;
 	return tmp;
@@ -346,7 +346,7 @@ NEW_ai_node_t* createNewAiNode(float x, float y, NEW_ai_node_t* next = NULL, NEW
 
 NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 	if(!base) return NULL;
-	NEW_ai_node_t* tmp = new NEW_ai_node_t;
+	NEW_ai_node_t* tmp = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
 	tmp->fX = base->fX; tmp->fY = base->fY;
 	tmp->psNext = base->psNext; tmp->psPrev = base->psPrev;
 	return tmp;
@@ -557,7 +557,7 @@ public:
 							// yes, it is better
 							// delete an old node if present							
 							if(myArea->bestNode)
-								delete myArea->bestNode;
+								free(myArea->bestNode);
 							// save the new info
 							bestNodeLen = node_len;
 							myArea->bestPosInside = pt;
@@ -570,7 +570,7 @@ public:
 						} else {
 							// we found something, but it is not good
 							// clean up (we ensure in the rest of the code, that we got a new node here)
-							delete node;
+							free(node);
 						}
 					}
 				}
@@ -587,6 +587,7 @@ public:
 			// did we find any?
 			if(bestNode) {
 				// start at the pos inside of the area
+				// TODO: not both of them are freed
 				bestNode = createNewAiNode(bestPosOutside.x, bestPosOutside.y, bestNode);
 				bestNode = createNewAiNode(bestPosInside.x, bestPosInside.y, bestNode);
 				return bestNode;
@@ -612,6 +613,7 @@ public:
 		break_thread_signal(0) {
 		thread_mut = SDL_CreateMutex();
 		//printf("starting thread for %i ...\n", (long)this);
+		// TODO: it will not freed in every case (says valgrind)
 		thread = SDL_CreateThread(threadSearch, this);
 	}
 	
@@ -3551,7 +3553,7 @@ void CWorm::NEW_AI_CleanupPath(void)
 	NEW_ai_node_t *next = NULL;
 	for (;node;node=next)  {
 		next = node->psNext;
-		delete node;
+		free(node);
 		node = NULL;
 	}
 
