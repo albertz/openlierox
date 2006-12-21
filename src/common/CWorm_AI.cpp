@@ -26,6 +26,7 @@
 // we cannot define this globaly because some X11-header also defines this (which is not included here, so this works)
 extern	SDL_Surface		*Screen;
 
+static const unsigned short wormsize = 7;
 
 
 /*
@@ -531,7 +532,6 @@ public:
 			// pt is the checkpoint and dist the change to the new target
 			// it will search for the best node starting at the specific pos
 			inline bool operator()(VectorD2<int> pt, VectorD2<int> dist) {
-				static const unsigned short wormsize = 10;
 				bool trace = true;	
 				VectorD2<int> dir, start;
 				unsigned short left, right;
@@ -707,24 +707,29 @@ public:
 		}
 		
 		// get the max area (rectangle) around us
-		a = new area_item(this);
 		pcMap->lockFlags();
-		a->area = getMaxFreeArea(start, pcMap, PX_ROCK);
+		SquareMatrix<int> area = getMaxFreeArea(start, pcMap, PX_ROCK);
 		pcMap->unlockFlags();		
-		// TODO: check if good enough
-		a->initChecklists();
-		areas.insert(a);		
+		if(area.v2.x-area.v1.x >= wormsize && area.v2.y-area.v1.y >= wormsize) {
+			a = new area_item(this);
+			a->area = area;
+			a->initChecklists();
+			areas.insert(a);		
 #ifdef _AI_DEBUG
-/*		printf("findPath( %i, %i )\n", start.x, start.y);
-		printf("   new area:\n");
-		printf("   ( %i, %i, %i, %i )\n", a->area.v1.x, a->area.v1.y, a->area.v2.x, a->area.v2.y); */
-/*		DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
-		cClient->Draw(Screen); // dirty dirty...
-		FlipScreen(Screen); */
-#endif
+/*			printf("findPath( %i, %i )\n", start.x, start.y);
+			printf("   new area:\n");
+			printf("   ( %i, %i, %i, %i )\n", a->area.v1.x, a->area.v1.y, a->area.v2.x, a->area.v2.y); */
+/*					
+			DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
+			cClient->Draw(Screen); // dirty dirty...
+			FlipScreen(Screen); */
+#endif			
+			// and search 
+			return a->process(start);
+		}
 		
-		// and search 
-		return a->process(start);
+		// the max area around us is to small
+		return NULL;
 	}
 	
 	// this function will start the search, if it was not started right now
