@@ -123,7 +123,7 @@ void CBonus::Simulate(CMap *map, float dt)
 			return;
 		}
 
-		uchar *pf = map->GetPixelFlags() + y*mw + px-2;
+		const uchar *pf = map->GetPixelFlags() + y*mw + px-2;
 
 		for(x=px-2; x<=px+2; x++) {
 

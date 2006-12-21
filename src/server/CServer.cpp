@@ -1345,13 +1345,6 @@ void CServer::ShutdownLog(void)
 void CServer::Shutdown(void)
 {
 	int i;
-	if(cMap) {
-		int bCreated = cMap->getCreated();
-		cMap->Shutdown();
-		if(bCreated)
-			delete cMap;
-		cMap = NULL;
-	}
 
 	if(IsSocketStateValid(tSocket))
 		CloseSocket(tSocket);
@@ -1369,6 +1362,14 @@ void CServer::Shutdown(void)
 			cWorms[i].Shutdown();
 		delete[] cWorms;
 		cWorms = NULL;
+	}
+
+	if(cMap) {
+		int bCreated = cMap->getCreated();
+		cMap->Shutdown();
+		if(bCreated)
+			delete cMap;
+		cMap = NULL;
 	}
 
 	ShutdownLog();

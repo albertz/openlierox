@@ -18,7 +18,6 @@
 #pragma warning(disable: 4786)
 #endif
 #include <set>
-#include <SDL/SDL_thread.h>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -36,63 +35,6 @@ extern	SDL_Surface		*Screen;
 
 ===============================
 */
-
-
-///////////////////
-// Initialize the AI
-bool CWorm::AI_Initialize(CMap *pcMap)
-{
-    assert(pcMap);
-
-    // Because this can be called multiple times, shutdown any previous allocated data
-    AI_Shutdown();
-
-    // Allocate the Open/Close grid
-    nGridCols = pcMap->getGridCols();
-    nGridRows = pcMap->getGridRows();
-
-    pnOpenCloseGrid = new int[nGridCols*nGridRows];
-    if(!pnOpenCloseGrid)
-        return false;
-
-    psPath = NULL;
-    psCurrentNode = NULL;
-    fLastCarve = -9999;
-    cStuckPos = CVec(-999,-999);
-    fStuckTime = -9999;
-    fLastPathUpdate = -9999;
-	fLastJump = -9999;
-	fLastCarve = -9999;
-	fLastCreated = -9999;
-    bStuck = false;
-	bPathFinished = true;
-	//iAiGameType = GAM_OTHER;
-	nAITargetType = AIT_NONE;
-	nAIState = AI_THINK;
-
-	fRopeAttachedTime = 0;
-	fRopeHookFallingTime = 0;
-
-	
-    return true;
-}
-
-
-///////////////////
-// Shutdown the AI stuff
-void CWorm::AI_Shutdown(void)
-{
-//	NEW_AI_CleanupStoredNodes();
-    NEW_AI_CleanupPath();
-    AI_CleanupPath(psPath);
-	NEW_psPath = NULL;
-	NEW_psCurrentNode = NULL;
-	NEW_psLastNode = NULL;
-    psPath = NULL;
-    psCurrentNode = NULL;
-    if(pnOpenCloseGrid)
-        delete[] pnOpenCloseGrid;
-}
 
 
 /*
@@ -124,8 +66,8 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 	//SDL_Surface *bmpDest = pcMap->GetDebugImage();
 #endif
 	
-	uchar* pxflags = pcMap->GetPixelFlags();
-	uchar* gridflags = pcMap->getAbsoluteGridFlags();
+	const uchar* pxflags = pcMap->GetPixelFlags();
+	const uchar* gridflags = pcMap->getAbsoluteGridFlags();
 	int map_w = pcMap->GetWidth();
 	int map_h = pcMap->GetHeight();	
     int grid_w = pcMap->getGridWidth();
@@ -282,8 +224,8 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
     int grid_w = pcMap->getGridWidth();
     int grid_h = pcMap->getGridHeight();
 	int grid_cols = pcMap->getGridCols();
-	uchar* pxflags = pcMap->GetPixelFlags();
-	uchar* gridflags = pcMap->getAbsoluteGridFlags();
+	const uchar* pxflags = pcMap->GetPixelFlags();
+	const uchar* gridflags = pcMap->getAbsoluteGridFlags();
 	
 	SquareMatrix<int> ret;
 	ret.v1 = p; ret.v2 = p;
@@ -415,9 +357,9 @@ NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 // these function will either go parallel to the x-axe or parallel to the y-axe
 // (depends on which of them is the absolute greatest)
 inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
-	uchar* pxflags = pcMap->GetPixelFlags();
-	int map_w; map_w = pcMap->GetWidth();
-	int map_h; map_h = pcMap->GetHeight();	
+	const uchar* pxflags = pcMap->GetPixelFlags();
+	int map_w = pcMap->GetWidth();
+	int map_h = pcMap->GetHeight();	
 	
 	if(abs(dist.x) >= abs(dist.y)) {
 		if(dist.x < 0) { // avoid anoying checks
@@ -521,7 +463,7 @@ public:
 
 			typedef std::multiset< VectorD2<int>, VectorD2__absolute_less<int> > p_mset;			
 			// the set point here defines, where the 'best' point is (the sorting depends on it)
-			p_mset points(VectorD2__absolute_less<int>((base->target + getCenter()*2 - start) / 2));
+			p_mset points(VectorD2__absolute_less<int>((base->target))); // + getCenter()*2 - start) / 2));
 
 			// insert now the points to the list
 			// the list will sort itself
@@ -589,7 +531,6 @@ public:
 			// pt is the checkpoint and dist the change to the new target
 			// it will search for the best node starting at the specific pos
 			inline bool operator()(VectorD2<int> pt, VectorD2<int> dist) {
-				
 				static const unsigned short wormsize = 1;
 				bool trace = true;	
 				VectorD2<int> dir;
@@ -598,8 +539,11 @@ public:
 				else
 					dir.x = 1;
 				pt -= dir*(wormsize-1)/2;	
+				
+				base->pcMap->lockFlags();				
 				for(unsigned short i = 0; trace && i < wormsize; i++, pt += dir)
 					trace = simpleTraceLine(base->pcMap, pt, dist, PX_ROCK);
+				base->pcMap->unlockFlags();
 				
 				if(trace) {
 					// we can start a new search from this point (targ)
@@ -664,18 +608,21 @@ public:
 	searchpath_base() :
 		pcMap(NULL),
 		thread_is_ready(true),
-		resulted_path(NULL) {
+		resulted_path(NULL),
+		thread(NULL) {
 		thread_mut = SDL_CreateMutex();
 	}
 		
 	~searchpath_base() {
 		// thread cleaning up
-		if(!IsReady()) {
-			Lock();
+		if(!isReady()) {
+			lock();
 			thread_is_ready = true;
-			Unlock();
+			unlock();
 			SDL_WaitThread(thread, NULL);
+			thread = NULL;
 		}
+		if(thread) SDL_WaitThread(thread, NULL);
 		SDL_DestroyMutex(thread_mut);
 		
 		clear_areas();
@@ -716,17 +663,24 @@ private:
 	}
 		
 public:	
-	NEW_ai_node_t* findPath(VectorD2<int> start) {		
+	NEW_ai_node_t* findPath(VectorD2<int> start) {
+		// lower priority to this thread
+		SDL_Delay(1);
+		if(shouldBreakThread()) return NULL;
+		
 		// is the start inside of the map?
 		if(start.x < 0 || start.x >= pcMap->GetWidth() 
 		|| start.y < 0 || start.y >= pcMap->GetHeight())
 			return NULL;
 		
 		// can we just finish with the search?
+		pcMap->lockFlags();
 		if(traceWormLine(target, start, pcMap)) {
+			pcMap->unlockFlags();
 			// yippieh!
 			return createNewAiNode(target.x, target.y);
 		}
+		pcMap->unlockFlags();
 		
 		// look around for an existing area here
 		area_item* a = getArea(start);		
@@ -742,7 +696,9 @@ public:
 		
 		// get the max area (rectangle) around us
 		a = new area_item(this);
+		pcMap->lockFlags();
 		a->area = getMaxFreeArea(start, pcMap, PX_ROCK);
+		pcMap->unlockFlags();
 		a->initChecklists();
 		areas.insert(a);		
 #ifdef _AI_DEBUG
@@ -760,38 +716,44 @@ public:
 
 	
 	// this function will start the search, if it was not started right now
-	void StartThreadSearch() {
-		if(!IsReady()) return;
+	void startThreadSearch() {
+		// if some other thread still isn't ready, do nothing (let him finish)
+		if(!isReady()) return;
+		
+		// this wait is only needed, if the thread still 'hangs' at the last lines
+		if(thread) SDL_WaitThread(thread, NULL);
+		
+		clear_areas();
 		
 		resulted_path = NULL;
 		thread_is_ready = false;
-		thread = SDL_CreateThread(ThreadSearch, this);
+		thread = SDL_CreateThread(threadSearch, this);
 	}
 
 	// main-function used by the thread
-	static int ThreadSearch(void* b) {
+	static int threadSearch(void* b) {
 		searchpath_base* base = (searchpath_base*)b;
 		
 		// start the main search
 		base->resulted_path = base->findPath(base->start);
 		
 		// we are ready now
-		base->Lock();
+		base->lock();
 		base->thread_is_ready = true;
-		base->Unlock();
+		base->unlock();
 		
 		return 0;
 	}
 	
-	inline bool IsReady() {
+	inline bool isReady() {
 		bool ret = false;
-		Lock();
+		lock();
 		ret = thread_is_ready;
-		Unlock();
+		unlock();
 		return ret;
 	}
 
-	inline NEW_ai_node_t* ResultedPath() {
+	inline NEW_ai_node_t* resultedPath() {
 		// WARNING: not thread safe; call IsReady before
 		return resulted_path;	
 	}
@@ -802,19 +764,86 @@ private:
 	SDL_mutex* thread_mut;
 	bool thread_is_ready;
 
-	inline bool ShouldBreakThread() {
-		return IsReady();
+	inline bool shouldBreakThread() {
+		return isReady();
 	}
 
-	inline void Lock() {
+	inline void lock() {
 		SDL_mutexP(thread_mut);	
 	}
 	
-	inline void Unlock() {
+	inline void unlock() {
 		SDL_mutexV(thread_mut);
 	}
 	
 }; // class searchpath_base
+
+
+
+///////////////////
+// Initialize the AI
+bool CWorm::AI_Initialize(CMap *pcMap)
+{
+    assert(pcMap);
+
+    // Because this can be called multiple times, shutdown any previous allocated data
+    AI_Shutdown();
+
+    // Allocate the Open/Close grid
+    nGridCols = pcMap->getGridCols();
+    nGridRows = pcMap->getGridRows();
+
+    pnOpenCloseGrid = new int[nGridCols*nGridRows];
+    if(!pnOpenCloseGrid)
+        return false;
+
+    psPath = NULL;
+    psCurrentNode = NULL;
+    fLastCarve = -9999;
+    cStuckPos = CVec(-999,-999);
+    fStuckTime = -9999;
+    fLastPathUpdate = -9999;
+	fLastJump = -9999;
+	fLastCarve = -9999;
+	fLastCreated = -9999;
+    bStuck = false;
+	bPathFinished = true;
+	//iAiGameType = GAM_OTHER;
+	nAITargetType = AIT_NONE;
+	nAIState = AI_THINK;
+
+	fRopeAttachedTime = 0;
+	fRopeHookFallingTime = 0;
+
+	pathSearcher = new searchpath_base;
+	if(!pathSearcher)
+		return false;
+	((searchpath_base*)pathSearcher)->pcMap = pcMap;
+
+    return true;
+}
+
+
+///////////////////
+// Shutdown the AI stuff
+void CWorm::AI_Shutdown(void)
+{
+	if(pathSearcher)
+		delete ((searchpath_base*)pathSearcher);
+	pathSearcher = NULL;
+		
+    NEW_AI_CleanupPath();
+    AI_CleanupPath(psPath);
+	NEW_psPath = NULL;
+	NEW_psCurrentNode = NULL;
+	NEW_psLastNode = NULL;
+    psPath = NULL;
+    psCurrentNode = NULL;
+    if(pnOpenCloseGrid)
+        delete[] pnOpenCloseGrid;	
+}
+
+
 
 
 
@@ -894,9 +923,12 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 	float dt = tLX->fDeltaTime;
 
     // Every 3 seconds we run the think function
-	// TODO: this can be a problem for pathfinding
     if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
         nAIState = AI_THINK;
+
+	// check if the searching is ready
+	if(!bPathFinished)
+		nAIState = AI_THINK;
 
     // If we have a good shooting 'solution', shoot
 	// TODO: join AI_CanShoot and AI_Shoot
@@ -3134,7 +3166,7 @@ bool CWorm::IsEmpty(int Cell, CMap *pcMap)
   dy /= 2;
   DrawRect(pcMap->GetImage(),dx,dy,dx+pcMap->GetWidth()/pcMap->getGridCols(),dy+pcMap->GetHeight()/pcMap->getGridRows(),0xFFFF);*/
 
-  uchar   *f = pcMap->getGridFlags() + cy*pcMap->getGridWidth()+cx;
+  const uchar   *f = pcMap->getGridFlags() + cy*pcMap->getGridWidth()+cx;
   bEmpty = *f == PX_EMPTY;
 
   return bEmpty;
@@ -3499,6 +3531,7 @@ void CWorm::NEW_AI_CleanupPath(void)
 	}
 
 	NEW_psPath = NULL;
+	NEW_psCurrentNode = NULL;
 }
 
 ////////////////////
@@ -3512,42 +3545,48 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	
 	CVec trg = AI_GetTargetPos();
 	
-	bPathFinished = true; // treat it like this; TODO: this will work perhaps later
+	if(!bPathFinished) {
+		// have we finished a current search?
+		if(((searchpath_base*)pathSearcher)->isReady()) {
+			NEW_psPath = ((searchpath_base*)pathSearcher)->resultedPath();
 	
-#ifdef _AI_DEBUG	
-	pcMap->ClearDebugImage();	
-#endif
-
-	// Create a new path
-	if(bPathFinished) // this indicates, that we should start a new one
-		NEW_AI_CleanupPath();
-		
-	searchpath_base* search = new searchpath_base;
-	search->pcMap = pcMap;
-	search->target.x = (int)trg.x;
-	search->target.y = (int)trg.y;
-	NEW_psPath = search->findPath(VectorD2<int>(vPos));
-	delete search;
-	NEW_psLastNode = get_last_ai_node(NEW_psPath);
-
-	if(bPathFinished)
-		// Set the current node to the beginning of the path, because we are starting a new one
-		NEW_psCurrentNode = NEW_psPath;
-
-	if(NEW_psPath)	
-		bPathFinished = true;
-	
-	if(bPathFinished) {
-		fLastCreated = tLX->fCurTime;
-		// Simplify the found path
-		NEW_AI_SimplifyPath(pcMap);	
-	}
-
 #ifdef _AI_DEBUG
-	NEW_AI_DrawPath(pcMap);
+			pcMap->ClearDebugImage();	
+			NEW_AI_DrawPath(pcMap);
 #endif
-
-	return NEW_psPath != NULL;
+			// have we found something?
+			if(NEW_psPath) {
+				bPathFinished = true;
+				
+				NEW_psLastNode = get_last_ai_node(NEW_psPath);
+				
+				// Set the current node to the beginning of the path, because we are starting a new one
+				NEW_psCurrentNode = NEW_psPath;
+				
+				fLastCreated = tLX->fCurTime;
+				
+				// Simplify the found path
+				NEW_AI_SimplifyPath(pcMap);					
+				
+				return true;
+			}		
+		} else { // the searcher is still searching ...
+			return false;
+		}		
+	}
+	
+	// if we are here, we want to start a new search
+	bPathFinished = false;
+	
+	NEW_AI_CleanupPath();
+		
+	// start a new search
+	((searchpath_base*)pathSearcher)->target.x = (int)trg.x;
+	((searchpath_base*)pathSearcher)->target.y = (int)trg.y;
+	((searchpath_base*)pathSearcher)->start = VectorD2<int>(vPos);
+	((searchpath_base*)pathSearcher)->startThreadSearch();
+	
+	return false;
 }
 
 //////////////////////
@@ -3782,7 +3821,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 	unsigned short i = 0;
 	int map_w = pcMap->GetWidth();
 	int map_h = pcMap->GetHeight();
-	uchar* pxflags = pcMap->GetPixelFlags();
+	const uchar* pxflags = pcMap->GetPixelFlags();
 	CVec pos = vStart;
 	CVec best = vStart;
 	CVec end = pos;
@@ -3993,7 +4032,7 @@ CVec CWorm::NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pc
 }
 
 void CWorm::AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
-	NEW_ai_node_t* tmpnode = NULL;
+/*	NEW_ai_node_t* tmpnode = NULL;
 	short s1, s2;
 	for(NEW_ai_node_t* n = start; n && n->psNext && n != end; n = n->psNext) {
 		s1 = (n->fX > n->psNext->fX) ? 1 : -1;
@@ -4016,23 +4055,23 @@ void CWorm::AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 				n->psNext = tmpnode;
 			}			
 		}
-	}
+	} */
 }
 
 void CWorm::AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
-	AI_splitUpNodes(start, end);
+/*	AI_splitUpNodes(start, end);
 	
 	for(NEW_ai_node_t* n = start; n; n = n->psNext) {
 		storedNodes.insert(nodes_pair(CVec(n->fX,n->fY)/nodesGridWidth, n));
 		if(n == end) break;
-	}
+	} */
 }
 
 ///////////////////
 // Process the path
 NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep)
 {
-	// Too many recursions? End
+/*	// Too many recursions? End
 	// (but: a higher value can result in more results which can also be faster)
 	if (recDeep > 7)
 		return NULL;
@@ -4173,7 +4212,7 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 	target->psNext->psNext = newNode;
 	if(newNode) newNode->psPrev = target->psNext;
 	AI_storeNodes(target, target->psNext);
-
+*/
 /*#ifdef _AI_DEBUG
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 	if (bmpDest)  {
@@ -4193,7 +4232,8 @@ NEW_ai_node_t* CWorm::NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsign
 
 #endif*/
 		
-	return target;
+	//return target;
+	return NULL;
 }
 
 ////////////////
@@ -4316,7 +4356,7 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 	float ang = 0;
 	
 	SquareMatrix<float> step_m = SquareMatrix<float>::RotateMatrix(-step);
-	bestropespot_collision_action action(trg+CVec(0,-10));
+	bestropespot_collision_action action(trg+CVec(0,-50));
 #ifdef _AI_DEBUG
 	action.pcMap = pcMap;	
 #endif
@@ -4833,13 +4873,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 }
 
 void CWorm::NEW_AI_CleanupStoredNodes() {
-	for(nodes_map::iterator it = storedNodes.begin(); it != storedNodes.end(); ++it)
+/*	for(nodes_map::iterator it = storedNodes.begin(); it != storedNodes.end(); ++it)
 		if(it->second) {
 			free(it->second);
 			it->second = NULL;		
 		}
 
-	storedNodes.clear();
+	storedNodes.clear(); */
 }
 
 NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n) {

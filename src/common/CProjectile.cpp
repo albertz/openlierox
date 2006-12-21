@@ -342,7 +342,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 		}
 
 		
-		uchar *pf = map->GetPixelFlags() + y*mw + px-w;
+		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
 
 		for(x=px-w;x<=px+w;x++) {
 

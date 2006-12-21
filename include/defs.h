@@ -57,6 +57,7 @@ inline int mkdir(const char *path, int mode) { return _mkdir(path); }
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_thread.h>
 
 
 #include <nl.h>

@@ -77,7 +77,7 @@ int CheckCollision(CVec pos, CVec vel, int width, int height, CMap *map)
 		}
 
 		
-		uchar *pf = map->GetPixelFlags() + y*mw + px-w;
+		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
 
 		for(x=px-w;x<=px+w;x++) {
 

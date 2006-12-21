@@ -484,7 +484,9 @@ int CMap::CreateSurface(void)
 // Creates the level pixel flags
 int CMap::CreatePixelFlags(void)
 {
+	lockFlags();
 	PixelFlags = new uchar[Width*Height];
+	unlockFlags();
 	if(PixelFlags == NULL) {
 		SetError("CMap::CreatePixelFlags(): Out of memory");
 		return false;
@@ -504,16 +506,16 @@ bool CMap::createGrid(void)
     nGridCols = Width/nGridWidth + 1;
     nGridRows = Height/nGridHeight + 1;
 
+    lockFlags();
     GridFlags = new uchar[nGridCols * nGridRows];
     AbsoluteGridFlags = new uchar[nGridCols * nGridRows];
     if(GridFlags == NULL || AbsoluteGridFlags == NULL) {
         SetError("CMap::CreateGrid(): Out of memory");
         return false;
     }
-    for(register unsigned int i = 0; i < (unsigned int)nGridCols*nGridRows; i++) {
-    	GridFlags[i] = PX_EMPTY;
-    	AbsoluteGridFlags[i] = PX_EMPTY;
-    }
+	memset(GridFlags,PX_EMPTY,nGridCols*nGridRows*sizeof(uchar));
+	memset(AbsoluteGridFlags,PX_EMPTY,nGridCols*nGridRows*sizeof(uchar));    
+	unlockFlags();
 
     return true;
 }
@@ -523,17 +525,20 @@ bool CMap::createGrid(void)
 // Calculate the grid
 void CMap::calculateGrid(void)
 {
+	lockFlags();
     for(int y=0; y<Height; y+=nGridHeight)  {
         for(int x=0; x<Width; x+=nGridWidth) {
             calculateGridCell(x,y, false);
         }
     }
+    unlockFlags();
 }
 
 
 ///////////////////
 // Calculate a single grid cell
 // x & y are pixel locations, not grid cell locations
+// WARNING: not thread-safe (the caller has to ensure the threadsafty!)
 void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
 {
     int i = x/nGridWidth;
@@ -620,8 +625,10 @@ void CMap::TileMap(void)
 	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
 	
 	// Set the pixel flags
+	lockFlags();
 	memset(PixelFlags,PX_DIRT,Width*Height*sizeof(uchar));
-
+	unlockFlags();
+	
     // Calculate the shadowmap
     CalculateShadowMap();
 
@@ -794,6 +801,7 @@ int CMap::CarveHole(int size, CVec pos)
 	uchar *px;
 	Uint8 *p2;
 
+	lockFlags();
 
 	// Go through the pixels in the hole, setting the flags to empty
 	for(y=0,dy=sy,by=16;y<hole->h;y++,dy++,by++) {
@@ -872,7 +880,6 @@ int CMap::CarveHole(int size, CVec pos)
 			px++;
 		}
 	}
-
 	
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
@@ -889,6 +896,8 @@ int CMap::CarveHole(int size, CVec pos)
         }
     }
 
+	unlockFlags();
+	
 	// Update the draw image
 	int draw_x = sx-5;
 	int draw_y = sy-5;
@@ -952,6 +961,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 	uchar *px;
 	Uint8 *p2;
 
+	lockFlags();
 
 	// Go through the pixels in the hole, setting the flags to dirt
 	for(y=0,dy=sy,by=16;y<hole->h;y++,dy++,by++) {
@@ -999,6 +1009,8 @@ int CMap::PlaceDirt(int size, CVec pos)
 			px++;
 		}
 	}
+
+	unlockFlags();
 
 	if(SDL_MUSTLOCK(hole))
 		SDL_UnlockSurface(hole);
@@ -1065,7 +1077,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 	uchar *px;
 	Uint8 *p2;
 
-
+	lockFlags();
+	
 	// Go through the pixels in the hole, setting the flags to dirt
 	for(y=0,dy=sy,by=16; y<h; y++,dy++,by++) {
 
@@ -1110,6 +1123,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 			px++;
 		}
 	}
+
+	unlockFlags();
 
 	if(SDL_MUSTLOCK(bmpGreenMask))
 		SDL_UnlockSurface(bmpGreenMask);
@@ -1162,6 +1177,8 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);
+
+	lockFlags();
 
 	// WARNING: Assumes 16bpp
 
@@ -1231,6 +1248,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 		}
 	}
 
+	unlockFlags();
 
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
@@ -1324,6 +1342,7 @@ void CMap::PlaceStone(int size, CVec pos)
 	if(SDL_MUSTLOCK(stone))
 		SDL_LockSurface(stone);
 
+	lockFlags();
 
 	// WARNING: This requires the stones to be loaded as 16bpp surfaces
 	Uint8 *p = (Uint8 *)stone->pixels;
@@ -1357,6 +1376,8 @@ void CMap::PlaceStone(int size, CVec pos)
 			px++;
 		}
 	}
+
+	unlockFlags();
 
 	if(SDL_MUSTLOCK(stone))
 		SDL_UnlockSurface(stone);
@@ -1414,7 +1435,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 	if(SDL_MUSTLOCK(misc))
 		SDL_LockSurface(misc);
 
-
+	lockFlags();
+	
 	// WARNING: This requires the misc items to be loaded as 16bpp surfaces
 	Uint8 *p = (Uint8 *)misc->pixels;
 	uchar *px = PixelFlags;
@@ -1447,6 +1469,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 			px++;
 		}
 	}
+
+	unlockFlags();
 
 	if(SDL_MUSTLOCK(misc))
 		SDL_UnlockSurface(misc);
@@ -1715,6 +1739,7 @@ int CMap::Load(char *filename)
 	fread(&numobj,		sizeof(int),	1,	fp);
 	EndianSwap(numobj);
 
+/*
 	printf("Level info:\n");
 	printf("  id = %s\n", id);
 	printf("  version = %i\n", version);
@@ -1724,7 +1749,7 @@ int CMap::Load(char *filename)
 	printf("  Type = %i\n", Type);
 	printf("  Theme_Name = %s\n", Theme_Name);
 	printf("  numobj = %i\n", numobj);
-	
+*/	
 	// Create the map
 	if(!New(Width, Height, Theme_Name)) {
 		printf("CMap::Load (%s): ERROR: cannot create map\n", filename);
@@ -1745,6 +1770,7 @@ int CMap::Load(char *filename)
 	Uint16 *p1 = (Uint16 *)bmpImage->pixels;
 	Uint16 *p2 = (Uint16 *)bmpBackImage->pixels;
 
+	lockFlags();
 	for(n=0;n<Width*Height;) {
 		uchar t;
 
@@ -1766,7 +1792,7 @@ int CMap::Load(char *filename)
 			p2++;
 		}
 	}
-
+	unlockFlags();
 
 	// Objects
 	object_t o;
@@ -2018,6 +2044,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	//								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	// Load the pixel flags
+	lockFlags();
 	n=0;
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
@@ -2033,7 +2060,8 @@ int CMap::LoadImageFormat(FILE *fp)
 				PutPixel(pxf, x,y, MakeColour(128,64,64));*/
 		}
 	}
-
+	unlockFlags();
+	
 	//SDL_SaveBMP(pxf, "mat.bmp");
 
     delete[] pSource;
@@ -2146,6 +2174,7 @@ int CMap::LoadOriginal(FILE *fp)
 	}
 	
 	// Set the image
+	lockFlags();
 	n=0;
 	for(y=0;y<Height;y++) {
 		for(x=0;x<Width;x++) {
@@ -2179,6 +2208,7 @@ int CMap::LoadOriginal(FILE *fp)
 			n++;
 		}
 	}
+	unlockFlags();
 
 	// LOL :)
 /*
@@ -2308,6 +2338,8 @@ void CMap::Send(CBytestream *bs)
 // Shutdown the map
 void CMap::Shutdown(void)
 {
+	lockFlags();
+	
 	if(Created) {
 
 		if(bmpImage)
@@ -2387,4 +2419,6 @@ void CMap::Shutdown(void)
 	}
 
 	Created = false;
+	
+	unlockFlags();
 }

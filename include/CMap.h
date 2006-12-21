@@ -29,7 +29,7 @@
 #define		PX_DIRT		0x02
 #define		PX_ROCK		0x04
 #define		PX_SHADOW	0x08
-#define		PX_WORM		0x0f
+#define		PX_WORM		0x10
 
 
 // Object types
@@ -113,8 +113,14 @@ public:
 
 		bMiniMapDirty = true;
         sRandomLayout.bUsed = false;
+        
+        flags_mutex = SDL_CreateMutex();
 	}
 
+	~CMap() {
+		Shutdown();
+		SDL_DestroyMutex(flags_mutex);
+	}
 
 private:
 	// Attributes
@@ -149,6 +155,8 @@ private:
 
 	bool		bMiniMapDirty;
 
+	SDL_mutex*	flags_mutex;
+
 	// Objects
 	int			NumObjects;
 	object_t	*Objects;
@@ -157,6 +165,7 @@ private:
 	// Water
 	int			*m_pnWater1;
 	int			*m_pnWater2;
+
 
 
 public:
@@ -186,6 +195,9 @@ public:
     void        CalculateDirtCount();
     void        CalculateShadowMap();
 
+	inline void	lockFlags()		{ SDL_mutexP(flags_mutex); }
+	inline void unlockFlags()	{ SDL_mutexV(flags_mutex); }
+
     char        *findRandomTheme(char *buf);
     bool        validateTheme(char *name);
 
@@ -200,7 +212,9 @@ public:
     void        DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy);
     void		DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worms, int gametype);
 
-	inline void		SetPixelFlag(int x, int y, int flag)	
+private:
+	// not thread-safe, therefore private	
+	inline void	SetPixelFlag(int x, int y, int flag)	
 	{
 		// Check edges
 		if(x < 0 || y < 0)
@@ -211,7 +225,8 @@ public:
 		PixelFlags[y * Width + x] = flag;
 	}
 
-	inline uchar		GetPixelFlag(int x, int y)
+public:	
+	inline uchar GetPixelFlag(int x, int y)
 	{
 		// Checking edges
 		if(x < 0 || y < 0)
@@ -222,7 +237,7 @@ public:
 		return PixelFlags[y * Width + x];
 	}
 
-	inline uchar	*GetPixelFlags(void)	{ return PixelFlags; }
+	inline const uchar	*GetPixelFlags(void) const	{ return PixelFlags; }
 
 	inline SDL_Surface	*GetDrawImage(void)		{ return bmpDrawImage; }
 	inline SDL_Surface	*GetImage(void)			{ return bmpImage; }
@@ -260,8 +275,8 @@ public:
     inline int         getGridRows(void)   { return nGridRows; }
     inline int         getGridWidth(void)  { return nGridWidth; }
     inline int         getGridHeight(void) { return nGridHeight; }
-    inline uchar       *getGridFlags(void) { return GridFlags; }
-	inline uchar		*getAbsoluteGridFlags() { return AbsoluteGridFlags; }
+    inline const uchar *getGridFlags(void) { return GridFlags; }
+	inline const uchar	*getAbsoluteGridFlags() { return AbsoluteGridFlags; }
 	inline int			getCreated(void)	{ return Created; }
 
 

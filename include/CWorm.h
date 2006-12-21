@@ -284,10 +284,9 @@ private:
     ai_node_t   *psCurrentNode;
 	float       fLastPathUpdate;
 	bool		bPathFinished;
-
-	nodes_map storedNodes;
-	float nodesGridWidth; // used by storedNodes
-
+	
+	// it's type is searchpath_base*; defined in CWorm_AI.cpp
+	void*		pathSearcher;
 
 	NEW_ai_node_t	*NEW_psPath;
 	NEW_ai_node_t	*NEW_psCurrentNode;
