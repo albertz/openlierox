@@ -534,6 +534,8 @@ public:
 	void		setTagTime(float _t)		{ fTagTime = _t; }
 	void		incrementTagTime(float dt)	{ fTagTime+=dt; }
 
+	char		*getSkin(void)				{ return szSkin; }
+
 
 };
 

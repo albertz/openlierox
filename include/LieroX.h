@@ -175,6 +175,7 @@ Uint32	StrToCol(char *str);
 int		xmlGetInt(xmlNodePtr Node, const char *Name);
 float	xmlGetFloat(xmlNodePtr Node, const char *Name);
 Uint32	xmlGetColour(xmlNodePtr Node, const char *Name);
+void	xmlEntities(char *text);
 
 
 #endif  //  __LIEROX_H__

@@ -198,6 +198,7 @@ int CServer::StartGame(void)
 		tGameLog->tWorms[i].bLeft = false;
 		tGameLog->tWorms[i].iID = cWorms[i].getID();
 		strcpy(tGameLog->tWorms[i].sName, cWorms[i].getName());
+		strcpy(tGameLog->tWorms[i].sSkin, cWorms[i].getSkin());
 		tGameLog->tWorms[i].iKills = 0;
 		tGameLog->tWorms[i].iLives = tGameInfo.iLives;
 		tGameLog->tWorms[i].iLeavingReason = -1;
@@ -208,6 +209,10 @@ int CServer::StartGame(void)
 		else
 			tGameLog->tWorms[i].iTeam = -1;
 		tGameLog->tWorms[i].fTagTime = 0.0f;
+		tGameLog->tWorms[i].fTimeLeft = 0.0f;
+		tGameLog->tWorms[i].iType = cWorms[i].getType();
+		NetworkAddr *a = cWorms[i].getClient()->getChannel()->getAddress();
+		NetAddrToString(a,tGameLog->tWorms[i].sIP);
 	}
 
 	
@@ -692,6 +697,7 @@ void CServer::DropClient(CClient *cl, int reason)
 		if (logworm)  {
 			logworm->bLeft = true;
 			logworm->iLeavingReason = reason;
+			logworm->fTimeLeft = tLX->fCurTime;
 		}
 
         switch(reason) {
@@ -1160,9 +1166,21 @@ bool CServer::WriteLogToFile(FILE *f)
 	if (!tGameLog->tWorms)
 		return false;
 
+	char levelfile[256],modfile[256],level[256],mod[256],player[128],skin[128];
+
+	// Fill in the details
+	strcpy(levelfile,sMapFilename);
+	strcpy(modfile,sModName);
+	strcpy(level,cMap->getName());
+	strcpy(mod,cGameScript.GetHeader()->ModName);
+	xmlEntities(levelfile);
+	xmlEntities(modfile);
+	xmlEntities(level);
+	xmlEntities(mod);
+
 	// Save the game info
-	fprintf(f,"<game datetime=\"%s\" length=\"%f\" loading=\"%i\" lives=\"%i\" maxkills=\"%i\" bonuses=\"%i\" bonusnames=\"%i\" level=\"%s\" mod=\"%s\" gamemode=\"%i\">",
-				tGameLog->sGameStart,fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,sMapFilename,sModName,iGameType);
+	fprintf(f,"<game datetime=\"%s\" length=\"%f\" loading=\"%i\" lives=\"%i\" maxkills=\"%i\" bonuses=\"%i\" bonusnames=\"%i\" levelfile=\"%s\" modfile=\"%s\" level=\"%s\" mod=\"%s\" gamemode=\"%i\">",
+				tGameLog->sGameStart,fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,levelfile,modfile,level,mod,iGameType);
 
 	// Save the general players info
 	fprintf(f,"<players startcount=\"%i\" endcount=\"%i\">",tGameLog->iNumWorms,iNumPlayers);
@@ -1170,8 +1188,17 @@ bool CServer::WriteLogToFile(FILE *f)
 	// Info for each player
 	int i;
 	for (i=0;i<tGameLog->iNumWorms;i++)  {
-		fprintf(f,"<player name=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" />",
-		tGameLog->tWorms[i].sName,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason);
+		// Replace the entities
+		strcpy(player,tGameLog->tWorms[i].sName);
+		xmlEntities(player);
+
+		// Replace the entities
+		strcpy(skin,tGameLog->tWorms[i].sSkin);
+		xmlEntities(skin);
+
+		// Write the info
+		fprintf(f,"<player name=\"%s\" skin=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\" type=\"%i\" ip=\"%s\"/>",
+		player,skin,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart),tGameLog->tWorms[i].iType,tGameLog->tWorms[i].sIP);
 	}
 
 	// End tags

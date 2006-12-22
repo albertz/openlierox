@@ -281,6 +281,7 @@ public:
     inline const uchar *getGridFlags(void) const { return GridFlags; }
 	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
 	inline int			getCreated(void)	{ return Created; }
+	inline char			*getName(void)		{ return Name; }
 
 
 };

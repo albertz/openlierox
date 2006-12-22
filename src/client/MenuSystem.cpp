@@ -317,7 +317,7 @@ char *Menu_GetLevelName(char *filename)
 			}
 			fclose(fp);
 		}
-		return NULL;
+		return filename;
 	}
 
  // Liero level
@@ -339,7 +339,7 @@ char *Menu_GetLevelName(char *filename)
 			fclose(fp);
 		} // if(fp)
 	}
-  return NULL;
+  return filename;
 }
 
 ////////////////

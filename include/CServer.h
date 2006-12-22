@@ -35,7 +35,7 @@ enum {
 
 // Client leaving reasons
 enum {
-	CLL_QUIT,
+	CLL_QUIT=0,
 	CLL_TIMEOUT,
     CLL_KICK,
 	CLL_BAN
@@ -44,6 +44,7 @@ enum {
 // Structure for logging worms
 typedef struct log_worm_s {
 	char		sName[64];
+	char		sSkin[256];
 	int			iLives;
 	int			iKills;
 	int			iID;
@@ -53,6 +54,9 @@ typedef struct log_worm_s {
 	float		fTagTime;
 	bool		bLeft;
 	int			iLeavingReason;
+	float		fTimeLeft;
+	int			iType;
+	char		sIP[32];
 } log_worm_t;
 
 // Game log structure

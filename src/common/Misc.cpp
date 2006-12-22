@@ -519,3 +519,14 @@ Uint32 xmlGetColour(xmlNodePtr Node, const char *Name)
 	xmlFree(sValue);
 	return result;
 }
+
+/////////////////
+// Replaces all the escape characters with html entities
+void xmlEntities(char *text)
+{
+	replace(text,"\"","&quot;",text);  // "
+	replace(text,"'", "&apos;",text);  // '
+	replace(text,"&", "&amp;", text);  // &
+	replace(text,"<", "&lt;",  text);  // <
+	replace(text,">", "&gt;",  text);  // >
+}
