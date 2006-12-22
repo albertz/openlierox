@@ -63,7 +63,7 @@ void CButton::Create(void)
 
     // Find the smallest width
     iGoodWidth = 0;
-    for( int y=y2; y<=y2+38; y++) {
+    for( int y=y2; y<=y2+38 && y<bmpImage->h; y++) {
         for( int x=0; x<bmpImage->w; x++ ) {
 
             Uint32 pixel = GetPixel(bmpImage, x,y);

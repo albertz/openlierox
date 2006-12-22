@@ -505,8 +505,8 @@ public:
 
 	int			getWeaponsReady(void)		{ return iWeaponsReady; }
 	void		setWeaponsReady(int _w)		{ iWeaponsReady = _w; }
-	wpnslot_t	*getCurWeapon(void)			{ return &tWeapons[iCurrentWeapon]; }
-	int			getCurrentWeapon(void)		{ return iCurrentWeapon; }
+	wpnslot_t	*getCurWeapon(void)			{ return &tWeapons[MIN(4,iCurrentWeapon)]; }
+	int			getCurrentWeapon(void)		{ return MIN(4,iCurrentWeapon); }
 	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
 
 	void		setGameReady(int _g)		{ iGameReady = _g; }

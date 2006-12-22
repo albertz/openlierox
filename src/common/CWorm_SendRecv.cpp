@@ -323,6 +323,9 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	int cur = bs->readByte();
 	int charge = bs->readByte();
 
+	cur = MAX(cur, 0);
+    cur = MIN(cur, 4);
+
 
 	// If this is a special weapon, and the charge is processed client side, don't set the charge
 	if( tWeapons[cur].Weapon->Type == WPN_SPECIAL )
@@ -333,6 +336,7 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	tWeapons[cur].Reloading = charge & 0x80;
 	
 	charge &= ~(0x80);
+
 	float c = (float)charge/100.0f;
 
 	if( tWeapons[cur].Reloading && (c > tWeapons[cur].Charge || fabs(c - tWeapons[cur].Charge) > 0.1f) )

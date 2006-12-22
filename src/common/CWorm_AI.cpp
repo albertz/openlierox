@@ -2169,10 +2169,6 @@ bool CWorm::AI_SetAim(CVec cPos)
     gs_worm_t *wd = cGameScript->getWorm();
 
 	float   fDistance = NormalizeVector(&tgDir);
-
-	// We can't aim target straight below us
-	if(tgPos.x-10 < vPos.x && tgPos.x+10 > vPos.x && tgPos.y > vPos.y)
-		return false;
 	
 	if (tLX->fCurTime - fLastFace > 0.1)  {  // prevent turning
 	// Make me face the target
@@ -2806,7 +2802,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (int i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				return i;
-		return 0;
+		return -1;
 	}
 
     CVec    cTrgPos = AI_GetTargetPos();

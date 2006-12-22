@@ -857,6 +857,11 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 		if (id < 0 || id >= MAX_WORMS)
 			continue;
 
+		/*if (!cRemoteWorms[id].isUsed())  {
+			i--;
+			continue;
+		}*/
+
 		cRemoteWorms[id].readPacketState(bs,cRemoteWorms);
 	}
 
