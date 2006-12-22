@@ -105,7 +105,7 @@ void Con_Process(float dt)
 	int		History = 0;
 	SDL_Event *Ev = GetEvent();
 
-	if(kb->KeyUp[SDLK_BACKQUOTE])
+	if(kb->KeyUp[SDLK_BACKQUOTE] || kb->KeyUp[SDLK_F1])
 		Con_Toggle();
 
 	if(Console->iState == CON_DROPPING)

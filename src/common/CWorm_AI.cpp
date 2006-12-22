@@ -3602,12 +3602,7 @@ void CWorm::NEW_AI_CleanupPath(void)
 ////////////////////
 // Creates the path
 int CWorm::NEW_AI_CreatePath(CMap *pcMap)
-{
-	// Don't create the path so often!
-/*	if (tLX->fCurTime - fLastCreated <= 5.0f)  {
-		return NEW_psPath != NULL;
-	} */
-	
+{	
 	CVec trg = AI_GetTargetPos();
 	
 	if(!bPathFinished) {
@@ -3643,6 +3638,16 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
     		// TODO: if the search takes very long (this is, if it doesn't find something), start a new one after some time		
 			return false;
 		}		
+	}
+	
+	// don't start a new search, if the current end-node still has direct access to it
+	if(NEW_psLastNode && traceWormLine(CVec(NEW_psLastNode->fX, NEW_psLastNode->fY), trg, pcMap)) {
+		return true;
+	}
+	
+	// Don't create the path so often!
+	if (tLX->fCurTime - fLastCreated <= 5.0f)  {
+		return NEW_psPath != NULL;
 	}
 	
 	// if we are here, we want to start a new search
@@ -4744,6 +4749,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 				int wpn;
 				if((wpn = AI_FindClearingWeapon()) != -1) {
 					iCurrentWeapon = wpn;
+					AI_SetAim(v); // aim at the dirt
 					ws->iShoot = true;
 				} /* else
 					AI_SimpleMove(pcMap,psAITarget != NULL); */ // no weapon found, so move around

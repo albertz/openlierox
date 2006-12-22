@@ -41,15 +41,11 @@ int GetFPS(void)
 
 ///////////////////
 // Get the actual time
-// TODO: does the definition of the parameter make any sense?
 void GetTime(char cTime[26])
 {
-#ifdef WIN32
-	SYSTEMTIME st = {0};
-	::GetSystemTime(&st);
-	//char cTime[26];
-	sprintf(cTime,"%d-%d-%d-%d-%d-%d-%d-%d",st.wYear,st.wMonth,st.wDay,st.wDayOfWeek,st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
-#else
-	// TODO: gettime ...
-#endif
+	time_t t;
+	time(&t);
+	struct tm* tp;
+	tp = localtime(&t);
+	strftime(cTime, 26, "%Y-%m-%d-%a-%H-%M-%S", tp);
 }
