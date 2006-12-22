@@ -199,7 +199,7 @@ int CServer::StartGame(void)
 		tGameLog->tWorms[i].iID = cWorms[i].getID();
 		strcpy(tGameLog->tWorms[i].sName, cWorms[i].getName());
 		tGameLog->tWorms[i].iKills = 0;
-		tGameLog->tWorms[i].iLives = iLives;
+		tGameLog->tWorms[i].iLives = tGameInfo.iLives;
 		tGameLog->tWorms[i].iLeavingReason = -1;
 		tGameLog->tWorms[i].iSuicides = 0;
 		tGameLog->tWorms[i].bTagIT = false;
@@ -422,6 +422,7 @@ void CServer::ReadPackets(void)
 	while(bs.Read(tSocket)) {
 
 		GetRemoteNetAddr(tSocket,&adrFrom);
+		SetRemoteNetAddr(tSocket,&adrFrom);
 		
 		// Check for connectionless packets (four leading 0xff's)
 		if(*(int *)bs.GetData() == -1) {

@@ -25,6 +25,13 @@ void GuiSkinError(char *fmt, ...);
 void LxSetLastError(char *desc);
 char *LxGetLastError(void);
 
+// WIN32 exception handling
+#ifdef WIN32
+LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo);
+void InstallExceptionFilter(void);
+#endif
+
+
 
 
 

@@ -60,7 +60,7 @@ bool SetSoundVolume(int vol) {
 		SoundSystemVolume = vol;
 		
 		// The volume to use from 0 to MIX_MAX_VOLUME(128).
-		// We got here values from 0 to 100; TODO: should we maximize it?
+		vol *= Round((float)MIX_MAX_VOLUME/100.0f);
 		Mix_Volume(-1, vol);
 
 		return true;

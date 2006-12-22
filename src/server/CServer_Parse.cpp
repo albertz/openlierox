@@ -276,11 +276,11 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 			log_vict->iSuicides++;
 	}
 
-	if(vict->Kill()) {
+	// Log
+	if (log_vict)
+		log_vict->iLives--;
 
-		// Log
-		if (log_vict)
-			log_vict->iLives--;
+	if(vict->Kill()) {
 
 
 		// This worm is out of the game
@@ -586,12 +586,11 @@ void CServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 void CServer::ParseConnectionlessPacket(CBytestream *bs)
 {
 	char cmd[128];
-	NetworkAddr	adrFrom;
 	bool valid = false;
 
 	// This solves the problem with hosting!
-	GetRemoteNetAddr(tSocket,&adrFrom);
-	SetRemoteNetAddr(tSocket,&adrFrom);
+//	GetRemoteNetAddr(tSocket,&adrFrom);
+//	SetRemoteNetAddr(tSocket,&adrFrom);
 
 	bs->readString(cmd);
 

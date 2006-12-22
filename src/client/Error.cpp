@@ -11,6 +11,7 @@
 
 
 #include "defs.h"
+#include "LieroX.h"
 
 
 int		GotError = false;
@@ -142,3 +143,24 @@ char *LxGetLastError(void)
 {
 	return &LastError[0];
 }
+
+#ifdef WIN32
+///////////////////
+// This callback function is called whenever an unhandled exception occurs
+LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
+{
+	// Clean us
+	//ShutdownLieroX();
+
+	
+
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
+////////////////////
+// Initializes the unhandled exception filter
+void InstallExceptionFilter(void)
+{
+	SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+}
+#endif
