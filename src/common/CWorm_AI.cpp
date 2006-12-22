@@ -970,8 +970,8 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
         nAIState = AI_THINK;
 
-	// check if the searching is ready
-	if(!bPathFinished)
+	// check more often if we path isn't finished yet
+	if(tLX->fCurTime - fLastThink > 0.5 && !bPathFinished)
 		nAIState = AI_THINK;
 
     // If we have a good shooting 'solution', shoot
@@ -1335,9 +1335,10 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
             nAIState = AI_MOVINGTOTARGET;
             //AI_InitMoveToTarget(pcMap);
 			NEW_AI_CreatePath(pcMap);
-            break;
+            goto break_whole; // year, i hate this, too ...
         }
     }
+break_whole:
 
     /*int     x, y;
     int     px, py;
@@ -1398,7 +1399,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
    nAIState = AI_MOVINGTOTARGET;
    AI_InitMoveToTarget(pcMap);*/
 
-
+	return;
 }
 
 
@@ -1780,11 +1781,16 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
 
     cPosTarget = AI_GetTargetPos();
 
+/*
+    // this don't make sense here; what if there is a wall between them?
+    // AI_CanShoot should make the ness checks, if we can shoot at the target
+    // if not, move to the next node; the last node has direct access to the target
     // If we're really close to the target, perform a more precise type of movement
     if(fabs(vPos.x - cPosTarget.x) < 20 && fabs(vPos.y - cPosTarget.y) < 20) {
         AI_PreciseMove(pcMap);
         return;
     }
+*/
 
     // If we're stuck, just get out of wherever we are
     if(bStuck) {
@@ -2651,7 +2657,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
     //
     // Aim at the target
     //
-    bool    bAim = true;//AI_SetAim(cTrgPos);
+    bool    bAim = false;//AI_SetAim(cTrgPos);
 	
 	// Distance
 	float x = (cTrgPos.x-vPos.x);
@@ -2669,12 +2675,15 @@ void CWorm::AI_Shoot(CMap *pcMap)
 	case WPN_BEAM:
 		// Direct aim
 		bAim = AI_SetAim(cTrgPos);
-	break;
+		printf("wp type is BEAM %s\n", bAim ? "and we are aiming" : "and no aim");
+		break;
 	case WPN_PROJECTILE:  {
 		switch (weap->Projectile->Hit_Type)  {
-		case PJ_NOTHING:
-		case PJ_CARVE:
+		//case PJ_NOTHING:
+		//case PJ_CARVE: 
 		case PJ_DIRT:
+		case PJ_GREENDIRT:
+			//printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
 			break;
 		default:
 			// TODO: count with the worm velocities
@@ -2730,10 +2739,15 @@ void CWorm::AI_Shoot(CMap *pcMap)
 				tLX->debug_float = alpha;
 				flast = tLX->fCurTime;
 			}*/
+			break;
+		} // switch over Hit_Type
+		} // case WPN_PROJECTILE
 		break;
-		}
-	}
-	break;
+	default: // weap->Type
+		// it's WPN_SPECIAL (should)
+		// don't know, but this could possible be good
+		// or else, this is perhaps some kamikaze action :)
+		bAim = true;
 	}
 
     if(!bAim)  {
@@ -2763,6 +2777,10 @@ void CWorm::AI_Shoot(CMap *pcMap)
 			return;
 		}
 
+  		// we cannot shoot here
+  		// do some random stuff, so that we don't stuck
+  		// (we will not get into the MoveToTarget, because we got a CanShoot)
+
 		tState.iMove = true;
 		fBadAimTime += tLX->fDeltaTime;
 		if((fBadAimTime) > 4) {
@@ -2771,6 +2789,12 @@ void CWorm::AI_Shoot(CMap *pcMap)
 			fBadAimTime = 0;
 		}
   
+  		// change direction after some time
+		if ((tLX->fCurTime-fLastTurn) > 1.0)  {
+			iDirection = !iDirection;
+			fLastTurn = tLX->fCurTime;
+		}
+
         return;
 	}
 
@@ -2884,7 +2908,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 					}
 			} // End of direct shooting weaps
 
-			return -1;
+			//return -1;
 		}
 
 		// Quite far
@@ -2912,13 +2936,13 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 				// Don't use cannon when we're on ninja rope, we will avoid suicides
 				if (!cNinjaRope.isReleased())  {
 					// Aim a bit up
-					AI_SetAim(CVec(cTrgPos.x,cTrgPos.y+5.0f));
+					// AI_SetAim(CVec(cTrgPos.x,cTrgPos.y+5.0f)); // don't do aiming here
 					tState.iMove = false;  // Don't move, avoid suicides
 					return 2;
 				}
 		}
 					
-		return -1;
+		//return -1;
 
 	}
 
@@ -3613,7 +3637,10 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 				return true;
 			}
 			// we don't find anything, so don't return here, but start a new search
+			
 		} else { // the searcher is still searching ...
+		
+    		// TODO: if the search takes very long (this is, if it doesn't find something), start a new one after some time		
 			return false;
 		}		
 	}
@@ -4371,12 +4398,12 @@ public:
 	bestropespot_collision_action(CVec t) : target(t), best(-1,-1) {}
 	
 #ifdef _AI_DEBUG
-	CMap* pcMap;
+	//CMap* pcMap;
 #endif
 	
 	bool operator()(int x, int y) {
 #ifdef _AI_DEBUG		
-		DrawRectFill(pcMap->GetDebugImage(),x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(0,240,0));		
+		//DrawRectFill(pcMap->GetDebugImage(),x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(0,240,0));		
 #endif		
 	
 		if(best.x < 0 || (CVec(x,y)-target).GetLength2() < (best-target).GetLength2())
@@ -4402,7 +4429,7 @@ CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap)
 	SquareMatrix<float> step_m = SquareMatrix<float>::RotateMatrix(-step);
 	bestropespot_collision_action action(trg+CVec(0,-50));
 #ifdef _AI_DEBUG
-	action.pcMap = pcMap;	
+	//action.pcMap = pcMap;	
 #endif
 
 	for(ang=0; ang<(float)PI; dir=step_m(dir),ang+=step) {
@@ -4512,6 +4539,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 	if (!psAITarget && newtrg)  {
 		nAIState = AI_THINK;
+//		return;
 	}
 
 	// No target?
@@ -4536,6 +4564,11 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	if (fRopeAttachedTime > 2.0f)
 		cNinjaRope.Release();
 			
+	if(cNinjaRope.isShooting() && !cNinjaRope.isAttached())
+		fRopeHookFallingTime += tLX->fDeltaTime;
+	else
+		fRopeHookFallingTime = 0;
+			
 	if (fRopeHookFallingTime >= 2.0f)  {
 		// Release & walk
 		cNinjaRope.Release();
@@ -4546,6 +4579,9 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     cPosTarget = AI_GetTargetPos();
 
 /*    
+    // this don't make sense here; what if there is a wall between them?
+    // AI_CanShoot should make the ness checks, if we can shoot at the target
+    // if not, move to the next node; the last node has direct access to the target
     // If we're really close to the target, perform a more precise type of movement
     if(fabs(vPos.x - cPosTarget.x) < 20 && fabs(vPos.y - cPosTarget.y) < 20) {
         AI_PreciseMove(pcMap);
@@ -4638,15 +4674,19 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 	// If some of the next nodes is closer than the current one, just skip to it
 	NEW_ai_node_t *next_node = NEW_psCurrentNode->psNext;
+	bool newnode = false;
 	while (next_node)  {
 		//if (CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) >= CalculateDistance(vPos,CVec(next_node->fX,next_node->fY)))
 			if(traceWormLine(CVec(next_node->fX,next_node->fY),vPos,pcMap))  {
 				NEW_psCurrentNode = next_node;
+				newnode = true;
 				//break;
 			}
 		next_node = next_node->psNext;
 	}
-	
+	if(newnode) {
+		cNinjaRope.Release();
+	}
 
 #ifdef _AI_DEBUG
 	NEW_AI_DrawPath(pcMap);
@@ -4669,8 +4709,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     bool fireNinja = true;
     float traceDist = -1;
     int type = 0;
-	if (!NEW_psCurrentNode)
-		return;
     CVec v = CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY);
     int length = traceLine(v, pcMap, &traceDist, &type);
     float dist = CalculateDistance(v, vPos);
@@ -4707,8 +4745,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 				if((wpn = AI_FindClearingWeapon()) != -1) {
 					iCurrentWeapon = wpn;
 					ws->iShoot = true;
-				} else
-					AI_SimpleMove(pcMap,psAITarget != NULL); // no weapon found, so move around
+				} /* else
+					AI_SimpleMove(pcMap,psAITarget != NULL); */ // no weapon found, so move around
 			}
     }
  
@@ -4730,11 +4768,12 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 					// Rope will happen soon
 				}
 			}
-			// Not on ground? Shoot the rope
-			else 
-				fireNinja = true;
 		}
 	}
+			
+	// Not on ground? Shoot the rope
+	if(!CheckOnGround(pcMap))
+		fireNinja = true;
 	
 	bool aim = false;
 
@@ -4774,10 +4813,11 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
        
         /*
           Got aim, so shoot a ninja rope
+          also shoot, if we are not on ground
           We shoot a ninja rope if it isn't shot
           Or if it is, we make sure it has pulled us up and that it is attached
         */
-        if(aim) {
+        if(aim || !CheckOnGround(pcMap)) {
             if(!cNinjaRope.isReleased())
                 cNinjaRope.Shoot(vPos,dir);
             else {
@@ -4788,6 +4828,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
                 }
             }
             ws->iJump = true;
+			fRopeHookFallingTime = 0;
+			fRopeAttachedTime = 0;
         }
         
     } else { // not fireNinja
