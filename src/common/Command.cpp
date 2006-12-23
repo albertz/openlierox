@@ -555,3 +555,39 @@ void Cmd_WantsJoin(void)
 		Con_Printf(CNC_NORMAL,"%s","\"Wants join\" messages have been disabled");
 	}
 }
+
+void Cmd_Help() {
+	Con_Printf(CNC_NORMAL,"Available commands:");
+	static char cmd_help_buf[512];
+	command_t* cmd;
+	unsigned short count = 0;
+	strcpy(cmd_help_buf, "");
+	
+	for(cmd=Commands; cmd; cmd=cmd->Next) {
+		if(cmd->func != Cmd_BadWord) {
+			strcat(cmd_help_buf, cmd->strName);
+			strcat(cmd_help_buf, " ");
+			count++;
+			if(count >= 5) {
+				count = 0;
+				Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf);
+				strcpy(cmd_help_buf, "");
+			}
+		}
+	}
+	if(count && cmd_help_buf[0] != '\0') {
+		Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf);	
+	}
+}
+
+void Cmd_About() {
+	Con_Printf(CNC_NOTIFY,"%s v%.2f",GetGameName(),LX_VERSION);
+}
+
+void Cmd_BadWord() {
+	Con_Printf(CNC_NOTIFY,"%s",sex(50));
+}
+
+void Cmd_Quit() {
+	tLX->iQuitEngine = true;
+}

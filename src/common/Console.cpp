@@ -313,7 +313,7 @@ void Con_Process(float dt)
 // Print a formatted string to the console
 void Con_Printf(int colour, char *fmt, ...)
 {
-	char buf[512];
+	static char buf[2048];
 	va_list	va;
 
 	va_start(va,fmt);
@@ -336,7 +336,17 @@ void Con_AddText(int colour, char *text)
 		Console->Line[n+1].Colour = Console->Line[n].Colour;
 	}
 
-	strcpy(Console->Line[1].strText,text);
+	size_t pos = 0;
+	for(; text[pos] != '\0'; pos++) {
+		if(text[pos] == '\n') {
+			Console->Line[1].strText[pos] = '\0';
+			Console->Line[1].Colour = colour;
+			Con_AddText(colour, &text[pos+1]);
+			return;			
+		}
+		Console->Line[1].strText[pos] = text[pos];
+	}
+	Console->Line[1].strText[pos] = '\0';
 	Console->Line[1].Colour = colour;
 }
 

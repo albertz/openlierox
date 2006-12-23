@@ -172,7 +172,7 @@ int CServer::StartGame(void)
 	//
 	tGameLog = new game_log_t;
 	if (!tGameLog)  {
-		printf("%s","Out of memory while allocating log");
+		printf("Out of memory while allocating log\n");
 		return false;
 	}
 	tGameLog->tWorms = NULL;

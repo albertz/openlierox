@@ -185,6 +185,14 @@ void ParseArguments(int argc, char *argv[])
         if( stricmp(a, "-fullscreen") == 0 ) {
             tLXOptions->iFullscreen = true;
         }
+        
+        
+        if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") ) {
+        	printf("available parameters:\n");
+     		printf("   -nosound\n");   	
+     		printf("   -window\n");   	
+     		printf("   -fullscreen\n");   	
+        }
     }
 }
 
@@ -269,7 +277,16 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("suicide", Cmd_Suicide);
 	Cmd_AddCommand("unstuck", Cmd_Unstuck);
 	Cmd_AddCommand("wantsjoin", Cmd_WantsJoin);
-
+	Cmd_AddCommand("help", Cmd_Help);
+	Cmd_AddCommand("version", Cmd_About);
+	Cmd_AddCommand("about", Cmd_About);
+	Cmd_AddCommand("fuck", Cmd_BadWord);
+	Cmd_AddCommand("ass", Cmd_BadWord);
+	Cmd_AddCommand("bitch", Cmd_BadWord);
+	Cmd_AddCommand("sex", Cmd_BadWord);
+	Cmd_AddCommand("quit", Cmd_Quit);
+	Cmd_AddCommand("exit", Cmd_Quit);
+	
 	// Load the sounds
 	LoadSounds();
 

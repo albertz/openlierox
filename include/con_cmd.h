@@ -58,6 +58,10 @@ void	Cmd_Crash(void);
 void	Cmd_Suicide(void);
 void	Cmd_Unstuck(void);
 void	Cmd_WantsJoin(void);
+void	Cmd_Help();
+void	Cmd_About();
+void	Cmd_BadWord();
+void	Cmd_Quit();
 
 
 #endif  //  __CON_COMMAND_H__
