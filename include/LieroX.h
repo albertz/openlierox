@@ -172,8 +172,6 @@ void	ReadUntil(const char *text, char until_character, char *result);
 Uint32	StrToCol(char *str);
 const char* sex(short wraplen = 0);
 
-// sex
-
 
 // Useful XML functions
 int		xmlGetInt(xmlNodePtr Node, const char *Name);

@@ -248,7 +248,6 @@ char sextmp[2048];
 const char* sex(short wraplen) {
    register TABLE  *ttp;
    register char   *cp;
-   long     now;
    char* buffer = sextmp;
    int pos, lastword;
 	lwidth = 0;
