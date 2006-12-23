@@ -17,7 +17,9 @@
 #ifdef WIN32
 #pragma warning(disable: 4786)
 #endif
+
 #include <set>
+#include <list>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -399,6 +401,10 @@ for the state with IsReady
 class searchpath_base {
 public:
 
+// this will define, if we should break the search on the first result
+// (we ensure in forEachChecklistItem, that it is not that bad)
+#define		BREAK_ON_FIRST	1
+
 	class area_item {
 	public:
 				
@@ -447,10 +453,10 @@ public:
 			bestNode(NULL),
 			checklistRows(0),
 			checklistRowStart(0),
-			checklistRowHeight(10),
+			checklistRowHeight(5),
 			checklistCols(0),
 			checklistColStart(0),
-			checklistColWidth(10) {}
+			checklistColWidth(5) {}
 		
 		// iterates over all checklist points
 		// calls given action with 2 parameters:
@@ -555,36 +561,36 @@ public:
 					if(trace) right++;
 				}				
 				base->pcMap->unlockFlags();
-				
+								
+				// is there enough space?
 				if(left+right >= wormsize) {
 					// we can start a new search from this point (targ)
 					NEW_ai_node_t* node = base->findPath(pt + dist);
 					if(node) {
 						// good, we find a new path
 						// check now, if it is better then the last found
-						float node_len = get_ai_nodes_length(node);
-						
+#if BREAK_ON_FIRST != 1
+						float node_len = get_ai_nodes_length(node);						
 						if(bestNodeLen < 0 || node_len < bestNodeLen) {
 							// yes, it is better
-							// delete an old node if present							
-							if(myArea->bestNode)
-								free(myArea->bestNode);
+							
 							// save the new info
 							bestNodeLen = node_len;
+#endif // BREAK_ON_FIRST
 							myArea->bestPosInside = pt;
 							myArea->bestPosOutside = pt + dist;
 							myArea->bestNode = node;
 						
+#if BREAK_ON_FIRST == 1
 							// the result of this return is, that the algo will break with the first found path
 							return false;
-						
-						} else {
-							// we found something, but it is not good
-							// clean up (we ensure in the rest of the code, that we got a new node here)
-							free(node);
-						}
+#else						
+						} // better node check
+#endif
 					}
 				}
+				
+				// continue the search
 				return true;
 			}
 		}; // class check_checkpoint
@@ -598,27 +604,31 @@ public:
 			// did we find any?
 			if(bestNode) {
 				// start at the pos inside of the area
-				// TODO: not both of them are freed
 				bestNode = createNewAiNode(bestPosOutside.x, bestPosOutside.y, bestNode);
+				base->nodes.push_back(bestNode);
 				bestNode = createNewAiNode(bestPosInside.x, bestPosInside.y, bestNode);
+				base->nodes.push_back(bestNode);
 				return bestNode;
 			}
 			
 			// nothing found
 			return NULL;
-		}		
+		}
 		
 	}; // class area_item
 	
 	typedef std::multiset< area_item*, area_item::pseudoless > area_mset;
-
+	typedef std::list< NEW_ai_node_t* > node_list;
+	
 	// these neccessary attributes have to be set manually
 	CMap* pcMap;
 	area_mset areas;
+	node_list nodes;
 	VectorD2<int> start, target;
 	
 	searchpath_base() :
 		pcMap(NULL),
+		thread(NULL),
 		thread_is_ready(true),
 		resulted_path(NULL),
 		break_thread_signal(0) {
@@ -637,15 +647,27 @@ public:
 		thread = NULL;
 		SDL_DestroyMutex(thread_mut);
 		
-		clear_areas();
+		clear();
 	}
-	
+		
 private:	
+	void clear() {
+		clear_areas();
+		clear_nodes();
+	}
+
 	void clear_areas() {
 		for(area_mset::iterator it = areas.begin(); it != areas.end(); it++) {
 			delete *it;
 		}
 		areas.clear();	
+	}
+	
+	void clear_nodes() {
+		for(node_list::iterator it = nodes.begin(); it != nodes.end(); it++) {
+			free(*it);
+		}
+		nodes.clear();
 	}
 	
 	// searches for an overleading area and returns the first
@@ -690,7 +712,9 @@ public:
 		if(traceWormLine(target, start, pcMap)) {
 			pcMap->unlockFlags();
 			// yippieh!
-			return createNewAiNode(target.x, target.y);
+			NEW_ai_node_t* ret = createNewAiNode(target.x, target.y);
+			nodes.push_back(ret);
+			return ret;
 		}
 		pcMap->unlockFlags();
 		
@@ -702,8 +726,7 @@ public:
 				return NULL;
 
 			// we have already found out the best path from here
-			// copy it to ensure, that it is a new node - needed for a correct cleaning up by check_checkpoint
-			return createNewAiNode(a->bestNode);
+			return a->bestNode;
 		}
 		
 		// get the max area (rectangle) around us
@@ -737,7 +760,7 @@ public:
 		// if we are still searching, do nothing
 		if(!isReady()) return;
 				
-		clear_areas();		
+		clear();
 		resulted_path = NULL;
 		
 		// this is the signal to start the search
@@ -871,11 +894,11 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 // Shutdown the AI stuff
 void CWorm::AI_Shutdown(void)
 {
-	if(pathSearcher)
-		delete ((searchpath_base*)pathSearcher);
+	if(pathSearcher) {
+		delete ((searchpath_base*)pathSearcher);			
+	}
 	pathSearcher = NULL;
-		
-    NEW_AI_CleanupPath();
+
     AI_CleanupPath(psPath);
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;
@@ -977,23 +1000,31 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     // If we have a good shooting 'solution', shoot
 	// TODO: join AI_CanShoot and AI_Shoot
     if(AI_CanShoot(pcMap, gametype)) {
+   
+   		if(!AI_Shoot(pcMap)) {   			
+			// change direction after some time
+			if ((tLX->fCurTime-fLastTurn) > 1.0)  {
+				iDirection = !iDirection;
+				fLastTurn = tLX->fCurTime;
+			}
+    	}
  
-        // Shoot
-        AI_Shoot(pcMap);
-  
-        // jump, move and carve around
-    	ws->iJump = true;
-    	ws->iMove = true;
-    	ws->iCarve = true;
-
-/*
-		// change direction after some time
-		if ((tLX->fCurTime-fLastTurn) > 1.0)  {
-			iDirection = !iDirection;
-			fLastTurn = tLX->fCurTime;
+		// jump, move and carve around
+		if (tLX->fCurTime-fLastJump > 1.0f)  {
+			ws->iJump = true;
+			fLastJump = tLX->fCurTime;
 		}
-*/  
-  
+		ws->iMove = true;
+
+		// Don't carve so fast!
+		if (tLX->fCurTime-fLastCarve > 0.2f)  {
+			fLastCarve = tLX->fCurTime;
+			ws->iCarve = true; // Carve
+		}
+		else  {
+			ws->iCarve = false;
+		}
+ 
         return;
         
     } else {
@@ -2648,10 +2679,10 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 
 ///////////////////
 // Shoot!
-void CWorm::AI_Shoot(CMap *pcMap)
+bool CWorm::AI_Shoot(CMap *pcMap)
 {
 	if(!psAITarget)
-		return;
+		return false;
     CVec    cTrgPos = psAITarget->getPos();
 
     //
@@ -2667,7 +2698,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
 
 	gs_worm_t *wd = cGameScript->getWorm();
 	if (!wd)
-		return;
+		return false;
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	weapon_t *weap = getCurWeapon()->Weapon;
@@ -2675,7 +2706,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
 	case WPN_BEAM:
 		// Direct aim
 		bAim = AI_SetAim(cTrgPos);
-		printf("wp type is BEAM %s\n", bAim ? "and we are aiming" : "and no aim");
+		//printf("wp type is BEAM %s\n", bAim ? "and we are aiming" : "and no aim");
 		break;
 	case WPN_PROJECTILE:  {
 		switch (weap->Projectile->Hit_Type)  {
@@ -2773,29 +2804,21 @@ void CWorm::AI_Shoot(CMap *pcMap)
 					iDirection = DIR_RIGHT;
 					
 				tState.iShoot = true;			
+				
+				return true;
 			}
-			return;
 		}
 
   		// we cannot shoot here
-  		// do some random stuff, so that we don't stuck
-  		// (we will not get into the MoveToTarget, because we got a CanShoot)
 
-		tState.iMove = true;
 		fBadAimTime += tLX->fDeltaTime;
 		if((fBadAimTime) > 4) {
 			if(IsEmpty(CELL_UP,pcMap))
 				tState.iJump = true;
 			fBadAimTime = 0;
 		}
-  
-  		// change direction after some time
-		if ((tLX->fCurTime-fLastTurn) > 1.0)  {
-			iDirection = !iDirection;
-			fLastTurn = tLX->fCurTime;
-		}
 
-        return;
+        return false;
 	}
 
 	fBadAimTime = 0;
@@ -2803,6 +2826,7 @@ void CWorm::AI_Shoot(CMap *pcMap)
     // Shoot
 	tState.iShoot = true;
 	fLastShoot = tLX->fCurTime;
+	return true;
 }
 
 
@@ -3652,9 +3676,9 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	
 	// if we are here, we want to start a new search
 	bPathFinished = false;
-	
-	// we are either ready with a current search or we haven't started one, so this is save
-	NEW_AI_CleanupPath();
+	NEW_psPath = NULL;
+	NEW_psCurrentNode = NULL;
+	NEW_psLastNode = NULL;
 	
 	// start a new search
 	((searchpath_base*)pathSearcher)->target.x = (int)trg.x;
@@ -4322,26 +4346,35 @@ void CWorm::NEW_AI_SimplifyPath(CMap *pcMap)
 
 	// Go through the path
 	NEW_ai_node_t* node = NULL;
+	NEW_ai_node_t* last_node = NULL;
 	NEW_ai_node_t* closest_node = NULL;
 	unsigned short count = 0;
+	float dist, len;
+	
+	// short up
 	for(node = NEW_psPath; node; node = node->psNext)  {
-		// While we see the two nodes, delete all nodes between them and skip to next node
-		for(closest_node = node, count = 0; closest_node; closest_node = closest_node->psNext, count++)
+		len = 0;
+		last_node = node;
+		for(closest_node = node, count = 0; closest_node; closest_node = closest_node->psNext, count++) {
+			len += CVec(closest_node->fX - last_node->fX, closest_node->fY - last_node->fY).GetLength2();
+			dist = CVec(closest_node->fX - node->fX, closest_node->fY - node->fY).GetLength2();
 			if(count >= 3
-			&& CVec(closest_node->fX - node->fX, closest_node->fY - node->fY).GetLength2() <= 250
+			&& dist < len
 			&& traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap)) {
-				delete_ai_nodes(node->psNext, closest_node);
 				node->psNext = closest_node;
 				closest_node->psPrev = node;
+				len = dist;
 			}
+			last_node = closest_node;
+		}
 	}
 
+	// simplify
 	for(node = NEW_psPath; node; node = node->psNext) {
   		// While we see the two nodes, delete all nodes between them and skip to next node
   		count = 0;
   		while (closest_node && traceWormLine(CVec(closest_node->fX,closest_node->fY),CVec(node->fX,node->fY),pcMap))  {
   			if(count >= 2) {
-				delete_ai_nodes(node->psNext, closest_node);
 				node->psNext = closest_node;
 				closest_node->psPrev = node;
 			}

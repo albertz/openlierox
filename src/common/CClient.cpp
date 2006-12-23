@@ -499,9 +499,10 @@ void CClient::SetupWorms(int numworms, CWorm *worms)
 void CClient::BotSelectWeapons(void)
 {
 	if(iNetStatus == NET_CONNECTED && iGameReady)  {
-
+		int i;
+		
 		// Go through and draw the first two worms select menus
-		for(int i=0;i<iNumWorms;i++) {
+		for(i=0;i<iNumWorms;i++) {
 			// Select weapons
 			cLocalWorms[i]->setWeaponsReady(true);
 			cLocalWorms[i]->setCurrentWeapon(0);

@@ -124,14 +124,14 @@ NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n);
 void delete_ai_nodes(NEW_ai_node_t* start);
 void delete_ai_nodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
 float get_ai_nodes_length(NEW_ai_node_t* start);
-// this do the same as the fct above exept that it don't do the sqrt
+// this do the same as the fct above except that it don't do the sqrt
 float get_ai_nodes_length2(NEW_ai_node_t* start);
 
 
-
+/*
 typedef std::multimap< CVec, NEW_ai_node_t* > nodes_map;
 typedef std::pair< const CVec, NEW_ai_node_t* > nodes_pair;
-
+*/
 
 
 class CWorm {
@@ -404,7 +404,7 @@ public:
     int         AI_FindClearingWeapon(void);
     bool        AI_CanShoot(CMap *pcMap, int nGameType);
 	//bool		AI_CanShoot(CWorm *Target,CMap *Map);
-    void        AI_Shoot(CMap *pcMap);
+    bool        AI_Shoot(CMap *pcMap);
     int         AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *pcMap, float fTraceDist);
     void        AI_ReloadWeapons(void);
     int         cycleWeapons(void);

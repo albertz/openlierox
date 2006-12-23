@@ -38,8 +38,6 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include <map>
-
 #ifdef WIN32
 #	include <windows.h>
 #	include <io.h>
