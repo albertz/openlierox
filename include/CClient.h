@@ -264,7 +264,7 @@ public:
 
 	void		Clear(void);
 	void		MinorClear(void);
-	int			Initialize(void);	
+	int			Initialize(bool Bot = false,int BotNr = -1);	
 	void		Shutdown(void);
 	void		FinishGame(void);
 
@@ -281,6 +281,8 @@ public:
 	void		ProcessShots(void);
 	void		ProcessShot(shoot_t *shot);
 	void		ProcessShot_Beam(shoot_t *shot);
+
+	void		BotSelectWeapons(void);
 
 	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, int _remote, float remotetime);
     void        disableProjectile(CProjectile *prj);

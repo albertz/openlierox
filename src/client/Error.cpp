@@ -149,10 +149,57 @@ char *LxGetLastError(void)
 // This callback function is called whenever an unhandled exception occurs
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 {
-	// Clean us
-	//ShutdownLieroX();
+	// Set the exception info for the minidump
+	MINIDUMP_EXCEPTION_INFORMATION eInfo;
+	eInfo.ThreadId = GetCurrentThreadId();
+	eInfo.ExceptionPointers = pExInfo;
+	eInfo.ClientPointers = FALSE;
 
-	
+	// Set the minidump info
+	MINIDUMP_CALLBACK_INFORMATION cbMiniDump;
+	cbMiniDump.CallbackRoutine = NULL;
+	cbMiniDump.CallbackParam = 0;
+
+	// Create the crash path, if it doesnt exist
+	char path[256];
+	sprintf(path,"%s/bug_reports",GetHomeDir());
+	mkdir(path,0);
+
+	// Get the file name
+	int i=1;
+	char checkname[256];
+	sprintf(checkname,"%s/report%i.dmp",path,i);
+	FILE *f = OpenGameFile(checkname,"r");
+	while (f)  {
+		fclose(f);
+		sprintf(checkname,"%s/report%i.dmp",path,i);
+		f = fopen(checkname,"r");
+		i++;
+	}
+	sprintf(checkname,"%s/report%i.dmp",path,i);
+
+
+	// Open the file
+	HANDLE hFile = CreateFile((LPCSTR)checkname,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+
+
+	// Write the minidump
+	if (hFile)
+		MiniDumpWriteDump(GetCurrentProcess(),GetCurrentProcessId(),hFile,MiniDumpScanMemory,&eInfo,NULL,&cbMiniDump);
+
+	// Close the file
+	CloseHandle(hFile);
+
+	// Quit SDL
+	// TODO: is it safe to call ShutdownLieroX()?
+	SDL_Quit();
+
+	// Notify the user
+	// TODO: more user-friendly
+	char buf[1024];
+	sprintf(buf,"An error occured in OpenLieroX\n\nThe development team asks you for sending the crash report file.\nThis will help fixing this bug.\n\nPlease send the crash report file to karel.petranek@tiscali.cz.\n\nThe file is located in:\n %s",checkname);
+
+	MessageBox(0,buf,"An Error Has Occured",MB_OK);
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }

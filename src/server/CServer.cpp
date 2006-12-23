@@ -18,6 +18,9 @@
 #include "console.h"
 #include "CBanList.h"
 
+// Bots' clients
+CClient *cBots = NULL;
+
 
 ///////////////////
 // Clear the server

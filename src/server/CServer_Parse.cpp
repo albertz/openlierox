@@ -791,7 +791,7 @@ void CServer::ParseConnect(CBytestream *bs)
 	}
 
 	// Check if this ip isn't already connected
-	cl = cClients;
+	/*cl = cClients;
 	for(p=0;p<MAX_CLIENTS;p++,cl++) {
 
 		if(cl->getStatus() == NET_DISCONNECTED)
@@ -821,7 +821,7 @@ void CServer::ParseConnect(CBytestream *bs)
 				return;
 			}
 		}
-	}
+	}*/
 
 	// Find a spot for the client
 	player = -1;

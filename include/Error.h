@@ -13,6 +13,10 @@
 #ifndef __ERROR_H__
 #define	__ERROR_H__
 
+#ifdef WIN32
+#include <dbghelp.h>
+#endif
+
 
 void SetError(char *fmt, ...);
 void ShowError(void);

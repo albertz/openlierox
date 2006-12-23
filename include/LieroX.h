@@ -127,6 +127,8 @@ typedef struct {
 	
 	int			iNumPlayers;
 	profile_t	*cPlayers[MAX_WORMS];
+	int			iNumBots;
+	profile_t	*cBots[MAX_WORMS];
 } game_t;
 
 
@@ -137,6 +139,7 @@ extern	options_t		*tLXOptions;
 extern  networktexts_t  *NetworkTexts;
 extern	CServer			*cServer;
 extern	CClient			*cClient;
+extern	CClient			*cBots;
 extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern  int				nDisableSound;

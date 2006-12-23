@@ -1506,8 +1506,8 @@ void CClient::processChatter(void)
 			if (controls)
 				return;
 
-			for(int j=0; j<MAX_PLAYERS; j++)
-				if (!cLocalWorms[i]->CanType() && cLocalWorms[i]->isUsed())
+			for(int j=0; j<iNumWorms; j++)
+				if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())
 					return;
 
 			// Initialize the chatter

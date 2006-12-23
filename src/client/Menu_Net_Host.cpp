@@ -247,26 +247,36 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 
-					// Make sure there is 1-2 players in the list
-			//		if(lv->getItemCount() > 0 && lv->getItemCount() < 3) {
+					// Make sure there is 1-8 players in the list
+					if (lv->getItemCount() > 0 && lv->getItemCount() <= 8) {
 
 						tGameInfo.iNumPlayers = lv->getItemCount();
-
+						
 						// Fill in the game structure												
 						lv_item_t* item;
 						int count=0;
+
+						int i=0;
 		
 						// Add the human players to the list
 						for(item = lv->getItems(); item != NULL; item = item->tNext) {
 							if(item->iIndex < 0)
 								continue;
 
+							// Max two humans
+							if (i > 1)
+								break;
+
 							profile_t *ply = FindProfile(item->iIndex);
 	
-							if(ply != NULL && ply->iType == PRF_HUMAN)
+							if(ply != NULL && ply->iType == PRF_HUMAN)  {
 								tGameInfo.cPlayers[count++] = ply;
+								i++;
+							}
 						}
 
+						tGameInfo.iNumBots = 0;
+						count = 0;
 						// Add the unhuman players to the list
 						for(item = lv->getItems(); item != NULL; item = item->tNext) {
 							if(item->iIndex < 0)
@@ -274,8 +284,18 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 							profile_t *ply = FindProfile(item->iIndex);
 	
-							if(ply != NULL && ply->iType != PRF_HUMAN)
-								tGameInfo.cPlayers[count++] = ply;
+							if(ply != NULL && ply->iType != PRF_HUMAN)  {
+
+								// Hack: At least one player has to be handled with cClient
+								if (i == 0)  {
+									tGameInfo.cPlayers[0] = ply;
+									i++;
+								}
+								else  {
+									tGameInfo.cBots[count++] = ply;
+									tGameInfo.iNumBots++;
+								}
+							}
 						}			
 			
 			
@@ -306,7 +326,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 						// Start the lobby
 						Menu_Net_HostLobbyInitialize();
-			//		}
+					}
 				}
 				break;
 		}
@@ -402,12 +422,25 @@ int Menu_Net_HostLobbyInitialize(void)
 		return false;
 	}
 
-
 	cClient->Connect("127.0.0.1");
 
 	cClient->setChatbox(&cChat);
 	cChat.Clear();
     cChat.setWidth(590);
+
+	// Initialize the bots
+	cBots = new CClient[tGameInfo.iNumBots];
+	if (cBots)  {
+		for (int i=0; i<tGameInfo.iNumBots; i++) {
+			if (!cBots[i].Initialize(true,i))  {
+				cHostLobby.Shutdown();
+				return false;
+			}
+
+			// Connect the bot
+			cBots[i].Connect("127.0.0.1");
+		}
+	}
 
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();
@@ -557,6 +590,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Process the server & client frames
 	cServer->Frame();
 	cClient->Frame();
+	if (cBots)
+		for (int i=0;i<tGameInfo.iNumBots;i++)
+			cBots[i].Frame();
 
 
     // Game settings
@@ -681,8 +717,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// De-register the server
 					Menu_Net_HostDeregister();
 
-					// Shutdown server & client
+					// Shutdown server & clients
 					cServer->Shutdown();
+					if (cBots)
+						for (int i=0;i<tGameInfo.iNumBots;i++)
+							cBots[i].Shutdown();
 					cClient->Shutdown();
 
 					// Back to main net menu

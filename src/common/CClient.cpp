@@ -138,7 +138,7 @@ void CClient::MinorClear(void)
 
 ///////////////////
 // Initialize the client
-int CClient::Initialize(void)
+int CClient::Initialize(bool Bot,int BotNr)
 {
 	int i;
 
@@ -155,11 +155,18 @@ int CClient::Initialize(void)
 
 
 	// Initialize the local worms
-	iNumWorms = tGameInfo.iNumPlayers;
+	if (Bot) {
+		iNumWorms = 1;
+		cLocalWorms[0] = NULL;
+		tProfiles[0] = tGameInfo.cBots[BotNr];
+	}
+	else  {
+		iNumWorms = tGameInfo.iNumPlayers-tGameInfo.iNumBots;
 
-	for(i=0;i<iNumWorms;i++) { 
-		cLocalWorms[i] = NULL;
-		tProfiles[i] = tGameInfo.cPlayers[i];
+		for(i=0;i<iNumWorms;i++) { 
+			cLocalWorms[i] = NULL;
+			tProfiles[i] = tGameInfo.cPlayers[i];
+		}
 	}
 
 	// Initialize the remote worms
@@ -480,6 +487,34 @@ void CClient::SetupWorms(int numworms, CWorm *worms)
 
 	for(int i=0;i<iNumWorms;i++)
 		cLocalWorms[i] = worms[i];*/
+}
+
+////////////////////////
+// Select weapons for client handling local bots in net play
+// Normally, this is done in CClient::Draw
+void CClient::BotSelectWeapons(void)
+{
+	if(iNetStatus == NET_CONNECTED && iGameReady)  {
+
+		// Go through and draw the first two worms select menus
+		for(int i=0;i<iNumWorms;i++) {
+			// Select weapons
+			cLocalWorms[i]->setWeaponsReady(true);
+			cLocalWorms[i]->setCurrentWeapon(0);
+		}
+
+		// If we're ready, let the server know
+		if(!iReadySent) {
+			iReadySent = true;
+			CBytestream *bytes = cNetChan.getMessageBS();
+			bytes->writeByte(C2S_IMREADY);
+			bytes->writeByte(iNumWorms);
+
+			// Send my worm's weapon details
+			for(i=0;i<iNumWorms;i++)
+				cLocalWorms[i]->writeWeapons(bytes);
+		}
+	}
 }
 
 

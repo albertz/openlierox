@@ -363,9 +363,16 @@ void GameLoop(void)
 
 	// Hosting
 	case GME_HOST:
+		int i;
 		cClient->Frame();
+		if (cBots)
+			for (i=0;i<tGameInfo.iNumBots;i++)
+				cBots[i].Frame();
 		cServer->Frame();
 
+		if (cBots)
+			for (i=0;i<tGameInfo.iNumBots;i++)
+				cBots[i].BotSelectWeapons();
 		cClient->Draw(Screen);
 		break;
 
@@ -404,6 +411,9 @@ void QuittoMenu(void)
 	tLX->iQuitEngine = true;
     Menu_SetSkipStart(false);
 	cClient->Disconnect();
+	if (cBots)
+		for (int i=0;i<tGameInfo.iNumBots;i++)
+			cBots[i].Disconnect();
 }
 
 
@@ -447,6 +457,14 @@ void ShutdownLieroX(void)
 		cServer->Shutdown();
 		delete cServer;
 		cServer = NULL;
+	}
+
+	// Free the bots
+	if (cBots)  {
+		for (int i=0;i<tGameInfo.iNumBots;i++)
+			cBots[i].Shutdown();
+		delete[] cBots;
+		cBots = NULL;
 	}
 
 	ShutdownEntities();
