@@ -244,8 +244,8 @@ TABLE   list[] = {
 
 static short    lwidth;
 
-char sextmp[2048];
 const char* sex(short wraplen) {
+	static char sextmp[2048];
    register TABLE  *ttp;
    register char   *cp;
    char* buffer = sextmp;
