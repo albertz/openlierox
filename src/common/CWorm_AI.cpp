@@ -4783,6 +4783,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	
 	bool aim = false;
 
+	// if above the target, release
+	if(fabs(nodePos.x - vPos.x) <= 10 && vPos.y < nodePos.y) {
+		fireNinja = false;
+		cNinjaRope.Release();
+	}
+
+
     if(fireNinja) {
  
 		// Get the best spot to shoot the rope to
