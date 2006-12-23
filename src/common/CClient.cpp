@@ -39,6 +39,8 @@ void CClient::Clear(void)
 	cBonuses = NULL;
     nTopProjectile = 0;
 
+	bBotClient = false;
+
 	SetSocketStateValid(tSocket, false);
 
 	pChatbox = &cChatbox;
@@ -156,11 +158,13 @@ int CClient::Initialize(bool Bot,int BotNr)
 
 	// Initialize the local worms
 	if (Bot) {
+		bBotClient = true;
 		iNumWorms = 1;
 		cLocalWorms[0] = NULL;
 		tProfiles[0] = tGameInfo.cBots[BotNr];
 	}
 	else  {
+		bBotClient = false;
 		iNumWorms = tGameInfo.iNumPlayers-tGameInfo.iNumBots;
 
 		for(i=0;i<iNumWorms;i++) { 

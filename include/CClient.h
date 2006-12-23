@@ -86,6 +86,8 @@ public:
         nTopProjectile = 0;
 		bMapGrabbed = false;
 
+		bBotClient = false;
+
 		cNetChan.Clear();
 		iNetStatus = NET_DISCONNECTED;
 		bsUnreliable.Clear();
@@ -132,6 +134,9 @@ private:
     CViewport   cViewports[NUM_VIEWPORTS];
 
 	profile_t	*tProfiles[MAX_PLAYERS];
+
+	// Client handling local bot in netplay
+	bool		bBotClient;
 
 	// Remote worms
 	CWorm		*cRemoteWorms;

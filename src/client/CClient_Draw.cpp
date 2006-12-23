@@ -1201,13 +1201,16 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
     int x = 0;
     int w = 240;
     int h = 185;
-	if (tGameInfo.iGameType == GME_HOST)
+	if (tGameInfo.iGameType == GME_HOST)  {
 		w = 260;
-	if (bShowReady && tGameInfo.iGameType == GME_HOST)  {
-		x = 200;
-		y = 195;
-		w = 300;
-		h = 185;
+		if (bShowReady)  {
+			x = 200;
+			y = 195;
+			w = 300;
+			h = 185;
+		}
+		if (cViewports[1].getUsed())
+			x += 125;
 	}
     DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, 0);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
@@ -1301,6 +1304,16 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
     int x = 0;
 	int w = 240;
 	int h = 132;
+	if (cViewports[1].getUsed())  {
+		y = 250;
+		if (tGameInfo.iGameType == GME_LOCAL)
+			x = 200;
+		else {
+			x = 75;
+			y = 195;
+		}
+	}
+
     DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, 0);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
 

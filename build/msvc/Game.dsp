@@ -82,7 +82,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /MAPINFO:LINES /MAPINFO:EXPORTS
-# SUBTRACT LINK32 /pdb:none
+# SUBTRACT LINK32 /pdb:none /incremental:no
 
 !ELSEIF  "$(CFG)" == "Game - Win32 Profile"
 
@@ -232,6 +232,10 @@ SOURCE=..\..\include\MathLib.h
 # Begin Source File
 
 SOURCE=..\..\include\RandomNumberList.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\common\sex.cpp
 # End Source File
 # Begin Source File
 
@@ -687,6 +691,10 @@ SOURCE=.\libs\SDL_mixer.lib
 # Begin Source File
 
 SOURCE=.\libs\lua5.1.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\libs\dbghelp.lib
 # End Source File
 # End Group
 # Begin Group "Resources"
