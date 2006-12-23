@@ -1095,6 +1095,12 @@ void CClient::ParseDropped(CBytestream *bs)
 	iServerError = true;
 	strcpy(strServerErrorMsg, bs->readString(buf));
 
+	// Clear the bot
+	if (bBotClient)  {
+		MinorClear();
+		iNetStatus = NET_DISCONNECTED;
+	}
+
 	if (tLXOptions->iLogConvos)  {
 		if(!bInServer)
 			return;

@@ -1429,6 +1429,10 @@ int ChatMaxLength = 48;
 // Process any chatter
 void CClient::processChatter(void)
 {	
+	// Bots don't type
+	if (bBotClient)
+		return;
+
     keyboard_t *kb = GetKeyboard();
 
 	// If we're currently typing a message, add any keys to it

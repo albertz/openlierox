@@ -786,6 +786,8 @@ int CMap::CarveHole(int size, CVec pos)
 
 	// Calculate half
 	hole = Theme.bmpHoles[size];
+	if (!hole)
+		return 0;
 	w = hole->w;
 	h = hole->h;
 

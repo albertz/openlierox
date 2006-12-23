@@ -2435,7 +2435,7 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 	}
 
 	// Don't shoot teammates
-	if(tGameInfo.iGameType == GMT_TEAMDEATH && nType == PX_WORM)
+	if(tGameInfo.iGameMode == GMT_TEAMDEATH && nType == PX_WORM)
 		return false;
 
 	// If target is blocked by large amount of dirt, we can't shoot it with rifle
@@ -3346,7 +3346,7 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 	CVec WormsPos[MAX_WORMS];
 	int	WormCount = 0;
 	int i;
-	if (cClient && tGameInfo.iGameType == GMT_TEAMDEATH)  {
+	if (cClient && tGameInfo.iGameMode == GMT_TEAMDEATH)  {
 		CWorm *w = cClient->getRemoteWorms();
 		for (i=0;i<MAX_WORMS;i++,w++)  {
 			if (w)

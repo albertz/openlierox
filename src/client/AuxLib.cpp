@@ -79,6 +79,8 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 		StartSoundSystem();
 		SetSoundVolume( tLXOptions->iSoundVolume );
 	}
+	else
+		StopSoundSystem();
 
 
 	// Give a seed to the random number generator

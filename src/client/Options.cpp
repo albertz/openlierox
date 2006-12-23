@@ -130,7 +130,7 @@ int LoadOptions(void)
     // Advanced
     ReadInteger(f, "Advanced", "MaxFPS",    &tLXOptions->nMaxFPS, 95);
 	ReadInteger(f, "Advanced", "JpegQuality", &tLXOptions->iJpegQuality, 80);
-	ReadFloat  (f, "Advanced", "NetworkUpdatePeriod", &tLXOptions->fUpdatePeriod,0.1f);
+	ReadFloat  (f, "Advanced", "NetworkUpdatePeriod", &tLXOptions->fUpdatePeriod,0.05f);
 
 	// Clamp the Jpeg quality
 	if (tLXOptions->iJpegQuality < 1)

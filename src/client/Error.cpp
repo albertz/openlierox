@@ -166,17 +166,17 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	mkdir(path,0);
 
 	// Get the file name
-	int i=1;
 	char checkname[256];
-	sprintf(checkname,"%s/report%i.dmp",path,i);
-	FILE *f = OpenGameFile(checkname,"r");
-	while (f)  {
-		fclose(f);
+
+	FILE *f = NULL;
+	for (int i=1;1;i++)  {
 		sprintf(checkname,"%s/report%i.dmp",path,i);
 		f = fopen(checkname,"r");
-		i++;
+		if (!f)
+			break;
+		else
+			fclose(f);
 	}
-	sprintf(checkname,"%s/report%i.dmp",path,i);
 
 
 	// Open the file
@@ -195,11 +195,16 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	SDL_Quit();
 
 	// Notify the user
-	// TODO: more user-friendly
 	char buf[1024];
-	sprintf(buf,"An error occured in OpenLieroX\n\nThe development team asks you for sending the crash report file.\nThis will help fixing this bug.\n\nPlease send the crash report file to karel.petranek@tiscali.cz.\n\nThe file is located in:\n %s",checkname);
+	//sprintf(buf,"An error occured in OpenLieroX\n\nThe development team asks you for sending the crash report file.\nThis will help fixing this bug.\n\nPlease send the crash report file to karel.petranek@tiscali.cz.\n\nThe file is located in:\n %s",checkname);
+	//MessageBox(0,buf,"An Error Has Occured",MB_OK);
 
-	MessageBox(0,buf,"An Error Has Occured",MB_OK);
+
+	sprintf(buf,"\"%s\"",checkname);
+
+	//MessageBox(0,GetFullFileName("BugReport.exe"),"Debug",MB_OK);
+
+	ShellExecute(NULL,"open",GetFullFileName("BugReport.exe"),buf,NULL,SW_SHOWNORMAL);
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
