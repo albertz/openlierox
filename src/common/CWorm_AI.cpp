@@ -650,7 +650,12 @@ public:
 		clear();
 	}
 		
-private:	
+	void removePathFromList(NEW_ai_node_t* start) {
+		for(NEW_ai_node_t* node = start; node; node = node->psNext)
+			nodes.remove(node);
+	}	
+		
+private:
 	void clear() {
 		clear_areas();
 		clear_nodes();
@@ -979,7 +984,10 @@ void CWorm::AI_Shutdown(void)
 		delete ((searchpath_base*)pathSearcher);			
 	}
 	pathSearcher = NULL;
-
+	
+	// in every case, the nodes of the current path is not handled by pathSearcher
+	delete_ai_nodes(NEW_psPath);
+	
     AI_CleanupPath(psPath);
 	NEW_psPath = NULL;
 	NEW_psCurrentNode = NULL;
@@ -3207,7 +3215,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		}*/
 		
 	// If everything fails, try some random weapons
-	int num;
+	int num = GetRandomInt(4);
 	for (i=0; i<5; i++, num=GetRandomInt(4))
 		if (!tWeapons[num].Reloading)  
 			return num;
@@ -3697,16 +3705,21 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	if(!bPathFinished) {
 		// have we finished a current search?
 		if(((searchpath_base*)pathSearcher)->isReady()) {
+			
+			// in every case, the nodes of the current path is not handled by pathSearcher
+			// so we have to delete it here
+			delete_ai_nodes(NEW_psPath);
+			
 			NEW_psPath = ((searchpath_base*)pathSearcher)->resultedPath();
-	
+			NEW_psLastNode = get_last_ai_node(NEW_psPath);
+			NEW_psCurrentNode = NEW_psPath;
+			
 			// have we found something?
 			if(NEW_psPath) {
-				bPathFinished = true;
+				bPathFinished = true;								
 				
-				NEW_psLastNode = get_last_ai_node(NEW_psPath);
-				
-				// Set the current node to the beginning of the path, because we are starting a new one
-				NEW_psCurrentNode = NEW_psPath;
+				// prevent it from deleting the current path (it will be deleted, when the new path is found)
+				((searchpath_base*)pathSearcher)->removePathFromList(NEW_psPath);				
 				
 #ifdef _AI_DEBUG
 				pcMap->ClearDebugImage();	
@@ -3737,10 +3750,7 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	}
 	
 	// if we are here, we want to start a new search
-	bPathFinished = false;
-	NEW_psPath = NULL;
-	NEW_psCurrentNode = NULL;
-	NEW_psLastNode = NULL;
+	bPathFinished = false;	
 	
 	// start a new search
 	((searchpath_base*)pathSearcher)->target.x = (int)trg.x;
@@ -4387,7 +4397,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		next_node = next_node->psNext;
 	}
 	if(newnode) {
-		cNinjaRope.Release();
 	} else {
 		// check, if we have a direct connection to the current node
 		// else, chose some last node
@@ -4402,13 +4411,19 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		}
 	}
 
+	// Get the target node position
+    CVec nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
+		
+	// release rope, if it forces us to the wrong direction
+	if((cNinjaRope.GetForce(vPos).Normalize() + vPos - nodePos).GetLength2() > (vPos - nodePos).GetLength2())
+		cNinjaRope.Release();
+
+
 #ifdef _AI_DEBUG
 	NEW_AI_DrawPath(pcMap);
 #endif
 	
 	
-	// Get the target node position
-    CVec nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 
 
     /*

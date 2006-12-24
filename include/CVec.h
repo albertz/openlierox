@@ -45,6 +45,8 @@ public:
 
 	inline float GetAngle() const { return (float)atan2((float)y,(float)x); }
 
+	inline VectorD2 Normalize() { return *this/GetLength(); }
+
 	// Overloads
 	inline VectorD2 operator*(const float scalar) const {		
 		return VectorD2(x*scalar,y*scalar);
