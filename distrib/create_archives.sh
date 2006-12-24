@@ -5,7 +5,7 @@ VERSION=0.57
 cd ..
 
 SRC_FILES="src/*.cpp src/common/*.cpp src/client/*.cpp src/server/*.cpp include/*.h"
-STD_FILES="CMakeLists.txt compile.sh install.sh start.sh"
+STD_FILES="CMakeLists.txt compile.sh install.sh start.sh hawknl/install.sh hawknl/download.sh"
 DOC_FILES="COPYING.LIB DEPS doc/*"
 DAT_FILES="share/gamedir/* share/OpenLieroX.png"
 
