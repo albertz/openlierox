@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ ! -d include ] || [ ! -d src ]; then
-	download.sh || exit -1
+	./download.sh || exit -1
 
 	echo ">>> installing..."
 	mv hawknl1.68/src . && \

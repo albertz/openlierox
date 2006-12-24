@@ -36,10 +36,22 @@ test_include_file gd.h || \
 if [ "$HAWKNL_BUILTIN" == "1" ]; then
 	echo "INFO: HawkNL will be builtin"
 	cd hawknl
-	install.sh || \
+	./install.sh || \
 		{ echo "ERROR: problems while installing HawkNL" >&2; exit -1; }
 	cd ..
-	HAWKNL_GCC_PARAM="hawknl/src/*.c -I hawknl/include"
+	HAWKNL_GCC_PARAM="\
+		hawknl/src/crc.c \
+		hawknl/src/errorstr.c \
+		hawknl/src/nl.c \
+		hawknl/src/sock.c \
+		hawknl/src/group.c \
+		hawknl/src/loopback.c \
+		hawknl/src/err.c \
+		hawknl/src/thread.c \
+		hawknl/src/mutex.c \
+		hawknl/src/condition.c \
+		hawknl/src/nltime.c \
+ 		-I hawknl/include"
 else
 	test_include_file nl.h || \
 		{ echo "ERROR: HawkNL header not found" >&2; exit -1; }
