@@ -426,12 +426,6 @@ public:
 	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
 	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap);
 	int			NEW_AI_CreatePath(CMap *pcMap);
-	NEW_ai_node_t*	NEW_AI_ProcessPath(CVec trg, CVec pos, CMap *pcMap, unsigned short recDeep = 0);
-	void		NEW_AI_ProcessPathNonRec(CVec trg, CVec pos, CMap *pcMap);
-	NEW_ai_node_t *NEW_AI_AddNode(CVec Pos,NEW_ai_node_t *psPrev,NEW_ai_node_t *psNext);
-	void		NEW_AI_CleanupPath(void);
-	void		NEW_AI_CleanupStoredNodes();
-	void		NEW_AI_SimplifyPath(CMap *pcMap);
 	void		NEW_AI_MoveToTarget(CMap *pcMap);
 	CVec		NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap);
 #ifdef _AI_DEBUG
