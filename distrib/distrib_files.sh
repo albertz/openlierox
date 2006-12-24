@@ -1,8 +1,10 @@
 #!/bin/bash
 
-DEST=albertzeyer@shell.sourceforge.net:/home/groups/o/op/openlierox/htdocs/
+DEST="albertzeyer@shell.sourceforge.net:/home/groups/o/op/openlierox/htdocs/"
+SYNC_CMD="rsync -avP --exclude .svn --delete-after"
 
-rsync -avP --exclude .svn additions/* $DEST
-rsync -avP --exclude .svn tarball/* $DEST
-rsync -avP --exclude .svn ebuild/* $DEST
-rsync -avP --exclude .svn deb/* $DEST
+$SYNC_CMD additions/* $DEST
+$SYNC_CMD tarball/* $DEST
+$SYNC_CMD ebuild/* $DEST
+$SYNC_CMD deb/* $DEST
+$SYNC_CMD web/* $DEST
