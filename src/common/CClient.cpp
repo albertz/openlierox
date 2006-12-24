@@ -165,7 +165,7 @@ int CClient::Initialize(bool Bot,int BotNr)
 	}
 	else  {
 		bBotClient = false;
-		iNumWorms = tGameInfo.iNumPlayers-tGameInfo.iNumBots;
+		iNumWorms = tGameInfo.iNumPlayers/*-tGameInfo.iNumBots*/;
 
 		for(i=0;i<iNumWorms;i++) { 
 			cLocalWorms[i] = NULL;

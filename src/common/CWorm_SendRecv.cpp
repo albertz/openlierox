@@ -287,6 +287,8 @@ void CWorm::readWeapons(CBytestream *bs)
 		if(cGameScript) {
 			if(id >= 0 && id < cGameScript->GetNumWeapons())
 				tWeapons[i].Weapon = cGameScript->GetWeapons() + id;
+			else
+				printf("Error when reading weapons");
 		}
 	}
 

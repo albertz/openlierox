@@ -436,6 +436,8 @@ public:
 	int			getMuted(void)				{ return iMuted; }
 	void		setMuted(int _m)			{ iMuted = _m; }
 
+	bool		getBotClient(void)			{ return bBotClient; }
+
 	inline int	getPing(void)				{ return iPing; }
 	inline void	setPing(int Ping)			{ iPing = Ping; }
 

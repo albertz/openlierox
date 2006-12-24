@@ -333,7 +333,7 @@ public:
 	//
 	void		SetupInputs(char Inputs[32][8]);
 	void		InitWeaponSelection(void);
-	void		GetRandomWeapons(int Result[MAX_WEAPONSLOTS]);
+	void		GetRandomWeapons(void);
 	void		SelectWeapons(SDL_Surface *bmpDest, CViewport *v);
 
 

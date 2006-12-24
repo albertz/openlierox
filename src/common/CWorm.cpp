@@ -61,6 +61,7 @@ void CWorm::Clear(void)
 
 	iGotTarget = false;
 	iHooked = false;
+	pcHookWorm = NULL;
 
 	iTagIT = false;
 	fTagTime = 0;
@@ -461,11 +462,7 @@ void CWorm::InitWeaponSelection(void)
 
 		// Random
 		if (bRandomWeaps) {
-			int tRandomWeapons[MAX_WEAPONSLOTS];
-			GetRandomWeapons(tRandomWeapons);
-			for (i=0;i<5; i++)  
-				tWeapons[i].Weapon = cGameScript->GetWeapons()+tRandomWeapons[i];
-
+			GetRandomWeapons();
 			AI_SetGameType(GAM_OTHER);
 		}
 	}
@@ -481,9 +478,8 @@ void CWorm::InitWeaponSelection(void)
 
 ///////////////////
 // Randomize the weapons
-void CWorm::GetRandomWeapons(int Result[MAX_WEAPONSLOTS])
+void CWorm::GetRandomWeapons(void)
 {
-	wpnslot_t tRandWeaps[MAX_WEAPONSLOTS];
 	int lastenabled = 0;
 
 	for(int i=0; i<5; i++) {
@@ -504,7 +500,7 @@ void CWorm::GetRandomWeapons(int Result[MAX_WEAPONSLOTS])
 			// Have we already got this weapon?
 			bool bSelected = false;
 			for(int k=0; k<i; k++) {
-				if((cGameScript->GetWeapons()+n)->ID == tRandWeaps[k].Weapon->ID) {
+				if((cGameScript->GetWeapons()+n)->ID == tWeapons[k].Weapon->ID) {
 					bSelected = true;
 					break;
 				}
@@ -526,8 +522,7 @@ void CWorm::GetRandomWeapons(int Result[MAX_WEAPONSLOTS])
 			}	
 											
 		}  // while
-		tRandWeaps[i].Weapon = cGameScript->GetWeapons()+n;
-		Result[i] = n;
+		tWeapons[i].Weapon = cGameScript->GetWeapons()+n;
 	}
 
 }
@@ -640,10 +635,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
 		// Fire on the random button?
 		if(cShoot.isUp() && !iChat_Typing) {
-			int tRandomWeapons[MAX_WEAPONSLOTS];
-			GetRandomWeapons(tRandomWeapons);
-			for (i=0;i<5; i++)  
-				tWeapons[i].Weapon = cGameScript->GetWeapons()+tRandomWeapons[i];
+			GetRandomWeapons();
 		}
 	}
 

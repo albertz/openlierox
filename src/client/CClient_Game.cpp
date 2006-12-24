@@ -114,7 +114,7 @@ void CClient::Simulation(void)
 
 
 		// Is this worm shooting?
-		if(/*local && */w->getAlive()) {
+		if(/*local && */w->getAlive() && !bBotClient) {
 
 			// Shoot
 			if(w->getWormState()->iShoot) {
@@ -136,17 +136,18 @@ void CClient::Simulation(void)
 	}
 
 	// Entities
-	if (!bBotClient)
+	if (!bBotClient)  
 		SimulateEntities(tLX->fDeltaTime,cMap);
 
-	// Weather
-	//cWeather.Simulate(tLX->fDeltaTime, cMap);
+		// Weather
+		//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
 	SimulateProjectiles(tLX->fDeltaTime);
 
-	// Bonuses    
+	// Bonuses 
 	SimulateBonuses(tLX->fDeltaTime);
+	
 
 
 
