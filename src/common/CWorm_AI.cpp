@@ -3220,6 +3220,10 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		if (!tWeapons[num].Reloading)  
 			return num;
 
+	// If everything fails, try all weapons
+	for (i=0; i<5; i++)
+		if (!tWeapons[i].Reloading)  
+			return num;
 
     return -1;
 }
@@ -3539,7 +3543,7 @@ public:
 // Trace the line with worm width
 int traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 {	
-	static const unsigned short wormsize = 7;
+	static const unsigned short wormsize = 1;
 
 	if(collision) {
 		collision->x = target.x;
@@ -3706,16 +3710,17 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 		// have we finished a current search?
 		if(((searchpath_base*)pathSearcher)->isReady()) {
 			
-			// in every case, the nodes of the current path is not handled by pathSearcher
-			// so we have to delete it here
-			delete_ai_nodes(NEW_psPath);
-			
-			NEW_psPath = ((searchpath_base*)pathSearcher)->resultedPath();
-			NEW_psLastNode = get_last_ai_node(NEW_psPath);
-			NEW_psCurrentNode = NEW_psPath;
-			
+			NEW_ai_node_t* res = ((searchpath_base*)pathSearcher)->resultedPath();
+						
 			// have we found something?
-			if(NEW_psPath) {
+			if(res) {
+				// in every case, the nodes of the current path is not handled by pathSearcher
+				// so we have to delete it here
+				delete_ai_nodes(NEW_psPath);
+				
+				NEW_psPath = res;
+				NEW_psLastNode = get_last_ai_node(NEW_psPath);
+				NEW_psCurrentNode = NEW_psPath;
 				bPathFinished = true;								
 				
 				// prevent it from deleting the current path (it will be deleted, when the new path is found)
