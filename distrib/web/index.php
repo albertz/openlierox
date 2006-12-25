@@ -25,6 +25,7 @@
 	<h2>Downloads</h2>
 	<a href="OpenLieroX_0.57.src.zip">OpenLieroX 0.57 Source zip</a><br>
 	<a href="OpenLieroX_0.57.src.tar.bz">OpenLieroX 0.57 Source tar.bz</a><br>	
+	<a href="OpenLieroX_0.57.win32.zip">OpenLieroX 0.57 Win32 binary zip</a><br>
 	<a href="lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
 	<a href="games-action/openlierox/openlierox-0.57.ebuild">Gentoo OpenLieroX ebuild<a>
 </p>
