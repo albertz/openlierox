@@ -50,19 +50,17 @@ int LoadOptions(void)
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
 	InitBaseSearchPaths();
-	char tmp[20], tmp2[30];
+	char tmp[20], tmp2[30], tmp3[64];
 	strcpy(tmp, "SearchPath"); i = 1;
 	filelist_t** spath = &tLXOptions->tSearchPaths;
     while(true) {
     	 // &tmp[10] is the end of "SearchPath"
     	strcpy(&tmp[10], itoa(i, tmp2, 10));
+        if(!ReadString(f, "FileHandling", tmp, tmp3, NULL))
+        	break;
     	*spath = new filelist_t;
 		(*spath)->next = NULL;
-		(*spath)->filename[0] = '\0';
-        if(!ReadString(f, "FileHandling", tmp, (*spath)->filename, NULL)) {
-        	delete *spath; *spath = NULL;     	
-        	break;
-        }
+		strcpy((*spath)->filename, tmp3);
 		i++; spath = &(*spath)->next;
 	}
 	for(spath = &basesearchpaths; *spath != NULL; spath = &(*spath)->next)

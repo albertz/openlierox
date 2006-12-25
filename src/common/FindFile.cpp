@@ -516,10 +516,13 @@ char* GetFullFileName(const char* path) {
 		return NULL;
 
 	filelist_t* spath = NULL;
+	bool has_tried_basesearchpaths = false;
 	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
-	if(spath == NULL) spath = basesearchpaths;
-	assert(spath != NULL);
-	for(; spath != NULL; spath = spath->next) {
+	if(spath == NULL) {
+		spath = basesearchpaths;
+		has_tried_basesearchpaths = true;
+	}
+	while(spath) { // loop over searchpaths		
 		strcpy(tmp, spath->filename);
 		strcat(tmp, "/");
 		strcat(tmp, path);
@@ -543,7 +546,13 @@ char* GetFullFileName(const char* path) {
 			
 			return NULL;
 		}
-	}
+	
+		spath = spath->next;
+		if(spath == NULL && !has_tried_basesearchpaths) {
+			has_tried_basesearchpaths = true;
+			spath = basesearchpaths;
+		}
+	} // loop over searchpaths
 
 	return NULL;
 }
@@ -614,3 +623,4 @@ char* GetHomeDir() {
 #endif
 	return tmp;
 }
+
