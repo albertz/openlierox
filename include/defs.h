@@ -23,6 +23,12 @@
 #define DEBUG	1
 #endif
 
+#ifdef WIN32
+#ifndef _DEBUG
+#undef DEBUG
+#endif // _DEBUG
+#endif // WIN32
+
 // Standard includes
 #include <assert.h>
 #include <stdio.h>

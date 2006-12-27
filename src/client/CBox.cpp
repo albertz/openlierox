@@ -117,7 +117,7 @@ void CBox::PreDraw(void)
 	float step = (float)(1/(PI*(iRound+0.00000001)*(iBorder+0.000000001)));
 
 	// Top left
-	// (1,3/2*PI)
+	// (PI,3/2*PI)
 	float i;
 	for (i=1.00f;i<1.5f;i+=step)  {
 		cur_col = iDarkColour;

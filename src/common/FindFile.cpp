@@ -269,6 +269,9 @@ bool GetExactFileName(const char* searchname, char* filename)
 		return false;
 	}
 
+	if (filename == NULL)
+		return false;
+
 	const char* seps[] = {"\\", "/", (char*)NULL};
 	char nextname[256] = "";
 	char nextexactname[256] = "";
@@ -491,8 +494,10 @@ void InitBaseSearchPaths() {
 	AddToFileList(&basesearchpaths, ".");
 	// add EXE-file path
 	char *slashpos = strrchr(argv0,'\\');
-	*slashpos = 0;
-	AddToFileList(&basesearchpaths, argv0);
+	if (slashpos)  {
+		*slashpos = 0;
+		AddToFileList(&basesearchpaths, argv0);
+	}
 #endif
 }
 
@@ -598,13 +603,26 @@ void removeEndingSlashes(char* s) {
 		s[i] = '\0';
 }
 
+/////////////////
+// Returns true, if the list contains the path
 bool FileListIncludes(const filelist_t* l, const char* f) {
-	static char tmp1[64] = ""; // TODO: enough?
-	static char tmp2[64] = ""; // TODO: enough?
-	strcpy(tmp1, f); removeEndingSlashes(tmp1);
+	// Check
+	if (!f || !l)
+		return false;
+
+	static char tmp1[256] = "";
+	static char tmp2[256] = "";
+	strcpy(tmp1, f); 
+	tmp1[255] = '\0';
+	removeEndingSlashes(tmp1);
 	
+	// Go through the list, checking each item
 	for(const filelist_t* fl = l; fl != NULL; fl = fl->next) {
-		strcpy(tmp2, fl->filename); removeEndingSlashes(tmp2);
+		if (!fl->filename)
+			continue;
+		strcpy(tmp2, fl->filename);
+		tmp2[255] = '\0';
+		removeEndingSlashes(tmp2);
 		if(strcasecmp(tmp1, tmp2) == 0)
 			return true;
 	}
@@ -619,7 +637,7 @@ char* GetHomeDir() {
 	strcat(tmp, "/.OpenLieroX");
 #else
 	SHGetSpecialFolderPath(NULL,(LPTSTR)&tmp,CSIDL_PERSONAL,FALSE);
-	strcat(tmp,"/OpenLieroX");
+	strcat(tmp,"\\OpenLieroX");
 #endif
 	return tmp;
 }

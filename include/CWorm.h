@@ -423,10 +423,13 @@ public:
 	CVec		NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap);
 	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap);
 	bool		NEW_AI_CheckFreeCells(int Num,CMap *pcMap);
+	bool		NEW_AI_IsInAir(CVec pos, CMap *pcMap, int area_a=3);
 	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
 	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap);
 	int			NEW_AI_CreatePath(CMap *pcMap);
+	void		NEW_AI_SimplifyPath(CMap *pcMap);
 	void		NEW_AI_MoveToTarget(CMap *pcMap);
+	void		NEW_AI_MoveToTargetDC(CMap *pcMap);
 	CVec		NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap);
 #ifdef _AI_DEBUG
 	void		NEW_AI_DrawPath(CMap *pcMap);

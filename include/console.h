@@ -74,6 +74,7 @@ int		Con_Initialize(void);
 void	Con_Shutdown(void);
 void	Con_Toggle(void);
 void	Con_Process(float dt);
+void	Con_ProcessCharacter(int input);
 void	Con_Hide(void);
 void	Con_Draw(SDL_Surface *bmpDest);
 

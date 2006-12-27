@@ -162,7 +162,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 	// Create the crash path, if it doesnt exist
 	char path[256];
-	sprintf(path,"%s/bug_reports",GetHomeDir());
+	sprintf(path,"./bug_reports");
 	mkdir(path,0);
 
 	// Get the file name

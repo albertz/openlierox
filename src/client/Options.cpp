@@ -25,6 +25,8 @@ networktexts_t   *NetworkTexts = NULL;
 // Load the options
 int LoadOptions(void)
 {
+	printf("Loading options... ");
+
     char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     char    *ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
     char    *ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
@@ -38,8 +40,6 @@ int LoadOptions(void)
 		return false;
 	}
 	tLXOptions->tSearchPaths = NULL;
-	tLXOptions->tSearchPaths = NULL;
-
 
     char *f = "cfg/options.cfg";
 
@@ -135,6 +135,8 @@ int LoadOptions(void)
 		tLXOptions->iJpegQuality = 1;
 	if (tLXOptions->iJpegQuality > 100)
 		tLXOptions->iJpegQuality = 100;
+
+	printf("DONE\n");
 
 	return true;
 }
@@ -276,6 +278,7 @@ void SaveOptions(void)
 // Loads the texts used by server
 bool LoadNetworkStrings(void)
 {
+	printf("Loading network texts... ");
 	NetworkTexts = new networktexts_t;
 	if (!NetworkTexts)
 		return false;
@@ -315,6 +318,7 @@ bool LoadNetworkStrings(void)
 	ReadString (f, "NetworkTexts", "BotsNotAllowed",  NetworkTexts->sBotsNotAllowed, "Sorry, bots are not allowed on this server");
 	ReadString (f, "NetworkTexts", "WantsJoin",		  NetworkTexts->sWantsJoin,		 "<player> wants join the server");
 
+	printf("DONE\n");
 	return true;
 }
 
