@@ -57,6 +57,9 @@ inline int mkdir(const char *path, int mode) { return _mkdir(path); }
 #	include <sys/stat.h>
 #	include <sys/dir.h>
 #	include <unistd.h>
+inline void strlwr(char* string) {
+	if(string) while( 0 != ( *string++ = (char)tolower( *string ) ) ) ;
+}
 #endif
 
 #include <SDL/SDL.h>

@@ -427,7 +427,6 @@ public:
 	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
 	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap);
 	int			NEW_AI_CreatePath(CMap *pcMap);
-	void		NEW_AI_SimplifyPath(CMap *pcMap);
 	void		NEW_AI_MoveToTarget(CMap *pcMap);
 	void		NEW_AI_MoveToTargetDC(CMap *pcMap);
 	CVec		NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap);

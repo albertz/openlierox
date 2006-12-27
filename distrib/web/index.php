@@ -27,12 +27,12 @@
 	<a href="OpenLieroX_0.57.src.tar.bz">OpenLieroX 0.57 Source tar.bz</a><br>	
 	<a href="OpenLieroX_0.57.win32.zip">OpenLieroX 0.57 Win32 binary zip</a><br>
 	<a href="lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
-	<a href="games-action/openlierox/openlierox-0.57.ebuild">Gentoo OpenLieroX ebuild<a>
+	<a href="games-action/openlierox/openlierox-0.57.ebuild">Gentoo OpenLieroX ebuild</a>
 </p>
 <p>
 	<h2>Installation under Gentoo</h2>
 	Download the provided ebuild and install it.<br>
-	For example, you can do this by:<br>
+	For example, you can do this by (bad but simple way):<br>
 	<pre>
 		su -
 		cd /usr/portage
@@ -40,7 +40,7 @@
 		cd games-action/openlierox
 		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57.ebuild
 		echo "games-action/openlierox ~x86" >> /etc/portage/package.keywords
-		emerge openlierox
+		FEATURES="-strict" emerge openlierox
 	</pre>
 </p>
 <p>
@@ -69,8 +69,23 @@
 	</pre>
 </p>
 <p>
+	<h2>Details</h2>
+	The game uses case insensitive filenames (it will use the first 
+	found on case sensitive filesystems).<br>
+	The game searches the paths ~/.OpenLieroX, 
+	./ and /usr/share/OpenLieroX
+	(or under Gentoo: /usr/share/games/OpenLieroX)
+	for game-data (all path are relativ to this bases) (in this 
+	order). You can also
+	add more searchpathes in cfg/options.cfg (you also can change 
+	the searchpath-order here). Own modified configs,
+	screenshots and other stuff always will be stored in 
+	~/.OpenLieroX.
+</p>
+<p>
 	<h2>Links</h2>
-	<a href="http://sourceforge.net/projects/openlierox/">SourceForge project-site</a>
+	<a href="http://sourceforge.net/projects/openlierox/">SourceForge project-site</a><br>
+	<a href="http://lxalliance.net/lierox/">official LieroX site</a>
 </p>
 </body>
 </html>
