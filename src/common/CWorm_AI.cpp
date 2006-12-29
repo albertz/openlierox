@@ -4467,14 +4467,15 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 	// If we are close to the current node, just continue climbing the path
 	// this will not work, because there could be some wall between the current and the next node
-/*	while (CalculateDistance(nodePos,vPos) <= 20.0f)  {
+	// there shouldn't be any wall between the two nodes - else the path is wrong :P
+	/*if (CalculateDistance(nodePos,vPos) <= 20.0f)  {
 		if (NEW_psCurrentNode->psNext)  {
 			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
 			nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 		}
 		else {
 			// We are at the target
-			return;
+			nodePos = cPosTarget;
 		}
 	} */
 		
@@ -4521,17 +4522,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			}
 
         ws->iMove = true;
-/*		// Don't carve so fast!
-		if (tLX->fCurTime-fLastCarve > 0.2f)  {
-			fLastCarve = tLX->fCurTime;
-			ws->iCarve = true; // Carve
-			if (NEW_psCurrentNode->fY < vPos.y)
-				ws->iJump = true;
-		}
-		else  {
-			ws->iCarve = false;
-			//ws->iJump = false;
-		} */
 
 		// If the node is right above us, use a carving weapon
 		if (fabs(v.x-vPos.x) <= 50) 
@@ -4567,11 +4557,11 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		}
 	}
 			
-	// if above the target, release
-	if(/*fabs(nodePos.x - vPos.x) <= 10 &&*/ vPos.y < nodePos.y) {
-		fireNinja = false;
+	// If we're above the node and the rope is hooked wrong, release the rope
+	if((vPos.y < nodePos.y) && fRopeAttachedTime > 2.0f && cNinjaRope.getHookPos().y-vPos.y < 0.0f) {
 		cNinjaRope.Release();
-	}	
+		fireNinja = false;
+	}
 	
 	// Not on ground? Shoot the rope
 	if(!CheckOnGround(pcMap))
@@ -4579,29 +4569,14 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	
 	bool aim = false;
 
+	// Get the best spot to shoot the rope to
+	CVec cAimPos = NEW_AI_GetBestRopeSpot(nodePos,pcMap);
+
+	// It has no sense to shoot the rope on short distances
+	if (CalculateDistance(vPos,cAimPos) < 25.0f)
+		fireNinja = false;
+
     if(fireNinja) {
- 
-		// Get the best spot to shoot the rope to
-		CVec cAimPos = NEW_AI_GetBestRopeSpot(nodePos,pcMap);
-
-/*
-		// If the path is going up, get an average position of the two nodes
-		if (vPos.y > NEW_psCurrentNode->fY) 
-			if (NEW_psCurrentNode->psNext) {
-				if (NEW_psCurrentNode->fY-30 > NEW_psCurrentNode->psNext->fY)  {
-					cAimPos.x=((NEW_psCurrentNode->fX+NEW_psCurrentNode->psNext->fX)/2);
-					cAimPos.y=((NEW_psCurrentNode->fY+NEW_psCurrentNode->psNext->fY)/2);
-				}
-			}
-*/
-
-		//cAimPos = NEW_AI_GetNearestRopeSpot(cAimPos,pcMap);
-#ifdef _AI_DEBUG
-		//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
-		//if (cAimPos.x > 0 && cAimPos.y > 0 && cAimPos.y < pcMap->GetHeight()-4 && cAimPos.x < pcMap->GetWidth()-4)
-		//	DrawRectFill(pcMap->GetDebugImage(),(int)cAimPos.x*2,(int)cAimPos.y*2,(int)cAimPos.x*2+4,(int)cAimPos.y*2+4,MakeColour(0,0,255));
-#endif
-
 
 		// Aim
 		aim = AI_SetAim(cAimPos);
@@ -4676,16 +4651,27 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
             bStuck = true;
             fStuckPause = tLX->fCurTime;
 
-			iDirection = !iDirection;
+			if (tLX->fCurTime-fLastTurn >= 0.5f)  {
+				iDirection = !iDirection;
+				fLastTurn = tLX->fCurTime;
+			}
             
-            fAngle -= 45;
+            fAngle -= cGameScript->getWorm()->AngleSpeed*tLX->fDeltaTime;
             // Clamp the angle
 	        fAngle = MIN((float)60,fAngle);
 	        fAngle = MAX((float)-90,fAngle);
 
+			// Stucked too long?
+			if (fStuckTime >= 5.0f)  {
+				// Try the previous node
+				if (NEW_psCurrentNode->psPrev)
+					NEW_psCurrentNode = NEW_psCurrentNode->psPrev;
+				fStuckTime = 0;
+			}
+
             // Recalculate the path
             NEW_AI_CreatePath(pcMap);
-            fStuckTime = 0;
+
             if(!NEW_psCurrentNode || !NEW_psPath)
             	return;
         }
@@ -4841,7 +4827,9 @@ void CWorm::NEW_AI_MoveToTargetDC(CMap *pcMap)
 	if (psAITarget && NEW_psPath && NEW_psLastNode)  {
 		// Don't check when the worm is moving
 		if (psAITarget->getVelocity()->GetLength() < 10.0f)   {
+			// Deviated?
 			if(CalculateDistance(cPosTarget,CVec(NEW_psLastNode->fX,NEW_psLastNode->fY)) > nDeviation)
+				// Don't recalculate if the final target can be seen from end of the path
 				if (!traceWormLine(AI_GetTargetPos(),CVec(NEW_psLastNode->fX,NEW_psLastNode->fY),pcMap,NULL))
 					recalculate = true;
 		}
@@ -4888,7 +4876,7 @@ void CWorm::NEW_AI_MoveToTargetDC(CMap *pcMap)
 		// If the node is in the air, it's hard to "hit" it, so it's ok if we increase the tolerance
 		if (NEW_AI_IsInAir(nodePos,pcMap))  {
 			tolerance = 30.0f;
-			if (NEW_AI_IsInAir(nodePos,pcMap,4))
+			if (NEW_AI_IsInAir(nodePos,pcMap,5))
 				tolerance = 50.0f;
 		}
 
