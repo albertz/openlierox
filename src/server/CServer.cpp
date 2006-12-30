@@ -1163,6 +1163,8 @@ CClient *CServer::getClient(int iWormID)
 // Writes the log into the specified file
 bool CServer::WriteLogToFile(FILE *f)
 {
+	printf("WriteLogToFile intitializated\n");
+
 	if (!f || !tGameLog)
 		return false;
 
@@ -1170,6 +1172,8 @@ bool CServer::WriteLogToFile(FILE *f)
 		return false;
 
 	char levelfile[256],modfile[256],level[256],mod[256],player[128],skin[128];
+
+	printf("Filling in the game details... ");
 
 	// Fill in the details
 	strcpy(levelfile,sMapFilename);
@@ -1181,16 +1185,24 @@ bool CServer::WriteLogToFile(FILE *f)
 	xmlEntities(level);
 	xmlEntities(mod);
 
+	printf("DONE\n");
+
 	// Save the game info
 	fprintf(f,"<game datetime=\"%s\" length=\"%f\" loading=\"%i\" lives=\"%i\" maxkills=\"%i\" bonuses=\"%i\" bonusnames=\"%i\" levelfile=\"%s\" modfile=\"%s\" level=\"%s\" mod=\"%s\" gamemode=\"%i\">",
 				tGameLog->sGameStart,fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,levelfile,modfile,level,mod,iGameType);
 
+	printf("Game info saved\n");
+
 	// Save the general players info
 	fprintf(f,"<players startcount=\"%i\" endcount=\"%i\">",tGameLog->iNumWorms,iNumPlayers);
+
+	printf("Players info saved\n");
 
 	// Info for each player
 	int i;
 	for (i=0;i<tGameLog->iNumWorms;i++)  {
+		printf("Writing player %i... ",i);
+
 		// Replace the entities
 		strcpy(player,tGameLog->tWorms[i].sName);
 		xmlEntities(player);
@@ -1202,7 +1214,11 @@ bool CServer::WriteLogToFile(FILE *f)
 		// Write the info
 		fprintf(f,"<player name=\"%s\" skin=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\" type=\"%i\" ip=\"%s\"/>",
 		player,skin,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart),tGameLog->tWorms[i].iType,tGameLog->tWorms[i].sIP);
+
+		printf("DONE\n");
 	}
+
+	printf("Writing end tags\n");
 
 	// End tags
 	fprintf(f,"</players>");

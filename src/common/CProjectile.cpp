@@ -616,6 +616,41 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 			return w;
 	}
 
+	// AI hack (i know it's dirty, but it's fast)
+	// Checks, whether this projectile is heading to any AI worm
+	// If so, sets the worm's property 
+	CVec mutual_speed;
+	for(int i=0;i<MAX_WORMS;i++,w++) {
+
+		// Only AI worms need this
+		if (!w->isUsed() || !w->getAlive() || w->getType() != PRF_COMPUTER)
+			continue;
+
+		mutual_speed = vVelocity - (*w->getVelocity());
+
+		// This projectile is heading to the worm
+		if (SIGN(mutual_speed.x) == SIGN(w->getPos().x - vPosition.x) &&
+			SIGN(mutual_speed.y) == SIGN(w->getPos().y - vPosition.y))  {
+
+			int len = (int)mutual_speed.GetLength();
+			float dist = 60.0f;
+
+			// Get the dangerous distance for various speeds
+			if (len < 30)
+				dist = 20.0f;
+			else if (len < 60)
+				dist = 30.0f;
+			else if (len < 90)
+				dist = 50.0f;
+				
+			if (CalculateDistance(vPosition,w->getPos()) <= dist) {
+				w->setHeading(this);
+			}
+
+		}
+	}
+
+
 	// No worms hit
 	return -1;
 }

@@ -636,7 +636,12 @@ char* GetHomeDir() {
 	strcpy(tmp, getenv("HOME"));
 	strcat(tmp, "/.OpenLieroX");
 #else
-	SHGetSpecialFolderPath(NULL,(LPTSTR)&tmp,CSIDL_PERSONAL,FALSE);
+	if (!SHGetSpecialFolderPath(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
+		strcpy(tmp,"./");
+		return tmp;
+	}
+	tmp[256] = '\0';
+	//MessageBox(0,tmp,"Debug",MB_OK);
 	strcat(tmp,"\\OpenLieroX");
 #endif
 	return tmp;

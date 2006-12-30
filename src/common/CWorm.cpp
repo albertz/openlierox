@@ -90,6 +90,8 @@ void CWorm::Clear(void)
 	NEW_psCurrentNode = NULL;
 	NEW_psLastNode = NULL;
 	pathSearcher = NULL;
+
+	psHeadingProjectile = NULL;
 	
 	bmpWorm = NULL;
 	bmpGibs = NULL;

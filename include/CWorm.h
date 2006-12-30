@@ -16,6 +16,8 @@
 #ifndef __CWORM_H__
 #define __CWORM_H__
 
+#include "CProjectile.h"
+
 #define		MAX_WEAPONSLOTS		10
 #define		MAX_WORMS			32
 
@@ -270,6 +272,7 @@ private:
 	int			iAiTeams;
 	int			iAiTag;
 	int			iAiDiffLevel;
+	CProjectile *psHeadingProjectile;
 
 	float		fLastShoot;
 	float		fLastJump;
@@ -532,6 +535,8 @@ public:
 	void		incrementTagTime(float dt)	{ fTagTime+=dt; }
 
 	char		*getSkin(void)				{ return szSkin; }
+
+	void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
 
 
 };

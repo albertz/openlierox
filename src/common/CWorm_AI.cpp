@@ -4391,6 +4391,37 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         return;
     }
 
+	/*
+
+		Prevent injuries! If any of the projectiles around is heading to us, try to get away of it
+
+	*/
+	if (psHeadingProjectile)  {
+		// TODO: improve this (add rope using etc.)
+
+		// Get the mutual speed
+		CVec mutual_speed = psHeadingProjectile->GetVelocity() - vVelocity;
+
+		// Go away from the projectile
+		if (tLX->fCurTime-fLastTurn >= 0.5f)  {
+			if (mutual_speed.x > 0)
+				iDirection = DIR_RIGHT;
+			else
+				iDirection = DIR_LEFT;
+			fLastTurn = tLX->fCurTime;
+		}
+		ws->iMove = true;
+
+
+		// If we're on ground, jump
+		if (CheckOnGround(pcMap))
+			if (tLX->fCurTime - fLastJump > 1.0f)  {
+				ws->iJump = true;
+				fLastJump = tLX->fCurTime;
+			}
+
+		return;
+	}
 
 
     /*

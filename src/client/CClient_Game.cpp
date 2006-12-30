@@ -189,6 +189,12 @@ void CClient::SimulateProjectiles(float dt)
     int result = 0;
     int wormid = -1;
 
+	// Clear the heading projectiles
+	CWorm *w = cRemoteWorms;
+	for(i=0;i<MAX_WORMS;i++,w++) {
+		w->setHeading(NULL);
+	}
+
     
     for(int p=0;p<nTopProjectile;p++,prj++) {
 		if(!prj->isUsed())
