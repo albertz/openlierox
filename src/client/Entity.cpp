@@ -70,7 +70,6 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 {
 	entity_t *ent = tEntities;
 
-
 	// If this is a particle type entity, and particles are switched off, just leave
 	if(!tLXOptions->iParticles) {
 		if(type == ENT_PARTICLE ||
@@ -79,7 +78,7 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 	}
 	
 	// Find a free entity
-	int e;
+	short e;
 	for(e=0;e<MAX_ENTITIES;e++,ent++) {
 		if(!ent->iUsed)
 			break;
@@ -102,16 +101,18 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 	ent->fLife = 0;
 	ent->iAngle = 0;	
 
-	if(ent->iType == ENT_EXPLOSION)
+	switch(ent->iType) {
+	case ENT_EXPLOSION:
 		ent->fFrame = (float)(15-type2);
-
-	if(ent->iType == ENT_GIB) {
+		break;
+	case ENT_GIB:
 		ent->fAnglVel = (float)fabs(GetRandomNum())*20;
 		ent->iRotation = (int)(fabs(GetRandomNum())*3);
-	}
-
-	if(ent->iType == ENT_JETPACKSPRAY)
+		break;
+	case ENT_JETPACKSPRAY:
 		ent->fLife = 3;
+	}
+	
 }
 
 
@@ -130,9 +131,8 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 	int x,y;
 	int x2,y2;
-	int r,g,b;
 		
-	for(int e=0;e<MAX_ENTITIES;e++,ent++) {
+	for(short e=0;e<MAX_ENTITIES;e++,ent++) {
 		if(ent->iUsed)  {
 			//continue;}
 
@@ -193,9 +193,10 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 				// Jetpack spray
 				case ENT_JETPACKSPRAY:
-					r = (int)(0.314f * (255-ent->fFrame));
-					g = (int)(0.588f * (255-ent->fFrame));
-					b = (int)(0.784f * (255-ent->fFrame));
+					short r,g,b;
+					r = (short)(0.314f * (255-ent->fFrame));
+					g = (short)(0.588f * (255-ent->fFrame));
+					b = (short)(0.784f * (255-ent->fFrame));
 					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,MakeColour(r,g,b));
 					break;
 
@@ -226,7 +227,7 @@ void SimulateEntities(float dt, CMap *map)
 {
 	entity_t *ent = tEntities;
 
-	for(int e=0;e<MAX_ENTITIES;e++,ent++) {
+	for(short e=0;e<MAX_ENTITIES;e++,ent++) {
 		if(!ent->iUsed)
 			continue;
 
@@ -244,8 +245,8 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_PARTICLE:
 			case ENT_BLOOD:
 			case ENT_BLOODDROPPER:
-				ent->vVel = ent->vVel + CVec(0,100)*dt;//vGravity;
-				ent->vPos = ent->vPos + ent->vVel * dt;
+				ent->vVel.y += 100*dt;//vGravity;
+				ent->vPos += ent->vVel * dt;
 	
 			
 
@@ -276,7 +277,7 @@ void SimulateEntities(float dt, CMap *map)
 
 						// Giblet
 						case ENT_GIB:
-							if(VectorLength(ent->vVel) > 160)
+							if(ent->vVel.GetLength2() > 160*160)
 								EntityBounce(ent);
 							else {
 								// Add the gib to the map

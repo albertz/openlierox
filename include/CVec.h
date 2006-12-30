@@ -81,6 +81,14 @@ public:
 		x-=vec.x; y-=vec.y;
 		return *this;
 	}
+    inline VectorD2& operator*=(const float scalar) {
+		x*=scalar; y*=scalar;
+		return *this;
+	}
+    inline VectorD2& operator*=(const int scalar) {
+		x*=scalar; y*=scalar;
+		return *this;
+	}
 
 	template<typename _T2>
 	inline bool operator<(const VectorD2<_T2> op) const {

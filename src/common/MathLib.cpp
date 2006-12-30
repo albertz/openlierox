@@ -91,8 +91,8 @@ float NormalizeVector(CVec *vec)
 	length = (float)fastSQRT( vec->x*vec->x + vec->y*vec->y );
 
 	if(length) {
-		vec->x=( vec->x / length );
-		vec->y=( vec->y / length );
+		vec->x /= length;
+		vec->y /= length;
 	}
 
 	return length;
@@ -117,8 +117,8 @@ void GetAngles(int yaw,CVec *forward, CVec *right)
 	angle = yaw * (float)(PI / 180);
 	sy = (float)sin(angle);
 	cy = (float)cos(angle);	
-	sp = (float)sin(0);
-	cp = (float)cos(0);	
+	sp = 0; //(float)sin(0);
+	cp = 1; //(float)cos(0);	
 	sr = sp;
 	cr = cp;
 
@@ -132,10 +132,12 @@ void GetAngles(int yaw,CVec *forward, CVec *right)
 // Get the angle (in radians) of two vectors
 float VectorAngle(CVec vec1, CVec vec2)
 {
+	return atan2(vec1.y-vec2.y,vec1.x-vec2.x);
+	
 	//return (float)acos(vec1.x*vec2.x+vec1.y*vec2.y)/(VectorLength(vec1)*VectorLength(vec2));
 	float scalar = vec1.x*vec2.x + vec1.y*vec2.y;
-	float len1 = VectorLength(vec1);
-	float len2 = VectorLength(vec2);
+	float len1 = vec1.GetLength();
+	float len2 = vec2.GetLength();
 	float result = (float)acos(scalar/(len1*len2));
 	return result;
 }

@@ -2827,9 +2827,9 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 			// TODO: count with the worm velocities
 
 			// Worm speed
-			float MySpeed = VectorLength(vVelocity);
+			float MySpeed = vVelocity.GetLength();
 			// Enemy speed
-			float EnemySpeed = VectorLength(*psAITarget->getVelocity());
+			float EnemySpeed = psAITarget->getVelocity()->GetLength();
 			// Projectile speed
 			float v = (float)weap->ProjSpeed*weap->Projectile->Dampening;
 			// Gravity
