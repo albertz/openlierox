@@ -640,8 +640,9 @@ char* GetHomeDir() {
 		strcpy(tmp,"./");
 		return tmp;
 	}
-	tmp[256] = '\0';
-	//MessageBox(0,tmp,"Debug",MB_OK);
+	// Safety
+	tmp[254-strlen("\\OpenLieroX")] = '\0';
+
 	strcat(tmp,"\\OpenLieroX");
 #endif
 	return tmp;

@@ -52,14 +52,19 @@ int main(int argc, char *argv[])
 	argv0 = argv[0];
 
 	// Load options and other settings
-	if(!LoadOptions())
+	if(!LoadOptions())  {
+		SystemError("Could not load options");
 		return -1;
+	}
 
-	if(!LoadNetworkStrings())
+	if(!LoadNetworkStrings())  {
+		SystemError("Could not load network strings.");
 		return -1;
+	}
 
     // Parse the arguments
     ParseArguments(argc, argv);
+
 
 	// Initialize LX
 	if(!InitializeLieroX())

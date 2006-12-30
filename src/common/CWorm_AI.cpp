@@ -1082,7 +1082,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
     if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
         nAIState = AI_THINK;
 
-	// check more often if we path isn't finished yet
+	// check more often if the path isn't finished yet
 	if(tLX->fCurTime - fLastThink > 0.5 && !bPathFinished)
 		nAIState = AI_THINK;
 
@@ -4397,28 +4397,64 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 	*/
 	if (psHeadingProjectile)  {
-		// TODO: improve this (add rope using etc.)
+		// TODO: improve this
 
 		// Get the mutual speed
-		CVec mutual_speed = psHeadingProjectile->GetVelocity() - vVelocity;
+		//CVec mutual_speed = psHeadingProjectile->GetVelocity() - vVelocity;
 
 		// Go away from the projectile
 		if (tLX->fCurTime-fLastTurn >= 0.5f)  {
-			if (mutual_speed.x > 0)
-				iDirection = DIR_RIGHT;
+			if (psHeadingProjectile->GetVelocity().x > 0)
+				iDirection = DIR_LEFT;  // Move in the opposite direction
 			else
-				iDirection = DIR_LEFT;
+				iDirection = DIR_RIGHT;
 			fLastTurn = tLX->fCurTime;
 		}
 		ws->iMove = true;
 
 
 		// If we're on ground, jump
-		if (CheckOnGround(pcMap))
+		if (CheckOnGround(pcMap))  {
 			if (tLX->fCurTime - fLastJump > 1.0f)  {
 				ws->iJump = true;
 				fLastJump = tLX->fCurTime;
 			}
+		}
+
+		// Release any previous rope
+		if (fRopeAttachedTime >= 1.5f)
+			cNinjaRope.Release();
+
+		// Shoot the rope
+
+		bool fireNinja = true;
+
+		// We want to move away
+		CVec desired_dir = -psHeadingProjectile->GetVelocity();
+
+		// Choose some point and find the best rope spot to it
+		desired_dir.Normalize();
+		desired_dir *= 40.0f;
+		CVec cAimPos = NEW_AI_GetBestRopeSpot(vPos+desired_dir,pcMap);
+
+		// Aim it
+		fireNinja = AI_SetAim(cAimPos);
+
+		if (fireNinja)
+			fireNinja = psHeadingProjectile->GetVelocity().GetLength() > 50.0f;
+
+		if (fireNinja)  {
+
+			// Get the direction
+			CVec dir;
+			dir.x=( (float)cos(fAngle * (PI/180)) );
+			dir.y=( (float)sin(fAngle * (PI/180)) );
+			if(iDirection == DIR_LEFT)
+				dir.x=(-dir.x);
+
+			// Shoot it
+			cNinjaRope.Shoot(vPos,dir);
+		}
 
 		return;
 	}

@@ -47,6 +47,12 @@ int LoadOptions(void)
 	AddKeyword("false",false);
 
 
+	char path[256];
+	strcpy(path,argv0);
+	char *r = strrchr(path,'\\');
+	r = '\0';
+	chdir(path);
+
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
 	InitBaseSearchPaths();

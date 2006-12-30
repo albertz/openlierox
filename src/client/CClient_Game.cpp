@@ -295,7 +295,7 @@ void CClient::SimulateProjectiles(float dt)
                 prj->setUsed(false);
 
                 // Increment the dirt count
-                cRemoteWorms[prj->GetOwner()].incrementDirtCount( d );
+                cRemoteWorms[MIN(prj->GetOwner(),MAX_WORMS)].incrementDirtCount( d );
 
                 CheckDemolitionsGame();
 			}

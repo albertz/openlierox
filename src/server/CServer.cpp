@@ -1176,10 +1176,10 @@ bool CServer::WriteLogToFile(FILE *f)
 	printf("Filling in the game details... ");
 
 	// Fill in the details
-	strcpy(levelfile,sMapFilename);
-	strcpy(modfile,sModName);
-	strcpy(level,cMap->getName());
-	strcpy(mod,cGameScript.GetHeader()->ModName);
+	strncpy(levelfile,sMapFilename,sizeof(levelfile)-1);
+	strncpy(modfile,sModName,sizeof(modfile)-1);
+	strncpy(level,cMap->getName(),sizeof(level)-1);
+	strncpy(mod,cGameScript.GetHeader()->ModName,sizeof(mod)-1);
 	xmlEntities(levelfile);
 	xmlEntities(modfile);
 	xmlEntities(level);
@@ -1204,16 +1204,18 @@ bool CServer::WriteLogToFile(FILE *f)
 		printf("Writing player %i... ",i);
 
 		// Replace the entities
-		strcpy(player,tGameLog->tWorms[i].sName);
+		strncpy(player,tGameLog->tWorms[i].sName,sizeof(player)-1);
 		xmlEntities(player);
 
 		// Replace the entities
-		strcpy(skin,tGameLog->tWorms[i].sSkin);
+		strncpy(skin,tGameLog->tWorms[i].sSkin,sizeof(skin)-1);
 		xmlEntities(skin);
 
 		// Write the info
 		fprintf(f,"<player name=\"%s\" skin=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\" type=\"%i\" ip=\"%s\"/>",
 		player,skin,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart),tGameLog->tWorms[i].iType,tGameLog->tWorms[i].sIP);
+
+		fflush(f);
 
 		printf("DONE\n");
 	}

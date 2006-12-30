@@ -91,7 +91,9 @@ void SystemError(char *fmt, ...)
 	SDL_ShowCursor(SDL_ENABLE);	
 	// TODO: uniform message system
 	printf("SystemError: %s\n", buf);
-	//MessageBox(NULL,buf,GetGameName(),MB_OK | MB_ICONEXCLAMATION);
+#ifdef WIN32
+	MessageBox(NULL,buf,GetGameName(),MB_OK | MB_ICONEXCLAMATION);
+#endif
 
 
 	// Shutdown the game

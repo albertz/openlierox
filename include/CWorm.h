@@ -537,6 +537,7 @@ public:
 	char		*getSkin(void)				{ return szSkin; }
 
 	void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
+	CProjectile *getHeading(void)			{ return psHeadingProjectile; }
 
 
 };

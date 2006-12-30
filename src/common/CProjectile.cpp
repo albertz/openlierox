@@ -618,7 +618,7 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 
 	// AI hack (i know it's dirty, but it's fast)
 	// Checks, whether this projectile is heading to any AI worm
-	// If so, sets the worm's property 
+	// If so, sets the worm's property Heading to ourself
 	CVec mutual_speed;
 	CWorm *w = worms;
 	for(int i=0;i<MAX_WORMS;i++,w++) {
@@ -644,8 +644,16 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 			else if (len < 90)
 				dist = 50.0f;
 				
-			if (CalculateDistance(vPosition,w->getPos()) <= dist) {
-				w->setHeading(this);
+			float real_dist = CalculateDistance(vPosition,w->getPos());
+			if (real_dist <= dist) {
+				// If any projectile is already heading to the worm and is closer than we, don't set us as heading
+				if (w->getHeading())  {
+					if (CalculateDistance(w->getPos(),w->getHeading()->GetPosition()) >= dist)
+						w->setHeading(this);
+				}
+				// No projectile heading to the worm
+				else
+					w->setHeading(this);
 			}
 
 		}
