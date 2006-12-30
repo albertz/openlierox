@@ -609,17 +609,18 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 	
 	// Go through at fixed positions
 	CVec pos = vOldPos;
-	int w;
+	int wrm;
 	for(float p=0; p<length; p+=divisions, pos += dir*divisions) {
-		w = ProjWormColl(pos, worms);
-		if( w >= 0)
-			return w;
+		wrm = ProjWormColl(pos, worms);
+		if( wrm >= 0)
+			return wrm;
 	}
 
 	// AI hack (i know it's dirty, but it's fast)
 	// Checks, whether this projectile is heading to any AI worm
 	// If so, sets the worm's property 
 	CVec mutual_speed;
+	CWorm *w = worms;
 	for(int i=0;i<MAX_WORMS;i++,w++) {
 
 		// Only AI worms need this
