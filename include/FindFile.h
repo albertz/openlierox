@@ -21,7 +21,7 @@
 
 
 struct filelist_t {
-	char filename[64]; // TODO: enough?
+	char filename[1024];
 	filelist_t* next;
 }; 
 

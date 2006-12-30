@@ -563,8 +563,8 @@ char* GetFullFileName(const char* path) {
 }
 
 FILE *OpenGameFile(const char *path, const char *mode) {
-	static char fname[256] = "";
-	static char tmp[256] = "";
+	static char fname[1024] = "";
+	static char tmp[1024] = "";
 	
 	if(path == NULL || path[0] == '\0')
 		return NULL;
@@ -591,7 +591,7 @@ void AddToFileList(filelist_t** l, const char* f) {
 	for(fl = l; *fl != NULL; fl = &(*fl)->next) {}
 	*fl = new filelist_t;
 	(*fl)->next = NULL;
-	strcpy((*fl)->filename, f);
+	strncpy((*fl)->filename, f, sizeof((*fl)->filename));
 }
 
 void removeEndingSlashes(char* s) {
@@ -610,10 +610,10 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 	if (!f || !l)
 		return false;
 
-	static char tmp1[256] = "";
-	static char tmp2[256] = "";
+	static char tmp1[1024] = "";
+	static char tmp2[1024] = "";
 	strcpy(tmp1, f); 
-	tmp1[255] = '\0';
+	tmp1[1023] = '\0';
 	removeEndingSlashes(tmp1);
 	
 	// Go through the list, checking each item
@@ -621,7 +621,7 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 		if (!fl->filename)
 			continue;
 		strcpy(tmp2, fl->filename);
-		tmp2[255] = '\0';
+		tmp2[1023] = '\0';
 		removeEndingSlashes(tmp2);
 		if(strcasecmp(tmp1, tmp2) == 0)
 			return true;
@@ -644,7 +644,7 @@ char* GetHomeDir() {
 		return tmp;
 	}
 	// Safety
-	tmp[254-strlen("\\OpenLieroX")] = '\0';
+	tmp[1023-strlen("\\OpenLieroX")] = '\0';
 
 	strcat(tmp,"\\OpenLieroX");
 #endif
