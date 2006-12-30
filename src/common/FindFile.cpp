@@ -631,13 +631,16 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 }
 
 char* GetHomeDir() {
-	static char tmp[256];
+	static char tmp[1024];
 #ifndef WIN32
 	strcpy(tmp, getenv("HOME"));
 	strcat(tmp, "/.OpenLieroX");
 #else
 	if (!SHGetSpecialFolderPath(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
-		strcpy(tmp,"./");
+		// TODO: get dynamicaly another possible path
+		// the following is only a workaround!
+		strcpy(tmp, "C:\\OpenLieroX");
+//		strcpy(tmp,"./");
 		return tmp;
 	}
 	// Safety

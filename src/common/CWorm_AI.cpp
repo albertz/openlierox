@@ -2967,7 +2967,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		// We're above the worm
 
 		// If we are close enough, shoot the napalm
-		if (vPos.y <= cTrgPos.y && CalculateDistance(vPos,cTrgPos) < 100.0f)  {
+		if (vPos.y <= cTrgPos.y && (vPos-cTrgPos).GetLength2() < 10000.0f)  {
 			if (traceWormLine(cTrgPos,vPos,pcMap) && !tWeapons[1].Reloading)
 				if (psAITarget)
 					if (psAITarget->CheckOnGround(pcMap))
@@ -3512,7 +3512,7 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 
 		// Friendly worm
 		for (j=0;j<WormCount;j++) {
-			if (CalculateDistance(pos,WormsPos[j]) < 20.0f)  {
+			if ((pos-WormsPos[j]).GetLength2() < 400.0f)  {
 				if(nTotalLength != 0)
 					*fDist = (float)i / (float)nTotalLength;
 				else
@@ -4181,7 +4181,9 @@ CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap)
 	CVec dir = trg-vPos;
 	NormalizeVector(&dir);
 	dir = dir*10;
-	while (CalculateDistance(vPos,trg) >= cNinjaRope.getRestLength()) 
+	float restlen2 = cNinjaRope.getRestLength();
+	restlen2 *= restlen2;
+	while ((vPos-trg).GetLength2() >= restlen2) 
 		trg = trg-dir;
 
 	//
@@ -4391,10 +4393,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         return;
     }
 
+    bool fireNinja = false;
+	
 	/*
-
 		Prevent injuries! If any of the projectiles around is heading to us, try to get away of it
-
 	*/
 	if (psHeadingProjectile)  {
 		// TODO: improve this
@@ -4414,7 +4416,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 
 		// If we're on ground, jump
-		if (CheckOnGround(pcMap))  {
+		if(CheckOnGround(pcMap))  {
 			if (tLX->fCurTime - fLastJump > 1.0f)  {
 				ws->iJump = true;
 				fLastJump = tLX->fCurTime;
@@ -4426,15 +4428,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			cNinjaRope.Release();
 
 		// Shoot the rope
-
-		bool fireNinja = true;
+		fireNinja = true;
 
 		// We want to move away
 		CVec desired_dir = -psHeadingProjectile->GetVelocity();
 
 		// Choose some point and find the best rope spot to it
-		desired_dir.Normalize();
-		desired_dir *= 40.0f;
+		desired_dir = desired_dir.Normalize() * 40.0f;
 		CVec cAimPos = NEW_AI_GetBestRopeSpot(vPos+desired_dir,pcMap);
 
 		// Aim it
@@ -4529,6 +4529,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		}
 	}
 
+
 	// Get the target node position
     CVec nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 
@@ -4568,18 +4569,16 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       If there is dirt between us and the next node, don't shoot a ninja rope
       Instead, carve
     */
-    bool fireNinja = true;
     float traceDist = -1;
     int type = 0;
     CVec v = CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY);
     int length = traceLine(v, pcMap, &traceDist, &type); // HINT: this is only a line, not the whole worm
 														 // NOTE: this can return dirt, even if there's also rock between us two
-    float dist = CalculateDistance(v, vPos);
-    if((float)length <= dist && (type & PX_DIRT)) {
+    //float dist = CalculateDistance(v, vPos);
+    if(!fireNinja && (float)(length*length) <= (v-vPos).GetLength2() && (type & PX_DIRT)) {
 		// release rope, if it is atached and above
 		if(cNinjaRope.isAttached() && cNinjaRope.getHookPos().y - 5.0f > v.y)
 			cNinjaRope.Release();
-		fireNinja = false;
 		
 		// Jump, if the node is above us
 		if (v.y+10.0f < vPos.y)
@@ -4601,7 +4600,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 				} /* else
 					AI_SimpleMove(pcMap,psAITarget != NULL); */ // no weapon found, so move around
 			}
-    }
+    } else
+    	fireNinja = true;
  
      
 	//
@@ -4636,17 +4636,18 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	
 	bool aim = false;
 
-	// Get the best spot to shoot the rope to
-	CVec cAimPos = NEW_AI_GetBestRopeSpot(nodePos,pcMap);
+	CVec ropespot;
+	if(fireNinja)
+		ropespot = NEW_AI_GetBestRopeSpot(nodePos,pcMap);
 
 	// It has no sense to shoot the rope on short distances
-	if (CalculateDistance(vPos,cAimPos) < 25.0f)
+	if(fireNinja && (vPos-ropespot).GetLength2() < 625.0f)
 		fireNinja = false;
 
     if(fireNinja) {
-
+		
 		// Aim
-		aim = AI_SetAim(cAimPos);
+		aim = AI_SetAim(ropespot);
 
 
         CVec dir;
@@ -4665,9 +4666,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
             if(!cNinjaRope.isReleased())
                 cNinjaRope.Shoot(vPos,dir);
             else {
-                float length = CalculateDistance(vPos, cNinjaRope.getHookPos());
                 if(cNinjaRope.isAttached()) {
-                    if(length < cNinjaRope.getRestLength() && vVelocity.y<-10)
+                    if((vPos-cNinjaRope.getHookPos()).GetLength2() < cNinjaRope.getRestLength()*cNinjaRope.getRestLength() && vVelocity.y<-10)
                         cNinjaRope.Shoot(vPos,dir);
                 }
             }
@@ -4895,7 +4895,7 @@ void CWorm::NEW_AI_MoveToTargetDC(CMap *pcMap)
 		// Don't check when the worm is moving
 		if (psAITarget->getVelocity()->GetLength() < 10.0f)   {
 			// Deviated?
-			if(CalculateDistance(cPosTarget,CVec(NEW_psLastNode->fX,NEW_psLastNode->fY)) > nDeviation)
+			if((cPosTarget-CVec(NEW_psLastNode->fX,NEW_psLastNode->fY)).GetLength2() > nDeviation*nDeviation)
 				// Don't recalculate if the final target can be seen from end of the path
 				if (!traceWormLine(AI_GetTargetPos(),CVec(NEW_psLastNode->fX,NEW_psLastNode->fY),pcMap,NULL))
 					recalculate = true;
@@ -4948,7 +4948,7 @@ void CWorm::NEW_AI_MoveToTargetDC(CMap *pcMap)
 		}
 
 		// If we reached the node, skip to next one
-		if (CalculateDistance(vPos,nodePos) <= tolerance)  {
+		if ((vPos-nodePos).GetLength2() <= tolerance*tolerance)  {
 			if (NEW_psCurrentNode->psNext)  {
 				NEW_psCurrentNode = NEW_psCurrentNode->psNext;
 				nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
@@ -5084,7 +5084,7 @@ void CWorm::NEW_AI_MoveToTargetDC(CMap *pcMap)
 
 	// If we're heading to the node, but our velocity is too high, dampen
 	bool heading = (vVelocity.x  < 0.0f && iDirection == DIR_LEFT) || (vVelocity.x  > 0.0f && iDirection == DIR_RIGHT);
-	if (heading && vVelocity.GetLength() > 60.0f && CalculateDistance(nodePos,vPos) < 80.0f)  {
+	if (heading && vVelocity.GetLength2() > 3600.0f && (nodePos-vPos).GetLength2() < 6400.0f)  {
 
 		// Move in the opposite direction
 		iDirection = !iDirection;
@@ -5158,7 +5158,7 @@ void CWorm::NEW_AI_MoveToTargetDC(CMap *pcMap)
 		CVec cAimPos = NEW_AI_GetBestRopeSpot(nodePos,pcMap);
 
 		// Don't use rope for small distances
-		if (CalculateDistance(cAimPos,vPos) <= 20.0f)
+		if ((cAimPos-vPos).GetLength2() <= 400.0f)
 			return;
 
 		// Aim
@@ -5182,9 +5182,8 @@ void CWorm::NEW_AI_MoveToTargetDC(CMap *pcMap)
             if(!cNinjaRope.isReleased())
                 cNinjaRope.Shoot(vPos,dir);
             else {
-                float length = CalculateDistance(vPos, cNinjaRope.getHookPos());
                 if(cNinjaRope.isAttached()) {
-                    if(length < cNinjaRope.getRestLength() && vVelocity.y<-10)
+                    if((vPos - cNinjaRope.getHookPos()).GetLength2() < cNinjaRope.getRestLength()*cNinjaRope.getRestLength() && vVelocity.y<-10)
                         cNinjaRope.Shoot(vPos,dir);
                 }
             }

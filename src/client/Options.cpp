@@ -46,12 +46,15 @@ int LoadOptions(void)
   	AddKeyword("true",true);
 	AddKeyword("false",false);
 
-
+#ifdef WIN32
+/*	// TODO: this is no solution
 	char path[256];
 	strcpy(path,argv0);
 	char *r = strrchr(path,'\\');
 	r = '\0';
 	chdir(path);
+*/
+#endif
 
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
