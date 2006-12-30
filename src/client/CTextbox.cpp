@@ -146,7 +146,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	}
 
 	// Draw text
-	tLX->cFont.Draw(bmpDest, iX+3, iY+3, 0xffff, "%s", text);
+	tLX->cFont.Draw(bmpDest, iX+3, iY+3, tLX->clTextBox, "%s", text);
 
 	// Draw cursor only when focused
 	if(iFocused) {

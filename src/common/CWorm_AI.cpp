@@ -963,6 +963,7 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 	nAITargetType = AIT_NONE;
 	nAIState = AI_THINK;
 	fLastFace = -9999;
+	fLastShoot = -9999;
 
 	fRopeAttachedTime = 0;
 	fRopeHookFallingTime = 0;
@@ -1045,8 +1046,6 @@ void do_some_tests_with_fastTraceLine(CMap *pcMap) {
 
 ///////////////////
 // Simulate the AI
-// TODO: this is global for all worms (which is not what is wanted)
-float fLastTurn = 0;  // Time when we last tried to change the direction
 void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 {
 	// Behave like humans and don't play immediatelly after spawn
@@ -1111,9 +1110,9 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
    
    		if(!AI_Shoot(pcMap)) {   			
 			// change direction after some time
-			if ((tLX->fCurTime-fLastTurn) > 1.0)  {
+			if ((tLX->fCurTime-fLastFace) > 1.0)  {
 				iDirection = !iDirection;
-				fLastTurn = tLX->fCurTime;
+				fLastFace = tLX->fCurTime;
 			}
 			// don't return here -> do MoveToTarget/Think
     	} else
@@ -1409,7 +1408,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
         return;
     }
 	else
-		fLastShoot = 0;
+		fLastShoot = -9999;
 
 
     // If we're down on health (less than 80%) we should look for a health bonus
@@ -2381,9 +2380,9 @@ void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
     if(fDist < 0.75f || cPosTarget.y < vPos.y) {
 
         // Change direction
-		if (bHaveTarget && (tLX->fCurTime-fLastTurn) > 1.0)  {
+		if (bHaveTarget && (tLX->fCurTime-fLastFace) > 1.0)  {
 			iDirection = !iDirection;
-			fLastTurn = tLX->fCurTime;
+			fLastFace = tLX->fCurTime;
 		}
 
         // Look up for a ninja throw
@@ -2853,6 +2852,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 			}
 			else
 				bAim = weaponCanHit(g,v,pcMap);
+
 			if (!bAim)
 				break;
 
@@ -4396,21 +4396,19 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     bool fireNinja = false;
 	
 	/*
-		Prevent injuries! If any of the projectiles around is heading to us, try to get away of it
+		Prevent injuries! If any of the projectiles around is heading to us, try to get away from it
 	*/
 	if (psHeadingProjectile)  {
 		// TODO: improve this
-
-		// Get the mutual speed
-		//CVec mutual_speed = psHeadingProjectile->GetVelocity() - vVelocity;
+		MessageBeep(0);
 
 		// Go away from the projectile
-		if (tLX->fCurTime-fLastTurn >= 0.5f)  {
+		if (tLX->fCurTime-fLastFace >= 0.5f)  {
 			if (psHeadingProjectile->GetVelocity().x > 0)
 				iDirection = DIR_LEFT;  // Move in the opposite direction
 			else
 				iDirection = DIR_RIGHT;
-			fLastTurn = tLX->fCurTime;
+			fLastFace = tLX->fCurTime;
 		}
 		ws->iMove = true;
 
@@ -4457,6 +4455,14 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		}
 
 		return;
+	}
+
+	if (iAiGameType == GAM_MORTARS)  {
+		if (tLX->fCurTime - fLastShoot <= 0.5f)  {
+			if (fRopeAttachedTime >= 0.1f)
+				cNinjaRope.Release();
+			return;
+		}
 	}
 
 
@@ -4718,9 +4724,9 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
             bStuck = true;
             fStuckPause = tLX->fCurTime;
 
-			if (tLX->fCurTime-fLastTurn >= 0.5f)  {
+			if (tLX->fCurTime-fLastFace >= 0.5f)  {
 				iDirection = !iDirection;
-				fLastTurn = tLX->fCurTime;
+				fLastFace = tLX->fCurTime;
 			}
             
             fAngle -= cGameScript->getWorm()->AngleSpeed*tLX->fDeltaTime;

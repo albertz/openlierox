@@ -67,26 +67,26 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.Shutdown();
 	cHostPly.Initialize();
 
-    cHostPly.Add( new CLabel("Player settings",MakeColour(0,138,251)), -1, 350,140,0,0);
-	cHostPly.Add( new CLabel("Server settings",MakeColour(0,138,251)), -1, 30, 140,0,0);
+    cHostPly.Add( new CLabel("Player settings",tLX->clHeading), -1, 350,140,0,0);
+	cHostPly.Add( new CLabel("Server settings",tLX->clHeading), -1, 30, 140,0,0);
 	cHostPly.Add( new CButton(BUT_BACK, tMenu->bmpButtons), hs_Back,	25, 440,50, 15);
 	cHostPly.Add( new CButton(BUT_OK, tMenu->bmpButtons),   hs_Ok,			585,440,30, 15);
 
 	cHostPly.Add( new CListview(),							hs_PlayerList,	360,160,200,130);
 	cHostPly.Add( new CListview(),							hs_Playing,		360,310,200,70);	
-	cHostPly.Add( new CLabel("Server name",	0xffff),		-1,			40, 178,0,  0);
+	cHostPly.Add( new CLabel("Server name",	tLX->clNormalLabel),		-1,			40, 178,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_Servername,	175,175,140,20);
-	cHostPly.Add( new CLabel("Max Players",	0xffff),		-1,			40,	208,0,  0);
+	cHostPly.Add( new CLabel("Max Players",	tLX->clNormalLabel),		-1,			40,	208,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_MaxPlayers,	175,205,140,20);
-    //cHostPly.Add( new CLabel("Password",	0xffff),	    -1,			40, 238,0,  0);
+    //cHostPly.Add( new CLabel("Password",	tLX->clNormalLabel),	    -1,			40, 238,0,  0);
 	//cHostPly.Add( new CTextbox(),		                    hs_Password,	175,235,140,20);
-	cHostPly.Add( new CLabel("Welcome message",	0xffff),		-1,			40, 238,0,  0);
+	cHostPly.Add( new CLabel("Welcome message",	tLX->clNormalLabel),		-1,			40, 238,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_WelcomeMessage, 175,235,140,20);
-	cHostPly.Add( new CLabel("Register Server",	0xffff),	-1,			153, 268,0,  0);
+	cHostPly.Add( new CLabel("Register Server",	tLX->clNormalLabel),	-1,			153, 268,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_Register,	270,265,17, 17);    
-	cHostPly.Add( new CLabel("Allow \"Wants join\" messages",	0xffff),-1,	60, 298,0,  0);
+	cHostPly.Add( new CLabel("Allow \"Wants join\" messages",	tLX->clNormalLabel),-1,	60, 298,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowWantsJoin,	270,295,17, 17);
-	cHostPly.Add( new CLabel("Allow bots in server",			0xffff),-1,	110, 328,0,  0);
+	cHostPly.Add( new CLabel("Allow bots in server",			tLX->clNormalLabel),-1,	110, 328,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowRemoteBots,	270,325,17, 17);
 
 	cHostPly.SendMessage(hs_Servername,TXM_SETMAX,32,0);
@@ -211,7 +211,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						ply = FindProfile(index);
 
 						if(ply) {
-							lv2->AddItem("",index,0xffff);					
+							lv2->AddItem("",index,tLX->clListView);					
 							lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 							lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 						}
@@ -234,7 +234,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					ply = FindProfile(index);
 
 					if(ply) {
-						lv2->AddItem("",index,0xffff);					
+						lv2->AddItem("",index,tLX->clListView);					
 						lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 					}
@@ -454,7 +454,7 @@ void Menu_Net_HostLobbyDraw(void)
 	Menu_DrawBox(tMenu->bmpBuffer, 460,29, 593, 130);
     DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
 
-    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, 0xffff,"%s", "[  Lobby  ]");
+    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel,"%s", "[  Lobby  ]");
 
 	// Chat box
     DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, 0);
@@ -470,7 +470,7 @@ void Menu_Net_HostLobbyDraw(void)
 // Create the lobby gui
 void Menu_Net_HostLobbyCreateGui(void)
 {
-    Uint32 blue = MakeColour(0,138,251);
+    //Uint32 blue = MakeColour(0,138,251);
 
     // Lobby gui layout
 	cHostLobby.Shutdown();
@@ -480,18 +480,18 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),hl_Start,	560, 450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);	
 	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);	
-	cHostLobby.Add( new CLabel("Players",blue),				  -1,		15,  15,  0,   0);
+	cHostLobby.Add( new CLabel("Players",tLX->clHeading),				  -1,		15,  15,  0,   0);
 	cHostLobby.Add( new CTextbox(),							  hl_ChatText, 15,  421, 610, 20);
     cHostLobby.Add( new CListview(),                          hl_ChatList, 15,  253, 610, 165);
 
 	cHostLobby.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, 210, 170,15);
     cHostLobby.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, 235, 185,15);
 
-	cHostLobby.Add( new CLabel("Mod",0xffff),	    -1,         360, 180, 0,   0);
+	cHostLobby.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         360, 180, 0,   0);
 	cHostLobby.Add( new CCombobox(),				hl_ModName,    440, 179, 170, 17);
-	cHostLobby.Add( new CLabel("Game type",0xffff),	-1,         360, 158, 0,   0);
+	cHostLobby.Add( new CLabel("Game type",tLX->clNormalLabel),	-1,         360, 158, 0,   0);
 	cHostLobby.Add( new CCombobox(),				hl_Gametype,   440, 157, 170, 17);
-    cHostLobby.Add( new CLabel("Level",0xffff),	    -1,         360, 136, 0,   0);
+    cHostLobby.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, 136, 0,   0);
     cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
 
 	cHostLobby.SendMessage(hl_ChatText,TXM_SETMAX,64,0);
@@ -988,14 +988,14 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 
 			// Open
 			case LBY_OPEN:
-				//tLX->cFont.Draw(bmpDest, 77, y, 0xffff,"%s", "------");
+				//tLX->cFont.Draw(bmpDest, 77, y, tLX->clNormalLabel,"%s", "------");
 
                 //DrawHLine(bmpDest, x, x+315, y+20, MakeColour(64,64,64));
 				break;
 
 			// Closed
 			case LBY_CLOSED:
-				//tLX->cFont.Draw(bmpDest, 77, y, 0xffff,"%s", "Closed");
+				//tLX->cFont.Draw(bmpDest, 77, y, tLX->clNormalLabel,"%s", "Closed");
 				break;
 
 			// Used
@@ -1040,7 +1040,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 
                 // Worm		
                 DrawImage(bmpDest, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(bmpDest, x+55, y-2, 0xffff,"%s", w->getName());    
+				tLX->cFont.Draw(bmpDest, x+55, y-2, tLX->clNormalLabel,"%s", w->getName());    
                 
                 // Team
                 CWorm *sv_w = cServer->getWorms() + i;
@@ -1077,7 +1077,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 					int png = client->getPing();
 					if (png > 99999 || png < 0)
 						png = 0;
-					tLX->cFont.Draw(bmpDest, x+280, y-2, 0xffff, "%d", png);
+					tLX->cFont.Draw(bmpDest, x+280, y-2, tLX->clNormalLabel, "%d", png);
 				}
 
 				break;
@@ -1151,7 +1151,7 @@ void Menu_Net_HostDeregister(void)
 	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,0);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, 0xffff,"%s", "De-Registering server...");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel,"%s", "De-Registering server...");
 
 	Menu_RedrawMouse(true);
 
@@ -1220,18 +1220,18 @@ void Menu_ServerSettings(void)
 	Menu_RedrawMouse(true);
 
 	cServerSettings.Initialize();
-	cServerSettings.Add( new CLabel("Server settings", 0xffff),		  -1,        275,140,  0, 0);	
+	cServerSettings.Add( new CLabel("Server settings", tLX->clNormalLabel),		  -1,        275,140,  0, 0);	
     cServerSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  ss_Ok,	 360,300,  60,15);
 	cServerSettings.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),  ss_Cancel, 220,300,  70,15);
-	cServerSettings.Add( new CLabel("Server name:", 0xffff),		  -1,        130,165,  0, 0);
-	cServerSettings.Add( new CLabel("Welcome message:", 0xffff),	  -1,        130,193,  0, 0);
-	cServerSettings.Add( new CLabel("Max. Players:", 0xffff),		  -1,        130,218,  0, 0);
+	cServerSettings.Add( new CLabel("Server name:", tLX->clNormalLabel),		  -1,        130,165,  0, 0);
+	cServerSettings.Add( new CLabel("Welcome message:", tLX->clNormalLabel),	  -1,        130,193,  0, 0);
+	cServerSettings.Add( new CLabel("Max. Players:", tLX->clNormalLabel),		  -1,        130,218,  0, 0);
 	cServerSettings.Add( new CTextbox(),							  ss_ServerName, 265,165,  200, 20);
 	cServerSettings.Add( new CTextbox(),							  ss_WelcomeMessage,        265,190,  200, 20);
 	cServerSettings.Add( new CTextbox(),							  ss_MaxPlayers, 265,215,  50, 20);
-	cServerSettings.Add( new CLabel("Allow \"Wants join\" messages",	0xffff),-1,	130, 245,0,  0);
+	cServerSettings.Add( new CLabel("Allow \"Wants join\" messages",	tLX->clNormalLabel),-1,	130, 245,0,  0);
 	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowWantsJoin,	340,245,17, 17);
-	cServerSettings.Add( new CLabel("Allow bots in server",				0xffff),-1,	130, 275,0,  0);
+	cServerSettings.Add( new CLabel("Allow bots in server",				tLX->clNormalLabel),-1,	130, 275,0,  0);
 	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowRemoteBots,	340,275,17, 17);
 
 	cServerSettings.SendMessage(ss_ServerName,TXM_SETMAX,32,0);
@@ -1361,7 +1361,7 @@ void Menu_BanList(void)
 	Menu_RedrawMouse(true);
 
 	cBanListGui.Initialize();
-	cBanListGui.Add( new CLabel("Ban List", 0xffff),     -1,        275,135,  0, 0);	
+	cBanListGui.Add( new CLabel("Ban List", tLX->clNormalLabel),     -1,        275,135,  0, 0);	
     cBanListGui.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  bl_Close,   400,420, 60,15);
     cBanListGui.Add( new CButton(BUT_CLEAR, tMenu->bmpButtons),	  bl_Clear,     180,420, 60,15);
 	cBanListGui.Add( new CButton(BUT_UNBAN, tMenu->bmpButtons),	  bl_Unban,     260,420, 60,15);
@@ -1383,7 +1383,7 @@ void Menu_BanList(void)
 		item = (*cBanList).getItemById(i);
 		if (!item || !item->szNick || !item->szAddress)
 			continue;
-		tListBox->AddItem(item->szAddress,i,0xffff);
+		tListBox->AddItem(item->szAddress,i,tLX->clListView);
 		tListBox->AddSubitem(LVS_TEXT, item->szAddress, NULL);
 		tListBox->AddSubitem(LVS_TEXT, item->szNick, NULL);
 	}

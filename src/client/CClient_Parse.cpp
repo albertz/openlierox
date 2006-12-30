@@ -568,13 +568,13 @@ void CClient::ParseText(CBytestream *bs)
 	Uint32 col = 0xffff;
 	switch(type) {
 		// Chat
-		case TXT_CHAT:		col = MakeColour(128,255,128);	break;
+		case TXT_CHAT:		col = tLX->clChatText;		break;
 		// Normal
-		case TXT_NORMAL:	col = MakeColour(255,255,255);	break;
+		case TXT_NORMAL:	col = tLX->clNormalText;	break;
 		// Notice
-		case TXT_NOTICE:	col = MakeColour(200,200,200);	break;
+		case TXT_NOTICE:	col = tLX->clNotice;		break;
 		// Network
-		case TXT_NETWORK:	col = MakeColour(200,200,200);	break;
+		case TXT_NETWORK:	col = tLX->clNetworkText;	break;
 	}
 
 	char buf[256];
@@ -585,7 +585,7 @@ void CClient::ParseText(CBytestream *bs)
 		if(type == TXT_NETWORK)
 			return;
 		if(type != TXT_CHAT)
-			col = 0xffff;
+			col = tLX->clNormalText;
     }
 	
     FILE *f;

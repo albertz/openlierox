@@ -91,6 +91,24 @@ typedef struct {
 	float	debug_float;
 	CVec	debug_pos;
 
+	// Default Colours
+	Uint32			clNormalLabel;
+	Uint32			clHeading;
+	Uint32			clSubHeading;
+	Uint32			clChatText;
+	Uint32			clNetworkText;
+	Uint32			clNormalText;
+	Uint32			clNotice;
+	Uint32			clDropDownText;
+	Uint32			clDisabled;
+	Uint32			clListView;
+	Uint32			clTextBox;
+	Uint32			clMouseOver;
+	Uint32			clError;
+	Uint32			clCredits1;
+	Uint32			clCredits2;
+	Uint32			clPopupMenu;
+
 
 	char	debug_string[32];
 } lierox_t;

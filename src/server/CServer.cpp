@@ -1238,7 +1238,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		return;
 
 	// Don't check against local IP
-	if (!strcmp(Address,"127.0.0.1"))  {
+	if (strstr(Address,"127.0.0.1"))  {
 		strcpy(Result,"Unknown Country");
 		return;
 	}

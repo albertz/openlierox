@@ -453,18 +453,21 @@ Uint32 StrToCol(char *str)
 
 	// R value
 	strncpy(tmp,str,2);
-	r = atoi(tmp);
+	strlwr(tmp);
+	r = MIN((int)strtol(tmp,NULL,16),255);
 
 	// G value
 	strncpy(tmp,str+2,2);
-	g = atoi(tmp);
+	strlwr(tmp);
+	g = MIN((int)strtol(tmp,NULL,16),255);
 
 	// B value
 	strncpy(tmp,str+4,2);
-	b = atoi(tmp);
+	strlwr(tmp);
+	b = MIN((int)strtol(tmp,NULL,16),255);
 
 	// Make the colour
-	Uint32 result = MakeColour(r,g,b);
+	Uint32 result = MakeColour((Uint8)r,(Uint8)g,(Uint8)b);
 
 	// Restore the original value
 	str = org_val;

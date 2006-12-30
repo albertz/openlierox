@@ -214,7 +214,7 @@ typedef struct {
 	int				iCurMisc;
 	int				iCurDirt;
 
-	int				iReturnTo;	
+	int				iReturnTo;
 
 	// Socket for pinging
 	NetworkSocket		tSocket[2];

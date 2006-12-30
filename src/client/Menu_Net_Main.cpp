@@ -57,12 +57,12 @@ int Menu_Net_MainInitialize(void)
 	for(; p; p=p->tNext) {
 		if(p->iType == PRF_COMPUTER)
 			continue;
-		lv->AddItem("",p->iID,0xffff);
+		lv->AddItem("",p->iID,tLX->clListView);
 		lv->AddSubitem(LVS_IMAGE,"",p->bmpWorm);
 		lv->AddSubitem(LVS_TEXT, p->sName, NULL);
 	}*/
 
-	cMain.Add( new CLabel("OpenLieroX News", 0xffff), -1, 255, 140, 0,0);
+	cMain.Add( new CLabel("OpenLieroX News", tLX->clNormalLabel), -1, 255, 140, 0,0);
 
 
 	return true;

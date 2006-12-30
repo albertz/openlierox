@@ -109,7 +109,7 @@ int Menu_Net_JoinInitializePlayers(void)
 	cPlayerSel.Add( new CButton(BUT_OK, tMenu->bmpButtons),		Ok,			585,440, 30,15);
 	cPlayerSel.Add( new CListview(),							PlayerList,	100,210, 200, 160);
 	cPlayerSel.Add( new CListview(),							Playing,	340,210, 200, 160);
-	cPlayerSel.Add( new CLabel("Select player to play as:",MakeColour(0,138,251)), -1, 100, 190,0,0);	
+	cPlayerSel.Add( new CLabel("Select player to play as:",tLX->clHeading), -1, 100, 190,0,0);	
 
 
 	// Add columns
@@ -203,7 +203,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 						ply = FindProfile(index);
 
 						if(ply) {
-							lv2->AddItem("",index,0xffff);					
+							lv2->AddItem("",index,tLX->clListView);					
 							lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 							lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 						}
@@ -226,7 +226,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 					ply = FindProfile(index);
 
 					if(ply) {
-						lv2->AddItem("",index,0xffff);					
+						lv2->AddItem("",index,tLX->clListView);					
 						lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 					}
@@ -340,7 +340,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Process the client frame
-	tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 180, 0xffff, "Connecting to %s",sJoinAddress);
+	tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 180, tLX->clNormalLabel, "Connecting to %s",sJoinAddress);
 	cClient->Frame();
 
 
@@ -467,7 +467,7 @@ void Menu_Net_JoinDrawLobby(void)
 
     // Title
     DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
-    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, 0xffff,"%s", "[  Lobby  ]");
+    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel,"%s", "[  Lobby  ]");
 
 	// Chat box
     DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, 0);
@@ -490,7 +490,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
 
 	cJoinLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),jl_Back,	15,  450, 60,  15);
     cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);    
-	cJoinLobby.Add( new CLabel("Players",blue),				  -1,		15,  15,  0,   0);
+	cJoinLobby.Add( new CLabel("Players",tLX->clHeading),	  -1,		15,  15,  0,   0);
 	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, 20);
     cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  253, 610, 165);	
 
@@ -644,12 +644,12 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			// Open
 			case LBY_OPEN:
-				//tLX->cFont.Draw(tMenu->bmpScreen, 77, y, 0xffff,"%s", "------");
+				//tLX->cFont.Draw(tMenu->bmpScreen, 77, y, tLX->clNormalLabel,"%s", "------");
 				break;
 
 			// Closed
 			case LBY_CLOSED:
-				//tLX->cFont.Draw(tMenu->bmpScreen, 77, y, 0xffff,"%s", "Closed");
+				//tLX->cFont.Draw(tMenu->bmpScreen, 77, y, tLX->clNormalLabel,"%s", "Closed");
 				break;
 
 			// Used
@@ -662,7 +662,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
                 // Worm
                 DrawImage(tMenu->bmpScreen, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, 0xffff,"%s", w->getName());    
+				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, tLX->clNormalLabel,"%s", w->getName());    
                 
                 // Team
                 if( gl->nGameMode == GMT_TEAMDEATH )  {
@@ -715,32 +715,32 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		tGameInfo.iLoadingTimes = gl->nLoadingTime;
 
 		f->Draw(tMenu->bmpScreen, x, y,  blue, "Game Details");
-		f->Draw(tMenu->bmpScreen, x, y+20,  0xffff, "Level:");
+		f->Draw(tMenu->bmpScreen, x, y+20,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
-			f->Draw(tMenu->bmpScreen, x2, y+20, 0xffff,"%s", gl->szDecodedMapName);
-		    //f->Draw(tMenu->bmpScreen, x2, y+20,  0xffff,"%s", gl->szMapName);
+			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel,"%s", gl->szDecodedMapName);
+		    //f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clNormalLabel,"%s", gl->szMapName);
 		}
         else
-            f->Draw(tMenu->bmpScreen, x2, y+20,  MakeColour(255,64,64), gl->szMapName);
-		f->Draw(tMenu->bmpScreen, x, y+40, 0xffff,"%s", "Game Mode:");
-		f->Draw(tMenu->bmpScreen, x2, y+40, 0xffff, "%s",gamemodes[gl->nGameMode]);
-        f->Draw(tMenu->bmpScreen, x, y+60, 0xffff, "%s", "Mod:");
+            f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
+		f->Draw(tMenu->bmpScreen, x, y+40, tLX->clNormalLabel,"%s", "Game Mode:");
+		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, "%s",gamemodes[gl->nGameMode]);
+        f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel, "%s", "Mod:");
         if(gl->bHaveMod)
-            f->Draw(tMenu->bmpScreen, x2, y+60, 0xffff, "%s", gl->szModName);
+            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel, "%s", gl->szModName);
         else
-            f->Draw(tMenu->bmpScreen, x2, y+60, MakeColour(255,64,64), "%s", gl->szModName);
+            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, "%s", gl->szModName);
 
-		f->Draw(tMenu->bmpScreen, x, y+80, 0xffff, "%s", "Lives:");
+		f->Draw(tMenu->bmpScreen, x, y+80, tLX->clNormalLabel, "%s", "Lives:");
 		if(gl->nLives >= 0)
-			f->Draw(tMenu->bmpScreen, x2, y+80, 0xffff, "%d",gl->nLives);
+			f->Draw(tMenu->bmpScreen, x2, y+80, tLX->clNormalLabel, "%d",gl->nLives);
 
-		f->Draw(tMenu->bmpScreen, x, y+100, 0xffff, "%s", "Max Kills:");
+		f->Draw(tMenu->bmpScreen, x, y+100, tLX->clNormalLabel, "%s", "Max Kills:");
 		if(gl->nMaxKills >= 0)
-			f->Draw(tMenu->bmpScreen, x2, y+100, 0xffff, "%d",gl->nMaxKills);
-		f->Draw(tMenu->bmpScreen,     x, y+120, 0xffff, "%s", "Loading time:");
-		f->Draw(tMenu->bmpScreen,     x2, y+120, 0xffff, "%d%%", gl->nLoadingTime);
-        f->Draw(tMenu->bmpScreen,     x, y+140, 0xffff, "%s", "Bonuses:");
-        f->Draw(tMenu->bmpScreen,     x2, y+140, 0xffff, "%s", gl->nBonuses ? "On" : "Off");
+			f->Draw(tMenu->bmpScreen, x2, y+100, tLX->clNormalLabel, "%d",gl->nMaxKills);
+		f->Draw(tMenu->bmpScreen,     x, y+120, tLX->clNormalLabel, "%s", "Loading time:");
+		f->Draw(tMenu->bmpScreen,     x2, y+120, tLX->clNormalLabel, "%d%%", gl->nLoadingTime);
+        f->Draw(tMenu->bmpScreen,     x, y+140, tLX->clNormalLabel, "%s", "Bonuses:");
+        f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, "%s", gl->nBonuses ? "On" : "Off");
 	}
 
 

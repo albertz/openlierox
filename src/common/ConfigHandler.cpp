@@ -132,9 +132,22 @@ int ReadFloat(char *filename, char *section, char *key, float *value, float defa
 }
 
 
+//////////////////
+// Read a colour
+int ReadColour(char *filename, char *section, char *key, Uint32 *value, Uint32 defaultv)
+{
+	char string[MAX_MINOR_LENGTH];
 
+	*value = defaultv;
+	
+	if(!GetString(filename,section,key,string))
+		return false;
 
+	*value = StrToCol(string);
 
+	return true;
+	
+}
 
 
 

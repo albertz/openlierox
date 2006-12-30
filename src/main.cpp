@@ -258,7 +258,7 @@ int InitializeLieroX(void)
 	// TODO: more initiation of the values
 	tLX->fCurTime = 0;
 	tLX->fDeltaTime = 0;
-	
+
 	// Load the graphics
     if(!LoadGraphics()) {
         SystemError("Error: Error loading graphics");

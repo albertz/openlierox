@@ -26,6 +26,24 @@ gfxgame_t	gfxGame;
 // Load the graphics
 int LoadGraphics(void)
 {
+	// Initialize the colours
+	tLX->clChatText = MakeColour(128,255,128);
+	tLX->clSubHeading = MakeColour(143,176,207);
+	tLX->clHeading = MakeColour(0,138,251);
+	tLX->clNetworkText = MakeColour(200,200,200);
+	tLX->clNormalLabel = 0xffff;
+	tLX->clNotice = MakeColour(200,200,200);
+	tLX->clNormalText = 0xffff;
+	tLX->clDropDownText = 0xffff;
+	tLX->clDisabled = MakeColour(96,96,96);
+	tLX->clListView = 0xffff;
+	tLX->clTextBox = 0xffff;
+	tLX->clMouseOver = 0xffff;
+	tLX->clError = MakeColour(200,50,50);
+	tLX->clCredits1 = MakeColour(150,150,150);
+	tLX->clCredits2 = MakeColour(96,96,96);
+	tLX->clPopupMenu = 0xffff;
+
 	int i;
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[0], "data/frontend/mouse.png");
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[1], "data/frontend/mouse_hand.png");
@@ -79,6 +97,25 @@ int LoadGraphics(void)
 	SDL_SetColorKey(gfxGame.bmpHealth, SDL_SRCCOLORKEY, pink);
 	SDL_SetColorKey(gfxGame.bmpSparkle, SDL_SRCCOLORKEY, pink);
     SDL_SetColorKey(gfxGame.bmpViewportMgr, SDL_SRCCOLORKEY, pink);
+
+	// Load the colours from a file
+	char *colorfile = "data/frontend/colours.cfg";
+	ReadColour(colorfile,"Colours","ChatText",		&tLX->clChatText,		tLX->clChatText);
+	ReadColour(colorfile,"Colours","Credits1",		&tLX->clCredits1,		tLX->clCredits1);
+	ReadColour(colorfile,"Colours","Credits2",		&tLX->clCredits2,		tLX->clCredits2);
+	ReadColour(colorfile,"Colours","Disabled",		&tLX->clDisabled,		tLX->clDisabled);
+	ReadColour(colorfile,"Colours","DropDownText",	&tLX->clDropDownText,	tLX->clDropDownText);
+	ReadColour(colorfile,"Colours","Error",			&tLX->clError,			tLX->clError);
+	ReadColour(colorfile,"Colours","Heading",		&tLX->clHeading,		tLX->clHeading);
+	ReadColour(colorfile,"Colours","ListView",		&tLX->clListView,		tLX->clListView);
+	ReadColour(colorfile,"Colours","MouseOver",		&tLX->clMouseOver,		tLX->clMouseOver);
+	ReadColour(colorfile,"Colours","NetworkText",	&tLX->clNetworkText,	tLX->clNetworkText);
+	ReadColour(colorfile,"Colours","NormalLabel",	&tLX->clNormalLabel,	tLX->clNormalLabel);
+	ReadColour(colorfile,"Colours","NormalText",	&tLX->clNormalText,		tLX->clNormalText);
+	ReadColour(colorfile,"Colours","Notice",		&tLX->clNotice,			tLX->clNotice);
+	ReadColour(colorfile,"Colours","PopupMenu",		&tLX->clPopupMenu,		tLX->clPopupMenu);
+	ReadColour(colorfile,"Colours","SubHeading",	&tLX->clSubHeading,		tLX->clSubHeading);
+	ReadColour(colorfile,"Colours","TextBox",		&tLX->clTextBox,		tLX->clTextBox);
 
 
 	return true;

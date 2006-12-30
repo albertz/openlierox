@@ -91,13 +91,15 @@ void SystemError(char *fmt, ...)
 	SDL_ShowCursor(SDL_ENABLE);	
 	// TODO: uniform message system
 	printf("SystemError: %s\n", buf);
+
+	// Quit the SDL
+	SDL_Quit();
 #ifdef WIN32
 	MessageBox(NULL,buf,GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 #endif
 
 
 	// Shutdown the game
-	SDL_Quit();
 	exit(1);
 }
 

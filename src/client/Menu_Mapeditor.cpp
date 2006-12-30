@@ -665,7 +665,7 @@ void Menu_MapEd_LoadSave(int save)
 					 // Remove the 'levels' bit from the filename
 					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
 					if(f) {
-						lv->AddItem(f+1,0,0xffff);
+						lv->AddItem(f+1,0,tLX->clListView);
 						lv->AddSubitem(LVS_TEXT,name,NULL);
 					}
 				}
@@ -690,7 +690,7 @@ void Menu_MapEd_LoadSave(int save)
 
 					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
 					if(f) {
-						lv->AddItem(f+1,0,0xffff);
+						lv->AddItem(f+1,0,tLX->clListView);
 						lv->AddSubitem(LVS_TEXT,f+1,NULL);
 					}
 				}

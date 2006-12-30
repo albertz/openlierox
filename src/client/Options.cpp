@@ -71,14 +71,19 @@ int LoadOptions(void)
         if(!ReadString(f, "FileHandling", tmp, tmp3, NULL))
         	break;
     	*spath = new filelist_t;
+		if(!(*spath))  
+			break;
 		(*spath)->next = NULL;
 		strncpy((*spath)->filename, tmp3, sizeof((*spath)->filename));
-		i++; spath = &(*spath)->next;
+		i++; 
+		spath = &(*spath)->next;
 	}
-	for(spath = &basesearchpaths; *spath != NULL; spath = &(*spath)->next)
-		if(!FileListIncludes(tLXOptions->tSearchPaths, (*spath)->filename))
+	
+	for(spath = &basesearchpaths; *spath != NULL; spath = &(*spath)->next)  {
+		if(!FileListIncludes(tLXOptions->tSearchPaths, (*spath)->filename))  {
 			AddToFileList(&tLXOptions->tSearchPaths, (*spath)->filename);
-
+		}
+	}
 
     // Video
     ReadKeyword(f, "Video", "Fullscreen",   &tLXOptions->iFullscreen, true);

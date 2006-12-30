@@ -1062,6 +1062,9 @@ int CMap::PlaceGreenDirt(CVec pos)
 
     int nGreenCount = 0;
 
+	if (!bmpGreenMask)
+		return 0;
+
 
 	// Calculate half
 	w = bmpGreenMask->w;
@@ -1131,6 +1134,9 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 	if(SDL_MUSTLOCK(bmpGreenMask))
 		SDL_UnlockSurface(bmpGreenMask);
+
+	if (!bmpDrawImage)
+		return nGreenCount;
 
 	// Apply a shadow
 	ApplyShadow(sx-5,sy-5,w+25,h+25);

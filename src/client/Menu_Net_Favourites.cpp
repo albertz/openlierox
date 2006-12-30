@@ -51,7 +51,7 @@ int Menu_Net_FavouritesInitialize(void)
 	cFavourites.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mf_Refresh,	   350,440, 83,  15);
 	cFavourites.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    mf_Join,	   570,440, 43,  15);
 	cFavourites.Add( new CListview(),							   mf_ServerList, 40, 180, 560, 240);
-	cFavourites.Add( new CLabel("Select player:",0xffff),-1,		125, 152, 180,15);
+	cFavourites.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
 	cFavourites.Add( new CCombobox(),								mf_PlayerSelection,		225,150, 170,  19);
 
 
@@ -439,8 +439,8 @@ void Menu_Net_RenameServer(char *szName)
 	cRename.Initialize();
 	cRename.Add( new CButton(BUT_OK, tMenu->bmpButtons),	rs_Ok, 220, 310, 40,15);
 	cRename.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),rs_Cancel, 350, 310, 70,15);
-	cRename.Add( new CLabel("Rename a server", 0xffff),		-1,275, 225, 0, 0);
-	cRename.Add( new CLabel("New name", 0xffff),			-1,215, 267, 0, 0);
+	cRename.Add( new CLabel("Rename a server", tLX->clNormalLabel),		-1,275, 225, 0, 0);
+	cRename.Add( new CLabel("New name", tLX->clNormalLabel),			-1,215, 267, 0, 0);
 	cRename.Add( new CTextbox(),							rs_NewName, 300, 265, 150, 20);
 
 	cRename.SendMessage(2,TXM_SETMAX,30,0);
@@ -545,10 +545,10 @@ void Menu_Net_FavouritesAddServer(void)
 	cAddSvr.Initialize();
 	cAddSvr.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	fa_Add, 220, 320, 40,15);
 	cAddSvr.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),fa_Cancel, 350, 320, 70,15);
-	cAddSvr.Add( new CLabel("Add a server", 0xffff),		-1,275, 225, 0, 0);
-	cAddSvr.Add( new CLabel("Address", 0xffff),				-1,215, 267, 0, 0);
+	cAddSvr.Add( new CLabel("Add a server", tLX->clNormalLabel),		-1,275, 225, 0, 0);
+	cAddSvr.Add( new CLabel("Address", tLX->clNormalLabel),				-1,215, 267, 0, 0);
 	cAddSvr.Add( new CTextbox(),							fa_Address, 280, 265, 140, 20);
-	cAddSvr.Add( new CLabel("Name", 0xffff),				-1,215, 290, 0, 0);
+	cAddSvr.Add( new CLabel("Name", tLX->clNormalLabel),				-1,215, 290, 0, 0);
 	cAddSvr.Add( new CTextbox(),							fa_Name, 280, 288, 140, 20);
 
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);

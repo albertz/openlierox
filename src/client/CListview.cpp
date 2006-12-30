@@ -32,7 +32,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	int x=iX+3;
 		
 	for(;col;col = col->tNext) {
-		tLX->cFont.Draw(bmpDest, x, iY, 0xffff,"%s", col->sText);
+		tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel,"%s", col->sText);
 		x += col->iWidth;
 	}
 
@@ -737,7 +737,7 @@ int CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Add an item
 		case LVM_ADDITEM:
-			AddItem( (char *)Param1, Param2, 0xffff);
+			AddItem( (char *)Param1, Param2, tLX->clListView);
 			break;
 
 		// Add a sub item

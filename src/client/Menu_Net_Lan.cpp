@@ -49,9 +49,9 @@ int Menu_Net_LANInitialize(void)
 	cLan.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), nl_Refresh,	   280,440, 83,  15);
 	cLan.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    nl_Join,	   570,440, 43,  15);
 	cLan.Add( new CListview(),							   nl_ServerList, 40, 180, 560, 240);
-	cLan.Add( new CLabel("Select player:",0xffff),-1,		125, 152, 180,15);
+	cLan.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
 	cLan.Add( new CCombobox(),								nl_PlayerSelection,		225,150, 170,  19);
-	//cLan.Add( new CLabel("Local Area Network", blue),	   -1,		   40, 140, 0,   0);
+	//cLan.Add( new CLabel("Local Area Network", tLX->clHeading),	   -1,		   40, 140, 0,   0);
 
 
 	// Fill the players box

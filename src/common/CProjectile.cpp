@@ -447,7 +447,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 			return;
 
 		// Spinning projectile only when moving
-		if(tProjInfo->Rotating && (fabs(vVelocity.x) > 1 || fabs(vVelocity.y) > 1))
+		if(tProjInfo->Rotating && vVelocity.GetLength2() > 0)
 			framestep = fRotation / (float)tProjInfo->RotIncrement;
 		else
 			framestep = 0;

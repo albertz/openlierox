@@ -199,11 +199,11 @@ void Menu_MainFrame(void)
 
 
 	// Draw the version number
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 391, MakeColour(150,150,150), "  %s v%.2f",GetGameName(),LX_VERSION);
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 404, MakeColour(96,96,96),"%s", "+ Original code by Jason Boettcher");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 417, MakeColour(96,96,96),"%s", "+ Ported and enhanced by");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 430, MakeColour(96,96,96),"%s", "  Dark Charlie and Albert Zeyer");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 443, MakeColour(96,96,96),"%s", "+ Supported by the [RIP] clan");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 391, tLX->clCredits1, "  %s v%.2f",GetGameName(),LX_VERSION);
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 404, tLX->clCredits2,"%s", "+ Original code by Jason Boettcher");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 417, tLX->clCredits2,"%s", "+ Ported and enhanced by");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 430, tLX->clCredits2,"%s", "  Dark Charlie and Albert Zeyer");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 443, tLX->clCredits2,"%s", "+ Supported by the [RIP] clan");
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);

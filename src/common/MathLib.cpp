@@ -132,7 +132,7 @@ void GetAngles(int yaw,CVec *forward, CVec *right)
 // Get the angle (in radians) of two vectors
 float VectorAngle(CVec vec1, CVec vec2)
 {
-	return atan2(vec1.y-vec2.y,vec1.x-vec2.x);
+	return (float)atan2(vec1.y-vec2.y,vec1.x-vec2.x);
 	
 	//return (float)acos(vec1.x*vec2.x+vec1.y*vec2.y)/(VectorLength(vec1)*VectorLength(vec2));
 	float scalar = vec1.x*vec2.x + vec1.y*vec2.y;

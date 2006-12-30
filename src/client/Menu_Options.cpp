@@ -152,14 +152,14 @@ int Menu_OptionsInitialize(void)
 
 
 	// Controls
-	cOpt_Controls.Add( new CLabel("Player Controls", blue), Static, 40,  150, 0,0);
-	cOpt_Controls.Add( new CLabel("Player 1",ltblue),       Static, 163, 170, 0,0);
-	cOpt_Controls.Add( new CLabel("Player 2",ltblue),       Static, 268, 170, 0,0);
-	cOpt_Controls.Add( new CLabel("General Controls", blue),Static, 380, 150, 0,0);
+	cOpt_Controls.Add( new CLabel("Player Controls", tLX->clHeading), Static, 40,  150, 0,0);
+	cOpt_Controls.Add( new CLabel("Player 1",tLX->clSubHeading),      Static, 163, 170, 0,0);
+	cOpt_Controls.Add( new CLabel("Player 2",tLX->clSubHeading),      Static, 268, 170, 0,0);
+	cOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading),Static, 380, 150, 0,0);
 
 	int y = 190;
 	for(i=0;i<8;i++,y+=25) {
-		cOpt_Controls.Add( new CLabel(InputNames[i],0xffff), Static, 40, y, 0,0);
+		cOpt_Controls.Add( new CLabel(InputNames[i],tLX->clNormalLabel), Static, 40, y, 0,0);
 
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayer1Controls[SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
 			               oc_Ply1_Up+i, 165, y, 50,17);
@@ -169,31 +169,31 @@ int Menu_OptionsInitialize(void)
 	}
 
 	// General Controls
-	cOpt_Controls.Add( new CLabel("Chat", 0xffff), Static, 380, 190, 0,0);
+	cOpt_Controls.Add( new CLabel("Chat", tLX->clNormalLabel), Static, 380, 190, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_CHAT, tLXOptions->sGeneralControls[SIN_CHAT], tMenu->bmpInputbox, "Chat"),
 						   oc_Gen_Chat, 515, 190, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Scoreboard", 0xffff), Static, 380, 215, 0,0);
+    cOpt_Controls.Add( new CLabel("Scoreboard", tLX->clNormalLabel), Static, 380, 215, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCORE, tLXOptions->sGeneralControls[SIN_SCORE], tMenu->bmpInputbox, "Scoreboard"),
 						   oc_Gen_Score, 515, 215, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Health bar", 0xffff), Static, 380, 240, 0,0);
+    cOpt_Controls.Add( new CLabel("Health bar", tLX->clNormalLabel), Static, 380, 240, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_HEALTH, tLXOptions->sGeneralControls[SIN_HEALTH], tMenu->bmpInputbox, "Health bar"),
 						   oc_Gen_Health, 515, 240, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Current settings", 0xffff), Static, 380, 265, 0,0);
+    cOpt_Controls.Add( new CLabel("Current settings", tLX->clNormalLabel), Static, 380, 265, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SETTINGS, tLXOptions->sGeneralControls[SIN_SETTINGS], tMenu->bmpInputbox, "Current settings"),
 						   oc_Gen_CurSettings, 515, 265, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Take screenshot", 0xffff), Static, 380, 290, 0,0);
+    cOpt_Controls.Add( new CLabel("Take screenshot", tLX->clNormalLabel), Static, 380, 290, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCREENSHOTS, tLXOptions->sGeneralControls[SIN_SCREENSHOTS], tMenu->bmpInputbox, "Take Screenshot"),
 						   oc_Gen_TakeScreenshot, 515, 290, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Viewport manager", 0xffff), Static, 380, 315, 0,0);
+    cOpt_Controls.Add( new CLabel("Viewport manager", tLX->clNormalLabel), Static, 380, 315, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_VIEWPORTS, tLXOptions->sGeneralControls[SIN_VIEWPORTS], tMenu->bmpInputbox, "Viewport Manager"),
 						   oc_Gen_ViewportManager, 515, 315, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Switch video mode", 0xffff), Static, 380, 340, 0,0);
+    cOpt_Controls.Add( new CLabel("Switch video mode", tLX->clNormalLabel), Static, 380, 340, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch video mode"),
 						   oc_Gen_SwitchMode, 515, 340, 50,17);
 	
@@ -201,29 +201,29 @@ int Menu_OptionsInitialize(void)
 
 
 	// System	
-	cOpt_System.Add( new CLabel("Video",blue),              Static, 40, 150, 0,0);
-	cOpt_System.Add( new CLabel("Fullscreen",0xffff),       Static, 60, 170, 0,0);
+	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
+	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 170, 170, 17,17);
 
-	cOpt_System.Add( new CLabel("Audio",blue),              Static, 40, 205, 0,0);
-	cOpt_System.Add( new CLabel("Sound on",0xffff),         Static, 60, 225, 0,0);
+	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
+	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iSoundOn),   os_SoundOn, 170, 225, 17,17);
-	cOpt_System.Add( new CLabel("Sound volume",0xffff),     Static, 60, 245, 0,0);
+	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 60, 245, 0,0);
 	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 165, 242, 110, 20);
 
-	cOpt_System.Add( new CLabel("Network",blue),            Static, 40, 280, 0,0);
-	cOpt_System.Add( new CLabel("Network port",0xffff),     Static, 60, 300, 0,0);
+	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 280, 0,0);
+	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 300, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 297, 100,20);
-	cOpt_System.Add( new CLabel("Network speed",0xffff),    Static, 60,330, 0,0);	
+	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,330, 0,0);	
 	
-	cOpt_System.Add( new CLabel("Miscellanous",blue),       Static, 40, 365, 0,0);
-	cOpt_System.Add( new CLabel("Show FPS",0xffff),         Static, 60, 385, 0,0);
+	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
+	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iShowFPS),   os_ShowFPS, 200, 385, 17,17);
-	cOpt_System.Add( new CLabel("Log Conversations",0xffff),Static, 60, 415, 0,0);
+	cOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, 415, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iLogConvos), os_LogConvos, 200,415,17,17);
-	cOpt_System.Add( new CLabel("Show ping",0xffff),		Static, 230, 415, 0,0);
+	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 230, 415, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iShowPing),  os_ShowPing, 365,415,17,17);
-	cOpt_System.Add( new CLabel("Screenshot format",0xffff),Static, 230,385, 0,0);	
+	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);	
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);
 
@@ -264,21 +264,21 @@ int Menu_OptionsInitialize(void)
 
 
 	// Game
-	cOpt_Game.Add( new CLabel("Blood Amount",0xffff),       Static, 40, 150, 0,0);
+	cOpt_Game.Add( new CLabel("Blood Amount",tLX->clNormalLabel),       Static, 40, 150, 0,0);
 	cOpt_Game.Add( new CSlider(5000),                       og_BloodAmount, 175, 147, 210, 20);
-	cOpt_Game.Add( new CLabel("Shadows",0xffff),            Static, 40, 180, 0,0);
+	cOpt_Game.Add( new CLabel("Shadows",tLX->clNormalLabel),            Static, 40, 180, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->iShadows),     og_Shadows, 280, 180, 17,17);
-	cOpt_Game.Add( new CLabel("Particles",0xffff),          Static, 40, 210, 0,0);
+	cOpt_Game.Add( new CLabel("Particles",tLX->clNormalLabel),          Static, 40, 210, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->iParticles),   og_Particles, 280, 210, 17,17);
-	cOpt_Game.Add( new CLabel("Classic Rope throw",0xffff), Static, 40, 240, 0,0);
+	cOpt_Game.Add( new CLabel("Classic Rope throw",tLX->clNormalLabel), Static, 40, 240, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->iOldSkoolRope),og_OldSkoolRope, 280, 240, 17,17);
-	//cOpt_Game.Add( new CLabel("Show worm's health",0xffff), Static, 40, 270, 0,0);
+	//cOpt_Game.Add( new CLabel("Show worm's health",tLX->clNormalLabel), Static, 40, 270, 0,0);
 	//cOpt_Game.Add( new CCheckbox(tLXOptions->iShowHealth),  og_ShowWormHealth, 280, 270, 17,17);
-	cOpt_Game.Add( new CLabel("Colorize nicks by teams",0xffff), Static, 40, 270, 0,0);
+	cOpt_Game.Add( new CLabel("Colorize nicks by teams",tLX->clNormalLabel), Static, 40, 270, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->iColorizeNicks),og_ColorizeNicks, 280, 270, 17,17);
-	cOpt_Game.Add( new CLabel("Start typing after any key press",0xffff), Static, 40, 300, 0,0);
+	cOpt_Game.Add( new CLabel("Start typing after any key press",tLX->clNormalLabel), Static, 40, 300, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->iAutoTyping),og_AutoTyping, 280, 300, 17,17);
-	//cOpt_Game.Add( new CLabel("AI Difficulty",0xffff), Static, 40, 270, 0,0);
+	//cOpt_Game.Add( new CLabel("AI Difficulty",tLX->clNormalLabel), Static, 40, 270, 0,0);
 	//cOpt_Game.Add( new CSlider(3), og_AIDifficulty,   175, 267, 100, 20);
 
 	// Set the values	
@@ -405,11 +405,11 @@ void Menu_OptionsFrame(void)
 		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, 0, 0);
 		//s = (CSlider *)cOpt_Game.getWidget(og_BloodAmount);
         DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 385,140, 385,140, 70,50);
-		tLX->cFont.Draw(tMenu->bmpScreen,385, 148, 0xffff,"%d%%",val);
+		tLX->cFont.Draw(tMenu->bmpScreen,385, 148, tLX->clNormalLabel,"%d%%",val);
 
 		//val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
         //DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 285,260, 285,260, 100,50);
-		//tLX->cFont.Draw(tMenu->bmpScreen,285, 268, 0xffff,"%s",Difficulties[val]);
+		//tLX->cFont.Draw(tMenu->bmpScreen,285, 268, tLX->clNormalLabel,"%s",Difficulties[val]);
 
 
 

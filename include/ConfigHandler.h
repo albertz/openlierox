@@ -29,6 +29,7 @@ int		GetString(char *filename, char *section, char *key, char *string);
 int		ReadString(char *filename, char *section, char *key, char *value, char *defaultv);
 int		ReadInteger(char *filename, char *section, char *key, int *value, int defaultv);
 int		ReadFloat(char *filename, char *section, char *key, float *value, float defaultv);
+int		ReadColour(char *filename, char *section, char *key, Uint32 *value, Uint32 defaultv);
 //int		ReadVec2d(char *filename, char *section, char *key, CVec2d *value);
 int		ReadVec(char *filename, char *section, char *key, CVec *value);
 //int		ReadRegion(char *filename, char *section, char *key, CRegion *value);

@@ -137,7 +137,7 @@ void CMenu::Draw(SDL_Surface *bmpDest)
 
         if( it->nSelected )
             DrawRectFill(bmpDest, X+2,y,  X+W-1, y+20, MakeColour(0,66,102));            
-        tLX->cFont.Draw(bmpDest, X+5, y+2, 0xffff,"%s", it->szName);
+        tLX->cFont.Draw(bmpDest, X+5, y+2, tLX->clPopupMenu,"%s", it->szName);
 
         it->nSelected = false;
 

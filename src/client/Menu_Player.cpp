@@ -95,33 +95,33 @@ void Menu_PlayerInitialize(void)
 	cNewPlayer.Add( new CButton(BUT_BACK, tMenu->bmpButtons),	np_Back, 25,440, 50,15);
 	cNewPlayer.Add( new CButton(BUT_CREATE, tMenu->bmpButtons), np_Create, 540,440, 70,15);
 
-	cNewPlayer.Add( new CLabel("Worm Details", blue),Static, 30, 170, 0,0);
+	cNewPlayer.Add( new CLabel("Worm Details", tLX->clHeading),Static, 30, 170, 0,0);
 	cNewPlayer.Add( new CTextbox(),		       np_Name,  120, 200,120,20);
-	cNewPlayer.Add( new CLabel("Name",0xffff), Static, 40, 202,0,  0);
-	cNewPlayer.Add( new CLabel("Red",0xffff),  Static, 40, 300,0,  0);
-	cNewPlayer.Add( new CLabel("Green",0xffff),Static, 40, 320,0,  0);
-	cNewPlayer.Add( new CLabel("Blue",0xffff), Static, 40, 340,0,  0);
+	cNewPlayer.Add( new CLabel("Name",tLX->clNormalLabel), Static, 40, 202,0,  0);
+	cNewPlayer.Add( new CLabel("Red",tLX->clNormalLabel),  Static, 40, 300,0,  0);
+	cNewPlayer.Add( new CLabel("Green",tLX->clNormalLabel),Static, 40, 320,0,  0);
+	cNewPlayer.Add( new CLabel("Blue",tLX->clNormalLabel), Static, 40, 340,0,  0);
 	cNewPlayer.Add( new CSlider(255),	       np_Red,   115, 300,128,20);
 	cNewPlayer.Add( new CSlider(255),	       np_Green, 115, 320,128,20);
 	cNewPlayer.Add( new CSlider(255),	       np_Blue,  115, 340,128,20);
 
-    cNewPlayer.Add( new CLabel("Skill",0xffff),np_AIDiffLbl,40,362,0, 0);
+    cNewPlayer.Add( new CLabel("Skill",tLX->clNormalLabel),np_AIDiffLbl,40,362,0, 0);
     cNewPlayer.Add( new CSlider(3),            np_AIDiff,115, 360,128,20);
-    cNewPlayer.Add( new CLabel("Skin", 0xffff),Static,40,  262,0,  0);
+    cNewPlayer.Add( new CLabel("Skin", tLX->clNormalLabel),Static,40,  262,0,  0);
     cNewPlayer.Add( new CCombobox(),           np_PlySkin,120,260,120,20);
-    cNewPlayer.Add( new CLabel("Type", 0xffff),Static,40,  232,0,  0);
+    cNewPlayer.Add( new CLabel("Type", tLX->clNormalLabel),Static,40,  232,0,  0);
     cNewPlayer.Add( new CCombobox(),           np_Type,  120, 230,120,17); 
 	
 	cNewPlayer.SendMessage(np_Name,TXM_SETMAX,20,0);
 	
 
-	//cNewPlayer.Add( new CLabel("Multiplayer (optional)", blue),Static, 370, 170, 0,0);
-	//cNewPlayer.Add( new CLabel("Username", 0xffff), Static, 380, 202, 0,0);
-	//cNewPlayer.Add( new CLabel("Password", 0xffff), Static, 380, 232, 0,0);
+	//cNewPlayer.Add( new CLabel("Multiplayer (optional)", tLX->clHeading),Static, 370, 170, 0,0);
+	//cNewPlayer.Add( new CLabel("Username", tLX->clNormalLabel), Static, 380, 202, 0,0);
+	//cNewPlayer.Add( new CLabel("Password", tLX->clNormalLabel), Static, 380, 232, 0,0);
 	cNewPlayer.Add( new CTextbox(),			   np_Username, 470, 200, 110, 20);
 	cNewPlayer.Add( new CTextbox(),			   np_Password, 470, 230, 110, 20);
 
-	//cNewPlayer.Add( new CLabel("Note: To register a username, visit the Liero Xtreme web site", grey),Static, 30, 410, 0,0);
+	//cNewPlayer.Add( new CLabel("Note: To register a username, visit the Liero Xtreme web site", tLX->clSubHeading),Static, 30, 410, 0,0);
 
 	// Hide the multiplayer textboxes
 	cNewPlayer.getWidget(np_Username)->setEnabled(false);
@@ -153,23 +153,23 @@ void Menu_PlayerInitialize(void)
 
 	cViewPlayers.Add( new CButton(BUT_BACK, tMenu->bmpButtons),     vp_Back,   25, 440, 50, 15);
 	cViewPlayers.Add( new CListview(),                              vp_Players,40, 150, 200,165);
-    cViewPlayers.Add( new CLabel("Name", 0xffff),                   Static, 350,172, 0,  0);
+    cViewPlayers.Add( new CLabel("Name", tLX->clNormalLabel),                   Static, 350,172, 0,  0);
     cViewPlayers.Add( new CTextbox(),                               vp_Name,  400,170, 120,20);
 	cViewPlayers.Add( new CButton(BUT_DELETE, tMenu->bmpButtons),   vp_Delete, 330,340, 70, 15);
     cViewPlayers.Add( new CButton(BUT_APPLY, tMenu->bmpButtons),    vp_Apply,  500,340, 55, 15);    
 
-    cViewPlayers.Add( new CLabel("Red",0xffff),                     Static, 350,250,0,0);
-	cViewPlayers.Add( new CLabel("Green",0xffff),                   Static, 350,270,0,0);
-	cViewPlayers.Add( new CLabel("Blue",0xffff),                    Static, 350,290,0,0);
+    cViewPlayers.Add( new CLabel("Red",tLX->clNormalLabel),                     Static, 350,250,0,0);
+	cViewPlayers.Add( new CLabel("Green",tLX->clNormalLabel),                   Static, 350,270,0,0);
+	cViewPlayers.Add( new CLabel("Blue",tLX->clNormalLabel),                    Static, 350,290,0,0);
     cViewPlayers.Add( new CSlider(255),	                            vp_Red,    400,250, 128,20);
 	cViewPlayers.Add( new CSlider(255),	                            vp_Green,  400,270, 128,20);
 	cViewPlayers.Add( new CSlider(255),	                            vp_Blue,   400,290, 128,20);
 
-    cViewPlayers.Add( new CLabel("Skill", 0xffff),                  vp_AIDiffLbl,350,312,0, 0);
+    cViewPlayers.Add( new CLabel("Skill", tLX->clNormalLabel),                  vp_AIDiffLbl,350,312,0, 0);
     cViewPlayers.Add( new CSlider(3),                               vp_AIDiff, 400,310, 128,20);
-    cViewPlayers.Add( new CLabel("Skin", 0xffff),                   Static, 350,227, 0,  0);
+    cViewPlayers.Add( new CLabel("Skin", tLX->clNormalLabel),                   Static, 350,227, 0,  0);
     cViewPlayers.Add( new CCombobox(),                              vp_PlySkin,400,225, 120,17);
-    cViewPlayers.Add( new CLabel("Type", 0xffff),                   Static, 350,202, 0,  0);
+    cViewPlayers.Add( new CLabel("Type", tLX->clNormalLabel),                   Static, 350,202, 0,  0);
     cViewPlayers.Add( new CCombobox(),                              vp_Type,   400,200, 120,17);    
 
 	cViewPlayers.SendMessage(vp_Name,TXM_SETMAX,20,0);
@@ -265,7 +265,7 @@ void Menu_Player_ViewPlayerInit(void)
 
 	profile_t *p = GetProfiles();
 	for(; p; p=p->tNext) {
-		lv->AddItem("",p->iID,0xffff);
+		lv->AddItem("",p->iID,tLX->clListView);
 		lv->AddSubitem(LVS_IMAGE,"",p->bmpWorm);
 		lv->AddSubitem(LVS_TEXT, p->sName, NULL);
 	}
@@ -510,7 +510,7 @@ void Menu_Player_ViewPlayers(int mouse)
 								for(; p; p=p->tNext) {
 									//if(p->iType == PRF_COMPUTER)
 									//	continue;
-									lv->AddItem("",p->iID,0xffff);
+									lv->AddItem("",p->iID,tLX->clListView);
 									lv->AddSubitem(LVS_IMAGE,"",p->bmpWorm);
 									lv->AddSubitem(LVS_TEXT, p->sName, NULL);
 								}
@@ -584,7 +584,7 @@ void Menu_Player_ViewPlayers(int mouse)
 						lv->AddColumn("",60);
 						p = GetProfiles();
 						for(; p; p=p->tNext) {
-							lv->AddItem("",p->iID,0xffff);
+							lv->AddItem("",p->iID,tLX->clListView);
 							lv->AddSubitem(LVS_IMAGE,"",p->bmpWorm);
 							lv->AddSubitem(LVS_TEXT, p->sName, NULL);
 						}*/

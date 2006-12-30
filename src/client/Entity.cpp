@@ -193,10 +193,10 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 				// Jetpack spray
 				case ENT_JETPACKSPRAY:
-					short r,g,b;
-					r = (short)(0.314f * (255-ent->fFrame));
-					g = (short)(0.588f * (255-ent->fFrame));
-					b = (short)(0.784f * (255-ent->fFrame));
+					Uint8 r,g,b;
+					r = (Uint8)(0.314f * (255-ent->fFrame));
+					g = (Uint8)(0.588f * (255-ent->fFrame));
+					b = (Uint8)(0.784f * (255-ent->fFrame));
 					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,MakeColour(r,g,b));
 					break;
 

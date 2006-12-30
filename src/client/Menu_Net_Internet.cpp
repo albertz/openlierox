@@ -52,7 +52,7 @@ int Menu_Net_NETInitialize(void)
 	cInternet.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mi_Refresh,	250,440, 83,  15);	
 	cInternet.Add( new CButton(BUT_UPDATELIST, tMenu->bmpButtons),	mi_UpdateList,  390,440, 125,  15);
 	cInternet.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    mi_Join,		570,440, 43,  15);
-	cInternet.Add( new CLabel("Select player:",0xffff),-1,		125, 152, 180,15);
+	cInternet.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
 	cInternet.Add( new CCombobox(),								mi_PlayerSelection,		225,150, 170,  19);
 
 
@@ -404,8 +404,8 @@ void Menu_Net_NETAddServer(void)
 	cAddSvr.Initialize();
 	cAddSvr.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	na_Add, 220, 320, 40,15);
 	cAddSvr.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),na_Cancel, 350, 320, 70,15);
-	cAddSvr.Add( new CLabel("Add a server", 0xffff),		-1,275, 225, 0, 0);
-	cAddSvr.Add( new CLabel("Address", 0xffff),				-1,215, 267, 0, 0);
+	cAddSvr.Add( new CLabel("Add a server", tLX->clNormalLabel),		-1,275, 225, 0, 0);
+	cAddSvr.Add( new CLabel("Address", tLX->clNormalLabel),				-1,215, 267, 0, 0);
 	cAddSvr.Add( new CTextbox(),							na_Address, 280, 265, 140, 20);
 
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
@@ -533,7 +533,7 @@ void Menu_Net_NETUpdateList(void)
 
 	cListUpdate.Initialize();
 	cListUpdate.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),0, 285, 320, 70,15);	
-	cListUpdate.Add( new CLabel("Getting server list", 0xffff),	-1,260, 227, 0, 0);	
+	cListUpdate.Add( new CLabel("Getting server list", tLX->clNormalLabel),	-1,260, 227, 0, 0);	
 
 
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList) {

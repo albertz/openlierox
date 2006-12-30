@@ -579,17 +579,26 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 	}		
 
 	char* fullfn = GetFullFileName(path);
-	if(fullfn != NULL && fullfn[0] != '\0')
-		return fopen(fullfn, mode);
+	if(fullfn != NULL && fullfn[0] != '\0')  {
+		FILE *result = fopen(fullfn, mode);
+		if (!result) {
+			return fopen(path,mode);
+		}
+		return result;
+	}
 	else
-		return NULL;
+		return fopen(path,mode);
 }
 
 
 void AddToFileList(filelist_t** l, const char* f) {
+	if (!l || !f)
+		return;
 	filelist_t** fl;
 	for(fl = l; *fl != NULL; fl = &(*fl)->next) {}
 	*fl = new filelist_t;
+	if (!(*fl))
+		return;
 	(*fl)->next = NULL;
 	strncpy((*fl)->filename, f, sizeof((*fl)->filename));
 }

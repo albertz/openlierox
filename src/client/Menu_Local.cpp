@@ -64,7 +64,7 @@ void Menu_LocalInitialize(void)
     Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
     
     // Minimap box
-    tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,0xffff,"%s","Playing");
+    tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
     //tLX->cFont.Draw(tMenu->bmpBuffer, 480,240,0xffff,"%s","H");
     //tLX->cFont.Draw(tMenu->bmpBuffer, 515,240,0xffff,"%s","T");
 	Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
@@ -83,11 +83,11 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), ml_GameSettings, 30, 325, 170,15);
     cLocalMenu.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), ml_WeaponOptions,30, 350, 185,15);
 
-	cLocalMenu.Add( new CLabel("Mod",0xffff),	    -1,         30,  284, 0,   0);
+	cLocalMenu.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         30,  284, 0,   0);
 	cLocalMenu.Add( new CCombobox(),				ml_ModName,    120, 283, 170, 17);
-	cLocalMenu.Add( new CLabel("Game type",0xffff),	-1,         30,  260, 0,   0);
+	cLocalMenu.Add( new CLabel("Game type",tLX->clNormalLabel),	-1,         30,  260, 0,   0);
 	cLocalMenu.Add( new CCombobox(),				ml_Gametype,   120, 259, 170, 17);
-    cLocalMenu.Add( new CLabel("Level",0xffff),	    -1,         30,  236, 0,   0);
+    cLocalMenu.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  236, 0,   0);
 	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
 
 	cLocalMenu.SendMessage(ml_Playing,		LVM_ADDCOLUMN, (DWORD)"Playing", 22);
@@ -150,7 +150,7 @@ void Menu_LocalFrame(void)
             Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
             Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
-            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,0xffff,"%s","Playing");
+            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
 	
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
@@ -170,7 +170,7 @@ void Menu_LocalFrame(void)
             Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
             Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
-            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,0xffff,"%s","Playing");
+            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
 
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
@@ -258,7 +258,7 @@ void Menu_LocalFrame(void)
                                 break;
                             }
 							/*lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
-							lv->AddItem("",index,0xffff);
+							lv->AddItem("",index,tLX->clListView);
 							lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 							lv->AddSubitem(LVS_TEXT, ply->sName, NULL);
 							lv->AddSubitem(LVS_IMAGE, "", tMenu->bmpTeamColours[0]);
@@ -307,7 +307,7 @@ void Menu_LocalFrame(void)
 						// Add the player into the players list
 						if(ply) {
 							lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
-							lv->AddItem("",index,0xffff);
+							lv->AddItem("",index,tLX->clListView);
 							lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 							lv->AddSubitem(LVS_TEXT, ply->sName, NULL);
 						}
@@ -627,11 +627,11 @@ void Menu_LocalDrawPlayingList(void)
         
 
         // Click on the name removes the player from the playing list
-        int nameCol = 0xffff;
+        int nameCol = tLX->clListView;
         int w = tLX->cFont.GetWidth(sLocalPlayers[i].psProfile->sName);
         w = MAX(25,w);
         if(MouseInRect(345,y,w,20)) {
-            nameCol = MakeColour(0,138,251);
+            nameCol = tLX->clMouseOver;
             if(m_leftup) {
                 // Remove the player
                 sLocalPlayers[i].bUsed = false;
@@ -639,7 +639,7 @@ void Menu_LocalDrawPlayingList(void)
 
                 // Add it back onto the player list
                 CListview *lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
-				lv->AddItem("",sLocalPlayers[i].psProfile->iID,0xffff);
+				lv->AddItem("",sLocalPlayers[i].psProfile->iID,tLX->clListView);
 				lv->AddSubitem(LVS_IMAGE, "", sLocalPlayers[i].psProfile->bmpWorm);
 				lv->AddSubitem(LVS_TEXT, sLocalPlayers[i].psProfile->sName, NULL);
 
@@ -811,22 +811,22 @@ void Menu_GameSettings(void)
 	Menu_RedrawMouse(true);
 
 	cGameSettings.Initialize();
-	cGameSettings.Add( new CLabel("Game Settings", 0xffff),		    -1,	        270,155, 0, 0);
+	cGameSettings.Add( new CLabel("Game Settings", tLX->clNormalLabel),		    -1,	        270,155, 0, 0);
 	cGameSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    gs_Ok,      220,420, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, tMenu->bmpButtons), gs_Default, 350,420, 80,15);
-	cGameSettings.Add( new CLabel("Lives", 0xffff),				    -1,	        150,200, 0, 0);
-	cGameSettings.Add( new CLabel("Max Kills", 0xffff),			    -1,	        150,230, 0, 0);
-	cGameSettings.Add( new CLabel("Loading Time", 0xffff),		    -1,	        150,260, 0, 0);
-	cGameSettings.Add( new CLabel("Bonuses", 0xffff),			    -1,	        150,290, 0, 0);
-	cGameSettings.Add( new CLabel("Show Bonus names", 0xffff),	    -1,	        150,320, 0, 0);
+	cGameSettings.Add( new CLabel("Lives", tLX->clNormalLabel),				    -1,	        150,200, 0, 0);
+	cGameSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			    -1,	        150,230, 0, 0);
+	cGameSettings.Add( new CLabel("Loading Time", tLX->clNormalLabel),		    -1,	        150,260, 0, 0);
+	cGameSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),			    -1,	        150,290, 0, 0);
+	cGameSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,	        150,320, 0, 0);
 	if (tGameInfo.iGameType == GME_HOST)
-		cGameSettings.Add( new CLabel("Tournament mode", 0xffff),	    -1,	        150,350, 0, 0);
-	//cGameSettings.Add( new CLabel("Max Kills", 0xffff),			-1,	   150,240, 0, 0);
+		cGameSettings.Add( new CLabel("Tournament mode", tLX->clNormalLabel),	    -1,	        150,350, 0, 0);
+	//cGameSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			-1,	   150,240, 0, 0);
 
 	cGameSettings.Add( new CTextbox(),							gs_Lives,		320,197, 100,20);
 	cGameSettings.Add( new CTextbox(),							gs_MaxKills,	320,227, 100,20);
 	cGameSettings.Add( new CSlider(500),						gs_LoadingTime,315,257, 160,20);
-	cGameSettings.Add( new CLabel("", 0xffff),					gs_LoadingTimeLabel, 480, 260, 0, 0);
+	cGameSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 480, 260, 0, 0);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.iBonusesOn),	gs_Bonuses, 320,287,17,17);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.iShowBonusName),gs_ShowBonusNames, 320,317,17,17);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bTournament),gs_Tournament, 320,347,17,17);
@@ -1010,7 +1010,7 @@ void Menu_WeaponsRestrictions(char *szMod)
 	Menu_RedrawMouse(true);
 
 	cWeaponsRest.Initialize();
-	cWeaponsRest.Add( new CLabel("Weapon Options", 0xffff),     -1,        275,155, 0, 0);	
+	cWeaponsRest.Add( new CLabel("Weapon Options", tLX->clNormalLabel),     -1,        275,155, 0, 0);	
     cWeaponsRest.Add( new CButton(BUT_RESET, tMenu->bmpButtons),wr_Reset,  180,420, 60,15);
     cWeaponsRest.Add( new CButton(BUT_RANDOM, tMenu->bmpButtons),wr_Random,280,420, 80,15);
     cWeaponsRest.Add( new CButton(BUT_OK, tMenu->bmpButtons),	wr_Ok,     400,420, 30,15);
@@ -1042,7 +1042,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
-    Uint32 blue = MakeColour(0,138,251);
+    //Uint32 blue = MakeColour(0,138,251);
 
     assert(cWpnGameScript);
 
@@ -1075,12 +1075,12 @@ bool Menu_WeaponsRestrictions_Frame(void)
         
         
         int y = 190 + (j++)*20;
-        Uint32 Colour = 0xffff;
+        Uint32 Colour = tLX->clNormalLabel;
 
         // If a mouse is over the line, highlight it
         if( Mouse->X > 150 && Mouse->X < 450 ) {
             if( Mouse->Y > y && Mouse->Y < y+20 ) {
-                Colour = blue;
+                Colour = tLX->clMouseOver;
 
                 // If the mouse has been clicked, cycle through the states
                 if( Mouse->Up & SDL_BUTTON(1) ) {
@@ -1243,7 +1243,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 			strncpy(name,f+1,strlen(f)-4);
 			name[strlen(f)-5] = '\0';
 			if(f) {
-				lv->AddItem(f+1,0,0xffff);
+				lv->AddItem(f+1,0,tLX->clListView);
 				lv->AddSubitem(LVS_TEXT,name,NULL);
 			}
 		}
@@ -1264,9 +1264,9 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		DrawImageAdv(tMenu->bmpScreen, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
 		DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, 0xffff,"%s", save ? "Save" : "Load");
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel,"%s", save ? "Save" : "Load");
 		if (save)
-			tLX->cFont.Draw(tMenu->bmpScreen, 180,288,0xffff,"%s","Preset name");
+			tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel,"%s","Preset name");
 
 		ev = cg.Process();
 		cg.Draw(tMenu->bmpScreen);
