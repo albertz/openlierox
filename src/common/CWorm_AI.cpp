@@ -2899,8 +2899,11 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 			ang = -ang + 90;
 		
 		// Cannot shoot
-		if (fabs(fAngle-ang) <= 30 && vVelocity.GetLength2() >= 90.0f)  {
-			return false;
+		if (fabs(fAngle-ang) <= 30 && vVelocity.GetLength2() >= 90.0f && weap->Type != WPN_BEAM)  {
+			if (weap->Type == WPN_PROJECTILE)  {
+				if (weap->Projectile->PlyHit_Damage > 0)
+					return false;
+			}
 		}
 	}
 
