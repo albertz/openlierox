@@ -43,6 +43,9 @@ int LoadGraphics(void)
 	tLX->clCredits1 = MakeColour(150,150,150);
 	tLX->clCredits2 = MakeColour(96,96,96);
 	tLX->clPopupMenu = 0xffff;
+	tLX->clWaiting = 0xffff;
+	tLX->clReady = MakeColour(0,255,0);
+	tLX->clPlayerName = 0xffff;
 
 	int i;
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[0], "data/frontend/mouse.png");
@@ -116,6 +119,9 @@ int LoadGraphics(void)
 	ReadColour(colorfile,"Colours","PopupMenu",		&tLX->clPopupMenu,		tLX->clPopupMenu);
 	ReadColour(colorfile,"Colours","SubHeading",	&tLX->clSubHeading,		tLX->clSubHeading);
 	ReadColour(colorfile,"Colours","TextBox",		&tLX->clTextBox,		tLX->clTextBox);
+	ReadColour(colorfile,"Colours","Waiting",		&tLX->clWaiting,		tLX->clWaiting);
+	ReadColour(colorfile,"Colours","Ready",			&tLX->clReady,			tLX->clReady);
+	ReadColour(colorfile,"Colours","PlayerName",	&tLX->clPlayerName,		tLX->clPlayerName);
 
 
 	return true;

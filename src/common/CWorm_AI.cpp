@@ -1105,7 +1105,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 			ws->iCarve = false;
 		}
    
-   		if(CheckOnGround(pcMap))
+   		if(CheckOnGround(pcMap) && cNinjaRope.isAttached())
    			cNinjaRope.Release();
    
    		if(!AI_Shoot(pcMap)) {   			
@@ -2569,10 +2569,10 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 	}
 
 	// Don't shoot teammates
-	if(tGameInfo.iGameMode == GMT_TEAMDEATH && nType == PX_WORM)
+	if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
 		return false;
 
-	// If target is blocked by large amount of dirt, we can't shoot it with rifle
+	// If target is blocked by large amount of dirt, we can't shoot it
 	if (nType & PX_DIRT)  {
 		if(d-fDist > 40.0f)
 			return false;
@@ -2883,6 +2883,25 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		// don't know, but this could possible be good
 		// or else, this is perhaps some kamikaze action :)
 		bAim = true;
+	}
+
+	//
+	// If there's some lag or low FPS, don't shoot in the direction of our flight (avoid suicides)
+	//
+
+	if (GetFPS() < 75 || tGameInfo.iGameType == GME_JOIN)  {
+		// Get the angle
+		float ang = (float)atan2(vVelocity.x, vVelocity.y);
+		ang = RAD2DEG(ang);
+		if(iDirection == DIR_LEFT)
+			ang+=90;
+		else
+			ang = -ang + 90;
+		
+		// Cannot shoot
+		if (fabs(fAngle-ang) <= 30 && vVelocity.GetLength2() >= 90.0f)  {
+			return false;
+		}
 	}
 
     if(!bAim)  {
@@ -4397,7 +4416,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	*/
 	if (psHeadingProjectile)  {
 		// TODO: improve this
-//		MessageBeep(0);
 
 		// Go away from the projectile
 		if (tLX->fCurTime-fLastFace >= 0.5f)  {
@@ -4538,7 +4556,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 	// If we are close to the current node, just continue climbing the path
 	// this will not work, because there could be some wall between the current and the next node
-	// there shouldn't be any wall between the two nodes - else the path is wrong :P
 	/*if (CalculateDistance(nodePos,vPos) <= 20.0f)  {
 		if (NEW_psCurrentNode->psNext)  {
 			NEW_psCurrentNode = NEW_psCurrentNode->psNext;

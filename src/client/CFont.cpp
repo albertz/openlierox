@@ -32,8 +32,8 @@ int CFont::Load(char *fontname, int _colour, int _width)
 	// Calculate the font width for each character
 	CalculateWidth();
 
-	PreCalculate(bmpWhite,MakeColour(255,255,255));
-	PreCalculate(bmpGreen,MakeColour(0,255,0));
+	PreCalculate(bmpWhite,tLX->clNormalLabel);
+	PreCalculate(bmpGreen,tLX->clChatText);
 
 
 	// Must do this after

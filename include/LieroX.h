@@ -108,6 +108,9 @@ typedef struct {
 	Uint32			clCredits1;
 	Uint32			clCredits2;
 	Uint32			clPopupMenu;
+	Uint32			clWaiting;
+	Uint32			clReady;
+	Uint32			clPlayerName;
 
 
 	char	debug_string[32];

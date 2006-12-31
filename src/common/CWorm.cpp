@@ -927,7 +927,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,iColor,"%s",sName);
 		} // if
 		else
-		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,0xffff,"%s",sName);
+		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,"%s",sName);
 
 		//if(iTagIT)
 		//	tLX->cFont.DrawCentre(bmpDest, x,y+20, 0xffff,"%s", "IT");
