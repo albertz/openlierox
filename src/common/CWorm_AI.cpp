@@ -4600,7 +4600,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     //float dist = CalculateDistance(v, vPos);
     if(!fireNinja && (float)(length*length) <= (v-vPos).GetLength2() && (type & PX_DIRT)) {
 		// release rope, if it is atached and above
-		if(cNinjaRope.isAttached() && cNinjaRope.getHookPos().y - 5.0f > v.y)
+		if(fRopeAttachedTime > 0.5f && cNinjaRope.getHookPos().y - 5.0f > v.y)
 			cNinjaRope.Release();
 		
 		// Jump, if the node is above us
@@ -4623,8 +4623,17 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 				} /* else
 					AI_SimpleMove(pcMap,psAITarget != NULL); */ // no weapon found, so move around
 			}
-    } else
+    } else  {
+		// If there's no dirt around and we have jetpack in our arsenal, lets use it!
+		for (int i=0;i<5;i++) {
+			if (tWeapons[i].Weapon->Recoil < 0 && !tWeapons[i].Reloading)  {
+				iCurrentWeapon = i;
+				ws->iShoot = AI_SetAim(nodePos);
+			}
+		}
+
     	fireNinja = true;
+	}
  
      
 	//
