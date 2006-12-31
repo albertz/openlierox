@@ -121,7 +121,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev;
-	char		addr[256];
+	static char		addr[256];
 	
 
 	// Process & Draw the gui
@@ -235,7 +235,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					if(result && addr[0]) {
                         // Display a menu
-                        strcpy(szFavouritesCurServer, addr);
+                        fix_strncpy(szFavouritesCurServer, addr);
                         mouse_t *m = GetMouse();
                         
                         cFavourites.Add( new CMenu(m->X, m->Y), mf_PopupMenu, 0,0, 640,480 );

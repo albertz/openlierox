@@ -150,10 +150,10 @@ void CGuiLayout::ReadEvents(xmlNodePtr Node, generic_events_t *Events)
 	// Copy the values into the events
 	int i;
 	for (i=0;i<NumEvents;i++)  {
-		if (evs[i])
-			strcpy(Events->Events[i], (char *)evs[i]);
-		else
-			strcpy(Events->Events[i], "");
+		if (evs[i]) {
+			fix_strncpy(Events->Events[i], (char *)evs[i]);
+		} else
+			Events->Events[i][0] = '\0';
 	}
 
 	// Free the data
@@ -179,12 +179,16 @@ bool CGuiLayout::Build(void)
 	strcpy(sExtension,"skn");
 
 	// Get the skin path
-	char *path = new char[strlen(tLXOptions->sSkinPath)+strlen(tLXOptions->sResolution)+1];
+	size_t skinpathlen = fix_strnlen(tLXOptions->sSkinPath);
+	size_t reslen = fix_strnlen(tLXOptions->sResolution);
+	char *path = new char[skinpathlen+reslen+1];
+	size_t pathlen = skinpathlen+reslen+1;
 	if (!path)  {
 		Error(ERR_OUTOFMEMORY,"%s","Out of memory.");
 		return false;
 	}
-	sprintf(path,"%s%s",tLXOptions->sSkinPath,tLXOptions->sResolution);
+	memcpy(path, tLXOptions->sSkinPath, skinpathlen);
+	memcpy(path+skinpathlen, tLXOptions->sResolution, reslen+1);
 
 	// Temp
 	char file[32];
@@ -228,7 +232,7 @@ bool CGuiLayout::Build(void)
 	}
 
 	// Get the Filename + Path
-	sFilename = new char[strlen(path)+strlen(file)+strlen(sExtension)+1];
+	sFilename = new char[pathlen+strlen(file)+strlen(sExtension)+1];
 	if(!sFilename)  {
 		Error(ERR_OUTOFMEMORY,"%s","Out of memory.");
 		return false;

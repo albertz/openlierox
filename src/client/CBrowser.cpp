@@ -294,14 +294,15 @@ void CBrowser::AddObject(char *sText, char *sVal, int iType, int iEnd)
 	}
 
 	// Allocate room for the text
-	obj->strText = new char[strlen(sText)+1];
+	size_t len = strlen(sText);
+	obj->strText = new char[len+1];
 	if(obj->strText == NULL) {
 		// Out of memory
 		return;
 	}
 
 	// Set the properties
-	strcpy(obj->strText,sText);
+	memcpy(obj->strText,sText,len+1);
 	obj->iType = iType;
 	obj->iEnd = iEnd;
 	obj->tNext = NULL;
@@ -375,7 +376,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 	int x,y,s,p,w,c;
 	ht_object_t *obj = tObjects;
 	CFont *fnt = &tLX->cFont;
-	char buf[64];
+	static char buf[64];
 	int lcount = 0;
 
 	DrawRectFill(bmpDest, iX+1, iY+1, iX+iWidth-1, iY+iHeight-1, 0xffff);
@@ -502,8 +503,8 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 							break;
 						}
 					}
-					strncpy(buf,obj->strText+p,c-p);
-					buf[c-p]='\0';
+					strncpy(buf,obj->strText+p,MIN(sizeof(buf)-1,(unsigned int)c-p));
+					buf[MIN(sizeof(buf)-1,(unsigned int)c-p)]='\0';
 					p=c;
 
 					w = fnt->GetWidth(buf);

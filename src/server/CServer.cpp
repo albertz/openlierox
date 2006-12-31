@@ -76,7 +76,7 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 	Shutdown();
 	Clear();
 
-	strcpy(sName, name);
+	fix_strncpy(sName, name);
 	iMaxWorms = maxplayers;
 	bRegServer = regserver;
 	nPort = port;
@@ -164,7 +164,7 @@ int CServer::StartGame(void)
 	iMaxKills =		 tGameInfo.iKillLimit;
 	iTimeLimit =	 tGameInfo.iTimeLimit;
 	iTagLimit =		 tGameInfo.iTagLimit;
-	strcpy(sModName, tGameInfo.sModName);
+	fix_strncpy(sModName, tGameInfo.sModName);
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
 	iBonusesOn =	 tGameInfo.iBonusesOn;
 	iShowBonusName = tGameInfo.iShowBonusName;
@@ -200,8 +200,8 @@ int CServer::StartGame(void)
 	for (i=0;i<iNumPlayers;i++)  {
 		tGameLog->tWorms[i].bLeft = false;
 		tGameLog->tWorms[i].iID = cWorms[i].getID();
-		strcpy(tGameLog->tWorms[i].sName, cWorms[i].getName());
-		strcpy(tGameLog->tWorms[i].sSkin, cWorms[i].getSkin());
+		fix_strncpy(tGameLog->tWorms[i].sName, cWorms[i].getName());
+		fix_strncpy(tGameLog->tWorms[i].sSkin, cWorms[i].getSkin());
 		tGameLog->tWorms[i].iKills = 0;
 		tGameLog->tWorms[i].iLives = tGameInfo.iLives;
 		tGameLog->tWorms[i].iLeavingReason = -1;
@@ -254,8 +254,8 @@ int CServer::StartGame(void)
 
 	} else {
 
-		strcpy(sMapFilename,"levels/");
-		strcat(sMapFilename, tGameInfo.sMapname);
+		fix_strncpy(sMapFilename,"levels/");
+		fix_strncat(sMapFilename, tGameInfo.sMapname);
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename);
 			return false;
@@ -507,9 +507,9 @@ void CServer::SendPackets(void)
 void CServer::RegisterServer(void)
 {
 	// Create the url
-	char url[1024];
-    char svr[1024];
-	char buf[512];
+	static char url[1024];
+    static char svr[1024];
+	static char buf[512];
 
 	NetworkAddr addr;
 
@@ -531,8 +531,8 @@ void CServer::RegisterServer(void)
     // Find the first line
     svr[0] = '\0';
     while( fgets(buf, 1023, fp) ) {
-        strcpy( svr, StripLine(buf) );
-        if( strlen(svr) > 0 ) {
+        fix_strncpy( svr, StripLine(buf) );
+        if( fix_strnlen(svr) > 0 ) {
             if( !http_InitializeRequest(svr, url) ) {
                 bRegServer = false;
                 notifyLog("Could not register with master server: 'Could not open TCP socket'");
@@ -622,8 +622,8 @@ bool CServer::DeRegisterServer(void)
     // Find the first line
     svr[0] = '\0';
     while( fgets(svr, 1023, fp) ) {
-        strcpy( svr, StripLine(svr) );
-        if( strlen(svr) > 0 ) {
+        fix_strncpy( svr, StripLine(svr) );
+        if( fix_strnlen(svr) > 0 ) {
             if( !http_InitializeRequest(svr, url) ) {
                 fclose(fp);
                 return false;
@@ -682,7 +682,7 @@ void CServer::CheckTimeouts(void)
 // Drop a client
 void CServer::DropClient(CClient *cl, int reason)
 {
-    char cl_msg[256];
+    static char cl_msg[256];
     strcpy(cl_msg, "");
 
 	// Tell everyone that the client's worms have left both through the net & text
@@ -708,25 +708,25 @@ void CServer::DropClient(CClient *cl, int reason)
             // Quit
             case CLL_QUIT:
 				replacemax(NetworkTexts->sHasLeft,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                strcpy(cl_msg, NetworkTexts->sYouQuit);
+                fix_strncpy(cl_msg, NetworkTexts->sYouQuit);
                 break;
 
             // Timeout
             case CLL_TIMEOUT:
 				replacemax(NetworkTexts->sHasTimedOut,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                strcpy(cl_msg, NetworkTexts->sYouTimed);
+                fix_strncpy(cl_msg, NetworkTexts->sYouTimed);
                 break;
 
             // Kicked
             case CLL_KICK:
 				replacemax(NetworkTexts->sHasBeenKicked,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                strcpy(cl_msg, NetworkTexts->sKickedYou);
+                fix_strncpy(cl_msg, NetworkTexts->sKickedYou);
                 break;
 
 			// Banned
 			case CLL_BAN:
 				replacemax(NetworkTexts->sHasBeenBanned,"<player>", cl->getWorm(i)->getName(), buf, 1);
-				strcpy(cl_msg, NetworkTexts->sBannedYou);
+				fix_strncpy(cl_msg, NetworkTexts->sBannedYou);
 				break;
         }
 
@@ -1176,10 +1176,10 @@ bool CServer::WriteLogToFile(FILE *f)
 	printf("Filling in the game details... ");
 
 	// Fill in the details
-	strncpy(levelfile,sMapFilename,sizeof(levelfile)-1);
-	strncpy(modfile,sModName,sizeof(modfile)-1);
-	strncpy(level,cMap->getName(),sizeof(level)-1);
-	strncpy(mod,cGameScript.GetHeader()->ModName,sizeof(mod)-1);
+	fix_strncpy(levelfile,sMapFilename);
+	fix_strncpy(modfile,sModName);
+	fix_strncpy(level,cMap->getName());
+	fix_strncpy(mod,cGameScript.GetHeader()->ModName);
 	xmlEntities(levelfile);
 	xmlEntities(modfile);
 	xmlEntities(level);
@@ -1199,16 +1199,16 @@ bool CServer::WriteLogToFile(FILE *f)
 	printf("Players info saved\n");
 
 	// Info for each player
-	int i;
+	short i;
 	for (i=0;i<tGameLog->iNumWorms;i++)  {
 		printf("Writing player %i... ",i);
 
 		// Replace the entities
-		strncpy(player,tGameLog->tWorms[i].sName,sizeof(player)-1);
+		fix_strncpy(player,tGameLog->tWorms[i].sName);
 		xmlEntities(player);
 
 		// Replace the entities
-		strncpy(skin,tGameLog->tWorms[i].sSkin,sizeof(skin)-1);
+		fix_strncpy(skin,tGameLog->tWorms[i].sSkin);
 		xmlEntities(skin);
 
 		// Write the info
@@ -1239,7 +1239,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 
 	// Don't check against local IP
 	if (strstr(Address,"127.0.0.1"))  {
-		strcpy(Result,"Unknown Country");
+		strcpy(Result,"Home");
 		return;
 	}
 
@@ -1252,13 +1252,13 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 	char buf[4];
 	int j=0;
 	int k=0;
-	for (int i=0; i<4; i++,j++)  {
-		while(*(Address+j) != '.' && *(Address+j) != ':')  {
+	for (short i=0; i<4; i++,j++)  {
+		while(k < sizeof(buf) && *(Address+j) != '.' && *(Address+j) != ':')  {
 			buf[k] = *(Address+j);
 			k++;
 			j++;
 		}
-		buf[k] = '\0';
+		buf[MIN(sizeof(buf)-1,(unsigned int)k)] = '\0';
 		k = 0;
 		ip_parts[i] = atoi(buf);
 	}
@@ -1271,23 +1271,23 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 	if (!fp)
 		return;
 
-	char ln[256];
+	static char ln[256];
 	char *line = &ln[0];
 
 	// Parse the file line by line
 	while(fgets(line,164,fp))  {
 
 		// Safety
-		if(strlen(line) < 1)
+		if(strnlen(line,sizeof(ln)) < 1)
 			continue;
 
 		// First character: " (ignore)
-		line++;
+		if(line[0] == '\"') line++;
 
 		// From IP
 		char from_ip[12];
-		int i=0;
-		while(*line != '\"')
+		short i=0;
+		while(i < sizeof(from_ip)-1 && *line && *line != '\"')
 			from_ip[i++] = *(line++);
 		from_ip[i] = '\0'; // Terminating character
 
@@ -1297,7 +1297,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		// To IP
 		char to_ip[12];
 		i=0;
-		while(*line != '\"')
+		while(i < sizeof(to_ip)-1 && *line && *line != '\"')
 			to_ip[i++] = *(line++);
 		to_ip[i] = '\0';  // Terminating character
 
@@ -1307,7 +1307,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		// 2-character country code
 		char country_code_2[3];
 		i=0;
-		while(*line != '\"')
+		while(i < sizeof(country_code_2)-1 && *line && *line != '\"')
 			country_code_2[i++] = *(line++);
 		country_code_2[i] = '\0';  // Terminating character
 
@@ -1317,7 +1317,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		// 3-character country code
 		char country_code_3[4];
 		i=0;
-		while(*line != '\"')
+		while(i < sizeof(country_code_3)-1 && *line && *line != '\"')
 			country_code_3[i++] = *(line++);
 		country_code_3[i] = '\0';  // Terminating character
 
@@ -1327,7 +1327,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		// Country name
 		char country_name[64];
 		i=0;
-		while(*line != '\"' && *line != '\0')
+		while(i < sizeof(country_name)-1 && *line && *line != '\"')
 			country_name[i++] = *(line++); 
 		country_name[i] = '\0';  // Terminating character
 

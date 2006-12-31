@@ -48,8 +48,8 @@ int LoadOptions(void)
 
 #ifdef WIN32
 /*	// TODO: this is no solution
-	char path[256];
-	strcpy(path,argv0);
+	char path[512];
+	fix_strncpy(path,argv0);
 	char *r = strrchr(path,'\\');
 	r = '\0';
 	chdir(path);
@@ -63,19 +63,22 @@ int LoadOptions(void)
 	// tmp2 is the number (X)
 	// tmp3 is the data (the path)
 	char tmp[20], tmp2[30], tmp3[1024];
+	tmp[19] = '\0';
 	strcpy(tmp, "SearchPath"); i = 1;
 	filelist_t** spath = &tLXOptions->tSearchPaths;
     while(true) {
     	 // &tmp[10] is the end of "SearchPath"
-    	strcpy(&tmp[10], itoa(i, tmp2, 10));
+    	strncpy(&tmp[10], itoa(i, tmp2, 10), 18);
         if(!ReadString(f, "FileHandling", tmp, tmp3, NULL))
         	break;
+    	
     	*spath = new filelist_t;
 		if(!(*spath))  
 			break;
 		(*spath)->next = NULL;
-		strncpy((*spath)->filename, tmp3, sizeof((*spath)->filename));
-		i++; 
+		fix_strncpy((*spath)->filename, tmp3);
+		
+		i++;
 		spath = &(*spath)->next;
 	}
 	

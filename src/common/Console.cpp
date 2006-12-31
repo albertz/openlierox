@@ -303,7 +303,7 @@ void Con_ProcessCharacter(int input)
 		
 		if(Console->icurHistory >= 0) {
 			Console->Line[0].Colour = CNC_NORMAL;
-			strcpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
+			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
 			Console->iCurLength = strlen(Console->Line[0].strText);
 			Console->iCurpos = Console->iCurLength;
 		}
@@ -314,7 +314,7 @@ void Con_ProcessCharacter(int input)
 		Console->icurHistory--;
 		if(Console->icurHistory >= 0) {
 			Console->Line[0].Colour = CNC_NORMAL;
-			strcpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
+			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
 			Console->iCurLength = strlen(Console->Line[0].strText);
 		} else {
 			Console->Line[0].strText[0] = 0;
@@ -349,7 +349,7 @@ void Con_AddText(int colour, char *text)
 {
 	// Move all the text up, losing the last line
 	for(int n=MAX_CONLINES-2;n>=1;n--) {
-		strcpy(Console->Line[n+1].strText,Console->Line[n].strText);
+		fix_strncpy(Console->Line[n+1].strText,Console->Line[n].strText);
 		Console->Line[n+1].Colour = Console->Line[n].Colour;
 	}
 
@@ -374,13 +374,13 @@ void Con_AddHistory(char *text)
 {
 	// Move the history up one, dropping the last
 	for(int n=MAX_CONHISTORY-2;n>=0;n--)
-		strcpy(Console->History[n+1].strText, Console->History[n].strText);
+		fix_strncpy(Console->History[n+1].strText, Console->History[n].strText);
 
 	Console->icurHistory=-1;
 	Console->iNumHistory++;
 	Console->iNumHistory = MIN(Console->iNumHistory,MAX_CONHISTORY-1);
 
-	strcpy(Console->History[0].strText,text);
+	fix_strncpy(Console->History[0].strText,text);
 }
 
 
@@ -393,7 +393,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 
 	int y = (int)(-Console->fPosition * (float)Console->bmpConPic->h);
 	int texty = y+Console->bmpConPic->h-28;
-	char buf[256];
+	static char buf[256];
 
 	Uint32 Colours[6] = {0xffff, MakeColour(200,200,200), MakeColour(255,0,0), MakeColour(200,128,128),
 		                 MakeColour(100,100,255), MakeColour(100,255,100) };
@@ -417,9 +417,9 @@ void Con_Draw(SDL_Surface *bmpDest)
 			Console->fBlinkTime = 0;
 		}
 		if(n==0 && Console->iBlinkState)  {
-			char buf2[256];
-			strncpy(buf2,Console->Line[n].strText,Console->iCurpos);
-			buf2[Console->iCurpos] = '\0';
+			static char buf2[256];
+			strncpy(buf2,Console->Line[n].strText,MIN(sizeof(buf2)-1,(unsigned int)Console->iCurpos));
+			buf2[MIN(sizeof(buf2)-1,(unsigned int)Console->iCurpos)] = '\0';
 			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(buf2),0xffff);
 		}
 		

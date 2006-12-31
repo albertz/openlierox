@@ -24,7 +24,7 @@ int		NumArgs;
 // Add an argument to the list
 void Cmd_AddArg(char *text)
 {
-	strcpy(Arguments[NumArgs++],text);
+	fix_strncpy(Arguments[NumArgs++],text);
 }
 
 
@@ -201,8 +201,9 @@ int Cmd_AddCommand(char *strName, void (*func) ( void ))
 	command_t *cmd;
 
 	cmd = (command_t *)malloc(sizeof(command_t));
-	cmd->strName = (char *)malloc(strlen(strName) + 1);
-	strcpy(cmd->strName,strName);	
+	size_t namelen = strlen(strName);
+	cmd->strName = (char *)malloc(namelen + 1);
+	memcpy(cmd->strName,strName,namelen+1);	
 	cmd->func = func;
 	
 	// link the command in

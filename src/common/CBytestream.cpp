@@ -304,7 +304,7 @@ char *CBytestream::readString(char *str)
 
 	// Invalid
 	if (!valid)  {
-		strcpy(str,"");
+		str[0] = '\0';
 		return str;
 	}
 

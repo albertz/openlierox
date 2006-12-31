@@ -256,7 +256,7 @@ public:
 private:
 	// Attributes
 
-	char		sDirectory[128];
+	char		sDirectory[256];
 
 
 	// Header

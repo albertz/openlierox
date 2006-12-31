@@ -112,25 +112,25 @@ int iErrPointer = 0;
 // Show a window informing about skin error
 void GuiSkinError(char *fmt, ...)
 {
-	char buf[512];
+	static char buf[512];
 	va_list	va;
 
 	va_start(va,fmt);
-	vsprintf(buf,fmt,va);
+	vsnprintf(buf,sizeof(buf),fmt,va);
 	va_end(va);
 
 	iErrPointer++;
 
 	// Too many errors, shift the list
-	if(iErrPointer == 64)  {
+	if(iErrPointer >= 64)  {
 		int i;
 		for (i=0;i<62;i++)
-			strcpy(GUIErrors[i],GUIErrors[i+1]);
+			fix_strncpy(GUIErrors[i],GUIErrors[i+1]);
 		iErrPointer = 63;
 	}
 
 	// Copy the error
-	strcpy(GUIErrors[iErrPointer],buf);
+	fix_strncpy(GUIErrors[iErrPointer],buf);
 
 	// TODO: make this better
 	printf("%s\r\n",buf);
@@ -139,8 +139,7 @@ void GuiSkinError(char *fmt, ...)
 
 void LxSetLastError(char *desc)
 {
-	if (strlen(desc) < 1024)
-		sprintf(&LastError[0],"%s",desc);
+	fix_strncpy(LastError,desc);
 }
 
 char *LxGetLastError(void)

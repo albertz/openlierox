@@ -24,11 +24,11 @@ filelist_t* nextsearchpath = NULL;
 
 // TODO: this does not handle the FindFile and FindDir seperatly
 char* getNextFullFileName(const char* f) {
-	static char tmp[256];
+	static char tmp[512];
 	if(nextsearchpath != NULL) {
-		strcpy(tmp, nextsearchpath->filename);
-		strcat(tmp, "/");
-		strcat(tmp, f);
+		fix_strncpy(tmp, nextsearchpath->filename);
+		fix_strncat(tmp, "/");
+		fix_strncat(tmp, f);
 		return tmp;	
 	} else
 		return NULL;
@@ -52,7 +52,7 @@ bool CanReadFile(const char* f) {
 ==========================
 */
 
-char	_dir[256];
+char	_dir[512];
 DIR*	handle = NULL;
 dirent* entry = NULL;
 
@@ -69,7 +69,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 		printf("FindFirst: WARNING: I can't handle anything else than * as ext \n");
 
 	handle = opendir(_dir);
-	strcpy(_dir, dir);
+	fix_strncpy(_dir, dir);
 	
 	while(handle != 0 && (entry = readdir(handle)) != 0) // Keep going until we found the first file
 	{
@@ -89,7 +89,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	handle = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[256]; strcpy(tmp, _dir);
+	static char tmp[512]; fix_strncpy(tmp, _dir);
 	int ret = FindFirst(tmp, "*", filename);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -116,7 +116,7 @@ int FindNext(char *filename)
 	closedir(handle); handle = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[256]; strcpy(tmp, _dir);
+	static char tmp[512]; fix_strncpy(tmp, _dir);
 	int ret = FindFirst(tmp, "*", filename);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -136,7 +136,7 @@ int FindNext(char *filename)
 
 
 // Here if we even need to search files & dirs at the same time
-char	_dir2[256];
+char	_dir2[512];
 DIR*	handle2 = NULL;
 dirent* entry2 = NULL;
 
@@ -150,7 +150,7 @@ int FindFirstDir(char *dir, char *name)
 		return false;
 			
 	handle2 = opendir(_dir2);
-	strcpy(_dir2, dir);
+	fix_strncpy(_dir2, dir);
 
 	while(handle2 != 0 && (entry2 = readdir(handle2)) != 0)	// Keep going until we found the next dir
 	{
@@ -172,7 +172,7 @@ int FindFirstDir(char *dir, char *name)
 	handle2 = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[256]; strcpy(tmp, _dir2);
+	static char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -201,7 +201,7 @@ int FindNextDir(char *name)
 	closedir(handle2); handle2 = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[256]; strcpy(tmp, _dir2);
+	static char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -273,8 +273,8 @@ bool GetExactFileName(const char* searchname, char* filename)
 		return false;
 
 	const char* seps[] = {"\\", "/", (char*)NULL};
-	char nextname[256] = "";
-	char nextexactname[256] = "";
+	char nextname[512] = "";
+	char nextexactname[512] = "";
 	strcpy(filename, "");
 	int pos = 0;
 	int npos = 0;
@@ -312,7 +312,7 @@ bool GetExactFileName(const char* searchname, char* filename)
 
 
 
-char	_dir[256];
+char	_dir[512];
 long	handle = 0;
 struct _finddata_t fileinfo;
 
@@ -326,14 +326,14 @@ int FindFirst(char *dir, char *ext, char *filename)
 	if(_dir[0] == '\0')
 		return false;
 	
-	static char basepath[256];
+	static char basepath[512];
 
-	strcpy(basepath, _dir);
-	strcat(basepath, "/");
-	strcat(basepath, ext);
+	fix_strncpy(basepath, _dir);
+	fix_strncat(basepath, "/");
+	fix_strncat(basepath, ext);
 
 	handle = _findfirst(basepath, &fileinfo);
-	strcpy(_dir, dir);
+	fix_strncpy(_dir, dir);
 	
 	// Keep going until we found the first file
 	while(handle >= 0 && !_findnext(handle, &fileinfo))
@@ -353,7 +353,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[256]; strcpy(tmp, _dir);
+	static char tmp[512]; fix_strncpy(tmp, _dir);
 	// TODO: this better
 	int ret = FindFirst(tmp,"*", filename);
 	reset_nextsearchpath = true;	
@@ -381,7 +381,7 @@ int FindNext(char *filename)
 
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[256]; strcpy(tmp, _dir);
+	static char tmp[512]; fix_strncpy(tmp, _dir);
 	// TODO: this better
 	int ret = FindFirst(tmp,"*", filename);
 	reset_nextsearchpath = true;	
@@ -401,7 +401,7 @@ int FindNext(char *filename)
 
 
 // Here if we even need to search files & dirs at the same time
-char	_dir2[256];
+char	_dir2[512];
 long	handle2 = 0;
 struct _finddata_t fileinfo2;
 
@@ -416,14 +416,14 @@ int FindFirstDir(char *dir, char *name)
 	if(_dir2[0] == '\0')
 		return false;
 	
-	static char basepath[256];
+	static char basepath[512];
 
-	strcpy(basepath, _dir2);
-	strcat(basepath, "/");
-	strcat(basepath, "*.*");
+	fix_strncpy(basepath, _dir2);
+	fix_strncat(basepath, "/");
+	fix_strncat(basepath, "*.*");
 
 	handle2 = _findfirst(basepath, &fileinfo2);
-	strcpy(_dir2, dir);
+	fix_strncpy(_dir2, dir);
 	
 	while(handle2 >= 0 && !_findnext(handle2, &fileinfo2)) // Keep going until we found the first dir
 	{
@@ -442,7 +442,7 @@ int FindFirstDir(char *dir, char *name)
 
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[256]; strcpy(tmp, _dir2);
+	static char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -472,7 +472,7 @@ int FindNextDir(char *name)
 
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[256]; strcpy(tmp, _dir2);
+	static char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -514,8 +514,8 @@ void CreateRecDir(char* f) {
 }
 
 char* GetFullFileName(const char* path) {
-	static char fname[256] = "";
-	static char tmp[256] = "";
+	static char fname[512] = "";
+	static char tmp[512] = "";
 	
 	if(path == NULL || path[0] == '\0')
 		return NULL;
@@ -528,9 +528,9 @@ char* GetFullFileName(const char* path) {
 		has_tried_basesearchpaths = true;
 	}
 	while(spath) { // loop over searchpaths		
-		strcpy(tmp, spath->filename);
-		strcat(tmp, "/");
-		strcat(tmp, path);
+		fix_strncpy(tmp, spath->filename);
+		fix_strncat(tmp, "/");
+		fix_strncat(tmp, path);
 		if(GetExactFileName(tmp, fname)) {
 			// we got here, if the file exists
 #ifndef WIN32
@@ -570,9 +570,9 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 		return NULL;
 	
 	if(strchr(mode, 'w')) {
-		strcpy(tmp, GetHomeDir());
-		strcat(tmp, "/");
-		strcat(tmp, path);
+		fix_strncpy(tmp, GetHomeDir());
+		fix_strncat(tmp, "/");
+		fix_strncat(tmp, path);
 		GetExactFileName(tmp, fname);
 		CreateRecDir(fname);
 		return fopen(fname, mode);
@@ -600,7 +600,7 @@ void AddToFileList(filelist_t** l, const char* f) {
 	if (!(*fl))
 		return;
 	(*fl)->next = NULL;
-	strncpy((*fl)->filename, f, sizeof((*fl)->filename));
+	fix_strncpy((*fl)->filename, f);
 }
 
 void removeEndingSlashes(char* s) {
@@ -621,16 +621,14 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 
 	static char tmp1[1024] = "";
 	static char tmp2[1024] = "";
-	strcpy(tmp1, f); 
-	tmp1[1023] = '\0';
+	fix_strncpy(tmp1, f); 
 	removeEndingSlashes(tmp1);
 	
 	// Go through the list, checking each item
 	for(const filelist_t* fl = l; fl != NULL; fl = fl->next) {
 		if (!fl->filename)
 			continue;
-		strcpy(tmp2, fl->filename);
-		tmp2[1023] = '\0';
+		fix_strncpy(tmp2, fl->filename);
 		removeEndingSlashes(tmp2);
 		if(strcasecmp(tmp1, tmp2) == 0)
 			return true;
@@ -642,20 +640,17 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 char* GetHomeDir() {
 	static char tmp[1024];
 #ifndef WIN32
-	strcpy(tmp, getenv("HOME"));
-	strcat(tmp, "/.OpenLieroX");
+	fix_strncpy(tmp, getenv("HOME"));
+	fix_strncat(tmp, "/.OpenLieroX");
 #else
 	if (!SHGetSpecialFolderPath(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
 		// TODO: get dynamicaly another possible path
 		// the following is only a workaround!
-		strcpy(tmp, "C:\\OpenLieroX");
-//		strcpy(tmp,"./");
+		fix_strncpy(tmp, "C:\\OpenLieroX");
+//		fix_strncpy(tmp,"./");
 		return tmp;
 	}
-	// Safety
-	tmp[1023-strlen("\\OpenLieroX")] = '\0';
-
-	strcat(tmp,"\\OpenLieroX");
+	fix_strncat(tmp,"\\OpenLieroX");
 #endif
 	return tmp;
 }

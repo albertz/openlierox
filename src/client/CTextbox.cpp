@@ -42,7 +42,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	static char buf[MAX_TEXTLENGTH] = "";
 	static char text[MAX_TEXTLENGTH] = "";
 
-	strcpy(text, sText);
+	fix_strncpy(text, sText);
 
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
@@ -82,8 +82,8 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	
 	// Shift the text, if it overlapps
 	static char tmp[MAX_TEXTLENGTH] = "";
-	strcpy(tmp,&text[iScrollPos]);
-	strcpy(text, tmp);
+	fix_strncpy(tmp, &text[iScrollPos]);
+	fix_strncpy(text, tmp);
 	
 	// The scrollpos can be 0 and the text still overlapps
 	// User can move in the editbox using keys/mouse
@@ -93,10 +93,10 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	// Determine the cursor position in pixels
 	int x = 0;
 	if(cursorpos)  {
-		strncpy(buf,text,cursorpos);
+		strncpy(buf,text,MIN(sizeof(buf)-1,(unsigned int)cursorpos));
 	}
 
-	buf[cursorpos] = '\0';
+	buf[MIN(sizeof(buf)-1,(unsigned int)cursorpos)] = '\0';
 	x = tLX->cFont.GetWidth(buf);
 	
 	// Draw selection
@@ -107,28 +107,29 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 		// The cursor is on the right side of the selection
 		if (iSelLength < 0)  { 
 			int length = -iSelLength;
-			if (length > (int) strlen(text))
+			if (length > (int)fix_strnlen(text))
 				length = cursorpos;
-			strncpy(buf,&text[cursorpos-length],length);
-			buf[length] = '\0';
+			strncpy(buf,&text[cursorpos-length],MIN(sizeof(buf)-1,(unsigned int)length));
+			buf[MIN(sizeof(buf)-1,(unsigned int)length)] = '\0';
+			
 			// Update the SelStart
 			iSelStart = iCurpos+iSelLength;
 		}
 		// The cursor is on the left side of the selection
 		else  {
 			int length = iSelLength;
-			if (length > (int) strlen(text))
-				length = strlen(text);
-			strncpy(buf,&text[cursorpos],length);
-			buf[length] = '\0';
+			if (length > (int)fix_strnlen(text))
+				length = fix_strnlen(text);
+			strncpy(buf,&text[cursorpos],MIN(sizeof(buf)-1,(unsigned int)length));
+			buf[MIN(sizeof(buf)-1,(unsigned int)length)] = '\0';
 			// Update the SelStart
 			iSelStart = iCurpos;
 		}
 
 		// Update the selected text
-		strncpy(sSelectedText,&sText[iSelStart],abs(iSelLength));
-		sSelectedText[abs(iSelLength)] = '\0';
-
+		strncpy(sSelectedText,&sText[iSelStart],MIN(sizeof(sSelectedText),(unsigned int)abs(iSelLength)));
+		sSelectedText[MIN(sizeof(sSelectedText)-1,(unsigned int)abs(iSelLength))] = '\0';
+		
 		// Cursor on the left side of the selection
 		if (iSelLength > 0)  {
 			x2 = iX+x+3+tLX->cFont.GetWidth(buf);  // Count the position
@@ -243,9 +244,9 @@ int CTextbox::KeyDown(int c)
 		}
 
 		// Prevents weird behavior when we're at the end of text
-		char buf[MAX_TEXTLENGTH];
+		static char buf[MAX_TEXTLENGTH];
 		if(iScrollPos)  {
-			strcpy(buf,&sText[iScrollPos]);
+			fix_strncpy(buf,&sText[iScrollPos]);
 			if(tLX->cFont.GetWidth(buf) < (iWidth-4))
 				return TXT_NONE;
 		}
@@ -294,9 +295,9 @@ int CTextbox::KeyDown(int c)
 
 		if (tLX->cFont.GetWidth(sText) > iWidth-3)  {
 			iScrollPos = 0;
-			char buf[MAX_TEXTLENGTH];
+			static char buf[MAX_TEXTLENGTH];
 			for (int i=0; i<iLength; i++)  {
-				strcpy(buf,&sText[i]);
+				fix_strncpy(buf,&sText[i]);
 				iScrollPos++;
 				if (tLX->cFont.GetWidth(buf) < iWidth)
 					break;
@@ -397,7 +398,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	if(deltaX > tLX->cFont.GetWidth(&sText[iScrollPos]) && InBox(tMouse->X,tMouse->Y))
 		iCurpos = iLength;
 	else  {
-		strcpy(buf,sText);
+		fix_strncpy(buf,sText);
 		buf[1] = '\0';
 		// Set the new cursor pos
 		if (deltaX < (tLX->cFont.GetWidth(buf)/2))  // Area before the first character

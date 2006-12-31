@@ -241,7 +241,7 @@ property_t *CCssParser::ReadProperty(void)
 	Property->bImportant = false;
 	Property->tNext = NULL;
 
-	char buf[64];
+	static char buf[64];
 	buf[63] = '\0';
 
 	int i=0;
@@ -293,14 +293,15 @@ property_t *CCssParser::ReadProperty(void)
 	iPos++;
 
 	// Allocate the property name
-	Property->sName = new char[strlen(buf)+1];
+	size_t buflen = fix_strnlen(buf);
+	Property->sName = new char[buflen+1];
 	if (!Property->sName)  {
 		delete Property;
 		return NULL;
 	}
 
 	// Copy the property name
-	strcpy(Property->sName,buf);
+	memcpy(Property->sName,buf,buflen+1);
 
 	//
 	//	Property value
@@ -372,7 +373,8 @@ property_t *CCssParser::ReadProperty(void)
 		iPos++;
 
 	// Allocate the value
-	Property->sValue = new char[strlen(buf)+1];
+	buflen = fix_strnlen(buf);
+	Property->sValue = new char[buflen+1];
 	if (!Property->sValue)  {
 		delete[] Property->sName;
 		Property->sName = NULL;
@@ -382,7 +384,7 @@ property_t *CCssParser::ReadProperty(void)
 	}
 
 	// Copy the value
-	strcpy(Property->sValue,buf);
+	memcpy(Property->sValue,buf,buflen+1);
 
 	return Property;
 }
@@ -412,7 +414,7 @@ node_t *CCssParser::ReadNode(void)
 	node->tProperties = NULL;
 	node->tNext = NULL;
 
-	char buf[64];
+	static char buf[64];
 	buf[0] = '\0';
 
 	int i=0;
@@ -469,14 +471,15 @@ node_t *CCssParser::ReadNode(void)
 	iPos++;
 
 	// Allocate the name
-	node->sName = new char[strlen(buf)+1];
+	size_t buflen = fix_strnlen(buf);
+	node->sName = new char[buflen+1];
 	if (!node->sName)  {
 		delete node;
 		return NULL;
 	}
 	
 	// Copy the name
-	strcpy(node->sName,buf);
+	memcpy(node->sName,buf,buflen+1);
 
 	// Read & add the properties
 	while (AddProperty(ReadProperty(),node))

@@ -26,7 +26,7 @@ int AddKeyword(char *key, int value)
 	if(NumKeywords >= MAX_KEYWORDS-1)
 		return false;
 
-	strcpy(Keywords[NumKeywords].key,key);
+	fix_strncpy(Keywords[NumKeywords].key,key);
 	Keywords[NumKeywords++].Value = value;
 
 	return true;
@@ -156,11 +156,11 @@ int ReadColour(char *filename, char *section, char *key, Uint32 *value, Uint32 d
 int GetString(char *filename, char *section, char *key, char *string)
 {
 	FILE	*config;
-	char	Line[MAX_STRING_LENGTH];
-	char	tmpLine[MAX_STRING_LENGTH];
-	char	curSection[256];
-	char	temp[MAX_STRING_LENGTH];
-	char	curKey[MAX_STRING_LENGTH];
+	static char	Line[MAX_STRING_LENGTH];
+	static char	tmpLine[MAX_STRING_LENGTH];
+	static char	curSection[512];
+	static char	temp[MAX_STRING_LENGTH];
+	static char	curKey[MAX_STRING_LENGTH];
 	char	*chardest = NULL;
 	int		Position;
 	int		found = false;
@@ -182,7 +182,7 @@ int GetString(char *filename, char *section, char *key, char *string)
 	{
 		// Parse the lines
 		fscanf(config,"%[^\n]\n",tmpLine);
-		strcpy(Line, TrimSpaces(tmpLine));
+		fix_strncpy(Line, TrimSpaces(tmpLine));
 		
 		///////////////////
 		// Comment, Ignore
@@ -193,9 +193,9 @@ int GetString(char *filename, char *section, char *key, char *string)
 		// Sections
 		if(Line[0] == '[' && Line[strlen(Line)-1] == ']')
 		{
-			strcpy(temp,Line+1);
-			temp[strlen(temp)-1] = '\0';
-			strcpy(curSection,temp);
+			fix_strncpy(temp,Line+1);
+			temp[fix_strnlen(temp)-1] = '\0';
+			fix_strncpy(curSection,temp);
 			continue;
 		}
 
@@ -206,15 +206,15 @@ int GetString(char *filename, char *section, char *key, char *string)
 		{
 			// Key
 			Position = chardest - Line + 1;
-			strcpy(tmpLine,Line);
+			fix_strncpy(tmpLine,Line);
 			tmpLine[Position-1] = '\0';
-			strcpy(curKey, TrimSpaces(tmpLine));
+			fix_strncpy(curKey, TrimSpaces(tmpLine));
 
 			// Check if this is the key were looking for under the section were looking for
 			if(stricmp(curKey,key) == 0 && stricmp(curSection,section) == 0)
 			{				
 				// Get the value
-				strcpy(tmpLine,Line+Position);
+				fix_strncpy(tmpLine,Line+Position);
 				strcpy(string, TrimSpaces(tmpLine));
 				found = true;
 				break;
@@ -250,7 +250,7 @@ int GetString(char *filename, char *section, char *key, char *string)
 			break;
 		i++;
 	}
-	strcpy(temp,str+i);
+	fix_strncpy(temp,str+i);
 
 
 	// proceeding spaces

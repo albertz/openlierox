@@ -90,7 +90,7 @@ SDL_Surface *CCache::LoadImg(char *_file)
 {
 	Type = CCH_IMAGE;
 	
-	strcpy(Filename, _file);
+	fix_strncpy(Filename, _file);
      
 	// Load the image
 	Image = _LoadImage(Filename);
@@ -111,7 +111,7 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 	SDL_Surface *img;
 
 	Type = CCH_IMAGE;
-	strcpy(Filename, _file);
+	fix_strncpy(Filename, _file);
 
 	// Load the image
 	img = _LoadImage(Filename);
@@ -140,7 +140,7 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 SoundSample* CCache::LoadSample(char *_file, int maxplaying)
 {
 	Type = CCH_SOUND;
-	strcpy(Filename, _file);
+	fix_strncpy(Filename, _file);
 	
 	char* fullfname = GetFullFileName(Filename);
 	if(fullfname == NULL || fullfname[0] == '\0')

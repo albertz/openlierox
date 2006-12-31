@@ -216,7 +216,7 @@ void Menu_Net_LANFrame(int mouse)
 					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					if(result && addr[0]) {
                         // Display a menu
-                        strcpy(szLanCurServer, addr);
+                        fix_strncpy(szLanCurServer, addr);
                         mouse_t *m = GetMouse();
                         
                         cLan.Add( new CMenu(m->X, m->Y), nl_PopupMenu, 0,0, 640,480 );

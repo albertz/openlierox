@@ -533,14 +533,14 @@ void Menu_LocalStartGame(void)
 	tGameInfo.iGameMode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, 0, 0);
     tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
 
-    strcpy( tGameInfo.sPassword, "" );
+    tGameInfo.sPassword[0] = '\0';
 
 	
     // Get the mod name
 	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
     if(it) {
-        strcpy(tGameInfo.sModName,it->sIndex);
-        strcpy(tLXOptions->tGameinfo.szModName, it->sIndex);
+        fix_strncpy(tGameInfo.sModName,it->sIndex);
+        fix_strncpy(tLXOptions->tGameinfo.szModName, it->sIndex);
     } else {
 
 		// Couldn't find a mod to load
@@ -1222,11 +1222,11 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	t->setEnabled(save);
 
 	// Load the level list
-	char	filename[256];
-	char	name[64];
+	static char	filename[512];
+	static char	name[64];
 
-	strcpy(filename, GetHomeDir());
-	strcat(filename, "/cfg/presets");
+	fix_strncpy(filename, GetHomeDir());
+	fix_strncat(filename, "/cfg/presets");
 	mkdir(filename, 0777);
 
 	int done = false;
@@ -1236,12 +1236,14 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	lv->AddColumn("Weapon presets",60);
 
 
+	size_t len;
 	while(!done) {
-		if( stricmp(filename + strlen(filename)-4, ".wps") == 0) {
+		len = fix_strnlen(filename);
+		if( stricmp(filename + len-4, ".wps") == 0) {
 			// Remove the path
 			char *f = strrchr(filename,'/');
-			strncpy(name,f+1,strlen(f)-4);
-			name[strlen(f)-5] = '\0';
+			strncpy(name,f+1,len-4);
+			name[len-5] = '\0';
 			if(f) {
 				lv->AddItem(f+1,0,tLX->clListView);
 				lv->AddSubitem(LVS_TEXT,name,NULL);

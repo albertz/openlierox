@@ -25,7 +25,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	mouse_t *tMouse = GetMouse();
 
 	// Strip text buffer
-	char buf[256];
+	static char buf[256];
 
 	// Count the item height
 	int ItemHeight = tLX->cFont.GetHeight()+1;
@@ -46,7 +46,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	if(iDropped) {
 		// Dropped down
 		if(tSelected)  {
-			strcpy(buf,tSelected->sName);
+			fix_strncpy(buf,tSelected->sName);
 			if (tSelected->tImage)  {
 				DrawImage(bmpDest,tSelected->tImage,iX+3,iY+1);
 				stripdot(buf,iWidth-(6+tSelected->tImage->w+iGotScrollbar*15));
@@ -106,7 +106,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
             if(selected)
                 DrawRectFill(bmpDest, iX+2, y, w, y+ItemHeight-1, MakeColour(0,66,102));
 
-			strcpy(buf,item->sName);
+			fix_strncpy(buf,item->sName);
 
 			bool stripped = false;
 
@@ -157,7 +157,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	} else {
 		// Normal
 		if (tSelected)  {
-			strcpy(buf,tSelected->sName);
+			fix_strncpy(buf,tSelected->sName);
 			if (tSelected->tImage)  {
 				DrawImage(bmpDest,tSelected->tImage,iX+3,iY+1);
 				stripdot(buf,iWidth-(6+tSelected->tImage->w+iGotScrollbar*15));
@@ -504,8 +504,8 @@ void CCombobox::addItem(int index, char *sindex, char *name)
 
 	// Fill in the info
 	item->iIndex = index;
-	strcpy(item->sIndex, sindex);
-	strcpy(item->sName,name);
+	fix_strncpy(item->sIndex, sindex);
+	fix_strncpy(item->sName,name);
 	item->tNext = NULL;
 	item->iSelected = false;
 	item->tImage = NULL;

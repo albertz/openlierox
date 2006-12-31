@@ -88,42 +88,6 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readShort
 #undef readFloat
 #undef readString
-#include "Networking.h"
-
-// XML parsing library
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
-
-
-// Auxiliary Core components
-#include "types.h"
-#include "AuxLib.h"
-#include "Cache.h"
-#include "Error.h"
-#include "GfxPrimitives.h"
-#include "Timer.h"
-
-
-
-// Core classes
-#include "CInput.h"
-#include "CVec.h"
-
-
-// Network classes
-#include "CBytestream.h"
-#include "CChannel.h"
-
-
-// Secondary components (coz they need to be below the classes)
-#include "ConfigHandler.h"
-#include "MathLib.h"
-#include "CFont.h"
-
-#include "FindFile.h"
-#include "CssParser.h"
-
-
 
 
 
@@ -193,6 +157,62 @@ inline T* GetByteSwapped(const T b)
 #else
 #	error unknown ENDIAN type
 #endif
+
+// secure str handling macros
+#define		fix_strnlen(chrarray) \
+				strnlen(chrarray,sizeof(chrarray))
+#define		fix_strncpy(chrarray, src) \
+			{	strncpy(chrarray, src, sizeof(chrarray)); \
+			 	chrarray[sizeof(chrarray)-1] = '\0'; }
+#define		fix_strncat(chrarray, src) \
+			{	size_t destlen = strnlen(chrarray, sizeof(chrarray)); \
+				strncpy(&chrarray[destlen], src, sizeof(chrarray)-destlen); \
+				chrarray[sizeof(chrarray)-1] = '\0'; }
+#define		dyn_strncpy(dest, src, len) \
+			{	strncpy(dest, src, len); \
+				dest[len-1] = '\0'; }
+#define		dyn_strncat(dest, src, len) \
+			{	size_t destlen = strnlen(dest, len); \
+				strncpy(&dest[destlen], src, len-destlen); \
+				dest[len-1] = '\0'; }
+
+
+#include "Networking.h"
+
+// XML parsing library
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+
+
+// Auxiliary Core components
+#include "types.h"
+#include "AuxLib.h"
+#include "Cache.h"
+#include "Error.h"
+#include "GfxPrimitives.h"
+#include "Timer.h"
+
+
+
+// Core classes
+#include "CInput.h"
+#include "CVec.h"
+
+
+// Network classes
+#include "CBytestream.h"
+#include "CChannel.h"
+
+
+// Secondary components (coz they need to be below the classes)
+#include "ConfigHandler.h"
+#include "MathLib.h"
+#include "CFont.h"
+
+#include "FindFile.h"
+#include "CssParser.h"
+
+
 
 
 

@@ -38,9 +38,9 @@ SDL_Surface *bmpIcon=NULL;
 int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 {
 	// Set the game info
-	strcpy(GameName,gname);
+	fix_strncpy(GameName,gname);
 
-	strcpy(ConfigFile,config);
+	fix_strncpy(ConfigFile,config);
 
 	// Solves problem with FPS in fullscreen
 #ifdef WIN32
@@ -509,8 +509,8 @@ int SetClipboardText(char *szText)
 // Take a screenshot
 void TakeScreenshot(bool Tournament)
 {
-	char		picname[80]; 
-	char		checkname[255];
+	static char		picname[80]; 
+	static char		checkname[512];
 	char		extension[5];
 	int			i;
 	FILE		*f;
@@ -525,11 +525,11 @@ void TakeScreenshot(bool Tournament)
 	}
 
     // Create the 'scrshots' directory if it doesn't exist
-    strcpy(checkname, GetHomeDir());
-	if (Tournament)
-		strcat(checkname,"/tourny_scrshots");
-	else
-		strcat(checkname, "/scrshots");
+    fix_strncpy(checkname, GetHomeDir());
+	if (Tournament) {
+		fix_strncat(checkname,"/tourny_scrshots");
+	} else
+		fix_strncat(checkname, "/scrshots");
     mkdir(checkname, 0777);
 
 	// Create the file name
@@ -537,9 +537,9 @@ void TakeScreenshot(bool Tournament)
 		sprintf(picname,"%s%d%s","lierox",i,extension);
 
 		if (Tournament)
-			sprintf(checkname, "tourny_scrshots/%s", picname);
+			snprintf(checkname, sizeof(checkname), "tourny_scrshots/%s", picname);
 		else
-			sprintf(checkname, "scrshots/%s", picname);
+			snprintf(checkname, sizeof(checkname), "scrshots/%s", picname);
 
 		f = OpenGameFile(checkname, "rb");
 		if (!f)

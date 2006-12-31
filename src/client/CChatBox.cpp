@@ -37,21 +37,21 @@ void CChatBox::AddText(char *txt, int colour, float time)
 {
     int     n;
     int     l=-1;
-    char    buf[128];
+    static char    buf[128];
 
-	if (!strlen(txt))
+	if (strlen(txt)<=0)
 		return;
 
     // If this line is too long, break it up
-	strcpy(buf,txt);
+	fix_strncpy(buf,txt);
 	if(tLX->cFont.GetWidth(txt) > nWidth) {
 		int i; // We need it to be defined after FOR ends
-		for (i=strlen(buf)-2; tLX->cFont.GetWidth(buf) > nWidth && i >= 0; i--)
+		for (i=fix_strnlen(buf)-2; tLX->cFont.GetWidth(buf) > nWidth && i >= 0; i--)
 			buf[i] = '\0';
 
 		int j;
 		// Find the nearest space
-		for (j=strlen(buf)-1; j>=0 && buf[j] != ' '; j--)
+		for (j=fix_strnlen(buf)-1; j>=0 && buf[j] != ' '; j--)
 			continue;
 
 		// Hard break
@@ -82,7 +82,7 @@ void CChatBox::AddText(char *txt, int colour, float time)
         l=MAX_CLINES-1;
     }
     
-    strcpy(Lines[l].strLine,txt);
+    fix_strncpy(Lines[l].strLine,txt);
     Lines[l].iUsed = true;
     Lines[l].iColour = colour;
     Lines[l].fTime = time;
@@ -94,8 +94,8 @@ void CChatBox::AddText(char *txt, int colour, float time)
 // Move up one line	
 void CChatBox::MoveUp(void)
 {
-    for(int n=0;n<MAX_CLINES-1;n++) {
-        strcpy(Lines[n].strLine,Lines[n+1].strLine);
+    for(short n=0;n<MAX_CLINES-1;n++) {
+        fix_strncpy(Lines[n].strLine,Lines[n+1].strLine);
         Lines[n].iColour = Lines[n+1].iColour;
         Lines[n].fTime = Lines[n+1].fTime;
     }

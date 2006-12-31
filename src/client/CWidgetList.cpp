@@ -36,10 +36,11 @@ int CWidgetList::Add(char *Name)
 
 	// Fill in the item details
 	new_item->iID = id;
-	new_item->sName = new char[strlen(Name)+1];
+	size_t len = strlen(Name);
+	new_item->sName = new char[len+1];
 	if(!new_item->sName)
 		return -1;
-	strcpy(new_item->sName,Name);
+	memcpy(new_item->sName,Name,len+1);
 	new_item->tNext = NULL;  // It will be the last item
 
 	// Link it in

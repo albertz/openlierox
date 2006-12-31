@@ -42,7 +42,7 @@ int Menu_Net_JoinInitialize(char *sAddress)
 {
 	iNetMode = net_join;
 	iJoinMenu = join_connecting;
-	strcpy(sJoinAddress, sAddress);	
+	fix_strncpy(sJoinAddress, sAddress);	
 
 	if(!Menu_Net_JoinConnectionInitialize(sAddress)) {
 		// Error
@@ -304,7 +304,7 @@ int Menu_Net_JoinConnectionInitialize(char *sAddress)
 {
 	iJoinMenu = join_connecting;
 	tGameInfo.iGameType = GME_JOIN;
-	strcpy(sJoinAddress, sAddress);	
+	fix_strncpy(sJoinAddress, sAddress);	
 	cConnecting.Shutdown();
 	cConnecting.Initialize();
 

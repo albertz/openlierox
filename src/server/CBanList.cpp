@@ -53,7 +53,7 @@ banlist_t *CBanList::findBanned(char *szAddress)
     banlist_t *psWorm = m_psBanList;
 
     for(; psWorm; psWorm=psWorm->psNext) {
-        strcpy(address, TrimSpaces( address ));
+        fix_strncpy(address, TrimSpaces( address ));
         if( stricmp(psWorm->szAddress, address) == 0 )
             return psWorm;
     }
@@ -87,7 +87,7 @@ int CBanList::getIdByAddr(char *szAddress)
     banlist_t *psWorm = m_psBanList;
 
     for(int i=0; psWorm; psWorm=psWorm->psNext,i++) {
-        strcpy(address, TrimSpaces( address ));
+        fix_strncpy(address, TrimSpaces( address ));
         if( stricmp(psWorm->szAddress, address) == 0 )
             return i;
     }
@@ -119,10 +119,13 @@ void CBanList::addBanned(char *szAddress, char *szNick)
     if( !psWorm )
         return;
 
-    psWorm->szNick = new char[ strlen(szNick)+1 ];
-    strcpy(psWorm->szNick, szNick);
-    psWorm->szAddress = new char[ strlen(addr)+1 ];
-    strcpy(psWorm->szAddress, addr);
+    size_t len = strlen(szNick);
+    psWorm->szNick = new char[ len+1 ];
+    memcpy(psWorm->szNick, szNick, len+1);
+    
+    len = strlen(addr);
+    psWorm->szAddress = new char[ len+1 ];
+    memcpy(psWorm->szAddress, addr, len+1);
     
     // Link it in
     psWorm->psNext = m_psBanList;

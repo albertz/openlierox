@@ -450,94 +450,94 @@ public:
 	//
 	// Variables
 	//
-	int			isUsed(void)				{ return iUsed; }
-	void		setUsed(int _u)				{ iUsed = _u; }
+	inline int			isUsed(void)				{ return iUsed; }
+	inline void		setUsed(int _u)				{ iUsed = _u; }
 
-	char		*getName(void)				{ return sName; }
-	uint		getColour(void)				{ return iColour; }
-	void		setColour(uint c)			{ iColour = c; }
+	inline char		*getName(void)				{ return sName; }
+	inline uint		getColour(void)				{ return iColour; }
+	inline void		setColour(uint c)			{ iColour = c; }
 
-	void		setLocal(int _l)			{ iLocal = _l; }
-	int			getLocal(void)				{ return iLocal; }
+	inline void		setLocal(int _l)			{ iLocal = _l; }
+	inline int			getLocal(void)				{ return iLocal; }
 
-	int			getHealth(void)				{ return iHealth; }
-	int			getLives(void)				{ return iLives; }
-	int			getKills(void)				{ return iKills; }
-	void		setLives(int l)				{ iLives = l; }
+	inline int			getHealth(void)				{ return iHealth; }
+	inline int			getLives(void)				{ return iLives; }
+	inline int			getKills(void)				{ return iKills; }
+	inline void		setLives(int l)				{ iLives = l; }
 
-	void		AddKill(void)				{ iKills++; }
-    void        setKills(int k)             { iKills = k; }
+	inline void		AddKill(void)				{ iKills++; }
+    inline void        setKills(int k)             { iKills = k; }
 
-	void		setID(int i)				{ iID = i; }
-	int			getID(void)					{ return iID; }
+	inline void		setID(int i)				{ iID = i; }
+	inline int			getID(void)					{ return iID; }
 
-	int			getType(void)				{ return iType; }
-    void        setType(int t)              { iType = t; }
+	inline int			getType(void)				{ return iType; }
+    inline void        setType(int t)              { iType = t; }
 
-	int			getAlive(void)				{ return iAlive; }
-	void		setAlive(int _a)			{ iAlive = _a; }
+	inline int			getAlive(void)				{ return iAlive; }
+	inline void		setAlive(int _a)			{ iAlive = _a; }
 
-	float		getTimeofDeath(void)		{ return fTimeofDeath; }
+	inline float		getTimeofDeath(void)		{ return fTimeofDeath; }
 
-	void		setHooked(int h, CWorm *w)	{ iHooked=h; pcHookWorm=w; }
-	void		setClient(CClient *cl)		{ cClient = cl; }
-    CClient     *getClient(void)            { return cClient; }
+	inline void		setHooked(int h, CWorm *w)	{ iHooked=h; pcHookWorm=w; }
+	inline void		setClient(CClient *cl)		{ cClient = cl; }
+    inline CClient     *getClient(void)            { return cClient; }
 
-	CInput		*getShoot(void)				{ return &cShoot; }
+	inline CInput		*getShoot(void)				{ return &cShoot; }
 
-	CVec		getPos(void)				{ return vPos; }
-	void		setPos(CVec v)				{ vPos = v; }
+	inline CVec		getPos(void)				{ return vPos; }
+	inline void		setPos(CVec v)				{ vPos = v; }
 
-	CVec		*getVelocity(void)			{ return &vVelocity; }
+	inline CVec		*getVelocity(void)			{ return &vVelocity; }
 
-	worm_state_t *getWormState(void)		{ return &tState; }
+	inline worm_state_t *getWormState(void)		{ return &tState; }
 
-	float		getAngle(void)				{ return fAngle; }
-	int			getDirection(void)			{ return iDirection; }
+	inline float		getAngle(void)				{ return fAngle; }
+	inline int			getDirection(void)			{ return iDirection; }
 
-	void		setLoadingTime(float l)		{ fLoadingTime = l; }
+	inline void		setLoadingTime(float l)		{ fLoadingTime = l; }
 
-	void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }
-    void        setWpnRest(CWpnRest *wr)    { cWeaponRest = wr; }
+	inline void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }
+    inline void        setWpnRest(CWpnRest *wr)    { cWeaponRest = wr; }
 
-	void		setDrawMuzzle(int _d)		{ iDrawMuzzle = _d; }
+	inline void		setDrawMuzzle(int _d)		{ iDrawMuzzle = _d; }
 
-	int			getWeaponsReady(void)		{ return iWeaponsReady; }
-	void		setWeaponsReady(int _w)		{ iWeaponsReady = _w; }
-	wpnslot_t	*getCurWeapon(void)			{ return &tWeapons[MIN(4,iCurrentWeapon)]; }
-	int			getCurrentWeapon(void)		{ return MIN(4,iCurrentWeapon); }
-	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
-	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
+	inline int			getWeaponsReady(void)		{ return iWeaponsReady; }
+	inline void		setWeaponsReady(int _w)		{ iWeaponsReady = _w; }
+	inline wpnslot_t	*getCurWeapon(void)			{ return &tWeapons[MIN(4,iCurrentWeapon)]; }
+	inline int			getCurrentWeapon(void)		{ return MIN(4,iCurrentWeapon); }
+	inline void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
+	inline wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
 
-	void		setGameReady(int _g)		{ iGameReady = _g; }
-	int			getGameReady(void)			{ return iGameReady; }
+	inline void		setGameReady(int _g)		{ iGameReady = _g; }
+	inline int			getGameReady(void)			{ return iGameReady; }
 
-	void		setProfile(profile_t *p)	{ tProfile = p; }
+	inline void		setProfile(profile_t *p)	{ tProfile = p; }
 
-	void		setTeam(int _t)				{ iTeam = _t; }
-	int			getTeam(void)				{ return iTeam; }
+	inline void		setTeam(int _t)				{ iTeam = _t; }
+	inline int			getTeam(void)				{ return iTeam; }
 
-	SDL_Surface	*getGibimg(void)			{ return bmpGibs; }
-	SDL_Surface	*getPicimg(void)			{ return bmpPic; }
+	inline SDL_Surface	*getGibimg(void)			{ return bmpGibs; }
+	inline SDL_Surface	*getPicimg(void)			{ return bmpPic; }
 
-	lobbyworm_t	*getLobby(void)				{ return &tLobbyState; }
+	inline lobbyworm_t	*getLobby(void)				{ return &tLobbyState; }
 
-	int			getTagIT(void)				{ return iTagIT; }
-	void		setTagIT(int _t)			{ iTagIT = _t; }
+	inline int			getTagIT(void)				{ return iTagIT; }
+	inline void		setTagIT(int _t)			{ iTagIT = _t; }
 
-    void        incrementDirtCount(int d)   { iDirtCount += d; }
-    int         getDirtCount(void)          { return iDirtCount; }
+    inline void        incrementDirtCount(int d)   { iDirtCount += d; }
+    inline int         getDirtCount(void)          { return iDirtCount; }
 
-	void		setTarget(int _t)			{ iGotTarget = _t; }
+	inline void		setTarget(int _t)			{ iGotTarget = _t; }
 
-	float		getTagTime(void)			{ return fTagTime; }
-	void		setTagTime(float _t)		{ fTagTime = _t; }
-	void		incrementTagTime(float dt)	{ fTagTime+=dt; }
+	inline float		getTagTime(void)			{ return fTagTime; }
+	inline void		setTagTime(float _t)		{ fTagTime = _t; }
+	inline void		incrementTagTime(float dt)	{ fTagTime+=dt; }
 
-	char		*getSkin(void)				{ return szSkin; }
+	inline char		*getSkin(void)				{ return szSkin; }
 
-	void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
-	CProjectile *getHeading(void)			{ return psHeadingProjectile; }
+	inline void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
+	inline CProjectile *getHeading(void)			{ return psHeadingProjectile; }
 
 
 };

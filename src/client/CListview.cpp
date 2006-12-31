@@ -120,7 +120,7 @@ void CListview::AddColumn(char *sText, int iWidth)
 	}
 
 	// Set the info
-	strcpy(col->sText,sText);
+	fix_strncpy(col->sText,sText);
 	col->iWidth = iWidth;
 	col->tNext = NULL;
 
@@ -152,7 +152,7 @@ void CListview::AddItem(char *sIndex, int iIndex, int iColour)
 	}
 
 	// Set the info
-	strcpy(item->sIndex,sIndex);
+	fix_strncpy(item->sIndex,sIndex);
 	item->iIndex = iIndex;
 	item->tNext = NULL;
 	item->iSelected = false;
@@ -205,7 +205,7 @@ void CListview::AddSubitem(int iType, char *sText, SDL_Surface *img)
 
 	// Set the info
 	sub->iType = iType;
-	strcpy(sub->sText,sText);
+	fix_strncpy(sub->sText,sText);
 	sub->bmpImage = NULL;
 	sub->tNext = NULL;
 	sub->iVisible = true;

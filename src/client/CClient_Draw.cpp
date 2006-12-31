@@ -173,7 +173,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	if(iChat_Typing)  {
 		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clNormalText, "Talk: %s",sChat_Text);
 		if (iChat_CursorVisible)  {
-			char buf[256];
+			static char buf[256];
+			iChat_Pos = MIN((unsigned int)iChat_Pos,sizeof(buf)-1);
 			strncpy(buf,sChat_Text,iChat_Pos);
 			buf[iChat_Pos] = '\0';
 			DrawVLine(bmpDest, 368, 378, 4+tLX->cFont.GetWidth("Talk: ")+tLX->cFont.GetWidth(buf), tLX->clNormalText);

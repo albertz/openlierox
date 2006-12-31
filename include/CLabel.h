@@ -32,7 +32,7 @@ class CLabel : public CWidget {
 public:
 	// Constructor
 	CLabel(char *text, Uint32 col) {
-		strcpy(sText,text);
+		fix_strncpy(sText,text);
 		iColour = col;
 		iType = wid_Label;
 	}
@@ -61,7 +61,7 @@ public:
 	int		KeyUp(int c)						{ return LBL_NONE; }
 
 	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ 
-							if(iMsg==LBM_SETTEXT) strcpy(sText, (char *)Param1); return 0;
+							if(iMsg==LBM_SETTEXT) fix_strncpy(sText, (char *)Param1); return 0;
 						}
 
 	void	ChangeColour(Uint32 col)			{ iColour = col; }

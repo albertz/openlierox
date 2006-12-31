@@ -2488,8 +2488,8 @@ int CWorm::AI_FindClearingWeapon(void)
 			}
 
 			// Suspicious
-			char name[256];
-			strcpy(name,tWeapons[i].Weapon->Name);
+			static char name[256];
+			fix_strncpy(name,tWeapons[i].Weapon->Name);
 			strlwr(name);
 			if (strstr("dirt",name) || strstr("napalm",name) || strstr("grenade",name) || strstr("nuke",name) || strstr("mine",name))
 				continue;

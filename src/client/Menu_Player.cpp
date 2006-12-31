@@ -572,7 +572,7 @@ void Menu_Player_ViewPlayers(int mouse)
                             if(it->tSubitems) {
                                 it->tSubitems->bmpImage = p->bmpWorm;                            
                                 if(it->tSubitems->tNext)
-                                    strcpy(it->tSubitems->tNext->sText, p->sName);
+                                    fix_strncpy(it->tSubitems->tNext->sText, p->sName);
                             }
                         }
 
@@ -760,8 +760,8 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
     if( !cb )
         return;
 
-    char szFilename[256];
-    char szName[256];
+   static char szFilename[256];
+   static char szName[256];
 
     cb->clear();
 
@@ -775,7 +775,7 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
 
         // Get the extension
         char ext[8];
-        strcpy(ext, szFilename+strlen(szFilename)-4);
+        fix_strncpy(ext, szFilename+fix_strnlen(szFilename)-4);
 
         // Is this a image type filename?
         if( stricmp(ext,".tga")==0 ||
@@ -783,8 +783,7 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
             stricmp(ext,".bmp")==0 ||
             stricmp(ext,".pcx")==0) {
             
-            strcpy(szName, szFilename);
-            szName[strlen(szName)-4] = '\0';
+            fix_strncpy(szName, szFilename);
 
             // Remove the dir
             char *n = MAX(strrchr(szName,'\\'),strrchr(szName,'/'));

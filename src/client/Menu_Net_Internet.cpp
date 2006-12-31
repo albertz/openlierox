@@ -246,7 +246,7 @@ void Menu_Net_NETFrame(int mouse)
 					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					if(result && addr[0]) {
                         // Display a menu
-                        strcpy(szNetCurServer, addr);
+                        fix_strncpy(szNetCurServer, addr);
                         mouse_t *m = GetMouse();
                         
                         cInternet.Add( new CMenu(m->X, m->Y), mi_PopupMenu, 0,0, 640,480 );
@@ -501,15 +501,15 @@ void Menu_Net_NETUpdateList(void)
     int SvrCount = 0;
     int CurServer = 0;
     bool SentRequest = false;
-    char szLine[1024];
+    static char szLine[1024];
     FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
     if( !fp )
         return;
 
     while( fgets(szLine, 1024, fp) ) {
-        strcpy( szLine, StripLine(szLine) );
+        fix_strncpy( szLine, StripLine(szLine));
 
-        if( strlen(szLine) > 0 )
+        if( fix_strnlen(szLine) > 0 )
             SvrCount++;
     }
 
@@ -556,9 +556,9 @@ void Menu_Net_NETUpdateList(void)
 
             // Get the next server in the list
             while( fgets(szLine, 1024, fp) ) {
-                strcpy( szLine, StripLine(szLine) );
+                fix_strncpy( szLine, StripLine(szLine) );
         
-                if( strlen(szLine) > 0 ) {
+                if( fix_strnlen(szLine) > 0 ) {
 
                     // Send the request
                     if( !http_InitializeRequest(szLine, LX_SVRLIST) ) {
@@ -651,42 +651,42 @@ void Menu_Net_NETParseList(void)
 {
 	char *content = http_GetContent();    
 
-	char Line[1024];
-	char temp[1024];
+	static char Line[HTTP_CONTENT_LEN];
+	static char temp[HTTP_CONTENT_LEN];
 
 
 	int i = 0;
 	int count = strlen(content);
 
-	while(i < count) {
+	while(i < count) {		
 		sscanf(content+i,"%[^\n]\n",Line);
 
-		strcpy(temp, Line);
+		fix_strncpy(temp, Line);
 
 		char *addr = strtok(temp, ",");
 		char *prt = strtok(NULL, ",");
 
 		// Check if the tokens are valid
 		if(!addr || !prt) {
-			i += strlen(Line)+1;
+			i += fix_strnlen(Line)+1;
 			continue;
 		}
 
 		
-		char address[256];
-		char port[256];
-        char a[256], p[256];
+		static char address[256];
+		static char port[256];
+        static char a[256], p[256];
 
-		strcpy(a, TrimSpaces(addr));
-		strcpy(p, TrimSpaces(prt));
+		fix_strncpy(a, TrimSpaces(addr));
+		fix_strncpy(p, TrimSpaces(prt));
 
 		// If the address, or port does NOT have quotes around it, the line must be mangled and cannot be used
 		if(a[0] != '\"' || p[0] != '\"') {
-			i += strlen(Line)+1;
+			i += fix_strnlen(Line)+1;
 			continue;
 		}
-		if(a[strlen(a)-1] != '\"' || p[strlen(p)-1] != '\"') {
-			i += strlen(Line)+1;
+		if(a[fix_strnlen(a)-1] != '\"' || p[fix_strnlen(p)-1] != '\"') {
+			i += fix_strnlen(Line)+1;
 			continue;
 		}
 
@@ -695,10 +695,10 @@ void Menu_Net_NETParseList(void)
 		StripQuotes(port, p);
 
 		// Create the server address
-		sprintf(temp, "%s:%s",address,port);		
+		snprintf(temp, sizeof(temp), "%s:%s",address,port);		
 		Menu_SvrList_AddServer(temp, false);
 
-		i += strlen(Line)+1;
+		i += fix_strnlen(Line)+1;
 	}
 }
 

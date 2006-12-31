@@ -338,7 +338,7 @@ void CClient::SendPackets(void)
 void CClient::Connect(char *address)
 {
 	iNetStatus = NET_CONNECTING;
-	strcpy(strServerAddr,address);
+	fix_strncpy(strServerAddr,address);
 	iNumConnects=0;
 	iBadConnection = false;
 

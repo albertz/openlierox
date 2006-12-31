@@ -299,10 +299,10 @@ int CGameScript::Load(char *dir)
 	
 	FILE *fp;
 	int n;	
-	char filename[64];
+	static char filename[64];
 
-	sprintf(filename,"%s/script.lgs",dir);
-	strcpy(sDirectory, dir);
+	snprintf(filename,sizeof(filename),"%s/script.lgs",dir);
+	fix_strncpy(sDirectory, dir);
 
 	// Open it
 	fp = OpenGameFile(filename,"rb");
@@ -884,9 +884,9 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 // Check if a file is a valid liero game script
 int CGameScript::CheckFile(char *dir, char *name)
 {
-	char filename[256];
+	static char filename[256];
 
-	sprintf(filename,"%s/script.lgs",dir);
+	snprintf(filename,sizeof(filename),"%s/script.lgs",dir);
 
 	// Open it
 	FILE *fp = OpenGameFile(filename,"rb");

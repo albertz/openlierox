@@ -359,14 +359,14 @@ void AddProfile(char *name, char *skin, char *username, char *password,  int R, 
 	p->tNext = NULL;
     p->bmpWorm = NULL;
 
-	strcpy(p->sName, name);
-    strcpy(p->szSkin, skin);
+	fix_strncpy(p->sName, name);
+    fix_strncpy(p->szSkin, skin);
 	p->R = R;
 	p->G = G;
 	p->B = B;
 
-	strcpy(p->sUsername, username);
-	strcpy(p->sPassword, password);
+	fix_strncpy(p->sUsername, username);
+	fix_strncpy(p->sPassword, password);
 
 
 	// Default weapons
@@ -504,10 +504,10 @@ int LoadProfileGraphics(profile_t *p)
 // General skin colouriser
 SDL_Surface *LoadSkin(char *szSkin, int colR, int colG, int colB)
 {
-    char buf[256];
+   static  char buf[256];
 
     // Load the skin
-    sprintf(buf, "skins/%s",szSkin);
+    snprintf(buf, sizeof(buf), "skins/%s",szSkin);
     SDL_Surface *worm = LoadImage(buf,16);
     if( !worm ) {
         

@@ -949,8 +949,8 @@ void CServer::ParseConnect(CBytestream *bs)
 		// TODO: Set socket info
 		// TODO: This better
 
-		char buf[256];
-		char buf2[256];
+		static char buf[256];
+		static char buf2[256];
 		// "Has connected" message
 		if (strcmp(NetworkTexts->sHasConnected,"<none>"))  {
 			for(i=0;i<numworms;i++) {
@@ -960,8 +960,8 @@ void CServer::ParseConnect(CBytestream *bs)
 		}
 
 		// Welcome message
-		strcpy(buf,tGameInfo.sWelcomeMessage);
-		if(strlen(tGameInfo.sWelcomeMessage) > 0)  {
+		fix_strncpy(buf,tGameInfo.sWelcomeMessage);
+		if(fix_strnlen(tGameInfo.sWelcomeMessage) > 0)  {
 
 			// Server name
 			replacemax(buf,"<server>",tGameInfo.sServername,buf,1);
@@ -991,7 +991,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 
 			for(int i=0; i<numworms; i++)  {
-				strcpy(buf2,buf);
+				fix_strncpy(buf2,buf);
 
 				// Player name
 				replacemax(buf2,"<player>",worms[i].getName(),buf2,1);

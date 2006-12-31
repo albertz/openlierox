@@ -45,7 +45,7 @@ private:
 	int		Used;
 	int		Type;
 
-	char	Filename[128];
+	char	Filename[256];
 
 	// Image
 	SDL_Surface		*Image;

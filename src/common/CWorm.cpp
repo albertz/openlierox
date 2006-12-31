@@ -266,7 +266,7 @@ int CWorm::LoadGraphics(int gametype)
         r = tProfile->R;
         g = tProfile->G;
         b = tProfile->B;
-        strcpy(szSkin, tProfile->szSkin);
+        fix_strncpy(szSkin, tProfile->szSkin);
     }
 
 
@@ -630,7 +630,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	}
 
 	for(i=0;i<5;i++)
-		strcpy( tProfile->sWeaponSlots[i], tWeapons[i].Weapon->Name );
+		fix_strncpy( tProfile->sWeaponSlots[i], tWeapons[i].Weapon->Name );
 
     // Note: The extra weapon weapon is the 'random' button
     if(iCurrentWeapon == iNumWeaponSlots) {
@@ -652,7 +652,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
 			// Set our profile to the weapons (so we can save it later)
 			for(int i=0;i<5;i++)
-				strcpy( tProfile->sWeaponSlots[i], tWeapons[i].Weapon->Name );
+				fix_strncpy( tProfile->sWeaponSlots[i], tWeapons[i].Weapon->Name );
 		}
 	}
 

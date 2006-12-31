@@ -859,9 +859,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Get the mod
 					cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,0,0);
                     if(it) {
-		                strcpy(tGameInfo.sModName,it->sIndex);
-						strcpy(tGameInfo.sModDir,it->sIndex);
-                        strcpy(tLXOptions->tGameinfo.szModName, it->sIndex);
+		                fix_strncpy(tGameInfo.sModName,it->sIndex);
+						fix_strncpy(tGameInfo.sModDir,it->sIndex);
+                        fix_strncpy(tLXOptions->tGameinfo.szModName, it->sIndex);
                     }
 
                     // Get the game type

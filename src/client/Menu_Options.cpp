@@ -665,12 +665,12 @@ void Menu_OptionsWaitInput(int ply, char *name, CInputbox *b)
 	}
 
 	// Change the options
-	if(ply == 0)
-		strcpy(tLXOptions->sPlayer1Controls[b->getValue()],b->getText());
-	else if(ply == 1)
-		strcpy(tLXOptions->sPlayer2Controls[b->getValue()],b->getText());
-	else if(ply == 2)
-		strcpy(tLXOptions->sGeneralControls[b->getValue()],b->getText());
+	if(ply == 0) {
+		fix_strncpy(tLXOptions->sPlayer1Controls[b->getValue()],b->getText());
+	} else if(ply == 1) {
+		fix_strncpy(tLXOptions->sPlayer2Controls[b->getValue()],b->getText());
+	} else if(ply == 2)
+		fix_strncpy(tLXOptions->sGeneralControls[b->getValue()],b->getText());
 
 	Mouse->Down = 0;
 	Mouse->Up = 0;

@@ -36,8 +36,8 @@ public:
 	// Constructor
 	CInputbox(int val, char *_text, SDL_Surface *img, char *name) {
 		iKeyvalue = val;
-		strcpy(sText,_text);
-		strcpy(sName, name);
+		fix_strncpy(sText,_text);
+		fix_strncpy(sName, name);
 
 		bmpImage = img;
 		iType = wid_Inputbox;
@@ -62,17 +62,17 @@ public:
 	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1
-	int		MouseOver(mouse_t *tMouse)			{ iMouseOver = true; return INB_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown)		{ return INB_MOUSEUP; }
-	int		MouseDown(mouse_t *tMouse, int nDown)	{ return INB_NONE; }
-	int		MouseWheelDown(mouse_t *tMouse)		{ return INB_NONE; }
-	int		MouseWheelUp(mouse_t *tMouse)		{ return INB_NONE; }
-	int		KeyDown(int c)						{ return INB_NONE; }
-	int		KeyUp(int c)						{ return INB_NONE; }	
+	inline int		MouseOver(mouse_t *tMouse)			{ iMouseOver = true; return INB_NONE; }
+	inline int		MouseUp(mouse_t *tMouse, int nDown)		{ return INB_MOUSEUP; }
+	inline int		MouseDown(mouse_t *tMouse, int nDown)	{ return INB_NONE; }
+	inline int		MouseWheelDown(mouse_t *tMouse)		{ return INB_NONE; }
+	inline int		MouseWheelUp(mouse_t *tMouse)		{ return INB_NONE; }
+	inline int		KeyDown(int c)						{ return INB_NONE; }
+	inline int		KeyUp(int c)						{ return INB_NONE; }	
 
 
 	// Process a message sent
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
+	inline int		SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
 
 				switch(iMsg) {
 					case INM_GETVALUE:
@@ -88,14 +88,14 @@ public:
 	// Draw the title button
 	void	Draw(SDL_Surface *bmpDest);
 
-	void	LoadStyle(void) {}
+	inline void	LoadStyle(void) {}
 
 
-	int		getValue(void)						{ return iKeyvalue; }
-	void	setValue(int _v)					{ iKeyvalue = _v; }
-	char	*getText(void)						{ return sText; }
-	void	setText(char *_t)					{ if(_t) strcpy(sText,_t); }
-	char	*getName(void)						{ return sName; }
+	inline int		getValue(void)						{ return iKeyvalue; }
+	inline void	setValue(int _v)					{ iKeyvalue = _v; }
+	inline char	*getText(void)						{ return sText; }
+	inline void	setText(char *_t)					{ if(_t) fix_strncpy(sText,_t); }
+	inline char	*getName(void)						{ return sName; }
 
 };
 

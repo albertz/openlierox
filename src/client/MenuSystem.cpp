@@ -1206,13 +1206,13 @@ server_t *Menu_SvrList_AddServer(char *address, bool bManual)
     svr->psNext = NULL;
     svr->psPrev = NULL;
 
-	strcpy( svr->szAddress, address );
+	fix_strncpy( svr->szAddress, address );
 
 	// If the address doesn't have a port number, use the default lierox port number
 	if( strrchr(svr->szAddress,':') == NULL) {
-		char buf[64];
-		strcat(svr->szAddress,":");
-		strcat(svr->szAddress,itoa(LX_PORT,buf,10));
+		static char buf[64];
+		fix_strncat(svr->szAddress,":");
+		fix_strncat(svr->szAddress,itoa(LX_PORT,buf,10));
 	}
 
 	StringToNetAddr(address, &svr->sAddress);
@@ -1281,13 +1281,13 @@ server_t *Menu_SvrList_AddNamedServer(char *address, char *name)
 	svr->nQueries = 0;
     svr->psNext = NULL;
     svr->psPrev = NULL;
-	strcpy(svr->szName, name);
+	fix_strncpy(svr->szName, name);
 
-	strcpy( svr->szAddress, address );
+	fix_strncpy( svr->szAddress, address );
 
 	// If the address doesn't have a port number, use the default lierox port number
 	if( strrchr(svr->szAddress,':') == NULL) {
-		char buf[64];
+		static char buf[64];
 		strcat(svr->szAddress,":");
 		strcat(svr->szAddress,itoa(LX_PORT,buf,10));
 	}
@@ -1368,7 +1368,7 @@ server_t *Menu_SvrList_FindServerStr(char *szAddress)
 void Menu_SvrList_FillList(CListview *lv)
 {
 	server_t	*s = psServerList;
-	char		buf[256], addr[256];
+	static char		buf[256], addr[256];
 	char		*states[] = {"Open", "Loading", "Playing"};
 
     // Store the ID of the currently selected item
@@ -1393,7 +1393,7 @@ void Menu_SvrList_FillList(CListview *lv)
 		//NetAddrToString(&s->sAddress, addr);
 
 		// Remove the port from the address (save space)
-		strcpy(addr, s->szAddress);
+		fix_strncpy(addr, s->szAddress);
 		char *p = strrchr(addr,':');
 		if(p) {
 			int pos = p - addr + 1;
@@ -1606,7 +1606,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 	char buf[64];
 	bs->readString( buf );
 	if(iNetMode != net_favourites)
-		strcpy(svr->szName,buf);
+		fix_strncpy(svr->szName,buf);
 	svr->nNumPlayers = bs->readByte();
 	svr->nMaxPlayers = bs->readByte();
 	svr->nState = bs->readByte();
@@ -1674,7 +1674,7 @@ void Menu_SvrList_LoadList(char *szFilename)
     // Go through every line
     while( fgets(tmp, 1024, fp) ) {
 
-        strcpy(szLine, StripLine(tmp));
+        fix_strncpy(szLine, StripLine(tmp));
         if( szLine[0] == '\0' )
             continue;
 
@@ -1683,15 +1683,15 @@ void Menu_SvrList_LoadList(char *szFilename)
         char *addr = strtok(NULL,",");
 
         if( man && name && addr ) {
-            strcpy(tmp, addr);
-            strcpy(address,TrimSpaces(tmp));
+            fix_strncpy(tmp, addr);
+            fix_strncpy(address,TrimSpaces(tmp));
 
             server_t *sv = Menu_SvrList_AddServer(address, man[0] == '1');
 
             // Fill in the name
             if( sv ) {
-                strcpy(tmp, name);
-                strcpy(sv->szName, TrimSpaces(tmp));
+                fix_strncpy(tmp, name);
+                fix_strncpy(sv->szName, TrimSpaces(tmp));
             }
         }
     }
@@ -1717,11 +1717,11 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 
     // Get the server details
     bool    bGotDetails = false;
-    char    szName[256];
+    static char    szName[256];
     int     nMaxWorms;
     int     nState;
-    char    szMapName[256];
-    char    szModName[256];
+    static char    szMapName[256];
+    static char    szModName[256];
     int     nGameMode;
     int     nLives;
     int     nMaxKills;
@@ -1765,7 +1765,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
         while(inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
 	        if(*(int *)inbs.GetData() == -1) {
-                char        cmd[128];                
+                static char        cmd[128];                
 
 		        inbs.SetPos(4);
 		        inbs.readString(cmd);
@@ -1807,7 +1807,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 					}
 
 					// Check
-					MIN(nNumPlayers,MAX_WORMS);
+					nNumPlayers = MIN(nNumPlayers,MAX_WORMS);
 
                     for(int i=0; i<nNumPlayers; i++) {
                         inbs.readString(cWorms[i].getName());

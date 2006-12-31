@@ -114,11 +114,12 @@ void CWpnRest::cycleVisible(CGameScript *pcGameS)
 // Find a weapon in the list
 wpnrest_t *CWpnRest::findWeapon(char *szName)
 {
-    assert( szName );
+    if(szName == NULL)
+    	return NULL;
 
     static char name[256] = "";
     static char tmp[256] = "";
-    lx_strncpy(name, szName, 255);
+    fix_strncpy(name, szName);
 
     wpnrest_t *psWpn = m_psWeaponList;
 
@@ -126,7 +127,7 @@ wpnrest_t *CWpnRest::findWeapon(char *szName)
 
         // We need to be a bit lenient here in case some simple mistakes in different game scripts occur
         // Like case & leading/trailing spaces
-        strcpy(tmp, TrimSpaces( name ));
+        fix_strncpy(tmp, TrimSpaces( name ));
         if( stricmp(psWpn->szName, tmp) == 0 )
             return psWpn;
     }
@@ -140,15 +141,16 @@ wpnrest_t *CWpnRest::findWeapon(char *szName)
 // Add a weapon to the list
 void CWpnRest::addWeapon(char *szName, int nState)
 {
-    assert( szName );
+    if(szName == NULL) return;
 
     wpnrest_t *psWpn = new wpnrest_t;
 
     if( !psWpn )
         return;
 
-    psWpn->szName = new char[ strlen(szName)+1 ];
-    strcpy(psWpn->szName, szName);
+    size_t len = strlen(szName);
+    psWpn->szName = new char[ len+1 ];
+    memcpy(psWpn->szName, szName, len+1);
     psWpn->nState = nState;
     
     // Link it in
@@ -190,7 +192,7 @@ void CWpnRest::loadList(char *szFilename)
     if( !fp )
         return;
 
-    char line[256];
+    static char line[256];
 
     while( !feof(fp) ) {
         fscanf(fp, "%[^\n]\n",line);

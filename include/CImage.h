@@ -31,8 +31,9 @@ public:
 		tImage = NULL;
 		if (Path)  {
 			tImage = LoadImage(Path,0);
-			sPath = new char[strlen(Path)+1];
-			strcpy(sPath,Path);
+			size_t len = strlen(Path);
+			sPath = new char[len+1];
+			memcpy(sPath,Path,len+1);
 
 			iWidth = tImage->w;
 			iHeight = tImage->h;

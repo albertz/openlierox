@@ -54,7 +54,7 @@ bool			http_Requested;
 bool			http_SocketReady;
 char			http_url[1024];
 char			http_host[1024];
-char			http_content[1024];
+char			http_content[HTTP_CONTENT_LEN];
 float           http_ResolveTime = -9999;
 
 
@@ -78,7 +78,7 @@ bool http_InitializeRequest(char *host, char *url)
 
     d_printf("_Sending request %s %s\n",http_host, http_url);
 
-	memset(http_content, 0, 1024);
+	memset(http_content, 0, sizeof(http_content));
 
 	
 	// Open the socket
@@ -177,7 +177,7 @@ int http_ProcessRequest(char *szError)
 
 
 	// Check if we have a response
-	char data[1024];
+	static char data[1024];
 	data[0] = 0;
 	int count = ReadSocket(http_Socket, data, 1023);
 	
@@ -200,9 +200,9 @@ int http_ProcessRequest(char *szError)
 
 	// Got some data
 	if(count > 0) {
-		if( strlen(http_content) + count < 1020 ) {
-			data[count] = 0;
-			strncat( http_content, data, count );
+		if( fix_strnlen(http_content) + count < 1020 ) {
+			data[count] = '\0';
+			fix_strncat( http_content, data );
 		}
 	}
 
@@ -215,11 +215,11 @@ int http_ProcessRequest(char *szError)
 // Send a request
 bool http_SendRequest(void)
 {
-	char request[1024];
+	static char request[1024];
 
 	// Build the url
-	sprintf(request, "GET %s HTTP/1.0\nHost: %s\n\n", http_url,http_host);
-	int count = WriteSocket( http_Socket, request, strlen(request) );
+	snprintf(request, sizeof(request), "GET %s HTTP/1.0\nHost: %s\n\n", http_url,http_host);
+	int count = WriteSocket( http_Socket, request, fix_strnlen(request) );
 
 	// Anything written?
 	if( count < 0 )
@@ -247,8 +247,8 @@ void http_Quit(void)
 // Convert the url into a friendly url (no spaces)
 void http_ConvertUrl(char *dest, char *url)
 {
-	int i,j;
-	char buffer[33];
+	size_t i,j;
+	char buffer[3];
 	char c;
 
 
@@ -257,15 +257,15 @@ void http_ConvertUrl(char *dest, char *url)
 	for( i=0,j=0; url[i]; i++) {
 		c = url[i];
 		
-		if(url[i] == '_')
-			c = ' ';
+//		if(url[i] == '_')
+//			c = ' ';
 			
 
 		if( isalnum(c) )
 			dest[j++] = c;
 		else {
 			if( j<1020 ) {
-				sprintf(buffer,"%X", c);
+				snprintf(buffer,sizeof(buffer),"%X",c);
 				dest[j] = '%';
 				dest[j+1] = buffer[0];
 				dest[j+2] = buffer[1];
@@ -273,29 +273,32 @@ void http_ConvertUrl(char *dest, char *url)
 			j+=3;
 		}
 	}
+	dest[j] = '\0';
 }
 
 
 ///////////////////
 // Create the host & url strings
+// host is the beginning of an URL, url is the end (to be appended)
 void http_CreateHostUrl(char *host, char *url)
 {
-    strcpy(http_host, "");
-    strcpy(http_url, "");
+    http_host[0] = '\0';
+    http_url[0] = '\0';
 
     // All characters up to a / goes into the host
-	unsigned int i;
-    for( i=0; i<strlen(host); i++ ) {
+	size_t i;
+    size_t len = strnlen(host,sizeof(http_host));
+    for( i=0; i<len; i++ ) {
         if( host[i] != '/' )
             http_host[i] = host[i];
         else {
-            strcpy(http_url, host+i);
+            fix_strncpy(http_url, host+i);
             break;
         }
     }
 
-    http_host[i] = '\0';
-    strcat(http_url, url);
+    http_host[MIN(i,sizeof(http_host)-1)] = '\0';
+    fix_strncat(http_url, url);
 }
 
 
@@ -303,14 +306,14 @@ void http_CreateHostUrl(char *host, char *url)
 // Remove the http header from content downloaded
 void http_RemoveHeader(void)
 {
-	int		lffound = 0;
-	int		crfound = 0;
-	char	temp[1024];
+	short	lffound = 0;
+	short	crfound = 0;
+	static char	temp[1024];
 
 	memcpy(temp, http_content, 1024);
 
-    int i;
-	int count = (int)strlen(temp);
+    size_t i;
+	size_t count = fix_strnlen(temp);
 	for(i=0; i< count; i++) {
 
 		if( temp[i] == 0x0D )
@@ -324,7 +327,7 @@ void http_RemoveHeader(void)
 
 		// End of the header
 		if(lffound == 2) {
-			strcpy(http_content, temp+i+1);
+			fix_strncpy(http_content, &temp[i+1]);
 			break;
 		}
 	}
@@ -335,6 +338,7 @@ void http_RemoveHeader(void)
 // Get the content buffer
 char *http_GetContent(void)
 {
+	http_content[sizeof(http_content)-1] = '\0';
 	return http_content;
 }
 
@@ -470,7 +474,7 @@ bool StringToNetAddr(const char* string, NetworkAddr* addr) {
 
 bool NetAddrToString(const NetworkAddr* addr, char* string) {
 	if(addr == NULL) {
-		strcpy(string, "");
+		string[0] = '\0';
 		return false;
 	}
 	nlAddrToString(&addr->adr, string);

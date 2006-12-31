@@ -46,8 +46,9 @@ void CImage::Change(char *Path)
 	delete[] sPath;
 
 	// Copy the new path
-	sPath = new char[strlen(Path)+1];
-	strcpy(sPath,Path);
+	size_t len = strlen(Path);
+	sPath = new char[len+1];
+	if(sPath) memcpy(sPath,Path,len+1);
 
 	// Free the current image
 	SDL_FreeSurface(tImage);

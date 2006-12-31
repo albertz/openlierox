@@ -123,7 +123,7 @@ private:
 
 	// Map
 	int			iRandomMap;
-	char		sMapFilename[256];
+	char		sMapFilename[512];
 	CMap		*cMap;
 
 	// Simulation
@@ -236,22 +236,22 @@ public:
 
 
 	// Variables
-	int			getState(void)		{ return iState; }
-	CWorm		*getWorms(void)		{ return cWorms; }
-	game_lobby_t *getLobby(void)	{ return &tGameLobby; }
-	CMap		*getMap(void)		{ return cMap; }
-	CBanList	*getBanList(void)	{ return &cBanList; }
+	inline int			getState(void)		{ return iState; }
+	inline CWorm		*getWorms(void)		{ return cWorms; }
+	inline game_lobby_t *getLobby(void)	{ return &tGameLobby; }
+	inline CMap		*getMap(void)		{ return cMap; }
+	inline CBanList	*getBanList(void)	{ return &cBanList; }
 	CClient		*getClient(int iWormID);
-	char		*getName(void)		{ return &sName[0]; }
-	void		setName(char *_name){ strncpy(sName,_name,sizeof(sName)); sName[sizeof(sName)-1] = '\0'; }
-	int			getMaxWorms(void)	{ return iMaxWorms; }
-	void		setMaxWorms(int _n) { iMaxWorms = _n; }
-	bool		getGameOver(void)	{ return iGameOver != 0; }
-	float		getGameOverTime(void) { return fGameOverTime; }
-	bool		getTakeScreenshot(void)	{ return bTakeScreenshot; }
-	void		setTakeScreenshot(bool _s) { bTakeScreenshot = _s; }
-	bool		getScreenshotToken(void) { return bScreenshotToken; }
-	void		setScreenshotToken(bool _s) { bScreenshotToken = _s; }
+	inline char		*getName(void)		{ return &sName[0]; }
+	inline void	setName(char *_name){ fix_strncpy(sName,_name); }
+	inline int	getMaxWorms(void)	{ return iMaxWorms; }
+	inline void	setMaxWorms(int _n) { iMaxWorms = _n; }
+	inline bool		getGameOver(void)	{ return iGameOver != 0; }
+	inline float		getGameOverTime(void) { return fGameOverTime; }
+	inline bool		getTakeScreenshot(void)	{ return bTakeScreenshot; }
+	inline void		setTakeScreenshot(bool _s) { bTakeScreenshot = _s; }
+	inline bool		getScreenshotToken(void) { return bScreenshotToken; }
+	inline void		setScreenshotToken(bool _s) { bScreenshotToken = _s; }
 };
 
 

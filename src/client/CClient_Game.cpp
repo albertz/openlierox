@@ -1616,8 +1616,8 @@ void CClient::processChatCharacter(int c, bool bDown)
         
         // Send chat message to the server
         if(sChat_Text[0]) {
-            char buf[256];
-			strcpy(buf,sChat_Text);
+            static char buf[256];
+			fix_strncpy(buf,sChat_Text);
 			if (strstr(buf,"/me") == NULL)
 				sprintf(buf, "%s: %s",cLocalWorms[0]->getName(), sChat_Text);
 			else

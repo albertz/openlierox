@@ -31,7 +31,7 @@ void CBonus::Spawn(CVec pos, int type, int weapon, CGameScript *gs)
 	fFlashTime = 0;
 
 	if(type == BNS_WEAPON)
-		strcpy( sWeapon, (gs->GetWeapons()+weapon)->Name);
+		fix_strncpy( sWeapon, (gs->GetWeapons()+weapon)->Name);
 }
 
 

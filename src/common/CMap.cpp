@@ -124,7 +124,7 @@ void CMap::ApplyRandom(void)
     // Setup the random layout
     sRandomLayout.bUsed = true;
     sRandomLayout.nNumObjects = nNumRocks + nNumMisc + (nNumHoles * nNumHoleGroup);
-    strcpy(sRandomLayout.szTheme, Theme.name);
+    fix_strncpy(sRandomLayout.szTheme, Theme.name);
 
     sRandomLayout.psObjects = new object_t[sRandomLayout.nNumObjects];
     if( !sRandomLayout.psObjects )
@@ -253,8 +253,8 @@ int CMap::LoadTheme(char *_theme)
 
 	sprintf(thm,"data/themes/%s",_theme);
 
-	strcpy(Theme.name, _theme);
-    strcpy(sRandomLayout.szTheme, _theme);
+	fix_strncpy(Theme.name, _theme);
+    fix_strncpy(sRandomLayout.szTheme, _theme);
 
 	sprintf(buf,"%s/Backtile.png",thm);
 	LOAD_IMAGE_BPP(Theme.bmpBacktile,buf);
@@ -321,7 +321,7 @@ char *CMap::findRandomTheme(char *buf)
     buf[0] = 0;
 
     // Find directories in the theme dir
-	char dir[256];
+	static char dir[256];
 	char *d;
     int count=-1;
 	

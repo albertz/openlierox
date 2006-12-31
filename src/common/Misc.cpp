@@ -216,14 +216,15 @@ void StripQuotes(char *dest, char *src)
 		return;
 	 
 	int pos = 0;
-	int length = strlen(src);
+	int srclen = strlen(src);
+	int length = srclen;
 	
 	if(src[0] == '\"') {
 		pos = 1;
 		length--;
 	}
 	
-	if(src[strlen(src)-1] == '\"')
+	if(src[srclen-1] == '\"')
 		length--;
 
 	strncpy(dest, src+pos, length);
@@ -235,12 +236,13 @@ void StripQuotes(char *dest, char *src)
 // Safe string copy routine
 void lx_strncpy(char *dest, char *src, int count)
 {
-    while (*src && count--)
+/*    while (*src && count--)
 	{
 		*dest++ = *src++;
 	}
 	if (count)
-		*dest++ = 0;
+		*dest++ = 0; */
+	strncpy(dest, src, count); // this is faster
 }
 
 

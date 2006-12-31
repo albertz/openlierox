@@ -42,6 +42,7 @@
 
 #define     HTTP_TIMEOUT    90
 
+#define		HTTP_CONTENT_LEN	1024
 
 // Functions
 float	GetFixedRandomNum(int index);

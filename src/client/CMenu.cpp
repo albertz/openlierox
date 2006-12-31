@@ -92,7 +92,7 @@ void CMenu::addItem(int nID, char *szName)
     i->nID = nID;
     i->psNext = NULL;
     i->nSelected = false;
-    strcpy(i->szName, szName);
+    fix_strncpy(i->szName, szName);
     m_nHeight += 20;
     m_nHeight = MAX(m_nHeight, 23);
 

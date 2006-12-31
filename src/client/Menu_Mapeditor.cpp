@@ -561,11 +561,11 @@ void Menu_MapEd_New(void)
 						PlaySoundSample(sfxGeneral.smpClick);
 						int w = atoi(t1->getText());
 						int h = atoi(t2->getText());
-						char theme[128];
+						static char theme[128];
 						strcpy(theme,"dirt");
 						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,0,0);
 						if(it)
-							strcpy(theme,it->sName);
+							fix_strncpy(theme,it->sName);
 
 
 						// Check for min & max sizes

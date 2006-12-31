@@ -32,7 +32,7 @@ void CWidget::Setup(int id, int x, int y, int w, int h)
 	// Reset the events
 	int i;
 	for (i=0;i<NumEvents;i++)
-		strcpy(tEvents.Events[i],"");
+		fix_strncpy(tEvents.Events[i],"");
 }
 
 
@@ -61,7 +61,7 @@ void CWidget::SetupEvents(generic_events_t *Events)
 {
 	int i;
 	for (i=0; i<NumEvents; i++)
-		strcpy(tEvents.Events[i],Events->Events[i]);
+		fix_strncpy(tEvents.Events[i],Events->Events[i]);
 }
 
 /////////////////
