@@ -606,8 +606,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 		if(!w->getAlive())
 			continue;
 
-		float dist = CalculateDistance(pos,w->getPos());
-		if(dist <= 5) {
+		if((pos - w->getPos()).GetLength2() <= 25) {
 
 			// Injure him
 			InjureWorm(w, damage,owner);
@@ -937,8 +936,8 @@ void CClient::DrawBeam(CWorm *w)
 			if(w2->getID() == w->getID())
 				continue;
 
-			float wormsize = 5;
-			if(CalculateDistance(pos, w2->getPos()) < wormsize) {
+			static const float wormsize = 5;
+			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
 				if (Slot->Weapon->Bm_Damage != -1 && !bBotClient)
 					SpawnEntity(ENT_EXPLOSION, 3, pos+CVec(1,1), CVec(0,0), 0, NULL);
 				stopbeam = true;
@@ -1221,8 +1220,8 @@ void CClient::LaserSight(CWorm *w)
 			if(w2->getID() == w->getID())
 				continue;
 
-			float wormsize = 5;
-			if(CalculateDistance(pos, w2->getPos()) < wormsize) {
+			static const float wormsize = 5;
+			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
 				stopbeam = true;
 
 				// We have a target
@@ -1404,8 +1403,8 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 			if(w2->getID() == w->getID())
 				continue;
 
-			float wormsize = 5;
-			if(CalculateDistance(pos, w2->getPos()) < wormsize) {
+			static const float wormsize = 5;
+			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
 				InjureWorm(w2, wpn->Bm_PlyDamage, w->getID());
 				stopbeam = true;
 				break;

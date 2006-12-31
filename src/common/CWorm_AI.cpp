@@ -1332,7 +1332,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 			continue;
 
 		// Calculate distance between us two
-		float l = CalculateDistance(w->getPos(), vPos);
+		float l = (w->getPos() - vPos).GetLength2();
 
 		// Prefer targets we have free line of sight to
 		float length;
@@ -1534,21 +1534,20 @@ bool CWorm::AI_FindHealth(CMap *pcMap)
 		return false;
 
     CBonus  *pcBonusList = cClient->getBonusList();
-    int     i;
-    bool    bFound = false;
+    short     i;
     CBonus  *pcBonus = NULL;
-    float   dist = 99999;
-
+    float   dist2 = -1;
+	float d2;
+	
     // Find the closest health bonus
     for(i=0; i<MAX_BONUSES; i++) {
         if(pcBonusList[i].getUsed() && pcBonusList[i].getType() == BNS_HEALTH) {
             
-            float d = CalculateDistance(pcBonusList[i].getPosition(), vPos);
+            d2 = (pcBonusList[i].getPosition() - vPos).GetLength2();
 
-            if(d < dist) {
+            if(dist2 < 0 || d2 < dist2) {
                 pcBonus = &pcBonusList[i];
-                dist = d;
-                bFound = true;
+                dist2 = d2;
             }
         }
     }
@@ -1558,15 +1557,15 @@ bool CWorm::AI_FindHealth(CMap *pcMap)
 
     
     // If we have found a bonus, setup the state to move towards it
-    if(bFound) {
+    if(dist2 >= 0) {
         psBonusTarget = pcBonus;
         nAITargetType = AIT_BONUS;
         nAIState = AI_MOVINGTOTARGET;
-        //AI_InitMoveToTarget(pcMap);
 		NEW_AI_CreatePath(pcMap);
+		return true;
     }
 
-    return bFound;
+    return false;
 }
 
 
@@ -2139,9 +2138,8 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
             if(!cNinjaRope.isReleased())
                 cNinjaRope.Shoot(vPos,dir);
             else {
-                float length = CalculateDistance(vPos, cNinjaRope.getHookPos());
                 if(cNinjaRope.isAttached()) {
-                    if(length < cNinjaRope.getRestLength() && vVelocity.y<-10)
+                    if((vPos - cNinjaRope.getHookPos()).GetLength2() < cNinjaRope.getRestLength()*cNinjaRope.getRestLength() && vVelocity.y<-10)
                         cNinjaRope.Shoot(vPos,dir);
                 }
             }
@@ -2159,8 +2157,7 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
 		return;
     CVec v = CVec((float)(psCurrentNode->nX*pcMap->getGridWidth()+hgw), (float)(psCurrentNode->nY*pcMap->getGridHeight()+hgh));
     int length = traceLine(v, pcMap, &traceDist, &type);
-    float dist = CalculateDistance(v, vPos);
-    if((float)length <= dist && (type & PX_DIRT)) {
+    if((float)(length*length) <= (v-vPos).GetLength2() && (type & PX_DIRT)) {
         ws->iJump = true;
         ws->iMove = true;
 		ws->iCarve = true; // Carve
@@ -2551,7 +2548,7 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 
 
     // If the target is too far away we can't shoot at all (but not when a rifle game)
-    float d = CalculateDistance(cTrgPos, vPos);
+    float d = (cTrgPos - vPos).GetLength();
     if(d > 300.0f && iAiGameType != GAM_RIFLES)
         return false;
 
@@ -2976,7 +2973,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 
 
 
-		float d = CalculateDistance(vPos,cTrgPos);
+		float d = (vPos-cTrgPos).GetLength();
 		// We're close to the target
 		if (d < 50.0f)  {
 			// We see the target
@@ -4400,7 +4397,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	*/
 	if (psHeadingProjectile)  {
 		// TODO: improve this
-		MessageBeep(0);
+//		MessageBeep(0);
 
 		// Go away from the projectile
 		if (tLX->fCurTime-fLastFace >= 0.5f)  {

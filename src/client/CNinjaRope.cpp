@@ -81,7 +81,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	if(!Released)
 		return;
 
-	float length;
+	float length2;
 	float speed = 250;
 	int firsthit = !HookAttached;
 	CVec force;
@@ -96,13 +96,13 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	if(HookShooting) {
 
 		// Gravity		
-		HookVelocity = HookVelocity + force*dt;
-		HookPos = HookPos + HookVelocity*dt;		
+		HookVelocity += force*dt;
+		HookPos += HookVelocity*dt;		
 
-		length = CalculateDistance(playerpos,HookPos);
+		length2 = (playerpos-HookPos).GetLength2();
 
 		// Check if it's too long
-		if(length > RopeLength) {
+		if(length2 > RopeLength*RopeLength) {
 			HookVelocity = CVec(0,0);
 			HookShooting = false;
 		}
@@ -111,18 +111,18 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	if(!HookShooting && !HookAttached) {
 
 		// Going towards the player
-		length = CalculateDistance(playerpos,HookPos);
-		if(length > RestLength) {
+		length2 = (playerpos-HookPos).GetLength2();
+		if(length2 > RestLength*RestLength) {
 
 			// Pull the hook back towards the player
 			CVec d = playerpos - HookPos;
-			NormalizeVector(&d);
+			if(length2) d *= (float)(1.0f/sqrt(length2)); // normalize
 
-			force = force + (d*10000)*dt;
+			force += (d*10000)*dt;
 		}
 
-		HookVelocity = HookVelocity + force*dt;
-		HookPos = HookPos + HookVelocity*dt;
+		HookVelocity += force*dt;
+		HookPos += HookVelocity*dt;
 
 		//HookPos = HookPos + CVec(0,170*dt);
 	}
@@ -151,7 +151,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	if(!PlayerAttached)
 		HookAttached = false;
 
-	int px = map->GetPixelFlag((int)HookPos.x,(int)HookPos.y);
+	uchar px = map->GetPixelFlag((int)HookPos.x,(int)HookPos.y);
 	if((px & PX_ROCK || px & PX_DIRT || outsideMap) && !PlayerAttached) {
 		HookShooting = false;
 		HookAttached = true;
@@ -160,7 +160,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 
 		if(px & PX_DIRT && firsthit) {
 			Uint32 col = GetPixel(map->GetImage(),(int)HookPos.x,(int)HookPos.y);
-            for( int i=0; i<5; i++ )
+            for( short i=0; i<5; i++ )
 			    SpawnEntity(ENT_PARTICLE,0,HookPos+CVec(0,2),CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 		}
 	}
@@ -170,7 +170,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	if(!HookAttached && !PlayerAttached) {
 		PlayerAttached = false;
 
-		for(int i=0; i<MAX_WORMS; i++) {
+		for(short i=0; i<MAX_WORMS; i++) {
 			// Don't check against the worm if they aren't used, dead or the ninja rope was shot by the worm
 			if(!worms[i].isUsed())
 				continue;
@@ -179,7 +179,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 			if(worms[i].getID() == owner)
 				continue;
 
-			if( CalculateDistance( worms[i].getPos(), HookPos ) < 5 ) {
+			if( ( worms[i].getPos() - HookPos ).GetLength2() < 25 ) {
 				HookAttached = true;
 				PlayerAttached = true;
 				Worm = &worms[i];
@@ -268,25 +268,26 @@ CVec CNinjaRope::GetForce(CVec playerpos)
 // Calculate the pulling force
 CVec CNinjaRope::CalculateForce(CVec playerpos, CVec hookpos)
 {
-	float length = CalculateDistance(playerpos,HookPos);
+	// TODO: what is the dif between hookpos and HookPos ???
+	
+	float length2 = (playerpos-HookPos).GetLength2();
 
-	CVec dir;
+	CVec dir = playerpos-hookpos;
+	dir = dir.Normalize();
 
-	dir = playerpos-hookpos;
-	NormalizeVector(&dir);
-
-	float l = MIN((float)0,RestLength-length);
-
-	if(length < RestLength)
+	//float l = MIN((float)0,RestLength-length);
+	float l;
+	
+	if(length2 < RestLength*RestLength)
 		return CVec(0,0);
 
 	// Make sure the pull isn't huge
 	//l = MAX(-40,l);
 	l = -Strength;
 
-	dir = dir * l;//*Strength;
+	dir *= l*100;//*Strength;
 
-	return dir * 100;
+	return dir;
 }
 
 

@@ -447,7 +447,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 			return;
 
 		// Spinning projectile only when moving
-		if(tProjInfo->Rotating && vVelocity.GetLength2() > 0)
+		if(tProjInfo->Rotating && (vVelocity.x != 0 || vVelocity.y != 0))
 			framestep = fRotation / (float)tProjInfo->RotIncrement;
 		else
 			framestep = 0;
@@ -621,7 +621,7 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 	// If so, sets the worm's property Heading to ourself
 	CVec mutual_speed;
 	CWorm *w = worms;
-	for(int i=0;i<MAX_WORMS;i++,w++) {
+	for(short i=0;i<MAX_WORMS;i++,w++) {
 
 		// Only AI worms need this
 		if (!w->isUsed() || !w->getAlive() || w->getType() != PRF_COMPUTER)

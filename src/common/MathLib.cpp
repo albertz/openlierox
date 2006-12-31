@@ -134,12 +134,12 @@ float VectorAngle(CVec vec1, CVec vec2)
 {
 	return (float)atan2(vec1.y-vec2.y,vec1.x-vec2.x);
 	
-	//return (float)acos(vec1.x*vec2.x+vec1.y*vec2.y)/(VectorLength(vec1)*VectorLength(vec2));
+/*	//return (float)acos(vec1.x*vec2.x+vec1.y*vec2.y)/(VectorLength(vec1)*VectorLength(vec2));
 	float scalar = vec1.x*vec2.x + vec1.y*vec2.y;
 	float len1 = vec1.GetLength();
 	float len2 = vec2.GetLength();
 	float result = (float)acos(scalar/(len1*len2));
-	return result;
+	return result; */
 }
 
 
