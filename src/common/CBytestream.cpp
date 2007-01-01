@@ -169,7 +169,7 @@ int CBytestream::writeString(char *fmt,...)
 	vsnprintf(buf,1024,fmt,va);	
 	va_end(va);
 
-	int len = strlen(buf);
+	int len = strnlen(buf,sizeof(buf));
 
 	if(len+CurByte >= MAX_DATA)
 		return false;
@@ -289,8 +289,11 @@ float CBytestream::readFloat(void)
 
 ///////////////////
 // Read a string from the stream
-char *CBytestream::readString(char *str)
+char *CBytestream::readString(char *str, size_t length)
 {
+	if (!str)
+		return false;
+
 	// Validate that there is some terminating character
 	bool valid = false;
 	size_t len = 0;
@@ -303,7 +306,7 @@ char *CBytestream::readString(char *str)
 		}
 
 	// Invalid
-	if (!valid)  {
+	if (!valid || len >= length)  {
 		str[0] = '\0';
 		return str;
 	}

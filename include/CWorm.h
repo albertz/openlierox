@@ -536,6 +536,8 @@ public:
 
 	inline char		*getSkin(void)				{ return szSkin; }
 
+	inline int		getMaxNameLen(void)			{ return sizeof(sName); }
+
 	inline void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
 	inline CProjectile *getHeading(void)			{ return psHeadingProjectile; }
 

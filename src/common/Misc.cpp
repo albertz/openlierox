@@ -200,7 +200,7 @@ void d_printf(char *fmt, ...)
 	va_list arg;
 	
 	va_start(arg, fmt);
-	vnsprintf(buf, sizeof(buf),fmt, arg);
+	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
 

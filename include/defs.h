@@ -50,8 +50,15 @@
 #	include <direct.h>
 // wrappers to provide the standards
 inline int mkdir(const char *path, int mode) { return _mkdir(path); }
+inline size_t strnlen(const char *str, size_t maxlen)  { 
+	register unsigned int i=0;
+	for (;i<maxlen && str[i];i++) {}
+	return i;
+}
 // TODO: inline
 #	define vsnprintf _vsnprintf
+#	define snprintf	 _snprintf
+
 #else
 #	include <sys/types.h>
 #	include <sys/stat.h>

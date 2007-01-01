@@ -46,16 +46,6 @@ int LoadOptions(void)
   	AddKeyword("true",true);
 	AddKeyword("false",false);
 
-#ifdef WIN32
-/*	// TODO: this is no solution
-	char path[512];
-	fix_strncpy(path,argv0);
-	char *r = strrchr(path,'\\');
-	r = '\0';
-	chdir(path);
-*/
-#endif
-
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
 	InitBaseSearchPaths();
@@ -68,7 +58,7 @@ int LoadOptions(void)
 	filelist_t** spath = &tLXOptions->tSearchPaths;
     while(true) {
     	 // &tmp[10] is the end of "SearchPath"
-    	strncpy(&tmp[10], itoa(i, tmp2, 10), 18);
+    	strncpy(&tmp[10], itoa(i, tmp2, 10), sizeof(tmp)-10); // Be careful! 18 was hell too much and it caused f to be NULL
         if(!ReadString(f, "FileHandling", tmp, tmp3, NULL))
         	break;
     	

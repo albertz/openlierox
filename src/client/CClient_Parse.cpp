@@ -26,7 +26,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	char cmd[128];
 	bool valid = false;
 
-	bs->readString(cmd);
+	bs->readString(cmd,sizeof(cmd));
 
 	if(!strcmp(cmd,"lx::challenge"))
 		ParseChallenge(bs);
@@ -42,7 +42,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 		iNetStatus = NET_DISCONNECTED;
 
 		iBadConnection = true;
-		bs->readString(strBadConnectMsg);
+		bs->readString(strBadConnectMsg,sizeof(strBadConnectMsg));
 	}
 }
 
@@ -345,7 +345,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 		// Load the map from a file
 		char buf[256];
-		bs->readString(buf);
+		bs->readString(buf,sizeof(buf));
 
 		// Invalid packet
 		if (!strlen(buf))
@@ -391,7 +391,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		iTagLimit = bs->readShort();
 	
 	// Load the gamescript
-	bs->readString(sModName);
+	bs->readString(sModName,sizeof(sModName));
 
 	// Bad packet
 	if (!strlen(sModName))
@@ -580,7 +580,7 @@ void CClient::ParseText(CBytestream *bs)
 	}
 
 	char buf[256];
-	bs->readString(buf);
+	bs->readString(buf,sizeof(buf));
 
 	// If we are playing a local game, discard network messages
 	if(tGameInfo.iGameType == GME_LOCAL) {
@@ -893,9 +893,9 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 	gl->nSet = true;
 	gl->nMaxWorms = bs->readByte();
-	bs->readString(gl->szMapName);
-    bs->readString(gl->szModName);
-    bs->readString(gl->szModDir);
+	bs->readString(gl->szMapName,sizeof(gl->szMapName));
+    bs->readString(gl->szModName,sizeof(gl->szModName));
+    bs->readString(gl->szModDir,sizeof(gl->szModDir));
 	gl->nGameMode = bs->readByte();
 	gl->nLives = bs->readShort();
 	gl->nMaxKills = bs->readShort();
@@ -1100,7 +1100,7 @@ void CClient::ParseDropped(CBytestream *bs)
 	
 	// Not so much an error, but i message as to why i was dropped
 	iServerError = true;
-	strcpy(strServerErrorMsg, bs->readString(buf));
+	strcpy(strServerErrorMsg, bs->readString(buf,sizeof(buf)));
 
 	// Clear the bot
 	if (bBotClient)  {

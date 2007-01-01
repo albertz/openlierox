@@ -2084,7 +2084,10 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
             fStuckPause = tLX->fCurTime;
             cNinjaRope.Release();
 
-			iDirection = !iDirection;
+			if (tLX->fCurTime - fLastFace >= 0.5f)  {
+				iDirection = !iDirection;
+				fLastFace = tLX->fCurTime;
+			}
             
             fAngle -= 45;
             // Clamp the angle
@@ -2569,8 +2572,9 @@ bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 	}
 
 	// Don't shoot teammates
-	if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
-		return false;
+	// TODO: doesn't work
+	/*if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
+		return false;*/
 
 	// If target is blocked by large amount of dirt, we can't shoot it
 	if (nType & PX_DIRT)  {
@@ -2924,10 +2928,13 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 					fAngle = alpha;
 					
 				// Face the target
-				if (x < 0)
-					iDirection = DIR_LEFT;
-				else
-					iDirection = DIR_RIGHT;
+				if (tLX->fCurTime-fLastFace >= 0.5f)  {
+					if (x < 0)
+						iDirection = DIR_LEFT;
+					else
+						iDirection = DIR_RIGHT;
+					fLastFace = tLX->fCurTime;
+				}
 					
 				tState.iShoot = true;			
 				

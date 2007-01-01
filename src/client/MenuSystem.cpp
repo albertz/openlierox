@@ -1529,7 +1529,7 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 	// Check for connectionless packet header
 	if(*(int *)bs->GetData() == -1) {
 		bs->SetPos(4);
-		bs->readString(cmd);
+		bs->readString(cmd,sizeof(cmd));
 
 		GetRemoteNetAddr(sock,&adrFrom);
 
@@ -1610,7 +1610,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 {
 	// Don't update the name in favourites
 	char buf[64];
-	bs->readString( buf );
+	bs->readString( buf,sizeof(buf) );
 	if(iNetMode != net_favourites)
 		fix_strncpy(svr->szName,buf);
 	svr->nNumPlayers = bs->readByte();
@@ -1774,7 +1774,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
                 static char        cmd[128];                
 
 		        inbs.SetPos(4);
-		        inbs.readString(cmd);
+		        inbs.readString(cmd,sizeof(cmd));
 
 
 		        GetRemoteNetAddr(tMenu->tSocket[SCK_NET],&addr);
@@ -1784,7 +1784,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
                     bGotDetails = true;
 
                     // Read the info
-                    inbs.readString(szName);
+                    inbs.readString(szName,sizeof(szName));
 	                nMaxWorms = inbs.readByte();
 	                nState = inbs.readByte();
 
@@ -1793,8 +1793,8 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 						break;
 					}
     
-                    inbs.readString(szMapName);
-                    inbs.readString(szModName);
+                    inbs.readString(szMapName,sizeof(szMapName));
+                    inbs.readString(szModName,sizeof(szModName));
 	                nGameMode = inbs.readByte();
 	                nLives = inbs.readShort();
 	                nMaxKills = inbs.readShort();        
@@ -1816,7 +1816,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 					nNumPlayers = MIN(nNumPlayers,MAX_WORMS);
 
                     for(int i=0; i<nNumPlayers; i++) {
-                        inbs.readString(cWorms[i].getName());
+                        inbs.readString(cWorms[i].getName(),cWorms[i].getMaxNameLen());
                         cWorms[i].setKills(inbs.readInt(2));
                     }
                 }

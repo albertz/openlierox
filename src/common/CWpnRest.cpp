@@ -148,7 +148,7 @@ void CWpnRest::addWeapon(char *szName, int nState)
     if( !psWpn )
         return;
 
-    size_t len = strlen(szName);
+    size_t len = strnlen(szName,sizeof(szName));
     psWpn->szName = new char[ len+1 ];
     memcpy(psWpn->szName, szName, len+1);
     psWpn->nState = nState;
@@ -378,7 +378,7 @@ void CWpnRest::readList(CBytestream *psByteS)
 
     // Go through the list reading weapons
     for( int i=0; i<nCount; i++ ) {
-        psByteS->readString(szName);
+        psByteS->readString(szName,sizeof(szName));
         nState = psByteS->readByte();
 
         // Try and find the weapon

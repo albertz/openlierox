@@ -465,7 +465,7 @@ void CServer::ParseChatText(CClient *cl, CBytestream *bs)
 
 	char buf[256];
 
-	SendGlobalText( bs->readString(buf), TXT_CHAT);
+	SendGlobalText( bs->readString(buf,sizeof(buf)), TXT_CHAT);
 }
 
 
@@ -592,7 +592,7 @@ void CServer::ParseConnectionlessPacket(CBytestream *bs)
 //	GetRemoteNetAddr(tSocket,&adrFrom);
 //	SetRemoteNetAddr(tSocket,&adrFrom);
 
-	bs->readString(cmd);
+	bs->readString(cmd,sizeof(cmd));
 
 	//strcpy(tLX->debug_string, cmd);
 
@@ -1047,7 +1047,7 @@ void CServer::ParseWantsJoin(CBytestream *bs)
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;
 	char Nick[128];
-	bs->readString(Nick);
+	bs->readString(Nick,sizeof(Nick));
 	char buf[256];
 
 	// Notify about the wants join

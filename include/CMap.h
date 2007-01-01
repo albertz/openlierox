@@ -29,7 +29,7 @@
 #define		PX_DIRT		0x02
 #define		PX_ROCK		0x04
 #define		PX_SHADOW	0x08
-#define		PX_WORM		0x10
+#define		PX_WORM		0x0F
 
 
 // Object types

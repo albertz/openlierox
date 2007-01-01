@@ -164,6 +164,9 @@ int GetString(char *filename, char *section, char *key, char *string)
 	char	*chardest = NULL;
 	int		Position;
 	int		found = false;
+
+	if (!filename || !section || !key || !string)
+		return false;
 	
 	if(strcmp(filename,"") == 0)
 		return false;

@@ -35,11 +35,11 @@ void CWorm::writeInfo(CBytestream *bs)
 // Read info from a bytestream
 void CWorm::readInfo(CBytestream *bs)
 {
-	bs->readString(sName);
+	bs->readString(sName,sizeof(sName));
 
 	iType = bs->readInt(1);
 	iTeam = bs->readInt(1);
-    bs->readString(szSkin);
+    bs->readString(szSkin,sizeof(szSkin));
 
 	Uint8 r = bs->readInt(1);
 	Uint8 g = bs->readInt(1);
