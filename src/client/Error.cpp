@@ -28,7 +28,8 @@ void SetError(char *fmt, ...)
 	va_list	va;
 
 	va_start(va,fmt);
-	vsprintf(ErrorMsg,fmt,va);
+	vsnprintf(ErrorMsg,sizeof(ErrorMsg),fmt,va);
+	fix_markend(ErrorMsg);
 	va_end(va);
 	GotError = true;
 
@@ -81,11 +82,12 @@ void EndError(void)
 // Show a system error
 void SystemError(char *fmt, ...)
 {
-	char buf[512];
+	static char buf[512];
 	va_list	va;
 
 	va_start(va,fmt);
-	vsprintf(buf,fmt,va);
+	vsnprintf(buf,sizeof(buf),fmt,va);
+	fix_markend(buf);
 	va_end(va);
 
 	SDL_ShowCursor(SDL_ENABLE);	
@@ -117,6 +119,7 @@ void GuiSkinError(char *fmt, ...)
 
 	va_start(va,fmt);
 	vsnprintf(buf,sizeof(buf),fmt,va);
+	fix_markend(buf);
 	va_end(va);
 
 	iErrPointer++;
@@ -164,16 +167,17 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	cbMiniDump.CallbackParam = 0;
 
 	// Create the crash path, if it doesnt exist
-	char path[256];
-	sprintf(path,"%s/bug_reports", GetHomeDir());
+	static char path[256];
+	snprintf(path,sizeof(path),"%s/bug_reports", GetHomeDir());
+	fix_markend(path);
 	mkdir(path,0777);
 
 	// Get the file name
-	char checkname[256];
+	static char checkname[256];
 
 	FILE *f = NULL;
 	for (int i=1;1;i++)  {
-		sprintf(checkname,"%s/report%i.dmp",path,i);
+		snprintf(checkname,sizeof(checkname),"%s/report%i.dmp",path,i);
 		f = fopen(checkname,"r");
 		if (!f)
 			break;
@@ -198,13 +202,12 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	SDL_Quit();
 
 	// Notify the user
-	char buf[1024];
+	static char buf[1024];
 	//sprintf(buf,"An error occured in OpenLieroX\n\nThe development team asks you for sending the crash report file.\nThis will help fixing this bug.\n\nPlease send the crash report file to karel.petranek@tiscali.cz.\n\nThe file is located in:\n %s",checkname);
 	//MessageBox(0,buf,"An Error Has Occured",MB_OK);
 
 
-	sprintf(buf,"\"%s\"",checkname);
-
+	snprintf(buf,sizeof(buf),"\"%s\"",checkname); fix_markend(buf);
 	//MessageBox(0,GetFullFileName("BugReport.exe"),"Debug",MB_OK);
 
 	ShellExecute(NULL,"open",GetFullFileName("BugReport.exe"),buf,NULL,SW_SHOWNORMAL);

@@ -1397,8 +1397,9 @@ bool SaveSurface(SDL_Surface *image, char *FileName, int Format, bool Tournament
 {
   if (Format == FMT_BMP)  {
 		//strcat(FileName,".bmp");
-		char buf[256];
-		sprintf(buf,"%s/%s",GetHomeDir(),FileName);
+		static char buf[512];
+		snprintf(buf,sizeof(buf),"%s/%s",GetHomeDir(),FileName);
+		fix_markend(buf);
 		SDL_SaveBMP(image,buf);
 
 		// Log

@@ -251,23 +251,24 @@ int CMap::LoadTheme(char *_theme)
 	char thm[64],buf[64],cfg[64];
 	int n,x,y;
 
-	sprintf(thm,"data/themes/%s",_theme);
+	snprintf(thm,sizeof(thm),"data/themes/%s",_theme);
+	fix_markend(thm);
 
 	fix_strncpy(Theme.name, _theme);
     fix_strncpy(sRandomLayout.szTheme, _theme);
 
-	sprintf(buf,"%s/Backtile.png",thm);
+	snprintf(buf,sizeof(buf),"%s/Backtile.png",thm); fix_markend(buf);
 	LOAD_IMAGE_BPP(Theme.bmpBacktile,buf);
-	sprintf(buf,"%s/Fronttile.png",thm);
+	snprintf(buf,sizeof(buf),"%s/Fronttile.png",thm); fix_markend(buf);
 	LOAD_IMAGE_BPP(Theme.bmpFronttile,buf);
 
 
 	// Stones
-	sprintf(cfg,"%s/theme.txt",thm);
+	snprintf(cfg,sizeof(cfg),"%s/theme.txt",thm); fix_markend(cfg);
 	ReadInteger(cfg,"General","NumStones",&Theme.NumStones,0);
 
 	for(n=0;n<Theme.NumStones;n++) {
-		sprintf(buf,"%s/Stone%d.png",thm,n+1);
+		snprintf(buf,sizeof(buf),"%s/Stone%d.png",thm,n+1); fix_markend(buf);
 		LOAD_IMAGE_BPP(Theme.bmpStones[n],buf);
 
 		SDL_SetColorKey(Theme.bmpStones[n], SDL_SRCCOLORKEY, SDL_MapRGB(Theme.bmpStones[n]->format,255,0,255));
@@ -276,7 +277,7 @@ int CMap::LoadTheme(char *_theme)
 
 	// Holes
 	for(n=0;n<5;n++) {
-		sprintf(buf,"%s/Hole%d.png",thm,n+1);
+		snprintf(buf,sizeof(buf),"%s/Hole%d.png",thm,n+1); fix_markend(buf);
 		LOAD_IMAGE_BPP(Theme.bmpHoles[n],buf);
 
 		SDL_SetColorKey(Theme.bmpHoles[n], SDL_SRCCOLORKEY, SDL_MapRGB(Theme.bmpHoles[n]->format,0,0,0));
@@ -298,10 +299,10 @@ int CMap::LoadTheme(char *_theme)
 
 
 	// Misc
-	sprintf(cfg,"%s/theme.txt",thm);
+	snprintf(cfg,sizeof(cfg),"%s/theme.txt",thm); fix_markend(cfg);
 	ReadInteger(cfg,"General","NumMisc",&Theme.NumMisc,0);
 	for(n=0;n<Theme.NumMisc;n++) {
-		sprintf(buf,"%s/misc%d.png",thm,n+1);
+		snprintf(buf,sizeof(buf),"%s/misc%d.png",thm,n+1); fix_markend(buf);
 		LOAD_IMAGE_BPP(Theme.bmpMisc[n],buf);
 	}
 
@@ -383,24 +384,24 @@ bool CMap::validateTheme(char *name)
     char thm[64],buf[64];	
     FILE *fp = NULL;
 
-	sprintf(thm,"data/themes/%s",name);
+	snprintf(thm,sizeof(thm),"data/themes/%s",name); fix_markend(thm);
 
     // Backtile.png
-    sprintf(buf,"%s/backtile.png", thm);
+    snprintf(buf,sizeof(buf),"%s/backtile.png", thm); fix_markend(buf);
     fp = OpenGameFile(buf,"rb");
     if( !fp )
         return false;
     fclose(fp);
 
     // Fronttile.png
-    sprintf(buf,"%s/fronttile.png", thm);
+    snprintf(buf, sizeof(buf), "%s/fronttile.png", thm); fix_markend(buf);
     fp = OpenGameFile(buf,"rb");
     if( !fp )
         return false;
     fclose(fp);
 
     // Theme.txt
-    sprintf(buf,"%s/theme.txt", thm);
+    snprintf(buf,sizeof(buf),"%s/theme.txt", thm); fix_markend(buf);
     fp = OpenGameFile(buf,"rt");
     if( !fp )
         return false;

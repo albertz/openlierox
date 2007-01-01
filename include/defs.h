@@ -159,6 +159,8 @@ inline T* GetByteSwapped(const T b)
 #endif
 
 // secure str handling macros
+#define		fix_markend(chrarray) \
+				chrarray[sizeof(chrarray)-1] = '\0';
 #define		fix_strnlen(chrarray) \
 				strnlen(chrarray,sizeof(chrarray))
 #define		fix_strncpy(chrarray, src) \
@@ -168,6 +170,8 @@ inline T* GetByteSwapped(const T b)
 			{	size_t destlen = strnlen(chrarray, sizeof(chrarray)); \
 				strncpy(&chrarray[destlen], src, sizeof(chrarray)-destlen); \
 				chrarray[sizeof(chrarray)-1] = '\0'; }
+#define		dyn_markend(dest, len) \
+				dest[len-1] = '\0';
 #define		dyn_strncpy(dest, src, len) \
 			{	strncpy(dest, src, len); \
 				dest[len-1] = '\0'; }

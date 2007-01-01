@@ -1123,11 +1123,12 @@ void CServer::unmuteWorm(char *szWormName)
 // Notify the host about stuff
 void CServer::notifyLog(char *fmt, ...)
 {
-    char buf[512];
+    static char buf[512];
 	va_list	va;
 
 	va_start(va,fmt);
-	vsprintf(buf,fmt,va);
+	vsnprintf(buf,sizeof(buf),fmt,va);
+	fix_markend(buf);
 	va_end(va);
 
     // Local hosting?

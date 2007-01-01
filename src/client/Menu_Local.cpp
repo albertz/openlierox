@@ -422,8 +422,8 @@ void Menu_LocalAddProfiles(void)
 void Menu_LocalShowMinimap(bool bReload)
 {
 	CMap map;
-	char buf[256];
-	char blah[256];
+	static char buf[256];
+	static char blah[256];
 
 	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)buf, sizeof(buf));
 
@@ -433,7 +433,7 @@ void Menu_LocalShowMinimap(bool bReload)
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 126,132,126,132,128,96);
 	
 	// Load the map
-	sprintf(blah, "levels/%s",buf);
+	snprintf(blah, sizeof(blah), "levels/%s",buf); fix_markend(blah);
     if( bReload ) {
         
         // Create a random map
@@ -896,8 +896,9 @@ bool Menu_GameSettings_Frame(void)
 
 	// Set the value of the loading time label
 	int l = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	char buf[64];
-	sprintf(buf, "%d%%",l);		// 2 %'s because it gets parsed as a va_list twice
+	static char buf[64];
+	snprintf(buf, sizeof(buf), "%d%%",l);		// 2 %'s because it gets parsed as a va_list twice
+	fix_markend(buf);
 	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBM_SETTEXT, (DWORD)buf, 0);
 
 	// Draw the mouse
@@ -1310,12 +1311,13 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 					if(strlen(t->getText()) > 0) {
 
 						quitloop = true;
+						static char buf[256]; 
 						if(save) {
 
 							// Save								
-							char buf[256]; 
-							sprintf(buf,"cfg/presets/%s",t->getText());
-
+							snprintf(buf,sizeof(buf),"cfg/presets/%s",t->getText());
+							fix_markend(buf);
+							
 							// Check if it exists already. If so, ask user if they wanna overwrite
 							if(Menu_WeaponPresetsOkSave(buf))
 								wpnrest->saveList(buf);
@@ -1324,8 +1326,8 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 						} else {
 							
 							// Load
-							char buf[256];
-							sprintf(buf,"cfg/presets/%s",t->getText());
+							snprintf(buf,sizeof(buf),"cfg/presets/%s",t->getText());
+							fix_markend(buf);
 							wpnrest->loadList(buf);
 						}
 					}					

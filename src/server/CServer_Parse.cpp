@@ -702,10 +702,11 @@ void CServer::ParseConnect(CBytestream *bs)
 		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);
 		
 		// Get the string to send
-		char buf[256];
+		static char buf[256];
 		if (strcmp(NetworkTexts->sTeamHasWon,"<none>"))  {
-			char buf2[3];
-			sprintf(buf2,"%d",PROTOCOL_VERSION);
+			char buf2[4];
+			snprintf(buf2,sizeof(buf2),"%d",PROTOCOL_VERSION);
+			fix_markend(buf2);
 			replacemax(NetworkTexts->sWrongProtocol,"<version>",buf2,buf,1);
 		}
 		else

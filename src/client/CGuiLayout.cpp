@@ -232,13 +232,14 @@ bool CGuiLayout::Build(void)
 	}
 
 	// Get the Filename + Path
-	sFilename = new char[pathlen+strlen(file)+strlen(sExtension)+1];
+	size_t len = pathlen+strlen(file)+strlen(sExtension)+1;
+	sFilename = new char[len];
 	if(!sFilename)  {
 		Error(ERR_OUTOFMEMORY,"%s","Out of memory.");
 		return false;
-	}
-	sprintf(sFilename,"%s/%s.%s",path,file,sExtension);
-
+	}	
+	snprintf(sFilename,len,"%s/%s.%s",path,file,sExtension);
+	dyn_markend(sFilename,len);
 
 	//
 	//	2. Parse the file
@@ -800,11 +801,12 @@ int	CGuiLayout::GetIdByName(xmlChar *Name)
 // Notifies about the error that occured
 void CGuiLayout::Error(int ErrorCode, char *Format, ...)
 {
-	char buf[512];
+	static char buf[512];
 	va_list	va;
 
 	va_start(va,Format);
-	vsprintf(buf,Format,va);
+	vsnprintf(buf,sizeof(buf),Format,va);
+	fix_markend(buf);
 	va_end(va);
 
 	// TODO: this better

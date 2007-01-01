@@ -191,7 +191,7 @@ int GetString(char *filename, char *section, char *key, char *string)
 
 		////////////
 		// Sections
-		if(Line[0] == '[' && Line[strlen(Line)-1] == ']')
+		if(Line[0] == '[' && Line[fix_strnlen(Line)-1] == ']')
 		{
 			fix_strncpy(temp,Line+1);
 			temp[fix_strnlen(temp)-1] = '\0';

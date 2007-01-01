@@ -356,9 +356,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 				// Show a cannot load level error message
 			
 				SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
-				char err[256];
-				sprintf(err, "Could not load the level '%s'\n%s",buf,LxGetLastError());			
-				//sprintf(err, "Could not load the level '%s'",buf);
+				static char err[256];
+				snprintf(err, sizeof(err), "Could not load the level '%s'\n%s",buf,LxGetLastError());
+				fix_markend(err);
+				
 				Menu_MessageBox("Loading Error",err, LMB_OK);
                 iClientError = true;
 			
@@ -402,8 +403,9 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 		// Show any error messages
 		SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
-		char err[256];
-		sprintf(err, "Error load game mod: %s\r\nError code: %d", sModName, result);
+		static char err[256];
+		snprintf(err, sizeof(err), "Error load game mod: %s\r\nError code: %d", sModName, result);
+		fix_markend(err);
 		Menu_MessageBox("Loading Error",err, LMB_OK);
         iClientError = true;
 			
@@ -905,7 +907,8 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     gl->bHaveMod = true;
     
     // Does the level file exist
-    sprintf(buf, "levels/%s",gl->szMapName);
+    snprintf(buf, sizeof(buf), "levels/%s",gl->szMapName);
+    fix_markend(buf);
     fp = OpenGameFile(buf,"rb");
     if(!fp)
         gl->bHaveMap = false;
@@ -916,14 +919,18 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 	if (gl->bHaveMap)  {
 		char *MapName;
 		MapName = Menu_GetLevelName(gl->szMapName);
-		if (MapName)
-			sprintf(&gl->szDecodedMapName[0],"%s",MapName);
-		else
-			sprintf(&gl->szDecodedMapName[0],"%s",&gl->szMapName[0]);
+		if (MapName) {
+			snprintf(&gl->szDecodedMapName[0],sizeof(gl->szDecodedMapName),"%s",MapName);
+			fix_markend(gl->szDecodedMapName);
+		} else {
+			snprintf(&gl->szDecodedMapName[0],sizeof(gl->szDecodedMapName),"%s",&gl->szMapName[0]);
+			fix_markend(gl->szDecodedMapName);
+		}
 	}
 
     // Does the 'script.lgs' file exist in the mod dir?
-    sprintf(buf, "%s/script.lgs",gl->szModDir);
+    snprintf(buf, sizeof(buf), "%s/script.lgs",gl->szModDir);
+    fix_markend(buf);
     fp = OpenGameFile(buf,"rb");
     if(!fp)
         gl->bHaveMod = false;

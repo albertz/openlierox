@@ -731,12 +731,13 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.SendMessage(hl_ChatText, TXM_SETTEXT, (DWORD)"", 0);
 
 					// Get name
-					char text[256];
+					static char text[256];
 					CWorm *rw = cClient->getRemoteWorms() + iSpeaking;
 					if (strstr(buf,"/me") == NULL)
-						sprintf(text, "%s: %s",rw->getName(), buf);
+						snprintf(text, sizeof(text), "%s: %s",rw->getName(), buf);
 					else
-						sprintf(text, "%s", replacemax(buf,"/me",rw->getName(),buf,2));
+						snprintf(text, sizeof(text), "%s", replacemax(buf,"/me",rw->getName(),buf,2));
+					fix_markend(text);
 					cServer->SendGlobalText(text,TXT_CHAT);
 				}
 				break;
@@ -1100,8 +1101,8 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 void Menu_HostShowMinimap(void)
 {
 	CMap map;
-	char buf[256];
-	char blah[256];
+	static char buf[256];
+	static char blah[256];
 
 	cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)buf, sizeof(buf));					
 
@@ -1109,7 +1110,8 @@ void Menu_HostShowMinimap(void)
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 463,32,463,32,128,96);
 	
 	// Load the map
-	sprintf(blah, "levels/%s",buf);
+	snprintf(blah, sizeof(blah), "levels/%s",buf);
+	fix_markend(blah);
 	if(map.Load(blah)) {
 
 		// Draw the minimap

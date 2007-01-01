@@ -334,7 +334,8 @@ void Con_Printf(int colour, char *fmt, ...)
 	va_list	va;
 
 	va_start(va,fmt);
-	vsprintf(buf,fmt,va);
+	vsnprintf(buf,sizeof(buf),fmt,va);
+	fix_markend(buf);
 	va_end(va);
 
 	Con_AddText(colour, buf);

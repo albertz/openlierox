@@ -292,8 +292,8 @@ void Menu_Player_ViewPlayerInit(void)
 	    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER); 
 
         // Load the skin
-        char buf[256];
-        sprintf(buf,"skins/%s",p->szSkin);
+        static char buf[256];
+        snprintf(buf,sizeof(buf),"skins/%s",p->szSkin); fix_markend(buf);
         tMenu->bmpWorm = LoadImage(buf, 16);
         fPlayerSkinFrame = 0;
         bPlayerSkinAnimation = false;
@@ -350,7 +350,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 					// Get the details
 					char *name = ((CTextbox *)cNewPlayer.getWidget(np_Name))->getText();
-                    char skin[256];
+                    static char skin[256];
                     cNewPlayer.SendMessage(np_PlySkin, CBM_GETCURSINDEX, (DWORD)skin, 255);
 
 					// Add the profile
@@ -384,12 +384,12 @@ void Menu_Player_NewPlayer(int mouse)
             // Skin
             case np_PlySkin:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    char skin[256];
-                    char buf[256];
+                    static char skin[256];
+                    static char buf[256];
                     cNewPlayer.SendMessage(np_PlySkin, CBM_GETCURSINDEX, (DWORD)skin, 255);
 
                     // Load the skin
-                    sprintf(buf,"skins/%s",skin);
+                   snprintf(buf,sizeof(buf),"skins/%s",skin); fix_markend(buf);
                     tMenu->bmpWorm = LoadImage(buf, 16);
                 }
                 break;
@@ -439,7 +439,7 @@ void Menu_Player_ViewPlayers(int mouse)
 {
 	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev;
-	char buf[128];
+	static char buf[128];
 
 	// Process & draw the gui
 	ev = cViewPlayers.Process();
@@ -496,7 +496,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 
 							// Ask if they are sure they wanna delete it
-							sprintf(buf,"Delete player '%s'",p->sName);
+							snprintf(buf,sizeof(buf),"Delete player '%s'",p->sName); fix_markend(buf);
 							if(Menu_MessageBox("Confirmation",buf,LMB_YESNO) == MBR_YES) {
 
 								// Delete the profile
@@ -608,8 +608,9 @@ void Menu_Player_ViewPlayers(int mouse)
                         cViewPlayers.SendMessage( vp_PlySkin,	CBM_SETCURSINDEX,(DWORD)p->szSkin, 0);
 
                         // Load the skin
-                        char buf[256];
-                        sprintf(buf,"skins/%s",p->szSkin);
+                        static char buf[256];
+                        snprintf(buf,sizeof(buf),"skins/%s",p->szSkin);
+                        fix_markend(buf);
                         tMenu->bmpWorm = LoadImage(buf, 16);
                         
                         // Hide the AI stuff if it is a human type of player
@@ -639,7 +640,8 @@ void Menu_Player_ViewPlayers(int mouse)
                     cViewPlayers.SendMessage(vp_PlySkin, CBM_GETCURSINDEX, (DWORD)skin, 255);
 
                     // Load the skin
-                    sprintf(buf,"skins/%s",skin);
+                    snprintf(buf,sizeof(buf),"skins/%s",skin);
+                    fix_markend(buf);
                     tMenu->bmpWorm = LoadImage(buf, 16);
                 }
                 break;

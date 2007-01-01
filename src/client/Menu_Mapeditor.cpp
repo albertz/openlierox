@@ -516,9 +516,9 @@ void Menu_MapEd_New(void)
 	t2 = (CTextbox *)cg.getWidget(3);
 
 	char buf[16];
-	sprintf(buf,"%d",cMap.GetWidth());
+	snprintf(buf,sizeof(buf),"%d",cMap.GetWidth()); fix_markend(buf);
 	t1->setText(buf);
-	sprintf(buf,"%d",cMap.GetHeight());
+	snprintf(buf,sizeof(buf),"%d",cMap.GetHeight()); fix_markend(buf);
 	t2->setText(buf);
 	
 	
@@ -745,12 +745,13 @@ void Menu_MapEd_LoadSave(int save)
 						if(strlen(t->getText()) > 0) {
 
 							quitloop = true;
+							static char buf[256]; 
 							if(save) {
 
 								// Save								
-								char buf[256]; 
-								sprintf(buf,"levels/%s",t->getText());
-
+								snprintf(buf,sizeof(buf),"levels/%s",t->getText());
+								fix_markend(buf);
+								
 								// Check if it exists already. If so, ask user if they wanna overwrite
 								if(Menu_MapEd_OkSave(buf))
 									cMap.Save(t->getText(),buf);
@@ -759,8 +760,8 @@ void Menu_MapEd_LoadSave(int save)
 							} else {
 								
 								// Load
-								char buf[256];
-								sprintf(buf,"levels/%s",t->getText());
+								snprintf(buf,sizeof(buf),"levels/%s",t->getText());
+								fix_markend(buf);
 								cMap.Load(buf);
 							}
 						}					

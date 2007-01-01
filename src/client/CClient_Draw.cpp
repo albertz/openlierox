@@ -358,14 +358,15 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     // Dirt count
     if( iGameType == GMT_DEMOLITION ) {
         tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "%s", "Dirt Count:");
-        char buf[64];
+        static char buf[64];
         int count = worm->getDirtCount();
 
         // Draw short versions
-        sprintf(buf,"%d",count);
+        snprintf(buf,sizeof(buf),"%d",count);
         if( count >= 1000 )
-            sprintf(buf,"%dk",count/1000);
-        
+            snprintf(buf,sizeof(buf),"%dk",count/1000);
+		fix_markend(buf);
+		
         tLX->cFont.Draw(bmpDest,x+85,y+75, tLX->clNormalLabel, "%s",buf);
     }
 
@@ -825,9 +826,10 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			// Total time of being IT
 			int h,m,s;
-			char buf[32];
+			static char buf[32];
 			ConvertTime(p->getTagTime(), &h,&m,&s);
-			sprintf(buf,"%d:%s%d",m,s<10 ? "0" : "",s);
+			snprintf(buf,sizeof(buf),"%d:%s%d",m,s<10 ? "0" : "",s);
+			fix_markend(buf);
 			Uint32 col = tLX->clNormalLabel;
 			if(p->getTagIT())
 				col = MakeColour(255,0,0);
@@ -931,11 +933,12 @@ void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fg
 	if (bBotClient)
 		return;
 
-	char buf[512];
+	static char buf[512];
 	va_list arg;
 	
 	va_start(arg, fmt);
-	vsprintf(buf, fmt, arg);
+	vsnprintf(buf, sizeof(buf), fmt, arg);
+	fix_markend(buf);
 	va_end(arg);
 
 	if(centre) {

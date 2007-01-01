@@ -196,11 +196,12 @@ int CarveHole(CMap *cMap, CVec pos)
 void d_printf(char *fmt, ...)
 {
 #ifdef _DEBUG
-	char buf[1024];
+	static char buf[1024];
 	va_list arg;
 	
 	va_start(arg, fmt);
-	vsprintf(buf, fmt, arg);
+	vnsprintf(buf, sizeof(buf),fmt, arg);
+	fix_markend(buf);
 	va_end(arg);
 
 	printf(buf);

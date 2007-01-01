@@ -286,23 +286,28 @@ void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
 // Get the level name from specified file
 char *Menu_GetLevelName(char *filename)
 {
-	char	id[32], name[256];
+	static char	id[32], name[256];
 	int		version;
 	int		index = 0;
 	int		selected = -1;
 	char	*Result;
-	char	fn[1024];
+	static char	fn[1024];
 	char	*Path;
 
-	if(strlen(filename) > 512)
-		return NULL;
+	size_t fnlen = strlen(filename);
 
-	sprintf(&fn[0],"%s%s","levels/",filename);
-	fn[1023] = '\0';
+	//if(strlen(filename) > 512)
+	//	return NULL;
+	
+	static const size_t lvlen = 7; //strlen("levels/");
+	memcpy(fn,"levels/",lvlen);
+	size_t maxlen = MIN(fnlen+1,sizeof(fn)-lvlen);
+	memcpy(fn+lvlen,filename,maxlen);
+	fn[sizeof(fn)-1] = '\0';
 	Path = fn;
 
  // Liero Xtreme level
-	if( stricmp(filename + strlen(filename)-4, ".lxl") == 0) {
+	if( stricmp(filename + fnlen-4, ".lxl") == 0) {
 		FILE *fp = OpenGameFile(Path,"rb");
 		if(fp) {
 			fread(id,		sizeof(char),	32,	fp);
@@ -311,7 +316,7 @@ char *Menu_GetLevelName(char *filename)
 			fread(name,		sizeof(char),	64,	fp);
 
 			if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
-				name[255] = '\0'; // safety
+				fix_markend(name); // safety
 				Result = name;
 				return Result;
 			}
@@ -321,7 +326,8 @@ char *Menu_GetLevelName(char *filename)
 	}
 
  // Liero level
-	if( stricmp(filename + strlen(filename)-4, ".lev") == 0) {
+	if( stricmp(filename + fnlen-4, ".lev") == 0) {
+		// TODO: is filename correct? (or Path)
 		FILE *fp = OpenGameFile(filename,"rb");
 			
 		if(fp) {
@@ -1395,10 +1401,9 @@ void Menu_SvrList_FillList(CListview *lv)
 		// Remove the port from the address (save space)
 		fix_strncpy(addr, s->szAddress);
 		char *p = strrchr(addr,':');
-		if(p) {
-			int pos = p - addr + 1;
-			addr[pos-1] = '\0';
-		}
+		if(p)
+			addr[p - addr] = '\0';
+		
 
 		// State
 		int state = 0;
@@ -1426,7 +1431,8 @@ void Menu_SvrList_FillList(CListview *lv)
             continue;
 
 		// Players
-		sprintf(buf,"%d/%d",s->nNumPlayers,s->nMaxPlayers);
+		snprintf(buf,sizeof(buf),"%d/%d",s->nNumPlayers,s->nMaxPlayers);
+		fix_markend(buf);
 		lv->AddSubitem(LVS_TEXT, buf, NULL);
 		
 		lv->AddSubitem(LVS_TEXT, itoa(s->nPing,buf,10), NULL);

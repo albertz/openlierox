@@ -1619,9 +1619,10 @@ void CClient::processChatCharacter(int c, bool bDown)
             static char buf[256];
 			fix_strncpy(buf,sChat_Text);
 			if (strstr(buf,"/me") == NULL)
-				sprintf(buf, "%s: %s",cLocalWorms[0]->getName(), sChat_Text);
+				snprintf(buf, sizeof(buf), "%s: %s",cLocalWorms[0]->getName(), sChat_Text);
 			else
-				sprintf(buf, "%s", replacemax(buf,"/me",cLocalWorms[0]->getName(),buf,2));
+				snprintf(buf, sizeof(buf), "%s", replacemax(buf,"/me",cLocalWorms[0]->getName(),buf,2));
+			fix_markend(buf);
             SendText(buf);
         }
         return;

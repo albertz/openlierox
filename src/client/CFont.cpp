@@ -148,7 +148,7 @@ int CFont::IsOutline(void)
 // Draw a font
 void CFont::Draw(SDL_Surface *dst, int x, int y, int col, char *fmt,...)
 {
-	char buf[512];
+	static char buf[512];
 	va_list arg;
 	int pos=0;
 	int n,l;
@@ -156,13 +156,14 @@ void CFont::Draw(SDL_Surface *dst, int x, int y, int col, char *fmt,...)
 	int i,j;
 	int w;
 	int a,b;
-	int length = strlen(Fontstr);
+	int length = fix_strnlen(Fontstr);
 
 	va_start(arg, fmt);
-	vsprintf(buf, fmt, arg);
+	vsnprintf(buf, sizeof(buf),fmt, arg);
+	fix_markend(buf);
 	va_end(arg);
 
-	int txtlen = strlen(buf);
+	int txtlen = fix_strnlen(buf);
 
 
 	// Clipping rectangle
@@ -305,25 +306,28 @@ int CFont::GetWidth(char *buf)
 // Draw's the text in centre alignment
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, int col, char *fmt, ...)
 {
-	char buf[512];
+	static char buf[512];
 	va_list arg;
 	int pos;
 	int length=0;
 	unsigned int n,l;
 	
 	va_start(arg, fmt);
-	vsprintf(buf, fmt, arg);
+	vsnprintf(buf, sizeof(buf),fmt, arg);
+	fix_markend(buf);
 	va_end(arg);
 
 	// Calculate the length of the text
-	for(n=0;n<strlen(buf);n++) {
+	size_t buflen = fix_strnlen(buf);
+	size_t fontstrlen = fix_strnlen(Fontstr);
+	for(n=0;n<buflen;n++) {
 		/*for(l=0;l<strlen(Fontstr);l++) {
 			if(Fontstr[l] == buf[n])
 				break;
 		}*/
 
 		l = buf[n]-32;
-		if(l>=strlen(Fontstr))
+		if(l>=fontstrlen)
 			continue;
 
 		length+=FontWidth[l];

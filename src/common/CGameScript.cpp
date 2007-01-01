@@ -302,6 +302,7 @@ int CGameScript::Load(char *dir)
 	static char filename[64];
 
 	snprintf(filename,sizeof(filename),"%s/script.lgs",dir);
+	fix_markend(filename);
 	fix_strncpy(sDirectory, dir);
 
 	// Open it
@@ -730,17 +731,19 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 SDL_Surface *CGameScript::LoadGSImage(char *dir, char *filename)
 {
 	SDL_Surface *img = NULL;
-	char buf[256];
+	static char buf[256];
 
 	// First, check the gfx directory in the mod dir
-	sprintf(buf,"%s/gfx/%s",dir,filename);
+	snprintf(buf,sizeof(buf),"%s/gfx/%s",dir,filename);
+	fix_markend(buf);
 	img = LoadImage(buf,SDL_GetVideoSurface()->format->BitsPerPixel);
 
 	if(img)
 		return img;
 
 	// Check the gfx directory in the data dir
-	sprintf(buf,"data/gfx/%s",filename);
+	snprintf(buf,sizeof(buf),"data/gfx/%s",filename);
+	fix_markend(buf);
 	return LoadImage(buf,SDL_GetVideoSurface()->format->BitsPerPixel);
 }
 
@@ -750,17 +753,19 @@ SDL_Surface *CGameScript::LoadGSImage(char *dir, char *filename)
 SoundSample* CGameScript::LoadGSSample(char *dir, char *filename)
 {
 	SoundSample* smp = NULL;
-	char buf[256];
+	static char buf[256];
 
 	// First, check the sfx directory in the mod dir
-	sprintf(buf,"%s/sfx/%s",dir,filename);
+	snprintf(buf,sizeof(buf),"%s/sfx/%s",dir,filename);
+	fix_markend(buf);
 	smp = LoadSample(buf,10);
 	
 	if(smp)
 		return smp;
 
 	// Check the sounds directory in the data dir
-	sprintf(buf,"data/sounds/%s",filename);
+	snprintf(buf,sizeof(buf),"data/sounds/%s",filename);
+	fix_markend(buf);
 	return LoadSample(buf,10);
 }
 
@@ -953,12 +958,13 @@ char *CGameScript::getError(char *text, int code)
 // Write info to a mod log file
 void CGameScript::modLog(char *fmt, ...)
 {
-    char    buf[1024];
+    static char    buf[1024];
 
     va_list	va;
 
 	va_start(va,fmt);
-	vsprintf(buf,fmt,va);
+	vsnprintf(buf,sizeof(buf),fmt,va);
+	fix_markend(buf);
 	va_end(va);
 
 	printf("%s\n", buf);

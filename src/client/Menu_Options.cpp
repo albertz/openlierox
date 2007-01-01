@@ -239,7 +239,8 @@ int Menu_OptionsInitialize(void)
 
 	CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 	char buf[64];
-	sprintf(buf,"%d",tLXOptions->iNetworkPort);
+	snprintf(buf,sizeof(buf),"%d",tLXOptions->iNetworkPort);
+	fix_markend(buf);
 	t->setText( buf );
 
 	// Network speed

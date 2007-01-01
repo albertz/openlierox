@@ -705,9 +705,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		char *gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
 
-		sprintf(&tGameInfo.sMapname[0],"%s",&gl->szMapName);
-		sprintf(&tGameInfo.sModName[0],"%s",&gl->szModName);
-		sprintf(&tGameInfo.sModDir[0],"%s",&gl->szModName);
+		snprintf(&tGameInfo.sMapname[0],sizeof(tGameInfo.sMapname),"%s",&gl->szMapName); fix_markend(tGameInfo.sMapname);
+		snprintf(&tGameInfo.sModName[0],sizeof(tGameInfo.sModName),"%s",&gl->szModName); fix_markend(tGameInfo.sModName);
+		snprintf(&tGameInfo.sModDir[0],sizeof(tGameInfo.sModDir),"%s",&gl->szModName); fix_markend(tGameInfo.sModDir);
 		tGameInfo.iBonusesOn = gl->nBonuses;
 		tGameInfo.iGameMode = gl->nGameMode;
 		tGameInfo.iKillLimit = gl->nMaxKills;
@@ -815,12 +815,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cJoinLobby.SendMessage(jl_ChatText, TXM_SETTEXT, (DWORD)"", 0);
 
 					// Get name
-					char text[256];
+					static char text[256];
 					CWorm *rw = cClient->getRemoteWorms() + iJoinSpeaking;
 					if (strstr(buf,"/me") == NULL)
-						sprintf(text, "%s: %s",rw->getName(), buf);
+						snprintf(text, sizeof(text), "%s: %s",rw->getName(), buf);
 					else
-						sprintf(text, "%s", replacemax(buf,"/me",rw->getName(),buf,2));
+						snprintf(text, sizeof(text), "%s", replacemax(buf,"/me",rw->getName(),buf,2));
+					fix_markend(text);
 					cClient->SendText(text);					
 				}
 				break;

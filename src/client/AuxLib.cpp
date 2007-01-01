@@ -534,13 +534,15 @@ void TakeScreenshot(bool Tournament)
 
 	// Create the file name
     for(i=0; 1; i++) {
-		sprintf(picname,"%s%d%s","lierox",i,extension);
+		snprintf(picname,sizeof(picname),"%s%d%s","lierox",i,extension);
+		fix_markend(picname);
 
 		if (Tournament)
 			snprintf(checkname, sizeof(checkname), "tourny_scrshots/%s", picname);
 		else
 			snprintf(checkname, sizeof(checkname), "scrshots/%s", picname);
-
+		fix_markend(checkname);
+		
 		f = OpenGameFile(checkname, "rb");
 		if (!f)
 			break;	// file doesn't exist
