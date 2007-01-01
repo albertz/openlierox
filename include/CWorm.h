@@ -156,7 +156,7 @@ private:
 	int			iType;
 	int			iLocal;
 	int			iTeam;
-	char		sName[32];
+	char		sName[32]; // WARNING: don't change this size (check fist "readString(cWorms[i].getName()..." in MenuSystem.cpp ~1819)
 	Uint8		iColComps[3];
     char        szSkin[128];
 	uint		iColour;

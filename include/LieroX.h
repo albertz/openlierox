@@ -194,7 +194,7 @@ char	*replacemax(char *text, char *what, char *with, char *result, int max);
 char	*strip(char *buf, int width);
 bool	stripdot(char *buf, int width);
 char	*ucfirst(char *text);
-void	ReadUntil(const char *text, char until_character, char *result);
+void	ReadUntil(const char *text, char until_character, char *result, size_t reslen);
 Uint32	StrToCol(char *str);
 const char* sex(short wraplen = 0);
 

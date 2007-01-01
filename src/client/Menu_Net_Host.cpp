@@ -58,7 +58,7 @@ enum {
 // Initialize the host menu
 int Menu_Net_HostInitialize(void)
 {
-	char buf[64];
+	static char buf[64];
 
 	iNetMode = net_host;
 	iHostType = 0;
@@ -289,7 +289,7 @@ void Menu_Net_HostPlyFrame(int mouse)
                         //cHostPly.SendMessage( hs_Password, TXM_GETTEXT, (DWORD)tGameInfo.sPassword, sizeof(tGameInfo.sPassword));
 						
 						// Save the info
-						char buf[64];
+						static char buf[64];
 						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName));
 						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage));
                         //cHostPly.SendMessage( hs_Password, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.szPassword, sizeof(tLXOptions->tGameinfo.szPassword));
@@ -720,11 +720,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Send the msg to the server
 
 					// Get the text
-					char buf[128];
+					static char buf[128];
 					cHostLobby.SendMessage(hl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+                    fix_markend(buf);
                     
                     // Don't send empty messages
-                    if(strlen(buf) == 0)
+                    if(fix_strnlen(buf) == 0)
                         break;
 
 					// Clear the text box
@@ -773,8 +774,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Lives change
 			case hl_Lives:
 				if(ev->iEventMsg == TXT_CHANGE) {
-					char buf[128];
+					static char buf[128];
 					cHostLobby.SendMessage(hl_Lives, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+					fix_markend(buf);
 					if(*buf)
 						cServer->getLobby()->nLives = atoi(buf);
 					else
@@ -788,8 +790,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Max Kills
 			case hl_MaxKills:
 				if(ev->iEventMsg == TXT_CHANGE) {
-					char buf[128];
+					static char buf[128];
 					cHostLobby.SendMessage(hl_MaxKills, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+					fix_markend(buf);
 					if(*buf)
 						cServer->getLobby()->nMaxKills = atoi(buf);
 					else
@@ -1244,7 +1247,7 @@ void Menu_ServerSettings(void)
 	cServerSettings.SendMessage(ss_AllowRemoteBots, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
 	cServerSettings.SendMessage(ss_ServerName,TXM_SETTEXT,(DWORD) tGameInfo.sServername, 0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXM_SETTEXT,(DWORD) tGameInfo.sWelcomeMessage, 0);
-	char buf[4];
+	char buf[6];
 	cServerSettings.SendMessage(ss_MaxPlayers, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iMaxPlayers,buf,10), 0);
 }
 
@@ -1285,8 +1288,9 @@ bool Menu_ServerSettings_Frame(void)
 					cServerSettings.SendMessage(ss_ServerName, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName));
 					cServerSettings.SendMessage(ss_WelcomeMessage, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage));
 			
-					char buf[4];
+					char buf[5];
 					cServerSettings.SendMessage(ss_MaxPlayers, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+					fix_markend(buf);
 					tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
 					// At least 2 players, and max 8
 					tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);

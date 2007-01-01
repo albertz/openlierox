@@ -489,9 +489,10 @@ void Menu_MapEd_New(void)
 	int dirtindex = -1;
 
 	// Find directories in the theme dir
-	char dir[256];
+	static char dir[512];
 	char *d;
 	if(FindFirstDir("data/themes",dir)) {
+		fix_markend(dir);
 		i=0;
 		while(1) {
 			d = MAX(strrchr(dir,'\\'),strrchr(dir,'/'))+1;
@@ -503,6 +504,7 @@ void Menu_MapEd_New(void)
 
 			if(!FindNextDir(dir))
 				break;
+			fix_markend(dir);	
 		}
 	}
 
@@ -515,7 +517,7 @@ void Menu_MapEd_New(void)
 	t1 = (CTextbox *)cg.getWidget(2);
 	t2 = (CTextbox *)cg.getWidget(3);
 
-	char buf[16];
+	static char buf[16];
 	snprintf(buf,sizeof(buf),"%d",cMap.GetWidth()); fix_markend(buf);
 	t1->setText(buf);
 	snprintf(buf,sizeof(buf),"%d",cMap.GetHeight()); fix_markend(buf);
@@ -638,13 +640,14 @@ void Menu_MapEd_LoadSave(int save)
 	t = (CTextbox *)cg.getWidget(3);
 
 	// Load the level list
-	char	filename[256];
-	char	id[32], name[64];
+	static char	filename[512];
+	static char	id[32], name[64];
 	int		version;
 
 	int done = false;
 	if(!FindFirst("levels","*",filename))
 		done = true;
+	fix_markend(filename);
 	CListview *lv = (CListview *)cg.getWidget(2);
 	lv->AddColumn("Levels",60);
 
@@ -652,7 +655,7 @@ void Menu_MapEd_LoadSave(int save)
 	while(!done) {
 
 		// Liero Xtreme level
-		if( stricmp(filename + strlen(filename)-4, ".lxl") == 0) {
+		if( stricmp(filename + fix_strnlen(filename)-4, ".lxl") == 0) {
 
 			FILE *fp = OpenGameFile(filename,"rb");
 			if(fp) {
@@ -676,7 +679,7 @@ void Menu_MapEd_LoadSave(int save)
 
 
 		// Liero level
-		if( stricmp(filename + strlen(filename)-4, ".lev") == 0) {
+		if( stricmp(filename + fix_strnlen(filename)-4, ".lev") == 0) {
 			FILE *fp = OpenGameFile(filename,"rb");
 			
 			if(fp) {
@@ -701,6 +704,7 @@ void Menu_MapEd_LoadSave(int save)
 
 		if(!FindNext(filename))
 			break;
+		fix_markend(filename);
 	}
 
 

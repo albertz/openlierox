@@ -122,7 +122,7 @@ void Menu_Net_NETFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev;
-	char		addr[256];
+	static char		addr[256];
 	
 
 	// Process & Draw the gui
@@ -297,7 +297,7 @@ void Menu_Net_NETFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szNetCurServer);
-							char Nick[256];
+							static char Nick[256];
 							cInternet.SendMessage(mi_PlayerSelection, CBM_GETCURNAME, (DWORD)Nick, sizeof(Nick));
 							Nick[255] = '\0'; // safety
 							char *sNick = Nick;
@@ -442,7 +442,7 @@ void Menu_Net_NETAddServer(void)
 				case na_Add:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						char addr[512];
+						static char addr[512];
 						cAddSvr.SendMessage(na_Address, TXM_GETTEXT, (DWORD)addr, sizeof(addr));
 
 						Menu_SvrList_AddServer(addr, true);

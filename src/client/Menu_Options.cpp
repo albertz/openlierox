@@ -238,7 +238,7 @@ int Menu_OptionsInitialize(void)
 	s->setValue( tLXOptions->iSoundVolume );
 
 	CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
-	char buf[64];
+	static char buf[64];
 	snprintf(buf,sizeof(buf),"%d",tLXOptions->iNetworkPort);
 	fix_markend(buf);
 	t->setText( buf );
@@ -302,7 +302,7 @@ void Menu_OptionsFrame(void)
 	int			mouse = 0;
 	gui_event_t *ev;
 	int fullscr = tLXOptions->iFullscreen;
-	char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"};
+	static const char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"};
 	int			val;
 
 	CCheckbox	*c;
@@ -568,8 +568,8 @@ void Menu_OptionsFrame(void)
 						f = OpenGameFile("Conversations.log","a");
 						if (f)  {
 							if (tLXOptions->iLogConvos)  {
-								char cTime[26];
-								GetTime(cTime);
+								static char cTime[26];
+								GetTime(cTime); fix_markend(cTime);
 								fprintf(f,"<game starttime=\"%s\">\r\n",cTime);
 							} 
 							else 

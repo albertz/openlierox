@@ -804,11 +804,12 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					// Send the msg to the server
 
 					// Get the text
-					char buf[128];
+					static char buf[128];
 					cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
-
+					fix_markend(buf);
+					
                     // Don't send empty messages
-                    if(strlen(buf) == 0)
+                    if(fix_strnlen(buf) == 0)
                         break;
 
 					// Clear the text box

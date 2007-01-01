@@ -206,7 +206,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	if (iState != SVS_PLAYING)
 		return;
 
-	char buf[128];
+	static char buf[128];
 	CBytestream byte;
 	int victim = bs->readInt(1);
 	int killer = bs->readInt(1);
@@ -463,9 +463,8 @@ void CServer::ParseChatText(CClient *cl, CBytestream *bs)
 		if (cl->getMuted())
 			return;
 
-	char buf[256];
-
-	SendGlobalText( bs->readString(buf,sizeof(buf)), TXT_CHAT);
+	static char buf[256];
+	SendGlobalText( bs->readString(buf, sizeof(buf)), TXT_CHAT);
 }
 
 
@@ -585,14 +584,14 @@ void CServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 // Parses connectionless packets
 void CServer::ParseConnectionlessPacket(CBytestream *bs)
 {
-	char cmd[128];
+	static char cmd[128];
 	bool valid = false;
 
 	// This solves the problem with hosting!
 //	GetRemoteNetAddr(tSocket,&adrFrom);
 //	SetRemoteNetAddr(tSocket,&adrFrom);
 
-	bs->readString(cmd,sizeof(cmd));
+	bs->readString(cmd, sizeof(cmd));
 
 	//strcpy(tLX->debug_string, cmd);
 
@@ -721,8 +720,9 @@ void CServer::ParseConnect(CBytestream *bs)
 		return;
 	}
 
-	char szAddress[21];
+	static char szAddress[21];
 	NetAddrToString(&adrFrom,szAddress);
+	fix_markend(szAddress);
 
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
@@ -972,18 +972,19 @@ void CServer::ParseConnect(CBytestream *bs)
 
 			// Country
 			if (strstr(buf,"<country>") != NULL)  {
-				char country[128];
-				char str_addr[22];
+				static char country[128];
+				static char str_addr[22];
 				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
-				if (strlen(str_addr))  {
+				if (fix_strnlen(str_addr))  {
 					GetCountryFromIP(str_addr,country);
 					replacemax(buf,"<country>",country,buf,1);
 				}
 			}
 
 			// Address
-			char str_addr[22];
+			static char str_addr[22];
 			NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
+			fix_markend(str_addr);
 			// Remove port
 			char* pos = strrchr(str_addr,':');
 			if(pos != NULL)
@@ -1046,9 +1047,9 @@ void CServer::ParseWantsJoin(CBytestream *bs)
 
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;
-	char Nick[128];
-	bs->readString(Nick,sizeof(Nick));
-	char buf[256];
+	static char Nick[128];
+	bs->readString(Nick, sizeof(Nick));
+	static char buf[256];
 
 	// Notify about the wants join
 	if (strcmp(NetworkTexts->sWantsJoin,"<none>"))  {

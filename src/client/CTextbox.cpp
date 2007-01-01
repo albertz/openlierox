@@ -363,7 +363,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	int deltaX = tMouse->X - iX;
 	iDrawCursor = true;
 
-	char buf[MAX_TEXTLENGTH];
+	static char buf[MAX_TEXTLENGTH];
 
 	// Scroll the textbox using mouse
 	fScrollTime += tLX->fDeltaTime;
@@ -636,7 +636,7 @@ int CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 // Paste some text from the clipboard
 void CTextbox::PasteText(void)
 {
-    char text[MAX_TEXTLENGTH];
+    static char text[MAX_TEXTLENGTH];
 
 	if(iSelLength)
 		Delete();

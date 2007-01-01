@@ -23,7 +23,7 @@
 // Parse a connectionless packet
 void CClient::ParseConnectionlessPacket(CBytestream *bs)
 {
-	char cmd[128];
+	static char cmd[128];
 	bool valid = false;
 
 	bs->readString(cmd,sizeof(cmd));
@@ -344,11 +344,11 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	} else {
 
 		// Load the map from a file
-		char buf[256];
+		static char buf[256];
 		bs->readString(buf,sizeof(buf));
 
 		// Invalid packet
-		if (!strlen(buf))
+		if (!fix_strnlen(buf))
 			return false;
 
 		if(tGameInfo.iGameType == GME_JOIN) {
@@ -579,7 +579,7 @@ void CClient::ParseText(CBytestream *bs)
 		case TXT_NETWORK:	col = tLX->clNetworkText;	break;
 	}
 
-	char buf[256];
+	static char buf[256];
 	bs->readString(buf,sizeof(buf));
 
 	// If we are playing a local game, discard network messages
@@ -593,8 +593,9 @@ void CClient::ParseText(CBytestream *bs)
     FILE *f;
 
 	// Safety
-	buf[127] = '\0';
-
+	//buf[127] = '\0';
+	fix_markend(buf);
+	
 	pChatbox->AddText(buf,col,tLX->fCurTime);
 
 
@@ -801,8 +802,8 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 			return;
 		fputs("  <server hostname=\"",f);
 		fputs(HostName,f);
-		char cTime[26];
-		GetTime(cTime);
+		static char cTime[26];
+		GetTime(cTime); fix_markend(cTime);
 		fprintf(f,"\" jointime=\"%s\">\r\n",cTime);
 		if(cIConnectedBuf[0] != '\0')  {
 			fputs("    <message type=\"NETWORK\" text=\"",f);
@@ -885,10 +886,10 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     FILE            *fp = NULL;
 
 	if (!gl)  {
-		return;
 		//TODO: uniform message system
 		//MessageBox(0,"Could not find lobby","Error",MB_OK);
 		printf("Could not find lobby\n");
+		return;
 	}
 
 	gl->nSet = true;

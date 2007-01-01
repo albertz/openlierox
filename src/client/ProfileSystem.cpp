@@ -96,8 +96,8 @@ int LoadProfiles(void)
 // Add the default players to the list
 void AddDefaultPlayers(void)
 {
-	int		i;
-	char	buf[32];
+	short		i;
+	static char	buf[32];
 
 	// Pre-set cpu colours
 	Uint32 cpuColours[] = { 255,0,0,  0,255,0,  0,0,255,  255,0,255,  0,255,255,  128,128,128,
@@ -134,7 +134,7 @@ void SaveProfiles(void)
 		return;
 
 	// ID & Version
-	char id[32] = {"lx:profile"};
+	static const char id[32] = {"lx:profile"};
 	fwrite(id, sizeof(char), 32, fp);
 
 	int ver = PROFILE_VERSION;
@@ -176,7 +176,7 @@ void ShutdownProfiles(void)
 		return;
 
 	// ID & Version
-	char id[32] = {"lx:profile"};
+	static const char id[32] = {"lx:profile"};
 	fwrite(id, sizeof(char), 32, fp);
 
 	int ver = PROFILE_VERSION;

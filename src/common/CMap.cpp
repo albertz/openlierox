@@ -248,7 +248,7 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
 // Load the theme
 int CMap::LoadTheme(char *_theme)
 {
-	char thm[64],buf[64],cfg[64];
+	static char thm[64],buf[64],cfg[64];
 	int n,x,y;
 
 	snprintf(thm,sizeof(thm),"data/themes/%s",_theme);
@@ -322,12 +322,13 @@ char *CMap::findRandomTheme(char *buf)
     buf[0] = 0;
 
     // Find directories in the theme dir
-	static char dir[256];
+	static char dir[512];
 	char *d;
     int count=-1;
 	
     // Count the number of themes
     if(FindFirstDir("data/themes",dir)) {
+    	fix_markend(dir);
         count = 0;
 		while(1) {
 			d = MAX(strrchr(dir,'/'),strrchr(dir, '\\'))+1;
@@ -337,6 +338,7 @@ char *CMap::findRandomTheme(char *buf)
 
 			if(!FindNextDir(dir))
 				break;
+	    	fix_markend(dir);
 		}
 	}
 
@@ -345,7 +347,8 @@ char *CMap::findRandomTheme(char *buf)
 
     // Count the number of themes
     if(FindFirstDir("data/themes",dir)) {
-        count = 0;
+    	fix_markend(dir);
+       count = 0;
 		while(1) {
 			d = MAX(strrchr(dir,'/'),strrchr(dir, '\\'))+1;
            	// Make sure the theme is valid
@@ -361,6 +364,7 @@ char *CMap::findRandomTheme(char *buf)
 
 			if(!FindNextDir(dir))
 				break;
+ 		   	fix_markend(dir);
 		}
 	}
 
@@ -381,7 +385,7 @@ bool CMap::validateTheme(char *name)
     // Does simple checks to see if the main files exists
     // Ie 'backtile.png' 'fronttile.png' & 'theme.txt'
 
-    char thm[64],buf[64];	
+    static char thm[64],buf[64];	
     FILE *fp = NULL;
 
 	snprintf(thm,sizeof(thm),"data/themes/%s",name); fix_markend(thm);
@@ -1722,10 +1726,10 @@ int CMap::Load(char *filename)
 
 
 	// Header
-	char	id[32];
+	static char	id[32];
 	int		version;
 	int		numobj;
-	char	Theme_Name[32];
+	static char	Theme_Name[32];
 
 	fread(id,			sizeof(char),	32,	fp);
 	fread(&version,		sizeof(int),	1,	fp);
@@ -1853,7 +1857,7 @@ int CMap::Save(char *name, char *filename)
 	Type = MPT_IMAGE;
 
 	// Header
-	char	id[32];
+	static char	id[32];
 	int		version = MAP_VERSION;
 	strcpy(id,"LieroX Level");
 

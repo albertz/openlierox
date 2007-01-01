@@ -114,7 +114,7 @@ void Menu_Net_LANFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev;
-	char		addr[256];
+	static char		addr[256];
 	
 
 	// Process & Draw the gui
@@ -267,9 +267,9 @@ void Menu_Net_LANFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szLanCurServer);
-							char Nick[256];
+							static char Nick[256];
 							cLan.SendMessage(nl_PlayerSelection, CBM_GETCURNAME, (DWORD)Nick, sizeof(Nick));
-							Nick[255] = '\0'; // safety
+							fix_markend(Nick); // safety
 							char *sNick = Nick;
 							if (sv)
 								Menu_SvrList_WantsJoin(sNick, sv);

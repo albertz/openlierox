@@ -181,8 +181,8 @@ void CBrowser::ReadNewline(void)
 // Read a tag
 void CBrowser::ReadTag(void)
 {
-	char sName[32];
-	char sVal[32];
+	static char sName[32];
+	static char sVal[32];
 	int i = 0;
 	int val = 0;
 	int end = false;

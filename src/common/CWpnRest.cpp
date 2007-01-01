@@ -363,7 +363,7 @@ void CWpnRest::sendList(CBytestream *psByteS)
 // Receive the list
 void CWpnRest::readList(CBytestream *psByteS)
 {
-    char szName[256];
+    static char szName[256];
     int nState;
     wpnrest_t *psWpn = NULL;
 
@@ -378,7 +378,7 @@ void CWpnRest::readList(CBytestream *psByteS)
 
     // Go through the list reading weapons
     for( int i=0; i<nCount; i++ ) {
-        psByteS->readString(szName,sizeof(szName));
+        psByteS->readString(szName, sizeof(szName));
         nState = psByteS->readByte();
 
         // Try and find the weapon

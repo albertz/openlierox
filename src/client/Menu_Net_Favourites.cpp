@@ -290,9 +290,9 @@ void Menu_Net_FavouritesFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
-							char Nick[256];
+							static char Nick[256];
 							cFavourites.SendMessage(mf_PlayerSelection, CBM_GETCURNAME, (DWORD)Nick, sizeof(Nick));
-							Nick[255] = '\0'; // safety
+							fix_markend(Nick); // safety
 							char *sNick = Nick;
 							if (sv)
 								Menu_SvrList_WantsJoin(sNick, sv);
@@ -586,10 +586,10 @@ void Menu_Net_FavouritesAddServer(void)
 				case fa_Add:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						char addr[512];
-						char name[32];
-						cAddSvr.SendMessage(2, TXM_GETTEXT, (DWORD)addr, sizeof(addr));
-						cAddSvr.SendMessage(3, TXM_GETTEXT, (DWORD)name, sizeof(name));
+						static char addr[512];
+						static char name[32];
+						cAddSvr.SendMessage(2, TXM_GETTEXT, (DWORD)addr, sizeof(addr)); fix_markend(addr);
+						cAddSvr.SendMessage(3, TXM_GETTEXT, (DWORD)name, sizeof(name)); fix_markend(name);
 
 						Menu_SvrList_AddNamedServer(addr, name);
 						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );

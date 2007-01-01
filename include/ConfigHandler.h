@@ -21,17 +21,17 @@
 
 
 // Internal
-int		GetString(char *filename, char *section, char *key, char *string);
+int		GetString(const char *filename, const char *section, const char *key, char *string);
 //void	TrimSpaces(char *str);
 
 
 // Value reading
-int		ReadString(char *filename, char *section, char *key, char *value, char *defaultv);
-int		ReadInteger(char *filename, char *section, char *key, int *value, int defaultv);
-int		ReadFloat(char *filename, char *section, char *key, float *value, float defaultv);
-int		ReadColour(char *filename, char *section, char *key, Uint32 *value, Uint32 defaultv);
+int		ReadString(const char *filename, const char *section, const char *key, char *value, const char *defaultv);
+int		ReadInteger(const char *filename, const char *section, const char *key, int *value, int defaultv);
+int		ReadFloat(const char *filename, const char *section, const char *key, float *value, float defaultv);
+int		ReadColour(const char *filename, const char *section, const char *key, Uint32 *value, Uint32 defaultv);
 //int		ReadVec2d(char *filename, char *section, char *key, CVec2d *value);
-int		ReadVec(char *filename, char *section, char *key, CVec *value);
+int		ReadVec(const char *filename, const char *section, const char *key, CVec *value);
 //int		ReadRegion(char *filename, char *section, char *key, CRegion *value);
 
 
@@ -45,8 +45,8 @@ typedef struct {
 
 
 int		AddKeyword(char *key, int value);
-int		ReadKeyword(char *filename, char *section, char *key, int *value, int defaultv);
-bool	ReadKeyword(char *filename, char *section, char *key, bool *value, bool defaultv);
+int		ReadKeyword(const char *filename, const char *section, const char *key, int *value, int defaultv);
+bool	ReadKeyword(const char *filename, const char *section, const char *key, bool *value, bool defaultv);
 
 
 

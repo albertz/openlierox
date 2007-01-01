@@ -53,7 +53,7 @@ void Cmd_ParseLine(char *text)
 {
 	int		i,ti;
 	int		quote = false;
-	char	token[128];
+	static char	token[128];
 
 	// Clear the arguments
 	NumArgs = 0;

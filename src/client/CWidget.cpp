@@ -82,17 +82,17 @@ void CWidget::ProcessEvent(int Event)
 		return;
 
 	// Read the function name
-	char Function[32];
-	ReadUntil(Code,'(',Function);
-	Code = Code+strlen(Function)+1;
+	static char Function[32];
+	ReadUntil(Code,'(',Function,sizeof(Function));
+	Code = Code+fix_strnlen(Function)+1;
 	TrimSpaces(Function);
 
 	if(!stricmp(Function,"change"))  {
 
 		// Get the widget name
-		char WidgetName[32];
-		ReadUntil(Code,',',WidgetName);
-		Code = Code + strlen(WidgetName)+1;
+		static char WidgetName[32];
+		ReadUntil(Code,',',WidgetName,sizeof(WidgetName));
+		Code = Code + fix_strnlen(WidgetName)+1;
 		TrimSpaces(WidgetName);
 
 		// Get the widget ID
@@ -101,8 +101,8 @@ void CWidget::ProcessEvent(int Event)
 			return;
 
 		// Read the new image path
-		char ImagePath[32];
-		ReadUntil(Code,')',ImagePath);
+		static char ImagePath[32];
+		ReadUntil(Code,')',ImagePath,sizeof(ImagePath));
 		TrimSpaces(ImagePath);
 
 		CImage *img;
@@ -116,8 +116,8 @@ void CWidget::ProcessEvent(int Event)
 	}
 
 	else if(!stricmp(Function,"PlaySound"))  {
-		char SoundPath[32];
-		ReadUntil(Code,')',SoundPath);
+		static char SoundPath[32];
+		ReadUntil(Code,')',SoundPath,sizeof(SoundPath));
 		Code = Code + strlen(SoundPath) + 1;
 		TrimSpaces(SoundPath);
 
@@ -127,14 +127,14 @@ void CWidget::ProcessEvent(int Event)
 
 	else if(!stricmp(Function,"Show"))  {
 		// Get the widget name
-		char WidgetName[32];
-		ReadUntil(Code,',',WidgetName);
+		static char WidgetName[32];
+		ReadUntil(Code,',',WidgetName,sizeof(WidgetName));
 		Code = Code + strlen(WidgetName) +1;
 		TrimSpaces(WidgetName);
 
 		// Get the widget visibility parameter
-		char Visible[8];
-		ReadUntil(Code,')',Visible);
+		static char Visible[8];
+		ReadUntil(Code,')',Visible,sizeof(Visible));
 		Code = Code + strlen(Code) +1;
 		TrimSpaces(Visible);
 

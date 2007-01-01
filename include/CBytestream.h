@@ -70,7 +70,7 @@ public:
 	int			readInt(int numbytes);
 	short		readShort(void);
 	float		readFloat(void);
-	char		*readString(char *str, size_t length);
+	char		*readString(char *str, size_t maxlen);
 	void		read2Int12(short& x, short& y);
 	void		read2Int4(short& x, short& y);
 	

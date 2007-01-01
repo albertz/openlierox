@@ -384,8 +384,9 @@ void Menu_LocalFrame(void)
 					cLocalMenu.Draw( tMenu->bmpBuffer );
 
                     // Get the current mod
-                    char buf[256];
+                    static char buf[256];
                     cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
+                    fix_markend(buf);
                     if(it) {
                         lx_strncpy(buf, it->sIndex, 255);
 
@@ -720,14 +721,15 @@ int Menu_LocalGetTeam(int count)
 void Menu_Local_FillModList( CCombobox *cb )
 {
 	// Find all directories in the the lierox
-	char dir[256];
+	static char dir[512];
 	char *d;
-	char name[32];
+	static char name[32];
 	CGameScript gs;
 	int baseid = 0;
 	int i=0;
 	
 	if(FindFirstDir(".",dir)) {
+		fix_markend(dir);
 		while(1) {
 			
             // Remove the full directory section so we only have the mod dir name
@@ -747,6 +749,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 			
 			if(!FindNextDir(dir))
 				break;
+			fix_markend(dir);
 		}
 	}
 
@@ -792,7 +795,7 @@ enum {
 void Menu_GameSettings(void)
 {
 	Uint32 blue = MakeColour(0,138,251);
-	char buf[256];
+	static char buf[256];
 
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 120,150,120,150, 400,300);
@@ -912,7 +915,7 @@ bool Menu_GameSettings_Frame(void)
 // Grab the game settings info
 void Menu_GameSettings_GrabInfo(void)
 {
-	char buf[256];
+	static char buf[256];
 
 	tLXOptions->tGameinfo.iLoadingTime = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
@@ -929,11 +932,13 @@ void Menu_GameSettings_GrabInfo(void)
 	
 	// Store the game info into the options structure as well
 	cGameSettings.SendMessage(gs_Lives, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+	fix_markend(buf);
 	if(*buf) {
 		tLXOptions->tGameinfo.iLives = atoi(buf);
 		tGameInfo.iLives = atoi(buf);
 	}
 	cGameSettings.SendMessage(gs_MaxKills, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+	fix_markend(buf);
 	if(*buf) {
 		tLXOptions->tGameinfo.iKillLimit = atoi(buf);
 		tGameInfo.iKillLimit = atoi(buf);
@@ -1048,7 +1053,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
     assert(cWpnGameScript);
 
     // State strings
-    char    *szStates[] = {"Enabled", "Bonus", "Banned"};
+    static const char    *szStates[] = {"Enabled", "Bonus", "Banned"};
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 

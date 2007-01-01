@@ -422,7 +422,7 @@ void Menu_Player_NewPlayer(int mouse)
     // Draw the difficulty level
     int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,0,0);
     if( type == PRF_COMPUTER ) {
-        char *difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const char *difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,0,0);
         tLX->cFont.Draw(tMenu->bmpScreen, 250,363,0xffff,"%s",difflevels[level]);
 
@@ -635,8 +635,8 @@ void Menu_Player_ViewPlayers(int mouse)
             // Skin            
             case vp_PlySkin:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    char skin[256];
-                    char buf[256];
+                    static char skin[256];
+                    static char buf[256];
                     cViewPlayers.SendMessage(vp_PlySkin, CBM_GETCURSINDEX, (DWORD)skin, 255);
 
                     // Load the skin
@@ -681,7 +681,7 @@ void Menu_Player_ViewPlayers(int mouse)
     // Draw the difficulty level
     int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,0,0);
     if( type == PRF_COMPUTER ) {
-        char *difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const char *difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,0,0);
         tLX->cFont.Draw(tMenu->bmpScreen, 530,313,0xffff,"%s",difflevels[level]);
     }

@@ -37,11 +37,11 @@ int Menu_Initialize(int *game)
 
 	// Load the CSS of all widgets
 	cWidgetStyles.Clear();
-	char path[64];
+	static char path[64];
 	path[0] = '\0';
 	//sprintf(path,"%s/%s/widgets.css",tLXOptions->sSkinPath,tLXOptions->sResolution);
 	cWidgetStyles.Parse(path);
-
+	fix_markend(path);
 
 	// Allocate the menu structure
 	tMenu = new menu_t;
@@ -471,7 +471,7 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 	int linescount = 0;  // contains the count of lines - 1 !!
 	int maxwidth = 0;
 	int maxwidthline = 0;
-	char lines[8][512];
+	static char lines[8][512];
 	int j = 0;
 	unsigned int i;
 	for (i=0; i<strlen(sText) && linescount < 8; i++)  {
@@ -910,8 +910,8 @@ void Menu_AddDefaultWidgets(void)
 // Fill a listbox with the levels
 void Menu_FillLevelList(CCombobox *cmb, int random)
 {
-	char	filename[256];
-	char	id[32], name[64];
+	static char	filename[512];
+	static char	id[32], name[64];
 	int		version;
 	int		index = 0;
 	int		selected = -1;
@@ -929,7 +929,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	while(!done) {
 
 		// Liero Xtreme level
-		if( stricmp(filename + strlen(filename)-4, ".lxl") == 0) {
+		if( stricmp(filename + fix_strnlen(filename)-4, ".lxl") == 0) {
 			FILE *fp = OpenGameFile(filename,"rb");
 			if(fp) {
 				 fread(id,			sizeof(char),	32,	fp);
@@ -955,7 +955,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 		}
 
 		// Liero level
-		if( stricmp(filename + strlen(filename)-4, ".lev") == 0) {
+		if( stricmp(filename + fix_strnlen(filename)-4, ".lev") == 0) {
 			FILE *fp = OpenGameFile(filename,"rb");
 			
 			if(fp) {
@@ -1088,7 +1088,7 @@ void Menu_SvrList_PingLAN(void)
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::ping");
 
-	char addr[] = {"255.255.255.255"}; 
+	static const char addr[] = {"255.255.255.255"}; 
 	NetworkAddr a;
 	StringToNetAddr(addr,&a);
 	SetNetAddrPort(&a,LX_PORT);
@@ -1522,7 +1522,7 @@ bool Menu_SvrList_Process(void)
 // Returns true if we should update the list
 int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 {
-	char			cmd[128], buf[128];
+	static char			cmd[128], buf[128];
 	NetworkAddr		adrFrom;
 	int				update = false;
 
@@ -1609,8 +1609,8 @@ server_t *Menu_SvrList_FindServer(NetworkAddr *addr)
 void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 {
 	// Don't update the name in favourites
-	char buf[64];
-	bs->readString( buf,sizeof(buf) );
+	static char buf[64];
+	bs->readString( buf, sizeof(buf) );
 	if(iNetMode != net_favourites)
 		fix_strncpy(svr->szName,buf);
 	svr->nNumPlayers = bs->readByte();

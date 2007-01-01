@@ -36,10 +36,10 @@ int AddKeyword(char *key, int value)
 
 ///////////////////
 // Read a keyword from a file
-int ReadKeyword(char *filename, char *section, char *key, int *value, int defaultv)
+int ReadKeyword(const char *filename, const char *section, const char *key, int *value, int defaultv)
 {
 	int n;
-	char string[MAX_MINOR_LENGTH];
+	static char string[MAX_MINOR_LENGTH];
 	
 	*value = defaultv;
 
@@ -59,10 +59,10 @@ int ReadKeyword(char *filename, char *section, char *key, int *value, int defaul
 
 ///////////////////
 // Read a keyword from a file (bool version)
-bool ReadKeyword(char *filename, char *section, char *key, bool *value, bool defaultv)
+bool ReadKeyword(const char *filename, const char *section, const char *key, bool *value, bool defaultv)
 {
 	int n;
-	char string[MAX_MINOR_LENGTH];
+	static char string[MAX_MINOR_LENGTH];
 	
 	*value = defaultv;
 
@@ -83,15 +83,16 @@ bool ReadKeyword(char *filename, char *section, char *key, bool *value, bool def
 
 ///////////////////
 // Read an interger from a file
-int ReadInteger(char *filename, char *section, char *key, int *value, int defaultv)
+int ReadInteger(const char *filename, const char *section, const char *key, int *value, int defaultv)
 {
-	char string[MAX_MINOR_LENGTH];
+	static char string[MAX_MINOR_LENGTH];
 
 	*value = defaultv;
 	
 	if(!GetString(filename,section,key,string))
 		return false;
-
+	fix_markend(string);
+	
 	*value = atoi(string);
 
 	return true;
@@ -100,7 +101,7 @@ int ReadInteger(char *filename, char *section, char *key, int *value, int defaul
 
 ///////////////////
 // Read a string from a file
-int ReadString(char *filename, char *section, char *key, char *value, char *defaultv)
+int ReadString(const char *filename, const char *section, const char *key, char *value, const char *defaultv)
 {
 	if(defaultv != NULL) strcpy(value,defaultv);
 
@@ -117,9 +118,9 @@ int ReadString(char *filename, char *section, char *key, char *value, char *defa
 
 ///////////////////
 // Read a float from a file
-int ReadFloat(char *filename, char *section, char *key, float *value, float defaultv)
+int ReadFloat(const char *filename, const char *section, const char *key, float *value, float defaultv)
 {
-	char string[MAX_MINOR_LENGTH];
+	static char string[MAX_MINOR_LENGTH];
 
 	*value = defaultv;
 	
@@ -134,9 +135,9 @@ int ReadFloat(char *filename, char *section, char *key, float *value, float defa
 
 //////////////////
 // Read a colour
-int ReadColour(char *filename, char *section, char *key, Uint32 *value, Uint32 defaultv)
+int ReadColour(const char *filename, const char *section, const char *key, Uint32 *value, Uint32 defaultv)
 {
-	char string[MAX_MINOR_LENGTH];
+	static char string[MAX_MINOR_LENGTH];
 
 	*value = defaultv;
 	
@@ -153,7 +154,8 @@ int ReadColour(char *filename, char *section, char *key, Uint32 *value, Uint32 d
 
 ///////////////////
 // Read a string
-int GetString(char *filename, char *section, char *key, char *string)
+// HINT: string has to be MAX_MINOR_LENGTH long
+int GetString(const char *filename, const char *section, const char *key, char *string)
 {
 	FILE	*config;
 	static char	Line[MAX_STRING_LENGTH];
@@ -218,7 +220,7 @@ int GetString(char *filename, char *section, char *key, char *string)
 			{				
 				// Get the value
 				fix_strncpy(tmpLine,Line+Position);
-				strcpy(string, TrimSpaces(tmpLine));
+				strncpy(string, TrimSpaces(tmpLine), MAX_MINOR_LENGTH);
 				found = true;
 				break;
 			}

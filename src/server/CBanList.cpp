@@ -37,7 +37,7 @@ banlist_t *CBanList::findBanned(char *szAddress)
 
     assert( szAddress );
 
-    char address[256];
+    static char address[256];
 
 	// Remove the port from the address
 	char *addr;
@@ -71,7 +71,7 @@ int CBanList::getIdByAddr(char *szAddress)
 
     assert( szAddress );
 
-    char address[256];
+    static char address[256];
 
 	// Remove the port from the address
 	char *addr;
@@ -235,7 +235,8 @@ void CBanList::loadList(char *szFilename)
     if( !fp )
         return;
 
-    char line[256] = "";
+    static char line[256];
+    strcpy(line, "");
 
     while( !feof(fp) ) {
         fscanf(fp, "%[^\n]\n",line);

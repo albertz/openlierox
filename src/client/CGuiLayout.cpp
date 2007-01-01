@@ -191,7 +191,7 @@ bool CGuiLayout::Build(void)
 	memcpy(path+skinpathlen, tLXOptions->sResolution, reslen+1);
 
 	// Temp
-	char file[32];
+	static char file[32];
 
 	// Get the file name of the skin file
 	switch (iID)  {
@@ -229,6 +229,7 @@ bool CGuiLayout::Build(void)
 		case L_OPTIONSSYSTEM: strcpy(file,"optionssystem"); break;
 		case L_MESSAGEBOXOK: strcpy(file,"messageboxok"); break;
 		case L_MESSAGEBOXYESNO: strcpy(file,"messageboxyesno"); break;
+		default: strcpy(file, "fuckingshit");
 	}
 
 	// Get the Filename + Path

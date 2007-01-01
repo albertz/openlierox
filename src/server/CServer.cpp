@@ -549,13 +549,14 @@ void CServer::RegisterServer(void)
 // Process the registering of the server
 void CServer::ProcessRegister(void)
 {
-    char szError[512];
+    static char szError[512];
 
 	if(!bRegServer || bServerRegistered)
 		return;
 
 	int result = http_ProcessRequest(szError);
-
+	fix_markend(szError);
+	
 	// Normal, keep going
 	if(result == 0)
 		return;
@@ -600,16 +601,17 @@ bool CServer::DeRegisterServer(void)
 		return false;
 
 	// Create the url
-	char url[1024];
-    char svr[1024];
-	char buf[512];
+	static char url[1024];
+    static char svr[1024];
+	static char buf[512];
 
 	NetworkAddr addr;
 
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
-	sprintf(url, "%s?port=%d&addr=%s", LX_SVRDEREG, nPort, buf);
+	snprintf(url, sizeof(url), "%s?port=%d&addr=%s", LX_SVRDEREG, nPort, buf);
+	fix_markend(url);
 
 	// Initialize the request
 	bServerRegistered = false;
@@ -690,7 +692,7 @@ void CServer::DropClient(CClient *cl, int reason)
 	bs.writeByte(S2C_CLLEFT);
 	bs.writeByte(cl->getNumWorms());
 
-	char buf[128];
+	static char buf[128];
 	int i;    
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
@@ -825,7 +827,7 @@ void CServer::kickWorm(int wormID)
 			cl->setNumWorms(cl->getNumWorms()-1);
 
 			// Send the message
-			char buf[256];
+			static char buf[256];
 			replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), buf, 1);
 			SendGlobalText(buf,TXT_NETWORK);
 
@@ -924,7 +926,7 @@ void CServer::banWorm(int wormID)
 			cl->setNumWorms(cl->getNumWorms()-1);
 
 			// Send the message
-			char buf[256];
+			static char buf[256];
 			replacemax(NetworkTexts->sHasBeenBanned,"<player>", w->getName(), buf, 1);
 			SendGlobalText(buf,TXT_NETWORK);
 
@@ -940,9 +942,10 @@ void CServer::banWorm(int wormID)
 		}
 	}
 
-	char szAddress[21];
+	static char szAddress[21];
 	NetAddrToString(cl->getChannel()->getAddress(),&szAddress[0]);
-
+	fix_markend(szAddress);
+	
 	if (!w->getName() || !szAddress)
 		return;
 
@@ -1011,7 +1014,7 @@ void CServer::muteWorm(int wormID)
 	if (cClient)  {
 		if (cClient->OwnsWorm(w))  {
 			// Send the message
-			char buf[256];
+			static char buf[256];
 			replacemax(NetworkTexts->sHasBeenMuted,"<player>", w->getName(), buf, 1);
 			SendGlobalText(buf,TXT_NETWORK);
 
@@ -1025,7 +1028,7 @@ void CServer::muteWorm(int wormID)
 
 	// Send the text
 	if (strcmp(NetworkTexts->sHasBeenUnmuted,"<none>"))  {
-		char buf[64];
+		static char buf[64];
 		replacemax(NetworkTexts->sHasBeenMuted,"<player>",w->getName(),buf,1);
 		SendGlobalText(buf,TXT_NETWORK);
 	}
@@ -1090,7 +1093,7 @@ void CServer::unmuteWorm(int wormID)
 
 	// Send the message
 	if (strcmp(NetworkTexts->sHasBeenUnmuted,"<none>"))  {
-		char buf[64];
+		static char buf[64];
 		replacemax(NetworkTexts->sHasBeenUnmuted,"<player>",w->getName(),buf,1);
 		SendGlobalText(buf,TXT_NETWORK);
 	}
@@ -1172,7 +1175,7 @@ bool CServer::WriteLogToFile(FILE *f)
 	if (!tGameLog->tWorms)
 		return false;
 
-	char levelfile[256],modfile[256],level[256],mod[256],player[128],skin[128];
+	static char levelfile[256],modfile[256],level[256],mod[256],player[128],skin[128];
 
 	printf("Filling in the game details... ");
 

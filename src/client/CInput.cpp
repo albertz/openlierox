@@ -153,7 +153,7 @@ SDL_Joystick *joy1,*joy2;
 // Load the input from a config file
 int CInput::Load(char *name, char *section)
 {
-	char	string[64];
+	static char	string[64];
 
 	Down = false;
 

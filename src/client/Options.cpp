@@ -27,11 +27,11 @@ int LoadOptions(void)
 {
 	printf("Loading options... ");
 
-    char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    char    *ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
-    char    *ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
-    char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode"};
-    char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
+    static const char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    static const char    *ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
+    static const char    *ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
+    static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode"};
+    static const char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
     
     int     i;
 	
@@ -41,7 +41,7 @@ int LoadOptions(void)
 	}
 	tLXOptions->tSearchPaths = NULL;
 
-    char *f = "cfg/options.cfg";
+    static const char *f = "cfg/options.cfg";
 
   	AddKeyword("true",true);
 	AddKeyword("false",false);
@@ -187,8 +187,8 @@ void ShutdownOptions(void)
 // Save the options
 void SaveOptions(void)
 {
-    char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode"};
+    static const char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode"};
     int     i;
 
     if(tLXOptions == NULL)
@@ -292,7 +292,7 @@ bool LoadNetworkStrings(void)
 	NetworkTexts = new networktexts_t;
 	if (!NetworkTexts)
 		return false;
-	char *f = {"cfg/network.txt"};
+	static const char *f = {"cfg/network.txt"};
 	ReadString (f, "NetworkTexts", "HasConnected",    NetworkTexts->sHasConnected,   "<player> has connected");
 	ReadString (f, "NetworkTexts", "HasLeft",	      NetworkTexts->sHasLeft,	     "<player> has left");
 	ReadString (f, "NetworkTexts", "HasTimedOut",     NetworkTexts->sHasTimedOut,    "<player> has timed out");

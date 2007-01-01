@@ -421,10 +421,10 @@ int chrcasecmp(const char c1, const char c2)
 
 //////////////////
 // Gets the string <beginning of text,searched character)
-void ReadUntil(const char *text, char until_character, char *result)
+void ReadUntil(const char *text, char until_character, char *result, size_t reslen)
 {
 	size_t i = 0;
-	for(; text[i] != until_character && text[i] != '\0'; i++)
+	for(; i < reslen-1 && text[i] != until_character && text[i] != '\0'; i++)
 		result[i] = text[i];
 	result[i] = '\0';
 }

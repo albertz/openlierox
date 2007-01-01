@@ -35,7 +35,7 @@ void CBytestream::Append(CBytestream *bs)
 // Dump the data out
 void CBytestream::Dump(void)
 {
-    char buf[MAX_DATA+1];
+    static char buf[MAX_DATA+1];
 
     memcpy(buf, Data, Length);
     buf[Length] = '\0';
@@ -162,14 +162,14 @@ int CBytestream::writeFloat(float value)
 // Write a string to the stream
 int CBytestream::writeString(char *fmt,...)
 {
-	char buf[1024];
+	static char buf[1024];
 	va_list	va;
 
 	va_start(va,fmt);
-	vsnprintf(buf,1024,fmt,va);	
+	vsnprintf(buf,sizeof(buf),fmt,va);	fix_markend(buf);
 	va_end(va);
 
-	int len = strnlen(buf,sizeof(buf));
+	int len = fix_strnlen(buf);
 
 	if(len+CurByte >= MAX_DATA)
 		return false;
@@ -289,7 +289,7 @@ float CBytestream::readFloat(void)
 
 ///////////////////
 // Read a string from the stream
-char *CBytestream::readString(char *str, size_t length)
+char *CBytestream::readString(char *str, size_t maxlen)
 {
 	if (!str)
 		return false;
@@ -306,12 +306,13 @@ char *CBytestream::readString(char *str, size_t length)
 		}
 
 	// Invalid
-	if (!valid || len >= length)  {
+	if (!valid || len >= maxlen)  {
 		str[0] = '\0';
 		return str;
 	}
 
-	memcpy(str,(char *)Data+CurByte, len+1);
+	memcpy(str,(char *)Data+CurByte, MIN(len+1, maxlen-1));
+	str[maxlen-1] = '\0';
 	CurByte += len+1;
 
 	return str;
