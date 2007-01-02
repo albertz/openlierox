@@ -148,7 +148,7 @@ void CWpnRest::addWeapon(char *szName, int nState)
     if( !psWpn )
         return;
 
-    size_t len = strnlen(szName,sizeof(szName));
+    size_t len = strlen(szName);
     psWpn->szName = new char[ len+1 ];
     memcpy(psWpn->szName, szName, len+1);
     psWpn->nState = nState;
