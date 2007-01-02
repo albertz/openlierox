@@ -60,7 +60,7 @@ public:
 	int		KeyDown(int c)						{ return LBL_NONE; }
 	int		KeyUp(int c)						{ return LBL_NONE; }
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ 
+	int	SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ 
 							if(iMsg==LBM_SETTEXT) fix_strncpy(sText, (char *)Param1); return 0;
 						}
 

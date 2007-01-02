@@ -31,7 +31,7 @@ public:
 		tImage = NULL;
 		if (Path)  {
 			tImage = LoadImage(Path,0);
-			size_t len = strnlen(Path,sizeof(Path));
+			size_t len = strlen(Path);
 			sPath = new char[len+1];
 			memcpy(sPath,Path,len+1);
 

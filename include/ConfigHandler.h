@@ -21,12 +21,12 @@
 
 
 // Internal
-int		GetString(const char *filename, const char *section, const char *key, char *string);
+int		GetString(const char *filename, const char *section, const char *key, char *string, size_t maxstrlen);
 //void	TrimSpaces(char *str);
 
 
 // Value reading
-int		ReadString(const char *filename, const char *section, const char *key, char *value, const char *defaultv);
+int		ReadString(const char *filename, const char *section, const char *key, char *value, size_t maxvaluelen, const char *defaultv);
 int		ReadInteger(const char *filename, const char *section, const char *key, int *value, int defaultv);
 int		ReadFloat(const char *filename, const char *section, const char *key, float *value, float defaultv);
 int		ReadColour(const char *filename, const char *section, const char *key, Uint32 *value, Uint32 defaultv);

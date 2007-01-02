@@ -656,7 +656,7 @@ void Menu_Net_NETParseList(void)
 
 
 	int i = 0;
-	int count = strlen(content);
+	int count = strnlen(content, HTTP_CONTENT_LEN);
 
 	while(i < count) {		
 		sscanf(content+i,"%[^\n]\n",Line);

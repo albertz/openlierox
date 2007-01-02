@@ -59,7 +59,7 @@ int LoadOptions(void)
     while(true) {
     	 // &tmp[10] is the end of "SearchPath"
     	strncpy(&tmp[10], itoa(i, tmp2, 10), sizeof(tmp)-10); // Be careful! 18 was hell too much and it caused f to be NULL
-        if(!ReadString(f, "FileHandling", tmp, tmp3, NULL))
+        if(!ReadString(f, "FileHandling", tmp, tmp3, sizeof(tmp3), NULL))
         	break;
     	
     	*spath = new filelist_t;
@@ -97,13 +97,13 @@ int LoadOptions(void)
 
     // Player controls
     for(i=0; i<8; i++) {
-        ReadString(f, "Ply1Controls", ply_keys[i], tLXOptions->sPlayer1Controls[i], ply_def1[i]);
-        ReadString(f, "Ply2Controls", ply_keys[i], tLXOptions->sPlayer2Controls[i], ply_def2[i]);
+        ReadString(f, "Ply1Controls", ply_keys[i], tLXOptions->sPlayer1Controls[i], sizeof(tLXOptions->sPlayer1Controls[i]), ply_def1[i]);
+        ReadString(f, "Ply2Controls", ply_keys[i], tLXOptions->sPlayer2Controls[i], sizeof(tLXOptions->sPlayer2Controls[i]), ply_def2[i]);
     }
 
     // General controls
     for(i=0; i<7; i++)
-        ReadString(f, "GeneralControls", gen_keys[i], tLXOptions->sGeneralControls[i], gen_def[i]);
+        ReadString(f, "GeneralControls", gen_keys[i], tLXOptions->sGeneralControls[i], sizeof(tLXOptions->sGeneralControls[i]), gen_def[i]);
 
     // Game
     ReadInteger(f, "Game", "Blood",         &tLXOptions->iBloodAmount, 100);
@@ -124,12 +124,12 @@ int LoadOptions(void)
     ReadKeyword(f, "LastGame", "BonusNames",&tLXOptions->tGameinfo.iShowBonusName, true);
     ReadInteger(f, "LastGame", "MaxPlayers",&tLXOptions->tGameinfo.iMaxPlayers, 8);
 	ReadKeyword(f, "LastGame", "Tournament", &tLXOptions->tGameinfo.bTournament, true);
-    ReadString (f, "LastGame", "ServerName",tLXOptions->tGameinfo.sServerName, "LieroX Server");
-	ReadString (f, "LastGame", "WelcomeMessage",tLXOptions->tGameinfo.sWelcomeMessage, "Welcome to <server>, <player>");
-    ReadString (f, "LastGame", "LevelName", tLXOptions->tGameinfo.sMapName, "");
+    ReadString (f, "LastGame", "ServerName",tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName), "LieroX Server");
+	ReadString (f, "LastGame", "WelcomeMessage",tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage), "Welcome to <server>, <player>");
+    ReadString (f, "LastGame", "LevelName", tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName), "");
     ReadInteger(f, "LastGame", "GameType",  &tLXOptions->tGameinfo.nGameType, GMT_DEATHMATCH);
-    ReadString (f, "LastGame", "ModName",   tLXOptions->tGameinfo.szModName, "Classic");
-    ReadString (f, "LastGame", "Password",  tLXOptions->tGameinfo.szPassword, "");
+    ReadString (f, "LastGame", "ModName",   tLXOptions->tGameinfo.szModName, sizeof(tLXOptions->tGameinfo.szModName), "Classic");
+    ReadString (f, "LastGame", "Password",  tLXOptions->tGameinfo.szPassword, sizeof(tLXOptions->tGameinfo.szPassword), "");
     ReadKeyword(f, "LastGame", "RegisterServer",&tLXOptions->tGameinfo.bRegServer, true);
 	ReadInteger(f, "LastGame", "LastSelectedPlayer",&tLXOptions->tGameinfo.iLastSelectedPlayer, 0);
 	ReadKeyword(f, "LastGame", "AllowWantsJoinMsg",&tLXOptions->tGameinfo.bAllowWantsJoinMsg, true);
@@ -293,40 +293,40 @@ bool LoadNetworkStrings(void)
 	if (!NetworkTexts)
 		return false;
 	static const char *f = {"cfg/network.txt"};
-	ReadString (f, "NetworkTexts", "HasConnected",    NetworkTexts->sHasConnected,   "<player> has connected");
-	ReadString (f, "NetworkTexts", "HasLeft",	      NetworkTexts->sHasLeft,	     "<player> has left");
-	ReadString (f, "NetworkTexts", "HasTimedOut",     NetworkTexts->sHasTimedOut,    "<player> has timed out");
+	ReadString (f, "NetworkTexts", "HasConnected",    NetworkTexts->sHasConnected, sizeof(NetworkTexts->sHasConnected),  "<player> has connected");
+	ReadString (f, "NetworkTexts", "HasLeft",	      NetworkTexts->sHasLeft, sizeof(NetworkTexts->sHasLeft),	     "<player> has left");
+	ReadString (f, "NetworkTexts", "HasTimedOut",     NetworkTexts->sHasTimedOut,  sizeof(NetworkTexts->sHasTimedOut),  "<player> has timed out");
 
-	ReadString (f, "NetworkTexts", "HasBeenKicked",   NetworkTexts->sHasBeenKicked,  "<player> has been kicked out");
-	ReadString (f, "NetworkTexts", "HasBeenBanned",   NetworkTexts->sHasBeenBanned,  "<player> has been banned");
-	ReadString (f, "NetworkTexts", "HasBeenMuted",    NetworkTexts->sHasBeenMuted,   "<player> has been muted");
-	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  NetworkTexts->sHasBeenUnmuted, "<player> has been unmuted");
-	ReadString (f, "NetworkTexts", "KickedYou",		  NetworkTexts->sKickedYou,      "You have been kicked");
-	ReadString (f, "NetworkTexts", "BannedYou",		  NetworkTexts->sBannedYou,      "You have been banned");
-	ReadString (f, "NetworkTexts", "YouQuit",		  NetworkTexts->sYouQuit,        "You have quit");
-	ReadString (f, "NetworkTexts", "YouTimed",		  NetworkTexts->sYouTimed,       "You timed out");
+	ReadString (f, "NetworkTexts", "HasBeenKicked",   NetworkTexts->sHasBeenKicked, sizeof(NetworkTexts->sHasBeenKicked), "<player> has been kicked out");
+	ReadString (f, "NetworkTexts", "HasBeenBanned",   NetworkTexts->sHasBeenBanned, sizeof(NetworkTexts->sHasBeenBanned), "<player> has been banned");
+	ReadString (f, "NetworkTexts", "HasBeenMuted",    NetworkTexts->sHasBeenMuted, sizeof(NetworkTexts->sHasBeenMuted),  "<player> has been muted");
+	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  NetworkTexts->sHasBeenUnmuted, sizeof(NetworkTexts->sHasBeenUnmuted), "<player> has been unmuted");
+	ReadString (f, "NetworkTexts", "KickedYou",		  NetworkTexts->sKickedYou,  sizeof(NetworkTexts->sKickedYou),    "You have been kicked");
+	ReadString (f, "NetworkTexts", "BannedYou",		  NetworkTexts->sBannedYou,  sizeof(NetworkTexts->sBannedYou),    "You have been banned");
+	ReadString (f, "NetworkTexts", "YouQuit",		  NetworkTexts->sYouQuit, sizeof(NetworkTexts->sYouQuit),       "You have quit");
+	ReadString (f, "NetworkTexts", "YouTimed",		  NetworkTexts->sYouTimed, sizeof(NetworkTexts->sYouTimed),      "You timed out");
 
-	ReadString (f, "NetworkTexts", "Killed",	      NetworkTexts->sKilled,		 "<killer> killed <victim>");
-	ReadString (f, "NetworkTexts", "CommitedSuicide", NetworkTexts->sCommitedSuicide,"<player> commited suicide");
-	ReadString (f, "NetworkTexts", "FirstBlood",	  NetworkTexts->sFirstBlood,	 "<player> drew first blood");
-	ReadString (f, "NetworkTexts", "TeamKill",		  NetworkTexts->sTeamkill,		 "<player> is an ugly teamkiller");
+	ReadString (f, "NetworkTexts", "Killed",	      NetworkTexts->sKilled,	sizeof(NetworkTexts->sKilled),	 "<killer> killed <victim>");
+	ReadString (f, "NetworkTexts", "CommitedSuicide", NetworkTexts->sCommitedSuicide, sizeof(NetworkTexts->sCommitedSuicide), "<player> commited suicide");
+	ReadString (f, "NetworkTexts", "FirstBlood",	  NetworkTexts->sFirstBlood, sizeof(NetworkTexts->sFirstBlood),	 "<player> drew first blood");
+	ReadString (f, "NetworkTexts", "TeamKill",		  NetworkTexts->sTeamkill,	sizeof(NetworkTexts->sTeamkill),	 "<player> is an ugly teamkiller");
 
-	ReadString (f, "NetworkTexts", "PlayerOut",		  NetworkTexts->sPlayerOut,		 "<player> is out of the game");
-	ReadString (f, "NetworkTexts", "TeamOut",		  NetworkTexts->sTeamOut,		 "The <team> team is out of the game");
-	ReadString (f, "NetworkTexts", "PlayerHasWon",	  NetworkTexts->sPlayerHasWon,	 "<player> has won the match");
-	ReadString (f, "NetworkTexts", "TeamHasWon",	  NetworkTexts->sTeamHasWon,	 "The <team> team has won the match");
+	ReadString (f, "NetworkTexts", "PlayerOut",		  NetworkTexts->sPlayerOut,	sizeof(NetworkTexts->sPlayerOut),	 "<player> is out of the game");
+	ReadString (f, "NetworkTexts", "TeamOut",		  NetworkTexts->sTeamOut,	sizeof(NetworkTexts->sTeamOut),	 "The <team> team is out of the game");
+	ReadString (f, "NetworkTexts", "PlayerHasWon",	  NetworkTexts->sPlayerHasWon, sizeof(NetworkTexts->sPlayerHasWon),	 "<player> has won the match");
+	ReadString (f, "NetworkTexts", "TeamHasWon",	  NetworkTexts->sTeamHasWon, sizeof(NetworkTexts->sTeamHasWon),	 "The <team> team has won the match");
 
-	ReadString (f, "NetworkTexts", "WormIsIt",		  NetworkTexts->sWormIsIt,		 "<player> is IT!");
+	ReadString (f, "NetworkTexts", "WormIsIt",		  NetworkTexts->sWormIsIt,	sizeof(NetworkTexts->sWormIsIt),	 "<player> is IT!");
 
-	ReadString (f, "NetworkTexts", "ServerFull",	  NetworkTexts->sServerFull,	 "Server is full");
-	ReadString (f, "NetworkTexts", "NoEmptySlots",	  NetworkTexts->sNoEmptySlots,	 "The server has no emtpy slots");
-	ReadString (f, "NetworkTexts", "WrongProtocol",	  NetworkTexts->sWrongProtocol,	 "Wrong protocol version. Server protocol version is <version>.");
-	ReadString (f, "NetworkTexts", "BadVerification", NetworkTexts->sBadVerification,"Bad connection verification");
-	ReadString (f, "NetworkTexts", "NoIpVerification",NetworkTexts->sNoIpVerification,"No verification for address");
-	ReadString (f, "NetworkTexts", "GameInProgress",  NetworkTexts->sGameInProgress, "Cannot join, the game is currently in progress");
-	ReadString (f, "NetworkTexts", "YouAreBanned",	  NetworkTexts->sYouAreBanned,	 "You are banned on this server");
-	ReadString (f, "NetworkTexts", "BotsNotAllowed",  NetworkTexts->sBotsNotAllowed, "Sorry, bots are not allowed on this server");
-	ReadString (f, "NetworkTexts", "WantsJoin",		  NetworkTexts->sWantsJoin,		 "<player> wants join the server");
+	ReadString (f, "NetworkTexts", "ServerFull",	  NetworkTexts->sServerFull, sizeof(NetworkTexts->sServerFull),	 "Server is full");
+	ReadString (f, "NetworkTexts", "NoEmptySlots",	  NetworkTexts->sNoEmptySlots, sizeof(NetworkTexts->sNoEmptySlots),	 "The server has no emtpy slots");
+	ReadString (f, "NetworkTexts", "WrongProtocol",	  NetworkTexts->sWrongProtocol,	sizeof(NetworkTexts->sWrongProtocol), "Wrong protocol version. Server protocol version is <version>.");
+	ReadString (f, "NetworkTexts", "BadVerification", NetworkTexts->sBadVerification, sizeof(NetworkTexts->sBadVerification), "Bad connection verification");
+	ReadString (f, "NetworkTexts", "NoIpVerification",NetworkTexts->sNoIpVerification, sizeof(NetworkTexts->sNoIpVerification), "No verification for address");
+	ReadString (f, "NetworkTexts", "GameInProgress",  NetworkTexts->sGameInProgress, sizeof(NetworkTexts->sGameInProgress), "Cannot join, the game is currently in progress");
+	ReadString (f, "NetworkTexts", "YouAreBanned",	  NetworkTexts->sYouAreBanned, sizeof(NetworkTexts->sYouAreBanned),	 "You are banned on this server");
+	ReadString (f, "NetworkTexts", "BotsNotAllowed",  NetworkTexts->sBotsNotAllowed, sizeof(NetworkTexts->sBotsNotAllowed), "Sorry, bots are not allowed on this server");
+	ReadString (f, "NetworkTexts", "WantsJoin",		  NetworkTexts->sWantsJoin, sizeof(NetworkTexts->sWantsJoin),		 "<player> wants join the server");
 
 	printf("DONE\n");
 	return true;

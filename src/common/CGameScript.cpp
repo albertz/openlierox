@@ -820,17 +820,20 @@ bool CGameScript::weaponExists(char *szName)
 // Write a string in pascal format
 void CGameScript::writeString(char *szString, FILE *fp)
 {
-    assert( szString );
+    if(!szString) return;
 
-    uchar length = strlen(szString);
-
-    fwrite( &length, sizeof(uchar), 1, fp );
+	size_t length = strlen(szString);
+	if(length > 255) length = 255; // WARNING: cutting the string here! (TODO: should we assert this?) 
+	uchar len = (uchar)length;
+	
+    fwrite( &len, sizeof(uchar), 1, fp );
     fwrite( szString,sizeof(char), length, fp );
 }
 
 
 ///////////////////
 // Read a string in pascal format
+// TODO: maxlen for szString
 char *CGameScript::readString(char *szString, FILE *fp)
 {
     assert( szString );

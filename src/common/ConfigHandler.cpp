@@ -43,7 +43,7 @@ int ReadKeyword(const char *filename, const char *section, const char *key, int 
 	
 	*value = defaultv;
 
-	if(!GetString(filename,section,key,string))
+	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
 
 	// Try and find a keyword with matching keys
@@ -66,7 +66,7 @@ bool ReadKeyword(const char *filename, const char *section, const char *key, boo
 	
 	*value = defaultv;
 
-	if(!GetString(filename,section,key,string))
+	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
 
 	// Try and find a keyword with matching keys
@@ -89,7 +89,7 @@ int ReadInteger(const char *filename, const char *section, const char *key, int 
 
 	*value = defaultv;
 	
-	if(!GetString(filename,section,key,string))
+	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
 	fix_markend(string);
 	
@@ -101,11 +101,11 @@ int ReadInteger(const char *filename, const char *section, const char *key, int 
 
 ///////////////////
 // Read a string from a file
-int ReadString(const char *filename, const char *section, const char *key, char *value, const char *defaultv)
+int ReadString(const char *filename, const char *section, const char *key, char *value, size_t maxvaluelen, const char *defaultv)
 {
-	if(defaultv != NULL) strcpy(value,defaultv);
+	if(defaultv != NULL) dyn_strncpy(value,defaultv,maxvaluelen);
 
-	return GetString(filename,section,key,value);
+	return GetString(filename,section,key,value,maxvaluelen);
 
 	/*int result = GetString(filename,section,key,value);
 
@@ -124,7 +124,7 @@ int ReadFloat(const char *filename, const char *section, const char *key, float 
 
 	*value = defaultv;
 	
-	if(!GetString(filename,section,key,string))
+	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
 
 	*value = (float)atof(string);
@@ -141,7 +141,7 @@ int ReadColour(const char *filename, const char *section, const char *key, Uint3
 
 	*value = defaultv;
 	
-	if(!GetString(filename,section,key,string))
+	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
 
 	*value = StrToCol(string);
@@ -155,7 +155,7 @@ int ReadColour(const char *filename, const char *section, const char *key, Uint3
 ///////////////////
 // Read a string
 // HINT: string has to be MAX_MINOR_LENGTH long
-int GetString(const char *filename, const char *section, const char *key, char *string)
+int GetString(const char *filename, const char *section, const char *key, char *string, size_t maxstrlen)
 {
 	FILE	*config;
 	static char	Line[MAX_STRING_LENGTH];
@@ -220,7 +220,7 @@ int GetString(const char *filename, const char *section, const char *key, char *
 			{				
 				// Get the value
 				fix_strncpy(tmpLine,Line+Position);
-				strncpy(string, TrimSpaces(tmpLine), MAX_MINOR_LENGTH);
+				dyn_strncpy(string, TrimSpaces(tmpLine), maxstrlen);
 				found = true;
 				break;
 			}

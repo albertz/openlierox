@@ -659,7 +659,7 @@ void Menu_MapEd_LoadSave(int save)
 
 			FILE *fp = OpenGameFile(filename,"rb");
 			if(fp) {
-				fread(id,			sizeof(char),	32,	fp);
+				fread(id,		sizeof(char),	32,	fp);
 				fread(&version,	sizeof(int),	1,	fp);
 				EndianSwap(version);
 				fread(name,		sizeof(char),	64,	fp);

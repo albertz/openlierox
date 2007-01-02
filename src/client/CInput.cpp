@@ -157,7 +157,7 @@ int CInput::Load(char *name, char *section)
 
 	Down = false;
 
-	if(!ReadString(GetConfigFile(),section,name,string,""))
+	if(!ReadString(GetConfigFile(),section,name,string,sizeof(string),""))
 		return false;
 
 	return Setup(string);
