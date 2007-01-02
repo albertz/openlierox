@@ -254,3 +254,41 @@ void Menu_NetFrame(void)
 			break;
 	}
 }
+
+////////////
+// Shutdown
+void Menu_NetShutdown(void)
+{
+	switch(iNetMode) {
+
+		// Main
+		case net_main:
+			Menu_Net_MainShutdown();
+			break;
+
+		// Internet
+		case net_internet:
+			Menu_Net_NETShutdown();
+			break;
+
+		// LAN
+		case net_lan:
+			Menu_Net_LANShutdown();
+			break;
+
+		// Host
+		case net_host:
+			Menu_Net_HostShutdown();
+			break;
+
+		// Favourites
+		case net_favourites:
+			Menu_Net_FavouritesShutdown();
+			break;
+
+		// Join
+		case net_join:
+			Menu_Net_JoinShutdown();
+			break;
+	}
+}

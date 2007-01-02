@@ -356,7 +356,7 @@ void Menu_Net_LanShowServer(char *szAddress)
     cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    ld_Ok,      260,400, 40,15);
 
 
-    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE]) {
+    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		nMouseCur = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();

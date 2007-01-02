@@ -128,6 +128,18 @@ void Menu_LocalInitialize(void)
         sLocalPlayers[i].bUsed = false;
 }
 
+//////////////
+// Shutdown
+void Menu_LocalShutdown(void)
+{
+	if (bGameSettings)
+		Menu_GameSettingsShutdown();
+	if (bWeaponRest)
+		Menu_WeaponsRestrictionsShutdown();
+
+	cLocalMenu.Shutdown();
+}
+
 
 ///////////////////
 // Local frame
@@ -211,7 +223,7 @@ void Menu_LocalFrame(void)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Shutdown
-					cLocalMenu.Shutdown();
+					Menu_LocalShutdown();
 
 					// Leave
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -852,6 +864,13 @@ void Menu_GameSettings(void)
 		//cLocalMenu.SendMessage(gs_TagLimitTxt, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iTagLimit,buf,10), 0);
 }
 
+/////////////
+// Shutdown
+void Menu_GameSettingsShutdown(void)
+{
+	cGameSettings.Shutdown();
+}
+
 
 ///////////////////
 // Game settings frame
@@ -880,9 +899,7 @@ bool Menu_GameSettings_Frame(void)
 			case gs_Ok:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					Menu_GameSettings_GrabInfo();
-
-					cGameSettings.Shutdown();				
+					Menu_GameSettings_GrabInfo();				
 
 					return true;
 				}
@@ -1039,6 +1056,20 @@ void Menu_WeaponsRestrictions(char *szMod)
     }
 }
 
+//////////////////
+// Shutdown the weapon restrictions
+void Menu_WeaponsRestrictionsShutdown(void)
+{
+	cWeaponsRest.Shutdown();
+
+    cWpnRestList.saveList("cfg/wpnrest.dat");
+    cWpnRestList.Shutdown();
+
+    cWpnGameScript->Shutdown();
+    delete cWpnGameScript;
+    cWpnGameScript = NULL;
+}
+
 
 ///////////////////
 // Weapons Restrictions frame
@@ -1136,14 +1167,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
 			case wr_Ok:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					cWeaponsRest.Shutdown();
-
-                    cWpnRestList.saveList("cfg/wpnrest.dat");
-                    cWpnRestList.Shutdown();
-
-                    cWpnGameScript->Shutdown();
-                    delete cWpnGameScript;
-                    cWpnGameScript = NULL;
+					Menu_WeaponsRestrictionsShutdown();
 
 					return true;
 				}
@@ -1196,6 +1220,8 @@ enum  {
 	wp_PresetName
 };
 
+CGuiLayout cWpnPresets;
+
 void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 {
 	if (!wpnrest)
@@ -1213,16 +1239,14 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 
 	Menu_RedrawMouse(true);
 
-	CGuiLayout cg;
+	cWpnPresets.Initialize();
 
-	cg.Initialize();
-
-	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), wp_Cancel, 180,310, 75,15);
-	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     wp_Ok, 430,310, 40,15);
-	cg.Add( new CListview(),                            wp_PresetList, 180,170, 280,110+(!save)*20);
-	cg.Add( new CTextbox(),                             wp_PresetName, 270,285, 190,20);
+	cWpnPresets.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), wp_Cancel, 180,310, 75,15);
+	cWpnPresets.Add( new CButton(BUT_OK, tMenu->bmpButtons),     wp_Ok, 430,310, 40,15);
+	cWpnPresets.Add( new CListview(),                            wp_PresetList, 180,170, 280,110+(!save)*20);
+	cWpnPresets.Add( new CTextbox(),                             wp_PresetName, 270,285, 190,20);
 	
-	t = (CTextbox *)cg.getWidget(wp_PresetName);
+	t = (CTextbox *)cWpnPresets.getWidget(wp_PresetName);
 
 	// Hide the textbox for Load
 	t->setEnabled(save);
@@ -1238,7 +1262,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	int done = false;
 	if(!FindFirst("cfg/presets/","*",filename))
 		done = true;
-	CListview *lv = (CListview *)cg.getWidget(2);
+	CListview *lv = (CListview *)cWpnPresets.getWidget(2);
 	lv->AddColumn("Weapon presets",60);
 
 
@@ -1263,7 +1287,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	
 	
 	ProcessEvents();
-	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop) {
+	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 
@@ -1276,8 +1300,8 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		if (save)
 			tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel,"%s","Preset name");
 
-		ev = cg.Process();
-		cg.Draw(tMenu->bmpScreen);
+		ev = cWpnPresets.Process();
+		cWpnPresets.Draw(tMenu->bmpScreen);
 
 		// Process the widgets
 		mouse = 0;
@@ -1353,7 +1377,14 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 
 	Menu_RedrawMouse(true);
 
-	cg.Shutdown();
+	Menu_WeaponPresetsShutdown();
+}
+
+/////////////
+// Shutdown
+void Menu_WeaponPresetsShutdown(void)
+{
+	cWpnPresets.Shutdown();
 }
 
 

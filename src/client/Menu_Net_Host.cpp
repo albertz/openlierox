@@ -129,7 +129,18 @@ int Menu_Net_HostInitialize(void)
 // Shutdown the host menu
 void Menu_Net_HostShutdown(void)
 {
-	cHostPly.Shutdown();
+	switch(iHostType) {
+
+		// Player selection
+		case 0:
+			Menu_Net_HostPlyShutdown();
+			break;
+
+		// Lobby
+		case 1:
+			Menu_Net_HostLobbyShutdown();
+			break;
+	}
 }
 
 
@@ -186,7 +197,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
-					cHostPly.Shutdown();
+					Menu_Net_HostShutdown();
 
 					// Back to net menu
 					Menu_MainInitialize();
@@ -321,6 +332,12 @@ void Menu_Net_HostPlyFrame(int mouse)
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
 }
 
+//////////////
+// Shutdown
+void Menu_Net_HostPlyShutdown(void)
+{
+	cHostPly.Shutdown();
+}
 
 
 
@@ -692,21 +709,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
-					// Shutdown
-					cHostLobby.Shutdown();
-
-					// Tell any clients that we're leaving
-					cServer->SendDisconnect();
-
 					// De-register the server
 					Menu_Net_HostDeregister();
 
-					// Shutdown server & clients
-					cServer->Shutdown();
-					if (cBots)
-						for (int i=0;i<tGameInfo.iNumBots;i++)
-							cBots[i].Shutdown();
-					cClient->Shutdown();
+					// Shutdown
+					Menu_Net_HostLobbyShutdown();
 
 					// Back to main net menu
 					Menu_NetInitialize();
@@ -929,6 +936,34 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+}
+
+////////////////////
+// Shutdown
+void Menu_Net_HostLobbyShutdown(void)
+{
+	// Shutdown all dialogs
+	if (bHostGameSettings)
+		Menu_GameSettingsShutdown();
+	if (bHostWeaponRest)
+		Menu_WeaponsRestrictionsShutdown();
+	if (bBanList)
+		Menu_BanListShutdown();
+	if (bServerSettings)
+		Menu_ServerSettingsShutdown();
+
+	// Shutdown
+	cHostLobby.Shutdown();
+
+	// Tell any clients that we're leaving
+	cServer->SendDisconnect();
+
+	// Shutdown server & clients
+	cServer->Shutdown();
+	if (cBots)
+		for (int i=0;i<tGameInfo.iNumBots;i++)
+			cBots[i].Shutdown();
+	cClient->Shutdown();
 }
 
 
@@ -1305,7 +1340,7 @@ bool Menu_ServerSettings_Frame(void)
 					tLXOptions->tGameinfo.bAllowWantsJoinMsg = cServerSettings.SendMessage( ss_AllowWantsJoin, CKM_GETCHECK, 0, 0) != 0;
 					tLXOptions->tGameinfo.bAllowRemoteBots = cServerSettings.SendMessage( ss_AllowRemoteBots, CKM_GETCHECK, 0, 0) != 0;
 
-					cServerSettings.Shutdown();							
+					Menu_ServerSettingsShutdown();
 
 					return true;
 				}
@@ -1314,7 +1349,7 @@ bool Menu_ServerSettings_Frame(void)
 			// Cancel, don't save changes
 			case ss_Cancel:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
-					cServerSettings.Shutdown();
+					Menu_ServerSettingsShutdown();
 
 					return true;
 				}
@@ -1326,6 +1361,11 @@ bool Menu_ServerSettings_Frame(void)
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
 	
 	return false;
+}
+
+void Menu_ServerSettingsShutdown(void)
+{
+	cServerSettings.Shutdown();	
 }
 
 /*
@@ -1428,9 +1468,7 @@ bool Menu_BanList_Frame(void)
 			case bl_Close:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					cBanListGui.Shutdown();
-
-                    (*cBanList).saveList((*cBanList).getPath());							
+					Menu_BanListShutdown();						
 
 					return true;
 				}
@@ -1463,4 +1501,12 @@ bool Menu_BanList_Frame(void)
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
 	
 	return false;
+}
+
+//////////////
+// Shutdown
+void Menu_BanListShutdown(void)
+{
+	cBanList->saveList(cBanList->getPath());
+	cBanListGui.Shutdown();
 }

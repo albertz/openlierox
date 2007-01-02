@@ -183,10 +183,10 @@ void ProcessEvents(void)
 
         // Quit event
 		if(Event.type == SDL_QUIT) {
-			// Quit out in a very ugly way
+			// Quit
 			tLX->iQuitGame = true;
 			tLX->iQuitEngine = true;
-			//tMenu->iMenuRunning = false;
+			tMenu->iMenuRunning = false;
 		}
 
 		// Mouse wheel scroll

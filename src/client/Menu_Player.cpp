@@ -187,6 +187,14 @@ void Menu_PlayerInitialize(void)
     cViewPlayers.SendMessage( vp_Type, CBM_ADDITEM, PRF_COMPUTER, (DWORD)"Computer" );
 }
 
+///////////////
+// Shutdown
+void Menu_PlayerShutdown(void)
+{
+	cNewPlayer.Shutdown();
+	cViewPlayers.Shutdown();
+}
+
 
 ///////////////////
 // Player frame
@@ -332,8 +340,7 @@ void Menu_Player_NewPlayer(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Shutdown
-					cNewPlayer.Shutdown();
-					cViewPlayers.Shutdown();
+					Menu_PlayerShutdown();
 					//SaveProfiles();
 
 					// Leave
@@ -460,8 +467,7 @@ void Menu_Player_ViewPlayers(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Shutdown
-					cNewPlayer.Shutdown();
-					cViewPlayers.Shutdown();
+					Menu_PlayerShutdown();
 					//SaveProfiles();
 
 					// Leave

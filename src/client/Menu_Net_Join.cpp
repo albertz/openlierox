@@ -77,6 +77,28 @@ void Menu_Net_JoinFrame(int mouse)
 	}
 }
 
+void Menu_Net_JoinShutdown(void)
+{
+	switch(iJoinMenu) {
+
+		// Select players
+/*		case join_players:
+			Menu_Net_JoinPlayersFrame(mouse);
+			break;*/
+
+		// Connecting
+		case join_connecting:
+			Menu_Net_JoinConnectionShutdown();
+			break;
+
+		// Lobby
+		case join_lobby:
+			Menu_Net_JoinLobbyShutdown();
+			break;
+	}
+}
+
+
 
 
 /*
@@ -330,6 +352,11 @@ int Menu_Net_JoinConnectionInitialize(char *sAddress)
 	return true;
 }
 
+void Menu_Net_JoinConnectionShutdown(void)
+{
+	cConnecting.Shutdown();
+}
+
 
 ///////////////////
 // Connection frame
@@ -348,12 +375,10 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 	if(cClient->getStatus() == NET_CONNECTED) {
 
 		// Leave this connection screen & go to the lobby
-		cConnecting.Shutdown();
+		Menu_Net_JoinConnectionShutdown();
 
 		if(!Menu_Net_JoinLobbyInitialize()) {
 			// Error
-
-			cConnecting.Shutdown();
 			Menu_Net_MainInitialize();
 			return;
 		}
@@ -366,8 +391,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 		cClient->Shutdown();
 
 		// Shutdown
-		cConnecting.Shutdown();
-		// TODO: Back to menu we came from
+		Menu_Net_JoinConnectionShutdown();
 		Menu_NetInitialize();		
 		return;
 	}
@@ -398,9 +422,8 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Shutdown
-					cConnecting.Shutdown();
+					Menu_Net_JoinConnectionShutdown();
 
-					// TODO: Back to menu we came from
 					Menu_NetInitialize();
 				}
 				break;
@@ -454,6 +477,15 @@ int Menu_Net_JoinLobbyInitialize(void)
     iJoinSpeaking=-1;
 
 	return true;
+}
+
+////////////////////
+// Shutdown the join lobby
+void Menu_Net_JoinLobbyShutdown(void)
+{
+	cClient->Disconnect();
+	cJoinLobby.Shutdown();
+	cClient->Shutdown();
 }
 
 
@@ -762,7 +794,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			case jl_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Disconnect
-					cClient->Disconnect();
+					/*cClient->Disconnect();
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -772,7 +804,12 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 					// Disconnect & shutdown
 					//cClient->Disconnect();
-					cClient->Shutdown();
+					cClient->Shutdown();*/
+
+					// Click
+					PlaySoundSample(sfxGeneral.smpClick);
+
+					Menu_Net_JoinLobbyShutdown();
 
 					// Back to net menu
 					Menu_NetInitialize();

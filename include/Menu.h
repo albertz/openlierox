@@ -349,6 +349,7 @@ int		Menu_LocalGetTeam(int count);
 void	Menu_Local_FillModList( CCombobox *cb );
 void	Menu_LocalShowMinimap(bool bReload);
 void    Menu_LocalDrawPlayingList(void);
+void	Menu_LocalShutdown(void);
 
 
 // Player menu
@@ -362,6 +363,7 @@ void	Menu_Player_AddPlayer(char *sName, Uint8 r, Uint8 g, Uint8 b);
 void    Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB);
 void	Menu_Player_DeletePlayer(int index);
 void    Menu_Player_FillSkinCombo(CCombobox *cb);
+void	Menu_PlayerShutdown(void);
 
 // Map editor
 int		Menu_MapEdInitialize(void);
@@ -369,9 +371,11 @@ void	Menu_MapEdFrame(SDL_Surface *bmpDest, int process);
 void	Menu_MapEd_New(void);
 void	Menu_MapEd_LoadSave(int save);
 int		Menu_MapEd_OkSave(char *szFilename);
+void	Menu_MapEdShutdown(void);
 
 // Game Settings
 void	Menu_GameSettings(void);
+void	Menu_GameSettingsShutdown(void);
 bool	Menu_GameSettings_Frame(void);
 void	Menu_GameSettings_GrabInfo(void);
 void    Menu_GameSettings_Default(void);
@@ -380,18 +384,22 @@ void    Menu_GameSettings_Default(void);
 // Weapons Restrictions
 void    Menu_WeaponsRestrictions(char *szMod);
 bool    Menu_WeaponsRestrictions_Frame(void);
+void	Menu_WeaponsRestrictionsShutdown(void);
 
 // Load/save dialog
 void	Menu_WeaponPresets(int save, CWpnRest *gamescript);
 int		Menu_WeaponPresetsOkSave(char *szFilename);
+void	Menu_WeaponPresetsShutdown(void);
 
 // Ban List
 void	Menu_BanList(void);
 bool	Menu_BanList_Frame(void);
+void	Menu_BanListShutdown(void);
 
 // Server settings
 void	Menu_ServerSettings(void);
 bool	Menu_ServerSettings_Frame(void);
+void	Menu_ServerSettingsShutdown(void);
 
 
 // Options
@@ -406,6 +414,7 @@ int		Menu_NetInitialize(void);
 void	Menu_Net_GotoHostLobby(void);
 void	Menu_Net_GotoJoinLobby(void);
 void	Menu_NetFrame(void);
+void	Menu_NetShutdown(void);
 
 
 // Net::Main menu
@@ -419,12 +428,14 @@ int		Menu_Net_HostInitialize(void);
 void	Menu_Net_HostShutdown(void);
 void	Menu_Net_HostFrame(int mouse);
 void	Menu_Net_HostPlyFrame(int mouse);
+void	Menu_Net_HostPlyShutdown(void);
 
 int		Menu_Net_HostLobbyInitialize(void);
 void    Menu_Net_HostLobbyDraw(void);
 void    Menu_Net_HostLobbyCreateGui(void);
 void	Menu_Net_HostGotoLobby(void);
 void	Menu_Net_HostLobbyFrame(int mouse);
+void	Menu_Net_HostLobbyShutdown(void);
 void	Menu_HostDrawLobby(SDL_Surface *bmpDest);
 void	Menu_HostShowMinimap(void);
 void	Menu_Net_HostDeregister(void);
@@ -459,12 +470,14 @@ void	Menu_Net_FavouritesAddServer(void);
 
 int		Menu_Net_JoinConnectionInitialize(char *sAddress);
 void	Menu_Net_JoinConnectionFrame(int mouse);
+void	Menu_Net_JoinConnectionShutdown(void);
 
 int		Menu_Net_JoinLobbyInitialize(void);
 void    Menu_Net_JoinDrawLobby(void);
 void    Menu_Net_JoinLobbyCreateGui(void);
 void	Menu_Net_JoinGotoLobby(void);
 void	Menu_Net_JoinLobbyFrame(int mouse);
+void	Menu_Net_JoinLobbyShutdown(void);
 
 
 // Net::Internet menu

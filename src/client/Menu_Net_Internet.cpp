@@ -411,7 +411,7 @@ void Menu_Net_NETAddServer(void)
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
 
 
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg) {
+	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->iMenuRunning) {
 		mouse = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
@@ -536,7 +536,7 @@ void Menu_Net_NETUpdateList(void)
 	cListUpdate.Add( new CLabel("Getting server list", tLX->clNormalLabel),	-1,260, 227, 0, 0);	
 
 
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList) {
+	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->iMenuRunning) {
 		mouse = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
@@ -728,7 +728,7 @@ void Menu_Net_NETShowServer(char *szAddress)
     cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    1,      260,400, 40,15);
 
 
-    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE]) {
+    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		nMouseCur = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();

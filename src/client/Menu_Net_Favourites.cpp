@@ -381,7 +381,7 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
     cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    fd_Ok,      260,400, 40,15);
 
 
-    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE]) {
+    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		nMouseCur = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
@@ -447,7 +447,7 @@ void Menu_Net_RenameServer(char *szName)
 	cRename.SendMessage(2,TXM_SETTEXT,(DWORD)szName,0); // Fill in the current server name
 
 
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && renameServerMsg) {
+	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && renameServerMsg && tMenu->iMenuRunning) {
 		mouse = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
@@ -555,7 +555,7 @@ void Menu_Net_FavouritesAddServer(void)
 	cAddSvr.SendMessage(3,TXM_SETMAX,32,0);
 
 
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg) {
+	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->iMenuRunning) {
 		mouse = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
@@ -566,7 +566,6 @@ void Menu_Net_FavouritesAddServer(void)
 			// Add the servers to the listview
 			Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 		}
-
 
 		cAddSvr.Draw( tMenu->bmpScreen );
 		ev = cAddSvr.Process();

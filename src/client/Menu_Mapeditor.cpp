@@ -89,6 +89,14 @@ int Menu_MapEdInitialize(void)
 	return true;
 }
 
+/////////////
+// Shutdown
+void Menu_MapEdShutdown(void)
+{
+	cMaped.Shutdown();
+	cMap.Shutdown();
+}
+
 
 ///////////////////
 // Map editor frame
@@ -355,8 +363,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Shutdown the classes
-					cMaped.Shutdown();
-					cMap.Shutdown();
+					Menu_MapEdShutdown();
 
 					Menu_MainInitialize();
 				}
@@ -711,7 +718,7 @@ void Menu_MapEd_LoadSave(int save)
 	
 	
 	ProcessEvents();
-	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop) {
+	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 

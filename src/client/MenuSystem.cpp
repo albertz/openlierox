@@ -126,6 +126,39 @@ int Menu_Initialize(int *game)
 void Menu_Shutdown(void)
 {
 	if(tMenu) {
+		// Shutdown all sub-menus
+		switch(tMenu->iMenuType) {
+
+			// Main
+			case MNU_MAIN:
+				Menu_MainShutdown();
+				break;
+
+			// Local
+			case MNU_LOCAL:
+				Menu_LocalShutdown();
+				break;
+
+			// News
+			case MNU_NETWORK:
+				Menu_NetShutdown();
+				break;
+
+			// Player
+			case MNU_PLAYER:
+				Menu_PlayerShutdown();
+				break;
+
+			// Map editor
+			case MNU_MAPED:
+				Menu_MapEdShutdown();
+				break;
+
+			// Options
+			case MNU_OPTIONS:
+				Menu_OptionsShutdown();
+				break;
+		}
 		
 		// Manually free some items
 		if(tMenu->bmpBuffer)
@@ -156,8 +189,6 @@ void Menu_Shutdown(void)
 		LayoutWidgets[i].Shutdown();
 
 	Menu_SvrList_Shutdown();
-
-	Menu_MainShutdown();
 }
 
 
