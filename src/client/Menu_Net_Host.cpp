@@ -964,6 +964,9 @@ void Menu_Net_HostLobbyShutdown(void)
 		for (int i=0;i<tGameInfo.iNumBots;i++)
 			cBots[i].Shutdown();
 	cClient->Shutdown();
+
+	// Recover the host type
+	iHostType = 0;
 }
 
 

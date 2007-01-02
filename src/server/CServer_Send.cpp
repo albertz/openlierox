@@ -247,6 +247,8 @@ void CServer::SendDisconnect(void)
 {
 	CBytestream bs;
 	CClient *cl = cClients;
+	if (!cl)
+		return;
 	
 	bs.writeByte(S2C_LEAVING);
 

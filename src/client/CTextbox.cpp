@@ -31,6 +31,7 @@ void CTextbox::Create(void)
 	iHoldingMouse = false;
 	fTimeHolding = 0;
 	fTimePushed = -9999;
+	fLastRepeat = -9999;
 	iLastchar = -1;
 }
 
@@ -195,6 +196,9 @@ int CTextbox::KeyDown(int c)
 		else {
 			if(tLX->fCurTime - fTimePushed < 0.25f)
 				return TXT_NONE;
+			if (tLX->fCurTime - fLastRepeat < 0.03f)
+				return TXT_NONE;
+			fLastRepeat = tLX->fCurTime;
 		}
 	}
 

@@ -59,6 +59,7 @@ public:
 		iLastCurpos = 0;
 		fTimeHolding = 0;
 		iLastMouseX = 0;
+		fLastRepeat = -9999;
 		fScrollTime = 0;  // We can scroll
 	}
 
@@ -87,6 +88,7 @@ private:
 	int		iLastCurpos;
 	int		iLastMouseX;
 	float	fScrollTime;
+	float	fLastRepeat;
 
 	float	fBlinkTime;
 	int		iDrawCursor;

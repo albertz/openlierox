@@ -806,8 +806,6 @@ void CServer::kickWorm(int wormID)
 	if (cClient)  {
 		if (cClient->OwnsWorm(w))  {
 
-			// TODO: doesn't work for in game (console kick)
-
 			// Delete the worm from client and server
 			CWorm *localworm = cClient->getWorm(w->getID());
 			if (!localworm)
@@ -820,6 +818,15 @@ void CServer::kickWorm(int wormID)
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
+			CWorm *remoteworm = cClient->getRemoteWorms()+w->getID();
+			if ((int)remoteworm == w->getID())
+				return;
+			remoteworm->setAlive(false);
+			remoteworm->setKills(0);
+			remoteworm->setLocal(false);
+			remoteworm->setProfile(NULL);
+			remoteworm->setLives(WRM_OUT);
+			remoteworm->setUsed(false);
 
 			// Update the number of players on server/client
 			iNumPlayers--;
@@ -905,8 +912,6 @@ void CServer::banWorm(int wormID)
 	if (cClient)  {
 		if (cClient->OwnsWorm(w))  {
 
-			// TODO: doesn't work for in game (console kick)
-
 			// Delete the worm from client and server
 			CWorm *localworm = cClient->getWorm(w->getID());
 			if (!localworm)
@@ -919,6 +924,15 @@ void CServer::banWorm(int wormID)
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
+			CWorm *remoteworm = cClient->getRemoteWorms()+w->getID();
+			if ((int)remoteworm == w->getID())
+				return;
+			remoteworm->setAlive(false);
+			remoteworm->setKills(0);
+			remoteworm->setLocal(false);
+			remoteworm->setProfile(NULL);
+			remoteworm->setLives(WRM_OUT);
+			remoteworm->setUsed(false);
 
 			// Update the number of players on server/client
 			iNumPlayers--;
