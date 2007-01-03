@@ -51,6 +51,7 @@ int LoadGraphics(void)
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[0], "data/frontend/mouse.png");
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[1], "data/frontend/mouse_hand.png");
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[2], "data/frontend/mouse_text.png");
+	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[3], "data/frontend/mouse_resize.png");
 
 	LOAD_IMAGE_BPP(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
 	LOAD_IMAGE_BPP(gfxGUI.bmpSliderBut,"data/frontend/sliderbut.png");

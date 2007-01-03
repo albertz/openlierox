@@ -196,6 +196,9 @@ typedef struct {
 	SDL_Surface		*bmpTeamColours[4];
     SDL_Surface     *bmpHandicap;
 
+	SDL_Surface		*bmpTriangleUp;
+	SDL_Surface		*bmpTriangleDown;
+
 	SDL_Surface		*bmpAI;
 	SDL_Surface		*bmpWorm;
 

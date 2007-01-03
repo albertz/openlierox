@@ -100,6 +100,8 @@ int Menu_Initialize(int *game)
 	LOAD_IMAGE(tMenu->bmpTeamColours[2], "data/frontend/team_3.png");
 	LOAD_IMAGE(tMenu->bmpTeamColours[3], "data/frontend/team_4.png");
     LOAD_IMAGE(tMenu->bmpHandicap, "data/frontend/handicap.png");
+	LOAD_IMAGE(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
+	LOAD_IMAGE(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 
     tMenu->bmpWorm = NULL;
 	tMenu->bmpScreen = SDL_GetVideoSurface();
@@ -1450,7 +1452,7 @@ void Menu_SvrList_FillList(CListview *lv)
 
 		// Add the server to the list
 		lv->AddItem(s->szAddress, 0, colour);
-		lv->AddSubitem(LVS_IMAGE, "", tMenu->bmpConnectionSpeeds[num]);
+		lv->AddSubitem(LVS_IMAGE, itoa(num,buf,10), tMenu->bmpConnectionSpeeds[num]);
 		lv->AddSubitem(LVS_TEXT, s->szName, NULL);
         if(s->bProcessing)
             lv->AddSubitem(LVS_TEXT, "querying", NULL);
@@ -1473,6 +1475,7 @@ void Menu_SvrList_FillList(CListview *lv)
 
     lv->setSelectedID(curID);
 	lv->RestoreScrollbarPos();
+	lv->ReSort();
 }
 
 ///////////////////

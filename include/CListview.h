@@ -23,6 +23,7 @@ enum {
 	LV_CHANGED=0,
     LV_RIGHTCLK,
 	LV_DOUBLECLK,
+	LV_RESIZECURSOR,
 };
 
 
@@ -54,6 +55,8 @@ enum {
 typedef struct lv_column_s {
 	char		sText[32];
 	int			iWidth;
+	bool		bDown;
+	int			iSorted; // -1 = unsorted, 0 = descending, 1 = ascending
 
 	struct		lv_column_s *tNext;
 
@@ -95,6 +98,7 @@ public:
 	// Constructors
 	CListview() {
 		tColumns = NULL;
+		iNumColumns = 0;
 		tItems = NULL;
 		tLastItem = NULL;
 		tSelected = NULL;
@@ -104,6 +108,7 @@ public:
 		fLastMouseUp = -99999;
 		iContentHeight = 0;
         iItemID = 0;
+		iCursor = 0;
         bShowSelect = true;
 		iSavedScrollbarPos = 0;
 	}
@@ -113,7 +118,9 @@ private:
 	// Attributes
 
 	// Columns
+	int				iNumColumns;
 	lv_column_t		*tColumns;
+	int				iCursor;
 
 	// Items
 	lv_item_t		*tItems;
@@ -159,6 +166,9 @@ public:
 
 	void	Clear(void);
 
+	void	SortBy(int column, bool ascending);
+	void	ReSort(void);
+
 	void	AddColumn(char *sText, int iWidth);
 	void	AddItem(char *sIndex, int iIndex, int iColour);
 	void	AddSubitem(int iType, char *sText, SDL_Surface *img);
@@ -174,6 +184,8 @@ public:
 
 	int		getCurIndex(void)		{ if(tSelected) return tSelected->iIndex; else return -1; }
 	char	*getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return NULL; }
+
+	int		getCursor(void)			{ return iCursor; }
     
 
 	lv_subitem_t	*getCurSub(void);	

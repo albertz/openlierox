@@ -56,6 +56,7 @@ inline size_t strnlen(const char *str, size_t maxlen)  {
 	return i;
 }
 // TODO: inline
+#	define strncasecmp _strnicmp
 #	define vsnprintf _vsnprintf
 #	define snprintf	 _snprintf
 

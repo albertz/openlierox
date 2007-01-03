@@ -36,6 +36,8 @@ void    DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int co
 
 void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour);
 void	DrawVLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour);
+
+void	DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour);
 //void	DrawLine(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int colour);
 
 

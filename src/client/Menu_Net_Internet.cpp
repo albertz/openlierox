@@ -146,6 +146,8 @@ void Menu_Net_NETFrame(int mouse)
 			mouse = 1;
 		if(ev->cWidget->getType() == wid_Textbox)
 			mouse = 2;
+		if(ev->cWidget->getType() == wid_Listview)
+			mouse = ((CListview *)(ev->cWidget))->getCursor();
 
 
 		switch(ev->iControlID) {

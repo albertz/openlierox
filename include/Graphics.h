@@ -19,7 +19,7 @@
 
 // Gui graphics
 typedef struct {
-	SDL_Surface		*bmpMouse[3];
+	SDL_Surface		*bmpMouse[4];
 	SDL_Surface		*bmpScrollbar;
 	SDL_Surface		*bmpSliderBut;
 } gfxgui_t;

@@ -570,6 +570,15 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, int colour)
 		SDL_UnlockSurface(bmpDest);
 }
 
+///////////////////
+// Draw a triangle
+void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour)
+{
+	DrawLine(bmpDest,x1,y1,x2,y2,colour);
+	DrawLine(bmpDest,x1,y1,x3,y3,colour);
+	DrawLine(bmpDest,x2,y2,x3,y3,colour);
+}
+
 
 ///////////////////
 // Put a pixel on the surface

@@ -29,16 +29,29 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 	// Draw the columns
 	lv_column_t *col = tColumns;
-	int x=iX+3;
+	int x=iX+4;
 		
-	for(;col;col = col->tNext) {
-		tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel,"%s", col->sText);
-		x += col->iWidth;
+	for(int i=1;col;col = col->tNext,i++) {
+		int col_w = col->iWidth;
+		// Last column has to be thiner
+		if (i == iNumColumns)
+			col_w--;
+		Menu_DrawWinButton(bmpDest,x-2,iY+2,col_w-3,tLX->cFont.GetHeight(),col->bDown);
+		switch (col->iSorted)  {
+		case 0:	DrawImage(bmpDest,tMenu->bmpTriangleUp,x+col_w-tMenu->bmpTriangleUp->w-9,iY+7); break;
+		case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown->w-9,iY+7); break;
+		}
+
+
+		tLX->cFont.DrawCentre(bmpDest, x+(col_w/2)-3, iY+2, tLX->clNormalLabel,"%s", col->sText);
+		x += col->iWidth-2;
 	}
+
+	//DrawHLine(bmpDest,iX+3,iX+iWidth-3,iY+tLX->cFont.GetHeight()+4,0xffff);
 
 
 	// Draw the items
-	int y = iY+17;
+	int y = iY+tLX->cFont.GetHeight()+4;
 	x = iX+4;
 	lv_item_t *item = tItems;
 	int count=0;
@@ -103,7 +116,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		cScrollbar.Draw(bmpDest);
 
     // Draw the rectangle last
-    Menu_DrawBoxInset(bmpDest, iX, iY+15, iX+iWidth, iY+iHeight);
+    Menu_DrawBoxInset(bmpDest, iX, iY/*+15*/, iX+iWidth, iY+iHeight);
 }
 
 
@@ -123,6 +136,8 @@ void CListview::AddColumn(char *sText, int iWidth)
 	fix_strncpy(col->sText,sText);
 	col->iWidth = iWidth;
 	col->tNext = NULL;
+	col->bDown = false;
+	col->iSorted = -1;
 
 
 	// Add it to the list
@@ -137,6 +152,8 @@ void CListview::AddColumn(char *sText, int iWidth)
 	}
 	else
 		tColumns = col;
+
+	iNumColumns++;
 }
 
 
@@ -384,6 +401,112 @@ lv_subitem_t *CListview::getCurSub(void)
 	return NULL;
 }
 
+///////////////
+// Sorts the list by the current sorting column
+// Useful, when you're re-filling the list or adding new items
+void CListview::ReSort(void)
+{
+	lv_column_t *col = tColumns;
+
+	// Find the column
+	int i=0;
+	for (;col;col=col->tNext,i++) {
+		if (col->iSorted != -1)
+			break;
+	}
+
+	// Not found
+	if (!col)
+		return;
+
+	// Sort
+	SortBy(i,col->iSorted);
+}
+
+///////////////
+// Sorts the listview by specified column, ascending or descending
+void CListview::SortBy(int column, bool ascending)
+{
+	// Check
+	if (column < 0 || column >= iNumColumns)
+		return;
+
+	// Get the item
+	lv_item_t *item = tItems;
+	if (!item)
+		return;
+
+	lv_item_t *prev_item = NULL;
+	lv_subitem_t *subitem1 = NULL;
+	lv_subitem_t *subitem2 = NULL;
+
+	bool bSwapped = true;
+
+	// Bubble sort the list
+	while (bSwapped)  {
+		bSwapped = false;
+		prev_item = NULL;
+		for(item=tItems;item->tNext;item=item->tNext) {
+			subitem1=item->tSubitems;
+			subitem2=item->tNext->tSubitems;
+
+			// Get subitem 1
+			for(int i=0;i != column && subitem1;subitem1=subitem1->tNext,i++) {	}
+
+			// Get subitem 2
+			for(i=0;i != column && subitem2;subitem2=subitem2->tNext,i++) { }
+
+			bool swap = false;
+			if (subitem2 && subitem1)  {
+				// Swap the two items?
+				int nat_cmp1 = atoi(subitem1->sText);
+				int nat_cmp2 = atoi(subitem2->sText);
+				// First try, if we compare numbers
+				if (nat_cmp1 && nat_cmp2)  {
+					if (ascending)
+						swap = nat_cmp1 > nat_cmp2;
+					else
+						swap = nat_cmp2 > nat_cmp1;
+				// String comparison
+				} else {
+					int tmp = strncasecmp(subitem1->sText,subitem2->sText,sizeof(subitem1->sText));
+					if (ascending)
+						swap = tmp > 0;
+					else
+						swap = tmp < 0;
+				}
+			} else  {
+				if (ascending)
+					swap = subitem1 != NULL;
+				else
+					swap = subitem2 != NULL;
+			}
+
+			// Swap if they're not in the right order
+			if (swap)  {
+				lv_item_t *it3 = item->tNext;
+				lv_item_t *it4 = item->tNext->tNext;
+				if (prev_item)
+					prev_item->tNext = it3;
+				else
+					tItems = it3;
+				it3->tNext = item;
+				item->tNext = it4;
+				if (!it4)  {
+					tLastItem = it3;
+					break;
+				}
+				bSwapped = true;
+				prev_item = item;
+				continue;
+			}
+
+			prev_item = item;
+		}
+	}
+		
+}
+
 
 ///////////////////
 // Clear the items
@@ -496,7 +619,27 @@ int	CListview::MouseOver(mouse_t *tMouse)
 	if(tMouse->X > iX+iWidth-20 && iGotScrollbar)
 		cScrollbar.MouseOver(tMouse);
 
-	return -1;
+	// Reset the cursor
+	iCursor = 0;
+
+	// Go through the columns and check, if the mouse isn't in the space between two columns
+	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
+		lv_column_t *col = tColumns;
+		if (!col)
+			return LV_NONE;
+
+		int x = iX+4+col->iWidth-2;
+		for (;col;col = col->tNext)  {
+			col->bDown = false;
+			if (tMouse->X >= x && tMouse->X <= x+4)  {
+				iCursor = 3;
+				return LV_RESIZECURSOR;
+			}
+			x += col->iWidth-2;
+		}
+	}
+
+	return LV_NONE;
 }
 
 
@@ -514,6 +657,21 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 
     if( !(tMouse->FirstDown & SDL_BUTTON(1)) )
         return LV_NONE;
+
+	// Column headers
+	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
+		int x = iX+4;
+		lv_column_t *col = tColumns;
+		for (;col;col = col->tNext)  {
+			col->bDown = false;
+			if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3)  {
+				col->bDown = true;
+			}
+			x += col->iWidth-2;
+		}
+		return LV_NONE;
+	}
+
     
 	iClickedSub = -1;
 
@@ -588,6 +746,27 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {
 		fLastMouseUp = -9999;
 		return LV_NONE;	
+	}
+
+	// Column headers
+	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1 && tLX->fCurTime-fLastMouseUp >= 0.15f)  {
+		fLastMouseUp = tLX->fCurTime;
+		int x = iX+4;
+		lv_column_t *col = tColumns;
+		for (int i=0;col;col = col->tNext,i++)  {
+			col->bDown = false;
+			if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3)  {
+				bool asc = col->iSorted == -1 || col->iSorted == 0;
+				SortBy(i,asc);
+				if (asc)
+					col->iSorted = 1;
+				else
+					col->iSorted = 0;
+			} else
+				col->iSorted = -1;
+			x += col->iWidth-2;
+		}
+		return LV_NONE;
 	}
 
 	iClickedSub = -1;
