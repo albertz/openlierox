@@ -1110,7 +1110,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
     // If we have a good shooting 'solution', shoot
 	// TODO: join AI_CanShoot and AI_Shoot
-    if(AI_CanShoot(pcMap, gametype)) {
+    if(AI_Shoot(pcMap)) {
    
 		// jump, move and carve around
 		if (tLX->fCurTime-fLastJump > 1.0f)  {
@@ -1131,7 +1131,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
    		if(CheckOnGround(pcMap) && cNinjaRope.isAttached())
    			cNinjaRope.Release();
    
-   		if(!AI_Shoot(pcMap)) {   			
+/*   		if(!AI_Shoot(pcMap)) {   			
 			// change direction after some time
 			if ((tLX->fCurTime-fLastFace) > 1.0)  {
 				iDirection = !iDirection;
@@ -1140,7 +1140,9 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 			// don't return here -> do MoveToTarget/Think
     	} else
 	        return;
-        
+    	*/
+    	return;
+    	    
     } else {
     
 		// Reload weapons when we can't shoot
@@ -2578,103 +2580,8 @@ int CWorm::AI_FindClearingWeapon(void)
 // Can we shoot the target
 bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 {
-	// TODO: merge this with shoot and improve the AI_GetBestWeapon
-
-    // Make sure the target is a worm
-    if(nAITargetType != AIT_WORM)
-        return false;
-    
-    // Make sure the worm is good
-    if(!psAITarget)
-        return false;
-    if(!psAITarget->getAlive() || !psAITarget->isUsed())
-        return false;
-    
-
-    CVec    cTrgPos = psAITarget->getPos();
-    bool    bDirect = true;
-
-
-    /*
-      Here we check if we have a line of sight with the target.
-      If we do, and our 'direct' firing weapons are loaded, we shoot.
-
-      If the line of sight is blocked, we use 'indirect' shooting methods.
-      We have to be careful with indirect, because if we're in a confined space, or the target is above us
-      we shouldn't shoot at the target
-
-      The aim of the game is killing worms, so we put a higher priority on shooting rather than
-      thinking tactically to prevent injury to self
-
-	  If we play a mortar game, make sure there's enough free space to shoot - avoid suicides
-    */
-
-
-    // If the target is too far away we can't shoot at all (but not when a rifle game)
-    float d = (cTrgPos - vPos).GetLength();
-    if(d > 300.0f && iAiGameType != GAM_RIFLES)
-        return false;
-
-/*	// If we're on the target, simply shoot // this doesn't work in every case
-	if(d < 10.0f)
-		return true;
-*/
-
-    float fDist;
-    int nType = -1;
-    int length = 0;
-
-	length = traceWeaponLine(cTrgPos, pcMap, &fDist, &nType);
-
-    // If target is blocked by rock we can't use direct firing
-    if(nType & PX_ROCK)  {
-		return false;
-	}
-
-	// Don't shoot teammates
-	// TODO: doesn't work
-	/*if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
-		return false;*/
-
-	// If target is blocked by large amount of dirt, we can't shoot it
-	if (nType & PX_DIRT)  {
-		if(d-fDist > 40.0f)
-			return false;
-	}
-
-	// In mortar game there must be enough of free cells around us
-	if (iAiGameType == GAM_MORTARS)  {
-		if (!NEW_AI_CheckFreeCells(1,pcMap))  {
-			return false;
-		}
-		if (!traceWormLine(cTrgPos,vPos,pcMap))
-			return false;
-	}
-
-	// If our velocity is big and we shoot in the direction of the flight, we can suicide
-	// We will avoid this here
-	/*if (vVelocity.y > 30 && fAngle >= 50)
-		return false;
-	if (vVelocity.y < -30 && fAngle <= 10)
-		return false;
-	if (vVelocity.x < -30 && iDirection == DIR_LEFT && fAngle > 20)
-		return false;
-	if (vVelocity.x > 30 && iDirection == DIR_RIGHT && fAngle > 20)
-		return false;*/
-
-    // Set the best weapon for the situation
-    // If there is no good weapon, we can't shoot
-    tLX->debug_float = d;
-    int wpn = AI_GetBestWeapon(nGameType, d, bDirect, pcMap, fDist);
-    if(wpn == -1) {
-        //strcpy(tLX->debug_string, "No good weapon");
-        return false;
-    }     
-
-    iCurrentWeapon = wpn;
-
-    // Shoot
-    return true;
+	// TODO: delete this function
+	return true;
 }
 
 ////////////////////
@@ -2848,13 +2755,104 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 // Shoot!
 bool CWorm::AI_Shoot(CMap *pcMap)
 {
-	if(!psAITarget)
-		return false;
-    CVec    cTrgPos = psAITarget->getPos();
+    // Make sure the target is a worm
+    if(nAITargetType != AIT_WORM)
+        return false;
+    
+    // Make sure the worm is good
+    if(!psAITarget || !psAITarget->getAlive() || !psAITarget->isUsed()) {
+        nAIState = AI_THINK;
+        return false;    
+    }
+    
 
-    //
-    // Aim at the target
-    //
+    CVec    cTrgPos = psAITarget->getPos();
+    bool    bDirect = true;
+
+
+    /*
+      Here we check if we have a line of sight with the target.
+      If we do, and our 'direct' firing weapons are loaded, we shoot.
+
+      If the line of sight is blocked, we use 'indirect' shooting methods.
+      We have to be careful with indirect, because if we're in a confined space, or the target is above us
+      we shouldn't shoot at the target
+
+      The aim of the game is killing worms, so we put a higher priority on shooting rather than
+      thinking tactically to prevent injury to self
+
+	  If we play a mortar game, make sure there's enough free space to shoot - avoid suicides
+    */
+
+
+    // If the target is too far away we can't shoot at all (but not when a rifle game)
+    float d = (cTrgPos - vPos).GetLength();
+ /*   if(d > 300.0f && iAiGameType != GAM_RIFLES)
+        return false; */
+
+/*	// If we're on the target, simply shoot // this doesn't work in every case
+	if(d < 10.0f)
+		return true;
+*/
+
+    float fDist;
+    int nType = -1;
+    int length = 0;
+
+	length = traceWeaponLine(cTrgPos, pcMap, &fDist, &nType);
+
+    // If target is blocked by rock we can't use direct firing
+    if(nType & PX_ROCK)  {
+		//return false;
+		bDirect = false;
+	}
+
+	// Don't shoot teammates
+	// TODO: doesn't work
+	/*if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
+		return false;*/
+
+	// If target is blocked by large amount of dirt, we can't shoot it
+	if (nType & PX_DIRT)  {
+		if(d-fDist > 40.0f)
+			bDirect = false;
+			//return false;
+	}
+
+	// In mortar game there must be enough of free cells around us
+	if (bDirect && iAiGameType == GAM_MORTARS)  {
+		if (!NEW_AI_CheckFreeCells(1,pcMap))  {
+			//return false;
+			bDirect = false;
+		}
+		if (!traceWormLine(cTrgPos,vPos,pcMap))
+			bDirect = false;
+			//return false;
+	}
+
+	// If our velocity is big and we shoot in the direction of the flight, we can suicide
+	// We will avoid this here
+	/*if (vVelocity.y > 30 && fAngle >= 50)
+		return false;
+	if (vVelocity.y < -30 && fAngle <= 10)
+		return false;
+	if (vVelocity.x < -30 && iDirection == DIR_LEFT && fAngle > 20)
+		return false;
+	if (vVelocity.x > 30 && iDirection == DIR_RIGHT && fAngle > 20)
+		return false;*/
+
+    // Set the best weapon for the situation
+    // If there is no good weapon, we can't shoot
+    tLX->debug_float = d;
+    int wpn = AI_GetBestWeapon(iAiGameType, d, bDirect, pcMap, fDist);
+    if(wpn < 0) {
+        //strcpy(tLX->debug_string, "No good weapon");
+        //printf("I could not find any useable weapon\n");
+        return false;
+    }     
+
+    iCurrentWeapon = wpn;	
+	
     bool    bAim = false;//AI_SetAim(cTrgPos);
 	
 	// Distance
@@ -2870,11 +2868,6 @@ bool CWorm::AI_Shoot(CMap *pcMap)
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	weapon_t *weap = getCurWeapon()->Weapon;
 	switch (weap->Type)  {
-	case WPN_BEAM:
-		// Direct aim
-		bAim = AI_SetAim(cTrgPos);
-		//printf("wp type is BEAM %s\n", bAim ? "and we are aiming" : "and no aim");
-		break;
 	case WPN_PROJECTILE:  {
 		switch (weap->Projectile->Hit_Type)  {
 		//case PJ_NOTHING:
@@ -2923,7 +2916,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 					fAngle += wd->AngleSpeed * tLX->fDeltaTime;
 				else if(alpha < fAngle)
 					fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
-			}
+				bAim = false;
+			}			
 			else
 				fAngle = alpha;
 
@@ -2942,11 +2936,13 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		} // switch over Hit_Type
 		} // case WPN_PROJECTILE
 		break;
-	default: // weap->Type
-		// it's WPN_SPECIAL (should)
+	case WPN_BEAM:
+	default: // weap->Type // default -> it's WPN_SPECIAL (should)
 		// don't know, but this could possible be good
 		// or else, this is perhaps some kamikaze action :)
-		bAim = true;
+		// Direct aim
+		bAim = bDirect && AI_SetAim(cTrgPos);
+		//printf("wp type is BEAM %s\n", bAim ? "and we are aiming" : "and no aim");
 	}
 
 	//
@@ -3029,8 +3025,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *pcMap, float fTraceDist)
 {
 	// if we are to close to the target, don't selct any weapon (=> move away)
-	if(fDistance < 5)
-		return -1;
+	/*if(fDistance < 5)
+		return -1; */
 
     // We need to wait a certain time before we change weapon
     if( tLX->fCurTime - fLastWeaponChange > 0.15f )
@@ -3043,6 +3039,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (int i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				return i;
+		printf("GAM_RIFLES|GAM_MORTARS: all weapons still are reloading...\n");
 		return -1;
 	}
 
@@ -3090,6 +3087,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 			}
 			// We don't see the target
 			else  {
+				printf("GAM_100LT: i think we should not shoot here\n");
 				tState.iJump = true; // Jump, we might get better position
 				return -1;
 			}
@@ -3284,8 +3282,10 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
     // BUT only if our health is looking good
     // AND if there is no rock/dirt nearby
     if(fDistance > 190 && iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > vPos.y ) {
-        if (!NEW_AI_CheckFreeCells(5,pcMap))
+        if (!NEW_AI_CheckFreeCells(5,pcMap)) {
+			printf("we should not shoot because of the hints everywhere\n");        
 			return -1;
+        }
 
 		// try projectile weapons
 		for (int i=0; i<5; i++)
@@ -3326,6 +3326,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		if (!tWeapons[i].Reloading)  
 			return num;
 
+	printf("simply everything failed, no luck with that\n");
     return -1;
 }
 
