@@ -16,7 +16,7 @@
 
 
 #ifndef SYSTEM_DATA_DIR
-#	define	SYSTEM_DATA_DIR	"/usr/share/"
+#	define	SYSTEM_DATA_DIR	"/usr/share"
 #endif
 
 

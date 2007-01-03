@@ -174,7 +174,8 @@ int CBytestream::writeString(char *fmt,...)
 	if(len+CurByte >= MAX_DATA)
 		return false;
 
-	memcpy((char *)Data+CurByte,buf,len+1);
+	memcpy((char *)Data+CurByte,buf,len);
+	Data[CurByte+len] = '\0';
 	CurByte+=len+1;
 	Length+=len+1;
 

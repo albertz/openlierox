@@ -616,3 +616,27 @@ void CCombobox::clear(void)
     Destroy();
     Create();
 }
+
+
+cb_item_t* CCombobox::getItem(int index) {
+	for(cb_item_t* i = tItems; i; i = i->tNext) {
+		if(i->iIndex == index)
+			return i;
+	}
+	return NULL;
+}
+
+int	CCombobox::getItemsCount() {
+	int c = 0;
+	for(cb_item_t* i = tItems; i; i = i->tNext)
+		c++;
+	return c;
+}
+
+cb_item_t* CCombobox::getItem(char* name) {
+	for(cb_item_t* i = tItems; i; i = i->tNext) {
+		if(strncmp(i->sName,name,sizeof(i->sName)) == 0)
+			return i;
+	}
+	return NULL;	
+}

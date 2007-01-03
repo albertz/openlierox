@@ -1394,6 +1394,38 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
         if(AI_FindHealth(pcMap))
             return;
 
+
+    // Search for an unfriendly worm
+    psAITarget = findTarget(gametype, teamgame, taggame, pcMap);
+
+
+    // Search for an unfriendly worm
+    psAITarget = findTarget(gametype, teamgame, taggame, pcMap);
+
+    
+    // Any unfriendlies?
+    if(psAITarget) {
+        // We have an unfriendly target, so change to a 'move-to-target' state
+        nAITargetType = AIT_WORM;
+        nAIState = AI_MOVINGTOTARGET;
+        //AI_InitMoveToTarget(pcMap);
+		NEW_AI_CreatePath(pcMap);
+        return;
+    }
+	else
+		fLastShoot = -9999;
+    
+    // Any unfriendlies?
+    if(psAITarget) {
+        // We have an unfriendly target, so change to a 'move-to-target' state
+        nAITargetType = AIT_WORM;
+        nAIState = AI_MOVINGTOTARGET;
+        //AI_InitMoveToTarget(pcMap);
+		NEW_AI_CreatePath(pcMap);
+        return;
+    }
+	else
+		fLastShoot = -9999;
     // Search for an unfriendly worm
     psAITarget = findTarget(gametype, teamgame, taggame, pcMap);
 
@@ -2265,18 +2297,22 @@ CVec CWorm::AI_GetTargetPos(void)
             }
             break;
 
+        // Position target
+        case AIT_POSITION:
+            return cPosTarget;
+    
         // Worm target
         case AIT_WORM:
+        default:
+        	if(nAITargetType != AIT_WORM)
+        		nAIState = AI_THINK;
             if(psAITarget) {
                 if(!psAITarget->getAlive() || !psAITarget->isUsed())
                     nAIState = AI_THINK;
                 return psAITarget->getPos();
             }
             break;
-
-        // Position target
-        case AIT_POSITION:
-            return cPosTarget;
+    
     }
 
     // No target

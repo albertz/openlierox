@@ -89,7 +89,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	handle = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[512]; fix_strncpy(tmp, _dir);
+	char tmp[512]; fix_strncpy(tmp, _dir);
 	int ret = FindFirst(tmp, "*", filename);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -116,7 +116,7 @@ int FindNext(char *filename)
 	closedir(handle); handle = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[512]; fix_strncpy(tmp, _dir);
+	char tmp[512]; fix_strncpy(tmp, _dir);
 	int ret = FindFirst(tmp, "*", filename);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -172,7 +172,7 @@ int FindFirstDir(char *dir, char *name)
 	handle2 = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[512]; fix_strncpy(tmp, _dir2);
+	char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -201,7 +201,7 @@ int FindNextDir(char *name)
 	closedir(handle2); handle2 = NULL;
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[512]; fix_strncpy(tmp, _dir2);
+	char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
 	reset_nextsearchpath = true;	
 	return ret;
@@ -273,8 +273,8 @@ bool GetExactFileName(const char* searchname, char* filename)
 		return false;
 
 	const char* seps[] = {"\\", "/", (char*)NULL};
-	char nextname[512] = "";
-	char nextexactname[512] = "";
+	static char nextname[512]; strcpy(nextname, "");
+	static char nextexactname[512]; strcpy(nextexactname, "");
 	strcpy(filename, "");
 	int pos = 0;
 	int npos = 0;
@@ -326,7 +326,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	if(_dir[0] == '\0')
 		return false;
 	
-	static char basepath[512];
+	static char basepath[512]; // don't need this later, so static is safe
 
 	fix_strncpy(basepath, _dir);
 	fix_strncat(basepath, "/");
@@ -355,7 +355,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	reset_nextsearchpath = false;
 	static char tmp[512]; fix_strncpy(tmp, _dir);
 	// TODO: this better
-	int ret = FindFirst(tmp,"*", filename);
+	int ret = FindFirst(tmp,ext, filename);
 	reset_nextsearchpath = true;	
 	return ret;
 }
@@ -514,8 +514,8 @@ void CreateRecDir(char* f) {
 }
 
 char* GetFullFileName(const char* path) {
-	static char fname[512] = "";
-	static char tmp[512] = "";
+	static char fname[512]; strcpy(fname, "");
+	static char tmp[512]; strcpy(tmp, "");
 	
 	if(path == NULL || path[0] == '\0')
 		return NULL;
@@ -573,7 +573,7 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 		fix_strncpy(tmp, GetHomeDir());
 		fix_strncat(tmp, "/");
 		fix_strncat(tmp, path);
-		GetExactFileName(tmp, fname);
+		GetExactFileName(tmp, fname); // fix case sensitive name if existing
 		CreateRecDir(fname);
 		return fopen(fname, mode);
 	}		
@@ -581,13 +581,10 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 	char* fullfn = GetFullFileName(path);
 	if(fullfn != NULL && fullfn[0] != '\0')  {
 		FILE *result = fopen(fullfn, mode);
-		if (!result) {
-			return fopen(path,mode);
-		}
 		return result;
 	}
-	else
-		return fopen(path,mode);
+	
+	return NULL;
 }
 
 

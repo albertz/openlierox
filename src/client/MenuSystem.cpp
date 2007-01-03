@@ -959,22 +959,24 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 	while(!done) {
 
+		char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
+		if(f) f++;
+
 		// Liero Xtreme level
 		if( stricmp(filename + fix_strnlen(filename)-4, ".lxl") == 0) {
 			FILE *fp = OpenGameFile(filename,"rb");
 			if(fp) {
-				 fread(id,			sizeof(char),	32,	fp);
+				fread(id,		sizeof(char),	32,	fp);
 				fread(&version,	sizeof(int),	1,	fp);
 				fread(name,		sizeof(char),	64,	fp);
 
 				if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
 					// Remove the 'levels' bit from the filename
-					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
-					if(f) {
-						cmb->addItem(index++, f+1, name);
+					if(f && !cmb->getItem(name)) {
+						cmb->addItem(index++, f, name);
 
 						// If this is the same as the old map, select it
-						if( stricmp(f+1, tLXOptions->tGameinfo.sMapName) == 0 )
+						if( stricmp(f, tLXOptions->tGameinfo.sMapName) == 0 )
 							selected = index-1;
 
 						//lv->AddItem(f+1,0);
@@ -998,14 +1000,13 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 				// 177178 is a powerlevel
 				if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
 
-					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
-					if(f) {
-						cmb->addItem(index++, f+1, f+1);
+					if(f && !cmb->getItem(f)) {
+						cmb->addItem(index++, f, f);
 
 						//d_printf("Original level = %s\n",f+1);
 						//d_printf("Saved level = %s\n",tLXOptions->tGameinfo.sMapName);
 
-						if( stricmp(f+1, tLXOptions->tGameinfo.sMapName) == 0 )
+						if( stricmp(f, tLXOptions->tGameinfo.sMapName) == 0 )
 							selected = index-1;
 
 						//lv->AddItem(f+1,0);

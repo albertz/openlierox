@@ -195,7 +195,7 @@ void CWpnRest::loadList(char *szFilename)
     static char line[256];
 
     while( !feof(fp) ) {
-        fscanf(fp, "%256[^\n]\n",line);
+        fscanf(fp, "%[^\n]\n",line);
         char *tok = strtok(line,",");
         if( tok )  {
 			char *tok2 = strtok(NULL,",");

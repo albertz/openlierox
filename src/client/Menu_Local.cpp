@@ -750,13 +750,13 @@ void Menu_Local_FillModList( CCombobox *cb )
                d = dir;
 
 			// Check if this dir has a valid script.lgs file in it
-			if(gs.CheckFile(dir,name)) {
+			if(gs.CheckFile(dir,name) && !cb->getItem(name)) {
 				cb->addItem(i,d,name);
-
+	
 				// Store the index of the last used mod
 				if(stricmp(d,tLXOptions->tGameinfo.szModName) == 0)
 					baseid = i;
-                i++;
+				i++;				
 			}			
 			
 			if(!FindNextDir(dir))

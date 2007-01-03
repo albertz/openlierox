@@ -117,7 +117,11 @@ public:
 	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);	
 
     void    clear(void);
-	void	addItem(int index, char *sindex, char *name);	
+	void	addItem(int index, char *sindex, char *name);
+	inline cb_item_t* getItems()	{ return tItems; }
+	cb_item_t* getItem(int index);
+	int		getItemsCount();
+	cb_item_t* getItem(char* name);
 	void	setCurItem(int index);
     void    setCurSIndexItem(char *szString);
     void    setCurIndexItem(int nIndex);
