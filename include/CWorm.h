@@ -290,6 +290,7 @@ private:
     ai_node_t   *psCurrentNode;
 	float       fLastPathUpdate;
 	bool		bPathFinished;
+	float		fSearchStartTime;
 	
 	// its type is searchpath_base*; defined in CWorm_AI.cpp
 	void*		pathSearcher;

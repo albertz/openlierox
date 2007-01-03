@@ -16,7 +16,7 @@
 #ifndef __CMAP_H__
 #define __CMAP_H__
 
-
+#include "ReadWriteLock.h"
 
 #define		MAP_VERSION	0
 
@@ -113,13 +113,10 @@ public:
 
 		bMiniMapDirty = true;
         sRandomLayout.bUsed = false;
-        
-        flags_mutex = SDL_CreateMutex();
-	}
+   	}
 
 	~CMap() {
 		Shutdown();
-		SDL_DestroyMutex(flags_mutex);
 	}
 
 private:
@@ -155,7 +152,7 @@ private:
 
 	bool		bMiniMapDirty;
 
-	SDL_mutex*	flags_mutex;
+	ReadWriteLock	flagsLock;
 
 	// Objects
 	int			NumObjects;
@@ -198,8 +195,18 @@ public:
     void        CalculateDirtCount();
     void        CalculateShadowMap();
 
-	inline void	lockFlags()		{ SDL_mutexP(flags_mutex); }
-	inline void unlockFlags()	{ SDL_mutexV(flags_mutex); }
+	inline void	lockFlags(bool writeAccess = true) {
+		if(writeAccess)
+			flagsLock.startWriteAccess();
+		else
+			flagsLock.startReadAccess();
+	}
+	inline void unlockFlags(bool writeAccess = true) {
+		if(writeAccess)
+			flagsLock.endWriteAccess();
+		else
+			flagsLock.endReadAccess(); 
+	}
 
     char        *findRandomTheme(char *buf);
     bool        validateTheme(char *name);

@@ -549,7 +549,7 @@ public:
 				pt += dir;
 				
 				// ensure, that the way has at least the width of wormsize
-				base->pcMap->lockFlags();				
+				base->pcMap->lockFlags(false);
 				trace = simpleTraceLine(base->pcMap, pt, dist, PX_ROCK);
 				for(left = 0; trace && left < wormsize; pt += dir) {
 					trace = simpleTraceLine(base->pcMap, pt, dist, PX_ROCK);
@@ -560,8 +560,8 @@ public:
 					trace = simpleTraceLine(base->pcMap, pt, dist, PX_ROCK);
 					if(trace) right++;
 				}				
-				base->pcMap->unlockFlags();
-								
+				base->pcMap->unlockFlags(false);
+				
 				// is there enough space?
 				if(left+right >= wormsize) {
 					// we can start a new search from this point (targ)
@@ -631,7 +631,8 @@ public:
 		thread(NULL),
 		thread_is_ready(true),
 		resulted_path(NULL),
-		break_thread_signal(0) {
+		break_thread_signal(0),
+		restart_thread_searching_signal(false) {
 		thread_mut = SDL_CreateMutex();
 		//printf("starting thread for %i ...\n", (long)this);
 		// TODO: it will not freed in every case (says valgrind)
@@ -705,7 +706,7 @@ public:
 	NEW_ai_node_t* findPath(VectorD2<int> start) {
 		// lower priority to this thread
 		SDL_Delay(1);
-		if(shouldBreakThread()) return NULL;
+		if(shouldBreakThread() || shouldRestartThread()) return NULL;
 		
 		// is the start inside of the map?
 		if(start.x < 0 || start.x >= pcMap->GetWidth() 
@@ -713,15 +714,15 @@ public:
 			return NULL;
 		
 		// can we just finish with the search?
-		pcMap->lockFlags();
+		pcMap->lockFlags(false);
 		if(traceWormLine(target, start, pcMap)) {
-			pcMap->unlockFlags();
+			pcMap->unlockFlags(false);
 			// yippieh!
 			NEW_ai_node_t* ret = createNewAiNode(target.x, target.y);
 			nodes.push_back(ret);
 			return ret;
 		}
-		pcMap->unlockFlags();
+		pcMap->unlockFlags(false);
 		
 		// look around for an existing area here
 		area_item* a = getArea(start);		
@@ -735,9 +736,9 @@ public:
 		}
 		
 		// get the max area (rectangle) around us
-		pcMap->lockFlags();
+		pcMap->lockFlags(false);
 		SquareMatrix<int> area = getMaxFreeArea(start, pcMap, PX_ROCK);
-		pcMap->unlockFlags();		
+		pcMap->unlockFlags(false);		
 		if(area.v2.x-area.v1.x >= wormsize && area.v2.y-area.v1.y >= wormsize) {
 			a = new area_item(this);
 			a->area = area;
@@ -781,25 +782,30 @@ private:
 		while(true) {
 			// sleep a little bit while we have nothing to do...
 			while(base->isReady()) {
-				SDL_Delay(100);
+				// was there a break-signal?
 				if(base->shouldBreakThread()) {
 					//printf("got break signal(1) for %i\n", (long)base);
 					return 0;				
-				}
+				}				
+				SDL_Delay(100);
 			}
 			
 			// start the main search
 			ret = base->findPath(base->start);
+			
+			if(base->shouldRestartThread()) {
+				base->lock();
+				base->restart_thread_searching_signal = 0;
+				base->start = base->restart_thread_searching_newdata.start;
+				base->target = base->restart_thread_searching_newdata.target;
+				base->unlock();
+				continue;
+			}
+			
 			base->completeNodesInfo(ret);
 			base->simplifyPath(ret);
 			base->splitUpNodes(ret, NULL);
 			
-			// was there a break-signal?
-			if(base->shouldBreakThread()) {
-				//printf("got break signal(2) for %i\n", (long)base);
-				return 0;			
-			}
-
 			// we are ready now
 			base->resulted_path = ret;
 			base->setReady(true);
@@ -826,12 +832,23 @@ public:
 		return resulted_path;
 	}
 
+	inline void restartThreadSearch(VectorD2<int> newstart, VectorD2<int> newtarget) {
+		// set signal
+		lock();
+		restart_thread_searching_signal = 1;
+		restart_thread_searching_newdata.start = newstart;
+		restart_thread_searching_newdata.target = newtarget;
+		unlock();
+	}
+
 private:
 	NEW_ai_node_t* resulted_path;
 	SDL_Thread* thread;
 	SDL_mutex* thread_mut;
 	bool thread_is_ready;
 	int break_thread_signal;
+	int restart_thread_searching_signal;
+	struct { VectorD2<int> start, target; } restart_thread_searching_newdata;
 	
 	inline void breakThreadSignal() {
 		// we don't need more thread-safety here, because this will not fail
@@ -842,6 +859,12 @@ private:
 		return (break_thread_signal != 0);
 	}
 
+public:	
+	inline bool shouldRestartThread() {
+		return (restart_thread_searching_signal != 0);
+	}
+
+private:
 	inline void lock() {
 		SDL_mutexP(thread_mut);	
 	}
@@ -3818,10 +3841,14 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 			
 		} else { // the searcher is still searching ...
 		
-    		// TODO: if the search takes very long (this is, if it doesn't find something), start a new one after some time
-    		// TODO: also do this, if there is no direct connection from vPos to start and target to trg
+			// restart search in some cases
+			if(!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->fCurTime - fSearchStartTime >= 5.0f || !traceWormLine(vPos, ((searchpath_base*)pathSearcher)->start, pcMap) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target, pcMap))) {
+				fSearchStartTime = tLX->fCurTime;
+				((searchpath_base*)pathSearcher)->restartThreadSearch(vPos, trg);
+			}
+    		
 			return false;
-		}		
+		}
 	}
 	
 	// don't start a new search, if the current end-node still has direct access to it
@@ -3845,6 +3872,7 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 	bPathFinished = false;	
 	
 	// start a new search
+	fSearchStartTime = tLX->fCurTime;
 	((searchpath_base*)pathSearcher)->target.x = (int)trg.x;
 	((searchpath_base*)pathSearcher)->target.y = (int)trg.y;
 	((searchpath_base*)pathSearcher)->start = VectorD2<int>(vPos);
