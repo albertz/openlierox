@@ -2555,6 +2555,7 @@ int CWorm::AI_FindClearingWeapon(void)
 // Can we shoot the target
 bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
 {
+	// TODO: merge this with shoot and improve the AI_GetBestWeapon
 
     // Make sure the target is a worm
     if(nAITargetType != AIT_WORM)
@@ -3817,7 +3818,8 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 			
 		} else { // the searcher is still searching ...
 		
-    		// TODO: if the search takes very long (this is, if it doesn't find something), start a new one after some time		
+    		// TODO: if the search takes very long (this is, if it doesn't find something), start a new one after some time
+    		// TODO: also do this, if there is no direct connection from vPos to start and target to trg
 			return false;
 		}		
 	}
