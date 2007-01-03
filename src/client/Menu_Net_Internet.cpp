@@ -695,7 +695,7 @@ void Menu_Net_NETParseList(void)
 		StripQuotes(port, p);
 
 		// Create the server address
-		snprintf(temp, sizeof(temp), "%s:%s",address,port);		
+		snprintf(temp, sizeof(temp), "%s:%s",address,port); fix_markend(temp);
 		Menu_SvrList_AddServer(temp, false);
 
 		i += fix_strnlen(Line)+1;

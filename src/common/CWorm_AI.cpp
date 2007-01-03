@@ -848,7 +848,7 @@ private:
 	bool thread_is_ready;
 	int break_thread_signal;
 	int restart_thread_searching_signal;
-	struct { VectorD2<int> start, target; } restart_thread_searching_newdata;
+	struct start_target_pair { VectorD2<int> start, target; } restart_thread_searching_newdata;
 	
 	inline void breakThreadSignal() {
 		// we don't need more thread-safety here, because this will not fail
@@ -1422,11 +1422,6 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
 
     // Search for an unfriendly worm
     psAITarget = findTarget(gametype, teamgame, taggame, pcMap);
-
-
-    // Search for an unfriendly worm
-    psAITarget = findTarget(gametype, teamgame, taggame, pcMap);
-
     
     // Any unfriendlies?
     if(psAITarget) {
@@ -1439,37 +1434,10 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
     }
 	else
 		fLastShoot = -9999;
-    
-    // Any unfriendlies?
-    if(psAITarget) {
-        // We have an unfriendly target, so change to a 'move-to-target' state
-        nAITargetType = AIT_WORM;
-        nAIState = AI_MOVINGTOTARGET;
-        //AI_InitMoveToTarget(pcMap);
-		NEW_AI_CreatePath(pcMap);
-        return;
-    }
-	else
-		fLastShoot = -9999;
-    // Search for an unfriendly worm
-    psAITarget = findTarget(gametype, teamgame, taggame, pcMap);
-
-    
-    // Any unfriendlies?
-    if(psAITarget) {
-        // We have an unfriendly target, so change to a 'move-to-target' state
-        nAITargetType = AIT_WORM;
-        nAIState = AI_MOVINGTOTARGET;
-        //AI_InitMoveToTarget(pcMap);
-		NEW_AI_CreatePath(pcMap);
-        return;
-    }
-	else
-		fLastShoot = -9999;
-
 
     // If we're down on health (less than 80%) we should look for a health bonus
     if(iHealth < 80) {
+        printf("we should look for health\n");
         if(AI_FindHealth(pcMap))
             return;
     }
@@ -1487,6 +1455,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
     // Our target already on high ground?
     if(cPosTarget.y < pcMap->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
 
+		printf("something in thinking\n");
 		// Nothing todo, so go find some health if we even slightly need it
 		if(iHealth < 100) {
 			if(AI_FindHealth(pcMap))
@@ -1499,31 +1468,33 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
 	// If there's no target worm and bonuses are off, this is run every frame
 	// The pathfinding is then run very often and it terribly slows down
 
+    int     cols = pcMap->getGridCols()-1;       // Note: -1 because the grid is slightly larger than the
+    int     rows = pcMap->getGridRows()-1;       // level size
+    
     // Find a random spot to go to high in the level
-    int x, y;
-    for(y=1; y<5 && y<pcMap->getGridRows()-1; y++) {
-        for(x=1; x<pcMap->getGridCols()-1; x++) {
-            uchar pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() + x);
+    printf("I don't find any target, so let's get somewhere (high)");
+    int x, y, c;
+    for(c=0; c<10; c++) {
+		x = (int)(fabs(GetRandomNum()) * (float)cols);
+		y = (int)(fabs(GetRandomNum()) * (float)rows / 5); // little hack to go higher
+		
+		uchar pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() + x);
 
-            if(pf & PX_ROCK)
-                continue;
+		if(pf & PX_ROCK)
+			continue;
 
-            // Set the target
-            cPosTarget = CVec((float)(x*pcMap->getGridWidth()+(pcMap->getGridWidth()/2)), (float)(y*pcMap->getGridHeight()+(pcMap->getGridHeight()/2)));
-            nAITargetType = AIT_POSITION;
-            nAIState = AI_MOVINGTOTARGET;
-            //AI_InitMoveToTarget(pcMap);
-			NEW_AI_CreatePath(pcMap);
-            goto break_whole; // year, i hate this, too ...
-        }
+		// Set the target
+		cPosTarget = CVec((float)(x*pcMap->getGridWidth()+(pcMap->getGridWidth()/2)), (float)(y*pcMap->getGridHeight()+(pcMap->getGridHeight()/2)));
+		nAITargetType = AIT_POSITION;
+		nAIState = AI_MOVINGTOTARGET;
+		//AI_InitMoveToTarget(pcMap);
+		NEW_AI_CreatePath(pcMap);
+		break;
     }
-break_whole:
 
     /*int     x, y;
     int     px, py;
     bool    first = true;
-    int     cols = pcMap->getGridCols()-1;       // Note: -1 because the grid is slightly larger than the
-    int     rows = pcMap->getGridRows()-1;       // level size
     int     gw = pcMap->getGridWidth();
     int     gh = pcMap->getGridHeight();
 	CVec	resultPos;
@@ -1577,8 +1548,6 @@ break_whole:
    nAITargetType = AIT_POSITION;
    nAIState = AI_MOVINGTOTARGET;
    AI_InitMoveToTarget(pcMap);*/
-
-	return;
 }
 
 
