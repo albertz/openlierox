@@ -1323,8 +1323,8 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 	CWorm	*w = cClient->getRemoteWorms();
 	CWorm	*trg = NULL;
 	CWorm	*nonsight_trg = NULL;
-	float	fDistance = 99999;
-	float	fSightDistance = 99999;
+	float	fDistance = -1;
+	float	fSightDistance = -1;
 
 	int NumTeams = 0;
 	int i;
@@ -1365,10 +1365,10 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 		traceLine(w->getPos(),pcMap,&length,&type,1);
 		if (! (type & PX_ROCK))  {
 			// Line of sight not blocked
-			if (l < fSightDistance)  {
+			if (fSightDistance < 0 || l < fSightDistance)  {
 				trg = w;
 				fSightDistance = l;
-				if (l < fDistance)  {
+				if (fDistance < 0 || l < fDistance)  {
 					nonsight_trg = w;
 					fDistance = l;
 				}
@@ -1376,7 +1376,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 		}
 		else
 			// Line of sight blocked
-			if(l < fDistance) {
+			if(fDistance < 0 || l < fDistance) {
 				nonsight_trg = w;
 				fDistance = l;
 			}
@@ -1472,7 +1472,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
     int     rows = pcMap->getGridRows()-1;       // level size
     
     // Find a random spot to go to high in the level
-    printf("I don't find any target, so let's get somewhere (high)");
+    printf("I don't find any target, so let's get somewhere (high)\n");
     int x, y, c;
     for(c=0; c<10; c++) {
 		x = (int)(fabs(GetRandomNum()) * (float)cols);
@@ -2653,12 +2653,13 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 {
 
 	// The target is too far to aim
+/*	// TODO: is this correct? make it sense? should we remove it?
 	float vy = v*(float)sin(PI/4);
 	float d = 2*vy*vy/g;
 	if (fabs(x) >= d)  {
 		*angle = 0;
 		return false;
-	}
+	} */
 
 	float v2 = v*v;
 	float x2 = x*x;
@@ -2836,81 +2837,73 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	weapon_t *weap = getCurWeapon()->Weapon;
-	switch (weap->Type)  {
-	case WPN_PROJECTILE:  {
-		switch (weap->Projectile->Hit_Type)  {
-		//case PJ_NOTHING:
-		//case PJ_CARVE: 
-		case PJ_DIRT:
-		case PJ_GREENDIRT:
-			//printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
-			break;
-		default:
-			// TODO: count with the worm velocities
-
-			// Worm speed
-			float MySpeed = vVelocity.GetLength();
-			// Enemy speed
-			float EnemySpeed = psAITarget->getVelocity()->GetLength();
-			// Projectile speed
-			float v = (float)weap->ProjSpeed*weap->Projectile->Dampening;
-			// Gravity
-			int	  g = 100;
-			if (weap->Projectile->UseCustomGravity)
-				g = weap->Projectile->Gravity;
-			if (iAiGameType == GAM_MORTARS)
-				g = 100;
-
-			// Get the alpha
-			bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
-			if (!bAim)
-				break;
-			
-			// Can we hit the target?
-			if (g <= 5)  {
-				int type = PX_EMPTY;
-				float d;
-				traceWeaponLine(cTrgPos,pcMap,&d,&type);
-				bAim = type == PX_EMPTY;
-			}
-			else
-				bAim = weaponCanHit(g,v,pcMap);
-
-			if (!bAim)
-				break;
-
-			if (fabs(fAngle-alpha) > 5.0)  {
-				// Move the angle at the same speed humans are allowed to move the angle
-				if(alpha > fAngle)
-					fAngle += wd->AngleSpeed * tLX->fDeltaTime;
-				else if(alpha < fAngle)
-					fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
-				bAim = false;
-			}			
-			else
-				fAngle = alpha;
-
-			// Face the target
-			if (x < 0)
-				iDirection = DIR_LEFT;
-			else
-				iDirection = DIR_RIGHT;
-
-			/*strcpy(tLX->debug_string,weap->Name);
-			if (tLX->fCurTime-flast > 1.0f)  {
-				tLX->debug_float = alpha;
-				flast = tLX->fCurTime;
-			}*/
-			break;
-		} // switch over Hit_Type
-		} // case WPN_PROJECTILE
+	if(weap && weap->Projectile) switch (weap->Projectile->Hit_Type)  {
+	//case PJ_NOTHING:
+	//case PJ_CARVE: 
+	case PJ_DIRT:
+	case PJ_GREENDIRT:
+		//printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
+		// don't shoot this shit
 		break;
-	case WPN_BEAM:
-	default: // weap->Type // default -> it's WPN_SPECIAL (should)
-		// don't know, but this could possible be good
-		// or else, this is perhaps some kamikaze action :)
-		// Direct aim
-		bAim = bDirect && AI_SetAim(cTrgPos);
+	default:
+		// TODO: count with the worm velocities
+
+		// Worm speed
+		float MySpeed = vVelocity.GetLength();
+		// Enemy speed
+		float EnemySpeed = psAITarget->getVelocity()->GetLength();
+		// Projectile speed
+		float v = (float)weap->ProjSpeed*weap->Projectile->Dampening;
+		// Gravity
+		int	  g = 100;
+		if (weap->Projectile->UseCustomGravity)
+			g = weap->Projectile->Gravity;
+		if (iAiGameType == GAM_MORTARS)
+			g = 100;
+
+		// Get the alpha
+		bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
+		if (!bAim)
+			break;
+		
+		// Can we hit the target?
+		//printf("proj-speed: %f\n", v);
+		if (g <= 10 || v >= 200)  {
+			int type = PX_EMPTY;
+			float d;
+			traceWeaponLine(cTrgPos,pcMap,&d,&type);
+			bAim = (type == PX_EMPTY) && bDirect;
+		}
+		else
+			bAim = weaponCanHit(g,v,pcMap);
+
+		if (!bAim)
+			break;
+		
+		if (fabs(fAngle-alpha) > 5.0)  {
+			// Move the angle at the same speed humans are allowed to move the angle
+			if(alpha > fAngle)
+				fAngle += wd->AngleSpeed * tLX->fDeltaTime;
+			else if(alpha < fAngle)
+				fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
+			// still aiming ...
+			bAim = false;
+		}			
+		else
+			fAngle = alpha;
+
+		// Face the target
+		if (x < 0)
+			iDirection = DIR_LEFT;
+		else
+			iDirection = DIR_RIGHT;
+
+		/*strcpy(tLX->debug_string,weap->Name);
+		if (tLX->fCurTime-flast > 1.0f)  {
+			tLX->debug_float = alpha;
+			flast = tLX->fCurTime;
+		}*/
+		break;
 		//printf("wp type is BEAM %s\n", bAim ? "and we are aiming" : "and no aim");
 	}
 
@@ -2918,7 +2911,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	// If there's some lag or low FPS, don't shoot in the direction of our flight (avoid suicides)
 	//
 
-	if (GetFPS() < 75 || tGameInfo.iGameType == GME_JOIN)  {
+	if(bAim) if (GetFPS() < 75 || tGameInfo.iGameType == GME_JOIN)  {
 		// Get the angle
 		float ang = (float)atan2(vVelocity.x, vVelocity.y);
 		ang = RAD2DEG(ang);
@@ -2938,6 +2931,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 
     if(!bAim)  {
 
+		/*
 		// In mortars we can hit the target below us
 		if (iAiGameType == GAM_MORTARS)  {
 			if (cTrgPos.y > (vPos.y-20.0f)) {
@@ -2965,7 +2959,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 				
 				return true;
 			}
-		}
+		} */
 
   		// we cannot shoot here
 
@@ -3008,7 +3002,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		for (int i=0; i<5; i++)
 			if (!tWeapons[i].Reloading)  
 				return i;
-		printf("GAM_RIFLES|GAM_MORTARS: all weapons still are reloading...\n");
+		//printf("GAM_RIFLES|GAM_MORTARS: all weapons still are reloading...\n");
 		return -1;
 	}
 
@@ -3295,7 +3289,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 		if (!tWeapons[i].Reloading)  
 			return num;
 
-	printf("simply everything failed, no luck with that\n");
+//	printf("simply everything failed, no luck with that\n");
     return -1;
 }
 
