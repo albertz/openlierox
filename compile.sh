@@ -2,9 +2,10 @@
 
 # this is the compile-script for a simple compilation of the game
 # the following variables will be used:
-#   SYSTEM_DATA_DIR		- the global data dir for the game; default=/usr/share
-#	CPPFLAGS			- some other g++ flags
-#	DEBUG				- if set to 1, the game will compiled with debug-info
+#	SYSTEM_DATA_DIR		- the global data dir for the game; default=/usr/share
+#	COMPILER		- sets the compiler
+#	CXXFLAGS		- some other compiler flags
+#	DEBUG			- if set to 1, the game will compiled with debug-info
 #	HAWKNL_BUILTIN		- if set to 1, HawkNL will be builtin
 
 # check variables and set default values if unset
@@ -68,7 +69,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
 	$( [ "$DEBUG" == "1" ] && echo -ggdb ) \
-	$CPPFLAGS \
+	$CXXFLAGS \
 	-o bin/openlierox
 then
 	echo ">>> success"

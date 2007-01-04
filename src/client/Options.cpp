@@ -70,9 +70,7 @@ int LoadOptions(void)
 		
 		i++;
 		spath = &(*spath)->next;
-	}
-    ReadKeyword(f, "Video", "OpenGL",       &tLXOptions->iOpenGL, false);
-	
+	}	
 	for(spath = &basesearchpaths; *spath != NULL; spath = &(*spath)->next)  {
 		if(!FileListIncludes(tLXOptions->tSearchPaths, (*spath)->filename))  {
 			AddToFileList(&tLXOptions->tSearchPaths, (*spath)->filename);
@@ -80,6 +78,7 @@ int LoadOptions(void)
 	}
 
     // Video
+    ReadKeyword(f, "Video", "OpenGL",       &tLXOptions->iOpenGL, false);
     ReadKeyword(f, "Video", "Fullscreen",   &tLXOptions->iFullscreen, true);
     ReadKeyword(f, "Video", "ShowFPS",      &tLXOptions->iShowFPS, false);
 

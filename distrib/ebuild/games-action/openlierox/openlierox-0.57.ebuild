@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit eutils games
+inherit eutils games toolchain
 
 DESCRIPTION="OpenLieroX is a real-time excessive Worms-clone"
 HOMEPAGE="http://sourceforge.net/projects/openlierox/"
@@ -30,15 +30,20 @@ src_unpack() {
 	cd ${S}
 
 	unpack OpenLieroX_${PV}.src.zip || die "cannot unpack the main archive"
-	cd ${S}/share/gamedir || die "a problem here should only occurs, if your portage-tree is _very_ old"
-	unpack lx0.56_pack1.9.zip || die "cannot unpack the LieroX Pack"
+	mkdir -p ${S}/share/gamedir/packtmp && \
+	cd ${S}/share/gamedir/packtmp && \
+	unpack lx0.56_pack1.9.zip && \
+	mv -f * .. && cd .. && rmdir packtmp \
+		|| die "cannot unpack the LieroX Pack"
 }
 
 src_compile() {
 	cd ${S} || die "some strange problems ..."
 
 	# SYSTEM_DATA_DIR/OpenLieroX will be the search path
-	export SYSTEM_DATA_DIR="${GAMES_DATADIR}"
+	# the compile.sh will also use the CXXFLAGS
+	SYSTEM_DATA_DIR="${GAMES_DATADIR}" \
+	COMPILER=$(tc-getCXX) \
 	./compile.sh
 }
 

@@ -100,8 +100,8 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 
 // Helpful Macros
-#define		LOAD_IMAGE(bmp,name) bmp = LoadImage(name,0); if(bmp == NULL) return false
-#define		LOAD_IMAGE_BPP(bmp,name) bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); if(bmp == NULL) return false
+#define		LOAD_IMAGE(bmp,name) bmp = LoadImage(name,0); if(bmp == NULL) { printf("WARNING: could not load image %s\n", name); return false; }
+#define		LOAD_IMAGE_BPP(bmp,name) bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); if(bmp == NULL) { printf("WARNING: could not load image %s\n", name); return false; }
 #define		CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
 
 template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
