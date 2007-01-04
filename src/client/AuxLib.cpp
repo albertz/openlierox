@@ -143,8 +143,6 @@ int SetVideoMode(void)
 	if(tLXOptions->iFullscreen)
 		vidflags |= SDL_FULLSCREEN;
 	
-	vidflags |= SDL_SWSURFACE;
-
 	if (opengl) {
 	  vidflags |= SDL_OPENGLBLIT;
 	  SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   5);
@@ -153,13 +151,13 @@ int SetVideoMode(void)
 	  SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
 	}
 	
-	/*if(HardwareBuf)
+	if(HardwareBuf)
 		vidflags |= SDL_HWSURFACE;
 	else
 		vidflags |= SDL_SWSURFACE;
 
 	if(DoubleBuf)
-		vidflags |= SDL_DOUBLEBUF;*/
+		vidflags |= SDL_DOUBLEBUF;
 
 
 	if( SDL_SetVideoMode(640,480, bpp,vidflags) == NULL) {

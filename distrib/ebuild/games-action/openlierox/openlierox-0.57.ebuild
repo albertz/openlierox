@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit eutils games toolchain
+inherit eutils games toolchain-funcs
 
 DESCRIPTION="OpenLieroX is a real-time excessive Worms-clone"
 HOMEPAGE="http://sourceforge.net/projects/openlierox/"
@@ -33,7 +33,7 @@ src_unpack() {
 	mkdir -p ${S}/share/gamedir/packtmp && \
 	cd ${S}/share/gamedir/packtmp && \
 	unpack lx0.56_pack1.9.zip && \
-	mv -f * .. && cd .. && rmdir packtmp \
+	cp -a * .. && cd .. && rm -rf packtmp \
 		|| die "cannot unpack the LieroX Pack"
 }
 
