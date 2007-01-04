@@ -173,6 +173,7 @@ void Menu_PlayerInitialize(void)
     cViewPlayers.Add( new CCombobox(),                              vp_Type,   400,200, 120,17);    
 
 	cViewPlayers.SendMessage(vp_Name,TXM_SETMAX,20,0);
+	cViewPlayers.SendMessage(vp_Players,		LVM_SETOLDSTYLE, 0, 0);
 
     // Hide the AI stuff until 'Computer' type is selected
     cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(false);

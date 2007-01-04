@@ -94,8 +94,12 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.SendMessage(ml_Playing,		LVM_ADDCOLUMN, (DWORD)"", 90);
 	cLocalMenu.SendMessage(ml_Playing,		LVM_ADDCOLUMN, (DWORD)"", 20);
 
+	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, 0, 0);
+
 	cLocalMenu.SendMessage(ml_PlayerList,	LVM_ADDCOLUMN, (DWORD)"Players", 22);
 	cLocalMenu.SendMessage(ml_PlayerList,	LVM_ADDCOLUMN, (DWORD)"", 60);
+
+	cLocalMenu.SendMessage(ml_PlayerList,		LVM_SETOLDSTYLE, 0, 0);
 	Menu_LocalAddProfiles();
 
 	cLocalMenu.SendMessage(ml_Gametype,    CBM_ADDITEM,   GMT_DEATHMATCH, (DWORD)"Deathmatch");

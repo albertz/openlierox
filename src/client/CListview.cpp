@@ -32,18 +32,22 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	int x=iX+4;
 		
 	for(int i=1;col;col = col->tNext,i++) {
-		int col_w = col->iWidth;
-		// Last column has to be thiner
-		if (i == iNumColumns)
-			col_w--;
-		Menu_DrawWinButton(bmpDest,x-2,iY+2,col_w-3,tLX->cFont.GetHeight(),col->bDown);
-		switch (col->iSorted)  {
-		case 0:	DrawImage(bmpDest,tMenu->bmpTriangleUp,x+col_w-tMenu->bmpTriangleUp->w-9,iY+7); break;
-		case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown->w-9,iY+7); break;
+		if (bOldStyle)  {
+			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel,"%s", col->sText);
+		} else {
+
+			int col_w = col->iWidth;
+			// Last column has to be thiner
+			if (i == iNumColumns)
+				col_w--;
+			Menu_DrawWinButton(bmpDest,x-2,iY+2,col_w-3,tLX->cFont.GetHeight(),col->bDown);
+			switch (col->iSorted)  {
+			case 0:	DrawImage(bmpDest,tMenu->bmpTriangleUp,x+col_w-tMenu->bmpTriangleUp->w-9,iY+7); break;
+			case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown->w-9,iY+7); break;
+			}
+
+			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x-20), tLX->clNormalLabel,"%s", col->sText);
 		}
-
-
-		tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, col_w-2, tLX->clNormalLabel,"%s", col->sText);
 		x += col->iWidth-2;
 	}
 
@@ -93,8 +97,8 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 				if(sub->iVisible) {
 					if(sub->iType == LVS_TEXT)  {
-						if (col)
-							tLX->cFont.DrawAdv(bmpDest,x,texty,col->iWidth-8,colour,"%s",sub->sText);
+						if (col && !bOldStyle)
+							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),colour,"%s",sub->sText);
 						else
 							tLX->cFont.Draw(bmpDest,x,texty,colour,"%s",sub->sText);
 					}
@@ -120,7 +124,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		cScrollbar.Draw(bmpDest);
 
     // Draw the rectangle last
-    Menu_DrawBoxInset(bmpDest, iX, iY/*+15*/, iX+iWidth, iY+iHeight);
+    Menu_DrawBoxInset(bmpDest, iX, iY+15*bOldStyle, iX+iWidth, iY+iHeight);
 }
 
 
@@ -424,7 +428,7 @@ void CListview::ReSort(void)
 		return;
 
 	// Sort
-	SortBy(i,col->iSorted);
+	SortBy(i,col->iSorted==1);
 }
 
 ///////////////
@@ -628,22 +632,24 @@ int	CListview::MouseOver(mouse_t *tMouse)
 	iCursor = 0;
 
 	// Go through the columns and check, if the mouse isn't in the space between two columns
-	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
-		lv_column_t *col = tColumns;
-		lv_column_t *prev = NULL;
-		if (!col)
-			return LV_NONE;
+	if (!bOldStyle)  {
+		if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
+			lv_column_t *col = tColumns;
+			lv_column_t *prev = NULL;
+			if (!col)
+				return LV_NONE;
 
-		int x = iX+col->iWidth-2;
-		col = col->tNext;
-		prev = col;
-		for (;col;col = col->tNext)  {
-			if (tMouse->X >= x && tMouse->X <= x+4)  {
-				iCursor = 3;
-				return LV_RESIZECURSOR;
-			}
-			x += col->iWidth-2;
+			int x = iX+col->iWidth-2;
+			col = col->tNext;
 			prev = col;
+			for (;col;col = col->tNext)  {
+				if (tMouse->X >= x && tMouse->X <= x+4)  {
+					iCursor = 3;
+					return LV_RESIZECURSOR;
+				}
+				x += col->iWidth-2;
+				prev = col;
+			}
 		}
 	}
 
@@ -666,69 +672,71 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 	//
 	// Column headers
 	//
-	lv_column_t *col = tColumns;
-	lv_column_t *prev = NULL;
-	int i=0;
+	if (!bOldStyle)  {
+		lv_column_t *col = tColumns;
+		lv_column_t *prev = NULL;
+		int i=0;
 
-	// First of all, reset the click state of all headers
-	for (;col;col=col->tNext)
-		col->bDown = false;
-
-	col = tColumns;
-
-	// Is some of the columns grabbed? Move it
-	if (iGrabbed > 0)  {
-		// Get the column
-		for (i=0;i != iGrabbed && col;i++) {
-			prev = col;
-			col = col->tNext;
-		}
-
-		// Resize the two columns
-		int w1,w2;
-		w1=w2=0;
-		if (prev)  {
-			w1 = prev->iWidth + tMouse->X - iLastMouseX;
-		}
-		w2 = col->iWidth - tMouse->X + iLastMouseX;
-
-		// Resize only if they both will have at least minimal width
-		if (w1 > 4 && w2 > 4)  {
-			prev->iWidth = w1;
-			col->iWidth = w2;
-		}
-
-
-		iLastMouseX = tMouse->X;
-		iCursor = 3;
-
-		return LV_RESIZECURSOR;
-	}
-
-	// Not grabbed
-	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
-		int x = iX+4;
-		col = tColumns;
-		prev = NULL;
-		for (i=0;col;col = col->tNext,i++)  {
+		// First of all, reset the click state of all headers
+		for (;col;col=col->tNext)
 			col->bDown = false;
-			// If in the area between two columns, grab
-			if (tMouse->X >= x-8 && tMouse->X <= x && col != tColumns)  {
-				iGrabbed = i;
-				// Hack
-				if (prev)
-					prev->bDown = false;
+
+		col = tColumns;
+
+		// Is some of the columns grabbed? Move it
+		if (iGrabbed > 0)  {
+			// Get the column
+			for (i=0;i != iGrabbed && col;i++) {
+				prev = col;
+				col = col->tNext;
 			}
-			// Click
-			else if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3 && iGrabbed <= 0)  {
-				iCursor = 0;
-				col->bDown = true;
+
+			// Resize the two columns
+			int w1,w2;
+			w1=w2=0;
+			if (prev)  {
+				w1 = prev->iWidth + tMouse->X - iLastMouseX;
 			}
-			x += col->iWidth-2;
-			prev = col;
+			w2 = col->iWidth - tMouse->X + iLastMouseX;
+
+			// Resize only if they both will have at least minimal width
+			if (w1 > 4 && w2 > 4)  {
+				prev->iWidth = w1;
+				col->iWidth = w2;
+			}
+
+
+			iLastMouseX = tMouse->X;
+			iCursor = 3;
+
+			return LV_RESIZECURSOR;
 		}
-		iLastMouseX = tMouse->X;
-		return LV_NONE;
+
+		// Not grabbed
+		if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
+			int x = iX+4;
+			col = tColumns;
+			prev = NULL;
+			for (i=0;col;col = col->tNext,i++)  {
+				col->bDown = false;
+				// If in the area between two columns, grab
+				if (tMouse->X >= x-8 && tMouse->X <= x && col != tColumns)  {
+					iGrabbed = i;
+					// Hack
+					if (prev)
+						prev->bDown = false;
+				}
+				// Click
+				else if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3 && iGrabbed <= 0)  {
+					iCursor = 0;
+					col->bDown = true;
+				}
+				x += col->iWidth-2;
+				prev = col;
+			}
+			iLastMouseX = tMouse->X;
+			return LV_NONE;
+		}
 	}
 
     if( !(tMouse->FirstDown & SDL_BUTTON(1)) )
@@ -813,27 +821,29 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	}
 
 	// Column headers
-	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1 && tLX->fCurTime-fLastMouseUp >= 0.15f && iGrabbed <= 0)  {
-		fLastMouseUp = tLX->fCurTime;
-		int x = iX+4;
-		lv_column_t *col = tColumns;
-		for (int i=0;col;col = col->tNext,i++)  {
-			col->bDown = false;
-			if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3)  {
-				bool asc = col->iSorted == -1 || col->iSorted == 0;
-				SortBy(i,asc);
-				if (asc)
-					col->iSorted = 1;
-				else
-					col->iSorted = 0;
-			} else
-				col->iSorted = -1;
-			x += col->iWidth-2;
+	if (!bOldStyle)  {
+		if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1 && tLX->fCurTime-fLastMouseUp >= 0.15f && iGrabbed <= 0)  {
+			fLastMouseUp = tLX->fCurTime;
+			int x = iX+4;
+			lv_column_t *col = tColumns;
+			for (int i=0;col;col = col->tNext,i++)  {
+				col->bDown = false;
+				if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3)  {
+					bool asc = col->iSorted == -1 || col->iSorted == 0;
+					SortBy(i,asc);
+					if (asc)
+						col->iSorted = 1;
+					else
+						col->iSorted = 0;
+				} else
+					col->iSorted = -1;
+				x += col->iWidth-2;
+			}
+			return LV_NONE;
 		}
-		return LV_NONE;
-	}
 
-	iGrabbed = 0;
+		iGrabbed = 0;
+	}
 
 	iClickedSub = -1;
 
@@ -1037,6 +1047,11 @@ int CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
             if(tSelected)
                 return (int)tSelected;
             return 0;
+
+		// Set the old-style property
+		case LVM_SETOLDSTYLE:
+			bOldStyle = true;
+			break;
 
 
 		default:

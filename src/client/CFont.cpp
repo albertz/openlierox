@@ -210,7 +210,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 			continue;
 		}
 
-		// Max width overflowed
+		// Maximal width overflowed
 		if (pos > max_w)
 			break;
 
@@ -275,7 +275,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 						continue;
 
 					if(pixel == 2 && OutlineFont)  {
-							PutPixel(dst,x+pos+b,y+j,MakeColour(0,0,0));
+							PutPixel(dst,x+pos+b,y+j,0);
 							continue;
 					}
 
@@ -389,5 +389,5 @@ void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, 
 
 	pos = MAX(min_x,x-length/2);
 
-	Draw(dst,pos,y,col,"%s",buf);
+	DrawAdv(dst,pos,y,max_w,col,"%s",buf);
 }

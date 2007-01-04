@@ -89,6 +89,9 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CLabel("Allow bots in server",			tLX->clNormalLabel),-1,	110, 328,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowRemoteBots,	270,325,17, 17);
 
+	cHostPly.SendMessage(hs_Playing,		LVM_SETOLDSTYLE, 0, 0);
+	cHostPly.SendMessage(hs_PlayerList,		LVM_SETOLDSTYLE, 0, 0);
+
 	cHostPly.SendMessage(hs_Servername,TXM_SETMAX,32,0);
 	//cHostPly.SendMessage(hs_Password,TXM_SETMAX,32,0);
 	cHostPly.SendMessage(hs_MaxPlayers,TXM_SETMAX,6,0);
@@ -512,6 +515,8 @@ void Menu_Net_HostLobbyCreateGui(void)
     cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
 
 	cHostLobby.SendMessage(hl_ChatText,TXM_SETMAX,64,0);
+
+	cHostLobby.SendMessage(hl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 
 	// Fill in the game details
 	cHostLobby.SendMessage(hl_Gametype,    CBM_ADDITEM,   GMT_DEATHMATCH, (DWORD)"Deathmatch");

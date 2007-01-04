@@ -643,6 +643,8 @@ void Menu_MapEd_LoadSave(int save)
 	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     1, 430,310, 40,15);
 	cg.Add( new CListview(),                            2, 180,170, 280,110);
 	cg.Add( new CTextbox(),                             3, 260,285, 200,20);
+
+	cg.SendMessage(2,		LVM_SETOLDSTYLE, 0, 0);
 	
 	t = (CTextbox *)cg.getWidget(3);
 

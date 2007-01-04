@@ -39,7 +39,8 @@ enum {
 	LVM_CLEAR,
 	LVM_GETITEMINDEX,
 	LVM_GETINDEX,
-    LVM_GETCURITEM
+    LVM_GETCURITEM,
+	LVM_SETOLDSTYLE
 };
 
 
@@ -112,12 +113,14 @@ public:
         bShowSelect = true;
 		iLastMouseX = 0;
 		iGrabbed = 0;
+		bOldStyle = false;
 		iSavedScrollbarPos = 0;
 	}
 
 
 private:
 	// Attributes
+	bool			bOldStyle;
 
 	// Columns
 	int				iNumColumns;
@@ -181,6 +184,9 @@ public:
 
     int     getSelectedID(void);
     void    setSelectedID(int id);
+
+	void	setOldStyle(bool _s)	{ bOldStyle = _s; }
+	bool	getOldStyle(void)		{ return bOldStyle; }
 
     int     getNumItems(void);
 

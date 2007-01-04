@@ -527,6 +527,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
     cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  253, 610, 165);	
 
 	cJoinLobby.SendMessage(jl_ChatText,TXM_SETMAX,64,0);
+	cJoinLobby.SendMessage(jl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 }
 
 
