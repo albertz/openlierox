@@ -54,7 +54,9 @@ public:
 	void			PreCalculate(SDL_Surface *bmpSurf, Uint32 colour);
 
 	void			Draw(SDL_Surface *dst, int x, int y, int col, char *fmt,...);
+	void			DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fmt,...);
 	void			DrawCentre(SDL_Surface *dst, int x, int y, int col, char *fmt,...);
+	void			DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, int col, char *fmt,...);
 
 	void			Shutdown(void);
 

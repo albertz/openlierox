@@ -143,10 +143,24 @@ int CFont::IsOutline(void)
 	return OutlineFont;
 }
 
+//////////////////
+// Draw a text
+void CFont::Draw(SDL_Surface *dst, int x, int y, int col, char *fmt,...)
+{
+	static char buf[512];
+	va_list arg;
+
+	va_start(arg, fmt);
+	vsnprintf(buf, sizeof(buf),fmt, arg);
+	fix_markend(buf);
+	va_end(arg);
+
+	DrawAdv(dst,x,y,99999,col,"%s",buf);
+}
 
 ///////////////////
-// Draw a font
-void CFont::Draw(SDL_Surface *dst, int x, int y, int col, char *fmt,...)
+// Draw a font (advanced)
+void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fmt,...)
 {
 	static char buf[512];
 	va_list arg;
@@ -195,6 +209,10 @@ void CFont::Draw(SDL_Surface *dst, int x, int y, int col, char *fmt,...)
 			pos = 0;
 			continue;
 		}
+
+		// Max width overflowed
+		if (pos > max_w)
+			break;
 
         // Ignore unkown characters
         if(l >= length-1 || l < 0 )
@@ -334,6 +352,42 @@ void CFont::DrawCentre(SDL_Surface *dst, int x, int y, int col, char *fmt, ...)
 	}
 
 	pos = x-length/2;
+
+	Draw(dst,pos,y,col,"%s",buf);
+}
+
+///////////////////
+// Draw's the text in centre alignment
+void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, int col, char *fmt, ...)
+{
+	static char buf[512];
+	va_list arg;
+	int pos;
+	int length=0;
+	unsigned int n,l;
+	
+	va_start(arg, fmt);
+	vsnprintf(buf, sizeof(buf),fmt, arg);
+	fix_markend(buf);
+	va_end(arg);
+
+	// Calculate the length of the text
+	size_t buflen = fix_strnlen(buf);
+	size_t fontstrlen = fix_strnlen(Fontstr);
+	for(n=0;n<buflen;n++) {
+		/*for(l=0;l<strlen(Fontstr);l++) {
+			if(Fontstr[l] == buf[n])
+				break;
+		}*/
+
+		l = buf[n]-32;
+		if(l>=fontstrlen)
+			continue;
+
+		length+=FontWidth[l];
+	}
+
+	pos = MAX(min_x,x-length/2);
 
 	Draw(dst,pos,y,col,"%s",buf);
 }

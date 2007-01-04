@@ -431,7 +431,7 @@ void CServer::ReadPackets(void)
 
 		GetRemoteNetAddr(tSocket,&adrFrom);
 		SetRemoteNetAddr(tSocket,&adrFrom);
-		
+
 		// Check for connectionless packets (four leading 0xff's)
 		if(*(int *)bs.GetData() == -1) {
 			bs.SetPos(4);

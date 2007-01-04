@@ -43,7 +43,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		}
 
 
-		tLX->cFont.DrawCentre(bmpDest, x+(col_w/2)-3, iY+2, tLX->clNormalLabel,"%s", col->sText);
+		tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, col_w-2, tLX->clNormalLabel,"%s", col->sText);
 		x += col->iWidth-2;
 	}
 
@@ -92,8 +92,12 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			for(;sub;sub = sub->tNext) {
 
 				if(sub->iVisible) {
-					if(sub->iType == LVS_TEXT)
-						tLX->cFont.Draw(bmpDest,x,texty,colour,"%s",sub->sText);
+					if(sub->iType == LVS_TEXT)  {
+						if (col)
+							tLX->cFont.DrawAdv(bmpDest,x,texty,col->iWidth-8,colour,"%s",sub->sText);
+						else
+							tLX->cFont.Draw(bmpDest,x,texty,colour,"%s",sub->sText);
+					}
 				
 					if(sub->iType == LVS_IMAGE)
 						DrawImage(bmpDest,sub->bmpImage,x,y);
@@ -617,7 +621,7 @@ int CListview::getIndex(int count)
 // Mouse over event	
 int	CListview::MouseOver(mouse_t *tMouse)
 {
-	if(tMouse->X > iX+iWidth-20 && iGotScrollbar)
+	if(tMouse->X > iX+iWidth-20 && tMouse->Y >= iY+20 && iGotScrollbar)
 		cScrollbar.MouseOver(tMouse);
 
 	// Reset the cursor
@@ -626,17 +630,20 @@ int	CListview::MouseOver(mouse_t *tMouse)
 	// Go through the columns and check, if the mouse isn't in the space between two columns
 	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
 		lv_column_t *col = tColumns;
+		lv_column_t *prev = NULL;
 		if (!col)
 			return LV_NONE;
 
-		int x = iX+4+col->iWidth-2;
+		int x = iX+col->iWidth-2;
+		col = col->tNext;
+		prev = col;
 		for (;col;col = col->tNext)  {
-			col->bDown = false;
 			if (tMouse->X >= x && tMouse->X <= x+4)  {
 				iCursor = 3;
 				return LV_RESIZECURSOR;
 			}
 			x += col->iWidth-2;
+			prev = col;
 		}
 	}
 
@@ -648,7 +655,7 @@ int	CListview::MouseOver(mouse_t *tMouse)
 // Mouse down event
 int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 {
-	if(tMouse->X > iX+iWidth-20 && iGotScrollbar) {
+	if((tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && iGotScrollbar) {
 		cScrollbar.MouseDown(tMouse, nDown);
 		return LV_NONE;
 	}
@@ -656,22 +663,76 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18)
 		return LV_NONE;
 
-    if( !(tMouse->FirstDown & SDL_BUTTON(1)) )
-        return LV_NONE;
-
+	//
 	// Column headers
+	//
+	lv_column_t *col = tColumns;
+	lv_column_t *prev = NULL;
+	int i=0;
+
+	// First of all, reset the click state of all headers
+	for (;col;col=col->tNext)
+		col->bDown = false;
+
+	col = tColumns;
+
+	// Is some of the columns grabbed? Move it
+	if (iGrabbed > 0)  {
+		// Get the column
+		for (i=0;i != iGrabbed && col;i++) {
+			prev = col;
+			col = col->tNext;
+		}
+
+		// Resize the two columns
+		int w1,w2;
+		w1=w2=0;
+		if (prev)  {
+			w1 = prev->iWidth + tMouse->X - iLastMouseX;
+		}
+		w2 = col->iWidth - tMouse->X + iLastMouseX;
+
+		// Resize only if they both will have at least minimal width
+		if (w1 > 4 && w2 > 4)  {
+			prev->iWidth = w1;
+			col->iWidth = w2;
+		}
+
+
+		iLastMouseX = tMouse->X;
+		iCursor = 3;
+
+		return LV_RESIZECURSOR;
+	}
+
+	// Not grabbed
 	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
 		int x = iX+4;
-		lv_column_t *col = tColumns;
-		for (;col;col = col->tNext)  {
+		col = tColumns;
+		prev = NULL;
+		for (i=0;col;col = col->tNext,i++)  {
 			col->bDown = false;
-			if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3)  {
+			// If in the area between two columns, grab
+			if (tMouse->X >= x-8 && tMouse->X <= x && col != tColumns)  {
+				iGrabbed = i;
+				// Hack
+				if (prev)
+					prev->bDown = false;
+			}
+			// Click
+			else if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3 && iGrabbed <= 0)  {
+				iCursor = 0;
 				col->bDown = true;
 			}
 			x += col->iWidth-2;
+			prev = col;
 		}
+		iLastMouseX = tMouse->X;
 		return LV_NONE;
 	}
+
+    if( !(tMouse->FirstDown & SDL_BUTTON(1)) )
+        return LV_NONE;
 
     
 	iClickedSub = -1;
@@ -741,6 +802,8 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 // Mouse up event
 int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 {
+	iLastMouseX = 0;
+
 	if(tMouse->X > iX+iWidth-20 && iGotScrollbar) 
 		cScrollbar.MouseDown(tMouse, nDown);
 
@@ -750,7 +813,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	}
 
 	// Column headers
-	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1 && tLX->fCurTime-fLastMouseUp >= 0.15f)  {
+	if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1 && tLX->fCurTime-fLastMouseUp >= 0.15f && iGrabbed <= 0)  {
 		fLastMouseUp = tLX->fCurTime;
 		int x = iX+4;
 		lv_column_t *col = tColumns;
@@ -769,6 +832,8 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 		}
 		return LV_NONE;
 	}
+
+	iGrabbed = 0;
 
 	iClickedSub = -1;
 

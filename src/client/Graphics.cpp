@@ -87,7 +87,7 @@ int LoadGraphics(void)
 
 	// Set the colour keys
 	Uint32 pink = MakeColour(255,0,255);
-	for(i=0;i<3;i++)
+	for(i=0;i<4;i++)
 		SDL_SetColorKey(gfxGUI.bmpMouse[i], SDL_SRCCOLORKEY, pink);
 
 	SDL_SetColorKey(gfxGame.bmpCrosshair, SDL_SRCCOLORKEY, pink);

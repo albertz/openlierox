@@ -90,6 +90,7 @@ public:
 
 	int		getValue(void)					{ return iValue; }
 	int		getMax(void)					{ return iMax; }
+	int		getGrabbed(void)				{ return iSliderGrabbed; }
 
 	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 

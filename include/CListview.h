@@ -110,6 +110,8 @@ public:
         iItemID = 0;
 		iCursor = 0;
         bShowSelect = true;
+		iLastMouseX = 0;
+		iGrabbed = 0;
 		iSavedScrollbarPos = 0;
 	}
 
@@ -121,6 +123,8 @@ private:
 	int				iNumColumns;
 	lv_column_t		*tColumns;
 	int				iCursor;
+	int				iGrabbed;
+	int				iLastMouseX;
 
 	// Items
 	lv_item_t		*tItems;
