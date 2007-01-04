@@ -205,7 +205,9 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 170, 170, 17,17);
+#ifndef WIN32
 	cOpt_System.Add( new CLabel("OpenGL acceleration",0xffff),Static, 240, 170, 0,0);
+#endif
 	cOpt_System.Add( new CCheckbox(tLXOptions->iOpenGL),    os_OpenGL, 400, 170, 17,17);
 
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
@@ -229,6 +231,10 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);	
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);
+
+#ifdef WIN32
+	cOpt_System.getWidget(os_OpenGL)->setEnabled(false);
+#endif
 
 	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
 

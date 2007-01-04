@@ -631,7 +631,7 @@ int	CListview::MouseOver(mouse_t *tMouse)
 	// Reset the cursor
 	iCursor = 0;
 
-	// Go through the columns and check, if the mouse isn't in the space between two columns
+	// Go through the columns and check, if the mouse is in the space between two columns
 	if (!bOldStyle)  {
 		if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
 			lv_column_t *col = tColumns;
