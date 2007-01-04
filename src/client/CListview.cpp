@@ -451,7 +451,8 @@ void CListview::SortBy(int column, bool ascending)
 			subitem2=item->tNext->tSubitems;
 
 			// Get subitem 1
-			for(int i=0;i != column && subitem1;subitem1=subitem1->tNext,i++) {	}
+			int i;
+			for(i=0;i != column && subitem1;subitem1=subitem1->tNext,i++) {	}
 
 			// Get subitem 2
 			for(i=0;i != column && subitem2;subitem2=subitem2->tNext,i++) { }
