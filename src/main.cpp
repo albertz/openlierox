@@ -175,6 +175,18 @@ void ParseArguments(int argc, char *argv[])
 
         // -nosound
         // Turns off the sound
+        // -opengl
+        // Turns OpenGL on
+        if( stricmp(a, "-opengl") == 0 ) {
+            tLXOptions->iOpenGL = true;
+        }
+
+        // -noopengl
+        // Turns OpenGL off
+        if( stricmp(a, "-noopengl") == 0 ) {
+            tLXOptions->iOpenGL = false;
+        }
+
         if( stricmp(a, "-nosound") == 0 ) {
             nDisableSound = true;
             tLXOptions->iSoundOn = false;
@@ -192,6 +204,8 @@ void ParseArguments(int argc, char *argv[])
         if( stricmp(a, "-fullscreen") == 0 ) {
             tLXOptions->iFullscreen = true;
         }
+     		printf("   -opengl\n");   	
+     		printf("   -noopengl\n");   	
         
         
         if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") ) {

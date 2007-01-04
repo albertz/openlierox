@@ -917,9 +917,10 @@ void Menu_AddDefaultWidgets(void)
     LayoutWidgets[L_OPTIONSGAME].Add("AutoTyping");
     LayoutWidgets[L_OPTIONSGAME].Add("ScreenshotFormat");
 
-// L_OPTIONSSYSTEM: 11 widgets
+// L_OPTIONSSYSTEM: 12 widgets
     LayoutWidgets[L_OPTIONSSYSTEM].Add("Back");
     LayoutWidgets[L_OPTIONSSYSTEM].Add("Fullscreen");
+    LayoutWidgets[L_OPTIONSSYSTEM].Add("OpenGL");
     LayoutWidgets[L_OPTIONSSYSTEM].Add("SoundOn");
     LayoutWidgets[L_OPTIONSSYSTEM].Add("SoundVolume");
     LayoutWidgets[L_OPTIONSSYSTEM].Add("NetworkPort");

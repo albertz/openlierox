@@ -71,6 +71,7 @@ int LoadOptions(void)
 		i++;
 		spath = &(*spath)->next;
 	}
+    ReadKeyword(f, "Video", "OpenGL",       &tLXOptions->iOpenGL, false);
 	
 	for(spath = &basesearchpaths; *spath != NULL; spath = &(*spath)->next)  {
 		if(!FileListIncludes(tLXOptions->tSearchPaths, (*spath)->filename))  {
@@ -195,6 +196,7 @@ void SaveOptions(void)
 		return;
 
     FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
+    fprintf(fp, "OpenGL = %s\n",tLXOptions->iOpenGL ? "true" : "false");
     if(fp == NULL)
         return;
 

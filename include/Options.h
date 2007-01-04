@@ -66,6 +66,7 @@ typedef struct {
 	// Video
 	int		iFullscreen;
 	int		iShowFPS;
+	int		iOpenGL;
 	char	sResolution[9];
 
 	// Network

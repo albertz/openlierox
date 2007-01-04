@@ -9,8 +9,6 @@
 // Created 12/11/01
 // By Jason Boettcher
 
-// this is the new file!
-
 #include "defs.h"
 #include <SDL/SDL_syswm.h>
 #include "LieroX.h"
@@ -138,11 +136,22 @@ int SetVideoMode(void)
 	int vidflags = 0;
 	int bpp = 16;
 
+	// BlueBeret's addition (2007): OpenGL support
+	int opengl = tLXOptions->iOpenGL;
+
 	// Initialize the video
 	if(tLXOptions->iFullscreen)
 		vidflags |= SDL_FULLSCREEN;
 	
 	vidflags |= SDL_SWSURFACE;
+
+	if (opengl) {
+	  vidflags |= SDL_OPENGLBLIT;
+	  SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   5);
+	  SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 5);
+	  SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  5);
+	  SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
+	}
 	
 	/*if(HardwareBuf)
 		vidflags |= SDL_HWSURFACE;

@@ -41,6 +41,7 @@ enum {
 	os_NetworkPort,
 	os_NetworkSpeed,
 	os_ShowFPS,
+	os_OpenGL,
 	os_ShowPing,
 	os_LogConvos,
 	os_ScreenshotFormat,
@@ -204,6 +205,8 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 170, 170, 17,17);
+	cOpt_System.Add( new CLabel("OpenGL acceleration",0xffff),Static, 240, 170, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iOpenGL),    os_OpenGL, 400, 170, 17,17);
 
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
 	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
@@ -301,6 +304,7 @@ void Menu_OptionsFrame(void)
 	mouse_t		*Mouse = GetMouse();
 	int			mouse = 0;
 	gui_event_t *ev;
+	int opengl = tLXOptions->iOpenGL;
 	int fullscr = tLXOptions->iFullscreen;
 	static const char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"};
 	int			val;
@@ -492,6 +496,13 @@ void Menu_OptionsFrame(void)
 		// Fullscreen value
 		c = (CCheckbox *)cOpt_System.getWidget(os_Fullscreen);
 		int fullscr = c->getValue();
+		// OpenGL accel value
+		c = (CCheckbox *)cOpt_System.getWidget(os_OpenGL);
+		int opengl = c->getValue ();
+
+		// FIXME: WARNING! If OpenGL acceleration is not supported,
+		//                 this could lead to a crash!
+
 
 
 		// System
@@ -512,8 +523,9 @@ void Menu_OptionsFrame(void)
 				case os_Apply:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						// Set to fullscreen
+						// Set to fullscreen / OpenGL
 						tLXOptions->iFullscreen = fullscr;
+						tLXOptions->iOpenGL = opengl;
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Set the new video mode
@@ -597,7 +609,7 @@ void Menu_OptionsFrame(void)
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,0,0);
 		
 
-		if(fullscr != tLXOptions->iFullscreen)
+		if((fullscr != tLXOptions->iFullscreen) || (opengl != tLXOptions->iOpenGL))
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
         else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
