@@ -55,7 +55,11 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 
 	// Draw the items
-	int y = iY+tLX->cFont.GetHeight()+4;
+	int y=iY;
+	if (bOldStyle)
+		y = iY+tLX->cFont.GetHeight()+2;
+	else
+		y = iY+tLX->cFont.GetHeight()+4;
 	x = iX+4;
 	lv_item_t *item = tItems;
 	int count=0;
@@ -513,6 +517,14 @@ void CListview::SortBy(int column, bool ascending)
 			prev_item = item;
 		}
 	}
+
+	// Update the ID of the selected item
+	int i=0;
+	for (item=tItems;item;item=item->tNext,i++)
+		if (item == tSelected)  {
+			iItemID = i;
+			break;
+		}
 		
 }
 
@@ -661,8 +673,9 @@ int	CListview::MouseOver(mouse_t *tMouse)
 // Mouse down event
 int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 {
-	if((tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && iGotScrollbar) {
+	if(((tMouse->X > iX+iWidth-20) && iGotScrollbar) || bScrollbarGrabbed) {
 		cScrollbar.MouseDown(tMouse, nDown);
+		bScrollbarGrabbed = cScrollbar.getGrabbed();
 		return LV_NONE;
 	}
 
@@ -811,9 +824,10 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 {
 	iLastMouseX = 0;
+	bScrollbarGrabbed = false;
 
 	if(tMouse->X > iX+iWidth-20 && iGotScrollbar) 
-		cScrollbar.MouseDown(tMouse, nDown);
+		cScrollbar.MouseUp(tMouse, nDown);
 
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {
 		fLastMouseUp = -9999;

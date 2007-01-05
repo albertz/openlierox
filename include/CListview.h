@@ -115,6 +115,7 @@ public:
 		iGrabbed = 0;
 		bOldStyle = false;
 		iSavedScrollbarPos = 0;
+		bScrollbarGrabbed = false;
 	}
 
 
@@ -144,6 +145,7 @@ private:
 	// Scrollbar
 	CScrollbar		cScrollbar;
 	int				iSavedScrollbarPos;
+	bool			bScrollbarGrabbed;
 
     bool            bShowSelect;
 

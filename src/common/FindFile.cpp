@@ -566,14 +566,16 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 	static char fname[1024] = "";
 	static char tmp[1024] = "";
 	
-	if(path == NULL || path[0] == '\0')
+	if(path == NULL)
+		return NULL;
+	else if (path[0] == '\0')
 		return NULL;
 	
 	if(strchr(mode, 'w')) {
 		fix_strncpy(tmp, GetHomeDir());
 		fix_strncat(tmp, "/");
 		fix_strncat(tmp, path);
-		GetExactFileName(tmp, fname); // fix case sensitive name if existing
+		GetExactFileName(tmp, fname); // fix case sensitive name if it exists
 		CreateRecDir(fname);
 		return fopen(fname, mode);
 	}		
