@@ -85,6 +85,8 @@ public:
 		iGameReady = false;
         nTopProjectile = 0;
 		bMapGrabbed = false;
+		bmpScoreBuffer = NULL;
+		bUpdateScore = true;
 
 		bBotClient = false;
 
@@ -178,6 +180,10 @@ private:
 	int			iTeamList[4];
 
     CWeather    cWeather;
+
+	// Game menu && score
+	SDL_Surface *bmpScoreBuffer;
+	bool		bUpdateScore;
 
 	// Bonus's
 	CBonus		*cBonuses;
@@ -320,6 +326,7 @@ public:
 	void		DrawRemoteGameOver(SDL_Surface *bmpDest);
 	void		DrawGameMenu(SDL_Surface *bmpDest);
 	void		DrawBonuses(SDL_Surface *bmpDest, CViewport *v);
+	void		UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage);
 	void		DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage);
 	void		DrawTime(SDL_Surface *bmpDest, int x, int y, float t);
 	void		DrawReadyOverlay(SDL_Surface *bmpDest);

@@ -37,6 +37,11 @@ int CClient::InitializeDrawing(void)
     else
         cChatbox.setWidth(320);
 
+	// Initialize the score buffer
+	bmpScoreBuffer = gfxCreateSurface(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h);
+	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,MakeColour(255,0,255));
+	SDL_SetColorKey(bmpScoreBuffer, SDL_SRCCOLORKEY, MakeColour(255,0,255));
+
 	return true;
 }
 
@@ -602,12 +607,9 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 {
 	mouse_t *Mouse = GetMouse();
-	int mouse;
+	int mouse = 0;
 	
 	DrawScore(bmpDest, gfxGame.bmpScoreboard);
-
-	// Buttons
-	mouse = 0; 
 
 	CButton quit = CButton(BUT_QUITGAME,bmpMenuButtons);
 	CButton resume = CButton(BUT_RESUME,bmpMenuButtons);
@@ -666,14 +668,27 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 
 
 ///////////////////
-// Display the score
+// Draw the score
 void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 {
-	// Not for bots
-	if (bBotClient)
-		return;
+	if (bUpdateScore)  {
+		DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,MakeColour(255,0,255));
+		UpdateScoreBuf(bmpScoreBuffer,bmpImage);
+	}
 
+	static int x = 320 - bmpImage->w/2;
+	static int y = 200 - bmpImage->h/2;
+
+	DrawImage(bmpDest,bmpScoreBuffer,x,y);
+}
+
+///////////////////
+// Display the score
+void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
+{
 	int i,j,n;
+
+	bUpdateScore = false;
 
 	// Teams
 	Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
@@ -682,8 +697,8 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	int width = bmpImage->w;
 	int height = bmpImage->h;
 
-	int x = 320 - width/2;
-	int y = 200 - height/2;
+	const int x = 0;
+	const int y = 0;
 
 	// Draw the back image
 	DrawImage(bmpDest,bmpImage,x,y);

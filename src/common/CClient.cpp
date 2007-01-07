@@ -38,6 +38,8 @@ void CClient::Clear(void)
 	iScorePlayers = 0;
 	cBonuses = NULL;
     nTopProjectile = 0;
+	bmpScoreBuffer = NULL;
+	bUpdateScore = true;
 
 	bBotClient = false;
 
@@ -101,6 +103,7 @@ void CClient::MinorClear(void)
 	iGameOver = false;
 	iGameMenu = false;
     bViewportMgr = false;
+	bUpdateScore = true;
 
 	//fProjDrawTime = 0;
 	//fProjSimulateTime = 0;
@@ -551,6 +554,12 @@ void CClient::Shutdown(void)
 		}
 		bMapGrabbed = false;
 		cMap = NULL;
+	}
+
+	// Scoreboard buffer
+	if (bmpScoreBuffer)  {
+		SDL_FreeSurface(bmpScoreBuffer);
+		bmpScoreBuffer = NULL;
 	}
 
 	// Shooting list

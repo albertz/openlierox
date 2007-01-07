@@ -1095,6 +1095,8 @@ void CClient::UpdateScoreboard(void)
 			}
 		}
 	}
+
+	bUpdateScore = true;
 }
 
 
