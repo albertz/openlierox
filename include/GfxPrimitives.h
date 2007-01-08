@@ -16,6 +16,7 @@
 
 // Surface stuff
 SDL_Surface *gfxCreateSurface(int width, int height);
+SDL_Surface *gfxCreateSurfaceAlpha(int width, int height);
 
 // Image drawing
 void	DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y);
@@ -66,6 +67,5 @@ void	DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 void	do_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface *, int, int, int));
 
 bool	SaveSurface(SDL_Surface *Image, char *FileName, int Format, bool Tournament);
-//bool	SaveBMP(SDL_Surface *image, char *FileName)  {return SDL_SaveBMP(image,FileName) != -1; }
 
 #endif  //  __GFXPRIMITIVES_H__

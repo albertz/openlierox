@@ -14,12 +14,14 @@
 #include "LieroX.h"
 #include <gd.h>
 
+// TODO: many of these functions could be inline
+
 
 ///////////////////
 // Simply draw the image
 void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y)
 {
-	SDL_Rect	rDest;
+	static SDL_Rect	rDest;
 
 	rDest.x = x;
 	rDest.y = y;
@@ -34,8 +36,8 @@ void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y)
 // Draw the image, with more options
 void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h)
 {
-	SDL_Rect	rDest;
-	SDL_Rect	rSrc;
+	static SDL_Rect	rDest;
+	static SDL_Rect	rSrc;
 
 	rDest.x = x;
 	rDest.y = y;
@@ -52,8 +54,8 @@ void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w,
 // Draw the image with a huge amount of options
 void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
-	SDL_Rect	rDest;
-	SDL_Rect	rSrc;
+	static SDL_Rect	rDest;
+	static SDL_Rect	rSrc;
 
 	rDest.x = dx;
 	rDest.y = dy;
@@ -394,6 +396,23 @@ SDL_Surface *gfxCreateSurface(int width, int height)
 
 	return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, fmt->BitsPerPixel, 
 								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+}
+
+///////////////////
+// Creates a buffer with the same details as screen, but with alpha channel
+SDL_Surface *gfxCreateSurfaceAlpha(int width, int height)
+{
+	SDL_Surface *screen = SDL_GetVideoSurface();
+	SDL_PixelFormat *fmt = screen->format;
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	const Uint32 alpha = 0x000000ff;
+#else
+	const Uint32 alpha = 0xff000000;
+#endif
+
+	return SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, width, height, fmt->BitsPerPixel, 
+								fmt->Rmask, fmt->Gmask, fmt->Bmask, alpha);
 }
 
 

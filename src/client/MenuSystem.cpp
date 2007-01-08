@@ -103,6 +103,15 @@ int Menu_Initialize(int *game)
 	LOAD_IMAGE(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 
+	// Convert the buttons to the display format (faster)
+	SDL_Surface *tmp = NULL;
+	tmp = SDL_DisplayFormatAlpha(tMenu->bmpButtons);
+	if (!tmp)
+		return false;
+	if (tMenu->bmpButtons)
+		SDL_FreeSurface(tMenu->bmpButtons);
+	tMenu->bmpButtons = tmp;
+
     tMenu->bmpWorm = NULL;
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
