@@ -23,11 +23,17 @@ void	DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y);
 void	DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h);
 void	DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 void	DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
-void	DrawImageStretch(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy);
 void	DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
-void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint16 key);
 void	DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint16 key);
 void	DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint16 key);
+
+///////////////////
+// Draws a sprite doubly stretched but not so advanced
+inline void	DrawImageStretch(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy) { DrawImageStretch2(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h); }
+
+///////////////////
+// Draws a sprite doubly stretched, with a colour key and not so advanced
+inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint16 key) { DrawImageStretch2Key(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h,key); }
 
 
 // Solid drawing
@@ -52,8 +58,11 @@ void	LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour);
 
 
 // Colour component
-Uint32	MakeColour(Uint8 r, Uint8 g, Uint8 b);
+///////////////////
 void	GetColour4(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a);
+
+// Creates a int colour based on the 3 components
+inline Uint32	MakeColour(Uint8 r, Uint8 g, Uint8 b) { return SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b); }
 
 
 // Line drawing

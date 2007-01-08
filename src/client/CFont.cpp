@@ -39,11 +39,11 @@ int CFont::Load(char *fontname, int _colour, int _width)
 	// Must do this after
 	SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, SDL_MapRGB(bmpFont->format,255,0,255));
 
-    // Pre-calculate some colours
-    f_pink = SDL_MapRGB(bmpFont->format,255,0,255);
-	f_blue = SDL_MapRGB(bmpFont->format,0,0,255);
-	f_white = MakeColour(255,255,255);
-	f_green = MakeColour(0,255,0);
+		// Pre-calculate some colours
+	f_pink = SDL_MapRGB(bmpFont->format,255,0,255);
+	f_blue = tLX->clHeading;//SDL_MapRGB(bmpFont->format,0,0,255);
+	f_white = tLX->clNormalLabel;//MakeColour(255,255,255);
+	f_green = tLX->clChatText;//MakeColour(0,255,0);
 
 	return true;
 }
@@ -211,6 +211,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 		}
 
 		// Maximal width overflowed
+		// TODO: doesn't support multiline texts, but it's faster...
 		if (pos > max_w)
 			break;
 
@@ -228,22 +229,20 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 			continue;
 		}
 
-		if(col2 == f_white  && !OutlineFont) {
-			DrawImageAdv(dst,bmpWhite,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-			pos+=FontWidth[l];
-			continue;
-		}
-
-		if(col2 == 0  &&  !OutlineFont) {
-			DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-			pos+=FontWidth[l];
-			continue;
-		}
-
-		if(col2 == f_green  && !OutlineFont) {
-			DrawImageAdv(dst,bmpGreen,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-			pos+=FontWidth[l];
-			continue;
+		if (!OutlineFont)  {
+			if (col2 == f_white)  {
+				DrawImageAdv(dst,bmpWhite,a,0,x+pos,y,FontWidth[l],bmpFont->h);
+				pos+=FontWidth[l];
+				continue;
+			} else if (!col2) {
+				DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
+				pos+=FontWidth[l];
+				continue;
+			} else if( col2 == f_green) {
+				DrawImageAdv(dst,bmpGreen,a,0,x+pos,y,FontWidth[l],bmpFont->h);
+				pos+=FontWidth[l];
+				continue;
+			}
 		}
 
 		/*if(!Colour) {

@@ -13,7 +13,6 @@
 #ifndef __CFONT_H__
 #define __CFONT_H__
 
-
 class CFont {
 public:
 	// Constructor

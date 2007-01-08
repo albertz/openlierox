@@ -368,25 +368,6 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 		SDL_UnlockSurface(bmpSrc);
 }
 
-
-
-///////////////////
-// Draws a sprite doubly stretched, with a colour key and not so advanced
-void DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint16 key)
-{
-	DrawImageStretch2Key(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h,key);
-}
-
-
-///////////////////
-// Draws a sprite doubly stretched but not so advanced
-void DrawImageStretch(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy)
-{
-	DrawImageStretch2(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h);
-}
-
-
-
 ///////////////////
 // Creates a buffer with the same details as the screen
 SDL_Surface *gfxCreateSurface(int width, int height)
@@ -455,12 +436,15 @@ void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color
     Uint32 Rmask = bmpDest->format->Rmask, Gmask = bmpDest->format->Gmask, Bmask = bmpDest->format->Bmask, Amask = bmpDest->format->Amask;
 	Uint32 R,G,B,A = 0;
 
+	Uint16 *pixel,*srcpixel;
+	Uint32 dc;
+
     for(int j=y; j<=y2; j++) {
 
         for(int i=x; i<=x2; i++) {
-            Uint16 *pixel = (Uint16 *)bmpDest->pixels + j*bmpDest->pitch/2 + i;
-	        Uint16 *srcpixel = (Uint16 *)src->pixels + j*src->pitch/2 + i;
-	        Uint32 dc = *srcpixel;
+            pixel = (Uint16 *)bmpDest->pixels + j*bmpDest->pitch/2 + i;
+	        srcpixel = (Uint16 *)src->pixels + j*src->pitch/2 + i;
+	        dc = *srcpixel;
 
 	        R = ((dc & Rmask) + (( (color & Rmask) - (dc & Rmask) ) * alpha >> 8)) & Rmask;
 	        G = ((dc & Gmask) + (( (color & Gmask) - (dc & Gmask) ) * alpha >> 8)) & Gmask;
@@ -479,7 +463,7 @@ void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color
 void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 {
 	int l,r;
-	SDL_Surface *bmpScreen = SDL_GetVideoSurface();
+	static SDL_Surface *bmpScreen = SDL_GetVideoSurface();
 
 	SDL_Rect rect = bmpDest->clip_rect;
 
@@ -508,24 +492,24 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 		return;
 	}
 
-	for(int n=0;n<=r-l;n++) {
-
-		// Only 2 bpp's supported
-		switch(bpp) {
-
-			// 16 bpp
-			case 2:
-				*(Uint16 *)p = colour;
-				break;
-
-			// 32 bpp
-			case 4:
-				*(Uint32 *)p = colour;
-				break;
+	// TODO: only 2 bpps supported
+	int n;
+	switch (bpp)  {
+	// 16 bpp
+	case 2:  
+		for(n=0;n<=r-l;n++) {
+			*(Uint16 *)p = colour;
+			p+=bpp;
 		}
-
-		p+=bpp;
-    }
+		break;
+	// 32 bpp
+	case 4:
+		for(n=0;n<=r-l;n++) {
+			*(Uint32 *)p = colour;
+			p+=bpp;
+		}
+		break;
+	}
 
 	if(SDL_MUSTLOCK(bmpDest))
 		SDL_UnlockSurface(bmpDest);
@@ -566,23 +550,23 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, int colour)
 		return;
 	}
 
-	for(int n=t;n<=b;n++) {
-
-		p = (Uint8 *)bmpDest->pixels + n * bmpDest->pitch + x * bpp;
-
-		// Only 2 bpp's supported
-		switch(bpp) {
-
-			// 16 bpp
-			case 2:
-				*(Uint16 *)p = colour;
-				break;
-
-			// 32 bpp
-			case 4:
-				*(Uint32 *)p = colour;
-				break;
+	int n;
+	// TODO: only 2 bpps supported
+	switch (bpp)  {
+	// 16 bpp
+	case 2:
+		for(n=t;n<=b;n++) {
+			p = (Uint8 *)bmpDest->pixels + n * bmpDest->pitch + x * bpp;
+			*(Uint16 *)p = colour;
 		}
+		break;
+	// 32 bpp
+	case 4:
+		for(n=t;n<=b;n++) {
+			p = (Uint8 *)bmpDest->pixels + n * bmpDest->pitch + x * bpp;
+			*(Uint32 *)p = colour;
+		}
+		break;
 	}
 
 	if(SDL_MUSTLOCK(bmpDest))
@@ -605,7 +589,7 @@ void PutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 {
 
 	// Warning: Doesn't do clipping
-	int bpp = bmpDest->format->BytesPerPixel;
+	static int bpp = bmpDest->format->BytesPerPixel;
     Uint8 *p = (Uint8 *)bmpDest->pixels + y * bmpDest->pitch + x * bpp;
 
 
@@ -623,15 +607,15 @@ void PutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+			#if SDL_BYTEORDER == SDL_BIG_ENDIAN 
 				p[0] = (colour >> 16) & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = colour & 0xff;
-			} else {
+			#else 
 				p[0] = colour & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = (colour >> 16) & 0xff;
-			}
+			#endif
 			break;
 
 		// 32 bpp
@@ -927,14 +911,6 @@ Uint32 GetPixelFromAddr(Uint8 *p, int bpp)
 
 
 ///////////////////
-// Creates a int colour based on the 3 components
-Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b)
-{
-	return SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b);
-}
-
-
-///////////////////
 // Extract 4 colour components from a packed int
 void GetColour4(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a)
 {
@@ -1069,7 +1045,7 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 			return 0;
 		}
 	}
-	if (y1==y2) { 
+	else if (y1==y2) { 
 		if (x1<x2) {
 			DrawHLine(dst, x1, x2, y1, color);
 			DrawHLine(dst, x1, x2, y1+1, color);
