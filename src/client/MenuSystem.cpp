@@ -108,8 +108,7 @@ int Menu_Initialize(int *game)
 	tmp = SDL_DisplayFormatAlpha(tMenu->bmpButtons);
 	if (!tmp)
 		return false;
-	if (tMenu->bmpButtons)
-		SDL_FreeSurface(tMenu->bmpButtons);
+	// NOTE: Don't free the original surface, it's freed by the cache
 	tMenu->bmpButtons = tmp;
 
     tMenu->bmpWorm = NULL;

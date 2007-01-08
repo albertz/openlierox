@@ -675,7 +675,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 {
 	if(((tMouse->X > iX+iWidth-20) && iGotScrollbar) || bScrollbarGrabbed) {
 		cScrollbar.MouseDown(tMouse, nDown);
-		bScrollbarGrabbed = cScrollbar.getGrabbed();
+		bScrollbarGrabbed = cScrollbar.getGrabbed() != 0;
 		return LV_NONE;
 	}
 
