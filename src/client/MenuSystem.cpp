@@ -37,7 +37,7 @@ int Menu_Initialize(int *game)
 
 	// Load the CSS of all widgets
 	cWidgetStyles.Clear();
-	static char path[64];
+	static char path[1024];
 	path[0] = '\0';
 	//sprintf(path,"%s/%s/widgets.css",tLXOptions->sSkinPath,tLXOptions->sResolution);
 	cWidgetStyles.Parse(path);

@@ -685,15 +685,15 @@ void RopePutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				p[0] = (colour >> 16) & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = colour & 0xff;
-			} else {
+			#else
 				p[0] = colour & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = (colour >> 16) & 0xff;
-			}
+			#endif
 			break;
 
 		// 32 bpp
@@ -754,15 +754,15 @@ void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				p[0] = (colour >> 16) & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = colour & 0xff;
-			} else {
+			#else 
 				p[0] = colour & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = (colour >> 16) & 0xff;
-			}
+			#endif
 			break;
 
 		// 32 bpp
@@ -827,15 +827,15 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				p[0] = (colour >> 16) & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = colour & 0xff;
-			} else {
+			#else
 				p[0] = colour & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = (colour >> 16) & 0xff;
-			}
+			#endif
 			break;
 
 		// 32 bpp
@@ -865,10 +865,11 @@ Uint32 GetPixel(SDL_Surface *bmpSrc, int x, int y)
 
 		// 24 bpp
 		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				return p[0] << 16 | p[1] << 8 | p[2];
-			else
+			#else
 				return p[0] | p[1] << 8 | p[2] << 16;
+			#endif
 
 		// 32 bpp
 		case 4:
@@ -895,10 +896,11 @@ Uint32 GetPixelFromAddr(Uint8 *p, int bpp)
 
 		// 24 bpp
 		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				return p[0] << 16 | p[1] << 8 | p[2];
-			else
+			#else
 				return p[0] | p[1] << 8 | p[2] << 16;
+			#endif
 
 		// 32 bpp
 		case 4:
@@ -1126,15 +1128,15 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 		// 24bpp
 		case 3:
 			for(; x < dx; x++, pixel += pixx) {
-				if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+				#if SDL_BYTEORDER == SDL_BIG_ENDIAN 
 					pixel[0] = (Uint8)((color >> 16) & 0xff);
 					pixel[1] = (Uint8)((color >> 8) & 0xff);
 					pixel[2] = (Uint8)(color & 0xff);
-				} else {
+				#else
 					pixel[0] = (Uint8)(color & 0xff);
 					pixel[1] = (Uint8)((color >> 8) & 0xff);
 					pixel[2] = (Uint8)((color >> 16) & 0xff);
-				}
+				#endif
 				y += dy; 
 				if (y >= dx) {
 					y -= dx; 

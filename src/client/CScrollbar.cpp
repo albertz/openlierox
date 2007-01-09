@@ -124,7 +124,7 @@ int CScrollbar::MouseOver(mouse_t *tMouse)
 // Mouse down
 int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 {
-	if(tMouse->X < iX || tMouse->X > iX+iWidth)
+	if((tMouse->X < iX || tMouse->X > iX+iWidth) && !iSliderGrabbed)
 		return SCR_NONE;
 
 	int length = (int)((float)iItemsperbox/(float)iMax * iHeight-30);

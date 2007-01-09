@@ -134,7 +134,6 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 		
 	for(short e=0;e<MAX_ENTITIES;e++,ent++) {
 		if(ent->iUsed)  {
-			//continue;}
 
 			x=((int)ent->vPos.x-wx)*2+l;
 			y=((int)ent->vPos.y-wy)*2+t;

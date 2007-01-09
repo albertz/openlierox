@@ -31,14 +31,14 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	if(!strcmp(cmd,"lx::challenge"))
 		ParseChallenge(bs);
 
-	else if(!strcmp(cmd,"lx::goodconnection"))
+	else if(!strncmp(cmd,"lx::goodconnection",sizeof(cmd)))
 		ParseConnected(bs);
 
-	else if(!strcmp(cmd,"lx::pong"))
+	else if(!strncmp(cmd,"lx::pong",sizeof(cmd)))
 		ParsePong();
 
 	// A Bad Connection
-	else if(!strcmp(cmd,"lx::badconnect")) {
+	else if(!strncmp(cmd,"lx::badconnect",sizeof(cmd))) {
 		iNetStatus = NET_DISCONNECTED;
 
 		iBadConnection = true;
@@ -93,8 +93,11 @@ void CClient::ParseConnected(CBytestream *bs)
 	iNetStatus = NET_CONNECTED;
 
 	// Get the id's
+	int id=0;
 	for(int i=0;i<iNumWorms;i++) {
-		int id = bs->readInt(1);
+		id = bs->readInt(1);
+		if (id < 0 || id >= MAX_WORMS)
+			continue;
 		cLocalWorms[i] = &cRemoteWorms[id];
 		cLocalWorms[i]->setUsed(true);
 		cLocalWorms[i]->setClient(this);
@@ -666,14 +669,23 @@ void CClient::ParseGameOver(CBytestream *bs)
 void CClient::ParseSpawnBonus(CBytestream *bs)
 {
 	int wpn = 0;
-	int type = bs->readInt(1);
+	int type = MAX(0,MIN((int)bs->readByte(),2));
 
 	if(type == BNS_WEAPON)
 		wpn = bs->readInt(1);
 
-	int id = bs->readInt(1);
+	int id = bs->readByte();
 	int x = bs->readInt(2);
 	int y = bs->readInt(2);
+
+	if (id < 0 || id >= MAX_BONUSES)
+		return;
+
+	if (x > cMap->GetWidth() || x < 0)
+		return;
+
+	if (y > cMap->GetHeight() || y < 0)
+		return;
 
 	CVec p = CVec( (float)x, (float)y );
 
@@ -731,7 +743,7 @@ void CClient::ParseCLReady(CBytestream *bs)
 	for(int i=0;i<numworms;i++) {
 		int id = bs->readByte();
 
-		if( id < 0 || id > MAX_WORMS) {
+		if( id < 0 || id >= MAX_WORMS) {
 			d_printf("Bad worm id on CLREADY packet\n");
 			continue;
 		}
@@ -768,7 +780,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 
 	for(int i=0;i<numworms;i++) {
 		int id = bs->readByte();
-        int team = bs->readByte();
+        int team = MAX(0,MIN(3,(int)bs->readByte()));
 
 		if( id < 0 || id > MAX_WORMS) {
 			printf("Bad worm id on UPDATELOBBY packet\n");
@@ -823,7 +835,7 @@ void CClient::ParseClientLeft(CBytestream *bs)
 {
 	int numworms = bs->readByte();
 
-	if(numworms < 1 || numworms > 2) {
+	if(numworms < 1 || numworms > MAX_PLAYERS) {
 		// bad packet
 		printf("Bad numworms count on CLLEFT packet\n");
 		return;
@@ -855,6 +867,8 @@ void CClient::ParseClientLeft(CBytestream *bs)
 void CClient::ParseUpdateWorms(CBytestream *bs)
 {
 	int count = bs->readByte();
+	if (count >= MAX_WORMS || count < 0)
+		return;
 
 	for(int i=0;i<count;i++) {
 		int id = bs->readByte();
@@ -1101,7 +1115,7 @@ void CClient::ParseDropped(CBytestream *bs)
 	
 	// Not so much an error, but i message as to why i was dropped
 	iServerError = true;
-	strcpy(strServerErrorMsg, bs->readString(buf,sizeof(buf)));
+	fix_strncpy(strServerErrorMsg, bs->readString(buf,sizeof(buf)));
 
 	// Clear the bot
 	if (bBotClient)  {

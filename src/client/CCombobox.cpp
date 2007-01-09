@@ -248,7 +248,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 	int x = iX+iWidth-16;
 	iArrowDown = false;
 
-	if(tMouse->X >= iX+iWidth-16 && iGotScrollbar && iDropped) {
+	if((tMouse->X >= iX+iWidth-16 || cScrollbar.getGrabbed()) && iGotScrollbar && iDropped) {
 		cScrollbar.MouseDown(tMouse, nDown);
 		return CMB_NONE;
 	}

@@ -37,13 +37,13 @@ void CWorm::readInfo(CBytestream *bs)
 {
 	bs->readString(sName, sizeof(sName));
 
-	iType = bs->readInt(1);
-	iTeam = bs->readInt(1);
+	iType = MAX(MIN(bs->readInt(1),1),0);
+	iTeam = MAX(MIN(bs->readInt(1),3),0);
     bs->readString(szSkin, sizeof(szSkin));
 
-	Uint8 r = bs->readInt(1);
-	Uint8 g = bs->readInt(1);
-	Uint8 b = bs->readInt(1);
+	Uint8 r = bs->readByte();
+	Uint8 g = bs->readByte();
+	Uint8 b = bs->readByte();
 
 	iColComps[0] = r;
 	iColComps[1] = g;
@@ -69,8 +69,8 @@ void CWorm::writeScore(CBytestream *bs)
 void CWorm::readScore(CBytestream *bs)
 {
 	// TODO: why is this not the same behavior than writeScore?
-	iLives = bs->readShort();
-	iKills = bs->readInt(1);
+	iLives = MAX((int)bs->readShort(),WRM_OUT);
+	iKills = MAX(bs->readInt(1),0);
 }
 
 

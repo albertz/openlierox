@@ -673,9 +673,8 @@ int	CListview::MouseOver(mouse_t *tMouse)
 // Mouse down event
 int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 {
-	if(((tMouse->X > iX+iWidth-20) && iGotScrollbar) || bScrollbarGrabbed) {
+	if(((tMouse->X > iX+iWidth-20) && iGotScrollbar) || cScrollbar.getGrabbed()) {
 		cScrollbar.MouseDown(tMouse, nDown);
-		bScrollbarGrabbed = cScrollbar.getGrabbed() != 0;
 		return LV_NONE;
 	}
 
@@ -824,7 +823,6 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 {
 	iLastMouseX = 0;
-	bScrollbarGrabbed = false;
 
 	if(tMouse->X > iX+iWidth-20 && iGotScrollbar) 
 		cScrollbar.MouseUp(tMouse, nDown);
