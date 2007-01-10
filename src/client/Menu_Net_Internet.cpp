@@ -81,12 +81,12 @@ int Menu_Net_NETInitialize(void)
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"", 32);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", 180);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"State", 70);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", 80);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", 60);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", 150);	
+	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"", tLXOptions->iInternetList[0]);
+	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", tLXOptions->iInternetList[1]);
+	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"State", tLXOptions->iInternetList[2]);
+	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", tLXOptions->iInternetList[3]);
+	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", tLXOptions->iInternetList[4]);
+	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", tLXOptions->iInternetList[5]);	
 
 	// Clear the server list & grab an update
 	Menu_SvrList_Clear();
@@ -104,8 +104,13 @@ int Menu_Net_NETInitialize(void)
 void Menu_Net_NETShutdown(void)
 {
     // Save the list
-    if( iNetMode == net_internet )
+    if( iNetMode == net_internet )  {
         Menu_SvrList_SaveList("cfg/svrlist.dat");
+
+		// Save the column widths
+		for (int i=0;i<6;i++) 
+			tLXOptions->iInternetList[i] = cInternet.SendMessage(mi_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+	}
 
 	// Save the selected player
 	cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,0,0);
@@ -165,19 +170,11 @@ void Menu_Net_NETFrame(int mouse)
 			case mi_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					// Save the selected player
-					cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,0,0);
-					if (item)
-						tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
-
-                    // Save the list
-                    Menu_SvrList_SaveList("cfg/svrlist.dat");
+					// Shutdown
+					Menu_Net_NETShutdown();
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
-
-					// Shutdown
-					cInternet.Shutdown();
 
 					// Back to main menu					
 					Menu_MainInitialize();
@@ -256,7 +253,8 @@ void Menu_Net_NETFrame(int mouse)
                         cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 2, (DWORD)"Join server" );
 						cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 3, (DWORD)"Add to favourites" );
 						cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 4, (DWORD)"Send \"I want join message\"" );
-                        cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Server details" );
+						cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Copy IP to clipboard" );
+                        cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 6, (DWORD)"Server details" );
                     }
                 }
 				break;
@@ -307,8 +305,16 @@ void Menu_Net_NETFrame(int mouse)
 						}
                         break;
 
+					// Copy the IP to clipboard
+					case MNU_USER+5:
+						{
+							SetClipboardText(szNetCurServer);
+						}
+						break;
+
                     // Show server details
-                    case MNU_USER+5:
+                    case MNU_USER+6:
+						cInternet.removeWidget(mi_PopupMenu);
                         Menu_Net_NETShowServer(szNetCurServer);
                         break;
                 }
@@ -724,19 +730,28 @@ void Menu_Net_NETShowServer(char *szAddress)
 	for(int i=1;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
     
-	Menu_SvrList_DrawInfo(szAddress);
-
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    1,      260,400, 40,15);
+	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  1,		200,400, 60,15);
+    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    2,      310,400, 40,15);
 
+	bGotDetails = false;
+	bOldLxBug = false;
+	nTries = 0;
+	fStart = tLX->fCurTime;
+
+	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,0,230); // Dirty; because of button redrawing
 
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
+		tLX->fCurTime = GetMilliSeconds();
+
 		nMouseCur = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
-		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+
+		Menu_SvrList_DrawInfo(szAddress);
 
         cDetails.Draw(tMenu->bmpScreen);
         gui_event_t *ev = cDetails.Process();
@@ -744,15 +759,24 @@ void Menu_Net_NETShowServer(char *szAddress)
             if(ev->cWidget->getType() == wid_Button)
                 nMouseCur = 1;
 
-            if(ev->iControlID == 1 && ev->iEventMsg == BTN_MOUSEUP) {
+			// Ok
+            if(ev->iControlID == 2 && ev->iEventMsg == BTN_MOUSEUP) {
                 break;
-            }
+			// Refresh
+            } else if (ev->iControlID == 1 && ev->iEventMsg == BTN_MOUSEUP)  {
+				fStart = tLX->fCurTime;
+				bGotDetails = false;
+				bOldLxBug = false;
+				nTries = 0;
+			}
         }
 
 
         DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
 		FlipScreen(tMenu->bmpScreen);	
     }
+
+	cDetails.Shutdown();
 
 
     // Redraw the background    

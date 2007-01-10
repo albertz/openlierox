@@ -105,6 +105,11 @@ typedef struct {
 	// File handling
 	filelist_t*	tSearchPaths;
 
+	// Widget states
+	int		iInternetList[6];
+	int		iLANList[6];
+	int		iFavouritesList[6];
+
 	// Last used game details
 	struct {
 		int		iLives;

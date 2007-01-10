@@ -45,7 +45,6 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 	// TODO: do it better
 	SDL_putenv("SDL_VIDEODRIVER=directx");
 #endif
-
 	
 	// Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == -1) {

@@ -289,6 +289,11 @@ extern	int			iJoin_Recolorize;
 extern  CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 extern	CCssParser	cWidgetStyles;
 
+extern	bool		bGotDetails;
+extern	bool		bOldLxBug;
+extern	int			nTries;
+extern	float		fStart;
+
 
 // Routines
 int		Menu_Initialize(int *game);

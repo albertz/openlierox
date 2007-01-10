@@ -32,6 +32,7 @@ int LoadOptions(void)
     static const char    *ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
     static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode"};
     static const char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
+	static const int	 def_widths[] = {32,180,70,80,60,150};
     
     int     i;
 	
@@ -77,6 +78,13 @@ int LoadOptions(void)
 		}
 	}
 
+	for (i=0;i<sizeof(tLXOptions->iInternetList)/sizeof(int);i++)  {
+		tLXOptions->iInternetList[i] = def_widths[i];
+		tLXOptions->iLANList[i] = def_widths[i];
+		tLXOptions->iFavouritesList[i] = def_widths[i];
+	}
+
+
     // Video
     ReadKeyword(f, "Video", "OpenGL",       &tLXOptions->iOpenGL, false);
     ReadKeyword(f, "Video", "Fullscreen",   &tLXOptions->iFullscreen, true);
@@ -113,6 +121,11 @@ int LoadOptions(void)
 	ReadKeyword(f, "Game", "ShowWormHealth",&tLXOptions->iShowHealth, false);
 	ReadKeyword(f, "Game", "ColorizeNicks", &tLXOptions->iColorizeNicks, false);
 	ReadKeyword(f, "Game", "AutoTyping",	&tLXOptions->iAutoTyping, true);
+
+	// Widget states
+	ReadIntArray(f, "Widgets","InternetListCols",	&tLXOptions->iInternetList[0],6);
+	ReadIntArray(f, "Widgets","LANListCols",		&tLXOptions->iLANList[0],6);
+	ReadIntArray(f, "Widgets","FavouritesListCols",	&tLXOptions->iFavouritesList[0],6);
 
     // Last Game
     ReadInteger(f, "LastGame", "Lives",     &tLXOptions->tGameinfo.iLives, 10);
@@ -254,6 +267,21 @@ void SaveOptions(void)
 	fprintf(fp, "ColorizeNicks = %s\n", tLXOptions->iColorizeNicks ? "true" : "false");
 	fprintf(fp, "AutoTyping = %s\n", tLXOptions->iAutoTyping ? "true" : "false");
     fprintf(fp, "\n");
+
+	fprintf(fp, "[Widgets]\n");
+	fprintf(fp, "InternetListCols = ");
+	for (i=0;i<5;i++)
+		fprintf(fp, "%i,",tLXOptions->iInternetList[i]);
+	fprintf(fp, "%i\n",tLXOptions->iInternetList[5]);
+	fprintf(fp, "LANListCols = ");
+	for (i=0;i<5;i++)
+		fprintf(fp, "%i,",tLXOptions->iLANList[i]);
+	fprintf(fp, "%i\n",tLXOptions->iLANList[5]);
+	fprintf(fp, "FavouritesListCols = ");
+	for (i=0;i<5;i++)
+		fprintf(fp, "%i,",tLXOptions->iFavouritesList[i]);
+	fprintf(fp, "%i\n",tLXOptions->iFavouritesList[5]);
+	fprintf(fp, "\n");
 
     fprintf(fp, "[LastGame]\n");
     fprintf(fp, "Lives = %d\n",     tLXOptions->tGameinfo.iLives);

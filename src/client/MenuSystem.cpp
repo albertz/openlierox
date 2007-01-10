@@ -1751,6 +1751,11 @@ void Menu_SvrList_LoadList(char *szFilename)
 
 
 
+bool bGotDetails = false;
+bool bOldLxBug = false;
+int nTries = 0;
+float fStart = -9999;
+
 ///////////////////
 // Draw a 'server info' box
 void Menu_SvrList_DrawInfo(char *szAddress)
@@ -1760,45 +1765,40 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 	int y = tMenu->bmpBuffer->h/2 - h/2;
 	int x = tMenu->bmpBuffer->w/2 - w/2;
 
-    Menu_DrawBox(tMenu->bmpBuffer, x,y, w,h);
-	DrawRectFillA(tMenu->bmpBuffer, x+1,y+1, w-1,h-1, 0, 200);
-    tLX->cFont.DrawCentre(tMenu->bmpBuffer, x+w/2-tLX->cFont.GetWidth("Server Details")/2, y+5, tLX->clNormalLabel,"%s", "Server Details");
+	Menu_redrawBufferRect(x,y,w,h);
+
+    Menu_DrawBox(tMenu->bmpScreen, x,y, w,h);
+	DrawRectFillA(tMenu->bmpScreen, x+1,y+1, w-1,h-1, 0, 230);
+    tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Server Details")/2, y+5, tLX->clNormalLabel,"%s", "Server Details");
 
 
     // Get the server details
-    bool    bGotDetails = false;
+	// NOTE: must be static else doesn't work
     static char    szName[256];
-    int     nMaxWorms;
-    int     nState;
+    static int     nMaxWorms;
+    static int     nState;
     static char    szMapName[256];
     static char    szModName[256];
-    int     nGameMode;
-    int     nLives;
-    int     nMaxKills;
-    int     nLoadingTime;
-    int     nBonuses;
-    int     nNumPlayers;
-    CWorm   cWorms[MAX_WORMS];
+    static int     nGameMode;
+    static int     nLives;
+    static int     nMaxKills;
+    static int     nLoadingTime;
+    static int     nBonuses;
+    static int     nNumPlayers;
+    static CWorm   cWorms[MAX_WORMS];
 
     CBytestream inbs;
     NetworkAddr   addr;
 
+    if(nTries < 3 && !bGotDetails && !bOldLxBug) {
 
-    float   fStart = -99999;
-    int     nTries = 0;
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Loading info...")/2, y+h/2-8, tLX->clNormalLabel, "%s", "Loading info...");
 
-	bool OldLxBug = false;
-
-    while(nTries < 3 && !bGotDetails) {
-		if (OldLxBug)
-			break;
-
-        ProcessEvents();
-        tLX->fCurTime = GetMilliSeconds();
-
-        if(tLX->fCurTime - fStart > 1) {
+        if(tLX->fCurTime - fStart > 1.5) {
             nTries++;
             fStart = tLX->fCurTime;
+			bGotDetails = false;
+			bOldLxBug = false;
 
             // Send a getinfo request
             TrimSpaces(szAddress);
@@ -1812,7 +1812,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 	        bs.Send(tMenu->tSocket[SCK_NET]);
         }
 
-        while(inbs.Read(tMenu->tSocket[SCK_NET])) {
+        if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
 	        if(*(int *)inbs.GetData() == -1) {
                 static char        cmd[128];                
@@ -1833,8 +1833,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 	                nState = inbs.readByte();
 
 					if (nState < 0)  {
-						OldLxBug = true;
-						break;
+						bOldLxBug = true;
 					}
     
                     inbs.readString(szMapName,sizeof(szMapName));
@@ -1844,16 +1843,14 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 	                nMaxKills = inbs.readShort();        
 	                nLoadingTime = inbs.readShort();
 					if(nLoadingTime < 0 || nLoadingTime > 500)  {
-						OldLxBug = true;
-						break;
+						bOldLxBug = true;
 					}
                     nBonuses = inbs.readByte();
 
                     // Worms
                     nNumPlayers = inbs.readByte();
 					if (nNumPlayers <= 0)  {
-						OldLxBug = true;
-						break;
+						bOldLxBug = true;
 					}
 
 					// Check
@@ -1866,36 +1863,40 @@ void Menu_SvrList_DrawInfo(char *szAddress)
                 }
             }
         }
+
+		if (!bGotDetails)  {
+			return;
+		}	
     }
 
 	y+=25;
 	x+=15;
     // Draw the server details    
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y, tLX->clNormalLabel,"%s", "Server name:");
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+20, tLX->clNormalLabel,"%s", "Level name:");
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+40, tLX->clNormalLabel,"%s", "Mod name:");
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+60, tLX->clNormalLabel,"%s", "State:");
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+80, tLX->clNormalLabel,"%s", "Playing:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel,"%s", "Server name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel,"%s", "Level name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel,"%s", "Mod name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel,"%s", "State:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel,"%s", "Playing:");
 
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+100, tLX->clNormalLabel,"%s", "Game Type:");
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+120, tLX->clNormalLabel,"%s", "Lives:");
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+140, tLX->clNormalLabel,"%s", "Max Kills:");
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+160, tLX->clNormalLabel,"%s", "Loading Times:");
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+180, tLX->clNormalLabel,"%s", "Bonuses:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel,"%s", "Game Type:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel,"%s", "Lives:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel,"%s", "Max Kills:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel,"%s", "Loading Times:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+180, tLX->clNormalLabel,"%s", "Bonuses:");
 	if (!nState)  // Dont show kills when the server is open
-		tLX->cFont.Draw(tMenu->bmpBuffer, x,y+200, tLX->clNormalLabel,"%s", "Players:");
+		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel,"%s", "Players:");
 	else
-		tLX->cFont.Draw(tMenu->bmpBuffer, x,y+200, tLX->clNormalLabel,"%s", "Players/Kills:");
+		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel,"%s", "Players/Kills:");
     
 	x+=110;
 
     if(!bGotDetails) {
-        tLX->cFont.Draw(tMenu->bmpBuffer, x,y, tLX->clError,"%s", "Unable to query server");
+        tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clError,"%s", "Unable to query server");
         return;
     }
 
-    if(OldLxBug) {
-        tLX->cFont.Draw(tMenu->bmpBuffer, x,y, tLX->clError,"%s", "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
+    if(bOldLxBug) {
+        tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clError,"%s", "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
         return;
     }
 
@@ -1906,26 +1907,26 @@ void Menu_SvrList_DrawInfo(char *szAddress)
     if(nGameMode < 0 || nGameMode > 3)
         nGameMode = 4;
 
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y, tLX->clNormalLabel, "%s", szName);
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+20, tLX->clNormalLabel, "%s", szMapName);
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+40, tLX->clNormalLabel, "%s", szModName);
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+60, tLX->clNormalLabel, "%s", states[nState]);
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+80, tLX->clNormalLabel, "%d / %d", nNumPlayers, nMaxWorms);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel, "%s", szName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, "%s", szMapName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel, "%s", szModName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel, "%s", states[nState]);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel, "%d / %d", nNumPlayers, nMaxWorms);
 
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+100, tLX->clNormalLabel, "%s", gamemodes[nGameMode]);
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+120, tLX->clNormalLabel, "%d", nLives);
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+140, tLX->clNormalLabel, "%d", nMaxKills);
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+160, tLX->clNormalLabel, "%d", nLoadingTime);
-    tLX->cFont.Draw(tMenu->bmpBuffer, x,y+180, tLX->clNormalLabel, "%s", nBonuses ? "on" : "off");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel, "%s", gamemodes[nGameMode]);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel, "%d", nLives);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel, "%d", nMaxKills);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel, "%d", nLoadingTime);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+180, tLX->clNormalLabel, "%s", nBonuses ? "on" : "off");
 
 	// Don't draw kills when the server is open
 	if(!nState)
 		for (int i=0; i<nNumPlayers; i++) 
-			tLX->cFont.Draw(tMenu->bmpBuffer, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName());
+			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName());
 	else
 		for (int i=0; i<nNumPlayers; i++)  {
-			tLX->cFont.Draw(tMenu->bmpBuffer, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName());
-			tLX->cFont.Draw(tMenu->bmpBuffer, x+150,y+200+i*18, tLX->clNormalLabel, "%d", cWorms[i].getKills());
+			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName());
+			tLX->cFont.Draw(tMenu->bmpScreen, x+150,y+200+i*18, tLX->clNormalLabel, "%d", cWorms[i].getKills());
 		}
 
 }

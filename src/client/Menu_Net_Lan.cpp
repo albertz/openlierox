@@ -80,12 +80,12 @@ int Menu_Net_LANInitialize(void)
 	  Address
     */
 
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"", 32);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", 180);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"State", 70);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", 80);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", 60);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", 150);
+	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"", tLXOptions->iLANList[0]);
+	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", tLXOptions->iLANList[1]);
+	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"State", tLXOptions->iLANList[2]);
+	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", tLXOptions->iLANList[3]);
+	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", tLXOptions->iLANList[4]);
+	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", tLXOptions->iLANList[5]);
 
 	// Clear the server list
 	Menu_SvrList_Clear();
@@ -103,6 +103,12 @@ void Menu_Net_LANShutdown(void)
 	cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,0,0);
 	if (item)
 		tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+
+	if (iNetMode == net_lan)  {
+		// Save the column widths
+		for (int i=0;i<6;i++) 
+			tLXOptions->iLANList[i] = cLan.SendMessage(nl_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+	}
 
 	cLan.Shutdown();
 }
@@ -228,7 +234,8 @@ void Menu_Net_LANFrame(int mouse)
                         cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 2, (DWORD)"Join server" );
 						cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 3, (DWORD)"Add to favourites" );
 						cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 4, (DWORD)"Send \"I want join message\"" );
-                        cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Server details" );
+						cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Copy IP to clipboard" );
+                        cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 6, (DWORD)"Server details" );
                     }
                 }
 				break;
@@ -279,8 +286,16 @@ void Menu_Net_LANFrame(int mouse)
 						}
                         break;
 
+					// Copy the IP to clipboard
+					case MNU_USER+5:
+						{
+							SetClipboardText(szLanCurServer);
+						}
+						break;
+
                     // Show server details
-                    case MNU_USER+5:
+                    case MNU_USER+6:
+						cLan.removeWidget(nl_PopupMenu);
                         Menu_Net_LanShowServer(szLanCurServer);
                         break;
                 }
@@ -349,24 +364,33 @@ void Menu_Net_LanShowServer(char *szAddress)
     DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
-    cLan.Draw(tMenu->bmpBuffer);
+	cLan.Draw(tMenu->bmpBuffer);
 
-	for(int i=1;i<5;i++)
+	for(int i=1;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
-
-	Menu_SvrList_DrawInfo(szAddress);
-
+    
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    ld_Ok,      260,400, 40,15);
+	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  1,		200,400, 60,15);
+    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    2,      310,400, 40,15);
 
+	bGotDetails = false;
+	bOldLxBug = false;
+	nTries = 0;
+	fStart = tLX->fCurTime;
+
+	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,0,230); // Dirty; because of button redrawing
 
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
+		tLX->fCurTime = GetMilliSeconds();
+
 		nMouseCur = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
-		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+
+		Menu_SvrList_DrawInfo(szAddress);
 
         cDetails.Draw(tMenu->bmpScreen);
         gui_event_t *ev = cDetails.Process();
@@ -374,15 +398,24 @@ void Menu_Net_LanShowServer(char *szAddress)
             if(ev->cWidget->getType() == wid_Button)
                 nMouseCur = 1;
 
-            if(ev->iControlID == ld_Ok && ev->iEventMsg == BTN_MOUSEUP) {
+			// Ok
+            if(ev->iControlID == 2 && ev->iEventMsg == BTN_MOUSEUP) {
                 break;
-            }
+			// Refresh
+            } else if (ev->iControlID == 1 && ev->iEventMsg == BTN_MOUSEUP)  {
+				fStart = tLX->fCurTime;
+				bGotDetails = false;
+				bOldLxBug = false;
+				nTries = 0;
+			}
         }
 
 
         DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
 		FlipScreen(tMenu->bmpScreen);	
     }
+
+	cDetails.Shutdown();
 
 
     // Redraw the background    

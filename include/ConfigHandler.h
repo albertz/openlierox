@@ -30,6 +30,7 @@ int		ReadString(const char *filename, const char *section, const char *key, char
 int		ReadInteger(const char *filename, const char *section, const char *key, int *value, int defaultv);
 int		ReadFloat(const char *filename, const char *section, const char *key, float *value, float defaultv);
 int		ReadColour(const char *filename, const char *section, const char *key, Uint32 *value, Uint32 defaultv);
+int		ReadIntArray(const char *filename, const char *section, const char *key, int *array, int num_items);
 //int		ReadVec2d(char *filename, char *section, char *key, CVec2d *value);
 int		ReadVec(const char *filename, const char *section, const char *key, CVec *value);
 //int		ReadRegion(char *filename, char *section, char *key, CRegion *value);

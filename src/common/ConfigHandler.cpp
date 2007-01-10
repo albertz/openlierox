@@ -150,6 +150,25 @@ int ReadColour(const char *filename, const char *section, const char *key, Uint3
 	
 }
 
+//////////////////
+// Reads an array of integers
+int ReadIntArray(const char *filename, const char *section, const char *key, int *array, int num_items)
+{
+	static char string[MAX_MINOR_LENGTH];
+
+	if (!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
+		return false;
+
+	char *tok = strtok(string,",");
+	int i=0;
+	while(tok && i < num_items)  {
+		array[i++] = atoi(tok);
+		tok = strtok(NULL,",");
+	}
+
+	return i == num_items-1;
+}
+
 
 
 ///////////////////

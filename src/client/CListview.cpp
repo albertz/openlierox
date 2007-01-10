@@ -413,6 +413,24 @@ lv_subitem_t *CListview::getCurSub(void)
 	return NULL;
 }
 
+/////////////////////
+// Gets the width of a specified column
+int CListview::GetColumnWidth(int id)
+{
+	if (id > iNumColumns)
+		return 5;
+
+	// Go through the columns
+	lv_column_t *col = tColumns;
+	for (int i=0;i<id && col;col=col->tNext,i++)  {}
+
+	if (col)
+		return col->iWidth;
+	else
+		return 5;
+
+}
+
 ///////////////
 // Sorts the list by the current sorting column
 // Useful, when you're re-filling the list or adding new items
@@ -697,9 +715,12 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 
 		// Is some of the columns grabbed? Move it
 		if (iGrabbed > 0)  {
+			int x = iX+4;
+
 			// Get the column
 			for (i=0;i != iGrabbed && col;i++) {
 				prev = col;
+				x+=col->iWidth-2;
 				col = col->tNext;
 			}
 
@@ -1063,6 +1084,11 @@ int CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		// Set the old-style property
 		case LVM_SETOLDSTYLE:
 			bOldStyle = true;
+			break;
+
+		// Get the column width
+		case LVM_GETCOLUMNWIDTH:
+			return GetColumnWidth(Param1);
 			break;
 
 

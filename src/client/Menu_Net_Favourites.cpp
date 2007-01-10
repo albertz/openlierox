@@ -81,12 +81,12 @@ int Menu_Net_FavouritesInitialize(void)
 	  Address
     */
 
-	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"", 32);
-	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", 180);
-	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"State", 70);
-	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", 80);
-	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", 60);
-	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", 150);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"", tLXOptions->iFavouritesList[0]);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", tLXOptions->iFavouritesList[1]);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"State", tLXOptions->iFavouritesList[2]);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", tLXOptions->iFavouritesList[3]);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", tLXOptions->iFavouritesList[4]);
+	cFavourites.SendMessage( mf_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", tLXOptions->iFavouritesList[5]);
 
 	// Fill the server list
 	Menu_SvrList_Clear();
@@ -108,8 +108,13 @@ void Menu_Net_FavouritesShutdown(void)
 		tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
 	// Save the list
-	if (iNetMode == net_favourites)
+	if (iNetMode == net_favourites)  {
 		Menu_SvrList_SaveList("cfg/favourites.dat");
+
+		// Save the column widths
+		for (int i=0;i<6;i++) 
+			tLXOptions->iFavouritesList[i] = cFavourites.SendMessage(mf_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+	}
 
 	cFavourites.Shutdown();
 }
@@ -247,7 +252,8 @@ void Menu_Net_FavouritesFrame(int mouse)
                         cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 2, (DWORD)"Refresh server" );
                         cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 3, (DWORD)"Join server" );
 						cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 4, (DWORD)"Send \"I want join\" message" );
-                        cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Server details" );
+						cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Copy IP to clipboard" );
+                        cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 6, (DWORD)"Server details" );
                     }
                 }
 				break;
@@ -302,8 +308,16 @@ void Menu_Net_FavouritesFrame(int mouse)
 						}
                         break;
 
+					// Copy the IP to clipboard
+					case MNU_USER+5:
+						{
+							SetClipboardText(szFavouritesCurServer);
+						}
+						break;
+
                     // Show server details
-                    case MNU_USER+5:
+                    case MNU_USER+6:
+						cFavourites.removeWidget(mf_PopupMenu);
                         Menu_Net_FavouritesShowServer(szFavouritesCurServer);
                         break;
                 }
@@ -365,6 +379,8 @@ enum  {
 	fd_Ok
 };
 
+extern CButton cNetButtons[5];
+
 ///////////////////
 // Show a server's details
 void Menu_Net_FavouritesShowServer(char *szAddress)
@@ -378,20 +394,32 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
     Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	cFavourites.Draw(tMenu->bmpBuffer);
-  
-	Menu_SvrList_DrawInfo(szAddress);
 
+	for(int i=1;i<4;i++)
+		cNetButtons[i].Draw(tMenu->bmpBuffer);
+    
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    fd_Ok,      260,400, 40,15);
+	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  1,		200,400, 60,15);
+    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    2,      310,400, 40,15);
 
+	bGotDetails = false;
+	bOldLxBug = false;
+	nTries = 0;
+	fStart = tLX->fCurTime;
+
+	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,0,230); // Dirty; because of button redrawing
 
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
+		tLX->fCurTime = GetMilliSeconds();
+
 		nMouseCur = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
-		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+
+		Menu_SvrList_DrawInfo(szAddress);
 
         cDetails.Draw(tMenu->bmpScreen);
         gui_event_t *ev = cDetails.Process();
@@ -399,9 +427,16 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
             if(ev->cWidget->getType() == wid_Button)
                 nMouseCur = 1;
 
-            if(ev->iControlID == fd_Ok && ev->iEventMsg == BTN_MOUSEUP) {
+			// Ok
+            if(ev->iControlID == 2 && ev->iEventMsg == BTN_MOUSEUP) {
                 break;
-            }
+			// Refresh
+            } else if (ev->iControlID == 1 && ev->iEventMsg == BTN_MOUSEUP)  {
+				fStart = tLX->fCurTime;
+				bGotDetails = false;
+				bOldLxBug = false;
+				nTries = 0;
+			}
         }
 
 
@@ -409,6 +444,7 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
 		FlipScreen(tMenu->bmpScreen);	
     }
 
+	cDetails.Shutdown();
 
     // Redraw the background    
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);

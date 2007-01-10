@@ -40,7 +40,8 @@ enum {
 	LVM_GETITEMINDEX,
 	LVM_GETINDEX,
     LVM_GETCURITEM,
-	LVM_SETOLDSTYLE
+	LVM_SETOLDSTYLE,
+	LVM_GETCOLUMNWIDTH,
 };
 
 
@@ -181,6 +182,8 @@ public:
 	void	AddSubitem(int iType, char *sText, SDL_Surface *img);
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
+
+	int		GetColumnWidth(int id);
 
     int     getSelectedID(void);
     void    setSelectedID(int id);
