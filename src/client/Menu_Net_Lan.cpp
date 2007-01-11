@@ -349,7 +349,8 @@ void Menu_Net_LANJoinServer(char *sAddress)
 extern CButton	cNetButtons[5];
 
 enum {
-	ld_Ok=0
+	ld_Ok=0,
+	ld_Refresh
 };
 
 ///////////////////
@@ -372,8 +373,8 @@ void Menu_Net_LanShowServer(char *szAddress)
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
-	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  1,		200,400, 85,15);
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    2,      310,400, 40,15);
+	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  ld_Refresh,			200,400, 85,15);
+    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    ld_Ok,      310,400, 40,15);
 
 	bGotDetails = false;
 	bOldLxBug = false;
@@ -399,10 +400,10 @@ void Menu_Net_LanShowServer(char *szAddress)
                 nMouseCur = 1;
 
 			// Ok
-            if(ev->iControlID == 2 && ev->iEventMsg == BTN_MOUSEUP) {
+            if(ev->iControlID == ld_Ok && ev->iEventMsg == BTN_MOUSEUP) {
                 break;
 			// Refresh
-            } else if (ev->iControlID == 1 && ev->iEventMsg == BTN_MOUSEUP)  {
+            } else if (ev->iControlID == ld_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
 				fStart = tLX->fCurTime;
 				bGotDetails = false;
 				bOldLxBug = false;

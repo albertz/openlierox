@@ -297,11 +297,11 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 		replacemax(NetworkTexts->sSpree3,"<player>",kill->getName(),buf,1);
 		SendGlobalText(buf,TXT_NORMAL);
 		break;
-	case 10:
+	case 9:
 		replacemax(NetworkTexts->sSpree4,"<player>",kill->getName(),buf,1);
 		SendGlobalText(buf,TXT_NORMAL);
 		break;
-	case 15:
+	case 10:
 		replacemax(NetworkTexts->sSpree5,"<player>",kill->getName(),buf,1);
 		SendGlobalText(buf,TXT_NORMAL);
 		break;

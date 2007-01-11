@@ -376,7 +376,8 @@ void Menu_Net_FavouritesJoinServer(char *sAddress)
 }
 
 enum  {
-	fd_Ok
+	fd_Ok,
+	fd_Refresh
 };
 
 extern CButton cNetButtons[5];
@@ -401,8 +402,8 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
-	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  1,		200,400, 85,15);
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    2,      310,400, 40,15);
+	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  fd_Refresh,		200,400, 85,15);
+    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    fd_Ok,      310,400, 40,15);
 
 	bGotDetails = false;
 	bOldLxBug = false;
@@ -428,10 +429,10 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
                 nMouseCur = 1;
 
 			// Ok
-            if(ev->iControlID == 2 && ev->iEventMsg == BTN_MOUSEUP) {
+            if(ev->iControlID == fd_Ok && ev->iEventMsg == BTN_MOUSEUP) {
                 break;
 			// Refresh
-            } else if (ev->iControlID == 1 && ev->iEventMsg == BTN_MOUSEUP)  {
+            } else if (ev->iControlID == fd_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
 				fStart = tLX->fCurTime;
 				bGotDetails = false;
 				bOldLxBug = false;

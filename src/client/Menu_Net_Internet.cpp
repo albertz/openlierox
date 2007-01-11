@@ -712,6 +712,10 @@ void Menu_Net_NETParseList(void)
 	}
 }
 
+enum  {
+	nd_Ok=0,
+	nd_Refresh,
+};
 
 ///////////////////
 // Show a server's details
@@ -733,8 +737,8 @@ void Menu_Net_NETShowServer(char *szAddress)
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
-	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  1,		200,400, 85,15);
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    2,      310,400, 40,15);
+	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  nd_Refresh,		200,400, 85,15);
+    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    nd_Ok,      310,400, 40,15);
 
 	bGotDetails = false;
 	bOldLxBug = false;
@@ -760,10 +764,10 @@ void Menu_Net_NETShowServer(char *szAddress)
                 nMouseCur = 1;
 
 			// Ok
-            if(ev->iControlID == 2 && ev->iEventMsg == BTN_MOUSEUP) {
+            if(ev->iControlID == nd_Ok && ev->iEventMsg == BTN_MOUSEUP) {
                 break;
 			// Refresh
-            } else if (ev->iControlID == 1 && ev->iEventMsg == BTN_MOUSEUP)  {
+            } else if (ev->iControlID == nd_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
 				fStart = tLX->fCurTime;
 				bGotDetails = false;
 				bOldLxBug = false;
