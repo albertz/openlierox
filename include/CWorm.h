@@ -161,6 +161,7 @@ private:
     char        szSkin[128];
 	uint		iColour;
 	int			iRanking;
+	int			iKillsInRow;
 
 	// Client info
 	int			iClientID;
@@ -538,6 +539,10 @@ public:
 	inline char		*getSkin(void)				{ return szSkin; }
 
 	inline int		getMaxNameLen(void)			{ return sizeof(sName); }
+
+	inline void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
+	inline int		getKillsInRow(void)			{ return iKillsInRow; }
+	inline void		addKillInRow(void)			{ iKillsInRow++; }
 
 	inline void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
 	inline CProjectile *getHeading(void)			{ return psHeadingProjectile; }

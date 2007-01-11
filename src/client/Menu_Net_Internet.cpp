@@ -733,7 +733,7 @@ void Menu_Net_NETShowServer(char *szAddress)
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
-	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  1,		200,400, 60,15);
+	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  1,		200,400, 85,15);
     cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    2,      310,400, 40,15);
 
 	bGotDetails = false;

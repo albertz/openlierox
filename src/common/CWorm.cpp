@@ -35,6 +35,8 @@ void CWorm::Clear(void)
 	iDeaths = 0;
 	iSuicides = 0;
 
+	iKillsInRow = 0;
+
 	iHealth = 100;
 	iLives = 10;
 	iAlive = false;

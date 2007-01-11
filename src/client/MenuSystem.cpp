@@ -1794,24 +1794,6 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 
 		tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Loading info...")/2, y+h/2-8, tLX->clNormalLabel, "%s", "Loading info...");
 
-        if(tLX->fCurTime - fStart > 1.5) {
-            nTries++;
-            fStart = tLX->fCurTime;
-			bGotDetails = false;
-			bOldLxBug = false;
-
-            // Send a getinfo request
-            TrimSpaces(szAddress);
-            StringToNetAddr(szAddress, &addr);
-
-            SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &addr);
-	
-	        CBytestream bs;
-	        bs.writeInt(-1,4);
-	        bs.writeString("%s","lx::getinfo");
-	        bs.Send(tMenu->tSocket[SCK_NET]);
-        }
-
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
 	        if(*(int *)inbs.GetData() == -1) {
@@ -1862,6 +1844,24 @@ void Menu_SvrList_DrawInfo(char *szAddress)
                     }
                 }
             }
+        }
+
+        if(tLX->fCurTime - fStart > 1 && !bGotDetails) {
+            nTries++;
+            fStart = tLX->fCurTime;
+			bGotDetails = false;
+			bOldLxBug = false;
+
+            // Send a getinfo request
+            TrimSpaces(szAddress);
+            StringToNetAddr(szAddress, &addr);
+
+            SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &addr);
+	
+	        CBytestream bs;
+	        bs.writeInt(-1,4);
+	        bs.writeString("%s","lx::getinfo");
+	        bs.Send(tMenu->tSocket[SCK_NET]);
         }
 
 		if (!bGotDetails)  {

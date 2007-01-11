@@ -163,6 +163,12 @@ typedef struct {
 
 	char sWormIsIt[64];
 
+	char sSpree1[64];
+	char sSpree2[64];
+	char sSpree3[64];
+	char sSpree4[64];
+	char sSpree5[64];
+
 	char sServerFull[64];
 	char sNoEmptySlots[64];
 	char sWrongProtocol[64];

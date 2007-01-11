@@ -266,7 +266,10 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 		}
 	}
 
+	vict->setKillsInRow(0);
+
 	if(killer != victim)  {
+		kill->addKillInRow();
 		kill->AddKill();
 		if (log_kill)
 			log_kill->iKills++;
@@ -279,6 +282,31 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	// Log
 	if (log_vict)
 		log_vict->iLives--;
+
+	// Killing spree message
+	switch (kill->getKillsInRow())  {
+	case 3:
+		replacemax(NetworkTexts->sSpree1,"<player>",kill->getName(),buf,1);
+		SendGlobalText(buf,TXT_NORMAL);
+		break;
+	case 5: 
+		replacemax(NetworkTexts->sSpree2,"<player>",kill->getName(),buf,1);
+		SendGlobalText(buf,TXT_NORMAL);
+		break;
+	case 7:
+		replacemax(NetworkTexts->sSpree3,"<player>",kill->getName(),buf,1);
+		SendGlobalText(buf,TXT_NORMAL);
+		break;
+	case 10:
+		replacemax(NetworkTexts->sSpree4,"<player>",kill->getName(),buf,1);
+		SendGlobalText(buf,TXT_NORMAL);
+		break;
+	case 15:
+		replacemax(NetworkTexts->sSpree5,"<player>",kill->getName(),buf,1);
+		SendGlobalText(buf,TXT_NORMAL);
+		break;
+	}
+
 
 	if(vict->Kill()) {
 

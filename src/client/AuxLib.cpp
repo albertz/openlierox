@@ -487,21 +487,27 @@ int SetClipboardText(char *szText)
 	EmptyClipboard();
 
 
+	// Allocate memory
 	LPTSTR  lptstrCopy;
 	int cch = strlen(szText);
-	HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR)); 
+	HGLOBAL hglbCopy = GlobalAlloc(GMEM_SHARE | GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR)); 
     if (hglbCopy == NULL) 
     { 
         CloseClipboard(); 
         return 0; 
     } 
 
+	// Copy the text to the memory
     lptstrCopy = (char *) GlobalLock(hglbCopy); 
     memcpy(lptstrCopy, szText, cch * sizeof(TCHAR)); 
     lptstrCopy[cch] = (TCHAR) 0;    // null character 
     GlobalUnlock(hglbCopy); 
 
+	// Put to clipboard
 	SetClipboardData(CF_TEXT, hglbCopy); 
+
+	// Close the clipboard
+	CloseClipboard();
 
     return strlen(szText);
 #else

@@ -283,6 +283,7 @@ int CServer::StartGame(void)
 			cWorms[i].setGameScript(&cGameScript);
             cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setLoadingTime( (float)iLoadingTimes / 100.0f );
+			cWorms[i].setKillsInRow(0);
 		}
 	}
 
