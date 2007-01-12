@@ -487,12 +487,13 @@ filelist_t*	basesearchpaths = NULL;
 void InitBaseSearchPaths() {
 	assert(basesearchpaths == NULL);
 	
+	// TODO: it would be nice to have also Mac OS X konversions
 #ifndef WIN32
-	AddToFileList(&basesearchpaths, GetGameHomeDir());
+	AddToFileList(&basesearchpaths, "${HOME}/.OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
 	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX"); // no use of ${SYSTEM_DATA}, because it is uncommon
 #else // Win32
-	AddToFileList(&basesearchpaths, GetGameHomeDir());
+	AddToFileList(&basesearchpaths, "${HOME}/OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
 	AddToFileList(&basesearchpaths, "${BIN}")
 #endif
@@ -566,23 +567,31 @@ char* GetWriteFullFileName(const char* path, bool create_nes_dirs) {
 	filelist_t* spath = NULL;
 	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
 	if(spath == NULL) spath = basesearchpaths;
-	// get the dir, where we should write into
-	char* dir = spath ? spath->filename : GetGameHomeDir();
-	
-	// TODO: if we have no write access to the dir (strange situation,
-	// but there are stupid admins out there...), select others
-	// if no one was found, select the temporary dir (which have to exists everywhere)
 	
 	static char tmp[1024];
 	static char fname[1024];
-	fix_strncpy(tmp, dir);
-	fix_strncat(tmp, "/");
-	fix_strncat(tmp, path);
 	
-	// now the interesting part
-	// fix case sensitive name if it exists
-	// also replace ${var} with concrete values
-	GetExactFileName(tmp, fname);
+	// get the dir, where we should write into
+	if(!spath) {
+		printf("ERROR: we want to write somewhere, but don't know where => we are writing to your temp-dir now...\n");
+		fix_strncpy(tmp, GetTempDir());
+		fix_strncat(tmp, "/");
+		fix_strncat(tmp, path);
+		
+	} else {
+		GetExactFileName(spath->filename, tmp);
+	
+		CreateRecDir(tmp);
+		if(!CanWriteToDir(tmp)) {
+			printf("ERROR: we cannot write to %s => we are writing to your temp-dir now...\n", tmp);
+			fix_strncpy(tmp, GetTempDir());
+		}
+		
+		fix_strncat(tmp, "/");
+		fix_strncat(tmp, path);
+	}
+	
+	GetExactFileName(tmp, fname);	
 	if(create_nes_dirs) CreateRecDir(fname);
 	return tmp;
 }
@@ -695,13 +704,13 @@ char* GetBinaryDir() {
 	return binary_dir;
 }
 
-char* GetGameHomeDir() {	
-// TODO: it would be nice to have also Mac OS X konversions
+char* GetTempDir() {
 #ifndef WIN32
-	return "${HOME}/.OpenLieroX";
+	return "/tmp"; // year, it's so simple :)
 #else
-	return "${HOME}/OpenLieroX";
-#endif	
+	// TODO !!
+	return "C:\\TEMP";
+#endif
 }
 
 void ReplaceFileVariables(std::string& filename) {
@@ -748,4 +757,16 @@ bool FileCopy(const std::string src, const std::string dest) {
 	fclose(dest_f);
 	if(success)	printf("  success :)\n");
 	return success;
+}
+
+bool CanWriteToDir(const std::string dir) {
+	// TODO: we have to make this a lot better!
+	std::string fname = dir + "/.some_stupid_temp_file";
+	FILE* fp = fopen(fname.c_str(), "w");
+	if(fp) {
+		fclose(fp);
+		remove(fname.c_str());
+		return true;
+	}
+	return false;
 }

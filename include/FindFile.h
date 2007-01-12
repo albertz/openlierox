@@ -68,7 +68,7 @@ inline bool GetExactFileName(const char* searchname, char* filename) {
 	strcpy(filename, tmp.c_str());
 
 	// Return false, if file doesn't exist
-	// TODO: it should also not return false for directories
+	// TODO: it should also return true for directories
 	FILE *f = fopen(searchname,"r");
 	if (!f)
 		return false;
@@ -99,16 +99,6 @@ char*	GetWriteFullFileName(const char* path, bool create_nes_dirs = false);
 // related to tLXOptions->tSearchPaths
 FILE*	OpenGameFile(const char *path, const char *mode);
 
-// returns the home-directory (used by ReplaceFileVariables)
-char*	GetHomeDir();
-// returns the system-data-dir (under Linux, usually /usr/share)
-char*	GetSystemDataDir();
-// returns the dir of the executable-binary
-char*	GetBinaryDir();
-
-// returns the gamedir in the home-directory (on unix: ~/.OpenLieroX)
-char*	GetGameHomeDir();
-
 // the dir will be created recursivly
 // IMPORTANT: filename is absolute; no game-path!
 void	CreateRecDir(char* f);
@@ -117,5 +107,17 @@ void	CreateRecDir(char* f);
 // it will simply fopen(src, "r"), fopen(dest, "w") and write all the stuff
 // IMPORTANT: filenames are absolute; no game-path!
 bool	FileCopy(const std::string src, const std::string dest);
+
+// returns true, if we can write to the dir
+bool	CanWriteToDir(const std::string dir);
+
+// returns the home-directory (used by ReplaceFileVariables)
+char*	GetHomeDir();
+// returns the system-data-dir (under Linux, usually /usr/share)
+char*	GetSystemDataDir();
+// returns the dir of the executable-binary
+char*	GetBinaryDir();
+// returns the temp-dir of the system
+char*	GetTempDir();
 
 #endif  //  __FINDFILE_H__
