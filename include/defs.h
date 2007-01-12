@@ -38,6 +38,7 @@
 #include <math.h>
 #include <time.h>
 #include <ctype.h>
+#include <string>
 
 // Disable this silly warning
 #ifdef WIN32

@@ -166,19 +166,13 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	cbMiniDump.CallbackRoutine = NULL;
 	cbMiniDump.CallbackParam = 0;
 
-	// Create the crash path, if it doesnt exist
-	static char path[256];
-	snprintf(path,sizeof(path),"%s/bug_reports", GetHomeDir());
-	fix_markend(path);
-	mkdir(path,0777);
-
 	// Get the file name
 	static char checkname[256];
 
 	FILE *f = NULL;
 	for (int i=1;1;i++)  {
-		snprintf(checkname,sizeof(checkname),"%s/report%i.dmp",path,i);
-		f = fopen(checkname,"r");
+		snprintf(checkname,sizeof(checkname),"bug_reports/report%i.dmp",i);
+		f = OpenGameFile(checkname,"r");
 		if (!f)
 			break;
 		else
@@ -187,7 +181,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 
 	// Open the file
-	HANDLE hFile = CreateFile((LPCSTR)checkname,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+	HANDLE hFile = CreateFile((LPCSTR)GetWriteFullFileName(checkname,true),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 
 
 	// Write the minidump

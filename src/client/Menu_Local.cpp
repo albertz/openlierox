@@ -1259,10 +1259,6 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	static char	filename[512];
 	static char	name[64];
 
-	fix_strncpy(filename, GetHomeDir());
-	fix_strncat(filename, "/cfg/presets");
-	mkdir(filename, 0777);
-
 	int done = false;
 	if(!FindFirst("cfg/presets/","*",filename))
 		done = true;
@@ -1275,7 +1271,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		len = fix_strnlen(filename);
 		if( stricmp(filename + len-4, ".wps") == 0) {
 			// Remove the path
-			char *f = strrchr(filename,'/');
+			char *f = MAX(strrchr(filename,'/'),strrchr(filename,'\\'));
 			strncpy(name,f+1,len-4);
 			name[len-5] = '\0';
 			if(f) {

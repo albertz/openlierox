@@ -1402,11 +1402,7 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface *sdl_surface,gdImagePtr gd_image)
 bool SaveSurface(SDL_Surface *image, char *FileName, int Format, bool Tournament)
 {
   if (Format == FMT_BMP)  {
-		//strcat(FileName,".bmp");
-		static char buf[512];
-		snprintf(buf,sizeof(buf),"%s/%s",GetHomeDir(),FileName);
-		fix_markend(buf);
-		SDL_SaveBMP(image,buf);
+		SDL_SaveBMP(image,GetWriteFullFileName(FileName, true));
 
 		// Log
 		if (Tournament && cServer)  {

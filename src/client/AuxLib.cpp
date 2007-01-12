@@ -536,14 +536,6 @@ void TakeScreenshot(bool Tournament)
 	default: strcpy(extension,".png");
 	}
 
-    // Create the 'scrshots' directory if it doesn't exist
-    fix_strncpy(checkname, GetHomeDir());
-	if (Tournament) {
-		fix_strncat(checkname,"/tourny_scrshots");
-	} else
-		fix_strncat(checkname, "/scrshots");
-    mkdir(checkname, 0777);
-
 	// Create the file name
     for(i=0; 1; i++) {
 		snprintf(picname,sizeof(picname),"%s%d%s","lierox",i,extension);

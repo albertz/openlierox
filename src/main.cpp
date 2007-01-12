@@ -32,7 +32,7 @@ SDL_Surface	*Screen;
 
 CVec		vGravity = CVec(0,4);
 
-char*		argv0;
+char		binary_dir[512];
 
 ///////////////////
 // Main entry point
@@ -49,8 +49,13 @@ int main(int argc, char *argv[])
     int     startgame = false;
     float   fMaxFPS = 85;
 
-	argv0 = argv[0];
-
+	strcpy(binary_dir, argv[0]);
+	char *slashpos = MAX(strrchr(binary_dir,'/'),strrchr(binary_dir,'\\'));
+	if (slashpos)
+		*slashpos = 0;
+	else
+		strcpy(binary_dir, "."); // TODO get exact path of binary
+	
 	// Load options and other settings
 	if(!LoadOptions())  {
 		SystemError("Could not load options");
@@ -222,9 +227,6 @@ void ParseArguments(int argc, char *argv[])
 int InitializeLieroX(void)
 {
 	printf("Hello there, I am initializing me now...\n");
-
-	// Create the home dir if it doesn't exist
-	mkdir(GetHomeDir(), 0777);
 	
 	// Initialize the aux library
 	if(!InitializeAuxLib("OpenLieroX","config.cfg",16,0)) {

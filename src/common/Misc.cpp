@@ -345,6 +345,19 @@ char *replacemax(char *text, char *what, char *with, char *result, int max)
 }
 
 ///////////////////
+// Replace a string in text, returns result, replaces maximally max occurences
+void replace(std::string& text, std::string what, std::string with) {
+	size_t pos = 0;
+	size_t what_len = what.length();
+	size_t with_len = with.length();
+	while((pos = text.find(what, pos)) != std::string::npos) {
+		text.replace(pos, what_len, with);
+		pos += with_len;
+	}
+}
+
+
+///////////////////
 // Strips the text to have the specified width, returns buf
 char *strip(char *buf, int width)
 {

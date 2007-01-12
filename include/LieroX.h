@@ -167,7 +167,7 @@ extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern  int				nDisableSound;
 
-extern	char*	argv0;
+extern	char	binary_dir[512];
 
 
 // Main Routines
@@ -190,6 +190,7 @@ bool    MouseInRect(int x, int y, int w, int h);
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
 bool	replace(char *text, const char *what, const char *with, char *result);
+void	replace(std::string& text, std::string what, std::string with);
 char	*replacemax(char *text, char *what, char *with, char *result, int max);
 char	*strip(char *buf, int width);
 bool	stripdot(char *buf, int width);

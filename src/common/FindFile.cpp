@@ -263,14 +263,16 @@ int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
 // does case insensitive search for file
 bool GetExactFileName(const char* searchname, char* filename)
 {
+	if (filename == NULL)
+		return false;
+	
 	if(searchname == NULL) {
-		if(filename != NULL)
-			filename[0] = '\0';
+		filename[0] = '\0';
 		return false;
 	}
 
-	if (filename == NULL)
-		return false;
+	std::string sname(searchname);
+	ReplaceFileVariables(sname);
 
 	const char* seps[] = {"\\", "/", (char*)NULL};
 	static char nextname[512]; strcpy(nextname, "");
@@ -283,11 +285,11 @@ bool GetExactFileName(const char* searchname, char* filename)
 		pos += npos;
 		if(npos > 0) strcat(filename, "/");
 
-		npos = GetNextName(&searchname[pos], seps, nextname);
+		npos = GetNextName(&sname.c_str()[pos], seps, nextname);
 		
 		if(!CaseInsFindFile(filename, nextname, nextexactname))
 		{
-			strcat(filename, &searchname[pos]);
+			strcat(filename, &sname.c_str()[pos]);
 			return false;
 		}
 		
@@ -486,18 +488,13 @@ void InitBaseSearchPaths() {
 	assert(basesearchpaths == NULL);
 	
 #ifndef WIN32
-	AddToFileList(&basesearchpaths, GetHomeDir());
+	AddToFileList(&basesearchpaths, GetGameHomeDir());
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX");
+	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX"); // no use of ${SYSTEM_DATA}, because it is uncommon
 #else // Win32
-	AddToFileList(&basesearchpaths, GetHomeDir());
+	AddToFileList(&basesearchpaths, GetGameHomeDir());
 	AddToFileList(&basesearchpaths, ".");
-	// add EXE-file path
-	char *slashpos = strrchr(argv0,'\\');
-	if (slashpos)  {
-		*slashpos = 0;
-		AddToFileList(&basesearchpaths, argv0);
-	}
+	AddToFileList(&basesearchpaths, "${BIN}")
 #endif
 }
 
@@ -513,9 +510,9 @@ void CreateRecDir(char* f) {
 	}
 }
 
-char* GetFullFileName(const char* path) {
-	static char fname[512]; strcpy(fname, "");
-	static char tmp[512]; strcpy(tmp, "");
+char* GetFullFileName(const char* path, char** searchpath) {
+	static char fname[1024]; strcpy(fname, "");
+	static char tmp[1024]; strcpy(tmp, "");
 	
 	if(path == NULL || path[0] == '\0')
 		return NULL;
@@ -545,7 +542,10 @@ char* GetFullFileName(const char* path) {
 #endif
 			FILE* f = fopen(fname, "r");
 			if(f) {
+				// we can read the file and it is not a directory
 				fclose(f);
+				if(searchpath)
+					*searchpath = spath->filename;
 				return fname;
 			}
 			
@@ -562,28 +562,58 @@ char* GetFullFileName(const char* path) {
 	return NULL;
 }
 
-FILE *OpenGameFile(const char *path, const char *mode) {
-	static char fname[1024] = "";
-	static char tmp[1024] = "";
+char* GetWriteFullFileName(const char* path, bool create_nes_dirs) {
+	filelist_t* spath = NULL;
+	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
+	if(spath == NULL) spath = basesearchpaths;
+	// get the dir, where we should write into
+	char* dir = spath ? spath->filename : GetGameHomeDir();
 	
-	if(path == NULL)
-		return NULL;
-	else if (path[0] == '\0')
+	// TODO: if we have no write access to the dir (strange situation,
+	// but there are stupid admins out there...), select others
+	// if no one was found, select the temporary dir (which have to exists everywhere)
+	
+	static char tmp[1024];
+	static char fname[1024];
+	fix_strncpy(tmp, dir);
+	fix_strncat(tmp, "/");
+	fix_strncat(tmp, path);
+	
+	// now the interesting part
+	// fix case sensitive name if it exists
+	// also replace ${var} with concrete values
+	GetExactFileName(tmp, fname);
+	if(create_nes_dirs) CreateRecDir(fname);
+	return tmp;
+}
+
+FILE *OpenGameFile(const char *path, const char *mode) {	
+	if(path == NULL || path[0] == '\0')
 		return NULL;
 	
-	if(strchr(mode, 'w')) {
-		fix_strncpy(tmp, GetHomeDir());
-		fix_strncat(tmp, "/");
-		fix_strncat(tmp, path);
-		GetExactFileName(tmp, fname); // fix case sensitive name if it exists
-		CreateRecDir(fname);
-		return fopen(fname, mode);
+	char* fullfn = GetFullFileName(path);
+	
+	bool write_mode = strchr(mode, 'w');
+	bool append_mode = strchr(mode, 'a');
+	if(write_mode || append_mode) {
+		char* writefullname = GetWriteFullFileName(path, true);
+		if(append_mode && fullfn) { // check, if we should copy the file
+			FILE* fp = fopen(fullfn, "r");
+			if(fp) { // we can read the file
+				fclose(fp);
+				if(strcmp(fullfn, writefullname)) {
+					// it is not the file, we would write to, so copy it to the wanted destination
+					FileCopy(fullfn, writefullname);
+				}
+			}
+		}
+		//printf("opening file for writing (mode %s): %s\n", mode, writefullname);
+		return fopen(writefullname, mode);
 	}		
 
-	char* fullfn = GetFullFileName(path);
-	if(fullfn != NULL && fullfn[0] != '\0')  {
-		FILE *result = fopen(fullfn, mode);
-		return result;
+	if(fullfn != NULL && fullfn[0] != '\0') {
+		//printf("open file for reading (mode %s): %s\n", mode, fullfn);
+		return fopen(fullfn, mode);
 	}
 	
 	return NULL;
@@ -640,17 +670,82 @@ char* GetHomeDir() {
 	static char tmp[1024];
 #ifndef WIN32
 	fix_strncpy(tmp, getenv("HOME"));
-	fix_strncat(tmp, "/.OpenLieroX");
 #else
 	if (!SHGetSpecialFolderPath(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
 		// TODO: get dynamicaly another possible path
 		// the following is only a workaround!
 		fix_strncpy(tmp, "C:\\OpenLieroX");
-//		fix_strncpy(tmp,"./");
-		return tmp;
 	}
-	fix_strncat(tmp,"\\OpenLieroX");
 #endif
 	return tmp;
 }
 
+
+char* GetSystemDataDir() {
+#ifndef WIN32	
+	return SYSTEM_DATA_DIR;
+#else
+	// windows don't have such dir, don't it?
+	// or should we return windows/system32 (which is not exactly intended here)?
+	return "";
+#endif
+}
+
+char* GetBinaryDir() {
+	return binary_dir;
+}
+
+char* GetGameHomeDir() {	
+// TODO: it would be nice to have also Mac OS X konversions
+#ifndef WIN32
+	return "${HOME}/.OpenLieroX";
+#else
+	return "${HOME}/OpenLieroX";
+#endif	
+}
+
+void ReplaceFileVariables(std::string& filename) {
+	replace(filename, "${HOME}", GetHomeDir());
+	replace(filename, "${SYSTEM_DATA}", GetSystemDataDir());
+	replace(filename, "${BIN}", GetBinaryDir());	
+}
+
+bool FileCopy(const std::string src, const std::string dest) {
+	static char tmp[2048];
+	
+	printf("FileCopy: %s -> %s\n", src.c_str(), dest.c_str());
+	FILE* src_f = fopen(src.c_str(), "r");
+	if(!src_f) {
+		printf("FileCopy: ERROR: cannot open source\n");
+		return false; 
+	}
+	FILE* dest_f = fopen(dest.c_str(), "w");
+	if(!dest_f) {
+		fclose(src_f);
+		printf("  ERROR: cannot open destination\n");
+		return false;
+	}
+	
+	printf("  ");
+	bool success = true;
+	unsigned short count = 0;
+	size_t len = 0;
+	while((len = fread(tmp, 1, sizeof(tmp), src_f)) > 0) {
+		if(count == 0) printf("."); count++; count %= 20;
+		if(len != fwrite(tmp, 1, len, dest_f)) {
+			printf("  ERROR: problem while writing\n");
+			success = false;
+			break;
+		}
+		if(len != sizeof(tmp)) break;
+	}
+	if(success) {
+		success = feof(src_f);
+		if(!success) printf("  ERROR: problem while reading\n");
+	}
+
+	fclose(src_f);
+	fclose(dest_f);
+	if(success)	printf("  success :)\n");
+	return success;
+}
