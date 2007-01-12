@@ -208,7 +208,6 @@ void SaveOptions(void)
 		return;
 
     FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
-    fprintf(fp, "OpenGL = %s\n",tLXOptions->iOpenGL ? "true" : "false");
     if(fp == NULL)
         return;
 
@@ -220,6 +219,7 @@ void SaveOptions(void)
     fprintf(fp, "Fullscreen = %s\n",tLXOptions->iFullscreen ? "true" : "false");
     fprintf(fp, "ShowFPS = %s\n",tLXOptions->iShowFPS ? "true" : "false");
     fprintf(fp, "\n");
+    fprintf(fp, "OpenGL = %s\n",tLXOptions->iOpenGL ? "true" : "false");
 
     fprintf(fp, "[Network]\n");
     fprintf(fp, "Port = %d\n",      tLXOptions->iNetworkPort);
