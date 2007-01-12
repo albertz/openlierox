@@ -114,6 +114,7 @@ void CWorm::Clear(void)
 	fLastShoot = 0; // for AI
 	fLastJump = 999999;
 	fLastWeaponChange = 0;
+	fLastCompleting = -9999;
 }
 
 

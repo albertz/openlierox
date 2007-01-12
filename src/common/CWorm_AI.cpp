@@ -763,6 +763,7 @@ public:
 	
 	// this function will start the search, if it was not started right now
 	void startThreadSearch() {
+
 		// if we are still searching, do nothing
 		if(!isReady()) return;
 				
@@ -781,6 +782,7 @@ private:
 		
 		while(true) {
 			// sleep a little bit while we have nothing to do...
+			int i=0;
 			while(base->isReady()) {
 				// was there a break-signal?
 				if(base->shouldBreakThread()) {
@@ -788,6 +790,9 @@ private:
 					return 0;				
 				}				
 				SDL_Delay(100);
+				if (i > 5)
+					return 0;
+				i++;
 			}
 			
 			// start the main search
@@ -987,6 +992,7 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 	nAIState = AI_THINK;
 	fLastFace = -9999;
 	fLastShoot = -9999;
+	fLastCompleting = -9999;
 
 	fRopeAttachedTime = 0;
 	fRopeHookFallingTime = 0;
@@ -3770,6 +3776,7 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
 // Creates the path
 int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 {	
+
 	CVec trg = AI_GetTargetPos();
 	
 	if(!bPathFinished) {
@@ -4346,7 +4353,6 @@ bool CWorm::NEW_AI_IsInAir(CVec pos, CMap *pcMap, int area_a)
 
 /////////////////////
 // Move to the target
-float fLastCompleting = -9999; // TODO: this is global for all worms (which is not what is wanted)
 void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 {
 /*	NEW_AI_MoveToTargetDC(pcMap);

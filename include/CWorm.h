@@ -279,6 +279,7 @@ private:
 	float		fLastJump;
 	float		fLastWeaponChange;
 	float		fLastCreated;
+	float		fLastCompleting;
 
 	float		fRopeAttachedTime;
 	float		fRopeHookFallingTime;
