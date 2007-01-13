@@ -853,16 +853,26 @@ private:
 	
 	inline void breakThreadSignal() {
 		// we don't need more thread-safety here, because this will not fail
+		lock(); // hm, let's be thread-safe...
 		break_thread_signal = 1;
+		unlock();
 	}
 
 	inline bool shouldBreakThread() {
-		return (break_thread_signal != 0);
+		bool ret = false;
+		lock();
+		ret = break_thread_signal != 0;
+		unlock();
+		return ret;
 	}
 
 public:	
 	inline bool shouldRestartThread() {
-		return (restart_thread_searching_signal != 0);
+		bool ret = false;
+		lock();
+		ret = restart_thread_searching_signal != 0;
+		unlock();
+		return ret;
 	}
 
 private:
