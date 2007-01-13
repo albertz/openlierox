@@ -2599,13 +2599,16 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 
 
 	int tmp;
+	float cos_alpha = cos(alpha);
+	float tan_alpha = tan(alpha);
 	if (max_x > 0)  {
 		for (x=0;x<max_x;x++)  {
-			tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
+			tmp = (int)(2*speed*speed*cos_alpha*cos_alpha);
 			if(tmp != 0)
-				y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
+				y = -x*(int)tan_alpha+(gravity*x*x)/tmp;
 			else
 				y = 0;
+				
 			// If we have reached the target, the trajectory is free
 			if (max_y < 0)  {
 				if (y < max_y)
@@ -2631,11 +2634,12 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 	}
 	else  {
 		for (x=0;x>max_x;x--)  {
-			tmp = (int)(2*speed*speed*cos(alpha)*cos(alpha));
+			tmp = (int)(2*speed*speed*cos_alpha*cos_alpha);
 			if(tmp != 0)
-				y = -x*(int)tan(alpha)+(gravity*x*x)/tmp;
+				y = -x*(int)tan_alpha+(gravity*x*x)/tmp;
 			else
 				y = 0;
+				
 			// If we have reached the target, the trajectory is free
 			if (max_y < 0)  {
 				if (y < max_y)
@@ -2785,7 +2789,6 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 
     // If target is blocked by rock we can't use direct firing
     if(nType & PX_ROCK)  {
-		//return false;
 		bDirect = false;
 	}
 
@@ -2798,18 +2801,16 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	if (nType & PX_DIRT)  {
 		if(d-fDist > 40.0f)
 			bDirect = false;
-			//return false;
 	}
 
 	// In mortar game there must be enough of free cells around us
 	if (bDirect && iAiGameType == GAM_MORTARS)  {
 		if (!NEW_AI_CheckFreeCells(1,pcMap))  {
-			//return false;
-			bDirect = false;
+//			bDirect = false;
+			return false;
 		}
 		if (!traceWormLine(cTrgPos,vPos,pcMap))
 			bDirect = false;
-			//return false;
 	}
 
 	// If our velocity is big and we shoot in the direction of the flight, we can suicide
@@ -2835,12 +2836,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 
     iCurrentWeapon = wpn;	
 	
-    bool    bAim = false;//AI_SetAim(cTrgPos);
-	
-	// Distance
-	float x = (cTrgPos.x-vPos.x);
-	float y = (vPos.y-cTrgPos.y);
-	
+    bool bAim = false;
+		
 	float alpha = 0;
 
 	gs_worm_t *wd = cGameScript->getWorm();
@@ -2858,20 +2855,41 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		// don't shoot this shit
 		break;
 	default:
-		// TODO: count with the worm velocities
-
-		// Worm speed
-		float MySpeed = vVelocity.GetLength();
-		// Enemy speed
-		float EnemySpeed = psAITarget->getVelocity()->GetLength();
-		// Projectile speed
-		float v = (float)weap->ProjSpeed*weap->Projectile->Dampening;
+		CVec direction = psAITarget->getPos() - vPos;
+		direction.Normalize();
+		// speed of target in the direction (moving away from us)
+		float targ_speed = direction.Scalar(*psAITarget->getVelocity());
+		
+		// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
+		float v = (float)weap->ProjSpeed*weap->Projectile->Dampening + weap->ProjSpeedVar*100.0f + vVelocity.GetLength() - targ_speed;
+		
+		// Distance
+		float x = (cTrgPos.x-vPos.x);
+		float y = (vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
+		
+		// how long it takes for hitting the target
+		float apriori_time = v ? (x*x + y*y) / v : 0;
+		if(apriori_time < 0) {
+			// target is faster than the projectile
+			// shoot somewhere in the other direction
+			v = -v; apriori_time = -apriori_time;
+			x = -x; y = -y;
+			// perhaps, this is good
+			tState.iJump = true;
+		
+		} else { // apriori_time >= 0
+			// where the target would be
+			x += apriori_time*psAITarget->getVelocity()->x;
+			y -= apriori_time*psAITarget->getVelocity()->y; // HINT: real-world-koords
+		}
+		
 		// Gravity
-		int	  g = 100;
-		if (weap->Projectile->UseCustomGravity)
+		int	g = 100;
+		if(weap->Projectile->UseCustomGravity)
 			g = weap->Projectile->Gravity;
-		if (iAiGameType == GAM_MORTARS)
+		if(iAiGameType == GAM_MORTARS) {
 			g = 100;
+		}
 
 		// Get the alpha
 		bAim = AI_GetAimingAngle(v,g,x,y,&alpha);

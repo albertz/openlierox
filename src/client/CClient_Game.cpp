@@ -484,10 +484,8 @@ void CClient::SimulateProjectiles(float dt)
 				heading+=90;
 				if(heading < 0)
 					heading+=360;
-				if(heading > 360)
+				else if(heading >= 360)
 					heading-=360;
-				if(heading == 360)
-					heading=0;
 			}
 
 			for(i=0;i<pi->ProjAmount;i++) {
@@ -1335,7 +1333,7 @@ void CClient::ProcessShot(shoot_t *shot)
 
         CVec v = sprd*speed + shot->cWormVel;
 
-		SpawnProjectile(pos, sprd*speed + shot->cWormVel, rot, w->getID(), wpn->Projectile, shot->nRandom, true, time);
+		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, true, time);
 
 		shot->nRandom++;
 		shot->nRandom %= 255;

@@ -47,6 +47,8 @@ public:
 
 	inline VectorD2 Normalize() { return *this/GetLength(); }
 
+	inline _T Scalar(const VectorD2 vec) { return x*vec.x + y*vec.y; }
+
 	// Overloads
 	inline VectorD2 operator*(const float scalar) const {		
 		return VectorD2(x*scalar,y*scalar);

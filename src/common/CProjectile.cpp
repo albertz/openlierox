@@ -134,7 +134,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 
 	// Dampening
 	if(tProjInfo->Dampening != 1)
-		vVelocity = vVelocity * tProjInfo->Dampening;
+		vVelocity *= tProjInfo->Dampening;
 
 	if(tProjInfo->Rotating)
 		fRotation += (float)tProjInfo->RotSpeed*dt;
