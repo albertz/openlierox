@@ -499,15 +499,20 @@ void InitBaseSearchPaths() {
 #endif
 }
 
-void CreateRecDir(char* f) {
-	static char tmp[256];	
-	for(size_t i = 0; f[i] != '\0'; i++) {
+void CreateRecDir(char* f, bool last_is_dir) {
+	static char tmp[512];
+	size_t i = 0;
+	for(; f[i] != '\0'; i++) {
 		tmp[i] = f[i];
 		if(tmp[i] == '\\' || tmp[i] == '/') {
 			tmp[i] = '\0';
 			mkdir(tmp, 0777);
 			tmp[i] = f[i];
 		}
+	}
+	if(last_is_dir) {
+		tmp[i] = '\0';
+		mkdir(tmp, 0777);
 	}
 }
 
@@ -592,7 +597,7 @@ char* GetWriteFullFileName(const char* path, bool create_nes_dirs) {
 	}
 	
 	GetExactFileName(tmp, fname);	
-	if(create_nes_dirs) CreateRecDir(fname);
+	if(create_nes_dirs) CreateRecDir(fname, false);
 	return tmp;
 }
 

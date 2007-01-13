@@ -5,8 +5,7 @@ if [ ! -d include ] || [ ! -d src ]; then
 
 	echo ">>> installing..."
 	mv hawknl1.68/src . && \
-	mkdir -p include/nl && \
-	mv hawknl1.68/include/* include/nl && \
+	mv hawknl1.68/include . && \
 	rm -r hawknl1.68 && \
 	exit 0
 

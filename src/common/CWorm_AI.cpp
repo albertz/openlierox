@@ -782,7 +782,6 @@ private:
 		
 		while(true) {
 			// sleep a little bit while we have nothing to do...
-			int i=0;
 			while(base->isReady()) {
 				// was there a break-signal?
 				if(base->shouldBreakThread()) {
@@ -790,9 +789,6 @@ private:
 					return 0;				
 				}				
 				SDL_Delay(100);
-				if (i > 5)
-					return 0;
-				i++;
 			}
 			
 			// start the main search

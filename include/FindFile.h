@@ -101,7 +101,7 @@ FILE*	OpenGameFile(const char *path, const char *mode);
 
 // the dir will be created recursivly
 // IMPORTANT: filename is absolute; no game-path!
-void	CreateRecDir(char* f);
+void	CreateRecDir(char* f, bool last_is_dir = true);
 
 // copy the src-file to the dest
 // it will simply fopen(src, "r"), fopen(dest, "w") and write all the stuff
