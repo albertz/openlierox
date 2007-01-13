@@ -99,7 +99,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	}
 
 	// If the dt is too great, half the simulation time & run it twice
-	if(dt > 0.015f && dt < 0.030f) {
+	if(dt > 0.015f) {
 		dt /= 2;
 		res = Simulate(dt,map,worms,wormid);
         if( res != PJC_NONE )
@@ -255,14 +255,25 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 // Returns true if there was a collision, otherwise false is returned
 int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 {
-	float maxspeed = 90;
+	// Check if it hit the terrain
+	int mw = map->GetWidth();
+	int mh = map->GetHeight();
+	int w,h;
+	int px,py,x,y;
+	
+	if(tProjInfo->Type == PRJ_PIXEL)
+		w=h=1;
+
+	w=h=2;
+	
+	float maxspeed2 = 4*w*w;
 
 	if(tProjInfo->Hit_Type == PJ_BOUNCE)
-		maxspeed = 40;
+		maxspeed2 /= 4;
 
 	// If the projectile is going too fast, divide the speed by 2 and perform 2 collision checks
-	if( vel.GetLength2() > maxspeed*maxspeed) {
-		vel *= 0.5f;
+	if( (vel*dt).GetLength2() > maxspeed2) {
+		dt *= 0.5f;
 
 		if(CheckCollision(dt,map,pos,vel))
 			return true;
@@ -274,18 +285,6 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 
 	pos += vel*dt;
 
-
-
-	// Check if it hit the terrain
-	int mw = map->GetWidth();
-	int mh = map->GetHeight();
-	int w,h;
-	int px,py,x,y;
-	
-	if(tProjInfo->Type == PRJ_PIXEL)
-		w=h=1;
-
-	w=h=2;
 
 	px=(int)pos.x;
 	py=(int)pos.y;

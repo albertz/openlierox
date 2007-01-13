@@ -333,7 +333,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	// Process the ninja rope
 	if(cNinjaRope.isReleased()) {
 		cNinjaRope.Simulate(dt,map,vPos,worms,iID);
-		vVelocity = vVelocity + cNinjaRope.GetForce(vPos)*dt;
+		vVelocity += cNinjaRope.GetForce(vPos)*dt;
 	}
 
 
@@ -358,13 +358,13 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 			// Right
 			if(vVelocity.x<30)
-				vVelocity = vVelocity + CVec(speed,0);
+				vVelocity.x += speed;
 			fFrame += fFrameRate * dt;
 		} else {
 
 			// Left
 			if(vVelocity.x>-30)
-				vVelocity = vVelocity + CVec(-speed,0);
+				vVelocity.x -= speed;
 			fFrame += fFrameRate * dt;
 		}
 	}
@@ -374,8 +374,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	if(ws->iJump) {
 		if(CheckOnGround(map)) {
 			//vVelocity.x=(0);
-			vVelocity.y=(0);
-			vVelocity = vVelocity + CVec(0,wd->JumpForce);
+			vVelocity.y = wd->JumpForce;
 			iOnGround = false;
 			jump = true;
 		}
@@ -386,8 +385,8 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	float Drag = wd->AirFriction;
 
 	if(!iOnGround)	{
-		vVelocity.x=( vVelocity.x - SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag * dt );
-		vVelocity.y=( vVelocity.y + (-SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag) * dt );	
+		vVelocity.x -= SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag * dt;
+		vVelocity.y += -SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag * dt;	
 	}
 
 
@@ -398,7 +397,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 	
 	// Gravity
-	vVelocity = vVelocity + CVec(0,wd->Gravity)*dt;
+	vVelocity.y += wd->Gravity*dt;
 
 
 	// Check collisions
@@ -410,7 +409,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	vOldPos = vPos;
 
 	//CVec newpos = vPos + vVelocity*dt;
-	vPos = vPos + vVelocity * dt;
+	vPos += vVelocity * dt;
 	
 	CheckWormCollision( dt, map, vOldPos, &vVelocity, jump );
 
@@ -516,11 +515,12 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 	// Ultimate in friction
 	if(iOnGround) {
-		vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
+		vVelocity.x *= 0.9f;
+		//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 
 		// Too slow, just stop
 		if(fabs(vVelocity.x) < 5 && !ws->iMove)
-			vVelocity = vVelocity * CVec(0,1);
+			vVelocity.x = 0;
 	}
 
 
@@ -566,24 +566,16 @@ void CWorm::SimulateWeapon( float dt )
 int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jump )
 {
 	int x,y;
-	int maxspeed = 50;
+	static const int maxspeed2 = 20;
 	
 	// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
-	/*if( VectorLength(*vel) > maxspeed) {
-		*vel = *vel / 2;
+	if( (*vel*dt).GetLength2() > maxspeed2) {
+		dt /= 2;
+		if(CheckWormCollision(dt,map,pos,vel,jump)) return true;
+		return CheckWormCollision(dt,map,vPos,vel,jump);
+	}
 
-		CheckWormCollision(dt,map,pos,vel,jump);
-		//return true;
-
-		pos = pos + *vel*dt;
-
-		CheckWormCollision(dt,map,pos,vel,jump);
-		//return true;
-
-		return false;
-	}*/
-
-	pos = pos + *vel*dt;
+	pos += *vel*dt;
 	vPos = pos;
 
 
@@ -601,7 +593,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 				vPos.x=( 5 );
 				coll = true;
 				if(fabs(vel->x) > 40)
-					*vel = *vel * CVec(-0.4f,1);
+					vel->x *=  -0.4f;
 				else
 					vel->x=(0);
 				break;
@@ -612,7 +604,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 				vPos.x=( (float)map->GetWidth() - 5 );
 				coll = true;
 				if(fabs(vel->x) > 40)
-					*vel = *vel * CVec(-0.4f,1);
+					vel->x *= -0.4f;
 				else
 					vel->x=(0);
 				break;
@@ -625,7 +617,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 
 				// Bounce
 				if(fabs(vel->x) > 30)
-					*vel = *vel * CVec(-0.4f,1);
+					vel->x *= -0.4f;
 				else
 					vel->x=(0);				
 
@@ -657,7 +649,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 				vPos.y=( 6 );
 				coll = true;
 				if(fabs(vel->y) > 40)
-					*vel = *vel * CVec(1,-0.4f);
+					vel->y *= -0.4f;
 				break;
 			}
 
@@ -667,7 +659,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 				coll = true;
                 iOnGround = true;
 				if(fabs(vel->y) > 40)
-					*vel = *vel * CVec(1,-0.4f);
+					vel->y *= -0.4f;
 				else
 					vel->y=(0);
 				break;
@@ -679,7 +671,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 
                 if(!hit && !jump) {
 				    if(fabs(vel->y) > 40 && ((vel->y > 0 && y>0) || (vel->y < 0 && y<0)))
-					    *vel = *vel * CVec(1,-0.4f);
+					    vel->y *= -0.4f;
 				    else
 					    vel->y=(0);
                 }
@@ -718,7 +710,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 			StartSound( sfxGame.smpBump, vPos, getLocal(), -1, this );
 	}
 
-	return false;
+	return coll;
 }
 
 

@@ -181,7 +181,7 @@ void	QuittoMenu(void);
 
 
 // Miscellanous routines
-int		CheckCollision(CVec pos, CVec vel, int width, int height, CMap *map);
+int		CheckCollision(CVec trg, CVec pos, uchar checkflags, CMap *map);
 void	ConvertTime(float time, int *hours, int *minutes, int *seconds);
 int 	CarveHole(CMap *cMap, CVec pos);
 void	StripQuotes(char *dest, char *src);

@@ -29,11 +29,35 @@
 
 
 
+class set_col_and_break {
+public:
+	CVec collision;
+	bool hit;
+	
+	set_col_and_break() : hit(false) {}
+	bool operator()(int x, int y) {
+		hit = true;
+		collision.x = x;
+		collision.y = y;
+		return false;
+	}
+};
+
+
+
 ///////////////////
 // Check for a collision
-int CheckCollision(CVec pos, CVec vel, int width, int height, CMap *map)
+// HINT: this function is not used at the moment; and it is incomplete...
+int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 {
-	int		CollisionSide = 0;	
+/*	set_col_and_break col_action;
+	col_action = fastTraceLine(trg, pos, map, checkflags, col_action);
+	if(col_action.hit) {
+		
+	}*/
+	return 0;
+	
+/*	int		CollisionSide = 0;
 	int		mw = map->GetWidth();
 	int		mh = map->GetHeight();
 	int		px,py, x,y, w,h;
@@ -47,22 +71,20 @@ int CheckCollision(CVec pos, CVec vel, int width, int height, CMap *map)
 	w = width;
 	h = height;
 
-
 	// Hit edges
-	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh) {
+	// Check the collision side
+	if(px-w<0)
+		CollisionSide |= COL_LEFT;
+	if(py-h<0)
+		CollisionSide |= COL_TOP;
+	if(px+w>=mw)
+		CollisionSide |= COL_RIGHT;
+	if(py+h>=mh)
+		CollisionSide |= COL_BOTTOM;
+	if(CollisionSide) return CollisionSide;
 
-		// Check the collision side
-		if(px-w<0)
-			CollisionSide |= COL_LEFT;
-		if(py-h<0)
-			CollisionSide |= COL_TOP;
-		if(px+w>=mw)
-			CollisionSide |= COL_RIGHT;
-		if(py+h>=mh)
-			CollisionSide |= COL_BOTTOM;
+	
 
-		return CollisionSide;
-	}
 
 	for(y=py-h;y<=py+h;y++) {
 
@@ -128,7 +150,7 @@ int CheckCollision(CVec pos, CVec vel, int width, int height, CMap *map)
 	}
 
 
-	return CollisionSide;
+	return CollisionSide; */
 }
 
 

@@ -2438,3 +2438,5 @@ void CMap::Shutdown(void)
 	
 	unlockFlags();
 }
+
+
