@@ -2444,11 +2444,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 			}
 
 			// Rock or dirt, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & PX_ROCK)  {
-				return false;
-			}
-
-			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & PX_DIRT)  {
+			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
 				return false;
 			}
 
@@ -2474,8 +2470,8 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 					return true;
 			}
 
-			// Rock, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & PX_ROCK)  {
+			// Rock or dirt, trajectory not free
+			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
 				return false;
 			}
 
@@ -2680,33 +2676,39 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		// don't shoot this shit
 		break;
 	default:
-		CVec direction = psAITarget->getPos() - vPos;
-		direction.Normalize();
+		CVec direction = (psAITarget->getPos() - vPos).Normalize();
 		// speed of target in the direction (moving away from us)
 		float targ_speed = direction.Scalar(*psAITarget->getVelocity());
+		float my_speed = direction.Scalar(vVelocity);
 		
 		// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
-		float v = (float)weap->ProjSpeed*weap->Projectile->Dampening + weap->ProjSpeedVar*100.0f + vVelocity.GetLength() - targ_speed;
+		float v = (float)weap->ProjSpeed*weap->Projectile->Dampening + weap->ProjSpeedVar*100.0f + my_speed - targ_speed;
+		if(v < 0) {
+			// we have high velocities, danger to shot...
+			bAim = false;
+			break;
+		}
 		
 		// Distance
 		float x = (cTrgPos.x-vPos.x);
 		float y = (vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
 		
 		// how long it takes for hitting the target
-		float apriori_time = v ? (x*x + y*y) / v : 0;
+/*		float apriori_time = v ? (x*x + y*y) / v : 0;
 		if(apriori_time < 0) {
 			// target is faster than the projectile
 			// shoot somewhere in the other direction
-			v = -v; apriori_time = -apriori_time;
-			x = -x; y = -y;
+//			v = -v; apriori_time = -apriori_time;
+//			x = -x; y = -y;
 			// perhaps, this is good
-			tState.iJump = true;
-		
+//			tState.iJump = true;
+			printf("target is too fast! my speed: %f, trg speed: %f, my abs speed: %f, trg abs speed: %f, proj speed: %f+%f\n",my_speed,targ_speed,vVelocity.GetLength(),psAITarget->getVelocity()->GetLength(),(float)weap->ProjSpeed*weap->Projectile->Dampening,weap->ProjSpeedVar*100.0f);
+			
 		} else { // apriori_time >= 0
 			// where the target would be
-			x += apriori_time*psAITarget->getVelocity()->x;
-			y -= apriori_time*psAITarget->getVelocity()->y; // HINT: real-world-koords
-		}
+//			x += apriori_time*psAITarget->getVelocity()->x;
+//			y -= apriori_time*psAITarget->getVelocity()->y; // HINT: real-world-koords
+		} */
 		
 		// Gravity
 		int	g = 100;
@@ -2718,19 +2720,21 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 
 		// Get the alpha
 		bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
-		if (!bAim)
+		if (!bAim) {
 			break;
+		}
 		
 		// Can we hit the target?
 		//printf("proj-speed: %f\n", v);
 		if (g <= 10 || v >= 200)  {
 			int type = PX_EMPTY;
 			float d;
-			traceWeaponLine(cTrgPos,pcMap,&d,&type);
+			if(bDirect) traceWeaponLine(cTrgPos,pcMap,&d,&type);
 			bAim = (type == PX_EMPTY) && bDirect;
 		}
-		else
+		else {
 			bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y),pcMap);
+		}
 
 		if (!bAim)
 			break;
