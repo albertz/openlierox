@@ -495,7 +495,7 @@ void InitBaseSearchPaths() {
 #else // Win32
 	AddToFileList(&basesearchpaths, "${HOME}/OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, "${BIN}")
+	AddToFileList(&basesearchpaths, "${BIN}");
 #endif
 }
 
@@ -607,8 +607,8 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 	
 	char* fullfn = GetFullFileName(path);
 	
-	bool write_mode = strchr(mode, 'w');
-	bool append_mode = strchr(mode, 'a');
+	bool write_mode = strchr(mode, 'w') != NULL;
+	bool append_mode = strchr(mode, 'a') != NULL;
 	if(write_mode || append_mode) {
 		char* writefullname = GetWriteFullFileName(path, true);
 		if(append_mode && fullfn) { // check, if we should copy the file
@@ -714,7 +714,10 @@ char* GetTempDir() {
 	return "/tmp"; // year, it's so simple :)
 #else
 	// TODO !!
-	return "C:\\TEMP";
+	static char buf[256];
+	GetTempPath(sizeof(buf),buf);
+	fix_markend(buf);
+	return buf;
 #endif
 }
 
@@ -754,7 +757,7 @@ bool FileCopy(const std::string src, const std::string dest) {
 		if(len != sizeof(tmp)) break;
 	}
 	if(success) {
-		success = feof(src_f);
+		success = feof(src_f) != 0;
 		if(!success) printf("  ERROR: problem while reading\n");
 	}
 

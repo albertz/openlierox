@@ -13,7 +13,6 @@
 #ifndef __GFXPRIMITIVES_H__
 #define __GFXPRIMITIVES_H__
 
-
 // Surface stuff
 SDL_Surface *gfxCreateSurface(int width, int height);
 SDL_Surface *gfxCreateSurfaceAlpha(int width, int height);

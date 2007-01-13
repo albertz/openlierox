@@ -298,6 +298,7 @@ char *TrimSpaces(char *szLine)
 
 ///////////////////
 // Replace a string in text, returns true, if something was replaced
+// TODO: buffer unsafe
 bool replace(char *text, const char *what, const char *with, char *result)
 {
   bool ret = false;

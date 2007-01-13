@@ -69,7 +69,7 @@ inline bool GetExactFileName(const char* searchname, char* filename) {
 
 	// Return false, if file doesn't exist
 	// TODO: it should also return true for directories
-	FILE *f = fopen(searchname,"r");
+	FILE *f = fopen(filename,"r");
 	if (!f)
 		return false;
 	fclose(f);
