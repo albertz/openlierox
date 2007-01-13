@@ -400,7 +400,7 @@ public:
     void        AI_InitMoveToTarget(CMap *pcMap);
     void        AI_MoveToTarget(CMap *pcMap);
     void        AI_SimpleMove(CMap *pcMap, bool bHaveTarget=true);
-    void        AI_PreciseMove(CMap *pcMap);
+//    void        AI_PreciseMove(CMap *pcMap);
     
     ai_node_t   *AI_ProcessNode(CMap *pcMap, ai_node_t *psParent, int curX, int curY, int tarX, int tarY);
     void        AI_CleanupPath(ai_node_t *node);
@@ -408,8 +408,6 @@ public:
     void		AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
     
     int         AI_FindClearingWeapon(void);
-    bool        AI_CanShoot(CMap *pcMap, int nGameType);
-	//bool		AI_CanShoot(CWorm *Target,CMap *Map);
     bool        AI_Shoot(CMap *pcMap);
     int         AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *pcMap, float fTraceDist);
     void        AI_ReloadWeapons(void);
@@ -422,7 +420,7 @@ public:
     CWorm       *findTarget(int gametype, int teamgame, int taggame, CMap *pcMap);   
     int         traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs = 5);
 	int			traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType);
-	bool		weaponCanHit(int gravity,float speed,CMap *pcMap);
+	bool		weaponCanHit(int gravity,float speed, CVec cTrgPos, CMap *pcMap);
 	bool		IsEmpty(int Cell, CMap *pcMap);
     //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
 

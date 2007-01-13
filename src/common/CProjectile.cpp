@@ -140,7 +140,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 		fRotation += (float)tProjInfo->RotSpeed*dt;
 	if(fRotation < 0)
 		fRotation = 360;
-	if(fRotation > 360)
+	else if(fRotation > 360)
 		fRotation = 0;
 
 	// Animation

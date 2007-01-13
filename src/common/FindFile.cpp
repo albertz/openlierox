@@ -607,8 +607,8 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 	
 	char* fullfn = GetFullFileName(path);
 	
-	bool write_mode = strchr(mode, 'w') != NULL;
-	bool append_mode = strchr(mode, 'a') != NULL;
+	bool write_mode = strchr(mode, 'w') != 0;
+	bool append_mode = strchr(mode, 'a') != 0;
 	if(write_mode || append_mode) {
 		char* writefullname = GetWriteFullFileName(path, true);
 		if(append_mode && fullfn) { // check, if we should copy the file
@@ -713,7 +713,6 @@ char* GetTempDir() {
 #ifndef WIN32
 	return "/tmp"; // year, it's so simple :)
 #else
-	// TODO !!
 	static char buf[256];
 	GetTempPath(sizeof(buf),buf);
 	fix_markend(buf);

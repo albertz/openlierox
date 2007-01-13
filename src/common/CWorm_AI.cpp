@@ -1121,7 +1121,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 		nAIState = AI_THINK;
 
     // If we have a good shooting 'solution', shoot
-	// TODO: join AI_CanShoot and AI_Shoot
     if(AI_Shoot(pcMap)) {
    
 		// jump, move and carve around
@@ -2459,6 +2458,8 @@ void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
 float fLastDirChange = 99999;
 ///////////////////
 // Perform a precise movement
+/*
+// TODO: it's deprecated; delete this function
 void CWorm::AI_PreciseMove(CMap *pcMap)
 {
     worm_state_t *ws = &tState;
@@ -2472,7 +2473,7 @@ void CWorm::AI_PreciseMove(CMap *pcMap)
  
     // If we're insanely close, just stop
     if(fabs(vPos.x - cPosTarget.x) < 10 && fabs(vPos.y - cPosTarget.y) < 10) {
- 		/*if (tLX->fCurTime - fLastDirChange > 2.0f)  {
+ */		/*if (tLX->fCurTime - fLastDirChange > 2.0f)  {
 			if (GetRandomNum() < 0)
 				iDirection = DIR_LEFT;
 			else
@@ -2480,7 +2481,7 @@ void CWorm::AI_PreciseMove(CMap *pcMap)
 			fLastDirChange = tLX->fCurTime;
 		}
 		ws->iMove = true; */
-   
+   /*
         return;
     }
 
@@ -2507,7 +2508,7 @@ void CWorm::AI_PreciseMove(CMap *pcMap)
 		ws->iMove = true;
 	}
 }
-
+*/
 
 ///////////////////
 // Finds a suitable 'clearing' weapon
@@ -2557,22 +2558,14 @@ int CWorm::AI_FindClearingWeapon(void)
 
 
 
-///////////////////
-// Can we shoot the target
-bool CWorm::AI_CanShoot(CMap *pcMap, int nGameType)
-{
-	// TODO: delete this function
-	return true;
-}
 
 ////////////////////
 // Returns true, if the weapon can hit the target
-bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
+bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 {
 	// Get the target position
 	if(!psAITarget)
 		return false;
-    CVec cTrgPos = psAITarget->getPos();
 
 	CVec *from = &vPos;
 	CVec *to = &cTrgPos;
@@ -2581,9 +2574,14 @@ bool CWorm::weaponCanHit(int gravity,float speed,CMap *pcMap)
 	float alpha = DEG2RAD(fAngle);
 	// Get the maximal X
 	int max_x = (int)(to->x-from->x);
-	// If we're in the X coordinate of the target, we can shoot (else we wouldn't be called)
-	if (max_x == 0)
-		return true;
+	
+	if (max_x == 0) {
+		float fDist;
+		int nType = PX_EMPTY;
+		int len = traceWeaponLine(cTrgPos,pcMap,&fDist,&nType);
+		return (nType == PX_EMPTY);
+	}
+	
 	// Get the maximal Y
 	int max_y = (int)(from->y-to->y);
 
@@ -2905,7 +2903,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 			bAim = (type == PX_EMPTY) && bDirect;
 		}
 		else
-			bAim = weaponCanHit(g,v,pcMap);
+			bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y),pcMap);
 
 		if (!bAim)
 			break;
