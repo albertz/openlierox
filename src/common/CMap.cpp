@@ -892,18 +892,20 @@ int CMap::CarveHole(int size, CVec pos)
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
 
+	unlockFlags();
+
 	// Apply a shadow
 	ApplyShadow(sx-5,sy-5,w+25,h+25);
 
     // Recalculate the grid
     int hw = w/2;
     int hh = h/2;
+    lockFlags();
     for(y=sy-hh; y<sy+h+hh; y+=nGridHeight/2) {
         for(x=sx-hw; x<sx+w+hw; x+=nGridWidth/2) {
             calculateGridCell(x, y, true);
         }
     }
-
 	unlockFlags();
 	
 	// Update the draw image

@@ -1,6 +1,12 @@
 #ifndef __READWRITELOCK_H__
 #define __READWRITELOCK_H__
 
+/*
+ *	simple ReadWriteLock, implemented by using mutex's
+ *
+ *	by Albert Zeyer, code under LGPL
+*/
+
 #include <SDL/SDL_thread.h>
 
 class ReadWriteLock {
@@ -25,15 +31,15 @@ public:
 	
 	inline void startReadAccess() {
 		SDL_mutexP(readCounterMutex);
-		if(!readCounter) SDL_mutexP(writeMutex);
+		if(readCounter == 0) SDL_mutexP(writeMutex);
 		readCounter++;		
 		SDL_mutexV(readCounterMutex);
 	}
 	
 	inline void endReadAccess() {
 		SDL_mutexP(readCounterMutex);
-		readCounter--;		
-		if(!readCounter) SDL_mutexV(writeMutex);
+		readCounter--;
+		if(readCounter == 0) SDL_mutexV(writeMutex);
 		SDL_mutexV(readCounterMutex);
 	}
 
