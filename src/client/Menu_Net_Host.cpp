@@ -989,7 +989,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 	local = false;
     y = 40;
 	bool bRecolorized = false;
-	for(i=0; i<gl->nMaxWorms; i++, w++) {
+	for(i=0; i<MAX_PLAYERS; i++, w++) {
         if( !w->isUsed() )
             continue;
 

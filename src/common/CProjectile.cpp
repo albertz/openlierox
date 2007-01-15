@@ -266,7 +266,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 
 	w=h=2;
 	
-	float maxspeed2 = 4*w*w;
+	float maxspeed2 = (float)(4*w*w);
 
 	if(tProjInfo->Hit_Type == PJ_BOUNCE)
 		maxspeed2 /= 4;

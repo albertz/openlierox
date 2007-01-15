@@ -597,7 +597,7 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 	
 
 	ProcessEvents();
-	while(!kb->KeyUp[SDLK_ESCAPE] && ret == -1) {
+	while(!kb->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning && ret == -1) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 		mouse = 0;

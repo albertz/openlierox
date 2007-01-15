@@ -431,9 +431,9 @@ public:
 			// did we find any?
 			if(bestNode) {
 				// start at the pos inside of the area
-				bestNode = createNewAiNode(bestPosOutside.x, bestPosOutside.y, bestNode);
+				bestNode = createNewAiNode((float)bestPosOutside.x, (float)bestPosOutside.y, bestNode);
 				base->nodes.push_back(bestNode);
-				bestNode = createNewAiNode(bestPosInside.x, bestPosInside.y, bestNode);
+				bestNode = createNewAiNode((float)bestPosInside.x, (float)bestPosInside.y, bestNode);
 				base->nodes.push_back(bestNode);
 				return bestNode;
 			}
@@ -532,7 +532,11 @@ private:
 public:	
 	NEW_ai_node_t* findPath(VectorD2<int> start) {
 		// lower priority to this thread
+#ifdef WIN32
+		Sleep(1);
+#else
 		SDL_Delay(1);
+#endif
 		if(shouldBreakThread() || shouldRestartThread()) return NULL;
 		
 		// is the start inside of the map?
@@ -545,7 +549,7 @@ public:
 		if(traceWormLine(target, start, pcMap)) {
 			pcMap->unlockFlags(false);
 			// yippieh!
-			NEW_ai_node_t* ret = createNewAiNode(target.x, target.y);
+			NEW_ai_node_t* ret = createNewAiNode((float)target.x, (float)target.y);
 			nodes.push_back(ret);
 			return ret;
 		}
@@ -614,8 +618,13 @@ private:
 				if(base->shouldBreakThread()) {
 					//printf("got break signal(1) for %i\n", (long)base);
 					return 0;				
-				}				
+				}			
+				
+#ifdef WIN32
+				Sleep(100);
+#else
 				SDL_Delay(100);
+#endif
 			}
 			
 			// start the main search
@@ -896,10 +905,10 @@ public:
 
 void do_some_tests_with_fastTraceLine(CMap *pcMap) {
 	CVec start, target;
-	start.x = rand() % pcMap->GetWidth();
-	start.y = rand() % pcMap->GetHeight();
-	target.x = rand() % pcMap->GetWidth();
-	target.y = rand() % pcMap->GetHeight();
+	start.x = (float)(rand() % pcMap->GetWidth());
+	start.y = (float)(rand() % pcMap->GetHeight());
+	target.x = (float)(rand() % pcMap->GetWidth());
+	target.y = (float)(rand() % pcMap->GetHeight());
 	
 	fastTraceLine(target, start, pcMap, PX_ROCK,  debug_print_col(pcMap->GetDebugImage()));
 }
@@ -1221,7 +1230,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 	}
 
 	// If the target we have line of sight to is too far, switch back to the closest target
-	if (fSightDistance-fDistance > 50.0f || iAiGameType == GAM_RIFLES || trg == NULL)  {
+	if (fSightDistance-fDistance > 50.0f || /*TODO: in rifles we can shoot target far away!*/iAiGameType == GAM_RIFLES || trg == NULL)  {
 		if (nonsight_trg)
 			trg = nonsight_trg;
 	}
@@ -3454,9 +3463,9 @@ public:
 	set_col_and_break(CVec st, CVec* col) : start(st), collision(col), hit(false) {}
 	bool operator()(int x, int y) {
 		hit = true;
-		if(collision && (*collision - start).GetLength2() > (CVec(x,y) - start).GetLength2()) {
-			collision->x = x;
-			collision->y = y;			
+		if(collision && (*collision - start).GetLength2() > (CVec((float)x,(float)y) - start).GetLength2()) {
+			collision->x = (float)x;
+			collision->y = (float)y;			
 		}
 		return false;
 	}
@@ -4054,8 +4063,8 @@ public:
 		//DrawRectFill(pcMap->GetDebugImage(),x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(0,240,0));		
 #endif		
 	
-		if(best.x < 0 || (CVec(x,y)-target).GetLength2() < (best-target).GetLength2())
-			best = CVec(x,y);
+		if(best.x < 0 || (CVec((float)x,(float)y)-target).GetLength2() < (best-target).GetLength2())
+			best = CVec((float)x,(float)y);
 				
 		return false;
 	}

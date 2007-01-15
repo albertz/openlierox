@@ -24,12 +24,6 @@ TeamHasWon = The <team> team has won the match
 
 WormIsIt = <player> is IT!
 
-Spree1 = <player> is on a killing spree!
-Spree2 = <player> is on a rampage!
-Spree3 = <player> is dominating!
-Spree4 = <player> is unstoppable!
-Spree5 = <player> is GODLIKE!
-
 ServerFull = Server is full
 NoEmptySlots = Server has no empty slots
 WrongProtocol = Wrong protocol version. The server protocol version is <version>

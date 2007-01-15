@@ -426,10 +426,6 @@ SOURCE=..\..\include\Entity.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\GameRules.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\client\ProfileSystem.cpp
 # End Source File
 # Begin Source File

@@ -24,7 +24,9 @@ int		NumArgs;
 // Add an argument to the list
 void Cmd_AddArg(char *text)
 {
-	fix_strncpy(Arguments[NumArgs++],text);
+	// WARNING: don't change to Arguments[NumArgs++] else it will increase NumArgs by two (macro bug)
+	fix_strncpy(Arguments[NumArgs],text);
+	NumArgs++;
 }
 
 

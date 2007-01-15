@@ -644,7 +644,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	local = false;
     y = 40;
 	bool bRecolorized = false;
-	for(i=0; i<gl->nMaxWorms; i++, w++) {
+	for(i=0; i<MAX_WORMS; i++, w++) {
 		if( !w->isUsed() )
             continue;
 

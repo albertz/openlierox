@@ -43,6 +43,7 @@
 // Disable this silly warning
 #ifdef WIN32
 #pragma warning(disable: 4786)
+#pragma warning(disable: 4996)
 #endif
 
 #ifdef WIN32
