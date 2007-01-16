@@ -197,6 +197,7 @@ public:
 
 	int		getCurIndex(void)		{ if(tSelected) return tSelected->iIndex; else return -1; }
 	char	*getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return NULL; }
+	lv_subitem_t	*getCurSubitem(int index);
 
 	int		getCursor(void)			{ return iCursor; }
     

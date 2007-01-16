@@ -164,7 +164,9 @@ enum {
 	BUT_BANNED,
 	BUT_UNBAN,
 	BUT_CLEAR,
-	BUT_SERVERSETTINGS
+	BUT_SERVERSETTINGS,
+	BUT_FILTER,
+	BUT_ADDTOFAVOURITES,
 };
 
 // Menu structure
@@ -454,7 +456,7 @@ int		Menu_Net_LANInitialize(void);
 void	Menu_Net_LANShutdown(void);
 void	Menu_Net_LANFrame(int mouse);
 void	Menu_Net_LANSendPing(void);
-void	Menu_Net_LANJoinServer(char *sAddress);
+void	Menu_Net_LANJoinServer(char *sAddress, char *sName);
 void    Menu_Net_LanShowServer(char *szAddress);
 
 
@@ -467,7 +469,7 @@ void	Menu_Net_JoinFrame(int mouse);
 int		Menu_Net_FavouritesInitialize(void);
 void	Menu_Net_FavouritesShutdown(void);
 void	Menu_Net_FavouritesFrame(int mouse);
-void	Menu_Net_FavouritesJoinServer(char *sAddress);
+void	Menu_Net_FavouritesJoinServer(char *sAddress, char *sName);
 void	Menu_Net_FavouritesShowServer(char *szAddress);
 void	Menu_Net_RenameServer(char *szName);
 void	Menu_Net_FavouritesAddServer(void);
@@ -492,7 +494,7 @@ void	Menu_Net_JoinLobbyShutdown(void);
 int		Menu_Net_NETInitialize(void);
 void	Menu_Net_NETShutdown(void);
 void	Menu_Net_NETFrame(int mouse);
-void	Menu_Net_NETJoinServer(char *sAddress);
+void	Menu_Net_NETJoinServer(char *sAddress, char *sName);
 void	Menu_Net_NETAddServer(void);
 void	Menu_Net_NETUpdateList(void);
 void	Menu_Net_NETParseList(void);

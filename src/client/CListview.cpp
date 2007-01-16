@@ -1009,6 +1009,17 @@ void CListview::scrollLast(void)
     cScrollbar.UpdatePos();
 }
 
+////////////////////
+// Get the specified subitem of the selected item
+lv_subitem_t *CListview::getCurSubitem(int index)
+{
+	if (!tSelected)
+		return NULL;
+	lv_subitem_t *sub = tSelected->tSubitems;
+	for (int i=0;i<index && sub;i++,sub=sub->tNext) {}
+	return sub;
+}
+
 
 ///////////////////
 // This widget is send a message

@@ -207,13 +207,14 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 					addr[0] = 0;
 					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result != -1 && addr[0]) {
+					lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
+					if(result != -1 && addr[0] && sub) {
 						
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Join
-						Menu_Net_FavouritesJoinServer(addr);
+						Menu_Net_FavouritesJoinServer(addr,sub->sText);
 						return;
 					}
 				}
@@ -231,8 +232,9 @@ void Menu_Net_FavouritesFrame(int mouse)
 					// Just join for the moment
 					addr[0] = 0;
 					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result != -1 && addr[0]) {
-						Menu_Net_FavouritesJoinServer(addr);
+					lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
+					if(result != -1 && addr[0] && sub) {
+						Menu_Net_FavouritesJoinServer(addr,sub->sText);
 						return;
 					}
 				}
@@ -290,9 +292,12 @@ void Menu_Net_FavouritesFrame(int mouse)
                         break;
 
                     // Join a server
-                    case MNU_USER+3:
-                        // Save the list
-						Menu_Net_FavouritesJoinServer(szFavouritesCurServer);
+                    case MNU_USER+3:  {
+                        // Join
+						lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
+						if (sub)
+							Menu_Net_FavouritesJoinServer(szFavouritesCurServer,sub->sText);
+						}
                         return;
 
 					// Send a "wants join" message
@@ -343,7 +348,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_FavouritesJoinServer(char *sAddress)
+void Menu_Net_FavouritesJoinServer(char *sAddress, char *sName)
 {
 	tGameInfo.iNumPlayers = 1;
 
@@ -360,6 +365,8 @@ void Menu_Net_FavouritesJoinServer(char *sAddress)
 	if(item->iIndex < 0)
 		item->iIndex = 0;
 	tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+
+	cClient->setServerName(sName);
 
 	// Shutdown
 	cFavourites.Shutdown();

@@ -42,7 +42,7 @@ int Menu_Net_JoinInitialize(char *sAddress)
 {
 	iNetMode = net_join;
 	iJoinMenu = join_connecting;
-	fix_strncpy(sJoinAddress, sAddress);	
+	fix_strncpy(sJoinAddress, sAddress);
 
 	if(!Menu_Net_JoinConnectionInitialize(sAddress)) {
 		// Error
@@ -455,7 +455,8 @@ enum {
 	jl_Back=0,
 	jl_Ready,
 	jl_ChatText,
-	jl_ChatList
+	jl_ChatList,
+	jl_Favourites
 };
 
 
@@ -522,6 +523,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
 
 	cJoinLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),jl_Back,	15,  450, 60,  15);
     cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);    
+	cJoinLobby.Add( new CButton(BUT_ADDTOFAVOURITES, tMenu->bmpButtons), jl_Favourites,360,220,150,15);
 	cJoinLobby.Add( new CLabel("Players",tLX->clHeading),	  -1,		15,  15,  0,   0);
 	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, 20);
     cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  253, 610, 165);	
@@ -832,6 +834,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					CButton *btn = (CButton *)cJoinLobby.getWidget(jl_Ready);
 					btn->setEnabled(false);
                     btn->redrawBuffer();
+				}
+				break;
+
+			// Add to favourites
+			case jl_Favourites:
+				if (ev->iEventMsg == BTN_MOUSEUP) {
+					Menu_SvrList_AddFavourite(cClient->getServerName(),cClient->getServerAddress());
 				}
 				break;
 

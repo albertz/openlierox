@@ -88,6 +88,8 @@ public:
 		bmpScoreBuffer = NULL;
 		bUpdateScore = true;
 
+		strcpy(szServerName,"");
+
 		bBotClient = false;
 
 		cNetChan.Clear();
@@ -238,6 +240,7 @@ private:
     float       fZombieTime;
 	float		fSendWait;
 	float		fLastUpdateSent;
+	char		szServerName[64];
 
 	// Ping
 	ping_t		tPing;
@@ -447,6 +450,12 @@ public:
 
 	inline int	getPing(void)				{ return iPing; }
 	inline void	setPing(int Ping)			{ iPing = Ping; }
+
+	inline void	setServerAddress(char *_a)	{ fix_strncpy(strServerAddr,_a); }
+	inline char *getServerAddress(void)		{ return strServerAddr; }
+
+	inline void setServerName(char *_n)		{ strncpy(szServerName,_n,sizeof(szServerName)); }
+	inline char *getServerName(void)		{ return szServerName; }
 
 };
 

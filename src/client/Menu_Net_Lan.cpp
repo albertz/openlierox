@@ -194,8 +194,11 @@ void Menu_Net_LANFrame(int mouse)
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
+						lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
+
 						// Join
-						Menu_Net_LANJoinServer(addr);
+						if (sub)
+							Menu_Net_LANJoinServer(addr,sub->sText);
 						return;
 					}
 				}
@@ -213,8 +216,9 @@ void Menu_Net_LANFrame(int mouse)
 					// Just join for the moment
 					addr[0] = 0;
 					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result != -1 && addr[0]) {
-						Menu_Net_LANJoinServer(addr);
+					lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
+					if(result != -1 && addr[0] && sub) {
+						Menu_Net_LANJoinServer(addr,sub->sText);
 						return;
 					}
 				}
@@ -258,10 +262,13 @@ void Menu_Net_LANFrame(int mouse)
                         break;
 
                     // Join a server
-                    case MNU_USER+2:
+                    case MNU_USER+2:  {
                         // Save the list
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
-						Menu_Net_LANJoinServer(szLanCurServer);
+						lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
+						if (sub)
+							Menu_Net_LANJoinServer(szLanCurServer,sub->sText);
+						}
                         return;
 
                     // Add server to favourites
@@ -322,7 +329,7 @@ void Menu_Net_LANFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_LANJoinServer(char *sAddress)
+void Menu_Net_LANJoinServer(char *sAddress, char *sName)
 {
 
 	// Fill in the game structure												
@@ -337,6 +344,8 @@ void Menu_Net_LANJoinServer(char *sAddress)
 	}
 
 	tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+
+	cClient->setServerName(sName);
 
 	// Shutdown
 	cLan.Shutdown();

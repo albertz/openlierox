@@ -208,8 +208,11 @@ void Menu_Net_NETFrame(int mouse)
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
+						lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
+
 						// Join
-						Menu_Net_NETJoinServer(addr);
+						if (sub)
+							Menu_Net_NETJoinServer(addr,sub->sText);
 						return;
 					}
 				}
@@ -229,11 +232,12 @@ void Menu_Net_NETFrame(int mouse)
 					// Just join for the moment
 					addr[0] = 0;
 					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result != -1 && addr[0]) {
+					lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
+					if(result != -1 && addr[0] && sub) {
                         // Save the list
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
 
-						Menu_Net_NETJoinServer(addr);
+						Menu_Net_NETJoinServer(addr,sub->sText);
 						return;
 					}
 				}
@@ -277,10 +281,13 @@ void Menu_Net_NETFrame(int mouse)
                         break;
 
                     // Join a server
-                    case MNU_USER+2:
+                    case MNU_USER+2:  {
                         // Save the list
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
-						Menu_Net_NETJoinServer(szNetCurServer);
+						lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
+						if (sub)
+							Menu_Net_NETJoinServer(szNetCurServer,sub->sText);
+						}
                         return;
 
                     // Add server to favourites
@@ -351,7 +358,7 @@ void Menu_Net_NETFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_NETJoinServer(char *sAddress)
+void Menu_Net_NETJoinServer(char *sAddress, char *sName)
 {
 	tGameInfo.iNumPlayers = 1;
 
@@ -368,6 +375,8 @@ void Menu_Net_NETJoinServer(char *sAddress)
 	if(item->iIndex < 0)
 		item->iIndex = 0;
 	tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+
+	cClient->setServerName(sName);
 
 	// Shutdown
 	cInternet.Shutdown();
