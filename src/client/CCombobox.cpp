@@ -186,6 +186,66 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	iArrowDown = false;
 }
 
+void CCombobox::Sort(bool ascending)
+{
+	// Get the item
+	cb_item_t *item = tItems;
+	if (!item)
+		return;
+
+	cb_item_t *prev_item = NULL;
+	cb_item_t *next_item = NULL;
+
+	bool bSwapped = true;
+
+	// Bubble sort the list
+	while (bSwapped)  {
+		bSwapped = false;
+		prev_item = NULL;
+		for(item=tItems;item->tNext;item=item->tNext) {
+
+			// Get next item
+			next_item = item->tNext;
+
+			bool swap = false;
+
+			// Swap the two items?
+			int nat_cmp1 = atoi(item->sName);
+			int nat_cmp2 = atoi(next_item->sName);
+			// First try, if we compare numbers
+			if (nat_cmp1 && nat_cmp2)  {
+				if (ascending)
+					swap = nat_cmp1 > nat_cmp2;
+				else
+					swap = nat_cmp2 > nat_cmp1;
+			// String comparison
+			} else {
+				int tmp = strncasecmp(item->sName,next_item->sName,sizeof(item->sName));
+				if (ascending)
+					swap = tmp > 0;
+				else
+					swap = tmp < 0;
+			}
+
+			// Swap if they're not in the right order
+			if (swap)  {
+				cb_item_t *it4 = item->tNext->tNext;
+				if (prev_item)
+					prev_item->tNext = next_item;
+				else
+					tItems = next_item;
+				next_item->tNext = item;
+				item->tNext = it4;
+				bSwapped = true;
+				prev_item = item;
+				continue;
+			}
+
+			prev_item = item;
+		}
+	}
+}
+
 
 ///////////////////
 // Create the combo box
