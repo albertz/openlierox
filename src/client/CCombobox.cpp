@@ -186,6 +186,8 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	iArrowDown = false;
 }
 
+//////////////////////
+// Sorts te items in the combobox
 void CCombobox::Sort(bool ascending)
 {
 	// Get the item

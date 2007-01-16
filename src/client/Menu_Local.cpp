@@ -769,6 +769,9 @@ void Menu_Local_FillModList( CCombobox *cb )
 		}
 	}
 
+	// Sort the mod list ascending
+	cb->Sort(true);
+
 	// Set the last used mod as default
 	if(baseid >= 0)
 		cb->setCurItem(baseid);

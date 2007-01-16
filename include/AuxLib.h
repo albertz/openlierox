@@ -62,6 +62,10 @@ int			InitializeAuxLib(char *gname, char *config, int bpp, int vidflags);
 void		ShutdownAuxLib(void);
 int			SetVideoMode(void);
 
+#ifdef WIN32
+HWND		GetWindowHandle(void);
+#endif
+
 void		ProcessEvents(void);
 void        FlipScreen(SDL_Surface *psScreen);
 keyboard_t	*GetKeyboard(void);

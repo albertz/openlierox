@@ -1,6 +1,5 @@
 //Microsoft Developer Studio generated resource script.
 //
-#if _MSVC_VER < 0
 
 #include "resource.h"
 
@@ -131,5 +130,4 @@ IDI_SMALL               ICON    DISCARDABLE     "..\..\share\ico00001.ico"
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 
-#endif // _MSVC_VER < 6
 

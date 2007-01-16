@@ -960,7 +960,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 	// If random is true, we add the 'random' level to the list
 	if(random)
-		cmb->addItem(index++, "_random_", "Random level");
+		cmb->addItem(index++, "_random_", "- Random level -");
 
 
 	// Load the level list
@@ -1032,6 +1032,9 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 		if(!FindNext(filename))
 			break;
 	}
+
+	// Sort it ascending
+	cmb->Sort(true);
 
 	if( selected >= 0 )
 		cmb->setCurItem( selected );

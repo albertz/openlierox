@@ -780,6 +780,10 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
     int index = 0;
     int def = -1;
 
+	/*SDL_Surface *tmp = NULL;
+	SDL_Surface *tmp2 = gfxCreateSurface(16,16);
+	SDL_SetColorKey(tmp2,SDL_SRCCOLORKEY,MakeColour(255,0,255));*/
+
     while(1) {
 
         // Get the extension
@@ -797,7 +801,20 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
             // Remove the dir
             char *n = MAX(strrchr(szName,'\\'),strrchr(szName,'/'));
             char *f = MAX(strrchr(szFilename,'\\'),strrchr(szFilename,'/'));
-            cb->addItem(index++, f+1, n+1);
+
+			// Remove the extension
+			char *dot = strrchr(szName,'.');
+			if (dot)
+				*dot = 0;
+
+            cb->addItem(index, f+1, n+1);
+			/*tmp = LoadImage(szFilename,false);
+			if (tmp && tmp2)  {
+				DrawImageEx(tmp2,tmp,0,0,16,16);
+				cb->setImage(tmp2,index);
+			}*/
+
+			index++;
 
             // If this is the default skin, store the index for selection later
             if( stricmp(n+1,"default") == 0 )
@@ -807,6 +824,9 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
         if( !FindNext(szFilename) )
             break;
     }
+
+	// Ascending sort the list
+	cb->Sort(true);
 
     // Select the default
     cb->setCurItem(def);

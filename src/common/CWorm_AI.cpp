@@ -2233,7 +2233,6 @@ bool CWorm::AI_SetAim(CVec cPos)
 // A simpler method to get to a target
 // Used if we have no path
  // TODO: this is global for all worms (which is not what is wanted)
-float fLastJump = 0;  // Time when we last tried to jump
 void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
 {
     worm_state_t *ws = &tState;
@@ -2497,16 +2496,6 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 
 bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 {
-
-	// The target is too far to aim
-/*	// TODO: is this correct? make it sense? should we remove it?
-	float vy = v*(float)sin(PI/4);
-	float d = 2*vy*vy/g;
-	if (fabs(x) >= d)  {
-		*angle = 0;
-		return false;
-	} */
-
 	float v2 = v*v;
 	float x2 = x*x;
 	float g2 = (float)(g*g);
@@ -2611,6 +2600,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		return true;
 */
 
+	// TODO: first choose the weapon, and then use weaponCanHit instead of traceWeaponLine
+
     float fDist;
     int nType = -1;
     int length = 0;
@@ -2623,9 +2614,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	}
 
 	// Don't shoot teammates
-	// TODO: doesn't work
-	/*if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
-		return false;*/
+	if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
+		return false;
 
 	// If target is blocked by large amount of dirt, we can't shoot it
 	if (nType & PX_DIRT)  {
@@ -2642,17 +2632,6 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		if (!traceWormLine(cTrgPos,vPos,pcMap))
 			bDirect = false;
 	}
-
-	// If our velocity is big and we shoot in the direction of the flight, we can suicide
-	// We will avoid this here
-	/*if (vVelocity.y > 30 && fAngle >= 50)
-		return false;
-	if (vVelocity.y < -30 && fAngle <= 10)
-		return false;
-	if (vVelocity.x < -30 && iDirection == DIR_LEFT && fAngle > 20)
-		return false;
-	if (vVelocity.x > 30 && iDirection == DIR_RIGHT && fAngle > 20)
-		return false;*/
 
     // Set the best weapon for the situation
     // If there is no good weapon, we can't shoot
@@ -2799,38 +2778,9 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 
     if(!bAim)  {
 
-		/*
-		// In mortars we can hit the target below us
-		if (iAiGameType == GAM_MORTARS)  {
-			if (cTrgPos.y > (vPos.y-20.0f)) {
-				// aim
-				if (fabs(fAngle-alpha) > 5.0)  {
-					// Move the angle at the same speed humans are allowed to move the angle
-					if(alpha > fAngle)
-						fAngle += wd->AngleSpeed * tLX->fDeltaTime;
-					else if(alpha < fAngle)
-						fAngle -= wd->AngleSpeed * tLX->fDeltaTime;
-				}
-				else
-					fAngle = alpha;
-					
-				// Face the target
-				if (tLX->fCurTime-fLastFace >= 0.5f)  {
-					if (x < 0)
-						iDirection = DIR_LEFT;
-					else
-						iDirection = DIR_RIGHT;
-					fLastFace = tLX->fCurTime;
-				}
-					
-				tState.iShoot = true;			
-				
-				return true;
-			}
-		} */
-
   		// we cannot shoot here
 
+		// TODO: do we need this?
 		fBadAimTime += tLX->fDeltaTime;
 		if((fBadAimTime) > 4) {
 			if(IsEmpty(CELL_UP,pcMap))
@@ -3430,12 +3380,12 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 
 		// Friendly worm
 		for (j=0;j<WormCount;j++) {
-			if ((pos-WormsPos[j]).GetLength2() < 400.0f)  {
+			if ((pos-WormsPos[j]).GetLength2() < 30.0f)  {
 				if(nTotalLength != 0)
 					*fDist = (float)i / (float)nTotalLength;
 				else
 					*fDist = 0;
-				*nType = PX_WORM;
+				*nType = *nType & PX_WORM;
 				return i;
 			}
 		}

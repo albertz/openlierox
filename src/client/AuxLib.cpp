@@ -173,6 +173,19 @@ int SetVideoMode(void)
 	return true;
 }
 
+#ifdef WIN32
+//////////////////////
+// Get the window handle
+HWND GetWindowHandle(void)
+{
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
+	if(!SDL_GetWMInfo(&info))
+		return 0;
+
+	return info.window;
+}
+#endif
 
 ///////////////////
 // Process the events
@@ -224,7 +237,6 @@ void ProcessEvents(void)
                 case WM_SETFOCUS:
                     nFocus = true;
                     break;
-
             }
         }
 #else
