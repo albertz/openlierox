@@ -618,8 +618,7 @@ private:
 				if(base->shouldBreakThread()) {
 					//printf("got break signal(1) for %i\n", (long)base);
 					return 0;				
-				}			
-				
+				}
 #ifdef WIN32
 				Sleep(100);
 #else

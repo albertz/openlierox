@@ -204,7 +204,7 @@ void CCombobox::Sort(bool ascending)
 	while (bSwapped)  {
 		bSwapped = false;
 		prev_item = NULL;
-		for(item=tItems;item->tNext;item=item->tNext) {
+		for(item=tItems;item&&item->tNext;item=item->tNext) {
 
 			// Get next item
 			next_item = item->tNext;
