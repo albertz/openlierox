@@ -112,6 +112,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         }
 	    
         // Follow the worm
+		// TODO: fix for left viewport in splitscreen (the worm shakes there)
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
 	            WorldX = (int)floor(pcTargetWorm->getPos().x-hx);

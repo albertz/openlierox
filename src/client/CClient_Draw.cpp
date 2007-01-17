@@ -51,8 +51,8 @@ int CClient::InitializeDrawing(void)
 void CClient::Draw(SDL_Surface *bmpDest)
 {
 	// Not for bots
-	if (bBotClient)
-		return;
+	/*if (bBotClient)
+		return;*/
 
 	int i,num;
 	float dt = tLX->fDeltaTime;
@@ -399,8 +399,8 @@ void CClient::DrawProjectiles(SDL_Surface *bmpDest, CViewport *v)
 		return;
 	}*/
 	// Not for bots
-	if (bBotClient)
-		return;
+	/*if (bBotClient)
+		return;*/
 
 	CProjectile *prj = cProjectiles;
 
@@ -427,8 +427,8 @@ void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 
 	bDrawProjectiles = true;*/
 	// Not for bots
-	if (bBotClient)
-		return;
+	/*if (bBotClient)
+		return;*/
 
     CProjectile *prj = cProjectiles;
     
@@ -446,8 +446,8 @@ void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 void CClient::SimulateHud(void)
 {
 	// Not for bots
-	if (bBotClient)
-		return;
+	/*if (bBotClient)
+		return;*/
 
 	float dt = tLX->fDeltaTime;
 	float ScrollSpeed=5;
@@ -926,7 +926,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 // Draw the bonuses
 void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 {
-	if(!tGameInfo.iBonusesOn || bBotClient)
+	if(!tGameInfo.iBonusesOn/* || bBotClient*/)
 		return;
 
 	CBonus *b = cBonuses;
@@ -945,8 +945,8 @@ void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, char *fmt, ...)
 {
 	// Not for bots
-	if (bBotClient)
-		return;
+	/*if (bBotClient)
+		return;*/
 
 	static char buf[512];
 	va_list arg;
@@ -1023,8 +1023,8 @@ enum {
 // Initialize the viewport manager
 void CClient::InitializeViewportManager(void)
 {
-	if (bBotClient)
-		return;
+	/*if (bBotClient)
+		return;*/
 
     int x = 320-gfxGame.bmpViewportMgr->w/2;
     int y = 200-gfxGame.bmpViewportMgr->h/2;
@@ -1243,7 +1243,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
         bShowScore = true;
         bShowReady = true;
     }
-    if(!bShowScore || bBotClient)
+    if(!bShowScore/* || bBotClient*/)
         return;
 
     int y = 180;
@@ -1342,7 +1342,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 // Draw the current game settings
 void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 {
-    if(Con_IsUsed() || bBotClient)
+    if(Con_IsUsed() /*|| bBotClient*/)
         return;
 
     // Do checks on whether or not to show

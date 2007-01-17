@@ -944,6 +944,9 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
     strcpy(tLX->debug_string, "");
 
+	iRandomSpread = 0;
+	fLastRandomChange = -9999;
+
 	iAiDiffLevel = tProfile->nDifficulty;
 	float dt = tLX->fDeltaTime;
 
@@ -1010,155 +1013,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
             break;
     }
 
-
-    //
-    // Find a target worm
-    //
-    /*CWorm *trg = findTarget(gametype, teamgame, taggame, pcMap);
-
-	// If we have no target, do something
-    if(!trg)
-        // TODO Something
-        return;
-
-
-    //
-    // Shoot the target
-    //
-
-    // If we can shoot the target, shoot it
-    if(AI_CanShoot(trg, pcMap)) {
-
-        // Shoot the target
-
-    } else {
-
-        // If we cannot shoot the target, walk towards the target
-        AI_MoveToTarget(trg, pcMap);
-    }
-
-
-	//
-	// Shoot the target
-	//
-
-
-	CVec	tgPos = trg->getPos();
-	CVec	tgDir = tgPos - vPos;    
-
-	int		iAngleToBig = false;
-
-	float   fDistance = NormalizeVector(&tgDir);
-	
-	// Make me face the target
-	if(tgPos.x > vPos.x)
-		iDirection = DIR_RIGHT;
-	else
-		iDirection = DIR_LEFT;
-
-
-	// Aim at the target
-	float ang = (float)atan2(tgDir.x, tgDir.y);
-	ang = RAD2DEG(ang);
-
-	if(iDirection == DIR_LEFT)
-		ang+=90;
-	else
-		ang = -ang + 90;
-
-	// Clamp the angle
-	ang = MAX(-90, ang);
-
-	if(ang > 60) {
-		ang = 60;
-		iAngleToBig = true;
-	}
-
-
-	// AI Difficulty level effects accuracy
-	float Levels[] = {12, 6, 3, 0};
-
-	// If we are going to shoot, we need to lower the accuracy a little bit
-	ang += GetRandomNum() * Levels[DiffLevel];
-
-
-	// Move the angle at the same speed humans are allowed to move the angle
-	if(ang > fAngle)
-		fAngle += wd->AngleSpeed * dt;
-	else if(ang < fAngle)
-		fAngle -= wd->AngleSpeed * dt;
-
-	// If the angle is within +/- 3 degrees, just snap it
-	if( fabs(fAngle - ang) < 3)
-		fAngle = ang;
-
-	// Clamp the angle
-	fAngle = MIN(60,fAngle);
-	fAngle = MAX(-90,fAngle);
-
-
-	// ???: If the angle is to big, (ie, the target is below us and we can't aim directly at him) don't shoot
-
-
-	// If we are close enough, shoot the target
-	if(fDistance < 200) {
-
-        // Find the best weapon for the job
-        int wpn = getBestWeapon( gametype, fDistance, tgPos, pcMap );
-        if( wpn >= 0 ) {
-            iCurrentWeapon = wpn;
-            ws->iShoot = true;
-        }
-    } else {
-
-        // If we're outside shooting range, cycle through the weapons so they can be reloaded
-        iCurrentWeapon = cycleWeapons();
-    }
-
-
-	// If we are real close, jump to get a better angle
-	// Only do this if we are better then easy level
-	if(fDistance < 10 && DiffLevel > AI_EASY)
-		ws->iJump = true;
-
-
-
-	// We need to move closer to the target
-
-	// We carve every few milliseconds so we don't go too fast
-	if(tLX->fCurTime - fLastCarve > 0.35f) {
-		fLastCarve = tLX->fCurTime;
-		ws->iCarve = true;
-	}
-
-	ws->iMove = true;
-
-
-
-	// If the target is above us, we point up & use the ninja rope
-	if(fAngle < -60 && (vPos - tgPos).y > 50) {
-		
-		fAngle = -90;
-        CVec dir;
-        dir.x=( (float)cos(fAngle * (PI/180)) );
-	    dir.y=( (float)sin(fAngle * (PI/180)) );
-	    if(iDirection==DIR_LEFT)
-		    dir.x=(-dir.x);
-
-        if( !cNinjaRope.isReleased() )
-            cNinjaRope.Shoot(vPos,dir);
-	}
-
-
-    // If the hook of the ninja rope is below us, release it
-    if( cNinjaRope.isReleased() && cNinjaRope.isAttached() && cNinjaRope.getHookPos().y > vPos.y ) {
-        cNinjaRope.Release();
-    }
-
-    // If the target is not too far above us, we should release the ninja rope
-    if( (vPos - tgPos).y < 30 && cNinjaRope.isAttached() && cNinjaRope.isReleased() ) {
-        cNinjaRope.Release();
-    }*/
 }
 
 
@@ -2710,6 +2564,17 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		if (!bAim) {
 			break;
 		}
+
+		// AI diff level
+		// Don't shoot so exactly on easier levels
+		int diff[4] = {13,8,3,0};
+
+		if (tLX->fCurTime-fLastRandomChange)  {
+			iRandomSpread = GetRandomInt(diff[iAiDiffLevel]) * SIGN(GetRandomNum());
+			fLastRandomChange = tLX->fCurTime;
+		}
+
+		alpha += iRandomSpread;
 		
 		// Can we hit the target?
 		//printf("proj-speed: %f\n", v);

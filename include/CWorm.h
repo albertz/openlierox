@@ -274,12 +274,14 @@ private:
 	int			iAiTag;
 	int			iAiDiffLevel;
 	CProjectile *psHeadingProjectile;
+	int			iRandomSpread;
 
 	float		fLastShoot;
 	float		fLastJump;
 	float		fLastWeaponChange;
 	float		fLastCreated;
 	float		fLastCompleting;
+	float		fLastRandomChange;
 
 	float		fRopeAttachedTime;
 	float		fRopeHookFallingTime;

@@ -845,7 +845,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 {
 	iLastMouseX = 0;
 
-	if(tMouse->X > iX+iWidth-20 && iGotScrollbar) 
+	if((tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && iGotScrollbar) 
 		cScrollbar.MouseUp(tMouse, nDown);
 
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {

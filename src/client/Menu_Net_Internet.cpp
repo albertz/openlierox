@@ -556,6 +556,8 @@ void Menu_Net_NETUpdateList(void)
 
 
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->iMenuRunning) {
+		tLX->fCurTime = GetMilliSeconds();
+
 		mouse = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
