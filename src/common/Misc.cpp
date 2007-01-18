@@ -328,18 +328,21 @@ bool replace(char *text, const char *what, const char *with, char *result)
   strcpy(result,text);
 
   int pos = (int) (strstr(result,what)-result); // Position of the string being replaced
+  int check_from = 0; // position to check from, avoids infinite replacing when the "with" string is contained in "what"
 
   // Replace while the "what" string exists in result
-  while (strstr(result,what) != NULL)  {
+  while (strstr(result+check_from,what) != NULL)  {
 	ret = true;
 	// Make space for "with" string (move the result+pos string strlen(with) characters to right)
 	memmove(result+pos+strlen(with),result+pos,strlen(result)-pos+strlen(with));
 	// Copy the "with" string into the above created space (without terminating character)
 	strncpy(result+pos,with,strlen(with));
+	// Update the check_from to avoid circular replacing
+	check_from = pos+strlen(with);
 	// Delete the original string
 	memmove(result+pos+strlen(with),result+pos+strlen(with)+strlen(what),strlen(result)-(pos+strlen(with)+strlen(what))+1);
 	// Find position of next occurence
-	pos = (int) (strstr(result,what)-result);
+	pos = (int) (strstr(result+check_from,what)-result);
   }
 
   return ret;
@@ -354,12 +357,14 @@ char *replacemax(char *text, char *what, char *with, char *result, int max)
 
   int pos = (int) (strstr(result,what)-result);
   int occurences = 0;
-  while (strstr(result,what) != NULL && occurences <= max)  {
+  int check_from = 0;
+  while (strstr(result+check_from,what) != NULL && occurences <= max)  {
 	int length = strlen(result)-strlen(what)+strlen(with);
 	memmove(result+pos+strlen(with),result+pos,strlen(result)-pos+strlen(with));
 	strncpy(result+pos,with,strlen(with));
+	check_from = pos+strlen(with);
 	memmove(result+pos+strlen(with),result+pos+strlen(with)+strlen(what),strlen(result)-(pos+strlen(with)+strlen(what))+1);
-	pos = (int) (strstr(result,what)-result);
+	pos = (int) (strstr(result+check_from,what)-result);
 	*(result+length) = 0;
 	occurences++;
   }
@@ -568,7 +573,7 @@ void xmlEntities(char *text)
 {
 	replace(text,"\"","&quot;",text);  // "
 	replace(text,"'", "&apos;",text);  // '
-//	replace(text,"&", "&amp;", text);  // &
+	replace(text,"&", "&amp;", text);  // &
 	replace(text,"<", "&lt;",  text);  // <
 	replace(text,">", "&gt;",  text);  // >
 }

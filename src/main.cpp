@@ -67,9 +67,11 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	char buf[256];
+	replacemax("&&&","&","&amp;",buf,3);
+
     // Parse the arguments
     ParseArguments(argc, argv);
-
 
 	// Initialize LX
 	if(!InitializeLieroX())

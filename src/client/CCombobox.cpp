@@ -456,8 +456,8 @@ int CCombobox::KeyDown(int c)
 	int count = 0;
 	cb_item_t *item = tSelected->tNext;
 	for(;item;item=item->tNext)  {
-		if (!chrcasecmp(item->sName[0],c))  {
-			setCurItem(item->iIndex);
+		if (chrcasecmp(item->sName[0],(char)c))  {
+			tSelected = item;
 			cScrollbar.setValue( item->iIndex - cScrollbar.getItemsperbox() / 2 );
 			iKeySelectedItem = item->iIndex;
 			return CMB_CHANGED;
@@ -468,8 +468,8 @@ int CCombobox::KeyDown(int c)
 	item = tItems;
 	count = 0;
 	for (;item && item->iIndex != tSelected->iIndex;item=item->tNext)  {
-		if (!chrcasecmp(item->sName[0],c))  {
-			setCurItem(item->iIndex);
+		if (chrcasecmp(item->sName[0],(char)c))  {
+			tSelected = item;
 			cScrollbar.setValue( count - cScrollbar.getItemsperbox() / 2 );
 			iKeySelectedItem = item->iIndex;
 			return CMB_CHANGED;
