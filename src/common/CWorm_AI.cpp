@@ -835,6 +835,8 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 	fLastShoot = -9999;
 	fLastCompleting = -9999;
 
+	fCanShootTime = 0;
+
 	fRopeAttachedTime = 0;
 	fRopeHookFallingTime = 0;
 
@@ -1164,10 +1166,6 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
         return;
 	}
 
-	// TODO:
-	// If there's no target worm and bonuses are off, this is run every frame
-	// The pathfinding is then run very often and it terribly slows down
-
     int     cols = pcMap->getGridCols()-1;       // Note: -1 because the grid is slightly larger than the
     int     rows = pcMap->getGridRows()-1;       // level size
     
@@ -1191,63 +1189,6 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
 		NEW_AI_CreatePath(pcMap);
 		break;
     }
-
-    /*int     x, y;
-    int     px, py;
-    bool    first = true;
-    int     gw = pcMap->getGridWidth();
-    int     gh = pcMap->getGridHeight();
-	CVec	resultPos;
-
-    
-    // Find a random cell to start in
-    px = (int)(fabs(GetRandomNum()) * (float)cols);
-	py = (int)(fabs(GetRandomNum()) * (float)rows);
-
-    x = px; y = py;
-	bool breakme = false;
-
-    // Start from the cell and go through until we get to an empty cell
-    while(1) {
-        while(1) {
-            // If we're on the original starting cell, and it's not the first move we have checked all cells
-            // and should leave
-            if(!first) {
-                if(px == x && py == y) {
-                    resultPos = CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
-					breakme = true;
-					break;
-                }
-            }
-            first = false;
-
-            uchar pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() + x);
-            if(!(pf & PX_ROCK))  {
-                resultPos = CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
-				breakme = true;
-				break;
-			}
-            
-            if(++x >= cols) {
-                x=0;
-                break;
-            }
-        }
-
-		if (breakme)
-			break;
-
-        if(++y >= rows) {
-            y=0;
-            x=0;
-        }
-    }
-
-
-   //cPosTarget = resultPos;
-   nAITargetType = AIT_POSITION;
-   nAIState = AI_MOVINGTOTARGET;
-   AI_InitMoveToTarget(pcMap);*/
 }
 
 
@@ -2467,8 +2408,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	}
 
 	// Don't shoot teammates
-	if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
-		return false;
+	/*if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
+		return false;*/
 
 	// If target is blocked by large amount of dirt, we can't shoot it
 	if (nType & PX_DIRT)  {
@@ -2555,8 +2496,25 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		int	g = 100;
 		if(weap->Projectile->UseCustomGravity)
 			g = weap->Projectile->Gravity;
-		if(iAiGameType == GAM_MORTARS) {
-			g = 100;
+		
+		proj_t *tmp = weap->Projectile;
+		while(tmp)  {
+			if (tmp->UseCustomGravity)  {
+				if (tmp->Gravity > g)
+					g = tmp->Gravity;
+			} else
+				if (g < 100)
+					g = 100;
+
+			// If there are any other projectiles, that are spawned with the main one, try their gravity
+			if (tmp->Timer_Projectiles)  {
+				if (tmp->Timer_Time >= 0.5f)
+					break;
+			}
+			else if (tmp->Hit_Projectiles || tmp->PlyHit_Projectiles || tmp->Tch_Projectiles)
+				break;
+
+			tmp = tmp->Projectile;
 		}
 
 		// Get the alpha
@@ -2566,7 +2524,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		}
 
 		// AI diff level
-		// Don't shoot so exactly on easier levels
+		// Don't shoot so exactly on easier skill levels
 		int diff[4] = {13,8,3,0};
 
 		if (tLX->fCurTime-fLastRandomChange)  {
@@ -2652,7 +2610,16 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 			fBadAimTime = 0;
 		}
 
+		fCanShootTime = 0;
+
         return false;
+	}
+
+	// Reflexes :)
+	float diff[4] = {0.45f,0.35f,0.25f,0.0f};
+	fCanShootTime += tLX->fDeltaTime;
+	if (fCanShootTime <= diff[iAiDiffLevel])  {
+		return false;
 	}
 
 	fBadAimTime = 0;
@@ -2673,8 +2640,10 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 	/*if(fDistance < 5)
 		return -1; */
 
+	float diff[4] = {0.50f,0.30f,0.20f,0.12f};
+
     // We need to wait a certain time before we change weapon
-    if( tLX->fCurTime - fLastWeaponChange > 0.15f )
+    if( tLX->fCurTime - fLastWeaponChange > diff[iAiDiffLevel] )
         fLastWeaponChange = tLX->fCurTime;
     else
         return iCurrentWeapon;
@@ -4228,6 +4197,15 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     if(recalculate && bPathFinished)
         NEW_AI_CreatePath(pcMap);
 
+	// If we're close enough and can shoot, just stop
+	if (NEW_psCurrentNode)  {
+		if (AI_Shoot(pcMap) && CalculateDistance(cPosTarget,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) <= 40.0f)  {
+			ws->iShoot = false;  // Clear the state
+			return;
+		}
+	}
+
+
 
     /*
       Move through the path.
@@ -4499,15 +4477,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         fStuckTime = 0;
         cStuckPos = vPos;
     }
-
-
-	// If the rope is hooked wrong, release it
-	/*if (cNinjaRope.isAttached())  {
-		if (cNinjaRope.getHookPos().x+20 < vPos.x && cNinjaRope.getHookPos().x+20 < NEW_psCurrentNode->fX)
-			cNinjaRope.Release();
-		else if (cNinjaRope.getHookPos().x-20 > vPos.x && cNinjaRope.getHookPos().x-20 > NEW_psCurrentNode->fX)
-			cNinjaRope.Release();
-	}*/
 
 	ws->iMove = true;
 

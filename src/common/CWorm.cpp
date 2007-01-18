@@ -770,7 +770,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 										// Red			Orange				Yellow		   Light Green		  Green	
 			Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
 
-			// For health hacks
+			// Clamp it
 			if (iShowHealth > 5)
 				iShowHealth = 5;
 
@@ -910,7 +910,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	// Draw the weapon name
     if(iLocal && iType == PRF_HUMAN) {
         if(bForceWeapon_Name || cSelWeapon.isDown()) {
-		    tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,0xffffff,"%s",Slot->Weapon->Name);
+		    tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,"%s",Slot->Weapon->Name);
 
             if( tLX->fCurTime > fForceWeapon_Time )
                 bForceWeapon_Name = false;

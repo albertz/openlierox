@@ -1033,11 +1033,11 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 			break;
 	}
 
-	// Sort it ascending
-	cmb->Sort(true);
-
 	if( selected >= 0 )
 		cmb->setCurItem( selected );
+
+	// Sort it ascending
+	cmb->Sort(true);
 }
 
 

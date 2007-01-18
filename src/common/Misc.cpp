@@ -568,7 +568,7 @@ void xmlEntities(char *text)
 {
 	replace(text,"\"","&quot;",text);  // "
 	replace(text,"'", "&apos;",text);  // '
-	replace(text,"&", "&amp;", text);  // &
+//	replace(text,"&", "&amp;", text);  // &
 	replace(text,"<", "&lt;",  text);  // <
 	replace(text,">", "&gt;",  text);  // >
 }

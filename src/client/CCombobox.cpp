@@ -204,7 +204,7 @@ void CCombobox::Sort(bool ascending)
 	while (bSwapped)  {
 		bSwapped = false;
 		prev_item = NULL;
-		for(item=tItems;item&&item->tNext;item=item->tNext) {
+		for(item=tItems;item && item->tNext;item=item->tNext) {
 
 			// Get next item
 			next_item = item->tNext;
@@ -246,6 +246,11 @@ void CCombobox::Sort(bool ascending)
 			prev_item = item;
 		}
 	}
+
+	// Update the indexes
+	int i=0;
+	for (item=tItems;item;item=item->tNext,i++)  
+		item->iIndex = i;
 }
 
 

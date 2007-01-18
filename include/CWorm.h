@@ -283,6 +283,8 @@ private:
 	float		fLastCompleting;
 	float		fLastRandomChange;
 
+	float		fCanShootTime;
+
 	float		fRopeAttachedTime;
 	float		fRopeHookFallingTime;
 
