@@ -296,6 +296,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	if (iGameReady)
 		return true;
 
+	iGameReady = true;
+
 	int random = bs->readInt(1);
 
 	// Clear any previous instances of the map
@@ -320,7 +322,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			// Disconnect
 			Disconnect();
 
-			// TODO: Show 'out-of-memory' error
+			Menu_MessageBox("Out of memory","Out of memory when allocating the map.",LMB_OK);
+
 			return false;
 		}
 	}
@@ -351,8 +354,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		bs->readString(buf,sizeof(buf));
 
 		// Invalid packet
-		if (!fix_strnlen(buf))
+		if (buf[0] == '\0')  {
+			printf("Bad packet in ParsePrepareGame");
 			return false;
+		}
 
 		if(tGameInfo.iGameType == GME_JOIN) {
 			if(!cMap->Load(buf)) {
@@ -397,15 +402,18 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bs->readString(sModName,sizeof(sModName));
 
 	// Bad packet
-	if (!strlen(sModName))
+	if (sModName[0] == '\0')  {
+		printf("Bad packet in ParsePrepareGame");
 		return false;
+	}
 
 	int result = cGameScript.Load(sModName);
 
 	if(result != GSE_OK) {
 
 		// Show any error messages
-		SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
+		//SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
+		DrawRectFill(tMenu->bmpBuffer,0,0,tMenu->bmpBuffer->w,tMenu->bmpBuffer->h,0);
 		static char err[256];
 		snprintf(err, sizeof(err), "Error load game mod: %s\r\nError code: %d", sModName, result);
 		fix_markend(err);

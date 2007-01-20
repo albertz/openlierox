@@ -1436,8 +1436,8 @@ int ChatMaxLength = 48;
 void CClient::processChatter(void)
 {	
 	// Bots don't type
-	if (bBotClient)
-		return;
+	/*if (bBotClient)
+		return;*/
 
     keyboard_t *kb = GetKeyboard();
 
@@ -1493,6 +1493,12 @@ void CClient::processChatter(void)
 		iChat_Lastchar = -1;
 		iChat_Holding = false;
 		fChat_TimePushed = -9999;
+
+		// Clear the input
+		for (int j=0;j<iNumWorms;j++)
+			if (cLocalWorms[j]->getType() == PRF_HUMAN)
+				cLocalWorms[j]->clearInput();
+
 		return;
 	}
 
@@ -1525,9 +1531,16 @@ void CClient::processChatter(void)
 			if (controls)
 				return;
 
-			for(int j=0; j<iNumWorms; j++)
-				if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())
-					return;
+			for(int j=0; j<iNumWorms; j++)  {
+				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
+					// Can we type?
+					if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())
+						return;
+
+					// Clear the input
+					cLocalWorms[j]->clearInput();
+				}
+			}
 
 			// Initialize the chatter
 			fChat_BlinkTime = 0;

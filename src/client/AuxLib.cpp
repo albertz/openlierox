@@ -170,6 +170,12 @@ int SetVideoMode(void)
 	SDL_WM_SetCaption(GameName,NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
+#ifdef WIN32
+	if (!tLXOptions->iFullscreen)  {
+		SubclassWindow();
+	}
+#endif
+
 	return true;
 }
 
@@ -377,6 +383,10 @@ void ShutdownAuxLib(void)
 	// Shutdown the error system
 	EndError();
 
+#ifdef WIN32
+	UnSubclassWindow();
+#endif
+
 	// Shutdown the cache
 	ShutdownCache();
 
@@ -568,3 +578,42 @@ void TakeScreenshot(bool Tournament)
 	// Save the surface
 	SaveSurface(SDL_GetVideoSurface(),checkname,tLXOptions->iScreenshotFormat,Tournament);
 }
+
+#ifdef WIN32
+WNDPROC wpOriginal;
+
+////////////////////
+// Subclass the window (control the incoming Windows messages)
+void SubclassWindow(void)
+{
+	wpOriginal = (WNDPROC)SetWindowLong(GetWindowHandle(),GWL_WNDPROC,(LONG)&WindowProc);
+}
+
+////////////////////
+// Remove the subclassing
+void UnSubclassWindow(void)
+{
+	SetWindowLong(GetWindowHandle(),GWL_WNDPROC, (LONG)wpOriginal);
+}
+
+/////////////////////
+// Subclass callback
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// Ignore the unwanted messages
+	switch (uMsg)  {
+	case WM_ENTERMENULOOP:
+		return 0;
+	case WM_INITMENU:
+		return 0;
+	case WM_MENUSELECT:
+		return 0;
+	case WM_ENTERIDLE:
+		return 0;
+	case WM_SYSKEYUP:
+		return 0;
+	}
+
+	return CallWindowProc(wpOriginal,hwnd,uMsg,wParam,lParam);
+}
+#endif

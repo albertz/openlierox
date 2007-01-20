@@ -367,6 +367,8 @@ int FindFirst(char *dir, char *ext, char *filename)
 // Find the next file
 int FindNext(char *filename)
 {
+	// TODO: this causes weapon presets listbox to show all the presets twice!!
+
 	while(!_findnext(handle, &fileinfo)) {
 		//If file is not self-directory or parent-directory
 		if(strcmp(fileinfo.name, "."))

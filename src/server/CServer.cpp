@@ -97,7 +97,7 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, tLX->debug_string);
-	printf("HINT: server startet on %s\n", tLX->debug_string);
+	printf("HINT: server started on %s\n", tLX->debug_string);
 
 
 	// Initialize the clients

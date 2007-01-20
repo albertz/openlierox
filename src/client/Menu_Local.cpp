@@ -1252,6 +1252,8 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	cWpnPresets.Add( new CButton(BUT_OK, tMenu->bmpButtons),     wp_Ok, 430,310, 40,15);
 	cWpnPresets.Add( new CListview(),                            wp_PresetList, 180,170, 280,110+(!save)*20);
 	cWpnPresets.Add( new CTextbox(),                             wp_PresetName, 270,285, 190,20);
+
+	cWpnPresets.SendMessage(wp_PresetList,LVM_SETOLDSTYLE,0,0);
 	
 	t = (CTextbox *)cWpnPresets.getWidget(wp_PresetName);
 
@@ -1262,10 +1264,8 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	static char	filename[512];
 	static char	name[64];
 
-	int done = false;
-	if(!FindFirst("cfg/presets/","*",filename))
-		done = true;
-	CListview *lv = (CListview *)cWpnPresets.getWidget(2);
+	int done = !FindFirst("cfg/presets/","*",filename);
+	CListview *lv = (CListview *)cWpnPresets.getWidget(wp_PresetList);
 	lv->AddColumn("Weapon presets",60);
 
 
@@ -1276,7 +1276,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 			// Remove the path
 			char *f = MAX(strrchr(filename,'/'),strrchr(filename,'\\'));
 			strncpy(name,f+1,len-4);
-			name[len-5] = '\0';
+			name[strnlen(name,sizeof(name))-4] = '\0';
 			if(f) {
 				lv->AddItem(f+1,0,tLX->clListView);
 				lv->AddSubitem(LVS_TEXT,name,NULL);

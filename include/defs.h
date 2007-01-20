@@ -169,6 +169,7 @@ inline T* GetByteSwapped(const T b)
 #endif
 
 // secure str handling macros
+// WARNING: don't use expressions like buf[i++] with the macros, because the i variable will be incremented twice!
 #define		fix_markend(chrarray) \
 				chrarray[sizeof(chrarray)-1] = '\0';
 #define		fix_strnlen(chrarray) \

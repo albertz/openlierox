@@ -112,8 +112,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		for(i=0;i<num;i++) {
 			
 			// Draw Map
-            if( cViewports[i].getUsed() )
+            if( cViewports[i].getUsed() )  {
 			    cMap->Draw(bmpDest, &cViewports[i]);
+			}
 
 			// Select weapons
 			if(!cLocalWorms[i]->getWeaponsReady()) {
@@ -133,7 +134,12 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			for(i=0;i<iNumWorms;i++)
 				cLocalWorms[i]->writeWeapons(bytes);
 		}
-	}	
+	}
+	
+	// DEBUG
+	//DrawRectFill(bmpDest,0,0,100,40,0);
+	//tLX->cFont.Draw(bmpDest,0,0,0xffff,"iNetStatus = %i",iNetStatus);
+	//tLX->cFont.Draw(bmpDest,0,20,0xffff,"iGameReady = %i",iGameReady);
 	
 	// Draw the chatbox for either a local game, or remote game
 	if(tGameInfo.iGameType == GME_LOCAL)
@@ -256,8 +262,10 @@ void CClient::Draw(SDL_Surface *bmpDest)
 void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 {
     // If the viewport is null, or not used: exit
-    if( !v )
+    if( !v )  {
+		printf("The viewport is NULL");
         return;
+	}
     if( !v->getUsed() )
         return;
 

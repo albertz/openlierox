@@ -528,11 +528,23 @@ gui_event_t *CGuiLayout::Process(void)
 	SDL_ShowCursor(SDL_DISABLE);
 
 	// Parse keyboard events to the focused widget
-	if(cFocused) {
-		
-		// Make sure a key event happened
-		if(Event->type == SDL_KEYUP || Event->type == SDL_KEYDOWN) {
+	// Make sure a key event happened
+	if(Event->type == SDL_KEYUP || Event->type == SDL_KEYDOWN) {
 
+		// If we don't have any focused widget, get the first textbox
+		if (!cFocused)  {
+			CWidget *txt = cWidgets;
+			for (;txt;txt=txt->getNext())  {
+				if (txt->getType() == wid_Textbox && txt->getEnabled()) {
+					cFocused = txt;
+					txt->setFocused(true);
+					break;
+				}
+			}
+		}
+
+
+		if (cFocused)  {
 			// Check the characters
 			if(Event->key.state == SDL_PRESSED || Event->key.state == SDL_RELEASED) {
 				tEvent->cWidget = cFocused;
@@ -587,6 +599,42 @@ gui_event_t *CGuiLayout::Process(void)
 				if(Event->type == SDL_KEYDOWN)  {
 					ev = cFocused->KeyDown(input);
 				}
+
+				// Tab switches between widgets
+				/*if (Keyboard->KeyUp[SDLK_TAB])  {
+					if (cFocused)  {
+						// The current one is not focused anymore
+						cFocused->setFocused(false);
+
+						// Switch to next widget
+						if (cFocused->getNext())  {
+							cFocused = cFocused->getNext();
+							cFocused->setFocused(true);
+						// The current focused widget is the last one in the list
+						} else {
+							cFocused = cWidgets;
+							cFocused->setFocused(true);
+						}
+					} else {
+						cFocused = cWidgets;
+						cFocused->setFocused(true);
+					}
+
+					// Repeat the same thing until we find first enabled widget
+					while (!cFocused->getEnabled())  {
+						// The current one is not focused anymore
+						cFocused->setFocused(false);
+
+						if (cFocused->getNext())  {
+							cFocused = cFocused->getNext();
+							cFocused->setFocused(true);
+						// The current focused widget is the last one in the list
+						} else {
+							cFocused = cWidgets;
+							cFocused->setFocused(true);
+						}
+					}
+				}*/
 
 				if(ev >= 0) {
 					tEvent->iEventMsg = ev;
