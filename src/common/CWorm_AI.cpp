@@ -2409,8 +2409,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	}
 
 	// Don't shoot teammates
-	/*if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
-		return false;*/
+	if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
+		return false;
 
 	// If target is blocked by large amount of dirt, we can't shoot it
 	if (nType & PX_DIRT)  {
@@ -3187,7 +3187,7 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 		CWorm *w = cClient->getRemoteWorms();
 		for (i=0;i<MAX_WORMS;i++,w++)  {
 			if (w)
-				if (w->isUsed() && w->getAlive() && w->getTeam() == iTeam)
+				if (w->isUsed() && w->getAlive() && w->getTeam() == iTeam && w->getID() != iID)
 					WormsPos[WormCount++] = w->getPos();
 		}
 	}
@@ -3214,12 +3214,12 @@ int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
 
 		// Friendly worm
 		for (j=0;j<WormCount;j++) {
-			if ((pos-WormsPos[j]).GetLength2() < 30.0f)  {
+			if ((pos-WormsPos[j]).GetLength2() < 400.0f)  {
 				if(nTotalLength != 0)
 					*fDist = (float)i / (float)nTotalLength;
 				else
 					*fDist = 0;
-				*nType = *nType & PX_WORM;
+				*nType = *nType | PX_WORM;
 				return i;
 			}
 		}

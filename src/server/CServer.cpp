@@ -822,6 +822,10 @@ void CServer::kickWorm(int wormID)
 			CWorm *remoteworm = cClient->getRemoteWorms()+w->getID();
 			if ((int)remoteworm == w->getID())
 				return;
+			if (remoteworm->getType() == PRF_COMPUTER)  {
+				remoteworm->AI_Shutdown();
+				remoteworm->setType(PRF_HUMAN);
+			}
 			remoteworm->setAlive(false);
 			remoteworm->setKills(0);
 			remoteworm->setLocal(false);
@@ -833,6 +837,13 @@ void CServer::kickWorm(int wormID)
 			iNumPlayers--;
 			cClient->setNumWorms(cClient->getNumWorms()-1);
 			cl->setNumWorms(cl->getNumWorms()-1);
+
+			// Tell everyone that the client's worms have left both through the net & text
+			CBytestream bs;
+			bs.writeByte(S2C_CLLEFT);
+			bs.writeByte(1);
+			bs.writeByte(wormID);
+			SendGlobalPacket(&bs);
 
 			// Send the message
 			static char buf[256];
@@ -928,6 +939,10 @@ void CServer::banWorm(int wormID)
 			CWorm *remoteworm = cClient->getRemoteWorms()+w->getID();
 			if ((int)remoteworm == w->getID())
 				return;
+			if (remoteworm->getType() == PRF_COMPUTER)  {
+				remoteworm->AI_Shutdown();
+				remoteworm->setType(PRF_HUMAN);
+			}
 			remoteworm->setAlive(false);
 			remoteworm->setKills(0);
 			remoteworm->setLocal(false);
@@ -939,6 +954,13 @@ void CServer::banWorm(int wormID)
 			iNumPlayers--;
 			cClient->setNumWorms(cClient->getNumWorms()-1);
 			cl->setNumWorms(cl->getNumWorms()-1);
+
+			// Tell everyone that the client's worms have left both through the net & text
+			CBytestream bs;
+			bs.writeByte(S2C_CLLEFT);
+			bs.writeByte(1);
+			bs.writeByte(wormID);
+			SendGlobalPacket(&bs);
 
 			// Send the message
 			static char buf[256];

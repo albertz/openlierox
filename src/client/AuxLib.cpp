@@ -174,6 +174,9 @@ int SetVideoMode(void)
 	if (!tLXOptions->iFullscreen)  {
 		SubclassWindow();
 	}
+	else {
+		UnSubclassWindow();
+	}
 #endif
 
 	return true;
@@ -581,19 +584,26 @@ void TakeScreenshot(bool Tournament)
 
 #ifdef WIN32
 WNDPROC wpOriginal;
+bool Subclassed = false;
 
 ////////////////////
 // Subclass the window (control the incoming Windows messages)
 void SubclassWindow(void)
 {
+	if (Subclassed)
+		return;
 	wpOriginal = (WNDPROC)SetWindowLong(GetWindowHandle(),GWL_WNDPROC,(LONG)&WindowProc);
+	Subclassed = true;
 }
 
 ////////////////////
 // Remove the subclassing
 void UnSubclassWindow(void)
 {
+	if (!Subclassed)
+		return;
 	SetWindowLong(GetWindowHandle(),GWL_WNDPROC, (LONG)wpOriginal);
+	Subclassed = false;
 }
 
 /////////////////////
