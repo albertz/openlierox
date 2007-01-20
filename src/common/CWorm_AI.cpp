@@ -2475,6 +2475,19 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		// Distance
 		float x = (cTrgPos.x-vPos.x);
 		float y = (vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
+
+		// Count with the gravity of the target worm
+		if (iAiGameType == GAM_RIFLES && psAITarget->CheckOnGround(pcMap))  {
+			float flight_time = x*x+y*y/v;
+			CVec trg_arriv_speed = CVec(psAITarget->getVelocity()->x,psAITarget->getVelocity()->y+wd->Gravity*flight_time/2);
+			v += targ_speed;  // Get rid of the old target speed
+
+			// Add the new target speed
+			direction = (psAITarget->getPos() - vPos).Normalize();
+			targ_speed =  direction.Scalar(trg_arriv_speed);
+			v -= targ_speed;
+		}
+
 		
 		// how long it takes for hitting the target
 /*		float apriori_time = v ? (x*x + y*y) / v : 0;
