@@ -1277,7 +1277,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 			char *f = MAX(strrchr(filename,'/'),strrchr(filename,'\\'));
 			strncpy(name,f+1,len-4);
 			name[strnlen(name,sizeof(name))-4] = '\0';
-			if(f) {
+			if(f && !lv->getItem(f+1)) {
 				lv->AddItem(f+1,0,tLX->clListView);
 				lv->AddSubitem(LVS_TEXT,name,NULL);
 			}

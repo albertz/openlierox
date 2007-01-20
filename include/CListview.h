@@ -207,6 +207,8 @@ public:
 	int			getItemCount(void)		{ return iItemCount; }
 	lv_item_t	*getItems(void)			{ return tItems; }
 	lv_item_t	*getLastItem(void)	{ return tLastItem; }
+	lv_item_t* getItem(int index);
+	lv_item_t* getItem(char* name);
 
 	int		getClickedSub(void)		{ return iClickedSub; }
 

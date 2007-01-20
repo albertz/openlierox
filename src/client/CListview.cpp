@@ -1109,3 +1109,20 @@ int CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 	return 0;
 }
+
+
+lv_item_t* CListview::getItem(int index) {
+	for(lv_item_t* i = tItems; i; i = i->tNext) {
+		if(i->iIndex == index)
+			return i;
+	}
+	return NULL;
+}
+
+lv_item_t* CListview::getItem(char* name) {
+	for(lv_item_t* i = tItems; i; i = i->tNext) {
+		if(strncmp(i->sIndex,name,sizeof(i->sIndex)) == 0)
+			return i;
+	}
+	return NULL;	
+}

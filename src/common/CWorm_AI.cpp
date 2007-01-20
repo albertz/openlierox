@@ -459,7 +459,7 @@ public:
 		thread_is_ready(true),
 		resulted_path(NULL),
 		break_thread_signal(0),
-		restart_thread_searching_signal(false) {
+		restart_thread_searching_signal(0) {
 		thread_mut = SDL_CreateMutex();
 		//printf("starting thread for %i ...\n", (long)this);
 		// TODO: it will not freed in every case (says valgrind)
@@ -674,6 +674,7 @@ public:
 		restart_thread_searching_signal = 1;
 		restart_thread_searching_newdata.start = newstart;
 		restart_thread_searching_newdata.target = newtarget;
+		thread_is_ready = false;
 		unlock();
 	}
 
@@ -696,16 +697,16 @@ private:
 	inline bool shouldBreakThread() {
 		bool ret = false;
 		lock();
-		ret = break_thread_signal != 0;
+		ret = (break_thread_signal != 0);
 		unlock();
 		return ret;
 	}
 
-public:	
+public:
 	inline bool shouldRestartThread() {
 		bool ret = false;
 		lock();
-		ret = restart_thread_searching_signal != 0;
+		ret = (restart_thread_searching_signal != 0);
 		unlock();
 		return ret;
 	}
@@ -4196,15 +4197,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     // Re-calculate the path?
     if(recalculate && bPathFinished)
         NEW_AI_CreatePath(pcMap);
-
-	// If we're close enough and can shoot, just stop
-	if (NEW_psCurrentNode)  {
-		if (AI_Shoot(pcMap) && CalculateDistance(cPosTarget,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) <= 40.0f)  {
-			ws->iShoot = false;  // Clear the state
-			return;
-		}
-	}
-
 
 
     /*
