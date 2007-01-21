@@ -184,12 +184,41 @@ void Con_Process(float dt)
 
 		// Process the input
 		Con_ProcessCharacter(input);
-
 	}
 
 	// Key up
 	if(Ev->key.state == SDL_RELEASED && Ev->type == SDL_KEYUP)
 		Console->iLastchar = '\0';
+
+	// Handle the history keys
+
+	// Up arrow
+	if(kb->KeyUp[SDLK_UP]) {
+		Console->icurHistory++;
+		Console->icurHistory = MIN(Console->icurHistory,Console->iNumHistory-1);
+		
+		if(Console->icurHistory >= 0) {
+			Console->Line[0].Colour = CNC_NORMAL;
+			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
+			Console->iCurLength = strlen(Console->Line[0].strText);
+			Console->iCurpos = Console->iCurLength;
+		}
+	}
+
+	// Down arrow
+	if(kb->KeyUp[SDLK_DOWN]) {
+		Console->icurHistory--;
+		if(Console->icurHistory >= 0) {
+			Console->Line[0].Colour = CNC_NORMAL;
+			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
+			Console->iCurLength = strlen(Console->Line[0].strText);
+		} else {
+			Console->Line[0].strText[0] = 0;
+			Console->iCurLength=0;
+		}
+
+		Console->icurHistory = MAX(Console->icurHistory,-1);
+	}
 }
 
 
@@ -295,34 +324,6 @@ void Con_ProcessCharacter(int input)
 	}
 
 	keyboard_t *kb = GetKeyboard();
-
-	// Up arrow
-	if(kb->KeyDown[SDLK_UP]) {
-		Console->icurHistory++;
-		Console->icurHistory = MIN(Console->icurHistory,Console->iNumHistory-1);
-		
-		if(Console->icurHistory >= 0) {
-			Console->Line[0].Colour = CNC_NORMAL;
-			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
-			Console->iCurLength = strlen(Console->Line[0].strText);
-			Console->iCurpos = Console->iCurLength;
-		}
-	}
-
-	// Down arrow
-	if(kb->KeyDown[SDLK_DOWN]) {
-		Console->icurHistory--;
-		if(Console->icurHistory >= 0) {
-			Console->Line[0].Colour = CNC_NORMAL;
-			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
-			Console->iCurLength = strlen(Console->Line[0].strText);
-		} else {
-			Console->Line[0].strText[0] = 0;
-			Console->iCurLength=0;
-		}
-
-		Console->icurHistory = MAX(Console->icurHistory,-1);
-	}
 }
 
 
