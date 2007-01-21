@@ -529,7 +529,7 @@ void CServer::RecheckGame(void)
 		int wormcount = 0;
 		int wormid = 0;
 		for(i=0; i<MAX_WORMS; i++, w++)
-			if (w->isUsed() && w->getAlive())  {
+			if (w->isUsed() && w->getLives() != WRM_OUT)  {
 				wormcount++;
 				wormid = i; // Save the worm id
 			}
