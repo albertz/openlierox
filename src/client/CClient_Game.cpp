@@ -1640,10 +1640,29 @@ void CClient::processChatCharacter(int c, bool bDown)
         }
         return;
     }
+
+	// Paste
+	if ((char) c == 22)  {
+		int text_len = strnlen(sChat_Text,sizeof(sChat_Text));
+
+		// Safety
+		if (iChat_Pos > text_len)
+			iChat_Pos = text_len;
+
+		// Get the text
+		char buf[64];
+		int len = GetClipboardText(buf,sizeof(buf));
+
+		// Paste
+		memmove(sChat_Text+iChat_Pos+len,sChat_Text+iChat_Pos,text_len-iChat_Pos+1);
+		strncpy(sChat_Text+iChat_Pos,buf,len);
+		iChat_Pos += len;
+		return;
+	}
     
     // Normal key
-    if(iChat_Pos < ChatMaxLength-1 && c !=0 ) {
-		int len = strlen(sChat_Text);
+    if(iChat_Pos < ChatMaxLength-1 && c > 31 && c <127 ) {
+		int len = strnlen(sChat_Text,sizeof(sChat_Text));
 		if(iChat_Pos < len) memmove(sChat_Text+iChat_Pos+1,sChat_Text+iChat_Pos,len-iChat_Pos);
 		else iChat_Pos = len; // just for security
 	

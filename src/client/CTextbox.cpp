@@ -174,12 +174,6 @@ int CTextbox::KeyDown(int c)
 {
 	keyboard_t *kb = GetKeyboard();
 
-	// Handle "two keys at once" press
-	/*for (int i=0; i<kb->queueLength; i++)
-		if (abs(kb->keyQueue[i]) != c)  {
-			Insert((char) abs(kb->keyQueue[i]));
-		}*/
-
     if(c == 0)  {
         return -1;
 	}

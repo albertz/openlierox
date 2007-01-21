@@ -46,6 +46,10 @@ int Con_Initialize(void)
 	Console->iCurpos = 0;
 	Console->fBlinkTime = 0;
 	Console->iBlinkState = 1;
+
+	Console->fLastRepeat = -9999;
+	Console->fTimePushed = -9999;
+	Console->bHolding = false;
 	
 	for(n=0;n<MAX_CONLINES;n++) {
 		Console->Line[n].strText[0] = 0;
@@ -137,10 +141,11 @@ void Con_Process(float dt)
 	if(Ev->type != SDL_KEYUP && Ev->type != SDL_KEYDOWN)
 		return;
 		
+	int input = 0;
 
 	// Check the characters
 	if(Ev->key.state == SDL_PRESSED) {
-		int input = (Ev->key.keysym.unicode & 0x007F);
+		input = (Ev->key.keysym.unicode & 0x007F);
 
 		if (input == 0)  {
 			switch (Ev->key.keysym.sym) {
@@ -177,18 +182,22 @@ void Con_Process(float dt)
 			}  // switch
 		}
 
-		// Handle more keys at once keydown
-		for(int i=0; i<kb->queueLength; i++)
-			if (kb->keyQueue[i] != input)
-				Con_ProcessCharacter(kb->keyQueue[i]);
-
 		// Process the input
 		Con_ProcessCharacter(input);
 	}
 
+	// Handle more keys at once keydown
+	for(int i=0; i<kb->queueLength; i++)
+		if (kb->keyQueue[i] != input)
+			Con_ProcessCharacter(kb->keyQueue[i]);
+
 	// Key up
-	if(Ev->key.state == SDL_RELEASED && Ev->type == SDL_KEYUP)
+	if(Ev->key.state == SDL_RELEASED && Ev->type == SDL_KEYUP)  {
 		Console->iLastchar = '\0';
+		Console->bHolding = false;
+		Console->fTimePushed = -9999;
+		Console->fLastRepeat = -9999;
+	}
 
 	// Handle the history keys
 
@@ -226,104 +235,144 @@ void Con_Process(float dt)
 // Handles the character typed in the console
 void Con_ProcessCharacter(int input)
 {
-	// Handle the character
-	if(Console->iLastchar != input && input != 0) {
-		Console->iBlinkState = 1;
-		Console->fBlinkTime = 0;
-		Console->iLastchar = input;
+	if (!input)
+		return;
 
-
-		// Backspace
-		if((char) input == '\b') {
-			if(Console->iCurpos > 0)  {
-				memmove(Console->Line[0].strText+Console->iCurpos-1,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
-				Console->iCurpos--;
-				Console->iCurLength--;
-			}
-			Console->icurHistory = -1;
-			return;
+	// Key repeat handling
+	if (Console->bHolding)  {
+		if (Console->iLastchar != input)
+			Console->bHolding = false;
+		else  {
+			if (tLX->fCurTime - Console->fTimePushed < 0.25f)
+				return;
+			if (tLX->fCurTime - Console->fLastRepeat < 0.03f)  
+				return;
+			Console->fLastRepeat = tLX->fCurTime;
 		}
-
-		if(input == SDLK_DELETE)  {
-			if(Console->iCurLength > 0)  {
-				memmove(Console->Line[0].strText+Console->iCurpos,Console->Line[0].strText+Console->iCurpos+1,Console->iCurLength-Console->iCurpos+1);
-				Console->iCurLength--;
-			}
-			Console->icurHistory = -1;
-			return;
-		}
-
-		// Left arrow
-		if(input == SDLK_LEFT)  {
-			if(Console->iCurpos > 0)
-				Console->iCurpos--;
-			return;
-		}
-
-		// Right arrow
-		if(input == SDLK_RIGHT)  {
-			if(Console->iCurpos < Console->iCurLength)
-				Console->iCurpos++;
-			return;
-		}
-
-		// Home
-		if(input == SDLK_HOME)  {
-			Console->iCurpos = 0;
-			return;
-		}
-
-		// End
-		if(input == SDLK_END)  {
-			Console->iCurpos = strlen(Console->Line[0].strText);
-			return;
-		}
-
-		// Enter key
-		if((char) input == '\n' || (char) input == '\r') {
-			
-			Con_Printf(CNC_NORMAL,"]%s",Console->Line[0].strText);
-
-			// Parse the line
-			Cmd_ParseLine(Console->Line[0].strText);
-			Con_AddHistory(Console->Line[0].strText);
-
-
-			Console->Line[0].strText[0] = '\0';
-			Console->iCurLength = 0;
-			Console->iCurpos = 0;
-
-			return;
-		}
-
-		// Tab
-		if((char) input == '\t') {
-			// Auto-complete
-			Cmd_AutoComplete(Console->Line[0].strText,&Console->iCurLength);
-			//CV_AutoComplete(Console->Line[0].strText,&Console->iCurLength);
-			Console->iCurpos = Console->iCurLength;
-			Console->icurHistory = -1;
-			return;
-		}
-
-		// Normal key
-		if(isprint(input)) {
-			// Safety
-			if (Console->iCurpos > Console->iCurLength)
-				Console->iCurpos = Console->iCurLength;
-
-			Console->Line[0].Colour = CNC_NORMAL;
-			memmove(Console->Line[0].strText+Console->iCurpos+1,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
-			/*Console->Line[0].strText[Console->iCurLength++] = input;
-			Console->Line[0].strText[Console->iCurLength] = '\0';*/
-			Console->Line[0].strText[Console->iCurpos++] = (char) input;
-			Console->Line[0].strText[++Console->iCurLength] = '\0';
-			Console->icurHistory = -1;
-		}
-
 	}
 
-	keyboard_t *kb = GetKeyboard();
+	if (!Console->bHolding)  {
+		Console->bHolding = true;
+		Console->fTimePushed = tLX->fCurTime;
+	}
+
+
+	// Handle the character
+	Console->iBlinkState = 1;
+	Console->fBlinkTime = 0;
+	Console->iLastchar = input;
+
+
+	// Backspace
+	if((char) input == '\b') {
+		if(Console->iCurpos > 0)  {
+			memmove(Console->Line[0].strText+Console->iCurpos-1,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
+			Console->iCurpos--;
+			Console->iCurLength--;
+		}
+		Console->icurHistory = -1;
+		return;
+	}
+
+	// Delete
+	if(input == SDLK_DELETE)  {
+		if(Console->iCurLength > 0 && Console->iCurLength > Console->iCurpos)  {
+			memmove(Console->Line[0].strText+Console->iCurpos,Console->Line[0].strText+Console->iCurpos+1,Console->iCurLength-Console->iCurpos+1);
+			Console->iCurLength--;
+		}
+		Console->icurHistory = -1;
+		return;
+	}
+
+	// Left arrow
+	if(input == SDLK_LEFT)  {
+		if(Console->iCurpos > 0)
+			Console->iCurpos--;
+		return;
+	}
+
+	// Right arrow
+	if(input == SDLK_RIGHT)  {
+		if(Console->iCurpos < Console->iCurLength)
+			Console->iCurpos++;
+		return;
+	}
+
+	// Home
+	if(input == SDLK_HOME)  {
+		Console->iCurpos = 0;
+		return;
+	}
+
+	// End
+	if(input == SDLK_END)  {
+		Console->iCurpos = strnlen(Console->Line[0].strText,sizeof(Console->Line[0].strText));
+		return;
+	}
+
+	// Paste
+	if((char)input == 22)  {
+		// Safety
+		if (Console->iCurpos > Console->iCurLength)
+			Console->iCurpos = Console->iCurLength;
+
+		// Get the text
+		char buf[64];
+		int len = GetClipboardText(buf,sizeof(buf));
+
+		// Paste
+		Console->Line[0].Colour = CNC_NORMAL;
+		memmove(Console->Line[0].strText+Console->iCurpos+len,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
+		strncpy(Console->Line[0].strText+Console->iCurpos,buf,len);
+		Console->iCurpos += len;
+		Console->iCurLength = strnlen(Console->Line[0].strText,sizeof(Console->Line[0].strText));
+		Console->icurHistory = -1;
+
+		return;
+	}
+
+
+	// Enter key
+	if((char) input == '\n' || (char) input == '\r') {
+		
+		Con_Printf(CNC_NORMAL,"]%s",Console->Line[0].strText);
+
+		// Parse the line
+		Cmd_ParseLine(Console->Line[0].strText);
+		Con_AddHistory(Console->Line[0].strText);
+
+
+		Console->Line[0].strText[0] = '\0';
+		Console->iCurLength = 0;
+		Console->iCurpos = 0;
+
+		return;
+	}
+
+	// Tab
+	if((char) input == '\t') {
+		// Auto-complete
+		Cmd_AutoComplete(Console->Line[0].strText,&Console->iCurLength);
+		//CV_AutoComplete(Console->Line[0].strText,&Console->iCurLength);
+		Console->iCurpos = Console->iCurLength;
+		Console->icurHistory = -1;
+		return;
+	}
+
+	// Normal key
+	if(isprint(input)) {
+		// Safety
+		if (Console->iCurpos > Console->iCurLength)
+			Console->iCurpos = Console->iCurLength;
+
+		Console->Line[0].Colour = CNC_NORMAL;
+		memmove(Console->Line[0].strText+Console->iCurpos+1,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
+		/*Console->Line[0].strText[Console->iCurLength++] = input;
+		Console->Line[0].strText[Console->iCurLength] = '\0';*/
+		Console->Line[0].strText[Console->iCurpos++] = (char) input;
+		Console->Line[0].strText[++Console->iCurLength] = '\0';
+		Console->icurHistory = -1;
+	}
 }
 
 
