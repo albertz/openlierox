@@ -255,6 +255,8 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 // Returns true if there was a collision, otherwise false is returned
 int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 {
+	// TODO: use fastTraceLine
+
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();

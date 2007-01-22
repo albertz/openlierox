@@ -55,6 +55,7 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 	if(col_action.hit) {
 		
 	}*/
+	assert(false);
 	return 0;
 	
 /*	int		CollisionSide = 0;
@@ -217,7 +218,7 @@ int CarveHole(CMap *cMap, CVec pos)
 // Will only print out if this is a debug build
 void d_printf(char *fmt, ...)
 {
-#ifdef _DEBUG
+#ifdef DEBUG
 	static char buf[1024];
 	va_list arg;
 	

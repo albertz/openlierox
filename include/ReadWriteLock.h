@@ -22,7 +22,7 @@ public:
 		readCounterMutex = SDL_CreateMutex();
 	}
 	
-	~ReadWriteLock() {
+	~ReadWriteLock() {		
 		if(readCounter)
 			printf("WARNING: destroying ReadWriteLock with positive readCounter!\n");
 		SDL_DestroyMutex(readCounterMutex);
@@ -30,21 +30,21 @@ public:
 	}
 	
 	inline void startReadAccess() {
-		SDL_mutexP(readCounterMutex);
-		if(readCounter == 0) SDL_mutexP(writeMutex);
+		if(SDL_mutexP(readCounterMutex)<0) assert(false);
+		if(readCounter == 0) if(SDL_mutexP(writeMutex)<0) assert(false);
 		readCounter++;		
 		SDL_mutexV(readCounterMutex);
 	}
 	
 	inline void endReadAccess() {
-		SDL_mutexP(readCounterMutex);
+		if(SDL_mutexP(readCounterMutex)<0) assert(false);
 		readCounter--;
 		if(readCounter == 0) SDL_mutexV(writeMutex);
 		SDL_mutexV(readCounterMutex);
 	}
 
 	inline void startWriteAccess() {
-		SDL_mutexP(writeMutex);
+		if(SDL_mutexP(writeMutex)<0) assert(false);
 	}
 
 	inline void endWriteAccess() {

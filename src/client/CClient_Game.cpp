@@ -152,7 +152,7 @@ void CClient::Simulation(void)
 
 
 	// Debug test
-#ifdef _DEBUG
+#ifdef DEBUG
 	/*keyboard_t *kb = GetKeyboard();
 	if( kb->keys[SDLK_1])
 		iDrawingViews[1] = 1;
@@ -164,7 +164,7 @@ void CClient::Simulation(void)
 		iDrawingViews[1] = 4;
 
 	cRemoteWorms[iDrawingViews[1]].getViewport()->Setup(322,0,318,382);*/
-#endif  // _DEBUG
+#endif  // DEBUG
 }
 
 

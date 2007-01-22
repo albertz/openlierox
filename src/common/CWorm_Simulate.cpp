@@ -565,6 +565,8 @@ void CWorm::SimulateWeapon( float dt )
 // Check collisions with the level
 int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jump )
 {
+	// TODO: use fastTraceLine
+
 	int x,y;
 	static const int maxspeed2 = 20;
 	
