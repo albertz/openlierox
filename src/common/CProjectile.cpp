@@ -254,18 +254,16 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 // Check for a collision
 // Returns true if there was a collision, otherwise false is returned
 int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
-{
-	// TODO: use fastTraceLine
-
+{	
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
 	int px,py,x,y;
-	
+		
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
-
+	// TODO: is an 'else' missing here?
 	w=h=2;
 	
 	float maxspeed2 = (float)(4*w*w);
@@ -286,8 +284,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 	}
 
 	pos += vel*dt;
-
-
+	
 	px=(int)pos.x;
 	py=(int)pos.y;
 
@@ -322,7 +319,15 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 		return true;
 	}
 
-
+	const uchar* gridflags = map->getAbsoluteGridFlags();
+	int grid_w = map->getGridWidth();
+	int grid_h = map->getGridHeight();
+	int grid_cols = map->getGridCols();
+	if(grid_w < 2*w+1 || grid_h < 2*h+1 // this ensures, that this check is safe
+	|| gridflags[((py-h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((py+h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((py-h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((py+h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT))
 	for(y=py-h;y<=py+h;y++) {
 
 		// Clipping means that it has collided

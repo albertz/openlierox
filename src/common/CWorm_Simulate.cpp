@@ -563,10 +563,9 @@ void CWorm::SimulateWeapon( float dt )
 
 ///////////////////
 // Check collisions with the level
+// HINT: it directly manipulates vPos!
 int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jump )
 {
-	// TODO: use fastTraceLine
-
 	int x,y;
 	static const int maxspeed2 = 20;
 	
@@ -581,12 +580,27 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 	vPos = pos;
 
 
-	x = (int)pos.x+4;
+	x = (int)pos.x;
 	y = (int)pos.y;
 	int clip = 0;
 	int coll = false;
-
-	if(y >= 0 && y < map->GetHeight()) {
+	bool check_needed = false;
+	
+	const uchar* gridflags = map->getAbsoluteGridFlags();
+	int grid_w = map->getGridWidth();
+	int grid_h = map->getGridHeight();
+	int grid_cols = map->getGridCols();
+	if(y-4 < 0 || y+5 > map->GetHeight()-1
+	|| x-3 < 0 || x+3 > map->GetWidth()-1)
+		check_needed = true; // we will check later, what to do here
+	else if(grid_w < 7 || grid_h < 10 // this ensures, that this check is safe
+	|| gridflags[((y-4)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((y+5)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((y-4)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((y+5)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT))
+		check_needed = true;
+	
+	if(check_needed && y >= 0 && y < map->GetHeight()) {
 		for(x=-3;x<4;x++) {
 			// Optimize: pixelflag++
 
@@ -642,7 +656,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 	int hit = false;
 	x = (int)pos.x;
 	
-	if(x >= 0 && x < map->GetWidth()) {
+	if(check_needed && x >= 0 && x < map->GetWidth()) {
 		for(y=5;y>-5;y--) {
 			// Optimize: pixelflag + Width
 
