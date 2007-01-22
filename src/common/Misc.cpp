@@ -578,3 +578,56 @@ void xmlEntities(char *text)
 	replace(text,"<", "&lt;",  text);  // <
 	replace(text,">", "&gt;",  text);  // >
 }
+
+//
+// Thread functions
+//
+
+//////////////////
+// Gives a name to the thread
+// Code taken from Thread Validator help
+#ifdef WIN32
+void nameThread(const DWORD threadId, const char *name) 
+{ 
+   // You can name your threads by using the following code.  
+   // Thread Validator will intercept the exception and pass it along (so if you are also running 
+   // under a debugger the debugger will also see the exception and read the thread name 
+
+   // NOTE: this is for 'unmanaged' C++ ONLY! 
+
+   #define MS_VC_EXCEPTION 0x406D1388 
+   #define BUFFER_LEN      16 
+
+   typedef struct tagTHREADNAME_INFO 
+   { 
+      DWORD   dwType;   // must be 0x1000 
+      LPCSTR   szName;   // pointer to name (in user address space)  
+               // buffer must include terminator character 
+      DWORD   dwThreadID;   // thread ID (-1 == caller thread) 
+      DWORD   dwFlags;   // reserved for future use, must be zero 
+   } THREADNAME_INFO; 
+
+   THREADNAME_INFO   ThreadInfo; 
+   char         szSafeThreadName[BUFFER_LEN];   // buffer can be any size,  
+                           // just make sure it is large enough! 
+    
+   memset(szSafeThreadName, 0, sizeof(szSafeThreadName));   // ensure all characters are NULL before 
+   strncpy(szSafeThreadName, name, BUFFER_LEN - 1);   // copying name 
+   //szSafeThreadName[BUFFER_LEN - 1] = '\0'; 
+
+   ThreadInfo.dwType = 0x1000; 
+   ThreadInfo.szName = szSafeThreadName; 
+   ThreadInfo.dwThreadID = threadId; 
+   ThreadInfo.dwFlags = 0; 
+
+   __try 
+   { 
+      RaiseException(MS_VC_EXCEPTION, 0, sizeof(ThreadInfo) / sizeof(DWORD), (DWORD*)&ThreadInfo);  
+   } 
+   __except(EXCEPTION_EXECUTE_HANDLER) 
+   { 
+      // do nothing, just catch the exception so that you don't terminate the application 
+   } 
+} 
+#endif
+

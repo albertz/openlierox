@@ -608,8 +608,16 @@ public:
 private:
 	// main-function used by the thread
 	static int threadSearch(void* b) {
+
 		searchpath_base* base = (searchpath_base*)b;
 		NEW_ai_node_t* ret;
+
+		// Name the thread
+#ifdef WIN32
+		static char name[32];
+		sprintf(name,"AI thread %i",(int)b);
+		nameThread(-1,name);
+#endif // WIN32
 		
 		while(true) {
 			// sleep a little bit while we have nothing to do...

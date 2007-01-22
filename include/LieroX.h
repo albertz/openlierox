@@ -206,5 +206,10 @@ float	xmlGetFloat(xmlNodePtr Node, const char *Name);
 Uint32	xmlGetColour(xmlNodePtr Node, const char *Name);
 void	xmlEntities(char *text);
 
+// Thread functions
+#ifdef WIN32
+void	nameThread(const DWORD threadId, const char *name);
+#endif
+
 
 #endif  //  __LIEROX_H__

@@ -326,11 +326,15 @@ void CServer::TagRandomWorm(void)
 void CServer::WormShoot(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
-	
+
 	if(Slot->Reloading)		
 		return;
 
 	if(Slot->LastFire>0)
+		return;
+
+	// TODO: can be optimized
+	if (!cWeaponRestrictions.isEnabled(Slot->Weapon->Name))
 		return;
 
 	Slot->LastFire = Slot->Weapon->ROF;
