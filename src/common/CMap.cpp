@@ -852,6 +852,8 @@ int CMap::CarveHole(int size, CVec pos)
 		}
 	}
 
+	unlockFlags();
+
 	if(SDL_MUSTLOCK(hole))
 		SDL_UnlockSurface(hole);
 
@@ -860,9 +862,11 @@ int CMap::CarveHole(int size, CVec pos)
 	// Go through and clean up the hole
 	sx-=5;
 	sy-=5;
-	
+		
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);
+
+	lockFlags();
 
 	for(y=sy;y<sy+h+20;y++) {
 
@@ -889,10 +893,11 @@ int CMap::CarveHole(int size, CVec pos)
 		}
 	}
 	
+	unlockFlags();
+	
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
 
-	unlockFlags();
 
 	// Apply a shadow
 	ApplyShadow(sx-5,sy-5,w+25,h+25);
