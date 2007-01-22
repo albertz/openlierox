@@ -991,16 +991,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
    		if(CheckOnGround(pcMap) && cNinjaRope.isAttached())
    			cNinjaRope.Release();
    
-/*   		if(!AI_Shoot(pcMap)) {   			
-			// change direction after some time
-			if ((tLX->fCurTime-fLastFace) > 1.0)  {
-				iDirection = !iDirection;
-				fLastFace = tLX->fCurTime;
-			}
-			// don't return here -> do MoveToTarget/Think
-    	} else
-	        return;
-    	*/
     	return;
     	    
     } else {
@@ -4185,6 +4175,9 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		return;
 	}
 
+	// TODO: in general, move away from projectiles
+
+	// prevent suicides
 	if (iAiGameType == GAM_MORTARS)  {
 		if (tLX->fCurTime - fLastShoot <= 0.5f)  {
 			if (fRopeAttachedTime >= 0.1f)
@@ -4204,7 +4197,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     bool    recalculate = false;  
 
 	// Deviated?
-	if (psAITarget && NEW_psPath && NEW_psLastNode)  {
+	// HINT: this should not be needed as we check for a direct path from any node later on
+/*	if (psAITarget && NEW_psPath && NEW_psLastNode)  {
 		// Don't check when the velocity is big
 		if (psAITarget->getVelocity()->GetLength() < 30 && vVelocity.GetLength() < 30)   {
 			if(fabs(NEW_psPath->fX-vPos.x) > nDeviation || fabs(NEW_psPath->fY-vPos.y) > nDeviation)
@@ -4213,7 +4207,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			if(fabs(NEW_psLastNode->fX-cPosTarget.x) > nDeviation || fabs(NEW_psLastNode->fY-cPosTarget.y) > nDeviation)
 				recalculate = true;
 		}
-	}
+	} */
 
     // Re-calculate the path?
     if(recalculate && bPathFinished)
@@ -4239,25 +4233,24 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	// If some of the next nodes is closer than the current one, just skip to it
 	NEW_ai_node_t *next_node = NEW_psCurrentNode->psNext;
 	bool newnode = false;
-	while (next_node)  {
+	while(next_node)  {
 		if(traceWormLine(CVec(next_node->fX,next_node->fY),vPos,pcMap))  {
 			NEW_psCurrentNode = next_node;
 			newnode = true;
 		}
 		next_node = next_node->psNext;
 	}
-	if(newnode) {
-	} else {
+	if(!newnode) {
 		// check, if we have a direct connection to the current node
-		// else, chose some last node
+		// else, choose some last node
 		// this will work and is in many cases the last chance
 		// perhaps, we need a fLastGoBack here
 		for(next_node = NEW_psCurrentNode; next_node; next_node = next_node->psPrev) {
-			if(traceWormLine(CVec(next_node->fX,next_node->fY),vPos,pcMap))  {
-//				if(NEW_psCurrentNode != next_node)
-	//				cNinjaRope.Release();				
-				NEW_psCurrentNode = next_node;
-				newnode = true;
+			if(traceWormLine(CVec(next_node->fX,next_node->fY),vPos,pcMap))  {		
+				if(NEW_psCurrentNode != next_node) {
+					NEW_psCurrentNode = next_node;				
+ 					newnode = true;
+ 				}
 				break;
 			}		
 		}
@@ -4267,23 +4260,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	// Get the target node position
     CVec nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
 
-	// If we are close to the current node, just continue climbing the path
-	// this will not work, because there could be some wall between the current and the next node
-	/*if (CalculateDistance(nodePos,vPos) <= 20.0f)  {
-		if (NEW_psCurrentNode->psNext)  {
-			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
-			nodePos = CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY);
-		}
-		else {
-			// We are at the target
-			nodePos = cPosTarget;
-		}
-	} */
 		
 	// release rope, if it forces us to the wrong direction
-	if((cNinjaRope.GetForce(vPos).Normalize() + vPos - nodePos).GetLength2() > (vPos - nodePos).GetLength2())
-		if (cNinjaRope.isAttached())
-			cNinjaRope.Release();
+	if(cNinjaRope.isAttached() && (cNinjaRope.GetForce(vPos).Normalize() + vPos - nodePos).GetLength2() > (vPos - nodePos).GetLength2())
+		cNinjaRope.Release();
 
 
 #ifdef _AI_DEBUG
@@ -4309,13 +4289,15 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 														 // NOTE: this can return dirt, even if there's also rock between us two
     //float dist = CalculateDistance(v, vPos);
     if(!fireNinja && (float)(length*length) <= (v-vPos).GetLength2() && (type & PX_DIRT)) {
+		// HINT: as we always carve, we don't need to do it here specially
+		
 		// release rope, if it is atached and above
 		if(fRopeAttachedTime > 0.5f && cNinjaRope.getHookPos().y - 5.0f > v.y)
 			cNinjaRope.Release();
 		
 		// Jump, if the node is above us
 		if (v.y+10.0f < vPos.y)
-			if (tLX->fCurTime - fLastJump > 1.0f)  {
+			if (tLX->fCurTime - fLastJump > 0.5f)  {
 				ws->iJump = true;
 				fLastJump = tLX->fCurTime;
 			}
@@ -4386,13 +4368,14 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	if(fireNinja && (vPos-ropespot).GetLength2() < 625.0f)
 		fireNinja = false;
 
+    CVec dir;
     if(fireNinja) {
+		fireNinja = false;
 		
 		// Aim
 		aim = AI_SetAim(ropespot);
 
 
-        CVec dir;
         dir.x=( (float)cos(fAngle * (PI/180)) );
 	    dir.y=( (float)sin(fAngle * (PI/180)) );
 	    if(iDirection == DIR_LEFT)
@@ -4406,27 +4389,30 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
         */
         if(aim || !CheckOnGround(pcMap)) {
             if(!cNinjaRope.isReleased())
-                cNinjaRope.Shoot(vPos,dir);
+            	fireNinja = true;
             else {
                 if(cNinjaRope.isAttached()) {
                     if((vPos-cNinjaRope.getHookPos()).GetLength2() < cNinjaRope.getRestLength()*cNinjaRope.getRestLength() && vVelocity.y<-10)
-                        cNinjaRope.Shoot(vPos,dir);
+                    	fireNinja = true;
                 }
             }
             ws->iJump = true;
 			fRopeHookFallingTime = 0;
 			fRopeAttachedTime = 0;
         }
-        
+    }
+    
+    if(fireNinja) {
+    	cNinjaRope.Shoot(vPos,dir);
     } else { // not fireNinja
         
 		// Aim at the node
 		aim = AI_SetAim(nodePos);
 	
 		// If the node is above us by a little, jump
-		if(vPos.y - 10 <= NEW_psCurrentNode->fY && (vPos.y-NEW_psCurrentNode->fY) > 5) {
+		if((vPos.y-NEW_psCurrentNode->fY) <= 30 && (vPos.y-NEW_psCurrentNode->fY) > 0) {
 			// Don't jump so often
-			if (tLX->fCurTime - fLastJump > 1.0f)  {
+			if (tLX->fCurTime - fLastJump > 0.5f)  {
 				ws->iJump = true;
 				fLastJump = tLX->fCurTime;
 			} else
@@ -4508,9 +4494,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	}
 */
 
-    
-
-
 
 
 /*
@@ -4524,13 +4507,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     }
 */
   
-/*	
-	// TODO: do we realy need this? there is a loop above, which checks for direct connections to new nodes
-	// Move to next node, if we arrived at the current
-	if(CalculateDistance(vPos,CVec(NEW_psCurrentNode->fX,NEW_psCurrentNode->fY)) < 10)
-		if(NEW_psCurrentNode->psNext)
-			NEW_psCurrentNode = NEW_psCurrentNode->psNext;
-*/	
 }
 
 void CWorm::NEW_AI_MoveToTargetDC(CMap *pcMap)
