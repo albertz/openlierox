@@ -30,21 +30,21 @@ public:
 	}
 	
 	inline void startReadAccess() {
-		if(SDL_mutexP(readCounterMutex)<0) assert(false);
-		if(readCounter == 0) if(SDL_mutexP(writeMutex)<0) assert(false);
+		SDL_mutexP(readCounterMutex);
+		if(readCounter == 0) SDL_mutexP(writeMutex);
 		readCounter++;		
 		SDL_mutexV(readCounterMutex);
 	}
 	
 	inline void endReadAccess() {
-		if(SDL_mutexP(readCounterMutex)<0) assert(false);
+		SDL_mutexP(readCounterMutex);
 		readCounter--;
 		if(readCounter == 0) SDL_mutexV(writeMutex);
 		SDL_mutexV(readCounterMutex);
 	}
 
 	inline void startWriteAccess() {
-		if(SDL_mutexP(writeMutex)<0) assert(false);
+		SDL_mutexP(writeMutex);
 	}
 
 	inline void endWriteAccess() {

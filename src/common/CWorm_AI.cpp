@@ -4154,7 +4154,9 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		CVec cAimPos = NEW_AI_GetBestRopeSpot(vPos+desired_dir,pcMap);
 
 		// Aim it
-		/*fireNinja = AI_SetAim(cAimPos);
+		/*
+		// TODO: why isn't this used any more?
+		fireNinja = AI_SetAim(cAimPos);
 
 		if (fireNinja)
 			fireNinja = psHeadingProjectile->GetVelocity().GetLength() > 50.0f;
@@ -4210,8 +4212,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	} */
 
     // Re-calculate the path?
-    if(recalculate && bPathFinished)
-        NEW_AI_CreatePath(pcMap);
+    /* if(recalculate && bPathFinished)
+        NEW_AI_CreatePath(pcMap); */
 
 
     /*
@@ -4270,6 +4272,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	NEW_AI_DrawPath(pcMap);
 #endif
 	
+	float dist; int type;
+	traceWeaponLine(cPosTarget,pcMap,&dist,&type);
+	bool we_see_the_target = (type & PX_EMPTY);
+	
 	/* 
 	  For rifle games: it's not clever when we go to the battle with non-reloaded weapons
 	  If we're close to the target (<= 3 nodes missing), stop and reload weapons if needed
@@ -4285,17 +4291,17 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		}
 
 		if (num_reloaded <= 3)  {
-			float dist;int type;
-			traceWeaponLine(cPosTarget,pcMap,&dist,&type);
 
-			// If we see the target, fight!
-			if (!(type & PX_EMPTY))  {
+			// If we see the target, fight instead of reloading!
+			if (!we_see_the_target)  {
 				NEW_ai_node_t *node = NEW_psLastNode;
 				for(i=0;node && node != NEW_psCurrentNode;node=node->psPrev,i++) {}
-				if (node && i<=3)  {
-					// Reload weapons when we're close to the target
+				if (NEW_psLastNode == NULL || i>=3)  {
+					// Reload weapons when we're far away from the target or if we don't have any path
 					AI_ReloadWeapons();
-					// Stop
+				}
+				if(NEW_psLastNode && (i>=3 && i<=5)) {	
+					// Stop, if we are not so far away
 					if (fRopeAttachedTime >= 0.7f)
 						cNinjaRope.Release();
 					return;
@@ -4315,14 +4321,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       Instead, carve
     */
     float traceDist = -1;
-    int type = 0;
     CVec v = CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY);
     int length = traceLine(v, pcMap, &traceDist, &type); // HINT: this is only a line, not the whole worm
 														 // NOTE: this can return dirt, even if there's also rock between us two
 
 
     //float dist = CalculateDistance(v, vPos);
-	// TODO: fireNinja is always false here
+	// HINT: atm, fireNinja is always false here
     if(!fireNinja && (float)(length*length) <= (v-vPos).GetLength2() && (type & PX_DIRT)) {
 		// HINT: as we always carve, we don't need to do it here specially
 		
@@ -4352,7 +4357,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			}
     } else  {
 		// If there's no dirt around and we have jetpack in our arsenal, lets use it!
-		for (int i=0;i<5;i++) {
+		for (short i=0;i<5;i++) {
 			if (tWeapons[i].Weapon->Recoil < 0 && !tWeapons[i].Reloading)  {
 				iCurrentWeapon = i;
 				ws->iShoot = AI_SetAim(nodePos);
@@ -4405,13 +4410,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 	// In rifle games: don't continue if we see the final target and are quite close to it
 	// If we shot the rope, we wouldnt aim the target, which is the priority now
-	traceWeaponLine(cPosTarget,pcMap,&traceDist,&type);
-	if (iAiGameType == GAM_RIFLES && CalculateDistance(vPos,cPosTarget) <= 60.0f && (type & PX_EMPTY))  {
+	if(fireNinja && iAiGameType == GAM_RIFLES && we_see_the_target && (vPos-cPosTarget).GetLength2() <= 3600.0f) {
 		fireNinja = false;
 	}
 
     CVec dir;
     if(fireNinja) {
+    	// set it to false, only if we pass the following checks, set it to true again
 		fireNinja = false;
 		
 		// Aim
@@ -4445,11 +4450,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     }
     
     if(fireNinja) {
+    	// the final shoot of the rope...
     	cNinjaRope.Shoot(vPos,dir);
+    	
     } else { // not fireNinja
         
 		// Aim at the node
-		aim = AI_SetAim(nodePos);
+		if(!we_see_the_target) aim = AI_SetAim(nodePos);
 	
 		// If the node is above us by a little, jump
 		if((vPos.y-NEW_psCurrentNode->fY) <= 30 && (vPos.y-NEW_psCurrentNode->fY) > 0) {
@@ -4507,6 +4514,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 			}
 
             // Recalculate the path
+            // TODO: should we do this in a more general way somewhere other?
             NEW_AI_CreatePath(pcMap);
 
             if(!NEW_psCurrentNode || !NEW_psPath)
