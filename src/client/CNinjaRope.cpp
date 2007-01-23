@@ -108,7 +108,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 		}
 	}
 	// Failing
-	if(!HookShooting && !HookAttached) {
+	else if(!HookShooting && !HookAttached) {
 
 		// Going towards the player
 		length2 = (playerpos-HookPos).GetLength2();
@@ -189,8 +189,8 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 		}
 	}
 
-	// Put the hook were the worm is
-	if(HookAttached && PlayerAttached) {
+	// Put the hook where the worm is
+	else if(HookAttached && PlayerAttached) {
 		
 		// If the worm has been killed, or dropped, drop the hook
 		assert( Worm );

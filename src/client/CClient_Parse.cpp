@@ -324,6 +324,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 			Menu_MessageBox("Out of memory","Out of memory when allocating the map.",LMB_OK);
 
+			iGameReady = false;
+
 			return false;
 		}
 	}
@@ -337,6 +339,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		if(tGameInfo.iGameType == GME_JOIN) {
 			if(!cMap->New(504,350,"dirt")) {
 				Disconnect();
+				iGameReady = false;
 				return false;
 			}
 			cMap->ApplyRandom();
@@ -356,6 +359,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		// Invalid packet
 		if (buf[0] == '\0')  {
 			printf("Bad packet in ParsePrepareGame");
+			iGameReady = false;
 			return false;
 		}
 
@@ -373,6 +377,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			
 				// Go back to the menu
 				QuittoMenu();
+				iGameReady = false;
 				return false;
 			}
 		} else {
@@ -404,6 +409,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// Bad packet
 	if (sModName[0] == '\0')  {
 		printf("Bad packet in ParsePrepareGame");
+		iGameReady = false;
 		return false;
 	}
 
@@ -422,6 +428,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			
 		// Go back to the menu
 		QuittoMenu();
+		iGameReady = false;
         return false;
 	}
 

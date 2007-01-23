@@ -80,6 +80,7 @@ int         GetClipboardText(char *szText, int nMaxLength);
 int         SetClipboardText(char *szText);
 void        TakeScreenshot(bool Tournament);
 
+// Subclass
 #ifdef WIN32
 extern WNDPROC wpOriginal;
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

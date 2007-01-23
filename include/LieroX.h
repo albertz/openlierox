@@ -166,6 +166,7 @@ extern	CClient			*cBots;
 extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern  int				nDisableSound;
+extern	int				iSurfaceFormat;
 
 extern	char	binary_dir[512];
 

@@ -87,8 +87,10 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
         // Draw the viewports
         for( i=0; i<NUM_VIEWPORTS; i++ ) {
-            if( cViewports[i].getUsed() )
+            if( cViewports[i].getUsed() )  {
+				cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
                 DrawViewport(bmpDest, &cViewports[i]);
+			}
         }
 
         //
@@ -281,13 +283,6 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     //cWeather.Draw(bmpDest, v);
 
 	cMap->Draw(bmpDest, v);
-
-    // Process the viewports
-	int i;
-	for(i=0;i<NUM_VIEWPORTS;i++) {
-        if(cViewports[i].getUsed() && !iGameOver)
-            cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
-    }
     
     if( tLXOptions->iShadows ) {
 		// Draw the projectile shadows
@@ -311,6 +306,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	DrawBonuses(bmpDest, v);
 	
 	// Draw all the worms in the game
+	int i;
 	CWorm *w = cRemoteWorms;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed() && w->getAlive())
@@ -1092,7 +1088,7 @@ void CClient::InitializeViewportManager(void)
 
 	// Fill in the target worms boxes
     for(i=0; i<MAX_WORMS; i++ ) {
-        if(!cRemoteWorms[i].isUsed() || !cRemoteWorms[i].getAlive())
+        if(!cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT)
             continue;
 
 		ViewportMgr.SendMessage( v1_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getName() );

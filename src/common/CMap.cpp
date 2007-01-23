@@ -428,7 +428,7 @@ int CMap::CreateSurface(void)
 	if(fmt == NULL)
 		printf("CMap::CreateSurface: ERROR: fmt is nothing\n");
 		
-	bmpImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height,
+	bmpImage = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height,
 		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpImage == NULL) {
@@ -437,7 +437,7 @@ int CMap::CreateSurface(void)
 	}
 
 #ifdef _AI_DEBUG
-	bmpDebugImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Width*2, Height*2, fmt->BitsPerPixel, 
+	bmpDebugImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel, 
 										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 	
 	if (bmpDebugImage == NULL)  {
@@ -449,7 +449,7 @@ int CMap::CreateSurface(void)
 	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,MakeColour(255,0,255));
 #endif
 
-	bmpDrawImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Width*2, Height*2, fmt->BitsPerPixel, 
+	bmpDrawImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel, 
 										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpDrawImage == NULL) {
@@ -457,7 +457,7 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
-	bmpBackImage = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, fmt->BitsPerPixel, 
+	bmpBackImage = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel, 
 									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpBackImage == NULL) {
@@ -465,7 +465,7 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
-	bmpMiniMap = SDL_CreateRGBSurface(SDL_SWSURFACE, 128,96,fmt->BitsPerPixel,
+	bmpMiniMap = SDL_CreateRGBSurface(iSurfaceFormat, 128,96,fmt->BitsPerPixel,
 									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpMiniMap == NULL) {
@@ -473,7 +473,7 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
-    bmpShadowMap = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, fmt->BitsPerPixel, 
+    bmpShadowMap = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel, 
 									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpShadowMap == NULL) {
@@ -2061,7 +2061,7 @@ int CMap::LoadImageFormat(FILE *fp)
 
 	// TEMP
 	//SDL_PixelFormat *fmt = bmpImage->format;
-	//SDL_Surface *pxf = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, fmt->BitsPerPixel, 
+	//SDL_Surface *pxf = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel, 
 	//								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	// Load the pixel flags

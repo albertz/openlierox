@@ -112,10 +112,10 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         }
 	    
         // Follow the worm
-		// TODO: fix for left viewport in splitscreen (the worm shakes there)
+		// TODO: fix for right viewport in splitscreen (the worm shakes there)
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
-				WorldX = (int)floor(pcTargetWorm->getPos().x-hx);
+				WorldX = (int)(pcTargetWorm->getPos().x-hx);
 				WorldY = Round(pcTargetWorm->getPos().y-hy);
 										
 

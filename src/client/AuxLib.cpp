@@ -21,12 +21,15 @@ char		GameName[32];
 int         nFocus = true;
 
 // Config file
-char		ConfigFile[64];
+char		ConfigFile[256];
 
 // Keyboard, Mouse, & Event
 keyboard_t	Keyboard;
 mouse_t		Mouse;
 SDL_Event	Event;
+
+// Screen
+int			iSurfaceFormat = SDL_SWSURFACE;
 
 SDL_Surface *bmpIcon=NULL;
 
@@ -149,14 +152,20 @@ int SetVideoMode(void)
 	  SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  5);
 	  SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
 	}
-	
-	if(HardwareBuf)
+
+	if(HardwareBuf)  {
 		vidflags |= SDL_HWSURFACE;
-	else
+		if (tLXOptions->iFullscreen)
+			iSurfaceFormat = SDL_HWSURFACE;
+	}
+	else  {
 		vidflags |= SDL_SWSURFACE;
+		iSurfaceFormat = SDL_SWSURFACE;
+	}
 
 	if(DoubleBuf)
 		vidflags |= SDL_DOUBLEBUF;
+
 
 
 	if( SDL_SetVideoMode(640,480, bpp,vidflags) == NULL) {

@@ -375,7 +375,7 @@ SDL_Surface *gfxCreateSurface(int width, int height)
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	SDL_PixelFormat *fmt = screen->format;
 
-	return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, fmt->BitsPerPixel, 
+	return SDL_CreateRGBSurface(iSurfaceFormat, width, height, fmt->BitsPerPixel, 
 								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 }
 
@@ -392,7 +392,7 @@ SDL_Surface *gfxCreateSurfaceAlpha(int width, int height)
 	const Uint32 alpha = 0xff000000;
 #endif
 
-	return SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, width, height, fmt->BitsPerPixel, 
+	return SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA, width, height, fmt->BitsPerPixel, 
 								fmt->Rmask, fmt->Gmask, fmt->Bmask, alpha);
 }
 

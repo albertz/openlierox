@@ -11,6 +11,7 @@
 
 
 #include "defs.h"
+#include "LieroX.h"
 //#include "corona.h"
 #include "Sounds.h"
 
@@ -50,7 +51,7 @@ SDL_Surface *_LoadImage(char *filename)
 		return NULL;
 
     
-    psSurf = SDL_CreateRGBSurface(SDL_SWSURFACE, image->getWidth(), image->getHeight(), 32, Rmask, Gmask, Bmask, Amask);
+    psSurf = SDL_CreateRGBSurface(iSurfaceFormat, image->getWidth(), image->getHeight(), 32, Rmask, Gmask, Bmask, Amask);
     if( !psSurf )
         return NULL;
 
@@ -124,7 +125,7 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 	}
 
 	// Convert the image to the screen's colour depth
-	Image = SDL_CreateRGBSurface(SDL_SWSURFACE, img->w,img->h,bpp, 0,0,0,0);
+	Image = SDL_CreateRGBSurface(iSurfaceFormat, img->w,img->h,bpp, 0,0,0,0);
 
 	// Blit it onto the new surface
 	SDL_BlitSurface(img,NULL,Image,NULL);

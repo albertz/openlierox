@@ -322,7 +322,7 @@ SDL_Surface *CWorm::ChangeGraphics(char *filename, int team)
 	}
 
 	// Convert the image to the screen's colour depth
-	img = SDL_CreateRGBSurface(SDL_SWSURFACE, tmp->w,tmp->h,16, 0,0,0,0);
+	img = SDL_CreateRGBSurface(iSurfaceFormat, tmp->w,tmp->h,16, 0,0,0,0);
 	if(img == NULL) {
 		// Error: Our of memory
 		return NULL;
