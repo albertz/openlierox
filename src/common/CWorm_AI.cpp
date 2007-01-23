@@ -934,7 +934,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 		return;
 
 #ifdef _AI_DEBUG
-/*	DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
+/*	DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,tLX->clPink);
 	do_some_tests_with_fastTraceLine(pcMap);
 	usleep(1000000);	
 	return; */
@@ -988,7 +988,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 			ws->iCarve = false;
 		}
    
-   		if(CheckOnGround(pcMap) && cNinjaRope.isAttached())
+   		if(CheckOnGround(pcMap) && fRopeAttachedTime >= 0.3f && !NEW_AI_IsInAir(vPos,pcMap))
    			cNinjaRope.Release();
    
     	return;
@@ -2220,7 +2220,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 	int x,y;
 
 #ifdef _AI_DEBUG
-	//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,MakeColour(255,0,255));
+	//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,tLX->clPink);
 #endif
 
 
@@ -2475,7 +2475,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		float y = (vPos.y-cTrgPos.y); // no PC-koord but real-world-koords
 
 		// Count with the gravity of the target worm
-		if (iAiGameType == GAM_RIFLES && psAITarget->CheckOnGround(pcMap))  {
+		/*if (iAiGameType == GAM_RIFLES && psAITarget->CheckOnGround(pcMap))  {
 			float flight_time = x*x+y*y/v;
 			CVec trg_arriv_speed = CVec(psAITarget->getVelocity()->x,psAITarget->getVelocity()->y+wd->Gravity*flight_time/2);
 			v += targ_speed;  // Get rid of the old target speed
@@ -2484,7 +2484,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 			direction = (psAITarget->getPos() - vPos).Normalize();
 			targ_speed =  direction.Scalar(trg_arriv_speed);
 			v -= targ_speed;
-		}
+		}*/
 
 		
 		// how long it takes for hitting the target
@@ -2539,7 +2539,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		// Don't shoot so exactly on easier skill levels
 		int diff[4] = {13,8,3,0};
 
-		if (tLX->fCurTime-fLastRandomChange)  {
+		if (tLX->fCurTime-fLastRandomChange >= 0.5f)  {
 			iRandomSpread = GetRandomInt(diff[iAiDiffLevel]) * SIGN(GetRandomNum());
 			fLastRandomChange = tLX->fCurTime;
 		}
@@ -2602,7 +2602,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 			ang = -ang + 90;
 		
 		// Cannot shoot
-		if (fabs(fAngle-ang) <= 30 && vVelocity.GetLength2() >= 90.0f && weap->Type != WPN_BEAM)  {
+		if (fabs(fAngle-ang) <= 30 && vVelocity.GetLength2() >= 900.0f && weap->Type != WPN_BEAM)  {
 			if (weap->Type == WPN_PROJECTILE)  {
 				if (weap->Projectile->PlyHit_Damage > 0)
 					return false;
@@ -3347,7 +3347,7 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
 	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 	if (!bmpDest)
 		return false;
-	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,MakeColour(255,0,255));
+	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,tLX->clPink);
 #endif*/
 
 	// Direction to left
@@ -3649,7 +3649,7 @@ CVec CWorm::NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, C
 			traceWormLine(pos-backdir*1000,pos,pcMap,&possible_end);
 			possible_end += backdir*5/backdir.GetLength();
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,(int)possible_end.x*2,(int)possible_end.y*2,MakeColour(255,0,255));
+			//PutPixel(bmpDest,(int)possible_end.x*2,(int)possible_end.y*2,tLX->clPink);
 #endif
 			// 'best' is, if we have much free way infront of pos
 			// and if we are not so far away from the start
@@ -3812,7 +3812,7 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 
 	const int NodeColour = MakeColour(255,0,0);
 	const int LineColour = 0xffff;
-	const int transparent = MakeColour(255,0,255);
+	const int transparent = tLX->clPink;
 
 	//(bmpDest,0,0,bmpDest->w,bmpDest->h,transparent);
 
@@ -4154,7 +4154,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 		CVec cAimPos = NEW_AI_GetBestRopeSpot(vPos+desired_dir,pcMap);
 
 		// Aim it
-		fireNinja = AI_SetAim(cAimPos);
+		/*fireNinja = AI_SetAim(cAimPos);
 
 		if (fireNinja)
 			fireNinja = psHeadingProjectile->GetVelocity().GetLength() > 50.0f;
@@ -4170,7 +4170,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 			// Shoot it
 			cNinjaRope.Shoot(vPos,dir);
-		}
+		}*/
 
 		return;
 	}
@@ -4270,7 +4270,39 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	NEW_AI_DrawPath(pcMap);
 #endif
 	
-	
+	/* 
+	  For rifle games: it's not clever when we go to the battle with non-reloaded weapons
+	  If we're close to the target (<= 3 nodes missing), stop and reload weapons if needed
+
+	  This is an advanced check, so simply ignore it if we are "noobs"
+	*/
+	if (iAiGameType == GAM_RIFLES && iAiDiffLevel >=2)  {
+		int num_reloaded=0;
+		int i;
+		for (i=0;i<5;i++) {
+			if (!tWeapons[i].Reloading)
+				num_reloaded++;
+		}
+
+		if (num_reloaded <= 3)  {
+			float dist;int type;
+			traceWeaponLine(cPosTarget,pcMap,&dist,&type);
+
+			// If we see the target, fight!
+			if (!(type & PX_EMPTY))  {
+				NEW_ai_node_t *node = NEW_psLastNode;
+				for(i=0;node && node != NEW_psCurrentNode;node=node->psPrev,i++) {}
+				if (node && i<=3)  {
+					// Reload weapons when we're close to the target
+					AI_ReloadWeapons();
+					// Stop
+					if (fRopeAttachedTime >= 0.7f)
+						cNinjaRope.Release();
+					return;
+				}
+			}
+		}
+	}
 
 
     /*
@@ -4287,7 +4319,10 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
     CVec v = CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY);
     int length = traceLine(v, pcMap, &traceDist, &type); // HINT: this is only a line, not the whole worm
 														 // NOTE: this can return dirt, even if there's also rock between us two
+
+
     //float dist = CalculateDistance(v, vPos);
+	// TODO: fireNinja is always false here
     if(!fireNinja && (float)(length*length) <= (v-vPos).GetLength2() && (type & PX_DIRT)) {
 		// HINT: as we always carve, we don't need to do it here specially
 		
@@ -4367,6 +4402,13 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	// It has no sense to shoot the rope on short distances
 	if(fireNinja && (vPos-ropespot).GetLength2() < 625.0f)
 		fireNinja = false;
+
+	// In rifle games: don't continue if we see the final target and are quite close to it
+	// If we shot the rope, we wouldnt aim the target, which is the priority now
+	traceWeaponLine(cPosTarget,pcMap,&traceDist,&type);
+	if (iAiGameType == GAM_RIFLES && CalculateDistance(vPos,cPosTarget) <= 60.0f && (type & PX_EMPTY))  {
+		fireNinja = false;
+	}
 
     CVec dir;
     if(fireNinja) {

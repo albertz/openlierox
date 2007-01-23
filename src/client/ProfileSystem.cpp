@@ -477,8 +477,8 @@ int LoadProfileGraphics(profile_t *p)
 		// Error
 		return false;
 	}
-	SDL_SetColorKey(p->bmpWorm, SDL_SRCCOLORKEY, MakeColour(255,0,255));
-    DrawRectFill(p->bmpWorm, 0,0,p->bmpWorm->w,p->bmpWorm->h, MakeColour(255,0,255));
+	SDL_SetColorKey(p->bmpWorm, SDL_SRCCOLORKEY, tLX->clPink);
+    DrawRectFill(p->bmpWorm, 0,0,p->bmpWorm->w,p->bmpWorm->h, tLX->clPink);
 
     // Draw the preview pic
     SDL_Surface *w = LoadSkin(p->szSkin, p->R, p->G, p->B);
@@ -490,7 +490,7 @@ int LoadProfileGraphics(profile_t *p)
 	// Apply a little cpu pic on the worm pic on ai players
 	SDL_Surface *ai = LoadImage("data/frontend/cpu.png", 16);
 	if(ai) {
-		SDL_SetColorKey(ai, SDL_SRCCOLORKEY, MakeColour(255,0,255));
+		SDL_SetColorKey(ai, SDL_SRCCOLORKEY, tLX->clPink);
 		
         if(p->iType == PRF_COMPUTER)
             DrawImageAdv(p->bmpWorm, ai, p->nDifficulty*10,0, 0,p->bmpWorm->h - ai->h, 10,ai->h);
@@ -522,8 +522,8 @@ SDL_Surface *LoadSkin(char *szSkin, int colR, int colG, int colB)
         return NULL;
 
     // Set the pink colour key & fill it with pink
-    SDL_SetColorKey(skin, SDL_SRCCOLORKEY, MakeColour(255,0,255));
-    DrawRectFill(skin,0,0,skin->w,skin->h,MakeColour(255,0,255));
+    SDL_SetColorKey(skin, SDL_SRCCOLORKEY, tLX->clPink);
+    DrawRectFill(skin,0,0,skin->w,skin->h,tLX->clPink);
 
 
     // Set the colour of the worm
@@ -544,13 +544,13 @@ SDL_Surface *LoadSkin(char *szSkin, int colR, int colG, int colB)
             //
             
             // Black means to just copy the colour but don't alter it
-            if( mask == MakeColour(0,0,0) ) {
+            if( mask == 0 ) {
                 PutPixel(skin, x,y, pixel);
                 continue;
             }
 
             // Pink means just ignore the pixel completely
-            if( mask == MakeColour(255,0,255) )
+            if( mask == tLX->clPink )
                 continue;
 
             // Must be white (or some over unknown colour)
@@ -570,7 +570,7 @@ SDL_Surface *LoadSkin(char *szSkin, int colR, int colG, int colB)
 
 
 			// Bit of a hack to make sure it isn't completey pink (see through)
-			if(MakeColour((int)r2, (int)g2, (int)b2) == MakeColour(255,0,255)) {
+			if(MakeColour((int)r2, (int)g2, (int)b2) == tLX->clPink) {
 				r2=240;
 				b2=240;
 			}

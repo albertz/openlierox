@@ -112,6 +112,8 @@ typedef struct {
 	Uint32			clReady;
 	Uint32			clPlayerName;
 
+	Uint32			clPink;
+
 
 	char	debug_string[32];
 } lierox_t;

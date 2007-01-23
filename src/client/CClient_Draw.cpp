@@ -39,8 +39,8 @@ int CClient::InitializeDrawing(void)
 
 	// Initialize the score buffer
 	bmpScoreBuffer = gfxCreateSurface(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h);
-	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,MakeColour(255,0,255));
-	SDL_SetColorKey(bmpScoreBuffer, SDL_SRCCOLORKEY, MakeColour(255,0,255));
+	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,tLX->clPink);
+	SDL_SetColorKey(bmpScoreBuffer, SDL_SRCCOLORKEY, tLX->clPink);
 
 	return true;
 }
@@ -676,7 +676,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 {
 	if (bUpdateScore)  {
-		DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,MakeColour(255,0,255));
+		DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,tLX->clPink);
 		UpdateScoreBuf(bmpScoreBuffer,bmpImage);
 	}
 

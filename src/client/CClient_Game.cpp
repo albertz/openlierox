@@ -952,7 +952,7 @@ void CClient::DrawBeam(CWorm *w)
 	// Spawn a beam entity
 	// Don't draw the beam if it is 255,0,255
 	Uint32 col = MakeColour(Slot->Weapon->Bm_Colour[0], Slot->Weapon->Bm_Colour[1], Slot->Weapon->Bm_Colour[2]);
-	if(col != MakeColour(255,0,255) && !bBotClient) {
+	if(col != tLX->clPink/* && !bBotClient*/) {
 		SpawnEntity(ENT_BEAM, i, w->getPos(), dir, col, NULL);
 	}
 }
@@ -1691,7 +1691,7 @@ CVec CClient::FindNearestSpot(CWorm *w)
 	for(i=0; i<9 && x < cMap->GetWidth(); i++,x++)  {
 		for (j=0; j<8 && y<cMap->GetHeight(); j++,y++)  {
 			if(cMap->GetPixelFlag(x,y) & PX_ROCK)  {
-				//cMap->PutImagePixel(x,y,MakeColour(255,0,0));
+				//cMap->PutImagePixel(x,y,tLX->clPink);
 				RockPixels++;
 			}
 		}

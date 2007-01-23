@@ -207,7 +207,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 			DrawImage(bmpDest,t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h);
 			DrawRect(bmpDest,22,107, 52,137, 0xffff);
 		} else
-			DrawImageStretchKey(bmpDest, t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h, (Uint16)MakeColour(255,0,255));
+			DrawImageStretchKey(bmpDest, t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h, (Uint16)tLX->clPink);
 	}
 
 	
@@ -232,7 +232,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 		int w = t->bmpMisc[ tMenu->iCurMisc ]->w;
 		int h = t->bmpMisc[ tMenu->iCurMisc ]->h;
 
-		DrawImageStretchKey(bmpDest, t->bmpMisc[ tMenu->iCurMisc ], 37-w, 122-h, (Uint16)MakeColour(255,0,255));
+		DrawImageStretchKey(bmpDest, t->bmpMisc[ tMenu->iCurMisc ], 37-w, 122-h, (Uint16)tLX->clPink);
 	}
 
 	// Dirt
@@ -443,7 +443,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 		if(tMenu->iEditMode == 0 || tMenu->iEditMode == 3)
 			DrawImageStretchKey(tMenu->bmpScreen,MouseImg, Mouse->X-w, Mouse->Y-h,0);
 		else
-			DrawImageStretchKey(tMenu->bmpScreen,MouseImg, Mouse->X-w, Mouse->Y-h, (Uint16)MakeColour(255,0,255));
+			DrawImageStretchKey(tMenu->bmpScreen,MouseImg, Mouse->X-w, Mouse->Y-h, (Uint16)tLX->clPink);
 	}
 	else
 		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);

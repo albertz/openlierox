@@ -484,9 +484,9 @@ Uint32 StrToCol(char *str)
 
 	// By default return pink
 	if(!str)
-		return MakeColour(255,0,255);
+		return tLX->clPink;
 	if(strlen(str) < 6)
-		return MakeColour(255,0,255);
+		return tLX->clPink;
 
 	// Ignore the # character
 	if (*str == '#')
@@ -494,7 +494,7 @@ Uint32 StrToCol(char *str)
 
 	// Check again
 	if(strlen(str) < 6)
-		return MakeColour(255,0,255);
+		return tLX->clPink;
 
 	// R value
 	strncpy(tmp,str,2);

@@ -724,13 +724,13 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
             //
             
             // Black means to just copy the colour but don't alter it
-            if( mask == MakeColour(0,0,0) ) {
+            if( mask == 0 ) {
                 PutPixel(bmpDest, sx+dx,y+dy, pixel);
                 continue;
             }
 
             // Pink means just ignore the pixel completely
-            if( mask == MakeColour(255,0,255) )
+            if( mask == tLX->clPink )
                 continue;
 
             // Must be white (or some over unknown colour)
@@ -750,7 +750,7 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 
 
 			// Bit of a hack to make sure it isn't completey pink (see through)
-			if(MakeColour((int)r2, (int)g2, (int)b2) == MakeColour(255,0,255)) {
+			if(MakeColour((int)r2, (int)g2, (int)b2) == tLX->clPink) {
 				r2=240;
 				b2=240;
 			}
@@ -782,7 +782,7 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
 
 	/*SDL_Surface *tmp = NULL;
 	SDL_Surface *tmp2 = gfxCreateSurface(16,16);
-	SDL_SetColorKey(tmp2,SDL_SRCCOLORKEY,MakeColour(255,0,255));*/
+	SDL_SetColorKey(tmp2,SDL_SRCCOLORKEY,tLX->clPink);*/
 
     while(1) {
 

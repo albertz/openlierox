@@ -394,7 +394,7 @@ char *Menu_GetLevelName(char *filename)
 void Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type)
 {
 	// First draw the background
-	if (BgColour != MakeColour(255,0,255))
+	if (BgColour != tLX->clPink)
 		DrawRectFill(bmpDest,x+border,y+border,x2-border+1,y2-border+1,BgColour);
 
 	if (!border)

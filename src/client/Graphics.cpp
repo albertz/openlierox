@@ -86,7 +86,7 @@ int LoadGraphics(void)
 	//tLX->cOutlineFontGrey.SetOutline(true);
 
 	// Set the colour keys
-	Uint32 pink = MakeColour(255,0,255);
+	Uint32 pink = tLX->clPink;
 	for(i=0;i<4;i++)
 		SDL_SetColorKey(gfxGUI.bmpMouse[i], SDL_SRCCOLORKEY, pink);
 

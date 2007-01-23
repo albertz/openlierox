@@ -103,7 +103,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 	Uint32 pixel;
 	int x,y;
 
-	DrawRectFill(bmpSurf,0,0,bmpSurf->w,bmpSurf->h,MakeColour(255,0,255));
+	DrawRectFill(bmpSurf,0,0,bmpSurf->w,bmpSurf->h,tLX->clPink);
 	SDL_BlitSurface(bmpFont,NULL,bmpSurf,NULL);
 
 

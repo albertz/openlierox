@@ -36,8 +36,8 @@ void CBox::PreDraw(void)
 	}
 
 	// Set the whole buffer transparent
-	SDL_SetColorKey(bmpBuffer, SDL_SRCCOLORKEY, SDL_MapRGB(bmpBuffer->format,255,0,255));
-	DrawRectFill(bmpBuffer,0,0,iWidth,iHeight,MakeColour(255,0,255));
+	SDL_SetColorKey(bmpBuffer, SDL_SRCCOLORKEY, tLX->clPink);
+	DrawRectFill(bmpBuffer,0,0,iWidth,iHeight,tLX->clPink);
 
 	// Clip the border and radius
 	if (iRound < 0 || iBorder < 0)
@@ -169,7 +169,7 @@ void CBox::PreDraw(void)
 	//
 	//	Draw the background
 	//
-	if (iBgColour == MakeColour(255,0,255))
+	if (iBgColour == tLX->clPink)
 		return;
 
 	// Draw the center rectangle
@@ -259,7 +259,7 @@ int	CBox::CheckEvent(void)
 	// Mouse in the buffer
 	if (x < iWidth && y < iHeight)  {
 		// Mouse over transparent pixel? No event
-		if(GetPixel(bmpBuffer,x,y) == MakeColour(255,0,255))
+		if(GetPixel(bmpBuffer,x,y) == tLX->clPink)
 			return BOX_NOEVENT;
 		else
 			return BOX_NONE;

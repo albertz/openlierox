@@ -286,7 +286,7 @@ int CMap::LoadTheme(char *_theme)
 	// Calculate the default colour from a non-pink, non-black colour in the hole image
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	SDL_Surface *hole = Theme.bmpHoles[0];
-	Uint16 pink = (Uint16)MakeColour(255,0,255);
+	Uint16 pink = (Uint16)tLX->clPink;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
 			for(x=0; x<hole->w; x++) {
@@ -445,8 +445,8 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
-	SDL_SetColorKey(bmpDebugImage, SDL_SRCCOLORKEY, SDL_MapRGB(bmpDebugImage->format,255,0,255));
-	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,MakeColour(255,0,255));
+	SDL_SetColorKey(bmpDebugImage, SDL_SRCCOLORKEY, tLX->clPink);
+	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,tLX->clPink);
 #endif
 
 	bmpDrawImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel, 
@@ -701,7 +701,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
     int dtx = (wx - v_wx)*2;
     int dty = (wy - v_wy)*2;
   
-    Uint16 pink = (Uint16)MakeColour(255,0,255);
+    Uint16 pink = (Uint16)tLX->clPink;
 
     int x,y,dx,dy,i,j;
     
@@ -778,7 +778,7 @@ int CMap::CarveHole(int size, CVec pos)
 	int w,h;
 	Uint32 pixel;
 	uchar flag;
-	Uint32 pink = MakeColour(255,0,255);
+	Uint32 pink = tLX->clPink;
 
     int nNumDirt = 0;
 
@@ -947,7 +947,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 	int w,h;
 	Uint32 pixel;
 	uchar flag;
-	Uint32 pink = MakeColour(255,0,255);
+	Uint32 pink = tLX->clPink;
 
     int nDirtCount = 0;
 
@@ -1065,7 +1065,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 	int w,h;
 	Uint32 pixel;
 	uchar flag;
-	Uint32 pink = MakeColour(255,0,255);
+	Uint32 pink = tLX->clPink;
     Uint32 green = MakeColour(0,255,0);
     Uint32 greens[4] = {MakeColour(148,136,0), 
                         MakeColour(136,124,0), 
@@ -1331,7 +1331,7 @@ void CMap::PlaceStone(int size, CVec pos)
 	int x,y;
 	int w,h;
 
-	Uint32 pink = MakeColour(255,0,255);
+	Uint32 pink = tLX->clPink;
 
 	if(size < 0 || size >= Theme.NumStones) {
 		// TODO: Bail out or warning of overflow
@@ -1426,7 +1426,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 	int x,y;
 	int w,h;
 
-	Uint32 pink = MakeColour(255,0,255);
+	Uint32 pink = tLX->clPink;
 
 	if(id < 0 || id >= Theme.NumMisc) {
 		// TODO: Bail out or warning of overflow

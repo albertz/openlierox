@@ -291,8 +291,8 @@ int CWorm::LoadGraphics(int gametype)
     
     // Create the minipic
     bmpPic = gfxCreateSurface(18,16);
-    SDL_SetColorKey(bmpPic, SDL_SRCCOLORKEY, MakeColour(255,0,255));
-    DrawRectFill(bmpPic, 0,0,bmpPic->w,bmpPic->h, MakeColour(255,0,255));
+    SDL_SetColorKey(bmpPic, SDL_SRCCOLORKEY, tLX->clPink);
+    DrawRectFill(bmpPic, 0,0,bmpPic->w,bmpPic->h, tLX->clPink);
     DrawImageAdv(bmpPic, bmpWorm, 134,2,0,0, 18,16);
 
 	
@@ -367,7 +367,7 @@ SDL_Surface *CWorm::ChangeGraphics(char *filename, int team)
 			GetColour4(pixel,img,&r,&g,&b,&a);
 
 			// Ignore pink & gun colours
-			if(pixel == MakeColour(255,0,255))
+			if(pixel == tLX->clPink)
 				continue;
 			if(pixel == MakeColour(216,216,216))
 				continue;
@@ -391,7 +391,7 @@ SDL_Surface *CWorm::ChangeGraphics(char *filename, int team)
 			b2 = MIN((float)255,b2);
 
 			// Make sure it isn't exactly 'magic pink'
-			if(MakeColour((int)r2, (int)g2, (int)b2) == MakeColour(255,0,255)) {
+			if(MakeColour((int)r2, (int)g2, (int)b2) == tLX->clPink) {
 				r2=240;
 				b2=240;
 			}
@@ -739,7 +739,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 
 
-	Uint16 PlayerPink = (Uint16)MakeColour(255,0,255);
+	Uint16 PlayerPink = (Uint16)tLX->clPink;
 
 
 	int a = (int)fAngle;
@@ -832,7 +832,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
     
 	// Draw the worm
-    DrawRectFill(bmpShadowPic,0,0,32,18,MakeColour(255,0,255));
+    DrawRectFill(bmpShadowPic,0,0,32,18,tLX->clPink);
 	if(iDirection == DIR_RIGHT)
         DrawImageAdv(bmpShadowPic, bmpWorm, f,0, 6,0, 32,18);
 		//DrawImageAdv(bmpDest, bmpWorm, f,0, x-12,y-10, 32,18);

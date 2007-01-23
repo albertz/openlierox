@@ -536,7 +536,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		
 		// Set the colour key
 		if(proj->bmpImage)
-			SDL_SetColorKey(proj->bmpImage, SDL_SRCCOLORKEY, MakeColour(255,0,255));
+			SDL_SetColorKey(proj->bmpImage, SDL_SRCCOLORKEY, tLX->clPink);
 
 		fread(&proj->Rotating, sizeof(int), 1, fp);
 		EndianSwap(proj->Rotating);
