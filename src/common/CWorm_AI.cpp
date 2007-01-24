@@ -2203,13 +2203,14 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 	// Get the maximal X
 	int max_x = (int)(to->x-from->x);
 	
-	if (max_x == 0) {
-		float fDist;
-		int nType = PX_EMPTY;
-		int len = traceWeaponLine(cTrgPos,pcMap,&fDist,&nType);
-		return (nType == PX_EMPTY);
+	wpnslot_t* wpnslot = getWeapon(getCurrentWeapon());
+	weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
+	proj_t* wpnproj = wpn ? wpn->Projectile : NULL;
+	if(!wpnproj) {
+		printf("ERROR: cannot determinit wpnproj\n");
+		return false;
 	}
-	
+		
 	// Get the maximal Y
 	int max_y = (int)(from->y-to->y);
 
@@ -2228,14 +2229,26 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 	float tmp;
 	float cos_alpha = cos(alpha);
 	float tan_alpha = tan(alpha);
+	y = 0;
+	float dy;
+	
+	if (max_x == 0) {
+		if(speed && fabs(cos_alpha)>0.1f) return false;
+		float fDist;
+		int nType = PX_EMPTY;
+		int len = traceWeaponLine(cTrgPos,pcMap,&fDist,&nType);
+		return (nType == PX_EMPTY);
+	}
+	
 	if (max_x > 0)  {
-		for (x=0;x<max_x;x++)  {
+		for (x=0;x<max_x;x+=2)  {
 			tmp = (2*speed*speed*cos_alpha*cos_alpha);
 			if(tmp != 0)
-				y = -x*(int)(tan_alpha+(gravity*x*x)/tmp);
+				dy = -x*(int)(tan_alpha+(gravity*x*x)/tmp) - y;
 			else
 				return false;
-				
+			y += dy;
+			
 			// If we have reached the target, the trajectory is free
 			if (max_y < 0)  {
 				if (y < max_y)
@@ -2246,9 +2259,11 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 			}
 
 			// Rock or dirt, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
+			/*if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
 				return false;
-			}
+			}*/
+			if(CProjectile::CheckCollision(wpnproj,1,pcMap,*from+CVec(x,y),CVec(2,dy)))
+				return false;
 
 	#ifdef _AI_DEBUG
 			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,0xffff);
@@ -2256,13 +2271,14 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 		}
 	}
 	else  {
-		for (x=0;x>max_x;x--)  {
+		for (x=0;x>max_x;x-=2)  {
 			tmp = (2*speed*speed*cos_alpha*cos_alpha);
 			if(tmp != 0)
-				y = -x*(int)(tan_alpha+(gravity*x*x)/tmp);
+				dy = -x*(int)(tan_alpha+(gravity*x*x)/tmp) - y;
 			else
 				return false;
-				
+			y += dy;
+			
 			// If we have reached the target, the trajectory is free
 			if (max_y < 0)  {
 				if (y < max_y)
@@ -2273,9 +2289,11 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 			}
 
 			// Rock or dirt, trajectory not free
-			if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
+			/*if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
 				return false;
-			}
+			}*/
+			if(CProjectile::CheckCollision(wpnproj,1,pcMap,*from+CVec(x,y),CVec(-2,dy)))
+				return false;
 
 	#ifdef _AI_DEBUG
 			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,0xffff);
@@ -2608,7 +2626,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	// If there's some lag or low FPS, don't shoot in the direction of our flight (avoid suicides)
 	//
 
-/*	// HINT: we don't need this, because we ensure above in the speed-calculation, that we have no problem
+	// HINT: we don't need this, because we ensure above in the speed-calculation, that we have no problem
 	// TODO: avoiding projectiles should not be done by not shooting but by changing MoveToTarget
 	if(bAim) if (GetFPS() < 75 || tGameInfo.iGameType == GME_JOIN)  {
 		// Get the angle
@@ -2626,7 +2644,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 					return false;
 			}
 		}
-	} */
+	}
 
     if(!bAim)  {
 

@@ -99,7 +99,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	}
 
 	// If the dt is too great, half the simulation time & run it twice
-	if(dt > 0.015f) {
+	if(dt > 0.15f) {
 		dt /= 2;
 		res = Simulate(dt,map,worms,wormid);
         if( res != PJC_NONE )
@@ -263,15 +263,10 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 		
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
-	// TODO: is an 'else' missing here?
-	w=h=2;
+	else // TODO: was this 'else' missing here?
+		w=h=2;
 	
-	float maxspeed2 = (float)(4*w*w);
-
-	if(tProjInfo->Hit_Type == PJ_BOUNCE)
-		maxspeed2 /= 4;
-
-	// If the projectile is going too fast, divide the speed by 2 and perform 2 collision checks
+	float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
 	if( (vel*dt).GetLength2() > maxspeed2) {
 		dt *= 0.5f;
 
@@ -424,6 +419,96 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 	return false;
 }
 
+///////////////////
+// Check for a collision (static version; doesnt do anything else then checking)
+// Returns true if there was a collision, otherwise false is returned
+int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos, CVec vel)
+{	
+	// Check if it hit the terrain
+	int mw = map->GetWidth();
+	int mh = map->GetHeight();
+	int w,h;
+	int px,py,x,y;
+		
+	if(tProjInfo->Type == PRJ_PIXEL)
+		w=h=1;
+	else // TODO: was this 'else' missing here?
+		w=h=2;
+	
+	float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
+	if( (vel*dt).GetLength2() > maxspeed2) {
+		dt *= 0.5f;
+
+		if(CheckCollision(tProjInfo,dt,map,pos,vel))
+			return true;
+
+		pos += vel*dt;
+
+		return CheckCollision(tProjInfo,dt,map,pos,vel);
+	}
+
+	pos += vel*dt;
+	
+	px=(int)pos.x;
+	py=(int)pos.y;
+
+	short top,bottom,left,right;
+	top=bottom=left=right=0;
+	
+	// Hit edges
+	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh) {
+
+		return true;
+	}
+
+	const uchar* gridflags = map->getAbsoluteGridFlags();
+	int grid_w = map->getGridWidth();
+	int grid_h = map->getGridHeight();
+	int grid_cols = map->getGridCols();
+	if(grid_w < 2*w+1 || grid_h < 2*h+1 // this ensures, that this check is safe
+	|| gridflags[((py-h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((py+h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((py-h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT)
+	|| gridflags[((py+h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT))
+	for(y=py-h;y<=py+h;y++) {
+
+		// Clipping means that it has collided
+		if(y<0 || y>=mh)	{
+			return true;
+		}
+		
+		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
+
+		for(x=px-w;x<=px+w;x++) {
+
+			// Clipping
+			if(x<0 || x>=mw) {
+				return true;
+			}
+
+			if(*pf & PX_DIRT || *pf & PX_ROCK) {
+				if(y<py)
+					top++;
+				else if(y>py)
+					bottom++;
+				if(x<px)
+					left++;
+				else if(x>px)
+					right++;
+			}
+
+			pf++;
+		}
+	}
+
+
+	// Check for a collision
+	if(top || bottom || left || right) {
+		return true;
+	}
+
+	return false;
+}
 
 ///////////////////
 // Draw the projectile
