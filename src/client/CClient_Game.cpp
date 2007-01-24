@@ -1287,7 +1287,7 @@ void CClient::ProcessShot(shoot_t *shot)
 
 	// Add the recoil
 	CVec *vel = w->getVelocity();
-	*vel = *vel + -dir*(float)wpn->Recoil;
+	*vel -= dir*(float)wpn->Recoil;
 
 	// Draw the muzzle flash
 	w->setDrawMuzzle(true);

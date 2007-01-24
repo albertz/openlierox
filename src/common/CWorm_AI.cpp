@@ -2221,19 +2221,20 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 
 #ifdef _AI_DEBUG
 	//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,tLX->clPink);
+	//DrawRectFill(pcMap->GetDebugImage(),cTrgPos.x*2-2,cTrgPos.y*2-2,cTrgPos.x*2+2,cTrgPos.y*2+2,0xffff);
 #endif
 
 
-	int tmp;
+	float tmp;
 	float cos_alpha = cos(alpha);
 	float tan_alpha = tan(alpha);
 	if (max_x > 0)  {
 		for (x=0;x<max_x;x++)  {
-			tmp = (int)(2*speed*speed*cos_alpha*cos_alpha);
+			tmp = (2*speed*speed*cos_alpha*cos_alpha);
 			if(tmp != 0)
-				y = -x*(int)tan_alpha+(gravity*x*x)/tmp;
+				y = -x*(int)(tan_alpha+(gravity*x*x)/tmp);
 			else
-				y = 0;
+				return false;
 				
 			// If we have reached the target, the trajectory is free
 			if (max_y < 0)  {
@@ -2256,11 +2257,11 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 	}
 	else  {
 		for (x=0;x>max_x;x--)  {
-			tmp = (int)(2*speed*speed*cos_alpha*cos_alpha);
+			tmp = (2*speed*speed*cos_alpha*cos_alpha);
 			if(tmp != 0)
-				y = -x*(int)tan_alpha+(gravity*x*x)/tmp;
+				y = -x*(int)(tan_alpha+(gravity*x*x)/tmp);
 			else
-				y = 0;
+				return false;
 				
 			// If we have reached the target, the trajectory is free
 			if (max_y < 0)  {
@@ -2394,7 +2395,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 */
 
 	// TODO: first choose the weapon, and then use weaponCanHit instead of traceWeaponLine
-
+	// hm, i would say, the other way around is better
+	
     float fDist;
     int nType = -1;
     int length = 0;
@@ -2407,8 +2409,10 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	}
 
 	// Don't shoot teammates
-	if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM))
+	if(tGameInfo.iGameMode == GMT_TEAMDEATH && (nType & PX_WORM)) {
+		printf("we don't want shoot teammates\n");	
 		return false;
+	}
 
 	// If target is blocked by large amount of dirt, we can't shoot it
 	if (nType & PX_DIRT)  {
@@ -2420,6 +2424,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	if (bDirect && iAiGameType == GAM_MORTARS)  {
 		if (!NEW_AI_CheckFreeCells(1,pcMap))  {
 //			bDirect = false;
+			//printf("not enough free cells\n");
 			return false;
 		}
 		if (!traceWormLine(cTrgPos,vPos,pcMap))
@@ -2432,7 +2437,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
     int wpn = AI_GetBestWeapon(iAiGameType, d, bDirect, pcMap, fDist);
     if(wpn < 0) {
         //strcpy(tLX->debug_string, "No good weapon");
-        //printf("I could not find any useable weapon\n");
+        printf("I could not find any useable weapon\n");
         return false;
     }     
 
@@ -2453,7 +2458,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	//case PJ_CARVE: 
 	case PJ_DIRT:
 	case PJ_GREENDIRT:
-		//printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
+		printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
 		// don't shoot this shit
 		break;
 	default:
@@ -2463,9 +2468,16 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		float my_speed = direction.Scalar(vVelocity);
 		
 		// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
-		float v = (float)weap->ProjSpeed*weap->Projectile->Dampening + weap->ProjSpeedVar*100.0f + my_speed - targ_speed;
+		float v = (float)weap->ProjSpeed/* *weap->Projectile->Dampening */ + weap->ProjSpeedVar*100.0f + my_speed;
 		if(v < 0) {
 			// we have high velocities, danger to shot...
+			// if v<0, we would shoot in the wrong direction
+			//printf("velocities(%f) too high...\n", v);
+		/*	printf("  ProjSpeed = %f\n", (float)weap->ProjSpeed);
+			printf("  Dampening = %f\n", (float)weap->Projectile->Dampening);
+			printf("  ProjSpeedVar = %f\n", weap->ProjSpeedVar);
+			printf("  my_speed = %f\n", my_speed);
+			printf("  targ_speed = %f\n", targ_speed); */
 			bAim = false;
 			break;
 		}
@@ -2488,7 +2500,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 
 		
 		// how long it takes for hitting the target
-/*		float apriori_time = v ? (x*x + y*y) / v : 0;
+		float apriori_time = v ? sqrt(x*x + y*y) / v : 0;
 		if(apriori_time < 0) {
 			// target is faster than the projectile
 			// shoot somewhere in the other direction
@@ -2500,9 +2512,9 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 			
 		} else { // apriori_time >= 0
 			// where the target would be
-//			x += apriori_time*psAITarget->getVelocity()->x;
-//			y -= apriori_time*psAITarget->getVelocity()->y; // HINT: real-world-koords
-		} */
+			x += apriori_time*psAITarget->getVelocity()->x;
+			y -= apriori_time*psAITarget->getVelocity()->y; // HINT: real-world-koords
+		}
 		
 		// Gravity
 		int	g = 100;
@@ -2532,6 +2544,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		// Get the alpha
 		bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
 		if (!bAim) {
+			//printf("cannot calc the alpha, v=%f, g=%i, x=%f, y=%f\n", v,g,x,y);
 			break;
 		}
 
@@ -2556,6 +2569,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		}
 		else {
 			bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y),pcMap);
+			//if(!bAim) printf("weapon can't hit target, g=%i, v=%f, x=%f, y=%f\n", g,v,x,y);
 		}
 
 		if (!bAim)
@@ -2579,6 +2593,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		else
 			iDirection = DIR_RIGHT;
 
+		//if(bAim) printf("shooting!!!\n");
+		
 		/*strcpy(tLX->debug_string,weap->Name);
 		if (tLX->fCurTime-flast > 1.0f)  {
 			tLX->debug_float = alpha;
@@ -2592,6 +2608,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	// If there's some lag or low FPS, don't shoot in the direction of our flight (avoid suicides)
 	//
 
+/*	// HINT: we don't need this, because we ensure above in the speed-calculation, that we have no problem
+	// TODO: avoiding projectiles should not be done by not shooting but by changing MoveToTarget
 	if(bAim) if (GetFPS() < 75 || tGameInfo.iGameType == GME_JOIN)  {
 		// Get the angle
 		float ang = (float)atan2(vVelocity.x, vVelocity.y);
@@ -2608,7 +2626,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 					return false;
 			}
 		}
-	}
+	} */
 
     if(!bAim)  {
 
@@ -2628,11 +2646,12 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	}
 
 	// Reflexes :)
-	float diff[4] = {0.45f,0.35f,0.25f,0.0f};
+	// TODO: this doesn't work atm
+	/*float diff[4] = {0.45f,0.35f,0.25f,0.0f};
 	fCanShootTime += tLX->fDeltaTime;
 	if (fCanShootTime <= diff[iAiDiffLevel])  {
 		return false;
-	}
+	}*/
 
 	fBadAimTime = 0;
 
