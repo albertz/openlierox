@@ -103,6 +103,10 @@ int Menu_Initialize(int *game)
 	LOAD_IMAGE(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 
+#ifndef DEBUG	
+	// TODO: I don't know why until now, but the SDL_DisplayFormatAlpha causes
+	//		some problems in valgrind (it causes in an invalid instruction
+	//		call on my PPC with SDL-1.2.11)
 	// Convert the buttons to the display format (faster)
 	SDL_Surface *tmp = NULL;
 	tmp = SDL_DisplayFormatAlpha(tMenu->bmpButtons);
@@ -110,6 +114,7 @@ int Menu_Initialize(int *game)
 		return false;
 	// NOTE: Don't free the original surface, it's freed by the cache
 	tMenu->bmpButtons = tmp;
+#endif
 
     tMenu->bmpWorm = NULL;
 	tMenu->bmpScreen = SDL_GetVideoSurface();
