@@ -146,11 +146,12 @@ int SetVideoMode(void)
 		vidflags |= SDL_FULLSCREEN;
 	
 	if (opengl) {
-	  vidflags |= SDL_OPENGLBLIT;
-	  SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   5);
-	  SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 5);
-	  SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  5);
-	  SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
+		printf("HINT: using OpenGL\n");
+		vidflags |= SDL_OPENGLBLIT;
+		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   5);
+		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 5);
+		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  5);
+		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
 	}
 
 	if(HardwareBuf)  {
@@ -165,7 +166,6 @@ int SetVideoMode(void)
 
 	if(DoubleBuf)
 		vidflags |= SDL_DOUBLEBUF;
-
 
 
 	if( SDL_SetVideoMode(640,480, bpp,vidflags) == NULL) {

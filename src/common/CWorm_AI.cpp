@@ -2230,7 +2230,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 	float cos_alpha = cos(alpha);
 	float tan_alpha = tan(alpha);
 	y = 0;
-	float dy;
+	int dy;
 	
 	if (max_x == 0) {
 		if(speed && fabs(cos_alpha)>0.1f) return false;
