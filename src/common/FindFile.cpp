@@ -149,6 +149,7 @@ int FindFirstDir(char *dir, char *name)
 	if(_dir2[0] == '\0')
 		return false;
 			
+	// TODO: in some cases, handle2 will not get free
 	handle2 = opendir(_dir2);
 	fix_strncpy(_dir2, dir);
 

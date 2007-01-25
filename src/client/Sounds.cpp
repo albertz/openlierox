@@ -101,7 +101,7 @@ bool FreeSoundSample(SoundSample* sample) {
 	// no sample, so we are ready
 	if(!sample) return true;
 	
-	if(!sample->sample) {
+	if(sample->sample) {
 		Mix_FreeChunk(sample->sample);
 		sample->sample = NULL;	
 	}

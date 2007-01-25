@@ -835,6 +835,7 @@ bool CWorm::AI_Initialize(CMap *pcMap)
     fLastPathUpdate = -9999;
 	fLastJump = -9999;
 	fLastCreated = -9999;
+	fLastThink = -9999;
     bStuck = false;
 	bPathFinished = true;
 	//iAiGameType = GAM_OTHER;
@@ -849,9 +850,14 @@ bool CWorm::AI_Initialize(CMap *pcMap)
 	fRopeAttachedTime = 0;
 	fRopeHookFallingTime = 0;
 
-	pathSearcher = new searchpath_base;
-	if(!pathSearcher)
+	if(pathSearcher)
+		printf("WARNING: pathSearcher is already initialized\n");
+	else
+		pathSearcher = new searchpath_base;
+	if(!pathSearcher) {
+		printf("ERROR: cannot initialize pathSearcher\n");
 		return false;
+	}
 	((searchpath_base*)pathSearcher)->pcMap = pcMap;
 
     return true;
