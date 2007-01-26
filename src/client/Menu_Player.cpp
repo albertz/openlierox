@@ -65,8 +65,8 @@ void Menu_PlayerInitialize(void)
 {
 	tMenu->iMenuType = MNU_PLAYER;
 
-	Uint32 blue = MakeColour(0,138,251);
-	Uint32 grey = MakeColour(128,128,128);
+//	Uint32 blue = MakeColour(0,138,251); // TODO: not used
+//	Uint32 grey = MakeColour(128,128,128); // TODO: not used
 	iPlayerMode = 0;
 	CListview *lv;
 
@@ -81,7 +81,7 @@ void Menu_PlayerInitialize(void)
 
 	// Setup the top buttons
 	cPlyButtons[pp_NewPlayerTab]   = CButton(BUT_NEWPLAYER,	tMenu->bmpButtons);
-	cPlyButtons[pp_ViewPlayersTab] = CButton(BUT_VIEWPLAYERS,	tMenu->bmpButtons);	
+	cPlyButtons[pp_ViewPlayersTab] = CButton(BUT_VIEWPLAYERS,	tMenu->bmpButtons);
 
 	cPlyButtons[pp_NewPlayerTab].Setup(0, 150, 110, 120, 15);
 	cPlyButtons[pp_ViewPlayersTab].Setup(1, 370, 110, 135, 15);
@@ -110,10 +110,10 @@ void Menu_PlayerInitialize(void)
     cNewPlayer.Add( new CLabel("Skin", tLX->clNormalLabel),Static,40,  262,0,  0);
     cNewPlayer.Add( new CCombobox(),           np_PlySkin,120,260,120,20);
     cNewPlayer.Add( new CLabel("Type", tLX->clNormalLabel),Static,40,  232,0,  0);
-    cNewPlayer.Add( new CCombobox(),           np_Type,  120, 230,120,17); 
-	
+    cNewPlayer.Add( new CCombobox(),           np_Type,  120, 230,120,17);
+
 	cNewPlayer.SendMessage(np_Name,TXM_SETMAX,20,0);
-	
+
 
 	//cNewPlayer.Add( new CLabel("Multiplayer (optional)", tLX->clHeading),Static, 370, 170, 0,0);
 	//cNewPlayer.Add( new CLabel("Username", tLX->clNormalLabel), Static, 380, 202, 0,0);
@@ -131,7 +131,7 @@ void Menu_PlayerInitialize(void)
     cNewPlayer.getWidget(np_AIDiffLbl)->setEnabled(false);
 	cNewPlayer.getWidget(np_AIDiff)->setEnabled(false);
 
-	
+
 	cNewPlayer.SendMessage( np_Password, TXM_SETFLAGS, TXF_PASSWORD, 0);
 	cNewPlayer.SendMessage( np_Password, TXM_SETMAX, 15, 0);
 	cNewPlayer.SendMessage( np_Username, TXM_SETMAX, 15, 0);
@@ -156,7 +156,7 @@ void Menu_PlayerInitialize(void)
     cViewPlayers.Add( new CLabel("Name", tLX->clNormalLabel),                   Static, 350,172, 0,  0);
     cViewPlayers.Add( new CTextbox(),                               vp_Name,  400,170, 120,20);
 	cViewPlayers.Add( new CButton(BUT_DELETE, tMenu->bmpButtons),   vp_Delete, 330,340, 70, 15);
-    cViewPlayers.Add( new CButton(BUT_APPLY, tMenu->bmpButtons),    vp_Apply,  500,340, 55, 15);    
+    cViewPlayers.Add( new CButton(BUT_APPLY, tMenu->bmpButtons),    vp_Apply,  500,340, 55, 15);
 
     cViewPlayers.Add( new CLabel("Red",tLX->clNormalLabel),                     Static, 350,250,0,0);
 	cViewPlayers.Add( new CLabel("Green",tLX->clNormalLabel),                   Static, 350,270,0,0);
@@ -170,7 +170,7 @@ void Menu_PlayerInitialize(void)
     cViewPlayers.Add( new CLabel("Skin", tLX->clNormalLabel),                   Static, 350,227, 0,  0);
     cViewPlayers.Add( new CCombobox(),                              vp_PlySkin,400,225, 120,17);
     cViewPlayers.Add( new CLabel("Type", tLX->clNormalLabel),                   Static, 350,202, 0,  0);
-    cViewPlayers.Add( new CCombobox(),                              vp_Type,   400,200, 120,17);    
+    cViewPlayers.Add( new CCombobox(),                              vp_Type,   400,200, 120,17);
 
 	cViewPlayers.SendMessage(vp_Name,TXM_SETMAX,20,0);
 	cViewPlayers.SendMessage(vp_Players,		LVM_SETOLDSTYLE, 0, 0);
@@ -211,7 +211,7 @@ void Menu_PlayerFrame(void)
 	// Process the top buttons
 	cPlyButtons[iPlayerMode].MouseOver(Mouse);
 	for(int i=0;i<2;i++) {
-		
+
 		cPlyButtons[i].Draw(tMenu->bmpScreen);
 
 		if(i==iPlayerMode)
@@ -279,7 +279,7 @@ void Menu_Player_ViewPlayerInit(void)
 		lv->AddSubitem(LVS_TEXT, p->sName, NULL);
 	}
 
-    
+
     // Fill the skin combo box
     Menu_Player_FillSkinCombo( (CCombobox *)cViewPlayers.getWidget(vp_PlySkin) );
 
@@ -298,7 +298,7 @@ void Menu_Player_ViewPlayerInit(void)
 
         // Hide the AI stuff if it is a human type of player
         cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
-	    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER); 
+	    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
 
         // Load the skin
         static char buf[256];
@@ -316,14 +316,14 @@ void Menu_Player_NewPlayer(int mouse)
 {
 	gui_event_t *ev;
 	mouse_t *Mouse = GetMouse();
-	
+
 	// Process & draw the gui
 	ev = cNewPlayer.Process();
 	cNewPlayer.Draw(tMenu->bmpScreen);
 
 	Uint8 r = ((CSlider *)cNewPlayer.getWidget(np_Red))->getValue();
 	Uint8 g = ((CSlider *)cNewPlayer.getWidget(np_Green))->getValue();
-	Uint8 b = ((CSlider *)cNewPlayer.getWidget(np_Blue))->getValue();	
+	Uint8 b = ((CSlider *)cNewPlayer.getWidget(np_Blue))->getValue();
 
 
 
@@ -385,7 +385,7 @@ void Menu_Player_NewPlayer(int mouse)
 
                     // Hide the AI stuff if it is a human type of player
                     cNewPlayer.getWidget(np_AIDiffLbl)->setEnabled(type == PRF_COMPUTER);
-	                cNewPlayer.getWidget(np_AIDiff)->setEnabled(type == PRF_COMPUTER);                   
+	                cNewPlayer.getWidget(np_AIDiff)->setEnabled(type == PRF_COMPUTER);
                 }
                 break;
 
@@ -411,7 +411,7 @@ void Menu_Player_NewPlayer(int mouse)
 	Menu_DrawBox(tMenu->bmpScreen,  255, 195, 285, 225);
 	//DrawRect(tMenu->bmpScreen,		255, 195, 285, 225, MakeColour(128,128,128));
 
-	
+
 	// Draw the colour component values
 	tLX->cFont.Draw(tMenu->bmpScreen, 250, 303, 0xffff, "%d",r);
 	tLX->cFont.Draw(tMenu->bmpScreen, 250, 323, 0xffff, "%d",g);
@@ -497,7 +497,7 @@ void Menu_Player_ViewPlayers(int mouse)
 							Mouse->Button = Mouse->Up = Mouse->Down = 0;
 							Mouse->X = Mouse->Y = 0;
 							cViewPlayers.Draw(tMenu->bmpBuffer);
-	
+
 							for(int i=0;i<2;i++)
 								cPlyButtons[i].Draw(tMenu->bmpBuffer);
 
@@ -534,10 +534,10 @@ void Menu_Player_ViewPlayers(int mouse)
 	                        cViewPlayers.SendMessage( vp_Blue,	    SLM_SETVALUE,   p->B, 0);
                             cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  p->iType, 0);
                             cViewPlayers.SendMessage( vp_AIDiff,	SLM_SETVALUE,   p->nDifficulty, 0);
-                        
+
                             // Hide the AI stuff if it is a human type of player
                             cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
-	                        cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER); 
+	                        cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
                         }
 
 
@@ -559,7 +559,7 @@ void Menu_Player_ViewPlayers(int mouse)
             // Apply button
             case vp_Apply:
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
-                    int sel = cViewPlayers.SendMessage(vp_Players, LVM_GETCURINDEX, 0,0);                    
+                    int sel = cViewPlayers.SendMessage(vp_Players, LVM_GETCURINDEX, 0,0);
 	                profile_t *p = FindProfile(sel);
 	                if(p) {
                         cViewPlayers.SendMessage(vp_Name, TXM_GETTEXT, (DWORD)p->sName, sizeof(p->sName));
@@ -577,7 +577,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         lv_item_t *it = (lv_item_t *)cViewPlayers.SendMessage(vp_Players, LVM_GETCURITEM, 0,0);
                         if(it) {
                             if(it->tSubitems) {
-                                it->tSubitems->bmpImage = p->bmpWorm;                            
+                                it->tSubitems->bmpImage = p->bmpWorm;
                                 if(it->tSubitems->tNext)
                                     fix_strncpy(it->tSubitems->tNext->sText, p->sName);
                             }
@@ -602,7 +602,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
             // Player listbox
             case vp_Players:
-                if( ev->iEventMsg == LV_CHANGED ) {                    
+                if( ev->iEventMsg == LV_CHANGED ) {
                     int sel = cViewPlayers.SendMessage(vp_Players,LVM_GETCURINDEX,0,0);
 	                profile_t *p = FindProfile(sel);
                     if(p) {
@@ -619,10 +619,10 @@ void Menu_Player_ViewPlayers(int mouse)
                         snprintf(buf,sizeof(buf),"skins/%s",p->szSkin);
                         fix_markend(buf);
                         tMenu->bmpWorm = LoadImage(buf, 16);
-                        
+
                         // Hide the AI stuff if it is a human type of player
                         cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
-	                    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER); 
+	                    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
                     }
                 }
                 break;
@@ -635,11 +635,11 @@ void Menu_Player_ViewPlayers(int mouse)
 
                     // Hide the AI stuff if it is a human type of player
                     cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(type == PRF_COMPUTER);
-	                cViewPlayers.getWidget(vp_AIDiff)->setEnabled(type == PRF_COMPUTER);                   
+	                cViewPlayers.getWidget(vp_AIDiff)->setEnabled(type == PRF_COMPUTER);
                 }
                 break;
 
-            // Skin            
+            // Skin
             case vp_PlySkin:
                 if(ev->iEventMsg == CMB_CHANGED) {
                     static char skin[256];
@@ -665,12 +665,12 @@ void Menu_Player_ViewPlayers(int mouse)
 
         Uint8 r = ((CSlider *)cViewPlayers.getWidget(vp_Red))->getValue();
 	    Uint8 g = ((CSlider *)cViewPlayers.getWidget(vp_Green))->getValue();
-	    Uint8 b = ((CSlider *)cViewPlayers.getWidget(vp_Blue))->getValue();	
+	    Uint8 b = ((CSlider *)cViewPlayers.getWidget(vp_Blue))->getValue();
 
         tLX->cFont.Draw(tMenu->bmpScreen, 530, 253, 0xffff, "%d",r);
 	    tLX->cFont.Draw(tMenu->bmpScreen, 530, 273, 0xffff, "%d",g);
 	    tLX->cFont.Draw(tMenu->bmpScreen, 530, 293, 0xffff, "%d",b);
-		
+
 		// Draw the worm image
 		DrawRectFill(tMenu->bmpScreen,  300, 165, 330, 195, 0);
 		Menu_DrawBox(tMenu->bmpScreen,  300, 165, 330, 195);
@@ -678,7 +678,7 @@ void Menu_Player_ViewPlayers(int mouse)
 		Menu_Player_DrawWormImage(tMenu->bmpScreen,(int)(fPlayerSkinFrame)*7+4, 301, 170, r, g, b);
         if(MouseInRect(300,165,30,30) && Mouse->Up)
             bPlayerSkinAnimation = !bPlayerSkinAnimation;
-        
+
         if(bPlayerSkinAnimation)
             fPlayerSkinFrame += tLX->fDeltaTime*5;
         if( fPlayerSkinFrame >= 3 )
@@ -707,10 +707,10 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
         return;
 
     // Set the colour of the worm
-	int x,y,sx;    
+	int x,y,sx;
 	Uint8 r,g,b,a;
 	Uint32 pixel, mask;
-	float r2,g2,b2;    
+	float r2,g2,b2;
 
 	for(y=0; y<18; y++) {
 		for(x=Frame*32,sx=0; x<(Frame*32)+32; x++,sx++) {
@@ -722,7 +722,7 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
             //
             // Use the mask to check what colours to ignore
             //
-            
+
             // Black means to just copy the colour but don't alter it
             if( mask == 0 ) {
                 PutPixel(bmpDest, sx+dx,y+dy, pixel);
@@ -795,7 +795,7 @@ void Menu_Player_FillSkinCombo(CCombobox *cb)
             stricmp(ext,".png")==0 ||
             stricmp(ext,".bmp")==0 ||
             stricmp(ext,".pcx")==0) {
-            
+
             fix_strncpy(szName, szFilename);
 
             // Remove the dir

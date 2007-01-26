@@ -8,13 +8,22 @@ Jason B. has released his work in 2006 under the zlib-licence
 and after some months of work, we ported and enhanced his work
 and got OpenLieroX.
 
-Yes I know, this README is very empty at the moment :)
-(perhaps later, this will be changed)
+The game uses case insensitive filenames (it will use the first
+found on case sensitive filesystems).
+The game searches the paths ~/.OpenLieroX, ./ and /usr/share/OpenLieroX
+(or under Gentoo: /usr/share/games/OpenLieroX) for game-data
+(all path are relativ to this bases) (in this order).
+You can also add more searchpathes in cfg/options.cfg
+(you also can change the searchpath-order here).
+Own modified configs, screenshots and other stuff always will
+be stored in ~/.OpenLieroX.
 
-So, well, what should I say...
+So, well, I think that was all the important stuff.
+Look at the Homepage for further details.
 
-@Sourceforge: http://sourceforge.net/projects/openlierox/
-@AZ: http://www.az2000.de/projects/openlierox/
+Homepage@Sourceforge: http://openlierox.sourceforge.net
+Project@Sourceforge: http://sourceforge.net/projects/openlierox/
+Homepage@AZ: http://www.az2000.de/projects/openlierox/
 
 Thank you for enjoying it!
 

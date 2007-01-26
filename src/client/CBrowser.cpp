@@ -32,7 +32,7 @@ void CBrowser::Create(void)
 	iTextColour = 0xffff;
 
 	tObjects = NULL;
-	
+
 	iPos = iLength = 0;
 	sData = NULL;
 
@@ -68,7 +68,7 @@ int CBrowser::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 int CBrowser::Load(char *sFilename)
 {
 	FILE *fp;
-	
+
 	// Open the file
 	fp = OpenGameFile(sFilename,"rb");
 	if(fp == NULL)
@@ -104,7 +104,7 @@ int CBrowser::Load(char *sFilename)
 		delete[] sData;
 		sData = NULL;
 	}
-	
+
 	return true;
 }
 
@@ -119,16 +119,16 @@ void CBrowser::Destroy(void)
 
 	for(; obj ; obj=o) {
 		o = obj->tNext;
-		
+
 		if(obj->strText) {
 			delete[] obj->strText;
 			obj->strText = NULL;
 		}
-		
+
 		if(obj)
 			delete obj;
 	}
-	
+
 	tObjects = NULL;
 }
 
@@ -184,9 +184,9 @@ void CBrowser::ReadTag(void)
 	static char sName[32];
 	static char sVal[32];
 	int i = 0;
-	int val = 0;
+//    int val = 0; // TODO: not used
 	int end = false;
-	
+
 	sName[0] = 0;
 	sVal[0] = 0;
 
@@ -212,14 +212,14 @@ void CBrowser::ReadTag(void)
 		sName[i++] = sData[iPos++];
 	}
 
-			
+
 	// Some tags contain a value (and not the end tags)
 	if(stricmp(sName,"tab") == 0 ||
 		stricmp(sName,"stab") == 0 ||
 	   stricmp(sName,"colour") == 0 ||
 	   stricmp(sName,"box") == 0 &&
 	   !end) {
-		
+
 		iPos++;
 		i=0;
 
@@ -380,7 +380,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 	int lcount = 0;
 
 	DrawRectFill(bmpDest, iX+1, iY+1, iX+iWidth-1, iY+iHeight-1, 0xffff);
-	
+
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
 
 	// Setup the clipping rectangle
@@ -483,7 +483,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 				y += fnt->GetHeight();
 				lcount++;
 				break;
-			
+
 
 			// Text
 			case HTO_TEXT:
@@ -520,16 +520,16 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 
 						// Draw the properties
 						if(iProperties & PRP_SHADOW)
-							fnt->Draw(bmpDest,x+1,y+1,MakeColour(200,200,200),"%s",buf);					
+							fnt->Draw(bmpDest,x+1,y+1,MakeColour(200,200,200),"%s",buf);
 						if(iProperties & PRP_BOLD)
 							fnt->Draw(bmpDest,x+1,y+1,iTextColour,"%s",buf);
 						if(iProperties & PRP_UNDERLINE)
 							DrawHLine(bmpDest,x,x+w,y+fnt->GetHeight()-1,iTextColour);
-				
+
 						// Draw the text
 						fnt->Draw(bmpDest,x,y,iTextColour,"%s",buf);
 					}
-				
+
 					x+=w;
 				}
 				break;

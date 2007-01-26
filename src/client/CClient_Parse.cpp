@@ -24,7 +24,7 @@
 void CClient::ParseConnectionlessPacket(CBytestream *bs)
 {
 	static char cmd[128];
-	bool valid = false;
+//	bool valid = false;  // TODO: not used
 
 	bs->readString(cmd,sizeof(cmd));
 
@@ -88,7 +88,7 @@ void CClient::ParseConnected(CBytestream *bs)
 {
 	NetworkAddr addr;
 
-	
+
 	// Setup the client
 	iNetStatus = NET_CONNECTED;
 
@@ -117,7 +117,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	cLocalWorms[0]->SetupInputs( tLXOptions->sPlayer1Controls );
 	if(iNumWorms >= 2)
 		cLocalWorms[1]->SetupInputs( tLXOptions->sPlayer2Controls );
-		
+
 	// Create my channel
 	GetRemoteNetAddr(tSocket, &addr);
 	cNetChan.Create(&addr,0,tSocket);
@@ -167,7 +167,7 @@ void CClient::ParsePacket(CBytestream *bs)
 
 		switch(cmd) {
 
-		
+
 			// Prepare the game
 			case S2C_PREPAREGAME:
 				if(!ParsePrepareGame(bs))
@@ -311,14 +311,14 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	}
 
 	cGameScript.Shutdown();
-    
+
     //bs->Dump();
 
 
 	if(tGameInfo.iGameType == GME_JOIN) {
 		cMap = new CMap;
 		if(cMap == NULL) {
-			
+
 			// Disconnect
 			Disconnect();
 
@@ -330,7 +330,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
-	
+
 	if(random) {
 		// Just create a random map
 
@@ -366,15 +366,15 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		if(tGameInfo.iGameType == GME_JOIN) {
 			if(!cMap->Load(buf)) {
 				// Show a cannot load level error message
-			
+
 				SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
 				static char err[256];
 				snprintf(err, sizeof(err), "Could not load the level '%s'\n%s",buf,LxGetLastError());
 				fix_markend(err);
-				
+
 				Menu_MessageBox("Loading Error",err, LMB_OK);
                 iClientError = true;
-			
+
 				// Go back to the menu
 				QuittoMenu();
 				iGameReady = false;
@@ -399,10 +399,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	fLoadingTime = (float)l/100.0f;
 	iBonusesOn = bs->readInt(1);
 	iShowBonusName = bs->readInt(1);
-	
+
 	if(iGameType == GMT_TAG)
 		iTagLimit = bs->readShort();
-	
+
 	// Load the gamescript
 	bs->readString(sModName,sizeof(sModName));
 
@@ -425,7 +425,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		fix_markend(err);
 		Menu_MessageBox("Loading Error",err, LMB_OK);
         iClientError = true;
-			
+
 		// Go back to the menu
 		QuittoMenu();
 		iGameReady = false;
@@ -435,7 +435,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
     // Read the weapon restrictions
     cWeaponRestrictions.updateList(&cGameScript);
     cWeaponRestrictions.readList(bs);
-	
+
 
 	// TODO: Load any other stuff
 	iGameReady = true;
@@ -449,7 +449,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		cLocalWorms[i]->setGameScript(&cGameScript);
         cLocalWorms[i]->setWpnRest(&cWeaponRestrictions);
 		cLocalWorms[i]->Prepare(cMap);
-		 
+
 		cLocalWorms[i]->InitWeaponSelection();
 	}
 
@@ -470,11 +470,11 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			w->setGameScript(&cGameScript);
             w->setWpnRest(&cWeaponRestrictions);
 			w->setLoadingTime(fLoadingTime);
-			
+
 			// Prepare for battle!
 			w->Prepare(cMap);
 		}
-	}	
+	}
 
 	UpdateScoreboard();
 
@@ -546,7 +546,7 @@ void CClient::ParseWormInfo(CBytestream *bs)
 
 	cRemoteWorms[id].setUsed(true);
 	cRemoteWorms[id].readInfo(bs);
-	
+
 	// Load the worm graphics
 	if(!cRemoteWorms[id].LoadGraphics(iGameType)) {
 		// TODO: Some sort of error
@@ -567,7 +567,7 @@ void CClient::ParseText(CBytestream *bs)
 
 	// Check for the max
 	/*if(iChat_Numlines+1 >= MAX_CHATLINES) {
-		
+
 		// Move the list up one
 		for(int i=0;i<iChat_Numlines-1;i++) {
 			strcpy( tChatLines[i].sText,  tChatLines[i+1].sText);
@@ -577,7 +577,7 @@ void CClient::ParseText(CBytestream *bs)
 		}
 		iChat_Numlines--;
 	}
-		
+
 	chat_line_t *t = &tChatLines[iChat_Numlines++];
 
 	t->fScroll = 0;
@@ -607,26 +607,26 @@ void CClient::ParseText(CBytestream *bs)
 		if(type != TXT_CHAT)
 			col = tLX->clNormalText;
     }
-	
+
     FILE *f;
 
 	// Safety
 	//buf[127] = '\0';
 	fix_markend(buf);
-	
+
 	pChatbox->AddText(buf,col,tLX->fCurTime);
 
 
 	// Log the conversation
 	if (tLXOptions->iLogConvos)  {
 		if(!bInServer)  {
-			for (int i=0;i<sizeof(buf);i++)
+			for (unsigned short i=0;i<sizeof(buf);i++)
 				cIConnectedBuf[i] = buf[i];
 			return;
 		}
 
 		f = OpenGameFile("Conversations.log","a");
-		if (!f) 
+		if (!f)
 			return;
 		fputs("    <message type=\"",f);
 
@@ -654,7 +654,7 @@ void CClient::ParseText(CBytestream *bs)
 void CClient::ParseScoreUpdate(CBytestream *bs)
 {
 	int id = bs->readInt(1);
-	
+
 	if(id >= 0 && id < MAX_WORMS)
 		cRemoteWorms[id].readScore(bs);
 
@@ -770,7 +770,7 @@ void CClient::ParseCLReady(CBytestream *bs)
 			// Read the weapon info
 			w->readWeapons(bs);
 		}
-		
+
 	}
 }
 
@@ -801,7 +801,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 			printf("Bad worm id on UPDATELOBBY packet\n");
 			continue;
 		}
-		
+
 
 		CWorm *w = &cRemoteWorms[id];
         if(w) {
@@ -825,7 +825,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		FILE *f;
 
 		f = OpenGameFile("Conversations.log","a");
-		if (!f) 
+		if (!f)
 			return;
 		fputs("  <server hostname=\"",f);
 		fputs(HostName,f);
@@ -864,7 +864,7 @@ void CClient::ParseClientLeft(CBytestream *bs)
 			printf("Bad worm id on CLLEFT packet\n");
 			continue;
 		}
-	
+
 		CWorm *w = &cRemoteWorms[id];
 		if(w) {
 			w->setUsed(false);
@@ -935,7 +935,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     // Check if we have the level & mod
     gl->bHaveMap = true;
     gl->bHaveMod = true;
-    
+
     // Does the level file exist
     snprintf(buf, sizeof(buf), "levels/%s",gl->szMapName);
     fix_markend(buf);
@@ -1016,7 +1016,7 @@ void CClient::ParseWormDown(CBytestream *bs)
 void CClient::ParseServerLeaving(CBytestream *bs)
 {
 	// Set the server error details
-	
+
 	// Not so much an error, but rather a disconnection of communication between us & server
 	iServerError = true;
 	strcpy(strServerErrorMsg, "Server has quit");
@@ -1028,7 +1028,7 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 		FILE *f;
 
 		f = OpenGameFile("Conversations.log","a");
-		if (!f) 
+		if (!f)
 			return;
 		fputs("  </server>\r\n",f);
 		bInServer = false;
@@ -1115,7 +1115,7 @@ void CClient::ParseGotoLobby(CBytestream *bs)
 
 
 		// Goto the join lobby
-		Menu_Net_GotoJoinLobby();		
+		Menu_Net_GotoJoinLobby();
 	}
 }
 
@@ -1127,7 +1127,7 @@ void CClient::ParseDropped(CBytestream *bs)
     static char buf[256] = "";
 
     // Set the server error details
-	
+
 	// Not so much an error, but i message as to why i was dropped
 	iServerError = true;
 	fix_strncpy(strServerErrorMsg, bs->readString(buf,sizeof(buf)));
@@ -1145,7 +1145,7 @@ void CClient::ParseDropped(CBytestream *bs)
 		FILE *f;
 
 		f = OpenGameFile("Conversations.log","a");
-		if (!f) 
+		if (!f)
 			return;
 		fputs("    <message type=\"NETWORK\" text=\"",f);
 		fputs(strServerErrorMsg,f);

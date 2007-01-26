@@ -103,7 +103,7 @@ int Menu_Initialize(int *game)
 	LOAD_IMAGE(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 
-#ifndef DEBUG	
+#ifndef DEBUG
 	// TODO: I don't know why until now, but the SDL_DisplayFormatAlpha causes
 	//		some problems in valgrind (it causes in an invalid instruction
 	//		call on my PPC with SDL-1.2.11)
@@ -119,9 +119,9 @@ int Menu_Initialize(int *game)
     tMenu->bmpWorm = NULL;
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
-	// Open a socket for broadcasting over a LAN (UDP)	
+	// Open a socket for broadcasting over a LAN (UDP)
 	tMenu->tSocket[SCK_LAN] = OpenBroadcastSocket(0);
-	// Open a socket for communicating over the net (UDP)	
+	// Open a socket for communicating over the net (UDP)
 	tMenu->tSocket[SCK_NET] = OpenUnreliableSocket(0);
 
 	if(!IsSocketStateValid(tMenu->tSocket[SCK_LAN]) || !IsSocketStateValid(tMenu->tSocket[SCK_NET])) {
@@ -174,7 +174,7 @@ void Menu_Shutdown(void)
 				Menu_OptionsShutdown();
 				break;
 		}
-		
+
 		// Manually free some items
 		if(tMenu->bmpBuffer)
 			SDL_FreeSurface(tMenu->bmpBuffer);
@@ -210,12 +210,12 @@ void Menu_Shutdown(void)
 ///////////////////
 // Start the menu
 void Menu_Start(void)
-{    
+{
 	tMenu->iMenuRunning = true;
 	// User can switch video mode while playing
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
-	if(!iSkipStart) { 
+	if(!iSkipStart) {
 		tMenu->iMenuType = MNU_MAIN;
 		Menu_MainInitialize();
     } else
@@ -238,8 +238,8 @@ void Menu_SetSkipStart(int s)
 // Main menu loop
 void Menu_Loop(void)
 {
-	keyboard_t *kb = GetKeyboard();
-	mouse_t *mouse = GetMouse();
+//	keyboard_t *kb = GetKeyboard();  // TODO: not used
+//	mouse_t *mouse = GetMouse();   // TODO: not used
 
 	tLX->fCurTime = GetMilliSeconds();
 	float oldtime = tLX->fCurTime;
@@ -334,8 +334,8 @@ char *Menu_GetLevelName(char *filename)
 {
 	static char	id[32], name[256];
 	int		version;
-	int		index = 0;
-	int		selected = -1;
+//	int		index = 0;  // TODO: not used
+//	int		selected = -1;  // TODO: not used
 	char	*Result;
 	static char	fn[1024];
 	char	*Path;
@@ -344,7 +344,7 @@ char *Menu_GetLevelName(char *filename)
 
 	//if(strlen(filename) > 512)
 	//	return NULL;
-	
+
 	static const size_t lvlen = 7; //strlen("levels/");
 	memcpy(fn,"levels/",lvlen);
 	size_t maxlen = MIN(fnlen+1,sizeof(fn)-lvlen);
@@ -375,7 +375,7 @@ char *Menu_GetLevelName(char *filename)
 	if( stricmp(filename + fnlen-4, ".lev") == 0) {
 		// TODO: is filename correct? (or Path)
 		FILE *fp = OpenGameFile(filename,"rb");
-			
+
 		if(fp) {
 
 			// Make sure it's the right size to be a liero level
@@ -554,7 +554,7 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 	int cy = y+h/2-(linescount*tLX->cFont.GetHeight())/2;
 
 
-	SDL_Surface *shadow = LoadImage("data/frontend/msgshadow.png",0);
+//	SDL_Surface *shadow = LoadImage("data/frontend/msgshadow.png",0);   // TODO: not used
 
 
 	//
@@ -574,7 +574,7 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 
 	// Store the old buffer into a temp buffer to keep it
 	SDL_BlitSurface(tMenu->bmpBuffer, NULL, tMenu->bmpMsgBuffer, NULL);
-	
+
 
 	// Draw to the buffer
 	//DrawImage(tMenu->bmpBuffer, shadow, 177,167);
@@ -590,8 +590,8 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 	}
 
 	Menu_RedrawMouse(true);
-    
-    
+
+
     // This fixes a problem with the escape/enter key sometimes not functioning, and preventing the game quiting
     kb->KeyDown[SDLK_ESCAPE] = false;
     kb->KeyUp[SDLK_ESCAPE] = false;
@@ -599,7 +599,7 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
     kb->KeyUp[SDLK_RETURN] = false;
     kb->KeyDown[SDLK_KP_ENTER] = false;
     kb->KeyUp[SDLK_KP_ENTER] = false;
-	
+
 
 	ProcessEvents();
 	while(!kb->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning && ret == -1) {
@@ -1006,7 +1006,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 		// Liero level
 		if( stricmp(filename + fix_strnlen(filename)-4, ".lev") == 0) {
 			FILE *fp = OpenGameFile(filename,"rb");
-			
+
 			if(fp) {
 
 				// Make sure it's the right size to be a liero level
@@ -1094,14 +1094,14 @@ void Menu_SvrList_ClearAuto(void)
 
     for(; s; s=sn) {
         sn = s->psNext;
-        
+
         if(!s->bManual) {
             // Unlink the server
             if( s->psPrev )
                 s->psPrev->psNext = s->psNext;
             else
                 psServerList = s->psNext;
-    
+
             if( s->psNext )
                 s->psNext->psPrev = s->psPrev;
 
@@ -1139,7 +1139,7 @@ void Menu_SvrList_PingLAN(void)
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::ping");
 
-	static const char addr[] = {"255.255.255.255"}; 
+	static const char addr[] = {"255.255.255.255"};
 	NetworkAddr a;
 	StringToNetAddr(addr,&a);
 	SetNetAddrPort(&a,LX_PORT);
@@ -1155,7 +1155,7 @@ void Menu_SvrList_PingLAN(void)
 void Menu_SvrList_PingServer(server_t *svr)
 {
 	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
-	
+
 	CBytestream bs;
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::ping");
@@ -1171,7 +1171,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 void Menu_SvrList_WantsJoin(char *Nick, server_t *svr)
 {
 	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
-	
+
 	CBytestream bs;
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::wantsjoin");
@@ -1185,7 +1185,7 @@ void Menu_SvrList_WantsJoin(char *Nick, server_t *svr)
 void Menu_SvrList_QueryServer(server_t *svr)
 {
 	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
-	
+
 	CBytestream bs;
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::query");
@@ -1285,7 +1285,7 @@ server_t *Menu_SvrList_AddServer(char *address, bool bManual)
 
 	// If the address doesn't have a port number set, use the default lierox port number
 	if(GetNetAddrPort(&svr->sAddress) == 0)
-		SetNetAddrPort(&svr->sAddress, LX_PORT);	
+		SetNetAddrPort(&svr->sAddress, LX_PORT);
 
 
 	// Link it in at the end of the list
@@ -1361,7 +1361,7 @@ server_t *Menu_SvrList_AddNamedServer(char *address, char *name)
 
 	// If the address doesn't have a port number set, use the default lierox port number
 	if(GetNetAddrPort(&svr->sAddress) == 0)
-		SetNetAddrPort(&svr->sAddress, LX_PORT);	
+		SetNetAddrPort(&svr->sAddress, LX_PORT);
 
 
 	// Link it in at the end of the list
@@ -1394,7 +1394,7 @@ void Menu_SvrList_RemoveServer(char *szAddress)
         sv->psPrev->psNext = sv->psNext;
     else
         psServerList = sv->psNext;
-    
+
     if( sv->psNext )
         sv->psNext->psPrev = sv->psPrev;
 
@@ -1439,12 +1439,12 @@ void Menu_SvrList_FillList(CListview *lv)
 		// Ping Image
 		int num = 3;
 		if(s->nPing < 700)  num=2;
-		if(s->nPing < 400)  num=1; 
+		if(s->nPing < 400)  num=1;
 		if(s->nPing < 200)  num=0;
 
 		if(s->bIgnore || s->bProcessing)
 			num = 3;
-		
+
 		// Address
 		//GetRemoteNetAddr(tMenu->tSocket, &s->sAddress);
 		//NetAddrToString(&s->sAddress, addr);
@@ -1454,7 +1454,7 @@ void Menu_SvrList_FillList(CListview *lv)
 		char *p = strrchr(addr,':');
 		if(p)
 			addr[p - addr] = '\0';
-		
+
 
 		// State
 		int state = 0;
@@ -1465,7 +1465,7 @@ void Menu_SvrList_FillList(CListview *lv)
 		int colour = tLX->clListView;
 		if(s->bProcessing)
 			colour = tLX->clDisabled;
-		
+
 
 		// Add the server to the list
 		lv->AddItem(s->szAddress, 0, colour);
@@ -1485,7 +1485,7 @@ void Menu_SvrList_FillList(CListview *lv)
 		snprintf(buf,sizeof(buf),"%d/%d",s->nNumPlayers,s->nMaxPlayers);
 		fix_markend(buf);
 		lv->AddSubitem(LVS_TEXT, buf, NULL);
-		
+
 		lv->AddSubitem(LVS_TEXT, itoa(s->nPing,buf,10), NULL);
 		lv->AddSubitem(LVS_TEXT, addr, NULL);
 	}
@@ -1500,7 +1500,7 @@ void Menu_SvrList_FillList(CListview *lv)
 // Returns true if a server in the list was added/modified
 bool Menu_SvrList_Process(void)
 {
-	CBytestream		bs;	
+	CBytestream		bs;
 	bool			update = false;
 
 
@@ -1520,7 +1520,7 @@ bool Menu_SvrList_Process(void)
 	}
 
 
-	
+
 	// Ping or Query any servers in the list that need it
 	server_t *s = psServerList;
 	for(; s; s=s->psNext) {
@@ -1562,7 +1562,7 @@ bool Menu_SvrList_Process(void)
 			s->bProcessing = false;
 			update = true;
 		}
-			
+
 	}
 
 	return update;
@@ -1675,7 +1675,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
         num=0;
 
 	svr->nPing = (int)( (tLX->fCurTime - svr->fQueryTimes[num])*1000.0f );
-	
+
 	if(svr->nPing < 0)
 		svr->nPing = 999;
     if(svr->nPing > 999)
@@ -1728,7 +1728,7 @@ void Menu_SvrList_LoadList(char *szFilename)
     static char szLine[1024] = "";
 	static char tmp[1024] = "";
     static char address[256] = "";
-	
+
     // Go through every line
     while( fgets(tmp, 1024, fp) ) {
 
@@ -1805,7 +1805,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
 	        if(*(int *)inbs.GetData() == -1) {
-                static char        cmd[128];                
+                static char        cmd[128];
 
 		        inbs.SetPos(4);
 		        inbs.readString(cmd,sizeof(cmd));
@@ -1825,12 +1825,12 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 					if (nState < 0)  {
 						bOldLxBug = true;
 					}
-    
+
                     inbs.readString(szMapName,sizeof(szMapName));
                     inbs.readString(szModName,sizeof(szModName));
 	                nGameMode = inbs.readByte();
 	                nLives = inbs.readShort();
-	                nMaxKills = inbs.readShort();        
+	                nMaxKills = inbs.readShort();
 	                nLoadingTime = inbs.readShort();
 					if(nLoadingTime < 0 || nLoadingTime > 500)  {
 						bOldLxBug = true;
@@ -1865,7 +1865,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
             StringToNetAddr(szAddress, &addr);
 
             SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &addr);
-	
+
 	        CBytestream bs;
 	        bs.writeInt(-1,4);
 	        bs.writeString("%s","lx::getinfo");
@@ -1874,12 +1874,12 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 
 		if (!bGotDetails)  {
 			return;
-		}	
+		}
     }
 
 	y+=25;
 	x+=15;
-    // Draw the server details    
+    // Draw the server details
     tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel,"%s", "Server name:");
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel,"%s", "Level name:");
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel,"%s", "Mod name:");
@@ -1895,7 +1895,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel,"%s", "Players:");
 	else
 		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel,"%s", "Players/Kills:");
-    
+
 	x+=110;
 
     if(!bGotDetails) {
@@ -1929,7 +1929,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 
 	// Don't draw kills when the server is open
 	if(!nState)
-		for (int i=0; i<nNumPlayers; i++) 
+		for (int i=0; i<nNumPlayers; i++)
 			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName());
 	else
 		for (int i=0; i<nNumPlayers; i++)  {

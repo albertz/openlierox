@@ -62,7 +62,7 @@ void Menu_LocalInitialize(void)
 	Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
     Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
     Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
-    
+
     // Minimap box
     tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
     //tLX->cFont.Draw(tMenu->bmpBuffer, 480,240,0xffff,"%s","H");
@@ -112,7 +112,7 @@ void Menu_LocalInitialize(void)
 
     cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, tLXOptions->tGameinfo.nGameType, 0);
     iGameType = tLXOptions->tGameinfo.nGameType;
-		
+
 	// Fill the level list
 	Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), true);
 	Menu_LocalShowMinimap(true);
@@ -167,7 +167,7 @@ void Menu_LocalFrame(void)
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
             Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
             tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
-	
+
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
 
@@ -240,7 +240,7 @@ void Menu_LocalFrame(void)
 			case ml_Start:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					PlaySoundSample(sfxGeneral.smpClick);
-					
+
 					// Start the game
 					Menu_LocalStartGame();
 				}
@@ -284,7 +284,7 @@ void Menu_LocalFrame(void)
 							lv_subitem_t *sub = NULL;
 							if(l)
 								sub = l->tSubitems;
-							
+
 							for(int i=0;i<2;i++) {
 								if(sub)
 									sub=sub->tNext;
@@ -375,7 +375,7 @@ void Menu_LocalFrame(void)
 			// Level list combo box
 			case ml_LevelList:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					
+
 					Menu_LocalShowMinimap(true);
 				}
 				break;
@@ -396,7 +396,7 @@ void Menu_LocalFrame(void)
             // Weapons Restrictions button
             case ml_WeaponOptions:
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
-                    
+
 					cLocalMenu.Draw( tMenu->bmpBuffer );
 
                     // Get the current mod
@@ -423,9 +423,9 @@ void Menu_LocalFrame(void)
 ///////////////////
 // Add the profiles to the players list
 void Menu_LocalAddProfiles(void)
-{	
+{
 	profile_t *p = GetProfiles();
-	
+
 	for(; p; p=p->tNext) {
 		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDITEM, (DWORD)"", p->iID);
 		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDSUBITEM, LVS_IMAGE, (DWORD)p->bmpWorm);
@@ -448,11 +448,11 @@ void Menu_LocalShowMinimap(bool bReload)
 
 	// Draw a background over the old minimap
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 126,132,126,132,128,96);
-	
+
 	// Load the map
 	snprintf(blah, sizeof(blah), "levels/%s",buf); fix_markend(blah);
     if( bReload ) {
-        
+
         // Create a random map
         if( strcmp(buf, "_random_") == 0 ) {
             if( map.New(504,350,map.findRandomTheme(buf)) ) {
@@ -466,7 +466,7 @@ void Menu_LocalShowMinimap(bool bReload)
                 maprandom_t *psRand = map.getRandomLayout();
                 tGameInfo.sMapRandom = *psRand;
                 tGameInfo.sMapRandom.bUsed = true;
-                
+
                 // Copy the objects, not link
                 tGameInfo.sMapRandom.psObjects = new object_t[tGameInfo.sMapRandom.nNumObjects];
                 if( tGameInfo.sMapRandom.psObjects ) {
@@ -474,7 +474,7 @@ void Menu_LocalShowMinimap(bool bReload)
                         tGameInfo.sMapRandom.psObjects[i] = psRand->psObjects[i];
                     }
                 }
-                
+
                 // Draw the minimap
 		        map.UpdateMiniMap(true);
 		        DrawImage(tMenu->bmpMiniMapBuffer, map.GetMiniMap(), 0,0);
@@ -524,16 +524,16 @@ void Menu_LocalStartGame(void)
 		return;
 
     int count = 0;
-      
-    // Add the human players onto the list    
+
+    // Add the human players onto the list
     for(i=0; i<MAX_PLAYERS; i++) {
 		if(sLocalPlayers[i].bUsed && sLocalPlayers[i].psProfile && sLocalPlayers[i].psProfile->iType == PRF_HUMAN) {
             tGameInfo.cPlayers[count++] = sLocalPlayers[i].psProfile;
             sLocalPlayers[i].psProfile->iTeam = sLocalPlayers[i].nTeam;
         }
     }
-        
-    // Add the unhuman players onto the list    
+
+    // Add the unhuman players onto the list
     for(i=0; i<MAX_PLAYERS; i++) {
 		if(sLocalPlayers[i].bUsed && sLocalPlayers[i].psProfile && sLocalPlayers[i].psProfile->iType != PRF_HUMAN) {
             tGameInfo.cPlayers[count++] = sLocalPlayers[i].psProfile;
@@ -552,7 +552,7 @@ void Menu_LocalStartGame(void)
 
     tGameInfo.sPassword[0] = '\0';
 
-	
+
     // Get the mod name
 	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
     if(it) {
@@ -641,7 +641,7 @@ void Menu_LocalDrawPlayingList(void)
 
         // Pic & Name
         DrawImage(tMenu->bmpScreen, sLocalPlayers[i].psProfile->bmpWorm, 315,y);
-        
+
 
         // Click on the name removes the player from the playing list
         int nameCol = tLX->clListView;
@@ -743,11 +743,11 @@ void Menu_Local_FillModList( CCombobox *cb )
 	CGameScript gs;
 	int baseid = 0;
 	int i=0;
-	
+
 	if(FindFirstDir(".",dir)) {
 		fix_markend(dir);
 		while(1) {
-			
+
             // Remove the full directory section so we only have the mod dir name
 			d = MAX(strrchr(dir,'\\'),strrchr(dir,'/'))+1;
             if(!d)
@@ -756,13 +756,13 @@ void Menu_Local_FillModList( CCombobox *cb )
 			// Check if this dir has a valid script.lgs file in it
 			if(gs.CheckFile(dir,name) && !cb->getItem(name)) {
 				cb->addItem(i,d,name);
-	
+
 				// Store the index of the last used mod
 				if(stricmp(d,tLXOptions->tGameinfo.szModName) == 0)
 					baseid = i;
-				i++;				
-			}			
-			
+				i++;
+			}
+
 			if(!FindNextDir(dir))
 				break;
 			fix_markend(dir);
@@ -813,7 +813,7 @@ enum {
 // Initialize the game settings
 void Menu_GameSettings(void)
 {
-	Uint32 blue = MakeColour(0,138,251);
+//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 	static char buf[256];
 
 	// Setup the buffer
@@ -827,7 +827,7 @@ void Menu_GameSettings(void)
 	// Bonuses
 	// Show bonus names
 	// Max Time
-	// 
+	//
 
 
 	Menu_RedrawMouse(true);
@@ -889,7 +889,7 @@ bool Menu_GameSettings_Frame(void)
 	int mouse = 0;
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
-	
+
 	ev = cGameSettings.Process();
 	cGameSettings.Draw(tMenu->bmpScreen);
 
@@ -906,7 +906,7 @@ bool Menu_GameSettings_Frame(void)
 			case gs_Ok:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					Menu_GameSettings_GrabInfo();				
+					Menu_GameSettings_GrabInfo();
 
 					return true;
 				}
@@ -930,7 +930,7 @@ bool Menu_GameSettings_Frame(void)
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
-	
+
 	return false;
 }
 
@@ -950,10 +950,10 @@ void Menu_GameSettings_GrabInfo(void)
 	tGameInfo.iTimeLimit = tLXOptions->tGameinfo.iTimeLimit = -1;
 	tGameInfo.iTagLimit = tLXOptions->tGameinfo.iTagLimit = -1;
 	tGameInfo.iBonusesOn = true;
-	tGameInfo.iShowBonusName = true; 
+	tGameInfo.iShowBonusName = true;
 	tGameInfo.bTournament = false;
 
-	
+
 	// Store the game info into the options structure as well
 	cGameSettings.SendMessage(gs_Lives, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
 	fix_markend(buf);
@@ -984,7 +984,7 @@ void Menu_GameSettings_GrabInfo(void)
 void Menu_GameSettings_Default(void)
 {
     cGameSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, 100, 0);
-	
+
     cGameSettings.SendMessage(gs_Lives, TXM_SETTEXT, (DWORD)"10", 0);
 	cGameSettings.SendMessage(gs_MaxKills, TXM_SETTEXT, (DWORD)"", 0);
 
@@ -1029,7 +1029,7 @@ enum {
 // Initialize the weapons restrictions
 void Menu_WeaponsRestrictions(char *szMod)
 {
-	Uint32 blue = MakeColour(0,138,251);
+//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 
 	// Setup the buffer
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,150,120,150, 400,330);
@@ -1040,7 +1040,7 @@ void Menu_WeaponsRestrictions(char *szMod)
 	Menu_RedrawMouse(true);
 
 	cWeaponsRest.Initialize();
-	cWeaponsRest.Add( new CLabel("Weapon Options", tLX->clNormalLabel),     -1,        275,155, 0, 0);	
+	cWeaponsRest.Add( new CLabel("Weapon Options", tLX->clNormalLabel),     -1,        275,155, 0, 0);
     cWeaponsRest.Add( new CButton(BUT_RESET, tMenu->bmpButtons),wr_Reset,  180,420, 60,15);
     cWeaponsRest.Add( new CButton(BUT_RANDOM, tMenu->bmpButtons),wr_Random,280,420, 80,15);
     cWeaponsRest.Add( new CButton(BUT_OK, tMenu->bmpButtons),	wr_Ok,     400,420, 30,15);
@@ -1051,7 +1051,7 @@ void Menu_WeaponsRestrictions(char *szMod)
     // Load the weapons
     cWpnRestList.loadList("cfg/wpnrest.dat");
 
-    
+
     //
     // Update the list with the currently selected mod
     //
@@ -1116,8 +1116,8 @@ bool Menu_WeaponsRestrictions_Frame(void)
             continue;
         if( j > 10 )
             break;
-        
-        
+
+
         int y = 190 + (j++)*20;
         Uint32 Colour = tLX->clNormalLabel;
 
@@ -1140,7 +1140,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
 
     // Adjust the scrollbar
     cWeaponsRest.SendMessage(wr_Scroll, SCM_SETITEMSPERBOX, 12, 0);
-    cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMIN, 0, 0);    
+    cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMIN, 0, 0);
     if(weaponCount>10)
         cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, weaponCount, 0);
     else
@@ -1212,7 +1212,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
-	
+
 	return false;
 }
 
@@ -1254,7 +1254,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	cWpnPresets.Add( new CTextbox(),                             wp_PresetName, 270,285, 190,20);
 
 	cWpnPresets.SendMessage(wp_PresetList,LVM_SETOLDSTYLE,0,0);
-	
+
 	t = (CTextbox *)cWpnPresets.getWidget(wp_PresetName);
 
 	// Hide the textbox for Load
@@ -1287,8 +1287,8 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	}
 
 
-	
-	
+
+
 	ProcessEvents();
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
@@ -1343,26 +1343,26 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 					if(strlen(t->getText()) > 0) {
 
 						quitloop = true;
-						static char buf[256]; 
+						static char buf[256];
 						if(save) {
 
-							// Save								
+							// Save
 							snprintf(buf,sizeof(buf),"cfg/presets/%s",t->getText());
 							fix_markend(buf);
-							
+
 							// Check if it exists already. If so, ask user if they wanna overwrite
 							if(Menu_WeaponPresetsOkSave(buf))
 								wpnrest->saveList(buf);
 							else
 								quitloop = false;
 						} else {
-							
+
 							// Load
 							snprintf(buf,sizeof(buf),"cfg/presets/%s",t->getText());
 							fix_markend(buf);
 							wpnrest->loadList(buf);
 						}
-					}					
+					}
 				}
 			}
 		}
@@ -1412,7 +1412,7 @@ int Menu_WeaponPresetsOkSave(char *szFilename)
 	if( nResult == MBR_YES )
 		return true;
 
-	
+
 	// No overwrite
 	return false;
 }

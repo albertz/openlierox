@@ -27,14 +27,14 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
 		return false;
 	}
-	
+
 	if(Mix_OpenAudio(rate, AUDIO_S16, channels, buffers)) {
 		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
     	return false;
 	}
 
 	Mix_AllocateChannels(1000); // TODO: enough?
-		
+
 	return true;
 }
 
@@ -43,7 +43,7 @@ int SoundSystemVolume = 100;
 
 bool StartSoundSystem() {
 	// TODO: this is only a workaround
-	SoundSystemStarted = true;	
+	SoundSystemStarted = true;
 	SetSoundVolume(SoundSystemVolume);
 	return true;
 }
@@ -58,7 +58,7 @@ bool StopSoundSystem() {
 bool SetSoundVolume(int vol) {
 	if(SoundSystemStarted) {
 		SoundSystemVolume = vol;
-		
+
 		// The volume to use from 0 to MIX_MAX_VOLUME(128).
 		vol *= Round((float)MIX_MAX_VOLUME/100.0f);
 		Mix_Volume(-1, vol);
@@ -71,7 +71,7 @@ bool SetSoundVolume(int vol) {
 			return true;
 		} else
 			return false;
-	
+
 	}
 }
 
@@ -87,12 +87,12 @@ SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
 			printf("LoadSoundSample: Error while loading %s: %s\n", filename, Mix_GetError());
 			return NULL;
 		}
-		
+
 		SoundSample* ret = new SoundSample;
 		ret->sample = sample;
 		ret->maxsimulplays = maxsimulplays;
 		return ret;
-	
+
 	} else
 		return NULL;
 }
@@ -100,10 +100,10 @@ SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
 bool FreeSoundSample(SoundSample* sample) {
 	// no sample, so we are ready
 	if(!sample) return true;
-	
+
 	if(sample->sample) {
 		Mix_FreeChunk(sample->sample);
-		sample->sample = NULL;	
+		sample->sample = NULL;
 	}
 	delete sample;
 	return true;
@@ -117,7 +117,7 @@ bool PlaySoundSample(SoundSample* sample) {
 		//printf("PlaySoundSample: Error playing %s\n", Mix_GetError());
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -146,8 +146,9 @@ int LoadSounds(void)
 // Play a sound in the viewport
 void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 {
-	int pan = 0;
-	int maxhearing = 750;	// Maximum distance for hearing
+    // TODO: not used
+//	int pan = 0;
+//	int maxhearing = 750;	// Maximum distance for hearing
 
 	// If this wasn't a sound by me, setup the volume & pan based on position
 	if(!local) {
@@ -161,7 +162,7 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 		volume = (int)(100.0f*(1.0f-distance/maxhearing));
 		pan = (int)(100*(side/maxhearing));*/
 
-		
+
 		// Check if it's in the viewport
 		/*CViewport *v = me->getViewport();
 		int wx = v->GetWorldX();

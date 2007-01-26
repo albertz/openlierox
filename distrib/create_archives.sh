@@ -12,7 +12,7 @@ DAT_FILES="share/gamedir/* share/OpenLieroX.png"
 export SRC_RELEASE="$SRC_FILES $STD_FILES $DOC_FILES $DAT_FILES"
 export WIN32_RELEASE="doc/* COPYING.LIB share/gamedir/* distrib/win32/*"
 
-export ARCHIVE_PREFIX="distrib/tarball/OpenLieroX_${VERSION}"
+export ARCHIVE_PREFIX="distrib/tarball/OpenLieroX_${VERSION}_cur"
 export SRC_PREFIX="${ARCHIVE_PREFIX}.src"
 export WIN32_PREFIX="${ARCHIVE_PREFIX}.win32"
 

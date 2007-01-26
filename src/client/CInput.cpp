@@ -72,7 +72,7 @@ keys_t Keys[] = {
 	{ "\\",SDLK_BACKSLASH },
 	{ "/",SDLK_SLASH},
 	{ ":", SDLK_COLON},
-	{ ";", SDLK_SEMICOLON},		
+	{ ";", SDLK_SEMICOLON},
 	{ "<", SDLK_LESS},
 	{ "=", SDLK_EQUALS},
 	{ ">", SDLK_GREATER},
@@ -86,7 +86,7 @@ keys_t Keys[] = {
 	{ "up",SDLK_UP },
 	{ "down",SDLK_DOWN },
 	{ "right",SDLK_RIGHT },
-	{ "left",SDLK_LEFT },	
+	{ "left",SDLK_LEFT },
 	{ "lctrl",SDLK_LCTRL },
 	{ "lshift",SDLK_LSHIFT },
 	{ "lalt",SDLK_LALT },
@@ -170,7 +170,7 @@ int CInput::Wait(char *strText)
 {
 	mouse_t *Mouse = GetMouse();
 	keyboard_t *kb = GetKeyboard();
-	int n,i;
+	unsigned int n,i;
 
 	// First check the mouse
 	for(n=1;n<4;n++) {
@@ -183,7 +183,7 @@ int CInput::Wait(char *strText)
 			return true;
 		}
 	}
-	
+
 	// Keyboard
 
 	// Check for RALT first (else it's detected as lctrl and lalt by newest SDL)
@@ -210,7 +210,7 @@ int CInput::Wait(char *strText)
 // Setup
 int CInput::Setup(char *string)
 {
-	int n;
+	unsigned int n;
 
 
 
@@ -253,7 +253,7 @@ int CInput::Setup(char *string)
 				return false;
 			}
 		}
-   
+
 
 		// Go through the joystick list
 		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
@@ -316,23 +316,23 @@ int CInput::isUp(void)
 {
 	keyboard_t	*Keyb = GetKeyboard();
 	mouse_t		*Mouse = GetMouse();
-	
+
 
 	switch(Type) {
-		
+
 		// Keyboard
-		case INP_KEYBOARD:	
+		case INP_KEYBOARD:
 			if(Keyb->KeyUp[Data])
 				return true;
 			break;
-		
+
 		// Mouse
-		case INP_MOUSE:	
+		case INP_MOUSE:
 			// TOOD: Calculate mouse_up for ALL the buttons
 			if(Mouse->Up)
 				return true;
 			break;
-		
+
 		// Joystick
 		// TODO:
 
@@ -350,7 +350,7 @@ int CInput::isDown(void)
 	mouse_t		*Mouse = GetMouse();
 	SDL_Joystick *joy;
 	int val;
-	
+
 	switch(Type) {
 
 		// Keyboard
@@ -371,7 +371,7 @@ int CInput::isDown(void)
 			joy = joy1;
 			if(Type == INP_JOYSTICK2)
 				joy = joy2;
-	
+
 			SDL_JoystickUpdate();
 
 			switch(Data) {
@@ -412,10 +412,10 @@ int CInput::isDown(void)
 // Returns if the input was pushed down once
 int CInput::isDownOnce(void)
 {
-	int d = isDown();	
+//	int d = isDown();  // TODO: not used
 
 	if(isDown()) {
-		if(!Down) {		
+		if(!Down) {
 			Down = true;
 			return true;
 		}
@@ -433,21 +433,21 @@ void CInput::ClearUpState(void)
 {
 	keyboard_t	*Keyb = GetKeyboard();
 	mouse_t		*Mouse = GetMouse();
-	
+
 
 	switch(Type) {
-		
+
 		// Keyboard
-		case INP_KEYBOARD:	
+		case INP_KEYBOARD:
 			Keyb->KeyUp[Data] = false;
 			break;
-		
+
 		// Mouse
-		case INP_MOUSE:	
+		case INP_MOUSE:
 			// TOOD: Calculate mouse_up for ALL the buttons
 			Mouse->Up = false;
 			break;
-		
+
 		// Joystick
 		// TODO:
 	}

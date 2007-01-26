@@ -25,12 +25,12 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	lv_subitem_t *sub;
 
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
-	
+
 
 	// Draw the columns
 	lv_column_t *col = tColumns;
 	int x=iX+4;
-		
+
 	for(int i=1;col;col = col->tNext,i++) {
 		if (bOldStyle)  {
 			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel,"%s", col->sText);
@@ -63,7 +63,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	x = iX+4;
 	lv_item_t *item = tItems;
 	int count=0;
-	
+
 	int selectsize = x+iWidth-5;
 	if(iGotScrollbar)
 		selectsize = x+iWidth-20;
@@ -83,13 +83,13 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 		int colour = item->iColour;
 
-		
+
 		// Selected?
 		if(item->iSelected && bShowSelect) {
 			if(iFocused)
-				DrawRectFill(bmpDest,x-2,y,selectsize,y+h-2,MakeColour(0,66,102));	
+				DrawRectFill(bmpDest,x-2,y,selectsize,y+h-2,MakeColour(0,66,102));
 			else
-				DrawRect(bmpDest,x-2,y,selectsize-1,y+h-2,MakeColour(0,66,102));	
+				DrawRect(bmpDest,x-2,y,selectsize-1,y+h-2,MakeColour(0,66,102));
 		}
 
 		// Draw the sub items
@@ -106,7 +106,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 						else
 							tLX->cFont.Draw(bmpDest,x,texty,colour,"%s",sub->sText);
 					}
-				
+
 					if(sub->iType == LVS_IMAGE)
 						DrawImage(bmpDest,sub->bmpImage,x,y);
 				}
@@ -117,7 +117,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 				}
 			}
 		}
-			
+
 		y+=h;
 		if(y>=iY+iHeight-h)
 			break;
@@ -174,7 +174,7 @@ void CListview::AddColumn(char *sText, int iWidth)
 void CListview::AddItem(char *sIndex, int iIndex, int iColour)
 {
 	lv_item_t *item = new lv_item_t;
-	
+
 	if(item == NULL) {
 		// Out of memory
 		return;
@@ -206,7 +206,7 @@ void CListview::AddItem(char *sIndex, int iIndex, int iColour)
 		tSelected->iSelected = true;
 		//writeLog("Index: %d\n",tSelected->iIndex);
 	}
-	
+
 	tLastItem = item;
 
 	// Adjust the scrollbar
@@ -312,7 +312,7 @@ void CListview::ReadjustScrollbar(void)
 	size /= count;
 
 	int h = iHeight / size;
-    
+
 	cScrollbar.setItemsperbox( h );
     cScrollbar.setMax(count);
     cScrollbar.setValue(0);
@@ -326,7 +326,7 @@ void CListview::ReadjustScrollbar(void)
 // Remove an item from the list
 void CListview::RemoveItem(int iIndex)
 {
-	lv_item_t *item = NULL;
+//	lv_item_t *item = NULL;  // TODO: not used
 	lv_item_t *prev = NULL;
 	lv_item_t *i = tItems;
 	lv_item_t *next = NULL;
@@ -334,8 +334,8 @@ void CListview::RemoveItem(int iIndex)
 	int first = true;
 	int found = false;
 
-	// Find the item and it's previous item	
-	prev = i;	
+	// Find the item and it's previous item
+	prev = i;
 	for(;i;i=i->tNext) {
 
 		if(i->iIndex == iIndex) {
@@ -367,12 +367,12 @@ void CListview::RemoveItem(int iIndex)
 			}
 			i = next;
 			iItemCount--;
-			//break;			
+			//break;
 		}
 
 		if(!i)
 			break;
-		
+
 		prev = i;
 		first=false;
 	}
@@ -390,7 +390,7 @@ void CListview::RemoveItem(int iIndex)
 		tSelected->iSelected = true;
 
 	// Adjust the scrollbar
-	//cScrollbar.setMax( cScrollbar.getMax()-1 );	
+	//cScrollbar.setMax( cScrollbar.getMax()-1 );
 
 	/*// Do we use a scrollbar?
 	if(cScrollbar.getMax()*20 >= iHeight)
@@ -543,7 +543,7 @@ void CListview::SortBy(int column, bool ascending)
 			iItemID = i;
 			break;
 		}
-		
+
 }
 
 
@@ -652,7 +652,7 @@ int CListview::getIndex(int count)
 
 
 ///////////////////
-// Mouse over event	
+// Mouse over event
 int	CListview::MouseOver(mouse_t *tMouse)
 {
 	if(tMouse->X > iX+iWidth-20 && tMouse->Y >= iY+20 && iGotScrollbar)
@@ -775,7 +775,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
     if( !(tMouse->FirstDown & SDL_BUTTON(1)) )
         return LV_NONE;
 
-    
+
 	iClickedSub = -1;
 
 	// Go through the items
@@ -797,7 +797,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 			lv_subitem_t *sub = item->tSubitems;
 			lv_column_t *col = tColumns;
 			int x = iX;
-			int i=0;			
+			int i=0;
 			for(;sub;sub=sub->tNext,i++) {
 
 				if(sub->iVisible) {
@@ -818,7 +818,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 
                 // If we changed the selection, reset the mouseup var to avoid double clicks
                 // when changing items
-                if( tSelected->_iID != item->_iID )                    
+                if( tSelected->_iID != item->_iID )
                     fLastMouseUp = -9999;
             } else
                 fLastMouseUp = -9999;
@@ -845,12 +845,12 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 {
 	iLastMouseX = 0;
 
-	if((tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && iGotScrollbar) 
+	if((tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && iGotScrollbar)
 		cScrollbar.MouseUp(tMouse, nDown);
 
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {
 		fLastMouseUp = -9999;
-		return LV_NONE;	
+		return LV_NONE;
 	}
 
 	// Column headers
@@ -912,7 +912,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 			lv_subitem_t *sub = item->tSubitems;
 			lv_column_t *col = tColumns;
 			int x = iX;
-			int i=0;			
+			int i=0;
 			for(;sub;sub=sub->tNext,i++) {
 
 				if(sub->iVisible) {
@@ -987,10 +987,10 @@ int CListview::getSelectedID(void)
 // Set the cur item to the item with the matching ID
 void CListview::setSelectedID(int id)
 {
-    lv_item_t *item = tItems;	
+    lv_item_t *item = tItems;
 	for(;item;item = item->tNext) {
 
-        if(item->_iID == id) {            
+        if(item->_iID == id) {
             if(tSelected)
                 tSelected->iSelected = false;
             item->iSelected = true;
@@ -1084,8 +1084,8 @@ int CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 			return getIndex(Param1);
 
 		// Get the index of an item based on index
-		//case LVM_GETINDEX:	
-            
+		//case LVM_GETINDEX:
+
         // Return the current item
         case LVM_GETCURITEM:
             if(tSelected)
@@ -1124,5 +1124,5 @@ lv_item_t* CListview::getItem(char* name) {
 		if(strncmp(i->sIndex,name,sizeof(i->sIndex)) == 0)
 			return i;
 	}
-	return NULL;	
+	return NULL;
 }

@@ -38,9 +38,9 @@ enum {
 // Initialize the LAN menu
 int Menu_Net_LANInitialize(void)
 {
-	Uint32 blue = MakeColour(0,138,251);
+//	Uint32 blue = MakeColour(0,138,251); // TODO: not used
 
-	iNetMode = net_lan;	
+	iNetMode = net_lan;
 
 	cLan.Shutdown();
 	cLan.Initialize();
@@ -89,7 +89,7 @@ int Menu_Net_LANInitialize(void)
 
 	// Clear the server list
 	Menu_SvrList_Clear();
-	Menu_SvrList_PingLAN();	
+	Menu_SvrList_PingLAN();
 
 	return true;
 }
@@ -106,7 +106,7 @@ void Menu_Net_LANShutdown(void)
 
 	if (iNetMode == net_lan)  {
 		// Save the column widths
-		for (int i=0;i<6;i++) 
+		for (int i=0;i<6;i++)
 			tLXOptions->iLANList[i] = cLan.SendMessage(nl_ServerList,LVM_GETCOLUMNWIDTH,i,0);
 	}
 
@@ -121,7 +121,7 @@ void Menu_Net_LANFrame(int mouse)
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev;
 	static char		addr[256];
-	
+
 
 	// Process & Draw the gui
 	ev = cLan.Process();
@@ -165,7 +165,7 @@ void Menu_Net_LANFrame(int mouse)
 					// Shutdown
 					cLan.Shutdown();
 
-					// Back to main menu					
+					// Back to main menu
 					Menu_MainInitialize();
 				}
 				break;
@@ -185,12 +185,12 @@ void Menu_Net_LANFrame(int mouse)
 
 			// Join
 			case nl_Join:
-				if(ev->iEventMsg == BTN_MOUSEUP) {				
+				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					addr[0] = 0;
 					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					if(result != -1 && addr[0]) {
-						
+
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
@@ -231,7 +231,7 @@ void Menu_Net_LANFrame(int mouse)
                         // Display a menu
                         fix_strncpy(szLanCurServer, addr);
                         mouse_t *m = GetMouse();
-                        
+
                         cLan.Add( new CMenu(m->X, m->Y), nl_PopupMenu, 0,0, 640,480 );
                         cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 0, (DWORD)"Delete server" );
                         cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 1, (DWORD)"Refresh server" );
@@ -332,14 +332,14 @@ void Menu_Net_LANFrame(int mouse)
 void Menu_Net_LANJoinServer(char *sAddress, char *sName)
 {
 
-	// Fill in the game structure												
+	// Fill in the game structure
 	tGameInfo.iNumPlayers = 1;
 	cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,0,0);
-		
+
 	// Add the player to the list
 	if (item)  {
 		profile_t *ply = FindProfile(item->iIndex);
-		if(ply)		
+		if(ply)
 			tGameInfo.cPlayers[0] = ply;
 	}
 
@@ -378,7 +378,7 @@ void Menu_Net_LanShowServer(char *szAddress)
 
 	for(int i=1;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
-    
+
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
@@ -422,13 +422,13 @@ void Menu_Net_LanShowServer(char *szAddress)
 
 
         DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
-		FlipScreen(tMenu->bmpScreen);	
+		FlipScreen(tMenu->bmpScreen);
     }
 
 	cDetails.Shutdown();
 
 
-    // Redraw the background    
+    // Redraw the background
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);

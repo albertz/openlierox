@@ -50,7 +50,7 @@ int Con_Initialize(void)
 	Console->fLastRepeat = -9999;
 	Console->fTimePushed = -9999;
 	Console->bHolding = false;
-	
+
 	for(n=0;n<MAX_CONLINES;n++) {
 		Console->Line[n].strText[0] = 0;
 		Console->Line[n].Colour = CNC_NORMAL;
@@ -106,7 +106,7 @@ void Con_Hide(void)
 void Con_Process(float dt)
 {
 	keyboard_t *kb = GetKeyboard();
-	int		History = 0;
+//	int		History = 0;  // TODO: not used
 	SDL_Event *Ev = GetEvent();
 
 	if(kb->KeyUp[SDLK_BACKQUOTE] || kb->KeyUp[SDLK_F1])
@@ -124,14 +124,14 @@ void Con_Process(float dt)
 	if(Console->fPosition > 1) {
 		Console->iState = CON_HIDDEN;
 		Console->fPosition = 1;
-		
+
 		Console->iCurLength = 0;
 		Console->Line[0].strText[0] = '\0';
 	}
 
 	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
 		return;
-	
+
 
 	// Add text to the console
 	//ProcessEvents();
@@ -140,7 +140,7 @@ void Con_Process(float dt)
 	// Make sure a key event happened
 	if(Ev->type != SDL_KEYUP && Ev->type != SDL_KEYDOWN)
 		return;
-		
+
 	int input = 0;
 
 	// Check the characters
@@ -179,6 +179,8 @@ void Con_Process(float dt)
 					case SDLK_KP_ENTER:
 						input = '\r';
 						break;
+                    default: // TODO: a lot of keys are not handled here
+                        break;
 			}  // switch
 		}
 
@@ -205,7 +207,7 @@ void Con_Process(float dt)
 	if(kb->KeyUp[SDLK_UP]) {
 		Console->icurHistory++;
 		Console->icurHistory = MIN(Console->icurHistory,Console->iNumHistory-1);
-		
+
 		if(Console->icurHistory >= 0) {
 			Console->Line[0].Colour = CNC_NORMAL;
 			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
@@ -245,7 +247,7 @@ void Con_ProcessCharacter(int input)
 		else  {
 			if (tLX->fCurTime - Console->fTimePushed < 0.25f)
 				return;
-			if (tLX->fCurTime - Console->fLastRepeat < 0.03f)  
+			if (tLX->fCurTime - Console->fLastRepeat < 0.03f)
 				return;
 			Console->fLastRepeat = tLX->fCurTime;
 		}
@@ -334,7 +336,7 @@ void Con_ProcessCharacter(int input)
 
 	// Enter key
 	if((char) input == '\n' || (char) input == '\r') {
-		
+
 		Con_Printf(CNC_NORMAL,"]%s",Console->Line[0].strText);
 
 		// Parse the line
@@ -410,7 +412,7 @@ void Con_AddText(int colour, char *text)
 			Console->Line[1].strText[pos] = '\0';
 			Console->Line[1].Colour = colour;
 			Con_AddText(colour, &text[pos+1]);
-			return;			
+			return;
 		}
 		Console->Line[1].strText[pos] = text[pos];
 	}
@@ -473,7 +475,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 			buf2[MIN(sizeof(buf2)-1,(unsigned int)Console->iCurpos)] = '\0';
 			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(buf2),0xffff);
 		}
-		
+
 		tLX->cFont.Draw(bmpDest,12,texty,Colours[Console->Line[n].Colour],"%s",buf);
 	}
 }
@@ -493,6 +495,6 @@ void Con_Shutdown(void)
 {
 	if(Console)
 		free(Console);
-	
+
 	Console = NULL;
 }

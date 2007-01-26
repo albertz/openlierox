@@ -47,7 +47,7 @@ CVec CServer::FindSpot(void)
     int     gw = cMap->getGridWidth();
     int     gh = cMap->getGridHeight();
 
-    
+
     // Find a random cell to start in
     px = (int)(fabs(GetRandomNum()) * (float)cols);
 	py = (int)(fabs(GetRandomNum()) * (float)rows);
@@ -69,7 +69,7 @@ CVec CServer::FindSpot(void)
             uchar pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
             if(!(pf & PX_ROCK))
                 return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
-            
+
             if(++x >= cols) {
                 x=0;
                 break;
@@ -144,7 +144,7 @@ void CServer::SimulateGame(void)
 
 
 	float BonusSpawnTime = BONUS_SPAWNFREQ;
-	
+
 	// Check if we need to spawn a bonus
 	if(tLX->fCurTime - fLastBonusTime > BonusSpawnTime && iBonusesOn && !iGameOver) {
 
@@ -303,7 +303,7 @@ void CServer::TagRandomWorm(void)
 
 	// Tag the lowest tagged worm
 	TagWorm(lowest);
-		
+
 
 
 	// Go through the worms finding the tagged worm
@@ -327,7 +327,7 @@ void CServer::WormShoot(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
 
-	if(Slot->Reloading)		
+	if(Slot->Reloading)
 		return;
 
 	if(Slot->LastFire>0)
@@ -354,14 +354,14 @@ void CServer::WormShoot(CWorm *w)
 	float Angle = w->getAngle();
 	if(w->getDirection() == DIR_LEFT)
 		Angle=180-Angle;
-	
+
 	CVec sprd;
 
 
 	CVec dir;
 	GetAngles((int)Angle,&dir,NULL);
 	CVec pos = w->getPos();// + dir*6;
-	int rot = 0;
+//	int rot = 0;   // TODO: not used
 
 
 	// Add the shot to the shooting list
@@ -411,7 +411,7 @@ void CServer::ShootBeam(CWorm *w)
 	float Angle = w->getAngle();
 	if(w->getDirection() == DIR_LEFT)
 		Angle=180-Angle;
-	
+
 	if(Angle < 0)
 		Angle+=360;
 	if(Angle > 360)
@@ -565,7 +565,7 @@ void CServer::RecheckGame(void)
 				int teamsleft = 0;
 				int team = 0;
 
-				// Get the number of teams left 
+				// Get the number of teams left
 				for(i=0;i<4;i++)
 					if(TeamCount[i])  {
 						teamsleft++;

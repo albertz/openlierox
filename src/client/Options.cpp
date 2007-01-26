@@ -33,9 +33,9 @@ int LoadOptions(void)
     static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode"};
     static const char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
 	static const int	 def_widths[] = {32,180,70,80,60,150};
-    
-    int     i;
-	
+
+    unsigned int     i;
+
 	tLXOptions = new options_t;
 	if(tLXOptions == NULL) {
 		return false;
@@ -62,16 +62,16 @@ int LoadOptions(void)
     	strncpy(&tmp[10], itoa(i, tmp2, 10), sizeof(tmp)-10); // Be careful! 18 was hell too much and it caused f to be NULL
         if(!ReadString(f, "FileHandling", tmp, tmp3, sizeof(tmp3), NULL))
         	break;
-    	
+
     	*spath = new filelist_t;
-		if(!(*spath))  
+		if(!(*spath))
 			break;
 		(*spath)->next = NULL;
 		fix_strncpy((*spath)->filename, tmp3);
-		
+
 		i++;
 		spath = &(*spath)->next;
-	}	
+	}
 	for(spath = &basesearchpaths; *spath != NULL; spath = &(*spath)->next)  {
 		if(!FileListIncludes(tLXOptions->tSearchPaths, (*spath)->filename))  {
 			AddToFileList(&tLXOptions->tSearchPaths, (*spath)->filename);
@@ -186,7 +186,7 @@ void ShutdownOptions(void)
 	ShutdownFilenameStruct(tLXOptions->tSearchPaths);
 	delete tLXOptions;
 	tLXOptions = NULL;
-	
+
 	if (NetworkTexts)
 		delete NetworkTexts;
 	NetworkTexts = NULL;
@@ -240,12 +240,12 @@ void SaveOptions(void)
 	fprintf(fp, "[FileHandling]\n");
 	filelist_t* spath = tLXOptions->tSearchPaths;
 	for(i = 1; spath != NULL; i++, spath = spath->next)
-    	fprintf(fp, "SearchPath%i = %s\n", i, spath->filename);	
+    	fprintf(fp, "SearchPath%i = %s\n", i, spath->filename);
 	fprintf(fp,"\n");
 
     fprintf(fp, "[Ply1Controls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayer1Controls[i]);    
+        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayer1Controls[i]);
     fprintf(fp, "\n");
 
     fprintf(fp, "[Ply2Controls]\n");

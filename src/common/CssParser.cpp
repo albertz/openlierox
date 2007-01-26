@@ -244,7 +244,7 @@ property_t *CCssParser::ReadProperty(void)
 	static char buf[64];
 	buf[63] = '\0';
 
-	int i=0;
+	unsigned int i=0;
 
 	//
 	//	Property name
@@ -367,7 +367,7 @@ property_t *CCssParser::ReadProperty(void)
 
 	// Trim spaces
 	TrimSpaces(buf);
-	
+
 	// Skip the ending character (only ;, NOT } because it's handled by ReadNode)
 	if (*(sData+iPos) == ';')
 		iPos++;
@@ -417,7 +417,7 @@ node_t *CCssParser::ReadNode(void)
 	static char buf[64];
 	buf[0] = '\0';
 
-	int i=0;
+	unsigned int i=0;
 	while(*(sData+iPos) != '{')  {
 		// End of data
 		if (iPos >= iLength) {
@@ -444,9 +444,9 @@ node_t *CCssParser::ReadNode(void)
 		}
 
 		// Check for syntax errors
-		if (*(sData+iPos) < 65 || *(sData+iPos) > 90)
-			if (*(sData+iPos) < 97 || *(sData+iPos) > 122)
-				if (*(sData+iPos) != '_' && *(sData+iPos) != '-')  { 
+		if (*(sData+iPos) < 'A' || *(sData+iPos) > 'Z')
+			if (*(sData+iPos) < 'a' || *(sData+iPos) > 'z')
+				if (*(sData+iPos) != '_' && *(sData+iPos) != '-')  {
 					printf("Syntax error: invalid character '%c' (%i) on position %i",*(sData+iPos),(int)*(sData+iPos),iPos);
 					delete node;
 					return NULL;
@@ -477,7 +477,7 @@ node_t *CCssParser::ReadNode(void)
 		delete node;
 		return NULL;
 	}
-	
+
 	// Copy the name
 	memcpy(node->sName,buf,buflen+1);
 

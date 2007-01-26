@@ -35,7 +35,6 @@ public:
 		iType = wid_Titlebutton;
 	}
 
-
 private:
 	// Attributes
 

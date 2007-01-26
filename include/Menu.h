@@ -166,7 +166,7 @@ enum {
 	BUT_CLEAR,
 	BUT_SERVERSETTINGS,
 	BUT_FILTER,
-	BUT_ADDTOFAVOURITES,
+	BUT_ADDTOFAVOURITES
 };
 
 // Menu structure
@@ -180,7 +180,7 @@ typedef struct {
 	SDL_Surface		*bmpScreen;
 	SDL_Surface		*bmpMsgBuffer;
     SDL_Surface     *bmpMiniMapBuffer;
-	
+
 	SDL_Surface		*bmpLieroXtreme;
 	SDL_Surface		*bmpMainTitles;
 	SDL_Surface		*bmpTitles;

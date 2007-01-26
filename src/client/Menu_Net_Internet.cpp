@@ -38,18 +38,18 @@ enum {
 // Initialize the Internet menu
 int Menu_Net_NETInitialize(void)
 {
-	Uint32 blue = MakeColour(0,138,251);
+//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 
 	iNetMode = net_internet;
     szNetCurServer[0] = '\0';
 
 	cInternet.Shutdown();
 	cInternet.Initialize();
-	
+
 	cInternet.Add( new CListview(),								mi_ServerList, 40, 180, 560, 240);
 	cInternet.Add( new CButton(BUT_BACK, tMenu->bmpButtons),    mi_Back,       25, 440, 50,  15);
 	cInternet.Add( new CButton(BUT_ADD, tMenu->bmpButtons),		mi_AddServer,  140,440, 40,  15);
-	cInternet.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mi_Refresh,	250,440, 83,  15);	
+	cInternet.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mi_Refresh,	250,440, 83,  15);
 	cInternet.Add( new CButton(BUT_UPDATELIST, tMenu->bmpButtons),	mi_UpdateList,  390,440, 125,  15);
 	cInternet.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    mi_Join,		570,440, 43,  15);
 	cInternet.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
@@ -86,7 +86,7 @@ int Menu_Net_NETInitialize(void)
 	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"State", tLXOptions->iInternetList[2]);
 	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", tLXOptions->iInternetList[3]);
 	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", tLXOptions->iInternetList[4]);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", tLXOptions->iInternetList[5]);	
+	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", tLXOptions->iInternetList[5]);
 
 	// Clear the server list & grab an update
 	Menu_SvrList_Clear();
@@ -108,7 +108,7 @@ void Menu_Net_NETShutdown(void)
         Menu_SvrList_SaveList("cfg/svrlist.dat");
 
 		// Save the column widths
-		for (int i=0;i<6;i++) 
+		for (int i=0;i<6;i++)
 			tLXOptions->iInternetList[i] = cInternet.SendMessage(mi_ServerList,LVM_GETCOLUMNWIDTH,i,0);
 	}
 
@@ -128,7 +128,7 @@ void Menu_Net_NETFrame(int mouse)
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev;
 	static char		addr[256];
-	
+
 
 	// Process & Draw the gui
 	ev = cInternet.Process();
@@ -176,7 +176,7 @@ void Menu_Net_NETFrame(int mouse)
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
-					// Back to main menu					
+					// Back to main menu
 					Menu_MainInitialize();
 				}
 				break;
@@ -204,7 +204,7 @@ void Menu_Net_NETFrame(int mouse)
 
                         // Save the list
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
-						
+
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
@@ -250,7 +250,7 @@ void Menu_Net_NETFrame(int mouse)
                         // Display a menu
                         fix_strncpy(szNetCurServer, addr);
                         mouse_t *m = GetMouse();
-                        
+
                         cInternet.Add( new CMenu(m->X, m->Y), mi_PopupMenu, 0,0, 640,480 );
                         cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 0, (DWORD)"Delete server" );
                         cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 1, (DWORD)"Refresh server" );
@@ -362,13 +362,13 @@ void Menu_Net_NETJoinServer(char *sAddress, char *sName)
 {
 	tGameInfo.iNumPlayers = 1;
 
-	// Fill in the game structure												
+	// Fill in the game structure
 	cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,0,0);
-		
+
 	// Add the player to the list
 	if (item)  {
 		profile_t *ply = FindProfile(item->iIndex);
-		if(ply)		
+		if(ply)
 			tGameInfo.cPlayers[0] = ply;
 	}
 
@@ -532,7 +532,7 @@ void Menu_Net_NETUpdateList(void)
             SvrCount++;
     }
 
-    
+
     // Clear the server list
     Menu_SvrList_ClearAuto();
 
@@ -551,8 +551,8 @@ void Menu_Net_NETUpdateList(void)
 
 
 	cListUpdate.Initialize();
-	cListUpdate.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),0, 285, 320, 70,15);	
-	cListUpdate.Add( new CLabel("Getting server list", tLX->clNormalLabel),	-1,260, 227, 0, 0);	
+	cListUpdate.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),0, 285, 320, 70,15);
+	cListUpdate.Add( new CLabel("Getting server list", tLX->clNormalLabel),	-1,260, 227, 0, 0);
 
 
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->iMenuRunning) {
@@ -578,12 +578,12 @@ void Menu_Net_NETUpdateList(void)
             // Get the next server in the list
             while( fgets(szLine, 1024, fp) ) {
                 fix_strncpy( szLine, StripLine(szLine) );
-        
+
                 if( fix_strnlen(szLine) > 0 ) {
 
                     // Send the request
                     if( !http_InitializeRequest(szLine, LX_SVRLIST) ) {
-                        
+
                         // Clear the data for another request
 		                SentRequest = false;
                         CurServer++;
@@ -598,18 +598,18 @@ void Menu_Net_NETUpdateList(void)
 
         // Process the http request
         if( SentRequest ) {
-            http_result = http_ProcessRequest(NULL);            
+            http_result = http_ProcessRequest(NULL);
 
             // Parse the list if the request was successful
             if( http_result == 1 ) {
 		        Menu_Net_NETParseList();
             }
 
-            if( http_result != 0 ) {                
+            if( http_result != 0 ) {
                 SentRequest = false;
                 CurServer++;
                 http_Quit();
-            }	        
+            }
         }
 
 		// Process the server list
@@ -636,7 +636,7 @@ void Menu_Net_NETUpdateList(void)
 				// Cancel
 				case 0:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
-						
+
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
@@ -670,7 +670,7 @@ void Menu_Net_NETUpdateList(void)
 // Parse the downloaded server list
 void Menu_Net_NETParseList(void)
 {
-	char *content = http_GetContent();    
+	char *content = http_GetContent();
 
 	static char Line[HTTP_CONTENT_LEN];
 	static char temp[HTTP_CONTENT_LEN];
@@ -679,7 +679,7 @@ void Menu_Net_NETParseList(void)
 	int i = 0;
 	int count = strnlen(content, HTTP_CONTENT_LEN);
 
-	while(i < count) {		
+	while(i < count) {
 		sscanf(content+i,"%[^\n]\n",Line);
 
 		fix_strncpy(temp, Line);
@@ -693,7 +693,7 @@ void Menu_Net_NETParseList(void)
 			continue;
 		}
 
-		
+
 		static char address[256];
 		static char port[256];
         static char a[256], p[256];
@@ -725,7 +725,7 @@ void Menu_Net_NETParseList(void)
 
 enum  {
 	nd_Ok=0,
-	nd_Refresh,
+	nd_Refresh
 };
 
 ///////////////////
@@ -744,7 +744,7 @@ void Menu_Net_NETShowServer(char *szAddress)
 
 	for(int i=1;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
-    
+
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
@@ -788,13 +788,13 @@ void Menu_Net_NETShowServer(char *szAddress)
 
 
         DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
-		FlipScreen(tMenu->bmpScreen);	
+		FlipScreen(tMenu->bmpScreen);
     }
 
 	cDetails.Shutdown();
 
 
-    // Redraw the background    
+    // Redraw the background
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);

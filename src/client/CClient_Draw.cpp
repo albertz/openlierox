@@ -70,20 +70,20 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		Menu_RedrawMouse(true);
         SDL_ShowCursor(SDL_DISABLE);
 
-		Menu_MessageBox("Connection error", strServerErrorMsg, LMB_OK);        
+		Menu_MessageBox("Connection error", strServerErrorMsg, LMB_OK);
 
 		QuittoMenu();
 		return;
 	}
 
-    // Draw the borders    
+    // Draw the borders
     DrawRectFill(bmpDest,0,382,640,480,0);
     if(cViewports[1].getUsed())
         DrawRectFill(bmpDest,318,0,322,384,0);
 
 
 	// Draw the viewports
-	if(iNetStatus == NET_PLAYING) {        
+	if(iNetStatus == NET_PLAYING) {
 
         // Draw the viewports
         for( i=0; i<NUM_VIEWPORTS; i++ ) {
@@ -105,14 +105,14 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			cMap->DrawMiniMap( bmpDest, 257,383, dt, cRemoteWorms, iGameType);
 	}
 
-	
+
 	// Connected
 	else if(iNetStatus == NET_CONNECTED && iGameReady) {
 		int ready = true;
 
 		// Go through and draw the first two worms select menus
 		for(i=0;i<num;i++) {
-			
+
 			// Draw Map
             if( cViewports[i].getUsed() )  {
 			    cMap->Draw(bmpDest, &cViewports[i]);
@@ -137,12 +137,12 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				cLocalWorms[i]->writeWeapons(bytes);
 		}
 	}
-	
+
 	// DEBUG
 	//DrawRectFill(bmpDest,0,0,100,40,0);
 	//tLX->cFont.Draw(bmpDest,0,0,0xffff,"iNetStatus = %i",iNetStatus);
 	//tLX->cFont.Draw(bmpDest,0,20,0xffff,"iGameReady = %i",iGameReady);
-	
+
 	// Draw the chatbox for either a local game, or remote game
 	if(tGameInfo.iGameType == GME_LOCAL)
 		DrawLocalChat(bmpDest);
@@ -191,9 +191,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			strncpy(buf,sChat_Text,iChat_Pos);
 			buf[iChat_Pos] = '\0';
 			DrawVLine(bmpDest, 368, 378, 4+tLX->cFont.GetWidth("Talk: ")+tLX->cFont.GetWidth(buf), tLX->clNormalText);
-		}	
+		}
 	}
-       
+
 	// Console
     Con_Draw(bmpDest);
 
@@ -283,16 +283,16 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     //cWeather.Draw(bmpDest, v);
 
 	cMap->Draw(bmpDest, v);
-    
+
     if( tLXOptions->iShadows ) {
 		// Draw the projectile shadows
 		DrawProjectileShadows(bmpDest, v);
 
         // Draw the worm shadows
         CWorm *w = cRemoteWorms;
-        for(int i=0;i<MAX_WORMS;i++,w++) {		
+        for(int i=0;i<MAX_WORMS;i++,w++) {
             if(w->isUsed() && w->getAlive())
-                w->DrawShadow(bmpDest, cMap, v);		
+                w->DrawShadow(bmpDest, cMap, v);
         }
     }
 
@@ -304,13 +304,13 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 
 	// Draw the bonuses
 	DrawBonuses(bmpDest, v);
-	
+
 	// Draw all the worms in the game
 	int i;
 	CWorm *w = cRemoteWorms;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed() && w->getAlive())
-			w->Draw(bmpDest, cMap, v);		
+			w->Draw(bmpDest, cMap, v);
 	}
 
 	// Disable the special clipping
@@ -328,7 +328,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
         return;
 
     CWorm *worm = v->getTarget();
-	
+
 	// Health
 	tLX->cFont.Draw(bmpDest, x+2, y+2, tLX->clNormalLabel,"%s","Health:");
 	DrawRectFill(bmpDest,x+63,y+6,x+165,y+13,grey);
@@ -352,7 +352,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	if(worm->getLives() >= 0)
 		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%d",worm->getLives());
 	else if(worm->getLives() == WRM_OUT)
-		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%s", "Out");	
+		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%s", "Out");
 	else if(worm->getLives() == WRM_UNLIM)
 		DrawImage(bmpDest, gfxGame.bmpInfinite, x+61,y+41);
 
@@ -375,7 +375,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
         if( count >= 1000 )
             snprintf(buf,sizeof(buf),"%dk",count/1000);
 		fix_markend(buf);
-		
+
         tLX->cFont.Draw(bmpDest,x+85,y+75, tLX->clNormalLabel, "%s",buf);
     }
 
@@ -385,7 +385,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	int wy = view->GetWorldY();
 	int l = view->GetLeft();
 	int t = view->GetTop();
-	
+
 	CVec vPosition = tLX->debug_pos;
 	x=((int)vPosition.x-wx)*2+l;
 	y=((int)vPosition.y-wy)*2+t;
@@ -414,7 +414,7 @@ void CClient::DrawProjectiles(SDL_Surface *bmpDest, CViewport *v)
 			continue;
 
 		prj->Draw(bmpDest, v);
-	}    
+	}
 }
 
 
@@ -435,11 +435,11 @@ void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 		return;*/
 
     CProjectile *prj = cProjectiles;
-    
+
     for(int p=0;p<nTopProjectile;p++,prj++) {
         if(!prj->isUsed())
             continue;
-        
+
         prj->DrawShadow(bmpDest, v, cMap);
     }
 }
@@ -463,7 +463,7 @@ void CClient::SimulateHud(void)
 	for(int i=0;i<iChat_Numlines;i++) {
 		tChatLines[i].fScroll += dt*ScrollSpeed;
 		tChatLines[i].fScroll = MIN((float)1,tChatLines[i].fScroll);
-		
+
 		if(tChatLines[i].fTime + 4 < tLX->fCurTime) {
 			iChat_Numlines--;
 			iChat_Numlines = MAX(0,iChat_Numlines);
@@ -512,15 +512,15 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 
 	// Buttons
 	mouse = 0;
-	int width = gfxGame.bmpGameover->w;
+//	int width = gfxGame.bmpGameover->w;  // TODO: not used
 	int height = gfxGame.bmpGameover->h;
 
-	int x = 320 - width/2;
+//	int x = 320 - width/2;  // TODO: not used
 	int y = 200 - height/2;
-	
+
 	int j = y+height-27;
 	CButton ok = CButton(BUT_OK,bmpMenuButtons);
-	
+
 	ok.Setup(0, 305,j, 30, 15);
     ok.Create();
 
@@ -542,7 +542,7 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 	// Quit
 	if (Keyboard->KeyDown[SDLK_RETURN] || Keyboard->KeyDown[SDLK_KP_ENTER] || Keyboard->KeyDown[SDLK_ESCAPE])
 		tLX->iQuitEngine = true;
-	
+
 	// Draw the mouse
 	DrawImage(bmpDest,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
 }
@@ -554,7 +554,7 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 {
 	mouse_t *Mouse = GetMouse();
 	int mouse;
-	
+
 	// Buttons
 	mouse = 0;
 	int width = gfxGame.bmpGameover->w;
@@ -562,10 +562,10 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 
 	int x = 320 - width/2;
 	int y = 200 - height/2;
-	
+
 	int j = y+height-27;
 	CButton leave = CButton(BUT_LEAVE,bmpMenuButtons);
-		
+
 	leave.Setup(0, x+20,j, 60, 15);
     leave.Create();
 
@@ -579,11 +579,11 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 
 	if(Mouse->Up) {
 		if(leave.InBox(Mouse->X,Mouse->Y)) {
-			
+
 			// If this is a host, we go back to the lobby
 			// The host can only quit the game via the lobby
 			if(tGameInfo.iGameType == GME_HOST) {
-				
+
 				cServer->gotoLobby();
 
 			} else {
@@ -599,10 +599,10 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 	timeleft = MAX(timeleft,(float)0);
 	tLX->cFont.Draw(bmpDest, x+width-180, j+2, MakeColour(200,200,200), "Returning to lobby in %d", (int)timeleft);
 
-	
+
 	// Draw the mouse
 	DrawImage(bmpDest,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
-	
+
 }
 
 
@@ -612,7 +612,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 {
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
-	
+
 	DrawScore(bmpDest, gfxGame.bmpScoreboard);
 
 	CButton quit = CButton(BUT_QUITGAME,bmpMenuButtons);
@@ -623,7 +623,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 
 	int x = 320 - width/2;
 	int y = 200 - height/2;
-	
+
 	int j = y+height-27;
 	quit.Setup(0, x+width-130,j, 105, 15);
 	resume.Setup(1, x+20,j, 75, 15);
@@ -651,7 +651,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 			// We don't directly go back to the lobby, instead we send the message
 			// and the client on this machine does the goto lobby when it gets the packet
 			if(tGameInfo.iGameType == GME_HOST) {
-				
+
 				cServer->gotoLobby();
 
 			} else {
@@ -660,12 +660,12 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 				QuittoMenu();
 			}
 		}
-		
+
 		if(resume.InBox(Mouse->X,Mouse->Y))
 			// Resume
 			iGameMenu = false;
 	}
-	
+
 	// Draw the mouse
 	DrawImage(bmpDest,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
 }
@@ -719,7 +719,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 		if (tGameInfo.iGameType == GME_HOST)  {
 			tLX->cFont.Draw(bmpDest, x+340, y+45, tLX->clNormalLabel,"%s","Kills");
 			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"%s","Ping");
-		} else 
+		} else
 			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"%s","Kills");
 
 		DrawHLine(bmpDest, x+15,x+width-15, y+60,0xffff);
@@ -780,7 +780,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			else if(p->getLives() == WRM_OUT)
 				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, "%s", "out");
 
-            
+
 			tLX->cFont.DrawCentre(bmpDest, x+372, j, tLX->clNormalLabel, "%d",p->getDirtCount());
             dirtcount += p->getDirtCount();
 
@@ -833,7 +833,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 				tLX->cFont.DrawCentre(bmpDest, x+237, j, tLX->clNormalLabel, "%d",p->getLives());
 			else if(p->getLives() == WRM_OUT)
 				tLX->cFont.DrawCentre(bmpDest, x+237, j, tLX->clNormalLabel,"%s", "out");
-			
+
 			// Draw the ping if host
 			if (tGameInfo.iGameType == GME_HOST)  {
 				tLX->cFont.DrawCentre(bmpDest, x+293, j, tLX->clNormalLabel, "%d",p->getKills());
@@ -954,7 +954,7 @@ void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fg
 
 	static char buf[512];
 	va_list arg;
-	
+
 	va_start(arg, fmt);
 	vsnprintf(buf, sizeof(buf), fmt, arg);
 	fix_markend(buf);
@@ -996,7 +996,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 {
 	int y = 386;
 	int i;
-	
+
 	for(i=0;i<MAX_CLINES;i++) {
 		line_t *l = cChatbox.GetLine(i);
 
@@ -1051,28 +1051,28 @@ void CClient::InitializeViewportManager(void)
 
     if( count <= 1 )
         v2On = false;
-    
+
     // Viewport 1
     ViewportMgr.Add( new CLabel("Used",tLX->clNormalLabel), -1,     x+15,  y+80,  0,   0);
     ViewportMgr.Add( new CLabel("Type",tLX->clNormalLabel), -1,     x+15,  y+110,  0,   0);
-    //ViewportMgr.Add( new CCheckbox(true),       v1_On,  x+75,  y+80,  20,  20);    
+    //ViewportMgr.Add( new CCheckbox(true),       v1_On,  x+75,  y+80,  20,  20);
 	ViewportMgr.Add( new CCombobox(),           v1_Target,x+75,    y+135, 150, 17);
     ViewportMgr.Add( new CCombobox(),           v1_Type,x+75,  y+110, 150, 17);
-    ViewportMgr.Add( new CCheckbox(v2On),       v2_On,  x2,    y+80,  20,  20);   
-	ViewportMgr.Add( new CCombobox(),           v2_Target,x2,    y+135, 150, 17);	
+    ViewportMgr.Add( new CCheckbox(v2On),       v2_On,  x2,    y+80,  20,  20);
+	ViewportMgr.Add( new CCombobox(),           v2_Target,x2,    y+135, 150, 17);
     ViewportMgr.Add( new CCombobox(),           v2_Type,x2,    y+110, 150, 17);
     ViewportMgr.Add( new CButton(BUT_OK, tMenu->bmpButtons),    v_ok,310,y+gfxGame.bmpViewportMgr->h-25,30,15);
 
     // Fill in the combo boxes
 
-    // If the first player is a human, and is still playing: Only show the follow option    
+    // If the first player is a human, and is still playing: Only show the follow option
     ViewportMgr.SendMessage( v1_Type, CBM_ADDITEM, VW_FOLLOW, (DWORD)"Follow" );
     if( cLocalWorms[0]->getLives() == WRM_OUT || cLocalWorms[0]->getType() == PRF_COMPUTER ) {
         ViewportMgr.SendMessage( v1_Type, CBM_ADDITEM, VW_CYCLE, (DWORD)"Cycle" );
         ViewportMgr.SendMessage( v1_Type, CBM_ADDITEM, VW_FREELOOK, (DWORD)"Free Look" );
         ViewportMgr.SendMessage( v1_Type, CBM_ADDITEM, VW_ACTIONCAM, (DWORD)"Action Cam" );
     }
-    
+
     // If the second player is a human and is still playing: Only show the follow option
     bool show = true;
     if( iNumWorms > 1 )
@@ -1080,7 +1080,7 @@ void CClient::InitializeViewportManager(void)
             show = false;
 
     ViewportMgr.SendMessage( v2_Type, CBM_ADDITEM, VW_FOLLOW, (DWORD)"Follow" );
-    if( show ) {    
+    if( show ) {
         ViewportMgr.SendMessage( v2_Type, CBM_ADDITEM, VW_CYCLE, (DWORD)"Cycle" );
         ViewportMgr.SendMessage( v2_Type, CBM_ADDITEM, VW_FREELOOK, (DWORD)"Free Look" );
         ViewportMgr.SendMessage( v2_Type, CBM_ADDITEM, VW_ACTIONCAM, (DWORD)"Action Cam" );
@@ -1108,8 +1108,8 @@ void CClient::InitializeViewportManager(void)
 			ViewportMgr.SendMessage( v2_Target, CBM_SETCURINDEX, trg->getID(), 0);
 	}
 
-    
-    
+
+
     // Restore old settings
     ViewportMgr.SendMessage( v1_Type, CBM_SETCURINDEX, cViewports[0].getType(), 0);
     ViewportMgr.SendMessage( v2_On, CKM_SETCHECK, cViewports[1].getUsed(), 0);
@@ -1128,16 +1128,16 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
 {
     mouse_t *Mouse = GetMouse();
     int mcursor = 0;
-    
+
     int x = 320-gfxGame.bmpViewportMgr->w/2;
     int y = 200-gfxGame.bmpViewportMgr->h/2;
-    
+
 	// Draw the back image
 	DrawImage(bmpDest,gfxGame.bmpViewportMgr,x,y);
 
     tLX->cFont.Draw(bmpDest, x+75,y+50, tLX->clNormalLabel,"%s","Viewport 1");
     tLX->cFont.Draw(bmpDest, x+gfxGame.bmpViewportMgr->w/2+40,y+50, tLX->clNormalLabel,"%s","Viewport 2");
-    
+
     ViewportMgr.Draw(bmpDest);
     gui_event_t *ev = ViewportMgr.Process();
 
@@ -1151,7 +1151,7 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
         return;
 
 
-    // Get the worm count    
+    // Get the worm count
     int Wormcount = 0;
     for(int i=0; i<MAX_WORMS; i++ ) {
         if(cRemoteWorms[i].isUsed())
@@ -1227,7 +1227,7 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
                 return;
             }
             break;
-    }   
+    }
 }
 
 
@@ -1301,14 +1301,14 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
             DrawRectFill(bmpDest, x+2,j-2, x+w-1, j+18, MakeColour(52,52,52));
 
 		tLX->cFont.Draw(bmpDest, x+5, j+1, 0xffff,"#%d",p->getID());
-        
+
         // Pic & Name
         DrawImage(bmpDest, p->getPicimg(), x+30, j);
 		if (tGameInfo.iGameMode == GMT_TEAMDEATH  && tLXOptions->iColorizeNicks)
 			tLX->cFont.Draw(bmpDest, x+56, j, iColor,"%s", p->getName());
 		else
 			tLX->cFont.Draw(bmpDest, x+56, j, tLX->clNormalLabel,"%s", p->getName());
-        
+
         // Score
         if(!bShowReady) {
             if(p->getLives() >= 0)
@@ -1337,7 +1337,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 					tLX->cFont.DrawCentre(bmpDest, x+260, j, tLX->clNormalLabel, "%d",remoteClient->getPing());
 			}
         }
-        
+
         j+=20;
     }
 }
@@ -1403,5 +1403,5 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 		tLX->cFont.Draw(bmpDest, x+105, y+115, tLX->clNormalLabel,"On");
 	else
 		tLX->cFont.Draw(bmpDest, x+105, y+115, tLX->clNormalLabel,"Off");
- 
+
 }

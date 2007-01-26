@@ -5,7 +5,7 @@
 /////////////////////////////////////////
 
 
-// Auxiliary library 
+// Auxiliary library
 // Created 12/11/01
 // By Jason Boettcher
 
@@ -48,7 +48,7 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 	// TODO: do it better
 	SDL_putenv("SDL_VIDEODRIVER=directx");
 #endif
-	
+
 	// Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == -1) {
 		SystemError("Failed to initialize the SDL system!\nErrorMsg: %s",SDL_GetError());
@@ -91,13 +91,13 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 	if(!InitializeCache())
 		return false;
 
-	
+
 
 	// Initialize the keyboard & mouse
 	ProcessEvents();
 	for(int k = 0;k<SDLK_LAST;k++)
 		Keyboard.KeyUp[k] = false;
-	
+
 	Mouse.Button = 0;
 	Mouse.Up = 0;
 
@@ -118,12 +118,12 @@ int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
 			fprintf(fp, " ");
 		fprintf(fp, "%ff", f );
 		if(i!= 255)
-			fprintf(fp, ", ");		
+			fprintf(fp, ", ");
 	}
 	fprintf(fp, " };\n\n");
 	fclose(fp);*/
-	
-	
+
+
 	return true;
 }
 
@@ -144,7 +144,7 @@ int SetVideoMode(void)
 	// Initialize the video
 	if(tLXOptions->iFullscreen)
 		vidflags |= SDL_FULLSCREEN;
-	
+
 	if (opengl) {
 		printf("HINT: using OpenGL\n");
 		vidflags |= SDL_OPENGLBLIT;
@@ -215,7 +215,7 @@ void ProcessEvents(void)
 	// Reset mouse wheel
 	Mouse.WheelScrollUp = 0;
 	Mouse.WheelScrollDown = 0;
-	
+
 	while(SDL_PollEvent(&Event)) {
 
         // Quit event
@@ -235,11 +235,11 @@ void ProcessEvents(void)
 				case SDL_BUTTON_WHEELDOWN:
 					Mouse.WheelScrollDown  = true;
 					break;
-			}  // switch 
+			}  // switch
 		 }  // if
 
-        
-#ifdef WIN32        
+
+#ifdef WIN32
         // System events
         if(Event.type == SDL_SYSWMEVENT) {
             SDL_SysWMmsg *msg = Event.syswm.msg;
@@ -266,7 +266,7 @@ void ProcessEvents(void)
 
 			// Check the characters
 			if(Event.key.state == SDL_PRESSED || Event.key.state == SDL_RELEASED) {
-				
+
 				char input = (char)(Event.key.keysym.unicode & 0x007F);
 				if (input == 0)
 					switch (Event.key.keysym.sym) {
@@ -299,6 +299,10 @@ void ProcessEvents(void)
 					case SDLK_KP_ENTER:
 						input = '\r';
 						break;
+                    default: // these are a lot; comment out and activate warnings to list them
+                        // nothing
+                        // TODO: is that correct?
+                        break;
 				}  // switch
 
                 // If we're going to over the queue length, shift the list down and remove the oldest key
@@ -317,7 +321,7 @@ void ProcessEvents(void)
 				if(Event.type == SDL_KEYUP || Event.key.state == SDL_RELEASED)
                     Keyboard.keyQueue[Keyboard.queueLength++] = -input;
 
-                
+
             }
         }
 	}
@@ -332,7 +336,7 @@ void ProcessEvents(void)
 	Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y);
 	Mouse.Up = 0;
     Mouse.FirstDown = 0;
-	
+
 	// Left Mouse Button Up event
 	if(!(Mouse.Button & SDL_BUTTON(SDL_BUTTON_LEFT)) && Mouse.Down & SDL_BUTTON(SDL_BUTTON_LEFT))
 		Mouse.Up |= SDL_BUTTON(SDL_BUTTON_LEFT);
@@ -346,7 +350,7 @@ void ProcessEvents(void)
         if( !(Mouse.Down & SDL_BUTTON(i)) && (Mouse.Button & SDL_BUTTON(i)) )
             Mouse.FirstDown |= SDL_BUTTON(i);
     }
-		
+
 	Mouse.Down = Mouse.Button;
 
     // SAFETY HACK: If we get any mouse presses, we must have focus
@@ -361,10 +365,10 @@ void ProcessEvents(void)
 	// Update the key up's
 	for(int k=0;k<SDLK_LAST;k++) {
 		Keyboard.KeyUp[k] = false;
-		
+
 		if(!Keyboard.keys[k] && Keyboard.KeyDown[k])
 			Keyboard.KeyUp[k] = true;
-		Keyboard.KeyDown[k] = Keyboard.keys[k];        
+		Keyboard.KeyDown[k] = Keyboard.keys[k];
 	}
 }
 
@@ -468,10 +472,10 @@ int GetClipboardText(char *szText, int nMaxLength)
 
     // Windows version
     if( IsClipboardFormatAvailable(CF_TEXT) ) {
-            
+
         if( OpenClipboard(WindowHandle) ) {
             CBDataHandle = GetClipboardData(CF_TEXT);
-                
+
             if(CBDataHandle) {
                 CBDataPtr = (LPSTR)GlobalLock(CBDataHandle);
                 int TextSize = strlen(CBDataPtr);
@@ -504,7 +508,7 @@ int SetClipboardText(char *szText)
     if( !szText )
         return 0;
 
-#ifdef WIN32    
+#ifdef WIN32
     // Get the window handle
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
@@ -524,21 +528,21 @@ int SetClipboardText(char *szText)
 	// Allocate memory
 	LPTSTR  lptstrCopy;
 	int cch = strlen(szText);
-	HGLOBAL hglbCopy = GlobalAlloc(GMEM_SHARE | GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR)); 
-    if (hglbCopy == NULL) 
-    { 
-        CloseClipboard(); 
-        return 0; 
-    } 
+	HGLOBAL hglbCopy = GlobalAlloc(GMEM_SHARE | GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR));
+    if (hglbCopy == NULL)
+    {
+        CloseClipboard();
+        return 0;
+    }
 
 	// Copy the text to the memory
-    lptstrCopy = (char *) GlobalLock(hglbCopy); 
-    memcpy(lptstrCopy, szText, cch * sizeof(TCHAR)); 
-    lptstrCopy[cch] = (TCHAR) 0;    // null character 
-    GlobalUnlock(hglbCopy); 
+    lptstrCopy = (char *) GlobalLock(hglbCopy);
+    memcpy(lptstrCopy, szText, cch * sizeof(TCHAR));
+    lptstrCopy[cch] = (TCHAR) 0;    // null character
+    GlobalUnlock(hglbCopy);
 
 	// Put to clipboard
-	SetClipboardData(CF_TEXT, hglbCopy); 
+	SetClipboardData(CF_TEXT, hglbCopy);
 
 	// Close the clipboard
 	CloseClipboard();
@@ -555,7 +559,7 @@ int SetClipboardText(char *szText)
 // Take a screenshot
 void TakeScreenshot(bool Tournament)
 {
-	static char		picname[80]; 
+	static char		picname[80];
 	static char		checkname[512];
 	char		extension[5];
 	int			i;
@@ -580,7 +584,7 @@ void TakeScreenshot(bool Tournament)
 		else
 			snprintf(checkname, sizeof(checkname), "scrshots/%s", picname);
 		fix_markend(checkname);
-		
+
 		f = OpenGameFile(checkname, "rb");
 		if (!f)
 			break;	// file doesn't exist

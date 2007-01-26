@@ -45,7 +45,7 @@ enum {
 	os_ShowPing,
 	os_LogConvos,
 	os_ScreenshotFormat,
-	os_Apply,
+	os_Apply
 };
 
 enum {
@@ -113,8 +113,8 @@ int Menu_OptionsInitialize(void)
 {
 	tMenu->iMenuType = MNU_OPTIONS;
 	OptionsMode = 0;
-	Uint32 blue = MakeColour(0,138,251);
-	Uint32 ltblue = MakeColour(143,176,207);
+	//Uint32 blue = MakeColour(0,138,251); // TODO: not used
+	//Uint32 ltblue = MakeColour(143,176,207); // TODO: not used
     int i;
 
 	// Create the buffer
@@ -140,7 +140,7 @@ int Menu_OptionsInitialize(void)
 
 	cOpt_System.Shutdown();
 	cOpt_System.Initialize();
-	
+
 	cOpt_Controls.Shutdown();
 	cOpt_Controls.Initialize();
 
@@ -197,11 +197,11 @@ int Menu_OptionsInitialize(void)
     cOpt_Controls.Add( new CLabel("Switch video mode", tLX->clNormalLabel), Static, 380, 340, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch video mode"),
 						   oc_Gen_SwitchMode, 515, 340, 50,17);
-	
 
 
 
-	// System	
+
+	// System
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 170, 170, 17,17);
@@ -219,8 +219,8 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 280, 0,0);
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 300, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 297, 100,20);
-	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,330, 0,0);	
-	
+	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,330, 0,0);
+
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iShowFPS),   os_ShowFPS, 200, 385, 17,17);
@@ -228,7 +228,7 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CCheckbox(tLXOptions->iLogConvos), os_LogConvos, 200,415,17,17);
 	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 230, 415, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iShowPing),  os_ShowPing, 365,415,17,17);
-	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);	
+	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);
 
@@ -291,14 +291,14 @@ int Menu_OptionsInitialize(void)
 	//cOpt_Game.Add( new CLabel("AI Difficulty",tLX->clNormalLabel), Static, 40, 270, 0,0);
 	//cOpt_Game.Add( new CSlider(3), og_AIDifficulty,   175, 267, 100, 20);
 
-	// Set the values	
+	// Set the values
 	cOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
 	//cOpt_Game.SendMessage( og_AIDifficulty, SLM_SETVALUE, tLXOptions->iAIDifficulty, 0);
 
-	
 
 
-	
+
+
 	return true;
 }
 
@@ -310,9 +310,9 @@ void Menu_OptionsFrame(void)
 	mouse_t		*Mouse = GetMouse();
 	int			mouse = 0;
 	gui_event_t *ev;
-	int opengl = tLXOptions->iOpenGL;
-	int fullscr = tLXOptions->iFullscreen;
-	static const char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"};
+//	int opengl = tLXOptions->iOpenGL; // TODO: not used
+//	int fullscr = tLXOptions->iFullscreen; // TODO: not used
+// 	static const char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"}; // TODO: not used
 	int			val;
 
 	CCheckbox	*c;
@@ -321,11 +321,11 @@ void Menu_OptionsFrame(void)
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer,  180,110,  180,110,  300,30);
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 
-	
+
 	// Process the top buttons
 	TopButtons[OptionsMode].MouseOver(Mouse);
 	for(int i=op_Controls;i<=op_System;i++) {
-		
+
 		TopButtons[i].Draw(tMenu->bmpScreen);
 
 		if(i==OptionsMode)
@@ -548,7 +548,7 @@ void Menu_OptionsFrame(void)
 					if(ev->iEventMsg == CHK_CHANGED) {
 
 						int old = tLXOptions->iSoundOn;
-						
+
 						c = (CCheckbox *)cOpt_System.getWidget(os_SoundOn);
 						tLXOptions->iSoundOn = c->getValue();
 
@@ -582,15 +582,15 @@ void Menu_OptionsFrame(void)
 					if(ev->iEventMsg == CHK_CHANGED)  {
 						tLXOptions->iLogConvos = cOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, 0, 0);
 						FILE *f;
-						
+
 						f = OpenGameFile("Conversations.log","a");
 						if (f)  {
 							if (tLXOptions->iLogConvos)  {
 								static char cTime[26];
 								GetTime(cTime); fix_markend(cTime);
 								fprintf(f,"<game starttime=\"%s\">\r\n",cTime);
-							} 
-							else 
+							}
+							else
 								fprintf(f,"</game>\r\n");
 							fclose(f);
 						} // if (f)
@@ -609,17 +609,17 @@ void Menu_OptionsFrame(void)
 		// Get the values
 		CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 		tLXOptions->iNetworkPort = atoi(t->getText());
-		
+
 		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,0,0);
 
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,0,0);
-		
+
 
 		if((fullscr != tLXOptions->iFullscreen) || (opengl != tLXOptions->iOpenGL))
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
         else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
-            
+
             // Redraw the section around the apply button
 			if (!cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ISDROPPED,0,0))
 				Menu_redrawBufferRect(550,435, 80,25);
@@ -649,12 +649,12 @@ void Menu_OptionsWaitInput(int ply, char *name, CInputbox *b)
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,180,MakeColour(128,200,255),"%s","Input for:");
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),"%s",name);
-	
+
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,270,MakeColour(255,255,255),"%s","Press any key/mouse");
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,285,MakeColour(128,128,128),"%s","(Escape to cancel)");
 
 	TopButtons[OptionsMode].MouseOver(Mouse);
-	for(int i=0;i<3;i++) {	
+	for(int i=0;i<3;i++) {
 		TopButtons[i].Draw(tMenu->bmpBuffer);
 	}
 

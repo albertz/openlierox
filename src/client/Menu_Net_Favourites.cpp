@@ -39,9 +39,9 @@ enum {
 // Initialize the favourites menu
 int Menu_Net_FavouritesInitialize(void)
 {
-	Uint32 blue = MakeColour(0,138,251);
+//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 
-	iNetMode = net_favourites;	
+	iNetMode = net_favourites;
 
 	cFavourites.Shutdown();
 	cFavourites.Initialize();
@@ -112,7 +112,7 @@ void Menu_Net_FavouritesShutdown(void)
 		Menu_SvrList_SaveList("cfg/favourites.dat");
 
 		// Save the column widths
-		for (int i=0;i<6;i++) 
+		for (int i=0;i<6;i++)
 			tLXOptions->iFavouritesList[i] = cFavourites.SendMessage(mf_ServerList,LVM_GETCOLUMNWIDTH,i,0);
 	}
 
@@ -127,7 +127,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev;
 	static char		addr[256];
-	
+
 
 	// Process & Draw the gui
 	ev = cFavourites.Process();
@@ -172,7 +172,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 					// Shutdown
 					cFavourites.Shutdown();
 
-					// Back to main menu					
+					// Back to main menu
 					Menu_MainInitialize();
 				}
 				break;
@@ -203,13 +203,13 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 			// Join
 			case mf_Join:
-				if(ev->iEventMsg == BTN_MOUSEUP) {				
+				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					addr[0] = 0;
 					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr[0] && sub) {
-						
+
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
@@ -247,7 +247,7 @@ void Menu_Net_FavouritesFrame(int mouse)
                         // Display a menu
                         fix_strncpy(szFavouritesCurServer, addr);
                         mouse_t *m = GetMouse();
-                        
+
                         cFavourites.Add( new CMenu(m->X, m->Y), mf_PopupMenu, 0,0, 640,480 );
                         cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 0, (DWORD)"Remove from favourites" );
 						cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 1, (DWORD)"Rename server" );
@@ -270,7 +270,7 @@ void Menu_Net_FavouritesFrame(int mouse)
                         break;
 
 					// Rename server
-                    case MNU_USER+1:  
+                    case MNU_USER+1:
 						{
 							// Remove the menu widget
 							cFavourites.SendMessage(mf_PopupMenu, MNM_REDRAWBUFFER, 0, 0);
@@ -352,13 +352,13 @@ void Menu_Net_FavouritesJoinServer(char *sAddress, char *sName)
 {
 	tGameInfo.iNumPlayers = 1;
 
-	// Fill in the game structure												
+	// Fill in the game structure
 	cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,0,0);
-		
+
 	// Add the player to the list
 	if (item)  {
 		profile_t *ply = FindProfile(item->iIndex);
-		if(ply)		
+		if(ply)
 			tGameInfo.cPlayers[0] = ply;
 	}
 
@@ -405,7 +405,7 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
 
 	for(int i=1;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
-    
+
 	Menu_RedrawMouse(true);
 
     cDetails.Initialize();
@@ -449,12 +449,12 @@ void Menu_Net_FavouritesShowServer(char *szAddress)
 
 
         DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
-		FlipScreen(tMenu->bmpScreen);	
+		FlipScreen(tMenu->bmpScreen);
     }
 
 	cDetails.Shutdown();
 
-    // Redraw the background    
+    // Redraw the background
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);

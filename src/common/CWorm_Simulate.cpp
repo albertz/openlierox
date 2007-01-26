@@ -23,13 +23,13 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 {
 	float	dt = tLX->fDeltaTime;
 	CVec	dir;
-	int		jump = false;
+//	int		jump = false; // TODO: not used
 	int		weap = false;
 	int		RightOnce = false;
 	int		move = false;
 
 	worm_state_t *ws = &tState;
-	gs_worm_t *wd = cGameScript->getWorm();
+//	gs_worm_t *wd = cGameScript->getWorm();  // TODO: not used
 
 	// Temp thing
 	// TODO: Try out mouse input for a 3rd worm
@@ -53,7 +53,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	// Down
 	if(cDown.isDown()) {
         fAngleSpeed += 500 * dt;
-		//fAngle += wd->AngleSpeed * dt;		
+		//fAngle += wd->AngleSpeed * dt;
     } else {
         fAngleSpeed = MIN(fAngleSpeed,(float)100);
         fAngleSpeed = MAX(fAngleSpeed,(float)-100);
@@ -70,7 +70,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		fAngle = 60;
     if(fAngle<-90)
 		fAngle = -90;
-	
+
 	if(!cRight.isDown())
 		iCarving &= ~1;
 	if(!cLeft.isDown())
@@ -137,7 +137,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		// Check if we dig a small hole
 		if(cLeft.isDownOnce() && iDirection == DIR_RIGHT) {
 			ws->iCarve = true;
-			
+
 			//cClient->SendCarve(vPos + dir*4);
 			//map->CarveHole(3,Pos + dir*4);
 			iCarving |= 1;
@@ -184,7 +184,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	int oldskool = tLXOptions->iOldSkoolRope;
 
 	int jumpdownonce = cJump.isDownOnce();
-	
+
 	// Jump
 	if(jumpdownonce) {
 
@@ -216,13 +216,13 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			iRopeDownOnce = true;
 			iRopeDown = true;
 		}
-		
+
 		// Down
 		if(iRopeDownOnce) {
 			iRopeDownOnce = false;
 
 			cNinjaRope.Shoot(vPos,dir);
-				
+
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
 		}
@@ -243,14 +243,14 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	ws->iAngle = (int)fAngle;
 	ws->iX = (int)vPos.x;
 	ws->iY = (int)vPos.y;
-	
+
 }
 
 
 ///////////////////
 // Clear the input
 void CWorm::clearInput(void)
-{    
+{
 	// Clear the state
 	tState.iCarve = false;
 	tState.iMove  = false;
@@ -263,7 +263,7 @@ void CWorm::clearInput(void)
 // Simulate the worm
 void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 {
-	int move = false;
+//	int move = false;  // TODO: not used
 	float speed;
 	CVec dir;
 	int jump = false;
@@ -281,7 +281,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 		return;
 	}
 
-	// Simulate the viewport	
+	// Simulate the viewport
 	//cViewport.Process(vPos,map->GetWidth(),map->GetHeight());
 
 
@@ -305,8 +305,8 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	// If we're seriously dead (below 15% health) bleed
 	if(iHealth < 15) {
 		if(tLX->fCurTime - fLastBlood > 2) {
-			fLastBlood = tLX->fCurTime;			
-			
+			fLastBlood = tLX->fCurTime;
+
 			float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
 			for(int i=0;i<amount;i++) {
 				CVec v = CVec(GetRandomNum(), GetRandomNum()) * 30;
@@ -379,14 +379,14 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 			jump = true;
 		}
 	}
-	
+
 
 	// Air drag (Mainly to dampen the ninja rope)
 	float Drag = wd->AirFriction;
 
 	if(!iOnGround)	{
 		vVelocity.x -= SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag * dt;
-		vVelocity.y += -SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag * dt;	
+		vVelocity.y += -SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag * dt;
 	}
 
 
@@ -395,7 +395,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	if(!ws->iMove)
 		fFrame=0;
 
-	
+
 	// Gravity
 	vVelocity.y += wd->Gravity*dt;
 
@@ -405,12 +405,12 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	// TODO: Use a projectile style collision system based on velocity speed
 
 	//int x,y;
-	
+
 	vOldPos = vPos;
 
 	//CVec newpos = vPos + vVelocity*dt;
 	vPos += vVelocity * dt;
-	
+
 	CheckWormCollision( dt, map, vOldPos, &vVelocity, jump );
 
 	/*iOnGround = false;
@@ -425,7 +425,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 			vVelocity = vVelocity * CVec(0.8f,-0.5f);
 
 		// Left & Right
-		if(coll & COL_LEFT  ||  coll & COL_RIGHT) {	
+		if(coll & COL_LEFT  ||  coll & COL_RIGHT) {
 			if(fabs(vVelocity.x) > 160)
 				vVelocity = vVelocity * CVec(-0.4f,1);
 			else
@@ -468,10 +468,10 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	}
 
 	iOnGround = false;
-	
+
 	int hit = false;
 	x = newpos.x;
-	
+
 	if(x >= 0 && x < map->GetWidth()) {
 		for(y=4;y>-5;y--) {
 			// Optimize: pixelflag + Width
@@ -479,7 +479,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 			// Clipping
 			if(newpos.y+y < 0 || newpos.y+y >= map->GetHeight())
 				continue;
-		
+
 			if(!(map->GetPixelFlag(x,newpos.y+y) & PX_EMPTY)) {
 				if(fabs(vVelocity.y) > 40 && !hit && !jump)
 					vVelocity = vVelocity * CVec(1,-0.4f);
@@ -557,7 +557,7 @@ void CWorm::SimulateWeapon( float dt )
 			Slot->Charge = 1;
 			Slot->Reloading = false;
 		}
-	}	
+	}
 }
 
 
@@ -568,7 +568,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 {
 	int x,y;
 	static const int maxspeed2 = 20;
-	
+
 	// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 	if( (*vel*dt).GetLength2() > maxspeed2) {
 		dt /= 2;
@@ -585,7 +585,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 	int clip = 0;
 	int coll = false;
 	bool check_needed = false;
-	
+
 	const uchar* gridflags = map->getAbsoluteGridFlags();
 	int grid_w = map->getGridWidth();
 	int grid_h = map->getGridHeight();
@@ -599,7 +599,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 	|| gridflags[((y-4)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT)
 	|| gridflags[((y+5)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT))
 		check_needed = true;
-	
+
 	if(check_needed && y >= 0 && y < map->GetHeight()) {
 		for(x=-3;x<4;x++) {
 			// Optimize: pixelflag++
@@ -635,7 +635,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 				if(fabs(vel->x) > 30)
 					vel->x *= -0.4f;
 				else
-					vel->x=(0);				
+					vel->x=(0);
 
 				int width = 4;
 				if(x<0) {
@@ -652,10 +652,10 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 	}
 
 	iOnGround = false;
-	
+
 	int hit = false;
 	x = (int)pos.x;
-	
+
 	if(check_needed && x >= 0 && x < map->GetWidth()) {
 		for(y=5;y>-5;y--) {
 			// Optimize: pixelflag + Width
@@ -681,7 +681,7 @@ int CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jum
 				break;
 			}
 
-		
+
 			if(!(map->GetPixelFlag(x,(int)pos.y+y) & PX_EMPTY)) {
 				coll = true;
 
@@ -741,15 +741,15 @@ int MouseX = -1, MouseY = -1;
 // Use a mouse for worm input
 void CWorm::getMouseInput(void)
 {
-	float	dt = tLX->fDeltaTime;
+//	float	dt = tLX->fDeltaTime;  // TODO: not used
 	CVec	dir;
-	int		jump = false;
+//	int		jump = false;  // TODO: not used
 	int		weap = false;
 	int		RightOnce = false;
 	int		move = false;
 
 	worm_state_t *ws = &tState;
-	gs_worm_t *wd = cGameScript->getWorm();
+//	gs_worm_t *wd = cGameScript->getWorm();  // TODO: not used
 
 	// Init the ws
 	ws->iCarve = false;
@@ -787,7 +787,7 @@ void CWorm::getMouseInput(void)
 	// Restore mouse to the middle
 	SDL_WarpMouse(320,200);
 
-	
+
 	if(!Right)
 		iCarving &= ~1;
 	if(!Left)
@@ -801,7 +801,7 @@ void CWorm::getMouseInput(void)
 
 
 	// Weapon changing
-	
+
 	if(cSelWeapon.isDown()) {
 		weap = true;
 
@@ -830,7 +830,7 @@ void CWorm::getMouseInput(void)
 		// Check if we dig a small hole
 		if(Left && iDirection == DIR_RIGHT) {
 			ws->iCarve = true;
-			
+
 			//cClient->SendCarve(vPos + dir*4);
 			//map->CarveHole(3,Pos + dir*4);
 			iCarving |= 1;

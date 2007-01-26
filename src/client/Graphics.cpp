@@ -145,7 +145,7 @@ int LoadGraphics(void)
   png_init_io(png_ptr, fp);
   doing = "write header";
   png_set_IHDR(png_ptr, info_ptr, w, h, bitdepth, colortype, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-  /*doing = "write info";
+  doing = "write info";
   png_write_info(png_ptr, info_ptr);
   doing = "write image";
   png_write_image(png_ptr, rows);

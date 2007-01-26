@@ -94,7 +94,7 @@ void CGuiLayout::Shutdown(void)
 {
 	CWidget *w,*wid;
 
-	for(w=cWidgets ; w ; w=wid) {		
+	for(w=cWidgets ; w ; w=wid) {
 		wid = w->getNext();
 
 		w->Destroy();
@@ -238,7 +238,7 @@ bool CGuiLayout::Build(void)
 	if(!sFilename)  {
 		Error(ERR_OUTOFMEMORY,"%s","Out of memory.");
 		return false;
-	}	
+	}
 	snprintf(sFilename,len,"%s/%s.%s",path,file,sExtension);
 	dyn_markend(sFilename,len);
 
@@ -372,10 +372,11 @@ bool CGuiLayout::Build(void)
 
 		// Inputbox
 		if (CMP(tCurrentNode->name,"inputbox"))  {
-			int left   = xmlGetInt(tCurrentNode,"left");
+/*			 // TODO: not used
+            int left   = xmlGetInt(tCurrentNode,"left");
 			int top    = xmlGetInt(tCurrentNode,"top");
 			int width  = xmlGetInt(tCurrentNode,"width");
-			int height = xmlGetInt(tCurrentNode,"height");
+			int height = xmlGetInt(tCurrentNode,"height"); */
 			xmlChar *name	 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			xmlChar *image	 = xmlGetProp(tCurrentNode,(const xmlChar *)"image");
 			xmlChar *title	 = xmlGetProp(tCurrentNode,(const xmlChar *)"title");
@@ -583,7 +584,9 @@ gui_event_t *CGuiLayout::Process(void)
 					case SDLK_KP_ENTER:
 						input = '\r';
 						break;
-
+                    default:
+                        // TODO: much not handled keys; is this correct?
+                        break;
 
 				}  // switch
 
@@ -594,7 +597,7 @@ gui_event_t *CGuiLayout::Process(void)
 				for(int i=0; i<Keyboard->queueLength; i++)
 					if (Keyboard->keyQueue[i] != input)
 						ev = cFocused->KeyDown(Keyboard->keyQueue[i]);
-				
+
 				// Keydown
 				if(Event->type == SDL_KEYDOWN)  {
 					ev = cFocused->KeyDown(input);
@@ -749,7 +752,7 @@ gui_event_t *CGuiLayout::Process(void)
 				if( (ev=w->MouseUp(tMouse, tMouse->Up)) >= 0) {
 					tEvent->iEventMsg = ev;
 					return tEvent;
-				}				
+				}
 			}
 
 
@@ -876,7 +879,7 @@ int CGuiLayout::SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2)
 	// Check if it's a widget message
 	if(iMsg < 0) {
 		switch( iMsg ) {
-			
+
 			// Set the enabled state of the widget
 			case WDM_SETENABLE:
 				w->setEnabled(Param1);

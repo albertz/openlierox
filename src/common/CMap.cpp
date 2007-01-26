@@ -44,7 +44,7 @@ int CMap::New(int _width, int _height, char *_theme)
 		printf("CMap::New:: ERROR: cannot create titles/theme\n");
 		return false;
 	}
-	
+
 	// Create the surface
 	if(!CreateSurface())
 	{
@@ -227,7 +227,7 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
                     PlaceMisc(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
                     break;
 
-                // Hole                
+                // Hole
                 case OBJ_HOLE:
                     CarveHole(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
                     break;
@@ -309,7 +309,7 @@ int CMap::LoadTheme(char *_theme)
 
     // Load the green dirt mask
     LOAD_IMAGE_BPP(bmpGreenMask, "data/gfx/greenball.png");
-	
+
 	return true;
 }
 
@@ -325,7 +325,7 @@ char *CMap::findRandomTheme(char *buf)
 	static char dir[512];
 	char *d;
     int count=-1;
-	
+
     // Count the number of themes
     if(FindFirstDir("data/themes",dir)) {
     	fix_markend(dir);
@@ -385,7 +385,7 @@ bool CMap::validateTheme(char *name)
     // Does simple checks to see if the main files exists
     // Ie 'backtile.png' 'fronttile.png' & 'theme.txt'
 
-    static char thm[64],buf[64];	
+    static char thm[64],buf[64];
     FILE *fp = NULL;
 
 	snprintf(thm,sizeof(thm),"data/themes/%s",name); fix_markend(thm);
@@ -427,7 +427,7 @@ int CMap::CreateSurface(void)
 	SDL_PixelFormat *fmt = screen->format;
 	if(fmt == NULL)
 		printf("CMap::CreateSurface: ERROR: fmt is nothing\n");
-		
+
 	bmpImage = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height,
 		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
@@ -437,9 +437,9 @@ int CMap::CreateSurface(void)
 	}
 
 #ifdef _AI_DEBUG
-	bmpDebugImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel, 
+	bmpDebugImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel,
 										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-	
+
 	if (bmpDebugImage == NULL)  {
 		SetError("CMap::CreateSurface(): bmpDebugImage creation failed perhaps out of memory");
 		return false;
@@ -449,7 +449,7 @@ int CMap::CreateSurface(void)
 	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,tLX->clPink);
 #endif
 
-	bmpDrawImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel, 
+	bmpDrawImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel,
 										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpDrawImage == NULL) {
@@ -457,7 +457,7 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
-	bmpBackImage = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel, 
+	bmpBackImage = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel,
 									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpBackImage == NULL) {
@@ -473,7 +473,7 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
-    bmpShadowMap = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel, 
+    bmpShadowMap = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel,
 									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if(bmpShadowMap == NULL) {
@@ -520,7 +520,7 @@ bool CMap::createGrid(void)
         return false;
     }
 	memset(GridFlags,PX_EMPTY,nGridCols*nGridRows*sizeof(uchar));
-	memset(AbsoluteGridFlags,PX_EMPTY,nGridCols*nGridRows*sizeof(uchar));    
+	memset(AbsoluteGridFlags,PX_EMPTY,nGridCols*nGridRows*sizeof(uchar));
 	unlockFlags();
 
     return true;
@@ -590,13 +590,13 @@ void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
                 rockCount++;
         }
     }
-    
+
     *abs_cell = PX_EMPTY;
     if(dirtCount > 0)
     	*abs_cell |= PX_DIRT;
     if(rockCount > 0)
     	*abs_cell |= PX_ROCK;
-    
+
     int size = nGridWidth*nGridHeight / 10;
 
     // If the dirt or rock count is greater than a 10th, the cell is flagged
@@ -629,12 +629,12 @@ void CMap::TileMap(void)
 
 	// Update the draw image
 	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
-	
+
 	// Set the pixel flags
 	lockFlags();
 	memset(PixelFlags,PX_DIRT,Width*Height*sizeof(uchar));
 	unlockFlags();
-	
+
     // Calculate the shadowmap
     CalculateShadowMap();
 
@@ -700,11 +700,11 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
     int dtx = (wx - v_wx)*2;
     int dty = (wy - v_wy)*2;
-  
+
     Uint16 pink = (Uint16)tLX->clPink;
 
     int x,y,dx,dy,i,j;
-    
+
     for( y=sy,dy=wy,j=0; y<sy+h; y++,j++, dy += (wy+j)&1 ) {
         // World Clipping
         if(dy < 0) continue;
@@ -723,7 +723,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
             if(dx < 0) continue;
             if(dx >= Width) break;
 
-            // Is this pixel solid?            
+            // Is this pixel solid?
             if( !(*pf & PX_EMPTY) ) continue;
 
             // Screen clipping
@@ -758,7 +758,7 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
     if( wx>=Width || wy>=Height ) return;
 
     int x = (wx - v_wx)*2;
-    int y = (wy - v_wy)*2;    
+    int y = (wy - v_wy)*2;
 
     if( PixelFlags[wy * Width + wx] & PX_EMPTY )
         DrawRectFill( bmpDest, x+l, y+t, x+l+2, y+t+2, GetPixel(bmpShadowMap,wx,wy) );
@@ -799,7 +799,7 @@ int CMap::CarveHole(int size, CVec pos)
 	sx = (int)pos.x-(hole->w>>1);
 	sy = (int)pos.y-(hole->h>>1);
 
-	
+
 	if(SDL_MUSTLOCK(hole))
 		SDL_LockSurface(hole);
 
@@ -862,7 +862,7 @@ int CMap::CarveHole(int size, CVec pos)
 	// Go through and clean up the hole
 	sx-=5;
 	sy-=5;
-		
+
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);
 
@@ -892,9 +892,9 @@ int CMap::CarveHole(int size, CVec pos)
 			px++;
 		}
 	}
-	
+
 	unlockFlags();
-	
+
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
 
@@ -912,7 +912,7 @@ int CMap::CarveHole(int size, CVec pos)
         }
     }
 	unlockFlags();
-	
+
 	// Update the draw image
 	int draw_x = sx-5;
 	int draw_y = sy-5;
@@ -926,7 +926,7 @@ int CMap::CarveHole(int size, CVec pos)
 	if (draw_y < 0)
 		draw_y = 0;
 	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
-    
+
 
 	bMiniMapDirty = true;
 
@@ -966,7 +966,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 	sx = (int)pos.x-(hole->w>>1);
 	sy = (int)pos.y-(hole->h>>1);
 
-	
+
 	if(SDL_MUSTLOCK(hole))
 		SDL_LockSurface(hole);
 
@@ -1007,7 +1007,7 @@ int CMap::PlaceDirt(int size, CVec pos)
                     nDirtCount++;
 
 				*(uchar *)px = PX_DIRT;
-				
+
 				// Place the dirt image
 				*(Uint16 *)p2 = (Uint16)GetPixel(Theme.bmpFronttile,ix,iy);
 			}
@@ -1067,9 +1067,9 @@ int CMap::PlaceGreenDirt(CVec pos)
 	uchar flag;
 	Uint32 pink = tLX->clPink;
     Uint32 green = MakeColour(0,255,0);
-    Uint32 greens[4] = {MakeColour(148,136,0), 
-                        MakeColour(136,124,0), 
-                        MakeColour(124,112,0), 
+    Uint32 greens[4] = {MakeColour(148,136,0),
+                        MakeColour(136,124,0),
+                        MakeColour(124,112,0),
                         MakeColour(116,100,0)};
 
     int nGreenCount = 0;
@@ -1085,7 +1085,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 	sx = (int)pos.x-(w>>1);
 	sy = (int)pos.y-(h>>1);
 
-	
+
 	if(SDL_MUSTLOCK(bmpGreenMask))
 		SDL_LockSurface(bmpGreenMask);
 
@@ -1096,7 +1096,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 	Uint8 *p2;
 
 	lockFlags();
-	
+
 	// Go through the pixels in the hole, setting the flags to dirt
 	for(y=0,dy=sy,by=16; y<h; y++,dy++,by++) {
 
@@ -1124,7 +1124,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 
                 // Place a random green pixel
                 Uint32 gr = greens[ GetRandomInt(3) ];
-				
+
 				// Place the dirt image
 				*(Uint16 *)p2 = (Uint16)gr;
 			}
@@ -1179,7 +1179,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 {
 	int Drop = 3;
 	int x,y,n;
-	int bpp = bmpImage->format->BytesPerPixel;
+//	int bpp = bmpImage->format->BytesPerPixel; // TODO: not used
 	uchar *px;
 	uchar *p;
 	int ox,oy;
@@ -1190,11 +1190,11 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 	if(!tLXOptions->iShadows)
 		return;
 
-
-	Uint32 Rmask = bmpImage->format->Rmask, Gmask = bmpImage->format->Gmask, Bmask = bmpImage->format->Bmask, Amask = bmpImage->format->Amask;
+    // TODO: not used
+//	Uint32 Rmask = bmpImage->format->Rmask, Gmask = bmpImage->format->Gmask, Bmask = bmpImage->format->Bmask, Amask = bmpImage->format->Amask;
 	//Uint32 R,G,B,A = 0;
-	Uint8 alpha = 64;
-	Uint32 color = 0;
+//	Uint8 alpha = 64;
+//	Uint32 color = 0;
 
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);
@@ -1216,7 +1216,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 			// Clipping
 			if(x<0) {	px++;	continue; }
 			else if(x>=Width)	break;
-			
+
 			flag = *(uchar *)px;
 
 			// Edge hack
@@ -1228,7 +1228,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 				// Draw the shadow
 				for(n=0;n<Drop;n++) {
-					
+
 					// Clipping
 					if(ox>=Width)	break;
 					if(oy>=Height)	break;
@@ -1241,7 +1241,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
                     Uint16 *pixel = (Uint16 *)bmpImage->pixels + offset;
                     Uint16 *src = (Uint16 *)bmpShadowMap->pixels + offset;
                     *pixel = *src;
-					
+
 					// Transparency
 					/*Uint16 *pixel = (Uint16 *)bmpImage->pixels + oy*bmpImage->pitch/2 + ox;
 
@@ -1283,7 +1283,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 void CMap::CalculateShadowMap(void)
 {
     int x,y;
-    int bpp = bmpImage->format->BytesPerPixel;
+//    int bpp = bmpImage->format->BytesPerPixel; // TODO: not used
 
     Uint32 Rmask = bmpImage->format->Rmask, Gmask = bmpImage->format->Gmask, Bmask = bmpImage->format->Bmask, Amask = bmpImage->format->Amask;
 	Uint32 R,G,B,A = 0;
@@ -1339,7 +1339,7 @@ void CMap::PlaceStone(int size, CVec pos)
 		return;
 	}
 
-	
+
 	// Add the stone to the object list
 	if(NumObjects+1 < MAX_OBJECTS) {
 		object_t *o = &Objects[NumObjects++];
@@ -1420,7 +1420,7 @@ void CMap::PlaceStone(int size, CVec pos)
 // Place a miscellaneous item
 void CMap::PlaceMisc(int id, CVec pos)
 {
-	
+
 	SDL_Surface *misc;
 	int dx,dy, sx,sy;
 	int x,y;
@@ -1457,7 +1457,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 		SDL_LockSurface(misc);
 
 	lockFlags();
-	
+
 	// WARNING: This requires the misc items to be loaded as 16bpp surfaces
 	Uint8 *p = (Uint8 *)misc->pixels;
 	uchar *px = PixelFlags;
@@ -1595,7 +1595,7 @@ void CMap::UpdateMiniMap(int force)
 
 
 	Uint16 *sp,*tp,*tmp1,*tmp2;
-	
+
 	for(my=0,mmy=0;my<Height;my+=ystep,mmy++) {
 
 		if(mmy >= mh)
@@ -1604,7 +1604,7 @@ void CMap::UpdateMiniMap(int force)
 		// Save the pointer to the first pixel in current line to make the loop faster
 		tmp1 = (Uint16 *)bmpImage->pixels + (int)my*bmpImage->pitch/2;
 		tmp2 = (Uint16 *)bmpMiniMap->pixels + mmy*bmpMiniMap->pitch/2;
-		
+
 		for(mx=0,mmx=0;mx<Width;mx+=xstep,mmx++) {
 
 			if(mmx >= mw)
@@ -1631,7 +1631,7 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
 {
 	int i,j;
 	float xstep,ystep;
-	float mx,my;	
+	float mx,my;
 	int n;
 	static float time = 0;
 	int mw = bmpMiniMap->w;
@@ -1643,7 +1643,7 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
 
 	if(worms == NULL)
 		return;
- 
+
 	time+=dt;
 	if(time>0.5f)
 		time=0;
@@ -1658,13 +1658,13 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
 	// Draw the minimap
 	DrawImage(bmpDest, bmpMiniMap, x, y);
 
-	
+
 	// Show worms
 	CWorm *w = worms;
 	for(n=0;n<MAX_WORMS;n++,w++) {
 		if(!w->getAlive() || !w->isUsed())
 			continue;
-		
+
 		GetColour4(w->getColour(), bmpMiniMap, &r,&g,&b,&a);
 
 		int dr = 255-r;
@@ -1689,7 +1689,7 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
 		//y -= y % 2;
 
 		Uint32 col = MakeColour(r,g,b);
-		
+
 		//PutPixel(bmpMiniMap,x,y,col);
 		DrawRectFill(bmpDest,i-1,j-1, i+1,j+1, col);
 
@@ -1741,7 +1741,7 @@ int CMap::Load(char *filename)
 	fread(id,			sizeof(char),	32,	fp);
 	fread(&version,		sizeof(int),	1,	fp);
 	EndianSwap(version);
-	
+
 	// Check to make sure it's a valid level file
 	if(strcmp(id,"LieroX Level") != 0 || version != MAP_VERSION) {
 		printf("CMap::Load (%s): ERROR: not a valid level file or wrong version\n", filename);
@@ -1770,7 +1770,7 @@ int CMap::Load(char *filename)
 	printf("  Type = %i\n", Type);
 	printf("  Theme_Name = %s\n", Theme_Name);
 	printf("  numobj = %i\n", numobj);
-*/	
+*/
 	// Create the map
 	if(!New(Width, Height, Theme_Name)) {
 		printf("CMap::Load (%s): ERROR: cannot create map\n", filename);
@@ -1783,8 +1783,8 @@ int CMap::Load(char *filename)
 	{
 		printf("CMap::Load (%s): HINT: level is in image format\n", filename);
 		return LoadImageFormat(fp);
-	}			
-				
+	}
+
 
 	// Dirt map
 	int n;
@@ -1795,9 +1795,9 @@ int CMap::Load(char *filename)
 	for(n=0;n<Width*Height;) {
 		uchar t;
 
-		fread(&t,		sizeof(uchar),	1,	fp);	
+		fread(&t,		sizeof(uchar),	1,	fp);
 		EndianSwap(t);
-		
+
 		// 1 bit == 1 pixel with a yes/no dirt flag
 		for(int i=0;i<8;i++) {
 
@@ -1807,7 +1807,7 @@ int CMap::Load(char *filename)
 			// Set the image
 			if(PixelFlags[n] & PX_EMPTY)
 				*p1 = *p2;
-			
+
 			n++;
 			p1++;
 			p2++;
@@ -1881,7 +1881,7 @@ int CMap::Save(char *name, char *filename)
 	// Save the images if in an image format
 	if(Type == MPT_IMAGE)
 		return SaveImageFormat(fp);
-				
+
 
 
 	// Dirt map
@@ -1895,7 +1895,7 @@ int CMap::Save(char *name, char *filename)
 			t |= (value << i);
 		}
 
-		fwrite(GetEndianSwapped(t),	sizeof(uchar),	1,	fp);	
+		fwrite(GetEndianSwapped(t),	sizeof(uchar),	1,	fp);
 	}
 
 
@@ -1963,7 +1963,7 @@ int CMap::SaveImageFormat(FILE *fp)
 		}
 	}
 
-	// Save the pixel flags		
+	// Save the pixel flags
 	for(n=0;n<Width*Height;n++) {
 		uchar t = PX_EMPTY;
 
@@ -1983,7 +1983,7 @@ int CMap::SaveImageFormat(FILE *fp)
 		delete[] pDest;
 		return false;
 	}
-	
+
 	// Write out the details & the data
 	fwrite(GetEndianSwapped(destsize), sizeof(ulong), 1, fp);
 	fwrite(GetEndianSwapped(size), sizeof(ulong), 1, fp);
@@ -2010,7 +2010,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	EndianSwap(size);
 	fread(&destsize, sizeof(ulong), 1, fp);
 	EndianSwap(destsize);
-	
+
 	// Allocate the memory
 	uchar *pSource = new uchar[size];
 	uchar *pDest = new uchar[destsize];
@@ -2022,14 +2022,14 @@ int CMap::LoadImageFormat(FILE *fp)
 
 	fread(pSource, sizeof(uchar), size, fp);
 
-	if( uncompress( pDest, &destsize, pSource, size ) != Z_OK ) {		
+	if( uncompress( pDest, &destsize, pSource, size ) != Z_OK ) {
 		printf("Failed decompression\n");
 		fclose(fp);
 		delete[] pSource;
 		delete[] pDest;
 		return false;
 	}
-		
+
 
 	// Translate the data
 
@@ -2061,7 +2061,7 @@ int CMap::LoadImageFormat(FILE *fp)
 
 	// TEMP
 	//SDL_PixelFormat *fmt = bmpImage->format;
-	//SDL_Surface *pxf = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel, 
+	//SDL_Surface *pxf = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel,
 	//								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	// Load the pixel flags
@@ -2069,7 +2069,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	n=0;
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
-		
+
 			uchar t = pDest[p++];
 			PixelFlags[n++] = t;
 
@@ -2082,7 +2082,7 @@ int CMap::LoadImageFormat(FILE *fp)
 		}
 	}
 	unlockFlags();
-	
+
 	//SDL_SaveBMP(pxf, "mat.bmp");
 
     delete[] pSource;
@@ -2094,7 +2094,7 @@ int CMap::LoadImageFormat(FILE *fp)
     CalculateShadowMap();
 
 	ApplyShadow(0,0,Width,Height);
-	
+
 	// Update the draw image
 	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
 
@@ -2103,7 +2103,7 @@ int CMap::LoadImageFormat(FILE *fp)
 
     // Calculate the grid
     calculateGrid();
-    
+
 	return true;
 }
 
@@ -2193,7 +2193,7 @@ int CMap::LoadOriginal(FILE *fp)
 			palette[n] = (int)f;
 		}
 	}
-	
+
 	// Set the image
 	lockFlags();
 	n=0;
@@ -2209,9 +2209,9 @@ int CMap::LoadOriginal(FILE *fp)
 					(p >= 82 && p <= 84) ||
 					(p >= 94 && p <= 103) ||
 					(p >= 120 && p <= 123) ||
-					(p >= 176 && p <= 180))					
+					(p >= 176 && p <= 180))
 					type = PX_DIRT;
-				
+
 				// Rock
 				if( (p >= 19 && p <= 29) ||
 					(p >= 59 && p <= 61) ||
@@ -2219,7 +2219,7 @@ int CMap::LoadOriginal(FILE *fp)
 					(p >= 91 && p <= 93) ||
 					(p >= 123 && p <= 125) ||
 					p==104)
-					type = PX_ROCK;				
+					type = PX_ROCK;
 
 				PutPixel(bmpImage,x,y, MakeColour(palette[p*3], palette[p*3+1], palette[p*3+2]));
 				if(type == PX_EMPTY)
@@ -2269,7 +2269,7 @@ void CMap::DEBUG_DrawPixelFlags(void)
 {
 	//int x,y;
 
-    
+
     /*for(y=0;y<Height;y+=30) {
 		for(x=0;x<Width;x+=30) {
             CarveHole(5,CVec(x,y));
@@ -2317,7 +2317,7 @@ void CMap::Send(CBytestream *bs)
 	fp = OpenGameFile("tempmap.dat","wb");
 
 	int n;
-	
+
 	for(n=0;n<Width*Height;) {
 		uchar t = 0;
 
@@ -2325,7 +2325,7 @@ void CMap::Send(CBytestream *bs)
 			int value = PixelFlags[n++] & 0x01;
 			t |= (value << i);
 		}
-			
+
 		fwrite(&t,sizeof(uchar),1,fp);
 	}
 
@@ -2338,8 +2338,8 @@ void CMap::Send(CBytestream *bs)
 		unsigned short p1,p2;
 		p1 = (int)(fabs(GetRandomNum())*1024.0f);
 		p2 = (int)(fabs(GetRandomNum())*1024.0f);
-		
-		
+
+
 		fwrite(&b,sizeof(uchar),1,fp);
 		fwrite(GetEndianSwapped(p1),sizeof(unsigned short),1,fp);
 		fwrite(GetEndianSwapped(p2),sizeof(unsigned short),1,fp);
@@ -2360,7 +2360,7 @@ void CMap::Send(CBytestream *bs)
 void CMap::Shutdown(void)
 {
 	lockFlags();
-	
+
 	if(Created) {
 
 		//printf("some created map is shutting down...\n");
@@ -2442,7 +2442,7 @@ void CMap::Shutdown(void)
 	}
 
 	Created = false;
-	
+
 	unlockFlags();
 }
 

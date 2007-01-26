@@ -123,7 +123,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	fLife += dt;
 	fExtra += dt;
 
-	
+
 	vOldPos = vPosition;
 	if(tProjInfo->UseCustomGravity)
 		vVelocity.y += (float)(tProjInfo->Gravity)*dt;
@@ -173,7 +173,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 			}
 		}
 	}
-	
+
 	// Trails
 	switch(tProjInfo->Trail) {
 	case TRL_SMOKE:
@@ -190,13 +190,13 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 		break;
 	case TRL_DOOMSDAY:
 		if(fExtra > 0.05f) {
-			fExtra=0;			
+			fExtra=0;
 			SpawnEntity(ENT_DOOMSDAY,0,vPosition,vVelocity,0,NULL);
 		}
 		break;
 	case TRL_EXPLOSIVE:
 		if(fExtra > 0.05f) {
-			fExtra=0;			
+			fExtra=0;
 			SpawnEntity(ENT_EXPLOSION,10,vPosition,CVec(0,0),0,NULL);
 		}
 		break;
@@ -208,8 +208,8 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 			iSpawnPrjTrl = true;
 		}
 	}
-	
-	
+
+
     // Check worm collisions
     int w = CheckWormCollision(worms);
     if( w >= 0 ) {
@@ -222,7 +222,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	if(tProjInfo->Hit_Type == PJ_EXPLODE && tProjInfo->Type == PRJ_PIXEL) {
 		int px = (int)vPosition.x;
 		int py = (int)vPosition.y;
-		
+
 		// Edge checks
 		if(px<=0 || py<=0 || px>=map->GetWidth()-1 || py>=map->GetHeight()-1) {
 			// Clamp the position
@@ -237,8 +237,8 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 		uchar pf = map->GetPixelFlag(px, py);
 		if(pf & PX_DIRT || pf & PX_ROCK)
 			res |= PJC_TERRAIN;
-			
-        return res;	
+
+        return res;
 	}
 
 
@@ -254,18 +254,18 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 // Check for a collision
 // Returns true if there was a collision, otherwise false is returned
 int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
-{	
+{
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
 	int px,py,x,y;
-		
+
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
 	else // TODO: was this 'else' missing here?
 		w=h=2;
-	
+
 	float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
 	if( (vel*dt).GetLength2() > maxspeed2) {
 		dt *= 0.5f;
@@ -279,14 +279,14 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 	}
 
 	pos += vel*dt;
-	
+
 	px=(int)pos.x;
 	py=(int)pos.y;
 
 	CollisionSide = 0;
 	short top,bottom,left,right;
 	top=bottom=left=right=0;
-	
+
 	// Hit edges
 	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh) {
 
@@ -335,7 +335,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 			return true;
 		}
 
-		
+
 		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
 
 		for(x=px-w;x<=px+w;x++) {
@@ -375,20 +375,20 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 			return true;
 		}
 
-		
+
 		// Bit of a hack
 		if(tProjInfo->Hit_Type == PJ_BOUNCE)
 			pos = vOldPos;
 		else
 			vPosition = pos;
-		
+
 		// Find the collision side
 		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
 			if(tProjInfo->Hit_Type == PJ_BOUNCE)
 				vPosition.x=( pos.x );
 			CollisionSide |= COL_LEFT;
 		}
-		
+
 		if( (right>left || right>2) && right>1 && vVelocity.x > 0) {
 			if(tProjInfo->Hit_Type == PJ_BOUNCE)
 				vPosition.x=( pos.x );
@@ -405,7 +405,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 			if(tProjInfo->Hit_Type == PJ_BOUNCE)
 				vPosition.y=( pos.y );
 			CollisionSide |= COL_BOTTOM;
-		}		
+		}
 
 		// If the velocity is too low, just stop me
 		/*if(fabs(vVelocity.x) < 2)
@@ -423,18 +423,18 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 // Check for a collision (static version; doesnt do anything else then checking)
 // Returns true if there was a collision, otherwise false is returned
 int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos, CVec vel)
-{	
+{
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
 	int px,py,x,y;
-		
+
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
 	else // TODO: was this 'else' missing here?
 		w=h=2;
-	
+
 	float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
 	if( (vel*dt).GetLength2() > maxspeed2) {
 		dt *= 0.5f;
@@ -448,13 +448,13 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 	}
 
 	pos += vel*dt;
-	
+
 	px=(int)pos.x;
 	py=(int)pos.y;
 
 	short top,bottom,left,right;
 	top=bottom=left=right=0;
-	
+
 	// Hit edges
 	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh) {
 
@@ -476,7 +476,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 		if(y<0 || y>=mh)	{
 			return true;
 		}
-		
+
 		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
 
 		for(x=px-w;x<=px+w;x++) {
@@ -556,7 +556,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 
 			if(angle == 360)
 				angle=0;
-		
+
 			framestep = angle / offset;
 		}
 
@@ -580,7 +580,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 
 
 			int num = (tProjInfo->AngleImages - 1) / 2;
-			int middle = num*tProjInfo->bmpImage->h;
+//			int middle = num*tProjInfo->bmpImage->h; // TODO: not used
 			if(direct == 0)
 				// Left side
 				framestep = (float)(151-angle) / 151.0f * (float)num;
@@ -597,7 +597,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 		int size = tProjInfo->bmpImage->h;
 		int half = size/2;
         iFrameX = (int)framestep*size;
-        
+
 		DrawImageAdv(bmpDest, tProjInfo->bmpImage, (int)framestep*size, 0, x-half, y-half, size,size);
 	}
 }
@@ -622,7 +622,7 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 		return;
 
     // Pixel
-    if(tProjInfo->Type == PRJ_PIXEL)        
+    if(tProjInfo->Type == PRJ_PIXEL)
         map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
 
     // Image
@@ -677,7 +677,7 @@ void CProjectile::Bounce(float fCoeff)
 	}
 
 	vVelocity.x *= x;
-	vVelocity.y *= y; 
+	vVelocity.y *= y;
 
 //	CVec dir = vVelocity;
 //	NormalizeVector(&dir);
@@ -697,7 +697,7 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 	// Length must be at least 'divisions' in size so we do at least 1 check
 	// So stationary projectiles also get checked (mines)
 	length = MAX(length, divisions);
-	
+
 	// Go through at fixed positions
 	CVec pos = vOldPos;
 	int wrm;
@@ -734,7 +734,7 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 				dist = 30.0f;
 			else if (len < 90)
 				dist = 50.0f;
-				
+
 			float real_dist2 = (vPosition - w->getPos()).GetLength2();
 			if (real_dist2 <= dist*dist) {
 				// If any projectile is already heading to the worm and is closer than we, don't set us as heading
@@ -765,17 +765,17 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 	int wx,wy;
 
 	const static int wsize = 4;
-	
+
 	CWorm *w = worms;
 	for(short i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed() || !w->getAlive())
 			continue;
 
 		wx = (int)w->getPos().x;
-		wy = (int)w->getPos().y; 
+		wy = (int)w->getPos().y;
 
 		// AABB - Point test
-		if( abs(wx-px) < wsize && abs(wy-py) < wsize) {		
+		if( abs(wx-px) < wsize && abs(wy-py) < wsize) {
 
 			CollisionSide = 0;
 
@@ -790,7 +790,7 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 				CollisionSide |= COL_BOTTOM;
 
 			return i;
-		}		
+		}
 	}
 
 	// No worm was hit

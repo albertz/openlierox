@@ -22,7 +22,7 @@
 // Simulation
 void CClient::Simulation(void)
 {
-	frame_t *f = &tFrames[ iServerFrame & FRAME_MASK ];
+//	frame_t *f = &tFrames[ iServerFrame & FRAME_MASK ];  // TODO: not used
 	int local,i;
 	int teamgame;
     CWorm *w;
@@ -62,7 +62,7 @@ void CClient::Simulation(void)
 			continue;
 
 		local = w->getLocal();
-		
+
 		if(w->getAlive()) {
 
 			/*
@@ -136,7 +136,7 @@ void CClient::Simulation(void)
 	}
 
 	// Entities
-	if (!bBotClient)  
+	if (!bBotClient)
 		SimulateEntities(tLX->fDeltaTime,cMap);
 
 		// Weather
@@ -145,9 +145,9 @@ void CClient::Simulation(void)
 	// Projectiles
 	SimulateProjectiles(tLX->fDeltaTime);
 
-	// Bonuses 
+	// Bonuses
 	SimulateBonuses(tLX->fDeltaTime);
-	
+
 
 
 
@@ -195,7 +195,7 @@ void CClient::SimulateProjectiles(float dt)
 		w->setHeading(NULL);
 	}
 
-    
+
     for(int p=0;p<nTopProjectile;p++,prj++) {
 		if(!prj->isUsed())
 			continue;
@@ -205,11 +205,11 @@ void CClient::SimulateProjectiles(float dt)
         grndirt = false;
 		shake = 0;
 		int spawnprojectiles = false;
-        
+
 		// Check if the timer is up
 		proj_t *pi = prj->GetProjInfo();
         float f = prj->getTimeVarRandom();
-		if(pi->Timer_Time > 0 && (pi->Timer_Time+pi->Timer_TimeVar*f) < prj->getLife()) {            
+		if(pi->Timer_Time > 0 && (pi->Timer_Time+pi->Timer_TimeVar*f) < prj->getLife()) {
 
 			// Run the end timer function
 			if(pi->Timer_Type == PJ_EXPLODE) {
@@ -243,7 +243,7 @@ void CClient::SimulateProjectiles(float dt)
 			}
 
             // Carve
-			if(pi->Timer_Type == PJ_CARVE) {                
+			if(pi->Timer_Type == PJ_CARVE) {
 				int d = cMap->CarveHole(pi->Timer_Damage,prj->GetPosition());
                 prj->setUsed(false);
 
@@ -272,7 +272,7 @@ void CClient::SimulateProjectiles(float dt)
 			if(pi->Hit_Type == PJ_EXPLODE) {
 				explode = true;
 
-				if(pi->Hit_Shake > shake)					
+				if(pi->Hit_Shake > shake)
 					shake = pi->Hit_Shake;
 
 				// Play the hit sound
@@ -290,7 +290,7 @@ void CClient::SimulateProjectiles(float dt)
 			}
 
 			// Carve
-			if(pi->Hit_Type == PJ_CARVE) {                
+			if(pi->Hit_Type == PJ_CARVE) {
 				int d = cMap->CarveHole(pi->Hit_Damage,prj->GetPosition());
                 prj->setUsed(false);
 
@@ -323,12 +323,12 @@ void CClient::SimulateProjectiles(float dt)
         ===================
         */
         /*if( result & PJC_EXPLODE ) {
-            
+
             // Explosion
 			if(pi->Exp_Type == PJ_EXPLODE) {
 				explode = true;
 
-				if(pi->Exp_Shake > shake)					
+				if(pi->Exp_Shake > shake)
 					shake = pi->Exp_Shake;
 
 				// Play the Explode sound
@@ -337,7 +337,7 @@ void CClient::SimulateProjectiles(float dt)
 			}
 
 			// Carve
-			if(pi->Exp_Type == PJ_CARVE) {                
+			if(pi->Exp_Type == PJ_CARVE) {
 				int d = cMap->CarveHole(pi->Exp_Damage,prj->GetPosition());
 				prj->setUsed(false);
 
@@ -368,9 +368,9 @@ void CClient::SimulateProjectiles(float dt)
 		if(prj->getSpawnPrjTrl()) {
 			prj->setSpawnPrjTrl(false);
 
-			for(i=0;i<pi->PrjTrl_Amount;i++) {				
+			for(i=0;i<pi->PrjTrl_Amount;i++) {
 				sprd = CVec(0,0);
-				
+
 				if(pi->PrjTrl_UsePrjVelocity) {
 					sprd = prj->GetVelocity();
 					float l = NormalizeVector(&sprd);
@@ -378,7 +378,7 @@ void CClient::SimulateProjectiles(float dt)
 													// It can be sped up by the speed variable in the script
 				} else
 					GetAngles((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
-				
+
 				CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
 
 				SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, false,0);
@@ -399,7 +399,7 @@ void CClient::SimulateProjectiles(float dt)
 
 			// Injure
 			if(pi->PlyHit_Type == PJ_INJURE) {
-				
+
 				// Add damage to the worm
 				InjureWorm(&cRemoteWorms[wormid], pi->PlyHit_Damage, prj->GetOwner());
 				prj->setUsed(false);
@@ -436,7 +436,7 @@ void CClient::SimulateProjectiles(float dt)
 
 		// Explode?
 		if(explode) {
-		
+
 			// Explosion
 			damage = pi->Hit_Damage;
 			if(timer)
@@ -456,7 +456,7 @@ void CClient::SimulateProjectiles(float dt)
 			d += cMap->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
 			d += cMap->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
 			d += cMap->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
-            
+
             // Remove the dirt count on the worm
             cRemoteWorms[prj->GetOwner()].incrementDirtCount( -d );
 			prj->setUsed(false);
@@ -465,7 +465,7 @@ void CClient::SimulateProjectiles(float dt)
         // Green dirt
         if(grndirt) {
             int d = cMap->PlaceGreenDirt(prj->GetPosition());
-            
+
             // Remove the dirt count on the worm
             cRemoteWorms[prj->GetOwner()].incrementDirtCount( -d );
             prj->setUsed(false);
@@ -492,7 +492,7 @@ void CClient::SimulateProjectiles(float dt)
 				a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
 				GetAngles(a,&sprd,NULL);
 
-				float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();				
+				float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
 
 				SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, false,0);
 			}
@@ -509,10 +509,10 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 	CWorm	*w;
 	Uint32	Colour = cMap->GetTheme()->iDefaultColour;
     int     gotDirt = false;
-	
+
 	// Go through until we find dirt to throw around
 	y = MIN((int)pos.y,cMap->GetHeight()-1);
-	y = MAX(y,0);	
+	y = MAX(y,0);
 
 	px = (int)pos.x;
 
@@ -547,7 +547,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 
     // Go through projectiles. If any were next to an explosion, set the projectile's explode event to true
-    CProjectile *prj = cProjectiles;
+//    CProjectile *prj = cProjectiles;  // TODO: not used
     /*for( i=0; i<MAX_PROJECTILES; i++, prj++ ) {
         if( !prj->isUsed() )
             continue;
@@ -575,9 +575,9 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 	// Explosion
 	if (!bBotClient)
 		SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),0,NULL);
-	
+
 	int d = cMap->CarveHole(damage,pos);
-    
+
     // Increment the dirt count
     cRemoteWorms[owner].incrementDirtCount( d );
 
@@ -585,7 +585,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 	for(i=0; i<NUM_VIEWPORTS; i++) {
 		if(!cViewports[i].getUsed())
             continue;
-		
+
 		if(shake) {
 			if(cViewports[i].inView(pos))
 				cViewports[i].Shake(shake);
@@ -623,7 +623,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	int i;
 	int localid=0;
 
-	int numworms = MIN(iNumWorms,2);
+//	int numworms = MIN(iNumWorms,2);  // TODO: not used
 
 	// Make sure this is one of our worms
 	for(i=0;i<iNumWorms;i++) {
@@ -637,7 +637,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 
 	if(w->Injure(damage)) {
 		// His dead Jim
-		
+
 		// Kill me
 		if(me) {
 			w->setAlive(false);
@@ -696,7 +696,7 @@ void CClient::SendCarve(CVec pos)
 {
 	int x,y,n,px;
 	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
-	
+
 	// Go through until we find dirt to throw around
 	y = MIN((int)pos.y,cMap->GetHeight()-1);
 	y = MAX(y,0);
@@ -729,7 +729,7 @@ void CClient::SendCarve(CVec pos)
 void CClient::PlayerShoot(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
-	
+
 	if(Slot->Reloading)
 		return;
 
@@ -752,16 +752,16 @@ void CClient::PlayerShoot(CWorm *w)
 	}
 
 
-	// Shots are now handled by the server 
+	// Shots are now handled by the server
 	return;
 
 
 
-	
+
 	// Play the weapon's sound
 	//if(Slot->Weapon->UseSound)
 	//	StartSound(Slot->Weapon->smpSample, w->getPos(), w->getLocal(), 100, cLocalWorms[0]);
-	
+
 	/*CVec dir;
 	GetAngles(Angle,&dir,NULL);
 	CVec pos = w->getPos() + dir*8;
@@ -787,7 +787,7 @@ void CClient::PlayerShoot(CWorm *w)
 
 		// Calculate a random starting angle for the projectile rotation (if used)
 		if(Slot->Weapon->Projectile) {
-			if(Slot->Weapon->Projectile->Rotating) 
+			if(Slot->Weapon->Projectile->Rotating)
 			   rot = GetRandomInt( 360 / Slot->Weapon->Projectile->RotIncrement ) * Slot->Weapon->Projectile->RotIncrement;
 		}
 
@@ -977,8 +977,8 @@ void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_p
 
     if( p >= nTopProjectile )
         nTopProjectile = p+1;
-    nTopProjectile = MIN(nTopProjectile,MAX_PROJECTILES);    
-    
+    nTopProjectile = MIN(nTopProjectile,MAX_PROJECTILES);
+
     // Safety
     _random %= 255;
 
@@ -1013,7 +1013,7 @@ void CClient::UpdateScoreboard(void)
 
 		// Add to the team score
 		if(iGameType == GMT_TEAMDEATH) {
-			// Make the score at least zero to say we have 
+			// Make the score at least zero to say we have
 			int team = w->getTeam();
 			if (team < 0)  {  // prevents crashing sometimes
 				w->setTeam(0);
@@ -1069,21 +1069,21 @@ void CClient::UpdateScoreboard(void)
 					iScoreboard[j] = iScoreboard[j+1];
 					iScoreboard[j+1] = s;
 				}
-            
+
 			} else {
 				// DEATHMATCH or TEAM DEATHMATCH
 
 				if(cRemoteWorms[iScoreboard[j]].getLives() < cRemoteWorms[iScoreboard[j + 1]].getLives()) {
-				
+
 					// Swap the 2 scoreboard entries
 					s = iScoreboard[j];
 					iScoreboard[j] = iScoreboard[j+1];
 					iScoreboard[j+1] = s;
 				} else if(cRemoteWorms[iScoreboard[j]].getLives() == cRemoteWorms[iScoreboard[j + 1]].getLives()) {
-	
+
 					// Equal lives, so compare kills
 					if(cRemoteWorms[iScoreboard[j]].getKills() < cRemoteWorms[iScoreboard[j + 1]].getKills()) {
-	
+
 						// Swap the 2 scoreboard entries
 						s = iScoreboard[j];
 						iScoreboard[j] = iScoreboard[j+1];
@@ -1207,7 +1207,7 @@ void CClient::LaserSight(CWorm *w)
 	for(i=0; i<9999; i+=divisions) {
 		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
-		if(px & PX_DIRT || px & PX_ROCK)			
+		if(px & PX_DIRT || px & PX_ROCK)
 			break;
 
 		// Check if it has hit any of the worms
@@ -1280,7 +1280,7 @@ void CClient::ProcessShot(shoot_t *shot)
 	GetAngles(shot->nAngle,&dir,NULL);
 	CVec pos = shot->cPos + dir*8;
 
-	
+
 	// Play the weapon's sound
 	if(wpn->UseSound && !bBotClient)
 		StartSound(wpn->smpSample, w->getPos(), w->getLocal(), 100, cLocalWorms[0]);
@@ -1294,17 +1294,17 @@ void CClient::ProcessShot(shoot_t *shot)
 
 
 	// This is assuming that the client time is greater than the projectile time
-	float time = fServerTime - shot->fTime;	
+	float time = fServerTime - shot->fTime;
 
 	CVec sprd;
 
 	for(int i=0; i<wpn->ProjAmount; i++) {
-		
-		int rot = 0;		
-		
+
+		int rot = 0;
+
 		// Spread
 		float a = (float)shot->nAngle + GetFixedRandomNum(shot->nRandom)*(float)wpn->ProjSpread;
-                
+
 		if(a < 0)
 			a+=360;
 		if(a>360)
@@ -1434,7 +1434,7 @@ int ChatMaxLength = 48;
 ///////////////////
 // Process any chatter
 void CClient::processChatter(void)
-{	
+{
 	// Bots don't type
 	/*if (bBotClient)
 		return;*/
@@ -1454,7 +1454,7 @@ void CClient::processChatter(void)
         if(GetKeyboard()->keys[SDLK_ESCAPE] || GetKeyboard()->KeyUp[SDLK_ESCAPE]) {
             // Stop typing
             iChat_Typing = false;
-            
+
             GetKeyboard()->keys[SDLK_ESCAPE] = false;
             GetKeyboard()->KeyDown[SDLK_ESCAPE] = false;
             GetKeyboard()->KeyUp[SDLK_ESCAPE] = false;
@@ -1480,7 +1480,7 @@ void CClient::processChatter(void)
         return;
     }
 
-    
+
 	// Check if we have hit the chat key and we're in a network game
 	if(cChat_Input.isUp() && tGameInfo.iGameType != GME_LOCAL) {
 
@@ -1569,7 +1569,7 @@ void CClient::processChatCharacter(int c, bool bDown)
     }
 
     // Must be down
-    
+
     if(iChat_Holding) {
         if(iChat_Lastchar != c)
             iChat_Holding = false;
@@ -1578,18 +1578,18 @@ void CClient::processChatCharacter(int c, bool bDown)
                 return;
         }
     }
-    
+
     if(!iChat_Holding) {
         iChat_Holding = true;
         fChat_TimePushed = tLX->fCurTime;
     }
-    
+
     iChat_Lastchar = c;
-    
+
     // Backspace
     if((char) c == '\b') {
 		if(iChat_Pos > 0)  {
-			memmove(sChat_Text+iChat_Pos-1,sChat_Text+iChat_Pos,strlen(sChat_Text)-iChat_Pos+1);	
+			memmove(sChat_Text+iChat_Pos-1,sChat_Text+iChat_Pos,strlen(sChat_Text)-iChat_Pos+1);
 			iChat_Pos--;
 		}
         return;
@@ -1622,11 +1622,11 @@ void CClient::processChatCharacter(int c, bool bDown)
 		else
 			iChat_Pos = strlen(sChat_Text);
 	}
-    
+
     // Enter
     if((char) c == '\r') {
         iChat_Typing = false;
-        
+
         // Send chat message to the server
         if(sChat_Text[0]) {
             static char buf[256];
@@ -1659,13 +1659,13 @@ void CClient::processChatCharacter(int c, bool bDown)
 		iChat_Pos += len;
 		return;
 	}
-    
+
     // Normal key
     if(iChat_Pos < ChatMaxLength-1 && c > 31 && c <127 ) {
 		int len = strnlen(sChat_Text,sizeof(sChat_Text));
 		if(iChat_Pos < len) memmove(sChat_Text+iChat_Pos+1,sChat_Text+iChat_Pos,len-iChat_Pos);
 		else iChat_Pos = len; // just for security
-	
+
 		sChat_Text[iChat_Pos++] = c;
 		sChat_Text[len+1] = '\0';
     }
@@ -1729,7 +1729,7 @@ CVec CClient::FindNearestSpot(CWorm *w)
 			}
 			tmp_x -= 3;
 		}
-				
+
 	}
 
 
@@ -1737,7 +1737,7 @@ CVec CClient::FindNearestSpot(CWorm *w)
     bool    first = true;
     int     cols = cMap->getGridCols()-1;       // Note: -1 because the grid is slightly larger than the
     int     rows = cMap->getGridRows()-1;       // level size
-    
+
     // Set our current cell as default
 	if (bInMap)  {
 		px = (int) fabs((w->getPos().x)/gw);
@@ -1765,7 +1765,7 @@ CVec CClient::FindNearestSpot(CWorm *w)
             uchar pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
             if(!(pf & PX_ROCK))
                 return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
-            
+
             if(++x >= cols) {
                 x=0;
                 break;

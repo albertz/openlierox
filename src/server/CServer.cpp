@@ -113,7 +113,7 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 		SetError("Error: Out of memory!\nsv::Startserver() %d",__LINE__);
 		return false;
 	}
-	
+
 	// Initialize the bonuses
 	int i;
 	for(i=0;i<MAX_BONUSES;i++)
@@ -158,7 +158,7 @@ int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
 int CServer::StartGame(void)
 {
 	CBytestream bs;
-	
+
 	iLives =		 tGameInfo.iLives;
 	iGameType =		 tGameInfo.iGameMode;
 	iMaxKills =		 tGameInfo.iKillLimit;
@@ -218,7 +218,7 @@ int CServer::StartGame(void)
 		NetAddrToString(a,tGameLog->tWorms[i].sIP);
 	}
 
-	
+
 
 	// Reset the first blood
 	bFirstBlood = true;
@@ -237,7 +237,7 @@ int CServer::StartGame(void)
 		SetError("Error: Out of memory!\nsv::Startgame() %d",__LINE__);
 		return false;
 	}
-	
+
 	iRandomMap = false;
 	if(stricmp(tGameInfo.sMapname,"_random_") == 0)
 		iRandomMap = true;
@@ -273,7 +273,7 @@ int CServer::StartGame(void)
     // Load & update the weapon restrictions
     cWeaponRestrictions.loadList("cfg/wpnrest.dat");
     cWeaponRestrictions.updateList(&cGameScript);
-    
+
 
 	// Set some info on the worms
 	for(i=0;i<MAX_WORMS;i++) {
@@ -305,7 +305,7 @@ int CServer::StartGame(void)
 	}
 
 
-    // If this is the host, and we have a team game: Send all the worm info back so the worms know what 
+    // If this is the host, and we have a team game: Send all the worm info back so the worms know what
     // teams they are on
     if( tGameInfo.iGameType == GME_HOST ) {
         if( iGameType == GMT_TEAMDEATH ) {
@@ -316,10 +316,10 @@ int CServer::StartGame(void)
             for( i=0; i<MAX_WORMS; i++, w++ ) {
                 if( !w->isUsed() )
                     continue;
-            
+
                 // Write out the info
                 b.writeByte(S2C_WORMINFO);
-			    b.writeInt(w->getID(),1);			    
+			    b.writeInt(w->getID(),1);
                 w->writeInfo(&b);
             }
 
@@ -327,7 +327,7 @@ int CServer::StartGame(void)
         }
     }
 
-	
+
 
 	iState = SVS_GAME;		// In-game, waiting for players to load
 	iServerFrame = 0;
@@ -337,7 +337,7 @@ int CServer::StartGame(void)
 	bs.writeInt(iRandomMap,1);
 	if(!iRandomMap)
 		bs.writeString("%s",sMapFilename);
-	
+
 	// Game info
 	bs.writeInt(iGameType,1);
 	bs.writeShort(iLives);
@@ -427,7 +427,7 @@ void CServer::ReadPackets(void)
 	CBytestream bs;
 	NetworkAddr adrFrom;
 	int c;
-	
+
 	while(bs.Read(tSocket)) {
 
 		GetRemoteNetAddr(tSocket,&adrFrom);
@@ -444,7 +444,7 @@ void CServer::ReadPackets(void)
 		// Read packets
 		CClient *cl = cClients;
 		for(c=0;c<MAX_CLIENTS;c++,cl++) {
-			
+
 			// Player not connected
 			if(cl->getStatus() == NET_DISCONNECTED)
 				continue;
@@ -453,10 +453,10 @@ void CServer::ReadPackets(void)
 			if(!AreNetAddrEqual(&adrFrom,cl->getChannel()->getAddress()))
 				continue;
 
-			
+
 			// TODO: Check ports
 
-			// Process the net channel			
+			// Process the net channel
             if(cl->getChannel()->Process(&bs)) {
 
                 // Only process the actual packet for playing clients
@@ -496,7 +496,7 @@ void CServer::SendPackets(void)
 		// Send out the packets if we havn't gone over the clients bandwidth
 		bs = cl->getUnreliable();
 		cl->getChannel()->Transmit(bs);
-		
+
 		// Clear the unreliable bytestream
 		cl->getUnreliable()->Clear();
 	}
@@ -514,7 +514,7 @@ void CServer::RegisterServer(void)
 
 	NetworkAddr addr;
 
-	GetLocalNetAddr(tSocket,&addr);	
+	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
 	sprintf(url, "%s?port=%i&addr=%s", LX_SVRREG, nPort, buf);
@@ -557,7 +557,7 @@ void CServer::ProcessRegister(void)
 
 	int result = http_ProcessRequest(szError);
 	fix_markend(szError);
-	
+
 	// Normal, keep going
 	if(result == 0)
 		return;
@@ -694,7 +694,7 @@ void CServer::DropClient(CClient *cl, int reason)
 	bs.writeByte(cl->getNumWorms());
 
 	static char buf[128];
-	int i;    
+	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
 
@@ -744,11 +744,11 @@ void CServer::DropClient(CClient *cl, int reason)
 	}
 
 
-    // Go into a zombie state for a while so the reliable channel can still get the 
+    // Go into a zombie state for a while so the reliable channel can still get the
     // reliable data to the client
     cl->setStatus(NET_ZOMBIE);
     cl->setZombieTime(tLX->fCurTime + 3);
-    
+
 	SendGlobalPacket(&bs);
 
     // Send the client directly a dropped packet
@@ -880,7 +880,7 @@ void CServer::kickWorm(char *szWormName)
 
         if(stricmp(w->getName(), szWormName) == 0) {
             kickWorm(i);
-            return;            
+            return;
         }
     }
 
@@ -982,7 +982,7 @@ void CServer::banWorm(int wormID)
 	static char szAddress[21];
 	NetAddrToString(cl->getChannel()->getAddress(),&szAddress[0]);
 	fix_markend(szAddress);
-	
+
 	if (!w->getName() || !szAddress)
 		return;
 
@@ -1006,12 +1006,12 @@ void CServer::banWorm(char *szWormName)
 
         if(stricmp(w->getName(), szWormName) == 0) {
             banWorm(i);
-            return;            
+            return;
         }
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);	
+    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);
 }
 
 ///////////////////
@@ -1085,12 +1085,12 @@ void CServer::muteWorm(char *szWormName)
 
         if(stricmp(w->getName(), szWormName) == 0) {
             muteWorm(i);
-            return;            
+            return;
         }
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);	
+    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);
 }
 
 ///////////////////
@@ -1150,12 +1150,12 @@ void CServer::unmuteWorm(char *szWormName)
 
         if(stricmp(w->getName(), szWormName) == 0) {
             unmuteWorm(i);
-            return;            
+            return;
         }
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);	
+    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);
 }
 
 
@@ -1296,8 +1296,8 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 	// Split the ip to four parts
 	int ip_parts[4];
 	char buf[4];
-	int j=0;
-	int k=0;
+	unsigned int j=0;
+	unsigned int k=0;
 	for (short i=0; i<4; i++,j++)  {
 		while(k < sizeof(buf) && *(Address+j) != '.' && *(Address+j) != ':')  {
 			buf[k] = *(Address+j);
@@ -1332,7 +1332,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 
 		// From IP
 		char from_ip[12];
-		short i=0;
+		unsigned short i=0;
 		while(i < sizeof(from_ip)-1 && *line && *line != '\"')
 			from_ip[i++] = *(line++);
 		from_ip[i] = '\0'; // Terminating character
@@ -1374,7 +1374,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		char country_name[64];
 		i=0;
 		while(i < sizeof(country_name)-1 && *line && *line != '\"')
-			country_name[i++] = *(line++); 
+			country_name[i++] = *(line++);
 		country_name[i] = '\0';  // Terminating character
 
 		// Is the IP in the specified range?
@@ -1470,7 +1470,7 @@ void CServer::Shutdown(void)
 	ShutdownLog();
 
 	cShootList.Shutdown();
-    
+
     cWeaponRestrictions.Shutdown();
 
 	/*

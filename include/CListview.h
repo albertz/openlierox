@@ -23,7 +23,7 @@ enum {
 	LV_CHANGED=0,
     LV_RIGHTCLK,
 	LV_DOUBLECLK,
-	LV_RESIZECURSOR,
+	LV_RESIZECURSOR
 };
 
 
@@ -41,7 +41,7 @@ enum {
 	LVM_GETINDEX,
     LVM_GETCURITEM,
 	LVM_SETOLDSTYLE,
-	LVM_GETCOLUMNWIDTH,
+	LVM_GETCOLUMNWIDTH
 };
 
 
@@ -148,10 +148,10 @@ private:
 
     bool            bShowSelect;
 
-	
+
 public:
 	// Methods
-	
+
 	void	Create(void);
 	void	Destroy(void);
 
@@ -193,16 +193,16 @@ public:
 
     int     getNumItems(void);
 
-    void    scrollLast(void);    
+    void    scrollLast(void);
 
 	int		getCurIndex(void)		{ if(tSelected) return tSelected->iIndex; else return -1; }
 	char	*getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return NULL; }
 	lv_subitem_t	*getCurSubitem(int index);
 
 	int		getCursor(void)			{ return iCursor; }
-    
 
-	lv_subitem_t	*getCurSub(void);	
+
+	lv_subitem_t	*getCurSub(void);
 
 	int			getItemCount(void)		{ return iItemCount; }
 	lv_item_t	*getItems(void)			{ return tItems; }

@@ -29,7 +29,7 @@ char* getNextFullFileName(const char* f) {
 		fix_strncpy(tmp, nextsearchpath->filename);
 		fix_strncat(tmp, "/");
 		fix_strncat(tmp, f);
-		return tmp;	
+		return tmp;
 	} else
 		return NULL;
 }
@@ -64,13 +64,13 @@ int FindFirst(char *dir, char *ext, char *filename)
 	GetExactFileName(getNextFullFileName(dir), _dir);
 	if(_dir[0] == '\0')
 		return false;
-	
+
 	if(strcmp(ext, "*") != 0)
 		printf("FindFirst: WARNING: I can't handle anything else than * as ext \n");
 
 	handle = opendir(_dir);
 	fix_strncpy(_dir, dir);
-	
+
 	while(handle != 0 && (entry = readdir(handle)) != 0) // Keep going until we found the first file
 	{
 		//If file is not self-directory or parent-directory
@@ -91,7 +91,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	reset_nextsearchpath = false;
 	char tmp[512]; fix_strncpy(tmp, _dir);
 	int ret = FindFirst(tmp, "*", filename);
-	reset_nextsearchpath = true;	
+	reset_nextsearchpath = true;
 	return ret;
 }
 
@@ -100,14 +100,14 @@ int FindFirst(char *dir, char *ext, char *filename)
 // Find the next file
 int FindNext(char *filename)
 {
-	while(entry = readdir(handle))	// Keep going until we found the next file
+	while((entry = readdir(handle)))	// Keep going until we found the next file
 	{
 		//If file is not self-directory or parent-directory
 		if(strcmp(entry->d_name, "."))
 		 if(strcmp(entry->d_name, ".."))
 		 {
 			sprintf(filename,"%s/%s",_dir,entry->d_name);
-		
+
 			if(CanReadFile(filename))
 				return true;
 		}
@@ -118,7 +118,7 @@ int FindNext(char *filename)
 	reset_nextsearchpath = false;
 	char tmp[512]; fix_strncpy(tmp, _dir);
 	int ret = FindFirst(tmp, "*", filename);
-	reset_nextsearchpath = true;	
+	reset_nextsearchpath = true;
 	return ret;
 }
 
@@ -148,7 +148,7 @@ int FindFirstDir(char *dir, char *name)
 	GetExactFileName(getNextFullFileName(dir), _dir2);
 	if(_dir2[0] == '\0')
 		return false;
-			
+
 	// TODO: in some cases, handle2 will not get free
 	handle2 = opendir(_dir2);
 	fix_strncpy(_dir2, dir);
@@ -158,9 +158,9 @@ int FindFirstDir(char *dir, char *name)
 		//If file is not self-directory or parent-directory
 		if(strcmp(entry2->d_name, "."))
 		 if(strcmp(entry2->d_name, ".."))
-		 {			
+		 {
 			sprintf(name,"%s/%s",_dir2,entry2->d_name);
-			
+
 			// well I know, not the best method, but it works
 			// this should test, if it is a directory
 			if(!CanReadFile(name))
@@ -175,7 +175,7 @@ int FindFirstDir(char *dir, char *name)
 	reset_nextsearchpath = false;
 	char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
-	reset_nextsearchpath = true;	
+	reset_nextsearchpath = true;
 	return ret;
 }
 
@@ -184,15 +184,15 @@ int FindFirstDir(char *dir, char *name)
 // Find the next dir
 int FindNextDir(char *name)
 {
-	
-	while(entry2 = readdir(handle2))	// Keep going until we found the next dir
+
+	while((entry2 = readdir(handle2)))	// Keep going until we found the next dir
 	{
 		//If file is not self-directory or parent-directory
 		if(strcmp(entry2->d_name, "."))
 		 if(strcmp(entry2->d_name, ".."))
 		 {
 			sprintf(name,"%s/%s",_dir2,entry2->d_name);
-		
+
 			// this should test, if it is a directory
 			if(!CanReadFile(name))
 				return true;
@@ -204,7 +204,7 @@ int FindNextDir(char *name)
 	reset_nextsearchpath = false;
 	char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
-	reset_nextsearchpath = true;	
+	reset_nextsearchpath = true;
 	return ret;
 }
 
@@ -226,7 +226,7 @@ int GetNextName(const char* fullname, const char** seperators, char* nextname)
 
 		nextname[pos] = fullname[pos];
 	}
-	
+
 	nextname[pos] = '\0';
 	return 0;
 }
@@ -240,23 +240,23 @@ int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
 		strcpy(filename, "");
 		return true;
 	}
-	
+
 	DIR* dirhandle;
-	dirhandle = opendir((strcmp(dir, "") == 0) ? "." : dir);		
+	dirhandle = opendir((strcmp(dir, "") == 0) ? "." : dir);
 	if(dirhandle == 0) return false;
-	
+
 	dirent* direntry;
-	while(direntry = readdir(dirhandle))
+	while((direntry = readdir(dirhandle)))
 	{
 		if(strcasecmp(direntry->d_name, searchname) == 0)
 		{
 			strcpy(filename, direntry->d_name);
-			closedir(dirhandle);	
+			closedir(dirhandle);
 			return true;
-		}	
+		}
 	}
-	
-	closedir(dirhandle);	
+
+	closedir(dirhandle);
 	return false;
 }
 
@@ -266,7 +266,7 @@ bool GetExactFileName(const char* searchname, char* filename)
 {
 	if (filename == NULL)
 		return false;
-	
+
 	if(searchname == NULL) {
 		filename[0] = '\0';
 		return false;
@@ -287,17 +287,17 @@ bool GetExactFileName(const char* searchname, char* filename)
 		if(npos > 0) strcat(filename, "/");
 
 		npos = GetNextName(&sname.c_str()[pos], seps, nextname);
-		
+
 		if(!CaseInsFindFile(filename, nextname, nextexactname))
 		{
 			strcat(filename, &sname.c_str()[pos]);
 			return false;
 		}
-		
+
 		strcat(filename, nextexactname);
-		
+
 	} while(npos > 0);
-	
+
 	return true;
 }
 
@@ -328,7 +328,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	GetExactFileName(getNextFullFileName(dir), _dir);
 	if(_dir[0] == '\0')
 		return false;
-	
+
 	static char basepath[512]; // don't need this later, so static is safe
 
 	fix_strncpy(basepath, _dir);
@@ -337,7 +337,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 
 	handle = _findfirst(basepath, &fileinfo);
 	fix_strncpy(_dir, dir);
-	
+
 	// Keep going until we found the first file
 	while(handle >= 0 && !_findnext(handle, &fileinfo))
 	{
@@ -359,7 +359,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	static char tmp[512]; fix_strncpy(tmp, _dir);
 	// TODO: this better
 	int ret = FindFirst(tmp,ext, filename);
-	reset_nextsearchpath = true;	
+	reset_nextsearchpath = true;
 	return ret;
 }
 
@@ -387,7 +387,7 @@ int FindNext(char *filename)
 	static char tmp[512]; fix_strncpy(tmp, _dir);
 	// TODO: this better
 	int ret = FindFirst(tmp,"*", filename);
-	reset_nextsearchpath = true;	
+	reset_nextsearchpath = true;
 	return ret;
 }
 
@@ -418,7 +418,7 @@ int FindFirstDir(char *dir, char *name)
 	GetExactFileName(getNextFullFileName(dir), _dir2);
 	if(_dir2[0] == '\0')
 		return false;
-	
+
 	static char basepath[512];
 
 	fix_strncpy(basepath, _dir2);
@@ -427,7 +427,7 @@ int FindFirstDir(char *dir, char *name)
 
 	handle2 = _findfirst(basepath, &fileinfo2);
 	fix_strncpy(_dir2, dir);
-	
+
 	while(handle2 >= 0 && !_findnext(handle2, &fileinfo2)) // Keep going until we found the first dir
 	{
 		//If file is not self-directory or parent-directory
@@ -447,7 +447,7 @@ int FindFirstDir(char *dir, char *name)
 	reset_nextsearchpath = false;
 	static char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
-	reset_nextsearchpath = true;	
+	reset_nextsearchpath = true;
 	return ret;
 }
 
@@ -477,7 +477,7 @@ int FindNextDir(char *name)
 	reset_nextsearchpath = false;
 	static char tmp[512]; fix_strncpy(tmp, _dir2);
 	int ret = FindFirstDir(tmp, name);
-	reset_nextsearchpath = true;	
+	reset_nextsearchpath = true;
 	return ret;
 }
 
@@ -487,7 +487,7 @@ int FindNextDir(char *name)
 filelist_t*	basesearchpaths = NULL;
 void InitBaseSearchPaths() {
 	assert(basesearchpaths == NULL);
-	
+
 	// TODO: it would be nice to have also Mac OS X konversions
 #ifndef WIN32
 	AddToFileList(&basesearchpaths, "${HOME}/.OpenLieroX");
@@ -520,7 +520,7 @@ void CreateRecDir(char* f, bool last_is_dir) {
 char* GetFullFileName(const char* path, char** searchpath) {
 	static char fname[1024]; strcpy(fname, "");
 	static char tmp[1024]; strcpy(tmp, "");
-	
+
 	if(path == NULL || path[0] == '\0')
 		return NULL;
 
@@ -531,7 +531,7 @@ char* GetFullFileName(const char* path, char** searchpath) {
 		spath = basesearchpaths;
 		has_tried_basesearchpaths = true;
 	}
-	while(spath) { // loop over searchpaths		
+	while(spath) { // loop over searchpaths
 		fix_strncpy(tmp, spath->filename);
 		fix_strncat(tmp, "/");
 		fix_strncat(tmp, path);
@@ -555,10 +555,10 @@ char* GetFullFileName(const char* path, char** searchpath) {
 					*searchpath = spath->filename;
 				return fname;
 			}
-			
+
 			return NULL;
 		}
-	
+
 		spath = spath->next;
 		if(spath == NULL && !has_tried_basesearchpaths) {
 			has_tried_basesearchpaths = true;
@@ -573,41 +573,41 @@ char* GetWriteFullFileName(const char* path, bool create_nes_dirs) {
 	filelist_t* spath = NULL;
 	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
 	if(spath == NULL) spath = basesearchpaths;
-	
+
 	static char tmp[1024];
 	static char fname[1024];
-	
+
 	// get the dir, where we should write into
 	if(!spath) {
 		printf("ERROR: we want to write somewhere, but don't know where => we are writing to your temp-dir now...\n");
 		fix_strncpy(tmp, GetTempDir());
 		fix_strncat(tmp, "/");
 		fix_strncat(tmp, path);
-		
+
 	} else {
 		GetExactFileName(spath->filename, tmp);
-	
+
 		CreateRecDir(tmp);
 		if(!CanWriteToDir(tmp)) {
 			printf("ERROR: we cannot write to %s => we are writing to your temp-dir now...\n", tmp);
 			fix_strncpy(tmp, GetTempDir());
 		}
-		
+
 		fix_strncat(tmp, "/");
 		fix_strncat(tmp, path);
 	}
-	
-	GetExactFileName(tmp, fname);	
+
+	GetExactFileName(tmp, fname);
 	if(create_nes_dirs) CreateRecDir(fname, false);
 	return tmp;
 }
 
-FILE *OpenGameFile(const char *path, const char *mode) {	
+FILE *OpenGameFile(const char *path, const char *mode) {
 	if(path == NULL || path[0] == '\0')
 		return NULL;
-	
+
 	char* fullfn = GetFullFileName(path);
-	
+
 	bool write_mode = strchr(mode, 'w') != 0;
 	bool append_mode = strchr(mode, 'a') != 0;
 	if(write_mode || append_mode) {
@@ -624,13 +624,13 @@ FILE *OpenGameFile(const char *path, const char *mode) {
 		}
 		//printf("opening file for writing (mode %s): %s\n", mode, writefullname);
 		return fopen(writefullname, mode);
-	}		
+	}
 
 	if(fullfn != NULL && fullfn[0] != '\0') {
 		//printf("open file for reading (mode %s): %s\n", mode, fullfn);
 		return fopen(fullfn, mode);
 	}
-	
+
 	return NULL;
 }
 
@@ -665,9 +665,9 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 
 	static char tmp1[1024] = "";
 	static char tmp2[1024] = "";
-	fix_strncpy(tmp1, f); 
+	fix_strncpy(tmp1, f);
 	removeEndingSlashes(tmp1);
-	
+
 	// Go through the list, checking each item
 	for(const filelist_t* fl = l; fl != NULL; fl = fl->next) {
 		if (!fl->filename)
@@ -677,7 +677,7 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 		if(strcasecmp(tmp1, tmp2) == 0)
 			return true;
 	}
-	
+
 	return false;
 }
 
@@ -697,7 +697,7 @@ char* GetHomeDir() {
 
 
 char* GetSystemDataDir() {
-#ifndef WIN32	
+#ifndef WIN32
 	return SYSTEM_DATA_DIR;
 #else
 	// windows don't have such dir, don't it?
@@ -724,17 +724,17 @@ char* GetTempDir() {
 void ReplaceFileVariables(std::string& filename) {
 	replace(filename, "${HOME}", GetHomeDir());
 	replace(filename, "${SYSTEM_DATA}", GetSystemDataDir());
-	replace(filename, "${BIN}", GetBinaryDir());	
+	replace(filename, "${BIN}", GetBinaryDir());
 }
 
 bool FileCopy(const std::string src, const std::string dest) {
 	static char tmp[2048];
-	
+
 	printf("FileCopy: %s -> %s\n", src.c_str(), dest.c_str());
 	FILE* src_f = fopen(src.c_str(), "r");
 	if(!src_f) {
 		printf("FileCopy: ERROR: cannot open source\n");
-		return false; 
+		return false;
 	}
 	FILE* dest_f = fopen(dest.c_str(), "w");
 	if(!dest_f) {
@@ -742,7 +742,7 @@ bool FileCopy(const std::string src, const std::string dest) {
 		printf("  ERROR: cannot open destination\n");
 		return false;
 	}
-	
+
 	printf("  ");
 	bool success = true;
 	unsigned short count = 0;

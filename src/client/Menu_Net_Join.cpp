@@ -131,7 +131,7 @@ int Menu_Net_JoinInitializePlayers(void)
 	cPlayerSel.Add( new CButton(BUT_OK, tMenu->bmpButtons),		Ok,			585,440, 30,15);
 	cPlayerSel.Add( new CListview(),							PlayerList,	100,210, 200, 160);
 	cPlayerSel.Add( new CListview(),							Playing,	340,210, 200, 160);
-	cPlayerSel.Add( new CLabel("Select player to play as:",tLX->clHeading), -1, 100, 190,0,0);	
+	cPlayerSel.Add( new CLabel("Select player to play as:",tLX->clHeading), -1, 100, 190,0,0);
 
 
 	// Add columns
@@ -225,7 +225,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 						ply = FindProfile(index);
 
 						if(ply) {
-							lv2->AddItem("",index,tLX->clListView);					
+							lv2->AddItem("",index,tLX->clListView);
 							lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 							lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 						}
@@ -248,7 +248,7 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 					ply = FindProfile(index);
 
 					if(ply) {
-						lv2->AddItem("",index,tLX->clListView);					
+						lv2->AddItem("",index,tLX->clListView);
 						lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 					}
@@ -266,9 +266,9 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 
 						tGameInfo.iNumPlayers = lv->getItemCount();
 
-						// Fill in the game structure												
+						// Fill in the game structure
 						lv_item_t *item = lv->getItems();
-		
+
 						// Add the players to the list
 						int count=0;
 						for(;item;item=item->tNext) {
@@ -276,15 +276,15 @@ void Menu_Net_JoinPlayersFrame(int mouse)
 								continue;
 
 							profile_t *ply = FindProfile(item->iIndex);
-	
-							if(ply)		
+
+							if(ply)
 								tGameInfo.cPlayers[count++] = ply;
 						}
 
 						// Shutdown
 						cPlayerSel.Shutdown();
 
-						
+
 						// Click
 						PlaySoundSample(sfxGeneral.smpClick);
 
@@ -326,7 +326,7 @@ int Menu_Net_JoinConnectionInitialize(char *sAddress)
 {
 	iJoinMenu = join_connecting;
 	tGameInfo.iGameType = GME_JOIN;
-	fix_strncpy(sJoinAddress, sAddress);	
+	fix_strncpy(sJoinAddress, sAddress);
 	cConnecting.Shutdown();
 	cConnecting.Initialize();
 
@@ -392,7 +392,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 		// Shutdown
 		Menu_Net_JoinConnectionShutdown();
-		Menu_NetInitialize();		
+		Menu_NetInitialize();
 		return;
 	}
 
@@ -468,10 +468,10 @@ int Menu_Net_JoinLobbyInitialize(void)
     Menu_Net_JoinDrawLobby();
 
     Menu_Net_JoinLobbyCreateGui();
-	
+
 	iNetMode = net_join;
 	iJoinMenu = join_lobby;
-	
+
 	cClient->setChatbox(&cJoinChat);
 	cJoinChat.Clear();
     cJoinChat.setWidth(570);
@@ -493,10 +493,10 @@ void Menu_Net_JoinLobbyShutdown(void)
 ///////////////////
 // Draw the join lobby
 void Menu_Net_JoinDrawLobby(void)
-{   
-	// Create the buffer	
+{
+	// Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);	
+    Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
 
     // Title
     DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
@@ -516,17 +516,17 @@ void Menu_Net_JoinDrawLobby(void)
 // Create the lobby gui stuff
 void Menu_Net_JoinLobbyCreateGui(void)
 {
-    Uint32 blue = MakeColour(0,138,251);
+//    Uint32 blue = MakeColour(0,138,251); // TODO: not used
 
     cJoinLobby.Shutdown();
 	cJoinLobby.Initialize();
 
 	cJoinLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),jl_Back,	15,  450, 60,  15);
-    cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);    
+    cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);
 	cJoinLobby.Add( new CButton(BUT_ADDTOFAVOURITES, tMenu->bmpButtons), jl_Favourites,360,220,150,15);
 	cJoinLobby.Add( new CLabel("Players",tLX->clHeading),	  -1,		15,  15,  0,   0);
 	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, 20);
-    cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  253, 610, 165);	
+    cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  253, 610, 165);
 
 	cJoinLobby.SendMessage(jl_ChatText,TXM_SETMAX,64,0);
 	cJoinLobby.SendMessage(jl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
@@ -577,7 +577,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		cJoinLobby.Shutdown();
 
-        // Setup the client        
+        // Setup the client
         cClient->SetupViewports();
 
 		// Leave the frontend
@@ -608,7 +608,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
     Menu_redrawBufferRect(15, 20,  335, 230);
     Menu_redrawBufferRect(360,20,  280, 200);
 
-	
+
 	// Process & Draw the gui
 	ev = cJoinLobby.Process();
 	cJoinLobby.Draw( tMenu->bmpScreen );
@@ -634,7 +634,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
                     lv->RemoveItem(lv->getItems()->iIndex);
             }
 
-            lv->scrollLast();           
+            lv->scrollLast();
 		}
 	}
 
@@ -697,8 +697,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
                 // Worm
                 DrawImage(tMenu->bmpScreen, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, tLX->clNormalLabel,"%s", w->getName());    
-                
+				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, tLX->clNormalLabel,"%s", w->getName());
+
                 // Team
                 if( gl->nGameMode == GMT_TEAMDEATH )  {
 					// Colorize the worm
@@ -740,9 +740,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		char *gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
 
-		snprintf(&tGameInfo.sMapname[0],sizeof(tGameInfo.sMapname),"%s",&gl->szMapName); fix_markend(tGameInfo.sMapname);
-		snprintf(&tGameInfo.sModName[0],sizeof(tGameInfo.sModName),"%s",&gl->szModName); fix_markend(tGameInfo.sModName);
-		snprintf(&tGameInfo.sModDir[0],sizeof(tGameInfo.sModDir),"%s",&gl->szModName); fix_markend(tGameInfo.sModDir);
+        fix_strncpy(tGameInfo.sMapname, gl->szMapName);
+        fix_strncpy(tGameInfo.sModName, gl->szModName);
+        fix_strncpy(tGameInfo.sModDir, gl->szModDir); // TODO: it was gl->szModName before. was that correct?
 		tGameInfo.iBonusesOn = gl->nBonuses;
 		tGameInfo.iGameMode = gl->nGameMode;
 		tGameInfo.iKillLimit = gl->nMaxKills;
@@ -828,7 +828,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					bs.writeByte(C2S_UPDATELOBBY);
 					bs.writeByte(1);
 					cClient->getChannel()->getMessageBS()->Append(&bs);
-					
+
 
 					// Hide the ready button
 					CButton *btn = (CButton *)cJoinLobby.getWidget(jl_Ready);
@@ -854,7 +854,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					static char buf[128];
 					cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
 					fix_markend(buf);
-					
+
                     // Don't send empty messages
                     if(fix_strnlen(buf) == 0)
                         break;
@@ -870,7 +870,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					else
 						snprintf(text, sizeof(text), "%s", replacemax(buf,"/me",rw->getName(),buf,2));
 					fix_markend(text);
-					cClient->SendText(text);					
+					cClient->SendText(text);
 				}
 				break;
 		}

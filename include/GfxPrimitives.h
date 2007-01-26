@@ -65,8 +65,8 @@ inline Uint32	MakeColour(Uint8 r, Uint8 g, Uint8 b) { return SDL_MapRGB(SDL_GetV
 
 
 // Line drawing
-static int clipEncode (Sint16 x, Sint16 y, Sint16 left, Sint16 top, Sint16 right, Sint16 bottom);
-static int clipLine(SDL_Surface *dst, Sint16 *x1, Sint16 *y1, Sint16 *x2, Sint16 *y2);
+int clipEncode (Sint16 x, Sint16 y, Sint16 left, Sint16 top, Sint16 right, Sint16 bottom);
+int clipLine(SDL_Surface *dst, Sint16 *x1, Sint16 *y1, Sint16 *x2, Sint16 *y2);
 int		DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
 
 void	DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);

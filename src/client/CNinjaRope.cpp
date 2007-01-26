@@ -37,7 +37,7 @@ void CNinjaRope::Release(void)
 	// Un-hook the rope from the other worm
 	if(HookAttached && PlayerAttached && Worm)
 		Worm->setHooked(false,NULL);
-	
+
 	Clear();
 }
 
@@ -82,10 +82,10 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 		return;
 
 	float length2;
-	float speed = 250;
+//	float speed = 250;  // TODO: not used
 	int firsthit = !HookAttached;
 	CVec force;
-	
+
 	if(HookShooting)
 		force = CVec(0,100);
 	else
@@ -95,9 +95,9 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	// Still flying in the air
 	if(HookShooting) {
 
-		// Gravity		
+		// Gravity
 		HookVelocity += force*dt;
-		HookPos += HookVelocity*dt;		
+		HookPos += HookVelocity*dt;
 
 		length2 = (playerpos-HookPos).GetLength2();
 
@@ -128,7 +128,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	}
 
     bool outsideMap = false;
-	
+
 	// Hack to see if the hook went out of the map
 	if(HookPos.x <= 0 || HookPos.y <= 0 ||
 	   HookPos.x >= map->GetWidth()-1 || HookPos.y >= map->GetHeight()-1) {
@@ -191,7 +191,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 
 	// Put the hook where the worm is
 	else if(HookAttached && PlayerAttached) {
-		
+
 		// If the worm has been killed, or dropped, drop the hook
 		assert( Worm );
 		if(!Worm->isUsed() || !Worm->getAlive()) {
@@ -244,7 +244,7 @@ void CNinjaRope::Draw(SDL_Surface *bmpDest, CViewport *view, CVec ppos)
 	// Check clipping against viewport
 	if(hx>=l && hx<=l+view->GetVirtW() &&
 	   hy>=t && hy<=t+view->GetVirtH()) {
-		
+
 		// Hook
 		DrawImage(bmpDest,gfxGame.bmpHook,hx-2,hy-2);
 	}
@@ -269,7 +269,7 @@ CVec CNinjaRope::GetForce(CVec playerpos)
 CVec CNinjaRope::CalculateForce(CVec playerpos, CVec hookpos)
 {
 	// TODO: what is the dif between hookpos and HookPos ???
-	
+
 	float length2 = (playerpos-HookPos).GetLength2();
 
 	CVec dir = playerpos-hookpos;
@@ -277,7 +277,7 @@ CVec CNinjaRope::CalculateForce(CVec playerpos, CVec hookpos)
 
 	//float l = MIN((float)0,RestLength-length);
 	float l;
-	
+
 	if(length2 < RestLength*RestLength)
 		return CVec(0,0);
 
@@ -314,7 +314,7 @@ void CNinjaRope::write(CBytestream *bs)
 	// Position
 	short x = (short)HookPos.x;
 	short y = (short)HookPos.y;
-	
+
 	// Write out position of the hook
 	bs->write2Int12( x, y );
 

@@ -38,11 +38,11 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
     if( !iDropped && iLastDropped ) {
         Menu_redrawBufferRect( iX,iY+17, iWidth+15,117);
         iLastDropped = false;
-    }    
+    }
 
 	// Draw the background bit
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+ItemHeight+1);
-	
+
 	if(iDropped) {
 		// Dropped down
 		if(tSelected)  {
@@ -86,7 +86,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 			w-=16;
 			cScrollbar.Draw(bmpDest);
 		}
-			
+
 		cb_item_t *item = tItems;
 		for(;item;item=item->tNext,count++) {
 			if(count < cScrollbar.getValue())
@@ -249,7 +249,7 @@ void CCombobox::Sort(bool ascending)
 
 	// Update the indexes
 	int i=0;
-	for (item=tItems;item;item=item->tNext,i++)  
+	for (item=tItems;item;item=item->tNext,i++)
 		item->iIndex = i;
 }
 
@@ -312,7 +312,7 @@ int CCombobox::MouseOver(mouse_t *tMouse)
 // Mouse down event
 int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 {
-	int x = iX+iWidth-16;
+//	int x = iX+iWidth-16;  // TODO: not used
 	iArrowDown = false;
 
 	if((tMouse->X >= iX+iWidth-16 || cScrollbar.getGrabbed()) && iGotScrollbar && iDropped) {
@@ -393,7 +393,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 					return CMB_CHANGED;
 				}
 
-				
+
 		y+=16;
 		if(y > iY+iHeight)
 			break;
@@ -451,7 +451,7 @@ int CCombobox::KeyDown(int c)
 		return CMB_NONE;
 
 	iCanSearch = false;
-	
+
 	// Go from current item to the end of the list
 	int count = 0;
 	cb_item_t *item = tSelected->tNext;
@@ -597,7 +597,7 @@ void CCombobox::addItem(int index, char *sindex, char *name)
 	else
 		tItems = item;
 
-		
+
 	iItemCount++;
     cScrollbar.setMax( iItemCount );
 
@@ -705,5 +705,5 @@ cb_item_t* CCombobox::getItem(char* name) {
 		if(strncmp(i->sName,name,sizeof(i->sName)) == 0)
 			return i;
 	}
-	return NULL;	
+	return NULL;
 }

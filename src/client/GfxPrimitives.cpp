@@ -73,8 +73,8 @@ void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int
 void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	int x,y,c;
-	int ow = w;
-	int oh = h;
+//	int ow = w;  // TODO: not used
+//	int oh = h; // TODO: not used
 
 	// Lock the surfaces
 	if(SDL_MUSTLOCK(bmpDest))
@@ -127,7 +127,7 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 
 	Uint16 *sp,*tp;
 	for(y=0;y<h;y++) {
-		
+
 		sp = (Uint16 *)SrcPix;
 		tp = (Uint16 *)TrgPix + w;
 		for(x=0;x<w;x++) {
@@ -143,7 +143,7 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 		SrcPix+=bmpSrc->pitch;
 		TrgPix+=bmpDest->pitch;
 	}
-	
+
 
 	// Unlock em
 	if(SDL_MUSTLOCK(bmpDest))
@@ -174,7 +174,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 		return;
 	if (sy < 0 || (sy+h) > bmpSrc->h)
 		return;
-	
+
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
@@ -182,7 +182,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
     int desthp = bmpDest->pitch/2;      // We are performing the add on a 16bit int, so we only use half
 
     for(y=0;y<h;y++) {
-		
+
 		sp = (Uint16 *)SrcPix;
 		tp_x = (Uint16 *)TrgPix;
 		tp_y = tp_x+desthp;
@@ -215,7 +215,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 {
 	int x,y;
 	int c;
-	
+
 	// Warning: Doesn't do clipping on the source surface
 	// Warning: Assumes 16bpp
 
@@ -295,7 +295,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 {
 	int x,y;
 	int c;
-	
+
 	// Warning: Doesn't do clipping on the source surface
 	// Warning: Assumes 16bpp
 
@@ -321,7 +321,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	if(SDL_MUSTLOCK(bmpSrc))
 		SDL_LockSurface(bmpSrc);
 
-	
+
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels + sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
@@ -375,7 +375,7 @@ SDL_Surface *gfxCreateSurface(int width, int height)
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	SDL_PixelFormat *fmt = screen->format;
 
-	return SDL_CreateRGBSurface(iSurfaceFormat, width, height, fmt->BitsPerPixel, 
+	return SDL_CreateRGBSurface(iSurfaceFormat, width, height, fmt->BitsPerPixel,
 								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 }
 
@@ -392,7 +392,7 @@ SDL_Surface *gfxCreateSurfaceAlpha(int width, int height)
 	const Uint32 alpha = 0xff000000;
 #endif
 
-	return SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA, width, height, fmt->BitsPerPixel, 
+	return SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA, width, height, fmt->BitsPerPixel,
 								fmt->Rmask, fmt->Gmask, fmt->Bmask, alpha);
 }
 
@@ -430,7 +430,7 @@ void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color
 {
     // Note: Unoptimized
     // Does NOT do clipping
-    
+
     SDL_Surface *src = SDL_GetVideoSurface();
 
     Uint32 Rmask = bmpDest->format->Rmask, Gmask = bmpDest->format->Gmask, Bmask = bmpDest->format->Bmask, Amask = bmpDest->format->Amask;
@@ -463,7 +463,7 @@ void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color
 void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 {
 	int l,r;
-	static SDL_Surface *bmpScreen = SDL_GetVideoSurface();
+//	static SDL_Surface *bmpScreen = SDL_GetVideoSurface();  // TODO: not used; is static correct here?
 
 	SDL_Rect rect = bmpDest->clip_rect;
 
@@ -474,7 +474,7 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 
 	if(SDL_MUSTLOCK(bmpDest))
 		SDL_LockSurface(bmpDest);
-	
+
 	l = MIN(x,x2);
 	r = MAX(x,x2);
 
@@ -496,7 +496,7 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 	int n;
 	switch (bpp)  {
 	// 16 bpp
-	case 2:  
+	case 2:
 		for(n=0;n<=r-l;n++) {
 			*(Uint16 *)p = colour;
 			p+=bpp;
@@ -521,7 +521,7 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, int colour)
 {
 	int t,b;
-	SDL_Surface *bmpScreen = SDL_GetVideoSurface();
+//	SDL_Surface *bmpScreen = SDL_GetVideoSurface();  // TODO: not used
 
 	SDL_Rect rect = bmpDest->clip_rect;
 
@@ -541,10 +541,10 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, int colour)
 
 	t = MAX(t,top);
 	b = MIN(b,bottom);
-	
+
 	// Clipping
 	if(x > right || x < left) {
-		
+
 		if(SDL_MUSTLOCK(bmpDest))
 			SDL_UnlockSurface(bmpDest);
 		return;
@@ -607,11 +607,11 @@ void PutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
-			#if SDL_BYTEORDER == SDL_BIG_ENDIAN 
+			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				p[0] = (colour >> 16) & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = colour & 0xff;
-			#else 
+			#else
 				p[0] = colour & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = (colour >> 16) & 0xff;
@@ -631,12 +631,12 @@ int ropealt = 0;
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
 void RopePutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
-{	
+{
 	ropealt = !ropealt;
 
 	if(ropealt)
 		return;
-	
+
 	if(!bmpDest)
 		return;
 
@@ -676,7 +676,7 @@ void RopePutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 			*(Uint16 *)p = colour;
 			p+=2;
 			*(Uint16 *)p = colour;
-			
+
 			*(Uint16 *)a = colour;
 			a+=2;
 			*(Uint16 *)a = colour;
@@ -709,12 +709,12 @@ int beamalt = 0;
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
 void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
-{	
+{
 	beamalt = !beamalt;
 
 	if(beamalt)
 		return;
-	
+
 	if(!bmpDest)
 		return;
 
@@ -745,7 +745,7 @@ void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 			*(Uint16 *)p = colour;
 			p+=2;
 			*(Uint16 *)p = colour;
-			
+
 			*(Uint16 *)a = colour;
 			a+=2;
 			*(Uint16 *)a = colour;
@@ -758,7 +758,7 @@ void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 				p[0] = (colour >> 16) & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = colour & 0xff;
-			#else 
+			#else
 				p[0] = colour & 0xff;
 				p[1] = (colour >> 8) & 0xff;
 				p[2] = (colour >> 16) & 0xff;
@@ -778,13 +778,13 @@ int laseralt = 0;
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
 void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
-{	
+{
 	laseralt++;
 	laseralt %= GetRandomInt(35)+1;
 
 	if(laseralt)
 		return;
-	
+
 	if(!bmpDest)
 		return;
 
@@ -818,7 +818,7 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 			*(Uint16 *)p = colour;
 			p+=2;
 			*(Uint16 *)p = colour;
-			
+
 			*(Uint16 *)a = colour;
 			a+=2;
 			*(Uint16 *)a = colour;
@@ -934,7 +934,7 @@ void GetColour4(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b, Ui
 #define CLIP_REJECT(a,b) (a&b)
 #define CLIP_ACCEPT(a,b) (!(a|b))
 
-static int clipEncode (Sint16 x, Sint16 y, Sint16 left, Sint16 top, Sint16 right, Sint16 bottom)
+int clipEncode (Sint16 x, Sint16 y, Sint16 left, Sint16 top, Sint16 right, Sint16 bottom)
 {
  int code = 0;
  if (x < left) {
@@ -942,7 +942,7 @@ static int clipEncode (Sint16 x, Sint16 y, Sint16 left, Sint16 top, Sint16 right
  } else if (x > right) {
   code |= CLIP_RIGHT_EDGE;
  }
- if (y < top) {   
+ if (y < top) {
   code |= CLIP_TOP_EDGE;
  } else if (y > bottom) {
   code |= CLIP_BOTTOM_EDGE;
@@ -951,7 +951,7 @@ static int clipEncode (Sint16 x, Sint16 y, Sint16 left, Sint16 top, Sint16 right
 }
 
 
-static int clipLine(SDL_Surface *dst, Sint16 *x1, Sint16 *y1, Sint16 *x2, Sint16 *y2)
+int clipLine(SDL_Surface *dst, Sint16 *x1, Sint16 *y1, Sint16 *x2, Sint16 *y2)
 {
  Sint16 left,right,top,bottom;
  int code1, code2;
@@ -979,17 +979,17 @@ static int clipLine(SDL_Surface *dst, Sint16 *x1, Sint16 *y1, Sint16 *x2, Sint16
     swaptmp = *y2; *y2 = *y1; *y1 = swaptmp;
     swaptmp = code2; code2 = code1; code1 = swaptmp;
    }
-   if (*x2 != *x1) {      
+   if (*x2 != *x1) {
     m = (*y2 - *y1) / (float)(*x2 - *x1);
    } else {
     m = 1.0f;
    }
    if (code1 & CLIP_LEFT_EDGE) {
     *y1 += (Sint16)((left - *x1) * m);
-    *x1 = left; 
+    *x1 = left;
    } else if (code1 & CLIP_RIGHT_EDGE) {
     *y1 += (Sint16)((right - *x1) * m);
-    *x1 = right; 
+    *x1 = right;
    } else if (code1 & CLIP_BOTTOM_EDGE) {
     if (*x2 != *x1) {
      *x1 += (Sint16)((bottom - *y1) / m);
@@ -1000,10 +1000,10 @@ static int clipLine(SDL_Surface *dst, Sint16 *x1, Sint16 *y1, Sint16 *x2, Sint16
      *x1 += (Sint16)((top - *y1) / m);
     }
     *y1 = top;
-   } 
+   }
   }
  }
- 
+
  return draw;
 }
 
@@ -1047,12 +1047,12 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 			return 0;
 		}
 	}
-	else if (y1==y2) { 
+	else if (y1==y2) {
 		if (x1<x2) {
 			DrawHLine(dst, x1, x2, y1, color);
 			DrawHLine(dst, x1, x2, y1+1, color);
 			return 0;
-		} else if (x1>x2) { 
+		} else if (x1>x2) {
 			DrawHLine(dst, x2, x1, y1, color);
 			DrawHLine(dst, x2, x1, y1+1, color);
 			return 0;
@@ -1065,7 +1065,7 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
  sx = (dx >= 0) ? 1 : -1;
  sy = (dy >= 0) ? 1 : -1;
 
- 
+
   /* No alpha blending - use fast pixel routines */
 
   /* Setup color */
@@ -1075,7 +1075,7 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
   } else {
    //color=SDL_MapRGBA(dst->format, colorptr[3], colorptr[2], colorptr[1], colorptr[0]);
   }*/
-  
+
   /* Lock surface */
   SDL_LockSurface(dst);
 
@@ -1101,13 +1101,13 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 		case 1:
 			for(; x < dx; x++, pixel += pixx) {
 				*pixel = (Uint8)color;
-				y += dy; 
+				y += dy;
 				if (y >= dx) {
 					y -= dx; pixel += pixy;
 				}
 			}
 			break;
-	
+
 		// 16bpp
 		case 2:
 			for (; x < dx; x++, pixel += pixx) {
@@ -1117,7 +1117,7 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 				*(Uint16*)(pixel+2) = (Uint16)color;
 				*(Uint16*)(pixel+pixy) = (Uint16)color;
 				*(Uint16*)(pixel+pixy+2) = (Uint16)color;
-				y += dy; 
+				y += dy;
 				if (y >= dx) {
 					y -= dx;
 					pixel += pixy;
@@ -1128,7 +1128,7 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 		// 24bpp
 		case 3:
 			for(; x < dx; x++, pixel += pixx) {
-				#if SDL_BYTEORDER == SDL_BIG_ENDIAN 
+				#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 					pixel[0] = (Uint8)((color >> 16) & 0xff);
 					pixel[1] = (Uint8)((color >> 8) & 0xff);
 					pixel[2] = (Uint8)(color & 0xff);
@@ -1137,9 +1137,9 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 					pixel[1] = (Uint8)((color >> 8) & 0xff);
 					pixel[2] = (Uint8)((color >> 16) & 0xff);
 				#endif
-				y += dy; 
+				y += dy;
 				if (y >= dx) {
-					y -= dx; 
+					y -= dx;
 					pixel += pixy;
 				}
 			}
@@ -1149,9 +1149,9 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
    default: /* case 4 */
      for(; x < dx; x++, pixel += pixx) {
       *(Uint32*)pixel = color;
-      y += dy; 
+      y += dy;
       if (y >= dx) {
-       y -= dx; 
+       y -= dx;
        pixel += pixy;
       }
      }
@@ -1160,7 +1160,7 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
 
   /* Unlock surface */
   SDL_UnlockSurface(dst);
-  
+
   return 0;
 }
 
@@ -1328,7 +1328,7 @@ void DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 		return;
 
 	t = true;
-	
+
 	perform_line(bmp, x1, y1, x2, y2, color, BeamPutPixel);
 }
 
@@ -1367,7 +1367,7 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 		return;
 
 	t = true;
-	
+
 	perform_line(bmp, x1, y1, x2, y2, color, LaserSightPutPixel);
 }
 
@@ -1474,7 +1474,7 @@ bool SaveSurface(SDL_Surface *image, char *FileName, int Format, bool Tournament
   }
 
   // Free everything
-  gdFree(data);  
+  gdFree(data);
 
   gdImageDestroy(gd_image);
 

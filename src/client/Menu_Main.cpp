@@ -47,7 +47,7 @@ void Menu_MainInitialize(void)
 	// Create the buffer
 	assert(tMenu->bmpBuffer);
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpLieroXtreme, 320 - tMenu->bmpLieroXtreme->w/2, 10);	
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpLieroXtreme, 320 - tMenu->bmpLieroXtreme->w/2, 10);
     Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 
 	Menu_RedrawMouse(true);
@@ -77,11 +77,11 @@ void Menu_MainFrame(void)
 
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 50,160, 50,160, 320,290);
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,430, 20,430, 60,40);
-	
+
 	// Process the buttons
 	ev = cMainMenu.Process();
 	cMainMenu.Draw(tMenu->bmpScreen);
-	
+
 	int mouseover = false;
 	int img = lastimg;
 	int mouse = 0;
@@ -147,19 +147,19 @@ void Menu_MainFrame(void)
 				    return;
                 }
 				break;
-            
+
             // Quit
 			case mm_Quit:
                 if( ev->iEventMsg == BTN_MOUSEUP ) {
 			        PlaySoundSample(sfxGeneral.smpClick);
-				
+
                     cMainMenu.Draw(tMenu->bmpBuffer);
 
                     if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
 					    tMenu->iMenuRunning = false;
 					    cMainMenu.Shutdown();
 				    } else {
-				    
+
 					    // Create the buffer
 					    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
                         Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
@@ -184,7 +184,7 @@ void Menu_MainFrame(void)
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 410,260, 410,260, 200,64);
 
-		int y = 640 - (int)(alpha * 10.0f)*64;
+//		int y = 640 - (int)(alpha * 10.0f)*64;  // TODO: not used
 
 		switch(img) {
 			case 0:

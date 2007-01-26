@@ -53,7 +53,7 @@ void CServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 
 			cl->setPing(png);
 			cl->setLastPingTime(tLX->fCurTime);
-			
+
 		}
 		bResetPing = true;
 	}
@@ -78,7 +78,7 @@ void CServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 	cl->setLastReceived(tLX->fCurTime);
 
 	//player->SetLocalTime(ServerTime);
-	
+
 	// Parse the packet messages
 	ParsePacket(cl,bs);
 }
@@ -89,7 +89,7 @@ void CServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 void CServer::ParsePacket(CClient *cl, CBytestream *bs)
 {
 	uchar cmd;
-	
+
 	if(bs->GetLength()==0)
 		return;
 
@@ -210,7 +210,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	CBytestream byte;
 	int victim = bs->readInt(1);
 	int killer = bs->readInt(1);
-	
+
 	// Team names
 	char *TeamNames[] = {"blue", "red", "green", "yellow"};
 	int TeamCount[4];
@@ -237,7 +237,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	if(vict->getLives() < 0)
 		return;
 
-	
+
 	// Kill
 	if (strcmp(NetworkTexts->sKilled,"<none>"))  { // Take care of the <none> tag
 		if(killer != victim)  {
@@ -291,7 +291,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 			SendGlobalText(buf,TXT_NORMAL);
 		}
 		break;
-	case 5: 
+	case 5:
 		if (strncmp(NetworkTexts->sSpree2,"<none>",sizeof(NetworkTexts->sSpree2)))  {
 			replacemax(NetworkTexts->sSpree2,"<player>",kill->getName(),buf,1);
 			SendGlobalText(buf,TXT_NORMAL);
@@ -448,11 +448,11 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 	// Check if the max kills has been reached
 	if(iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills && !iGameOver) {
-		
+
 		// Game over (max kills reached)
 		byte.writeByte(S2C_GAMEOVER);
 		byte.writeInt(kill->getID(),1);
-		iGameOver = true;        	
+		iGameOver = true;
 		fGameOverTime = tLX->fCurTime;
 	}
 
@@ -486,7 +486,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	// Let everyone know that the worm is now dead
     byte.writeByte(S2C_WORMDOWN);
     byte.writeByte(victim);
-    
+
 
 	SendGlobalPacket(&byte);
 }
@@ -623,7 +623,7 @@ void CServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 void CServer::ParseConnectionlessPacket(CBytestream *bs)
 {
 	static char cmd[128];
-	bool valid = false;
+//	bool valid = false;   // TODO: not used
 
 	// This solves the problem with hosting!
 //	GetRemoteNetAddr(tSocket,&adrFrom);
@@ -673,7 +673,7 @@ void CServer::ParseGetChallenge(void)
 
 	// see if we already have a challenge for this ip
 	for(i=0;i<MAX_CHALLENGES;i++) {
-		
+
 		if(IsNetAddrValid(&tChallenges[i].Address)) {
 			if(AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
 				break;
@@ -688,12 +688,12 @@ void CServer::ParseGetChallenge(void)
 	}
 
 	if(ChallengeToSet >= 0) {
-		
+
 		// overwrite the oldest
 		tChallenges[ChallengeToSet].iNum = (rand() << 16) ^ rand();
 		tChallenges[ChallengeToSet].Address = adrFrom;
 		tChallenges[ChallengeToSet].fTime = tLX->fCurTime;
-		
+
 		i = ChallengeToSet;
 	}
 
@@ -730,14 +730,14 @@ void CServer::ParseConnect(CBytestream *bs)
 		return;
 
 	// User Info to get
-	
+
 	GetRemoteNetAddr(tSocket,&adrFrom);
 
 	// Read packet
 	ProtocolVersion = bs->readInt(1);
 	if(ProtocolVersion != PROTOCOL_VERSION) {
 		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);
-		
+
 		// Get the string to send
 		static char buf[256];
 		if (strcmp(NetworkTexts->sTeamHasWon,"<none>"))  {
@@ -781,7 +781,7 @@ void CServer::ParseConnect(CBytestream *bs)
 	iNetSpeed = MIN(iNetSpeed,3);
 	iNetSpeed = MAX(iNetSpeed,0);
 
-	
+
 	// Get user info
 	int numworms = bs->readInt(1);
 	MIN(numworms,MAX_PLAYERS-1);
@@ -879,7 +879,7 @@ void CServer::ParseConnect(CBytestream *bs)
 	for(p=0;p<MAX_WORMS;p++,w++) {
 		if(w->isUsed())
 			numplayers++;
-	}	
+	}
 
 	// Ran out of slots
 	if(!newcl) {
@@ -901,12 +901,12 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.writeString("%s",NetworkTexts->sServerFull);
 		bytestr.Send(tSocket);
 		return;
-	}	
+	}
 
 
 	// Connect
 	if(newcl) {
-		
+
 		newcl->setStatus(NET_CONNECTED);
 
 		// Set the worm info
@@ -917,14 +917,14 @@ void CServer::ParseConnect(CBytestream *bs)
 		int ids[MAX_PLAYERS];
 		int i;
 		for(i=0;i<numworms;i++) {
-			
+
 			w = cWorms;
 			for(p=0;p<MAX_WORMS;p++,w++) {
 				if(w->isUsed())
 					continue;
 
 				*w = worms[i];
-				w->setID(p);				
+				w->setID(p);
 				w->setClient(newcl);
 				w->setUsed(true);
 				w->setupLobby();
@@ -934,7 +934,7 @@ void CServer::ParseConnect(CBytestream *bs)
 			}
 		}
 
-		
+
 		iNumPlayers = numplayers+numworms;
 
 		// Let em know they connected good
@@ -1051,7 +1051,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		// Recolorize the nicks in lobby
 		iHost_Recolorize = true;
 
-		
+
 
 		// Client spawns when the game starts
 	}
@@ -1073,7 +1073,7 @@ void CServer::ParsePing(void)
 	bs.Clear();
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::pong");
-	
+
 	bs.Send(tSocket);
 }
 
@@ -1154,7 +1154,7 @@ void CServer::ParseGetInfo(void)
         bs.writeString("%s",sModName);
 	    bs.writeByte(iGameType);
 	    bs.writeShort(iLives);
-	    bs.writeShort(iMaxKills);        
+	    bs.writeShort(iMaxKills);
 	    bs.writeShort(iLoadingTimes);
         bs.writeByte(iBonusesOn);
     }
@@ -1164,7 +1164,7 @@ void CServer::ParseGetInfo(void)
         bs.writeString("%s",tGameInfo.sModName);
 	    bs.writeByte(tGameInfo.iGameType);
 	    bs.writeShort(tGameInfo.iLives);
-	    bs.writeShort(tGameInfo.iKillLimit);        
+	    bs.writeShort(tGameInfo.iKillLimit);
 	    bs.writeShort(tGameInfo.iLoadingTimes);
         bs.writeByte(tGameInfo.iBonusesOn);
 	}
@@ -1187,7 +1187,7 @@ void CServer::ParseGetInfo(void)
             bs.writeInt(w->getKills(), 2);
         }
     }
-   
+
 
 	bs.Send(tSocket);
 }

@@ -73,7 +73,7 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CButton(BUT_OK, tMenu->bmpButtons),   hs_Ok,			585,440,30, 15);
 
 	cHostPly.Add( new CListview(),							hs_PlayerList,	360,160,200,130);
-	cHostPly.Add( new CListview(),							hs_Playing,		360,310,200,70);	
+	cHostPly.Add( new CListview(),							hs_Playing,		360,310,200,70);
 	cHostPly.Add( new CLabel("Server name",	tLX->clNormalLabel),		-1,			40, 178,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_Servername,	175,175,140,20);
 	cHostPly.Add( new CLabel("Max Players",	tLX->clNormalLabel),		-1,			40,	208,0,  0);
@@ -83,7 +83,7 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CLabel("Welcome message",	tLX->clNormalLabel),		-1,			40, 238,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_WelcomeMessage, 175,235,140,20);
 	cHostPly.Add( new CLabel("Register Server",	tLX->clNormalLabel),	-1,			153, 268,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    hs_Register,	270,265,17, 17);    
+	cHostPly.Add( new CCheckbox(0),		                    hs_Register,	270,265,17, 17);
 	cHostPly.Add( new CLabel("Allow \"Wants join\" messages",	tLX->clNormalLabel),-1,	60, 298,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowWantsJoin,	270,295,17, 17);
 	cHostPly.Add( new CLabel("Allow bots in server",			tLX->clNormalLabel),-1,	110, 328,0,  0);
@@ -99,8 +99,8 @@ int Menu_Net_HostInitialize(void)
 
 	// Use previous settings
 	cHostPly.SendMessage( hs_MaxPlayers, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iMaxPlayers,buf,10), 0);
-	cHostPly.SendMessage( hs_Servername, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, 0);	
-	cHostPly.SendMessage( hs_WelcomeMessage, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, 0);	
+	cHostPly.SendMessage( hs_Servername, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, 0);
+	cHostPly.SendMessage( hs_WelcomeMessage, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, 0);
 	cHostPly.SendMessage( hs_Register,   CKM_SETCHECK, tLXOptions->tGameinfo.bRegServer, 0);
 	cHostPly.SendMessage( hs_AllowWantsJoin,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
 	cHostPly.SendMessage( hs_AllowRemoteBots,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
@@ -110,7 +110,7 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.SendMessage( hs_PlayerList,   LVM_ADDCOLUMN, (DWORD)"Players",22);
 	cHostPly.SendMessage( hs_PlayerList,   LVM_ADDCOLUMN, (DWORD)"",60);
 	cHostPly.SendMessage( hs_Playing,      LVM_ADDCOLUMN, (DWORD)"Playing",22);
-	cHostPly.SendMessage( hs_Playing,      LVM_ADDCOLUMN, (DWORD)"",60);	
+	cHostPly.SendMessage( hs_Playing,      LVM_ADDCOLUMN, (DWORD)"",60);
 
 	// Add players to the list
 	profile_t *p = GetProfiles();
@@ -225,7 +225,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						ply = FindProfile(index);
 
 						if(ply) {
-							lv2->AddItem("",index,tLX->clListView);					
+							lv2->AddItem("",index,tLX->clListView);
 							lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 							lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 						}
@@ -248,7 +248,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					ply = FindProfile(index);
 
 					if(ply) {
-						lv2->AddItem("",index,tLX->clListView);					
+						lv2->AddItem("",index,tLX->clListView);
 						lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
 					}
@@ -265,20 +265,20 @@ void Menu_Net_HostPlyFrame(int mouse)
 					if (lv->getItemCount() > 0 && lv->getItemCount() <= 2) {
 
 						tGameInfo.iNumPlayers = lv->getItemCount();
-						
-						// Fill in the game structure												
+
+						// Fill in the game structure
 						lv_item_t* item;
 						int count=0;
 
-						int i=0;
-		
+//						int i=0;  // TODO: not used
+
 						// Add the human players to the list
 						for(item = lv->getItems(); item != NULL; item = item->tNext) {
 							if(item->iIndex < 0)
 								continue;
 
 							profile_t *ply = FindProfile(item->iIndex);
-	
+
 							if(ply != NULL && ply->iType == PRF_HUMAN)  {
 								tGameInfo.cPlayers[count++] = ply;
 							}
@@ -290,25 +290,25 @@ void Menu_Net_HostPlyFrame(int mouse)
 								continue;
 
 							profile_t *ply = FindProfile(item->iIndex);
-	
+
 							if(ply != NULL && ply->iType != PRF_HUMAN)  {
 								tGameInfo.cPlayers[count++] = ply;
 							}
-						}			
-			
-			
+						}
+
+
 						// Get the server name
 						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)tGameInfo.sServername, sizeof(tGameInfo.sServername));
 						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)tGameInfo.sWelcomeMessage, sizeof(tGameInfo.sWelcomeMessage));
                         //cHostPly.SendMessage( hs_Password, TXM_GETTEXT, (DWORD)tGameInfo.sPassword, sizeof(tGameInfo.sPassword));
-						
+
 						// Save the info
 						static char buf[64];
 						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName));
 						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage));
                         //cHostPly.SendMessage( hs_Password, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.szPassword, sizeof(tLXOptions->tGameinfo.szPassword));
 						cHostPly.SendMessage( hs_MaxPlayers, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
-						
+
 						tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
 						// At least 2 players, and max 8
 						tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
@@ -498,8 +498,8 @@ void Menu_Net_HostLobbyCreateGui(void)
 
 	cHostLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),hl_Back,	15,  450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),hl_Start,	560, 450, 60,  15);
-	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);	
-	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);	
+	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);
+	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);
 	cHostLobby.Add( new CLabel("Players",tLX->clHeading),				  -1,		15,  15,  0,   0);
 	cHostLobby.Add( new CTextbox(),							  hl_ChatText, 15,  421, 610, 20);
     cHostLobby.Add( new CListview(),                          hl_ChatList, 15,  253, 610, 165);
@@ -529,7 +529,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	// Fill in the levels list
 	Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 	Menu_HostShowMinimap();
-    
+
     // Don't show chat box selection
     CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
     lv->setShowSelect(false);
@@ -546,7 +546,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 // Go straight to the lobby, without clearing the server & client
 void Menu_Net_HostGotoLobby(void)
 {
-	Uint32 blue = MakeColour(0,138,251);
+//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 
 	tGameInfo.iGameType = GME_HOST;
 	iNetMode = net_host;
@@ -581,7 +581,7 @@ void Menu_Net_HostGotoLobby(void)
 
     // Create the GUI
     Menu_Net_HostLobbyCreateGui();
-	
+
 	cServer->UpdateGameLobby();
 }
 
@@ -675,7 +675,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
                     lv->RemoveItem(lv->getItems()->iIndex);
             }
 
-            lv->scrollLast();           
+            lv->scrollLast();
 		}
 	}
 
@@ -689,12 +689,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
     // Draw the host lobby details
 	Menu_HostDrawLobby(tMenu->bmpScreen);
-	
+
 	// Process & Draw the gui
 	ev = cHostLobby.Process();
 	cHostLobby.Draw( tMenu->bmpScreen );
 
-	
+
 
 	// Process any events
 	if(ev) {
@@ -735,7 +735,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					static char buf[128];
 					cHostLobby.SendMessage(hl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
                     fix_markend(buf);
-                    
+
                     // Don't send empty messages
                     if(fix_strnlen(buf) == 0)
                         break;
@@ -759,7 +759,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			case hl_LevelList:
 				if(ev->iEventMsg == CMB_CHANGED) {
 					Menu_HostShowMinimap();
-					
+
 					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)cServer->getLobby()->szMapName, sizeof(cServer->getLobby()->szMapName));
 					cServer->UpdateGameLobby();
 				}
@@ -883,7 +883,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
                     // Get the game type
                     tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, 0, 0);
                     tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
-					
+
 					// Get the map name
 					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)tGameInfo.sMapname, sizeof(tGameInfo.sMapname));
 					// Save the current level in the options
@@ -895,11 +895,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 					// Start the game
 					cServer->StartGame();
-					
+
 					// Leave the frontend
 					*iGame = true;
 					tMenu->iMenuRunning = false;
-					tGameInfo.iGameType = GME_HOST;					
+					tGameInfo.iGameType = GME_HOST;
 
 					return;
 				}
@@ -1048,7 +1048,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 			// Used
 			case LBY_USED:
 
-                //                
+                //
                 // Draw the worm details
                 //
 
@@ -1085,10 +1085,10 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 				else
 					DrawImageAdv(bmpDest, tMenu->bmpLobbyState, 0,12,x+15,y-1,12,12);
 
-                // Worm		
+                // Worm
                 DrawImage(bmpDest, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(bmpDest, x+55, y-2, tLX->clNormalLabel,"%s", w->getName());    
-                
+				tLX->cFont.Draw(bmpDest, x+55, y-2, tLX->clNormalLabel,"%s", w->getName());
+
                 // Team
                 CWorm *sv_w = cServer->getWorms() + i;
                 sv_w->getLobby()->iTeam = l->iTeam;
@@ -1097,7 +1097,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
                     DrawImage(bmpDest, tMenu->bmpTeamColours[l->iTeam], x+200, y-2);
 
                     // Check if the team colour was clicked on
-                    if( MouseInRect(x+200, y-2, 18,16) && Mouse->Up ) {                        
+                    if( MouseInRect(x+200, y-2, 18,16) && Mouse->Up ) {
                         sv_w->getLobby()->iTeam = (l->iTeam+1) % 4;
 
                         // Send the worm state updates
@@ -1150,11 +1150,11 @@ void Menu_HostShowMinimap(void)
 	static char buf[256];
 	static char blah[256];
 
-	cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)buf, sizeof(buf));					
+	cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)buf, sizeof(buf));
 
 	// Draw a background over the old minimap
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 463,32,463,32,128,96);
-	
+
 	// Load the map
 	snprintf(blah, sizeof(blah), "levels/%s",buf);
 	fix_markend(blah);
@@ -1162,7 +1162,7 @@ void Menu_HostShowMinimap(void)
 
 		// Draw the minimap
 		map.UpdateMiniMap(true);
-		DrawImage(tMenu->bmpBuffer, map.GetMiniMap(), 463,32);		
+		DrawImage(tMenu->bmpBuffer, map.GetMiniMap(), 463,32);
 		map.Shutdown();
 	}
 
@@ -1178,7 +1178,7 @@ void Menu_Net_HostDeregister(void)
 	// If the server wasn't registered, just leave
 	if( !tLXOptions->tGameinfo.bRegServer )
 		return;
-	
+
 	// Initialize the request
 	if( !cServer->DeRegisterServer() )
 		return;
@@ -1256,19 +1256,19 @@ enum {
 // Initialize the server settings window
 void Menu_ServerSettings(void)
 {
-	Uint32 blue = MakeColour(0,138,251);
+//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,130,120,130, 400,200);
 	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,325, 0, 200);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,325);
 
-    CListview *tListBox = new CListview();
+ //   CListview *tListBox = new CListview();  // TODO: not used?
 
 	Menu_RedrawMouse(true);
 
 	cServerSettings.Initialize();
-	cServerSettings.Add( new CLabel("Server settings", tLX->clNormalLabel),		  -1,        275,140,  0, 0);	
+	cServerSettings.Add( new CLabel("Server settings", tLX->clNormalLabel),		  -1,        275,140,  0, 0);
     cServerSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  ss_Ok,	 360,300,  60,15);
 	cServerSettings.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),  ss_Cancel, 220,300,  70,15);
 	cServerSettings.Add( new CLabel("Server name:", tLX->clNormalLabel),		  -1,        130,165,  0, 0);
@@ -1330,7 +1330,7 @@ bool Menu_ServerSettings_Frame(void)
 					cServerSettings.SendMessage(ss_WelcomeMessage,TXM_GETTEXT, (DWORD) tGameInfo.sWelcomeMessage, sizeof(tGameInfo.sWelcomeMessage));
 					cServerSettings.SendMessage(ss_ServerName, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName));
 					cServerSettings.SendMessage(ss_WelcomeMessage, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage));
-			
+
 					char buf[5];
 					cServerSettings.SendMessage(ss_MaxPlayers, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
 					fix_markend(buf);
@@ -1367,13 +1367,13 @@ bool Menu_ServerSettings_Frame(void)
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
-	
+
 	return false;
 }
 
 void Menu_ServerSettingsShutdown(void)
 {
-	cServerSettings.Shutdown();	
+	cServerSettings.Shutdown();
 }
 
 /*
@@ -1403,7 +1403,7 @@ enum {
 // Initialize the ban list window
 void Menu_BanList(void)
 {
-	Uint32 blue = MakeColour(0,138,251);
+//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 
 	// Setup the buffer
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,130,120,130, 400,320);
@@ -1415,13 +1415,13 @@ void Menu_BanList(void)
 	Menu_RedrawMouse(true);
 
 	cBanListGui.Initialize();
-	cBanListGui.Add( new CLabel("Ban List", tLX->clNormalLabel),     -1,        275,135,  0, 0);	
+	cBanListGui.Add( new CLabel("Ban List", tLX->clNormalLabel),     -1,        275,135,  0, 0);
     cBanListGui.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  bl_Close,   400,420, 60,15);
     cBanListGui.Add( new CButton(BUT_CLEAR, tMenu->bmpButtons),	  bl_Clear,     180,420, 60,15);
 	cBanListGui.Add( new CButton(BUT_UNBAN, tMenu->bmpButtons),	  bl_Unban,     260,420, 60,15);
 	cBanListGui.Add( tListBox,									  bl_ListBox,125,155, 380,260);
 
-	
+
 	tListBox->AddColumn("IP Address",130);
 	tListBox->AddColumn("Nick",160);
 
@@ -1430,7 +1430,7 @@ void Menu_BanList(void)
 
 	// Load the list
 	cBanList = cServer->getBanList();
-	
+
 	tListBox->Clear();
 	banlist_t *item;
 	for (int i=0;i<(*cBanList).getNumItems(); i++)  {
@@ -1452,7 +1452,7 @@ bool Menu_BanList_Frame(void)
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
-    Uint32 blue = MakeColour(0,138,251);
+//    Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 	CListview *tListBox = (CListview *)cBanListGui.getWidget(bl_ListBox);
 
 
@@ -1476,7 +1476,7 @@ bool Menu_BanList_Frame(void)
 			case bl_Close:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					Menu_BanListShutdown();						
+					Menu_BanListShutdown();
 
 					return true;
 				}
@@ -1489,7 +1489,7 @@ bool Menu_BanList_Frame(void)
 
 						(*cBanList).removeBanned(tListBox->getCurSub()->sText);
 
-						tListBox->RemoveItem(tListBox->getCurIndex());							
+						tListBox->RemoveItem(tListBox->getCurIndex());
 					}
 				}
 				break;
@@ -1507,7 +1507,7 @@ bool Menu_BanList_Frame(void)
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
-	
+
 	return false;
 }
 

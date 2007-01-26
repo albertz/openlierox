@@ -23,11 +23,18 @@
 </p>
 <p>
 	<h2>Downloads</h2>
-	<a href="OpenLieroX_0.57.src.zip">OpenLieroX 0.57 Source zip</a><br>
-	<a href="OpenLieroX_0.57.src.tar.bz">OpenLieroX 0.57 Source tar.bz</a><br>	
-	<a href="OpenLieroX_0.57.win32.zip">OpenLieroX 0.57 Win32 binary zip</a><br>
+	<b>current version</b> (WARNING: this is not a fixed one, it will be
+	updated from time to time)</br>
+	<a href="OpenLieroX_0.57_cur.src.zip">OpenLieroX Source zip</a><br>
+	<a href="OpenLieroX_0.57_cur.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
+	<a href="OpenLieroX_0.57_cur.win32.zip">OpenLieroX Win32 binary zip</a><br>
+	<b>0.57-beta1</b> (released 2006-01-26)<br>
+	<a href="OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
+	<a href="OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
+	<a href="OpenLieroX_0.57_beta1.win32.zip">OpenLieroX Win32 binary zip</a><br>	
+	<a href="games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
+	<b>other things</b><br>
 	<a href="lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
-	<a href="games-action/openlierox/openlierox-0.57.ebuild">Gentoo OpenLieroX ebuild</a>
 </p>
 <p>
 	<h2>Installation under Gentoo</h2>
@@ -85,7 +92,8 @@
 <p>
 	<h2>Links</h2>
 	<a href="http://sourceforge.net/projects/openlierox/">SourceForge project-site</a><br>
-	<a href="http://lxalliance.net/lierox/">official LieroX site</a>
+	<a href="http://lxalliance.net/lierox/">official LieroX site</a><br>
+	<a href="http://www.az2000.de/projects/openlierox">special project-site</a>, hosted by Albert Zeyer
 </p>
 </body>
 </html>

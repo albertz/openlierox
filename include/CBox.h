@@ -13,7 +13,7 @@
 // Event types
 enum {
 	BOX_NOEVENT=-2,
-	BOX_NONE=-1,
+	BOX_NONE=-1
 };
 
 
@@ -70,7 +70,7 @@ public:
 	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
 
 	int		CheckEvent(void);
-    
+
 	void	PreDraw(void);
 	void	Draw(SDL_Surface *bmpDest);
 
