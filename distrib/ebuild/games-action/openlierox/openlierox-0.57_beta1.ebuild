@@ -7,17 +7,17 @@ inherit eutils games toolchain-funcs
 DESCRIPTION="OpenLieroX is a real-time excessive Worms-clone"
 HOMEPAGE="http://openlierox.sourceforge.net/"
 SRC_URI="
-	mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.zip
+	mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.tar.bz
 	mirror://sourceforge/openlierox/lx0.56_pack1.9.zip
 	mirror://sourceforge/openlierox/another_lx_pack_2007_01_05.zip
-	http://openlierox.sourceforge.net/OpenLieroX_${PV}.src.zip
+	http://openlierox.sourceforge.net/OpenLieroX_${PV}.src.tar.bz
 	http://openlierox.sourceforge.net/lx0.56_pack1.9.zip
 	http://openlierox.sourceforge.net/another_lx_pack_2007_01_05.zip"
 
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
-IUSE=""
+IUSE="debug"
 
 RDEPEND="media-libs/libsdl
 	media-libs/sdl-mixer
@@ -50,6 +50,7 @@ src_compile() {
 	# the compile.sh will also use the CXXFLAGS
 	SYSTEM_DATA_DIR="${GAMES_DATADIR}" \
 	COMPILER=$(tc-getCXX) \
+	DEBUG=$(use debug && echo 1 || echo 0) \
 	./compile.sh
 }
 
