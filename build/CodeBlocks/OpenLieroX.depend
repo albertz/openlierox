@@ -1,0 +1,706 @@
+# depslib dependency file v1.0
+1169839911 source:/home/az/Programmierung/openlierox/src/client/AuxLib.cpp
+	"defs.h"
+	<SDL/SDL_syswm.h>
+	"LieroX.h"
+	"Menu.h"
+
+1169760459 /home/az/Programmierung/openlierox/include/defs.h
+	<assert.h>
+	<stdio.h>
+	<stdlib.h>
+	<stdarg.h>
+	<string.h>
+	<math.h>
+	<time.h>
+	<ctype.h>
+	<string>
+	<windows.h>
+	<io.h>
+	<direct.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<sys/dir.h>
+	<unistd.h>
+	<SDL/SDL.h>
+	<SDL/SDL_image.h>
+	<SDL/SDL_thread.h>
+	<nl.h>
+	<endian.h>
+	"Networking.h"
+	<libxml/xmlmemory.h>
+	<libxml/parser.h>
+	"types.h"
+	"AuxLib.h"
+	"Cache.h"
+	"Error.h"
+	"GfxPrimitives.h"
+	"Timer.h"
+	"CInput.h"
+	"CVec.h"
+	"CBytestream.h"
+	"CChannel.h"
+	"ConfigHandler.h"
+	"MathLib.h"
+	"CFont.h"
+	"FindFile.h"
+	"CssParser.h"
+
+1167590177 /home/az/Programmierung/openlierox/include/Networking.h
+
+1153020076 /usr/include/libxml2/libxml/xmlmemory.h
+	<stdio.h>
+	<libxml/xmlversion.h>
+	<libxml/threads.h>
+	<libxml/globals.h>
+
+1153020076 /usr/include/libxml2/libxml/xmlversion.h
+	<libxml/xmlexports.h>
+	<ansidecl.h>
+
+1153020076 /usr/include/libxml2/libxml/xmlexports.h
+
+1153020076 /usr/include/libxml2/libxml/threads.h
+	<libxml/xmlversion.h>
+	<libxml/globals.h>
+
+1153020076 /usr/include/libxml2/libxml/globals.h
+	<libxml/xmlversion.h>
+	<libxml/parser.h>
+	<libxml/xmlerror.h>
+	<libxml/SAX.h>
+	<libxml/SAX2.h>
+	<libxml/xmlmemory.h>
+	<libxml/threads.h>
+
+1153020076 /usr/include/libxml2/libxml/parser.h
+	<stdarg.h>
+	<libxml/xmlversion.h>
+	<libxml/tree.h>
+	<libxml/dict.h>
+	<libxml/hash.h>
+	<libxml/valid.h>
+	<libxml/entities.h>
+	<libxml/xmlerror.h>
+	<libxml/xmlstring.h>
+	<libxml/encoding.h>
+	<libxml/xmlIO.h>
+	<libxml/globals.h>
+
+1153020076 /usr/include/libxml2/libxml/tree.h
+	<stdio.h>
+	<libxml/xmlversion.h>
+	<libxml/xmlstring.h>
+	<libxml/xmlregexp.h>
+	<libxml/xmlmemory.h>
+
+1153020076 /usr/include/libxml2/libxml/xmlstring.h
+	<stdarg.h>
+	<libxml/xmlversion.h>
+
+1153020076 /usr/include/libxml2/libxml/xmlregexp.h
+	<libxml/xmlversion.h>
+	<libxml/tree.h>
+	<libxml/dict.h>
+
+1153020076 /usr/include/libxml2/libxml/dict.h
+	<libxml/xmlversion.h>
+	<libxml/tree.h>
+
+1153020076 /usr/include/libxml2/libxml/hash.h
+	<libxml/xmlversion.h>
+	<libxml/parser.h>
+	<libxml/dict.h>
+
+1153020076 /usr/include/libxml2/libxml/valid.h
+	<libxml/xmlversion.h>
+	<libxml/xmlerror.h>
+	<libxml/tree.h>
+	<libxml/list.h>
+	<libxml/xmlautomata.h>
+	<libxml/xmlregexp.h>
+
+1153020076 /usr/include/libxml2/libxml/xmlerror.h
+	<libxml/parser.h>
+
+1153020076 /usr/include/libxml2/libxml/list.h
+	<libxml/xmlversion.h>
+
+1153020076 /usr/include/libxml2/libxml/xmlautomata.h
+	<libxml/xmlversion.h>
+	<libxml/tree.h>
+	<libxml/xmlregexp.h>
+
+1153020076 /usr/include/libxml2/libxml/entities.h
+	<libxml/xmlversion.h>
+	<libxml/tree.h>
+
+1153020076 /usr/include/libxml2/libxml/encoding.h
+	<libxml/xmlversion.h>
+	<iconv.h>
+	<libxml/tree.h>
+
+1153020076 /usr/include/libxml2/libxml/xmlIO.h
+	<stdio.h>
+	<libxml/xmlversion.h>
+	<libxml/globals.h>
+	<libxml/tree.h>
+	<libxml/parser.h>
+	<libxml/encoding.h>
+
+1153020076 /usr/include/libxml2/libxml/SAX.h
+	<stdio.h>
+	<stdlib.h>
+	<libxml/xmlversion.h>
+	<libxml/parser.h>
+	<libxml/xlink.h>
+
+1153020076 /usr/include/libxml2/libxml/xlink.h
+	<libxml/xmlversion.h>
+	<libxml/tree.h>
+
+1153020076 /usr/include/libxml2/libxml/SAX2.h
+	<stdio.h>
+	<stdlib.h>
+	<libxml/xmlversion.h>
+	<libxml/parser.h>
+	<libxml/xlink.h>
+
+1162659264 /home/az/Programmierung/openlierox/include/types.h
+
+1169760459 /home/az/Programmierung/openlierox/include/AuxLib.h
+
+1167591121 /home/az/Programmierung/openlierox/include/Cache.h
+
+1166890818 /home/az/Programmierung/openlierox/include/Error.h
+	<dbghelp.h>
+
+1169842539 /home/az/Programmierung/openlierox/include/GfxPrimitives.h
+
+1162044053 /home/az/Programmierung/openlierox/include/Timer.h
+
+1162044053 /home/az/Programmierung/openlierox/include/CInput.h
+
+1169760459 /home/az/Programmierung/openlierox/include/CVec.h
+
+1167699367 /home/az/Programmierung/openlierox/include/CBytestream.h
+
+1165432433 /home/az/Programmierung/openlierox/include/CChannel.h
+
+1169760459 /home/az/Programmierung/openlierox/include/ConfigHandler.h
+
+1166136482 /home/az/Programmierung/openlierox/include/MathLib.h
+
+1169760459 /home/az/Programmierung/openlierox/include/CFont.h
+
+1169760459 /home/az/Programmierung/openlierox/include/FindFile.h
+
+1164471687 /home/az/Programmierung/openlierox/include/CssParser.h
+
+1169760459 /home/az/Programmierung/openlierox/include/LieroX.h
+	<stdlib.h>
+	<crtdbg.h>
+	"ProfileSystem.h"
+	"Networking.h"
+	"CGameScript.h"
+	"CChatBox.h"
+	"Frame.h"
+	"CViewport.h"
+	"CMap.h"
+	"CSimulation.h"
+	"CNinjaRope.h"
+	"Command.h"
+	"CBonus.h"
+	"CWpnRest.h"
+	"CWorm.h"
+	"CProjectile.h"
+	"CShootList.h"
+	"Entity.h"
+	"CWeather.h"
+	"CClient.h"
+	"CServer.h"
+	"Sounds.h"
+	"Graphics.h"
+	"Protocol.h"
+	"Options.h"
+
+1162044053 /home/az/Programmierung/openlierox/include/ProfileSystem.h
+
+1167591786 /home/az/Programmierung/openlierox/include/CGameScript.h
+
+1162044052 /home/az/Programmierung/openlierox/include/CChatBox.h
+
+1162044053 /home/az/Programmierung/openlierox/include/Frame.h
+
+1162044053 /home/az/Programmierung/openlierox/include/CViewport.h
+
+1169760459 /home/az/Programmierung/openlierox/include/CMap.h
+	"ReadWriteLock.h"
+
+1169760459 /home/az/Programmierung/openlierox/include/ReadWriteLock.h
+	<SDL/SDL_thread.h>
+
+1162044053 /home/az/Programmierung/openlierox/include/CSimulation.h
+
+1166718631 /home/az/Programmierung/openlierox/include/CNinjaRope.h
+
+1162044053 /home/az/Programmierung/openlierox/include/Command.h
+
+1162044052 /home/az/Programmierung/openlierox/include/CBonus.h
+
+1162044053 /home/az/Programmierung/openlierox/include/CWpnRest.h
+
+1169760459 /home/az/Programmierung/openlierox/include/CWorm.h
+	"CProjectile.h"
+
+1169760459 /home/az/Programmierung/openlierox/include/CProjectile.h
+
+1162044053 /home/az/Programmierung/openlierox/include/CShootList.h
+
+1162044053 /home/az/Programmierung/openlierox/include/Entity.h
+
+1162044052 /home/az/Programmierung/openlierox/include/CWeather.h
+
+1169760459 /home/az/Programmierung/openlierox/include/CClient.h
+
+1167593011 /home/az/Programmierung/openlierox/include/CServer.h
+	"CBanList.h"
+
+1162044053 /home/az/Programmierung/openlierox/include/CBanList.h
+
+1164471687 /home/az/Programmierung/openlierox/include/Sounds.h
+	"CViewport.h"
+	"CMap.h"
+	<SDL/SDL_mixer.h>
+
+1167887552 /home/az/Programmierung/openlierox/include/Graphics.h
+
+1162044052 /home/az/Programmierung/openlierox/include/Protocol.h
+
+1169760459 /home/az/Programmierung/openlierox/include/Options.h
+
+1169839780 /home/az/Programmierung/openlierox/include/Menu.h
+	"CWidget.h"
+	"CGuiLayout.h"
+	"CWidgetList.h"
+	"CTitleButton.h"
+	"CButton.h"
+	"CScrollbar.h"
+	"CListview.h"
+	"CTextbox.h"
+	"CLabel.h"
+	"CLine.h"
+	"CSlider.h"
+	"CCheckbox.h"
+	"CInputBox.h"
+	"CBrowser.h"
+	"CCombobox.h"
+	"CMenu.h"
+	"CImage.h"
+	"CBox.h"
+
+1169840018 /home/az/Programmierung/openlierox/include/CWidget.h
+
+1162917234 /home/az/Programmierung/openlierox/include/CGuiLayout.h
+
+1162659724 /home/az/Programmierung/openlierox/include/CWidgetList.h
+
+1169839754 /home/az/Programmierung/openlierox/include/CTitleButton.h
+
+1163147304 /home/az/Programmierung/openlierox/include/CButton.h
+
+1169758079 /home/az/Programmierung/openlierox/include/CScrollbar.h
+
+1169839701 /home/az/Programmierung/openlierox/include/CListview.h
+
+1167778496 /home/az/Programmierung/openlierox/include/CTextbox.h
+
+1167709297 /home/az/Programmierung/openlierox/include/CLabel.h
+
+1163147304 /home/az/Programmierung/openlierox/include/CLine.h
+
+1163147304 /home/az/Programmierung/openlierox/include/CSlider.h
+
+1164471687 /home/az/Programmierung/openlierox/include/CCheckbox.h
+
+1167592937 /home/az/Programmierung/openlierox/include/CInputBox.h
+
+1163147304 /home/az/Programmierung/openlierox/include/CBrowser.h
+
+1169760459 /home/az/Programmierung/openlierox/include/CCombobox.h
+
+1163147304 /home/az/Programmierung/openlierox/include/CMenu.h
+
+1169839771 /home/az/Programmierung/openlierox/include/CImage.h
+
+1169839775 /home/az/Programmierung/openlierox/include/CBox.h
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/CBox.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1166796300 source:/home/az/Programmierung/openlierox/src/client/CButton.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1167587333 source:/home/az/Programmierung/openlierox/src/client/CChatBox.cpp
+	"defs.h"
+	"LieroX.h"
+
+1164471688 source:/home/az/Programmierung/openlierox/src/client/CCheckbox.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1165811766 source:/home/az/Programmierung/openlierox/src/client/CClient_Send.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/CFont.cpp
+	"defs.h"
+	"LieroX.h"
+
+1167586596 source:/home/az/Programmierung/openlierox/src/client/CImage.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169842953 source:/home/az/Programmierung/openlierox/src/client/CInput.cpp
+	"defs.h"
+
+1162044055 source:/home/az/Programmierung/openlierox/src/client/CInputBox.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169843041 source:/home/az/Programmierung/openlierox/src/client/CListview.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1167586522 source:/home/az/Programmierung/openlierox/src/client/CMenu.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169842970 source:/home/az/Programmierung/openlierox/src/client/CNinjaRope.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/CScrollbar.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1162044055 source:/home/az/Programmierung/openlierox/src/client/CSlider.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/CTextbox.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1162044055 source:/home/az/Programmierung/openlierox/src/client/CTitleButton.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/CViewport.cpp
+	"defs.h"
+	"LieroX.h"
+
+1166010453 source:/home/az/Programmierung/openlierox/src/client/CWeather.cpp
+	"defs.h"
+	"LieroX.h"
+
+1167666388 source:/home/az/Programmierung/openlierox/src/client/CWidget.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1167590704 source:/home/az/Programmierung/openlierox/src/client/CWidgetList.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/Cache.cpp
+	"defs.h"
+	"LieroX.h"
+	"Sounds.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/Entity.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/Error.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169843029 source:/home/az/Programmierung/openlierox/src/client/GfxPrimitives.cpp
+	"defs.h"
+	"LieroX.h"
+	<gd.h>
+
+1169843086 source:/home/az/Programmierung/openlierox/src/client/Graphics.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169843138 source:/home/az/Programmierung/openlierox/src/client/MenuSystem.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169843152 source:/home/az/Programmierung/openlierox/src/client/Menu_Local.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+	"CListview.h"
+
+1169843157 source:/home/az/Programmierung/openlierox/src/client/Menu_Main.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/Menu_Mapeditor.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1167778496 source:/home/az/Programmierung/openlierox/src/client/Menu_Net.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169843219 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Favourites.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169845076 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Host.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169842689 source:/home/az/Programmierung/openlierox/src/client/CBrowser.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169842702 source:/home/az/Programmierung/openlierox/src/client/CClient_Game.cpp
+	"defs.h"
+	"LieroX.h"
+	"console.h"
+
+1169760459 /home/az/Programmierung/openlierox/include/console.h
+	"con_cmd.h"
+
+1166854253 /home/az/Programmierung/openlierox/include/con_cmd.h
+
+1169842705 source:/home/az/Programmierung/openlierox/src/client/CClient_Parse.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+	"console.h"
+
+1169842711 source:/home/az/Programmierung/openlierox/src/client/CCombobox.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169842758 source:/home/az/Programmierung/openlierox/src/client/CGuiLayout.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169842833 source:/home/az/Programmierung/openlierox/src/client/CClient_Draw.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+	"console.h"
+
+1169843215 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Internet.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1167533495 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Main.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1164998917 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_News.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169843366 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Join.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169843322 source:/home/az/Programmierung/openlierox/src/client/Menu_Net_Lan.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169843358 source:/home/az/Programmierung/openlierox/src/client/Menu_Options.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/client/ProfileSystem.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1167591886 source:/home/az/Programmierung/openlierox/src/common/CBonus.cpp
+	"defs.h"
+	"LieroX.h"
+
+1167745469 source:/home/az/Programmierung/openlierox/src/common/CBytestream.cpp
+	"defs.h"
+
+1164938312 source:/home/az/Programmierung/openlierox/src/common/CChannel.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169759504 source:/home/az/Programmierung/openlierox/src/common/CClient.cpp
+	"defs.h"
+	"LieroX.h"
+	"console.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/common/CGameScript.cpp
+	"defs.h"
+	"LieroX.h"
+
+1166010565 source:/home/az/Programmierung/openlierox/src/common/CShootList.cpp
+	"defs.h"
+	"LieroX.h"
+
+1162044053 source:/home/az/Programmierung/openlierox/src/common/CSimulation.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/common/CWorm.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/common/CWorm_SendRecv.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169845169 source:/home/az/Programmierung/openlierox/src/common/CWorm_Simulate.cpp
+	"defs.h"
+	"LieroX.h"
+
+1167745548 source:/home/az/Programmierung/openlierox/src/common/CWpnRest.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/common/Command.cpp
+	"defs.h"
+	"LieroX.h"
+	"console.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/common/ConfigHandler.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169845510 source:/home/az/Programmierung/openlierox/src/common/Console.cpp
+	"defs.h"
+	"LieroX.h"
+	"console.h"
+
+1169846069 source:/home/az/Programmierung/openlierox/src/common/CssParser.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169845615 source:/home/az/Programmierung/openlierox/src/common/FindFile.cpp
+	"defs.h"
+	"LieroX.h"
+	<shlobj.h>
+
+1167535815 source:/home/az/Programmierung/openlierox/src/common/MathLib.cpp
+	"defs.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/common/Misc.cpp
+	"defs.h"
+	"LieroX.h"
+
+1167593195 source:/home/az/Programmierung/openlierox/src/common/Networking.cpp
+	"defs.h"
+	"LieroX.h"
+	"RandomNumberList.h"
+
+1162044053 /home/az/Programmierung/openlierox/include/RandomNumberList.h
+
+1166807727 source:/home/az/Programmierung/openlierox/src/common/Timer.cpp
+	"defs.h"
+
+1166858209 source:/home/az/Programmierung/openlierox/src/common/sex.cpp
+	"defs.h"
+
+1169760460 source:/home/az/Programmierung/openlierox/src/main.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+	"console.h"
+	<sys/dir.h>
+	<sys/stat.h>
+
+1167667531 source:/home/az/Programmierung/openlierox/src/server/CBanList.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169845650 source:/home/az/Programmierung/openlierox/src/server/CServer.cpp
+	"defs.h"
+	"LieroX.h"
+	"console.h"
+	"CBanList.h"
+
+1169845670 source:/home/az/Programmierung/openlierox/src/server/CServer_Game.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169845729 source:/home/az/Programmierung/openlierox/src/server/CServer_Parse.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169760459 source:/home/az/Programmierung/openlierox/src/server/CServer_Send.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169843420 source:/home/az/Programmierung/openlierox/src/client/Menu_Player.cpp
+	"defs.h"
+	"LieroX.h"
+	"Menu.h"
+
+1169843447 source:/home/az/Programmierung/openlierox/src/client/Options.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169843488 source:/home/az/Programmierung/openlierox/src/client/Sounds.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169843671 source:/home/az/Programmierung/openlierox/src/common/CMap.cpp
+	"defs.h"
+	"LieroX.h"
+	<zlib.h>
+
+1169843675 source:/home/az/Programmierung/openlierox/src/common/CProjectile.cpp
+	"defs.h"
+	"LieroX.h"
+
+1169844536 source:/home/az/Programmierung/openlierox/src/common/CWorm_AI.cpp
+	<set>
+	<list>
+	"defs.h"
+	"LieroX.h"
+
