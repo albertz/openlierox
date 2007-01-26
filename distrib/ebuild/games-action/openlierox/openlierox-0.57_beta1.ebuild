@@ -5,9 +5,14 @@
 inherit eutils games toolchain-funcs
 
 DESCRIPTION="OpenLieroX is a real-time excessive Worms-clone"
-HOMEPAGE="http://sourceforge.net/projects/openlierox/"
-SRC_URI="http://openlierox.sourceforge.net/OpenLieroX_${PV}.src.zip
-	http://openlierox.sourceforge.net/lx0.56_pack1.9.zip"
+HOMEPAGE="http://openlierox.sourceforge.net/"
+SRC_URI="
+	mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.zip
+	mirror://sourceforge/openlierox/lx0.56_pack1.9.zip
+	mirror://sourceforge/openlierox/another_lx_pack_2007_01_05.zip
+	http://openlierox.sourceforge.net/OpenLieroX_${PV}.src.zip
+	http://openlierox.sourceforge.net/lx0.56_pack1.9.zip
+	http://openlierox.sourceforge.net/another_lx_pack_2007_01_05.zip"
 
 LICENSE="LGPL-2"
 SLOT="0"
@@ -33,6 +38,7 @@ src_unpack() {
 	mkdir -p ${S}/share/gamedir/packtmp && \
 	cd ${S}/share/gamedir/packtmp && \
 	unpack lx0.56_pack1.9.zip && \
+	unpack another_lx_pack_2007_01_05.zip && \
 	cp -a * .. && cd .. && rm -rf packtmp \
 		|| die "cannot unpack the LieroX Pack"
 }
