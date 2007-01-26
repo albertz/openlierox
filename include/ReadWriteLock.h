@@ -11,46 +11,66 @@
 
 class ReadWriteLock {
 private:
-	SDL_mutex* writeMutex;
-	SDL_mutex* readCounterMutex;
+	SDL_mutex* mutex;
 	unsigned int readCounter;
-		
+	unsigned short writerWaitingFlag;
+
 public:
 	ReadWriteLock() {
 		readCounter = 0;
-        writeMutex = SDL_CreateMutex();
-		readCounterMutex = SDL_CreateMutex();
+		writerWaitingFlag = 0;
+		mutex = SDL_CreateMutex();
 	}
-	
-	~ReadWriteLock() {		
+
+	~ReadWriteLock() {
 		if(readCounter)
 			printf("WARNING: destroying ReadWriteLock with positive readCounter!\n");
-		SDL_DestroyMutex(readCounterMutex);
-		SDL_DestroyMutex(writeMutex);	
+		SDL_DestroyMutex(mutex);
 	}
-	
+
 	inline void startReadAccess() {
-		SDL_mutexP(readCounterMutex);
-		if(readCounter == 0) SDL_mutexP(writeMutex);
-		readCounter++;		
-		SDL_mutexV(readCounterMutex);
+		SDL_mutexP(mutex);
+
+		// wait for any writer in the queue
+		while(writerWaitingFlag) {
+		    SDL_mutexV(mutex);
+            SDL_Delay(1);
+		    SDL_mutexP(mutex);
+		}
+
+		readCounter++;
+		SDL_mutexV(mutex);
 	}
-	
+
 	inline void endReadAccess() {
-		SDL_mutexP(readCounterMutex);
+		SDL_mutexP(mutex);
 		readCounter--;
-		if(readCounter == 0) SDL_mutexV(writeMutex);
-		SDL_mutexV(readCounterMutex);
+		SDL_mutexV(mutex);
 	}
 
 	inline void startWriteAccess() {
-		SDL_mutexP(writeMutex);
+		SDL_mutexP(mutex);
+		// wait for other writers
+		while(writerWaitingFlag) {
+		    SDL_mutexV(mutex);
+            SDL_Delay(1);
+		    SDL_mutexP(mutex);
+		}
+        writerWaitingFlag = 1;
+
+        // wait for other readers
+        while(readCounter) {
+            SDL_mutexV(mutex);
+            SDL_Delay(1);
+            SDL_mutexP(mutex);
+        }
 	}
 
 	inline void endWriteAccess() {
-		SDL_mutexV(writeMutex);	
+        writerWaitingFlag = 0;
+		SDL_mutexV(mutex);
 	}
-	
+
 };
 
 #endif // __READWRITELOCK_H__
