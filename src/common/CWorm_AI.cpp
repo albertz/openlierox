@@ -2525,7 +2525,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 
 		// how long it takes for hitting the target
 		float apriori_time = v ? sqrt(x*x + y*y) / v : 0;
-		apriori_time *= 0.5f; // it's no direct line but a polynom, so this could give better results :)
+		apriori_time *= 0.7f; // it's no direct line but a polynom, so this could give better results :)
 		if(apriori_time < 0) {
 			// target is faster than the projectile
 			// shoot somewhere in the other direction

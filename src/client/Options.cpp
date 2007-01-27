@@ -78,6 +78,12 @@ int LoadOptions(void)
 		}
 	}
 
+    printf("HINT: searchpaths will be (in this direction):\n");
+	for(spath = &tLXOptions->tSearchPaths; *spath != NULL; spath = &(*spath)->next)  {
+        printf("  %s\n", (*spath)->filename);
+	}
+
+
 	for (i=0;i<sizeof(tLXOptions->iInternetList)/sizeof(int);i++)  {
 		tLXOptions->iInternetList[i] = def_widths[i];
 		tLXOptions->iLANList[i] = def_widths[i];

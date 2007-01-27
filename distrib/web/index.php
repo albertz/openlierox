@@ -23,18 +23,23 @@
 </p>
 <p>
 	<h2>Downloads</h2>
+	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059">
+	Download from SourceForge-mirros</a><br>
+	<br>
+	<b>0.57_beta1</b> (released 2007-01-27)<br>
+	<a href="OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
+	<a href="OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
+	<a href="games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
+	<br>
+	<b>other nice things</b><br>
+	<a href="lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
+	<a href="another_lx_pack_2007_01_05.zip">another LX Pack (2007-01-05)</a><br>
+	<br>
 	<b>current version</b> (WARNING: this is not a fixed one, it will be
 	updated from time to time)</br>
-	<a href="OpenLieroX_0.57_cur.src.zip">OpenLieroX Source zip</a><br>
 	<a href="OpenLieroX_0.57_cur.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
-	<a href="OpenLieroX_0.57_cur.win32.zip">OpenLieroX Win32 binary zip</a><br>
-	<b>0.57-beta1</b> (released 2006-01-26)<br>
-	<a href="OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
-	<a href="OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
-	<a href="OpenLieroX_0.57_beta1.win32.zip">OpenLieroX Win32 binary zip</a><br>	
-	<a href="games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
-	<b>other things</b><br>
-	<a href="lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
+	<a href="OpenLieroX_0.57_cur.src.zip">OpenLieroX Source zip</a><br>
+	<a href="OpenLieroX_0.57_cur.win32.zip">OpenLieroX Win32 binary zip</a>
 </p>
 <p>
 	<h2>Installation under Gentoo</h2>
@@ -45,7 +50,7 @@
 		cd /usr/portage
 		mkdir -p games-action/openlierox
 		cd games-action/openlierox
-		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57.ebuild
+		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta1.ebuild
 		echo "games-action/openlierox ~x86" >> /etc/portage/package.keywords
 		FEATURES="-strict" emerge openlierox
 	</pre>
@@ -90,10 +95,17 @@
 	~/.OpenLieroX.
 </p>
 <p>
+	<h2>Contact</h2>
+	If you like to write any comments, bug reports or anything else,
+	use the following mail-adress for now:<br>
+	<i>openlierox [at] az2000 [dot] de</i>
+</p>
+<p>
 	<h2>Links</h2>
 	<a href="http://sourceforge.net/projects/openlierox/">SourceForge project-site</a><br>
 	<a href="http://lxalliance.net/lierox/">official LieroX site</a><br>
-	<a href="http://www.az2000.de/projects/openlierox">special project-site</a>, hosted by Albert Zeyer
+	<a href="http://www.az2000.de/projects/openlierox">special project-site</a> and<br>
+	<a href="http://www.az2000.de/projects/">other projects</a> by Albert Zeyer
 </p>
 </body>
 </html>

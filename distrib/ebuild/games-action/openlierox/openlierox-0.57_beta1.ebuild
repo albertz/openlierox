@@ -34,7 +34,7 @@ src_unpack() {
 	mkdir -p ${S} || die "cannot creating working-dir"
 	cd ${S}
 
-	unpack OpenLieroX_${PV}.src.zip || die "cannot unpack the main archive"
+	unpack OpenLieroX_${PV}.src.tar.bz || die "cannot unpack the main archive"
 	mkdir -p ${S}/share/gamedir/packtmp && \
 	cd ${S}/share/gamedir/packtmp && \
 	unpack lx0.56_pack1.9.zip && \
@@ -47,7 +47,7 @@ src_compile() {
 	cd ${S} || die "some strange problems ..."
 
 	# SYSTEM_DATA_DIR/OpenLieroX will be the search path
-	# the compile.sh will also use the CXXFLAGS
+	# the compile.sh will also take care of CXXFLAGS
 	SYSTEM_DATA_DIR="${GAMES_DATADIR}" \
 	COMPILER=$(tc-getCXX) \
 	DEBUG=$(use debug && echo 1 || echo 0) \
