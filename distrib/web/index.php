@@ -105,7 +105,7 @@
 	<a href="http://sourceforge.net/projects/openlierox/">SourceForge project-site</a><br>
 	<a href="http://lxalliance.net/lierox/">official LieroX site</a><br>
 	<a href="http://www.az2000.de/projects/openlierox">special project-site</a> and<br>
-	<a href="http://www.az2000.de/projects/">other projects</a> by Albert Zeyer
+	<a href="http://www.az2000.de/">homepage</a> by Albert Zeyer
 </p>
 </body>
 </html>
