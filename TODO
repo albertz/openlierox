@@ -8,6 +8,8 @@ TODO list
 [ ] better bot behavior
 [ ] other method to get homedir (it seems that $HOME is not set in every case)
 [ ] also accept ~/ in the beginning of a path-name (treat this as another variable)
-[ ] treat ZIP-files in game-directory as virtual searchpaths
-[ ] save selected player list in local play and return in this menu after playing
+[ ] cap FPS / CPU time
 
+minor things:
+[ ] save selected player list in local play and return in this menu after playing
+[ ] treat ZIP-files in game-directory as virtual searchpaths

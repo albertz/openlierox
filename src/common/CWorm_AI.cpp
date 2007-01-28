@@ -2445,13 +2445,13 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 	}
 
 	// In mortar game there must be enough of free cells around us
-	if (bDirect && iAiGameType == GAM_MORTARS)  {
+	if (iAiGameType == GAM_MORTARS)  {
 		if (!NEW_AI_CheckFreeCells(1,pcMap))  {
 //			bDirect = false;
 			//printf("not enough free cells\n");
 			return false;
 		}
-		if (!traceWormLine(cTrgPos,vPos,pcMap))
+		if(bDirect && !traceWormLine(cTrgPos,vPos,pcMap))
 			bDirect = false;
 	}
 
@@ -2587,10 +2587,8 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 		// Can we hit the target?
 		//printf("proj-speed: %f\n", v);
 		if (g <= 10 || v >= 200)  {
-			int type = PX_EMPTY;
-			float d;
-			if(bDirect) traceWeaponLine(cTrgPos,pcMap,&d,&type);
-			bAim = (type == PX_EMPTY) && bDirect;
+			// we already have bDirect==false, if we have no direct free way
+			bAim = bDirect;
 		}
 		else {
 			bAim = weaponCanHit(g,v,CVec(vPos.x+x,vPos.y-y),pcMap);
