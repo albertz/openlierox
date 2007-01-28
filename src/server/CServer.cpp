@@ -819,9 +819,8 @@ void CServer::kickWorm(int wormID)
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
+			if(!cClient->getRemoteWorms()) return;
 			CWorm *remoteworm = cClient->getRemoteWorms()+w->getID();
-			if ((int)remoteworm == w->getID())
-				return;
 			if (remoteworm->getType() == PRF_COMPUTER)  {
 				remoteworm->AI_Shutdown();
 				remoteworm->setType(PRF_HUMAN);
@@ -936,9 +935,8 @@ void CServer::banWorm(int wormID)
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
+			if(!cClient->getRemoteWorms()) return;
 			CWorm *remoteworm = cClient->getRemoteWorms()+w->getID();
-			if ((int)remoteworm == w->getID())
-				return;
 			if (remoteworm->getType() == PRF_COMPUTER)  {
 				remoteworm->AI_Shutdown();
 				remoteworm->setType(PRF_HUMAN);
@@ -1304,7 +1302,7 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 			k++;
 			j++;
 		}
-		buf[MIN(sizeof(buf)-1,(unsigned int)k)] = '\0';
+		buf[MIN(sizeof(buf)-1,k)] = '\0';
 		k = 0;
 		ip_parts[i] = atoi(buf);
 	}

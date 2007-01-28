@@ -108,6 +108,7 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
 template <typename T> inline T MAX(T a, T b) { return a>b?a:b; }
+inline unsigned long MIN(unsigned long a, unsigned int b) { return a<b?a:b; }
 
 void d_printf(char *fmt, ...);
 
