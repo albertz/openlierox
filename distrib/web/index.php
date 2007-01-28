@@ -42,6 +42,12 @@
 	<a href="OpenLieroX_0.57_cur.win32.zip">OpenLieroX Win32 binary zip</a>
 </p>
 <p>
+	<h2>General installation hints</h2>
+	If you are not using Gentoo (where this will be done automatically
+	within the ebuild), go downloading also the Liero packs.
+	You need them, if you want to play online, because they are widely used.<br>
+	Extract them into ~/.OpenLieroX or /usr/share/OpenLieroX.
+<p>
 	<h2>Installation under Gentoo</h2>
 	Download the provided ebuild and install it.<br>
 	For example, you can do this by (bad but simple way):<br>
@@ -75,7 +81,9 @@
 	<h2>Installation under Debian/Ubuntu</h2>
 	Follow the installation @somewhere. You have only one problem:
 	HawkNL doesn't exist for Debian/Ubuntu. But there is the possibility
-	to compile OpenLieroX with HawkNL builtin. Simply do:
+	to compile OpenLieroX with HawkNL builtin. Simply do (after you have
+	checked the file DEPS for other needed packages, you have to install
+	with 'sudo apt-get install PACKAGE'):
 	<pre>
 		HAWKNL_BUILTIN=1 ./compile.sh
 	</pre>
