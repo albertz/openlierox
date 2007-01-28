@@ -19,6 +19,7 @@
 // Game info
 char		GameName[32];
 int         nFocus = true;
+bool		bActivated = false;
 
 // Config file
 char		ConfigFile[256];
@@ -216,6 +217,8 @@ void ProcessEvents(void)
 	Mouse.WheelScrollUp = 0;
 	Mouse.WheelScrollDown = 0;
 
+	bActivated = false;
+
 	while(SDL_PollEvent(&Event)) {
 
         // Quit event
@@ -252,8 +255,10 @@ void ProcessEvents(void)
                     break;
 
                 // Gain focus event
-                case WM_SETFOCUS:
-                    nFocus = true;
+                case WM_SETFOCUS:  {
+						nFocus = true;
+						bActivated = true;
+					}
                     break;
             }
         }
@@ -354,8 +359,11 @@ void ProcessEvents(void)
 	Mouse.Down = Mouse.Button;
 
     // SAFETY HACK: If we get any mouse presses, we must have focus
-    if(Mouse.Down)
+    if(Mouse.Down)  {
+		if (!nFocus)
+			bActivated = true;
         nFocus = true;
+	}
 
 
 

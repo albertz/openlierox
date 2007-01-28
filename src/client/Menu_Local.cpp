@@ -156,6 +156,23 @@ void Menu_LocalFrame(void)
 	CListview *lv;
 	profile_t *ply = NULL;
 
+	if (bActivated)  {
+		// Get the mod name
+		cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
+		if(it) 
+			fix_strncpy(tLXOptions->tGameinfo.szModName, it->sIndex);
+
+		// Fill in the mod list
+		Menu_Local_FillModList( (CCombobox *)cLocalMenu.getWidget(ml_ModName));
+
+		// Fill in the levels list
+		cLocalMenu.SendMessage(ml_LevelList,CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));
+		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), false);
+
+		// Reload the minimap
+		Menu_LocalShowMinimap(true);
+	}
+
 
     // Game Settings
 	if(bGameSettings) {
@@ -743,6 +760,8 @@ void Menu_Local_FillModList( CCombobox *cb )
 	CGameScript gs;
 	int baseid = 0;
 	int i=0;
+
+	cb->clear();
 
 	if(FindFirstDir(".",dir)) {
 		fix_markend(dir);

@@ -963,6 +963,8 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	int		index = 0;
 	int		selected = -1;
 
+	cmb->clear();
+
 	// If random is true, we add the 'random' level to the list
 	if(random)
 		cmb->addItem(index++, "_random_", "- Random level -");

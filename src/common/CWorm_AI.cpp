@@ -532,11 +532,9 @@ private:
 public:
 	NEW_ai_node_t* findPath(VectorD2<int> start) {
 		// lower priority to this thread
-#ifdef WIN32
-		Sleep(1);
-#else
 		SDL_Delay(1);
-#endif
+
+
 		if(shouldBreakThread() || shouldRestartThread()) return NULL;
 
 		// is the start inside of the map?
@@ -627,11 +625,7 @@ private:
 					//printf("got break signal(1) for %i\n", (long)base);
 					return 0;
 				}
-#ifdef WIN32
-				Sleep(100);
-#else
 				SDL_Delay(100);
-#endif
 			}
 
 			// start the main search

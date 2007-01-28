@@ -169,6 +169,7 @@ extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern  int				nDisableSound;
 extern	int				iSurfaceFormat;
+extern	bool			bActivated;
 
 extern	char	binary_dir[512];
 

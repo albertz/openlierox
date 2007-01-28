@@ -596,9 +596,26 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Process the server & client frames
 	cServer->Frame();
 	cClient->Frame();
-	if (cBots)
+/*	if (cBots)
 		for (int i=0;i<tGameInfo.iNumBots;i++)
-			cBots[i].Frame();
+			cBots[i].Frame();*/
+
+	if (bActivated)  {
+		// Get the mod name
+		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,0,0);
+		if(it) 
+			fix_strncpy(tLXOptions->tGameinfo.szModName, it->sIndex);
+
+		// Fill in the mod list
+		Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
+
+		// Fill in the levels list
+		cHostLobby.SendMessage(hl_LevelList,CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));
+		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
+
+		// Redraw the minimap
+		Menu_HostShowMinimap();
+	}
 
 
     // Game settings
