@@ -31,7 +31,7 @@
 	<a href="OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
 	<a href="games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
 	<br>
-	<b>other nice things</b><br>
+	<b>Levels and mods</b> (you need them for playing online)<br>
 	<a href="lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
 	<a href="another_lx_pack_2007_01_05.zip">another LX Pack (2007-01-05)</a><br>
 	<br>
@@ -47,6 +47,7 @@
 	within the ebuild), go downloading also the Liero packs.
 	You need them, if you want to play online, because they are widely used.<br>
 	Extract them into ~/.OpenLieroX or /usr/share/OpenLieroX.
+</p>
 <p>
 	<h2>Installation under Gentoo</h2>
 	Download the provided ebuild and install it.<br>
