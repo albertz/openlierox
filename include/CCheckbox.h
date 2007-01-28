@@ -64,7 +64,7 @@ public:
 	
 
 	// Process a message sent
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
 
 				switch(iMsg) {
 					case CKM_SETCHECK:

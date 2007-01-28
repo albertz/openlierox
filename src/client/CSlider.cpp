@@ -63,7 +63,7 @@ int CSlider::MouseDown(mouse_t *tMouse, int nDown)
 
 ///////////////////
 // This widget is send a message
-int CSlider::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
+DWORD CSlider::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
 	switch(iMsg) {
 

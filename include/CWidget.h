@@ -123,7 +123,7 @@ public:
 	virtual	void	LoadStyle(void) = 0;
 	virtual	void	Draw(SDL_Surface *bmpDest) = 0;
 
-	virtual int		SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;
+	virtual DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;
 };
 
 

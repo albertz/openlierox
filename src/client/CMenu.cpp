@@ -34,7 +34,7 @@ CMenu::CMenu(int nPosX, int nPosY)
 
 ///////////////////
 // Handle a menu message
-int CMenu::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
+DWORD CMenu::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
     switch(iMsg) {
 

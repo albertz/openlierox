@@ -58,7 +58,7 @@ public:
 	int		KeyDown(int c)						{ return TBT_NONE; }
 	int		KeyUp(int c)						{ return TBT_NONE; }
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
 
 	// Draw the title button
 	void	Draw(SDL_Surface *bmpDest);

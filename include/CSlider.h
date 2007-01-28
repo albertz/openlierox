@@ -67,7 +67,7 @@ public:
 
 	void	LoadStyle(void) {}
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 
 	int		getValue(void)						{ return iValue; }
 	void	setValue(int v)						{ iValue = v; }

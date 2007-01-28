@@ -49,7 +49,7 @@ void CBrowser::Create(void)
 
 ///////////////////
 // This widget is send a message
-int CBrowser::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
+DWORD CBrowser::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
 	switch(iMsg) {
 

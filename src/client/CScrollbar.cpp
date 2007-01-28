@@ -274,7 +274,7 @@ void CScrollbar::UpdatePos(void)
 
 ///////////////////
 // Process a sent message
-int CScrollbar::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
+DWORD CScrollbar::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
     switch( iMsg ) {
 

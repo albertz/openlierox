@@ -113,7 +113,7 @@ public:
 
 	void	LoadStyle(void) {}
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 
 	void	Backspace(void);
 	void	Delete(void);

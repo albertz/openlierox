@@ -70,7 +70,7 @@ public:
 	int		KeyDown(int c)						{ return MNU_NONE; }
 	int		KeyUp(int c)						{ return MNU_NONE; }
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
     
 	void	Draw(SDL_Surface *bmpDest);
 

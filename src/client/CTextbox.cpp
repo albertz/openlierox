@@ -591,7 +591,7 @@ void CTextbox::setText(char *buf)
 
 ///////////////////
 // This widget is send a message
-int CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
+DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
 	char *p;
 

@@ -116,7 +116,7 @@ public:
 
 	void	Sort(bool ascending);
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);	
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);	
 
     void    clear(void);
 	void	addItem(int index, char *sindex, char *name);

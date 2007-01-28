@@ -63,7 +63,7 @@ void CImage::Change(char *Path)
 
 /////////////////////
 // This widget is a sendmessage
-int CImage::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
+DWORD CImage::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
 	return 0;
 }

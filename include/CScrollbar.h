@@ -92,7 +92,7 @@ public:
 	int		getMax(void)					{ return iMax; }
 	int		getGrabbed(void)				{ return iSliderGrabbed; }
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 
 
 

@@ -1023,7 +1023,7 @@ lv_subitem_t *CListview::getCurSubitem(int index)
 
 ///////////////////
 // This widget is send a message
-int CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
+DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
 	char *s = NULL;
 
@@ -1089,7 +1089,7 @@ int CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
         // Return the current item
         case LVM_GETCURITEM:
             if(tSelected)
-                return (int)tSelected;
+                return (DWORD)tSelected;
             return 0;
 
 		// Set the old-style property

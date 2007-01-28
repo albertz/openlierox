@@ -47,7 +47,7 @@ public:
 	int		KeyDown(int c)						{ return LIN_NONE; }
 	int		KeyUp(int c)						{ return LIN_NONE; }
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ 
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ 
 							return 0;
 						}
 

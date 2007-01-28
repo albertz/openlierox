@@ -484,7 +484,7 @@ int CCombobox::KeyDown(int c)
 
 ///////////////////
 // Process a message sent to this widget
-int CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
+DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
 
 	switch(iMsg) {
@@ -526,7 +526,7 @@ int CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Get the current item
 		case CBM_GETCURITEM:
-			return (int)tSelected;
+			return (DWORD)tSelected;
 
 		// Set the current item
 		case CBM_SETCURSEL:

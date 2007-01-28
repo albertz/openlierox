@@ -72,7 +72,7 @@ public:
 
 
 	// Process a message sent
-	inline int		SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
+	inline DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
 
 				switch(iMsg) {
 					case INM_GETVALUE:

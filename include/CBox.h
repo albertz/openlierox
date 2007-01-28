@@ -67,7 +67,7 @@ public:
 	int		KeyDown(int c)							{ return BOX_NONE; }
 	int		KeyUp(int c)							{ return BOX_NONE; }
 
-	int		SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
 
 	int		CheckEvent(void);
 
