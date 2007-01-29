@@ -415,7 +415,7 @@ void Menu_Net_LanShowServer(char *szAddress)
 	bGotDetails = false;
 	bOldLxBug = false;
 	nTries = 0;
-	fStart = tLX->fCurTime;
+	fStart = -9999;
 
 	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,0,230); // Dirty; because of button redrawing
 
@@ -440,7 +440,7 @@ void Menu_Net_LanShowServer(char *szAddress)
                 break;
 			// Refresh
             } else if (ev->iControlID == ld_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
-				fStart = tLX->fCurTime;
+				fStart = -9999;
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;

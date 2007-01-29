@@ -40,7 +40,7 @@ int Menu_Initialize(int *game)
 	static char path[1024];
 	path[0] = '\0';
 	//sprintf(path,"%s/%s/widgets.css",tLXOptions->sSkinPath,tLXOptions->sResolution);
-	cWidgetStyles.Parse(path);
+	//cWidgetStyles.Parse(path);
 	fix_markend(path);
 
 	// Allocate the menu structure
@@ -119,10 +119,11 @@ int Menu_Initialize(int *game)
     tMenu->bmpWorm = NULL;
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
-	// Open a socket for broadcasting over a LAN (UDP)
-	tMenu->tSocket[SCK_LAN] = OpenBroadcastSocket(0);
+
 	// Open a socket for communicating over the net (UDP)
 	tMenu->tSocket[SCK_NET] = OpenUnreliableSocket(0);
+	// Open a socket for broadcasting over a LAN (UDP)
+	tMenu->tSocket[SCK_LAN] = OpenBroadcastSocket(0);
 
 	if(!IsSocketStateValid(tMenu->tSocket[SCK_LAN]) || !IsSocketStateValid(tMenu->tSocket[SCK_NET])) {
 		SystemError("Error: Failed to open a socket for networking");
@@ -1144,7 +1145,7 @@ void Menu_SvrList_PingLAN(void)
 	static const char addr[] = {"255.255.255.255"};
 	NetworkAddr a;
 	StringToNetAddr(addr,&a);
-	SetNetAddrPort(&a,LX_PORT);
+	SetNetAddrPort(&a,tLXOptions->iNetworkPort);
 	SetRemoteNetAddr(tMenu->tSocket[SCK_LAN],&a);
 
 	// Send the ping
