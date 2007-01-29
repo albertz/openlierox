@@ -130,7 +130,7 @@ int Menu_Initialize(int *game)
 	}
 
 	// Add default widget IDs to the widget list
-	Menu_AddDefaultWidgets();
+	//Menu_AddDefaultWidgets();
 
 	return true;
 }
@@ -1856,7 +1856,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
             }
         }
 
-        if(tLX->fCurTime - fStart > 1 && !bGotDetails) {
+        if((tLX->fCurTime - fStart > 1) && !bGotDetails) {
             nTries++;
             fStart = tLX->fCurTime;
 			bGotDetails = false;

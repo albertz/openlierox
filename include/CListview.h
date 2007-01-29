@@ -23,7 +23,9 @@ enum {
 	LV_CHANGED=0,
     LV_RIGHTCLK,
 	LV_DOUBLECLK,
-	LV_RESIZECURSOR
+	LV_RESIZECURSOR,
+	LV_DELETE,
+	LV_ENTER
 };
 
 
@@ -116,6 +118,7 @@ public:
 		iGrabbed = 0;
 		bOldStyle = false;
 		iSavedScrollbarPos = 0;
+		iLastChar = 0;
 	}
 
 
@@ -147,6 +150,7 @@ private:
 	int				iSavedScrollbarPos;
 
     bool            bShowSelect;
+	int				iLastChar;
 
 
 public:
@@ -161,8 +165,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
-	int		KeyDown(int c)					{ return LV_NONE; }
-	int		KeyUp(int c)					{ return LV_NONE; }
+	int		KeyDown(int c);
+	int		KeyUp(int c)					{ iLastChar = 0; return LV_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 

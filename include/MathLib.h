@@ -26,7 +26,7 @@ float	GetRandomNum(void);
 int		GetRandomInt(int max);
 int		Round(float x);
 
-/*#ifdef WIN32
+/*#ifdef _MSC_VER
 float	cos(float _v)  {return cosf(_v); }
 float	sin(float _v)  {return sinf(_v); }
 float	tan(float _v)  {return tanf(_v); }

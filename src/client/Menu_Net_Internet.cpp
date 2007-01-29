@@ -261,6 +261,33 @@ void Menu_Net_NETFrame(int mouse)
                         cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 6, (DWORD)"Server details" );
                     }
                 }
+
+
+				// Enter key
+				if( ev->iEventMsg == LV_ENTER )  {
+					// Join
+					addr[0] = 0;
+					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
+					if(result != -1 && addr[0] && sub) {
+                        // Save the list
+                        Menu_SvrList_SaveList("cfg/svrlist.dat");
+
+						Menu_Net_NETJoinServer(addr,sub->sText);
+						return;
+					}
+				}
+
+				// Delete
+				if( ev->iEventMsg == LV_DELETE )  {
+					addr[0] = 0;
+					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					if(result && addr[0]) {
+						Menu_SvrList_RemoveServer(addr);
+						// Re-Fill the server list
+						Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+					}
+				}
 				break;
 
             // Popup menu

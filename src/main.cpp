@@ -38,14 +38,14 @@ char		binary_dir[512];
 // Main entry point
 int main(int argc, char *argv[])
 {
-#ifdef WIN32
+#ifdef _MSC_VER
 #ifdef _DEBUG
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 #endif // _DEBUG
 	
 	InstallExceptionFilter();
 	nameThread(-1,"Main game thread");
-#endif
+#endif // _MSC_VER
 
     int     startgame = false;
     float   fMaxFPS = 85;

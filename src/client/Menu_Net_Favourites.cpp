@@ -258,15 +258,59 @@ void Menu_Net_FavouritesFrame(int mouse)
                         cFavourites.SendMessage( mf_PopupMenu, MNM_ADDITEM, 6, (DWORD)"Server details" );
                     }
                 }
+
+				// Enter key
+				if( ev->iEventMsg == LV_ENTER )  {
+					// Join
+					addr[0] = 0;
+					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
+					if(result != -1 && addr[0] && sub) {
+     					Menu_Net_FavouritesJoinServer(addr,sub->sText);
+						return;
+					}
+				}
+
+				// Delete
+				if( ev->iEventMsg == LV_DELETE )  {
+					//DrawImage(tMenu->bmpBuffer,tMenu->bmpScreen,0,0);
+					addr[0] = 0;
+					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					server_t *sv = Menu_SvrList_FindServerStr(addr);
+					static char buf[256] = "";
+					if (sv)  {
+						snprintf(buf,sizeof(buf),"Are you sure you want to remove\n \"%s\" server from favourites?",sv->szName);
+						if (Menu_MessageBox("Confirmation",buf,LMB_YESNO) == MBR_YES)  {
+							if(result && addr[0]) {
+								Menu_SvrList_RemoveServer(addr);
+								// Re-Fill the server list
+								Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
+							}
+							Menu_SvrList_SaveList("cfg/favourites.dat");
+						}
+						Menu_redrawBufferRect(0,0,640,480);
+					}
+
+				}
+
 				break;
 
             // Popup menu
             case mf_PopupMenu:
                 switch( ev->iEventMsg ) {
                      // Remove server from favourites
-                    case MNU_USER+0:
-                        Menu_SvrList_RemoveServer(szFavouritesCurServer);
-						Menu_SvrList_SaveList("cfg/favourites.dat");  // Save changes
+				case MNU_USER+0:  {
+						server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
+						static char buf[256] = "";
+						if (sv)  {
+							snprintf(buf,sizeof(buf),"Are you sure you want to remove\n \"%s\" server from favourites?",sv->szName);
+							if (Menu_MessageBox("Confirmation",buf,LMB_YESNO) == MBR_YES)  {
+								Menu_SvrList_RemoveServer(szFavouritesCurServer);
+								Menu_SvrList_SaveList("cfg/favourites.dat");  // Save changes
+							}
+							Menu_redrawBufferRect(0,0,640,480);
+						}
+						}
                         break;
 
 					// Rename server

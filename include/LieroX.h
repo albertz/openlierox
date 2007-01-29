@@ -16,13 +16,13 @@
 #ifndef __LIEROX_H__
 #define __LIEROX_H__
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif // _DEBUG
-#endif // WIN32
+#endif // _MSC_VER
 
 #if DEBUG == 1
 #define		_AI_DEBUG

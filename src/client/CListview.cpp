@@ -970,6 +970,106 @@ int	CListview::MouseWheelUp(mouse_t *tMouse)
 	return -1;
 }
 
+/////////////////
+// Key down event
+int CListview::KeyDown(int c)
+{
+	if (c == iLastChar && c)
+		return LV_NONE;
+
+	if ((char)c >= 31 && (char)c < 127)  {
+		// TODO: handle normal characters
+		return LV_NONE;
+	}
+
+	keyboard_t *kb = GetKeyboard();
+	if (kb->KeyDown[iLastChar])
+		return LV_NONE;
+
+	iLastChar = c;
+
+	// Up arrow
+	if (kb->KeyDown[SDLK_DOWN]) {
+		if (tSelected) {
+			if (tSelected->tNext)  {
+				tSelected->iSelected = false;
+				tSelected = tSelected->tNext;
+				tSelected->iSelected = true;
+				iLastChar = SDLK_DOWN;
+				if (iGotScrollbar)
+					if (tSelected->_iID >= (cScrollbar.getItemsperbox()-1 + cScrollbar.getValue()))
+						cScrollbar.setValue( cScrollbar.getValue()+1 );			
+				return LV_NONE;
+			}
+		} else {
+			tSelected = tItems;
+		}
+	}
+
+
+	// Down arrow
+	if (kb->KeyDown[SDLK_UP])  {
+		lv_item_t *i = tItems;
+		for (;i->tNext;i=i->tNext)  {
+			if (i->tNext == tSelected) {
+				if (tSelected)
+					tSelected->iSelected = false;
+				tSelected = i;
+				tSelected->iSelected = true;
+				iLastChar = SDLK_UP;
+				if (iGotScrollbar)
+					if (cScrollbar.getValue() > tSelected->_iID)
+						cScrollbar.setValue( cScrollbar.getValue()-1 );	
+				return LV_NONE;
+			}
+		}
+	}
+
+	// Home
+	if (kb->KeyDown[SDLK_HOME])  {
+		if (tItems)  {
+			if (tSelected)
+				tSelected->iSelected = false;
+			tSelected = tItems;
+			tSelected->iSelected = true;
+			if (iGotScrollbar)
+				cScrollbar.setValue(0);
+		}
+	}
+
+	// End
+	if (kb->KeyDown[SDLK_END])  {
+		if (tLastItem)  {
+			if (tSelected)
+				tSelected->iSelected = false;
+			tSelected = tLastItem;
+			tSelected->iSelected = true;
+			if (iGotScrollbar)
+				cScrollbar.setValue(tSelected->_iID);
+		}
+	}
+
+	// Delete
+	if (kb->KeyDown[SDLK_DELETE])  {
+		iLastChar = SDLK_DELETE;
+		return LV_DELETE;
+	}
+
+	// Enter
+	if (kb->KeyDown[SDLK_RETURN])  {
+		iLastChar = SDLK_RETURN;
+		return LV_ENTER;
+	}
+
+	// Enter (numeric)
+	if (kb->KeyDown[SDLK_KP_ENTER])  {
+		iLastChar = SDLK_KP_ENTER;
+		return LV_ENTER;
+	}
+
+	return LV_NONE;
+}
+
 
 ///////////////////
 // Get the ID of the currently selected item

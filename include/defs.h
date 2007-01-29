@@ -23,11 +23,11 @@
 #define DEBUG	1
 #endif
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #ifndef _DEBUG
 #undef DEBUG
 #endif // _DEBUG
-#endif // WIN32
+#endif // _MSC_VER
 
 // Standard includes
 #include <assert.h>
@@ -41,7 +41,7 @@
 #include <string>
 
 // Disable this silly warning
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning(disable: 4786)
 #pragma warning(disable: 4996)
 #endif
@@ -52,11 +52,13 @@
 #	include <direct.h>
 // wrappers to provide the standards
 inline int mkdir(const char *path, int mode) { return _mkdir(path); }
+#if _MSC_VER <= 1200
 inline size_t strnlen(const char *str, size_t maxlen)  { 
 	register unsigned int i=0;
 	for (;i<maxlen && str[i];i++) {}
 	return i;
 }
+#endif // _MSC_VER == 1200
 // TODO: inline
 #	define strncasecmp _strnicmp
 #	define vsnprintf _vsnprintf
