@@ -50,7 +50,6 @@ int main(int argc, char *argv[])
 	printf("OpenLieroX " LX_VERSION " is starting ...\n");
 
     int     startgame = false;
-    float   fMaxFPS = 85;
 
 	strcpy(binary_dir, argv[0]);
 	char *slashpos = MAX(strrchr(binary_dir,'/'),strrchr(binary_dir,'\\'));
@@ -127,13 +126,13 @@ int main(int argc, char *argv[])
 		// Pre-game initialization
 		Screen = SDL_GetVideoSurface();
 		float oldtime = GetMilliSeconds();
-        float captime = GetMilliSeconds();
 		
 		ClearEntities();
 
 		ProcessEvents();
 		tLX->iQuitEngine = false;
-        fMaxFPS = 1.0f / (float)tLXOptions->nMaxFPS;
+		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
+		float fMaxFrameTime = 1.0f / (float)tLXOptions->nMaxFPS;
 
         //
         // Main game loop
@@ -143,11 +142,11 @@ int main(int argc, char *argv[])
             tLX->fCurTime = GetMilliSeconds();
 
             // Cap the FPS
-            if(tLX->fCurTime - captime < fMaxFPS)
+            if(tLX->fCurTime - oldtime < fMaxFrameTime) {
+				SDL_Delay((int)((fMaxFrameTime - tLX->fCurTime + oldtime)*1000));
                 continue;
-            else
-                captime = tLX->fCurTime;
-
+			}
+			
             ProcessEvents();
 
 			// Timing
@@ -155,7 +154,7 @@ int main(int argc, char *argv[])
 			oldtime = tLX->fCurTime;
 			
 			// cap the delta
-			tLX->fDeltaTime = MIN(tLX->fDeltaTime, 20.0f);
+			tLX->fDeltaTime = MIN(tLX->fDeltaTime, 0.5f);
 
 			// Main frame
 			GameLoop();
