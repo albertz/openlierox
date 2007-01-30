@@ -136,8 +136,8 @@ void CClient::Simulation(void)
 	}
 
 	// Entities
-	if (!bBotClient)
-		SimulateEntities(tLX->fDeltaTime,cMap);
+	//if (!bBotClient)
+	SimulateEntities(tLX->fDeltaTime,cMap);
 
 		// Weather
 		//cWeather.Simulate(tLX->fDeltaTime, cMap);

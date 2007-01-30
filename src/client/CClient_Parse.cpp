@@ -294,7 +294,14 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 {
 	// We've already got this packet
 	if (iGameReady)
-		return true;
+		return false;
+
+	// If we're playing, the game has to be ready
+	if (iNetStatus == NET_PLAYING)  {
+		iGameReady = true;
+		return false;
+	}
+
 
 	iGameReady = true;
 

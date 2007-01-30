@@ -1150,6 +1150,11 @@ void Menu_SvrList_PingLAN(void)
 
 	// Send the ping
 	bs.Send(tMenu->tSocket[SCK_LAN]);
+
+	// Try also the default LX port
+	SetNetAddrPort(&a,LX_PORT);
+
+	bs.Send(tMenu->tSocket[SCK_LAN]);
 }
 
 
