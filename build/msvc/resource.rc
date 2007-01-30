@@ -1,6 +1,5 @@
 //Microsoft Developer Studio generated resource script.
 //
-
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -33,9 +32,9 @@ VS_VERSION_INFO VERSIONINFO
  PRODUCTVERSION 0,57,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
- FILEFLAGS 0x1L
+ FILEFLAGS 0x21L
 #else
- FILEFLAGS 0x0L
+ FILEFLAGS 0x20L
 #endif
  FILEOS 0x40004L
  FILETYPE 0x1L
@@ -47,16 +46,16 @@ BEGIN
         BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "RIP Clan\0"
-            VALUE "FileDescription", "Liero Xtreme Professional\0"
+            VALUE "FileDescription", "OpenLieroX\0"
             VALUE "FileVersion", "0, 57, 0, 0\0"
-            VALUE "InternalName", "LX Pro\0"
+            VALUE "InternalName", "OpenLieroX\0"
             VALUE "LegalCopyright", "Copyright © 2006\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "LieroX.exe\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Liero Xtreme Professional\0"
+            VALUE "ProductName", "OpenLieroX\0"
             VALUE "ProductVersion", "0, 57, 0, 0\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "SpecialBuild", "_beta 1\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -113,8 +112,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_LARGE               ICON    DISCARDABLE     "..\..\share\icon1.ico"
-IDI_SMALL               ICON    DISCARDABLE     "..\..\share\ico00001.ico"
+IDI_LARGE               ICON    DISCARDABLE     "..\\..\\share\\icon1.ico"
+IDI_SMALL               ICON    DISCARDABLE     "..\\..\\share\\ico00001.ico"
 #endif    // English (Australia) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -129,5 +128,4 @@ IDI_SMALL               ICON    DISCARDABLE     "..\..\share\ico00001.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-
 

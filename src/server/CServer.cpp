@@ -1318,6 +1318,14 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 	static char ln[256];
 	char *line = &ln[0];
 
+	char from_ip[12];
+	char to_ip[12];
+	char registry[32];
+	char added[32];
+	char country_code_2[3];
+	char country_code_3[4];
+	char country_name[64];
+
 	// Parse the file line by line
 	while(fgets(line,164,fp))  {
 
@@ -1325,11 +1333,13 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		if(strnlen(line,sizeof(ln)) < 1)
 			continue;
 
+		// Comment, ignore
+		if (line[0] == '#') continue;
+
 		// First character: " (ignore)
 		if(line[0] == '\"') line++;
 
 		// From IP
-		char from_ip[12];
 		unsigned short i=0;
 		while(i < sizeof(from_ip)-1 && *line && *line != '\"')
 			from_ip[i++] = *(line++);
@@ -1339,7 +1349,6 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		line+=3;
 
 		// To IP
-		char to_ip[12];
 		i=0;
 		while(i < sizeof(to_ip)-1 && *line && *line != '\"')
 			to_ip[i++] = *(line++);
@@ -1348,8 +1357,25 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		// Ignore the , and " characters
 		line+=3;
 
+		// Registry
+		i=0;
+		while(i < sizeof(to_ip)-1 && *line && *line != '\"')
+			registry[i++] = *(line++);
+		registry[i] = '\0';
+
+		// Ignore the , and " characters
+		line += 3;
+
+		// Date added
+		i=0;
+		while(i < sizeof(added)-1 && *line && *line != '\"')
+			added[i++] = *(line++);
+		added[i] = '\0';
+
+		// Ignore the , and " characters
+		line += 3;
+
 		// 2-character country code
-		char country_code_2[3];
 		i=0;
 		while(i < sizeof(country_code_2)-1 && *line && *line != '\"')
 			country_code_2[i++] = *(line++);
@@ -1359,7 +1385,6 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		line+=3;
 
 		// 3-character country code
-		char country_code_3[4];
 		i=0;
 		while(i < sizeof(country_code_3)-1 && *line && *line != '\"')
 			country_code_3[i++] = *(line++);
@@ -1369,7 +1394,6 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		line+=3;
 
 		// Country name
-		char country_name[64];
 		i=0;
 		while(i < sizeof(country_name)-1 && *line && *line != '\"')
 			country_name[i++] = *(line++);
