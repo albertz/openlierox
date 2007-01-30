@@ -16,10 +16,12 @@ export ARCHIVE_PREFIX="distrib/tarball/OpenLieroX_${VERSION}_cur"
 export SRC_PREFIX="${ARCHIVE_PREFIX}.src"
 export WIN32_PREFIX="${ARCHIVE_PREFIX}.win32"
 
+echo ">>> deleting previous archives ..."
 [ -e ${SRC_PREFIX}.tar.bz ] && rm ${SRC_PREFIX}.tar.bz
 [ -e ${SRC_PREFIX}.zip ] && rm ${SRC_PREFIX}.zip
 [ -e ${WIN32_PREFIX}.zip ] && rm ${WIN32_PREFIX}.zip
 
+echo ">>> collecting file list ..."
 # this is a very very dirty hack, but I don't know how to do better
 export FILELIST=""
 for f in $SRC_RELEASE; do
@@ -32,7 +34,7 @@ for f in $SRC_RELEASE; do
 done
 
 echo ">>> creating source zip ..."
-sh -c "zip -r -9 ${SRC_PREFIX}.zip $FILELIST"
+sh -c "zip -r -9 ${SRC_PREFIX}.zip $FILELIST" >/dev/null
 
 echo ">>> creating source tar.bz ..."
 tar --exclude=.svn -jcf ${SRC_PREFIX}.tar.bz $SRC_RELEASE
@@ -48,6 +50,6 @@ mv share/gamedir/* .
 rm -r share
 mv distrib/win32/* .
 rm -r distrib
-zip -r -9 ../../${WIN32_PREFIX}.zip *
+zip -r -9 ../../${WIN32_PREFIX}.zip * >/dev/null
 cd ..
 rm -rf win32tmp
