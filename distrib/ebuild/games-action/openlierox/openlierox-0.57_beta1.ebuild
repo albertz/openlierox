@@ -16,7 +16,7 @@ SRC_URI="
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="~ppc ~x86"
 IUSE="debug"
 
 RDEPEND="media-libs/libsdl

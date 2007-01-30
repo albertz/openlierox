@@ -15,6 +15,9 @@
 
 #ifdef WIN32
 	#include <shlobj.h>
+#else
+	#include <pwd.h>
+	#include <sys/types.h>
 #endif
 
 // TODO: merge windows and linux code in this file
@@ -684,7 +687,11 @@ bool FileListIncludes(const filelist_t* l, const char* f) {
 char* GetHomeDir() {
 	static char tmp[1024];
 #ifndef WIN32
-	fix_strncpy(tmp, getenv("HOME"));
+	passwd* userinfo = getpwuid(getuid());
+	if(userinfo) {
+		fix_strncpy(tmp, userinfo->pw_dir);
+	} else
+		fix_strncpy(tmp, getenv("HOME")); // last chance (doesnt work in some exotic cases)
 #else
 	if (!SHGetSpecialFolderPath(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
 		// TODO: get dynamicaly another possible path
@@ -722,6 +729,10 @@ char* GetTempDir() {
 }
 
 void ReplaceFileVariables(std::string& filename) {
+	if(filename.compare(0,2,"~/")==0 || filename.compare(0,2,"~\\")==0) {
+		filename.erase(0,1);
+		filename.insert(0,GetHomeDir());	
+	}
 	replace(filename, "${HOME}", GetHomeDir());
 	replace(filename, "${SYSTEM_DATA}", GetSystemDataDir());
 	replace(filename, "${BIN}", GetBinaryDir());

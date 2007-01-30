@@ -1,13 +1,13 @@
 TODO list
 
-[ ] enable sound per default
-[ ] remove "[RIP] Dark Charlie" profile from default :)
-[ ] set other server defaultname than [RIP]
-[ ] better listing of searchpaths
+[x] enable sound per default
+[x] remove "[RIP] Dark Charlie" profile from default :)
+[x] set other server defaultname than [RIP]
+[x] better listing of searchpaths
 [ ] better bot aiming
 [ ] better bot behavior
-[ ] other method to get homedir (it seems that $HOME is not set in every case)
-[ ] also accept ~/ in the beginning of a path-name (treat this as another variable)
+[x] other method to get homedir (it seems that $HOME is not set in every case)
+[x] also accept ~/ in the beginning of a path-name (treat this as another variable)
 [ ] cap FPS / CPU time
 
 minor things:

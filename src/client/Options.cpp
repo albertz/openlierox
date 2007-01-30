@@ -25,7 +25,7 @@ networktexts_t   *NetworkTexts = NULL;
 // Load the options
 int LoadOptions(void)
 {
-	printf("Loading options... ");
+	printf("Loading options... \n");
 
     static const char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     static const char    *ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
@@ -42,7 +42,7 @@ int LoadOptions(void)
 	}
 	tLXOptions->tSearchPaths = NULL;
 
-    static const char *f = "cfg/options.cfg";
+	static const char *f = "cfg/options.cfg";
 
   	AddKeyword("true",true);
 	AddKeyword("false",false);
@@ -57,13 +57,13 @@ int LoadOptions(void)
 	tmp[19] = '\0';
 	strcpy(tmp, "SearchPath"); i = 1;
 	filelist_t** spath = &tLXOptions->tSearchPaths;
-    while(true) {
-    	 // &tmp[10] is the end of "SearchPath"
-    	strncpy(&tmp[10], itoa(i, tmp2, 10), sizeof(tmp)-10); // Be careful! 18 was hell too much and it caused f to be NULL
-        if(!ReadString(f, "FileHandling", tmp, tmp3, sizeof(tmp3), NULL))
-        	break;
+	while(true) {
+		 // &tmp[10] is the end of "SearchPath"
+		strncpy(&tmp[10], itoa(i, tmp2, 10), sizeof(tmp)-10); // Be careful! 18 was hell too much and it caused f to be NULL
+		if(!ReadString(f, "FileHandling", tmp, tmp3, sizeof(tmp3), NULL))
+			break;
 
-    	*spath = new filelist_t;
+		*spath = new filelist_t;
 		if(!(*spath))
 			break;
 		(*spath)->next = NULL;
@@ -78,11 +78,11 @@ int LoadOptions(void)
 		}
 	}
 
-    printf("HINT: searchpaths will be (in this direction):\n");
+	printf("I have now the following searchpaths (in this direction):\n");
 	for(spath = &tLXOptions->tSearchPaths; *spath != NULL; spath = &(*spath)->next)  {
-        printf("  %s\n", (*spath)->filename);
+		printf("  %s\n", (*spath)->filename);
 	}
-
+	printf(" And that's all.\n");
 
 	for (i=0;i<sizeof(tLXOptions->iInternetList)/sizeof(int);i++)  {
 		tLXOptions->iInternetList[i] = def_widths[i];
@@ -165,7 +165,7 @@ int LoadOptions(void)
 	if (tLXOptions->iJpegQuality > 100)
 		tLXOptions->iJpegQuality = 100;
 
-	printf("DONE\n");
+	printf("DONE loading options\n");
 
 	return true;
 }
@@ -224,8 +224,8 @@ void SaveOptions(void)
     fprintf(fp, "[Video]\n");
     fprintf(fp, "Fullscreen = %s\n",tLXOptions->iFullscreen ? "true" : "false");
     fprintf(fp, "ShowFPS = %s\n",tLXOptions->iShowFPS ? "true" : "false");
-    fprintf(fp, "\n");
     fprintf(fp, "OpenGL = %s\n",tLXOptions->iOpenGL ? "true" : "false");
+    fprintf(fp, "\n");
 
     fprintf(fp, "[Network]\n");
     fprintf(fp, "Port = %d\n",      tLXOptions->iNetworkPort);

@@ -47,6 +47,8 @@ int main(int argc, char *argv[])
 	nameThread(-1,"Main game thread");
 #endif // _MSC_VER
 
+	printf("OpenLieroX " LX_VERSION " is starting ...\n");
+
     int     startgame = false;
     float   fMaxFPS = 85;
 
