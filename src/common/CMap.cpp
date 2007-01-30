@@ -1049,6 +1049,17 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	bMiniMapDirty = true;
 
+
+	// Recalculate the grid
+	lockFlags();
+	for(y=sy; y<sy+h+nGridHeight; y+=nGridHeight) {
+		for(x=sx; x<sx+w+nGridWidth; x+=nGridWidth) {
+			calculateGridCell(x, y, false);
+		}
+	}
+	unlockFlags();
+
+
     return nDirtCount;
 }
 
@@ -1168,6 +1179,15 @@ int CMap::PlaceGreenDirt(CVec pos)
 	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
 
 	bMiniMapDirty = true;
+
+	// Recalculate the grid
+	lockFlags();
+	for(y=sy; y<sy+h+nGridHeight; y+=nGridHeight) {
+		for(x=sx; x<sx+w+nGridWidth; x+=nGridWidth) {
+			calculateGridCell(x, y, false);
+		}
+	}
+	unlockFlags();
 
     return nGreenCount;
 }
