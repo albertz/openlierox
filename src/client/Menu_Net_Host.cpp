@@ -165,7 +165,7 @@ void Menu_Net_HostFrame(int mouse)
 	}
 }
 
-
+int iHumanPlayers = 0;
 ///////////////////
 // Player selection frame
 void Menu_Net_HostPlyFrame(int mouse)
@@ -216,19 +216,25 @@ void Menu_Net_HostPlyFrame(int mouse)
 					lv2 = (CListview *)cHostPly.getWidget(hs_Playing);
 					int index = lv->getCurIndex();
 
-					// Make sure there is 0-2 players in the list
-					if(lv2->getItemCount() < 2) {
+					// Make sure there is 0-8 players in the list
+					if(lv2->getItemCount() < 8) {
 
-						// Remove the item from the list
-						lv->RemoveItem(index);
-
+						// Get the profile
 						ply = FindProfile(index);
 
 						if(ply) {
-							lv2->AddItem("",index,tLX->clListView);
-							lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
-							lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
+							if (ply->iType == PRF_COMPUTER || iHumanPlayers < 2)  {
+								lv2->AddItem("",index,tLX->clListView);
+								lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
+								lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
+								if (ply->iType == PRF_HUMAN)
+									iHumanPlayers++;
+
+								// Remove the item from the player list
+								lv->RemoveItem(index);
+							}
 						}
+
 					}
 				}
 				break;
@@ -251,6 +257,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 						lv2->AddItem("",index,tLX->clListView);
 						lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
+						if (ply->iType == PRF_HUMAN)
+							iHumanPlayers--;
 					}
 				}
 				break;
@@ -262,7 +270,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 
 					// Make sure there is 1-2 players in the list
-					if (lv->getItemCount() > 0 && lv->getItemCount() <= 2) {
+					if (lv->getItemCount() > 0 && lv->getItemCount() <= 7) {
 
 						tGameInfo.iNumPlayers = lv->getItemCount();
 
@@ -270,18 +278,24 @@ void Menu_Net_HostPlyFrame(int mouse)
 						lv_item_t* item;
 						int count=0;
 
-//						int i=0;  // TODO: not used
+						int i=0;  // TODO: not used
 
 						// Add the human players to the list
 						for(item = lv->getItems(); item != NULL; item = item->tNext) {
 							if(item->iIndex < 0)
 								continue;
 
+							// Max two humans
+							if (i > 2)
+								break;
+
 							profile_t *ply = FindProfile(item->iIndex);
 
 							if(ply != NULL && ply->iType == PRF_HUMAN)  {
 								tGameInfo.cPlayers[count++] = ply;
 							}
+
+							i++;
 						}
 
 						// Add the unhuman players to the list

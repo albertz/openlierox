@@ -481,6 +481,45 @@ int CClient::OwnsWorm(CWorm *w)
 	return false;
 }
 
+//////////////////
+// Remove the worm
+void CClient::RemoveWorm(int id)
+{
+	iNumWorms--;
+
+	int i,j;
+	for (i=0;i<MAX_PLAYERS;i++)  {
+		if (cLocalWorms[i])  {
+			if (cLocalWorms[i]->getID() == id)  {
+				cLocalWorms[i] = NULL;
+				for (j=i;j<MAX_PLAYERS-2;j++)  {
+					cLocalWorms[j] = cLocalWorms[j+1];
+				}
+			}
+		}
+	}
+
+	if (cRemoteWorms)  {
+		for (i=0;i<MAX_WORMS;i++) {
+			if (cRemoteWorms[i].getID() == id)  {
+				cRemoteWorms[i].setUsed(false);
+				cRemoteWorms[i].setAlive(false);
+				cRemoteWorms[i].setKills(0);
+				cRemoteWorms[i].setLives(WRM_OUT);
+				cRemoteWorms[i].setProfile(NULL);
+				if (cRemoteWorms[i].getType() == PRF_COMPUTER)  {
+					cRemoteWorms[i].AI_Shutdown();
+					cRemoteWorms[i].setType(PRF_HUMAN);
+				}
+				cRemoteWorms[i].setLocal(false);
+				cRemoteWorms[i].setTagIT(false);
+				cRemoteWorms[i].setTagTime(0);
+			}
+		}
+	}
+			
+}
+
 
 ///////////////////
 // Setup the worms (server func)

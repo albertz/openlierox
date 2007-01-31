@@ -211,6 +211,7 @@ void CServer::UpdateGameLobby(void)
 void CServer::SendWormLobbyUpdate(void)
 {
     CBytestream bytestr;
+	bytestr.Clear();
     int c,i;
 
     CClient *cl = cClients;
@@ -227,17 +228,28 @@ void CServer::SendWormLobbyUpdate(void)
 	    }
 
 	    // Let all the worms know about the new lobby state	    
-	    bytestr.writeByte(S2C_UPDATELOBBY);
-	    bytestr.writeByte(cl->getNumWorms());
-	    bytestr.writeByte(ready);
-        for(i=0; i<cl->getNumWorms(); i++) {
-		    bytestr.writeByte(cl->getWorm(i)->getID());
-            bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
-        }
+		if (cl->getNumWorms() <= 2)  {
+			bytestr.writeByte(S2C_UPDATELOBBY);
+			bytestr.writeByte(cl->getNumWorms());
+			bytestr.writeByte(ready);
+			for(i=0; i<cl->getNumWorms(); i++) {
+				bytestr.writeByte(cl->getWorm(i)->getID());
+				bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
+			}
+		} else {
+			int written = 0;
+			while (written < cl->getNumWorms())  {
+				bytestr.writeByte(S2C_UPDATELOBBY);
+				bytestr.writeByte(1);
+				bytestr.writeByte(ready);
+				bytestr.writeByte(cl->getWorm(written)->getID());
+				bytestr.writeByte(cl->getWorm(written)->getLobby()->iTeam);
+				written++;
+			}
+		}
     }
 
 	SendGlobalPacket(&bytestr);
-
 }
 
 

@@ -167,14 +167,27 @@ void CServer::ParseImReady(CClient *cl, CBytestream *bs)
 
 	// Let everyone know this client is ready to play
 	CBytestream bytes;
-	bytes.writeByte(S2C_CLREADY);
-	bytes.writeByte(cl->getNumWorms());
-	for(i=0;i<cl->getNumWorms();i++) {
-		// Send the weapon info here (also contains id)
-		cWorms[cl->getWorm(i)->getID()].writeWeapons(&bytes);
-	}
+	bytes.Clear();
+	if (cl->getNumWorms() <= 2)  {
+		bytes.writeByte(S2C_CLREADY);
+		bytes.writeByte(cl->getNumWorms());
+		for(i=0;i<cl->getNumWorms();i++) {
+			// Send the weapon info here (also contains id)
+			cWorms[cl->getWorm(i)->getID()].writeWeapons(&bytes);
+		}
 
-	SendGlobalPacket(&bytes);
+		SendGlobalPacket(&bytes);
+	} else {
+		int written = 0;
+		while (written < cl->getNumWorms())  {
+			bytes.writeByte(S2C_CLREADY);
+			bytes.writeByte(1);
+			cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
+			SendGlobalPacket(&bytes);
+			bytes.Clear();
+			written++;
+		}
+	}
 
 
     // Check if all the clients are ready
@@ -526,15 +539,29 @@ void CServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 
 	// Let all the worms know about the new lobby state
 	CBytestream bytestr;
-	bytestr.writeByte(S2C_UPDATELOBBY);
-	bytestr.writeByte(cl->getNumWorms());
-	bytestr.writeByte(ready);
-    for(i=0; i<cl->getNumWorms(); i++) {
-		bytestr.writeByte(cl->getWorm(i)->getID());
-        bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
-    }
-
-	SendGlobalPacket(&bytestr);
+	bytestr.Clear();
+	if (cl->getNumWorms() <= 2)  {
+		bytestr.writeByte(S2C_UPDATELOBBY);
+		bytestr.writeByte(cl->getNumWorms());
+		bytestr.writeByte(ready);
+		for(i=0; i<cl->getNumWorms(); i++) {
+			bytestr.writeByte(cl->getWorm(i)->getID());
+			bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
+		}
+		SendGlobalPacket(&bytestr);
+	} else {
+		int written = 0;
+		while (written < cl->getNumWorms())  {
+			bytestr.writeByte(S2C_UPDATELOBBY);
+			bytestr.writeByte(1);
+			bytestr.writeByte(ready);
+			bytestr.writeByte(cl->getWorm(written)->getID());
+			bytestr.writeByte(cl->getWorm(written)->getLobby()->iTeam);
+			written++;
+			SendGlobalPacket(&bytestr);
+			bytestr.Clear();
+		}
+	}
 }
 
 

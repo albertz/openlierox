@@ -808,34 +808,16 @@ void CServer::kickWorm(int wormID)
 		if (cClient->OwnsWorm(w))  {
 
 			// Delete the worm from client and server
-			CWorm *localworm = cClient->getWorm(w->getID());
-			if (!localworm)
-				return;
-			localworm->setAlive(false);
-			localworm->setKills(0);
-			localworm->setLives(WRM_OUT);
-			localworm->setUsed(false);
+			cClient->RemoveWorm(w->getID());
 			w->setAlive(false);
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
-			if(!cClient->getRemoteWorms()) return;
-			CWorm *remoteworm = cClient->getRemoteWorms()+w->getID();
-			if (remoteworm->getType() == PRF_COMPUTER)  {
-				remoteworm->AI_Shutdown();
-				remoteworm->setType(PRF_HUMAN);
-			}
-			remoteworm->setAlive(false);
-			remoteworm->setKills(0);
-			remoteworm->setLocal(false);
-			remoteworm->setProfile(NULL);
-			remoteworm->setLives(WRM_OUT);
-			remoteworm->setUsed(false);
 
 			// Update the number of players on server/client
 			iNumPlayers--;
-			cClient->setNumWorms(cClient->getNumWorms()-1);
-			cl->setNumWorms(cl->getNumWorms()-1);
+			tGameInfo.iNumPlayers--;
+			cl->RemoveWorm(w->getID());
 
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;
@@ -924,34 +906,16 @@ void CServer::banWorm(int wormID)
 		if (cClient->OwnsWorm(w))  {
 
 			// Delete the worm from client and server
-			CWorm *localworm = cClient->getWorm(w->getID());
-			if (!localworm)
-				return;
-			localworm->setAlive(false);
-			localworm->setKills(0);
-			localworm->setLives(WRM_OUT);
-			localworm->setUsed(false);
+			cClient->RemoveWorm(w->getID());
 			w->setAlive(false);
 			w->setKills(0);
 			w->setLives(WRM_OUT);
 			w->setUsed(false);
-			if(!cClient->getRemoteWorms()) return;
-			CWorm *remoteworm = cClient->getRemoteWorms()+w->getID();
-			if (remoteworm->getType() == PRF_COMPUTER)  {
-				remoteworm->AI_Shutdown();
-				remoteworm->setType(PRF_HUMAN);
-			}
-			remoteworm->setAlive(false);
-			remoteworm->setKills(0);
-			remoteworm->setLocal(false);
-			remoteworm->setProfile(NULL);
-			remoteworm->setLives(WRM_OUT);
-			remoteworm->setUsed(false);
 
 			// Update the number of players on server/client
 			iNumPlayers--;
-			cClient->setNumWorms(cClient->getNumWorms()-1);
-			cl->setNumWorms(cl->getNumWorms()-1);
+			tGameInfo.iNumPlayers--;
+			cl->RemoveWorm(w->getID());
 
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;
@@ -962,7 +926,7 @@ void CServer::banWorm(int wormID)
 
 			// Send the message
 			static char buf[256];
-			replacemax(NetworkTexts->sHasBeenBanned,"<player>", w->getName(), buf, 1);
+			replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), buf, 1);
 			SendGlobalText(buf,TXT_NETWORK);
 
 			// Now that a player has left, re-check the game status

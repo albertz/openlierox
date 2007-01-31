@@ -284,6 +284,7 @@ public:
 
 	// Server editing of the client
 	void		SetupWorms(int numworms, CWorm *worms);
+	void		RemoveWorm(int id);
 
 	// Game
 	void		Simulation(void);

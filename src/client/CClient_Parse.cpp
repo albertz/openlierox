@@ -792,7 +792,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 	int numworms = bs->readByte();
 	int ready = bs->readByte();
 
-	if(numworms < 1 || numworms > MAX_PLAYERS) {
+	if(numworms < 1 || numworms > MAX_WORMS) {
 		// bad packet
 		printf("Bad numworms count(%d) on UPDATELOBBY packet\n",numworms);
 		return;

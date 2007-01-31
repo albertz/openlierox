@@ -79,23 +79,8 @@ void Menu_Net_JoinFrame(int mouse)
 
 void Menu_Net_JoinShutdown(void)
 {
-	switch(iJoinMenu) {
-
-		// Select players
-/*		case join_players:
-			Menu_Net_JoinPlayersFrame(mouse);
-			break;*/
-
-		// Connecting
-		case join_connecting:
-			Menu_Net_JoinConnectionShutdown();
-			break;
-
-		// Lobby
-		case join_lobby:
-			Menu_Net_JoinLobbyShutdown();
-			break;
-	}
+	Menu_Net_JoinConnectionShutdown();
+	Menu_Net_JoinLobbyShutdown();
 }
 
 
