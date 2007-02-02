@@ -21,13 +21,10 @@
 // Clear the chatbox
 void CChatBox::Clear(void)
 {
-    nWidth = 500;
-    for(int n=0;n<MAX_CLINES;n++) {
-        Lines[n].strLine[0] = '\0';
-        Lines[n].iUsed = false;
-        Lines[n].iColour = 0xffff;
-        Lines[n].fTime = 0;
-    }
+	Lines.clear();
+	WrappedLines.clear();
+	nWidth = 500;
+	iNewLine = 0;
 }
 
 
@@ -35,7 +32,29 @@ void CChatBox::Clear(void)
 // Add a line of text to the chat box
 void CChatBox::AddText(char *txt, int colour, float time)
 {
-    int     n;
+	// Create a new line and copy the info
+	line_t newline;
+
+	newline.fTime = time;
+	newline.iColour = colour;
+	fix_strncpy(newline.strLine,txt);
+
+	// Add to lines
+	Lines.push_back(newline);
+
+	// Add to wrapped lines
+	AddWrapped(txt,colour,time);
+}
+
+
+////////////////////
+// Adds the text to wrapped lines
+void CChatBox::AddWrapped(char *txt, int colour, float time)
+{
+	//
+	// Wrap
+	//
+
     int     l=-1;
     static char    buf[128];
 
@@ -62,41 +81,69 @@ void CChatBox::AddText(char *txt, int colour, float time)
 
 		// Add the lines recursively
 		// Note: if the second line is also too long, it will be wrapped, because of recursion
-		AddText(txt,colour,time);  // Line 1
-		AddText(strcpy(buf,&txt[j+1]),colour,time);  // Line 2
+		AddWrapped(txt,colour,time);  // Line 1
+		AddWrapped(strcpy(buf,&txt[j+1]),colour,time);  // Line 2
 
 		return;
 	}
 
+	//
+	//	Add the wrapped line
+	//
+	line_t newline;
 
-    // Move up the lines?
-    for(n=0;n<MAX_CLINES;n++) {
-        if(!Lines[n].iUsed) {
-            l=n;
-            break;
-        }
-    }
-    
-    if(l<0) {
-        MoveUp();
-        l=MAX_CLINES-1;
-    }
-    
-    fix_strncpy(Lines[l].strLine,txt);
-    Lines[l].iUsed = true;
-    Lines[l].iColour = colour;
-    Lines[l].fTime = time;
+	newline.fTime = time;
+	newline.iColour = colour;
+	newline.bNew = true;
+	fix_strncpy(newline.strLine,txt);
+
+	WrappedLines.push_back(newline);
+
+	iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
+
+	if (!WrappedLines[iNewLine].bNew)
+		iNewLine = WrappedLines.size()-1;
 }
 
+///////////////////
+// Set the chatbox width
+void CChatBox::setWidth(int w)
+{
+	nWidth = w;
+	WrappedLines.clear();
+	int i;
 
+	// Recalculate the wrapped lines
+	for (i=0;i<Lines.size();i++)  
+		AddWrapped(Lines[i].strLine,Lines[i].iColour,Lines[i].fTime);
+
+}
 
 ///////////////////
-// Move up one line	
-void CChatBox::MoveUp(void)
+// Get a line from chatbox
+line_t *CChatBox::GetLine(int n)
 {
-    for(short n=0;n<MAX_CLINES-1;n++) {
-        fix_strncpy(Lines[n].strLine,Lines[n+1].strLine);
-        Lines[n].iColour = Lines[n+1].iColour;
-        Lines[n].fTime = Lines[n+1].fTime;
-    }
+	if (n >= 0 && n < WrappedLines.size())  {
+		WrappedLines[n].bNew = false;
+		iNewLine++;
+		iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
+		return &WrappedLines[n];
+	}
+	return NULL;
+}
+
+/////////////////////
+// Get a new line from the chatbox
+line_t *CChatBox::GetNewLine(void)
+{
+	static int tmp = 0;
+	if (iNewLine >= 0 && iNewLine < WrappedLines.size())  {
+		if (WrappedLines[iNewLine].bNew)  {
+			tmp = iNewLine;
+			WrappedLines[iNewLine++].bNew = false;
+			iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
+			return &WrappedLines[tmp];
+		}
+	}
+	return NULL;
 }

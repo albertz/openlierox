@@ -433,7 +433,6 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 */
 
 CGuiLayout	cJoinLobby;
-CChatBox	cJoinChat;
 int			iJoinSpeaking=-1;
 int			iJoin_Recolorize = true;
 enum {
@@ -457,9 +456,8 @@ int Menu_Net_JoinLobbyInitialize(void)
 	iNetMode = net_join;
 	iJoinMenu = join_lobby;
 
-	cClient->setChatbox(&cJoinChat);
-	cJoinChat.Clear();
-    cJoinChat.setWidth(570);
+	cClient->getChatbox()->Clear();
+    cClient->getChatbox()->setWidth(570);
     iJoinSpeaking=-1;
 
 	return true;
@@ -531,8 +529,7 @@ void Menu_Net_JoinGotoLobby(void)
 	iNetMode = net_join;
 	iJoinMenu = join_lobby;
 
-	cClient->setChatbox(&cJoinChat);
-	cJoinChat.Clear();
+	cClient->getChatbox()->setWidth(570);
     iJoinSpeaking=-1;
 }
 
@@ -600,27 +597,24 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 
 	// Add chat to the listbox
-    for(i=0;i<MAX_CLINES;i++) {
-		line_t *l = cJoinChat.GetLine(i);
-		if(l->iUsed) {
-            l->iUsed = false;
-            CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
+	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
+    line_t *ln = NULL;
+	while(ln = cClient->getChatbox()->GetNewLine()) {
 
-            if(lv->getLastItem())
-                lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
-            else
-                lv->AddItem("", 0, l->iColour);
-            lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
-            lv->setShowSelect(false);
+        if(lv->getLastItem())
+            lv->AddItem("", lv->getLastItem()->iIndex+1, ln->iColour);
+        else
+            lv->AddItem("", 0, ln->iColour);
+        lv->AddSubitem(LVS_TEXT, ln->strLine, NULL);
+        lv->setShowSelect(false);
 
-            // If there are too many lines, remove the top line
-            if(lv->getItemCount() > 256) {
-                if(lv->getItems())
-                    lv->RemoveItem(lv->getItems()->iIndex);
-            }
+        // If there are too many lines, remove the top line
+        if(lv->getItemCount() > 256) {
+            if(lv->getItems())
+                lv->RemoveItem(lv->getItems()->iIndex);
+        }
 
-            lv->scrollLast();
-		}
+        lv->scrollLast();
 	}
 
 

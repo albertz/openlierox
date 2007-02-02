@@ -235,6 +235,10 @@ SOURCE=..\..\include\RandomNumberList.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\ReadWriteLock.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\sex.cpp
 # End Source File
 # Begin Source File
@@ -435,10 +439,6 @@ SOURCE=..\..\include\ProfileSystem.h
 # Begin Source File
 
 SOURCE=..\..\include\Protocol.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\SVClient.h
 # End Source File
 # End Group
 # Begin Group "Frontend"

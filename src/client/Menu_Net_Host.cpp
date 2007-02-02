@@ -391,7 +391,6 @@ bool		bHostWeaponRest = false;
 bool		bBanList = false;
 bool		bServerSettings = false;
 CGuiLayout	cHostLobby;
-CChatBox	cChat;
 int			iSpeaking=-1;
 int         g_nLobbyWorm = -1;
 int			iHost_Recolorize = false;
@@ -442,9 +441,7 @@ int Menu_Net_HostLobbyInitialize(void)
 
 	cClient->Connect("127.0.0.1");
 
-	cClient->setChatbox(&cChat);
-	cChat.Clear();
-    cChat.setWidth(590);
+	cClient->getChatbox()->setWidth(590);
 
 	// Initialize the bots
 	/*cBots = new CClient[tGameInfo.iNumBots];
@@ -581,8 +578,7 @@ void Menu_Net_HostGotoLobby(void)
     tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
 	tGameInfo.bTournament = tLXOptions->tGameinfo.bTournament;
 
-	cClient->setChatbox(&cChat);
-	cChat.Clear();
+	cClient->getChatbox()->setWidth(590);
 
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();
@@ -687,27 +683,24 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 
     // Add chat to the listbox
-    for(int i=0;i<MAX_CLINES;i++) {
-		line_t *l = cChat.GetLine(i);
-		if(l->iUsed) {
-            l->iUsed = false;
-            CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+	line_t *l = NULL;
+	while(l = cClient->getChatbox()->GetNewLine()) {
 
-            if(lv->getLastItem())
-                lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
-            else
-                lv->AddItem("", 0, l->iColour);
-            lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
-            lv->setShowSelect(false);
+        if(lv->getLastItem())
+            lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
+        else
+            lv->AddItem("", 0, l->iColour);
+        lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+        lv->setShowSelect(false);
 
-            // If there are too many lines, remove the top line
-            if(lv->getItemCount() > 256) {
-                if(lv->getItems())
-                    lv->RemoveItem(lv->getItems()->iIndex);
-            }
+        // If there are too many lines, remove the top one
+        if(lv->getItemCount() > 256) {
+            if(lv->getItems())
+                lv->RemoveItem(lv->getItems()->iIndex);
+        }
 
-            lv->scrollLast();
-		}
+        lv->scrollLast();
 	}
 
 

@@ -447,7 +447,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// TODO: Load any other stuff
 	iGameReady = true;
 
-	setDefaultChatbox();
+	cChatbox.setWidth(320);
 
 
 	// Initialize the worms weapon selection menu & other stuff
@@ -621,7 +621,7 @@ void CClient::ParseText(CBytestream *bs)
 	//buf[127] = '\0';
 	fix_markend(buf);
 
-	pChatbox->AddText(buf,col,tLX->fCurTime);
+	cChatbox.AddText(buf,col,tLX->fCurTime);
 
 
 	// Log the conversation

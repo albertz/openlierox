@@ -195,7 +195,7 @@ private:
 	chat_line_t	tChatLines[MAX_CHATLINES];
 
 	CChatBox	cChatbox;		// Our chatbox
-	CChatBox	*pChatbox;		// Pointer to a chatbox to use
+//	CChatBox	*pChatbox;		// Pointer to a chatbox to use
 
 	// Send chat
 	int			iChat_Typing;
@@ -404,9 +404,7 @@ public:
 	int			getGameReady(void)			{ return iGameReady; }
 	void		setGameReady(int _g)		{ iGameReady = _g; }
 
-	void		setChatbox(CChatBox *p)		{ pChatbox = p; }
-	void		setDefaultChatbox(void)		{ pChatbox = &cChatbox; }
-    CChatBox    *getChatbox(void)           { return pChatbox; }
+    CChatBox    *getChatbox(void)           { return &cChatbox; }
 
 	game_lobby_t *getGameLobby(void)		{ return &tGameLobby; }
 

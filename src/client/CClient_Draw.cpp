@@ -977,11 +977,11 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 {
 	int y = 0;
 	int i;
-	for(i=0;i<MAX_CLINES;i++) {
+	for(i=MAX(0,cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
 		line_t *l = cChatbox.GetLine(i);
 
 		// This chat times out after a few seconds AND is on the top of the screen
-		if(l->iUsed && tLX->fCurTime - l->fTime < 3) {
+		if(l && tLX->fCurTime - l->fTime < 3) {
 			tLX->cFont.Draw(bmpDest, 6, y+1, 0,"%s", l->strLine);
 			tLX->cFont.Draw(bmpDest, 5, y, l->iColour,"%s", l->strLine);
 			y+=18;
@@ -997,12 +997,12 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	int y = 386;
 	int i;
 
-	for(i=0;i<MAX_CLINES;i++) {
+	for(i=MAX(0,cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
 		line_t *l = cChatbox.GetLine(i);
 
 		// This chat is in the black region of the screen
-		if(l->iUsed) {
-			tLX->cFont.Draw(bmpDest, 190, y+1, 0,"%s", l->strLine);
+		if(l) {
+			//tLX->cFont.Draw(bmpDest, 190, y+1, 0,"%s", l->strLine);
 			tLX->cFont.Draw(bmpDest, 190, y, l->iColour,"%s", l->strLine);
 			y+=15;
 		}
