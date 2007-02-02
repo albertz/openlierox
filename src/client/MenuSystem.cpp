@@ -244,14 +244,22 @@ void Menu_Loop(void)
 
 	tLX->fCurTime = GetMilliSeconds();
 	float oldtime = tLX->fCurTime;
+	float fMaxFrameTime = 1.0f / (float)tLXOptions->nMaxFPS;
 
 	while(tMenu->iMenuRunning) {
-		Menu_RedrawMouse(false);
-		ProcessEvents();
 
 		tLX->fCurTime = GetMilliSeconds();
 		tLX->fDeltaTime = tLX->fCurTime - oldtime;
+
+	        // Cap the FPS
+		if(tLX->fDeltaTime < fMaxFrameTime) {
+			SDL_Delay((int)((fMaxFrameTime - tLX->fDeltaTime)*1000));
+		        continue;
+		}
 		oldtime = tLX->fCurTime;
+
+		Menu_RedrawMouse(false);
+		ProcessEvents();
 
 		switch(tMenu->iMenuType) {
 

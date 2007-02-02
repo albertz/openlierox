@@ -146,15 +146,15 @@ int main(int argc, char *argv[])
 				SDL_Delay((int)((fMaxFrameTime - tLX->fCurTime + oldtime)*1000));
                 continue;
 			}
-			
-            ProcessEvents();
 
 			// Timing
 			tLX->fDeltaTime = tLX->fCurTime - oldtime;
 			oldtime = tLX->fCurTime;
-			
+						
 			// cap the delta
 			tLX->fDeltaTime = MIN(tLX->fDeltaTime, 0.5f);
+
+		            ProcessEvents();
 
 			// Main frame
 			GameLoop();
@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
 
 	ShutdownLieroX();
 
+	printf("Good Bye and enjoy your day...\n");
 	return 0;
 }
 
@@ -508,6 +509,5 @@ void ShutdownLieroX(void)
 	ShutdownOptions();
 
 	printf("Everything was shut down\n");
-	printf("Good Bye and enjoy your day...\n");
 	
 }
