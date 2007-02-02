@@ -30,6 +30,9 @@
 	<a href="OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
 	<a href="OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
 	<a href="games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
+	(Feel free to post any success-stories on Gentoo
+	at <a href="http://bugs.gentoo.org/show_bug.cgi?id=164009">this topic</a>,
+	related to the ebuild, on the Gentoo-Bugtracker.)<br>
 	<br>
 	<b>Levels and mods</b> (you need them for playing online)<br>
 	<a href="lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
@@ -39,7 +42,13 @@
 	updated from time to time)</br>
 	<a href="OpenLieroX_0.57_cur.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
 	<a href="OpenLieroX_0.57_cur.src.zip">OpenLieroX Source zip</a><br>
-	<a href="OpenLieroX_0.57_cur.win32.zip">OpenLieroX Win32 binary zip</a>
+	<a href="OpenLieroX_0.57_cur.win32.zip">OpenLieroX Win32 binary zip</a><br>
+	<br>
+	<b>other Download-sources</b><br>
+	Take also a look in the 
+	<a href="http://lxalliance.net/smf/index.php/topic,3071.0.html">
+	OpenLieroX-related topic</a> on the biggest LieroX-forum. You will find
+	other Windows-releases and you can discuss anything about the game there.
 </p>
 <p>
 	<h2>General installation hints</h2>
@@ -113,8 +122,7 @@
 	<h2>Links</h2>
 	<a href="http://sourceforge.net/projects/openlierox/">SourceForge project-site</a><br>
 	<a href="http://lxalliance.net/lierox/">official LieroX site</a><br>
-	<a href="http://www.az2000.de/projects/openlierox">special project-site</a> and<br>
-	<a href="http://www.az2000.de/">homepage</a> by Albert Zeyer
+	<a href="http://www.az2000.de/">Alberts homepage</a>
 </p>
 </body>
 </html>
