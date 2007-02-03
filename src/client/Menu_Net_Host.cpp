@@ -513,7 +513,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);
 	cHostLobby.Add( new CLabel("Players",tLX->clHeading),				  -1,		15,  15,  0,   0);
 	cHostLobby.Add( new CTextbox(),							  hl_ChatText, 15,  421, 610, 20);
-    cHostLobby.Add( new CListview(),                          hl_ChatList, 15,  253, 610, 165);
+    cHostLobby.Add( new CListview(),                          hl_ChatList, 15,  268, 610, 150);
 
 	cHostLobby.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, 210, 170,15);
     cHostLobby.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, 235, 185,15);
@@ -527,7 +527,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 
 	cHostLobby.SendMessage(hl_ChatText,TXM_SETMAX,64,0);
 
-	cHostLobby.SendMessage(hl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
+	//cHostLobby.SendMessage(hl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 
 	// Fill in the game details
 	cHostLobby.SendMessage(hl_Gametype,    CBM_ADDITEM,   GMT_DEATHMATCH, (DWORD)"Deathmatch");
@@ -552,6 +552,15 @@ void Menu_Net_HostLobbyCreateGui(void)
     cHostLobby.SendMessage(hl_Gametype,  CBM_SETCURINDEX, gl->nGameMode, 0);
 }
 
+//////////////////////
+// Get the content of the chatbox
+char *Menu_Net_HostLobbyGetText(void)
+{
+	static char buf[128];
+	cHostLobby.SendMessage(hl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+    fix_markend(buf);
+	return buf;
+}
 
 ///////////////////
 // Go straight to the lobby, without clearing the server & client
@@ -591,6 +600,24 @@ void Menu_Net_HostGotoLobby(void)
 
     // Create the GUI
     Menu_Net_HostLobbyCreateGui();
+
+	// Add the chat to the chatbox
+	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+	if (lv)  {
+		line_t *l = NULL;
+		for (int i=MAX(0,cClient->getChatbox()->getNumLines()-255);i<cClient->getChatbox()->getNumLines();i++)  {
+			l = cClient->getChatbox()->GetLine(i);
+			if (l)  {
+				if(lv->getLastItem())
+					lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
+				else
+					lv->AddItem("", 0, l->iColour);
+				lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+			}
+		}
+		lv->scrollLast();
+	}
+
 
 	cServer->UpdateGameLobby();
 }

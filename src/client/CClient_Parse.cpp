@@ -447,7 +447,24 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// TODO: Load any other stuff
 	iGameReady = true;
 
-	cChatbox.setWidth(320);
+	// TODO: make this working
+	/*char *chattext = NULL;
+	switch (tGameInfo.iGameType)  {
+	case GME_HOST:
+		chattext = Menu_Net_HostLobbyGetText();
+		break;
+	case GME_JOIN:
+		chattext = Menu_Net_JoinLobbyGetText();
+		break;
+	}
+	if (chattext)
+		if (chattext[0])  {
+			iChat_Typing = true;
+			iChat_CursorVisible = true;
+			fix_strncpy(sChat_Text,chattext);
+		}*/
+
+	cChatbox.setWidth(305);
 
 
 	// Initialize the worms weapon selection menu & other stuff

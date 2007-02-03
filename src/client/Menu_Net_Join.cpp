@@ -509,10 +509,10 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( new CButton(BUT_ADDTOFAVOURITES, tMenu->bmpButtons), jl_Favourites,360,220,150,15);
 	cJoinLobby.Add( new CLabel("Players",tLX->clHeading),	  -1,		15,  15,  0,   0);
 	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, 20);
-    cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  253, 610, 165);
+    cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  268, 610, 150);
 
 	cJoinLobby.SendMessage(jl_ChatText,TXM_SETMAX,64,0);
-	cJoinLobby.SendMessage(jl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
+	//cJoinLobby.SendMessage(jl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 }
 
 
@@ -530,7 +530,36 @@ void Menu_Net_JoinGotoLobby(void)
 	iJoinMenu = join_lobby;
 
 	cClient->getChatbox()->setWidth(570);
+
+	// Add the chat
+	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
+	if (lv)  {
+		line_t *l = NULL;
+		for (int i=MAX(0,cClient->getChatbox()->getNumLines()-255);i<cClient->getChatbox()->getNumLines();i++)  {
+			l = cClient->getChatbox()->GetLine(i);
+			if (l)  {
+				if(lv->getLastItem())
+					lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
+				else
+					lv->AddItem("", 0, l->iColour);
+				lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+			}
+		}
+		lv->scrollLast();
+		lv->setShowSelect(false);
+	}
+
     iJoinSpeaking=-1;
+}
+
+//////////////////////
+// Get the content of the chatbox
+char *Menu_Net_JoinLobbyGetText(void)
+{
+	static char buf[128];
+	cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
+    fix_markend(buf);
+	return buf;
 }
 
 

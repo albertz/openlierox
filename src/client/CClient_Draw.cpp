@@ -35,7 +35,7 @@ int CClient::InitializeDrawing(void)
     if(tGameInfo.iGameType == GME_LOCAL)
         cChatbox.setWidth(600);
     else
-        cChatbox.setWidth(320);
+        cChatbox.setWidth(305);
 
 	// Initialize the score buffer
 	bmpScoreBuffer = gfxCreateSurface(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h);
@@ -994,8 +994,10 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 // Draw the remote chat
 void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 {
+	if (!cChatList)
+		return;
+	/*int i;
 	int y = 386;
-	int i;
 
 	for(i=MAX(0,cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
 		line_t *l = cChatbox.GetLine(i);
@@ -1006,6 +1008,45 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 			tLX->cFont.Draw(bmpDest, 190, y, l->iColour,"%s", l->strLine);
 			y+=15;
 		}
+	}*/
+	CListview *lv = (CListview *)cChatList;
+
+	line_t *l = NULL;
+	while(l = cChatbox.GetNewLine()) {
+
+        if(lv->getLastItem())
+            lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
+        else
+            lv->AddItem("", 0, l->iColour);
+        lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+
+	}
+
+    // If there are too many lines, remove the top one
+    while(lv->getItemCount() > 256) {
+        if(lv->getItems())
+            lv->RemoveItem(lv->getItems()->iIndex);
+    }
+
+    lv->scrollLast();
+	lv->Draw(bmpDest);
+
+
+	// Events
+	mouse_t *Mouse = GetMouse();
+	if (Mouse->WheelScrollDown)
+		lv->MouseWheelDown(Mouse);
+	else if (Mouse->WheelScrollUp)
+		lv->MouseWheelUp(Mouse);
+
+	if (lv->InBox(Mouse->X,Mouse->Y))  {
+		// Draw the mouse
+		DrawImage(bmpDest,gfxGUI.bmpMouse[0],Mouse->X,Mouse->Y);
+		lv->MouseOver(Mouse);
+		if (Mouse->Down)
+			lv->MouseDown(Mouse,true);
+		else if (Mouse->Up)
+			lv->MouseUp(Mouse,false);
 	}
 }
 

@@ -22,20 +22,23 @@
 // Draw the list view
 void CListview::Draw(SDL_Surface *bmpDest)
 {
-	lv_subitem_t *sub;
+	lv_subitem_t *sub = NULL;
 
-    Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
+	if (bRedrawMenu)
+		Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 
 
 	// Draw the columns
 	lv_column_t *col = tColumns;
 	int x=iX+4;
 
-	for(int i=1;col;col = col->tNext,i++) {
-		if (bOldStyle)  {
+	if (bOldStyle)  {
+		for(int i=1;col;col = col->tNext,i++)   {
 			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel,"%s", col->sText);
-		} else {
-
+			x += col->iWidth-2;
+		}
+	} else {
+		for(int i=1;col;col = col->tNext,i++)   {
 			int col_w = col->iWidth;
 			// Last column has to be thiner
 			if (i == iNumColumns)
@@ -47,8 +50,9 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			}
 
 			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x-20), tLX->clNormalLabel,"%s", col->sText);
+
+			x += col->iWidth-2;
 		}
-		x += col->iWidth-2;
 	}
 
 	//DrawHLine(bmpDest,iX+3,iX+iWidth-3,iY+tLX->cFont.GetHeight()+4,0xffff);
@@ -56,10 +60,16 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 	// Draw the items
 	int y=iY;
-	if (bOldStyle)
-		y = iY+tLX->cFont.GetHeight()+2;
-	else
-		y = iY+tLX->cFont.GetHeight()+4;
+	if (tColumns)  {
+		if (bOldStyle)
+			y = iY+tLX->cFont.GetHeight()+2;
+		else
+			y = iY+tLX->cFont.GetHeight()+4;
+	} else {
+		y += 3;
+		// Re-setup the scrollbar
+		cScrollbar.Setup(0, iX+iWidth-16, iY+3, 14, iHeight-5);
+	}
 	x = iX+4;
 	lv_item_t *item = tItems;
 	int count=0;
@@ -68,21 +78,22 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	if(iGotScrollbar)
 		selectsize = x+iWidth-20;
 
+	int h=18;
+	int texty = 0;
+
+
 	for(;item;item = item->tNext) {
 		if(count++ < cScrollbar.getValue())
 			continue;
 
-		int h = 18;
+		h = 18;
 		x = iX+4;
 
 		col = tColumns;
 
 		// Find the max height
 		h = item->iHeight;
-		int texty = y + (h-18)/2;
-
-		int colour = item->iColour;
-
+		texty = y + (h-18)/2;
 
 		// Selected?
 		if(item->iSelected && bShowSelect) {
@@ -102,12 +113,12 @@ void CListview::Draw(SDL_Surface *bmpDest)
 				if(sub->iVisible) {
 					if(sub->iType == LVS_TEXT)  {
 						if (col && !bOldStyle)
-							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),colour,"%s",sub->sText);
+							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,"%s",sub->sText);
 						else
-							tLX->cFont.Draw(bmpDest,x,texty,colour,"%s",sub->sText);
+							tLX->cFont.Draw(bmpDest,x,texty,item->iColour,"%s",sub->sText);
 					}
 
-					if(sub->iType == LVS_IMAGE)
+					else if(sub->iType == LVS_IMAGE)
 						DrawImage(bmpDest,sub->bmpImage,x,y);
 				}
 
@@ -128,7 +139,8 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		cScrollbar.Draw(bmpDest);
 
     // Draw the rectangle last
-    Menu_DrawBoxInset(bmpDest, iX, iY+15*bOldStyle, iX+iWidth, iY+iHeight);
+	if (bDrawBorder)
+		Menu_DrawBoxInset(bmpDest, iX, iY+15*bOldStyle, iX+iWidth, iY+iHeight);
 }
 
 
@@ -292,7 +304,10 @@ void CListview::ReadjustScrollbar(void)
 	}
 
 	// Buffer size on top & bottom
-	size += 17;
+	if (tColumns)
+		size += 17;
+	else
+		size += 6;
 
 	iGotScrollbar = false;
 	if(size >= iHeight)
@@ -1105,8 +1120,10 @@ void CListview::setSelectedID(int id)
 // Scroll to the last item
 void CListview::scrollLast(void)
 {
-    cScrollbar.setValue(cScrollbar.getMax());
-    cScrollbar.UpdatePos();
+	if (iGotScrollbar)  {
+		cScrollbar.setValue(cScrollbar.getMax());
+		cScrollbar.UpdatePos();
+	}
 }
 
 ////////////////////

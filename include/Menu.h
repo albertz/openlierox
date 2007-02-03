@@ -446,6 +446,7 @@ void    Menu_Net_HostLobbyCreateGui(void);
 void	Menu_Net_HostGotoLobby(void);
 void	Menu_Net_HostLobbyFrame(int mouse);
 void	Menu_Net_HostLobbyShutdown(void);
+char	*Menu_Net_HostLobbyGetText(void);
 void	Menu_HostDrawLobby(SDL_Surface *bmpDest);
 void	Menu_HostShowMinimap(void);
 void	Menu_Net_HostDeregister(void);
@@ -486,6 +487,7 @@ int		Menu_Net_JoinLobbyInitialize(void);
 void    Menu_Net_JoinDrawLobby(void);
 void    Menu_Net_JoinLobbyCreateGui(void);
 void	Menu_Net_JoinGotoLobby(void);
+char	*Menu_Net_JoinLobbyGetText(void);
 void	Menu_Net_JoinLobbyFrame(int mouse);
 void	Menu_Net_JoinLobbyShutdown(void);
 

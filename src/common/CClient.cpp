@@ -15,6 +15,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "Menu.h"
 #include "console.h"
 
 
@@ -40,12 +41,13 @@ void CClient::Clear(void)
     nTopProjectile = 0;
 	bmpScoreBuffer = NULL;
 	bUpdateScore = true;
+	cChatList = NULL;
 
 	bBotClient = false;
 
 	SetSocketStateValid(tSocket, false);
 
-    cChatbox.setWidth(320);
+    cChatbox.setWidth(305);
 	cChatbox.Clear();
 
 	iLobbyReady = false;
@@ -116,7 +118,7 @@ void CClient::MinorClear(void)
 	fSendWait = 0;
 
 	iChat_Numlines = 0;
-	cChatbox.Clear();
+	((CListview *)cChatList)->Clear();
 
 	int i;
 	for(i=0; i<MAX_WORMS; i++)  {
@@ -221,6 +223,16 @@ int CClient::Initialize(bool Bot,int BotNr)
 	// Initialize the drawing
 	if(!InitializeDrawing())
 		return false;
+
+	cChatList = (void *)(new CListview);
+	if (!cChatList)
+		return false;
+	((CListview *)cChatList)->Clear();
+	((CListview *)cChatList)->setShowSelect(false);
+	((CListview *)cChatList)->setRedrawMenu(false);
+	((CListview *)cChatList)->setDrawBorder(false);
+	((CListview *)cChatList)->Setup(0,185,385,310,90);
+	
 	
 
 	// Clear the network channel
@@ -608,6 +620,14 @@ void CClient::Shutdown(void)
 	if(cBonuses) {
 		delete[] cBonuses;
 		cBonuses = NULL;
+	}
+
+	// Chatlist
+	if (cChatList)  {
+		((CListview *)cChatList)->Clear();
+		((CListview *)cChatList)->Destroy();
+		delete (CListview *)cChatList;
+		cChatList = NULL;
 	}
 
 	// Gamescript

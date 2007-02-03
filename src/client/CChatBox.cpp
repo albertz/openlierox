@@ -63,7 +63,7 @@ void CChatBox::AddWrapped(char *txt, int colour, float time)
 
     // If this line is too long, break it up
 	fix_strncpy(buf,txt);
-	if(tLX->cFont.GetWidth(txt) > nWidth) {
+	if(tLX->cFont.GetWidth(txt) >= nWidth) {
 		int i; // We need it to be defined after FOR ends
 		for (i=fix_strnlen(buf)-2; tLX->cFont.GetWidth(buf) > nWidth && i >= 0; i--)
 			buf[i] = '\0';
@@ -142,6 +142,7 @@ line_t *CChatBox::GetNewLine(void)
 			tmp = iNewLine;
 			WrappedLines[iNewLine++].bNew = false;
 			iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
+			WrappedLines[tmp].bNew = false;
 			return &WrappedLines[tmp];
 		}
 	}

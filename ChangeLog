@@ -1,5 +1,6 @@
 0.57_beta2
 ==========
+- chatbox improvements
 - unlimited number of bots in net play
 - MaxFPS option under [Advanced] in ~/.OpenLieroX/cfg/options.cfg
 - fixed compile-issues on 64bit systems
@@ -18,4 +19,5 @@
 - ...
 
 ======================================
+
 0.56 was the original LieroX by JasonB

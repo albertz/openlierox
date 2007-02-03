@@ -119,12 +119,16 @@ public:
 		bOldStyle = false;
 		iSavedScrollbarPos = 0;
 		iLastChar = 0;
+		bRedrawMenu = true;
+		bDrawBorder = true;
 	}
 
 
 private:
 	// Attributes
 	bool			bOldStyle;
+	bool			bRedrawMenu;
+	bool			bDrawBorder;
 
 	// Columns
 	int				iNumColumns;
@@ -217,6 +221,8 @@ public:
 	int		getClickedSub(void)		{ return iClickedSub; }
 
     void    setShowSelect(bool s)   { bShowSelect = s; }
+	void	setRedrawMenu(bool _r)	{ bRedrawMenu = _r; }
+	void	setDrawBorder(bool _d)	{ bDrawBorder = _d; }
 
 	void	SaveScrollbarPos(void)    { iSavedScrollbarPos = cScrollbar.getValue(); }
 	void	RestoreScrollbarPos(void) { cScrollbar.setValue(iSavedScrollbarPos); iSavedScrollbarPos = 0; }

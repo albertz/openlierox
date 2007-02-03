@@ -16,7 +16,6 @@
 #ifndef __CCLIENT_H__
 #define __CCLIENT_H__
 
-
 #define		MAX_CLIENTS		32
 #define		MAX_PLAYERS		8
 #define		MAX_CHATLINES	8
@@ -86,6 +85,7 @@ public:
         nTopProjectile = 0;
 		bMapGrabbed = false;
 		bmpScoreBuffer = NULL;
+		cChatList = NULL;
 		bUpdateScore = true;
 
 		strcpy(szServerName,"");
@@ -195,7 +195,7 @@ private:
 	chat_line_t	tChatLines[MAX_CHATLINES];
 
 	CChatBox	cChatbox;		// Our chatbox
-//	CChatBox	*pChatbox;		// Pointer to a chatbox to use
+	void		*cChatList;		// Ingame chatlist (this is the type of CListview)
 
 	// Send chat
 	int			iChat_Typing;
