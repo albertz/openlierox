@@ -271,7 +271,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 
-					// Make sure there is 1-2 players in the list
+					// Make sure there is 1-7 players in the list
 					if (lv->getItemCount() > 0 && lv->getItemCount() <= 7) {
 
 						tGameInfo.iNumPlayers = lv->getItemCount();
@@ -280,24 +280,24 @@ void Menu_Net_HostPlyFrame(int mouse)
 						lv_item_t* item;
 						int count=0;
 
-						int i=0;  // TODO: not used
+						int i=0;
 
 						// Add the human players to the list
 						for(item = lv->getItems(); item != NULL; item = item->tNext) {
 							if(item->iIndex < 0)
 								continue;
 
-							// Max two humans
-							if (i > 2)
-								break;
-
 							profile_t *ply = FindProfile(item->iIndex);
 
 							if(ply != NULL && ply->iType == PRF_HUMAN)  {
+								// Max two humans
+								if(i > 2)
+									break;
+								
 								tGameInfo.cPlayers[count++] = ply;
+								i++;							
 							}
 
-							i++;
 						}
 
 						// Add the unhuman players to the list
