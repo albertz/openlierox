@@ -149,3 +149,4 @@ line_t *CChatBox::GetNewLine(void)
 	}
 	return NULL;
 }
+
