@@ -625,12 +625,14 @@ void Menu_Net_NETUpdateList(void)
 
         // Process the http request
         if( SentRequest ) {
-            http_result = http_ProcessRequest(NULL);
+        	static char szError[1024];
+            http_result = http_ProcessRequest(szError);
 
             // Parse the list if the request was successful
             if( http_result == 1 ) {
 		        Menu_Net_NETParseList();
-            }
+            } else if( http_result == -1 )
+            	printf("HTTP ERROR: %s\n", szError);
 
             if( http_result != 0 ) {
                 SentRequest = false;

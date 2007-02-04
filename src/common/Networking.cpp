@@ -12,10 +12,10 @@
 // Created 18/12/02
 // Jason Boettcher
 
-
 #include "defs.h"
 #include "LieroX.h"
 
+#include <map>
 
 // Random Number list
 #include "RandomNumberList.h"
@@ -87,9 +87,14 @@ bool http_InitializeRequest(char *host, char *url)
 		return false;
 
 	// Resolve the address
+	// reset the current adr; sometimes needed (hack? bug in hawknl?)
+	memset(&http_RemoteAddress, 0, sizeof(http_RemoteAddress));
 	SetNetAddrValid(&http_RemoteAddress, false);
     http_ResolveTime = (float)SDL_GetTicks() * 0.001f;
-	GetNetAddrFromNameAsync( http_host, &http_RemoteAddress );
+	if(!GetNetAddrFromNameAsync( http_host, &http_RemoteAddress )) {
+		printf("ERROR: cannot start resolving DNS: ");
+		printf("%s\n", GetSocketErrorStr(GetSocketErrorNr()));
+	}
 
 	http_Connected = false;
 	http_Requested = false;
@@ -114,12 +119,15 @@ int http_ProcessRequest(char *szError)
 	if(!IsNetAddrValid(&http_RemoteAddress)) {
         float f = (float)SDL_GetTicks() * 0.001f;
         // Timed out?
-        if(f - http_ResolveTime > 1/*HTTP_TIMEOUT*/) {
-            if(szError)
-                strcpy(szError, "Could not resolve the address");
+        if(f - http_ResolveTime > 10 /*HTTP_TIMEOUT*/) {
+            if(szError) {
+                strcpy(szError, "Could not resolve the address: ");
+            }
 		    http_Quit();
 		    return -1;
         }
+        // still waiting for dns resolution
+        return 0;
 	}
 
     
@@ -154,6 +162,9 @@ int http_ProcessRequest(char *szError)
 
 		// Connect to the destination
 		if( !http_Connected ) {
+			// adr was resolved; save it
+			AddToDnsCache(http_host, &http_RemoteAddress);
+		
 			if(!ConnectSocket( http_Socket, &http_RemoteAddress )) {
                 if(szError)
                     strcpy(szError, "Could not connect to the server");
@@ -512,9 +523,31 @@ bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
 	}
 }
 
+using namespace std;
+typedef map<string, NetworkAddr> dnsCacheT; 
+dnsCacheT dnsCache;
+
+void AddToDnsCache(string name, const NetworkAddr* addr) {
+	dnsCache[name] = *addr;
+}
+
+bool GetFromDnsCache(string name, NetworkAddr* addr) {
+	dnsCacheT::iterator it = dnsCache.find(name);
+	if(it != dnsCache.end()) {
+		*addr = it->second;
+		return true;
+	} else
+		return false;
+}
+
 bool GetNetAddrFromNameAsync(const char* name, NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
-	else
-		return (nlGetAddrFromNameAsync(name, &addr->adr) != NL_FALSE);
+	else {
+		if(GetFromDnsCache(name, addr)) {
+			SetNetAddrValid(addr, true);
+			return true;
+		}
+		return (nlGetAddrFromNameAsync(name, &addr->adr) != NL_FALSE);		
+	}
 }

@@ -98,5 +98,7 @@ unsigned short GetNetAddrPort(NetworkAddr* addr);
 bool	SetNetAddrPort(NetworkAddr* addr, unsigned short port);
 bool	AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2);
 bool	GetNetAddrFromNameAsync(const char* name, NetworkAddr* addr);
+void	AddToDnsCache(std::string name, const NetworkAddr* addr);
+bool	GetFromDnsCache(std::string name, NetworkAddr* addr);
 
 #endif  //  __NETWORKING_H__
