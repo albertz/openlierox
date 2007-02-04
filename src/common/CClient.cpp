@@ -47,7 +47,7 @@ void CClient::Clear(void)
 
 	SetSocketStateValid(tSocket, false);
 
-    cChatbox.setWidth(305);
+    cChatbox.setWidth(300);
 	cChatbox.Clear();
 
 	iLobbyReady = false;

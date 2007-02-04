@@ -53,6 +53,8 @@ enum {
 	hs_AllowRemoteBots
 };
 
+int iHumanPlayers = 0;
+
 
 ///////////////////
 // Initialize the host menu
@@ -123,6 +125,7 @@ int Menu_Net_HostInitialize(void)
 		cHostPly.SendMessage( hs_PlayerList, LVM_ADDSUBITEM, LVS_TEXT,  (DWORD)p->sName);
 	}
 
+	iHumanPlayers = 0;
 
 	return true;
 }
@@ -165,7 +168,6 @@ void Menu_Net_HostFrame(int mouse)
 	}
 }
 
-int iHumanPlayers = 0;
 ///////////////////
 // Player selection frame
 void Menu_Net_HostPlyFrame(int mouse)
@@ -335,6 +337,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 						// Click
 						PlaySoundSample(sfxGeneral.smpClick);
+
+						iHumanPlayers = 0;
 
 						// Start the lobby
 						Menu_Net_HostLobbyInitialize();

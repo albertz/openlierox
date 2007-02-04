@@ -111,6 +111,11 @@ typedef struct {
 	Uint32			clWaiting;
 	Uint32			clReady;
 	Uint32			clPlayerName;
+	Uint32			clBoxLight;
+	Uint32			clBoxDark;
+	Uint32			clWinBtnBody;
+	Uint32			clWinBtnLight;
+	Uint32			clWinBtnDark;
 
 	Uint32			clPink;
 

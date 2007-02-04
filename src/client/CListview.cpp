@@ -972,7 +972,7 @@ int	CListview::MouseWheelDown(mouse_t *tMouse)
 	if(iGotScrollbar)
 		cScrollbar.MouseWheelDown(tMouse);
 
-	return -1;
+	return LV_NONE;
 }
 
 ///////////////////
@@ -982,7 +982,7 @@ int	CListview::MouseWheelUp(mouse_t *tMouse)
 	if(iGotScrollbar)
 		cScrollbar.MouseWheelUp(tMouse);
 
-	return -1;
+	return LV_NONE;
 }
 
 /////////////////

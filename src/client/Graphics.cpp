@@ -46,6 +46,11 @@ int LoadGraphics(void)
 	tLX->clWaiting = 0xffff;
 	tLX->clReady = MakeColour(0,255,0);
 	tLX->clPlayerName = 0xffff;
+	tLX->clBoxDark = MakeColour(60,60,60);
+	tLX->clBoxLight = MakeColour(130,130,130);
+	tLX->clWinBtnBody = MakeColour(128,128,128);
+	tLX->clWinBtnDark = MakeColour(64,64,64);
+	tLX->clWinBtnLight = MakeColour(192,192,192);
 
 	int i;
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[0], "data/frontend/mouse.png");
@@ -123,40 +128,15 @@ int LoadGraphics(void)
 	ReadColour(colorfile,"Colours","Waiting",		&tLX->clWaiting,		tLX->clWaiting);
 	ReadColour(colorfile,"Colours","Ready",			&tLX->clReady,			tLX->clReady);
 	ReadColour(colorfile,"Colours","PlayerName",	&tLX->clPlayerName,		tLX->clPlayerName);
-
+	ReadColour(colorfile,"Colours","BoxDark",		&tLX->clBoxDark,		tLX->clBoxDark);
+	ReadColour(colorfile,"Colours","BoxLight",		&tLX->clBoxLight,		tLX->clBoxLight);
+	ReadColour(colorfile,"Colours","WinButtonBody",	&tLX->clWinBtnBody,		tLX->clWinBtnBody);
+	ReadColour(colorfile,"Colours","WinButtonDark",	&tLX->clWinBtnDark,		tLX->clWinBtnDark);
+	ReadColour(colorfile,"Colours","WinButtonLight",&tLX->clWinBtnLight,	tLX->clWinBtnLight);
 
 	return true;
 }
 
-
-/*int write_png(char *file_name, png_bytep *rows, int w, int h, int colortype,int bitdepth) {
-  png_structp png_ptr;
-  png_infop info_ptr;
-  FILE *fp = OpenGameFile(file_name, "wb");
-  char *doing = "open for writing";
-
-  if (!(fp = OpenGameFile(file_name, "wb"))) goto fail;
-  doing = "create png write struct";
-  if (!(png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL))) goto fail;
-  doing = "create png info struct";
-  if (!(info_ptr = png_create_info_struct(png_ptr))) goto fail;
-  if (setjmp(png_jmpbuf(png_ptr))) goto fail;
-  doing = "init IO";
-  png_init_io(png_ptr, fp);
-  doing = "write header";
-  png_set_IHDR(png_ptr, info_ptr, w, h, bitdepth, colortype, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-  doing = "write info";
-  png_write_info(png_ptr, info_ptr);
-  doing = "write image";
-  png_write_image(png_ptr, rows);
-  doing = "write end";
-  png_write_end(png_ptr, NULL);
-  return 0;
-
- fail:
-  printf("Write_png: could not %s\n", doing);
-  return -1;
-}*/
 
 ///////////////////
 // Saves the surface to a PNG file, returns true if success

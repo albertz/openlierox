@@ -35,7 +35,7 @@ int CClient::InitializeDrawing(void)
     if(tGameInfo.iGameType == GME_LOCAL)
         cChatbox.setWidth(600);
     else
-        cChatbox.setWidth(305);
+        cChatbox.setWidth(300);
 
 	// Initialize the score buffer
 	bmpScoreBuffer = gfxCreateSurface(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h);
@@ -1019,7 +1019,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
         else
             lv->AddItem("", 0, l->iColour);
         lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
-
+		lv->scrollLast();
 	}
 
     // If there are too many lines, remove the top one
@@ -1028,7 +1028,6 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
             lv->RemoveItem(lv->getItems()->iIndex);
     }
 
-    lv->scrollLast();
 	lv->Draw(bmpDest);
 
 

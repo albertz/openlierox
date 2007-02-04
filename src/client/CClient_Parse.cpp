@@ -464,7 +464,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			fix_strncpy(sChat_Text,chattext);
 		}*/
 
-	cChatbox.setWidth(305);
+	cChatbox.setWidth(300);
 
 
 	// Initialize the worms weapon selection menu & other stuff

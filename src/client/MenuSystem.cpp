@@ -449,8 +449,8 @@ void Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int bor
 // Draw a box
 void Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 {
-    Uint32 dark = MakeColour(60,60,60);
-    Uint32 light = MakeColour(130,130,130);
+    Uint32 dark = tLX->clBoxDark;//MakeColour(60,60,60);
+    Uint32 light = tLX->clBoxLight;//MakeColour(130,130,130);
 
 	DrawRect( bmpDest,x+1, y+1, x2-1,y2-1, light);
     //DrawRect( bmpDest,x+2, y+2, x2-2,y2-2, dark);
@@ -470,8 +470,8 @@ void Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 // Draw an inset box
 void Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 {
-    Uint32 dark = MakeColour(60,60,60);
-    Uint32 light = MakeColour(130,130,130);
+    Uint32 dark = tLX->clBoxDark;
+    Uint32 light = tLX->clBoxLight;
 
 	DrawRect( bmpDest,x+1, y+1, x2-1,y2-1, dark);
 	DrawHLine(bmpDest,x+2, x2-1,y,  light);
@@ -490,9 +490,9 @@ void Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 // Draw a windows style button
 void Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool down)
 {
-    DrawRectFill(bmpDest, x,y, x+w, y+h, MakeColour(128,128,128));
-    Uint32 dark = MakeColour(64,64,64);
-    Uint32 light = MakeColour(192,192,192);
+    DrawRectFill(bmpDest, x,y, x+w, y+h, tLX->clWinBtnBody);
+    Uint32 dark = tLX->clWinBtnDark;
+    Uint32 light = tLX->clWinBtnLight;
     if(down) {
         DrawHLine(bmpDest, x, x+w, y, dark);
         DrawHLine(bmpDest, x, x+w, y+h, light);

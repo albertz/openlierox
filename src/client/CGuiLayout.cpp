@@ -652,6 +652,7 @@ gui_event_t *CGuiLayout::Process(void)
 		}
 	}
 
+
 	// Go through all the widgets
 	for(w=cWidgets ; w ; w=w->getNext()) {
 		tEvent->cWidget = w;
@@ -811,12 +812,14 @@ gui_event_t *CGuiLayout::Process(void)
 
 	// Non-widget wheel up
 	if(tMouse->WheelScrollUp)  {
+		tEvent->iControlID = -9999;
 		tEvent->iEventMsg = SDL_BUTTON_WHEELUP;
 		return tEvent;
 	}
 
 	// Non-widget wheel down
 	if(tMouse->WheelScrollDown)  {
+		tEvent->iControlID = -9999;
 		tEvent->iEventMsg = SDL_BUTTON_WHEELDOWN;
 		return tEvent;
 	}
