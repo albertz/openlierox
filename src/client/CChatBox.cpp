@@ -116,6 +116,7 @@ void CChatBox::setWidth(int w)
 	// Recalculate the wrapped lines
 	for (i=0;i<Lines.size();i++)  
 		AddWrapped(Lines[i].strLine,Lines[i].iColour,Lines[i].fTime);
+	iNewLine = WrappedLines.size()-1;
 
 }
 

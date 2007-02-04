@@ -537,7 +537,7 @@ void Menu_Net_JoinGotoLobby(void)
 		line_t *l = NULL;
 		for (int i=MAX(0,cClient->getChatbox()->getNumLines()-255);i<cClient->getChatbox()->getNumLines();i++)  {
 			l = cClient->getChatbox()->GetLine(i);
-			if (l)  {
+			if (l) if (l->iColour == tLX->clChatText)  {
 				if(lv->getLastItem())
 					lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
 				else

@@ -466,6 +466,25 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	cChatbox.setWidth(300);
 
+	// Load the chat
+	CListview *lv = (CListview *)cChatList;
+	if (lv)  {
+		lv->Clear();
+		line_t *l = NULL;
+		for (int i=MAX(0,cChatbox.getNumLines()-254);i<cChatbox.getNumLines();i++)  {
+			l = cChatbox.GetLine(i);
+			// Add only chat text
+			if (l) if (l->iColour == tLX->clChatText)  {
+				if(lv->getLastItem() && lv->getItems())
+					lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
+				else
+					lv->AddItem("", 0, l->iColour);
+				lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+			}
+		}
+		lv->scrollLast();
+	}
+
 
 	// Initialize the worms weapon selection menu & other stuff
 	int i;

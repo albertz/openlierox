@@ -583,6 +583,8 @@ void CListview::Clear(void)
 	}
 
 	tItems = NULL;
+	tLastItem = NULL;
+	tSelected = NULL;
 
 	cScrollbar.setMin(0);
 	cScrollbar.setMax(1);

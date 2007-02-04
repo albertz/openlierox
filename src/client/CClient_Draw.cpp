@@ -1024,8 +1024,10 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 
     // If there are too many lines, remove the top one
     while(lv->getItemCount() > 256) {
-        if(lv->getItems())
+        if(lv->getItems())  {
             lv->RemoveItem(lv->getItems()->iIndex);
+			lv->scrollLast();
+		}
     }
 
 	lv->Draw(bmpDest);
