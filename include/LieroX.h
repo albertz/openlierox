@@ -157,8 +157,6 @@ typedef struct {
 	
 	int			iNumPlayers;
 	profile_t	*cPlayers[MAX_WORMS];
-	int			iNumBots;
-	profile_t	*cBots[MAX_WORMS];
 } game_t;
 
 

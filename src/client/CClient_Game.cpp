@@ -114,7 +114,7 @@ void CClient::Simulation(void)
 
 
 		// Is this worm shooting?
-		if(/*local && */w->getAlive() && !bBotClient) {
+		if(/*local && */w->getAlive()) {
 
 			// Shoot
 			if(w->getWormState()->iShoot) {
@@ -136,11 +136,10 @@ void CClient::Simulation(void)
 	}
 
 	// Entities
-	//if (!bBotClient)
 	SimulateEntities(tLX->fDeltaTime,cMap);
 
-		// Weather
-		//cWeather.Simulate(tLX->fDeltaTime, cMap);
+	// Weather
+	//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
 	SimulateProjectiles(tLX->fDeltaTime);
@@ -276,7 +275,7 @@ void CClient::SimulateProjectiles(float dt)
 					shake = pi->Hit_Shake;
 
 				// Play the hit sound
-				if(pi->Hit_UseSound && !bBotClient)
+				if(pi->Hit_UseSound)
 					PlaySoundSample(pi->smpSample);
 			}
 
@@ -562,7 +561,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 
 	// Particles
-    if(gotDirt && !bBotClient) {
+    if(gotDirt) {
 	    for(x=0;x<2;x++)
 		    SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
     }
@@ -573,8 +572,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 		expsize = damage;
 
 	// Explosion
-	if (!bBotClient)
-		SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),0,NULL);
+	SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),0,NULL);
 
 	int d = cMap->CarveHole(damage,pos);
 
@@ -679,14 +677,12 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	}
 
 	// Spawn some blood
-	if (!bBotClient)  {
-		float amount = ((float)tLXOptions->iBloodAmount / 100.0f);
-		for(i=0;i<amount;i++) {
-			float sp = GetRandomNum()*50;
-			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),MakeColour(128,0,0),NULL);
-			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
-			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
-		}
+	float amount = ((float)tLXOptions->iBloodAmount / 100.0f);
+	for(i=0;i<amount;i++) {
+		float sp = GetRandomNum()*50;
+		SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),MakeColour(128,0,0),NULL);
+		SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
+		SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
 	}
 }
 
@@ -709,9 +705,8 @@ void CClient::SendCarve(CVec pos)
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
 			Colour = GetPixel(cMap->GetImage(),x,y);
-			if (!bBotClient)
-				for(n=0;n<3;n++)
-					SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
+			for(n=0;n<3;n++)
+				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
 			break;
 		}
 	}
@@ -842,8 +837,7 @@ void CClient::ShootSpecial(CWorm *w)
 
 			Uint32 blue = MakeColour(80,150,200);
 			CVec s = CVec(15,0) * GetRandomNum();
-			if (!bBotClient)
-				SpawnEntity(ENT_JETPACKSPRAY, 0, w->getPos(), s + CVec(0,1) * (float)Slot->Weapon->tSpecial.Thrust, blue, NULL);
+			SpawnEntity(ENT_JETPACKSPRAY, 0, w->getPos(), s + CVec(0,1) * (float)Slot->Weapon->tSpecial.Thrust, blue, NULL);
 			break;
 	}
 
@@ -900,15 +894,13 @@ void CClient::DrawBeam(CWorm *w)
 		// Don't draw explosion when damage is -1
 		if (Slot->Weapon->Bm_Damage != -1)  {
 			if ((int)pos.x <= 0)  {
-				if (!bBotClient)
-					SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
+				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 				stopbeam = true;
 				break;
 			}
 
 			if ((int)pos.y <= 0)  {
-				if (!bBotClient)
-					SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
+				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 				stopbeam = true;
 				break;
 			}
@@ -917,8 +909,7 @@ void CClient::DrawBeam(CWorm *w)
 		if(px & PX_DIRT || px & PX_ROCK) {
 			// Don't draw explosion when damage is -1
 			if (Slot->Weapon->Bm_Damage != -1)  {
-				if (!bBotClient)
-					SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
+				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 				int d = cMap->CarveHole(Slot->Weapon->Bm_Damage, pos);
 				w->incrementDirtCount(d);
 			}
@@ -936,7 +927,7 @@ void CClient::DrawBeam(CWorm *w)
 
 			static const float wormsize = 5;
 			if((pos - w2->getPos()).GetLength2() < wormsize*wormsize) {
-				if (Slot->Weapon->Bm_Damage != -1 && !bBotClient)
+				if (Slot->Weapon->Bm_Damage != -1)
 					SpawnEntity(ENT_EXPLOSION, 3, pos+CVec(1,1), CVec(0,0), 0, NULL);
 				stopbeam = true;
 				break;
@@ -952,7 +943,7 @@ void CClient::DrawBeam(CWorm *w)
 	// Spawn a beam entity
 	// Don't draw the beam if it is 255,0,255
 	Uint32 col = MakeColour(Slot->Weapon->Bm_Colour[0], Slot->Weapon->Bm_Colour[1], Slot->Weapon->Bm_Colour[2]);
-	if(col != tLX->clPink/* && !bBotClient*/) {
+	if(col != tLX->clPink) {
 		SpawnEntity(ENT_BEAM, i, w->getPos(), dir, col, NULL);
 	}
 }
@@ -1237,8 +1228,7 @@ void CClient::LaserSight(CWorm *w)
 	}
 
 	// Spawn a laser sight entity
-	if (!bBotClient)
-		SpawnEntity(ENT_LASERSIGHT, i, w->getPos(), dir, 0, NULL);
+	SpawnEntity(ENT_LASERSIGHT, i, w->getPos(), dir, 0, NULL);
 }
 
 
@@ -1282,7 +1272,7 @@ void CClient::ProcessShot(shoot_t *shot)
 
 
 	// Play the weapon's sound
-	if(wpn->UseSound && !bBotClient)
+	if(wpn->UseSound)
 		StartSound(wpn->smpSample, w->getPos(), w->getLocal(), 100, cLocalWorms[0]);
 
 	// Add the recoil
@@ -1435,9 +1425,6 @@ int ChatMaxLength = 48;
 // Process any chatter
 void CClient::processChatter(void)
 {
-	// Bots don't type
-	/*if (bBotClient)
-		return;*/
 
     keyboard_t *kb = GetKeyboard();
 

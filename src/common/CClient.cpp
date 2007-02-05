@@ -43,8 +43,6 @@ void CClient::Clear(void)
 	bUpdateScore = true;
 	cChatList = NULL;
 
-	bBotClient = false;
-
 	SetSocketStateValid(tSocket, false);
 
     cChatbox.setWidth(300);
@@ -144,7 +142,7 @@ void CClient::MinorClear(void)
 
 ///////////////////
 // Initialize the client
-int CClient::Initialize(bool Bot,int BotNr)
+int CClient::Initialize(void)
 {
 	int i;
 
@@ -161,20 +159,11 @@ int CClient::Initialize(bool Bot,int BotNr)
 
 
 	// Initialize the local worms
-	if (Bot) {
-		bBotClient = true;
-		iNumWorms = 1;
-		cLocalWorms[0] = NULL;
-		tProfiles[0] = tGameInfo.cBots[BotNr];
-	}
-	else  {
-		bBotClient = false;
-		iNumWorms = tGameInfo.iNumPlayers/*-tGameInfo.iNumBots*/;
+	iNumWorms = tGameInfo.iNumPlayers;
 
-		for(i=0;i<iNumWorms;i++) { 
-			cLocalWorms[i] = NULL;
-			tProfiles[i] = tGameInfo.cPlayers[i];
-		}
+	for(i=0;i<iNumWorms;i++) { 
+		cLocalWorms[i] = NULL;
+		tProfiles[i] = tGameInfo.cPlayers[i];
 	}
 
 	// Initialize the remote worms

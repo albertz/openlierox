@@ -531,7 +531,6 @@ void Menu_LocalStartGame(void)
 	//
     // Calculate the number of players
     tGameInfo.iNumPlayers = 0;
-	tGameInfo.iNumBots = 0;
     for(i=0; i<MAX_PLAYERS; i++) {
         if(sLocalPlayers[i].bUsed)
             tGameInfo.iNumPlayers++;

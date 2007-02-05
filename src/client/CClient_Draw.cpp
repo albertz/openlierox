@@ -50,10 +50,6 @@ int CClient::InitializeDrawing(void)
 // Main drawing routines
 void CClient::Draw(SDL_Surface *bmpDest)
 {
-	// Not for bots
-	/*if (bBotClient)
-		return;*/
-
 	int i,num;
 	float dt = tLX->fDeltaTime;
 
@@ -393,19 +389,10 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	DrawRectFill(bmpDest, x-2,y-2,x+2,y+2,0xffff);*/
 }
 
-bool bDrawProjectiles = true;
-
 ///////////////////
 // Draw the projectiles
 void CClient::DrawProjectiles(SDL_Surface *bmpDest, CViewport *v)
 {
-	/*if (!bDrawProjectiles)  {
-		return;
-	}*/
-	// Not for bots
-	/*if (bBotClient)
-		return;*/
-
 	CProjectile *prj = cProjectiles;
 
     prj = cProjectiles;
@@ -422,18 +409,6 @@ void CClient::DrawProjectiles(SDL_Surface *bmpDest, CViewport *v)
 // Draw the projectile shadows
 void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 {
-/*	fProjDrawTime += tLX->fDeltaTime;
-	if (fProjDrawTime < 0.02f)  {
-		fProjDrawTime = 0;
-		bDrawProjectiles = false;
-		return;
-	}
-
-	bDrawProjectiles = true;*/
-	// Not for bots
-	/*if (bBotClient)
-		return;*/
-
     CProjectile *prj = cProjectiles;
 
     for(int p=0;p<nTopProjectile;p++,prj++) {
@@ -449,10 +424,6 @@ void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 // Simulate the hud
 void CClient::SimulateHud(void)
 {
-	// Not for bots
-	/*if (bBotClient)
-		return;*/
-
 	float dt = tLX->fDeltaTime;
 	float ScrollSpeed=5;
     bool  con = Con_IsUsed();
@@ -930,7 +901,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 // Draw the bonuses
 void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 {
-	if(!tGameInfo.iBonusesOn/* || bBotClient*/)
+	if(!tGameInfo.iBonusesOn)
 		return;
 
 	CBonus *b = cBonuses;
@@ -948,10 +919,6 @@ void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 // Draw text that is shadowed
 void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, char *fmt, ...)
 {
-	// Not for bots
-	/*if (bBotClient)
-		return;*/
-
 	static char buf[512];
 	va_list arg;
 
@@ -1069,9 +1036,6 @@ enum {
 // Initialize the viewport manager
 void CClient::InitializeViewportManager(void)
 {
-	/*if (bBotClient)
-		return;*/
-
     int x = 320-gfxGame.bmpViewportMgr->w/2;
     int y = 200-gfxGame.bmpViewportMgr->h/2;
     int x2 = x+gfxGame.bmpViewportMgr->w/2+40;
@@ -1289,7 +1253,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
         bShowScore = true;
         bShowReady = true;
     }
-    if(!bShowScore/* || bBotClient*/)
+    if(!bShowScore)
         return;
 
     int y = 180;
@@ -1388,7 +1352,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 // Draw the current game settings
 void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 {
-    if(Con_IsUsed() /*|| bBotClient*/)
+    if(Con_IsUsed())
         return;
 
     // Do checks on whether or not to show

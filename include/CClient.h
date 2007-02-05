@@ -90,8 +90,6 @@ public:
 
 		strcpy(szServerName,"");
 
-		bBotClient = false;
-
 		cNetChan.Clear();
 		iNetStatus = NET_DISCONNECTED;
 		bsUnreliable.Clear();
@@ -138,9 +136,6 @@ private:
     CViewport   cViewports[NUM_VIEWPORTS];
 
 	profile_t	*tProfiles[MAX_PLAYERS];
-
-	// Client handling local bot in netplay
-	bool		bBotClient;
 
 	// Remote worms
 	CWorm		*cRemoteWorms;
@@ -278,7 +273,7 @@ public:
 
 	void		Clear(void);
 	void		MinorClear(void);
-	int			Initialize(bool Bot = false,int BotNr = -1);	
+	int			Initialize(void);	
 	void		Shutdown(void);
 	void		FinishGame(void);
 
@@ -444,8 +439,6 @@ public:
 
 	int			getMuted(void)				{ return iMuted; }
 	void		setMuted(int _m)			{ iMuted = _m; }
-
-	bool		getBotClient(void)			{ return bBotClient; }
 
 	inline int	getPing(void)				{ return iPing; }
 	inline void	setPing(int Ping)			{ iPing = Ping; }

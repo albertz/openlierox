@@ -69,6 +69,8 @@ void CScrollbar::Draw(SDL_Surface *bmpDest)
 		int pos = iScrollPos;
 		if(pos+length > iHeight-30)
 			pos=iHeight-30-length;
+		if (pos < 0)  
+			pos = 0;
 
         Uint32 shine = MakeColour(25,155,255);
         Uint32 middle = MakeColour(0,100,180);

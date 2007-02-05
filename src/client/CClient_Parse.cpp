@@ -570,8 +570,7 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	cMap->CarveHole(SPAWN_HOLESIZE,p);
 
 	// Show a spawn entity
-	if (!bBotClient)
-		SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
+	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
 
 	UpdateScoreboard();
 }
@@ -750,8 +749,7 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 	cBonuses[id].Spawn(p, type, wpn, &cGameScript);
 	cMap->CarveHole(SPAWN_HOLESIZE,p);
 
-	if (!bBotClient)
-		SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
+	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
 }
 
 
@@ -1030,25 +1028,22 @@ void CClient::ParseWormDown(CBytestream *bs)
 
 		// Make a death sound
 		int s = GetRandomInt(2);
-		if (!bBotClient)
-			StartSound( sfxGame.smpDeath[s], cRemoteWorms[id].getPos(), cRemoteWorms[id].getLocal(), -1, cLocalWorms[0]);
+		StartSound( sfxGame.smpDeath[s], cRemoteWorms[id].getPos(), cRemoteWorms[id].getLocal(), -1, cLocalWorms[0]);
 
 		// Spawn some giblets
 		CWorm *w = &cRemoteWorms[id];
 		int n;
 
-		if (!bBotClient) {
-			for(n=0;n<7;n++)
-				SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg());
+		for(n=0;n<7;n++)
+			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg());
 
-			// Blood
-			float amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
-			for(int i=0;i<amount;i++) {
-				float sp = GetRandomNum()*100+50;
-				SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
-				SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
-				SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
-			}
+		// Blood
+		float amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
+		for(int i=0;i<amount;i++) {
+			float sp = GetRandomNum()*100+50;
+			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
 		}
 	}
 }
@@ -1174,12 +1169,6 @@ void CClient::ParseDropped(CBytestream *bs)
 	// Not so much an error, but i message as to why i was dropped
 	iServerError = true;
 	fix_strncpy(strServerErrorMsg, bs->readString(buf,sizeof(buf)));
-
-	// Clear the bot
-	if (bBotClient)  {
-		MinorClear();
-		iNetStatus = NET_DISCONNECTED;
-	}
 
 	if (tLXOptions->iLogConvos)  {
 		if(!bInServer)
