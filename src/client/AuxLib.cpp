@@ -391,7 +391,8 @@ void FlipScreen(SDL_Surface *psScreen)
     if( cTakeScreenshot.isDownOnce() || cServer->getTakeScreenshot() )
         TakeScreenshot(tGameInfo.bTournament);
 
-    SDL_Flip( psScreen );
+	/*if (tLXOptions->iOpenGL) SDL_GL_SwapBuffers();
+    else*/ SDL_Flip( psScreen );
 }
 
 

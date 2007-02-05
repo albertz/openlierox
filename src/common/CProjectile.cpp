@@ -91,13 +91,16 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 		// Only do it for a positive delta time
 		if(fRemoteFrameTime>0) {
 			res = Simulate(fRemoteFrameTime, map,worms,wormid);
-            if( res != PJC_NONE )
-				return res;
+            /*if( res != PJC_NONE )
+				return res;*/
+			return res;
 		}
 
+		// TODO: comment outdated
 		// Don't leave, coz we still need to process it with a normal delta time
 	}
 
+/*
 	// If the dt is too great, half the simulation time & run it twice
 	if(dt > 0.15f) {
 		dt /= 2;
@@ -107,7 +110,23 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 
 		return Simulate(dt,map,worms,wormid);
 	}
+*/
 
+	// do this before correction of dt; this is needed to ensure the original behavior		
+	fLife += dt;
+	fExtra += dt;
+
+	
+	// Check for collisions
+	// AUTENTION: dt will manipulated directly here!
+	int colret = CheckCollision(dt, map, worms, &dt);
+	if(colret == -1)
+	    res |= PJC_TERRAIN;
+    else if(colret >= 0) {
+		*wormid = colret;
+    	res |= PJC_WORM;
+    }
+	
 
     // If any of the events have been triggered, add that onto the flags
     if( nExplode && tLX->fCurTime > fExplodeTime) {
@@ -120,10 +139,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
     }
 
 
-	fLife += dt;
-	fExtra += dt;
-
-
+/*
 	vOldPos = vPosition;
 	if(tProjInfo->UseCustomGravity)
 		vVelocity.y += (float)(tProjInfo->Gravity)*dt;
@@ -131,10 +147,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 		vVelocity.y += 100*dt;
 
 	vPosition += vVelocity*dt;
-
-	// Dampening
-	if(tProjInfo->Dampening != 1)
-		vVelocity *= tProjInfo->Dampening;
+*/
 
 	if(tProjInfo->Rotating)
 		fRotation += (float)tProjInfo->RotSpeed*dt;
@@ -177,26 +190,26 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	// Trails
 	switch(tProjInfo->Trail) {
 	case TRL_SMOKE:
-		if(fExtra > 0.075f) {
-			fExtra=0;
+		while(fExtra >= 0.075f) {
+			fExtra-=0.075f;
 			SpawnEntity(ENT_SMOKE,0,vPosition,CVec(0,0),0,NULL);
 		}
 		break;
 	case TRL_CHEMSMOKE:
-		if(fExtra > 0.075f) {
-			fExtra=0;
+		while(fExtra >= 0.075f) {
+			fExtra-=0.075f;
 			SpawnEntity(ENT_CHEMSMOKE,0,vPosition,CVec(0,0),0,NULL);
 		}
 		break;
 	case TRL_DOOMSDAY:
-		if(fExtra > 0.05f) {
-			fExtra=0;
+		while(fExtra >= 0.05f) {
+			fExtra-=0.05f;
 			SpawnEntity(ENT_DOOMSDAY,0,vPosition,vVelocity,0,NULL);
 		}
 		break;
 	case TRL_EXPLOSIVE:
-		if(fExtra > 0.05f) {
-			fExtra=0;
+		while(fExtra >= 0.05f) {
+			fExtra-=0.05f;
 			SpawnEntity(ENT_EXPLOSION,10,vPosition,CVec(0,0),0,NULL);
 		}
 		break;
@@ -209,15 +222,16 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 		}
 	}
 
-
+/*
     // Check worm collisions
     int w = CheckWormCollision(worms);
     if( w >= 0 ) {
         *wormid = w;
         res |= PJC_WORM;
     }
+*/
 
-
+/*
 	// Hack!!!
 	if(tProjInfo->Hit_Type == PJ_EXPLODE && tProjInfo->Type == PRJ_PIXEL) {
 		int px = (int)vPosition.x;
@@ -225,8 +239,8 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 
 		// Edge checks
 		if(px<=0 || py<=0 || px>=map->GetWidth()-1 || py>=map->GetHeight()-1) {
-			// Clamp the position
-			px = MAX(px,0);
+			// Clamp the position			
+			px = MAX(px,0); // not needed
 			py = MAX(py,0);
 			px = MIN(map->GetWidth()-1,px);
 			py = MIN(map->GetHeight()-1,py);
@@ -241,10 +255,8 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
         return res;
 	}
 
+*/
 
-	// Check for collisions
-    if( CheckCollision(dt, map, vOldPos, vVelocity) )
-        res |= PJC_TERRAIN;
 
     return res;
 }
@@ -252,36 +264,62 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 
 ///////////////////
 // Check for a collision
-// Returns true if there was a collision, otherwise false is returned
-int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
+// Returns:
+// -1 if some collision
+// -1000 if none
+// >=0 is collision with worm (the return-value is the ID) 
+int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 {
+	static const int NONE_COL_RET = -1000;
+	static const int SOME_COL_RET = -1;
+	
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
 	int px,py,x,y;
-
+	int ret;
+	
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
 	else // TODO: was this 'else' missing here?
 		w=h=2;
 
+	CVec newvel = vVelocity;
+	// Gravity
+	if(tProjInfo->UseCustomGravity)
+		newvel.y += (float)(tProjInfo->Gravity)*dt;
+	else
+		newvel.y += 100*dt;	
+	
+	// Dampening
+	if(tProjInfo->Dampening != 1)
+		newvel *= (float)pow(tProjInfo->Dampening, dt*10); // TODO: is this ok?
+	
 	float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
-	if( (vel*dt).GetLength2() > maxspeed2) {
+	if( (newvel*dt).GetLength2() > maxspeed2) {
 		dt *= 0.5f;
 
-		if(CheckCollision(dt,map,pos,vel))
-			return true;
+		ret=CheckCollision(dt,map,worms,enddt);
+		if(ret >= -1) {
+			return ret;
+		}
 
-		pos += vel*dt;
-
-		return CheckCollision(dt,map,pos,vel);
+		ret=CheckCollision(dt,map,worms,enddt);
+		if(ret >= -1) {
+			if(enddt) *enddt += dt;
+			return ret;
+		}
+		
+		if(enddt) *enddt = dt*2;
+		return NONE_COL_RET;
 	}
 
-	pos += vel*dt;
-
-	px=(int)pos.x;
-	py=(int)pos.y;
+	vVelocity = newvel;
+	if(enddt) *enddt = dt;
+	vPosition += vVelocity*dt;
+	px=(int)(vPosition.x);
+	py=(int)(vPosition.y);
 
 	CollisionSide = 0;
 	short top,bottom,left,right;
@@ -311,7 +349,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 		vPosition.x = (float)px;
 		vPosition.y = (float)py;
 
-		return true;
+		return SOME_COL_RET;
+	}
+
+	// got we any worm?
+	ret = ProjWormColl(vPosition, worms);
+	if(ret >= 0) {
+		return ret;
 	}
 
 	const uchar* gridflags = map->getAbsoluteGridFlags();
@@ -328,11 +372,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 		// Clipping means that it has collided
 		if(y<0)	{
 			CollisionSide |= COL_TOP;
-			return true;
+			return SOME_COL_RET;
 		}
 		if(y>=mh) {
 			CollisionSide |= COL_BOTTOM;
-			return true;
+			return SOME_COL_RET;
 		}
 
 
@@ -343,11 +387,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 			// Clipping
 			if(x<0) {
 				CollisionSide |= COL_LEFT;
-				return true;
+				return SOME_COL_RET;
 			}
 			if(x>=mw) {
 				CollisionSide |= COL_RIGHT;
-				return true;
+				return SOME_COL_RET;
 			}
 
 			if(*pf & PX_DIRT || *pf & PX_ROCK) {
@@ -372,15 +416,16 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 
 		if(tProjInfo->Hit_Type == PJ_EXPLODE) {
 			//vPosition = pos;
-			return true;
+			return SOME_COL_RET;
 		}
 
-
-		// Bit of a hack
+		CVec pos = vPosition - vVelocity*dt;
+		
+	/*	// Bit of a hack
 		if(tProjInfo->Hit_Type == PJ_BOUNCE)
 			pos = vOldPos;
 		else
-			vPosition = pos;
+			vPosition = CVec(px,py); */
 
 		// Find the collision side
 		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
@@ -413,10 +458,10 @@ int CProjectile::CheckCollision(float dt, CMap *map, CVec pos, CVec vel)
 		if(fabs(vVelocity.y) < 2)
 			vVelocity.y=(0);*/
 
-		return true;
+		return SOME_COL_RET;
 	}
 
-	return false;
+	return NONE_COL_RET;
 }
 
 ///////////////////

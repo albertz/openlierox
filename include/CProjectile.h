@@ -116,7 +116,7 @@ public:
 
 	int		CheckWormCollision(CWorm *worms);
 	int		ProjWormColl(CVec pos, CWorm *worms);
-	int	CheckCollision(float dt, CMap *map, CVec pos, CVec vel);
+	int		CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt);
 	static int	CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos, CVec vel);
 
 	void	Bounce(float fCoeff);
