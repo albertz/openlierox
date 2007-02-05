@@ -1020,9 +1020,9 @@ void Menu_Net_HostLobbyShutdown(void)
 
 	// Shutdown server & clients
 	cServer->Shutdown();
-	if (cBots)
-		for (int i=0;i<tGameInfo.iNumBots;i++)
-			cBots[i].Shutdown();
+	/*if (cBots)
+		for (int i=0;i<tGameInfo.iNumBots;i++) // TODO: iNumBots undefined; why?
+			cBots[i].Shutdown();*/
 	cClient->Shutdown();
 
 	// Recover the host type
