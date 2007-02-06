@@ -114,7 +114,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 
 	
 	// Check for collisions
-	// AUTENTION: dt will manipulated directly here!
+	// ATENTION: dt will manipulated directly here!
 	int colret = CheckCollision(dt, map, worms, &dt);
 	if(colret == -1)
 	    res |= PJC_TERRAIN;
@@ -276,9 +276,27 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static const int NONE_COL_RET = -1000;
 	static const int SOME_COL_RET = -1;
 	
-	static const int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
-	static const int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
-	static const int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
+	static int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
+	static int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
+	static int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
+	int len = (int)vVelocity.GetLength2();
+	if (len < 14000)  {
+		MIN_CHECKSTEP = 1;
+		MAX_CHECKSTEP = 3;
+		AVG_CHECKSTEP = 2;
+	} else if (len >= 14000 && len < 25000)  {
+		MIN_CHECKSTEP = 2;
+		MAX_CHECKSTEP = 4;
+		AVG_CHECKSTEP = 2;
+	} else if (len >= 25000 && len < 40000)  {
+		MIN_CHECKSTEP = 4;
+		MAX_CHECKSTEP = 6;
+		AVG_CHECKSTEP = 4;
+	} else if (len >= 40000)  {
+		MIN_CHECKSTEP = 6;
+		MAX_CHECKSTEP = 9;
+		AVG_CHECKSTEP = 6;
+	}
 	
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
