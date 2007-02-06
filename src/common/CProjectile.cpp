@@ -112,10 +112,6 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	}
 */
 
-	// do this before correction of dt; this is needed to ensure the original behavior		
-	fLife += dt;
-	fExtra += dt;
-
 	
 	// Check for collisions
 	// AUTENTION: dt will manipulated directly here!
@@ -127,6 +123,15 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
     	res |= PJC_WORM;
     }
 	
+	// HINT: in original LX, we have this simulate code with lower dt
+	//		(this is now the work of CheckCollision)
+	//		but we also do this everytime without checks for a collision
+	//		so this new code should behave like the original LX on high FPS
+	// PERHAPS: do this before correction of dt; this is perhaps more like
+	//		the original behavior (with lower FPS)
+	//		(or leave it this way, if it works)
+	fLife += dt;
+	fExtra += dt;
 
     // If any of the events have been triggered, add that onto the flags
     if( nExplode && tLX->fCurTime > fExplodeTime) {
@@ -187,7 +192,11 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 		}
 	}
 
-	// Trails
+	// Trails	
+	// HINT: these while-loops are new
+	// 		the original LX only checks it and resets it, so it spawns only once
+	//		this code is a bit like if we have very high FPS, but all entities
+	//		are spawn at the current position; perhaps this is not perfect, we have to test it
 	switch(tProjInfo->Trail) {
 	case TRL_SMOKE:
 		while(fExtra >= 0.075f) {
@@ -273,6 +282,10 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static const int NONE_COL_RET = -1000;
 	static const int SOME_COL_RET = -1;
 	
+	static const int MIN_CHECKSTEP = 2;
+	static const int MAX_CHECKSTEP = 8;
+	static const int AVG_CHECKSTEP = 3; // this is used for the intersection, if the step is to wide
+	
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
@@ -296,23 +309,23 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	if(tProjInfo->Dampening != 1)
 		newvel *= (float)pow(tProjInfo->Dampening, dt*10); // TODO: is this ok?
 	
-	float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
-	if( (newvel*dt).GetLength2() > maxspeed2) {
-		dt *= 0.5f;
-
-		ret=CheckCollision(dt,map,worms,enddt);
-		if(ret >= -1) {
-			return ret;
-		}
-
-		ret=CheckCollision(dt,map,worms,enddt);
-		if(ret >= -1) {
-			if(enddt) *enddt += dt;
-			return ret;
+	//float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
+	float checkstep = newvel.GetLength2(); // |v|^2
+	if( checkstep*dt*dt > MAX_CHECKSTEP*MAX_CHECKSTEP ) { // |dp|^2=|v*dt|^2
+		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
+		// checkstep is new dt
+		checkstep = (float)AVG_CHECKSTEP / sqrt(checkstep);
+		
+		for(float time = 0; time < dt; time += checkstep) {
+			ret = CheckCollision(time+checkstep>dt ? dt-time : checkstep, map,worms,enddt);
+			if(ret >= -1) {
+				if(enddt) *enddt += time;
+				return ret;
+			}
 		}
 		
-		if(enddt) *enddt = dt*2;
-		return NONE_COL_RET;
+		if(enddt) *enddt = dt;
+		return NONE_COL_RET;		
 	}
 
 	vVelocity = newvel;
@@ -320,6 +333,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	vPosition += vVelocity*dt;
 	px=(int)(vPosition.x);
 	py=(int)(vPosition.y);
+
+	// if distance is to short, just return here without a check
+	if( checkstep*dt*dt < MIN_CHECKSTEP*MIN_CHECKSTEP ) {
+		return NONE_COL_RET;
+	}
 
 	CollisionSide = 0;
 	short top,bottom,left,right;
@@ -419,6 +437,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			return SOME_COL_RET;
 		}
 
+		// calc the old position
 		CVec pos = vPosition - vVelocity*dt;
 		
 	/*	// Bit of a hack
