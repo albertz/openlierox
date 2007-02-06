@@ -277,8 +277,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static const int SOME_COL_RET = -1;
 	
 	static const int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
-	static const int MAX_CHECKSTEP = 8; // if step is wider than this, it will be intersected
-	static const int AVG_CHECKSTEP = 6; // this is used for the intersection, if the step is to wide
+	static const int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
+	static const int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
 	
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
@@ -328,11 +328,15 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	px=(int)(vPosition.x);
 	py=(int)(vPosition.y);
 
+	// got we any worm?
+	ret = ProjWormColl(vPosition, worms);
+	if(ret >= 0) {
+		return ret;
+	}
+	
 	// if distance is to short to last check, just return here without a check
 	if( (vOldPos-vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP )
 		return NONE_COL_RET;
-	else
-		vOldPos = vPosition;	
 
 	CollisionSide = 0;
 	short top,bottom,left,right;
@@ -359,16 +363,10 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			CollisionSide |= COL_BOTTOM;
 		}
 
-		vPosition.x = (float)px;
-		vPosition.y = (float)py;
-
+		//vPosition.x = (float)px;
+		//vPosition.y = (float)py;
+		vPosition = vOldPos;
 		return SOME_COL_RET;
-	}
-
-	// got we any worm?
-	ret = ProjWormColl(vPosition, worms);
-	if(ret >= 0) {
-		return ret;
 	}
 
 	const uchar* gridflags = map->getAbsoluteGridFlags();
@@ -385,10 +383,12 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		// Clipping means that it has collided
 		if(y<0)	{
 			CollisionSide |= COL_TOP;
+			vPosition = vOldPos;
 			return SOME_COL_RET;
 		}
 		if(y>=mh) {
 			CollisionSide |= COL_BOTTOM;
+			vPosition = vOldPos;
 			return SOME_COL_RET;
 		}
 
@@ -400,10 +400,12 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			// Clipping
 			if(x<0) {
 				CollisionSide |= COL_LEFT;
+				vPosition = vOldPos;
 				return SOME_COL_RET;
 			}
 			if(x>=mw) {
 				CollisionSide |= COL_RIGHT;
+				vPosition = vOldPos;
 				return SOME_COL_RET;
 			}
 
@@ -427,41 +429,45 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	if(top || bottom || left || right) {
 		CollisionSide = 0;
 
+		//vPosition = vOldPos + vVelocity*dt;
+
 		if(tProjInfo->Hit_Type == PJ_EXPLODE) {
 			//vPosition = pos;
+			vPosition = vOldPos;
 			return SOME_COL_RET;
 		}
 
-		// calc the old position
-		CVec pos = vPosition - vVelocity*dt;
+		CVec pos = vPosition - vVelocity*dt; // old pos
+		bool bounce = false;
 		
-	/*	// Bit of a hack
-		if(tProjInfo->Hit_Type == PJ_BOUNCE)
-			pos = vOldPos;
-		else
-			vPosition = CVec(px,py); */
-
+		// Bit of a hack
+		if( tProjInfo->Hit_Type == PJ_BOUNCE &&
+			!(top && bottom) && !(left && right) ) {
+			bounce = true;			
+		} else
+			vPosition = vOldPos;		
+			
 		// Find the collision side
 		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
-			if(tProjInfo->Hit_Type == PJ_BOUNCE)
+			if(bounce)
 				vPosition.x=( pos.x );
 			CollisionSide |= COL_LEFT;
 		}
 
 		if( (right>left || right>2) && right>1 && vVelocity.x > 0) {
-			if(tProjInfo->Hit_Type == PJ_BOUNCE)
+			if(bounce)
 				vPosition.x=( pos.x );
 			CollisionSide |= COL_RIGHT;
 		}
 
 		if(top>1 && vVelocity.y < 0) {
-			if(tProjInfo->Hit_Type == PJ_BOUNCE)
+			if(bounce)
 				vPosition.y=( pos.y );
 			CollisionSide |= COL_TOP;
 		}
 
 		if(bottom>1 && vVelocity.y > 0) {
-			if(tProjInfo->Hit_Type == PJ_BOUNCE)
+			if(bounce)
 				vPosition.y=( pos.y );
 			CollisionSide |= COL_BOTTOM;
 		}
@@ -474,7 +480,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 
 		return SOME_COL_RET;
 	}
-
+	
+	vOldPos = vPosition;
 	return NONE_COL_RET;
 }
 
