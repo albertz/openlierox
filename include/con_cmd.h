@@ -62,6 +62,9 @@ void	Cmd_Help();
 void	Cmd_About();
 void	Cmd_BadWord();
 void	Cmd_Quit();
+void	Cmd_Volume();
+void	Cmd_Sound();
+
 
 
 #endif  //  __CON_COMMAND_H__

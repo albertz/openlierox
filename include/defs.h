@@ -58,9 +58,9 @@ inline size_t strnlen(const char *str, size_t maxlen)  {
 	for (;i<maxlen && str[i];i++) {}
 	return i;
 }
-#endif // _MSC_VER == 1200
+#endif // _MSC_VER <= 1200
+inline int strncasecmp(const char *str1, const char *str2, size_t l) {return _strnicmp(str1,str2,l); }
 // TODO: inline
-#	define strncasecmp _strnicmp
 #	define vsnprintf _vsnprintf
 #	define snprintf	 _snprintf
 

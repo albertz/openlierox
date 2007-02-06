@@ -728,7 +728,7 @@ void CProjectile::Bounce(float fCoeff)
 //	w=h=3;
 
 //	CVec pos = vPosition;
-	if(CollisionSide) {
+/*	if(CollisionSide) {
 		x=fCoeff; y=fCoeff;
 	}
 		
@@ -740,6 +740,23 @@ void CProjectile::Bounce(float fCoeff)
 	if(CollisionSide & (COL_LEFT|COL_RIGHT)) {
 		x=-x;
 		//vPosition.x=( vOldPos.x );
+	}*/
+
+	if (CollisionSide & COL_TOP)  {
+		x = fCoeff;
+		y = -fCoeff;
+	}
+	if (CollisionSide & COL_BOTTOM)  {
+		x = fCoeff;
+		y = -fCoeff;
+	}
+	if (CollisionSide & COL_LEFT)  {
+		x = -fCoeff;
+		y = fCoeff;
+	}
+	if (CollisionSide & COL_RIGHT)  {
+		x = -fCoeff;
+		y = fCoeff;
 	}
 
 	vVelocity.x *= x;

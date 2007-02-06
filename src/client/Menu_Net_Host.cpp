@@ -611,7 +611,7 @@ void Menu_Net_HostGotoLobby(void)
 		line_t *l = NULL;
 		for (int i=MAX(0,cClient->getChatbox()->getNumLines()-255);i<cClient->getChatbox()->getNumLines();i++)  {
 			l = cClient->getChatbox()->GetLine(i);
-			if (l)  {
+			if (l) if (l->iColour == tLX->clChatText)  {
 				if(lv->getLastItem())
 					lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
 				else
@@ -621,7 +621,6 @@ void Menu_Net_HostGotoLobby(void)
 		}
 		lv->scrollLast();
 	}
-
 
 	cServer->UpdateGameLobby();
 }
@@ -1020,9 +1019,6 @@ void Menu_Net_HostLobbyShutdown(void)
 
 	// Shutdown server & clients
 	cServer->Shutdown();
-	/*if (cBots)
-		for (int i=0;i<tGameInfo.iNumBots;i++) // TODO: iNumBots undefined; why?
-			cBots[i].Shutdown();*/
 	cClient->Shutdown();
 
 	// Recover the host type

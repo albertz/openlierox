@@ -283,6 +283,7 @@ void CWorm::readWeapons(CBytestream *bs)
 		int id = bs->readByte();
 
 		tWeapons[i].Weapon = NULL;
+		tWeapons[i].Enabled = true;
 
 		if(cGameScript) {
 			if(id >= 0 && id < cGameScript->GetNumWeapons())

@@ -35,7 +35,7 @@ int CClient::InitializeDrawing(void)
     if(tGameInfo.iGameType == GME_LOCAL)
         cChatbox.setWidth(600);
     else
-        cChatbox.setWidth(300);
+        cChatbox.setWidth(325);
 
 	// Initialize the score buffer
 	bmpScoreBuffer = gfxCreateSurface(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h);

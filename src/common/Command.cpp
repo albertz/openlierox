@@ -594,3 +594,39 @@ void Cmd_BadWord() {
 void Cmd_Quit() {
 	tLX->iQuitEngine = true;
 }
+
+///////////////////
+// Set sound volume
+void Cmd_Volume()  {
+	if (Cmd_GetNumArgs() == 1)  {
+		Con_Printf(CNC_NORMAL,"%s","Usage: volume <0-100>");
+	}
+
+	char *arg = NULL;
+	arg = Cmd_GetArg(1);
+	if (arg) if (arg[0])  {
+		int vol = atoi(arg);
+		vol = MIN(vol,100);
+		vol = MAX(vol,0);
+		SetSoundVolume(vol);
+	}
+}
+
+//////////////////
+// Enable or disable sound
+void Cmd_Sound()  {
+	// Check arguments
+	if (Cmd_GetNumArgs() == 1)  {
+		Con_Printf(CNC_NORMAL,"%s","Usage: sound <on/off>");
+	}
+
+	char *arg = "";
+	arg = Cmd_GetArg(1);
+
+	if (!stricmp(arg,"on") || !stricmp(arg,"true") || !stricmp(arg,"1") || !stricmp(arg,"yes"))  {
+		StartSoundSystem();
+	}
+	else  {
+		StopSoundSystem();
+	}
+}

@@ -45,7 +45,7 @@ void CClient::Clear(void)
 
 	SetSocketStateValid(tSocket, false);
 
-    cChatbox.setWidth(300);
+    cChatbox.setWidth(325);
 	cChatbox.Clear();
 
 	iLobbyReady = false;
@@ -220,7 +220,7 @@ int CClient::Initialize(void)
 	((CListview *)cChatList)->setShowSelect(false);
 	((CListview *)cChatList)->setRedrawMenu(false);
 	((CListview *)cChatList)->setDrawBorder(false);
-	((CListview *)cChatList)->Setup(0,185,385,310,90);
+	((CListview *)cChatList)->Setup(0,170,385,340,95);
 	
 	
 

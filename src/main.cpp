@@ -312,6 +312,8 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("sex", Cmd_BadWord);
 	Cmd_AddCommand("quit", Cmd_Quit);
 	Cmd_AddCommand("exit", Cmd_Quit);
+	Cmd_AddCommand("volume", Cmd_Volume);
+	Cmd_AddCommand("sound", Cmd_Sound);
 	
 	// Load the sounds
 	LoadSounds();

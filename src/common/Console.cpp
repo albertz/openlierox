@@ -362,7 +362,7 @@ void Con_ProcessCharacter(int input)
 	}
 
 	// Normal key
-	if(isprint(input)) {
+	if((char)input > 31 && (char)input <127) {
 		// Safety
 		if (Console->iCurpos > Console->iCurLength)
 			Console->iCurpos = Console->iCurLength;

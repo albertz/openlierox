@@ -645,11 +645,7 @@ bool CServer::DeRegisterServer(void)
 bool CServer::ProcessDeRegister(void)
 {
 	int result = http_ProcessRequest(NULL);
-
-	if( result == 0 )
-		return false;
-
-	return true;
+	return result != 0;
 }
 
 

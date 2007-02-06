@@ -4388,6 +4388,9 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 					iCurrentWeapon = wpn;
 					AI_SetAim(v); // aim at the dirt
 					ws->iShoot = true;
+					// Don't do any crazy things when shooting
+					ws->iMove = false;
+					ws->iJump = false;
 				} /* else
 					AI_SimpleMove(pcMap,psAITarget != NULL); */ // no weapon found, so move around
 			}

@@ -110,7 +110,7 @@ void CServer::SimulateGame(void)
 		}
 
 		// Add their time in a game of tag
-		if(iGameType == GMT_TAG && w->getTagIT())  {
+		if(iGameType == GMT_TAG && w->getTagIT() && w->getAlive())  {
 			w->incrementTagTime(tLX->fDeltaTime);
 
 			// Log
@@ -126,18 +126,20 @@ void CServer::SimulateGame(void)
 
 
 	// Check if any bonuses have been in for too long and need to be destroyed
-	for(i=0; i<MAX_BONUSES; i++) {
-		if(!cBonuses[i].getUsed())
-			continue;
+	if (iBonusesOn)  {
+		for(i=0; i<MAX_BONUSES; i++) {
+			if(!cBonuses[i].getUsed())
+				continue;
 
-		// If it's been here too long, destroy it
-		if( tLX->fCurTime - cBonuses[i].getSpawnTime() > BONUS_LIFETIME ) {
-			CBytestream bs;
-			cBonuses[i].setUsed(false);
+			// If it's been here too long, destroy it
+			if( tLX->fCurTime - cBonuses[i].getSpawnTime() > BONUS_LIFETIME ) {
+				CBytestream bs;
+				cBonuses[i].setUsed(false);
 
-			bs.writeByte(S2C_DESTROYBONUS);
-			bs.writeByte(i);
-			SendGlobalPacket(&bs);
+				bs.writeByte(S2C_DESTROYBONUS);
+				bs.writeByte(i);
+				SendGlobalPacket(&bs);
+			}
 		}
 	}
 
@@ -288,6 +290,8 @@ void CServer::TagRandomWorm(void)
 	float time = 99999;
 	int lowest=0;
 
+	// TODO: in game start this always picks the host, which is not so fair 
+
 
 	// Go through finding the worm with the lowest tag time
 	// A bit more fairer then random picking
@@ -333,8 +337,8 @@ void CServer::WormShoot(CWorm *w)
 	if(Slot->LastFire>0)
 		return;
 
-	// TODO: can be optimized
-	if (!cWeaponRestrictions.isEnabled(Slot->Weapon->Name))
+	// Don't shoot with banned weapons
+	if (!Slot->Enabled)
 		return;
 
 	Slot->LastFire = Slot->Weapon->ROF;

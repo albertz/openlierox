@@ -150,15 +150,18 @@ void CServer::ParseImReady(CClient *cl, CBytestream *bs)
 	if (iState != SVS_GAME)
 		return;
 
-	int i;
+	int i,j;
 	// Note: This isn't a lobby ready
 
 	// Read the worms weapons
 	int num = bs->readByte();
 	for(i=0; i<num; i++) {
 		int id = bs->readByte();
-		if( id >= 0 && id < MAX_WORMS)
+		if( id >= 0 && id < MAX_WORMS)  {
 			cWorms[id].readWeapons(bs);
+			for (j=0;j<5;j++)
+				cWorms[id].getWeapon(j)->Enabled = cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name);
+		}
 	}
 
 

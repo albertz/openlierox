@@ -53,6 +53,7 @@ typedef struct {
 	float		Charge;
 	int			Reloading;
 	float		LastFire;
+	bool		Enabled;
 } wpnslot_t;
 
 typedef struct {
