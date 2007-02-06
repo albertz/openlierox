@@ -464,9 +464,16 @@ void Cmd_UnmuteId(void)
 // Crash
 void Cmd_Crash(void)
 {
+	Con_Printf(CNC_NORMAL,"In a previos version, the game would crash now!");
+	// HINT: please don't add any code, which could make the game unstable
+	//		(I myself just tested this command without knowing and BANG,
+	//		I got an access violation. Perhaps the hoster of an important
+	//		clan war does it...)
+/*
 	// Let's make an access violation
 	char *crashbuf = NULL;
 	*(crashbuf+789456) = '\n';
+*/
 }
 
 ///////////////////
