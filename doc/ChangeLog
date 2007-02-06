@@ -1,7 +1,11 @@
 0.57_beta2
 ==========
+- collision-checks are improved (more like the original LX, that
+  means, it goes at least through walls with ~3px width)
 - chatbox improvements
 - unlimited number of bots in net play
+- ~/ at the beginning of a searchpath is handled correctly and there
+  is a more correct method to get the homedir
 - MaxFPS option under [Advanced] in ~/.OpenLieroX/cfg/options.cfg
 - fixed compile-issues on 64bit systems
 - no-clipping-issues with weapon-generated dirt are fixed

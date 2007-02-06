@@ -6,9 +6,8 @@ TODO list
 [x] better listing of searchpaths
 [ ] better bot aiming
 [ ] better bot behavior
-[x] other method to get homedir (it seems that $HOME is not set in every case)
-[x] also accept ~/ in the beginning of a path-name (treat this as another variable)
-[ ] cap FPS / CPU time
+[x] cap FPS / CPU time
+[ ] add MaxFPS option in option dialog
 
 minor things:
 [ ] save selected player list in local play and return in this menu after playing
