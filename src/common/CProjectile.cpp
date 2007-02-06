@@ -433,7 +433,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 
 		if(tProjInfo->Hit_Type == PJ_EXPLODE) {
 			//vPosition = pos;
-			vPosition = vOldPos;
+			//vPosition = vOldPos;
 			return SOME_COL_RET;
 		}
 
@@ -445,8 +445,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			!(top && bottom) && !(left && right) ) {
 			bounce = true;			
 		} else
-			vPosition = vOldPos;		
-			
+			vPosition = vOldPos;
+							
 		// Find the collision side
 		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
 			if(bounce)
@@ -473,11 +473,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		}
 
 		// If the velocity is too low, just stop me
-		/*if(fabs(vVelocity.x) < 2)
-			vVelocity.x=(0);
+		if(fabs(vVelocity.x) < 2)
+			vVelocity.x=0;
 		if(fabs(vVelocity.y) < 2)
-			vVelocity.y=(0);*/
-
+			vVelocity.y=0;
+						
 		return SOME_COL_RET;
 	}
 	
@@ -710,8 +710,6 @@ void CProjectile::Bounce(float fCoeff)
 	float x,y;
 	x=y=1;
 
-	float Bounce = fCoeff;
-
 	/*if(firstbounce) {
 		printf("Bounce; %d, %d, %d, %d\n",(CollisionSide & COL_TOP)==COL_TOP,
 										  (CollisionSide & COL_BOTTOM)==COL_BOTTOM,
@@ -724,21 +722,17 @@ void CProjectile::Bounce(float fCoeff)
 //	w=h=3;
 
 //	CVec pos = vPosition;
-	if(CollisionSide & COL_TOP) {
-		x=Bounce; y=-Bounce;
-		//vPosition.y=( vOldPos.y );
+	if(CollisionSide) {
+		x=fCoeff; y=fCoeff;
 	}
-	if(CollisionSide & COL_BOTTOM) {
-		x=Bounce; y=-Bounce;
+		
+	if(CollisionSide & (COL_TOP|COL_BOTTOM)) {
+		y=-y;
 		//vPosition.y=( vOldPos.y );
 	}
 
-	if(CollisionSide & COL_LEFT) {
-		x=-Bounce; y=Bounce;
-		//vPosition.x=( vOldPos.x );
-	}
-	if(CollisionSide & COL_RIGHT) {
-		x=-Bounce; y=Bounce;
+	if(CollisionSide & (COL_LEFT|COL_RIGHT)) {
+		x=-x;
 		//vPosition.x=( vOldPos.x );
 	}
 
