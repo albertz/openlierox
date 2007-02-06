@@ -3,20 +3,27 @@
 # this is the compile-script for a simple compilation of the game
 # the following variables will be used:
 #	SYSTEM_DATA_DIR		- the global data dir for the game; default=/usr/share
-#	COMPILER		- sets the compiler
-#	CXXFLAGS		- some other compiler flags
-#	DEBUG			- if set to 1, the game will compiled with debug-info
+#	COMPILER			- sets the compiler
+#	CXXFLAGS			- some other compiler flags
+#	DEBUG				- if set to 1, the game will compiled with debug-info
+#	ACTIVATE_GDB		- sets the -ggdb flag
+#						( it will automatically be activated, if you haven't
+#						  set it manually and DEBUG==1 )
 #	HAWKNL_BUILTIN		- if set to 1, HawkNL will be builtin
 
 # check variables and set default values if unset
 [ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
 [ "$DEBUG" == "" ] && DEBUG=0
 [ "$COMPILER" == "" ] && COMPILER=g++
+[ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
 
+# some simple existance-test-function
 function test_include_file() {
 	[ -e /usr/include/$1 -o -e /usr/local/include/$1 ]
 	return $?
 }
+
+echo "--- OpenLieroX compile.sh ---"
 
 # do some simple checks
 type $COMPILER 1>/dev/null 2>/dev/null || \
@@ -34,8 +41,23 @@ test_include_file zlib.h || \
 test_include_file gd.h || \
 	{ echo "ERROR: gd header not found" >&2; exit -1; }
 
+# report the used settings
+echo "* the global search-path of the game will be $SYSTEM_DATA_DIR/OpenLieroX"
+[ "$DEBUG" == "1" ] && \
+	echo "* debug-thingies in the game will be activated" || \
+	echo "* you will not see any debug-crap"
+echo "* $COMPILER will be used for compilation"
+[ "$ACTIVATE_GDB" == "1" ] && \
+	echo "* gdb-data will not been added to the bin, if they doesn't occurs here:" || \
+	echo "* gdb-data will be included in the bin"
+[ "$CXXFLAGS" == "" ] && \
+	echo "* none additional compiler-flags will be used" || \
+	echo "* the following additional compiler-flags will be used: $CXXFLAGS"
+[ "$HAWKNL_BUILTIN" == "1" ] && \
+	echo "* HawkNL support will be downloaded automaticaly and built into the binary" || \
+	echo "* the binary will be linked dynamically against the HawkNL-lib"
+
 if [ "$HAWKNL_BUILTIN" == "1" ]; then
-	echo "INFO: HawkNL will be builtin"
 	cd hawknl
 	./install.sh || \
 		{ echo "ERROR: problems while installing HawkNL" >&2; exit -1; }
@@ -68,7 +90,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-lSDL -lSDL_image -lSDL_mixer -lz -lgd -lxml2 \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
-	$( [ "$DEBUG" == "1" ] && echo -ggdb ) \
+	$( [ "$ACTIVATE_GDB" == "1" ] && echo -ggdb ) \
 	$CXXFLAGS \
 	-o bin/openlierox
 then

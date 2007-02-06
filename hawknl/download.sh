@@ -4,7 +4,7 @@ FILE=HawkNL168src.tar.gz
 
 FILE_EXISTS=0
 if [ ! -e $FILE ]; then
-	echo ">>> downloading..."
+	echo ">>> downloading HawkNL source ..."
 	wget http://www.sonic.net/~philf/download/$FILE && FILE_EXISTS=1
 else
 	FILE_EXISTS=1
