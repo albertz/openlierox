@@ -146,12 +146,6 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 
 /*
 	vOldPos = vPosition;
-	if(tProjInfo->UseCustomGravity)
-		vVelocity.y += (float)(tProjInfo->Gravity)*dt;
-	else
-		vVelocity.y += 100*dt;
-
-	vPosition += vVelocity*dt;
 */
 
 	if(tProjInfo->Rotating)
@@ -282,9 +276,9 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static const int NONE_COL_RET = -1000;
 	static const int SOME_COL_RET = -1;
 	
-	static const int MIN_CHECKSTEP = 2;
-	static const int MAX_CHECKSTEP = 8;
-	static const int AVG_CHECKSTEP = 3; // this is used for the intersection, if the step is to wide
+	static const int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
+	static const int MAX_CHECKSTEP = 8; // if step is wider than this, it will be intersected
+	static const int AVG_CHECKSTEP = 6; // this is used for the intersection, if the step is to wide
 	
 	// Check if it hit the terrain
 	int mw = map->GetWidth();
@@ -325,7 +319,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		}
 		
 		if(enddt) *enddt = dt;
-		return NONE_COL_RET;		
+		return NONE_COL_RET;
 	}
 
 	vVelocity = newvel;
@@ -334,10 +328,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	px=(int)(vPosition.x);
 	py=(int)(vPosition.y);
 
-	// if distance is to short, just return here without a check
-	if( checkstep*dt*dt < MIN_CHECKSTEP*MIN_CHECKSTEP ) {
+	// if distance is to short to last check, just return here without a check
+	if( (vOldPos-vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP )
 		return NONE_COL_RET;
-	}
+	else
+		vOldPos = vPosition;	
 
 	CollisionSide = 0;
 	short top,bottom,left,right;
