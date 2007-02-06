@@ -429,21 +429,23 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	if(top || bottom || left || right) {
 		CollisionSide = 0;
 
-		//vPosition = vOldPos + vVelocity*dt;
-
 		if(tProjInfo->Hit_Type == PJ_EXPLODE) {
-			//vPosition = pos;
-			//vPosition = vOldPos;
+			// HINT: don't reset vPosition here, because we want
+			//		the explosion near (inside) the object
+			//		this behavior is the same as in original LX
 			return SOME_COL_RET;
 		}
 
+		// HINT: this calcs only the last step, not vOldPos
+		//		it's more like the original LX if we do this
 		CVec pos = vPosition - vVelocity*dt; // old pos
 		bool bounce = false;
 		
 		// Bit of a hack
-		if( tProjInfo->Hit_Type == PJ_BOUNCE &&
-			!(top && bottom) && !(left && right) ) {
-			bounce = true;			
+		if( tProjInfo->Hit_Type == PJ_BOUNCE ) {
+			// HINT: don't reset vPosition here; it will be reset,
+			//		depending on the collisionside
+			bounce = true;
 		} else
 			vPosition = vOldPos;
 							
@@ -481,6 +483,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		return SOME_COL_RET;
 	}
 	
+	// the move was save, so save the position
 	vOldPos = vPosition;
 	return NONE_COL_RET;
 }
@@ -705,8 +708,11 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 
 ///////////////////
 // Bounce
+// HINT: this is not exactly the way the original LX did it,
+//		but this way is way more correct and it seems to work OK
+//		(original LX resets the bounce-direction on each checked side)
 void CProjectile::Bounce(float fCoeff)
-{
+{	
 	float x,y;
 	x=y=1;
 
@@ -748,6 +754,8 @@ void CProjectile::Bounce(float fCoeff)
 
 ///////////////////
 // Check for collisions with worms
+// HINT: this function is not used at the moment
+//		(ProjWormColl is used directly from within CheckCollision)
 int CProjectile::CheckWormCollision(CWorm *worms)
 {
 	static const float divisions = 5;
