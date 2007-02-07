@@ -20,7 +20,7 @@ export WIN32_PREFIX="${ARCHIVE_PREFIX}.win32"
 
 if [ "$ISCURRELEASE" == "1" ]; then
 	echo ">>> deleting previous archives ..."
-	rm distrib/tarbal/OpenLieroX_0.57_cur*
+	rm distrib/tarball/OpenLieroX_0.57_cur*
 fi
 
 echo ">>> collecting file list ..."
