@@ -81,22 +81,28 @@ void	StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me);
 
 extern float fCurSongStart;
 extern float fTimePaused;
+extern bool	 bSongStopped;
+extern byte	 iMusicVolume;
 
 // Music
 SoundMusic		*LoadMusic(const char *file);
 void			FreeMusic(SoundMusic *music);
 void			PlayMusic(SoundMusic *music, int number_of_repeats=1);
-inline void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetMilliSeconds();}
-inline void		ResumeMusic(void) {Mix_ResumeMusic();fCurSongStart += GetMilliSeconds()-fTimePaused; fTimePaused = 0;}
+inline void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetMilliSeconds(); bSongStopped = false;}
+inline void		ResumeMusic(void) {Mix_ResumeMusic();fCurSongStart += GetMilliSeconds()-fTimePaused; fTimePaused = 0; bSongStopped = false;}
 inline void		RewindMusic(void) {Mix_RewindMusic();fCurSongStart = GetMilliSeconds();fTimePaused = 0;}
-inline void		SetMusicPosition(unsigned int pos)  {Mix_RewindMusic(); Mix_SetMusicPosition(pos); }
-inline void		StopMusic(void) {Mix_HaltMusic(); fCurSongStart = 0; fTimePaused = 0; }
+inline void		SetMusicPosition(double pos)  {Mix_RewindMusic(); Mix_SetMusicPosition(pos); }
+inline void		StopMusic(void) {Mix_HaltMusic(); fCurSongStart = 0; fTimePaused = 0; bSongStopped = true; }
 inline bool		PlayingMusic(void) {return Mix_PlayingMusic() != 0; }
 inline bool		PausedMusic(void) {return Mix_PausedMusic() != 0; }
 inline int		GetMusicType(SoundMusic *music = NULL) {if (music) {return Mix_GetMusicType(music->sndMusic);} else {return Mix_GetMusicType(NULL);} }
 float			GetCurrentMusicTime(void);
+inline bool		GetSongStopped(void) {return bSongStopped; }
+// TODO: inline
+#define			SetFinishedHook Mix_HookMusicFinished
 
-void		SetMusicVolume(byte vol);
+void			SetMusicVolume(byte vol);
+inline byte		GetMusicVolume(void) { return iMusicVolume; }
 
 
 

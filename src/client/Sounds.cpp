@@ -195,6 +195,8 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 //
 float fCurSongStart = 0;
 float fTimePaused = 0;
+bool  bSongStopped = false;
+byte  iMusicVolume = MIX_MAX_VOLUME/2;
 
 SoundMusic *LoadMusic(const char *file)
 {
@@ -226,6 +228,7 @@ void PlayMusic(SoundMusic *music, int number_of_repeats)
 	Mix_PlayMusic(music->sndMusic,number_of_repeats);
 	fCurSongStart = GetMilliSeconds();
 	fTimePaused = 0;
+	bSongStopped = false;
 }
 
 float GetCurrentMusicTime(void)
@@ -236,10 +239,19 @@ float GetCurrentMusicTime(void)
 
 	// Paused
 	if (fTimePaused)
-		return fCurSongStart+fTimePaused;
+		return fTimePaused-fCurSongStart;
 	// Not paused
 	else 
 		return GetMilliSeconds()-fCurSongStart; 
+}
+
+void SetMusicVolume(byte vol)
+{
+	iMusicVolume = vol;
+
+	// The volume to use from 0 to MIX_MAX_VOLUME(128).
+	vol *= Round((float)MIX_MAX_VOLUME/100.0f);
+	Mix_VolumeMusic(vol);
 }
 
 

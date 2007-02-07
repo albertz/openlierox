@@ -1,0 +1,72 @@
+// OpenLieroX Media Player
+// Made by Dark Charlie and Alber Zeyer
+
+
+#ifndef __MEDIAPLAYER_H__
+#define __MEDIAPLAYER_H__
+
+#include <vector>
+using namespace std;
+
+#define song_path char[256]
+typedef vector<song_path> song_list;
+
+class CPlayList {
+public:
+	CPlayList() {
+		Clear();
+	}
+private:
+	song_list	tSongList;
+	int			iCurSong;
+	bool		bRepeat;
+public:
+	void	Clear(void);
+	void	Load(const char *dir,bool include_subdirs=true);
+	char	*GetCurSong(void);
+	void	GoToNextSong(void);
+	void	setRepeat(bool _r) {bRepeat = true; }
+	bool	getRepeat(void)		{return bRepeat; }
+};
+
+
+
+
+class CMediaPlayer {
+public:
+	// Constructor
+	CMediaPlayer() {
+		Clear();
+	}
+
+private:
+	// Attributes
+	char		szCurSongName[256];
+	SoundMusic	*tCurrentSong;
+	CPlayList	tPlayList;
+	
+
+public:
+	 void	Clear(void);
+	 void	Shutdown(void);
+	 void	GetNameFromFile(char *name,size_t buflen,const char *path);
+	 void	Play(void);
+	 void	PauseResume(void);
+	 void	Stop(void);
+	 void	Rewind(void);
+	 void	Forward(void);
+	 void	SetSongPosition(double pos);
+	 float	GetSongTime(void);
+	 void	SetVolume(byte _v);
+	 byte	GetVolume(void);
+
+	 static void	OnSongFinished(void);
+};
+
+
+
+
+
+
+
+#endif  //  __MEDAIPLAYER_H__

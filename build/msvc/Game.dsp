@@ -171,6 +171,14 @@ SOURCE=..\..\include\CInput.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\CMediaPlayer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CMediaPlayer.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\ConfigHandler.cpp
 # End Source File
 # Begin Source File
