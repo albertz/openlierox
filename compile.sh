@@ -10,12 +10,17 @@
 #						( it will automatically be activated, if you haven't
 #						  set it manually and DEBUG==1 )
 #	HAWKNL_BUILTIN		- if set to 1, HawkNL will be builtin
+#	VERSION				- version number; like 0.57_beta2
+#						  if not set, the file VERSION will be read
+#						  if file VERSION does not exist, the default
+#						  (defined in LieroX.h) will be used
 
 # check variables and set default values if unset
 [ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
 [ "$DEBUG" == "" ] && DEBUG=0
 [ "$COMPILER" == "" ] && COMPILER=g++
 [ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
+[ "$VERSION" == "" ] && [ -e VERSION ] && VERSION=$(cat VERSION)
 
 # some simple existance-test-function
 function test_include_file() {
@@ -42,6 +47,7 @@ test_include_file gd.h || \
 	{ echo "ERROR: gd header not found" >&2; exit -1; }
 
 # report the used settings
+[ "$VERSION" != "" ] && echo "* version $(cat VERSION)"
 echo "* the global search-path of the game will be $SYSTEM_DATA_DIR/OpenLieroX"
 [ "$DEBUG" == "1" ] && \
 	echo "* debug-thingies in the game will be activated" || \
@@ -90,6 +96,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-lSDL -lSDL_image -lSDL_mixer -lz -lgd -lxml2 \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
+	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
 	$( [ "$ACTIVATE_GDB" == "1" ] && echo -ggdb ) \
 	$CXXFLAGS \
 	-o bin/openlierox

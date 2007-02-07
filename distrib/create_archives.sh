@@ -1,18 +1,20 @@
 #!/bin/bash
 
-VERSION=0.57
+[ "$VERSION" == "" ] && VERSION=0.57_cur$(date +%Y%m%d)
+echo ">>> preparing $VERSION archives ..."
 
 cd ..
+echo $VERSION > VERSION
 
 SRC_FILES="src/*.cpp src/common/*.cpp src/client/*.cpp src/server/*.cpp include/*.h"
-STD_FILES="CMakeLists.txt compile.sh install.sh start.sh hawknl/install.sh hawknl/download.sh"
+STD_FILES="VERSION CMakeLists.txt compile.sh install.sh start.sh hawknl/install.sh hawknl/download.sh"
 DOC_FILES="COPYING.LIB DEPS doc/*"
 DAT_FILES="share/gamedir/* share/OpenLieroX.png"
 
 export SRC_RELEASE="$SRC_FILES $STD_FILES $DOC_FILES $DAT_FILES"
 export WIN32_RELEASE="doc/* COPYING.LIB share/gamedir/* distrib/win32/*"
 
-export ARCHIVE_PREFIX="distrib/tarball/OpenLieroX_${VERSION}_cur"
+export ARCHIVE_PREFIX="distrib/tarball/OpenLieroX_${VERSION}"
 export SRC_PREFIX="${ARCHIVE_PREFIX}.src"
 export WIN32_PREFIX="${ARCHIVE_PREFIX}.win32"
 

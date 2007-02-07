@@ -4,7 +4,7 @@
 
 inherit eutils games toolchain-funcs
 
-DESCRIPTION="OpenLieroX is a real-time excessive Worms-clone"
+DESCRIPTION="a real-time excessive Worms-clone"
 HOMEPAGE="http://openlierox.sourceforge.net/"
 SRC_URI="
 	mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.tar.bz
@@ -16,7 +16,7 @@ SRC_URI="
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~ppc ~x86"
+KEYWORDS="~ppc ~x86 ~amd64"
 IUSE="debug"
 
 RDEPEND="media-libs/libsdl
@@ -35,6 +35,8 @@ src_unpack() {
 	cd ${S}
 
 	unpack OpenLieroX_${PV}.src.tar.bz || die "cannot unpack the main archive"
+
+	# this ensures, that we don't delete existing directories
 	mkdir -p ${S}/share/gamedir/packtmp && \
 	cd ${S}/share/gamedir/packtmp && \
 	unpack lx0.56_pack1.9.zip && \
@@ -51,7 +53,8 @@ src_compile() {
 	SYSTEM_DATA_DIR="${GAMES_DATADIR}" \
 	COMPILER=$(tc-getCXX) \
 	DEBUG=$(use debug && echo 1 || echo 0) \
-	./compile.sh
+	VERSION=${PV} \
+	./compile.sh || die "error(s) while compiling; please make a report"
 }
 
 src_install() {
