@@ -734,34 +734,29 @@ void CProjectile::Bounce(float fCoeff)
 	float x,y;
 	x=y=1;
 
-	/*if(firstbounce) {
-		printf("Bounce; %d, %d, %d, %d\n",(CollisionSide & COL_TOP)==COL_TOP,
-										  (CollisionSide & COL_BOTTOM)==COL_BOTTOM,
-										  (CollisionSide & COL_LEFT)==COL_LEFT,
-										  (CollisionSide & COL_RIGHT)==COL_RIGHT);
-		firstbounce = false;
-	}*/
+	if(CollisionSide & (COL_TOP|COL_BOTTOM)) {
+		y=-y;
+	}
+	if(CollisionSide & (COL_LEFT|COL_RIGHT)) {
+		x=-x;
+	}
 
-//	int w,h;
-//	w=h=3;
-
-//	CVec pos = vPosition;
-	if(CollisionSide) {
-		x=fCoeff; y=fCoeff;
-		
-		if(CollisionSide & (COL_TOP|COL_BOTTOM)) {
-			y=-y;
-			//vPosition.y=( vOldPos.y );
-		}
-
-		if(CollisionSide & (COL_LEFT|COL_RIGHT)) {
-			x=-x;
-			//vPosition.x=( vOldPos.x );
-		}
+	if(CollisionSide & COL_TOP) {
+		y*=fCoeff;
+	}
+	if(CollisionSide & COL_BOTTOM) {
+		y*=fCoeff;
+	}
+	if(CollisionSide & COL_LEFT) {
+		x*=fCoeff;
+	}
+	if(CollisionSide & COL_RIGHT) {
+		x*=fCoeff;
 	}
 
 /*
 	// WARNING: this code should not be used; it is simply wrong
+	//	(this was the way the original LX did it)
 	// Maybe wrong, but all are used to it
 
 	if (CollisionSide & COL_TOP)  {
@@ -783,11 +778,6 @@ void CProjectile::Bounce(float fCoeff)
 */
 	vVelocity.x *= x;
 	vVelocity.y *= y;
-
-//	CVec dir = vVelocity;
-//	NormalizeVector(&dir);
-
-	//vPosition = vPosition + dir*2;
 }
 
 
