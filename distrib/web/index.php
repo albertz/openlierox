@@ -1,6 +1,11 @@
 <html>
 <head><title>OpenLieroX</title></head>
 
+<?php
+	// read_from_file
+	include_once("fileio.php");
+?>
+
 <body>
 <p>This is the homepage of <b>OpenLieroX</b>.</p>
 <p>
@@ -27,22 +32,24 @@
 	Download from SourceForge-mirros</a><br>
 	<br>
 	<b>0.57_beta1</b> (released 2007-01-27)<br>
-	<a href="OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
-	<a href="OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
-	<a href="games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
+	<a href="tarball/OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
+	<a href="tarball/OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
+	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
 	(Feel free to post any success-stories on Gentoo
 	at <a href="http://bugs.gentoo.org/show_bug.cgi?id=164009">this topic</a>,
 	related to the ebuild, on the Gentoo-Bugtracker.)<br>
 	<br>
 	<b>Levels and mods</b> (you need them for playing online)<br>
-	<a href="lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
-	<a href="another_lx_pack_2007_01_05.zip">another LX Pack (2007-01-05)</a><br>
+	<a href="additions/lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
+	<a href="additions/another_lx_pack_2007_01_05.zip">another LX Pack (2007-01-05)</a><br>
 	<br>
-	<b>current version</b> (WARNING: this is not a fixed one, it will be
-	updated from time to time)</br>
-	<a href="OpenLieroX_0.57_cur.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
-	<a href="OpenLieroX_0.57_cur.src.zip">OpenLieroX Source zip</a><br>
-	<a href="OpenLieroX_0.57_cur.win32.zip">OpenLieroX Win32 binary zip</a><br>
+<?php 
+	$VERSION = read_from_file("VERSION");
+?>
+	<b>current <?php echo $VERSION; ?></b></br>
+	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.src.tar.bz">OpenLieroX Source tar.bz</a><br>
+	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.src.zip">OpenLieroX Source zip</a><br>
+	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.win32.zip">OpenLieroX Win32 binary zip</a><br>
 	<br>
 	<b>other Download-sources</b><br>
 	Take also a look in the 

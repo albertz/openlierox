@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ "$VERSION" == "" ] && VERSION=0.57_cur$(date +%Y%m%d)
+[ "$VERSION" == "" ] && VERSION=0.57_cur$(date +%Y%m%d) && ISCURRELEASE=1
 echo ">>> preparing $VERSION archives ..."
 
 cd ..
@@ -18,10 +18,10 @@ export ARCHIVE_PREFIX="distrib/tarball/OpenLieroX_${VERSION}"
 export SRC_PREFIX="${ARCHIVE_PREFIX}.src"
 export WIN32_PREFIX="${ARCHIVE_PREFIX}.win32"
 
-echo ">>> deleting previous archives ..."
-[ -e ${SRC_PREFIX}.tar.bz ] && rm ${SRC_PREFIX}.tar.bz
-[ -e ${SRC_PREFIX}.zip ] && rm ${SRC_PREFIX}.zip
-[ -e ${WIN32_PREFIX}.zip ] && rm ${WIN32_PREFIX}.zip
+if [ "$ISCURRELEASE" == "1" ]; then
+	echo ">>> deleting previous archives ..."
+	rm distrib/tarbal/OpenLieroX_0.57_cur*
+fi
 
 echo ">>> collecting file list ..."
 # this is a very very dirty hack, but I don't know how to do better
@@ -55,3 +55,6 @@ rm -r distrib
 zip -r -9 ../../${WIN32_PREFIX}.zip * >/dev/null
 cd ..
 rm -rf win32tmp
+# we are now in distrib again
+
+[ "$ISCURRELEASE" == "1" ] && echo $VERSION > web/VERSION
