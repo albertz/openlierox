@@ -776,6 +776,7 @@ void CProjectile::Bounce(float fCoeff)
 		y = fCoeff;
 	}
 */
+
 	vVelocity.x *= x;
 	vVelocity.y *= y;
 }
