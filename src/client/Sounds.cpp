@@ -186,5 +186,60 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 	// this was the old call (using BASS_SamplePlayEx):
 	//PlayExSampleSoundEx(smp,0,-1,volume,pan,-1);
 	// we are using a workaround here
+	// TODO: let it like that, in LX 0.6x this has been made and no one liked it much
 	PlaySoundSample(smp);
 }
+
+//
+// Music part
+//
+float fCurSongStart = 0;
+float fTimePaused = 0;
+
+SoundMusic *LoadMusic(const char *file)
+{
+	SoundMusic *new_music = new SoundMusic;
+	if (!new_music)
+		return NULL;
+
+	new_music->sndMusic = Mix_LoadMUS(file);
+	if (!new_music->sndMusic)  {
+		delete new_music;
+		return NULL;
+	}
+
+	return new_music;
+}
+
+void FreeMusic(SoundMusic *music)
+{
+	if (music) {
+		Mix_FreeMusic(music->sndMusic);
+		delete music;
+	}
+}
+
+void PlayMusic(SoundMusic *music, int number_of_repeats)
+{
+	if (!music)
+		return;
+	Mix_PlayMusic(music->sndMusic,number_of_repeats);
+	fCurSongStart = GetMilliSeconds();
+	fTimePaused = 0;
+}
+
+float GetCurrentMusicTime(void)
+{
+	// No song playing
+	if (!fCurSongStart)
+		return 0;
+
+	// Paused
+	if (fTimePaused)
+		return fCurSongStart+fTimePaused;
+	// Not paused
+	else 
+		return GetMilliSeconds()-fCurSongStart; 
+}
+
+

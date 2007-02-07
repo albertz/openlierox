@@ -1835,7 +1835,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 
                     // Read the info
                     inbs.readString(szName,sizeof(szName));
-	                nMaxWorms = inbs.readByte();
+	                nMaxWorms = MIN(MAX_PLAYERS,MAX((int)inbs.readByte(),0));
 	                nState = inbs.readByte();
 
 					if (nState < 0)  {
@@ -1860,7 +1860,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 					}
 
 					// Check
-					nNumPlayers = MIN(nNumPlayers,MAX_WORMS);
+					nNumPlayers = MIN(nMaxWorms,nNumPlayers);
 
                     for(int i=0; i<nNumPlayers; i++) {
                         inbs.readString(cWorms[i].getName(),cWorms[i].getMaxNameLen());

@@ -640,8 +640,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_MENUSELECT:
 		return 0;
-	case WM_ENTERIDLE:
-		return 0;
 	case WM_SYSKEYUP:
 		return 0;
 	}

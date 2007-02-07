@@ -762,6 +762,7 @@ void CProjectile::Bounce(float fCoeff)
 
 /*
 	// WARNING: this code should not be used; it is simply wrong
+	// Maybe wrong, but all are used to it
 
 	if (CollisionSide & COL_TOP)  {
 		x = fCoeff;
