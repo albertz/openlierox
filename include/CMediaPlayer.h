@@ -6,10 +6,8 @@
 #define __MEDIAPLAYER_H__
 
 #include <vector>
-using namespace std;
-
-#define song_path char[256]
-typedef vector<song_path> song_list;
+typedef std::string song_path;
+typedef std::vector<song_path> song_list;
 
 class CPlayList {
 public:
@@ -33,10 +31,18 @@ public:
 
 
 class CMediaPlayer {
+private:
+	CMediaPlayer* instance;
 public:
 	// Constructor
 	CMediaPlayer() {
+		if(instance) printf("WARNING: more than 1 instance of CMediaPlayer\n");
+		instance = this;
 		Clear();
+	}
+
+	~CMediaPlayer() {
+		instance = NULL;
 	}
 
 private:

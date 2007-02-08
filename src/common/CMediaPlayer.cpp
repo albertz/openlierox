@@ -192,8 +192,8 @@ byte CMediaPlayer::GetVolume(void)
 // Event that fires when a song finishes or is stopped
 void CMediaPlayer::OnSongFinished(void)
 {
-	if (!GetSongStopped())
-		Forward();
+	if (!instance->GetSongStopped())
+		instance->Forward();
 }
 
 
