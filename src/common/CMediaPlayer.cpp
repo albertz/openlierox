@@ -5,6 +5,10 @@
 #include "LieroX.h"
 #include "CMediaPlayer.h"
 
+
+CMediaPlayer* CMediaPlayer::instance = NULL;
+
+
 //////////////////
 // Clears and shutdowns the playlist
 void CPlayList::Clear(void)
@@ -16,11 +20,8 @@ void CPlayList::Clear(void)
 
 //////////////////
 // Loads the directory and adds all music files in the playlist
-void CPlayList::Load(const char *dir, bool include_subidrs)
+void CPlayList::Load(const std::string dir, bool include_subidrs)
 {
-	if (!dir)
-		return;
-
 	// Clear me first
 	Clear();
 
@@ -29,20 +30,14 @@ void CPlayList::Load(const char *dir, bool include_subidrs)
 
 ///////////////////
 // Get the current played song
-char *CPlayList::GetCurSong(void)
+std::string CPlayList::GetCurSong(void)
 {
-	static char result[256] = "";
-
 	if (iCurSong > tSongList.size()-1)
 		iCurSong = tSongList.size()-1;
-	if (iCurSong < 1) {
+	if (iCurSong < 0)
 		iCurSong = 0;
-		return result;
-	}
 
-	fix_strncpy(result,tSongList[iCurSong]);
-
-	return result;
+	return tSongList[iCurSong];
 }
 
 //////////////////
@@ -65,7 +60,7 @@ void CPlayList::GoToNextSong(void)
 void CMediaPlayer::Clear(void)
 {
 	tPlayList.Clear();
-	szCurSongName[0] = '\0';
+	szCurSongName = "";
 	SetFinishedHook(OnSongFinished);
 	FreeMusic(tCurrentSong);
 	tCurrentSong = NULL;
@@ -82,25 +77,14 @@ void CMediaPlayer::Shutdown(void)
 /////////////////////
 // Get the song name from the path
 // TODO: use ID3 tags for MP3
-void CMediaPlayer::GetNameFromFile(char *name,size_t buflen,const char *path)
+std::string CMediaPlayer::GetNameFromFile(const std::string path)
 {
-	if (!path || !name)
-		return;
+	size_t slash, slash2;
+	slash = path.rfind('/'); if(slash == path.npos) slash = -1;
+	slash2 = path.rfind('\\'); if(slash2 == path.npos) slash2 = -1;
+	slash = MAX(slash, slash2) + 1;
 
-
-	// Remove directory
-	char *tmp = strrchr(path,'\\');
-	if (tmp)  {
-		strncpy(name,tmp+1,buflen-1);
-	} else {
-		strncpy(name,path,buflen-1);
-	}
-
-	// Remove extension
-	tmp = strrchr(name,'.');
-	if (tmp)  {
-		*tmp = '\0';
-	}
+	return path.substr(slash);
 }
 
 ////////////////////
@@ -111,14 +95,14 @@ void CMediaPlayer::Play(void)
 	if (PausedMusic())
 		ResumeMusic();
 	else  {
-		fix_strncpy(szCurSongName,tPlayList.GetCurSong());
-		if (szCurSongName[0])  {
+		szCurSongName = tPlayList.GetCurSong();
+		if(szCurSongName.size())  {
 			FreeMusic(tCurrentSong);  // Free the previous song (if any)
-			tCurrentSong = LoadMusic(szCurSongName);
+			tCurrentSong = LoadMusic(szCurSongName.c_str());
 			if (tCurrentSong)  {
 				PlayMusic(tCurrentSong);
 			}
-			GetNameFromFile(szCurSongName,sizeof(szCurSongName),tPlayList.GetCurSong());
+			szCurSongName = GetNameFromFile(tPlayList.GetCurSong());
 		} else {
 			// Nothing to play
 			Stop();
@@ -188,11 +172,12 @@ byte CMediaPlayer::GetVolume(void)
 	return GetMusicVolume();	
 }
 
+
 //////////////////////
 // Event that fires when a song finishes or is stopped
 void CMediaPlayer::OnSongFinished(void)
 {
-	if (!instance->GetSongStopped())
+	if (!GetSongStopped())
 		instance->Forward();
 }
 

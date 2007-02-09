@@ -1,5 +1,5 @@
 // OpenLieroX Media Player
-// Made by Dark Charlie and Alber Zeyer
+// Made by Dark Charlie and Albert Zeyer
 
 
 #ifndef __MEDIAPLAYER_H__
@@ -20,8 +20,8 @@ private:
 	bool		bRepeat;
 public:
 	void	Clear(void);
-	void	Load(const char *dir,bool include_subdirs=true);
-	char	*GetCurSong(void);
+	void	Load(const std::string dir,bool include_subdirs=true);
+	std::string GetCurSong(void);
 	void	GoToNextSong(void);
 	void	setRepeat(bool _r) {bRepeat = true; }
 	bool	getRepeat(void)		{return bRepeat; }
@@ -32,7 +32,7 @@ public:
 
 class CMediaPlayer {
 private:
-	CMediaPlayer* instance;
+	static CMediaPlayer* instance;
 public:
 	// Constructor
 	CMediaPlayer() {
@@ -47,7 +47,7 @@ public:
 
 private:
 	// Attributes
-	char		szCurSongName[256];
+	std::string	szCurSongName;
 	SoundMusic	*tCurrentSong;
 	CPlayList	tPlayList;
 	
@@ -55,7 +55,7 @@ private:
 public:
 	 void	Clear(void);
 	 void	Shutdown(void);
-	 void	GetNameFromFile(char *name,size_t buflen,const char *path);
+	 std::string	GetNameFromFile(const std::string path);
 	 void	Play(void);
 	 void	PauseResume(void);
 	 void	Stop(void);
