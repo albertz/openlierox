@@ -10,6 +10,7 @@
 #						  default=/usr/bin
 #	DOC_DIR				- the dir, where I will place the docs into
 #						  default=/usr/share/doc
+# ( all paths are only prefixes, I will add /OpenLieroX at the end )
 
 if [ ! -x bin/openlierox ]; then
 	echo "ERROR: the binary is missing" >&2
