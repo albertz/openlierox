@@ -4,15 +4,15 @@
 
 inherit eutils games toolchain-funcs
 
-DESCRIPTION="a real-time excessive Worms-clone"
+DESCRIPTION="A real-time excessive Worms-clone"
 HOMEPAGE="http://openlierox.sourceforge.net/"
 SRC_URI="
 	mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.tar.bz
 	mirror://sourceforge/openlierox/lx0.56_pack1.9.zip
 	mirror://sourceforge/openlierox/another_lx_pack_2007_01_05.zip
-	http://openlierox.sourceforge.net/OpenLieroX_${PV}.src.tar.bz
-	http://openlierox.sourceforge.net/lx0.56_pack1.9.zip
-	http://openlierox.sourceforge.net/another_lx_pack_2007_01_05.zip"
+	http://openlierox.sourceforge.net/tarball/OpenLieroX_${PV}.src.tar.bz
+	http://openlierox.sourceforge.net/additions/lx0.56_pack1.9.zip
+	http://openlierox.sourceforge.net/additions/another_lx_pack_2007_01_05.zip"
 
 LICENSE="LGPL-2"
 SLOT="0"
@@ -42,7 +42,7 @@ src_unpack() {
 	unpack lx0.56_pack1.9.zip && \
 	unpack another_lx_pack_2007_01_05.zip && \
 	cp -a * .. && cd .. && rm -rf packtmp \
-		|| die "cannot unpack the LieroX Pack"
+		|| die "cannot unpack LieroX packs"
 }
 
 src_compile() {
@@ -62,6 +62,7 @@ src_install() {
 	newgamesbin bin/openlierox openlierox || die "cannot copy binary"
 
 	echo ">>> copying gamedata-files ..."
+	# HINT: the app uses case-insensitive file-handling
 	insinto "${GAMES_DATADIR}"/${PN}/
 	doins -r share/gamedir/* || die "failed while copying gamedata"
 
