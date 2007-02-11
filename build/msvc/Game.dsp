@@ -179,6 +179,10 @@ SOURCE=..\..\include\CMediaPlayer.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\CMediaPlayer_GUI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\ConfigHandler.cpp
 # End Source File
 # Begin Source File

@@ -6,13 +6,13 @@
 --------------------Configuration: Game - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\xxx\LOCALS~1\Temp\RSP2C9.tmp" with contents
+Creating temporary file "C:\DOCUME~1\xxx\LOCALS~1\Temp\RSP98D.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"obj/Debug/" /Fp"obj/Debug/Game.pch" /YX /Fo"obj/Debug/" /Fd"obj/Debug/" /FD /GZ /c 
-"C:\Moje\Programovani\OpenLieroX\src\common\CMediaPlayer.cpp"
+"c:\Moje\Programovani\OpenLieroX\src\common\CMediaPlayer.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\xxx\LOCALS~1\Temp\RSP2C9.tmp" 
-Creating temporary file "C:\DOCUME~1\xxx\LOCALS~1\Temp\RSP2CA.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\xxx\LOCALS~1\Temp\RSP98D.tmp" 
+Creating temporary file "C:\DOCUME~1\xxx\LOCALS~1\Temp\RSP98E.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../share/gamedir/Game.exe" /MAPINFO:LINES /MAPINFO:EXPORTS 
 .\obj\Debug\AuxLib.obj
@@ -21,6 +21,8 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\obj\Debug\CChannel.obj
 .\obj\Debug\CFont.obj
 .\obj\Debug\CInput.obj
+.\obj\Debug\CMediaPlayer.obj
+.\obj\Debug\CMediaPlayer_GUI.obj
 .\obj\Debug\ConfigHandler.obj
 .\obj\Debug\CssParser.obj
 .\obj\Debug\Error.obj
@@ -106,20 +108,18 @@ kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.
 .\libs\SDL_mixer.lib
 .\libs\lua5.1.lib
 .\libs\dbghelp.lib
-.\obj\Debug\CMediaPlayer.obj
 ]
-Creating command line "link.exe @C:\DOCUME~1\xxx\LOCALS~1\Temp\RSP2CA.tmp"
+Creating command line "link.exe @C:\DOCUME~1\xxx\LOCALS~1\Temp\RSP98E.tmp"
 <h3>Output Window</h3>
 Compiling...
 CMediaPlayer.cpp
-C:\Moje\Programovani\OpenLieroX\src\common\CMediaPlayer.cpp(195) : error C2352: 'CMediaPlayer::Forward' : illegal call of non-static member function
-        c:\moje\programovani\openlierox\include\cmediaplayer.h(57) : see declaration of 'Forward'
-Error executing cl.exe.
+Linking...
+LINK : warning LNK4075: ignoring /INCREMENTAL due to /DEBUGTYPE specification
 
 
 
 <h3>Results</h3>
-Game.exe - 1 error(s), 0 warning(s)
+Game.exe - 0 error(s), 1 warning(s)
 </pre>
 </body>
 </html>

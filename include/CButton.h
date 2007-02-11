@@ -33,6 +33,7 @@ public:
 		iMouseOver = false;
 		iType = wid_Button;
         iGoodWidth = 250;
+		bRedrawMenu = true;
 		bFreeSurface = false;
 	}
 
@@ -40,6 +41,7 @@ public:
 		iImageID = imgid;
 		bmpImage = image;
 		iMouseOver = false;
+		bRedrawMenu = true;
 		iType = wid_Button;
         iGoodWidth = 250;
 		bFreeSurface = false;
@@ -49,6 +51,7 @@ public:
 		iImageID = 0;
 		bmpImage = LoadImage(path,1);
 		iMouseOver = false;
+		bRedrawMenu = true;
 		iType = wid_Button;
         iGoodWidth = 250;
 		bFreeSurface = true;
@@ -63,6 +66,7 @@ private:
 	int			iImageID;
     int         iGoodWidth;
 	bool		bFreeSurface;
+	bool		bRedrawMenu;
 
 public:
 	// Methods
@@ -80,6 +84,9 @@ public:
 	int		KeyUp(int c)						{ return BTN_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
+
+	inline void	setRedrawMenu(bool _r)  { bRedrawMenu = _r; }
+	inline bool	getRedrawMenu(void)	 { return bRedrawMenu; }
 
 	// Draw the button
 	void	Draw(SDL_Surface *bmpDest);

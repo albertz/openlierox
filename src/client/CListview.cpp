@@ -116,7 +116,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 						if (col && !bOldStyle)
 							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,"%s",sub->sText);
 						else
-							tLX->cFont.Draw(bmpDest,x,texty,item->iColour,"%s",sub->sText);
+							tLX->cFont.DrawAdv(bmpDest,x,texty,iWidth-2,item->iColour,"%s",sub->sText);
 					}
 
 					else if(sub->iType == LVS_IMAGE)
@@ -731,7 +731,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 
 		col = tColumns;
 
-		// Is some of the columns grabbed? Move it
+		// Is any of the columns grabbed? Move it
 		if (iGrabbed > 0)  {
 			int x = iX+4;
 
@@ -798,6 +798,8 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 
 	// Go through the items
 	int y = iY+17;
+	if (!tColumns)
+		y = iY+2;
 	lv_item_t *item = tItems;
 	int count=0;
 	for(;item;item = item->tNext) {
@@ -872,7 +874,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	}
 
 	// Column headers
-	if (!bOldStyle)  {
+	if (!bOldStyle && tColumns)  {
 		if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1 && tLX->fCurTime-fLastMouseUp >= 0.15f && iGrabbed <= 0)  {
 			fLastMouseUp = tLX->fCurTime;
 			int x = iX+4;
@@ -900,6 +902,8 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 
 	// Go through the items
 	int y = iY+17;
+	if (!tColumns)
+		y = iY+2;
 	lv_item_t *item = tItems;
 	int count=0;
 	for(;item;item = item->tNext) {

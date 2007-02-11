@@ -259,6 +259,8 @@ void Menu_Loop(void)
 		}
 		oldtime = tLX->fCurTime;
 
+		cMediaPlayer.Frame();
+
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 
@@ -294,6 +296,8 @@ void Menu_Loop(void)
 				Menu_OptionsFrame();
 				break;
 		}
+
+		cMediaPlayer.Draw(tMenu->bmpScreen,350,240);
 
         FlipScreen(tMenu->bmpScreen);
 	}

@@ -42,10 +42,10 @@ bool	FileListIncludes(const filelist_t* l, const char* f);
 void	ReplaceFileVariables(std::string& filename);
 
 // Routines
-int		FindFirst(char *dir, char *ext, char *filename);
+int		FindFirst(char *dir, char *ext, char *filename, bool absolute = false);
 int		FindNext(char *filename);
 
-int		FindFirstDir(char *dir, char *name);
+int		FindFirstDir(char *dir, char *name, bool absolute = false);
 int		FindNextDir(char *name);
 
 #ifndef WIN32

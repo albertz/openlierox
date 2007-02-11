@@ -86,7 +86,8 @@ enum {
 	oc_Gen_CurSettings,
 	oc_Gen_TakeScreenshot,
 	oc_Gen_ViewportManager,
-	oc_Gen_SwitchMode
+	oc_Gen_SwitchMode,
+	oc_Gen_MediaPlayer
 };
 
 
@@ -199,6 +200,9 @@ int Menu_OptionsInitialize(void)
 	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch video mode"),
 						   oc_Gen_SwitchMode, 515, 340, 50,17);
 
+	cOpt_Controls.Add( new CLabel("Toggle Media Player", tLX->clNormalLabel), Static, 380, 365, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_MEDIAPLAYER, tLXOptions->sGeneralControls[SIN_MEDIAPLAYER], tMenu->bmpInputbox, "Toggle Media Player"),
+						   oc_Gen_MediaPlayer, 515, 365, 50,17);
 
 
 
@@ -397,11 +401,13 @@ void Menu_OptionsFrame(void)
 					// Get an input
 					CInputbox *b = (CInputbox *)ev->cWidget;
 					Menu_OptionsWaitInput(ply, b->getName(), b);
-					// Re-setup the Take Screenshot key and switch mode
+					// Re-setup the Take Screenshot, Switch Mode and Media Player keys
 					if (ev->iControlID == oc_Gen_TakeScreenshot)
 						cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 					if (ev->iControlID == oc_Gen_SwitchMode)
 						cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+					if (ev->iControlID == oc_Gen_MediaPlayer)
+						cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 				}
 			}
 		}

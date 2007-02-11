@@ -74,6 +74,7 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #include "CClient.h"
 #include "CServer.h"
 #include "Sounds.h"
+#include "CMediaPlayer.h"
 #include "Graphics.h"
 #include "Protocol.h"
 #include "Options.h"
@@ -170,9 +171,10 @@ extern	options_t		*tLXOptions;
 extern  networktexts_t  *NetworkTexts;
 extern	CServer			*cServer;
 extern	CClient			*cClient;
-extern	CClient			*cBots;
+extern	CMediaPlayer	cMediaPlayer;
 extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
+extern	CInput			cToggleMediaPlayer;
 extern  int				nDisableSound;
 extern	int				iSurfaceFormat;
 extern	bool			bActivated;

@@ -61,8 +61,9 @@ bool SetSoundVolume(int vol) {
 		SoundSystemVolume = vol;
 
 		// The volume to use from 0 to MIX_MAX_VOLUME(128).
-		vol *= Round((float)MIX_MAX_VOLUME/100.0f);
-		Mix_Volume(-1, vol);
+		//vol *= Round((float)MIX_MAX_VOLUME/100.0f);
+		float tmp = (float)MIX_MAX_VOLUME*(float)vol/100.0f;
+		Mix_Volume(-1, Round(vol));
 
 		return true;
 
@@ -74,6 +75,10 @@ bool SetSoundVolume(int vol) {
 			return false;
 
 	}
+}
+
+int GetSoundVolume(void)  {
+	return SoundSystemVolume;
 }
 
 bool QuitSoundSystem() {
@@ -197,7 +202,14 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 float fCurSongStart = 0;
 float fTimePaused = 0;
 bool  bSongStopped = false;
-byte  iMusicVolume = MIX_MAX_VOLUME/2;
+byte  iMusicVolume = 50;
+bool  bSongFinished;
+
+void InitializeMusic(void)
+{
+	Mix_HookMusicFinished(&MusicFinishedHook);
+	SetMusicVolume(tLXOptions->iMusicVolume);
+}
 
 SoundMusic *LoadMusic(const char *file)
 {
@@ -232,6 +244,16 @@ void PlayMusic(SoundMusic *music, int number_of_repeats)
 	bSongStopped = false;
 }
 
+void StopMusic(void) 
+{
+	Mix_HaltMusic(); 
+	if (Mix_PausedMusic())
+		Mix_ResumeMusic();
+	fCurSongStart = 0;
+	fTimePaused = 0;
+	bSongStopped = true;
+}
+
 float GetCurrentMusicTime(void)
 {
 	// No song playing
@@ -248,11 +270,62 @@ float GetCurrentMusicTime(void)
 
 void SetMusicVolume(byte vol)
 {
+	vol = MIN(vol,100);
 	iMusicVolume = vol;
+	tLXOptions->iMusicVolume = vol;
 
 	// The volume to use from 0 to MIX_MAX_VOLUME(128).
-	vol *= Round((float)MIX_MAX_VOLUME/100.0f);
-	Mix_VolumeMusic(vol);
+	float tmp = (float)MIX_MAX_VOLUME*(float)vol/100.0f;
+	Mix_VolumeMusic(Round(tmp));
 }
 
+void MusicFinishedHook(void)
+{
+	bSongFinished = !GetSongStopped();
+}
+
+id3v1_t GetMP3Info(const char *file)
+{
+	id3v1_t info;
+	// Clear the info
+	memset(&info,0,sizeof(id3v1_t));
+
+	if (!file)
+		return info;
+
+	FILE *fp = fopen(file,"rb");
+	if (!fp)
+		return info;
+
+	// The tag begins 128 bytes before the end of the MP3 file
+	if (fseek(fp,-128,SEEK_END))  {
+		fclose(fp);
+		return info;
+	}
+
+	// Check the header
+	char header[4];
+	if (!fread(&header[0],3,1,fp))  {
+		fclose(fp);
+		return info;
+	}
+	header[3] = '\0';
+	if (strcmp(header,"TAG"))  {
+		fclose(fp);
+		return info;
+	}
+
+	size_t size = ftell(fp);
+
+	// Read the ID3 tag
+	if (!fread(&info,sizeof(id3v1_t),1,fp))  {
+		memset(&info,0,sizeof(id3v1_t));
+		fclose(fp);
+		return info;
+	}
+
+	fclose(fp);
+
+	return info;
+}
 

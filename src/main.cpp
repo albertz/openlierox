@@ -26,6 +26,9 @@ lierox_t	*tLX = NULL;
 game_t		tGameInfo;
 CInput		cTakeScreenshot;
 CInput		cSwitchMode;
+CInput		cToggleMediaPlayer;
+
+CMediaPlayer cMediaPlayer;
 
 int         nDisableSound = false;
 
@@ -87,6 +90,18 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	// Initialize the music system
+	InitializeMusic();
+
+	// Initialize the media player
+	if (!cMediaPlayer.Initialize())  {
+		printf("Warning: Media Player could not be initialized");
+		// Don't quit, we can quite well play without music
+	}
+
+	// Load the playlist
+	cMediaPlayer.LoadPlaylistFromFile("cfg/playlist.dat");
+
 	// TODO: abstract the logging, make an uniform message system
 	// Log the game start
 	if (tLXOptions->iLogConvos)  {
@@ -106,6 +121,7 @@ int main(int argc, char *argv[])
 	// Setup the global keys
 	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 
 	while(!tLX->iQuitGame) {
 
@@ -375,6 +391,9 @@ void GameLoop(void)
     if(tLX->iQuitEngine)
         return;
 
+	// Media player
+	cMediaPlayer.Frame();
+
 	// Local
 	switch (tGameInfo.iGameType)  {
 	case GME_LOCAL:
@@ -452,6 +471,10 @@ void ShutdownLieroX(void)
 			fclose(f);
 		}
 	}
+
+	ShutdownMusic();
+	cMediaPlayer.SavePlaylistToFile("cfg/playlist.dat");
+	cMediaPlayer.Shutdown();
 
     Con_Shutdown();
 

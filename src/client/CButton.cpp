@@ -23,6 +23,12 @@
 // Draw the button
 void CButton::Draw(SDL_Surface *bmpDest)
 {
+	// If we shouldn't redraw the menu, call the other Draw
+	if (!bRedrawMenu)  {
+		Draw2(bmpDest);
+		return;
+	}
+
 	// Don't draw empty image
 	if (!bmpImage)
 		return;

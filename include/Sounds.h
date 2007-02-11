@@ -61,20 +61,28 @@ typedef struct {
 	SoundSample*		smpDeath[3];
 } sfxgame_t;
 
+// ID3 tag format
+typedef struct id3v1_s {
+	char		name[30];
+	char		interpreter[30];
+	char		album[30];
+	char		year[4];
+	char		comment[30];
+	byte		genre;
+} id3v1_t;
+
+
 
 // Routines
 bool	InitSoundSystem(int rate, int channels, int buffers);
 bool	StartSoundSystem();
 bool	StopSoundSystem();
 bool	SetSoundVolume(int vol);
+int		GetSoundVolume(void);
 bool	QuitSoundSystem();
 SoundSample* LoadSoundSample(char* filename, int maxsimulplays);
 bool	FreeSoundSample(SoundSample* sample);
 bool	PlaySoundSample(SoundSample* sample);
-// TODO: the music part, for example:
-// int	LoadSoundMusic();
-// int	PlaySoundMusic();
-// etc.
 
 int		LoadSounds(void);
 void	ShutdownSounds(void);
@@ -84,8 +92,11 @@ extern float fCurSongStart;
 extern float fTimePaused;
 extern bool	 bSongStopped;
 extern byte	 iMusicVolume;
+extern bool	 bSongFinished;
+
 
 // Music
+void			MusicFinishedHook(void);
 SoundMusic		*LoadMusic(const char *file);
 void			FreeMusic(SoundMusic *music);
 void			PlayMusic(SoundMusic *music, int number_of_repeats=1);
@@ -93,17 +104,20 @@ inline void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetMilliSeconds()
 inline void		ResumeMusic(void) {Mix_ResumeMusic();fCurSongStart += GetMilliSeconds()-fTimePaused; fTimePaused = 0; bSongStopped = false;}
 inline void		RewindMusic(void) {Mix_RewindMusic();fCurSongStart = GetMilliSeconds();fTimePaused = 0;}
 inline void		SetMusicPosition(double pos)  {Mix_RewindMusic(); Mix_SetMusicPosition(pos); }
-inline void		StopMusic(void) {Mix_HaltMusic(); fCurSongStart = 0; fTimePaused = 0; bSongStopped = true; }
+void			StopMusic(void);
 inline bool		PlayingMusic(void) {return Mix_PlayingMusic() != 0; }
 inline bool		PausedMusic(void) {return Mix_PausedMusic() != 0; }
 inline int		GetMusicType(SoundMusic *music = NULL) {if (music) {return Mix_GetMusicType(music->sndMusic);} else {return Mix_GetMusicType(NULL);} }
 float			GetCurrentMusicTime(void);
 inline bool		GetSongStopped(void) {return bSongStopped; }
-// TODO: inline
-#define			SetFinishedHook Mix_HookMusicFinished
+inline bool		GetSongFinished(void) { bool tmp = bSongFinished; bSongFinished = false; return tmp; }
+id3v1_t			GetMP3Info(const char *file);
 
 void			SetMusicVolume(byte vol);
 inline byte		GetMusicVolume(void) { return iMusicVolume; }
+
+void			InitializeMusic(void);
+inline void		ShutdownMusic(void)		{Mix_HookMusicFinished(NULL);}
 
 
 

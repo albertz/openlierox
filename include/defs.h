@@ -232,5 +232,4 @@ inline T* GetByteSwapped(const T b)
 
 
 
-
 #endif  //  __DEFS_H__

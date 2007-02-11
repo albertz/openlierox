@@ -31,7 +31,7 @@ int LoadOptions(void)
     static const char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     static const char    *ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
     static const char    *ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
-    static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode"};
+    static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "MediaPlayer"};
     static const char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
 	static const int	 def_widths[] = {32,180,70,80,60,150};
 
@@ -117,7 +117,7 @@ int LoadOptions(void)
     }
 
     // General controls
-    for(i=0; i<7; i++)
+    for(i=0; i<8; i++)
         ReadString(f, "GeneralControls", gen_keys[i], tLXOptions->sGeneralControls[i], sizeof(tLXOptions->sGeneralControls[i]), gen_def[i]);
 
     // Game
@@ -133,6 +133,12 @@ int LoadOptions(void)
 	ReadIntArray(f, "Widgets","InternetListCols",	&tLXOptions->iInternetList[0],6);
 	ReadIntArray(f, "Widgets","LANListCols",		&tLXOptions->iLANList[0],6);
 	ReadIntArray(f, "Widgets","FavouritesListCols",	&tLXOptions->iFavouritesList[0],6);
+
+	// Media player
+	ReadKeyword(f, "MediaPlayer", "Repeat",		&tLXOptions->bRepeatPlaylist, true);
+	ReadKeyword(f, "MediaPlayer", "Shuffle",	&tLXOptions->bShufflePlaylist, false);
+	ReadInteger(f, "MediaPlayer", "MusicVolume",&tLXOptions->iMusicVolume, 50);
+
 
     // Last Game
     ReadInteger(f, "LastGame", "Lives",     &tLXOptions->tGameinfo.iLives, 10);
@@ -208,7 +214,7 @@ void ShutdownOptions(void)
 void SaveOptions(void)
 {
     static const char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode"};
+    static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "MediaPlayer"};
     int     i;
 
     if(tLXOptions == NULL)
@@ -261,7 +267,7 @@ void SaveOptions(void)
     fprintf(fp, "\n");
 
     fprintf(fp, "[GeneralControls]\n");
-    for(i=0; i<7; i++)
+    for(i=0; i<8; i++)
         fprintf(fp, "%s = %s\n", gen_keys[i], tLXOptions->sGeneralControls[i]);
     fprintf(fp, "\n");
 
@@ -289,6 +295,12 @@ void SaveOptions(void)
 		fprintf(fp, "%i,",tLXOptions->iFavouritesList[i]);
 	fprintf(fp, "%i\n",tLXOptions->iFavouritesList[5]);
 	fprintf(fp, "\n");
+
+    fprintf(fp, "[MediaPlayer]\n");
+    fprintf(fp, "Repeat = %s\n",   tLXOptions->bRepeatPlaylist ? "true" : "false");
+    fprintf(fp, "Shuffle = %s\n", tLXOptions->bShufflePlaylist ? "true" : "false");
+    fprintf(fp, "MusicVolume = %d\n", tLXOptions->iMusicVolume);
+    fprintf(fp, "\n");
 
     fprintf(fp, "[LastGame]\n");
     fprintf(fp, "Lives = %d\n",     tLXOptions->tGameinfo.iLives);

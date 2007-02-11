@@ -335,6 +335,7 @@ public:
 	void		DrawRemoteChat(SDL_Surface *bmpDest);
     void        DrawScoreboard(SDL_Surface *bmpDest);
 	void        DrawCurrentSettings(SDL_Surface *bmpDest);
+	void		DrawMediaPlayer(SDL_Surface *bmpDest);
     void        InitializeViewportManager(void);
     void        DrawViewportManager(SDL_Surface *bmpDest);
 	void		SimulateHud(void);

@@ -40,7 +40,8 @@ enum {
 	SIN_SETTINGS,
 	SIN_SCREENSHOTS,
 	SIN_VIEWPORTS,
-	SIN_SWITCHMODE
+	SIN_SWITCHMODE,
+	SIN_MEDIAPLAYER
 };
 
 
@@ -110,6 +111,11 @@ typedef struct {
 	int		iInternetList[6];
 	int		iLANList[6];
 	int		iFavouritesList[6];
+
+	// Media player
+	bool	bRepeatPlaylist;
+	bool	bShufflePlaylist;
+	int		iMusicVolume;
 
 	// Last used game details
 	struct {

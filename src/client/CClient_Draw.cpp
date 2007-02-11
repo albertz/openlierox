@@ -191,6 +191,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
+	DrawMediaPlayer(bmpDest);
+
 	// Console
     Con_Draw(bmpDest);
 
@@ -1411,4 +1413,11 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	else
 		tLX->cFont.Draw(bmpDest, x+105, y+115, tLX->clNormalLabel,"Off");
 
+}
+
+///////////////////
+// Draws the media player
+void CClient::DrawMediaPlayer(SDL_Surface *bmpDest)
+{
+	cMediaPlayer.Draw(bmpDest,350,240);
 }
