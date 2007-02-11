@@ -1,9 +1,11 @@
-// Open LieroX
+// OpenLieroX
 
 
 // Image
 // Created 29/10/06
 // Dark Charlie
+
+// code under LGPL
 
 
 #ifndef __CIMAGE_H__

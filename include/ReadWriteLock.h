@@ -4,7 +4,7 @@
 /*
  *	simple ReadWriteLock, implemented by using mutex's
  *
- *	by Albert Zeyer, code under LGPL
+ *	by Albert Zeyer,  code under LGPL
 */
 
 #include <SDL/SDL_thread.h>

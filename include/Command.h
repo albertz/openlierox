@@ -1,8 +1,9 @@
 /////////////////////////////////////////
 //
-//             Liero Xtreme
+//             OpenLieroX
 //
-//     Copyright Auxiliary Software 2002
+// code under LGPL, based on JasonBs work,
+// enhanced by Dark Charlie and Albert Zeyer
 //
 //
 /////////////////////////////////////////

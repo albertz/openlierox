@@ -1,6 +1,6 @@
 // OpenLieroX Media Player
 // Made by Dark Charlie and Albert Zeyer
-
+// code under LGPL
 
 #ifndef __MEDIAPLAYER_H__
 #define __MEDIAPLAYER_H__

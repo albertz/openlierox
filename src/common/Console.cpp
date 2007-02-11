@@ -1,8 +1,11 @@
 /////////////////////////////////////////
 //
-//             Carnage Marines
+//         OpenLieroX
 //
-//     Copyright Auxiliary Software 2002
+// based on sources for Carnage Marines
+//
+// code under LGPL, based on JasonBs work,
+// enhanced by Dark Charlie and Albert Zeyer
 //
 //
 /////////////////////////////////////////

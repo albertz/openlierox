@@ -1,8 +1,9 @@
 /////////////////////////////////////////
 //
-//             Liero Xtreme
+//             OpenLieroX
 //
-//     Copyright Auxiliary Software 2002
+// code under LGPL, based on JasonBs work,
+// enhanced by Dark Charlie and Albert Zeyer
 //
 //
 /////////////////////////////////////////
@@ -121,7 +122,7 @@ void Menu_PlayerInitialize(void)
 	cNewPlayer.Add( new CTextbox(),			   np_Username, 470, 200, 110, 20);
 	cNewPlayer.Add( new CTextbox(),			   np_Password, 470, 230, 110, 20);
 
-	//cNewPlayer.Add( new CLabel("Note: To register a username, visit the Liero Xtreme web site", tLX->clSubHeading),Static, 30, 410, 0,0);
+	//cNewPlayer.Add( new CLabel("Note: To register a username, visit the OpenLieroX web site", tLX->clSubHeading),Static, 30, 410, 0,0);
 
 	// Hide the multiplayer textboxes
 	cNewPlayer.getWidget(np_Username)->setEnabled(false);

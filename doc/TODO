@@ -1,13 +1,10 @@
 TODO list
 
-[x] enable sound per default
-[x] remove "[RIP] Dark Charlie" profile from default :)
-[x] set other server defaultname than [RIP]
-[x] better listing of searchpaths
 [ ] better bot aiming
 [ ] better bot behavior
 [x] cap FPS / CPU time
 [ ] add MaxFPS option in option dialog
+[ ] change menu graphics (mainly the "Liero Xtreme" banner)
 
 minor things:
 [ ] save selected player list in local play and return in this menu after playing

@@ -1,7 +1,7 @@
 // OpenLieroX
 
 // CSS Parser
-// Code taken from htmlcxx (http://htmlcxx.sourceforge.net/)
+// Code taken from htmlcxx (http://htmlcxx.sourceforge.net/) (also LGPL)
 
 #ifndef __CSS_PARSER_H__
 #define __CSS_PARSER_H__

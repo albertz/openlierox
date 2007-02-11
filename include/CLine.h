@@ -4,6 +4,8 @@
 // Created 5/11/06
 // Dark Charlie
 
+// code under LGPL
+
 
 #ifndef __CLINE_H__
 #define __CLINE_H__

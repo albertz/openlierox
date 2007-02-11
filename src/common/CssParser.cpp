@@ -1,3 +1,15 @@
+/////////////////////////////////////////
+//
+//   OpenLieroX
+//
+//   Auxiliary Software class library
+//
+//   based on the work of JasonB
+//   enhanced by Dark Charlie and Albert Zeyer
+//
+//   code under LGPL
+//
+/////////////////////////////////////////
 
 #include "defs.h"
 #include "LieroX.h"

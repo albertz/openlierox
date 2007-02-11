@@ -1,14 +1,15 @@
 /////////////////////////////////////////
 //
-//             Liero Xtreme
+//             OpenLieroX
 //
-//     Copyright Auxiliary Software 2002
+// code under LGPL, based on JasonBs work,
+// enhanced by Dark Charlie and Albert Zeyer
 //
 //
 /////////////////////////////////////////
 
 
-// COmmon networking routines to help us
+// Common networking routines to help us
 // Created 18/12/02
 // Jason Boettcher
 

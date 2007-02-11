@@ -1,9 +1,10 @@
 /////////////////////////////////////////
 //
-//             LieroX
+//             OpenLieroX
 //
-//      Copyright Auxiliary Software 2001
-//
+//   work by JasonB
+//   code under LGPL
+//   enhanced by Dark Charlie and Albert Zeyer
 //
 /////////////////////////////////////////
 

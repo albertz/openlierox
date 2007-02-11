@@ -4,6 +4,8 @@
 // Created 28/6/02
 // Jason Boettcher
 
+// code under LGPL
+
 
 #include "defs.h"
 #include "LieroX.h"
@@ -175,7 +177,7 @@ int main(int argc, char *argv[])
 // Parse the arguments
 void ParseArguments(int argc, char *argv[])
 {
-    // Parameters passed to liero xtreme overwrite the loaded options
+    // Parameters passed to OpenLieroX overwrite the loaded options
     char *a;
     for(int i=1; i<argc; i++) {
         a = argv[i];

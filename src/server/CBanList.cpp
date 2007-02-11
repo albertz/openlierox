@@ -1,6 +1,6 @@
 /////////////////////////////////////////
 //
-//             Liero Xtreme
+//             OpenLieroX
 //
 //        Copyright RIP Clan 2006
 //
