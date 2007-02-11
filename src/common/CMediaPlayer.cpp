@@ -1,5 +1,6 @@
 // OpenLieroX Media Player
 // Made by Dark Charlie and Albert Zeyer
+// code under LGPL
 
 #include "defs.h"
 #include "LieroX.h"

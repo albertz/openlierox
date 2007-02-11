@@ -5,6 +5,8 @@
 // Created 30/3/03
 // Jason Boettcher
 
+// code under LGPL
+
 
 #include "defs.h"
 #include "LieroX.h"
