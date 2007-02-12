@@ -127,12 +127,13 @@ void Menu_Net_NETShutdown(void)
 void Menu_Net_NETFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	static char		addr[256];
 
 
 	// Process & Draw the gui
-	ev = cInternet.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cInternet.Process();
 	cInternet.Draw( tMenu->bmpScreen );
 
 
@@ -433,7 +434,7 @@ void Menu_Net_NETAddServer(void)
 {
 	CGuiLayout	cAddSvr;
 	int			mouse = 0;
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	mouse_t		*Mouse = GetMouse();
 	bool		addServerMsg = true;
 
@@ -537,7 +538,7 @@ void Menu_Net_NETUpdateList(void)
 {
 	CGuiLayout	cListUpdate;
 	int			mouse = 0;
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	mouse_t		*Mouse = GetMouse();
 	bool		updateList = true;
 	int			http_result = 0;
@@ -796,10 +797,14 @@ void Menu_Net_NETShowServer(char *szAddress)
 		ProcessEvents();
 		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
+		cMediaPlayer.Frame();
+
 		Menu_SvrList_DrawInfo(szAddress);
 
         cDetails.Draw(tMenu->bmpScreen);
-        gui_event_t *ev = cDetails.Process();
+        gui_event_t *ev = NULL;
+		if (!cMediaPlayer.GetDrawPlayer())
+			ev = cDetails.Process();
         if(ev) {
             if(ev->cWidget->getType() == wid_Button)
                 nMouseCur = 1;
@@ -816,6 +821,7 @@ void Menu_Net_NETShowServer(char *szAddress)
 			}
         }
 
+		cMediaPlayer.Draw(tMenu->bmpScreen);
 
         DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
 		FlipScreen(tMenu->bmpScreen);

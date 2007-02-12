@@ -315,11 +315,12 @@ void Menu_Player_ViewPlayerInit(void)
 // New player section
 void Menu_Player_NewPlayer(int mouse)
 {
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
 
 	// Process & draw the gui
-	ev = cNewPlayer.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cNewPlayer.Process();
 	cNewPlayer.Draw(tMenu->bmpScreen);
 
 	Uint8 r = ((CSlider *)cNewPlayer.getWidget(np_Red))->getValue();
@@ -447,11 +448,12 @@ void Menu_Player_NewPlayer(int mouse)
 void Menu_Player_ViewPlayers(int mouse)
 {
 	mouse_t *Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	static char buf[128];
 
 	// Process & draw the gui
-	ev = cViewPlayers.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cViewPlayers.Process();
 	cViewPlayers.Draw(tMenu->bmpScreen);
 
 

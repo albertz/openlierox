@@ -256,6 +256,9 @@ void CMediaPlayer::Clear(void)
 	tCurrentSong = NULL;
 	bGfxInitialized = false;
 	bDrawPlayer = false;
+	bGrabbed = false;
+	iLastMouseX = 0;
+	iLastMouseY = 0;
 	memset(&tPlayerGfx,0,sizeof(player_gfx_t));
 }
 
@@ -285,7 +288,6 @@ void CMediaPlayer::Shutdown(void)
 
 /////////////////////
 // Get the song name from the path
-// TODO: use ID3 tags for MP3
 song_name CMediaPlayer::GetNameFromFile(song_path path)
 {
 	song_name name = "";
@@ -318,6 +320,19 @@ song_name CMediaPlayer::GetNameFromFile(song_path path)
 	}
 
 	return name;
+}
+
+//////////////////////
+// Loads the playlist from the specified file
+void CMediaPlayer::LoadPlaylistFromFile(const char *filename, bool absolute_path)
+{
+	tPlayList.LoadFromFile(filename,absolute_path);
+	if (tPlayList.getNumSongs() > 0)  {
+		tPlayList.SetCurSong(0);
+		szCurSongName = GetNameFromFile(tPlayList.GetCurSong());
+		if (bGfxInitialized)
+			((CPlayerMarquee *)(cPlayerGui.getWidget(mp_PlayingMarq)))->setText(szCurSongName.c_str());
+	}
 }
 
 ////////////////////
@@ -435,6 +450,10 @@ byte CMediaPlayer::GetVolume(void)
 // Initialize the graphics
 bool CMediaPlayer::InitializeGfx(void)
 {
+	// Load options
+	iX = tLXOptions->iMPlayerLeft;
+	iY = tLXOptions->iMPlayerTop;
+
 	LOAD_IMAGE(tPlayerGfx.bmpBackground,	"data/frontend/mplayer/background.png");
 	LOAD_IMAGE(tPlayerGfx.bmpHide,			"data/frontend/mplayer/hide.png")
 	LOAD_IMAGE(tPlayerGfx.bmpWindow,		"data/frontend/mplayer/window.png");
@@ -466,7 +485,7 @@ bool CMediaPlayer::InitializeGfx(void)
 	cPlayerGui.Add(new CPlayerToggleBtn(tPlayerGfx.bmpShuffle,GetShufflePlaylist()),mp_Shuffle,0,0,0,0);
 	cPlayerGui.Add(new CPlayerButton(tPlayerGfx.bmpSelectDir),mp_SelectDir,0,0,0,0);
 	cPlayerGui.Add(new CPlayerButton(tPlayerGfx.bmpStop),mp_Stop,0,0,0,0);
-	cPlayerGui.Add(new CPlayerMarquee("",0),mp_PlayingMarq,0,0,0,0);
+	cPlayerGui.Add(new CPlayerMarquee("",tLX->clMPlayerSong),mp_PlayingMarq,0,0,0,0);
 
 	((CPlayerSlider *)(cPlayerGui.getWidget(mp_MusicVol)))->SetValue(GetVolume());
 	((CPlayerSlider *)(cPlayerGui.getWidget(mp_GameVol)))->SetValue(GetSoundVolume());
@@ -475,31 +494,31 @@ bool CMediaPlayer::InitializeGfx(void)
 
 ///////////////////////
 // Draws the player to the destination surface
-void CMediaPlayer::Draw(SDL_Surface *bmpDest,int x,int y)
+void CMediaPlayer::Draw(SDL_Surface *bmpDest)
 {
 	// Can't draw
 	if (!bGfxInitialized || !bDrawPlayer)
 		return;
 
 	// Clipping
-	if (x+tPlayerGfx.bmpBackground->w >= bmpDest->w || y+tPlayerGfx.bmpBackground->h >= bmpDest->h)
+	if (iX+tPlayerGfx.bmpBackground->w >= bmpDest->w || iY+tPlayerGfx.bmpBackground->h >= bmpDest->h)
 		return;
-	if (x < 0 || y < 0)
+	if (iX < 0 || iY < 0)
 		return;
 
 	// Update the widget positions according to the current coordinates
-	cPlayerGui.getWidget(mp_Next)->Setup(mp_Next,x+150,y+70,tPlayerGfx.bmpNext->w,tPlayerGfx.bmpNext->h/2);
-	cPlayerGui.getWidget(mp_Pause)->Setup(mp_Pause,x+85,y+60,tPlayerGfx.bmpPause->w,tPlayerGfx.bmpPause->h/2);
-	cPlayerGui.getWidget(mp_Play)->Setup(mp_Play,x+85,y+60,tPlayerGfx.bmpPlay->w,tPlayerGfx.bmpPlay->h/2);
-	cPlayerGui.getWidget(mp_Previous)->Setup(mp_Previous,x+58,y+70,tPlayerGfx.bmpPrevious->w,tPlayerGfx.bmpPrevious->h/2);
-	cPlayerGui.getWidget(mp_Repeat)->Setup(mp_Repeat,x+208,y+15,tPlayerGfx.bmpRepeat->w,tPlayerGfx.bmpRepeat->h/2);
-	cPlayerGui.getWidget(mp_Shuffle)->Setup(mp_Shuffle,x+208,y+30,tPlayerGfx.bmpShuffle->w,tPlayerGfx.bmpShuffle->h/2);
-	cPlayerGui.getWidget(mp_SelectDir)->Setup(mp_SelectDir,x+10,y+70,tPlayerGfx.bmpSelectDir->w,tPlayerGfx.bmpSelectDir->h/2);
-	cPlayerGui.getWidget(mp_Stop)->Setup(mp_Stop,x+122,y+70,tPlayerGfx.bmpStop->w,tPlayerGfx.bmpStop->h/2);
-	cPlayerGui.getWidget(mp_MusicVol)->Setup(mp_MusicVol,x+5,y+45,tPlayerGfx.bmpMusicVolume->w,tPlayerGfx.bmpMusicVolume->h);
-	cPlayerGui.getWidget(mp_GameVol)->Setup(mp_GameVol,x+110,y+45,tPlayerGfx.bmpGameVolume->w,tPlayerGfx.bmpGameVolume->h);
-	cPlayerGui.getWidget(mp_PlayingMarq)->Setup(mp_PlayingMarq,x+42,y+25,150,tLX->cFont.GetHeight());
-	cPlayerGui.getWidget(mp_Hide)->Setup(mp_Hide,x+tPlayerGfx.bmpBackground->w-tPlayerGfx.bmpHide->w,y,tPlayerGfx.bmpHide->w,tPlayerGfx.bmpHide->h/2);
+	cPlayerGui.getWidget(mp_Next)->Setup(mp_Next,iX+150,iY+70,tPlayerGfx.bmpNext->w,tPlayerGfx.bmpNext->h/2);
+	cPlayerGui.getWidget(mp_Pause)->Setup(mp_Pause,iX+85,iY+60,tPlayerGfx.bmpPause->w,tPlayerGfx.bmpPause->h/2);
+	cPlayerGui.getWidget(mp_Play)->Setup(mp_Play,iX+85,iY+60,tPlayerGfx.bmpPlay->w,tPlayerGfx.bmpPlay->h/2);
+	cPlayerGui.getWidget(mp_Previous)->Setup(mp_Previous,iX+58,iY+70,tPlayerGfx.bmpPrevious->w,tPlayerGfx.bmpPrevious->h/2);
+	cPlayerGui.getWidget(mp_Repeat)->Setup(mp_Repeat,iX+208,iY+15,tPlayerGfx.bmpRepeat->w,tPlayerGfx.bmpRepeat->h/2);
+	cPlayerGui.getWidget(mp_Shuffle)->Setup(mp_Shuffle,iX+208,iY+30,tPlayerGfx.bmpShuffle->w,tPlayerGfx.bmpShuffle->h/2);
+	cPlayerGui.getWidget(mp_SelectDir)->Setup(mp_SelectDir,iX+10,iY+70,tPlayerGfx.bmpSelectDir->w,tPlayerGfx.bmpSelectDir->h/2);
+	cPlayerGui.getWidget(mp_Stop)->Setup(mp_Stop,iX+122,iY+70,tPlayerGfx.bmpStop->w,tPlayerGfx.bmpStop->h/2);
+	cPlayerGui.getWidget(mp_MusicVol)->Setup(mp_MusicVol,iX+5,iY+45,tPlayerGfx.bmpMusicVolume->w,tPlayerGfx.bmpMusicVolume->h);
+	cPlayerGui.getWidget(mp_GameVol)->Setup(mp_GameVol,iX+110,iY+45,tPlayerGfx.bmpGameVolume->w,tPlayerGfx.bmpGameVolume->h);
+	cPlayerGui.getWidget(mp_PlayingMarq)->Setup(mp_PlayingMarq,iX+42,iY+25,150,tLX->cFont.GetHeight());
+	cPlayerGui.getWidget(mp_Hide)->Setup(mp_Hide,iX+tPlayerGfx.bmpBackground->w-tPlayerGfx.bmpHide->w,iY,tPlayerGfx.bmpHide->w,tPlayerGfx.bmpHide->h/2);
 
 	if (Paused())  {
 		cPlayerGui.getWidget(mp_Pause)->setEnabled(false);
@@ -517,7 +536,7 @@ void CMediaPlayer::Draw(SDL_Surface *bmpDest,int x,int y)
 
 
 	// Draw the background
-	DrawImage(bmpDest,tPlayerGfx.bmpBackground,x,y);
+	DrawImage(bmpDest,tPlayerGfx.bmpBackground,iX,iY);
 
 	// Draw the song info window background
 	int src_x = 0;  // Playing
@@ -525,12 +544,12 @@ void CMediaPlayer::Draw(SDL_Surface *bmpDest,int x,int y)
 		src_x = tPlayerGfx.bmpWindow->h/3;
 	if (Stopped())  // Stopped
 		src_x = 2*tPlayerGfx.bmpWindow->h/3;
-	DrawImageAdv(bmpDest,tPlayerGfx.bmpWindow,0,src_x,x+5,y+5,tPlayerGfx.bmpWindow->w,tPlayerGfx.bmpWindow->h/3);
+	DrawImageAdv(bmpDest,tPlayerGfx.bmpWindow,0,src_x,iX+5,iY+5,tPlayerGfx.bmpWindow->w,tPlayerGfx.bmpWindow->h/3);
 
 	// Draw the current time
 	int h,m,s;
 	ConvertTime(GetSongTime(), &h,&m,&s);
-	tLX->cFont.Draw(bmpDest,x+5+tPlayerGfx.bmpWindow->w/2,y+10,0,"%d:%s%d",m,s<10 ? "0" : "",s);
+	tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow->w/2,iY+10,tLX->clMPlayerTime,"%d:%s%d",m,s<10 ? "0" : "",s);
 
 	// Draw all the widgets
 	cPlayerGui.Draw(bmpDest);
@@ -547,8 +566,38 @@ void CMediaPlayer::SetDrawPlayer(bool _d)
 
 	// Redraw the menu if needed
 	if (!bDrawPlayer && tMenu->iMenuRunning)  {
-		Menu_redrawBufferRect(0,0,640,480);
+		Menu_redrawBufferRect(iX,iY,GetWidth(),GetHeight());
 	}
+}
+
+/////////////////////
+// Set the X coordinate of the Media Player
+void CMediaPlayer::SetX(int x)
+{
+	iX = x;
+
+	// Screen clipping
+	if (iX + GetWidth() >= SDL_GetVideoSurface()->w)
+		iX = SDL_GetVideoSurface()->w-GetWidth()-1;
+	else if (iX < 0)
+		iX = 0;	
+
+	tLXOptions->iMPlayerLeft = iX;
+}
+
+/////////////////////
+// Set the Y coordinate of the Media Player
+void CMediaPlayer::SetY(int y)
+{
+	iY = y;
+
+	// Screen clipping
+	if (iY + GetHeight() >= SDL_GetVideoSurface()->h)
+		iY = SDL_GetVideoSurface()->h-GetHeight()-1;
+	else if (iY < 0)
+		iY = 0;	
+
+	tLXOptions->iMPlayerTop = iY;
 }
 
 /////////////////////
@@ -571,8 +620,11 @@ void CMediaPlayer::Frame(void)
 
 	gui_event_t *ev = NULL;
 
+	mouse_t *tMouse = GetMouse();
+
 	// Process the gui
-	ev = cPlayerGui.Process();
+	if (!bGrabbed || tMouse->Up)  // Hack: don't process when the user is moving the window
+		ev = cPlayerGui.Process();
 	if (ev)  {
 		switch (ev->iControlID)  {
 		case mp_Next:
@@ -618,8 +670,33 @@ void CMediaPlayer::Frame(void)
 			SetDrawPlayer(false);
 			break;
 		}
-	}
+	} else {
 
+		// Process the mouse dragging
+		if (tMouse->Down)  {
+			if (!bGrabbed)  {
+				if (MouseInRect(iX,iY,GetWidth(),GetHeight()))  {
+					bGrabbed = true;
+					iLastMouseX = tMouse->X;
+					iLastMouseY = tMouse->Y;
+				}
+			} else {
+				// Clear the current position from the menu screen if needed
+				if (tMenu->iMenuRunning)
+					Menu_redrawBufferRect(iX,iY,GetWidth(),GetHeight());
+
+				SetX(iX+tMouse->X-iLastMouseX);
+				SetY(iY+tMouse->Y-iLastMouseY);
+
+				iLastMouseX = tMouse->X;
+				iLastMouseY = tMouse->Y;
+			}
+		} else {
+			bGrabbed = false;
+			iLastMouseX = 0;
+			iLastMouseY = 0;
+		}
+	}
 }
 
 

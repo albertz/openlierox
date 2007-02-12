@@ -259,10 +259,11 @@ void Menu_Loop(void)
 		}
 		oldtime = tLX->fCurTime;
 
-		cMediaPlayer.Frame();
-
 		Menu_RedrawMouse(false);
 		ProcessEvents();
+
+		// Media player frame
+		cMediaPlayer.Frame();
 
 		switch(tMenu->iMenuType) {
 
@@ -297,7 +298,8 @@ void Menu_Loop(void)
 				break;
 		}
 
-		cMediaPlayer.Draw(tMenu->bmpScreen,350,240);
+		// At last draw the media player
+		cMediaPlayer.Draw(tMenu->bmpScreen);
 
         FlipScreen(tMenu->bmpScreen);
 	}
@@ -520,7 +522,7 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 
 	int x = 160;
 	int y = 170;

@@ -334,6 +334,7 @@ int CServer::StartGame(void)
 	iServerFrame = 0;
     iGameOver = false;
 
+	bs.Clear();
 	bs.writeByte(S2C_PREPAREGAME);
 	bs.writeInt(iRandomMap,1);
 	if(!iRandomMap)

@@ -157,12 +157,13 @@ void Menu_Net_JoinShutdown(void)
 void Menu_Net_JoinPlayersFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	CListview	*lv, *lv2;
 	profile_t	*ply;
 
 	// Process & Draw the gui
-	ev = cPlayerSel.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cPlayerSel.Process();
 	cPlayerSel.Draw( tMenu->bmpScreen );
 
 
@@ -349,7 +350,7 @@ void Menu_Net_JoinConnectionShutdown(void)
 void Menu_Net_JoinConnectionFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 
 
 	// Process the client frame
@@ -384,7 +385,8 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Process & Draw the gui
-	ev = cConnecting.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cConnecting.Process();
 	cConnecting.Draw( tMenu->bmpScreen );
 
 
@@ -569,7 +571,7 @@ char *Menu_Net_JoinLobbyGetText(void)
 void Menu_Net_JoinLobbyFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	int			i,y,local;
 
 	// Process the client
@@ -622,7 +624,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 
 	// Process & Draw the gui
-	ev = cJoinLobby.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cJoinLobby.Process();
 	cJoinLobby.Draw( tMenu->bmpScreen );
 
 

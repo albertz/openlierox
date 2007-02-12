@@ -103,7 +103,7 @@ void Menu_MapEdShutdown(void)
 // Map editor frame
 void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 {
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
 	int x,y,n,i;
@@ -111,7 +111,8 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	// Re-draw the buffer over buttons
 	//DrawImageAdv(bmpDest, tMenu->bmpBuffer, 230,140, 230,140, 410,50);
 	
-	ev = cMaped.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cMaped.Process();
 	cMaped.Draw(bmpDest);
 
 	
@@ -465,7 +466,7 @@ void Menu_MapEd_New(void)
 {
 	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	int mouse=0;
 	int i;
 	int quitloop = false;
@@ -623,7 +624,7 @@ void Menu_MapEd_LoadSave(int save)
 {
 	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	int mouse=0;
 	int quitloop = false;
 	CTextbox *t;

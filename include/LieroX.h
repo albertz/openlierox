@@ -120,6 +120,8 @@ typedef struct {
 	Uint32			clWinBtnBody;
 	Uint32			clWinBtnLight;
 	Uint32			clWinBtnDark;
+	Uint32			clMPlayerTime;
+	Uint32			clMPlayerSong;
 
 	Uint32			clPink;
 

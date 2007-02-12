@@ -150,7 +150,7 @@ void Menu_LocalShutdown(void)
 // Local frame
 void Menu_LocalFrame(void)
 {
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
     int i;
@@ -229,7 +229,8 @@ void Menu_LocalFrame(void)
 
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 
-	ev = cLocalMenu.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cLocalMenu.Process();
 	cLocalMenu.Draw(tMenu->bmpScreen);
 
 	if(ev) {
@@ -909,7 +910,8 @@ bool Menu_GameSettings_Frame(void)
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
-	ev = cGameSettings.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cGameSettings.Process();
 	cGameSettings.Draw(tMenu->bmpScreen);
 
 	if(ev) {
@@ -1166,7 +1168,8 @@ bool Menu_WeaponsRestrictions_Frame(void)
         cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, 0, 0);
 
 
-	ev = cWeaponsRest.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cWeaponsRest.Process();
 	cWeaponsRest.Draw(tMenu->bmpScreen);
 
 	if(ev) {
@@ -1255,7 +1258,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 
 	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	int mouse=0;
 	int quitloop = false;
 	CTextbox *t;
@@ -1322,12 +1325,13 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		if (save)
 			tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel,"%s","Preset name");
 
-		ev = cWpnPresets.Process();
+		if (!cMediaPlayer.GetDrawPlayer())
+			ev = cWpnPresets.Process();
 		cWpnPresets.Draw(tMenu->bmpScreen);
 
 		// Process the widgets
 		mouse = 0;
-		if(ev) {
+		if(ev && !cMediaPlayer.GetDrawPlayer()) {
 			if(ev->cWidget->getType() == wid_Button)
 				mouse = 1;
 			if(ev->cWidget->getType() == wid_Textbox)

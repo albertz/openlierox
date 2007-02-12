@@ -52,6 +52,8 @@ int LoadGraphics(void)
 	tLX->clWinBtnBody = MakeColour(128,128,128);
 	tLX->clWinBtnDark = MakeColour(64,64,64);
 	tLX->clWinBtnLight = MakeColour(192,192,192);
+	tLX->clMPlayerSong = 0x0000;
+	tLX->clMPlayerTime = 0x0000;
 
 	int i;
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[0], "data/frontend/mouse.png");
@@ -110,30 +112,32 @@ int LoadGraphics(void)
 
 	// Load the colours from a file
 	char *colorfile = "data/frontend/colours.cfg";
-	ReadColour(colorfile,"Colours","ChatText",		&tLX->clChatText,		tLX->clChatText);
-	ReadColour(colorfile,"Colours","Credits1",		&tLX->clCredits1,		tLX->clCredits1);
-	ReadColour(colorfile,"Colours","Credits2",		&tLX->clCredits2,		tLX->clCredits2);
-	ReadColour(colorfile,"Colours","Disabled",		&tLX->clDisabled,		tLX->clDisabled);
-	ReadColour(colorfile,"Colours","DropDownText",	&tLX->clDropDownText,	tLX->clDropDownText);
-	ReadColour(colorfile,"Colours","Error",			&tLX->clError,			tLX->clError);
-	ReadColour(colorfile,"Colours","Heading",		&tLX->clHeading,		tLX->clHeading);
-	ReadColour(colorfile,"Colours","ListView",		&tLX->clListView,		tLX->clListView);
-	ReadColour(colorfile,"Colours","MouseOver",		&tLX->clMouseOver,		tLX->clMouseOver);
-	ReadColour(colorfile,"Colours","NetworkText",	&tLX->clNetworkText,	tLX->clNetworkText);
-	ReadColour(colorfile,"Colours","NormalLabel",	&tLX->clNormalLabel,	tLX->clNormalLabel);
-	ReadColour(colorfile,"Colours","NormalText",	&tLX->clNormalText,		tLX->clNormalText);
-	ReadColour(colorfile,"Colours","Notice",		&tLX->clNotice,			tLX->clNotice);
-	ReadColour(colorfile,"Colours","PopupMenu",		&tLX->clPopupMenu,		tLX->clPopupMenu);
-	ReadColour(colorfile,"Colours","SubHeading",	&tLX->clSubHeading,		tLX->clSubHeading);
-	ReadColour(colorfile,"Colours","TextBox",		&tLX->clTextBox,		tLX->clTextBox);
-	ReadColour(colorfile,"Colours","Waiting",		&tLX->clWaiting,		tLX->clWaiting);
-	ReadColour(colorfile,"Colours","Ready",			&tLX->clReady,			tLX->clReady);
-	ReadColour(colorfile,"Colours","PlayerName",	&tLX->clPlayerName,		tLX->clPlayerName);
-	ReadColour(colorfile,"Colours","BoxDark",		&tLX->clBoxDark,		tLX->clBoxDark);
-	ReadColour(colorfile,"Colours","BoxLight",		&tLX->clBoxLight,		tLX->clBoxLight);
-	ReadColour(colorfile,"Colours","WinButtonBody",	&tLX->clWinBtnBody,		tLX->clWinBtnBody);
-	ReadColour(colorfile,"Colours","WinButtonDark",	&tLX->clWinBtnDark,		tLX->clWinBtnDark);
-	ReadColour(colorfile,"Colours","WinButtonLight",&tLX->clWinBtnLight,	tLX->clWinBtnLight);
+	ReadColour(colorfile,"Colours","ChatText",		 &tLX->clChatText,		tLX->clChatText);
+	ReadColour(colorfile,"Colours","Credits1",		 &tLX->clCredits1,		tLX->clCredits1);
+	ReadColour(colorfile,"Colours","Credits2",		 &tLX->clCredits2,		tLX->clCredits2);
+	ReadColour(colorfile,"Colours","Disabled",		 &tLX->clDisabled,		tLX->clDisabled);
+	ReadColour(colorfile,"Colours","DropDownText",	 &tLX->clDropDownText,	tLX->clDropDownText);
+	ReadColour(colorfile,"Colours","Error",			 &tLX->clError,			tLX->clError);
+	ReadColour(colorfile,"Colours","Heading",		 &tLX->clHeading,		tLX->clHeading);
+	ReadColour(colorfile,"Colours","ListView",		 &tLX->clListView,		tLX->clListView);
+	ReadColour(colorfile,"Colours","MouseOver",		 &tLX->clMouseOver,		tLX->clMouseOver);
+	ReadColour(colorfile,"Colours","NetworkText",	 &tLX->clNetworkText,	tLX->clNetworkText);
+	ReadColour(colorfile,"Colours","NormalLabel",	 &tLX->clNormalLabel,	tLX->clNormalLabel);
+	ReadColour(colorfile,"Colours","NormalText",	 &tLX->clNormalText,	tLX->clNormalText);
+	ReadColour(colorfile,"Colours","Notice",		 &tLX->clNotice,		tLX->clNotice);
+	ReadColour(colorfile,"Colours","PopupMenu",		 &tLX->clPopupMenu,		tLX->clPopupMenu);
+	ReadColour(colorfile,"Colours","SubHeading",	 &tLX->clSubHeading,	tLX->clSubHeading);
+	ReadColour(colorfile,"Colours","TextBox",		 &tLX->clTextBox,		tLX->clTextBox);
+	ReadColour(colorfile,"Colours","Waiting",		 &tLX->clWaiting,		tLX->clWaiting);
+	ReadColour(colorfile,"Colours","Ready",			 &tLX->clReady,			tLX->clReady);
+	ReadColour(colorfile,"Colours","PlayerName",	 &tLX->clPlayerName,	tLX->clPlayerName);
+	ReadColour(colorfile,"Colours","BoxDark",		 &tLX->clBoxDark,		tLX->clBoxDark);
+	ReadColour(colorfile,"Colours","BoxLight",		 &tLX->clBoxLight,		tLX->clBoxLight);
+	ReadColour(colorfile,"Colours","WinButtonBody",	 &tLX->clWinBtnBody,	tLX->clWinBtnBody);
+	ReadColour(colorfile,"Colours","WinButtonDark",  &tLX->clWinBtnDark,	tLX->clWinBtnDark);
+	ReadColour(colorfile,"Colours","WinButtonLight", &tLX->clWinBtnLight,	tLX->clWinBtnLight);
+	ReadColour(colorfile,"Colours","MPlayerSongTime",&tLX->clMPlayerTime,	tLX->clMPlayerTime);
+	ReadColour(colorfile,"Colours","MPlayerSongName",&tLX->clMPlayerSong,	tLX->clMPlayerSong);
 
 	return true;
 }

@@ -115,6 +115,8 @@ typedef struct {
 	// Media player
 	bool	bRepeatPlaylist;
 	bool	bShufflePlaylist;
+	int		iMPlayerLeft;
+	int		iMPlayerTop;
 	int		iMusicVolume;
 
 	// Last used game details

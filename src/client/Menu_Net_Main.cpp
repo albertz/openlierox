@@ -83,11 +83,12 @@ void Menu_Net_MainShutdown(void)
 void Menu_Net_MainFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 
 
 	// Process & Draw the gui
-	ev = cMain.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cMain.Process();
 	cMain.Draw( tMenu->bmpScreen );
 
 

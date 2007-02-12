@@ -137,6 +137,8 @@ int LoadOptions(void)
 	// Media player
 	ReadKeyword(f, "MediaPlayer", "Repeat",		&tLXOptions->bRepeatPlaylist, true);
 	ReadKeyword(f, "MediaPlayer", "Shuffle",	&tLXOptions->bShufflePlaylist, false);
+	ReadInteger(f, "MediaPlayer", "Left",		&tLXOptions->iMPlayerLeft, 350);
+	ReadInteger(f, "MediaPlayer", "Top",		&tLXOptions->iMPlayerTop, 240);
 	ReadInteger(f, "MediaPlayer", "MusicVolume",&tLXOptions->iMusicVolume, 50);
 
 
@@ -299,6 +301,8 @@ void SaveOptions(void)
     fprintf(fp, "[MediaPlayer]\n");
     fprintf(fp, "Repeat = %s\n",   tLXOptions->bRepeatPlaylist ? "true" : "false");
     fprintf(fp, "Shuffle = %s\n", tLXOptions->bShufflePlaylist ? "true" : "false");
+    fprintf(fp, "Left = %d\n", tLXOptions->iMPlayerLeft);
+    fprintf(fp, "Top = %d\n", tLXOptions->iMPlayerTop);
     fprintf(fp, "MusicVolume = %d\n", tLXOptions->iMusicVolume);
     fprintf(fp, "\n");
 

@@ -1419,5 +1419,5 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 // Draws the media player
 void CClient::DrawMediaPlayer(SDL_Surface *bmpDest)
 {
-	cMediaPlayer.Draw(bmpDest,350,240);
+	cMediaPlayer.Draw(bmpDest);
 }

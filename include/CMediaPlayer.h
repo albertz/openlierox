@@ -142,6 +142,10 @@ private:
 	bool			bGfxInitialized;
 	bool			bDrawPlayer;
 	CGuiLayout		cPlayerGui;
+	int				iX, iY;
+	int				iLastMouseX,iLastMouseY;
+	bool			bGrabbed;
+
 
 	// Dialogs
 	COpenAddDir		cOpenDialog;
@@ -173,15 +177,21 @@ public:
 	 inline void	OpenDirectory(char *dir,bool include_subdirs=true,bool add_to_current_pl=true)  {tPlayList.Load(dir,include_subdirs,add_to_current_pl); }
 	 inline const char	*GetCurrentSongName(void)	{return szCurSongName.c_str(); }
 
-	 inline void	LoadPlaylistFromFile(const char *filename,bool absolute_path=false)  {tPlayList.LoadFromFile(filename,absolute_path); }
+	 void			LoadPlaylistFromFile(const char *filename,bool absolute_path=false);
 	 inline void	SavePlaylistToFile(const char *filename,bool absolute_path=false)  {tPlayList.SaveToFile(filename,absolute_path); }
 
 	 // Drawing and GUI processing
 	 bool			InitializeGfx(void);
-	 void			Draw(SDL_Surface *bmpDest,int x, int y);
+	 void			Draw(SDL_Surface *bmpDest);
 	 void			Frame(void);
 	 void			SetDrawPlayer(bool _d);
 	 inline bool	GetDrawPlayer(void) { return bDrawPlayer; }
+	 inline int		GetX(void)  { return iX; }
+	 void			SetX(int x);
+	 inline int		GetY(void)  { return iY; }
+	 void			SetY(int y);
+	 inline int		GetWidth(void)   { if (tPlayerGfx.bmpBackground)  {return tPlayerGfx.bmpBackground->w; } else return -1; }
+	 inline int		GetHeight(void)  { if (tPlayerGfx.bmpBackground)  {return tPlayerGfx.bmpBackground->h; } else return -1; }
 };
 
 // Media player GUI

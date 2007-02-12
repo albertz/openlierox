@@ -286,14 +286,14 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		MAX_CHECKSTEP = 3;
 		AVG_CHECKSTEP = 2;
 	} else if (len >= 14000 && len < 25000)  {
-		MIN_CHECKSTEP = 2;
+		MIN_CHECKSTEP = 1;
 		MAX_CHECKSTEP = 4;
 		AVG_CHECKSTEP = 2;
-	} else if (len >= 25000 && len < 40000)  {
-		MIN_CHECKSTEP = 4;
-		MAX_CHECKSTEP = 6;
-		AVG_CHECKSTEP = 4;
-	} else if (len >= 40000)  {
+	} else if (len >= 25000 && len < 250000)  {
+		MIN_CHECKSTEP = 1;
+		MAX_CHECKSTEP = 5;
+		AVG_CHECKSTEP = 2;
+	} else if (len >= 250000)  {
 		MIN_CHECKSTEP = 6;
 		MAX_CHECKSTEP = 9;
 		AVG_CHECKSTEP = 6;
@@ -735,7 +735,12 @@ void CProjectile::Bounce(float fCoeff)
 	float x,y;
 	x=y=1;
 
-	if(CollisionSide & (COL_TOP|COL_BOTTOM)) {
+	// This code is right, it should be done like that
+	// However, we want to keep compatibility with .56 and when on each client would be another simulation,
+	// we couldn't call that compatibility at all
+
+	// For now we just keep the old, wrong code, so noone will call OLX players as cheaters
+/*	if(CollisionSide & (COL_TOP|COL_BOTTOM)) {
 		y=-y;
 	}
 	if(CollisionSide & (COL_LEFT|COL_RIGHT)) {
@@ -753,12 +758,11 @@ void CProjectile::Bounce(float fCoeff)
 	}
 	if(CollisionSide & COL_RIGHT) {
 		x*=fCoeff;
-	}
+	}*/
 
-/*
+
 	// WARNING: this code should not be used; it is simply wrong
 	//	(this was the way the original LX did it)
-	// Maybe wrong, but all are used to it
 
 	if (CollisionSide & COL_TOP)  {
 		x = fCoeff;
@@ -776,7 +780,7 @@ void CProjectile::Bounce(float fCoeff)
 		x = -fCoeff;
 		y = fCoeff;
 	}
-*/
+
 
 	vVelocity.x *= x;
 	vVelocity.y *= y;

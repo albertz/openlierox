@@ -174,12 +174,13 @@ void Menu_Net_HostFrame(int mouse)
 void Menu_Net_HostPlyFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 	CListview	*lv, *lv2;
 	profile_t	*ply;
 
 	// Process & Draw the gui
-	ev = cHostPly.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cHostPly.Process();
 	cHostPly.Draw( tMenu->bmpScreen );
 
 
@@ -632,7 +633,7 @@ void Menu_Net_HostGotoLobby(void)
 void Menu_Net_HostLobbyFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 
 	// Process the server & client frames
 	cServer->Frame();
@@ -746,7 +747,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	Menu_HostDrawLobby(tMenu->bmpScreen);
 
 	// Process & Draw the gui
-	ev = cHostLobby.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cHostLobby.Process();
 	cHostLobby.Draw( tMenu->bmpScreen );
 
 
@@ -1361,7 +1363,8 @@ bool Menu_ServerSettings_Frame(void)
 
     // Process events and draw gui
 
-	ev = cServerSettings.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cServerSettings.Process();
 	cServerSettings.Draw(tMenu->bmpScreen);
 
 	if(ev) {
@@ -1512,7 +1515,8 @@ bool Menu_BanList_Frame(void)
 
     // Process events and draw gui
 
-	ev = cBanListGui.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cBanListGui.Process();
 	cBanListGui.Draw(tMenu->bmpScreen);
 
 	if(ev) {

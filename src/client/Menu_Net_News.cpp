@@ -58,11 +58,12 @@ int Menu_Net_NewsInitialize(void)
 void Menu_Net_NewsFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 
 
 	// Process & Draw the gui
-	ev = cNews.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cNews.Process();
 	cNews.Draw( tMenu->bmpScreen );
 
 

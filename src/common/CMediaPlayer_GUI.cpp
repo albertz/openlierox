@@ -59,7 +59,7 @@ void CPlayerSlider::Draw(SDL_Surface *bmpDest)
 
 	// Progress end
 	if (((float)iValue/(float)iMax) >= 0.98)  {
-		DrawImage(bmpDest,bmpEnd,iX+max,iY+3);
+		DrawImage(bmpDest,bmpEnd,iX+iWidth-5,iY+3);
 	}	
 }
 
@@ -70,9 +70,11 @@ int CPlayerSlider::MouseDown(mouse_t *tMouse, int nDown)
 	int x = iX+5;
 	int w = iWidth - 10;
 
+	// Find the value
 	int val = (int)( (float)iMax / ( (float)w / (float)(tMouse->X-x)) );
 	iValue = val;
 
+	// Clamp it
 	if(tMouse->X > x+w)
 		iValue = iMax;
 	if(tMouse->X < x)

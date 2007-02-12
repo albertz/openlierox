@@ -314,7 +314,7 @@ void Menu_OptionsFrame(void)
 {
 	mouse_t		*Mouse = GetMouse();
 	int			mouse = 0;
-	gui_event_t *ev;
+	gui_event_t *ev = NULL;
 //	int opengl = tLXOptions->iOpenGL; // TODO: not used
 //	int fullscr = tLXOptions->iFullscreen; // TODO: not used
 // 	static const char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"}; // TODO: not used
@@ -350,7 +350,8 @@ void Menu_OptionsFrame(void)
 
 
 	// Process the gui layout
-	ev = cOptions.Process();
+	if (!cMediaPlayer.GetDrawPlayer())
+		ev = cOptions.Process();
 	cOptions.Draw(tMenu->bmpScreen);
 
 	if(ev) {
@@ -383,7 +384,8 @@ void Menu_OptionsFrame(void)
 	if(OptionsMode == 0) {
 
 		// Controls
-		ev = cOpt_Controls.Process();
+		if (!cMediaPlayer.GetDrawPlayer())
+			ev = cOpt_Controls.Process();
 		cOpt_Controls.Draw(tMenu->bmpScreen);
 
 		if(ev) {
@@ -417,7 +419,8 @@ void Menu_OptionsFrame(void)
 	if(OptionsMode == 1) {
 
 		// Game
-		ev = cOpt_Game.Process();
+		if (!cMediaPlayer.GetDrawPlayer())
+			ev = cOpt_Game.Process();
 		cOpt_Game.Draw(tMenu->bmpScreen);
 
 		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, 0, 0);
@@ -519,7 +522,8 @@ void Menu_OptionsFrame(void)
 
 
 		// System
-		ev = cOpt_System.Process();
+		if (!cMediaPlayer.GetDrawPlayer())
+			ev = cOpt_System.Process();
 		cOpt_System.Draw(tMenu->bmpScreen);
 
 		if(ev) {
