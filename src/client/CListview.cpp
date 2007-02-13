@@ -184,7 +184,7 @@ void CListview::AddColumn(char *sText, int iWidth)
 
 ///////////////////
 // Add an item to the list view
-void CListview::AddItem(char *sIndex, int iIndex, int iColour)
+void CListview::AddItem(const char *sIndex, int iIndex, int iColour)
 {
 	lv_item_t *item = new lv_item_t;
 
@@ -236,7 +236,7 @@ void CListview::AddItem(char *sIndex, int iIndex, int iColour)
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, char *sText, SDL_Surface *img)
+void CListview::AddSubitem(int iType, const char *sText, SDL_Surface *img)
 {
 	lv_subitem_t *sub = new lv_subitem_t;
 

@@ -20,9 +20,36 @@
 #ifndef __FINDFILE_H__
 #define __FINDFILE_H__
 
+#include <vector>
 
 #ifndef SYSTEM_DATA_DIR
 #	define	SYSTEM_DATA_DIR	"/usr/share"
+#endif
+
+//
+//	Drive types
+//
+
+// Windows
+#ifdef WIN32
+#define DRV_UNKNOWN		DRIVE_UNKNOWN		// The drive is unknown
+#define DRV_NO_ROOT_DIR DRIVE_NO_ROOT_DIR	// The root path is invalid; for example, there is no volume is mounted at the path.
+#define DRV_REMOVABLE	DRIVE_REMOVABLE		// The drive has removable media; for example, a floppy drive or flash card reader.
+#define DRV_FIXED		DRIVE_FIXED			// The drive has fixed media; for example, a hard drive, flash drive, or thumb drive.
+#define DRV_REMOTE		DRIVE_REMOTE		// The drive is a remote (network) drive.
+#define DRV_CDROM		DRIVE_CDROM			// The drive is a CD-ROM drive.
+#define DRV_RAMDISK		DRIVE_RAMDISK		// The drive is a RAM disk.
+
+// TODO: Linux
+#else
+#define DRV_UNKNOWN		1
+#define DRV_NO_ROOT_DIR 2
+#define DRV_REMOVABLE	3
+#define DRV_FIXED		4
+#define DRV_REMOTE		5
+#define DRV_CDROM		6
+#define DRV_RAMDISK		7
+
 #endif
 
 
@@ -30,6 +57,13 @@ struct filelist_t {
 	std::string filename;
 	filelist_t* next;
 }; 
+
+struct drive_t {
+	std::string name;
+	unsigned int type;
+};
+
+typedef std::vector<drive_t> drive_list;
 
 void	AddToFileList(filelist_t** l, const std::string f);
 bool	FileListIncludes(const filelist_t* l, const std::string f);
@@ -47,6 +81,8 @@ int		FindNext(char *filename);
 
 int		FindFirstDir(char *dir, char *name, bool absolute_path = false);
 int		FindNextDir(char *name);
+
+drive_list GetDrives(void);
 
 #ifndef WIN32
 

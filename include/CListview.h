@@ -187,8 +187,8 @@ public:
 	void	ReSort(void);
 
 	void	AddColumn(char *sText, int iWidth);
-	void	AddItem(char *sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, char *sText, SDL_Surface *img);
+	void	AddItem(const char *sIndex, int iIndex, int iColour);
+	void	AddSubitem(int iType, const char *sText, SDL_Surface *img);
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
 

@@ -68,6 +68,42 @@ bool CanReadFile(const std::string f, bool absolute = false) {
 	return true;
 }
 
+/*
+
+	Drives
+
+*/
+
+////////////////////
+//
+drive_list GetDrives(void)
+{
+static drive_list list;
+list.clear();
+#ifdef WIN32
+	static char drives[34];
+	int len = GetLogicalDriveStrings(sizeof(drives),drives); // Get the list of drives
+	drive_t tmp;
+	if (len)  {
+		for (register int i=0; i<len; i+=strnlen(&drives[i],4)+1)  {
+			// Create the name (for example: C:\)
+			tmp.name = &drives[i];
+			// Get the type
+			tmp.type = GetDriveType((LPCTSTR)tmp.name.c_str());
+			// Add to the list
+			list.push_back(tmp);
+		}
+	}
+
+
+#else
+// TODO: linux
+
+#endif
+
+	return list;
+}
+
 
 #ifndef WIN32
 

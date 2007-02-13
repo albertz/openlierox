@@ -430,7 +430,7 @@ bool COpenAddDir::IsRoot(const char *dir)
 		return true;
 
 	// If there's a slash and this is the link to the parent directory, check, if there's another slash
-	if (!strcmp(slash,".."))  {
+	if (!strcmp(slash+1,".."))  {
 		*slash = '\0';
 		slash = MAX(strrchr(tmp,'\\'),strrchr(tmp,'/'));
 		// Not another slash, this is a root directory
@@ -456,6 +456,8 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 	char *dir_name = NULL;
 	int index=0;
 	int len = 0;
+	bool root = false;  // True if we're in root directory of the current drive
+	bool goto_drive_list = false;  // True if we're going to go in the drive list
 
 	fix_strncpy(tmp_dir,dir);
 	len = strlen(dir);
@@ -468,7 +470,7 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 
 	parent_dir[0] = '\0';  // Clear the parent directory
 
-	bool root = IsRoot(tmp_dir);
+	root = IsRoot(tmp_dir);
 	if (!root)  {
 		// Handle the parent directory
 		//dir_name[len-1] = '\0';
@@ -482,43 +484,64 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 			// Check again
 			root = IsRoot(tmp_dir);
 		}
+	// Root directory and we want to go up
+	} else {
+		if (dir_name = strstr(tmp_dir,"../"))  {
+			goto_drive_list = true;
+		}
 	}
-
-
-
-	// Fill in the first directory 
-	snprintf(directory,sizeof(directory),"%s%s",tmp_dir,"..");
 
 	// Clear the listview
 	lv->Clear();
 
-	// Add the parent directory
-	if (!root) { // Check if not root
+	// Going up when this is a root directory is handled in other way than the rest of the browsing
+	if (goto_drive_list)  {
+		int index = 0;
+		drive_list drives = GetDrives();
+		char cur_drive = tmp_dir[0];
+		for (int i=0;i<drives.size();i++)  {
+			if (drives[i].type != DRV_CDROM)  {
+				lv->AddItem(drives[i].name.c_str(),index,tLX->clListView);
+				lv->AddSubitem(LVS_TEXT,drives[i].name.c_str(),NULL);
+				if (cur_drive == drives[i].name.at(0))
+					lv->setSelectedID(index);
+				index++;
+			}
+		}
+
+	// The directory list
+	} else  {
+
+		// Fill in the first directory 
+		snprintf(directory,sizeof(directory),"%s%s",tmp_dir,"..");
+
+
+		// Add the parent directory
 		lv->AddItem(directory,index++,tLX->clListView);
 		lv->AddSubitem(LVS_TEXT,"..",NULL);
-	}
 
-	int selected = 0;
+		int selected = 0;
 
-	if(FindFirstDir(tmp_dir,directory,true)) {
-		fix_markend(directory);
-		while(1) {
-			// Extract the directory name from the path
-			dir_name = MAX(strrchr(directory,'\\'),strrchr(directory,'/'));
-
-			// Add the directory
-			if (dir_name)  {
-				if (!strcmp(parent_dir,dir_name+1))
-					selected = index;
-
-				lv->AddItem(directory,index++,tLX->clListView);
-				lv->AddSubitem(LVS_TEXT,dir_name+1,NULL);
-			}
-
-			if(!FindNextDir(directory))
-				break;
+		if(FindFirstDir(tmp_dir,directory,true)) {
 			fix_markend(directory);
+			while(1) {
+				// Extract the directory name from the path
+				dir_name = MAX(strrchr(directory,'\\'),strrchr(directory,'/'));
+
+				// Add the directory
+				if (dir_name)  {
+					if (!strcmp(parent_dir,dir_name+1))
+						selected = index;
+
+					lv->AddItem(directory,index++,tLX->clListView);
+					lv->AddSubitem(LVS_TEXT,dir_name+1,NULL);
+				}
+
+				if(!FindNextDir(directory))
+					break;
+				fix_markend(directory);
+			}
+			lv->setSelectedID(selected);
 		}
-		lv->setSelectedID(selected);
 	}
 }
