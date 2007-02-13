@@ -223,7 +223,6 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	if (iState != SVS_PLAYING)
 		return;
 
-	static char buf[128];
 	CBytestream byte;
 	int victim = bs->readInt(1);
 	int killer = bs->readInt(1);
@@ -254,6 +253,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	if(vict->getLives() < 0)
 		return;
 
+	static std::string buf;
 
 	// Kill
 	if (strcmp(NetworkTexts->sKilled,"<none>"))  { // Take care of the <none> tag
@@ -770,7 +770,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);
 
 		// Get the string to send
-		static char buf[256];
+		static std::string buf;
 		if (strcmp(NetworkTexts->sTeamHasWon,"<none>"))  {
 			char buf2[4];
 			snprintf(buf2,sizeof(buf2),"%d",PROTOCOL_VERSION);
@@ -778,13 +778,13 @@ void CServer::ParseConnect(CBytestream *bs)
 			replacemax(NetworkTexts->sWrongProtocol,"<version>",buf2,buf,1);
 		}
 		else
-			strcpy(buf," ");
+			buf = " ";
 
 		// Wrong protocol version, don't connect client
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s",buf);
+		bytestr.writeString("%s",buf.c_str());
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -1019,19 +1019,18 @@ void CServer::ParseConnect(CBytestream *bs)
 		// TODO: Set socket info
 		// TODO: This better
 
-		static char buf[256];
+		static std::string buf;
 		static char buf2[256];
 		// "Has connected" message
 		if (strcmp(NetworkTexts->sHasConnected,"<none>"))  {
 			for(i=0;i<numworms;i++) {
-				replacemax(NetworkTexts->sHasConnected,"<player>",worms[i].getName(),buf,1);
-				SendGlobalText(buf,TXT_NETWORK);
+				SendGlobalText(replacemax(NetworkTexts->sHasConnected,"<player>",worms[i].getName(),1),TXT_NETWORK);
 			}
 		}
 
 		// Welcome message
-		fix_strncpy(buf,tGameInfo.sWelcomeMessage);
-		if(fix_strnlen(tGameInfo.sWelcomeMessage) > 0)  {
+		buf = tGameInfo.sWelcomeMessage;
+		if(buf.size() > 0)  {
 
 			// Server name
 			replacemax(buf,"<server>",tGameInfo.sServername,buf,1);
@@ -1040,7 +1039,7 @@ void CServer::ParseConnect(CBytestream *bs)
 			replacemax(buf,"<me>",cWorms[0].getName(),buf,1);
 
 			// Country
-			if (strstr(buf,"<country>") != NULL)  {
+			if (buf.find("<country>") != std::string::npos)  {
 				static char country[128];
 				static char str_addr[22];
 				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
@@ -1062,13 +1061,9 @@ void CServer::ParseConnect(CBytestream *bs)
 
 
 			for(int i=0; i<numworms; i++)  {
-				fix_strncpy(buf2,buf);
-
 				// Player name
-				replacemax(buf2,"<player>",worms[i].getName(),buf2,1);
-
 				// Send the welcome message
-				SendGlobalText(buf2,TXT_NETWORK);
+				SendGlobalText(replacemax(buf2,"<player>",worms[i].getName(),1),TXT_NETWORK);
 			}
 		}
 
@@ -1118,12 +1113,12 @@ void CServer::ParseWantsJoin(CBytestream *bs)
 		return;
 	static char Nick[128];
 	bs->readString(Nick, sizeof(Nick));
-	static char buf[256];
+	static std::string buf;
 
 	// Notify about the wants join
 	if (strcmp(NetworkTexts->sWantsJoin,"<none>"))  {
 		replacemax(NetworkTexts->sWantsJoin,"<player>",Nick,buf,1);
-		SendGlobalText(buf,TXT_NORMAL);
+		SendGlobalText(buf.c_str(),TXT_NORMAL);
 	}
 }
 

@@ -3,7 +3,6 @@
 
 #include "defs.h"
 #include "LieroX.h"
-#include "CMediaPlayer.h"
 #include "Menu.h"
 
 /*
@@ -41,7 +40,7 @@ void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
 	//
 	char filename[1024]="";
 	int done = false;
-	if(!FindFirst(dir,"*",filename,true))
+	if(!FindFirst(dir,"*",filename)) // CHANGE
 		done = true;
 
 	char ext[4] = "";
@@ -76,7 +75,7 @@ void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
 	std::string str_temp = "";
 	std::vector<std::string> dir_list;
 
-	if(FindFirstDir(dir,directory,true)) {
+	if(FindFirstDir(dir,directory)) { // CHANGE		
 		fix_markend(directory);
 		while(1) {
 
@@ -700,3 +699,39 @@ void CMediaPlayer::Frame(void)
 }
 
 
+char* COpenAddDir::Execute(char *default_dir) {
+	// TODO: ... (workaround for now)
+	return NULL;
+}
+
+CPlayerButton::CPlayerButton(SDL_Surface *image) {
+	if (!image)
+		return;
+
+	bmpImage = image;
+	bDown = false;
+}
+
+CPlayerSlider::CPlayerSlider(SDL_Surface *progress, SDL_Surface *start, SDL_Surface *end, SDL_Surface *background, int max)  {
+	if (!progress || !start || !end || !background)
+		return;
+	iValue = 0;
+	iMax = max;
+
+	bmpProgress = progress;
+	bmpStart = start;
+	bmpEnd = end;
+	bmpBackground = background;
+}
+
+CPlayerMarquee::CPlayerMarquee(const std::string text, Uint32 col)  {
+	szText = text;
+	fTime = 0;
+	fEndWait = 0;
+	iFrame = 0;
+	iColour = col;
+	iDirection = 1;
+	bmpBuffer = NULL;
+
+	RedrawBuffer();
+}

@@ -1617,14 +1617,12 @@ void CClient::processChatCharacter(int c, bool bDown)
 
         // Send chat message to the server
         if(sChat_Text[0]) {
-            static char buf[256];
-			fix_strncpy(buf,sChat_Text);
-			if (strstr(buf,"/me") == NULL)
-				snprintf(buf, sizeof(buf), "%s: %s",cLocalWorms[0]->getName(), sChat_Text);
+            std::string buf;
+			if(buf.find("/me") == std::string::npos)
+				buf = std::string(cLocalWorms[0]->getName()) + ": " + sChat_Text;
 			else
-				snprintf(buf, sizeof(buf), "%s", replacemax(buf,"/me",cLocalWorms[0]->getName(),buf,2));
-			fix_markend(buf);
-            SendText(buf);
+				buf =  replacemax(sChat_Text,"/me",cLocalWorms[0]->getName(),buf,2);
+            SendText(buf.c_str());
         }
         return;
     }

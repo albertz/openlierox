@@ -80,7 +80,7 @@ bool	StopSoundSystem();
 bool	SetSoundVolume(int vol);
 int		GetSoundVolume(void);
 bool	QuitSoundSystem();
-SoundSample* LoadSoundSample(char* filename, int maxsimulplays);
+SoundSample* LoadSoundSample(const std::string filename, int maxsimulplays);
 bool	FreeSoundSample(SoundSample* sample);
 bool	PlaySoundSample(SoundSample* sample);
 

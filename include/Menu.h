@@ -36,6 +36,7 @@
 #include "CMenu.h"
 #include "CImage.h"
 #include "CBox.h"
+#include "CMediaPlayer.h"
 
 
 // Menu sockets

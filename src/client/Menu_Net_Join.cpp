@@ -875,14 +875,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cJoinLobby.SendMessage(jl_ChatText, TXM_SETTEXT, (DWORD)"", 0);
 
 					// Get name
-					static char text[256];
+					std::string text;
 					CWorm *rw = cClient->getRemoteWorms() + iJoinSpeaking;
 					if (strstr(buf,"/me") == NULL)
-						snprintf(text, sizeof(text), "%s: %s",rw->getName(), buf);
+						text = std::string(rw->getName()) + ": " + buf;
 					else
-						snprintf(text, sizeof(text), "%s", replacemax(buf,"/me",rw->getName(),buf,2));
-					fix_markend(text);
-					cClient->SendText(text);
+						text = replacemax(buf,"/me",rw->getName(),text,2);
+					cClient->SendText(text.c_str());
 				}
 				break;
 		}

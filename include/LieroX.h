@@ -74,7 +74,6 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #include "CClient.h"
 #include "CServer.h"
 #include "Sounds.h"
-#include "CMediaPlayer.h"
 #include "Graphics.h"
 #include "Protocol.h"
 #include "Options.h"
@@ -173,7 +172,6 @@ extern	options_t		*tLXOptions;
 extern  networktexts_t  *NetworkTexts;
 extern	CServer			*cServer;
 extern	CClient			*cClient;
-extern	CMediaPlayer	cMediaPlayer;
 extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern	CInput			cToggleMediaPlayer;
@@ -203,9 +201,10 @@ void    lx_strncpy(char *dest, char *src, int count);
 bool    MouseInRect(int x, int y, int w, int h);
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
-bool	replace(char *text, const char *what, const char *with, char *result);
-void	replace(std::string& text, std::string what, std::string with);
-char	*replacemax(char *text, char *what, char *with, char *result, int max);
+bool	replace(const std::string text, const std::string what, const std::string with, std::string& result);
+bool	replace(std::string& text, std::string what, std::string with);
+std::string replacemax(const std::string text, const std::string what, const std::string with, std::string& result, int max);
+std::string replacemax(const std::string text, const std::string what, const std::string with, int max);
 char	*strip(char *buf, int width);
 bool	stripdot(char *buf, int width);
 char	*ucfirst(char *text);
@@ -214,11 +213,14 @@ Uint32	StrToCol(char *str);
 const char* sex(short wraplen = 0);
 
 
+short stringcasecmp(const std::string s1, const std::string s2);
+
+
 // Useful XML functions
-int		xmlGetInt(xmlNodePtr Node, const char *Name);
-float	xmlGetFloat(xmlNodePtr Node, const char *Name);
-Uint32	xmlGetColour(xmlNodePtr Node, const char *Name);
-void	xmlEntities(char *text);
+int		xmlGetInt(xmlNodePtr Node, const std::string Name);
+float	xmlGetFloat(xmlNodePtr Node, const std::string Name);
+Uint32	xmlGetColour(xmlNodePtr Node, const std::string Name);
+void	xmlEntities(std::string& text);
 
 // Thread functions
 #ifdef WIN32

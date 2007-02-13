@@ -346,7 +346,7 @@ public:
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	void		SendDeath(int victim, int killer);
-	void		SendText(char *sText);
+	void		SendText(const char *sText);
 	void		Disconnect(void);
 	int			OwnsWorm(CWorm *w);
 

@@ -275,11 +275,9 @@ void CServer::TagWorm(int id)
 
 	SendGlobalPacket(&bs);
 
-	static char buf[128];
 	//Take care of the <none> tag
 	if (strcmp(NetworkTexts->sTeamkill,"<none>"))  {
-		replacemax(NetworkTexts->sWormIsIt,"<player>",w->getName(),buf,1);
-		SendGlobalText(buf,TXT_NORMAL);
+		SendGlobalText(replacemax(NetworkTexts->sWormIsIt,"<player>",w->getName(),1),TXT_NORMAL);
 	}
 }
 
@@ -580,8 +578,7 @@ void CServer::RecheckGame(void)
 				// Send the text
 				if (teamsleft <= 1)  {
 					if (strcmp(NetworkTexts->sTeamHasWon,"<none>"))  {
-						replacemax(NetworkTexts->sTeamHasWon,"<team>",TeamNames[team],buf,1);
-						SendGlobalText(buf,TXT_NORMAL);
+						SendGlobalText(replacemax(NetworkTexts->sTeamHasWon,"<team>",TeamNames[team],1),TXT_NORMAL);
 					}
 					EndGame = true;
 				}
@@ -599,8 +596,7 @@ void CServer::RecheckGame(void)
 
 					// Send the text
 					if (strcmp(NetworkTexts->sPlayerHasWon,"<none>"))  {
-						replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),buf,1);
-						SendGlobalText(buf,TXT_NORMAL);
+						SendGlobalText(replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
 					}
 					EndGame = true;
 				}
@@ -629,8 +625,7 @@ void CServer::RecheckGame(void)
 
 					// Send the text
 					if (strcmp(NetworkTexts->sPlayerHasWon,"<none>"))  {
-						replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),buf,1);
-						SendGlobalText(buf,TXT_NORMAL);
+						SendGlobalText(replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
 					}
 
 					EndGame = true;

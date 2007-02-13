@@ -69,16 +69,16 @@ SDL_Surface *_LoadImage(char *filename)
 
     return psSurf;*/
 
-	char* fname = GetFullFileName(filename);
-	if(fname == NULL || fname[0] == '\0')
+	std::string fname = GetFullFileName(filename);
+	if(fname.size() == 0)
 		return NULL;
 		
 #ifndef WIN32
 	struct stat s;
-	if(stat(fname, &s) == 0)
+	if(stat(fname.c_str(), &s) == 0)
 	{
 //		printf("_LoadImage(%s): %0.1f kBytes\n", fname, s.st_size / 1024.0f);
-		return IMG_Load(fname);
+		return IMG_Load(fname.c_str());
 	}
 	else
 	{
@@ -86,7 +86,7 @@ SDL_Surface *_LoadImage(char *filename)
 		return NULL;
 	}
 #else // WIN32
-	return IMG_Load(fname);
+	return IMG_Load(fname.c_str());
 #endif
 }
 
@@ -150,15 +150,15 @@ SoundSample* CCache::LoadSample(char *_file, int maxplaying)
 	Type = CCH_SOUND;
 	fix_strncpy(Filename, _file);
 	
-	char* fullfname = GetFullFileName(Filename);
-	if(fullfname == NULL || fullfname[0] == '\0')
+	std::string fullfname = GetFullFileName(Filename);
+	if(fullfname.size() == 0)
 	{
 		SetError("Error loading sample %s: file not found", _file);
 		return NULL;
 	}
 	
 	// Load the sample
-	Sample = LoadSoundSample(fullfname, maxplaying);
+	Sample = LoadSoundSample(fullfname.c_str(), maxplaying);
 	
 	if(Sample)
 		Used = true;

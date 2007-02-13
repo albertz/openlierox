@@ -691,7 +691,7 @@ void CServer::DropClient(CClient *cl, int reason)
 	bs.writeByte(S2C_CLLEFT);
 	bs.writeByte(cl->getNumWorms());
 
-	static char buf[128];
+	static std::string buf;
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
@@ -732,8 +732,8 @@ void CServer::DropClient(CClient *cl, int reason)
         }
 
 		// Send only if the text isn't <none>
-		if (strcmp(buf,"<none>"))
-			SendGlobalText(buf,TXT_NETWORK);
+		if(buf.compare("<none>"))
+			SendGlobalText(buf.c_str(),TXT_NETWORK);
 
 		// Reset variables
 		cl->setMuted(false);
@@ -825,9 +825,7 @@ void CServer::kickWorm(int wormID)
 			SendGlobalPacket(&bs);
 
 			// Send the message
-			static char buf[256];
-			replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), buf, 1);
-			SendGlobalText(buf,TXT_NETWORK);
+			SendGlobalText(replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), 1),TXT_NETWORK);
 
 			// Now that a player has left, re-check the game status
 			RecheckGame();
@@ -923,9 +921,7 @@ void CServer::banWorm(int wormID)
 			SendGlobalPacket(&bs);
 
 			// Send the message
-			static char buf[256];
-			replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), buf, 1);
-			SendGlobalText(buf,TXT_NETWORK);
+			SendGlobalText(replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), 1),TXT_NETWORK);
 
 			// Now that a player has left, re-check the game status
 			RecheckGame();
@@ -1011,9 +1007,7 @@ void CServer::muteWorm(int wormID)
 	if (cClient)  {
 		if (cClient->OwnsWorm(w))  {
 			// Send the message
-			static char buf[256];
-			replacemax(NetworkTexts->sHasBeenMuted,"<player>", w->getName(), buf, 1);
-			SendGlobalText(buf,TXT_NETWORK);
+			SendGlobalText(replacemax(NetworkTexts->sHasBeenMuted,"<player>", w->getName(), 1),TXT_NETWORK);
 
 			// End here
 			return;
@@ -1025,9 +1019,7 @@ void CServer::muteWorm(int wormID)
 
 	// Send the text
 	if (strcmp(NetworkTexts->sHasBeenUnmuted,"<none>"))  {
-		static char buf[64];
-		replacemax(NetworkTexts->sHasBeenMuted,"<player>",w->getName(),buf,1);
-		SendGlobalText(buf,TXT_NETWORK);
+		SendGlobalText(replacemax(NetworkTexts->sHasBeenMuted,"<player>",w->getName(),1),TXT_NETWORK);
 	}
 }
 
@@ -1090,9 +1082,7 @@ void CServer::unmuteWorm(int wormID)
 
 	// Send the message
 	if (strcmp(NetworkTexts->sHasBeenUnmuted,"<none>"))  {
-		static char buf[64];
-		replacemax(NetworkTexts->sHasBeenUnmuted,"<player>",w->getName(),buf,1);
-		SendGlobalText(buf,TXT_NETWORK);
+		SendGlobalText(replacemax(NetworkTexts->sHasBeenUnmuted,"<player>",w->getName(),1),TXT_NETWORK);
 	}
 }
 
@@ -1172,15 +1162,15 @@ bool CServer::WriteLogToFile(FILE *f)
 	if (!tGameLog->tWorms)
 		return false;
 
-	static char levelfile[256],modfile[256],level[256],mod[256],player[128],skin[128];
+	static std::string levelfile,modfile,level,mod,player,skin;
 
 	printf("Filling in the game details... ");
 
 	// Fill in the details
-	fix_strncpy(levelfile,sMapFilename);
-	fix_strncpy(modfile,sModName);
-	fix_strncpy(level,cMap->getName());
-	fix_strncpy(mod,cGameScript.GetHeader()->ModName);
+	levelfile = sMapFilename;
+	modfile = sModName;
+	level = cMap->getName();
+	mod = cGameScript.GetHeader()->ModName;
 	xmlEntities(levelfile);
 	xmlEntities(modfile);
 	xmlEntities(level);
@@ -1190,7 +1180,7 @@ bool CServer::WriteLogToFile(FILE *f)
 
 	// Save the game info
 	fprintf(f,"<game datetime=\"%s\" length=\"%f\" loading=\"%i\" lives=\"%i\" maxkills=\"%i\" bonuses=\"%i\" bonusnames=\"%i\" levelfile=\"%s\" modfile=\"%s\" level=\"%s\" mod=\"%s\" gamemode=\"%i\">",
-				tGameLog->sGameStart,fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,levelfile,modfile,level,mod,iGameType);
+				tGameLog->sGameStart,fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,levelfile.c_str(),modfile.c_str(),level.c_str(),mod.c_str(),iGameType);
 
 	printf("Game info saved\n");
 
@@ -1207,16 +1197,16 @@ bool CServer::WriteLogToFile(FILE *f)
 		printf("Writing player %i... ",i);
 
 		// Replace the entities
-		fix_strncpy(player,tGameLog->tWorms[i].sName);
+		player = tGameLog->tWorms[i].sName;
 		xmlEntities(player);
 
 		// Replace the entities
-		fix_strncpy(skin,tGameLog->tWorms[i].sSkin);
+		skin = tGameLog->tWorms[i].sSkin;
 		xmlEntities(skin);
 
 		// Write the info
 		fprintf(f,"<player name=\"%s\" skin=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\" type=\"%i\" ip=\"%s\"/>",
-		player,skin,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart),tGameLog->tWorms[i].iType,tGameLog->tWorms[i].sIP);
+		player.c_str(),skin.c_str(),tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart),tGameLog->tWorms[i].iType,tGameLog->tWorms[i].sIP);
 
 		/*fprintf(f,"<player name=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\"/>",
 				player,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart));*/

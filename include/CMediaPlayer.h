@@ -1,15 +1,11 @@
 // OpenLieroX Media Player
 // Made by Dark Charlie and Alber Zeyer
-
+// code under LGPL
 
 #ifndef __MEDIAPLAYER_H__
 #define __MEDIAPLAYER_H__
 
 #include <vector>
-#include "CWidget.h"
-#include "CGuiLayout.h"
-#include "CScrollbar.h"
-#include "CListview.h"
 
 typedef std::string song_path;
 typedef song_path song_name;
@@ -175,7 +171,7 @@ public:
 	 inline void	SetShufflePlaylist(bool _s)  {tPlayList.setShuffle(_s); }
 	 inline bool	GetShufflePlaylist(void)		{return tPlayList.getShuffle(); }
 	 inline void	OpenDirectory(char *dir,bool include_subdirs=true,bool add_to_current_pl=true)  {tPlayList.Load(dir,include_subdirs,add_to_current_pl); }
-	 inline const char	*GetCurrentSongName(void)	{return szCurSongName.c_str(); }
+	 inline const std::string GetCurrentSongName(void)	{return szCurSongName; }
 
 	 void			LoadPlaylistFromFile(const char *filename,bool absolute_path=false);
 	 inline void	SavePlaylistToFile(const char *filename,bool absolute_path=false)  {tPlayList.SaveToFile(filename,absolute_path); }
@@ -207,14 +203,7 @@ enum {
 // Button
 class CPlayerButton: public CWidget  {
 public:
-	// Constructor
-	CPlayerButton(SDL_Surface *image)  {
-		if (!image)
-			return;
-
-		bmpImage = image;
-		bDown = false;
-	}
+	CPlayerButton(SDL_Surface *image);
 
 private:
 	SDL_Surface		*bmpImage;
@@ -227,14 +216,14 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown);
-	int		MouseDown(mouse_t *tMouse, int nDown);
+	int		MouseUp(mouse_t *tMouse, int nDown) { return MP_WID_NONE; }
+	int		MouseDown(mouse_t *tMouse, int nDown) { return MP_WID_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		KeyDown(int c)						{ return MP_WID_NONE; }
 	int		KeyUp(int c)						{ return MP_WID_NONE; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(SDL_Surface *bmpDest) {}
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -243,18 +232,7 @@ public:
 // Slider
 class CPlayerSlider: public CWidget  {
 public:
-	// Constructor
-	CPlayerSlider(SDL_Surface *progress, SDL_Surface *start, SDL_Surface *end, SDL_Surface *background, int max)  {
-		if (!progress || !start || !end || !background)
-			return;
-		iValue = 0;
-		iMax = max;
-
-		bmpProgress = progress;
-		bmpStart = start;
-		bmpEnd = end;
-		bmpBackground = background;
-	}
+	CPlayerSlider(SDL_Surface *progress, SDL_Surface *start, SDL_Surface *end, SDL_Surface *background, int max);
 
 private:
 	SDL_Surface *bmpProgress;
@@ -272,7 +250,7 @@ public:
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
 	int		MouseUp(mouse_t *tMouse, int nDown) { iCanLoseFocus = true; return MP_WID_NONE; }
-	int		MouseDown(mouse_t *tMouse, int nDown);
+	int		MouseDown(mouse_t *tMouse, int nDown) { return MP_WID_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		KeyDown(int c)						{ return MP_WID_NONE; }
@@ -284,7 +262,7 @@ public:
 	inline int GetMax(void)  { return iMax; }
 	inline void SetMax(int _m) {iMax = _m; }
 
-	void	Draw(SDL_Surface *bmpDest);
+	void	Draw(SDL_Surface *bmpDest) {}
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -311,15 +289,15 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown);
+	int		MouseUp(mouse_t *tMouse, int nDown) {return MP_WID_NONE;}
 	int		MouseDown(mouse_t *tMouse, int nDown) {return MP_WID_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		KeyDown(int c)						{ return MP_WID_NONE; }
 	int		KeyUp(int c)						{ return MP_WID_NONE; }
 
-	void	Draw(SDL_Surface *bmpDest);
-
+	void	Draw(SDL_Surface *bmpDest) {}
+	
 	inline bool isOn(void) { return bEnabled; }
 
 	void	LoadStyle(void) {}
@@ -332,23 +310,10 @@ public:
 #define MARQUEE_ENDWAIT 0.2f
 class CPlayerMarquee: public CWidget  {
 public:
-	CPlayerMarquee(char *text, Uint32 col)  {
-		if (!text)
-			return;
-
-		fix_strncpy(szText,text);
-		fTime = 0;
-		fEndWait = 0;
-		iFrame = 0;
-		iColour = col;
-		iDirection = 1;
-		bmpBuffer = NULL;
-
-		RedrawBuffer();
-	}
+	CPlayerMarquee(const std::string text, Uint32 col);
 
 private:
-	char	szText[1024];
+	std::string szText;
 	float	fTime;
 	float	fEndWait;
 	int		iFrame;
@@ -373,14 +338,14 @@ public:
 	int		KeyDown(int c)						{ return MP_WID_NONE; }
 	int		KeyUp(int c)						{ return MP_WID_NONE; }
 
-	void	RedrawBuffer(void);
-	void	Draw(SDL_Surface *bmpDest);
+	void	RedrawBuffer(void) {}
+	void	Draw(SDL_Surface *bmpDest) {}
 
 	inline Uint32 getColour(void)  { return iColour; }
 	inline void	setColour(Uint32 _c)		{ iColour = _c; }
 
-	inline char	*getText(void)	{ return szText; }
-	inline void setText(const char *text)	{fix_strncpy(szText,text); iFrame = 0; fTime=0; RedrawBuffer(); }
+	inline std::string getText(void)	{ return szText; }
+	inline void setText(const std::string text)	{ szText = text; iFrame = 0; fTime=0; RedrawBuffer(); }
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -388,11 +353,7 @@ public:
 
 
 
-
-
-
-
-
+extern	CMediaPlayer	cMediaPlayer;
 
 
 #endif  //  __MEDAIPLAYER_H__

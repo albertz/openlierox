@@ -322,68 +322,48 @@ char *TrimSpaces(char *szLine)
 
 ///////////////////
 // Replace a string in text, returns true, if something was replaced
-// TODO: buffer unsafe
-bool replace(char *text, const char *what, const char *with, char *result)
+bool replace(const std::string text, const std::string what, const std::string with, std::string& result)
 {
-  bool ret = false;
-
-  strcpy(result,text);
-
-  int pos = (int) (strstr(result,what)-result); // Position of the string being replaced
-  int check_from = 0; // position to check from, avoids infinite replacing when the "with" string is contained in "what"
-
-  // Replace while the "what" string exists in result
-  while (strstr(result+check_from,what) != NULL)  {
-	ret = true;
-	// Make space for "with" string (move the result+pos string strlen(with) characters to right)
-	memmove(result+pos+strlen(with),result+pos,strlen(result)-pos+strlen(with));
-	// Copy the "with" string into the above created space (without terminating character)
-	strncpy(result+pos,with,strlen(with));
-	// Update the check_from to avoid circular replacing
-	check_from = pos+strlen(with);
-	// Delete the original string
-	memmove(result+pos+strlen(with),result+pos+strlen(with)+strlen(what),strlen(result)-(pos+strlen(with)+strlen(what))+1);
-	// Find position of next occurence
-	pos = (int) (strstr(result+check_from,what)-result);
-  }
-
-  return ret;
+	result = text;
+	return replace(result, what, with);
 }
 
 ///////////////////
 // Replace a string in text, returns result, replaces maximally max occurences
-char *replacemax(char *text, char *what, char *with, char *result, int max)
+std::string replacemax(const std::string text, const std::string what, const std::string with, std::string& result, int max)
 {
-	if(result != text)
-		strcpy(result,text);
+	result = text;
 
-  int pos = (int) (strstr(result,what)-result);
-  int occurences = 0;
-  int check_from = 0;
-  while (strstr(result+check_from,what) != NULL && occurences <= max)  {
-	int length = strlen(result)-strlen(what)+strlen(with);
-	memmove(result+pos+strlen(with),result+pos,strlen(result)-pos+strlen(with));
-	strncpy(result+pos,with,strlen(with));
-	check_from = pos+strlen(with);
-	memmove(result+pos+strlen(with),result+pos+strlen(with)+strlen(what),strlen(result)-(pos+strlen(with)+strlen(what))+1);
-	pos = (int) (strstr(result+check_from,what)-result);
-	*(result+length) = 0;
-	occurences++;
-  }
+	size_t pos = 0;
+	size_t what_len = what.length();
+	size_t with_len = with.length();
+	if((pos = result.find(what, pos)) != std::string::npos) {
+		result.replace(pos, what_len, with);
+		pos += with_len;
+	}
+	
+	return result;
+}
 
-  return result;
+std::string replacemax(const std::string text, const std::string what, const std::string with, int max) {
+	std::string result;
+	return replacemax(text, what, with, result, max);
 }
 
 ///////////////////
 // Replace a string in text, returns result, replaces maximally max occurences
-void replace(std::string& text, std::string what, std::string with) {
+// returns true, if at least one replace was made
+bool replace(std::string& text, std::string what, std::string with) {
+	bool one_repl = false;
 	size_t pos = 0;
 	size_t what_len = what.length();
 	size_t with_len = with.length();
 	while((pos = text.find(what, pos)) != std::string::npos) {
 		text.replace(pos, what_len, with);
 		pos += with_len;
+		one_repl = true;
 	}
+	return one_repl;
 }
 
 
@@ -522,6 +502,32 @@ Uint32 StrToCol(char *str)
 }
 
 
+
+short stringcasecmp(const std::string s1, const std::string s2) {
+	std::string::const_iterator p1, p2;
+	p1 = s1.begin();
+	p2 = s2.begin();
+	short dif;
+	while(true) {
+		if(p1 == s1.end()) {
+			if(p2 == s2.end())
+				return 0;
+			// not at end of s2
+			return -1; // s1 < s2
+		}
+		if(p2 == s2.end())
+			// not at end of s1
+			return 1; // s1 > s2
+		
+		dif = tolower(*p1) - tolower(*p2);
+		if(dif != 0) return dif; // dif > 0  <=>  s1 > s2
+		
+		p1++; p2++;
+	}
+}
+
+
+
 // ==============================
 //
 // Useful XML functions	
@@ -530,10 +536,10 @@ Uint32 StrToCol(char *str)
 
 ///////////////////
 // Get an integer from the specified property
-int xmlGetInt(xmlNodePtr Node, const char *Name)
+int xmlGetInt(xmlNodePtr Node, const std::string Name)
 {
 	xmlChar *sValue;
-	sValue = xmlGetProp(Node,(const xmlChar *)Name);
+	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if(!sValue)
 		return 0;
 	int result = atoi((const char *)sValue);
@@ -543,10 +549,9 @@ int xmlGetInt(xmlNodePtr Node, const char *Name)
 
 ///////////////////
 // Get a float from the specified property
-float xmlGetFloat(xmlNodePtr Node, const char *Name)
+float xmlGetFloat(xmlNodePtr Node, const std::string Name)
 {
-	xmlChar *sValue;
-	sValue = xmlGetProp(Node,(const xmlChar *)Name);
+	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if (!sValue)
 		return 0;
 	float result = (float)atof((const char *)sValue);
@@ -556,12 +561,12 @@ float xmlGetFloat(xmlNodePtr Node, const char *Name)
 
 ///////////////////
 // Get a colour from the specified property
-Uint32 xmlGetColour(xmlNodePtr Node, const char *Name)
+Uint32 xmlGetColour(xmlNodePtr Node, const std::string Name)
 {
 	xmlChar *sValue;
 
 	// Get the value
-	sValue = xmlGetProp(Node,(const xmlChar *)Name);
+	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 
 	Uint32 result = StrToCol((char *)sValue);
 
@@ -571,7 +576,7 @@ Uint32 xmlGetColour(xmlNodePtr Node, const char *Name)
 
 /////////////////
 // Replaces all the escape characters with html entities
-void xmlEntities(char *text)
+void xmlEntities(std::string& text)
 {
 	replace(text,"\"","&quot;",text);  // "
 	replace(text,"'", "&apos;",text);  // '

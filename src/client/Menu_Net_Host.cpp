@@ -801,14 +801,13 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.SendMessage(hl_ChatText, TXM_SETTEXT, (DWORD)"", 0);
 
 					// Get name
-					static char text[256];
+					std::string text;
 					CWorm *rw = cClient->getRemoteWorms() + iSpeaking;
-					if (strstr(buf,"/me") == NULL)
-						snprintf(text, sizeof(text), "%s: %s",rw->getName(), buf);
+					if(strstr(buf,"/me") == NULL)
+						text = std::string(rw->getName()) + ": " + buf;
 					else
-						snprintf(text, sizeof(text), "%s", replacemax(buf,"/me",rw->getName(),buf,2));
-					fix_markend(text);
-					cServer->SendGlobalText(text,TXT_CHAT);
+						text = replacemax(buf,"/me",rw->getName(),text,2);
+					cServer->SendGlobalText(text.c_str(),TXT_CHAT);
 				}
 				break;
 

@@ -68,7 +68,7 @@ int LoadOptions(void)
 		if(!(*spath))
 			break;
 		(*spath)->next = NULL;
-		fix_strncpy((*spath)->filename, tmp3);
+		(*spath)->filename = tmp3;
 
 		i++;
 		spath = &(*spath)->next;
@@ -81,7 +81,7 @@ int LoadOptions(void)
 
 	printf("I have now the following searchpaths (in this direction):\n");
 	for(spath = &tLXOptions->tSearchPaths; *spath != NULL; spath = &(*spath)->next)  {
-		printf("  %s\n", (*spath)->filename);
+		printf("  %s\n", (*spath)->filename.c_str());
 	}
 	printf(" And that's all.\n");
 
@@ -255,7 +255,7 @@ void SaveOptions(void)
 	fprintf(fp, "[FileHandling]\n");
 	filelist_t* spath = tLXOptions->tSearchPaths;
 	for(i = 1; spath != NULL; i++, spath = spath->next)
-    	fprintf(fp, "SearchPath%i = %s\n", i, spath->filename);
+    	fprintf(fp, "SearchPath%i = %s\n", i, spath->filename.c_str());
 	fprintf(fp,"\n");
 
     fprintf(fp, "[Ply1Controls]\n");

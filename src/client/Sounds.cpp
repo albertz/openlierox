@@ -63,7 +63,7 @@ bool SetSoundVolume(int vol) {
 		// The volume to use from 0 to MIX_MAX_VOLUME(128).
 		//vol *= Round((float)MIX_MAX_VOLUME/100.0f);
 		float tmp = (float)MIX_MAX_VOLUME*(float)vol/100.0f;
-		Mix_Volume(-1, Round(vol));
+		Mix_Volume(-1, Round(tmp));
 
 		return true;
 
@@ -86,11 +86,11 @@ bool QuitSoundSystem() {
 	return true;
 }
 
-SoundSample* LoadSoundSample(char* filename, int maxsimulplays) {
-	if(filename != NULL && filename[0] != '\0') {
-		Mix_Chunk* sample = Mix_LoadWAV(filename);
+SoundSample* LoadSoundSample(const std::string filename, int maxsimulplays) {
+	if(filename.size() > 0) {
+		Mix_Chunk* sample = Mix_LoadWAV(filename.c_str());
 		if(!sample) {
-			printf("LoadSoundSample: Error while loading %s: %s\n", filename, Mix_GetError());
+			printf("LoadSoundSample: Error while loading %s: %s\n", filename.c_str(), Mix_GetError());
 			return NULL;
 		}
 

@@ -573,8 +573,11 @@ void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint
 	TrimSpaces(val);
 
 	// Remove duplicate spaces
-	while (replace(val,"  "," ",val))
+	std::string tmp = val;
+	while (replace(tmp,"  "," ",tmp))
 		continue;
+	strcpy(val, tmp.c_str()); // TODO: this has to be done better...
+	
 
 	char *tok = strtok(val," ");
 	if (!tok)
