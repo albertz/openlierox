@@ -40,7 +40,7 @@ void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
 	//
 	char filename[1024]="";
 	int done = false;
-	if(!FindFirst(dir,"*",filename)) // CHANGE
+	if(!FindFirst(dir,"*",filename,true)) // CHANGE /how?/
 		done = true;
 
 	char ext[4] = "";
@@ -75,15 +75,12 @@ void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
 	std::string str_temp = "";
 	std::vector<std::string> dir_list;
 
-	if(FindFirstDir(dir,directory)) { // CHANGE		
+	if(FindFirstDir(dir,directory,true)) { // CHANGE /how?/		
 		fix_markend(directory);
 		while(1) {
 
 			str_temp = directory;
 			dir_list.push_back(str_temp);
-
-			// Recursivelly load the subdirectory
-            //Load(directory,true,true);
 
 			if(!FindNextDir(directory))
 				break;
@@ -541,7 +538,7 @@ void CMediaPlayer::Draw(SDL_Surface *bmpDest)
 	int src_x = 0;  // Playing
 	if (Paused())   // Paused
 		src_x = tPlayerGfx.bmpWindow->h/3;
-	if (Stopped())  // Stopped
+	if (Stopped() || !Playing())  // Stopped
 		src_x = 2*tPlayerGfx.bmpWindow->h/3;
 	DrawImageAdv(bmpDest,tPlayerGfx.bmpWindow,0,src_x,iX+5,iY+5,tPlayerGfx.bmpWindow->w,tPlayerGfx.bmpWindow->h/3);
 
@@ -603,7 +600,7 @@ void CMediaPlayer::SetY(int y)
 // The processing frame
 void CMediaPlayer::Frame(void)
 {
-	// If the song ended, go to next on in playlist
+	// If the song ended, go to next one in playlist
 	if (GetSongFinished())  {
 		Forward();
 	}
@@ -653,7 +650,8 @@ void CMediaPlayer::Frame(void)
 				if (!cOpenDialog.getAdd())
 					Stop();
 			}
-			Play();
+			if (Playing())
+				Play();
 			}
 			break;
 		case mp_Stop:
@@ -696,42 +694,4 @@ void CMediaPlayer::Frame(void)
 			iLastMouseY = 0;
 		}
 	}
-}
-
-
-char* COpenAddDir::Execute(char *default_dir) {
-	// TODO: ... (workaround for now)
-	return NULL;
-}
-
-CPlayerButton::CPlayerButton(SDL_Surface *image) {
-	if (!image)
-		return;
-
-	bmpImage = image;
-	bDown = false;
-}
-
-CPlayerSlider::CPlayerSlider(SDL_Surface *progress, SDL_Surface *start, SDL_Surface *end, SDL_Surface *background, int max)  {
-	if (!progress || !start || !end || !background)
-		return;
-	iValue = 0;
-	iMax = max;
-
-	bmpProgress = progress;
-	bmpStart = start;
-	bmpEnd = end;
-	bmpBackground = background;
-}
-
-CPlayerMarquee::CPlayerMarquee(const std::string text, Uint32 col)  {
-	szText = text;
-	fTime = 0;
-	fEndWait = 0;
-	iFrame = 0;
-	iColour = col;
-	iDirection = 1;
-	bmpBuffer = NULL;
-
-	RedrawBuffer();
 }

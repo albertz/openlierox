@@ -50,8 +50,8 @@ void CViewport::setupInputs(char Inputs[32][8])
 // Process a viewport
 void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int nGameType)
 {
-    float hx = (float) Width/2;
-	float hy = (float) Height/2;
+    int hx = Width/2;
+	int hy = Height/2;
 
     // Follow a player
     if( nType == VW_FOLLOW ) {
@@ -113,11 +113,11 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         }
 	    
         // Follow the worm
-		// TODO: fix for right viewport in splitscreen (the worm shakes there)
+
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
 				WorldX = (int)(pcTargetWorm->getPos().x-hx);
-				WorldY = Round(pcTargetWorm->getPos().y-hy);
+				WorldY = (int)(pcTargetWorm->getPos().y-hy);
 										
 
                 // Clear the timer
@@ -166,8 +166,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         // Follow the worm
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
-	            WorldX = (int)floor(pcTargetWorm->getPos().x-hx);
-	            WorldY = Round(pcTargetWorm->getPos().y-hy);
+	            WorldX = (int)(pcTargetWorm->getPos().x-hx);
+				WorldY = (int)(pcTargetWorm->getPos().y-hy);
 
                 // Clear the timer
                 fTimer = -1;

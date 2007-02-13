@@ -189,6 +189,7 @@ void	StartGame(void);
 void	ShutdownLieroX(void);
 void	GameLoop(void);
 void	QuittoMenu(void);
+void	GotoLocalGameMenu(void);
 
 
 
@@ -201,6 +202,7 @@ void    lx_strncpy(char *dest, char *src, int count);
 bool    MouseInRect(int x, int y, int w, int h);
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
+bool	replace(char *text, const char *what, const char *with, char *result);
 bool	replace(const std::string text, const std::string what, const std::string with, std::string& result);
 bool	replace(std::string& text, std::string what, std::string with);
 std::string replacemax(const std::string text, const std::string what, const std::string with, std::string& result, int max);

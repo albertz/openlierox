@@ -35,9 +35,10 @@ enum {
 class CSlider : public CWidget {
 public:
 	// Constructor
-	CSlider(int max) {
+	CSlider(int max, int min = 0) {
 		Create();
 		iMax = max;
+		iMin = min;
 		iType = wid_Slider;
 	}
 
@@ -47,6 +48,7 @@ private:
 
 	int		iValue;
 	int		iMax;
+	int		iMin;
 
 
 public:
@@ -74,6 +76,7 @@ public:
 	void	setValue(int v)						{ iValue = v; }
 
 	void	setMax(int _m)						{ iMax = _m; }
+	void	setMin(int _m)						{ iMin = _m; }
 };
 
 

@@ -3,15 +3,25 @@
 
 #include "defs.h"
 #include "LieroX.h"
-#include "CMediaPlayer.h"
 #include "Menu.h"
-// NOTE: listview ist included in CMediaPlayer.h
 
 
 //
 // Player button
 //
 
+////////////////////
+// Constructor
+CPlayerButton::CPlayerButton(SDL_Surface *image) {
+	if (!image)
+		return;
+
+	bmpImage = image;
+	bDown = false;
+}
+
+/////////////////////
+// Draws the button
 void CPlayerButton::Draw(SDL_Surface *bmpDest)
 {
 	int src_y = 0;
@@ -20,12 +30,16 @@ void CPlayerButton::Draw(SDL_Surface *bmpDest)
 	DrawImageAdv(bmpDest,bmpImage,0,src_y,iX,iY,bmpImage->w,bmpImage->h/2);
 }
 
+//////////////////////
+// Mouse down on Player buton
 int CPlayerButton::MouseDown(mouse_t *tMouse, int nDown)
 {
 	bDown = InBox(tMouse->X,tMouse->Y) != 0;
 	return MP_WID_NONE;
 }
 
+///////////////////////
+// Click on Player button
 int CPlayerButton::MouseUp(mouse_t *tMouse, int nDown)
 {
 	bDown = false;
@@ -36,6 +50,22 @@ int CPlayerButton::MouseUp(mouse_t *tMouse, int nDown)
 // Player slider
 //
 
+///////////////////
+// Constructor
+CPlayerSlider::CPlayerSlider(SDL_Surface *progress, SDL_Surface *start, SDL_Surface *end, SDL_Surface *background, int max)  {
+	if (!progress || !start || !end || !background)
+		return;
+	iValue = 0;
+	iMax = max;
+
+	bmpProgress = progress;
+	bmpStart = start;
+	bmpEnd = end;
+	bmpBackground = background;
+}
+
+////////////////////
+// Draw the slider
 void CPlayerSlider::Draw(SDL_Surface *bmpDest)
 {
 	// Background
@@ -63,6 +93,8 @@ void CPlayerSlider::Draw(SDL_Surface *bmpDest)
 	}	
 }
 
+///////////////////////
+// Mouse down event on the slider
 int CPlayerSlider::MouseDown(mouse_t *tMouse, int nDown)
 {
 	iCanLoseFocus = false;
@@ -91,6 +123,8 @@ int CPlayerSlider::MouseDown(mouse_t *tMouse, int nDown)
 // Player toggle button
 //
 
+/////////////////////////
+// Draws the toggle button
 void CPlayerToggleBtn::Draw(SDL_Surface *bmpDest)
 {
 	int src_y = 0;
@@ -99,6 +133,8 @@ void CPlayerToggleBtn::Draw(SDL_Surface *bmpDest)
 	DrawImageAdv(bmpDest,bmpImage,0,src_y,iX,iY,bmpImage->w,bmpImage->h/2);
 }
 
+////////////////////////
+// Click on the toggle button
 int CPlayerToggleBtn::MouseUp(mouse_t *tMouse,int nDown)
 {
 	bEnabled = !bEnabled;
@@ -109,12 +145,29 @@ int CPlayerToggleBtn::MouseUp(mouse_t *tMouse,int nDown)
 // Player marquee
 //
 
+
+/////////////////////////
+// Constructor
+CPlayerMarquee::CPlayerMarquee(const std::string text, Uint32 col)  {
+	szText = text;
+	fTime = 0;
+	fEndWait = 0;
+	iFrame = 0;
+	iColour = col;
+	iDirection = 1;
+	bmpBuffer = NULL;
+
+	RedrawBuffer();
+}
+
+//////////////////////
+// Redraws the buffer with the marquee text
 void CPlayerMarquee::RedrawBuffer(void)
 {
 	if (bmpBuffer)
 		SDL_FreeSurface(bmpBuffer);
 
-	iTextWidth = tLX->cFont.GetWidth(szText);
+	iTextWidth = tLX->cFont.GetWidth(szText.c_str());
 
 	bmpBuffer = gfxCreateSurface(iTextWidth,tLX->cFont.GetHeight());
 	if (!bmpBuffer)
@@ -122,9 +175,13 @@ void CPlayerMarquee::RedrawBuffer(void)
 	SDL_SetColorKey(bmpBuffer, SDL_SRCCOLORKEY, tLX->clPink);
 	DrawRectFill(bmpBuffer,0,0,bmpBuffer->w,bmpBuffer->h,tLX->clPink);
 
-	tLX->cFont.Draw(bmpBuffer,0,0,iColour,"%s",szText);
+	// Blit on the buffer
+	if (szText != "")
+		tLX->cFont.Draw(bmpBuffer,0,0,iColour,"%s",szText.c_str());
 }
 
+/////////////////////
+// Draws the marquee
 void CPlayerMarquee::Draw(SDL_Surface *bmpDest)
 {
 	if (iTextWidth <= iWidth)  {
@@ -193,13 +250,15 @@ char *COpenAddDir::Execute(char *default_dir)
 
 	// Initialize the GUI
 	cOpenGui.Initialize();
-	cOpenGui.Add(new CListview(),od_List,iX+5,iY+5,iWidth-10,iHeight-60);
-	cOpenGui.Add(new CCheckbox(bAdd),od_Add,iX+5,iY+iHeight-59,17,17);
-	cOpenGui.Add(new CLabel("Add to current playlist",tLX->clNormalLabel),-1,iX+25,iY+iHeight-57,0,0);
-	cOpenGui.Add(new CCheckbox(bIncludeSubdirs),od_IncludeSubdirs,iX+5,iY+iHeight-42,17,17);
-	cOpenGui.Add(new CLabel("Include subdirectories",tLX->clNormalLabel),-1,iX+25,iY+iHeight-40,0,0);
-	cOpenGui.Add(new CButton(BUT_OK,tMenu->bmpButtons),od_Ok,iX+3*iWidth/4,iY+iHeight-20,30,15);
-	cOpenGui.Add(new CButton(BUT_CANCEL,tMenu->bmpButtons),od_Cancel,iX+iWidth/4,iY+iHeight-20,60,15);
+	cOpenGui.Add(new CListview(),od_List,iX+5,iY+45,iWidth-10,iHeight-115);
+	cOpenGui.Add(new CLabel("Add to playlist",tLX->clNormalLabel),-1,iX+iWidth/2-tLX->cFont.GetWidth("Add to playlist")/2,iY+5,0,0);
+	cOpenGui.Add(new CLabel("Select the folder by single-clicking on it",tLX->clNormalLabel),-1,iX+5,iY+25,0,0);
+	cOpenGui.Add(new CCheckbox(bAdd),od_Add,iX+5,iY+iHeight-64,17,17);
+	cOpenGui.Add(new CLabel("Add to current playlist",tLX->clNormalLabel),-1,iX+25,iY+iHeight-64,0,0);
+	cOpenGui.Add(new CCheckbox(bIncludeSubdirs),od_IncludeSubdirs,iX+5,iY+iHeight-45,17,17);
+	cOpenGui.Add(new CLabel("Include subdirectories",tLX->clNormalLabel),-1,iX+25,iY+iHeight-45,0,0);
+	cOpenGui.Add(new CButton(BUT_CANCEL,tMenu->bmpButtons),od_Cancel,iX+iWidth/2,iY+iHeight-25,60,15);
+	cOpenGui.Add(new CButton(BUT_OK,tMenu->bmpButtons),od_Ok,iX+iWidth/2-50,iY+iHeight-25,30,15);
 
 	((CButton *)(cOpenGui.getWidget(od_Ok)))->setRedrawMenu(false);
 	((CButton *)(cOpenGui.getWidget(od_Cancel)))->setRedrawMenu(false);
@@ -234,8 +293,13 @@ char *COpenAddDir::Execute(char *default_dir)
 		// Restore the original screen before drawing
 		DrawImage(Screen,bmpBuffer,0,0);
 
-		// Draw the borders
+		// Background
 		DrawRectFill(Screen,iX,iY,iX+iWidth,iY+iHeight,0);
+
+		// Title bar
+		DrawRectFill(Screen,iX,iY,iX+iWidth,iY+22,MakeColour(0,0,64));
+
+		// Border
 		Menu_DrawBox(Screen,iX,iY,iX+iWidth,iY+iHeight);
 
 		cOpenGui.Draw(Screen);
@@ -388,6 +452,7 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 
 	static char directory[1024]="";
 	static char tmp_dir[1054];
+	static char parent_dir[256]="";
 	char *dir_name = NULL;
 	int index=0;
 	int len = 0;
@@ -401,6 +466,8 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 		len++;
 	}
 
+	parent_dir[0] = '\0';  // Clear the parent directory
+
 	bool root = IsRoot(tmp_dir);
 	if (!root)  {
 		// Handle the parent directory
@@ -409,6 +476,7 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 			*(dir_name-1) = '\0';
 			dir_name = MAX(strrchr(tmp_dir,'\\'),strrchr(tmp_dir,'/'));
 			if (dir_name)  {
+				fix_strncpy(parent_dir,dir_name+1);
 				*(dir_name+1) = '\0';
 			}
 			// Check again
@@ -430,6 +498,8 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 		lv->AddSubitem(LVS_TEXT,"..",NULL);
 	}
 
+	int selected = 0;
+
 	if(FindFirstDir(tmp_dir,directory,true)) {
 		fix_markend(directory);
 		while(1) {
@@ -438,6 +508,9 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 
 			// Add the directory
 			if (dir_name)  {
+				if (!strcmp(parent_dir,dir_name+1))
+					selected = index;
+
 				lv->AddItem(directory,index++,tLX->clListView);
 				lv->AddSubitem(LVS_TEXT,dir_name+1,NULL);
 			}
@@ -446,6 +519,6 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 				break;
 			fix_markend(directory);
 		}
-		lv->setSelectedID(0);
+		lv->setSelectedID(selected);
 	}
 }

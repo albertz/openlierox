@@ -17,6 +17,10 @@
 #ifndef __NETWORKING_H__
 #define __NETWORKING_H__
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4786)
+#endif
+
 
 #define		LX_SVRLIST		"/svr_list.php"
 #define		LX_SVRREG		"/svr_register.php"

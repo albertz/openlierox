@@ -921,7 +921,7 @@ void CServer::banWorm(int wormID)
 			SendGlobalPacket(&bs);
 
 			// Send the message
-			SendGlobalText(replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), 1),TXT_NETWORK);
+			SendGlobalText(replacemax(NetworkTexts->sHasBeenBanned,"<player>", w->getName(), 1),TXT_NETWORK);
 
 			// Now that a player has left, re-check the game status
 			RecheckGame();

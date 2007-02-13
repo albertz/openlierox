@@ -354,7 +354,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 
 	// Process the moving
-	if(ws->iMove) {
+	if(ws->iMove && !bFollowOverride) { // if we are following a projectile, don't move...
 		if(iDirection == DIR_RIGHT) {
 
 			// Right
@@ -411,6 +411,9 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 	//CVec newpos = vPos + vVelocity*dt;
 	vPos += vVelocity * dt;
+
+
+	resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 	CheckWormCollision( dt, map, vOldPos, &vVelocity, jump );
 

@@ -85,10 +85,13 @@ dirent* entry = NULL;
 
 ///////////////////
 // Find the first file
-int FindFirst(char *dir, char *ext, char *filename)
+int FindFirst(char *dir, char *ext, char *filename, bool absolute_path)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	GetExactFileName(getNextFullFileName(dir), _dir);
+	if (absolute_path)
+		_dir = dir;
+	else
+		GetExactFileName(getNextFullFileName(dir), _dir);
 	if(_dir.size() == 0)
 		return false;
 
@@ -173,10 +176,13 @@ dirent* entry2 = NULL;
 
 ///////////////////
 // Find the first dir
-int FindFirstDir(char *dir, char *name)
+int FindFirstDir(char *dir, char *name, bool absolute_path)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	GetExactFileName(getNextFullFileName(dir), _dir2);
+	if (absolute_path)
+		_dir2 = dir;
+	else
+		GetExactFileName(getNextFullFileName(dir), _dir2);
 	if(_dir2.size() == 0)
 		return false;
 
@@ -347,28 +353,31 @@ bool GetExactFileName(const std::string abs_searchname, std::string& filename)
 
 
 
-char	_dir[512];
+std::string	_dir;
 long	handle = 0;
 struct _finddata_t fileinfo;
 
 
 ///////////////////
 // Find the first file
-int FindFirst(char *dir, char *ext, char *filename)
+int FindFirst(char *dir, char *ext, char *filename, bool absolute_path)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	GetExactFileName(getNextFullFileName(dir), _dir);
-	if(_dir[0] == '\0')
+	if (absolute_path)
+		_dir = dir;
+	else
+		GetExactFileName(getNextFullFileName(dir),_dir);
+	if(_dir == "")
 		return false;
 
 	static char basepath[512]; // don't need this later, so static is safe
 
-	fix_strncpy(basepath, _dir);
+	fix_strncpy(basepath, _dir.c_str());
 	fix_strncat(basepath, "/");
 	fix_strncat(basepath, ext);
 
 	handle = _findfirst(basepath, &fileinfo);
-	fix_strncpy(_dir, dir);
+	_dir = dir;
 
 	// Keep going until we found the first file
 	while(handle >= 0 && !_findnext(handle, &fileinfo))
@@ -380,7 +389,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 			//If found file is not a directory
 			if(!(fileinfo.attrib & _A_SUBDIR))
 			{
-				sprintf(filename,"%s/%s",_dir,fileinfo.name);
+				sprintf(filename,"%s/%s",_dir.c_str(),fileinfo.name);
 				return true;
 			}
 		}
@@ -390,7 +399,7 @@ int FindFirst(char *dir, char *ext, char *filename)
 	
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[512]; fix_strncpy(tmp, _dir);
+	static char tmp[512]; fix_strncpy(tmp, _dir.c_str());
 	// TODO: this better
 	int ret = FindFirst(tmp,ext, filename);
 	reset_nextsearchpath = true;
@@ -410,7 +419,7 @@ int FindNext(char *filename)
 			//If found file is not a directory
 			if(!(fileinfo.attrib & _A_SUBDIR))
 			{
-				sprintf(filename,"%s/%s",_dir,fileinfo.name);
+				sprintf(filename,"%s/%s",_dir.c_str(),fileinfo.name);
 				return true;
 			}
 		}
@@ -420,7 +429,7 @@ int FindNext(char *filename)
 	
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[512]; fix_strncpy(tmp, _dir);
+	static char tmp[512]; fix_strncpy(tmp, _dir.c_str());
 	// TODO: this better
 	int ret = FindFirst(tmp,"*", filename);
 	reset_nextsearchpath = true;
@@ -440,7 +449,7 @@ int FindNext(char *filename)
 
 
 // Here if we even need to search files & dirs at the same time
-char	_dir2[512];
+std::string	_dir2;
 long	handle2 = 0;
 struct _finddata_t fileinfo2;
 
@@ -448,23 +457,26 @@ struct _finddata_t fileinfo2;
 
 ///////////////////
 // Find the first dir
-int FindFirstDir(char *dir, char *name)
+int FindFirstDir(char *dir, char *name, bool absolute_path)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 
-	GetExactFileName(getNextFullFileName(dir), _dir2);
+	if (absolute_path)
+		_dir2 = dir;
+	else
+		GetExactFileName(getNextFullFileName(dir), _dir2);
 
-	if(_dir2[0] == '\0')
+	if(_dir2 == "")
 		return false;
 
 	static char basepath[512];
 
-	fix_strncpy(basepath, _dir2);
+	fix_strncpy(basepath, _dir2.c_str());
 	fix_strncat(basepath, "/");
 	fix_strncat(basepath, "*.*");
 
 	handle2 = _findfirst(basepath, &fileinfo2);
-	fix_strncpy(_dir2, dir);
+	_dir2 = dir;
 
 	while(handle2 >= 0 && !_findnext(handle2, &fileinfo2)) // Keep going until we found the first dir
 	{
@@ -475,7 +487,7 @@ int FindFirstDir(char *dir, char *name)
 			//If found file is a directory
 			if(fileinfo2.attrib & _A_SUBDIR)
 			{
-				sprintf(name,"%s/%s",_dir2,fileinfo2.name);
+				sprintf(name,"%s/%s",_dir2.c_str(),fileinfo2.name);
 				return true;
 			}
 		}
@@ -485,7 +497,7 @@ int FindFirstDir(char *dir, char *name)
 	
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[512]; fix_strncpy(tmp, _dir2);
+	static char tmp[512]; fix_strncpy(tmp, _dir2.c_str());
 	int ret = FindFirstDir(tmp, name);
 	reset_nextsearchpath = true;
 	return ret;
@@ -506,7 +518,7 @@ int FindNextDir(char *name)
 			//If found file is a directory
 			if(fileinfo2.attrib & _A_SUBDIR)
 			{
-				sprintf(name,"%s/%s",_dir2,fileinfo2.name);
+				sprintf(name,"%s/%s",_dir2.c_str(),fileinfo2.name);
 				return true;
 			}
 		}
@@ -517,7 +529,7 @@ int FindNextDir(char *name)
 	
 	nextsearchpath = nextsearchpath->next;
 	reset_nextsearchpath = false;
-	static char tmp[512]; fix_strncpy(tmp, _dir2);
+	static char tmp[512]; fix_strncpy(tmp, _dir2.c_str());
 	int ret = FindFirstDir(tmp, name);
 	reset_nextsearchpath = true;
 	return ret;

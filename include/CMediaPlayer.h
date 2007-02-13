@@ -11,6 +11,7 @@ typedef std::string song_path;
 typedef song_path song_name;
 typedef std::vector<song_path> song_list;
 
+
 //
 //	Open/add directory dialog
 //
@@ -19,9 +20,9 @@ class COpenAddDir  {
 public:
 	COpenAddDir(void)  {
 		bAdd = false;
-		bIncludeSubdirs = false;
-		iWidth = 200;
-		iHeight = 250;
+		bIncludeSubdirs = true;
+		iWidth = 300;
+		iHeight = 360;
 		iX = 320-iWidth/2;
 		iY = 240-iHeight/2;
 	}
@@ -33,7 +34,7 @@ private:
 	int		iY;
 	int		iWidth;
 	int		iHeight;
-	CGuiLayout cOpenGui;
+CGuiLayout cOpenGui;
 
 	// Methods
 	void		ReFillList(CListview *lv, char *dir);
@@ -216,14 +217,14 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown) { return MP_WID_NONE; }
-	int		MouseDown(mouse_t *tMouse, int nDown) { return MP_WID_NONE; }
+	int		MouseUp(mouse_t *tMouse, int nDown);
+	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		KeyDown(int c)						{ return MP_WID_NONE; }
 	int		KeyUp(int c)						{ return MP_WID_NONE; }
 
-	void	Draw(SDL_Surface *bmpDest) {}
+	void	Draw(SDL_Surface *bmpDest);
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -250,7 +251,7 @@ public:
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
 	int		MouseUp(mouse_t *tMouse, int nDown) { iCanLoseFocus = true; return MP_WID_NONE; }
-	int		MouseDown(mouse_t *tMouse, int nDown) { return MP_WID_NONE; }
+	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		KeyDown(int c)						{ return MP_WID_NONE; }
@@ -262,7 +263,7 @@ public:
 	inline int GetMax(void)  { return iMax; }
 	inline void SetMax(int _m) {iMax = _m; }
 
-	void	Draw(SDL_Surface *bmpDest) {}
+	void	Draw(SDL_Surface *bmpDest);
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
@@ -289,14 +290,14 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown) {return MP_WID_NONE;}
+	int		MouseUp(mouse_t *tMouse, int nDown);
 	int		MouseDown(mouse_t *tMouse, int nDown) {return MP_WID_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		KeyDown(int c)						{ return MP_WID_NONE; }
 	int		KeyUp(int c)						{ return MP_WID_NONE; }
 
-	void	Draw(SDL_Surface *bmpDest) {}
+	void	Draw(SDL_Surface *bmpDest);
 	
 	inline bool isOn(void) { return bEnabled; }
 
@@ -338,8 +339,8 @@ public:
 	int		KeyDown(int c)						{ return MP_WID_NONE; }
 	int		KeyUp(int c)						{ return MP_WID_NONE; }
 
-	void	RedrawBuffer(void) {}
-	void	Draw(SDL_Surface *bmpDest) {}
+	void	RedrawBuffer(void);
+	void	Draw(SDL_Surface *bmpDest);
 
 	inline Uint32 getColour(void)  { return iColour; }
 	inline void	setColour(Uint32 _c)		{ iColour = _c; }

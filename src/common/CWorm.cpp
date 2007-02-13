@@ -51,6 +51,8 @@ void CWorm::Clear(void)
 	iOnGround = false;
 	vPos = CVec(0,0);
 	vVelocity = CVec(0,0);
+	vFollowPos = CVec(0,0);
+	bFollowOverride = false;
 
 	cNinjaRope.Clear();
 	fRopeTime = -9999;

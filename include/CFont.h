@@ -69,7 +69,7 @@ public:
 	void			SetOutline(int Outline);
 	int				IsOutline(void);
 
-	int				GetWidth(char *buf);
+	int				GetWidth(const char *buf);
 	int				GetHeight(void)					{ return bmpFont->h; }
 };
 

@@ -145,6 +145,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
     }
 
 
+
 /*
 	vOldPos = vPosition;
 */
@@ -320,7 +321,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	
 	// Dampening
 	if(tProjInfo->Dampening != 1)
-		newvel *= (float)pow(tProjInfo->Dampening, dt*10); // TODO: is this ok?
+		//newvel *= (float)pow(tProjInfo->Dampening, dt*10); // TODO: is this correct?
+		newvel *= tProjInfo->Dampening;  // More like original LX
 	
 	//float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
 	float checkstep = newvel.GetLength2(); // |v|^2

@@ -22,6 +22,7 @@
 
 
 char Fontstr[256] = {" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~~"};//\161\162\163\164\165\166\167\168\169\170\171\172\173\174\175\176\177\178\179\180\181\182\183\184\185\186\187\188\189\190\191\192\193\194\195\196\197\198\199\200\201\202\203\204\205\206\207\208\209\210\211\212\213\214\215\216\217\218\219\220\221\222\223\224\225\226\227\228\229\230\231\232\233\234\235\236\237\238\239\240\241\242\243\244\245\246\247\248\249\250\251\252\253\254\255"};
+int Fontstr_len = strlen(Fontstr);
 
 
 ///////////////////
@@ -82,7 +83,7 @@ void CFont::CalculateWidth(void)
 
 	Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
 	
-	for(n=0;n<strlen(Fontstr);n++) {
+	for(n=0;n<Fontstr_len;n++) {
 		a=n*Width;
 		for(j=0;j<bmpFont->h;j++) {
 			for(i=a,b=0;b<Width;i++,b++) {
@@ -308,7 +309,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 
 ///////////////////
 // Calculate the width of a string of text
-int CFont::GetWidth(char *buf)
+int CFont::GetWidth(const char *buf)
 {
 	unsigned int n,l;
 	int length = 0;
@@ -316,7 +317,7 @@ int CFont::GetWidth(char *buf)
 	// Calculate the length of the text
 	for(n=0;n<strlen(buf);n++) {
         l = buf[n]-32;
-        if( l >= strlen(Fontstr) || l < 0 )
+        if( l >= Fontstr_len || l < 0 )
             continue;
 
 		length += FontWidth[l];
@@ -343,9 +344,9 @@ void CFont::DrawCentre(SDL_Surface *dst, int x, int y, int col, char *fmt, ...)
 
 	// Calculate the length of the text
 	size_t buflen = fix_strnlen(buf);
-	size_t fontstrlen = fix_strnlen(Fontstr);
+	size_t fontstrlen = Fontstr_len;
 	for(n=0;n<buflen;n++) {
-		/*for(l=0;l<strlen(Fontstr);l++) {
+		/*for(l=0;l<Fontstr_len;l++) {
 			if(Fontstr[l] == buf[n])
 				break;
 		}*/
@@ -379,9 +380,9 @@ void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, 
 
 	// Calculate the length of the text
 	size_t buflen = fix_strnlen(buf);
-	size_t fontstrlen = fix_strnlen(Fontstr);
+	size_t fontstrlen = Fontstr_len;
 	for(n=0;n<buflen;n++) {
-		/*for(l=0;l<strlen(Fontstr);l++) {
+		/*for(l=0;l<Fontstr_len;l++) {
 			if(Fontstr[l] == buf[n])
 				break;
 		}*/

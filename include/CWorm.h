@@ -179,6 +179,9 @@ private:
 	CVec		vOldPos;
 	CVec		vVelocity;
 	int			iOnGround;
+
+	CVec		vFollowPos;
+	bool		bFollowOverride;
 	
 	// Score
 	int			iKills;
@@ -492,6 +495,10 @@ public:
 
 	inline CInput		*getShoot(void)				{ return &cShoot; }
 
+	inline CVec		getFollowPos(void)				{ return (bFollowOverride?vFollowPos:vPos); }
+	inline void		resetFollow(void)				{ bFollowOverride = false; }
+	inline void		doFollow(int x, int y)				{ bFollowOverride = true; vFollowPos.x = x; vFollowPos.y = y; }
+	
 	inline CVec		getPos(void)				{ return vPos; }
 	inline void		setPos(CVec v)				{ vPos = v; }
 

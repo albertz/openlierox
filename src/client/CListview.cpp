@@ -1117,6 +1117,12 @@ void CListview::setSelectedID(int id)
                 tSelected->iSelected = false;
             item->iSelected = true;
             tSelected = item;
+
+			// Scroll to the item if needed
+			if (iGotScrollbar)  {
+				cScrollbar.setValue(tSelected->_iID);
+			}
+
             return;
         }
     }
