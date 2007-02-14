@@ -97,10 +97,22 @@ list.clear();
 
 
 #else
-// TODO: linux
-
+	// there are not any drives on Linux/Unix/MacOSX/...
+	// it's only windows which uses this crazy drive-letters
+	
+	// perhaps not the best way
+	// home-dir of user is in other applications the default
+	// but it's always possible to read most other stuff
+	// and it's not uncommon that a user hase a shared dir like /mp3s
+	drive_t tmp;
+	tmp.name = "/";
+	tmp.type = 0;
+	list.push_back(tmp);
+	
+	// we could communicate with dbus and ask it for all connected
+	// and mounted hardware-stuff
 #endif
-
+ 
 	return list;
 }
 
@@ -121,13 +133,10 @@ dirent* entry = NULL;
 
 ///////////////////
 // Find the first file
-int FindFirst(char *dir, char *ext, char *filename, bool absolute_path)
+int FindFirst(char *dir, char *ext, char *filename)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	if (absolute_path)
-		_dir = dir;
-	else
-		GetExactFileName(getNextFullFileName(dir), _dir);
+	GetExactFileName(getNextFullFileName(dir), _dir);
 	if(_dir.size() == 0)
 		return false;
 
@@ -212,13 +221,10 @@ dirent* entry2 = NULL;
 
 ///////////////////
 // Find the first dir
-int FindFirstDir(char *dir, char *name, bool absolute_path)
+int FindFirstDir(char *dir, char *name)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	if (absolute_path)
-		_dir2 = dir;
-	else
-		GetExactFileName(getNextFullFileName(dir), _dir2);
+	GetExactFileName(getNextFullFileName(dir), _dir2);
 	if(_dir2.size() == 0)
 		return false;
 
@@ -396,13 +402,10 @@ struct _finddata_t fileinfo;
 
 ///////////////////
 // Find the first file
-int FindFirst(char *dir, char *ext, char *filename, bool absolute_path)
+int FindFirst(char *dir, char *ext, char *filename)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
-	if (absolute_path)
-		_dir = dir;
-	else
-		GetExactFileName(getNextFullFileName(dir),_dir);
+	GetExactFileName(getNextFullFileName(dir),_dir);
 	if(_dir == "")
 		return false;
 
@@ -493,14 +496,11 @@ struct _finddata_t fileinfo2;
 
 ///////////////////
 // Find the first dir
-int FindFirstDir(char *dir, char *name, bool absolute_path)
+int FindFirstDir(char *dir, char *name)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 
-	if (absolute_path)
-		_dir2 = dir;
-	else
-		GetExactFileName(getNextFullFileName(dir), _dir2);
+	GetExactFileName(getNextFullFileName(dir), _dir2);
 
 	if(_dir2 == "")
 		return false;

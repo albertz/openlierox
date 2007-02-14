@@ -321,10 +321,9 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	
 	// Dampening
 	if(tProjInfo->Dampening != 1)
-		//newvel *= (float)pow(tProjInfo->Dampening, dt*10); // TODO: is this correct?
-		newvel *= tProjInfo->Dampening;  // More like original LX
+		newvel *= (float)pow(tProjInfo->Dampening, dt*10); // TODO: is this correct? change factor for dt if not
+		//newvel *= tProjInfo->Dampening;  // this is wrong, it completely depends on CPU speed
 	
-	//float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
 	float checkstep = newvel.GetLength2(); // |v|^2
 	if( checkstep*dt*dt > MAX_CHECKSTEP*MAX_CHECKSTEP ) { // |dp|^2=|v*dt|^2
 		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP

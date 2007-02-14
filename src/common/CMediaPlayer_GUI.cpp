@@ -1,5 +1,6 @@
 // OpenLieroX Media Player Interface Components
 // Made by Dark Charlie and Albert Zeyer
+// code under LGPL
 
 #include "defs.h"
 #include "LieroX.h"
@@ -318,6 +319,7 @@ char *COpenAddDir::Execute(char *default_dir)
 
 
 					// Check that this is not the parent or current directory
+					// TODO !
 					char *dir_name = MAX(strrchr(lv->getCurSIndex(),'\\'),strrchr(lv->getCurSIndex(),'/'));
 					if (!dir_name)
 						break;
@@ -411,30 +413,32 @@ char *COpenAddDir::Execute(char *default_dir)
 // Checks if the given directory is the root directory
 bool COpenAddDir::IsRoot(const char *dir)
 {
-	static char tmp[1024];
-	fix_strncpy(tmp,dir);
+	// TODO: what is the sense of this?
+
+	static std::string tmp;
+	tmp = dir;
 
 	// Adjust
 	replace(tmp,"//","/",tmp);
 	replace(tmp,"\\/","/",tmp);
 
-	int len = strnlen(tmp,sizeof(tmp));
+	int len = tmp.size();
 
 	// Remove the ending slash
 	if (tmp[len-1] == '\\' || tmp[len-1] == '/')
-		tmp[len-1] = '\0';
+		tmp.erase(len-1);
 
 	// If we can't find another slash, this must be the parent directory
-	char *slash = MAX(strrchr(tmp,'\\'),strrchr(tmp,'/'));
-	if (!slash)
-		return true;
+	size_t slash = findpathsep(tmp);		
+	if(slash == std::string::npos)
+		return true;	
 
 	// If there's a slash and this is the link to the parent directory, check, if there's another slash
-	if (!strcmp(slash+1,".."))  {
-		*slash = '\0';
-		slash = MAX(strrchr(tmp,'\\'),strrchr(tmp,'/'));
+	if (tmp.compare(slash+1,std::string::npos,"..") == std::string::npos)  {
+		tmp.erase(slash);
+		slash = findpathsep(tmp);
 		// Not another slash, this is a root directory
-		if (!slash)
+		if (slash == std::string::npos)
 			return true;
 	}
 
@@ -450,6 +454,7 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 	if (!dir)
 		return;
 
+	// TODO: replace all these by std::string!
 	static char directory[1024]="";
 	static char tmp_dir[1054];
 	static char parent_dir[256]="";
@@ -494,11 +499,12 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 	// Clear the listview
 	lv->Clear();
 
+#ifdef WIN32
 	// Going up when this is a root directory is handled in other way than the rest of the browsing
 	if (goto_drive_list)  {
 		int index = 0;
 		drive_list drives = GetDrives();
-		char cur_drive = tmp_dir[0];
+		char cur_drive = tmp_dir[0]; // TODO !
 		for (int i=0;i<drives.size();i++)  {
 			if (drives[i].type != DRV_CDROM)  {
 				lv->AddItem(drives[i].name.c_str(),index,tLX->clListView);
@@ -544,4 +550,6 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 			lv->setSelectedID(selected);
 		}
 	}
+#endif	
+	
 }

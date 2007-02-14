@@ -38,9 +38,9 @@ void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
 	//
 	// Load the files
 	//
-	char filename[1024]="";
+	char filename[1024]=""; // TODO: !
 	int done = false;
-	if(!FindFirst(dir,"*",filename,true)) // CHANGE /how?/
+	if(!FindFirst(dir,"*",filename))
 		done = true;
 
 	char ext[4] = "";
@@ -70,12 +70,13 @@ void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
 	if (!include_subdirs)
 		return;
 
+	// TODO: change!
 	char directory[1024]="";
 
 	std::string str_temp = "";
 	std::vector<std::string> dir_list;
 
-	if(FindFirstDir(dir,directory,true)) { // CHANGE /how?/		
+	if(FindFirstDir(dir,directory)) {
 		fix_markend(directory);
 		while(1) {
 
@@ -199,7 +200,7 @@ void CPlayList::LoadFromFile(const char *filename,bool absolute_path)
 		return;
 
 	// Read the file line by line
-	char line[1024];
+	char line[1024]; // TODO !
 	song_path tmp = "";
 	while(fgets(line,sizeof(line)-1,fp))  {
 		line[fix_strnlen(line)-1] = '\0';  // Remove the newline

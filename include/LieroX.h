@@ -213,7 +213,7 @@ char	*ucfirst(char *text);
 void	ReadUntil(const char *text, char until_character, char *result, size_t reslen);
 Uint32	StrToCol(char *str);
 const char* sex(short wraplen = 0);
-
+size_t findpathsep(const std::string path);
 
 short stringcasecmp(const std::string s1, const std::string s2);
 

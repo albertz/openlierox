@@ -40,16 +40,6 @@
 #define DRV_CDROM		DRIVE_CDROM			// The drive is a CD-ROM drive.
 #define DRV_RAMDISK		DRIVE_RAMDISK		// The drive is a RAM disk.
 
-// TODO: Linux
-#else
-#define DRV_UNKNOWN		1
-#define DRV_NO_ROOT_DIR 2
-#define DRV_REMOVABLE	3
-#define DRV_FIXED		4
-#define DRV_REMOTE		5
-#define DRV_CDROM		6
-#define DRV_RAMDISK		7
-
 #endif
 
 
@@ -76,10 +66,10 @@ bool	FileListIncludes(const filelist_t* l, const std::string f);
 void	ReplaceFileVariables(std::string& filename);
 
 // Routines
-int		FindFirst(char *dir, char *ext, char *filename, bool absolute_path = false);
+int		FindFirst(char *dir, char *ext, char *filename);
 int		FindNext(char *filename);
 
-int		FindFirstDir(char *dir, char *name, bool absolute_path = false);
+int		FindFirstDir(char *dir, char *name);
 int		FindNextDir(char *name);
 
 drive_list GetDrives(void);
