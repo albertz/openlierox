@@ -1621,18 +1621,21 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 			} else {
 
 				// If we didn't ping this server directly (eg, subnet), add the server to the list
-				NetAddrToString( &adrFrom, buf );
-				svr = Menu_SvrList_AddServer(buf, false);
+				// HINT: in favourites list, only user should add servers
+				if (iNetMode != net_favourites)  {
+					NetAddrToString( &adrFrom, buf );
+					svr = Menu_SvrList_AddServer(buf, false);
 
-				if( svr ) {
+					if( svr ) {
 
-					// Only update the list if this is the first ping
-					if(!svr->bgotPong)
-						update = true;
+						// Only update the list if this is the first ping
+						if(!svr->bgotPong)
+							update = true;
 
-					// Set it the ponged
-					svr->bgotPong = true;
-					svr->nQueries = 0;
+						// Set it the ponged
+						svr->bgotPong = true;
+						svr->nQueries = 0;
+					}
 				}
 			}
 		}

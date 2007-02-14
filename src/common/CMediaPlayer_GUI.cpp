@@ -415,7 +415,7 @@ bool COpenAddDir::IsRoot(const char *dir)
 {
 	// TODO: what is the sense of this?
 
-	static std::string tmp;
+	std::string tmp;
 	tmp = dir;
 
 	// Adjust
@@ -431,10 +431,10 @@ bool COpenAddDir::IsRoot(const char *dir)
 	// If we can't find another slash, this must be the parent directory
 	size_t slash = findpathsep(tmp);		
 	if(slash == std::string::npos)
-		return true;	
-
+		return true;
+	
 	// If there's a slash and this is the link to the parent directory, check, if there's another slash
-	if (tmp.compare(slash+1,std::string::npos,"..") == std::string::npos)  {
+	if (tmp.substr(slash+1) == "..")  {
 		tmp.erase(slash);
 		slash = findpathsep(tmp);
 		// Not another slash, this is a root directory
@@ -528,7 +528,7 @@ void COpenAddDir::ReFillList(CListview *lv, char *dir)
 
 		int selected = 0;
 
-		if(FindFirstDir(tmp_dir,directory,true)) {
+		if(FindFirstDir(tmp_dir,directory)) {
 			fix_markend(directory);
 			while(1) {
 				// Extract the directory name from the path

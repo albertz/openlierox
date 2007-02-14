@@ -563,7 +563,7 @@ size_t findpathsep(const std::string path) {
 	size_t slash = path.rfind('\\');
 	size_t slash2 = path.rfind('/');
 	if(slash == std::string::npos)
-		slash2 = slash;
+		slash = slash2;
 	else if(slash2 != std::string::npos)
 		slash = MAX(slash, slash2);
 	return slash;

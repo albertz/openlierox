@@ -374,6 +374,7 @@ void CServer::BeginMatch(void)
 	fServertime = 0;
 	iServerFrame = 0;
     iGameOver = false;
+	fGameOverTime = -9999;
 	cShootList.Clear();
 
 	// Send the connected clients a startgame message

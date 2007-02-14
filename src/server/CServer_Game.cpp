@@ -471,6 +471,7 @@ void CServer::gotoLobby(void)
 	}
 
 	fLastUpdateSent = -9999;
+	fGameOverTime = -9999;
 
 	SendWormLobbyUpdate();
 
