@@ -66,10 +66,10 @@ bool	FileListIncludes(const filelist_t* l, const std::string f);
 void	ReplaceFileVariables(std::string& filename);
 
 // Routines
-int		FindFirst(char *dir, char *ext, char *filename);
+int		FindFirst(const char *dir, char *ext, char *filename);
 int		FindNext(char *filename);
 
-int		FindFirstDir(char *dir, char *name);
+int		FindFirstDir(const char *dir, char *name);
 int		FindNextDir(char *name);
 
 drive_list GetDrives(void);

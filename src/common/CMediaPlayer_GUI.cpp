@@ -237,11 +237,9 @@ enum  {
 
 ////////////////////////
 // Runs the dialog, returns the directory user selected
-char *COpenAddDir::Execute(char *default_dir)
+std::string COpenAddDir::Execute(std::string default_dir)
 {
-	if (!default_dir)
-		return NULL;
-	fix_strncpy(szDir,default_dir);
+	szDir = default_dir;
 
 	bool done = false;
 	bool cancelled = false;
@@ -320,15 +318,15 @@ char *COpenAddDir::Execute(char *default_dir)
 
 					// Check that this is not the parent or current directory
 					// TODO !
-					char *dir_name = MAX(strrchr(lv->getCurSIndex(),'\\'),strrchr(lv->getCurSIndex(),'/'));
-					if (!dir_name)
+					size_t dir_name_pos = findpathsep(lv->getCurSIndex());
+					if (dir_name_pos == std::string::npos)
 						break;
 
-					if (!strcmp(dir_name,"..") || !strcmp(dir_name,"."))
+					if (!strcmp(lv->getCurSIndex()+dir_name_pos+1,"..") || !strcmp(lv->getCurSIndex()+dir_name_pos+1,"."))
 						break;
 
 					// Copy the directory
-					fix_strncpy(szDir,lv->getCurSIndex());
+					szDir = lv->getCurSIndex();
 
 					// We're done
 					done = true;
@@ -411,7 +409,7 @@ char *COpenAddDir::Execute(char *default_dir)
 
 ////////////////////
 // Checks if the given directory is the root directory
-bool COpenAddDir::IsRoot(const char *dir)
+bool COpenAddDir::IsRoot(const std::string dir)
 {
 	// TODO: what is the sense of this?
 
@@ -434,64 +432,62 @@ bool COpenAddDir::IsRoot(const char *dir)
 		return true;
 	
 	// If there's a slash and this is the link to the parent directory, check, if there's another slash
-	if (tmp.substr(slash+1) == "..")  {
+	if(tmp.compare(slash+1,std::string::npos,"..") == 0) {
 		tmp.erase(slash);
 		slash = findpathsep(tmp);
 		// Not another slash, this is a root directory
 		if (slash == std::string::npos)
 			return true;
+		
 	}
 
 	// Not a root directory
 	return false;
-
 }
 
 ///////////////////////
 // Fills the list with the subdirectories of the "dir"
-void COpenAddDir::ReFillList(CListview *lv, char *dir)
+void COpenAddDir::ReFillList(CListview *lv, std::string dir)
 {
-	if (!dir)
-		return;
-
 	// TODO: replace all these by std::string!
-	static char directory[1024]="";
-	static char tmp_dir[1054];
-	static char parent_dir[256]="";
-	char *dir_name = NULL;
+	static std::string directory;
+	static std::string tmp_dir;
+	static std::string parent_dir;
+	size_t dir_name_pos;
 	int index=0;
 	int len = 0;
-	bool root = false;  // True if we're in root directory of the current drive
+	bool isroot = false;  // True if we're in root directory of the current drive
 	bool goto_drive_list = false;  // True if we're going to go in the drive list
 
-	fix_strncpy(tmp_dir,dir);
-	len = strlen(dir);
+	tmp_dir = dir;
+	len = dir.size();
 
 	// Add the slash if needed
 	if (tmp_dir[len-1] != '\\' && tmp_dir[len-1] != '/')  {
-		strcat(tmp_dir,"/");
+		tmp_dir += "/";
 		len++;
 	}
 
-	parent_dir[0] = '\0';  // Clear the parent directory
+	parent_dir = "";  // Clear the parent directory
 
-	root = IsRoot(tmp_dir);
-	if (!root)  {
+	// TODO: i don't completly understand the sense of this
+	// (and i am realy sure that it is wrong in some cases)
+	isroot = IsRoot(tmp_dir);
+	if(!isroot) {
 		// Handle the parent directory
-		//dir_name[len-1] = '\0';
-		if (dir_name = strstr(tmp_dir,"../"))  {
-			*(dir_name-1) = '\0';
-			dir_name = MAX(strrchr(tmp_dir,'\\'),strrchr(tmp_dir,'/'));
-			if (dir_name)  {
-				fix_strncpy(parent_dir,dir_name+1);
-				*(dir_name+1) = '\0';
+		if((dir_name_pos = tmp_dir.find("../")) != std::string::npos) {
+			tmp_dir.erase(dir_name_pos-1);
+			dir_name_pos = findpathsep(tmp_dir);
+			if(dir_name_pos != std::string::npos)  {
+				parent_dir = tmp_dir.substr(dir_name_pos+1);
+				tmp_dir.erase(dir_name_pos+1);
 			}
 			// Check again
-			root = IsRoot(tmp_dir);
+			isroot = IsRoot(tmp_dir);
 		}
 	// Root directory and we want to go up
 	} else {
-		if (dir_name = strstr(tmp_dir,"../"))  {
+		if((dir_name_pos = tmp_dir.find("../")) != std::string::npos) {
 			goto_drive_list = true;
 		}
 	}

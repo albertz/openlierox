@@ -24,11 +24,8 @@ void CPlayList::Clear(void)
 
 //////////////////
 // Loads the directory and adds all music files in the playlist
-void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
+void CPlayList::Load(const std::string dir, bool include_subdirs, bool add_to_current_pl)
 {
-	if (!dir)
-		return;
-
 	// Clear me first
 	if (!add_to_current_pl)  {
 		iCurSong = 0;
@@ -40,7 +37,7 @@ void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
 	//
 	char filename[1024]=""; // TODO: !
 	int done = false;
-	if(!FindFirst(dir,"*",filename))
+	if(!FindFirst(dir.c_str(),"*",filename))
 		done = true;
 
 	char ext[4] = "";
@@ -76,7 +73,7 @@ void CPlayList::Load(char *dir, bool include_subdirs, bool add_to_current_pl)
 	std::string str_temp = "";
 	std::vector<std::string> dir_list;
 
-	if(FindFirstDir(dir,directory)) {
+	if(FindFirstDir(dir.c_str(),directory)) {
 		fix_markend(directory);
 		while(1) {
 
@@ -183,7 +180,7 @@ void CPlayList::GoToPrevSong(void)
 
 //////////////////
 // Loads the previously saved playlist
-void CPlayList::LoadFromFile(const char *filename,bool absolute_path)
+void CPlayList::LoadFromFile(const std::string filename,bool absolute_path)
 {
 	// Clear first
 	tSongList.clear();
@@ -192,7 +189,7 @@ void CPlayList::LoadFromFile(const char *filename,bool absolute_path)
 	// Open the file
 	FILE *fp = NULL;
 	if (absolute_path)
-		fp = fopen(filename,"r");
+		fp = fopen(filename.c_str(),"r");
 	else
 		fp = OpenGameFile(filename,"r");
 
@@ -214,12 +211,12 @@ void CPlayList::LoadFromFile(const char *filename,bool absolute_path)
 //////////////////
 // Loads the previously saved playlist
 // NOTE: if the file exists, it will be overwritten
-void CPlayList::SaveToFile(const char *filename,bool absolute_path)
+void CPlayList::SaveToFile(const std::string filename,bool absolute_path)
 {
 	// Open the file
 	FILE *fp = NULL;
 	if (absolute_path)
-		fp = fopen(filename,"w");
+		fp = fopen(filename.c_str(),"w");
 	else
 		fp = OpenGameFile(filename,"w");
 
@@ -321,7 +318,7 @@ song_name CMediaPlayer::GetNameFromFile(song_path path)
 
 //////////////////////
 // Loads the playlist from the specified file
-void CMediaPlayer::LoadPlaylistFromFile(const char *filename, bool absolute_path)
+void CMediaPlayer::LoadPlaylistFromFile(const std::string filename, bool absolute_path)
 {
 	tPlayList.LoadFromFile(filename,absolute_path);
 	if (tPlayList.getNumSongs() > 0)  {
@@ -645,8 +642,8 @@ void CMediaPlayer::Frame(void)
 		case mp_SelectDir:  {
 			if (!Paused() && Playing())
 				PauseResume();
-			char *dir = cOpenDialog.Execute("C:\\");
-			if (dir)  {
+			std::string dir = cOpenDialog.Execute("C:\\");
+			if(dir.size()>0)  {
 				tPlayList.Load(dir,cOpenDialog.getIncludeSubdirs(),cOpenDialog.getAdd());
 				if (!cOpenDialog.getAdd())
 					Stop();

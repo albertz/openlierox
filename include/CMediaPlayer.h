@@ -8,7 +8,7 @@
 #include <vector>
 
 typedef std::string song_path;
-typedef song_path song_name;
+typedef std::string song_name;
 typedef std::vector<song_path> song_list;
 
 
@@ -27,7 +27,7 @@ public:
 		iY = 240-iHeight/2;
 	}
 private:
-	char	szDir[1024];
+	std::string	szDir;
 	bool	bAdd;
 	bool	bIncludeSubdirs;
 	int		iX;
@@ -37,10 +37,10 @@ private:
 CGuiLayout cOpenGui;
 
 	// Methods
-	void		ReFillList(CListview *lv, char *dir);
-	bool		IsRoot(const char *dir);
+	void		ReFillList(CListview *lv, std::string dir);
+	bool		IsRoot(const std::string dir);
 public:
-	char		*Execute(char *default_dir);
+	std::string Execute(std::string default_dir);
 	inline bool getAdd(void) { return bAdd; }
 	inline bool getIncludeSubdirs(void) { return bIncludeSubdirs; }
 };
@@ -61,7 +61,7 @@ private:
 	bool		bShuffle;
 public:
 	void		Clear(void);
-	void		Load(char *dir,bool include_subdirs=true, bool add_to_current_pl=true);
+	void		Load(std::string dir,bool include_subdirs=true, bool add_to_current_pl=true);
 	song_path	GetCurSong(void);
 	void		GoToNextSong(void);
 	void		GoToPrevSong(void);
@@ -73,8 +73,8 @@ public:
 	inline bool	getShuffle(void) { return bShuffle; }
 	inline int	getNumSongs(void) { return tSongList.size(); }
 
-	void		SaveToFile(const char *filename,bool absolute_path);
-	void		LoadFromFile(const char *filename,bool absolute_path);
+	void		SaveToFile(const std::string filename,bool absolute_path);
+	void		LoadFromFile(const std::string filename,bool absolute_path);
 };
 
 
@@ -171,11 +171,11 @@ public:
 	 inline bool	GetRepeatPlaylist(void)		{return tPlayList.getRepeat(); }
 	 inline void	SetShufflePlaylist(bool _s)  {tPlayList.setShuffle(_s); }
 	 inline bool	GetShufflePlaylist(void)		{return tPlayList.getShuffle(); }
-	 inline void	OpenDirectory(char *dir,bool include_subdirs=true,bool add_to_current_pl=true)  {tPlayList.Load(dir,include_subdirs,add_to_current_pl); }
+	 inline void	OpenDirectory(const std::string dir,bool include_subdirs=true,bool add_to_current_pl=true)  {tPlayList.Load(dir,include_subdirs,add_to_current_pl); }
 	 inline const std::string GetCurrentSongName(void)	{return szCurSongName; }
 
-	 void			LoadPlaylistFromFile(const char *filename,bool absolute_path=false);
-	 inline void	SavePlaylistToFile(const char *filename,bool absolute_path=false)  {tPlayList.SaveToFile(filename,absolute_path); }
+	 void			LoadPlaylistFromFile(const std::string filename,bool absolute_path=false);
+	 inline void	SavePlaylistToFile(const std::string filename,bool absolute_path=false)  {tPlayList.SaveToFile(filename,absolute_path); }
 
 	 // Drawing and GUI processing
 	 bool			InitializeGfx(void);
@@ -187,8 +187,8 @@ public:
 	 void			SetX(int x);
 	 inline int		GetY(void)  { return iY; }
 	 void			SetY(int y);
-	 inline int		GetWidth(void)   { if (tPlayerGfx.bmpBackground)  {return tPlayerGfx.bmpBackground->w; } else return -1; }
-	 inline int		GetHeight(void)  { if (tPlayerGfx.bmpBackground)  {return tPlayerGfx.bmpBackground->h; } else return -1; }
+	 inline int		GetWidth(void)   { if(tPlayerGfx.bmpBackground) {return tPlayerGfx.bmpBackground->w; } else return -1; }
+	 inline int		GetHeight(void)  { if(tPlayerGfx.bmpBackground) {return tPlayerGfx.bmpBackground->h; } else return -1; }
 };
 
 // Media player GUI

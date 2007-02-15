@@ -133,7 +133,7 @@ dirent* entry = NULL;
 
 ///////////////////
 // Find the first file
-int FindFirst(char *dir, char *ext, char *filename)
+int FindFirst(const char *dir, char *ext, char *filename)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 	GetExactFileName(getNextFullFileName(dir), _dir);
@@ -221,7 +221,7 @@ dirent* entry2 = NULL;
 
 ///////////////////
 // Find the first dir
-int FindFirstDir(char *dir, char *name)
+int FindFirstDir(const char *dir, char *name)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 	GetExactFileName(getNextFullFileName(dir), _dir2);
@@ -402,7 +402,7 @@ struct _finddata_t fileinfo;
 
 ///////////////////
 // Find the first file
-int FindFirst(char *dir, char *ext, char *filename)
+int FindFirst(const char *dir, char *ext, char *filename)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 	GetExactFileName(getNextFullFileName(dir),_dir);
@@ -496,7 +496,7 @@ struct _finddata_t fileinfo2;
 
 ///////////////////
 // Find the first dir
-int FindFirstDir(char *dir, char *name)
+int FindFirstDir(const char *dir, char *name)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 
