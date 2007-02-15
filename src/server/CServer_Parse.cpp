@@ -250,8 +250,9 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	// TODO: Cheat prevention check: Make sure the victim is one of the client's worms
 
 	// Cheat prevention, game behaves weird if this happens
-	if(vict->getLives() < 0)
+	if(vict->getLives() < 0 && iLives >= 0)  {
 		return;
+	}
 
 	static std::string buf;
 
