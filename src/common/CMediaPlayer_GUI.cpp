@@ -36,7 +36,7 @@ void CPlayerButton::Draw(SDL_Surface *bmpDest)
 int CPlayerButton::MouseDown(mouse_t *tMouse, int nDown)
 {
 	bDown = InBox(tMouse->X,tMouse->Y) != 0;
-	return MP_WID_NONE;
+	return MP_WID_MOUSEDOWN;
 }
 
 ///////////////////////
@@ -398,7 +398,7 @@ std::string COpenAddDir::Execute(std::string default_dir)
 	cOpenGui.Shutdown();
 
 	if (cancelled)
-		return NULL;
+		return "";
 	else  {
 		// Adjust
 		replace(szDir,"//","/",szDir);
@@ -515,33 +515,38 @@ void COpenAddDir::ReFillList(CListview *lv, std::string dir)
 	} else  {
 
 		// Fill in the first directory 
-		snprintf(directory,sizeof(directory),"%s%s",tmp_dir,"..");
+		directory = tmp_dir +"..";
 
 
 		// Add the parent directory
-		lv->AddItem(directory,index++,tLX->clListView);
+		lv->AddItem(directory.c_str(),index++,tLX->clListView);
 		lv->AddSubitem(LVS_TEXT,"..",NULL);
 
 		int selected = 0;
+		int dir_name = 0;
 
-		if(FindFirstDir(tmp_dir,directory)) {
-			fix_markend(directory);
+		static char tmp[1024];
+
+		if(FindFirstDir(tmp_dir.c_str(),tmp)) {
+			fix_markend(tmp);
+			directory = tmp;
 			while(1) {
 				// Extract the directory name from the path
-				dir_name = MAX(strrchr(directory,'\\'),strrchr(directory,'/'));
+				dir_name = findpathsep(directory);
 
 				// Add the directory
 				if (dir_name)  {
-					if (!strcmp(parent_dir,dir_name+1))
+					if (parent_dir == directory.substr(dir_name+1))
 						selected = index;
 
-					lv->AddItem(directory,index++,tLX->clListView);
-					lv->AddSubitem(LVS_TEXT,dir_name+1,NULL);
+					lv->AddItem(directory.c_str(),index++,tLX->clListView);
+					lv->AddSubitem(LVS_TEXT,directory.substr(dir_name+1).c_str(),NULL);
 				}
 
-				if(!FindNextDir(directory))
+				if(!FindNextDir(tmp))
 					break;
-				fix_markend(directory);
+				fix_markend(tmp);
+				directory = tmp;
 			}
 			lv->setSelectedID(selected);
 		}

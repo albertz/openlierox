@@ -93,9 +93,9 @@ int LoadOptions(void)
 
 
     // Video
-    ReadKeyword(f, "Video", "OpenGL",       &tLXOptions->iOpenGL, false);
     ReadKeyword(f, "Video", "Fullscreen",   &tLXOptions->iFullscreen, true);
     ReadKeyword(f, "Video", "ShowFPS",      &tLXOptions->iShowFPS, false);
+    ReadKeyword(f, "Video", "OpenGL",       &tLXOptions->iOpenGL, false);
 
     // Network
     ReadInteger(f, "Network", "Port",       &tLXOptions->iNetworkPort, LX_PORT);

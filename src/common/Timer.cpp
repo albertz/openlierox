@@ -23,13 +23,6 @@ int		Frames = 0;
 float	OldFPSTime = 0;
 int		Fps = 0;
 
-///////////////////
-// Get the number of milliseconds since SDL started the timer
-float GetMilliSeconds(void)
-{
-	return (float)SDL_GetTicks() * 0.001f;
-}
-
 
 ///////////////////
 // Get the frames per second count

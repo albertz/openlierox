@@ -197,7 +197,8 @@ public:
 enum {
 	MP_BTN_CLICK = 0,
 	MP_SLD_CHANGE,
-	MP_TOG_TOGGLE
+	MP_TOG_TOGGLE,
+	MP_WID_MOUSEDOWN
 };
 
 
@@ -291,7 +292,7 @@ public:
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
 	int		MouseUp(mouse_t *tMouse, int nDown);
-	int		MouseDown(mouse_t *tMouse, int nDown) {return MP_WID_NONE; }
+	int		MouseDown(mouse_t *tMouse, int nDown) {return MP_WID_MOUSEDOWN; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		KeyDown(int c)						{ return MP_WID_NONE; }

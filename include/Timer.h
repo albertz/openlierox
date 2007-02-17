@@ -20,9 +20,13 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-float	GetMilliSeconds(void);
-int		GetFPS(void);
-void	GetTime(char cTime[26]);
+///////////////////
+// Get the number of milliseconds since SDL started the timer
+inline float	GetMilliSeconds(void) { return (float)SDL_GetTicks() * 0.001f; }
+
+
+int				GetFPS(void);
+void			GetTime(char cTime[26]);
 
 
 

@@ -608,7 +608,7 @@ void TakeScreenshot(bool Tournament)
 	}
 
 	// Save the surface
-	SaveSurface(SDL_GetVideoSurface(),checkname,tLXOptions->iScreenshotFormat,Tournament);
+	SaveSurface(SDL_GetVideoSurface(),checkname,tLXOptions->iScreenshotFormat,Tournament && cServer->getTakeScreenshot());
 }
 
 #ifdef WIN32

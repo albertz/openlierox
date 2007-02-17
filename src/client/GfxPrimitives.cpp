@@ -1420,8 +1420,10 @@ bool SaveSurface(SDL_Surface *image, char *FileName, int Format, bool Tournament
 			FILE *f = OpenGameFile(FileName,"ab");
 			if (!f)
 				return false;
-			if (!cServer->WriteLogToFile(f))
+			if (!cServer->WriteLogToFile(f))  {
+				fclose(f);
 				return false;
+			}
 			fclose(f);
 
 		}

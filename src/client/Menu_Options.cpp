@@ -320,7 +320,7 @@ void Menu_OptionsFrame(void)
 // 	static const char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"}; // TODO: not used
 	int			val;
 
-	CCheckbox	*c;
+	CCheckbox	*c,*c2;
 	//CSlider		*s;
 
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer,  180,110,  180,110,  300,30);
@@ -513,8 +513,8 @@ void Menu_OptionsFrame(void)
 		c = (CCheckbox *)cOpt_System.getWidget(os_Fullscreen);
 		int fullscr = c->getValue();
 		// OpenGL accel value
-		c = (CCheckbox *)cOpt_System.getWidget(os_OpenGL);
-		int opengl = c->getValue ();
+		c2 = (CCheckbox *)cOpt_System.getWidget(os_OpenGL);
+		int opengl = c2->getValue ();
 
 		// FIXME: WARNING! If OpenGL acceleration is not supported,
 		//                 this could lead to a crash!

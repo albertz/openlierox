@@ -621,48 +621,82 @@ void CMediaPlayer::Frame(void)
 		ev = cPlayerGui.Process();
 	if (ev)  {
 		switch (ev->iControlID)  {
+
+		// Next song
 		case mp_Next:
-			Forward();
+			if (ev->iEventMsg == MP_BTN_CLICK)  
+				Forward();
 			break;
+
+		// Pause/resume
 		case mp_Pause:
-			PauseResume();
-			break;
-		case mp_Play:
-			Play();
-			break;
-		case mp_Previous:
-			Rewind();
-			break;
-		case mp_Repeat:
-			SetRepeatPlaylist(((CPlayerToggleBtn *)(cPlayerGui.getWidget(mp_Repeat)))->isOn());
-			break;
-		case mp_Shuffle:
-			SetShufflePlaylist(((CPlayerToggleBtn *)(cPlayerGui.getWidget(mp_Shuffle)))->isOn());
-			break;
-		case mp_SelectDir:  {
-			if (!Paused() && Playing())
+			if (ev->iEventMsg == MP_BTN_CLICK)
 				PauseResume();
-			std::string dir = cOpenDialog.Execute("C:\\");
-			if(dir.size()>0)  {
-				tPlayList.Load(dir,cOpenDialog.getIncludeSubdirs(),cOpenDialog.getAdd());
-				if (!cOpenDialog.getAdd())
-					Stop();
-			}
-			if (Playing())
+			break;
+
+		// Play
+		case mp_Play:
+			if (ev->iEventMsg == MP_BTN_CLICK)
 				Play();
+			break;
+
+		// Previous song or rewind
+		case mp_Previous:
+			if (ev->iEventMsg == MP_BTN_CLICK)
+				Rewind();
+			break;
+
+		// Toggle repeat
+		case mp_Repeat:
+			if (ev->iEventMsg == MP_TOG_TOGGLE)
+				SetRepeatPlaylist(((CPlayerToggleBtn *)(cPlayerGui.getWidget(mp_Repeat)))->isOn());
+			break;
+
+		// Toggle shuffle
+		case mp_Shuffle:
+			if (ev->iEventMsg == MP_TOG_TOGGLE)
+				SetShufflePlaylist(((CPlayerToggleBtn *)(cPlayerGui.getWidget(mp_Shuffle)))->isOn());
+			break;
+
+		// Select directory dialog
+		case mp_SelectDir:  {
+			if (ev->iEventMsg == MP_BTN_CLICK)  {
+				if (!Paused() && Playing())
+					PauseResume();
+				std::string dir = cOpenDialog.Execute("C:\\");
+				if(dir.size()>0)  {
+					tPlayList.Load(dir,cOpenDialog.getIncludeSubdirs(),cOpenDialog.getAdd());
+					if (!cOpenDialog.getAdd())
+						Stop();
+				}
+				if (Playing())
+					Play();
+				}
 			}
 			break;
+
+		// Stop button
 		case mp_Stop:
-			Stop();
+			if (ev->iEventMsg == MP_BTN_CLICK)
+				Stop();
 			break;
+
+		// Music volume changed
 		case mp_MusicVol:
+			if (ev->iEventMsg == MP_SLD_CHANGE)
 			SetMusicVolume((byte)((CPlayerSlider *)(cPlayerGui.getWidget(mp_MusicVol)))->GetValue());
 			break;
+
+		// Game volume changed
 		case mp_GameVol:
-			SetSoundVolume(((CPlayerSlider *)(cPlayerGui.getWidget(mp_GameVol)))->GetValue());
+			if (ev->iEventMsg == MP_SLD_CHANGE)
+				SetSoundVolume(((CPlayerSlider *)(cPlayerGui.getWidget(mp_GameVol)))->GetValue());
 			break;
+
+		// Hide button
 		case mp_Hide:
-			SetDrawPlayer(false);
+			if (ev->iEventMsg == MP_BTN_CLICK)
+				SetDrawPlayer(false);
 			break;
 		}
 	} else {
@@ -690,6 +724,13 @@ void CMediaPlayer::Frame(void)
 			bGrabbed = false;
 			iLastMouseX = 0;
 			iLastMouseY = 0;
+		}
+
+		// Hide on ESC
+		if (GetKeyboard()->KeyDown[SDLK_ESCAPE])  {
+			bDrawPlayer = false;
+			if (tMenu->iMenuRunning)
+				Menu_redrawBufferRect(iX,iY,GetWidth(),GetHeight());
 		}
 	}
 }

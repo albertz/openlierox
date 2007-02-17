@@ -202,8 +202,11 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	// TODO: is it safe to call ShutdownLieroX()?
 	SDL_Quit();
 
+	// Close all opened files
+	fcloseall();
+
 	// Notify the user
-	static char buf[1024];
+	char buf[1024];  // Static not needed here
 	//sprintf(buf,"An error occured in OpenLieroX\n\nThe development team asks you for sending the crash report file.\nThis will help fixing this bug.\n\nPlease send the crash report file to karel.petranek@tiscali.cz.\n\nThe file is located in:\n %s",checkname);
 	//MessageBox(0,buf,"An Error Has Occured",MB_OK);
 

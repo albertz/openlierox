@@ -69,7 +69,7 @@ typedef struct {
 	int		iFullscreen;
 	int		iShowFPS;
 	int		iOpenGL;
-	char	sResolution[9];
+	char	sResolution[5];
 
 	// Network
 	int		iNetworkPort;

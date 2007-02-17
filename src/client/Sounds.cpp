@@ -315,8 +315,6 @@ id3v1_t GetMP3Info(const char *file)
 		return info;
 	}
 
-	size_t size = ftell(fp);
-
 	// Read the ID3 tag
 	if (!fread(&info,sizeof(id3v1_t),1,fp))  {
 		memset(&info,0,sizeof(id3v1_t));

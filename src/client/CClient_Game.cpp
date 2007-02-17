@@ -124,6 +124,7 @@ void CClient::Simulation(void)
 			}
 
 			// If the worm is using a weapon with a laser sight, spawn a laser sight
+			// ALERT: sometimes weapon is undefined and causes crash when the game starts!
 			if(w->getCurWeapon()->Weapon->LaserSight) {
 					LaserSight(w);
 			}
@@ -172,10 +173,6 @@ void CClient::Simulation(void)
 // Simulate the projectiles
 void CClient::SimulateProjectiles(float dt)
 {
-	// Don't simulate so often - increase FPS
-	/*fProjSimulateTime += tLX->fDeltaTime;
-	if (fProjSimulateTime < 10.0f)
-		return;*/
 
 	CProjectile *prj = cProjectiles;
 	int a,i;
