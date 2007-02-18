@@ -54,7 +54,7 @@ private:
 public:
 	// Methods
 
-	int				Load(char *fontname, int _colour, int _width);
+	int				Load(const std::string& fontname, int _colour, int _width);
 	void			CalculateWidth(void);
 
 	void			PreCalculate(SDL_Surface *bmpSurf, Uint32 colour);

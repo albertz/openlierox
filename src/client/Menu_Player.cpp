@@ -767,67 +767,41 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 
 ///////////////////
 // Fill the skin combo box
-void Menu_Player_FillSkinCombo(CCombobox *cb)
-{
+void Menu_Player_FillSkinCombo(CCombobox *cb) {
     if( !cb )
         return;
 
-   static char szFilename[256];
-   static char szName[256];
-
-    cb->clear();
-
-    if( !FindFirst("skins", "*", szFilename) )
-        return;
-
-    int index = 0;
+	cb->clear();
     int def = -1;
-
-	/*SDL_Surface *tmp = NULL;
-	SDL_Surface *tmp2 = gfxCreateSurface(16,16);
-	SDL_SetColorKey(tmp2,SDL_SRCCOLORKEY,tLX->clPink);*/
-
-    while(1) {
-
-        // Get the extension
-        char ext[8];
-        fix_strncpy(ext, szFilename+fix_strnlen(szFilename)-4);
-
-        // Is this a image type filename?
-        if( stricmp(ext,".tga")==0 ||
-            stricmp(ext,".png")==0 ||
-            stricmp(ext,".bmp")==0 ||
-            stricmp(ext,".pcx")==0) {
-
-            fix_strncpy(szName, szFilename);
-
-            // Remove the dir
-            char *n = MAX(strrchr(szName,'\\'),strrchr(szName,'/'));
-            char *f = MAX(strrchr(szFilename,'\\'),strrchr(szFilename,'/'));
-
-			// Remove the extension
-			char *dot = strrchr(szName,'.');
-			if (dot)
-				*dot = 0;
-
-            cb->addItem(index, f+1, n+1);
-			/*tmp = LoadImage(szFilename,false);
-			if (tmp && tmp2)  {
-				DrawImageEx(tmp2,tmp,0,0,16,16);
-				cb->setImage(tmp2,index);
-			}*/
-
-			index++;
-
-            // If this is the default skin, store the index for selection later
-            if( stricmp(n+1,"default") == 0 )
-                def = index-1;
-        }
-
-        if( !FindNext(szFilename) )
-            break;
-    }
-
+        
+	class SkinAdder { public:
+	   	CCombobox* cb;
+	   	int* def;
+	   	int index;
+		SkinAdder(CCombobox* cb_, int* d) : cb(cb_), def(d), index(0) {}
+		inline bool operator() (const std::string& file) {
+			std::string ext = file.substr(file.size()-4);
+			if(stringcasecmp(ext, ".tga")==0
+			|| stringcasecmp(ext, ".png")==0
+			|| stringcasecmp(ext, ".bmp")==0
+			|| stringcasecmp(ext, ".pcx")==0) {
+				size_t slash = findLastPathSep(file);
+				if(slash != std::string::npos)
+					file.erase(0, slash+1);
+				
+				std::string name = file.substr(0, file.size()-4);
+				cb->AddItem(index, file, name);
+				
+				if(stringcasecmp(name, "default")==0)
+					*def = index;
+				
+				index++;
+			}
+			return true;
+		}
+	};
+    FindFiles(SkinAdder(cb, &def), "skins", FM_REG);
+    
 	// Ascending sort the list
 	cb->Sort(true);
 

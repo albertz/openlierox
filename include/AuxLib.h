@@ -82,7 +82,7 @@ std::string	GetGameName(void);
 
 std::string GetConfigFile(void);
 
-int         GetClipboardText(std::string& szText);
+std::string GetClipboardText();
 int         SetClipboardText(const std::string& szText);
 void        TakeScreenshot(bool Tournament);
 

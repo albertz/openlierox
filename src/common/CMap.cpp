@@ -317,65 +317,36 @@ int CMap::LoadTheme(char *_theme)
 
 ///////////////////
 // Finds a theme at random and returns the name
-char *CMap::findRandomTheme(char *buf)
+std::string CMap::findRandomTheme()
 {
-    assert(buf);
-    buf[0] = 0;
-
     // Find directories in the theme dir
-	static char dir[512];
-	char *d;
-    int count=-1;
+	typedef std::list<std::string> themelist;
+	themelist themes;
 
     // Count the number of themes
-    if(FindFirstDir("data/themes",dir)) {
-    	fix_markend(dir);
-        count = 0;
-		while(1) {
-			d = MAX(strrchr(dir,'/'),strrchr(dir, '\\'))+1;
-            // Make sure the theme is valid
-            if( validateTheme(d) )
-			    count++;
-
-			if(!FindNextDir(dir))
-				break;
-	    	fix_markend(dir);
+	class ThemesCounter { public:
+		themelist* themes;
+		ThemesCounter(themelist* t) : themes(t) {}
+		inline bool operator() (const std::string& dir) {
+			size_t pos = findLastPathSep(dir);
+			std::string theme = dir.substr(pos+1);
+			if(validateTheme(theme))
+				themes.push_back(theme);
+			return true;
 		}
+	};
+	FindFiles(ThemesCounter(&themes), "data/themes", FM_DIR);
+
+	if(themes.size() == 0) {
+		// If we get here, then default to dirt
+		d_printf("CMap::findRandomTheme(): no themes found\n");
+		d_printf("                         Defaulting to \"dirt\"\n");
+		return "dirt";
 	}
 
     // Get a random number
-    int t = GetRandomInt(count);
-
-    // Count the number of themes
-    if(FindFirstDir("data/themes",dir)) {
-    	fix_markend(dir);
-       count = 0;
-		while(1) {
-			d = MAX(strrchr(dir,'/'),strrchr(dir, '\\'))+1;
-           	// Make sure the theme is valid
-            if( validateTheme(d) ) {
-
-                // Is this the theme to choose?
-                if( count == t ) {
-                    strcpy(buf,d);
-                    return buf;
-                }
-			    count++;
-            }
-
-			if(!FindNextDir(dir))
-				break;
- 		   	fix_markend(dir);
-		}
-	}
-
-    // If we get here, then default to dirt
-    d_printf("CMap::findRandomTheme(): Couldn't find a random theme\n");
-    d_printf("                         Defaulting to \"dirt\"\n");
-
-    strcpy(buf,"dirt");
-
-    return buf;
+    int t = GetRandomInt(themes.size()-1);
+    return themes[t];
 }
 
 

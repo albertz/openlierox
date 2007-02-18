@@ -95,7 +95,7 @@ typedef struct {
 	int		iShowHealth;
 	int		iColorizeNicks;
 	int		iAutoTyping;
-	char	sSkinPath[128];
+	std::string	sSkinPath;
 
     // Advanced
     int     nMaxFPS;

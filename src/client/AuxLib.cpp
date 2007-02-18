@@ -472,13 +472,15 @@ SDL_Event *GetEvent(void)
 ///////////////////
 // Get text from the clipboard
 // Returns the length of the text (0 for no text)
-int GetClipboardText(std::string& szText) {
+std::string GetClipboardText() {
 #ifdef WIN32
+	std::string szText;
+    
     // Get the window handle
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if(!SDL_GetWMInfo(&info))
-		return 0;
+		return "";
 
 	HWND    WindowHandle = info.window;
     HANDLE  CBDataHandle; // handle to the clipboard data
@@ -497,7 +499,7 @@ int GetClipboardText(std::string& szText) {
                 GlobalUnlock(CBDataHandle);
                 CloseClipboard();
 
-                return szText.size();
+                return szText;
             }
         }
     }
@@ -505,7 +507,7 @@ int GetClipboardText(std::string& szText) {
 	// TODO: how to do on linux?
 #endif
 
-    return 0;
+    return "";
 }
 
 ///////////////////

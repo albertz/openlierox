@@ -48,14 +48,13 @@ int LoadOptions(void)
 	// tmp is for 'SearchPathX'
 	// tmp2 is the number (X)
 	// tmp3 is the data (the path)
-	char tmp2[30];
-	std::string tmp3;
+	std::string value;
 	i = 1;
 	while(true) {
-		if(!ReadString(f, "FileHandling", "SearchPath" + itoa(i, tmp2, 10), tmp3, NULL))
+		if(!ReadString(f, "FileHandling", "SearchPath" + itoa(i, 10), value, NULL))
 			break;
 
-		AddToFileList(&tLXOptions->tSearchPaths, tmp3);
+		AddToFileList(&tLXOptions->tSearchPaths, value);
 		i++;
 	}
 	for(searchpathlist::const_iterator p = basesearchpaths.begin(); p != basesearchpaths.end(); i++)  {

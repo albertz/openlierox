@@ -47,7 +47,7 @@ int		ReadVec(const std::string& filename, const std::string& section, const std:
 
 // Keywords
 typedef struct {
-	char key[64];
+	std::string key;
 	int  Value;
 } keyword_t;
 

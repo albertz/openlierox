@@ -255,7 +255,7 @@ void FindFiles(
 ) {
 	if(namefilter != "*" && namefilter != "")
 		printf("FindFiles: WARNING: filter %s isn't handled yet\n", namefilter.c_str());
-	ForEachSearchpathh(FindFilesHandler<_handler>(dir, namefilter, modefilter, handler));
+	ForEachSearchpath(FindFilesHandler<_handler>(dir, namefilter, modefilter, handler));
 }
 
 

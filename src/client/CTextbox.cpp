@@ -635,18 +635,16 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 // Paste some text from the clipboard
 void CTextbox::PasteText(void)
 {
-    static char text[MAX_TEXTLENGTH];
+	std::string text;
 
 	if(iSelLength)
 		Delete();
 
-    int length = GetClipboardText(text, MAX_TEXTLENGTH-1);
+    text = GetClipboardText();
 
-    if(length > 0 ) {
-        // Insert the text
-        for( int i=0; i<length; i++)
-            Insert( text[i] );
-    }
+	// Insert the text
+	for(std::string::const_iterator i = text.begin(); i != text.end(); i++)
+		Insert( *i );
 }
 
 ///////////////////
