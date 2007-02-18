@@ -22,10 +22,10 @@
 // Write my info to a bytestream
 void CWorm::writeInfo(CBytestream *bs)
 {
-	bs->writeString("%s",sName);
+	bs->writeString(sName);
 	bs->writeInt(iType,1);
 	bs->writeInt(iTeam,1);
-    bs->writeString("%s",szSkin);
+    bs->writeString(szSkin);
 
 	for(int i=0;i<3;i++)
 		bs->writeInt(iColComps[i],1);
@@ -36,11 +36,11 @@ void CWorm::writeInfo(CBytestream *bs)
 // Read info from a bytestream
 void CWorm::readInfo(CBytestream *bs)
 {
-	bs->readString(sName, sizeof(sName));
+	sName = bs->readString();
 
 	iType = MAX(MIN(bs->readInt(1),1),0);
 	iTeam = MAX(MIN(bs->readInt(1),3),0);
-    bs->readString(szSkin, sizeof(szSkin));
+    szSkin = bs->readString();
 
 	Uint8 r = bs->readByte();
 	Uint8 g = bs->readByte();

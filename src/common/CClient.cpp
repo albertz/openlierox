@@ -339,10 +339,10 @@ void CClient::SendPackets(void)
 
 ///////////////////
 // Start a connection with the server
-void CClient::Connect(char *address)
+void CClient::Connect(const std::string& address)
 {
 	iNetStatus = NET_CONNECTING;
-	fix_strncpy(strServerAddr,address);
+	strServerAddr = address;
 	iNumConnects=0;
 	iBadConnection = false;
 
@@ -387,7 +387,7 @@ void CClient::Connecting(void)
 	SetRemoteNetAddr(tSocket,&addr);
 	bs.Send(tSocket);
 
-	printf("HINT: sending challenge request to %s\n", strServerAddr);
+	printf("HINT: sending challenge request to %s\n", strServerAddr.c_str());
 }
 
 

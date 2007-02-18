@@ -37,8 +37,8 @@ banlist_t *CBanList::findBanned(const std::string& szAddress)
 
 	// Remove the port from the address
 	std::string addr = szAddress;
-	size_t p = addr.find(':');
-	if(p != std::string::npos) {
+	size_t pos = addr.find(':');
+	if(pos != std::string::npos) {
 		addr.erase(pos);
 	}
 	TrimSpaces( addr );
@@ -63,8 +63,8 @@ int CBanList::getIdByAddr(const std::string& szAddress)
 
 	// Remove the port from the address
 	std::string addr = szAddress;
-	size_t p = addr.find(':');
-	if(p != std::string::npos) {
+	size_t pos = addr.find(':');
+	if(pos != std::string::npos) {
 		addr.erase(pos);
 	}
 	TrimSpaces( addr );
@@ -87,7 +87,7 @@ void CBanList::addBanned(const std::string& szAddress, const std::string& szNick
 {
 	// Remove the port from the address
 	std::string addr = szAddress;
-	size_T p = addr.find(':');
+	size_t p = addr.find(':');
 	if(p != std::string::npos) {
 		addr.erase(p);
 	}
@@ -97,13 +97,8 @@ void CBanList::addBanned(const std::string& szAddress, const std::string& szNick
     if( !psWorm )
         return;
 
-    size_t len = szNick.size();
-    psWorm->szNick = new char[ len+1 ];
-    memcpy(psWorm->szNick, szNick, len+1);
-    
-    len = strlen(addr);
-    psWorm->szAddress = new char[ len+1 ];
-    memcpy(psWorm->szAddress, addr, len+1);
+    psWorm->szNick = szNick;
+    psWorm->szAddress = addr;
     
     // Link it in
     psWorm->psNext = m_psBanList;
@@ -122,7 +117,7 @@ void CBanList::removeBanned(const std::string& szAddress)
 {
 	// Remove the port from the address
 	std::string addr = szAddress;
-	size_t p = addr.find(':');
+	size_t pos = addr.find(':');
 	if(p != std::string::npos) {
 		addr.erase(pos);
 	}
@@ -143,8 +138,6 @@ void CBanList::removeBanned(const std::string& szAddress)
 		  m_psBanList = NULL;  // the worm is (was) the only one in the list
 		
 		// Unban the worm
-		delete[] psWorm->szNick;
-		delete[] psWorm->szAddress;
 		delete psWorm;
 		psWorm = NULL;
 	}
@@ -155,8 +148,6 @@ void CBanList::removeBanned(const std::string& szAddress)
 			psPrevWorm->psNext = NULL;  // our worm is the last in the list
 		
 		// Unban the worm
-		delete[] psWorm->szNick;
-		delete[] psWorm->szAddress;
 		delete psWorm;
 		psWorm = NULL;
 	}
@@ -186,7 +177,7 @@ void CBanList::saveList(const std::string& szFilename)
 	else {
 		for(; psWorm; psWorm=psWorm->psNext) {
 
-			fprintf(fp, "%s,%s\n", psWorm->szAddress, psWorm->szNick);
+			fprintf(fp, "%s,%s\n", psWorm->szAddress.c_str(), psWorm->szNick.c_str());
 		}
 	}  // else
 
@@ -272,8 +263,7 @@ int CBanList::getNumItems(void)
 
 ///////////////////
 // Create a sorted list
-void CBanList::sortList(void)
-{
+void CBanList::sortList(void) {
     int i, j;
 
     // Free any previous list
@@ -305,7 +295,7 @@ void CBanList::sortList(void)
    	for(i=0; i<m_nCount; i++) {
 		for(j=0; j<m_nCount-1-i; j++) {
 
-            if( strcmp(m_psSortedList[j].psLink->szNick, m_psSortedList[j+1].psLink->szNick) > 0 ) {
+            if( m_psSortedList[j].psLink->szNick.compare( m_psSortedList[j+1].psLink->szNick) > 0 ) {
 
                 // Swap the 2 items
                 temp = m_psSortedList[j];
@@ -318,15 +308,13 @@ void CBanList::sortList(void)
 
 ///////////////////
 // Path to the ban list file
-std::string CBanList::getPath(void)
-{
+std::string CBanList::getPath(void) {
 	return m_szPath;
 }
 
 ///////////////////
 // Get the specified item
-banlist_t *CBanList::getItemById(int ID)
-{
+banlist_t *CBanList::getItemById(int ID) {
     if (ID > m_nCount || ID < 0)
 		return NULL;
 	banlist_t *psWorm = m_psBanList;
@@ -340,7 +328,6 @@ banlist_t *CBanList::getItemById(int ID)
 	}
 
 	return NULL;
-	
 }
 
 ///////////////////
@@ -352,11 +339,6 @@ void CBanList::Shutdown(void)
 
      for(; psWorm; psWorm=psNext) {
          psNext = psWorm->psNext;
-
-         if( psWorm->szNick )
-             delete[] psWorm->szNick;
-		 if( psWorm->szAddress )
-             delete[] psWorm->szAddress;
 
          delete psWorm;
      }

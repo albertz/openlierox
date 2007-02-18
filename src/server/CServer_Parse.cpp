@@ -1136,7 +1136,7 @@ void CServer::ParseQuery(CBytestream *bs)
 	bytestr.writeInt(-1,4);
 	bytestr.writeString("%s","lx::queryreturn");
 
-	bytestr.writeString("%s",sName);
+	bytestr.writeString(sName);
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
 	bytestr.writeByte(iState);
@@ -1161,14 +1161,14 @@ void CServer::ParseGetInfo(void)
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::serverinfo");
 
-	bs.writeString("%s",sName);
+	bs.writeString(sName);
 	bs.writeByte(iMaxWorms);
 	bs.writeByte(iState);
 
     // If in lobby
     if(iState == SVS_LOBBY && gl->nSet) {
-	    bs.writeString("%s",gl->szMapName);
-        bs.writeString("%s",gl->szModName);
+	    bs.writeString(gl->szMapName);
+        bs.writeString(gl->szModName);
 	    bs.writeByte(gl->nGameMode);
 	    bs.writeShort(gl->nLives);
 	    bs.writeShort(gl->nMaxKills);
@@ -1177,8 +1177,8 @@ void CServer::ParseGetInfo(void)
     }
     // If in game
     else if(iState == SVS_PLAYING) {
-        bs.writeString("%s",sMapFilename);
-        bs.writeString("%s",sModName);
+        bs.writeString(sMapFilename);
+        bs.writeString(sModName);
 	    bs.writeByte(iGameType);
 	    bs.writeShort(iLives);
 	    bs.writeShort(iMaxKills);
@@ -1187,8 +1187,8 @@ void CServer::ParseGetInfo(void)
     }
 	// Loading
 	else {
-        bs.writeString("%s",tGameInfo.sMapname);
-        bs.writeString("%s",tGameInfo.sModName);
+        bs.writeString(tGameInfo.sMapname);
+        bs.writeString(tGameInfo.sModName);
 	    bs.writeByte(tGameInfo.iGameType);
 	    bs.writeShort(tGameInfo.iLives);
 	    bs.writeShort(tGameInfo.iKillLimit);
@@ -1210,7 +1210,7 @@ void CServer::ParseGetInfo(void)
     w = cWorms;
 	for(p=0;p<MAX_WORMS;p++,w++) {
         if(w->isUsed()) {
-            bs.writeString("%s",w->getName());
+            bs.writeString(w->getName());
             bs.writeInt(w->getKills(), 2);
         }
     }

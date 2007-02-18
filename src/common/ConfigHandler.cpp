@@ -33,7 +33,7 @@ int AddKeyword(std::string& key, int value)
 	if(NumKeywords >= MAX_KEYWORDS-1)
 		return false;
 
-	fix_strncpy(Keywords[NumKeywords].key,key);
+	Keywords[NumKeywords].key = key;
 	Keywords[NumKeywords++].Value = value;
 
 	return true;
@@ -46,7 +46,7 @@ int AddKeyword(std::string& key, int value)
 int ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
 	int n;
-	static char string[MAX_MINOR_LENGTH];
+	static std::string string;
 	
 	*value = defaultv;
 
@@ -55,7 +55,7 @@ int ReadKeyword(const std::string& filename, const std::string& section, const s
 
 	// Try and find a keyword with matching keys
 	for(n=0;n<NumKeywords;n++) {
-		if(stricmp(string,Keywords[n].key) == 0) {
+		if(stringcasecmp(string,Keywords[n].key) == 0) {
 			*value = Keywords[n].Value;
 			return true;
 		}
@@ -69,7 +69,7 @@ int ReadKeyword(const std::string& filename, const std::string& section, const s
 bool ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv)
 {
 	int n;
-	static char string[MAX_MINOR_LENGTH];
+	static std::string string;
 	
 	*value = defaultv;
 
@@ -78,7 +78,7 @@ bool ReadKeyword(const std::string& filename, const std::string& section, const 
 
 	// Try and find a keyword with matching keys
 	for(n=0;n<NumKeywords;n++) {
-		if(stricmp(string,Keywords[n].key) == 0) {
+		if(stringcasecmp(string,Keywords[n].key) == 0) {
 			*value = Keywords[n].Value != 0;
 			return true;
 		}
@@ -92,13 +92,12 @@ bool ReadKeyword(const std::string& filename, const std::string& section, const 
 // Read an interger from a file
 int ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
-	static char string[MAX_MINOR_LENGTH];
+	static std::string string;
 
 	*value = defaultv;
 	
 	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
-	fix_markend(string);
 	
 	*value = atoi(string);
 
@@ -110,9 +109,9 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 // Read a string from a file
 int ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv)
 {
-	if(defaultv != NULL) dyn_strncpy(value,defaultv,maxvaluelen);
+	value = defaultv;
 
-	return GetString(filename,section,key,value,maxvaluelen);
+	return GetString(filename,section,key,value);
 
 	/*int result = GetString(filename,section,key,value);
 
@@ -127,11 +126,11 @@ int ReadString(const std::string& filename, const std::string& section, const st
 // Read a float from a file
 int ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv)
 {
-	static char string[MAX_MINOR_LENGTH];
+	static std::string string;
 
 	*value = defaultv;
 	
-	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
+	if(!GetString(filename,section,key,string))
 		return false;
 
 	*value = (float)atof(string);
@@ -144,11 +143,11 @@ int ReadFloat(const std::string& filename, const std::string& section, const std
 // Read a colour
 int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Uint32 *value, Uint32 defaultv)
 {
-	static char string[MAX_MINOR_LENGTH];
+	static std::string string;
 
 	*value = defaultv;
 	
-	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
+	if(!GetString(filename,section,key,string))
 		return false;
 
 	*value = StrToCol(string);
@@ -161,12 +160,12 @@ int ReadColour(const std::string& filename, const std::string& section, const st
 // Reads an array of integers
 int ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items)
 {
-	static char string[MAX_MINOR_LENGTH];
+	static std::string string;
 
 	if (!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
 
-	std::string& tok = strtok(string,",");
+	std::string tok = strtok(string,",");
 	int i=0;
 	while(tok && i < num_items)  {
 		array[i++] = atoi(tok);
@@ -193,21 +192,18 @@ int GetString(const std::string& filename, const std::string& section, const std
 	char	*chardest = NULL;
 	int		Position;
 	int		found = false;
-
-	if (!filename || !section || !key || !string)
-		return false;
 	
-	if(strcmp(filename,"") == 0)
+	if(filename == "")
 		return false;
 
 	config = OpenGameFile(filename,"rt");
 	if(!config)	
 		return false;
 
-	strcpy(string,"");
-	strcpy(curSection,"");
-	strcpy(temp,"");
-	strcpy(curKey,"");
+	string="";
+	curSection="";
+	temp="";
+	curKey="";
 
 
 	while(!feof(config))
@@ -247,7 +243,7 @@ int GetString(const std::string& filename, const std::string& section, const std
 			{				
 				// Get the value
 				fix_strncpy(tmpLine,Line+Position);
-				dyn_strncpy(string, TrimSpaces(tmpLine), maxstrlen);
+				string = TrimSpaces(tmpLine);
 				found = true;
 				break;
 			}

@@ -65,7 +65,7 @@ public:
     banlist_t   *getList(void);
     int         getNumItems(void);
 
-	char		*getPath(void);
+	std::string getPath(void);
 	banlist_t	*getItemById(int ID);
 	int			getIdByAddr(const std::string& szAddress);
 

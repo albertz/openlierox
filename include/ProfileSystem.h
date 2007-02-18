@@ -57,7 +57,7 @@ void	ShutdownProfiles(void);
 
 void    AddDefaultPlayers(void);
 void	SaveProfile(FILE *fp, profile_t *p);
-void    AddProfile(char *name, char *skin, char *username, char *password,  int R, int G, int B, int type, int difficulty);
+void    AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty);
 void	LoadProfile(FILE *fp, int id);
 int		FindProfileID(void);
 void	DeleteProfile(int id);
@@ -67,7 +67,7 @@ profile_t *GetProfiles(void);
 profile_t *FindProfile(int id);
 
 // General function for all to use
-SDL_Surface *LoadSkin(char *szSkin, int colR, int colG, int colB);
+SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB);
 
 
 

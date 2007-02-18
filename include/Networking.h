@@ -97,13 +97,13 @@ bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr* addr);
 bool	SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr* addr);
 bool	IsNetAddrValid(NetworkAddr* addr);
 bool	SetNetAddrValid(NetworkAddr* addr, bool valid);
-bool	StringToNetAddr(const char* string, NetworkAddr* addr);
-bool	NetAddrToString(const NetworkAddr* addr, char* string);
+bool	StringToNetAddr(const std::string& string, NetworkAddr* addr);
+bool	NetAddrToString(const NetworkAddr* addr, std::string& string);
 unsigned short GetNetAddrPort(NetworkAddr* addr);
 bool	SetNetAddrPort(NetworkAddr* addr, unsigned short port);
 bool	AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2);
-bool	GetNetAddrFromNameAsync(const char* name, NetworkAddr* addr);
-void	AddToDnsCache(std::string name, const NetworkAddr* addr);
-bool	GetFromDnsCache(std::string name, NetworkAddr* addr);
+bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr* addr);
+void	AddToDnsCache(const std::string& name, const NetworkAddr* addr);
+bool	GetFromDnsCache(const std::string& name, NetworkAddr* addr);
 
 #endif  //  __NETWORKING_H__

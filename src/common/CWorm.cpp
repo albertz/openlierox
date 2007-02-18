@@ -272,7 +272,7 @@ int CWorm::LoadGraphics(int gametype)
         r = tProfile->R;
         g = tProfile->G;
         b = tProfile->B;
-        fix_strncpy(szSkin, tProfile->szSkin);
+        szSkin = tProfile->szSkin;
     }
 
 

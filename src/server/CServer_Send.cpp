@@ -36,7 +36,7 @@ void CServer::SendGlobalPacket(CBytestream *bs)
 
 ///////////////////
 // Send all the clients a string of text
-void CServer::SendGlobalText(const std::string& text, int type) {
+void CServer::SendGlobalText(const char* text, int type) {
 	CBytestream bs;
 	bs.writeByte(S2C_TEXT);
 	bs.writeInt(type,1);

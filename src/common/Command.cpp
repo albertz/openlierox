@@ -603,7 +603,7 @@ void Cmd_Help() {
 }
 
 void Cmd_About() {
-	Con_Printf(CNC_NOTIFY,"%s v%s",GetGameName(),LX_VERSION);
+	Con_Printf(CNC_NOTIFY,"%s v%s",GetGameName().c_str(),LX_VERSION);
 }
 
 void Cmd_BadWord() {

@@ -165,7 +165,7 @@ int CServer::StartGame(void)
 	iMaxKills =		 tGameInfo.iKillLimit;
 	iTimeLimit =	 tGameInfo.iTimeLimit;
 	iTagLimit =		 tGameInfo.iTagLimit;
-	fix_strncpy(sModName, tGameInfo.sModName);
+	sModName = tGameInfo.sModName;
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
 	iBonusesOn =	 tGameInfo.iBonusesOn;
 	iShowBonusName = tGameInfo.iShowBonusName;
@@ -201,8 +201,8 @@ int CServer::StartGame(void)
 	for (i=0;i<iNumPlayers;i++)  {
 		tGameLog->tWorms[i].bLeft = false;
 		tGameLog->tWorms[i].iID = cWorms[i].getID();
-		fix_strncpy(tGameLog->tWorms[i].sName, cWorms[i].getName());
-		fix_strncpy(tGameLog->tWorms[i].sSkin, cWorms[i].getSkin());
+		tGameLog->tWorms[i].sName = cWorms[i].getName();
+		tGameLog->tWorms[i].sSkin = cWorms[i].getSkin();
 		tGameLog->tWorms[i].iKills = 0;
 		tGameLog->tWorms[i].iLives = tGameInfo.iLives;
 		tGameLog->tWorms[i].iLeavingReason = -1;
@@ -240,7 +240,7 @@ int CServer::StartGame(void)
 	}
 
 	iRandomMap = false;
-	if(stricmp(tGameInfo.sMapname,"_random_") == 0)
+	if(stringcasecmp(tGameInfo.sMapname,"_random_") == 0)
 		iRandomMap = true;
 
 	if(iRandomMap) {
@@ -255,10 +255,9 @@ int CServer::StartGame(void)
 
 	} else {
 
-		fix_strncpy(sMapFilename,"levels/");
-		fix_strncat(sMapFilename, tGameInfo.sMapname);
+		sMapFilename = std::string("levels/") + tGameInfo.sMapname;
 		if(!cMap->Load(sMapFilename)) {
-			printf("Error: Could not load the '%s' level\n",sMapFilename);
+			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
 		}
 	}
@@ -350,7 +349,7 @@ int CServer::StartGame(void)
 	bs.writeInt(iShowBonusName, 1);
 	if(iGameType == GMT_TAG)
 		bs.writeShort(iTagLimit);
-	bs.writeString("%s",sModName);
+	bs.writeString("%s",sModName.c_str());
 
     cWeaponRestrictions.sendList(&bs);
 
@@ -848,7 +847,7 @@ void CServer::kickWorm(int wormID)
 
 ///////////////////
 // Kick a worm out of the server (by name)
-void CServer::kickWorm(char *szWormName)
+void CServer::kickWorm(const std::string& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -856,14 +855,14 @@ void CServer::kickWorm(char *szWormName)
         if(!w->isUsed())
             continue;
 
-        if(stricmp(w->getName(), szWormName) == 0) {
+        if(stringcasecmp(w->getName(), szWormName) == 0) {
             kickWorm(i);
             return;
         }
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);
+    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName.c_str());
 }
 
 ///////////////////
@@ -950,7 +949,7 @@ void CServer::banWorm(int wormID)
 }
 
 
-void CServer::banWorm(char *szWormName)
+void CServer::banWorm(const std::string& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -968,7 +967,7 @@ void CServer::banWorm(char *szWormName)
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);
+    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName.c_str());
 }
 
 ///////////////////
@@ -1025,7 +1024,7 @@ void CServer::muteWorm(int wormID)
 }
 
 
-void CServer::muteWorm(char *szWormName)
+void CServer::muteWorm(const std::string& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -1036,14 +1035,14 @@ void CServer::muteWorm(char *szWormName)
         if(!w->isUsed())
             continue;
 
-        if(stricmp(w->getName(), szWormName) == 0) {
+        if(stringcasecmp(w->getName(), szWormName) == 0) {
             muteWorm(i);
             return;
         }
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);
+    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName.c_str());
 }
 
 ///////////////////
@@ -1088,7 +1087,7 @@ void CServer::unmuteWorm(int wormID)
 }
 
 
-void CServer::unmuteWorm(char *szWormName)
+void CServer::unmuteWorm(const std::string& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -1099,14 +1098,14 @@ void CServer::unmuteWorm(char *szWormName)
         if(!w->isUsed())
             continue;
 
-        if(stricmp(w->getName(), szWormName) == 0) {
+        if(stringcasecmp(w->getName(), szWormName) == 0) {
             unmuteWorm(i);
             return;
         }
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName);
+    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName.c_str());
 }
 
 

@@ -708,7 +708,7 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 }
 
 
-void AddToFileList(filelist_t* l, const std::string& f) {
+void AddToFileList(searchpathlist* l, const std::string& f) {
 	if(!FileListIncludes(l, f)) l->push_back(f);
 }
 

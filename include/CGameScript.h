@@ -284,30 +284,30 @@ private:
 public:
 	// Methods
 
-	int			Load(char *dir);
+	int			Load(const std::string& dir);
 	proj_t		*LoadProjectile(FILE *fp);
 	
-	int			Save(char *filename);
+	int			Save(const std::string& filename);
 	int			SaveProjectile(proj_t *proj, FILE *fp);
 
-    void        writeString(char *szString, FILE *fp);
-    char        *readString(char *szString, FILE *fp);
+    void        writeString(const std::string& szString, FILE *fp);
+    char        *readString(const std::string& szString, FILE *fp);
 
 	void		Shutdown(void);
 	void		ShutdownProjectile(proj_t *prj);
 
-	char		*getError(char *text, int code);
+	std::string	getError(int code);
 
-	weapon_t	*FindWeapon(char *name);
-    bool        weaponExists(char *szName);
+	weapon_t	*FindWeapon(const std::string& name);
+    bool        weaponExists(const std::string& szName);
 
 	static int	CheckFile(const std::string& dir, std::string& name);
 
     void        modLog(char *fmt, ...);
 
 #ifndef _CONSOLE
-	SDL_Surface	*LoadGSImage(char *dir, char *filename);
-	SoundSample*		LoadGSSample(char *dir, char *filename);
+	SDL_Surface* LoadGSImage(const std::string& dir, const std::string& filename);
+	SoundSample* LoadGSSample(const std::string& dir, const std::string& filename);
 #endif
 
 

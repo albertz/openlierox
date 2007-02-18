@@ -20,7 +20,7 @@
 
 ///////////////////
 // Save the script (compiler)
-int CGameScript::Save(char *filename)
+int CGameScript::Save(const std::string& filename)
 {
 	FILE *fp;
 	int n;
@@ -295,7 +295,7 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 
 ///////////////////
 // Load the game script from a file (game)
-int CGameScript::Load(char *dir)
+int CGameScript::Load(const std::string& dir)
 {
 	
 	FILE *fp;
@@ -729,7 +729,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 ///////////////////
 // Load an image
-SDL_Surface *CGameScript::LoadGSImage(char *dir, char *filename)
+SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
 {
 	SDL_Surface *img = NULL;
 	static char buf[256];
@@ -751,7 +751,7 @@ SDL_Surface *CGameScript::LoadGSImage(char *dir, char *filename)
 
 ///////////////////
 // Load a sample
-SoundSample* CGameScript::LoadGSSample(char *dir, char *filename)
+SoundSample* CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
 {
 	SoundSample* smp = NULL;
 	static char buf[256];
@@ -776,7 +776,7 @@ SoundSample* CGameScript::LoadGSSample(char *dir, char *filename)
 
 ///////////////////
 // Find a weapon based on its name
-weapon_t *CGameScript::FindWeapon(char *name)
+weapon_t *CGameScript::FindWeapon(const std::string& name)
 {
 	int n;
 
@@ -799,7 +799,7 @@ weapon_t *CGameScript::FindWeapon(char *name)
 
 ///////////////////
 // Returns true if the weapon is in the game script
-bool CGameScript::weaponExists(char *szName)
+bool CGameScript::weaponExists(const std::string& szName)
 {
     if(!szName)
         return false;
@@ -819,7 +819,7 @@ bool CGameScript::weaponExists(char *szName)
 
 ///////////////////
 // Write a string in pascal format
-void CGameScript::writeString(char *szString, FILE *fp)
+void CGameScript::writeString(const std::string& szString, FILE *fp)
 {
     if(!szString) return;
 
@@ -835,7 +835,7 @@ void CGameScript::writeString(char *szString, FILE *fp)
 ///////////////////
 // Read a string in pascal format
 // TODO: maxlen for szString
-char *CGameScript::readString(char *szString, FILE *fp)
+char *CGameScript::readString(const std::string& szString, FILE *fp)
 {
     assert( szString );
 
@@ -923,26 +923,26 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name)
 
 ///////////////////
 // Return an error message based on code
-char *CGameScript::getError(char *text, int code)
+std::string CGameScript::getError(int code)
 {
-	strcpy(text, "Undefined error");
+	std::string text = "Undefined error";
 
 	switch(code) {
 
 		case GSE_MEM:
-			strcpy(text, "Out of memory");
+			text = "Out of memory";
 			break;
 
 		case GSE_VERSION:
-			strcpy(text, "Incorrect version");
+			text = "Incorrect version";
 			break;
 
 		case GSE_FILE:
-			strcpy(text, "Could not open file");
+			text = "Could not open file";
 			break;
 
 		case GSE_BAD:
-			strcpy(text, "Bad file format");
+			text = "Bad file format";
 			break;
 	}
 

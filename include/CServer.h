@@ -44,8 +44,8 @@ enum {
 
 // Structure for logging worms
 typedef struct log_worm_s {
-	char		sName[64];
-	char		sSkin[256];
+	std::string	sName;
+	std::string	sSkin;
 	int			iLives;
 	int			iKills;
 	int			iID;
@@ -57,7 +57,7 @@ typedef struct log_worm_s {
 	int			iLeavingReason;
 	float		fTimeLeft;
 	int			iType;
-	char		sIP[32];
+	std::string	sIP;
 } log_worm_t;
 
 // Game log structure
@@ -65,7 +65,7 @@ typedef struct game_log_s {
 	log_worm_t	*tWorms;
 	int			iNumWorms;
 	float		fGameStart;
-	char		sGameStart[64];
+	std::string	sGameStart;
 } game_log_t;
 
 class CServer {
@@ -197,15 +197,15 @@ public:
 	void		CheckTimeouts(void);
 	void		DropClient(CClient *cl, int reason);
     void        kickWorm(int wormID);
-    void        kickWorm(char *szWormName);
+    void        kickWorm(const std::string& szWormName);
 	void		banWorm(int wormID);
-	void		banWorm(char *szWormName);
+	void		banWorm(const std::string& szWormName);
 	void		muteWorm(int wormID);
-	void		muteWorm(char *szWormName);
+	void		muteWorm(const std::string& szWormName);
 	void		unmuteWorm(int wormID);
-	void		unmuteWorm(char *szWormName);
+	void		unmuteWorm(const std::string& szWormName);
     void        CheckReadyClient(void);
-	void		GetCountryFromIP(char *Address, char *Result);
+	std::string	GetCountryFromIP(const std::string& Address);
 
 
 	// Sending

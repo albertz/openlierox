@@ -60,7 +60,7 @@ typedef struct {
 typedef struct {
 
     bool        bUsed;
-    char        szTheme[128];
+    std::string szTheme;
     int         nNumObjects;
     object_t    *psObjects;
 
@@ -70,7 +70,7 @@ typedef struct {
 
 // Theme structure
 typedef struct {
-	char		name[128];
+	std::string	name;
 	Uint32		iDefaultColour;
 	SDL_Surface	*bmpFronttile;
 	SDL_Surface	*bmpBacktile;
@@ -123,7 +123,7 @@ public:
 private:
 	// Attributes
 
-	char		Name[64];
+	std::string	Name;
 	int			Type;
 	int			Width;
 	int			Height;
@@ -169,10 +169,10 @@ private:
 public:
 	// Methods
 
-	int			New(int _width, int _height, char *_theme);
-	int			Load(char *filename);
+	int			New(int _width, int _height, const std::string& _theme);
+	int			Load(const std::string& filename);
 	int			LoadOriginal(FILE *fp);
-	int			Save(char *name, char *filename);
+	int			Save(const std::string& name, const std::string& filename);
 	int			SaveImageFormat(FILE *fp);
 	int			LoadImageFormat(FILE *fp);	
 	void		Clear(void);
@@ -182,7 +182,7 @@ public:
 
 	void		Shutdown(void);
 
-	int			LoadTheme(char *_theme);
+	int			LoadTheme(const std::string& _theme);
 	int			CreateSurface(void);
 	int			CreatePixelFlags(void);
     bool        createGrid(void);
@@ -209,8 +209,8 @@ public:
 			flagsLock.endReadAccess(); 
 	}
 
-    char        *findRandomTheme(char *buf);
-    bool        validateTheme(char *name);
+    std::string findRandomTheme();
+    bool        validateTheme(const std::string& name);
 
     void        PutImagePixel(int x, int y, Uint32 colour);
 
@@ -289,7 +289,7 @@ public:
     inline const uchar *getGridFlags(void) const { return GridFlags; }
 	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
 	inline int			getCreated(void)	{ return Created; }
-	inline char			*getName(void)		{ return Name; }
+	inline std::string getName(void)		{ return Name; }
 
 
 };
