@@ -1873,7 +1873,7 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 					nNumPlayers = MIN(nMaxWorms,nNumPlayers);
 
                     for(int i=0; i<nNumPlayers; i++) {
-                        inbs.readString(cWorms[i].getName(),cWorms[i].getMaxNameLen());
+                        cWorms[i].setName(inbs.readString());
                         cWorms[i].setKills(inbs.readInt(2));
                     }
                 }

@@ -796,7 +796,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
-		printf("Banned client was trying to connect\n");
+		printf("Banned client %s was trying to connect\n", szAddress);
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
@@ -816,7 +816,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// Get user info
 	int numworms = bs->readInt(1);
-	MIN(numworms,MAX_PLAYERS-1);
+	numworms = MIN(numworms,MAX_PLAYERS-1);
 	CWorm worms[MAX_PLAYERS];
 	for(i=0;i<numworms;i++) {
 		worms[i].readInfo(bs);
@@ -1119,7 +1119,7 @@ void CServer::ParseWantsJoin(CBytestream *bs)
 	// Notify about the wants join
 	if (strcmp(NetworkTexts->sWantsJoin,"<none>"))  {
 		replacemax(NetworkTexts->sWantsJoin,"<player>",Nick,buf,1);
-		SendGlobalText(buf.c_str(),TXT_NORMAL);
+		SendGlobalText(buf,TXT_NORMAL);
 	}
 }
 

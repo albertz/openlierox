@@ -71,13 +71,13 @@ void CServer::Clear(void)
 
 ///////////////////
 // Start a server
-int CServer::StartServer(char *name, int port, int maxplayers, bool regserver)
+int CServer::StartServer(const std::string& name, int port, int maxplayers, bool regserver)
 {
 	// Shutdown and clear any previous server settings
 	Shutdown();
 	Clear();
 
-	fix_strncpy(sName, name);
+	sName = name;
 	iMaxWorms = maxplayers;
 	bRegServer = regserver;
 	nPort = port;
@@ -733,8 +733,8 @@ void CServer::DropClient(CClient *cl, int reason)
         }
 
 		// Send only if the text isn't <none>
-		if(buf.compare("<none>"))
-			SendGlobalText(buf.c_str(),TXT_NETWORK);
+		if(buf != "<none>")
+			SendGlobalText(buf,TXT_NETWORK);
 
 		// Reset variables
 		cl->setMuted(false);

@@ -45,7 +45,7 @@ public:
 	int		getCount(void)	{return iCount; }
 	int		Add(char *Name);
 	char	*getName(int ID);
-	int		getID(const char *Name);
+	int		getID(const std::string& Name);
 	void	Shutdown(void);
 };
 

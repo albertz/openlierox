@@ -394,7 +394,7 @@ void    Menu_GameSettings_Default(void);
 
 
 // Weapons Restrictions
-void    Menu_WeaponsRestrictions(char *szMod);
+void    Menu_WeaponsRestrictions(const std::string& szMod);
 bool    Menu_WeaponsRestrictions_Frame(void);
 void	Menu_WeaponsRestrictionsShutdown(void);
 
@@ -464,7 +464,7 @@ void    Menu_Net_LanShowServer(char *szAddress);
 
 
 // Net::Joining menu
-int		Menu_Net_JoinInitialize(char *sAddress);
+int		Menu_Net_JoinInitialize(const std::string& sAddress);
 void	Menu_Net_JoinShutdown(void);
 void	Menu_Net_JoinFrame(int mouse);
 
@@ -481,7 +481,7 @@ void	Menu_Net_FavouritesAddServer(void);
 //int	Menu_Net_JoinInitializePlayers(void);
 //void	Menu_Net_JoinPlayersFrame(int mouse);
 
-int		Menu_Net_JoinConnectionInitialize(char *sAddress);
+int		Menu_Net_JoinConnectionInitialize(const std::string& sAddress);
 void	Menu_Net_JoinConnectionFrame(int mouse);
 void	Menu_Net_JoinConnectionShutdown(void);
 
@@ -498,7 +498,7 @@ void	Menu_Net_JoinLobbyShutdown(void);
 int		Menu_Net_NETInitialize(void);
 void	Menu_Net_NETShutdown(void);
 void	Menu_Net_NETFrame(int mouse);
-void	Menu_Net_NETJoinServer(char *sAddress, char *sName);
+void	Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sName);
 void	Menu_Net_NETAddServer(void);
 void	Menu_Net_NETUpdateList(void);
 void	Menu_Net_NETParseList(void);

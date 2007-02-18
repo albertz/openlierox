@@ -24,12 +24,12 @@
 
 
 // Game info
-char		GameName[32];
+std::string	GameName;
 int         nFocus = true;
 bool		bActivated = false;
 
 // Config file
-char		ConfigFile[256];
+std::string	ConfigFile;
 
 // Keyboard, Mouse, & Event
 keyboard_t	Keyboard;
@@ -44,12 +44,12 @@ SDL_Surface *bmpIcon=NULL;
 
 ///////////////////
 // Initialize the standard Auxiliary Library
-int InitializeAuxLib(char *gname, char *config, int bpp, int vidflags)
+int InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags)
 {
 	// Set the game info
-	fix_strncpy(GameName,gname);
+	GameName=gname;
 
-	fix_strncpy(ConfigFile,config);
+	ConfigFile=config;
 
 	// Solves problem with FPS in fullscreen
 #ifdef WIN32
@@ -425,14 +425,16 @@ void ShutdownAuxLib(void)
 	// Shutdown the SDL system
 	// this is a workaround to prevent the default segfault-routine
 	try { SDL_Quit(); }
-	catch(...) {}
+	catch(...) {
+		printf("WARNING: ERROR while shutting down SDL\n");
+	}
 }
 
 
 
 ///////////////////
 // Return the game name
-char *GetGameName(void)
+std::string GetGameName(void)
 {
 	return GameName;
 }
@@ -453,7 +455,7 @@ mouse_t *GetMouse(void)
 
 ///////////////////
 // Return the config filename
-char *GetConfigFile(void)
+std::string GetConfigFile(void)
 {
 	return ConfigFile;
 }
@@ -470,11 +472,7 @@ SDL_Event *GetEvent(void)
 ///////////////////
 // Get text from the clipboard
 // Returns the length of the text (0 for no text)
-int GetClipboardText(char *szText, int nMaxLength)
-{
-    if( !szText )
-        return 0;
-
+int GetClipboardText(std::string& szText) {
 #ifdef WIN32
     // Get the window handle
 	SDL_SysWMinfo info;
@@ -494,18 +492,12 @@ int GetClipboardText(char *szText, int nMaxLength)
 
             if(CBDataHandle) {
                 CBDataPtr = (LPSTR)GlobalLock(CBDataHandle);
-                int TextSize = strlen(CBDataPtr);
-
-                strncpy(szText, CBDataPtr, nMaxLength);
-                if( TextSize < nMaxLength )
-                    szText[TextSize] = '\0';
-                else
-                    szText[nMaxLength-1] = '\0';
+                szText = CBDataPtr;
 
                 GlobalUnlock(CBDataHandle);
                 CloseClipboard();
 
-                return TextSize < nMaxLength ? TextSize : nMaxLength;
+                return szText.size();
             }
         }
     }
@@ -519,11 +511,8 @@ int GetClipboardText(char *szText, int nMaxLength)
 ///////////////////
 // Set text to the clipboard
 // Returns the length of the text (0 for no text)
-int SetClipboardText(char *szText)
+int SetClipboardText(const std::string& szText)
 {
-    if( !szText )
-        return 0;
-
 #ifdef WIN32
     // Get the window handle
 	SDL_SysWMinfo info;
@@ -543,7 +532,7 @@ int SetClipboardText(char *szText)
 
 	// Allocate memory
 	LPTSTR  lptstrCopy;
-	int cch = strlen(szText);
+	int cch = szText.size();
 	HGLOBAL hglbCopy = GlobalAlloc(GMEM_SHARE | GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR));
     if (hglbCopy == NULL)
     {
@@ -553,7 +542,7 @@ int SetClipboardText(char *szText)
 
 	// Copy the text to the memory
     lptstrCopy = (char *) GlobalLock(hglbCopy);
-    memcpy(lptstrCopy, szText, cch * sizeof(TCHAR));
+    memcpy(lptstrCopy, szText.c_str(), cch * sizeof(TCHAR));
     lptstrCopy[cch] = (TCHAR) 0;    // null character
     GlobalUnlock(hglbCopy);
 
@@ -563,7 +552,7 @@ int SetClipboardText(char *szText)
 	// Close the clipboard
 	CloseClipboard();
 
-    return strlen(szText);
+    return szText.size();
 #else
 	// TODO: what is with linux here?
 	return 0;
@@ -575,6 +564,7 @@ int SetClipboardText(char *szText)
 // Take a screenshot
 void TakeScreenshot(bool Tournament)
 {
+	// TODO: fix this!
 	static char		picname[80];
 	static char		checkname[512];
 	char		extension[5];

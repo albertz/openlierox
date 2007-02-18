@@ -33,7 +33,7 @@ CCache		*Cache = NULL;
 
 ///////////////////
 // Load an image
-SDL_Surface *_LoadImage(char *filename)
+SDL_Surface *_LoadImage(const std::string& filename)
 {
     /*SDL_Surface *psSurf = NULL;
     Uint32 Rmask, Gmask, Bmask, Amask;
@@ -75,13 +75,11 @@ SDL_Surface *_LoadImage(char *filename)
 		
 #ifndef WIN32
 	struct stat s;
-	if(stat(fname.c_str(), &s) == 0)
-	{
+	if(stat(fname.c_str(), &s) == 0 && S_ISREG(s.st_mode)) {
 //		printf("_LoadImage(%s): %0.1f kBytes\n", fname, s.st_size / 1024.0f);
 		return IMG_Load(fname.c_str());
 	}
-	else
-	{
+	else {
 //		printf("_LoadImage(%s): ERROR: cannot stat the file\n", fname);
 		return NULL;
 	}
@@ -94,11 +92,11 @@ SDL_Surface *_LoadImage(char *filename)
 
 ///////////////////
 // Load an image
-SDL_Surface *CCache::LoadImg(char *_file)
+SDL_Surface *CCache::LoadImg(const std::string& _file)
 {
 	Type = CCH_IMAGE;
 	
-	fix_strncpy(Filename, _file);
+	Filename = _file;
      
 	// Load the image
 	Image = _LoadImage(Filename);
@@ -106,7 +104,7 @@ SDL_Surface *CCache::LoadImg(char *_file)
 	if(Image)
 		Used = true;
 	else
-		printf("CCache::LoadImg: Error loading file: %s\n",Filename);
+		printf("CCache::LoadImg: Error loading file: %s\n",Filename.c_str());
 
 	return Image;
 }
@@ -114,12 +112,12 @@ SDL_Surface *CCache::LoadImg(char *_file)
 
 ///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
-SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
+SDL_Surface *CCache::LoadImgBPP(const std::string& _file, int bpp)
 {
 	SDL_Surface *img;
 
 	Type = CCH_IMAGE;
-	fix_strncpy(Filename, _file);
+	Filename = _file;
 
 	// Load the image
 	img = _LoadImage(Filename);
@@ -145,25 +143,25 @@ SDL_Surface *CCache::LoadImgBPP(char *_file, int bpp)
 
 ///////////////////
 // Load a sample
-SoundSample* CCache::LoadSample(char *_file, int maxplaying)
+SoundSample* CCache::LoadSample(const std::string& _file, int maxplaying)
 {
 	Type = CCH_SOUND;
-	fix_strncpy(Filename, _file);
+	Filename = _file;
 	
 	std::string fullfname = GetFullFileName(Filename);
 	if(fullfname.size() == 0)
 	{
-		SetError("Error loading sample %s: file not found", _file);
+		SetError("Error loading sample %s: file not found", _file.c_str());
 		return NULL;
 	}
 	
 	// Load the sample
-	Sample = LoadSoundSample(fullfname.c_str(), maxplaying);
+	Sample = LoadSoundSample(fullfname, maxplaying);
 	
 	if(Sample)
 		Used = true;
 	else
-		SetError("Error loading sample: %s",_file);
+		SetError("Error loading sample: %s",_file.c_str());
 
 	return Sample;
 }
@@ -245,7 +243,7 @@ void ShutdownCache(void)
 
 ///////////////////
 // Load an image
-SDL_Surface *LoadImage(char *_filename, int correctbpp)
+SDL_Surface *LoadImage(const std::string& _filename, int correctbpp)
 {
 	int n;
 	CCache *cach;
@@ -254,7 +252,7 @@ SDL_Surface *LoadImage(char *_filename, int correctbpp)
 	cach = Cache;
 	for(n=0;n<MAX_CACHE;n++,cach++) {
 		if(cach->isUsed() && cach->getType() == CCH_IMAGE) {
-			if(stricmp(cach->getFilename(),_filename) == 0)
+			if(stringcasecmp(cach->getFilename(),_filename) == 0)
 				return cach->GetImage();
 		}
 	}
@@ -284,7 +282,7 @@ SDL_Surface *LoadImage(char *_filename, int correctbpp)
 
 ///////////////////
 // Load a sample
-SoundSample* LoadSample(char *_filename, int maxplaying)
+SoundSample* LoadSample(const std::string& _filename, int maxplaying)
 {
 	int n;
 	CCache *cach;
@@ -293,7 +291,7 @@ SoundSample* LoadSample(char *_filename, int maxplaying)
 	cach = Cache;
 	for(n=0;n<MAX_CACHE;n++,cach++) {
 		if(cach->isUsed() && cach->getType() == CCH_SOUND) {
-			if(stricmp(cach->getFilename(),_filename) == 0)
+			if(stringcasecmp(cach->getFilename(),_filename) == 0)
 				return cach->GetSample();
 		}
 	}

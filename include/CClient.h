@@ -89,7 +89,7 @@ public:
 		cChatList = NULL;
 		bUpdateScore = true;
 
-		strcpy(szServerName,"");
+		szServerName="";
 
 		cNetChan.Clear();
 		iNetStatus = NET_DISCONNECTED;
@@ -223,7 +223,7 @@ private:
 	float		fServerTime;
 	int			iNetSpeed;
 	int			iNetStatus;
-	char		strServerAddr[128];
+	std::string	strServerAddr;
 	int			iNumConnects;
 	float		fConnectTime;
 	int			iChallenge;
@@ -236,7 +236,7 @@ private:
     float       fZombieTime;
 	float		fSendWait;
 	float		fLastUpdateSent;
-	char		szServerName[64];
+	std::string	szServerName;
 
 	// Ping
 	ping_t		tPing;
@@ -346,7 +346,7 @@ public:
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	void		SendDeath(int victim, int killer);
-	void		SendText(const char *sText);
+	void		SendText(const std::string& sText);
 	void		Disconnect(void);
 	int			OwnsWorm(CWorm *w);
 
@@ -445,11 +445,11 @@ public:
 	inline int	getPing(void)				{ return iPing; }
 	inline void	setPing(int Ping)			{ iPing = Ping; }
 
-	inline void	setServerAddress(char *_a)	{ fix_strncpy(strServerAddr,_a); }
-	inline char *getServerAddress(void)		{ return strServerAddr; }
+	inline void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
+	inline std::string getServerAddress(void)		{ return strServerAddr; }
 
-	inline void setServerName(char *_n)		{ strncpy(szServerName,_n,sizeof(szServerName)); }
-	inline char *getServerName(void)		{ return szServerName; }
+	inline void setServerName(const std::string& _n)		{ szServerName = _n; }
+	inline std::string getServerName(void)		{ return szServerName; }
 
 };
 

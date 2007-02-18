@@ -102,8 +102,8 @@ int Menu_Net_HostInitialize(void)
 
 	// Use previous settings
 	cHostPly.SendMessage( hs_MaxPlayers, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iMaxPlayers,buf,10), 0);
-	cHostPly.SendMessage( hs_Servername, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, 0);
-	cHostPly.SendMessage( hs_WelcomeMessage, TXM_SETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, 0);
+	cHostPly.SendMessage( hs_Servername, TXM_SETTEXT, (DWORD)&tLXOptions->tGameinfo.sServerName, 0);
+	cHostPly.SendMessage( hs_WelcomeMessage, TXM_SETTEXT, (DWORD)&tLXOptions->tGameinfo.sWelcomeMessage, 0);
 	cHostPly.SendMessage( hs_Register,   CKM_SETCHECK, tLXOptions->tGameinfo.bRegServer, 0);
 	cHostPly.SendMessage( hs_AllowWantsJoin,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
 	cHostPly.SendMessage( hs_AllowRemoteBots,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
@@ -316,14 +316,14 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 
 						// Get the server name
-						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)tGameInfo.sServername, sizeof(tGameInfo.sServername));
-						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)tGameInfo.sWelcomeMessage, sizeof(tGameInfo.sWelcomeMessage));
+						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)&tGameInfo.sServername, 0);
+						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)&tGameInfo.sWelcomeMessage, 0);
                         //cHostPly.SendMessage( hs_Password, TXM_GETTEXT, (DWORD)tGameInfo.sPassword, sizeof(tGameInfo.sPassword));
 
 						// Save the info
 						static char buf[64];
-						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName));
-						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage));
+						cHostPly.SendMessage( hs_Servername, TXM_GETTEXT, (DWORD)&tLXOptions->tGameinfo.sServerName, 0);
+						cHostPly.SendMessage( hs_WelcomeMessage, TXM_GETTEXT, (DWORD)&tLXOptions->tGameinfo.sWelcomeMessage, 0);
                         //cHostPly.SendMessage( hs_Password, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.szPassword, sizeof(tLXOptions->tGameinfo.szPassword));
 						cHostPly.SendMessage( hs_MaxPlayers, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
 
@@ -646,13 +646,13 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		// Get the mod name
 		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,0,0);
 		if(it) 
-			fix_strncpy(tLXOptions->tGameinfo.szModName, it->sIndex);
+			tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
 
 		// Fill in the levels list
-		cHostLobby.SendMessage(hl_LevelList,CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));
+		cHostLobby.SendMessage(hl_LevelList,CBM_GETCURSINDEX, (DWORD)&tLXOptions->tGameinfo.sMapName, 0);
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 
 		// Redraw the minimap
@@ -804,10 +804,10 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					std::string text;
 					CWorm *rw = cClient->getRemoteWorms() + iSpeaking;
 					if(strstr(buf,"/me") == NULL)
-						text = std::string(rw->getName()) + ": " + buf;
+						text = rw->getName() + ": " + buf;
 					else
 						text = replacemax(buf,"/me",rw->getName(),text,2);
-					cServer->SendGlobalText(text.c_str(),TXT_CHAT);
+					cServer->SendGlobalText(text,TXT_CHAT);
 				}
 				break;
 
@@ -931,9 +931,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Get the mod
 					cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,0,0);
                     if(it) {
-		                fix_strncpy(tGameInfo.sModName,it->sIndex);
-						fix_strncpy(tGameInfo.sModDir,it->sIndex);
-                        fix_strncpy(tLXOptions->tGameinfo.szModName, it->sIndex);
+		                tGameInfo.sModName = it->sIndex;
+						tGameInfo.sModDir = it->sIndex;
+                        tLXOptions->tGameinfo.szModName = it->sIndex;
                     }
 
                     // Get the game type
@@ -941,9 +941,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
                     tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
 
 					// Get the map name
-					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)tGameInfo.sMapname, sizeof(tGameInfo.sMapname));
+					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)&tGameInfo.sMapname, 0);
 					// Save the current level in the options
-					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));
+					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)&tLXOptions->tGameinfo.sMapName, 0);
 					cHostLobby.Shutdown();
 
                     // Setup the client
@@ -1140,7 +1140,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 
                 // Worm
                 DrawImage(bmpDest, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(bmpDest, x+55, y-2, tLX->clNormalLabel,"%s", w->getName());
+				tLX->cFont.Draw(bmpDest, x+55, y-2, tLX->clNormalLabel,"%s", w->getName().c_str());
 
                 // Team
                 CWorm *sv_w = cServer->getWorms() + i;
@@ -1341,8 +1341,8 @@ void Menu_ServerSettings(void)
 	// Use the actual settings as default
 	cServerSettings.SendMessage(ss_AllowWantsJoin, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
 	cServerSettings.SendMessage(ss_AllowRemoteBots, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
-	cServerSettings.SendMessage(ss_ServerName,TXM_SETTEXT,(DWORD) tGameInfo.sServername, 0);
-	cServerSettings.SendMessage(ss_WelcomeMessage,TXM_SETTEXT,(DWORD) tGameInfo.sWelcomeMessage, 0);
+	cServerSettings.SendMessage(ss_ServerName,TXM_SETTEXT,(DWORD) &tGameInfo.sServername, 0);
+	cServerSettings.SendMessage(ss_WelcomeMessage,TXM_SETTEXT,(DWORD) &tGameInfo.sWelcomeMessage, 0);
 	char buf[6];
 	cServerSettings.SendMessage(ss_MaxPlayers, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iMaxPlayers,buf,10), 0);
 }
@@ -1380,10 +1380,10 @@ bool Menu_ServerSettings_Frame(void)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					// Save the info
-					cServerSettings.SendMessage(ss_ServerName,TXM_GETTEXT, (DWORD) tGameInfo.sServername, sizeof(tGameInfo.sServername));
-					cServerSettings.SendMessage(ss_WelcomeMessage,TXM_GETTEXT, (DWORD) tGameInfo.sWelcomeMessage, sizeof(tGameInfo.sWelcomeMessage));
-					cServerSettings.SendMessage(ss_ServerName, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sServerName, sizeof(tLXOptions->tGameinfo.sServerName));
-					cServerSettings.SendMessage(ss_WelcomeMessage, TXM_GETTEXT, (DWORD)tLXOptions->tGameinfo.sWelcomeMessage, sizeof(tLXOptions->tGameinfo.sWelcomeMessage));
+					cServerSettings.SendMessage(ss_ServerName,TXM_GETTEXT, (DWORD)&tGameInfo.sServername, 0);
+					cServerSettings.SendMessage(ss_WelcomeMessage,TXM_GETTEXT, (DWORD)&tGameInfo.sWelcomeMessage, 0);
+					cServerSettings.SendMessage(ss_ServerName, TXM_GETTEXT, (DWORD)&tLXOptions->tGameinfo.sServerName, 0);
+					cServerSettings.SendMessage(ss_WelcomeMessage, TXM_GETTEXT, (DWORD)&tLXOptions->tGameinfo.sWelcomeMessage, 0);
 
 					char buf[5];
 					cServerSettings.SendMessage(ss_MaxPlayers, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
@@ -1489,7 +1489,7 @@ void Menu_BanList(void)
 	banlist_t *item;
 	for (int i=0;i<(*cBanList).getNumItems(); i++)  {
 		item = (*cBanList).getItemById(i);
-		if (!item || !item->szNick || !item->szAddress)
+		if (!item)
 			continue;
 		tListBox->AddItem(item->szAddress,i,tLX->clListView);
 		tListBox->AddSubitem(LVS_TEXT, item->szAddress, NULL);

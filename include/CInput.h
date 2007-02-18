@@ -60,9 +60,9 @@ private:
 public:
 	// Methods
 
-	int		Load(char *name, char *section);
-	int		Setup(char *text);
-	int		Wait(char *strText);
+	int		Load(const std::string& name, const std::string& section);
+	int		Setup(const std::string& text);
+	int		Wait(const std::string& strText);
 
 	int		isUp(void);
 	int		isDown(void);

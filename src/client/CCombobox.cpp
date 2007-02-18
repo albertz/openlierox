@@ -562,7 +562,7 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 ///////////////////
 // Add an item to the combo box
-void CCombobox::addItem(int index, char *sindex, char *name)
+void CCombobox::addItem(int index, const std::string& sindex, const std::string& name)
 {
 	cb_item_t *item;
 
@@ -572,8 +572,8 @@ void CCombobox::addItem(int index, char *sindex, char *name)
 
 	// Fill in the info
 	item->iIndex = index;
-	fix_strncpy(item->sIndex, sindex);
-	fix_strncpy(item->sName,name);
+	item->sIndex = sindex;
+	item->sName = name;
 	item->tNext = NULL;
 	item->iSelected = false;
 	item->tImage = NULL;
@@ -630,12 +630,12 @@ void CCombobox::setCurItem(int index)
 
 ///////////////////
 // Set the current item based on string index
-void CCombobox::setCurSIndexItem(char *szString)
+void CCombobox::setCurSIndexItem(const std::string& szString)
 {
     cb_item_t *i = tItems;
 	for(; i; i=i->tNext) {
 
-        if( stricmp(i->sIndex,szString) == 0 ) {
+        if( stringcasecmp(i->sIndex,szString) == 0 ) {
             if(tSelected)
                 tSelected->iSelected = false;
 
@@ -701,9 +701,9 @@ int	CCombobox::getItemsCount() {
 	return c;
 }
 
-cb_item_t* CCombobox::getItem(char* name) {
+cb_item_t* CCombobox::getItem(const std::string& name) {
 	for(cb_item_t* i = tItems; i; i = i->tNext) {
-		if(strncmp(i->sName,name,sizeof(i->sName)) == 0)
+		if(stringcasecmp(i->sName,name) == 0)
 			return i;
 	}
 	return NULL;

@@ -142,14 +142,14 @@ enum {
 typedef struct {
 	int			iGameType;		// Local, remote, etc
 	int			iGameMode;		// DM, team DM, etc
-	char		sModName[256];
-	char		sMapname[256];
-    char        sPassword[32];
-	char		sModDir[256];
+	std::string		sModName;
+	std::string		sMapname;
+    std::string        sPassword;
+	std::string		sModDir;
     maprandom_t sMapRandom;
 	int			iLoadingTimes;
-	char		sServername[32];
-	char		sWelcomeMessage[256];
+	std::string		sServername;
+	std::string		sWelcomeMessage;
 	bool		bRegServer;
 	bool		bTournament;
 
@@ -168,8 +168,6 @@ typedef struct {
 extern	lierox_t		*tLX;
 extern	game_t			tGameInfo;
 extern	CVec			vGravity;
-extern	options_t		*tLXOptions;
-extern  networktexts_t  *NetworkTexts;
 extern	CServer			*cServer;
 extern	CClient			*cClient;
 extern  CInput			cTakeScreenshot;
@@ -179,7 +177,7 @@ extern  int				nDisableSound;
 extern	int				iSurfaceFormat;
 extern	bool			bActivated;
 
-extern	char	binary_dir[512];
+extern	std::string		binary_dir;
 
 
 // Main Routines
@@ -202,26 +200,27 @@ void    lx_strncpy(char *dest, char *src, int count);
 bool    MouseInRect(int x, int y, int w, int h);
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
+void TrimSpaces(std::string& szLine);
 bool	replace(char *text, const char *what, const char *with, char *result);
-bool	replace(const std::string text, const std::string what, const std::string with, std::string& result);
+bool	replace(const std::string& text, const std::string& what, const std::string& with, std::string& result);
 bool	replace(std::string& text, std::string what, std::string with);
-std::string replacemax(const std::string text, const std::string what, const std::string with, std::string& result, int max);
-std::string replacemax(const std::string text, const std::string what, const std::string with, int max);
+std::string replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max);
+std::string replacemax(const std::string& text, const std::string& what, const std::string& with, int max);
 char	*strip(char *buf, int width);
 bool	stripdot(char *buf, int width);
 char	*ucfirst(char *text);
 void	ReadUntil(const char *text, char until_character, char *result, size_t reslen);
 Uint32	StrToCol(char *str);
 const char* sex(short wraplen = 0);
-size_t findpathsep(const std::string path);
+size_t findLastPathSep(const std::string& path);
 
-short stringcasecmp(const std::string s1, const std::string s2);
+short stringcasecmp(const std::string& s1, const std::string& s2);
 
 
 // Useful XML functions
-int		xmlGetInt(xmlNodePtr Node, const std::string Name);
-float	xmlGetFloat(xmlNodePtr Node, const std::string Name);
-Uint32	xmlGetColour(xmlNodePtr Node, const std::string Name);
+int		xmlGetInt(xmlNodePtr Node, const std::string& Name);
+float	xmlGetFloat(xmlNodePtr Node, const std::string& Name);
+Uint32	xmlGetColour(xmlNodePtr Node, const std::string& Name);
 void	xmlEntities(std::string& text);
 
 // Thread functions

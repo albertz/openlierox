@@ -33,20 +33,19 @@ bool reset_nextsearchpath = true;
 filelist_t* nextsearchpath = NULL;
 
 // TODO: this does not handle the FindFile and FindDir seperatly
-std::string getNextFullFileName(const std::string f) {
+std::string getNextFullFileName(const std::string& f) {
 	if(nextsearchpath != NULL) {
 		return nextsearchpath->filename + "/" + f;
 	} else
 		return f;
 }
 
-bool CanReadFile(const std::string f, bool absolute = false) {
+bool CanReadFile(const std::string& f, bool absolute) {
 	if(absolute) {
 #ifndef WIN32
-		// if it is a directory, return NULL
-		DIR* h = opendir(f.c_str());
-		if(h) {
-			closedir(h);
+		struct stat s;
+		if(stat(f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
+			// it's not stat-able or not a reg file
 			return false;
 		}
 #else
@@ -133,7 +132,7 @@ dirent* entry = NULL;
 
 ///////////////////
 // Find the first file
-int FindFirst(const char *dir, char *ext, char *filename)
+int FindFirst(const std::string& dir, char *ext, char *filename)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 	GetExactFileName(getNextFullFileName(dir), _dir);
@@ -221,7 +220,7 @@ dirent* entry2 = NULL;
 
 ///////////////////
 // Find the first dir
-int FindFirstDir(const char *dir, char *name)
+int FindFirstDir(const std::string& dir, char *name)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 	GetExactFileName(getNextFullFileName(dir), _dir2);
@@ -345,7 +344,7 @@ int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
 
 
 // does case insensitive search for file
-bool GetExactFileName(const std::string abs_searchname, std::string& filename)
+bool GetExactFileName(const std::string& abs_searchname, std::string& filename)
 {
 	if(abs_searchname.size() == 0) {
 		filename = "";
@@ -402,7 +401,7 @@ struct _finddata_t fileinfo;
 
 ///////////////////
 // Find the first file
-int FindFirst(const char *dir, char *ext, char *filename)
+int FindFirst(const std::string& dir, char *ext, char *filename)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 	GetExactFileName(getNextFullFileName(dir),_dir);
@@ -496,7 +495,7 @@ struct _finddata_t fileinfo2;
 
 ///////////////////
 // Find the first dir
-int FindFirstDir(const char *dir, char *name)
+int FindFirstDir(const std::string& dir, char *name)
 {
 	if(reset_nextsearchpath) nextsearchpath = tLXOptions->tSearchPaths;
 
@@ -574,10 +573,8 @@ int FindNextDir(char *name)
 #endif // WIN32
 
 
-filelist_t*	basesearchpaths = NULL;
+searchpathlist	basesearchpaths;
 void InitBaseSearchPaths() {
-	assert(basesearchpaths == NULL);
-
 	// TODO: it would be nice to have also Mac OS X conversions
 #ifndef WIN32
 	AddToFileList(&basesearchpaths, "${HOME}/.OpenLieroX");
@@ -602,7 +599,7 @@ void CreateRecDir(std::string abs_filename, bool last_is_dir) {
 		mkdir(tmp.c_str(), 0777);
 }
 
-std::string GetFullFileName(const std::string path, std::string* searchpath) {
+std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 	static std::string fname;
 	static std::string tmp;
 
@@ -647,7 +644,7 @@ std::string GetFullFileName(const std::string path, std::string* searchpath) {
 	return "";
 }
 
-std::string GetWriteFullFileName(const std::string path, bool create_nes_dirs) {
+std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) {
 	filelist_t* spath = NULL;
 	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
 	if(spath == NULL) spath = basesearchpaths;
@@ -677,7 +674,7 @@ std::string GetWriteFullFileName(const std::string path, bool create_nes_dirs) {
 	return tmp;
 }
 
-FILE *OpenGameFile(const std::string path, const char *mode) {
+FILE *OpenGameFile(const std::string& path, const char *mode) {
 	if(path.size() == 0)
 		return NULL;
 
@@ -688,8 +685,7 @@ FILE *OpenGameFile(const std::string path, const char *mode) {
 	if(write_mode || append_mode) {
 		std::string writefullname = GetWriteFullFileName(path, true);
 		if(append_mode && fullfn.size()>0) { // check, if we should copy the file
-			FILE* fp = fopen(fullfn.c_str(), "r");
-			if(fp) { // we can read the file
+			if(CanReadFile(fullfn)) { // we can read the file
 				fclose(fp);
 				// GetWriteFullFileName ensures an exact filename,
 				// so no case insensitive check is needed here
@@ -712,16 +708,8 @@ FILE *OpenGameFile(const std::string path, const char *mode) {
 }
 
 
-void AddToFileList(filelist_t** l, const std::string f) {
-	if (!l)
-		return;
-	filelist_t** fl;
-	for(fl = l; *fl != NULL; fl = &(*fl)->next) {}
-	*fl = new filelist_t;
-	if (!(*fl))
-		return;
-	(*fl)->next = NULL;
-	(*fl)->filename = f;
+void AddToFileList(filelist_t* l, const std::string& f) {
+	if(!FileListIncludes(l, f)) l->push_back(f);
 }
 
 void removeEndingSlashes(std::string& s) {	
@@ -735,30 +723,22 @@ void removeEndingSlashes(std::string& s) {
 
 /////////////////
 // Returns true, if the list contains the path
-bool FileListIncludes(const filelist_t* l, const std::string f) {
-	// Check
-	if(!l)
-		return false;
-
-	// TODO: this has to be redone!
-	// (but we need a correct removeEndingSlashes first)
+bool FileListIncludes(const searchpathlist* l, const std::string& f) {
 	static std::string tmp1;
 	static std::string tmp2;
 	tmp1 = f;
 	removeEndingSlashes(tmp1);
-
+	ReplaceFileVariables(tmp1);
+	
 	// Go through the list, checking each item
-	for(const filelist_t* fl = l; fl != NULL; fl = fl->next) {
-		if(fl->filename.size() == 0) {
-			printf("WARNING: uninit item in searchpath-list\n");		
-			continue;
-		}
-		tmp2 = fl->filename;
+	for(std::list::const_iterator i = l->begin(); i != l->end(); i++) {
+		tmp2 = *i;
 		removeEndingSlashes(tmp2);
+		ReplaceFileVariables(tmp2);
 		if(stringcasecmp(tmp1, tmp2) == 0)
-			return true;
+			return true;		
 	}
-
+	
 	return false;
 }
 
@@ -799,24 +779,28 @@ std::string GetTempDir() {
 #ifndef WIN32
 	return "/tmp"; // year, it's so simple :)
 #else
-	static char buf[256];
-	GetTempPath(sizeof(buf),buf);
-	fix_markend(buf);
+	static char buf[256] = "";
+	if(buf[0] == '\0') { // only do this once
+		GetTempPath(sizeof(buf),buf);
+		fix_markend(buf);
+	}
 	return buf;
 #endif
 }
 
 void ReplaceFileVariables(std::string& filename) {
-	if(filename.compare(0,2,"~/")==0 || filename.compare(0,2,"~\\")==0) {
+	if(filename.compare(0,2,"~/")==0
+	|| filename.compare(0,2,"~\\")==0
+	|| filename == "~") {
 		filename.erase(0,1);
-		filename.insert(0,GetHomeDir());	
+		filename.insert(0,GetHomeDir());
 	}
 	replace(filename, "${HOME}", GetHomeDir());
 	replace(filename, "${SYSTEM_DATA}", GetSystemDataDir());
 	replace(filename, "${BIN}", GetBinaryDir());
 }
 
-bool FileCopy(const std::string src, const std::string dest) {
+bool FileCopy(const std::string& src, const std::string& dest) {
 	static char tmp[2048];
 
 	printf("FileCopy: %s -> %s\n", src.c_str(), dest.c_str());
@@ -856,7 +840,7 @@ bool FileCopy(const std::string src, const std::string dest) {
 	return success;
 }
 
-bool CanWriteToDir(const std::string dir) {
+bool CanWriteToDir(const std::string& dir) {
 	// TODO: we have to make this a lot better!
 	std::string fname = dir + "/.some_stupid_temp_file";
 	FILE* fp = fopen(fname.c_str(), "w");

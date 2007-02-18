@@ -149,7 +149,7 @@ int CPlayerToggleBtn::MouseUp(mouse_t *tMouse,int nDown)
 
 /////////////////////////
 // Constructor
-CPlayerMarquee::CPlayerMarquee(const std::string text, Uint32 col)  {
+CPlayerMarquee::CPlayerMarquee(const std::string& text, Uint32 col)  {
 	szText = text;
 	fTime = 0;
 	fEndWait = 0;
@@ -168,7 +168,7 @@ void CPlayerMarquee::RedrawBuffer(void)
 	if (bmpBuffer)
 		SDL_FreeSurface(bmpBuffer);
 
-	iTextWidth = tLX->cFont.GetWidth(szText.c_str());
+	iTextWidth = tLX->cFont.GetWidth(szText);
 
 	bmpBuffer = gfxCreateSurface(iTextWidth,tLX->cFont.GetHeight());
 	if (!bmpBuffer)
@@ -237,7 +237,7 @@ enum  {
 
 ////////////////////////
 // Runs the dialog, returns the directory user selected
-std::string COpenAddDir::Execute(std::string default_dir)
+std::string COpenAddDir::Execute(const std::string& default_dir)
 {
 	szDir = default_dir;
 
@@ -318,7 +318,7 @@ std::string COpenAddDir::Execute(std::string default_dir)
 
 					// Check that this is not the parent or current directory
 					// TODO !
-					size_t dir_name_pos = findpathsep(lv->getCurSIndex());
+					size_t dir_name_pos = findLastPathSep(lv->getCurSIndex());
 					if (dir_name_pos == std::string::npos)
 						break;
 
@@ -409,7 +409,7 @@ std::string COpenAddDir::Execute(std::string default_dir)
 
 ////////////////////
 // Checks if the given directory is the root directory
-bool COpenAddDir::IsRoot(const std::string dir)
+bool COpenAddDir::IsRoot(const std::string& dir)
 {
 	// TODO: what is the sense of this?
 
@@ -427,14 +427,14 @@ bool COpenAddDir::IsRoot(const std::string dir)
 		tmp.erase(len-1);
 
 	// If we can't find another slash, this must be the parent directory
-	size_t slash = findpathsep(tmp);		
+	size_t slash = findLastPathSep(tmp);		
 	if(slash == std::string::npos)
 		return true;
 	
 	// If there's a slash and this is the link to the parent directory, check, if there's another slash
 	if(tmp.compare(slash+1,std::string::npos,"..") == 0) {
 		tmp.erase(slash);
-		slash = findpathsep(tmp);
+		slash = findLastPathSep(tmp);
 		// Not another slash, this is a root directory
 		if (slash == std::string::npos)
 			return true;
@@ -447,7 +447,7 @@ bool COpenAddDir::IsRoot(const std::string dir)
 
 ///////////////////////
 // Fills the list with the subdirectories of the "dir"
-void COpenAddDir::ReFillList(CListview *lv, std::string dir)
+void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 {
 	// TODO: replace all these by std::string!
 	static std::string directory;
@@ -477,7 +477,7 @@ void COpenAddDir::ReFillList(CListview *lv, std::string dir)
 		// Handle the parent directory
 		if((dir_name_pos = tmp_dir.find("../")) != std::string::npos) {
 			tmp_dir.erase(dir_name_pos-1);
-			dir_name_pos = findpathsep(tmp_dir);
+			dir_name_pos = findLastPathSep(tmp_dir);
 			if(dir_name_pos != std::string::npos)  {
 				parent_dir = tmp_dir.substr(dir_name_pos+1);
 				tmp_dir.erase(dir_name_pos+1);
@@ -495,7 +495,6 @@ void COpenAddDir::ReFillList(CListview *lv, std::string dir)
 	// Clear the listview
 	lv->Clear();
 
-#ifdef WIN32
 	// Going up when this is a root directory is handled in other way than the rest of the browsing
 	if (goto_drive_list)  {
 		int index = 0;
@@ -503,8 +502,8 @@ void COpenAddDir::ReFillList(CListview *lv, std::string dir)
 		char cur_drive = tmp_dir[0]; // TODO !
 		for (int i=0;i<drives.size();i++)  {
 			if (drives[i].type != DRV_CDROM)  {
-				lv->AddItem(drives[i].name.c_str(),index,tLX->clListView);
-				lv->AddSubitem(LVS_TEXT,drives[i].name.c_str(),NULL);
+				lv->AddItem(drives[i].name,index,tLX->clListView);
+				lv->AddSubitem(LVS_TEXT,drives[i].name,NULL);
 				if (cur_drive == drives[i].name.at(0))
 					lv->setSelectedID(index);
 				index++;
@@ -519,38 +518,35 @@ void COpenAddDir::ReFillList(CListview *lv, std::string dir)
 
 
 		// Add the parent directory
-		lv->AddItem(directory.c_str(),index++,tLX->clListView);
+		lv->AddItem(directory,index++,tLX->clListView);
 		lv->AddSubitem(LVS_TEXT,"..",NULL);
 
 		int selected = 0;
 		int dir_name = 0;
-
-		static char tmp[1024];
-
-		if(FindFirstDir(tmp_dir.c_str(),tmp)) {
-			fix_markend(tmp);
-			directory = tmp;
+		
+		if(FindFirstDir(tmp_dir,directory)) {
+			fix_markend(directory);
 			while(1) {
 				// Extract the directory name from the path
 				dir_name = findpathsep(directory);
 
 				// Add the directory
 				if (dir_name)  {
-					if (parent_dir == directory.substr(dir_name+1))
+					// TODO: use compare here!
+					if(parent_dir == directory.substr(dir_name+1))
 						selected = index;
 
-					lv->AddItem(directory.c_str(),index++,tLX->clListView);
-					lv->AddSubitem(LVS_TEXT,directory.substr(dir_name+1).c_str(),NULL);
+					lv->AddItem(directory,index++,tLX->clListView);
+					lv->AddSubitem(LVS_TEXT,dir_name+1,NULL);
+					lv->AddSubitem(LVS_TEXT,directory.substr(dir_name+1),NULL);
 				}
 
-				if(!FindNextDir(tmp))
+				if(!FindNextDir(directory))
 					break;
-				fix_markend(tmp);
-				directory = tmp;
+				fix_markend(directory);
 			}
 			lv->setSelectedID(selected);
 		}
 	}
-#endif	
 	
 }

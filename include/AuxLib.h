@@ -64,7 +64,7 @@ typedef struct {
 
 
 // Routines
-int			InitializeAuxLib(char *gname, char *config, int bpp, int vidflags);
+int			InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags);
 void		ShutdownAuxLib(void);
 int			SetVideoMode(void);
 
@@ -78,12 +78,12 @@ keyboard_t	*GetKeyboard(void);
 mouse_t		*GetMouse(void);
 SDL_Event	*GetEvent(void);
 
-char		*GetGameName(void);
+std::string	GetGameName(void);
 
-char		*GetConfigFile(void);
+std::string GetConfigFile(void);
 
-int         GetClipboardText(char *szText, int nMaxLength);
-int         SetClipboardText(char *szText);
+int         GetClipboardText(std::string& szText);
+int         SetClipboardText(const std::string& szText);
 void        TakeScreenshot(bool Tournament);
 
 // Subclass

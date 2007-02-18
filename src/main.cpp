@@ -37,7 +37,7 @@ SDL_Surface	*Screen;
 
 CVec		vGravity = CVec(0,4);
 
-char		binary_dir[512];
+std::string	binary_dir;
 
 ///////////////////
 // Main entry point
@@ -56,12 +56,12 @@ int main(int argc, char *argv[])
 
     int     startgame = false;
 
-	strcpy(binary_dir, argv[0]);
-	char *slashpos = MAX(strrchr(binary_dir,'/'),strrchr(binary_dir,'\\'));
-	if (slashpos)
-		*slashpos = 0;
+	binary_dir = argv[0];
+	size_t slashpos = findLastPathSep(binary_dir);
+	if(slashpos != std::string::npos)
+		binary_dir.erase(slashpos);
 	else
-		strcpy(binary_dir, "."); // TODO get exact path of binary
+		binary_dir = "."; // TODO get exact path of binary
 	
 	// Load options and other settings
 	if(!LoadOptions())  {

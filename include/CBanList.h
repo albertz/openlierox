@@ -21,8 +21,8 @@
 // Ban List structure
 typedef struct banlist_s {
 
-    char    *szNick;
-    char    *szAddress;
+    std::string szNick;
+    std::string szAddress;
 
     struct  banlist_s   *psNext;
     struct  banlist_s   *psLink;        // For sorted array
@@ -49,15 +49,15 @@ public:
     // Constructor
     CBanList();
 
-    void        loadList(char *szFilename);
-    void        saveList(char *szFilename);
+    void        loadList(const std::string& szFilename);
+    void        saveList(const std::string& szFilename);
     void        Shutdown(void);
 
-    bool        isBanned(char *szAddress);
+    bool        isBanned(const std::string& szAddress);
 
-	void		addBanned(char *szAddress, char *szNick);
-	void		removeBanned(char *stAddress);
-    banlist_t   *findBanned(char *szAddress);
+	void		addBanned(const std::string& szAddress, const std::string& szNick);
+	void		removeBanned(const std::string& stAddress);
+    banlist_t   *findBanned(const std::string& szAddress);
 
     void        sortList(void);
 	void		Clear(void);
@@ -67,7 +67,7 @@ public:
 
 	char		*getPath(void);
 	banlist_t	*getItemById(int ID);
-	int			getIdByAddr(char *szAddress);
+	int			getIdByAddr(const std::string& szAddress);
 
 };
 

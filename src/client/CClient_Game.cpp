@@ -1619,7 +1619,7 @@ void CClient::processChatCharacter(int c, bool bDown)
 				buf = std::string(cLocalWorms[0]->getName()) + ": " + sChat_Text;
 			else
 				buf =  replacemax(sChat_Text,"/me",cLocalWorms[0]->getName(),buf,2);
-            SendText(buf.c_str());
+            SendText(buf);
         }
         return;
     }
@@ -1633,12 +1633,12 @@ void CClient::processChatCharacter(int c, bool bDown)
 			iChat_Pos = text_len;
 
 		// Get the text
-		char buf[64];
-		int len = GetClipboardText(buf,sizeof(buf));
+		std::string buf;
+		int len = GetClipboardText(buf);
 
 		// Paste
 		memmove(sChat_Text+iChat_Pos+len,sChat_Text+iChat_Pos,text_len-iChat_Pos+1);
-		strncpy(sChat_Text+iChat_Pos,buf,len);
+		memcpy(sChat_Text+iChat_Pos,buf.c_str(),len);
 		iChat_Pos += len;
 		return;
 	}

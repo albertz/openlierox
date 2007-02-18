@@ -24,7 +24,7 @@ void CPlayList::Clear(void)
 
 //////////////////
 // Loads the directory and adds all music files in the playlist
-void CPlayList::Load(const std::string dir, bool include_subdirs, bool add_to_current_pl)
+void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_current_pl)
 {
 	// Clear me first
 	if (!add_to_current_pl)  {
@@ -180,7 +180,7 @@ void CPlayList::GoToPrevSong(void)
 
 //////////////////
 // Loads the previously saved playlist
-void CPlayList::LoadFromFile(const std::string filename,bool absolute_path)
+void CPlayList::LoadFromFile(const std::string& filename,bool absolute_path)
 {
 	// Clear first
 	tSongList.clear();
@@ -211,7 +211,7 @@ void CPlayList::LoadFromFile(const std::string filename,bool absolute_path)
 //////////////////
 // Loads the previously saved playlist
 // NOTE: if the file exists, it will be overwritten
-void CPlayList::SaveToFile(const std::string filename,bool absolute_path)
+void CPlayList::SaveToFile(const std::string& filename, bool absolute_path)
 {
 	// Open the file
 	FILE *fp = NULL;
@@ -282,12 +282,12 @@ void CMediaPlayer::Shutdown(void)
 
 /////////////////////
 // Get the song name from the path
-song_name CMediaPlayer::GetNameFromFile(song_path path)
+song_name CMediaPlayer::GetNameFromFile(const std::string& path)
 {
 	song_name name = "";
 
 	// Try to get the MP3 info
-	id3v1_t mp3tag = GetMP3Info(path.c_str());
+	id3v1_t mp3tag = GetMP3Info(path);
 	if (mp3tag.name[0])  {
 		name.append(mp3tag.name);
 		if (mp3tag.interpreter[0])  {
@@ -298,10 +298,8 @@ song_name CMediaPlayer::GetNameFromFile(song_path path)
 	}
 
 	// Remove directory
-	int pos1 = path.find_last_of('\\');
-	int pos2 = path.find_last_of('/');
-	int pos = MAX(pos1 >= path.length() ? 0 : pos1,pos2 >= path.length() ? 0 : pos2);
-	if (pos)  {
+	size_t pos = findpathsep(path);
+	if(pos != std::string::npos)  {
 		name = path.substr(pos+1,path.length()-pos);
 	} else {
 		name = path;
@@ -309,8 +307,8 @@ song_name CMediaPlayer::GetNameFromFile(song_path path)
 
 	// Remove extension
 	pos = name.find_last_of('.');
-	if (pos)  {
-		name = name.substr(0,pos);
+	if(pos != std::string::npos)  {
+		name.erase(pos);
 	}
 
 	return name;
@@ -318,14 +316,14 @@ song_name CMediaPlayer::GetNameFromFile(song_path path)
 
 //////////////////////
 // Loads the playlist from the specified file
-void CMediaPlayer::LoadPlaylistFromFile(const std::string filename, bool absolute_path)
+void CMediaPlayer::LoadPlaylistFromFile(const std::string& filename, bool absolute_path)
 {
 	tPlayList.LoadFromFile(filename,absolute_path);
 	if (tPlayList.getNumSongs() > 0)  {
 		tPlayList.SetCurSong(0);
 		szCurSongName = GetNameFromFile(tPlayList.GetCurSong());
 		if (bGfxInitialized)
-			((CPlayerMarquee *)(cPlayerGui.getWidget(mp_PlayingMarq)))->setText(szCurSongName.c_str());
+			((CPlayerMarquee *)(cPlayerGui.getWidget(mp_PlayingMarq)))->setText(szCurSongName);
 	}
 }
 
@@ -350,14 +348,14 @@ void CMediaPlayer::Play(void)
 		szCurSongName = tPlayList.GetCurSong();  // Use szCurSongName as a temp
 		if (szCurSongName.length() > 1)  {
 			FreeMusic(tCurrentSong);  // Free the previous song (if any)
-			tCurrentSong = LoadMusic(szCurSongName.c_str());
+			tCurrentSong = LoadMusic(szCurSongName);
 			if (tCurrentSong)  {
 				PlayMusic(tCurrentSong);
 			}
 			szCurSongName = GetNameFromFile(szCurSongName);
 			// Update the marquee
 			if (bGfxInitialized)
-				((CPlayerMarquee *)(cPlayerGui.getWidget(mp_PlayingMarq)))->setText(szCurSongName.c_str());
+				((CPlayerMarquee *)(cPlayerGui.getWidget(mp_PlayingMarq)))->setText(szCurSongName);
 		} else {
 			// Start again
 			if (tPlayList.getPlaylistEnded())  {

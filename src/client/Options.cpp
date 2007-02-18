@@ -37,12 +37,6 @@ int LoadOptions(void)
 
     unsigned int     i;
 
-	tLXOptions = new options_t;
-	if(tLXOptions == NULL) {
-		return false;
-	}
-	tLXOptions->tSearchPaths = NULL;
-
 	static const char *f = "cfg/options.cfg";
 
   	AddKeyword("true",true);
@@ -54,34 +48,23 @@ int LoadOptions(void)
 	// tmp is for 'SearchPathX'
 	// tmp2 is the number (X)
 	// tmp3 is the data (the path)
-	char tmp[20], tmp2[30], tmp3[1024];
-	tmp[19] = '\0';
-	strcpy(tmp, "SearchPath"); i = 1;
-	filelist_t** spath = &tLXOptions->tSearchPaths;
+	char tmp2[30];
+	std::string tmp3;
+	i = 1;
 	while(true) {
-		 // &tmp[10] is the end of "SearchPath"
-		strncpy(&tmp[10], itoa(i, tmp2, 10), sizeof(tmp)-10); // Be careful! 18 was hell too much and it caused f to be NULL
-		if(!ReadString(f, "FileHandling", tmp, tmp3, sizeof(tmp3), NULL))
+		if(!ReadString(f, "FileHandling", "SearchPath" + itoa(i, tmp2, 10), tmp3, NULL))
 			break;
 
-		*spath = new filelist_t;
-		if(!(*spath))
-			break;
-		(*spath)->next = NULL;
-		(*spath)->filename = tmp3;
-
+		AddToFileList(&tLXOptions->tSearchPaths, tmp3);
 		i++;
-		spath = &(*spath)->next;
 	}
-	for(spath = &basesearchpaths; *spath != NULL; spath = &(*spath)->next)  {
-		if(!FileListIncludes(tLXOptions->tSearchPaths, (*spath)->filename))  {
-			AddToFileList(&tLXOptions->tSearchPaths, (*spath)->filename);
-		}
+	for(searchpathlist::const_iterator p = basesearchpaths.begin(); p != basesearchpaths.end(); i++)  {
+		AddToFileList(&tLXOptions->tSearchPaths, *p);
 	}
 
 	printf("I have now the following searchpaths (in this direction):\n");
-	for(spath = &tLXOptions->tSearchPaths; *spath != NULL; spath = &(*spath)->next)  {
-		printf("  %s\n", (*spath)->filename.c_str());
+	for(searchpathlist::const_iterator p = tLXOptions->tSearchPaths.begin(); p != basesearchpaths.end(); p++) {
+		printf("  %s\n", p->c_str());
 	}
 	printf(" And that's all.\n");
 
@@ -179,14 +162,6 @@ int LoadOptions(void)
 	return true;
 }
 
-// shutdown a filelist_t structure
-void ShutdownFilenameStruct(filelist_t* f) {
-	if(f != NULL) {
-		ShutdownFilenameStruct(f->next);
-		delete f;
-	}
-}
-
 ///////////////////
 // Save & shutdown the options
 void ShutdownOptions(void)
@@ -198,16 +173,11 @@ void ShutdownOptions(void)
 
 	// Free the structure
 	assert(tLXOptions);
-	ShutdownFilenameStruct(tLXOptions->tSearchPaths);
 	delete tLXOptions;
-	tLXOptions = NULL;
 
 	if (NetworkTexts)
 		delete NetworkTexts;
 	NetworkTexts = NULL;
-
-	ShutdownFilenameStruct(basesearchpaths);
-	basesearchpaths = NULL;
 }
 
 
@@ -253,9 +223,9 @@ void SaveOptions(void)
 	fprintf(fp,"\n");
 
 	fprintf(fp, "[FileHandling]\n");
-	filelist_t* spath = tLXOptions->tSearchPaths;
-	for(i = 1; spath != NULL; i++, spath = spath->next)
-    	fprintf(fp, "SearchPath%i = %s\n", i, spath->filename.c_str());
+	i=0;
+	for(searchpathlist::const_iterator p = tLXOptions->tSearchPaths.begin(); p != tLXOptions->tSearchPaths.end(); p++, i++)
+    	fprintf(fp, "SearchPath%i = %s\n", i, p->c_str());
 	fprintf(fp,"\n");
 
     fprintf(fp, "[Ply1Controls]\n");

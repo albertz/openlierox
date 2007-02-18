@@ -17,6 +17,8 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
 
+typedef std::vector<std::string> searchpathlist;
+
 
 // Setup input id's
 enum {
@@ -105,7 +107,7 @@ typedef struct {
 	int		iScreenshotFormat;
 	
 	// File handling
-	filelist_t*	tSearchPaths;
+	searchpathlist	tSearchPaths;
 
 	// Widget states
 	int		iInternetList[6];
@@ -130,12 +132,12 @@ typedef struct {
 		int		iShowBonusName;
 		int		iMaxPlayers;
 		bool	bTournament;
-		char	sServerName[32];
-		char	sWelcomeMessage[256];
-		char	sMapName[128];
+		std::string	sServerName;
+		std::string	sWelcomeMessage;
+		std::string	sMapName;
         int     nGameType;
-        char    szModName[128];
-        char    szPassword[32];
+        std::string szModName;
+        std::string szPassword;
 		bool	bRegServer;
 		int		iLastSelectedPlayer;
 		bool	bAllowWantsJoinMsg;
@@ -197,6 +199,9 @@ bool	LoadNetworkStrings(void);
 void    SaveOptions(void);
 void	ShutdownOptions(void);
 
+
+extern	options_t		*tLXOptions;
+extern  networktexts_t  *NetworkTexts;
 
 
 

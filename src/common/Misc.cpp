@@ -303,6 +303,20 @@ char *StripLine(char *szLine)
 
 ///////////////////
 // Trim the leading & ending spaces from a string
+void TrimSpaces(std::string& szLine) {
+	size_t n = 0;
+	for(std::string::iterator p = szLine.begin(); p != szLine.end(); p++, n++)
+		if(!isspace(*p) || isgraph(*p)) break;
+	if(n>0) szLine.erase(0,n);
+	
+	n = 0;
+	for(std::string::reverse_iterator p = szLine.rbegin(); p != szLine.rend(); p++, n++)
+		if(!isspace(*p) || isgraph(*p)) break;
+	if(n>0) szLine.erase(szLine.size()-n);
+}
+
+///////////////////
+// Trim the leading & ending spaces from a string
 char *TrimSpaces(char *szLine)
 {
     // Remove preceeding spaces
@@ -322,7 +336,7 @@ char *TrimSpaces(char *szLine)
 
 ///////////////////
 // Replace a string in text, returns true, if something was replaced
-bool replace(const std::string text, const std::string what, const std::string with, std::string& result)
+bool replace(const std::string& text, const std::string& what, const std::string& with, std::string& result)
 {
 	result = text;
 	return replace(result, what, with);
@@ -330,7 +344,7 @@ bool replace(const std::string text, const std::string what, const std::string w
 
 ///////////////////
 // Replace a string in text, returns result, replaces maximally max occurences
-std::string replacemax(const std::string text, const std::string what, const std::string with, std::string& result, int max)
+std::string replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max)
 {
 	result = text;
 
@@ -345,7 +359,7 @@ std::string replacemax(const std::string text, const std::string what, const std
 	return result;
 }
 
-std::string replacemax(const std::string text, const std::string what, const std::string with, int max) {
+std::string replacemax(const std::string& text, const std::string& what, const std::string& with, int max) {
 	std::string result;
 	return replacemax(text, what, with, result, max);
 }
@@ -353,7 +367,7 @@ std::string replacemax(const std::string text, const std::string what, const std
 ///////////////////
 // Replace a string in text, returns result, replaces maximally max occurences
 // returns true, if at least one replace was made
-bool replace(std::string& text, std::string what, std::string with) {
+bool replace(const std::string& text, const std::string& what, const std::string& with) {
 	bool one_repl = false;
 	size_t pos = 0;
 	size_t what_len = what.length();
@@ -535,7 +549,7 @@ Uint32 StrToCol(char *str)
 
 
 
-short stringcasecmp(const std::string s1, const std::string s2) {
+short stringcasecmp(const std::string& s1, const std::string& s2) {
 	std::string::const_iterator p1, p2;
 	p1 = s1.begin();
 	p2 = s2.begin();
@@ -559,7 +573,7 @@ short stringcasecmp(const std::string s1, const std::string s2) {
 }
 
 
-size_t findpathsep(const std::string path) {
+size_t findLastPathSep(const std::string& path) {
 	size_t slash = path.rfind('\\');
 	size_t slash2 = path.rfind('/');
 	if(slash == std::string::npos)
@@ -579,7 +593,7 @@ size_t findpathsep(const std::string path) {
 
 ///////////////////
 // Get an integer from the specified property
-int xmlGetInt(xmlNodePtr Node, const std::string Name)
+int xmlGetInt(xmlNodePtr Node, const std::string& Name)
 {
 	xmlChar *sValue;
 	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
@@ -592,7 +606,7 @@ int xmlGetInt(xmlNodePtr Node, const std::string Name)
 
 ///////////////////
 // Get a float from the specified property
-float xmlGetFloat(xmlNodePtr Node, const std::string Name)
+float xmlGetFloat(xmlNodePtr Node, const std::string& Name)
 {
 	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if (!sValue)
@@ -604,7 +618,7 @@ float xmlGetFloat(xmlNodePtr Node, const std::string Name)
 
 ///////////////////
 // Get a colour from the specified property
-Uint32 xmlGetColour(xmlNodePtr Node, const std::string Name)
+Uint32 xmlGetColour(xmlNodePtr Node, const std::string& Name)
 {
 	xmlChar *sValue;
 

@@ -52,7 +52,7 @@ private:
 	int		Used;
 	int		Type;
 
-	char	Filename[256];
+	std::string	Filename;
 
 	// Image
 	SDL_Surface		*Image;
@@ -66,9 +66,9 @@ public:
 
 	
 	// Loading
-	SDL_Surface		*LoadImg(char *_file);
-	SDL_Surface		*LoadImgBPP(char *_file, int bpp);
-	SoundSample*			LoadSample(char *_file, int maxplaying);
+	SDL_Surface		*LoadImg(const std::string& _file);
+	SDL_Surface		*LoadImgBPP(const std::string& _file, int bpp);
+	SoundSample*			LoadSample(const std::string &_file, int maxplaying);
 
 
 	// Shutdowning
@@ -78,10 +78,10 @@ public:
 	// Variables
 	int				isUsed(void)			{ return Used; }
 	int				getType(void)			{ return Type; }
-	char			*getFilename(void)		{ return Filename; }
+	std::string		getFilename(void)		{ return Filename; }
 
 	SDL_Surface		*GetImage(void)			{ return Image; }
-	SoundSample*			GetSample(void)			{ return Sample; }
+	SoundSample*	GetSample(void)			{ return Sample; }
 };
 
 extern CCache* Cache;
@@ -96,10 +96,10 @@ extern CCache* Cache;
 int		InitializeCache(void);
 void	ShutdownCache(void);
 
-SDL_Surface     *_LoadImage(char *filename);
+SDL_Surface     *_LoadImage(const std::string& filename);
 
-SDL_Surface		*LoadImage(char *_filename, int correctbpp);
-SoundSample*			LoadSample(char *_filename, int maxplaying);
+SDL_Surface		*LoadImage(const std::string& _filename, int correctbpp);
+SoundSample*		LoadSample(const std::string& _filename, int maxplaying);
 
 
 

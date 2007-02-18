@@ -27,7 +27,7 @@ keyword_t	Keywords[MAX_KEYWORDS];
 
 ///////////////////
 // Add a keyword to the list
-int AddKeyword(char *key, int value)
+int AddKeyword(std::string& key, int value)
 {
 	// Check for enough spaces
 	if(NumKeywords >= MAX_KEYWORDS-1)
@@ -43,7 +43,7 @@ int AddKeyword(char *key, int value)
 
 ///////////////////
 // Read a keyword from a file
-int ReadKeyword(const char *filename, const char *section, const char *key, int *value, int defaultv)
+int ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
 	int n;
 	static char string[MAX_MINOR_LENGTH];
@@ -66,7 +66,7 @@ int ReadKeyword(const char *filename, const char *section, const char *key, int 
 
 ///////////////////
 // Read a keyword from a file (bool version)
-bool ReadKeyword(const char *filename, const char *section, const char *key, bool *value, bool defaultv)
+bool ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv)
 {
 	int n;
 	static char string[MAX_MINOR_LENGTH];
@@ -90,7 +90,7 @@ bool ReadKeyword(const char *filename, const char *section, const char *key, boo
 
 ///////////////////
 // Read an interger from a file
-int ReadInteger(const char *filename, const char *section, const char *key, int *value, int defaultv)
+int ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
 	static char string[MAX_MINOR_LENGTH];
 
@@ -108,7 +108,7 @@ int ReadInteger(const char *filename, const char *section, const char *key, int 
 
 ///////////////////
 // Read a string from a file
-int ReadString(const char *filename, const char *section, const char *key, char *value, size_t maxvaluelen, const char *defaultv)
+int ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv)
 {
 	if(defaultv != NULL) dyn_strncpy(value,defaultv,maxvaluelen);
 
@@ -125,7 +125,7 @@ int ReadString(const char *filename, const char *section, const char *key, char 
 
 ///////////////////
 // Read a float from a file
-int ReadFloat(const char *filename, const char *section, const char *key, float *value, float defaultv)
+int ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv)
 {
 	static char string[MAX_MINOR_LENGTH];
 
@@ -142,7 +142,7 @@ int ReadFloat(const char *filename, const char *section, const char *key, float 
 
 //////////////////
 // Read a colour
-int ReadColour(const char *filename, const char *section, const char *key, Uint32 *value, Uint32 defaultv)
+int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Uint32 *value, Uint32 defaultv)
 {
 	static char string[MAX_MINOR_LENGTH];
 
@@ -159,14 +159,14 @@ int ReadColour(const char *filename, const char *section, const char *key, Uint3
 
 //////////////////
 // Reads an array of integers
-int ReadIntArray(const char *filename, const char *section, const char *key, int *array, int num_items)
+int ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items)
 {
 	static char string[MAX_MINOR_LENGTH];
 
 	if (!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
 
-	char *tok = strtok(string,",");
+	std::string& tok = strtok(string,",");
 	int i=0;
 	while(tok && i < num_items)  {
 		array[i++] = atoi(tok);
@@ -181,9 +181,10 @@ int ReadIntArray(const char *filename, const char *section, const char *key, int
 ///////////////////
 // Read a string
 // HINT: string has to be MAX_MINOR_LENGTH long
-int GetString(const char *filename, const char *section, const char *key, char *string, size_t maxstrlen)
+int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string)
 {
 	FILE	*config;
+	// TODO!
 	static char	Line[MAX_STRING_LENGTH];
 	static char	tmpLine[MAX_STRING_LENGTH];
 	static char	curSection[512];
@@ -263,7 +264,7 @@ int GetString(const char *filename, const char *section, const char *key, char *
 
 ///////////////////
 // Trim the spaces from the start & end of a string
-/*void TrimSpaces(char *str)
+/*void TrimSpaces(std::string& str)
 {
 	if(!str)
 		return;

@@ -158,9 +158,9 @@ private:
 	int			iType;
 	int			iLocal;
 	int			iTeam;
-	char		sName[32]; // WARNING: don't change this size (check fist "readString(cWorms[i].getName()..." in MenuSystem.cpp ~1819)
+	std::string	sName;
 	Uint8		iColComps[3];
-    char        szSkin[128];
+    std::string szSkin;
 	uint		iColour;
 	int			iRanking;
 	int			iKillsInRow;
@@ -463,7 +463,8 @@ public:
 	inline int			isUsed(void)				{ return iUsed; }
 	inline void		setUsed(int _u)				{ iUsed = _u; }
 
-	inline char		*getName(void)				{ return sName; }
+	inline std::string getName(void)			{ return sName; }
+	inline void		setName(const std::string& val) { sName = val; }
 	inline uint		getColour(void)				{ return iColour; }
 	inline void		setColour(uint c)			{ iColour = c; }
 
@@ -548,9 +549,7 @@ public:
 	inline void		setTagTime(float _t)		{ fTagTime = _t; }
 	inline void		incrementTagTime(float dt)	{ fTagTime+=dt; }
 
-	inline char		*getSkin(void)				{ return szSkin; }
-
-	inline int		getMaxNameLen(void)			{ return sizeof(sName); }
+	inline std::string getSkin(void)				{ return szSkin; }
 
 	inline void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
 	inline int		getKillsInRow(void)			{ return iKillsInRow; }

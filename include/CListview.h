@@ -58,7 +58,7 @@ enum {
 
 // Column structure
 typedef struct lv_column_s {
-	char		sText[32];
+	std::string	sText;
 	int			iWidth;
 	bool		bDown;
 	int			iSorted; // -1 = unsorted, 0 = descending, 1 = ascending
@@ -71,7 +71,7 @@ typedef struct lv_column_s {
 // Sub item structure
 typedef struct lv_subitem_s {
 	int			iType;
-	char		sText[128];
+	std::string	sText;
 	SDL_Surface	*bmpImage;
 	int			iVisible;
 	int			iExtra;
@@ -83,7 +83,7 @@ typedef struct lv_subitem_s {
 
 // Item structure
 typedef struct lv_item_s {
-	char		sIndex[128];
+	std::string	sIndex;
 	int			iIndex;
     int         _iID;
 	int			iSelected;
@@ -186,9 +186,9 @@ public:
 	void	SortBy(int column, bool ascending);
 	void	ReSort(void);
 
-	void	AddColumn(char *sText, int iWidth);
-	void	AddItem(const char *sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, const char *sText, SDL_Surface *img);
+	void	AddColumn(const std::string& sText, int iWidth);
+	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
+	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img);
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
 
@@ -205,7 +205,7 @@ public:
     void    scrollLast(void);
 
 	int		getCurIndex(void)		{ if(tSelected) return tSelected->iIndex; else return -1; }
-	char	*getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return NULL; }
+	std::string getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return NULL; }
 	lv_subitem_t	*getCurSubitem(int index);
 
 	int		getCursor(void)			{ return iCursor; }
@@ -217,7 +217,7 @@ public:
 	lv_item_t	*getItems(void)			{ return tItems; }
 	lv_item_t	*getLastItem(void)	{ return tLastItem; }
 	lv_item_t* getItem(int index);
-	lv_item_t* getItem(char* name);
+	lv_item_t* getItem(const std::string& name);
 
 	int		getClickedSub(void)		{ return iClickedSub; }
 

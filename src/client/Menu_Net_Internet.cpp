@@ -387,7 +387,7 @@ void Menu_Net_NETFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_NETJoinServer(char *sAddress, char *sName)
+void Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sName)
 {
 	tGameInfo.iNumPlayers = 1;
 

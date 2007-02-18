@@ -1406,7 +1406,7 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface *sdl_surface,gdImagePtr gd_image)
 
 ///////////////////////
 // Saves the surface into the specified file with the specified format
-bool SaveSurface(SDL_Surface *image, char *FileName, int Format, bool Tournament)
+bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, bool Tournament)
 {
   if (Format == FMT_BMP)  {
 		std::string abs_fn = GetWriteFullFileName(FileName, true);

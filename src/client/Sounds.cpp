@@ -86,7 +86,7 @@ bool QuitSoundSystem() {
 	return true;
 }
 
-SoundSample* LoadSoundSample(const std::string filename, int maxsimulplays) {
+SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays) {
 	if(filename.size() > 0) {
 		Mix_Chunk* sample = Mix_LoadWAV(filename.c_str());
 		if(!sample) {
@@ -211,7 +211,7 @@ void InitializeMusic(void)
 	SetMusicVolume(tLXOptions->iMusicVolume);
 }
 
-SoundMusic *LoadMusic(const char *file)
+SoundMusic *LoadMusic(const std::string& file)
 {
 	SoundMusic *new_music = new SoundMusic;
 	if (!new_music)
@@ -284,7 +284,7 @@ void MusicFinishedHook(void)
 	bSongFinished = !GetSongStopped();
 }
 
-id3v1_t GetMP3Info(const char *file)
+id3v1_t GetMP3Info(const std::string& file)
 {
 	id3v1_t info;
 	// Clear the info

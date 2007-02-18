@@ -88,7 +88,7 @@ char *CWidgetList::getName(int ID)
 
 ////////////////
 // Get the ID of widget by it's name
-int	CWidgetList::getID(const char *Name)
+int	CWidgetList::getID(const std::string& Name)
 {
 	// The list is empty
 	if (!tItems)

@@ -34,16 +34,16 @@ enum {
 };
 
 int		iJoinMenu = join_connecting;
-char	sJoinAddress[256];
+std::string	sJoinAddress;
 
 
 ///////////////////
 // Join a server
-int Menu_Net_JoinInitialize(char *sAddress)
+int Menu_Net_JoinInitialize(const std::string& sAddress)
 {
 	iNetMode = net_join;
 	iJoinMenu = join_connecting;
-	fix_strncpy(sJoinAddress, sAddress);
+	sJoinAddress = sAddress;
 
 	if(!Menu_Net_JoinConnectionInitialize(sAddress)) {
 		// Error
@@ -309,11 +309,11 @@ enum {
 
 ///////////////////
 // Initialize the connection menu
-int Menu_Net_JoinConnectionInitialize(char *sAddress)
+int Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 {
 	iJoinMenu = join_connecting;
 	tGameInfo.iGameType = GME_JOIN;
-	fix_strncpy(sJoinAddress, sAddress);
+	sJoinAddress = sAddress;
 	cConnecting.Shutdown();
 	cConnecting.Initialize();
 
@@ -878,10 +878,10 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					std::string text;
 					CWorm *rw = cClient->getRemoteWorms() + iJoinSpeaking;
 					if (strstr(buf,"/me") == NULL)
-						text = std::string(rw->getName()) + ": " + buf;
+						text = rw->getName() + ": " + buf;
 					else
 						text = replacemax(buf,"/me",rw->getName(),text,2);
-					cClient->SendText(text.c_str());
+					cClient->SendText(text);
 				}
 				break;
 		}

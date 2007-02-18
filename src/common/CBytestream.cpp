@@ -189,6 +189,20 @@ int CBytestream::writeString(char *fmt,...)
 	return true;
 }
 
+int	CBytestream::writeString(const std::string& value) {
+	size_t len = value.size();
+	
+	if(len + CurByte >= MAX_DATA)
+		return false;
+	
+	memcpy((char*)Data+CurByte, value.c_str(), len);
+	Data[CurByte + len] = '\0';
+	CurByte += len + 1;
+	Length += len + 1;
+	
+	return true;
+}
+
 // cast 2 int12 to 3 bytes
 int	CBytestream::write2Int12(short x, short y) {
 	if(!writeByte(x & 0xff)) return false;
@@ -326,6 +340,27 @@ char *CBytestream::readString(char *str, size_t maxlen)
 	return str;
 }
 
+std::string CBytestream::readString() {
+	size_t i;
+	size_t len = (size_t)GetLength();
+	for(i=CurByte; i<len; i++)
+		if(Data[i] == '\0') {
+			return std::string(&Data[CurByte], i-CurByte);		
+		}
+
+	return "";
+}
+
+std::string CBytestream::readString(size_t maxlen) {
+	size_t i;
+	size_t len = MIN((size_t)GetLength(), CurByte+maxlen+1);
+	for(i=CurByte; i<len; i++)
+		if(Data[i] == '\0') {
+			return std::string(&Data[CurByte], i-CurByte);		
+		}
+
+	return "";
+}
 
 // cast 3 bytes to 2 int12
 void CBytestream::read2Int12(short& x, short& y) {

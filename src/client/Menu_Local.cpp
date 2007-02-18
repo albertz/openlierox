@@ -755,39 +755,34 @@ int Menu_LocalGetTeam(int count)
 void Menu_Local_FillModList( CCombobox *cb )
 {
 	// Find all directories in the the lierox
-	static char dir[512];
-	char *d;
-	static char name[32];
-	CGameScript gs;
 	int baseid = 0;
-	int i=0;
 
 	cb->clear();
 
-	if(FindFirstDir(".",dir)) {
-		fix_markend(dir);
-		while(1) {
-
-            // Remove the full directory section so we only have the mod dir name
-			d = MAX(strrchr(dir,'\\'),strrchr(dir,'/'))+1;
-            if(!d)
-               d = dir;
-
-			// Check if this dir has a valid script.lgs file in it
-			if(gs.CheckFile(dir,name) && !cb->getItem(name)) {
-				cb->addItem(i,d,name);
-
-				// Store the index of the last used mod
-				if(stricmp(d,tLXOptions->tGameinfo.szModName) == 0)
-					baseid = i;
-				i++;
-			}
-
-			if(!FindNextDir(dir))
-				break;
-			fix_markend(dir);
+	class addMod { public:
+		CCombobox* combobox;
+		int* baseid;
+		int i;
+		addMod(CCombobox* cb_, int* id_) : combobox(cb_), baseid(id_), i(0) {}
+		inline bool operator() (const std::string& f) {		
+			size_t sep = findLastPathSep(f);
+			if(sep != std::string::npos) {
+				static std::string name;
+				if(CGameScript::CheckFile(f,name)
+				&& !combobox->getItem(name)) {
+					combobox->addItem(i,f.substr(sep+1),name);
+	
+					// Store the index of the last used mod
+					if(stringcasecmp(name,tLXOptions->tGameinfo.szModName) == 0)
+						*baseid = i;
+					i++;
+				}				
+			}			
+			
+			return true;
 		}
-	}
+	};
+	FindFiles(addMod(cb,&baseid),".",FM_DIR);
 
 	// Set the last used mod as default
 	if(baseid >= 0)
@@ -1048,7 +1043,7 @@ enum {
 
 ///////////////////
 // Initialize the weapons restrictions
-void Menu_WeaponsRestrictions(char *szMod)
+void Menu_WeaponsRestrictions(const std::string& szMod)
 {
 //	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 
@@ -1283,31 +1278,28 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	t->setEnabled(save);
 
 	// Load the level list
-	static char	filename[512];
-	static char	name[64];
 
-	int done = !FindFirst("cfg/presets/","*",filename);
 	CListview *lv = (CListview *)cWpnPresets.getWidget(wp_PresetList);
 	lv->AddColumn("Weapon presets",60);
 
-
-	size_t len;
-	while(!done) {
-		len = fix_strnlen(filename);
-		if( stricmp(filename + len-4, ".wps") == 0) {
-			// Remove the path
-			char *f = MAX(strrchr(filename,'/'),strrchr(filename,'\\'));
-			strncpy(name,f+1,len-4);
-			name[strnlen(name,sizeof(name))-4] = '\0';
-			if(f && !lv->getItem(f+1)) {
-				lv->AddItem(f+1,0,tLX->clListView);
-				lv->AddSubitem(LVS_TEXT,name,NULL);
+	class addWeaponPresets { public:
+		CListview* listview;
+		addWeaponPresets(CListview* lv_) : listview(lv_) {}
+		inline bool operator() (const std::string& f) {		
+			if(stringcasecmp(f.substr(f.size()-4),".wps")) {
+				size_t sep = findLastPathSep(f);
+				if(sep != std::string::npos) {
+					std::string name = f.substr(sep+1);
+					if(!listview->getItem(name)) {
+						listview->AddItem(name,0,tLX->clListView);
+						listview->AddSubitem(LVS_TEXT,name,NULL);
+					}
+				}		
 			}
+			return true;
 		}
-
-		done = !FindNext(filename);
-	}
-
+	};
+	FindFiles(addWeaponPresets(lv),"cfg/presets/",FM_REG);
 
 
 

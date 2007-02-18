@@ -891,40 +891,32 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 
 ///////////////////
 // Check if a file is a valid liero game script
-int CGameScript::CheckFile(char *dir, char *name)
+int CGameScript::CheckFile(const std::string& dir, std::string& name)
 {
-	static char filename[256];
-
-	snprintf(filename,sizeof(filename),"%s/script.lgs",dir);
-
+	name = "";
+	std::string filename = dir + "/script.lgs";
+	
 	// Open it
 	FILE *fp = OpenGameFile(filename,"rb");
 	if(fp == NULL)
 		return false;
 
-	memset(&Header,0,sizeof(gs_header_t));
-
-
 	// Header
-	fread(&Header,sizeof(Header),1,fp);
-	EndianSwap(Header.Version);
-
-	// Check ID
-	if(strcmp(Header.ID,"Liero Game Script") != 0) {
-		fclose(fp);
-		return false;
-	}
-
-	// Check version
-	if(Header.Version != GS_VERSION) {
-		fclose(fp);
-		return false;
-	}
-
-	strcpy(name, Header.ModName);
-
+	gs_header_t head;
+	memset(&head,0,sizeof(gs_header_t));
+	fread(&head,sizeof(gs_header_t),1,fp);
+	EndianSwap(head.Version);
 	fclose(fp);
 
+	// Check ID
+	if(strcmp(head.ID,"Liero Game Script") != 0)
+		return false;
+
+	// Check version
+	if(head.Version != GS_VERSION)
+		return false;
+
+	name = head.ModName;
 	return true;
 }
 

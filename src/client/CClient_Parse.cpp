@@ -833,7 +833,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		return;
 	}
 
-	char *HostName;
+	std::string HostName;
 
 	for(int i=0;i<numworms;i++) {
 		int id = bs->readByte();
@@ -870,7 +870,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		if (!f)
 			return;
 		fputs("  <server hostname=\"",f);
-		fputs(HostName,f);
+		fputs(HostName.c_str(),f);
 		static char cTime[26];
 		GetTime(cTime); fix_markend(cTime);
 		fprintf(f,"\" jointime=\"%s\">\r\n",cTime);

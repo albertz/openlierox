@@ -309,7 +309,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 
 ///////////////////
 // Calculate the width of a string of text
-int CFont::GetWidth(const char *buf)
+int CFont::GetWidth(const std::string& buf)
 {
 	unsigned int n,l;
 	int length = 0;

@@ -38,6 +38,7 @@
 #include <time.h>
 #include <ctype.h>
 #include <string>
+#include <vector>
 
 // Disable this silly warning
 #ifdef _MSC_VER
@@ -226,6 +227,7 @@ inline T* GetByteSwapped(const T b)
 #include "MathLib.h"
 #include "CFont.h"
 
+#include "Options.h"
 #include "FindFile.h"
 #include "CssParser.h"
 

@@ -301,7 +301,7 @@ public:
 	weapon_t	*FindWeapon(char *name);
     bool        weaponExists(char *szName);
 
-	int			CheckFile(char *dir, char *name);
+	static int	CheckFile(const std::string& dir, std::string& name);
 
     void        modLog(char *fmt, ...);
 

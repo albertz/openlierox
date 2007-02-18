@@ -80,7 +80,7 @@ private:
 	// Attributes
 
 	// General
-	char		sName[32];	
+	std::string	sName;
 	int			iState;
 
 	// Logging
@@ -100,7 +100,7 @@ private:
 	int			iBonusesOn;
 	int			iShowBonusName;
 	int			iLoadingTimes;
-	char		sModName[128];
+	std::string	sModName;
 	CGameScript	cGameScript;
     CWpnRest    cWeaponRestrictions;
 
@@ -124,7 +124,7 @@ private:
 
 	// Map
 	int			iRandomMap;
-	char		sMapFilename[512];
+	std::string	sMapFilename;
 	CMap		*cMap;
 
 	// Simulation
@@ -152,7 +152,7 @@ public:
 
 
 	void		Clear(void);
-	int			StartServer(char *name, int port, int maxplayers, bool regserver);
+	int			StartServer(const std::string& name, int port, int maxplayers, bool regserver);
 	void		Shutdown(void);	
 
     void        notifyLog(char *fmt, ...);
@@ -210,8 +210,8 @@ public:
 
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs);
-	void		SendGlobalText(const char *text, int type);
-	void		SendGlobalText(const std::string text, int type);
+	void		SendGlobalText(const char* text, int type);
+	void		SendGlobalText(const std::string& text, int type);
 	void		SendDisconnect(void);
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);
@@ -244,8 +244,8 @@ public:
 	inline CMap		*getMap(void)		{ return cMap; }
 	inline CBanList	*getBanList(void)	{ return &cBanList; }
 	CClient		*getClient(int iWormID);
-	inline char		*getName(void)		{ return &sName[0]; }
-	inline void	setName(char *_name){ fix_strncpy(sName,_name); }
+	inline std::string   getName(void)		{ return sName; }
+	inline void	setName(const std::string& _name){ sName = _name; }
 	inline int	getMaxWorms(void)	{ return iMaxWorms; }
 	inline void	setMaxWorms(int _n) { iMaxWorms = _n; }
 	inline bool		getGameOver(void)	{ return iGameOver != 0; }

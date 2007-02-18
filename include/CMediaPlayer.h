@@ -7,9 +7,7 @@
 
 #include <vector>
 
-typedef std::string song_path;
-typedef std::string song_name;
-typedef std::vector<song_path> song_list;
+typedef std::vector<std::string> song_list;
 
 
 //
@@ -38,9 +36,9 @@ CGuiLayout cOpenGui;
 
 	// Methods
 	void		ReFillList(CListview *lv, std::string dir);
-	bool		IsRoot(const std::string dir);
+	bool		IsRoot(const std::string& dir);
 public:
-	std::string Execute(std::string default_dir);
+	std::string Execute(const std::string& default_dir);
 	inline bool getAdd(void) { return bAdd; }
 	inline bool getIncludeSubdirs(void) { return bIncludeSubdirs; }
 };
@@ -61,8 +59,8 @@ private:
 	bool		bShuffle;
 public:
 	void		Clear(void);
-	void		Load(std::string dir,bool include_subdirs=true, bool add_to_current_pl=true);
-	song_path	GetCurSong(void);
+	void		Load(const std::string& dir,bool include_subdirs=true, bool add_to_current_pl=true);
+	std::string	GetCurSong(void);
 	void		GoToNextSong(void);
 	void		GoToPrevSong(void);
 	void		setRepeat(bool _r);
@@ -73,8 +71,8 @@ public:
 	inline bool	getShuffle(void) { return bShuffle; }
 	inline int	getNumSongs(void) { return tSongList.size(); }
 
-	void		SaveToFile(const std::string filename,bool absolute_path);
-	void		LoadFromFile(const std::string filename,bool absolute_path);
+	void		SaveToFile(const std::string& filename,bool absolute_path);
+	void		LoadFromFile(const std::string& filename,bool absolute_path);
 };
 
 
@@ -130,7 +128,7 @@ public:
 
 private:
 	// Attributes
-	song_name		szCurSongName;
+	std::string		szCurSongName;
 	SoundMusic		*tCurrentSong;
 	CPlayList		tPlayList;
 
@@ -153,7 +151,7 @@ public:
 	 void		Clear(void);
 	 bool		Initialize(void);
 	 void		Shutdown(void);
-	 song_name	GetNameFromFile(song_path path);
+	 std::string	GetNameFromFile(const std::string& path);
 	 void		Play(void);
 	 void		PauseResume(void);
 	 void		Stop(void);
@@ -171,11 +169,11 @@ public:
 	 inline bool	GetRepeatPlaylist(void)		{return tPlayList.getRepeat(); }
 	 inline void	SetShufflePlaylist(bool _s)  {tPlayList.setShuffle(_s); }
 	 inline bool	GetShufflePlaylist(void)		{return tPlayList.getShuffle(); }
-	 inline void	OpenDirectory(const std::string dir,bool include_subdirs=true,bool add_to_current_pl=true)  {tPlayList.Load(dir,include_subdirs,add_to_current_pl); }
-	 inline const std::string GetCurrentSongName(void)	{return szCurSongName; }
+	 inline void	OpenDirectory(const std::string& dir,bool include_subdirs=true,bool add_to_current_pl=true)  {tPlayList.Load(dir,include_subdirs,add_to_current_pl); }
+	 inline const std::string& GetCurrentSongName(void)	{return szCurSongName; }
 
-	 void			LoadPlaylistFromFile(const std::string filename,bool absolute_path=false);
-	 inline void	SavePlaylistToFile(const std::string filename,bool absolute_path=false)  {tPlayList.SaveToFile(filename,absolute_path); }
+	 void			LoadPlaylistFromFile(const std::string& filename,bool absolute_path=false);
+	 inline void	SavePlaylistToFile(const std::string& filename,bool absolute_path=false)  {tPlayList.SaveToFile(filename,absolute_path); }
 
 	 // Drawing and GUI processing
 	 bool			InitializeGfx(void);
@@ -312,7 +310,7 @@ public:
 #define MARQUEE_ENDWAIT 0.2f
 class CPlayerMarquee: public CWidget  {
 public:
-	CPlayerMarquee(const std::string text, Uint32 col);
+	CPlayerMarquee(const std::string& text, Uint32 col);
 
 private:
 	std::string szText;
@@ -347,7 +345,7 @@ public:
 	inline void	setColour(Uint32 _c)		{ iColour = _c; }
 
 	inline std::string getText(void)	{ return szText; }
-	inline void setText(const std::string text)	{ szText = text; iFrame = 0; fTime=0; RedrawBuffer(); }
+	inline void setText(const std::string& text)	{ szText = text; iFrame = 0; fTime=0; RedrawBuffer(); }
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
