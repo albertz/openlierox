@@ -62,7 +62,7 @@ public:
 
 	int		Load(const std::string& name, const std::string& section);
 	int		Setup(const std::string& text);
-	int		Wait(const std::string& strText);
+	int		Wait(std::string& strText);
 
 	int		isUp(void);
 	int		isDown(void);

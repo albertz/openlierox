@@ -184,7 +184,7 @@ int SetVideoMode(void)
 
 	SDL_EnableUNICODE(1);
 	SDL_EnableKeyRepeat(200,20);
-	SDL_WM_SetCaption(GameName,NULL);
+	SDL_WM_SetCaption(GameName.c_str(),NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
 #ifdef WIN32

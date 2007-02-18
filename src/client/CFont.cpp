@@ -315,7 +315,7 @@ int CFont::GetWidth(const std::string& buf)
 	int length = 0;
 
 	// Calculate the length of the text
-	for(n=0;n<strlen(buf);n++) {
+	for(n=0;n<buf.length();n++) {
         l = buf[n]-32;
         if( l >= Fontstr_len || l < 0 )
             continue;
@@ -328,7 +328,7 @@ int CFont::GetWidth(const std::string& buf)
 
 
 ///////////////////
-// Draw's the text in centre alignment
+// Draws the text in centre alignment
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, int col, char *fmt, ...)
 {
 	static char buf[512];

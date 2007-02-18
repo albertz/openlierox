@@ -122,7 +122,7 @@ typedef struct {
 	int		iMusicVolume;
 
 	// Last used game details
-	struct {
+	struct gameinfo_s {
 		int		iLives;
 		int		iKillLimit;
 		int		iTimeLimit;

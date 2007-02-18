@@ -204,6 +204,7 @@ float fTimePaused = 0;
 bool  bSongStopped = false;
 byte  iMusicVolume = 50;
 bool  bSongFinished;
+SDL_Thread *LoadMusThread = NULL;
 
 void InitializeMusic(void)
 {

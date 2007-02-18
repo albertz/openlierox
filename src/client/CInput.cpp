@@ -173,7 +173,7 @@ int CInput::Load(const std::string& name, const std::string& section)
 
 ///////////////////
 // Waits for any input (used in a loop)
-int CInput::Wait(const std::string& strText)
+int CInput::Wait(std::string& strText)
 {
 	mouse_t *Mouse = GetMouse();
 	keyboard_t *kb = GetKeyboard();
@@ -186,23 +186,17 @@ int CInput::Wait(const std::string& strText)
 			// Swap rmb id wih mmb (mouse buttons)
 			if(n==2) i=3;
 			if(n==3) i=2;
-			sprintf(strText,"ms%d",i);
+			strText = "ms"+itoa(i,10);
 			return true;
 		}
 	}
 
 	// Keyboard
 
-	// Check for RALT first (else it's detected as lctrl and lalt by newest SDL)
-	if(kb->KeyUp[SDLK_RALT])  {
-		strcpy(strText,Keys[79].text);
-		return true;
-	}
-
 	// Other keys
 	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
 		if(kb->KeyUp[Keys[n].value]) {
-			strcpy(strText,Keys[n].text);
+			strText = Keys[n].text;
 			return true;
 		}
 	}
@@ -224,17 +218,17 @@ int CInput::Setup(const std::string& string)
 	Down = false;
 
 	// Check if it's a mouse
-	if(stricmp(string,"ms1") == 0) {
+	if(string == "ms1") {
 		Type = INP_MOUSE;
 		Data = 1;
 		return true;
 	}
-	if(stricmp(string,"ms2") == 0) {
+	if(string == "ms2") {
 		Type = INP_MOUSE;
 		Data = 3;
 		return true;
 	}
-	if(stricmp(string,"ms3") == 0) {
+	if(string == "ms3") {
 		Type = INP_MOUSE;
 		Data = 2;
 		return true;
@@ -242,7 +236,7 @@ int CInput::Setup(const std::string& string)
 
 
 	// Check if it's a joystick #1
-	if(strncmp(string,"joy1_",5) == 0) {
+	if(string.substr(0,5) == "joy1_") {
 		Type = INP_JOYSTICK1;
 		Data = 0;
 
@@ -264,7 +258,7 @@ int CInput::Setup(const std::string& string)
 
 		// Go through the joystick list
 		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
-			if(stricmp(Joysticks[n].text,string) == 0) {
+			if(Joysticks[n].text == string) {
 				Data = Joysticks[n].value;
 				Extra = Joysticks[n].extra;
 				return true;
@@ -273,7 +267,7 @@ int CInput::Setup(const std::string& string)
 	}
 
 	// Check if it's a joystick #2
-	if(strncmp(string,"joy2_",5) == 0) {
+	if(string.substr(0,5) == "joy2_") {
 		Type = INP_JOYSTICK2;
 		Data = 0;
 
@@ -292,7 +286,7 @@ int CInput::Setup(const std::string& string)
 
 		// Go through the joystick list
 		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
-			if(stricmp(Joysticks[n].text,string) == 0) {
+			if(Joysticks[n].text == string) {
 				Data = Joysticks[n].value;
 				Extra = Joysticks[n].extra;
 				return true;
@@ -307,7 +301,7 @@ int CInput::Setup(const std::string& string)
 
 	// Go through the key list checking with piece of text it was
 	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
-		if(stricmp(Keys[n].text,string) == 0) {
+		if(Keys[n].text == string) {
 			Data = Keys[n].value;
 			return true;
 		}
