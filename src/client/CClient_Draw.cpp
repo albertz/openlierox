@@ -181,13 +181,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Chatter
 	if(iChat_Typing)  {
-		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clNormalText, "Talk: %s",sChat_Text);
+		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clNormalText, "Talk: %s",sChat_Text.c_str());
 		if (iChat_CursorVisible)  {
-			static char buf[256];
-			iChat_Pos = MIN((unsigned int)iChat_Pos,sizeof(buf)-1);
-			strncpy(buf,sChat_Text,iChat_Pos);
-			buf[iChat_Pos] = '\0';
-			DrawVLine(bmpDest, 368, 378, 4+tLX->cFont.GetWidth("Talk: ")+tLX->cFont.GetWidth(buf), tLX->clNormalText);
+			DrawVLine(bmpDest, 368, 378, 4+tLX->cFont.GetWidth("Talk: ")+tLX->cFont.GetWidth(sChat_Text.substr(0,iChat_Pos)), tLX->clNormalText);
 		}
 	}
 
@@ -1100,9 +1096,9 @@ void CClient::InitializeViewportManager(void)
         if(!cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT)
             continue;
 
-		ViewportMgr.SendMessage( v1_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getName() );
+		ViewportMgr.SendMessage( v1_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), (DWORD)&cRemoteWorms[i].getName() );
 		ViewportMgr.SendMessage( v1_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg());
-		ViewportMgr.SendMessage( v2_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getName() );
+		ViewportMgr.SendMessage( v2_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), (DWORD)&cRemoteWorms[i].getName() );
 		ViewportMgr.SendMessage( v2_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg());
     }
 

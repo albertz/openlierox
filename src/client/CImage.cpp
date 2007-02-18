@@ -39,18 +39,13 @@ void CImage::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Changes the image
-void CImage::Change(char *Path)
+void CImage::Change(const std::string& Path)
 {
-	if(!Path)
+	if(Path == "")
 		return;
 
-	// Delete the old path
-	delete[] sPath;
-
 	// Copy the new path
-	size_t len = strlen(Path);
-	sPath = new char[len+1];
-	if(sPath) memcpy(sPath,Path,len+1);
+	sPath = Path;
 
 	// Free the current image
 	SDL_FreeSurface(tImage);

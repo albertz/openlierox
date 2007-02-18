@@ -47,7 +47,7 @@ public:
 		bFreeSurface = false;
 	}
 
-	CButton(char *path) {
+	CButton(const std::string& path) {
 		iImageID = 0;
 		bmpImage = LoadImage(path,1);
 		iMouseOver = false;

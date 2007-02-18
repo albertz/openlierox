@@ -173,75 +173,60 @@ bool CGuiLayout::Build(void)
 	//	1. Get the file to parse
 	//
 
-	char *sFilename = NULL;
+	std::string sFilename = "";
 
 	// Default skin extension
-	char sExtension[4];
-	strcpy(sExtension,"skn");
+	std::string sExtension = "skn";
 
 	// Get the skin path
-	size_t skinpathlen = fix_strnlen(tLXOptions->sSkinPath);
-	size_t reslen = fix_strnlen(tLXOptions->sResolution);
-	char *path = new char[skinpathlen+reslen+1];
-	size_t pathlen = skinpathlen+reslen+1;
-	if (!path)  {
-		Error(ERR_OUTOFMEMORY,"%s","Out of memory.");
-		return false;
-	}
-	memcpy(path, tLXOptions->sSkinPath, skinpathlen);
-	memcpy(path+skinpathlen, tLXOptions->sResolution, reslen+1);
+	size_t skinpathlen = tLXOptions->sSkinPath.length();
+	size_t reslen = tLXOptions->sResolution.length();
+	std::string path = tLXOptions->sSkinPath+tLXOptions->sResolution;
 
 	// Temp
-	static char file[32];
+	static std::string file = "";
 
 	// Get the file name of the skin file
 	switch (iID)  {
-		case L_MAINMENU: strcpy(file,"mainmenu"); break;
-		case L_LOCALPLAY: strcpy(file,"localplay"); break;
-		case L_GAMESETTINGS: strcpy(file,"gamesettings"); break;
-		case L_WEAPONOPTIONS: strcpy(file,"weaponoptions"); break;
-		case L_LOADWEAPONS: strcpy(file,"loadweapons"); break;
-		case L_SAVEWEAPONS: strcpy(file,"saveweapons"); break;
-		case L_NET: strcpy(file,"net"); break;
-		case L_NETINTERNET: strcpy(file,"netinternet"); break;
-		case L_INTERNETDETAILS: strcpy(file,"internetdetails"); break;
-		case L_ADDSERVER: strcpy(file,"addserver"); break;
-		case L_NETLAN: strcpy(file,"netlan"); break;
-		case L_LANDETAILS: strcpy(file,"landetails"); break;
-		case L_NETHOST: strcpy(file,"nethost"); break;
-		case L_NETFAVOURITES: strcpy(file,"netfavourites"); break;
-		case L_FAVOURITESDETAILS: strcpy(file,"favouritesdetails"); break;
-		case L_RENAMESERVER: strcpy(file,"renameserver"); break;
-		case L_ADDFAVOURITE: strcpy(file,"addfavourite"); break;
-		case L_CONNECTING: strcpy(file,"connecting"); break;
-		case L_NETJOINLOBBY: strcpy(file,"netjoinlobby"); break;
-		case L_NETHOSTLOBBY: strcpy(file,"nethostlobby"); break;
-		case L_SERVERSETTINGS: strcpy(file,"serversettings"); break;
-		case L_BANLIST: strcpy(file,"banlist"); break;
-		case L_PLAYERPROFILES: strcpy(file,"playerprofiles"); break;
-		case L_CREATEPLAYER: strcpy(file,"createplayer"); break;
-		case L_VIEWPLAYERS: strcpy(file,"viewplayers"); break;
-		case L_LEVELEDITOR: strcpy(file,"leveleditor"); break;
-		case L_NEWDIALOG: strcpy(file,"newdialog"); break;
-		case L_SAVELOADLEVEL: strcpy(file,"saveloadlevel"); break;
-		case L_OPTIONS: strcpy(file,"options"); break;
-		case L_OPTIONSCONTROLS: strcpy(file,"optionscontrols"); break;
-		case L_OPTIONSGAME: strcpy(file,"optionsgame"); break;
-		case L_OPTIONSSYSTEM: strcpy(file,"optionssystem"); break;
-		case L_MESSAGEBOXOK: strcpy(file,"messageboxok"); break;
-		case L_MESSAGEBOXYESNO: strcpy(file,"messageboxyesno"); break;
-		default: strcpy(file, "fuckingshit");
+		case L_MAINMENU: file = "mainmenu"; break;
+		case L_LOCALPLAY: file = "localplay"; break;
+		case L_GAMESETTINGS: file = "gamesettings"; break;
+		case L_WEAPONOPTIONS: file = "weaponoptions"; break;
+		case L_LOADWEAPONS: file = "loadweapons"; break;
+		case L_SAVEWEAPONS: file = "saveweapons"; break;
+		case L_NET: file = "net"; break;
+		case L_NETINTERNET: file = "netinternet"; break;
+		case L_INTERNETDETAILS: file = "internetdetails"; break;
+		case L_ADDSERVER: file = "addserver"; break;
+		case L_NETLAN: file = "netlan"; break;
+		case L_LANDETAILS: file = "landetails"; break;
+		case L_NETHOST: file = "nethost"; break;
+		case L_NETFAVOURITES: file = "netfavourites"; break;
+		case L_FAVOURITESDETAILS: file = "favouritesdetails"; break;
+		case L_RENAMESERVER: file = "renameserver"; break;
+		case L_ADDFAVOURITE: file = "addfavourite"; break;
+		case L_CONNECTING: file = "connecting"; break;
+		case L_NETJOINLOBBY: file = "netjoinlobby"; break;
+		case L_NETHOSTLOBBY: file = "nethostlobby"; break;
+		case L_SERVERSETTINGS: file = "serversettings"; break;
+		case L_BANLIST: file = "banlist"; break;
+		case L_PLAYERPROFILES: file = "playerprofiles"; break;
+		case L_CREATEPLAYER: file = "createplayer"; break;
+		case L_VIEWPLAYERS: file = "viewplayers"; break;
+		case L_LEVELEDITOR: file = "leveleditor"; break;
+		case L_NEWDIALOG: file = "newdialog"; break;
+		case L_SAVELOADLEVEL: file = "saveloadlevel"; break;
+		case L_OPTIONS: file = "options"; break;
+		case L_OPTIONSCONTROLS: file = "optionscontrols"; break;
+		case L_OPTIONSGAME: file = "optionsgame"; break;
+		case L_OPTIONSSYSTEM: file = "optionssystem"; break;
+		case L_MESSAGEBOXOK: file = "messageboxok"; break;
+		case L_MESSAGEBOXYESNO: file = "messageboxyesno"; break;
+		default: file =  "fuckingshit";
 	}
 
 	// Get the Filename + Path
-	size_t len = pathlen+strlen(file)+strlen(sExtension)+1;
-	sFilename = new char[len];
-	if(!sFilename)  {
-		Error(ERR_OUTOFMEMORY,"%s","Out of memory.");
-		return false;
-	}
-	snprintf(sFilename,len,"%s/%s.%s",path,file,sExtension);
-	dyn_markend(sFilename,len);
+	sFilename = path+"/"+file+"."+sExtension;
 
 	//
 	//	2. Parse the file
@@ -251,7 +236,7 @@ bool CGuiLayout::Build(void)
 	xmlNodePtr	tCurrentNode;
 
 	// Parse the document
-	tDocument = xmlParseFile(sFilename);
+	tDocument = xmlParseFile(sFilename.c_str());
 	if (tDocument == NULL)  {
 		Error(ERR_COULDNOTPARSE,"Could not parse the document %s",sFilename);
 		return false;

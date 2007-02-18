@@ -36,7 +36,7 @@ enum {
 // Menu item structure
 typedef struct mnu_item_s {
     int     nID;
-    char    szName[64];
+	std::string  szName;
     int     nSelected;
 
     struct mnu_item_s   *psNext;
@@ -78,7 +78,7 @@ public:
 	void	LoadStyle(void) {}
 
 
-    void    addItem(int nID, char *szName);
+    void    addItem(int nID, const std::string& szName);
 
 };
 

@@ -26,7 +26,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	mouse_t *tMouse = GetMouse();
 
 	// Strip text buffer
-	static char buf[256];
+	static std::string buf;
 
 	// Count the item height
 	int ItemHeight = tLX->cFont.GetHeight()+1;
@@ -47,15 +47,15 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	if(iDropped) {
 		// Dropped down
 		if(tSelected)  {
-			fix_strncpy(buf,tSelected->sName);
+			buf = tSelected->sName;
 			if (tSelected->tImage)  {
 				DrawImage(bmpDest,tSelected->tImage,iX+3,iY+1);
 				stripdot(buf,iWidth-(6+tSelected->tImage->w+iGotScrollbar*15));
-				tLX->cFont.Draw(bmpDest, iX+6+tSelected->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), MakeColour(128,128,128),"%s", buf);
+				tLX->cFont.Draw(bmpDest, iX+6+tSelected->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), MakeColour(128,128,128),"%s", buf.c_str());
 			}
 			else  {
 				stripdot(buf,iWidth-(3+iGotScrollbar*15));
-				tLX->cFont.Draw(bmpDest, iX+3, iY+2, tLX->clDisabled,"%s", buf);
+				tLX->cFont.Draw(bmpDest, iX+3, iY+2, tLX->clDisabled,"%s", buf.c_str());
 			}
 		}
 
@@ -107,7 +107,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
             if(selected)
                 DrawRectFill(bmpDest, iX+2, y, w, y+ItemHeight-1, MakeColour(0,66,102));
 
-			fix_strncpy(buf,item->sName);
+			buf = item->sName;
 
 			bool stripped = false;
 
@@ -115,7 +115,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 				// Draw the image
 				DrawImage(bmpDest,item->tImage,iX+3,y);
 				stripped = stripdot(buf,iWidth-(6+tSelected->tImage->w+iGotScrollbar*15));
-				tLX->cFont.Draw(bmpDest, iX+6+item->tImage->w, y, tLX->clDropDownText,"%s", buf);
+				tLX->cFont.Draw(bmpDest, iX+6+item->tImage->w, y, tLX->clDropDownText,"%s", buf.c_str());
 				if (stripped && selected)  {
 					int x1 = iX+4+tSelected->tImage->w;
 					int y1 = y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2);
@@ -128,12 +128,12 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 
 					DrawRect(bmpDest,x1-1,y1-1,x2,y2,MakeColour(220,220,220));
 					DrawRectFill(bmpDest,x1,y1,x2,y2,MakeColour(40,84,122));
-					tLX->cFont.Draw(bmpDest, x1+2, y1-1, tLX->clDropDownText,"%s", item->sName);
+					tLX->cFont.Draw(bmpDest, x1+2, y1-1, tLX->clDropDownText,"%s", item->sName.c_str());
 				}
 			}
 			else  {
 				stripped = stripdot(buf,iWidth-(3+iGotScrollbar*15));
-				tLX->cFont.Draw(bmpDest, iX+3, y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText,"%s", buf);
+				tLX->cFont.Draw(bmpDest, iX+3, y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText,"%s", buf.c_str());
 				if (stripped && selected)  {
 					int x1 = iX+4;
 					int y1 = y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2);
@@ -146,7 +146,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 
 					DrawRect(bmpDest,x1-1,y1-1,x2,y2,MakeColour(220,220,220));
 					DrawRectFill(bmpDest,x1,y1,x2,y2,MakeColour(40,84,122));
-					tLX->cFont.Draw(bmpDest, x1-1, y1, tLX->clDropDownText,"%s", item->sName);
+					tLX->cFont.Draw(bmpDest, x1-1, y1, tLX->clDropDownText,"%s", item->sName.c_str());
 				}
 			}
 
@@ -158,7 +158,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	} else {
 		// Normal
 		if (tSelected)  {
-			fix_strncpy(buf,tSelected->sName);
+			buf = tSelected->sName;
 			if (tSelected->tImage)  {
 				DrawImage(bmpDest,tSelected->tImage,iX+3,iY+1);
 				stripdot(buf,iWidth-(6+tSelected->tImage->w+iGotScrollbar*15));
@@ -213,8 +213,8 @@ void CCombobox::Sort(bool ascending)
 			bool swap = false;
 
 			// Swap the two items?
-			int nat_cmp1 = atoi(item->sName);
-			int nat_cmp2 = atoi(next_item->sName);
+			int nat_cmp1 = atoi(item->sName.c_str());
+			int nat_cmp2 = atoi(next_item->sName.c_str());
 			// First try, if we compare numbers
 			if (nat_cmp1 && nat_cmp2)  {
 				if (ascending)
@@ -223,7 +223,7 @@ void CCombobox::Sort(bool ascending)
 					swap = nat_cmp2 > nat_cmp1;
 			// String comparison
 			} else {
-				int tmp = strncasecmp(item->sName,next_item->sName,sizeof(item->sName));
+				int tmp = stringcasecmp(item->sName,next_item->sName);
 				if (ascending)
 					swap = tmp > 0;
 				else
@@ -509,18 +509,14 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		// Get the current item's string index
 		case CBM_GETCURSINDEX:
 			if(tSelected) {
-				strncpy((char *)Param1, tSelected->sIndex, Param2);
-				char *p = (char *)Param1;
-				p[Param2-1] = '\0';
+				*((std::string *)Param1) = tSelected->sIndex;
 			}
 			break;
 
         // Get the current item's name
         case CBM_GETCURNAME:
             if(tSelected) {
-				strncpy((char *)Param1, tSelected->sName, Param2);
-				char *p = (char *)Param1;
-				p[Param2-1] = '\0';
+				*((std::string *)Param1) = tSelected->sName;
 			}
 			break;
 
@@ -536,7 +532,7 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
         // Set the current item based on the string index
         case CBM_SETCURSINDEX:
-            setCurSIndexItem((char *)Param1);
+            setCurSIndexItem(*((const std::string *)Param1));
             break;
 
         // Set the current item based on the int index

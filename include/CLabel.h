@@ -32,8 +32,8 @@ enum {
 class CLabel : public CWidget {
 public:
 	// Constructor
-	CLabel(char *text, Uint32 col) {
-		fix_strncpy(sText,text);
+	CLabel(const std::string& text, Uint32 col) {
+		sText = text;
 		iColour = col;
 		iType = wid_Label;
 	}
@@ -42,7 +42,7 @@ public:
 private:
 	// Attributes
 
-	char	sText[64];
+	std::string	sText;
 	Uint32	iColour;
 
 
@@ -62,14 +62,14 @@ public:
 	int		KeyUp(int c)						{ return LBL_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ 
-							if(iMsg==LBM_SETTEXT) fix_strncpy(sText, (char *)Param1); return 0;
+							if(iMsg==LBM_SETTEXT) sText = *((std::string *)Param1); return 0;
 						}
 
 	void	ChangeColour(Uint32 col)			{ iColour = col; }
 
 	// Draw the label
 	void	Draw(SDL_Surface *bmpDest) {
-				tLX->cFont.Draw(bmpDest, iX, iY, iColour,"%s", sText); 
+				tLX->cFont.Draw(bmpDest, iX, iY, iColour,"%s", sText.c_str()); 
 	}
 
 	void	LoadStyle(void) {}

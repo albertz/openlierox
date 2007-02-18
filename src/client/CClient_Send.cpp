@@ -76,5 +76,5 @@ void CClient::SendText(const std::string& sText)
 	CBytestream *bs = cNetChan.getMessageBS();
 
 	bs->writeByte(C2S_CHATTEXT);
-	bs->writeString("%s",sText);
+	bs->writeString("%s",sText.c_str());
 }

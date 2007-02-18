@@ -31,14 +31,14 @@ void CChatBox::Clear(void)
 
 ///////////////////
 // Add a line of text to the chat box
-void CChatBox::AddText(char *txt, int colour, float time)
+void CChatBox::AddText(const std::string& txt, int colour, float time)
 {
 	// Create a new line and copy the info
 	line_t newline;
 
 	newline.fTime = time;
 	newline.iColour = colour;
-	fix_strncpy(newline.strLine,txt);
+	newline.strLine = txt;
 
 	// Add to lines
 	Lines.push_back(newline);
@@ -50,40 +50,38 @@ void CChatBox::AddText(char *txt, int colour, float time)
 
 ////////////////////
 // Adds the text to wrapped lines
-void CChatBox::AddWrapped(char *txt, int colour, float time)
+void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 {
 	//
 	// Wrap
 	//
 
     int     l=-1;
-    static char    buf[128];
+	static std::string buf;
 
-	if (strlen(txt)<=0)
+	if (txt == "")
 		return;
 
     // If this line is too long, break it up
-	fix_strncpy(buf,txt);
+	buf = txt;
 	if(tLX->cFont.GetWidth(txt) >= nWidth) {
 		int i; // We need it to be defined after FOR ends
-		for (i=fix_strnlen(buf)-2; tLX->cFont.GetWidth(buf) > nWidth && i >= 0; i--)
+		for (i=buf.length()-2; tLX->cFont.GetWidth(buf) > nWidth && i >= 0; i--)
 			buf[i] = '\0';
 
 		int j;
 		// Find the nearest space
-		for (j=fix_strnlen(buf)-1; j>=0 && buf[j] != ' '; j--)
+		for (j=buf.length()-1; j>=0 && buf[j] != ' '; j--)
 			continue;
 
 		// Hard break
 		if(j < 24)
 			j = i;
 
-		txt[j] = '\0';
-
 		// Add the lines recursively
 		// Note: if the second line is also too long, it will be wrapped, because of recursion
-		AddWrapped(txt,colour,time);  // Line 1
-		AddWrapped(strcpy(buf,&txt[j+1]),colour,time);  // Line 2
+		AddWrapped(txt.substr(0,j),colour,time);  // Line 1
+		AddWrapped(txt.substr(j),colour,time);  // Line 2
 
 		return;
 	}
@@ -96,7 +94,7 @@ void CChatBox::AddWrapped(char *txt, int colour, float time)
 	newline.fTime = time;
 	newline.iColour = colour;
 	newline.bNew = true;
-	fix_strncpy(newline.strLine,txt);
+	newline.strLine = txt;
 
 	WrappedLines.push_back(newline);
 

@@ -35,10 +35,10 @@ enum {
 class CInputbox : public CWidget {
 public:
 	// Constructor
-	CInputbox(int val, char *_text, SDL_Surface *img, char *name) {
+	CInputbox(int val, const std::string& _text, SDL_Surface *img, const std::string& name) {
 		iKeyvalue = val;
-		fix_strncpy(sText,_text);
-		fix_strncpy(sName, name);
+		sText = _text;
+		sName = name;
 
 		bmpImage = img;
 		iType = wid_Inputbox;
@@ -50,10 +50,10 @@ private:
 	// Attributes
 
 	int			iKeyvalue;
-	char		sText[32];
+	std::string	sText;
 	SDL_Surface	*bmpImage;
 	int			iMouseOver;
-	char		sName[32];
+	std::string	sName;
 
 
 public:
@@ -79,7 +79,7 @@ public:
 					case INM_GETVALUE:
 						return iKeyvalue;
 					case INM_GETTEXT:
-						strcpy( (char *)Param1, sText);
+						*((std::string *)Param1) = sText;
 						return 0;
 				}
 
@@ -94,9 +94,9 @@ public:
 
 	inline int		getValue(void)						{ return iKeyvalue; }
 	inline void	setValue(int _v)					{ iKeyvalue = _v; }
-	inline char	*getText(void)						{ return sText; }
-	inline void	setText(char *_t)					{ if(_t) fix_strncpy(sText,_t); }
-	inline char	*getName(void)						{ return sName; }
+	inline std::string	getText(void)				{ return sText; }
+	inline void	setText(const std::string& _t)		{ sText = _t; }
+	inline std::string	getName(void)				{ return sName; }
 
 };
 

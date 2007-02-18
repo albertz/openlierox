@@ -26,7 +26,7 @@ using namespace std;
 
 // Line structure
 typedef struct {
-	char	strLine[MAX_LLENGTH];
+	std::string	strLine;
 	Uint32	iColour;
 	float	fTime;
 	bool	bNew;
@@ -49,12 +49,12 @@ private:
 	int				iNewLine;
 
 	// Methods
-	void	AddWrapped(char *txt, int colour, float time);
+	void	AddWrapped(const std::string& txt, int colour, float time);
 
 public:
 	// Methods
 	void	Clear(void);
-	void    AddText(char *txt, int colour, float time);
+	void    AddText(const std::string& txt, int colour, float time);
 
     // Variables
 	line_t *GetLine(int n);

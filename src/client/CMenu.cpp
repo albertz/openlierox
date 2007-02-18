@@ -41,7 +41,7 @@ DWORD CMenu::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
         // Add an item
         case MNM_ADDITEM:
-            addItem(Param1, (char *)Param2);
+            addItem(Param1, *((std::string *)Param2));
             return 0;
 
         // Redraw the area to the buffer
@@ -84,7 +84,7 @@ void CMenu::Destroy(void)
 
 ///////////////////
 // Add an item to the menu
-void CMenu::addItem(int nID, char *szName)
+void CMenu::addItem(int nID, const std::string& szName)
 {
     mnu_item_t *i = new mnu_item_t;
     if( !i )
@@ -93,7 +93,7 @@ void CMenu::addItem(int nID, char *szName)
     i->nID = nID;
     i->psNext = NULL;
     i->nSelected = false;
-    fix_strncpy(i->szName, szName);
+    i->szName = szName;
     m_nHeight += 20;
     m_nHeight = MAX(m_nHeight, 23);
 
@@ -138,7 +138,7 @@ void CMenu::Draw(SDL_Surface *bmpDest)
 
         if( it->nSelected )
             DrawRectFill(bmpDest, X+2,y,  X+W-1, y+20, MakeColour(0,66,102));            
-        tLX->cFont.Draw(bmpDest, X+5, y+2, tLX->clPopupMenu,"%s", it->szName);
+        tLX->cFont.Draw(bmpDest, X+5, y+2, tLX->clPopupMenu,"%s", it->szName.c_str());
 
         it->nSelected = false;
 

@@ -144,36 +144,6 @@ int LoadGraphics(void)
 
 
 ///////////////////
-// Saves the surface to a PNG file, returns true if success
-bool SavePng(char *FileName, SDL_Surface *img)
-{
-/*	corona::Image *dest_img;
-
-	//dest_img = corona::CreateImage(img->w,img->h,corona::PF_R8G8B8);
-	dest_img = corona::CreateImage(img->w,img->h,corona::PF_I8,256,corona::PF_R8G8B8);
-
-	if (!dest_img)
-		return false;
-
-	// Copy the pixels
-	memcpy( dest_img->getPixels(),img->pixels, dest_img->getWidth()*dest_img->getHeight());
-
-	return corona::SaveImage(FileName,corona::FF_PNG,dest_img);*/
-
-/*	unsigned char** img_rows;
-
-	img_rows = (unsigned char**)malloc(sizeof(unsigned char*) * img->h * 24);
-
-	for(int i = 0; i < img->h; i++) {
-      img_rows[i] = ((unsigned char*)img->pixels) + i * img->pitch;
-    }
-
-	return write_png(FileName, img_rows, img->w, img->h, PNG_COLOR_TYPE_RGB, 8) == 0;*/
-	return 0;
-}
-
-
-///////////////////
 // Shutdown the graphics
 void ShutdownGraphics(void)
 {

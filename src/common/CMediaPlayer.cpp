@@ -42,7 +42,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 
 	char ext[4] = "";
 	char *tmp = NULL;
-	song_path temp = "";
+	std::string temp = "";
 
 	while(!done) {
 		tmp = strrchr(filename,'.');

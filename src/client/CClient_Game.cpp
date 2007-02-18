@@ -1574,7 +1574,8 @@ void CClient::processChatCharacter(int c, bool bDown)
     // Backspace
     if((char) c == '\b') {
 		if(iChat_Pos > 0)  {
-			memmove(sChat_Text+iChat_Pos-1,sChat_Text+iChat_Pos,strlen(sChat_Text)-iChat_Pos+1);
+			//memmove(sChat_Text+iChat_Pos-1,sChat_Text+iChat_Pos,strlen(sChat_Text)-iChat_Pos+1);
+			sChat_Text.erase(iChat_Pos);
 			iChat_Pos--;
 		}
         return;
@@ -1582,7 +1583,8 @@ void CClient::processChatCharacter(int c, bool bDown)
 
 	// Delete
 	if (GetKeyboard()->KeyDown[SDLK_DELETE])
-		memmove(sChat_Text+iChat_Pos,sChat_Text+iChat_Pos+1,strlen(sChat_Text)-iChat_Pos+1);
+		//memmove(sChat_Text+iChat_Pos,sChat_Text+iChat_Pos+1,strlen(sChat_Text)-iChat_Pos+1);
+		sChat_Text.erase(iChat_Pos+1);
 
 	// Home
 	if (GetKeyboard()->KeyDown[SDLK_HOME])
@@ -1590,7 +1592,7 @@ void CClient::processChatCharacter(int c, bool bDown)
 
 	// End
 	if (GetKeyboard()->KeyDown[SDLK_END])
-		iChat_Pos = strlen(sChat_Text);
+		iChat_Pos = sChat_Text.length();
 
 	// Left arrow
 	if (GetKeyboard()->KeyDown[SDLK_LEFT]) {
@@ -1602,10 +1604,10 @@ void CClient::processChatCharacter(int c, bool bDown)
 
 	// Right arrow
 	if (GetKeyboard()->KeyDown[SDLK_RIGHT]) {
-		if (iChat_Pos <= (int) strlen(sChat_Text))
+		if (iChat_Pos <= sChat_Text.length())
 			iChat_Pos++;
 		else
-			iChat_Pos = strlen(sChat_Text);
+			iChat_Pos = sChat_Text.length();
 	}
 
     // Enter
@@ -1613,10 +1615,10 @@ void CClient::processChatCharacter(int c, bool bDown)
         iChat_Typing = false;
 
         // Send chat message to the server
-        if(sChat_Text[0]) {
+        if(sChat_Text != "") {
             std::string buf;
 			if(buf.find("/me") == std::string::npos)
-				buf = std::string(cLocalWorms[0]->getName()) + ": " + sChat_Text;
+				buf = cLocalWorms[0]->getName() + ": " + sChat_Text;
 			else
 				buf =  replacemax(sChat_Text,"/me",cLocalWorms[0]->getName(),buf,2);
             SendText(buf);
@@ -1626,7 +1628,7 @@ void CClient::processChatCharacter(int c, bool bDown)
 
 	// Paste
 	if ((char) c == 22)  {
-		int text_len = strnlen(sChat_Text,sizeof(sChat_Text));
+		int text_len = sChat_Text.length();
 
 		// Safety
 		if (iChat_Pos > text_len)
@@ -1634,23 +1636,25 @@ void CClient::processChatCharacter(int c, bool bDown)
 
 		// Get the text
 		std::string buf;
-		int len = GetClipboardText(buf);
+		buf = GetClipboardText();
 
 		// Paste
-		memmove(sChat_Text+iChat_Pos+len,sChat_Text+iChat_Pos,text_len-iChat_Pos+1);
-		memcpy(sChat_Text+iChat_Pos,buf.c_str(),len);
-		iChat_Pos += len;
+		//memmove(sChat_Text+iChat_Pos+len,sChat_Text+iChat_Pos,text_len-iChat_Pos+1);
+		//memcpy(sChat_Text+iChat_Pos,buf.c_str(),len);
+		sChat_Text.insert(iChat_Pos,buf);
+		iChat_Pos += buf.length();
 		return;
 	}
 
     // Normal key
     if(iChat_Pos < ChatMaxLength-1 && c > 31 && c <127 ) {
-		int len = strnlen(sChat_Text,sizeof(sChat_Text));
-		if(iChat_Pos < len) memmove(sChat_Text+iChat_Pos+1,sChat_Text+iChat_Pos,len-iChat_Pos);
+		int len = sChat_Text.length();
+		char buf[2]; buf[1]=c; buf[2]=0;
+		if(iChat_Pos < len) sChat_Text.insert(iChat_Pos,buf);//memmove(sChat_Text+iChat_Pos+1,sChat_Text+iChat_Pos,len-iChat_Pos);
 		else iChat_Pos = len; // just for security
 
-		sChat_Text[iChat_Pos++] = c;
-		sChat_Text[len+1] = '\0';
+		//sChat_Text[iChat_Pos++] = c;
+		//sChat_Text[len+1] = '\0';
     }
 }
 

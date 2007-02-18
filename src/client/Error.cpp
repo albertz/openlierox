@@ -23,7 +23,7 @@
 
 int		GotError = false;
 char	ErrorMsg[128];
-char	LastError[1024];
+std::string	LastError;
 
 FILE *ErrorFile = NULL;
 
@@ -104,7 +104,7 @@ void SystemError(char *fmt, ...)
 	// Quit the SDL
 	SDL_Quit();
 #ifdef WIN32
-	MessageBox(NULL,buf,GetGameName(),MB_OK | MB_ICONEXCLAMATION);
+	MessageBox(NULL,buf,GetGameName().c_str(),MB_OK | MB_ICONEXCLAMATION);
 #endif
 
 
@@ -147,14 +147,14 @@ void GuiSkinError(char *fmt, ...)
 
 }
 
-void LxSetLastError(char *desc)
+void LxSetLastError(const std::string& desc)
 {
-	fix_strncpy(LastError,desc);
+	LastError = desc;
 }
 
-char *LxGetLastError(void)
+std::string LxGetLastError(void)
 {
-	return &LastError[0];
+	return LastError;
 }
 
 #ifdef WIN32

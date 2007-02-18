@@ -41,9 +41,11 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	// A Bad Connection
 	else if(!strncmp(cmd,"lx::badconnect",sizeof(cmd))) {
 		iNetStatus = NET_DISCONNECTED;
+		static char buf[256] = "";
 
 		iBadConnection = true;
-		bs->readString(strBadConnectMsg,sizeof(strBadConnectMsg));
+		bs->readString(buf,sizeof(buf));
+		strBadConnectMsg = buf;
 	}
 }
 
@@ -412,10 +414,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		iTagLimit = bs->readShort();
 
 	// Load the gamescript
-	bs->readString(sModName,sizeof(sModName));
+	sModName = bs->readString();
 
 	// Bad packet
-	if (sModName[0] == '\0')  {
+	if (sModName == "")  {
 		printf("Bad packet in ParsePrepareGame");
 		iGameReady = false;
 		return false;
@@ -874,11 +876,11 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		static char cTime[26];
 		GetTime(cTime); fix_markend(cTime);
 		fprintf(f,"\" jointime=\"%s\">\r\n",cTime);
-		if(cIConnectedBuf[0] != '\0')  {
+		if(cIConnectedBuf != "")  {
 			fputs("    <message type=\"NETWORK\" text=\"",f);
-			fputs(cIConnectedBuf,f);
+			fputs(cIConnectedBuf.c_str(),f);
 			fputs("\" />\r\n",f);
-			cIConnectedBuf[0] = '\0';
+			cIConnectedBuf = "";
 		}
 		fclose(f);
 	}
@@ -965,9 +967,9 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 	gl->nSet = true;
 	gl->nMaxWorms = bs->readByte();
-	bs->readString(gl->szMapName,sizeof(gl->szMapName));
-    bs->readString(gl->szModName,sizeof(gl->szModName));
-    bs->readString(gl->szModDir,sizeof(gl->szModDir));
+	gl->szMapName = bs->readString();
+    gl->szModName = bs->readString();
+    gl->szModDir = bs->readString();
 	gl->nGameMode = bs->readByte();
 	gl->nLives = bs->readShort();
 	gl->nMaxKills = bs->readShort();
@@ -989,9 +991,9 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 	// Convert the map filename to map name
 	if (gl->bHaveMap)  {
-		char *MapName;
+		std::string MapName;
 		MapName = Menu_GetLevelName(gl->szMapName);
-		if (MapName) {
+		if (MapName != "") {
 			snprintf(&gl->szDecodedMapName[0],sizeof(gl->szDecodedMapName),"%s",MapName);
 			fix_markend(gl->szDecodedMapName);
 		} else {
@@ -1058,7 +1060,7 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 
 	// Not so much an error, but rather a disconnection of communication between us & server
 	iServerError = true;
-	strcpy(strServerErrorMsg, "Server has quit");
+	strServerErrorMsg = "Server has quit";
 
 	if (tLXOptions->iLogConvos)  {
 		if(!bInServer)
@@ -1169,7 +1171,7 @@ void CClient::ParseDropped(CBytestream *bs)
 
 	// Not so much an error, but i message as to why i was dropped
 	iServerError = true;
-	fix_strncpy(strServerErrorMsg, bs->readString(buf,sizeof(buf)));
+	strServerErrorMsg = bs->readString(buf,sizeof(buf));
 
 	if (tLXOptions->iLogConvos)  {
 		if(!bInServer)
@@ -1181,7 +1183,7 @@ void CClient::ParseDropped(CBytestream *bs)
 		if (!f)
 			return;
 		fputs("    <message type=\"NETWORK\" text=\"",f);
-		fputs(strServerErrorMsg,f);
+		fputs(strServerErrorMsg.c_str(),f);
 		fputs("\" />",f);
 		fputs("  </server>\r\n",f);
 		bInServer = false;

@@ -236,22 +236,15 @@ int CTextbox::KeyDown(int c)
 		}
 
 		// Prevents weird behavior when we're at the end of text
-		static char buf[MAX_TEXTLENGTH];
 		if(iScrollPos)  {
-			fix_strncpy(buf,&sText[iScrollPos]);
-			if(tLX->cFont.GetWidth(buf) < (iWidth-4))
+			if(tLX->cFont.GetWidth(sText.substr(iScrollPos)) < (iWidth-4))
 				return TXT_NONE;
 		}
 
-		// Set the cursor position
-		if(iCurpos)  {
-			strncpy(buf,sText,iCurpos);
-			buf[iCurpos] = '\0';
-		}
-
 		// Set the scroll position
-		if(tLX->cFont.GetWidth(buf) > (iWidth-7))
-			iScrollPos++;
+		if (iCurpos)  
+			if(tLX->cFont.GetWidth(sText.substr(0,iCurpos)) > (iWidth-7))
+				iScrollPos++;
 
 		return TXT_NONE;
 	}
@@ -390,23 +383,16 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	if(deltaX > tLX->cFont.GetWidth(&sText[iScrollPos]) && InBox(tMouse->X,tMouse->Y))
 		iCurpos = iLength;
 	else  {
-		fix_strncpy(buf,sText);
-		buf[1] = '\0';
 		// Set the new cursor pos
-		if (deltaX < (tLX->cFont.GetWidth(buf)/2))  // Area before the first character
+		if (deltaX < (tLX->cFont.GetWidth(sText.substr(0,1))/2))  // Area before the first character
 			iCurpos = iScrollPos;
 		else  {
 			buf[0] = '\0';  // Delete the buffer
 			int curWidth = 0;
 			int nextWidth = 0;
-			int j=0;
-			for(int i=iScrollPos; i<iLength-1; i++,j++)  {
-				buf[j] = sText[i];
-				buf[j+1] = '\0';
-				curWidth = tLX->cFont.GetWidth(buf);
-				buf[j+1] = sText[i+1];
-				buf[j+2] = '\0';
-				nextWidth = tLX->cFont.GetWidth(buf);
+			for(int i=iScrollPos; i<iLength-1; i++)  {
+				curWidth = tLX->cFont.GetWidth(sText.substr(iScrollPos,i));
+				nextWidth = tLX->cFont.GetWidth(sText.substr(iScrollPos,i+1));
 				if ((curWidth + (nextWidth-curWidth)/3) >= deltaX)  {
 					iCurpos = i+1;
 					break;
@@ -440,7 +426,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		// Remove any previous selection
 		iSelLength = 0;
 		iSelStart = 0;
-		sSelectedText[0] = '\0';
+		sSelectedText = "";
 		iLastCurpos = iCurpos;
 		// We can lose focus now
 		iCanLoseFocus = true;
@@ -497,7 +483,8 @@ void CTextbox::Backspace(void)
 	if(iCurpos<=0)
 		return;
 
-	memmove(sText+iCurpos-1,sText+iCurpos,iLength-iCurpos+1);
+//	memmove(sText+iCurpos-1,sText+iCurpos,iLength-iCurpos+1);
+	sText.erase(iCurpos-1,iCurpos);
 
 	iCurpos--;
 	iLength--;
@@ -512,10 +499,11 @@ void CTextbox::Delete(void)
 {
 	// Delete selection
 	if(iSelLength)  {
-		memmove(sText+iSelStart,sText+iSelStart+abs(iSelLength),iLength-(iSelStart+abs(iSelLength))+1);
+		//memmove(sText+iSelStart,sText+iSelStart+abs(iSelLength),iLength-(iSelStart+abs(iSelLength))+1);
+		sText.erase(iSelStart,iSelStart+abs(iSelLength));
 		iCurpos = iSelStart;
 		iSelLength = 0;
-		iLength = strlen(sText);
+		iLength = sText.length();
 		if (iScrollPos > iCurpos)
 			iScrollPos = iCurpos;
 		return;
@@ -525,7 +513,8 @@ void CTextbox::Delete(void)
 	if(iCurpos >= iLength)
 		return;
 
-	memmove(sText+iCurpos,sText+iCurpos+1,iLength-iCurpos+1);
+	//memmove(sText+iCurpos,sText+iCurpos+1,iLength-iCurpos+1);
+	sText.erase(iCurpos,iCurpos+1);
 	
 	iLength--;
 }
@@ -550,10 +539,14 @@ void CTextbox::Insert(char c)
 	if(iCurpos > iLength)
 		iCurpos = iLength;
 
-	memmove(sText+iCurpos+1,sText+iCurpos,iLength-iCurpos+1);
+	//memmove(sText+iCurpos+1,sText+iCurpos,iLength-iCurpos+1);
+	char buf[2];
+	buf[1]=c;
+	buf[2]=0;
+	sText.insert(iCurpos,buf);
 	
-	sText[iCurpos++] = c;
-	sText[++iLength] = '\0';
+	//sText[iCurpos++] = c;
+	//sText[++iLength] = '\0';
 
     // If the text size is greater than the textbox size, scroll the text
 	if (iCurpos == iLength)
@@ -564,21 +557,21 @@ void CTextbox::Insert(char c)
 
 /////////////////////
 // Replace the current text with the buf
-void CTextbox::setText(char *buf)
+void CTextbox::setText(const std::string& buf)
 {
 	// Copy the text and ignore unknown characters
 	int j=0;
-	for (int i=0; i<(int)strlen(buf); i++)
+	for (int i=0; i<buf.length(); i++)
 		if(buf[i] > 31 && buf[i] <127)
 			sText[j++] = buf[i];
 
 	sText[j] = '\0';
 	
-	iCurpos=iLength=strlen(buf); 
+	iCurpos=iLength=buf.length(); 
 	iScrollPos=0; 
 	iSelStart=iCurpos; 
 	iSelLength=0;
-	sSelectedText[0] = '\0';
+	sSelectedText = "";
 	iLastCurpos = iCurpos;
 	fScrollTime = 0;
 }
@@ -593,9 +586,10 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Get the text
 		case TXM_GETTEXT:
-			strncpy((char *)Param1, sText, Param2);
-			p = (char *)Param1;
-			p[Param2-1] = '\0';
+			//strncpy((char *)Param1, sText, Param2);
+			*((std::string *)Param1) = sText;
+			//p = (char *)Param1;
+			//p[Param2-1] = '\0';
 			break;
 
 		// Get the text length
@@ -605,7 +599,7 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Set the text
 		case TXM_SETTEXT:
-			setText( (char *)Param1 );
+			setText( *((std::string *)Param1) );
 			break;
 
 		// Set some flags

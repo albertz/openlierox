@@ -506,8 +506,8 @@ void CListview::SortBy(int column, bool ascending)
 			bool swap = false;
 			if (subitem2 && subitem1)  {
 				// Swap the two items?
-				int nat_cmp1 = atoi(subitem1->sText);
-				int nat_cmp2 = atoi(subitem2->sText);
+				int nat_cmp1 = atoi(subitem1->sText.c_str());
+				int nat_cmp2 = atoi(subitem2->sText.c_str());
 				// First try, if we compare numbers
 				if (nat_cmp1 && nat_cmp2)  {
 					if (ascending)
@@ -516,7 +516,7 @@ void CListview::SortBy(int column, bool ascending)
 						swap = nat_cmp2 > nat_cmp1;
 				// String comparison
 				} else {
-					int tmp = strncasecmp(subitem1->sText,subitem2->sText,sizeof(subitem1->sText));
+					int tmp = stringcasecmp(subitem1->sText,subitem2->sText);
 					if (ascending)
 						swap = tmp > 0;
 					else
@@ -1155,7 +1155,7 @@ lv_subitem_t *CListview::getCurSubitem(int index)
 // This widget is send a message
 DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
-	char *s = NULL;
+	std::string s = "";
 
 	switch(iMsg) {
 
@@ -1189,10 +1189,8 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		// Get the current item's text index
 		case LVM_GETCURSINDEX:
 			s = getCurSIndex();
-			if(s) {
-				strncpy((char *)Param1, s, Param2);
-				char *p = (char *)Param1;
-				p[Param2-1] = '\0';
+			if(s != "") {
+				*((std::string *)Param1) = s;
 				return true;
 			}
 			else

@@ -39,7 +39,7 @@ enum {
 
 // Chatbox line
 typedef struct {
-	char	sText[128];
+	std::string	sText;
 	float	fTime;
 	float	fScroll;
 	int		iType;
@@ -62,10 +62,10 @@ typedef struct {
 	int		nMaxKills;
 	int		nLoadingTime;
 	int		nBonuses;
-	char	szMapName[256];
-	char	szDecodedMapName[256];
-	char	szModName[256];
-	char	szModDir[256];
+	std::string	szMapName;
+	std::string	szDecodedMapName;
+	std::string	szModName;
+	std::string	szModDir;
 	bool	bHaveMap;
 	bool	bHaveMod;
 	bool	bTournament;
@@ -160,7 +160,7 @@ private:
 	int			iTimeLimit;
 	int			iTagLimit;
 	float		fLoadingTime;
-	char		sModName[256];
+	std::string	sModName;
 	int			iBonusesOn;
 	int			iShowBonusName;
     CWpnRest    cWeaponRestrictions;
@@ -200,7 +200,7 @@ private:
 	int			iChat_Pos;
 	float		fChat_TimePushed;
 	CInput		cChat_Input;
-	char		sChat_Text[64];	
+	std::string	sChat_Text;	
 	float		fChat_BlinkTime;
 	int			iChat_CursorVisible;
 
@@ -256,16 +256,16 @@ private:
 	game_lobby_t tGameLobby;
 
 	int			iBadConnection;
-	char		strBadConnectMsg[128];
+	std::string	strBadConnectMsg;
 
 	int			iServerError;
-	char		strServerErrorMsg[128];
+	std::string	strServerErrorMsg;
 
     int         iClientError;
 
 	// Logging variables
     bool		bInServer;
-    char		cIConnectedBuf[256];
+	std::string	cIConnectedBuf;
 
 
 
@@ -341,7 +341,7 @@ public:
 	void		SimulateHud(void);
 	
 	// Network
-	void		Connect(char *address);
+	void		Connect(const std::string& address);
 	void		Connecting(void);
 	void		ReadPackets(void);
 	void		SendPackets(void);
@@ -406,10 +406,10 @@ public:
 	game_lobby_t *getGameLobby(void)		{ return &tGameLobby; }
 
 	int			getBadConnection(void)		{ return iBadConnection; }
-	char		*getBadConnectionMsg(void)	{ return strBadConnectMsg; }
+	inline std::string	getBadConnectionMsg(void)	{ return strBadConnectMsg; }
 
 	int			getServerError(void)		{ return iServerError; }
-	char		*getServerErrorMsg(void)	{ return strServerErrorMsg; }
+	inline std::string	getServerErrorMsg(void)	{ return strServerErrorMsg; }
 
     int         getClientError(void)        { return iClientError; }
 

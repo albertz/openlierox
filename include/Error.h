@@ -33,8 +33,8 @@ void SystemError(char *fmt, ...);
 
 void GuiSkinError(char *fmt, ...);
 
-void LxSetLastError(char *desc);
-char *LxGetLastError(void);
+void LxSetLastError(const std::string& desc);
+std::string LxGetLastError(void);
 
 // WIN32 exception handling
 #ifdef WIN32
