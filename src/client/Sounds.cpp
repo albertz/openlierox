@@ -218,7 +218,7 @@ SoundMusic *LoadMusic(const std::string& file)
 	if (!new_music)
 		return NULL;
 
-	new_music->sndMusic = Mix_LoadMUS(file);
+	new_music->sndMusic = Mix_LoadMUS(file.c_str());
 	if (!new_music->sndMusic)  {
 		delete new_music;
 		return NULL;
@@ -291,7 +291,7 @@ id3v1_t GetMP3Info(const std::string& file)
 	// Clear the info
 	memset(&info,0,sizeof(id3v1_t));
 
-	if (!file)
+	if (file == "")
 		return info;
 
 	FILE *fp = fopen(file,"rb");

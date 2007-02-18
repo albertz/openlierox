@@ -20,7 +20,7 @@
 
 
 CGuiLayout	cLan;
-char        szLanCurServer[128];
+std::string szLanCurServer;
 
 
 // Lan widgets
@@ -61,7 +61,7 @@ int Menu_Net_LANInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cLan.SendMessage( nl_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)p->sName);
+		cLan.SendMessage( nl_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)&p->sName);
 		cLan.SendMessage( nl_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
 	}
 
@@ -121,7 +121,7 @@ void Menu_Net_LANFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	static char		addr[256];
+	std::string		addr;
 
 
 	// Process & Draw the gui
@@ -189,9 +189,9 @@ void Menu_Net_LANFrame(int mouse)
 			case nl_Join:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					addr[0] = 0;
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result != -1 && addr[0]) {
+					addr = "";
+					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
+					if(result != -1 && addr != "") {
 
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
@@ -216,10 +216,10 @@ void Menu_Net_LANFrame(int mouse)
 					*/
 
 					// Just join for the moment
-					addr[0] = 0;
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					addr = "";
+					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
 					lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
-					if(result != -1 && addr[0] && sub) {
+					if(result != -1 && addr != "" && sub) {
 						Menu_Net_LANJoinServer(addr,sub->sText);
 						return;
 					}
@@ -227,11 +227,11 @@ void Menu_Net_LANFrame(int mouse)
 
                 // Right click
                 if( ev->iEventMsg == LV_RIGHTCLK ) {
-                    addr[0] = 0;
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result && addr[0]) {
+                    addr = "";
+					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
+					if(result && addr != "") {
                         // Display a menu
-                        fix_strncpy(szLanCurServer, addr);
+                        szLanCurServer = addr;
                         mouse_t *m = GetMouse();
 
                         cLan.Add( new CMenu(m->X, m->Y), nl_PopupMenu, 0,0, 640,480 );
@@ -248,10 +248,10 @@ void Menu_Net_LANFrame(int mouse)
 				// Enter key
 				if( ev->iEventMsg == LV_ENTER )  {
 					// Join
-					addr[0] = 0;
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					addr = "";
+					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
 					lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
-					if(result != -1 && addr[0] && sub) {
+					if(result != -1 && addr != "" && sub) {
                         // Save the list
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
 
@@ -262,9 +262,9 @@ void Menu_Net_LANFrame(int mouse)
 
 				// Delete
 				if( ev->iEventMsg == LV_DELETE )  {
-					addr[0] = 0;
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result && addr[0]) {
+					addr = "";
+					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
+					if(result && addr != "") {
 						Menu_SvrList_RemoveServer(addr);
 						// Re-Fill the server list
 						Menu_SvrList_FillList( (CListview *)cLan.getWidget( nl_ServerList ) );
@@ -358,7 +358,7 @@ void Menu_Net_LANFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_LANJoinServer(char *sAddress, char *sName)
+void Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sName)
 {
 
 	// Fill in the game structure
@@ -393,7 +393,7 @@ enum {
 
 ///////////////////
 // Show a server's details
-void Menu_Net_LanShowServer(char *szAddress)
+void Menu_Net_LanShowServer(const std::string& szAddress)
 {
     mouse_t     *Mouse = GetMouse();
     int         nMouseCur = 0;

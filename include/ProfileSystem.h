@@ -36,13 +36,13 @@ typedef struct profile_s {
 	int				iID;
 
 	int				iType;
-	char			sName[32];
-    char            szSkin[128];
+	std::string		sName;
+	std::string     szSkin;
     int             nDifficulty;
-	char			sUsername[16];
-	char			sPassword[16];
+	std::string		sUsername;
+	std::string		sPassword;
 	Uint8			R,G,B;
-	char			sWeaponSlots[5][64];
+	std::string		sWeaponSlots[5];
 	int				iTeam;
 	SDL_Surface		*bmpWorm;
 

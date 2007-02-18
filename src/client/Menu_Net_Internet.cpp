@@ -74,7 +74,7 @@ int Menu_Net_NETInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cInternet.SendMessage( mi_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)p->sName);
+		cInternet.SendMessage( mi_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)&p->sName);
 		cInternet.SendMessage( mi_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
 	}
 

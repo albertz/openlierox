@@ -346,40 +346,28 @@ void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
 
 ///////////////////
 // Get the level name from specified file
-char *Menu_GetLevelName(char *filename)
+std::string Menu_GetLevelName(const std::string& filename)
 {
-	static char	id[32], name[256];
+	static char	id[32], name[128];
 	int		version;
-//	int		index = 0;  // TODO: not used
-//	int		selected = -1;  // TODO: not used
-	char	*Result;
-	static char	fn[1024];
-	char	*Path;
+	static std::string	Path;
+	static std::string  Result;
 
-	size_t fnlen = strlen(filename);
-
-	//if(strlen(filename) > 512)
-	//	return NULL;
-
-	static const size_t lvlen = 7; //strlen("levels/");
-	memcpy(fn,"levels/",lvlen);
-	size_t maxlen = MIN(fnlen+1,sizeof(fn)-lvlen);
-	memcpy(fn+lvlen,filename,maxlen);
-	fn[sizeof(fn)-1] = '\0';
-	Path = fn;
+	Path = "levels/"+filename;
 
  // Liero Xtreme level
-	if( stricmp(filename + fnlen-4, ".lxl") == 0) {
+	if( filename.substr(filename.length()-4) == ".lxl") {
 		FILE *fp = OpenGameFile(Path,"rb");
 		if(fp) {
 			fread(id,		sizeof(char),	32,	fp);
 			fread(&version,	sizeof(int),	1,	fp);
 			EndianSwap(version);
 			fread(name,		sizeof(char),	64,	fp);
+			fix_markend(id); fix_markend(name);
 
 			if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
-				fix_markend(name); // safety
 				Result = name;
+				fclose(fp);
 				return Result;
 			}
 			fclose(fp);
@@ -388,9 +376,9 @@ char *Menu_GetLevelName(char *filename)
 	}
 
  // Liero level
-	if( stricmp(filename + fnlen-4, ".lev") == 0) {
-		// TODO: is filename correct? (or Path)
-		FILE *fp = OpenGameFile(filename,"rb");
+	// TODO
+	if( filename.substr(filename.length()-4) == ".lev") {
+		FILE *fp = OpenGameFile(Path,"rb");
 
 		if(fp) {
 
@@ -400,9 +388,9 @@ char *Menu_GetLevelName(char *filename)
 			// 176402 is worm hole maps (same, but 2 bytes bigger)
 			// 177178 is a powerlevel
 			if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-				char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
-				if(f)
-					return f+1;
+				Result = findLastPathSep(Path);
+				fclose(fp);
+				return Result;
 			}
 			fclose(fp);
 		} // if(fp)
@@ -516,7 +504,7 @@ void Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool d
 
 ///////////////////
 // Show a message box
-int Menu_MessageBox(char *sTitle, char *sText, int type)
+int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type)
 {
 	int ret = -1;
 	keyboard_t *kb = GetKeyboard();
@@ -530,44 +518,25 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 	int h = 140;
 
 	// Handle multiline messages
-	int linescount = 0;  // contains the count of lines - 1 !!
 	int maxwidth = 0;
-	int maxwidthline = 0;
-	static char lines[8][512];
-	int j = 0;
-	unsigned int i;
-	for (i=0; i<strlen(sText) && linescount < 8; i++)  {
-		if (*(sText+i) == '\n')  { // linebreak
-			lines[linescount][j] = '\0';  // add terminating character at the end of line
-
-			// Get the widest line
-			if (j>maxwidth)  {
-				maxwidth = j;
-				maxwidthline = linescount;
-			}
-
-			linescount++;  // increase number of lines
-
-			j=0;
-			continue;
-		}
-		lines[linescount][j] = *(sText+i);
-		j++;
+	int tmp=0;
+	static std::vector<std::string> lines = explode(sText,"\n");
+	for (int i=0; i<lines.size(); i++)  {
+		maxwidth = MAX(maxwidth,tLX->cFont.GetWidth(lines[i]));
 	}
-	lines[linescount][j] = '\0';
 
-	if(tLX->cFont.GetWidth(lines[maxwidthline])+10 > w) {
-		w = tLX->cFont.GetWidth(lines[maxwidthline])+30;
+	if(maxwidth > w) {
+		w = MIN(maxwidth+30,638);
 		x = 320-w/2;
 	}
 
-	if((tLX->cFont.GetHeight()*linescount)+5 > h) {
-		h = (tLX->cFont.GetHeight()*linescount)+20;
+	if((tLX->cFont.GetHeight()*lines.size())+5 > h) {
+		h = MIN((tLX->cFont.GetHeight()*lines.size())+20,478);
 		y = 240-h/2;
 	}
 
 	int cx = x+w/2;
-	int cy = y+h/2-(linescount*tLX->cFont.GetHeight())/2;
+	int cy = y+h/2-(lines.size()*tLX->cFont.GetHeight())/2;
 
 
 //	SDL_Surface *shadow = LoadImage("data/frontend/msgshadow.png",0);   // TODO: not used
@@ -582,7 +551,7 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 
 	if(type == LMB_OK)
 		msgbox.Add( new CButton(BUT_OK,tMenu->bmpButtons), 0, cx-20,y+h-24, 40,15);
-	if(type == LMB_YESNO) {
+	else if(type == LMB_YESNO) {
 		msgbox.Add( new CButton(BUT_YES,tMenu->bmpButtons), 1, x+15,y+h-24, 35,15);
 		msgbox.Add( new CButton(BUT_NO,tMenu->bmpButtons),  2, x+w-35,y+h-24, 30,15);
 	}
@@ -598,10 +567,10 @@ int Menu_MessageBox(char *sTitle, char *sText, int type)
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,0);
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,MakeColour(64,64,64));
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,"%s", sTitle);
-	for (i=0; (int)i<=linescount; i++)  {
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,"%s", sTitle.c_str());
+	for (i=0; (int)i<=lines.size(); i++)  {
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
-		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel,"%s", lines[i]);
+		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel,"%s", lines[i].c_str());
 		cy += tLX->cFont.GetHeight()+2;
 	}
 
@@ -973,9 +942,7 @@ void Menu_AddDefaultWidgets(void)
 // Fill a listbox with the levels
 void Menu_FillLevelList(CCombobox *cmb, int random)
 {
-	static char	filename[512];
-	static char	id[32], name[64];
-	int		version;
+	static std::string	filename;
 	int		index = 0;
 	int		selected = -1;
 
@@ -993,7 +960,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 	while(!done) {
 
-		char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
+		/*char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
 		if(f) f++;
 
 		// Liero Xtreme level
@@ -1010,7 +977,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 						cmb->addItem(index++, f, name);
 
 						// If this is the same as the old map, select it
-						if( stricmp(f, tLXOptions->tGameinfo.sMapName) == 0 )
+						if( f == tLXOptions->tGameinfo.sMapName )
 							selected = index-1;
 
 						//lv->AddItem(f+1,0);
@@ -1040,7 +1007,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 						//d_printf("Original level = %s\n",f+1);
 						//d_printf("Saved level = %s\n",tLXOptions->tGameinfo.sMapName);
 
-						if( stricmp(f, tLXOptions->tGameinfo.sMapName) == 0 )
+						if( f == tLXOptions->tGameinfo.sMapName )
 							selected = index-1;
 
 						//lv->AddItem(f+1,0);
@@ -1050,10 +1017,15 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 				fclose(fp);
 			}
-		}
+		}*/
+		std::string name = Menu_GetLevelName(filename);
+		if (name == tLXOptions->tGameinfo.sMapName)
+			selected = index;
 
 		if(!FindNext(filename))
 			break;
+
+		index++;
 	}
 
 	if( selected >= 0 )
@@ -1191,14 +1163,14 @@ void Menu_SvrList_PingServer(server_t *svr)
 
 ///////////////////
 // Send Wants Join message
-void Menu_SvrList_WantsJoin(char *Nick, server_t *svr)
+void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 {
 	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::wantsjoin");
-	bs.writeString("%s",Nick);
+	bs.writeString("%s",Nick.c_str());
 	bs.Send(tMenu->tSocket[SCK_NET]);
 }
 
@@ -1253,14 +1225,15 @@ void Menu_SvrList_RefreshServer(server_t *s)
 
 ///////////////////
 // Add a server onto the list (for list and manually)
-server_t *Menu_SvrList_AddServer(char *address, bool bManual)
+server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 {
     // Check if the server is already in the list
     // If it is, don't bother adding it
     server_t *sv = psServerList;
     NetworkAddr ad;
-    TrimSpaces(address);
-    StringToNetAddr(address, &ad);
+	std::string tmp_address = address;
+    TrimSpaces(tmp_address);
+    StringToNetAddr(tmp_address.c_str(), &ad);
 
     for(; sv; sv=sv->psNext) {
         if( AreNetAddrEqual(&sv->sAddress, &ad) )
@@ -1285,21 +1258,18 @@ server_t *Menu_SvrList_AddServer(char *address, bool bManual)
 	svr->nQueries = 0;
     svr->psNext = NULL;
     svr->psPrev = NULL;
-
-	fix_strncpy( svr->szAddress, address );
+	svr->szAddress = tmp_address;
 
 	// If the address doesn't have a port number, use the default lierox port number
-	if( strrchr(svr->szAddress,':') == NULL) {
-		static char buf[64];
-		fix_strncat(svr->szAddress,":");
-		fix_strncat(svr->szAddress,itoa(LX_PORT,buf,10));
+	if( svr->szAddress.rfind(':') == std::string::npos) {
+		svr->szAddress += ":"+itoa(LX_PORT,10);
 	}
 
-	StringToNetAddr(address, &svr->sAddress);
+	StringToNetAddr(tmp_address.c_str(), &svr->sAddress);
 
 
 	// Default game details
-	strcpy(svr->szName, "Untitled");
+	svr->szName = "Untitled";
 	svr->nMaxPlayers = 0;
 	svr->nNumPlayers = 0;
 	svr->nState = 0;
@@ -1329,14 +1299,15 @@ server_t *Menu_SvrList_AddServer(char *address, bool bManual)
 
 ///////////////////
 // Add a server onto the list and specify the name
-server_t *Menu_SvrList_AddNamedServer(char *address, char *name)
+server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::string& name)
 {
     // Check if the server is already in the list
     // If it is, don't bother adding it
     server_t *sv = psServerList;
     NetworkAddr ad;
-    TrimSpaces(address);
-    StringToNetAddr(address, &ad);
+	std::string tmp_address = address;
+    TrimSpaces(tmp_address);
+    StringToNetAddr(tmp_address.c_str(), &ad);
 
     for(; sv; sv=sv->psNext) {
         if( AreNetAddrEqual(&sv->sAddress, &ad) )
@@ -1361,18 +1332,15 @@ server_t *Menu_SvrList_AddNamedServer(char *address, char *name)
 	svr->nQueries = 0;
     svr->psNext = NULL;
     svr->psPrev = NULL;
-	fix_strncpy(svr->szName, name);
-
-	fix_strncpy( svr->szAddress, address );
+	svr->szName = name;
+	svr->szAddress = tmp_address;
 
 	// If the address doesn't have a port number, use the default lierox port number
-	if( strrchr(svr->szAddress,':') == NULL) {
-		static char buf[64];
-		strcat(svr->szAddress,":");
-		strcat(svr->szAddress,itoa(LX_PORT,buf,10));
+	if( svr->szAddress.rfind(':') == std::string::npos) {
+		svr->szAddress += ":"+itoa(LX_PORT,10);
 	}
 
-	StringToNetAddr(address, &svr->sAddress);
+	StringToNetAddr(tmp_address.c_str(), &svr->sAddress);
 
 
 	// Default game details
@@ -1434,7 +1402,7 @@ server_t *Menu_SvrList_FindServerStr(char *szAddress)
     server_t *sv = psServerList;
     for(; sv; sv=sv->psNext) {
 
-        if( stricmp(sv->szAddress, szAddress) == 0 )
+        if( sv->szAddress == szAddress)
             return sv;
     }
 
@@ -1448,8 +1416,8 @@ server_t *Menu_SvrList_FindServerStr(char *szAddress)
 void Menu_SvrList_FillList(CListview *lv)
 {
 	server_t	*s = psServerList;
-	static char		buf[256], addr[256];
-	char		*states[] = {"Open", "Loading", "Playing"};
+	std::string		addr;
+	std::string		states[] = {"Open", "Loading", "Playing"};
 
     // Store the ID of the currently selected item
     int curID = lv->getSelectedID();
@@ -1473,10 +1441,10 @@ void Menu_SvrList_FillList(CListview *lv)
 		//NetAddrToString(&s->sAddress, addr);
 
 		// Remove the port from the address (save space)
-		fix_strncpy(addr, s->szAddress);
-		char *p = strrchr(addr,':');
-		if(p)
-			addr[p - addr] = '\0';
+		addr = s->szAddress;
+		int p = addr.rfind(':');
+		if(p != std::string::npos)
+			addr = addr.substr(0,p);
 
 
 		// State
@@ -1492,7 +1460,7 @@ void Menu_SvrList_FillList(CListview *lv)
 
 		// Add the server to the list
 		lv->AddItem(s->szAddress, 0, colour);
-		lv->AddSubitem(LVS_IMAGE, itoa(num,buf,10), tMenu->bmpConnectionSpeeds[num]);
+		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num]);
 		lv->AddSubitem(LVS_TEXT, s->szName, NULL);
         if(s->bProcessing)
             lv->AddSubitem(LVS_TEXT, "querying", NULL);
@@ -1505,11 +1473,9 @@ void Menu_SvrList_FillList(CListview *lv)
             continue;
 
 		// Players
-		snprintf(buf,sizeof(buf),"%d/%d",s->nNumPlayers,s->nMaxPlayers);
-		fix_markend(buf);
-		lv->AddSubitem(LVS_TEXT, buf, NULL);
+		lv->AddSubitem(LVS_TEXT, itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10), NULL);
 
-		lv->AddSubitem(LVS_TEXT, itoa(s->nPing,buf,10), NULL);
+		lv->AddSubitem(LVS_TEXT, itoa(s->nPing,10), NULL);
 		lv->AddSubitem(LVS_TEXT, addr, NULL);
 	}
 
@@ -1671,7 +1637,7 @@ server_t *Menu_SvrList_FindServer(NetworkAddr *addr)
 
 	for(; s; s=s->psNext) {
 
-		StringToNetAddr(s->szAddress, &s->sAddress);
+		StringToNetAddr(s->szAddress.c_str(), &s->sAddress);
 
 		if( AreNetAddrEqual( addr, &s->sAddress ) )
 			return s;
@@ -1690,7 +1656,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 	static char buf[64];
 	bs->readString( buf, sizeof(buf) );
 	if(iNetMode != net_favourites)
-		fix_strncpy(svr->szName,buf);
+		svr->szName = buf;
 	svr->nNumPlayers = bs->readByte();
 	svr->nMaxPlayers = bs->readByte();
 	svr->nState = bs->readByte();
@@ -1711,7 +1677,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 
 ///////////////////
 // Save the server list
-void Menu_SvrList_SaveList(char *szFilename)
+void Menu_SvrList_SaveList(const std::string& szFilename)
 {
     FILE *fp = OpenGameFile(szFilename,"wt");
     if( !fp )
@@ -1719,7 +1685,7 @@ void Menu_SvrList_SaveList(char *szFilename)
 
     server_t *s = psServerList;
 	for(; s; s=s->psNext) {
-        fprintf(fp,"%s, %s, %s\n",s->bManual ? "1" : "0", s->szName, s->szAddress);
+        fprintf(fp,"%s, %s, %s\n",s->bManual ? "1" : "0", s->szName.c_str(), s->szAddress.c_str());
     }
 
     fclose(fp);
@@ -1727,7 +1693,7 @@ void Menu_SvrList_SaveList(char *szFilename)
 
 ///////////////////
 // Add a favourite server
-void Menu_SvrList_AddFavourite(char *szName, char *szAddress)
+void Menu_SvrList_AddFavourite(const std::string& szName, const std::string& szAddress)
 {
     FILE *fp = OpenGameFile("cfg/favourites.dat","a");  // We're appending
     if( !fp )  {
@@ -1737,7 +1703,7 @@ void Menu_SvrList_AddFavourite(char *szName, char *szAddress)
 	}
 
 	// Append the server
-    fprintf(fp,"%s, %s, %s\n","1", szName, szAddress);
+    fprintf(fp,"%s, %s, %s\n","1", szName.c_str(), szAddress.c_str());
 
     fclose(fp);
 }
@@ -1745,37 +1711,36 @@ void Menu_SvrList_AddFavourite(char *szName, char *szAddress)
 
 ///////////////////
 // Load the server list
-void Menu_SvrList_LoadList(char *szFilename)
+void Menu_SvrList_LoadList(const std::string& szFilename)
 {
     FILE *fp = OpenGameFile(szFilename,"rt");
     if( !fp )
         return;
 
-    static char szLine[1024] = "";
+    static std::string szLine = "";
 	static char tmp[1024] = "";
-    static char address[256] = "";
+    static std::string address = "";
+	std::vector<std::string> parsed;
 
     // Go through every line
     while( fgets(tmp, 1024, fp) ) {
 
-        fix_strncpy(szLine, StripLine(tmp));
-        if( szLine[0] == '\0' )
+        szLine = StripLine(std::string(tmp));
+        if( szLine == "" )
             continue;
+	
+		parsed = explode(szLine,",");
 
-        char *man = strtok(szLine,",");
-        char *name = strtok(NULL,",");
-        char *addr = strtok(NULL,",");
+        if( parsed.size() == 3 ) {
+			address = parsed[2];
+			TrimSpaces(parsed[2]);
 
-        if( man && name && addr ) {
-            fix_strncpy(tmp, addr);
-            fix_strncpy(address,TrimSpaces(tmp));
-
-            server_t *sv = Menu_SvrList_AddServer(address, man[0] == '1');
+            server_t *sv = Menu_SvrList_AddServer(address, parsed[0][0] == '1');
 
             // Fill in the name
             if( sv ) {
-                fix_strncpy(tmp, name);
-                fix_strncpy(sv->szName, TrimSpaces(tmp));
+				TrimSpaces(parsed[1]);
+                sv->szName = parsed[1];
             }
         }
     }
@@ -1792,7 +1757,7 @@ float fStart = -9999;
 
 ///////////////////
 // Draw a 'server info' box
-void Menu_SvrList_DrawInfo(char *szAddress)
+void Menu_SvrList_DrawInfo(const std::string& szAddress)
 {
 	int w = 450;
 	int h = 420;
@@ -1887,8 +1852,9 @@ void Menu_SvrList_DrawInfo(char *szAddress)
 			bOldLxBug = false;
 
             // Send a getinfo request
-            TrimSpaces(szAddress);
-            StringToNetAddr(szAddress, &addr);
+			std::string tmp_addr = szAddress;
+            TrimSpaces(tmp_addr);
+            StringToNetAddr(tmp_addr.c_str(), &addr);
 
             SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &addr);
 

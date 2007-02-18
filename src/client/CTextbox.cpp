@@ -41,10 +41,10 @@ void CTextbox::Create(void)
 // Draw the text box
 void CTextbox::Draw(SDL_Surface *bmpDest)
 {
-	static char buf[MAX_TEXTLENGTH] = "";
-	static char text[MAX_TEXTLENGTH] = "";
+	std::string buf = "";
+	std::string text = "";
 
-	fix_strncpy(text, sText);
+	text = sText;
 
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
@@ -53,10 +53,8 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
-		len = (int)strlen(sText);
-		for(i=0;i<len;i++)
+		for(i=0;i<text.length();i++)
 			text[i]='*';
-		text[i+1] = '\0';
 	}
 
 	int cursorpos = iCurpos;
@@ -83,9 +81,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	}*/
 	
 	// Shift the text, if it overlapps
-	static char tmp[MAX_TEXTLENGTH] = "";
-	fix_strncpy(tmp, &text[iScrollPos]);
-	fix_strncpy(text, tmp);
+	text = text.substr(iScrollPos);
 	
 	// The scrollpos can be 0 and the text still overlapps
 	// User can move in the editbox using keys/mouse
@@ -95,24 +91,22 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	// Determine the cursor position in pixels
 	int x = 0;
 	if(cursorpos)  {
-		strncpy(buf,text,MIN(sizeof(buf)-1,(unsigned int)cursorpos));
+		buf = text.substr(0,MIN(sizeof(buf)-1,(unsigned int)cursorpos));
 	}
 
-	buf[MIN(sizeof(buf)-1,(unsigned int)cursorpos)] = '\0';
 	x = tLX->cFont.GetWidth(buf);
 	
 	// Draw selection
 	if (iSelLength)  {
-		buf[0] = '\0'; // Delete the buffer
+		buf = ""; // Delete the buffer
 		int x2 = 0;  // Position of the non-cursor side of the selection
 
 		// The cursor is on the right side of the selection
 		if (iSelLength < 0)  { 
 			int length = -iSelLength;
-			if (length > (int)fix_strnlen(text))
+			if (length > text.length())
 				length = cursorpos;
-			strncpy(buf,&text[cursorpos-length],MIN(sizeof(buf)-1,(unsigned int)length));
-			buf[MIN(sizeof(buf)-1,(unsigned int)length)] = '\0';
+			buf = text.substr(cursorpos-length,(unsigned int)length);
 			
 			// Update the SelStart
 			iSelStart = iCurpos+iSelLength;
@@ -120,17 +114,16 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 		// The cursor is on the left side of the selection
 		else  {
 			int length = iSelLength;
-			if (length > (int)fix_strnlen(text))
-				length = fix_strnlen(text);
-			strncpy(buf,&text[cursorpos],MIN(sizeof(buf)-1,(unsigned int)length));
+			if (length > text.length())
+				length = cursorpos;
+			buf = text.substr(cursorpos,(unsigned int)length);
 			buf[MIN(sizeof(buf)-1,(unsigned int)length)] = '\0';
 			// Update the SelStart
 			iSelStart = iCurpos;
 		}
 
 		// Update the selected text
-		strncpy(sSelectedText,&sText[iSelStart],MIN(sizeof(sSelectedText),(unsigned int)abs(iSelLength)));
-		sSelectedText[MIN(sizeof(sSelectedText)-1,(unsigned int)abs(iSelLength))] = '\0';
+		sSelectedText = sText.substr(iSelStart,(unsigned int)abs(iSelLength));
 		
 		// Cursor on the left side of the selection
 		if (iSelLength > 0)  {
@@ -149,12 +142,12 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	}
 
 	// Draw text
-	tLX->cFont.Draw(bmpDest, iX+3, iY+3, tLX->clTextBox, "%s", text);
+	tLX->cFont.Draw(bmpDest, iX+3, iY+3, tLX->clTextBox, "%s", text.c_str());
 
 	// Draw cursor only when focused
 	if(iFocused) {
 
-		if(strlen(buf) == 0 && iScrollPos)
+		if(buf == "" && iScrollPos)
 			iScrollPos--;
 
 		if ((GetMilliSeconds()-fBlinkTime) > 0.5)  {

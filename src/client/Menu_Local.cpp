@@ -161,13 +161,13 @@ void Menu_LocalFrame(void)
 		// Get the mod name
 		cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
 		if(it) 
-			fix_strncpy(tLXOptions->tGameinfo.szModName, it->sIndex);
+			tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( (CCombobox *)cLocalMenu.getWidget(ml_ModName));
 
 		// Fill in the levels list
-		cLocalMenu.SendMessage(ml_LevelList,CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));
+		cLocalMenu.SendMessage(ml_LevelList,CBM_GETCURSINDEX, (DWORD)&tLXOptions->tGameinfo.sMapName, 256);
 		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), false);
 
 		// Reload the minimap
@@ -419,14 +419,11 @@ void Menu_LocalFrame(void)
 					cLocalMenu.Draw( tMenu->bmpBuffer );
 
                     // Get the current mod
-                    static char buf[256];
-                    cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
-                    fix_markend(buf);
+					cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
                     if(it) {
-                        lx_strncpy(buf, it->sIndex, 255);
 
 					    bWeaponRest = true;
-					    Menu_WeaponsRestrictions(buf);
+					    Menu_WeaponsRestrictions(it->sIndex);
                     }
                 }
                 break;
@@ -448,7 +445,7 @@ void Menu_LocalAddProfiles(void)
 	for(; p; p=p->tNext) {
 		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDITEM, (DWORD)"", p->iID);
 		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDSUBITEM, LVS_IMAGE, (DWORD)p->bmpWorm);
-		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDSUBITEM, LVS_TEXT,  (DWORD)p->sName);
+		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDSUBITEM, LVS_TEXT,  (DWORD)&p->sName);
 	}
 }
 
@@ -525,7 +522,7 @@ void Menu_LocalStartGame(void)
     int i;
 
 	// Level
-	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)tGameInfo.sMapname, sizeof(tGameInfo.sMapname));
+	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)&tGameInfo.sMapname, 256);
 
 
 	//
@@ -560,7 +557,7 @@ void Menu_LocalStartGame(void)
     }
 
 	// Save the current level in the options
-	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)tLXOptions->tGameinfo.sMapName, sizeof(tLXOptions->tGameinfo.sMapName));
+	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)&tLXOptions->tGameinfo.sMapName, 256);
 
 	//
 	// Game Info
@@ -574,8 +571,8 @@ void Menu_LocalStartGame(void)
     // Get the mod name
 	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
     if(it) {
-        fix_strncpy(tGameInfo.sModName,it->sIndex);
-        fix_strncpy(tLXOptions->tGameinfo.szModName, it->sIndex);
+        tGameInfo.sModName = it->sIndex;
+        tLXOptions->tGameinfo.szModName = it->sIndex;
     } else {
 
 		// Couldn't find a mod to load

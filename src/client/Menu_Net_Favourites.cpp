@@ -62,7 +62,7 @@ int Menu_Net_FavouritesInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cFavourites.SendMessage( mf_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)p->sName);
+		cFavourites.SendMessage( mf_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)&p->sName);
 		cFavourites.SendMessage( mf_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
 	}
 

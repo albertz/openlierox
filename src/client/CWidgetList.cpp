@@ -95,13 +95,13 @@ int	CWidgetList::getID(const std::string& Name)
 		return -1;
 
 	// No name specified
-	if (!Name)
+	if (Name == "")
 		return -1;
 
 	// Go through the items
 	widget_item_t *item = tItems;
 	while(item)  {
-		if (!stricmp(Name,item->sName))
+		if (Name == item->sName)
 			return item->iID;
 		item = item->tNext;
 	}

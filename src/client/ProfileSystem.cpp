@@ -232,16 +232,16 @@ void LoadProfile(FILE *fp, int id)
 
 
 	// Name
-	fread(p->sName,		sizeof(char),	32,	fp);
-    fread(p->szSkin,    sizeof(char),   128,fp);
+	p->sName = freadstr(fp, 32);
+    p->szSkin = freadstr(fp, 128);
     fread(&p->iType,    sizeof(int),    1,  fp);
     EndianSwap(p->iType);
     fread(&p->nDifficulty,sizeof(int),  1,  fp);
 	EndianSwap(p->nDifficulty);
 	
 	// Multiplayer
-	fread(p->sUsername, sizeof(char),	16, fp);
-	fread(p->sPassword, sizeof(char),	16, fp);
+	p->sUsername = freadstr(fp,16);
+	p->sPassword = freadstr(fp,16);
 
 	// Colour
 	fread(&p->R,		sizeof(Uint8),	1,	fp);
@@ -253,7 +253,7 @@ void LoadProfile(FILE *fp, int id)
 	
 	// Weapons
 	for(int i=0; i<5; i++)
-		fread(p->sWeaponSlots[i],	sizeof(char),	64,	fp);
+		p->sWeaponSlots[i] = freadstr(fp,64);
 
 
 	// Load the image
@@ -280,14 +280,14 @@ void LoadProfile(FILE *fp, int id)
 void SaveProfile(FILE *fp, profile_t *p)
 {
 	// Name & Type
-	fwrite(p->sName,	sizeof(char),	32,	fp);
-    fwrite(p->szSkin,   sizeof(char),   128,fp);
+	fwrite(p->sName.c_str(),	sizeof(char),	32,	fp);
+    fwrite(p->szSkin.c_str(),   sizeof(char),   128,fp);
     fwrite(GetEndianSwapped(p->iType),   sizeof(int),    1,  fp);
     fwrite(GetEndianSwapped(p->nDifficulty),sizeof(int), 1,  fp);
 
 	// Multiplayer
-	fwrite(p->sUsername, sizeof(char),	16, fp);
-	fwrite(p->sPassword, sizeof(char),	16, fp);
+	fwrite(p->sUsername.c_str(), sizeof(char),	16, fp);
+	fwrite(p->sPassword.c_str(), sizeof(char),	16, fp);
 
 	// Colour
 	fwrite(GetEndianSwapped(p->R),		sizeof(Uint8),	1,	fp);
@@ -296,7 +296,7 @@ void SaveProfile(FILE *fp, profile_t *p)
 
 	// Weapons		
 	for(int i=0; i<5; i++)
-		fwrite(p->sWeaponSlots[i],	sizeof(char),	64,	fp);
+		fwrite(p->sWeaponSlots[i].c_str(),	sizeof(char),	64,	fp);
 }
 
 
@@ -343,7 +343,7 @@ void DeleteProfile(int id)
 
 ///////////////////
 // Add a profile to the list
-void AddProfile(char *name, char *skin, char *username, char *password,  int R, int G, int B, int type, int difficulty)
+void AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty)
 {
 	profile_t	*p;
 
@@ -360,22 +360,22 @@ void AddProfile(char *name, char *skin, char *username, char *password,  int R, 
 	p->tNext = NULL;
     p->bmpWorm = NULL;
 
-	fix_strncpy(p->sName, name);
-    fix_strncpy(p->szSkin, skin);
+	p->sName = name;
+    p->szSkin = skin;
 	p->R = R;
 	p->G = G;
 	p->B = B;
 
-	fix_strncpy(p->sUsername, username);
-	fix_strncpy(p->sPassword, password);
+	p->sUsername = username;
+	p->sPassword = password;
 
 
 	// Default weapons
-	strcpy(p->sWeaponSlots[0], "minigun");
-	strcpy(p->sWeaponSlots[1], "super shotgun");
-	strcpy(p->sWeaponSlots[2], "blaster");
-	strcpy(p->sWeaponSlots[3], "gauss gun");
-	strcpy(p->sWeaponSlots[4], "big nuke");
+	p->sWeaponSlots[0] = "minigun";
+	p->sWeaponSlots[1] = "super shotgun";
+	p->sWeaponSlots[2] = "blaster";
+	p->sWeaponSlots[3] = "gauss gun";
+	p->sWeaponSlots[4] = "big nuke";
 
 
 	// Load the image

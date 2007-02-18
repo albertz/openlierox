@@ -55,7 +55,7 @@ public:
 		iScrollPos = 0;
 		iSelLength = 0;
 		iSelStart = 0;
-		sSelectedText[0] = '\0';
+		sSelectedText = "";
 		iHoldingMouse = false;
 		iLastCurpos = 0;
 		fTimeHolding = 0;
@@ -68,7 +68,7 @@ public:
 private:
 	// Attributes
 
-	char	sText[MAX_TEXTLENGTH];
+	std::string	sText;
 
 	int		iScrollPos;
 	int		iCurpos;
@@ -76,7 +76,7 @@ private:
 	int		iFlags;
 	int		iSelLength;
 	int		iSelStart;
-	char	sSelectedText[MAX_TEXTLENGTH];
+	std::string	sSelectedText;
 
 	int		iMax;
 
@@ -120,8 +120,8 @@ public:
 	void	Delete(void);
 	void	Insert(char c);
 
-	char	*getText(void)						{ return sText; }
-	void	setText(char *buf);
+	std::string	getText(void)						{ return sText; }
+	void	setText(const std::string& buf);
 
     void    PasteText(void);
 	void	CopyText(void);

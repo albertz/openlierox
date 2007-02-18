@@ -257,11 +257,11 @@ typedef struct server_s {
     float   fQueryTimes[MAX_QUERIES+1];
 
 	// Server address
-	char	szAddress[256];
+	std::string	szAddress;
 	NetworkAddr	sAddress;
 
 	// Server details
-	char	szName[32];
+	std::string	szName;
 	int		nState;
 	int		nNumPlayers;
 	int		nMaxPlayers;
@@ -313,36 +313,36 @@ void	Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int bor
 void    Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
 void    Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool down);
 int		Menu_LoadWormGfx(profile_t *ply);
-int		Menu_MessageBox(char *sTitle, char *sText, int type);
+int		Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type);
 void	Menu_AddDefaultWidgets(void);
 void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
-char	*Menu_GetLevelName(char *filename);
+std::string	Menu_GetLevelName(const std::string& filename);
 
 // Server list
 void		Menu_SvrList_Clear(void);
 void        Menu_SvrList_ClearAuto(void);
 void		Menu_SvrList_Shutdown(void);
 void		Menu_SvrList_PingLAN(void);
-server_t	*Menu_SvrList_AddServer(char *address, bool bManual);
-server_t	*Menu_SvrList_AddNamedServer(char *address, char *name);
-server_t    *Menu_SvrList_FindServerStr(char *szAddress);
-void        Menu_SvrList_RemoveServer(char *szAddress);
+server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual);
+server_t	*Menu_SvrList_AddNamedServer(const std::string& address, const std::string& name);
+server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress);
+void        Menu_SvrList_RemoveServer(const std::string& szAddress);
 bool		Menu_SvrList_Process(void);
 int			Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
 server_t	*Menu_SvrList_FindServer(NetworkAddr *addr);
 void		Menu_SvrList_PingServer(server_t *svr);
-void		Menu_SvrList_WantsJoin(char *Nick, server_t *svr);
+void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
 void		Menu_SvrList_RefreshList(void);
 void        Menu_SvrList_RefreshServer(server_t *s);
 void		Menu_SvrList_UpdateList(void);
 void		Menu_SvrList_FillList(CListview *lv);
-void        Menu_SvrList_SaveList(char *szFilename);
-void        Menu_SvrList_LoadList(char *szFilename);
-void        Menu_SvrList_DrawInfo(char *szAddress);
-void		Menu_SvrList_AddFavourite(char *szName, char *szAddress);
+void        Menu_SvrList_SaveList(const std::string& szFilename);
+void        Menu_SvrList_LoadList(const std::string& szFilename);
+void        Menu_SvrList_DrawInfo(const std::string& szAddress);
+void		Menu_SvrList_AddFavourite(const std::string szName, const std::string szAddress);
 
 // Main menu
 void	Menu_MainInitialize(void);
@@ -371,7 +371,7 @@ void    Menu_Player_NewPlayerInit(void);
 void    Menu_Player_ViewPlayerInit(void);
 void	Menu_Player_NewPlayer(int mouse);
 void	Menu_Player_ViewPlayers(int mouse);
-void	Menu_Player_AddPlayer(char *sName, Uint8 r, Uint8 g, Uint8 b);
+void	Menu_Player_AddPlayer(const std::string& sName, Uint8 r, Uint8 g, Uint8 b);
 void    Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB);
 void	Menu_Player_DeletePlayer(int index);
 void    Menu_Player_FillSkinCombo(CCombobox *cb);
@@ -459,8 +459,8 @@ int		Menu_Net_LANInitialize(void);
 void	Menu_Net_LANShutdown(void);
 void	Menu_Net_LANFrame(int mouse);
 void	Menu_Net_LANSendPing(void);
-void	Menu_Net_LANJoinServer(char *sAddress, char *sName);
-void    Menu_Net_LanShowServer(char *szAddress);
+void	Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sName);
+void    Menu_Net_LanShowServer(const std::string& szAddress);
 
 
 // Net::Joining menu
@@ -472,9 +472,9 @@ void	Menu_Net_JoinFrame(int mouse);
 int		Menu_Net_FavouritesInitialize(void);
 void	Menu_Net_FavouritesShutdown(void);
 void	Menu_Net_FavouritesFrame(int mouse);
-void	Menu_Net_FavouritesJoinServer(char *sAddress, char *sName);
-void	Menu_Net_FavouritesShowServer(char *szAddress);
-void	Menu_Net_RenameServer(char *szName);
+void	Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName);
+void	Menu_Net_FavouritesShowServer(const std::string& szAddress);
+void	Menu_Net_RenameServer(const std::string& szName);
 void	Menu_Net_FavouritesAddServer(void);
 
 // deprecated
@@ -502,6 +502,6 @@ void	Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sNam
 void	Menu_Net_NETAddServer(void);
 void	Menu_Net_NETUpdateList(void);
 void	Menu_Net_NETParseList(void);
-void    Menu_Net_NETShowServer(char *szAddress);
+void    Menu_Net_NETShowServer(const std::string& szAddress);
 
 #endif  //  __MENU_H__

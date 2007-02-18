@@ -526,11 +526,8 @@ void Menu_MapEd_New(void)
 	t1 = (CTextbox *)cg.getWidget(2);
 	t2 = (CTextbox *)cg.getWidget(3);
 
-	static char buf[16];
-	snprintf(buf,sizeof(buf),"%d",cMap.GetWidth()); fix_markend(buf);
-	t1->setText(buf);
-	snprintf(buf,sizeof(buf),"%d",cMap.GetHeight()); fix_markend(buf);
-	t2->setText(buf);
+	t1->setText(itoa(cMap.GetWidth(),10));
+	t1->setText(itoa(cMap.GetHeight(),10));
 	
 	
 	ProcessEvents();
@@ -572,11 +569,11 @@ void Menu_MapEd_New(void)
 						PlaySoundSample(sfxGeneral.smpClick);
 						int w = atoi(t1->getText());
 						int h = atoi(t2->getText());
-						static char theme[128];
-						strcpy(theme,"dirt");
+						std::string theme;
+						theme = "dirt";
 						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,0,0);
 						if(it)
-							fix_strncpy(theme,it->sName);
+							theme = it->sName;
 
 
 						// Check for min & max sizes

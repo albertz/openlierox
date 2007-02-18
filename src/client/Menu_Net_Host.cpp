@@ -121,9 +121,9 @@ int Menu_Net_HostInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cHostPly.SendMessage( hs_PlayerList, LVM_ADDITEM, (DWORD)"", p->iID);
+		cHostPly.SendMessage( hs_PlayerList, LVM_ADDITEM, (DWORD) "", p->iID);
 		cHostPly.SendMessage( hs_PlayerList, LVM_ADDSUBITEM, LVS_IMAGE, (DWORD)p->bmpWorm);
-		cHostPly.SendMessage( hs_PlayerList, LVM_ADDSUBITEM, LVS_TEXT,  (DWORD)p->sName);
+		cHostPly.SendMessage( hs_PlayerList, LVM_ADDSUBITEM, LVS_TEXT,  (DWORD)&p->sName);
 	}
 
 	iHumanPlayers = 0;

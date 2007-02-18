@@ -305,12 +305,13 @@ char *StripLine(char *szLine)
 // Trim the leading & ending spaces from a string
 void TrimSpaces(std::string& szLine) {
 	size_t n = 0;
-	for(std::string::iterator p = szLine.begin(); p != szLine.end(); p++, n++)
+	std::string::iterator p;
+	for(p = szLine.begin(); p != szLine.end(); p++, n++)
 		if(!isspace(*p) || isgraph(*p)) break;
 	if(n>0) szLine.erase(0,n);
 	
 	n = 0;
-	for(std::string::reverse_iterator p = szLine.rbegin(); p != szLine.rend(); p++, n++)
+	for(p = szLine.rbegin(); p != szLine.rend(); p++, n++)
 		if(!isspace(*p) || isgraph(*p)) break;
 	if(n>0) szLine.erase(szLine.size()-n);
 }
@@ -570,6 +571,33 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 		
 		p1++; p2++;
 	}
+}
+
+std::vector<std::string> explode(const std::string& str, const std::string& with)
+{
+	static std::vector<std::string> result;
+
+	std::string temp;
+	std::string missing = str;
+	int pos = 0;
+	while (pos = missing.rfind(with) != std::string::npos)  {
+		temp = missing.substr(0,pos-1);
+		result.push_back(temp);
+	}
+	result.push_back(missing);
+	return result;
+}
+
+std::string freadstr(FILE *fp, size_t maxlen)
+{
+	if (!fp) return "";
+
+	static std::string result = "";
+
+	static char buf[1024];
+	fread(buf,1,maxlen-1,fp);
+	result = buf;
+	return result;
 }
 
 

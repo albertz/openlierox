@@ -28,11 +28,11 @@ int LoadOptions(void)
 {
 	printf("Loading options... \n");
 
-    static const char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    static const char    *ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
-    static const char    *ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
-    static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "MediaPlayer"};
-    static const char    *gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
+    static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    static const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
+    static const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
+    static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "MediaPlayer"};
+    static const std::string    gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5"};
 	static const int	 def_widths[] = {32,180,70,80,60,150};
 
     unsigned int     i;
@@ -46,7 +46,6 @@ int LoadOptions(void)
 	// read this first, because perhaps we will have new searchpaths
 	InitBaseSearchPaths();
 	// tmp is for 'SearchPathX'
-	// tmp2 is the number (X)
 	// tmp3 is the data (the path)
 	std::string value;
 	i = 1;
@@ -57,12 +56,14 @@ int LoadOptions(void)
 		AddToFileList(&tLXOptions->tSearchPaths, value);
 		i++;
 	}
-	for(searchpathlist::const_iterator p = basesearchpaths.begin(); p != basesearchpaths.end(); i++)  {
+
+	searchpathlist::const_iterator p;
+	for(p = basesearchpaths.begin(); p != basesearchpaths.end(); i++)  {
 		AddToFileList(&tLXOptions->tSearchPaths, *p);
 	}
 
 	printf("I have now the following searchpaths (in this direction):\n");
-	for(searchpathlist::const_iterator p = tLXOptions->tSearchPaths.begin(); p != basesearchpaths.end(); p++) {
+	for(p = tLXOptions->tSearchPaths.begin(); p != basesearchpaths.end(); p++) {
 		printf("  %s\n", p->c_str());
 	}
 	printf(" And that's all.\n");

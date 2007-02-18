@@ -750,11 +750,11 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         int x2 = x+105;
         y = 15;
 
-		char *gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
+		const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
 
-        fix_strncpy(tGameInfo.sMapname, gl->szMapName);
-        fix_strncpy(tGameInfo.sModName, gl->szModName);
-        fix_strncpy(tGameInfo.sModDir, gl->szModDir); // TODO: it was gl->szModName before. was that correct?
+        tGameInfo.sMapname = gl->szMapName;
+        tGameInfo.sModName = gl->szModName;
+        tGameInfo.sModDir = gl->szModDir; // TODO: it was gl->szModName before. was that correct?
 		tGameInfo.iBonusesOn = gl->nBonuses;
 		tGameInfo.iGameMode = gl->nGameMode;
 		tGameInfo.iKillLimit = gl->nMaxKills;
@@ -770,7 +770,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         else
             f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
 		f->Draw(tMenu->bmpScreen, x, y+40, tLX->clNormalLabel,"%s", "Game Mode:");
-		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, "%s",gamemodes[gl->nGameMode]);
+		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, "%s",gamemodes[gl->nGameMode].c_str());
         f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel, "%s", "Mod:");
         if(gl->bHaveMod)
             f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel, "%s", gl->szModName);
