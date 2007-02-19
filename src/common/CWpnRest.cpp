@@ -115,12 +115,12 @@ void CWpnRest::cycleVisible(CGameScript *pcGameS)
 // Find a weapon in the list
 wpnrest_t *CWpnRest::findWeapon(const std::string& szName)
 {
-    if(szName == NULL)
+    if(szName == "")
     	return NULL;
 
-    static char name[256] = "";
-    static char tmp[256] = "";
-    fix_strncpy(name, szName);
+    static std::string tmp = "";
+	tmp = szName;
+	TrimSpaces(tmp);
 
     wpnrest_t *psWpn = m_psWeaponList;
 
@@ -128,8 +128,7 @@ wpnrest_t *CWpnRest::findWeapon(const std::string& szName)
 
         // We need to be a bit lenient here in case some simple mistakes in different game scripts occur
         // Like case & leading/trailing spaces
-        fix_strncpy(tmp, TrimSpaces( name ));
-        if( stricmp(psWpn->szName, tmp) == 0 )
+        if( stringcasecmp(psWpn->szName, tmp) == 0 )
             return psWpn;
     }
 
@@ -142,16 +141,14 @@ wpnrest_t *CWpnRest::findWeapon(const std::string& szName)
 // Add a weapon to the list
 void CWpnRest::addWeapon(const std::string& szName, int nState)
 {
-    if(szName == NULL) return;
+    if(szName == "") return;
 
     wpnrest_t *psWpn = new wpnrest_t;
 
     if( !psWpn )
         return;
 
-    size_t len = strlen(szName);
-    psWpn->szName = new char[ len+1 ];
-    memcpy(psWpn->szName, szName, len+1);
+    psWpn->szName = szName;
     psWpn->nState = nState;
     
     // Link it in
@@ -194,16 +191,20 @@ void CWpnRest::loadList(const std::string& szFilename)
         return;
 
     static std::string line;
+	static std::vector<std::string> exploded;
 
     while( !feof(fp) ) {
         line = ReadUntil(fp, '\n');
         //fscanf(fp, "%[^\n]\n",line);
-        char *tok = strtok(line,",");
+        /*char *tok = strtok(line,",");
         if( tok )  {
 			char *tok2 = strtok(NULL,",");
 			if (tok2)
 				addWeapon( tok, atoi(tok2) );
-		}
+		}*/
+		exploded = explode(line,",");
+		if (exploded.size() == 2)
+			addWeapon(exploded[0],atoi(exploded[1]));
     }
 
     fclose(fp);

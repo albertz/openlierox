@@ -276,7 +276,7 @@ void CServer::TagWorm(int id)
 	SendGlobalPacket(&bs);
 
 	//Take care of the <none> tag
-	if (strcmp(NetworkTexts->sTeamkill,"<none>"))  {
+	if (NetworkTexts->sTeamkill != "<none>")  {
 		SendGlobalText(replacemax(NetworkTexts->sWormIsIt,"<player>",w->getName(),1),TXT_NORMAL);
 	}
 }

@@ -86,7 +86,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	// The scrollpos can be 0 and the text still overlapps
 	// User can move in the editbox using keys/mouse
 	i=iLength-1;
-	strip(text,iWidth-5);
+	text = strip(text,iWidth-5);
 
 	// Determine the cursor position in pixels
 	int x = 0;

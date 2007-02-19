@@ -294,7 +294,7 @@ id3v1_t GetMP3Info(const std::string& file)
 	if (file == "")
 		return info;
 
-	FILE *fp = fopen(file,"rb");
+	FILE *fp = fopen(file.c_str(),"rb");
 	if (!fp)
 		return info;
 

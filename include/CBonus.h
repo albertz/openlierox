@@ -44,7 +44,7 @@ private:
 	int		iType;
 	int		iWeapon;
 
-	char	sWeapon[64];
+	std::string	sWeapon;
 
 	CVec	vPos;
 	CVec	vVelocity;

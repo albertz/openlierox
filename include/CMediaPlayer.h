@@ -35,7 +35,7 @@ private:
 CGuiLayout cOpenGui;
 
 	// Methods
-	void		ReFillList(CListview *lv, std::string dir);
+	void		ReFillList(CListview *lv, const std::string& dir);
 	bool		IsRoot(const std::string& dir);
 public:
 	std::string Execute(const std::string& default_dir);

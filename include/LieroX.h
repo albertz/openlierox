@@ -207,7 +207,9 @@ bool	replace(std::string& text, std::string what, std::string with);
 std::string replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max);
 std::string replacemax(const std::string& text, const std::string& what, const std::string& with, int max);
 char	*strip(char *buf, int width);
+std::string strip(const std::string& text, int width);
 bool	stripdot(char *buf, int width);
+bool stripdot(std::string& text, int width);
 char	*ucfirst(char *text);
 std::string	ReadUntil(const std::string& text, char until_character = '\n');
 std::string	ReadUntil(FILE* fp, char until_character = '\n');
@@ -217,7 +219,7 @@ std::vector<std::string> explode(const std::string& str, const std::string& deli
 std::string freadstr(FILE *fp, size_t maxlen);
 size_t findLastPathSep(const std::string& path);
 void stringlwr(std::string& txt);
-void strincludes(const std::string& str, const std::string& what);
+bool strincludes(const std::string& str, const std::string& what);
 short stringcasecmp(const std::string& s1, const std::string& s2);
 
 template<typename T>

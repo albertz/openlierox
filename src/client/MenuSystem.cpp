@@ -1563,19 +1563,19 @@ bool Menu_SvrList_Process(void)
 // Returns true if we should update the list
 int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 {
-	static char			cmd[128], buf[128];
 	NetworkAddr		adrFrom;
 	int				update = false;
+	static std::string cmd,buf;
 
 	// Check for connectionless packet header
 	if(*(int *)bs->GetData() == -1) {
 		bs->SetPos(4);
-		bs->readString(cmd,sizeof(cmd));
+		cmd = bs->readString();
 
 		GetRemoteNetAddr(sock,&adrFrom);
 
 		// Check for a pong
-		if(strcmp(cmd, "lx::pong") == 0) {
+		if(cmd == "lx::pong") {
 
 			// Look the the list and find which server returned the ping
 			server_t *svr = Menu_SvrList_FindServer(&adrFrom);
@@ -1607,7 +1607,7 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 		}
 
 		// Check for a query return
-		if(strcmp(cmd, "lx::queryreturn") == 0) {
+		else if(cmd == "lx::queryreturn") {
 
 			// Look the the list and find which server returned the ping
 			server_t *svr = Menu_SvrList_FindServer(&adrFrom);

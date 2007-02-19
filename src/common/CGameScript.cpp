@@ -664,7 +664,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	EndianSwap(proj->Exp_UseSound);
     if(proj->Exp_UseSound)
     {
-        readString(proj->Exp_SndFilename, fp);
+        proj->Exp_SndFilename = readString(fp);
 	}
 
     //
@@ -809,7 +809,7 @@ bool CGameScript::weaponExists(const std::string& szName)
 // Write a string in pascal format
 void CGameScript::writeString(const std::string& szString, FILE *fp)
 {
-    if(!szString) return;
+    if(szString == "") return;
 
 	size_t length = szString.size();
 	if(length > 255) length = 255; // WARNING: cutting the string here! (TODO: should we assert this?) 

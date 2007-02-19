@@ -162,11 +162,11 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 			if (tSelected->tImage)  {
 				DrawImage(bmpDest,tSelected->tImage,iX+3,iY+1);
 				stripdot(buf,iWidth-(6+tSelected->tImage->w+iGotScrollbar*15));
-				tLX->cFont.Draw(bmpDest, iX+6+tSelected->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText,"%s", buf);
+				tLX->cFont.Draw(bmpDest, iX+6+tSelected->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText,"%s", buf.c_str());
 			}
 			else  {
 				stripdot(buf,iWidth-(3+iGotScrollbar*15));
-				tLX->cFont.Draw(bmpDest, iX+3, iY+2, tLX->clDropDownText,"%s", buf);
+				tLX->cFont.Draw(bmpDest, iX+3, iY+2, tLX->clDropDownText,"%s", buf.c_str());
 			}
 		}
 

@@ -29,7 +29,7 @@ enum {
 // Weapon Restriction structure
 typedef struct wpnrest_s {
 
-    char    *szName;
+	std::string    szName;
     int     nState;
 
     struct  wpnrest_s   *psNext;
@@ -71,7 +71,7 @@ public:
     void        readList(CBytestream *psByteS);
 
     bool        isEnabled(const std::string& szName);
-    char        *findEnabledWeapon(CGameScript *pcGameS);
+	std::string findEnabledWeapon(CGameScript *pcGameS);
 
     int         getWeaponState(const std::string& szName);
 

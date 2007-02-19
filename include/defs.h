@@ -82,7 +82,7 @@ inline void strlwr(char* string) {
 
 #include <nl.h>
 // workaraound for bad named makros by nl.h
-// makros are bad, esp the names (reserved/used by CBytestream)
+// macros are bad, esp the names (reserved/used by CBytestream)
 // TODO: they seem to not work correctly!
 // all use of it in CBytestream was removed
 inline void nl_writeShort(char* x, int& y, NLushort z)		{ writeShort(x, y, z); }
@@ -102,11 +102,9 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readFloat
 #undef readString
 
-
-
 // Helpful Macros
-#define		LOAD_IMAGE(bmp,name) bmp = LoadImage(name,0); if(bmp == NULL) { printf("WARNING: could not load image %s\n", name.c_str()); return false; }
-#define		LOAD_IMAGE_BPP(bmp,name) bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); if(bmp == NULL) { printf("WARNING: could not load image %s\n", name.c_str()); return false; }
+#define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
+#define		LOAD_IMAGE_BPP(bmp,name) if (!Load_Image_Bpp(bmp,name)) {return false;}
 #define		CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
 
 template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
@@ -173,7 +171,7 @@ inline T* GetByteSwapped(const T b)
 #endif
 
 // secure str handling macros
-// WARNING: don't use expressions like buf[i++] with the macros, because the i variable will be incremented twice!
+// WARNING: don't use expressions like buf[i++] with the macros, because the "i" variable will be incremented twice in some macros!
 #define		fix_markend(chrarray) \
 				chrarray[sizeof(chrarray)-1] = '\0';
 #define		fix_strnlen(chrarray) \
@@ -202,6 +200,8 @@ inline std::string itoa(int num,int base=10)  {
 	fix_markend(buf);
 	return buf;
 }
+
+inline int atoi(const std::string& str)  { return atoi(str.c_str());  }
 
 
 #include "Networking.h"

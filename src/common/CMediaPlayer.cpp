@@ -32,32 +32,35 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 		tSongList.clear();
 	}
 
+	static const std::string supported_media[] = {"mp3","ogg","mod","mid","voc"};
+
 	//
 	// Load the files
 	//
-	char filename[1024]=""; // TODO: !
+	std::string filename=""; // TODO: !
 	int done = false;
 	if(!FindFirst(dir.c_str(),"*",filename))
 		done = true;
 
-	char ext[4] = "";
-	char *tmp = NULL;
-	std::string temp = "";
+	std::string ext = "";
+	int pos = 0;
+	//char *tmp = NULL;
+	//std::string temp = "";
 
 	while(!done) {
-		tmp = strrchr(filename,'.');
-		if (tmp)  {
-			strncpy(ext,tmp+1,4);
+		pos = filename.rfind('.');
+		if (pos != std::string::npos)  {
+			ext = filename.substr(pos);
+	
 			// Only supported media
-			if (!stricmp(ext,"mp3") || !stricmp(ext,"ogg") || !stricmp(ext,"mod") || /*!stricmp(ext,"wav") ||*/
-				!stricmp(ext,"mid") || !stricmp(ext,"voc"))  {
-				temp = filename;
-				tSongList.push_back(temp);
-			}
+			for (register int i=0;i<sizeof(supported_media)/sizeof(std::string);i++)
+				if (!stringcasecmp(supported_media[i],ext))  {
+					tSongList.push_back(filename);
+				}
 		}
 	
 
-		if(!FindNext(filename))
+		if(!FindNext(filename.c_str()))
 			break;
 	}
 
@@ -68,7 +71,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 		return;
 
 	// TODO: change!
-	char directory[1024]="";
+	std::string directory[1024]="";
 
 	std::string str_temp = "";
 	std::vector<std::string> dir_list;
@@ -87,8 +90,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	}
 
 	for (int i=0;i<dir_list.size();i++)  {
-		strcpy(directory,dir_list[i].c_str());
-		Load(directory,true,true);
+		Load(dir_list[i],true,true);
 	}
 
 	// TODO: can be strongly optimized
@@ -113,9 +115,9 @@ void CPlayList::setShuffle(bool _s)
 
 ///////////////////
 // Get the current played song
-song_path CPlayList::GetCurSong(void)
+std::string CPlayList::GetCurSong(void)
 {
-	static song_path result = "";
+	static std::string result = "";
 	if (tSongList.size() == 0 || iCurSong < 0)
 		return result;
 
@@ -197,8 +199,8 @@ void CPlayList::LoadFromFile(const std::string& filename,bool absolute_path)
 		return;
 
 	// Read the file line by line
-	char line[1024]; // TODO !
-	song_path tmp = "";
+	static char line[1024];
+	std::string tmp = "";
 	while(fgets(line,sizeof(line)-1,fp))  {
 		line[fix_strnlen(line)-1] = '\0';  // Remove the newline
 		tmp = line;

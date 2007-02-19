@@ -557,11 +557,10 @@ void Menu_Net_JoinGotoLobby(void)
 
 //////////////////////
 // Get the content of the chatbox
-char *Menu_Net_JoinLobbyGetText(void)
+std::string Menu_Net_JoinLobbyGetText(void)
 {
-	static char buf[128];
-	cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
-    fix_markend(buf);
+	static std::string buf;
+	cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, (DWORD)&buf, 256);
 	return buf;
 }
 

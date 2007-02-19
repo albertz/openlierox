@@ -310,7 +310,7 @@ int CMap::LoadTheme(const std::string& _theme)
 
 
     // Load the green dirt mask
-    LOAD_IMAGE_BPP(bmpGreenMask, "data/gfx/greenball.png");
+    LOAD_IMAGE_BPP(bmpGreenMask, std::string("data/gfx/greenball.png"));
 
 	return true;
 }
@@ -347,13 +347,13 @@ std::string CMap::findRandomTheme()
 
     // Get a random number
     int t = GetRandomInt(themes.size()-1);
-    return themes[t];
+    return themes.at(t);
 }
 
 
 ///////////////////
 // Checks if a theme is a valid theme
-bool CMap::validateTheme(char *name)
+bool CMap::validateTheme(const std::string& name)
 {
     // Does simple checks to see if the main files exists
     // Ie 'backtile.png' 'fronttile.png' & 'theme.txt'

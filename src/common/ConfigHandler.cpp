@@ -99,7 +99,9 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 	if(!GetString(filename,section,key,string))
 		return false;
 	
-	*value = from_string(string);
+
+	// TODO
+	*value = atoi(string.c_str());//from_string(string);
 
 	return true;
 }
@@ -165,9 +167,10 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 	if (!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
 		return false;
 
-	std::string tok = strtok(string,",");
+	// TODO: use explode instead
+	std::string tok = strtok(string.c_str(),",");
 	int i=0;
-	while(tok && i < num_items)  {
+	while(tok != "" && i < num_items)  {
 		array[i++] = atoi(tok);
 		tok = strtok(NULL,",");
 	}

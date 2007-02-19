@@ -636,7 +636,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	}
 
 	for(i=0;i<5;i++)
-		fix_strncpy( tProfile->sWeaponSlots[i], tWeapons[i].Weapon->Name );
+		tProfile->sWeaponSlots[i] = tWeapons[i].Weapon->Name;
 
     // Note: The extra weapon weapon is the 'random' button
     if(iCurrentWeapon == iNumWeaponSlots) {
@@ -658,7 +658,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
 			// Set our profile to the weapons (so we can save it later)
 			for(int i=0;i<5;i++)
-				fix_strncpy( tProfile->sWeaponSlots[i], tWeapons[i].Weapon->Name );
+				tProfile->sWeaponSlots[i] = tWeapons[i].Weapon->Name;
 		}
 	}
 

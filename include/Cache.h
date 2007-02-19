@@ -101,6 +101,25 @@ SDL_Surface     *_LoadImage(const std::string& filename);
 SDL_Surface		*LoadImage(const std::string& _filename, int correctbpp);
 SoundSample*		LoadSample(const std::string& _filename, int maxplaying);
 
+// Inlines for macros in defs.h
+inline bool Load_Image(SDL_Surface *bmp, const std::string& name)  {
+	bmp = LoadImage(name,0); 
+	if (bmp == NULL)  { 
+		printf("WARNING: could not load image %s\n", name.c_str()); 
+		return false;
+	}
+	return true;
+}
+
+inline bool Load_Image_Bpp(SDL_Surface *bmp, const std::string& name)  {
+	bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); 
+	if (bmp == NULL)  { 
+		printf("WARNING: could not load image %s\n", name.c_str()); 
+		return false;
+	}
+	return true;
+}
+
 
 
 

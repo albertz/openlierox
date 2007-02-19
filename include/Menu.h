@@ -382,7 +382,7 @@ int		Menu_MapEdInitialize(void);
 void	Menu_MapEdFrame(SDL_Surface *bmpDest, int process);
 void	Menu_MapEd_New(void);
 void	Menu_MapEd_LoadSave(int save);
-int		Menu_MapEd_OkSave(char *szFilename);
+int		Menu_MapEd_OkSave(const std::string& szFilename);
 void	Menu_MapEdShutdown(void);
 
 // Game Settings
@@ -400,7 +400,7 @@ void	Menu_WeaponsRestrictionsShutdown(void);
 
 // Load/save dialog
 void	Menu_WeaponPresets(int save, CWpnRest *gamescript);
-int		Menu_WeaponPresetsOkSave(char *szFilename);
+int		Menu_WeaponPresetsOkSave(const std::string& szFilename);
 void	Menu_WeaponPresetsShutdown(void);
 
 // Ban List
@@ -418,7 +418,7 @@ void	Menu_ServerSettingsShutdown(void);
 int		Menu_OptionsInitialize(void);
 void	Menu_OptionsShutdown(void);
 void	Menu_OptionsFrame(void);
-void	Menu_OptionsWaitInput(int ply, char *name, CInputbox *b);
+void	Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b);
 
 
 // Main net
@@ -448,7 +448,7 @@ void    Menu_Net_HostLobbyCreateGui(void);
 void	Menu_Net_HostGotoLobby(void);
 void	Menu_Net_HostLobbyFrame(int mouse);
 void	Menu_Net_HostLobbyShutdown(void);
-char	*Menu_Net_HostLobbyGetText(void);
+std::string	Menu_Net_HostLobbyGetText(void);
 void	Menu_HostDrawLobby(SDL_Surface *bmpDest);
 void	Menu_HostShowMinimap(void);
 void	Menu_Net_HostDeregister(void);
@@ -489,7 +489,7 @@ int		Menu_Net_JoinLobbyInitialize(void);
 void    Menu_Net_JoinDrawLobby(void);
 void    Menu_Net_JoinLobbyCreateGui(void);
 void	Menu_Net_JoinGotoLobby(void);
-char	*Menu_Net_JoinLobbyGetText(void);
+std::string	Menu_Net_JoinLobbyGetText(void);
 void	Menu_Net_JoinLobbyFrame(int mouse);
 void	Menu_Net_JoinLobbyShutdown(void);
 

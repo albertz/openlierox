@@ -301,13 +301,15 @@ char *StripLine(char *szLine)
 // Trim the leading & ending spaces from a string
 void TrimSpaces(std::string& szLine) {
 	size_t n = 0;
-	for(std::string::iterator p = szLine.begin(); p != szLine.end(); p++, n++)
+	std::string::iterator p;
+	for(p = szLine.begin(); p != szLine.end(); p++, n++)
 		if(!isspace(*p) || isgraph(*p)) break;
 	if(n>0) szLine.erase(0,n);
 	
 	n = 0;
-	for(std::string::reverse_iterator p = szLine.rbegin(); p != szLine.rend(); p++, n++)
-		if(!isspace(*p) || isgraph(*p)) break;
+	std::string::reverse_iterator p2;
+	for(p2 = szLine.rbegin(); p2 != szLine.rend(); p2++, n++)
+		if(!isspace(*p2) || isgraph(*p2)) break;
 	if(n>0) szLine.erase(szLine.size()-n);
 }
 
@@ -419,6 +421,16 @@ char *strip(char *buf, int width)
 	return buf;
 }
 
+std::string strip(const std::string& buf, int width)
+{
+	static std::string result;
+	result = buf;
+	for(int j=result.length()-1; tLX->cFont.GetWidth(result) > width && j>0; j--)
+		result.erase(result.length()-1);
+
+	return result;
+}
+
 ///////////////////
 // Strips the text to have the specified width and adds three dots at it's end, if the text was stripped
 bool stripdot(char *buf, int width)
@@ -433,6 +445,23 @@ bool stripdot(char *buf, int width)
 	if(stripped)  {
 		strip(buf,tLX->cFont.GetWidth(buf)-dotwidth);
 		strcat(buf,"...");
+	}
+
+	return stripped;
+}
+
+bool stripdot(std::string& buf, int width)
+{
+	int dotwidth = tLX->cFont.GetWidth("...");
+	bool stripped = false;
+	for(int j=buf.length()-1; tLX->cFont.GetWidth(buf) > width && j>0; j--)  {
+		buf.erase(buf.length()-1);
+		stripped = true;
+	}
+
+	if(stripped)  {
+		buf = strip(buf,tLX->cFont.GetWidth(buf)-dotwidth);
+		buf += "...";
 	}
 
 	return stripped;
@@ -525,8 +554,6 @@ Uint32 StrToCol(const std::string& str)
 	int r,g,b;
 	tmp[2] = 0;  // Third character is terminating
 
-	org_val = str; // Save the original pointer
-
 	// By default return pink
 	if(string.size() < 6)
 		return tLX->clPink;
@@ -540,25 +567,22 @@ Uint32 StrToCol(const std::string& str)
 		return tLX->clPink;
 
 	// R value
-	strncpy(tmp,str,2);
+	strncpy(tmp,str.c_str(),2);
 	strlwr(tmp);
 	r = MIN((int)strtol(tmp,NULL,16),255);
 
 	// G value
-	strncpy(tmp,str+2,2);
+	strncpy(tmp,str.c_str()+2,2);
 	strlwr(tmp);
 	g = MIN((int)strtol(tmp,NULL,16),255);
 
 	// B value
-	strncpy(tmp,str+4,2);
+	strncpy(tmp,str.c_str()+4,2);
 	strlwr(tmp);
 	b = MIN((int)strtol(tmp,NULL,16),255);
 
 	// Make the colour
 	Uint32 result = MakeColour((Uint8)r,(Uint8)g,(Uint8)b);
-
-	// Restore the original value
-	str = org_val;
 
 	return result;
 }
@@ -599,7 +623,7 @@ std::vector<std::string> explode(const std::string& str, const std::string& deli
 		result.push_back(rest.substr(0,pos-1));
 		rest.erase(0,pos+delim_len);
 	}
-	result.push_back(missing);
+	result.push_back(rest);
 	
 	return result;
 }
@@ -644,7 +668,7 @@ void stringlwr(std::string& txt) {
 }
 
 
-void strincludes(const std::string& str, const std::string& what) {
+bool strincludes(const std::string& str, const std::string& what) {
 	return str.find(what) != std::string::npos;
 }
 

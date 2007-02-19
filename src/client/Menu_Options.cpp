@@ -164,10 +164,10 @@ int Menu_OptionsInitialize(void)
 	for(i=0;i<8;i++,y+=25) {
 		cOpt_Controls.Add( new CLabel(InputNames[i],tLX->clNormalLabel), Static, 40, y, 0,0);
 
-		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayer1Controls[SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
+		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[0][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
 			               oc_Ply1_Up+i, 165, y, 50,17);
 
-		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayer2Controls[SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
+		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[1][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
 			               oc_Ply2_Up+i, 270, y, 50,17);
 	}
 
@@ -645,7 +645,7 @@ void Menu_OptionsFrame(void)
 
 ///////////////////
 // Process an input box waiting thing
-void Menu_OptionsWaitInput(int ply, char *name, CInputbox *b)
+void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 {
 	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
@@ -659,7 +659,7 @@ void Menu_OptionsWaitInput(int ply, char *name, CInputbox *b)
     DrawRectFill(tMenu->bmpBuffer, 212,172,429,309,0);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,180,MakeColour(128,200,255),"%s","Input for:");
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),"%s",name);
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),"%s",name.c_str());
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,270,MakeColour(255,255,255),"%s","Press any key/mouse");
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,285,MakeColour(128,128,128),"%s","(Escape to cancel)");
@@ -696,11 +696,11 @@ void Menu_OptionsWaitInput(int ply, char *name, CInputbox *b)
 
 	// Change the options
 	if(ply == 0) {
-		fix_strncpy(tLXOptions->sPlayer1Controls[b->getValue()],b->getText());
+		tLXOptions->sPlayerControls[0][b->getValue()] = b->getText();
 	} else if(ply == 1) {
-		fix_strncpy(tLXOptions->sPlayer2Controls[b->getValue()],b->getText());
+		tLXOptions->sPlayerControls[1][b->getValue()] = b->getText();
 	} else if(ply == 2)
-		fix_strncpy(tLXOptions->sGeneralControls[b->getValue()],b->getText());
+		tLXOptions->sGeneralControls[b->getValue()] = b->getText();
 
 	Mouse->Down = 0;
 	Mouse->Up = 0;

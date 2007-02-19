@@ -39,8 +39,8 @@ int LoadOptions(void)
 
 	static const char *f = "cfg/options.cfg";
 
-  	AddKeyword("true",true);
-	AddKeyword("false",false);
+	AddKeyword(std::string("true"),true);
+	AddKeyword(std::string("false"),false);
 
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
@@ -95,8 +95,8 @@ int LoadOptions(void)
 
     // Player controls
     for(i=0; i<8; i++) {
-        ReadString(f, "Ply1Controls", ply_keys[i], tLXOptions->sPlayer1Controls[i], sizeof(tLXOptions->sPlayer1Controls[i]), ply_def1[i]);
-        ReadString(f, "Ply2Controls", ply_keys[i], tLXOptions->sPlayer2Controls[i], sizeof(tLXOptions->sPlayer2Controls[i]), ply_def2[i]);
+        ReadString(f, "Ply1Controls", ply_keys[i], tLXOptions->sPlayerControls[0][i], ply_def1[i]);
+        ReadString(f, "Ply2Controls", ply_keys[i], tLXOptions->sPlayerControls[1][i], ply_def2[i]);
     }
 
     // General controls
@@ -230,12 +230,12 @@ void SaveOptions(void)
 
     fprintf(fp, "[Ply1Controls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayer1Controls[i]);
+        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayerControls[0][i]);
     fprintf(fp, "\n");
 
     fprintf(fp, "[Ply2Controls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayer2Controls[i]);
+        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayerControls[1][i]);
     fprintf(fp, "\n");
 
     fprintf(fp, "[GeneralControls]\n");

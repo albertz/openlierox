@@ -560,11 +560,10 @@ void Menu_Net_HostLobbyCreateGui(void)
 
 //////////////////////
 // Get the content of the chatbox
-char *Menu_Net_HostLobbyGetText(void)
+std::string Menu_Net_HostLobbyGetText(void)
 {
-	static char buf[128];
-	cHostLobby.SendMessage(hl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
-    fix_markend(buf);
+	static std::string buf;
+	cHostLobby.SendMessage(hl_ChatText, TXM_GETTEXT, (DWORD)&buf, 256);
 	return buf;
 }
 

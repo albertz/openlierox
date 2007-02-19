@@ -257,7 +257,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	static std::string buf;
 
 	// Kill
-	if (strcmp(NetworkTexts->sKilled,"<none>"))  { // Take care of the <none> tag
+	if (NetworkTexts->sKilled != "<none>")  { // Take care of the <none> tag
 		if(killer != victim)  {
 			replacemax(NetworkTexts->sKilled,"<killer>",kill->getName(),buf,1);
 			replacemax(buf,"<victim>",vict->getName(),buf,1);
@@ -817,7 +817,7 @@ void CServer::ParseConnect(CBytestream *bs)
 	for(i=0;i<numworms;i++) {
 		worms[i].readInfo(bs);
 		// If bots aren't allowed, disconnect the client
-		if (worms[i].getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strstr(szAddress,"127.0.0.1"))  {
+		if (worms[i].getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strincludes(szAddress,"127.0.0.1"))  {
 			printf("Bot was trying to connect\n");
 			bytestr.Clear();
 			bytestr.writeInt(-1,4);
@@ -1019,7 +1019,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		static std::string buf;
 		static char buf2[256];
 		// "Has connected" message
-		if (strcmp(NetworkTexts->sHasConnected,"<none>"))  {
+		if (NetworkTexts->sHasConnected != "<none>")  {
 			for(i=0;i<numworms;i++) {
 				SendGlobalText(replacemax(NetworkTexts->sHasConnected,"<player>",worms[i].getName(),1),TXT_NETWORK);
 			}
@@ -1037,11 +1037,11 @@ void CServer::ParseConnect(CBytestream *bs)
 
 			// Country
 			if (buf.find("<country>") != std::string::npos)  {
-				static char country[128];
-				static char str_addr[22];
+				static std::string country;
+				static std::string str_addr;
 				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
-				if (fix_strnlen(str_addr))  {
-					GetCountryFromIP(str_addr,country);
+				if (str_addr != "")  {
+					country = GetCountryFromIP(str_addr);
 					replacemax(buf,"<country>",country,buf,1);
 				}
 			}

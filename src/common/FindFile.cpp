@@ -611,9 +611,9 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 
 	searchpathlist* spath = NULL;
 	bool has_tried_basesearchpaths = false;
-	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
+	if(tLXOptions != NULL) spath = &tLXOptions->tSearchPaths;
 	if(spath == NULL) {
-		spath = basesearchpaths;
+		spath = &basesearchpaths;
 		has_tried_basesearchpaths = true;
 	}
 	while(spath) { // loop over searchpaths

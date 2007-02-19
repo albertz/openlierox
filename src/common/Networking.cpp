@@ -445,8 +445,8 @@ int GetSocketErrorNr() {
 	return nlGetError();
 }
 
-std::string GetSocketErrorStr(int errnr) {
-	return nlGetErrorStr(errnr);
+const std::string GetSocketErrorStr(int errnr) {
+	return std::string(nlGetErrorStr(errnr));
 }
 
 bool IsMessageEndSocketErrorNr(int errnr) {

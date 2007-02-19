@@ -89,7 +89,7 @@ bool	IsSocketStateValid(NetworkSocket sock);
 void	SetSocketStateValid(NetworkSocket& sock, bool valid);
 
 int		GetSocketErrorNr();
-const char*	GetSocketErrorStr(int errnr);
+const std::string	GetSocketErrorStr(int errnr);
 bool	IsMessageEndSocketErrorNr(int errnr);
 
 bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr);

@@ -455,10 +455,10 @@ void Menu_LocalAddProfiles(void)
 void Menu_LocalShowMinimap(bool bReload)
 {
 	CMap map;
-	static char buf[256];
-	static char blah[256];
+	static std::string buf;
+	static std::string blah;
 
-	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)buf, sizeof(buf));
+	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)&buf, 256);
 
     tGameInfo.sMapRandom.bUsed = false;
 
@@ -466,12 +466,12 @@ void Menu_LocalShowMinimap(bool bReload)
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 126,132,126,132,128,96);
 
 	// Load the map
-	snprintf(blah, sizeof(blah), "levels/%s",buf); fix_markend(blah);
+	blah = "levels/"+buf;
     if( bReload ) {
 
         // Create a random map
-        if( strcmp(buf, "_random_") == 0 ) {
-            if( map.New(504,350,map.findRandomTheme(buf)) ) {
+        if( buf == "_random_" ) {
+            if( map.New(504,350,map.findRandomTheme()) ) {
 			    map.ApplyRandom();
 
                 // Free any old random map object list
@@ -779,6 +779,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 			return true;
 		}
 	};
+
 	FindFiles(addMod(cb,&baseid),".",FM_DIR);
 
 	// Set the last used mod as default
@@ -1352,7 +1353,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 						PlaySoundSample(sfxGeneral.smpClick);
 
 					// Don't process when nothing is selected
-					if(strlen(t->getText()) > 0) {
+					if(t->getText().length() > 0) {
 
 						quitloop = true;
 						static char buf[256];
