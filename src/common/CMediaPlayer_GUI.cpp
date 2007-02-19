@@ -312,7 +312,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
-					if (!lv->getCurSIndex())
+					if (lv->getCurSIndex() == "")
 						break;
 
 
@@ -322,7 +322,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 					if (dir_name_pos == std::string::npos)
 						break;
 
-					if (!strcmp(lv->getCurSIndex()+dir_name_pos+1,"..") || !strcmp(lv->getCurSIndex()+dir_name_pos+1,"."))
+					if(lv->getCurSIndex().substr(dir_name_pos+1) == ".." || lv->getCurSIndex().substr(dir_name_pos+1) == ".")
 						break;
 
 					// Copy the directory
@@ -501,13 +501,17 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 		drive_list drives = GetDrives();
 		char cur_drive = tmp_dir[0]; // TODO !
 		for (int i=0;i<drives.size();i++)  {
+#ifdef WIN32			
 			if (drives[i].type != DRV_CDROM)  {
+#endif
 				lv->AddItem(drives[i].name,index,tLX->clListView);
 				lv->AddSubitem(LVS_TEXT,drives[i].name,NULL);
 				if (cur_drive == drives[i].name.at(0))
 					lv->setSelectedID(index);
 				index++;
+#ifdef WIN32			
 			}
+#endif
 		}
 
 	// The directory list
@@ -528,7 +532,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 			fix_markend(directory);
 			while(1) {
 				// Extract the directory name from the path
-				dir_name = findpathsep(directory);
+				dir_name = findLastPathSep(directory);
 
 				// Add the directory
 				if (dir_name)  {

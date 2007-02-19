@@ -954,7 +954,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 	iAiTeams = teamgame;
 	iAiTag = taggame;
 
-    strcpy(tLX->debug_string, "");
+    tLX->debug_string = "";
 
 	iRandomSpread = 0;
 	fLastRandomChange = -9999;

@@ -300,11 +300,10 @@ int CGameScript::Load(const std::string& dir)
 	
 	FILE *fp;
 	int n;	
-	static char filename[64];
+	static std::string filename;
 
-	snprintf(filename,sizeof(filename),"%s/script.lgs",dir);
-	fix_markend(filename);
-	fix_strncpy(sDirectory, dir);
+	filename = dir + "/script.lgs";
+	sDirectory = dir;
 
 	// Open it
 	fp = OpenGameFile(filename,"rb");
@@ -732,19 +731,17 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
 {
 	SDL_Surface *img = NULL;
-	static char buf[256];
+	static std::string buf;
 
 	// First, check the gfx directory in the mod dir
-	snprintf(buf,sizeof(buf),"%s/gfx/%s",dir,filename);
-	fix_markend(buf);
+	buf = dir + "/gfx/" + filename;
 	img = LoadImage(buf,SDL_GetVideoSurface()->format->BitsPerPixel);
 
 	if(img)
 		return img;
 
 	// Check the gfx directory in the data dir
-	snprintf(buf,sizeof(buf),"data/gfx/%s",filename);
-	fix_markend(buf);
+	buf = "data/gfx/" + filename;
 	return LoadImage(buf,SDL_GetVideoSurface()->format->BitsPerPixel);
 }
 
@@ -754,19 +751,17 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 SoundSample* CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
 {
 	SoundSample* smp = NULL;
-	static char buf[256];
+	static std::string buf;
 
 	// First, check the sfx directory in the mod dir
-	snprintf(buf,sizeof(buf),"%s/sfx/%s",dir,filename);
-	fix_markend(buf);
+	buf = dir + "/sfx/" + filename;
 	smp = LoadSample(buf,10);
 	
 	if(smp)
 		return smp;
 
 	// Check the sounds directory in the data dir
-	snprintf(buf,sizeof(buf),"data/sounds/%s",filename);
-	fix_markend(buf);
+	buf = "data/sounds/" + filename;
 	return LoadSample(buf,10);
 }
 
@@ -801,14 +796,11 @@ weapon_t *CGameScript::FindWeapon(const std::string& name)
 // Returns true if the weapon is in the game script
 bool CGameScript::weaponExists(const std::string& szName)
 {
-    if(!szName)
-        return false;
-
     // Go through each weapon
 	weapon_t *wpn = Weapons;
 	for(int n=0;n<NumWeapons;n++,wpn++) {
 
-		if(stricmp(wpn->Name, szName) == 0)
+		if(stringcasecmp(wpn->Name, szName) == 0)
 			return true;
 	}
 
@@ -823,29 +815,28 @@ void CGameScript::writeString(const std::string& szString, FILE *fp)
 {
     if(!szString) return;
 
-	size_t length = strlen(szString);
+	size_t length = szString.size();
 	if(length > 255) length = 255; // WARNING: cutting the string here! (TODO: should we assert this?) 
 	uchar len = (uchar)length;
 	
     fwrite( &len, sizeof(uchar), 1, fp );
-    fwrite( szString,sizeof(char), length, fp );
+    fwrite( szString.c_str(),sizeof(char), length, fp );
 }
 
 
 ///////////////////
 // Read a string in pascal format
-// TODO: maxlen for szString
-char *CGameScript::readString(const std::string& szString, FILE *fp)
+std::string CGameScript::readString(FILE *fp)
 {
-    assert( szString );
+	static char buf[256];
 
     uchar length;
     fread( &length, sizeof(uchar), 1, fp );
-    fread( szString,sizeof(char), length, fp );
+    fread( buf,sizeof(char), length, fp );
 
-    szString[length] = '\0';
+    buf[length] = '\0';
 	
-    return szString;
+    return buf;
 }
 
 

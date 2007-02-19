@@ -312,7 +312,7 @@ int CWorm::LoadGraphics(int gametype)
 
 ///////////////////
 // Change the graphics of an image
-SDL_Surface *CWorm::ChangeGraphics(char *filename, int team)
+SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 {
 	SDL_Surface *tmp, *img;
 
@@ -320,7 +320,7 @@ SDL_Surface *CWorm::ChangeGraphics(char *filename, int team)
 	tmp = _LoadImage(filename);
 	if(tmp == NULL) {
 		// Error: Couldn't load image
-		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename);
+		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename.c_str());
 		return NULL;
 	}
 
@@ -436,7 +436,7 @@ void CWorm::InitWeaponSelection(void)
 
 		bool bRandomWeaps = true;
 		// Combo (rifle)
-		if ((tGameInfo.iLoadingTimes > 15 && tGameInfo.iLoadingTimes < 26) && (strstr(&tGameInfo.sModName[0],"Classic") || strstr(&tGameInfo.sModName[0],"Liero v1.0")))  {
+		if ((tGameInfo.iLoadingTimes > 15 && tGameInfo.iLoadingTimes < 26) && (tGameInfo.sModName.find("Classic") != std::string::npos || tGameInfo.sModName.find("Liero v1.0") != std::string::npos ))  {
 			if (cWeaponRest->isEnabled("Rifle"))  {
 				for (i=0; i<5; i++)
 					tWeapons[i].Weapon = cGameScript->FindWeapon("Rifle");  // set all weapons to Rifle
@@ -445,7 +445,7 @@ void CWorm::InitWeaponSelection(void)
 			}
 		}
 		// 100 lt
-		else if ((strstr(&tGameInfo.sModName[0],"Liero") || strstr(&tGameInfo.sModName[0],"Classic")) && tGameInfo.iLoadingTimes == 100)  {
+		else if ((tGameInfo.sModName.find("Liero") != std::string::npos || tGameInfo.sModName.find("Classic") != std::string::npos) && tGameInfo.iLoadingTimes == 100)  {
 			int MyWeaps = cWeaponRest->isEnabled("Super Shotgun") + cWeaponRest->isEnabled("Napalm") + cWeaponRest->isEnabled("Cannon") + cWeaponRest->isEnabled("Doomsday") + cWeaponRest->isEnabled("Chaingun");
 			if (MyWeaps == 5)  {
 				// Set our weapons
@@ -459,7 +459,7 @@ void CWorm::InitWeaponSelection(void)
 			}
 		}
 		// Mortar game
-		else if ((strstr(&tGameInfo.sModName[0],"MW 1.0") || strstr(&tGameInfo.sModName[0],"Modern Warfare1.0")) && tGameInfo.iLoadingTimes < 50)  {
+		else if ((tGameInfo.sModName.find("MW 1.0") != std::string::npos || tGameInfo.sModName.find("Modern Warfare1.0") != std::string::npos) && tGameInfo.iLoadingTimes < 50)  {
 			if (cWeaponRest->isEnabled("Mortar Launcher"))  {
 				for (i=0; i<5; i++)
 					tWeapons[i].Weapon = cGameScript->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
@@ -930,10 +930,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			Uint8 clG = teamcolours[iTeam*3+1];
 			Uint8 clB = teamcolours[iTeam*3+2];
 			Uint32 iColor = MakeColour(clR,clG,clB);
-			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,iColor,"%s",sName);
+			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,iColor,"%s",sName.c_str());
 		} // if
 		else
-		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,"%s",sName);
+		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,"%s",sName.c_str());
 
 		//if(iTagIT)
 		//	tLX->cFont.DrawCentre(bmpDest, x,y+20, 0xffff,"%s", "IT");

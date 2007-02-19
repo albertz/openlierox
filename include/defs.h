@@ -195,13 +195,11 @@ inline T* GetByteSwapped(const T b)
 				dest[len-1] = '\0'; }
 
 // std::string itoa
-inline std::string itoa(int num,int base)  {
+inline std::string itoa(int num,int base=10)  {
 	static char buf[64];
-	static std::string result;
 	itoa(num,buf,base);
 	fix_markend(buf);
-	result = buf;
-	return result;
+	return buf;
 }
 
 

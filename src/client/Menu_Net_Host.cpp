@@ -552,9 +552,9 @@ void Menu_Net_HostLobbyCreateGui(void)
     lv->setShowSelect(false);
 
     game_lobby_t *gl = cServer->getLobby();
-    cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)gl->szMapName, sizeof(gl->szMapName));
-    cHostLobby.SendMessage(hl_ModName,	 CBM_GETCURNAME, (DWORD)gl->szModName, sizeof(gl->szModName));
-    cHostLobby.SendMessage(hl_ModName,	 CBM_GETCURSINDEX, (DWORD)gl->szModDir, sizeof(gl->szModDir));
+    cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)&gl->szMapName, 0);
+    cHostLobby.SendMessage(hl_ModName,	 CBM_GETCURNAME, (DWORD)&gl->szModName, 0);
+    cHostLobby.SendMessage(hl_ModName,	 CBM_GETCURSINDEX, (DWORD)&gl->szModDir, 0);
     cHostLobby.SendMessage(hl_Gametype,  CBM_SETCURINDEX, gl->nGameMode, 0);
 }
 
@@ -816,7 +816,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if(ev->iEventMsg == CMB_CHANGED) {
 					Menu_HostShowMinimap();
 
-					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)cServer->getLobby()->szMapName, sizeof(cServer->getLobby()->szMapName));
+					cHostLobby.SendMessage(hl_LevelList, CBM_GETCURSINDEX, (DWORD)&cServer->getLobby()->szMapName, 0);
 					cServer->UpdateGameLobby();
 				}
 				break;
@@ -824,8 +824,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
             // Mod change
             case hl_ModName:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    cHostLobby.SendMessage(hl_ModName, CBM_GETCURNAME, (DWORD)cServer->getLobby()->szModName, sizeof(cServer->getLobby()->szModName));
-                    cHostLobby.SendMessage(hl_ModName, CBM_GETCURSINDEX, (DWORD)cServer->getLobby()->szModDir, sizeof(cServer->getLobby()->szModDir));
+                    cHostLobby.SendMessage(hl_ModName, CBM_GETCURNAME, (DWORD)&cServer->getLobby()->szModName, 0);
+                    cHostLobby.SendMessage(hl_ModName, CBM_GETCURSINDEX, (DWORD)&cServer->getLobby()->szModDir, 0);
 					cServer->UpdateGameLobby();
                 }
                 break;

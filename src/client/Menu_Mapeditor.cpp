@@ -648,73 +648,66 @@ void Menu_MapEd_LoadSave(int save)
 	t = (CTextbox *)cg.getWidget(3);
 
 	// Load the level list
-	static char	filename[512];
-	static char	id[32], name[64];
-	int		version;
-
-	int done = false;
-	if(!FindFirst("levels","*",filename))
-		done = true;
-	fix_markend(filename);
 	CListview *lv = (CListview *)cg.getWidget(2);
 	lv->AddColumn("Levels",60);
 
-
-	while(!done) {
-
-		// Liero Xtreme level
-		if( stricmp(filename + fix_strnlen(filename)-4, ".lxl") == 0) {
-
-			FILE *fp = OpenGameFile(filename,"rb");
-			if(fp) {
-				fread(id,		sizeof(char),	32,	fp);
-				fread(&version,	sizeof(int),	1,	fp);
-				EndianSwap(version);
-				fread(name,		sizeof(char),	64,	fp);
-
-				if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
-					 // Remove the 'levels' bit from the filename
-					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
-					if(f) {
-						lv->AddItem(f+1,0,tLX->clListView);
-						lv->AddSubitem(LVS_TEXT,name,NULL);
+	class LevelListFiller { public:
+		CListview* lv;
+		LevelListFiller(CListview* l) : lv(l) {}
+		inline bool operator() (const std::string& filename) {
+			size_t pos = findLastPathSep(filename);
+			std::string f = filename.substr(pos);
+	
+			// Liero Xtreme level
+			if( stringcasecmp(filename.substr(filename.size()-4), ".lxl") == 0) {
+				FILE *fp = OpenGameFile(filename,"rb");
+				if(fp) {
+					static char id[33];
+					int version;
+					static char name[65];
+					fread(id,		sizeof(char),	32,	fp);
+					fread(&version,	sizeof(int),	1,	fp);
+					fread(name,		sizeof(char),	64,	fp);
+					id[32] = '\0';
+					name[64] = '\0';
+					
+					if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
+						
+						if(!lv->getItem(name)) {
+							lv->AddItem(f,0,tLX->clListView);
+							lv->AddSubitem(LVS_TEXT,name,NULL);
+						}
 					}
+					fclose(fp);
 				}
-
-				fclose(fp);
 			}
-		}
-
-
-		// Liero level
-		if( stricmp(filename + fix_strnlen(filename)-4, ".lev") == 0) {
-			FILE *fp = OpenGameFile(filename,"rb");
-			
-			if(fp) {
-
-				// Make sure it's the right size to be a liero level
-				fseek(fp,0,SEEK_END);
-				// 176400 is liero maps
-				// 176402 is worm hole maps (same, but 2 bytes bigger)
-				// 177178 is a powerlevel
-				if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-
-					char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
-					if(f) {
-						lv->AddItem(f+1,0,tLX->clListView);
-						lv->AddSubitem(LVS_TEXT,f+1,NULL);
+	
+			// Liero level
+			if( stringcasecmp(filename.substr(filename.size()-4), ".lev") == 0) {
+				FILE *fp = OpenGameFile(filename,"rb");
+	
+				if(fp) {	
+					// Make sure it's the right size to be a liero level
+					fseek(fp,0,SEEK_END);
+					// 176400 is liero maps
+					// 176402 is worm hole maps (same, but 2 bytes bigger)
+					// 177178 is a powerlevel
+					if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
+	
+						if(lv->getItem(f)) {	
+							lv->AddItem(f,0,tLX->clListView);
+							lv->AddSubitem(LVS_TEXT,f,NULL);
+						}
 					}
+	
+					fclose(fp);
 				}
-
-				fclose(fp);
 			}
-		}
 
-		if(!FindNext(filename))
-			break;
-		fix_markend(filename);
+			return true;
+		}
 	}
-
+	FindFiles(LevelListFiller(lv), "levels", FM_REG);
 
 	
 	

@@ -28,7 +28,7 @@
 #endif
 
 // TODO: merge windows and linux code in this file
-
+/*
 bool reset_nextsearchpath = true;
 filelist_t* nextsearchpath = NULL;
 
@@ -39,7 +39,7 @@ std::string getNextFullFileName(const std::string& f) {
 	} else
 		return f;
 }
-
+*/
 bool CanReadFile(const std::string& f, bool absolute) {
 	if(absolute) {
 #ifndef WIN32
@@ -125,7 +125,7 @@ list.clear();
 
 ==========================
 */
-
+/*
 std::string	_dir;
 DIR*	handle = NULL;
 dirent* entry = NULL;
@@ -201,7 +201,7 @@ int FindNext(char *filename)
 }
 
 
-
+*/
 
 
 /*
@@ -211,7 +211,7 @@ int FindNext(char *filename)
 
 ==========================
 */
-
+/*
 
 // Here if we even need to search files & dirs at the same time
 std::string	_dir2;
@@ -289,7 +289,7 @@ int FindNextDir(char *name)
 	reset_nextsearchpath = true;
 	return ret;
 }
-
+*/
 
 // used by unix-GetExactFileName
 int GetNextName(const char* fullname, const char** seperators, char* nextname)
@@ -393,7 +393,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename)
 */
 
 
-
+/*
 std::string	_dir;
 long	handle = 0;
 struct _finddata_t fileinfo;
@@ -474,7 +474,7 @@ int FindNext(char *filename)
 	return ret;
 }
 
-
+*/
 
 /*
 ==========================
@@ -484,7 +484,7 @@ int FindNext(char *filename)
 ==========================
 */
 
-
+/*
 
 // Here if we even need to search files & dirs at the same time
 std::string	_dir2;
@@ -569,6 +569,7 @@ int FindNextDir(char *name)
 	reset_nextsearchpath = true;
 	return ret;
 }
+*/
 
 #endif // WIN32
 

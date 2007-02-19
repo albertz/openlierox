@@ -354,7 +354,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Process the client frame
-	tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 180, tLX->clNormalLabel, "Connecting to %s",sJoinAddress);
+	tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 180, tLX->clNormalLabel, "Connecting to %s",sJoinAddress.c_str());
 	cClient->Frame();
 
 
@@ -709,7 +709,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
                 // Worm
                 DrawImage(tMenu->bmpScreen, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, tLX->clNormalLabel,"%s", w->getName());
+				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, tLX->clNormalLabel,"%s", w->getName().c_str());
 
                 // Team
                 if( gl->nGameMode == GMT_TEAMDEATH )  {
@@ -764,7 +764,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(tMenu->bmpScreen, x, y,  blue, "Game Details");
 		f->Draw(tMenu->bmpScreen, x, y+20,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
-			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel,"%s", gl->szDecodedMapName);
+			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel,"%s", gl->szDecodedMapName.c_str());
 		    //f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clNormalLabel,"%s", gl->szMapName);
 		}
         else
@@ -773,9 +773,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, "%s",gamemodes[gl->nGameMode].c_str());
         f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel, "%s", "Mod:");
         if(gl->bHaveMod)
-            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel, "%s", gl->szModName);
+            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel, "%s", gl->szModName.c_str());
         else
-            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, "%s", gl->szModName);
+            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, "%s", gl->szModName.c_str());
 
 		f->Draw(tMenu->bmpScreen, x, y+80, tLX->clNormalLabel, "%s", "Lives:");
 		if(gl->nLives >= 0)

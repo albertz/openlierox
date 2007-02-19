@@ -83,9 +83,9 @@ typedef struct {
 	int		iSoundVolume;
 
 	// Controls
-	char	sPlayer1Controls[32][8];
-	char	sPlayer2Controls[32][8];
-	char	sGeneralControls[32][8];
+	std::string	sPlayer1Controls[8];
+	std::string	sPlayer2Controls[8];
+	std::string	sGeneralControls[8];
 
 	// Game
 	int		iBloodAmount;
@@ -148,47 +148,47 @@ typedef struct {
 
 // Network strings
 typedef struct {
-	char sHasLeft[64];
-	char sHasConnected[64];
-	char sHasTimedOut[64];
+	std::string sHasLeft ;
+	std::string sHasConnected ;
+	std::string sHasTimedOut ;
 
-	char sHasBeenKicked[64];
-	char sHasBeenBanned[64];
-	char sHasBeenMuted[64];
-	char sHasBeenUnmuted[64];
+	std::string sHasBeenKicked ;
+	std::string sHasBeenBanned ;
+	std::string sHasBeenMuted ;
+	std::string sHasBeenUnmuted ;
 
-	char sKickedYou[64];
-	char sBannedYou[64];
-	char sYouTimed[64];
-	char sYouQuit[64];
+	std::string sKickedYou ;
+	std::string sBannedYou ;
+	std::string sYouTimed ;
+	std::string sYouQuit ;
 
-	char sKilled[64];
-	char sCommitedSuicide[64];
-	char sFirstBlood[64];
-	char sTeamkill[64];
+	std::string sKilled ;
+	std::string sCommitedSuicide ;
+	std::string sFirstBlood ;
+	std::string sTeamkill ;
 
-	char sPlayerOut[64];
-	char sPlayerHasWon[64];
-	char sTeamOut[64];
-	char sTeamHasWon[64];
+	std::string sPlayerOut ;
+	std::string sPlayerHasWon ;
+	std::string sTeamOut ;
+	std::string sTeamHasWon ;
 
-	char sWormIsIt[64];
+	std::string sWormIsIt ;
 
-	char sSpree1[64];
-	char sSpree2[64];
-	char sSpree3[64];
-	char sSpree4[64];
-	char sSpree5[64];
+	std::string sSpree1 ;
+	std::string sSpree2 ;
+	std::string sSpree3 ;
+	std::string sSpree4 ;
+	std::string sSpree5 ;
 
-	char sServerFull[64];
-	char sNoEmptySlots[64];
-	char sWrongProtocol[64];
-	char sBadVerification[64];
-	char sNoIpVerification[64];
-	char sGameInProgress[64];
-	char sYouAreBanned[64];
-	char sBotsNotAllowed[64];
-	char sWantsJoin[64];
+	std::string sServerFull ;
+	std::string sNoEmptySlots ;
+	std::string sWrongProtocol ;
+	std::string sBadVerification ;
+	std::string sNoIpVerification ;
+	std::string sGameInProgress ;
+	std::string sYouAreBanned ;
+	std::string sBotsNotAllowed ;
+	std::string sWantsJoin ;
 } networktexts_t;
 
 

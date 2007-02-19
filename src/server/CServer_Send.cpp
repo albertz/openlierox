@@ -198,9 +198,9 @@ void CServer::UpdateGameLobby(void)
 
 	bs.writeByte(S2C_UPDATELOBBYGAME);
 	bs.writeByte(MAX(iMaxWorms,iNumPlayers));  // This fixes the player disappearing in lobby
-	bs.writeString("%s",gl->szMapName);
-    bs.writeString("%s",gl->szModName);
-    bs.writeString("%s",gl->szModDir);
+	bs.writeString(gl->szMapName);
+    bs.writeString(gl->szModName);
+    bs.writeString(gl->szModDir);
 	bs.writeByte(gl->nGameMode);
 	bs.writeShort(gl->nLives);
 	bs.writeShort(gl->nMaxKills);

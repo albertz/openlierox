@@ -269,7 +269,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	}
 
 	// First blood
-	if (bFirstBlood && killer != victim && strcmp(NetworkTexts->sFirstBlood,"<none>"))  {
+	if (bFirstBlood && killer != victim && NetworkTexts->sFirstBlood!="<none>")  {
 		replacemax(NetworkTexts->sFirstBlood,"<player>",kill->getName(),buf,1);
 		bFirstBlood = false;
 		SendGlobalText(buf,TXT_NORMAL);
@@ -278,7 +278,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	// Teamkill
 	if (iGameType == GMT_TEAMDEATH && vict->getTeam() == kill->getTeam() && killer != victim)  {
 		//Take care of the <none> tag
-		if (strcmp(NetworkTexts->sTeamkill,"<none>"))  {
+		if (NetworkTexts->sTeamkill!="<none>")  {
 			replacemax(NetworkTexts->sTeamkill,"<player>",kill->getName(),buf,1);
 			SendGlobalText(buf,TXT_NORMAL);
 		}
@@ -304,31 +304,31 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	// Killing spree message
 	switch (kill->getKillsInRow())  {
 	case 3:
-		if (strncmp(NetworkTexts->sSpree1,"<none>",sizeof(NetworkTexts->sSpree1)))  {
+		if (NetworkTexts->sSpree1!="<none>")  {
 			replacemax(NetworkTexts->sSpree1,"<player>",kill->getName(),buf,1);
 			SendGlobalText(buf,TXT_NORMAL);
 		}
 		break;
 	case 5:
-		if (strncmp(NetworkTexts->sSpree2,"<none>",sizeof(NetworkTexts->sSpree2)))  {
+		if (NetworkTexts->sSpree2!="<none>")  {
 			replacemax(NetworkTexts->sSpree2,"<player>",kill->getName(),buf,1);
 			SendGlobalText(buf,TXT_NORMAL);
 		}
 		break;
 	case 7:
-		if (strncmp(NetworkTexts->sSpree3,"<none>",sizeof(NetworkTexts->sSpree3)))  {
+		if (NetworkTexts->sSpree3!="<none>")  {
 			replacemax(NetworkTexts->sSpree3,"<player>",kill->getName(),buf,1);
 			SendGlobalText(buf,TXT_NORMAL);
 		}
 		break;
 	case 9:
-		if (strncmp(NetworkTexts->sSpree4,"<none>",sizeof(NetworkTexts->sSpree4)))  {
+		if (NetworkTexts->sSpree4!="<none>")  {
 			replacemax(NetworkTexts->sSpree4,"<player>",kill->getName(),buf,1);
 			SendGlobalText(buf,TXT_NORMAL);
 		}
 		break;
 	case 10:
-		if (strncmp(NetworkTexts->sSpree5,"<none>",sizeof(NetworkTexts->sSpree5)))  {
+		if (NetworkTexts->sSpree5!="<none>")  {
 			replacemax(NetworkTexts->sSpree5,"<player>",kill->getName(),buf,1);
 			SendGlobalText(buf,TXT_NORMAL);
 		}
@@ -340,7 +340,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 
 		// This worm is out of the game
-		if(strcmp(NetworkTexts->sPlayerOut,"<none>")) {
+		if(NetworkTexts->sPlayerOut!="<none>") {
 			replacemax(NetworkTexts->sPlayerOut,"<player>",vict->getName(),buf,1);
 			SendGlobalText(buf,TXT_NORMAL);
 		}
@@ -361,7 +361,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 			// Declare the winner
 			switch (iGameType)  {
 			case GMT_DEATHMATCH:
-				if (strcmp(NetworkTexts->sPlayerHasWon,"<none>"))  {
+				if (NetworkTexts->sPlayerHasWon!="<none>")  {
 					CWorm *winner = cWorms + wormid;
 					replacemax(NetworkTexts->sPlayerHasWon,"<player>",winner->getName(),buf,1);
 					SendGlobalText(buf,TXT_NORMAL);
@@ -383,7 +383,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 				w = cWorms+wormid;
 
 				// Send the text
-				if (strcmp(NetworkTexts->sPlayerHasWon,"<none>"))  {
+				if (NetworkTexts->sPlayerHasWon!="<none>")  {
 					replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),buf,1);
 					SendGlobalText(buf,TXT_NORMAL);
 				}
@@ -430,7 +430,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 			// No-one left in the team
 			if(teamcount==0) {
-				if (strcmp(NetworkTexts->sTeamOut,"<none>"))  {
+				if (NetworkTexts->sTeamOut!="<none>")  {
 					replacemax(NetworkTexts->sTeamOut,"<team>",TeamNames[team],buf,1);
 					SendGlobalText(buf,TXT_NORMAL);
 				}
@@ -447,7 +447,7 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 			}
 
 			if(teamsleft == 1) {
-				if (strcmp(NetworkTexts->sTeamHasWon,"<none>"))  {
+				if (NetworkTexts->sTeamHasWon!="<none>")  {
 					replacemax(NetworkTexts->sTeamHasWon,"<team>",TeamNames[team],buf,1);
 					SendGlobalText(buf,TXT_NORMAL);
 				}
@@ -697,7 +697,7 @@ void CServer::ParseGetChallenge(void)
 		bs.Clear();
 		bs.writeInt(-1,4);
 		bs.writeString("%s","lx::badconnect");
-		bs.writeString("%s",NetworkTexts->sGameInProgress);
+		bs.writeString(NetworkTexts->sGameInProgress);
 		bs.Send(tSocket);
 		return;
 	}
@@ -772,11 +772,8 @@ void CServer::ParseConnect(CBytestream *bs)
 
 		// Get the string to send
 		static std::string buf;
-		if (strcmp(NetworkTexts->sTeamHasWon,"<none>"))  {
-			char buf2[4];
-			snprintf(buf2,sizeof(buf2),"%d",PROTOCOL_VERSION);
-			fix_markend(buf2);
-			replacemax(NetworkTexts->sWrongProtocol,"<version>",buf2,buf,1);
+		if(NetworkTexts->sTeamHasWon != "<none>")  {
+			replacemax(NetworkTexts->sWrongProtocol,"<version>",itoa(PROTOCOL_VERSION),buf,1);
 		}
 		else
 			buf = " ";
@@ -785,22 +782,21 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s",buf.c_str());
+		bytestr.writeString(buf);
 		bytestr.Send(tSocket);
 		return;
 	}
 
-	static char szAddress[21];
+	static std::string szAddress;
 	NetAddrToString(&adrFrom,szAddress);
-	fix_markend(szAddress);
 
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
-		printf("Banned client %s was trying to connect\n", szAddress);
+		printf("Banned client %s was trying to connect\n", szAddress.c_str());
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s",NetworkTexts->sYouAreBanned);
+		bytestr.writeString(NetworkTexts->sYouAreBanned);
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -826,7 +822,7 @@ void CServer::ParseConnect(CBytestream *bs)
 			bytestr.Clear();
 			bytestr.writeInt(-1,4);
 			bytestr.writeString("%s","lx::badconnect");
-			bytestr.writeString("%s",NetworkTexts->sBotsNotAllowed);
+			bytestr.writeString(NetworkTexts->sBotsNotAllowed);
 			bytestr.Send(tSocket);
 			return;
 		}
@@ -856,7 +852,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s",NetworkTexts->sNoIpVerification);
+		bytestr.writeString(NetworkTexts->sNoIpVerification);
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -919,7 +915,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s",NetworkTexts->sNoEmptySlots);
+		bytestr.writeString(NetworkTexts->sNoEmptySlots);
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -930,7 +926,7 @@ void CServer::ParseConnect(CBytestream *bs)
 		bytestr.Clear();
 		bytestr.writeInt(-1,4);
 		bytestr.writeString("%s","lx::badconnect");
-		bytestr.writeString("%s",NetworkTexts->sServerFull);
+		bytestr.writeString(NetworkTexts->sServerFull);
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -1051,13 +1047,12 @@ void CServer::ParseConnect(CBytestream *bs)
 			}
 
 			// Address
-			static char str_addr[22];
+			static std::string str_addr;
 			NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
-			fix_markend(str_addr);
 			// Remove port
-			char* pos = strrchr(str_addr,':');
-			if(pos != NULL)
-				str_addr[(int) (pos-str_addr)] = '\0';
+			size_t pos = str_addr.rfind(':');
+			if(pos != std::string::npos)
+				str_addr.erase(pos);
 			replacemax(buf,"<ip>",str_addr,buf,1);
 
 
@@ -1112,12 +1107,12 @@ void CServer::ParseWantsJoin(CBytestream *bs)
 
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;
-	static char Nick[128];
-	bs->readString(Nick, sizeof(Nick));
+	static std::string Nick;
+	Nick = bs->readString();
 	static std::string buf;
 
 	// Notify about the wants join
-	if (strcmp(NetworkTexts->sWantsJoin,"<none>"))  {
+	if (NetworkTexts->sWantsJoin!="<none>")  {
 		replacemax(NetworkTexts->sWantsJoin,"<player>",Nick,buf,1);
 		SendGlobalText(buf,TXT_NORMAL);
 	}

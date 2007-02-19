@@ -54,6 +54,10 @@ int main(int argc, char *argv[])
 
 	printf("OpenLieroX " LX_VERSION " is starting ...\n");
 
+	// sadly, these sizeof are directly used in CGameScript.cpp
+	assert(sizeof(int) == 4);
+	assert(sizeof(float) == 4);
+
     int     startgame = false;
 
 	binary_dir = argv[0];

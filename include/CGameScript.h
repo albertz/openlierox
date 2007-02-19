@@ -73,6 +73,9 @@
 
 
 // Header structure
+// WARNING: never change this!
+// it's used in CGameScript.cpp and it represents
+// the original file format
 typedef struct {
 
 	char	ID[18];
@@ -89,6 +92,9 @@ typedef struct {
 
 
 // Worm structure
+// WARNING: never change this!
+// it's used in CGameScript.cpp and it represents
+// the original file format
 typedef struct {
 	float	AngleSpeed;
 
@@ -257,7 +263,7 @@ public:
 private:
 	// Attributes
 
-	char		sDirectory[256];
+	std::string		sDirectory;
 
 
 	// Header
@@ -291,7 +297,7 @@ public:
 	int			SaveProjectile(proj_t *proj, FILE *fp);
 
     void        writeString(const std::string& szString, FILE *fp);
-    char        *readString(const std::string& szString, FILE *fp);
+    std::string readString(FILE *fp);
 
 	void		Shutdown(void);
 	void		ShutdownProjectile(proj_t *prj);

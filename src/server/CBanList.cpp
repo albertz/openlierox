@@ -118,7 +118,7 @@ void CBanList::removeBanned(const std::string& szAddress)
 	// Remove the port from the address
 	std::string addr = szAddress;
 	size_t pos = addr.find(':');
-	if(p != std::string::npos) {
+	if(pos != std::string::npos) {
 		addr.erase(pos);
 	}
 
@@ -230,7 +230,7 @@ void CBanList::Clear(void)
 // Checks if the IP is banned
 bool CBanList::isBanned(const std::string& szAddress)
 {
-	if (strstr(szAddress,"127.0.0.1"))
+	if(szAddress.find("127.0.0.1") != std::string::npos)
 		return false;
 
     banlist_t *psWorm = findBanned(szAddress);

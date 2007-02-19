@@ -72,10 +72,10 @@ void CClient::ParseChallenge(CBytestream *bs)
     //
 
 	for(int i=0;i<iNumWorms;i++) {
-		bytestr.writeString("%s",tProfiles[i]->sName);
+		bytestr.writeString(tProfiles[i]->sName);
 		bytestr.writeInt(tProfiles[i]->iType,1);
 		bytestr.writeInt(tProfiles[i]->iTeam,1);
-        bytestr.writeString("%s",tProfiles[i]->szSkin);
+        bytestr.writeString(tProfiles[i]->szSkin);
 		bytestr.writeInt(tProfiles[i]->R,1);
 		bytestr.writeInt(tProfiles[i]->G,1);
 		bytestr.writeInt(tProfiles[i]->B,1);
@@ -378,9 +378,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 				// Show a cannot load level error message
 
 				SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
-				static char err[256];
-				snprintf(err, sizeof(err), "Could not load the level '%s'\n%s",buf,LxGetLastError());
-				fix_markend(err);
+				std::string err;
+				err = std::string("Could not load the level'") + buf + "'\n" + LxGetLastError();
 
 				Menu_MessageBox("Loading Error",err, LMB_OK);
                 iClientError = true;
@@ -430,9 +429,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		// Show any error messages
 		//SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
 		DrawRectFill(tMenu->bmpBuffer,0,0,tMenu->bmpBuffer->w,tMenu->bmpBuffer->h,0);
-		static char err[256];
-		snprintf(err, sizeof(err), "Error load game mod: %s\r\nError code: %d", sModName, result);
-		fix_markend(err);
+		std::string err("Error load game mod: ");
+		err += sModName + "\r\nError code: " + itoa(result);		
 		Menu_MessageBox("Loading Error",err, LMB_OK);
         iClientError = true;
 
@@ -955,7 +953,6 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 		return;
 
 	game_lobby_t    *gl = &tGameLobby;
-    static char		buf[256]; strcpy(buf, "");
     FILE            *fp = NULL;
 
 	if (!gl)  {
@@ -981,9 +978,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     gl->bHaveMod = true;
 
     // Does the level file exist
-    snprintf(buf, sizeof(buf), "levels/%s",gl->szMapName);
-    fix_markend(buf);
-    fp = OpenGameFile(buf,"rb");
+    fp = OpenGameFile("levels/" + gl->szMapName,"rb");
     if(!fp)
         gl->bHaveMap = false;
     else
@@ -991,21 +986,12 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 	// Convert the map filename to map name
 	if (gl->bHaveMap)  {
-		std::string MapName;
-		MapName = Menu_GetLevelName(gl->szMapName);
-		if (MapName != "") {
-			snprintf(&gl->szDecodedMapName[0],sizeof(gl->szDecodedMapName),"%s",MapName);
-			fix_markend(gl->szDecodedMapName);
-		} else {
-			snprintf(&gl->szDecodedMapName[0],sizeof(gl->szDecodedMapName),"%s",&gl->szMapName[0]);
-			fix_markend(gl->szDecodedMapName);
-		}
+		std::string MapName = Menu_GetLevelName(gl->szMapName);
+		gl->szDecodedMapName = (MapName != "") ? MapName : gl->szMapName;
 	}
 
     // Does the 'script.lgs' file exist in the mod dir?
-    snprintf(buf, sizeof(buf), "%s/script.lgs",gl->szModDir);
-    fix_markend(buf);
-    fp = OpenGameFile(buf,"rb");
+    fp = OpenGameFile(gl->szModDir + "/script.lgs", "rb");
     if(!fp)
         gl->bHaveMod = false;
     else

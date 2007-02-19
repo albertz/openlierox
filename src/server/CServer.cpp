@@ -98,7 +98,7 @@ int CServer::StartServer(const std::string& name, int port, int maxplayers, bool
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, tLX->debug_string);
-	printf("HINT: server started on %s\n", tLX->debug_string);
+	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
 
 
 	// Initialize the clients
@@ -182,7 +182,7 @@ int CServer::StartGame(void)
 	tGameLog->tWorms = NULL;
 	tGameLog->fGameStart = tLX->fCurTime;
 	tGameLog->iNumWorms = iNumPlayers;
-	GetTime(tGameLog->sGameStart);
+	tGameLog->sGameStart = GetTime();
 
 	bTakeScreenshot = false;
 	bScreenshotToken = false;
@@ -265,7 +265,7 @@ int CServer::StartGame(void)
 	// Load the game script
 	cGameScript.Shutdown();
 	if(!cGameScript.Load(sModName)) {
-		printf("Error: Could not load the '%s' game script\n",sModName);
+		printf("Error: Could not load the '%s' game script\n",sModName.c_str());
 		return false;
 	}
 
@@ -519,7 +519,7 @@ void CServer::RegisterServer(void)
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
-	sprintf(url, "%s?port=%i&addr=%s", LX_SVRREG, nPort, buf);
+	url = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
 
     bServerRegistered = false;
 
@@ -604,17 +604,16 @@ bool CServer::DeRegisterServer(void)
 		return false;
 
 	// Create the url
-	static char url[1024];
-    static char svr[1024];
-	static char buf[512];
+	static std::string url;
+    static std::string svr;
+	static std::string buf;
 
 	NetworkAddr addr;
 
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
-	snprintf(url, sizeof(url), "%s?port=%d&addr=%s", LX_SVRDEREG, nPort, buf);
-	fix_markend(url);
+	url = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
 
 	// Initialize the request
 	bServerRegistered = false;
@@ -960,7 +959,7 @@ void CServer::banWorm(const std::string& szWormName)
         if(!w->isUsed())
             continue;
 
-        if(stricmp(w->getName(), szWormName) == 0) {
+        if(stringcasecmp(w->getName(), szWormName) == 0) {
             banWorm(i);
             return;
         }
@@ -1180,7 +1179,7 @@ bool CServer::WriteLogToFile(FILE *f)
 
 	// Save the game info
 	fprintf(f,"<game datetime=\"%s\" length=\"%f\" loading=\"%i\" lives=\"%i\" maxkills=\"%i\" bonuses=\"%i\" bonusnames=\"%i\" levelfile=\"%s\" modfile=\"%s\" level=\"%s\" mod=\"%s\" gamemode=\"%i\">",
-				tGameLog->sGameStart,fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,levelfile.c_str(),modfile.c_str(),level.c_str(),mod.c_str(),iGameType);
+				tGameLog->sGameStart.c_str(),fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,levelfile.c_str(),modfile.c_str(),level.c_str(),mod.c_str(),iGameType);
 
 	printf("Game info saved\n");
 
@@ -1228,20 +1227,16 @@ bool CServer::WriteLogToFile(FILE *f)
 
 //////////////////////
 // Returns the country for the specified IP
-void CServer::GetCountryFromIP(char *Address, char *Result)
+std::string CServer::GetCountryFromIP(const std::string& Address)
 {
-	if (!Result || !Address)
-		return;
-
 	// Don't check against local IP
-	if (strstr(Address,"127.0.0.1"))  {
-		strcpy(Result,"Home");
-		return;
+	if (Address.find("127.0.0.1") != std::string::npos)  {
+		return "Home";
 	}
 
 
 	// Clear the buffer
-	Result[0] = '\0';
+	std::string Result;
 
 	// Split the ip to four parts
 	int ip_parts[4];
@@ -1355,9 +1350,9 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 		if (num_ip >= atoi(from_ip))
 			if (num_ip <= atoi(to_ip))  {
 				ucfirst(country_name);  // Make the country name nicer
-				strcpy(Result,country_name);  // We found the country
+				Result = country_name;  // We found the country
 				fclose(fp);
-				return;
+				return Result;
 			}
 
 		// Restore the pointer
@@ -1365,9 +1360,11 @@ void CServer::GetCountryFromIP(char *Address, char *Result)
 	}
 
 	// Not found
-	strcpy(Result,"Unknown Country");
+	Result = "Unknown Country";
 
 	fclose(fp);
+	
+	return Result;
 }
 
 //////////////////

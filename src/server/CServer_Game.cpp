@@ -578,7 +578,7 @@ void CServer::RecheckGame(void)
 
 				// Send the text
 				if (teamsleft <= 1)  {
-					if (strcmp(NetworkTexts->sTeamHasWon,"<none>"))  {
+					if (NetworkTexts->sTeamHasWon != "<none>")  {
 						SendGlobalText(replacemax(NetworkTexts->sTeamHasWon,"<team>",TeamNames[team],1),TXT_NORMAL);
 					}
 					EndGame = true;
@@ -596,7 +596,7 @@ void CServer::RecheckGame(void)
 					w = cWorms + wormid;
 
 					// Send the text
-					if (strcmp(NetworkTexts->sPlayerHasWon,"<none>"))  {
+					if (NetworkTexts->sPlayerHasWon != "<none>")  {
 						SendGlobalText(replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
 					}
 					EndGame = true;
@@ -625,7 +625,7 @@ void CServer::RecheckGame(void)
 					w = cWorms+worm;
 
 					// Send the text
-					if (strcmp(NetworkTexts->sPlayerHasWon,"<none>"))  {
+					if (NetworkTexts->sPlayerHasWon!="<none>")  {
 						SendGlobalText(replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
 					}
 

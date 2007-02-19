@@ -305,13 +305,12 @@ char *StripLine(char *szLine)
 // Trim the leading & ending spaces from a string
 void TrimSpaces(std::string& szLine) {
 	size_t n = 0;
-	std::string::iterator p;
-	for(p = szLine.begin(); p != szLine.end(); p++, n++)
+	for(std::string::iterator p = szLine.begin(); p != szLine.end(); p++, n++)
 		if(!isspace(*p) || isgraph(*p)) break;
 	if(n>0) szLine.erase(0,n);
 	
 	n = 0;
-	for(p = szLine.rbegin(); p != szLine.rend(); p++, n++)
+	for(std::string::reverse_iterator p = szLine.rbegin(); p != szLine.rend(); p++, n++)
 		if(!isspace(*p) || isgraph(*p)) break;
 	if(n>0) szLine.erase(szLine.size()-n);
 }

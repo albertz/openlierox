@@ -50,7 +50,7 @@ int ReadKeyword(const std::string& filename, const std::string& section, const s
 	
 	*value = defaultv;
 
-	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
+	if(!GetString(filename,section,key,string))
 		return false;
 
 	// Try and find a keyword with matching keys
@@ -73,7 +73,7 @@ bool ReadKeyword(const std::string& filename, const std::string& section, const 
 	
 	*value = defaultv;
 
-	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
+	if(!GetString(filename,section,key,string))
 		return false;
 
 	// Try and find a keyword with matching keys
@@ -96,7 +96,7 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 
 	*value = defaultv;
 	
-	if(!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
+	if(!GetString(filename,section,key,string))
 		return false;
 	
 	*value = atoi(string);
@@ -184,11 +184,11 @@ int GetString(const std::string& filename, const std::string& section, const std
 {
 	FILE	*config;
 	// TODO!
-	static char	Line[MAX_STRING_LENGTH];
-	static char	tmpLine[MAX_STRING_LENGTH];
-	static char	curSection[512];
-	static char	temp[MAX_STRING_LENGTH];
-	static char	curKey[MAX_STRING_LENGTH];
+	static std::string	Line;
+	static std::string	tmpLine;
+	static std::string	curSection;
+	static std::string	temp;
+	static std::string	curKey;
 	char	*chardest = NULL;
 	int		Position;
 	int		found = false;

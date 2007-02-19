@@ -521,7 +521,8 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	int maxwidth = 0;
 	int tmp=0;
 	static std::vector<std::string> lines = explode(sText,"\n");
-	for (int i=0; i<lines.size(); i++)  {
+	int i;
+	for (i=0; i<lines.size(); i++)  {
 		maxwidth = MAX(maxwidth,tLX->cFont.GetWidth(lines[i]));
 	}
 
@@ -942,97 +943,96 @@ void Menu_AddDefaultWidgets(void)
 // Fill a listbox with the levels
 void Menu_FillLevelList(CCombobox *cmb, int random)
 {
-	static std::string	filename;
 	int		index = 0;
 	int		selected = -1;
 
 	cmb->clear();
 
 	// If random is true, we add the 'random' level to the list
-	if(random)
+	if(random) {
 		cmb->addItem(index++, "_random_", "- Random level -");
-
-
-	// Load the level list
-	int done = false;
-	if(!FindFirst("levels","*",filename))
-		done = true;
-
-	while(!done) {
-
-		/*char *f = MAX(strrchr(filename,'\\'),strrchr(filename,'/'));
-		if(f) f++;
-
-		// Liero Xtreme level
-		if( stricmp(filename + fix_strnlen(filename)-4, ".lxl") == 0) {
-			FILE *fp = OpenGameFile(filename,"rb");
-			if(fp) {
-				fread(id,		sizeof(char),	32,	fp);
-				fread(&version,	sizeof(int),	1,	fp);
-				fread(name,		sizeof(char),	64,	fp);
-
-				if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
-					// Remove the 'levels' bit from the filename
-					if(f && !cmb->getItem(name)) {
-						cmb->addItem(index++, f, name);
-
-						// If this is the same as the old map, select it
-						if( f == tLXOptions->tGameinfo.sMapName )
-							selected = index-1;
-
-						//lv->AddItem(f+1,0);
-						//lv->AddSubitem(LVS_TEXT,name,NULL);
-					}
-				}
-				fclose(fp);
-			}
-		}
-
-		// Liero level
-		if( stricmp(filename + fix_strnlen(filename)-4, ".lev") == 0) {
-			FILE *fp = OpenGameFile(filename,"rb");
-
-			if(fp) {
-
-				// Make sure it's the right size to be a liero level
-				fseek(fp,0,SEEK_END);
-				// 176400 is liero maps
-				// 176402 is worm hole maps (same, but 2 bytes bigger)
-				// 177178 is a powerlevel
-				if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-
-					if(f && !cmb->getItem(f)) {
-						cmb->addItem(index++, f, f);
-
-						//d_printf("Original level = %s\n",f+1);
-						//d_printf("Saved level = %s\n",tLXOptions->tGameinfo.sMapName);
-
-						if( f == tLXOptions->tGameinfo.sMapName )
-							selected = index-1;
-
-						//lv->AddItem(f+1,0);
-						//lv->AddSubitem(LVS_TEXT,f+1,NULL);
-					}
-				}
-
-				fclose(fp);
-			}
-		}*/
-		std::string name = Menu_GetLevelName(filename);
-		if (name == tLXOptions->tGameinfo.sMapName)
-			selected = index;
-
-		if(!FindNext(filename))
-			break;
-
-		index++;
+		if( tLXOptions->tGameinfo.sMapName == "_random_" )
+			selected = index-1;
 	}
 
-	if( selected >= 0 )
-		cmb->setCurItem( selected );
-
+	// Load the level list
+	class LevelListFiller { public:
+		CCombobox* cmb;
+		int* index;
+		int* selected;
+		LevelListFiller(CCombobox* c, int* i, int* s) : cmb(c), index(i), selected(s) {}
+		inline bool operator() (const std::string& filename) {
+			size_t pos = findLastPathSep(filename);
+			std::string f = filename.substr(pos);
+	
+			// Liero Xtreme level
+			if( stringcasecmp(filename.substr(filename.size()-4), ".lxl") == 0) {
+				FILE *fp = OpenGameFile(filename,"rb");
+				if(fp) {
+					static char id[33];
+					int version;
+					static char name[65];
+					fread(id,		sizeof(char),	32,	fp);
+					fread(&version,	sizeof(int),	1,	fp);
+					fread(name,		sizeof(char),	64,	fp);
+					id[32] = '\0';
+					name[64] = '\0';
+					
+					if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
+						// Remove the 'levels' bit from the filename
+						if(!cmb->getItem(name)) {
+							cmb->addItem((*index)++, f, name);
+	
+							// If this is the same as the old map, select it
+							if( f == tLXOptions->tGameinfo.sMapName )
+								*selected = *index-1;
+						}
+					}
+					fclose(fp);
+				}
+			}
+	
+			// Liero level
+			if( stringcasecmp(filename.substr(filename.size()-4), ".lev") == 0) {
+				FILE *fp = OpenGameFile(filename,"rb");
+	
+				if(fp) {	
+					// Make sure it's the right size to be a liero level
+					fseek(fp,0,SEEK_END);
+					// 176400 is liero maps
+					// 176402 is worm hole maps (same, but 2 bytes bigger)
+					// 177178 is a powerlevel
+					if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
+	
+						if(!cmb->getItem(f)) {
+							cmb->addItem((*index)++, f, f);
+		
+							if( f == tLXOptions->tGameinfo.sMapName )
+								*selected = *index-1;
+						}
+					}
+	
+					fclose(fp);
+				}
+			}
+			// TODO: this was a bit wired, that the above stuff was
+			//     commented out and used was the following code.
+			//     this seems to be wrong. but why was it so?
+			/*std::string name = Menu_GetLevelName(filename);
+			if (name == tLXOptions->tGameinfo.sMapName)
+				*selected = *index;
+	
+			(*index)++;	*/
+			return true;
+		}
+	};
+	FindFiles(LevelListFiller(cmb, &selected), "levels", FM_REG);
+	
 	// Sort it ascending
 	cmb->Sort(true);
+	
+	if( selected >= 0 )
+		cmb->setCurItem( selected );
 }
 
 
@@ -1725,7 +1725,7 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
     // Go through every line
     while( fgets(tmp, 1024, fp) ) {
 
-        szLine = StripLine(std::string(tmp));
+        szLine = StripLine(tmp);
         if( szLine == "" )
             continue;
 	

@@ -125,7 +125,7 @@ void CMap::ApplyRandom(void)
     // Setup the random layout
     sRandomLayout.bUsed = true;
     sRandomLayout.nNumObjects = nNumRocks + nNumMisc + (nNumHoles * nNumHoleGroup);
-    fix_strncpy(sRandomLayout.szTheme, Theme.name);
+    sRandomLayout.szTheme = Theme.name;
 
     sRandomLayout.psObjects = new object_t[sRandomLayout.nNumObjects];
     if( !sRandomLayout.psObjects )
@@ -247,29 +247,28 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
 
 ///////////////////
 // Load the theme
-int CMap::LoadTheme(char *_theme)
+int CMap::LoadTheme(const std::string& _theme)
 {
-	static char thm[64],buf[64],cfg[64];
+	static std::string thm,buf,cfg;
 	int n,x,y;
 
-	snprintf(thm,sizeof(thm),"data/themes/%s",_theme);
-	fix_markend(thm);
+	thm = "data/themes/" + _theme;
 
-	fix_strncpy(Theme.name, _theme);
-    fix_strncpy(sRandomLayout.szTheme, _theme);
+	Theme.name = _theme;
+    sRandomLayout.szTheme = _theme;
 
-	snprintf(buf,sizeof(buf),"%s/Backtile.png",thm); fix_markend(buf);
+	buf = thm + "/Backtile.png";
 	LOAD_IMAGE_BPP(Theme.bmpBacktile,buf);
-	snprintf(buf,sizeof(buf),"%s/Fronttile.png",thm); fix_markend(buf);
+	buf = thm + "/Fronttile.png";
 	LOAD_IMAGE_BPP(Theme.bmpFronttile,buf);
 
 
 	// Stones
-	snprintf(cfg,sizeof(cfg),"%s/theme.txt",thm); fix_markend(cfg);
+	cfg = thm + "/theme.txt";
 	ReadInteger(cfg,"General","NumStones",&Theme.NumStones,0);
 
 	for(n=0;n<Theme.NumStones;n++) {
-		snprintf(buf,sizeof(buf),"%s/Stone%d.png",thm,n+1); fix_markend(buf);
+		buf = thm + "/Stone" + itoa(n+1) + ".png";
 		LOAD_IMAGE_BPP(Theme.bmpStones[n],buf);
 
 		SDL_SetColorKey(Theme.bmpStones[n], SDL_SRCCOLORKEY, SDL_MapRGB(Theme.bmpStones[n]->format,255,0,255));
@@ -278,7 +277,7 @@ int CMap::LoadTheme(char *_theme)
 
 	// Holes
 	for(n=0;n<5;n++) {
-		snprintf(buf,sizeof(buf),"%s/Hole%d.png",thm,n+1); fix_markend(buf);
+		buf = thm + "/Hole" + itoa(n+1) + ".png";
 		LOAD_IMAGE_BPP(Theme.bmpHoles[n],buf);
 
 		SDL_SetColorKey(Theme.bmpHoles[n], SDL_SRCCOLORKEY, SDL_MapRGB(Theme.bmpHoles[n]->format,0,0,0));
@@ -300,10 +299,10 @@ int CMap::LoadTheme(char *_theme)
 
 
 	// Misc
-	snprintf(cfg,sizeof(cfg),"%s/theme.txt",thm); fix_markend(cfg);
+	cfg = thm + "/theme.txt";
 	ReadInteger(cfg,"General","NumMisc",&Theme.NumMisc,0);
 	for(n=0;n<Theme.NumMisc;n++) {
-		snprintf(buf,sizeof(buf),"%s/misc%d.png",thm,n+1); fix_markend(buf);
+		buf = thm + "/misc" + itoa(n+1) + ".png";
 		LOAD_IMAGE_BPP(Theme.bmpMisc[n],buf);
 	}
 
@@ -1847,7 +1846,7 @@ int CMap::Load(char *filename)
 
 ///////////////////
 // Save the map
-int CMap::Save(char *name, char *filename)
+int CMap::Save(const std::string& name, const std::string& filename)
 {
 	FILE *fp = OpenGameFile(filename,"wb");
 	if(fp == NULL)
@@ -1862,11 +1861,11 @@ int CMap::Save(char *name, char *filename)
 
 	fwrite(id,			sizeof(char),	32,	fp);
 	fwrite(GetEndianSwapped(version),	sizeof(int),	1,	fp);
-	fwrite(name,		sizeof(char),	64,	fp);
+	fwrite(name.c_str(),		sizeof(char),	64,	fp);
 	fwrite(GetEndianSwapped(Width),		sizeof(int),	1,	fp);
 	fwrite(GetEndianSwapped(Height),		sizeof(int),	1,	fp);
 	fwrite(GetEndianSwapped(Type),		sizeof(int),	1,	fp);
-	fwrite(Theme.name,	sizeof(char),	32,	fp);
+	fwrite(Theme.name.c_str(),	sizeof(char),	32,	fp);
 	fwrite(GetEndianSwapped(NumObjects),	sizeof(int),	1,	fp);
 
 
@@ -2165,7 +2164,7 @@ int CMap::LoadOriginal(FILE *fp)
 
 	// Load the palette from the same file if it's a powerlevel
 	if(Powerlevel) {
-		char id[11];
+		static char id[11];
 		// Load id
 		fread(id,sizeof(uchar),10,fp);
 		id[10] = '\0';

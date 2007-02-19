@@ -125,7 +125,7 @@ typedef struct {
 	Uint32			clPink;
 
 
-	char	debug_string[32];
+	std::string	debug_string;
 } lierox_t;
 
 
