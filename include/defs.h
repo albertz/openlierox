@@ -39,6 +39,7 @@
 #include <ctype.h>
 #include <string>
 #include <vector>
+#include <sstream>
 
 // Disable this silly warning
 #ifdef _MSC_VER
@@ -104,8 +105,8 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 
 // Helpful Macros
-#define		LOAD_IMAGE(bmp,name) bmp = LoadImage(name,0); if(bmp == NULL) { printf("WARNING: could not load image %s\n", name); return false; }
-#define		LOAD_IMAGE_BPP(bmp,name) bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); if(bmp == NULL) { printf("WARNING: could not load image %s\n", name); return false; }
+#define		LOAD_IMAGE(bmp,name) bmp = LoadImage(name,0); if(bmp == NULL) { printf("WARNING: could not load image %s\n", name.c_str()); return false; }
+#define		LOAD_IMAGE_BPP(bmp,name) bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); if(bmp == NULL) { printf("WARNING: could not load image %s\n", name.c_str()); return false; }
 #define		CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
 
 template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
@@ -217,6 +218,8 @@ inline std::string itoa(int num,int base=10)  {
 #include "Error.h"
 #include "GfxPrimitives.h"
 #include "Timer.h"
+#include "Options.h"
+#include "FindFile.h"
 
 
 
@@ -235,8 +238,6 @@ inline std::string itoa(int num,int base=10)  {
 #include "MathLib.h"
 #include "CFont.h"
 
-#include "Options.h"
-#include "FindFile.h"
 #include "CssParser.h"
 
 

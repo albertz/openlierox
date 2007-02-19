@@ -220,15 +220,11 @@ int CarveHole(CMap *cMap, CVec pos)
 void d_printf(char *fmt, ...)
 {
 #ifdef DEBUG
-	static char buf[1024];
 	va_list arg;
 	
 	va_start(arg, fmt);
-	vsnprintf(buf, sizeof(buf),fmt, arg);
-	fix_markend(buf);
+	vprintf(fmt, arg);
 	va_end(arg);
-
-	printf(buf);
 #endif
 }
 
@@ -489,20 +485,42 @@ int chrcasecmp(const char c1, const char c2)
 }
 
 //////////////////
-// Gets the string <beginning of text,searched character)
-void ReadUntil(const char *text, char until_character, char *result, size_t reslen)
-{
-	size_t i = 0;
-	for(; i < reslen-1 && text[i] != until_character && text[i] != '\0'; i++)
-		result[i] = text[i];
-	result[i] = '\0';
+// Gets the string [beginning of text,searched character)
+std::string ReadUntil(const std::string& text, char until_character) {
+	size_t pos = 0;
+	for(std::string::iterator i = text.begin(); i != text.end(); i++, pos++) {
+		if(*i == until_character)
+			return text.substr(0,pos);
+	}
+	return text;
 }
+
+std::string	ReadUntil(FILE* fp, char until_character) {
+	static char buf[256];
+	static std::string res;
+	res = "";
+	short buf_pos = 0;
+	while(true) {
+		if(fread(&buf[buf_pos],1,1,fp) == 0 || buf[buf_pos] == until_character) {
+			res.append(buf,buf_pos);
+			break;
+		}
+		buf_pos++;
+		if(buf_pos >= sizeof(buf)) {
+			buf_pos = 0;
+			res.append(buf,sizeof(buf));
+		}
+	}
+	
+	return res;	
+}
+
 
 //////////////////
 // Converts a string to a colour
-Uint32 StrToCol(char *str)
+Uint32 StrToCol(const std::string& str)
 {
-	char *org_val = NULL;
+	std::string string = str;
 	char tmp[3];
 	int r,g,b;
 	tmp[2] = 0;  // Third character is terminating
@@ -510,17 +528,15 @@ Uint32 StrToCol(char *str)
 	org_val = str; // Save the original pointer
 
 	// By default return pink
-	if(!str)
+	if(string.size() < 6)
 		return tLX->clPink;
-	if(strlen(str) < 6)
-		return tLX->clPink;
-
+	
 	// Ignore the # character
-	if (*str == '#')
-		str++;
-
-	// Check again
-	if(strlen(str) < 6)
+	if(string[0] == '#')
+		string.erase(0,1);
+	
+	// By default return pink
+	if(string.size() < 6)
 		return tLX->clPink;
 
 	// R value
@@ -572,30 +588,41 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 	}
 }
 
-std::vector<std::string> explode(const std::string& str, const std::string& with)
-{
+std::vector<std::string> explode(const std::string& str, const std::string& delim) {
 	static std::vector<std::string> result;
-
-	std::string temp;
-	std::string missing = str;
-	int pos = 0;
-	while (pos = missing.rfind(with) != std::string::npos)  {
-		temp = missing.substr(0,pos-1);
-		result.push_back(temp);
+	result.clear();
+	
+	size_t delim_len = delim.size();
+	std::string rest = str;
+	size_t pos;
+	while(pos = rest.find(delim) != std::string::npos) {
+		result.push_back(rest.substr(0,pos-1));
+		rest.erase(0,pos+delim_len);
 	}
 	result.push_back(missing);
+	
 	return result;
 }
 
+// reads maxlen-1 chars from fp
 std::string freadstr(FILE *fp, size_t maxlen)
 {
 	if (!fp) return "";
 
-	static std::string result = "";
-
+	static std::string result;
 	static char buf[1024];
-	fread(buf,1,maxlen-1,fp);
-	result = buf;
+	size_t ret, c;
+	result = "";
+	
+	for(size_t len = 0; len < maxlen; len += sizeof(buf)) {
+		c = MIN(sizeof(buf), maxlen - len);
+		ret = fread(buf, 1, c, fp);
+		if(ret > 0)
+			result.append(buf, ret);
+		if(ret < c)
+			break;
+	}
+	
 	return result;
 }
 
@@ -608,6 +635,17 @@ size_t findLastPathSep(const std::string& path) {
 	else if(slash2 != std::string::npos)
 		slash = MAX(slash, slash2);
 	return slash;
+}
+
+
+void stringlwr(std::string& txt) {
+	for(std::string::iterator i = txt.begin(); i != txt.end(); i++)
+		*i = tolower(*i);
+}
+
+
+void strincludes(const std::string& str, const std::string& what) {
+	return str.find(what) != std::string::npos;
 }
 
 
@@ -652,7 +690,7 @@ Uint32 xmlGetColour(xmlNodePtr Node, const std::string& Name)
 	// Get the value
 	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 
-	Uint32 result = StrToCol((char *)sValue);
+	Uint32 result = StrToCol((char*)sValue);
 
 	xmlFree(sValue);
 	return result;

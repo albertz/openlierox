@@ -45,7 +45,7 @@ void SetError(char *fmt, ...)
 		ErrorFile = OpenGameFile("Error.txt","wt");
 		if(ErrorFile == NULL)
 			return;
-		fprintf(ErrorFile,"%s error file\n----------------------\n",GetGameName());
+		fprintf(ErrorFile,"%s error file\n----------------------\n",GetGameName().c_str());
 	}
 	
 	fprintf(ErrorFile,"%s\n",ErrorMsg);

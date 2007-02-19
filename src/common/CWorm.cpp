@@ -171,7 +171,7 @@ void CWorm::FreeGraphics(void)
 
 ///////////////////
 // Setup the inputs
-void CWorm::SetupInputs(char Inputs[32][8])
+void CWorm::SetupInputs(controls_t Inputs)
 {
 	cUp.Setup(		Inputs[SIN_UP] );
 	cDown.Setup(	Inputs[SIN_DOWN] );

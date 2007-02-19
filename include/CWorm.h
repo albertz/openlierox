@@ -346,7 +346,7 @@ public:
 	//
 	// Weapon & Input
 	//
-	void		SetupInputs(char Inputs[32][8]);
+	void		SetupInputs(controls_t Inputs);
 	void		InitWeaponSelection(void);
 	void		GetRandomWeapons(void);
 	void		SelectWeapons(SDL_Surface *bmpDest, CViewport *v);
@@ -357,7 +357,7 @@ public:
 	//
 	int			LoadGraphics(int gametype);
 	void		FreeGraphics(void);
-	SDL_Surface	*ChangeGraphics(char *filename, int team);
+	SDL_Surface	*ChangeGraphics(const std::string& filename, int team);
 	void		Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v);
     void        DrawShadow(SDL_Surface *bmpDest, CMap *map, CViewport *v);
 

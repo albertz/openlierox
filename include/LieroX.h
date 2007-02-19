@@ -209,14 +209,44 @@ std::string replacemax(const std::string& text, const std::string& what, const s
 char	*strip(char *buf, int width);
 bool	stripdot(char *buf, int width);
 char	*ucfirst(char *text);
-void	ReadUntil(const char *text, char until_character, char *result, size_t reslen);
-Uint32	StrToCol(char *str);
+std::string	ReadUntil(const std::string& text, char until_character = '\n');
+std::string	ReadUntil(FILE* fp, char until_character = '\n');
+Uint32	StrToCol(const std::string& str);
 const char* sex(short wraplen = 0);
-std::vector<std::string> explode(const std::string& str, const std::string& with);
+std::vector<std::string> explode(const std::string& str, const std::string& delim);
 std::string freadstr(FILE *fp, size_t maxlen);
 size_t findLastPathSep(const std::string& path);
-
+void stringlwr(std::string& txt);
+void strincludes(const std::string& str, const std::string& what);
 short stringcasecmp(const std::string& s1, const std::string& s2);
+
+template<typename T>
+T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {
+	std::istringstream iss(s); T t;
+	failed = (iss >> f >> t).fail();
+	return t;
+}
+
+template<typename T>
+T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
+	std::istringstream iss(s); T t;
+	iss >> f >> t;
+	return t;
+}
+
+template<typename T>
+T from_string(const std::string& s, bool& failed) {
+	std::istringstream iss(s); T t;
+	failed = (iss >> t);
+	return t;
+}
+
+template<typename T>
+T from_string(const std::string& s) {
+	std::istringstream iss(s); T t;
+	iss >> t;
+	return t;
+}
 
 
 // Useful XML functions

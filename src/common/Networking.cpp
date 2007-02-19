@@ -445,7 +445,7 @@ int GetSocketErrorNr() {
 	return nlGetError();
 }
 
-const char*	GetSocketErrorStr(int errnr) {
+std::string GetSocketErrorStr(int errnr) {
 	return nlGetErrorStr(errnr);
 }
 
@@ -494,12 +494,10 @@ bool StringToNetAddr(const char* string, NetworkAddr* addr) {
 		return (nlStringToAddr(string, &addr->adr) != NL_FALSE);
 }
 
-bool NetAddrToString(const NetworkAddr* addr, char* string) {
-	if(addr == NULL) {
-		string[0] = '\0';
-		return false;
-	}
-	nlAddrToString(&addr->adr, string);
+bool NetAddrToString(const NetworkAddr* addr, std::string& string) {
+	static char buf[256];
+	nlAddrToString(&addr->adr, buf);
+	string = buf;
 	return true; // TODO: check it
 }
 
@@ -532,11 +530,11 @@ using namespace std;
 typedef map<string, NetworkAddr> dnsCacheT; 
 dnsCacheT dnsCache;
 
-void AddToDnsCache(string name, const NetworkAddr* addr) {
+void AddToDnsCache(const std::string& name, const NetworkAddr* addr) {
 	dnsCache[name] = *addr;
 }
 
-bool GetFromDnsCache(string name, NetworkAddr* addr) {
+bool GetFromDnsCache(const std::string& name, NetworkAddr* addr) {
 	dnsCacheT::iterator it = dnsCache.find(name);
 	if(it != dnsCache.end()) {
 		*addr = it->second;
@@ -545,7 +543,7 @@ bool GetFromDnsCache(string name, NetworkAddr* addr) {
 		return false;
 }
 
-bool GetNetAddrFromNameAsync(const char* name, NetworkAddr* addr) {
+bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
 	else {
@@ -553,6 +551,6 @@ bool GetNetAddrFromNameAsync(const char* name, NetworkAddr* addr) {
 			SetNetAddrValid(addr, true);
 			return true;
 		}
-		return (nlGetAddrFromNameAsync(name, &addr->adr) != NL_FALSE);		
+		return (nlGetAddrFromNameAsync(name.c_str(), &addr->adr) != NL_FALSE);		
 	}
 }

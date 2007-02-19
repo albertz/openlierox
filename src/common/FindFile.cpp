@@ -580,7 +580,7 @@ void InitBaseSearchPaths() {
 #ifndef WIN32
 	AddToFileList(&basesearchpaths, "${HOME}/.OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX"); // no use of ${SYSTEM_DATA}, because it is uncommon
+	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX"); // no use of ${SYSTEM_DATA}, because it is uncommon and could cause confusion to the user
 #else // Win32
 	AddToFileList(&basesearchpaths, "${HOME}/OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
@@ -609,7 +609,7 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 	if(path.size() == 0)
 		return "";
 
-	filelist_t* spath = NULL;
+	searchpathlist* spath = NULL;
 	bool has_tried_basesearchpaths = false;
 	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
 	if(spath == NULL) {

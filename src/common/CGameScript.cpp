@@ -308,7 +308,7 @@ int CGameScript::Load(const std::string& dir)
 	// Open it
 	fp = OpenGameFile(filename,"rb");
 	if(fp == NULL) {
-		SetError("CGameScript::Load(): Could not load file %s",filename);
+		SetError("CGameScript::Load(): Could not load file %s",filename.c_str());
 		return GSE_FILE;
 	}
 
@@ -331,7 +331,7 @@ int CGameScript::Load(const std::string& dir)
 	}
 
     // Clear an old mod file
-    modLog("Loading game mod file %s",filename);
+    modLog("Loading game mod file %s",filename.c_str());
 	//modLog("  ID = %s", Header.ID);
 	//modLog("  Version = %i", Header.Version);
 
@@ -354,7 +354,7 @@ int CGameScript::Load(const std::string& dir)
 		wpn->ID = n;
 		wpn->Projectile = NULL;
 
-        readString(wpn->Name, fp);
+        wpn->Name = readString(fp);
 		fread(&wpn->Type,           sizeof(int),    1,fp);
 		EndianSwap(wpn->Type);
 		
@@ -426,7 +426,7 @@ int CGameScript::Load(const std::string& dir)
 			fread(&wpn->UseSound,sizeof(int),1,fp);
 			EndianSwap(wpn->UseSound);
 			if(wpn->UseSound) {
-                readString(wpn->SndFilename, fp);
+                wpn->SndFilename = readString(fp);
 
 				// Load the sample
 				wpn->smpSample = LoadGSSample(dir,wpn->SndFilename);
@@ -528,11 +528,11 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 	}
 	else if(proj->Type == PRJ_IMAGE) {
-        readString(proj->ImgFilename, fp);
+        proj->ImgFilename = readString(fp);
 		
 		proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
         if(!proj->bmpImage)
-            modLog("Could not open image '%s'",proj->ImgFilename);
+            modLog("Could not open image '%s'",proj->ImgFilename.c_str());
 		
 		// Set the colour key
 		if(proj->bmpImage)
@@ -582,14 +582,14 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		EndianSwap(proj->Hit_Shake);
 
 		if(proj->Hit_UseSound) {
-            readString(proj->Hit_SndFilename, fp);			
+            proj->Hit_SndFilename = readString(fp);			
 			
 			// Load the sample
 			proj->smpSample = LoadGSSample(sDirectory,proj->Hit_SndFilename);
 			
             if(proj->smpSample == 0) {
 				proj->Hit_UseSound = false;
-				modLog("Could not open sound '%s'",proj->Hit_SndFilename);
+				modLog("Could not open sound '%s'",proj->Hit_SndFilename.c_str());
             }
 		}
 	}
@@ -679,7 +679,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
     fread(&proj->Tch_UseSound, sizeof(int), 1, fp);
 	EndianSwap(proj->Tch_UseSound);
     if(proj->Tch_UseSound)
-        readString(proj->Tch_SndFilename, fp);
+        proj->Tch_SndFilename = readString(fp);
 
 
 	if(proj->Timer_Projectiles || proj->Hit_Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles ||
@@ -775,15 +775,11 @@ weapon_t *CGameScript::FindWeapon(const std::string& name)
 {
 	int n;
 
-    // Safety check
-    if( !name )
-        return Weapons;     // Just return the first weapon
-
 	// Go through each weapon
 	weapon_t *wpn = Weapons;
 	for(n=0;n<NumWeapons;n++,wpn++) {
 
-		if(stricmp(wpn->Name, name) == 0)
+		if(stringcasecmp(wpn->Name, name) == 0)
 			return wpn;
 	}
 

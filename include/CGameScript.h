@@ -113,7 +113,7 @@ typedef struct {
 
 // Projectile structure
 typedef struct proj_s {
-	char	filename[64];		// Compiler use
+	std::string	filename;		// Compiler use (was 64b before)
 	int		id;					// File ref use
 
 	int		Type;
@@ -121,7 +121,7 @@ typedef struct proj_s {
 	int		NumColours;
 	int		Colour1[3];
 	int		Colour2[3];
-	char	ImgFilename[64];
+	std::string	ImgFilename; // (was 64b before)
 	int		Rotating;
 	int		RotIncrement;
 	int		RotSpeed;
@@ -149,7 +149,7 @@ typedef struct proj_s {
 	int		Hit_Projectiles;
 	int		Hit_UseSound;
 	int		Hit_Shake;
-	char	Hit_SndFilename[64];
+	std::string	Hit_SndFilename; // (was 64b before)
 	float	Hit_BounceCoeff;
 	int		Hit_BounceExplode;
 
@@ -158,7 +158,7 @@ typedef struct proj_s {
 	int		Exp_Damage;
 	int		Exp_Projectiles;
 	int		Exp_UseSound;
-    char	Exp_SndFilename[64];
+    std::string	Exp_SndFilename; // (was 64b before)
 	int		Exp_Shake;
 
 
@@ -167,7 +167,7 @@ typedef struct proj_s {
 	int		Tch_Damage;
 	int		Tch_Projectiles;
 	int		Tch_UseSound;
-    char	Tch_SndFilename[64];
+    std::string	Tch_SndFilename; // (was 64b before)
 	int		Tch_Shake;
 
 
@@ -209,7 +209,7 @@ typedef struct proj_s {
 // Weapon structure
 typedef struct {
 	int		ID;
-	char	Name[64];
+	std::string	Name; // (was 64b before)
 	int		Type;
 	int		Special;
 	int		Class;
@@ -218,7 +218,7 @@ typedef struct {
 	float	Drain;
 	float	ROF;
 	int		UseSound;
-	char	SndFilename[64];
+	std::string	SndFilename; // (was 64b before)
 	int		LaserSight;
 	
 	// Projectile

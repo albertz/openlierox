@@ -99,7 +99,7 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 	if(!GetString(filename,section,key,string))
 		return false;
 	
-	*value = atoi(string);
+	*value = from_string(string);
 
 	return true;
 }
@@ -189,7 +189,7 @@ int GetString(const std::string& filename, const std::string& section, const std
 	static std::string	curSection;
 	static std::string	temp;
 	static std::string	curKey;
-	char	*chardest = NULL;
+	size_t	chardest = 0;
 	int		Position;
 	int		found = false;
 	
@@ -209,41 +209,45 @@ int GetString(const std::string& filename, const std::string& section, const std
 	while(!feof(config))
 	{
 		// Parse the lines
-		fscanf(config,"%[^\n]\n",tmpLine);
-		fix_strncpy(Line, TrimSpaces(tmpLine));
+		tmpLine = ReadUntil(config, '\n');
+		//fscanf(config,"%[^\n]\n",tmpLine);
+		TrimSpaces(tmpLine);
+		Line = tmpLine;
 		
 		///////////////////
 		// Comment, Ignore
-		if(Line[0] == '#')				
+		if(Line.size() == 0 || Line[0] == '#')				
 			continue;
 
 		////////////
 		// Sections
-		if(Line[0] == '[' && Line[fix_strnlen(Line)-1] == ']')
+		if(Line[0] == '[' && Line[Line.size()-2] == ']')
 		{
-			fix_strncpy(temp,Line+1);
-			temp[fix_strnlen(temp)-1] = '\0';
-			fix_strncpy(curSection,temp);
+			temp = Line.substr(1);
+			temp.erase(temp.size()-2);
+			curSection = temp;
 			continue;
 		}
 
 		////////
 		// Keys
-		chardest = strchr(Line,'=');
-		if(chardest != NULL)
+		chardest = Line.find('=');
+		if(chardest != std::string::npos)
 		{
 			// Key
-			Position = chardest - Line + 1;
-			fix_strncpy(tmpLine,Line);
-			tmpLine[Position-1] = '\0';
-			fix_strncpy(curKey, TrimSpaces(tmpLine));
-
+			Position = chardest;
+			tmpLine = Line;
+			tmpLine.erase(Position);
+			TrimSpaces(tmpLine);
+			curKey = tmpLine;
+			
 			// Check if this is the key were looking for under the section were looking for
-			if(stricmp(curKey,key) == 0 && stricmp(curSection,section) == 0)
+			if(stringcasecmp(curKey,key) == 0 && stringcasecmp(curSection,section) == 0)
 			{				
 				// Get the value
-				fix_strncpy(tmpLine,Line+Position);
-				string = TrimSpaces(tmpLine);
+				tmpLine = Line.substr(Position+1);
+				TrimSpaces(tmpLine);
+				string = tmpLine;
 				found = true;
 				break;
 			}

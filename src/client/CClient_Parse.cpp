@@ -117,9 +117,9 @@ void CClient::ParseConnected(CBytestream *bs)
 	SetupViewports();
 
 	// Setup the controls
-	cLocalWorms[0]->SetupInputs( tLXOptions->sPlayer1Controls );
+	cLocalWorms[0]->SetupInputs( tLXOptions->sPlayerControls[0] );
 	if(iNumWorms >= 2)
-		cLocalWorms[1]->SetupInputs( tLXOptions->sPlayer2Controls );
+		cLocalWorms[1]->SetupInputs( tLXOptions->sPlayerControls[1] );
 
 	// Create my channel
 	GetRemoteNetAddr(tSocket, &addr);

@@ -14,14 +14,16 @@
 // Jason Boettcher
 
 
+#include <zlib.h>
+#include <list>
+
 #include "defs.h"
 #include "LieroX.h"
-#include <zlib.h>
 
 
 ///////////////////
 // Create a new map
-int CMap::New(int _width, int _height, char *_theme)
+int CMap::New(int _width, int _height, const std::string& _theme)
 {
 	if(Created)
 		Shutdown();
@@ -1740,7 +1742,7 @@ int CMap::Load(char *filename)
 		return false;
 	}
 
-	fread(Name,			sizeof(char),	64,	fp);
+	Name = freadstr(fp, 64);
 	fread(&Width,		sizeof(int),	1,	fp);
 	EndianSwap(Width);
 	fread(&Height,		sizeof(int),	1,	fp);
@@ -1764,7 +1766,7 @@ int CMap::Load(char *filename)
 */
 	// Create the map
 	if(!New(Width, Height, Theme_Name)) {
-		printf("CMap::Load (%s): ERROR: cannot create map\n", filename);
+		printf("CMap::Load (%s): ERROR: cannot create map\n", filename.c_str());
 		fclose(fp);
 		return false;
 	}
@@ -1772,7 +1774,7 @@ int CMap::Load(char *filename)
 	// Load the images if in an image format
 	if(Type == MPT_IMAGE)
 	{
-		printf("CMap::Load (%s): HINT: level is in image format\n", filename);
+		printf("CMap::Load (%s): HINT: level is in image format\n", filename.c_str());
 		return LoadImageFormat(fp);
 	}
 

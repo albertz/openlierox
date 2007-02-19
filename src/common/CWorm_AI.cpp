@@ -2163,10 +2163,10 @@ int CWorm::AI_FindClearingWeapon(void)
 			}
 
 			// Suspicious
-			static char name[256];
-			fix_strncpy(name,tWeapons[i].Weapon->Name);
-			strlwr(name);
-			if (strstr("dirt",name) || strstr("napalm",name) || strstr("grenade",name) || strstr("nuke",name) || strstr("mine",name))
+			static std::string name;
+			name = tWeapons[i].Weapon->Name;
+			stringlwr(name);
+			if(strincludes(name,"dirt") || strincludes(name,"napalm") || strincludes(name,"grenade") || strincludes(name,"nuke") || strincludes(name,"mine"))
 				continue;
 
 			// Nothing explosive or dirty

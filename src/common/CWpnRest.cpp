@@ -113,7 +113,7 @@ void CWpnRest::cycleVisible(CGameScript *pcGameS)
 
 ///////////////////
 // Find a weapon in the list
-wpnrest_t *CWpnRest::findWeapon(char *szName)
+wpnrest_t *CWpnRest::findWeapon(const std::string& szName)
 {
     if(szName == NULL)
     	return NULL;
@@ -140,7 +140,7 @@ wpnrest_t *CWpnRest::findWeapon(char *szName)
 
 ///////////////////
 // Add a weapon to the list
-void CWpnRest::addWeapon(char *szName, int nState)
+void CWpnRest::addWeapon(const std::string& szName, int nState)
 {
     if(szName == NULL) return;
 
@@ -165,7 +165,7 @@ void CWpnRest::addWeapon(char *szName, int nState)
 
 ///////////////////
 // Save the weapons restrictions list
-void CWpnRest::saveList(char *szFilename)
+void CWpnRest::saveList(const std::string& szFilename)
 {
     // Save it as plain text
     FILE *fp = OpenGameFile(szFilename, "wt");
@@ -184,7 +184,7 @@ void CWpnRest::saveList(char *szFilename)
 
 ///////////////////
 // Load the weapons restrictions list
-void CWpnRest::loadList(char *szFilename)
+void CWpnRest::loadList(const std::string& szFilename)
 {
     // Shutdown the list first
     Shutdown();
@@ -193,10 +193,11 @@ void CWpnRest::loadList(char *szFilename)
     if( !fp )
         return;
 
-    static char line[256];
+    static std::string line;
 
     while( !feof(fp) ) {
-        fscanf(fp, "%[^\n]\n",line);
+        line = ReadUntil(fp, '\n');
+        //fscanf(fp, "%[^\n]\n",line);
         char *tok = strtok(line,",");
         if( tok )  {
 			char *tok2 = strtok(NULL,",");
@@ -214,7 +215,7 @@ void CWpnRest::loadList(char *szFilename)
 
 ///////////////////
 // Checks if the weapon is enabled or not
-bool CWpnRest::isEnabled(char *szName)
+bool CWpnRest::isEnabled(const std::string& szName)
 {
     wpnrest_t *psWpn = findWeapon(szName);
 
@@ -255,7 +256,7 @@ char *CWpnRest::findEnabledWeapon(CGameScript *pcGameS)
 
 ///////////////////
 // Get the state of a weapon
-int CWpnRest::getWeaponState(char *szName)
+int CWpnRest::getWeaponState(const std::string& szName)
 {
     wpnrest_t *psWpn = findWeapon(szName);
 
@@ -364,7 +365,7 @@ void CWpnRest::sendList(CBytestream *psByteS)
 // Receive the list
 void CWpnRest::readList(CBytestream *psByteS)
 {
-    static char szName[256];
+    static std::string szName;
     int nState;
     wpnrest_t *psWpn = NULL;
 
@@ -379,7 +380,7 @@ void CWpnRest::readList(CBytestream *psByteS)
 
     // Go through the list reading weapons
     for( int i=0; i<nCount; i++ ) {
-        psByteS->readString(szName, sizeof(szName));
+        szName = psByteS->readString();
         nState = psByteS->readByte();
 
         // Try and find the weapon

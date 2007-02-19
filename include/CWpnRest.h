@@ -57,8 +57,8 @@ public:
     // Constructor
     CWpnRest();
 
-    void        loadList(char *szFilename);
-    void        saveList(char *szFilename);
+    void        loadList(const std::string& szFilename);
+    void        saveList(const std::string& szFilename);
     void        Shutdown(void);
 
     void        updateList(CGameScript *pcGameS);
@@ -70,10 +70,10 @@ public:
     void        sendList(CBytestream *psByteS);
     void        readList(CBytestream *psByteS);
 
-    bool        isEnabled(char *szName);
+    bool        isEnabled(const std::string& szName);
     char        *findEnabledWeapon(CGameScript *pcGameS);
 
-    int         getWeaponState(char *szName);
+    int         getWeaponState(const std::string& szName);
 
     void        sortList(void);
 
@@ -84,8 +84,8 @@ public:
 private:
     // Internal methods
 
-    wpnrest_t   *findWeapon(char *szName);
-    void        addWeapon(char *szName, int nState);
+    wpnrest_t   *findWeapon(const std::string& szName);
+    void        addWeapon(const std::string& szName, int nState);
 };
 
 

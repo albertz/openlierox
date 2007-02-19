@@ -63,6 +63,8 @@ enum {
 	FMT_GIF
 };
 
+// input controls structure (for local players)
+typedef std::string controls_t[8];
 
 // Options structure
 typedef struct {
@@ -71,7 +73,7 @@ typedef struct {
 	int		iFullscreen;
 	int		iShowFPS;
 	int		iOpenGL;
-	char	sResolution[5];
+	std::string	sResolution;
 
 	// Network
 	int		iNetworkPort;
@@ -83,9 +85,8 @@ typedef struct {
 	int		iSoundVolume;
 
 	// Controls
-	std::string	sPlayer1Controls[8];
-	std::string	sPlayer2Controls[8];
-	std::string	sGeneralControls[8];
+	std::vector<controls_t> sPlayerControls; // sPC[playernr][controlnr]
+	controls_t	sGeneralControls;
 
 	// Game
 	int		iBloodAmount;

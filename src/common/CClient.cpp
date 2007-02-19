@@ -307,7 +307,7 @@ void CClient::ReadPackets(void)
 	if(iNetStatus == NET_PLAYING && cNetChan.getLastReceived() < tLX->fCurTime - LX_CLTIMEOUT && tGameInfo.iGameType == GME_JOIN) {
 		// Time out
 		iServerError = true;
-		strcpy(strServerErrorMsg, "Connection with server timed out");
+		strServerErrorMsg = "Connection with server timed out";
 		
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
 	}
@@ -431,8 +431,8 @@ void CClient::SetupViewports(void)
         cViewports[i].setUsed(false);
 
     // Setup inputs
-    cViewports[0].setupInputs( tLXOptions->sPlayer1Controls );
-    cViewports[1].setupInputs( tLXOptions->sPlayer2Controls );
+    cViewports[0].setupInputs( tLXOptions->sPlayerControls[0] );
+    cViewports[1].setupInputs( tLXOptions->sPlayerControls[1] );
 
 
 	// If there is only 1 local player, setup 1 main viewport
