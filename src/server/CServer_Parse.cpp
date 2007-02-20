@@ -840,7 +840,7 @@ void CServer::ParseConnect(CBytestream *bs)
 			bytestr.Clear();
 			bytestr.writeInt(-1,4);
 			bytestr.writeString("%s","lx::badconnect");
-			bytestr.writeString("%s",NetworkTexts->sBadVerification);
+			bytestr.writeString(NetworkTexts->sBadVerification);
 			bytestr.Send(tSocket);
 			return;
 		}

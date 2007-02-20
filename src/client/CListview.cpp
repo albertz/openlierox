@@ -50,7 +50,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown->w-9,iY+7); break;
 			}
 
-			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x-20), tLX->clNormalLabel,"%s", col->sText);
+			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x-20), tLX->clNormalLabel,"%s", col->sText.c_str());
 
 			x += col->iWidth-2;
 		}
@@ -114,9 +114,9 @@ void CListview::Draw(SDL_Surface *bmpDest)
 				if(sub->iVisible) {
 					if(sub->iType == LVS_TEXT)  {
 						if (col && !bOldStyle)
-							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,"%s",sub->sText);
+							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,"%s",sub->sText.c_str());
 						else
-							tLX->cFont.DrawAdv(bmpDest,x,texty,iWidth-2,item->iColour,"%s",sub->sText);
+							tLX->cFont.DrawAdv(bmpDest,x,texty,iWidth-2,item->iColour,"%s",sub->sText.c_str());
 					}
 
 					else if(sub->iType == LVS_IMAGE)

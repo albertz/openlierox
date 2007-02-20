@@ -191,12 +191,11 @@ public:
 		const std::string& dir_,
 		const std::string& namefilter_,
 		const filemodes_t modefilter_,
-		_filehandler& filehandler_) {
-		dir = dir_;
-		namefilter = namefilter_;
-		modefilter = modefilter_;
-		filehandler = filehandler_;
-	}
+		_filehandler& filehandler_) :
+		dir(dir_),
+		namefilter(namefilter_),
+		modefilter(modefilter_),
+		filehandler(filehandler_) {}
 	
 	inline bool operator() (const std::string& path) {
 		std::string abs_path = path + dir;
@@ -237,7 +236,7 @@ public:
 			}					
 		}
 		closedir(handle);
-#endif
+#endif /* WIN32 */
 		return ret;
 	}
 };

@@ -564,9 +564,9 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 		
 		//tLX->cFont.Draw(bmpDest, centrex-69, y+1, 0,"%s", tWeapons[i].Weapon->Name);
 		if(iCurrentWeapon == i)
-			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, 0xffff, "%s", tWeapons[i].Weapon->Name);
+			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, 0xffff, "%s", tWeapons[i].Weapon->Name.c_str());
 		else
-			tLX->cOutlineFontGrey.Draw(bmpDest, centrex-70, y, 0xffff, "%s", tWeapons[i].Weapon->Name);
+			tLX->cOutlineFontGrey.Draw(bmpDest, centrex-70, y, 0xffff, "%s", tWeapons[i].Weapon->Name.c_str());
 
 		if (iChat_Typing)  {
 			y += 18;

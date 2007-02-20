@@ -316,15 +316,6 @@ int CMap::LoadTheme(const std::string& _theme)
 }
 
 
-///////////////////
-// Finds a theme at random and returns the name
-std::string CMap::findRandomTheme()
-{
-    // Find directories in the theme dir
-	typedef std::list<std::string> themelist;
-	themelist themes;
-
-    // Count the number of themes
 	class ThemesCounter { public:
 		themelist* themes;
 		ThemesCounter(themelist* t) : themes(t) {}
@@ -332,10 +323,19 @@ std::string CMap::findRandomTheme()
 			size_t pos = findLastPathSep(dir);
 			std::string theme = dir.substr(pos+1);
 			if(validateTheme(theme))
-				themes.push_back(theme);
+				themes->push_back(theme);
 			return true;
 		}
 	};
+
+///////////////////
+// Finds a theme at random and returns the name
+std::string CMap::findRandomTheme() {
+    // Find directories in the theme dir
+	typedef std::list<std::string> themelist;
+	themelist themes;
+
+    // Count the number of themes
 	FindFiles(ThemesCounter(&themes), "data/themes", FM_DIR);
 
 	if(themes.size() == 0) {
@@ -347,38 +347,37 @@ std::string CMap::findRandomTheme()
 
     // Get a random number
     int t = GetRandomInt(themes.size()-1);
-    return themes.at(t);
+    return themes[t];
 }
 
 
 ///////////////////
 // Checks if a theme is a valid theme
-bool CMap::validateTheme(const std::string& name)
-{
+bool CMap::validateTheme(const std::string& name) {
     // Does simple checks to see if the main files exists
     // Ie 'backtile.png' 'fronttile.png' & 'theme.txt'
 
-    static char thm[64],buf[64];
+    static std::string thm,buf;
     FILE *fp = NULL;
 
-	snprintf(thm,sizeof(thm),"data/themes/%s",name); fix_markend(thm);
+	thm = std::string("data/themes/") + name;
 
     // Backtile.png
-    snprintf(buf,sizeof(buf),"%s/backtile.png", thm); fix_markend(buf);
+    buf = thm + "/backtile.png";
     fp = OpenGameFile(buf,"rb");
     if( !fp )
         return false;
     fclose(fp);
 
     // Fronttile.png
-    snprintf(buf, sizeof(buf), "%s/fronttile.png", thm); fix_markend(buf);
+    buf = thm + "/fronttile.png";
     fp = OpenGameFile(buf,"rb");
     if( !fp )
         return false;
     fclose(fp);
 
     // Theme.txt
-    snprintf(buf,sizeof(buf),"%s/theme.txt", thm); fix_markend(buf);
+    buf = thm + "/theme.txt";
     fp = OpenGameFile(buf,"rt");
     if( !fp )
         return false;
@@ -1706,10 +1705,10 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
 
 ///////////////////
 // Load the map
-int CMap::Load(char *filename)
+int CMap::Load(const std::string& filename)
 {
 	// Weird
-	if (strlen(filename) == 0)
+	if (filename == "")
 		return true;
 
 	FILE *fp = OpenGameFile(filename,"rb");
@@ -1720,7 +1719,7 @@ int CMap::Load(char *filename)
     sRandomLayout.bUsed = false;
 
 	// Check if it's an original liero level
-	if( stricmp(filename + strlen(filename) - 4, ".lev") == 0 ) {
+	if( stringcasecmp(filename.substr(filename.size() - 4), ".lev") == 0 ) {
 		return LoadOriginal(fp);
 	}
 
@@ -1737,7 +1736,7 @@ int CMap::Load(char *filename)
 
 	// Check to make sure it's a valid level file
 	if(strcmp(id,"LieroX Level") != 0 || version != MAP_VERSION) {
-		printf("CMap::Load (%s): ERROR: not a valid level file or wrong version\n", filename);
+		printf("CMap::Load (%s): ERROR: not a valid level file or wrong version\n", filename.c_str());
 		fclose(fp);
 		return false;
 	}

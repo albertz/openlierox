@@ -646,19 +646,19 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 }
 
 std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) {
-	filelist_t* spath = NULL;
-	if(tLXOptions != NULL) spath = tLXOptions->tSearchPaths;
-	if(spath == NULL) spath = basesearchpaths;
-
 	static std::string tmp;
 	static std::string fname;
 
 	// get the dir, where we should write into
-	if(!spath) {
+	if(tLXOptions->tSearchPaths.size() == 0 && basesearchpaths.size() == 0) {
 		printf("ERROR: we want to write somewhere, but don't know where => we are writing to your temp-dir now...\n");
 		tmp = GetTempDir() + "/" + path;
 	} else {
-		GetExactFileName(spath->filename, tmp);
+		if(tLXOptions->tSearchPaths.size() > 0)
+			fname = tLXOptions->tSearchPaths[0];
+		else
+			fname = basesearchpaths[0];
+		GetExactFileName(fname, tmp);
 
 		CreateRecDir(tmp);
 		if(!CanWriteToDir(tmp)) {

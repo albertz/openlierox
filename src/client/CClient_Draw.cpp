@@ -1381,7 +1381,7 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	/*tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s","Level:");
 	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname);*/
 	tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s", "Mod:");
-	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s", tGameInfo.sModName);
+	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s", tGameInfo.sModName.c_str());
 	tLX->cFont.Draw(bmpDest, x+5, y+43, tLX->clNormalLabel,"%s","Game Type:");
 	switch (tGameInfo.iGameMode)  {
 	case GMT_DEATHMATCH:

@@ -934,12 +934,8 @@ void CServer::banWorm(int wormID)
 		}
 	}
 
-	static char szAddress[21];
-	NetAddrToString(cl->getChannel()->getAddress(),&szAddress[0]);
-	fix_markend(szAddress);
-
-	if (!w->getName() || !szAddress)
-		return;
+	static std::string szAddress;
+	NetAddrToString(cl->getChannel()->getAddress(),szAddress);
 
 	getBanList()->addBanned(szAddress,w->getName());
 
@@ -1260,7 +1256,7 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 	// Open the database
 	FILE *fp = OpenGameFile("ip_to_country.csv","r");
 	if (!fp)
-		return;
+		return "outer space";
 
 	static char ln[256];
 	char *line = &ln[0];

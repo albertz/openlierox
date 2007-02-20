@@ -939,22 +939,6 @@ void Menu_AddDefaultWidgets(void)
 }
 
 
-///////////////////
-// Fill a listbox with the levels
-void Menu_FillLevelList(CCombobox *cmb, int random)
-{
-	int		index = 0;
-	int		selected = -1;
-
-	cmb->clear();
-
-	// If random is true, we add the 'random' level to the list
-	if(random) {
-		cmb->addItem(index++, "_random_", "- Random level -");
-		if( tLXOptions->tGameinfo.sMapName == "_random_" )
-			selected = index-1;
-	}
-
 	// Load the level list
 	class LevelListFiller { public:
 		CCombobox* cmb;
@@ -1026,7 +1010,25 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 			return true;
 		}
 	};
-	FindFiles(LevelListFiller(cmb, &selected), "levels", FM_REG);
+
+
+///////////////////
+// Fill a listbox with the levels
+void Menu_FillLevelList(CCombobox *cmb, int random)
+{
+	int		index = 0;
+	int		selected = -1;
+
+	cmb->clear();
+
+	// If random is true, we add the 'random' level to the list
+	if(random) {
+		cmb->addItem(index++, "_random_", "- Random level -");
+		if( tLXOptions->tGameinfo.sMapName == "_random_" )
+			selected = index-1;
+	}
+
+	FindFiles(LevelListFiller(cmb, &index, &selected), "levels", FM_REG);
 	
 	// Sort it ascending
 	cmb->Sort(true);
@@ -1922,10 +1924,10 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 	// Don't draw kills when the server is open
 	if(!nState)
 		for (int i=0; i<nNumPlayers; i++)
-			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName());
+			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName().c_str());
 	else
 		for (int i=0; i<nNumPlayers; i++)  {
-			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName());
+			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName().c_str());
 			tLX->cFont.Draw(tMenu->bmpScreen, x+150,y+200+i*18, tLX->clNormalLabel, "%d", cWorms[i].getKills());
 		}
 

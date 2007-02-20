@@ -101,7 +101,7 @@ int LoadOptions(void)
 
     // General controls
     for(i=0; i<8; i++)
-        ReadString(f, "GeneralControls", gen_keys[i], tLXOptions->sGeneralControls[i], sizeof(tLXOptions->sGeneralControls[i]), gen_def[i]);
+        ReadString(f, "GeneralControls", gen_keys[i], tLXOptions->sGeneralControls[i], gen_def[i]);
 
     // Game
     ReadInteger(f, "Game", "Blood",         &tLXOptions->iBloodAmount, 100);
@@ -315,13 +315,13 @@ bool LoadNetworkStrings(void)
 	if (!NetworkTexts)
 		return false;
 	static const char *f = {"cfg/network.txt"};
-	ReadString (f, "NetworkTexts", "HasConnected",    NetworkTexts->sHasConnected,		sizeof(NetworkTexts->sHasConnected),	"<player> has connected");
+	ReadString (f, "NetworkTexts", "HasConnected",    NetworkTexts->sHasConnected,	"<player> has connected");
 	ReadString (f, "NetworkTexts", "HasLeft",	      NetworkTexts->sHasLeft,			sizeof(NetworkTexts->sHasLeft),			"<player> has left");
 	ReadString (f, "NetworkTexts", "HasTimedOut",     NetworkTexts->sHasTimedOut,		sizeof(NetworkTexts->sHasTimedOut),		"<player> has timed out");
 
 	ReadString (f, "NetworkTexts", "HasBeenKicked",   NetworkTexts->sHasBeenKicked,		sizeof(NetworkTexts->sHasBeenKicked),	"<player> has been kicked out");
 	ReadString (f, "NetworkTexts", "HasBeenBanned",   NetworkTexts->sHasBeenBanned,		sizeof(NetworkTexts->sHasBeenBanned),	"<player> has been banned");
-	ReadString (f, "NetworkTexts", "HasBeenMuted",    NetworkTexts->sHasBeenMuted,		sizeof(NetworkTexts->sHasBeenMuted),	"<player> has been muted");
+	ReadString (f, "NetworkTexts", "HasBeenMuted",    NetworkTexts->sHasBeenMuted,	"<player> has been muted");
 	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  NetworkTexts->sHasBeenUnmuted,	sizeof(NetworkTexts->sHasBeenUnmuted),	"<player> has been unmuted");
 	ReadString (f, "NetworkTexts", "KickedYou",		  NetworkTexts->sKickedYou,			sizeof(NetworkTexts->sKickedYou),		"You have been kicked");
 	ReadString (f, "NetworkTexts", "BannedYou",		  NetworkTexts->sBannedYou,			sizeof(NetworkTexts->sBannedYou),		"You have been banned");

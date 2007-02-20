@@ -678,7 +678,7 @@ void Menu_LocalDrawPlayingList(void)
                 continue;
             }
         }
-        tLX->cFont.Draw(tMenu->bmpScreen, 345, y, nameCol,"%s", sLocalPlayers[i].psProfile->sName);
+        tLX->cFont.Draw(tMenu->bmpScreen, 345, y, nameCol,"%s", sLocalPlayers[i].psProfile->sName.c_str());
 
 
         // Team
@@ -747,15 +747,6 @@ int Menu_LocalGetTeam(int count)
 }
 
 
-///////////////////
-// Fill in the mod list
-void Menu_Local_FillModList( CCombobox *cb )
-{
-	// Find all directories in the the lierox
-	int baseid = 0;
-
-	cb->clear();
-
 	class addMod { public:
 		CCombobox* combobox;
 		int* baseid;
@@ -779,6 +770,16 @@ void Menu_Local_FillModList( CCombobox *cb )
 			return true;
 		}
 	};
+
+
+///////////////////
+// Fill in the mod list
+void Menu_Local_FillModList( CCombobox *cb )
+{
+	// Find all directories in the the lierox
+	int baseid = 0;
+
+	cb->clear();
 
 	FindFiles(addMod(cb,&baseid),".",FM_DIR);
 
@@ -1148,7 +1149,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
             }
         }
 
-        tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour,"%s", psWpn[i].psLink->szName );
+        tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour,"%s", psWpn[i].psLink->szName.c_str() );
         tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour,"%s", szStates[psWpn[i].psLink->nState] );
     }
 
@@ -1244,6 +1245,24 @@ enum  {
 
 CGuiLayout cWpnPresets;
 
+	class addWeaponPresets { public:
+		CListview* listview;
+		addWeaponPresets(CListview* lv_) : listview(lv_) {}
+		inline bool operator() (const std::string& f) {		
+			if(stringcasecmp(f.substr(f.size()-4),".wps")) {
+				size_t sep = findLastPathSep(f);
+				if(sep != std::string::npos) {
+					std::string name = f.substr(sep+1);
+					if(!listview->getItem(name)) {
+						listview->AddItem(name,0,tLX->clListView);
+						listview->AddSubitem(LVS_TEXT,name,NULL);
+					}
+				}		
+			}
+			return true;
+		}
+	};
+
 void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 {
 	if (!wpnrest)
@@ -1280,23 +1299,6 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	CListview *lv = (CListview *)cWpnPresets.getWidget(wp_PresetList);
 	lv->AddColumn("Weapon presets",60);
 
-	class addWeaponPresets { public:
-		CListview* listview;
-		addWeaponPresets(CListview* lv_) : listview(lv_) {}
-		inline bool operator() (const std::string& f) {		
-			if(stringcasecmp(f.substr(f.size()-4),".wps")) {
-				size_t sep = findLastPathSep(f);
-				if(sep != std::string::npos) {
-					std::string name = f.substr(sep+1);
-					if(!listview->getItem(name)) {
-						listview->AddItem(name,0,tLX->clListView);
-						listview->AddSubitem(LVS_TEXT,name,NULL);
-					}
-				}		
-			}
-			return true;
-		}
-	};
 	FindFiles(addWeaponPresets(lv),"cfg/presets/",FM_REG);
 
 
@@ -1356,12 +1358,11 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 					if(t->getText().length() > 0) {
 
 						quitloop = true;
-						static char buf[256];
+						static std::string buf;
 						if(save) {
 
 							// Save
-							snprintf(buf,sizeof(buf),"cfg/presets/%s",t->getText());
-							fix_markend(buf);
+							buf = std::string("cfg/presets/") + t->getText();
 
 							// Check if it exists already. If so, ask user if they wanna overwrite
 							if(Menu_WeaponPresetsOkSave(buf))
@@ -1371,8 +1372,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 						} else {
 
 							// Load
-							snprintf(buf,sizeof(buf),"cfg/presets/%s",t->getText());
-							fix_markend(buf);
+							buf = std::string("cfg/presets/") + t->getText();
 							wpnrest->loadList(buf);
 						}
 					}

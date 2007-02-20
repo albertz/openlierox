@@ -209,8 +209,8 @@ public:
 			flagsLock.endReadAccess(); 
 	}
 
-    std::string findRandomTheme();
-    bool        validateTheme(const std::string& name);
+    static std::string findRandomTheme();
+    static bool validateTheme(const std::string& name);
 
     void        PutImagePixel(int x, int y, Uint32 colour);
 

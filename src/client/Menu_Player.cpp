@@ -447,7 +447,7 @@ void Menu_Player_ViewPlayers(int mouse)
 {
 	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	static char buf[128];
+	static std::string buf;
 
 	// Process & draw the gui
 	if (!cMediaPlayer.GetDrawPlayer())
@@ -504,7 +504,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 
 							// Ask if they are sure they wanna delete it
-							snprintf(buf,sizeof(buf),"Delete player '%s'",p->sName); fix_markend(buf);
+							buf = std::string("Delete player ") + p->sName;
 							if(Menu_MessageBox("Confirmation",buf,LMB_YESNO) == MBR_YES) {
 
 								// Delete the profile
@@ -616,9 +616,8 @@ void Menu_Player_ViewPlayers(int mouse)
                         cViewPlayers.SendMessage( vp_PlySkin,	CBM_SETCURSINDEX,(DWORD)&p->szSkin, 0);
 
                         // Load the skin
-                        static char buf[256];
-                        snprintf(buf,sizeof(buf),"skins/%s",p->szSkin);
-                        fix_markend(buf);
+                        static std::string buf;
+                        buf = "skins/" + p->szSkin;
                         tMenu->bmpWorm = LoadImage(buf, 16);
 
                         // Hide the AI stuff if it is a human type of player
@@ -689,7 +688,7 @@ void Menu_Player_ViewPlayers(int mouse)
     // Draw the difficulty level
     int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,0,0);
     if( type == PRF_COMPUTER ) {
-        static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const char* difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,0,0);
         tLX->cFont.Draw(tMenu->bmpScreen, 530,313,0xffff,"%s",difflevels[level]);
     }
@@ -763,21 +762,13 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 }
 
 
-///////////////////
-// Fill the skin combo box
-void Menu_Player_FillSkinCombo(CCombobox *cb) {
-    if( !cb )
-        return;
 
-	cb->clear();
-    int def = -1;
-        
 	class SkinAdder { public:
 	   	CCombobox* cb;
 	   	int* def;
 	   	int index;
 		SkinAdder(CCombobox* cb_, int* d) : cb(cb_), def(d), index(0) {}
-		inline bool operator() (const std::string& file) {
+		inline bool operator() (std::string file) {
 			std::string ext = file.substr(file.size()-4);
 			if(stringcasecmp(ext, ".tga")==0
 			|| stringcasecmp(ext, ".png")==0
@@ -788,7 +779,7 @@ void Menu_Player_FillSkinCombo(CCombobox *cb) {
 					file.erase(0, slash+1);
 				
 				std::string name = file.substr(0, file.size()-4);
-				cb->AddItem(index, file, name);
+				cb->addItem(index, file, name);
 				
 				if(stringcasecmp(name, "default")==0)
 					*def = index;
@@ -798,6 +789,17 @@ void Menu_Player_FillSkinCombo(CCombobox *cb) {
 			return true;
 		}
 	};
+
+
+///////////////////
+// Fill the skin combo box
+void Menu_Player_FillSkinCombo(CCombobox *cb) {
+    if( !cb )
+        return;
+
+	cb->clear();
+    int def = -1;
+        
     FindFiles(SkinAdder(cb, &def), "skins", FM_REG);
     
 	// Ascending sort the list
