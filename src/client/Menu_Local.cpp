@@ -1106,7 +1106,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
     assert(cWpnGameScript);
 
     // State strings
-    static const char    *szStates[] = {"Enabled", "Bonus", "Banned"};
+    static const std::string    szStates[] = {"Enabled", "Bonus", "Banned"};
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
@@ -1150,7 +1150,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
         }
 
         tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour,"%s", psWpn[i].psLink->szName.c_str() );
-        tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour,"%s", szStates[psWpn[i].psLink->nState] );
+        tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour,"%s", szStates[psWpn[i].psLink->nState].c_str() );
     }
 
     // Adjust the scrollbar

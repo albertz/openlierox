@@ -479,7 +479,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(buf2),0xffff);
 		}
 
-		tLX->cFont.Draw(bmpDest,12,texty,Colours[Console->Line[n].Colour],"%s",buf);
+		tLX->cFont.Draw(bmpDest,12,texty,Colours[Console->Line[n].Colour],"%s",buf.c_str());
 	}
 }
 

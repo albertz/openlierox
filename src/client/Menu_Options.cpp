@@ -430,7 +430,7 @@ void Menu_OptionsFrame(void)
 
 		//val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
         //DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 285,260, 285,260, 100,50);
-		//tLX->cFont.Draw(tMenu->bmpScreen,285, 268, tLX->clNormalLabel,"%s",Difficulties[val]);
+		//tLX->cFont.Draw(tMenu->bmpScreen,285, 268, tLX->clNormalLabel,"%s",Difficulties[val],c_str());
 
 
 

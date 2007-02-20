@@ -202,6 +202,7 @@ inline std::string itoa(int num,int base=10)  {
 }
 
 inline int atoi(const std::string& str)  { return atoi(str.c_str());  }
+inline float atof(const std::string& str) { return (float)atof(str.c_str());  }
 
 
 #include "Networking.h"

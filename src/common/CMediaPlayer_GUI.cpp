@@ -535,13 +535,12 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 				dir_name = findLastPathSep(directory);
 
 				// Add the directory
-				if (dir_name)  {
+				if (dir_name != std::string::npos)  {
 					// TODO: use compare here!
 					if(parent_dir == directory.substr(dir_name+1))
 						selected = index;
 
 					lv->AddItem(directory,index++,tLX->clListView);
-					lv->AddSubitem(LVS_TEXT,dir_name+1,NULL);
 					lv->AddSubitem(LVS_TEXT,directory.substr(dir_name+1),NULL);
 				}
 

@@ -1793,6 +1793,7 @@ int CMap::Load(const std::string& filename)
 		// 1 bit == 1 pixel with a yes/no dirt flag
 		for(int i=0;i<8;i++) {
 
+			// TODO: optimize
 			if(t & (1 << i))
 				PixelFlags[n] = PX_EMPTY;
 
@@ -1823,7 +1824,7 @@ int CMap::Load(const std::string& filename)
 		// Place the object
 		if(o.Type == OBJ_STONE)
 			PlaceStone(o.Size,CVec((float)o.X, (float)o.Y));
-		if(o.Type == OBJ_MISC)
+		else if(o.Type == OBJ_MISC)
 			PlaceMisc(o.Size,CVec((float)o.X, (float)o.Y));
 	}
 

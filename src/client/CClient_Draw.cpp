@@ -362,16 +362,17 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     // Dirt count
     if( iGameType == GMT_DEMOLITION ) {
         tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "%s", "Dirt Count:");
-        static char buf[64];
+        static std::string buf;
         int count = worm->getDirtCount();
 
         // Draw short versions
-        snprintf(buf,sizeof(buf),"%d",count);
-        if( count >= 1000 )
-            snprintf(buf,sizeof(buf),"%dk",count/1000);
-		fix_markend(buf);
+        //snprintf(buf,sizeof(buf),"%d",count);
+        if( count < 1000 )
+			buf = itoa(count);
+		else
+            buf = itoa(count/1000)+"k";
 
-        tLX->cFont.Draw(bmpDest,x+85,y+75, tLX->clNormalLabel, "%s",buf);
+        tLX->cFont.Draw(bmpDest,x+85,y+75, tLX->clNormalLabel, "%s",buf.c_str());
     }
 
 	// Debug
@@ -666,7 +667,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 	// Teams
 	Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
-	char *teamnames[] = {"Blue", "Red", "Green", "Yellow"};
+	const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
 
 	int width = bmpImage->w;
 	int height = bmpImage->h;
@@ -702,7 +703,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, "%s", p->getName());
+			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, "%s", p->getName().c_str());
 
 			if(p->getLives() >= 0)
 				tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "%d",p->getLives());
@@ -743,7 +744,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, "%s", p->getName());
+			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, "%s", p->getName().c_str());
 
 			if(p->getLives() >= 0)
 				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, "%d",p->getLives());
@@ -793,7 +794,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,"%s", p->getName());
+			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,"%s", p->getName().c_str());
 
 			// Check if it
 			if(p->getTagIT())
@@ -815,14 +816,14 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			// Total time of being IT
 			int h,m,s;
-			static char buf[32];
+			static std::string buf;
 			ConvertTime(p->getTagTime(), &h,&m,&s);
-			snprintf(buf,sizeof(buf),"%d:%s%d",m,s<10 ? "0" : "",s);
-			fix_markend(buf);
+			//snprintf(buf,sizeof(buf),"%d:%s%d",m,s<10 ? "0" : "",s);
+			buf = itoa(m)+(s<10 ? "0":"")+itoa(s);
 			Uint32 col = tLX->clNormalLabel;
 			if(p->getTagIT())
 				col = MakeColour(255,0,0);
-			tLX->cFont.Draw(bmpDest, x+375, j, col, "%s", buf);
+			tLX->cFont.Draw(bmpDest, x+375, j, col, "%s", buf.c_str());
 
 			j+=20;
 		}
@@ -847,7 +848,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			Uint32 colour = MakeColour( teamcolours[team*3], teamcolours[team*3+1],teamcolours[team*3+2]);
 
-			tLX->cFont.Draw(bmpDest, x+15, j, colour, "%s team  (%d)",teamnames[team],score);
+			tLX->cFont.Draw(bmpDest, x+15, j, colour, "%s team  (%d)",teamnames[team].c_str(),score);
 			if(iLives != WRM_UNLIM)
 				tLX->cFont.Draw(bmpDest, x+300, j, colour,"%s","Lives");
 			if(tGameInfo.iGameType == GME_HOST)  {
@@ -869,7 +870,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 				DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
-				tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,"%s", p->getName());
+				tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,"%s", p->getName().c_str());
 
 				if(p->getLives() >= 0)
 					tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "%d",p->getLives());
@@ -948,8 +949,8 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 
 		// This chat times out after a few seconds AND is on the top of the screen
 		if(l && tLX->fCurTime - l->fTime < 3) {
-			tLX->cFont.Draw(bmpDest, 6, y+1, 0,"%s", l->strLine);
-			tLX->cFont.Draw(bmpDest, 5, y, l->iColour,"%s", l->strLine);
+			tLX->cFont.Draw(bmpDest, 6, y+1, 0,"%s", l->strLine.c_str());
+			tLX->cFont.Draw(bmpDest, 5, y, l->iColour,"%s", l->strLine.c_str());
 			y+=18;
 		}
 	}
@@ -970,8 +971,8 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 
 		// This chat is in the black region of the screen
 		if(l) {
-			//tLX->cFont.Draw(bmpDest, 190, y+1, 0,"%s", l->strLine);
-			tLX->cFont.Draw(bmpDest, 190, y, l->iColour,"%s", l->strLine);
+			//tLX->cFont.Draw(bmpDest, 190, y+1, 0,"%s", l->strLine.c_str());
+			tLX->cFont.Draw(bmpDest, 190, y, l->iColour,"%s", l->strLine.c_str());
 			y+=15;
 		}
 	}*/
@@ -1310,9 +1311,9 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
         // Pic & Name
         DrawImage(bmpDest, p->getPicimg(), x+30, j);
 		if (tGameInfo.iGameMode == GMT_TEAMDEATH  && tLXOptions->iColorizeNicks)
-			tLX->cFont.Draw(bmpDest, x+56, j, iColor,"%s", p->getName());
+			tLX->cFont.Draw(bmpDest, x+56, j, iColor,"%s", p->getName().c_str());
 		else
-			tLX->cFont.Draw(bmpDest, x+56, j, tLX->clNormalLabel,"%s", p->getName());
+			tLX->cFont.Draw(bmpDest, x+56, j, tLX->clNormalLabel,"%s", p->getName().c_str());
 
         // Score
         if(!bShowReady) {
@@ -1379,7 +1380,7 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
     DrawHLine(bmpDest, x+4, x+w-4, y+22, 0xffff);
 
 	/*tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s","Level:");
-	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname);*/
+	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname.c_str());*/
 	tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s", "Mod:");
 	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s", tGameInfo.sModName.c_str());
 	tLX->cFont.Draw(bmpDest, x+5, y+43, tLX->clNormalLabel,"%s","Game Type:");

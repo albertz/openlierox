@@ -164,18 +164,21 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 {
 	static std::string string;
 
-	if (!GetString(filename,section,key,string,MAX_MINOR_LENGTH))
+	if (!GetString(filename,section,key,string/*,MAX_MINOR_LENGTH*/))
 		return false;
 
 	// TODO: use explode instead
-	std::string tok = strtok(string.c_str(),",");
+/*	std::string tok = strtok(string.c_str(),",");
 	int i=0;
 	while(tok != "" && i < num_items)  {
 		array[i++] = atoi(tok);
 		tok = strtok(NULL,",");
-	}
+	}*/
+	std::vector<std::string> arr = explode(string,",");
+	for (register int i=0; i<MIN(num_items,arr.size()); i++)
+		array[i] = atoi(arr[i]);
 
-	return i == num_items-1;
+	return num_items == arr.size();
 }
 
 

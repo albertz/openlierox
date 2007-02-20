@@ -1775,11 +1775,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 
     // Get the server details
 	// NOTE: must be static else doesn't work
-    static char    szName[256];
+    static std::string    szName;
     static int     nMaxWorms;
     static int     nState;
-    static char    szMapName[256];
-    static char    szModName[256];
+    static std::string    szMapName;
+    static std::string    szModName;
     static int     nGameMode;
     static int     nLives;
     static int     nMaxKills;
@@ -1798,20 +1798,20 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
 	        if(*(int *)inbs.GetData() == -1) {
-                static char        cmd[128];
+                static std::string        cmd;
 
 		        inbs.SetPos(4);
-		        inbs.readString(cmd,sizeof(cmd));
+		        cmd = inbs.readString();
 
 
 		        GetRemoteNetAddr(tMenu->tSocket[SCK_NET],&addr);
 
 		        // Check for server info
-		        if(strcmp(cmd, "lx::serverinfo") == 0) {
+		        if(cmd == "lx::serverinfo") {
                     bGotDetails = true;
 
                     // Read the info
-                    inbs.readString(szName,sizeof(szName));
+                    szName = inbs.readString(64);
 	                nMaxWorms = MIN(MAX_PLAYERS,MAX((int)inbs.readByte(),0));
 	                nState = inbs.readByte();
 
@@ -1819,8 +1819,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 						bOldLxBug = true;
 					}
 
-                    inbs.readString(szMapName,sizeof(szMapName));
-                    inbs.readString(szModName,sizeof(szModName));
+                    szMapName = inbs.readString(256);
+                    szModName = inbs.readString(256);
 	                nGameMode = inbs.readByte();
 	                nLives = inbs.readShort();
 	                nMaxKills = inbs.readShort();
@@ -1902,20 +1902,20 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
         return;
     }
 
-   	char	*states[] = {"Open", "Loading", "Playing", "Unknown"};
-    char    *gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions", "Unknown"};
+   	static const std::string states[] = {"Open", "Loading", "Playing", "Unknown"};
+    static const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions", "Unknown"};
     if(nState < 0 || nState > 2)
         nState = 3;
     if(nGameMode < 0 || nGameMode > 3)
         nGameMode = 4;
 
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel, "%s", szName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, "%s", szMapName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel, "%s", szModName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel, "%s", states[nState]);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel, "%s", szName.c_str());
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, "%s", szMapName.c_str());
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel, "%s", szModName.c_str());
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel, "%s", states[nState].c_str());
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel, "%d / %d", nNumPlayers, nMaxWorms);
 
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel, "%s", gamemodes[nGameMode]);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel, "%s", gamemodes[nGameMode].c_str());
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel, "%d", nLives);
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel, "%d", nMaxKills);
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel, "%d", nLoadingTime);

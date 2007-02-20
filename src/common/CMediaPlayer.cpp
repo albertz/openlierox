@@ -71,21 +71,19 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 		return;
 
 	// TODO: change!
-	std::string directory[1024]="";
+	std::string directory="";
 
-	std::string str_temp = "";
 	std::vector<std::string> dir_list;
 
 	if(FindFirstDir(dir.c_str(),directory)) {
 		fix_markend(directory);
 		while(1) {
 
-			str_temp = directory;
-			dir_list.push_back(str_temp);
+			dir_list.push_back(directory);
 
 			if(!FindNextDir(directory))
 				break;
-			fix_markend(directory);
+			//fix_markend(directory);
 		}
 	}
 
@@ -284,9 +282,9 @@ void CMediaPlayer::Shutdown(void)
 
 /////////////////////
 // Get the song name from the path
-song_name CMediaPlayer::GetNameFromFile(const std::string& path)
+std::string CMediaPlayer::GetNameFromFile(const std::string& path)
 {
-	song_name name = "";
+	std::string name = "";
 
 	// Try to get the MP3 info
 	id3v1_t mp3tag = GetMP3Info(path);
@@ -300,7 +298,7 @@ song_name CMediaPlayer::GetNameFromFile(const std::string& path)
 	}
 
 	// Remove directory
-	size_t pos = findpathsep(path);
+	size_t pos = findLastPathSep(path);
 	if(pos != std::string::npos)  {
 		name = path.substr(pos+1,path.length()-pos);
 	} else {

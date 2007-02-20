@@ -690,7 +690,7 @@ void Menu_Player_ViewPlayers(int mouse)
     if( type == PRF_COMPUTER ) {
         static const char* difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,0,0);
-        tLX->cFont.Draw(tMenu->bmpScreen, 530,313,0xffff,"%s",difflevels[level]);
+        tLX->cFont.Draw(tMenu->bmpScreen, 530,313,0xffff,"%s",difflevels[level].c_str());
     }
 
 

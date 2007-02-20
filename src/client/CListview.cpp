@@ -35,7 +35,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 	if (bOldStyle)  {
 		for(int i=1;col;col = col->tNext,i++)   {
-			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel,"%s", col->sText);
+			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel,"%s", col->sText.c_str());
 			x += col->iWidth-2;
 		}
 	} else {
