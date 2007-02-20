@@ -162,13 +162,14 @@ enum {
 // if return is false, it will break
 template<typename _handler>
 void ForEachSearchpath(_handler handler = _handler()) {
+	searchpathlist::const_iterator i;
 	for(
-		searchpathlist::const_iterator i = tLXOptions->tSearchPaths.begin();
+		i = tLXOptions->tSearchPaths.begin();
 		i != tLXOptions->tSearchPaths.end(); i++) {
 		if(!handler(*i + "/")) return;
 	}
 	for(
-		searchpathlist::const_iterator i = basesearchpaths.begin();
+		i = basesearchpaths.begin();
 		i != basesearchpaths.end(); i++) {
 		if(!FileListIncludes(&tLXOptions->tSearchPaths, *i))
 			if(!handler(*i + "/")) return;
