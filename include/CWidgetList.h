@@ -21,7 +21,7 @@
 // Widget list item structure
 typedef struct widget_item_s {
 	int				iID;
-	char			*sName;
+	std::string		sName;
 	widget_item_s	*tNext;
 } widget_item_t;
 
@@ -43,8 +43,8 @@ private:
 public:
 	// Methods
 	int		getCount(void)	{return iCount; }
-	int		Add(char *Name);
-	char	*getName(int ID);
+	int		Add(const std::string& Name);
+	std::string	getName(int ID);
 	int		getID(const std::string& Name);
 	void	Shutdown(void);
 };

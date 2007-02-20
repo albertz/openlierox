@@ -25,8 +25,11 @@
 //////////////////
 // Adds a new item to the widget ID list
 // Returns the id of added item
-int CWidgetList::Add(char *Name)
+int CWidgetList::Add(const std::string& Name)
 {
+	if (Name == "")
+		return -1;
+
 	// Find the ID of the new item
 	int id = iCount+1;
 
@@ -37,11 +40,7 @@ int CWidgetList::Add(char *Name)
 
 	// Fill in the item details
 	new_item->iID = id;
-	size_t len = strlen(Name);
-	new_item->sName = new char[len+1];
-	if(!new_item->sName)
-		return -1;
-	memcpy(new_item->sName,Name,len+1);
+	new_item->sName = Name;
 	new_item->tNext = NULL;  // It will be the last item
 
 	// Link it in
@@ -68,7 +67,7 @@ int CWidgetList::Add(char *Name)
 
 ////////////////
 // Get the name of widget by it's ID
-char *CWidgetList::getName(int ID)
+std::string CWidgetList::getName(int ID)
 {
 	// The list is empty
 	if (!tItems)
@@ -122,10 +121,6 @@ void CWidgetList::Shutdown(void)
 	widget_item_t *item = tItems;
 	widget_item_t *next = NULL;
 	for(;item;item=next)  {
-		// Delete the name
-		if (item->sName)
-			delete[] item->sName;
-
 		// Delete the item
 		next = item->tNext;
 		delete item;

@@ -688,7 +688,7 @@ void Menu_Player_ViewPlayers(int mouse)
     // Draw the difficulty level
     int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,0,0);
     if( type == PRF_COMPUTER ) {
-        static const char* difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,0,0);
         tLX->cFont.Draw(tMenu->bmpScreen, 530,313,0xffff,"%s",difflevels[level]);
     }
