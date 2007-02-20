@@ -39,6 +39,7 @@
 #include <ctype.h>
 #include <string>
 #include <vector>
+#include <list>
 #include <sstream>
 
 // Disable this silly warning

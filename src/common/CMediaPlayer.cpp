@@ -37,7 +37,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	//
 	// Load the files
 	//
-	std::string filename=""; // TODO: !
+	std::string filename="";
 	int done = false;
 	if(!FindFirst(dir.c_str(),"*",filename))
 		done = true;

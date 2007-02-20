@@ -449,7 +449,6 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 // Fills the list with the subdirectories of the "dir"
 void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 {
-	// TODO: replace all these by std::string!
 	static std::string directory;
 	static std::string tmp_dir;
 	static std::string parent_dir;

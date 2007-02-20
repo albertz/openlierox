@@ -322,15 +322,15 @@ void Con_ProcessCharacter(int input)
 			Console->iCurpos = Console->iCurLength;
 
 		// Get the text
-		char buf[64];
-		int len = GetClipboardText(buf,sizeof(buf));
+		std::string buf;
+		buf = GetClipboardText();
 
 		// Paste
 		Console->Line[0].Colour = CNC_NORMAL;
 		memmove(Console->Line[0].strText+Console->iCurpos+len,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
 		strncpy(Console->Line[0].strText+Console->iCurpos,buf,len);
 		Console->iCurpos += len;
-		Console->iCurLength = strnlen(Console->Line[0].strText,sizeof(Console->Line[0].strText));
+		Console->iCurLength = Console->Line[0].strText.size();
 		Console->icurHistory = -1;
 
 		return;
@@ -449,7 +449,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 
 	int y = (int)(-Console->fPosition * (float)Console->bmpConPic->h);
 	int texty = y+Console->bmpConPic->h-28;
-	static char buf[256];
+	static std::string buf;
 
 	Uint32 Colours[6] = {0xffff, MakeColour(200,200,200), MakeColour(255,0,0), MakeColour(200,128,128),
 		                 MakeColour(100,100,255), MakeColour(100,255,100) };
@@ -465,7 +465,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 		if(n==0) {
 			buf[0] = ']'; buf[1] = 0;
 		}
-		strcat(buf,Console->Line[n].strText);
+		buf += Console->Line[n].strText;
 
 		Console->fBlinkTime += tLX->fDeltaTime;
 		if (Console->fBlinkTime > 10) {

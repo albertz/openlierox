@@ -517,7 +517,7 @@ int chrcasecmp(const char c1, const char c2)
 // Gets the string [beginning of text,searched character)
 std::string ReadUntil(const std::string& text, char until_character) {
 	size_t pos = 0;
-	for(std::string::iterator i = text.begin(); i != text.end(); i++, pos++) {
+	for(std::string::const_iterator i = text.begin(); i != text.end(); i++, pos++) {
 		if(*i == until_character)
 			return text.substr(0,pos);
 	}

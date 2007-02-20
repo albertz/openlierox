@@ -171,8 +171,7 @@ void CWpnRest::saveList(const std::string& szFilename)
 
     wpnrest_t *psWpn = m_psWeaponList;
     for(; psWpn; psWpn=psWpn->psNext) {
-
-        fprintf(fp, "%s,%d\n", psWpn->szName, psWpn->nState);
+        fprintf(fp, "%s,%d\n", psWpn->szName.c_str(), psWpn->nState);
     }
 
     fclose(fp);
@@ -230,8 +229,7 @@ bool CWpnRest::isEnabled(const std::string& szName)
 
 ///////////////////
 // Finds a weapon that is enabled and returns the name
-char *CWpnRest::findEnabledWeapon(CGameScript *pcGameS)
-{
+std::string CWpnRest::findEnabledWeapon(CGameScript *pcGameS) {
     assert(pcGameS);
 
     // Go from the start of the list looking for an enabled weapon
@@ -251,7 +249,7 @@ char *CWpnRest::findEnabledWeapon(CGameScript *pcGameS)
     }
 
     // No enabled weapons found
-    return NULL;
+    return "";
 }
 
 

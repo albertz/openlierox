@@ -316,13 +316,14 @@ int CMap::LoadTheme(const std::string& _theme)
 }
 
 
+	typedef std::vector<std::string> themelist;
 	class ThemesCounter { public:
 		themelist* themes;
 		ThemesCounter(themelist* t) : themes(t) {}
 		inline bool operator() (const std::string& dir) {
 			size_t pos = findLastPathSep(dir);
 			std::string theme = dir.substr(pos+1);
-			if(validateTheme(theme))
+			if(CMap::validateTheme(theme))
 				themes->push_back(theme);
 			return true;
 		}
@@ -332,7 +333,6 @@ int CMap::LoadTheme(const std::string& _theme)
 // Finds a theme at random and returns the name
 std::string CMap::findRandomTheme() {
     // Find directories in the theme dir
-	typedef std::list<std::string> themelist;
 	themelist themes;
 
     // Count the number of themes

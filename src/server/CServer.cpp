@@ -605,7 +605,6 @@ bool CServer::DeRegisterServer(void)
 
 	// Create the url
 	static std::string url;
-    static std::string svr;
 	static std::string buf;
 
 	NetworkAddr addr;
@@ -624,6 +623,7 @@ bool CServer::DeRegisterServer(void)
         return false;
 
     // Find the first line
+    static char svr[1024];
     svr[0] = '\0';
     while( fgets(svr, 1023, fp) ) {
         fix_strncpy( svr, StripLine(svr) );
@@ -708,25 +708,25 @@ void CServer::DropClient(CClient *cl, int reason)
             // Quit
             case CLL_QUIT:
 				replacemax(NetworkTexts->sHasLeft,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                fix_strncpy(cl_msg, NetworkTexts->sYouQuit);
+                cl_msg = NetworkTexts->sYouQuit;
                 break;
 
             // Timeout
             case CLL_TIMEOUT:
 				replacemax(NetworkTexts->sHasTimedOut,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                fix_strncpy(cl_msg, NetworkTexts->sYouTimed);
+                cl_msg = NetworkTexts->sYouTimed;
                 break;
 
             // Kicked
             case CLL_KICK:
 				replacemax(NetworkTexts->sHasBeenKicked,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                fix_strncpy(cl_msg, NetworkTexts->sKickedYou);
+                cl_msg = NetworkTexts->sKickedYou;
                 break;
 
 			// Banned
 			case CLL_BAN:
 				replacemax(NetworkTexts->sHasBeenBanned,"<player>", cl->getWorm(i)->getName(), buf, 1);
-				fix_strncpy(cl_msg, NetworkTexts->sBannedYou);
+				cl_msg = NetworkTexts->sBannedYou;
 				break;
         }
 

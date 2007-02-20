@@ -588,7 +588,7 @@ void InitBaseSearchPaths() {
 #endif
 }
 
-void CreateRecDir(std::string abs_filename, bool last_is_dir) {
+void CreateRecDir(const std::string& abs_filename, bool last_is_dir) {
 	static std::string tmp;
 	std::string::const_iterator f = abs_filename.begin();
 	for(tmp = ""; f != abs_filename.end(); f++) {
@@ -600,39 +600,49 @@ void CreateRecDir(std::string abs_filename, bool last_is_dir) {
 		mkdir(tmp.c_str(), 0777);
 }
 
+std::string GetFirstSearchPath() {
+	if(tLXOptions->tSearchPaths.size() > 0)
+		return tLXOptions->tSearchPaths.front();
+	else if(basesearchpaths.size() > 0)
+		return basesearchpaths.front();
+	else
+		return GetHomeDir();
+}
+
+
+
+	class CheckSearchpathForFile { public: 
+		const std::string& filename;
+		std::string* result;
+		std::string* searchpath;
+		CheckSearchpathForFile(const std::string& f, std::string* r, std::string* s) : filename(f), result(r), searchpath(s) {}
+		inline bool operator() (const std::string& spath) {
+			std::string tmp = spath + filename;
+			if(GetExactFileName(tmp, *result)) {
+				// we got here, if the file exists
+				if(CanReadFile(*result, true)) {
+					if(searchpath) *searchpath = spath;
+					return false;
+				}
+			}
+	
+			return true;
+		}
+	};
+
 std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 	static std::string fname;
 	static std::string tmp;
 
 	if(searchpath) *searchpath = "";
 
-	if(path.size() == 0)
-		return "";
+	if(path == "")
+		return GetFirstSearchPath();
 
-	searchpathlist* spath = NULL;
-	bool has_tried_basesearchpaths = false;
-	if(tLXOptions != NULL) spath = &tLXOptions->tSearchPaths;
-	if(spath == NULL) {
-		spath = &basesearchpaths;
-		has_tried_basesearchpaths = true;
-	}
-	while(spath) { // loop over searchpaths
-		tmp = spath->filename + "/" + path;
-		if(GetExactFileName(tmp, fname)) {
-			// we got here, if the file exists
-			if(CanReadFile(fname, true)) {
-				if(searchpath) *searchpath = spath->filename;
-				return fname;
-			}
-		}
-
-		spath = spath->next;
-		if(spath == NULL && !has_tried_basesearchpaths) {
-			has_tried_basesearchpaths = true;
-			spath = basesearchpaths;
-		}
-	} // loop over searchpaths
-
+	fname = "";
+	ForEachSearchpath(CheckSearchpathForFile(path, &fname, searchpath));
+	if(fname != "") return fname;
+	
 	// none file in searchpaths found, check now, if it is perhaps an absolute filename
 	if(GetExactFileName(path, fname)) {
 		// we got here, if the file exists
@@ -654,11 +664,7 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) 
 		printf("ERROR: we want to write somewhere, but don't know where => we are writing to your temp-dir now...\n");
 		tmp = GetTempDir() + "/" + path;
 	} else {
-		if(tLXOptions->tSearchPaths.size() > 0)
-			fname = tLXOptions->tSearchPaths[0];
-		else
-			fname = basesearchpaths[0];
-		GetExactFileName(fname, tmp);
+		GetExactFileName(GetFirstSearchPath(), tmp);
 
 		CreateRecDir(tmp);
 		if(!CanWriteToDir(tmp)) {
@@ -686,8 +692,7 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 	if(write_mode || append_mode) {
 		std::string writefullname = GetWriteFullFileName(path, true);
 		if(append_mode && fullfn.size()>0) { // check, if we should copy the file
-			if(CanReadFile(fullfn)) { // we can read the file
-				fclose(fp);
+			if(CanReadFile(fullfn,true)) { // we can read the file
 				// GetWriteFullFileName ensures an exact filename,
 				// so no case insensitive check is needed here
 				if(fullfn != writefullname) {
@@ -732,7 +737,7 @@ bool FileListIncludes(const searchpathlist* l, const std::string& f) {
 	ReplaceFileVariables(tmp1);
 	
 	// Go through the list, checking each item
-	for(std::list::const_iterator i = l->begin(); i != l->end(); i++) {
+	for(searchpathlist::const_iterator i = l->begin(); i != l->end(); i++) {
 		tmp2 = *i;
 		removeEndingSlashes(tmp2);
 		ReplaceFileVariables(tmp2);
