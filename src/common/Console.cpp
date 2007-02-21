@@ -213,8 +213,8 @@ void Con_Process(float dt)
 
 		if(Console->icurHistory >= 0) {
 			Console->Line[0].Colour = CNC_NORMAL;
-			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
-			Console->iCurLength = strlen(Console->Line[0].strText);
+			Console->Line[0].strText =  Console->History[Console->icurHistory].strText;
+			Console->iCurLength = Console->Line[0].strText.size();
 			Console->iCurpos = Console->iCurLength;
 		}
 	}
@@ -224,8 +224,8 @@ void Con_Process(float dt)
 		Console->icurHistory--;
 		if(Console->icurHistory >= 0) {
 			Console->Line[0].Colour = CNC_NORMAL;
-			fix_strncpy(Console->Line[0].strText, Console->History[Console->icurHistory].strText);
-			Console->iCurLength = strlen(Console->Line[0].strText);
+			Console->Line[0].strText = Console->History[Console->icurHistory].strText;
+			Console->iCurLength = Console->Line[0].strText.size();
 		} else {
 			Console->Line[0].strText[0] = 0;
 			Console->iCurLength=0;
@@ -398,23 +398,26 @@ void Con_Printf(int colour, char *fmt, ...)
     //printf("Con: %s\n",buf);
 }
 
+void Con_Printf(int color, const std::string& txt) {
+	Con_AddText(color, txt);
+}
 
 ///////////////////
 // Add a string of text to the console
-void Con_AddText(int colour, char *text)
+void Con_AddText(int colour, const std::string& text)
 {
 	// Move all the text up, losing the last line
 	for(int n=MAX_CONLINES-2;n>=1;n--) {
-		fix_strncpy(Console->Line[n+1].strText,Console->Line[n].strText);
+		Console->Line[n+1].strText = Console->Line[n].strText;
 		Console->Line[n+1].Colour = Console->Line[n].Colour;
 	}
 
 	size_t pos = 0;
 	for(; text[pos] != '\0'; pos++) {
 		if(text[pos] == '\n') {
-			Console->Line[1].strText[pos] = '\0';
+			//Console->Line[1].strText[pos] = '\0';
 			Console->Line[1].Colour = colour;
-			Con_AddText(colour, &text[pos+1]);
+			Con_AddText(colour, &text[pos+1]); // TODO: this is wrong!
 			return;
 		}
 		Console->Line[1].strText[pos] = text[pos];
@@ -426,17 +429,17 @@ void Con_AddText(int colour, char *text)
 
 ///////////////////
 // Add a command to the history
-void Con_AddHistory(char *text)
+void Con_AddHistory(const std::string& text)
 {
 	// Move the history up one, dropping the last
 	for(int n=MAX_CONHISTORY-2;n>=0;n--)
-		fix_strncpy(Console->History[n+1].strText, Console->History[n].strText);
+		Console->History[n+1].strText = Console->History[n].strText;
 
 	Console->icurHistory=-1;
 	Console->iNumHistory++;
 	Console->iNumHistory = MIN(Console->iNumHistory,MAX_CONHISTORY-1);
 
-	fix_strncpy(Console->History[0].strText,text);
+	Console->History[0].strText = text;
 }
 
 
@@ -459,7 +462,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 
 	// Draw the lines of text
 	for(int n=0;n<MAX_CONLINES;n++,texty-=15) {
-		buf[0] = 0;
+		buf = "";
 
 
 		if(n==0) {
@@ -473,13 +476,13 @@ void Con_Draw(SDL_Surface *bmpDest)
 			Console->fBlinkTime = 0;
 		}
 		if(n==0 && Console->iBlinkState)  {
-			static char buf2[256];
-			strncpy(buf2,Console->Line[n].strText,MIN(sizeof(buf2)-1,(unsigned int)Console->iCurpos));
+			static std::string buf2;
+			buf2 = Console->Line[n].strText;
 			buf2[MIN(sizeof(buf2)-1,(unsigned int)Console->iCurpos)] = '\0';
 			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(buf2),0xffff);
 		}
 
-		tLX->cFont.Draw(bmpDest,12,texty,Colours[Console->Line[n].Colour],"%s",buf.c_str());
+		tLX->cFont.Draw(bmpDest,12,texty,Colours[Console->Line[n].Colour],buf);
 	}
 }
 

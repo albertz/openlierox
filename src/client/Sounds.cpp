@@ -21,6 +21,7 @@
 sfxgame_t	sfxGame;
 sfxgen_t	sfxGeneral;
 
+bool SoundSystemAvailable = false;
 
 bool InitSoundSystem(int rate, int channels, int buffers) {
 	// HINT: other SDL stuff is already inited, we don't care here
@@ -36,6 +37,7 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 
 	Mix_AllocateChannels(1000); // TODO: enough?
 
+	SoundSystemAvailable = false;
 	return true;
 }
 
@@ -43,6 +45,8 @@ bool SoundSystemStarted = false;
 int SoundSystemVolume = 100;
 
 bool StartSoundSystem() {
+	if(!SoundSystemAvailable) return false;
+
 	// TODO: this is only a workaround
 	SoundSystemStarted = true;
 	SetSoundVolume(SoundSystemVolume);
@@ -50,6 +54,8 @@ bool StartSoundSystem() {
 }
 
 bool StopSoundSystem() {
+	if(!SoundSystemAvailable) return false;
+
 	// TODO: this is only a workaround
 	SoundSystemStarted = false;
 	SetSoundVolume(0);
@@ -57,6 +63,8 @@ bool StopSoundSystem() {
 }
 
 bool SetSoundVolume(int vol) {
+	if(!SoundSystemAvailable) return false;
+
 	if(SoundSystemStarted) {
 		SoundSystemVolume = vol;
 
@@ -78,15 +86,21 @@ bool SetSoundVolume(int vol) {
 }
 
 int GetSoundVolume(void)  {
+	if(!SoundSystemAvailable) return 0;
+
 	return SoundSystemVolume;
 }
 
 bool QuitSoundSystem() {
+	if(!SoundSystemAvailable) return false;
+
 	Mix_CloseAudio();
 	return true;
 }
 
 SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays) {
+	if(!SoundSystemAvailable) return NULL;
+
 	if(filename.size() > 0) {
 		Mix_Chunk* sample = Mix_LoadWAV(filename.c_str());
 		if(!sample) {
@@ -104,6 +118,8 @@ SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays) {
 }
 
 bool FreeSoundSample(SoundSample* sample) {
+	if(!SoundSystemAvailable) return false;
+
 	// no sample, so we are ready
 	if(!sample) return true;
 
@@ -116,6 +132,8 @@ bool FreeSoundSample(SoundSample* sample) {
 }
 
 bool PlaySoundSample(SoundSample* sample) {
+	if(!SoundSystemAvailable) return false;
+
 	if(sample == NULL || sample->sample == NULL)
 		return false;
 

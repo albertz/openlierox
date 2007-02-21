@@ -871,9 +871,8 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 			return;
 		fputs("  <server hostname=\"",f);
 		fputs(HostName.c_str(),f);
-		static char cTime[26];
-		GetTime(cTime); fix_markend(cTime);
-		fprintf(f,"\" jointime=\"%s\">\r\n",cTime);
+		static std::string cTime = GetTime();
+		fprintf(f,"\" jointime=\"%s\">\r\n",cTime.c_str());
 		if(cIConnectedBuf != "")  {
 			fputs("    <message type=\"NETWORK\" text=\"",f);
 			fputs(cIConnectedBuf.c_str(),f);

@@ -913,7 +913,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	// Draw the weapon name
     if(iLocal && iType == PRF_HUMAN) {
         if(bForceWeapon_Name || cSelWeapon.isDown()) {
-		    tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,"%s",Slot->Weapon->Name);
+		    tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
 
             if( tLX->fCurTime > fForceWeapon_Time )
                 bForceWeapon_Name = false;
@@ -930,10 +930,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			Uint8 clG = teamcolours[iTeam*3+1];
 			Uint8 clB = teamcolours[iTeam*3+2];
 			Uint32 iColor = MakeColour(clR,clG,clB);
-			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,iColor,"%s",sName.c_str());
+			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,iColor,sName);
 		} // if
 		else
-		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,"%s",sName.c_str());
+		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,sName);
 
 		//if(iTagIT)
 		//	tLX->cFont.DrawCentre(bmpDest, x,y+20, 0xffff,"%s", "IT");

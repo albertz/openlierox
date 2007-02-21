@@ -445,6 +445,35 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 	return false;
 }
 
+
+
+
+
+
+
+		class addDirToList { public:
+			CListview* lv;
+			int* index;
+			int* selected;
+			const std::string& parent_dir;
+			addDirToList(CListview* l, int* i, int* s, const std::string& pd) : lv(l), index(i), selected(s), parent_dir(pd) {}
+			inline bool operator() (const std::string& directory) {
+				// Extract the directory name from the path
+				size_t dir_sep = findLastPathSep(directory);
+
+				// Add the directory
+				if (dir_sep != std::string::npos)  {
+					if(parent_dir == directory.substr(dir_sep+1))
+						*selected = *index;
+
+					lv->AddItem(directory,(*index)++,tLX->clListView);
+					lv->AddSubitem(LVS_TEXT,directory.substr(dir_sep+1),NULL);
+				}
+			
+				return true;
+			}		
+		};
+		
 ///////////////////////
 // Fills the list with the subdirectories of the "dir"
 void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
@@ -525,30 +554,9 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 		lv->AddSubitem(LVS_TEXT,"..",NULL);
 
 		int selected = 0;
-		int dir_name = 0;
 		
-		if(FindFirstDir(tmp_dir,directory)) {
-			fix_markend(directory);
-			while(1) {
-				// Extract the directory name from the path
-				dir_name = findLastPathSep(directory);
-
-				// Add the directory
-				if (dir_name != std::string::npos)  {
-					// TODO: use compare here!
-					if(parent_dir == directory.substr(dir_name+1))
-						selected = index;
-
-					lv->AddItem(directory,index++,tLX->clListView);
-					lv->AddSubitem(LVS_TEXT,directory.substr(dir_name+1),NULL);
-				}
-
-				if(!FindNextDir(directory))
-					break;
-				fix_markend(directory);
-			}
-			lv->setSelectedID(selected);
-		}
+		FindFiles(addDirToList(lv, &index, &selected, parent_dir), tmp_dir, FM_DIR);
+		if(selected) lv->setSelectedID(selected);
 	}
 	
 }

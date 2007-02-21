@@ -52,8 +52,8 @@ public:
 	CPlayList() {
 		Clear();
 	}
-private:
 	song_list	tSongList;
+private:	
 	int			iCurSong;
 	bool		bRepeat;
 	bool		bShuffle;

@@ -52,7 +52,7 @@ typedef struct {
 } keyword_t;
 
 
-int		AddKeyword(std::string& key, int value);
+int		AddKeyword(const std::string& key, int value);
 int		ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
 bool	ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv);
 

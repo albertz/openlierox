@@ -29,7 +29,7 @@ int CGameScript::Save(const std::string& filename)
 	// Open it
 	fp = OpenGameFile(filename,"wb");
 	if(fp == NULL) {
-		printf("Error: Could not open %s for writing\n",filename);
+		printf("Error: Could not open %s for writing\n",filename.c_str());
 		return false;
 	}
 

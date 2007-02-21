@@ -1924,10 +1924,10 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 	// Don't draw kills when the server is open
 	if(!nState)
 		for (int i=0; i<nNumPlayers; i++)
-			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName().c_str());
+			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, cWorms[i].getName());
 	else
 		for (int i=0; i<nNumPlayers; i++)  {
-			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, "%s", cWorms[i].getName().c_str());
+			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, cWorms[i].getName());
 			tLX->cFont.Draw(tMenu->bmpScreen, x+150,y+200+i*18, tLX->clNormalLabel, "%d", cWorms[i].getKills());
 		}
 

@@ -113,10 +113,9 @@ int main(int argc, char *argv[])
 
 		f = OpenGameFile("Conversations.log","a");
 		if (f)  {	
-			char cTime[26];
-			GetTime(cTime);
+			std::string cTime = GetTime();
 			fputs("<game starttime=\"",f);
-			fputs(cTime,f);
+			fputs(cTime.c_str(),f);
 			fputs("\">\r\n",f);
 			fclose(f);
 		}

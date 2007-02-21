@@ -372,7 +372,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 		else
             buf = itoa(count/1000)+"k";
 
-        tLX->cFont.Draw(bmpDest,x+85,y+75, tLX->clNormalLabel, "%s",buf.c_str());
+        tLX->cFont.Draw(bmpDest,x+85,y+75, tLX->clNormalLabel, buf);
     }
 
 	// Debug
@@ -703,7 +703,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, "%s", p->getName().c_str());
+			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, p->getName());
 
 			if(p->getLives() >= 0)
 				tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "%d",p->getLives());
@@ -744,7 +744,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, "%s", p->getName().c_str());
+			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,  p->getName());
 
 			if(p->getLives() >= 0)
 				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, "%d",p->getLives());
@@ -794,7 +794,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,"%s", p->getName().c_str());
+			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, p->getName());
 
 			// Check if it
 			if(p->getTagIT())
@@ -870,7 +870,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 				DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
-				tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,"%s", p->getName().c_str());
+				tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, p->getName());
 
 				if(p->getLives() >= 0)
 					tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "%d",p->getLives());
@@ -949,8 +949,8 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 
 		// This chat times out after a few seconds AND is on the top of the screen
 		if(l && tLX->fCurTime - l->fTime < 3) {
-			tLX->cFont.Draw(bmpDest, 6, y+1, 0,"%s", l->strLine.c_str());
-			tLX->cFont.Draw(bmpDest, 5, y, l->iColour,"%s", l->strLine.c_str());
+			tLX->cFont.Draw(bmpDest, 6, y+1, 0, l->strLine);
+			tLX->cFont.Draw(bmpDest, 5, y, l->iColour, l->strLine);
 			y+=18;
 		}
 	}
@@ -1097,9 +1097,9 @@ void CClient::InitializeViewportManager(void)
         if(!cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT)
             continue;
 
-		ViewportMgr.SendMessage( v1_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), (DWORD)&cRemoteWorms[i].getName() );
+		ViewportMgr.SendMessage( v1_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), cRemoteWorms[i].getName() );
 		ViewportMgr.SendMessage( v1_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg());
-		ViewportMgr.SendMessage( v2_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), (DWORD)&cRemoteWorms[i].getName() );
+		ViewportMgr.SendMessage( v2_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), cRemoteWorms[i].getName() );
 		ViewportMgr.SendMessage( v2_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg());
     }
 
@@ -1311,9 +1311,9 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
         // Pic & Name
         DrawImage(bmpDest, p->getPicimg(), x+30, j);
 		if (tGameInfo.iGameMode == GMT_TEAMDEATH  && tLXOptions->iColorizeNicks)
-			tLX->cFont.Draw(bmpDest, x+56, j, iColor,"%s", p->getName().c_str());
+			tLX->cFont.Draw(bmpDest, x+56, j, iColor, p->getName());
 		else
-			tLX->cFont.Draw(bmpDest, x+56, j, tLX->clNormalLabel,"%s", p->getName().c_str());
+			tLX->cFont.Draw(bmpDest, x+56, j, tLX->clNormalLabel, p->getName());
 
         // Score
         if(!bShowReady) {
@@ -1382,7 +1382,7 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	/*tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s","Level:");
 	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname.c_str());*/
 	tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s", "Mod:");
-	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s", tGameInfo.sModName.c_str());
+	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel, tGameInfo.sModName);
 	tLX->cFont.Draw(bmpDest, x+5, y+43, tLX->clNormalLabel,"%s","Game Type:");
 	switch (tGameInfo.iGameMode)  {
 	case GMT_DEATHMATCH:

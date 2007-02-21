@@ -1139,7 +1139,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 
                 // Worm
                 DrawImage(bmpDest, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(bmpDest, x+55, y-2, tLX->clNormalLabel,"%s", w->getName().c_str());
+				tLX->cFont.Draw(bmpDest, x+55, y-2, tLX->clNormalLabel,w->getName());
 
                 // Team
                 CWorm *sv_w = cServer->getWorms() + i;

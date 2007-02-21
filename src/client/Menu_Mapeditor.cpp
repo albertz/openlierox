@@ -462,6 +462,25 @@ enum {
 	mn_Scheme
 };
 
+
+
+	class ComboboxFiller { public:
+		CGuiLayout* gui;
+		int comboindex;
+		int i;
+		int* dirtindex;
+		ComboboxFiller(CGuiLayout* g, int c, int* d) : gui(g), comboindex(c), dirtindex(d), i(0) {}
+		inline bool operator() (const std::string& dir) {
+			size_t p = findLastPathSep(dir);
+			std::string f = dir.substr(p+1);
+			gui->SendMessage(comboindex,CBM_ADDITEM,i,f);
+			if(stringcasecmp(f,"dirt"))
+				*dirtindex = i;
+			i++;
+			
+		}
+	};
+
 void Menu_MapEd_New(void)
 {
 	keyboard_t *kb = GetKeyboard();
@@ -497,25 +516,8 @@ void Menu_MapEd_New(void)
 
 	int dirtindex = -1;
 
-	// Find directories in the theme dir
-	static char dir[512];
-	char *d;
-	if(FindFirstDir("data/themes",dir)) {
-		fix_markend(dir);
-		i=0;
-		while(1) {
-			d = MAX(strrchr(dir,'\\'),strrchr(dir,'/'))+1;
-			cg.SendMessage(4,CBM_ADDITEM,i,(DWORD)d);
-
-			if(stricmp(d,"dirt") == 0)
-				dirtindex = i;
-			i++;
-
-			if(!FindNextDir(dir))
-				break;
-			fix_markend(dir);	
-		}
-	}
+	// Find directories in the theme dir	
+	FindFiles(ComboboxFiller(&cg, 4, &dirtindex), "data/themes", FM_DIR);
 
 	if(dirtindex != -1)
 		cg.SendMessage(4,CBM_SETCURSEL,dirtindex,0);
@@ -617,39 +619,7 @@ enum  {
 	sl_FileName
 };
 
-void Menu_MapEd_LoadSave(int save)
-{
-	keyboard_t *kb = GetKeyboard();
-	mouse_t *Mouse = GetMouse();
-	gui_event_t *ev = NULL;
-	int mouse=0;
-	int quitloop = false;
-	CTextbox *t;
 
-	// Save the background
-	Menu_MapEdFrame(tMenu->bmpBuffer,false);
-
-	Menu_DrawBox(tMenu->bmpBuffer, 170, 150, 470, 330);
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
-
-	Menu_RedrawMouse(true);
-
-	CGuiLayout cg;
-
-	cg.Initialize();
-
-	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), 0, 180,310, 75,15);
-	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     1, 430,310, 40,15);
-	cg.Add( new CListview(),                            2, 180,170, 280,110);
-	cg.Add( new CTextbox(),                             3, 260,285, 200,20);
-
-	cg.SendMessage(2,		LVM_SETOLDSTYLE, 0, 0);
-	
-	t = (CTextbox *)cg.getWidget(3);
-
-	// Load the level list
-	CListview *lv = (CListview *)cg.getWidget(2);
-	lv->AddColumn("Levels",60);
 
 	class LevelListFiller { public:
 		CListview* lv;
@@ -706,7 +676,42 @@ void Menu_MapEd_LoadSave(int save)
 
 			return true;
 		}
-	}
+	};
+
+void Menu_MapEd_LoadSave(int save)
+{
+	keyboard_t *kb = GetKeyboard();
+	mouse_t *Mouse = GetMouse();
+	gui_event_t *ev = NULL;
+	int mouse=0;
+	int quitloop = false;
+	CTextbox *t;
+
+	// Save the background
+	Menu_MapEdFrame(tMenu->bmpBuffer,false);
+
+	Menu_DrawBox(tMenu->bmpBuffer, 170, 150, 470, 330);
+	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
+
+	Menu_RedrawMouse(true);
+
+	CGuiLayout cg;
+
+	cg.Initialize();
+
+	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), 0, 180,310, 75,15);
+	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     1, 430,310, 40,15);
+	cg.Add( new CListview(),                            2, 180,170, 280,110);
+	cg.Add( new CTextbox(),                             3, 260,285, 200,20);
+
+	cg.SendMessage(2,		LVM_SETOLDSTYLE, 0, 0);
+	
+	t = (CTextbox *)cg.getWidget(3);
+
+	// Load the level list
+	CListview *lv = (CListview *)cg.getWidget(2);
+	lv->AddColumn("Levels",60);
+
 	FindFiles(LevelListFiller(lv), "levels", FM_REG);
 
 	
@@ -750,12 +755,11 @@ void Menu_MapEd_LoadSave(int save)
 						if(t->getText().length() > 0) {
 
 							quitloop = true;
-							static char buf[256]; 
+							static std::string buf; 
 							if(save) {
 
-								// Save								
-								snprintf(buf,sizeof(buf),"levels/%s",t->getText());
-								fix_markend(buf);
+								// Save
+								buf = std::string("levels/") + t->getText();
 								
 								// Check if it exists already. If so, ask user if they wanna overwrite
 								if(Menu_MapEd_OkSave(buf))
@@ -765,8 +769,7 @@ void Menu_MapEd_LoadSave(int save)
 							} else {
 								
 								// Load
-								snprintf(buf,sizeof(buf),"levels/%s",t->getText());
-								fix_markend(buf);
+								buf = "levels/"; buf += t->getText();
 								cMap.Load(buf);
 							}
 						}					

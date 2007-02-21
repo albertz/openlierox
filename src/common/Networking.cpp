@@ -98,7 +98,8 @@ bool http_InitializeRequest(char *host, char *url)
     http_ResolveTime = (float)SDL_GetTicks() * 0.001f;
 	if(!GetNetAddrFromNameAsync( http_host, &http_RemoteAddress )) {
 		printf("ERROR: cannot start resolving DNS: ");
-		printf("%s\n", GetSocketErrorStr(GetSocketErrorNr()));
+		printf(GetSocketErrorStr(GetSocketErrorNr()));
+		printf("\n");
 	}
 
 	http_Connected = false;
@@ -115,7 +116,7 @@ bool http_InitializeRequest(char *host, char *url)
 // -1 : failed
 // 0  : still processing
 // 1  : complete
-int http_ProcessRequest(char *szError)
+int http_ProcessRequest(std::string* szError)
 {
     if(szError)
         szError[0] = '\0';
@@ -126,7 +127,7 @@ int http_ProcessRequest(char *szError)
         // Timed out?
         if(f - http_ResolveTime > 10 /*HTTP_TIMEOUT*/) {
             if(szError) {
-                strcpy(szError, "Could not resolve the address: ");
+                *szError = "Could not resolve the address: ";
             }
 		    http_Quit();
 		    return -1;
@@ -152,7 +153,7 @@ int http_ProcessRequest(char *szError)
 		http_Requested = true;
 		if( !http_SendRequest() ) {
             if(szError)
-                strcpy(szError, "Could not send the request");
+                *szError = "Could not send the request";
 			http_Quit();
 			return -1;
 		}
@@ -172,7 +173,7 @@ int http_ProcessRequest(char *szError)
 		
 			if(!ConnectSocket( http_Socket, &http_RemoteAddress )) {
                 if(szError)
-                    strcpy(szError, "Could not connect to the server");
+                    *szError = "Could not connect to the server";
 				http_Quit();
 				return -1;
 			}
@@ -213,8 +214,11 @@ int http_ProcessRequest(char *szError)
 			return 1;
 		} else {
 			// Error
-            if(szError)
-                sprintf(szError, "NetError \"%s\"", GetSocketErrorStr(err));
+			if(szError) {
+				*szError = "NetError \"";
+				*szError += GetSocketErrorStr(err);
+				*szError += "\"";
+			}
 			http_Quit();
 			return -1;
 		}

@@ -50,7 +50,7 @@ typedef struct  ht_object_s {
 	int		iType;
 	int		iEnd;
 	Uint32	iValue;
-	char	*strText;
+	std::string	strText;
 
 	struct  ht_object_s *tNext;
 
@@ -124,12 +124,12 @@ public:
 	void	LoadStyle(void) {}
 
 	// Loading
-	int			Load(char *sFilename);
+	int			Load(const std::string& sFilename);
 	void		ReadObject(void);
 	void		ReadNewline(void);
 	void		ReadTag(void);
 	void		ReadText(void);
-	void		AddObject(char *sText, char *sVal, int iType, int iEnd);
+	void		AddObject(const std::string& sText, const std::string& sVal, int iType, int iEnd);
 
 };
 

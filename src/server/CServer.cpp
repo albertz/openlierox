@@ -337,7 +337,7 @@ int CServer::StartGame(void)
 	bs.writeByte(S2C_PREPAREGAME);
 	bs.writeInt(iRandomMap,1);
 	if(!iRandomMap)
-		bs.writeString("%s",sMapFilename);
+		bs.writeString(sMapFilename);
 
 	// Game info
 	bs.writeInt(iGameType,1);
@@ -349,7 +349,7 @@ int CServer::StartGame(void)
 	bs.writeInt(iShowBonusName, 1);
 	if(iGameType == GMT_TAG)
 		bs.writeShort(iTagLimit);
-	bs.writeString("%s",sModName.c_str());
+	bs.writeString(sModName);
 
     cWeaponRestrictions.sendList(&bs);
 
@@ -510,9 +510,8 @@ void CServer::SendPackets(void)
 void CServer::RegisterServer(void)
 {
 	// Create the url
-	static char url[1024];
-    static char svr[1024];
-	static char buf[512];
+	static std::string url;
+	static std::string buf;
 
 	NetworkAddr addr;
 
@@ -532,6 +531,7 @@ void CServer::RegisterServer(void)
     }
 
     // Find the first line
+    static char svr[1024];
     svr[0] = '\0';
     while( fgets(buf, 1023, fp) ) {
         fix_strncpy( svr, StripLine(buf) );
@@ -552,7 +552,7 @@ void CServer::RegisterServer(void)
 // Process the registering of the server
 void CServer::ProcessRegister(void)
 {
-    static char szError[512];
+    static std::string szError;
 
 	if(!bRegServer || bServerRegistered)
 		return;
@@ -566,7 +566,7 @@ void CServer::ProcessRegister(void)
 	// Failed
     if(result == -1) {
 		bRegServer = false;
-        notifyLog("Could not register with master server: %s", szError);
+        notifyLog("Could not register with master server: %s", szError.c_str());
     }
 	// Completed ok
 	if(result == 1) {
@@ -682,8 +682,8 @@ void CServer::CheckTimeouts(void)
 // Drop a client
 void CServer::DropClient(CClient *cl, int reason)
 {
-    static char cl_msg[256];
-    strcpy(cl_msg, "");
+    static std::string cl_msg;
+    cl_msg = "";
 
 	// Tell everyone that the client's worms have left both through the net & text
 	CBytestream bs;
@@ -751,7 +751,7 @@ void CServer::DropClient(CClient *cl, int reason)
     // Send the client directly a dropped packet
     bs.Clear();
     bs.writeByte(S2C_DROPPED);
-    bs.writeString("%s",cl_msg);
+    bs.writeString(cl_msg);
     cl->getChannel()->getMessageBS()->Append(&bs);
 
 
@@ -1013,7 +1013,7 @@ void CServer::muteWorm(int wormID)
 	cl->setMuted(true);
 
 	// Send the text
-	if (strcmp(NetworkTexts->sHasBeenUnmuted,"<none>"))  {
+	if (NetworkTexts->sHasBeenUnmuted!="<none>")  {
 		SendGlobalText(replacemax(NetworkTexts->sHasBeenMuted,"<player>",w->getName(),1),TXT_NETWORK);
 	}
 }
@@ -1076,7 +1076,7 @@ void CServer::unmuteWorm(int wormID)
 	cl->setMuted(false);
 
 	// Send the message
-	if (strcmp(NetworkTexts->sHasBeenUnmuted,"<none>"))  {
+	if (NetworkTexts->sHasBeenUnmuted!="<none>")  {
 		SendGlobalText(replacemax(NetworkTexts->sHasBeenUnmuted,"<player>",w->getName(),1),TXT_NETWORK);
 	}
 }
@@ -1201,7 +1201,7 @@ bool CServer::WriteLogToFile(FILE *f)
 
 		// Write the info
 		fprintf(f,"<player name=\"%s\" skin=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\" type=\"%i\" ip=\"%s\"/>",
-		player.c_str(),skin.c_str(),tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart),tGameLog->tWorms[i].iType,tGameLog->tWorms[i].sIP);
+		player.c_str(),skin.c_str(),tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart),tGameLog->tWorms[i].iType,tGameLog->tWorms[i].sIP.c_str());
 
 		/*fprintf(f,"<player name=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\"/>",
 				player,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart));*/

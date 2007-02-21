@@ -318,7 +318,7 @@ void CWpnRest::sortList(void)
    	for(i=0; i<m_nCount; i++) {
 		for(j=0; j<m_nCount-1-i; j++) {
 
-            if( strcmp(m_psSortedList[j].psLink->szName, m_psSortedList[j+1].psLink->szName) > 0 ) {
+            if( m_psSortedList[j].psLink->szName.compare( m_psSortedList[j+1].psLink->szName) > 0 ) {
 
                 // Swap the 2 items
                 temp = m_psSortedList[j];
@@ -353,7 +353,7 @@ void CWpnRest::sendList(CBytestream *psByteS)
     for(; psWpn; psWpn = psWpn->psNext ) {
         if( psWpn->nState != wpr_enabled ) {
             
-            psByteS->writeString("%s",psWpn->szName);
+            psByteS->writeString(psWpn->szName);
             psByteS->writeByte(psWpn->nState);
         }
     }
@@ -404,9 +404,6 @@ void CWpnRest::Shutdown(void)
 
      for(; psWpn; psWpn=psNext) {
          psNext = psWpn->psNext;
-
-         if( psWpn->szName )
-             delete[] psWpn->szName;
 
          delete psWpn;
      }

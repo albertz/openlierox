@@ -22,6 +22,33 @@ void CPlayList::Clear(void)
 	bShuffle = false;
 }
 
+
+
+class PlaylistLoader { public:
+	CPlayList* playlist;
+	PlaylistLoader(CPlayList* pl) : playlist(pl) {}
+	inline bool operator() (const std::string& dir) {
+		playlist->Load(dir, true, true);
+		return true;
+	}
+};
+
+class SongListFiller { public:
+	CPlayList* playlist;
+	SongListFiller(CPlayList* pl) : playlist(pl) {}
+	inline bool operator() (const std::string& file) {
+		static const std::string supported_media[] = {"mp3","ogg","mod","mid","voc"};
+		std::string ext = GetFileExtension(file);
+		stringlwr(ext);
+		for(register int i=0; i<sizeof(supported_media)/sizeof(std::string); i++)
+			if(ext == supported_media[i]) {
+				playlist->tSongList.push_back(file);
+				break;
+			}
+		return true;
+	}
+};
+
 //////////////////
 // Loads the directory and adds all music files in the playlist
 void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_current_pl)
@@ -32,37 +59,10 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 		tSongList.clear();
 	}
 
-	static const std::string supported_media[] = {"mp3","ogg","mod","mid","voc"};
-
 	//
 	// Load the files
 	//
-	std::string filename="";
-	int done = false;
-	if(!FindFirst(dir.c_str(),"*",filename))
-		done = true;
-
-	std::string ext = "";
-	int pos = 0;
-	//char *tmp = NULL;
-	//std::string temp = "";
-
-	while(!done) {
-		pos = filename.rfind('.');
-		if (pos != std::string::npos)  {
-			ext = filename.substr(pos);
-	
-			// Only supported media
-			for (register int i=0;i<sizeof(supported_media)/sizeof(std::string);i++)
-				if (!stringcasecmp(supported_media[i],ext))  {
-					tSongList.push_back(filename);
-				}
-		}
-	
-
-		if(!FindNext(filename.c_str()))
-			break;
-	}
+	FindFiles(SongListFiller(this), dir, FM_REG);
 
 	//
 	//	Subdirectories
@@ -70,29 +70,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	if (!include_subdirs)
 		return;
 
-	// TODO: change!
-	std::string directory="";
-
-	std::vector<std::string> dir_list;
-
-	if(FindFirstDir(dir.c_str(),directory)) {
-		fix_markend(directory);
-		while(1) {
-
-			dir_list.push_back(directory);
-
-			if(!FindNextDir(directory))
-				break;
-			//fix_markend(directory);
-		}
-	}
-
-	for (int i=0;i<dir_list.size();i++)  {
-		Load(dir_list[i],true,true);
-	}
-
-	// TODO: can be strongly optimized
-	// TODO: dirty
+	FindFiles(PlaylistLoader(this), dir, FM_DIR);
 }
 
 /////////////////

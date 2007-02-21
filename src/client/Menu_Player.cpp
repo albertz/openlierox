@@ -430,9 +430,9 @@ void Menu_Player_NewPlayer(int mouse)
     // Draw the difficulty level
     int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,0,0);
     if( type == PRF_COMPUTER ) {
-        static std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const char* difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,0,0);
-        tLX->cFont.Draw(tMenu->bmpScreen, 250,363,0xffff,"%s",difflevels[level].c_str());
+        tLX->cFont.Draw(tMenu->bmpScreen, 250,363,0xffff,"%s",difflevels[level]);
 
     }
 
@@ -688,7 +688,7 @@ void Menu_Player_ViewPlayers(int mouse)
     // Draw the difficulty level
     int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,0,0);
     if( type == PRF_COMPUTER ) {
-        static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const char* difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,0,0);
         tLX->cFont.Draw(tMenu->bmpScreen, 530,313,0xffff,"%s",difflevels[level]);
     }

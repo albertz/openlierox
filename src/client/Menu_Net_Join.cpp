@@ -708,7 +708,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
                 // Worm
                 DrawImage(tMenu->bmpScreen, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, tLX->clNormalLabel,"%s", w->getName().c_str());
+				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, tLX->clNormalLabel, w->getName());
 
                 // Team
                 if( gl->nGameMode == GMT_TEAMDEATH )  {
@@ -763,18 +763,18 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(tMenu->bmpScreen, x, y,  blue, "Game Details");
 		f->Draw(tMenu->bmpScreen, x, y+20,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
-			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel,"%s", gl->szDecodedMapName.c_str());
-		    //f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clNormalLabel,"%s", gl->szMapName);
+			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel, gl->szDecodedMapName);
+		    //f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clNormalLabel, gl->szMapName);
 		}
         else
-            f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, "%s", gl->szMapName.c_str());
+            f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
 		f->Draw(tMenu->bmpScreen, x, y+40, tLX->clNormalLabel,"%s", "Game Mode:");
 		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, "%s",gamemodes[gl->nGameMode].c_str());
         f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel, "%s", "Mod:");
         if(gl->bHaveMod)
-            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel, "%s", gl->szModName.c_str());
+            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel,  gl->szModName);
         else
-            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, "%s", gl->szModName.c_str());
+            f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, gl->szModName);
 
 		f->Draw(tMenu->bmpScreen, x, y+80, tLX->clNormalLabel, "%s", "Lives:");
 		if(gl->nLives >= 0)
@@ -862,21 +862,20 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					// Send the msg to the server
 
 					// Get the text
-					static char buf[128];
-					cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
-					fix_markend(buf);
+					static std::string buf;
+					cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, buf);
 
                     // Don't send empty messages
-                    if(fix_strnlen(buf) == 0)
+                    if(buf == "")
                         break;
 
 					// Clear the text box
-					cJoinLobby.SendMessage(jl_ChatText, TXM_SETTEXT, (DWORD)"", 0);
+					cJoinLobby.SendMessage(jl_ChatText, TXM_SETTEXT, "");
 
 					// Get name
 					std::string text;
 					CWorm *rw = cClient->getRemoteWorms() + iJoinSpeaking;
-					if (strstr(buf,"/me") == NULL)
+					if(!strincludes(buf,"/me"))
 						text = rw->getName() + ": " + buf;
 					else
 						text = replacemax(buf,"/me",rw->getName(),text,2);

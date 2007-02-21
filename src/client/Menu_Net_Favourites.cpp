@@ -279,9 +279,11 @@ void Menu_Net_FavouritesFrame(int mouse)
 					addr[0] = 0;
 					int result = cFavourites.SendMessage(mf_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
 					server_t *sv = Menu_SvrList_FindServerStr(addr);
-					static char buf[256] = "";
+					static std::string buf;
 					if (sv)  {
-						snprintf(buf,sizeof(buf),"Are you sure you want to remove\n \"%s\" server from favourites?",sv->szName);
+						buf = "Are you sure you want to remove\n \"";
+						buf += sv->szName;
+						buf += "\" server from favourites?";
 						if (Menu_MessageBox("Confirmation",buf,LMB_YESNO) == MBR_YES)  {
 							if(result && addr[0]) {
 								Menu_SvrList_RemoveServer(addr);
@@ -303,9 +305,11 @@ void Menu_Net_FavouritesFrame(int mouse)
                      // Remove server from favourites
 				case MNU_USER+0:  {
 						server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
-						static char buf[256] = "";
+						static std::string buf;
 						if (sv)  {
-							snprintf(buf,sizeof(buf),"Are you sure you want to remove\n \"%s\" server from favourites?",sv->szName);
+							buf = "Are you sure you want to remove\n \"";
+							buf += sv->szName;
+							buf += "\" server from favourites?";
 							if (Menu_MessageBox("Confirmation",buf,LMB_YESNO) == MBR_YES)  {
 								Menu_SvrList_RemoveServer(szFavouritesCurServer);
 								Menu_SvrList_SaveList("cfg/favourites.dat");  // Save changes

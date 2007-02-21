@@ -39,8 +39,8 @@ int LoadOptions(void)
 
 	static const char *f = "cfg/options.cfg";
 
-	AddKeyword(std::string("true"),true);
-	AddKeyword(std::string("false"),false);
+	AddKeyword("true",true);
+	AddKeyword("false",false);
 
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
@@ -50,7 +50,7 @@ int LoadOptions(void)
 	std::string value;
 	i = 1;
 	while(true) {
-		if(!ReadString(f, "FileHandling", "SearchPath" + itoa(i, 10), value, NULL))
+		if(!ReadString(f, "FileHandling", std::string("SearchPath") + itoa(i, 10), value, NULL))
 			break;
 
 		AddToFileList(&tLXOptions->tSearchPaths, value);
@@ -230,17 +230,17 @@ void SaveOptions(void)
 
     fprintf(fp, "[Ply1Controls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayerControls[0][i]);
+        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayerControls[0][i].c_str());
     fprintf(fp, "\n");
 
     fprintf(fp, "[Ply2Controls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayerControls[1][i]);
+        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayerControls[1][i].c_str());
     fprintf(fp, "\n");
 
     fprintf(fp, "[GeneralControls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", gen_keys[i], tLXOptions->sGeneralControls[i]);
+        fprintf(fp, "%s = %s\n", gen_keys[i], tLXOptions->sGeneralControls[i].c_str());
     fprintf(fp, "\n");
 
     fprintf(fp, "[Game]\n");
@@ -286,12 +286,12 @@ void SaveOptions(void)
     fprintf(fp, "BonusNames = %s\n",tLXOptions->tGameinfo.iShowBonusName ? "true" : "false");
     fprintf(fp, "MaxPlayers = %d\n",tLXOptions->tGameinfo.iMaxPlayers);
 	fprintf(fp, "Tournament = %s\n",tLXOptions->tGameinfo.bTournament ? "true" : "false");
-    fprintf(fp, "ServerName = %s\n",tLXOptions->tGameinfo.sServerName);
-	fprintf(fp, "WelcomeMessage = %s\n",tLXOptions->tGameinfo.sWelcomeMessage);
-    fprintf(fp, "LevelName = %s\n", tLXOptions->tGameinfo.sMapName);
+    fprintf(fp, "ServerName = %s\n",tLXOptions->tGameinfo.sServerName.c_str());
+	fprintf(fp, "WelcomeMessage = %s\n",tLXOptions->tGameinfo.sWelcomeMessage.c_str());
+    fprintf(fp, "LevelName = %s\n", tLXOptions->tGameinfo.sMapName.c_str());
     fprintf(fp, "GameType = %d\n",  tLXOptions->tGameinfo.nGameType);
-    fprintf(fp, "ModName = %s\n",   tLXOptions->tGameinfo.szModName);
-    fprintf(fp, "Password = %s\n",  tLXOptions->tGameinfo.szPassword);
+    fprintf(fp, "ModName = %s\n",   tLXOptions->tGameinfo.szModName.c_str());
+    fprintf(fp, "Password = %s\n",  tLXOptions->tGameinfo.szPassword.c_str());
     fprintf(fp, "RegisterServer = %s\n",tLXOptions->tGameinfo.bRegServer ? "true" : "false");
 	fprintf(fp, "LastSelectedPlayer = %d\n",tLXOptions->tGameinfo.iLastSelectedPlayer);
 	fprintf(fp, "AllowWantsJoinMsg = %s\n",tLXOptions->tGameinfo.bAllowWantsJoinMsg ? "true" : "false");

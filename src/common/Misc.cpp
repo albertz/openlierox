@@ -672,6 +672,16 @@ bool strincludes(const std::string& str, const std::string& what) {
 	return str.find(what) != std::string::npos;
 }
 
+std::string GetFileExtension(const std::string& filename) {
+	size_t p = filename.rfind('.');
+	if(p == std::string::npos) return "";
+	return filename.substr(p+1);
+}
+
+void printf(const std::string& txt) {
+	printf("%s", txt.c_str());
+}
+
 
 
 // ==============================

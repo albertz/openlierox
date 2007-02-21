@@ -44,7 +44,7 @@
 typedef struct {
 
 	int			Colour;
-	char		strText[MAX_CONLENGTH];
+	std::string	strText;
 
 } conline_t;
 
@@ -85,9 +85,10 @@ void	Con_ProcessCharacter(int input);
 void	Con_Hide(void);
 void	Con_Draw(SDL_Surface *bmpDest);
 
-void	Con_AddText(int colour, char *text);
+void	Con_AddText(int colour, const std::string& text);
 void	Con_Printf(int colour, char *fmt, ...);
-void	Con_AddHistory(char *text);
+void	Con_Printf(int colour, const std::string& txt); // same as Con_AddText
+void	Con_AddHistory(const std::string& text);
 
 void	Con_Parse(void);
 

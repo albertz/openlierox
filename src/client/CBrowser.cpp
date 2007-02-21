@@ -66,7 +66,7 @@ DWORD CBrowser::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 ///////////////////
 // Load the cmht file
-int CBrowser::Load(char *sFilename)
+int CBrowser::Load(const std::string& sFilename)
 {
 	FILE *fp;
 
@@ -120,11 +120,6 @@ void CBrowser::Destroy(void)
 
 	for(; obj ; obj=o) {
 		o = obj->tNext;
-
-		if(obj->strText) {
-			delete[] obj->strText;
-			obj->strText = NULL;
-		}
 
 		if(obj)
 			delete obj;
@@ -282,7 +277,7 @@ void CBrowser::ReadText(void)
 
 ///////////////////
 // Add an object to the list
-void CBrowser::AddObject(char *sText, char *sVal, int iType, int iEnd)
+void CBrowser::AddObject(const std::string& sText, const std::string& sVal, int iType, int iEnd)
 {
 	ht_object_t *obj;
 	int r,g,b;
@@ -294,16 +289,8 @@ void CBrowser::AddObject(char *sText, char *sVal, int iType, int iEnd)
 		return;
 	}
 
-	// Allocate room for the text
-	size_t len = strlen(sText);
-	obj->strText = new char[len+1];
-	if(obj->strText == NULL) {
-		// Out of memory
-		return;
-	}
-
 	// Set the properties
-	memcpy(obj->strText,sText,len+1);
+	obj->strText = sText;
 	obj->iType = iType;
 	obj->iEnd = iEnd;
 	obj->tNext = NULL;
@@ -316,7 +303,7 @@ void CBrowser::AddObject(char *sText, char *sVal, int iType, int iEnd)
 			// Normal integer
 			case HTO_TAB:
 			case HTO_STAB:
-				obj->iValue = atoi(sVal);
+				obj->iValue = from_string<int>(sVal);
 				break;
 
 			// Triple value
@@ -377,7 +364,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 	int x,y,s,p,w,c;
 	ht_object_t *obj = tObjects;
 	CFont *fnt = &tLX->cFont;
-	static char buf[64];
+	static std::string buf;
 	int lcount = 0;
 
 	DrawRectFill(bmpDest, iX+1, iY+1, iX+iWidth-1, iY+iHeight-1, 0xffff);
@@ -494,7 +481,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 				// to the start
 
 				p=0;
-				s = strlen(obj->strText);
+				s = obj->strText.size();
 				while(p<s) {
 
 					// Go through until a space
@@ -504,7 +491,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 							break;
 						}
 					}
-					strncpy(buf,obj->strText+p,MIN(sizeof(buf)-1,(unsigned int)c-p));
+					buf = obj->strText.substr(p);
 					buf[MIN(sizeof(buf)-1,(unsigned int)c-p)]='\0';
 					p=c;
 
@@ -521,14 +508,14 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 
 						// Draw the properties
 						if(iProperties & PRP_SHADOW)
-							fnt->Draw(bmpDest,x+1,y+1,MakeColour(200,200,200),"%s",buf);
+							fnt->Draw(bmpDest,x+1,y+1,MakeColour(200,200,200),buf);
 						if(iProperties & PRP_BOLD)
-							fnt->Draw(bmpDest,x+1,y+1,iTextColour,"%s",buf);
+							fnt->Draw(bmpDest,x+1,y+1,iTextColour,buf);
 						if(iProperties & PRP_UNDERLINE)
 							DrawHLine(bmpDest,x,x+w,y+fnt->GetHeight()-1,iTextColour);
 
 						// Draw the text
-						fnt->Draw(bmpDest,x,y,iTextColour,"%s",buf);
+						fnt->Draw(bmpDest,x,y,iTextColour,buf);
 					}
 
 					x+=w;

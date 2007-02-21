@@ -206,7 +206,8 @@ void Menu_MainFrame(void)
 	tLX->cFont.Draw(tMenu->bmpScreen, 370, 404, tLX->clCredits2,"%s", "+ Ported and enhanced by");
 	tLX->cFont.Draw(tMenu->bmpScreen, 370, 417, tLX->clCredits2,"%s", "  Dark Charlie and Albert Zeyer");
 	tLX->cFont.Draw(tMenu->bmpScreen, 370, 430, tLX->clCredits2,"%s", "+ Supported by the [RIP] clan");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 443, tLX->clCredits2,"%s", "+ Enhanced by FilE");
+// TODO: include this, if he join the team :)
+//	tLX->cFont.Draw(tMenu->bmpScreen, 370, 443, tLX->clCredits2,"%s", "+ Enhanced by FilE");
 
 
 	// Draw the mouse

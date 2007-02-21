@@ -238,20 +238,20 @@ bool CGuiLayout::Build(void)
 	// Parse the document
 	tDocument = xmlParseFile(sFilename.c_str());
 	if (tDocument == NULL)  {
-		Error(ERR_COULDNOTPARSE,"Could not parse the document %s",sFilename);
+		Error(ERR_COULDNOTPARSE,"Could not parse the document %s",sFilename.c_str());
 		return false;
 	}
 
 	// Get the root node
 	tCurrentNode = xmlDocGetRootElement(tDocument);
 	if (tCurrentNode == NULL)  {
-		Error(ERR_EMPTYDOC,"The '%s' document is empty",sFilename);
+		Error(ERR_EMPTYDOC,"The '%s' document is empty",sFilename.c_str());
 		return false;
 	}
 
 	// Validate the root node
 	if (CMP(tCurrentNode->name,"skin"))  {
-		Error(ERR_INVALIDROOT,"The document '%s' contains invalid parent node: %s",sFilename,tCurrentNode->name);
+		Error(ERR_INVALIDROOT,"The document '%s' contains invalid parent node: %s",sFilename.c_str(),tCurrentNode->name);
 		return false;
 	}
 

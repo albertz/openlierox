@@ -166,6 +166,17 @@ void CFont::Draw(SDL_Surface *dst, int x, int y, int col, char *fmt,...)
 	DrawAdv(dst,x,y,99999,col,"%s",buf);
 }
 
+void CFont::Draw(SDL_Surface *dst, int x, int y, int col, const std::string& txt) {
+	// TODO: make it better!
+	Draw(dst, x,y,col, "%s", txt.c_str());
+}
+
+
+void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, const std::string& txt) {
+	// TODO: make it better!
+	DrawAdv(dst, x,y,max_w,col,"%s",txt.c_str());
+}
+
 ///////////////////
 // Draw a font (advanced)
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fmt,...)
@@ -327,6 +338,11 @@ int CFont::GetWidth(const std::string& buf)
 }
 
 
+void CFont::DrawCentre(SDL_Surface *dst, int x, int y, int col, const std::string& txt) {
+	// TODO : make it better!
+	DrawCentre(dst, x,y,col, "%s",txt.c_str());
+}
+
 ///////////////////
 // Draws the text in centre alignment
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, int col, char *fmt, ...)
@@ -361,6 +377,12 @@ void CFont::DrawCentre(SDL_Surface *dst, int x, int y, int col, char *fmt, ...)
 	pos = x-length/2;
 
 	Draw(dst,pos,y,col,"%s",buf);
+}
+
+
+void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, int col, const std::string& txt) {
+	// TODO: make it better!
+	DrawCentreAdv(dst,x,y,min_x,max_w,col,"%s",txt.c_str());
 }
 
 ///////////////////
