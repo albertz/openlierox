@@ -39,11 +39,6 @@ DWORD CMenu::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
     switch(iMsg) {
 
-        // Add an item
-        case MNM_ADDITEM:
-            addItem(Param1, *((std::string *)Param2));
-            return 0;
-
         // Redraw the area to the buffer
         case MNM_REDRAWBUFFER:
             Menu_redrawBufferRect(m_nPosX, m_nPosY, m_nWidth+1,m_nHeight+1);
@@ -51,6 +46,20 @@ DWORD CMenu::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
     }
 
     return 0;
+}
+
+DWORD CMenu::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
+{
+	switch (iMsg)  {
+
+	// Add an item
+	case MNS_ADDITEM:
+		addItem(Param,sStr);
+		return 0;
+
+	}
+
+	return 0;
 }
 
 

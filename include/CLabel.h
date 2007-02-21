@@ -25,7 +25,7 @@ enum {
 
 // Label messages
 enum {
-	LBM_SETTEXT
+	LBS_SETTEXT
 };
 
 
@@ -61,9 +61,9 @@ public:
 	int		KeyDown(int c)						{ return LBL_NONE; }
 	int		KeyUp(int c)						{ return LBL_NONE; }
 
-	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ 
-							if(iMsg==LBM_SETTEXT) sText = *((std::string *)Param1); return 0;
-						}
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { if (iMsg == LBS_SETTEXT) {sText = sStr;} return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	ChangeColour(Uint32 col)			{ iColour = col; }
 

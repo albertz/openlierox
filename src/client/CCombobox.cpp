@@ -490,36 +490,11 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 	switch(iMsg) {
 
-		// Add item message
-		case CBM_ADDITEM:
-			addItem(Param1, "", (char *)Param2);
-			return iItemCount;
-
-		// Add item message (string index)
-		case CBM_ADDSITEM:
-			addItem(0, (char *)Param1, (char *)Param2);
-			return 0;
-
 		// Get the current item's index
 		case CBM_GETCURINDEX:
 			if(tSelected)
 				return tSelected->iIndex;
 			break;
-
-		// Get the current item's string index
-		case CBM_GETCURSINDEX:
-			if(tSelected) {
-				*((std::string *)Param1) = tSelected->sIndex;
-			}
-			break;
-
-        // Get the current item's name
-        case CBM_GETCURNAME:
-            if(tSelected) {
-				*((std::string *)Param1) = tSelected->sName;
-			}
-			break;
-
 
 		// Get the current item
 		case CBM_GETCURITEM:
@@ -529,11 +504,6 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		case CBM_SETCURSEL:
 			setCurItem(Param1);
 			break;
-
-        // Set the current item based on the string index
-        case CBM_SETCURSINDEX:
-            setCurSIndexItem(*((const std::string *)Param1));
-            break;
 
         // Set the current item based on the int index
         case CBM_SETCURINDEX:
@@ -551,6 +521,56 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 			break;
 	}
 
+
+	return 0;
+}
+
+DWORD CCombobox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
+{
+	switch (iMsg)  {
+	// Add item message
+	case CBS_ADDITEM:
+		addItem(Param,"",sStr);
+		break;
+	// Add item message (string index)
+	case CBS_ADDSITEM:
+		addItem(0, sStr, *((std::string *) Param));
+		break;
+	// Set the current item based on the string index
+	case CBS_SETCURSINDEX:
+		setCurSIndexItem(sStr);
+		break;
+	}
+
+	return 0;
+}
+
+DWORD CCombobox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
+{
+	switch (iMsg)  {
+	// Get the current item's string index
+	case CBS_GETCURSINDEX:
+		if (tSelected)  {
+			*sStr = tSelected->sIndex;
+			return 1;
+		}
+		else  {
+			*sStr = "";
+			return 0;
+		}
+		break;
+
+	// Get the current item's name
+	case CBS_GETCURNAME:
+		if (tSelected)  {
+			*sStr = tSelected->sName;
+			return 1;
+		} else {
+			*sStr = "";
+			return 0;
+		}
+		break;
+	}
 
 	return 0;
 }

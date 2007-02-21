@@ -252,6 +252,20 @@ void StripQuotes(char *dest, char *src)
 	dest[length] = 0;
 }
 
+void StripQuotes(std::string& str)
+{
+	if (str == "")
+		return;
+
+	if (str[0] == '\"')  {
+		str.erase(0);
+	}
+
+	if (str[str.length()-1] == '\"')  {
+		str.erase(str.length()-1);
+	}
+}
+
 
 ///////////////////
 // Safe string copy routine
@@ -490,6 +504,27 @@ char *ucfirst(char *text)
 	return text;
 }
 
+void ucfirst(std::string& text)
+{
+	if (text == "") return;
+
+	text[0] = toupper(text[0]);
+	bool wasalpha = isalpha(text[0]);
+	for (size_t i=1;i<text.length();i++)  {
+		if (isalpha(text[i])  {
+			if (wasalpha)
+				text[i] = toupper(text[i]);
+			else
+				text[i] = tolower(text[i]);
+			wasalpha = true;
+		} else {
+			wasalpha = false;
+		}
+	}
+
+
+}
+
 
 // for GetByteSwapped, declared in defs.h
 unsigned char byteswap_buffer[16];
@@ -648,6 +683,20 @@ std::string freadstr(FILE *fp, size_t maxlen)
 	}
 	
 	return result;
+}
+
+// reads one line from the file, including the breakline character
+std::string freadline(FILE *fp)
+{
+	if (!fp)
+		return "";
+	static std::string result;
+	static char buf[1024];
+	if (fgets(buf,sizeof(buf)-1,fp))
+		result = buf;
+	else
+		result = "";
+	return result;		
 }
 
 

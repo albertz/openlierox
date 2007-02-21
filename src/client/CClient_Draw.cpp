@@ -1072,11 +1072,11 @@ void CClient::InitializeViewportManager(void)
     // Fill in the combo boxes
 
     // If the first player is a human, and is still playing: Only show the follow option
-    ViewportMgr.SendMessage( v1_Type, CBM_ADDITEM, VW_FOLLOW, (DWORD)"Follow" );
+    ViewportMgr.SendMessage( v1_Type, CBS_ADDITEM, "Follow", VW_FOLLOW );
     if( cLocalWorms[0]->getLives() == WRM_OUT || cLocalWorms[0]->getType() == PRF_COMPUTER ) {
-        ViewportMgr.SendMessage( v1_Type, CBM_ADDITEM, VW_CYCLE, (DWORD)"Cycle" );
-        ViewportMgr.SendMessage( v1_Type, CBM_ADDITEM, VW_FREELOOK, (DWORD)"Free Look" );
-        ViewportMgr.SendMessage( v1_Type, CBM_ADDITEM, VW_ACTIONCAM, (DWORD)"Action Cam" );
+        ViewportMgr.SendMessage( v1_Type, CBS_ADDITEM, "Cycle", VW_CYCLE);
+        ViewportMgr.SendMessage( v1_Type, CBS_ADDITEM, "Free Look", VW_FREELOOK);
+        ViewportMgr.SendMessage( v1_Type, CBS_ADDITEM, "Action Cam", VW_ACTIONCAM);
     }
 
     // If the second player is a human and is still playing: Only show the follow option
@@ -1085,11 +1085,11 @@ void CClient::InitializeViewportManager(void)
         if( cLocalWorms[1]->getLives() != WRM_OUT && cLocalWorms[1]->getType() == PRF_HUMAN )
             show = false;
 
-    ViewportMgr.SendMessage( v2_Type, CBM_ADDITEM, VW_FOLLOW, (DWORD)"Follow" );
+    ViewportMgr.SendMessage( v2_Type, CBS_ADDITEM, "Follow", VW_FOLLOW );
     if( show ) {
-        ViewportMgr.SendMessage( v2_Type, CBM_ADDITEM, VW_CYCLE, (DWORD)"Cycle" );
-        ViewportMgr.SendMessage( v2_Type, CBM_ADDITEM, VW_FREELOOK, (DWORD)"Free Look" );
-        ViewportMgr.SendMessage( v2_Type, CBM_ADDITEM, VW_ACTIONCAM, (DWORD)"Action Cam" );
+        ViewportMgr.SendMessage( v2_Type, CBS_ADDITEM, "Cycle", VW_CYCLE);
+        ViewportMgr.SendMessage( v2_Type, CBS_ADDITEM, "Free Look",VW_FREELOOK);
+        ViewportMgr.SendMessage( v2_Type, CBS_ADDITEM, "Action Cam",VW_ACTIONCAM);
     }
 
 	// Fill in the target worms boxes
@@ -1097,9 +1097,9 @@ void CClient::InitializeViewportManager(void)
         if(!cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT)
             continue;
 
-		ViewportMgr.SendMessage( v1_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), cRemoteWorms[i].getName() );
+		ViewportMgr.SendMessage( v1_Target, CBS_ADDITEM, cRemoteWorms[i].getName(), cRemoteWorms[i].getID() );
 		ViewportMgr.SendMessage( v1_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg());
-		ViewportMgr.SendMessage( v2_Target, CBM_ADDITEM, cRemoteWorms[i].getID(), cRemoteWorms[i].getName() );
+		ViewportMgr.SendMessage( v2_Target, CBS_ADDITEM, cRemoteWorms[i].getName(), cRemoteWorms[i].getID() );
 		ViewportMgr.SendMessage( v2_Target, CBM_SETIMAGE, cRemoteWorms[i].getID(), (DWORD)cRemoteWorms[i].getPicimg());
     }
 
@@ -1171,7 +1171,7 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
             if(ev->iEventMsg == CHK_CHANGED) {
                 // If there is only one worm, disable the 2nd viewport
                 if( Wormcount <= 1 )
-                    ViewportMgr.SendMessage(v2_On, CKM_SETCHECK,false,0);
+                    ViewportMgr.SendMessage(v2_On, CKM_SETCHECK,(DWORD)0,0);
             }
             break;
 
@@ -1181,14 +1181,14 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
 
                 // If there is only one worm, disable the 2nd viewport
                 if( Wormcount <= 1 )
-                    ViewportMgr.SendMessage(v2_On, CKM_SETCHECK,false,0);
+                    ViewportMgr.SendMessage(v2_On, CKM_SETCHECK,(DWORD)0,0);
 
                 // Grab settings
-                int a_type = ViewportMgr.SendMessage(v1_Type, CBM_GETCURINDEX, 0,0);
-                int b_on = ViewportMgr.SendMessage(v2_On, CKM_GETCHECK, 0,0);
-                int b_type = ViewportMgr.SendMessage(v2_Type, CBM_GETCURINDEX, 0,0);
-				int v1_target = ViewportMgr.SendMessage(v1_Target, CBM_GETCURINDEX, 0,0);
-				int v2_target = ViewportMgr.SendMessage(v2_Target, CBM_GETCURINDEX, 0,0);
+                int a_type = ViewportMgr.SendMessage(v1_Type, CBM_GETCURINDEX, (DWORD)0,0);
+                int b_on = ViewportMgr.SendMessage(v2_On, CKM_GETCHECK, (DWORD)0,0);
+                int b_type = ViewportMgr.SendMessage(v2_Type, CBM_GETCURINDEX, (DWORD)0,0);
+				int v1_target = ViewportMgr.SendMessage(v1_Target, CBM_GETCURINDEX, (DWORD)0,0);
+				int v2_target = ViewportMgr.SendMessage(v2_Target, CBM_GETCURINDEX, (DWORD)0,0);
 
                 for( int i=0; i<NUM_VIEWPORTS; i++ ) {
                     cViewports[i].setUsed(false);

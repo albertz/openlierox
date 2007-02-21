@@ -271,7 +271,8 @@ void Con_ProcessCharacter(int input)
 	// Backspace
 	if((char) input == '\b') {
 		if(Console->iCurpos > 0)  {
-			memmove(Console->Line[0].strText+Console->iCurpos-1,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
+			//memmove(Console->Line[0].strText+Console->iCurpos-1,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
+			Console->Line[0].strText.erase(Console->iCurpos);
 			Console->iCurpos--;
 			Console->iCurLength--;
 		}
@@ -282,7 +283,8 @@ void Con_ProcessCharacter(int input)
 	// Delete
 	if(input == SDLK_DELETE)  {
 		if(Console->iCurLength > 0 && Console->iCurLength > Console->iCurpos)  {
-			memmove(Console->Line[0].strText+Console->iCurpos,Console->Line[0].strText+Console->iCurpos+1,Console->iCurLength-Console->iCurpos+1);
+			//memmove(Console->Line[0].strText+Console->iCurpos,Console->Line[0].strText+Console->iCurpos+1,Console->iCurLength-Console->iCurpos+1);
+			Console->Line[0].strText.erase(Console->iCurpos+1);
 			Console->iCurLength--;
 		}
 		Console->icurHistory = -1;
@@ -311,7 +313,7 @@ void Con_ProcessCharacter(int input)
 
 	// End
 	if(input == SDLK_END)  {
-		Console->iCurpos = strnlen(Console->Line[0].strText,sizeof(Console->Line[0].strText));
+		Console->iCurpos = Console->Line[0].strText.length();
 		return;
 	}
 
@@ -327,9 +329,10 @@ void Con_ProcessCharacter(int input)
 
 		// Paste
 		Console->Line[0].Colour = CNC_NORMAL;
-		memmove(Console->Line[0].strText+Console->iCurpos+len,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
-		strncpy(Console->Line[0].strText+Console->iCurpos,buf,len);
-		Console->iCurpos += len;
+		//memmove(Console->Line[0].strText+Console->iCurpos+len,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
+		//strncpy(Console->Line[0].strText+Console->iCurpos,buf,len);
+		Console->Line[0].strText.insert(Console->iCurpos,buf);
+		Console->iCurpos += buf.length();
 		Console->iCurLength = Console->Line[0].strText.size();
 		Console->icurHistory = -1;
 

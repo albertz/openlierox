@@ -1159,24 +1159,6 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 	switch(iMsg) {
 
-		// Add a column
-		case LVM_ADDCOLUMN:
-			AddColumn( (char *)Param1, Param2);
-			break;
-
-		// Add an item
-		case LVM_ADDITEM:
-			AddItem( (char *)Param1, Param2, tLX->clListView);
-			break;
-
-		// Add a sub item
-		case LVM_ADDSUBITEM:
-			if(Param1 == LVS_TEXT)
-				AddSubitem(Param1, (char *)Param2, NULL);
-			else
-				AddSubitem(Param1, "", (SDL_Surface *)Param2);
-			break;
-
 		// Remove an item
 		case LVM_REMOVEITEM:
 			RemoveItem(Param1);
@@ -1185,18 +1167,6 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		// Get the current item's index
 		case LVM_GETCURINDEX:
 			return getCurIndex();
-
-		// Get the current item's text index
-		case LVM_GETCURSINDEX:
-			s = getCurSIndex();
-			if(s != "") {
-				*((std::string *)Param1) = s;
-				return true;
-			}
-			else
-				return false;
-
-			break;
 
 		// Get the item count
 		case LVM_GETITEMCOUNT:
@@ -1233,6 +1203,47 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		default:
 			printf("Bad listview message\n");
+	}
+
+	return 0;
+}
+
+DWORD CListview::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
+{
+	switch (iMsg)  {
+
+	// Add a column
+	case LVS_ADDCOLUMN:
+		AddColumn(sStr,Param);
+		break;
+
+	// Add an item
+	case LVS_ADDITEM:
+		AddItem(sStr,Param,tLX->clListView);
+		break;
+
+	// Add a sub item
+	case LVS_ADDSUBITEM:
+		if(Param == LVS_TEXT)
+			AddSubitem(Param, sStr, NULL);
+		else
+			AddSubitem(LVS_IMAGE, "", (SDL_Surface *)Param);
+		break;
+	}
+
+	return 0;
+}
+
+
+DWORD CListview::SendMessage(int iMsg, std::string *sStr, DWORD Param)
+{
+	switch (iMsg)  {
+
+	// Get the current item's text index
+	case LVS_GETCURSINDEX:
+		*sStr = getCurSIndex();
+		return *sStr != "";
+		break;
 	}
 
 	return 0;

@@ -20,7 +20,7 @@
 
 
 CGuiLayout	cInternet;
-char        szNetCurServer[128];
+std::string szNetCurServer;
 
 // Internet widgets
 enum {
@@ -74,20 +74,20 @@ int Menu_Net_NETInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cInternet.SendMessage( mi_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)&p->sName);
-		cInternet.SendMessage( mi_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
+		cInternet.SendMessage( mi_PlayerSelection, CBS_ADDITEM, p->sName, p->iID);
+		cInternet.SendMessage( mi_PlayerSelection, CBM_SETIMAGE, (DWORD)p->iID, (DWORD)p->bmpWorm);
 	}
 
 	cInternet.SendMessage( mi_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.iLastSelectedPlayer, 0);
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"", tLXOptions->iInternetList[0]);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", tLXOptions->iInternetList[1]);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"State", tLXOptions->iInternetList[2]);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", tLXOptions->iInternetList[3]);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", tLXOptions->iInternetList[4]);
-	cInternet.SendMessage( mi_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", tLXOptions->iInternetList[5]);
+	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "", tLXOptions->iInternetList[0]);
+	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Server Name", tLXOptions->iInternetList[1]);
+	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "State", tLXOptions->iInternetList[2]);
+	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Players", tLXOptions->iInternetList[3]);
+	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Ping", tLXOptions->iInternetList[4]);
+	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[5]);
 
 	// Clear the server list & grab an update
 	Menu_SvrList_Clear();
@@ -114,7 +114,7 @@ void Menu_Net_NETShutdown(void)
 	}
 
 	// Save the selected player
-	cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,0,0);
+	cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
 	if (item)
 		tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
@@ -128,7 +128,7 @@ void Menu_Net_NETFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	static char		addr[256];
+	static std::string	addr;
 
 
 	// Process & Draw the gui
@@ -200,9 +200,9 @@ void Menu_Net_NETFrame(int mouse)
 			case mi_Join:
                 if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					addr[0] = 0;
-					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result != -1 && addr[0]) {
+					addr = "";
+					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					if(result != -1 && addr != "") {
 
                         // Save the list
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
@@ -232,10 +232,10 @@ void Menu_Net_NETFrame(int mouse)
 					*/
 
 					// Just join for the moment
-					addr[0] = 0;
-					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					addr = "";
+					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
-					if(result != -1 && addr[0] && sub) {
+					if(result != -1 && addr != "" && sub) {
                         // Save the list
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
 
@@ -246,21 +246,21 @@ void Menu_Net_NETFrame(int mouse)
 
                 // Right click
                 if( ev->iEventMsg == LV_RIGHTCLK ) {
-                    addr[0] = 0;
-					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result && addr[0]) {
+                    addr = "";
+					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					if(result && addr != "") {
                         // Display a menu
-                        fix_strncpy(szNetCurServer, addr);
+                        szNetCurServer = addr;
                         mouse_t *m = GetMouse();
 
                         cInternet.Add( new CMenu(m->X, m->Y), mi_PopupMenu, 0,0, 640,480 );
-                        cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 0, (DWORD)"Delete server" );
-                        cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 1, (DWORD)"Refresh server" );
-                        cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 2, (DWORD)"Join server" );
-						cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 3, (DWORD)"Add to favourites" );
-						cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 4, (DWORD)"Send \"I want join message\"" );
-						cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Copy IP to clipboard" );
-                        cInternet.SendMessage( mi_PopupMenu, MNM_ADDITEM, 6, (DWORD)"Server details" );
+                        cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Delete server",				0 );
+                        cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Refresh server",				1 );
+                        cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Join server",				2 );
+						cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Add to favourites",			3 );
+						cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Send \"I want join message\"",4 );
+						cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Copy IP to clipboard",		5 );
+                        cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Server details",				6 );
                     }
                 }
 
@@ -268,10 +268,10 @@ void Menu_Net_NETFrame(int mouse)
 				// Enter key
 				if( ev->iEventMsg == LV_ENTER )  {
 					// Join
-					addr[0] = 0;
-					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
+					addr = "";
+					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
-					if(result != -1 && addr[0] && sub) {
+					if(result != -1 && addr != "" && sub) {
                         // Save the list
                         Menu_SvrList_SaveList("cfg/svrlist.dat");
 
@@ -282,9 +282,9 @@ void Menu_Net_NETFrame(int mouse)
 
 				// Delete
 				if( ev->iEventMsg == LV_DELETE )  {
-					addr[0] = 0;
-					int result = cInternet.SendMessage(mi_ServerList, LVM_GETCURSINDEX, (DWORD)addr, sizeof(addr));
-					if(result && addr[0]) {
+					addr = "";
+					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
+					if(result && addr != "") {
 						Menu_SvrList_RemoveServer(addr);
 						// Re-Fill the server list
 						Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
@@ -332,12 +332,10 @@ void Menu_Net_NETFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szNetCurServer);
-							static char Nick[256];
-							cInternet.SendMessage(mi_PlayerSelection, CBM_GETCURNAME, (DWORD)Nick, sizeof(Nick));
-							Nick[255] = '\0'; // safety
-							char *sNick = Nick;
+							static std::string Nick;
+							cInternet.SendMessage(mi_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
-								Menu_SvrList_WantsJoin(sNick, sv);
+								Menu_SvrList_WantsJoin(Nick, sv);
 						}
                         break;
 
@@ -359,7 +357,7 @@ void Menu_Net_NETFrame(int mouse)
                 Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 
                 // Remove the menu widget
-                cInternet.SendMessage( mi_PopupMenu, MNM_REDRAWBUFFER, 0, 0);
+                cInternet.SendMessage( mi_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
                 cInternet.removeWidget(mi_PopupMenu);
                 break;
 
@@ -392,7 +390,7 @@ void Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sNam
 	tGameInfo.iNumPlayers = 1;
 
 	// Fill in the game structure
-	cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,0,0);
+	cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
 
 	// Add the player to the list
 	if (item)  {
@@ -490,8 +488,8 @@ void Menu_Net_NETAddServer(void)
 				case na_Add:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						static char addr[512];
-						cAddSvr.SendMessage(na_Address, TXM_GETTEXT, (DWORD)addr, sizeof(addr));
+						static std::string addr;
+						cAddSvr.SendMessage(na_Address, TXS_GETTEXT, &addr, 0);
 
 						Menu_SvrList_AddServer(addr, true);
 						Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
@@ -627,14 +625,14 @@ void Menu_Net_NETUpdateList(void)
 
         // Process the http request
         if( SentRequest ) {
-        	static char szError[1024];
-            http_result = http_ProcessRequest(szError);
+			static std::string szError;
+            http_result = http_ProcessRequest(&szError);
 
             // Parse the list if the request was successful
             if( http_result == 1 ) {
 		        Menu_Net_NETParseList();
             } else if( http_result == -1 )
-            	printf("HTTP ERROR: %s\n", szError);
+            	printf("HTTP ERROR: %s\n", szError.c_str());
 
             if( http_result != 0 ) {
                 SentRequest = false;

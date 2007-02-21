@@ -28,7 +28,7 @@ enum {
 // inputbox messages
 enum {
 	INM_GETVALUE=0,
-	INM_GETTEXT
+	INS_GETTEXT
 };
 
 
@@ -75,16 +75,20 @@ public:
 	// Process a message sent
 	inline DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
 
-				switch(iMsg) {
-					case INM_GETVALUE:
+				if(iMsg == INM_GETVALUE) {
 						return iKeyvalue;
-					case INM_GETTEXT:
-						*((std::string *)Param1) = sText;
-						return 0;
 				}
 
 				return 0;
 			}
+
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  {
+		if (iMsg == INS_GETTEXT)  {
+			*sStr = sText;
+		}
+		return 0;
+	}
 
 	// Draw the title button
 	void	Draw(SDL_Surface *bmpDest);

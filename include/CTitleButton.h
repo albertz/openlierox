@@ -60,6 +60,8 @@ public:
 	int		KeyUp(int c)						{ return TBT_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	// Draw the title button
 	void	Draw(SDL_Surface *bmpDest);

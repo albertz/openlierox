@@ -32,12 +32,12 @@ enum {
 
 // Listview messages
 enum {
-	LVM_ADDCOLUMN=0,
-	LVM_ADDITEM,
-	LVM_ADDSUBITEM,
+	LVS_ADDCOLUMN=0,
+	LVS_ADDITEM,
+	LVS_ADDSUBITEM,
 	LVM_REMOVEITEM,
 	LVM_GETCURINDEX,
-	LVM_GETCURSINDEX,
+	LVS_GETCURSINDEX,
 	LVM_GETITEMCOUNT,
 	LVM_CLEAR,
 	LVM_GETITEMINDEX,
@@ -178,6 +178,8 @@ public:
 	void	LoadStyle(void) {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
 	void	ReadjustScrollbar(void);
 

@@ -473,7 +473,7 @@ enum {
 		inline bool operator() (const std::string& dir) {
 			size_t p = findLastPathSep(dir);
 			std::string f = dir.substr(p+1);
-			gui->SendMessage(comboindex,CBM_ADDITEM,i,f);
+			gui->SendMessage(comboindex,CBS_ADDITEM,f,i);
 			if(stringcasecmp(f,"dirt"))
 				*dirtindex = i;
 			i++;
@@ -487,7 +487,6 @@ void Menu_MapEd_New(void)
 	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 	int mouse=0;
-	int i;
 	int quitloop = false;
 	CTextbox *t1,*t2;
 
@@ -573,7 +572,7 @@ void Menu_MapEd_New(void)
 						int h = atoi(t2->getText().c_str());
 						std::string theme;
 						theme = "dirt";
-						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,0,0);
+						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,(DWORD)0,0);
 						if(it)
 							theme = it->sName;
 
@@ -704,7 +703,7 @@ void Menu_MapEd_LoadSave(int save)
 	cg.Add( new CListview(),                            2, 180,170, 280,110);
 	cg.Add( new CTextbox(),                             3, 260,285, 200,20);
 
-	cg.SendMessage(2,		LVM_SETOLDSTYLE, 0, 0);
+	cg.SendMessage(2,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 	
 	t = (CTextbox *)cg.getWidget(3);
 

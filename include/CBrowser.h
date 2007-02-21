@@ -119,6 +119,8 @@ public:
 	int		KeyUp(int c)						{ return BRW_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface *bmpDest);
 	void	LoadStyle(void) {}

@@ -259,16 +259,16 @@ int Menu_OptionsInitialize(void)
 
 	// Network speed
 	for(i=0; i<3; i++)
-		cOpt_System.SendMessage(os_NetworkSpeed, CBM_ADDITEM, i, (DWORD)NetworkSpeeds[i]);
+		cOpt_System.SendMessage(os_NetworkSpeed, CBS_ADDITEM, NetworkSpeeds[i], i);
 
 	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
 	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURINDEX, tLXOptions->iNetworkSpeed, 0);
 
 	// Screenshot format
-	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_BMP, (DWORD)"Bmp");
-	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_PNG, (DWORD)"Png");
-	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_GIF, (DWORD)"Gif");
-	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ADDITEM, FMT_JPG, (DWORD)"Jpg");
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBS_ADDITEM, "Bmp", FMT_BMP);
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBS_ADDITEM, "Png", FMT_PNG);
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBS_ADDITEM, "Gif", FMT_GIF);
+	cOpt_System.SendMessage(os_ScreenshotFormat, CBS_ADDITEM, "Jpg", FMT_JPG);
 
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURSEL, tLXOptions->iScreenshotFormat, 0);
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURINDEX, tLXOptions->iScreenshotFormat, 0);
@@ -423,7 +423,7 @@ void Menu_OptionsFrame(void)
 			ev = cOpt_Game.Process();
 		cOpt_Game.Draw(tMenu->bmpScreen);
 
-		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, 0, 0);
+		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
 		//s = (CSlider *)cOpt_Game.getWidget(og_BloodAmount);
         DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 385,140, 385,140, 70,50);
 		tLX->cFont.Draw(tMenu->bmpScreen,385, 148, tLX->clNormalLabel,"%d%%",val);
@@ -446,7 +446,7 @@ void Menu_OptionsFrame(void)
 				// Blood amount
 				case og_BloodAmount:
 					if(ev->iEventMsg == SLD_CHANGE) {
-						val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, 0, 0);
+						val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
 						tLXOptions->iBloodAmount = val;
 					}
 					break;
@@ -478,26 +478,26 @@ void Menu_OptionsFrame(void)
 				// Old skool rope throw
 				case og_OldSkoolRope:
 					if(ev->iEventMsg == CHK_CHANGED) {
-						tLXOptions->iOldSkoolRope = cOpt_Game.SendMessage(og_OldSkoolRope,CKM_GETCHECK,0,0);
+						tLXOptions->iOldSkoolRope = cOpt_Game.SendMessage(og_OldSkoolRope,CKM_GETCHECK,(DWORD)0,0);
 					}
 					break;
 
 				// Show the worm's health below name
 /*				case og_ShowWormHealth:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowHealth = cOpt_Game.SendMessage(og_ShowWormHealth, CKM_GETCHECK, 0, 0);
+						tLXOptions->iShowHealth = cOpt_Game.SendMessage(og_ShowWormHealth, CKM_GETCHECK, (DWORD)0, 0);
 					break;*/
 
 				// TDM nick colorizing
 				case og_ColorizeNicks:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iColorizeNicks = cOpt_Game.SendMessage(og_ColorizeNicks, CKM_GETCHECK, 0, 0);
+						tLXOptions->iColorizeNicks = cOpt_Game.SendMessage(og_ColorizeNicks, CKM_GETCHECK, (DWORD)0, 0);
 					break;
 
 				// Auto typing
 				case og_AutoTyping:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iAutoTyping = cOpt_Game.SendMessage(og_AutoTyping, CKM_GETCHECK, 0, 0);
+						tLXOptions->iAutoTyping = cOpt_Game.SendMessage(og_AutoTyping, CKM_GETCHECK, (DWORD)0, 0);
 					break;
 
 			}
@@ -585,21 +585,20 @@ void Menu_OptionsFrame(void)
 				// Show FPS
 				case os_ShowFPS:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowFPS = cOpt_System.SendMessage(os_ShowFPS, CKM_GETCHECK, 0, 0);
+						tLXOptions->iShowFPS = cOpt_System.SendMessage(os_ShowFPS, CKM_GETCHECK, (DWORD)0, 0);
 					break;
 
 				// Logging
 				case os_LogConvos:
 					if(ev->iEventMsg == CHK_CHANGED)  {
-						tLXOptions->iLogConvos = cOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, 0, 0);
+						tLXOptions->iLogConvos = cOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, (DWORD)0, 0);
 						FILE *f;
 
 						f = OpenGameFile("Conversations.log","a");
 						if (f)  {
 							if (tLXOptions->iLogConvos)  {
-								static char cTime[26];
-								GetTime(cTime); fix_markend(cTime);
-								fprintf(f,"<game starttime=\"%s\">\r\n",cTime);
+								static std::string cTime = GetTime();
+								fprintf(f,"<game starttime=\"%s\">\r\n",cTime.c_str());
 							}
 							else
 								fprintf(f,"</game>\r\n");
@@ -611,7 +610,7 @@ void Menu_OptionsFrame(void)
 				// Show ping
 				case os_ShowPing:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowPing = cOpt_System.SendMessage(os_ShowPing, CKM_GETCHECK, 0, 0);
+						tLXOptions->iShowPing = cOpt_System.SendMessage(os_ShowPing, CKM_GETCHECK, (DWORD)0, 0);
 					break;
 			}
 		}
@@ -621,9 +620,9 @@ void Menu_OptionsFrame(void)
 		CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 		tLXOptions->iNetworkPort = atoi(t->getText());
 
-		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,0,0);
+		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
 
-		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,0,0);
+		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
 
 
 		if((fullscr != tLXOptions->iFullscreen) || (opengl != tLXOptions->iOpenGL))
@@ -632,7 +631,7 @@ void Menu_OptionsFrame(void)
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
 
             // Redraw the section around the apply button
-			if (!cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ISDROPPED,0,0))
+			if (!cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ISDROPPED,(DWORD)0,0))
 				Menu_redrawBufferRect(550,435, 80,25);
         }
 	}

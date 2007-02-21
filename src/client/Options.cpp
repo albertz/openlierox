@@ -37,7 +37,7 @@ int LoadOptions(void)
 
     unsigned int     i;
 
-	static const char *f = "cfg/options.cfg";
+	static const std::string f = "cfg/options.cfg";
 
 	AddKeyword("true",true);
 	AddKeyword("false",false);

@@ -49,7 +49,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
 
-	int i, len;
+	int i;
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
@@ -580,26 +580,12 @@ void CTextbox::setText(const std::string& buf)
 // This widget is send a message
 DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
-	char *p;
 
 	switch(iMsg) {
-
-		// Get the text
-		case TXM_GETTEXT:
-			//strncpy((char *)Param1, sText, Param2);
-			*((std::string *)Param1) = sText;
-			//p = (char *)Param1;
-			//p[Param2-1] = '\0';
-			break;
 
 		// Get the text length
 		case TXM_GETTEXTLENGTH:
 			return iLength;
-			break;
-
-		// Set the text
-		case TXM_SETTEXT:
-			setText( *((std::string *)Param1) );
 			break;
 
 		// Set some flags
@@ -612,6 +598,34 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 			iMax = Param1;
 			break;
 
+	}
+
+	return 0;
+}
+
+DWORD CTextbox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
+{
+	switch (iMsg)  {
+
+	// Get the text
+	case TXS_SETTEXT:
+		sText = sStr;
+		break;
+	}
+
+	return 0;
+}
+
+
+DWORD CTextbox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
+{
+	switch (iMsg)  {
+
+	// Get the text
+	case TXS_GETTEXT:
+		*sStr = sText;
+		return sText != "";
+		break;
 	}
 
 	return 0;

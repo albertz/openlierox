@@ -113,7 +113,9 @@ public:
 
 
 	// Messaging
-	int			SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2);
+	DWORD		SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2);
+	DWORD		SendMessage(int iControl, int iMsg, const std::string& sStr, DWORD Param);
+	DWORD		SendMessage(int iControl, int iMsg, std::string *sStr, DWORD Param);
 
 	// Variables
 	int			getID(void)		{ return iID; }

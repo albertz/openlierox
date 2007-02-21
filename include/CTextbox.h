@@ -31,8 +31,8 @@ enum {
 
 // Messages
 enum {
-	TXM_GETTEXT=0,
-	TXM_SETTEXT,
+	TXS_GETTEXT=0,
+	TXS_SETTEXT,
 	TXM_SETFLAGS,
 	TXM_SETMAX,
 	TXM_GETTEXTLENGTH
@@ -115,6 +115,8 @@ public:
 	void	LoadStyle(void) {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
 	void	Backspace(void);
 	void	Delete(void);

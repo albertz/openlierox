@@ -26,16 +26,16 @@ enum {
 
 // Combobox messages
 enum {
-	CBM_ADDITEM,
-	CBM_ADDSITEM,
+	CBS_ADDITEM,
+	CBS_ADDSITEM,
 	CBM_GETCOUNT,
 	CBM_GETCURINDEX,
-	CBM_GETCURSINDEX,
+	CBS_GETCURSINDEX,
 	CBM_GETCURITEM,
-    CBM_GETCURNAME,
+    CBS_GETCURNAME,
 	CBM_CLEAR,
 	CBM_SETCURSEL,
-    CBM_SETCURSINDEX,
+    CBS_SETCURSINDEX,
     CBM_SETCURINDEX,
 	CBM_SETIMAGE,
 	CBM_ISDROPPED
@@ -117,7 +117,9 @@ public:
 
 	void	Sort(bool ascending);
 
-	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);	
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
     void    clear(void);
 	void	addItem(int index, const std::string& sindex, const std::string& name);

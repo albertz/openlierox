@@ -72,7 +72,7 @@ void http_Init() {
 
 ///////////////////
 // Initialize a HTTP get request
-bool http_InitializeRequest(char *host, char *url)
+bool http_InitializeRequest(const char *host, const char *url)
 {
 	// Make the url http friendly (get rid of spaces)	
 	//http_ConvertUrl(http_url, url);

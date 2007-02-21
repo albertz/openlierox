@@ -227,6 +227,8 @@ public:
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
+	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 };
 
 // Slider
@@ -266,6 +268,8 @@ public:
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
+	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 };
 
 // Toggle button
@@ -302,6 +306,8 @@ public:
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
+	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 };
 
 // Marquee
@@ -349,6 +355,8 @@ public:
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
+	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 };
 
 

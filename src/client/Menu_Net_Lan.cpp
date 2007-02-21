@@ -61,7 +61,7 @@ int Menu_Net_LANInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cLan.SendMessage( nl_PlayerSelection, CBM_ADDITEM, p->iID, (DWORD)&p->sName);
+		cLan.SendMessage( nl_PlayerSelection, CBS_ADDITEM, p->sName, p->iID);
 		cLan.SendMessage( nl_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
 	}
 
@@ -81,12 +81,12 @@ int Menu_Net_LANInitialize(void)
 	  Address
     */
 
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"", tLXOptions->iLANList[0]);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Server Name", tLXOptions->iLANList[1]);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"State", tLXOptions->iLANList[2]);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Players", tLXOptions->iLANList[3]);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Ping", tLXOptions->iLANList[4]);
-	cLan.SendMessage( nl_ServerList, LVM_ADDCOLUMN, (DWORD)"Address", tLXOptions->iLANList[5]);
+	cLan.SendMessage( nl_ServerList, LVS_ADDCOLUMN, "", tLXOptions->iLANList[0]);
+	cLan.SendMessage( nl_ServerList, LVS_ADDCOLUMN, "Server Name", tLXOptions->iLANList[1]);
+	cLan.SendMessage( nl_ServerList, LVS_ADDCOLUMN, "State", tLXOptions->iLANList[2]);
+	cLan.SendMessage( nl_ServerList, LVS_ADDCOLUMN, "Players", tLXOptions->iLANList[3]);
+	cLan.SendMessage( nl_ServerList, LVS_ADDCOLUMN, "Ping", tLXOptions->iLANList[4]);
+	cLan.SendMessage( nl_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iLANList[5]);
 
 	// Clear the server list
 	Menu_SvrList_Clear();
@@ -101,7 +101,7 @@ int Menu_Net_LANInitialize(void)
 void Menu_Net_LANShutdown(void)
 {
 	// Save the selected player
-	cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,0,0);
+	cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
 	if (item)
 		tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
@@ -157,7 +157,7 @@ void Menu_Net_LANFrame(int mouse)
 			case nl_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,0,0);
+					cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
 					if (item)
 						tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
@@ -190,7 +190,7 @@ void Menu_Net_LANFrame(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
+					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result != -1 && addr != "") {
 
 						// Click!
@@ -217,7 +217,7 @@ void Menu_Net_LANFrame(int mouse)
 
 					// Just join for the moment
 					addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
+					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
 						Menu_Net_LANJoinServer(addr,sub->sText);
@@ -228,20 +228,20 @@ void Menu_Net_LANFrame(int mouse)
                 // Right click
                 if( ev->iEventMsg == LV_RIGHTCLK ) {
                     addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
+					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
                         // Display a menu
                         szLanCurServer = addr;
                         mouse_t *m = GetMouse();
 
                         cLan.Add( new CMenu(m->X, m->Y), nl_PopupMenu, 0,0, 640,480 );
-                        cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 0, (DWORD)"Delete server" );
-                        cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 1, (DWORD)"Refresh server" );
-                        cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 2, (DWORD)"Join server" );
-						cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 3, (DWORD)"Add to favourites" );
-						cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 4, (DWORD)"Send \"I want join message\"" );
-						cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 5, (DWORD)"Copy IP to clipboard" );
-                        cLan.SendMessage( nl_PopupMenu, MNM_ADDITEM, 6, (DWORD)"Server details" );
+                        cLan.SendMessage( nl_PopupMenu, MNS_ADDITEM, "Delete server",					0 );
+                        cLan.SendMessage( nl_PopupMenu, MNS_ADDITEM, "Refresh server",					1 );
+                        cLan.SendMessage( nl_PopupMenu, MNS_ADDITEM, "Join server",						2 );
+						cLan.SendMessage( nl_PopupMenu, MNS_ADDITEM, "Add to favourites",				3 );
+						cLan.SendMessage( nl_PopupMenu, MNS_ADDITEM, "Send \"I want join message\"",	4 );
+						cLan.SendMessage( nl_PopupMenu, MNS_ADDITEM, "Copy IP to clipboard",			5 );
+                        cLan.SendMessage( nl_PopupMenu, MNS_ADDITEM, "Server details",					6 );
                     }
                 }
 
@@ -249,7 +249,7 @@ void Menu_Net_LANFrame(int mouse)
 				if( ev->iEventMsg == LV_ENTER )  {
 					// Join
 					addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
+					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
                         // Save the list
@@ -263,7 +263,7 @@ void Menu_Net_LANFrame(int mouse)
 				// Delete
 				if( ev->iEventMsg == LV_DELETE )  {
 					addr = "";
-					int result = cLan.SendMessage(nl_ServerList, LVM_GETCURSINDEX, (DWORD)&addr, 64);
+					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
 						Menu_SvrList_RemoveServer(addr);
 						// Re-Fill the server list
@@ -313,12 +313,10 @@ void Menu_Net_LANFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szLanCurServer);
-							static char Nick[256];
-							cLan.SendMessage(nl_PlayerSelection, CBM_GETCURNAME, (DWORD)Nick, sizeof(Nick));
-							fix_markend(Nick); // safety
-							char *sNick = Nick;
+							static std::string Nick;
+							cLan.SendMessage(nl_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
-								Menu_SvrList_WantsJoin(sNick, sv);
+								Menu_SvrList_WantsJoin(Nick, sv);
 						}
                         break;
 
@@ -340,7 +338,7 @@ void Menu_Net_LANFrame(int mouse)
                 Menu_SvrList_FillList( (CListview *)cLan.getWidget( nl_ServerList ) );
 
                 // Remove the menu widget
-                cLan.SendMessage(nl_PopupMenu, MNM_REDRAWBUFFER, 0, 0);
+                cLan.SendMessage(nl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
                 cLan.removeWidget(nl_PopupMenu);
                 break;
 		}
@@ -363,7 +361,7 @@ void Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sNam
 
 	// Fill in the game structure
 	tGameInfo.iNumPlayers = 1;
-	cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,0,0);
+	cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
 
 	// Add the player to the list
 	if (item)  {

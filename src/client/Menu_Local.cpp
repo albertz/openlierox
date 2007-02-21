@@ -91,25 +91,25 @@ void Menu_LocalInitialize(void)
     cLocalMenu.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  236, 0,   0);
 	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
 
-	cLocalMenu.SendMessage(ml_Playing,		LVM_ADDCOLUMN, (DWORD)"Playing", 22);
-	cLocalMenu.SendMessage(ml_Playing,		LVM_ADDCOLUMN, (DWORD)"", 90);
-	cLocalMenu.SendMessage(ml_Playing,		LVM_ADDCOLUMN, (DWORD)"", 20);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 22);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 90);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 20);
 
-	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, 0, 0);
+	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 
-	cLocalMenu.SendMessage(ml_PlayerList,	LVM_ADDCOLUMN, (DWORD)"Players", 22);
-	cLocalMenu.SendMessage(ml_PlayerList,	LVM_ADDCOLUMN, (DWORD)"", 60);
+	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "Players", 22);
+	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "", 60);
 
-	cLocalMenu.SendMessage(ml_PlayerList,		LVM_SETOLDSTYLE, 0, 0);
+	cLocalMenu.SendMessage(ml_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 	Menu_LocalAddProfiles();
 
-	cLocalMenu.SendMessage(ml_Gametype,    CBM_ADDITEM,   GMT_DEATHMATCH, (DWORD)"Deathmatch");
-	cLocalMenu.SendMessage(ml_Gametype,    CBM_ADDITEM,   GMT_TEAMDEATH,  (DWORD)"Team Deathmatch");
-	cLocalMenu.SendMessage(ml_Gametype,    CBM_ADDITEM,   GMT_TAG,        (DWORD)"Tag");
-    cLocalMenu.SendMessage(ml_Gametype,    CBM_ADDITEM,   GMT_DEMOLITION, (DWORD)"Demolitions");
+	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Deathmatch", GMT_DEATHMATCH);
+	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Team Deathmatch", GMT_TEAMDEATH);
+	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
+    cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Demolitions", GMT_DEMOLITION);
 
-	/*cLocalMenu.SendMessage(ml_Gametype,    CBM_ADDITEM,   1, (DWORD)"Capture the flag");
-	cLocalMenu.SendMessage(ml_Gametype,    CBM_ADDITEM,   1, (DWORD)"Flag hunt");*/
+	/*cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,  "Capture the flag",1);
+	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,   "Flag hunt",1);*/
 
     cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, tLXOptions->tGameinfo.nGameType, 0);
     iGameType = tLXOptions->tGameinfo.nGameType;
@@ -159,7 +159,7 @@ void Menu_LocalFrame(void)
 
 	if (bActivated)  {
 		// Get the mod name
-		cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
+		cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
 		if(it) 
 			tLXOptions->tGameinfo.szModName = it->sIndex;
 
@@ -167,7 +167,7 @@ void Menu_LocalFrame(void)
 		Menu_Local_FillModList( (CCombobox *)cLocalMenu.getWidget(ml_ModName));
 
 		// Fill in the levels list
-		cLocalMenu.SendMessage(ml_LevelList,CBM_GETCURSINDEX, (DWORD)&tLXOptions->tGameinfo.sMapName, 256);
+		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
 		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), false);
 
 		// Reload the minimap
@@ -387,7 +387,7 @@ void Menu_LocalFrame(void)
 			// Game type
 			case ml_Gametype:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					iGameType = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, 0, 0);
+					iGameType = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
 				}
 				break;
 
@@ -419,7 +419,7 @@ void Menu_LocalFrame(void)
 					cLocalMenu.Draw( tMenu->bmpBuffer );
 
                     // Get the current mod
-					cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
+					cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
                     if(it) {
 
 					    bWeaponRest = true;
@@ -443,9 +443,9 @@ void Menu_LocalAddProfiles(void)
 	profile_t *p = GetProfiles();
 
 	for(; p; p=p->tNext) {
-		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDITEM, (DWORD)"", p->iID);
-		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDSUBITEM, LVS_IMAGE, (DWORD)p->bmpWorm);
-		cLocalMenu.SendMessage( ml_PlayerList, LVM_ADDSUBITEM, LVS_TEXT,  (DWORD)&p->sName);
+		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDITEM, "", p->iID);
+		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE);
+		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 	}
 }
 
@@ -458,7 +458,7 @@ void Menu_LocalShowMinimap(bool bReload)
 	static std::string buf;
 	static std::string blah;
 
-	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)&buf, 256);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
     tGameInfo.sMapRandom.bUsed = false;
 
@@ -522,7 +522,7 @@ void Menu_LocalStartGame(void)
     int i;
 
 	// Level
-	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)&tGameInfo.sMapname, 256);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapname, 0);
 
 
 	//
@@ -557,19 +557,19 @@ void Menu_LocalStartGame(void)
     }
 
 	// Save the current level in the options
-	cLocalMenu.SendMessage(ml_LevelList, CBM_GETCURSINDEX, (DWORD)&tLXOptions->tGameinfo.sMapName, 256);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
 
 	//
 	// Game Info
 	//
-	tGameInfo.iGameMode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, 0, 0);
+	tGameInfo.iGameMode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
     tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
 
     tGameInfo.sPassword[0] = '\0';
 
 
     // Get the mod name
-	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,0,0);
+	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
     if(it) {
         tGameInfo.sModName = it->sIndex;
         tLXOptions->tGameinfo.szModName = it->sIndex;
@@ -645,7 +645,7 @@ void Menu_LocalDrawPlayingList(void)
     int m_leftup = (Mouse->Up & SDL_BUTTON(1));
     int m_rightup = (Mouse->Up & SDL_BUTTON(3));
 
-    int mode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, 0, 0);
+    int mode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
     bool team = (mode == GMT_TEAMDEATH);
 
     DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 310,255,310,255,300,180);
@@ -876,13 +876,13 @@ void Menu_GameSettings(void)
 	cGameSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameinfo.iLoadingTime, 0);
 
 	if(tLXOptions->tGameinfo.iLives >= 0)
-		cGameSettings.SendMessage(gs_Lives, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iLives,buf,10), 0);
+		cGameSettings.SendMessage(gs_Lives, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iLives), 0);
 	if(tLXOptions->tGameinfo.iKillLimit >= 0)
-		cGameSettings.SendMessage(gs_MaxKills, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iKillLimit,buf,10), 0);
+		cGameSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iKillLimit), 0);
 	//if(tLXOptions->tGameinfo.iTimeLimit >= 0)
-	//	cLocalMenu.SendMessage(gs_TimeLimit, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iTimeLimit,buf,10), 0);
+	//	cLocalMenu.SendMessage(gs_TimeLimit, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iTimeLimit), 0);
 	//if(tLXOptions->tGameinfo.iTagLimit >= 0)
-		//cLocalMenu.SendMessage(gs_TagLimitTxt, TXM_SETTEXT, (DWORD)itoa(tLXOptions->tGameinfo.iTagLimit,buf,10), 0);
+		//cLocalMenu.SendMessage(gs_TagLimitTxt, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iTagLimit), 0);
 }
 
 /////////////
@@ -938,10 +938,7 @@ bool Menu_GameSettings_Frame(void)
 
 	// Set the value of the loading time label
 	int l = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	static char buf[64];
-	snprintf(buf, sizeof(buf), "%d%%",l);		// 2 %'s because it gets parsed as a va_list twice
-	fix_markend(buf);
-	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBM_SETTEXT, (DWORD)buf, 0);
+	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, itoa(l)+"%", 0);
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
@@ -954,7 +951,7 @@ bool Menu_GameSettings_Frame(void)
 // Grab the game settings info
 void Menu_GameSettings_GrabInfo(void)
 {
-	static char buf[256];
+	static std::string buf;
 
 	tLXOptions->tGameinfo.iLoadingTime = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
@@ -970,26 +967,24 @@ void Menu_GameSettings_GrabInfo(void)
 
 
 	// Store the game info into the options structure as well
-	cGameSettings.SendMessage(gs_Lives, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
-	fix_markend(buf);
-	if(*buf) {
+	cGameSettings.SendMessage(gs_Lives, TXS_GETTEXT, &buf, 0);
+	if(buf != "") {
 		tLXOptions->tGameinfo.iLives = atoi(buf);
 		tGameInfo.iLives = atoi(buf);
 	}
-	cGameSettings.SendMessage(gs_MaxKills, TXM_GETTEXT, (DWORD)buf, sizeof(buf));
-	fix_markend(buf);
-	if(*buf) {
+	cGameSettings.SendMessage(gs_MaxKills, TXS_GETTEXT, &buf, 0);
+	if(buf != "") {
 		tLXOptions->tGameinfo.iKillLimit = atoi(buf);
 		tGameInfo.iKillLimit = atoi(buf);
 	}
 
-	tGameInfo.iBonusesOn = cGameSettings.SendMessage( gs_Bonuses, CKM_GETCHECK, 0, 0);
+	tGameInfo.iBonusesOn = cGameSettings.SendMessage( gs_Bonuses, CKM_GETCHECK, (DWORD)0, 0);
 	tLXOptions->tGameinfo.iBonusesOn = tGameInfo.iBonusesOn;
 
-	tGameInfo.iShowBonusName = cGameSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, 0, 0);
+	tGameInfo.iShowBonusName = cGameSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, (DWORD)0, 0);
 	tLXOptions->tGameinfo.iShowBonusName = tGameInfo.iShowBonusName;
 
-	tGameInfo.bTournament = cGameSettings.SendMessage( gs_Tournament, CKM_GETCHECK, 0, 0) != 0;
+	tGameInfo.bTournament = cGameSettings.SendMessage( gs_Tournament, CKM_GETCHECK, (DWORD)0, 0) != 0;
 	tLXOptions->tGameinfo.bTournament = tGameInfo.bTournament;
 }
 
@@ -1000,12 +995,12 @@ void Menu_GameSettings_Default(void)
 {
     cGameSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, 100, 0);
 
-    cGameSettings.SendMessage(gs_Lives, TXM_SETTEXT, (DWORD)"10", 0);
-	cGameSettings.SendMessage(gs_MaxKills, TXM_SETTEXT, (DWORD)"", 0);
+    cGameSettings.SendMessage(gs_Lives, TXS_SETTEXT, "10", 0);
+	cGameSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, "", 0);
 
-    cGameSettings.SendMessage(gs_Bonuses, CKM_SETCHECK, true, 0);
-    cGameSettings.SendMessage(gs_ShowBonusNames, CKM_SETCHECK, true, 0);
-	cGameSettings.SendMessage(gs_Tournament, CKM_SETCHECK, false, 0);
+    cGameSettings.SendMessage(gs_Bonuses, CKM_SETCHECK, (DWORD)1, 0);
+    cGameSettings.SendMessage(gs_ShowBonusNames, CKM_SETCHECK, (DWORD)1, 0);
+	cGameSettings.SendMessage(gs_Tournament, CKM_SETCHECK, (DWORD)0, 0);
 }
 
 
@@ -1113,7 +1108,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
     // Draw the list
     wpnrest_t *psWpn = cWpnRestList.getList();
     int num = cWpnRestList.getNumWeapons();
-    int count = cWeaponsRest.SendMessage(wr_Scroll, SCM_GETVALUE,0,0);
+    int count = cWeaponsRest.SendMessage(wr_Scroll, SCM_GETVALUE,(DWORD)0,0);
     int weaponCount = 0;
     int i, j = 0, w = 0;
 
@@ -1155,11 +1150,11 @@ bool Menu_WeaponsRestrictions_Frame(void)
 
     // Adjust the scrollbar
     cWeaponsRest.SendMessage(wr_Scroll, SCM_SETITEMSPERBOX, 12, 0);
-    cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMIN, 0, 0);
+    cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMIN, (DWORD)0, 0);
     if(weaponCount>10)
         cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, weaponCount, 0);
     else
-        cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, 0, 0);
+        cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, (DWORD)0, 0);
 
 
 	if (!cMediaPlayer.GetDrawPlayer())
@@ -1287,7 +1282,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	cWpnPresets.Add( new CListview(),                            wp_PresetList, 180,170, 280,110+(!save)*20);
 	cWpnPresets.Add( new CTextbox(),                             wp_PresetName, 270,285, 190,20);
 
-	cWpnPresets.SendMessage(wp_PresetList,LVM_SETOLDSTYLE,0,0);
+	cWpnPresets.SendMessage(wp_PresetList,LVM_SETOLDSTYLE,(DWORD)0,0);
 
 	t = (CTextbox *)cWpnPresets.getWidget(wp_PresetName);
 

@@ -531,12 +531,10 @@ void CServer::RegisterServer(void)
     }
 
     // Find the first line
-    static char svr[1024];
-    svr[0] = '\0';
-    while( fgets(buf, 1023, fp) ) {
-        fix_strncpy( svr, StripLine(buf) );
-        if( fix_strnlen(svr) > 0 ) {
-            if( !http_InitializeRequest(svr, url) ) {
+    while( (buf = freadline(fp)) != "" ) {
+        buf.erase(buf.length()-1);
+        if( buf != "" ) {
+            if( !http_InitializeRequest(buf.c_str(), url.c_str()) ) {
                 bRegServer = false;
                 notifyLog("Could not register with master server: 'Could not open TCP socket'");
             }
@@ -557,8 +555,7 @@ void CServer::ProcessRegister(void)
 	if(!bRegServer || bServerRegistered)
 		return;
 
-	int result = http_ProcessRequest(szError);
-	fix_markend(szError);
+	int result = http_ProcessRequest(&szError);
 
 	// Normal, keep going
 	if(result == 0)
@@ -623,12 +620,10 @@ bool CServer::DeRegisterServer(void)
         return false;
 
     // Find the first line
-    static char svr[1024];
-    svr[0] = '\0';
-    while( fgets(svr, 1023, fp) ) {
-        fix_strncpy( svr, StripLine(svr) );
-        if( fix_strnlen(svr) > 0 ) {
-            if( !http_InitializeRequest(svr, url) ) {
+    while( (buf = freadline(fp)) != "" ) {
+        buf.erase(buf.length()-1);
+        if( buf != "" ) {
+            if( !http_InitializeRequest(buf.c_str(), url.c_str()) ) {
                 fclose(fp);
                 return false;
             }
@@ -1235,8 +1230,8 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 	std::string Result;
 
 	// Split the ip to four parts
-	int ip_parts[4];
-	char buf[4];
+	//int ip_parts[4];
+	/*char buf[4];
 	unsigned int j=0;
 	unsigned int k=0;
 	for (short i=0; i<4; i++,j++)  {
@@ -1248,17 +1243,20 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 		buf[MIN(sizeof(buf)-1,k)] = '\0';
 		k = 0;
 		ip_parts[i] = atoi(buf);
-	}
+	}*/
+	std::vector<std::string> ip_e = explode(Address,".");
+	if (ip_e.size() != 4)
+		return "Unknown country";
 
 	// Convert the IP to the numeric representation
-	int num_ip = ip_parts[0] * 16777216 + ip_parts[1] * 65536 + ip_parts[2] * 256 + ip_parts[3];
+	int num_ip = atoi(ip_e[0]) * 16777216 + atoi(ip_e[1]) * 65536 + atoi(ip_e[2]) * 256 + atoi(ip_e[3]);
 
 	// Open the database
 	FILE *fp = OpenGameFile("ip_to_country.csv","r");
 	if (!fp)
 		return "outer space";
 
-	static char ln[256];
+/*	static char ln[256];
 	char *line = &ln[0];
 
 	char from_ip[12];
@@ -1268,9 +1266,9 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 	char country_code_2[3];
 	char country_code_3[4];
 	char country_name[64];
-
+*/
 	// Parse the file line by line
-	while(fgets(line,164,fp))  {
+	/*while(fgets(line,164,fp))  {
 
 		// Safety
 		if(strnlen(line,sizeof(ln)) < 1)
@@ -1353,7 +1351,36 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 
 		// Restore the pointer
 		line = &ln[0];
+	}*/
+
+	std::string line = "";
+	std::vector<std::string> info;
+	while ((line = freadline(fp)) != "")  {
+		// Adjust the line and check it's not comment or blank
+		line.erase(line.length()-1);  // erase the linebreak
+		TrimSpaces(line);
+		if (line == "")
+			continue;
+		if (line[0] == '#')
+			continue;
+
+		// Parse the line
+		info = explode(line,",");
+		if (info.size() < 7)
+			continue;
+
+		// Get rid of the quotes in the range numbers
+		StripQuotes(info[0]);
+		StripQuotes(info[1]);
+
+		// Check the range
+		if (num_ip >= atoi(info[0]) && num_ip <= atoi(info[1]))  {
+			StripQuotes(info[6]);
+			ucfirst(info[6]);
+			return info[6];
+		}
 	}
+
 
 	// Not found
 	Result = "Unknown Country";

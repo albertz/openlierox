@@ -28,7 +28,7 @@ enum {
 
 // Messages
 enum {
-	MNM_ADDITEM,
+	MNS_ADDITEM,
     MNM_REDRAWBUFFER
 };
 
@@ -72,6 +72,8 @@ public:
 	int		KeyUp(int c)						{ return MNU_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
     
 	void	Draw(SDL_Surface *bmpDest);
 

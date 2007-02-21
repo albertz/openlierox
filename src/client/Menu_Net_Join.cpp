@@ -560,7 +560,7 @@ void Menu_Net_JoinGotoLobby(void)
 std::string Menu_Net_JoinLobbyGetText(void)
 {
 	static std::string buf;
-	cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, (DWORD)&buf, 256);
+	cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 256);
 	return buf;
 }
 
@@ -863,14 +863,14 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 					// Get the text
 					static std::string buf;
-					cJoinLobby.SendMessage(jl_ChatText, TXM_GETTEXT, buf);
+					cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 0);
 
                     // Don't send empty messages
                     if(buf == "")
                         break;
 
 					// Clear the text box
-					cJoinLobby.SendMessage(jl_ChatText, TXM_SETTEXT, "");
+					cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, "",0);
 
 					// Get name
 					std::string text;

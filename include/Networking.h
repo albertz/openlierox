@@ -55,9 +55,9 @@ float	GetFixedRandomNum(int index);
 
 // HTTP Request
 void	http_Init();
-bool	http_InitializeRequest(char *host, char *url);
+bool	http_InitializeRequest(const char *host, const char *url);
 void	http_ConvertUrl(char *dest, char *url);
-int		http_ProcessRequest(char *szError);
+int		http_ProcessRequest(std::string *szError);
 bool	http_SendRequest(void);
 void	http_RemoveHeader(void);
 char	*http_GetContent(void);

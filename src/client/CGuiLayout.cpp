@@ -862,7 +862,7 @@ void CGuiLayout::Error(int ErrorCode, char *Format, ...)
 
 ///////////////////
 // Send a message to a widget
-int CGuiLayout::SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2)
+DWORD CGuiLayout::SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2)
 {
 	CWidget *w = getWidget(iControl);
 
@@ -883,4 +883,31 @@ int CGuiLayout::SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2)
 	}
 
 	return w->SendMessage(iMsg, Param1, Param2);
+}
+
+DWORD CGuiLayout::SendMessage(int iControl, int iMsg, const std::string& sStr, DWORD Param)
+{
+	CWidget *w = getWidget(iControl);
+
+	// Couldn't find widget
+	if(w == NULL)
+		return 0;
+
+	return w->SendMessage(iMsg, sStr, Param);	
+
+}
+
+DWORD CGuiLayout::SendMessage(int iControl, int iMsg, std::string *sStr, DWORD Param)
+{
+	// Check the string
+	if (!sStr)
+		return 0;
+
+	CWidget *w = getWidget(iControl);
+
+	// Couldn't find widget
+	if(w == NULL)
+		return 0;
+
+	return w->SendMessage(iMsg, sStr, Param);
 }
