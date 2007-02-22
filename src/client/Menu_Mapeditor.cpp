@@ -478,6 +478,7 @@ enum {
 				*dirtindex = i;
 			i++;
 			
+			return true;
 		}
 	};
 

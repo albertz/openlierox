@@ -258,7 +258,7 @@ void StripQuotes(std::string& str)
 		return;
 
 	if (str[0] == '\"')  {
-		str.erase(0);
+		str.erase((unsigned int)0);
 	}
 
 	if (str[str.length()-1] == '\"')  {
@@ -509,14 +509,14 @@ void ucfirst(std::string& text)
 	if (text == "") return;
 
 	text[0] = toupper(text[0]);
-	bool wasalpha = isalpha(text[0]);
-	// TODO: very very bad style!!! please use iterators!
-	for (size_t i=1;i<text.length();i++)  {
-		if (isalpha(text[i]))  {
+	bool wasalpha = isalpha(text[0]) != 0;
+	
+	for (std::string::iterator it=text.begin()+1;it != text.end();it++)  {
+		if (isalpha(*it))  {
 			if (wasalpha)
-				text[i] = toupper(text[i]);
+				*it = toupper(*it);
 			else
-				text[i] = tolower(text[i]);
+				*it = tolower(*it);
 			wasalpha = true;
 		} else {
 			wasalpha = false;

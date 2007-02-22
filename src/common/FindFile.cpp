@@ -577,6 +577,7 @@ int FindNextDir(char *name)
 searchpathlist	basesearchpaths;
 void InitBaseSearchPaths() {
 	// TODO: it would be nice to have also Mac OS X conversions
+	basesearchpaths.clear();
 #ifndef WIN32
 	AddToFileList(&basesearchpaths, "${HOME}/.OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");

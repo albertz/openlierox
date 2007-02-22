@@ -63,22 +63,28 @@ int LoadOptions(void)
 		i++;
 	}
 
-	searchpathlist::const_iterator p;
-	for(p = basesearchpaths.begin(); p != basesearchpaths.end(); i++)  {
-		AddToFileList(&tLXOptions->tSearchPaths, *p);
+	for(searchpathlist::const_iterator p1 = basesearchpaths.begin(); p1 != basesearchpaths.end(); i++,p1++)  {
+		AddToFileList(&tLXOptions->tSearchPaths, *p1);
 	}
 
-	printf("I have now the following searchpaths (in this direction):\n");
-	for(p = tLXOptions->tSearchPaths.begin(); p != basesearchpaths.end(); p++) {
-		printf("  %s\n", p->c_str());
+	// TODO: crashes here!
+	/*printf("I have now the following searchpaths (in this direction):\n");
+	for(searchpathlist::const_iterator p2 = tLXOptions->tSearchPaths.begin(); p2 != basesearchpaths.end(); p2++) {
+		printf("  %s\n", p2->c_str());
 	}
-	printf(" And that's all.\n");
+	printf(" And that's all.\n");*/
 
 	for (i=0;i<sizeof(tLXOptions->iInternetList)/sizeof(int);i++)  {
 		tLXOptions->iInternetList[i] = def_widths[i];
 		tLXOptions->iLANList[i] = def_widths[i];
 		tLXOptions->iFavouritesList[i] = def_widths[i];
 	}
+
+	// Add the player controls
+	// TODO
+	/*controls_t tmp;
+	tLXOptions->sPlayerControls.push_back(tmp);  // Player 1
+	tLXOptions->sPlayerControls.push_back(tmp);  // Player 2*/
 
 
     // Video
@@ -191,8 +197,8 @@ void ShutdownOptions(void)
 // Save the options
 void SaveOptions(void)
 {
-    static const char    *ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    static const char    *gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "MediaPlayer"};
+    static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "MediaPlayer"};
     int     i;
 
     if(tLXOptions == NULL)
