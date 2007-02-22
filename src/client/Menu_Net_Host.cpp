@@ -122,7 +122,7 @@ int Menu_Net_HostInitialize(void)
 			continue;*/
 
 		cHostPly.SendMessage( hs_PlayerList, LVS_ADDITEM, "", p->iID);
-		cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)LVS_IMAGE, (DWORD)p->bmpWorm);
+		cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE );
 		cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 	}
 

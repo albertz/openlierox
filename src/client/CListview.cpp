@@ -1200,7 +1200,14 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 			return GetColumnWidth(Param1);
 			break;
 
-
+		// Add a sub item
+		case LVS_ADDSUBITEM:
+			if(Param2 == LVS_IMAGE)
+				AddSubitem(LVS_IMAGE, "", (SDL_Surface *)Param1);
+			else
+				printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
+			break;
+			
 		default:
 			printf("Bad listview message\n");
 	}
@@ -1227,8 +1234,11 @@ DWORD CListview::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 		if(Param == LVS_TEXT)
 			AddSubitem(Param, sStr, NULL);
 		else
-			AddSubitem(LVS_IMAGE, "", (SDL_Surface *)Param);
+			printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
 		break;
+		
+	default:
+		printf("Bad listview message\n");
 	}
 
 	return 0;

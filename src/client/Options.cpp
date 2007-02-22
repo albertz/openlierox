@@ -271,6 +271,7 @@ void SaveOptions(void)
 	fprintf(fp, "AutoTyping = %s\n", tLXOptions->iAutoTyping ? "true" : "false");
     fprintf(fp, "\n");
 
+	// TODO: these arrays never got intialized!
 	fprintf(fp, "[Widgets]\n");
 	fprintf(fp, "InternetListCols = ");
 	for (i=0;i<5;i++)

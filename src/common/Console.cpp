@@ -497,7 +497,7 @@ bool Con_IsUsed(void)
 void Con_Shutdown(void)
 {
 	if(Console)
-		free(Console);
+		delete Console;
 
 	Console = NULL;
 }

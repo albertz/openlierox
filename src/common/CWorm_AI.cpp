@@ -499,7 +499,7 @@ private:
 
 	void clear_nodes() {
 		for(node_list::iterator it = nodes.begin(); it != nodes.end(); it++) {
-			free(*it);
+			delete *it;
 		}
 		nodes.clear();
 	}
@@ -5001,13 +5001,13 @@ NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n) {
 void delete_ai_nodes(NEW_ai_node_t* start) {
 	if(!start) return;
 	delete_ai_nodes(start->psNext);
-	free(start);
+	delete start;
 }
 
 void delete_ai_nodes(NEW_ai_node_t* start, NEW_ai_node_t* end) {
 	if(!start || start == end) return;
 	delete_ai_nodes(start->psNext, end);
-	free(start);
+	delete start;
 }
 
 float get_ai_nodes_length(NEW_ai_node_t* start) {
