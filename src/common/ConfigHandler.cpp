@@ -162,19 +162,12 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 {
 	static std::string string;
 
-	if (!GetString(filename,section,key,string/*,MAX_MINOR_LENGTH*/))
+	if (!GetString(filename,section,key,string))
 		return false;
 
-	// TODO: use explode instead
-/*	std::string tok = strtok(string.c_str(),",");
-	int i=0;
-	while(tok != "" && i < num_items)  {
-		array[i++] = atoi(tok);
-		tok = strtok(NULL,",");
-	}*/
-	std::vector<std::string> arr = explode(string,",");
+	std::vector<std::string>& arr = explode(string,",");
 	for (register int i=0; i<MIN(num_items,arr.size()); i++)
-		array[i] = atoi(arr[i]);
+		array[i] = from_string<int>(arr[i]);
 
 	return num_items == arr.size();
 }
@@ -213,14 +206,11 @@ int GetString(const std::string& filename, const std::string& section, const std
 	{
 		// Parse the lines
 		Line = ReadUntil(config, '\n');
-		//fscanf(config,"%[^\n]\n",tmpLine);
 		TrimSpaces(Line);
 		
 		///////////////////
 		// Comment, Ignore
-		if(Line.size() == 0)
-			continue;
-		if(Line[0] == '#')
+		if(Line.size() == 0 || Line[0] == '#')
 			continue;
 
 		////////////

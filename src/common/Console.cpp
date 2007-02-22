@@ -463,10 +463,8 @@ void Con_Draw(SDL_Surface *bmpDest)
 		buf = "";
 
 
-		if(n==0) {
-			//buf[0] = ']'; buf[1] = 0;
+		if(n==0)
 			buf = "]";
-		}
 		buf += Console->Line[n].strText;
 
 		Console->fBlinkTime += tLX->fDeltaTime;

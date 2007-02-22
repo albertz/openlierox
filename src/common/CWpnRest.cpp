@@ -190,20 +190,12 @@ void CWpnRest::loadList(const std::string& szFilename)
         return;
 
     static std::string line;
-	static std::vector<std::string> exploded;
-
+	
     while( !feof(fp) ) {
         line = ReadUntil(fp, '\n');
-        //fscanf(fp, "%[^\n]\n",line);
-        /*char *tok = strtok(line,",");
-        if( tok )  {
-			char *tok2 = strtok(NULL,",");
-			if (tok2)
-				addWeapon( tok, atoi(tok2) );
-		}*/
-		exploded = explode(line,",");
-		if (exploded.size() == 2)
-			addWeapon(exploded[0],atoi(exploded[1]));
+		std::vector<std::string>& exploded = explode(line,",");
+		if (exploded.size() >= 2)
+			addWeapon(exploded[0],from_string<int>(exploded[1]));
     }
 
     fclose(fp);

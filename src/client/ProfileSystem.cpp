@@ -112,8 +112,7 @@ void AddDefaultPlayers(void)
 
 	// Add 7 ai players
 	for(i=0; i<7; i++) {
-		//snprintf(buf, sizeof(buf), "CPU %d", i+1); fix_markend(buf);
-		buf = "CPU "+itoa(i);
+		buf = "CPU "+itoa(i+1);
 		
 		AddProfile(buf, "default.png", "", "", cpuColours[i*3], cpuColours[i*3+1], cpuColours[i*3+2], PRF_COMPUTER, Diff[i]);
 	}

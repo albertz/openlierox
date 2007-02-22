@@ -498,9 +498,7 @@ void CTextbox::Delete(void)
 {
 	// Delete selection
 	if(iSelLength)  {
-		//memmove(sText+iSelStart,sText+iSelStart+abs(iSelLength),iLength-(iSelStart+abs(iSelLength))+1);
-		//sText.erase(iSelStart,iSelStart+abs(iSelLength));
-		sText = sText.substr(0,iSelStart)+sText.substr(iSelStart+abs(iSelLength));
+		sText.erase(iSelStart,abs(iSelLength));
 		iCurpos = iSelStart;
 		iSelLength = 0;
 		iLength = sText.length();
@@ -560,7 +558,7 @@ void CTextbox::Insert(char c)
 // Replace the current text with the buf
 void CTextbox::setText(const std::string& buf)
 {
-	sText.erase((unsigned int)0);
+	sText = "";
 
 	// Copy the text and ignore unknown characters
 	int j=0;

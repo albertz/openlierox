@@ -583,49 +583,7 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 
 //////////////////
 // Converts a string to a colour
-Uint32 StrToCol(const std::string& str)
-{
-	// TODO: so damn shitty code, rewrite this!
-	// (never ever use c_str() if it is not needed!)
-	
-	/*std::string string = str;
-	char tmp[3];
-	int r,g,b;
-	tmp[2] = 0;  // Third character is terminating
-
-	// By default return pink
-	if(string.size() < 6)
-		return tLX->clPink;
-	
-	// Ignore the # character
-	if(string[0] == '#')
-		string.erase(0,1);
-	
-	// By default return pink
-	if(string.size() < 6)
-		return tLX->clPink;
-
-	// R value
-	strncpy(tmp,str.c_str(),2);
-	strlwr(tmp);
-	r = MIN((int)strtol(tmp,NULL,16),255);
-
-	// G value
-	strncpy(tmp,str.c_str()+2,2);
-	strlwr(tmp);
-	g = MIN((int)strtol(tmp,NULL,16),255);
-
-	// B value
-	strncpy(tmp,str.c_str()+4,2);
-	strlwr(tmp);
-	b = MIN((int)strtol(tmp,NULL,16),255);
-
-	// Make the colour
-	Uint32 result = MakeColour((Uint8)r,(Uint8)g,(Uint8)b);
-
-	return result;*/
-
-	// TODO: atoi doesn't work for hex numbers!!!
+Uint32 StrToCol(const std::string& str) {
 	if (str == "")
 		return tLX->clPink;
 
@@ -635,31 +593,22 @@ Uint32 StrToCol(const std::string& str)
 
 	// Is the # character present?
 	if (temp[0] == '#')
-		temp = temp.substr(1);
+		temp.erase(0,1);
 
 	// Check
 	if (temp.length() < 6)
 		return tLX->clPink;
 
 	// Convert to lowercase
-	stringtolower(temp);
+	stringlwr(temp);
 
 	// Convert
 	Uint8 r,g,b;
-	r = MIN(atoi(temp.substr(0,2)),255);
-	g = MIN(atoi(temp.substr(2,2)),255);
-	b = MIN(atoi(temp.substr(4,2)),255);
+	r = MIN(from_string<int>(temp.substr(0,2),hex),255);
+	g = MIN(from_string<int>(temp.substr(2,2),hex),255);
+	b = MIN(from_string<int>(temp.substr(4,2),hex),255);
 
 	return MakeColour(r,g,b);
-}
-
-void stringtolower(std::string& str)
-{
-	if (str == "")
-		return;
-
-	for (std::string::iterator it=str.begin(); it != str.end(); it++)
-		*it = tolower(*it);
 }
 
 short stringcasecmp(const std::string& s1, const std::string& s2) {
@@ -685,7 +634,8 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 	}
 }
 
-std::vector<std::string> explode(const std::string& str, const std::string& delim) {
+// HINT: it returns a reference
+std::vector<std::string>& explode(const std::string& str, const std::string& delim) {
 	static std::vector<std::string> result;
 	result.clear();
 	
@@ -721,15 +671,6 @@ std::string freadstr(FILE *fp, size_t maxlen)
 	}
 	
 	return result;
-}
-
-// reads one line from the file, including the breakline character
-std::string freadline(FILE *fp)
-{
-	static std::string result;
-	result = ReadUntil(fp, '\n');
-	if(result != "") return result + '\n';
-	return "";
 }
 
 

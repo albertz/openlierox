@@ -531,8 +531,8 @@ void CServer::RegisterServer(void)
     }
 
     // Find the first line
-    while( (buf = freadline(fp)) != "" ) {
-        buf.erase(buf.length()-1);
+    while( feof(fp) ) {
+        buf = ReadUntil(fp);
         if( buf != "" ) {
             if( !http_InitializeRequest(buf, url) ) {
                 bRegServer = false;
@@ -620,8 +620,8 @@ bool CServer::DeRegisterServer(void)
         return false;
 
     // Find the first line
-    while( (buf = freadline(fp)) != "" ) {
-        buf.erase(buf.length()-1);
+    while( !feof(fp) ) {
+    	buf = ReadUntil(fp);
         if( buf != "" ) {
             if( !http_InitializeRequest(buf, url) ) {
                 fclose(fp);
@@ -1244,12 +1244,12 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 		k = 0;
 		ip_parts[i] = atoi(buf);
 	}*/
-	std::vector<std::string> ip_e = explode(Address,".");
+	std::vector<std::string>& ip_e = explode(Address,".");
 	if (ip_e.size() != 4)
-		return "Unknown country";
+		return "Hackerland";
 
 	// Convert the IP to the numeric representation
-	int num_ip = atoi(ip_e[0]) * 16777216 + atoi(ip_e[1]) * 65536 + atoi(ip_e[2]) * 256 + atoi(ip_e[3]);
+	int num_ip = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
 
 	// Open the database
 	FILE *fp = OpenGameFile("ip_to_country.csv","r");
@@ -1354,18 +1354,17 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 	}*/
 
 	std::string line = "";
-	std::vector<std::string> info;
-	while ((line = freadline(fp)) != "")  {
+	while(!feof(fp)) {
 		// Adjust the line and check it's not comment or blank
-		line.erase(line.length()-1);  // erase the linebreak
+		line = ReadUntil(fp);
 		TrimSpaces(line);
 		if (line == "")
 			continue;
-		if (line[0] == '#')
+		if (line[0] == '#') // it's a comment
 			continue;
 
 		// Parse the line
-		info = explode(line,",");
+		std::vector<std::string>& info = explode(line,",");
 		if (info.size() < 7)
 			continue;
 
@@ -1374,7 +1373,7 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 		StripQuotes(info[1]);
 
 		// Check the range
-		if (num_ip >= atoi(info[0]) && num_ip <= atoi(info[1]))  {
+		if (num_ip >= from_string<int>(info[0]) && num_ip <= from_string<int>(info[1]))  {
 			StripQuotes(info[6]);
 			ucfirst(info[6]);
 			return info[6];
@@ -1383,7 +1382,7 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 
 
 	// Not found
-	Result = "Unknown Country";
+	Result = "very small and unknown country";
 
 	fclose(fp);
 	

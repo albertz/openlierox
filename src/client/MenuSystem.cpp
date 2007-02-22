@@ -518,7 +518,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	// Handle multiline messages
 	int maxwidth = 0;
 	int tmp=0;
-	static std::vector<std::string> lines = explode(sText,"\n");
+	static std::vector<std::string>& lines = explode(sText,"\n");
 	int i;
 	for (i=0; i<lines.size(); i++)  {
 		maxwidth = MAX(maxwidth,tLX->cFont.GetWidth(lines[i]));
@@ -1717,16 +1717,14 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
         return;
 
     static std::string szLine = "";
-	std::vector<std::string> parsed;
 
     // Go through every line
-    while( (szLine = freadline(fp)) != "" ) {
-
-        szLine.erase(szLine.length()-1);  // remove linebreak
+    while( !feof(fp) ) {
+		szLine = ReadUntil(fp);
         if( szLine == "" )
             continue;
 	
-		parsed = explode(szLine,",");
+		std::vector<std::string>& parsed = explode(szLine,",");
 
         if( parsed.size() == 3 ) {
 			TrimSpaces(parsed[2]); // Address
