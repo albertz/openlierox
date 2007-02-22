@@ -585,6 +585,9 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 // Converts a string to a colour
 Uint32 StrToCol(const std::string& str)
 {
+	// TODO: so damn shitty code, rewrite this!
+	// (never ever use c_str() if it is not needed!)
+	
 	std::string string = str;
 	char tmp[3];
 	int r,g,b;

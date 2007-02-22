@@ -1639,8 +1639,6 @@ void CClient::processChatCharacter(int c, bool bDown)
 		buf = GetClipboardText();
 
 		// Paste
-		//memmove(sChat_Text+iChat_Pos+len,sChat_Text+iChat_Pos,text_len-iChat_Pos+1);
-		//memcpy(sChat_Text+iChat_Pos,buf.c_str(),len);
 		sChat_Text.insert(iChat_Pos,buf);
 		iChat_Pos += buf.length();
 		return;
@@ -1650,11 +1648,8 @@ void CClient::processChatCharacter(int c, bool bDown)
     if(iChat_Pos < ChatMaxLength-1 && c > 31 && c <127 ) {
 		int len = sChat_Text.length();
 		char buf[2]; buf[1]=c; buf[2]=0;
-		if(iChat_Pos < len) sChat_Text.insert(iChat_Pos,buf);//memmove(sChat_Text+iChat_Pos+1,sChat_Text+iChat_Pos,len-iChat_Pos);
-		else iChat_Pos = len; // just for security
-
-		//sChat_Text[iChat_Pos++] = c;
-		//sChat_Text[len+1] = '\0';
+		sChat_Text.insert(iChat_Pos,buf);
+		iChat_Pos++;
     }
 }
 

@@ -430,7 +430,7 @@ void Menu_OptionsFrame(void)
 
 		//val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
         //DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 285,260, 285,260, 100,50);
-		//tLX->cFont.Draw(tMenu->bmpScreen,285, 268, tLX->clNormalLabel,"%s",Difficulties[val],c_str());
+		//tLX->cFont.Draw(tMenu->bmpScreen,285, 268, tLX->clNormalLabel,Difficulties[val]);
 
 
 
@@ -658,7 +658,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
     DrawRectFill(tMenu->bmpBuffer, 212,172,429,309,0);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,180,MakeColour(128,200,255),"%s","Input for:");
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),"%s",name.c_str());
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),name);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,270,MakeColour(255,255,255),"%s","Press any key/mouse");
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,285,MakeColour(128,128,128),"%s","(Escape to cancel)");

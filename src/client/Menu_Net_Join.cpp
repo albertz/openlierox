@@ -769,7 +769,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         else
             f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
 		f->Draw(tMenu->bmpScreen, x, y+40, tLX->clNormalLabel,"%s", "Game Mode:");
-		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, "%s",gamemodes[gl->nGameMode].c_str());
+		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, gamemodes[gl->nGameMode]);
         f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel, "%s", "Mod:");
         if(gl->bHaveMod)
             f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel,  gl->szModName);

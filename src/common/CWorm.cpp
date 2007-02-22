@@ -564,9 +564,9 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 		
 		//tLX->cFont.Draw(bmpDest, centrex-69, y+1, 0,"%s", tWeapons[i].Weapon->Name.c_str());
 		if(iCurrentWeapon == i)
-			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, 0xffff, "%s", tWeapons[i].Weapon->Name.c_str());
+			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, 0xffff,  tWeapons[i].Weapon->Name);
 		else
-			tLX->cOutlineFontGrey.Draw(bmpDest, centrex-70, y, 0xffff, "%s", tWeapons[i].Weapon->Name.c_str());
+			tLX->cOutlineFontGrey.Draw(bmpDest, centrex-70, y, 0xffff,  tWeapons[i].Weapon->Name);
 
 		if (iChat_Typing)  {
 			y += 18;
@@ -922,7 +922,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 	// Draw the worm's name
 	if(!iLocal || (iLocal && iType != PRF_HUMAN)) {
-		//tLX->cFont.DrawCentre(bmpDest,x+1,y-29,0,"%s",sName.c_str());
+		//tLX->cFont.DrawCentre(bmpDest,x+1,y-29,0,sName);
 		if (tGameInfo.iGameMode == GMT_TEAMDEATH && tLXOptions->iColorizeNicks)  {
 									// Blue				Red				Green			Yellow
 			Uint8 teamcolours[] = {0x02,0xB8,0xFC,  0xFF,0x02,0x02,  0x20,0xFD,0x00,  0xFD,0xF4,0x00};

@@ -213,8 +213,8 @@ void CCombobox::Sort(bool ascending)
 			bool swap = false;
 
 			// Swap the two items?
-			int nat_cmp1 = atoi(item->sName.c_str());
-			int nat_cmp2 = atoi(next_item->sName.c_str());
+			int nat_cmp1 = from_string<int>(item->sName);
+			int nat_cmp2 = from_string<int>(next_item->sName);
 			// First try, if we compare numbers
 			if (nat_cmp1 && nat_cmp2)  {
 				if (ascending)

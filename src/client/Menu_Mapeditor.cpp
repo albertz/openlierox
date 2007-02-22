@@ -569,8 +569,8 @@ void Menu_MapEd_New(void)
 				case mn_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						PlaySoundSample(sfxGeneral.smpClick);
-						int w = atoi(t1->getText().c_str());
-						int h = atoi(t2->getText().c_str());
+						int w = from_string<int>(t1->getText());
+						int h = from_string<int>(t2->getText());
 						std::string theme;
 						theme = "dirt";
 						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,(DWORD)0,0);

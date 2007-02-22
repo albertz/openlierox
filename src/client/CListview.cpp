@@ -35,7 +35,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 	if (bOldStyle)  {
 		for(int i=1;col;col = col->tNext,i++)   {
-			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel,"%s", col->sText.c_str());
+			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel, col->sText);
 			x += col->iWidth-2;
 		}
 	} else {
@@ -50,7 +50,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown->w-9,iY+7); break;
 			}
 
-			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x-20), tLX->clNormalLabel,"%s", col->sText.c_str());
+			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x-20), tLX->clNormalLabel, col->sText);
 
 			x += col->iWidth-2;
 		}
@@ -114,9 +114,9 @@ void CListview::Draw(SDL_Surface *bmpDest)
 				if(sub->iVisible) {
 					if(sub->iType == LVS_TEXT)  {
 						if (col && !bOldStyle)
-							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,"%s",sub->sText.c_str());
+							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,sub->sText);
 						else
-							tLX->cFont.DrawAdv(bmpDest,x,texty,iWidth-2,item->iColour,"%s",sub->sText.c_str());
+							tLX->cFont.DrawAdv(bmpDest,x,texty,iWidth-2,item->iColour,sub->sText);
 					}
 
 					else if(sub->iType == LVS_IMAGE)
@@ -506,8 +506,8 @@ void CListview::SortBy(int column, bool ascending)
 			bool swap = false;
 			if (subitem2 && subitem1)  {
 				// Swap the two items?
-				int nat_cmp1 = atoi(subitem1->sText.c_str());
-				int nat_cmp2 = atoi(subitem2->sText.c_str());
+				int nat_cmp1 = from_string<int>(subitem1->sText);
+				int nat_cmp2 = from_string<int>(subitem2->sText);
 				// First try, if we compare numbers
 				if (nat_cmp1 && nat_cmp2)  {
 					if (ascending)

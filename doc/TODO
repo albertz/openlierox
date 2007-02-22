@@ -6,6 +6,7 @@ TODO list
 [ ] add MaxFPS option in option dialog
 [ ] change menu graphics (mainly the "Liero Xtreme" banner)
 [ ] other default keys and default weapon selection (they are disabled by default)
+[ ] add some help for weapon selection (cause not everybody understand it)
 
 minor things:
 [ ] more than 2 viewports and other resolutions than 640x480

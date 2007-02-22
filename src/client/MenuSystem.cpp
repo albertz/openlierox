@@ -568,10 +568,10 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,0);
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,MakeColour(64,64,64));
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,"%s", sTitle.c_str());
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,sTitle);
 	for (i=0; (int)i<=lines.size(); i++)  {
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
-		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel,"%s", lines[i].c_str());
+		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, lines[i]);
 		cy += tLX->cFont.GetHeight()+2;
 	}
 
@@ -1908,13 +1908,13 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
     if(nGameMode < 0 || nGameMode > 3)
         nGameMode = 4;
 
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel, "%s", szName.c_str());
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, "%s", szMapName.c_str());
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel, "%s", szModName.c_str());
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel, "%s", states[nState].c_str());
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel,  szName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, szMapName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel,  szModName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel,  states[nState]);
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel, "%d / %d", nNumPlayers, nMaxWorms);
 
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel, "%s", gamemodes[nGameMode].c_str());
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel,  gamemodes[nGameMode]);
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel, "%d", nLives);
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel, "%d", nMaxKills);
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel, "%d", nLoadingTime);

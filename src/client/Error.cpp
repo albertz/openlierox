@@ -188,7 +188,8 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 
 	// Open the file
-	HANDLE hFile = CreateFile((LPCSTR)GetWriteFullFileName(checkname,true).c_str(),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+	std::string wffn = GetWriteFullFileName(checkname,true);
+	HANDLE hFile = CreateFile((LPCSTR)wffn.c_str(),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 
 
 	// Write the minidump
@@ -214,7 +215,8 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	snprintf(buf,sizeof(buf),"\"%s\"",checkname); fix_markend(buf);
 	//MessageBox(0,GetFullFileName("BugReport.exe"),"Debug",MB_OK);
 
-	ShellExecute(NULL,"open",GetFullFileName("BugReport.exe").c_str(),buf,NULL,SW_SHOWNORMAL);
+	std::string ffn = GetFullFileName("BugReport.exe");
+	ShellExecute(NULL,"open",ffn.c_str(),buf,NULL,SW_SHOWNORMAL);
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }

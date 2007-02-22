@@ -678,7 +678,7 @@ void Menu_LocalDrawPlayingList(void)
                 continue;
             }
         }
-        tLX->cFont.Draw(tMenu->bmpScreen, 345, y, nameCol,"%s", sLocalPlayers[i].psProfile->sName.c_str());
+        tLX->cFont.Draw(tMenu->bmpScreen, 345, y, nameCol, sLocalPlayers[i].psProfile->sName);
 
 
         // Team
@@ -1144,8 +1144,8 @@ bool Menu_WeaponsRestrictions_Frame(void)
             }
         }
 
-        tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour,"%s", psWpn[i].psLink->szName.c_str() );
-        tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour,"%s", szStates[psWpn[i].psLink->nState].c_str() );
+        tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour,psWpn[i].psLink->szName );
+        tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour, szStates[psWpn[i].psLink->nState] );
     }
 
     // Adjust the scrollbar

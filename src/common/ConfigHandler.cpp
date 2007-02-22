@@ -99,9 +99,7 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 	if(!GetString(filename,section,key,string))
 		return false;
 	
-
-	// TODO
-	*value = atoi(string.c_str());//from_string(string);
+	*value = from_string<int>(string);
 
 	return true;
 }
@@ -214,10 +212,9 @@ int GetString(const std::string& filename, const std::string& section, const std
 	while(!feof(config))
 	{
 		// Parse the lines
-		tmpLine = ReadUntil(config, '\n');
+		Line = ReadUntil(config, '\n');
 		//fscanf(config,"%[^\n]\n",tmpLine);
-		TrimSpaces(tmpLine);
-		Line = tmpLine;
+		TrimSpaces(Line);
 		
 		///////////////////
 		// Comment, Ignore
@@ -226,11 +223,10 @@ int GetString(const std::string& filename, const std::string& section, const std
 
 		////////////
 		// Sections
-		if(Line[0] == '[' && Line[Line.size()-2] == ']')
+		if(Line[0] == '[' && Line[Line.size()-1] == ']')
 		{
-			temp = Line.substr(1);
-			temp.erase(temp.size()-2);
-			curSection = temp;
+			curSection = Line.substr(1);
+			curSection.erase(curSection.size()-1);
 			continue;
 		}
 

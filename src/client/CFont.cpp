@@ -34,6 +34,8 @@ int CFont::Load(const std::string& fontname, int _colour, int _width)
 	Colour = _colour;
 	Width = _width;
 
+	if(!bmpFont) return false;
+
 	bmpWhite = gfxCreateSurface(bmpFont->w,bmpFont->h);
 	bmpGreen = gfxCreateSurface(bmpFont->w,bmpFont->h);
 

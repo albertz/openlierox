@@ -557,6 +557,7 @@ bool CCssParser::Parse(char *sFilename)
 
 /////////////////
 // Parses border properties from a string
+// TODO: make it use std::string!!
 void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint32 *DarkColour,uchar *type)
 {
 	// Defaults

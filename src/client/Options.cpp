@@ -58,7 +58,7 @@ int LoadOptions(void)
 		item = "SearchPath"; item += itoa(i,10);
 		if(!ReadString(f, "FileHandling", item, value, ""))
 			break;
-
+		
 		AddToFileList(&tLXOptions->tSearchPaths, value);
 		i++;
 	}
@@ -111,7 +111,7 @@ int LoadOptions(void)
         	break;
         if(i == 0)
         	tLXOptions->sPlayerControls.push_back(controls_t());
-        tLXOptions->sPlayerControls[j][i] = value;
+        tLXOptions->sPlayerControls[j-1][i] = value;
         
         i++;
         if(i >= 8) {

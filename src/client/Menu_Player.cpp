@@ -431,7 +431,7 @@ void Menu_Player_NewPlayer(int mouse)
     if( type == PRF_COMPUTER ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
-        tLX->cFont.Draw(tMenu->bmpScreen, 250,363,0xffff,"%s",difflevels[level].c_str());
+        tLX->cFont.Draw(tMenu->bmpScreen, 250,363,0xffff,difflevels[level]);
 
     }
 

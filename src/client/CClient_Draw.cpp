@@ -823,7 +823,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			Uint32 col = tLX->clNormalLabel;
 			if(p->getTagIT())
 				col = MakeColour(255,0,0);
-			tLX->cFont.Draw(bmpDest, x+375, j, col, "%s", buf.c_str());
+			tLX->cFont.Draw(bmpDest, x+375, j, col, buf);
 
 			j+=20;
 		}
@@ -971,8 +971,8 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 
 		// This chat is in the black region of the screen
 		if(l) {
-			//tLX->cFont.Draw(bmpDest, 190, y+1, 0,"%s", l->strLine.c_str());
-			tLX->cFont.Draw(bmpDest, 190, y, l->iColour,"%s", l->strLine.c_str());
+			//tLX->cFont.Draw(bmpDest, 190, y+1, 0, l->strLine);
+			tLX->cFont.Draw(bmpDest, 190, y, l->iColour, l->strLine);
 			y+=15;
 		}
 	}*/

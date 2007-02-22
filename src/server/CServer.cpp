@@ -534,7 +534,7 @@ void CServer::RegisterServer(void)
     while( (buf = freadline(fp)) != "" ) {
         buf.erase(buf.length()-1);
         if( buf != "" ) {
-            if( !http_InitializeRequest(buf.c_str(), url.c_str()) ) {
+            if( !http_InitializeRequest(buf, url) ) {
                 bRegServer = false;
                 notifyLog("Could not register with master server: 'Could not open TCP socket'");
             }
@@ -623,7 +623,7 @@ bool CServer::DeRegisterServer(void)
     while( (buf = freadline(fp)) != "" ) {
         buf.erase(buf.length()-1);
         if( buf != "" ) {
-            if( !http_InitializeRequest(buf.c_str(), url.c_str()) ) {
+            if( !http_InitializeRequest(buf, url) ) {
                 fclose(fp);
                 return false;
             }

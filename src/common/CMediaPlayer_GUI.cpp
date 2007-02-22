@@ -178,7 +178,7 @@ void CPlayerMarquee::RedrawBuffer(void)
 
 	// Blit on the buffer
 	if (szText != "")
-		tLX->cFont.Draw(bmpBuffer,0,0,iColour,"%s",szText.c_str());
+		tLX->cFont.Draw(bmpBuffer,0,0,iColour,szText);
 }
 
 /////////////////////

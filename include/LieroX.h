@@ -259,11 +259,12 @@ T from_string(const std::string& s) {
 
 // std::string itoa
 inline std::string itoa(int num,int base=10)  {
-	// TODO: better!!
+	// TODO: better!! (use ostringstream)
 	static char buf[64];
-	itoa(num,buf,base);
+	static std::string ret;
+	ret = itoa(num,buf,base);
 	fix_markend(buf);
-	return buf;
+	return ret;
 }
 
 inline int atoi(const std::string& str)  { return from_string<int>(str);  }
