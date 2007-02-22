@@ -342,7 +342,7 @@ void		Menu_SvrList_FillList(CListview *lv);
 void        Menu_SvrList_SaveList(const std::string& szFilename);
 void        Menu_SvrList_LoadList(const std::string& szFilename);
 void        Menu_SvrList_DrawInfo(const std::string& szAddress);
-void		Menu_SvrList_AddFavourite(const std::string szName, const std::string szAddress);
+void		Menu_SvrList_AddFavourite(const std::string& szName, const std::string& szAddress);
 
 // Main menu
 void	Menu_MainInitialize(void);

@@ -271,8 +271,7 @@ void Con_ProcessCharacter(int input)
 	// Backspace
 	if((char) input == '\b') {
 		if(Console->iCurpos > 0)  {
-			//memmove(Console->Line[0].strText+Console->iCurpos-1,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
-			Console->Line[0].strText.erase(Console->iCurpos);
+			Console->Line[0].strText.erase(Console->iCurpos,1);
 			Console->iCurpos--;
 			Console->iCurLength--;
 		}
@@ -283,8 +282,7 @@ void Con_ProcessCharacter(int input)
 	// Delete
 	if(input == SDLK_DELETE)  {
 		if(Console->iCurLength > 0 && Console->iCurLength > Console->iCurpos)  {
-			//memmove(Console->Line[0].strText+Console->iCurpos,Console->Line[0].strText+Console->iCurpos+1,Console->iCurLength-Console->iCurpos+1);
-			Console->Line[0].strText.erase(Console->iCurpos+1);
+			Console->Line[0].strText.erase(Console->iCurpos+1,1);
 			Console->iCurLength--;
 		}
 		Console->icurHistory = -1;
@@ -329,8 +327,6 @@ void Con_ProcessCharacter(int input)
 
 		// Paste
 		Console->Line[0].Colour = CNC_NORMAL;
-		//memmove(Console->Line[0].strText+Console->iCurpos+len,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
-		//strncpy(Console->Line[0].strText+Console->iCurpos,buf,len);
 		Console->Line[0].strText.insert(Console->iCurpos,buf);
 		Console->iCurpos += buf.length();
 		Console->iCurLength = Console->Line[0].strText.size();
@@ -343,7 +339,7 @@ void Con_ProcessCharacter(int input)
 	// Enter key
 	if((char) input == '\n' || (char) input == '\r') {
 
-		Con_Printf(CNC_NORMAL,"]%s",Console->Line[0].strText);
+		Con_Printf(CNC_NORMAL,"]%s",Console->Line[0].strText.c_str());
 
 		// Parse the line
 		Cmd_ParseLine(Console->Line[0].strText);
@@ -373,12 +369,11 @@ void Con_ProcessCharacter(int input)
 		if (Console->iCurpos > Console->iCurLength)
 			Console->iCurpos = Console->iCurLength;
 
+		static std::string tmp;
+		tmp = (char)input;
 		Console->Line[0].Colour = CNC_NORMAL;
-		memmove(Console->Line[0].strText+Console->iCurpos+1,Console->Line[0].strText+Console->iCurpos,Console->iCurLength-Console->iCurpos+1);
-		/*Console->Line[0].strText[Console->iCurLength++] = input;
-		Console->Line[0].strText[Console->iCurLength] = '\0';*/
-		Console->Line[0].strText[Console->iCurpos++] = (char) input;
-		Console->Line[0].strText[++Console->iCurLength] = '\0';
+		Console->Line[0].strText.insert(Console->iCurpos, tmp);
+		Console->iCurpos++; Console->iCurLength++;
 		Console->icurHistory = -1;
 	}
 }

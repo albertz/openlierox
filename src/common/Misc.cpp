@@ -510,8 +510,9 @@ void ucfirst(std::string& text)
 
 	text[0] = toupper(text[0]);
 	bool wasalpha = isalpha(text[0]);
+	// TODO: very very bad style!!! please use iterators!
 	for (size_t i=1;i<text.length();i++)  {
-		if (isalpha(text[i])  {
+		if (isalpha(text[i]))  {
 			if (wasalpha)
 				text[i] = toupper(text[i]);
 			else
@@ -688,15 +689,10 @@ std::string freadstr(FILE *fp, size_t maxlen)
 // reads one line from the file, including the breakline character
 std::string freadline(FILE *fp)
 {
-	if (!fp)
-		return "";
 	static std::string result;
-	static char buf[1024];
-	if (fgets(buf,sizeof(buf)-1,fp))
-		result = buf;
-	else
-		result = "";
-	return result;		
+	result = ReadUntil(fp, '\n');
+	if(result != "") return result + '\n';
+	return "";
 }
 
 

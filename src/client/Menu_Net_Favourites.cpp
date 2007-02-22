@@ -390,7 +390,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_FavouritesJoinServer(char *sAddress, char *sName)
+void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName)
 {
 	tGameInfo.iNumPlayers = 1;
 
@@ -433,7 +433,7 @@ extern CButton cNetButtons[5];
 
 ///////////////////
 // Show a server's details
-void Menu_Net_FavouritesShowServer(char *szAddress)
+void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 {
     mouse_t     *Mouse = GetMouse();
     int         nMouseCur = 0;

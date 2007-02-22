@@ -63,6 +63,7 @@ public:
 	int		Load(const std::string& name, const std::string& section);
 	int		Setup(const std::string& text);
 	int		Wait(std::string& strText);
+	int		Wait();
 
 	int		isUp(void);
 	int		isDown(void);
@@ -75,14 +76,14 @@ public:
 
 // Keyboard structure
 typedef struct {
-	char	text[32];
+	std::string	text;
 	int		value;
 } keys_t;
 
 
 // Joystick structure
 typedef struct {
-	char	text[32];
+	std::string	text;
 	int		value;
 	int		extra;
 } joystick_t;

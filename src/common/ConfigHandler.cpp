@@ -27,7 +27,7 @@ keyword_t	Keywords[MAX_KEYWORDS];
 
 ///////////////////
 // Add a keyword to the list
-int AddKeyword(std::string& key, int value)
+int AddKeyword(const std::string& key, int value)
 {
 	// Check for enough spaces
 	if(NumKeywords >= MAX_KEYWORDS-1)
@@ -189,7 +189,6 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string)
 {
 	FILE	*config;
-	// TODO!
 	static std::string	Line;
 	static std::string	tmpLine;
 	static std::string	curSection;

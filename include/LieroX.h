@@ -204,7 +204,7 @@ char    *TrimSpaces(char *szLine);
 void TrimSpaces(std::string& szLine);
 bool	replace(char *text, const char *what, const char *with, char *result);
 bool	replace(const std::string& text, const std::string& what, const std::string& with, std::string& result);
-bool	replace(std::string& text, std::string what, std::string with);
+bool	replace(std::string& text, const std::string& what, const std::string& with);
 std::string replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max);
 std::string replacemax(const std::string& text, const std::string& what, const std::string& with, int max);
 char	*strip(char *buf, int width);
@@ -254,6 +254,20 @@ T from_string(const std::string& s) {
 	iss >> t;
 	return t;
 }
+
+
+
+// std::string itoa
+inline std::string itoa(int num,int base=10)  {
+	// TODO: better!!
+	static char buf[64];
+	itoa(num,buf,base);
+	fix_markend(buf);
+	return buf;
+}
+
+inline int atoi(const std::string& str)  { return from_string<int>(str);  }
+inline float atof(const std::string& str) { return from_string<float>(str);  }
 
 
 // Useful XML functions

@@ -81,6 +81,6 @@ void	DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	do_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface *, int, int, int));
 
-bool	SaveSurface(SDL_Surface *Image, char *FileName, int Format, bool Tournament);
+bool	SaveSurface(SDL_Surface *Image, const std::string& FileName, int Format, bool Tournament);
 
 #endif  //  __GFXPRIMITIVES_H__

@@ -163,7 +163,7 @@ enum {
 template<typename _handler>
 void ForEachSearchpath(_handler handler = _handler()) {
 	searchpathlist::const_iterator i;
-	for(
+	if(tLXOptions) for(
 		i = tLXOptions->tSearchPaths.begin();
 		i != tLXOptions->tSearchPaths.end(); i++) {
 		if(!handler(*i + "/")) return;
@@ -171,7 +171,7 @@ void ForEachSearchpath(_handler handler = _handler()) {
 	for(
 		i = basesearchpaths.begin();
 		i != basesearchpaths.end(); i++) {
-		if(!FileListIncludes(&tLXOptions->tSearchPaths, *i))
+		if(!tLXOptions || !FileListIncludes(&tLXOptions->tSearchPaths, *i))
 			if(!handler(*i + "/")) return;
 	}
 	handler("./");

@@ -57,8 +57,8 @@ NetworkSocket	http_Socket;
 bool			http_Connected;
 bool			http_Requested;
 bool			http_SocketReady;
-char			http_url[1024];
-char			http_host[1024];
+std::string		http_url;
+std::string		http_host;
 char			http_content[HTTP_CONTENT_LEN];
 float           http_ResolveTime = -9999;
 
@@ -72,7 +72,7 @@ void http_Init() {
 
 ///////////////////
 // Initialize a HTTP get request
-bool http_InitializeRequest(const char *host, const char *url)
+bool http_InitializeRequest(const std::string& host, const std::string& url)
 {
 	// Make the url http friendly (get rid of spaces)	
 	//http_ConvertUrl(http_url, url);
@@ -81,7 +81,7 @@ bool http_InitializeRequest(const char *host, const char *url)
     // Ie, '/'s from host goes into url
     http_CreateHostUrl(host, url);
 
-    d_printf("_Sending request %s %s\n",http_host, http_url);
+    d_printf("_Sending request %s %s\n",http_host.c_str(), http_url.c_str());
 
 	memset(http_content, 0, sizeof(http_content));
 
@@ -119,7 +119,7 @@ bool http_InitializeRequest(const char *host, const char *url)
 int http_ProcessRequest(std::string* szError)
 {
     if(szError)
-        szError[0] = '\0';
+        *szError = "";
 
 	// Check if the address failed resolving in n seconds
 	if(!IsNetAddrValid(&http_RemoteAddress)) {
@@ -244,7 +244,7 @@ bool http_SendRequest(void)
 	static char request[1024];
 
 	// Build the url
-	snprintf(request, sizeof(request), "GET %s HTTP/1.0\nHost: %s\n\n", http_url,http_host);
+	snprintf(request, sizeof(request), "GET %s HTTP/1.0\nHost: %s\n\n", http_url.c_str(),http_host.c_str());
 	int count = WriteSocket( http_Socket, request, fix_strnlen(request) );
 
 	// Anything written?
@@ -271,16 +271,17 @@ void http_Quit(void)
 
 ///////////////////
 // Convert the url into a friendly url (no spaces)
-void http_ConvertUrl(char *dest, char *url)
+void http_ConvertUrl(std::string& dest, const std::string& url)
 {
-	size_t i,j;
+	size_t i;
 	char buffer[3];
 	char c;
 
 
-	dest[0] = 0;
+	dest = "";
 
-	for( i=0,j=0; url[i]; i++) {
+	// TODO: use iterators!
+	for( i=0; i < url.size(); i++) {
 		c = url[i];
 		
 //		if(url[i] == '_')
@@ -288,43 +289,36 @@ void http_ConvertUrl(char *dest, char *url)
 			
 
 		if( isalnum(c) )
-			dest[j++] = c;
+			dest += c;
 		else {
-			if( j<1020 ) {
-				snprintf(buffer,sizeof(buffer),"%X",c);
-				dest[j] = '%';
-				dest[j+1] = buffer[0];
-				dest[j+2] = buffer[1];
-			}
-			j+=3;
+			snprintf(buffer,sizeof(buffer),"%X",c);
+			dest += '%';
+			dest += buffer[0]; dest += buffer[1];
 		}
 	}
-	dest[j] = '\0';
 }
 
 
 ///////////////////
 // Create the host & url strings
 // host is the beginning of an URL, url is the end (to be appended)
-void http_CreateHostUrl(char *host, char *url)
+void http_CreateHostUrl(const std::string& host, const std::string& url)
 {
-    http_host[0] = '\0';
-    http_url[0] = '\0';
+    http_host = "";
+    http_url = "";
 
     // All characters up to a / goes into the host
 	size_t i;
-    size_t len = strnlen(host,sizeof(http_host));
+    size_t len = host.size();
     for( i=0; i<len; i++ ) {
-        if( host[i] != '/' )
-            http_host[i] = host[i];
-        else {
-            fix_strncpy(http_url, host+i);
+        if( host[i] == '/' ) {
+			http_host = host.substr(0,i);
+			http_url = host.substr(i);
             break;
         }
     }
 
-    http_host[MIN(i,sizeof(http_host)-1)] = '\0';
-    fix_strncat(http_url, url);
+	http_url += url;
 }
 
 
@@ -491,11 +485,11 @@ bool SetNetAddrValid(NetworkAddr* addr, bool valid) {
 	return true;
 }
 
-bool StringToNetAddr(const char* string, NetworkAddr* addr) {
+bool StringToNetAddr(const std::string& string, NetworkAddr* addr) {
 	if(addr == NULL) {
 		return false;
 	} else	
-		return (nlStringToAddr(string, &addr->adr) != NL_FALSE);
+		return (nlStringToAddr(string.c_str(), &addr->adr) != NL_FALSE);
 }
 
 bool NetAddrToString(const NetworkAddr* addr, std::string& string) {

@@ -687,8 +687,11 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		if(kb->KeyUp[SDLK_ESCAPE])
 			break;
 
-		if(inp.Wait(b->getText()))
+		static std::string tmp;
+		if(inp.Wait(tmp)) {
+			b->setText(tmp);
 			break;
+		}
 
 		FlipScreen(tMenu->bmpScreen);
 	}

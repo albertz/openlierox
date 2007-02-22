@@ -806,13 +806,15 @@ void Menu_MapEd_LoadSave(int save)
 
 ///////////////////
 // Check if there is a possible overwrite
-int Menu_MapEd_OkSave(char *szFilename)
+int Menu_MapEd_OkSave(const std::string& szFilename)
 {
+	std::string filename = szFilename;
+	
 	// Adjust the filename
-	if( stricmp( szFilename + strlen(szFilename) - 4, ".lxl") != 0)
-		strcat(szFilename,".lxl");
-
-	FILE *fp = OpenGameFile(szFilename,"rb");
+	if( stringcasecmp(GetFileExtension( szFilename ), "lxl") != 0)
+		filename += ".lxl";
+	
+	FILE *fp = OpenGameFile(filename,"rb");
 	if( fp == NULL)
 		// File doesn't exist, ok to save
 		return true;

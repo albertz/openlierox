@@ -41,11 +41,13 @@ int GetFPS(void)
 
 ///////////////////
 // Get the actual time
-void GetTime(char cTime[26])
+std::string GetTime()
 {
+	static char cTime[100];
 	time_t t;
 	time(&t);
 	struct tm* tp;
 	tp = localtime(&t);
 	strftime(cTime, 26, "%Y-%m-%d-%a-%H-%M-%S", tp);
+	return cTime;
 }

@@ -503,12 +503,12 @@ int LoadProfileGraphics(profile_t *p)
 
 ///////////////////
 // General skin colouriser
-SDL_Surface *LoadSkin(char *szSkin, int colR, int colG, int colB)
+SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 {
-   static  char buf[512];
+   static  std::string buf;
 
     // Load the skin
-    snprintf(buf, sizeof(buf), "skins/%s",szSkin); fix_markend(buf);
+    buf = "skins/"; buf += szSkin;
     SDL_Surface *worm = LoadImage(buf,16);
     if( !worm ) {
         

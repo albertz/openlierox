@@ -1401,13 +1401,15 @@ void Menu_WeaponPresetsShutdown(void)
 
 ///////////////////
 // Check if there is a possible overwrite
-int Menu_WeaponPresetsOkSave(char *szFilename)
+int Menu_WeaponPresetsOkSave(const std::string& szFilename)
 {
+	std::string filename = szFilename;
+	
 	// Adjust the filename
-	if( stricmp( szFilename + strlen(szFilename) - 4, ".wps") != 0)
-		strcat(szFilename,".wps");
+	if( stringcasecmp(GetFileExtension( szFilename ), "wps") != 0)
+		filename += ".wps";
 
-	FILE *fp = OpenGameFile(szFilename,"rb");
+	FILE *fp = OpenGameFile(filename,"rb");
 	if( fp == NULL)
 		// File doesn't exist, ok to save
 		return true;

@@ -5,7 +5,9 @@ TODO list
 [x] cap FPS / CPU time
 [ ] add MaxFPS option in option dialog
 [ ] change menu graphics (mainly the "Liero Xtreme" banner)
+[ ] other default keys and default weapon selection (they are disabled by default)
 
 minor things:
+[ ] more than 2 viewports and other resolutions than 640x480
 [ ] save selected player list in local play and return in this menu after playing
 [ ] treat ZIP-files in game-directory as virtual searchpaths

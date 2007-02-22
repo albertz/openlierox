@@ -28,6 +28,10 @@ int LoadOptions(void)
 {
 	printf("Loading options... \n");
 
+	// TODO: i didn't find this on the whole project? why was it gone away?
+	// and why the fuck does it break here?
+	tLXOptions = new options_t;
+
     static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     static const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
     static const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
@@ -48,9 +52,11 @@ int LoadOptions(void)
 	// tmp is for 'SearchPathX'
 	// tmp3 is the data (the path)
 	std::string value;
+	std::string item;
 	i = 1;
 	while(true) {
-		if(!ReadString(f, "FileHandling", std::string("SearchPath") + itoa(i, 10), value, NULL))
+		item = "SearchPath"; item += itoa(i,10);
+		if(!ReadString(f, "FileHandling", item, value, ""))
 			break;
 
 		AddToFileList(&tLXOptions->tSearchPaths, value);

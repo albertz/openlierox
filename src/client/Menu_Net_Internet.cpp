@@ -759,7 +759,7 @@ enum  {
 
 ///////////////////
 // Show a server's details
-void Menu_Net_NETShowServer(char *szAddress)
+void Menu_Net_NETShowServer(const std::string& szAddress)
 {
     mouse_t     *Mouse = GetMouse();
     int         nMouseCur = 0;

@@ -1131,9 +1131,8 @@ void Menu_SvrList_PingLAN(void)
 	bs.writeInt(-1,4);
 	bs.writeString("%s","lx::ping");
 
-	static const char addr[] = {"255.255.255.255"};
 	NetworkAddr a;
-	StringToNetAddr(addr,&a);
+	StringToNetAddr("255.255.255.255",&a);
 	SetNetAddrPort(&a,tLXOptions->iNetworkPort);
 	SetRemoteNetAddr(tMenu->tSocket[SCK_LAN],&a);
 
@@ -1235,7 +1234,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
     NetworkAddr ad;
 	std::string tmp_address = address;
     TrimSpaces(tmp_address);
-    StringToNetAddr(tmp_address.c_str(), &ad);
+    StringToNetAddr(tmp_address, &ad);
 
     for(; sv; sv=sv->psNext) {
         if( AreNetAddrEqual(&sv->sAddress, &ad) )
@@ -1267,7 +1266,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 		svr->szAddress += ":"+itoa(LX_PORT,10);
 	}
 
-	StringToNetAddr(tmp_address.c_str(), &svr->sAddress);
+	StringToNetAddr(tmp_address, &svr->sAddress);
 
 
 	// Default game details
@@ -1309,7 +1308,7 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
     NetworkAddr ad;
 	std::string tmp_address = address;
     TrimSpaces(tmp_address);
-    StringToNetAddr(tmp_address.c_str(), &ad);
+    StringToNetAddr(tmp_address, &ad);
 
     for(; sv; sv=sv->psNext) {
         if( AreNetAddrEqual(&sv->sAddress, &ad) )
@@ -1342,7 +1341,7 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 		svr->szAddress += ":"+itoa(LX_PORT,10);
 	}
 
-	StringToNetAddr(tmp_address.c_str(), &svr->sAddress);
+	StringToNetAddr(tmp_address, &svr->sAddress);
 
 
 	// Default game details
@@ -1376,7 +1375,7 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 
 ///////////////////
 // Remove a server from the server list
-void Menu_SvrList_RemoveServer(char *szAddress)
+void Menu_SvrList_RemoveServer(const std::string& szAddress)
 {
     server_t *sv = Menu_SvrList_FindServerStr(szAddress);
     if( !sv )
@@ -1398,7 +1397,7 @@ void Menu_SvrList_RemoveServer(char *szAddress)
 
 ///////////////////
 // Find a server based on a string address
-server_t *Menu_SvrList_FindServerStr(char *szAddress)
+server_t *Menu_SvrList_FindServerStr(const std::string& szAddress)
 {
     // Find a matching server
     server_t *sv = psServerList;
@@ -1419,7 +1418,7 @@ void Menu_SvrList_FillList(CListview *lv)
 {
 	server_t	*s = psServerList;
 	std::string		addr;
-	std::string		states[] = {"Open", "Loading", "Playing"};
+	static const char*	states[] = {"Open", "Loading", "Playing"};
 
     // Store the ID of the currently selected item
     int curID = lv->getSelectedID();
@@ -1639,7 +1638,7 @@ server_t *Menu_SvrList_FindServer(NetworkAddr *addr)
 
 	for(; s; s=s->psNext) {
 
-		StringToNetAddr(s->szAddress.c_str(), &s->sAddress);
+		StringToNetAddr(s->szAddress, &s->sAddress);
 
 		if( AreNetAddrEqual( addr, &s->sAddress ) )
 			return s;
@@ -1856,7 +1855,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
             // Send a getinfo request
 			std::string tmp_addr = szAddress;
             TrimSpaces(tmp_addr);
-            StringToNetAddr(tmp_addr.c_str(), &addr);
+            StringToNetAddr(tmp_addr, &addr);
 
             SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &addr);
 

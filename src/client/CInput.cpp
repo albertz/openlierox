@@ -18,6 +18,7 @@
 
 
 #include "defs.h"
+#include "LieroX.h"
 
 keys_t Keys[] = {
 	{ "", 0 },
@@ -170,6 +171,11 @@ int CInput::Load(const std::string& name, const std::string& section)
 	return Setup(string);
 }
 
+
+int CInput::Wait() {
+	static std::string tmp;
+	return Wait(tmp);
+}
 
 ///////////////////
 // Waits for any input (used in a loop)

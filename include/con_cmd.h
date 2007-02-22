@@ -28,8 +28,8 @@
 // Command structure
 typedef struct command_s {
 
-	char				*strName;
-	void				(*func) ( void );
+	std::string		strName;
+	void			(*func) ( void );
 
 	struct command_s	*Next;
 
@@ -38,16 +38,16 @@ typedef struct command_s {
 
 // Arguments
 int		Cmd_GetNumArgs(void);
-void	Cmd_AddArg(char *text);
-char	*Cmd_GetArg(int a);
+void	Cmd_AddArg(const std::string& text);
+std::string Cmd_GetArg(int a);
 
 
 
 // Command routines
-command_t	*Cmd_GetCommand(char *strName);
-void	Cmd_ParseLine(char *text);
-int		Cmd_AutoComplete(char *strVar, int *iLength);
-int		Cmd_AddCommand(char *strName, void (*func) ( void ));
+command_t	*Cmd_GetCommand(const std::string& strName);
+void	Cmd_ParseLine(const std::string& text);
+int		Cmd_AutoComplete(std::string& strVar, int *iLength);
+int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ));
 void	Cmd_FreeCommands(void);
 void	Cmd_Free(void);
 

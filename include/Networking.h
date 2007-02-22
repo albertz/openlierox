@@ -55,13 +55,13 @@ float	GetFixedRandomNum(int index);
 
 // HTTP Request
 void	http_Init();
-bool	http_InitializeRequest(const char *host, const char *url);
-void	http_ConvertUrl(char *dest, char *url);
+bool	http_InitializeRequest(const std::string& host, const std::string& url);
+void	http_ConvertUrl(std::string& dest, const std::string& url);
 int		http_ProcessRequest(std::string *szError);
 bool	http_SendRequest(void);
 void	http_RemoveHeader(void);
 char	*http_GetContent(void);
-void    http_CreateHostUrl(char *host, char *url);
+void    http_CreateHostUrl(const std::string& host, const std::string& url);
 void	http_Quit(void);
 
 // socket address; this type will be given around as pointer

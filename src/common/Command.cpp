@@ -47,7 +47,7 @@ int Cmd_GetNumArgs(void)
 
 ///////////////////
 // Get an argument by index
-char *Cmd_GetArg(int a)
+std::string Cmd_GetArg(int a)
 {
 	if(a>=0 && a<NumArgs)
 		return Arguments[a];
@@ -58,17 +58,17 @@ char *Cmd_GetArg(int a)
 
 ///////////////////
 // Parse a line of text
-void Cmd_ParseLine(char *text)
+void Cmd_ParseLine(const std::string& text)
 {
 	int		i,ti;
 	int		quote = false;
-	static char	token[128];
+	static char	token[128]; // TODO: use std::string!
 
 	// Clear the arguments
 	NumArgs = 0;
 
 	ti = 0;
-	for(i=0;i<(int) strlen(text);i++) {
+	for(i=0;i<text.size();i++) { // TODO: use iterators!
 
 		// Check delimeters
 		if(text[i] == ' ' || text[i] == ',') {
@@ -94,7 +94,7 @@ void Cmd_ParseLine(char *text)
 			quote = true;
 
 			i++;
-			for(;i<(int)strlen(text);i++) {
+			for(;i<text.size();i++) { // TODO: iterators!
 
 				if(text[i] == '"') {
 					quote = false;
@@ -139,18 +139,19 @@ void Cmd_ParseLine(char *text)
 		return;
 	}
 
-	Con_Printf(CNC_NOTIFY,"Unknown command '%s'",Cmd_GetArg(0));
+	std::string tmp = Cmd_GetArg(0);
+	Con_Printf(CNC_NOTIFY,"Unknown command '%s'",tmp.c_str());
 }
 
 
 ///////////////////
 // Find a command with the same name
-command_t *Cmd_GetCommand(char *strName)
+command_t *Cmd_GetCommand(const std::string& strName)
 {
 	command_t *cmd;
 
 	for(cmd=Commands ; cmd ; cmd=cmd->Next)
-		if(!strcmp(strName, cmd->strName))
+		if(stringcasecmp(strName, cmd->strName) == 0)
 			return cmd;
 
 	return NULL;
@@ -159,9 +160,9 @@ command_t *Cmd_GetCommand(char *strName)
 
 ///////////////////
 // Auto complete a command
-int Cmd_AutoComplete(char *strVar, int *iLength)
+int Cmd_AutoComplete(std::string& strVar, int *iLength)
 {
-	int len = strlen(strVar);
+	int len = strVar.size();
 	command_t *cmd;
 
 	if(!len)
@@ -170,16 +171,16 @@ int Cmd_AutoComplete(char *strVar, int *iLength)
 	// See if it's an exact match
 	cmd = Cmd_GetCommand(strVar);
 	if(cmd) {
-		sprintf(strVar,"%s ",cmd->strName);
-		*iLength = strlen(strVar);
+		strVar = cmd->strName + " ";
+		*iLength = strVar.size();
 		return true;
 	}
 
 	// See if it's a partial match
 	for(cmd=Commands ; cmd ; cmd=cmd->Next)
-		if(!strncmp(strVar, cmd->strName,len)) {
-			sprintf(strVar,"%s ",cmd->strName);
-			*iLength = strlen(strVar);
+		if(!stringcasecmp(strVar, cmd->strName.substr(0,len))) {
+			strVar = cmd->strName + " ";
+			*iLength = strVar.size();
 			return true;
 		}
 
@@ -190,7 +191,7 @@ int Cmd_AutoComplete(char *strVar, int *iLength)
 
 ///////////////////
 // Add a command to the list
-int Cmd_AddCommand(char *strName, void (*func) ( void ))
+int Cmd_AddCommand(const std::string& strName, void (*func) ( void ))
 {
 	// Make sure the command isn't a variable
 	/*if(CV_Find(strName)) {
@@ -201,7 +202,7 @@ int Cmd_AddCommand(char *strName, void (*func) ( void ))
 
 	// Make sure the command isn't already used
 	if(Cmd_GetCommand(strName)) {
-		Con_Printf(CNC_WARNING,"%s already defined as a command",strName);
+		Con_Printf(CNC_WARNING,"%s already defined as a command",strName.c_str());
 		return false;
 	}
 
@@ -210,9 +211,7 @@ int Cmd_AddCommand(char *strName, void (*func) ( void ))
 	command_t *cmd;
 
 	cmd = (command_t *)malloc(sizeof(command_t));
-	size_t namelen = strlen(strName);
-	cmd->strName = (char *)malloc(namelen + 1);
-	memcpy(cmd->strName,strName,namelen+1);	
+	cmd->strName = strName;	
 	cmd->func = func;
 	
 	// link the command in
@@ -232,10 +231,7 @@ void Cmd_Free(void)
 
 	for(cmd=Commands ; cmd ; cmd=cn) {
 		cn = cmd->Next;
-		
-		if(cmd->strName)
-			free(cmd->strName);
-		
+				
 		if(cmd)
 			free(cmd);
 	}
@@ -346,12 +342,11 @@ void Cmd_KickId(void)
         return;
     }
 
-	char *arg = "";
+	std::string arg = Cmd_GetArg(1);
 	char cID[6];
 	int ID;
-	arg = Cmd_GetArg(1);
 	int j = 0;
-	for (int i=0; i<(int)strlen(arg) && j<6; i++)
+	for (int i=0; i<arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
 			cID[j] = arg[i];
 			j++;
@@ -380,12 +375,11 @@ void Cmd_BanId(void)
         return;
     }
 
-	char *arg = "";
 	char cID[6];
 	int ID;
-	arg = Cmd_GetArg(1);
+	std::string arg = Cmd_GetArg(1);
 	int j = 0;
-	for (int i=0; i<(int) strlen(arg) && j<6; i++)
+	for (int i=0; i<arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
 			cID[j] = arg[i];
 			j++;
@@ -414,12 +408,11 @@ void Cmd_MuteId(void)
         return;
     }
 
-	char *arg = "";
 	char cID[6];
 	int ID;
-	arg = Cmd_GetArg(1);
+	std::string arg = Cmd_GetArg(1);
 	int j = 0;
-	for (int i=0; i<(int)strlen(arg) && j<6; i++)
+	for (int i=0; i< arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
 			cID[j] = arg[i];
 			j++;
@@ -448,12 +441,11 @@ void Cmd_UnmuteId(void)
         return;
     }
 
-	char *arg = "";
 	char cID[6];
 	int ID;
-	arg = Cmd_GetArg(1);
+	std::string arg = Cmd_GetArg(1);
 	int j = 0;
-	for (int i=0; i<(int)strlen(arg) && j<6; i++)
+	for (int i=0; i<arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
 			cID[j] = arg[i];
 			j++;
@@ -507,13 +499,12 @@ void Cmd_Suicide(void)
 		// A number has been entered, suicide the specified number
 		else  {
 			// Get the number
-			char *arg = "";
 			char cNumber[6];
 			int number;
-			arg = Cmd_GetArg(1);
+			std::string arg = Cmd_GetArg(1);
 			int j = 0;
 			int i;
-			for (i=0; i<(int)strlen(arg) && j<6; i++)
+			for (i=0; i< arg.size() && j<6; i++) // TODO: iterators!
 				if (arg[i] >= 48 && arg[i] <= 57)  {
 					cNumber[j] = arg[i];
 					j++;
@@ -565,10 +556,9 @@ void Cmd_WantsJoin(void)
 		Con_Printf(CNC_NORMAL,"%s","Usage: wantsjoin <on/off>");
 	}
 
-	char *arg = "";
-	arg = Cmd_GetArg(1);
+	std::string arg = Cmd_GetArg(1);
 
-	if (!stricmp(arg,"on") || !stricmp(arg,"true") || !stricmp(arg,"1") || !stricmp(arg,"yes"))  {
+	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
 		Con_Printf(CNC_NORMAL,"%s","\"Wants join\" messages have been enabled");
 	}
@@ -580,30 +570,31 @@ void Cmd_WantsJoin(void)
 
 void Cmd_Help() {
 	Con_Printf(CNC_NORMAL,"Available commands:");
-	static char cmd_help_buf[512];
+	static std::string cmd_help_buf;
 	command_t* cmd;
 	unsigned short count = 0;
-	strcpy(cmd_help_buf, "");
+	cmd_help_buf = "";
 	
 	for(cmd=Commands; cmd; cmd=cmd->Next) {
 		if(cmd->func != Cmd_BadWord) {
-			strcat(cmd_help_buf, cmd->strName);
-			strcat(cmd_help_buf, " ");
+			cmd_help_buf += cmd->strName;
+			cmd_help_buf += " ";
 			count++;
 			if(count >= 5) {
 				count = 0;
-				Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf);
-				strcpy(cmd_help_buf, "");
+				Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf.c_str());
+				cmd_help_buf = "";
 			}
 		}
 	}
 	if(count && cmd_help_buf[0] != '\0') {
-		Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf);	
+		Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf.c_str());	
 	}
 }
 
 void Cmd_About() {
-	Con_Printf(CNC_NOTIFY,"%s v%s",GetGameName().c_str(),LX_VERSION);
+	std::string name = GetGameName();
+	Con_Printf(CNC_NOTIFY,"%s v%s",name.c_str(),LX_VERSION);
 }
 
 void Cmd_BadWord() {
@@ -621,10 +612,9 @@ void Cmd_Volume()  {
 		Con_Printf(CNC_NORMAL,"%s","Usage: volume <0-100>");
 	}
 
-	char *arg = NULL;
-	arg = Cmd_GetArg(1);
-	if (arg) if (arg[0])  {
-		int vol = atoi(arg);
+	std::string arg = Cmd_GetArg(1);
+	if(arg != "")  {
+		int vol = from_string<int>(arg);
 		vol = MIN(vol,100);
 		vol = MAX(vol,0);
 		SetSoundVolume(vol);
@@ -639,10 +629,9 @@ void Cmd_Sound()  {
 		Con_Printf(CNC_NORMAL,"%s","Usage: sound <on/off>");
 	}
 
-	char *arg = "";
-	arg = Cmd_GetArg(1);
+	std::string arg = Cmd_GetArg(1);
 
-	if (!stricmp(arg,"on") || !stricmp(arg,"true") || !stricmp(arg,"1") || !stricmp(arg,"yes"))  {
+	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
 		StartSoundSystem();
 	}
 	else  {

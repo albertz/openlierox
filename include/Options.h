@@ -67,7 +67,7 @@ enum {
 typedef std::string controls_t[8];
 
 // Options structure
-typedef struct {
+typedef class { public:
 
 	// Video
 	int		iFullscreen;
@@ -123,7 +123,7 @@ typedef struct {
 	int		iMusicVolume;
 
 	// Last used game details
-	struct gameinfo_s {
+	class gameinfo_s { public:
 		int		iLives;
 		int		iKillLimit;
 		int		iTimeLimit;
@@ -148,7 +148,7 @@ typedef struct {
 } options_t;
 
 // Network strings
-typedef struct {
+typedef class { public:
 	std::string sHasLeft ;
 	std::string sHasConnected ;
 	std::string sHasTimedOut ;

@@ -69,7 +69,7 @@ public:
 
 	// Draw the label
 	void	Draw(SDL_Surface *bmpDest) {
-				tLX->cFont.Draw(bmpDest, iX, iY, iColour,"%s", sText.c_str()); 
+				tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
 
 	void	LoadStyle(void) {}

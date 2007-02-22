@@ -309,10 +309,14 @@ void CBrowser::AddObject(const std::string& sText, const std::string& sVal, int 
 			// Triple value
 			case HTO_COLOUR:
 			case HTO_BOX:
-				char *tok = strtok(sVal,",");
-				if(tok)	r = atoi(tok);	tok = strtok(NULL,",");
-				if(tok)	g = atoi(tok);  tok = strtok(NULL,",");
-				if(tok)	b = atoi(tok);
+				std::vector<std::string> tok = explode(sVal,",");
+				if(tok.size() >= 3) {
+					r = from_string<int>(tok[0]);
+					g = from_string<int>(tok[1]);
+					b = from_string<int>(tok[2]);
+				} else {
+					r = 0; g = 0; b = 0;
+				}
 
 				obj->iValue = MakeColour(r,g,b);
 				break;

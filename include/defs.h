@@ -194,17 +194,6 @@ inline T* GetByteSwapped(const T b)
 				strncpy(&dest[destlen], src, len-destlen); \
 				dest[len-1] = '\0'; }
 
-// std::string itoa
-inline std::string itoa(int num,int base=10)  {
-	static char buf[64];
-	itoa(num,buf,base);
-	fix_markend(buf);
-	return buf;
-}
-
-inline int atoi(const std::string& str)  { return atoi(str.c_str());  }
-inline float atof(const std::string& str) { return (float)atof(str.c_str());  }
-
 
 #include "Networking.h"
 
