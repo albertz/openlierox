@@ -243,20 +243,18 @@ void SaveOptions(void)
 	fprintf(fp,"\n");
 
 	fprintf(fp, "[FileHandling]\n");
-	i=0;
+	i=1;
 	for(searchpathlist::const_iterator p = tLXOptions->tSearchPaths.begin(); p != tLXOptions->tSearchPaths.end(); p++, i++)
     	fprintf(fp, "SearchPath%i = %s\n", i, p->c_str());
 	fprintf(fp,"\n");
 
-    fprintf(fp, "[Ply1Controls]\n");
-    for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), tLXOptions->sPlayerControls[0][i].c_str());
-    fprintf(fp, "\n");
-
-    fprintf(fp, "[Ply2Controls]\n");
-    for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), tLXOptions->sPlayerControls[1][i].c_str());
-    fprintf(fp, "\n");
+	int j = 0;
+	for(;j<tLXOptions->sPlayerControls.size();j++) {
+		fprintf(fp, "[Ply%iControls]\n", j+1);
+		for(i=0; i<8; i++)
+        	fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), tLXOptions->sPlayerControls[j][i].c_str());
+	    fprintf(fp, "\n");
+	}
 
     fprintf(fp, "[GeneralControls]\n");
     for(i=0; i<8; i++)
