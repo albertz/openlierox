@@ -218,7 +218,9 @@ int GetString(const std::string& filename, const std::string& section, const std
 		
 		///////////////////
 		// Comment, Ignore
-		if(Line.size() == 0 || Line[0] == '#')				
+		if(Line.size() == 0)
+			continue;
+		if(Line[0] == '#')
 			continue;
 
 		////////////

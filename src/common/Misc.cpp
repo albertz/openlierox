@@ -588,7 +588,7 @@ Uint32 StrToCol(const std::string& str)
 	// TODO: so damn shitty code, rewrite this!
 	// (never ever use c_str() if it is not needed!)
 	
-	std::string string = str;
+	/*std::string string = str;
 	char tmp[3];
 	int r,g,b;
 	tmp[2] = 0;  // Third character is terminating
@@ -623,10 +623,44 @@ Uint32 StrToCol(const std::string& str)
 	// Make the colour
 	Uint32 result = MakeColour((Uint8)r,(Uint8)g,(Uint8)b);
 
-	return result;
+	return result;*/
+
+	// TODO: atoi doesn't work for hex numbers!!!
+	if (str == "")
+		return tLX->clPink;
+
+	// Create the temp and copy it there
+	static std::string temp;
+	temp = str;
+
+	// Is the # character present?
+	if (temp[0] == '#')
+		temp = temp.substr(1);
+
+	// Check
+	if (temp.length() < 6)
+		return tLX->clPink;
+
+	// Convert to lowercase
+	stringtolower(temp);
+
+	// Convert
+	Uint8 r,g,b;
+	r = MIN(atoi(temp.substr(0,2)),255);
+	g = MIN(atoi(temp.substr(2,2)),255);
+	b = MIN(atoi(temp.substr(4,2)),255);
+
+	return MakeColour(r,g,b);
 }
 
+void stringtolower(std::string& str)
+{
+	if (str == "")
+		return;
 
+	for (std::string::iterator it=str.begin(); it != str.end(); it++)
+		*it = tolower(*it);
+}
 
 short stringcasecmp(const std::string& s1, const std::string& s2) {
 	std::string::const_iterator p1, p2;

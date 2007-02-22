@@ -292,7 +292,7 @@ int InitializeLieroX(void)
 		return false;
     }
 	tLX->iQuitGame = false;
-	tLX->debug_string[0] = 0;
+	tLX->debug_string = "";
 	// TODO: more initiation of the values
 	tLX->fCurTime = 0;
 	tLX->fDeltaTime = 0;

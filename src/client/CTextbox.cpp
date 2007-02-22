@@ -26,7 +26,7 @@ void CTextbox::Create(void)
 	iCurpos = 0;
 	iLastCurpos = 0;
 	iLength = 0;
-	sText[0] = 0;
+	sText = "";
 	iMax = MAX_TEXTLENGTH;
 	iHolding = false;
 	iHoldingMouse = false;
@@ -72,7 +72,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	/*if(!iFocused)  {
 		iSelLength = 0;
 		iSelStart = 0;
-		sSelectedText[0] = '\0';
+		sSelectedText = "";
 		iCurpos = 0;
 		iLastCurpos = 0;
 		fTimeHolding = 0;
@@ -91,7 +91,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	// Determine the cursor position in pixels
 	int x = 0;
 	if(cursorpos)  {
-		buf = text.substr(0,MIN(sizeof(buf)-1,(unsigned int)cursorpos));
+		buf = text.substr(0,(unsigned int)cursorpos);
 	}
 
 	x = tLX->cFont.GetWidth(buf);
@@ -115,9 +115,8 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 		else  {
 			int length = iSelLength;
 			if (length > text.length())
-				length = cursorpos;
+				length = text.length();//cursorpos;
 			buf = text.substr(cursorpos,(unsigned int)length);
-			buf[MIN(sizeof(buf)-1,(unsigned int)length)] = '\0';
 			// Update the SelStart
 			iSelStart = iCurpos;
 		}
@@ -348,7 +347,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	int deltaX = tMouse->X - iX;
 	iDrawCursor = true;
 
-	static char buf[MAX_TEXTLENGTH];
+	//static std::string buf;
 
 	// Scroll the textbox using mouse
 	fScrollTime += tLX->fDeltaTime;
@@ -368,7 +367,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		}
 
 		// Scroll right
-		if(tLX->cFont.GetWidth(&sText[iScrollPos]) > iWidth-5 && tMouse->X > iX+iWidth)  {
+		if(tLX->cFont.GetWidth(sText.substr(iScrollPos)) > iWidth-5 && tMouse->X > iX+iWidth)  {
 			if (iCurpos <= iLength)  {
 				iScrollPos++;
 				iCurpos++;
@@ -380,21 +379,21 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	}
 
 	// If we click somewhere behind the text, but in the text box, set the cursor to the end
-	if(deltaX > tLX->cFont.GetWidth(&sText[iScrollPos]) && InBox(tMouse->X,tMouse->Y))
-		iCurpos = iLength;
+	if(deltaX > tLX->cFont.GetWidth(sText.substr(iScrollPos)) && InBox(tMouse->X,tMouse->Y))  {
+		iLastCurpos = iCurpos = iLength;
+	}
 	else  {
 		// Set the new cursor pos
 		if (deltaX < (tLX->cFont.GetWidth(sText.substr(0,1))/2))  // Area before the first character
 			iCurpos = iScrollPos;
 		else  {
-			buf[0] = '\0';  // Delete the buffer
 			int curWidth = 0;
 			int nextWidth = 0;
 			for(int i=iScrollPos; i<iLength-1; i++)  {
 				curWidth = tLX->cFont.GetWidth(sText.substr(iScrollPos,i));
 				nextWidth = tLX->cFont.GetWidth(sText.substr(iScrollPos,i+1));
 				if ((curWidth + (nextWidth-curWidth)/3) >= deltaX)  {
-					iCurpos = i+1;
+					iCurpos = i;
 					break;
 				}  // if
 			} // for
@@ -484,7 +483,7 @@ void CTextbox::Backspace(void)
 		return;
 
 //	memmove(sText+iCurpos-1,sText+iCurpos,iLength-iCurpos+1);
-	sText.erase(iCurpos-1,iCurpos);
+	sText = sText.substr(0,iCurpos-1)+sText.substr(iCurpos);
 
 	iCurpos--;
 	iLength--;
@@ -500,7 +499,8 @@ void CTextbox::Delete(void)
 	// Delete selection
 	if(iSelLength)  {
 		//memmove(sText+iSelStart,sText+iSelStart+abs(iSelLength),iLength-(iSelStart+abs(iSelLength))+1);
-		sText.erase(iSelStart,iSelStart+abs(iSelLength));
+		//sText.erase(iSelStart,iSelStart+abs(iSelLength));
+		sText = sText.substr(0,iSelStart)+sText.substr(iSelStart+abs(iSelLength));
 		iCurpos = iSelStart;
 		iSelLength = 0;
 		iLength = sText.length();
@@ -514,7 +514,7 @@ void CTextbox::Delete(void)
 		return;
 
 	//memmove(sText+iCurpos,sText+iCurpos+1,iLength-iCurpos+1);
-	sText.erase(iCurpos,iCurpos+1);
+	sText.erase(iCurpos,1);
 	
 	iLength--;
 }
@@ -541,9 +541,10 @@ void CTextbox::Insert(char c)
 
 	//memmove(sText+iCurpos+1,sText+iCurpos,iLength-iCurpos+1);
 	char buf[2];
-	buf[1]=c;
-	buf[2]=0;
-	sText.insert(iCurpos,buf);
+	buf[0]=c;
+	buf[1]=0;
+	sText.insert(iCurpos++,buf);
+	iLength++;
 	
 	//sText[iCurpos++] = c;
 	//sText[++iLength] = '\0';
@@ -559,15 +560,15 @@ void CTextbox::Insert(char c)
 // Replace the current text with the buf
 void CTextbox::setText(const std::string& buf)
 {
+	sText.erase((unsigned int)0);
+
 	// Copy the text and ignore unknown characters
 	int j=0;
-	for (int i=0; i<buf.length(); i++)
-		if(buf[i] > 31 && buf[i] <127)
-			sText[j++] = buf[i];
+	for (std::string::const_iterator it=buf.begin(); it != buf.end(); it++)
+		if(*it > 31 && *it <127)
+			sText += *it;
 
-	sText[j] = '\0';
-	
-	iCurpos=iLength=buf.length(); 
+	iCurpos=iLength=sText.length(); 
 	iScrollPos=0; 
 	iSelStart=iCurpos; 
 	iSelLength=0;

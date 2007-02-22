@@ -101,7 +101,7 @@ public:
 		iChat_CursorVisible = true;
         iClientError = false;
 		bInServer = false;
-		cIConnectedBuf[0] = '\0';
+		cIConnectedBuf = "";
 		iNetSpeed = 3;
 		fLastUpdateSent = -9999;
 		

@@ -318,7 +318,7 @@ property_t *CCssParser::ReadProperty(void)
 	//
 	//	Property value
 	//
-	buf[0] = '\0';
+	buf[0] = 0;
 	i = 0;
 
 	// Skip comments and blank characters

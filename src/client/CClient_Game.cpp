@@ -1474,7 +1474,7 @@ void CClient::processChatter(void)
 		iChat_CursorVisible = true;
 		iChat_Typing = true;
 		iChat_Pos = 0;
-		sChat_Text[0] = 0;
+		sChat_Text = "";
 		iChat_Lastchar = -1;
 		iChat_Holding = false;
 		fChat_TimePushed = -9999;
@@ -1532,7 +1532,7 @@ void CClient::processChatter(void)
 			iChat_CursorVisible = true;
 			iChat_Typing = true;
 			iChat_Pos = 0;
-			sChat_Text[0] = 0;
+			sChat_Text = "";
 			iChat_Lastchar = -1;
 			iChat_Holding = false;
 			fChat_TimePushed = -9999;

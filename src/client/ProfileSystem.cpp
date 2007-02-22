@@ -98,7 +98,7 @@ int LoadProfiles(void)
 void AddDefaultPlayers(void)
 {
 	short		i;
-	static char	buf[32];
+	static std::string	buf;
 
 	// Pre-set cpu colours
 	Uint32 cpuColours[] = { 255,0,0,  0,255,0,  0,0,255,  255,0,255,  0,255,255,  128,128,128,
@@ -112,7 +112,8 @@ void AddDefaultPlayers(void)
 
 	// Add 7 ai players
 	for(i=0; i<7; i++) {
-		snprintf(buf, sizeof(buf), "CPU %d", i+1); fix_markend(buf);
+		//snprintf(buf, sizeof(buf), "CPU %d", i+1); fix_markend(buf);
+		buf = "CPU "+itoa(i);
 		
 		AddProfile(buf, "default.png", "", "", cpuColours[i*3], cpuColours[i*3+1], cpuColours[i*3+2], PRF_COMPUTER, Diff[i]);
 	}

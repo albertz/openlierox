@@ -38,7 +38,7 @@ private:
     banlist_t   *m_psBanList;
     banlist_t   *m_psSortedList;
     int         m_nCount;
-	char		*m_szPath;
+	std::string	m_szPath;
 	bool		m_bLoading;
 
 

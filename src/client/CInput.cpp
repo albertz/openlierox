@@ -21,7 +21,7 @@
 #include "LieroX.h"
 
 keys_t Keys[] = {
-	{ (std::string)"", 0 },
+	{ "", 0 },
 	{ "a", SDLK_a },
 	{ "b", SDLK_b },
 	{ "c", SDLK_c },
@@ -192,7 +192,7 @@ int CInput::Wait(std::string& strText)
 			// Swap rmb id wih mmb (mouse buttons)
 			if(n==2) i=3;
 			if(n==3) i=2;
-			strText = "ms"+itoa(i,10);
+			strText = "ms"+itoa(i);
 			return true;
 		}
 	}
@@ -229,12 +229,12 @@ int CInput::Setup(const std::string& string)
 		Data = 1;
 		return true;
 	}
-	if(string == "ms2") {
+	else if(string == "ms2") {
 		Type = INP_MOUSE;
 		Data = 3;
 		return true;
 	}
-	if(string == "ms3") {
+	else if(string == "ms3") {
 		Type = INP_MOUSE;
 		Data = 2;
 		return true;

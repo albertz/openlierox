@@ -38,11 +38,9 @@ int Menu_Initialize(int *game)
 
 	// Load the CSS of all widgets
 	cWidgetStyles.Clear();
-	static char path[1024];
-	path[0] = '\0';
+	//static std::string path;
 	//sprintf(path,"%s/%s/widgets.css",tLXOptions->sSkinPath,tLXOptions->sResolution);
 	//cWidgetStyles.Parse(path);
-	fix_markend(path);
 
 	// Allocate the menu structure
 	tMenu = new menu_t;
@@ -1719,24 +1717,21 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
         return;
 
     static std::string szLine = "";
-	static char tmp[1024] = "";
-    static std::string address = "";
 	std::vector<std::string> parsed;
 
     // Go through every line
-    while( fgets(tmp, 1024, fp) ) {
+    while( (szLine = freadline(fp)) != "" ) {
 
-        szLine = StripLine(tmp);
+        szLine.erase(szLine.length()-1);  // remove linebreak
         if( szLine == "" )
             continue;
 	
 		parsed = explode(szLine,",");
 
         if( parsed.size() == 3 ) {
-			address = parsed[2];
-			TrimSpaces(parsed[2]);
+			TrimSpaces(parsed[2]); // Address
 
-            server_t *sv = Menu_SvrList_AddServer(address, parsed[0][0] == '1');
+            server_t *sv = Menu_SvrList_AddServer(parsed[2], parsed[0][0] == '1');
 
             // Fill in the name
             if( sv ) {

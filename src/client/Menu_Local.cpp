@@ -565,7 +565,7 @@ void Menu_LocalStartGame(void)
 	tGameInfo.iGameMode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
     tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
 
-    tGameInfo.sPassword[0] = '\0';
+    tGameInfo.sPassword = "";
 
 
     // Get the mod name

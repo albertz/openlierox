@@ -55,12 +55,12 @@ int Con_Initialize(void)
 	Console->bHolding = false;
 
 	for(n=0;n<MAX_CONLINES;n++) {
-		Console->Line[n].strText[0] = 0;
+		Console->Line[n].strText = "";
 		Console->Line[n].Colour = CNC_NORMAL;
 	}
 
 	for(n=0;n<MAX_CONHISTORY;n++)
-		Console->History[n].strText[0] = 0;
+		Console->History[n].strText = "";
 
     Console->bmpConPic = LoadImage("data/gfx/console.png", 16);
     if(!Console->bmpConPic)
@@ -129,7 +129,7 @@ void Con_Process(float dt)
 		Console->fPosition = 1;
 
 		Console->iCurLength = 0;
-		Console->Line[0].strText[0] = '\0';
+		Console->Line[0].strText = "";
 	}
 
 	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
@@ -227,7 +227,7 @@ void Con_Process(float dt)
 			Console->Line[0].strText = Console->History[Console->icurHistory].strText;
 			Console->iCurLength = Console->Line[0].strText.size();
 		} else {
-			Console->Line[0].strText[0] = 0;
+			Console->Line[0].strText = "";
 			Console->iCurLength=0;
 		}
 
@@ -346,7 +346,7 @@ void Con_ProcessCharacter(int input)
 		Con_AddHistory(Console->Line[0].strText);
 
 
-		Console->Line[0].strText[0] = '\0';
+		Console->Line[0].strText = "";
 		Console->iCurLength = 0;
 		Console->iCurpos = 0;
 
@@ -464,7 +464,8 @@ void Con_Draw(SDL_Surface *bmpDest)
 
 
 		if(n==0) {
-			buf[0] = ']'; buf[1] = 0;
+			//buf[0] = ']'; buf[1] = 0;
+			buf = "]";
 		}
 		buf += Console->Line[n].strText;
 

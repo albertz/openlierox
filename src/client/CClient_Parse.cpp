@@ -363,11 +363,11 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	} else {
 
 		// Load the map from a file
-		static char buf[256];
-		bs->readString(buf,sizeof(buf));
+		static std::string buf;
+		buf = bs->readString();
 
 		// Invalid packet
-		if (buf[0] == '\0')  {
+		if (buf == "")  {
 			printf("Bad packet in ParsePrepareGame");
 			iGameReady = false;
 			return false;

@@ -76,14 +76,22 @@ public:
 
 // Keyboard structure
 typedef struct {
+#ifndef _MSC_VER
 	std::string	text;
+#else
+	char text[16];
+#endif
 	int		value;
 } keys_t;
 
 
 // Joystick structure
 typedef struct {
+#ifndef _MSC_VER
 	std::string	text;
+#else
+	char text[16];
+#endif
 	int		value;
 	int		extra;
 } joystick_t;

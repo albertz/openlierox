@@ -30,7 +30,7 @@ void CWorm::Clear(void)
 	iRanking = 0;
 	iClientID = 0;
 	iClientWormID = 0;
-    szSkin[0] = '\0';
+    szSkin = "";
     
 	iKills = 0;
 	iDeaths = 0;

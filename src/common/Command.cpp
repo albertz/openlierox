@@ -233,7 +233,7 @@ void Cmd_Free(void)
 		cn = cmd->Next;
 				
 		if(cmd)
-			free(cmd);
+			delete cmd;
 	}
 }
 

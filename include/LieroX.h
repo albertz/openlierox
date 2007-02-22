@@ -213,6 +213,7 @@ bool	stripdot(char *buf, int width);
 bool stripdot(std::string& text, int width);
 char	*ucfirst(char *text);
 void	ucfirst(std::string& text);
+void	stringtolower(std::string& text);
 std::string	ReadUntil(const std::string& text, char until_character = '\n');
 std::string	ReadUntil(FILE* fp, char until_character = '\n');
 Uint32	StrToCol(const std::string& str);

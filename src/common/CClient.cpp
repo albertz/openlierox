@@ -70,7 +70,7 @@ void CClient::Clear(void)
 	iCanToggle = true;
 
 	bInServer = false;
-	cIConnectedBuf[0] = '\0'; 
+	cIConnectedBuf = ""; 
 
 	fMyPingRefreshed = 0;
 	iMyPing = 0;
