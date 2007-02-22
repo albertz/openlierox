@@ -210,7 +210,7 @@ int Cmd_AddCommand(const std::string& strName, void (*func) ( void ))
 	// Allocate room for the new var
 	command_t *cmd;
 
-	cmd = (command_t *)malloc(sizeof(command_t));
+	cmd = new command_t;
 	cmd->strName = strName;	
 	cmd->func = func;
 	

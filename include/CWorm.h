@@ -346,7 +346,7 @@ public:
 	//
 	// Weapon & Input
 	//
-	void		SetupInputs(controls_t Inputs);
+	void		SetupInputs(const controls_t& Inputs);
 	void		InitWeaponSelection(void);
 	void		GetRandomWeapons(void);
 	void		SelectWeapons(SDL_Surface *bmpDest, CViewport *v);

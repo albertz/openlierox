@@ -169,7 +169,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 
 
 NEW_ai_node_t* createNewAiNode(float x, float y, NEW_ai_node_t* next = NULL, NEW_ai_node_t* prev = NULL) {
-	NEW_ai_node_t* tmp = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
+	NEW_ai_node_t* tmp = new NEW_ai_node_t;
 	tmp->fX = x; tmp->fY = y;
 	tmp->psNext = next; tmp->psPrev = prev;
 	return tmp;
@@ -177,7 +177,7 @@ NEW_ai_node_t* createNewAiNode(float x, float y, NEW_ai_node_t* next = NULL, NEW
 
 NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 	if(!base) return NULL;
-	NEW_ai_node_t* tmp = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
+	NEW_ai_node_t* tmp = new NEW_ai_node_t;
 	tmp->fX = base->fX; tmp->fY = base->fY;
 	tmp->psNext = base->psNext; tmp->psPrev = base->psPrev;
 	return tmp;
@@ -739,7 +739,7 @@ private:
 			s1 = (n->fX > n->psNext->fX) ? 1 : -1;
 			s2 = (n->fY > n->psNext->fY) ? 1 : -1;
 			if(s1*(n->fX - n->psNext->fX) > dist || s2*(n->fY - n->psNext->fY) > dist) {
-				tmpnode = (NEW_ai_node_t*)malloc(sizeof(NEW_ai_node_t));
+				tmpnode = new NEW_ai_node_t;
 				if(tmpnode) {
 					nodes.push_back(tmpnode);
 					if(s1*(n->fX - n->psNext->fX) >= s2*(n->fY - n->psNext->fY)) {

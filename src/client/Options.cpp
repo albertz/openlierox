@@ -28,10 +28,12 @@ int LoadOptions(void)
 {
 	printf("Loading options... \n");
 
-	// TODO: i didn't find this on the whole project? why was it gone away?
-	// and why the fuck does it break here?
 	tLXOptions = new options_t;
-
+	if(tLXOptions == NULL) {
+		printf("ERROR: could not init options\n");
+		return false;
+	}	
+	
     static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     static const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
     static const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
@@ -49,8 +51,6 @@ int LoadOptions(void)
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
 	InitBaseSearchPaths();
-	// tmp is for 'SearchPathX'
-	// tmp3 is the data (the path)
 	std::string value;
 	std::string item;
 	i = 1;
@@ -67,24 +67,17 @@ int LoadOptions(void)
 		AddToFileList(&tLXOptions->tSearchPaths, *p1);
 	}
 
-	// TODO: crashes here!
-	/*printf("I have now the following searchpaths (in this direction):\n");
-	for(searchpathlist::const_iterator p2 = tLXOptions->tSearchPaths.begin(); p2 != basesearchpaths.end(); p2++) {
+	printf("I have now the following searchpaths (in this direction):\n");
+	for(searchpathlist::const_iterator p2 = tLXOptions->tSearchPaths.begin(); p2 != tLXOptions->tSearchPaths.end(); p2++) {
 		printf("  %s\n", p2->c_str());
 	}
-	printf(" And that's all.\n");*/
+	printf(" And that's all.\n");
 
 	for (i=0;i<sizeof(tLXOptions->iInternetList)/sizeof(int);i++)  {
 		tLXOptions->iInternetList[i] = def_widths[i];
 		tLXOptions->iLANList[i] = def_widths[i];
 		tLXOptions->iFavouritesList[i] = def_widths[i];
 	}
-
-	// Add the player controls
-	// TODO
-	/*controls_t tmp;
-	tLXOptions->sPlayerControls.push_back(tmp);  // Player 1
-	tLXOptions->sPlayerControls.push_back(tmp);  // Player 2*/
 
 
     // Video
@@ -106,9 +99,24 @@ int LoadOptions(void)
 	ReadInteger(f, "Misc", "ScreenshotFormat", &tLXOptions->iScreenshotFormat, FMT_PNG);
 
     // Player controls
-    for(i=0; i<8; i++) {
-        ReadString(f, "Ply1Controls", ply_keys[i], tLXOptions->sPlayerControls[0][i], ply_def1[i]);
-        ReadString(f, "Ply2Controls", ply_keys[i], tLXOptions->sPlayerControls[1][i], ply_def2[i]);
+    int j;
+    std::string def;
+    i = 0; j = 1;
+    while(true) {
+        item = "Ply"; item += itoa(j); item += "Controls";
+        if(j == 1) def = ply_def1[i];
+        else if(j == 2) def = ply_def2[i];
+        else def = "";
+        if(!ReadString(f, item, ply_keys[i], value, def) && i == 0 && j > 2)
+        	break;
+        if(i == 0)
+        	tLXOptions->sPlayerControls.push_back(controls_t());
+        tLXOptions->sPlayerControls[j][i] = value;
+        
+        i++;
+        if(i >= 8) {
+        	i = 0; j++;
+        }
     }
 
     // General controls
@@ -242,17 +250,17 @@ void SaveOptions(void)
 
     fprintf(fp, "[Ply1Controls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayerControls[0][i].c_str());
+        fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), tLXOptions->sPlayerControls[0][i].c_str());
     fprintf(fp, "\n");
 
     fprintf(fp, "[Ply2Controls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", ply_keys[i], tLXOptions->sPlayerControls[1][i].c_str());
+        fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), tLXOptions->sPlayerControls[1][i].c_str());
     fprintf(fp, "\n");
 
     fprintf(fp, "[GeneralControls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", gen_keys[i], tLXOptions->sGeneralControls[i].c_str());
+        fprintf(fp, "%s = %s\n", gen_keys[i].c_str(), tLXOptions->sGeneralControls[i].c_str());
     fprintf(fp, "\n");
 
     fprintf(fp, "[Game]\n");

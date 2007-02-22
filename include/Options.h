@@ -64,7 +64,19 @@ enum {
 };
 
 // input controls structure (for local players)
-typedef std::string controls_t[8];
+class controls_t {
+private:
+	std::string ctrl[8];
+public:
+	std::string& operator[] (const short i) {
+		assert(i >= 0 && i < 8);
+		return ctrl[i];
+	}
+	const std::string& operator[] (const short i) const {
+		assert(i >= 0 && i < 8);
+		return ctrl[i];	
+	}
+};
 
 // Options structure
 typedef class { public:

@@ -21,7 +21,7 @@
 #include "LieroX.h"
 
 keys_t Keys[] = {
-	{ "", 0 },
+	{ (std::string)"", 0 },
 	{ "a", SDLK_a },
 	{ "b", SDLK_b },
 	{ "c", SDLK_c },

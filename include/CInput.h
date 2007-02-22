@@ -76,16 +76,14 @@ public:
 
 // Keyboard structure
 typedef struct {
-	//std::string	text;
-	char text[16];
+	std::string	text;
 	int		value;
 } keys_t;
 
 
 // Joystick structure
 typedef struct {
-	//std::string	text;
-	char text[16];
+	std::string	text;
 	int		value;
 	int		extra;
 } joystick_t;

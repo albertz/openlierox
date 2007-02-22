@@ -37,7 +37,7 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
 
 ///////////////////
 // Setup the keyboard inputs for freelook
-void CViewport::setupInputs(std::string Inputs[32])
+void CViewport::setupInputs(const controls_t& Inputs)
 {
     cUp.Setup(		Inputs[SIN_UP] );
 	cDown.Setup(	Inputs[SIN_DOWN] );

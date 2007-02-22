@@ -93,8 +93,7 @@ public:
 	int		inView(CVec pos);	
 	void	Shake(int amount);
 
-	// TODO: this better
-    void    setupInputs(std::string Inputs[32]);
+    void    setupInputs(const controls_t& Inputs);
 
     void    reset(void);
 

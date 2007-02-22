@@ -36,7 +36,7 @@ console_t	*Console = NULL;
 int Con_Initialize(void)
 {
 	int n;
-	Console = (console_t *)malloc(sizeof(console_t));
+	Console = new console_t;;
 	if(Console == NULL)
 		return false;
 
