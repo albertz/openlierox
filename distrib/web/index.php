@@ -62,7 +62,7 @@
 	If you are not using Gentoo (where this will be done automatically
 	within the ebuild), go downloading also the Liero packs.
 	You need them, if you want to play online, because they are widely used.<br>
-	Extract them into ~/.OpenLieroX or /usr/share/OpenLieroX.
+	Extract them into <i>~/.OpenLieroX</i> or <i>/usr/share/OpenLieroX</i>.
 </p>
 <p>
 	<h2>Installation under Gentoo</h2>
@@ -77,6 +77,7 @@
 		echo "games-action/openlierox ~x86" >> /etc/portage/package.keywords
 		FEATURES="-strict" emerge openlierox
 	</pre>
+	If you want to test the current-version, follow the description @somewhere.
 </p>
 <p>
 	<h2>Installation somewhere</h2>
@@ -93,6 +94,8 @@
 		./compile.sh
 		./start.sh
 	</pre>
+	Don't forget to download also the Level- and Mod-packages. Extract
+	them into <i>/usr/share/OpenLieroX</i> or <i>~/.OpenLieroX</i>.
 </p>
 <p>
 	<h2>Installation under Debian/Ubuntu</h2>
