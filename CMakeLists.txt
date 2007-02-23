@@ -1,7 +1,9 @@
 PROJECT(openlierox)
 
-# TODO: not WIN32 compatible
-INCLUDE_DIRECTORIES(include /usr/include/libxml2)
+INCLUDE_DIRECTORIES(/usr/include/stlport include /usr/include/libxml2)
+
+ADD_DEFINITIONS(-D_PTHREADS)
+ADD_DEFINITIONS(-D_STLP_DEBUG)
 
 AUX_SOURCE_DIRECTORY(src MAIN_SRCS)
 AUX_SOURCE_DIRECTORY(src/client CLIENT_SRCS)
@@ -11,6 +13,6 @@ SET(ALL_SRCS ${MAIN_SRCS} ${CLIENT_SRCS} ${COMMON_SRCS} ${SERVER_SRCS})
 
 SET_SOURCE_FILES_PROPERTIES(${ALL_SRCS} COMPILE_FLAGS "-ggdb -O0")
 
-LINK_LIBRARIES(SDL SDL_image SDL_mixer NL gd z xml2)
+LINK_LIBRARIES(SDL SDL_image SDL_mixer NL gd z xml2 stlportstlg)
 ADD_EXECUTABLE(bin/openlierox ${ALL_SRCS})
 

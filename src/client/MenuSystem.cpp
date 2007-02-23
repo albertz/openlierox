@@ -567,7 +567,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,MakeColour(64,64,64));
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,sTitle);
-	for (i=0; (int)i<=lines.size(); i++)  {
+	for (i=0; (int)i<lines.size(); i++)  { // TODO: use iterators
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
 		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, lines[i]);
 		cy += tLX->cFont.GetHeight()+2;
@@ -945,7 +945,7 @@ void Menu_AddDefaultWidgets(void)
 		LevelListFiller(CCombobox* c, int* i, int* s) : cmb(c), index(i), selected(s) {}
 		inline bool operator() (const std::string& filename) {
 			size_t pos = findLastPathSep(filename);
-			std::string f = filename.substr(pos);
+			std::string f = filename.substr(pos+1);
 	
 			// Liero Xtreme level
 			if( stringcasecmp(filename.substr(filename.size()-4), ".lxl") == 0) {

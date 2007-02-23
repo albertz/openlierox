@@ -1,5 +1,7 @@
 /*sex.cpp*/
 
+// TODO: let it use std::string
+
 /* Original author unknown.  Presumably this is public domain by now.
  * If you are the original author or know the original author, please
  * contact <freebsd@spatula.net>

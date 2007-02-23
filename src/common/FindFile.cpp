@@ -106,6 +106,7 @@ list.clear();
 
 #ifndef WIN32
 
+// TODO: use std::string!
 // used by unix-GetExactFileName
 int GetNextName(const char* fullname, const char** seperators, char* nextname)
 {
@@ -129,6 +130,7 @@ int GetNextName(const char* fullname, const char** seperators, char* nextname)
 }
 
 
+// TODO: use std::string!
 // used by unix-GetExactFileName
 int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
 {
@@ -169,7 +171,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename)
 	std::string sname = abs_searchname;
 	ReplaceFileVariables(sname);
 
-	// TODO: ouhhhhh, this has to be redone... !
+	// TODO: ouhhhhh, this has to be redone... ! (use std::string)
 	const char* seps[] = {"\\", "/", (char*)NULL};
 	static char nextname[512]; strcpy(nextname, "");
 	static char nextexactname[512]; strcpy(nextexactname, "");

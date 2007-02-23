@@ -199,7 +199,8 @@ public:
 		filehandler(filehandler_) {}
 	
 	inline bool operator() (const std::string& path) {
-		std::string abs_path = path + dir;
+		std::string abs_path;
+		if(!GetExactFileName(path + dir, abs_path)) return true;
 		bool ret = true;
 		
 #ifdef WIN32
@@ -227,7 +228,7 @@ public:
 			//If file is not self-directory or parent-directory
 			if(entry->d_name[0] != '.' || (entry->d_name[1] != '\0' && (entry->d_name[1] != '.' || entry->d_name[2] != '\0'))) {
 				filename = abs_path + "/" + entry->d_name;
-				if(stat(filename.c_str(), &s) != 0)
+				if(stat(filename.c_str(), &s) == 0)
 					if((S_ISREG(s.st_mode) && modefilter&FM_REG)
 					|| (S_ISDIR(s.st_mode) && modefilter&FM_DIR))
 						if(!filehandler(dir + "/" + entry->d_name)) {
