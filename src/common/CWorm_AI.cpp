@@ -688,7 +688,9 @@ private:
 	bool thread_is_ready;
 	int break_thread_signal;
 	int restart_thread_searching_signal;
-	struct start_target_pair { VectorD2<int> start, target; } restart_thread_searching_newdata;
+	class start_target_pair { public:
+		VectorD2<int> start, target; 
+	} restart_thread_searching_newdata;
 
 	inline void breakThreadSignal() {
 		// we don't need more thread-safety here, because this will not fail

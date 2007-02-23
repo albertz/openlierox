@@ -172,7 +172,7 @@ enum {
 };
 
 // Menu structure
-typedef struct {
+class menu_t { public:
 
 	// Graphics
 	//SDL_Surface		*bmpMainBack;
@@ -226,7 +226,7 @@ typedef struct {
 	// Socket for pinging
 	NetworkSocket		tSocket[2];
 
-} menu_t;
+};
 
 
 // Net menu types
@@ -244,7 +244,7 @@ enum {
 
 
 // Server structure
-typedef struct server_s {
+class server_t { public:
 	bool	bIgnore;
 	bool	bProcessing;
     bool    bManual;
@@ -267,18 +267,18 @@ typedef struct server_s {
 	int		nMaxPlayers;
 	int		nPing;
 
-    struct	server_s	*psPrev;
-	struct	server_s	*psNext;
-} server_t;
+    server_t	*psPrev;
+	server_t	*psNext;
+};
 
 
 // Local player structure
-typedef struct {
+class local_ply_t { public:
     bool        bUsed;
     profile_t   *psProfile;
     int         nTeam;
     int         nHealth;
-} local_ply_t;
+};
 
 
 // Menu globals

@@ -31,9 +31,9 @@ enum {
 };
 
 // Generic events
-typedef struct generic_events_s {
+class generic_events_t { public:
 	char Events[NumEvents][128];
-} generic_events_t;
+};
 
 class CWidget {
 public:

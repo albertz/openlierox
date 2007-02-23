@@ -46,10 +46,10 @@ int		ReadVec(const std::string& filename, const std::string& section, const std:
 
 
 // Keywords
-typedef struct {
+class keyword_t { public:
 	std::string key;
 	int  Value;
-} keyword_t;
+};
 
 
 int		AddKeyword(const std::string& key, int value);

@@ -19,15 +19,15 @@
 
 
 // Ban List structure
-typedef struct banlist_s {
+class banlist_t { public:
 
     std::string szNick;
     std::string szAddress;
 
-    struct  banlist_s   *psNext;
-    struct  banlist_s   *psLink;        // For sorted array
+    banlist_t   *psNext;
+    banlist_t   *psLink;        // For sorted array
 
-} banlist_t;
+};
 
 
 // Ban List class

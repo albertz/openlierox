@@ -24,12 +24,12 @@
 
 
 // Line structure
-typedef struct {
+class line_t { public:
 	std::string	strLine;
 	Uint32	iColour;
 	float	fTime;
 	bool	bNew;
-} line_t;
+};
 
 typedef std::vector<line_t> ct_lines_t;
 

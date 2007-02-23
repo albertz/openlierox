@@ -46,15 +46,15 @@ enum {
 
 
 // Object structure
-typedef struct  ht_object_s {
+class ht_object_t { public:
 	int		iType;
 	int		iEnd;
 	Uint32	iValue;
 	std::string	strText;
 
-	struct  ht_object_s *tNext;
+	ht_object_t *tNext;
 
-} ht_object_t;
+};
 
 
 // Browser events

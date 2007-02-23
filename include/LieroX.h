@@ -80,7 +80,7 @@ const float	R2D(5.729578e+1f); // radians to degrees
 
 
 // LieroX structure
-typedef struct {
+class lierox_t { public:
 	float	fCurTime;
 	float	fDeltaTime;
 	CFont	cFont;
@@ -126,7 +126,7 @@ typedef struct {
 
 
 	std::string	debug_string;
-} lierox_t;
+};
 
 
 // Game types
@@ -139,7 +139,7 @@ enum {
 
 
 // Game structure
-typedef struct {
+class game_t { public:
 	int			iGameType;		// Local, remote, etc
 	int			iGameMode;		// DM, team DM, etc
 	std::string		sModName;
@@ -162,7 +162,7 @@ typedef struct {
 	
 	int			iNumPlayers;
 	profile_t	*cPlayers[MAX_WORMS];
-} game_t;
+};
 
 
 extern	lierox_t		*tLX;

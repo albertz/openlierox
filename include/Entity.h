@@ -40,7 +40,7 @@ enum {
 
 
 
-typedef struct {
+class entity_t { public:
 	bool	iUsed;
 	int		iType;
 	int		iType2;
@@ -56,7 +56,7 @@ typedef struct {
 	float	fExtra;
 	SDL_Surface	*bmpSurf;
 
-} entity_t;
+};
 
 
 // Entity routines

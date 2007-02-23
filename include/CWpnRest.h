@@ -27,15 +27,15 @@ enum {
 
 
 // Weapon Restriction structure
-typedef struct wpnrest_s {
+class wpnrest_t { public:
 
 	std::string    szName;
     int     nState;
 
-    struct  wpnrest_s   *psNext;
-    struct  wpnrest_s   *psLink;        // For sorted array
+    wpnrest_t   *psNext;
+    wpnrest_t   *psLink;        // For sorted array
 
-} wpnrest_t;
+};
 
 
 // Weapon Restrictions class

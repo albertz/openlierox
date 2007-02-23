@@ -24,7 +24,7 @@
 
 
 // Command structure
-/*typedef struct {
+/*class command_t { public:
 
 	int		iFlags;
 
@@ -35,7 +35,7 @@
 	int		iX, iY;
 	int		iAngle;
 
-} command_t;*/
+};*/
 
 
 

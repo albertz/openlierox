@@ -57,32 +57,32 @@ enum {
 
 
 // Column structure
-typedef struct lv_column_s {
+class lv_column_t { public:
 	std::string	sText;
 	int			iWidth;
 	bool		bDown;
 	int			iSorted; // -1 = unsorted, 0 = descending, 1 = ascending
 
-	struct		lv_column_s *tNext;
+	lv_column_t *tNext;
 
-} lv_column_t;
+};
 
 
 // Sub item structure
-typedef struct lv_subitem_s {
+class lv_subitem_t { public:
 	int			iType;
 	std::string	sText;
 	SDL_Surface	*bmpImage;
 	int			iVisible;
 	int			iExtra;
 
-	struct		lv_subitem_s *tNext;
+	lv_subitem_t *tNext;
 
-} lv_subitem_t;
+};
 
 
 // Item structure
-typedef struct lv_item_s {
+class lv_item_t { public:
 	std::string	sIndex;
 	int			iIndex;
     int         _iID;
@@ -92,9 +92,9 @@ typedef struct lv_item_s {
 
 	lv_subitem_t *tSubitems;
 
-	struct	lv_item_s	*tNext;
+	lv_item_t	*tNext;
 
-} lv_item_t;
+};
 
 
 // Button control class

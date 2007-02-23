@@ -41,15 +41,13 @@
 
 
 
-typedef struct {
-
+class conline_t { public:
 	int			Colour;
 	std::string	strText;
+};
 
-} conline_t;
 
-
-typedef struct {
+class console_t { public:
 
 	int			iState;
 	float		fPosition;
@@ -72,7 +70,7 @@ typedef struct {
 
     SDL_Surface *bmpConPic;
 
-} console_t;
+};
 
 
 

@@ -19,11 +19,11 @@
 
 
 // Widget list item structure
-typedef struct widget_item_s {
+class widget_item_t { public:
 	int				iID;
 	std::string		sName;
-	widget_item_s	*tNext;
-} widget_item_t;
+	widget_item_t	*tNext;
+};
 
 
 

@@ -75,26 +75,28 @@ public:
 
 
 // Keyboard structure
-typedef struct {
+class keys_t { public:
 #ifndef _MSC_VER
 	std::string	text;
 #else
+	// TODO: this is absolute no solution!
 	char text[16];
 #endif
 	int		value;
-} keys_t;
+};
 
 
 // Joystick structure
-typedef struct {
+class joystick_t { public:
 #ifndef _MSC_VER
 	std::string	text;
 #else
+	// TODO: this is absolute no solution!
 	char text[16];
 #endif
 	int		value;
 	int		extra;
-} joystick_t;
+};
 
 
 

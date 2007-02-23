@@ -21,11 +21,11 @@
 
 #define		MAX_CHALLENGES		1024
 // Challenge structure
-typedef struct {
+class challenge_t { public:
 	NetworkAddr	Address;
 	float		fTime;
 	int			iNum;
-} challenge_t;
+};
 
 // Server state
 enum {
@@ -43,7 +43,7 @@ enum {
 };
 
 // Structure for logging worms
-typedef struct log_worm_s {
+class log_worm_t { public:
 	std::string	sName;
 	std::string	sSkin;
 	int			iLives;
@@ -58,15 +58,15 @@ typedef struct log_worm_s {
 	float		fTimeLeft;
 	int			iType;
 	std::string	sIP;
-} log_worm_t;
+};
 
 // Game log structure
-typedef struct game_log_s {
+class game_log_t { public:
 	log_worm_t	*tWorms;
 	int			iNumWorms;
 	float		fGameStart;
 	std::string	sGameStart;
-} game_log_t;
+};
 
 class CServer {
 public:

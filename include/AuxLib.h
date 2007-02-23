@@ -34,17 +34,17 @@
 
 
 // Keyboard structure
-typedef struct {
+class keyboard_t { public:
 	Uint8	*keys;
 	Uint8	KeyUp[SDLK_LAST];
 	Uint8	KeyDown[SDLK_LAST];
     int     queueLength;
     int     keyQueue[MAX_KEYQUEUE];
-} keyboard_t;
+};
 
 
 // Mouse structure
-typedef struct {
+class mouse_t { public:
 	int		X,Y;
 	int		Button;
 
@@ -56,7 +56,7 @@ typedef struct {
 	int		WheelDown;
 	int		WheelScrollUp;
 	int		WheelScrollDown;
-} mouse_t;
+};
 
 // Super global variables
 //int iRecordingVideo;

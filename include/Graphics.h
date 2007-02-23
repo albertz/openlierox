@@ -19,15 +19,15 @@
 
 
 // Gui graphics
-typedef struct {
+class gfxgui_t { public:
 	SDL_Surface		*bmpMouse[4];
 	SDL_Surface		*bmpScrollbar;
 	SDL_Surface		*bmpSliderBut;
-} gfxgui_t;
+};
 
 
 // Game graphics
-typedef struct {
+class gfxgame_t { public:
 	SDL_Surface		*bmpCrosshair;
 	SDL_Surface		*bmpMuzzle;
 	SDL_Surface		*bmpExplosion;
@@ -45,7 +45,7 @@ typedef struct {
 
 	SDL_Surface		*bmpBonus;
 	SDL_Surface		*bmpHealth;
-} gfxgame_t;
+};
 
 
 extern	gfxgui_t	gfxGUI;

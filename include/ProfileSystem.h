@@ -32,7 +32,7 @@
 
 
 // Player profile structure
-typedef struct profile_s {
+class profile_t { public:
 	int				iID;
 
 	int				iType;
@@ -46,8 +46,8 @@ typedef struct profile_s {
 	int				iTeam;
 	SDL_Surface		*bmpWorm;
 
-	struct profile_s *tNext;
-} profile_t;
+	profile_t *tNext;
+};
 
 
 

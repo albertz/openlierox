@@ -47,29 +47,29 @@ class CWorm;
 
 
 // Object structure
-typedef struct {
+class object_t { public:
 	int		Type;
 	int		Size;
 	int     X, Y;
 
-} object_t;
+};
 
 
 
 // Random map data
-typedef struct {
+class maprandom_t { public:
 
     bool        bUsed;
     std::string szTheme;
     int         nNumObjects;
     object_t    *psObjects;
 
-} maprandom_t;
+};
 
 
 
 // Theme structure
-typedef struct {
+class theme_t { public:
 	std::string	name;
 	Uint32		iDefaultColour;
 	SDL_Surface	*bmpFronttile;
@@ -81,7 +81,7 @@ typedef struct {
 	int			NumMisc;
 	SDL_Surface	*bmpMisc[32];
 
-} theme_t;
+};
 
 
 class CPlayer;

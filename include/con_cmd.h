@@ -26,14 +26,12 @@
 
 
 // Command structure
-typedef struct command_s {
-
+class command_t { public:
 	std::string		strName;
 	void			(*func) ( void );
 
-	struct command_s	*Next;
-
-} command_t;
+	command_t	*Next;
+};
 
 
 // Arguments

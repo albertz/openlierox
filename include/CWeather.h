@@ -35,13 +35,13 @@ enum {
 
 
 // Weather particle
-typedef struct {
+class wthpart_t { public:
     bool    bUsed;
     int     nType;
     int     nType2;
     CVec    cPos;
     CVec    cVel;
-} wthpart_t;
+};
 
 
 #define     MAX_WEATHERPARTS    1024

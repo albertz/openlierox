@@ -19,12 +19,12 @@
 
 
 // layout event structure
-typedef struct {
+class gui_event_t { public:
 	int		iControlID;
 	int		iEventMsg;
 
 	CWidget	*cWidget;
-} gui_event_t;
+};
 
 
 // Errors

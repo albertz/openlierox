@@ -43,16 +43,15 @@ enum {
 
 
 // Item structure
-typedef struct cb_item_s {
+class cb_item_t { public:
 	int			iIndex;
 	std::string	sIndex;
 	std::string	sName;
 	int			iSelected;
 	SDL_Surface *tImage;
 
-	struct	cb_item_s	*tNext;
-
-} cb_item_t;
+	cb_item_t	*tNext;
+};
 
 
 

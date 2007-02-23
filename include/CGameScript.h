@@ -112,7 +112,7 @@ typedef struct {
 
 
 // Projectile structure
-typedef struct proj_s {
+class proj_t { public:
 	std::string	filename;		// Compiler use (was 64b before)
 	int		id;					// File ref use
 
@@ -183,7 +183,7 @@ typedef struct proj_s {
 	float	ProjSpeedVar;
 	float	ProjSpread;	
 	int		ProjAmount;
-	struct  proj_s	*Projectile;
+	proj_t	*Projectile;
 
 
 	// Projectile trail
@@ -193,7 +193,7 @@ typedef struct proj_s {
 	int		PrjTrl_Speed;
 	float	PrjTrl_SpeedVar;
 	float	PrjTrl_Spread;
-	struct  proj_s	*PrjTrl_Proj;
+	proj_t	*PrjTrl_Proj;
 
 
 
@@ -203,11 +203,11 @@ typedef struct proj_s {
 #endif
 	
 
-} proj_t;
+};
 
 
 // Weapon structure
-typedef struct {
+class weapon_t { public:
 	int		ID;
 	std::string	Name; // (was 64b before)
 	int		Type;
@@ -242,7 +242,7 @@ typedef struct {
 	SoundSample*	smpSample;
 #endif
 
-} weapon_t;
+};
 
 
 class CGameScript {

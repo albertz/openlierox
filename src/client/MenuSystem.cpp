@@ -936,11 +936,11 @@ void Menu_AddDefaultWidgets(void)
 
 
 	// Load the level list
-	class LevelListFiller { public:
+	class LevelComboFiller { public:
 		CCombobox* cmb;
 		int* index;
 		int* selected;
-		LevelListFiller(CCombobox* c, int* i, int* s) : cmb(c), index(i), selected(s) {}
+		LevelComboFiller(CCombobox* c, int* i, int* s) : cmb(c), index(i), selected(s) {}
 		inline bool operator() (const std::string& filename) {
 			size_t pos = findLastPathSep(filename);
 			std::string f = filename.substr(pos+1);
@@ -1024,7 +1024,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 			selected = index-1;
 	}
 
-	FindFiles(LevelListFiller(cmb, &index, &selected), "levels", FM_REG);
+	FindFiles(LevelComboFiller(cmb, &index, &selected), "levels", FM_REG);
 
 	// Sort it ascending
 	cmb->Sort(true);

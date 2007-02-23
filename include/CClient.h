@@ -38,23 +38,23 @@ enum {
 
 
 // Chatbox line
-typedef struct {
+class chat_line_t { public:
 	std::string	sText;
 	float	fTime;
 	float	fScroll;
 	int		iType;
-} chat_line_t;
+};
 
 
 // Ping structure
-typedef struct {
+class ping_t { public:
 	bool	bInitialized;
 	float	fSentTime;
 	int		iSequence;
-} ping_t;
+};
 
 // Game lobby structure
-typedef struct {
+class game_lobby_t { public:
 	int		nSet;
 	int		nGameMode;
 	int		nLives;
@@ -69,7 +69,7 @@ typedef struct {
 	bool	bHaveMap;
 	bool	bHaveMod;
 	bool	bTournament;
-} game_lobby_t;
+};
 
 
 class CClient {

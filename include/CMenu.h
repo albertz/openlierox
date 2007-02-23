@@ -34,14 +34,15 @@ enum {
 
 
 // Menu item structure
-typedef struct mnu_item_s {
+// TODO: use std::vector/list
+class mnu_item_t { public:
     int     nID;
 	std::string  szName;
     int     nSelected;
 
-    struct mnu_item_s   *psNext;
+    mnu_item_t   *psNext;
 
-} mnu_item_t;
+};
 
 
 class CMenu : public CWidget {

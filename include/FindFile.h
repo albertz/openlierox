@@ -43,7 +43,7 @@
 #endif
 
 
-struct drive_t {
+class drive_t { public:
 	std::string name;
 	unsigned int type;
 };

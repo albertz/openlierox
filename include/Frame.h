@@ -38,7 +38,7 @@
 
 
 // Worm frame state
-typedef struct {
+class worm_state_t { public:
 
 	int		iFlags;
 
@@ -55,12 +55,12 @@ typedef struct {
 	int		iMove;			// 1 bit   |
 	int		iJump;			// 1 bit   |
 	int		iWeapon;		// 3 bits  |
-} worm_state_t;
+};
 
 
 
 
-typedef struct {
+class frame_t { public:
 
 	Uint32	iFrameNum;
 	float	fTime;
@@ -69,7 +69,7 @@ typedef struct {
 
 	worm_state_t	tWormStates[8];
 
-} frame_t;
+};
 
 
 

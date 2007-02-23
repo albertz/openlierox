@@ -51,7 +51,7 @@
 
 
 // Weapon Shooting structure
-typedef struct {
+class shoot_t { public:
 
 	float	fTime;
 	int		nWeapon;
@@ -64,7 +64,7 @@ typedef struct {
 	
 	int		devID;
 
-} shoot_t;
+};
 
 
 
