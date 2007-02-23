@@ -1726,8 +1726,9 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
 
         if( parsed.size() == 3 ) {
 			TrimSpaces(parsed[2]); // Address
-
-            server_t *sv = Menu_SvrList_AddServer(parsed[2], parsed[0][0] == '1');
+			TrimSpaces(parsed[0]);
+			
+            server_t *sv = Menu_SvrList_AddServer(parsed[2], parsed[0] == "1");
 
             // Fill in the name
             if( sv ) {
