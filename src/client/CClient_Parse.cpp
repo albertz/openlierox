@@ -430,7 +430,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		//SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
 		DrawRectFill(tMenu->bmpBuffer,0,0,tMenu->bmpBuffer->w,tMenu->bmpBuffer->h,0);
 		std::string err("Error load game mod: ");
-		err += sModName + "\r\nError code: " + itoa(result);		
+		err += sModName + "\r\nError code: " + itoa(result);
 		Menu_MessageBox("Loading Error",err, LMB_OK);
         iClientError = true;
 
@@ -472,7 +472,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	if (lv)  {
 		lv->Clear();
 		line_t *l = NULL;
-		for (int i=MAX(0,cChatbox.getNumLines()-254);i<cChatbox.getNumLines();i++)  {
+		for (uint i=MAX((uint)0,cChatbox.getNumLines()-254);i<cChatbox.getNumLines();i++)  {
 			l = cChatbox.GetLine(i);
 			// Add only chat text
 			if (l) if (l->iColour == tLX->clChatText)  {

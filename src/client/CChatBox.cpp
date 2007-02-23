@@ -56,7 +56,6 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 	// Wrap
 	//
 
-    int     l=-1;
 	static std::string buf;
 
 	if (txt == "")
@@ -64,10 +63,10 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 
     // If this line is too long, break it up
 	buf = txt;
-	if(tLX->cFont.GetWidth(txt) >= nWidth) {
+	if((uint)tLX->cFont.GetWidth(txt) >= nWidth) {
 		int i; // We need it to be defined after FOR ends
-		for (i=buf.length()-2; tLX->cFont.GetWidth(buf) > nWidth && i >= 0; i--)
-			buf[i] = '\0';
+		for (i=buf.length()-2; (uint)tLX->cFont.GetWidth(buf) > nWidth && i >= 0; i--)
+            buf.erase(i);
 
 		int j;
 		// Find the nearest space
@@ -110,11 +109,10 @@ void CChatBox::setWidth(int w)
 {
 	nWidth = w;
 	WrappedLines.clear();
-	int i;
 
 	// Recalculate the wrapped lines
-	for (i=0;i<Lines.size();i++)  
-		AddWrapped(Lines[i].strLine,Lines[i].iColour,Lines[i].fTime);
+	for (ct_lines_t::const_iterator i=Lines.begin();i!=Lines.end();i++)
+		AddWrapped(i->strLine,i->iColour,i->fTime);
 	iNewLine = WrappedLines.size()-1;
 
 }
@@ -123,7 +121,7 @@ void CChatBox::setWidth(int w)
 // Get a line from chatbox
 line_t *CChatBox::GetLine(int n)
 {
-	if (n >= 0 && n < WrappedLines.size())  {
+	if (n >= 0 && n < (int)WrappedLines.size())  {
 		WrappedLines[n].bNew = false;
 		iNewLine++;
 		iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
@@ -136,7 +134,7 @@ line_t *CChatBox::GetLine(int n)
 // Get a new line from the chatbox
 line_t *CChatBox::GetNewLine(void)
 {
-	static int tmp = 0;
+	static unsigned int tmp = 0;
 	if (iNewLine >= 0 && iNewLine < WrappedLines.size())  {
 		if (WrappedLines[iNewLine].bNew)  {
 			tmp = iNewLine;

@@ -40,7 +40,7 @@ class SongListFiller { public:
 		static const std::string supported_media[] = {"mp3","ogg","mod","mid","voc"};
 		std::string ext = GetFileExtension(file);
 		stringlwr(ext);
-		for(register int i=0; i<sizeof(supported_media)/sizeof(std::string); i++)
+		for(register unsigned short i=0; i<sizeof(supported_media)/sizeof(std::string); i++)
 			if(ext == supported_media[i]) {
 				playlist->tSongList.push_back(file);
 				break;
@@ -97,7 +97,7 @@ std::string CPlayList::GetCurSong(void)
 	if (tSongList.size() == 0 || iCurSong < 0)
 		return result;
 
-	if (iCurSong > tSongList.size()-1)
+	if (iCurSong >= (int)tSongList.size())
 		iCurSong = tSongList.size()-1;
 	if (iCurSong < 1) {
 		iCurSong = 0;
@@ -116,14 +116,14 @@ void CPlayList::GoToNextSong(void)
 	if (bShuffle)  {
 		iCurSong = GetRandomInt(tSongList.size()-1);
 		iCurSong = abs(iCurSong);
-		while (iCurSong >= tSongList.size())  {
+		while (iCurSong >= (int)tSongList.size())  {
 			iCurSong = iCurSong-tSongList.size();
 		}
 	// Not shuffle, go to the next song
 	// If repeat is enabled, go to the first song if needed, else stop playing
 	} else {
 		iCurSong++;
-		if (iCurSong > tSongList.size()-1)  {
+		if (iCurSong >= (int)tSongList.size())  {
 			if (bRepeat)
 				iCurSong = 0;
 			else
@@ -140,7 +140,7 @@ void CPlayList::GoToPrevSong(void)
 	if (bShuffle)  {
 		iCurSong = GetRandomInt(tSongList.size()-1);
 		iCurSong = abs(iCurSong);
-		while (iCurSong >= tSongList.size())  {
+		while (iCurSong >= (int)tSongList.size())  {
 			iCurSong = iCurSong-tSongList.size();
 		}
 	// Not shuffle, go to the previous song
@@ -203,7 +203,7 @@ void CPlayList::SaveToFile(const std::string& filename, bool absolute_path)
 
 	// Write the file
 	// Each song means one line
-	for (int i=0;i<tSongList.size();i++)  {
+	for (unsigned int i=0;i<tSongList.size();i++)  { // TODO: iterators
 		fputs(tSongList[i].c_str(),fp);
 		fputs("\n",fp);
 	}
@@ -413,7 +413,7 @@ void CMediaPlayer::SetVolume(byte vol)
 // Get the music volume
 byte CMediaPlayer::GetVolume(void)
 {
-	return GetMusicVolume();	
+	return GetMusicVolume();
 }
 
 //////////////////////
@@ -442,7 +442,7 @@ bool CMediaPlayer::InitializeGfx(void)
 	LOAD_IMAGE(tPlayerGfx.bmpProgressEnd,	"data/frontend/mplayer/progress_end.png");
 	bGfxInitialized = true;
 
-	
+
 	cPlayerGui.Initialize();
 	cPlayerGui.Add(new CPlayerSlider(tPlayerGfx.bmpProgress,tPlayerGfx.bmpProgressStart,tPlayerGfx.bmpProgressEnd,tPlayerGfx.bmpMusicVolume,100),mp_MusicVol,0,0,0,0);
 	cPlayerGui.Add(new CPlayerSlider(tPlayerGfx.bmpProgress,tPlayerGfx.bmpProgressStart,tPlayerGfx.bmpProgressEnd,tPlayerGfx.bmpGameVolume,100),mp_GameVol,0,0,0,0);
@@ -550,7 +550,7 @@ void CMediaPlayer::SetX(int x)
 	if (iX + GetWidth() >= SDL_GetVideoSurface()->w)
 		iX = SDL_GetVideoSurface()->w-GetWidth()-1;
 	else if (iX < 0)
-		iX = 0;	
+		iX = 0;
 
 	tLXOptions->iMPlayerLeft = iX;
 }
@@ -565,7 +565,7 @@ void CMediaPlayer::SetY(int y)
 	if (iY + GetHeight() >= SDL_GetVideoSurface()->h)
 		iY = SDL_GetVideoSurface()->h-GetHeight()-1;
 	else if (iY < 0)
-		iY = 0;	
+		iY = 0;
 
 	tLXOptions->iMPlayerTop = iY;
 }
@@ -600,7 +600,7 @@ void CMediaPlayer::Frame(void)
 
 		// Next song
 		case mp_Next:
-			if (ev->iEventMsg == MP_BTN_CLICK)  
+			if (ev->iEventMsg == MP_BTN_CLICK)
 				Forward();
 			break;
 

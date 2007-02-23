@@ -179,8 +179,6 @@ bool CGuiLayout::Build(void)
 	std::string sExtension = "skn";
 
 	// Get the skin path
-	size_t skinpathlen = tLXOptions->sSkinPath.length();
-	size_t reslen = tLXOptions->sResolution.length();
 	std::string path = tLXOptions->sSkinPath+tLXOptions->sResolution;
 
 	// Temp
@@ -893,7 +891,7 @@ DWORD CGuiLayout::SendMessage(int iControl, int iMsg, const std::string& sStr, D
 	if(w == NULL)
 		return 0;
 
-	return w->SendMessage(iMsg, sStr, Param);	
+	return w->SendMessage(iMsg, sStr, Param);
 
 }
 

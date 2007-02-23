@@ -53,8 +53,8 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
-		for(i=0;i<text.length();i++)
-			text[i]='*';
+		for(std::string::iterator t=text.begin();t!=text.end();t++)
+			*t='*';
 	}
 
 	int cursorpos = iCurpos;
@@ -79,10 +79,10 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 		iHoldingMouse = false;
 		iLastMouseX = 0;
 	}*/
-	
+
 	// Shift the text, if it overlapps
-	text = text.substr(iScrollPos);
-	
+	text.erase(0,iScrollPos);
+
 	// The scrollpos can be 0 and the text still overlapps
 	// User can move in the editbox using keys/mouse
 	i=iLength-1;
@@ -95,25 +95,25 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	}
 
 	x = tLX->cFont.GetWidth(buf);
-	
+
 	// Draw selection
 	if (iSelLength)  {
 		buf = ""; // Delete the buffer
 		int x2 = 0;  // Position of the non-cursor side of the selection
 
 		// The cursor is on the right side of the selection
-		if (iSelLength < 0)  { 
-			int length = -iSelLength;
+		if (iSelLength < 0)  {
+			size_t length = -iSelLength;
 			if (length > text.length())
 				length = cursorpos;
 			buf = text.substr(cursorpos-length,(unsigned int)length);
-			
+
 			// Update the SelStart
 			iSelStart = iCurpos+iSelLength;
 		}
 		// The cursor is on the left side of the selection
 		else  {
-			int length = iSelLength;
+			size_t length = iSelLength;
 			if (length > text.length())
 				length = text.length();//cursorpos;
 			buf = text.substr(cursorpos,(unsigned int)length);
@@ -123,7 +123,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 		// Update the selected text
 		sSelectedText = sText.substr(iSelStart,(unsigned int)abs(iSelLength));
-		
+
 		// Cursor on the left side of the selection
 		if (iSelLength > 0)  {
 			x2 = iX+x+3+tLX->cFont.GetWidth(buf);  // Count the position
@@ -241,7 +241,7 @@ int CTextbox::KeyDown(int c)
 		}
 
 		// Set the scroll position
-		if (iCurpos)  
+		if (iCurpos)
 			if(tLX->cFont.GetWidth(sText.substr(0,iCurpos)) > (iWidth-7))
 				iScrollPos++;
 
@@ -336,7 +336,7 @@ int CTextbox::KeyDown(int c)
 int CTextbox::KeyUp(int c)
 {
 	iHolding = false;
-	
+
 	return TXT_NONE;
 }
 
@@ -513,7 +513,7 @@ void CTextbox::Delete(void)
 
 	//memmove(sText+iCurpos,sText+iCurpos+1,iLength-iCurpos+1);
 	sText.erase(iCurpos,1);
-	
+
 	iLength--;
 }
 
@@ -543,7 +543,7 @@ void CTextbox::Insert(char c)
 	buf[1]=0;
 	sText.insert(iCurpos++,buf);
 	iLength++;
-	
+
 	//sText[iCurpos++] = c;
 	//sText[++iLength] = '\0';
 
@@ -561,14 +561,13 @@ void CTextbox::setText(const std::string& buf)
 	sText = "";
 
 	// Copy the text and ignore unknown characters
-	int j=0;
 	for (std::string::const_iterator it=buf.begin(); it != buf.end(); it++)
 		if(*it > 31 && *it <127)
 			sText += *it;
 
-	iCurpos=iLength=sText.length(); 
-	iScrollPos=0; 
-	iSelStart=iCurpos; 
+	iCurpos=iLength=sText.length();
+	iScrollPos=0;
+	iSelStart=iCurpos;
 	iSelLength=0;
 	sSelectedText = "";
 	iLastCurpos = iCurpos;

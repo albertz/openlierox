@@ -160,7 +160,7 @@ void Menu_LocalFrame(void)
 	if (bActivated)  {
 		// Get the mod name
 		cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
-		if(it) 
+		if(it)
 			tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list
@@ -752,21 +752,21 @@ int Menu_LocalGetTeam(int count)
 		int* baseid;
 		int i;
 		addMod(CCombobox* cb_, int* id_) : combobox(cb_), baseid(id_), i(0) {}
-		inline bool operator() (const std::string& f) {		
+		inline bool operator() (const std::string& f) {
 			size_t sep = findLastPathSep(f);
 			if(sep != std::string::npos) {
 				static std::string name;
 				if(CGameScript::CheckFile(f,name)
 				&& !combobox->getItem(name)) {
 					combobox->addItem(i,f.substr(sep+1),name);
-	
+
 					// Store the index of the last used mod
 					if(stringcasecmp(name,tLXOptions->tGameinfo.szModName) == 0)
 						*baseid = i;
 					i++;
-				}				
-			}			
-			
+				}
+			}
+
 			return true;
 		}
 	};
@@ -828,7 +828,6 @@ enum {
 void Menu_GameSettings(void)
 {
 //	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
-	static char buf[256];
 
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 120,150,120,150, 400,300);
@@ -1243,7 +1242,7 @@ CGuiLayout cWpnPresets;
 	class addWeaponPresets { public:
 		CListview* listview;
 		addWeaponPresets(CListview* lv_) : listview(lv_) {}
-		inline bool operator() (const std::string& f) {		
+		inline bool operator() (const std::string& f) {
 			if(stringcasecmp(f.substr(f.size()-4),".wps")) {
 				size_t sep = findLastPathSep(f);
 				if(sep != std::string::npos) {
@@ -1252,7 +1251,7 @@ CGuiLayout cWpnPresets;
 						listview->AddItem(name,0,tLX->clListView);
 						listview->AddSubitem(LVS_TEXT,name,NULL);
 					}
-				}		
+				}
 			}
 			return true;
 		}
@@ -1404,7 +1403,7 @@ void Menu_WeaponPresetsShutdown(void)
 int Menu_WeaponPresetsOkSave(const std::string& szFilename)
 {
 	std::string filename = szFilename;
-	
+
 	// Adjust the filename
 	if( stringcasecmp(GetFileExtension( szFilename ), "wps") != 0)
 		filename += ".wps";

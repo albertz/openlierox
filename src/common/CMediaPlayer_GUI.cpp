@@ -91,7 +91,7 @@ void CPlayerSlider::Draw(SDL_Surface *bmpDest)
 	// Progress end
 	if (((float)iValue/(float)iMax) >= 0.98)  {
 		DrawImage(bmpDest,bmpEnd,iX+iWidth-5,iY+3);
-	}	
+	}
 }
 
 ///////////////////////
@@ -129,7 +129,7 @@ int CPlayerSlider::MouseDown(mouse_t *tMouse, int nDown)
 void CPlayerToggleBtn::Draw(SDL_Surface *bmpDest)
 {
 	int src_y = 0;
-	if (bEnabled) 
+	if (bEnabled)
 		src_y = bmpImage->h/2;
 	DrawImageAdv(bmpDest,bmpImage,0,src_y,iX,iY,bmpImage->w,bmpImage->h/2);
 }
@@ -350,7 +350,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 			case od_List:
 				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_ENTER) {
 					// Re-fill the list with the double-clicked directory
-					ReFillList(lv,lv->getCurSIndex());			
+					ReFillList(lv,lv->getCurSIndex());
 				}
 				break;
 
@@ -427,10 +427,10 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 		tmp.erase(len-1);
 
 	// If we can't find another slash, this must be the parent directory
-	size_t slash = findLastPathSep(tmp);		
+	size_t slash = findLastPathSep(tmp);
 	if(slash == std::string::npos)
 		return true;
-	
+
 	// If there's a slash and this is the link to the parent directory, check, if there's another slash
 	if(tmp.compare(slash+1,std::string::npos,"..") == 0) {
 		tmp.erase(slash);
@@ -438,7 +438,7 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 		// Not another slash, this is a root directory
 		if (slash == std::string::npos)
 			return true;
-		
+
 	}
 
 	// Not a root directory
@@ -469,11 +469,11 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 					lv->AddItem(directory,(*index)++,tLX->clListView);
 					lv->AddSubitem(LVS_TEXT,directory.substr(dir_sep+1),NULL);
 				}
-			
+
 				return true;
-			}		
+			}
 		};
-		
+
 ///////////////////////
 // Fills the list with the subdirectories of the "dir"
 void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
@@ -528,8 +528,8 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 		int index = 0;
 		drive_list drives = GetDrives();
 		char cur_drive = tmp_dir[0]; // TODO !
-		for (int i=0;i<drives.size();i++)  {
-#ifdef WIN32			
+		for (unsigned int i=0;i<drives.size();i++)  { // TODO!
+#ifdef WIN32
 			if (drives[i].type != DRV_CDROM)  {
 #endif
 				lv->AddItem(drives[i].name,index,tLX->clListView);
@@ -537,7 +537,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 				if (cur_drive == drives[i].name.at(0))
 					lv->setSelectedID(index);
 				index++;
-#ifdef WIN32			
+#ifdef WIN32
 			}
 #endif
 		}
@@ -545,7 +545,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 	// The directory list
 	} else  {
 
-		// Fill in the first directory 
+		// Fill in the first directory
 		directory = tmp_dir +"..";
 
 
@@ -554,9 +554,9 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 		lv->AddSubitem(LVS_TEXT,"..",NULL);
 
 		int selected = 0;
-		
+
 		FindFiles(addDirToList(lv, &index, &selected, parent_dir), tmp_dir, FM_DIR);
 		if(selected) lv->setSelectedID(selected);
 	}
-	
+
 }

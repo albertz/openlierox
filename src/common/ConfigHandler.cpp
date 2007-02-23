@@ -47,7 +47,7 @@ int ReadKeyword(const std::string& filename, const std::string& section, const s
 {
 	int n;
 	static std::string string;
-	
+
 	*value = defaultv;
 
 	if(!GetString(filename,section,key,string))
@@ -70,7 +70,7 @@ bool ReadKeyword(const std::string& filename, const std::string& section, const 
 {
 	int n;
 	static std::string string;
-	
+
 	*value = defaultv;
 
 	if(!GetString(filename,section,key,string))
@@ -95,10 +95,10 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 	static std::string string;
 
 	*value = defaultv;
-	
+
 	if(!GetString(filename,section,key,string))
 		return false;
-	
+
 	*value = from_string<int>(string);
 
 	return true;
@@ -129,7 +129,7 @@ int ReadFloat(const std::string& filename, const std::string& section, const std
 	static std::string string;
 
 	*value = defaultv;
-	
+
 	if(!GetString(filename,section,key,string))
 		return false;
 
@@ -146,14 +146,14 @@ int ReadColour(const std::string& filename, const std::string& section, const st
 	static std::string string;
 
 	*value = defaultv;
-	
+
 	if(!GetString(filename,section,key,string))
 		return false;
 
 	*value = StrToCol(string);
 
 	return true;
-	
+
 }
 
 //////////////////
@@ -166,10 +166,10 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 		return false;
 
 	std::vector<std::string>& arr = explode(string,",");
-	for (register int i=0; i<MIN(num_items,arr.size()); i++)
+	for (register unsigned int i=0; i<MIN(num_items,arr.size()); i++)
 		array[i] = from_string<int>(arr[i]);
 
-	return num_items == arr.size();
+	return num_items == (int)arr.size();
 }
 
 
@@ -188,12 +188,12 @@ int GetString(const std::string& filename, const std::string& section, const std
 	size_t	chardest = 0;
 	int		Position;
 	int		found = false;
-	
+
 	if(filename == "")
 		return false;
 
 	config = OpenGameFile(filename,"rt");
-	if(!config)	
+	if(!config)
 		return false;
 
 	string="";
@@ -207,7 +207,7 @@ int GetString(const std::string& filename, const std::string& section, const std
 		// Parse the lines
 		Line = ReadUntil(config, '\n');
 		TrimSpaces(Line);
-		
+
 		///////////////////
 		// Comment, Ignore
 		if(Line.size() == 0 || Line[0] == '#')
@@ -233,10 +233,10 @@ int GetString(const std::string& filename, const std::string& section, const std
 			tmpLine.erase(Position);
 			TrimSpaces(tmpLine);
 			curKey = tmpLine;
-			
+
 			// Check if this is the key were looking for under the section were looking for
 			if(stringcasecmp(curKey,key) == 0 && stringcasecmp(curSection,section) == 0)
-			{				
+			{
 				// Get the value
 				tmpLine = Line.substr(Position+1);
 				TrimSpaces(tmpLine);

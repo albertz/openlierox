@@ -33,7 +33,6 @@ public:
 		tImage = NULL;
 		if (Path != "")  {
 			tImage = LoadImage(Path,0);
-			size_t len = Path.length();
 
 			iWidth = tImage->w;
 			iHeight = tImage->h;

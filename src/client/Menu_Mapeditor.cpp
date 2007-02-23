@@ -52,11 +52,11 @@ int Menu_MapEdInitialize(void)
     DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
     Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
-    
+
     Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
     Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box
 
-    
+
 
 	Menu_RedrawMouse(true);
 
@@ -110,12 +110,12 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 
 	// Re-draw the buffer over buttons
 	//DrawImageAdv(bmpDest, tMenu->bmpBuffer, 230,140, 230,140, 410,50);
-	
+
 	if (!cMediaPlayer.GetDrawPlayer())
 		ev = cMaped.Process();
 	cMaped.Draw(bmpDest);
 
-	
+
 	// Draw the map
 	cMap.Draw(bmpDest, &cMapedView);
 
@@ -132,7 +132,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 		}
 		if(Mouse->Up && down >= 0) {
 			PlaySoundSample(sfxGeneral.smpClick);
-			
+
 			tMenu->iEditMode = down;
 		}
 	}
@@ -141,7 +141,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 		y = tMenu->iEditMode == i || down == i ? 29 : 0;
 		DrawImageAdv(bmpDest, tMenu->bmpMapEdTool, x,y, n, 108, 29,29);
 	}
-	
+
 	// Item clicked on?
 	int Clicked = false;
 	if(Mouse->Up) {
@@ -157,9 +157,9 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	// Draw item
 	//
 	theme_t *t = cMap.GetTheme();
-	
+
 	// Holes
-	if(tMenu->iEditMode == 0) {		
+	if(tMenu->iEditMode == 0) {
 
 		// left mouse button
 		if(Clicked & SDL_BUTTON(1)) {
@@ -183,7 +183,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	}
 
 	// Stones
-	if(tMenu->iEditMode == 1) {		
+	if(tMenu->iEditMode == 1) {
 
 		// lmb
 		if(Clicked & SDL_BUTTON(1)) {
@@ -199,7 +199,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 				tMenu->iCurStone = t->NumStones-1;
 		}
 
-		
+
 		int w = t->bmpStones[ tMenu->iCurStone ]->w;
 		int h = t->bmpStones[ tMenu->iCurStone ]->h;
 
@@ -212,9 +212,9 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 			DrawImageStretchKey(bmpDest, t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h, (Uint16)tLX->clPink);
 	}
 
-	
+
 	// Miscellanous
-	if(tMenu->iEditMode == 2) {		
+	if(tMenu->iEditMode == 2) {
 
 		// lmb
 		if(Clicked & SDL_BUTTON(1)) {
@@ -230,7 +230,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 				tMenu->iCurMisc = t->NumMisc-1;
 		}
 
-		
+
 		int w = t->bmpMisc[ tMenu->iCurMisc ]->w;
 		int h = t->bmpMisc[ tMenu->iCurMisc ]->h;
 
@@ -239,7 +239,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 
 	// Dirt
 	if(tMenu->iEditMode == 3) {
-		
+
 		// lmb
 		if(Clicked & SDL_BUTTON(1)) {
 			tMenu->iCurDirt++;
@@ -389,7 +389,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
     // Grab the level & drag it
 	if(Mouse->Down & SDL_BUTTON(2)) {
 		int inmap = false;
-		
+
 		if(Mouse->X >= 22 && Mouse->X <= 618) {
 			if(Mouse->Y >= 173 && Mouse->Y <= 457) {
 				inmap = true;
@@ -469,7 +469,7 @@ enum {
 		int comboindex;
 		int i;
 		int* dirtindex;
-		ComboboxFiller(CGuiLayout* g, int c, int* d) : gui(g), comboindex(c), dirtindex(d), i(0) {}
+		ComboboxFiller(CGuiLayout* g, int c, int* d) : gui(g), comboindex(c), i(0), dirtindex(d) {}
 		inline bool operator() (const std::string& dir) {
 			size_t p = findLastPathSep(dir);
 			std::string f = dir.substr(p+1);
@@ -477,7 +477,7 @@ enum {
 			if(stringcasecmp(f,"dirt"))
 				*dirtindex = i;
 			i++;
-			
+
 			return true;
 		}
 	};
@@ -516,7 +516,7 @@ void Menu_MapEd_New(void)
 
 	int dirtindex = -1;
 
-	// Find directories in the theme dir	
+	// Find directories in the theme dir
 	FindFiles(ComboboxFiller(&cg, 4, &dirtindex), "data/themes", FM_DIR);
 
 	if(dirtindex != -1)
@@ -530,8 +530,8 @@ void Menu_MapEd_New(void)
 
 	t1->setText(itoa(cMap.GetWidth(),10));
 	t1->setText(itoa(cMap.GetHeight(),10));
-	
-	
+
+
 	ProcessEvents();
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop) {
 		Menu_RedrawMouse(false);
@@ -600,7 +600,7 @@ void Menu_MapEd_New(void)
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
     Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
-    
+
     Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
     Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box
 
@@ -627,7 +627,7 @@ enum  {
 		inline bool operator() (const std::string& filename) {
 			size_t pos = findLastPathSep(filename);
 			std::string f = filename.substr(pos);
-	
+
 			// Liero Xtreme level
 			if( stringcasecmp(filename.substr(filename.size()-4), ".lxl") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
@@ -640,9 +640,9 @@ enum  {
 					fread(name,		sizeof(char),	64,	fp);
 					id[32] = '\0';
 					name[64] = '\0';
-					
+
 					if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
-						
+
 						if(!lv->getItem(name)) {
 							lv->AddItem(f,0,tLX->clListView);
 							lv->AddSubitem(LVS_TEXT,name,NULL);
@@ -651,25 +651,25 @@ enum  {
 					fclose(fp);
 				}
 			}
-	
+
 			// Liero level
 			if( stringcasecmp(filename.substr(filename.size()-4), ".lev") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
-	
-				if(fp) {	
+
+				if(fp) {
 					// Make sure it's the right size to be a liero level
 					fseek(fp,0,SEEK_END);
 					// 176400 is liero maps
 					// 176402 is worm hole maps (same, but 2 bytes bigger)
 					// 177178 is a powerlevel
 					if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-	
-						if(lv->getItem(f)) {	
+
+						if(lv->getItem(f)) {
 							lv->AddItem(f,0,tLX->clListView);
 							lv->AddSubitem(LVS_TEXT,f,NULL);
 						}
 					}
-	
+
 					fclose(fp);
 				}
 			}
@@ -705,7 +705,7 @@ void Menu_MapEd_LoadSave(int save)
 	cg.Add( new CTextbox(),                             3, 260,285, 200,20);
 
 	cg.SendMessage(2,		LVM_SETOLDSTYLE, (DWORD)0, 0);
-	
+
 	t = (CTextbox *)cg.getWidget(3);
 
 	// Load the level list
@@ -714,8 +714,8 @@ void Menu_MapEd_LoadSave(int save)
 
 	FindFiles(LevelListFiller(lv), "levels", FM_REG);
 
-	
-	
+
+
 	ProcessEvents();
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
@@ -751,28 +751,28 @@ void Menu_MapEd_LoadSave(int save)
 				case sl_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 						PlaySoundSample(sfxGeneral.smpClick);
-						
+
 						if(t->getText().length() > 0) {
 
 							quitloop = true;
-							static std::string buf; 
+							static std::string buf;
 							if(save) {
 
 								// Save
 								buf = std::string("levels/") + t->getText();
-								
+
 								// Check if it exists already. If so, ask user if they wanna overwrite
 								if(Menu_MapEd_OkSave(buf))
 									cMap.Save(t->getText(),buf);
 								else
 									quitloop = false;
 							} else {
-								
+
 								// Load
 								buf = "levels/"; buf += t->getText();
 								cMap.Load(buf);
 							}
-						}					
+						}
 					}
 					break;
 
@@ -795,7 +795,7 @@ void Menu_MapEd_LoadSave(int save)
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
     Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
-    
+
     Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
     Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box
 
@@ -810,11 +810,11 @@ void Menu_MapEd_LoadSave(int save)
 int Menu_MapEd_OkSave(const std::string& szFilename)
 {
 	std::string filename = szFilename;
-	
+
 	// Adjust the filename
 	if( stringcasecmp(GetFileExtension( szFilename ), "lxl") != 0)
 		filename += ".lxl";
-	
+
 	FILE *fp = OpenGameFile(filename,"rb");
 	if( fp == NULL)
 		// File doesn't exist, ok to save
@@ -828,7 +828,7 @@ int Menu_MapEd_OkSave(const std::string& szFilename)
 	if( nResult == MBR_YES )
 		return true;
 
-	
+
 	// No overwrite
 	// Fix the screen up
 	Menu_MapEdFrame(tMenu->bmpBuffer,false);

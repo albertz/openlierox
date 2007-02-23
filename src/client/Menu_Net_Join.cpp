@@ -538,7 +538,7 @@ void Menu_Net_JoinGotoLobby(void)
 	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
 	if (lv)  {
 		line_t *l = NULL;
-		for (int i=MAX(0,cClient->getChatbox()->getNumLines()-255);i<cClient->getChatbox()->getNumLines();i++)  {
+		for (uint i=MAX((uint)0,cClient->getChatbox()->getNumLines()-255);i<cClient->getChatbox()->getNumLines();i++)  {
 			l = cClient->getChatbox()->GetLine(i);
 			if (l) if (l->iColour == tLX->clChatText)  {
 				if(lv->getLastItem())
@@ -631,7 +631,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	// Add chat to the listbox
 	CListview *lv = (CListview *)cJoinLobby.getWidget(jl_ChatList);
     line_t *ln = NULL;
-	while(ln = cClient->getChatbox()->GetNewLine()) {
+	while((ln = cClient->getChatbox()->GetNewLine()) != NULL) {
 
         if(lv->getLastItem())
             lv->AddItem("", lv->getLastItem()->iIndex+1, ln->iColour);

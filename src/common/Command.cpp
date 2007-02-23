@@ -60,7 +60,7 @@ std::string Cmd_GetArg(int a)
 // Parse a line of text
 void Cmd_ParseLine(const std::string& text)
 {
-	int		i,ti;
+	size_t		i,ti;
 	int		quote = false;
 	static char	token[128]; // TODO: use std::string!
 
@@ -108,8 +108,8 @@ void Cmd_ParseLine(const std::string& text)
 
 		// Normal text
 		token[ti++] = text[i];
-	}	
-	
+	}
+
 	// Add the last token, only if it's not in unfinished quotes
 	if(ti && !quote) {
 		token[ti] = '\0';
@@ -211,9 +211,9 @@ int Cmd_AddCommand(const std::string& strName, void (*func) ( void ))
 	command_t *cmd;
 
 	cmd = new command_t;
-	cmd->strName = strName;	
+	cmd->strName = strName;
 	cmd->func = func;
-	
+
 	// link the command in
 	cmd->Next = Commands;
 	Commands = cmd;
@@ -231,7 +231,7 @@ void Cmd_Free(void)
 
 	for(cmd=Commands ; cmd ; cmd=cn) {
 		cn = cmd->Next;
-				
+
 		if(cmd)
 			delete cmd;
 	}
@@ -260,7 +260,7 @@ void Cmd_Kick(void)
 		return;
 	}
 
-    if(Cmd_GetNumArgs() == 1) {        
+    if(Cmd_GetNumArgs() == 1) {
         Con_Printf(CNC_NORMAL, "Usage:");
         Con_Printf(CNC_NORMAL, "kick <worm_name>");
         return;
@@ -279,7 +279,7 @@ void Cmd_Ban(void)
 		return;
 	}
 
-    if(Cmd_GetNumArgs() == 1) {        
+    if(Cmd_GetNumArgs() == 1) {
         Con_Printf(CNC_NORMAL, "Usage:");
         Con_Printf(CNC_NORMAL, "ban <worm_name>");
         return;
@@ -298,7 +298,7 @@ void Cmd_Mute(void)
 		return;
 	}
 
-    if(Cmd_GetNumArgs() == 1) {        
+    if(Cmd_GetNumArgs() == 1) {
         Con_Printf(CNC_NORMAL, "Usage:");
         Con_Printf(CNC_NORMAL, "mute <worm_name>");
         return;
@@ -317,7 +317,7 @@ void Cmd_Unmute(void)
 		return;
 	}
 
-    if(Cmd_GetNumArgs() == 1) {        
+    if(Cmd_GetNumArgs() == 1) {
         Con_Printf(CNC_NORMAL, "Usage:");
         Con_Printf(CNC_NORMAL, "unmute <worm_name>");
         return;
@@ -336,7 +336,7 @@ void Cmd_KickId(void)
 		return;
 	}
 
-    if(Cmd_GetNumArgs() == 1) {        
+    if(Cmd_GetNumArgs() == 1) {
         Con_Printf(CNC_NORMAL, "Usage:");
         Con_Printf(CNC_NORMAL, "kickid <worm_id>");
         return;
@@ -345,8 +345,8 @@ void Cmd_KickId(void)
 	std::string arg = Cmd_GetArg(1);
 	char cID[6];
 	int ID;
-	int j = 0;
-	for (int i=0; i<arg.size() && j<6; i++) // TODO: iterators!
+	size_t j = 0;
+	for (size_t i=0; i<arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
 			cID[j] = arg[i];
 			j++;
@@ -369,7 +369,7 @@ void Cmd_BanId(void)
 		return;
 	}
 
-    if(Cmd_GetNumArgs() == 1) {        
+    if(Cmd_GetNumArgs() == 1) {
         Con_Printf(CNC_NORMAL, "Usage:");
         Con_Printf(CNC_NORMAL, "banid <worm_id>");
         return;
@@ -378,8 +378,8 @@ void Cmd_BanId(void)
 	char cID[6];
 	int ID;
 	std::string arg = Cmd_GetArg(1);
-	int j = 0;
-	for (int i=0; i<arg.size() && j<6; i++) // TODO: iterators!
+	size_t j = 0;
+	for (size_t i=0; i<arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
 			cID[j] = arg[i];
 			j++;
@@ -402,7 +402,7 @@ void Cmd_MuteId(void)
 		return;
 	}
 
-    if(Cmd_GetNumArgs() == 1) {        
+    if(Cmd_GetNumArgs() == 1) {
         Con_Printf(CNC_NORMAL, "Usage:");
         Con_Printf(CNC_NORMAL, "muteid <worm_id>");
         return;
@@ -411,8 +411,8 @@ void Cmd_MuteId(void)
 	char cID[6];
 	int ID;
 	std::string arg = Cmd_GetArg(1);
-	int j = 0;
-	for (int i=0; i< arg.size() && j<6; i++) // TODO: iterators!
+	size_t j = 0;
+	for (size_t i=0; i< arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
 			cID[j] = arg[i];
 			j++;
@@ -435,7 +435,7 @@ void Cmd_UnmuteId(void)
 		return;
 	}
 
-    if(Cmd_GetNumArgs() == 1) {        
+    if(Cmd_GetNumArgs() == 1) {
         Con_Printf(CNC_NORMAL, "Usage:");
         Con_Printf(CNC_NORMAL, "unmuteid <worm_id>");
         return;
@@ -444,8 +444,8 @@ void Cmd_UnmuteId(void)
 	char cID[6];
 	int ID;
 	std::string arg = Cmd_GetArg(1);
-	int j = 0;
-	for (int i=0; i<arg.size() && j<6; i++) // TODO: iterators!
+	size_t j = 0;
+	for (size_t i=0; i<arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
 			cID[j] = arg[i];
 			j++;
@@ -502,8 +502,8 @@ void Cmd_Suicide(void)
 			char cNumber[6];
 			int number;
 			std::string arg = Cmd_GetArg(1);
-			int j = 0;
-			int i;
+			size_t j = 0;
+			size_t i;
 			for (i=0; i< arg.size() && j<6; i++) // TODO: iterators!
 				if (arg[i] >= 48 && arg[i] <= 57)  {
 					cNumber[j] = arg[i];
@@ -522,7 +522,7 @@ void Cmd_Suicide(void)
 
 			// Suicide
 			if (w->isUsed() && w->getAlive())
-				for (i = 0; i<number; i++)
+				for (i = 0; i<(uint)number; i++)
 					cClient->InjureWorm(w,101,w->getID());
 		}
 	}
@@ -574,7 +574,7 @@ void Cmd_Help() {
 	command_t* cmd;
 	unsigned short count = 0;
 	cmd_help_buf = "";
-	
+
 	for(cmd=Commands; cmd; cmd=cmd->Next) {
 		if(cmd->func != Cmd_BadWord) {
 			cmd_help_buf += cmd->strName;
@@ -588,7 +588,7 @@ void Cmd_Help() {
 		}
 	}
 	if(count && cmd_help_buf[0] != '\0') {
-		Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf.c_str());	
+		Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf.c_str());
 	}
 }
 

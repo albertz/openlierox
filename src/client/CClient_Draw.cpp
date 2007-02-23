@@ -943,8 +943,8 @@ void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fg
 void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 {
 	int y = 0;
-	int i;
-	for(i=MAX(0,cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
+	unsigned int i;
+	for(i=MAX((uint)0,cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
 		line_t *l = cChatbox.GetLine(i);
 
 		// This chat times out after a few seconds AND is on the top of the screen
@@ -979,7 +979,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	CListview *lv = (CListview *)cChatList;
 
 	line_t *l = NULL;
-	while(l = cChatbox.GetNewLine()) {
+	while((l = cChatbox.GetNewLine()) != NULL) {
 
         if(lv->getLastItem())
             lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);

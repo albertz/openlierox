@@ -61,8 +61,6 @@ int iHumanPlayers = 0;
 // Initialize the host menu
 int Menu_Net_HostInitialize(void)
 {
-	static char buf[64];
-
 	iNetMode = net_host;
 	iHostType = 0;
 
@@ -295,9 +293,9 @@ void Menu_Net_HostPlyFrame(int mouse)
 								// Max two humans
 								if(i > 2)
 									break;
-								
+
 								tGameInfo.cPlayers[count++] = ply;
-								i++;							
+								i++;
 							}
 
 						}
@@ -610,7 +608,7 @@ void Menu_Net_HostGotoLobby(void)
 	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
 	if (lv)  {
 		line_t *l = NULL;
-		for (int i=MAX(0,cClient->getChatbox()->getNumLines()-255);i<cClient->getChatbox()->getNumLines();i++)  {
+		for (uint i=MAX((uint)0,cClient->getChatbox()->getNumLines()-255);i<cClient->getChatbox()->getNumLines();i++)  {
 			l = cClient->getChatbox()->GetLine(i);
 			if (l) if (l->iColour == tLX->clChatText)  {
 				if(lv->getLastItem())
@@ -644,7 +642,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	if (bActivated)  {
 		// Get the mod name
 		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
-		if(it) 
+		if(it)
 			tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list
@@ -716,9 +714,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
     // Add chat to the listbox
 	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
 	line_t *l = NULL;
-	while(l = cClient->getChatbox()->GetNewLine()) {
+	while((l = cClient->getChatbox()->GetNewLine()) != NULL) {
 
-        if(lv->getLastItem())
+        if(lv->getLastItem() != NULL)
             lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
         else
             lv->AddItem("", 0, l->iColour);

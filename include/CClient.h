@@ -104,11 +104,11 @@ public:
 		cIConnectedBuf = "";
 		iNetSpeed = 3;
 		fLastUpdateSent = -9999;
-		
+
 		tPing.bInitialized = false;
 		tPing.iSequence = 0;
 		tPing.fSentTime = 0;
-		
+
 		iMyPing = 0;
 		fMyPingRefreshed = 0;
 		fMyPingSent = 0;
@@ -123,7 +123,7 @@ public:
 		fSendWait = 0;
 
 		iMuted = false;
-		
+
 	}
 
 
@@ -185,7 +185,7 @@ private:
 
 	// Bonus's
 	CBonus		*cBonuses;
-	
+
 	// Chatbox
 	int			iChat_Numlines;
 	chat_line_t	tChatLines[MAX_CHATLINES];
@@ -197,10 +197,10 @@ private:
 	int			iChat_Typing;
 	int			iChat_Lastchar;
 	int			iChat_Holding;
-	int			iChat_Pos;
+	unsigned int	iChat_Pos;
 	float		fChat_TimePushed;
 	CInput		cChat_Input;
-	std::string	sChat_Text;	
+	std::string	sChat_Text;
 	float		fChat_BlinkTime;
 	int			iChat_CursorVisible;
 
@@ -274,7 +274,7 @@ public:
 
 	void		Clear(void);
 	void		MinorClear(void);
-	int			Initialize(void);	
+	int			Initialize(void);
 	void		Shutdown(void);
 	void		FinishGame(void);
 
@@ -339,7 +339,7 @@ public:
     void        InitializeViewportManager(void);
     void        DrawViewportManager(SDL_Surface *bmpDest);
 	void		SimulateHud(void);
-	
+
 	// Network
 	void		Connect(const std::string& address);
 	void		Connecting(void);
@@ -389,10 +389,10 @@ public:
 	int			getStatus(void)				{ return iNetStatus; }
 	void		setStatus(int _s)			{ iNetStatus = _s; }
 	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }
-	
+
 	int			getNumWorms(void)			{ return iNumWorms; }
 	void		setNumWorms(int _w)			{ iNumWorms = _w; }
-	
+
 	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
 	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
@@ -424,7 +424,7 @@ public:
 	CShootList	*getShootList(void)			{ return &cShootList; }
 
     CBonus      *getBonusList(void)         { return cBonuses; }
-    
+
     void        setZombieTime(float z)      { fZombieTime = z; }
     float       getZombieTime(void)         { return fZombieTime; }
 

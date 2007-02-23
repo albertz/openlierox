@@ -34,7 +34,7 @@ class set_col_and_break {
 public:
 	CVec collision;
 	bool hit;
-	
+
 	set_col_and_break() : hit(false) {}
 	bool operator()(int x, int y) {
 		hit = true;
@@ -54,11 +54,11 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 /*	set_col_and_break col_action;
 	col_action = fastTraceLine(trg, pos, map, checkflags, col_action);
 	if(col_action.hit) {
-		
+
 	}*/
 	assert(false);
 	return 0;
-	
+
 /*	int		CollisionSide = 0;
 	int		mw = map->GetWidth();
 	int		mh = map->GetHeight();
@@ -67,7 +67,7 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 
 	px=(int)pos.x;
 	py=(int)pos.y;
-		
+
 	top=bottom=left=right=0;
 
 	w = width;
@@ -85,7 +85,7 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 		CollisionSide |= COL_BOTTOM;
 	if(CollisionSide) return CollisionSide;
 
-	
+
 
 
 	for(y=py-h;y<=py+h;y++) {
@@ -100,7 +100,7 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 			return CollisionSide;
 		}
 
-		
+
 		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
 
 		for(x=px-w;x<=px+w;x++) {
@@ -140,7 +140,7 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 		// Find the collision side
 		if( (left>right || left>2) && left>1 && vel.x < 0)
 			CollisionSide = COL_LEFT;
-		
+
 		if( (right>left || right>2) && right>1 && vel.x > 0)
 			CollisionSide = COL_RIGHT;
 
@@ -191,7 +191,7 @@ int CarveHole(CMap *cMap, CVec pos)
 {
 	int x,y,n;
 	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
-	
+
 	// Go through until we find dirt to throw around
 	y = MIN((int)pos.y,cMap->GetHeight()-1);
 	y = MAX(y,0);
@@ -221,7 +221,7 @@ void d_printf(char *fmt, ...)
 {
 #ifdef DEBUG
 	va_list arg;
-	
+
 	va_start(arg, fmt);
 	vprintf(fmt, arg);
 	va_end(arg);
@@ -235,16 +235,16 @@ void StripQuotes(char *dest, char *src)
 {
 	if(!dest || !src)
 		return;
-	 
+
 	int pos = 0;
 	int srclen = strlen(src);
 	int length = srclen;
-	
+
 	if(src[0] == '\"') {
 		pos = 1;
 		length--;
 	}
-	
+
 	if(src[srclen-1] == '\"')
 		length--;
 
@@ -319,7 +319,7 @@ void TrimSpaces(std::string& szLine) {
 	for(p = szLine.begin(); p != szLine.end(); p++, n++)
 		if(!isspace(*p) || isgraph(*p)) break;
 	if(n>0) szLine.erase(0,n);
-	
+
 	n = 0;
 	std::string::reverse_iterator p2;
 	for(p2 = szLine.rbegin(); p2 != szLine.rend(); p2++, n++)
@@ -367,7 +367,7 @@ std::string replacemax(const std::string& text, const std::string& what, const s
 		result.replace(pos, what_len, with);
 		pos += with_len;
 	}
-	
+
 	return result;
 }
 
@@ -489,18 +489,18 @@ char *ucfirst(char *text)
 {
 	size_t i = 0;
 	bool make_upper = true;
-	
+
 	for(; text[i] != '\0'; i++) {
 		if(text[i] == ' ' || text[i] == '.') {
 			make_upper = true;
 		} else if(make_upper) {
-			text[i] = toupper(text[i]);			
+			text[i] = toupper(text[i]);
 			make_upper = false;
 		} else {
 			text[i] = tolower(text[i]);
 		}
 	}
-	
+
 	return text;
 }
 
@@ -510,7 +510,7 @@ void ucfirst(std::string& text)
 
 	text[0] = toupper(text[0]);
 	bool wasalpha = isalpha(text[0]) != 0;
-	
+
 	for (std::string::iterator it=text.begin()+1;it != text.end();it++)  {
 		if (isalpha(*it))  {
 			if (wasalpha)
@@ -564,7 +564,7 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 	static char buf[256];
 	static std::string res;
 	res = "";
-	short buf_pos = 0;
+	size_t buf_pos = 0;
 	while(true) {
 		if(fread(&buf[buf_pos],1,1,fp) == 0 || buf[buf_pos] == until_character) {
 			res.append(buf,buf_pos);
@@ -576,8 +576,8 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 			res.append(buf,sizeof(buf));
 		}
 	}
-	
-	return res;	
+
+	return res;
 }
 
 
@@ -604,9 +604,9 @@ Uint32 StrToCol(const std::string& str) {
 
 	// Convert
 	Uint8 r,g,b;
-	r = MIN(from_string<int>(temp.substr(0,2),hex),255);
-	g = MIN(from_string<int>(temp.substr(2,2),hex),255);
-	b = MIN(from_string<int>(temp.substr(4,2),hex),255);
+	r = MIN(from_string<int>(temp.substr(0,2),std::hex),255);
+	g = MIN(from_string<int>(temp.substr(2,2),std::hex),255);
+	b = MIN(from_string<int>(temp.substr(4,2),std::hex),255);
 
 	return MakeColour(r,g,b);
 }
@@ -626,10 +626,10 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 		if(p2 == s2.end())
 			// not at end of s1
 			return 1; // s1 > s2
-		
+
 		dif = tolower(*p1) - tolower(*p2);
 		if(dif != 0) return dif; // dif > 0  <=>  s1 > s2
-		
+
 		p1++; p2++;
 	}
 }
@@ -638,16 +638,16 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 std::vector<std::string>& explode(const std::string& str, const std::string& delim) {
 	static std::vector<std::string> result;
 	result.clear();
-	
+
 	size_t delim_len = delim.size();
 	std::string rest = str;
 	size_t pos;
-	while(pos = rest.find(delim) != std::string::npos) {
+	while((pos = rest.find(delim)) != std::string::npos) {
 		result.push_back(rest.substr(0,pos-1));
 		rest.erase(0,pos+delim_len);
 	}
 	result.push_back(rest);
-	
+
 	return result;
 }
 
@@ -660,7 +660,7 @@ std::string freadstr(FILE *fp, size_t maxlen)
 	static char buf[1024];
 	size_t ret, c;
 	result = "";
-	
+
 	for(size_t len = 0; len < maxlen; len += sizeof(buf)) {
 		c = MIN(sizeof(buf), maxlen - len);
 		ret = fread(buf, 1, c, fp);
@@ -669,7 +669,7 @@ std::string freadstr(FILE *fp, size_t maxlen)
 		if(ret < c)
 			break;
 	}
-	
+
 	return result;
 }
 
@@ -709,7 +709,7 @@ void printf(const std::string& txt) {
 
 // ==============================
 //
-// Useful XML functions	
+// Useful XML functions
 //
 // ==============================
 
@@ -772,47 +772,47 @@ void xmlEntities(std::string& text)
 // Gives a name to the thread
 // Code taken from Thread Validator help
 #ifdef WIN32
-void nameThread(const DWORD threadId, const char *name) 
-{ 
-   // You can name your threads by using the following code.  
-   // Thread Validator will intercept the exception and pass it along (so if you are also running 
-   // under a debugger the debugger will also see the exception and read the thread name 
+void nameThread(const DWORD threadId, const char *name)
+{
+   // You can name your threads by using the following code.
+   // Thread Validator will intercept the exception and pass it along (so if you are also running
+   // under a debugger the debugger will also see the exception and read the thread name
 
-   // NOTE: this is for 'unmanaged' C++ ONLY! 
+   // NOTE: this is for 'unmanaged' C++ ONLY!
 
-   #define MS_VC_EXCEPTION 0x406D1388 
-   #define BUFFER_LEN      16 
+   #define MS_VC_EXCEPTION 0x406D1388
+   #define BUFFER_LEN      16
 
-   typedef struct tagTHREADNAME_INFO 
-   { 
-      DWORD   dwType;   // must be 0x1000 
-      LPCSTR   szName;   // pointer to name (in user address space)  
-               // buffer must include terminator character 
-      DWORD   dwThreadID;   // thread ID (-1 == caller thread) 
-      DWORD   dwFlags;   // reserved for future use, must be zero 
-   } THREADNAME_INFO; 
+   typedef struct tagTHREADNAME_INFO
+   {
+      DWORD   dwType;   // must be 0x1000
+      LPCSTR   szName;   // pointer to name (in user address space)
+               // buffer must include terminator character
+      DWORD   dwThreadID;   // thread ID (-1 == caller thread)
+      DWORD   dwFlags;   // reserved for future use, must be zero
+   } THREADNAME_INFO;
 
-   THREADNAME_INFO   ThreadInfo; 
-   char         szSafeThreadName[BUFFER_LEN];   // buffer can be any size,  
-                           // just make sure it is large enough! 
-    
-   memset(szSafeThreadName, 0, sizeof(szSafeThreadName));   // ensure all characters are NULL before 
-   strncpy(szSafeThreadName, name, BUFFER_LEN - 1);   // copying name 
-   //szSafeThreadName[BUFFER_LEN - 1] = '\0'; 
+   THREADNAME_INFO   ThreadInfo;
+   char         szSafeThreadName[BUFFER_LEN];   // buffer can be any size,
+                           // just make sure it is large enough!
 
-   ThreadInfo.dwType = 0x1000; 
-   ThreadInfo.szName = szSafeThreadName; 
-   ThreadInfo.dwThreadID = threadId; 
-   ThreadInfo.dwFlags = 0; 
+   memset(szSafeThreadName, 0, sizeof(szSafeThreadName));   // ensure all characters are NULL before
+   strncpy(szSafeThreadName, name, BUFFER_LEN - 1);   // copying name
+   //szSafeThreadName[BUFFER_LEN - 1] = '\0';
 
-   __try 
-   { 
-      RaiseException(MS_VC_EXCEPTION, 0, sizeof(ThreadInfo) / sizeof(DWORD), (DWORD*)&ThreadInfo);  
-   } 
-   __except(EXCEPTION_EXECUTE_HANDLER) 
-   { 
-      // do nothing, just catch the exception so that you don't terminate the application 
-   } 
-} 
+   ThreadInfo.dwType = 0x1000;
+   ThreadInfo.szName = szSafeThreadName;
+   ThreadInfo.dwThreadID = threadId;
+   ThreadInfo.dwFlags = 0;
+
+   __try
+   {
+      RaiseException(MS_VC_EXCEPTION, 0, sizeof(ThreadInfo) / sizeof(DWORD), (DWORD*)&ThreadInfo);
+   }
+   __except(EXCEPTION_EXECUTE_HANDLER)
+   {
+      // do nothing, just catch the exception so that you don't terminate the application
+   }
+}
 #endif
 

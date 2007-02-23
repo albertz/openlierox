@@ -53,8 +53,8 @@ public:
 		Clear();
 	}
 	song_list	tSongList;
-private:	
-	int			iCurSong;
+private:
+    int	iCurSong;
 	bool		bRepeat;
 	bool		bShuffle;
 public:
@@ -145,7 +145,7 @@ private:
 	// Dialogs
 	COpenAddDir		cOpenDialog;
 
-	
+
 
 public:
 	 void		Clear(void);
@@ -278,7 +278,7 @@ public:
 	CPlayerToggleBtn(SDL_Surface *image, bool enabled)  {
 		if (!image)
 			return;
-		
+
 		bEnabled = enabled;
 		bmpImage = image;
 	}
@@ -301,7 +301,7 @@ public:
 	int		KeyUp(int c)						{ return MP_WID_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
-	
+
 	inline bool isOn(void) { return bEnabled; }
 
 	void	LoadStyle(void) {}
@@ -331,8 +331,8 @@ private:
 public:
 	// Methods
 	void	Create(void) { }
-	void	Destroy(void) { 
-		if (bmpBuffer)  {SDL_FreeSurface(bmpBuffer); bmpBuffer = NULL;} 
+	void	Destroy(void) {
+		if (bmpBuffer)  {SDL_FreeSurface(bmpBuffer); bmpBuffer = NULL;}
 	}
 
 	//These events return an event id, otherwise they return -1

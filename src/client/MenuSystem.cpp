@@ -510,18 +510,16 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	int mouse = 0;
 	gui_event_t *ev = NULL;
 
-	int x = 160;
-	int y = 170;
-	int w = 320;
-	int h = 140;
+	unsigned int x = 160;
+	unsigned int y = 170;
+	unsigned int w = 320;
+	unsigned int h = 140;
 
 	// Handle multiline messages
-	int maxwidth = 0;
-	int tmp=0;
+	unsigned int maxwidth = 0;
 	static std::vector<std::string>& lines = explode(sText,"\n");
-	int i;
-	for (i=0; i<lines.size(); i++)  {
-		maxwidth = MAX(maxwidth,tLX->cFont.GetWidth(lines[i]));
+	for (std::vector<std::string>::const_iterator it=lines.begin(); it!=lines.end(); it++)  {
+		maxwidth = MAX(maxwidth,(uint)tLX->cFont.GetWidth(*it));
 	}
 
 	if(maxwidth > w) {
@@ -567,9 +565,9 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,MakeColour(64,64,64));
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,sTitle);
-	for (i=0; (int)i<lines.size(); i++)  { // TODO: use iterators
+	for (std::vector<std::string>::const_iterator it=lines.begin(); it!=lines.end(); it++)  {
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
-		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, lines[i]);
+		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, *it);
 		cy += tLX->cFont.GetHeight()+2;
 	}
 
@@ -946,7 +944,7 @@ void Menu_AddDefaultWidgets(void)
 		inline bool operator() (const std::string& filename) {
 			size_t pos = findLastPathSep(filename);
 			std::string f = filename.substr(pos+1);
-	
+
 			// Liero Xtreme level
 			if( stringcasecmp(filename.substr(filename.size()-4), ".lxl") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
@@ -959,12 +957,12 @@ void Menu_AddDefaultWidgets(void)
 					fread(name,		sizeof(char),	64,	fp);
 					id[32] = '\0';
 					name[64] = '\0';
-					
+
 					if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
 						// Remove the 'levels' bit from the filename
 						if(!cmb->getItem(name)) {
 							cmb->addItem((*index)++, f, name);
-	
+
 							// If this is the same as the old map, select it
 							if( f == tLXOptions->tGameinfo.sMapName )
 								*selected = *index-1;
@@ -973,27 +971,27 @@ void Menu_AddDefaultWidgets(void)
 					fclose(fp);
 				}
 			}
-	
+
 			// Liero level
 			if( stringcasecmp(filename.substr(filename.size()-4), ".lev") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
-	
-				if(fp) {	
+
+				if(fp) {
 					// Make sure it's the right size to be a liero level
 					fseek(fp,0,SEEK_END);
 					// 176400 is liero maps
 					// 176402 is worm hole maps (same, but 2 bytes bigger)
 					// 177178 is a powerlevel
 					if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-	
+
 						if(!cmb->getItem(f)) {
 							cmb->addItem((*index)++, f, f);
-		
+
 							if( f == tLXOptions->tGameinfo.sMapName )
 								*selected = *index-1;
 						}
 					}
-	
+
 					fclose(fp);
 				}
 			}
@@ -1003,7 +1001,7 @@ void Menu_AddDefaultWidgets(void)
 			/*std::string name = Menu_GetLevelName(filename);
 			if (name == tLXOptions->tGameinfo.sMapName)
 				*selected = *index;
-	
+
 			(*index)++;	*/
 			return true;
 		}
@@ -1027,10 +1025,10 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	}
 
 	FindFiles(LevelListFiller(cmb, &index, &selected), "levels", FM_REG);
-	
+
 	// Sort it ascending
 	cmb->Sort(true);
-	
+
 	if( selected >= 0 )
 		cmb->setCurItem( selected );
 }
@@ -1441,9 +1439,9 @@ void Menu_SvrList_FillList(CListview *lv)
 
 		// Remove the port from the address (save space)
 		addr = s->szAddress;
-		int p = addr.rfind(':');
+		size_t p = addr.rfind(':');
 		if(p != std::string::npos)
-			addr = addr.substr(0,p);
+			addr.erase(p);
 
 
 		// State
@@ -1723,7 +1721,7 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
 		szLine = ReadUntil(fp);
         if( szLine == "" )
             continue;
-	
+
 		std::vector<std::string>& parsed = explode(szLine,",");
 
         if( parsed.size() == 3 ) {

@@ -18,7 +18,6 @@
 #define __CCHATBOX_H__
 
 #include <vector>
-using namespace std;
 
 
 #define MAX_LLENGTH		128
@@ -32,7 +31,7 @@ typedef struct {
 	bool	bNew;
 } line_t;
 
-typedef vector<line_t> ct_lines_t;
+typedef std::vector<line_t> ct_lines_t;
 
 class CChatBox {
 public:
@@ -45,8 +44,8 @@ private:
 	// Attributes
 	ct_lines_t		Lines;
 	ct_lines_t		WrappedLines;
-    int				nWidth;
-	int				iNewLine;
+    unsigned int	nWidth;
+	unsigned int	iNewLine;
 
 	// Methods
 	void	AddWrapped(const std::string& txt, int colour, float time);
@@ -60,7 +59,7 @@ public:
 	line_t *GetLine(int n);
 	line_t *GetNewLine(void);
     void    setWidth(int w);
-	int		getNumLines(void)	{ return WrappedLines.size(); }
+	unsigned int		getNumLines(void)	{ return WrappedLines.size(); }
 };
 
 

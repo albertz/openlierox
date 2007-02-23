@@ -1417,7 +1417,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 
 
-int ChatMaxLength = 48;
+size_t ChatMaxLength = 48;
 
 ///////////////////
 // Process any chatter
@@ -1628,7 +1628,7 @@ void CClient::processChatCharacter(int c, bool bDown)
 
 	// Paste
 	if ((char) c == 22)  {
-		int text_len = sChat_Text.length();
+		size_t text_len = sChat_Text.length();
 
 		// Safety
 		if (iChat_Pos > text_len)
@@ -1646,7 +1646,6 @@ void CClient::processChatCharacter(int c, bool bDown)
 
     // Normal key
     if(iChat_Pos < ChatMaxLength-1 && c > 31 && c <127 ) {
-		int len = sChat_Text.length();
 		char buf[2]; buf[1]=c; buf[2]=0;
 		sChat_Text.insert(iChat_Pos,buf);
 		iChat_Pos++;

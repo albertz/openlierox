@@ -32,8 +32,8 @@ int LoadOptions(void)
 	if(tLXOptions == NULL) {
 		printf("ERROR: could not init options\n");
 		return false;
-	}	
-	
+	}
+
     static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     static const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
     static const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
@@ -58,7 +58,7 @@ int LoadOptions(void)
 		item = "SearchPath"; item += itoa(i,10);
 		if(!ReadString(f, "FileHandling", item, value, ""))
 			break;
-		
+
 		AddToFileList(&tLXOptions->tSearchPaths, value);
 		i++;
 	}
@@ -112,7 +112,7 @@ int LoadOptions(void)
         if(i == 0)
         	tLXOptions->sPlayerControls.push_back(controls_t());
         tLXOptions->sPlayerControls[j-1][i] = value;
-        
+
         i++;
         if(i >= 8) {
         	i = 0; j++;
@@ -248,7 +248,7 @@ void SaveOptions(void)
     	fprintf(fp, "SearchPath%i = %s\n", i, p->c_str());
 	fprintf(fp,"\n");
 
-	int j = 0;
+	size_t j = 0;
 	for(;j<tLXOptions->sPlayerControls.size();j++) {
 		fprintf(fp, "[Ply%iControls]\n", j+1);
 		for(i=0; i<8; i++)

@@ -22,7 +22,7 @@
 
 
 char Fontstr[256] = {" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~~"};//\161\162\163\164\165\166\167\168\169\170\171\172\173\174\175\176\177\178\179\180\181\182\183\184\185\186\187\188\189\190\191\192\193\194\195\196\197\198\199\200\201\202\203\204\205\206\207\208\209\210\211\212\213\214\215\216\217\218\219\220\221\222\223\224\225\226\227\228\229\230\231\232\233\234\235\236\237\238\239\240\241\242\243\244\245\246\247\248\249\250\251\252\253\254\255"};
-int Fontstr_len = strlen(Fontstr);
+size_t Fontstr_len = strlen(Fontstr);
 
 
 ///////////////////
@@ -30,7 +30,7 @@ int Fontstr_len = strlen(Fontstr);
 int CFont::Load(const std::string& fontname, int _colour, int _width)
 {
 	LOAD_IMAGE(bmpFont,fontname);
-	
+
 	Colour = _colour;
 	Width = _width;
 
@@ -84,7 +84,7 @@ void CFont::CalculateWidth(void)
 		SDL_LockSurface(bmpFont);
 
 	Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
-	
+
 	for(n=0;n<Fontstr_len;n++) {
 		a=n*Width;
 		for(j=0;j<bmpFont->h;j++) {
@@ -120,7 +120,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 	// Replace black with the appropriate colour
 	if(SDL_MUSTLOCK(bmpSurf))
 		SDL_LockSurface(bmpSurf);
-	
+
 	for(y=0;y<bmpSurf->h;y++) {
 		for(x=0;x<bmpSurf->w;x++) {
 			pixel = GetPixel(bmpSurf,x,y);
@@ -216,7 +216,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 	if(SDL_MUSTLOCK(bmpFont))
 		SDL_LockSurface(bmpFont);
 
-	
+
 	Uint32 col2 = (Uint32)col;
 
 	pos=0;
@@ -239,7 +239,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
         // Ignore unkown characters
         if(l >= length-1 || l < 0 )
             continue;
-		
+
 		w=0;
 		a=l*Width;
 
@@ -288,7 +288,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 						break;
 					if(x+pos+b >= right)
 						break;
-						
+
 					pixel = GetPixelFromAddr(p,bpp);
 
 					if(pixel == f_pink)
@@ -335,7 +335,7 @@ int CFont::GetWidth(const std::string& buf)
 
 		length += FontWidth[l];
 	}
-	
+
 	return length;
 }
 
@@ -354,7 +354,7 @@ void CFont::DrawCentre(SDL_Surface *dst, int x, int y, int col, char *fmt, ...)
 	int pos;
 	int length=0;
 	unsigned int n,l;
-	
+
 	va_start(arg, fmt);
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
@@ -396,7 +396,7 @@ void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, 
 	int pos;
 	int length=0;
 	unsigned int n,l;
-	
+
 	va_start(arg, fmt);
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
