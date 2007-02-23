@@ -377,11 +377,14 @@ bool FileListIncludes(const searchpathlist* l, const std::string& f) {
 
 std::string GetHomeDir() {
 #ifndef WIN32
-	passwd* userinfo = getpwuid(getuid());
-	if(userinfo) {
-		return userinfo->pw_dir;
-	} else
-		return getenv("HOME"); // last chance (doesnt work in some exotic cases)
+	char* home = getenv("HOME");
+	if(home == NULL || home[0] == '\0') {
+		passwd* userinfo = getpwuid(getuid());
+		if(userinfo)
+			return userinfo->pw_dir;
+		return ""; // both failed, very strange system...
+	}
+	return home;	
 #else
 	static char tmp[1024];
 	if (!SHGetSpecialFolderPath(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
