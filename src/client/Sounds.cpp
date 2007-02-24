@@ -24,6 +24,8 @@ sfxgen_t	sfxGeneral;
 bool SoundSystemAvailable = false;
 
 bool InitSoundSystem(int rate, int channels, int buffers) {
+	SoundSystemAvailable = false;
+
 	// HINT: other SDL stuff is already inited, we don't care here
 	if( SDL_Init(SDL_INIT_AUDIO) != 0 ) {
 		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
@@ -37,7 +39,7 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 
 	Mix_AllocateChannels(1000); // TODO: enough?
 
-	SoundSystemAvailable = false;
+	SoundSystemAvailable = true;
 	return true;
 }
 

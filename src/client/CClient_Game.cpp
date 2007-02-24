@@ -1575,8 +1575,8 @@ void CClient::processChatCharacter(int c, bool bDown)
     if((char) c == '\b') {
 		if(iChat_Pos > 0)  {
 			//memmove(sChat_Text+iChat_Pos-1,sChat_Text+iChat_Pos,strlen(sChat_Text)-iChat_Pos+1);
-			sChat_Text.erase(iChat_Pos);
-			iChat_Pos--;
+			sChat_Text.erase(--iChat_Pos,1);
+			//iChat_Pos--;
 		}
         return;
     }
@@ -1584,7 +1584,7 @@ void CClient::processChatCharacter(int c, bool bDown)
 	// Delete
 	if (GetKeyboard()->KeyDown[SDLK_DELETE])
 		//memmove(sChat_Text+iChat_Pos,sChat_Text+iChat_Pos+1,strlen(sChat_Text)-iChat_Pos+1);
-		sChat_Text.erase(iChat_Pos+1);
+		sChat_Text.erase(iChat_Pos,1);
 
 	// Home
 	if (GetKeyboard()->KeyDown[SDLK_HOME])
@@ -1604,7 +1604,7 @@ void CClient::processChatCharacter(int c, bool bDown)
 
 	// Right arrow
 	if (GetKeyboard()->KeyDown[SDLK_RIGHT]) {
-		if (iChat_Pos <= sChat_Text.length())
+		if (iChat_Pos < sChat_Text.length())
 			iChat_Pos++;
 		else
 			iChat_Pos = sChat_Text.length();
@@ -1646,9 +1646,8 @@ void CClient::processChatCharacter(int c, bool bDown)
 
     // Normal key
     if(iChat_Pos < ChatMaxLength-1 && c > 31 && c <127 ) {
-		char buf[2]; buf[1]=c; buf[2]=0;
-		sChat_Text.insert(iChat_Pos,buf);
-		iChat_Pos++;
+		char buf[2]; buf[0]=c; buf[1]=0;
+		sChat_Text.insert(iChat_Pos++,buf);
     }
 }
 

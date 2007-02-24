@@ -160,7 +160,7 @@ int ReadColour(const std::string& filename, const std::string& section, const st
 // Reads an array of integers
 int ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items)
 {
-	static std::string string;
+	std::string string;
 
 	if (!GetString(filename,section,key,string))
 		return false;
@@ -176,6 +176,7 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 
 ///////////////////
 // Read a string
+// TODO: comment outdated
 // HINT: string has to be MAX_MINOR_LENGTH long
 int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string)
 {
@@ -192,6 +193,7 @@ int GetString(const std::string& filename, const std::string& section, const std
 	if(filename == "")
 		return false;
 
+	// TODO: prefers the file in binary dir instead of home dir!
 	config = OpenGameFile(filename,"rt");
 	if(!config)
 		return false;

@@ -62,8 +62,14 @@ int main(int argc, char *argv[])
 
 	binary_dir = argv[0];
 	size_t slashpos = findLastPathSep(binary_dir);
-	if(slashpos != std::string::npos)
+	if(slashpos != std::string::npos)  {
 		binary_dir.erase(slashpos);
+		// Windows: set the working directory to the binary directory, so the "./" works for us
+#ifdef WIN32
+		chdir(binary_dir.c_str());
+#endif
+
+	}
 	else
 		binary_dir = "."; // TODO get exact path of binary
 	

@@ -127,10 +127,15 @@ void CChatBox::setWidth(int w)
 line_t *CChatBox::GetLine(int n)
 {
 	if (n >= 0 && n < (int)WrappedLines.size())  {
-		WrappedLines[n].bNew = false;
-		iNewLine++;
-		iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
-		return &WrappedLines[n];
+		line_t *ln = &WrappedLines[n];
+		if (ln->bNew)  {
+			ln->bNew = false;
+			if (n == iNewLine)  {
+				iNewLine++;
+				iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
+			}
+		}
+		return ln;
 	}
 	return NULL;
 }

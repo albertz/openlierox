@@ -658,8 +658,7 @@ void CClient::ParseText(CBytestream *bs)
 	// Log the conversation
 	if (tLXOptions->iLogConvos)  {
 		if(!bInServer)  {
-			for (unsigned short i=0;i<sizeof(buf);i++)
-				cIConnectedBuf[i] = buf[i];
+			cIConnectedBuf = buf;
 			return;
 		}
 

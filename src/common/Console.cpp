@@ -271,8 +271,7 @@ void Con_ProcessCharacter(int input)
 	// Backspace
 	if((char) input == '\b') {
 		if(Console->iCurpos > 0)  {
-			Console->Line[0].strText.erase(Console->iCurpos,1);
-			Console->iCurpos--;
+			Console->Line[0].strText.erase(--Console->iCurpos,1);
 			Console->iCurLength--;
 		}
 		Console->icurHistory = -1;
@@ -282,7 +281,7 @@ void Con_ProcessCharacter(int input)
 	// Delete
 	if(input == SDLK_DELETE)  {
 		if(Console->iCurLength > 0 && Console->iCurLength > Console->iCurpos)  {
-			Console->Line[0].strText.erase(Console->iCurpos+1,1);
+			Console->Line[0].strText.erase(Console->iCurpos,1);
 			Console->iCurLength--;
 		}
 		Console->icurHistory = -1;
@@ -404,24 +403,23 @@ void Con_Printf(int color, const std::string& txt) {
 // Add a string of text to the console
 void Con_AddText(int colour, const std::string& text)
 {
+	if (text == "")
+		return;
+
+	std::vector<std::string> lines = explode(text,"\n");
+
 	// Move all the text up, losing the last line
-	for(int n=MAX_CONLINES-2;n>=1;n--) {
-		Console->Line[n+1].strText = Console->Line[n].strText;
-		Console->Line[n+1].Colour = Console->Line[n].Colour;
+	for(int n=MAX_CONLINES-lines.size()-1;n>=1;n--) {
+		Console->Line[n+lines.size()].strText = Console->Line[n].strText;
+		Console->Line[n+lines.size()].Colour = Console->Line[n].Colour;
 	}
 
-	size_t pos = 0;
-	for(; text[pos] != '\0'; pos++) {
-		if(text[pos] == '\n') {
-			//Console->Line[1].strText[pos] = '\0';
-			Console->Line[1].Colour = colour;
-			Con_AddText(colour, &text[pos+1]); // TODO: this is wrong!
-			return;
-		}
-		Console->Line[1].strText[pos] = text[pos];
+	// Add the lines
+	n=1;
+	for (std::vector<std::string>::const_iterator it=lines.begin();it != lines.end();it++,n++)  {
+		Console->Line[n].strText = *it;
+		Console->Line[n].Colour = colour;
 	}
-	Console->Line[1].strText[pos] = '\0';
-	Console->Line[1].Colour = colour;
 }
 
 
@@ -452,7 +450,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 	int texty = y+Console->bmpConPic->h-28;
 	static std::string buf;
 
-	Uint32 Colours[6] = {0xffff, MakeColour(200,200,200), MakeColour(255,0,0), MakeColour(200,128,128),
+	const Uint32 Colours[6] = {0xffff, MakeColour(200,200,200), MakeColour(255,0,0), MakeColour(200,128,128),
 		                 MakeColour(100,100,255), MakeColour(100,255,100) };
 
 	DrawImage(bmpDest,Console->bmpConPic,0,y);
@@ -473,10 +471,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 			Console->fBlinkTime = 0;
 		}
 		if(n==0 && Console->iBlinkState)  {
-			static std::string buf2;
-			buf2 = Console->Line[n].strText;
-			buf2[MIN(sizeof(buf2)-1,(unsigned int)Console->iCurpos)] = '\0';
-			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(buf2),0xffff);
+			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(Console->Line[n].strText.substr(0,Console->iCurpos)),0xffff);
 		}
 
 		tLX->cFont.Draw(bmpDest,12,texty,Colours[Console->Line[n].Colour],buf);

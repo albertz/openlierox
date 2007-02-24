@@ -341,22 +341,28 @@ char *CBytestream::readString(char *str, size_t maxlen)
 }
 
 std::string CBytestream::readString() {
+	static std::string result;
 	size_t i;
 	size_t len = (size_t)GetLength();
 	for(i=CurByte; i<len; i++)
 		if(Data[i] == '\0') {
-			return std::string((char*)(&Data[CurByte]), i-CurByte);		
+			result = std::string((char*)(&Data[CurByte]), i-CurByte);
+			CurByte = i+1;
+			return result;		
 		}
 
 	return "";
 }
 
 std::string CBytestream::readString(size_t maxlen) {
+	static std::string result;
 	size_t i;
 	size_t len = MIN((size_t)GetLength(), CurByte+maxlen+1);
 	for(i=CurByte; i<len; i++)
 		if(Data[i] == '\0') {
-			return std::string((char *)(&Data[CurByte]), i-CurByte);		
+			result = std::string((char *)(&Data[CurByte]), i-CurByte);
+			CurByte = i+1;
+			return result;		
 		}
 
 	return "";

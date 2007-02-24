@@ -643,7 +643,7 @@ std::vector<std::string>& explode(const std::string& str, const std::string& del
 	std::string rest = str;
 	size_t pos;
 	while((pos = rest.find(delim)) != std::string::npos) {
-		result.push_back(rest.substr(0,pos-1));
+		result.push_back(rest.substr(0,pos));
 		rest.erase(0,pos+delim_len);
 	}
 	result.push_back(rest);

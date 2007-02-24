@@ -88,66 +88,37 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	i=iLength-1;
 	text = strip(text,iWidth-5);
 
-	// Determine the cursor position in pixels
-	int x = 0;
-	if(cursorpos)  {
-		buf = text.substr(0,(unsigned int)cursorpos);
-	}
-
-	x = tLX->cFont.GetWidth(buf);
-
 	// Draw selection
 	if (iSelLength)  {
 		buf = ""; // Delete the buffer
-		int x2 = 0;  // Position of the non-cursor side of the selection
+		int x1,x2;  // Positions of the selection
+		x1=x2=0;
 
-		// The cursor is on the right side of the selection
-		if (iSelLength < 0)  {
-			size_t length = -iSelLength;
-			if (length > text.length())
-				length = cursorpos;
-			buf = text.substr(cursorpos-length,(unsigned int)length);
-
-			// Update the SelStart
-			iSelStart = iCurpos+iSelLength;
-		}
-		// The cursor is on the left side of the selection
-		else  {
-			size_t length = iSelLength;
-			if (length > text.length())
-				length = text.length();//cursorpos;
-			buf = text.substr(cursorpos,(unsigned int)length);
-			// Update the SelStart
+		if (iSelLength > 0)  
 			iSelStart = iCurpos;
+		else
+			iSelStart = iCurpos+iSelLength;
+
+
+		if (iSelStart <= iScrollPos)  {
+			x1 = 3;
+			x2 = MIN(x1+tLX->cFont.GetWidth(text.substr(0,abs(iSelLength)-iScrollPos+iSelStart)),iWidth-3);
+		} else {
+			x1 = 3+tLX->cFont.GetWidth(text.substr(0,iSelStart-iScrollPos));
+			x2 = MIN(x1+tLX->cFont.GetWidth(text.substr(iSelStart-iScrollPos,abs(iSelLength))),iWidth-3);
 		}
 
 		// Update the selected text
-		sSelectedText = sText.substr(iSelStart,(unsigned int)abs(iSelLength));
+		sSelectedText = sText.substr(iSelStart,abs(iSelLength));
 
-		// Cursor on the left side of the selection
-		if (iSelLength > 0)  {
-			x2 = iX+x+3+tLX->cFont.GetWidth(buf);  // Count the position
-			if(x2 > iX+iWidth-3)
-				x2 = iX+iWidth-3;
-			DrawRectFill(bmpDest,iX+x+4,iY+3,x2,iY+iHeight-3,MakeColour(0,100,150));
-		}
-		// Cursor on the right side of the selection
-		else  {
-			x2 = iX+x+3-tLX->cFont.GetWidth(buf);  // Count the position
-			if (x2 < iX+3)
-				x2 = iX+3;
-			DrawRectFill(bmpDest,x2,iY+3,iX+x+3,iY+iHeight-3,MakeColour(0,100,150));
-		}
+		DrawRectFill(bmpDest,iX+x1,iY+3,iX+x2,iY+iHeight-3,MakeColour(0,100,150));
 	}
 
 	// Draw text
 	tLX->cFont.Draw(bmpDest, iX+3, iY+3, tLX->clTextBox,  text);
 
-	// Draw cursor only when focused
+	// Draw cursor (only when focused)
 	if(iFocused) {
-
-		if(buf == "" && iScrollPos)
-			iScrollPos--;
 
 		if ((GetMilliSeconds()-fBlinkTime) > 0.5)  {
 			iDrawCursor = !iDrawCursor;
@@ -155,6 +126,9 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 		}
 
 		if (iDrawCursor)  {
+			// Determine the cursor position in pixels
+			int x = tLX->cFont.GetWidth(text.substr(0,(unsigned int)cursorpos));
+
 			DrawVLine(bmpDest, iY+3, iY+iHeight-3, iX+x+3,MakeColour(50,150,200));
 		}
 	}
@@ -349,6 +323,9 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 
 	//static std::string buf;
 
+	if (sText == "")
+		return TXT_MOUSEOVER;
+
 	// Scroll the textbox using mouse
 	fScrollTime += tLX->fDeltaTime;
 
@@ -360,14 +337,15 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	if(fScrollTime > 0.05f)  {
 		// Scroll left
 		if(iScrollPos && tMouse->X-iX <= -5)  {
-			if(iScrollPos > 0)
+			if(iScrollPos > 0)  {
 				iScrollPos--;
 				iCurpos--;
 				scrolled = true;
+			}
 		}
 
 		// Scroll right
-		if(tLX->cFont.GetWidth(sText.substr(iScrollPos)) > iWidth-5 && tMouse->X > iX+iWidth)  {
+		else if(tLX->cFont.GetWidth(sText.substr(iScrollPos)) > iWidth-5 && tMouse->X > iX+iWidth)  {
 			if (iCurpos <= iLength)  {
 				iScrollPos++;
 				iCurpos++;
@@ -380,14 +358,14 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 
 	// If we click somewhere behind the text, but in the text box, set the cursor to the end
 	if(deltaX > tLX->cFont.GetWidth(sText.substr(iScrollPos)) && InBox(tMouse->X,tMouse->Y))  {
-		iLastCurpos = iCurpos = iLength;
+		iCurpos = iLength;
 	}
 	else  {
 		// Set the new cursor pos
 		if (deltaX < (tLX->cFont.GetWidth(sText.substr(0,1))/2))  // Area before the first character
 			iCurpos = iScrollPos;
 		else  {
-			int curWidth = 0;
+			/*int curWidth = 0;
 			int nextWidth = 0;
 			for(int i=iScrollPos; i<iLength-1; i++)  {
 				curWidth = tLX->cFont.GetWidth(sText.substr(iScrollPos,i));
@@ -396,7 +374,19 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 					iCurpos = i;
 					break;
 				}  // if
-			} // for
+			} // for*/
+			std::string buf = sText.substr(iScrollPos);
+			size_t pos = sText.length();
+			int w,prev_w;
+			w=prev_w=0;
+			while ((w=tLX->cFont.GetWidth(buf)) > deltaX)  {
+				buf.erase(buf.length()-1);
+				pos--;
+				prev_w = w;
+			}
+
+			iCurpos = pos;
+
 		}  // else 2
 	}  // else 1
 
@@ -483,9 +473,8 @@ void CTextbox::Backspace(void)
 		return;
 
 //	memmove(sText+iCurpos-1,sText+iCurpos,iLength-iCurpos+1);
-	sText = sText.substr(0,iCurpos-1)+sText.substr(iCurpos);
+	sText.erase(--iCurpos,1);
 
-	iCurpos--;
 	iLength--;
 	if (iScrollPos)
 		iScrollPos--;

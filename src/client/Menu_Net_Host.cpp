@@ -569,8 +569,6 @@ std::string Menu_Net_HostLobbyGetText(void)
 // Go straight to the lobby, without clearing the server & client
 void Menu_Net_HostGotoLobby(void)
 {
-//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
-
 	tGameInfo.iGameType = GME_HOST;
 	iNetMode = net_host;
 	iHostType = 1;
@@ -788,7 +786,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Get the text
 					static std::string buf;
 					cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &buf, 0);
-                    fix_markend(buf);
 
                     // Don't send empty messages
                     if(buf.length() == 0)
@@ -800,7 +797,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Get name
 					std::string text;
 					CWorm *rw = cClient->getRemoteWorms() + iSpeaking;
-					if(strincludes(buf,"/me"))
+					if(!strincludes(buf,"/me"))
 						text = rw->getName() + ": " + buf;
 					else
 						text = replacemax(buf,"/me",rw->getName(),text,2);
