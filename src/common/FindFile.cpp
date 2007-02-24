@@ -24,34 +24,25 @@
 	#include <shlobj.h>
 #else
 	#include <pwd.h>
-	#include <sys/types.h>
 #endif
 
-
+// TODO: this only checks, if it is a file
+// if this info is enough for use, rename the function
+// if it is not enough, extend it
 bool CanReadFile(const std::string& f, bool absolute) {
-	if(absolute) {
-#ifndef WIN32
-		struct stat s;
-		if(stat(f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
-			// it's not stat-able or not a reg file
-			return false;
-		}
-#else
-		// fopen will return NULL on Windows, if fname is a dir
-#endif
-		FILE* fp = fopen(f.c_str(), "r");
-		if(fp) {
-			// we can read the file and it is not a directory
-			fclose(fp);
-			return true;
-		}
+	static std::string abs_f;
+	if(absolute)
+		abs_f = f;
+	else
+		if(!GetExactFileName(f, abs_f)) return false;
 
+	struct stat s;
+	if(stat(abs_f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
+		// it's not stat-able or not a reg file
 		return false;
 	}
-	
-	FILE* h = OpenGameFile(f, "r");
-	if(!h) return false;
-	fclose(h);
+
+	// it's stat-able and a file
 	return true;
 }
 

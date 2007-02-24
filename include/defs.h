@@ -48,6 +48,14 @@
 #pragma warning(disable: 4996)
 #endif
 
+
+
+
+// file input/output
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #ifdef WIN32
 #	include <windows.h>
 #	include <io.h>
@@ -62,13 +70,15 @@ inline size_t strnlen(const char *str, size_t maxlen)  {
 }
 #endif // _MSC_VER <= 1200
 inline int strncasecmp(const char *str1, const char *str2, size_t l) {return _strnicmp(str1,str2,l); }
-// TODO: inline
 #	define vsnprintf _vsnprintf
 #	define snprintf	 _snprintf
-
+#	define stat _stat
+// TODO: if they are already makros on WIN, this does not work
+// in this case, replace it by inline-functions
+// if it works, remove this comment :)
+#	define S_IFREG _S_IFREG
+#	define S_IFDIR _S_IFDIR
 #else
-#	include <sys/types.h>
-#	include <sys/stat.h>
 #	include <sys/dir.h>
 #	include <unistd.h>
 inline void strlwr(char* string) {

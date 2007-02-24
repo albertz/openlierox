@@ -20,8 +20,6 @@
 #ifndef __FINDFILE_H__
 #define __FINDFILE_H__
 
-#include <vector>
-
 #ifndef SYSTEM_DATA_DIR
 #	define	SYSTEM_DATA_DIR	"/usr/share"
 #endif
@@ -60,15 +58,6 @@ bool	FileListIncludes(const searchpathlist* l, const std::string& f);
 //   ${SYSTEM_DATA} - data-dir of the system, that means usually /usr/share
 void	ReplaceFileVariables(std::string& filename);
 
-/*
-// Routines
-int		FindFirst(const std::string& dir, char *ext, char *filename);
-int		FindNext(char *filename);
-
-int		FindFirstDir(const std::string& dir, char *name);
-int		FindNextDir(char *name);
-*/
-
 drive_list GetDrives(void);
 
 #ifndef WIN32
@@ -86,31 +75,21 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename);
 // but we still need to replace ${var} in the searchname
 // returns true, if file/dir is existing and accessable, false else
 inline bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
+	filename = abs_searchname;
+
 	if(abs_searchname.size() == 0) {
-		filename = "";
-		return false;
+		return true;
 	}
 	
-	filename = abs_searchname;
 	ReplaceFileVariables(filename);
 
-	// Return false, if file/directory doesn't exist
-	FILE *f = fopen(filename.c_str(),"r");
-	if (!f)  {
-		// Not a file, check for directory
-		static char buf[_MAX_PATH];
-		char *res = _fullpath(buf,filename.c_str(),_MAX_PATH);
-		if (res == NULL)
-			return false;
-		else  {
-			fix_markend(buf);
-			strncat(buf,"\\",_MAX_PATH-1);
-			filename = buf;
-			return true;
-		}
+	struct stat finfo;
+	if(stat(filename.c_str(), &finfo) != 0) {
+		// problems stating file
+		return false;
 	}
-	fclose(f);
 
+	// we got some info, so there is something ...
 	return true;
 }
 #endif
@@ -170,9 +149,6 @@ enum {
 // bool op() ( const std::string& path )
 // ending pathsep is ensured if needed
 // if return is false, it will break
-
-// TODO: slow
-
 template<typename _handler>
 void ForEachSearchpath(_handler handler = _handler()) {
 	searchpathlist::const_iterator i;
@@ -187,11 +163,6 @@ void ForEachSearchpath(_handler handler = _handler()) {
 		if(!tLXOptions || !FileListIncludes(&tLXOptions->tSearchPaths, *i))
 			if(!handler(*i + "/")) return;
 	}
-
-	handler("./");
-
-	// Searchpaths tried, not found
-	// Try if it's an absolute path
 	handler("");
 }
 
@@ -236,7 +207,7 @@ public:
 					}
 			}
 
-			if (_findnext(handle,&fileinfo))
+			if(_findnext(handle,&fileinfo))
 				break;
 		}
 #else /* not WIN32 */

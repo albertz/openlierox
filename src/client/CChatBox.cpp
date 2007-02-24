@@ -64,6 +64,12 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
     // If this line is too long, break it up
 	buf = txt;
 	if((uint)tLX->cFont.GetWidth(txt) >= nWidth) {
+		// TODO: this cannot work and has to be redone
+		// 1. *it = '\0' don't cut std::string! (it's not a C-string)
+		// 2. what if buf.size()<2?
+		// 3. don't ever use int as a replacement for size_t
+		// (I would fix it myself, but no time atm, sorry ...)
+
 		int i = buf.length()-2; 
 		for (std::string::iterator it=buf.end()-2; tLX->cFont.GetWidth(buf) > nWidth && it != buf.begin(); it--,i--)
 			*it = '\0';
