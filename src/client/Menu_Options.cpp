@@ -252,10 +252,7 @@ int Menu_OptionsInitialize(void)
 	s->setValue( tLXOptions->iSoundVolume );
 
 	CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
-	static char buf[64];
-	snprintf(buf,sizeof(buf),"%d",tLXOptions->iNetworkPort);
-	fix_markend(buf);
-	t->setText( buf );
+	t->setText( itoa(tLXOptions->iNetworkPort) );
 
 	// Network speed
 	for(i=0; i<3; i++)

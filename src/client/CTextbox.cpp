@@ -279,11 +279,10 @@ int CTextbox::KeyDown(int c)
 
 		if (tLX->cFont.GetWidth(sText) > iWidth-3)  {
 			iScrollPos = 0;
-			static char buf[MAX_TEXTLENGTH];
-			for (int i=0; i<iLength; i++)  {
-				fix_strncpy(buf,&sText[i]);
+			static std::string buf;
+			for (std::string::iterator it=sText.begin(); it != sText.end(); it++)  {
 				iScrollPos++;
-				if (tLX->cFont.GetWidth(buf) < iWidth)
+				if (tLX->cFont.GetWidth(it) < iWidth)
 					break;
 			}
 		}
@@ -607,7 +606,7 @@ DWORD CTextbox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 
 	// Get the text
 	case TXS_SETTEXT:
-		sText = sStr;
+		setText(sStr);
 		break;
 	}
 

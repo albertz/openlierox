@@ -94,11 +94,21 @@ inline bool GetExactFileName(const std::string& abs_searchname, std::string& fil
 	filename = abs_searchname;
 	ReplaceFileVariables(filename);
 
-	// Return false, if file doesn't exist
-	// TODO: it should also return true for directories
+	// Return false, if file/directory doesn't exist
 	FILE *f = fopen(filename.c_str(),"r");
-	if (!f)
-		return false;
+	if (!f)  {
+		// Not a file, check for directory
+		static char buf[_MAX_PATH];
+		char *res = _fullpath(buf,filename.c_str(),_MAX_PATH);
+		if (res == NULL)
+			return false;
+		else  {
+			fix_markend(buf);
+			strncat(buf,"\\",_MAX_PATH-1);
+			filename = buf;
+			return true;
+		}
+	}
 	fclose(f);
 
 	return true;
@@ -160,6 +170,9 @@ enum {
 // bool op() ( const std::string& path )
 // ending pathsep is ensured if needed
 // if return is false, it will break
+
+// TODO: slow
+
 template<typename _handler>
 void ForEachSearchpath(_handler handler = _handler()) {
 	searchpathlist::const_iterator i;
@@ -174,7 +187,12 @@ void ForEachSearchpath(_handler handler = _handler()) {
 		if(!tLXOptions || !FileListIncludes(&tLXOptions->tSearchPaths, *i))
 			if(!handler(*i + "/")) return;
 	}
+
 	handler("./");
+
+	// Searchpaths tried, not found
+	// Try if it's an absolute path
+	handler("");
 }
 
 
@@ -199,15 +217,15 @@ public:
 		filehandler(filehandler_) {}
 	
 	inline bool operator() (const std::string& path) {
-		std::string abs_path;
+		std::string abs_path = path;
 		if(!GetExactFileName(path + dir, abs_path)) return true;
 		bool ret = true;
 		
 #ifdef WIN32
 		struct _finddata_t fileinfo;
+		abs_path.append("*");
 		long handle = _findfirst(abs_path.c_str(), &fileinfo);
-		if(handle < 0) return ret;
-		while(!_findnext(handle, &fileinfo)) {
+		while(handle > 0) {
 			//If file is not self-directory or parent-directory
 			if(fileinfo.name[0] != '.' || (fileinfo.name[1] != '\0' && (fileinfo.name[1] != '.' || fileinfo.name[2] != '\0'))) {
 				if((!(fileinfo.attrib&_A_SUBDIR) && modefilter&FM_REG)
@@ -217,6 +235,9 @@ public:
 						break;
 					}
 			}
+
+			if (_findnext(handle,&fileinfo))
+				break;
 		}
 #else /* not WIN32 */
 		std::string filename;

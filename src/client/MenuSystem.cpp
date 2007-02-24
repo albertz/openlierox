@@ -517,8 +517,9 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 	// Handle multiline messages
 	unsigned int maxwidth = 0;
+	std::vector<std::string>::const_iterator it;
 	static std::vector<std::string>& lines = explode(sText,"\n");
-	for (std::vector<std::string>::const_iterator it=lines.begin(); it!=lines.end(); it++)  {
+	for (it=lines.begin(); it!=lines.end(); it++)  {
 		maxwidth = MAX(maxwidth,(uint)tLX->cFont.GetWidth(*it));
 	}
 
@@ -565,7 +566,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,MakeColour(64,64,64));
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,sTitle);
-	for (std::vector<std::string>::const_iterator it=lines.begin(); it!=lines.end(); it++)  {
+	for (it=lines.begin(); it!=lines.end(); it++)  {
 		cx = x+w/2;//-(tLX->cFont.GetWidth(lines[i])+30)/2;
 		tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, *it);
 		cy += tLX->cFont.GetHeight()+2;
@@ -1650,8 +1651,8 @@ server_t *Menu_SvrList_FindServer(NetworkAddr *addr)
 void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 {
 	// Don't update the name in favourites
-	static char buf[64];
-	bs->readString( buf, sizeof(buf) );
+	static std::string buf;
+	buf = bs->readString();
 	if(iNetMode != net_favourites)
 		svr->szName = buf;
 	svr->nNumPlayers = bs->readByte();

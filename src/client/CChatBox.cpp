@@ -64,14 +64,13 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
     // If this line is too long, break it up
 	buf = txt;
 	if((uint)tLX->cFont.GetWidth(txt) >= nWidth) {
-		int i; // We need it to be defined after FOR ends
-		for (i=buf.length()-2; (uint)tLX->cFont.GetWidth(buf) > nWidth && i >= 0; i--)
-            buf.erase(i);
+		int i = buf.length()-2; 
+		for (std::string::iterator it=buf.end()-2; tLX->cFont.GetWidth(buf) > nWidth && it != buf.begin(); it--,i--)
+			*it = '\0';
 
-		int j;
+		int j = buf.length()-1;
 		// Find the nearest space
-		for (j=buf.length()-1; j>=0 && buf[j] != ' '; j--)
-			continue;
+		for (std::string::iterator it2=buf.end()-1; it2!=buf.begin() && *it2 != ' '; it2--,j--) {}
 
 		// Hard break
 		if(j < 24)

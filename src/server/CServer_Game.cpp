@@ -289,7 +289,7 @@ void CServer::TagRandomWorm(void)
 	float time = 99999;
 	int lowest=0;
 
-	// TODO: in game start this always picks the host, which is not so fair
+	// TODO: in game start this always picks the host, which is not so fair 
 
 
 	// Go through finding the worm with the lowest tag time
@@ -544,6 +544,7 @@ void CServer::RecheckGame(void)
 
 		if (!iGameOver)  {
 
+			//static char buf[256];
 			bool EndGame = false;
 
 			//
@@ -551,7 +552,7 @@ void CServer::RecheckGame(void)
 			//
 			switch (iGameType)  {
 			case  GMT_TEAMDEATH:  {
-				char *TeamNames[] = {"blue", "red", "green", "yellow"};
+				const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
 				int TeamCount[4];
 
 				w = cWorms;

@@ -587,7 +587,7 @@ void Cmd_Help() {
 			}
 		}
 	}
-	if(count && cmd_help_buf[0] != '\0') {
+	if(count && cmd_help_buf != "") {
 		Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf.c_str());
 	}
 }

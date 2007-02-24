@@ -25,7 +25,6 @@
 void CClient::ParseConnectionlessPacket(CBytestream *bs)
 {
 	static char cmd[128];
-//	bool valid = false;  // TODO: not used
 
 	bs->readString(cmd,sizeof(cmd));
 
@@ -640,8 +639,8 @@ void CClient::ParseText(CBytestream *bs)
 		case TXT_NETWORK:	col = tLX->clNetworkText;	break;
 	}
 
-	static char buf[256];
-	bs->readString(buf,sizeof(buf));
+	static std::string buf;
+	buf = bs->readString();
 
 	// If we are playing a local game, discard network messages
 	if(tGameInfo.iGameType == GME_LOCAL) {
@@ -652,10 +651,6 @@ void CClient::ParseText(CBytestream *bs)
     }
 
     FILE *f;
-
-	// Safety
-	//buf[127] = '\0';
-	fix_markend(buf);
 
 	cChatbox.AddText(buf,col,tLX->fCurTime);
 
@@ -685,7 +680,7 @@ void CClient::ParseText(CBytestream *bs)
 		}
 
 		fputs("\" text=\"",f);
-		fputs(buf,f);
+		fputs(buf.c_str(),f);
 		fputs("\" />\r\n",f);
 		fclose(f);
 	}
@@ -1150,13 +1145,11 @@ void CClient::ParseGotoLobby(CBytestream *bs)
 // Parse a 'dropped' packet
 void CClient::ParseDropped(CBytestream *bs)
 {
-    static char buf[256] = "";
-
     // Set the server error details
 
 	// Not so much an error, but i message as to why i was dropped
 	iServerError = true;
-	strServerErrorMsg = bs->readString(buf,sizeof(buf));
+	strServerErrorMsg = bs->readString(256);
 
 	if (tLXOptions->iLogConvos)  {
 		if(!bInServer)
