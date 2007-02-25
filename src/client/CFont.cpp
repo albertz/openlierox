@@ -191,7 +191,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, int col, char *fm
 	int i,j;
 	int w;
 	int a,b;
-	int length = fix_strnlen(Fontstr);
+	int length = Fontstr_len;
 
 	va_start(arg, fmt);
 	vsnprintf(buf, sizeof(buf),fmt, arg);

@@ -70,13 +70,13 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 		// 3. don't ever use int as a replacement for size_t
 		// (I would fix it myself, but no time atm, sorry ...)
 
-		int i = buf.length()-2; 
-		for (std::string::iterator it=buf.end()-2; tLX->cFont.GetWidth(buf) > nWidth && it != buf.begin(); it--,i--)
-			*it = '\0';
+		size_t i;
+		for (i=buf.length()-2; tLX->cFont.GetWidth(buf) > nWidth && i >= 1; i--)
+			buf.erase(i);
 
-		int j = buf.length()-1;
+		size_t j = buf.length()-1;
 		// Find the nearest space
-		for (std::string::iterator it2=buf.end()-1; it2!=buf.begin() && *it2 != ' '; it2--,j--) {}
+		for (std::string::iterator it2=buf.end()-2; it2!=buf.begin() && *it2 != ' '; it2--,j--) {}
 
 		// Hard break
 		if(j < 24)
@@ -102,7 +102,7 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 
 	WrappedLines.push_back(newline);
 
-	iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
+	iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()-1));
 
 	if (!WrappedLines[iNewLine].bNew)
 		iNewLine = WrappedLines.size()-1;
@@ -118,7 +118,7 @@ void CChatBox::setWidth(int w)
 	// Recalculate the wrapped lines
 	for (ct_lines_t::const_iterator i=Lines.begin();i!=Lines.end();i++)
 		AddWrapped(i->strLine,i->iColour,i->fTime);
-	iNewLine = WrappedLines.size()-1;
+	iNewLine = WrappedLines.size();
 
 }
 
@@ -132,7 +132,7 @@ line_t *CChatBox::GetLine(int n)
 			ln->bNew = false;
 			if (n == iNewLine)  {
 				iNewLine++;
-				iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
+				iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()-1));
 			}
 		}
 		return ln;
@@ -144,14 +144,13 @@ line_t *CChatBox::GetLine(int n)
 // Get a new line from the chatbox
 line_t *CChatBox::GetNewLine(void)
 {
-	static unsigned int tmp = 0;
 	if (iNewLine >= 0 && iNewLine < WrappedLines.size())  {
-		if (WrappedLines[iNewLine].bNew)  {
-			tmp = iNewLine;
-			WrappedLines[iNewLine++].bNew = false;
-			iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()));
-			WrappedLines[tmp].bNew = false;
-			return &WrappedLines[tmp];
+		line_t *ln = &WrappedLines[iNewLine];
+		if (ln->bNew)  {
+			ln->bNew = false;
+			iNewLine = MAX(0,(int)MIN(++iNewLine,(int)WrappedLines.size()-1));
+			ln->bNew = false;
+			return ln;
 		}
 	}
 	return NULL;

@@ -76,8 +76,9 @@ inline int strncasecmp(const char *str1, const char *str2, size_t l) {return _st
 // TODO: if they are already makros on WIN, this does not work
 // in this case, replace it by inline-functions
 // if it works, remove this comment :)
-#	define S_IFREG _S_IFREG
-#	define S_IFDIR _S_IFDIR
+inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
+inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
+
 #else
 #	include <sys/dir.h>
 #	include <unistd.h>

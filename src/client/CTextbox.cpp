@@ -196,7 +196,7 @@ int CTextbox::KeyDown(int c)
 
 	// Right arrow
 	if(c == SDLK_RIGHT) {
-		if(iCurpos <= iLength)  {
+		if(iCurpos < iLength)  {
 			if (bShift)  {
 				if (iCurpos != iLength)
 					iSelLength--;
@@ -297,9 +297,8 @@ int CTextbox::KeyDown(int c)
         return TXT_CHANGE;
     }
 
-	if((char)c > 31 && (char)c <127)
-		// Insert character
-		Insert((char) c);
+	// Insert character
+	Insert((char) c);
 
 	return TXT_CHANGE;
 }
@@ -365,16 +364,6 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		if (deltaX < (tLX->cFont.GetWidth(sText.substr(0,1))/2))  // Area before the first character
 			iCurpos = iScrollPos;
 		else  {
-			/*int curWidth = 0;
-			int nextWidth = 0;
-			for(int i=iScrollPos; i<iLength-1; i++)  {
-				curWidth = tLX->cFont.GetWidth(sText.substr(iScrollPos,i));
-				nextWidth = tLX->cFont.GetWidth(sText.substr(iScrollPos,i+1));
-				if ((curWidth + (nextWidth-curWidth)/3) >= deltaX)  {
-					iCurpos = i;
-					break;
-				}  // if
-			} // for*/
 			std::string buf = sText.substr(iScrollPos);
 			size_t pos = sText.length();
 			int w,prev_w;
@@ -384,6 +373,9 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 				pos--;
 				prev_w = w;
 			}
+
+			if ((prev_w-w)/3 < (deltaX-w))
+				pos++;
 
 			iCurpos = pos;
 
@@ -403,7 +395,6 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 
 	if(iHoldingMouse)  {
 		if ((abs(tMouse->X-iLastMouseX) && (iCurpos-iLastCurpos)) || (scrolled))  {
-			//MessageBeep(0);
 			if (scrolled)
 				scrolled = true;
 			iSelLength += -(iCurpos-iLastCurpos);
@@ -420,12 +411,6 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		// We can lose focus now
 		iCanLoseFocus = true;
 	}
-
-	// We can scroll using mouse
-	//if (iHolding)  {
-
-
-	//}
 
 	// Set up the variables for selection
 	//iLastCurpos = iCurpos;
@@ -493,6 +478,8 @@ void CTextbox::Delete(void)
 		iLength = sText.length();
 		if (iScrollPos > iCurpos)
 			iScrollPos = iCurpos;
+		if (tLX->cFont.GetWidth(sText) <= iWidth-5)
+			iScrollPos = 0;
 		return;
 	}
 
@@ -519,7 +506,7 @@ void CTextbox::Insert(char c)
 	if(iLength >= iMax-2)
 		return;
 
-	if(c==0)
+	if(c < 32 || c >126)
 		return;
 
 	// Safety

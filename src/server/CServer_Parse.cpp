@@ -655,11 +655,6 @@ void CServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 void CServer::ParseConnectionlessPacket(CBytestream *bs)
 {
 	static char cmd[128];
-//	bool valid = false;   // TODO: not used
-
-	// This solves the problem with hosting!
-//	GetRemoteNetAddr(tSocket,&adrFrom);
-//	SetRemoteNetAddr(tSocket,&adrFrom);
 
 	bs->readString(cmd, sizeof(cmd));
 
@@ -1017,7 +1012,6 @@ void CServer::ParseConnect(CBytestream *bs)
 		// TODO: This better
 
 		static std::string buf;
-		static char buf2[256];
 		// "Has connected" message
 		if (NetworkTexts->sHasConnected != "<none>")  {
 			for(i=0;i<numworms;i++) {
@@ -1055,11 +1049,10 @@ void CServer::ParseConnect(CBytestream *bs)
 				str_addr.erase(pos);
 			replacemax(buf,"<ip>",str_addr,buf,1);
 
-
 			for(int i=0; i<numworms; i++)  {
 				// Player name
 				// Send the welcome message
-				SendGlobalText(replacemax(buf2,"<player>",worms[i].getName(),1),TXT_NETWORK);
+				SendGlobalText(replacemax(buf,"<player>",worms[i].getName(),1),TXT_NETWORK);
 			}
 		}
 

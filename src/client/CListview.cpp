@@ -506,10 +506,11 @@ void CListview::SortBy(int column, bool ascending)
 			bool swap = false;
 			if (subitem2 && subitem1)  {
 				// Swap the two items?
-				int nat_cmp1 = from_string<int>(subitem1->sText);
-				int nat_cmp2 = from_string<int>(subitem2->sText);
+				bool failed1,failed2;
+				int nat_cmp1 = from_string<int>(subitem1->sText,failed1);
+				int nat_cmp2 = from_string<int>(subitem2->sText,failed2);
 				// First try, if we compare numbers
-				if (nat_cmp1 && nat_cmp2)  {
+				if (!failed1 && !failed2)  {
 					if (ascending)
 						swap = nat_cmp1 > nat_cmp2;
 					else

@@ -471,7 +471,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	if (lv)  {
 		lv->Clear();
 		line_t *l = NULL;
-		for (uint i=MAX((uint)0,cChatbox.getNumLines()-254);i<cChatbox.getNumLines();i++)  {
+		for (uint i=(uint)MAX((int)0,(int)(cChatbox.getNumLines()-254));i<cChatbox.getNumLines();i++)  {
 			l = cChatbox.GetLine(i);
 			// Add only chat text
 			if (l) if (l->iColour == tLX->clChatText)  {

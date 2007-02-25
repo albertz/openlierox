@@ -547,15 +547,16 @@ void Menu_Net_NETUpdateList(void)
     int SvrCount = 0;
     int CurServer = 0;
     bool SentRequest = false;
-    static char szLine[1024];
+    static std::string szLine;
     FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
     if( !fp )
         return;
 
-    while( fgets(szLine, 1024, fp) ) {
-        fix_strncpy( szLine, StripLine(szLine));
+    while( !feof(fp) ) {
+        szLine = ReadUntil(fp);
+		TrimSpaces(szLine);
 
-        if( fix_strnlen(szLine) > 0 )
+        if( szLine.length() > 0 )
             SvrCount++;
     }
 
@@ -603,10 +604,10 @@ void Menu_Net_NETUpdateList(void)
                 break;
 
             // Get the next server in the list
-            while( fgets(szLine, 1024, fp) ) {
-                fix_strncpy( szLine, StripLine(szLine) );
+            while( !feof(fp) ) {
+				szLine = ReadUntil(fp);
 
-                if( fix_strnlen(szLine) > 0 ) {
+                if( szLine.length() > 0 ) {
 
                     // Send the request
                     if( !http_InitializeRequest(szLine, LX_SVRLIST) ) {

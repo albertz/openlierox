@@ -175,12 +175,10 @@ void CPlayList::LoadFromFile(const std::string& filename,bool absolute_path)
 		return;
 
 	// Read the file line by line
-	static char line[1024];
-	std::string tmp = "";
-	while(fgets(line,sizeof(line)-1,fp))  {
-		line[fix_strnlen(line)-1] = '\0';  // Remove the newline
-		tmp = line;
-		tSongList.push_back(tmp);
+	static std::string line;
+	while(!feof(fp))  {
+		line = ReadUntil(fp);  // Remove the newline
+		tSongList.push_back(line);
 	}
 
 	fclose(fp);
@@ -203,8 +201,8 @@ void CPlayList::SaveToFile(const std::string& filename, bool absolute_path)
 
 	// Write the file
 	// Each song means one line
-	for (unsigned int i=0;i<tSongList.size();i++)  { // TODO: iterators
-		fputs(tSongList[i].c_str(),fp);
+	for (std::vector<std::string>::const_iterator i=tSongList.begin();i != tSongList.end();i++)  { // TODO: iterators
+		fputs(i->c_str(),fp);
 		fputs("\n",fp);
 	}
 

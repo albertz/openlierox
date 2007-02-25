@@ -213,10 +213,11 @@ void CCombobox::Sort(bool ascending)
 			bool swap = false;
 
 			// Swap the two items?
-			int nat_cmp1 = from_string<int>(item->sName);
-			int nat_cmp2 = from_string<int>(next_item->sName);
+			bool failed1,failed2;
+			int nat_cmp1 = from_string<int>(item->sName,failed1);
+			int nat_cmp2 = from_string<int>(next_item->sName,failed2);
 			// First try, if we compare numbers
-			if (nat_cmp1 && nat_cmp2)  {
+			if (!failed1 && !failed2)  {
 				if (ascending)
 					swap = nat_cmp1 > nat_cmp2;
 				else

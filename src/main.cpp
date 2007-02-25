@@ -69,6 +69,15 @@ int main(int argc, char *argv[])
 	// HINT: a chdir is _wrong_ here, it should never be used in any case!
 	// the ./ should point to the current dir, NOT to the binary dir
 	// if you want to point to the binary dir, use {BINARY_DIR}
+	// Well, but when i don't use chdir here, the searchpath "./" points usually to 
+	// totally wrong directory, for example here to "OpenLieroX/build/msvc"
+	// Because of this, it also tries to load options from this directory, which
+	// will hopelessly fail
+	// Either fix the searchpaths to first look in the homedir, then in the binary dir and
+	// then anywhere else or just leave this (however, it will load options from binary dir, if you leave it)
+#ifdef WIN32
+	chdir(binary_dir.c_str());
+#endif
 
 	// Load options and other settings
 	if(!LoadOptions())  {

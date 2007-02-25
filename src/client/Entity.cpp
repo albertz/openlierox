@@ -277,7 +277,7 @@ void SimulateEntities(float dt, CMap *map)
 
 						// Giblet
 						case ENT_GIB:
-							if(ent->vVel.GetLength2() > 160*160)
+							if(ent->vVel.GetLength2() > 25600)
 								EntityBounce(ent);
 							else {
 								// Add the gib to the map

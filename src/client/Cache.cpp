@@ -129,6 +129,8 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, int bpp)
 		return NULL;
 	}
 
+	// TODO: also for alpha images
+
 	// Convert the image to the screen's colour depth
 	Image = SDL_CreateRGBSurface(iSurfaceFormat, img->w,img->h,bpp, 0,0,0,0);
 
