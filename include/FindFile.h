@@ -204,23 +204,14 @@ public:
 		
 #ifdef WIN32
 		struct _finddata_t fileinfo;
-		if (abs_path[abs_path.length()-1] != '\\' && abs_path[abs_path.length()-1] != '/')
-			abs_path.append("/");
-		abs_path.append("*");
-
-		static std::string tmp;
-		tmp = dir;
-		if (tmp[tmp.length()-1] != '\\' && tmp[tmp.length()-1] != '/')  
-			tmp.append("/");
-
+		abs_path.append("/*");
 		long handle = _findfirst(abs_path.c_str(), &fileinfo);
 		while(handle > 0) {
 			//If file is not self-directory or parent-directory
 			if(fileinfo.name[0] != '.' || (fileinfo.name[1] != '\0' && (fileinfo.name[1] != '.' || fileinfo.name[2] != '\0'))) {
 				if((!(fileinfo.attrib&_A_SUBDIR) && modefilter&FM_REG)
-					|| fileinfo.attrib&_A_SUBDIR && modefilter&FM_DIR)  
-
-					if(!filehandler(tmp + fileinfo.name)) {
+				|| fileinfo.attrib&_A_SUBDIR && modefilter&FM_DIR)
+					if(!filehandler(dir + "/" + fileinfo.name)) {
 						ret = false;
 						break;
 					}
