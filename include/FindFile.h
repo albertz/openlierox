@@ -83,19 +83,17 @@ inline bool GetExactFileName(const std::string& abs_searchname, std::string& fil
 	
 	ReplaceFileVariables(filename);
 
+	// Remove the ending slash, else stat will fail
+	if (filename[filename.length()-1]== '/' || filename[filename.length()-1]== '\\')
+		// Don't remove, if this is a root directory, else stat will fail (really crazy)
+#ifdef WIN32
+		if (filename[filename.length()-2] != ':')
+#endif
+			filename.erase(filename.length()-1);
+
 	struct stat finfo;
 	if(stat(filename.c_str(), &finfo) != 0) {
 		// problems stating file
-
-		// stat doesn't work always, try the _fullpath function as the last chance
-		static char buf[_MAX_PATH];
-		char *res = _fullpath(buf,filename.c_str(),_MAX_PATH);
-		if (res)  {
-			fix_markend(buf);
-			filename = buf;
-			return true;
-		}
-
 		return false;
 	}
 

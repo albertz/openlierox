@@ -36,6 +36,12 @@ bool CanReadFile(const std::string& f, bool absolute) {
 	} else
 		if((abs_f = GetFullFileName(f)) == "") return false;
 
+	if (abs_f[abs_f.length()-1]== '/' || abs_f[abs_f.length()-1]== '\\')
+#ifdef WIN32
+		if (abs_f[abs_f.length()-2] != ':')
+#endif
+			abs_f.erase(abs_f.length()-1);
+
 	// HINT: this should also work on WIN32, as we have _stat here
 	// (see the #include and #define in defs.h)
 	struct stat s;

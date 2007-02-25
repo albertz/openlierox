@@ -244,7 +244,7 @@ T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
 template<typename T>
 T from_string(const std::string& s, bool& failed) {
 	std::istringstream iss(s); T t;
-	failed = (iss >> t) == NULL;
+	failed = (iss >> t).fail();
 	return t;
 }
 

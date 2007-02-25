@@ -66,10 +66,6 @@ int main(int argc, char *argv[])
 		binary_dir.erase(slashpos);
 	else
 		binary_dir = "."; // TODO get exact path of binary
-	// HINT: a chdir is _wrong_ here, it should never be used in any case!
-	// the ./ _should_ ALWAYS point to the current dir, NOT to the binary dir
-	// if you want to point to the binary dir, use ${BIN}
-	// ( and yes, usually ${BIN} != ./, that is the sense of ./ )
 
 	// Load options and other settings
 	if(!LoadOptions())  {
