@@ -31,10 +31,10 @@
 // if it is not enough, extend it
 bool CanReadFile(const std::string& f, bool absolute) {
 	static std::string abs_f;
-	if(absolute)
-		abs_f = f;
-	else
+	if(absolute) {
 		if(!GetExactFileName(f, abs_f)) return false;
+	} else
+		if((abs_f = GetFullFileName(f)) == "") return false;
 
 	// HINT: this should also work on WIN32, as we have _stat here
 	// (see the #include and #define in defs.h)
@@ -240,12 +240,11 @@ std::string GetFirstSearchPath() {
 			std::string tmp = spath + filename;
 			if(GetExactFileName(tmp, *result)) {
 				// we got here, if the file exists
-				if(CanReadFile(*result, true)) {
-					if(searchpath) *searchpath = spath;
-					return false;
-				}
+				if(searchpath) *searchpath = spath;
+				return false; // stop checking next searchpaths
 			}
 	
+			// go to the next searchpath
 			return true;
 		}
 	};
@@ -260,19 +259,9 @@ std::string GetFullFileName(const std::string& path, std::string* searchpath) {
 		return GetFirstSearchPath();
 
 	fname = "";
+	// this also do lastly a check for an absolute filename
 	ForEachSearchpath(CheckSearchpathForFile(path, &fname, searchpath));
-	if(fname != "") return fname;
-	
-	// none file in searchpaths found, check now, if it is perhaps an absolute filename
-	if(GetExactFileName(path, fname)) {
-		// we got here, if the file exists
-		if(CanReadFile(fname, true)) {
-			// searchpath is already set to ""
-			return fname;
-		}
-	}
-	
-	return "";
+	return fname;
 }
 
 std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) {
