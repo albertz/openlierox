@@ -406,10 +406,11 @@ void Con_AddText(int colour, const std::string& text)
 	if (text == "")
 		return;
 
-	std::vector<std::string> lines = explode(text,"\n");
+	std::vector<std::string>& lines = explode(text,"\n");
 
 	// Move all the text up, losing the last line
-	for(int n=MAX_CONLINES-lines.size()-1;n>=1;n--) {
+	int n;
+	for(n=MAX_CONLINES-lines.size()-1;n>=1;n--) {
 		Console->Line[n+lines.size()].strText = Console->Line[n].strText;
 		Console->Line[n+lines.size()].Colour = Console->Line[n].Colour;
 	}

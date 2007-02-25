@@ -36,15 +36,13 @@ bool CanReadFile(const std::string& f, bool absolute) {
 	else
 		if(!GetExactFileName(f, abs_f)) return false;
 
-#ifndef WIN32
+	// HINT: this should also work on WIN32, as we have _stat here
+	// (see the #include and #define in defs.h)
 	struct stat s;
 	if(stat(abs_f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
 		// it's not stat-able or not a reg file
 		return false;
 	}
-#else // WIN32
-	// TODO
-#endif
 
 	// it's stat-able and a file
 	return true;
