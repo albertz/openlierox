@@ -57,9 +57,12 @@ private:
     int	iCurSong;
 	bool		bRepeat;
 	bool		bShuffle;
+	bool		bLoadCancelled;
+
+	bool		DrawLoadingProgress(void);
 public:
 	void		Clear(void);
-	void		Load(const std::string& dir,bool include_subdirs, bool add_to_current_pl);
+	void		Load(const std::string& dir,bool include_subdirs, bool add_to_current_pl, bool firstcall=true);
 	std::string	GetCurSong(void);
 	void		GoToNextSong(void);
 	void		GoToPrevSong(void);
@@ -129,7 +132,6 @@ public:
 private:
 	// Attributes
 	std::string		szCurSongName;
-	SoundMusic		*tCurrentSong;
 	CPlayList		tPlayList;
 
 	// Drawing

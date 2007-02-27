@@ -224,16 +224,50 @@ float fTimePaused = 0;
 bool  bSongStopped = false;
 byte  iMusicVolume = 50;
 bool  bSongFinished;
-SDL_Thread *LoadMusThread = NULL;
+
+// Loading thread
+SDL_Thread *PlayMusThread = NULL;
+bool		breakPlayThread = false;
+bool		LoadingSong = false;
+std::string SongName = "";
+SoundMusic *LoadedMusic;
+
+int PlayThreadMain(void *n)
+{
+	while (!breakPlayThread)  {
+		if (!LoadingSong)
+			SDL_Delay(100);
+		else  {
+			FreeMusic(LoadedMusic);  // Free any loaded music
+			Sleep(10); // No hurry...
+			LoadedMusic = LoadMusic(SongName);  // Load the new music
+			Sleep(10);
+			PlayMusic(LoadedMusic);  // Play the music
+			LoadingSong = false;
+		}
+	}
+
+	return 0;
+}
 
 void InitializeMusic(void)
 {
 	Mix_HookMusicFinished(&MusicFinishedHook);
 	SetMusicVolume(tLXOptions->iMusicVolume);
+	PlayMusThread = SDL_CreateThread(PlayThreadMain,NULL);
+}
+
+void PlayMusicAsync(const std::string& file)
+{
+	SongName = file;
+	LoadingSong = true;
 }
 
 SoundMusic *LoadMusic(const std::string& file)
 {
+	if (file == "")
+		return NULL;
+
 	SoundMusic *new_music = new SoundMusic;
 	if (!new_music)
 		return NULL;
@@ -346,5 +380,13 @@ id3v1_t GetMP3Info(const std::string& file)
 	fclose(fp);
 
 	return info;
+}
+
+void ShutdownMusic(void)
+{
+	breakPlayThread = true;
+	Mix_HookMusicFinished(NULL);
+	SDL_WaitThread(PlayMusThread, NULL);
+	FreeMusic(LoadedMusic);
 }
 

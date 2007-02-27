@@ -128,7 +128,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 
     // Cycle
-    if( nType == VW_CYCLE ) {
+    else if( nType == VW_CYCLE ) {
         // Cycles through players. If a player dies (but not necessarily out), move onto another living player
 
         // Check if the target is out of the game or has died
@@ -177,7 +177,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 
     // Action
-    if( nType == VW_ACTIONCAM ) {
+    else if( nType == VW_ACTIONCAM ) {
         int i,j;
         // Finds a group of worms and smoothly moves around to show the whole group of players in a fight
 
@@ -240,7 +240,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 
     // Free look
-    if( nType == VW_FREELOOK ) {
+    else if( nType == VW_FREELOOK ) {
         float scrollSpeed = 300.0f*tLX->fDeltaTime;
 
         // Uses the players keys to scroll around

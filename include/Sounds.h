@@ -101,6 +101,7 @@ extern bool	 bSongFinished;
 // Music
 void			MusicFinishedHook(void);
 SoundMusic		*LoadMusic(const std::string& file);
+void			PlayMusicAsync(const std::string& file);
 void			FreeMusic(SoundMusic *music);
 void			PlayMusic(SoundMusic *music, int number_of_repeats=1);
 inline void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetMilliSeconds(); bSongStopped = false;}
@@ -120,7 +121,7 @@ void			SetMusicVolume(byte vol);
 inline byte		GetMusicVolume(void) { return iMusicVolume; }
 
 void			InitializeMusic(void);
-inline void		ShutdownMusic(void)		{Mix_HookMusicFinished(NULL);}
+void			ShutdownMusic(void);
 
 
 

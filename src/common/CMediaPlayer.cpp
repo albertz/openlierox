@@ -20,6 +20,7 @@ void CPlayList::Clear(void)
 	iCurSong = 0;
 	bRepeat = true;
 	bShuffle = false;
+	bLoadCancelled = false;
 }
 
 
@@ -28,7 +29,7 @@ class PlaylistLoader { public:
 	CPlayList* playlist;
 	PlaylistLoader(CPlayList* pl) : playlist(pl) {}
 	inline bool operator() (const std::string& dir) {
-		playlist->Load(dir, true, true);
+		playlist->Load(dir, true, true, false);
 		return true;
 	}
 };
@@ -49,10 +50,80 @@ class SongListFiller { public:
 	}
 };
 
+bool CPlayList::DrawLoadingProgress(void)
+{
+	if (bLoadCancelled)
+		return false;
+
+	SDL_Surface *screen = SDL_GetVideoSurface();
+	if (!screen) return false;
+
+	ProcessEvents();
+
+	mouse_t *mouse = GetMouse();
+	keyboard_t *kb = GetKeyboard();
+	static CButton btnCancel(BUT_CANCEL,tMenu->bmpButtons);
+
+	bool result = true;
+
+	// Position
+	static const int w = 270;
+	static const int h = 90;
+	static const int x = screen->w/2-w/2;
+	static const int y = screen->h/2-h/2;
+	btnCancel.Setup(0,x+w/2-40,y+h-20,60,20);
+
+	// Process events
+	if (btnCancel.InBox(mouse->X,mouse->Y))  {
+		if (mouse->Down)
+			btnCancel.MouseDown(mouse,true);
+		else if (mouse->Up)
+			result = btnCancel.MouseUp(mouse,false) != BTN_MOUSEUP;
+		else 
+			btnCancel.MouseOver(mouse);
+	}
+	result = result || kb->KeyDown[SDLK_ESCAPE];
+
+	// Draw Player
+	cMediaPlayer.Draw(screen);
+
+	// Draw the dialog
+	DrawRectFill(screen,x,y,x+w,y+h,0);
+	Menu_DrawBox(screen,x,y,x+w,y+h);
+
+	tLX->cFont.DrawCentre(screen,x+w/2,y+5,0xffff,"Searching for songs, please wait...");
+	tLX->cFont.Draw(screen,x+w/4,y+5+tLX->cFont.GetHeight()+5,0xffff,"Songs found: "+itoa(tSongList.size()));
+
+	btnCancel.Draw2(screen);
+
+	// Draw mouse
+	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[0], mouse->X,mouse->Y);
+
+	// Flip the screen
+	FlipScreen(screen);
+
+	// Redraw the menu
+	if (tMenu->iMenuRunning)  {
+		Menu_redrawBufferRect(x,y,w+1,h+1);
+		Menu_redrawBufferRect(mouse->X,mouse->Y,gfxGUI.bmpMouse[0]->w,gfxGUI.bmpMouse[0]->h);
+	}
+
+	bLoadCancelled = !result;
+	return result;
+}
+
 //////////////////
 // Loads the directory and adds all music files in the playlist
-void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_current_pl)
+void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_current_pl, bool firstcall)
 {
+	// Reset the status when we're called for first time
+	if (firstcall)
+		bLoadCancelled = false;
+
+	// Draw the progress
+	if (!DrawLoadingProgress())
+		return;
+
 	// Clear me first
 	if (!add_to_current_pl)  {
 		iCurSong = 0;
@@ -222,8 +293,8 @@ void CMediaPlayer::Clear(void)
 {
 	tPlayList.Clear();
 	szCurSongName = "";
-	FreeMusic(tCurrentSong);
-	tCurrentSong = NULL;
+	//FreeMusic(tCurrentSong);
+	//tCurrentSong = NULL;
 	bGfxInitialized = false;
 	bDrawPlayer = false;
 	bGrabbed = false;
@@ -313,8 +384,8 @@ void CMediaPlayer::Play(void)
 	else  {
 		// The playlist is blank, do nothing
 		if (tPlayList.getNumSongs() == 0)  {
-			FreeMusic(tCurrentSong);
-			tCurrentSong = NULL;
+			//FreeMusic(tCurrentSong);
+			//tCurrentSong = NULL;
 			szCurSongName = "";
 			Stop();
 			return;
@@ -323,11 +394,12 @@ void CMediaPlayer::Play(void)
 
 		szCurSongName = tPlayList.GetCurSong();  // Use szCurSongName as a temp
 		if (szCurSongName.length() > 1)  {
-			FreeMusic(tCurrentSong);  // Free the previous song (if any)
-			tCurrentSong = LoadMusic(szCurSongName);
-			if (tCurrentSong)  {
-				PlayMusic(tCurrentSong);
-			}
+			//FreeMusic(tCurrentSong);  // Free the previous song (if any)
+			//tCurrentSong = LoadMusic(szCurSongName);
+			//if (tCurrentSong)  {
+			//	PlayMusic(tCurrentSong);
+			//}
+			PlayMusicAsync(szCurSongName);
 			szCurSongName = GetNameFromFile(szCurSongName);
 			// Update the marquee
 			if (bGfxInitialized)
@@ -576,6 +648,10 @@ void CMediaPlayer::Frame(void)
 	if (GetSongFinished())  {
 		Forward();
 	}
+
+	//if ((tCurrentSong = GetLoadedMusic()) != NULL)  {
+	//	PlayMusic(tCurrentSong);
+	//}
 
 	// Handle the toggle key
 	if (cToggleMediaPlayer.isDownOnce())  {
