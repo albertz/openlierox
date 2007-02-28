@@ -144,7 +144,7 @@ int SetVideoMode(void)
 	int HardwareBuf = false;
 	int DoubleBuf = false;
 	int vidflags = 0;
-	int bpp = 16;
+	int bpp = 24;
 
 	// BlueBeret's addition (2007): OpenGL support
 	int opengl = tLXOptions->iOpenGL;

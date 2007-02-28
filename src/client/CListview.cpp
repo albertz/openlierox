@@ -56,7 +56,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
-	//DrawHLine(bmpDest,iX+3,iX+iWidth-3,iY+tLX->cFont.GetHeight()+4,0xffff);
+	//DrawHLine(bmpDest,iX+3,iX+iWidth-3,iY+tLX->cFont.GetHeight()+4,tLX->clWhite);
 
 
 	// Draw the items

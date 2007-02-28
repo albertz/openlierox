@@ -32,19 +32,19 @@ int LoadGraphics(void)
 	tLX->clSubHeading = MakeColour(143,176,207);
 	tLX->clHeading = MakeColour(0,138,251);
 	tLX->clNetworkText = MakeColour(200,200,200);
-	tLX->clNormalLabel = 0xffff;
+	tLX->clNormalLabel = tLX->clWhite;
 	tLX->clNotice = MakeColour(200,200,200);
-	tLX->clNormalText = 0xffff;
-	tLX->clDropDownText = 0xffff;
+	tLX->clNormalText = tLX->clWhite;
+	tLX->clDropDownText = tLX->clWhite;
 	tLX->clDisabled = MakeColour(96,96,96);
-	tLX->clListView = 0xffff;
-	tLX->clTextBox = 0xffff;
-	tLX->clMouseOver = 0xffff;
+	tLX->clListView = tLX->clWhite;
+	tLX->clTextBox = tLX->clWhite;
+	tLX->clMouseOver = tLX->clWhite;
 	tLX->clError = MakeColour(200,50,50);
 	tLX->clCredits1 = MakeColour(150,150,150);
 	tLX->clCredits2 = MakeColour(96,96,96);
-	tLX->clPopupMenu = 0xffff;
-	tLX->clWaiting = 0xffff;
+	tLX->clPopupMenu = tLX->clWhite;
+	tLX->clWaiting = tLX->clWhite;
 	tLX->clReady = MakeColour(0,255,0);
 	tLX->clPlayerName = 0xffff;
 	tLX->clBoxDark = MakeColour(60,60,60);
@@ -52,8 +52,8 @@ int LoadGraphics(void)
 	tLX->clWinBtnBody = MakeColour(128,128,128);
 	tLX->clWinBtnDark = MakeColour(64,64,64);
 	tLX->clWinBtnLight = MakeColour(192,192,192);
-	tLX->clMPlayerSong = 0x0000;
-	tLX->clMPlayerTime = 0x0000;
+	tLX->clMPlayerSong = 0;
+	tLX->clMPlayerTime = 0;
 
 	int i;
 	LOAD_IMAGE_BPP(gfxGUI.bmpMouse[0], "data/frontend/mouse.png");
@@ -111,7 +111,7 @@ int LoadGraphics(void)
     SDL_SetColorKey(gfxGame.bmpViewportMgr, SDL_SRCCOLORKEY, pink);
 
 	// Load the colours from a file
-	char *colorfile = "data/frontend/colours.cfg";
+	const std::string colorfile = "data/frontend/colours.cfg";
 	ReadColour(colorfile,"Colours","ChatText",		 &tLX->clChatText,		tLX->clChatText);
 	ReadColour(colorfile,"Colours","Credits1",		 &tLX->clCredits1,		tLX->clCredits1);
 	ReadColour(colorfile,"Colours","Credits2",		 &tLX->clCredits2,		tLX->clCredits2);

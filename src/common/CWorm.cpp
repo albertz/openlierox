@@ -325,7 +325,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	}
 
 	// Convert the image to the screen's colour depth
-	img = SDL_CreateRGBSurface(iSurfaceFormat, tmp->w,tmp->h,16, 0,0,0,0);
+	img = SDL_CreateRGBSurface(iSurfaceFormat, tmp->w,tmp->h,SDL_GetVideoSurface()->format->BitsPerPixel, 0,0,0,0);
 	if(img == NULL) {
 		// Error: Our of memory
 		return NULL;
@@ -553,7 +553,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     }
 	
 	//tLX->cFont.DrawCentre(bmpDest, centrex+2, t+82, 0,"%s", "Weapons Selection");
-	tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, 0xffff,"%s", "Weapons Selection");
+	tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWhite,"%s", "Weapons Selection");
 
 	int iChat_Typing = false;
 	if (getClient())
@@ -564,9 +564,9 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 		
 		//tLX->cFont.Draw(bmpDest, centrex-69, y+1, 0,"%s", tWeapons[i].Weapon->Name.c_str());
 		if(iCurrentWeapon == i)
-			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, 0xffff,  tWeapons[i].Weapon->Name);
+			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWhite,  tWeapons[i].Weapon->Name);
 		else
-			tLX->cOutlineFontGrey.Draw(bmpDest, centrex-70, y, 0xffff,  tWeapons[i].Weapon->Name);
+			tLX->cOutlineFontGrey.Draw(bmpDest, centrex-70, y, tLX->clWhite,  tWeapons[i].Weapon->Name);
 
 		if (iChat_Typing)  {
 			y += 18;
@@ -673,16 +673,16 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
     y+=5;
 	if(iCurrentWeapon == iNumWeaponSlots)
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, 0xffff,"%s", "Random");
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWhite,"%s", "Random");
 	else
-		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, 0xffff,"%s", "Random");
+		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, tLX->clWhite,"%s", "Random");
 
     y+=18;
 
 	if(iCurrentWeapon == iNumWeaponSlots+1)
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, 0xffff,"%s", "Done");
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWhite,"%s", "Done");
 	else
-		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, 0xffff,"%s", "Done");
+		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, tLX->clWhite,"%s", "Done");
 
 
 	if(iChat_Typing)
@@ -742,7 +742,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 
 
-	Uint16 PlayerPink = (Uint16)tLX->clPink;
+	//Uint16 PlayerPink = (Uint16)tLX->clPink;
 
 
 	int a = (int)fAngle;
@@ -876,7 +876,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			f = ang*16;
 			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,(x-12)+RightMuzzle[ang*2],
 															   (y-10)+RightMuzzle[ang*2+1],
-															   16,16,PlayerPink);
+															   16,16,tLX->clPink);
 		}
 		break;
 
@@ -887,7 +887,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			
 			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,(x-21)+LeftMuzzle[ang*2],
 															   (y-10)+LeftMuzzle[ang*2+1],
-															   16,16,PlayerPink);
+															   16,16,tLX->clPink);
 		}
 		break;
 
@@ -906,7 +906,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	DrawRectFill(bmpDest,l,t+10,l+(Slot->Charge * 100.0f),t+15,MakeColour(64,64,255));
 
 	if(Slot->Reloading)
-		GfxGui.Font.Draw(bmpDest,l,t+5,0xffff,"Reloading...");*/
+		GfxGui.Font.Draw(bmpDest,l,t+5,tLX->clWhite,"Reloading...");*/
 
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
@@ -936,7 +936,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,sName);
 
 		//if(iTagIT)
-		//	tLX->cFont.DrawCentre(bmpDest, x,y+20, 0xffff,"%s", "IT");
+		//	tLX->cFont.DrawCentre(bmpDest, x,y+20, tLX->clWhite,"%s", "IT");
 	}
 }
 

@@ -296,8 +296,9 @@ int InitializeLieroX(void)
 	// TODO: more initiation of the values
 	tLX->fCurTime = 0;
 	tLX->fDeltaTime = 0;
-	// Init this special colour
+	// Init these special colours
 	tLX->clPink = MakeColour(255,0,255);
+	tLX->clWhite = MakeColour(255,255,255);
 
 	// Load the graphics
     if(!LoadGraphics()) {

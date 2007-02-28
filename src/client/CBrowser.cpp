@@ -30,7 +30,7 @@ void CBrowser::Create(void)
 	iUseScroll = false;
 
 	iProperties = 0;
-	iTextColour = 0xffff;
+	iTextColour = tLX->clWhite;
 
 	tObjects = NULL;
 
@@ -371,7 +371,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 	static std::string buf;
 	int lcount = 0;
 
-	DrawRectFill(bmpDest, iX+1, iY+1, iX+iWidth-1, iY+iHeight-1, 0xffff);
+	DrawRectFill(bmpDest, iX+1, iY+1, iX+iWidth-1, iY+iHeight-1, tLX->clWhite);
 
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
 

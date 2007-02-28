@@ -627,7 +627,7 @@ void CClient::ParseText(CBytestream *bs)
 	t->iType = type;
 	bs->readString(t->sText);*/
 
-	Uint32 col = 0xffff;
+	Uint32 col = tLX->clWhite;
 	switch(type) {
 		// Chat
 		case TXT_CHAT:		col = tLX->clChatText;		break;

@@ -91,8 +91,8 @@ bool CPlayList::DrawLoadingProgress(void)
 	DrawRectFill(screen,x,y,x+w,y+h,0);
 	Menu_DrawBox(screen,x,y,x+w,y+h);
 
-	tLX->cFont.DrawCentre(screen,x+w/2,y+5,0xffff,"Searching for songs, please wait...");
-	tLX->cFont.Draw(screen,x+w/4,y+5+tLX->cFont.GetHeight()+5,0xffff,"Songs found: "+itoa(tSongList.size()));
+	tLX->cFont.DrawCentre(screen,x+w/2,y+5,tLX->clNormalLabel,"Searching for songs, please wait...");
+	tLX->cFont.Draw(screen,x+w/4,y+5+tLX->cFont.GetHeight()+5,tLX->clNormalLabel,"Songs found: "+itoa(tSongList.size()));
 
 	btnCancel.Draw2(screen);
 

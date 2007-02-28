@@ -451,7 +451,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 	int texty = y+Console->bmpConPic->h-28;
 	static std::string buf;
 
-	const Uint32 Colours[6] = {0xffff, MakeColour(200,200,200), MakeColour(255,0,0), MakeColour(200,128,128),
+	const Uint32 Colours[6] = {tLX->clWhite, MakeColour(200,200,200), MakeColour(255,0,0), MakeColour(200,128,128),
 		                 MakeColour(100,100,255), MakeColour(100,255,100) };
 
 	DrawImage(bmpDest,Console->bmpConPic,0,y);
@@ -472,7 +472,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 			Console->fBlinkTime = 0;
 		}
 		if(n==0 && Console->iBlinkState)  {
-			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(Console->Line[n].strText.substr(0,Console->iCurpos)),0xffff);
+			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(Console->Line[n].strText.substr(0,Console->iCurpos)),tLX->clWhite);
 		}
 
 		tLX->cFont.Draw(bmpDest,12,texty,Colours[Console->Line[n].Colour],buf);

@@ -123,6 +123,7 @@ class lierox_t { public:
 	Uint32			clMPlayerSong;
 
 	Uint32			clPink;
+	Uint32			clWhite;
 
 
 	std::string	debug_string;

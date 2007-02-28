@@ -126,7 +126,7 @@ void CWeather::SimulateSnow(float dt, CMap *pcMap)
                 byte flag = pcMap->GetPixelFlag( (int)psPart->cPos.x, (int)psPart->cPos.y );
                 if( flag & PX_DIRT || flag & PX_ROCK ) {
                     // Leave a white dot
-                    pcMap->PutImagePixel( (int)psPart->cPos.x, (int)psPart->cPos.y, 0xffff );
+                    pcMap->PutImagePixel( (int)psPart->cPos.x, (int)psPart->cPos.y, tLX->clWhite );
                     psPart->bUsed = false;
                 }
                 break;

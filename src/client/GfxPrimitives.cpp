@@ -74,14 +74,17 @@ void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int
 	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
 }
 
+/*
+ *
+ * Draw Mirrored Image
+ *
+ */
 
 ///////////////////
-// Draw the image mirrored with a huge amount of options
-void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+// 16bit version
+void DrawImageAdv_Mirror16(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	int x,y,c;
-//	int ow = w;  // TODO: not used
-//	int oh = h; // TODO: not used
 
 	// Lock the surfaces
 	if(SDL_MUSTLOCK(bmpDest))
@@ -159,10 +162,210 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 		SDL_UnlockSurface(bmpSrc);
 }
 
+///////////////////
+// 24 bit version
+void DrawImageAdv_Mirror24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+{
+	int x,y,c;
+//	int ow = w;  // TODO: not used
+//	int oh = h; // TODO: not used
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+
+	// Warning: Doesn't do clipping on the source surface
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx + bmpDest->clip_rect.w;
+	int cey = cy + bmpDest->clip_rect.h;
+
+	// Colour key
+	uint24 ckey;
+	if(bmpSrc->flags & SDL_SRCCOLORKEY)  {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+		memcpy(&ckey[0],&bmpSrc->format->colorkey,sizeof(ckey));
+#else // Big endian
+		// TODO
+#endif
+	}
+
+	// Do clipping on the DEST surface
+	if(dx+w<cx || dy+h<cy) return;
+	if(dx>cex || dy>cey) return;
+
+	if(dx<cx) {
+		c = cx-dx;
+		dx+=c;
+		w-=c;
+	}
+	if(dy<cy) {
+		c = cy-dy;
+		dy=cy;
+		h-=c;
+	}
+
+	if(dx+w > cex) {
+		c = dx+w - cex;
+		w-=c;
+		sx+=c;
+	}
+	if(dy+h > cey) {
+		c = dy+h - cey;
+		h-=c;
+		sy+=c;
+	}
+
+	int TrgBpp = bmpDest->format->BytesPerPixel;
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*TrgBpp;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	uint24 *sp,*tp;
+	for(y=0;y<h;y++) {
+
+		sp = (uint24 *)SrcPix;
+		tp = (uint24 *)TrgPix + w;
+		for(x=0;x<w;x++) {
+			// Check transparent colour
+			if(!memcmp(&ckey,sp,sizeof(ckey))) {
+				// Skip the pixel
+				tp--;
+				sp++;
+			} else  {
+				memcpy(tp,sp,3);
+				tp--;
+				sp++;
+				//*(tp--) = *(sp++);
+			}
+		}
+
+		SrcPix+=bmpSrc->pitch;
+		TrgPix+=bmpDest->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+///////////////////
+// 32bit version
+void DrawImageAdv_Mirror32(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+{
+	int x,y,c;
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+
+	// Warning: Doesn't do clipping on the source surface
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx + bmpDest->clip_rect.w;
+	int cey = cy + bmpDest->clip_rect.h;
+
+	// Colour key
+	Uint32 ckey = -1;
+	if(bmpSrc->flags & SDL_SRCCOLORKEY)
+		ckey = bmpSrc->format->colorkey;
+
+	// Do clipping on the DEST surface
+	if(dx+w<cx || dy+h<cy) return;
+	if(dx>cex || dy>cey) return;
+
+	if(dx<cx) {
+		c = cx-dx;
+		dx+=c;
+		w-=c;
+	}
+	if(dy<cy) {
+		c = cy-dy;
+		dy=cy;
+		h-=c;
+	}
+
+	if(dx+w > cex) {
+		c = dx+w - cex;
+		w-=c;
+		sx+=c;
+	}
+	if(dy+h > cey) {
+		c = dy+h - cey;
+		h-=c;
+		sy+=c;
+	}
+
+	int TrgBpp = bmpDest->format->BytesPerPixel;
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*TrgBpp;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	Uint32 *sp,*tp;
+	for(y=0;y<h;y++) {
+
+		sp = (Uint32 *)SrcPix;
+		tp = (Uint32 *)TrgPix + w;
+		for(x=0;x<w;x++) {
+			// Check transparent colour
+			if(ckey == *sp) {
+				// Skip the pixel
+				tp--;
+				sp++;
+			} else
+				*(tp--) = *(sp++);
+		}
+
+		SrcPix+=bmpSrc->pitch;
+		TrgPix+=bmpDest->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+/////////////////////////////////////
+// Draw the image mirrored with a huge amount of options
+void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+{
+	switch (bmpDest->format->BitsPerPixel)  {
+	case 8:
+		// TODO
+		return;
+	case 16:
+		DrawImageAdv_Mirror16(bmpDest, bmpSrc, sx, sy, dx, dy, w, h);
+		return;
+	case 24:
+		DrawImageAdv_Mirror24(bmpDest,bmpSrc,sx,sy,dx,dy,w,h);
+		return;
+	case 32:
+		DrawImageAdv_Mirror32(bmpDest,bmpSrc,sx,sy,dx,dy,w,h);
+		return;
+	}
+}
+
+/*
+ *
+ * Image Stretching
+ *
+ */
 
 ///////////////////
 // Draws a sprite doubly stretched
-void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+void DrawImageStretch2_16(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	int x,y;
 
@@ -215,16 +418,144 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 		SDL_UnlockSurface(bmpSrc);
 }
 
+//////////////
+// 24bit version
+void DrawImageStretch2_24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+{
+	int x,y;
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+	// Warning: doesn't do clipping on DEST surface
+
+	// Clipping
+	if (sx < 0 || (sx+w) > bmpSrc->w)
+		return;
+	if (sy < 0 || (sy+h) > bmpSrc->h)
+		return;
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	uint24 *sp,*tp_x,*tp_y;
+    int desthp = bmpDest->pitch/3;      // We are performing the add on a 24bit int, so we only use 1/3
+
+    for(y=0;y<h;y++) {
+
+		sp = (uint24 *)SrcPix;
+		tp_x = (uint24 *)TrgPix;
+		tp_y = tp_x+desthp;
+		for(x=0;x<w;x++) {
+            // Copy the 1 source pixel into a 4 pixel block on the destination surface
+			memcpy(tp_x++,sp,sizeof(uint24));
+			memcpy(tp_x++,sp,sizeof(uint24));
+			memcpy(tp_y++,sp,sizeof(uint24));
+			memcpy(tp_y++,sp,sizeof(uint24));
+			sp++;
+		}
+		TrgPix += bmpDest->pitch;
+		TrgPix += bmpDest->pitch;
+		SrcPix += bmpSrc->pitch;
+	}
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
 
 ///////////////////
-// Draws a sprite doubly stretched with colour key
-void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint16 key)
+// 32bit version
+void DrawImageStretch2_32(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+{
+	int x,y;
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+	// Warning: doesn't do clipping on DEST surface
+
+	// Clipping
+	if (sx < 0 || (sx+w) > bmpSrc->w)
+		return;
+	if (sy < 0 || (sy+h) > bmpSrc->h)
+		return;
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	Uint32 *sp,*tp_x,*tp_y;
+    Uint32 desthp = bmpDest->pitch/4;
+
+    for(y=0;y<h;y++) {
+
+		sp = (Uint32 *)SrcPix;
+		tp_x = (Uint32 *)TrgPix;
+		tp_y = tp_x+desthp;
+		for(x=0;x<w;x++) {
+            // Copy the 1 source pixel into a 4 pixel block on the destination surface
+			*(tp_x++) = *sp;
+			*(tp_x) = *sp;
+			*(tp_y++) = *sp;
+			*(tp_y) = *sp;
+			sp++;
+			tp_x++;
+			tp_y++;
+		}
+		TrgPix += bmpDest->pitch;
+		TrgPix += bmpDest->pitch;
+		SrcPix += bmpSrc->pitch;
+	}
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+///////////////////////////
+// Draws a sprite doubly stretched
+void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+{
+	switch (bmpDest->format->BitsPerPixel)  {
+	case 8:
+		// TODO
+		return;
+	case 16:
+		DrawImageStretch2_16(bmpDest,bmpSrc,sx,sy,dx,dy,w,h);
+		return;
+	case 24:
+		DrawImageStretch2_24(bmpDest,bmpSrc,sx,sy,dx,dy,w,h);
+		return;
+	case 32:
+		DrawImageStretch2_32(bmpDest,bmpSrc,sx,sy,dx,dy,w,h);
+		return;
+	}
+}
+
+/*
+ *
+ * Stretch with color key
+ *
+ */
+
+///////////////////
+// 16bit version
+void DrawImageStretch2Key_16(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
 {
 	int x,y;
 	int c;
 
 	// Warning: Doesn't do clipping on the source surface
-	// Warning: Assumes 16bpp
 
 	int cx = bmpDest->clip_rect.x;
 	int cy = bmpDest->clip_rect.y;
@@ -260,7 +591,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		sp = (Uint16 *)SrcPix;
 		tp = (Uint16 *)TrgPix;
 		for(x=0;x<w;x++) {
-			if(*sp == key)
+			if(*sp == (Uint16)key)
 				tp+=2;
 			else {
 				*(tp++) = *sp;
@@ -273,6 +604,165 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		// Second Line
 		sp = (Uint16 *)SrcPix;
 		tp = (Uint16 *)TrgPix;
+		for(x=0;x<w;x++) {
+			if(*sp == (Uint16)key)
+				tp+=2;
+			else {
+				*(tp++) = *sp;
+				*(tp++) = *sp;
+			}
+			sp++;
+		}
+
+		TrgPix += bmpDest->pitch;
+		SrcPix += bmpSrc->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+///////////////////
+// 24bit version
+void DrawImageStretch2Key_24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+{
+	int x,y;
+	int c;
+
+	// Warning: Doesn't do clipping on the source surface
+
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx+bmpDest->clip_rect.w;
+	int cey = cy+bmpDest->clip_rect.h;
+
+	uint24 ckey;
+	memset(&ckey,0,sizeof(ckey));
+	memcpy(&ckey,(Uint16 *)&key,sizeof(Uint16));
+
+
+	// Do clipping on the DEST surface
+	if(dx+w*2<cx || dy+h*2<cy) return;
+	if(dx>cex || dy>cey) return;
+
+	if(dx<cx) {	c=cx-dx;	dx+=c; c/=2; sx+=c;	w-=c; }
+	if(dy<cy) {	c=cy-dy;	dy+=c; c/=2; sy+=c;	h-=c; }
+
+	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; w-=c; }
+	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; h-=c; }
+
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	uint24 *sp,*tp;
+
+	for(y=0;y<h;y++) {
+
+		// First Line
+		sp = (uint24 *)SrcPix;
+		tp = (uint24 *)TrgPix;
+		for(x=0;x<w;x++) {
+			if(!memcmp(sp,&ckey,sizeof(uint24)))
+				tp+=2;
+			else {
+				memcpy(tp++,sp,sizeof(uint24));
+				memcpy(tp++,sp,sizeof(uint24));
+			}
+			sp++;
+		}
+		TrgPix += bmpDest->pitch;
+
+		// Second Line
+		sp = (uint24 *)SrcPix;
+		tp = (uint24 *)TrgPix;
+		for(x=0;x<w;x++) {
+			if(!memcmp(sp,&ckey,sizeof(uint24)))
+				tp+=2;
+			else {
+				memcpy(tp++,sp,sizeof(uint24));
+				memcpy(tp++,sp,sizeof(uint24));
+			}
+			sp++;
+		}
+
+		TrgPix += bmpDest->pitch;
+		SrcPix += bmpSrc->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+///////////////////
+// 32bit version
+void DrawImageStretch2Key_32(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+{
+	int x,y;
+	int c;
+
+	// Warning: Doesn't do clipping on the source surface
+
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx+bmpDest->clip_rect.w;
+	int cey = cy+bmpDest->clip_rect.h;
+
+	// Do clipping on the DEST surface
+	if(dx+w*2<cx || dy+h*2<cy) return;
+	if(dx>cex || dy>cey) return;
+
+	if(dx<cx) {	c=cx-dx;	dx+=c; c/=2; sx+=c;	w-=c; }
+	if(dy<cy) {	c=cy-dy;	dy+=c; c/=2; sy+=c;	h-=c; }
+
+	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; w-=c; }
+	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; h-=c; }
+
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	Uint32 *sp,*tp;
+
+	for(y=0;y<h;y++) {
+
+		// First Line
+		sp = (Uint32 *)SrcPix;
+		tp = (Uint32 *)TrgPix;
+		for(x=0;x<w;x++) {
+			if(*sp == key)
+				tp+=2;
+			else {
+				*(tp++) = *sp;
+				*(tp++) = *sp;
+			}
+			sp++;
+		}
+		TrgPix += bmpDest->pitch;
+
+		// Second Line
+		sp = (Uint32 *)SrcPix;
+		tp = (Uint32 *)TrgPix;
 		for(x=0;x<w;x++) {
 			if(*sp == key)
 				tp+=2;
@@ -295,16 +785,41 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		SDL_UnlockSurface(bmpSrc);
 }
 
+////////////////////
+// Draws a sprite doubly stretched with colour key
+void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+{
+	switch (bmpDest->format->BitsPerPixel)  {
+	case 8:
+		// TODO
+		return;
+	case 16:
+		DrawImageStretch2Key_16(bmpDest,bmpSrc,sx,sy,dx,dy,w,h,key);
+		return;
+	case 24:
+		DrawImageStretch2Key_24(bmpDest,bmpSrc,sx,sy,dx,dy,w,h,key);
+		return;
+	case 32:
+		DrawImageStretch2Key_32(bmpDest,bmpSrc,sx,sy,dx,dy,w,h,key);
+		return;
+	}
+}
+
+
+/*
+ *
+ * Stretch and mirror images
+ *
+ */
 
 ///////////////////
-// Draws a sprite mirrored doubly stretched with colour key
-void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint16 key)
+// 16bit version
+void DrawImageStretchMirrorKey_16(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
 {
 	int x,y;
 	int c;
 
 	// Warning: Doesn't do clipping on the source surface
-	// Warning: Assumes 16bpp
 
 	int cx = bmpDest->clip_rect.x;
 	int cy = bmpDest->clip_rect.y;
@@ -340,7 +855,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 		sp = (Uint16 *)SrcPix;
 		tp = (Uint16 *)TrgPix + w*2;
 		for(x=0;x<w;x++) {
-			if(*sp == key)
+			if(*sp == (Uint16)key)
 				tp-=2;
 			else {
 				*(tp--) = *sp;
@@ -353,6 +868,166 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 		// Second Line
 		sp = (Uint16 *)SrcPix;
 		tp = (Uint16 *)TrgPix + w*2;
+		for(x=0;x<w;x++) {
+			if(*sp == (Uint16)key)
+				tp-=2;
+			else {
+				*(tp--) = *sp;
+				*(tp--) = *sp;
+			}
+			sp++;
+		}
+
+		TrgPix += bmpDest->pitch;
+		SrcPix += bmpSrc->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+///////////////////
+// 24bit version
+void DrawImageStretchMirrorKey_24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+{
+	int x,y;
+	int c;
+
+	// Warning: Doesn't do clipping on the source surface
+
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx+bmpDest->clip_rect.w;
+	int cey = cy+bmpDest->clip_rect.h;
+
+	// Do clipping on the DEST surface
+	if(dx+w*2<cx || dy+h*2<cy) return;
+	if(dx>cex || dy>cey) return;
+
+	if(dx<cx) {	c=cx-dx; dx+=c; w-=c;}
+	if(dy<cy) {	c=cy-dy; dy+=c; h-=c;}
+
+	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; sx+=c; w-=c;}
+	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; sy+=c; h-=c;}
+
+	// Convert the colour key
+	uint24 ckey;
+	memset(&ckey,0,sizeof(uint24));
+	memcpy(&ckey,(Uint16 *)&key,sizeof(Uint16));
+
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels + sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	uint24 *sp,*tp;
+
+	for(y=0;y<h;y++) {
+
+		// First Line
+		sp = (uint24 *)SrcPix;
+		tp = (uint24 *)TrgPix + w*2;
+		for(x=0;x<w;x++) {
+			if(!memcmp(&ckey,sp,sizeof(uint24)))
+				tp-=2;
+			else {
+				memcpy(tp--,sp,sizeof(uint24));
+				memcpy(tp--,sp,sizeof(uint24));
+			}
+			sp++;
+		}
+		TrgPix += bmpDest->pitch;
+
+		// Second Line
+		sp = (uint24 *)SrcPix;
+		tp = (uint24 *)TrgPix + w*2;
+		for(x=0;x<w;x++) {
+			if(!memcmp(&ckey,sp,sizeof(uint24)))
+				tp-=2;
+			else {
+				memcpy(tp--,sp,sizeof(uint24));
+				memcpy(tp--,sp,sizeof(uint24));
+			}
+			sp++;
+		}
+
+		TrgPix += bmpDest->pitch;
+		SrcPix += bmpSrc->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+///////////////
+// 32bit version
+void DrawImageStretchMirrorKey_32(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+{
+	int x,y;
+	int c;
+
+	// Warning: Doesn't do clipping on the source surface
+
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx+bmpDest->clip_rect.w;
+	int cey = cy+bmpDest->clip_rect.h;
+
+	// Do clipping on the DEST surface
+	if(dx+w*2<cx || dy+h*2<cy) return;
+	if(dx>cex || dy>cey) return;
+
+	if(dx<cx) {	c=cx-dx; dx+=c; w-=c;}
+	if(dy<cy) {	c=cy-dy; dy+=c; h-=c;}
+
+	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; sx+=c; w-=c;}
+	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; sy+=c; h-=c;}
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels + sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	Uint32 *sp,*tp;
+
+	for(y=0;y<h;y++) {
+
+		// First Line
+		sp = (Uint32 *)SrcPix;
+		tp = (Uint32 *)TrgPix + w*2;
+		for(x=0;x<w;x++) {
+			if(*sp == key)
+				tp-=2;
+			else {
+				*(tp--) = *sp;
+				*(tp--) = *sp;
+			}
+			sp++;
+		}
+		TrgPix += bmpDest->pitch;
+
+		// Second Line
+		sp = (Uint32 *)SrcPix;
+		tp = (Uint32 *)TrgPix + w*2;
 		for(x=0;x<w;x++) {
 			if(*sp == key)
 				tp-=2;
@@ -374,6 +1049,33 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	if(SDL_MUSTLOCK(bmpSrc))
 		SDL_UnlockSurface(bmpSrc);
 }
+
+///////////////////
+// Draws a sprite mirrored doubly stretched with colour key
+void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+{
+	switch (bmpDest->format->BitsPerPixel)  {
+	case 8:
+		//TODO
+		return;
+	case 16:
+		DrawImageStretchMirrorKey_16(bmpDest,bmpSrc, sx, sy, dx, dy, w, h, key);
+		return;
+	case 24:
+		DrawImageStretchMirrorKey_24(bmpDest,bmpSrc, sx, sy, dx, dy, w, h, key);
+		return;
+	case 32:
+		DrawImageStretchMirrorKey_32(bmpDest,bmpSrc, sx, sy, dx, dy, w, h, key);
+		return;
+	}
+}
+
+
+/*
+ *
+ *  Surface creation
+ *
+ */
 
 ///////////////////
 // Creates a buffer with the same details as the screen
@@ -403,6 +1105,12 @@ SDL_Surface *gfxCreateSurfaceAlpha(int width, int height)
 								fmt->Rmask, fmt->Gmask, fmt->Bmask, alpha);
 }
 
+
+/*
+ *
+ *  Shapes
+ *
+ */
 
 ///////////////////
 // Draw a rectangle
@@ -443,25 +1151,82 @@ void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color
     Uint32 Rmask = bmpDest->format->Rmask, Gmask = bmpDest->format->Gmask, Bmask = bmpDest->format->Bmask, Amask = bmpDest->format->Amask;
 	Uint32 R,G,B,A = 0;
 
-	Uint16 *pixel,*srcpixel;
-	Uint32 dc;
+	switch (bmpDest->format->BitsPerPixel)  {
+	case 8:
+		// TODO
+		break;
 
-    for(int j=y; j<=y2; j++) {
+	// 16 bpp
+	case 16:  {
+		Uint16 *pixel,*srcpixel;
+		Uint32 dc;
+		for(int j=y; j<=y2; j++) {
 
-        for(int i=x; i<=x2; i++) {
-            pixel = (Uint16 *)bmpDest->pixels + j*bmpDest->pitch/2 + i;
-	        srcpixel = (Uint16 *)src->pixels + j*src->pitch/2 + i;
-	        dc = *srcpixel;
+			for(int i=x; i<=x2; i++) {
+				pixel = (Uint16 *)bmpDest->pixels + j*bmpDest->pitch/2 + i;
+				srcpixel = (Uint16 *)src->pixels + j*src->pitch/2 + i;
+				dc = *srcpixel;
 
-	        R = ((dc & Rmask) + (( (color & Rmask) - (dc & Rmask) ) * alpha >> 8)) & Rmask;
-	        G = ((dc & Gmask) + (( (color & Gmask) - (dc & Gmask) ) * alpha >> 8)) & Gmask;
-	        B = ((dc & Bmask) + (( (color & Bmask) - (dc & Bmask) ) * alpha >> 8)) & Bmask;
-	        if( Amask )
-		        A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
+				R = ((dc & Rmask) + (( (color & Rmask) - (dc & Rmask) ) * alpha >> 8)) & Rmask;
+				G = ((dc & Gmask) + (( (color & Gmask) - (dc & Gmask) ) * alpha >> 8)) & Gmask;
+				B = ((dc & Bmask) + (( (color & Bmask) - (dc & Bmask) ) * alpha >> 8)) & Bmask;
+				if( Amask )
+					A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
 
-	        *pixel= (Uint16)(R | G | B | A);
-        }
-    }
+				*pixel= (Uint16)(R | G | B | A);
+			}
+		}
+	}
+	return;
+
+	// 24 bpp
+	case 24:  {
+		uint24 *pixel,*srcpixel;
+		Uint32 dc=0;
+		for(int j=y; j<=y2; j++) {
+
+			for(int i=x; i<=x2; i++) {
+				pixel = (uint24 *)bmpDest->pixels + j*bmpDest->pitch/3 + i;
+				srcpixel = (uint24 *)src->pixels + j*src->pitch/3 + i;
+				memcpy(&dc,srcpixel,sizeof(uint24));
+
+				R = ((dc & Rmask) + (( (color & Rmask) - (dc & Rmask) ) * alpha >> 8)) & Rmask;
+				G = ((dc & Gmask) + (( (color & Gmask) - (dc & Gmask) ) * alpha >> 8)) & Gmask;
+				B = ((dc & Bmask) + (( (color & Bmask) - (dc & Bmask) ) * alpha >> 8)) & Bmask;
+				if( Amask )
+					A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
+				
+				dc = (R | G | B | A);
+				memcpy(pixel,&dc,sizeof(uint24));
+			}
+		}
+	}
+	return;
+
+	// 32 bpp
+	case 32:  {
+		Uint32 *pixel,*srcpixel;
+		Uint32 dc;
+		for(int j=y; j<=y2; j++) {
+
+			for(int i=x; i<=x2; i++) {
+				pixel = (Uint32 *)bmpDest->pixels + j*bmpDest->pitch/4 + i;
+				srcpixel = (Uint32 *)src->pixels + j*src->pitch/4 + i;
+				dc = *srcpixel;
+
+				R = ((dc & Rmask) + (( (color & Rmask) - (dc & Rmask) ) * alpha >> 8)) & Rmask;
+				G = ((dc & Gmask) + (( (color & Gmask) - (dc & Gmask) ) * alpha >> 8)) & Gmask;
+				B = ((dc & Bmask) + (( (color & Bmask) - (dc & Bmask) ) * alpha >> 8)) & Bmask;
+				if( Amask )
+					A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
+
+				*pixel= (R | G | B | A);
+			}
+		}
+	}
+	return;
+
+	}
 }
 
 
@@ -502,6 +1267,10 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 	// TODO: only 2 bpps supported
 	int n;
 	switch (bpp)  {
+	case 1:
+		// TODO
+		break;
+
 	// 16 bpp
 	case 2:
 		for(n=0;n<=r-l;n++) {
@@ -509,6 +1278,14 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 			p+=bpp;
 		}
 		break;
+	// 24 bpp
+	case 3:
+		for(n=0;n<=r-l;n++) {
+			memcpy(p,&colour,sizeof(uint24));
+			p+=bpp;
+		}
+		break;
+
 	// 32 bpp
 	case 4:
 		for(n=0;n<=r-l;n++) {
@@ -558,8 +1335,12 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, int colour)
 	}
 
 	int n;
-	// TODO: only 2 bpps supported
 	switch (bpp)  {
+	// 8 bpp
+	case 1:
+		// TODO
+		break;
+
 	// 16 bpp
 	case 2:
 		for(n=t;n<=b;n++) {
@@ -567,6 +1348,15 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, int colour)
 			*(Uint16 *)p = colour;
 		}
 		break;
+
+	// 24 bpp
+	case 3:
+		for(n=t;n<=b;n++) {
+			p = (Uint8 *)bmpDest->pixels + n * bmpDest->pitch + x * bpp;
+			memcpy(p,&colour,sizeof(uint24));
+		}
+		break;
+
 	// 32 bpp
 	case 4:
 		for(n=t;n<=b;n++) {
@@ -704,8 +1494,16 @@ void RopePutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 			break;
 
 		// 32 bpp
-		case 4:
+		case 4:  {
+			Uint8 *a = p+bmpDest->pitch;
 			*(Uint32 *)p = colour;
+			p+=4;
+			*(Uint32 *)p = colour;
+
+			*(Uint32 *)a = colour;
+			a+=4;
+			*(Uint32 *)a = colour;
+			}
 			break;
     }
 }
@@ -761,6 +1559,7 @@ void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
+			// TODO: wrong
 			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				p[0] = (colour >> 16) & 0xff;
 				p[1] = (colour >> 8) & 0xff;
@@ -774,7 +1573,14 @@ void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 32 bpp
 		case 4:
+			Uint8 *a = p+bmpDest->pitch;
 			*(Uint32 *)p = colour;
+			p+=4;
+			*(Uint32 *)p = colour;
+
+			*(Uint32 *)a = colour;
+			a+=4;
+			*(Uint32 *)a = colour;
 			break;
     }
 }
@@ -834,6 +1640,7 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
+			// TODO: wrong
 			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				p[0] = (colour >> 16) & 0xff;
 				p[1] = (colour >> 8) & 0xff;
@@ -847,7 +1654,14 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 32 bpp
 		case 4:
+			Uint8 *a = p+bmpDest->pitch;
 			*(Uint32 *)p = colour;
+			p+=4;
+			*(Uint32 *)p = colour;
+
+			*(Uint32 *)a = colour;
+			a+=4;
+			*(Uint32 *)a = colour;
 			break;
     }
 }
@@ -1387,6 +2201,8 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 // Converts the SDL_surface to gdImagePtr
 gdImagePtr SDLSurface2GDImage(SDL_Surface *sdl_surface,gdImagePtr gd_image)
 {
+  // TODO: optimize!!!
+
   gd_image = gdImageCreateTrueColor(sdl_surface->w,sdl_surface->h);
   if (!gd_image)
 	  return gd_image;

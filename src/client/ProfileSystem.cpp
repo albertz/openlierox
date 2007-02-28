@@ -509,11 +509,11 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 
     // Load the skin
     buf = "skins/"; buf += szSkin;
-    SDL_Surface *worm = LoadImage(buf,16);
+    SDL_Surface *worm = LoadImage(buf,SDL_GetVideoSurface()->format->BitsPerPixel);
     if( !worm ) {
         
         // If we can't load the skin, try the default skin
-        worm = LoadImage("skins/default.png",16);
+        worm = LoadImage("skins/default.png",SDL_GetVideoSurface()->format->BitsPerPixel);
         if( !worm )
             return NULL;
     }

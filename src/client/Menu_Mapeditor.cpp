@@ -207,7 +207,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 			w >>= 1;
 			h >>= 1;
 			DrawImage(bmpDest,t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h);
-			DrawRect(bmpDest,22,107, 52,137, 0xffff);
+			DrawRect(bmpDest,22,107, 52,137, tLX->clWhite);
 		} else
 			DrawImageStretchKey(bmpDest, t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h, (Uint16)tLX->clPink);
 	}
@@ -539,10 +539,10 @@ void Menu_MapEd_New(void)
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 210,170, 210,170, 220, 260);
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 175, 0xffff,"%s", "Level details");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 202, 0xffff,"%s", "Width");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 232, 0xffff,"%s", "Height");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 262, 0xffff,"%s", "Theme");
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 175, tLX->clNormalLabel,"%s", "Level details");
+		tLX->cFont.Draw(tMenu->bmpScreen, 220, 202, tLX->clNormalLabel,"%s", "Width");
+		tLX->cFont.Draw(tMenu->bmpScreen, 220, 232, tLX->clNormalLabel,"%s", "Height");
+		tLX->cFont.Draw(tMenu->bmpScreen, 220, 262, tLX->clNormalLabel,"%s", "Theme");
 
 		ev = cg.Process();
 		cg.Draw(tMenu->bmpScreen);
@@ -723,8 +723,8 @@ void Menu_MapEd_LoadSave(int save)
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, 0xffff,"%s", save ? "Save" : "Load");
-		tLX->cFont.Draw(tMenu->bmpScreen, 180,288,0xffff,"%s","Level name");
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel,"%s", save ? "Save" : "Load");
+		tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel,"%s","Level name");
 
 		ev = cg.Process();
 		cg.Draw(tMenu->bmpScreen);

@@ -412,9 +412,9 @@ void Menu_Player_NewPlayer(int mouse)
 
 
 	// Draw the colour component values
-	tLX->cFont.Draw(tMenu->bmpScreen, 250, 303, 0xffff, "%d",r);
-	tLX->cFont.Draw(tMenu->bmpScreen, 250, 323, 0xffff, "%d",g);
-	tLX->cFont.Draw(tMenu->bmpScreen, 250, 343, 0xffff, "%d",b);
+	tLX->cFont.Draw(tMenu->bmpScreen, 250, 303, tLX->clNormalLabel, "%d",r);
+	tLX->cFont.Draw(tMenu->bmpScreen, 250, 323, tLX->clNormalLabel, "%d",g);
+	tLX->cFont.Draw(tMenu->bmpScreen, 250, 343, tLX->clNormalLabel, "%d",b);
 
     if(MouseInRect(255,195,30,30) && Mouse->Up)
         bPlayerSkinAnimation = !bPlayerSkinAnimation;
@@ -431,7 +431,7 @@ void Menu_Player_NewPlayer(int mouse)
     if( type == PRF_COMPUTER ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
-        tLX->cFont.Draw(tMenu->bmpScreen, 250,363,0xffff,difflevels[level]);
+        tLX->cFont.Draw(tMenu->bmpScreen, 250,363,tLX->clNormalLabel,difflevels[level]);
 
     }
 
@@ -665,9 +665,9 @@ void Menu_Player_ViewPlayers(int mouse)
 	    Uint8 g = ((CSlider *)cViewPlayers.getWidget(vp_Green))->getValue();
 	    Uint8 b = ((CSlider *)cViewPlayers.getWidget(vp_Blue))->getValue();
 
-        tLX->cFont.Draw(tMenu->bmpScreen, 530, 253, 0xffff, "%d",r);
-	    tLX->cFont.Draw(tMenu->bmpScreen, 530, 273, 0xffff, "%d",g);
-	    tLX->cFont.Draw(tMenu->bmpScreen, 530, 293, 0xffff, "%d",b);
+        tLX->cFont.Draw(tMenu->bmpScreen, 530, 253, tLX->clNormalLabel, "%d",r);
+	    tLX->cFont.Draw(tMenu->bmpScreen, 530, 273, tLX->clNormalLabel, "%d",g);
+	    tLX->cFont.Draw(tMenu->bmpScreen, 530, 293, tLX->clNormalLabel, "%d",b);
 
 		// Draw the worm image
 		DrawRectFill(tMenu->bmpScreen,  300, 165, 330, 195, 0);
@@ -688,7 +688,7 @@ void Menu_Player_ViewPlayers(int mouse)
     if( type == PRF_COMPUTER ) {
         static const char* difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0);
-        tLX->cFont.Draw(tMenu->bmpScreen, 530,313,0xffff,"%s",difflevels[level]);
+        tLX->cFont.Draw(tMenu->bmpScreen, 530,313,tLX->clNormalLabel,"%s",difflevels[level]);
     }
 
 

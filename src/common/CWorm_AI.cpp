@@ -1905,7 +1905,7 @@ void CWorm::AI_DEBUG_DrawPath(CMap *pcMap, ai_node_t *node)
         int cy = node->psPath->nY * pcMap->getGridHeight();
         DrawLine(pcMap->GetDrawImage(), (x+pcMap->getGridWidth()/2)*2, (y+pcMap->getGridHeight()/2)*2,
                                     (cx+pcMap->getGridWidth()/2)*2,(cy+pcMap->getGridHeight()/2)*2,
-                                    0xffff);
+                                    tLX->clWhite);
     }
     else {
         // Final target
@@ -2225,7 +2225,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 
 #ifdef _AI_DEBUG
 	//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,tLX->clPink);
-	//DrawRectFill(pcMap->GetDebugImage(),cTrgPos.x*2-2,cTrgPos.y*2-2,cTrgPos.x*2+2,cTrgPos.y*2+2,0xffff);
+	//DrawRectFill(pcMap->GetDebugImage(),cTrgPos.x*2-2,cTrgPos.y*2-2,cTrgPos.x*2+2,cTrgPos.y*2+2,tLX->clWhite);
 #endif
 
 
@@ -2269,7 +2269,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 				return false;
 
 	#ifdef _AI_DEBUG
-			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,0xffff);
+			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,tLX->clWhite);
 	#endif
 		}
 	}
@@ -2299,7 +2299,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 				return false;
 
 	#ifdef _AI_DEBUG
-			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,0xffff);
+			//PutPixel(pcMap->GetDebugImage(),x*2+(int)from->x*2,y*2+(int)from->y*2,tLX->clWhite);
 	#endif
 		}
 	}
@@ -3112,11 +3112,11 @@ bool CWorm::IsEmpty(int Cell, CMap *pcMap)
   /*int dx = cx*pcMap->getGridCols()*2;
   int dy = pcMap->getGridRows()*2*cy;
 
-  DrawRect(pcMap->GetDrawImage(),dx,dy,dx+(pcMap->GetWidth()/pcMap->getGridCols())*2,dy+(pcMap->GetHeight()/pcMap->getGridRows())*2,0xFFFF);
+  DrawRect(pcMap->GetDrawImage(),dx,dy,dx+(pcMap->GetWidth()/pcMap->getGridCols())*2,dy+(pcMap->GetHeight()/pcMap->getGridRows())*2,tLX->clWhite);
 
   dx /= 2;
   dy /= 2;
-  DrawRect(pcMap->GetImage(),dx,dy,dx+pcMap->GetWidth()/pcMap->getGridCols(),dy+pcMap->GetHeight()/pcMap->getGridRows(),0xFFFF);*/
+  DrawRect(pcMap->GetImage(),dx,dy,dx+pcMap->GetWidth()/pcMap->getGridCols(),dy+pcMap->GetHeight()/pcMap->getGridRows(),tLX->clWhite);*/
 
   const uchar   *f = pcMap->getGridFlags() + cy*pcMap->getGridWidth()+cx;
   bEmpty = *f == PX_EMPTY;
@@ -3850,7 +3850,7 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 		return;
 
 	const int NodeColour = MakeColour(255,0,0);
-	const int LineColour = 0xffff;
+	const int LineColour = tLX->clWhite;
 //	const int transparent = tLX->clPink; // TODO: not used
 
 	//(bmpDest,0,0,bmpDest->w,bmpDest->h,transparent);

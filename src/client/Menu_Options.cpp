@@ -211,7 +211,7 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 170, 170, 17,17);
 #ifndef WIN32
-	cOpt_System.Add( new CLabel("OpenGL acceleration",0xffff),Static, 240, 170, 0,0);
+	cOpt_System.Add( new CLabel("OpenGL acceleration",tLX->clNormalLabel),Static, 240, 170, 0,0);
 #endif
 	cOpt_System.Add( new CCheckbox(tLXOptions->iOpenGL),    os_OpenGL, 400, 170, 17,17);
 

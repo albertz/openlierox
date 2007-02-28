@@ -67,7 +67,7 @@ void CBonus::Draw(SDL_Surface *bmpDest, CViewport *v, int showname)
 			DrawImage(bmpDest, gfxGame.bmpBonus, x-5,y-5);
 			
 			if(showname)
-				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-20, 0xffff, sWeapon);
+				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-20, tLX->clPlayerName, sWeapon);
 			break;
 	}
 }

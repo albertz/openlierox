@@ -30,5 +30,5 @@ void CInputbox::Draw(SDL_Surface *bmpDest)
 		y=17;
 	DrawImageAdv(bmpDest,bmpImage, 0,y, iX,iY, bmpImage->w,17);
 	iMouseOver = false;
-    tLX->cFont.DrawCentre(bmpDest, iX+25, iY+1, 0xffff, sText);
+    tLX->cFont.DrawCentre(bmpDest, iX+25, iY+1, tLX->clWhite, sText);
 }

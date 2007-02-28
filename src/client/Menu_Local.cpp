@@ -66,8 +66,8 @@ void Menu_LocalInitialize(void)
 
     // Minimap box
     tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
-    //tLX->cFont.Draw(tMenu->bmpBuffer, 480,240,0xffff,"%s","H");
-    //tLX->cFont.Draw(tMenu->bmpBuffer, 515,240,0xffff,"%s","T");
+    //tLX->cFont.Draw(tMenu->bmpBuffer, 480,240,tLX->clWhite,"%s","H");
+    //tLX->cFont.Draw(tMenu->bmpBuffer, 515,240,tLX->clWhite,"%s","T");
 	Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
 
 	Menu_RedrawMouse(true);
