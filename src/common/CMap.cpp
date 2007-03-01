@@ -998,7 +998,7 @@ int CMap::CarveHole(int size, CVec pos)
 			for(x=0,dx=sx,bx=16;x<hole->w;x++,dx++,bx++) {
 
 				// Clipping
-				if(dx<0) {	p+=2; p2+=2; px++;	continue; }
+				if(dx<0) {	p+=4; p2+=4; px++;	continue; }
 				if(dx>=bmpImage->w)				break;
 
 
@@ -1019,8 +1019,8 @@ int CMap::CarveHole(int size, CVec pos)
 				if(pixel != 0 && pixel != pink && (flag & PX_DIRT))
 					*(Uint32 *)p2 = (Uint32)pixel;
 
-				p+=2;
-				p2+=2;
+				p+=4;
+				p2+=4;
 				px++;
 			}
 		}
@@ -1057,7 +1057,7 @@ int CMap::CarveHole(int size, CVec pos)
 		for(x=sx;x<sx+w+20;x++) {
 
 			// Clipping
-			if(x<0) {	p+=2; p2+=2; px++;	continue; }
+			if(x<0) {	p+=screenbpp; p2+=screenbpp; px++;	continue; }
 			if(x>=bmpImage->w)		break;
 
 			// TODO: endian
@@ -1065,8 +1065,8 @@ int CMap::CarveHole(int size, CVec pos)
 				//*(Uint16 *)p = *(Uint16 *)p2;
 				memcpy(p,p2,screenbpp); // This is bpp independent
 
-			p+=2;
-			p2+=2;
+			p+=screenbpp;
+			p2+=screenbpp;
 			px++;
 		}
 	}
@@ -1173,7 +1173,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 		for(x=0,dx=sx,bx=16;x<hole->w;x++,dx++,bx++) {
 
 			// Clipping
-			if(dx<0) {	p+=2; p2+=2; px++;	continue; }
+			if(dx<0) {	p+=screenbpp; p2+=screenbpp; px++;	continue; }
 			if(dx>=bmpImage->w)				break;
 
 			//pixel = *(Uint16 *)p;
@@ -1208,8 +1208,8 @@ int CMap::PlaceDirt(int size, CVec pos)
                 nDirtCount++;
             }
 
-			p+=2;
-			p2+=2;
+			p+=screenbpp;
+			p2+=screenbpp;
 			px++;
 		}
 	}
@@ -1312,7 +1312,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 		for(x=0,dx=sx,bx=16; x<w; x++,dx++,bx++) {
 
 			// Clipping
-			if(dx<0) {	p+=2; p2+=2; px++;	continue; }
+			if(dx<0) {	p+=screenbpp; p2+=screenbpp; px++;	continue; }
 			if(dx>=bmpImage->w)				break;
 
 			//pixel = *(Uint16 *)p;
@@ -1343,8 +1343,8 @@ int CMap::PlaceGreenDirt(CVec pos)
                 nGreenCount++;
             }
 
-			p+=2;
-			p2+=2;
+			p+=screenbpp;
+			p2+=screenbpp;
 			px++;
 		}
 	}
@@ -1595,7 +1595,6 @@ void CMap::PlaceStone(int size, CVec pos)
 
 	lockFlags();
 
-	// WARNING: This requires the stones to be loaded as 16bpp surfaces
 	Uint8 *p = (Uint8 *)stone->pixels;
 	uchar *px = PixelFlags;
 
@@ -1618,7 +1617,10 @@ void CMap::PlaceStone(int size, CVec pos)
 			// Put the pixel down
 			// TODO: endian
 			if (memcmp(p,&pink,screenbpp))  {
-				PutPixel(bmpImage,dx,dy,*(Uint16 *)p);
+				static Uint32 tmp;
+				tmp = 0;
+				memcpy(&tmp,p,screenbpp);
+				PutPixel(bmpImage,dx,dy,tmp);
 				*(uchar *)px = PX_ROCK;
 			}
 
@@ -1629,7 +1631,7 @@ void CMap::PlaceStone(int size, CVec pos)
 				*(uchar *)px = PX_ROCK;
 			}*/
 
-			p+=2;
+			p+=screenbpp;
 			px++;
 		}
 	}
@@ -1713,7 +1715,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 		for(x=0,dx=sx;x<misc->w;x++,dx++) {
 
 			// Clipping
-			if(dx<0) {	p+=2; px++;	continue; }
+			if(dx<0) {	p+=screenbpp; px++;	continue; }
 			if(dx>=bmpImage->w)		break;
 
 
@@ -1727,12 +1729,15 @@ void CMap::PlaceMisc(int id, CVec pos)
 			// Put the pixel down
 			// TODO: endian
 			if(memcmp(p,&pink,screenbpp) && *px & PX_DIRT) {
+				static Uint32 tmp;
+				tmp = 0;
+				memcpy(&tmp,p,screenbpp);
 
-				PutPixel(bmpImage,dx,dy,*(Uint16 *)p);
+				PutPixel(bmpImage,dx,dy,tmp);
 				*(uchar *)px = PX_DIRT;
 			}
 
-			p+=2;
+			p+=screenbpp;
 			px++;
 		}
 	}

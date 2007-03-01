@@ -489,7 +489,7 @@ int LoadProfileGraphics(profile_t *p)
     }
 	
 	// Apply a little cpu pic on the worm pic on ai players
-	SDL_Surface *ai = LoadImage("data/frontend/cpu.png", 16);
+	SDL_Surface *ai = LoadImage("data/frontend/cpu.png", SDL_GetVideoSurface()->format->BitsPerPixel);
 	if(ai) {
 		SDL_SetColorKey(ai, SDL_SRCCOLORKEY, tLX->clPink);
 		

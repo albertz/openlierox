@@ -1031,7 +1031,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	cmb->Sort(true);
 
 	if( selected >= 0 )
-		cmb->setCurItem( selected );
+		cmb->setCurItem( selected-1 );
 }
 
 

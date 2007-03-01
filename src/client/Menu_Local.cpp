@@ -142,6 +142,11 @@ void Menu_LocalShutdown(void)
 	if (bWeaponRest)
 		Menu_WeaponsRestrictionsShutdown();
 
+
+	// Save the level and mod
+	cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
+	cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.szModName, 0);
+
 	cLocalMenu.Shutdown();
 }
 
@@ -755,13 +760,13 @@ int Menu_LocalGetTeam(int count)
 		inline bool operator() (const std::string& f) {
 			size_t sep = findLastPathSep(f);
 			if(sep != std::string::npos) {
-				static std::string name;
+				std::string name;
 				if(CGameScript::CheckFile(f,name)
 				&& !combobox->getItem(name)) {
 					combobox->addItem(i,f.substr(sep+1),name);
 
 					// Store the index of the last used mod
-					if(stringcasecmp(name,tLXOptions->tGameinfo.szModName) == 0)
+					if(stringcasecmp(f.substr(sep+1),tLXOptions->tGameinfo.szModName) == 0)
 						*baseid = i;
 					i++;
 				}
