@@ -724,7 +724,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	case 24:  {
 		uint24 pink;
 		memset(&pink,0,sizeof(uint24));
-		memcpy(&pink,(Uint16 *)&tLX->clPink,sizeof(Uint16));
+		memcpy(&pink,&tLX->clPink,sizeof(uint24));
 		Uint32 tmp=0;
 
 		int x,y,dx,dy,i,j;
@@ -952,7 +952,7 @@ int CMap::CarveHole(int size, CVec pos)
 			for(x=0,dx=sx,bx=16;x<hole->w;x++,dx++,bx++) {
 
 				// Clipping
-				if(dx<0) {	p+=2; p2+=2; px++;	continue; }
+				if(dx<0) {	p+=3; p2+=3; px++;	continue; }
 				if(dx>=bmpImage->w)				break;
 
 
@@ -974,8 +974,8 @@ int CMap::CarveHole(int size, CVec pos)
 				if(pixel != 0 && pixel != pink && (flag & PX_DIRT))
 					memcpy(p2,&pixel,sizeof(uint24));
 
-				p+=2;
-				p2+=2;
+				p+=3;
+				p2+=3;
 				px++;
 			}
 		}
@@ -1060,6 +1060,7 @@ int CMap::CarveHole(int size, CVec pos)
 			if(x<0) {	p+=2; p2+=2; px++;	continue; }
 			if(x>=bmpImage->w)		break;
 
+			// TODO: endian
 			if(*px & PX_EMPTY)
 				//*(Uint16 *)p = *(Uint16 *)p2;
 				memcpy(p,p2,screenbpp); // This is bpp independent
@@ -1176,6 +1177,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 			if(dx>=bmpImage->w)				break;
 
 			//pixel = *(Uint16 *)p;
+			// TODO: endian
 			pixel = 0;
 			memcpy(&pixel,p,screenbpp); // bpp independent
 			flag = *(uchar *)px;
@@ -1193,7 +1195,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 				// Place the dirt image
 				tmp = GetPixel(Theme.bmpFronttile,ix,iy);
 				// TODO: endian
-				memset(p2,0,screenbpp);
 				memcpy(p2,&tmp,screenbpp);
 				//*(Uint16 *)p2 = (Uint16)GetPixel(Theme.bmpFronttile,ix,iy);
 			}
@@ -1202,7 +1203,6 @@ int CMap::PlaceDirt(int size, CVec pos)
             if(pixel != 0 && pixel != pink && flag & PX_EMPTY) {
 				//*(Uint16 *)p2 = (Uint16)pixel;
 				// TODO: endian
-				memset(p2,0,screenbpp);
 				memcpy(p2,&pixel,screenbpp);
                 *(uchar *)px = PX_DIRT;
                 nDirtCount++;
@@ -1290,7 +1290,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 		SDL_LockSurface(bmpGreenMask);
 
 
-	// WARNING: This requires the holes & themes to be loaded as 16bpp surfaces
 	Uint8 *p;
 	uchar *px;
 	Uint8 *p2;
@@ -1332,7 +1331,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 				// Place the dirt image
 				//*(Uint16 *)p2 = (Uint16)gr;
 				// TODO: endian
-				memset(p2,0,screenbpp);
 				memcpy(p2,&gr,screenbpp);
 			}
 
@@ -1340,7 +1338,6 @@ int CMap::PlaceGreenDirt(CVec pos)
             if(pixel != green && pixel != pink && flag & PX_EMPTY) {
 				//*(Uint16 *)p2 = (Uint16)pixel;
 				// TODO: endian
-				memset(p2,0,screenbpp);
 				memcpy(p2,&pixel,screenbpp);
                 *(uchar *)px = PX_DIRT;
                 nGreenCount++;
@@ -1844,7 +1841,7 @@ void CMap::UpdateMiniMap(int force)
 
 	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
-	Uint16 *sp,*tp,*tmp1,*tmp2;
+	Uint8 *sp,*tp,*tmp1,*tmp2;
 
 	for(my=0,mmy=0;my<Height;my+=ystep,mmy++) {
 
@@ -1852,8 +1849,8 @@ void CMap::UpdateMiniMap(int force)
 			break;
 
 		// Save the pointer to the first pixel in current line to make the loop faster
-		tmp1 = (Uint16 *)bmpImage->pixels + (int)my*bmpImage->pitch/2;
-		tmp2 = (Uint16 *)bmpMiniMap->pixels + mmy*bmpMiniMap->pitch/2;
+		tmp1 = (Uint8 *)bmpImage->pixels + (int)my*bmpImage->pitch;
+		tmp2 = (Uint8 *)bmpMiniMap->pixels + mmy*bmpMiniMap->pitch;
 
 		for(mx=0,mmx=0;mx<Width;mx+=xstep,mmx++) {
 
@@ -1861,10 +1858,9 @@ void CMap::UpdateMiniMap(int force)
 				break;
 
 			// Copy the pixel
-			sp = tmp1+(int)mx*bmpImage->format->BytesPerPixel/2;
-			tp = tmp2+mmx*bmpMiniMap->format->BytesPerPixel/2;
+			sp = tmp1+(int)mx*bmpImage->format->BytesPerPixel;
+			tp = tmp2+mmx*bmpMiniMap->format->BytesPerPixel;
 
-			//*tp = *sp;
 			// TODO: endian
 			memcpy(tp,sp,screenbpp);
 

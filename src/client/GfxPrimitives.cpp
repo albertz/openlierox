@@ -167,8 +167,6 @@ void DrawImageAdv_Mirror16(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, in
 void DrawImageAdv_Mirror24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	int x,y,c;
-//	int ow = w;  // TODO: not used
-//	int oh = h; // TODO: not used
 
 	// Lock the surfaces
 	if(SDL_MUSTLOCK(bmpDest))
@@ -185,12 +183,10 @@ void DrawImageAdv_Mirror24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, in
 
 	// Colour key
 	uint24 ckey;
+	memset(&ckey,0,sizeof(uint24));
 	if(bmpSrc->flags & SDL_SRCCOLORKEY)  {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-		memcpy(&ckey[0],&bmpSrc->format->colorkey,sizeof(ckey));
-#else // Big endian
-		// TODO
-#endif
+		// TODO: endian
+		memcpy(&ckey,&bmpSrc->format->colorkey,sizeof(uint24));
 	}
 
 	// Do clipping on the DEST surface
@@ -219,9 +215,7 @@ void DrawImageAdv_Mirror24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, in
 		sy+=c;
 	}
 
-	int TrgBpp = bmpDest->format->BytesPerPixel;
-
-	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*TrgBpp;
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
 	uint24 *sp,*tp;
@@ -231,14 +225,12 @@ void DrawImageAdv_Mirror24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, in
 		tp = (uint24 *)TrgPix + w;
 		for(x=0;x<w;x++) {
 			// Check transparent colour
-			if(!memcmp(&ckey,sp,sizeof(ckey))) {
+			if(!memcmp(&ckey,sp,sizeof(uint24))) {
 				// Skip the pixel
 				tp--;
 				sp++;
 			} else  {
-				memcpy(tp,sp,3);
-				tp--;
-				sp++;
+				memcpy(tp--,sp++,sizeof(uint24));
 				//*(tp--) = *(sp++);
 			}
 		}
@@ -376,7 +368,6 @@ void DrawImageStretch2_16(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		SDL_LockSurface(bmpSrc);
 
 
-	// Warning: Assumes 16bpp
 	// Warning: doesn't do clipping on DEST surface
 
 	// Clipping
@@ -640,9 +631,10 @@ void DrawImageStretch2Key_24(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, 
 	int cex = cx+bmpDest->clip_rect.w;
 	int cey = cy+bmpDest->clip_rect.h;
 
+	// TODO: endian
 	uint24 ckey;
-	memset(&ckey,0,sizeof(ckey));
-	memcpy(&ckey,(Uint16 *)&key,sizeof(Uint16));
+	memset(&ckey,0,sizeof(uint24));
+	memcpy(&ckey,&key,sizeof(uint24));
 
 
 	// Do clipping on the DEST surface
@@ -1114,7 +1106,7 @@ SDL_Surface *gfxCreateSurfaceAlpha(int width, int height)
 
 ///////////////////
 // Draw a rectangle
-void DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int colour)
+void DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour)
 {
 	DrawHLine(bmpDest,x,x2,y,colour);
 	DrawHLine(bmpDest,x,x2,y2,colour);
@@ -1126,7 +1118,7 @@ void DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int colour)
 
 ///////////////////
 // Draws a filled rectangle
-void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int colour)
+void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour)
 {
 	SDL_Rect Rect;
 
@@ -1141,7 +1133,7 @@ void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int colour
 
 ///////////////////
 // Draw an alpha filled rectangle
-void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color, int alpha)
+void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, int alpha)
 {
     // Note: Unoptimized
     // Does NOT do clipping
@@ -1197,6 +1189,7 @@ void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color
 					A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
 				
 				dc = (R | G | B | A);
+				// TODO: endian
 				memcpy(pixel,&dc,sizeof(uint24));
 			}
 		}
@@ -1232,7 +1225,7 @@ void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color
 
 ///////////////////
 // Draw a horizontal line
-void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
+void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour)
 {
 	int l,r;
 //	static SDL_Surface *bmpScreen = SDL_GetVideoSurface();  // TODO: not used; is static correct here?
@@ -1264,7 +1257,6 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 		return;
 	}
 
-	// TODO: only 2 bpps supported
 	int n;
 	switch (bpp)  {
 	case 1:
@@ -1302,7 +1294,7 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour)
 
 ///////////////////
 // Draw a vertical line
-void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, int colour)
+void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour)
 {
 	int t,b;
 //	SDL_Surface *bmpScreen = SDL_GetVideoSurface();  // TODO: not used
@@ -1382,7 +1374,7 @@ void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, 
 
 ///////////////////
 // Put a pixel on the surface
-void PutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
+void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
 
 	// Warning: Doesn't do clipping
@@ -1427,7 +1419,7 @@ int ropealt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void RopePutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
+void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
 	ropealt = !ropealt;
 
@@ -1482,15 +1474,11 @@ void RopePutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
-			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-				p[0] = (colour >> 16) & 0xff;
-				p[1] = (colour >> 8) & 0xff;
-				p[2] = colour & 0xff;
-			#else
-				p[0] = colour & 0xff;
-				p[1] = (colour >> 8) & 0xff;
-				p[2] = (colour >> 16) & 0xff;
-			#endif
+			memcpy(p,&colour,sizeof(uint24));
+			memcpy(p+sizeof(uint24),&colour,sizeof(uint24));
+			p += bmpDest->pitch;
+			memcpy(p,&colour,sizeof(uint24));
+			memcpy(p+sizeof(uint24),&colour,sizeof(uint24));
 			break;
 
 		// 32 bpp
@@ -1513,7 +1501,7 @@ int beamalt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
+void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
 	beamalt = !beamalt;
 
@@ -1559,16 +1547,11 @@ void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
-			// TODO: wrong
-			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-				p[0] = (colour >> 16) & 0xff;
-				p[1] = (colour >> 8) & 0xff;
-				p[2] = colour & 0xff;
-			#else
-				p[0] = colour & 0xff;
-				p[1] = (colour >> 8) & 0xff;
-				p[2] = (colour >> 16) & 0xff;
-			#endif
+			memcpy(p,&colour,sizeof(uint24));
+			memcpy(p+sizeof(uint24),&colour,sizeof(uint24));
+			p += bmpDest->pitch;
+			memcpy(p,&colour,sizeof(uint24));
+			memcpy(p+sizeof(uint24),&colour,sizeof(uint24));
 			break;
 
 		// 32 bpp
@@ -1590,7 +1573,7 @@ int laseralt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
+void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
 	laseralt++;
 	laseralt %= GetRandomInt(35)+1;
@@ -1640,16 +1623,11 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour)
 
 		// 24 bpp
 		case 3:
-			// TODO: wrong
-			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-				p[0] = (colour >> 16) & 0xff;
-				p[1] = (colour >> 8) & 0xff;
-				p[2] = colour & 0xff;
-			#else
-				p[0] = colour & 0xff;
-				p[1] = (colour >> 8) & 0xff;
-				p[2] = (colour >> 16) & 0xff;
-			#endif
+			memcpy(p,&colour,sizeof(uint24));
+			memcpy(p+sizeof(uint24),&colour,sizeof(uint24));
+			p += bmpDest->pitch;
+			memcpy(p,&colour,sizeof(uint24));
+			memcpy(p+sizeof(uint24),&colour,sizeof(uint24));
 			break;
 
 		// 32 bpp
@@ -1990,7 +1968,7 @@ int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint3
  * Perform a line draw using a put pixel callback
  * Grabbed from allegro
  */
-void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface *, int, int, int))
+void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface *, int, int, Uint32))
 {
    int dx = x2-x1;
    int dy = y2-y1;

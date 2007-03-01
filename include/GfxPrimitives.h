@@ -43,24 +43,24 @@ inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int d
 
 
 // Solid drawing
-void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int colour);
-void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int colour);
-void    DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int color, int alpha);
+void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour);
+void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour);
+void    DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, int alpha);
 
-void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour);
-void	DrawVLine(SDL_Surface *bmpDest, int x, int x2, int y, int colour);
+void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour);
+void	DrawVLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour);
 
 void	DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour);
-//void	DrawLine(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int colour);
+//void	DrawLine(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour);
 
 
 // Pixel drawing
-void	PutPixel(SDL_Surface *bmpDest, int x, int y, int colour);
+void	PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour);
 Uint32	GetPixel(SDL_Surface *bmpSrc, int x, int y);
 Uint32	GetPixelFromAddr(Uint8 *p, int bpp);
-void	RopePutPixel(SDL_Surface *bmpDest, int x, int y, int colour);
-void	BeamPutPixel(SDL_Surface *bmpDest, int x, int y, int colour);
-void	LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, int colour);
+void	RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour);
+void	BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour);
+void	LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour);
 
 
 // Colour component

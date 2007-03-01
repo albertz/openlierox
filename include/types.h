@@ -26,7 +26,7 @@
 typedef unsigned int	uint;
 typedef unsigned char	uchar;
 typedef unsigned long	ulong;
-typedef uint			uint24[3];
+typedef unsigned char	uint24[3];
 
 #ifndef WIN32
 // WIN32 defines this in windows.h
