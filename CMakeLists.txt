@@ -2,6 +2,7 @@ PROJECT(openlierox)
 
 INCLUDE_DIRECTORIES(/usr/include/stlport include /usr/include/libxml2)
 
+# for STLport
 ADD_DEFINITIONS(-D_PTHREADS)
 ADD_DEFINITIONS(-D_STLP_DEBUG)
 
@@ -13,6 +14,6 @@ SET(ALL_SRCS ${MAIN_SRCS} ${CLIENT_SRCS} ${COMMON_SRCS} ${SERVER_SRCS})
 
 SET_SOURCE_FILES_PROPERTIES(${ALL_SRCS} COMPILE_FLAGS "-ggdb -O0")
 
-LINK_LIBRARIES(SDL SDL_image SDL_mixer NL gd z xml2 stlportstlg)
+LINK_LIBRARIES(SDL SDL_image SDL_mixer SDL_gfx NL gd z xml2 stlportstlg)
 ADD_EXECUTABLE(bin/openlierox ${ALL_SRCS})
 

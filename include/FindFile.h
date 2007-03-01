@@ -123,7 +123,7 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs =
 // related to tLXOptions->tSearchPaths
 FILE*	OpenGameFile(const std::string& path, const char *mode);
 
-bool CanReadFile(const std::string& f, bool absolute = false);
+bool IsFileAvailable(const std::string& f, bool absolute = false);
 
 // the dir will be created recursivly
 // IMPORTANT: filename is absolute; no game-path!

@@ -2,14 +2,15 @@ TODO list
 
 [ ] better bot aiming
 [ ] better bot behavior
-[x] cap FPS / CPU time
 [ ] add MaxFPS option in option dialog
 [ ] change menu graphics (mainly the "Liero Xtreme" banner)
 [ ] other default keys and default weapon selection (they are disabled by default)
 [ ] add some help for weapon selection (cause not everybody understand it)
-[ ] should we add a virtual filesystem? this would make things a lot faster
+[ ] add virtual filesystem for users who has inotify or who enabled it
+[ ] allow more than 2 viewports
+[ ] allow a higher resolution (reduce it while playing with LX56?)
+[ ] join all viewports, if map is smaller than resolution
 
 minor things:
-[ ] more than 2 viewports and other resolutions than 640x480
 [ ] save selected player list in local play and return in this menu after playing
 [ ] treat ZIP-files in game-directory as virtual searchpaths

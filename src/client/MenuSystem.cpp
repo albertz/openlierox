@@ -17,6 +17,8 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
+#include "GfxPrimitives.h"
+
 
 menu_t	*tMenu = NULL;
 
@@ -442,8 +444,8 @@ void Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int bor
 // Draw a box
 void Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 {
-    Uint32 dark = tLX->clBoxDark;//MakeColour(60,60,60);
-    Uint32 light = tLX->clBoxLight;//MakeColour(130,130,130);
+    Uint32 dark = tLX->clBoxDark;
+    Uint32 light = tLX->clBoxLight;
 
 	DrawRect( bmpDest,x+1, y+1, x2-1,y2-1, light);
     //DrawRect( bmpDest,x+2, y+2, x2-2,y2-2, dark);

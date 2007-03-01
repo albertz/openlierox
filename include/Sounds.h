@@ -62,9 +62,7 @@ typedef struct {
 } sfxgame_t;
 
 // ID3 tag format
-// TODO: are this fixed widths?
-// if yes, please comment this!
-// if not, please make it std::string (and make it a class)
+// HINT: are this fixed widths !!!
 typedef struct id3v1_s {
 	char		name[30];
 	char		interpreter[30];

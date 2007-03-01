@@ -11,6 +11,7 @@
 #include "LieroX.h"
 #include "Menu.h"
 #include "console.h"
+#include "GfxPrimitives.h"
 
 #ifndef WIN32
 #include <sys/dir.h>
@@ -205,32 +206,32 @@ void ParseArguments(int argc, char *argv[])
         // Turns OpenGL on
         if( stricmp(a, "-opengl") == 0 ) {
             tLXOptions->iOpenGL = true;
-        }
+        } else
 
         // -noopengl
         // Turns OpenGL off
         if( stricmp(a, "-noopengl") == 0 ) {
             tLXOptions->iOpenGL = false;
-        }
+        } else
 
         // -nosound
         // Turns off the sound
         if( stricmp(a, "-nosound") == 0 ) {
             nDisableSound = true;
             tLXOptions->iSoundOn = false;
-        }
+        } else
 
         // -window
         // Turns fullscreen off
         if( stricmp(a, "-window") == 0 ) {
             tLXOptions->iFullscreen = false;
-        }
+        } else
 
         // -fullscreen
         // Turns fullscreen on
         if( stricmp(a, "-fullscreen") == 0 ) {
             tLXOptions->iFullscreen = true;
-        }        
+        } else
         
         if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") ) {
         	printf("available parameters:\n");
@@ -239,7 +240,7 @@ void ParseArguments(int argc, char *argv[])
      		printf("   -nosound\n");   	
      		printf("   -window\n");   	
      		printf("   -fullscreen\n");
-     		exit(0);
+     		exit(0); // uuuh!
         }
     }
 }

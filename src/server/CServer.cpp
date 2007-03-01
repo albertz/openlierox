@@ -18,6 +18,7 @@
 #include "LieroX.h"
 #include "console.h"
 #include "CBanList.h"
+#include "GfxPrimitives.h"
 
 // Bots' clients
 CClient *cBots = NULL;

@@ -16,6 +16,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "GfxPrimitives.h"
 
 
 entity_t *tEntities = NULL;

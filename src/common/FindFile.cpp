@@ -21,26 +21,26 @@
 #include "LieroX.h"
 
 #ifdef WIN32
-	#include <shlobj.h>
+#	include <shlobj.h>
 #else
-	#include <pwd.h>
+#	include <pwd.h>
 #endif
 
-// TODO: this only checks, if it is a file
-// if this info is enough for use, rename the function
-// if it is not enough, extend it
-bool CanReadFile(const std::string& f, bool absolute) {
+bool IsFileAvailable(const std::string& f, bool absolute) {
 	static std::string abs_f;
 	if(absolute) {
 		if(!GetExactFileName(f, abs_f)) return false;
 	} else
 		if((abs_f = GetFullFileName(f)) == "") return false;
 
-	if (abs_f[abs_f.length()-1]== '/' || abs_f[abs_f.length()-1]== '\\')
+	// remove trailing slashes
+	// don't remove them on WIN, if it is a drive-letter
+	while(abs_f.size() > 0 && (abs_f[abs_f.size()-1] == '\\' || abs_f[abs_f.size()-1] == '/')) {
 #ifdef WIN32
-		if (abs_f[abs_f.length()-2] != ':')
+		if(abs_f.size() > 2 && abs_f[abs_f.size()-2] == ':') break;
 #endif
-			abs_f.erase(abs_f.length()-1);
+		abs_f.erase(abs_f.size()-1);
+	}
 
 	// HINT: this should also work on WIN32, as we have _stat here
 	// (see the #include and #define in defs.h)
@@ -105,50 +105,45 @@ list.clear();
 
 #ifndef WIN32
 
-// TODO: use std::string!
 // used by unix-GetExactFileName
-int GetNextName(const char* fullname, const char** seperators, char* nextname)
+// HINT: it only reads the first char of the seperators
+// it returns the start of the subdir
+size_t GetNextName(const std::string& fullname, const char** seperators, std::string& nextname)
 {
-	int pos;
-	int i;
+	std::string::const_iterator pos;
+	size_t p = 0;
+	unsigned short i;
 
-	for(pos = 0; fullname[pos] != '\0'; pos++)
-	{
+	for(pos = fullname.begin(); pos != fullname.end(); pos++, p++) {
 		for(i = 0; seperators[i] != NULL; i++)
-			if(strncasecmp(&fullname[pos], seperators[i], strlen(seperators[i])) == 0)
-			{
-				nextname[pos] = '\0';
-				return pos + strlen(seperators[i]);
+			if(*pos == seperators[i][0]) {
+				nextname = fullname.substr(0, p-1);
+				return p + 1;
 			}
-
-		nextname[pos] = fullname[pos];
 	}
 
-	nextname[pos] = '\0';
+	nextname = fullname;
 	return 0;
 }
 
 
-// TODO: use std::string!
 // used by unix-GetExactFileName
-int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
-{
-	if(strcmp(searchname, "") == 0)
-	{
-		strcpy(filename, "");
+// does a case insensitive search for searchname in dir
+// sets filename to the first search result
+// returns true, if any file found
+bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std::string& filename) {
+	if(searchname == "") {
+		filename = "";
 		return true;
 	}
 
-	DIR* dirhandle;
-	dirhandle = opendir((strcmp(dir, "") == 0) ? "." : dir);
+	DIR* dirhandle = opendir((dir == "") ? "." : dir.c_str());
 	if(dirhandle == 0) return false;
 
 	dirent* direntry;
-	while((direntry = readdir(dirhandle)))
-	{
-		if(strcasecmp(direntry->d_name, searchname) == 0)
-		{
-			strcpy(filename, direntry->d_name);
+	while((direntry = readdir(dirhandle))) {
+		if(strcasecmp(direntry->d_name, searchname.c_str()) == 0) {
+			filename = direntry->d_name;
 			closedir(dirhandle);
 			return true;
 		}
@@ -160,8 +155,7 @@ int CaseInsFindFile(const char* dir, const char* searchname, char* filename)
 
 
 // does case insensitive search for file
-bool GetExactFileName(const std::string& abs_searchname, std::string& filename)
-{
+bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
 	if(abs_searchname.size() == 0) {
 		filename = "";
 		return false;
@@ -170,28 +164,26 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename)
 	std::string sname = abs_searchname;
 	ReplaceFileVariables(sname);
 
-	// TODO: ouhhhhh, this has to be redone... ! (use std::string)
 	const char* seps[] = {"\\", "/", (char*)NULL};
-	static char nextname[512]; strcpy(nextname, "");
-	static char nextexactname[512]; strcpy(nextexactname, "");
+	static std::string nextname; nextname = "";
+	static std::string nextexactname; nextexactname = "";
 	filename = "";
-	int pos = 0;
-	int npos = 0;
-	do {
-		pos += npos;
-		if(npos > 0) filename += "/";
+	size_t pos = 0;
+	while(true) {
+		pos = GetNextName(sname, seps, nextname);
+		if(pos > 0) sname.erase(0,pos);
 
-		npos = GetNextName(&sname.c_str()[pos], seps, nextname);
-
-		if(!CaseInsFindFile(filename.c_str(), nextname, nextexactname))
-		{
-			filename += &sname.c_str()[pos];
+		if(!CaseInsFindFile(filename, nextname, nextexactname)) {
+			filename += sname;
 			return false;
 		}
 
 		filename += nextexactname;
-
-	} while(npos > 0);
+		if(pos > 0)
+			filename += "/";
+		else
+			break;			
+	}
 
 	return true;
 }
@@ -306,13 +298,16 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 	bool append_mode = strchr(mode, 'a') != 0;
 	if(write_mode || append_mode) {
 		std::string writefullname = GetWriteFullFileName(path, true);
-		if(append_mode && fullfn.size()>0) { // check, if we should copy the file
-			if(CanReadFile(fullfn,true)) { // we can read the file
+		if(append_mode && fullfn != "") { // check, if we should copy the file
+			if(IsFileAvailable(fullfn,true)) { // we found the file
 				// GetWriteFullFileName ensures an exact filename,
 				// so no case insensitive check is needed here
 				if(fullfn != writefullname) {
 					// it is not the file, we would write to, so copy it to the wanted destination
-					FileCopy(fullfn, writefullname);
+					if(!FileCopy(fullfn, writefullname)) {
+						printf("ERROR: problems while copying, so I cannot open this file in append-mode somewhere else\n");
+						return NULL;
+					}
 				}
 			}
 		}
@@ -424,6 +419,7 @@ void ReplaceFileVariables(std::string& filename) {
 	replace(filename, "${BIN}", GetBinaryDir());
 }
 
+// returns true, if successfull
 bool FileCopy(const std::string& src, const std::string& dest) {
 	static char tmp[2048];
 

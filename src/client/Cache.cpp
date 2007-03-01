@@ -103,8 +103,8 @@ SDL_Surface *CCache::LoadImg(const std::string& _file)
 
 	if(Image)
 		Used = true;
-	else
-		printf("CCache::LoadImg: Error loading file: %s\n",Filename.c_str());
+//	else
+//		printf("CCache::LoadImg: Error loading file: %s\n",Filename.c_str());
 
 	return Image;
 }
@@ -125,7 +125,7 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, int bpp)
 	if(img)
 		Used = true;
 	else {
-		printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename.c_str());
+//		printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename.c_str());
 		return NULL;
 	}
 
@@ -153,7 +153,7 @@ SoundSample* CCache::LoadSample(const std::string& _file, int maxplaying)
 	std::string fullfname = GetFullFileName(Filename);
 	if(fullfname.size() == 0)
 	{
-		SetError("Error loading sample %s: file not found", _file.c_str());
+//		SetError("Error loading sample %s: file not found", _file.c_str());
 		return NULL;
 	}
 	
@@ -162,8 +162,8 @@ SoundSample* CCache::LoadSample(const std::string& _file, int maxplaying)
 	
 	if(Sample)
 		Used = true;
-	else
-		SetError("Error loading sample: %s",_file.c_str());
+//	else
+//		SetError("Error loading sample: %s",_file.c_str());
 
 	return Sample;
 }

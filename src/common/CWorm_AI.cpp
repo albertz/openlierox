@@ -24,6 +24,8 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "GfxPrimitives.h"
+
 
 // we need it here for some debugging...
 // we cannot define this globaly because some X11-header also defines this (which is not included here, so this works)

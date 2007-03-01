@@ -20,7 +20,7 @@
 #include <SDL/SDL_syswm.h>
 #include "LieroX.h"
 #include "Menu.h"
-//#include "corona.h"
+#include "GfxPrimitives.h"
 
 
 // Game info

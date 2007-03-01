@@ -13,6 +13,11 @@ Debian: libsdl-image1.2-dev
 Gentoo: media-libs/sdl-image
 tested versions: 1.2.5
 
+-- SDL_gfx
+Debian: sdlgfx-dev ?
+Gentoo: media-libs/sdl-gfx
+tested versions: 2.0.13
+
 -- hawknl
 Gentoo: dev-games/hawknl
 Debian: no deb-package found, you have to install it manually

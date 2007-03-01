@@ -106,7 +106,7 @@ SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays) {
 	if(filename.size() > 0) {
 		Mix_Chunk* sample = Mix_LoadWAV(filename.c_str());
 		if(!sample) {
-			printf("LoadSoundSample: Error while loading %s: %s\n", filename.c_str(), Mix_GetError());
+//			printf("LoadSoundSample: Error while loading %s: %s\n", filename.c_str(), Mix_GetError());
 			return NULL;
 		}
 
@@ -239,9 +239,9 @@ int PlayThreadMain(void *n)
 			SDL_Delay(100);
 		else  {
 			FreeMusic(LoadedMusic);  // Free any loaded music
-			Sleep(10); // No hurry...
+			SDL_Delay(10); // No hurry...
 			LoadedMusic = LoadMusic(SongName);  // Load the new music
-			Sleep(10);
+			SDL_Delay(10);
 			PlayMusic(LoadedMusic);  // Play the music
 			LoadingSong = false;
 		}

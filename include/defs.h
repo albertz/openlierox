@@ -73,12 +73,8 @@ inline int strncasecmp(const char *str1, const char *str2, size_t l) {return _st
 #	define vsnprintf _vsnprintf
 #	define snprintf	 _snprintf
 #	define stat _stat
-// TODO: if they are already makros on WIN, this does not work
-// in this case, replace it by inline-functions
-// if it works, remove this comment :)
 inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
 inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
-
 #else
 #	include <sys/dir.h>
 #	include <unistd.h>
@@ -218,7 +214,6 @@ inline T* GetByteSwapped(const T b)
 #include "AuxLib.h"
 #include "Cache.h"
 #include "Error.h"
-#include "GfxPrimitives.h"
 #include "Timer.h"
 #include "Options.h"
 #include "FindFile.h"

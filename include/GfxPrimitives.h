@@ -24,10 +24,37 @@
 SDL_Surface *gfxCreateSurface(int width, int height);
 SDL_Surface *gfxCreateSurfaceAlpha(int width, int height);
 
+
+
+
 // Image drawing
-void	DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y);
-void	DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h);
-void	DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+
+// Simply draw the image
+inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
+	static SDL_Rect	rDest;
+	rDest.x = x; rDest.y = y;
+	SDL_BlitSurface(bmpSrc,NULL,bmpDest,&rDest);
+}
+
+// Draw the image, with more options
+inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h) {
+	static SDL_Rect	rDest, rSrc;
+	rDest.x = x; rDest.y = y;
+	rSrc.x = 0; rSrc.y = 0;
+	rSrc.w = w; rSrc.h = h;
+	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
+}
+
+// Draw the image with a huge amount of options
+inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+	static SDL_Rect	rDest, rSrc;
+	rDest.x = dx; rDest.y = dy;
+	rSrc.x = sx; rSrc.y = sy;
+	rSrc.w = w; rSrc.h = h;
+	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
+}
+
+
 void	DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 void	DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
 void	DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key);

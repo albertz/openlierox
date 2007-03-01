@@ -19,6 +19,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "GfxPrimitives.h"
 
 
 ///////////////////
@@ -2700,4 +2701,8 @@ void CMap::Shutdown(void)
 	unlockFlags();
 }
 
+
+#ifdef _AI_DEBUG
+void CMap::ClearDebugImage()   { if (bmpDebugImage) { DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,MakeColour(255,0,255));}}
+#endif
 

@@ -17,6 +17,7 @@
 #include "LieroX.h"
 #include "Menu.h"
 #include "CListview.h"
+#include "GfxPrimitives.h"
 
 
 CGuiLayout cLocalMenu;

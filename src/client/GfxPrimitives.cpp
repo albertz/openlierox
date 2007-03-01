@@ -17,62 +17,15 @@
 // By Jason Boettcher
 
 
+#include <gd.h>
+#include <SDL/SDL_rotozoom.h>
+
 #include "defs.h"
 #include "LieroX.h"
-#include <gd.h>
-
-// TODO: many of these functions could be inline
+#include "GfxPrimitives.h"
 
 
-///////////////////
-// Simply draw the image
-void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y)
-{
-	static SDL_Rect	rDest;
 
-	rDest.x = x;
-	rDest.y = y;
-
-	//SDL_SetColorKey(bmpSrc, SDL_SRCCOLORKEY, SDL_MapRGB(bmpSrc->format,255,0,255));
-
-	SDL_BlitSurface(bmpSrc,NULL,bmpDest,&rDest);
-}
-
-
-///////////////////
-// Draw the image, with more options
-void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h)
-{
-	static SDL_Rect	rDest;
-	static SDL_Rect	rSrc;
-
-	rDest.x = x;
-	rDest.y = y;
-	rSrc.x = 0;
-	rSrc.y = 0;
-	rSrc.w = w;
-	rSrc.h = h;
-
-	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
-}
-
-
-///////////////////
-// Draw the image with a huge amount of options
-void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
-{
-	static SDL_Rect	rDest;
-	static SDL_Rect	rSrc;
-
-	rDest.x = dx;
-	rDest.y = dy;
-	rSrc.x = sx;
-	rSrc.y = sy;
-	rSrc.w = w;
-	rSrc.h = h;
-
-	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
-}
 
 /*
  *

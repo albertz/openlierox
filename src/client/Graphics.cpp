@@ -16,8 +16,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
-//#include "corona.h"
-//#include "libpng/png.h"
+#include "GfxPrimitives.h"
 
 
 gfxgui_t	gfxGUI;

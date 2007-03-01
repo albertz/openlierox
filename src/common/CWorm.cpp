@@ -16,6 +16,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "GfxPrimitives.h"
 
 
 ///////////////////
@@ -874,9 +875,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			ang = (int)( (fAngle+90)/151 * 7 );
 			ang = 6-ang;
 			f = ang*16;
-			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,(x-12)+RightMuzzle[ang*2],
-															   (y-10)+RightMuzzle[ang*2+1],
-															   16,16,tLX->clPink);
+			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
+				(x-12)+RightMuzzle[ang*2],
+				(y-10)+RightMuzzle[ang*2+1],
+				16,16,tLX->clPink);
 		}
 		break;
 
