@@ -99,7 +99,8 @@ void CWorm::Clear(void)
 
 	psHeadingProjectile = NULL;
 	
-	bmpWorm = NULL;
+	bmpWormLeft = NULL;
+	bmpWormRight = NULL;
 	bmpGibs = NULL;
 	bmpPic = NULL;
     bmpShadowPic = NULL;
@@ -147,9 +148,14 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	if(bmpWorm) {
-		SDL_FreeSurface(bmpWorm);
-		bmpWorm = NULL;
+	if(bmpWormLeft) {
+		SDL_FreeSurface(bmpWormLeft);
+		bmpWormLeft = NULL;
+	}
+	
+	if(bmpWormRight) {
+		SDL_FreeSurface(bmpWormRight);
+		bmpWormRight = NULL;
 	}
 
 	if(bmpGibs) {
@@ -291,20 +297,21 @@ int CWorm::LoadGraphics(int gametype)
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
     // Load the skin
-    bmpWorm = LoadSkin(szSkin, r,g,b);
+    bmpWormRight = LoadSkin(szSkin, r,g,b);
+    bmpWormLeft = GetMirroredImage(bmpWormRight);
     
     // Create the minipic
     bmpPic = gfxCreateSurface(18,16);
     SDL_SetColorKey(bmpPic, SDL_SRCCOLORKEY, tLX->clPink);
     DrawRectFill(bmpPic, 0,0,bmpPic->w,bmpPic->h, tLX->clPink);
-    DrawImageAdv(bmpPic, bmpWorm, 134,2,0,0, 18,16);
+    DrawImageAdv(bmpPic, bmpWormRight, 134,2,0,0, 18,16);
 
 	
     // Shadow buffer
     bmpShadowPic = gfxCreateSurface(32,18);
     SDL_SetColorKey(bmpShadowPic, SDL_SRCCOLORKEY, SDL_MapRGB(bmpShadowPic->format,255,0,255));
 
-	if(bmpWorm && bmpGibs && bmpPic && bmpShadowPic)
+	if(bmpWormRight && bmpWormLeft && bmpGibs && bmpPic && bmpShadowPic)
 		return true;
 
 	return false;
@@ -838,13 +845,9 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	// Draw the worm
     DrawRectFill(bmpShadowPic,0,0,32,18,tLX->clPink);
 	if(iDirection == DIR_RIGHT)
-        DrawImageAdv(bmpShadowPic, bmpWorm, f,0, 6,0, 32,18);
-		//DrawImageAdv(bmpDest, bmpWorm, f,0, x-12,y-10, 32,18);
-		//DrawImageStretch2Key(bmpDest,bmpWorm,f,0,x-12,y-10,16,9,PlayerPink);
+        DrawImageAdv(bmpShadowPic, bmpWormRight, f,0, 6,0, 32,18);
 	else
-        DrawImageAdv_Mirror(bmpShadowPic, bmpWorm, f,0, 0,0, 32,18);
-		//DrawImageAdv_Mirror(bmpDest, bmpWorm, f,0, x-18,y-10, 32,18);
-		//DrawImageStretchMirrorKey(bmpDest,bmpWorm,f,0,x-18,y-10,16,9,PlayerPink);
+        DrawImageAdv(bmpShadowPic, bmpWormLeft, f,0, 6,0, 32,18);
 
     DrawImage(bmpDest, bmpShadowPic, x-18,y-10);
 

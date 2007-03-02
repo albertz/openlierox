@@ -230,7 +230,8 @@ private:
 
 
 	// Graphics
-	SDL_Surface	*bmpWorm;
+	SDL_Surface	*bmpWormRight;
+	SDL_Surface	*bmpWormLeft;
 	SDL_Surface	*bmpGibs;
 	SDL_Surface	*bmpPic;
     SDL_Surface *bmpShadowPic;

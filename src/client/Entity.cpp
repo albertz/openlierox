@@ -340,7 +340,7 @@ void SimulateEntities(float dt, CMap *map)
 
 			// Sparkle
 			case ENT_SPARKLE:
-				ent->vPos = ent->vPos + CVec(0,5)*dt;
+				ent->vPos = ent->vPos + CVec(0,5.0f*dt);
 				ent->fFrame += dt*5;
 				if((int)ent->fFrame > 2)
 					ent->iUsed = false;

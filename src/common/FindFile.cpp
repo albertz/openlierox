@@ -117,7 +117,7 @@ size_t GetNextName(const std::string& fullname, const char** seperators, std::st
 	for(pos = fullname.begin(); pos != fullname.end(); pos++, p++) {
 		for(i = 0; seperators[i] != NULL; i++)
 			if(*pos == seperators[i][0]) {
-				nextname = fullname.substr(0, p-1);
+				nextname = fullname.substr(0, p);
 				return p + 1;
 			}
 	}
@@ -177,7 +177,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			filename += sname;
 			return false;
 		}
-
+		
 		filename += nextexactname;
 		if(pos > 0)
 			filename += "/";

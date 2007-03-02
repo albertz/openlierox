@@ -1060,8 +1060,7 @@ int CMap::CarveHole(int size, CVec pos)
 			// Clipping
 			if(x<0) {	p+=screenbpp; p2+=screenbpp; px++;	continue; }
 			if(x>=bmpImage->w)		break;
-
-			// TODO: endian
+			
 			if(*px & PX_EMPTY)
 				//*(Uint16 *)p = *(Uint16 *)p2;
 				memcpy(p,p2,screenbpp); // This is bpp independent
