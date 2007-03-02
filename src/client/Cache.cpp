@@ -19,8 +19,9 @@
 
 #include "defs.h"
 #include "LieroX.h"
-//#include "corona.h"
 #include "Sounds.h"
+#include "GfxPrimitives.h"
+
 
 CCache		*Cache = NULL;
 
@@ -92,8 +93,7 @@ SDL_Surface *_LoadImage(const std::string& filename)
 
 ///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
-SDL_Surface *CCache::LoadImgBPP(const std::string& _file, int bpp)
-{
+SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 	SDL_Surface *img;
 
 	Type = CCH_IMAGE;
@@ -102,21 +102,29 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, int bpp)
 	// Load the image
 	img = _LoadImage(Filename);
 
-	if(img)
-		Used = true;
-	else {
+	if(!img) {
 //		printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename.c_str());
 		return NULL;
 	}
 
-	// TODO: also for alpha images
-
 	// Convert the image to the screen's colour depth
-	Image = SDL_CreateRGBSurface(iSurfaceFormat, img->w,img->h,bpp, 0,0,0,0);
-
+	
+	if(withalpha)
+		Image = gfxCreateSurfaceAlpha(img->w, img->h);
+	else
+		Image = gfxCreateSurface(img->w, img->h);
+	
+	if(!Image) {
+		printf("ERROR: LoadImgBPP: cannot create new surface\n");
+		SDL_FreeSurface(img);
+		return NULL;
+	}
+	
 	// Blit it onto the new surface
 	SDL_BlitSurface(img,NULL,Image,NULL);
 	SDL_FreeSurface(img);
+
+	Used = true;
 
 	return Image;
 }
@@ -225,7 +233,7 @@ void ShutdownCache(void)
 
 ///////////////////
 // Load an image
-SDL_Surface *LoadImage(const std::string& _filename)
+SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 {
 	int n;
 	CCache *cach;
@@ -255,7 +263,7 @@ SDL_Surface *LoadImage(const std::string& _filename)
 
 
 	// Load the image
-	return cach->LoadImgBPP(_filename, SDL_GetVideoSurface()->format->BitsPerPixel);
+	return cach->LoadImgBPP(_filename, withalpha);
 }
 
 

@@ -29,7 +29,7 @@ float			fLagFlash;
 // Initialize the drawing routines
 int CClient::InitializeDrawing(void)
 {
-	LOAD_IMAGE(bmpMenuButtons,"data/frontend/buttons.png");
+	LOAD_IMAGE_WITHALPHA(bmpMenuButtons,"data/frontend/buttons.png");
 
 	//fLagFlash = 0;
 

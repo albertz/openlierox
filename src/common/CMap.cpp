@@ -261,9 +261,9 @@ int CMap::LoadTheme(const std::string& _theme)
     sRandomLayout.szTheme = _theme;
 
 	buf = thm + "/Backtile.png";
-	LOAD_IMAGE_BPP(Theme.bmpBacktile,buf);
+	LOAD_IMAGE(Theme.bmpBacktile,buf);
 	buf = thm + "/Fronttile.png";
-	LOAD_IMAGE_BPP(Theme.bmpFronttile,buf);
+	LOAD_IMAGE(Theme.bmpFronttile,buf);
 
 
 	// Stones
@@ -272,24 +272,22 @@ int CMap::LoadTheme(const std::string& _theme)
 
 	for(n=0;n<Theme.NumStones;n++) {
 		buf = thm + "/Stone" + itoa(n+1) + ".png";
-		LOAD_IMAGE_BPP(Theme.bmpStones[n],buf);
-
-		SDL_SetColorKey(Theme.bmpStones[n], SDL_SRCCOLORKEY, SDL_MapRGB(Theme.bmpStones[n]->format,255,0,255));
+		LOAD_IMAGE(Theme.bmpStones[n],buf);
+		SDL_SetColorKey(Theme.bmpStones[n], SDL_SRCCOLORKEY, tLX->clPink);
 	}
 
 
 	// Holes
 	for(n=0;n<5;n++) {
 		buf = thm + "/Hole" + itoa(n+1) + ".png";
-		LOAD_IMAGE_BPP(Theme.bmpHoles[n],buf);
-
+		LOAD_IMAGE(Theme.bmpHoles[n],buf);
 		SDL_SetColorKey(Theme.bmpHoles[n], SDL_SRCCOLORKEY, SDL_MapRGB(Theme.bmpHoles[n]->format,0,0,0));
 	}
 
 	// Calculate the default colour from a non-pink, non-black colour in the hole image
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	SDL_Surface *hole = Theme.bmpHoles[0];
-	Uint16 pink = (Uint16)tLX->clPink;
+	Uint32 pink = tLX->clPink;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
 			for(x=0; x<hole->w; x++) {
@@ -306,12 +304,12 @@ int CMap::LoadTheme(const std::string& _theme)
 	ReadInteger(cfg,"General","NumMisc",&Theme.NumMisc,0);
 	for(n=0;n<Theme.NumMisc;n++) {
 		buf = thm + "/misc" + itoa(n+1) + ".png";
-		LOAD_IMAGE_BPP(Theme.bmpMisc[n],buf);
+		LOAD_IMAGE(Theme.bmpMisc[n],buf);
 	}
 
 
     // Load the green dirt mask
-    LOAD_IMAGE_BPP(bmpGreenMask, std::string("data/gfx/greenball.png"));
+    LOAD_IMAGE(bmpGreenMask, std::string("data/gfx/greenball.png"));
 
 	return true;
 }
@@ -601,8 +599,12 @@ void CMap::TileMap(void)
 	}
 
 	// Update the draw image
-	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
-
+	SDL_FreeSurface(bmpDrawImage);
+	bmpDrawImage = GetStretched2Image(bmpImage);
+	if(!bmpDrawImage) {
+		printf("ERROR: TileMap: couldn't stretch, I will possibly crash now...\n");
+	}
+	
 	// Set the pixel flags
 	lockFlags();
 	memset(PixelFlags,PX_DIRT,Width*Height*sizeof(uchar));
@@ -683,7 +685,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 		//TODO
 		return;
 	case 16:  {
-		Uint16 pink = (Uint16)tLX->clPink;
+		Uint32 pink = (Uint32)tLX->clPink; // don't change this, if we use GetPixel
 
 		int x,y,dx,dy,i,j;
 
@@ -2702,6 +2704,6 @@ void CMap::Shutdown(void)
 
 
 #ifdef _AI_DEBUG
-void CMap::ClearDebugImage()   { if (bmpDebugImage) { DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,MakeColour(255,0,255));}}
+void CMap::ClearDebugImage()   { if (bmpDebugImage) { DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,tLX->clPink);}}
 #endif
 

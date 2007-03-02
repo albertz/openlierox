@@ -54,9 +54,9 @@ int Menu_Initialize(int *game)
 	tMenu->iReturnTo = net_internet;
 
 	// Load the images
-	//LOAD_IMAGE_BPP(tMenu->bmpMainBack,"data/frontend/background.png");
-    //LOAD_IMAGE_BPP(tMenu->bmpMainBack_lg,"data/frontend/background_lg.png");
-    LOAD_IMAGE_BPP(tMenu->bmpMainBack_wob,"data/frontend/background_wob.png");
+	//LOAD_IMAGE(tMenu->bmpMainBack,"data/frontend/background.png");
+    //LOAD_IMAGE(tMenu->bmpMainBack_lg,"data/frontend/background_lg.png");
+    LOAD_IMAGE(tMenu->bmpMainBack_wob,"data/frontend/background_wob.png");
 
 
 	tMenu->bmpBuffer = gfxCreateSurface(640,480);
@@ -78,44 +78,32 @@ int Menu_Initialize(int *game)
 		return false;
     }
 
-	LOAD_IMAGE(tMenu->bmpMainTitles,"data/frontend/maintitles.png");
-	LOAD_IMAGE(tMenu->bmpLieroXtreme,"data/frontend/lierox.png");
-	LOAD_IMAGE(tMenu->bmpMainLocal,"data/frontend/img_local.png");
-	LOAD_IMAGE(tMenu->bmpMainNet,"data/frontend/img_net.png");
-	LOAD_IMAGE(tMenu->bmpSubTitles,"data/frontend/subtitles.png");
-	LOAD_IMAGE(tMenu->bmpButtons,"data/frontend/buttons.png");
-	LOAD_IMAGE_BPP(tMenu->bmpMapEdTool,"data/frontend/map_toolbar.png");
-	LOAD_IMAGE(tMenu->bmpCheckbox,"data/frontend/checkbox.png");
-	LOAD_IMAGE(tMenu->bmpInputbox,"data/frontend/inputbox.png");
-	//LOAD_IMAGE_BPP(tMenu->bmpAI,"data/frontend/cpu.png");
-	//LOAD_IMAGE_BPP(tMenu->bmpWorm, "data/frontend/wormimage.bmp");
-	LOAD_IMAGE(tMenu->bmpLobbyState, "data/frontend/lobbyready.png");
-	LOAD_IMAGE(tMenu->bmpHost, "data/frontend/host.png");
-	LOAD_IMAGE(tMenu->bmpConnectionSpeeds[0], "data/frontend/con_good.png");
-	LOAD_IMAGE(tMenu->bmpConnectionSpeeds[1], "data/frontend/con_average.png");
-	LOAD_IMAGE(tMenu->bmpConnectionSpeeds[2], "data/frontend/con_bad.png");
-	LOAD_IMAGE(tMenu->bmpConnectionSpeeds[3], "data/frontend/con_none.png");
-	LOAD_IMAGE(tMenu->bmpSpeech, "data/frontend/speech.png");
-	LOAD_IMAGE(tMenu->bmpTeamColours[0], "data/frontend/team_1.png");
-	LOAD_IMAGE(tMenu->bmpTeamColours[1], "data/frontend/team_2.png");
-	LOAD_IMAGE(tMenu->bmpTeamColours[2], "data/frontend/team_3.png");
-	LOAD_IMAGE(tMenu->bmpTeamColours[3], "data/frontend/team_4.png");
-    LOAD_IMAGE(tMenu->bmpHandicap, "data/frontend/handicap.png");
-	LOAD_IMAGE(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
-	LOAD_IMAGE(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainTitles,"data/frontend/maintitles.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpLieroXtreme,"data/frontend/lierox.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainLocal,"data/frontend/img_local.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainNet,"data/frontend/img_net.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpSubTitles,"data/frontend/subtitles.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpButtons,"data/frontend/buttons.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpMapEdTool,"data/frontend/map_toolbar.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpCheckbox,"data/frontend/checkbox.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpInputbox,"data/frontend/inputbox.png");
+	//LOAD_IMAGE_WITHALPHA(tMenu->bmpAI,"data/frontend/cpu.png");
+	//LOAD_IMAGE_WITHALPHA(tMenu->bmpWorm, "data/frontend/wormimage.bmp");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpLobbyState, "data/frontend/lobbyready.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpHost, "data/frontend/host.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[0], "data/frontend/con_good.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[1], "data/frontend/con_average.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[2], "data/frontend/con_bad.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[3], "data/frontend/con_none.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpSpeech, "data/frontend/speech.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpTeamColours[0], "data/frontend/team_1.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpTeamColours[1], "data/frontend/team_2.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpTeamColours[2], "data/frontend/team_3.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpTeamColours[3], "data/frontend/team_4.png");
+    LOAD_IMAGE_WITHALPHA(tMenu->bmpHandicap, "data/frontend/handicap.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 
-#ifndef DEBUG
-	// TODO: I don't know why until now, but the SDL_DisplayFormatAlpha causes
-	//		some problems in valgrind (it causes in an invalid instruction
-	//		call on my PPC with SDL-1.2.11)
-	// Convert the buttons to the display format (faster)
-	SDL_Surface *tmp = NULL;
-	tmp = SDL_DisplayFormatAlpha(tMenu->bmpButtons);
-	if (!tmp)
-		return false;
-	// NOTE: Don't free the original surface, it's freed by the cache
-	tMenu->bmpButtons = tmp;
-#endif
 
     tMenu->bmpWorm = NULL;
 	tMenu->bmpScreen = SDL_GetVideoSurface();
@@ -356,7 +344,7 @@ std::string Menu_GetLevelName(const std::string& filename)
 	Path = "levels/"+filename;
 
  // Liero Xtreme level
-	if( filename.substr(filename.length()-4) == ".lxl") {
+	if( stringcasecmp(GetFileExtension(filename), "lxl") == 0 ) {
 		FILE *fp = OpenGameFile(Path,"rb");
 		if(fp) {
 			fread(id,		sizeof(char),	32,	fp);
@@ -377,7 +365,7 @@ std::string Menu_GetLevelName(const std::string& filename)
 
  // Liero level
 	// TODO
-	if( filename.substr(filename.length()-4) == ".lev") {
+	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 ) {
 		FILE *fp = OpenGameFile(Path,"rb");
 
 		if(fp) {
@@ -949,7 +937,7 @@ void Menu_AddDefaultWidgets(void)
 			std::string f = filename.substr(pos+1);
 
 			// Liero Xtreme level
-			if( stringcasecmp(filename.substr(filename.size()-4), ".lxl") == 0) {
+			if( stringcasecmp(GetFileExtension(filename), "lxl") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
 				if(fp) {
 					static char id[33];
@@ -976,7 +964,7 @@ void Menu_AddDefaultWidgets(void)
 			}
 
 			// Liero level
-			if( stringcasecmp(filename.substr(filename.size()-4), ".lev") == 0) {
+			if( stringcasecmp(GetFileExtension(filename), "lev") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
 
 				if(fp) {

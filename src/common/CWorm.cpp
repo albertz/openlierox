@@ -309,7 +309,7 @@ int CWorm::LoadGraphics(int gametype)
 	
     // Shadow buffer
     bmpShadowPic = gfxCreateSurface(32,18);
-    SDL_SetColorKey(bmpShadowPic, SDL_SRCCOLORKEY, SDL_MapRGB(bmpShadowPic->format,255,0,255));
+    SDL_SetColorKey(bmpShadowPic, SDL_SRCCOLORKEY, tLX->clPink);
 
 	if(bmpWormRight && bmpWormLeft && bmpGibs && bmpPic && bmpShadowPic)
 		return true;
@@ -331,6 +331,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename.c_str());
 		return NULL;
 	}
+	SDL_SetColorKey(img, SDL_SRCCOLORKEY, tLX->clPink);
 
 
 	// Set the colour of the img
@@ -863,10 +864,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			ang = (int)( (fAngle+90)/151 * 7 );
 			ang = 6-ang;
 			f = ang*16;
-			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
+			DrawImageStretch2(bmpDest,gfxGame.bmpMuzzle,f,0,
 				(x-12)+RightMuzzle[ang*2],
 				(y-10)+RightMuzzle[ang*2+1],
-				16,16,tLX->clPink);
+				16,16);
 		}
 		break;
 
@@ -875,9 +876,9 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			f = (ang+7)*16;
 			
 			
-			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,(x-21)+LeftMuzzle[ang*2],
+			DrawImageStretch2(bmpDest,gfxGame.bmpMuzzle,f,0,(x-21)+LeftMuzzle[ang*2],
 															   (y-10)+LeftMuzzle[ang*2+1],
-															   16,16,tLX->clPink);
+															   16,16);
 		}
 		break;
 

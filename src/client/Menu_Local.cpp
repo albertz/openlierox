@@ -1249,7 +1249,7 @@ CGuiLayout cWpnPresets;
 		CListview* listview;
 		addWeaponPresets(CListview* lv_) : listview(lv_) {}
 		inline bool operator() (const std::string& f) {
-			if(stringcasecmp(f.substr(f.size()-4),".wps")) {
+			if(stringcasecmp(GetFileExtension(f),"wps")) {
 				size_t sep = findLastPathSep(f);
 				if(sep != std::string::npos) {
 					std::string name = f.substr(sep+1);

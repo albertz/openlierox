@@ -769,16 +769,16 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 	   	int index;
 		SkinAdder(CCombobox* cb_, int* d) : cb(cb_), def(d), index(0) {}
 		inline bool operator() (std::string file) {
-			std::string ext = file.substr(file.size()-4);
-			if(stringcasecmp(ext, ".tga")==0
-			|| stringcasecmp(ext, ".png")==0
-			|| stringcasecmp(ext, ".bmp")==0
-			|| stringcasecmp(ext, ".pcx")==0) {
+			std::string ext = GetFileExtension(file);
+			if(stringcasecmp(ext, "tga")==0
+			|| stringcasecmp(ext, "png")==0
+			|| stringcasecmp(ext, "bmp")==0
+			|| stringcasecmp(ext, "pcx")==0) {
 				size_t slash = findLastPathSep(file);
 				if(slash != std::string::npos)
 					file.erase(0, slash+1);
 				
-				std::string name = file.substr(0, file.size()-4);
+				std::string name = file.substr(0, file.size()-4); // the size-calcing here is safe
 				cb->addItem(index, file, name);
 				
 				if(stringcasecmp(name, "default")==0)

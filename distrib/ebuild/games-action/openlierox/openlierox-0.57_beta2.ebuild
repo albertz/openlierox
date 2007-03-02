@@ -36,13 +36,14 @@ src_unpack() {
 
 	unpack OpenLieroX_${PV}.src.tar.bz || die "cannot unpack the main archive"
 
-	# this ensures, that we don't delete existing directories
-	mkdir -p ${S}/share/gamedir/packtmp && \
-	cd ${S}/share/gamedir/packtmp && \
+	cd ${S}/share/gamedir && \
 	unpack lx0.56_pack1.9.zip && \
-	unpack another_lx_pack_2007_01_05.zip && \
-	cp -a * .. && cd .. && rm -rf packtmp \
+	unpack another_lx_pack_2007_01_05.zip \
 		|| die "cannot unpack LieroX packs"
+
+	# merge case diffing directories
+	mv Levels/* levels/
+	rm -r Levels		
 }
 
 src_compile() {

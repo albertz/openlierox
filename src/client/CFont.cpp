@@ -30,7 +30,7 @@ size_t Fontstr_len = strlen(Fontstr);
 // Load a font
 int CFont::Load(const std::string& fontname, int _colour, int _width)
 {
-	LOAD_IMAGE_BPP(bmpFont,fontname);
+	LOAD_IMAGE(bmpFont,fontname);
 
 	Colour = _colour;
 	Width = _width;
@@ -48,10 +48,10 @@ int CFont::Load(const std::string& fontname, int _colour, int _width)
 
 
 	// Must do this after
-	SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, SDL_MapRGB(bmpFont->format,255,0,255));
+	SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, tLX->clPink);
 
 		// Pre-calculate some colours
-	f_pink = SDL_MapRGB(bmpFont->format,255,0,255);
+	f_pink = tLX->clPink;
 	f_blue = tLX->clHeading;//SDL_MapRGB(bmpFont->format,0,0,255);
 	f_white = tLX->clNormalLabel;//MakeColour(255,255,255);
 	f_green = tLX->clChatText;//MakeColour(0,255,0);
@@ -136,7 +136,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 	if(SDL_MUSTLOCK(bmpSurf))
 		SDL_UnlockSurface(bmpSurf);
 
-	SDL_SetColorKey(bmpSurf, SDL_SRCCOLORKEY, SDL_MapRGB(bmpSurf->format,255,0,255));
+	SDL_SetColorKey(bmpSurf, SDL_SRCCOLORKEY, tLX->clPink);
 }
 
 
@@ -245,7 +245,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char 
 		a=l*Width;
 
 		if(!Colour) {
-			SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, SDL_MapRGB(bmpFont->format,255,0,255));
+			SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, tLX->clPink);
 			DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
 			pos+=FontWidth[l];
 			continue;
@@ -268,7 +268,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char 
 		}
 
 		/*if(!Colour) {
-			SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, SDL_MapRGB(bmpFont->format,255,0,255));
+			SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, tLX->clPink);
 			DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
 		}
 		else */{

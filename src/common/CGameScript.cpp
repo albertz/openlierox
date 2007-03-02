@@ -741,7 +741,7 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 		return img;
 
 	// Check the gfx directory in the data dir
-	buf = "data/gfx/" + filename;
+	buf = std::string("data/gfx/") + filename;
 	return LoadImage(buf);
 }
 

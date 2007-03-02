@@ -630,7 +630,7 @@ enum  {
 			std::string f = filename.substr(pos);
 
 			// Liero Xtreme level
-			if( stringcasecmp(filename.substr(filename.size()-4), ".lxl") == 0) {
+			if( stringcasecmp(GetFileExtension(filename), "lxl") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
 				if(fp) {
 					static char id[33];
@@ -654,7 +654,7 @@ enum  {
 			}
 
 			// Liero level
-			if( stringcasecmp(filename.substr(filename.size()-4), ".lev") == 0) {
+			if( stringcasecmp(GetFileExtension(filename), "lev") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
 
 				if(fp) {

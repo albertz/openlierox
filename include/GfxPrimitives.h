@@ -28,8 +28,7 @@
 
 // Creates a buffer with the same details as the screen
 inline SDL_Surface* gfxCreateSurface(int width, int height) {
-	SDL_Surface *screen = SDL_GetVideoSurface();
-	SDL_PixelFormat *fmt = screen->format;
+	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
 
 	return SDL_CreateRGBSurface(iSurfaceFormat, width, height, 
 		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
@@ -38,8 +37,7 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 
 // Creates a buffer with the same details as screen, but with alpha channel
 inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
-	SDL_Surface *screen = SDL_GetVideoSurface();
-	SDL_PixelFormat *fmt = screen->format;
+	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	const Uint32 alpha = 0x000000ff;
@@ -87,6 +85,10 @@ inline SDL_Surface* GetMirroredImage(SDL_Surface *bmpSrc) {
 	return rotozoomSurfaceXY(bmpSrc, 0, -1, 1, 0);
 }
 
+
+inline SDL_Surface* GetStretched2Image(SDL_Surface* src) {
+	return zoomSurface(src, 2, 2, 0);
+}
 
 inline SDL_Surface* GetStretched2Image(SDL_Surface* src, int x, int y, int w, int h) {
 	if(x == 0 && y == 0 && w == src->w && h == src->h)

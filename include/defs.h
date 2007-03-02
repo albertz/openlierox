@@ -112,7 +112,7 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 // Helpful Macros
 #define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
-#define		LOAD_IMAGE_BPP(bmp,name) if (!Load_Image_Bpp(bmp,name)) {return false;}
+#define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
 #define		CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
 
 template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }

@@ -362,7 +362,7 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 		SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);
 	if(!formated)
 		return NULL;
-		
+
 	// convert it to the new format (24 bpp)
 	DrawImageEx(formated, src, 0, 0, src->w, src->h);
 	
