@@ -32,7 +32,7 @@ public:
 		sPath = Path;
 		tImage = NULL;
 		if (Path != "")  {
-			tImage = LoadImage(Path,0);
+			tImage = LoadImage(Path);
 
 			iWidth = tImage->w;
 			iHeight = tImage->h;

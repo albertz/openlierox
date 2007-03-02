@@ -49,7 +49,7 @@ public:
 
 	CButton(const std::string& path) {
 		iImageID = 0;
-		bmpImage = LoadImage(path,1);
+		bmpImage = LoadImage(path);
 		iMouseOver = false;
 		bRedrawMenu = true;
 		iType = wid_Button;

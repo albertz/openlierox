@@ -64,7 +64,7 @@ int Con_Initialize(void)
 	for(n=0;n<MAX_CONHISTORY;n++)
 		Console->History[n].strText = "";
 
-    Console->bmpConPic = LoadImage("data/gfx/console.png", 16);
+    Console->bmpConPic = LoadImage("data/gfx/console.png");
     if(!Console->bmpConPic)
         return false;
 

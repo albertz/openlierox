@@ -70,8 +70,8 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 
 	enum { GO_RIGHT=1, GO_DOWN=2, GO_LEFT=4, GO_UP=8 }; short dir;
 	unsigned short col;
-	register int x, y;
-	int grid_x, grid_y;
+	register int x=0, y=0;
+	int grid_x=0, grid_y=0;
 	bool avoided_all_grids;
 
 	// loop over all directions until there is some obstacle
@@ -3971,7 +3971,7 @@ CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap)
 
 //	const int numCells = pcMap->getGridCols() * pcMap->getGridRows();  // TODO: not used
 	int i=1;
-	int x,y;
+	int x=0,y=0;
 	bool bFound = false;
 	while (!bFound) {
 		for (y=cellY-i;y<=cellY+i;y++)  {

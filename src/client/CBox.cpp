@@ -68,7 +68,7 @@ void CBox::PreDraw(void)
 	SDL_GetRGB(iDarkColour,bmpBuffer->format,&dark_r,&dark_g,&dark_b);
 	Uint8 light_r,light_g,light_b;
 	SDL_GetRGB(iLightColour,bmpBuffer->format,&light_r,&light_g,&light_b);
-	int rstep,gstep,bstep;
+	int rstep=0,gstep=0,bstep=0;
 	if (iBorder)  {
 		rstep = (light_r-dark_r)/iBorder;
 		gstep = (light_g-dark_g)/iBorder;

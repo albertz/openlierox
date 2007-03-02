@@ -735,14 +735,14 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 
 	// First, check the gfx directory in the mod dir
 	buf = dir + "/gfx/" + filename;
-	img = LoadImage(buf,SDL_GetVideoSurface()->format->BitsPerPixel);
+	img = LoadImage(buf);
 
 	if(img)
 		return img;
 
 	// Check the gfx directory in the data dir
 	buf = "data/gfx/" + filename;
-	return LoadImage(buf,SDL_GetVideoSurface()->format->BitsPerPixel);
+	return LoadImage(buf);
 }
 
 

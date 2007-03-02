@@ -52,7 +52,7 @@ void CImage::Change(const std::string& Path)
 	SDL_FreeSurface(tImage);
 
 	// Load the new image
-	tImage = LoadImage(sPath,0);
+	tImage = LoadImage(sPath);
 
 	// Update the width and height
 	iWidth = tImage->w;

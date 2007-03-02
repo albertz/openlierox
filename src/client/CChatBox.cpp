@@ -71,7 +71,7 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 		// (I would fix it myself, but no time atm, sorry ...)
 
 		size_t i;
-		for (i=buf.length()-2; tLX->cFont.GetWidth(buf) > nWidth && i >= 1; i--)
+		for (i=buf.length()-2; (uint)tLX->cFont.GetWidth(buf) > nWidth && i >= 1; i--)
 			buf.erase(i);
 
 		size_t j = buf.length()-1;
@@ -130,7 +130,7 @@ line_t *CChatBox::GetLine(int n)
 		line_t *ln = &WrappedLines[n];
 		if (ln->bNew)  {
 			ln->bNew = false;
-			if (n == iNewLine)  {
+			if (n == (int)iNewLine)  {
 				iNewLine++;
 				iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()-1));
 			}

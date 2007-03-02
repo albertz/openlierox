@@ -55,7 +55,7 @@ private:
 	std::string	Filename;
 
 	// Image
-	SDL_Surface		*Image;
+	SDL_Surface*	Image;
 
 	// Sample
 	SoundSample*	Sample;
@@ -66,9 +66,8 @@ public:
 
 	
 	// Loading
-	SDL_Surface		*LoadImg(const std::string& _file);
-	SDL_Surface		*LoadImgBPP(const std::string& _file, int bpp);
-	SoundSample*			LoadSample(const std::string &_file, int maxplaying);
+	SDL_Surface*	LoadImgBPP(const std::string& _file, int bpp);
+	SoundSample*	LoadSample(const std::string& _file, int maxplaying);
 
 
 	// Shutdowning
@@ -96,14 +95,12 @@ extern CCache* Cache;
 int		InitializeCache(void);
 void	ShutdownCache(void);
 
-SDL_Surface     *_LoadImage(const std::string& filename);
-
-SDL_Surface		*LoadImage(const std::string& _filename, int correctbpp);
-SoundSample*		LoadSample(const std::string& _filename, int maxplaying);
+SDL_Surface*	LoadImage(const std::string& _filename);
+SoundSample*	LoadSample(const std::string& _filename, int maxplaying);
 
 // Inlines for macros in defs.h
 inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
-	bmp = LoadImage(name,0); 
+	bmp = LoadImage(name); 
 	if (bmp == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
 		return false;
@@ -112,7 +109,7 @@ inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
 }
 
 inline bool Load_Image_Bpp(SDL_Surface*& bmp, const std::string& name)  {
-	bmp = LoadImage(name,SDL_GetVideoSurface()->format->BitsPerPixel); 
+	bmp = LoadImage(name); 
 	if (bmp == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
 		return false;

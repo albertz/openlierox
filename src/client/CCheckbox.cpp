@@ -37,7 +37,7 @@ void CCheckbox::Draw(SDL_Surface *bmpDest)
 // Create
 void CCheckbox::Create(void)
 {
-    bmpImage = LoadImage("data/frontend/checkbox.png",16);
+    bmpImage = LoadImage("data/frontend/checkbox.png");
 }
 
 ///////////////////
@@ -57,7 +57,7 @@ void CCheckbox::LoadStyle(void/*node_t *cssNode*/)
 	for(;prop;prop=prop->tNext) {
 		// Image
 		if (!stricmp(prop->sName,"image"))  {
-			bmpImage = LoadImage(prop->sValue,16);
+			bmpImage = LoadImage(prop->sValue);
 		}
 		// Image width
 		if (!stricmp(prop->sName,"image-width"))  {

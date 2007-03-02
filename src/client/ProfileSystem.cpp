@@ -490,7 +490,7 @@ int LoadProfileGraphics(profile_t *p)
     }
 	
 	// Apply a little cpu pic on the worm pic on ai players
-	SDL_Surface *ai = LoadImage("data/frontend/cpu.png", SDL_GetVideoSurface()->format->BitsPerPixel);
+	SDL_Surface *ai = LoadImage("data/frontend/cpu.png");
 	if(ai) {
 		SDL_SetColorKey(ai, SDL_SRCCOLORKEY, tLX->clPink);
 		
@@ -510,11 +510,11 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 
     // Load the skin
     buf = "skins/"; buf += szSkin;
-    SDL_Surface *worm = LoadImage(buf,SDL_GetVideoSurface()->format->BitsPerPixel);
+    SDL_Surface *worm = LoadImage(buf);
     if( !worm ) {
         
         // If we can't load the skin, try the default skin
-        worm = LoadImage("skins/default.png",SDL_GetVideoSurface()->format->BitsPerPixel);
+        worm = LoadImage("skins/default.png");
         if( !worm )
             return NULL;
     }

@@ -91,26 +91,6 @@ SDL_Surface *_LoadImage(const std::string& filename)
 
 
 ///////////////////
-// Load an image
-SDL_Surface *CCache::LoadImg(const std::string& _file)
-{
-	Type = CCH_IMAGE;
-	
-	Filename = _file;
-     
-	// Load the image
-	Image = _LoadImage(Filename);
-
-	if(Image)
-		Used = true;
-//	else
-//		printf("CCache::LoadImg: Error loading file: %s\n",Filename.c_str());
-
-	return Image;
-}
-
-
-///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
 SDL_Surface *CCache::LoadImgBPP(const std::string& _file, int bpp)
 {
@@ -245,7 +225,7 @@ void ShutdownCache(void)
 
 ///////////////////
 // Load an image
-SDL_Surface *LoadImage(const std::string& _filename, int correctbpp)
+SDL_Surface *LoadImage(const std::string& _filename)
 {
 	int n;
 	CCache *cach;
@@ -275,10 +255,7 @@ SDL_Surface *LoadImage(const std::string& _filename, int correctbpp)
 
 
 	// Load the image
-	if(correctbpp > 0)
-		return cach->LoadImgBPP(_filename, correctbpp);
-	else
-		return cach->LoadImg(_filename);
+	return cach->LoadImgBPP(_filename, SDL_GetVideoSurface()->format->BitsPerPixel);
 }
 
 

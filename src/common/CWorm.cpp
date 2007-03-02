@@ -322,30 +322,15 @@ int CWorm::LoadGraphics(int gametype)
 // Change the graphics of an image
 SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 {
-	SDL_Surface *tmp, *img;
+	SDL_Surface *img;
 
 	// Load the image
-	tmp = _LoadImage(filename);
-	if(tmp == NULL) {
+	img = LoadImage(filename);
+	if(img == NULL) {
 		// Error: Couldn't load image
 		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename.c_str());
 		return NULL;
 	}
-
-	// Convert the image to the screen's colour depth
-	img = SDL_CreateRGBSurface(iSurfaceFormat, tmp->w,tmp->h,SDL_GetVideoSurface()->format->BitsPerPixel, 0,0,0,0);
-	if(img == NULL) {
-		// Error: Our of memory
-		return NULL;
-	}
-
-	// Blit it onto the new surface
-	SDL_BlitSurface(tmp,NULL,img,NULL);
-	SDL_FreeSurface(tmp);
-
-
-	// Set the colour key
-	SDL_SetColorKey(img, SDL_SRCCOLORKEY, SDL_MapRGB(img->format,255,0,255));
 
 
 	// Set the colour of the img

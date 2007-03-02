@@ -221,7 +221,7 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 }
 
 // Line drawing
-inline int DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
+inline void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
 	// TODO: should we use aaline? :)
 	lineColor(dst, x1,y1, x2,y2, color);
 }

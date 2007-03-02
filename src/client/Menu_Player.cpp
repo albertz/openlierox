@@ -261,7 +261,7 @@ void Menu_Player_NewPlayerInit(void)
     Menu_Player_FillSkinCombo( (CCombobox *)cNewPlayer.getWidget(np_PlySkin) );
 
     // Load the default skin
-    tMenu->bmpWorm = LoadImage("skins/default.png", 16);
+    tMenu->bmpWorm = LoadImage("skins/default.png");
     fPlayerSkinFrame = 0;
     bPlayerSkinAnimation = false;
 }
@@ -304,7 +304,7 @@ void Menu_Player_ViewPlayerInit(void)
 	    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
 
         // Load the skin
-        tMenu->bmpWorm = LoadImage("skins/"+p->szSkin, 16);
+        tMenu->bmpWorm = LoadImage("skins/"+p->szSkin);
         fPlayerSkinFrame = 0;
         bPlayerSkinAnimation = false;
     }
@@ -399,7 +399,7 @@ void Menu_Player_NewPlayer(int mouse)
 
                     // Load the skin
 					buf = "skins/"+buf;
-					tMenu->bmpWorm = LoadImage(buf, 16);
+					tMenu->bmpWorm = LoadImage(buf);
                 }
                 break;
 		}
@@ -619,7 +619,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         // Load the skin
                         static std::string buf;
                         buf = "skins/" + p->szSkin;
-                        tMenu->bmpWorm = LoadImage(buf, 16);
+                        tMenu->bmpWorm = LoadImage(buf);
 
                         // Hide the AI stuff if it is a human type of player
                         cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);
@@ -649,7 +649,7 @@ void Menu_Player_ViewPlayers(int mouse)
                     // Load the skin
                     buf = "skins/"+buf;
                     fix_markend(buf);
-                    tMenu->bmpWorm = LoadImage(buf, 16);
+                    tMenu->bmpWorm = LoadImage(buf);
                 }
                 break;
 		}

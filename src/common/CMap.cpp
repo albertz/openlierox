@@ -1758,7 +1758,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 // Delete an object
 void CMap::DeleteObject(CVec pos)
 {
-	int w,h;
+	int w=0,h=0;
 
 	// Go through the objects, last to first and see if one is under the mouse
 	for(int o=NumObjects-1;o>=0;o--) {
