@@ -312,10 +312,7 @@ int CWorm::LoadGraphics(int gametype)
     bmpShadowPic = gfxCreateSurface(32,18);
     SDL_SetColorKey(bmpShadowPic, SDL_SRCCOLORKEY, tLX->clPink);
 
-	if(bmpWormRight && bmpWormLeft && bmpGibs && bmpPic && bmpShadowPic)
-		return true;
-
-	return false;
+	return bmpWormRight && bmpWormLeft && bmpGibs && bmpPic && bmpShadowPic;
 }
 
 
