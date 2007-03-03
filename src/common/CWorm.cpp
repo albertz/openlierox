@@ -149,6 +149,7 @@ void CWorm::Shutdown(void)
 void CWorm::FreeGraphics(void)
 {
 	if(bmpWormLeft) {
+		// TODO: is this correct? it's in the cache...
 		SDL_FreeSurface(bmpWormLeft);
 		bmpWormLeft = NULL;
 	}

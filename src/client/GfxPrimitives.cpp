@@ -410,7 +410,7 @@ bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, bo
 
   // Save the image
   FILE *out;
-  int size;
+  int s;
   char *data = NULL;
   out = OpenGameFile(FileName, "wb");
   if (!out) {
@@ -419,26 +419,24 @@ bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, bo
 
   switch (Format) {
   case FMT_PNG:
-	//strcat(FileName,".png");
-	data = (char *) gdImagePngPtr(gd_image, &size);
+	data = (char *) gdImagePngPtr(gd_image, &s);
 	break;
   case FMT_JPG:
-	//strcat(FileName,".jpg");
-	data = (char *) gdImageJpegPtr(gd_image, &size,tLXOptions->iJpegQuality);
+	data = (char *) gdImageJpegPtr(gd_image, &s,tLXOptions->iJpegQuality);
 	break;
   case FMT_GIF:
-	//strcat(FileName,".gif");
-	data = (char *) gdImageGifPtr(gd_image, &size);
+	data = (char *) gdImageGifPtr(gd_image, &s);
 	break;
   default:
-	  data = (char *) gdImagePngPtr(gd_image, &size);
+	  data = (char *) gdImagePngPtr(gd_image, &s);
 	  break;
   }
-
+	
+	size_t size = s>0?s:-s;
   if (!data) {
     return false;
   }
-  if ((int)fwrite(data, 1, size, out) != size) {
+  if (fwrite(data, 1, size, out) != size) {
     return false;
   }
 

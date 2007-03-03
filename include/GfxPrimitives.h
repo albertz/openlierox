@@ -39,12 +39,8 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	const Uint32 alpha = 0x000000ff;
-#else
-	// strange, isn't it?
+	// it's also correct for big endian
 	const Uint32 alpha = 0xff000000;
-#endif
 
 	return SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA,
 		width, height, fmt->BitsPerPixel + 8,
@@ -139,11 +135,15 @@ inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int d
 
 // Solid drawing
 inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
-	boxColor(bmpDest, x,y,x2,y2, color);
+	Uint8 r,g,b;
+	SDL_GetRGB(color, bmpDest->format, &r,&g,&b);
+	boxRGBA(bmpDest, x,y,x2,y2, r,g,b,255);
 }
 
 inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
-	rectangleColor(bmpDest, x,y,x2,y2, colour);
+	Uint8 r,g,b;
+	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
+	rectangleRGBA(bmpDest, x,y,x2,y2, r,g,b,255);
 }
 
 inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, int alpha) {
@@ -153,21 +153,29 @@ inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Ui
 }
 
 inline void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
-	hlineColor(bmpDest, x,x2,y, colour);
+	Uint8 r,g,b;
+	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
+	hlineRGBA(bmpDest, x,x2,y, r,g,b,255);
 }
 
 inline void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
-	vlineColor(bmpDest, x,y,y2, colour);
+	Uint8 r,g,b;
+	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
+	vlineRGBA(bmpDest, x,y,y2, r,g,b,255);
 }
 
 inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour) {
-	trigonColor(bmpDest, x1,y1, x2,y2, x3,y3, colour);
+	Uint8 r,g,b;
+	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
+	trigonRGBA(bmpDest, x1,y1, x2,y2, x3,y3, r,g,b,255);
 }
 
 
 // Pixel drawing
 inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) {
-	pixelColor(bmpDest, x,y, colour);
+	Uint8 r,g,b;
+	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
+	pixelRGBA(bmpDest, x,y, r,g,b,255);
 }
 
 
@@ -224,20 +232,20 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 
 // Line drawing
 inline void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
-	aalineColor(dst, x1,y1, x2,y2, color);
+	Uint8 r,g,b;
+	SDL_GetRGB(color, dst->format, &r,&g,&b);
+	aalineRGBA(dst, x1,y1, x2,y2, r,g,b,255);
 }
 
 // Line drawing
 inline void FastDrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
-	lineColor(dst, x1,y1, x2,y2, color);
+	Uint8 r,g,b;
+	SDL_GetRGB(color, dst->format, &r,&g,&b);
+	lineRGBA(dst, x1,y1, x2,y2, r,g,b,255);
 }
 
 
 
-
-void	RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour);
-void	BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour);
-void	LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour);
 
 void	DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);

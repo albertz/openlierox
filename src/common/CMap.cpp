@@ -713,6 +713,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 	case 24:  {
 		uint24 pink;
+		
 		memset(&pink,0,sizeof(uint24));
 		memcpy(&pink,&tLX->clPink,sizeof(uint24));
 		Uint32 tmp=0;
