@@ -47,7 +47,7 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 #endif
 
 	return SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA,
-		width, height, fmt->BitsPerPixel,
+		width, height, fmt->BitsPerPixel + 8,
 		fmt->Rmask, fmt->Gmask, fmt->Bmask, alpha);
 }
 
@@ -224,10 +224,13 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 
 // Line drawing
 inline void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
-	// TODO: should we use aaline? :)
-	lineColor(dst, x1,y1, x2,y2, color);
+	aalineColor(dst, x1,y1, x2,y2, color);
 }
 
+// Line drawing
+inline void FastDrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
+	lineColor(dst, x1,y1, x2,y2, color);
+}
 
 
 

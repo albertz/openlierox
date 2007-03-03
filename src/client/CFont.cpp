@@ -28,7 +28,7 @@ size_t Fontstr_len = strlen(Fontstr);
 
 ///////////////////
 // Load a font
-int CFont::Load(const std::string& fontname, int _colour, int _width)
+int CFont::Load(const std::string& fontname, bool _colour, int _width)
 {
 	LOAD_IMAGE(bmpFont,fontname);
 

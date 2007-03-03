@@ -3853,9 +3853,6 @@ void CWorm::NEW_AI_DrawPath(CMap *pcMap)
 
 	const int NodeColour = MakeColour(255,0,0);
 	const int LineColour = tLX->clWhite;
-//	const int transparent = tLX->clPink; // TODO: not used
-
-	//(bmpDest,0,0,bmpDest->w,bmpDest->h,transparent);
 
 	// Go down the path
 	NEW_ai_node_t *node = NEW_psCurrentNode;

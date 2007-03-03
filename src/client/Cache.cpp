@@ -94,13 +94,11 @@ SDL_Surface *_LoadImage(const std::string& filename)
 ///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
 SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
-	SDL_Surface *img;
-
 	Type = CCH_IMAGE;
 	Filename = _file;
 
 	// Load the image
-	img = _LoadImage(Filename);
+	SDL_Surface* img = _LoadImage(Filename);
 
 	if(!img) {
 //		printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename.c_str());
@@ -109,23 +107,30 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 
 	// Convert the image to the screen's colour depth
 	
+	// TODO: make this better (but how?)
+	// get a surface with the correct format
+	SDL_Surface* frm;
 	if(withalpha)
-		Image = gfxCreateSurfaceAlpha(img->w, img->h);
+		frm = gfxCreateSurfaceAlpha(10, 10);
 	else
-		Image = gfxCreateSurface(img->w, img->h);
-	
-	if(!Image) {
-		printf("ERROR: LoadImgBPP: cannot create new surface\n");
+		frm = gfxCreateSurface(10, 10);
+	if(!frm) {
+		printf("ERROR: LoadImgBPP: cannot create new 1x1 surface\n");
 		SDL_FreeSurface(img);
 		return NULL;
 	}
 	
-	// Blit it onto the new surface
-	SDL_BlitSurface(img,NULL,Image,NULL);
+	// convert it
+	Image = SDL_ConvertSurface(img, frm->format, frm->flags);
 	SDL_FreeSurface(img);
-
+	SDL_FreeSurface(frm);
+	
+	if(!Image) {
+		printf("ERROR: LoadImgBPP: cannot create new surface\n");
+		return NULL;
+	}
+	
 	Used = true;
-
 	return Image;
 }
 

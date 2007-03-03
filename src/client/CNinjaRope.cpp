@@ -235,7 +235,6 @@ void CNinjaRope::Draw(SDL_Surface *bmpDest, CViewport *view, CVec ppos)
 
 
 	// Rope
-	//DrawLine(bmpDest,px,py,hx,hy,SDL_MapRGB(bmpDest->format,159,79,0));
 	px -= px % 2;
 	py -= py % 2;
 	hx -= hx % 2;

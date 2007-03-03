@@ -399,18 +399,14 @@ int CMap::CreateSurface(void)
 	if(fmt == NULL)
 		printf("CMap::CreateSurface: ERROR: fmt is nothing\n");
 
-	bmpImage = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height,
-		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
+	bmpImage = gfxCreateSurface(Width, Height);
 	if(bmpImage == NULL) {
 		SetError("CMap::CreateSurface(): bmpImage creation failed, perhaps out of memory");
 		return false;
 	}
 
 #ifdef _AI_DEBUG
-	bmpDebugImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel,
-										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
+	bmpDebugImage = gfxCreateSurface(Width*2, Height*2);
 	if (bmpDebugImage == NULL)  {
 		SetError("CMap::CreateSurface(): bmpDebugImage creation failed perhaps out of memory");
 		return false;
@@ -420,33 +416,25 @@ int CMap::CreateSurface(void)
 	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,tLX->clPink);
 #endif
 
-	bmpDrawImage = SDL_CreateRGBSurface(iSurfaceFormat, Width*2, Height*2, fmt->BitsPerPixel,
-										fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
+	bmpDrawImage = gfxCreateSurface(Width*2, Height*2);
 	if(bmpDrawImage == NULL) {
 		SetError("CMap::CreateSurface(): bmpDrawImage creation failed, perhaps out of memory");
 		return false;
 	}
 
-	bmpBackImage = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel,
-									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
+	bmpBackImage = gfxCreateSurface(Width, Height);
 	if(bmpBackImage == NULL) {
 		SetError("CMap::CreateSurface(): bmpBackImage creation failed, perhaps out of memory");
 		return false;
 	}
 
-	bmpMiniMap = SDL_CreateRGBSurface(iSurfaceFormat, 128,96,fmt->BitsPerPixel,
-									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
+	bmpMiniMap = gfxCreateSurface(128, 96);
 	if(bmpMiniMap == NULL) {
 		SetError("CMap::CreateSurface(): bmpMiniMap creation failed, perhaps out of memory");
 		return false;
 	}
 
-    bmpShadowMap = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel,
-									fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
+    bmpShadowMap = gfxCreateSurface(Width, Height);
 	if(bmpShadowMap == NULL) {
 		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
 		return false;
@@ -474,8 +462,7 @@ int CMap::CreatePixelFlags(void)
 
 ///////////////////
 // Create the AI Grid
-bool CMap::createGrid(void)
-{
+bool CMap::createGrid(void) {
     nGridWidth = 15;
     nGridHeight = 15;
 
@@ -685,7 +672,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 		//TODO
 		return;
 	case 16:  {
-		Uint32 pink = (Uint32)tLX->clPink; // don't change this, if we use GetPixel
+		Uint32 pink = (Uint32)tLX->clPink; // don't change this while we use GetPixel
 
 		int x,y,dx,dy,i,j;
 
@@ -1410,12 +1397,6 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
-    // TODO: not used
-//	Uint32 Rmask = bmpImage->format->Rmask, Gmask = bmpImage->format->Gmask, Bmask = bmpImage->format->Bmask, Amask = bmpImage->format->Amask;
-	//Uint32 R,G,B,A = 0;
-//	Uint8 alpha = 64;
-//	Uint32 color = 0;
-
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);
 
@@ -1463,22 +1444,6 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
                     //*pixel = *src;
 					memcpy(pixel,src,screenbpp);
 
-					// Transparency
-					/*Uint16 *pixel = (Uint16 *)bmpImage->pixels + oy*bmpImage->pitch/2 + ox;
-
-					Uint16 *srcpixel = (Uint16 *)bmpBackImage->pixels + oy*bmpBackImage->pitch/2 + ox;
-					Uint32 dc = *srcpixel;
-
-					R = ((dc & Rmask) + (( (color & Rmask) - (dc & Rmask) ) * alpha >> 8)) & Rmask;
-					G = ((dc & Gmask) + (( (color & Gmask) - (dc & Gmask) ) * alpha >> 8)) & Gmask;
-					B = ((dc & Bmask) + (( (color & Bmask) - (dc & Bmask) ) * alpha >> 8)) & Bmask;
-					if( Amask )
-						A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
-
-					*pixel= R | G | B | A;*/
-
-
-
 					//PutPixel(bmpImage,ox,oy,0);
 
 					*(uchar *)p |= PX_EMPTY | PX_SHADOW;
@@ -1504,7 +1469,6 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 void CMap::CalculateShadowMap(void)
 {
     int x,y;
-//    int bpp = bmpImage->format->BytesPerPixel; // TODO: not used
 
     Uint32 Rmask = bmpImage->format->Rmask, Gmask = bmpImage->format->Gmask, Bmask = bmpImage->format->Bmask, Amask = bmpImage->format->Amask;
 	Uint32 R,G,B,A = 0;
