@@ -148,8 +148,9 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	if(bmpWormLeft) {
-		// TODO: is this correct? it's in the cache...
+	// Freed by the cache
+
+	/*if(bmpWormLeft) {
 		SDL_FreeSurface(bmpWormLeft);
 		bmpWormLeft = NULL;
 	}
@@ -172,7 +173,7 @@ void CWorm::FreeGraphics(void)
     if(bmpShadowPic) {
         SDL_FreeSurface(bmpShadowPic);
         bmpShadowPic = NULL;
-    }
+    }*/
 
 }
 
@@ -763,7 +764,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			DrawVLine(bmpDest,y-19,y-16,x+10,BorderColor);
 
 										// Red			Orange				Yellow		   Light Green		  Green	
-			Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
+			static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
 
 			// Clamp it
 			if (iShowHealth > 5)
@@ -831,7 +832,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	if(iDirection == DIR_RIGHT)
         DrawImageAdv(bmpShadowPic, bmpWormRight, f,0, 6,0, 32,18);
 	else
-        DrawImageAdv(bmpShadowPic, bmpWormLeft, f,0, 6,0, 32,18);
+        DrawImageAdv(bmpShadowPic, bmpWormLeft, bmpWormLeft->w-f-32,0, 0,0, 32,18);
 
     DrawImage(bmpDest, bmpShadowPic, x-18,y-10);
 

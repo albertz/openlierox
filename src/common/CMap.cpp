@@ -862,6 +862,10 @@ int CMap::CarveHole(int size, CVec pos)
 	sx = (int)pos.x-(hole->w>>1);
 	sy = (int)pos.y-(hole->h>>1);
 
+		// Debug
+	DrawImage(bmpImage,hole,sx,sy);
+	return 0;
+
 
 	if(SDL_MUSTLOCK(hole))
 		SDL_LockSurface(hole);
@@ -1008,7 +1012,7 @@ int CMap::CarveHole(int size, CVec pos)
 
 				// Put pixels that are not black/pink (eg, brown)
 				if(pixel != 0 && pixel != pink && (flag & PX_DIRT))
-					*(Uint32 *)p2 = (Uint32)pixel;
+					*(Uint32 *)p2 = pixel;
 
 				p+=4;
 				p2+=4;
@@ -1402,8 +1406,6 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 		SDL_LockSurface(bmpImage);
 
 	lockFlags();
-
-	// WARNING: Assumes 16bpp
 
 	for(y=sy;y<sy+h;y++) {
 

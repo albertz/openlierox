@@ -23,7 +23,7 @@
 #include "GfxPrimitives.h"
 
 
-CCache		*Cache = NULL;
+std::vector<CCache> Cache;
 
 
 
@@ -142,7 +142,6 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 		return NULL;
 	}
 	
-	Used = true;
 	return Image;
 }
 
@@ -165,8 +164,8 @@ SoundSample* CCache::LoadSample(const std::string& _file, int maxplaying)
 	// Load the sample
 	Sample = LoadSoundSample(fullfname, maxplaying);
 	
-	if(Sample)
-		Used = true;
+//	if(Sample)
+//		Used = true;
 //	else
 //		SetError("Error loading sample: %s",_file.c_str());
 
@@ -178,8 +177,8 @@ SoundSample* CCache::LoadSample(const std::string& _file, int maxplaying)
 // Shutdown the cache item
 void CCache::Shutdown(void)
 {
-	if(!Used)
-		return;
+	//if(!Used)
+	//	return;
 
 	switch(Type) {
 
@@ -213,11 +212,7 @@ void CCache::Shutdown(void)
 int InitializeCache(void)
 {
 	// Allocate the cache
-	Cache = new CCache[MAX_CACHE];
-	if(Cache == NULL) {
-		SystemError("Error: InitializeCache(): Out of memory");
-		return false;
-	}
+	Cache.clear();
 
 	return true;
 }
@@ -227,23 +222,13 @@ int InitializeCache(void)
 // Shutdown the cache
 void ShutdownCache(void)
 {
-	int n;
-
-	if(Cache == NULL)
+	if(Cache.empty())
 		return;
 
 
-	// Go through the cache and shutdown every item
-	for(n=0;n<MAX_CACHE;n++) {
-		if(!Cache[n].isUsed())
-			continue;
-
-		Cache[n].Shutdown();
+	for (std::vector<CCache>::iterator it=Cache.begin(); it != Cache.end(); it++)  {
+		it->Shutdown();
 	}
-
-	// Free the cache class
-	delete[] Cache;
-	Cache = NULL;
 }
 
 
@@ -252,35 +237,21 @@ void ShutdownCache(void)
 // Load an image
 SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 {
-	int n;
-	CCache *cach;
-
-	// Go through and see if we can find the same image already loaded
-	cach = Cache;
-	for(n=0;n<MAX_CACHE;n++,cach++) {
-		if(cach->isUsed() && cach->getType() == CCH_IMAGE) {
-			if(stringcasecmp(cach->getFilename(),_filename) == 0)
-				return cach->GetImage();
+	// Has this been already loaded?
+	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
+		if (it->getType() == CCH_IMAGE)  {
+			if (stringcasecmp(it->getFilename(),_filename) == 0)
+				if (it->GetImage())
+					return it->GetImage();
 		}
 	}
 
-	// Didn't find one already loaded? Find a free spot and load one
-	cach = Cache;
-	for(n=0;n<MAX_CACHE;n++,cach++) {
-		if(cach->isUsed())
-			continue;
-		break;
-	}
+	// Didn't find one already loaded? Create a new one
+	CCache tmp;
+	SDL_Surface *result = tmp.LoadImgBPP(_filename,withalpha);
+	Cache.push_back(tmp);
 
-	// Not enough free spaces
-	if(n >= MAX_CACHE-1) {
-		printf("Error: The cache ran out of free spaces\n");
-		return NULL;
-	}
-
-
-	// Load the image
-	return cach->LoadImgBPP(_filename, withalpha);
+	return result;
 }
 
 
@@ -288,31 +259,19 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 // Load a sample
 SoundSample* LoadSample(const std::string& _filename, int maxplaying)
 {
-	int n;
-	CCache *cach;
-
-	// Go through and see if we can find the same sound already loaded
-	cach = Cache;
-	for(n=0;n<MAX_CACHE;n++,cach++) {
-		if(cach->isUsed() && cach->getType() == CCH_SOUND) {
-			if(stringcasecmp(cach->getFilename(),_filename) == 0)
-				return cach->GetSample();
+	// Has it been already loaded?
+	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
+		if (it->getType() == CCH_SOUND)  {
+			if (stringcasecmp(it->getFilename(),_filename) == 0)
+				if (it->GetSample())
+					return it->GetSample();
 		}
 	}
 
-	// Didn't find one already loaded? Find a free spot and load one
-	cach = Cache;
-	for(n=0;n<MAX_CACHE;n++,cach++) {
-		if(cach->isUsed())
-			continue;
-		break;
-	}
+	// Didn't find one already loaded? Load new one
+	CCache tmp;
+	SoundSample *result = tmp.LoadSample(_filename,maxplaying);
+	Cache.push_back(tmp);
 
-	// Not enough free spaces
-	if(n == MAX_CACHE-1) {
-		printf("Error: The cache ran out of free spaces\n");
-		return 0;
-	}
-
-	return cach->LoadSample(_filename,maxplaying);
+	return result;
 }

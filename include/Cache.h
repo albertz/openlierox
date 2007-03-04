@@ -28,8 +28,6 @@
 
 // Incorperate Textures? Animations?
 
-#define		MAX_CACHE		1024
-
 // this forward-declaration is needed here
 // it will be declared in Sounds.h
 struct SoundSample;
@@ -39,17 +37,16 @@ class CCache {
 public:
 	// Constructor
 	CCache() {
-		Used = false;
 		Type = CCH_IMAGE;
 		
 		Image = NULL;
+		Sample = NULL;
 	}
 
 
 private:
 	// Attributes
 
-	int		Used;
 	int		Type;
 
 	std::string	Filename;
@@ -75,7 +72,6 @@ public:
 
 
 	// Variables
-	int				isUsed(void)			{ return Used; }
 	int				getType(void)			{ return Type; }
 	std::string		getFilename(void)		{ return Filename; }
 
@@ -83,7 +79,7 @@ public:
 	SoundSample*	GetSample(void)			{ return Sample; }
 };
 
-extern CCache* Cache;
+extern std::vector<CCache> Cache;
 
 
 

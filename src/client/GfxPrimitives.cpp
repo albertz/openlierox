@@ -58,7 +58,8 @@ void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 	ropecolour = !ropecolour;
 	colour = cols[ropecolour];
 
-	boxColor(bmpDest, x,y,x+1,y+1, colour);
+	//boxColor(bmpDest, x,y,x+1,y+1, colour);
+	DrawRectFill(bmpDest,x,y,x+1,y+1,colour);
 }
 
 
@@ -87,7 +88,8 @@ void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 
-	boxColor(bmpDest, x,y,x+1,y+1, colour);
+	//boxColor(bmpDest, x,y,x+1,y+1, colour);
+	DrawRectFill(bmpDest,x,y,x+1,y+1,colour);
 }
 
 
@@ -120,7 +122,8 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 
-	boxColor(bmpDest, x,y,x+1,y+1, colour);
+	//boxColor(bmpDest, x,y,x+1,y+1, colour);
+	DrawRectFill(bmpDest,x,y,x+1,y+1,colour);
 }
 
 

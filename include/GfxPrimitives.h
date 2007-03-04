@@ -76,7 +76,7 @@ inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
 }
 
-// Draw the image mirrored with a huge amount of options
+// Draw the image mirrored
 inline SDL_Surface* GetMirroredImage(SDL_Surface *bmpSrc) {
 	return rotozoomSurfaceXY(bmpSrc, 0, -1, 1, 0);
 }
@@ -100,14 +100,14 @@ inline SDL_Surface* GetStretched2Image(SDL_Surface* src, int x, int y, int w, in
 
 inline void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	SDL_Surface* stretched_surf = GetStretched2Image(bmpSrc, sx, sy, w, h);
-	DrawImageEx(bmpDest, stretched_surf, dx, dy, w, h);
+	DrawImageEx(bmpDest, stretched_surf, dx, dy, w*2, h*2);
 	SDL_FreeSurface(stretched_surf);	
 }
 
 inline void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key) {
 	SDL_Surface* stretched_surf = GetStretched2Image(bmpSrc, sx, sy, w, h);
 	SDL_SetColorKey(stretched_surf, SDL_SRCCOLORKEY, key);
-	DrawImageEx(bmpDest, stretched_surf, dx, dy, w, h);
+	DrawImageEx(bmpDest, stretched_surf, dx, dy, w*2, h*2);
 	SDL_FreeSurface(stretched_surf);
 }
 
@@ -116,7 +116,7 @@ inline void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc,
 	SDL_Surface* mirrored_surf = GetMirroredImage(stretched_surf);
 	SDL_FreeSurface(stretched_surf);
 	SDL_SetColorKey(mirrored_surf, SDL_SRCCOLORKEY, key);
-	DrawImageEx(bmpDest, mirrored_surf, dx, dy, w, h);
+	DrawImageEx(bmpDest, mirrored_surf, dx, dy, w*2, h*2);
 	SDL_FreeSurface(mirrored_surf);
 }
 
