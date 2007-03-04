@@ -1017,11 +1017,11 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 	FindFiles(LevelComboFiller(cmb, &index, &selected), "levels", FM_REG);
 
+	if( selected >= 0 )
+		cmb->setCurItem( selected );
+
 	// Sort it ascending
 	cmb->Sort(true);
-
-	if( selected >= 0 )
-		cmb->setCurItem( selected-1 );
 }
 
 
