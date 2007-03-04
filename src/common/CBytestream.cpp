@@ -190,7 +190,7 @@ int CBytestream::writeString(char *fmt,...)
 }
 
 int	CBytestream::writeString(const std::string& value) {
-	size_t len = value.size();
+	size_t len = value.length();
 	
 	if(len + CurByte >= MAX_DATA)
 		return false;

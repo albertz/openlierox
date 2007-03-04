@@ -447,9 +447,7 @@ void CClient::SetupViewports(void)
 
 	// If there are more then 2 local players, only use 2 viewports if the first two are humans
 	if(iNumWorms >= 2) {
-        bool both = false;
-        if( cLocalWorms[1]->getType() == PRF_HUMAN )
-            both = true;
+        bool both = (cLocalWorms[1]->getType() == PRF_HUMAN);
 
         if( !both ) {
             cViewports[0].Setup(0,0,640,382,VW_FOLLOW);

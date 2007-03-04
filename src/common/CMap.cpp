@@ -862,11 +862,6 @@ int CMap::CarveHole(int size, CVec pos)
 	sx = (int)pos.x-(hole->w>>1);
 	sy = (int)pos.y-(hole->h>>1);
 
-		// Debug
-	DrawImage(bmpImage,hole,sx,sy);
-	return 0;
-
-
 	if(SDL_MUSTLOCK(hole))
 		SDL_LockSurface(hole);
 
@@ -1971,7 +1966,7 @@ int CMap::Load(const std::string& filename)
 		return false;
 	}
 
-	Name = freadstr(fp, 64);
+	Name = freadcstr(fp, 64);
 	fread(&Width,		sizeof(int),	1,	fp);
 	EndianSwap(Width);
 	fread(&Height,		sizeof(int),	1,	fp);

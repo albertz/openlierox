@@ -55,6 +55,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 void CClient::ParseChallenge(CBytestream *bs)
 {
 	CBytestream bytestr;
+	bytestr.Clear();
 	iChallenge = bs->readInt(4);
 
 

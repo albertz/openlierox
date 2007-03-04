@@ -652,6 +652,32 @@ std::vector<std::string>& explode(const std::string& str, const std::string& del
 	return result;
 }
 
+// reads a c-string from the file
+std::string freadcstr(FILE *fp, size_t maxlen) {
+	if (!fp) return "";
+
+	static std::string result;
+	static char buf[1024];
+	size_t ret, c;
+	result = "";
+
+	for(size_t len = 0; len < maxlen; len += sizeof(buf)) {
+		c = MIN(sizeof(buf), maxlen - len);
+		ret = fread(buf, 1, c, fp);
+		if(ret > 0)  {
+			buf[ret] = '\0';
+			size_t len = result.length();
+			result += buf;
+			if (result.length() - len < ret)
+				break;
+		}
+		if(ret < c)
+			break;
+	}
+
+	return result;
+}
+
 // reads maxlen-1 chars from fp
 std::string freadstr(FILE *fp, size_t maxlen) {
 	if (!fp) return "";
@@ -665,7 +691,7 @@ std::string freadstr(FILE *fp, size_t maxlen) {
 		c = MIN(sizeof(buf), maxlen - len);
 		ret = fread(buf, 1, c, fp);
 		if(ret > 0)
-			result.append(buf, ret);
+			result.append(buf,ret);
 		if(ret < c)
 			break;
 	}

@@ -455,6 +455,8 @@ void CWorm::InitWeaponSelection(void)
 			GetRandomWeapons();
 			AI_SetGameType(GAM_OTHER);
 		}
+
+		iWeaponsReady = true;
 	}
 
 	
