@@ -43,8 +43,11 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		for(int i=1;col;col = col->tNext,i++)   {
 			int col_w = col->iWidth;
 			// Last column has to be thiner
-			if (i == iNumColumns)
+			if (i == iNumColumns)  {
+				if (x-2+col_w-1 != iX+iWidth-4)
+					col_w = iWidth-x+iX+4;
 				col_w--;
+			}
 			Menu_DrawWinButton(bmpDest,x-2,iY+2,col_w-3,tLX->cFont.GetHeight(),col->bDown);
 			switch (col->iSorted)  {
 			case 0:	DrawImage(bmpDest,tMenu->bmpTriangleUp,x+col_w-tMenu->bmpTriangleUp->w-9,iY+7); break;
@@ -152,6 +155,8 @@ void CListview::AddColumn(const std::string& sText, int iWidth)
 {
 	lv_column_t *col;
 
+	bool defaultwidth = iWidth <= 0;
+
 	col = new lv_column_t;
 	if(col == NULL) {
 		// Out of memory
@@ -167,17 +172,50 @@ void CListview::AddColumn(const std::string& sText, int iWidth)
 
 
 	// Add it to the list
+	int curwidth = 0;
+	lv_column_t *widest = NULL;
 	if(tColumns) {
 		lv_column_t *c = tColumns;
+		widest = c;
 		for(;c;c = c->tNext) {
+			curwidth += c->iWidth;
 			if(c->tNext == NULL) {
 				c->tNext = col;
 				break;
 			}
+			if (c->iWidth > widest->iWidth)
+				widest = c;
 		}
 	}
 	else
 		tColumns = col;
+
+	int maxwidth = this->iWidth-4-curwidth;
+
+	// If the specified width is weird (negative, zero or too wide), we'll count a better one
+	if (iWidth <= 0 || iWidth > maxwidth)  {
+		int defwidth = tLX->cFont.GetWidth(sText)+4;
+		// The current columns take whole space, so we need to make some for the new column
+		if (maxwidth <= 1)  {
+			// Clamp the widest column to make space for this one
+			if (widest)  {
+				maxwidth = widest->iWidth/2;
+				defwidth = maxwidth;
+				widest->iWidth /= 2;
+			} else {
+				defwidth = maxwidth;
+			}
+		// There's still some space for the current column
+		} else {
+			// The column has weird (really short) name, so we use maximal size
+			if (defwidth <= 5)
+				defwidth = maxwidth;
+			// Insert the column, make sure it's width is not greater than the maximal allowed width
+			else
+				defwidth = MIN(defwidth,maxwidth);
+		}
+		col->iWidth = defwidth;
+	}
 
 	iNumColumns++;
 }

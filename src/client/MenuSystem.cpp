@@ -508,7 +508,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	// Handle multiline messages
 	unsigned int maxwidth = 0;
 	std::vector<std::string>::const_iterator it;
-	static std::vector<std::string>& lines = explode(sText,"\n");
+	std::vector<std::string>& lines = explode(sText,"\n"); // can't be static here
 	for (it=lines.begin(); it!=lines.end(); it++)  {
 		maxwidth = MAX(maxwidth,(uint)tLX->cFont.GetWidth(*it));
 	}
