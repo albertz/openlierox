@@ -1966,7 +1966,7 @@ int CMap::Load(const std::string& filename)
 		return false;
 	}
 
-	Name = freadcstr(fp, 64);
+	Name = freadfixedcstr(fp, 64);
 	fread(&Width,		sizeof(int),	1,	fp);
 	EndianSwap(Width);
 	fread(&Height,		sizeof(int),	1,	fp);

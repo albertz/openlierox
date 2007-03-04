@@ -233,16 +233,16 @@ void LoadProfile(FILE *fp, int id)
 
 
 	// Name
-	p->sName = freadcstr(fp, 32);
-    p->szSkin = freadcstr(fp, 128);
+	p->sName = freadfixedcstr(fp, 32);
+    p->szSkin = freadfixedcstr(fp, 128);
     fread(&p->iType,    sizeof(int),    1,  fp);
     EndianSwap(p->iType);
     fread(&p->nDifficulty,sizeof(int),  1,  fp);
 	EndianSwap(p->nDifficulty);
 	
 	// Multiplayer
-	p->sUsername = freadcstr(fp,16);
-	p->sPassword = freadcstr(fp,16);
+	p->sUsername = freadfixedcstr(fp,16);
+	p->sPassword = freadfixedcstr(fp,16);
 
 	// Colour
 	fread(&p->R,		sizeof(Uint8),	1,	fp);
@@ -254,7 +254,7 @@ void LoadProfile(FILE *fp, int id)
 	
 	// Weapons
 	for(int i=0; i<5; i++)
-		p->sWeaponSlots[i] = freadcstr(fp,64);
+		p->sWeaponSlots[i] = freadfixedcstr(fp,64);
 
 
 	// Load the image

@@ -220,7 +220,7 @@ std::string	ReadUntil(FILE* fp, char until_character = '\n');
 Uint32	StrToCol(const std::string& str);
 const char* sex(short wraplen = 0);
 std::vector<std::string>& explode(const std::string& str, const std::string& delim);
-std::string freadcstr(FILE *fp, size_t maxlen);
+inline std::string freadfixedcstr(FILE *fp, size_t maxlen) { return ReadUntil(freadstr(fp, maxlen), '\0'); }
 std::string freadstr(FILE *fp, size_t maxlen);
 size_t findLastPathSep(const std::string& path);
 void stringlwr(std::string& txt);
