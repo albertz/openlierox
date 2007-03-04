@@ -148,21 +148,11 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	// Freed by the cache
+	// bmpWormLeft and bmpGibs is freed by the cache
 
-	/*if(bmpWormLeft) {
-		SDL_FreeSurface(bmpWormLeft);
-		bmpWormLeft = NULL;
-	}
-	
 	if(bmpWormRight) {
 		SDL_FreeSurface(bmpWormRight);
 		bmpWormRight = NULL;
-	}
-
-	if(bmpGibs) {
-		SDL_FreeSurface(bmpGibs);
-		bmpGibs = NULL;
 	}
 
 	if(bmpPic) {
@@ -173,8 +163,7 @@ void CWorm::FreeGraphics(void)
     if(bmpShadowPic) {
         SDL_FreeSurface(bmpShadowPic);
         bmpShadowPic = NULL;
-    }*/
-
+    }
 }
 
 
