@@ -1030,7 +1030,6 @@ int CMap::CarveHole(int size, CVec pos)
 		draw_y = 0;
 	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
 
-
 	bMiniMapDirty = true;
 
     return nNumDirt;

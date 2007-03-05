@@ -131,8 +131,9 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 
 	if (withalpha)
 		Image = SDL_DisplayFormatAlpha(img);
-	else
+	else  {
 		Image = SDL_DisplayFormat(img);
+	}
 
 	SDL_FreeSurface(img);
 

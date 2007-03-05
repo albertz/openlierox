@@ -726,15 +726,11 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 
 
-	//Uint16 PlayerPink = (Uint16)tLX->clPink;
-
 
 	int a = (int)fAngle;
 	if(iDirection == DIR_LEFT)
 		a=180-a;
 
-	// Draw the health
-	//DrawRectFill(bmpDest,x-31,y-31,x+41,y-22,0);  // border
 
 	int WormNameY = 30; // If health is displayed, worm name has another position
 
@@ -743,11 +739,6 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 		if (!iLocal || iType != PRF_HUMAN)  {
 			Uint32 BorderColor = MakeColour(0x49,0x50,0x65);
 			int iShowHealth = Round((float)((getHealth()+15)/20));
-			//DrawRectFill(bmpDest,x-31,y-26,x-27,y-21,MakeColour(127,127,127));
-			/*DrawLine(bmpDest,x-1,y-26,x+21,y-26,0);
-			DrawLine(bmpDest,x-1,y-21,x+21,y-21,0);
-			DrawLine(bmpDest,x-1,y-26,x-1,y-21,0);
-			DrawLine(bmpDest,x+21,y-26,x+21,y-21,0);*/
 			DrawRect(bmpDest,x-10,y-20,x+15,y-15,BorderColor);
 			DrawVLine(bmpDest,y-19,y-16,x-5,BorderColor);
 			DrawVLine(bmpDest,y-19,y-16,x,BorderColor);
@@ -767,9 +758,6 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			}
 
 			WormNameY = 35;
-			
-			//int iHealthProgress = (int) (20*getHealth()/100);
-			//DrawRectFill(bmpDest,x-30,y-25,x-30+iHealthProgress,y-18,MakeColour(0,220,0));  // health
 		}
 	}
 
@@ -842,7 +830,6 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	y = (int)( (tLX->debug_pos.y-wy)*2+t );
     DrawRectFill(bmpDest, x-5,y-5,x+5,y+5,0);*/
 
-
 	
 	//
 	// Draw the muzzle flash
@@ -854,10 +841,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			ang = (int)( (fAngle+90)/151 * 7 );
 			ang = 6-ang;
 			f = ang*16;
-			DrawImageStretch2(bmpDest,gfxGame.bmpMuzzle,f,0,
+			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
 				(x-12)+RightMuzzle[ang*2],
 				(y-10)+RightMuzzle[ang*2+1],
-				16,16);
+				16,16,tLX->clPink);
 		}
 		break;
 
@@ -866,9 +853,9 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			f = (ang+7)*16;
 			
 			
-			DrawImageStretch2(bmpDest,gfxGame.bmpMuzzle,f,0,(x-21)+LeftMuzzle[ang*2],
+			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,(x-21)+LeftMuzzle[ang*2],
 															   (y-10)+LeftMuzzle[ang*2+1],
-															   16,16);
+															   16,16,tLX->clPink);
 		}
 		break;
 

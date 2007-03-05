@@ -91,7 +91,7 @@ inline SDL_Surface* GetStretched2Image(SDL_Surface* src, int x, int y, int w, in
 		return zoomSurface(src, 2, 2, 0);
 	else {
 		SDL_Surface* tmp = gfxCreateSurface(w,h);
-		DrawImageEx(tmp, src, x, y, w, h);
+		DrawImageAdv(tmp, src, x, y, 0, 0, w, h);
 		SDL_Surface* stretched_surf = zoomSurface(tmp, 2, 2, 0);
 		SDL_FreeSurface(tmp);
 		return stretched_surf;
@@ -105,7 +105,10 @@ inline void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx,
 }
 
 inline void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key) {
+	Uint32 oldkey = bmpSrc->format->colorkey;
+	SDL_SetColorKey(bmpSrc, 0, 0);  // Temporarily remove any color keys
 	SDL_Surface* stretched_surf = GetStretched2Image(bmpSrc, sx, sy, w, h);
+	SDL_SetColorKey(bmpSrc,SDL_SRCCOLORKEY, oldkey);  // Restore the original key
 	SDL_SetColorKey(stretched_surf, SDL_SRCCOLORKEY, key);
 	DrawImageEx(bmpDest, stretched_surf, dx, dy, w*2, h*2);
 	SDL_FreeSurface(stretched_surf);
