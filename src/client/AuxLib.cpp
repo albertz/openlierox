@@ -565,41 +565,35 @@ int SetClipboardText(const std::string& szText)
 // Take a screenshot
 void TakeScreenshot(bool Tournament)
 {
-	// TODO: fix this!
-	static char		picname[80];
-	static char		checkname[512];
-	char		extension[5];
+	static std::string	picname;
+	static std::string	fullname;
+	static std::string	extension;
 	int			i;
-	FILE		*f;
 
 	// Set the extension
 	switch (tLXOptions->iScreenshotFormat)  {
-	case FMT_BMP: strcpy(extension,".bmp"); break;
-	case FMT_PNG: strcpy(extension,".png"); break;
-	case FMT_JPG: strcpy(extension,".jpg"); break;
-	case FMT_GIF: strcpy(extension,".gif"); break;
-	default: strcpy(extension,".png");
+	case FMT_BMP: extension = ".bmp"; break;
+	case FMT_PNG: extension = ".png"; break;
+	case FMT_JPG: extension = ".jpg"; break;
+	case FMT_GIF: extension = ".gif"; break;
+	default: extension = ".png";
 	}
 
 	// Create the file name
     for(i=0; 1; i++) {
-		snprintf(picname,sizeof(picname),"%s%d%s","lierox",i,extension);
-		fix_markend(picname);
+		picname = "lierox"+itoa(i)+extension;
 
 		if (Tournament)
-			snprintf(checkname, sizeof(checkname), "tourny_scrshots/%s", picname);
+			fullname = "tourny_scrshots/"+picname;
 		else
-			snprintf(checkname, sizeof(checkname), "scrshots/%s", picname);
-		fix_markend(checkname);
+			fullname = "scrshots/" + picname;
 
-		f = OpenGameFile(checkname, "rb");
-		if (!f)
+		if (!IsFileAvailable(fullname,false))
 			break;	// file doesn't exist
-		fclose(f);
 	}
 
 	// Save the surface
-	SaveSurface(SDL_GetVideoSurface(),checkname,tLXOptions->iScreenshotFormat,Tournament && cServer->getTakeScreenshot());
+	SaveSurface(SDL_GetVideoSurface(),fullname,tLXOptions->iScreenshotFormat,Tournament && cServer->getTakeScreenshot());
 }
 
 #ifdef WIN32

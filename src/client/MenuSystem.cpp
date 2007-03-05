@@ -1157,8 +1157,8 @@ void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
-	bs.writeString("%s","lx::wantsjoin");
-	bs.writeString("%s",Nick.c_str());
+	bs.writeString("lx::wantsjoin");
+	bs.writeString(Nick);
 	bs.Send(tMenu->tSocket[SCK_NET]);
 }
 

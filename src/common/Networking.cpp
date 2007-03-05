@@ -143,7 +143,6 @@ int http_ProcessRequest(std::string* szError)
 			http_SocketReady = true;
 		}
 		else {
-			//MessageBox(0,"Socket not ready!","Debug",MB_OK);
 			return 0;
 		}
 	}
@@ -184,16 +183,12 @@ int http_ProcessRequest(std::string* szError)
 
 		// Havn't resolved the address yet, so leave but let the 
 		// caller of this function keep processing us
-		//MessageBox(0,"Address not yet resolved!","Debug",MB_OK);
 		return 0;
 	}
 
 	
 	// If we aren't ready yet, leave
 	if(!http_SocketReady || !http_Connected || !http_Requested)	 {
-		//char buf[64];
-		//sprintf(buf,"Not ready: http_SocketReady = %i, http_Connected = %i, http_Requested = %i",http_SocketReady,http_Connected,http_Requested);
-		//MessageBox(0,buf,"Debug",MB_OK);
 		return 0;
 	}
 
@@ -363,6 +358,11 @@ char *http_GetContent(void)
 }
 
 
+/*
+ *
+ * HawkNL Network wrapper
+ *
+ */
 
 /////////////////////
 // Initializes network

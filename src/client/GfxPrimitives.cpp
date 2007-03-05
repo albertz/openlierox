@@ -355,18 +355,14 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 		return NULL;
 
 	Uint32 rmask, gmask, bmask;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	// Works also for little endian
 	rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF;
-#else	
-	rmask=0x000000FF; gmask=0x0000FF00; bmask=0x00FF0000;	
-#endif
 	
-	SDL_Surface* formated = SDL_CreateRGBSurface(
-		SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);
+	SDL_Surface* formated = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);
 	if(!formated)
 		return NULL;
 
-	// convert it to the new format (24 bpp)
+	// convert it to the new format (32 bpp)
 	DrawImageEx(formated, src, 0, 0, src->w, src->h);
 	
 	for(int y = 0; y < src->h; y++) {

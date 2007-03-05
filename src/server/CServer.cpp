@@ -532,7 +532,7 @@ void CServer::RegisterServer(void)
     }
 
     // Find the first line
-    while( feof(fp) ) {
+    while( !feof(fp) ) {
         buf = ReadUntil(fp);
         if( buf != "" ) {
             if( !http_InitializeRequest(buf, url) ) {
