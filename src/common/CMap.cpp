@@ -612,16 +612,11 @@ void CMap::TileMap(void)
 void CMap::CalculateDirtCount(void)
 {
     nTotalDirtCount = 0;
-    int x,y,n;
+    int n;
+	const int size = Width*Height;
 
-    n=0;
-    for( y=0; y<Height; y++ ) {
-        for( x=0; x<Width; x++ ) {
-
-            if( PixelFlags[n++] & PX_DIRT )
-                nTotalDirtCount++;
-        }
-    }
+	for (n=0;n<size;n++)
+		nTotalDirtCount += (PixelFlags[n++] & PX_DIRT);  // 0 or 1
 }
 
 
@@ -1401,7 +1396,16 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 // Calculate the shadow map
 void CMap::CalculateShadowMap(void)
 {
-    int x,y;
+	// This should be faster
+	SDL_Surface *tmp = gfxCreateSurface(bmpImage->w,bmpImage->h);
+	if (!tmp)
+		return;
+	SDL_BlitSurface(bmpImage,NULL,bmpShadowMap,NULL);
+	SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, 100);
+	SDL_BlitSurface(tmp,NULL,bmpShadowMap,NULL);
+	SDL_FreeSurface(tmp);
+	
+ /*   int x,y;
 
     Uint32 Rmask = bmpImage->format->Rmask, Gmask = bmpImage->format->Gmask, Bmask = bmpImage->format->Bmask, Amask = bmpImage->format->Amask;
 	Uint32 R,G,B,A = 0;
@@ -1445,7 +1449,7 @@ void CMap::CalculateShadowMap(void)
     if(SDL_MUSTLOCK(bmpBackImage))
 		SDL_UnlockSurface(bmpBackImage);
     if(SDL_MUSTLOCK(bmpShadowMap))
-		SDL_UnlockSurface(bmpShadowMap);
+		SDL_UnlockSurface(bmpShadowMap);*/
 }
 
 
@@ -2157,7 +2161,6 @@ int CMap::LoadImageFormat(FILE *fp)
 	// Load the details
 	ulong size, destsize;
 	int x,y,n,p;
-	Uint8 r,g,b;
 
 	fread(&size, sizeof(ulong), 1, fp);
 	EndianSwap(size);
@@ -2184,28 +2187,42 @@ int CMap::LoadImageFormat(FILE *fp)
 	}
 
 
+	delete[] pSource;  // not needed anymore
+
+	//
 	// Translate the data
+	//
+
+	// Lock surfaces
+	if (SDL_MUSTLOCK(bmpBackImage))
+		SDL_LockSurface(bmpBackImage);
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_LockSurface(bmpImage);
+
+	p=0;
+	Uint32 curcolor=0;
+	Uint8 *curpixel = (Uint8 *)bmpBackImage->pixels;
+	Uint8 *PixelRow = curpixel;
 
 	// Load the back image
-	p=0;
-	for(y=0; y<Height; y++) {
-		for(x=0; x<Width; x++) {
-			r = *GetEndianSwapped(pDest[p++]);
-			g = *GetEndianSwapped(pDest[p++]);
-			b = *GetEndianSwapped(pDest[p++]);
-
-			PutPixel( bmpBackImage, x,y, MakeColour(r,g,b));
+	for (y=0;y<Height;y++,PixelRow+=bmpBackImage->pitch)  {
+		curpixel = PixelRow;
+		for (x=0;x<Width;x++,curpixel+=bmpBackImage->format->BytesPerPixel)  {
+			curcolor = SDL_MapRGB(bmpBackImage->format,*GetEndianSwapped(pDest[p]),*GetEndianSwapped(pDest[p+1]),*GetEndianSwapped(pDest[p+2]));
+			p+=3;
+			memcpy(curpixel,&curcolor,bmpBackImage->format->BytesPerPixel);
 		}
 	}
 
-	// Save the front image
-	for(y=0; y<Height; y++) {
-		for(x=0; x<Width; x++) {
-			r = *GetEndianSwapped(pDest[p++]);
-			g = *GetEndianSwapped(pDest[p++]);
-			b = *GetEndianSwapped(pDest[p++]);
-
-			PutPixel( bmpImage, x,y, MakeColour(r,g,b));
+	// Load the front image
+	curpixel = (Uint8 *)bmpImage->pixels;
+	PixelRow = curpixel;
+	for (y=0;y<Height;y++,PixelRow+=bmpImage->pitch)  {
+		curpixel = PixelRow;
+		for (x=0;x<Width;x++,curpixel+=bmpImage->format->BytesPerPixel)  {
+			curcolor = SDL_MapRGB(bmpImage->format,*GetEndianSwapped(pDest[p]),*GetEndianSwapped(pDest[p+1]),*GetEndianSwapped(pDest[p+2]));
+			p+=3;
+			memcpy(curpixel,&curcolor,bmpImage->format->BytesPerPixel);
 		}
 	}
 
@@ -2217,17 +2234,24 @@ int CMap::LoadImageFormat(FILE *fp)
 	//SDL_Surface *pxf = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel,
 	//								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
-	// Load the pixel flags
+	// Load the pixel flags and calculate dirt count
 	lockFlags();
 	n=0;
-	for(y=0; y<Height; y++) {
-		for(x=0; x<Width; x++) {
+	nTotalDirtCount = 0;
 
-			uchar t = pDest[p++];
-			PixelFlags[n++] = t;
+	curpixel = (Uint8 *)bmpImage->pixels;
+	PixelRow = curpixel;
+	Uint8 *backpixel = (Uint8 *)bmpBackImage->pixels;
+	Uint8 *BackPixelRow = backpixel;
 
-			if(t == PX_EMPTY)
-				PutPixel(bmpImage, x,y, GetPixel(bmpBackImage,x,y));
+	for(y=0; y<Height; y++,PixelRow+=bmpImage->pitch,BackPixelRow+=bmpBackImage->pitch) {
+		curpixel = PixelRow;
+		backpixel = BackPixelRow;
+		for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
+			PixelFlags[n] = pDest[p++];
+			memcpy(curpixel,backpixel,bmpImage->format->BytesPerPixel*(PixelFlags[n] & PX_EMPTY)); // If the pixelflag isn't empty, copies 0 bytes
+			nTotalDirtCount += (PixelFlags[n] & PX_DIRT);
+			n++;
 			/*if(t == PX_ROCK)
 				PutPixel(pxf, x,y, MakeColour(128,128,128));
 			if(t == PX_DIRT)
@@ -2236,9 +2260,15 @@ int CMap::LoadImageFormat(FILE *fp)
 	}
 	unlockFlags();
 
+	// Unlock the surfaces
+	if (SDL_MUSTLOCK(bmpBackImage))
+		SDL_UnlockSurface(bmpBackImage);
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_UnlockSurface(bmpImage);
+
 	//SDL_SaveBMP(pxf, "mat.bmp");
 
-    delete[] pSource;
+	// Delete the data
 	delete[] pDest;
 
 	fclose(fp);
@@ -2250,9 +2280,6 @@ int CMap::LoadImageFormat(FILE *fp)
 
 	// Update the draw image
 	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
-
-    // Calculate the total dirt count
-    CalculateDirtCount();
 
     // Calculate the grid
     calculateGrid();
