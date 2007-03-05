@@ -496,22 +496,22 @@ bool CMediaPlayer::InitializeGfx(void)
 	iX = tLXOptions->iMPlayerLeft;
 	iY = tLXOptions->iMPlayerTop;
 
-	LOAD_IMAGE(tPlayerGfx.bmpBackground,	"data/frontend/mplayer/background.png");
-	LOAD_IMAGE(tPlayerGfx.bmpHide,			"data/frontend/mplayer/hide.png")
-	LOAD_IMAGE(tPlayerGfx.bmpWindow,		"data/frontend/mplayer/window.png");
-	LOAD_IMAGE(tPlayerGfx.bmpNext,			"data/frontend/mplayer/next.png");
-	LOAD_IMAGE(tPlayerGfx.bmpPause,			"data/frontend/mplayer/pause.png");
-	LOAD_IMAGE(tPlayerGfx.bmpPlay,			"data/frontend/mplayer/play.png");
-	LOAD_IMAGE(tPlayerGfx.bmpPrevious,		"data/frontend/mplayer/previous.png");
-	LOAD_IMAGE(tPlayerGfx.bmpRepeat,		"data/frontend/mplayer/repeat.png");
-	LOAD_IMAGE(tPlayerGfx.bmpShuffle,		"data/frontend/mplayer/shuffle.png");
-	LOAD_IMAGE(tPlayerGfx.bmpSelectDir,		"data/frontend/mplayer/open.png");
-	LOAD_IMAGE(tPlayerGfx.bmpStop,			"data/frontend/mplayer/stop.png");
-	LOAD_IMAGE(tPlayerGfx.bmpMusicVolume,	"data/frontend/mplayer/musicvolume.png");
-	LOAD_IMAGE(tPlayerGfx.bmpGameVolume,	"data/frontend/mplayer/gamevolume.png");
-	LOAD_IMAGE(tPlayerGfx.bmpProgress,		"data/frontend/mplayer/progress.png");
-	LOAD_IMAGE(tPlayerGfx.bmpProgressStart,	"data/frontend/mplayer/progress_start.png");
-	LOAD_IMAGE(tPlayerGfx.bmpProgressEnd,	"data/frontend/mplayer/progress_end.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpBackground,	"data/frontend/mplayer/background.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpHide,			"data/frontend/mplayer/hide.png")
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpWindow,		"data/frontend/mplayer/window.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpNext,			"data/frontend/mplayer/next.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpPause,			"data/frontend/mplayer/pause.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpPlay,			"data/frontend/mplayer/play.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpPrevious,		"data/frontend/mplayer/previous.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpRepeat,		"data/frontend/mplayer/repeat.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpShuffle,		"data/frontend/mplayer/shuffle.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpSelectDir,		"data/frontend/mplayer/open.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpStop,			"data/frontend/mplayer/stop.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpMusicVolume,	"data/frontend/mplayer/musicvolume.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpGameVolume,	"data/frontend/mplayer/gamevolume.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpProgress,		"data/frontend/mplayer/progress.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpProgressStart,	"data/frontend/mplayer/progress_start.png");
+	LOAD_IMAGE_WITHALPHA(tPlayerGfx.bmpProgressEnd,	"data/frontend/mplayer/progress_end.png");
 	bGfxInitialized = true;
 
 

@@ -103,6 +103,19 @@ inline void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx,
 	DrawImageEx(bmpDest, stretched_surf, dx, dy, w*2, h*2);
 	SDL_FreeSurface(stretched_surf);	
 }
+// TODO: what about this?
+/*inline void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
+	static SDL_Rect rSrc,rDest;
+	rSrc.x = sx;
+	rSrc.y = sy;
+	rSrc.w = w;
+	rSrc.h = h;
+	rDest.x = dx;
+	rDest.y = dy;
+	rDest.w = w*2;
+	rDest.h = h*2;
+	SDL_SoftStretch(bmpSrc,&rSrc,bmpDest,&rDest);
+}*/
 
 inline void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key) {
 	Uint32 oldkey = bmpSrc->format->colorkey;
@@ -143,6 +156,16 @@ inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uin
 	boxRGBA(bmpDest, x,y,x2,y2, r,g,b,255);
 }
 
+// TODO: what about this?
+/*inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
+	static SDL_Rect r;
+	r.x = x;
+	r.y = y;
+	r.w = x2-x;
+	r.h = y2-y;
+	SDL_FillRect(bmpDest,&r,color);
+}*/
+
 inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
 	Uint8 r,g,b;
 	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
@@ -154,18 +177,36 @@ inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Ui
 	SDL_GetRGB(color, SDL_GetVideoSurface()->format, &r,&g,&b);
 	boxRGBA(bmpDest, x,y,x2,y2, r,g,b,alpha);
 }
+// TODO: what about this?
+/*inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
+	SDL_Surface *tmp = gfxCreateSurface(x2-x,y2-y);
+	if (tmp)  {
+		SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, alpha);
+		SDL_FillRect(tmp,NULL,color);
+		DrawImage(bmpDest,tmp,x,y);
+		SDL_FreeSurface(tmp);
+	}
+}*/
 
 inline void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	Uint8 r,g,b;
 	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
 	hlineRGBA(bmpDest, x,x2,y, r,g,b,255);
 }
+// TODO: what about this?
+/*inline void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
+	DrawRectFill(bmpDest,x,y,x2,y,colour);
+}*/
 
 inline void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	Uint8 r,g,b;
 	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
 	vlineRGBA(bmpDest, x,y,y2, r,g,b,255);
 }
+// TODO: what about this?
+/*inline void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
+	DrawRectFill(bmpDest,x,y,x,y2,colour);
+}*/
 
 inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour) {
 	Uint8 r,g,b;
