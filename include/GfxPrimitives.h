@@ -153,7 +153,7 @@ inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int d
 inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
 	Uint8 r,g,b;
 	SDL_GetRGB(color, bmpDest->format, &r,&g,&b);
-	boxRGBA(bmpDest, x,y,x2,y2, r,g,b,255);
+	boxRGBA(bmpDest, x,y,x2-1,y2-1, r,g,b,255);
 }
 
 // TODO: what about this?

@@ -92,7 +92,6 @@ int CMap::New(int _width, int _height, const std::string& _theme)
 
 
 	// TODO: valgrind says, this two arrays got lost
-	// TODO: implement water?
 	m_pnWater1 = new int[Width];
 	m_pnWater2 = new int[Width];
 
@@ -628,10 +627,8 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 		//DEBUG_DrawPixelFlags();
 		DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #ifdef _AI_DEBUG
-		if (GetKeyboard()->KeyDown[SDLK_F2])
-			DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
-			//DrawImageAdv(bmpDest,bmpShadowMap,view->GetWorldX(),view->GetWorldY(),view->GetLeft(),view->GetTop(),view->GetWidth(),view->GetHeight());
-			//DrawImage(bmpDest,bmpShadowMap,0,0);
+		//if (GetKeyboard()->KeyDown[SDLK_F2])
+		//	DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
 		DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #endif
 }
@@ -797,7 +794,6 @@ int CMap::CarveHole(int size, CVec pos)
 		SDL_LockSurface(hole);
 
 
-	// WARNING: This requires the holes to be loaded as 16bpp surfaces
 	Uint8 *p;
 	uchar *px;
 	Uint8 *p2;
@@ -954,6 +950,9 @@ int CMap::CarveHole(int size, CVec pos)
 	if(SDL_MUSTLOCK(hole))
 		SDL_UnlockSurface(hole);
 
+	// If nothing has been carved, we don't have to bother with updating the state
+	if (!nNumDirt)
+		return 0;
 
 
 	// Go through and clean up the hole
@@ -962,6 +961,8 @@ int CMap::CarveHole(int size, CVec pos)
 
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);
+	if(SDL_MUSTLOCK(bmpBackImage))
+		SDL_LockSurface(bmpBackImage);
 
 	lockFlags();
 
@@ -995,7 +996,8 @@ int CMap::CarveHole(int size, CVec pos)
 
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
-
+	if(SDL_MUSTLOCK(bmpBackImage))
+		SDL_UnlockSurface(bmpBackImage);
 
 	// Apply a shadow
 	ApplyShadow(sx-5,sy-5,w+25,h+25);
@@ -1067,8 +1069,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 	if(SDL_MUSTLOCK(hole))
 		SDL_LockSurface(hole);
 
-
-	// WARNING: This requires the holes & themes to be loaded as 16bpp surfaces
 	Uint8 *p;
 	uchar *px;
 	Uint8 *p2;
@@ -1312,18 +1312,18 @@ int CMap::PlaceGreenDirt(CVec pos)
 // Apply a shadow to an area
 void CMap::ApplyShadow(int sx, int sy, int w, int h)
 {
-	int Drop = 3;
+	// Draw shadows?
+	if(!tLXOptions->iShadows)
+		return;
+
+	static const int Drop = 3;
 	int x,y,n;
-//	int bpp = bmpImage->format->BytesPerPixel; // TODO: not used
 	uchar *px;
 	uchar *p;
 	int ox,oy;
 	char flag;
 
-
-	// Draw shadows?
-	if(!tLXOptions->iShadows)
-		return;
+	Uint8 *pixel,*src;
 
 	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
@@ -1367,8 +1367,8 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 						break;
 
                     Uint32 offset = oy*bmpImage->pitch + ox*screenbpp;
-                    void *pixel = (byte *)bmpImage->pixels + offset;
-                    void *src = (byte *)bmpShadowMap->pixels + offset;
+                    pixel = (Uint8 *)bmpImage->pixels + offset;
+                    src = (Uint8 *)bmpShadowMap->pixels + offset;
                     //*pixel = *src;
 					memcpy(pixel,src,screenbpp);
 
@@ -1400,7 +1400,7 @@ void CMap::CalculateShadowMap(void)
 	SDL_Surface *tmp = gfxCreateSurface(bmpImage->w,bmpImage->h);
 	if (!tmp)
 		return;
-	SDL_BlitSurface(bmpImage,NULL,bmpShadowMap,NULL);
+	SDL_BlitSurface(bmpBackImage,NULL,bmpShadowMap,NULL);
 	SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, 100);
 	SDL_BlitSurface(tmp,NULL,bmpShadowMap,NULL);
 	SDL_FreeSurface(tmp);
@@ -1601,7 +1601,6 @@ void CMap::PlaceMisc(int id, CVec pos)
 
 	lockFlags();
 
-	// WARNING: This requires the misc items to be loaded as 16bpp surfaces
 	Uint8 *p = (Uint8 *)misc->pixels;
 	uchar *px = PixelFlags;
 

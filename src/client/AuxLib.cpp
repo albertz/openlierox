@@ -143,14 +143,15 @@ int SetVideoMode(void)
 	int HardwareBuf = false;
 	int DoubleBuf = false;
 	int vidflags = 0;
-	int bpp = 32;
+	int bpp = 0;  // Use system default
 
 	// BlueBeret's addition (2007): OpenGL support
 	int opengl = tLXOptions->iOpenGL;
 
 	// Initialize the video
-	if(tLXOptions->iFullscreen)
+	if(tLXOptions->iFullscreen)  {
 		vidflags |= SDL_FULLSCREEN;
+	}
 
 	if (opengl) {
 		printf("HINT: using OpenGL\n");
