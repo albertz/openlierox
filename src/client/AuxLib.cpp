@@ -53,7 +53,6 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
 	// Solves problem with FPS in fullscreen
 #ifdef WIN32
-	// TODO: do it better
 	SDL_putenv("SDL_VIDEODRIVER=directx");
 #endif
 
@@ -177,7 +176,7 @@ int SetVideoMode(void)
 
 
 	if( SDL_SetVideoMode(640,480, bpp,vidflags) == NULL) {
-		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, 16,SDL_GetError());
+		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, bpp,SDL_GetError());
 		return false;
 	}
 

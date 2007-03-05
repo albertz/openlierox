@@ -149,7 +149,7 @@ inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 
 inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, int alpha) {
 	Uint8 r,g,b;
 	SDL_GetRGB(color, SDL_GetVideoSurface()->format, &r,&g,&b);
-	rectangleRGBA(bmpDest, x,y,x2,y2, r,g,b,alpha);
+	boxRGBA(bmpDest, x,y,x2,y2, r,g,b,alpha);
 }
 
 inline void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {

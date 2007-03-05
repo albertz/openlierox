@@ -633,6 +633,10 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 		//DEBUG_DrawPixelFlags();
 		DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #ifdef _AI_DEBUG
+		if (GetKeyboard()->KeyDown[SDLK_F2])
+			DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
+			//DrawImageAdv(bmpDest,bmpShadowMap,view->GetWorldX(),view->GetWorldY(),view->GetLeft(),view->GetTop(),view->GetWidth(),view->GetHeight());
+			//DrawImage(bmpDest,bmpShadowMap,0,0);
 		DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #endif
 }
@@ -650,7 +654,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	int t = view->GetTop();
 
     // Drop the shadow
-    int Drop = 3;
+    static const int Drop = 3;
     wx += Drop;
     wy += Drop;
 
@@ -665,141 +669,73 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
     int dtx = (wx - v_wx)*2;
     int dty = (wy - v_wy)*2;
 
-	int screenbpp = SDL_GetVideoSurface()->format->BitsPerPixel;
+	// Screen bytes per pixel
+	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
-	switch (screenbpp)  {
-	case 8:
-		//TODO
-		return;
-	case 16:  {
-		Uint32 pink = (Uint32)tLX->clPink; // don't change this while we use GetPixel
+	// Lock the surfaces
+	if (SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if (SDL_MUSTLOCK(bmpObj))
+		SDL_LockSurface(bmpObj);
+	if (SDL_MUSTLOCK(bmpShadowMap))
+		SDL_LockSurface(bmpShadowMap);
 
-		int x,y,dx,dy,i,j;
+	Uint32 pink = tLX->clPink;
 
-		for( y=sy,dy=wy,j=0; y<sy+h; y++,j++, dy += (wy+j)&1 ) {
-			// World Clipping
-			if(dy < 0) continue;
-			if(dy >= Height) break;
+	int x,y,dx,dy,i,j;
+	uchar *pf = NULL;
 
-			// Screen clipping
-			if( dty+t+j < c_y ) continue;
-			if( dty+t+j >= c_y2 ) break;
+	Uint8 *destpix,*srcpix,*objpix;
+	Uint8 *DestPixel,*SrcPixel,*ObjPixel;
 
-			uchar *pf = &PixelFlags[dy * Width + wx];
-			Uint16 *srcpix = (Uint16*)bmpShadowMap->pixels + (dy * Width + wx);
+	DestPixel = (Uint8 *)bmpDest->pixels + ((dty+t)*bmpDest->pitch+(dtx+l)*screenbpp);
+	SrcPixel = (Uint8*)bmpShadowMap->pixels + (wy * bmpShadowMap->pitch + wx*screenbpp);
+	ObjPixel = (Uint8 *)bmpObj->pixels + (sy*bmpObj->pitch+sx*screenbpp);
 
-			for( x=sx,dx=wx,i=0; x<sx+w; x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, srcpix+=(wx+i)&1 ) {
+	for( y=sy,dy=wy,j=0; y<sy+h; y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
+		// World Clipping
+		if(dy < 0) continue;
+		if(dy >= Height) break;
 
-				// Clipping
-				if(dx < 0) continue;
-				if(dx >= Width) break;
+		// Screen clipping
+		if( dty+t+j < c_y ) continue;
+		if( dty+t+j >= c_y2 ) break;
 
-				// Is this pixel solid?
-				if( !(*pf & PX_EMPTY) ) continue;
+		// Get the first pixel adresses for each of the three images
+		pf = &PixelFlags[dy * Width + wx];
+		srcpix = SrcPixel;
+		destpix = DestPixel;
+		objpix = ObjPixel;
 
-				// Screen clipping
-				if( dtx+l+i < c_x ) continue;
-				if( dtx+l+i >= c_x2 ) continue;
+		for( x=sx,dx=wx,i=0; x<sx+w; x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, destpix+=screenbpp, objpix+=screenbpp, srcpix+=((wx+i)&1)*screenbpp ) {
 
-				// Is the source pixel see through?
-				if( GetPixel(bmpObj, x,y) == pink )
-					continue;
+			// Clipping
+			if(dx < 0) continue;
+			if(dx >= Width) break;
 
-				PutPixel(bmpDest, dtx + l+i, dty + t+j, *srcpix);
-			}
-		}
-	}
-	return;
-
-	case 24:  {
-		uint24 pink;
-		
-		memset(&pink,0,sizeof(uint24));
-		memcpy(&pink,&tLX->clPink,sizeof(uint24));
-		Uint32 tmp=0;
-
-		int x,y,dx,dy,i,j;
-
-		for( y=sy,dy=wy,j=0; y<sy+h; y++,j++, dy += (wy+j)&1 ) {
-			// World Clipping
-			if(dy < 0) continue;
-			if(dy >= Height) break;
+			// Is this pixel solid?
+			if( !(*pf & PX_EMPTY) ) continue;
 
 			// Screen clipping
-			if( dty+t+j < c_y ) continue;
-			if( dty+t+j >= c_y2 ) break;
+			if( dtx+l+i < c_x ) continue;
+			if( dtx+l+i >= c_x2 ) continue;
 
-			uchar *pf = &PixelFlags[dy * Width + wx];
-			uint24 *srcpix = (uint24 *)bmpShadowMap->pixels + (dy * Width + wx);
+			// Is the source pixel see through?
+			if (!memcmp(objpix,&pink,screenbpp))
+				continue;
 
-			for( x=sx,dx=wx,i=0; x<sx+w; x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, srcpix+=(wx+i)&1 ) {
-
-				// Clipping
-				if(dx < 0) continue;
-				if(dx >= Width) break;
-
-				// Is this pixel solid?
-				if( !(*pf & PX_EMPTY) ) continue;
-
-				// Screen clipping
-				if( dtx+l+i < c_x ) continue;
-				if( dtx+l+i >= c_x2 ) continue;
-
-				// Is the source pixel see through?
-				tmp = GetPixel(bmpObj, x,y);
-				if( !memcmp(&tmp,&pink,sizeof(uint24)) )
-					continue;
-
-				memcpy(&tmp,srcpix,sizeof(uint24));
-
-				PutPixel(bmpDest, dtx + l+i, dty + t+j, tmp);
-				tmp=0;
-			}
+			// Put the pixel
+			memcpy(destpix,srcpix,screenbpp);
 		}
 	}
-	return;
 
-	case 32:  {
-		Uint32 pink = tLX->clPink;
-
-		int x,y,dx,dy,i,j;
-
-		for( y=sy,dy=wy,j=0; y<sy+h; y++,j++, dy += (wy+j)&1 ) {
-			// World Clipping
-			if(dy < 0) continue;
-			if(dy >= Height) break;
-
-			// Screen clipping
-			if( dty+t+j < c_y ) continue;
-			if( dty+t+j >= c_y2 ) break;
-
-			uchar *pf = &PixelFlags[dy * Width + wx];
-			Uint32 *srcpix = (Uint32*)bmpShadowMap->pixels + (dy * Width + wx);
-
-			for( x=sx,dx=wx,i=0; x<sx+w; x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, srcpix+=(wx+i)&1 ) {
-
-				// Clipping
-				if(dx < 0) continue;
-				if(dx >= Width) break;
-
-				// Is this pixel solid?
-				if( !(*pf & PX_EMPTY) ) continue;
-
-				// Screen clipping
-				if( dtx+l+i < c_x ) continue;
-				if( dtx+l+i >= c_x2 ) continue;
-
-				// Is the source pixel see through?
-				if( GetPixel(bmpObj, x,y) == pink )
-					continue;
-
-				PutPixel(bmpDest, dtx + l+i, dty + t+j, *srcpix);
-			}
-		}
-	}
-	return;
-	}
-			  
+	// Unlock the surfaces
+	if (SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if (SDL_MUSTLOCK(bmpObj))
+		SDL_UnlockSurface(bmpObj);
+	if (SDL_MUSTLOCK(bmpShadowMap))
+		SDL_UnlockSurface(bmpShadowMap);		  
 }
 
 
