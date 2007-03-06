@@ -586,11 +586,7 @@ void CMap::TileMap(void)
 	}
 
 	// Update the draw image
-	SDL_FreeSurface(bmpDrawImage);
-	bmpDrawImage = GetStretched2Image(bmpImage);
-	if(!bmpDrawImage) {
-		printf("ERROR: TileMap: couldn't stretch, I will possibly crash now...\n");
-	}
+	DrawImageStretch(bmpDrawImage,bmpImage,0,0);
 	
 	// Set the pixel flags
 	lockFlags();

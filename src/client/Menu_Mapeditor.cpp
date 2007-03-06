@@ -211,7 +211,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 			DrawImage(bmpDest,t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h);
 			DrawRect(bmpDest,22,107, 52,137, tLX->clWhite);
 		} else
-			DrawImageStretchKey(bmpDest, t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h, tLX->clPink);
+			DrawImageStretchKey(bmpDest, t->bmpStones[ tMenu->iCurStone ], 37-w, 122-h,tLX->clPink);
 	}
 
 

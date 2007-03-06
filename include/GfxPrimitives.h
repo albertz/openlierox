@@ -109,67 +109,19 @@ inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
 }
 
-// Draw the image mirrored
-inline SDL_Surface* GetMirroredImage(SDL_Surface *bmpSrc) {
-	return rotozoomSurfaceXY(bmpSrc, 0, -1, 1, 0);
+
+void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key);
+void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key);
+
+inline SDL_Surface *GetMirroredImage(SDL_Surface *bmpSrc)  {
+	SDL_Surface *result = SDL_CreateRGBSurface(bmpSrc->flags,bmpSrc->w,bmpSrc->h,bmpSrc->format->BitsPerPixel,bmpSrc->format->Rmask,bmpSrc->format->Bmask,bmpSrc->format->Gmask,bmpSrc->format->Amask);
+	if (!result)
+		return NULL;
+	DrawImageAdv_Mirror(result,bmpSrc,0,0,0,0,bmpSrc->w,bmpSrc->h);
+	return result;
 }
-
-
-inline SDL_Surface* GetStretched2Image(SDL_Surface* src) {
-	return zoomSurface(src, 2, 2, 0);
-}
-
-inline SDL_Surface* GetStretched2Image(SDL_Surface* src, int x, int y, int w, int h) {
-	if(x == 0 && y == 0 && w == src->w && h == src->h)
-		return zoomSurface(src, 2, 2, 0);
-	else {
-		SDL_Surface* tmp = gfxCreateSurface(w,h);
-		DrawImageAdv(tmp, src, x, y, 0, 0, w, h);
-		SDL_Surface* stretched_surf = zoomSurface(tmp, 2, 2, 0);
-		SDL_FreeSurface(tmp);
-		return stretched_surf;
-	}
-}
-
-inline void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
-	SDL_Surface* stretched_surf = GetStretched2Image(bmpSrc, sx, sy, w, h);
-	DrawImageEx(bmpDest, stretched_surf, dx, dy, w*2, h*2);
-	SDL_FreeSurface(stretched_surf);	
-}
-// TODO: what about this?
-/*inline void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
-	static SDL_Rect rSrc,rDest;
-	rSrc.x = sx;
-	rSrc.y = sy;
-	rSrc.w = w;
-	rSrc.h = h;
-	rDest.x = dx;
-	rDest.y = dy;
-	rDest.w = w*2;
-	rDest.h = h*2;
-	SDL_SoftStretch(bmpSrc,&rSrc,bmpDest,&rDest);
-}*/
-
-inline void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key) {
-	Uint32 oldkey = bmpSrc->format->colorkey;
-	SDL_SetColorKey(bmpSrc, 0, 0);  // Temporarily remove any color keys
-	SDL_Surface* stretched_surf = GetStretched2Image(bmpSrc, sx, sy, w, h);
-	SDL_SetColorKey(bmpSrc,SDL_SRCCOLORKEY, oldkey);  // Restore the original key
-	SDL_SetColorKey(stretched_surf, SDL_SRCCOLORKEY, key);
-	DrawImageEx(bmpDest, stretched_surf, dx, dy, w*2, h*2);
-	SDL_FreeSurface(stretched_surf);
-}
-
-inline void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key) {
-	SDL_Surface* stretched_surf = GetStretched2Image(bmpSrc, sx, sy, w, h);
-	SDL_Surface* mirrored_surf = GetMirroredImage(stretched_surf);
-	SDL_FreeSurface(stretched_surf);
-	SDL_SetColorKey(mirrored_surf, SDL_SRCCOLORKEY, key);
-	DrawImageEx(bmpDest, mirrored_surf, dx, dy, w*2, h*2);
-	SDL_FreeSurface(mirrored_surf);
-}
-
-
 
 // Draws a sprite doubly stretched but not so advanced
 inline void	DrawImageStretch(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy) {
@@ -178,40 +130,34 @@ inline void	DrawImageStretch(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, 
 
 // Draws a sprite doubly stretched, with a colour key and not so advanced
 inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint32 key) {
-	DrawImageStretch2Key(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h,key);
+	DrawImageStretch2Key(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h, key);
 }
 
 
 // Solid drawing
-inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
-	Uint8 r,g,b;
-	SDL_GetRGB(color, bmpDest->format, &r,&g,&b);
-	boxRGBA(bmpDest, x,y,x2-1,y2-1, r,g,b,255);
-}
 
-// TODO: what about this?
-/*inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
+/////////////////////
+// Draws a filled rectangle
+inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
 	static SDL_Rect r;
 	r.x = x;
 	r.y = y;
 	r.w = x2-x;
 	r.h = y2-y;
 	SDL_FillRect(bmpDest,&r,color);
-}*/
+}
 
+////////////////////
+// Draws a rectangle
 inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
 	Uint8 r,g,b;
 	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
 	rectangleRGBA(bmpDest, x,y,x2,y2, r,g,b,255);
 }
 
-inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, int alpha) {
-	Uint8 r,g,b;
-	SDL_GetRGB(color, SDL_GetVideoSurface()->format, &r,&g,&b);
-	boxRGBA(bmpDest, x,y,x2,y2, r,g,b,alpha);
-}
-// TODO: what about this?
-/*inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
+///////////////////
+// Draws a rectangle with transparency
+inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
 	SDL_Surface *tmp = gfxCreateSurface(x2-x,y2-y);
 	if (tmp)  {
 		SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, alpha);
@@ -219,28 +165,26 @@ inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Ui
 		DrawImage(bmpDest,tmp,x,y);
 		SDL_FreeSurface(tmp);
 	}
-}*/
+}
 
+///////////////////
+// Draw horizontal line
 inline void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	Uint8 r,g,b;
 	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
 	hlineRGBA(bmpDest, x,x2,y, r,g,b,255);
 }
-// TODO: what about this?
-/*inline void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
-	DrawRectFill(bmpDest,x,y,x2,y,colour);
-}*/
 
+///////////////////
+// Draw vertical line
 inline void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	Uint8 r,g,b;
 	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
 	vlineRGBA(bmpDest, x,y,y2, r,g,b,255);
 }
-// TODO: what about this?
-/*inline void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
-	DrawRectFill(bmpDest,x,y,x,y2,colour);
-}*/
 
+//////////////////
+// Draw a triangle
 inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour) {
 	Uint8 r,g,b;
 	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
@@ -250,47 +194,22 @@ inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, i
 
 // Pixel drawing
 inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) {
-	Uint8 r,g,b;
-	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
-	pixelRGBA(bmpDest, x,y, r,g,b,255);
+	memcpy((Uint8 *)bmpDest->pixels+y*bmpDest->pitch+x*bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
 }
 
 
 // Get a pixel from an 8bit address
 inline Uint32 GetPixelFromAddr(Uint8 *p, int bpp) {
-	switch(bpp) {
-		// 8 bpp
-		case 1:
-			return *p;
-
-		// 16 bpp
-		case 2:
-			return *(Uint16 *)p;
-
-		// 24 bpp
-		case 3:
-			#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-				return p[0] << 16 | p[1] << 8 | p[2];
-			#else
-				return p[0] | p[1] << 8 | p[2] << 16;
-			#endif
-
-		// 32 bpp
-		case 4:
-			return *(Uint32 *)p;
-
-		default:
-			return 0;
-	}
+	static Uint32 result;
+	result = 0;
+	memcpy(&result,p,bpp);
+	return result;
 }
 
 // Get a pixel from the surface
 inline Uint32 GetPixel(SDL_Surface *bmpSrc, int x, int y) {
-    int bpp = bmpSrc->format->BytesPerPixel;
-	return GetPixelFromAddr((Uint8 *)bmpSrc->pixels + y * bmpSrc->pitch + x * bpp, bpp);
+	return GetPixelFromAddr((Uint8 *)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel, bmpSrc->format->BytesPerPixel);
 }
-
-
 
 
 // Extract 4 colour components from a packed int
@@ -315,6 +234,7 @@ inline void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y
 }
 
 // Line drawing
+// TODO: why not use this as DrawLine if it's faster?
 inline void FastDrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
 	Uint8 r,g,b;
 	SDL_GetRGB(color, dst->format, &r,&g,&b);

@@ -1,13 +1,6 @@
 /////////////////////////////////////////
 //
-//   OpenLieroX
-//
 //   Auxiliary Software class library
-//
-//   based on the work of JasonB
-//   enhanced by Dark Charlie and Albert Zeyer
-//
-//   code under LGPL
 //
 /////////////////////////////////////////
 
@@ -25,36 +18,281 @@
 #include "Cache.h"
 #include "FindFile.h"
 
-int		iSurfaceFormat = SDL_SWSURFACE;
-
+int iSurfaceFormat = SDL_SWSURFACE;
 
 ///////////////////
-// Load an image
-SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
+// Draw the image mirrored with a huge amount of options
+void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
-	// Has this been already loaded?
-	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
-		if (it->getType() == CCH_IMAGE)  {
-			if (stringcasecmp(it->getFilename(),_filename) == 0)
-				if (it->GetImage())
-					return it->GetImage();
-		}
+	// Warning: Both surfaces have to have same bpp!
+
+	int x,y,c;
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+
+	// Warning: Doesn't do clipping on the source surface
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx + bmpDest->clip_rect.w;
+	int cey = cy + bmpDest->clip_rect.h;
+
+	// Do clipping on the DEST surface
+	if(dx+w<cx || dy+h<cy) return;
+	if(dx>cex || dy>cey) return;
+
+	if(dx<cx) {
+		c = cx-dx;
+		dx+=c;
+		w-=c;
+	}
+	if(dy<cy) {
+		c = cy-dy;
+		dy=cy;
+		h-=c;
 	}
 
-	// Didn't find one already loaded? Create a new one
-	CCache tmp;
-	SDL_Surface *result = tmp.LoadImgBPP(_filename,withalpha);
-	Cache.push_back(tmp);
+	if(dx+w > cex) {
+		c = dx+w - cex;
+		w-=c;
+		sx+=c;
+	}
+	if(dy+h > cey) {
+		c = dy+h - cey;
+		h-=c;
+		sy+=c;
+	}
 
-	return result;
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	Uint8 *sp,*tp;
+	for(y=0;y<h;y++) {
+
+		sp = SrcPix;
+		tp = TrgPix + w*bmpDest->format->BytesPerPixel;
+		for(x=0;x<w;x++) {
+			// Copy the pixel
+			memcpy(tp-=bmpDest->format->BytesPerPixel,sp+=bmpSrc->format->BytesPerPixel,bmpDest->format->BytesPerPixel);
+		}
+
+		SrcPix+=bmpSrc->pitch;
+		TrgPix+=bmpDest->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
 }
 
 
+///////////////////
+// Draws a sprite doubly stretched
+void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
+{
+	int x,y;
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+	// Warning: doesn't do clipping on DEST surface
+
+	// Clipping
+	if (sx < 0 || (sx+w) > bmpSrc->w)
+		return;
+	if (sy < 0 || (sy+h) > bmpSrc->h)
+		return;
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	Uint8 *sp,*tp_x,*tp_y;
+
+    for(y=0;y<h;y++) {
+
+		sp = SrcPix;
+		tp_x = TrgPix;
+		tp_y = tp_x+bmpDest->pitch;
+		for(x=0;x<w;x++) {
+            // Copy the 1 source pixel into a 4 pixel block on the destination surface
+			memcpy(tp_x+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+			memcpy(tp_x+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+			memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+			memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+			sp+=bmpSrc->format->BytesPerPixel;
+		}
+		TrgPix += bmpDest->pitch*2;
+		SrcPix += bmpSrc->pitch;
+	}
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
 
 
+///////////////////
+// Draws a sprite doubly stretched with colour key
+void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+{
+	int x,y;
+	int c;
+
+	// Warning: Doesn't do clipping on the source surface
+
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx+bmpDest->clip_rect.w;
+	int cey = cy+bmpDest->clip_rect.h;
 
 
+	// Do clipping on the DEST surface
+	if(dx+w*2<cx || dy+h*2<cy) return;
+	if(dx>cex || dy>cey) return;
 
+	if(dx<cx) {	c=cx-dx;	dx+=c; c/=2; sx+=c;	w-=c; }
+	if(dy<cy) {	c=cy-dy;	dy+=c; c/=2; sy+=c;	h-=c; }
+
+	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; w-=c; }
+	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; h-=c; }
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	Uint8 *sp,*tp_x,*tp_y;
+
+	// Pre-calculate some things, so the loop is faster
+	int doublepitch = bmpDest->pitch*2;
+	int doublebpp = bmpDest->format->BytesPerPixel*2;
+
+    for(y=0;y<h;y++) {
+
+		sp = SrcPix;
+		tp_x = TrgPix;
+		tp_y = tp_x+bmpDest->pitch;
+		for(x=0;x<w;x++) {
+			if (memcmp(&key,sp,bmpDest->format->BytesPerPixel))  {
+				// Copy the 1 source pixel into a 4 pixel block on the destination surface
+				memcpy(tp_x+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				memcpy(tp_x+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				sp+=bmpSrc->format->BytesPerPixel;
+			} else {
+				// Skip the transparent pixel
+				sp+=bmpSrc->format->BytesPerPixel;
+				tp_x += doublebpp;
+				tp_y += doublebpp;
+			}
+		}
+		TrgPix += doublepitch;
+		SrcPix += bmpSrc->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+
+///////////////////
+// Draws a sprite mirrored doubly stretched with colour key
+void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+{
+	int x,y;
+	int c;
+
+	// Warning: Doesn't do clipping on the source surface
+
+	int cx = bmpDest->clip_rect.x;
+	int cy = bmpDest->clip_rect.y;
+	int cex = cx+bmpDest->clip_rect.w;
+	int cey = cy+bmpDest->clip_rect.h;
+
+	// Do clipping on the DEST surface
+	if(dx+w*2<cx || dy+h*2<cy) return;
+	if(dx>cex || dy>cey) return;
+
+	if(dx<cx) {	c=cx-dx; dx+=c; w-=c;}
+	if(dy<cy) {	c=cy-dy; dy+=c; h-=c;}
+
+	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; sx+=c; w-=c;}
+	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; sy+=c; h-=c;}
+
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+
+
+	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
+	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels + sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
+
+	Uint8 *sp,*tp_x,*tp_y;
+
+	// Pre-calculate some things, so the loop is faster
+	int doublepitch = bmpDest->pitch*2;
+	int doublebpp = bmpDest->format->BytesPerPixel*2;
+	int realw = w*bmpDest->format->BytesPerPixel;
+
+    for(y=0;y<h;y++) {
+
+		sp = SrcPix;
+		tp_x = TrgPix+realw;
+		tp_y = tp_x+bmpDest->pitch;
+		for(x=0;x<w;x++) {
+			if (memcmp(&key,sp,bmpDest->format->BytesPerPixel))  {
+				// Copy the 1 source pixel into a 4 pixel block on the destination surface
+				memcpy(tp_x-=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				memcpy(tp_x-=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				memcpy(tp_y-=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				memcpy(tp_y-=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				sp+=bmpSrc->format->BytesPerPixel;
+			} else {
+				// Skip the transparent pixel
+				sp+=bmpSrc->format->BytesPerPixel;
+				tp_x -= doublebpp;
+				tp_y -= doublebpp;
+			}
+		}
+		TrgPix += doublepitch;
+		SrcPix += bmpSrc->pitch;
+	}
+
+
+	// Unlock em
+	if(SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+	if(SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+}
+
+/*
+ * Special line drawing
+ */
 
 int ropecolour = 0;
 int ropealt = 0;
@@ -63,6 +301,8 @@ int ropealt = 0;
 // Put a pixel on the surface (while checking for clipping)
 void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
+	// Warning: lock the surface before calling this!
+
 	ropealt = !ropealt;
 
 	if(ropealt)
@@ -82,15 +322,18 @@ void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 
-	Uint32 cols[2];
-	cols[0] = MakeColour(160,80,0);
-	cols[1] = MakeColour(200,100,0);
-
+	static Uint32 ropecols[2] = { MakeColour(160,80,0), MakeColour(200,100,0) };
 	ropecolour = !ropecolour;
-	colour = cols[ropecolour];
+	colour = ropecols[ropecolour];
 
 	//boxColor(bmpDest, x,y,x+1,y+1, colour);
-	DrawRectFill(bmpDest,x,y,x+2,y+2,colour);
+	//DrawRectFill(bmpDest,x,y,x+2,y+2,colour);
+	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
+	Uint8 *px2 = px+bmpDest->pitch;
+	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px2,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px2+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
 }
 
 
@@ -120,7 +363,12 @@ void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 		return;
 
 	//boxColor(bmpDest, x,y,x+1,y+1, colour);
-	DrawRectFill(bmpDest,x,y,x+2,y+2,colour);
+	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
+	Uint8 *px2 = px+bmpDest->pitch;
+	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px2,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px2+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
 }
 
 
@@ -139,8 +387,9 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 	if(!bmpDest)
 		return;
 
-	Uint32 Colours[] = { MakeColour(190,0,0), MakeColour(160,0,0) };
-	colour = Colours[ GetRandomInt(1) ];
+
+	static Uint32 laseraltcols[] = { MakeColour(190,0,0), MakeColour(160,0,0) };
+	colour = laseraltcols[ GetRandomInt(1) ];
 
 	// Snap to nearest 2nd pixel
 	x -= x % 2;
@@ -154,23 +403,17 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 		return;
 
 	//boxColor(bmpDest, x,y,x+1,y+1, colour);
-	DrawRectFill(bmpDest,x,y,x+2,y+2,colour);
+	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
+	Uint8 *px2 = px+bmpDest->pitch;
+	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px2,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px2+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
 }
 
-
-///////////////////
-
-
-
-
-
-
-#define ABS(a) (((a)<0) ? -(a) : (a))
-
-/*
- * Perform a line draw using a put pixel callback
- * Grabbed from allegro
- */
+////////////////////
+// Perform a line draw using a put pixel callback
+// Grabbed from allegro
 void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface *, int, int, Uint32))
 {
    int dx = x2-x1;
@@ -178,6 +421,9 @@ void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void 
    int i1, i2;
    int x, y;
    int dd;
+
+   if (SDL_MUSTLOCK(bmp))
+	   SDL_LockSurface(bmp);
 
    /* worker macro */
    #define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)     \
@@ -252,6 +498,9 @@ void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void 
 	 }
       }
    }
+
+   if (SDL_MUSTLOCK(bmp))
+	   SDL_UnlockSurface(bmp);
 }
 
 
@@ -375,8 +624,31 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 
 
 /*
- *  Image saving routines
+ *  Image loading/saving routines
  */
+
+///////////////////
+// Load an image
+SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
+{
+	// Has this been already loaded?
+	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
+		if (it->getType() == CCH_IMAGE)  {
+			if (stringcasecmp(it->getFilename(),_filename) == 0)
+				if (it->GetImage())
+					return it->GetImage();
+		}
+	}
+
+	// Didn't find one already loaded? Create a new one
+	CCache tmp;
+	SDL_Surface *result = tmp.LoadImgBPP(_filename,withalpha);
+	Cache.push_back(tmp);
+
+
+
+	return result;
+}
 
 ///////////////////////
 // Converts the SDL_surface to gdImagePtr

@@ -944,7 +944,7 @@ bool Menu_GameSettings_Frame(void)
 
 	// Set the value of the loading time label
 	int l = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, itoa(l)+"%", 0);
+	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, itoa(l)+"%", 0); // TODO: causes memleak (along with similar cases)!!!
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
