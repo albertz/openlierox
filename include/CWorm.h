@@ -18,6 +18,10 @@
 #define __CWORM_H__
 
 #include "CProjectile.h"
+#include "CGameScript.h"
+#include "CNinjaRope.h"
+#include "CWpnRest.h"
+
 
 #define		MAX_WEAPONSLOTS		10
 #define		MAX_WORMS			32

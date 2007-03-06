@@ -20,8 +20,9 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "Sounds.h"
+#include "Cache.h"
 #include "GfxPrimitives.h"
-
+#include "FindFile.h"
 
 std::vector<CCache> Cache;
 
@@ -34,7 +35,7 @@ std::vector<CCache> Cache;
 
 ///////////////////
 // Load an image
-SDL_Surface *_LoadImage(const std::string& filename)
+SDL_Surface* _LoadImage(const std::string& filename)
 {
     /*SDL_Surface *psSurf = NULL;
     Uint32 Rmask, Gmask, Bmask, Amask;
@@ -233,46 +234,3 @@ void ShutdownCache(void)
 }
 
 
-
-///////////////////
-// Load an image
-SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
-{
-	// Has this been already loaded?
-	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
-		if (it->getType() == CCH_IMAGE)  {
-			if (stringcasecmp(it->getFilename(),_filename) == 0)
-				if (it->GetImage())
-					return it->GetImage();
-		}
-	}
-
-	// Didn't find one already loaded? Create a new one
-	CCache tmp;
-	SDL_Surface *result = tmp.LoadImgBPP(_filename,withalpha);
-	Cache.push_back(tmp);
-
-	return result;
-}
-
-
-///////////////////
-// Load a sample
-SoundSample* LoadSample(const std::string& _filename, int maxplaying)
-{
-	// Has it been already loaded?
-	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
-		if (it->getType() == CCH_SOUND)  {
-			if (stringcasecmp(it->getFilename(),_filename) == 0)
-				if (it->GetSample())
-					return it->GetSample();
-		}
-	}
-
-	// Didn't find one already loaded? Load new one
-	CCache tmp;
-	SoundSample *result = tmp.LoadSample(_filename,maxplaying);
-	Cache.push_back(tmp);
-
-	return result;
-}

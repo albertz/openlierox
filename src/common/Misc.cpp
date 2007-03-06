@@ -593,7 +593,7 @@ Uint32 StrToCol(const std::string& str) {
 	temp = str;
 
 	// Is the # character present?
-	if (temp[0] == '#')
+	if (temp[0] == '#') // str != "" here
 		temp.erase(0,1);
 
 	// Check

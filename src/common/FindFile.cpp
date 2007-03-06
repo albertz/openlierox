@@ -19,6 +19,8 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "FindFile.h"
+
 
 #ifdef WIN32
 #	include <shlobj.h>

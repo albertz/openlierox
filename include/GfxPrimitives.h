@@ -20,8 +20,41 @@
 #ifndef __GFXPRIMITIVES_H__
 #define __GFXPRIMITIVES_H__
 
+#include <SDL/SDL_image.h>
 #include <SDL/SDL_rotozoom.h>
 #include <SDL/SDL_gfxPrimitives.h>
+
+#include "LieroX.h"
+
+
+
+extern	int		iSurfaceFormat;
+
+
+SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
+
+#define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
+#define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
+
+
+inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
+	bmp = LoadImage(name); 
+	if (bmp == NULL)  { 
+		printf("WARNING: could not load image %s\n", name.c_str()); 
+		return false;
+	}
+	return true;
+}
+
+inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
+	bmp = LoadImage(name, true);
+	if (bmp == NULL)  { 
+		printf("WARNING: could not load image %s\n", name.c_str()); 
+		return false;
+	}
+	return true;
+}
+
 
 
 // Surface stuff

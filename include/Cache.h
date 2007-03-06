@@ -91,28 +91,6 @@ extern std::vector<CCache> Cache;
 int		InitializeCache(void);
 void	ShutdownCache(void);
 
-SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
-SoundSample*	LoadSample(const std::string& _filename, int maxplaying);
-
-// Inlines for macros in defs.h
-inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
-	bmp = LoadImage(name); 
-	if (bmp == NULL)  { 
-		printf("WARNING: could not load image %s\n", name.c_str()); 
-		return false;
-	}
-	return true;
-}
-
-inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
-	bmp = LoadImage(name, true);
-	if (bmp == NULL)  { 
-		printf("WARNING: could not load image %s\n", name.c_str()); 
-		return false;
-	}
-	return true;
-}
-
 
 
 

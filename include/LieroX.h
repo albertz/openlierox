@@ -56,16 +56,12 @@ const float	R2D(5.729578e+1f); // radians to degrees
 // Game includes
 #include "ProfileSystem.h"
 #include "Networking.h"
-#include "CGameScript.h"
 #include "CChatBox.h"
 #include "Frame.h"
 #include "CViewport.h"
 #include "CMap.h"
 #include "CSimulation.h"
-#include "CNinjaRope.h"
 #include "Command.h"
-#include "CBonus.h"
-#include "CWpnRest.h"
 #include "CWorm.h"
 #include "CProjectile.h"
 #include "CShootList.h"
@@ -175,7 +171,6 @@ extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern	CInput			cToggleMediaPlayer;
 extern  int				nDisableSound;
-extern	int				iSurfaceFormat;
 extern	bool			bActivated;
 
 extern	std::string		binary_dir;

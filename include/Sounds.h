@@ -73,6 +73,7 @@ typedef struct id3v1_s {
 } id3v1_t;
 
 
+SoundSample*	LoadSample(const std::string& _filename, int maxplaying);
 
 // Routines
 bool	InitSoundSystem(int rate, int channels, int buffers);

@@ -17,6 +17,8 @@
 #ifndef __CNINJAROPE_H__
 #define __CNINJAROPE_H__
 
+#include "CGameScript.h"
+
 
 class	CWorm;
 

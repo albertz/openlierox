@@ -12,6 +12,8 @@
 #include "Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
+#include "FindFile.h"
+
 
 #ifndef WIN32
 #include <sys/dir.h>

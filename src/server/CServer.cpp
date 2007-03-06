@@ -19,6 +19,8 @@
 #include "console.h"
 #include "CBanList.h"
 #include "GfxPrimitives.h"
+#include "FindFile.h"
+
 
 // Bots' clients
 CClient *cBots = NULL;

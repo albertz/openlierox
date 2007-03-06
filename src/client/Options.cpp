@@ -16,6 +16,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "FindFile.h"
 
 
 options_t	     *tLXOptions = NULL;

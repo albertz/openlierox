@@ -19,10 +19,11 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "FindFile.h"
 
 
 int		GotError = false;
-char	ErrorMsg[128];
+char	ErrorMsg[1024];
 std::string	LastError;
 
 FILE *ErrorFile = NULL;

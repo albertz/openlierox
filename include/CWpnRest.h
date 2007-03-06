@@ -17,6 +17,7 @@
 #ifndef __CWPNREST_H__
 #define __CWPNREST_H__
 
+#include "CGameScript.h"
 
 // Weapon states
 enum {

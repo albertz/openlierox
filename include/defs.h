@@ -84,8 +84,6 @@ inline void strlwr(char* string) {
 #endif
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_thread.h>
 
 
 #include <nl.h>
@@ -111,8 +109,6 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readString
 
 // Helpful Macros
-#define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
-#define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
 #define		CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
 
 template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
@@ -212,11 +208,9 @@ inline T* GetByteSwapped(const T b)
 // Auxiliary Core components
 #include "types.h"
 #include "AuxLib.h"
-#include "Cache.h"
 #include "Error.h"
 #include "Timer.h"
 #include "Options.h"
-#include "FindFile.h"
 
 
 

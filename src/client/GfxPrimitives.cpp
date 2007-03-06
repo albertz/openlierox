@@ -22,6 +22,37 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
+#include "Cache.h"
+#include "FindFile.h"
+
+int		iSurfaceFormat = SDL_SWSURFACE;
+
+
+///////////////////
+// Load an image
+SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
+{
+	// Has this been already loaded?
+	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
+		if (it->getType() == CCH_IMAGE)  {
+			if (stringcasecmp(it->getFilename(),_filename) == 0)
+				if (it->GetImage())
+					return it->GetImage();
+		}
+	}
+
+	// Didn't find one already loaded? Create a new one
+	CCache tmp;
+	SDL_Surface *result = tmp.LoadImgBPP(_filename,withalpha);
+	Cache.push_back(tmp);
+
+	return result;
+}
+
+
+
+
+
 
 
 

@@ -21,7 +21,8 @@
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
-
+#include "Cache.h"
+#include "FindFile.h"
 
 // Game info
 std::string	GameName;
@@ -37,7 +38,6 @@ mouse_t		Mouse;
 SDL_Event	Event;
 
 // Screen
-int			iSurfaceFormat = SDL_SWSURFACE;
 
 SDL_Surface *bmpIcon=NULL;
 

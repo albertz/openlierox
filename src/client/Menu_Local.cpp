@@ -18,6 +18,7 @@
 #include "Menu.h"
 #include "CListview.h"
 #include "GfxPrimitives.h"
+#include "FindFile.h"
 
 
 CGuiLayout cLocalMenu;

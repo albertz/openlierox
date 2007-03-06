@@ -16,6 +16,31 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "Cache.h"
+
+
+///////////////////
+// Load a sample
+SoundSample* LoadSample(const std::string& _filename, int maxplaying)
+{
+	// Has it been already loaded?
+	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
+		if (it->getType() == CCH_SOUND)  {
+			if (stringcasecmp(it->getFilename(),_filename) == 0)
+				if (it->GetSample())
+					return it->GetSample();
+		}
+	}
+
+	// Didn't find one already loaded? Load new one
+	CCache tmp;
+	SoundSample *result = tmp.LoadSample(_filename,maxplaying);
+	Cache.push_back(tmp);
+
+	return result;
+}
+
+
 
 
 sfxgame_t	sfxGame;

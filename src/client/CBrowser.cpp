@@ -18,7 +18,7 @@
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
-
+#include "FindFile.h"
 
 ///////////////////
 // The create event

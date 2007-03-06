@@ -19,7 +19,7 @@
 #include "Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
-
+#include "FindFile.h"
 
 ///////////////////
 // Parse a connectionless packet

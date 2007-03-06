@@ -13,10 +13,12 @@
 // Created 28/6/02
 // Jason Boettcher
 
-#include "CBanList.h"
 
 #ifndef __CSERVER_H__
 #define	__CSERVER_H__
+
+#include "CBanList.h"
+#include "CBonus.h"
 
 
 #define		MAX_CHALLENGES		1024

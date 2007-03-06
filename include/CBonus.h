@@ -18,6 +18,9 @@
 #define __CBONUS_H__
 
 
+#include "CGameScript.h"
+
+
 #define		MAX_BONUSES		32
 #define		BONUS_SPAWNFREQ	30
 #define		BONUS_LIFETIME	60
@@ -27,6 +30,8 @@
 #define		BNS_WEAPON		0
 #define		BNS_HEALTH		1
 #define		BNS_FULLCHARGE	2
+
+
 
 
 class CBonus {
