@@ -155,7 +155,7 @@ void CListview::AddColumn(const std::string& sText, int iWidth)
 {
 	lv_column_t *col;
 
-	bool defaultwidth = iWidth <= 0;
+//	bool defaultwidth = iWidth <= 0; // TODO: not used
 
 	col = new lv_column_t;
 	if(col == NULL) {

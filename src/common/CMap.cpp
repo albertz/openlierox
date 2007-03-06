@@ -611,8 +611,8 @@ void CMap::TileMap(void)
 void CMap::CalculateDirtCount(void)
 {
     nTotalDirtCount = 0;
-    int n;
-	const int size = Width*Height;
+    unsigned int n;
+	const unsigned int size = Width*Height;
 
 	for (n=0;n<size;n++)
 		nTotalDirtCount += (PixelFlags[n++] & PX_DIRT);  // 0 or 1
@@ -1441,7 +1441,7 @@ void CMap::CalculateShadowMap(void)
 			// TODO: endian
 			dc = (R | G | B | A);
 			memcpy(pixel,&dc,screenbpp);
-			//*pixel= (Uint16)dc;
+			// *pixel= (Uint16)dc;
 		}
 
     }

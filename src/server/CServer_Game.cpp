@@ -294,7 +294,8 @@ void CServer::TagRandomWorm(void)
 
 	// Go through finding the worm with the lowest tag time
 	// A bit more fairer then random picking
-	for(int i=0;i<MAX_WORMS;i++) {
+	unsigned short i;
+	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT) {
 			if(cWorms[i].getTagTime() < time) {
 				time = cWorms[i].getTagTime();
