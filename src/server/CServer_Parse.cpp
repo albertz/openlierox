@@ -227,8 +227,12 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	int victim = bs->readInt(1);
 	int killer = bs->readInt(1);
 
+	// Bad packet
+	if (bs->GetPos() > bs->GetLength())
+		return;
+
 	// Team names
-	char *TeamNames[] = {"blue", "red", "green", "yellow"};
+	static std::string TeamNames[] = {"blue", "red", "green", "yellow"};
 	int TeamCount[4];
 
     // If the game is already over, ignore this
@@ -247,7 +251,9 @@ void CServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	log_worm_t *log_vict = GetLogWorm(vict->getID());
 	log_worm_t *log_kill = GetLogWorm(kill->getID());
 
-	// TODO: Cheat prevention check: Make sure the victim is one of the client's worms
+	// Cheat prevention check: Make sure the victim is one of the client's worms
+	if (!cl->OwnsWorm(vict))
+		return;
 
 	// Cheat prevention, game behaves weird if this happens
 	if(vict->getLives() < 0 && iLives >= 0)  {
@@ -807,7 +813,7 @@ void CServer::ParseConnect(CBytestream *bs)
 
 	// Get user info
 	int numworms = bs->readInt(1);
-	numworms = MIN(numworms,MAX_PLAYERS-1);
+	numworms = MIN(numworms,MAX_PLAYERS);
 	CWorm worms[MAX_PLAYERS];
 	for(i=0;i<numworms;i++) {
 		worms[i].readInfo(bs);

@@ -297,11 +297,14 @@ void CClient::ParsePacket(CBytestream *bs)
 bool CClient::ParsePrepareGame(CBytestream *bs)
 {
 	// We've already got this packet
-	if (iGameReady && iNetStatus != NET_CONNECTED)
+	if (iGameReady && iNetStatus != NET_CONNECTED)  {
+		printf("CClient::ParsePrepareGame: we already got this\n");
 		return false;
+	}
 
 	// If we're playing, the game has to be ready
 	if (iNetStatus == NET_PLAYING)  {
+		printf("CClient::ParsePrepareGame: playing, had to get this\n");
 		iGameReady = true;
 		return false;
 	}
@@ -337,6 +340,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 			iGameReady = false;
 
+			printf("CClient::ParsePrepareGame: out of memory when allocating map\n");
+
 			return false;
 		}
 	}
@@ -351,6 +356,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			if(!cMap->New(504,350,"dirt")) {
 				Disconnect();
 				iGameReady = false;
+				printf("CClient::ParsePrepareGame: could not create random map\n");
 				return false;
 			}
 			cMap->ApplyRandom();
@@ -369,7 +375,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 		// Invalid packet
 		if (buf == "")  {
-			printf("Bad packet in ParsePrepareGame");
+			printf("CClient::ParsePrepareGame: bad map name (none)\n");
 			iGameReady = false;
 			return false;
 		}
@@ -388,6 +394,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 				// Go back to the menu
 				QuittoMenu();
 				iGameReady = false;
+
+				printf("CClient::ParsePrepareGame: could not load map "+buf+"\n");
 				return false;
 			}
 		} else {
@@ -418,7 +426,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	// Bad packet
 	if (sModName == "")  {
-		printf("Bad packet in ParsePrepareGame");
+		printf("CClient::ParsePrepareGame: invalid mod name (none)\n");
 		iGameReady = false;
 		return false;
 	}
@@ -438,6 +446,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		// Go back to the menu
 		QuittoMenu();
 		iGameReady = false;
+
+		printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");
         return false;
 	}
 
@@ -532,8 +542,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 void CClient::ParseStartGame(CBytestream *bs)
 {
 	// Already got this
-	if (iNetStatus == NET_PLAYING)
+	if (iNetStatus == NET_PLAYING)  {
+		printf("CClient::ParseStartGame: already playing - ignoring\n");
 		return;
+	}
 
 	iNetStatus = NET_PLAYING;
 
@@ -556,15 +568,21 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	int y = bs->readInt(2);
 
 	// Is the spawnpoint in the map?
-	if (x > cMap->GetWidth() || x < 0)
+	if (x > cMap->GetWidth() || x < 0)  {
+		printf("CClient::ParseSpawnWorm: X-coordinate not in map ("+itoa(x)+")\n");
 		return;
-	if (y > cMap->GetHeight() || y < 0)
+	}
+	if (y > cMap->GetHeight() || y < 0)  {
+		printf("CClient::ParseSpawnWorm: Y-coordinate not in map ("+itoa(y)+")\n");
 		return;
+	}
 
 	CVec p = CVec( (float)x, (float)y );
 
-	if (id < 0 || id >= MAX_PLAYERS)
+	if (id < 0 || id >= MAX_PLAYERS)  {
+		printf("CClient::ParseSpawnWorm: invalid ID ("+itoa(id)+")\n");
 		return;
+	}
 
 	cRemoteWorms[id].setAlive(true);
 	cRemoteWorms[id].Spawn(p);
@@ -585,8 +603,10 @@ void CClient::ParseWormInfo(CBytestream *bs)
 	int id = bs->readInt(1);
 
 	// Validate the id
-	if (id < 0 || id >= MAX_WORMS)
+	if (id < 0 || id >= MAX_WORMS)  {
+		printf("CClient::ParseWormInfo: invalid ID ("+itoa(id)+")\n");
 		return;
+	}
 
 	cRemoteWorms[id].setUsed(true);
 	cRemoteWorms[id].readInfo(bs);
@@ -732,14 +752,20 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 	int x = bs->readInt(2);
 	int y = bs->readInt(2);
 
-	if (id < 0 || id >= MAX_BONUSES)
+	if (id < 0 || id >= MAX_BONUSES)  {
+		printf("CClient::ParseSpawnBonus: invalid bonus ID ("+itoa(id)+")\n");
 		return;
+	}
 
-	if (x > cMap->GetWidth() || x < 0)
+	if (x > cMap->GetWidth() || x < 0)  {
+		printf("CClient::ParseSpawnBonus: X-coordinate not in map ("+itoa(x)+")\n");
 		return;
+	}
 
-	if (y > cMap->GetHeight() || y < 0)
+	if (y > cMap->GetHeight() || y < 0)  {
+		printf("CClient::ParseSpawnBonus: Y-coordinate not in map ("+itoa(y)+")\n");
 		return;
+	}
 
 	CVec p = CVec( (float)x, (float)y );
 
@@ -754,18 +780,24 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 // Parse a tag update packet
 void CClient::ParseTagUpdate(CBytestream *bs)
 {
-	if (iNetStatus != NET_PLAYING)
+	if (iNetStatus != NET_PLAYING)  {
+		printf("CClient::ParseTagUpdate: not playing - ignoring\n");
 		return;
+	}
 
 	int id = bs->readInt(1);
 	float time = bs->readFloat();
 
 	// Safety check
-	if(id <0 || id >= MAX_WORMS)
+	if(id <0 || id >= MAX_WORMS)  {
+		printf("CClient::ParseTagUpdate: invalid worm ID ("+itoa(id)+")\n");
 		return;
+	}
 
-	if (tGameInfo.iGameMode != GMT_TAG)
+	if (tGameInfo.iGameMode != GMT_TAG)  {
+		printf("CClient::ParseTagUpdate: game mode is not tag - ignoring\n");
 		return;
+	}
 
 	// Set all the worms 'tag' property to false
 	CWorm *w = cRemoteWorms;
@@ -788,7 +820,7 @@ void CClient::ParseCLReady(CBytestream *bs)
 
 	if((numworms < 1 || numworms > MAX_PLAYERS) && tGameInfo.iGameType != GME_LOCAL) {
 		// bad packet
-		printf("Bad numworms count on CLREADY packet\n");
+		printf("CClient::ParseCLReady: invalid numworms ("+itoa(numworms)+")\n");
 		return;
 	}
 
@@ -797,7 +829,7 @@ void CClient::ParseCLReady(CBytestream *bs)
 		int id = bs->readByte();
 
 		if( id < 0 || id >= MAX_WORMS) {
-			d_printf("Bad worm id on CLREADY packet\n");
+			printf("CClient::ParseCLReady: bad worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
@@ -817,15 +849,17 @@ void CClient::ParseCLReady(CBytestream *bs)
 // Parse an update-lobby packet
 void CClient::ParseUpdateLobby(CBytestream *bs)
 {
-	if (iNetStatus != NET_CONNECTED)
+	if (iNetStatus != NET_CONNECTED)  {
+		printf("CClient::ParseUpdateLobby: not in lobby - ignoring\n");
 		return;
+	}
 
 	int numworms = bs->readByte();
 	int ready = bs->readByte();
 
 	if(numworms < 1 || numworms > MAX_WORMS) {
 		// bad packet
-		printf("Bad numworms count(%d) on UPDATELOBBY packet\n",numworms);
+		printf("CClient::ParseUpdateLobby: invalid numworms value ("+itoa(numworms)+")\n");
 		return;
 	}
 
@@ -836,7 +870,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
         int team = MAX(0,MIN(3,(int)bs->readByte()));
 
 		if( id < 0 || id > MAX_WORMS) {
-			printf("Bad worm id on UPDATELOBBY packet\n");
+			printf("CClient::ParseUpdateLobby: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
@@ -889,7 +923,7 @@ void CClient::ParseClientLeft(CBytestream *bs)
 
 	if(numworms < 1 || numworms > MAX_PLAYERS) {
 		// bad packet
-		printf("Bad numworms count on CLLEFT packet\n");
+		printf("CClient::ParseClientLeft: bad numworms count ("+itoa(numworms)+")\n");
 		return;
 	}
 
@@ -898,7 +932,7 @@ void CClient::ParseClientLeft(CBytestream *bs)
 		int id = bs->readByte();
 
 		if( id < 0 || id > MAX_WORMS) {
-			printf("Bad worm id on CLLEFT packet\n");
+			printf("CClient::ParseClientLeft: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
@@ -919,14 +953,18 @@ void CClient::ParseClientLeft(CBytestream *bs)
 void CClient::ParseUpdateWorms(CBytestream *bs)
 {
 	int count = bs->readByte();
-	if (count >= MAX_WORMS || count < 0)
+	if (count >= MAX_WORMS || count < 0)  {
+		printf("CClient::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");
 		return;
+	}
 
 	for(int i=0;i<count;i++) {
 		int id = bs->readByte();
 
-		if (id < 0 || id >= MAX_WORMS)
+		if (id < 0 || id >= MAX_WORMS)  {
+			printf("CClient::ParseUpdateWorms: invalid worm ID ("+itoa(id)+")\n");
 			continue;
+		}
 
 		/*if (!cRemoteWorms[id].isUsed())  {
 			i--;
@@ -944,8 +982,10 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 // Parse an 'update game lobby' packet
 void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 {
-	if (iNetStatus != NET_CONNECTED)
+	if (iNetStatus != NET_CONNECTED)  {
+		printf("CClient::ParseUpdateLobbyGame: not in lobby - ignoring\n");
 		return;
+	}
 
 	game_lobby_t    *gl = &tGameLobby;
     FILE            *fp = NULL;
@@ -953,7 +993,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 	if (!gl)  {
 		//TODO: uniform message system
 		//MessageBox(0,"Could not find lobby","Error",MB_OK);
-		printf("Could not find lobby\n");
+		printf("CClient::ParseUpdateLobbyGame: Could not find lobby\n");
 		return;
 	}
 
@@ -1002,8 +1042,10 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 void CClient::ParseWormDown(CBytestream *bs)
 {
 	// Don't allow anyone to kill us in lobby
-	if (iNetStatus != NET_PLAYING)
+	if (iNetStatus != NET_PLAYING)  {
+		printf("CClient::ParseWormDown: not playing - ignoring\n");
 		return;
+	}
 
 	int id = bs->readByte();
 
@@ -1029,6 +1071,8 @@ void CClient::ParseWormDown(CBytestream *bs)
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
 		}
+	} else {
+		printf("CClient::ParseWormDown: invalid worm ID ("+itoa(id)+")\n");
 	}
 }
 
@@ -1063,8 +1107,10 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 // Parse a 'single shot' packet
 void CClient::ParseSingleShot(CBytestream *bs)
 {
-	if(iNetStatus != NET_PLAYING)
+	if(iNetStatus != NET_PLAYING)  {
+		printf("CClient::ParseSingleShot: not playing - ignoring\n");
 		return;
+	}
 
 	cShootList.readSingle(bs);
 
@@ -1078,8 +1124,10 @@ void CClient::ParseSingleShot(CBytestream *bs)
 // Parse a 'multi shot' packet
 void CClient::ParseMultiShot(CBytestream *bs)
 {
-	if(iNetStatus != NET_PLAYING)
+	if(iNetStatus != NET_PLAYING)  {
+		printf("CClient::ParseMultiShot: not playing - ignoring\n");
 		return;
+	}
 
 	cShootList.readMulti(bs);
 
@@ -1092,8 +1140,11 @@ void CClient::ParseMultiShot(CBytestream *bs)
 // Update the worms stats
 void CClient::ParseUpdateStats(CBytestream *bs)
 {
-	int num = bs->readByte();
-	num = MIN(num,MAX_PLAYERS-1);
+	int num = (int)bs->readByte();
+	if (num < 0 || num > MAX_PLAYERS)
+		printf("CClient::ParseUpdateStats: invalid worm count ("+itoa(num)+") - clamping\n");
+
+	num = MIN(num,MAX_PLAYERS);
 
 	for(int i=0; i<num; i++)
 		getWorm(i)->readStatUpdate(bs);
@@ -1108,6 +1159,8 @@ void CClient::ParseDestroyBonus(CBytestream *bs)
 
 	if( id >= 0 && id < MAX_BONUSES )
 		cBonuses[id].setUsed(false);
+	else
+		printf("CClient::ParseDestroyBonus: invalid bonus ID ("+itoa(id)+")\n");
 }
 
 

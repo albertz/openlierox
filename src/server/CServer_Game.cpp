@@ -287,7 +287,7 @@ void CServer::TagWorm(int id)
 void CServer::TagRandomWorm(void)
 {
 	float time = 99999;
-	int lowest=0;
+	std::vector<int> all_lowest;
 
 	// TODO: in game start this always picks the host, which is not so fair 
 
@@ -298,14 +298,25 @@ void CServer::TagRandomWorm(void)
 		if(cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT) {
 			if(cWorms[i].getTagTime() < time) {
 				time = cWorms[i].getTagTime();
-				lowest = i;
 			}
 		}
 	}
 
+	// Find all the worms that have the lowest time
+	for (i=0;i<MAX_WORMS;i++)  {
+		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)  {
+			if (cWorms[i].getTagTime() == time)  {
+				all_lowest.push_back(i);
+			}
+		}
+	}
+
+	// Choose a random worm from all those having the lowest time
+	int random_lowest = GetRandomInt(all_lowest.size()-1);
+
 
 	// Tag the lowest tagged worm
-	TagWorm(lowest);
+	TagWorm(all_lowest[random_lowest]);
 
 
 
@@ -364,8 +375,6 @@ void CServer::WormShoot(CWorm *w)
 	CVec dir;
 	GetAngles((int)Angle,&dir,NULL);
 	CVec pos = w->getPos();// + dir*6;
-//	int rot = 0;   // TODO: not used
-
 
 	// Add the shot to the shooting list
 	dir = *w->getVelocity();
