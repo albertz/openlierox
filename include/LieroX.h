@@ -268,6 +268,19 @@ inline int atoi(const std::string& str)  { return from_string<int>(str);  }
 inline float atof(const std::string& str) { return from_string<float>(str);  }
 
 
+
+class simple_reversestring_hasher { public:
+	inline size_t operator() (const std::string& str) const {
+		std::string::const_reverse_iterator pos = str.rbegin();
+		unsigned short nibble = 0;
+		size_t result = 0;
+		for(; pos != str.rend() && nibble < sizeof(size_t)*2; pos++, nibble++)
+			result += ((size_t)*pos % 16) << nibble*4;
+		return result;
+	}
+};
+
+
 // Useful XML functions
 int		xmlGetInt(xmlNodePtr Node, const std::string& Name);
 float	xmlGetFloat(xmlNodePtr Node, const std::string& Name);

@@ -17,6 +17,8 @@
 // By Jason Boettcher
 
 
+#include <hash_map>
+
 #include "defs.h"
 #include "LieroX.h"
 #include "FindFile.h"
@@ -55,6 +57,9 @@ bool IsFileAvailable(const std::string& f, bool absolute) {
 	// it's stat-able and a file
 	return true;
 }
+
+
+
 
 /*
 
@@ -107,9 +112,32 @@ list.clear();
 
 #ifndef WIN32
 
+// checks, if path is statable (that means, it's existing)
+// HINT: absolute path and there is not case fixing
+// (used by GetExactFileName)
+bool IsPathStatable(const std::string& f) {
+	static std::string abs_f;
+	abs_f = f;
+
+	// remove trailing slashes
+	// don't remove them on WIN, if it is a drive-letter
+	while(abs_f.size() > 0 && (abs_f[abs_f.size()-1] == '\\' || abs_f[abs_f.size()-1] == '/')) {
+#ifdef WIN32
+		if(abs_f.size() > 2 && abs_f[abs_f.size()-2] == ':') break;
+#endif
+		abs_f.erase(abs_f.size()-1);
+	}
+
+	// HINT: this should also work on WIN32, as we have _stat here
+	// (see the #include and #define in defs.h)
+	struct stat s;
+	return (stat(abs_f.c_str(), &s) == 0); // ...==0, if successfull
+}
+
+
 // used by unix-GetExactFileName
 // HINT: it only reads the first char of the seperators
-// it returns the start of the subdir
+// it returns the start of the subdir (the pos _after_ the sep.)
 size_t GetNextName(const std::string& fullname, const char** seperators, std::string& nextname)
 {
 	std::string::const_iterator pos;
@@ -156,6 +184,29 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 }
 
 
+typedef std::hash_map<std::string, std::string, simple_reversestring_hasher> exactfilenamecache_t;
+exactfilenamecache_t exactfilenamecache;
+
+bool is_searchname_in_exactfilenamecache(
+		const std::string& searchname,
+		std::string& exactname
+) {
+	exactfilenamecache_t::iterator it = exactfilenamecache.find(searchname);
+	if(it != exactfilenamecache.end()) {
+		exactname = it->second;
+		return true;
+	} else
+		return false;	
+}
+
+void add_searchname_to_exactfilenamecache(
+		const std::string& searchname,
+		const std::string& exactname
+) {
+	exactfilenamecache[searchname] = exactname;
+}
+
+
 // does case insensitive search for file
 bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
 	if(abs_searchname.size() == 0) {
@@ -173,18 +224,29 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 	size_t pos = 0;
 	while(true) {
 		pos = GetNextName(sname, seps, nextname);
+		// pos>0  => found a sep
+		// pos==0  => none found
 		if(pos > 0) sname.erase(0,pos);
 
-		if(!CaseInsFindFile(filename, nextname, nextexactname)) {
-			filename += sname;
-			return false;
+		if(nextname == "")
+			// simply ignore this case
+			// (we accept sth like /usr///share/)
+			nextexactname = "";
+		else if(!CaseInsFindFile(
+				filename, // dir
+				nextname, // ~name
+				nextexactname // resulted name
+		)) {
+			// we doesn't get any result
+			filename += sname; // just add rest to it
+			return false; // error (not found)
 		}
 		
 		filename += nextexactname;
 		if(pos > 0)
 			filename += "/";
 		else
-			break;			
+			break;
 	}
 
 	return true;
