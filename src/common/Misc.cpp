@@ -703,6 +703,11 @@ std::string GetFileExtension(const std::string& filename) {
 
 void printf(const std::string& txt) {
 	printf("%s", txt.c_str());
+
+// Print out to debug pane
+#ifdef _MSC_VER
+	OutputDebugStringA(txt.c_str());
+#endif
 }
 
 
