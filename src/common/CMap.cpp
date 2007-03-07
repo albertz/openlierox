@@ -612,7 +612,7 @@ void CMap::CalculateDirtCount(void)
 	const unsigned int size = Width*Height;
 
 	for (n=0;n<size;n++)
-		nTotalDirtCount += (PixelFlags[n++] & PX_DIRT);  // 0 or 1
+		nTotalDirtCount += ((PixelFlags[n++] & PX_DIRT) != 0);  // 0 or 1
 }
 
 
@@ -760,12 +760,10 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
 int CMap::CarveHole(int size, CVec pos)
 {
 	SDL_Surface *hole;
-	int dx,dy, sx,sy;
-	int bx,by;
+	int dy, sx,sy;
+	//int bx,by;
 	int x,y;
 	int w,h;
-	Uint32 pixel;
-	uchar flag;
 	Uint32 pink = tLX->clPink;
 
     int nNumDirt = 0;
@@ -789,163 +787,69 @@ int CMap::CarveHole(int size, CVec pos)
 
 	if(SDL_MUSTLOCK(hole))
 		SDL_LockSurface(hole);
+	if(SDL_MUSTLOCK(bmpImage))
+		SDL_LockSurface(bmpImage);
 
 
-	Uint8 *p;
+	// Calculate the clipping bounds, so we don't have to check each loop then
+	int clip_h = MIN(sy+hole->h,bmpImage->h)-sy;
+	int clip_w = MIN(sx+hole->w,bmpImage->w)-sx;
+	int clip_y = 0; 
+	int clip_x = 0; 
+	if (sy<0) 
+		clip_y = abs(sy);
+	if (sx<0) 
+		clip_x = abs(sx);
+
+	// Some temps to make the loop faster
+	int src_tmp = clip_x*hole->format->BytesPerPixel;
+	int pf_tmp = sx+clip_x; 
+	int dst_tmp = (sx+clip_x)*bmpImage->format->BytesPerPixel;
+	static Uint32 black = 0;
+
+	// Pixels
+	Uint8 *srcpix;
+	Uint8 *SrcRow = (Uint8 *)hole->pixels+(clip_y)*hole->pitch;
+	Uint8 *dstpix;
+	Uint8 *DstRow = (Uint8 *)bmpImage->pixels+(sy+clip_y)*bmpImage->pitch;
 	uchar *px;
-	Uint8 *p2;
 
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
 	lockFlags();
 
-	switch (screenbpp)  {
-	// 8 bpp
-	case 1:
-		// TODO
-		break;
+	// Go through the pixels in the hole, setting the flags to empty
+	for(y=clip_y,dy=MAX((int)0,sy);y<clip_h;y++,dy++,SrcRow+=hole->pitch,DstRow+=bmpImage->pitch) {
 
-	// 16 bpp
-	case 2:  {
-		// Go through the pixels in the hole, setting the flags to empty
-		for(y=0,dy=sy,by=16;y<hole->h;y++,dy++,by++) {
+		srcpix = SrcRow+src_tmp;
+		px = PixelFlags + dy * Width + pf_tmp;
+		dstpix = DstRow+dst_tmp;
 
-			// Clipping
-			if(dy<0)			continue;
-			if(dy>=bmpImage->h)	break;
+		for(x=clip_x;x<clip_w;x++,px++,srcpix+=hole->format->BytesPerPixel,dstpix+=bmpImage->format->BytesPerPixel) {
 
-			p = (Uint8 *)hole->pixels + y * hole->pitch;
-			px = PixelFlags + dy * Width + sx;
-			p2 = (Uint8 *)bmpImage->pixels + dy * bmpImage->pitch + sx * bmpImage->format->BytesPerPixel;
+			if (*px & PX_ROCK) continue;
 
-			for(x=0,dx=sx,bx=16;x<hole->w;x++,dx++,bx++) {
+			// Set the flag to empty
+			if(!memcmp(srcpix,&pink,hole->format->BytesPerPixel)) {
 
-				// Clipping
-				if(dx<0) {	p+=2; p2+=2; px++;	continue; }
-				if(dx>=bmpImage->w)				break;
+				// Increase the dirt count
+				nNumDirt+=((*px & PX_DIRT) != 0);  // 0 or 1
 
+				*px = PX_EMPTY;
 
-				pixel = *(Uint16 *)p;
-				flag = *(uchar *)px;
-
-				// Set the flag to empty
-				if(pixel == pink && !(flag & PX_ROCK)) {
-
-					// Increase the dirt count
-					if( flag & PX_DIRT )
-						nNumDirt++;
-
-					*(uchar *)px = PX_EMPTY;
-				}
-
-				// Put pixels that are not black/pink (eg, brown)
-				if(pixel != 0 && pixel != pink && (flag & PX_DIRT))
-					*(Uint16 *)p2 = (Uint16)pixel;
-
-				p+=2;
-				p2+=2;
-				px++;
+			// Put pixels that are not black/pink (eg, brown)
+			} else {	
+				if(memcmp(srcpix,&black,hole->format->BytesPerPixel))
+					memcpy(dstpix,srcpix,bmpImage->format->BytesPerPixel*((*px & PX_DIRT) != 0)); // copies 0 or bpp pixels
 			}
 		}
-	}
-	break;
-
-	// 24 bpp
-	case 3:  {
-		// Go through the pixels in the hole, setting the flags to empty
-		for(y=0,dy=sy,by=16;y<hole->h;y++,dy++,by++) {
-
-			// Clipping
-			if(dy<0)			continue;
-			if(dy>=bmpImage->h)	break;
-
-			p = (Uint8 *)hole->pixels + y * hole->pitch;
-			px = PixelFlags + dy * Width + sx;
-			p2 = (Uint8 *)bmpImage->pixels + dy * bmpImage->pitch + sx * bmpImage->format->BytesPerPixel;
-
-			for(x=0,dx=sx,bx=16;x<hole->w;x++,dx++,bx++) {
-
-				// Clipping
-				if(dx<0) {	p+=3; p2+=3; px++;	continue; }
-				if(dx>=bmpImage->w)				break;
-
-
-				pixel = 0;
-				memcpy(&pixel,p,sizeof(uint24));
-				flag = *(uchar *)px;
-
-				// Set the flag to empty
-				if(!memcmp(p,&pink,sizeof(uint24)) && !(flag & PX_ROCK)) {
-
-					// Increase the dirt count
-					if( flag & PX_DIRT )
-						nNumDirt++;
-
-					*(uchar *)px = PX_EMPTY;
-				}
-
-				// Put pixels that are not black/pink (eg, brown)
-				if(pixel != 0 && pixel != pink && (flag & PX_DIRT))
-					memcpy(p2,&pixel,sizeof(uint24));
-
-				p+=3;
-				p2+=3;
-				px++;
-			}
-		}
-	}
-	break;
-
-	// 32 bpp
-	case 4:  {
-		// Go through the pixels in the hole, setting the flags to empty
-		for(y=0,dy=sy,by=16;y<hole->h;y++,dy++,by++) {
-
-			// Clipping
-			if(dy<0)			continue;
-			if(dy>=bmpImage->h)	break;
-
-			p = (Uint8 *)hole->pixels + y * hole->pitch;
-			px = PixelFlags + dy * Width + sx;
-			p2 = (Uint8 *)bmpImage->pixels + dy * bmpImage->pitch + sx * bmpImage->format->BytesPerPixel;
-
-			for(x=0,dx=sx,bx=16;x<hole->w;x++,dx++,bx++) {
-
-				// Clipping
-				if(dx<0) {	p+=4; p2+=4; px++;	continue; }
-				if(dx>=bmpImage->w)				break;
-
-
-				pixel = *(Uint32 *)p;
-				flag = *(uchar *)px;
-
-				// Set the flag to empty
-				if(pixel == pink && !(flag & PX_ROCK)) {
-
-					// Increase the dirt count
-					if( flag & PX_DIRT )
-						nNumDirt++;
-
-					*(uchar *)px = PX_EMPTY;
-				}
-
-				// Put pixels that are not black/pink (eg, brown)
-				if(pixel != 0 && pixel != pink && (flag & PX_DIRT))
-					*(Uint32 *)p2 = pixel;
-
-				p+=4;
-				p2+=4;
-				px++;
-			}
-		}
-	}
-	break;
 	}
 
 	unlockFlags();
 
 	if(SDL_MUSTLOCK(hole))
 		SDL_UnlockSurface(hole);
+	if(SDL_MUSTLOCK(bmpImage))
+		SDL_UnlockSurface(bmpImage);
 
 	// If nothing has been carved, we don't have to bother with updating the state
 	if (!nNumDirt)
@@ -956,6 +860,17 @@ int CMap::CarveHole(int size, CVec pos)
 	sx-=5;
 	sy-=5;
 
+	// Calculate the clipping bounds, so we don't have to check each loop then
+	clip_h = MIN(sy+hole->h+20,bmpImage->h)-sy;
+	clip_w = MIN(sx+hole->w+20,bmpImage->w)-sx;
+	clip_y = 0; 
+	clip_x = 0; 
+	if (sy<0) 
+		clip_y = abs(sy);
+	if (sx<0) 
+		clip_x = abs(sx);
+
+
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);
 	if(SDL_MUSTLOCK(bmpBackImage))
@@ -963,29 +878,23 @@ int CMap::CarveHole(int size, CVec pos)
 
 	lockFlags();
 
-	for(y=sy;y<sy+h+20;y++) {
+	// Some temps to make the loop faster
+	src_tmp = (sx+clip_x)*bmpBackImage->format->BytesPerPixel;
+	pf_tmp = sx+clip_x; 
+	dst_tmp = (sx+clip_x)*bmpImage->format->BytesPerPixel;
 
-		// Clipping
-		if(y<0)			continue;
-		if(y>=bmpImage->h)	break;
+	// Initialize pixels
+	SrcRow = (Uint8 *)bmpBackImage->pixels + (sy+clip_y)*bmpBackImage->pitch;
+	DstRow = (Uint8 *)bmpImage->pixels + (sy+clip_y)*bmpImage->pitch;
 
-		p = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch + sx * bmpImage->format->BytesPerPixel;
-		p2 = (Uint8 *)bmpBackImage->pixels + y * bmpBackImage->pitch + sx * bmpBackImage->format->BytesPerPixel;
-		px = PixelFlags + y * Width + sx;
+	for(y=clip_y;y<clip_h;y++,SrcRow+=bmpBackImage->pitch,DstRow+=bmpImage->pitch) {
 
-		for(x=sx;x<sx+w+20;x++) {
+		srcpix = SrcRow+src_tmp;
+		dstpix = DstRow+dst_tmp;
+		px = PixelFlags + (sy+y) * Width + pf_tmp;
 
-			// Clipping
-			if(x<0) {	p+=screenbpp; p2+=screenbpp; px++;	continue; }
-			if(x>=bmpImage->w)		break;
-			
-			if(*px & PX_EMPTY)
-				//*(Uint16 *)p = *(Uint16 *)p2;
-				memcpy(p,p2,screenbpp); // This is bpp independent
-
-			p+=screenbpp;
-			p2+=screenbpp;
-			px++;
+		for(x=clip_x;x<clip_w;x++,px++,srcpix+=bmpBackImage->format->BytesPerPixel,dstpix+=bmpImage->format->BytesPerPixel) {		
+			memcpy(dstpix,srcpix,bmpImage->format->BytesPerPixel*((*px & PX_EMPTY) != 0)); // when not PX_EMPTY, copies 0 bytes
 		}
 	}
 
@@ -1024,7 +933,8 @@ int CMap::CarveHole(int size, CVec pos)
 		draw_y = 0;
 	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
 
-	bMiniMapDirty = true;
+	UpdateMiniMapRect(MAX(0,sx-5), MAX(0,sy-5), w+25, h+25);
+	//bMiniMapDirty = true;
 
     return nNumDirt;
 }
@@ -1152,7 +1062,8 @@ int CMap::PlaceDirt(int size, CVec pos)
 		draw_y = 0;
 	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
 
-	bMiniMapDirty = true;
+	UpdateMiniMapRect(draw_x,draw_y,w+25,h+25);
+	//bMiniMapDirty = true;
 
 
 	// Recalculate the grid
@@ -1290,7 +1201,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 		draw_y = 0;
 	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
 
-	bMiniMapDirty = true;
+	UpdateMiniMapRect(draw_x,draw_y,w+25,h+25);
+	//bMiniMapDirty = true;
 
 	// Recalculate the grid
 	lockFlags();
@@ -1455,9 +1367,9 @@ void CMap::CalculateShadowMap(void)
 void CMap::PlaceStone(int size, CVec pos)
 {
 	SDL_Surface *stone;
-	int dx,dy, sx,sy;
-	int x,y;
-	int w,h;
+	short dy, sx,sy;
+	short x,y;
+	short w,h;
 
 	Uint32 pink = tLX->clPink;
 
@@ -1487,6 +1399,8 @@ void CMap::PlaceStone(int size, CVec pos)
 	sx = (int)pos.x-(stone->w>>1);
 	sy = (int)pos.y-(stone->h>>1);
 
+	// Blit the stone to the surface
+	DrawImage(bmpImage,stone,sx,sy);
 
 	if(SDL_MUSTLOCK(stone))
 		SDL_LockSurface(stone);
@@ -1495,43 +1409,37 @@ void CMap::PlaceStone(int size, CVec pos)
 
 	lockFlags();
 
-	Uint8 *p = (Uint8 *)stone->pixels;
+	// Calculate the clipping bounds, so we don't have to check each loop then
+	short clip_h = MIN(sy+stone->h,bmpImage->h)-sy;
+	short clip_w = MIN(sx+stone->w,bmpImage->w)-sx;
+	short clip_y = 0; 
+	short clip_x = 0; 
+	if (sy<0) 
+		clip_y = abs(sy);
+	if (sx<0) 
+		clip_x = abs(sx);
+
+	// Pixels
+	Uint8 *p = NULL;
+	Uint8 *PixelRow = (Uint8 *)stone->pixels + clip_y*stone->pitch;
 	uchar *px = PixelFlags;
+	short pf_tmp = MAX((short)0,sx);
+	short p_tmp = clip_x*stone->format->BytesPerPixel;
 
-	// Go through the pixels in the stone
-	for(y=0,dy=sy;y<stone->h;y++,dy++) {
+	// Go through the pixels in the stone and update pixel flags
+	for(y=clip_y,dy=MAX((short)0,sy);y<clip_h;y++,dy++,PixelRow+=stone->pitch) {
 
-		// Clipping
-		if(dy<0)			continue;
-		if(dy>=bmpImage->h)	break;
+		p = PixelRow+p_tmp;
+		px = PixelFlags + dy * Width + pf_tmp;
 
-		p = (Uint8 *)stone->pixels + y * stone->pitch;
-		px = PixelFlags + dy * Width + sx;
+		for(x=clip_x;x<clip_w;x++) {
 
-		for(x=0,dx=sx;x<stone->w;x++,dx++) {
-
-			// Clipping
-			if(dx<0) {	p+=2; px++;	continue; }
-			if(dx>=bmpImage->w)		break;
-
-			// Put the pixel down
-			// TODO: endian
+			// Rock?
 			if (memcmp(p,&pink,screenbpp))  {
-				static Uint32 tmp;
-				tmp = 0;
-				memcpy(&tmp,p,screenbpp);
-				PutPixel(bmpImage,dx,dy,tmp);
 				*(uchar *)px = PX_ROCK;
 			}
 
-			// Put the pixel down
-			/*if(*(Uint16 *)p != pink) {
-
-				PutPixel(bmpImage,dx,dy,*(Uint16 *)p);
-				*(uchar *)px = PX_ROCK;
-			}*/
-
-			p+=screenbpp;
+			p+=stone->format->BytesPerPixel;
 			px++;
 		}
 	}
@@ -1545,12 +1453,16 @@ void CMap::PlaceStone(int size, CVec pos)
 	ApplyShadow(sx-5,sy-5,w+10,h+10);
 
 	// Update the draw image
-	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
+	short draw_x = MAX(sx-5,0);
+	short draw_y = MAX(sy-5,0);
+	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,stone->w+10,stone->h+10);
 
     // Calculate the total dirt count
     CalculateDirtCount();
 
-	bMiniMapDirty = true;
+	// Update the minimap rectangle
+	UpdateMiniMapRect(draw_x, draw_y, stone->w+10, stone->h+10);
+	//bMiniMapDirty = true;
 }
 
 
@@ -1560,9 +1472,9 @@ void CMap::PlaceMisc(int id, CVec pos)
 {
 
 	SDL_Surface *misc;
-	int dx,dy, sx,sy;
-	int x,y;
-	int w,h;
+	short dy,dx, sx,sy;
+	short x,y;
+	short w,h;
 
 	Uint32 pink = tLX->clPink;
 
@@ -1594,49 +1506,46 @@ void CMap::PlaceMisc(int id, CVec pos)
 	if(SDL_MUSTLOCK(misc))
 		SDL_LockSurface(misc);
 
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
-
 	lockFlags();
 
-	Uint8 *p = (Uint8 *)misc->pixels;
+	// Calculate the clipping bounds, so we don't have to check each loop then
+	short clip_h = MIN(sy+misc->h,bmpImage->h)-sy;
+	short clip_w = MIN(sx+misc->w,bmpImage->w)-sx;
+	short clip_y = 0; 
+	short clip_x = 0; 
+	if (sy<0) 
+		clip_y = abs(sy);
+	if (sx<0) 
+		clip_x = abs(sx);
+
+	Uint8 *p = NULL;
+	Uint8 *PixelRow = (Uint8 *)misc->pixels+clip_y*misc->pitch;
 	uchar *px = PixelFlags;
 
+	// Temps for better performance
+	short pf_tmp = MAX((short)0,sx);
+	short p_tmp = clip_x*misc->format->BytesPerPixel;
+	short dx_tmp = MAX((short)0,sx);
+
 	// Go through the pixels in the misc item
-	for(y=0,dy=sy;y<misc->h;y++,dy++) {
+	for(y=clip_y,dy=MAX((short)0,sy);y<clip_h;y++,dy++,PixelRow+=misc->pitch) {
 
-		// Clipping
-		if(dy<0)			continue;
-		if(dy>=bmpImage->h)	break;
+		p = PixelRow+p_tmp;
+		px = PixelFlags + dy * Width + pf_tmp;
 
-		p = (Uint8 *)misc->pixels + y * misc->pitch;
-		px = PixelFlags + dy * Width + sx;
-
-		for(x=0,dx=sx;x<misc->w;x++,dx++) {
-
-			// Clipping
-			if(dx<0) {	p+=screenbpp; px++;	continue; }
-			if(dx>=bmpImage->w)		break;
-
+		for(x=clip_x,dx=dx_tmp;x<clip_w;dx++,x++) {
 
 			// Put the pixel down
-			/*if(*(Uint16 *)p != pink && *px & PX_DIRT) {
-
-				PutPixel(bmpImage,dx,dy,*(Uint16 *)p);
-				*(uchar *)px = PX_DIRT;
-			}*/
-
-			// Put the pixel down
-			// TODO: endian
-			if(memcmp(p,&pink,screenbpp) && *px & PX_DIRT) {
+			if(memcmp(p,&pink,misc->format->BytesPerPixel) && *px & PX_DIRT) {
 				static Uint32 tmp;
 				tmp = 0;
-				memcpy(&tmp,p,screenbpp);
+				memcpy(&tmp,p,misc->format->BytesPerPixel);
 
 				PutPixel(bmpImage,dx,dy,tmp);
 				*(uchar *)px = PX_DIRT;
 			}
 
-			p+=screenbpp;
+			p+=misc->format->BytesPerPixel;
 			px++;
 		}
 	}
@@ -1647,9 +1556,12 @@ void CMap::PlaceMisc(int id, CVec pos)
 		SDL_UnlockSurface(misc);
 
 	// Update the draw image
-	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
+	short draw_x = MAX(sx-5,0);
+	short draw_y = MAX(sy-5,0);
+	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,clip_w+10,clip_h+10);
 
-	bMiniMapDirty = true;
+	UpdateMiniMapRect(draw_x, draw_y, clip_w+10, clip_h+10);
+	//bMiniMapDirty = true;
 }
 
 
@@ -1743,7 +1655,11 @@ void CMap::UpdateMiniMap(int force)
 	xstep = (float)Width/ (float)mw;
 	ystep = (float)Height / (float)mh;
 
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
+	// Lock
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_LockSurface(bmpImage);
+	if (SDL_MUSTLOCK(bmpMiniMap))
+		SDL_LockSurface(bmpMiniMap);
 
 	Uint8 *sp,*tp,*tmp1,*tmp2;
 
@@ -1766,11 +1682,78 @@ void CMap::UpdateMiniMap(int force)
 			tp = tmp2+mmx*bmpMiniMap->format->BytesPerPixel;
 
 			// TODO: endian
-			memcpy(tp,sp,screenbpp);
+			memcpy(tp,sp,bmpMiniMap->format->BytesPerPixel);
 
 			//PutPixel(bmpMiniMap,mmx,mmy,GetPixel(bmpImage,(int)mx,(int)my));  // Slow
 		}
 	}
+
+	// Unlock
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_UnlockSurface(bmpImage);
+	if (SDL_MUSTLOCK(bmpMiniMap))
+		SDL_UnlockSurface(bmpMiniMap);
+
+	// Not dirty anymore
+	bMiniMapDirty = false;
+}
+
+///////////////////
+// Update an area of the minimap
+// X, Y, W and H apply to the bmpImage, not bmpMinimap
+void CMap::UpdateMiniMapRect(short x, short y, short w, short h)
+{
+	float xstep,ystep;
+	float mx,my;  // bmpImage coordinates
+	short mmx,mmy;  // bmpMiniMap coordinates
+	short mw = bmpMiniMap->w;
+	short mh = bmpMiniMap->h;
+
+	// Calculate steps
+	xstep = (float)Width/ (float)mw;
+	ystep = (float)Height / (float)mh;
+
+	// Lock
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_LockSurface(bmpImage);
+	if (SDL_MUSTLOCK(bmpMiniMap))
+		SDL_LockSurface(bmpMiniMap);
+
+	Uint8 *sp,*tp,*tmp1,*tmp2;
+	short mmx_tmp = (short)((float)x/xstep);
+	float mx_tmp = (float)((short)(x/xstep)*xstep);  // This makes sure the strink will be the same as in UpdateMinimap
+	short y2 = y+h;
+	short x2 = x+w;
+
+	for(my=(float)((short)(y/ystep)*ystep),mmy=(short)((float)y/ystep);my<y2;my+=ystep,mmy++) {
+
+		if(mmy >= mh)
+			break;
+
+		// Save the pointer to the first pixel in current line to make the loop faster
+		tmp1 = (Uint8 *)bmpImage->pixels + (short)my*bmpImage->pitch;
+		tmp2 = (Uint8 *)bmpMiniMap->pixels + mmy*bmpMiniMap->pitch;
+
+		for(mx=mx_tmp,mmx=mmx_tmp;mx<x2;mx+=xstep,mmx++) {
+
+			if(mmx >= mw)
+				break;
+
+			// Copy the pixel
+			sp = tmp1+(short)mx*bmpImage->format->BytesPerPixel;
+			tp = tmp2+mmx*bmpMiniMap->format->BytesPerPixel;
+
+			memcpy(tp,sp,bmpMiniMap->format->BytesPerPixel);
+
+			//PutPixel(bmpMiniMap,mmx,mmy,GetPixel(bmpImage,(int)mx,(int)my));  // Slow
+		}
+	}
+
+	// Unlock
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_UnlockSurface(bmpImage);
+	if (SDL_MUSTLOCK(bmpMiniMap))
+		SDL_UnlockSurface(bmpMiniMap);
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
@@ -2246,7 +2229,7 @@ int CMap::LoadImageFormat(FILE *fp)
 		for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
 			PixelFlags[n] = pDest[p++];
 			memcpy(curpixel,backpixel,bmpImage->format->BytesPerPixel*(PixelFlags[n] & PX_EMPTY)); // If the pixelflag isn't empty, copies 0 bytes
-			nTotalDirtCount += (PixelFlags[n] & PX_DIRT);
+			nTotalDirtCount += ((PixelFlags[n] & PX_DIRT) != 0);  // 0 or 1
 			n++;
 			/*if(t == PX_ROCK)
 				PutPixel(pxf, x,y, MakeColour(128,128,128));
