@@ -68,11 +68,13 @@ int LoadOptions(void)
 		AddToFileList(&tLXOptions->tSearchPaths, *p1);
 	}
 
+#if DEBUG == 1
 	printf("I have now the following searchpaths (in this direction):\n");
 	for(searchpathlist::const_iterator p2 = tLXOptions->tSearchPaths.begin(); p2 != tLXOptions->tSearchPaths.end(); p2++) {
 		printf("  %s\n", p2->c_str());
 	}
 	printf(" And that's all.\n");
+#endif
 
 	for (i=0;i<sizeof(tLXOptions->iInternetList)/sizeof(int);i++)  {
 		tLXOptions->iInternetList[i] = def_widths[i];

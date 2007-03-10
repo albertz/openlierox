@@ -17,7 +17,9 @@
 // By Jason Boettcher
 
 
-#include <hash_map>
+#ifndef WIN32
+#include <hash_map>  // TODO: not on windows
+#endif
 
 #include "defs.h"
 #include "LieroX.h"
@@ -409,12 +411,14 @@ bool FileListIncludes(const searchpathlist* l, const std::string& f) {
 	tmp1 = f;
 	removeEndingSlashes(tmp1);
 	ReplaceFileVariables(tmp1);
+	replace(tmp1,"\\","/");
 	
 	// Go through the list, checking each item
 	for(searchpathlist::const_iterator i = l->begin(); i != l->end(); i++) {
 		tmp2 = *i;
 		removeEndingSlashes(tmp2);
 		ReplaceFileVariables(tmp2);
+		replace(tmp2,"\\","/");
 		if(stringcasecmp(tmp1, tmp2) == 0)
 			return true;		
 	}

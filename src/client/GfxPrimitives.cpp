@@ -106,21 +106,22 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 		SDL_LockSurface(bmpSrc);
 
 	// Source clipping
-	if (sx < 0 || (sx+w) > bmpSrc->w)
-		return;
-	if (sy < 0 || (sy+h) > bmpSrc->h)
-		return;
+	if (sx < 0)  { sx=0; }
+	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w-sx; }
+	if (sy < 0) { sy=0;}
+	else if((sy+h) > bmpSrc->h)  { h = bmpSrc->h-sy; }
 
 	// Dest clipping
 	if (dx<0)  { sx+=abs(dx); dx=0;}
+	else if (dx+w > bmpDest->w)  { w = bmpDest->w-dx; }
 	if (dy<0)  { sy+=abs(dy); dy=0;}
-	if (dx+w > bmpDest->w)  { w = bmpDest->w-dx; }
-	if (dy+h > bmpDest->h)  { h = bmpDest->h-dy; }
+	else if (dy+h > bmpDest->h)  { h = bmpDest->h-dy; }
 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
 	Uint8 *sp,*tp_x,*tp_y;
+	int doublepitch = bmpDest->pitch*2;
 
     for(y=0;y<h;y++) {
 
@@ -135,7 +136,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 			memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
 			sp+=bmpSrc->format->BytesPerPixel;
 		}
-		TrgPix += bmpDest->pitch*2;
+		TrgPix += doublepitch;
 		SrcPix += bmpSrc->pitch;
 	}
 

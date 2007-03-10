@@ -131,8 +131,10 @@ void CMap::ApplyRandom(void)
     sRandomLayout.szTheme = Theme.name;
 
     sRandomLayout.psObjects = new object_t[sRandomLayout.nNumObjects];
-    if( !sRandomLayout.psObjects )
+    if( !sRandomLayout.psObjects )  {
         printf("Warning: Out of memory for CMap::ApplyRandom()\n");
+		return;
+	}
 
 	// Spawn 15 random rocks
 	for(n=0;n<nNumRocks;n++) {
@@ -141,13 +143,11 @@ void CMap::ApplyRandom(void)
 		i = (int)(fabs(GetRandomNum()) * (float)Theme.NumStones);
 
         // Store the object
-        if( sRandomLayout.psObjects ) {
-            sRandomLayout.psObjects[objCount].Type = OBJ_STONE;
-            sRandomLayout.psObjects[objCount].Size = i;
-            sRandomLayout.psObjects[objCount].X = x;
-            sRandomLayout.psObjects[objCount].Y = y;
-            objCount++;
-        }
+        sRandomLayout.psObjects[objCount].Type = OBJ_STONE;
+        sRandomLayout.psObjects[objCount].Size = i;
+        sRandomLayout.psObjects[objCount].X = x;
+        sRandomLayout.psObjects[objCount].Y = y;
+        objCount++;
 
 		PlaceStone(i,CVec((float)x,(float)y));
 	}
@@ -159,13 +159,11 @@ void CMap::ApplyRandom(void)
 		i = (int)(fabs(GetRandomNum()) * (float)Theme.NumMisc);
 
         // Store the object
-        if( sRandomLayout.psObjects ) {
-            sRandomLayout.psObjects[objCount].Type = OBJ_MISC;
-            sRandomLayout.psObjects[objCount].Size = i;
-            sRandomLayout.psObjects[objCount].X = x;
-            sRandomLayout.psObjects[objCount].Y = y;
-            objCount++;
-        }
+        sRandomLayout.psObjects[objCount].Type = OBJ_MISC;
+        sRandomLayout.psObjects[objCount].Size = i;
+        sRandomLayout.psObjects[objCount].X = x;
+        sRandomLayout.psObjects[objCount].Y = y;
+        objCount++;
 
 		PlaceMisc(i,CVec((float)x,(float)y));
 	}
@@ -182,13 +180,11 @@ void CMap::ApplyRandom(void)
 			int b = (int) (GetRandomNum() * (float)15);
 
             // Store the object
-            if( sRandomLayout.psObjects ) {
-                sRandomLayout.psObjects[objCount].Type = OBJ_HOLE;
-                sRandomLayout.psObjects[objCount].Size = 4;
-                sRandomLayout.psObjects[objCount].X = x+a;
-                sRandomLayout.psObjects[objCount].Y = y+b;
-                objCount++;
-            }
+            sRandomLayout.psObjects[objCount].Type = OBJ_HOLE;
+            sRandomLayout.psObjects[objCount].Size = 4;
+            sRandomLayout.psObjects[objCount].X = x+a;
+            sRandomLayout.psObjects[objCount].Y = y+b;
+            objCount++;
 
 			CarveHole(4,CVec( (float)(x+a), (float)(y+b)));
 		}
@@ -197,9 +193,7 @@ void CMap::ApplyRandom(void)
     // Calculate the total dirt count
     CalculateDirtCount();
 
-	// Update the mini map
-	bMiniMapDirty = true;
-	UpdateMiniMap();
+	// No need to update the minimap, it's updated in CarveHole and PlaceXXX
 }
 
 
@@ -216,35 +210,35 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
     TileMap();
 
     // Apply the objects
-    for( int i=0; i<psRandom->nNumObjects; i++ ) {
-        if( psRandom->psObjects ) {
+	if (psRandom->psObjects)  {
+		for( int i=0; i<psRandom->nNumObjects; i++ ) {
+			if( psRandom->psObjects ) {
 
-            switch(psRandom->psObjects[i].Type) {
+				switch(psRandom->psObjects[i].Type) {
 
-                // Stone
-                case OBJ_STONE:
-                    PlaceStone(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
-                    break;
+					// Stone
+					case OBJ_STONE:
+						PlaceStone(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
+						break;
 
-                // Misc
-                case OBJ_MISC:
-                    PlaceMisc(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
-                    break;
+					// Misc
+					case OBJ_MISC:
+						PlaceMisc(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
+						break;
 
-                // Hole
-                case OBJ_HOLE:
-                    CarveHole(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
-                    break;
-            }
-        }
-    }
+					// Hole
+					case OBJ_HOLE:
+						CarveHole(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
+						break;
+				}
+			}
+		}
+	}
 
     // Calculate the total dirt count
     CalculateDirtCount();
 
-	// Update the mini map
-	bMiniMapDirty = true;
-	UpdateMiniMap();
+	// No need to update minimap, because it's updated in CarveHole and PlaceXXX
 }
 
 
@@ -252,6 +246,10 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
 // Load the theme
 int CMap::LoadTheme(const std::string& _theme)
 {
+	// Already loaded
+	if (Theme.name == _theme && sRandomLayout.szTheme == _theme)
+		return true;
+
 	static std::string thm,buf,cfg;
 	int n,x,y;
 
@@ -288,12 +286,15 @@ int CMap::LoadTheme(const std::string& _theme)
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	SDL_Surface *hole = Theme.bmpHoles[0];
 	Uint32 pink = tLX->clPink;
+	Uint32 pixel = 0;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
 			for(x=0; x<hole->w; x++) {
-				Uint32 pixel = GetPixel(hole,x,y);
-				if(pixel != 0 && pixel != pink)
+				pixel = GetPixel(hole,x,y);
+				if(pixel != 0 && pixel != pink)  {
 					Theme.iDefaultColour = pixel;
+					break;
+				}
 			}
 		}
 	}
@@ -357,30 +358,23 @@ bool CMap::validateTheme(const std::string& name) {
     // Ie 'backtile.png' 'fronttile.png' & 'theme.txt'
 
     static std::string thm,buf;
-    FILE *fp = NULL;
 
 	thm = std::string("data/themes/") + name;
 
     // Backtile.png
     buf = thm + "/backtile.png";
-    fp = OpenGameFile(buf,"rb");
-    if( !fp )
+    if (!IsFileAvailable(buf,false))
         return false;
-    fclose(fp);
 
     // Fronttile.png
     buf = thm + "/fronttile.png";
-    fp = OpenGameFile(buf,"rb");
-    if( !fp )
+    if (!IsFileAvailable(buf,false))
         return false;
-    fclose(fp);
 
     // Theme.txt
     buf = thm + "/theme.txt";
-    fp = OpenGameFile(buf,"rt");
-    if( !fp )
+    if (!IsFileAvailable(buf,false))
         return false;
-    fclose(fp);
 
     // All 3 files are good
 
@@ -573,6 +567,8 @@ void CMap::TileMap(void)
 	int x,y;
 
 	// Place the tiles
+	
+	// Place the first row
 	for(y=0;y<Height;y+=Theme.bmpFronttile->h) {
 		for(x=0;x<Width;x+=Theme.bmpFronttile->w) {
 			DrawImage(bmpImage, Theme.bmpFronttile,x,y);
@@ -709,12 +705,9 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 			if( dtx+l+i < c_x ) continue;
 			if( dtx+l+i >= c_x2 ) continue;
 
-			// Is the source pixel see through?
-			if (!memcmp(objpix,&pink,screenbpp))
-				continue;
-
-			// Put the pixel
-			memcpy(destpix,srcpix,screenbpp);
+			// Put the pixel, if it's not transparent
+			if (memcmp(objpix,&pink,screenbpp))
+				memcpy(destpix,srcpix,screenbpp);
 		}
 	}
 
@@ -737,7 +730,7 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
 	int l = view->GetLeft();
 	int t = view->GetTop();
 
-    int Drop = 3;
+    static const int Drop = 3;
     wx += Drop;
     wy += Drop;
 
@@ -1721,7 +1714,7 @@ void CMap::UpdateMiniMapRect(short x, short y, short w, short h)
 
 	Uint8 *sp,*tp,*tmp1,*tmp2;
 	short mmx_tmp = (short)((float)x/xstep);
-	float mx_tmp = (float)((short)(x/xstep)*xstep);  // This makes sure the strink will be the same as in UpdateMinimap
+	float mx_tmp = (float)((short)(x/xstep)*xstep);  // This makes sure the shrink will be the same as in UpdateMinimap
 	short y2 = y+h;
 	short x2 = x+w;
 
@@ -1796,19 +1789,22 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
 
 	// Show worms
 	CWorm *w = worms;
+	static byte dr,dg,db;
+	static Uint32 col;
+	bool big=false;
 	for(n=0;n<MAX_WORMS;n++,w++) {
 		if(!w->getAlive() || !w->isUsed())
 			continue;
 
 		GetColour4(w->getColour(), bmpMiniMap, &r,&g,&b,&a);
 
-		int dr = 255-r;
-		int dg = 255-g;
-		int db = 255-b;
+		dr = ~r;
+		dg = ~g;
+		db = ~b;
 
-		r = r + (int)( (float)dr*(time*2.0f));
-		g = g + (int)( (float)dg*(time*2.0f));
-		b = b + (int)( (float)db*(time*2.0f));
+		r += (int)( (float)dr*(time*2.0f));
+		g += (int)( (float)dg*(time*2.0f));
+		b += (int)( (float)db*(time*2.0f));
 
 		mx = w->getPos().x/xstep;
 		my = w->getPos().y/ystep;
@@ -1823,21 +1819,19 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worm
 		//x -= x % 2;
 		//y -= y % 2;
 
-		Uint32 col = MakeColour(r,g,b);
+		col = MakeColour(r,g,b);
 
 		//PutPixel(bmpMiniMap,x,y,col);
 		DrawRectFill(bmpDest,i-1,j-1, i+1,j+1, col);
 
 		// Our worms are bigger
-		int big = false;
+		big = false;
 
 		// Tagged worms or local players are bigger, depending on the game type
 		if(gametype != GMT_TAG) {
-			if(w->getType() == PRF_HUMAN && w->getLocal())
-				big = true;
+			big = (w->getType() == PRF_HUMAN && w->getLocal());
 		} else {
-			if(w->getTagIT())
-				big = true;
+			big = w->getTagIT()!=0;
 		}
 
 		if(big)
@@ -1921,40 +1915,71 @@ int CMap::Load(const std::string& filename)
 	}
 
 
+	// Lock the surfaces
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_LockSurface(bmpImage);
+	if (SDL_MUSTLOCK(bmpBackImage))
+		SDL_LockSurface(bmpBackImage);
+
 	// Dirt map
-	int n;
-	Uint16 *p1 = (Uint16 *)bmpImage->pixels;
-	Uint16 *p2 = (Uint16 *)bmpBackImage->pixels;
+	size_t n,i,j,x;
+	Uint8 *p1 = (Uint8 *)bmpImage->pixels;
+	Uint8 *p2 = (Uint8 *)bmpBackImage->pixels;
+	Uint8 *dstrow = p1;
+	Uint8 *srcrow = p2;
 
 	lockFlags();
-	for(n=0;n<Width*Height;) {
-		uchar t;
 
-		fread(&t,		sizeof(uchar),	1,	fp);
-		EndianSwap(t);
+	// Load the bitmask, 1 bit == 1 pixel with a yes/no dirt flag
+	uint size = Width*Height/8;
+	uchar *bitmask = new uchar[size];
+	if (!bitmask)  {
+		printf("CMap::Load: Could not create bit mask\n");
+		return false;
+	}
+	fread(bitmask,size,1,fp);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	static const unsigned char mask[] = {128,64,32,16,8,4,2,1};
+#else
+	static const unsigned char mask[] = {1,2,4,8,16,32,64,128};
+#endif
+
+	nTotalDirtCount = Width*Height;  // Calculate the dirt count
+
+	for(n=0,i=0;i<size;i++,x+=8) {
+		//EndianSwap(t); // TODO: does it make sense for one byte?
+		if (x>=Width)  {
+			srcrow += bmpBackImage->pitch;
+			dstrow += bmpImage->pitch;
+			p1 = dstrow;
+			p2 = srcrow;
+			x=0;
+		}
 
 		// 1 bit == 1 pixel with a yes/no dirt flag
-		for(int i=0;i<8;i++) {
+		for(j=0;j<8;j++,n++,p1+=bmpImage->format->BytesPerPixel,p2+=bmpBackImage->format->BytesPerPixel) {
 
-			// TODO: optimize
-			if(t & (1 << i))
+			if(bitmask[i] & mask[j])  {
 				PixelFlags[n] = PX_EMPTY;
-
-			// Set the image
-			if(PixelFlags[n] & PX_EMPTY)
-				*p1 = *p2;
-
-			n++;
-			p1++;
-			p2++;
+				nTotalDirtCount--;
+				memcpy(p1,p2,bmpImage->format->BytesPerPixel);
+			}
 		}
 	}
+
+	delete[] bitmask;
 	unlockFlags();
+
+	// Unlock the surfaces
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_UnlockSurface(bmpImage);
+	if (SDL_MUSTLOCK(bmpBackImage))
+		SDL_UnlockSurface(bmpBackImage);
 
 	// Objects
 	object_t o;
 	NumObjects = 0;
-	for(int i=0;i<numobj;i++) {
+	for(i=0;i<numobj;i++) {
 		fread(&o.Type,	sizeof(int),	1,	fp);
 		EndianSwap(o.Type);
 		fread(&o.Size,	sizeof(int),	1,	fp);
@@ -1971,10 +1996,18 @@ int CMap::Load(const std::string& filename)
 			PlaceMisc(o.Size,CVec((float)o.X, (float)o.Y));
 	}
 
+	// Close the file
+	fclose(fp);
 
+
+	// Apply the shadow
 	ApplyShadow(0,0,Width,Height);
 
-	fclose(fp);
+	// Update the draw image
+	DrawImageStretch(bmpDrawImage,bmpImage,0,0);
+
+	// Update the minimap
+	UpdateMiniMap(true);
 
     // Calculate the total dirt count
     CalculateDirtCount();
@@ -2027,7 +2060,7 @@ int CMap::Save(const std::string& name, const std::string& filename)
 
 		// 1 bit == 1 pixel with a yes/no dirt flag
 		for(int i=0;i<8;i++) {
-			int value = PixelFlags[n++] & 0x01;
+			int value = PixelFlags[n++] & PX_EMPTY;
 			t |= (value << i);
 		}
 
@@ -2372,7 +2405,7 @@ int CMap::LoadOriginal(FILE *fp)
 					type = PX_DIRT;
 
 				// Rock
-				if( (p >= 19 && p <= 29) ||
+				else if( (p >= 19 && p <= 29) ||
 					(p >= 59 && p <= 61) ||
 					(p >= 85 && p <= 87) ||
 					(p >= 91 && p <= 93) ||
