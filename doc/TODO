@@ -1,5 +1,6 @@
 TODO list
 
+[ ] fallback to software rendering on Windows on error
 [ ] better bot aiming
 [ ] better bot behavior
 [ ] add MaxFPS option in option dialog

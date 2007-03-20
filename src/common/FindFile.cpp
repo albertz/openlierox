@@ -35,7 +35,7 @@
 bool IsFileAvailable(const std::string& f, bool absolute) {
 	static std::string abs_f;
 	if(absolute) {
-		if(!GetExactFileName(f, abs_f)) return false;
+		abs_f = f;
 	} else
 		if((abs_f = GetFullFileName(f)) == "") return false;
 
@@ -158,6 +158,22 @@ size_t GetNextName(const std::string& fullname, const char** seperators, std::st
 	return 0;
 }
 
+// get ending filename of a path
+size_t GetLastName(const std::string& fullname, const char** seperators)
+{
+	std::string::const_reverse_iterator pos;
+	size_t p = fullname.size();
+	unsigned short i;
+
+	for(pos = fullname.rbegin(); pos != fullname.rend(); pos++, p--) {
+		for(i = 0; seperators[i] != NULL; i++)
+			if(*pos == seperators[i][0]) {
+				return p;
+			}
+	}
+
+	return 0;
+}
 
 // used by unix-GetExactFileName
 // does a case insensitive search for searchname in dir
@@ -211,6 +227,7 @@ void add_searchname_to_exactfilenamecache(
 
 // does case insensitive search for file
 bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
+	const char* seps[] = {"\\", "/", (char*)NULL};
 	if(abs_searchname.size() == 0) {
 		filename = "";
 		return false;
@@ -218,12 +235,40 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 
 	std::string sname = abs_searchname;
 	ReplaceFileVariables(sname);
-
-	const char* seps[] = {"\\", "/", (char*)NULL};
+	
 	static std::string nextname; nextname = "";
 	static std::string nextexactname; nextexactname = "";
-	filename = "";
-	size_t pos = 0;
+	size_t pos;
+
+
+
+	// search in cache
+	
+	// sname[0..pos-2] is left rest, excluding the /
+	pos = sname.size();
+	while(true) {
+		if(is_searchname_in_exactfilenamecache(sname.substr(0,pos-1), filename)) {
+			if(IsPathStatable(filename)) {
+				// filename is the correct one here			
+				filename += "/";
+				sname.erase(0,pos);
+				break;
+			}
+		}
+		pos = GetLastName(sname.substr(0,pos-1), seps);
+		if(pos == 0) {
+			filename = "";
+			break;
+		}
+	}
+
+	
+
+
+	// search the filesystem for the name
+
+	// sname contains the rest of the path
+	// filename contains the start (including a "/" if necces.)
 	while(true) {
 		pos = GetNextName(sname, seps, nextname);
 		// pos>0  => found a sep
@@ -244,6 +289,8 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			return false; // error (not found)
 		}
 		
+		add_searchname_to_exactfilenamecache(filename + nextname, filename + nextexactname);
+
 		filename += nextexactname;
 		if(pos > 0)
 			filename += "/";
