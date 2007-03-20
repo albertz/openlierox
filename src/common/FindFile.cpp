@@ -17,9 +17,6 @@
 // By Jason Boettcher
 
 
-#ifndef WIN32
-#include <hash_map>  // TODO: not on windows
-#endif
 
 #include "defs.h"
 #include "LieroX.h"
@@ -30,6 +27,7 @@
 #	include <shlobj.h>
 #else
 #	include <pwd.h>
+#	include <hash_map>
 #endif
 
 bool IsFileAvailable(const std::string& f, bool absolute) {

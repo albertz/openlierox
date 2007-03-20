@@ -59,6 +59,13 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	// Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == -1) {
 		SystemError("Failed to initialize the SDL system!\nErrorMsg: %s",SDL_GetError());
+#ifdef WIN32
+		// retry it with any available video driver	
+		SDL_putenv("SDL_VIDEODRIVER=");
+		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) != -1)
+			printf("... but we still have success with the any driver\n");
+		else
+#endif		
 		return false;
 	}
 

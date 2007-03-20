@@ -608,7 +608,7 @@ void CMap::CalculateDirtCount(void)
 	const unsigned int size = Width*Height;
 
 	for (n=0;n<size;n++)
-		nTotalDirtCount += ((PixelFlags[n++] & PX_DIRT) != 0);  // 0 or 1
+		nTotalDirtCount += (PixelFlags[n++] & PX_DIRT) ? 1 : 0;
 }
 
 
@@ -2262,7 +2262,7 @@ int CMap::LoadImageFormat(FILE *fp)
 		for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
 			PixelFlags[n] = pDest[p++];
 			memcpy(curpixel,backpixel,bmpImage->format->BytesPerPixel*(PixelFlags[n] & PX_EMPTY)); // If the pixelflag isn't empty, copies 0 bytes
-			nTotalDirtCount += ((PixelFlags[n] & PX_DIRT) != 0);  // 0 or 1
+			nTotalDirtCount += (PixelFlags[n++] & PX_DIRT) ? 1 : 0;
 			n++;
 			/*if(t == PX_ROCK)
 				PutPixel(pxf, x,y, MakeColour(128,128,128));

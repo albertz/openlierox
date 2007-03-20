@@ -1,6 +1,6 @@
 TODO list
 
-[ ] fallback to software rendering on Windows on error
+[x] fallback to software rendering on Windows on error
 [ ] better bot aiming
 [ ] better bot behavior
 [ ] add MaxFPS option in option dialog
@@ -11,6 +11,7 @@ TODO list
 [ ] allow more than 2 viewports
 [ ] allow a higher resolution (reduce it while playing with LX56?)
 [ ] join all viewports, if map is smaller than resolution
+[ ] allow different sound settings (44k or 22k / mono or stereo / ...)
 
 minor things:
 [ ] save selected player list in local play and return in this menu after playing
