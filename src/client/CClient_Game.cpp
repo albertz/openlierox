@@ -503,16 +503,15 @@ void CClient::SimulateProjectiles(float dt)
 // Explosion
 void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 {
-	int		x,y,i,px;
+	uint		x,y,i,px;
 	CWorm	*w;
 	Uint32	Colour = cMap->GetTheme()->iDefaultColour;
     int     gotDirt = false;
 
 	// Go through until we find dirt to throw around
-	y = MIN((int)pos.y,cMap->GetHeight()-1);
-	y = MAX(y,0);
+	y = MIN((uint)pos.y,cMap->GetHeight()-1);
 
-	px = (int)pos.x;
+	px = (uint)pos.x;
 
 	for(x=px-2; x<px+2; x++) {
 		// Clipping
@@ -616,11 +615,10 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 // Injure a worm
 void CClient::InjureWorm(CWorm *w, int damage, int owner)
 {
-	int me = false;
-	int i;
+	bool me = false;
+	uint i;
 	int localid=0;
 
-//	int numworms = MIN(iNumWorms,2);  // TODO: not used
 
 	// Make sure this is one of our worms
 	for(i=0;i<iNumWorms;i++) {
@@ -700,7 +698,7 @@ void CClient::SendCarve(CVec pos)
 	for(x=px-2; x<=px+2; x++) {
 		// Clipping
 		if(x<0)	continue;
-		if(x>=cMap->GetWidth())	break;
+		if((uint)x>=cMap->GetWidth())	break;
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
 			Colour = GetPixel(cMap->GetImage(),x,y);
@@ -1481,7 +1479,7 @@ void CClient::processChatter(void)
 		fChat_TimePushed = -9999;
 
 		// Clear the input
-		for (int j=0;j<iNumWorms;j++)
+		for (uint j=0;j<iNumWorms;j++)
 			if (cLocalWorms[j]->getType() == PRF_HUMAN)
 				cLocalWorms[j]->clearInput();
 
@@ -1517,7 +1515,7 @@ void CClient::processChatter(void)
 			if (controls)
 				return;
 
-			for(int j=0; j<iNumWorms; j++)  {
+			for(uint j=0; j<iNumWorms; j++)  {
 				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
 					// Can we type?
 					if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())
@@ -1668,9 +1666,9 @@ CVec CClient::FindNearestSpot(CWorm *w)
 	y = (int) (w->getPos().y-4.0f);
 	int RockPixels = 0;
 
-	int i,j;
-	for(i=0; i<9 && x < cMap->GetWidth(); i++,x++)  {
-		for (j=0; j<8 && y<cMap->GetHeight(); j++,y++)  {
+	ushort i,j;
+	for(i=0; i<9 && (uint)x < cMap->GetWidth(); i++,x++)  {
+		for (j=0; j<8 && (uint)y<cMap->GetHeight(); j++,y++)  {
 			if(cMap->GetPixelFlag(x,y) & PX_ROCK)  {
 				//cMap->PutImagePixel(x,y,tLX->clPink);
 				RockPixels++;
@@ -1686,8 +1684,8 @@ CVec CClient::FindNearestSpot(CWorm *w)
 
     // Calculate our current cell
 	int     px, py;
-    int     gw = cMap->getGridWidth();
-    int     gh = cMap->getGridHeight();
+    uint     gw = cMap->getGridWidth();
+    uint     gh = cMap->getGridHeight();
 
     px = (int) fabs((w->getPos().x)/gw);
 	py = (int) fabs((w->getPos().y)/gh);
@@ -1698,7 +1696,7 @@ CVec CClient::FindNearestSpot(CWorm *w)
 		int tmp_y = py-1;
 		uchar tmp_pf = PX_ROCK;
 		for (i=0; i<3; i++, tmp_y++)  {
-			for (int j=0; j<3; j++, tmp_x++)  {
+			for (short j=0; j<3; j++, tmp_x++)  {
 
 				// Skip our current cell
 				if (tmp_x == px && tmp_y == py)
@@ -1721,8 +1719,8 @@ CVec CClient::FindNearestSpot(CWorm *w)
 
     // Set our current cell as default
 	if (bInMap)  {
-		px = (int) fabs((w->getPos().x)/gw);
-		py = (int) fabs((w->getPos().y)/gh);
+		px = (uint) fabs((w->getPos().x)/gw);
+		py = (uint) fabs((w->getPos().y)/gh);
 	}
 	else  {
 		px = 0;
@@ -1732,18 +1730,19 @@ CVec CClient::FindNearestSpot(CWorm *w)
     x = px; y = py;
 
     // Start from the cell and go through until we get to an empty cell
-    while(1) {
-        while(1) {
+    uchar pf;
+    while(true) {
+        while(true) {
             // If we're on the original starting cell, and it's not the first move we have checked all cells
             // and should leave
             if(!first) {
                 if(px == x && py == y) {
                     return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
                 }
+	            first = false;
             }
-            first = false;
 
-            uchar pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
+            pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
             if(!(pf & PX_ROCK))
                 return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
 

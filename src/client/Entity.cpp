@@ -253,15 +253,15 @@ void SimulateEntities(float dt, CMap *map)
 
 				// Clipping
 				if(ent->vPos.x < 0 || ent->vPos.y < 0 ||
-					(int)ent->vPos.x >= map->GetWidth() || (int)ent->vPos.y >= map->GetHeight()) {
+					(int)ent->vPos.x >= (int)map->GetWidth() || (int)ent->vPos.y >= (int)map->GetHeight()) {
 					ent->iUsed = false;
 					continue;
 				}
 
 				// Check if the particle has hit the map
-				uchar pf = map->GetPixelFlag((int)ent->vPos.x,(int)ent->vPos.y);
+				uchar pf = map->GetPixelFlag((uint)ent->vPos.x,(uint)ent->vPos.y);
 
-				if(pf & PX_ROCK || pf & PX_DIRT) {
+				if((pf & PX_ROCK || pf & PX_DIRT)) {
 					ent->iUsed = false;
 
 					switch(ent->iType) {
@@ -288,12 +288,12 @@ void SimulateEntities(float dt, CMap *map)
 								// Clipping
 								if(x < 0)
 									x = 0;
-								if(x+4 > map->GetWidth())
-									x = map->GetWidth()-4;
+								if(x+4 > (int)map->GetWidth())
+									x = (int)map->GetWidth()-4;
 								if(y < 0)
 									y = 0;
-								if(y+4 > map->GetHeight())
-									y = map->GetHeight()-4;
+								if(y+4 > (int)map->GetHeight())
+									y = (int)map->GetHeight()-4;
 
 								DrawImageAdv(map->GetImage(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
 								DrawImageStretch2(map->GetDrawImage(),map->GetImage(),x,y,x*2,y*2,4,4);

@@ -76,11 +76,68 @@ public:
 		assert(i >= 0 && i < 8);
 		return ctrl[i];	
 	}
+	// TODO: add specific functions
+};
+
+
+// Network strings
+class NetworkTexts {
+public:
+
+	static bool Init();
+	bool LoadFromDisc();
+	
+	std::string sHasLeft ;
+	std::string sHasConnected ;
+	std::string sHasTimedOut ;
+
+	std::string sHasBeenKicked ;
+	std::string sHasBeenBanned ;
+	std::string sHasBeenMuted ;
+	std::string sHasBeenUnmuted ;
+
+	std::string sKickedYou ;
+	std::string sBannedYou ;
+	std::string sYouTimed ;
+	std::string sYouQuit ;
+
+	std::string sKilled ;
+	std::string sCommitedSuicide ;
+	std::string sFirstBlood ;
+	std::string sTeamkill ;
+
+	std::string sPlayerOut ;
+	std::string sPlayerHasWon ;
+	std::string sTeamOut ;
+	std::string sTeamHasWon ;
+
+	std::string sWormIsIt ;
+
+	std::string sSpree1 ;
+	std::string sSpree2 ;
+	std::string sSpree3 ;
+	std::string sSpree4 ;
+	std::string sSpree5 ;
+
+	std::string sServerFull ;
+	std::string sNoEmptySlots ;
+	std::string sWrongProtocol ;
+	std::string sBadVerification ;
+	std::string sNoIpVerification ;
+	std::string sGameInProgress ;
+	std::string sYouAreBanned ;
+	std::string sBotsNotAllowed ;
+	std::string sWantsJoin ;
 };
 
 // Options structure
-typedef class { public:
+class GameOptions {
+public:
 
+	static bool Init();
+	bool LoadFromDisc();
+	void SaveToDisc();
+	
 	// Video
 	int		iFullscreen;
 	int		iShowFPS;
@@ -135,7 +192,8 @@ typedef class { public:
 	int		iMusicVolume;
 
 	// Last used game details
-	class gameinfo_s { public:
+	class GameInfo {
+	public:
 		int		iLives;
 		int		iKillLimit;
 		int		iTimeLimit;
@@ -157,64 +215,15 @@ typedef class { public:
 		bool	bAllowRemoteBots;
 	} tGameinfo;
 
-} options_t;
-
-// Network strings
-typedef class { public:
-	std::string sHasLeft ;
-	std::string sHasConnected ;
-	std::string sHasTimedOut ;
-
-	std::string sHasBeenKicked ;
-	std::string sHasBeenBanned ;
-	std::string sHasBeenMuted ;
-	std::string sHasBeenUnmuted ;
-
-	std::string sKickedYou ;
-	std::string sBannedYou ;
-	std::string sYouTimed ;
-	std::string sYouQuit ;
-
-	std::string sKilled ;
-	std::string sCommitedSuicide ;
-	std::string sFirstBlood ;
-	std::string sTeamkill ;
-
-	std::string sPlayerOut ;
-	std::string sPlayerHasWon ;
-	std::string sTeamOut ;
-	std::string sTeamHasWon ;
-
-	std::string sWormIsIt ;
-
-	std::string sSpree1 ;
-	std::string sSpree2 ;
-	std::string sSpree3 ;
-	std::string sSpree4 ;
-	std::string sSpree5 ;
-
-	std::string sServerFull ;
-	std::string sNoEmptySlots ;
-	std::string sWrongProtocol ;
-	std::string sBadVerification ;
-	std::string sNoIpVerification ;
-	std::string sGameInProgress ;
-	std::string sYouAreBanned ;
-	std::string sBotsNotAllowed ;
-	std::string sWantsJoin ;
-} networktexts_t;
-
+};
 
 
 // Option Routines
-int		LoadOptions(void);
-bool	LoadNetworkStrings(void);
-void    SaveOptions(void);
 void	ShutdownOptions(void);
 
 
-extern	options_t		*tLXOptions;
-extern  networktexts_t  *NetworkTexts;
+extern	GameOptions		*tLXOptions;
+extern  NetworkTexts  *networkTexts;
 
 
 

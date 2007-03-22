@@ -52,12 +52,12 @@ int CClient::InitializeDrawing(void)
 // Main drawing routines
 void CClient::Draw(SDL_Surface *bmpDest)
 {
-	int i,num;
+	uint i,num;
 	float dt = tLX->fDeltaTime;
 
-
+	// TODO: allow more worms
 	num = iNumWorms;
-	num = MIN(2,iNumWorms);
+	//num = MIN(2,iNumWorms);
 
 
 	// Check for any communication errors
@@ -74,6 +74,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		return;
 	}
 
+    // TODO: allow more viewports
     // Draw the borders
     DrawRectFill(bmpDest,0,382,640,480,0);
     if(cViewports[1].getUsed())
@@ -106,7 +107,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Connected
 	else if(iNetStatus == NET_CONNECTED && iGameReady) {
-		int ready = true;
+		bool ready = true;
 
 		// Go through and draw the first two worms select menus
 		for(i=0;i<num;i++) {
@@ -261,7 +262,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 {
     // If the viewport is null, or not used: exit
     if( !v )  {
-		printf("The viewport is NULL");
+		printf("WARNING: The viewport is NULL\n");
         return;
 	}
     if( !v->getUsed() )
@@ -302,7 +303,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	DrawBonuses(bmpDest, v);
 
 	// Draw all the worms in the game
-	int i;
+	uint i;
 	CWorm *w = cRemoteWorms;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed() && w->getAlive())

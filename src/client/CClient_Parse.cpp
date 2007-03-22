@@ -72,7 +72,7 @@ void CClient::ParseChallenge(CBytestream *bs)
     // __MUST__ match the layout in CWorm::writeInfo() !!!
     //
 
-	for(int i=0;i<iNumWorms;i++) {
+	for(uint i=0;i<iNumWorms;i++) {
 		bytestr.writeString(tProfiles[i]->sName);
 		bytestr.writeInt(tProfiles[i]->iType,1);
 		bytestr.writeInt(tProfiles[i]->iTeam,1);
@@ -98,7 +98,7 @@ void CClient::ParseConnected(CBytestream *bs)
 
 	// Get the id's
 	int id=0;
-	for(int i=0;i<iNumWorms;i++) {
+	for(uint i=0;i<iNumWorms;i++) {
 		id = bs->readInt(1);
 		if (id < 0 || id >= MAX_WORMS)
 			continue;
@@ -499,7 +499,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 
 	// Initialize the worms weapon selection menu & other stuff
-	int i;
+	uint i;
 	for(i=0;i<iNumWorms;i++) {
 		cLocalWorms[i]->setGameScript(&cGameScript);
         cLocalWorms[i]->setWpnRest(&cWeaponRestrictions);
@@ -550,7 +550,7 @@ void CClient::ParseStartGame(CBytestream *bs)
 	iNetStatus = NET_PLAYING;
 
 	// Set the local players to dead so we wait until the server spawns us
-	for(int i=0;i<iNumWorms;i++)
+	for(uint i=0;i<iNumWorms;i++)
 		cLocalWorms[i]->setAlive(false);
 
 	// Initialize some variables
@@ -568,11 +568,11 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	int y = bs->readInt(2);
 
 	// Is the spawnpoint in the map?
-	if (x > cMap->GetWidth() || x < 0)  {
+	if (x > (int)cMap->GetWidth() || x < 0)  {
 		printf("CClient::ParseSpawnWorm: X-coordinate not in map ("+itoa(x)+")\n");
 		return;
 	}
-	if (y > cMap->GetHeight() || y < 0)  {
+	if (y > (int)cMap->GetHeight() || y < 0)  {
 		printf("CClient::ParseSpawnWorm: Y-coordinate not in map ("+itoa(y)+")\n");
 		return;
 	}
@@ -757,12 +757,12 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 		return;
 	}
 
-	if (x > cMap->GetWidth() || x < 0)  {
+	if (x > (int)cMap->GetWidth() || x < 0)  {
 		printf("CClient::ParseSpawnBonus: X-coordinate not in map ("+itoa(x)+")\n");
 		return;
 	}
 
-	if (y > cMap->GetHeight() || y < 0)  {
+	if (y > (int)cMap->GetHeight() || y < 0)  {
 		printf("CClient::ParseSpawnBonus: Y-coordinate not in map ("+itoa(y)+")\n");
 		return;
 	}

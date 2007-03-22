@@ -461,6 +461,8 @@ void Menu_LocalAddProfiles(void)
 // Show the minimap
 void Menu_LocalShowMinimap(bool bReload)
 {
+	// TODO: optimize or recode this!
+	
 	CMap map;
 	static std::string buf;
 	static std::string blah;

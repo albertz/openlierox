@@ -12,6 +12,7 @@ TODO list
 [ ] allow a higher resolution (reduce it while playing with LX56?)
 [ ] join all viewports, if map is smaller than resolution
 [ ] allow different sound settings (44k or 22k / mono or stereo / ...)
+[ ] abstraction of the engines (network / physic / ...)
 
 minor things:
 [ ] save selected player list in local play and return in this menu after playing

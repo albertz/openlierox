@@ -52,11 +52,11 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 	// yes I know, statics are not good style,
 	// but I will not recursivly use it and
 	// the whole game is singlethreaded
-	int map_w = pcMap->GetWidth();
-	int map_h = pcMap->GetHeight();
-    int grid_w = pcMap->getGridWidth();
-    int grid_h = pcMap->getGridHeight();
-	int grid_cols = pcMap->getGridCols();
+	uint map_w = pcMap->GetWidth();
+	uint map_h = pcMap->GetHeight();
+    uint grid_w = pcMap->getGridWidth();
+    uint grid_h = pcMap->getGridHeight();
+	uint grid_cols = pcMap->getGridCols();
 	const uchar* pxflags = pcMap->GetPixelFlags();
 	const uchar* gridflags = pcMap->getAbsoluteGridFlags();
 
@@ -64,8 +64,8 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 	ret.v1 = p; ret.v2 = p;
 
 	// just return if we are outside
-	if(p.x < 0 || p.x >= map_w
-	|| p.y < 0 || p.y >= map_h)
+	if(p.x < 0 || (uint)p.x >= map_w
+	|| p.y < 0 || (uint)p.y >= map_h)
 		return ret;
 
 	enum { GO_RIGHT=1, GO_DOWN=2, GO_LEFT=4, GO_UP=8 }; short dir;
@@ -95,8 +95,8 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 		}
 
 		// check if still inside the map (than nothing bad can happen)
-		if(x < 0 || x >= map_w
-		|| y < 0 || y >= map_h) {
+		if(x < 0 || (uint)x >= map_w
+		|| y < 0 || (uint)y >= map_h) {
 			col |= dir;
 			continue;
 		}
@@ -161,8 +161,8 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 	// cut the area if outer space...
 	if(ret.v1.x < 0) ret.v1.x = 0;
 	if(ret.v1.y < 0) ret.v1.y = 0;
-	if(ret.v2.x >= map_w) ret.v2.x = map_w-1;
-	if(ret.v2.y >= map_h) ret.v2.y = map_h-1;
+	if((uint)ret.v2.x >= map_w) ret.v2.x = map_w-1;
+	if((uint)ret.v2.y >= map_h) ret.v2.y = map_h-1;
 
 	return ret;
 }
@@ -191,15 +191,15 @@ NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 // (depends on which of them is the absolute greatest)
 inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
 	const uchar* pxflags = pcMap->GetPixelFlags();
-	int map_w = pcMap->GetWidth();
-	int map_h = pcMap->GetHeight();
+	uint map_w = pcMap->GetWidth();
+	uint map_h = pcMap->GetHeight();
 
 	if(abs(dist.x) >= abs(dist.y)) {
 		if(dist.x < 0) { // avoid anoying checks
 			start.x += dist.x;
 			dist.x = -dist.x;
 		}
-		if(start.x < 0 || start.x + dist.x >= map_w || start.y < 0 || start.y >= map_h)
+		if(start.x < 0 || (uint)(start.x + dist.x) >= map_w || start.y < 0 || (uint)start.y >= map_h)
 			return false;
 		for(register int x = 0; x <= dist.x; x++) {
 			if(pxflags[start.y*map_w + start.x + x] & checkflag)
@@ -210,7 +210,7 @@ inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist
 			start.y += dist.y;
 			dist.y = -dist.y;
 		}
-		if(start.y < 0 || start.y + dist.y >= map_h || start.x < 0 || start.x >= map_w)
+		if(start.y < 0 || (uint)(start.y + dist.y) >= map_h || start.x < 0 || (uint)start.x >= map_w)
 			return false;
 		for(register int y = 0; y <= dist.y; y++) {
 			if(pxflags[(start.y+y)*map_w + start.x] & checkflag)
@@ -537,12 +537,11 @@ public:
 		// lower priority to this thread
 		SDL_Delay(1);
 
-
 		if(shouldBreakThread() || shouldRestartThread()) return NULL;
 
 		// is the start inside of the map?
-		if(start.x < 0 || start.x >= pcMap->GetWidth()
-		|| start.y < 0 || start.y >= pcMap->GetHeight())
+		if(start.x < 0 || (uint)start.x >= pcMap->GetWidth()
+		|| start.y < 0 || (uint)start.y >= pcMap->GetHeight())
 			return NULL;
 
 		// can we just finish with the search?

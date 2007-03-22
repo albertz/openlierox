@@ -115,29 +115,6 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	Mouse.Button = 0;
 	Mouse.Up = 0;
 
-
-
-	/*
-		Temp thing to create a random number table
-	*/
-	/*FILE *fp = OpenGameFile("randomnum.cpp", "wt");
-
-	fprintf(fp, "float RandomNumbers[] = { ");
-	for(int i=0;i<256; i++) {
-		if(i % 8 == 0 && i>0)
-			fprintf(fp, "\n                          ");
-
-		float f = GetRandomNum();
-		if(f>=0)
-			fprintf(fp, " ");
-		fprintf(fp, "%ff", f );
-		if(i!= 255)
-			fprintf(fp, ", ");
-	}
-	fprintf(fp, " };\n\n");
-	fclose(fp);*/
-
-
 	return true;
 }
 

@@ -165,7 +165,7 @@ class game_t { public:
 extern	lierox_t		*tLX;
 extern	game_t			tGameInfo;
 extern	CVec			vGravity;
-extern	CServer			*cServer;
+extern	GameServer			*cServer;
 extern	CClient			*cClient;
 extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
@@ -217,6 +217,7 @@ const char* sex(short wraplen = 0);
 std::vector<std::string>& explode(const std::string& str, const std::string& delim);
 std::string freadstr(FILE *fp, size_t maxlen);
 inline std::string freadfixedcstr(FILE *fp, size_t maxlen) { return ReadUntil(freadstr(fp, maxlen), '\0'); }
+size_t fwrite(const std::string& txt, size_t len, FILE* fp);
 size_t findLastPathSep(const std::string& path);
 void stringlwr(std::string& txt);
 bool strincludes(const std::string& str, const std::string& what);

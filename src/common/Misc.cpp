@@ -195,12 +195,11 @@ int CarveHole(CMap *cMap, CVec pos)
 
 	// Go through until we find dirt to throw around
 	y = MIN((int)pos.y,cMap->GetHeight()-1);
-	y = MAX(y,0);
 
-	for(x=(int)pos.x-2;x<=(int)pos.x+2;x++) {
+	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
 		// Clipping
 		if(x<0)	continue;
-		if(x>=cMap->GetWidth())	break;
+		if((uint)x>=cMap->GetWidth())	break;
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
 			Colour = GetPixel(cMap->GetImage(),x,(int)pos.y);
@@ -671,6 +670,18 @@ std::string freadstr(FILE *fp, size_t maxlen) {
 	}
 
 	return result;
+}
+
+
+size_t fwrite(const std::string& txt, size_t len, FILE* fp) {
+	size_t len_of_txt = MAX(txt.size(), len-1);
+	size_t ret = fwrite(txt.c_str(), 1, len_of_txt, fp);
+	if(ret != len_of_txt)
+		return ret;
+	for(; len_of_txt < len; len_of_txt++)
+		if(fwrite(" ", 1, 1, fp) == 0)
+			return len_of_txt;
+	return len;
 }
 
 

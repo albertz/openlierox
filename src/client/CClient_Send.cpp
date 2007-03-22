@@ -31,13 +31,15 @@ void CClient::SendWormDetails(void)
 
 	CBytestream bs;
 	CWorm *w;
-	int i;
+	uint i;
 
 	// If all me worms are not alive, don't send
-	int Alive = false;
+	bool Alive = false;
 	for(i=0;i<iNumWorms;i++) {
-		if(cLocalWorms[i]->getAlive())
+		if(cLocalWorms[i]->getAlive()) {
 			Alive = true;
+			break;		
+		}
 	}
 
 	if(!Alive)

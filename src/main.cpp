@@ -24,7 +24,7 @@
 // we have to create a basic class CGame or something
 
 CClient		*cClient = NULL;
-CServer		*cServer = NULL;
+GameServer		*cServer = NULL;
 lierox_t	*tLX = NULL;
 game_t		tGameInfo;
 CInput		cTakeScreenshot;
@@ -40,7 +40,7 @@ SDL_Surface	*Screen;
 
 CVec		vGravity = CVec(0,4);
 
-std::string	binary_dir;
+std::string	binary_dir; // given by argv[0]
 
 ///////////////////
 // Main entry point
@@ -53,14 +53,18 @@ int main(int argc, char *argv[])
 	
 	InstallExceptionFilter();
 	nameThread(-1,"Main game thread");
+#else
+	// TODO: same/similar for other systems
 #endif // _MSC_VER
 
 	printf("OpenLieroX " LX_VERSION " is starting ...\n");
 
-	// sadly, these sizeof are directly used in CGameScript.cpp
+	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
+	// TODO: fix this issue
 	assert(sizeof(int) == 4);
 	assert(sizeof(float) == 4);
-
+	assert(sizeof(ulong) == 4);
+	
     int     startgame = false;
 
 	binary_dir = argv[0];
@@ -71,12 +75,12 @@ int main(int argc, char *argv[])
 		binary_dir = "."; // TODO get exact path of binary
 
 	// Load options and other settings
-	if(!LoadOptions())  {
+	if(!GameOptions::Init())  {
 		SystemError("Could not load options");
 		return -1;
 	}
 
-	if(!LoadNetworkStrings())  {
+	if(!NetworkTexts::Init())  {
 		SystemError("Could not load network strings.");
 		return -1;
 	}
@@ -275,9 +279,9 @@ int InitializeLieroX(void)
 	
 	cClient->Clear();
 
-	cServer = new CServer;
+	cServer = new GameServer;
     if(cServer == NULL) {
-        SystemError("Error: InitializeLieroX() Out of memory on creating CServer");
+        SystemError("Error: InitializeLieroX() Out of memory on creating GameServer");
 		return false;
     }
 

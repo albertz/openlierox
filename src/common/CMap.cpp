@@ -25,7 +25,7 @@
 
 ///////////////////
 // Create a new map
-int CMap::New(int _width, int _height, const std::string& _theme)
+int CMap::New(uint _width, uint _height, const std::string& _theme)
 {
 	if(Created)
 		Shutdown();
@@ -484,8 +484,8 @@ bool CMap::createGrid(void) {
 void CMap::calculateGrid(void)
 {
 	lockFlags();
-    for(int y=0; y<Height; y+=nGridHeight)  {
-        for(int x=0; x<Width; x+=nGridWidth) {
+    for(uint y=0; y<Height; y+=nGridHeight)  {
+        for(uint x=0; x<Width; x+=nGridWidth) {
             calculateGridCell(x,y, false);
         }
     }
@@ -497,14 +497,12 @@ void CMap::calculateGrid(void)
 // Calculate a single grid cell
 // x & y are pixel locations, not grid cell locations
 // WARNING: not thread-safe (the caller has to ensure the threadsafty!)
-void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
+void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
 {
-    int i = x/nGridWidth;
-    int j = y/nGridHeight;
+    uint i = x/nGridWidth;
+    uint j = y/nGridHeight;
 
     // Clamp it
-    i = MAX(i,0);
-    j = MAX(j,0);
     i = MIN(i,nGridCols-1);
     j = MIN(j,nGridRows-1);
 
@@ -522,7 +520,7 @@ void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
     int rockCount = 0;
 
     // Go through every pixel in the cell and get a solid flag count
-    for(int b=y; b<y+nGridHeight; b++) {
+    for(uint b=y; b<y+nGridHeight; b++) {
         // Clipping
         if(b>=Height)
             break;
@@ -530,7 +528,7 @@ void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
             break;
 
         uchar *pf = PixelFlags + b*Width + x;
-        for(int a=x; a<x+nGridWidth; a++, pf++) {
+        for(uint a=x; a<x+nGridWidth; a++, pf++) {
 
             // Clipping
             if(a>=Width)
@@ -564,7 +562,7 @@ void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
 // Tile the map
 void CMap::TileMap(void)
 {
-	int x,y;
+	uint x,y;
 
 	// Place the tiles
 	
@@ -604,11 +602,11 @@ void CMap::TileMap(void)
 void CMap::CalculateDirtCount(void)
 {
     nTotalDirtCount = 0;
-    unsigned int n;
-	const unsigned int size = Width*Height;
+	uint n;
+	const uint size = Width*Height;
 
 	for (n=0;n<size;n++)
-		nTotalDirtCount += (PixelFlags[n++] & PX_DIRT) ? 1 : 0;
+		nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
 }
 
 
@@ -629,7 +627,7 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 
 ///////////////////
 // Draw an object's shadow
-void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
+void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, uint sy, uint w, uint h, CViewport *view, uint wx, uint wy)
 {
 	// TODO: optimize
 
@@ -677,10 +675,10 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	SrcPixel = (Uint8*)bmpShadowMap->pixels + (wy * bmpShadowMap->pitch + wx*screenbpp);
 	ObjPixel = (Uint8 *)bmpObj->pixels + (sy*bmpObj->pitch+sx*screenbpp);
 
-	for( y=sy,dy=wy,j=0; y<sy+h; y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
+	for( y=sy,dy=wy,j=0; y<(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
 		// World Clipping
 		if(dy < 0) continue;
-		if(dy >= Height) break;
+		if((uint)dy >= Height) break;
 
 		// Screen clipping
 		if( dty+t+j < c_y ) continue;
@@ -692,11 +690,11 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 		destpix = DestPixel;
 		objpix = ObjPixel;
 
-		for( x=sx,dx=wx,i=0; x<sx+w; x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, destpix+=screenbpp, objpix+=screenbpp, srcpix+=((wx+i)&1)*screenbpp ) {
+		for( x=sx,dx=wx,i=0; x<(int)(sx+w); x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, destpix+=screenbpp, objpix+=screenbpp, srcpix+=((wx+i)&1)*screenbpp ) {
 
 			// Clipping
 			if(dx < 0) continue;
-			if(dx >= Width) break;
+			if((uint)dx >= Width) break;
 
 			// Is this pixel solid?
 			if( !(*pf & PX_EMPTY) ) continue;
@@ -723,12 +721,12 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 ///////////////////
 // Draw a pixel sized shadow
-void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy)
+void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, uint wx, uint wy)
 {
-    int v_wx = view->GetWorldX();
-	int v_wy = view->GetWorldY();
-	int l = view->GetLeft();
-	int t = view->GetTop();
+    uint v_wx = view->GetWorldX();
+	uint v_wy = view->GetWorldY();
+	uint l = view->GetLeft();
+	uint t = view->GetTop();
 
     static const int Drop = 3;
     wx += Drop;
@@ -825,14 +823,14 @@ int CMap::CarveHole(int size, CVec pos)
 			if(!memcmp(srcpix,&pink,hole->format->BytesPerPixel)) {
 
 				// Increase the dirt count
-				nNumDirt+=((*px & PX_DIRT) != 0);  // 0 or 1
+				nNumDirt+=((*px & PX_DIRT) != 0) ? 1 : 0;
 
 				*px = PX_EMPTY;
 
 			// Put pixels that are not black/pink (eg, brown)
 			} else {	
-				if(memcmp(srcpix,&black,hole->format->BytesPerPixel))
-					memcpy(dstpix,srcpix,bmpImage->format->BytesPerPixel*((*px & PX_DIRT) != 0)); // copies 0 or bpp pixels
+				if((*px & PX_DIRT) != 0 && memcmp(srcpix,&black,hole->format->BytesPerPixel))
+					memcpy(dstpix,srcpix,bmpImage->format->BytesPerPixel);
 			}
 		}
 	}
@@ -1212,18 +1210,18 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 ///////////////////
 // Apply a shadow to an area
-void CMap::ApplyShadow(int sx, int sy, int w, int h)
+void CMap::ApplyShadow(uint sx, uint sy, uint w, uint h)
 {
 	// Draw shadows?
 	if(!tLXOptions->iShadows)
 		return;
 
-	static const int Drop = 3;
-	int x,y,n;
+	static const ushort Drop = 3;
+	uint x,y,n;
 	uchar *px;
 	uchar *p;
-	int ox,oy;
-	char flag;
+	uint ox,oy;
+	uchar flag;
 
 	Uint8 *pixel,*src;
 
@@ -1237,16 +1235,16 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 	for(y=sy;y<sy+h;y++) {
 
 		// Clipping
-		if(y<0)				continue;
-		else if(y>=Height)	break;
+//		if(y < 0) continue; else 
+		if(y>=Height)	break;
 
 		px = PixelFlags + y * Width + sx;
 
 		for(x=sx;x<sx+w;x++) {
 
 			// Clipping
-			if(x<0) {	px++;	continue; }
-			else if(x>=Width)	break;
+//			if(x<0) {	px++;	continue; } else
+			if(x>=Width)	break;
 
 			flag = *(uchar *)px;
 
@@ -1614,11 +1612,9 @@ void CMap::DeleteStone(object_t *obj)
 
 ///////////////////
 // Put a pixel onto the front image buffer
-void CMap::PutImagePixel(int x, int y, Uint32 colour)
+void CMap::PutImagePixel(uint x, uint y, Uint32 colour)
 {
     // Checking edges
-	if(x < 0 || y < 0)
-		return;
 	if(x >= Width || y >= Height)
 		return;
 
@@ -1632,13 +1628,13 @@ void CMap::PutImagePixel(int x, int y, Uint32 colour)
 
 ///////////////////
 // Update the minimap
-void CMap::UpdateMiniMap(int force)
+void CMap::UpdateMiniMap(bool force)
 {
 	float xstep,ystep;
 	float mx,my;
-	int mmx,mmy;
-	int mw = bmpMiniMap->w;
-	int mh = bmpMiniMap->h;
+	uint mmx,mmy;
+	uint mw = bmpMiniMap->w;
+	uint mh = bmpMiniMap->h;
 
 	if(!bMiniMapDirty && !force)
 		return;
@@ -1694,13 +1690,13 @@ void CMap::UpdateMiniMap(int force)
 ///////////////////
 // Update an area of the minimap
 // X, Y, W and H apply to the bmpImage, not bmpMinimap
-void CMap::UpdateMiniMapRect(short x, short y, short w, short h)
+void CMap::UpdateMiniMapRect(ushort x, ushort y, ushort w, ushort h)
 {
 	float xstep,ystep;
 	float mx,my;  // bmpImage coordinates
-	short mmx,mmy;  // bmpMiniMap coordinates
-	short mw = bmpMiniMap->w;
-	short mh = bmpMiniMap->h;
+	ushort mmx,mmy;  // bmpMiniMap coordinates
+	ushort mw = bmpMiniMap->w;
+	ushort mh = bmpMiniMap->h;
 
 	// Calculate steps
 	xstep = (float)Width/ (float)mw;
@@ -1713,10 +1709,10 @@ void CMap::UpdateMiniMapRect(short x, short y, short w, short h)
 		SDL_LockSurface(bmpMiniMap);
 
 	Uint8 *sp,*tp,*tmp1,*tmp2;
-	short mmx_tmp = (short)((float)x/xstep);
+	ushort mmx_tmp = (ushort)((float)x/xstep);
 	float mx_tmp = (float)((short)(x/xstep)*xstep);  // This makes sure the shrink will be the same as in UpdateMinimap
-	short y2 = y+h;
-	short x2 = x+w;
+	ushort y2 = y+h;
+	ushort x2 = x+w;
 
 	for(my=(float)((short)(y/ystep)*ystep),mmy=(short)((float)y/ystep);my<y2;my+=ystep,mmy++) {
 
@@ -1755,7 +1751,7 @@ void CMap::UpdateMiniMapRect(short x, short y, short w, short h)
 
 ///////////////////
 // Draw & Simulate the minimap
-void CMap::DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worms, int gametype)
+void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype)
 {
 	int i,j;
 	float xstep,ystep;
@@ -1856,23 +1852,20 @@ int CMap::Load(const std::string& filename)
     sRandomLayout.bUsed = false;
 
 	// Check if it's an original liero level
-	if( stringcasecmp(filename.substr(filename.size() - 4), ".lev") == 0 ) {
+	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 ) {
 		return LoadOriginal(fp);
 	}
 
 
 	// Header
-	static char	id[32];
+	static std::string id;
+	id = freadfixedcstr(fp, 32);
 	int		version;
-	int		numobj;
-	static char	Theme_Name[32];
-
-	fread(id,			sizeof(char),	32,	fp);
 	fread(&version,		sizeof(int),	1,	fp);
 	EndianSwap(version);
 
 	// Check to make sure it's a valid level file
-	if(strcmp(id,"LieroX Level") != 0 || version != MAP_VERSION) {
+	if(id != "LieroX Level" || version != MAP_VERSION) {
 		printf("CMap::Load (%s): ERROR: not a valid level file or wrong version\n", filename.c_str());
 		fclose(fp);
 		return false;
@@ -1885,7 +1878,9 @@ int CMap::Load(const std::string& filename)
 	EndianSwap(Height);
 	fread(&Type,		sizeof(int),	1,	fp);
 	EndianSwap(Type);
-	fread(Theme_Name,	sizeof(char),	32,	fp);
+	static std::string Theme_Name;
+	Theme_Name = freadfixedcstr(fp, 32);
+	int		numobj;
 	fread(&numobj,		sizeof(int),	1,	fp);
 	EndianSwap(numobj);
 
@@ -1922,13 +1917,11 @@ int CMap::Load(const std::string& filename)
 		SDL_LockSurface(bmpBackImage);
 
 	// Dirt map
-	size_t n,i,j,x;
+	size_t n,i,j,x=0;
 	Uint8 *p1 = (Uint8 *)bmpImage->pixels;
 	Uint8 *p2 = (Uint8 *)bmpBackImage->pixels;
 	Uint8 *dstrow = p1;
 	Uint8 *srcrow = p2;
-
-	lockFlags();
 
 	// Load the bitmask, 1 bit == 1 pixel with a yes/no dirt flag
 	uint size = Width*Height/8;
@@ -1946,8 +1939,9 @@ int CMap::Load(const std::string& filename)
 
 	nTotalDirtCount = Width*Height;  // Calculate the dirt count
 
+	lockFlags();
+	
 	for(n=0,i=0;i<size;i++,x+=8) {
-		//EndianSwap(t); // TODO: does it make sense for one byte?
 		if (x>=Width)  {
 			srcrow += bmpBackImage->pitch;
 			dstrow += bmpImage->pitch;
@@ -1967,8 +1961,9 @@ int CMap::Load(const std::string& filename)
 		}
 	}
 
-	delete[] bitmask;
 	unlockFlags();
+	
+	delete[] bitmask;
 
 	// Unlock the surfaces
 	if (SDL_MUSTLOCK(bmpImage))
@@ -1979,7 +1974,7 @@ int CMap::Load(const std::string& filename)
 	// Objects
 	object_t o;
 	NumObjects = 0;
-	for(i=0;i<numobj;i++) {
+	for(i=0;(int)i<numobj;i++) {
 		fread(&o.Type,	sizeof(int),	1,	fp);
 		EndianSwap(o.Type);
 		fread(&o.Size,	sizeof(int),	1,	fp);
@@ -2033,17 +2028,15 @@ int CMap::Save(const std::string& name, const std::string& filename)
 	Type = MPT_IMAGE;
 
 	// Header
-	static char	id[32];
 	int		version = MAP_VERSION;
-	strcpy(id,"LieroX Level");
 
-	fwrite(id,			sizeof(char),	32,	fp);
+	fwrite("LieroX Level",	32,	fp);
 	fwrite(GetEndianSwapped(version),	sizeof(int),	1,	fp);
-	fwrite(name.c_str(),		sizeof(char),	64,	fp);
+	fwrite(name,	64,	fp);
 	fwrite(GetEndianSwapped(Width),		sizeof(int),	1,	fp);
 	fwrite(GetEndianSwapped(Height),		sizeof(int),	1,	fp);
 	fwrite(GetEndianSwapped(Type),		sizeof(int),	1,	fp);
-	fwrite(Theme.name.c_str(),	sizeof(char),	32,	fp);
+	fwrite(Theme.name,	32,	fp);
 	fwrite(GetEndianSwapped(NumObjects),	sizeof(int),	1,	fp);
 
 
@@ -2054,17 +2047,17 @@ int CMap::Save(const std::string& name, const std::string& filename)
 
 
 	// Dirt map
-	int n;
+	uint n;
 	for(n=0;n<Width*Height;) {
 		uchar t = 0;
 
 		// 1 bit == 1 pixel with a yes/no dirt flag
-		for(int i=0;i<8;i++) {
-			int value = PixelFlags[n++] & PX_EMPTY;
+		for(ushort i=0;i<8;i++) {
+			uchar value = PixelFlags[n++] & PX_EMPTY;
 			t |= (value << i);
 		}
 
-		fwrite(GetEndianSwapped(t),	sizeof(uchar),	1,	fp);
+		fwrite(&t,	sizeof(uchar),	1,	fp);
 	}
 
 
@@ -2088,7 +2081,7 @@ int CMap::Save(const std::string& name, const std::string& filename)
 // Save the images
 int CMap::SaveImageFormat(FILE *fp)
 {
-	int x,y,n,p;
+	uint x,y,n,p;
 	Uint8 r,g,b,a;
 
 	// The images are saved in a raw 24bit format.
@@ -2116,9 +2109,9 @@ int CMap::SaveImageFormat(FILE *fp)
 		for(x=0; x<Width; x++) {
 			GetColour4( GetPixel(bmpBackImage,x,y), bmpBackImage, &r, &g, &b ,&a );
 
-			pSource[p++] = *GetEndianSwapped(r);
-			pSource[p++] = *GetEndianSwapped(g);
-			pSource[p++] = *GetEndianSwapped(b);
+			pSource[p++] = r;
+			pSource[p++] = g;
+			pSource[p++] = b;
 		}
 	}
 
@@ -2126,9 +2119,9 @@ int CMap::SaveImageFormat(FILE *fp)
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
 			GetColour4( GetPixel(bmpImage,x,y), bmpImage, &r, &g, &b ,&a );
-			pSource[p++] = *GetEndianSwapped(r);
-			pSource[p++] = *GetEndianSwapped(g);
-			pSource[p++] = *GetEndianSwapped(b);
+			pSource[p++] = r;
+			pSource[p++] = g;
+			pSource[p++] = b;
 		}
 	}
 
@@ -2172,7 +2165,7 @@ int CMap::LoadImageFormat(FILE *fp)
 {
 	// Load the details
 	ulong size, destsize;
-	int x,y,n,p;
+	uint x,y,n,p;
 
 	fread(&size, sizeof(ulong), 1, fp);
 	EndianSwap(size);
@@ -2216,11 +2209,13 @@ int CMap::LoadImageFormat(FILE *fp)
 	Uint8 *curpixel = (Uint8 *)bmpBackImage->pixels;
 	Uint8 *PixelRow = curpixel;
 
+	// TODO: check if pDest is big enough
+
 	// Load the back image
 	for (y=0;y<Height;y++,PixelRow+=bmpBackImage->pitch)  {
 		curpixel = PixelRow;
 		for (x=0;x<Width;x++,curpixel+=bmpBackImage->format->BytesPerPixel)  {
-			curcolor = SDL_MapRGB(bmpBackImage->format,*GetEndianSwapped(pDest[p]),*GetEndianSwapped(pDest[p+1]),*GetEndianSwapped(pDest[p+2]));
+			curcolor = SDL_MapRGB(bmpBackImage->format,pDest[p],pDest[p+1],pDest[p+2]);
 			p+=3;
 			memcpy(curpixel,&curcolor,bmpBackImage->format->BytesPerPixel);
 		}
@@ -2232,7 +2227,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	for (y=0;y<Height;y++,PixelRow+=bmpImage->pitch)  {
 		curpixel = PixelRow;
 		for (x=0;x<Width;x++,curpixel+=bmpImage->format->BytesPerPixel)  {
-			curcolor = SDL_MapRGB(bmpImage->format,*GetEndianSwapped(pDest[p]),*GetEndianSwapped(pDest[p+1]),*GetEndianSwapped(pDest[p+2]));
+			curcolor = SDL_MapRGB(bmpImage->format,pDest[p],pDest[p+1],pDest[p+2]);
 			p+=3;
 			memcpy(curpixel,&curcolor,bmpImage->format->BytesPerPixel);
 		}
@@ -2247,7 +2242,6 @@ int CMap::LoadImageFormat(FILE *fp)
 	//								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	// Load the pixel flags and calculate dirt count
-	lockFlags();
 	n=0;
 	nTotalDirtCount = 0;
 
@@ -2256,17 +2250,19 @@ int CMap::LoadImageFormat(FILE *fp)
 	Uint8 *backpixel = (Uint8 *)bmpBackImage->pixels;
 	Uint8 *BackPixelRow = backpixel;
 
+	lockFlags();
+	
 	for(y=0; y<Height; y++,PixelRow+=bmpImage->pitch,BackPixelRow+=bmpBackImage->pitch) {
 		curpixel = PixelRow;
 		backpixel = BackPixelRow;
 		for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
 			PixelFlags[n] = pDest[p++];
 			memcpy(curpixel,backpixel,bmpImage->format->BytesPerPixel*(PixelFlags[n] & PX_EMPTY)); // If the pixelflag isn't empty, copies 0 bytes
-			nTotalDirtCount += (PixelFlags[n++] & PX_DIRT) ? 1 : 0;
+			nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
 			n++;
-			/*if(t == PX_ROCK)
+			/*if(t & PX_ROCK)
 				PutPixel(pxf, x,y, MakeColour(128,128,128));
-			if(t == PX_DIRT)
+			else if(t & PX_DIRT)
 				PutPixel(pxf, x,y, MakeColour(128,64,64));*/
 		}
 	}
@@ -2304,14 +2300,15 @@ int CMap::LoadImageFormat(FILE *fp)
 // Load an original version of a liero leve;
 int CMap::LoadOriginal(FILE *fp)
 {
-	int Powerlevel = false;
+	bool Powerlevel = false;
 	uchar *palette = NULL;
-	int x,y,n;
+	uint x,y,n;
 
 	// Validate the liero level
 	fseek(fp,0,SEEK_END);
-	long length = ftell(fp);
+	size_t length = ftell(fp);
 
+	// check for powerlevel
 	if(length != 176400 && length != 176402) {
 		if(length == 177178)
 			Powerlevel = true;
@@ -2342,14 +2339,14 @@ int CMap::LoadOriginal(FILE *fp)
 
 	// Load the palette
 	if(!Powerlevel) {
-		FILE *pal = OpenGameFile("data/lieropal.act","rb");
-		if(!pal) {
+		FILE *fpal = OpenGameFile("data/lieropal.act","rb");
+		if(!fpal) {
 			fclose(fp);
 			return false;
 		}
 
-		fread(palette,sizeof(uchar),768,pal);
-		fclose(pal);
+		fread(palette,sizeof(uchar),768,fpal);
+		fclose(fpal);
 	}
 
 	// Load the image map
@@ -2392,7 +2389,7 @@ int CMap::LoadOriginal(FILE *fp)
 	for(y=0;y<Height;y++) {
 		for(x=0;x<Width;x++) {
 			uchar p = bytearr[n];
-			int type = PX_EMPTY;
+			uchar type = PX_EMPTY;
 			//if(p >= 0 && p <= 255) {
 
 				// Dirt
@@ -2423,7 +2420,6 @@ int CMap::LoadOriginal(FILE *fp)
 	}
 	unlockFlags();
 
-	// LOL :)
 /*
 	// Dump the palette
 	for(n=0;n<256;n++) {
@@ -2508,13 +2504,13 @@ void CMap::Send(CBytestream *bs)
 	FILE *fp;
 	fp = OpenGameFile("tempmap.dat","wb");
 
-	int n;
+	uint n;
 
 	for(n=0;n<Width*Height;) {
 		uchar t = 0;
 
-		for(int i=0;i<8;i++) {
-			int value = PixelFlags[n++] & 0x01;
+		for(ushort i=0;i<8;i++) {
+			uchar value = PixelFlags[n++] & 0x01;
 			t |= (value << i);
 		}
 

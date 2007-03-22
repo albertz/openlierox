@@ -368,7 +368,7 @@ void Menu_OptionsFrame(void)
 
 					// Shutdown & save
 					Menu_OptionsShutdown();
-					SaveOptions();
+					tLXOptions->SaveToDisc();
 
 					// Leave
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -397,7 +397,7 @@ void Menu_OptionsFrame(void)
 					if(ev->iControlID >= oc_Ply2_Up && ev->iControlID <= oc_Ply2_Rope)
 						ply = 1;
 					if(ev->iControlID >= oc_Gen_Chat)
-						ply = 2;
+						ply = -1;
 
 					// Get an input
 					CInputbox *b = (CInputbox *)ev->cWidget;
@@ -643,6 +643,7 @@ void Menu_OptionsFrame(void)
 
 ///////////////////
 // Process an input box waiting thing
+// ply=-1 : general ; ply>=0 : normal player
 void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 {
 	keyboard_t *kb = GetKeyboard();
@@ -663,7 +664,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,285,MakeColour(128,128,128),"%s","(Escape to cancel)");
 
 	TopButtons[OptionsMode].MouseOver(Mouse);
-	for(int i=0;i<3;i++) {
+	for(ushort i=0;i<3;i++) {
 		TopButtons[i].Draw(tMenu->bmpBuffer);
 	}
 
@@ -676,7 +677,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	Mouse->Down = 0;
 
 
-	while(1) {
+	while(true) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 
@@ -696,11 +697,9 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	}
 
 	// Change the options
-	if(ply == 0) {
-		tLXOptions->sPlayerControls[0][b->getValue()] = b->getText();
-	} else if(ply == 1) {
-		tLXOptions->sPlayerControls[1][b->getValue()] = b->getText();
-	} else if(ply == 2)
+	if(ply >= 0) {
+		tLXOptions->sPlayerControls[ply][b->getValue()] = b->getText();
+	} else
 		tLXOptions->sGeneralControls[b->getValue()] = b->getText();
 
 	Mouse->Down = 0;

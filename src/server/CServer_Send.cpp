@@ -20,7 +20,7 @@
 
 ///////////////////
 // Send all the clients a packet
-void CServer::SendGlobalPacket(CBytestream *bs)
+void GameServer::SendGlobalPacket(CBytestream *bs)
 {
 	// Assume reliable
 	CClient *cl = cClients;
@@ -36,7 +36,7 @@ void CServer::SendGlobalPacket(CBytestream *bs)
 
 ///////////////////
 // Send all the clients a string of text
-void CServer::SendGlobalText(const char* text, int type) {
+void GameServer::SendGlobalText(const char* text, int type) {
 	CBytestream bs;
 	bs.writeByte(S2C_TEXT);
 	bs.writeInt(type,1);
@@ -51,7 +51,7 @@ void CServer::SendGlobalText(const char* text, int type) {
 	}
 }
 
-void CServer::SendGlobalText(const std::string& text, int type) {
+void GameServer::SendGlobalText(const std::string& text, int type) {
 	SendGlobalText(text.c_str(), type);
 }
 
@@ -60,7 +60,7 @@ void CServer::SendGlobalText(const std::string& text, int type) {
 ///////////////////
 // Update all the client about the playing worms
 // Returns true if we sent an update
-bool CServer::SendUpdate(CClient *cl)
+bool GameServer::SendUpdate(CClient *cl)
 {
 	int i;
 
@@ -148,7 +148,7 @@ bool CServer::SendUpdate(CClient *cl)
 ///////////////////
 // Check if we have gone over the clients bandwidth rating
 // Returns true if we are under the bandwidth
-bool CServer::checkBandwidth(CClient *cl)
+bool GameServer::checkBandwidth(CClient *cl)
 {
 	// Don't bother checking if the client is on the same comp as the server
 	if( tGameInfo.iGameType != GME_LOCAL )
@@ -187,7 +187,7 @@ bool CServer::checkBandwidth(CClient *cl)
 
 ///////////////////
 // Send an update of the game details in the lobby
-void CServer::UpdateGameLobby(void)
+void GameServer::UpdateGameLobby(void)
 {
 	CBytestream bs;
 	game_lobby_t *gl = &tGameLobby;
@@ -213,7 +213,7 @@ void CServer::UpdateGameLobby(void)
 
 ///////////////////
 // Send updates for all the worm lobby states
-void CServer::SendWormLobbyUpdate(void)
+void GameServer::SendWormLobbyUpdate(void)
 {
     CBytestream bytestr;
 	bytestr.Clear();
@@ -260,7 +260,7 @@ void CServer::SendWormLobbyUpdate(void)
 
 ///////////////////
 // Tell all the clients that we're disconnecting
-void CServer::SendDisconnect(void)
+void GameServer::SendDisconnect(void)
 {
 	CBytestream bs;
 	CClient *cl = cClients;

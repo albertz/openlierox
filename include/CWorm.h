@@ -388,7 +388,7 @@ public:
 	void		getGamepadInput(void);
 	void		Simulate(CMap *map, CWorm *worms, int local, float dt);
 	void		SimulateWeapon( float dt );
-	int			CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jump );
+	bool		CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jump );
     int			CheckOnGround(CMap *map);
 
 

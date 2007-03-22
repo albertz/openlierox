@@ -28,7 +28,7 @@ CClient *cBots = NULL;
 
 ///////////////////
 // Clear the server
-void CServer::Clear(void)
+void GameServer::Clear(void)
 {
 	int i;
 
@@ -74,7 +74,7 @@ void CServer::Clear(void)
 
 ///////////////////
 // Start a server
-int CServer::StartServer(const std::string& name, int port, int maxplayers, bool regserver)
+int GameServer::StartServer(const std::string& name, int port, int maxplayers, bool regserver)
 {
 	// Shutdown and clear any previous server settings
 	Shutdown();
@@ -159,7 +159,7 @@ int CServer::StartServer(const std::string& name, int port, int maxplayers, bool
 
 ///////////////////
 // Start the game
-int CServer::StartGame(void)
+int GameServer::StartGame(void)
 {
 	CBytestream bs;
 
@@ -365,7 +365,7 @@ int CServer::StartGame(void)
 
 ///////////////////
 // Begin the match
-void CServer::BeginMatch(void)
+void GameServer::BeginMatch(void)
 {
 	int i;
 
@@ -400,7 +400,7 @@ void CServer::BeginMatch(void)
 
 ///////////////////
 // Main server frame
-void CServer::Frame(void)
+void GameServer::Frame(void)
 {
 	// Playing frame
 	if(iState == SVS_PLAYING) {
@@ -427,7 +427,7 @@ void CServer::Frame(void)
 
 ///////////////////
 // Read packets
-void CServer::ReadPackets(void)
+void GameServer::ReadPackets(void)
 {
 	CBytestream bs;
 	NetworkAddr adrFrom;
@@ -475,7 +475,7 @@ void CServer::ReadPackets(void)
 
 ///////////////////
 // Send packets
-void CServer::SendPackets(void)
+void GameServer::SendPackets(void)
 {
 	int c;
 	CClient *cl = cClients;
@@ -510,7 +510,7 @@ void CServer::SendPackets(void)
 
 ///////////////////
 // Register the server
-void CServer::RegisterServer(void)
+void GameServer::RegisterServer(void)
 {
 	// Create the url
 	static std::string url;
@@ -551,7 +551,7 @@ void CServer::RegisterServer(void)
 
 ///////////////////
 // Process the registering of the server
-void CServer::ProcessRegister(void)
+void GameServer::ProcessRegister(void)
 {
     static std::string szError;
 
@@ -578,7 +578,7 @@ void CServer::ProcessRegister(void)
 
 ///////////////////
 // This checks the registering of a server
-void CServer::CheckRegister(void)
+void GameServer::CheckRegister(void)
 {
 	// If we don't want to register, just leave
 	if(!bRegServer)
@@ -597,7 +597,7 @@ void CServer::CheckRegister(void)
 
 ///////////////////
 // De-register the server
-bool CServer::DeRegisterServer(void)
+bool GameServer::DeRegisterServer(void)
 {
 	// If we aren't registered, or we didn't try to register, just leave
 	if( !bRegServer || !bServerRegistered )
@@ -641,7 +641,7 @@ bool CServer::DeRegisterServer(void)
 
 ///////////////////
 // Process the de-registering of the server
-bool CServer::ProcessDeRegister(void)
+bool GameServer::ProcessDeRegister(void)
 {
 	int result = http_ProcessRequest(NULL);
 	return result != 0;
@@ -650,7 +650,7 @@ bool CServer::ProcessDeRegister(void)
 
 ///////////////////
 // Check if any clients haved timed out or are out of zombie state
-void CServer::CheckTimeouts(void)
+void GameServer::CheckTimeouts(void)
 {
 	int c;
 
@@ -678,7 +678,7 @@ void CServer::CheckTimeouts(void)
 
 ///////////////////
 // Drop a client
-void CServer::DropClient(CClient *cl, int reason)
+void GameServer::DropClient(CClient *cl, int reason)
 {
     static std::string cl_msg;
     cl_msg = "";
@@ -705,26 +705,26 @@ void CServer::DropClient(CClient *cl, int reason)
 
             // Quit
             case CLL_QUIT:
-				replacemax(NetworkTexts->sHasLeft,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                cl_msg = NetworkTexts->sYouQuit;
+				replacemax(networkTexts->sHasLeft,"<player>", cl->getWorm(i)->getName(), buf, 1);
+                cl_msg = networkTexts->sYouQuit;
                 break;
 
             // Timeout
             case CLL_TIMEOUT:
-				replacemax(NetworkTexts->sHasTimedOut,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                cl_msg = NetworkTexts->sYouTimed;
+				replacemax(networkTexts->sHasTimedOut,"<player>", cl->getWorm(i)->getName(), buf, 1);
+                cl_msg = networkTexts->sYouTimed;
                 break;
 
             // Kicked
             case CLL_KICK:
-				replacemax(NetworkTexts->sHasBeenKicked,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                cl_msg = NetworkTexts->sKickedYou;
+				replacemax(networkTexts->sHasBeenKicked,"<player>", cl->getWorm(i)->getName(), buf, 1);
+                cl_msg = networkTexts->sKickedYou;
                 break;
 
 			// Banned
 			case CLL_BAN:
-				replacemax(NetworkTexts->sHasBeenBanned,"<player>", cl->getWorm(i)->getName(), buf, 1);
-				cl_msg = NetworkTexts->sBannedYou;
+				replacemax(networkTexts->sHasBeenBanned,"<player>", cl->getWorm(i)->getName(), buf, 1);
+				cl_msg = networkTexts->sBannedYou;
 				break;
         }
 
@@ -772,7 +772,7 @@ void CServer::DropClient(CClient *cl, int reason)
 
 ///////////////////
 // Kick a worm out of the server
-void CServer::kickWorm(int wormID)
+void GameServer::kickWorm(int wormID)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsUsed())
@@ -822,7 +822,7 @@ void CServer::kickWorm(int wormID)
 			SendGlobalPacket(&bs);
 
 			// Send the message
-			SendGlobalText(replacemax(NetworkTexts->sHasBeenKicked,"<player>", w->getName(), 1),TXT_NETWORK);
+			SendGlobalText(replacemax(networkTexts->sHasBeenKicked,"<player>", w->getName(), 1),TXT_NETWORK);
 
 			// Now that a player has left, re-check the game status
 			RecheckGame();
@@ -844,7 +844,7 @@ void CServer::kickWorm(int wormID)
 
 ///////////////////
 // Kick a worm out of the server (by name)
-void CServer::kickWorm(const std::string& szWormName)
+void GameServer::kickWorm(const std::string& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -864,7 +864,7 @@ void CServer::kickWorm(const std::string& szWormName)
 
 ///////////////////
 // Ban and kick the worm out of the server
-void CServer::banWorm(int wormID)
+void GameServer::banWorm(int wormID)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsUsed())
@@ -918,7 +918,7 @@ void CServer::banWorm(int wormID)
 			SendGlobalPacket(&bs);
 
 			// Send the message
-			SendGlobalText(replacemax(NetworkTexts->sHasBeenBanned,"<player>", w->getName(), 1),TXT_NETWORK);
+			SendGlobalText(replacemax(networkTexts->sHasBeenBanned,"<player>", w->getName(), 1),TXT_NETWORK);
 
 			// Now that a player has left, re-check the game status
 			RecheckGame();
@@ -942,7 +942,7 @@ void CServer::banWorm(int wormID)
 }
 
 
-void CServer::banWorm(const std::string& szWormName)
+void GameServer::banWorm(const std::string& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -966,7 +966,7 @@ void CServer::banWorm(const std::string& szWormName)
 ///////////////////
 // Mute the worm, so no messages will be delivered from him
 // Actually, mutes a client
-void CServer::muteWorm(int wormID)
+void GameServer::muteWorm(int wormID)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsUsed())
@@ -1000,7 +1000,7 @@ void CServer::muteWorm(int wormID)
 	if (cClient)  {
 		if (cClient->OwnsWorm(w))  {
 			// Send the message
-			SendGlobalText(replacemax(NetworkTexts->sHasBeenMuted,"<player>", w->getName(), 1),TXT_NETWORK);
+			SendGlobalText(replacemax(networkTexts->sHasBeenMuted,"<player>", w->getName(), 1),TXT_NETWORK);
 
 			// End here
 			return;
@@ -1011,13 +1011,13 @@ void CServer::muteWorm(int wormID)
 	cl->setMuted(true);
 
 	// Send the text
-	if (NetworkTexts->sHasBeenUnmuted!="<none>")  {
-		SendGlobalText(replacemax(NetworkTexts->sHasBeenMuted,"<player>",w->getName(),1),TXT_NETWORK);
+	if (networkTexts->sHasBeenUnmuted!="<none>")  {
+		SendGlobalText(replacemax(networkTexts->sHasBeenMuted,"<player>",w->getName(),1),TXT_NETWORK);
 	}
 }
 
 
-void CServer::muteWorm(const std::string& szWormName)
+void GameServer::muteWorm(const std::string& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -1041,7 +1041,7 @@ void CServer::muteWorm(const std::string& szWormName)
 ///////////////////
 // Unmute the worm, so the messages will be delivered from him
 // Actually, unmutes a client
-void CServer::unmuteWorm(int wormID)
+void GameServer::unmuteWorm(int wormID)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsUsed())
@@ -1074,13 +1074,13 @@ void CServer::unmuteWorm(int wormID)
 	cl->setMuted(false);
 
 	// Send the message
-	if (NetworkTexts->sHasBeenUnmuted!="<none>")  {
-		SendGlobalText(replacemax(NetworkTexts->sHasBeenUnmuted,"<player>",w->getName(),1),TXT_NETWORK);
+	if (networkTexts->sHasBeenUnmuted!="<none>")  {
+		SendGlobalText(replacemax(networkTexts->sHasBeenUnmuted,"<player>",w->getName(),1),TXT_NETWORK);
 	}
 }
 
 
-void CServer::unmuteWorm(const std::string& szWormName)
+void GameServer::unmuteWorm(const std::string& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -1104,7 +1104,7 @@ void CServer::unmuteWorm(const std::string& szWormName)
 
 ///////////////////
 // Notify the host about stuff
-void CServer::notifyLog(char *fmt, ...)
+void GameServer::notifyLog(char *fmt, ...)
 {
     static char buf[512];
 	va_list	va;
@@ -1126,7 +1126,7 @@ void CServer::notifyLog(char *fmt, ...)
 
 //////////////////
 // Get the client owning this worm
-CClient *CServer::getClient(int iWormID)
+CClient *GameServer::getClient(int iWormID)
 {
 	if (iWormID < 0 || iWormID > MAX_WORMS)
 		return NULL;
@@ -1145,7 +1145,7 @@ CClient *CServer::getClient(int iWormID)
 
 /////////////////
 // Writes the log into the specified file
-bool CServer::WriteLogToFile(FILE *f)
+bool GameServer::WriteLogToFile(FILE *f)
 {
 	printf("WriteLogToFile intitializated\n");
 
@@ -1221,7 +1221,7 @@ bool CServer::WriteLogToFile(FILE *f)
 
 //////////////////////
 // Returns the country for the specified IP
-std::string CServer::GetCountryFromIP(const std::string& Address)
+std::string GameServer::GetCountryFromIP(const std::string& Address)
 {
 	// Don't check against local IP
 	if (Address.find("127.0.0.1") != std::string::npos)  {
@@ -1394,7 +1394,7 @@ std::string CServer::GetCountryFromIP(const std::string& Address)
 
 //////////////////
 // Returns the log worm with the specified id
-log_worm_t *CServer::GetLogWorm(int id)
+log_worm_t *GameServer::GetLogWorm(int id)
 {
 	// Check
 	if (!tGameLog)
@@ -1415,7 +1415,7 @@ log_worm_t *CServer::GetLogWorm(int id)
 
 ///////////////////
 // Shutdown the log structure
-void CServer::ShutdownLog(void)
+void GameServer::ShutdownLog(void)
 {
 	if (!tGameLog)
 		return;
@@ -1433,7 +1433,7 @@ void CServer::ShutdownLog(void)
 
 ///////////////////
 // Shutdown the server
-void CServer::Shutdown(void)
+void GameServer::Shutdown(void)
 {
 	int i;
 

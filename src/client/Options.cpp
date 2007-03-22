@@ -19,21 +19,31 @@
 #include "FindFile.h"
 
 
-options_t	     *tLXOptions = NULL;
-networktexts_t   *NetworkTexts = NULL;
+GameOptions	     *tLXOptions = NULL;
+NetworkTexts   *networkTexts = NULL;
+
+
+bool GameOptions::Init() {
+	if(tLXOptions) {
+		printf("WARNING: it seems that the GameOptions are already inited\n");
+		return true;
+	}
+
+	tLXOptions = new GameOptions;
+	if(tLXOptions == NULL) {
+		printf("ERROR: not enough mem for GameOptions\n");
+		return false;
+	}
+	
+	return tLXOptions->LoadFromDisc();
+}
 
 
 ///////////////////
 // Load the options
-int LoadOptions(void)
+bool GameOptions::LoadFromDisc()
 {
 	printf("Loading options... \n");
-
-	tLXOptions = new options_t;
-	if(tLXOptions == NULL) {
-		printf("ERROR: could not init options\n");
-		return false;
-	}
 
     static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     static const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
@@ -60,45 +70,45 @@ int LoadOptions(void)
 		if(!ReadString(f, "FileHandling", item, value, ""))
 			break;
 
-		AddToFileList(&tLXOptions->tSearchPaths, value);
+		AddToFileList(&tSearchPaths, value);
 		i++;
 	}
 
 	for(searchpathlist::const_iterator p1 = basesearchpaths.begin(); p1 != basesearchpaths.end(); i++,p1++)  {
-		AddToFileList(&tLXOptions->tSearchPaths, *p1);
+		AddToFileList(&tSearchPaths, *p1);
 	}
 
 	// print the searchpaths, this may be very usefull for the user
 	printf("I have now the following searchpaths (in this direction):\n");
-	for(searchpathlist::const_iterator p2 = tLXOptions->tSearchPaths.begin(); p2 != tLXOptions->tSearchPaths.end(); p2++) {
+	for(searchpathlist::const_iterator p2 = tSearchPaths.begin(); p2 != tSearchPaths.end(); p2++) {
 		printf("  %s\n", p2->c_str());
 	}
 	printf(" And that's all.\n");
 
-	for (i=0;i<sizeof(tLXOptions->iInternetList)/sizeof(int);i++)  {
-		tLXOptions->iInternetList[i] = def_widths[i];
-		tLXOptions->iLANList[i] = def_widths[i];
-		tLXOptions->iFavouritesList[i] = def_widths[i];
+	for (i=0;i<sizeof(iInternetList)/sizeof(int);i++)  {
+		iInternetList[i] = def_widths[i];
+		iLANList[i] = def_widths[i];
+		iFavouritesList[i] = def_widths[i];
 	}
 
 
     // Video
-    ReadKeyword(f, "Video", "Fullscreen",   &tLXOptions->iFullscreen, true);
-    ReadKeyword(f, "Video", "ShowFPS",      &tLXOptions->iShowFPS, false);
-    ReadKeyword(f, "Video", "OpenGL",       &tLXOptions->iOpenGL, false);
+    ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, true);
+    ReadKeyword(f, "Video", "ShowFPS",      &iShowFPS, false);
+    ReadKeyword(f, "Video", "OpenGL",       &iOpenGL, false);
 
     // Network
-    ReadInteger(f, "Network", "Port",       &tLXOptions->iNetworkPort, LX_PORT);
-    ReadInteger(f, "Network", "Speed",      &tLXOptions->iNetworkSpeed, NST_MODEM);
+    ReadInteger(f, "Network", "Port",       &iNetworkPort, LX_PORT);
+    ReadInteger(f, "Network", "Speed",      &iNetworkSpeed, NST_MODEM);
 
     // Audio
-    ReadKeyword(f, "Audio", "Enabled",      &tLXOptions->iSoundOn, true);
-    ReadInteger(f, "Audio", "Volume",       &tLXOptions->iSoundVolume, 70);
+    ReadKeyword(f, "Audio", "Enabled",      &iSoundOn, true);
+    ReadInteger(f, "Audio", "Volume",       &iSoundVolume, 70);
 
 	// Misc.
-	ReadKeyword(f, "Misc", "LogConversations", &tLXOptions->iLogConvos, true);
-	ReadKeyword(f, "Misc", "ShowPing",		   &tLXOptions->iShowPing, true);
-	ReadInteger(f, "Misc", "ScreenshotFormat", &tLXOptions->iScreenshotFormat, FMT_PNG);
+	ReadKeyword(f, "Misc", "LogConversations", &iLogConvos, true);
+	ReadKeyword(f, "Misc", "ShowPing",		   &iShowPing, true);
+	ReadInteger(f, "Misc", "ScreenshotFormat", &iScreenshotFormat, FMT_PNG);
 
     // Player controls
     int j;
@@ -112,8 +122,8 @@ int LoadOptions(void)
         if(!ReadString(f, item, ply_keys[i], value, def) && i == 0 && j > 2)
         	break;
         if(i == 0)
-        	tLXOptions->sPlayerControls.push_back(controls_t());
-        tLXOptions->sPlayerControls[j-1][i] = value;
+        	sPlayerControls.push_back(controls_t());
+        sPlayerControls[j-1][i] = value;
 
         i++;
         if(i >= 8) {
@@ -123,61 +133,61 @@ int LoadOptions(void)
 
     // General controls
     for(i=0; i<8; i++)
-        ReadString(f, "GeneralControls", gen_keys[i], tLXOptions->sGeneralControls[i], gen_def[i]);
+        ReadString(f, "GeneralControls", gen_keys[i], sGeneralControls[i], gen_def[i]);
 
     // Game
-    ReadInteger(f, "Game", "Blood",         &tLXOptions->iBloodAmount, 100);
-    ReadKeyword(f, "Game", "Shadows",       &tLXOptions->iShadows, true);
-    ReadKeyword(f, "Game", "Particles",     &tLXOptions->iParticles, true);
-    ReadKeyword(f, "Game", "OldSkoolRope",  &tLXOptions->iOldSkoolRope, false);
-	ReadKeyword(f, "Game", "ShowWormHealth",&tLXOptions->iShowHealth, false);
-	ReadKeyword(f, "Game", "ColorizeNicks", &tLXOptions->iColorizeNicks, false);
-	ReadKeyword(f, "Game", "AutoTyping",	&tLXOptions->iAutoTyping, true);
+    ReadInteger(f, "Game", "Blood",         &iBloodAmount, 100);
+    ReadKeyword(f, "Game", "Shadows",       &iShadows, true);
+    ReadKeyword(f, "Game", "Particles",     &iParticles, true);
+    ReadKeyword(f, "Game", "OldSkoolRope",  &iOldSkoolRope, false);
+	ReadKeyword(f, "Game", "ShowWormHealth",&iShowHealth, false);
+	ReadKeyword(f, "Game", "ColorizeNicks", &iColorizeNicks, false);
+	ReadKeyword(f, "Game", "AutoTyping",	&iAutoTyping, true);
 
 	// Widget states
-	ReadIntArray(f, "Widgets","InternetListCols",	&tLXOptions->iInternetList[0],6);
-	ReadIntArray(f, "Widgets","LANListCols",		&tLXOptions->iLANList[0],6);
-	ReadIntArray(f, "Widgets","FavouritesListCols",	&tLXOptions->iFavouritesList[0],6);
+	ReadIntArray(f, "Widgets","InternetListCols",	&iInternetList[0],6);
+	ReadIntArray(f, "Widgets","LANListCols",		&iLANList[0],6);
+	ReadIntArray(f, "Widgets","FavouritesListCols",	&iFavouritesList[0],6);
 
 	// Media player
-	ReadKeyword(f, "MediaPlayer", "Repeat",		&tLXOptions->bRepeatPlaylist, true);
-	ReadKeyword(f, "MediaPlayer", "Shuffle",	&tLXOptions->bShufflePlaylist, false);
-	ReadInteger(f, "MediaPlayer", "Left",		&tLXOptions->iMPlayerLeft, 350);
-	ReadInteger(f, "MediaPlayer", "Top",		&tLXOptions->iMPlayerTop, 240);
-	ReadInteger(f, "MediaPlayer", "MusicVolume",&tLXOptions->iMusicVolume, 50);
+	ReadKeyword(f, "MediaPlayer", "Repeat",		&bRepeatPlaylist, true);
+	ReadKeyword(f, "MediaPlayer", "Shuffle",	&bShufflePlaylist, false);
+	ReadInteger(f, "MediaPlayer", "Left",		&iMPlayerLeft, 350);
+	ReadInteger(f, "MediaPlayer", "Top",		&iMPlayerTop, 240);
+	ReadInteger(f, "MediaPlayer", "MusicVolume",&iMusicVolume, 50);
 
 
     // Last Game
-    ReadInteger(f, "LastGame", "Lives",     &tLXOptions->tGameinfo.iLives, 10);
-    ReadInteger(f, "LastGame", "KillLimit", &tLXOptions->tGameinfo.iKillLimit, -1);
-    ReadInteger(f, "LastGame", "TimeLimit", &tLXOptions->tGameinfo.iTimeLimit, -1);
-    ReadInteger(f, "LastGame", "TagLimit",  &tLXOptions->tGameinfo.iTagLimit, 5);
-    ReadInteger(f, "LastGame", "LoadingTime",   &tLXOptions->tGameinfo.iLoadingTime, 100);
-    ReadKeyword(f, "LastGame", "Bonuses",   &tLXOptions->tGameinfo.iBonusesOn, true);
-    ReadKeyword(f, "LastGame", "BonusNames",&tLXOptions->tGameinfo.iShowBonusName, true);
-    ReadInteger(f, "LastGame", "MaxPlayers",&tLXOptions->tGameinfo.iMaxPlayers, 8);
-	ReadKeyword(f, "LastGame", "Tournament", &tLXOptions->tGameinfo.bTournament, true);
-    ReadString (f, "LastGame", "ServerName",tLXOptions->tGameinfo.sServerName, "LieroX Server");
-	ReadString (f, "LastGame", "WelcomeMessage",tLXOptions->tGameinfo.sWelcomeMessage, "Welcome to <server>, <player>");
-    ReadString (f, "LastGame", "LevelName", tLXOptions->tGameinfo.sMapName, "");
-    ReadInteger(f, "LastGame", "GameType",  &tLXOptions->tGameinfo.nGameType, GMT_DEATHMATCH);
-    ReadString (f, "LastGame", "ModName",   tLXOptions->tGameinfo.szModName, "Classic");
-    ReadString (f, "LastGame", "Password",  tLXOptions->tGameinfo.szPassword, "");
-    ReadKeyword(f, "LastGame", "RegisterServer",&tLXOptions->tGameinfo.bRegServer, true);
-	ReadInteger(f, "LastGame", "LastSelectedPlayer",&tLXOptions->tGameinfo.iLastSelectedPlayer, 0);
-	ReadKeyword(f, "LastGame", "AllowWantsJoinMsg",&tLXOptions->tGameinfo.bAllowWantsJoinMsg, true);
-	ReadKeyword(f, "LastGame", "AllowRemoteBots", &tLXOptions->tGameinfo.bAllowRemoteBots, true);
+    ReadInteger(f, "LastGame", "Lives",     &tGameinfo.iLives, 10);
+    ReadInteger(f, "LastGame", "KillLimit", &tGameinfo.iKillLimit, -1);
+    ReadInteger(f, "LastGame", "TimeLimit", &tGameinfo.iTimeLimit, -1);
+    ReadInteger(f, "LastGame", "TagLimit",  &tGameinfo.iTagLimit, 5);
+    ReadInteger(f, "LastGame", "LoadingTime",   &tGameinfo.iLoadingTime, 100);
+    ReadKeyword(f, "LastGame", "Bonuses",   &tGameinfo.iBonusesOn, true);
+    ReadKeyword(f, "LastGame", "BonusNames",&tGameinfo.iShowBonusName, true);
+    ReadInteger(f, "LastGame", "MaxPlayers",&tGameinfo.iMaxPlayers, 8);
+	ReadKeyword(f, "LastGame", "Tournament", &tGameinfo.bTournament, true);
+    ReadString (f, "LastGame", "ServerName",tGameinfo.sServerName, "LieroX Server");
+	ReadString (f, "LastGame", "WelcomeMessage",tGameinfo.sWelcomeMessage, "Welcome to <server>, <player>");
+    ReadString (f, "LastGame", "LevelName", tGameinfo.sMapName, "");
+    ReadInteger(f, "LastGame", "GameType",  &tGameinfo.nGameType, GMT_DEATHMATCH);
+    ReadString (f, "LastGame", "ModName",   tGameinfo.szModName, "Classic");
+    ReadString (f, "LastGame", "Password",  tGameinfo.szPassword, "");
+    ReadKeyword(f, "LastGame", "RegisterServer",&tGameinfo.bRegServer, true);
+	ReadInteger(f, "LastGame", "LastSelectedPlayer",&tGameinfo.iLastSelectedPlayer, 0);
+	ReadKeyword(f, "LastGame", "AllowWantsJoinMsg",&tGameinfo.bAllowWantsJoinMsg, true);
+	ReadKeyword(f, "LastGame", "AllowRemoteBots", &tGameinfo.bAllowRemoteBots, true);
 
     // Advanced
-    ReadInteger(f, "Advanced", "MaxFPS",    &tLXOptions->nMaxFPS, 95);
-	ReadInteger(f, "Advanced", "JpegQuality", &tLXOptions->iJpegQuality, 80);
-	ReadFloat  (f, "Advanced", "NetworkUpdatePeriod", &tLXOptions->fUpdatePeriod,0.05f);
+    ReadInteger(f, "Advanced", "MaxFPS",    &nMaxFPS, 95);
+	ReadInteger(f, "Advanced", "JpegQuality", &iJpegQuality, 80);
+	ReadFloat  (f, "Advanced", "NetworkUpdatePeriod", &fUpdatePeriod,0.05f);
 
 	// Clamp the Jpeg quality
-	if (tLXOptions->iJpegQuality < 1)
-		tLXOptions->iJpegQuality = 1;
-	if (tLXOptions->iJpegQuality > 100)
-		tLXOptions->iJpegQuality = 100;
+	if (iJpegQuality < 1)
+		iJpegQuality = 1;
+	if (iJpegQuality > 100)
+		iJpegQuality = 100;
 
 	printf("DONE loading options\n");
 
@@ -188,31 +198,27 @@ int LoadOptions(void)
 // Save & shutdown the options
 void ShutdownOptions(void)
 {
-	if(tLXOptions == NULL)
-		return;
-
-    SaveOptions();
-
-	// Free the structure
-	assert(tLXOptions);
-	delete tLXOptions;
-
-	if (NetworkTexts)
-		delete NetworkTexts;
-	NetworkTexts = NULL;
+	if(tLXOptions) {
+	    tLXOptions->SaveToDisc();
+	
+		delete tLXOptions;
+		tLXOptions = NULL;
+	}
+	
+	if(networkTexts) {
+		delete networkTexts;
+		networkTexts = NULL;	
+	}	
 }
 
 
 ///////////////////
 // Save the options
-void SaveOptions(void)
+void GameOptions::SaveToDisc()
 {
     static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "MediaPlayer"};
     int     i;
-
-    if(tLXOptions == NULL)
-		return;
 
     FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
     if(fp == NULL)
@@ -223,159 +229,172 @@ void SaveOptions(void)
     fprintf(fp, "# Note: This file is automatically generated\n\n");
 
     fprintf(fp, "[Video]\n");
-    fprintf(fp, "Fullscreen = %s\n",tLXOptions->iFullscreen ? "true" : "false");
-    fprintf(fp, "ShowFPS = %s\n",tLXOptions->iShowFPS ? "true" : "false");
-    fprintf(fp, "OpenGL = %s\n",tLXOptions->iOpenGL ? "true" : "false");
+    fprintf(fp, "Fullscreen = %s\n",iFullscreen ? "true" : "false");
+    fprintf(fp, "ShowFPS = %s\n",iShowFPS ? "true" : "false");
+    fprintf(fp, "OpenGL = %s\n",iOpenGL ? "true" : "false");
     fprintf(fp, "\n");
 
     fprintf(fp, "[Network]\n");
-    fprintf(fp, "Port = %d\n",      tLXOptions->iNetworkPort);
-    fprintf(fp, "Speed = %d\n",     tLXOptions->iNetworkSpeed);
+    fprintf(fp, "Port = %d\n",      iNetworkPort);
+    fprintf(fp, "Speed = %d\n",     iNetworkSpeed);
     fprintf(fp, "\n");
 
     fprintf(fp, "[Audio]\n");
-    fprintf(fp, "Enabled = %s\n",   tLXOptions->iSoundOn ? "true" : "false");
-    fprintf(fp, "Volume = %d\n",    tLXOptions->iSoundVolume);
+    fprintf(fp, "Enabled = %s\n",   iSoundOn ? "true" : "false");
+    fprintf(fp, "Volume = %d\n",    iSoundVolume);
     fprintf(fp, "\n");
 
 	fprintf(fp,"[Misc]\n");
-	fprintf(fp,"LogConversations = %s\n",	tLXOptions->iLogConvos ? "true" : "false");
-	fprintf(fp,"ShowPing = %s\n",			tLXOptions->iShowPing ? "true" : "false");
-	fprintf(fp,"ScreenshotFormat = %d\n",	tLXOptions->iScreenshotFormat);
+	fprintf(fp,"LogConversations = %s\n",	iLogConvos ? "true" : "false");
+	fprintf(fp,"ShowPing = %s\n",			iShowPing ? "true" : "false");
+	fprintf(fp,"ScreenshotFormat = %d\n",	iScreenshotFormat);
 	fprintf(fp,"\n");
 
 	fprintf(fp, "[FileHandling]\n");
 	i=1;
-	for(searchpathlist::const_iterator p = tLXOptions->tSearchPaths.begin(); p != tLXOptions->tSearchPaths.end(); p++, i++)
+	for(searchpathlist::const_iterator p = tSearchPaths.begin(); p != tSearchPaths.end(); p++, i++)
     	fprintf(fp, "SearchPath%i = %s\n", i, p->c_str());
 	fprintf(fp,"\n");
 
 	size_t j = 0;
-	for(;j<tLXOptions->sPlayerControls.size();j++) {
+	for(;j<sPlayerControls.size();j++) {
 		fprintf(fp, "[Ply%iControls]\n", j+1);
 		for(i=0; i<8; i++)
-        	fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), tLXOptions->sPlayerControls[j][i].c_str());
+        	fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), sPlayerControls[j][i].c_str());
 	    fprintf(fp, "\n");
 	}
 
     fprintf(fp, "[GeneralControls]\n");
     for(i=0; i<8; i++)
-        fprintf(fp, "%s = %s\n", gen_keys[i].c_str(), tLXOptions->sGeneralControls[i].c_str());
+        fprintf(fp, "%s = %s\n", gen_keys[i].c_str(), sGeneralControls[i].c_str());
     fprintf(fp, "\n");
 
     fprintf(fp, "[Game]\n");
-    fprintf(fp, "Blood = %d\n",     tLXOptions->iBloodAmount);
-    fprintf(fp, "Shadows = %s\n",   tLXOptions->iShadows ? "true" : "false");
-    fprintf(fp, "Particles = %s\n", tLXOptions->iParticles ? "true" : "false");
-    fprintf(fp, "OldSkoolRope = %s\n", tLXOptions->iOldSkoolRope ? "true" : "false");
-	fprintf(fp, "ShowWormHealth = %s\n", tLXOptions->iShowHealth ? "true" : "false");
-	fprintf(fp, "ColorizeNicks = %s\n", tLXOptions->iColorizeNicks ? "true" : "false");
-	fprintf(fp, "AutoTyping = %s\n", tLXOptions->iAutoTyping ? "true" : "false");
+    fprintf(fp, "Blood = %d\n",     iBloodAmount);
+    fprintf(fp, "Shadows = %s\n",   iShadows ? "true" : "false");
+    fprintf(fp, "Particles = %s\n", iParticles ? "true" : "false");
+    fprintf(fp, "OldSkoolRope = %s\n", iOldSkoolRope ? "true" : "false");
+	fprintf(fp, "ShowWormHealth = %s\n", iShowHealth ? "true" : "false");
+	fprintf(fp, "ColorizeNicks = %s\n", iColorizeNicks ? "true" : "false");
+	fprintf(fp, "AutoTyping = %s\n", iAutoTyping ? "true" : "false");
     fprintf(fp, "\n");
 
 	// TODO: these arrays never got intialized!
 	fprintf(fp, "[Widgets]\n");
 	fprintf(fp, "InternetListCols = ");
 	for (i=0;i<5;i++)
-		fprintf(fp, "%i,",tLXOptions->iInternetList[i]);
-	fprintf(fp, "%i\n",tLXOptions->iInternetList[5]);
+		fprintf(fp, "%i,",iInternetList[i]);
+	fprintf(fp, "%i\n",iInternetList[5]);
 	fprintf(fp, "LANListCols = ");
 	for (i=0;i<5;i++)
-		fprintf(fp, "%i,",tLXOptions->iLANList[i]);
-	fprintf(fp, "%i\n",tLXOptions->iLANList[5]);
+		fprintf(fp, "%i,",iLANList[i]);
+	fprintf(fp, "%i\n",iLANList[5]);
 	fprintf(fp, "FavouritesListCols = ");
 	for (i=0;i<5;i++)
-		fprintf(fp, "%i,",tLXOptions->iFavouritesList[i]);
-	fprintf(fp, "%i\n",tLXOptions->iFavouritesList[5]);
+		fprintf(fp, "%i,",iFavouritesList[i]);
+	fprintf(fp, "%i\n",iFavouritesList[5]);
 	fprintf(fp, "\n");
 
     fprintf(fp, "[MediaPlayer]\n");
-    fprintf(fp, "Repeat = %s\n",   tLXOptions->bRepeatPlaylist ? "true" : "false");
-    fprintf(fp, "Shuffle = %s\n", tLXOptions->bShufflePlaylist ? "true" : "false");
-    fprintf(fp, "Left = %d\n", tLXOptions->iMPlayerLeft);
-    fprintf(fp, "Top = %d\n", tLXOptions->iMPlayerTop);
-    fprintf(fp, "MusicVolume = %d\n", tLXOptions->iMusicVolume);
+    fprintf(fp, "Repeat = %s\n",   bRepeatPlaylist ? "true" : "false");
+    fprintf(fp, "Shuffle = %s\n", bShufflePlaylist ? "true" : "false");
+    fprintf(fp, "Left = %d\n", iMPlayerLeft);
+    fprintf(fp, "Top = %d\n", iMPlayerTop);
+    fprintf(fp, "MusicVolume = %d\n", iMusicVolume);
     fprintf(fp, "\n");
 
     fprintf(fp, "[LastGame]\n");
-    fprintf(fp, "Lives = %d\n",     tLXOptions->tGameinfo.iLives);
-    fprintf(fp, "KillLimit = %d\n", tLXOptions->tGameinfo.iKillLimit);
-    fprintf(fp, "TimeLimit = %d\n", tLXOptions->tGameinfo.iTimeLimit);
-    fprintf(fp, "TagLimit = %d\n",  tLXOptions->tGameinfo.iTagLimit);
-    fprintf(fp, "LoadingTime = %d\n",tLXOptions->tGameinfo.iLoadingTime);
-    fprintf(fp, "Bonuses = %s\n",   tLXOptions->tGameinfo.iBonusesOn ? "true" : "false");
-    fprintf(fp, "BonusNames = %s\n",tLXOptions->tGameinfo.iShowBonusName ? "true" : "false");
-    fprintf(fp, "MaxPlayers = %d\n",tLXOptions->tGameinfo.iMaxPlayers);
-	fprintf(fp, "Tournament = %s\n",tLXOptions->tGameinfo.bTournament ? "true" : "false");
-    fprintf(fp, "ServerName = %s\n",tLXOptions->tGameinfo.sServerName.c_str());
-	fprintf(fp, "WelcomeMessage = %s\n",tLXOptions->tGameinfo.sWelcomeMessage.c_str());
-    fprintf(fp, "LevelName = %s\n", tLXOptions->tGameinfo.sMapName.c_str());
-    fprintf(fp, "GameType = %d\n",  tLXOptions->tGameinfo.nGameType);
-    fprintf(fp, "ModName = %s\n",   tLXOptions->tGameinfo.szModName.c_str());
-    fprintf(fp, "Password = %s\n",  tLXOptions->tGameinfo.szPassword.c_str());
-    fprintf(fp, "RegisterServer = %s\n",tLXOptions->tGameinfo.bRegServer ? "true" : "false");
-	fprintf(fp, "LastSelectedPlayer = %d\n",tLXOptions->tGameinfo.iLastSelectedPlayer);
-	fprintf(fp, "AllowWantsJoinMsg = %s\n",tLXOptions->tGameinfo.bAllowWantsJoinMsg ? "true" : "false");
-	fprintf(fp, "AllowRemoteBots = %s\n",tLXOptions->tGameinfo.bAllowRemoteBots ? "true" : "false");
+    fprintf(fp, "Lives = %d\n",     tGameinfo.iLives);
+    fprintf(fp, "KillLimit = %d\n", tGameinfo.iKillLimit);
+    fprintf(fp, "TimeLimit = %d\n", tGameinfo.iTimeLimit);
+    fprintf(fp, "TagLimit = %d\n",  tGameinfo.iTagLimit);
+    fprintf(fp, "LoadingTime = %d\n",tGameinfo.iLoadingTime);
+    fprintf(fp, "Bonuses = %s\n",   tGameinfo.iBonusesOn ? "true" : "false");
+    fprintf(fp, "BonusNames = %s\n",tGameinfo.iShowBonusName ? "true" : "false");
+    fprintf(fp, "MaxPlayers = %d\n",tGameinfo.iMaxPlayers);
+	fprintf(fp, "Tournament = %s\n",tGameinfo.bTournament ? "true" : "false");
+    fprintf(fp, "ServerName = %s\n",tGameinfo.sServerName.c_str());
+	fprintf(fp, "WelcomeMessage = %s\n",tGameinfo.sWelcomeMessage.c_str());
+    fprintf(fp, "LevelName = %s\n", tGameinfo.sMapName.c_str());
+    fprintf(fp, "GameType = %d\n",  tGameinfo.nGameType);
+    fprintf(fp, "ModName = %s\n",   tGameinfo.szModName.c_str());
+    fprintf(fp, "Password = %s\n",  tGameinfo.szPassword.c_str());
+    fprintf(fp, "RegisterServer = %s\n",tGameinfo.bRegServer ? "true" : "false");
+	fprintf(fp, "LastSelectedPlayer = %d\n",tGameinfo.iLastSelectedPlayer);
+	fprintf(fp, "AllowWantsJoinMsg = %s\n",tGameinfo.bAllowWantsJoinMsg ? "true" : "false");
+	fprintf(fp, "AllowRemoteBots = %s\n",tGameinfo.bAllowRemoteBots ? "true" : "false");
     fprintf(fp, "\n");
 
     fprintf(fp, "[Advanced]\n");
-    fprintf(fp, "MaxFPS = %d\n",    tLXOptions->nMaxFPS);
-	fprintf(fp, "JpegQuality = %d\n", tLXOptions->iJpegQuality);
-	fprintf(fp, "NetworkUpdatePeriod = %f\n", tLXOptions->fUpdatePeriod);
+    fprintf(fp, "MaxFPS = %d\n",    nMaxFPS);
+	fprintf(fp, "JpegQuality = %d\n", iJpegQuality);
+	fprintf(fp, "NetworkUpdatePeriod = %f\n", fUpdatePeriod);
 
     fclose(fp);
 }
 
+bool NetworkTexts::Init() {
+	if(networkTexts) {
+		printf("WARNING: networktexts are already inited; ignoring ...\n");
+		return true;
+	}
+
+	networkTexts = new NetworkTexts;
+	if(!networkTexts) {
+		printf("ERROR: not enough mem for networktexts\n");	
+		return false;
+	}
+
+	return networkTexts->LoadFromDisc();
+}
+
 ////////////////////
 // Loads the texts used by server
-bool LoadNetworkStrings(void)
+bool NetworkTexts::LoadFromDisc()
 {
 	printf("Loading network texts... ");
-	NetworkTexts = new networktexts_t;
-	if (!NetworkTexts)
-		return false;
+	
 	const std::string f = "cfg/network.txt";
-	ReadString (f, "NetworkTexts", "HasConnected",    NetworkTexts->sHasConnected,	"<player> has connected");
-	ReadString (f, "NetworkTexts", "HasLeft",	      NetworkTexts->sHasLeft,		"<player> has left");
-	ReadString (f, "NetworkTexts", "HasTimedOut",     NetworkTexts->sHasTimedOut,	"<player> has timed out");
+	ReadString (f, "NetworkTexts", "HasConnected",    sHasConnected,	"<player> has connected");
+	ReadString (f, "NetworkTexts", "HasLeft",	      sHasLeft,		"<player> has left");
+	ReadString (f, "NetworkTexts", "HasTimedOut",     sHasTimedOut,	"<player> has timed out");
 
-	ReadString (f, "NetworkTexts", "HasBeenKicked",   NetworkTexts->sHasBeenKicked,	"<player> has been kicked out");
-	ReadString (f, "NetworkTexts", "HasBeenBanned",   NetworkTexts->sHasBeenBanned,	"<player> has been banned");
-	ReadString (f, "NetworkTexts", "HasBeenMuted",    NetworkTexts->sHasBeenMuted,	"<player> has been muted");
-	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  NetworkTexts->sHasBeenUnmuted,"<player> has been unmuted");
-	ReadString (f, "NetworkTexts", "KickedYou",		  NetworkTexts->sKickedYou,		"You have been kicked");
-	ReadString (f, "NetworkTexts", "BannedYou",		  NetworkTexts->sBannedYou,		"You have been banned");
-	ReadString (f, "NetworkTexts", "YouQuit",		  NetworkTexts->sYouQuit,		"You have quit");
-	ReadString (f, "NetworkTexts", "YouTimed",		  NetworkTexts->sYouTimed,		"You timed out");
+	ReadString (f, "NetworkTexts", "HasBeenKicked",   sHasBeenKicked,	"<player> has been kicked out");
+	ReadString (f, "NetworkTexts", "HasBeenBanned",   sHasBeenBanned,	"<player> has been banned");
+	ReadString (f, "NetworkTexts", "HasBeenMuted",    sHasBeenMuted,	"<player> has been muted");
+	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  sHasBeenUnmuted,"<player> has been unmuted");
+	ReadString (f, "NetworkTexts", "KickedYou",		  sKickedYou,		"You have been kicked");
+	ReadString (f, "NetworkTexts", "BannedYou",		  sBannedYou,		"You have been banned");
+	ReadString (f, "NetworkTexts", "YouQuit",		  sYouQuit,		"You have quit");
+	ReadString (f, "NetworkTexts", "YouTimed",		  sYouTimed,		"You timed out");
 
-	ReadString (f, "NetworkTexts", "Killed",	      NetworkTexts->sKilled,		"<killer> killed <victim>");
-	ReadString (f, "NetworkTexts", "CommitedSuicide", NetworkTexts->sCommitedSuicide,"<player> commited suicide");
-	ReadString (f, "NetworkTexts", "FirstBlood",	  NetworkTexts->sFirstBlood,	"<player> drew first blood");
-	ReadString (f, "NetworkTexts", "TeamKill",		  NetworkTexts->sTeamkill,		"<player> is an ugly teamkiller");
+	ReadString (f, "NetworkTexts", "Killed",	      sKilled,		"<killer> killed <victim>");
+	ReadString (f, "NetworkTexts", "CommitedSuicide", sCommitedSuicide,"<player> commited suicide");
+	ReadString (f, "NetworkTexts", "FirstBlood",	  sFirstBlood,	"<player> drew first blood");
+	ReadString (f, "NetworkTexts", "TeamKill",		  sTeamkill,		"<player> is an ugly teamkiller");
 
-	ReadString (f, "NetworkTexts", "PlayerOut",		  NetworkTexts->sPlayerOut,		"<player> is out of the game");
-	ReadString (f, "NetworkTexts", "TeamOut",		  NetworkTexts->sTeamOut,		"The <team> team is out of the game");
-	ReadString (f, "NetworkTexts", "PlayerHasWon",	  NetworkTexts->sPlayerHasWon,	"<player> has won the match");
-	ReadString (f, "NetworkTexts", "TeamHasWon",	  NetworkTexts->sTeamHasWon,	"The <team> team has won the match");
+	ReadString (f, "NetworkTexts", "PlayerOut",		  sPlayerOut,		"<player> is out of the game");
+	ReadString (f, "NetworkTexts", "TeamOut",		  sTeamOut,		"The <team> team is out of the game");
+	ReadString (f, "NetworkTexts", "PlayerHasWon",	  sPlayerHasWon,	"<player> has won the match");
+	ReadString (f, "NetworkTexts", "TeamHasWon",	  sTeamHasWon,	"The <team> team has won the match");
 
-	ReadString (f, "NetworkTexts", "WormIsIt",		  NetworkTexts->sWormIsIt,		"<player> is IT!");
+	ReadString (f, "NetworkTexts", "WormIsIt",		  sWormIsIt,		"<player> is IT!");
 
-	ReadString (f, "NetworkTexts", "Spree1",		  NetworkTexts->sSpree1,		"<player> is on a killing spree!");
-	ReadString (f, "NetworkTexts", "Spree2",		  NetworkTexts->sSpree2,		"<player> is on a rampage!");
-	ReadString (f, "NetworkTexts", "Spree3",		  NetworkTexts->sSpree3,		"<player> is dominating!");
-	ReadString (f, "NetworkTexts", "Spree4",		  NetworkTexts->sSpree4,		"<player> is unstoppable!");
-	ReadString (f, "NetworkTexts", "Spree5",		  NetworkTexts->sSpree5,		"<player> is GODLIKE!");
+	ReadString (f, "NetworkTexts", "Spree1",		  sSpree1,		"<player> is on a killing spree!");
+	ReadString (f, "NetworkTexts", "Spree2",		  sSpree2,		"<player> is on a rampage!");
+	ReadString (f, "NetworkTexts", "Spree3",		  sSpree3,		"<player> is dominating!");
+	ReadString (f, "NetworkTexts", "Spree4",		  sSpree4,		"<player> is unstoppable!");
+	ReadString (f, "NetworkTexts", "Spree5",		  sSpree5,		"<player> is GODLIKE!");
 
-	ReadString (f, "NetworkTexts", "ServerFull",	  NetworkTexts->sServerFull,		"Server is full");
-	ReadString (f, "NetworkTexts", "NoEmptySlots",	  NetworkTexts->sNoEmptySlots,		"The server has no emtpy slots");
-	ReadString (f, "NetworkTexts", "WrongProtocol",	  NetworkTexts->sWrongProtocol,		"Wrong protocol version. Server protocol version is <version>.");
-	ReadString (f, "NetworkTexts", "BadVerification", NetworkTexts->sBadVerification,	"Bad connection verification");
-	ReadString (f, "NetworkTexts", "NoIpVerification",NetworkTexts->sNoIpVerification,	"No verification for address");
-	ReadString (f, "NetworkTexts", "GameInProgress",  NetworkTexts->sGameInProgress,	"Cannot join, the game is currently in progress");
-	ReadString (f, "NetworkTexts", "YouAreBanned",	  NetworkTexts->sYouAreBanned,		"You are banned on this server");
-	ReadString (f, "NetworkTexts", "BotsNotAllowed",  NetworkTexts->sBotsNotAllowed,	"Sorry, bots are not allowed on this server");
-	ReadString (f, "NetworkTexts", "WantsJoin",		  NetworkTexts->sWantsJoin,			"<player> wants join the server");
+	ReadString (f, "NetworkTexts", "ServerFull",	  sServerFull,		"Server is full");
+	ReadString (f, "NetworkTexts", "NoEmptySlots",	  sNoEmptySlots,		"The server has no emtpy slots");
+	ReadString (f, "NetworkTexts", "WrongProtocol",	  sWrongProtocol,		"Wrong protocol version. Server protocol version is <version>.");
+	ReadString (f, "NetworkTexts", "BadVerification", sBadVerification,	"Bad connection verification");
+	ReadString (f, "NetworkTexts", "NoIpVerification",sNoIpVerification,	"No verification for address");
+	ReadString (f, "NetworkTexts", "GameInProgress",  sGameInProgress,	"Cannot join, the game is currently in progress");
+	ReadString (f, "NetworkTexts", "YouAreBanned",	  sYouAreBanned,		"You are banned on this server");
+	ReadString (f, "NetworkTexts", "BotsNotAllowed",  sBotsNotAllowed,	"Sorry, bots are not allowed on this server");
+	ReadString (f, "NetworkTexts", "WantsJoin",		  sWantsJoin,			"<player> wants join the server");
 
 	printf("DONE\n");
 	return true;

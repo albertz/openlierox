@@ -131,7 +131,7 @@ private:
 	// Attributes
 
 	// Local Worms (pointers to the remote worms)
-	int			iNumWorms;
+	uint		iNumWorms;
 	CWorm		*cLocalWorms[MAX_PLAYERS];
 	//int			iDrawingViews[2];
     CViewport   cViewports[NUM_VIEWPORTS];

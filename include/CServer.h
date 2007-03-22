@@ -22,6 +22,8 @@
 
 
 #define		MAX_CHALLENGES		1024
+
+
 // Challenge structure
 class challenge_t { public:
 	NetworkAddr	Address;
@@ -70,10 +72,10 @@ class game_log_t { public:
 	std::string	sGameStart;
 };
 
-class CServer {
+class GameServer {
 public:
 	// Constructor
-	CServer() {
+	GameServer() {
 		Clear();
 	}
 

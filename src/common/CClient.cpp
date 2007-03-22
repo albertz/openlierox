@@ -146,7 +146,7 @@ void CClient::MinorClear(void)
 // Initialize the client
 int CClient::Initialize(void)
 {
-	int i;
+	uint i;
 
 	// Shutdown & clear any old client data
 	Shutdown();
@@ -473,7 +473,7 @@ void CClient::SetupViewports(void)
 // Return true if we own the worm
 int CClient::OwnsWorm(CWorm *w)
 {
-	for(int i=0;i<iNumWorms;i++) {
+	for(uint i=0;i<iNumWorms;i++) {
 		if(w->getID() == cLocalWorms[i]->getID())
 			return true;
 	}
@@ -541,7 +541,7 @@ void CClient::SetupWorms(int numworms, CWorm *worms)
 void CClient::BotSelectWeapons(void)
 {
 	if(iNetStatus == NET_CONNECTED && iGameReady)  {
-		int i;
+		uint i;
 		
 		// Go through and draw the first two worms select menus
 		for(i=0;i<iNumWorms;i++) {

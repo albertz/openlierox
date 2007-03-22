@@ -20,7 +20,7 @@
 
 ///////////////////
 // Spawn a worm
-void CServer::SpawnWorm(CWorm *Worm)
+void GameServer::SpawnWorm(CWorm *Worm)
 {
 	CVec pos = FindSpot();
 
@@ -38,7 +38,7 @@ void CServer::SpawnWorm(CWorm *Worm)
 
 ///////////////////
 // Find a spot with no rock
-CVec CServer::FindSpot(void)
+CVec GameServer::FindSpot(void)
 {
     int     x, y;
     int     px, py;
@@ -90,7 +90,7 @@ CVec CServer::FindSpot(void)
 
 ///////////////////
 // Simulate the game stuff
-void CServer::SimulateGame(void)
+void GameServer::SimulateGame(void)
 {
 	if(iState != SVS_PLAYING)
 		return;
@@ -168,7 +168,7 @@ void CServer::SimulateGame(void)
 
 ///////////////////
 // Spawn a bonus
-void CServer::SpawnBonus(void)
+void GameServer::SpawnBonus(void)
 {
 	// Find an empty spot for the bonus
 	CVec pos = FindSpot();
@@ -236,7 +236,7 @@ void CServer::SpawnBonus(void)
 
 ///////////////////
 // Tag a worm
-void CServer::TagWorm(int id)
+void GameServer::TagWorm(int id)
 {
 	// Safety check
 	if(id < 0 || id >= MAX_WORMS || getState() != SVS_PLAYING)
@@ -276,15 +276,15 @@ void CServer::TagWorm(int id)
 	SendGlobalPacket(&bs);
 
 	//Take care of the <none> tag
-	if (NetworkTexts->sTeamkill != "<none>")  {
-		SendGlobalText(replacemax(NetworkTexts->sWormIsIt,"<player>",w->getName(),1),TXT_NORMAL);
+	if (networkTexts->sTeamkill != "<none>")  {
+		SendGlobalText(replacemax(networkTexts->sWormIsIt,"<player>",w->getName(),1),TXT_NORMAL);
 	}
 }
 
 
 ///////////////////
 // Tag a random worm
-void CServer::TagRandomWorm(void)
+void GameServer::TagRandomWorm(void)
 {
 	float time = 99999;
 	std::vector<int> all_lowest;
@@ -338,7 +338,7 @@ void CServer::TagRandomWorm(void)
 
 ///////////////////
 // Worm is shooting
-void CServer::WormShoot(CWorm *w)
+void GameServer::WormShoot(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
 
@@ -416,7 +416,7 @@ void CServer::WormShoot(CWorm *w)
 
 ///////////////////
 // Worm is shooting a beam
-void CServer::ShootBeam(CWorm *w)
+void GameServer::ShootBeam(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
 
@@ -453,7 +453,7 @@ void CServer::ShootBeam(CWorm *w)
 
 ///////////////////
 // Go back to the lobby
-void CServer::gotoLobby(void)
+void GameServer::gotoLobby(void)
 {
 	// Tell all the clients
 	CBytestream bs;
@@ -496,7 +496,7 @@ void CServer::gotoLobby(void)
 ///////////////////
 // Send out a game over for demolitions mode
 // Called by client (for local games only!)
-void CServer::DemolitionsGameOver(int winner)
+void GameServer::DemolitionsGameOver(int winner)
 {
     CBytestream bs;
 
@@ -515,7 +515,7 @@ void CServer::DemolitionsGameOver(int winner)
 ///////////////////
 // Recheck the game status
 // Called when a player has left the game (for various reasons)
-void CServer::RecheckGame(void)
+void GameServer::RecheckGame(void)
 {
     int i;
 
@@ -588,8 +588,8 @@ void CServer::RecheckGame(void)
 
 				// Send the text
 				if (teamsleft <= 1)  {
-					if (NetworkTexts->sTeamHasWon != "<none>")  {
-						SendGlobalText(replacemax(NetworkTexts->sTeamHasWon,"<team>",TeamNames[team],1),TXT_NORMAL);
+					if (networkTexts->sTeamHasWon != "<none>")  {
+						SendGlobalText(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1),TXT_NORMAL);
 					}
 					EndGame = true;
 				}
@@ -606,8 +606,8 @@ void CServer::RecheckGame(void)
 					w = cWorms + wormid;
 
 					// Send the text
-					if (NetworkTexts->sPlayerHasWon != "<none>")  {
-						SendGlobalText(replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
+					if (networkTexts->sPlayerHasWon != "<none>")  {
+						SendGlobalText(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
 					}
 					EndGame = true;
 				}
@@ -635,8 +635,8 @@ void CServer::RecheckGame(void)
 					w = cWorms+worm;
 
 					// Send the text
-					if (NetworkTexts->sPlayerHasWon!="<none>")  {
-						SendGlobalText(replacemax(NetworkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
+					if (networkTexts->sPlayerHasWon!="<none>")  {
+						SendGlobalText(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
 					}
 
 					EndGame = true;
@@ -668,7 +668,7 @@ void CServer::RecheckGame(void)
 
 ///////////////////
 // Checks if all the clients are ready to play
-void CServer::CheckReadyClient(void)
+void GameServer::CheckReadyClient(void)
 {
     int c;
 

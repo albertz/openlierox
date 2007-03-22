@@ -47,6 +47,7 @@ class CWorm;
 
 
 // Object structure
+// HINT: DON'T change the variable types because they are saved directly to the file (CMap.cpp)
 class object_t { public:
 	int		Type;
 	int		Size;
@@ -125,10 +126,10 @@ private:
 
 	std::string	Name;
 	int			Type;
-	int			Width;
-	int			Height;
+	uint		Width;
+	uint		Height;
 	theme_t		Theme;
-    int         nTotalDirtCount;
+    uint         nTotalDirtCount;
 
 	bool		Created;
 
@@ -169,7 +170,7 @@ private:
 public:
 	// Methods
 
-	int			New(int _width, int _height, const std::string& _theme);
+	int			New(uint _width, uint _height, const std::string& _theme);
 	int			Load(const std::string& filename);
 	int			LoadOriginal(FILE *fp);
 	int			Save(const std::string& name, const std::string& filename);
@@ -189,7 +190,7 @@ public:
     void        calculateGrid(void);
 private:
 	// not thread-safe    
-    void        calculateGridCell(int x, int y, bool bSkipEmpty);
+    void        calculateGridCell(uint x, uint y, bool bSkipEmpty);
 public:	
 	void		TileMap(void);
     
@@ -212,25 +213,23 @@ public:
     static std::string findRandomTheme();
     static bool validateTheme(const std::string& name);
 
-    void        PutImagePixel(int x, int y, Uint32 colour);
+    void        PutImagePixel(uint x, uint y, Uint32 colour);
 
-	void		UpdateMiniMap(int force = false);
-	void		UpdateMiniMapRect(short x, short y, short w, short h);	
+	void		UpdateMiniMap(bool force = false);
+	void		UpdateMiniMapRect(ushort x, ushort y, ushort w, ushort h);	
 
 	void		Send(CBytestream *bs);
 
 	void		Draw(SDL_Surface *bmpDest, CViewport *view);
-    void        DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
-    void        DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy);
-    void		DrawMiniMap(SDL_Surface *bmpDest, int x, int y, float dt, CWorm *worms, int gametype);
+    void        DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, uint sy, uint w, uint h, CViewport *view, uint wx, uint wy);
+    void        DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, uint wx, uint wy);
+    void		DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype);
 
 private:
 	// not thread-safe, therefore private	
-	inline void	SetPixelFlag(int x, int y, int flag)	
+	inline void	SetPixelFlag(uint x, uint y, uchar flag)	
 	{
 		// Check edges
-		if(x < 0 || y < 0)
-			return;
 		if(x >= Width || y >= Height)
 			return;
 	
@@ -238,26 +237,24 @@ private:
 	}
 
 public:	
-	inline uchar GetPixelFlag(int x, int y)
+	inline uchar GetPixelFlag(uint x, uint y)
 	{
 		// Checking edges
-		if(x < 0 || y < 0)
-			return PX_ROCK;
 		if(x >= Width || y >= Height)
 			return PX_ROCK;
 	
 		return PixelFlags[y * Width + x];
 	}
 
-	inline const uchar	*GetPixelFlags(void) const	{ return PixelFlags; }
+	inline const uchar	*GetPixelFlags() const	{ return PixelFlags; }
 
-	inline SDL_Surface	*GetDrawImage(void)		{ return bmpDrawImage; }
-	inline SDL_Surface	*GetImage(void)			{ return bmpImage; }
-	inline SDL_Surface	*GetMiniMap(void)		{ return bmpMiniMap; }
+	inline SDL_Surface	*GetDrawImage()		{ return bmpDrawImage; }
+	inline SDL_Surface	*GetImage()			{ return bmpImage; }
+	inline SDL_Surface	*GetMiniMap()		{ return bmpMiniMap; }
 #ifdef _AI_DEBUG
-	inline SDL_Surface *GetDebugImage(void)	{ return bmpDebugImage; }
+	inline SDL_Surface *GetDebugImage()	{ return bmpDebugImage; }
 
-	void		ClearDebugImage(void);
+	void		ClearDebugImage();
 #endif
 
 	void		AddObject(int type, int size, CVec pos);
@@ -267,7 +264,7 @@ public:
 	void		PlaceStone(int size, CVec pos);
 	void		PlaceMisc(int id, CVec pos);
     int         PlaceGreenDirt(CVec pos);
-	void		ApplyShadow(int sx, int sy, int w, int h);
+	void		ApplyShadow(uint sx, uint sy, uint w, uint h);
 
 	void		DeleteObject(CVec pos);
 	void		DeleteStone(object_t *obj);
@@ -279,9 +276,9 @@ public:
     inline maprandom_t *getRandomLayout(void)  { return &sRandomLayout; }
 
 
-	inline int			GetWidth(void) const	{ return Width; }
-	inline int			GetHeight(void)	const	{ return Height; }
-    inline int         GetDirtCount(void) const { return nTotalDirtCount; }
+	inline uint			GetWidth(void) const	{ return Width; }
+	inline uint			GetHeight(void)	const	{ return Height; }
+    inline uint         GetDirtCount(void) const { return nTotalDirtCount; }
 
     inline int         getGridCols(void) const  { return nGridCols; }
     inline int         getGridRows(void) const  { return nGridRows; }
