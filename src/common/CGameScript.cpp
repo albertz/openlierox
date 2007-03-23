@@ -56,7 +56,7 @@ int CGameScript::Save(const std::string& filename)
 		// Special
 		if(wpn->Type == WPN_SPECIAL) {
 			fwrite(GetEndianSwapped(wpn->Special),   sizeof(int),    1, fp);
-			fwrite(GetEndianSwapped(wpn->tSpecial),  sizeof(wpn->tSpecial), 1, fp); // WARNING: this works, because it contains only one int
+			fwrite(GetEndianSwapped(wpn->tSpecial),  sizeof(gs_special_t), 1, fp); // WARNING: this works, because it contains only one int
 			fwrite(GetEndianSwapped(wpn->Recharge),  sizeof(float),  1, fp);
 			fwrite(GetEndianSwapped(wpn->Drain),     sizeof(float),  1, fp);
 			fwrite(GetEndianSwapped(wpn->ROF),       sizeof(float),  1, fp);
@@ -314,7 +314,7 @@ int CGameScript::Load(const std::string& dir)
 	}
 
 	// Header
-	fread(&Header,sizeof(Header),1,fp);
+	fread(&Header,sizeof(gs_header_t),1,fp);
 	EndianSwap(Header.Version);
 	
 	// Check ID
@@ -363,7 +363,7 @@ int CGameScript::Load(const std::string& dir)
 		if(wpn->Type == WPN_SPECIAL) {
 			fread(&wpn->Special,    sizeof(int),    1, fp);
 			EndianSwap(wpn->Special);
-			fread(&wpn->tSpecial,   sizeof(wpn->tSpecial), 1, fp);
+			fread(&wpn->tSpecial,   sizeof(gs_special_t), 1, fp);
 			EndianSwap(wpn->tSpecial.Thrust);
 			fread(&wpn->Recharge,   sizeof(float),  1, fp);
 			EndianSwap(wpn->Recharge);

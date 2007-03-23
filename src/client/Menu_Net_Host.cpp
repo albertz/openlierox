@@ -323,7 +323,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						static std::string buf;
 						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->tGameinfo.sServerName, 0);
 						cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->tGameinfo.sWelcomeMessage, 0);
-                        //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tLXOptions->tGameinfo.szPassword, sizeof(tLXOptions->tGameinfo.szPassword));
+                        //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tLXOptions->tGameinfo.szPassword, 0);
 						cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, buf, 0);
 
 						tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);

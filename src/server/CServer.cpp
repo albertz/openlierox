@@ -1252,7 +1252,7 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 		return "Hackerland";
 
 	// Convert the IP to the numeric representation
-	int num_ip = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
+	Uint32 num_ip = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
 
 	// Open the database
 	FILE *fp = OpenGameFile("ip_to_country.csv","r");
@@ -1376,7 +1376,7 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 		StripQuotes(info[1]);
 
 		// Check the range
-		if (num_ip >= from_string<int>(info[0]) && num_ip <= from_string<int>(info[1]))  {
+		if (num_ip >= from_string<uint>(info[0]) && num_ip <= from_string<uint>(info[1]))  {
 			StripQuotes(info[6]);
 			ucfirst(info[6]);
 			return info[6];
@@ -1385,7 +1385,7 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 
 
 	// Not found
-	Result = "very small and unknown country";
+	Result = "unknown country";
 
 	fclose(fp);
 	

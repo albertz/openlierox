@@ -722,7 +722,7 @@ void Menu_Net_NETParseList(void)
 			continue;
 		}
 
-
+		// TODO: use std::string
 		static char address[256];
 		static char port[256];
         static char a[256], p[256];
@@ -745,8 +745,7 @@ void Menu_Net_NETParseList(void)
 		StripQuotes(port, p);
 
 		// Create the server address
-		snprintf(temp, sizeof(temp), "%s:%s",address,port); fix_markend(temp);
-		Menu_SvrList_AddServer(temp, false);
+		Menu_SvrList_AddServer(std::string(address) + ":" + port, false);
 
 		i += fix_strnlen(Line)+1;
 	}

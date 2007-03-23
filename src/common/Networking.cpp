@@ -59,7 +59,7 @@ bool			http_Requested;
 bool			http_SocketReady;
 std::string		http_url;
 std::string		http_host;
-char			http_content[HTTP_CONTENT_LEN];
+char			http_content[HTTP_CONTENT_LEN]; // TODO: use std::string (replace sizeof(http_content) while doing this)
 float           http_ResolveTime = -9999;
 
 
@@ -93,6 +93,7 @@ bool http_InitializeRequest(const std::string& host, const std::string& url)
 
 	// Resolve the address
 	// reset the current adr; sometimes needed (hack? bug in hawknl?)
+	// TODO: reset it a more common way (this will result in very bad errors if we change the NetAddr type later)
 	memset(&http_RemoteAddress, 0, sizeof(http_RemoteAddress));
 	SetNetAddrValid(&http_RemoteAddress, false);
     http_ResolveTime = (float)SDL_GetTicks() * 0.001f;
@@ -236,6 +237,7 @@ int http_ProcessRequest(std::string* szError)
 // Send a request
 bool http_SendRequest(void)
 {
+	// TODO: use std::string
 	static char request[1024];
 
 	// Build the url

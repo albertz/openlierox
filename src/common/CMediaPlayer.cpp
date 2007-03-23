@@ -303,6 +303,8 @@ void CMediaPlayer::Clear(void)
 	bGrabbed = false;
 	iLastMouseX = 0;
 	iLastMouseY = 0;
+	
+	// TODO: make player_gfx_t a class and move this into its constructor
 	memset(&tPlayerGfx,0,sizeof(player_gfx_t));
 }
 

@@ -490,14 +490,14 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 				while(p<s) {
 
 					// Go through until a space
-					for(c=p;c<s;c++) {
+					for(c=p;c<s;c++) { // TODO: use iterators
 						if(obj->strText[c] == ' ') {
 							c++;
 							break;
 						}
 					}
 					buf = obj->strText.substr(p);
-					buf[MIN(sizeof(buf)-1,(unsigned int)c-p)]='\0';
+					buf.erase(c-p);
 					p=c;
 
 					w = fnt->GetWidth(buf);

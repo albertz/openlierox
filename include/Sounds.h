@@ -62,7 +62,7 @@ typedef struct {
 } sfxgame_t;
 
 // ID3 tag format
-// HINT: are this fixed widths !!!
+// HINT: this are fixed widths, which are directly read out of the file
 typedef struct id3v1_s {
 	char		name[30];
 	char		interpreter[30];

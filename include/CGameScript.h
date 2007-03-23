@@ -82,7 +82,7 @@
 typedef struct {
 
 	char	ID[18];
-	int		Version;
+	Uint32	Version;
 	char	ModName[64];
 
 } gs_header_t;
@@ -90,7 +90,7 @@ typedef struct {
 
 // Special structure
 typedef struct {
-	int		Thrust;
+	Uint32	Thrust;
 } gs_special_t;
 
 

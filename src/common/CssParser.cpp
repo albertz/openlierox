@@ -257,6 +257,7 @@ property_t *CCssParser::ReadProperty(void)
 	Property->tNext = NULL;
 
 	// TODO: use std::string
+	// HINT: and change sizeof(buf) later
 	static char buf[64];
 	buf[63] = '\0';
 

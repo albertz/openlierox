@@ -38,8 +38,13 @@
 
 
 // Worm frame state
-class worm_state_t { public:
-
+class worm_state_t {
+public:
+	worm_state_t() {
+		iFlags = iX = iY = iAngle = iHookType = iHookX = iHookY = 0;
+		iShoot = iCarve = iDirection = iMove = iJump = iWeapon = 0;	
+	}
+	
 	int		iFlags;
 
 	int		iX, iY;

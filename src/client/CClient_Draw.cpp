@@ -369,7 +369,6 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
         int count = worm->getDirtCount();
 
         // Draw short versions
-        //snprintf(buf,sizeof(buf),"%d",count);
         if( count < 1000 )
 			buf = itoa(count);
 		else
@@ -821,7 +820,6 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			int h,m,s;
 			static std::string buf;
 			ConvertTime(p->getTagTime(), &h,&m,&s);
-			//snprintf(buf,sizeof(buf),"%d:%s%d",m,s<10 ? "0" : "",s);
 			buf = itoa(m)+(s<10 ? "0":"")+itoa(s);
 			Uint32 col = tLX->clNormalLabel;
 			if(p->getTagIT())
@@ -922,10 +920,10 @@ void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 // Draw text that is shadowed
 void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, char *fmt, ...)
 {
-	static char buf[512];
 	va_list arg;
 
 	va_start(arg, fmt);
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf), fmt, arg);
 	fix_markend(buf);
 	va_end(arg);

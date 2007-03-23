@@ -25,27 +25,24 @@
 // Parse a connectionless packet
 void CClient::ParseConnectionlessPacket(CBytestream *bs)
 {
-	static char cmd[128];
+	static std::string cmd;
 
-	bs->readString(cmd,sizeof(cmd));
+	cmd = bs->readString(128);
 
-	if(!strcmp(cmd,"lx::challenge"))
+	if(cmd == "lx::challenge")
 		ParseChallenge(bs);
 
-	else if(!strncmp(cmd,"lx::goodconnection",sizeof(cmd)))
+	else if(cmd == "lx::goodconnection")
 		ParseConnected(bs);
 
-	else if(!strncmp(cmd,"lx::pong",sizeof(cmd)))
+	else if(cmd == "lx::pong")
 		ParsePong();
 
 	// A Bad Connection
-	else if(!strncmp(cmd,"lx::badconnect",sizeof(cmd))) {
+	else if(cmd == "lx::badconnect") {
 		iNetStatus = NET_DISCONNECTED;
-		static char buf[256] = "";
-
 		iBadConnection = true;
-		bs->readString(buf,sizeof(buf));
-		strBadConnectMsg = buf;
+		strBadConnectMsg = bs->readString(256);
 	}
 }
 

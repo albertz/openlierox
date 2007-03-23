@@ -23,7 +23,7 @@
 
 
 int		GotError = false;
-char	ErrorMsg[1024];
+char	ErrorMsg[1024]; // HINT: if we change this to std::string, check other code here; sizeof(ErrorMsg) is used for example
 std::string	LastError;
 
 FILE *ErrorFile = NULL;
@@ -175,11 +175,11 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	cbMiniDump.CallbackParam = 0;
 
 	// Get the file name
-	static char checkname[256];
+	static std::string checkname;
 
 	FILE *f = NULL;
 	for (int i=1;1;i++)  {
-		snprintf(checkname,sizeof(checkname),"bug_reports/report%i.dmp",i);
+		checkname = "bug_reports/report" + itoa(i) + ".dmp";
 		f = OpenGameFile(checkname,"r");
 		if (!f)
 			break;

@@ -158,10 +158,10 @@ int CFont::IsOutline(void)
 // Draw a text
 void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt,...)
 {
-	static char buf[512];
 	va_list arg;
 
 	va_start(arg, fmt);
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
@@ -184,7 +184,6 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 // Draw a font (advanced)
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char *fmt,...)
 {
-	static char buf[512];
 	va_list arg;
 	int pos=0;
 	int n,l;
@@ -195,6 +194,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char 
 	int length = Fontstr_len;
 
 	va_start(arg, fmt);
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
@@ -350,13 +350,13 @@ void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::st
 // Draws the text in centre alignment
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt, ...)
 {
-	static char buf[512];
 	va_list arg;
 	int pos;
 	int length=0;
 	unsigned int n,l;
 
 	va_start(arg, fmt);
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
@@ -392,13 +392,13 @@ void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, 
 // Draw's the text in centre alignment
 void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, char *fmt, ...)
 {
-	static char buf[512];
 	va_list arg;
 	int pos;
 	int length=0;
 	unsigned int n,l;
 
 	va_start(arg, fmt);
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);

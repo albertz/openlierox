@@ -127,8 +127,8 @@ void CWorm::Clear(void)
 // Initialize the worm
 void CWorm::Init(void)
 {
-	memset(&tState,0,sizeof(worm_state_t));
-
+	// TODO: is this needed?
+	tState = worm_state_t();
 }
 
 

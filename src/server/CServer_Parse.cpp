@@ -660,23 +660,21 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 // Parses connectionless packets
 void GameServer::ParseConnectionlessPacket(CBytestream *bs)
 {
-	static char cmd[128];
+	static std::string cmd;
 
-	bs->readString(cmd, sizeof(cmd));
+	cmd = bs->readString(128);
 
-	//strcpy(tLX->debug_string, cmd);
-
-	if(!strcmp(cmd,"lx::getchallenge"))
+	if(cmd == "lx::getchallenge")
 		ParseGetChallenge();
-	else if(!strcmp(cmd,"lx::connect"))
+	else if(cmd == "lx::connect")
 		ParseConnect(bs);
-	else if(!strcmp(cmd,"lx::ping"))
+	else if(cmd == "lx::ping")
 		ParsePing();
-	else if(!strcmp(cmd,"lx::query"))
+	else if(cmd == "lx::query")
 		ParseQuery(bs);
-    else if(!strcmp(cmd,"lx::getinfo"))
+    else if(cmd == "lx::getinfo")
         ParseGetInfo();
-	else if(!strcmp(cmd,"lx::wantsjoin"))
+	else if(cmd == "lx::wantsjoin")
 		ParseWantsJoin(bs);
 }
 
