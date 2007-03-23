@@ -66,7 +66,7 @@ float           http_ResolveTime = -9999;
 
 void http_Init() {
 	SetSocketStateValid(http_Socket, false);
-	// TODO ...
+	// TODO: is something missing here? if not, remove this comment
 }
 
 

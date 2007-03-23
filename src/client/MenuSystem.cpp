@@ -343,7 +343,7 @@ std::string Menu_GetLevelName(const std::string& filename)
 
 	Path = "levels/"+filename;
 
- // Liero Xtreme level
+	// Liero Xtreme level
 	if( stringcasecmp(GetFileExtension(filename), "lxl") == 0 ) {
 		FILE *fp = OpenGameFile(Path,"rb");
 		if(fp) {
@@ -363,8 +363,7 @@ std::string Menu_GetLevelName(const std::string& filename)
 		return filename;
 	}
 
- // Liero level
-	// TODO
+	// Liero level
 	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 ) {
 		FILE *fp = OpenGameFile(Path,"rb");
 
@@ -525,9 +524,6 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 	int cx = x+w/2;
 	int cy = y+h/2-(lines.size()*tLX->cFont.GetHeight())/2;
-
-
-//	SDL_Surface *shadow = LoadImage("data/frontend/msgshadow.png",0);   // TODO: not used
 
 
 	//

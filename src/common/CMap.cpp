@@ -1364,6 +1364,7 @@ void CMap::PlaceStone(int size, CVec pos)
 
 	Uint32 pink = tLX->clPink;
 
+	// TODO: is the ">=" correct here?
 	if(size < 0 || size >= Theme.NumStones) {
 		// TODO: Bail out or warning of overflow
 		d_printf("Bad stone size\n");
@@ -1469,6 +1470,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 
 	Uint32 pink = tLX->clPink;
 
+	// TODO: is the ">=" correct here?
 	if(id < 0 || id >= Theme.NumMisc) {
 		// TODO: Bail out or warning of overflow
 		d_printf("Bad misc size\n");

@@ -155,8 +155,6 @@ void CListview::AddColumn(const std::string& sText, int iWidth)
 {
 	lv_column_t *col;
 
-//	bool defaultwidth = iWidth <= 0; // TODO: not used
-
 	col = new lv_column_t;
 	if(col == NULL) {
 		// Out of memory
@@ -381,7 +379,6 @@ void CListview::ReadjustScrollbar(void)
 // Remove an item from the list
 void CListview::RemoveItem(int iIndex)
 {
-//	lv_item_t *item = NULL;  // TODO: not used
 	lv_item_t *prev = NULL;
 	lv_item_t *i = tItems;
 	lv_item_t *next = NULL;

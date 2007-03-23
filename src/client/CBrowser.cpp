@@ -178,10 +178,10 @@ void CBrowser::ReadNewline(void)
 // Read a tag
 void CBrowser::ReadTag(void)
 {
+	// TODO: use std::string
 	static char sName[32];
 	static char sVal[32];
 	int i = 0;
-//    int val = 0; // TODO: not used
 	int end = false;
 
 	sName[0] = 0;

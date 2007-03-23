@@ -84,7 +84,6 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 		return;
 
 	float length2;
-//	float speed = 250;  // TODO: not used
 	int firsthit = !HookAttached;
 	CVec force;
 

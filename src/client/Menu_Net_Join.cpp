@@ -503,8 +503,6 @@ void Menu_Net_JoinDrawLobby(void)
 // Create the lobby gui stuff
 void Menu_Net_JoinLobbyCreateGui(void)
 {
-//    Uint32 blue = MakeColour(0,138,251); // TODO: not used
-
     cJoinLobby.Shutdown();
 	cJoinLobby.Initialize();
 

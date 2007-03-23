@@ -56,6 +56,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	float dt = tLX->fDeltaTime;
 
 	// TODO: allow more worms
+	// TODO: check if it works without this restriction
 	num = iNumWorms;
 	//num = MIN(2,iNumWorms);
 

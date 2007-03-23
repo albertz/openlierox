@@ -107,29 +107,6 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 	}
 
 	// Convert the image to the screen's colour depth
-	
-	// TODO: make this better (but how?)
-	// get a surface with the correct format
-	/*SDL_Surface* frm;
-	if(withalpha)
-		frm = gfxCreateSurfaceAlpha(10, 10);
-	else
-		frm = gfxCreateSurface(10, 10);
-	if(!frm) {
-		printf("ERROR: LoadImgBPP: cannot create new 1x1 surface\n");
-		SDL_FreeSurface(img);
-		return NULL;
-	}*/
-	/*SDL_PixelFormat* fmt = SDL_GetVideoSurface()->format;
-	int flags = SDL_SWSURFACE;
-	if (withalpha)
-		flags |= SDL_SRCALPHA;
-	
-	// convert it
-	Image = SDL_ConvertSurface(img, fmt, flags);
-	SDL_FreeSurface(img);
-	//SDL_FreeSurface(frm);*/
-
 	if (withalpha)
 		Image = SDL_DisplayFormatAlpha(img);
 	else  {

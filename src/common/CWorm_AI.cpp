@@ -945,7 +945,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 #endif
 
 	worm_state_t *ws = &tState;
-//	gs_worm_t *wd = cGameScript->getWorm(); // TODO: not used
 
 	// Init the ws
 	ws->iCarve = false;
@@ -963,7 +962,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 	fLastRandomChange = -9999;
 
 	iAiDiffLevel = tProfile->nDifficulty;
-//	float dt = tLX->fDeltaTime; // TODO: not used
 
     // Every 3 seconds we run the think function
     if(tLX->fCurTime - fLastThink > 3 && nAIState != AI_THINK)
@@ -1970,7 +1968,7 @@ bool CWorm::AI_SetAim(CVec cPos)
     bool    goodAim = false;
     gs_worm_t *wd = cGameScript->getWorm();
 
-	/*float   fDistance =  // TODO: not used */ NormalizeVector(&tgDir);
+	NormalizeVector(&tgDir);
 
 	if (tLX->fCurTime - fLastFace > 0.5f)  {  // prevent turning
 	// Make me face the target
@@ -2049,7 +2047,7 @@ void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
     // If our line is blocked, try some evasive measures
     float fDist = 0;
     int type = 0;
-    /* int nLength = // TODO: not used */ traceLine(cPosTarget, pcMap, &fDist, &type, 1);
+    traceLine(cPosTarget, pcMap, &fDist, &type, 1);
     if(fDist < 0.75f || cPosTarget.y < vPos.y) {
 
         // Change direction
@@ -3963,9 +3961,8 @@ CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap)
 	if ((tmp_pf & PX_ROCK) || (tmp_pf & PX_DIRT))
 		return trg;
 
-	// Note: unoptimized
+	// TODO: Note: unoptimized
 
-//	const int numCells = pcMap->getGridCols() * pcMap->getGridRows();  // TODO: not used
 	int i=1;
 	int x=0,y=0;
 	bool bFound = false;
@@ -4231,9 +4228,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
       Or, enough time has passed since the last path update:
       recalculate the path
     */
-
-//    int     nDeviation = 40;     // Maximum deviation allowance  // TODO: not used
-//    bool    recalculate = false;  // TODO: not used
 
 	// Deviated?
 	// HINT: this should not be needed as we check for a direct path from any node later on

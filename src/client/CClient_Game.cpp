@@ -544,8 +544,8 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 
     // Go through projectiles. If any were next to an explosion, set the projectile's explode event to true
-//    CProjectile *prj = cProjectiles;  // TODO: not used
-    /*for( i=0; i<MAX_PROJECTILES; i++, prj++ ) {
+	/*  CProjectile *prj = cProjectiles;
+    for( i=0; i<MAX_PROJECTILES; i++, prj++ ) {
         if( !prj->isUsed() )
             continue;
 
@@ -1515,6 +1515,7 @@ void CClient::processChatter(void)
 			if (controls)
 				return;
 
+			// TODO: does this need more work? (more than 2 viewports; disabled with only local players?)
 			for(uint j=0; j<iNumWorms; j++)  {
 				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
 					// Can we type?

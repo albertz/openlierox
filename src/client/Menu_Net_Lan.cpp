@@ -40,8 +40,6 @@ enum {
 // Initialize the LAN menu
 int Menu_Net_LANInitialize(void)
 {
-//	Uint32 blue = MakeColour(0,138,251); // TODO: not used
-
 	iNetMode = net_lan;
 
 	cLan.Shutdown();

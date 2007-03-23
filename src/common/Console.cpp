@@ -24,7 +24,7 @@
 
 console_t	*Console = NULL;
 
-
+// TODO: is this list realy up-to-date? if not, remove it
 /* TODO:
 [X] Add history
 [X] Console doesn't drop at startup every time

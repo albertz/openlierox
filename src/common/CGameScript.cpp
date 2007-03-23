@@ -813,7 +813,10 @@ void CGameScript::writeString(const std::string& szString, FILE *fp)
     if(szString == "") return;
 
 	size_t length = szString.size();
-	if(length > 255) length = 255; // WARNING: cutting the string here! (TODO: should we assert this?) 
+	if(length > 255) {	
+		printf("WARNING: i will cut the following string for writing: %s\n", szString.c_str());
+		length = 255;
+	}
 	uchar len = (uchar)length;
 	
     fwrite( &len, sizeof(uchar), 1, fp );

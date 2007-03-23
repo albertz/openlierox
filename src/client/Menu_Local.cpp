@@ -606,9 +606,9 @@ void Menu_LocalStartGame(void)
 // Check if we can add another player to the list
 int Menu_LocalCheckPlaying(int index)
 {
-	int			plycount = 0;
-	int			hmncount = 0;
-	int			i, count;
+	uint		plycount = 0;
+	uint		hmncount = 0;
+	uint		i, count;
 	profile_t	*p;
 
     count = 0;
@@ -629,15 +629,18 @@ int Menu_LocalCheckPlaying(int index)
 
 	p = FindProfile(index);
 
+	// TODO: does it work with this removed restrictions ?
+	//	if not, make it working
+
 	// Check if there is too many players (MAX: 8)
-	if(plycount+1 > 8)
-		return false;
+//	if(plycount+1 > 8)
+//		return false;
 
 	// Check if there is too many human players (MAX: 2)
-	if(p) {
-		if(p->iType == PRF_HUMAN && hmncount+1 > 2)
-			return false;
-	}
+//	if(p) {
+//		if(p->iType == PRF_HUMAN && hmncount+1 > 2)
+//			return false;
+//	}
 
 	return true;
 }
@@ -836,8 +839,6 @@ enum {
 // Initialize the game settings
 void Menu_GameSettings(void)
 {
-//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
-
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 120,150,120,150, 400,300);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,150, 520,440);
@@ -946,7 +947,8 @@ bool Menu_GameSettings_Frame(void)
 
 	// Set the value of the loading time label
 	int l = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, itoa(l)+"%", 0); // TODO: causes memleak (along with similar cases)!!!
+	static std::string lstr; lstr = itoa(l)+"%";
+	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0); // TODO: causes memleak (along with similar cases)!!! (is this still up-to-date? if not -> remove it)
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
@@ -1047,7 +1049,6 @@ enum {
 // Initialize the weapons restrictions
 void Menu_WeaponsRestrictions(const std::string& szMod)
 {
-//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 
 	// Setup the buffer
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,150,120,150, 400,330);

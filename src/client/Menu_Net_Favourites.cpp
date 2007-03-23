@@ -41,8 +41,6 @@ enum {
 // Initialize the favourites menu
 int Menu_Net_FavouritesInitialize(void)
 {
-//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
-
 	iNetMode = net_favourites;
 
 	cFavourites.Shutdown();

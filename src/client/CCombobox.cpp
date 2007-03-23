@@ -315,7 +315,6 @@ int CCombobox::MouseOver(mouse_t *tMouse)
 // Mouse down event
 int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 {
-//	int x = iX+iWidth-16;  // TODO: not used
 	iArrowDown = false;
 
 	if((tMouse->X >= iX+iWidth-16 || cScrollbar.getGrabbed()) && iGotScrollbar && iDropped) {

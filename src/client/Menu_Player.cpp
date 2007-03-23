@@ -69,8 +69,6 @@ void Menu_PlayerInitialize(void)
 {
 	tMenu->iMenuType = MNU_PLAYER;
 
-//	Uint32 blue = MakeColour(0,138,251); // TODO: not used
-//	Uint32 grey = MakeColour(128,128,128); // TODO: not used
 	iPlayerMode = 0;
 	CListview *lv;
 

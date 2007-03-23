@@ -40,8 +40,6 @@ enum {
 // Initialize the Internet menu
 int Menu_Net_NETInitialize(void)
 {
-//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
-
 	iNetMode = net_internet;
     szNetCurServer = "";
 

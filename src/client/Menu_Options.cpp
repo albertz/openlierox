@@ -117,8 +117,6 @@ int Menu_OptionsInitialize(void)
 {
 	tMenu->iMenuType = MNU_OPTIONS;
 	OptionsMode = 0;
-	//Uint32 blue = MakeColour(0,138,251); // TODO: not used
-	//Uint32 ltblue = MakeColour(143,176,207); // TODO: not used
     int i;
 
 	// Create the buffer

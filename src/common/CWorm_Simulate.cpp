@@ -26,13 +26,11 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 {
 	float	dt = tLX->fDeltaTime;
 	CVec	dir;
-//	int		jump = false; // TODO: not used
 	int		weap = false;
 	int		RightOnce = false;
 	int		move = false;
 
 	worm_state_t *ws = &tState;
-//	gs_worm_t *wd = cGameScript->getWorm();  // TODO: not used
 
 	// Temp thing
 	// TODO: Try out mouse input for a 3rd worm

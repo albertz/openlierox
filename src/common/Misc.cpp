@@ -485,6 +485,7 @@ bool stripdot(std::string& buf, int width)
 // Changes the string to have all first letters upper case
 // Returns text
 // TODO: the parameter will be changed directly; that's bad style
+// TODO: remove this function; it should not be used, as we should use std::string everywhere
 char *ucfirst(char *text)
 {
 	size_t i = 0;

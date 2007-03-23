@@ -201,6 +201,7 @@ void Menu_MainFrame(void)
 	}
 
 
+	// TODO: do this in a more general way (autocalc the pos-values)
 	// Draw the version number
 	tLX->cFont.Draw(tMenu->bmpScreen, 370, 379, tLX->clCredits1, "  %s v%s",GetGameName().c_str(),LX_VERSION);
 	tLX->cFont.Draw(tMenu->bmpScreen, 370, 391, tLX->clCredits2,"%s", "+ Original code by Jason Boettcher");

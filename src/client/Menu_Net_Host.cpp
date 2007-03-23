@@ -1300,14 +1300,10 @@ enum {
 // Initialize the server settings window
 void Menu_ServerSettings(void)
 {
-//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
-
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,130,120,130, 400,200);
 	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,325, 0, 200);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,325);
-
- //   CListview *tListBox = new CListview();  // TODO: not used?
 
 	Menu_RedrawMouse(true);
 
@@ -1446,8 +1442,6 @@ enum {
 // Initialize the ban list window
 void Menu_BanList(void)
 {
-//	Uint32 blue = MakeColour(0,138,251);  // TODO: not used
-
 	// Setup the buffer
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,130,120,130, 400,320);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 520,440);
@@ -1495,7 +1489,6 @@ bool Menu_BanList_Frame(void)
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
-//    Uint32 blue = MakeColour(0,138,251);  // TODO: not used
 	CListview *tListBox = (CListview *)cBanListGui.getWidget(bl_ListBox);
 
 

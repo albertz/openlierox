@@ -323,10 +323,9 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	// Dampening
 	if(tProjInfo->Dampening != 1)
 		newvel *= (float)pow(tProjInfo->Dampening, dt*10); // TODO: is this correct? change factor for dt if not
-		//newvel *= tProjInfo->Dampening;  // this is wrong, it completely depends on CPU speed
 	
 	float checkstep = newvel.GetLength2(); // |v|^2
-	if( checkstep*dt*dt > MAX_CHECKSTEP*MAX_CHECKSTEP ) { // |dp|^2=|v*dt|^2
+	if(( checkstep*dt*dt > MAX_CHECKSTEP*MAX_CHECKSTEP )) { // |dp|^2=|v*dt|^2
 		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
 		// checkstep is new dt
 		checkstep = (float)AVG_CHECKSTEP / sqrt(checkstep);
@@ -522,7 +521,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
-	else // TODO: was this 'else' missing here?
+	else
 		w=h=2;
 
 	float maxspeed2 = (float)(4*w*w+4*w+1); // (2w+1)^2
@@ -670,7 +669,6 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 
 
 			int num = (tProjInfo->AngleImages - 1) / 2;
-//			int middle = num*tProjInfo->bmpImage->h; // TODO: not used
 			if(direct == 0)
 				// Left side
 				framestep = (float)(151-angle) / 151.0f * (float)num;
