@@ -29,7 +29,6 @@
 
 // Internal
 int		GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string);
-//void	TrimSpaces(std::string& str);
 
 
 // Value reading

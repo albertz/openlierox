@@ -310,7 +310,7 @@ void CBrowser::AddObject(const std::string& sText, const std::string& sVal, int 
 			// Triple value
 			case HTO_COLOUR:
 			case HTO_BOX:
-				std::vector<std::string>& tok = explode(sVal,",");
+				const std::vector<std::string>& tok = explode(sVal,",");
 				if(tok.size() >= 3) {
 					r = from_string<int>(tok[0]);
 					g = from_string<int>(tok[1]);

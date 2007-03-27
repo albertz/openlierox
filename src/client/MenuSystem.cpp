@@ -507,7 +507,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	// Handle multiline messages
 	unsigned int maxwidth = 0;
 	std::vector<std::string>::const_iterator it;
-	std::vector<std::string>& lines = explode(sText,"\n"); // can't be static here
+	const std::vector<std::string>& lines = explode(sText,"\n");
 	for (it=lines.begin(); it!=lines.end(); it++)  {
 		maxwidth = MAX(maxwidth,(uint)tLX->cFont.GetWidth(*it));
 	}
@@ -1709,7 +1709,8 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
         if( szLine == "" )
             continue;
 
-		std::vector<std::string>& parsed = explode(szLine,",");
+		// explode and copy it
+		std::vector<std::string> parsed = explode(szLine,",");
 
         if( parsed.size() == 3 ) {
 			TrimSpaces(parsed[2]); // Address
@@ -1753,6 +1754,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 
     // Get the server details
 	// NOTE: must be static else doesn't work
+	// TODO: why? (please add a comment)
     static std::string    szName;
     static int     nMaxWorms;
     static int     nState;

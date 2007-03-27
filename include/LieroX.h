@@ -188,6 +188,7 @@ void	GotoLocalGameMenu(void);
 
 
 // Miscellanous routines
+float	GetFixedRandomNum(uchar index);
 int		CheckCollision(CVec trg, CVec pos, uchar checkflags, CMap *map);
 void	ConvertTime(float time, int *hours, int *minutes, int *seconds);
 int 	CarveHole(CMap *cMap, CVec pos);
@@ -214,7 +215,7 @@ std::string	ReadUntil(const std::string& text, char until_character = '\n');
 std::string	ReadUntil(FILE* fp, char until_character = '\n');
 Uint32	StrToCol(const std::string& str);
 const char* sex(short wraplen = 0);
-std::vector<std::string>& explode(const std::string& str, const std::string& delim);
+const std::vector<std::string>& explode(const std::string& str, const std::string& delim);
 std::string freadstr(FILE *fp, size_t maxlen);
 inline std::string freadfixedcstr(FILE *fp, size_t maxlen) { return ReadUntil(freadstr(fp, maxlen), '\0'); }
 size_t fwrite(const std::string& txt, size_t len, FILE* fp);

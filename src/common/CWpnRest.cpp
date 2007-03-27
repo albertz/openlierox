@@ -194,7 +194,7 @@ void CWpnRest::loadList(const std::string& szFilename)
 	
     while( !feof(fp) ) {
         line = ReadUntil(fp, '\n');
-		std::vector<std::string>& exploded = explode(line,",");
+		const std::vector<std::string>& exploded = explode(line,",");
 		if (exploded.size() >= 2)
 			addWeapon(exploded[0],from_string<int>(exploded[1]));
     }

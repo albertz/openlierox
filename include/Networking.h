@@ -45,12 +45,11 @@
 #define		LX_SVTIMEOUT	35
 #define		LX_CLTIMEOUT	30
 
-#define     HTTP_TIMEOUT    90
+#define     HTTP_TIMEOUT    10
+#define     DNS_TIMEOUT		10
 
 #define		HTTP_CONTENT_LEN	1024
 
-// Functions
-float	GetFixedRandomNum(int index);
 
 
 // HTTP Request
@@ -60,7 +59,7 @@ void	http_ConvertUrl(std::string& dest, const std::string& url);
 int		http_ProcessRequest(std::string *szError);
 bool	http_SendRequest(void);
 void	http_RemoveHeader(void);
-char	*http_GetContent(void);
+const std::string& http_GetContent(void);
 void    http_CreateHostUrl(const std::string& host, const std::string& url);
 void	http_Quit(void);
 
@@ -84,6 +83,7 @@ bool	ConnectSocket(NetworkSocket sock, const NetworkAddr* addr);
 bool	ListenSocket(NetworkSocket sock);
 bool	CloseSocket(NetworkSocket sock);
 int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
+int		WriteSocket(NetworkSocket sock, const std::string& buffer);
 int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
 bool	IsSocketStateValid(NetworkSocket sock);
 void	SetSocketStateValid(NetworkSocket& sock, bool valid);
@@ -97,6 +97,7 @@ bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr* addr);
 bool	SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr* addr);
 bool	IsNetAddrValid(NetworkAddr* addr);
 bool	SetNetAddrValid(NetworkAddr* addr, bool valid);
+void	ResetNetAddr(NetworkAddr* addr);
 bool	StringToNetAddr(const std::string& string, NetworkAddr* addr);
 bool	NetAddrToString(const NetworkAddr* addr, std::string& string);
 unsigned short GetNetAddrPort(NetworkAddr* addr);

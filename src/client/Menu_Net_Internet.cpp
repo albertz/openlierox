@@ -572,7 +572,7 @@ void Menu_Net_NETUpdateList(void)
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
     DrawRectFill(tMenu->bmpBuffer, 202, 222, 439, 339, 0);
     Menu_DrawBox(tMenu->bmpBuffer, 220, 280, 420, 300);
-	for(int i=0;i<4;i++)
+	for(ushort i=0;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
 	Menu_RedrawMouse(true);
 
@@ -605,6 +605,7 @@ void Menu_Net_NETUpdateList(void)
             // Get the next server in the list
             while( !feof(fp) ) {
 				szLine = ReadUntil(fp);
+				TrimSpaces(szLine);
 
                 if( szLine.length() > 0 ) {
 
@@ -699,55 +700,37 @@ void Menu_Net_NETUpdateList(void)
 // Parse the downloaded server list
 void Menu_Net_NETParseList(void)
 {
-	char *content = http_GetContent();
+	const std::string& content = http_GetContent();
 
-	static char Line[HTTP_CONTENT_LEN];
-	static char temp[HTTP_CONTENT_LEN];
+	static std::string addr, ptr;
+	
+	std::string::const_iterator it = content.begin();
+	size_t i = 0;
+	size_t startpos = 0;	
+	for(; it != content.end(); it++, i++) {	
+		if(*it != '\n') continue;
+		const std::vector<std::string>& tokens = explode(content.substr(startpos, i-startpos), ",");
+		startpos = i+1;
+		
+		// we need at least 2 items
+		if(tokens.size() < 2) continue;
+		
+		addr = tokens[0];
+		ptr = tokens[1];
+		
+		TrimSpaces(addr);
+		TrimSpaces(ptr);
 
+		// If the address, or port does NOT have quotes around it, the line must be mangled and cannot be used		
+		if(addr.size() <= 2 || ptr.size() <= 2) continue;
+		if(addr[0] != '\"' || ptr[0] != '\"') continue;
+		if(addr[addr.size()-1] != '\"' || ptr[ptr.size()-1] != '\"') continue;
 
-	int i = 0;
-	int count = strnlen(content, HTTP_CONTENT_LEN);
-
-	while(i < count) {
-		sscanf(content+i,"%[^\n]\n",Line);
-
-		fix_strncpy(temp, Line);
-
-		char *addr = strtok(temp, ",");
-		char *prt = strtok(NULL, ",");
-
-		// Check if the tokens are valid
-		if(!addr || !prt) {
-			i += fix_strnlen(Line)+1;
-			continue;
-		}
-
-		// TODO: use std::string
-		static char address[256];
-		static char port[256];
-        static char a[256], p[256];
-
-		fix_strncpy(a, TrimSpaces(addr));
-		fix_strncpy(p, TrimSpaces(prt));
-
-		// If the address, or port does NOT have quotes around it, the line must be mangled and cannot be used
-		if(a[0] != '\"' || p[0] != '\"') {
-			i += fix_strnlen(Line)+1;
-			continue;
-		}
-		if(a[fix_strnlen(a)-1] != '\"' || p[fix_strnlen(p)-1] != '\"') {
-			i += fix_strnlen(Line)+1;
-			continue;
-		}
-
-
-		StripQuotes(address, a);
-		StripQuotes(port, p);
+		StripQuotes(addr);
+		StripQuotes(ptr);
 
 		// Create the server address
-		Menu_SvrList_AddServer(std::string(address) + ":" + port, false);
-
-		i += fix_strnlen(Line)+1;
+		Menu_SvrList_AddServer(addr + ":" + ptr, false);
 	}
 }
 
@@ -770,7 +753,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	cInternet.Draw(tMenu->bmpBuffer);
 
-	for(int i=1;i<4;i++)
+	for(ushort i=1;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
 
 	Menu_RedrawMouse(true);

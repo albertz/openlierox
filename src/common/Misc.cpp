@@ -18,6 +18,8 @@
 #include "LieroX.h"
 #include "GfxPrimitives.h"
 
+// Random Number list
+#include "RandomNumberList.h"
 
 
 
@@ -254,14 +256,11 @@ void StripQuotes(char *dest, char *src)
 
 void StripQuotes(std::string& str)
 {
-	if (str == "")
-		return;
-
-	if (str[0] == '\"')  {
-		str.erase((unsigned int)0);
+	if(str.size() > 0 && str[0] == '\"')  {
+		str.erase(0, 1);
 	}
 
-	if (str[str.length()-1] == '\"')  {
+	if(str.size() > 0 && str[str.size()-1] == '\"')  {
 		str.erase(str.length()-1);
 	}
 }
@@ -636,7 +635,7 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 }
 
 // HINT: it returns a reference
-std::vector<std::string>& explode(const std::string& str, const std::string& delim) {
+const std::vector<std::string>& explode(const std::string& str, const std::string& delim) {
 	static std::vector<std::string> result;
 	result.clear();
 
@@ -718,9 +717,23 @@ void printf(const std::string& txt) {
 
 // Print out to debug pane
 #ifdef _MSC_VER
+	// TODO: this is wrong!
+	// 1. it behaves different from printf (which is not acceptable)
+	// 2. printf is not for debugging use but for printing something on std
+	// 3. for debugging, we should create and use some common function
 	OutputDebugStringA(txt.c_str());
 #endif
 }
+
+
+
+///////////////////
+// Return a fixed random number
+float GetFixedRandomNum(uchar index)
+{
+	return RandomNumbers[index];
+}
+
 
 
 

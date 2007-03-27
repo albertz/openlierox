@@ -166,7 +166,7 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 	if (!GetString(filename,section,key,string))
 		return false;
 
-	std::vector<std::string>& arr = explode(string,",");
+	const std::vector<std::string>& arr = explode(string,",");
 	for (register unsigned int i=0; i<MIN(num_items,arr.size()); i++)
 		array[i] = from_string<int>(arr[i]);
 
@@ -254,37 +254,3 @@ int GetString(const std::string& filename, const std::string& section, const std
 }
 
 
-
-///////////////////
-// Trim the spaces from the start & end of a string
-/*void TrimSpaces(std::string& str)
-{
-	if(!str)
-		return;
-
-	char temp[MAX_STRING_LENGTH];
-	unsigned int n = 0;
-	unsigned int i = 0;
-	strcpy(temp,"");
-
-
-	// Leading spaces
-	for(n=0,i=0;n<strlen(str);n++)
-	{
-		if(str[n] != ' ' && temp[n] != '\t')
-			break;
-		i++;
-	}
-	fix_strncpy(temp,str+i);
-
-
-	// proceeding spaces
-	for(n=strlen(temp)-1;n>0;n--)
-		if(temp[n] != ' ' && temp[n] != '\t')
-		{
-			temp[n+1] = '\0';
-			break;
-		}
-
-	strcpy(str,temp);
-}*/

@@ -27,7 +27,8 @@
 #	include <shlobj.h>
 #else
 #	include <pwd.h>
-#	include <hash_map>
+#	include <ext/hash_map>
+using namespace __gnu_cxx;
 #endif
 
 bool IsFileAvailable(const std::string& f, bool absolute) {
@@ -200,7 +201,7 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 }
 
 
-typedef std::hash_map<std::string, std::string, simple_reversestring_hasher> exactfilenamecache_t;
+typedef hash_map<std::string, std::string, simple_reversestring_hasher> exactfilenamecache_t;
 exactfilenamecache_t exactfilenamecache;
 
 bool is_searchname_in_exactfilenamecache(

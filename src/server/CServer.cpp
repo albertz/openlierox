@@ -1232,22 +1232,8 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 	// Clear the buffer
 	std::string Result;
 
-	// Split the ip to four parts
-	//int ip_parts[4];
-	/*char buf[4];
-	unsigned int j=0;
-	unsigned int k=0;
-	for (short i=0; i<4; i++,j++)  {
-		while(k < sizeof(buf) && *(Address+j) != '.' && *(Address+j) != ':')  {
-			buf[k] = *(Address+j);
-			k++;
-			j++;
-		}
-		buf[MIN(sizeof(buf)-1,k)] = '\0';
-		k = 0;
-		ip_parts[i] = atoi(buf);
-	}*/
-	std::vector<std::string>& ip_e = explode(Address,".");
+
+	const std::vector<std::string>& ip_e = explode(Address,".");
 	if (ip_e.size() != 4)
 		return "Hackerland";
 
@@ -1259,103 +1245,6 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 	if (!fp)
 		return "outer space";
 
-/*	static char ln[256];
-	char *line = &ln[0];
-
-	char from_ip[12];
-	char to_ip[12];
-	char registry[32];
-	char added[32];
-	char country_code_2[3];
-	char country_code_3[4];
-	char country_name[64];
-*/
-	// Parse the file line by line
-	/*while(fgets(line,164,fp))  {
-
-		// Safety
-		if(strnlen(line,sizeof(ln)) < 1)
-			continue;
-
-		// Comment, ignore
-		if (line[0] == '#') continue;
-
-		// First character: " (ignore)
-		if(line[0] == '\"') line++;
-
-		// From IP
-		unsigned short i=0;
-		while(i < sizeof(from_ip)-1 && *line && *line != '\"')
-			from_ip[i++] = *(line++);
-		from_ip[i] = '\0'; // Terminating character
-
-		// Ignore the , and " characters
-		line+=3;
-
-		// To IP
-		i=0;
-		while(i < sizeof(to_ip)-1 && *line && *line != '\"')
-			to_ip[i++] = *(line++);
-		to_ip[i] = '\0';  // Terminating character
-
-		// Ignore the , and " characters
-		line+=3;
-
-		// Registry
-		i=0;
-		while(i < sizeof(to_ip)-1 && *line && *line != '\"')
-			registry[i++] = *(line++);
-		registry[i] = '\0';
-
-		// Ignore the , and " characters
-		line += 3;
-
-		// Date added
-		i=0;
-		while(i < sizeof(added)-1 && *line && *line != '\"')
-			added[i++] = *(line++);
-		added[i] = '\0';
-
-		// Ignore the , and " characters
-		line += 3;
-
-		// 2-character country code
-		i=0;
-		while(i < sizeof(country_code_2)-1 && *line && *line != '\"')
-			country_code_2[i++] = *(line++);
-		country_code_2[i] = '\0';  // Terminating character
-
-		// Ignore the , and " characters
-		line+=3;
-
-		// 3-character country code
-		i=0;
-		while(i < sizeof(country_code_3)-1 && *line && *line != '\"')
-			country_code_3[i++] = *(line++);
-		country_code_3[i] = '\0';  // Terminating character
-
-		// Ignore the , and " characters
-		line+=3;
-
-		// Country name
-		i=0;
-		while(i < sizeof(country_name)-1 && *line && *line != '\"')
-			country_name[i++] = *(line++);
-		country_name[i] = '\0';  // Terminating character
-
-		// Is the IP in the specified range?
-		if (num_ip >= atoi(from_ip))
-			if (num_ip <= atoi(to_ip))  {
-				ucfirst(country_name);  // Make the country name nicer
-				Result = country_name;  // We found the country
-				fclose(fp);
-				return Result;
-			}
-
-		// Restore the pointer
-		line = &ln[0];
-	}*/
-
 	std::string line = "";
 	while(!feof(fp)) {
 		// Adjust the line and check it's not comment or blank
@@ -1366,8 +1255,8 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 		if (line[0] == '#') // it's a comment
 			continue;
 
-		// Parse the line
-		std::vector<std::string>& info = explode(line,",");
+		// Parse and copy the line
+		std::vector<std::string> info = explode(line,",");
 		if (info.size() < 7)
 			continue;
 
@@ -1435,7 +1324,7 @@ void GameServer::ShutdownLog(void)
 // Shutdown the server
 void GameServer::Shutdown(void)
 {
-	int i;
+	uint i;
 
 	if(IsSocketStateValid(tSocket))
 		CloseSocket(tSocket);
@@ -1456,7 +1345,7 @@ void GameServer::Shutdown(void)
 	}
 
 	if(cMap) {
-		int bCreated = cMap->getCreated();
+		bool bCreated = cMap->getCreated();
 		cMap->Shutdown();
 		if(bCreated)
 			delete cMap;

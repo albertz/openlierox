@@ -22,22 +22,6 @@
 
 #include <map>
 
-// Random Number list
-#include "RandomNumberList.h"
-
-
-
-///////////////////
-// Return a fixed random number
-float GetFixedRandomNum(int index)
-{
-	// Safety
-	assert( index >= 0 && index <= 255);
-
-	return RandomNumbers[index];
-}
-
-
 
 
 
@@ -59,14 +43,13 @@ bool			http_Requested;
 bool			http_SocketReady;
 std::string		http_url;
 std::string		http_host;
-char			http_content[HTTP_CONTENT_LEN]; // TODO: use std::string (replace sizeof(http_content) while doing this)
+std::string		http_content;
 float           http_ResolveTime = -9999;
 
 
 
 void http_Init() {
 	SetSocketStateValid(http_Socket, false);
-	// TODO: is something missing here? if not, remove this comment
 }
 
 
@@ -75,15 +58,16 @@ void http_Init() {
 bool http_InitializeRequest(const std::string& host, const std::string& url)
 {
 	// Make the url http friendly (get rid of spaces)	
+	// TODO: why was this commented out?
 	//http_ConvertUrl(http_url, url);
 	
     // Convert the host & url into a good set
     // Ie, '/'s from host goes into url
     http_CreateHostUrl(host, url);
 
-    d_printf("_Sending request %s %s\n",http_host.c_str(), http_url.c_str());
+    d_printf("Sending HTTP request %s %s\n",http_host.c_str(), http_url.c_str());
 
-	memset(http_content, 0, sizeof(http_content));
+	http_content = "";
 
 	
 	// Open the socket
@@ -93,9 +77,7 @@ bool http_InitializeRequest(const std::string& host, const std::string& url)
 
 	// Resolve the address
 	// reset the current adr; sometimes needed (hack? bug in hawknl?)
-	// TODO: reset it a more common way (this will result in very bad errors if we change the NetAddr type later)
-	memset(&http_RemoteAddress, 0, sizeof(http_RemoteAddress));
-	SetNetAddrValid(&http_RemoteAddress, false);
+	ResetNetAddr(&http_RemoteAddress);
     http_ResolveTime = (float)SDL_GetTicks() * 0.001f;
 	if(!GetNetAddrFromNameAsync( http_host, &http_RemoteAddress )) {
 		printf("ERROR: cannot start resolving DNS: ");
@@ -117,6 +99,7 @@ bool http_InitializeRequest(const std::string& host, const std::string& url)
 // -1 : failed
 // 0  : still processing
 // 1  : complete
+// HINT: it doesn't do http_Quit now
 int http_ProcessRequest(std::string* szError)
 {
     if(szError)
@@ -126,11 +109,10 @@ int http_ProcessRequest(std::string* szError)
 	if(!IsNetAddrValid(&http_RemoteAddress)) {
         float f = (float)SDL_GetTicks() * 0.001f;
         // Timed out?
-        if(f - http_ResolveTime > 10 /*HTTP_TIMEOUT*/) {
+        if(f - http_ResolveTime > DNS_TIMEOUT) {
             if(szError) {
-                *szError = "Could not resolve the address: ";
+                *szError = "DNS-timeout, could not resolve the address: ";
             }
-		    http_Quit();
 		    return -1;
         }
         // still waiting for dns resolution
@@ -154,7 +136,6 @@ int http_ProcessRequest(std::string* szError)
 		if( !http_SendRequest() ) {
             if(szError)
                 *szError = "Could not send the request";
-			http_Quit();
 			return -1;
 		}
 	}
@@ -174,7 +155,6 @@ int http_ProcessRequest(std::string* szError)
 			if(!ConnectSocket( http_Socket, &http_RemoteAddress )) {
                 if(szError)
                     *szError = "Could not connect to the server";
-				http_Quit();
 				return -1;
 			}
 
@@ -206,7 +186,6 @@ int http_ProcessRequest(std::string* szError)
 		if( IsMessageEndSocketErrorNr(err) ) {
 			// End of connection
 			// Complete!
-			http_Quit();
 			return 1;
 		} else {
 			// Error
@@ -215,17 +194,13 @@ int http_ProcessRequest(std::string* szError)
 				*szError += GetSocketErrorStr(err);
 				*szError += "\"";
 			}
-			http_Quit();
 			return -1;
 		}
 	}
 
 	// Got some data
 	if(count > 0) {
-		if( fix_strnlen(http_content) + count < 1020 ) {
-			data[count] = '\0';
-			fix_strncat( http_content, data );
-		}
+		http_content.append(data, count);
 	}
 
 	// Still processing
@@ -237,12 +212,12 @@ int http_ProcessRequest(std::string* szError)
 // Send a request
 bool http_SendRequest(void)
 {
-	// TODO: use std::string
-	static char request[1024];
+	static std::string request;
 
 	// Build the url
-	snprintf(request, sizeof(request), "GET %s HTTP/1.0\nHost: %s\n\n", http_url.c_str(),http_host.c_str());
-	int count = WriteSocket( http_Socket, request, fix_strnlen(request) );
+	request = "GET " + http_url + " HTTP/1.0\n";
+	request += "Host: " + http_host + "\n\n";
+	int count = WriteSocket( http_Socket, request );
 
 	// Anything written?
 	if( count < 0 )
@@ -262,7 +237,7 @@ void http_Quit(void)
 	}
 
 	http_RemoveHeader();
-	http_content[1000] = 0;
+	http_content = "";
 }
 
 
@@ -306,9 +281,9 @@ void http_CreateHostUrl(const std::string& host, const std::string& url)
 
     // All characters up to a / goes into the host
 	size_t i;
-    size_t len = host.size();
-    for( i=0; i<len; i++ ) {
-        if( host[i] == '/' ) {
+    std::string::const_iterator it = host.begin();
+    for( i=0; it != host.end(); i++, it++ ) {
+        if( *it == '/' ) {
 			http_host = host.substr(0,i);
 			http_url = host.substr(i);
             break;
@@ -323,20 +298,17 @@ void http_CreateHostUrl(const std::string& host, const std::string& url)
 // Remove the http header from content downloaded
 void http_RemoveHeader(void)
 {
-	short	lffound = 0;
-	short	crfound = 0;
-	static char	temp[1024];
+	ushort	lffound = 0;
+	ushort	crfound = 0;
 
-	memcpy(temp, http_content, 1024);
+    size_t i=1;
+    std::string::const_iterator it = http_content.begin();
+	for(; it != http_content.end(); i++, it++) {
 
-    size_t i;
-	size_t count = fix_strnlen(temp);
-	for(i=0; i< count; i++) {
-
-		if( temp[i] == 0x0D )
+		if( *it == 0x0D )
 			crfound++;
 		else {
-			if( temp[i] == 0x0A )
+			if( *it == 0x0A )
 				lffound++;
 			else
 				crfound = lffound = 0;
@@ -344,7 +316,7 @@ void http_RemoveHeader(void)
 
 		// End of the header
 		if(lffound == 2) {
-			fix_strncpy(http_content, &temp[i+1]);
+			http_content.erase(0, i);
 			break;
 		}
 	}
@@ -353,9 +325,8 @@ void http_RemoveHeader(void)
 
 ///////////////////
 // Get the content buffer
-char *http_GetContent(void)
+const std::string& http_GetContent(void)
 {
-	http_content[sizeof(http_content)-1] = '\0';
 	return http_content;
 }
 
@@ -429,6 +400,10 @@ int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 	return nlWrite(sock.socket, buffer, nbytes);
 }
 
+int	WriteSocket(NetworkSocket sock, const std::string& buffer) {
+	return WriteSocket(sock, buffer.c_str(), buffer.size());
+}
+
 int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 	return nlRead(sock.socket, buffer, nbytes);
 }
@@ -485,6 +460,13 @@ bool SetNetAddrValid(NetworkAddr* addr, bool valid) {
 	if(!addr) return false;
 	addr->adr.valid = valid ? NL_TRUE : NL_FALSE;
 	return true;
+}
+
+void ResetNetAddr(NetworkAddr* addr) {
+	if(!addr) return;
+	// TODO: is this the best way?
+	memset(addr, 0, sizeof(NetworkAddr));
+	SetNetAddrValid(addr, false);
 }
 
 bool StringToNetAddr(const std::string& string, NetworkAddr* addr) {
