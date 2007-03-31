@@ -1345,7 +1345,8 @@ void GameServer::Shutdown(void)
 	}
 
 	if(cMap) {
-		bool bCreated = cMap->getCreated();
+		bool bCreated = cMap->getCreated() != 0;  // TODO: dirty and not needed anymore, remove
+												  // this everywhere in the code
 		cMap->Shutdown();
 		if(bCreated)
 			delete cMap;

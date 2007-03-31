@@ -175,10 +175,11 @@ void Menu_LocalFrame(void)
 
 		// Fill in the levels list
 		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
-		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), false);
+		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), true);
 
 		// Reload the minimap
-		Menu_LocalShowMinimap(true);
+		if (tLXOptions->tGameinfo.sMapName != "_random_")
+			Menu_LocalShowMinimap(true);
 	}
 
 

@@ -18,8 +18,10 @@
 #include "LieroX.h"
 #include "GfxPrimitives.h"
 
+// TODO: check that this is working like the original lierox
 
-entity_t *tEntities = NULL;
+
+std::list<entity_t> tEntities;
 
 Uint32 doomsday[4];
 
@@ -27,13 +29,8 @@ Uint32 doomsday[4];
 // Initialzie the entity system
 int InitializeEntities(void)
 {
-	tEntities = new entity_t[MAX_ENTITIES];
-	if(tEntities == NULL)
-		return false;
-
-	// Set all the entities to false
-	for(int i=0;i<MAX_ENTITIES;i++)
-		tEntities[i].iUsed = false;
+	// Clear
+	tEntities.clear();
 
     // Pre-calculate the doomsday colour
     doomsday[0] = MakeColour(244,244,112);
@@ -49,10 +46,7 @@ int InitializeEntities(void)
 // Shutdown the entity system
 void ShutdownEntities(void)
 {
-	if(tEntities) {
-		delete[] tEntities;
-		tEntities = NULL;
-	}
+	tEntities.clear();
 }
 
 
@@ -60,9 +54,7 @@ void ShutdownEntities(void)
 // Clear all the entities
 void ClearEntities(void)
 {
-	// Set all the entities to false
-	for(int i=0;i<MAX_ENTITIES;i++)
-		tEntities[i].iUsed = false;
+	tEntities.clear();
 }
 
 
@@ -70,8 +62,6 @@ void ClearEntities(void)
 // Spawn an entity
 void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Surface *img)
 {
-	entity_t *ent = tEntities;
-
 	// If this is a particle type entity, and particles are switched off, just leave
 	if(!tLXOptions->iParticles) {
 		if(type == ENT_PARTICLE ||
@@ -79,41 +69,38 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 			return;
 	}
 	
-	// Find a free entity
-	short e;
-	for(e=0;e<MAX_ENTITIES;e++,ent++) {
-		if(!ent->iUsed)
-			break;
-	}
-
 	// No free entities
-	if(e==MAX_ENTITIES-1)
+	if(tEntities.size()==MAX_ENTITIES)
 		return;
 
-	ent->iUsed = true;
-	ent->iType = type;
-	ent->iType2 = type2;
-	ent->vPos = pos;
-	ent->vVel = vel;
-	ent->iColour = colour;
-	ent->bmpSurf = img;
+	entity_t NewEntity;
 
-	ent->fExtra = 0;
-	ent->fFrame = 0;
-	ent->fLife = 0;
-	ent->iAngle = 0;	
+	// Initialize
+	NewEntity.iType = type;
+	NewEntity.iType2 = type2;
+	NewEntity.vPos = pos;
+	NewEntity.vVel = vel;
+	NewEntity.iColour = colour;
+	NewEntity.bmpSurf = img;
 
-	switch(ent->iType) {
+	NewEntity.fExtra = 0;
+	NewEntity.fFrame = 0;
+	NewEntity.fLife = 0;
+	NewEntity.iAngle = 0;	
+
+	switch(NewEntity.iType) {
 	case ENT_EXPLOSION:
-		ent->fFrame = (float)(15-type2);
+		NewEntity.fFrame = (float)(15-type2);
 		break;
 	case ENT_GIB:
-		ent->fAnglVel = (float)fabs(GetRandomNum())*20;
-		ent->iRotation = (int)(fabs(GetRandomNum())*3);
+		NewEntity.fAnglVel = (float)fabs(GetRandomNum())*20;
+		NewEntity.iRotation = (int)(fabs(GetRandomNum())*3);
 		break;
 	case ENT_JETPACKSPRAY:
-		ent->fLife = 3;
+		NewEntity.fLife = 3;
 	}
+
+	tEntities.push_back(NewEntity);
 	
 }
 
@@ -122,7 +109,7 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 // Draw the entities
 void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 {
-	entity_t *ent = tEntities;
+	std::list<entity_t>::const_iterator ent;
 	CVec end;
 
 	int wx = v->GetWorldX();
@@ -134,104 +121,98 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 	int x,y;
 	int x2,y2;
 		
-	for(short e=0;e<MAX_ENTITIES;e++,ent++) {
-		if(ent->iUsed)  {
+	for(ent=tEntities.begin();ent!=tEntities.end();ent++) {
 
-			x=((int)ent->vPos.x-wx)*2+l;
-			y=((int)ent->vPos.y-wy)*2+t;
+		x=((int)ent->vPos.x-wx)*2+l;
+		y=((int)ent->vPos.y-wy)*2+t;
 
-			// Clipping
-			if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
-				if(x<l || x>l+v->GetVirtW())
-					continue;
-				if(y<t || y>t+v->GetVirtH())
-					continue;
-			}
+		// Clipping
+		if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
+			if(x<l || x>l+v->GetVirtW())
+				continue;
+			if(y<t || y>t+v->GetVirtH())
+				continue;
+		}
 
-			switch(ent->iType) {
+		switch(ent->iType) {
 
-				// Particle & Blood
-				case ENT_PARTICLE:
-				case ENT_BLOOD:				// Fallthrough
-				case ENT_BLOODDROPPER:		// Fallthrough
-					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,ent->iColour);
-					break;
+			// Particle & Blood
+			case ENT_PARTICLE:
+			case ENT_BLOOD:				// Fallthrough
+			case ENT_BLOODDROPPER:		// Fallthrough
+				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,ent->iColour);
+				break;
 
-				// Explosion
-				case ENT_EXPLOSION:
-					DrawImageAdv(bmpDest,gfxGame.bmpExplosion,(int)ent->fFrame*32,0,x-16,y-16,32,32);
-					break;
+			// Explosion
+			case ENT_EXPLOSION:
+				DrawImageAdv(bmpDest,gfxGame.bmpExplosion,(int)ent->fFrame*32,0,x-16,y-16,32,32);
+				break;
 
-				// Smoke
-				case ENT_SMOKE:
-					DrawImageAdv(bmpDest, gfxGame.bmpSmoke, (int)ent->fFrame*14,0,x-7,y-7,14,14);
-					break;
+			// Smoke
+			case ENT_SMOKE:
+				DrawImageAdv(bmpDest, gfxGame.bmpSmoke, (int)ent->fFrame*14,0,x-7,y-7,14,14);
+				break;
 
-				// Chemical smoke
-				case ENT_CHEMSMOKE:
-					DrawImageAdv(bmpDest, gfxGame.bmpChemSmoke, (int)ent->fFrame*10,0,x-5,y-5,10,10);
-					break;
+			// Chemical smoke
+			case ENT_CHEMSMOKE:
+				DrawImageAdv(bmpDest, gfxGame.bmpChemSmoke, (int)ent->fFrame*10,0,x-5,y-5,10,10);
+				break;
 
-				// Spawn
-				case ENT_SPAWN:
-					DrawImageAdv(bmpDest, gfxGame.bmpSpawn, (int)ent->fFrame*32,0,x-16,y-16,32,32);
-					break;
+			// Spawn
+			case ENT_SPAWN:
+				DrawImageAdv(bmpDest, gfxGame.bmpSpawn, (int)ent->fFrame*32,0,x-16,y-16,32,32);
+				break;
 
-				// Giblet
-				case ENT_GIB:
-					DrawImageAdv(bmpDest,ent->bmpSurf,(int)ent->iRotation*8,0,x-2,y-2,8,8);
-					break;
+			// Giblet
+			case ENT_GIB:
+				DrawImageAdv(bmpDest,ent->bmpSurf,(int)ent->iRotation*8,0,x-2,y-2,8,8);
+				break;
 
-				// Sparkle
-				case ENT_SPARKLE:
-					DrawImageAdv(bmpDest, gfxGame.bmpSparkle, (int)ent->fFrame*10,0, x-5,y-5,10,10);
-					break;
+			// Sparkle
+			case ENT_SPARKLE:
+				DrawImageAdv(bmpDest, gfxGame.bmpSparkle, (int)ent->fFrame*10,0, x-5,y-5,10,10);
+				break;
 
-				// Doomsday
-				case ENT_DOOMSDAY:
-					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,doomsday[(int)ent->fFrame]);
-					break;
+			// Doomsday
+			case ENT_DOOMSDAY:
+				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,doomsday[(int)ent->fFrame]);
+				break;
 
-				// Jetpack spray
-				case ENT_JETPACKSPRAY:
-					Uint8 r,g,b;
-					r = (Uint8)(0.314f * (255-ent->fFrame));
-					g = (Uint8)(0.588f * (255-ent->fFrame));
-					b = (Uint8)(0.784f * (255-ent->fFrame));
-					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,MakeColour(r,g,b));
-					break;
+			// Jetpack spray
+			case ENT_JETPACKSPRAY:
+				Uint8 r,g,b;
+				r = (Uint8)(0.314f * (255-ent->fFrame));
+				g = (Uint8)(0.588f * (255-ent->fFrame));
+				b = (Uint8)(0.784f * (255-ent->fFrame));
+				DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,MakeColour(r,g,b));
+				break;
 
-				// Beam
-				case ENT_BEAM:
-					end = ent->vPos + ent->vVel*(float)ent->iType2;
-					x2=((int)end.x-wx)*2+l;
-					y2=((int)end.y-wy)*2+t;
-					DrawBeam(bmpDest, x,y, x2,y2, ent->iColour);
-					break;
+			// Beam
+			case ENT_BEAM:
+				end = ent->vPos + ent->vVel*(float)ent->iType2;
+				x2=((int)end.x-wx)*2+l;
+				y2=((int)end.y-wy)*2+t;
+				DrawBeam(bmpDest, x,y, x2,y2, ent->iColour);
+				break;
 
-				// Laser Sight
-				case ENT_LASERSIGHT:
-					end = ent->vPos + ent->vVel*(float)ent->iType2;
-					x2=((int)end.x-wx)*2+l;
-					y2=((int)end.y-wy)*2+t;
-					DrawLaserSight(bmpDest, x,y, x2,y2, ent->iColour);
-					break;
-			}
+			// Laser Sight
+			case ENT_LASERSIGHT:
+				end = ent->vPos + ent->vVel*(float)ent->iType2;
+				x2=((int)end.x-wx)*2+l;
+				y2=((int)end.y-wy)*2+t;
+				DrawLaserSight(bmpDest, x,y, x2,y2, ent->iColour);
+				break;
 		}
 	}
 }
-
 
 ///////////////////
 // Simulate the entities
 void SimulateEntities(float dt, CMap *map)
 {
-	entity_t *ent = tEntities;
+	std::list<entity_t>::iterator ent,tmp_it;
 
-	for(short e=0;e<MAX_ENTITIES;e++,ent++) {
-		if(!ent->iUsed)
-			continue;
-
+	for(ent=tEntities.begin();ent!=tEntities.end();) {
 		
 		// Collisions and stuff
 		switch(ent->iType) {
@@ -249,57 +230,44 @@ void SimulateEntities(float dt, CMap *map)
 				ent->vVel.y += 100*dt;//vGravity;
 				ent->vPos += ent->vVel * dt;
 	
-			
-
-				// Clipping
-				if(ent->vPos.x < 0 || ent->vPos.y < 0 ||
-					(int)ent->vPos.x >= (int)map->GetWidth() || (int)ent->vPos.y >= (int)map->GetHeight()) {
-					ent->iUsed = false;
-					continue;
-				}
-
 				// Check if the particle has hit the map
-				uchar pf = map->GetPixelFlag((uint)ent->vPos.x,(uint)ent->vPos.y);
+				uchar pf = map->GetPixelFlag((int)ent->vPos.x,(int)ent->vPos.y);
 
-				if((pf & PX_ROCK || pf & PX_DIRT)) {
-					ent->iUsed = false;
-
+				if(!(pf & PX_EMPTY)) {
 					switch(ent->iType) {
 
 						// Blood
 						case ENT_BLOOD:
-							PutPixel(map->GetImage(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
+							map->PutImagePixel((int)ent->vPos.x, (int)ent->vPos.y, ent->iColour);
+							map->UpdateMiniMapRect((int)ent->vPos.x-1,(int)ent->vPos.y-1,3,3);
 
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2, (int)ent->vPos.y*2,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2+1, (int)ent->vPos.y*2,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2, (int)ent->vPos.y*2+1,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2+1, (int)ent->vPos.y*2+1,ent->iColour);
 							break;
 
 						// Giblet
 						case ENT_GIB:
 							if(ent->vVel.GetLength2() > 25600)
-								EntityBounce(ent);
+								EntityBounce(&(*ent));
 							else {
 								// Add the gib to the map
 								int x = (int)ent->vPos.x-1;
 								int y = (int)ent->vPos.y-1;
 
-								// Clipping
-								if(x < 0)
-									x = 0;
-								if(x+4 > (int)map->GetWidth())
-									x = (int)map->GetWidth()-4;
-								if(y < 0)
-									y = 0;
-								if(y+4 > (int)map->GetHeight())
-									y = (int)map->GetHeight()-4;
-
 								DrawImageAdv(map->GetImage(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
 								DrawImageStretch2(map->GetDrawImage(),map->GetImage(),x,y,x*2,y*2,4,4);
+
+								map->UpdateMiniMapRect(x,y,ent->bmpSurf->w,ent->bmpSurf->h);
+
 							}
 							break;
 					}
+
+
+					// Remove
+					tmp_it = ent; tmp_it++;
+					tEntities.erase(ent);
+					ent = tmp_it;
+					continue;
+
 				}
 				break;
 		}
@@ -310,9 +278,12 @@ void SimulateEntities(float dt, CMap *map)
 
 			// Explosion
 			case ENT_EXPLOSION:
-				ent->fFrame += dt*40;
-				if(ent->fFrame > 15)
-					ent->iUsed = false;
+				ent->fFrame += dt*40;				
+				if(ent->fFrame > 15)  {
+					tmp_it = ent; tmp_it++;
+					tEntities.erase(ent);
+					ent = tmp_it;
+				} else ent++;
 				break;
 
 			// Smoke
@@ -320,44 +291,62 @@ void SimulateEntities(float dt, CMap *map)
 				// Fallthrough
 			case ENT_CHEMSMOKE:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 4)
-					ent->iUsed = false;
+				if((int)ent->fFrame > 4)  {
+					tmp_it = ent; tmp_it++;
+					tEntities.erase(ent);
+					ent = tmp_it;
+				} else ent++;
 				break;
 
 			// Doomsday
 			case ENT_DOOMSDAY:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 3)
-					ent->iUsed = false;
+				if((int)ent->fFrame > 3)  {
+					tmp_it = ent; tmp_it++;
+					tEntities.erase(ent);
+					ent = tmp_it;
+				} else ent++;
 				break;
 
 			// Spawn
 			case ENT_SPAWN:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 5)
-					ent->iUsed = false;
+				if((int)ent->fFrame > 5)  {
+					tmp_it = ent; tmp_it++;
+					tEntities.erase(ent);
+					ent = tmp_it;
+				} else ent++;
 				break;
 
 			// Sparkle
 			case ENT_SPARKLE:
 				ent->vPos = ent->vPos + CVec(0,5.0f*dt);
 				ent->fFrame += dt*5;
-				if((int)ent->fFrame > 2)
-					ent->iUsed = false;
+				if((int)ent->fFrame > 2)  {
+					tmp_it = ent; tmp_it++;
+					tEntities.erase(ent);
+					ent = tmp_it;
+				} else ent++;
 				break;
 
 			// Jetpack Spray
 			case ENT_JETPACKSPRAY:
 				ent->fFrame += dt*200;
-				if((int)ent->fFrame > 150)
-					ent->iUsed = false;
+				if((int)ent->fFrame > 150)  {
+					tmp_it = ent; tmp_it++;
+					tEntities.erase(ent);
+					ent = tmp_it;
+				} else ent++;
 				break;
 
 			// Beam & Laser Sight
 			case ENT_BEAM:
 			case ENT_LASERSIGHT:
-				if((int)ent->fFrame == 1)
-					ent->iUsed = false;
+				if((int)ent->fFrame == 1)  {
+					tmp_it = ent; tmp_it++;
+					tEntities.erase(ent);
+					ent = tmp_it;
+				} else ent++;
 				ent->fFrame++;
 				break;
 
@@ -370,11 +359,13 @@ void SimulateEntities(float dt, CMap *map)
 					ent->fExtra = 0;
 				}
 				ent->fExtra += dt;
+				ent++;
 				break;
+
+			default: ent++;
 		}
 	}
 }
-
 
 ///////////////////
 // Bounce an entity
@@ -382,7 +373,4 @@ void EntityBounce(entity_t *ent)
 {
 	ent->vVel = ent->vVel * CVec(-0.4f, -0.4f);
 	ent->fAnglVel *= 0.8f;
-	
-	// Still alive
-	ent->iUsed = true;
 }

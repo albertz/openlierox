@@ -32,7 +32,10 @@ typedef unsigned char	uint24[3];
 // WIN32 defines this in windows.h
 typedef long DWORD;
 typedef uchar byte;
+#else  // WIN32
+typedef unsigned short ushort;
 #endif
+
 
 
 #endif  // __TYPES_H__
