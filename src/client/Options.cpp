@@ -256,9 +256,9 @@ void GameOptions::SaveToDisc()
     	fprintf(fp, "SearchPath%i = %s\n", i, p->c_str());
 	fprintf(fp,"\n");
 
-	size_t j = 0;
+	uint j = 0;
 	for(;j<sPlayerControls.size();j++) {
-		fprintf(fp, "[Ply%liControls]\n", j+1);
+		fprintf(fp, "[Ply%iControls]\n", j+1);
 		for(i=0; i<8; i++)
         	fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), sPlayerControls[j][i].c_str());
 	    fprintf(fp, "\n");

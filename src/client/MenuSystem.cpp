@@ -333,12 +333,12 @@ void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
 
 ///////////////////
 // Get the level name from specified file
+// TODO: move this to CGameScript
 std::string Menu_GetLevelName(const std::string& filename)
 {
 	static char	id[32], name[128];
 	int		version;
 	static std::string	Path;
-	static std::string  Result;
 
 	Path = "levels/"+filename;
 
@@ -353,9 +353,8 @@ std::string Menu_GetLevelName(const std::string& filename)
 			fix_markend(id); fix_markend(name);
 
 			if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
-				Result = name;
 				fclose(fp);
-				return Result;
+				return name;
 			}
 			fclose(fp);
 		}
@@ -374,14 +373,15 @@ std::string Menu_GetLevelName(const std::string& filename)
 			// 176402 is worm hole maps (same, but 2 bytes bigger)
 			// 177178 is a powerlevel
 			if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-				Result = findLastPathSep(Path);
 				fclose(fp);
-				return Result;
+				return filename;
 			}
 			fclose(fp);
 		} // if(fp)
 	}
-  return filename;
+	
+	// no level
+	return "";
 }
 
 ////////////////
