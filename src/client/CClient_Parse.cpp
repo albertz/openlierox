@@ -457,6 +457,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	iGameReady = true;
 
 	// TODO: make this working
+	// problem is: Menu_Net_*GetText reads the textbox of the lobby,
+	//	which already doesn't exist anymore here
 	/*char *chattext = NULL;
 	switch (tGameInfo.iGameType)  {
 	case GME_HOST:
@@ -610,7 +612,6 @@ void CClient::ParseWormInfo(CBytestream *bs)
 
 	// Load the worm graphics
 	if(!cRemoteWorms[id].LoadGraphics(iGameType)) {
-		// TODO: Some sort of error
         printf("CClient::ParseWormInfo(): LoadGraphics() failed\n");
 	}
 
@@ -708,12 +709,16 @@ void CClient::ParseText(CBytestream *bs)
 ///////////////////
 // Parse a score update packet
 void CClient::ParseScoreUpdate(CBytestream *bs)
-{
-	int id = bs->readInt(1);
+{	
+	short id = bs->readInt(1);
 
 	if(id >= 0 && id < MAX_WORMS)
 		cRemoteWorms[id].readScore(bs);
-
+	else
+		// do this to get the right position in net stream
+		// WARNING: this has to be changed, if we change writeScore later
+		bs->readInt(3);
+	
 	UpdateScoreboard();
 }
 

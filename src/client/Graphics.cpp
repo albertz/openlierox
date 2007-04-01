@@ -45,7 +45,7 @@ int LoadGraphics(void)
 	tLX->clPopupMenu = tLX->clWhite;
 	tLX->clWaiting = tLX->clWhite;
 	tLX->clReady = MakeColour(0,255,0);
-	tLX->clPlayerName = 0xffff; // TODO: ??
+	tLX->clPlayerName = MakeColour(255,255,255);
 	tLX->clBoxDark = MakeColour(60,60,60);
 	tLX->clBoxLight = MakeColour(130,130,130);
 	tLX->clWinBtnBody = MakeColour(128,128,128);

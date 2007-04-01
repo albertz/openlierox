@@ -70,7 +70,8 @@ void CWorm::writeScore(CBytestream *bs)
 // Read my score
 void CWorm::readScore(CBytestream *bs)
 {
-	// TODO: why is this not the same behavior than writeScore?
+	// NOTE: ID and S2C_SCOREUPDATE is read in CClient::ParseScoreUpdate
+	// TODO: make this better
 	iLives = MAX((int)bs->readShort(),WRM_OUT);
 	iKills = MAX(bs->readInt(1),0);
 }

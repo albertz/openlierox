@@ -24,14 +24,6 @@
 
 console_t	*Console = NULL;
 
-// TODO: is this list realy up-to-date? if not, remove it
-/* TODO:
-[X] Add history
-[X] Console doesn't drop at startup every time
-[ ] Sometimes commands don't get recognised
-[X] Input buffer problem
-*/
-
 
 ///////////////////
 // Initialize the console
@@ -111,7 +103,6 @@ void Con_Hide(void)
 void Con_Process(float dt)
 {
 	keyboard_t *kb = GetKeyboard();
-//	int		History = 0;  // TODO: not used
 	SDL_Event *Ev = GetEvent();
 
 	if(kb->KeyUp[SDLK_BACKQUOTE] || kb->KeyUp[SDLK_F1])

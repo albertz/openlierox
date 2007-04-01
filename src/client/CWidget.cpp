@@ -122,8 +122,7 @@ void CWidget::ProcessEvent(int Event)
 		Code = Code + strlen(SoundPath) + 1;
 		TrimSpaces(SoundPath);
 
-// TODO: implement sound system
-		// BASS_SamplePlay(SoundPath);
+		SoundSamplePlay(SoundPath);
 	}
 
 	else if(!stricmp(Function,"Show"))  {

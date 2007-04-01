@@ -228,9 +228,6 @@ void Menu_SetSkipStart(int s)
 // Main menu loop
 void Menu_Loop(void)
 {
-//	keyboard_t *kb = GetKeyboard();  // TODO: not used
-//	mouse_t *mouse = GetMouse();   // TODO: not used
-
 	tLX->fCurTime = GetMilliSeconds();
 	float oldtime = tLX->fCurTime;
 	float fMaxFrameTime = 1.0f / (float)tLXOptions->nMaxFPS;
@@ -932,64 +929,16 @@ void Menu_AddDefaultWidgets(void)
 			size_t pos = findLastPathSep(filename);
 			std::string f = filename.substr(pos+1);
 
-			// Liero Xtreme level
-			if( stringcasecmp(GetFileExtension(filename), "lxl") == 0) {
-				FILE *fp = OpenGameFile(filename,"rb");
-				if(fp) {
-					static char id[33];
-					int version;
-					static char name[65];
-					fread(id,		sizeof(char),	32,	fp);
-					fread(&version,	sizeof(int),	1,	fp);
-					fread(name,		sizeof(char),	64,	fp);
-					id[32] = '\0';
-					name[64] = '\0';
-
-					if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
-						// Remove the 'levels' bit from the filename
-						if(!cmb->getItem(name)) {
-							cmb->addItem((*index)++, f, name);
-
-							// If this is the same as the old map, select it
-							if( f == tLXOptions->tGameinfo.sMapName )
-								*selected = *index-1;
-						}
-					}
-					fclose(fp);
-				}
+			std::string mapName = Menu_GetLevelName(f);
+			if(mapName != "" && !cmb->getItem(mapName)) {
+				cmb->addItem((*index), f, mapName);
+				
+				if(mapName == tLXOptions->tGameinfo.sMapName)
+					*selected = *index;
+				
+				(*index)++;		
 			}
 
-			// Liero level
-			if( stringcasecmp(GetFileExtension(filename), "lev") == 0) {
-				FILE *fp = OpenGameFile(filename,"rb");
-
-				if(fp) {
-					// Make sure it's the right size to be a liero level
-					fseek(fp,0,SEEK_END);
-					// 176400 is liero maps
-					// 176402 is worm hole maps (same, but 2 bytes bigger)
-					// 177178 is a powerlevel
-					if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-
-						if(!cmb->getItem(f)) {
-							cmb->addItem((*index)++, f, f);
-
-							if( f == tLXOptions->tGameinfo.sMapName )
-								*selected = *index-1;
-						}
-					}
-
-					fclose(fp);
-				}
-			}
-			// TODO: this was a bit wired, that the above stuff was
-			//     commented out and used was the following code.
-			//     this seems to be wrong. but why was it so?
-			/*std::string name = Menu_GetLevelName(filename);
-			if (name == tLXOptions->tGameinfo.sMapName)
-				*selected = *index;
-
-			(*index)++;	*/
 			return true;
 		}
 	};
@@ -1753,8 +1702,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 
 
     // Get the server details
-	// NOTE: must be static else doesn't work
-	// TODO: why? (please add a comment)
+	// NOTE: must be static else doesn't work,
+	// because this fct got called again and again
+	// and we got everytime some new information,
+	// but we still want to show also the old ones
+	// TODO: make this better
     static std::string    szName;
     static int     nMaxWorms;
     static int     nState;

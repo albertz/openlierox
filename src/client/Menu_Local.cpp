@@ -949,7 +949,7 @@ bool Menu_GameSettings_Frame(void)
 	// Set the value of the loading time label
 	int l = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
 	static std::string lstr; lstr = itoa(l)+"%";
-	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0); // TODO: causes memleak (along with similar cases)!!! (is this still up-to-date? if not -> remove it)
+	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0);
 
 	// Draw the mouse
 	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);

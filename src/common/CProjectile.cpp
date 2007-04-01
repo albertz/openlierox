@@ -310,7 +310,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	
 	if(tProjInfo->Type == PRJ_PIXEL)
 		w=h=1;
-	else // TODO: was this 'else' missing here?
+	else
 		w=h=2;
 
 	CVec newvel = vVelocity;

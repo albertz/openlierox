@@ -234,7 +234,6 @@ inline void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y
 }
 
 // Line drawing
-// TODO: why not use this as DrawLine if it's faster?
 inline void FastDrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
 	Uint8 r,g,b;
 	SDL_GetRGB(color, dst->format, &r,&g,&b);

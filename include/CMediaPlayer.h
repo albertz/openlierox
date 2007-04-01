@@ -79,7 +79,19 @@ public:
 };
 
 
-typedef struct player_gfx_s {
+class player_gfx_t { public:
+	player_gfx_t() {
+		Clear();
+	}
+	void Clear() {
+		bmpBackground = bmpHide = bmpWindow = NULL;
+		bmpPlay = bmpPause = bmpStop = NULL;
+		bmpNext = bmpPrevious = bmpSelectDir = NULL,
+		bmpRepeat = bmpShuffle = bmpMusicVolume = NULL;
+		bmpGameVolume = bmpProgress = bmpProgressStart = NULL;
+		bmpProgressEnd = NULL;	
+	}
+	
 	SDL_Surface *bmpBackground;
 	SDL_Surface *bmpHide;
 	SDL_Surface *bmpWindow;
@@ -96,7 +108,7 @@ typedef struct player_gfx_s {
 	SDL_Surface *bmpProgress;
 	SDL_Surface *bmpProgressStart;
 	SDL_Surface *bmpProgressEnd;
-} player_gfx_t;
+};
 
 // Widget ids
 enum {

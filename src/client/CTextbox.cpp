@@ -257,7 +257,6 @@ int CTextbox::KeyDown(int c)
 			static std::string buf;
 			for (std::string::iterator it=sText.begin(); it != sText.end(); it++)  {
 				iScrollPos++;
-				// TODO: was that, was was meant here?
 				if(tLX->cFont.GetWidth(std::string(it, sText.end())) < iWidth)
 					break;
 			}

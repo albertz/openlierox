@@ -275,7 +275,7 @@ void CPlayList::SaveToFile(const std::string& filename, bool absolute_path)
 
 	// Write the file
 	// Each song means one line
-	for (std::vector<std::string>::const_iterator i=tSongList.begin();i != tSongList.end();i++)  { // TODO: iterators
+	for (std::vector<std::string>::const_iterator i=tSongList.begin();i != tSongList.end();i++) {
 		fputs(i->c_str(),fp);
 		fputs("\n",fp);
 	}
@@ -304,8 +304,7 @@ void CMediaPlayer::Clear(void)
 	iLastMouseX = 0;
 	iLastMouseY = 0;
 	
-	// TODO: make player_gfx_t a class and move this into its constructor
-	memset(&tPlayerGfx,0,sizeof(player_gfx_t));
+	tPlayerGfx.Clear();
 }
 
 /////////////////////

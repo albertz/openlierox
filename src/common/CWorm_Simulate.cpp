@@ -264,10 +264,9 @@ void CWorm::clearInput(void)
 // Simulate the worm
 void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 {
-//	int move = false;  // TODO: not used
 	float speed;
 	CVec dir;
-	int jump = false;
+	bool jump = false;
 	gs_worm_t *wd = cGameScript->getWorm();
 
 	float	fFrameRate = 7.5f;
@@ -391,7 +390,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	}
 
 
-	if((int)fFrame>2)
+	if(fFrame>2.0f)
 		fFrame=0;
 	if(!ws->iMove)
 		fFrame=0;

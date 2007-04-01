@@ -419,8 +419,6 @@ int CInput::isDown(void)
 // Returns if the input was pushed down once
 int CInput::isDownOnce(void)
 {
-//	int d = isDown();  // TODO: not used
-
 	if(isDown()) {
 		if(!Down) {
 			Down = true;
