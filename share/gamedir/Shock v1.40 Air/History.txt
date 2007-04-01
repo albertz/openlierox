@@ -1,0 +1,541 @@
+History:
+
+(*) v1.40 Beta 2004-05-02 - 27th Release, 148 weapons, 605 (1246) projectiles, 165 custom gfx, 46 custom sfx, size 738kb.
+
+Added 0 weapons: .
+
+Changed 57 weapons:
+  Acid Gas Grenade: Less trail.
+  Acid Spray: A bit faster ROF.
+  Atomic Bomb: More damage, less random and faster timer.
+  Banana Split: Faster reload, faster timer, more spread, more parts.
+  Bazooka: More direct hit damage.
+  Black Hole: A bit faster reload time.
+  Bottles: Slower reload and ROF, some glas stays shorter.
+  Bouncy Larpa: Slower reload and ROF.
+  Bouncy Mine: More variating and faster timer.
+  Bridge: Much faster reload.
+  Builder: Less projectiles.
+  Burning Stone: A bit faster reload, less bounce.
+  Caltrop: Faster reload, nagative recoil.
+  Cannon: Faster reload.
+  Chain Gun: Faster Bullts, more damage delay.
+  Charger: More recoil, faster reload, less damage.
+  Countermesures: Longer damage delay, and a bit less spread.
+  Dark Matter: A bit faster reload.
+  Dart: Faster reload, faster ROF, more speed variation.
+  Destroyer: Less projectiles.
+  Dirt Ball: Faster reload.
+  Dirt Grenade: A bit faster reload.
+  Dirt Jump: Faster reload.
+  Dirt Mine: Faster and more variating timer.
+  DirtTrap: Slower reload.
+  Dynamite Bundle: A bit faster reload, faster timer.
+  Electro: Slower movements.
+  Escape: Shorter jump, faster reload.
+  Fire Flowers: A bit faster reload.
+  Fireworks: More damage.
+  Fireworks Bundle: More damage.
+  FlameMine: Faster and more variating timer.
+  FlakCannon: Less bounce.
+  ForceField: Faster reload.
+  FriendlyFire: Faster reload time.
+  Gas Grenade: Less trail.
+  Grasshopper: Faster reload, added damage delay.
+  Grenade Jump: Explosion changed compleatly.
+  Magnum: Faster reload time and faster ROF.
+  Minigun: Added damage delay.
+  Molotov Cocktail: Slower reload, a bit less damage, some damage delay, less glas and it stays shorter.
+  Neutron Cannon: Slower reload, more variating range.
+  Neutron Gun: Slower ROF, shorter range.
+  Neutron Spray: Slower ROF, shorter range.
+  Radioactive Stone: More damage, trail fading out, stays longer.
+  Photon Torpedo: Easier to aim while moving.
+  Rotor Mine: More damage on trail, stays shorter time.
+  Smoke Grenade: Less trail.
+  Sparcles: Slower ROF.
+  Spread Gun: Faster reload, shorter range before spread.
+  Super Health: Faster reload time.
+  Throwing PickAxe: A bit slower reload.
+  Thunder Storm: Rain injures, slower reload time.
+  Uzi: Added damage delay.
+
+
+
+(*) v1.35 2004-02-07 - 26th Release, 148 weapons, 580 (1203) projectiles, 164 custom gfx, 44 custom sfx, size 738kb.
+
+Added 2 weapons: Atomic Bomb (unfinished), Throwing Pick Axe (Oddball).
+
+Changed 14 weapons:
+  Friendly Fire: More healing, faster reloead.
+  Ripper: Less damage, slower reload.
+  Neutron Gun: Miss player bug fixed.
+  Invisible Mine Strike: Changed sound.
+  Molotov Cocktail: Removed one explosion.
+  Dynamite/Flame Mine/Splinter Mine: Smother rotation.
+  Blunderbuss: New sound.
+  Laser: Slower reload, slower ROF.
+  Bottles: Slower reload and ROF, less shards, less damage.
+  Neutron Guardian: Stays shorter time, slower ROF.
+  Piercing Bullets: Faster reload and ROF.
+  Slime Gun: New sound.
+
+Casings have bounce sound.
+Gas/Smoke effects have more frames.
+
+
+(*) v1.30 2004-01-13 - 25th Release, 146 weapons, 554 (1154) projectiles, 157 custom gfx, 39 custom sfx, size 577kb.
+
+Added 1 weapons: Nail Gun.
+
+Changed 55+ weapons:
+  Stick Mine: Slower reload.
+  Invisible Trap: Faster reload, less traps.
+  Friendly Fire: More ammo, faster reload.
+  FlameMine: Less damage.
+  Dirt Mine: Less grenades.
+  Piercing Bullets: Now works correct.
+  Neutron Grenade/Neutron Guardian: Added sound, variationg timer.
+  Hellraider: Added sound.
+  Thunder Storm: Slower reload, rain splash effect, less lightnings.
+  Multi Grasshopper: Less damage.
+  Invisible Mine Strike: Renamed from Mine Strike.
+  Neutron Gun/Neutron Spray/Neutron Cannon: Slower reload, less range.
+  Grenade Strike: Changed direct hit, new sound.
+  Rail Grenade/Rail Guardian: Slower reload, added sound.
+  Float Mini Mines: Renamed from Mine Wall.
+  Proton Cannon: Added trail.
+  Zimm Grenade/Zimm Guardian: Added sound and flash effect.
+  Throwing Knife/Throwing Axe: Chance to bounce.
+  RadiactiveStone: Variating timer.
+  ForceField: No dirt damage, faster reload.
+  Countermessures: Longer damage delay.
+  Caltrops: More ammo, slower reload, easier to hit.
+  Builder/Destroyer: Slower reload, less projectiles.
+  Explosives: Smother rotation.
+  Larpa/Bouncy Larpa: Less trail.
+  Acid Gas Grenade: Renamed from Acid Gas, Slower reload, more variating timers.
+  Gas Grenade/Smoke Grenade: Slower reload, more variating timers.
+  Blunderbuss: No reload sound.
+  Doomsday/Bazooka: Added added playerhit sound.
+  Mini Nuke: Added rotation.
+  ArmourPiercing: Added laser sight.
+  Grenade Jump: Changed grenade.
+  Grenade: Added shake.
+  Black Hole: Inverted animation.
+  Splinter Mine/Greenball/GroundHog: Added sound.
+  Spike Bomb: More frames, new sounds, variating timer, explosion shards.
+  Super Health: More frames.
+  DrillBeam: Less damage, faster ROF, more ammo.
+  Ripper: A bit slower reload, a bit less damage.
+  Dart: More directions.
+  BananaSplit: Smother rotation, faster reload, more splits.
+  Acid Container: Use sound and better hit spread.
+  Bottles: More types of fragments, new sound.
+
+Updated to LieroX v0.56, so no explosions where it's not needed.
+Big Explosions improved and dissapering projectiles fades out.
+Added damage delay on those that still needs it.
+
+
+(*) v1.25 2003-12-21 - 24th Release, 145 weapons, 462 projectiles, 151 custom gfx, 36 custom sfx, size 540kb.
+
+Added 0 weapons: .
+
+Changed 3 weapons:
+  Green Shield: Added ammo on clip.
+  Friendly Fire: Less gravity.
+  Spliter Mine: Now functions again.
+
+
+(*) v1.20 2003-12-09 - 23th Release, 145 weapons, 462 projectiles, 151 custom gfx, 36 custom sfx, size 540kb.
+
+Added 2 weapons: Invicible Trap, Stick Mine.
+
+Changed 23 weapons:
+  Napalm: Now have sound.
+  Gas Strike/Grenade Strike/Napalm Strike/Mine Strike: More directions on graphics, random trail delay.
+  ThrowingAxe/ThrowingKnife: Damage delay, more directions on graphics.
+  Shurikens: Damage delay, stick on walls.
+  Molotov Cocktail: More variating timer.
+  Bouncy Plasma/Bouncy Anti Plasma: Slower reload, more bullets in clip.
+  Dirt Prison: A bit longer reload time, less timer on mines.
+  Spikeballs: Slower reload, variating timer.
+  Friendly Fire: More ammo.
+  Blunderbuss: A bit more damage, more aim spread, more variating timer.
+  Sparcles: Damage delay, more aim spread, and a bit longer reload.
+  Bottles: A bit slower reload.
+  Mini Nuke: Less damage.
+  Charger: More spread and slower reload.
+  Gatling Gun: More spread.
+  Gauss Gun: Better hit detection.
+  Thunder Storm: Much slower reload time.
+
+
+(*) v1.15 2003-11-27 - 22th Release, 143 weapons, 449 projectiles, 151 custom gfx, 36 custom sfx, size 536kb.
+
+Added 2 weapons: Bottles, ThunderStorm (ideas from Oddball).
+
+Changed 31+ weapons:
+  Mine Strike: Faster reload.
+  Shurikens/Throwing Knife/Nanobots/Steroids/Burning Stone/Dynamite: New sound.
+  Explosive: Do not explode when hitting players.
+  Float Mine/Mine Wall: Shorter but more variating timer.
+  Anti Nuke: More like Big Nuke.
+  Banana Split: More bounce.
+  Mini Nuke: A bit less and more variating exposion delay.
+  Proton Cannon: Less self damage.
+  Neutron Spray/Neutron Gun/Neutron Cannon: Less damage.
+  Dirt Prison: Moves slower and the mine ring gets bigger.
+  Photon Torpedo: New sound, mode trail damage, more random explosion speed.
+  Slime Gun: Added delay on trigger and a bit faster reload.
+  Rotor Mine: Added spread, speed and time variation.
+  Dart: Added some blow away.
+  Charge Beam: A bit slower, shorter, and less damaging beam, but with more hit radious.
+  Bouncy Mine/Booby Trap Health/Booby Trap Weapon: Added delay on trigger, stays shorter time.
+  Molotov Cocktail: Added delay on trigger, more spread on the throw, and smoke trail, and more rotating directions.
+  Spike Balls: Added delay on trigger.
+  Gatling Gun: More spread.
+  Charger: Compleatly redone, including new sound.
+  Magnum: Much more recoil, and more fragments.
+
+More ground friction.
+Optimized a few sound effects.
+Most timed explosions that should have sound now have it.
+
+
+(*) v1.10 2003-11-23 - 21th Release, 141 weapons, 396 projectiles, 145 custom gfx, 28 custom sfx, size 488kb.
+
+Added 3 weapons: Friendly Fire, Ground Hog (ideas from Oddball), Magnum.
+
+Changed 18 weapons:
+  Sparcles: Slower ROF and reload.
+  Hunting Rifle: Slower ROF.
+  Gatling Gun: More directions, new sound, more ammo, more recoil.
+  Electro/Nova: A bit more time before doing damage.
+  Flack Cannon: Faster Reload.
+  Splinter Mine: Changed name from Splint Mine.
+  Zimm Grenade/Zimm Guardian: Zimms now stays shoter time and does less damage.
+  Zimm: Now shows the flash correctly, damage delay.
+  Acid Container: Dosen't get stuck in rock, less fragments.
+  Napalm Strike: Less direct damage.
+  Fire Wall: More bounce.
+  Multigrasshopper: Slower reload.
+  Grasshopper/Banana Split: Faster reload.
+  Lightning: Slower reload, slower ROF, more spread, and more variating speed.
+  Flame Thrower: Less damage.
+
+
+
+(*) v1.05 2003-11-13 - 20th Release, 138 weapons, 381 projectiles, 141 custom gfx, 26 custom sfx, size 469kb.
+
+Added 3 weapons: Banana Split (ideas from Oddball), Fire Wall (ideas from Oddball), Flame Thrower.
+
+Changed 7 weapons:
+  Proton Cannon: Takes some minor self damage.
+  Lightning: New sound (from Oddball).
+  Mine: More variation on the timer (often faster).
+  Flamer: Faster in the beginning and slows down (to prevent some selfdamage).
+  Dirt Prison: A bit bigger circle of mines.
+  Electro: Less projectiles, animation gets smaller and smaller, can't be directed anymore (always 360°).
+  Grenade Strike: Less grenades, slower reload and less hit damage.
+  Napalm Strike: Slower Reload.
+
+Optimized file size on some sounds.
+
+
+
+(*) v1.00 2003-11-02 - 19th Release, 135 weapons, 370 projectiles, 139 custom gfx, 25 custom sfx, size 544kb.
+
+Added 1 weapons: Dirt Prison.
+
+Changed 4+ weapons:
+  All classic weapons made more like the orginal game (same as Liero v1.0 mod but with more viual effects).
+  Rest of all weapons changed to ballance better with the classic weapons (often slower reload).
+  Blunderbuss: Less effective at very close range, and more in medium range.
+  Flack Cannon: Weaker and only one shot but much faster reload.
+  Ripper: Limited bounces, one shot per reload, and splits into smaller fragments.
+  Dynamite Bundle: Faster timer, new graphics.
+  Fireworks: New sound effect.
+
+A bit slower player movement, and a bit less jump height.
+Now made for LieroX v0.55.
+
+
+
+(*) v0.92 2003-09-2? - 18th Release, 134 weapons, 353 (754) projectiles, 138 custom gfx, 23 custom sfx, size 525kb.
+
+Added 3 weapons: Anti Nuke, Radioactive Stone, Spread Gun.
+
+Changed 4 weapons:
+  Nova: Faster reload.
+  Nanobots: A bit slower.
+  Flack Cannon: Less damage, slower bullets.
+  Invincible Mines: Flashes more frequently, slower ROF, less damage.
+
+
+(*) v0.90 2003-09-06 - 17th Release, 131 weapons, 332 projectiles, 134 custom gfx, 22 custom sfx, size 404kb.
+
+Added 7 weapons: Dirt Jump, Health Chance, Mine Strike, Photon Torpedo, Slime Gun, Sparcles, Zimm Grenade, Zimm Guardian.
+
+Changed 8 weapons:
+  Cracker Bundle: Remade so it moves around a bit when it's exploding.
+  Crackers: Less bounce, new bits that flys out from the explosion.
+  Proton Cannon: More recoil.
+  Throwing Knife/Throwing Axe: A bit less damage and a bit slower reload.
+  Armour Piercing: A bit faster reload.
+  Acid Spray: Faster min speed.
+  Gas Curtain: More shots and faster reload.
+
+
+(*) v0.85 2003-08-27 - 16th Release, 123 weapons, 312 projectiles, 126 custom gfx, 20 custom sfx, size 374kb.
+
+Added 7 weapons: Gas Strike, Lightning Guardian, Neutron Guardian, Ray Grenade, Ray Guardian, Rail Grenade, Rail Guardian.
+
+Changed 12 weapons:
+  Drill Beam: More damage.
+  Cracker/Cracker Bundle: Faster reload, throws longer.
+  Flack Cannon: Slower reload.
+  Nova: Faster recharge and 3 insetad of 2 charges per clip.
+  Minwall: Less damage, new graphics, more mines.
+  Rail Gun: Added trail that do a bit damage.
+  Proton Cannon: Less damage.
+  Black Hole/Solar: Now bounce on walls to make it less predictable.
+  Acid Spray: More randomly speed, more acid per charge.
+  Molotov: Now have glass shreds, less fire damage.
+
+
+(*) v0.80 2003-08-03 - 15th Release, 112 weapons, 279 projectiles, 116 custom gfx, 20 custom sfx, size 367kb.
+
+Added 4 weapons: Fire Flowers, Neutron Grenade, Lightning, Ray Gun.
+
+Changed 19 weapons:
+  Nanobots: Less heal, slower.
+  Pulse Laser: Slower reload.
+  Cracker Bundle, Dynamite Bundle, Fire Flowers, Nova: Faster reload.
+  Countermessures: Less dependent on worm speed, fires 3 rockets each time, slower reload, less shots.
+  Acid Spray: More speed variation, more ammo, less reload.
+  Firework, Firework Bundle: Trail and more damage.
+  Neutron Gun/Neutron Spray/Neutron Cannon: A bit less damage.
+  Splint Mine: New graphics, fires forward.
+  Splint Mine, Flame Mine, Frag Mine, Mine: Softer throw, trigger delay, less damage.
+
+
+(*) v0.75 2003-08-12 - 14th Release, 116 weapons, 295 projectiles, 120 custom gfx, 20 custom sfx, size 370kb.
+
+Added 4 weapons: Bouncy Anti Plasma, Force Field, Lightning Grenade, Piercing Bullets.
+
+Changed 23+ weapons:
+  BoobyTrapHeal, BoobyTrapWep, Laser, Mine, MiniRockets, Napalm, Rifle, RP Rampage, Spikeballs, Uzi, Winchester: Made almost exactly like in orginal game (often includes less damage).
+  Napalm Strike: More damage.
+  Caltrops: Less damage, faster reload.
+  Dark Matter, Pulse Laser: Less damage.
+  Ray Gun: Changed compleatly.
+  Multigrasshopper: Slower chain reaction.
+  Fireworks: Faster reload.
+  Proton Cannon: A bit less damage.
+  Float Mine, Mine Wall: Less damage.
+  Dirt Mine: Delay, Faster.
+  Flame Mine: New graphics.
+  Most Mines: More trigger delay.
+
+Players now moves faster and jumps higher (more arcade like, so the Ninja Rope wont be used as much).
+
+
+(*) v0.70 2003-07-26 - 13th Release, 108 weapons, 252 projectiles, 107 custom gfx, 19 custom sfx, size 355kb.
+
+Added 0 weapons: .
+
+Changed 14+ weapons:
+  Blunderbuss: Better sound, more fragments and damage.
+  Charge Beam: A bit slower buildup and less damage, but faster reload. Now have a sound effect.
+  Escape: Epolosion and gass effect.
+  Splint Mine: Slower reload.
+  Flame Mine: Less damage.
+  Acid Container/Acid Spray: Acid trail and fade out. Acid Spray have also faster reload.
+  Sonic: More symetric waves.
+  Firework Bundle, Cracker Bundle: Faster reload.
+  Gatling Gun: Quadruple directions on the bullet flares.
+  Neutron Gun/Neutron Cannon/Rail: Double directions on the beam.
+  All Casings: Random direction, and faster ejection.
+  All Directed Projectiles: Now finally shows correct direction.
+
+Less air speed, more ground speed. A bit more jump force.
+
+
+(*) v0.65 2003-07-16 - 12th Release, 108 weapons, 247 projectiles, 104 custom gfx, 17 custom sfx, size 324kb.
+
+Added 0 weapons: .
+
+Changed 10 weapons:
+  Fireworks: Less range, less bounce.
+  Explosives: More damage.
+  Gatling Gun: Flare bullets.
+  Solar/Black Hole: Does not start inside walls.
+  Mine: Less damage, but faster reload.
+  Chiquita Bomb: Fixed Image.
+  Cracker Bundle: More time before starting to explode.
+  Crackler: Slower.
+  MiniNuke: Correct collors on bits.
+  Smoke Grenade: Fixed errors.
+
+Now compiled for Liero Xtreme v0.50b and Weapon Maker v0.31.
+
+
+(*) v0.60 2003-07-04 - 11th Release, 108 weapons, 247 projectiles, 103 custom gfx, 17 custom sfx, size 325kb.
+
+Added 5 weapons: Cracker, Cracker Bundle, Fireworks, Fireworks Bundle, Multi Grasshopper.
+
+Changed 6 weapons:
+  Black Hole/Solar: Less distance, faster reload.
+  Charge Beam: Faster charge.
+  Hunting Rifle: Changed name from Multi Rifle, added casings.
+  Explosives: A bit more damage.
+  Bazooka: Fixed missile animation.
+ 
+Less rope length and strength.
+
+
+(*) v0.55 2003-06-29 - 10th Release, 103 weapons, 221 projectiles, 95 custom gfx, 17 custom sfx, size 316kb.
+
+Added 2 weapons: Bouncy Plasma, Solar.
+
+Changed 6+ weapons:
+  Dirt Trapp/Dirt Mine: Are now finaly effective and drops a few cluster bombs.
+  Dynamite/Dynamite Bundle: Impoved explosion behaviour, more damage.
+  Blunderbuss: Added big junks and smoke effect.
+  Burning Stone: Dissaperes faster, less bounce, no bounce damage, and have smoke effects.
+  Most Grenades: Added big explosion and smoke effects.
+  Most Shotguns and rifles: Now drop casings.
+
+
+(*) v0.50 2003-06-23 - 9th Release, 101 weapons, 174 projectiles, 86 custom gfx, 16 custom sfx, size 285kb.
+
+Added 11 weapons: Booby Trap Health, Booby Trap Weapon, Burning Stone, Charge Beam, Flame Mine, Invisible Mines, Nanobots, Neutron Cannon, Plasma Flamer, Steroids, Super Health.
+
+Changed 9 weapons:
+  Armour Piercing: More damage but delayed explosion.
+  Flamer: Less damage, added trail.
+  Mine: Less damage but more flying bits.
+  Acid Container: Does not explode when hitting players.
+  Rail Gun: Slower reload.
+  Black Hole: Faster Reload.
+  Builder/Destroyer: Fixed the animation.
+  Grasshopper: More damage.
+
+
+(*) v0.45 2003-06-21 - 8th Release, 90 weapons, 154 projectiles, 74 custom gfx, 14 custom sfx, size 224kb.
+
+Added 3 weapons: Acid Container, Black Hole, Blunderbuss.
+
+Changed 16+ weapons:
+  Railgun: Major change.
+  Flack Cannon: 2 in instead of 3 in the clip.
+  Grenade Jump: Less timer, faster reload.
+  Gauss/Proton Cannon: Slower rest parts.
+  Armour Piercing: Faster reload.
+  Builder: Faster last stage.
+  Destroyer: Faster stages.
+  Sonic: More damage.
+  Flamer: Faster rechange.
+  Riot Gun: Less bits, less recoil.
+  Shotgun: More rounds.
+  Grenade: Fewer bits but more damage on the explosion.
+  Throwing Knife/Axe: Double throws.
+  Uzi: Fatser reload.
+  Grasshopper: Slower.
+  Auto Guns: Less recoil.
+  Most Grenades: More damage.
+  Gas/Smoke/Acid Grenade: Faster reload, less smoke time.
+
+Auto Shotgun Reomoved.
+
+
+(*) v0.40 2003-06-19 - 7th Release, 88 weapons, 148 projectiles, 71 custom gfx, 12 custom sfx, size 188kb.
+
+Added 6 weapons: Builder, Dirt Mine, Electro, Green Shield, Multi Rifle, Nova.
+
+Changed 7+ weapons:
+  Destroyer: Changed name from Builder, now pass terrain.
+  Ripper: Bounce explosion.
+  Handgun: A bit slower ROF, faster bullets, less gravity, a bit more damage.
+  Rifle: More damage.
+  Big/Mini Nuke: Rotating animation.
+  Gas/Smoke/Acid Grenade: Slower throw.
+  Direction projectiles: Now choose better graphic directions.
+  Piercing projectiles: Dissaperes after awile outside level.
+  Some Weapons: New sound effects.
+
+Added a tiny bit air friction for player movement.
+
+
+(*) v0.35 2003-06-16 - 6th Release, 82 weapons, 132 projectiles, 70 custom gfx, 0 custom sfx, size 53.1kb.
+
+Added 7 weapons: Acid Gas, Acid Spray, Caltrops, Escape, Gas Curtain, Grenade Jump, Splint Mine.
+
+Changed 7 weapons:
+  Countermesures - Only backwards direction.
+  Dart - More damage, some gravity, slower.
+  Grenade - More damage.
+  Jetpack - Inverted direction and no damage.
+  Refle - Less gravity.
+  Throwing Axe/Knife - A bit faster.
+
+
+(*) v0.30 2003-06-13 - 5th Release, 75 weapons, 118 projectiles, 68 custom gfx, 0 custom sfx, size 51.2kb.
+
+Added 10 weapons: Builder, Charger, Countermesures, Dark Matter, Gas Grenade, Piercing Grenade, Riot Gun, Rotor Mine, Smoke Grenade, Sonic.
+
+Changed 16+ weapons:
+  Grenade - Faster Reload.
+  Neutron Gun - A bit less damage.
+  Spike Bomb - Less bounce, more concentrated spikes.
+  Zimm/Ripper - Made not so alike.
+  Uzi - Slower ROF.
+  Minigun - Less recoil.
+  Crackler Slower.
+  Auto Shotgun - A bit faster.
+  Grenade/Grenade Strike - A bit more damage.
+  Gatlinggun - More ammo.
+  Explosives - Shorter range.
+  Napalm - Explode on impact, a bit slower flames.
+  Rifle - Less gravity, less explosion size.
+  RB Rampage - More bounce.
+  Float Mine - Some small gravitation.
+  All Mines - Long timer.
+  Most Missiles: Extra directions on the graphics.
+
+
+(*) v0.25 2003-06-09 - 4th Release, 65 weapons, 92 projectiles, 57 custom gfx, 0 custom sfx, size 43.3kb.
+
+Added 3 weapons: Dynamite, Flack Cannon, Ripper.
+
+Changed 2+ weapons:
+  Dynamite Bundle - Name changed from Dynamite, animation before exposion, changed exposion bits
+  Neutron Spray - Name changed from Color Spray.
+  Most weapons - Added longer minimum reload time to remove the overload in 0 reload time.
+
+
+(*) v0.20 2003-06-09 - 3rd Release, 62 weapons, 85 projectiles, 51 custom gfx, 0 custom sfx, size 40.3kb.
+
+Added 4 weapons: Grenade Strike, Molotov Cocktail, Neutron Spray, Proton Cannon.
+
+
+(*) v0.15 2003-06-07 - 2nd Release, 58 weapons, 76 projectiles, 47 custom gfx, 0 custom sfx, size 35.0kb.
+
+Added 4 weapons: Drill Beam, Kamiaze, Pulse Laser, Shurikens.
+
+Changed 7 weapons:
+  Armour Piercing - Slower and less damage.
+  Dynamite - Slower and more damage.
+  Jet Pack - Slower and less damage.
+  Laser/Flamer - Less damage.
+  Throwing Axe & Knife - No explosion on ground hit.
+
+
+(*) v0.10 2003-06-07 - 1st Release, 54 weapons, 74 projectiles, 47 custom gfx, 0 custom sfx, size 34.1kb.
+
+Added 17 weapons:
+  Armour Piercing, Auto Shotgun, Bridge, Dirt Grenade, Dirt Shield, Dirt Trapp, Dynamite, Frag Mine, Gatling Gun, Jet Pack, Mine Wall, Napalm Strike, Neutron Gun, Rail Gun, Spike Bomb, Throwing Axe, Throwing Knife.
+
+Changed: Almost all old weapons so the are more equal.

@@ -1,0 +1,265 @@
+Cruel Weapons Weapon List - 05/01/04 (dd/mm/yy) or 01/05/04 (mm/dd/yy)
+
+Each weapon is listed here with symbols after it:
+
+A = Automatic
+S = Spreading
+U = Utility
+H = Healer
+R = Area Effect
+C = Classic
+E = Explosive
+F = Incendiary
+M = Mine
+O = Movement
+D = Digs through dirt
+K = Rocket/Missile
+N = Single Shot
+Y = Bouncy
+T = Trail
+I = Dirt
+B = Beam
+Q = Airstrike
+G = Gas weapon
+
+Anthrax Grenade                   - RSE
+Auto RB shotgun                   - SYA
+Auto Shotgun                      - SA
+Baloon Bomb                       - E
+Barrel of Semtex                  - ERN
+Bazooka                           - KEC
+Bazooka (Cluster Warhead)         - KER
+Bazooka (Linear Warhead)          - KED
+Bazooka (Streaking)               - KET
+Big Nuke                          - ERNC
+Big Nuke (dirt)                   - IRN
+Bouncy Larpa Bomb                 - REY
+Blaster                           - EC
+Blocker                           - UIYN
+Blood Spray                       - TSA
+Blue Light Sabre                  - B
+Bomber Zeppelin                   - QER
+Boomerang                         - H
+Boulder                           - 
+Boulder Strike                    - QN
+Bouncy Bone Bomb                  - EYNR
+Bouncy Greenball Larpa            - TIY
+Bouncy Greenball Larpa Bomb       - REYDN
+Bouncy Greenball Larpa Hail       - TIYSN
+Bouncy Larpa                      - TYC
+Bouncy Larpa Hail                 - TYSN
+Bouncy Mine                       - YEC
+Bow (Normal Arrows)               - 
+Bow (Explosive Arrows)            - ER
+Bow (Toxic Arrows)                - RG
+Bow (Plasma Arrows)               - ERS
+Box O Bananas                     - RTEN
+Box O Bananas (Floating)          - RTEN
+Burning Boulder                   - TF
+Burning Boulder Strike            - TFQN
+Cannon                            - CE
+Chaingun                          - AC
+Chainsaw                          - 
+Chiquita Bomb                     - ERCN
+Chiquita Strike                   - ERQN
+Cluster Bomb                      - ECR
+Cluster Horror Spore              - RGY
+Cluster Missile Strike            - QKERN
+Cluster Strike                    - ERQN
+Comet                             - TF
+Comet Strike                      - TFQN
+Cracker                           - ERN
+Crackler                          - TRNC
+Crystalic Virus                   - R
+Dart                              - C
+Deadly Cookie Cannon              - MNE
+Decoy Worm                        - TERN
+Dirtball                          - IC
+Dirt Shield                       - IRN
+Dirty Bomb                        - ERN
+Discus                            - 
+DIY Health Crates                 - NH
+Doomsday                          - SCE
+Drill                             - BDU
+Drill (Advanced)                  - BDU
+Drilling Laser                    - BDU
+Elevator                          - UMDN
+Energy Beam                       - Y
+Energy Beam (Bombarding)          - SA
+Energy Beam Spread                - SY
+Expanding Foam                    - RIE
+Explosives                        - RESC
+Fireworks                         - KER
+Flack Cannon                      - S
+Flame Drill                       - DU
+Flame Drill (Advanced)            - DU
+Flame Grenade                     - FER
+Flame Mine                        - FM
+Flame Mine Strike                 - FMQN
+Flamer                            - FC
+Flame Shield                      - FR
+Flame Turret                      - NFR
+Flaming Decoy Worm                - FNR
+Float Mine                        - MEC
+Float Mine Shotgun                - MES
+Flower Pot Gun                    - ISA
+Freezethrower                     - 
+Frost Mine                        - MEA
+Frost Mine Strike                 - MEAQN
+Fruit Grenade                     - REN
+Fruit Gun                         - SENR
+Fruit Mine                        - ERM
+Fruit Mine Strike                 - ERMNQ
+Fruit Strike                      - ERNQ
+Gasball Virus                     - GREN
+Gas Chamber Mine                  - RGE
+Gas Gun                           - SGC
+Gauss Grenade                     - REDN
+Gauss Gun                         - EDN
+Gauss Shotgun                     - SEDN
+Giblet Grenade                    - ERT
+Giblet Gun                        - ET
+Giblet Strike                     - ETNQ
+Glass Balls                       - A
+GoldBalls                         - S
+Gold Snake                        - RNS
+Gold Snake Bomb                   - RNSE
+Grasshopper                       - ERC
+Graviton Impact Cannon            - R
+Greenball                         - ICA
+Greenball Larpa                   - IT
+Greenball Larpa Bomb              - EITN
+Greenball Larpa Hail              - ITNS
+Green Grenade                     - IR
+Green Light Sabre                 - B
+Green Shield                      - RIN
+Greenwall                         - SIN
+Grenade                           - CER
+Handgun                           - C
+Healing Hands                     - AH
+Healing Wave                      - RHNY
+Heat Rifle                        - STN
+Heavy Flamer                      - F
+Heavy Machinegun                  - AE
+Heavy Plasma Cannon               - REN
+Hellraider                        - YTERCN
+HellStorm                         - RETN
+Hindemburg                        - ER
+Hindemburg Squadron               - ERS
+Horror Spore                      - GY
+HyperSpace Jump                   - ON
+Incarceration Dart                - R
+Incarceration Turret              - NRY
+Incendiary Larpa                  - FT
+Incendiary Larpa Bomb             - ERFTN
+Incendiary Larpa Hail             - FTSN
+Inflating Chiquita Bomb           - ERN
+IronBalls                         - S
+Iron Snake                        - RSN
+Iron Snake Bomb                   - RSNE
+Jetpack                           - OU
+Kamikazae                         - EGRN
+Larpa                             - CTE
+Larpa Bomb                        - RTEN
+Larpa Hail                        - STEN
+Laser                             - B
+Laser Rifle                       - BN
+Layered Bomb                      - ER
+Liquid Smoke                      - SG
+Liquid Smoke Strike               - SGQN
+Long Burn Mine                    - MF
+Long Burn Napalm                  - EF
+Micro Bouncy Mines                - YSEM
+Micro Float Mines                 - SEM
+Micro Mines                       - SEM
+Mine                              - EMCR
+Mine Shotgun                      - EMS
+Mine (Snow Spikeballs)            - ERM
+Mine (Spikeballs)                 - ERM
+Mine Strike                       - ERMQN
+MiniGun                           - AS
+Minigun (Evil)                    - ASF
+Minigun (Good)                    - AS
+Minigun Turret                    - ASRYN
+Mini Nuke                         - ERC
+Mini-Raiders                      - YTERCNS
+Mini Rockets                      - CERS
+Mortar                            - RE
+Mother of all bombs Strike beacon - NER
+Nail Bomb                         - RE
+Nano-Regenerative Protoplasma     - AH
+Napalm                            - EFC
+NeedleGun                         - A
+Neuralizer                        - NSU
+Orange LightSabre                 - B
+Pandora's Box                     - REYN
+Parabomb                          - ER
+Plasma Beam Block                 - RESN
+Plasma Cannon                     - R
+Plasma Mine                       - RM
+Psi Disruptor                     - S
+Pulse Laser                       - AB
+Purple Light Sabre                - B
+Quantum Mutilator Rifle           - RN
+Radiation Gun                     - RSA
+Railgun                           - DER
+RB Rampage                        - SYAC
+RB Shotgun                        - SY
+Red Light Sabre                   - B
+Retreat                           - IS
+Rifle                             - CN
+Ripper                            - YED
+Rocket Propelled Grenade          - KER
+Scimitar Bomb                     - RE
+Scimitar Strike                   - REQN
+Searing Sword                     - TF
+ShatterGlass Mine                 - MET
+ShatterGlass Missile              - KE
+Shotgun                           - SC
+Silenced Pistol                   -
+Six Plasma Beam Blocks            - RESN
+Snow Flame Mine                   - MF
+Snow Flame Mine Strike            - MFNQ
+Snow Frost Mine                   - MEA
+Snow Frost Mine Strike            - MEANQ
+Snow Fruit Mine                   - ERM
+Snow Fruit Mine Strike            - ERMNQ
+Snow Long Burn Mine               - MF
+Snow Micro Mines                  - SEM
+Snow Mine                         - MER
+Snow Mine Shotgun                 - MERS
+Snow Mine Strike                  - MERQN
+Snow Plasma Mine                  - RM
+Snow Shatterglass Mine            - MET
+Snow Spikeball Mine Strike        - ERMQN
+Solaris                           - R
+Sonic Cannon                      - S
+Spawn Health Crate                - HU
+Spawn Booby Trap                  - EU
+Spikeball Grenade                 - RE
+Spikeball Minigun                 - YA
+Spikeball Minigun (Green)         - YAI
+Spikeball Mine Strike             - ERMQN
+Spikeballs                        - SC
+Springboard                       - OU
+Starraider                        - YDER
+Steel Snake                       - RSNE
+Steel Snake Bomb                  - ERSN
+Stick Bomb                        - ER
+Storm Bomb                        - RN
+Super Shotgun                     - SC
+Super Shotgun MK.II               - S
+Sword                             - B
+Throwing Knife                    - 
+Toxic Gas Grenade                 - EG
+Toxic Waste                       - EGS
+Toxic Waste Grenade               - EGR
+Uzi                               - AC
+Vacuum                            - RYIEN
+Void Shield                       - R
+Warhead Drop                      - NER
+White Light Sabre                 - B
+Winchester                        - EC
+Zig-Zag Gun                       - E
+Zimm                              - YEC
+Zimm Grenade                      - YER

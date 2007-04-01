@@ -1,0 +1,22 @@
+Some characters and the weapons they use
+
+==Space Marine Terminator==
+Storm Bolter
+Assault Cannon
+Heavy Flamer
+Autocannon
+(Cyclone) Missile Launcher
+
+==Chaos Cultist==
+Lasgun
+Frag Grenades
+Unholy Sacrifice
+Summon Deamon
+Combat Shotgun
+
+==Assassin==
+Needle Sniper Rifle
+Bolt Pistol
+Melta Bombs
+Frag Grenades
+C'tan Phase Blade

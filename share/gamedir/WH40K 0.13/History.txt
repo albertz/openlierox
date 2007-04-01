@@ -1,0 +1,369 @@
+/======\
+|V 0.13| Killing bugs
+\======/
+96 Weapons, 512 Unique Projectiles, 70 Sfx, 128 Gfx
+
+New:
+ Scatter Laser
+
+Changes:
+ Major bug with Summon Daemons fixed
+
+/======\
+|V 0.12| Fleshing out
+\======/
+95 Weapons, 503 Unique Projectiles, 69 Sfx, 127 Gfx
+
+New:
+ 0.60 custom effects (ico_chat.png) for Necrons
+ Combat Drugs
+ C'tan Phase Blades
+ Deathspinner
+ List - Characters.txt
+ List - Races.txt
+ Pathetic ASCI art in readme.txt
+
+Changes:
+ Assault cannon more powerfull, added sparks
+ Barbed Strangler moves faster, faster growth, more powerfull
+ Bolter reloading problem fixed, SFX somewhat less loud
+ Bombardment reloads slower, larger spread, more shots, whistling
+ Combat Shotgun slightly less powerfull, rebound shots
+ Daemonic Aura is somewhat offensive, different SFX
+ Deathspitter trail is less deadly
+ Dethwave slightly weaker, SFX
+ Exterminatus more shots, computer tweaks, explosion scripts fixed
+ Earthshaker has new firing SFX, impact SFX, easier aim
+ Eldritch Storm lasts a bit longer
+ Gauss Gun stronger
+ Glue Gun slightly smaller area
+ Grenades have bounce SFX
+ Grenade Launcher slightly less accurate, more reload
+ Harlequins Kiss SFX volume lowered
+ Hallucinogen Grenade slightly less spammy
+ Heavy Bolter (Hellfire) is stronger, new SFX
+ Heavy Bolter (Normal) is slightly stronger, less shots, new SFX
+ Hellfire has laser sight, more damage, stays longer
+ Krak Grenade new SFX
+ Kustom Mega Blasta less ammo, reloads slower
+ Lance Strike GFX fix, beam damage widened
+ Lascannon reverted to old style, longer reload, new GFX, new SFX
+ Lasgun has new GFX
+ Melta's are now less powerfull at long range
+ Missile Launcher (AntiPlant) now hurts a little
+ Missile Launcher (Frag) has longer reload
+ Missile Launcher (Melta and Plasma) accelerate slightly slower
+ Plasma Charge does more damage, stays longer
+ Plasma Gun rounds move faster
+ Pulse Carbine SFX & GFX changed, reloads somewhat slower,
+ Rad Grenade scripting update, somewhat less deadly at close range, SFX
+ Reaper Launcher reloads somewhat slower
+ Rokkit Launcha reloads slower
+ Scarabs SFX change, scripting bug fixed, weaker, stay longer
+ Shadowweaver total remake
+ Shredder Mine dissappearing bug fixed, stays longer, more damage
+ Shuriken Catapult/Cannon scripts changed, extra effects
+ Sonic Blaster reloads slower (whoops!)
+ Splinter Cannon new SFX
+ Starcannon reloads somewhat faster
+ Smite 1 shot/reload, more powerfull, quicker reload, laser sight
+ Spore Mines stay longer, move faster
+ Spore Mine (Acid) reloads faster
+ Spore Mine (Poison) does more damage
+ Stinger fragment bug fixed
+ Storm Bolter firing system and SFX
+ Unholy Sacrifice renamed to Unholy Ritual. Altar now heals when close
+ Whirling death physics somewhat changed
+ Weapon List no longer includes races, renamed to "List - Weapons.txt"
+
+/======\
+|V 0.11| The evil within
+\======/
+92 Weapons, 424 Unique Projectiles, 55 Sfx, 115 Gfx
+
+New:
+ Misc custom effects (bonusses, explosion)
+ Bio Plasma
+ Bombardment
+ Hellfire
+ Incinerator
+ Rokkit Launcha
+ Smite
+
+Changes:
+ Autocannon particle effects
+ Boltgun particle effects
+ Bright Lance pulse/particle effect
+ Dark Lance spike effect
+ Deathspitter reloads slower
+ Demoliton Charge particle effects
+ Deth Wave FPS drop fix, smaller wave, reloads slower
+ Earthshaker shake effect
+ Exterminatus shake effect, pink bug fixed
+ Flamer pink bug fixed, doesn't carve, code unborked
+ Frag Grenade sound fixed
+ Glue Gun smaller dirt clod
+ Hand Flamer doesn't carve, code unborked
+ Heavy Bolter (Hellfire) remake, reloads slower
+ Heavy Flamer fixed, reloads slower
+ Krak Grenade sound fixed
+ Lance Strike shake effect
+ Meltabomb has larger explosion, reloads slower
+ Needle Rifle particle effects
+ Railgun reloads slower, shake effect
+ Scarabs reloads slower
+ Shredder sound fixed
+ Shredder Mine gravity fixed, added animation
+ Splinter Cannon changed, particle effects
+ Splinter Rifle changed, particle effects
+ Whirling Death reloads slower
+ Damage delays have "smart fuse"
+
+/======\
+|V 0.10| The swarm arrives
+\======/
+86 Weapons, 359 Unique Projectiles, 53 Sfx, 99 Gfx
+
+New:
+ Demolition Charge
+ Heavy Plasma Gun
+ Shredder
+ Spore Mine (Acid)
+ Spore Mine (Frag)
+ Spore Mine (Poison)
+ Starcannon
+ Custom effects (crosshair, spawn and hook) for most races! See readme.txt for more info.
+
+Changes:
+ Autocannon reloads slower
+ Barbed Strangler reloads faster, less dense plant
+ Burst Cannon reloads faster
+ Conversion Beamer improved beam GFX
+ Daemonic Aura more effective, but slower to build
+ Dcannon reloads slower
+ Exterminatus needs to be activated, longer beams
+ Gauss Rifle fires in longer bursts
+ Heavy Flamer reloads slower, changed somewhat script-wise
+ Haemonculus Flamer fires in shorter bursts
+ Harlequin's Kiss less accurate
+ Fleshborer fires in 3 shot bursts
+ Ion Cannon back to 1 shot/clip
+ Lance Strike now has sound
+ Lascannon has unlimited ammo, long reload time
+ Kustom Mega Blasta now reloads, frag fix
+ Meltabomb sound fix, faster explosion
+ Mole Mortar has graphics, stronger
+ Missile Launcher reloads slower (except AntiPlant)
+ Missiles have new graphics
+ Psybolter graphics change
+ Pulse Carbine explosion removed
+ Pulse Rifle fires faster
+ Railgun has unlimited ammo
+ RailRifle has longer reload time
+ Shadow Weaver is stronger
+ Shoota has larger clips, fires faster
+ Splinter Cannon has unlimited ammo
+ Splinter Rifle reloads slower
+ Spore Chimney now fires 3 types of mines
+ Spore Mine removed
+ Shredder Mine sound fix
+ Zzap Gun fires in bursts, more erratic, trail hurts
+ All Frag weapons changed
+ Some FPS drop protection for 0% games included
+ All capitals removed from GFX and SFX
+
+/======\
+|V 0.09| An unexpected ally
+\======/
+80 Weapons, 323 Unique Projectiles, 52 Sfx, 84 Gfx
+
+New:
+ Autocannon
+ Psy-bolter
+ Railrifle
+ Stinger
+ Vibro Cannon
+
+Changes:
+ Assault Cannon graphics fix
+ Burst Cannon graphics fix
+ Bolt-shell based weapons graphics fix
+ Deth Wave lower ROF, more powerfull
+ Increased Whirling Death reload time
+ Earthshaker graphics update
+ Frag Grenade graphics update (thanks Rad Tad)
+ Gauss Rifle graphics update
+ Harlequins Kiss no longer instagib
+ Heavy Bolter (Hellfire) has slower ROF and smaller area of effect
+ History Fixed
+ Lascannon new graphics, more powerfull but slower ROF
+ Krak Grenade graphics update (thanks Rad Tad) and larger area effect
+ Plasma Gun animates faster
+ Pulse based weapons graphics fix
+ Railgun has graphics fix, lower ROF and less ammo
+ Shredder Mine now has sound
+ Swooping Hawk Wings look "better"
+ Vortex Grenade limited to one, but more pull
+
+/======\
+|V 0.08| Corruption
+\======/
+75 Weapons, 290 Unique Projectiles, 45 Sfx, 79 Gfx
+
+New:
+ Bright Lance
+ Combat Shotgun
+ Dark Lance
+ Earthshaker
+
+Changes:
+ Fixed Skorcha/Burna error in weapon list (thanks Rad Tad)
+ Removed blood spray (Vortex and Tanglefoot)
+ Increased Railgun and Splinter Cannon delay
+
+/======\
+|V 0.07| Balance to a universe
+\======/
+71 Weapons, 271 Unique Projectiles, 44 Sfx, 78 Gfx
+
+New:
+ Deth Wave
+ Foot of Gork
+ Kustom Mega Blasta
+ Shoota
+ Zzap Gun
+
+Changes:
+ Boltgun sound
+ Conversion Beamer effects
+ D-Cannon moves slower
+ Eldritch Storm is less processor intensive, has no more lightning
+ Haemonculus flamer looks better
+ Hallucinogen Grenade has less spiders
+ Harlequins' Kiss enhanced (more accurate)
+ Heavy Flamer looks more flamerlike
+ Lance strike has wider beam
+ Pulse Carbine grenades move more straight
+ Shredder Mine shrapnel isn't explosive
+ Spore Chimney launches spore mines
+ Unholy Sacrifice is less processor intensive
+ "Staying" weapons dissappear faster
+ Some powerfull weapons have limited ammo
+ Fixed Needlerifle firing boltguns shells
+ Fixed Summon Daemon bug
+ Typos in weapon list
+ Changed mod name
+
+/======\
+|V 0.06| Ancient enemies
+\======/
+66 Weapons, 249 Unique Projectiles, 43 Sfx, 73 Gfx
+
+New:
+ Gauss Rifle
+ Scarabs
+ Eldritch Storm
+
+Changes:
+ More whirling death delay on new blades (no instagib anymore)
+ Fixed Hallucinogen bug
+ Vortex Grenade pulls stronger
+ Pulse Rifle/Carbine now have nice-looking trail
+ Optimized for netplay (playerhit delay, except Mortar, Multimelta and railgun)
+ Fixed Lance Strike/Exterminatus problems with some levels (it wasn't my fault!)
+ Balances, balances...
+ Better Harlequin's Kiss graphics
+ Tanglefoot is weaker
+ Stasis Grenade is less processor intensive
+
+/======\
+|V 0.05| Forgotten technology
+\======/
+63 Weapons, 199 Unique Projectiles, 41 Sfx, 70 Gfx
+
+New:
+ Conversion Beamer
+ Daemonic Aura
+ Hallucinogen Grenade
+ Ion Cannon
+ Missiles (antiplant, frag, krak, melta, plasma)
+ Multimelta
+ Shuriken Cannon
+ Splinter Cannon
+ Spore Chimney
+ Stasis Grenade
+ Tanglefoot Grenade
+ Whirling Death
+
+Changes:
+ Vortex Grenade now really pulls players into it
+ Balancing (will it ever be finished?)
+ Enhanced plasma from Swooping Hawk Wings
+ Slightly changed Lance Strike graphics, it looks more dynamic now
+
+/======\
+|V 0.04| Heavy Weaponry
+\======/
+48 Weapons, 129 Unique Projectiles, 38 Sfx, 57 Gfx
+
+New:
+ Burst Cannon
+ Lance Strike
+ Heavy Bolter (Normal and Hellfire)
+ Plasma Charge
+ Rad Grenade
+ Railgun
+ Shredder Mine
+ Storm Bolter
+ Thudd Gun
+
+Changes:
+ Smaller SFX, lower quality (Thanks Strider for pointing that out!)
+ Updated for 0.56b (Woo! New version! No more explosions! *does happy dance*)
+ Weapon list now has race list too
+ Lots of balance changes
+ Mole Mortar no longer has explosion effect, is weaker, and fires bits
+ Reaper Launcher has laser targeter and fires quick salvo's
+ Unholy Sacrifce graphics changed, fires less projectiles
+ Missile Launcher now fires bits on impact
+ Swooping Hawk Wings now launch plasma grenades instead of frag
+ Plasma GFX changed
+
+/======\
+|V 0.03| Expanding the universe
+\======/
+36 Weapons, 85 Projectiles, 33 Sfx, 42 Gfx
+
+New:
+ Sonic Blaster
+ Unholy Sacrifice
+ Exterminatus
+ Virus Grenade
+ Readme, history and weapon list!
+
+Changes:
+ Grenades work better
+ Sfx!
+
+/======\
+|V 0.02| The age of strife
+\======/
+? Weapons, ? Projectiles, 18 Sfx, 30 Gfx
+
+This version almost predates the Horus Heresy! No way to find out what was inside, maybe when an STC is found on some backwater planet, there coulde be a way to reconstruct some more data...
+
+/======\
+|V 0.01| Forgotten past
+\======/
++++Downloading Data+++
++++Cross References: Tactica Imperium, Codex Xenos, Exterminatus Lierox+++
++++Thought for the day: Trust not the worm+++
++++Data loss+++
++++Data Loss+++
++++The page cannot be displayed+++
++++Please try the following:+++
+#Pray to machine spirit#
+#Contact a Techno Magos#
+#Allow the machine spirit to auto-detect astropath. Click "Detect Astropath"#
+#If you're trying to reach a secure document, an inquisitor is on it's way#
+#Check the weather forecast for warp storms#

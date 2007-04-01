@@ -1,0 +1,83 @@
+         __       _   ___ _____
+	/  \     | \   |    |  
+	\__/ ___ |_/   |    |
+	/  \     | \   |    |   WARFARE 
+	\__/     |_/  _|_   |           v1.2
+
+	- Weapon List -
+
+
+[VL] = Very Large weapon, powerful with long reload
+[L] = Large
+[S] = Small
+[VS] = Very Small weapon, weaker with short reload
+
+	R = Very long reload, with 100% loading time it take's 50 seconds to reload
+	H = Healing, part of the weapon gives health (Green sparkles will appear when healing)
+	W = Passes through permanent walls
+	C = Close range
+	F = Flying, lets you fly with negative recoil
+	D = Creates dirt
+
+
+[S]	-	ASCII Adventure
+[L]	-	Asteroids
+[L]	-	Atomic Fire
+[L]	-	Baby Nuke
+[S]	-	Bad Graphics
+[S]	-	Banana
+[VS]	C	Bobble Bubbles
+[L]	C	Bombs
+[L]	-	Bone Pillar
+[L]	-	Burger Time
+[VL]	D	Centipede
+[S]	-	Cheesy SFX
+[S]	-	Defender Laser
+[VL]	-	Donkey Kong
+[VS]	-	Fire Flower
+[L]	-	Galaga Fighter
+[VL]	R,D	Game Over
+[L]	D	Glitch
+[VS]	W,C	Hammer Suit
+[VS]	W,C,F	Hyperspace
+[S]	-	Icicles
+[L]	-	Island Rocks
+[VS]	F	Jetpack
+[L]	-	Jouster
+[VS]	W,C,F	Kirby Air
+[VS]	C	Kombat
+[VL]	-	Lemmings
+[S]	W,C	Link's Sword
+[S]	D	Lolo Eggs
+[VS]	-	Machine Gun
+[VS]	W,C	Magic Yoyo
+[VS]	W	Mega Buster
+[VL]	-	Missile Base
+[L]	W	Missile Strike
+[L]	R	Missiles
+[S]	C	Morph Ball Bombs
+[L]	H	Mushroom Block
+[VL]	W	Music Blaster
+[VL]	-	NES Controllers
+[L]	-	Pacman
+[L]	-	Pong Ball
+[VL]	-	Pow Block
+[S]	-	Raygun
+[S]	-	Root Beer
+[S]	C	RPG Attack
+[VL]	W,C	RPG Battle
+[S]	-	Shooting Stars
+[S]	H	Silver Arrows
+[VL]    W	Sinistar
+[L]	-	Snake
+[L]	H	Sonic Attack
+[VL]	-	Space Invaders
+[VS]	C,D	Space Shield
+[L]	C	Sparks
+[VS]	-	Spread Gun
+[VL]	-	Tank Robotrons
+[L]	-	Tetris Strike
+[L]	-	UFO
+[VS]	C	Vitamin Pill
+[VL]	R,H	Yummy Dots
+[L]	-	3-D Grenade

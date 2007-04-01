@@ -1,0 +1,145 @@
+Races and what they use
+
+==Space Marine (Human)==
+
+Assault Cannon
+Boltgun
+Combat Shotgun
+Flamer
+Frag Grenades
+Heavy Bolter
+Heavy Flamer
+Krak Grenade
+Heavy Plasma Gun
+Lascannon
+Melta Bomb
+Meltagun
+Missile Launcher
+Multimelta
+Needle Sniper Rifle
+Plasma Gun
+Storm Bolter
+
+==Imperial Guard (Human)==
+
+Autocannon
+Combat Shotgun
+Conversion Beamer
+Demolition Charge
+Earthshaker
+Flamer
+Frag Grenades
+Grenade Launcher
+Heavy Bolter
+Heavy Flamer
+Krak Grenade
+Lascannon
+Lasgun
+Melta Bomb
+Meltagun
+Missile Launcher
+Mole Mortar
+Plasma Charge
+Plasma Gun
+Shredder Mine
+Thudd Gun
+
+==Chaos==
+
+Sonic Blaster
+Summon Daemon
+Unholy Sacrifice
+
+==Eldar==
+
+Bright Lance
+D-Cannon
+Eldritch Storm
+Flamer
+Harlequin's Kiss
+Krak Grenade
+Lasgun (Lasblaster)
+Meltagun (Fusion Gun)
+Plasma Grenades
+Reaper Launcher
+Scatter Laser
+Shadow Weaver
+Shuriken Cannon
+Shuriken Catapult
+Starcannon
+Swooping Hawk Wings
+Vibro Cannon
+Whirling Death
+
+==Dark Eldar==
+
+Dark Lance
+Haemonculus Flamer
+Shredder
+Splinter Rifle
+Splinter Cannon
+Stinger
+
+==Ork==
+
+Deth Wave
+Flamer (Burna)
+Heavy Flamer (Skorcha)
+Foot of Gork
+Frag Grenades (Frag Stikbombz)
+Kustom Mega Blasta
+Krak Grenades (Krak Stikbombz)
+Missile Launcher (Rokkit Launcha)
+Rokkit Launcha
+Shoota
+Zzap Gun
+
+==Tau==
+
+Burst Cannon
+Ion Cannon
+Pulse Rifle
+Pulse Carbine
+Railgun
+Railrifle
+
+==Tyranid==
+
+Barbed Strangler
+Bio Plasma
+Deathspitter
+Fleshborer
+Spore Chimney
+Spore Mine
+
+==Necron==
+Gauss Rifle
+Scarabs
+
+==Special Issue==
+
+Bombardment
+C'tan Phase Blade
+Exterminatus
+Glue Gun
+Hallucinogen Grenade
+Hand Flamer
+Incinerator
+Lance Strike
+Rad Grenade
+Psy-bolter
+Tanglefoot
+Virus Grenade
+Vortex Grenade
+
+==Psychics==
+
+Hellfire
+Smite
+
+==Notes==
+
+Special characters and higher ranking officers may take weapons from the Special Issue list.
+Chaos Space Marines use weapons from the Space Marine list in addition to the Chaos list.
+Other Chaos characters use weapons from the Imperial Guard list in addition to the Chaos list.
+This list is just for those players who wan't to play "in character", but don't feel constrained to mix up weapons as you like.
