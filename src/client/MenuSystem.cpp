@@ -1754,9 +1754,9 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
                     szMapName = inbs.readString(256);
                     szModName = inbs.readString(256);
 	                nGameMode = inbs.readByte();
-	                nLives = inbs.readShort();
-	                nMaxKills = inbs.readShort();
-	                nLoadingTime = inbs.readShort();
+	                nLives = inbs.readInt16();
+	                nMaxKills = inbs.readInt16();
+	                nLoadingTime = inbs.readInt16();
 					if(nLoadingTime < 0 || nLoadingTime > 500)  {
 						bOldLxBug = true;
 					}

@@ -344,14 +344,14 @@ int GameServer::StartGame(void)
 
 	// Game info
 	bs.writeInt(iGameType,1);
-	bs.writeShort(iLives);
-	bs.writeShort(iMaxKills);
-	bs.writeShort(iTimeLimit);
-	bs.writeShort(iLoadingTimes);
+	bs.writeInt16(iLives);
+	bs.writeInt16(iMaxKills);
+	bs.writeInt16(iTimeLimit);
+	bs.writeInt16(iLoadingTimes);
 	bs.writeInt(iBonusesOn, 1);
 	bs.writeInt(iShowBonusName, 1);
 	if(iGameType == GMT_TAG)
-		bs.writeShort(iTagLimit);
+		bs.writeInt16(iTagLimit);
 	bs.writeString(sModName);
 
     cWeaponRestrictions.sendList(&bs);

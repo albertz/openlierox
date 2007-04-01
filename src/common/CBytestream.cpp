@@ -103,7 +103,7 @@ int CBytestream::writeBool(bool value)
 
 ///////////////////
 // Writes an integer to the stream
-int CBytestream::writeInt(int value, int numbytes)
+int CBytestream::writeInt(int value, uchar numbytes)
 {
 	// Numbytes cannot be more then 4
 	if(numbytes <= 0 || numbytes >= 5)
@@ -127,12 +127,12 @@ int CBytestream::writeInt(int value, int numbytes)
 
 ///////////////////
 // Write a short to the stream
-int CBytestream::writeShort(short value)
+int CBytestream::writeInt16(Sint16 value)
 {
 	// HINT: this time, the value is stored in big endian
 	uchar dat[2];
-	dat[1] = (unsigned short)value & 0xff;
-	dat[0] = ((unsigned short)value & 0xff00) / 0x100;
+	dat[1] = (Uint16)value & 0xff;
+	dat[0] = ((Uint16)value & 0xff00) / 0x100;
 
 	if (!writeByte(dat[0]))
 		return false;
@@ -245,7 +245,7 @@ bool CBytestream::readBool(void)
 
 ///////////////////
 // Reads an interger value from the stream
-int CBytestream::readInt(int numbytes)
+int CBytestream::readInt(uchar numbytes)
 {
 	// Numbytes cannot be more than 4
 	if(numbytes <= 0 || numbytes >= 5)
@@ -272,18 +272,18 @@ int CBytestream::readInt(int numbytes)
 
 ///////////////////
 // Read a short from the stream
-short CBytestream::readShort(void)
+Sint16 CBytestream::readInt16(void)
 {
 	// HINT: this time, the value is stored in big endian
 	uchar dat[2];
 	dat[1] = readByte();
 	dat[0] = readByte();
 
-	unsigned short value;
+	Uint16 value;
 	value = dat[0];
 	value += dat[1] * 0x100;
 
-	return (short)value;
+	return (Sint16)value;
 }
 
 

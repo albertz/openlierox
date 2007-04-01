@@ -166,8 +166,8 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 	bs->writeFloat( psShot->fTime );
 	bs->writeByte( psShot->nWeapon );
 	bs->write2Int12( x, y );
-	bs->writeShort( vx );
-	bs->writeShort( vy );
+	bs->writeInt16( vx );
+	bs->writeInt16( vy );
 	bs->writeByte( psShot->nRandom );
 	
 	if( flags & SMF_LARGEANGLE )
@@ -264,8 +264,8 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 	bs->writeByte( psShot->nWeapon );
 	bs->writeByte( num );
 	bs->write2Int12( x, y );
-	bs->writeShort( vx );
-	bs->writeShort( vy );
+	bs->writeInt16( vx );
+	bs->writeInt16( vy );
 	bs->writeByte( psShot->nRandom );
 	
 	if( flags & SMF_LARGEANGLE )
@@ -434,8 +434,8 @@ void CShootList::readSingle( CBytestream *bs )
 	psShot->fTime = bs->readFloat();
 	psShot->nWeapon = bs->readByte();
 	bs->read2Int12( x, y );	
-	vx = bs->readShort();
-	vy = bs->readShort();
+	vx = bs->readInt16();
+	vy = bs->readInt16();
 	psShot->nRandom = bs->readByte();
 
 	psShot->nAngle = bs->readByte();
@@ -485,8 +485,8 @@ void CShootList::readMulti( CBytestream *bs )
 	psShot->nWeapon = bs->readByte();
 	num = bs->readByte();
 	bs->read2Int12( x, y );
-	vx = bs->readShort();
-	vy = bs->readShort();
+	vx = bs->readInt16();
+	vy = bs->readInt16();
 	psShot->nRandom = bs->readByte();
 
 	psShot->nAngle = bs->readByte();

@@ -1162,9 +1162,9 @@ void GameServer::ParseGetInfo(void)
 	    bs.writeString(gl->szMapName);
         bs.writeString(gl->szModName);
 	    bs.writeByte(gl->nGameMode);
-	    bs.writeShort(gl->nLives);
-	    bs.writeShort(gl->nMaxKills);
-	    bs.writeShort(gl->nLoadingTime);
+	    bs.writeInt16(gl->nLives);
+	    bs.writeInt16(gl->nMaxKills);
+	    bs.writeInt16(gl->nLoadingTime);
         bs.writeByte(gl->nBonuses);
     }
     // If in game
@@ -1172,9 +1172,9 @@ void GameServer::ParseGetInfo(void)
         bs.writeString(sMapFilename);
         bs.writeString(sModName);
 	    bs.writeByte(iGameType);
-	    bs.writeShort(iLives);
-	    bs.writeShort(iMaxKills);
-	    bs.writeShort(iLoadingTimes);
+	    bs.writeInt16(iLives);
+	    bs.writeInt16(iMaxKills);
+	    bs.writeInt16(iLoadingTimes);
         bs.writeByte(iBonusesOn);
     }
 	// Loading
@@ -1182,9 +1182,9 @@ void GameServer::ParseGetInfo(void)
         bs.writeString(tGameInfo.sMapname);
         bs.writeString(tGameInfo.sModName);
 	    bs.writeByte(tGameInfo.iGameType);
-	    bs.writeShort(tGameInfo.iLives);
-	    bs.writeShort(tGameInfo.iKillLimit);
-	    bs.writeShort(tGameInfo.iLoadingTimes);
+	    bs.writeInt16(tGameInfo.iLives);
+	    bs.writeInt16(tGameInfo.iKillLimit);
+	    bs.writeInt16(tGameInfo.iLoadingTimes);
         bs.writeByte(tGameInfo.iBonusesOn);
 	}
 

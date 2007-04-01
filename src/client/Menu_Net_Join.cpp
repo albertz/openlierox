@@ -192,7 +192,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 		// Mouse type
 		if(ev->cWidget->getType() == wid_Button)
 			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
+		else if(ev->cWidget->getType() == wid_Textbox)
 			mouse = 2;
 
 

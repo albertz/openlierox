@@ -407,16 +407,16 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	// Other game details
 	iGameType = bs->readInt(1);
-	iLives = bs->readShort();
-	iMaxKills = bs->readShort();
-	iTimeLimit = bs->readShort();
-	int l = bs->readShort();
+	iLives = bs->readInt16();
+	iMaxKills = bs->readInt16();
+	iTimeLimit = bs->readInt16();
+	int l = bs->readInt16();
 	fLoadingTime = (float)l/100.0f;
 	iBonusesOn = bs->readInt(1);
 	iShowBonusName = bs->readInt(1);
 
 	if(iGameType == GMT_TAG)
-		iTagLimit = bs->readShort();
+		iTagLimit = bs->readInt16();
 
 	// Load the gamescript
 	sModName = bs->readString();
@@ -1005,9 +1005,9 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     gl->szModName = bs->readString();
     gl->szModDir = bs->readString();
 	gl->nGameMode = bs->readByte();
-	gl->nLives = bs->readShort();
-	gl->nMaxKills = bs->readShort();
-	gl->nLoadingTime = bs->readShort();
+	gl->nLives = bs->readInt16();
+	gl->nMaxKills = bs->readInt16();
+	gl->nLoadingTime = bs->readInt16();
     gl->nBonuses = bs->readByte();
 
     // Check if we have the level & mod

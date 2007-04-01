@@ -21,6 +21,7 @@
 #define __CBITSTREAM_H__
 
 
+
 #define		MAX_DATA		4096
 
 
@@ -64,8 +65,8 @@ public:
 	// Writes
 	int			writeByte(uchar byte);
 	int			writeBool(bool value);
-	int			writeInt(int value, int numbytes);
-	int			writeShort(short value);
+	int			writeInt(int value, uchar numbytes);
+	int			writeInt16(Sint16 value);
 	int			writeFloat(float value);
 	int			writeString(char *fmt,...);
 	int			writeString(const std::string& value);
@@ -75,8 +76,8 @@ public:
 	// Reads
 	uchar		readByte(void);
 	bool		readBool(void);
-	int			readInt(int numbytes);
-	short		readShort(void);
+	int			readInt(uchar numbytes);
+	Sint16		readInt16(void);
 	float		readFloat(void);
 	char		*readString(char *str, size_t maxlen);
 	std::string readString();

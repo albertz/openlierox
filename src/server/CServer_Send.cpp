@@ -202,9 +202,9 @@ void GameServer::UpdateGameLobby(void)
     bs.writeString(gl->szModName);
     bs.writeString(gl->szModDir);
 	bs.writeByte(gl->nGameMode);
-	bs.writeShort(gl->nLives);
-	bs.writeShort(gl->nMaxKills);
-	bs.writeShort(gl->nLoadingTime);
+	bs.writeInt16(gl->nLives);
+	bs.writeInt16(gl->nMaxKills);
+	bs.writeInt16(gl->nLoadingTime);
     bs.writeByte(gl->nBonuses);
 
 	SendGlobalPacket(&bs);

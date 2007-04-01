@@ -61,7 +61,7 @@ void CWorm::writeScore(CBytestream *bs)
 {
 	bs->writeByte(S2C_SCOREUPDATE);
 	bs->writeInt(iID,1);
-	bs->writeShort(iLives);
+	bs->writeInt16(iLives);
 	bs->writeInt(iKills,1);
 }
 
@@ -72,7 +72,7 @@ void CWorm::readScore(CBytestream *bs)
 {
 	// NOTE: ID and S2C_SCOREUPDATE is read in CClient::ParseScoreUpdate
 	// TODO: make this better
-	iLives = MAX((int)bs->readShort(),WRM_OUT);
+	iLives = MAX((int)bs->readInt16(),WRM_OUT);
 	iKills = MAX(bs->readInt(1),0);
 }
 
@@ -125,8 +125,8 @@ void CWorm::writePacket(CBytestream *bs)
 	// So only send the velocity if our shoot flag is set
 	if(tState.iShoot) {
 		CVec v = vVelocity;
-		bs->writeShort( (short)v.x );
-		bs->writeShort( (short)v.y );
+		bs->writeInt16( (Sint16)v.x );
+		bs->writeInt16( (Sint16)v.y );
 	}
 }
 
@@ -206,8 +206,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 	// Velocity
 	if(tState.iShoot) {
-		short vx = bs->readShort();
-		short vy = bs->readShort();
+		Sint16 vx = bs->readInt16();
+		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
 }
@@ -254,8 +254,8 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 	// Velocity
 	if(tState.iShoot) {
-		short vx = bs->readShort();
-		short vy = bs->readShort();
+		Sint16 vx = bs->readInt16();
+		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
 }
