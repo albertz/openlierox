@@ -16,10 +16,15 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CClient.h"
+#include "CServer.h"
 #include "console.h"
 #include "CBanList.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+
+
+GameServer	*cServer = NULL;
 
 
 // Bots' clients

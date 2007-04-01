@@ -219,10 +219,6 @@ inline T* GetByteSwapped(const T b)
 #include "CVec.h"
 
 
-// Network classes
-#include "CBytestream.h"
-#include "CChannel.h"
-
 
 // Secondary components (coz they need to be below the classes)
 #include "ConfigHandler.h"

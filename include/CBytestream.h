@@ -38,7 +38,7 @@ private:
 	int			CurByte;
 
 	int			Length;
-	uchar		Data[MAX_DATA];
+	uchar		Data[MAX_DATA]; // TODO: use std::sstream
 
 
 public:

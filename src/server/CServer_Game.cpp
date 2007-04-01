@@ -16,6 +16,8 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CServer.h"
+#include "CClient.h"
 
 
 ///////////////////

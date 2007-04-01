@@ -16,6 +16,8 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CClient.h"
+#include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 
@@ -388,7 +390,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         cClient->SetupViewports();
 
 		// Leave the frontend
-		*iGame = true;
+		*bGame = true;
 		tMenu->iMenuRunning = false;
 		tGameInfo.iGameType = GME_JOIN;
 

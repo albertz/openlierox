@@ -16,6 +16,9 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CClient.h"
+#include "CServer.h"
+#include "Graphics.h"
 #include "Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"

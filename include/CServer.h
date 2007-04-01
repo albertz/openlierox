@@ -260,6 +260,7 @@ public:
 	inline void		setScreenshotToken(bool _s) { bScreenshotToken = _s; }
 };
 
+extern	GameServer		*cServer;
 
 
 

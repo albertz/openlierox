@@ -18,6 +18,8 @@
 #define __CWPNREST_H__
 
 #include "CGameScript.h"
+// TODO: remove this after we changed network
+#include "CBytestream.h"
 
 // Weapon states
 enum {

@@ -9,6 +9,9 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CClient.h"
+#include "CServer.h"
+#include "Graphics.h"
 #include "Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
@@ -23,8 +26,6 @@
 // TODO: i hate globals ...
 // we have to create a basic class CGame or something
 
-CClient		*cClient = NULL;
-GameServer		*cServer = NULL;
 lierox_t	*tLX = NULL;
 game_t		tGameInfo;
 CInput		cTakeScreenshot;
@@ -62,12 +63,13 @@ int main(int argc, char *argv[])
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
 	assert(sizeof(char) == 1);
+	assert(sizeof(bool) == 1); // CBytestream
 	assert(sizeof(short) == 2);
 	assert(sizeof(int) == 4);
 	assert(sizeof(float) == 4);
 	assert(sizeof(ulong) == 4);
 	
-    int     startgame = false;
+    bool startgame = false;
 
 	binary_dir = argv[0];
 	size_t slashpos = findLastPathSep(binary_dir);

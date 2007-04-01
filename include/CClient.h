@@ -17,6 +17,11 @@
 #ifndef __CCLIENT_H__
 #define __CCLIENT_H__
 
+// TODO: remove this after we changed network
+#include "CChannel.h"
+
+#include "CViewport.h"
+
 #define		MAX_CLIENTS		32
 #define		MAX_PLAYERS		8
 #define		MAX_CHATLINES	8
@@ -53,23 +58,6 @@ class ping_t { public:
 	int		iSequence;
 };
 
-// Game lobby structure
-class game_lobby_t { public:
-	int		nSet;
-	int		nGameMode;
-	int		nLives;
-	int		nMaxWorms;
-	int		nMaxKills;
-	int		nLoadingTime;
-	int		nBonuses;
-	std::string	szMapName;
-	std::string	szDecodedMapName;
-	std::string	szModName;
-	std::string	szModDir;
-	bool	bHaveMap;
-	bool	bHaveMod;
-	bool	bTournament;
-};
 
 
 class CClient {
@@ -453,6 +441,7 @@ public:
 
 };
 
+extern	CClient			*cClient;
 
 
 

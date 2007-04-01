@@ -16,7 +16,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
-
+#include "CClient.h"
 
 ///////////////////
 // Setup the viewport

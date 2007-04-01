@@ -16,6 +16,9 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "Graphics.h"
+#include "CClient.h"
+#include "CServer.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 
@@ -946,7 +949,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cServer->StartGame();
 
 					// Leave the frontend
-					*iGame = true;
+					*bGame = true;
 					tMenu->iMenuRunning = false;
 					tGameInfo.iGameType = GME_HOST;
 

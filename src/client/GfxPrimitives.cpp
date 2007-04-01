@@ -22,6 +22,7 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
+#include "CServer.h"
 #include "Cache.h"
 #include "FindFile.h"
 

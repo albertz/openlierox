@@ -17,6 +17,10 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
+#include "CServer.h"
+#include "CClient.h"
+#include "CChannel.h"
+
 
 
 /*

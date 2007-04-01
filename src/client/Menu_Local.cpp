@@ -15,6 +15,8 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "Graphics.h"
+#include "CClient.h"
 #include "Menu.h"
 #include "CListview.h"
 #include "GfxPrimitives.h"
@@ -595,7 +597,7 @@ void Menu_LocalStartGame(void)
 		return;
 	}
 
-	*iGame = true;
+	*bGame = true;
 	tMenu->iMenuRunning = false;
 	tGameInfo.iGameType = GME_LOCAL;
 

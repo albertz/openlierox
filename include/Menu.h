@@ -282,7 +282,7 @@ class local_ply_t { public:
 
 // Menu globals
 extern	menu_t		*tMenu;
-extern	int			*iGame;
+extern	bool		*bGame;
 extern	int			iNetMode;
 extern	int			iJoinMenu;
 extern	int			iHostType;
@@ -299,7 +299,7 @@ extern	float		fStart;
 
 
 // Routines
-int		Menu_Initialize(int *game);
+int		Menu_Initialize(bool *game);
 void	Menu_Shutdown(void);
 void	Menu_Start(void);
 void	Menu_RedrawMouse(int total);

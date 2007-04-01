@@ -22,6 +22,9 @@
 #include "CNinjaRope.h"
 #include "CWpnRest.h"
 
+// TODO: remove this after we changed network
+#include "CBytestream.h"
+
 
 #define		MAX_WEAPONSLOTS		10
 #define		MAX_WORMS			32
@@ -65,6 +68,7 @@ typedef struct {
 	int Weap1,Weap2,Weap3,Weap4,Weap5;
 } randweapons_t;
 
+// the files have to be included yourself later
 class CClient;
 class CBonus;
 

@@ -19,6 +19,7 @@
 #include "defs.h"
 #include <SDL/SDL_syswm.h>
 #include "LieroX.h"
+#include "CServer.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "Cache.h"

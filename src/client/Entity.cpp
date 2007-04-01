@@ -16,6 +16,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "Graphics.h"
 #include "GfxPrimitives.h"
 
 // TODO: check that this is working like the original lierox

@@ -16,6 +16,8 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CClient.h"
+#include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
@@ -23,7 +25,7 @@
 menu_t	*tMenu = NULL;
 
 
-int			*iGame = NULL;
+bool		*bGame = NULL;
 int			iSkipStart = false;
 CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 CCssParser	cWidgetStyles;
@@ -31,10 +33,10 @@ CCssParser	cWidgetStyles;
 
 ///////////////////
 // Initialize the menu system
-int Menu_Initialize(int *game)
+int Menu_Initialize(bool *game)
 {
-	iGame = game;
-	*iGame = false;
+	bGame = game;
+	*bGame = false;
 	iJoin_Recolorize = true;
 	iHost_Recolorize = true;
 

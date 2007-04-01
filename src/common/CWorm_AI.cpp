@@ -24,6 +24,8 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CClient.h"
+#include "CBonus.h"
 #include "GfxPrimitives.h"
 
 

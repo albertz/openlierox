@@ -16,8 +16,14 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CClient.h"
+#include "CServer.h"
+#include "CBonus.h"
 #include "console.h"
 #include "GfxPrimitives.h"
+
+
+CClient		*cClient = NULL;
 
 
 ///////////////////

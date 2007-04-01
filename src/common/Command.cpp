@@ -19,6 +19,8 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "CServer.h"
+#include "CClient.h"
 #include "console.h"
 
 command_t	*Commands = NULL;

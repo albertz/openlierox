@@ -59,7 +59,6 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #include "CChatBox.h"
 #include "Frame.h"
 #include "CViewport.h"
-#include "CMap.h"
 #include "CSimulation.h"
 #include "Command.h"
 #include "CWorm.h"
@@ -67,10 +66,6 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #include "CShootList.h"
 #include "Entity.h"
 #include "CWeather.h"
-#include "CClient.h"
-#include "CServer.h"
-#include "Sounds.h"
-#include "Graphics.h"
 #include "Protocol.h"
 #include "Options.h"
 
@@ -162,11 +157,30 @@ class game_t { public:
 };
 
 
+// TODO: move this somewhere else
+// Game lobby structure
+class game_lobby_t { public:
+	int		nSet;
+	int		nGameMode;
+	int		nLives;
+	int		nMaxWorms;
+	int		nMaxKills;
+	int		nLoadingTime;
+	int		nBonuses;
+	std::string	szMapName;
+	std::string	szDecodedMapName;
+	std::string	szModName;
+	std::string	szModDir;
+	bool	bHaveMap;
+	bool	bHaveMod;
+	bool	bTournament;
+};
+
+
+
 extern	lierox_t		*tLX;
 extern	game_t			tGameInfo;
 extern	CVec			vGravity;
-extern	GameServer			*cServer;
-extern	CClient			*cClient;
 extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern	CInput			cToggleMediaPlayer;

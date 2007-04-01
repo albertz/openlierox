@@ -16,6 +16,7 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 

@@ -18,7 +18,7 @@
 
 
 #include "defs.h"
-
+#include "CBytestream.h"
 
 
 
