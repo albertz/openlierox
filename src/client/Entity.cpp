@@ -212,7 +212,7 @@ void SimulateEntities(float dt, CMap *map)
 {
 	// TODO: this simulation depends to much on dt
 	
-	std::list<entity_t>::iterator ent,tmp_it;
+	std::list<entity_t>::iterator ent;
 
 	for(ent=tEntities.begin();ent!=tEntities.end();) {
 		
@@ -265,9 +265,7 @@ void SimulateEntities(float dt, CMap *map)
 
 
 					// Remove
-					tmp_it = ent; tmp_it++;
-					tEntities.erase(ent);
-					ent = tmp_it;
+					ent = tEntities.erase(ent);
 					continue;
 
 				}
@@ -282,9 +280,7 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_EXPLOSION:
 				ent->fFrame += dt*40;				
 				if(ent->fFrame > 15)  {
-					tmp_it = ent; tmp_it++;
-					tEntities.erase(ent);
-					ent = tmp_it;
+					ent = tEntities.erase(ent);
 				} else ent++;
 				break;
 
@@ -294,9 +290,7 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_CHEMSMOKE:
 				ent->fFrame += dt*15;
 				if((int)ent->fFrame > 4)  {
-					tmp_it = ent; tmp_it++;
-					tEntities.erase(ent);
-					ent = tmp_it;
+					ent = tEntities.erase(ent);
 				} else ent++;
 				break;
 
@@ -304,9 +298,7 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_DOOMSDAY:
 				ent->fFrame += dt*15;
 				if((int)ent->fFrame > 3)  {
-					tmp_it = ent; tmp_it++;
-					tEntities.erase(ent);
-					ent = tmp_it;
+					ent = tEntities.erase(ent);
 				} else ent++;
 				break;
 
@@ -314,9 +306,7 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_SPAWN:
 				ent->fFrame += dt*15;
 				if((int)ent->fFrame > 5)  {
-					tmp_it = ent; tmp_it++;
-					tEntities.erase(ent);
-					ent = tmp_it;
+					ent = tEntities.erase(ent);
 				} else ent++;
 				break;
 
@@ -325,9 +315,7 @@ void SimulateEntities(float dt, CMap *map)
 				ent->vPos = ent->vPos + CVec(0,5.0f*dt);
 				ent->fFrame += dt*5;
 				if((int)ent->fFrame > 2)  {
-					tmp_it = ent; tmp_it++;
-					tEntities.erase(ent);
-					ent = tmp_it;
+					ent = tEntities.erase(ent);
 				} else ent++;
 				break;
 
@@ -335,9 +323,7 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_JETPACKSPRAY:
 				ent->fFrame += dt*200;
 				if((int)ent->fFrame > 150)  {
-					tmp_it = ent; tmp_it++;
-					tEntities.erase(ent);
-					ent = tmp_it;
+					ent = tEntities.erase(ent);
 				} else ent++;
 				break;
 
@@ -345,9 +331,7 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_BEAM:
 			case ENT_LASERSIGHT:
 				if((int)ent->fFrame == 1)  {
-					tmp_it = ent; tmp_it++;
-					tEntities.erase(ent);
-					ent = tmp_it;
+					ent = tEntities.erase(ent);
 				} else ent++;
 				ent->fFrame++;
 				break;
