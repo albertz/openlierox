@@ -235,7 +235,7 @@ void SimulateEntities(float dt, CMap *map)
 				// Check if the particle has hit the map
 				uchar pf = map->GetPixelFlag((int)ent->vPos.x,(int)ent->vPos.y);
 
-				if(!(pf & PX_EMPTY)) {
+				if((pf & PX_ROCK || pf & PX_DIRT)) {
 					switch(ent->iType) {
 
 						// Blood
@@ -332,8 +332,10 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_LASERSIGHT:
 				if((int)ent->fFrame == 1)  {
 					ent = tEntities.erase(ent);
-				} else ent++;
-				ent->fFrame++;
+				} else {
+					ent->fFrame++;
+					ent++;
+				}
 				break;
 
 			// Blood dropper
