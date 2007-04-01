@@ -456,7 +456,6 @@ void CWorm::InitWeaponSelection(void)
 			AI_SetGameType(GAM_OTHER);
 		}
 
-		iWeaponsReady = true;
 	}
 
 	
