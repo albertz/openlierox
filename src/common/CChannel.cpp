@@ -53,7 +53,7 @@ void CChannel::Transmit( CBytestream *bs )
 {
 	CBytestream outpack;
 	int SendReliable = false;
-	ulong r1,r2;	
+	Uint32 r1,r2;	
 
 	outpack.Clear();
 
@@ -122,8 +122,8 @@ void CChannel::Transmit( CBytestream *bs )
 // Process channel (after receiving data)
 int CChannel::Process(CBytestream *bs)
 {
-	ulong Sequence, SequenceAck;
-	ulong ReliableAck, ReliableMessage;	
+	Uint32 Sequence, SequenceAck;
+	Uint32 ReliableAck, ReliableMessage;	
 	int drop;
 
 	// Start from the beginning of the packet
@@ -146,7 +146,7 @@ int CChannel::Process(CBytestream *bs)
 	// TODO: Get rate estimation
 
 	// Get rid of the old packets
-	if(Sequence <= (ulong)iIncomingSequence) {
+	if(Sequence <= (Uint32)iIncomingSequence) {
 		//Con_Printf(CNC_WARNING,"Warning: Packet dropped");
 		return false;
 	}
@@ -164,7 +164,7 @@ int CChannel::Process(CBytestream *bs)
 
 
 	// If the outgoing reliable message has been acknowledged, clear it for more reliable messages
-	if(ReliableAck == (ulong)iReliableSequence)
+	if(ReliableAck == (Uint32)iReliableSequence)
 		Reliable.Clear();
 
 

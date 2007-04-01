@@ -2092,8 +2092,8 @@ int CMap::SaveImageFormat(FILE *fp)
 		return false;
 
 	// Write out the images & pixeflags to memory, compress the data & save the compressed data
-	ulong size = (Width*Height * 3) * 2 + (Width*Height) + 1;
-	ulong destsize = size + (size / 8) + 12;
+	Uint32 size = (Width*Height * 3) * 2 + (Width*Height) + 1;
+	Uint32 destsize = size + (size / 8) + 12;
 
 	uchar *pSource = new uchar[size];
 	uchar *pDest = new uchar[destsize];
@@ -2139,17 +2139,19 @@ int CMap::SaveImageFormat(FILE *fp)
 	}
 
 	// Compress it
-	if( compress( pDest, &destsize, pSource, size) != Z_OK ) {
+	ulong lng_dsize = destsize;
+	if( compress( pDest, &lng_dsize, pSource, size) != Z_OK ) {
 		printf("Failed compressing\n");
 		fclose(fp);
 		delete[] pSource;
 		delete[] pDest;
 		return false;
 	}
+	destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
 
 	// Write out the details & the data
-	fwrite(GetEndianSwapped(destsize), sizeof(ulong), 1, fp);
-	fwrite(GetEndianSwapped(size), sizeof(ulong), 1, fp);
+	fwrite(GetEndianSwapped(destsize), sizeof(Uint32), 1, fp);
+	fwrite(GetEndianSwapped(size), sizeof(Uint32), 1, fp);
 	fwrite(pDest, sizeof(uchar), destsize, fp);
 
 	delete[] pSource;
@@ -2165,12 +2167,12 @@ int CMap::SaveImageFormat(FILE *fp)
 int CMap::LoadImageFormat(FILE *fp)
 {
 	// Load the details
-	ulong size, destsize;
+	Uint32 size, destsize;
 	uint x,y,n,p;
 
-	fread(&size, sizeof(ulong), 1, fp);
+	fread(&size, sizeof(Uint32), 1, fp);
 	EndianSwap(size);
-	fread(&destsize, sizeof(ulong), 1, fp);
+	fread(&destsize, sizeof(Uint32), 1, fp);
 	EndianSwap(destsize);
 
 	// Allocate the memory
@@ -2184,14 +2186,15 @@ int CMap::LoadImageFormat(FILE *fp)
 
 	fread(pSource, sizeof(uchar), size, fp);
 
-	if( uncompress( pDest, &destsize, pSource, size ) != Z_OK ) {
+	ulong lng_dsize = destsize;
+	if( uncompress( pDest, &lng_dsize, pSource, size ) != Z_OK ) {
 		printf("Failed decompression\n");
 		fclose(fp);
 		delete[] pSource;
 		delete[] pDest;
 		return false;
 	}
-
+	destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
 
 	delete[] pSource;  // not needed anymore
 

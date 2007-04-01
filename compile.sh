@@ -39,6 +39,8 @@ test_include_file SDL/SDL.h || \
 	{ echo "ERROR: SDL headers not found" >&2; exit -1; }
 test_include_file SDL/SDL_image.h || \
 	{ echo "ERROR: SDL_image.h not found" >&2; exit -1; }
+test_include_file SDL/SDL_gfx.h || \
+	{ echo "ERROR: SDL_gfx.h not found" >&2; exit -1; }
 test_include_file SDL/SDL_mixer.h || \
 	{ echo "ERROR: SDL_mixer.h not found" >&2; exit -1; }
 test_include_file zlib.h || \
@@ -93,7 +95,7 @@ echo ">>> compiling now, this could take some time ..."
 if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$HAWKNL_GCC_PARAM \
 	-I include -I /usr/include/libxml2 \
-	-lSDL -lSDL_image -lSDL_mixer -lz -lgd -lxml2 \
+	-lSDL -lSDL_image -lSDL_gfx -lSDL_mixer -lz -lgd -lxml2 \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
