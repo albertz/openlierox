@@ -52,7 +52,7 @@
 	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.win32.zip">OpenLieroX Win32 binary zip</a><br>
 	(HINT: These are snapshots I made from time to time.
 	Don't link directly to this files because I always will replace it with
-	new snapshots I will made.)
+	new snapshots I will made.)<br>
 	<br>
 	<b>other Download-sources</b><br>
 	Take also a look in the 

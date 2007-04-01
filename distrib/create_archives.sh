@@ -23,23 +23,17 @@ if [ "$ISCURRELEASE" == "1" ]; then
 	rm distrib/tarball/OpenLieroX_0.57_cur*
 fi
 
-echo ">>> collecting file list ..."
-# this is a very very dirty hack, but I don't know how to do better
-export FILELIST=""
-for f in $SRC_RELEASE; do
-	# filter out the .svn stuff
-	TMP=$(find "$f" -type f -printf "\"%h/%f\"\n" | grep -v .svn)
-	# remove the newlines -> fill FILELIST
-	for f2 in $TMP; do
-		FILELIST="$FILELIST $f2"
-	done
-done
-
-echo ">>> creating source zip ..."
-sh -c "zip -r -9 ${SRC_PREFIX}.zip $FILELIST" >/dev/null
-
 echo ">>> creating source tar.bz ..."
 tar --exclude=.svn -jcf ${SRC_PREFIX}.tar.bz $SRC_RELEASE
+
+echo ">>> creating source zip ..."
+[ -d distrib/srctmp ] && rm -rf distrib/srctmp
+mkdir -p distrib/srctmp
+tar -xjf ${SRC_PREFIX}.tar.bz -C distrib/srctmp
+cd distrib/srctmp
+zip -r -9 ../../${SRC_PREFIX}.zip *
+cd ../..
+rm -rf distrib/srctmp
 
 echo ">>> creating win32 zip ..."
 cd distrib
