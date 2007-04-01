@@ -28,7 +28,7 @@ void CWorm::writeInfo(CBytestream *bs)
 	bs->writeInt(iTeam,1);
     bs->writeString(szSkin);
 
-	for(int i=0;i<3;i++)
+	for(ushort i=0;i<3;i++)
 		bs->writeInt(iColComps[i],1);
 }
 
@@ -266,7 +266,7 @@ void CWorm::writeWeapons(CBytestream *bs)
 {
 	bs->writeByte(iID);
 
-	for(int i=0; i<5; i++) {
+	for(ushort i=0; i<5; i++) {
 		if(tWeapons[i].Weapon)
 			bs->writeByte(tWeapons[i].Weapon->ID);
 		else
@@ -279,10 +279,11 @@ void CWorm::writeWeapons(CBytestream *bs)
 // Read the weapon list
 void CWorm::readWeapons(CBytestream *bs)
 {
-	int i;
-
+	ushort i;
+	int id;
+	
 	for(i=0; i<5; i++) {
-		int id = bs->readByte();
+		id = bs->readByte();
 
 		tWeapons[i].Weapon = NULL;
 		tWeapons[i].Enabled = true;
@@ -325,10 +326,9 @@ void CWorm::writeStatUpdate(CBytestream *bs)
 // Read a worm stat update
 void CWorm::readStatUpdate(CBytestream *bs)
 {
-	int cur = bs->readByte();
-	int charge = bs->readByte();
+	uchar cur = bs->readByte();
+	uchar charge = bs->readByte();
 
-	cur = MAX(cur, 0);
     cur = MIN(cur, 4);
 
 

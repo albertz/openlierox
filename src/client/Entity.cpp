@@ -128,14 +128,13 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 		// Clipping
 		if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
-			if(x<l || x>l+v->GetVirtW())
+			if((x < l || x > l + v->GetVirtW()))
 				continue;
-			if(y<t || y>t+v->GetVirtH())
+			if((y < t || y > t + v->GetVirtH()))
 				continue;
 		}
 
 		switch(ent->iType) {
-
 			// Particle & Blood
 			case ENT_PARTICLE:
 			case ENT_BLOOD:				// Fallthrough
@@ -210,6 +209,8 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 // Simulate the entities
 void SimulateEntities(float dt, CMap *map)
 {
+	// TODO: this simulation depends to much on dt
+	
 	std::list<entity_t>::iterator ent,tmp_it;
 
 	for(ent=tEntities.begin();ent!=tEntities.end();) {
@@ -371,6 +372,6 @@ void SimulateEntities(float dt, CMap *map)
 // Bounce an entity
 void EntityBounce(entity_t *ent)
 {
-	ent->vVel = ent->vVel * CVec(-0.4f, -0.4f);
-	ent->fAnglVel *= 0.8f;
+	ent->vVel *= -0.4f;
+	ent->fAnglVel *= 0.8f; // TODO: this is not physical correct!
 }

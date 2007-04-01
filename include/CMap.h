@@ -286,7 +286,7 @@ public:
     inline int         getGridHeight(void) const { return nGridHeight; }
     inline const uchar *getGridFlags(void) const { return GridFlags; }
 	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
-	inline int			getCreated(void)	{ return Created; }
+	inline bool			getCreated(void)	{ return Created; }
 	inline std::string getName(void)		{ return Name; }
 
 

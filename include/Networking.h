@@ -48,10 +48,9 @@
 #define     HTTP_TIMEOUT    10
 #define     DNS_TIMEOUT		10
 
-#define		HTTP_CONTENT_LEN	1024
 
 
-
+// TODO: put this into a class and clean it up a bit
 // HTTP Request
 void	http_Init();
 bool	http_InitializeRequest(const std::string& host, const std::string& url);

@@ -536,6 +536,7 @@ void GameServer::RegisterServer(void)
     // Find the first line
     while( !feof(fp) ) {
         buf = ReadUntil(fp);
+        TrimSpaces(buf);
         if( buf != "" ) {
             if( !http_InitializeRequest(buf, url) ) {
                 bRegServer = false;
@@ -625,6 +626,7 @@ bool GameServer::DeRegisterServer(void)
     // Find the first line
     while( !feof(fp) ) {
     	buf = ReadUntil(fp);
+        TrimSpaces(buf);
         if( buf != "" ) {
             if( !http_InitializeRequest(buf, url) ) {
                 fclose(fp);
@@ -643,8 +645,7 @@ bool GameServer::DeRegisterServer(void)
 // Process the de-registering of the server
 bool GameServer::ProcessDeRegister(void)
 {
-	int result = http_ProcessRequest(NULL);
-	return result != 0;
+	return http_ProcessRequest(NULL) != 0;
 }
 
 
@@ -1345,7 +1346,7 @@ void GameServer::Shutdown(void)
 	}
 
 	if(cMap) {
-		bool bCreated = cMap->getCreated() != 0;  // TODO: dirty and not needed anymore, remove
+		bool bCreated = cMap->getCreated();  // TODO: dirty and not needed anymore, remove
 												  // this everywhere in the code
 		cMap->Shutdown();
 		if(bCreated)
