@@ -44,8 +44,10 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			int col_w = col->iWidth;
 			// Last column has to be thiner
 			if (i == iNumColumns)  {
-				if (x-2+col_w-1 != iX+iWidth-4)
+				if (x-2+col_w-1 != iX+iWidth-4)  {
 					col_w = iWidth-x+iX+4;
+					col->iWidth = col_w;  // Update it when we've counted it...
+				}
 				col_w--;
 			}
 			Menu_DrawWinButton(bmpDest,x-2,iY+2,col_w-3,tLX->cFont.GetHeight(),col->bDown);
@@ -54,7 +56,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown->w-9,iY+7); break;
 			}
 
-			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x-20), tLX->clNormalLabel, col->sText);
+			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x/*-20*/), tLX->clNormalLabel, col->sText);
 
 			x += col->iWidth-2;
 		}
