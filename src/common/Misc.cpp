@@ -514,9 +514,9 @@ void ucfirst(std::string& text)
 	for (std::string::iterator it=text.begin()+1;it != text.end();it++)  {
 		if (isalpha(*it))  {
 			if (wasalpha)
-				*it = toupper(*it);
-			else
 				*it = tolower(*it);
+			else
+				*it = toupper(*it);
 			wasalpha = true;
 		} else {
 			wasalpha = false;
