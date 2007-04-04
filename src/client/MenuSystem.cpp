@@ -935,7 +935,7 @@ void Menu_AddDefaultWidgets(void)
 			if(mapName != "" && !cmb->getItem(mapName)) {
 				cmb->addItem((*index), f, mapName);
 				
-				if(mapName == tLXOptions->tGameinfo.sMapName)
+				if(f == tLXOptions->tGameinfo.sMapName)
 					*selected = *index;
 				
 				(*index)++;		

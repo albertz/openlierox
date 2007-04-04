@@ -327,7 +327,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->tGameinfo.sServerName, 0);
 						cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->tGameinfo.sWelcomeMessage, 0);
                         //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tLXOptions->tGameinfo.szPassword, 0);
-						cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, buf, 0);
+						cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, &buf, 0);
 
 						tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
 						// At least 2 players, and max 8
@@ -637,9 +637,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Process the server & client frames
 	cServer->Frame();
 	cClient->Frame();
-/*	if (cBots)
-		for (int i=0;i<tGameInfo.iNumBots;i++)
-			cBots[i].Frame();*/
+
 
 	if (bActivated)  {
 		// Get the mod name
