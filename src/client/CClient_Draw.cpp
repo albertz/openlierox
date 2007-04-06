@@ -948,7 +948,7 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 {
 	int y = 0;
 	unsigned int i;
-	for(i=MAX((uint)0,cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
+	for(i=(uint)MAX((int)0,(int)cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
 		line_t *l = cChatbox.GetLine(i);
 
 		// This chat times out after a few seconds AND is on the top of the screen
