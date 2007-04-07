@@ -47,7 +47,7 @@
 	$VERSION = read_from_file("VERSION");
 ?>
 	<b>current <?php echo $VERSION; ?></b></br>
-	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.src.tar.bz">OpenLieroX Source tar.bz</a><br>
+	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.src.tar.bz2">OpenLieroX Source tar.bz</a><br>
 	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.src.zip">OpenLieroX Source zip</a><br>
 	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.win32.zip">OpenLieroX Win32 binary zip</a><br>
 	(HINT: These are snapshots I made from time to time.

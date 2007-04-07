@@ -1,5 +1,6 @@
 TODO list
 
+[ ] place all files in a subfolder in the archives
 [x] fallback to software rendering on Windows on error
 [ ] better bot aiming
 [ ] better bot behavior
