@@ -128,7 +128,16 @@ int SetVideoMode(void)
 	int HardwareBuf = false;
 	int DoubleBuf = false;
 	int vidflags = 0;
-	int bpp = 0;  // Use system default
+
+	// Check that the bpp is valid
+	switch (tLXOptions->iColourDepth) {
+	case 0:
+	case 16:
+	case 24:
+	case 32:
+		{} break;
+	default: tLXOptions->iColourDepth = 0;
+	}
 
 	// BlueBeret's addition (2007): OpenGL support
 	int opengl = tLXOptions->iOpenGL;
@@ -161,8 +170,8 @@ int SetVideoMode(void)
 		vidflags |= SDL_DOUBLEBUF;
 
 
-	if( SDL_SetVideoMode(640,480, bpp,vidflags) == NULL) {
-		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, bpp,SDL_GetError());
+	if( SDL_SetVideoMode(640,480, tLXOptions->iColourDepth,vidflags) == NULL) {
+		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, tLXOptions->iColourDepth,SDL_GetError());
 		return false;
 	}
 
@@ -173,6 +182,12 @@ int SetVideoMode(void)
 	SDL_ShowCursor(SDL_DISABLE);
 
 #ifdef WIN32
+	// Hint: Reset the mouse state - this should avoid the mouse staying pressed
+	Mouse.Button = 0;
+	Mouse.Down = 0;
+	Mouse.FirstDown = 0;
+	Mouse.Up = 0;
+
 	if (!tLXOptions->iFullscreen)  {
 		SubclassWindow();
 	}
@@ -248,6 +263,12 @@ void ProcessEvents(void)
 
                 // Gain focus event
                 case WM_SETFOCUS:  {
+						// Hint: Reset the mouse state - this should avoid the mouse staying pressed
+						Mouse.Button = 0;
+						Mouse.Down = 0;
+						Mouse.FirstDown = 0;
+						Mouse.Up = 0;
+
 						nFocus = true;
 						bActivated = true;
 					}

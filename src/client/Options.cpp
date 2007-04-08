@@ -96,6 +96,7 @@ bool GameOptions::LoadFromDisc()
     ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, true);
     ReadKeyword(f, "Video", "ShowFPS",      &iShowFPS, false);
     ReadKeyword(f, "Video", "OpenGL",       &iOpenGL, false);
+	ReadInteger(f, "Video", "ColourDepth",	&iColourDepth, 0);
 
     // Network
     ReadInteger(f, "Network", "Port",       &iNetworkPort, LX_PORT);
@@ -232,6 +233,7 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "Fullscreen = %s\n",iFullscreen ? "true" : "false");
     fprintf(fp, "ShowFPS = %s\n",iShowFPS ? "true" : "false");
     fprintf(fp, "OpenGL = %s\n",iOpenGL ? "true" : "false");
+	fprintf(fp, "ColourDepth = %d\n",iColourDepth);
     fprintf(fp, "\n");
 
     fprintf(fp, "[Network]\n");

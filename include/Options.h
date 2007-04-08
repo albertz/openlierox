@@ -143,6 +143,7 @@ public:
 	int		iShowFPS;
 	int		iOpenGL;
 	std::string	sResolution;
+	int		iColourDepth;
 
 	// Network
 	int		iNetworkPort;

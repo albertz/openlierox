@@ -131,6 +131,7 @@ public:
     void    setCurIndexItem(int nIndex);
 	void	setImage(SDL_Surface *img, int ItemIndex);
 	int		getDropped(void) { return iDropped; }
+	int		getSelectedIndex(void);
 };
 
 

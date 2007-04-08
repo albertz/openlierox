@@ -2293,6 +2293,9 @@ int CMap::LoadImageFormat(FILE *fp)
 	// Update the draw image
 	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
 
+	// Update the minimap
+	UpdateMiniMap(true);
+
     // Calculate the grid
     calculateGrid();
 

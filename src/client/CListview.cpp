@@ -73,9 +73,15 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		else
 			y = iY+tLX->cFont.GetHeight()+4;
 	} else {
-		y += 3;
-		// Re-setup the scrollbar
-		cScrollbar.Setup(0, iX+iWidth-16, iY+3, 14, iHeight-5);
+		if (bDrawBorder)  {
+			y += 2;
+			// Re-setup the scrollbar
+			cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight-2);
+		} else {
+			// Re-setup the scrollbar
+			cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight);
+		}
+
 	}
 	x = iX+4;
 	lv_item_t *item = tItems;
@@ -345,9 +351,9 @@ void CListview::ReadjustScrollbar(void)
 
 	// Buffer size on top & bottom
 	if (tColumns)
-		size += 17;
-	else
-		size += 6;
+		size += 13;
+	if (bDrawBorder)
+		size += 4;
 
 	iGotScrollbar = false;
 	if(size >= iHeight)

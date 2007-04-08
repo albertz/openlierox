@@ -726,3 +726,9 @@ cb_item_t* CCombobox::getItem(const std::string& name) {
 	}
 	return NULL;
 }
+
+int CCombobox::getSelectedIndex()  {
+	int result = 0;
+	for (cb_item_t *i = tItems; i && i != tSelected; i=i->tNext,result++) {};
+	return result;
+}

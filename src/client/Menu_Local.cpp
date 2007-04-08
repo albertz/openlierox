@@ -634,16 +634,18 @@ int Menu_LocalCheckPlaying(int index)
 
 	// TODO: does it work with this removed restrictions ?
 	//	if not, make it working
+	// Doesn't work and cannot work for now, better uncomment the
+	// restrictions for now (it could lead to a crash)
 
 	// Check if there is too many players (MAX: 8)
-//	if(plycount+1 > 8)
-//		return false;
+	if(plycount+1 > 8)
+		return false;
 
 	// Check if there is too many human players (MAX: 2)
-//	if(p) {
-//		if(p->iType == PRF_HUMAN && hmncount+1 > 2)
-//			return false;
-//	}
+	if(p) {
+		if(p->iType == PRF_HUMAN && hmncount+1 > 2)
+			return false;
+	}
 
 	return true;
 }

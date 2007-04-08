@@ -648,7 +648,6 @@ void Menu_Player_ViewPlayers(int mouse)
 
                     // Load the skin
                     buf = "skins/"+buf;
-                    fix_markend(buf);
                     tMenu->bmpWorm = LoadImage(buf);
                 }
                 break;

@@ -40,6 +40,7 @@ enum {
 
 enum {
 	os_Fullscreen,
+	os_ColourDepth,
 	os_SoundOn,
 	os_SoundVolume,
 	os_NetworkPort,
@@ -210,6 +211,7 @@ int Menu_OptionsInitialize(void)
 	// System
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
+	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 220, 170, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 170, 170, 17,17);
 #ifndef WIN32
 	cOpt_System.Add( new CLabel("OpenGL acceleration",tLX->clNormalLabel),Static, 240, 170, 0,0);
@@ -247,6 +249,7 @@ int Menu_OptionsInitialize(void)
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 327, 130,17);
 	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
+	cOpt_System.Add( new CCombobox(), os_ColourDepth, 320, 170, 150, 17); 
 
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
@@ -270,6 +273,31 @@ int Menu_OptionsInitialize(void)
 
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURSEL, tLXOptions->iScreenshotFormat, 0);
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURINDEX, tLXOptions->iScreenshotFormat, 0);
+
+	// Color depth
+	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "Automatic", FMT_BMP);
+	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "High Color (16 bit)", FMT_PNG);
+	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (24 bit)", FMT_GIF);
+	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (32 bit)", FMT_JPG);
+
+	switch (tLXOptions->iColourDepth) {
+	case 0:  // Automatic
+		cOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)0, 0);
+		cOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)0, 0);
+		break;
+	case 16:  // 16 bit
+		cOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)1, 0);
+		cOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)1, 0);
+		break;
+	case 24:  // 24 bit
+		cOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)2, 0);
+		cOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)2, 0);
+		break;
+	case 32:  // 32 bit
+		cOpt_System.SendMessage(os_ColourDepth, CBM_SETCURSEL, (DWORD)3, 0);
+		cOpt_System.SendMessage(os_ColourDepth, CBM_SETCURINDEX, (DWORD)3, 0);
+		break;
+	}
 
 
 	// Disable apply for now
@@ -513,6 +541,15 @@ void Menu_OptionsFrame(void)
 		// OpenGL accel value
 		c2 = (CCheckbox *)cOpt_System.getWidget(os_OpenGL);
 		int opengl = c2->getValue ();
+		// Color depth
+		int cdepth = ((CCombobox *)cOpt_System.getWidget(os_ColourDepth))->getSelectedIndex();
+		switch (cdepth)  {
+		case 0: cdepth = 0; break;
+		case 1: cdepth = 16; break;
+		case 2: cdepth = 24; break;
+		case 3: cdepth = 32; break;
+		default: cdepth = 0;
+		}
 
 		// FIXME: WARNING! If OpenGL acceleration is not supported,
 		//                 this could lead to a crash!
@@ -538,9 +575,10 @@ void Menu_OptionsFrame(void)
 				case os_Apply:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						// Set to fullscreen / OpenGL
+						// Set to fullscreen / OpenGL / change colour depth
 						tLXOptions->iFullscreen = fullscr;
 						tLXOptions->iOpenGL = opengl;
+						tLXOptions->iColourDepth = cdepth;
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Set the new video mode
@@ -621,6 +659,20 @@ void Menu_OptionsFrame(void)
 		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
 
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
+
+		tLXOptions->iColourDepth = cOpt_System.SendMessage(os_ColourDepth, CBM_GETCURINDEX,(DWORD)0,0); 
+		switch (tLXOptions->iColourDepth)  {
+		case 0: tLXOptions->iColourDepth = 0; break;
+		case 1: tLXOptions->iColourDepth = 16; break;
+		case 2: tLXOptions->iColourDepth = 24; break;
+		case 3: tLXOptions->iColourDepth = 32; break;
+		default: tLXOptions->iColourDepth = 0;
+		}
+
+		if (cdepth != tLXOptions->iColourDepth)  {
+			Menu_MessageBox("Information","You need to restart LieroX for the changes to take effect",LMB_OK);
+			Menu_redrawBufferRect(0,0,640,480);
+		}
 
 
 		if((fullscr != tLXOptions->iFullscreen) || (opengl != tLXOptions->iOpenGL))
