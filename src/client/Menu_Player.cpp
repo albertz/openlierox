@@ -778,6 +778,8 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 					file.erase(0, slash+1);
 				
 				std::string name = file.substr(0, file.size()-4); // the size-calcing here is safe
+				if (cb->getItem(name) != NULL)
+					return true;
 				cb->addItem(index, file, name);
 				
 				if(stringcasecmp(name, "default")==0)
