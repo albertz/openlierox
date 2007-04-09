@@ -935,7 +935,7 @@ void Menu_AddDefaultWidgets(void)
 			if(mapName != "" && !cmb->getItem(mapName)) {
 				cmb->addItem((*index), f, mapName);
 				
-				if(f == tLXOptions->tGameinfo.sMapName)
+				if(f == tLXOptions->tGameinfo.sMapFilename)
 					*selected = *index;
 				
 				(*index)++;		
@@ -958,7 +958,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	// If random is true, we add the 'random' level to the list
 	if(random) {
 		cmb->addItem(index++, "_random_", "- Random level -");
-		if( tLXOptions->tGameinfo.sMapName == "_random_" )
+		if( tLXOptions->tGameinfo.sMapFilename == "_random_" )
 			selected = index-1;
 	}
 

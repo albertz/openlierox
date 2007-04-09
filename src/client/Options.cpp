@@ -170,7 +170,7 @@ bool GameOptions::LoadFromDisc()
 	ReadKeyword(f, "LastGame", "Tournament", &tGameinfo.bTournament, true);
     ReadString (f, "LastGame", "ServerName",tGameinfo.sServerName, "LieroX Server");
 	ReadString (f, "LastGame", "WelcomeMessage",tGameinfo.sWelcomeMessage, "Welcome to <server>, <player>");
-    ReadString (f, "LastGame", "LevelName", tGameinfo.sMapName, "");
+    ReadString (f, "LastGame", "LevelName", tGameinfo.sMapFilename, "");
     ReadInteger(f, "LastGame", "GameType",  &tGameinfo.nGameType, GMT_DEATHMATCH);
     ReadString (f, "LastGame", "ModName",   tGameinfo.szModName, "Classic");
     ReadString (f, "LastGame", "Password",  tGameinfo.szPassword, "");
@@ -317,7 +317,7 @@ void GameOptions::SaveToDisc()
 	fprintf(fp, "Tournament = %s\n",tGameinfo.bTournament ? "true" : "false");
     fprintf(fp, "ServerName = %s\n",tGameinfo.sServerName.c_str());
 	fprintf(fp, "WelcomeMessage = %s\n",tGameinfo.sWelcomeMessage.c_str());
-    fprintf(fp, "LevelName = %s\n", tGameinfo.sMapName.c_str());
+    fprintf(fp, "LevelName = %s\n", tGameinfo.sMapFilename.c_str());
     fprintf(fp, "GameType = %d\n",  tGameinfo.nGameType);
     fprintf(fp, "ModName = %s\n",   tGameinfo.szModName.c_str());
     fprintf(fp, "Password = %s\n",  tGameinfo.szPassword.c_str());

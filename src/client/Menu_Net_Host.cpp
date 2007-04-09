@@ -649,7 +649,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
 
 		// Fill in the levels list
-		cHostLobby.SendMessage(hl_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
+		cHostLobby.SendMessage(hl_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 
 		// Redraw the minimap
@@ -937,7 +937,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Get the map name
 					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapname, 0);
 					// Save the current level in the options
-					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
+					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
 					cHostLobby.Shutdown();
 
                     // Setup the client

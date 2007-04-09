@@ -148,7 +148,7 @@ void Menu_LocalShutdown(void)
 
 
 	// Save the level and mod
-	cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
+	cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
 	cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.szModName, 0);
 
 	cLocalMenu.Shutdown();
@@ -176,11 +176,11 @@ void Menu_LocalFrame(void)
 		Menu_Local_FillModList( (CCombobox *)cLocalMenu.getWidget(ml_ModName));
 
 		// Fill in the levels list
-		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
+		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
 		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), true);
 
 		// Reload the minimap
-		if (tLXOptions->tGameinfo.sMapName != "_random_")
+		if (tLXOptions->tGameinfo.sMapFilename != "_random_")
 			Menu_LocalShowMinimap(true);
 	}
 
@@ -569,7 +569,7 @@ void Menu_LocalStartGame(void)
     }
 
 	// Save the current level in the options
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapName, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
 
 	//
 	// Game Info

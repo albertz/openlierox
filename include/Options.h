@@ -206,7 +206,7 @@ public:
 		bool	bTournament;
 		std::string	sServerName;
 		std::string	sWelcomeMessage;
-		std::string	sMapName;
+		std::string	sMapFilename;
         int     nGameType;
         std::string szModName;
         std::string szPassword;
