@@ -31,39 +31,23 @@ function test_include_file() {
 echo "--- OpenLieroX compile.sh ---"
 
 # do some simple checks
+ALL_FINE=1
 type $COMPILER 1>/dev/null 2>/dev/null || \
-	{ echo "ERROR: g++ not found" >&2; exit -1; }
+	{ echo "ERROR: g++ not found" >&2; ALL_FINE=0; }
 test_include_file libxml2/libxml/parser.h || \
-	{ echo "ERROR: libxml2 headers not found" >&2; exit -1; }
+	{ echo "ERROR: libxml2 headers not found" >&2; ALL_FINE=0; }
 test_include_file SDL/SDL.h || \
-	{ echo "ERROR: SDL headers not found" >&2; exit -1; }
+	{ echo "ERROR: SDL headers not found" >&2; ALL_FINE=0; }
 test_include_file SDL/SDL_image.h || \
-	{ echo "ERROR: SDL_image.h not found" >&2; exit -1; }
+	{ echo "ERROR: SDL_image.h not found" >&2; ALL_FINE=0; }
 test_include_file SDL/SDL_gfxPrimitives.h || \
-	{ echo "ERROR: SDL_gfx.h not found" >&2; exit -1; }
+	{ echo "ERROR: SDL_gfxPrimitives.h not found" >&2; ALL_FINE=0; }
 test_include_file SDL/SDL_mixer.h || \
-	{ echo "ERROR: SDL_mixer.h not found" >&2; exit -1; }
+	{ echo "ERROR: SDL_mixer.h not found" >&2; ALL_FINE=0; }
 test_include_file zlib.h || \
-	{ echo "ERROR: zlib header not found" >&2; exit -1; }
+	{ echo "ERROR: zlib header not found" >&2; ALL_FINE=0; }
 test_include_file gd.h || \
-	{ echo "ERROR: gd header not found" >&2; exit -1; }
-
-# report the used settings
-[ "$VERSION" != "" ] && echo "* version $(cat VERSION)"
-echo "* the global search-path of the game will be $SYSTEM_DATA_DIR/OpenLieroX"
-[ "$DEBUG" == "1" ] && \
-	echo "* debug-thingies in the game will be activated" || \
-	echo "* you will not see any debug-crap"
-echo "* $COMPILER will be used for compilation"
-[ "$ACTIVATE_GDB" == "1" ] && \
-	echo "* gdb-data will not been added to the bin, if they doesn't occurs here:" || \
-	echo "* gdb-data will be included in the bin"
-[ "$CXXFLAGS" == "" ] && \
-	echo "* none additional compiler-flags will be used" || \
-	echo "* the following additional compiler-flags will be used: $CXXFLAGS"
-[ "$HAWKNL_BUILTIN" == "1" ] && \
-	echo "* HawkNL support will be downloaded automaticaly and built into the binary" || \
-	echo "* the binary will be linked dynamically against the HawkNL-lib"
+	{ echo "ERROR: gd header not found" >&2; ALL_FINE=0; }
 
 if [ "$HAWKNL_BUILTIN" == "1" ]; then
 	cd hawknl
@@ -86,9 +70,31 @@ if [ "$HAWKNL_BUILTIN" == "1" ]; then
 else
 	test_include_file nl.h || \
 	test_include_file hawknl/nl.h || \
-		{ echo "ERROR: HawkNL header not found" >&2; exit -1; }
+		{ echo "ERROR: HawkNL header not found" >&2; ALL_FINE=0; }
 	HAWKNL_GCC_PARAM="-lNL"
 fi
+
+[ $ALL_FINE == 0 ] && \
+	{ echo "errors detected, exiting"; exit -1; }
+
+
+# report the used settings
+[ "$VERSION" != "" ] && echo "* version $(cat VERSION)"
+echo "* the global search-path of the game will be $SYSTEM_DATA_DIR/OpenLieroX"
+[ "$DEBUG" == "1" ] && \
+	echo "* debug-thingies in the game will be activated" || \
+	echo "* you will not see any debug-crap"
+echo "* $COMPILER will be used for compilation"
+[ "$ACTIVATE_GDB" == "1" ] && \
+	echo "* gdb-data will not been added to the bin, if they doesn't occurs here:" || \
+	echo "* gdb-data will be included in the bin"
+[ "$CXXFLAGS" == "" ] && \
+	echo "* none additional compiler-flags will be used" || \
+	echo "* the following additional compiler-flags will be used: $CXXFLAGS"
+[ "$HAWKNL_BUILTIN" == "1" ] && \
+	echo "* HawkNL support will be downloaded automaticaly and built into the binary" || \
+	echo "* the binary will be linked dynamically against the HawkNL-lib"
+
 
 mkdir -p bin
 
@@ -96,6 +102,7 @@ echo ">>> compiling now, this could take some time ..."
 if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$HAWKNL_GCC_PARAM \
 	-I include -I /usr/include/libxml2 -I /usr/include/hawknl \
+	-I /usr/local/include/libxml2 -I /usr/local/include/hawknl \
 	-lSDL -lSDL_image -lSDL_gfx -lSDL_mixer -lz -lgd -lxml2 \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \

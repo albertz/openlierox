@@ -17,7 +17,6 @@
 // By Jason Boettcher
 
 
-
 #include "defs.h"
 #include "LieroX.h"
 #include "FindFile.h"
@@ -58,7 +57,6 @@ bool IsFileAvailable(const std::string& f, bool absolute) {
 	// it's stat-able and a file
 	return true;
 }
-
 
 
 
@@ -434,6 +432,25 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 
 	return NULL;
 }
+
+
+
+std::ifstream* OpenGameFileR(const std::string& path) {
+	if(path.size() == 0)
+		return NULL;
+
+	std::string fullfn = GetFullFileName(path);
+	if(fullfn.size() != 0) {
+		try {
+			std::ifstream* f = new std::ifstream(fullfn.c_str(), std::ios::in | std::ios::binary);
+			return f;
+		} catch(...) {}
+		return NULL;
+	}
+
+	return NULL;
+}
+
 
 
 void AddToFileList(searchpathlist* l, const std::string& f) {

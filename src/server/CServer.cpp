@@ -1225,66 +1225,159 @@ bool GameServer::WriteLogToFile(FILE *f)
 }
 
 
+
+
+class CountryCvsReader {
+public:
+	std::ifstream* file;
+	Uint32 myIP;
+	
+	// reading states
+	bool inquote;
+	bool waitforkomma;
+	bool ignoreline;
+	
+	// collected data
+	int tindex;
+	std::string token;	
+	
+	bool hasresult;
+	std::string result;
+	
+	CountryCvsReader() : inquote(false), waitforkomma(false), ignoreline(false), tindex(0), hasresult(false) {}
+	
+	void endToken() {
+		ignoreline = false;
+		waitforkomma = false;
+		inquote = false;	
+		
+		switch(tindex) {
+		case 0:
+			// range check
+			ignoreline = !(myIP >= from_string<uint>(token));
+			break;
+			
+		case 1:
+			// range check
+			ignoreline = !(myIP <= from_string<uint>(token));
+			break;
+		
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+			// ignore
+			break;
+			
+		case 6:
+			result = token;
+			ucfirst(result);
+			hasresult = true;
+			ignoreline = true;
+			break;
+		
+		default:
+			ignoreline = true;
+		}
+		
+		token = "";
+		tindex++;
+	}
+	
+	std::string readAndReturnCountry() {
+		char nextch;
+		while(!file->eof() && !hasresult) {
+			file->get(nextch);
+			switch(nextch) {
+			case 0:
+				break;
+				
+			case ' ':
+			case 9: // TAB
+				if(ignoreline) break;
+				if(waitforkomma) break;
+				if(inquote) token += nextch;
+				break;
+							
+			case '\"':
+				if(ignoreline) break;
+				if(waitforkomma) break;
+				if(inquote) {
+					endToken();
+					waitforkomma = true;
+				} else {
+					inquote = true;
+				}
+				break;
+				
+			case 10: // LF (newline)
+			case 13: // CR
+				if(!ignoreline && !waitforkomma) endToken();
+				ignoreline = false;
+				waitforkomma = false;
+				inquote = false;
+				tindex = 0;
+				break;
+				
+			case '#':
+				if(ignoreline) break;
+				if(inquote)
+					token += nextch;
+				else {
+					if(!waitforkomma) endToken();
+					ignoreline = true;
+				}
+				break;
+				
+			case ',': // new tokent marking
+				if(ignoreline) break;				
+				if(waitforkomma) {
+					waitforkomma = false;
+					break;
+				}
+				if(inquote)
+					token += nextch;
+				else
+					endToken();
+				break;
+				
+			default:
+				if(!ignoreline && !waitforkomma) token += nextch;
+			}
+		}
+		
+		return result;
+	}
+
+
+};
+
 //////////////////////
 // Returns the country for the specified IP
 std::string GameServer::GetCountryFromIP(const std::string& Address)
 {
 	// Don't check against local IP
-	if (Address.find("127.0.0.1") != std::string::npos)  {
-		return "Home";
-	}
-
-
-	// Clear the buffer
-	std::string Result;
-
+	if (Address.find("127.0.0.1") != std::string::npos)	return "Home";
 
 	const std::vector<std::string>& ip_e = explode(Address,".");
-	if (ip_e.size() != 4)
-		return "Hackerland";
+	if (ip_e.size() != 4) return "Hackerland";
 
+	CountryCvsReader reader;
+	
 	// Convert the IP to the numeric representation
-	Uint32 num_ip = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
+	reader.myIP = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
 
 	// Open the database
-	FILE *fp = OpenGameFile("ip_to_country.csv","r");
-	if (!fp)
-		return "outer space";
+	reader.file = OpenGameFileR("ip_to_country.csv");
+	if(!reader.file) return "outer space";
 
-	std::string line = "";
-	while(!feof(fp)) {
-		// Adjust the line and check it's not comment or blank
-		line = ReadUntil(fp);
-		TrimSpaces(line);
-		if (line == "")
-			continue;
-		if (line[0] == '#') // it's a comment
-			continue;
+	std::string result = reader.readAndReturnCountry();
+	if(result == "") result = "unknown country";
 
-		// Parse and copy the line
-		std::vector<std::string> info = explode(line,",");
-		if (info.size() < 7)
-			continue;
-
-		// Get rid of the quotes in the range numbers
-		StripQuotes(info[0]);
-		StripQuotes(info[1]);
-
-		// Check the range
-		if (num_ip >= from_string<uint>(info[0]) && num_ip <= from_string<uint>(info[1]))  {
-			StripQuotes(info[6]);
-			ucfirst(info[6]);
-			return info[6];
-		}
-	}
-
-
-	// Not found
-	Result = "unknown country";
-
-	fclose(fp);
+	reader.file->close();
+	delete reader.file;
 	
-	return Result;
+	return result;
 }
 
 //////////////////

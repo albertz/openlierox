@@ -20,6 +20,8 @@
 #ifndef __FINDFILE_H__
 #define __FINDFILE_H__
 
+#include <fstream>
+
 #ifndef SYSTEM_DATA_DIR
 #	define	SYSTEM_DATA_DIR	"/usr/share"
 #endif
@@ -122,6 +124,8 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs =
 // this does a search on all searchpaths for the file and opens the first one; if none was found, NULL will be returned
 // related to tLXOptions->tSearchPaths
 FILE*	OpenGameFile(const std::string& path, const char *mode);
+
+std::ifstream* OpenGameFileR(const std::string& path);
 
 bool IsFileAvailable(const std::string& f, bool absolute = false);
 
