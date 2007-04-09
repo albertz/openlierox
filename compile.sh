@@ -50,10 +50,12 @@ test_include_file gd.h || \
 	{ echo "ERROR: gd header not found" >&2; ALL_FINE=0; }
 
 if [ "$HAWKNL_BUILTIN" == "1" ]; then
-	cd hawknl
-	./install.sh || \
-		{ echo "ERROR: problems while installing HawkNL" >&2; exit -1; }
-	cd ..
+	if [ $ALL_FINE == 1 ]; then
+		cd hawknl
+		./install.sh || \
+			{ echo "ERROR: problems while installing HawkNL" >&2; exit -1; }
+		cd ..
+	fi
 	HAWKNL_GCC_PARAM="\
 		hawknl/src/crc.c \
 		hawknl/src/errorstr.c \

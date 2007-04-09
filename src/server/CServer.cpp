@@ -1319,7 +1319,7 @@ public:
 				tindex = 0;
 				break;
 				
-			case '#':
+			case '#': // comment marking
 				if(ignoreline) break;
 				if(inquote)
 					token += nextch;
@@ -1329,7 +1329,7 @@ public:
 				}
 				break;
 				
-			case ',': // new tokent marking
+			case ',': // new token marking
 				if(ignoreline) break;				
 				if(waitforkomma) {
 					waitforkomma = false;
