@@ -43,17 +43,6 @@
 	<a href="additions/lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
 	<a href="additions/another_lx_pack_2007_01_05.zip">another LX Pack (2007-01-05)</a><br>
 	<br>
-<?php 
-	$VERSION = read_from_file("VERSION");
-?>
-	<b>current <?php echo $VERSION; ?></b></br>
-	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.src.tar.bz2">OpenLieroX Source tar.bz</a><br>
-	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.src.zip">OpenLieroX Source zip</a><br>
-	<a href="tarball/OpenLieroX_<?php echo $VERSION; ?>.win32.zip">OpenLieroX Win32 binary zip</a><br>
-	(HINT: These are snapshots I made from time to time.
-	Don't link directly to this files because I always will replace it with
-	new snapshots I will made.)<br>
-	<br>
 	<b>other Download-sources</b><br>
 	Take also a look in the 
 	<a href="http://lxalliance.net/smf/index.php/topic,3071.0.html">

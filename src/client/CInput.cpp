@@ -224,6 +224,7 @@ int CInput::Setup(const std::string& string)
 	Down = false;
 
 	// Check if it's a mouse
+	// TODO: allow more mouse buttons
 	if(string == "ms1") {
 		Type = INP_MOUSE;
 		Data = 1;
@@ -242,6 +243,7 @@ int CInput::Setup(const std::string& string)
 
 
 	// Check if it's a joystick #1
+	// TODO: allow more joysticks
 	if(string.substr(0,5) == "joy1_") {
 		Type = INP_JOYSTICK1;
 		Data = 0;
@@ -306,6 +308,7 @@ int CInput::Setup(const std::string& string)
 	Data = 0;
 
 	// Go through the key list checking with piece of text it was
+	// TODO: allow other unknown keys
 	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
 		if(Keys[n].text == string) {
 			Data = Keys[n].value;

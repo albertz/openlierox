@@ -938,7 +938,7 @@ void Menu_AddDefaultWidgets(void)
 				if(f == tLXOptions->tGameinfo.sMapFilename)
 					*selected = *index;
 				
-				(*index)++;		
+				(*index)++;
 			}
 
 			return true;
