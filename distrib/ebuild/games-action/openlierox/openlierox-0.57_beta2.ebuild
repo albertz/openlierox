@@ -6,13 +6,7 @@ inherit eutils games toolchain-funcs
 
 DESCRIPTION="A real-time excessive Worms-clone"
 HOMEPAGE="http://openlierox.sourceforge.net/"
-SRC_URI="
-	mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.tar.bz
-	mirror://sourceforge/openlierox/lx0.56_pack1.9.zip
-	mirror://sourceforge/openlierox/another_lx_pack_2007_01_05.zip
-	http://openlierox.sourceforge.net/tarball/OpenLieroX_${PV}.src.tar.bz
-	http://openlierox.sourceforge.net/additions/lx0.56_pack1.9.zip
-	http://openlierox.sourceforge.net/additions/another_lx_pack_2007_01_05.zip"
+SRC_URI="mirror://sourceforge/openlierox/OpenLieroX_${PV}.src.tar.bz2"
 
 LICENSE="LGPL-2"
 SLOT="0"
@@ -21,29 +15,20 @@ IUSE="debug"
 
 RDEPEND="media-libs/libsdl
 	media-libs/sdl-mixer
+	media-libs/sdl-gfx
 	media-libs/sdl-image
 	dev-games/hawknl
 	media-libs/gd
 	sys-libs/zlib
 	dev-libs/libxml2"
 
-DEPEND="${RDEPEND}
-	app-arch/unzip"
+DEPEND="${RDEPEND}"
 
 src_unpack() {
 	mkdir -p ${S} || die "cannot creating working-dir"
 	cd ${S}
 
-	unpack OpenLieroX_${PV}.src.tar.bz || die "cannot unpack the main archive"
-
-	cd ${S}/share/gamedir && \
-	unpack lx0.56_pack1.9.zip && \
-	unpack another_lx_pack_2007_01_05.zip \
-		|| die "cannot unpack LieroX packs"
-
-	# merge case diffing directories
-	mv Levels/* levels/
-	rm -r Levels		
+	unpack OpenLieroX_${PV}.src.tar.bz2 || die "cannot unpack the main archive"
 }
 
 src_compile() {

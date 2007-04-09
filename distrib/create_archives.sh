@@ -36,14 +36,14 @@ done
 rm distrib/OpenLieroX
 bzip2 -9 ${SRC_PREFIX}.tar
 
-echo ">>> creating source zip ..."
-[ -d distrib/srctmp ] && rm -rf distrib/srctmp
-mkdir -p distrib/srctmp
-tar -xjf ${SRC_PREFIX}.tar.bz2 -C distrib/srctmp
-cd distrib/srctmp
-zip -r -9 ../../${SRC_PREFIX}.zip * >/dev/null
-cd ../..
-rm -rf distrib/srctmp
+# echo ">>> creating source zip ..."
+# [ -d distrib/srctmp ] && rm -rf distrib/srctmp
+# mkdir -p distrib/srctmp
+# tar -xjf ${SRC_PREFIX}.tar.bz2 -C distrib/srctmp
+# cd distrib/srctmp
+# zip -r -9 ../../${SRC_PREFIX}.zip * >/dev/null
+# cd ../..
+# rm -rf distrib/srctmp
 
 echo ">>> creating win32 zip ..."
 cd distrib
