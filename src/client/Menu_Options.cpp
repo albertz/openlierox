@@ -211,12 +211,12 @@ int Menu_OptionsInitialize(void)
 	// System
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
-	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 220, 170, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 170, 170, 17,17);
+	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 170, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 140, 170, 17,17);
 #ifndef WIN32
-	cOpt_System.Add( new CLabel("OpenGL acceleration",tLX->clNormalLabel),Static, 240, 170, 0,0);
+	cOpt_System.Add( new CLabel("OpenGL acceleration",tLX->clNormalLabel),Static, 440, 170, 0,0);
 #endif
-	cOpt_System.Add( new CCheckbox(tLXOptions->iOpenGL),    os_OpenGL, 400, 170, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->iOpenGL),    os_OpenGL, 590, 170, 17,17);
 
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
 	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
@@ -249,7 +249,7 @@ int Menu_OptionsInitialize(void)
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 327, 130,17);
 	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
-	cOpt_System.Add( new CCombobox(), os_ColourDepth, 320, 170, 150, 17); 
+	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 170, 145, 17); 
 
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
@@ -275,10 +275,10 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBM_SETCURINDEX, tLXOptions->iScreenshotFormat, 0);
 
 	// Color depth
-	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "Automatic", FMT_BMP);
-	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "High Color (16 bit)", FMT_PNG);
-	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (24 bit)", FMT_GIF);
-	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (32 bit)", FMT_JPG);
+	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "Automatic", 0);
+	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "High Color (16 bit)", 1);
+	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (24 bit)", 2);
+	cOpt_System.SendMessage(os_ColourDepth, CBS_ADDITEM, "True Color (32 bit)", 3);
 
 	switch (tLXOptions->iColourDepth) {
 	case 0:  // Automatic
