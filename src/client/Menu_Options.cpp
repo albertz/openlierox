@@ -548,7 +548,7 @@ void Menu_OptionsFrame(void)
 		case 1: cdepth = 16; break;
 		case 2: cdepth = 24; break;
 		case 3: cdepth = 32; break;
-		default: cdepth = 0;
+		default: cdepth = 16;
 		}
 
 		// FIXME: WARNING! If OpenGL acceleration is not supported,
@@ -666,7 +666,7 @@ void Menu_OptionsFrame(void)
 		case 1: tLXOptions->iColourDepth = 16; break;
 		case 2: tLXOptions->iColourDepth = 24; break;
 		case 3: tLXOptions->iColourDepth = 32; break;
-		default: tLXOptions->iColourDepth = 0;
+		default: tLXOptions->iColourDepth = 16;
 		}
 
 		if (cdepth != tLXOptions->iColourDepth)  {

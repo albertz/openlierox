@@ -1101,7 +1101,7 @@ void GameServer::ParsePing(void)
 }
 
 ///////////////////
-// Parse a "wants join" packet
+// Parse a "wants to join" packet
 void GameServer::ParseWantsJoin(CBytestream *bs)
 {
 	// TODO: Accept these messages from banned clients?
@@ -1112,7 +1112,7 @@ void GameServer::ParseWantsJoin(CBytestream *bs)
 	Nick = bs->readString();
 	static std::string buf;
 
-	// Notify about the wants join
+	// Notify about the wants to join
 	if (networkTexts->sWantsJoin!="<none>")  {
 		replacemax(networkTexts->sWantsJoin,"<player>",Nick,buf,1);
 		SendGlobalText(buf,TXT_NORMAL);

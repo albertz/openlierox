@@ -77,21 +77,21 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CButton(BUT_BACK, tMenu->bmpButtons), hs_Back,	25, 440,50, 15);
 	cHostPly.Add( new CButton(BUT_OK, tMenu->bmpButtons),   hs_Ok,			585,440,30, 15);
 
-	cHostPly.Add( new CListview(),							hs_PlayerList,	360,160,200,130);
-	cHostPly.Add( new CListview(),							hs_Playing,		360,310,200,70);
+	cHostPly.Add( new CListview(),							hs_PlayerList,	360,160,200,140);
+	cHostPly.Add( new CListview(),							hs_Playing,		360,320,200,100);
 	cHostPly.Add( new CLabel("Server name",	tLX->clNormalLabel),		-1,			40, 178,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_Servername,	175,175,140,20);
 	cHostPly.Add( new CLabel("Max Players",	tLX->clNormalLabel),		-1,			40,	208,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_MaxPlayers,	175,205,140,20);
     //cHostPly.Add( new CLabel("Password",	tLX->clNormalLabel),	    -1,			40, 238,0,  0);
 	//cHostPly.Add( new CTextbox(),		                    hs_Password,	175,235,140,20);
-	cHostPly.Add( new CLabel("Welcome message",	tLX->clNormalLabel),		-1,			40, 238,0,  0);
+	cHostPly.Add( new CLabel("Welcome Message",	tLX->clNormalLabel),		-1,			40, 238,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_WelcomeMessage, 175,235,140,20);
 	cHostPly.Add( new CLabel("Register Server",	tLX->clNormalLabel),	-1,			153, 268,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_Register,	270,265,17, 17);
-	cHostPly.Add( new CLabel("Allow \"Wants join\" messages",	tLX->clNormalLabel),-1,	60, 298,0,  0);
+	cHostPly.Add( new CLabel("Allow \"Wants to join\" Messages",	tLX->clNormalLabel),-1,	35, 298,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowWantsJoin,	270,295,17, 17);
-	cHostPly.Add( new CLabel("Allow bots in server",			tLX->clNormalLabel),-1,	110, 328,0,  0);
+	cHostPly.Add( new CLabel("Allow Bots in Server",			tLX->clNormalLabel),-1,	115, 328,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowRemoteBots,	270,325,17, 17);
 
 	cHostPly.SendMessage(hs_Playing,		LVM_SETOLDSTYLE, (DWORD)0, 0);
@@ -1318,7 +1318,7 @@ void Menu_ServerSettings(void)
 	cServerSettings.Add( new CTextbox(),							  ss_ServerName, 265,165,  200, 20);
 	cServerSettings.Add( new CTextbox(),							  ss_WelcomeMessage,        265,190,  200, 20);
 	cServerSettings.Add( new CTextbox(),							  ss_MaxPlayers, 265,215,  50, 20);
-	cServerSettings.Add( new CLabel("Allow \"Wants join\" messages",	tLX->clNormalLabel),-1,	130, 245,0,  0);
+	cServerSettings.Add( new CLabel("Allow \"Wants to join\" messages",	tLX->clNormalLabel),-1,	130, 245,0,  0);
 	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowWantsJoin,	340,245,17, 17);
 	cServerSettings.Add( new CLabel("Allow bots in server",				tLX->clNormalLabel),-1,	130, 275,0,  0);
 	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowRemoteBots,	340,275,17, 17);

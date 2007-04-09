@@ -465,7 +465,6 @@ void Menu_LocalAddProfiles(void)
 void Menu_LocalShowMinimap(bool bReload)
 {
 	// TODO: optimize or recode this!
-	
 	CMap map;
 	static std::string buf;
 	static std::string blah;
@@ -514,7 +513,7 @@ void Menu_LocalShowMinimap(bool bReload)
             if(map.Load(blah)) {
 
 		        // Draw the minimap
-		        map.UpdateMiniMap(true);
+		        //map.UpdateMiniMap(true);
 		        DrawImage(tMenu->bmpMiniMapBuffer, map.GetMiniMap(), 0,0);
 		        map.Shutdown();
 	        }
@@ -936,6 +935,7 @@ bool Menu_GameSettings_Frame(void)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					Menu_GameSettings_GrabInfo();
+					Menu_GameSettingsShutdown();
 
 					return true;
 				}

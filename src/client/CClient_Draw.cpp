@@ -1315,9 +1315,9 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
         // Pic & Name
         DrawImage(bmpDest, p->getPicimg(), x+30, j);
 		if (tGameInfo.iGameMode == GMT_TEAMDEATH  && tLXOptions->iColorizeNicks)
-			tLX->cFont.Draw(bmpDest, x+56, j, iColor, p->getName());
+			tLX->cFont.DrawAdv(bmpDest, x+56, j, 130, iColor, p->getName());
 		else
-			tLX->cFont.Draw(bmpDest, x+56, j, tLX->clNormalLabel, p->getName());
+			tLX->cFont.DrawAdv(bmpDest, x+56, j, 130, tLX->clNormalLabel, p->getName());
 
         // Score
         if(!bShowReady) {

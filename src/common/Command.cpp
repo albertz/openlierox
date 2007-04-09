@@ -550,23 +550,46 @@ void Cmd_Unstuck(void)
 }
 
 /////////////////////
-// Enables or disables wants join messages
+// Enables or disables wants to join messages
 void Cmd_WantsJoin(void)
 {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
 		Con_Printf(CNC_NORMAL,"%s","Usage: wantsjoin <on/off>");
+		return;
 	}
 
 	std::string arg = Cmd_GetArg(1);
 
 	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
-		Con_Printf(CNC_NORMAL,"%s","\"Wants join\" messages have been enabled");
+		Con_Printf(CNC_NORMAL,"%s","\"Wants to join\" messages have been enabled");
 	}
 	else  {
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = false;
-		Con_Printf(CNC_NORMAL,"%s","\"Wants join\" messages have been disabled");
+		Con_Printf(CNC_NORMAL,"%s","\"Wants to join\" messages have been disabled");
+	}
+}
+
+void Cmd_RenameServer(void)
+{
+	// Check arguments
+	if (Cmd_GetNumArgs() == 1)  {
+		Con_Printf(CNC_NORMAL,"%s","Usage: servername <new name>");
+		return;
+	}
+
+	// Check if hosting
+	if (tGameInfo.iGameType != GME_HOST)  {
+		Con_Printf(CNC_NORMAL,"%s","This command is available only for host");
+		return;
+	}
+	
+	if (cServer)  {
+		std::string name = Cmd_GetArg(1);
+		for (int i=2; i<Cmd_GetNumArgs();i++)
+			name += " "+Cmd_GetArg(i);
+		cServer->setName(name);
 	}
 }
 

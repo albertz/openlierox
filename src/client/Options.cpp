@@ -96,7 +96,7 @@ bool GameOptions::LoadFromDisc()
     ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, true);
     ReadKeyword(f, "Video", "ShowFPS",      &iShowFPS, false);
     ReadKeyword(f, "Video", "OpenGL",       &iOpenGL, false);
-	ReadInteger(f, "Video", "ColourDepth",	&iColourDepth, 0);
+	ReadInteger(f, "Video", "ColourDepth",	&iColourDepth, 16);
 
     // Network
     ReadInteger(f, "Network", "Port",       &iNetworkPort, LX_PORT);
@@ -396,7 +396,7 @@ bool NetworkTexts::LoadFromDisc()
 	ReadString (f, "NetworkTexts", "GameInProgress",  sGameInProgress,	"Cannot join, the game is currently in progress");
 	ReadString (f, "NetworkTexts", "YouAreBanned",	  sYouAreBanned,		"You are banned on this server");
 	ReadString (f, "NetworkTexts", "BotsNotAllowed",  sBotsNotAllowed,	"Sorry, bots are not allowed on this server");
-	ReadString (f, "NetworkTexts", "WantsJoin",		  sWantsJoin,			"<player> wants join the server");
+	ReadString (f, "NetworkTexts", "WantsJoin",		  sWantsJoin,			"<player> wants to join the server");
 
 	printf("DONE\n");
 	return true;

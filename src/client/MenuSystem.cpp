@@ -1097,7 +1097,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 }
 
 ///////////////////
-// Send Wants Join message
+// Send Wants To Join message
 void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 {
 	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);

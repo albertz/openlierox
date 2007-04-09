@@ -259,7 +259,7 @@ void Menu_Net_NETFrame(int mouse)
                         cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Refresh server",				1 );
                         cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Join server",				2 );
 						cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Add to favourites",			3 );
-						cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Send \"I want join message\"",4 );
+						cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Send \"I want to join message\"",4 );
 						cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Copy IP to clipboard",		5 );
                         cInternet.SendMessage( mi_PopupMenu, MNS_ADDITEM, "Server details",				6 );
                     }
@@ -329,7 +329,7 @@ void Menu_Net_NETFrame(int mouse)
 						}
                         break;
 
-					// Send a "wants join" message
+					// Send a "wants to join" message
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szNetCurServer);

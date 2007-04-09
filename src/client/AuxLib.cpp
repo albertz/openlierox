@@ -136,7 +136,7 @@ int SetVideoMode(void)
 	case 24:
 	case 32:
 		{} break;
-	default: tLXOptions->iColourDepth = 0;
+	default: tLXOptions->iColourDepth = 16;
 	}
 
 	// BlueBeret's addition (2007): OpenGL support

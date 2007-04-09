@@ -2184,7 +2184,7 @@ int CMap::LoadImageFormat(FILE *fp)
 		return false;
 	}
 
-	fread(pSource, sizeof(uchar), size, fp);
+	fread(pSource, size*sizeof(uchar), 1, fp);
 
 	ulong lng_dsize = destsize;
 	if( uncompress( pDest, &lng_dsize, pSource, size ) != Z_OK ) {

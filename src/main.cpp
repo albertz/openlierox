@@ -335,6 +335,7 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("suicide", Cmd_Suicide);
 	Cmd_AddCommand("unstuck", Cmd_Unstuck);
 	Cmd_AddCommand("wantsjoin", Cmd_WantsJoin);
+	Cmd_AddCommand("servername", Cmd_RenameServer);
 	Cmd_AddCommand("help", Cmd_Help);
 	Cmd_AddCommand("version", Cmd_About);
 	Cmd_AddCommand("about", Cmd_About);

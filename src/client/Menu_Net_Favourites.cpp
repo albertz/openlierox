@@ -256,7 +256,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 						cFavourites.SendMessage( mf_PopupMenu, MNS_ADDITEM, "Rename server",				1 );
                         cFavourites.SendMessage( mf_PopupMenu, MNS_ADDITEM, "Refresh server",				2 );
                         cFavourites.SendMessage( mf_PopupMenu, MNS_ADDITEM, "Join server",					3 );
-						cFavourites.SendMessage( mf_PopupMenu, MNS_ADDITEM, "Send \"I want join\" message", 4 );
+						cFavourites.SendMessage( mf_PopupMenu, MNS_ADDITEM, "Send \"I want to join\" message", 4 );
 						cFavourites.SendMessage( mf_PopupMenu, MNS_ADDITEM, "Copy IP to clipboard",			5 );
                         cFavourites.SendMessage( mf_PopupMenu, MNS_ADDITEM, "Server details",				6 );
                     }
@@ -345,7 +345,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 						}
                         return;
 
-					// Send a "wants join" message
+					// Send a "wants to join" message
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
