@@ -31,6 +31,11 @@
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059">
 	Download from SourceForge-mirros</a><br>
 	<br>
+	<b>0.57_beta2</b> (released 2007-04-09)<br>
+	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=499780">
+	OpenLieroX Source & Win32 download link</a><br>
+	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta2.ebuild">OpenLieroX Gentoo ebuild</a><br>
+	<br>
 	<b>0.57_beta1</b> (released 2007-01-27)<br>
 	<a href="tarball/OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
 	<a href="tarball/OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
@@ -39,7 +44,7 @@
 	at <a href="http://bugs.gentoo.org/show_bug.cgi?id=164009">this topic</a>,
 	related to the ebuild, on the Gentoo-Bugtracker.)<br>
 	<br>
-	<b>Levels and mods</b> (you need them for playing online)<br>
+	<b>Levels and mods</b><br>
 	<a href="additions/lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
 	<a href="additions/another_lx_pack_2007_01_05.zip">another LX Pack (2007-01-05)</a><br>
 	<br>
@@ -50,13 +55,6 @@
 	other Windows-releases and you can discuss anything about the game there.
 </p>
 <p>
-	<h2>General installation hints</h2>
-	If you are not using Gentoo (where this will be done automatically
-	within the ebuild), go downloading also the Liero packs.
-	You need them, if you want to play online, because they are widely used.<br>
-	Extract them into <i>~/.OpenLieroX</i> or <i>/usr/share/OpenLieroX</i>.
-</p>
-<p>
 	<h2>Installation under Gentoo</h2>
 	Download the provided ebuild and install it.<br>
 	For example, you can do this by (bad but simple way):<br>
@@ -65,11 +63,10 @@
 		cd /usr/portage
 		mkdir -p games-action/openlierox
 		cd games-action/openlierox
-		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta1.ebuild
+		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta2.ebuild
 		echo "games-action/openlierox ~x86" >> /etc/portage/package.keywords
 		FEATURES="-strict" emerge openlierox
 	</pre>
-	If you want to test the current-version, follow the description @somewhere.
 </p>
 <p>
 	<h2>Installation somewhere</h2>
@@ -86,8 +83,6 @@
 		./compile.sh
 		./start.sh
 	</pre>
-	Don't forget to download also the Level- and Mod-packages. Extract
-	them into <i>/usr/share/OpenLieroX</i> or <i>~/.OpenLieroX</i>.
 </p>
 <p>
 	<h2>Installation under Debian/Ubuntu</h2>
