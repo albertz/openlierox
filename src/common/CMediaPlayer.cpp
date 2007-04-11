@@ -46,7 +46,7 @@ class SongListFiller { public:
 		std::string ext = GetFileExtension(file);
 		stringlwr(ext);
 		for(register unsigned short i=0; i<sizeof(supported_media)/sizeof(std::string); i++)
-			if(ext == supported_media[i]) {
+			if(stringcasecmp(supported_media[i],ext) == 0) {
 				playlist->tSongList.push_back(file);
 				break;
 			}
