@@ -62,7 +62,7 @@ private:
 	bool		DrawLoadingProgress(void);
 public:
 	void		Clear(void);
-	void		Load(const std::string& dir,bool include_subdirs, bool add_to_current_pl, bool firstcall=true);
+	void		Load(const std::string& dir,bool include_subdirs, bool add_to_current_pl);
 	std::string	GetCurSong(void);
 	void		GoToNextSong(void);
 	void		GoToPrevSong(void);

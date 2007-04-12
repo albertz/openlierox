@@ -71,9 +71,9 @@ int LoadGraphics(void)
 	LOAD_IMAGE(gfxGame.bmpChemSmoke,"data/gfx/chemsmoke.png");
 	LOAD_IMAGE(gfxGame.bmpSpawn,"data/gfx/spawn.png");
 	LOAD_IMAGE(gfxGame.bmpHook,"data/gfx/hook.bmp");
-	LOAD_IMAGE(gfxGame.bmpGameover,"data/gfx/gameover.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpGameover,"data/gfx/gameover.png");
 	LOAD_IMAGE(gfxGame.bmpInGame,"data/gfx/ingame.png");
-	LOAD_IMAGE(gfxGame.bmpScoreboard,"data/gfx/scoreboard.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpScoreboard,"data/gfx/scoreboard.png");
     LOAD_IMAGE(gfxGame.bmpViewportMgr,"data/gfx/viewportmgr.png");
 	LOAD_IMAGE(gfxGame.bmpSparkle, "data/gfx/sparkle.png");
 	LOAD_IMAGE(gfxGame.bmpInfinite,"data/gfx/infinite.png");

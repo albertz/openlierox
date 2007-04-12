@@ -8,6 +8,40 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 
+/*
+
+  Playlist filler stack
+
+*/
+typedef struct stackitem_s  {
+	std::string str;
+	stackitem_s *prev;
+} stackitem_t;
+
+class CDirStack  {
+private:
+	stackitem_t *tStackTop;  // std::vector is slower, std::list even more; std::stack not in msvc
+	stackitem_t *iter;
+public:
+	inline CDirStack()  { tStackTop = NULL; }
+	inline ~CDirStack() { Clear(); }
+	inline void Clear() {while (tStackTop) {iter = tStackTop->prev; tStackTop = iter;} tStackTop = NULL;  }
+	inline void Push(const std::string& dir) {iter = new stackitem_t; if (iter) {iter->prev = tStackTop; iter->str = dir; tStackTop = iter;} }
+	inline bool Pop(std::string& dir)  { 
+		if (tStackTop == NULL) {
+			return false; 
+		} else {
+			dir = tStackTop->str;
+			iter = tStackTop->prev;
+			delete tStackTop;
+			tStackTop = iter;
+			return true; 
+		}
+	}
+};
+
+CDirStack cStack;
+
 
 /*
 
@@ -33,7 +67,8 @@ class PlaylistLoader { public:
 	CPlayList* playlist;
 	PlaylistLoader(CPlayList* pl) : playlist(pl) {}
 	inline bool operator() (const std::string& dir) {
-		playlist->Load(dir, true, true, false);
+		//playlist->Load(dir, true, true, false);
+		cStack.Push(dir);
 		return true;
 	}
 };
@@ -118,10 +153,10 @@ bool CPlayList::DrawLoadingProgress(void)
 
 //////////////////
 // Loads the directory and adds all music files in the playlist
-void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_current_pl, bool firstcall)
+void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_current_pl)
 {
 	// Reset the status when we're called for first time
-	if (firstcall)
+/*	if (firstcall)
 		bLoadCancelled = false;
 
 	// Draw the progress
@@ -145,7 +180,29 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	if (!include_subdirs)
 		return;
 
-	FindFiles(PlaylistLoader(this), dir, FM_DIR);
+	FindFiles(PlaylistLoader(this), dir, FM_DIR);*/
+
+	// Clear me first
+	if (!add_to_current_pl)  {
+		iCurSong = 0;
+		tSongList.clear();
+	}
+	bLoadCancelled = false;
+	cStack.Clear();
+
+	if (!include_subdirs)  {
+		FindFiles(SongListFiller(this), dir, FM_REG);
+		return;
+	}
+
+	std::string current_dir = dir;
+	cStack.Push(current_dir);
+	while (cStack.Pop(current_dir))  {
+		FindFiles(SongListFiller(this), current_dir, FM_REG);
+		if (!DrawLoadingProgress())
+			break;
+		FindFiles(PlaylistLoader(this), current_dir, FM_DIR);
+	}
 }
 
 /////////////////

@@ -457,7 +457,8 @@ void AddToFileList(searchpathlist* l, const std::string& f) {
 	if(!FileListIncludes(l, f)) l->push_back(f);
 }
 
-void removeEndingSlashes(std::string& s) {	
+void removeEndingSlashes(std::string& s) {
+	// TODO: iterators!
 	for(
 		int i = s.size() - 1;
 		i > 0 && (s[i] == '\\' || s[i] == '/');
