@@ -282,6 +282,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
 	static int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
 	static int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
+	static const int WORM_CHECKSTEP = 2; // this is used for worm collisions
 	int len = (int)vVelocity.GetLength2();
 	if (len < 14000)  {
 		MIN_CHECKSTEP = 1;
@@ -295,10 +296,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		MIN_CHECKSTEP = 1;
 		MAX_CHECKSTEP = 5;
 		AVG_CHECKSTEP = 2;
+
+	// HINT: add or substract some small random number for high speeds, it behaves more like original LX
 	} else if (len >= 250000)  {
+		int rnd = GetRandomInt(2)*SIGN(GetRandomNum());
 		MIN_CHECKSTEP = 6;
-		MAX_CHECKSTEP = 9;
-		AVG_CHECKSTEP = 6;
+		MAX_CHECKSTEP = 9+rnd;
+		AVG_CHECKSTEP = 6+rnd;
 	}
 	
 	// Check if it hit the terrain
@@ -349,6 +353,19 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	py=(int)(vPosition.y);
 
 	// got we any worm?
+	if (checkstep*dt*dt > WORM_CHECKSTEP*WORM_CHECKSTEP)  {
+		checkstep = WORM_CHECKSTEP / sqrt(checkstep);
+		CVec curpos = vOldPos;
+		for (float time=0; time < dt; time += checkstep)  {
+			ret = ProjWormColl(curpos,worms);
+			if (ret >= 0)  {
+				if (enddt) *enddt = time;
+				return ret;
+			}
+			curpos += vVelocity*checkstep;
+		}
+	}
+
 	ret = ProjWormColl(vPosition, worms);
 	if(ret >= 0) {
 		return ret;
@@ -359,7 +376,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		return NONE_COL_RET;
 
 	CollisionSide = 0;
-	short top,bottom,left,right;
+	static short top,bottom,left,right;
 	top=bottom=left=right=0;
 
 	// Hit edges
@@ -466,6 +483,9 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			// HINT: don't reset vPosition here; it will be reset,
 			//		depending on the collisionside
 			bounce = true;
+		} else if ( tProjInfo->Hit_Type == PJ_NOTHING )  {  // PJ_NOTHING projectiles go through walls (but a bit slower)
+			vPosition -= (vVelocity*dt)*0.8f;				// Note: the speed in walls could be moddable
+			vOldPos = vPosition;
 		} else
 			vPosition = vOldPos;
 							
