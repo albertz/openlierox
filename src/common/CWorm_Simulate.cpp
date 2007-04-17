@@ -353,7 +353,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 
 	// Process the moving
-	if(ws->iMove && !bFollowOverride) { // if we are following a projectile, don't move...
+	if(ws->iMove) { // if we are following a projectile, don't move...
 		if(iDirection == DIR_RIGHT) {
 
 			// Right
@@ -390,7 +390,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	}
 
 
-	if(fFrame>2.0f)
+	if(fFrame>=3.0f)
 		fFrame=0;
 	if(!ws->iMove)
 		fFrame=0;

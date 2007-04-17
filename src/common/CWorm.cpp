@@ -696,7 +696,7 @@ int	LeftMuzzle[14] =  {4,-12, -1,-12, -1,-9, -3,-8, -2,0, -2,4, 1,3};
 // Draw the worm
 void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 {
-	int x,y,f,ang;
+	static int x,y,f,ang;
 
     if( !v )
         return;
@@ -802,6 +802,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	ang = (int)( (fAngle+90)/151 * 7 );
 	//f+=ang*16;
 	f+=ang*32;
+
 
 	// Snap the position to a slighter bigger pixel grid (2x2)
 	x -= x % 2;

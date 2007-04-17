@@ -27,6 +27,8 @@ CGuiLayout	cViewPlayers;
 CButton		cPlyButtons[2];
 int			iPlayerMode = 0;
 float       fPlayerSkinFrame=0;
+float		fPlayerSkinAngle = 0;
+bool		bAimingUp = true;
 bool        bPlayerSkinAnimation = false;
 
 // Generic
@@ -71,6 +73,8 @@ void Menu_PlayerInitialize(void)
 	tMenu->iMenuType = MNU_PLAYER;
 
 	iPlayerMode = 0;
+	fPlayerSkinAngle = 0;
+	bAimingUp = true;
 	CListview *lv;
 
 	// Create the buffer
@@ -421,9 +425,25 @@ void Menu_Player_NewPlayer(int mouse)
     if(MouseInRect(255,195,30,30) && Mouse->Up)
         bPlayerSkinAnimation = !bPlayerSkinAnimation;
 
-	Menu_Player_DrawWormImage(tMenu->bmpScreen, (int)(fPlayerSkinFrame)*7+4, 257, 200, r,g,b);
-    if(bPlayerSkinAnimation)
-        fPlayerSkinFrame += tLX->fDeltaTime*5;
+	Menu_Player_DrawWormImage(tMenu->bmpScreen, (int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 257, 200, r,g,b);
+
+	if(bPlayerSkinAnimation)  {
+		if (bAimingUp)
+			fPlayerSkinAngle += tLX->fDeltaTime*220;
+		else
+			fPlayerSkinAngle -= tLX->fDeltaTime*220;
+
+		fPlayerSkinFrame += tLX->fDeltaTime*7.5;
+
+
+		if ((int)fPlayerSkinAngle >= 60)  {
+			fPlayerSkinAngle = 60;
+			bAimingUp = !bAimingUp;
+		} else if ((int)fPlayerSkinAngle <= -90) {
+			fPlayerSkinAngle = -90;
+			bAimingUp = !bAimingUp;
+		}
+	}
     if( fPlayerSkinFrame >= 3 )
         fPlayerSkinFrame = 0;
 
@@ -674,22 +694,36 @@ void Menu_Player_ViewPlayers(int mouse)
 		DrawRectFill(tMenu->bmpScreen,  300, 165, 330, 195, 0);
 		Menu_DrawBox(tMenu->bmpScreen,  300, 165, 330, 195);
 
-		Menu_Player_DrawWormImage(tMenu->bmpScreen,(int)(fPlayerSkinFrame)*7+4, 301, 170, r, g, b);
+		Menu_Player_DrawWormImage(tMenu->bmpScreen,(int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 301, 170, r, g, b);
         if(MouseInRect(300,165,30,30) && Mouse->Up)
             bPlayerSkinAnimation = !bPlayerSkinAnimation;
 
-        if(bPlayerSkinAnimation)
-            fPlayerSkinFrame += tLX->fDeltaTime*5;
-        if( fPlayerSkinFrame >= 3 )
+        if(bPlayerSkinAnimation)  {
+			if (bAimingUp)
+				fPlayerSkinAngle += tLX->fDeltaTime*200;
+			else
+				fPlayerSkinAngle -= tLX->fDeltaTime*200;
+
+			fPlayerSkinFrame += tLX->fDeltaTime*7.5;
+
+			if (fPlayerSkinAngle >= 60)  {
+				fPlayerSkinAngle = 60;
+				bAimingUp = !bAimingUp;
+			} else if (fPlayerSkinAngle <= -90) {
+				fPlayerSkinAngle = -90;
+				bAimingUp = !bAimingUp;
+			}
+		}
+        if( fPlayerSkinFrame >= 3.0f )
             fPlayerSkinFrame = 0;
 	}
 
     // Draw the difficulty level
     int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
     if( type == PRF_COMPUTER ) {
-        static const char* difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0);
-        tLX->cFont.Draw(tMenu->bmpScreen, 530,313,tLX->clNormalLabel,"%s",difflevels[level]);
+        tLX->cFont.Draw(tMenu->bmpScreen, 530,313,tLX->clNormalLabel,"%s",difflevels[level].c_str());
     }
 
 
