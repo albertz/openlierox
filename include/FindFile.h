@@ -73,6 +73,19 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename);
 
 #else // WIN32
 
+// This function converts relative paths to absolute paths
+inline std::string GetAbsolutePath(const std::string& path)  {
+#ifdef WIN32
+	static char buf[256];
+	static int len;
+	len = GetFullPathName(path.c_str(),sizeof(buf)/sizeof(char),buf,NULL);
+	return buf;
+// TODO: linux
+#else
+
+#endif
+}
+
 // we don't have case sensitive file systems under windows
 // but we still need to replace ${var} in the searchname
 // returns true, if file/dir is existing and accessable, false else

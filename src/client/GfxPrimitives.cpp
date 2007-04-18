@@ -128,7 +128,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	Uint8 *sp,*tp_x,*tp_y;
+	register Uint8 *sp,*tp_x,*tp_y;
 	int doublepitch = bmpDest->pitch*2;
 
     for(y=0;y<h;y++) {

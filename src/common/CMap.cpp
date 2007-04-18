@@ -665,7 +665,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 
 	Uint32 pink = tLX->clPink;
 
-	int x,y,dx,dy,i,j;
+	static int x,y,dx,dy,i,j;
 	uchar *pf = NULL;
 
 	Uint8 *destpix,*srcpix,*objpix;
@@ -675,7 +675,29 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 	SrcPixel = (Uint8*)bmpShadowMap->pixels + (wy * bmpShadowMap->pitch + wx*screenbpp);
 	ObjPixel = (Uint8 *)bmpObj->pixels + (sy*bmpObj->pitch+sx*screenbpp);
 
-	for( y=sy,dy=wy,j=0; y<(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
+	/*int y_start = sy;
+	if (wy < 0) y_start -= wy;
+	if (dty+t < c_y) y_start += c_y-dty-t;
+	int y_end = (int)(sy+h);
+	if ((int)(dy+h/2) >= Height)  {
+		if (dty+t+h >= c_y2) y_end -= MAX((dy+h/2)-Height,c_y2-dty-t-h);
+		else y_end -= (dy+h/2)-Height;
+	} else if (dty+t+h >= c_y2) {
+		y_end -= c_y2-dty-t-h;
+	}
+
+	int x_start = sx;
+	if (wx < 0) x_start = -wx;
+	if (dtx+l < c_x) x_start += c_x-dtx-l;
+	int x_end = (int)(sx+w);
+	if ((int)(dx+w/2) >= Width)  {
+		if (dtx+l+w >= c_x2) x_end -= MAX((dx+w/2)-Width,c_x2-dtx-l-w);
+		else x_end -= (dx+w/2)-Width;
+	} else if (dtx+l+w >= c_x2) {
+		x_end -= c_x2-dtx-l-w;
+	}*/
+
+	for( y=/*y_start*/sy,dy=wy/*+y_start*/,j=0; y</*y_end*/(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
 		// World Clipping
 		if(dy < 0) continue;
 		if((uint)dy >= Height) break;
@@ -690,7 +712,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 		destpix = DestPixel;
 		objpix = ObjPixel;
 
-		for( x=sx,dx=wx,i=0; x<(int)(sx+w); x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, destpix+=screenbpp, objpix+=screenbpp, srcpix+=((wx+i)&1)*screenbpp ) {
+		for( x=/*x_start*/sx,dx=wx/*+x_start*/,i=0; x<(int)(sx+w)/*x_end*/; x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, destpix+=screenbpp, objpix+=screenbpp, srcpix+=((wx+i)&1)*screenbpp ) {
 
 			// Clipping
 			if(dx < 0) continue;

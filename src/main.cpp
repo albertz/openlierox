@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
 	assert(sizeof(short) == 2);
 	assert(sizeof(int) == 4);
 	assert(sizeof(float) == 4);
-
 	
     bool startgame = false;
 

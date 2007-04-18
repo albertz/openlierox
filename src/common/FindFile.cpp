@@ -473,18 +473,20 @@ bool FileListIncludes(const searchpathlist* l, const std::string& f) {
 	static std::string tmp1;
 	static std::string tmp2;
 	tmp1 = f;
-	removeEndingSlashes(tmp1);
-	ReplaceFileVariables(tmp1);
-	replace(tmp1,"\\","/");
+	//removeEndingSlashes(tmp1);
+	//ReplaceFileVariables(tmp1);
+	//replace(tmp1,"\\","/");
 	
 	// Go through the list, checking each item
 	for(searchpathlist::const_iterator i = l->begin(); i != l->end(); i++) {
 		tmp2 = *i;
-		removeEndingSlashes(tmp2);
+		//removeEndingSlashes(tmp2);
 		ReplaceFileVariables(tmp2);
-		replace(tmp2,"\\","/");
-		if(stringcasecmp(tmp1, tmp2) == 0)
-			return true;		
+		//replace(tmp2,"\\","/");
+		/*if(stringcasecmp(tmp1, tmp2) == 0)
+			return true;*/
+		if (GetAbsolutePath(tmp1) == GetAbsolutePath(tmp2))
+			return true;
 	}
 	
 	return false;
