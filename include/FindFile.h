@@ -51,7 +51,7 @@ class drive_t { public:
 typedef std::vector<drive_t> drive_list;
 
 void	AddToFileList(searchpathlist* l, const std::string& f);
-bool	FileListIncludes(const searchpathlist* l, const std::string& f);
+bool	FileListIncludesExact(const searchpathlist* l, const std::string& f);
 
 // this replaces ${var} in filename with concrete values
 // currently, the following variables are handled:
@@ -74,17 +74,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename);
 #else // WIN32
 
 // This function converts relative paths to absolute paths
-inline std::string GetAbsolutePath(const std::string& path)  {
-#ifdef WIN32
-	static char buf[256];
-	static int len;
-	len = GetFullPathName(path.c_str(),sizeof(buf)/sizeof(char),buf,NULL);
-	return buf;
-// TODO: linux
-#else
-
-#endif
-}
+std::string GetAbsolutePath(const std::string& path);
 
 // we don't have case sensitive file systems under windows
 // but we still need to replace ${var} in the searchname
@@ -170,25 +160,44 @@ enum {
 	FM_REG = 2
 };
 
+bool PathListIncludes(const std::list<std::string>& list, const std::string& path);
+
 // _handler has to be a functor with
 // bool op() ( const std::string& path )
 // ending pathsep is ensured if needed
 // if return is false, it will break
 template<typename _handler>
 void ForEachSearchpath(_handler handler = _handler()) {
+	std::list<std::string> handled_dirs;
+	std::string path;
 	searchpathlist::const_iterator i;
+	
 	if(tLXOptions) for(
-		i = tLXOptions->tSearchPaths.begin();
-		i != tLXOptions->tSearchPaths.end(); i++) {
-		if(!handler(*i + "/")) return;
+			i = tLXOptions->tSearchPaths.begin();
+			i != tLXOptions->tSearchPaths.end(); i++) {
+		if(!GetExactFileName(*i, path)) continue;
+		if(!PathListIncludes(handled_dirs, path)) {
+			if(!handler(path + "/")) return;
+			handled_dirs.push_back(path);
+		}
 	}
+
 	for(
-		i = basesearchpaths.begin();
-		i != basesearchpaths.end(); i++) {
-		if(!tLXOptions || !FileListIncludes(&tLXOptions->tSearchPaths, *i))
-			if(!handler(*i + "/")) return;
+			i = basesearchpaths.begin();
+			i != basesearchpaths.end(); i++) {
+		if(!tLXOptions || !FileListIncludesExact(&tLXOptions->tSearchPaths, *i)) {
+			if(!GetExactFileName(*i, path)) continue;
+			if(!PathListIncludes(handled_dirs, path)) {
+				if(!handler(path + "/")) return;
+				handled_dirs.push_back(path);
+			}
+		}
 	}
-	handler("");
+
+	path = "";
+	if(!PathListIncludes(handled_dirs, path)) {
+		handler(path);
+	}
 }
 
 

@@ -25,9 +25,16 @@
 #ifdef WIN32
 #	include <shlobj.h>
 #else
-#	include <pwd.h>
 #	include <ext/hash_map>
 using namespace __gnu_cxx;
+
+// for getpwduid
+#	include <pwd.h>
+
+// for realpath
+#	include <sys/param.h>
+#	include <unistd.h>
+
 #endif
 
 bool IsFileAvailable(const std::string& f, bool absolute) {
@@ -454,7 +461,7 @@ std::ifstream* OpenGameFileR(const std::string& path) {
 
 
 void AddToFileList(searchpathlist* l, const std::string& f) {
-	if(!FileListIncludes(l, f)) l->push_back(f);
+	if(!FileListIncludesExact(l, f)) l->push_back(f);
 }
 
 void removeEndingSlashes(std::string& s) {
@@ -469,23 +476,21 @@ void removeEndingSlashes(std::string& s) {
 
 /////////////////
 // Returns true, if the list contains the path
-bool FileListIncludes(const searchpathlist* l, const std::string& f) {
+bool FileListIncludesExact(const searchpathlist* l, const std::string& f) {
 	static std::string tmp1;
 	static std::string tmp2;
 	tmp1 = f;
-	//removeEndingSlashes(tmp1);
-	//ReplaceFileVariables(tmp1);
-	//replace(tmp1,"\\","/");
+	removeEndingSlashes(tmp1);
+	ReplaceFileVariables(tmp1);
+	replace(tmp1,"\\","/");
 	
 	// Go through the list, checking each item
 	for(searchpathlist::const_iterator i = l->begin(); i != l->end(); i++) {
 		tmp2 = *i;
-		//removeEndingSlashes(tmp2);
+		removeEndingSlashes(tmp2);
 		ReplaceFileVariables(tmp2);
-		//replace(tmp2,"\\","/");
-		/*if(stringcasecmp(tmp1, tmp2) == 0)
-			return true;*/
-		if (GetAbsolutePath(tmp1) == GetAbsolutePath(tmp2))
+		replace(tmp2,"\\","/");
+		if(stringcasecmp(tmp1, tmp2) == 0)
 			return true;
 	}
 	
@@ -603,5 +608,37 @@ bool CanWriteToDir(const std::string& dir) {
 		remove(fname.c_str());
 		return true;
 	}
+	return false;
+}
+
+
+std::string GetAbsolutePath(const std::string& path) {
+	static char buf[1024];
+#ifdef WIN32
+	static int len;
+	len = GetFullPathName(path.c_str(),sizeof(buf)/sizeof(char),buf,NULL);
+	fix_markend(buf);
+	// TODO: return path, if error occured
+	return buf;
+#else
+	if(realpath(path.c_str(), buf) != NULL) {
+		fix_markend(buf);
+		return buf;
+	} else
+		return path;
+#endif
+}
+
+bool PathListIncludes(const std::list<std::string>& list, const std::string& path) {
+	static std::string abs_path;
+	abs_path = GetAbsolutePath(path);
+	
+	// Go through the list, checking each item
+	for(std::list<std::string>::const_iterator i = list.begin(); i != list.end(); i++) {
+		if(abs_path == GetAbsolutePath(*i)) {
+			return true;
+		}
+	}
+	
 	return false;
 }
