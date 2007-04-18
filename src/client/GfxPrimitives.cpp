@@ -78,14 +78,16 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
+	int bpp = bmpDest->format->BytesPerPixel;
+
 	Uint8 *sp,*tp;
 	for(y=0;y<h;y++) {
 
 		sp = SrcPix;
-		tp = TrgPix + (w-1)*bmpDest->format->BytesPerPixel;
+		tp = TrgPix + (w-1)*bpp;
 		for(x=0;x<w;x++) {
 			// Copy the pixel
-			memcpy(tp-=bmpDest->format->BytesPerPixel,sp+=bmpSrc->format->BytesPerPixel,bmpDest->format->BytesPerPixel);
+			memcpy(tp-=bpp,sp+=bmpSrc->format->BytesPerPixel,bpp);
 		}
 
 		SrcPix+=bmpSrc->pitch;
@@ -130,6 +132,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 
 	register Uint8 *sp,*tp_x,*tp_y;
 	int doublepitch = bmpDest->pitch*2;
+	int bpp = bmpDest->format->BytesPerPixel;
 
     for(y=0;y<h;y++) {
 
@@ -138,10 +141,10 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 		tp_y = tp_x+bmpDest->pitch;
 		for(x=0;x<w;x++) {
             // Copy the 1 source pixel into a 4 pixel block on the destination surface
-			memcpy(tp_x+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-			memcpy(tp_x+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-			memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-			memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+			memcpy(tp_x+=bpp,sp,bpp);
+			memcpy(tp_x+=bpp,sp,bpp);
+			memcpy(tp_y+=bpp,sp,bpp);
+			memcpy(tp_y+=bpp,sp,bpp);
 			sp+=bmpSrc->format->BytesPerPixel;
 		}
 		TrgPix += doublepitch;
@@ -194,7 +197,8 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 
 	// Pre-calculate some things, so the loop is faster
 	int doublepitch = bmpDest->pitch*2;
-	int doublebpp = bmpDest->format->BytesPerPixel*2;
+	int bpp = bmpDest->format->BytesPerPixel;
+	int doublebpp = bpp*2;
 
     for(y=0;y<h;y++) {
 
@@ -204,10 +208,10 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		for(x=0;x<w;x++) {
 			if (memcmp(&key,sp,bmpDest->format->BytesPerPixel))  {
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
-				memcpy(tp_x+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-				memcpy(tp_x+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-				memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-				memcpy(tp_y+=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				memcpy(tp_x+=bpp,sp,bpp);
+				memcpy(tp_x+=bpp,sp,bpp);
+				memcpy(tp_y+=bpp,sp,bpp);
+				memcpy(tp_y+=bpp,sp,bpp);
 				sp+=bmpSrc->format->BytesPerPixel;
 			} else {
 				// Skip the transparent pixel
@@ -268,8 +272,9 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 
 	// Pre-calculate some things, so the loop is faster
 	int doublepitch = bmpDest->pitch*2;
-	int doublebpp = bmpDest->format->BytesPerPixel*2;
-	int realw = w*bmpDest->format->BytesPerPixel;
+	int bpp = bmpDest->format->BytesPerPixel;
+	int doublebpp = bpp*2;
+	int realw = w*bpp;
 
     for(y=0;y<h;y++) {
 
@@ -279,10 +284,10 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 		for(x=0;x<w;x++) {
 			if (memcmp(&key,sp,bmpDest->format->BytesPerPixel))  {
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
-				memcpy(tp_x-=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-				memcpy(tp_x-=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-				memcpy(tp_y-=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
-				memcpy(tp_y-=bmpDest->format->BytesPerPixel,sp,bmpDest->format->BytesPerPixel);
+				memcpy(tp_x-=bpp,sp,bpp);
+				memcpy(tp_x-=bpp,sp,bpp);
+				memcpy(tp_y-=bpp,sp,bpp);
+				memcpy(tp_y-=bpp,sp,bpp);
 				sp+=bmpSrc->format->BytesPerPixel;
 			} else {
 				// Skip the transparent pixel
@@ -312,7 +317,7 @@ int ropealt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
+inline void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
 	// Warning: lock the surface before calling this!
 
@@ -354,7 +359,7 @@ int beamalt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
+inline void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
 	beamalt = !beamalt;
 
@@ -389,7 +394,7 @@ int laseralt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
+inline void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
 	laseralt++;
 	laseralt %= GetRandomInt(35)+1;
@@ -427,7 +432,7 @@ void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 ////////////////////
 // Perform a line draw using a put pixel callback
 // Grabbed from allegro
-void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface *, int, int, Uint32))
+inline void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(SDL_Surface *, int, int, Uint32))
 {
    int dx = x2-x1;
    int dy = y2-y1;
@@ -514,6 +519,57 @@ void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d, void 
 
    if (SDL_MUSTLOCK(bmp))
 	   SDL_UnlockSurface(bmp);
+}
+
+
+inline void secure_perform_line(SDL_Surface* bmpDest, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
+	int sx, sy, dx, dy, t;
+	
+	SDL_Rect rect = bmpDest->clip_rect;
+	int	ct = rect.y;
+	int cl = rect.x;
+	int cr = rect.x + rect.w;
+	int cb = rect.y + rect.h;
+
+	sx = x1;
+    sy = y1;
+    dx = x2;
+	dy = y2;
+
+    if (sx > dx) {
+		t = sx;
+		sx = dx;
+		dx = t;
+    }
+
+    if (sy > dy) {
+		t = sy;
+	    sy = dy;
+	    dy = t;
+    }
+
+    if ((sx >= cr) || (sy >= cb) || (dx < cl) || (dy < ct))
+		return;
+
+	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
+}
+
+// Draw horizontal line
+void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
+	// TODO: does this need more improvement/optimisation ?
+	secure_perform_line(bmpDest, x, y, x2, y, colour, PutPixel);
+}
+
+// Draw vertical line
+void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
+	// TODO: does this need more improvement/optimisation ?
+	secure_perform_line(bmpDest, x, y, x, y2, colour, PutPixel);
+}
+
+// Line drawing
+void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
+	// TODO: does this need more improvement/optimisation ?
+	secure_perform_line(dst, x1, y1, x2, y2, color, PutPixel);
 }
 
 

@@ -21,8 +21,6 @@
 #define __GFXPRIMITIVES_H__
 
 #include <SDL/SDL_image.h>
-#include <SDL/SDL_rotozoom.h>
-#include <SDL/SDL_gfxPrimitives.h>
 
 #include "LieroX.h"
 
@@ -136,60 +134,17 @@ inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int d
 
 // Solid drawing
 
-/////////////////////
-// Draws a filled rectangle
-inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
-	static SDL_Rect r;
-	r.x = x;
-	r.y = y;
-	r.w = x2-x;
-	r.h = y2-y;
-	SDL_FillRect(bmpDest,&r,color);
-}
 
-////////////////////
-// Draws a rectangle
-inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
-	Uint8 r,g,b;
-	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
-	rectangleRGBA(bmpDest, x,y,x2,y2, r,g,b,255);
-}
-
-///////////////////
-// Draws a rectangle with transparency
-inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
-	SDL_Surface *tmp = gfxCreateSurface(x2-x,y2-y);
-	if (tmp)  {
-		SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, alpha);
-		SDL_FillRect(tmp,NULL,color);
-		DrawImage(bmpDest,tmp,x,y);
-		SDL_FreeSurface(tmp);
-	}
-}
 
 ///////////////////
 // Draw horizontal line
-inline void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
-	Uint8 r,g,b;
-	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
-	hlineRGBA(bmpDest, x,x2,y, r,g,b,255);
-}
+void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour);
 
 ///////////////////
 // Draw vertical line
-inline void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
-	Uint8 r,g,b;
-	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
-	vlineRGBA(bmpDest, x,y,y2, r,g,b,255);
-}
+void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour);
 
-//////////////////
-// Draw a triangle
-inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour) {
-	Uint8 r,g,b;
-	SDL_GetRGB(colour, bmpDest->format, &r,&g,&b);
-	trigonRGBA(bmpDest, x1,y1, x2,y2, x3,y3, r,g,b,255);
-}
+
 
 
 // Pixel drawing
@@ -227,19 +182,49 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 }
 
 // Line drawing
-inline void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
-	Uint8 r,g,b;
-	SDL_GetRGB(color, dst->format, &r,&g,&b);
-	aalineRGBA(dst, x1,y1, x2,y2, r,g,b,255);
+void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+
+
+/////////////////////
+// Draws a filled rectangle
+inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
+	static SDL_Rect r;
+	r.x = x;
+	r.y = y;
+	r.w = x2-x;
+	r.h = y2-y;
+	SDL_FillRect(bmpDest,&r,color);
 }
 
-// Line drawing
-inline void FastDrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
-	Uint8 r,g,b;
-	SDL_GetRGB(color, dst->format, &r,&g,&b);
-	lineRGBA(dst, x1,y1, x2,y2, r,g,b,255);
+////////////////////
+// Draws a rectangle
+inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
+	DrawHLine(bmpDest, x, x2, y, colour);
+	DrawHLine(bmpDest, x, x2, y2, colour);
+	DrawVLine(bmpDest, y, y2, x, colour);
+	DrawVLine(bmpDest, y, y2, x2, colour);
 }
 
+///////////////////
+// Draws a rectangle with transparency
+inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
+	SDL_Surface *tmp = gfxCreateSurface(x2-x,y2-y);
+	if (tmp)  {
+		// TODO: optimise
+		SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, alpha);
+		SDL_FillRect(tmp,NULL,color);
+		DrawImage(bmpDest,tmp,x,y);
+		SDL_FreeSurface(tmp);
+	}
+}
+
+//////////////////
+// Draw a triangle
+inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, int x3, int y3, Uint32 colour) {
+	DrawLine(bmpDest, x1, y1, x2, y2, colour);
+	DrawLine(bmpDest, x2, y2, x3, y3, colour);
+	DrawLine(bmpDest, x3, y3, x1, y1, colour);
+}
 
 
 

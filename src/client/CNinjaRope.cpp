@@ -93,6 +93,12 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	else
 		force = CVec(0,150);
 
+	// TODO: does this need more improvement/optimisation ?
+	if((HookVelocity + force*dt).GetLength2()*dt*dt > 5) {
+		Simulate( dt/2, map, playerpos, worms, owner );
+		Simulate( dt/2, map, playerpos, worms, owner );
+		return;
+	}
 
 	// Still flying in the air
 	if(HookShooting) {

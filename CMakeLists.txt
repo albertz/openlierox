@@ -11,4 +11,4 @@ SET(ALL_SRCS ${MAIN_SRCS} ${CLIENT_SRCS} ${COMMON_SRCS} ${SERVER_SRCS})
 ADD_DEFINITIONS(-ggdb -Wall)
 
 ADD_EXECUTABLE(bin/openlierox ${ALL_SRCS})
-TARGET_LINK_LIBRARIES(bin/openlierox SDL SDL_image SDL_mixer SDL_gfx NL gd z xml2)
+TARGET_LINK_LIBRARIES(bin/openlierox SDL SDL_image SDL_mixer NL gd z xml2)
