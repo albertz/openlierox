@@ -82,7 +82,7 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	for(y=0;y<h;y++) {
 
 		sp = SrcPix;
-		tp = TrgPix + w*bmpDest->format->BytesPerPixel;
+		tp = TrgPix + (w-1)*bmpDest->format->BytesPerPixel;
 		for(x=0;x<w;x++) {
 			// Copy the pixel
 			memcpy(tp-=bmpDest->format->BytesPerPixel,sp+=bmpSrc->format->BytesPerPixel,bmpDest->format->BytesPerPixel);
