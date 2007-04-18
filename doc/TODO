@@ -1,10 +1,14 @@
 TODO list
 
+[ ] 16bit doesn't seem to be endian independent; fix this
+[ ] fix some segfaults
+[ ] fix lobby freeze (!)
+{ ] make network more stable
 [ ] increase FPS (and determit, why it is bad in beta2)
 [ ] improve mediaplayer
 [ ] improve player profile options (many skins need long load time)
 [ ] make physics more like original LX (we should abstract it now!)
-[ ] ninja rope physic should be FPS independent
+[x] ninja rope physic should be FPS independent
 [x] fallback to software rendering on Windows on error
 [ ] better bot aiming
 [ ] better bot behavior

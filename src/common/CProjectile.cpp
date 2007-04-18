@@ -190,31 +190,27 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	}
 
 	// Trails	
-	// HINT: these while-loops are new
-	// 		the original LX only checks it and resets it, so it spawns only once
-	//		this code is a bit like if we have very high FPS, but all entities
-	//		are spawn at the current position; perhaps this is not perfect, we have to test it
 	switch(tProjInfo->Trail) {
 	case TRL_SMOKE:
-		while(fExtra >= 0.075f) {
+		if(fExtra >= 0.075f) {
 			fExtra-=0.075f;
 			SpawnEntity(ENT_SMOKE,0,vPosition,CVec(0,0),0,NULL);
 		}
 		break;
 	case TRL_CHEMSMOKE:
-		while(fExtra >= 0.075f) {
+		if(fExtra >= 0.075f) {
 			fExtra-=0.075f;
 			SpawnEntity(ENT_CHEMSMOKE,0,vPosition,CVec(0,0),0,NULL);
 		}
 		break;
 	case TRL_DOOMSDAY:
-		while(fExtra >= 0.05f) {
+		if(fExtra >= 0.05f) {
 			fExtra-=0.05f;
 			SpawnEntity(ENT_DOOMSDAY,0,vPosition,vVelocity,0,NULL);
 		}
 		break;
 	case TRL_EXPLOSIVE:
-		while(fExtra >= 0.05f) {
+		if(fExtra >= 0.05f) {
 			fExtra-=0.05f;
 			SpawnEntity(ENT_EXPLOSION,10,vPosition,CVec(0,0),0,NULL);
 		}
