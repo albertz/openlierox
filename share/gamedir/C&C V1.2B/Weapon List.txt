@@ -1,0 +1,32 @@
+Weapon list
+Number of weapons: 17
+Mod: Underground
+Version: 0.7
+Author(S) {DI}SPongeBob, {DI}MadKid
+
+Weapon			Description				Author
+
+1. Ak47			Automatic rifle				{DI}Madkid
+2. Jet Pack		Flight					{DI}Madkid
+3. Napalm Bomb		Spread Bomb				{DI}Madkid
+4. Napalm Sparay	Flamable Spray				{DI}SpongeBob
+5. Shot gun		Spread					{DI}Madkid
+6. Ion Gun (Plasma)	Plasma Discarge				{DI}SpongeBob
+7. Ion Gun (rifle)	Plasma Rifle				{DI}SpongeBob
+8. Rail gun		High speed slug Discharge		{DI}SpongeBob
+9. Ion Bomb		Plasma Discharge Bomb			{DI}SpongeBob
+10. Acid Sparay		Sticky Acidic Liquid			{DI}SpongeBob
+11. Air Strike		Air Strike				{DI}MadKid\{DI}SpongeBob
+12. Napalm Strike	Napalm Air Strike			{DI}SpongeBob
+13. Light SSM		Light Surface To Surface Missle		{DI}SpongeBob
+14. Heavy SSM		Heavy Surface To Surface Missle		{DI}SpongeBob
+15. Missle Beacon	Nuclear missle strike beakon		{DI}SpongeBob
+16. Smoke Grenade	Smoke Screen Grenade			{DI}SpongeBob
+17. Armageddon		Mass Destruction			{DI}SpongeBob
+
+Number of weapons by {DI}MadKid: 4
+Number of weapons by {DI}SpongeBob: 12
+Number of weapons by {DI}SpongeBob\{DI}MadKid: 1
+
+
+
