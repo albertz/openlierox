@@ -54,7 +54,7 @@ int LoadProfiles(void)
 	id[10] = '\0';
 	if(strcmp(id, "lx:profile") != 0) {
 //#ifdef WIN32
-//		MessageBox(0,"Error loading profiles: File is invalid","Error",MB_OK);
+		//MessageBox(0,"Error loading profiles: File is invalid","Error",MB_OK);
 //#endif
 
         // Add the default players
@@ -189,11 +189,16 @@ void ShutdownProfiles(void)
 	// Open the file
 	//
 	FILE *fp = OpenGameFile("cfg/players.dat","wb");
-	if(fp == NULL)
+	if(fp == NULL)  {
+//#ifdef WIN32
+//		MessageBox(0,"The profiles could not be saved","Error",MB_OK);
+//#endif
 		return;
+	}
 
 	// ID & Version
-	static const char id[32] = {"lx:profile"};
+	static char id[32] = {"lx:profile"};
+	id[10] = '\0';
 	fwrite(id, sizeof(char), 32, fp);
 
 	int ver = PROFILE_VERSION;
