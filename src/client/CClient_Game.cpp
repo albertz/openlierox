@@ -31,7 +31,7 @@ CClient		*cClient = NULL;
 void CClient::Simulation(void)
 {
 //	frame_t *f = &tFrames[ iServerFrame & FRAME_MASK ];  // TODO: not used
-	int local,i;
+	short local,i;
 	int teamgame;
     CWorm *w;
     bool con = Con_IsUsed();
@@ -200,6 +200,7 @@ void CClient::SimulateProjectiles(float dt)
 	}
 
 
+	bool spawnprojectiles;
     for(int p=0;p<nTopProjectile;p++,prj++) {
 		if(!prj->isUsed())
 			continue;
@@ -208,7 +209,7 @@ void CClient::SimulateProjectiles(float dt)
 		dirt = false;
         grndirt = false;
 		shake = 0;
-		int spawnprojectiles = false;
+		spawnprojectiles = false;
 
 		// Check if the timer is up
 		proj_t *pi = prj->GetProjInfo();
@@ -372,6 +373,7 @@ void CClient::SimulateProjectiles(float dt)
 		if(prj->getSpawnPrjTrl()) {
 			prj->setSpawnPrjTrl(false);
 
+			CVec v;
 			for(i=0;i<pi->PrjTrl_Amount;i++) {
 				sprd = CVec(0,0);
 
@@ -383,7 +385,7 @@ void CClient::SimulateProjectiles(float dt)
 				} else
 					GetAngles((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
 
-				CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
+				v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
 
 				SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, false,0);
 			}
@@ -492,11 +494,12 @@ void CClient::SimulateProjectiles(float dt)
 					heading-=360;
 			}
 
+			float speed;
 			for(i=0;i<pi->ProjAmount;i++) {
 				a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
 				GetAngles(a,&sprd,NULL);
 
-				float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
+				speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
 
 				SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, false,0);
 			}
@@ -509,10 +512,11 @@ void CClient::SimulateProjectiles(float dt)
 // Explosion
 void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 {
-	uint		x,y,i,px;
+	uint		x,y,px;
+	ushort i;
 	CWorm	*w;
 	Uint32	Colour = cMap->GetTheme()->iDefaultColour;
-    int     gotDirt = false;
+    bool    gotDirt = false;
 
 	// Go through until we find dirt to throw around
 	y = MIN((uint)pos.y,cMap->GetHeight()-1);
@@ -622,7 +626,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 void CClient::InjureWorm(CWorm *w, int damage, int owner)
 {
 	bool me = false;
-	uint i;
+	ushort i;
 	int localid=0;
 
 
@@ -681,8 +685,9 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 
 	// Spawn some blood
 	float amount = ((float)tLXOptions->iBloodAmount / 100.0f);
+	float sp;
 	for(i=0;i<amount;i++) {
-		float sp = GetRandomNum()*50;
+		sp = GetRandomNum()*50;
 		SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),MakeColour(128,0,0),NULL);
 		SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
 		SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
@@ -891,6 +896,7 @@ void CClient::DrawBeam(CWorm *w)
 	int stopbeam = false;
 
 	int i;
+	CWorm *w2;
 	for(i=0; i<Slot->Weapon->Bm_Length; i+=divisions) {
 		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
@@ -919,8 +925,8 @@ void CClient::DrawBeam(CWorm *w)
 			break;
 		}
 
-		CWorm *w2 = cRemoteWorms;
-		for(int n=0;n<MAX_WORMS;n++,w2++) {
+		w2 = cRemoteWorms;
+		for(short n=0;n<MAX_WORMS;n++,w2++) {
 			if(!w2->isUsed() || !w2->getAlive())
 				continue;
 
@@ -989,7 +995,8 @@ void CClient::UpdateScoreboard(void)
 		return;
 
 	CWorm *w = cRemoteWorms;
-	int p,i,j,s;
+	int s;
+	short i,p,j;
 
 	// Clear the team scores
 	for(i=0;i<4;i++) {
@@ -1101,7 +1108,7 @@ void CClient::SimulateBonuses(float dt)
 
 	CBonus *b = cBonuses;
 
-	for(int i=0;i<MAX_BONUSES;i++,b++) {
+	for(short i=0;i<MAX_BONUSES;i++,b++) {
 		if(!b->getUsed())
 			continue;
 
@@ -1146,7 +1153,7 @@ void CClient::CheckDemolitionsGame(void)
     int winner = -1;
 
     CWorm *w = cRemoteWorms;
-    for( int i=0; i<MAX_WORMS; i++,w++ ) {
+    for( short i=0; i<MAX_WORMS; i++,w++ ) {
         if( !w->isUsed() )
             continue;
 
@@ -1197,16 +1204,17 @@ void CClient::LaserSight(CWorm *w)
 
 	int stopbeam = false;
 
-	int i;
+	short i;
+	uchar px;
 	for(i=0; i<9999; i+=divisions) {
-		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+		px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		if(px & PX_DIRT || px & PX_ROCK)
 			break;
 
 		// Check if it has hit any of the worms
 		CWorm *w2 = cRemoteWorms;
-		for(int n=0;n<MAX_WORMS;n++,w2++) {
+		for(short n=0;n<MAX_WORMS;n++,w2++) {
 			if(!w2->isUsed() || !w2->getAlive())
 				continue;
 
@@ -1355,6 +1363,8 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	divisions = MAX(divisions,1);
 
 	int stopbeam = false;
+	CWorm *w2;
+	short n;
 
 	for(int i=0; i<wpn->Bm_Length; i+=divisions) {
 		uchar px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
@@ -1387,8 +1397,8 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 		}
 
 		// Check if it has hit any of the worms
-		CWorm *w2 = cRemoteWorms;
-		for(int n=0;n<MAX_WORMS;n++,w2++) {
+		w2 = cRemoteWorms;
+		for(n=0;n<MAX_WORMS;n++,w2++) {
 			if(!w2->isUsed() || !w2->getAlive())
 				continue;
 
@@ -1452,7 +1462,7 @@ void CClient::processChatter(void)
         }
 
         // Go through the keyboard queue
-        for(int i=0; i<kb->queueLength; i++) {
+        for(short i=0; i<kb->queueLength; i++) {
             int c = kb->keyQueue[i];
             bool down = true;
 
@@ -1499,7 +1509,7 @@ void CClient::processChatter(void)
 	if (tGameInfo.iGameType == GME_LOCAL)
 		return;
 
-    for(int i=0; i<kb->queueLength; i++) {
+    for(short i=0; i<kb->queueLength; i++) {
         int c = kb->keyQueue[i];
         bool down = true;
 
@@ -1522,7 +1532,7 @@ void CClient::processChatter(void)
 				return;
 
 			// TODO: does this need more work? (more than 2 viewports; disabled with only local players?)
-			for(uint j=0; j<iNumWorms; j++)  {
+			for(ushort j=0; j<iNumWorms; j++)  {
 				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
 					// Can we type?
 					if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())

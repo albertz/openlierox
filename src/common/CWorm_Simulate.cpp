@@ -189,14 +189,9 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	// Jump
 	if(jumpdownonce) {
 
-		if( !(oldskool && cSelWeapon.isDown()) )
+		if( !(oldskool && cSelWeapon.isDown()) )  {
 			ws->iJump = true;
-	}
 
-
-	if(jumpdownonce) {
-
-		if(!(oldskool && cSelWeapon.isDown()) ) {
 			if(cNinjaRope.isReleased())
 				cNinjaRope.Release();
 		}
@@ -308,8 +303,9 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 			fLastBlood = tLX->fCurTime;
 
 			float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
-			for(int i=0;i<amount;i++) {
-				CVec v = CVec(GetRandomNum(), GetRandomNum()) * 30;
+			CVec v;
+			for(short i=0;i<amount;i++) {
+				v = CVec(GetRandomNum(), GetRandomNum()) * 30;
 				SpawnEntity(ENT_BLOOD,0,vPos,v,MakeColour(200,0,0),NULL);
 				SpawnEntity(ENT_BLOOD,0,vPos,v,MakeColour(180,0,0),NULL);
 			}
@@ -390,9 +386,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	}
 
 
-	if(fFrame>=3.0f)
-		fFrame=0;
-	if(!ws->iMove)
+	if(fFrame>=3.0f || !ws->iMove)
 		fFrame=0;
 
 
@@ -412,7 +406,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	vPos += vVelocity * dt;
 
 
-	resetFollow(); // reset follow here, projectiles will maybe re-enable it...
+	//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 	CheckWormCollision( dt, map, vOldPos, &vVelocity, jump );
 

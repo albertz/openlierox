@@ -86,7 +86,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 
 	float length2;
 	int firsthit = !HookAttached;
-	CVec force;
+	static CVec force;
 
 	if(HookShooting)
 		force = CVec(0,100);

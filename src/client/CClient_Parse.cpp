@@ -97,7 +97,7 @@ void CClient::ParseConnected(CBytestream *bs)
 
 	// Get the id's
 	int id=0;
-	for(uint i=0;i<iNumWorms;i++) {
+	for(ushort i=0;i<iNumWorms;i++) {
 		id = bs->readInt(1);
 		if (id < 0 || id >= MAX_WORMS)
 			continue;
@@ -500,7 +500,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 
 	// Initialize the worms weapon selection menu & other stuff
-	uint i;
+	ushort i;
 	for(i=0;i<iNumWorms;i++) {
 		cLocalWorms[i]->setGameScript(&cGameScript);
         cLocalWorms[i]->setWpnRest(&cWeaponRestrictions);
@@ -829,15 +829,17 @@ void CClient::ParseCLReady(CBytestream *bs)
 	}
 
 
-	for(int i=0;i<numworms;i++) {
-		int id = bs->readByte();
+	byte id;
+	CWorm *w;
+	for(short i=0;i<numworms;i++) {
+		id = bs->readByte();
 
-		if( id < 0 || id >= MAX_WORMS) {
+		if( id >= MAX_WORMS) {
 			printf("CClient::ParseCLReady: bad worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
-		CWorm *w = &cRemoteWorms[id];
+		w = &cRemoteWorms[id];
 		if(w) {
 			w->setGameReady(true);
 
@@ -867,19 +869,21 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		return;
 	}
 
-	std::string HostName;
+	static std::string HostName;
 
-	for(int i=0;i<numworms;i++) {
-		int id = bs->readByte();
+	byte id;
+	CWorm *w;
+	for(short i=0;i<numworms;i++) {
+		id = bs->readByte();
         int team = MAX(0,MIN(3,(int)bs->readByte()));
 
-		if( id < 0 || id > MAX_WORMS) {
+		if( id >= MAX_WORMS) {
 			printf("CClient::ParseUpdateLobby: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
 
-		CWorm *w = &cRemoteWorms[id];
+		w = &cRemoteWorms[id];
         if(w) {
 			w->getLobby()->iReady = ready;
             w->getLobby()->iTeam = team;
@@ -923,7 +927,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 // Parse a 'client-left' packet
 void CClient::ParseClientLeft(CBytestream *bs)
 {
-	int numworms = bs->readByte();
+	byte numworms = bs->readByte();
 
 	if(numworms < 1 || numworms > MAX_PLAYERS) {
 		// bad packet
@@ -932,15 +936,17 @@ void CClient::ParseClientLeft(CBytestream *bs)
 	}
 
 
-	for(int i=0;i<numworms;i++) {
-		int id = bs->readByte();
+	byte id;
+	CWorm *w;
+	for(byte i=0;i<numworms;i++) {
+		id = bs->readByte();
 
-		if( id < 0 || id > MAX_WORMS) {
+		if( id >= MAX_WORMS) {
 			printf("CClient::ParseClientLeft: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
 
-		CWorm *w = &cRemoteWorms[id];
+		w = &cRemoteWorms[id];
 		if(w) {
 			w->setUsed(false);
 			w->setAlive(false);
@@ -956,16 +962,18 @@ void CClient::ParseClientLeft(CBytestream *bs)
 // Parse an 'update-worms' packet
 void CClient::ParseUpdateWorms(CBytestream *bs)
 {
-	int count = bs->readByte();
-	if (count >= MAX_WORMS || count < 0)  {
+	byte count = bs->readByte();
+	if (count >= MAX_WORMS)  {
 		printf("CClient::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");
 		return;
 	}
 
-	for(int i=0;i<count;i++) {
-		int id = bs->readByte();
+	byte id;
 
-		if (id < 0 || id >= MAX_WORMS)  {
+	for(byte i=0;i<count;i++) {
+		id = bs->readByte();
+
+		if (id >= MAX_WORMS)  {
 			printf("CClient::ParseUpdateWorms: invalid worm ID ("+itoa(id)+")\n");
 			continue;
 		}
@@ -1051,9 +1059,13 @@ void CClient::ParseWormDown(CBytestream *bs)
 		return;
 	}
 
-	int id = bs->readByte();
+	byte id = bs->readByte();
+	byte n;
+	CWorm *w;
+	float amount;
+	short i;
 
-	if(id >= 0 && id < MAX_WORMS) {
+	if(id < MAX_WORMS) {
 		cRemoteWorms[id].setAlive(false);
 
 		// Make a death sound
@@ -1061,15 +1073,14 @@ void CClient::ParseWormDown(CBytestream *bs)
 		StartSound( sfxGame.smpDeath[s], cRemoteWorms[id].getPos(), cRemoteWorms[id].getLocal(), -1, cLocalWorms[0]);
 
 		// Spawn some giblets
-		CWorm *w = &cRemoteWorms[id];
-		int n;
+		w = &cRemoteWorms[id];
 
 		for(n=0;n<7;n++)
 			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg());
 
 		// Blood
-		float amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
-		for(int i=0;i<amount;i++) {
+		amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
+		for(i=0;i<amount;i++) {
 			float sp = GetRandomNum()*100+50;
 			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
@@ -1144,13 +1155,13 @@ void CClient::ParseMultiShot(CBytestream *bs)
 // Update the worms stats
 void CClient::ParseUpdateStats(CBytestream *bs)
 {
-	int num = (int)bs->readByte();
-	if (num < 0 || num > MAX_PLAYERS)
+	byte num = bs->readByte();
+	if (num >= MAX_PLAYERS)
 		printf("CClient::ParseUpdateStats: invalid worm count ("+itoa(num)+") - clamping\n");
 
 	num = MIN(num,MAX_PLAYERS);
 
-	for(int i=0; i<num; i++)
+	for(byte i=0; i<num; i++)
 		getWorm(i)->readStatUpdate(bs);
 }
 
@@ -1159,9 +1170,9 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 // Parse a 'destroy bonus' packet
 void CClient::ParseDestroyBonus(CBytestream *bs)
 {
-	int id = bs->readByte();
+	byte id = bs->readByte();
 
-	if( id >= 0 && id < MAX_BONUSES )
+	if( id < MAX_BONUSES )
 		cBonuses[id].setUsed(false);
 	else
 		printf("CClient::ParseDestroyBonus: invalid bonus ID ("+itoa(id)+")\n");

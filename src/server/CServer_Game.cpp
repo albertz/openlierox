@@ -58,6 +58,7 @@ CVec GameServer::FindSpot(void)
     x = px; y = py;
 
     // Start from the cell and go through until we get to an empty cell
+	uchar pf;
     while(1) {
         while(1) {
             // If we're on the original starting cell, and it's not the first move we have checked all cells
@@ -69,7 +70,7 @@ CVec GameServer::FindSpot(void)
             }
             first = false;
 
-            uchar pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
+            pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
             if(!(pf & PX_ROCK))
                 return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
 
@@ -99,7 +100,7 @@ void GameServer::SimulateGame(void)
 
 	// Process worms
 	CWorm *w = cWorms;
-	int i;
+	short i;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed())
 			continue;
@@ -186,7 +187,7 @@ void GameServer::SpawnBonus(void)
 	// Find a free bonus spot
 	CBonus *b = cBonuses;
 	int spot = -1;
-	for(int i=0;i<MAX_BONUSES;i++,b++) {
+	for(short i=0;i<MAX_BONUSES;i++,b++) {
 		if(b->getUsed())
 			continue;
 
@@ -246,7 +247,7 @@ void GameServer::TagWorm(int id)
 
 	CWorm *w = &cWorms[id];
 
-	int i;
+	short i;
 
 	// Go through all the worms, setting their tag to false
 	for(i=0;i<MAX_WORMS;i++) {
@@ -395,7 +396,7 @@ void GameServer::WormShoot(CWorm *w)
 
 	// Add the shot to ALL the connected clients shootlist
 	CClient *cl = cClients;
-	for(int i=0; i<MAX_CLIENTS; i++,cl++) {
+	for(short i=0; i<MAX_CLIENTS; i++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
@@ -468,7 +469,7 @@ void GameServer::gotoLobby(void)
 	// Clear the info
 	iState = SVS_LOBBY;
 
-	int i;
+	short i;
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].getLobby()->iReady = false;
@@ -519,7 +520,7 @@ void GameServer::DemolitionsGameOver(int winner)
 // Called when a player has left the game (for various reasons)
 void GameServer::RecheckGame(void)
 {
-    int i;
+    short i;
 
     //
     // If this is a tag game, make sure a person is tagged
@@ -546,8 +547,8 @@ void GameServer::RecheckGame(void)
 	// Check how many worms are alive
 	if (getState() == SVS_PLAYING && !iGameOver)  {
 		CWorm *w = cWorms;
-		int wormcount = 0;
-		int wormid = 0;
+		short wormcount = 0;
+		short wormid = 0;
 		for(i=0; i<MAX_WORMS; i++, w++)
 			if (w->isUsed() && w->getLives() != WRM_OUT)  {
 				wormcount++;
@@ -578,8 +579,8 @@ void GameServer::RecheckGame(void)
 							TeamCount[w->getTeam()]++;
 				}
 
-				int teamsleft = 0;
-				int team = 0;
+				short teamsleft = 0;
+				short team = 0;
 
 				// Get the number of teams left
 				for(i=0;i<4;i++)
@@ -672,12 +673,12 @@ void GameServer::RecheckGame(void)
 // Checks if all the clients are ready to play
 void GameServer::CheckReadyClient(void)
 {
-    int c;
+    short c;
 
     if(iState != SVS_GAME)
         return;
 
-	int allready = true;
+	bool allready = true;
 	CClient *client = cClients;
 	for(c=0; c<MAX_CLIENTS; c++, client++) {
 		if(client->getStatus() == NET_DISCONNECTED || client->getStatus() == NET_ZOMBIE)

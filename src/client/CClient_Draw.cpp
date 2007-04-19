@@ -55,7 +55,7 @@ int CClient::InitializeDrawing(void)
 // Main drawing routines
 void CClient::Draw(SDL_Surface *bmpDest)
 {
-	uint i,num;
+	static ushort i,num;
 	float dt = tLX->fDeltaTime;
 
 	// TODO: allow more worms
@@ -80,7 +80,11 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
     // TODO: allow more viewports
     // Draw the borders
-    DrawRectFill(bmpDest,0,382,640,480,0);
+	//SDL_LockSurface(bmpDest);
+    //memset((void *)((Uint8 *)bmpDest->pixels+(bmpDest->pitch*382)),0,bmpDest->pitch*98);// it's the same as DrawRectFill(bmpDest,0,382,640,480,0)
+	//SDL_UnlockSurface(bmpDest);
+	DrawRectFill(bmpDest,0,382,640,480,0);
+	
     if(cViewports[1].getUsed())
         DrawRectFill(bmpDest,318,0,322,384,0);
 
@@ -272,13 +276,12 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     if( !v->getUsed() )
         return;
 
-    Uint32 grey = MakeColour(128,128,128);
+    static const Uint32 grey = MakeColour(128,128,128);
 
     //CWorm *worm = v->getTarget();
 
 	// Set the clipping
-	SDL_Rect r = v->getRect();
-	SDL_SetClipRect(bmpDest,&r);
+	SDL_SetClipRect(bmpDest,&v->getRect());
 
     // Weather
     //cWeather.Draw(bmpDest, v);
@@ -291,7 +294,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 
         // Draw the worm shadows
         CWorm *w = cRemoteWorms;
-        for(int i=0;i<MAX_WORMS;i++,w++) {
+        for(short i=0;i<MAX_WORMS;i++,w++) {
             if(w->isUsed() && w->getAlive())
                 w->DrawShadow(bmpDest, cMap, v);
         }
@@ -307,7 +310,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	DrawBonuses(bmpDest, v);
 
 	// Draw all the worms in the game
-	uint i;
+	ushort i;
 	CWorm *w = cRemoteWorms;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed() && w->getAlive())
@@ -350,12 +353,16 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 
 	// Lives
 	tLX->cFont.Draw(bmpDest,x+2, y+38, tLX->clNormalLabel, "%s", "Lives:");
-	if(worm->getLives() >= 0)
-		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%d",worm->getLives());
-	else if(worm->getLives() == WRM_OUT)
+	switch (worm->getLives())  {
+	case WRM_OUT:
 		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%s", "Out");
-	else if(worm->getLives() == WRM_UNLIM)
+		break;
+	case WRM_UNLIM:
 		DrawImage(bmpDest, gfxGame.bmpInfinite, x+61,y+41);
+		break;
+	default:
+		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%d",worm->getLives());
+	}
 
 	// Kills
 	tLX->cFont.Draw(bmpDest,x+2, y+56, tLX->clNormalLabel, "%s", "Kills:");
@@ -429,14 +436,14 @@ void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 // Simulate the hud
 void CClient::SimulateHud(void)
 {
+    if(!iGameReady)
+        return;
+	
 	float dt = tLX->fDeltaTime;
 	float ScrollSpeed=5;
     bool  con = Con_IsUsed();
 
-    if(!iGameReady)
-        return;
-
-	for(int i=0;i<iChat_Numlines;i++) {
+	for(short i=0;i<iChat_Numlines;i++) {
 		tChatLines[i].fScroll += dt*ScrollSpeed;
 		tChatLines[i].fScroll = MIN((float)1,tChatLines[i].fScroll);
 
@@ -475,7 +482,7 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 {
 	mouse_t *Mouse = GetMouse();
 	keyboard_t *Keyboard = GetKeyboard();
-	int mouse;
+	static int mouse;
 
 	DrawScore(bmpDest,gfxGame.bmpGameover);
 
@@ -495,7 +502,7 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 	int y = 200 - height/2;
 
 	int j = y+height-27;
-	CButton ok = CButton(BUT_OK,bmpMenuButtons);
+	static CButton ok = CButton(BUT_OK,bmpMenuButtons);
 
 	ok.Setup(0, 305,j, 30, 15);
     ok.Create();
@@ -529,7 +536,7 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 {
 	mouse_t *Mouse = GetMouse();
-	int mouse;
+	static int mouse;
 
 	// Buttons
 	mouse = 0;
@@ -540,7 +547,7 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 	int y = 200 - height/2;
 
 	int j = y+height-27;
-	CButton leave = CButton(BUT_LEAVE,bmpMenuButtons);
+	static CButton leave = CButton(BUT_LEAVE,bmpMenuButtons);
 
 	leave.Setup(0, x+20,j, 60, 15);
     leave.Create();
@@ -591,8 +598,8 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 
 	DrawScore(bmpDest, gfxGame.bmpScoreboard);
 
-	CButton quit = CButton(BUT_QUITGAME,bmpMenuButtons);
-	CButton resume = CButton(BUT_RESUME,bmpMenuButtons);
+	static CButton quit = CButton(BUT_QUITGAME,bmpMenuButtons);
+	static CButton resume = CButton(BUT_RESUME,bmpMenuButtons);
 
 	int width = gfxGame.bmpScoreboard->w;
 	int height = gfxGame.bmpScoreboard->h;
@@ -666,7 +673,7 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 // Display the score
 void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 {
-	int i,j,n;
+	short i,j,n;
 
 	bUpdateScore = false;
 
@@ -794,8 +801,9 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 		// Draw the players
 		j = y+65;
+		CWorm *p;
 		for(i=0;i<iScorePlayers;i++) {
-			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+			p = &cRemoteWorms[iScoreboard[i]];
 
 			DrawImage(bmpDest, p->getPicimg(), x+15, j);
 
@@ -842,15 +850,17 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 		// Go through each team
 		j = y+50;
+		int team,score;
+		Uint32 colour;
 		for(n=0;n<4;n++) {
-			int team = iTeamList[n];
-			int score = iTeamScores[team];
+			team = iTeamList[n];
+			score = iTeamScores[team];
 
 			// Check if the team has any players
 			if(score == -1)
 				continue;
 
-			Uint32 colour = MakeColour( teamcolours[team*3], teamcolours[team*3+1],teamcolours[team*3+2]);
+			colour = MakeColour( teamcolours[team*3], teamcolours[team*3+1],teamcolours[team*3+2]);
 
 			tLX->cFont.Draw(bmpDest, x+15, j, colour, "%s team  (%d)",teamnames[team].c_str(),score);
 			if(iLives != WRM_UNLIM)
@@ -866,8 +876,9 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 
 			// Draw the players
+			CWorm *p;
 			for(i=0;i<iScorePlayers;i++) {
-				CWorm *p = &cRemoteWorms[iScoreboard[i]];
+				p = &cRemoteWorms[iScoreboard[i]];
 
 				if(p->getTeam() != team)
 					continue;
@@ -910,7 +921,7 @@ void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 
 	CBonus *b = cBonuses;
 
-	for(int i=0;i<MAX_BONUSES;i++,b++) {
+	for(short i=0;i<MAX_BONUSES;i++,b++) {
 		if(!b->getUsed())
 			continue;
 
@@ -980,7 +991,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 			y+=15;
 		}
 	}*/
-	CListview *lv = (CListview *)cChatList;
+	static CListview *lv = (CListview *)cChatList;
 
 	line_t *l = NULL;
 	while((l = cChatbox.GetNewLine()) != NULL) {
@@ -1052,8 +1063,8 @@ void CClient::InitializeViewportManager(void)
 
     bool v2On = true;
     // If there is only 1 player total, turn the second viewport off
-    int count = 0;
-	int i;
+    short count = 0;
+	short i;
     for(i=0; i<MAX_WORMS; i++ ) {
         if(cRemoteWorms[i].isUsed())
             count++;
@@ -1162,8 +1173,8 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
 
 
     // Get the worm count
-    int Wormcount = 0;
-    for(int i=0; i<MAX_WORMS; i++ ) {
+    short Wormcount = 0;
+    for(short i=0; i<MAX_WORMS; i++ ) {
         if(cRemoteWorms[i].isUsed())
             Wormcount++;
     }
@@ -1204,9 +1215,7 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
                     cViewports[0].Setup(0,0,640,382,a_type);
 		            cViewports[0].setUsed(true);
                     cViewports[0].setTarget(cLocalWorms[0]);
-                }
-
-                if( b_on ) {
+                } else {
                     cViewports[0].Setup(0,0,318,382,a_type);
                     cViewports[0].setTarget(cLocalWorms[0]);
 		            cViewports[0].setUsed(true);
@@ -1294,7 +1303,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 
     // Draw the players
 	int j = y+25;
-    int i;
+    short i;
     for(i=0;i<iScorePlayers;i++) {
         CWorm *p = &cRemoteWorms[iScoreboard[i]];
 

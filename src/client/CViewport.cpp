@@ -54,7 +54,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 	int hy = Height/2;
 
     // Follow a player
-    if( nType == VW_FOLLOW ) {
+    switch (nType)  {
+	case VW_FOLLOW: {
 	    // The player will ideally be in the centre of the viewport
 	    // The viewport will then rest against the edges if that cannot happen
 
@@ -125,10 +126,10 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
             }
         }
     }
-
+	break; // VW_FOLLOW
 
     // Cycle
-    else if( nType == VW_CYCLE ) {
+    case VW_CYCLE: {
         // Cycles through players. If a player dies (but not necessarily out), move onto another living player
 
         // Check if the target is out of the game or has died
@@ -174,11 +175,12 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
             }
         }
     }
+	break; // VW_CYCLE
 
 
     // Action
-    else if( nType == VW_ACTIONCAM ) {
-        int i,j;
+	case VW_ACTIONCAM: {
+        short i,j;
         // Finds a group of worms and smoothly moves around to show the whole group of players in a fight
 
         pcTargetWorm = NULL;
@@ -237,20 +239,21 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         WorldX = (int)floor(curPos.x-hx);
         WorldY = Round(curPos.y-hy);
     }
+	break; // VW_ACTIONCAM
 
 
     // Free look
-    else if( nType == VW_FREELOOK ) {
+    case VW_FREELOOK: {
         float scrollSpeed = 300.0f*tLX->fDeltaTime;
 
         // Uses the players keys to scroll around
         if( cUp.isDown() )
             curPos -= CVec(0,scrollSpeed);
-        if( cDown.isDown() )
+        else if( cDown.isDown() )
             curPos += CVec(0,scrollSpeed);
         if( cLeft.isDown() )
             curPos -= CVec(scrollSpeed,0);
-        if( cRight.isDown() )
+        else if( cRight.isDown() )
             curPos += CVec(scrollSpeed,0);
 
         // Clamp our movement
@@ -262,6 +265,9 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         WorldX = (int)curPos.x;
         WorldY = (int)curPos.y;
     }
+	break;
+
+	}	// switch
 
 
 	// Shake the viewport a bit
@@ -295,7 +301,10 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAlive)
 {
     // Find a worm that isn't already a target by another viewport
-    for( int w=0; w<MAX_WORMS; w++ ) {
+	short viewcount;
+	short v;
+	CWorm *t = NULL;
+    for( short w=0; w<MAX_WORMS; w++ ) {
         if( !pcWormList[w].isUsed() )
             continue;
         if( pcWormList[w].getLives() == WRM_OUT )
@@ -305,14 +314,14 @@ CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAli
         if( !pcWormList[w].getAlive() && bAlive )
             continue;
 
-        int viewcount = 0;
-        for( int v=0; v<NUM_VIEWPORTS; v++ ) {
+        viewcount = 0;
+        for( v=0; v<NUM_VIEWPORTS; v++ ) {
 
             // Make sure this isn't our viewport
             if( pcViewList[v].nID == nID )
                 continue;
 
-            CWorm *t = pcViewList[v].getTarget();
+            t = pcViewList[v].getTarget();
             if(t) {
                 if( pcWormList[w].getID() == t->getID() )
                     viewcount++;
@@ -320,7 +329,7 @@ CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAli
         }
 
         // If this worm was in none of the viewports, use the worm
-        if( viewcount == 0 )
+        if( !viewcount )
             return &pcWormList[w];
     }
 
@@ -366,7 +375,7 @@ void CViewport::ClampFiltered(int MWidth, int MHeight)
 // Get the rectangle of the viewport
 SDL_Rect CViewport::getRect(void)
 {
-	SDL_Rect r;
+	static SDL_Rect r;
 
 	r.x = Left;
 	r.y = Top;
@@ -392,14 +401,8 @@ void CViewport::Shake(int amount)
 // Check if a point is inside this viewport
 int CViewport::inView(CVec pos)
 {
-	int x = (int)pos.x;
-	int y = (int)pos.y;
-
-	if(x >= WorldX &&
-	   y >= WorldY &&
-	   x <= WorldX+Width &&
-	   y <= WorldY+Height)
-	   return true;
-
-	return false;
+	return	(int)pos.x >= WorldX &&
+			(int)pos.y >= WorldY &&
+			(int)pos.x <= WorldX+Width &&
+			(int)pos.y <= WorldY+Height;
 }

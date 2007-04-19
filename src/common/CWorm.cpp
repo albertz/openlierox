@@ -82,7 +82,7 @@ void CWorm::Clear(void)
 	//pcViewport = NULL;//.Setup(0,0,640,480);
 	tProfile = NULL;
 
-	int i;
+	short i;
 	for(i=0;i<NUM_FRAMES;i++)
 		fFrameTimes[i] = -99999.0f;
 
@@ -152,6 +152,8 @@ void CWorm::Shutdown(void)
 void CWorm::FreeGraphics(void)
 {
 	// bmpWormLeft and bmpGibs is freed by the cache
+
+	// TODO: something is wrong here with the memory management (it gets freed twice and similar things)
 
 	if(bmpWormRight) {
 		SDL_FreeSurface(bmpWormRight);
@@ -239,7 +241,7 @@ void CWorm::Spawn(CVec position)
     iNumWeaponSlots = 5;
 
 	// Reset the weapons
-	for(int n=0;n<iNumWeaponSlots;n++) {
+	for(short n=0;n<iNumWeaponSlots;n++) {
 		tWeapons[n].Charge = 1;
 		tWeapons[n].Reloading = false;
 		tWeapons[n].SlotNum = n;
@@ -255,7 +257,7 @@ void CWorm::Spawn(CVec position)
 int CWorm::LoadGraphics(int gametype)
 {
 	int team = false;
-    Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
+    static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
     Uint8 r=0,g=0,b=0;
     
 	// Destroy any previous graphics
@@ -347,7 +349,11 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	int ColB = b;
 	float r2,g2,b2;
 
-	
+	float dr, dg, db;
+	static const Uint32 gun1 = MakeColour(216,216,216);
+	static const Uint32 gun2 = MakeColour(180,180,180);
+	static const Uint32 gun3 = MakeColour(144,144,144);
+
 	for(y=0; y<img->h; y++) {
 		for(x=0; x<img->w; x++) {
 
@@ -357,14 +363,12 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 			// Ignore pink & gun colours
 			if(pixel == tLX->clPink)
 				continue;
-			if(pixel == MakeColour(216,216,216))
+			if(pixel == gun1)
 				continue;
-			if(pixel == MakeColour(180,180,180))
+			if(pixel == gun2)
 				continue;
-			if(pixel == MakeColour(144,144,144))
+			if(pixel == gun3)
 				continue;
-
-			float dr, dg, db;
 
 			dr = (float)r / 96.0f;
 			dg = (float)g / 156.0f;
@@ -403,7 +407,7 @@ void CWorm::InitWeaponSelection(void)
 	iNumWeaponSlots = 5;
 
 	// Load previous settings from profile
-	int i;
+	short i;
 	for(i=0;i<iNumWeaponSlots;i++) {
 
 		tWeapons[i].Weapon = cGameScript->FindWeapon( tProfile->sWeaponSlots[i] );
@@ -475,16 +479,17 @@ void CWorm::InitWeaponSelection(void)
 void CWorm::GetRandomWeapons(void)
 {
 	int lastenabled = 0;
+	int num,n;
 
-	for(int i=0; i<5; i++) {
-		int num = GetRandomInt(cGameScript->GetNumWeapons()-1);
+	for(short i=0; i<5; i++) {
+		num = GetRandomInt(cGameScript->GetNumWeapons()-1);
 
 		// Safety hack
-		if (num == 0)
+		if (!num)
 			num = 1;
 		
         // Cycle through weapons starting from the random one until we get an enabled weapon
-        int n=num;
+        n=num;
 		lastenabled = 0;
 		while(1) {
 			// Wrap around
@@ -527,7 +532,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 {
 	int l = 0;
 	int t = 0;
-	int i,id;
+	short i,id;
 	int centrex = 320;
 
     if( v ) {
@@ -541,9 +546,9 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	//tLX->cFont.DrawCentre(bmpDest, centrex+2, t+82, 0,"%s", "Weapons Selection");
 	tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWhite,"%s", "Weapons Selection");
 
-	int iChat_Typing = false;
+	bool iChat_Typing = false;
 	if (getClient())
-		iChat_Typing = getClient()->isTyping();
+		iChat_Typing = getClient()->isTyping() != 0;
 
 	int y = t + 60;
 	for(i=0;i<iNumWeaponSlots;i++) {
@@ -643,7 +648,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 			iCurrentWeapon = 0;
 
 			// Set our profile to the weapons (so we can save it later)
-			for(int i=0;i<5;i++)
+			for(byte i=0;i<5;i++)
 				tProfile->sWeaponSlots[i] = tWeapons[i].Weapon->Name;
 		}
 	}
@@ -754,8 +759,9 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 			if (iShowHealth > 5)
 				iShowHealth = 5;
 
-			for (int i=0; i<iShowHealth; i++) {
-				Uint32 CurColor = MakeColour(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
+			Uint32 CurColor;
+			for (short i=0; i<iShowHealth; i++) {
+				CurColor = MakeColour(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
 				DrawRectFill(bmpDest,x-10+(i*5+1),y-19,x-10+(i*5+1)+4,y-15,CurColor);
 			}
 
@@ -767,7 +773,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	//
 	// Draw the crosshair
 	//
-	CVec forw;
+	static CVec forw;
 	GetAngles(a,&forw,NULL);
 	forw = forw*16.0f;
 
@@ -896,7 +902,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 		//tLX->cFont.DrawCentre(bmpDest,x+1,y-29,0,sName);
 		if (tGameInfo.iGameMode == GMT_TEAMDEATH && tLXOptions->iColorizeNicks)  {
 									// Blue				Red				Green			Yellow
-			Uint8 teamcolours[] = {0x02,0xB8,0xFC,  0xFF,0x02,0x02,  0x20,0xFD,0x00,  0xFD,0xF4,0x00};
+			static const Uint8 teamcolours[] = {0x02,0xB8,0xFC,  0xFF,0x02,0x02,  0x20,0xFD,0x00,  0xFD,0xF4,0x00};
 			Uint8 clR = teamcolours[iTeam*3];
 			Uint8 clG = teamcolours[iTeam*3+1];
 			Uint8 clB = teamcolours[iTeam*3+2];
@@ -916,10 +922,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 // Draw the worm's shadow
 void CWorm::DrawShadow(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 {
-    if( !v )
-        return;
-
-    if( tLXOptions->iShadows )
+    if( tLXOptions->iShadows && v )
         map->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
@@ -931,7 +934,7 @@ int CWorm::CheckOnGround(CMap *map)
 	int px = (int)vPos.x;
 	int py = (int)vPos.y;
 
-	for(int y=6;y>0;y--) {
+	for(byte y=6;y>0;y--) {
 
 		// Optimize: pixelflag + Width
 		if(!(map->GetPixelFlag(px-2,py+y) & PX_EMPTY))
@@ -969,14 +972,11 @@ int CWorm::Kill(void)
 	fTimeofDeath = tLX->fCurTime;
 
 	// -2 means there is no lives starting value
-	if(iLives == -2)
+	if(iLives == WRM_UNLIM)
 		return false;
 
 	iLives--;
-	if(iLives == -1)
-		return true;
-
-	return false;
+	return iLives == WRM_OUT;
 }
 
 
@@ -986,11 +986,7 @@ int CWorm::CheckBonusCollision(CBonus *b)
 {
 	CVec diff = vPos - b->getPosition();
 
-	if(fabs(diff.x) < 7 &&
-	   fabs(diff.y) < 7)
-		return true;
-
-	return false;
+	return fabs(diff.x) < 7 &&  fabs(diff.y) < 7;
 }
 
 
