@@ -20,6 +20,7 @@
 #include "Graphics.h"
 
 entity_t *tEntities = NULL;
+size_t iEntityCount = 0;
 
 Uint32 doomsday[4];
 
@@ -32,8 +33,10 @@ int InitializeEntities(void)
 		return false;
 
 	// Set all the entities to false
-	for(int i=0;i<MAX_ENTITIES;i++)
+	for(short i=0;i<MAX_ENTITIES;i++)
 		tEntities[i].iUsed = false;
+
+	iEntityCount = 0;
 
     // Pre-calculate the doomsday colour
     doomsday[0] = MakeColour(244,244,112);
@@ -53,6 +56,7 @@ void ShutdownEntities(void)
 		delete[] tEntities;
 		tEntities = NULL;
 	}
+	iEntityCount = 0;
 }
 
 
@@ -61,8 +65,9 @@ void ShutdownEntities(void)
 void ClearEntities(void)
 {
 	// Set all the entities to false
-	for(int i=0;i<MAX_ENTITIES;i++)
+	for(short i=0;i<MAX_ENTITIES;i++)
 		tEntities[i].iUsed = false;
+	iEntityCount = 0;
 }
 
 
@@ -78,17 +83,17 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 		   type == ENT_BLOOD)
 			return;
 	}
+
+	// No free entities
+	if (iEntityCount == MAX_ENTITIES)
+		return;
 	
 	// Find a free entity
-	short e;
+	register short e;
 	for(e=0;e<MAX_ENTITIES;e++,ent++) {
 		if(!ent->iUsed)
 			break;
 	}
-
-	// No free entities
-	if(e==MAX_ENTITIES-1)
-		return;
 
 	ent->iUsed = true;
 	ent->iType = type;
@@ -114,6 +119,8 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 	case ENT_JETPACKSPRAY:
 		ent->fLife = 3;
 	}
+
+	iEntityCount++;
 	
 }
 
@@ -122,8 +129,11 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 // Draw the entities
 void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 {
+	if (!iEntityCount)
+		return;
+
 	entity_t *ent = tEntities;
-	CVec end;
+	static CVec end;
 
 	int wx = v->GetWorldX();
 	int wy = v->GetWorldY();
@@ -131,11 +141,13 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 	int t = v->GetTop();
 
 
-	int x,y;
-	int x2,y2;
+	static int x,y;
+	static int x2,y2;
+	static short curcount;
 		
-	for(short e=0;e<MAX_ENTITIES;e++,ent++) {
+	for(curcount=0;curcount<iEntityCount;ent++) {
 		if(ent->iUsed)  {
+			curcount++;
 
 			x=((int)ent->vPos.x-wx)*2+l;
 			y=((int)ent->vPos.y-wy)*2+t;
@@ -194,7 +206,7 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 				// Jetpack spray
 				case ENT_JETPACKSPRAY:
-					Uint8 r,g,b;
+					static Uint8 r,g,b;
 					r = (Uint8)(0.314f * (255-ent->fFrame));
 					g = (Uint8)(0.588f * (255-ent->fFrame));
 					b = (Uint8)(0.784f * (255-ent->fFrame));
@@ -226,11 +238,17 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 // Simulate the entities
 void SimulateEntities(float dt, CMap *map)
 {
-	entity_t *ent = tEntities;
+	if (!iEntityCount)
+		return;
 
-	for(short e=0;e<MAX_ENTITIES;e++,ent++) {
+	entity_t *ent = tEntities;
+	static short curcount;
+
+	for(/*register short e=0*/curcount=0;/*e<MAX_ENTITIES*/curcount<iEntityCount;/*e++,*/ent++) {
 		if(!ent->iUsed)
 			continue;
+
+		curcount++;
 
 		
 		// Collisions and stuff
@@ -255,6 +273,8 @@ void SimulateEntities(float dt, CMap *map)
 				if(ent->vPos.x < 0 || ent->vPos.y < 0 ||
 					(int)ent->vPos.x >= (int)map->GetWidth() || (int)ent->vPos.y >= (int)map->GetHeight()) {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
 					continue;
 				}
 
@@ -263,6 +283,8 @@ void SimulateEntities(float dt, CMap *map)
 
 				if((pf & PX_ROCK || pf & PX_DIRT)) {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
 
 					switch(ent->iType) {
 
@@ -278,8 +300,10 @@ void SimulateEntities(float dt, CMap *map)
 
 						// Giblet
 						case ENT_GIB:
-							if(ent->vVel.GetLength2() > 25600)
+							if(ent->vVel.GetLength2() > 25600)  {
 								EntityBounce(ent);
+								curcount++;  // The above line enbales the entity again
+							}
 							else {
 								// Add the gib to the map
 								int x = (int)ent->vPos.x-1;
@@ -311,8 +335,11 @@ void SimulateEntities(float dt, CMap *map)
 			// Explosion
 			case ENT_EXPLOSION:
 				ent->fFrame += dt*40;
-				if(ent->fFrame > 15)
+				if(ent->fFrame > 15)  {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
+				}
 				break;
 
 			// Smoke
@@ -320,44 +347,62 @@ void SimulateEntities(float dt, CMap *map)
 				// Fallthrough
 			case ENT_CHEMSMOKE:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 4)
+				if((int)ent->fFrame > 4)  {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
+				}
 				break;
 
 			// Doomsday
 			case ENT_DOOMSDAY:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 3)
+				if((int)ent->fFrame > 3)  {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
+				}
 				break;
 
 			// Spawn
 			case ENT_SPAWN:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 5)
+				if((int)ent->fFrame > 5)  {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
+				}
 				break;
 
 			// Sparkle
 			case ENT_SPARKLE:
 				ent->vPos = ent->vPos + CVec(0,5.0f*dt);
 				ent->fFrame += dt*5;
-				if((int)ent->fFrame > 2)
+				if((int)ent->fFrame > 2)  {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
+				}
 				break;
 
 			// Jetpack Spray
 			case ENT_JETPACKSPRAY:
 				ent->fFrame += dt*200;
-				if((int)ent->fFrame > 150)
+				if((int)ent->fFrame > 150)  {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
+				}
 				break;
 
 			// Beam & Laser Sight
 			case ENT_BEAM:
 			case ENT_LASERSIGHT:
-				if((int)ent->fFrame == 1)
+				if((int)ent->fFrame == 1)  {
 					ent->iUsed = false;
+					iEntityCount--;
+					curcount--;
+				}
 				ent->fFrame++;
 				break;
 
@@ -365,7 +410,7 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_BLOODDROPPER:
 				if(ent->fExtra > 0.1f) {
 					int col = GetRandomInt(1);
-					int colour[] = {128,200};
+					static const int colour[] = {128,200};
 					SpawnEntity(ENT_BLOOD,0,ent->vPos,CVec(GetRandomNum(),GetRandomNum()),MakeColour(colour[col],0,0),NULL);
 					ent->fExtra = 0;
 				}
@@ -385,4 +430,5 @@ void EntityBounce(entity_t *ent)
 	
 	// Still alive
 	ent->iUsed = true;
+	iEntityCount++;
 }
