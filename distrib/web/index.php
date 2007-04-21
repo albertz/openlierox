@@ -33,8 +33,10 @@
 	<br>
 	<b>0.57_beta2</b> (released 2007-04-09)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=499780">
-	OpenLieroX Source & Win32 download link</a><br>
+	OpenLieroX Source download & Win32 download</a><br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta2.ebuild">OpenLieroX Gentoo ebuild</a><br>
+	<a href="deb/openlierox-0.57-beta2.deb">OpenLieroX deb-package</a>
+	(very much thanks to Ekir Gustafsson!)<br>
 	<br>
 	<b>0.57_beta1</b> (released 2007-01-27)<br>
 	<a href="tarball/OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
@@ -86,10 +88,13 @@
 </p>
 <p>
 	<h2>Installation under Debian/Ubuntu</h2>
+	Ekir Gustafsson has created now a Debain-package for you. Give it a try.
+	(Download link is in the download section.)<br>
+	If you want to compile/install it manually yourself:
 	Follow the installation @somewhere. You have only one problem:
 	HawkNL doesn't exist for Debian/Ubuntu. But there is the possibility
 	to compile OpenLieroX with HawkNL builtin. Simply do (after you have
-	checked the file DEPS for other needed packages, you have to install
+	checked the file <i>DEPS</i> for other needed packages, you have to install
 	with 'sudo apt-get install PACKAGE'):
 	<pre>
 		HAWKNL_BUILTIN=1 ./compile.sh
