@@ -301,14 +301,14 @@ void LoadProfile(FILE *fp, int id)
 void SaveProfile(FILE *fp, profile_t *p)
 {
 	// Name & Type
-	fwrite(p->sName.c_str(),	sizeof(char),	32,	fp);
-    fwrite(p->szSkin.c_str(),   sizeof(char),   128,fp);
+	fwrite(p->sName,	32,	fp);
+    fwrite(p->szSkin,    128,fp);
     fwrite(GetEndianSwapped(p->iType),   sizeof(int),    1,  fp);
     fwrite(GetEndianSwapped(p->nDifficulty),sizeof(int), 1,  fp);
 
 	// Multiplayer
-	fwrite(p->sUsername.c_str(), sizeof(char),	16, fp);
-	fwrite(p->sPassword.c_str(), sizeof(char),	16, fp);
+	fwrite(p->sUsername, 	16, fp);
+	fwrite(p->sPassword, 	16, fp);
 
 	// Colour
 	fwrite(GetEndianSwapped(p->R),		sizeof(Uint8),	1,	fp);
@@ -317,7 +317,7 @@ void SaveProfile(FILE *fp, profile_t *p)
 
 	// Weapons		
 	for(int i=0; i<5; i++)
-		fwrite(p->sWeaponSlots[i].c_str(),	sizeof(char),	64,	fp);
+		fwrite(p->sWeaponSlots[i],		64,	fp);
 }
 
 

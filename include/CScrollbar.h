@@ -39,6 +39,9 @@ public:
 	// Constructor
 	CScrollbar() {
 		iType = wid_Scrollbar;
+		iMin = 0;
+		iMax = 1;
+		iValue = 0;
 	}
 
 

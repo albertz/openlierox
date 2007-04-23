@@ -2564,6 +2564,7 @@ void CMap::Send(CBytestream *bs)
 	}
 	uchar b;
 
+	// TODO: what the f*?
 	for(n=0;n<3;n++)
 		fwrite(&b,sizeof(uchar),1,fp);
 

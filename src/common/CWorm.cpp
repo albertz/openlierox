@@ -153,12 +153,12 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	// bmpWormLeft and bmpGibs is freed by the cache
+	// bmpWormRight and bmpGibs is freed by the cache
 
 	// TODO: something is wrong here with the memory management (it gets freed twice and similar things)
 
-	if(bmpWormRight) {
-		SDL_FreeSurface(bmpWormRight);
+	if(bmpWormLeft) {
+		SDL_FreeSurface(bmpWormLeft);
 		bmpWormRight = NULL;
 	}
 
