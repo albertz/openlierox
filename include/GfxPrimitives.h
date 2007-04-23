@@ -53,6 +53,11 @@ inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
 	return true;
 }
 
+inline Uint32 ConvertColor(Uint32 Color, SDL_PixelFormat *from, SDL_PixelFormat *to)  {
+	static Uint8 r,g,b;
+	SDL_GetRGB(Color,from,&r,&g,&b);
+	return SDL_MapRGB(to,r,g,b);
+}
 
 
 // Surface stuff

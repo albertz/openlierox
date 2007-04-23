@@ -43,18 +43,18 @@ int CFont::Load(const std::string& fontname, bool _colour, int _width)
 	// Calculate the font width for each character
 	CalculateWidth();
 
-	PreCalculate(bmpWhite,tLX->clNormalLabel);
-	PreCalculate(bmpGreen,tLX->clChatText);
+	PreCalculate(bmpWhite,ConvertColor(tLX->clNormalLabel,SDL_GetVideoSurface()->format,bmpWhite->format));
+	PreCalculate(bmpGreen,ConvertColor(tLX->clChatText,SDL_GetVideoSurface()->format,bmpGreen->format));
 
-
-	// Must do this after
-	SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, tLX->clPink);
 
 		// Pre-calculate some colours
-	f_pink = tLX->clPink;
-	f_blue = tLX->clHeading;//SDL_MapRGB(bmpFont->format,0,0,255);
-	f_white = tLX->clNormalLabel;//MakeColour(255,255,255);
-	f_green = tLX->clChatText;//MakeColour(0,255,0);
+	f_pink = ConvertColor(tLX->clPink,SDL_GetVideoSurface()->format,bmpFont->format);
+	f_blue = ConvertColor(tLX->clHeading,SDL_GetVideoSurface()->format,bmpFont->format);//SDL_MapRGB(bmpFont->format,0,0,255);
+	f_white = ConvertColor(tLX->clNormalLabel,SDL_GetVideoSurface()->format,bmpFont->format);//MakeColour(255,255,255);
+	f_green = ConvertColor(tLX->clChatText,SDL_GetVideoSurface()->format,bmpFont->format);//MakeColour(0,255,0);
+
+	// Must do this after PreCalculate
+	SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, f_pink);
 
 	return true;
 }
@@ -64,10 +64,14 @@ int CFont::Load(const std::string& fontname, bool _colour, int _width)
 // Shutdown the font
 void CFont::Shutdown(void)
 {
-	if(bmpWhite)
+	if(bmpWhite)  {
 		SDL_FreeSurface(bmpWhite);
-	if(bmpGreen)
+		bmpWhite = NULL;
+	}
+	if(bmpGreen)  {
 		SDL_FreeSurface(bmpGreen);
+		bmpGreen = NULL;
+	}
 }
 
 

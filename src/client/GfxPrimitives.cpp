@@ -90,7 +90,7 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 			// Copy the pixel
 			tp-=bpp;
 			memcpy(tp,sp,bpp);
-			sp+=bmpSrc->format->BytesPerPixel;
+			sp+=bpp;
 		}
 
 		SrcPix+=bmpSrc->pitch;
@@ -153,7 +153,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 			memcpy(tp_y,sp,bpp);
 			tp_x += bpp;
 			tp_y += bpp;
-			sp+=bmpSrc->format->BytesPerPixel;
+			sp+=bpp;
 		}
 		TrgPix += doublepitch;
 		SrcPix += bmpSrc->pitch;
@@ -224,7 +224,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 				memcpy(tp_y,sp,bpp);
 			} 
 			// Skip to next pixel
-			sp+=bmpSrc->format->BytesPerPixel;
+			sp+=bpp;
 			tp_x += doublebpp;
 			tp_y += doublebpp;
 		}
@@ -301,7 +301,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 				memcpy(tp_y,sp,bpp);
 			}
 			// Skip to next pixel
-			sp+=bmpSrc->format->BytesPerPixel;
+			sp+=bpp;
 			tp_x -= doublebpp;
 			tp_y -= doublebpp;
 		}
