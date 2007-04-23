@@ -161,7 +161,7 @@ private:
 	// Attributes
 
 	// General
-	int			iUsed;
+	bool		bUsed;
 	int			iID;
 	int			iType;
 	int			iLocal;
@@ -470,8 +470,8 @@ public:
 	//
 	// Variables
 	//
-	inline int			isUsed(void)				{ return iUsed; }
-	inline void		setUsed(int _u)				{ iUsed = _u; }
+	inline bool		isUsed(void)				{ return bUsed; }
+	inline void		setUsed(bool _u)			{ bUsed = _u; }
 
 	inline std::string getName(void)			{ return sName; }
 	inline void		setName(const std::string& val) { sName = val; }

@@ -36,7 +36,7 @@ public:
 	// Constructor
 	CViewport() {
 
-		iUsed = false;
+		bUsed = false;
         nID = 0;
 		Left = Top = 0;
 		Width = 320;
@@ -56,7 +56,7 @@ public:
 private:
 	// Attributes
 
-	int		iUsed;
+	bool	bUsed;
     int     nID;
 	int		Left,Top;
 	int		Width,Height;
@@ -119,8 +119,8 @@ public:
 	void	SetWorldX(int _x)	{ WorldX = _x; }
 	void	SetWorldY(int _y)	{ WorldY = _y; }
 
-	int		getUsed(void)		{ return iUsed; }
-	void	setUsed(int _u)		{ iUsed = _u; }
+	bool	getUsed(void)		{ return bUsed; }
+	void	setUsed(bool _u)	{ bUsed = _u; }
 
     void    setTarget(CWorm *w) { pcTargetWorm = w; }
     CWorm   *getTarget(void)    { return pcTargetWorm; }

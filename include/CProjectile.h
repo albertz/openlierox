@@ -138,7 +138,7 @@ public:
 	CProjectile() {
         iID = 0;
 		fSpeed = 0;
-		iUsed = false;
+		bUsed = false;
 		fLife = 0;
 		tProjInfo = NULL;
 		fLastTrailProj = 0;
@@ -156,7 +156,7 @@ private:
 	// Attributes
 
     int         iID;
-	int			iUsed;
+	bool		bUsed;
 	int			iType;
 	float		fLife;
 	float		fExtra;
@@ -219,8 +219,8 @@ public:
 
 	void	Bounce(float fCoeff);
 
-	int		isUsed(void)			{ return iUsed; }
-	void	setUsed(int u)			{ iUsed = u; }
+	bool	isUsed(void)			{ return bUsed; }
+	void	setUsed(bool u)			{ bUsed = u; }
 
 	float	getLife(void)			{ return fLife; }
 

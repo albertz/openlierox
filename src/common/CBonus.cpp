@@ -25,7 +25,7 @@
 // Spawn the bonus
 void CBonus::Spawn(CVec pos, int type, int weapon, CGameScript *gs)
 {
-	iUsed = true;
+	bUsed = true;
 	vPos = pos;
 	vVelocity = CVec(0,0);
 	iType = type;

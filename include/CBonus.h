@@ -38,14 +38,14 @@ class CBonus {
 public:
 	// Constructor
 	CBonus() {
-		iUsed = false;
+		bUsed = false;
 	}
 
 
 private:
 	// Attributes
 
-	int		iUsed;
+	bool	bUsed;
 	int		iType;
 	int		iWeapon;
 
@@ -71,8 +71,8 @@ public:
 
 
 	// variables
-	int		getUsed(void)		{ return iUsed; }
-	void	setUsed(int _u)		{ iUsed = _u; }
+	bool	getUsed(void)		{ return bUsed; }
+	void	setUsed(bool _u)		{ bUsed = _u; }
 
 	int		getType(void)		{ return iType; }
 	int		getWeapon(void)		{ return iWeapon; }

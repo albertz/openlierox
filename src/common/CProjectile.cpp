@@ -31,7 +31,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	vVelocity = _vel;
 	fRotation = (float)_rot;
 	iOwner = _owner;
-	iUsed = true;
+	bUsed = true;
 	iSpawnPrjTrl = false;
 	fLastTrailProj = -99999;
 	iRandom = _random;
@@ -170,7 +170,7 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 			if(fFrame >= NumFrames) {
 				switch(tProjInfo->AnimType) {
 				case ANI_ONCE:
-					iUsed = false;
+					bUsed = false;
 					break;
 				case ANI_LOOP:
 					fFrame = 0;
@@ -349,7 +349,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	py=(int)(vPosition.y);
 
 	// got we any worm?
-	if (checkstep*dt*dt > WORM_CHECKSTEP*WORM_CHECKSTEP)  {
+	if((checkstep*dt*dt > WORM_CHECKSTEP*WORM_CHECKSTEP))  {
 		checkstep = WORM_CHECKSTEP / sqrt(checkstep);
 		CVec curpos = vOldPos;
 		for (float time=0; time < dt; time += checkstep)  {
@@ -629,9 +629,9 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 	int y=((int)vPosition.y-wy)*2+t;
 
 	// Clipping on the viewport
-	if(x<l || x>l+view->GetVirtW())
+	if((x<l || x>l+view->GetVirtW()))
 		return;
-	if(y<t || y>t+view->GetVirtH())
+	if((y<t || y>t+view->GetVirtH()))
 		return;
 
     if(tProjInfo->Type == PRJ_PIXEL) {
@@ -720,9 +720,9 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 	int y=((int)vPosition.y-wy)*2+t;
 
 	// Clipping on the viewport
-	if(x<l || x>l+view->GetVirtW())
+	if((x<l || x>l+view->GetVirtW()))
 		return;
-	if(y<t || y>t+view->GetVirtH())
+	if((y<t || y>t+view->GetVirtH()))
 		return;
 
     // Pixel

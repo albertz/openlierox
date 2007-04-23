@@ -41,7 +41,8 @@ enum {
 
 
 class entity_t { public:
-	bool	iUsed;
+entity_t() : bUsed(false) {}
+	bool	bUsed;
 	int		iType;
 	int		iType2;
 	float	fLife;

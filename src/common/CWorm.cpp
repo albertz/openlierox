@@ -26,7 +26,7 @@
 // Clear the worm details
 void CWorm::Clear(void)
 {
-	iUsed = false;
+	bUsed = false;
 	iID = 0;
 	iTeam = 0;
 	iLocal = false;
@@ -153,15 +153,20 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	// bmpWormRight and bmpGibs is freed by the cache
+	// bmpGibs is freed by the cache
 
 	// TODO: something is wrong here with the memory management (it gets freed twice and similar things)
 
 	if(bmpWormLeft) {
 		SDL_FreeSurface(bmpWormLeft);
-		bmpWormRight = NULL;
+		bmpWormLeft = NULL;
 	}
 
+	if(bmpWormRight) {
+		SDL_FreeSurface(bmpWormRight);
+		bmpWormRight = NULL;
+	}
+	
 	if(bmpPic) {
 		SDL_FreeSurface(bmpPic);
 		bmpPic = NULL;

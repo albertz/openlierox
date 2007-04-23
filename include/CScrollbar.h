@@ -42,6 +42,7 @@ public:
 		iMin = 0;
 		iMax = 1;
 		iValue = 0;
+		iItemsperbox = 1;
 	}
 
 
