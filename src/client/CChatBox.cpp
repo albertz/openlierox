@@ -33,6 +33,9 @@ void CChatBox::Clear(void)
 // Add a line of text to the chat box
 void CChatBox::AddText(const std::string& txt, int colour, float time)
 {
+	if (txt == "")
+		return;
+
 	// Create a new line and copy the info
 	line_t newline;
 

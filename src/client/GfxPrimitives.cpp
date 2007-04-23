@@ -79,16 +79,18 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	int bpp = bmpDest->format->BytesPerPixel;
+	register byte bpp = bmpDest->format->BytesPerPixel;
 
-	Uint8 *sp,*tp;
+	register Uint8 *sp,*tp;
 	for(y=0;y<h;y++) {
 
 		sp = SrcPix;
 		tp = TrgPix + w*bpp;
 		for(x=0;x<w;x++) {
 			// Copy the pixel
-			memcpy(tp-=bpp,sp+=bmpSrc->format->BytesPerPixel,bpp);
+			tp-=bpp;
+			memcpy(tp,sp,bpp);
+			sp+=bmpSrc->format->BytesPerPixel;
 		}
 
 		SrcPix+=bmpSrc->pitch;
@@ -134,7 +136,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 
 	register Uint8 *sp,*tp_x,*tp_y;
 	int doublepitch = bmpDest->pitch*2;
-	int bpp = bmpDest->format->BytesPerPixel;
+	register byte bpp = bmpDest->format->BytesPerPixel;
 
     for(y=0;y<h;y++) {
 
@@ -143,10 +145,14 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 		tp_y = tp_x+bmpDest->pitch;
 		for(x=0;x<w;x++) {
             // Copy the 1 source pixel into a 4 pixel block on the destination surface
-			memcpy(tp_x+=bpp,sp,bpp);
-			memcpy(tp_x+=bpp,sp,bpp);
-			memcpy(tp_y+=bpp,sp,bpp);
-			memcpy(tp_y+=bpp,sp,bpp);
+			memcpy(tp_x,sp,bpp);
+			tp_x += bpp;
+			memcpy(tp_x,sp,bpp);
+			memcpy(tp_y,sp,bpp);
+			tp_y += bpp;
+			memcpy(tp_y,sp,bpp);
+			tp_x += bpp;
+			tp_y += bpp;
 			sp+=bmpSrc->format->BytesPerPixel;
 		}
 		TrgPix += doublepitch;
@@ -197,12 +203,12 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	Uint8 *sp,*tp_x,*tp_y;
+	register Uint8 *sp,*tp_x,*tp_y;
 
 	// Pre-calculate some things, so the loop is faster
 	int doublepitch = bmpDest->pitch*2;
-	int bpp = bmpDest->format->BytesPerPixel;
-	int doublebpp = bpp*2;
+	register byte bpp = bmpDest->format->BytesPerPixel;
+	register byte doublebpp = bpp*2;
 
     for(y=0;y<h;y++) {
 
@@ -212,17 +218,15 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		for(x=0;x<w;x++) {
 			if (memcmp(&key,sp,bpp))  {
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
-				memcpy(tp_x+=bpp,sp,bpp);
-				memcpy(tp_x+=bpp,sp,bpp);
-				memcpy(tp_y+=bpp,sp,bpp);
-				memcpy(tp_y+=bpp,sp,bpp);
-				sp+=bmpSrc->format->BytesPerPixel;
-			} else {
-				// Skip the transparent pixel
-				sp+=bmpSrc->format->BytesPerPixel;
-				tp_x += doublebpp;
-				tp_y += doublebpp;
-			}
+				memcpy(tp_x,sp,bpp);
+				memcpy(tp_x,sp,bpp);
+				memcpy(tp_y,sp,bpp);
+				memcpy(tp_y,sp,bpp);
+			} 
+			// Skip to next pixel
+			sp+=bmpSrc->format->BytesPerPixel;
+			tp_x += doublebpp;
+			tp_y += doublebpp;
 		}
 		TrgPix += doublepitch;
 		SrcPix += bmpSrc->pitch;
@@ -274,12 +278,12 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels + sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	Uint8 *sp,*tp_x,*tp_y;
+	register Uint8 *sp,*tp_x,*tp_y;
 
 	// Pre-calculate some things, so the loop is faster
 	int doublepitch = bmpDest->pitch*2;
-	int bpp = bmpDest->format->BytesPerPixel;
-	int doublebpp = bpp*2;
+	register byte bpp = bmpDest->format->BytesPerPixel;
+	register byte doublebpp = bpp*2;
 	int realw = w*bpp;
 
     for(y=0;y<h;y++) {
@@ -289,18 +293,17 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 		tp_y = tp_x+bmpDest->pitch;
 		for(x=0;x<w;x++) {
 			if (memcmp(&key,sp,bmpDest->format->BytesPerPixel))  {
+				// Non-transparent
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
-				memcpy(tp_x-=bpp,sp,bpp);
-				memcpy(tp_x-=bpp,sp,bpp);
-				memcpy(tp_y-=bpp,sp,bpp);
-				memcpy(tp_y-=bpp,sp,bpp);
-				sp+=bmpSrc->format->BytesPerPixel;
-			} else {
-				// Skip the transparent pixel
-				sp+=bmpSrc->format->BytesPerPixel;
-				tp_x -= doublebpp;
-				tp_y -= doublebpp;
+				memcpy(tp_x,sp,bpp);
+				memcpy(tp_x,sp,bpp);
+				memcpy(tp_y,sp,bpp);
+				memcpy(tp_y,sp,bpp);
 			}
+			// Skip to next pixel
+			sp+=bmpSrc->format->BytesPerPixel;
+			tp_x -= doublebpp;
+			tp_y -= doublebpp;
 		}
 		TrgPix += doublepitch;
 		SrcPix += bmpSrc->pitch;

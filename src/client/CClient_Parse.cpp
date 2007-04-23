@@ -1156,7 +1156,7 @@ void CClient::ParseMultiShot(CBytestream *bs)
 void CClient::ParseUpdateStats(CBytestream *bs)
 {
 	byte num = bs->readByte();
-	if (num >= MAX_PLAYERS)
+	if (num > MAX_PLAYERS)
 		printf("CClient::ParseUpdateStats: invalid worm count ("+itoa(num)+") - clamping\n");
 
 	num = MIN(num,MAX_PLAYERS);

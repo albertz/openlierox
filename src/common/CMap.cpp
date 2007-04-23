@@ -1858,7 +1858,6 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *wo
 	}
 }
 
-
 ///////////////////
 // Load the map
 int CMap::Load(const std::string& filename)
@@ -2323,7 +2322,6 @@ int CMap::LoadImageFormat(FILE *fp)
 
 	return true;
 }
-
 
 ///////////////////
 // Load an original version of a liero leve;

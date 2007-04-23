@@ -362,7 +362,8 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 		DrawImage(bmpDest, gfxGame.bmpInfinite, x+61,y+41);
 		break;
 	default:
-		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%d",worm->getLives());
+		if (worm->getLives() >= 0)
+			tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%d",worm->getLives());
 	}
 
 	// Kills
@@ -992,7 +993,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 			y+=15;
 		}
 	}*/
-	static CListview *lv = (CListview *)cChatList;
+	CListview *lv = (CListview *)cChatList;
 
 	line_t *l = NULL;
 	while((l = cChatbox.GetNewLine()) != NULL) {

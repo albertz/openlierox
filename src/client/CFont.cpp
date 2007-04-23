@@ -171,13 +171,15 @@ void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt,...)
 
 void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
 	// TODO: make it better!
-	Draw(dst, x,y,col, "%s", txt.c_str());
+	if (txt != "")
+		Draw(dst, x,y,col, "%s", txt.c_str());
 }
 
 
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
 	// TODO: make it better!
-	DrawAdv(dst, x,y,max_w,col,"%s",txt.c_str());
+	if (txt != "")
+		DrawAdv(dst, x,y,max_w,col,"%s",txt.c_str());
 }
 
 ///////////////////
