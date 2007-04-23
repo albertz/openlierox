@@ -674,12 +674,12 @@ std::string freadstr(FILE *fp, size_t maxlen) {
 
 
 size_t fwrite(const std::string& txt, size_t len, FILE* fp) {
-	size_t len_of_txt = MAX(txt.size(), len-1);
+	size_t len_of_txt = MIN(txt.size()+1, len-1);
 	size_t ret = fwrite(txt.c_str(), 1, len_of_txt, fp);
 	if(ret != len_of_txt)
 		return ret;
 	for(; len_of_txt < len; len_of_txt++)
-		if(fwrite(" ", 1, 1, fp) == 0)
+		if(fwrite("\n", 1, 1, fp) == 0)
 			return len_of_txt;
 	return len;
 }

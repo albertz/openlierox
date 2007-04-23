@@ -33,6 +33,7 @@ int iSurfaceFormat = SDL_SWSURFACE;
 void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// Warning: Both surfaces have to have same bpp!
+	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 
 	int x,y,c;
 
@@ -51,11 +52,11 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 
 	// Do clipping on the DEST surface
 	if(dx+w<cx || dy+h<cy) return;
-	if(dx>cex || dy>cey) return;
+	if(dx>=cex || dy>=cey) return;
 
 	if(dx<cx) {
 		c = cx-dx;
-		dx+=c;
+		dx=cx;
 		w-=c;
 	}
 	if(dy<cy) {
@@ -106,6 +107,8 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 // Draws a sprite doubly stretched
 void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
+	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
+	
 	int x,y;
 
 	// Lock the surfaces
@@ -115,15 +118,15 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 		SDL_LockSurface(bmpSrc);
 
 	// Source clipping
-	if (sx < 0)  { sx=0; }
-	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w-sx; }
-	if (sy < 0) { sy=0;}
+	if (sx < 0)  { w+=sx; sx=0; }
+	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w-sx; } // TODO: not exactly what perhaps is intended...
+	if (sy < 0) { h+=sy; sy=0;}
 	else if((sy+h) > bmpSrc->h)  { h = bmpSrc->h-sy; }
 
 	// Dest clipping
-	if (dx<0)  { sx+=abs(dx); dx=0;}
+	if (dx<0)  { sx-=dx; w+=dx; dx=0;}
 	else if (dx+w > bmpDest->w)  { w = bmpDest->w-dx; }
-	if (dy<0)  { sy+=abs(dy); dy=0;}
+	if (dy<0)  { sy-=dy; h+=dy; dy=0;}
 	else if (dy+h > bmpDest->h)  { h = bmpDest->h-dy; }
 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
@@ -162,6 +165,8 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 // Draws a sprite doubly stretched with colour key
 void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
 {
+	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
+
 	int x,y;
 	int c;
 
@@ -175,10 +180,10 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 
 	// Do clipping on the DEST surface
 	if(dx+w*2<cx || dy+h*2<cy) return;
-	if(dx>cex || dy>cey) return;
+	if(dx>=cex || dy>=cey) return;
 
-	if(dx<cx) {	c=cx-dx;	dx+=c; c/=2; sx+=c;	w-=c; }
-	if(dy<cy) {	c=cy-dy;	dy+=c; c/=2; sy+=c;	h-=c; }
+	if(dx<cx) {	c=cx-dx;	dx=cx; c/=2; sx+=c;	w-=c; }
+	if(dy<cy) {	c=cy-dy;	dy=cy; c/=2; sy+=c;	h-=c; }
 
 	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; w-=c; }
 	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; h-=c; }
@@ -205,7 +210,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		tp_x = TrgPix;
 		tp_y = tp_x+bmpDest->pitch;
 		for(x=0;x<w;x++) {
-			if (memcmp(&key,sp,bmpDest->format->BytesPerPixel))  {
+			if (memcmp(&key,sp,bpp))  {
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
 				memcpy(tp_x+=bpp,sp,bpp);
 				memcpy(tp_x+=bpp,sp,bpp);
@@ -236,6 +241,8 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 // Draws a sprite mirrored doubly stretched with colour key
 void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
 {
+	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
+	
 	int x,y;
 	int c;
 
@@ -248,7 +255,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 
 	// Do clipping on the DEST surface
 	if(dx+w*2<cx || dy+h*2<cy) return;
-	if(dx>cex || dy>cey) return;
+	if(dx>=cex || dy>=cey) return;
 
 	if(dx<cx) {	c=cx-dx; dx+=c; w-=c;}
 	if(dy<cy) {	c=cy-dy; dy+=c; h-=c;}
@@ -797,85 +804,94 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 
 ///////////////////////
 // Saves the surface into the specified file with the specified format
-bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, bool Tournament)
+bool SaveSurface ( SDL_Surface *image, const std::string& FileName, int Format, bool Tournament )
 {
-  if (Format == FMT_BMP)  {
-		std::string abs_fn = GetWriteFullFileName(FileName, true);
-		SDL_SaveBMP(image, abs_fn.c_str());
+	if ( Format == FMT_BMP )
+	{
+		std::string abs_fn = GetWriteFullFileName ( FileName, true );
+		SDL_SaveBMP ( image, abs_fn.c_str() );
 
 		// Log
-		if (Tournament && cServer)  {
-			cServer->setTakeScreenshot(false);
-			cServer->setScreenshotToken(true);
+		if ( Tournament && cServer )
+		{
+			cServer->setTakeScreenshot ( false );
+			cServer->setScreenshotToken ( true );
 
-			FILE *f = OpenGameFile(FileName,"ab");
-			if (!f)
+			FILE *f = OpenGameFile ( FileName,"ab" );
+			if ( !f )
 				return false;
-			if (!cServer->WriteLogToFile(f))  {
-				fclose(f);
+			if ( !cServer->WriteLogToFile ( f ) )
+			{
+				fclose ( f );
 				return false;
 			}
-			fclose(f);
+			fclose ( f );
 
 		}
 
 		return true;
-  }
+	}
 
-  gdImagePtr gd_image = NULL;
+	gdImagePtr gd_image = NULL;
 
-  gd_image = SDLSurface2GDImage(image);
-  if (!gd_image)
-	  return false;
+	gd_image = SDLSurface2GDImage ( image );
+	if ( !gd_image )
+		return false;
 
-  // Save the image
-  FILE *out;
-  int s;
-  char *data = NULL;
-  out = OpenGameFile(FileName, "wb");
-  if (!out) {
-    return false;
-  }
+	// Save the image
+	FILE *out;
+	int s;
+	char *data = NULL;
+	out = OpenGameFile ( FileName, "wb" );
+	if ( !out )
+	{
+		return false;
+	}
 
-  switch (Format) {
-  case FMT_PNG:
-	data = (char *) gdImagePngPtr(gd_image, &s);
-	break;
-  case FMT_JPG:
-	data = (char *) gdImageJpegPtr(gd_image, &s,tLXOptions->iJpegQuality);
-	break;
-  case FMT_GIF:
-	data = (char *) gdImageGifPtr(gd_image, &s);
-	break;
-  default:
-	  data = (char *) gdImagePngPtr(gd_image, &s);
-	  break;
-  }
-	
+	switch ( Format )
+	{
+		case FMT_PNG:
+			data = ( char * ) gdImagePngPtr ( gd_image, &s );
+			break;
+		case FMT_JPG:
+			data = ( char * ) gdImageJpegPtr ( gd_image, &s,tLXOptions->iJpegQuality );
+			break;
+		case FMT_GIF:
+			data = ( char * ) gdImageGifPtr ( gd_image, &s );
+			break;
+		default:
+			data = ( char * ) gdImagePngPtr ( gd_image, &s );
+			break;
+	}
+
 	size_t size = s>0?s:-s;
-  if (!data) {
-    return false;
-  }
-  if (fwrite(data, 1, size, out) != size) {
-    return false;
-  }
+	if ( !data )
+	{
+		return false;
+	}
+	if ( fwrite ( data, 1, size, out ) != size )
+	{
+		return false;
+	}
 
-  // Write info about the game
-  if (Tournament && cServer)  {
-	  cServer->setTakeScreenshot(false);
-	  cServer->setScreenshotToken(true);
-	  if (!cServer->WriteLogToFile(out))
-		  return false;
-  }
+	// Write info about the game
+	if ( Tournament && cServer )
+	{
+		cServer->setTakeScreenshot ( false );
+		cServer->setScreenshotToken ( true );
+		if ( !cServer->WriteLogToFile ( out ) )
+			return false;
+	}
 
-  if (fclose(out) != 0) {
-    return false;
-  }
+	if ( fclose ( out ) != 0 )
+	{
+		return false;
+	}
 
-  // Free everything
-  gdFree(data);
+	// Free everything
+	gdFree ( data );
 
-  gdImageDestroy(gd_image);
+	gdImageDestroy ( gd_image );
 
-  return true;
+	return true;
 }
