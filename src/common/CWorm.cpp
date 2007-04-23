@@ -831,7 +831,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	else
         DrawImageAdv(bmpShadowPic, bmpWormLeft, bmpWormLeft->w-f-32,0, 0,0, 32,18);
 
-    DrawImage(bmpDest, /*bmpShadowPic*/bmpWormLeft, x-18,y-10);
+    DrawImage(bmpDest, bmpShadowPic, x-18,y-10);
 
     
 
