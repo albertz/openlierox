@@ -143,7 +143,7 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 	static int x,y;
 	static int x2,y2;
-	static short curcount;
+	static ushort curcount;
 		
 	for(curcount=0;curcount<iEntityCount;ent++) {
 		if(ent->iUsed)  {
@@ -154,9 +154,9 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 			// Clipping
 			if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
-				if(x<l || x>l+v->GetVirtW())
+				if((x<l || x>l+v->GetVirtW()))
 					continue;
-				if(y<t || y>t+v->GetVirtH())
+				if((y<t || y>t+v->GetVirtH()))
 					continue;
 			}
 
@@ -242,7 +242,7 @@ void SimulateEntities(float dt, CMap *map)
 		return;
 
 	entity_t *ent = tEntities;
-	static short curcount;
+	static ushort curcount;
 
 	for(/*register short e=0*/curcount=0;/*e<MAX_ENTITIES*/curcount<iEntityCount;/*e++,*/ent++) {
 		if(!ent->iUsed)

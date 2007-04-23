@@ -281,7 +281,8 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     //CWorm *worm = v->getTarget();
 
 	// Set the clipping
-	SDL_SetClipRect(bmpDest,&v->getRect());
+	SDL_Rect rect = v->getRect();
+	SDL_SetClipRect(bmpDest,&rect);
 
     // Weather
     //cWeather.Draw(bmpDest, v);
