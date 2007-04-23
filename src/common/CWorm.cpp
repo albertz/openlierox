@@ -79,6 +79,8 @@ void CWorm::Clear(void)
 
 	fLastBlood = -9999;
 
+	bUsesMouse = false;
+
 	//pcViewport = NULL;//.Setup(0,0,640,480);
 	tProfile = NULL;
 
@@ -176,6 +178,13 @@ void CWorm::FreeGraphics(void)
 // Setup the inputs
 void CWorm::SetupInputs(const controls_t& Inputs)
 {
+	bUsesMouse = false;
+	for (byte i=0;i<Inputs.ControlCount(); i++)
+		if (Inputs[i].find("ms"))  {
+			bUsesMouse = true;
+			break;
+		}
+
 	cUp.Setup(		Inputs[SIN_UP] );
 	cDown.Setup(	Inputs[SIN_DOWN] );
 	cLeft.Setup(	Inputs[SIN_LEFT] );
@@ -256,7 +265,7 @@ void CWorm::Spawn(CVec position)
 // Load the graphics
 int CWorm::LoadGraphics(int gametype)
 {
-	int team = false;
+	bool team = false;
     static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
     Uint8 r=0,g=0,b=0;
     
@@ -328,14 +337,14 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 
 
 	// Set the colour of the img
-	int x,y;
+	register int x,y;
 	Uint8 r,g,b,a;
 	Uint32 pixel;
 	
 	GetColour4(iColour,SDL_GetVideoSurface(),&r,&g,&b,&a);
 
 	// Team graphics
-	Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
+	static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
 
 	if(team) {
 		r = teamcolours[iTeam*3];
@@ -363,11 +372,11 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 			// Ignore pink & gun colours
 			if(pixel == tLX->clPink)
 				continue;
-			if(pixel == gun1)
+			else if(pixel == gun1)
 				continue;
-			if(pixel == gun2)
+			else if(pixel == gun2)
 				continue;
-			if(pixel == gun3)
+			else if(pixel == gun3)
 				continue;
 
 			dr = (float)r / 96.0f;
@@ -466,7 +475,7 @@ void CWorm::InitWeaponSelection(void)
 	}
 
 	
-	for(int n=0;n<iNumWeaponSlots;n++) {
+	for(short n=0;n<iNumWeaponSlots;n++) {
 		tWeapons[n].Charge = 1;
 		tWeapons[n].Reloading = false;
 		tWeapons[n].SlotNum = n;
@@ -822,7 +831,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 	else
         DrawImageAdv(bmpShadowPic, bmpWormLeft, bmpWormLeft->w-f-32,0, 0,0, 32,18);
 
-    DrawImage(bmpDest, bmpShadowPic, x-18,y-10);
+    DrawImage(bmpDest, /*bmpShadowPic*/bmpWormLeft, x-18,y-10);
 
     
 

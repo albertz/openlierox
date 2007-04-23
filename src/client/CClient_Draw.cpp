@@ -596,7 +596,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 	mouse_t *Mouse = GetMouse();
 	int mouse = 0;
 
-	DrawScore(bmpDest, gfxGame.bmpScoreboard);
+	DrawScore(bmpDest, gfxGame.bmpScoreboard);return;
 
 	static CButton quit = CButton(BUT_QUITGAME,bmpMenuButtons);
 	static CButton resume = CButton(BUT_RESUME,bmpMenuButtons);

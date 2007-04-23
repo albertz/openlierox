@@ -738,6 +738,9 @@ int MouseX = -1, MouseY = -1;
 // Use a mouse for worm input
 void CWorm::getMouseInput(void)
 {
+	if (!bUsesMouse)
+		return;
+
 	CVec	dir;
 	int		weap = false;
 	int		RightOnce = false;

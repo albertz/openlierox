@@ -32,7 +32,7 @@ void CClient::Simulation(void)
 {
 //	frame_t *f = &tFrames[ iServerFrame & FRAME_MASK ];  // TODO: not used
 	short local,i;
-	int teamgame;
+	bool teamgame;
     CWorm *w;
     bool con = Con_IsUsed();
 
@@ -99,7 +99,7 @@ void CClient::Simulation(void)
 			CBonus *b = cBonuses;
 			int MaxBonuses = tGameInfo.iBonusesOn;
 			MaxBonuses *= MAX_BONUSES;
-			for(int n=0;n<MaxBonuses;n++,b++) {
+			for(short n=0;n<MaxBonuses;n++,b++) {
 				if(!b->getUsed())
 					continue;
 
@@ -183,7 +183,7 @@ void CClient::SimulateProjectiles(float dt)
 
 	CProjectile *prj = cProjectiles;
 	int a,i;
-	CVec sprd;
+	static CVec sprd;
 	int explode = false;
 	int timer = false;
 	int shake = 0;
@@ -201,6 +201,8 @@ void CClient::SimulateProjectiles(float dt)
 
 
 	bool spawnprojectiles;
+	proj_t *pi;
+	float f;
     for(int p=0;p<nTopProjectile;p++,prj++) {
 		if(!prj->isUsed())
 			continue;
@@ -212,8 +214,8 @@ void CClient::SimulateProjectiles(float dt)
 		spawnprojectiles = false;
 
 		// Check if the timer is up
-		proj_t *pi = prj->GetProjInfo();
-        float f = prj->getTimeVarRandom();
+		pi = prj->GetProjInfo();
+        f = prj->getTimeVarRandom();
 		if(pi->Timer_Time > 0 && (pi->Timer_Time+pi->Timer_TimeVar*f) < prj->getLife()) {
 
 			// Run the end timer function

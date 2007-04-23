@@ -84,7 +84,7 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	for(y=0;y<h;y++) {
 
 		sp = SrcPix;
-		tp = TrgPix + (w-1)*bpp;
+		tp = TrgPix + w*bpp;
 		for(x=0;x<w;x++) {
 			// Copy the pixel
 			memcpy(tp-=bpp,sp+=bmpSrc->format->BytesPerPixel,bpp);
@@ -93,7 +93,6 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 		SrcPix+=bmpSrc->pitch;
 		TrgPix+=bmpDest->pitch;
 	}
-
 
 	// Unlock em
 	if(SDL_MUSTLOCK(bmpDest))
@@ -557,13 +556,63 @@ inline void secure_perform_line(SDL_Surface* bmpDest, int x1, int y1, int x2, in
 // Draw horizontal line
 void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	// TODO: does this need more improvement/optimisation ?
-	secure_perform_line(bmpDest, x, y, x2, y, colour, PutPixel);
+	//secure_perform_line(bmpDest, x, y, x2, y, colour, PutPixel);  // slow
+	if (x < 0) x = 0;
+	else if (x >= bmpDest->w) x=bmpDest->w-1;
+
+	if (x2 < 0) x2 = 0;
+	else if (x2 >= bmpDest->w) x2=bmpDest->w-1;
+
+	if (y < 0) y = 0;
+	else if (y >= bmpDest->h) y=bmpDest->h-1;
+
+	if (x2 < x)  {
+		static int tmp;
+		tmp = x;
+		x = x2;
+		x2 = tmp;
+	}
+
+	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
+	register uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
+
+	SDL_LockSurface(bmpDest);
+	for (register uchar *px= (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x;px <= px2;px+=bpp)
+		memcpy(px,&colour,bpp);
+
+	SDL_UnlockSurface(bmpDest);
+
 }
 
 // Draw vertical line
 void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	// TODO: does this need more improvement/optimisation ?
-	secure_perform_line(bmpDest, x, y, x, y2, colour, PutPixel);
+//	secure_perform_line(bmpDest, x, y, x, y2, colour, PutPixel);  // slow
+	if (x < 0) x = 0;
+	else if (x >= bmpDest->w) x=bmpDest->w-1;
+
+	if (y < 0) y = 0;
+	else if (y >= bmpDest->h) y=bmpDest->h-1;
+
+	if (y2 < 0) y2 = 0;
+	else if (y2 >= bmpDest->h) y2=bmpDest->h-1;
+
+	if (y2 < y)  {
+		static int tmp;
+		tmp = y;
+		y = y2;
+		y2 = tmp;
+	}
+
+	register ushort pitch = (ushort)bmpDest->pitch;
+	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
+	register uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
+
+	SDL_LockSurface(bmpDest);
+	for (register uchar *px= (uchar *)bmpDest->pixels+pitch*y+bpp*x;px <= px2;px+=pitch)
+		memcpy(px,&colour,bpp);
+
+	SDL_UnlockSurface(bmpDest);
 }
 
 // Line drawing

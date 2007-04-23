@@ -35,13 +35,14 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	int x=iX+4;
 
 	if (bOldStyle)  {
-		for(int i=1;col;col = col->tNext,i++)   {
+		for(short i=1;col;col = col->tNext,i++)   {
 			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel, col->sText);
 			x += col->iWidth-2;
 		}
 	} else {
-		for(int i=1;col;col = col->tNext,i++)   {
-			int col_w = col->iWidth;
+		short col_w;
+		for(short i=1;col;col = col->tNext,i++)   {
+			col_w = col->iWidth;
 			// Last column has to be thiner
 			if (i == iNumColumns)  {
 				if (x-2+col_w-1 != iX+iWidth-4)  {
@@ -124,15 +125,19 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			for(;sub;sub = sub->tNext) {
 
 				if(sub->iVisible) {
-					if(sub->iType == LVS_TEXT)  {
+					switch(sub->iType)  {
+					case LVS_TEXT:  {
 						if (col && !bOldStyle)
 							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,sub->sText);
 						else
 							tLX->cFont.DrawAdv(bmpDest,x,texty,iWidth-2,item->iColour,sub->sText);
 					}
+					break;
 
-					else if(sub->iType == LVS_IMAGE)
+					case LVS_IMAGE:
 						DrawImage(bmpDest,sub->bmpImage,x,y);
+					break;
+					}
 				}
 
 				if(col) {

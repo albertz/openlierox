@@ -180,6 +180,7 @@ private:
 	// Input
 	CInput		cUp, cDown, cLeft, cRight,
 				cShoot, cJump, cSelWeapon, cInpRope;
+	bool		bUsesMouse;
 
 	// Simulation
 	worm_state_t tState;
