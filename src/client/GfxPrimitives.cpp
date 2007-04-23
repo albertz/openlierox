@@ -219,14 +219,20 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 			if (memcmp(&key,sp,bpp))  {
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
 				memcpy(tp_x,sp,bpp);
+				tp_x += bpp;
 				memcpy(tp_x,sp,bpp);
+				tp_x += bpp;
 				memcpy(tp_y,sp,bpp);
+				tp_y += bpp;
 				memcpy(tp_y,sp,bpp);
-			} 
-			// Skip to next pixel
-			sp+=bpp;
-			tp_x += doublebpp;
-			tp_y += doublebpp;
+				tp_y += bpp;
+				sp += bpp;
+			} else {
+				// Skip the transparent pixel
+				sp+=bpp;
+				tp_x += doublebpp;
+				tp_y += doublebpp;
+			}
 		}
 		TrgPix += doublepitch;
 		SrcPix += bmpSrc->pitch;
