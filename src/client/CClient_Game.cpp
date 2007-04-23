@@ -399,7 +399,7 @@ void CClient::SimulateProjectiles(float dt)
            Worm Collision
         ===================
         */
-		if( result & PJC_WORM && wormid >= 0 && !explode && !timer) {
+		if( (result & PJC_WORM) && wormid >= 0 && !explode && !timer) {
 
 			// Explode
 			if(pi->PlyHit_Type == PJ_EXPLODE)
@@ -917,7 +917,7 @@ void CClient::DrawBeam(CWorm *w)
 			}
 		}
 
-		if(px & PX_DIRT || px & PX_ROCK) {
+		if((px & PX_DIRT) || (px & PX_ROCK)) {
 			// Don't draw explosion when damage is -1
 			if (Slot->Weapon->Bm_Damage != -1)  {
 				SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
@@ -1211,7 +1211,7 @@ void CClient::LaserSight(CWorm *w)
 	for(i=0; i<9999; i+=divisions) {
 		px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 
-		if(px & PX_DIRT || px & PX_ROCK)
+		if((px & (PX_DIRT|PX_ROCK)))
 			break;
 
 		// Check if it has hit any of the worms
@@ -1386,7 +1386,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 			}
 		}
 
-		if(px & PX_DIRT || px & PX_ROCK) {
+		if((px & (PX_DIRT|PX_ROCK))) {
 			// No explosion if damage is -1
 			if(wpn->Bm_Damage != -1) {
 				//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);

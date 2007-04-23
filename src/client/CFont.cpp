@@ -142,22 +142,19 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 
 ///////////////////
 // Set to true, if this is an outline font
-void CFont::SetOutline(int Outline)
-{
+void CFont::SetOutline(int Outline) {
 	OutlineFont = Outline;
 }
 
 ///////////////////
 // Is this an outline font?
-int CFont::IsOutline(void)
-{
+int CFont::IsOutline(void) {
 	return OutlineFont;
 }
 
 //////////////////
 // Draw a text
-void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt,...)
-{
+void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt,...) {
 	va_list arg;
 
 	va_start(arg, fmt);
@@ -166,42 +163,35 @@ void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt,...)
 	fix_markend(buf);
 	va_end(arg);
 
-	DrawAdv(dst,x,y,99999,col,"%s",buf);
+	DrawAdv(dst,x,y,99999,col,std::string(buf));
 }
 
 void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
-	// TODO: make it better!
-	if (txt != "")
-		Draw(dst, x,y,col, "%s", txt.c_str());
+	DrawAdv(dst,x,y,99999,col,txt);
 }
 
 
-void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
-	// TODO: make it better!
-	if (txt != "")
-		DrawAdv(dst, x,y,max_w,col,"%s",txt.c_str());
+void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char *fmt,...) {
+	va_list arg;
+	va_start(arg, fmt);
+	static char buf[512];
+	vsnprintf(buf, sizeof(buf),fmt, arg);
+	fix_markend(buf);
+	va_end(arg);
+	
+	DrawAdv(dst, x, y, max_w, col, std::string(buf));
 }
 
 ///////////////////
 // Draw a font (advanced)
-void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char *fmt,...)
-{
-	va_list arg;
+void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
 	int pos=0;
-	int n,l;
+	short l;
 	Uint32 pixel;
 	int i,j;
 	int w;
 	int a,b;
 	int length = Fontstr_len;
-
-	va_start(arg, fmt);
-	static char buf[512];
-	vsnprintf(buf, sizeof(buf),fmt, arg);
-	fix_markend(buf);
-	va_end(arg);
-
-	int txtlen = fix_strnlen(buf);
 
 
 	// Clipping rectangle
@@ -223,12 +213,11 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char 
 	Uint32 col2 = (Uint32)col;
 
 	pos=0;
-	for(n=0;n<txtlen;n++) {
-
-		l = buf[n]-32;
+	for(std::string::const_iterator p = txt.begin(); p != txt.end(); p++) {
+		l = *p - 32;
 
 		// Line break
-		if (buf[n] == '\n')  {
+		if (*p == '\n')  {
 			y += bmpFont->h+3;
 			pos = 0;
 			continue;
@@ -240,7 +229,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char 
 			break;
 
         // Ignore unkown characters
-        if(l >= length-1 || l < 0 )
+        if(l >= length || l < 0)
             continue;
 
 		w=0;
@@ -325,16 +314,16 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char 
 
 ///////////////////
 // Calculate the width of a string of text
-int CFont::GetWidth(const std::string& buf)
-{
-	unsigned int n,l;
+int CFont::GetWidth(const std::string& buf) {
 	int length = 0;
-
+	short l;
+	
 	// Calculate the length of the text
-	for(n=0;n<buf.length();n++) {
-        l = buf[n]-32;
-        if( l >= Fontstr_len || l < 0 )
-            continue;
+	size_t fontstrlen = Fontstr_len;
+	for(std::string::const_iterator p = buf.begin(); p != buf.end(); p++) {
+		l = *p - 32;
+		if(l <= 0 || (ushort)l >= fontstrlen)
+			continue;
 
 		length += FontWidth[l];
 	}
@@ -344,84 +333,40 @@ int CFont::GetWidth(const std::string& buf)
 
 
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
-	// TODO : make it better!
-	DrawCentre(dst, x,y,col, "%s",txt.c_str());
+	int length = GetWidth(txt);
+	int pos = x-length/2;
+	Draw(dst,pos,y,col,txt);
 }
 
 ///////////////////
 // Draws the text in centre alignment
-void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt, ...)
-{
+void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt, ...) {
 	va_list arg;
-	int pos;
-	int length=0;
-	unsigned int n,l;
-
 	va_start(arg, fmt);
 	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
 
-	// Calculate the length of the text
-	size_t buflen = fix_strnlen(buf);
-	size_t fontstrlen = Fontstr_len;
-	for(n=0;n<buflen;n++) {
-		/*for(l=0;l<Fontstr_len;l++) {
-			if(Fontstr[l] == buf[n])
-				break;
-		}*/
-
-		l = buf[n]-32;
-		if(l>=fontstrlen)
-			continue;
-
-		length+=FontWidth[l];
-	}
-
-	pos = x-length/2;
-
-	Draw(dst,pos,y,col,"%s",buf);
+	DrawCentre(dst, x,y,col, std::string(buf));
 }
 
 
 void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
-	// TODO: make it better!
-	DrawCentreAdv(dst,x,y,min_x,max_w,col,"%s",txt.c_str());
+	int length = GetWidth(txt);
+	int pos = MAX(min_x, x-length/2);
+	DrawAdv(dst,pos,y,max_w,col,txt);
 }
 
 ///////////////////
 // Draw's the text in centre alignment
-void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, char *fmt, ...)
-{
+void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, char *fmt, ...) {
 	va_list arg;
-	int pos;
-	int length=0;
-	unsigned int n,l;
-
 	va_start(arg, fmt);
 	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
 
-	// Calculate the length of the text
-	size_t buflen = fix_strnlen(buf);
-	size_t fontstrlen = Fontstr_len;
-	for(n=0;n<buflen;n++) {
-		/*for(l=0;l<Fontstr_len;l++) {
-			if(Fontstr[l] == buf[n])
-				break;
-		}*/
-
-		l = buf[n]-32;
-		if(l>=fontstrlen)
-			continue;
-
-		length+=FontWidth[l];
-	}
-
-	pos = MAX(min_x,x-length/2);
-
-	DrawAdv(dst,pos,y,max_w,col,"%s",buf);
+	DrawCentreAdv(dst, x, y, min_x, max_w, col, std::string(buf));
 }
