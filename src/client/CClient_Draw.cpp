@@ -105,11 +105,13 @@ void CClient::Draw(SDL_Surface *bmpDest)
         //
 
 		// Single screen
-		if( !cViewports[1].getUsed() )
-			cMap->DrawMiniMap( bmpDest, 511,383, dt, cRemoteWorms, iGameType );
-        else
+		if( !cViewports[1].getUsed() )  {
+			cMap->DrawMiniMap( bmpDest, 511,382, dt, cRemoteWorms, iGameType );
+		}
+        else  {
             // Split screen
 			cMap->DrawMiniMap( bmpDest, 257,383, dt, cRemoteWorms, iGameType);
+		}
 	}
 
 
@@ -259,6 +261,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
+
     //tLX->cOutlineFont.Draw(bmpDest, 4,20, tLX->clNormalText, "%s",tLX->debug_string);
     //tLX->cOutlineFont.Draw(bmpDest, 4,40, tLX->clNormalText, "%f",tLX->debug_float);
 }
@@ -327,6 +330,10 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 
 	if(x > 0)
 		x = 386;
+
+	// If we don't need to redraw this, don't do it
+	//if (!bRedrawBottomPart)
+	//	return;
 
 	// The following is only drawn for viewports with a worm target
     if( v->getType() > VW_CYCLE )
@@ -680,8 +687,8 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	bUpdateScore = false;
 
 	// Teams
-	Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
-	const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
+	static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
+	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
 
 	int width = bmpImage->w;
 	int height = bmpImage->h;
@@ -1025,6 +1032,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 		lv->MouseWheelUp(Mouse);
 
 	if (lv->InBox(Mouse->X,Mouse->Y))  {
+
 		// Draw the mouse
 		DrawImage(bmpDest,gfxGUI.bmpMouse[0],Mouse->X,Mouse->Y);
 		lv->MouseOver(Mouse);
@@ -1311,7 +1319,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 
 		// Get the team colour
 								// Blue				Red				Green			Yellow
-		Uint8 teamcolours[] = {0x02,0xB8,0xFC,  0xFF,0x02,0x02,  0x20,0xFD,0x00,  0xFD,0xF4,0x00};
+		static const Uint8 teamcolours[] = {0x02,0xB8,0xFC,  0xFF,0x02,0x02,  0x20,0xFD,0x00,  0xFD,0xF4,0x00};
 		Uint8 clR = teamcolours[p->getTeam()*3];
 		Uint8 clG = teamcolours[p->getTeam()*3+1];
 		Uint8 clB = teamcolours[p->getTeam()*3+2];

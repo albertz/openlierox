@@ -115,7 +115,7 @@ void CFont::CalculateWidth(void)
 // Precalculate a font's colour
 void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 {
-	Uint32 pixel;
+	register Uint32 pixel;
 	int x,y;
 
 	DrawRectFill(bmpSurf,0,0,bmpSurf->w,bmpSurf->h,tLX->clPink);
@@ -214,7 +214,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 		SDL_LockSurface(bmpFont);
 
 
-	Uint32 col2 = (Uint32)col;
+	Uint32 col2 = col;
 
 	pos=0;
 	for(std::string::const_iterator p = txt.begin(); p != txt.end(); p++) {
@@ -267,14 +267,15 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 			DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
 		}
 		else */{
-			Uint8 *src = (Uint8 *)bmpFont->pixels + a * bmpFont->format->BytesPerPixel;
-			Uint8 *p;
-			int bpp = bmpFont->format->BytesPerPixel;
+			register Uint8 *src = (Uint8 *)bmpFont->pixels + a * bmpFont->format->BytesPerPixel;
+			register Uint8 *p;
+			register byte bpp = bmpFont->format->BytesPerPixel;
 			for(j=0;j<bmpFont->h;j++) {
 				p = src;
 				for(i=a,b=0;b<FontWidth[l];i++,b++,p+=bpp) {
 
 					// Clipping
+					// TODO: calculate the clipping before entering loops, it will speed this up
 					if(x+pos+b < left)
 						continue;
 					if(y+j < top)
@@ -323,10 +324,9 @@ int CFont::GetWidth(const std::string& buf) {
 	short l;
 	
 	// Calculate the length of the text
-	size_t fontstrlen = Fontstr_len;
 	for(std::string::const_iterator p = buf.begin(); p != buf.end(); p++) {
 		l = *p - 32;
-		if(l <= 0 || (ushort)l >= fontstrlen)
+		if(l < 0 || (ushort)l >= Fontstr_len)
 			continue;
 
 		length += FontWidth[l];
