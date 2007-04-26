@@ -758,7 +758,9 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 	if (tLXOptions->iShowHealth)  {
 		if (!iLocal || iType != PRF_HUMAN)  {
-			static Uint32 BorderColor = MakeColour(0x49,0x50,0x65);
+			x += v->GetLeft();
+
+			static const Uint32 BorderColor = MakeColour(0x49,0x50,0x65);
 			int iShowHealth = Round((float)((getHealth()+15)/20));
 			DrawRect(bmpDest,x-10,y-20,x+15,y-15,BorderColor);
 			DrawVLine(bmpDest,y-19,y-16,x-5,BorderColor);
