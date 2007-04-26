@@ -77,7 +77,7 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 
 	// Find a free entity
 	register ushort e;
-	bool found;
+	bool found = false;
 	for(e=0;e<MAX_ENTITIES;e++,ent++) {
 		if(!ent->bUsed) {
 			found = true;

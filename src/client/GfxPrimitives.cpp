@@ -121,9 +121,9 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 
 	// Source clipping
 	if (sx < 0)  { w+=sx; sx=0; }
-	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w-sx; } // TODO: not exactly what perhaps is intended...
+	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w -sx; } // TODO: not exactly what perhaps is intended...
 	if (sy < 0) { h+=sy; sy=0;}
-	else if((sy+h) > bmpSrc->h)  { h = bmpSrc->h-sy; }
+	else if((sy+h) > bmpSrc->h)  { h = bmpSrc->h -sy; }
 
 	// Dest clipping
 	if (dx<0)  { sx-=dx; w+=dx; dx=0;}
@@ -176,13 +176,16 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	int x,y;
 	int c;
 
-	// Warning: Doesn't do clipping on the source surface
-
+	// Source clipping
+	if (sx < 0)  { w+=sx; sx=0; }
+	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w -sx; } // TODO: not exactly what perhaps is intended...
+	if (sy < 0) { h+=sy; sy=0;}
+	else if((sy+h) > bmpSrc->h)  { h = bmpSrc->h -sy; }
+	
 	int cx = bmpDest->clip_rect.x;
 	int cy = bmpDest->clip_rect.y;
 	int cex = cx+bmpDest->clip_rect.w;
 	int cey = cy+bmpDest->clip_rect.h;
-
 
 	// Do clipping on the DEST surface
 	if(dx+w*2<cx || dy+h*2<cy) return;

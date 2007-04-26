@@ -4054,6 +4054,11 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
     worm_state_t *ws = &tState;
 
+/*
+	// if we are walking through a tunnel and we are passing some other
+	// target than our current one, it will stop walking with this,
+	// because the passed target is "nearer"; this is absolutly not wanted here
+	
 	// Better target?
 	CWorm *newtrg = findTarget(iAiGame, iAiTeams, iAiTag, pcMap);
 	if (psAITarget && newtrg)
@@ -4063,6 +4068,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	if (!psAITarget && newtrg)  {
 		nAIState = AI_THINK;
 	}
+*/
 
 	// No target?
 	if (nAITargetType == AIT_NONE || (nAITargetType == AIT_WORM && !psAITarget))  {
@@ -4226,30 +4232,6 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 
 
     /*
-      First, if the target or ourself has deviated from the path target & start by a large enough amount:
-      Or, enough time has passed since the last path update:
-      recalculate the path
-    */
-
-	// Deviated?
-	// HINT: this should not be needed as we check for a direct path from any node later on
-/*	if (psAITarget && NEW_psPath && NEW_psLastNode)  {
-		// Don't check when the velocity is big
-		if (psAITarget->getVelocity()->GetLength() < 30 && vVelocity.GetLength() < 30)   {
-			if(fabs(NEW_psPath->fX-vPos.x) > nDeviation || fabs(NEW_psPath->fY-vPos.y) > nDeviation)
-				recalculate = true;
-
-			if(fabs(NEW_psLastNode->fX-cPosTarget.x) > nDeviation || fabs(NEW_psLastNode->fY-cPosTarget.y) > nDeviation)
-				recalculate = true;
-		}
-	} */
-
-    // Re-calculate the path?
-    /* if(recalculate && bPathFinished)
-        NEW_AI_CreatePath(pcMap); */
-
-
-    /*
       Move through the path.
       We have a current node that we must get to. If we go onto the node, we go to the next node, and so on.
     */
@@ -4384,7 +4366,7 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 				if((wpn = AI_FindClearingWeapon()) != -1) {
 					iCurrentWeapon = wpn;
 					AI_SetAim(v); // aim at the dirt
-					ws->iShoot = true;
+					ws->iShoot = true; // TODO: is it assured here, that we are aiming already correctly?
 					// Don't do any crazy things when shooting
 					ws->iMove = false;
 					ws->iJump = false;
@@ -4425,7 +4407,8 @@ void CWorm::NEW_AI_MoveToTarget(CMap *pcMap)
 	}
 
 	// If we're above the node and the rope is hooked wrong, release the rope
-	if((vPos.y < nodePos.y) && fRopeAttachedTime > 2.0f && cNinjaRope.getHookPos().y-vPos.y < 0.0f) {
+	// TODO: is it better to check only, if we are above it?
+	if((vPos.y < nodePos.y) /* && fRopeAttachedTime > 2.0f && cNinjaRope.getHookPos().y-vPos.y < 0.0f */) {
 		cNinjaRope.Release();
 		fireNinja = false;
 	}
