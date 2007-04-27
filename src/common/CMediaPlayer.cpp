@@ -227,7 +227,7 @@ std::string CPlayList::GetCurSong(void)
 {
 	static std::string result = "";
 	if (tSongList.size() == 0 || iCurSong < 0)
-		return result;
+		return "";
 
 	if (iCurSong >= (int)tSongList.size())
 		iCurSong = tSongList.size()-1;

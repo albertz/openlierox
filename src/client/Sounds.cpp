@@ -261,7 +261,7 @@ int PlayThreadMain(void *n)
 {
 	while (!breakPlayThread)  {
 		if (!LoadingSong)
-			SDL_Delay(100);
+			SDL_Delay(10);
 		else  {
 			FreeMusic(LoadedMusic);  // Free any loaded music
 			SDL_Delay(10); // No hurry...
@@ -274,6 +274,8 @@ int PlayThreadMain(void *n)
 
 	return 0;
 }
+
+bool IsSongLoading() { return LoadingSong; }
 
 void InitializeMusic(void)
 {
