@@ -18,15 +18,28 @@ typedef struct stackitem_s  {
 	stackitem_s *prev;
 } stackitem_t;
 
-class CDirStack  {
+class CDirStack {
 private:
 	stackitem_t *tStackTop;  // std::vector is slower, std::list even more; std::stack not in msvc
 	stackitem_t *iter;
 public:
 	inline CDirStack()  { tStackTop = NULL; }
 	inline ~CDirStack() { Clear(); }
-	inline void Clear() {while (tStackTop) {iter = tStackTop->prev; tStackTop = iter;} tStackTop = NULL;  }
-	inline void Push(const std::string& dir) {iter = new stackitem_t; if (iter) {iter->prev = tStackTop; iter->str = dir; tStackTop = iter;} }
+	inline void Clear() {
+		while(tStackTop) {
+			iter = tStackTop->prev;
+			delete tStackTop;
+			tStackTop = iter;
+		}
+	}
+	inline void Push(const std::string& dir) {
+		iter = new stackitem_t;
+		if(iter) {
+			iter->prev = tStackTop;
+			iter->str = dir;
+			tStackTop = iter;
+		}
+	}
 	inline bool Pop(std::string& dir)  { 
 		if (tStackTop == NULL) {
 			return false; 
