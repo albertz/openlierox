@@ -456,11 +456,11 @@ void CMediaPlayer::Play(void)
 
 		szCurSongName = tPlayList.GetCurSong();  // Use szCurSongName as a temp
 		if (szCurSongName.length() > 1)  {
-			//FreeMusic(tCurrentSong);  // Free the previous song (if any)
-			//tCurrentSong = LoadMusic(szCurSongName);
-			//if (tCurrentSong)  {
-			//	PlayMusic(tCurrentSong);
-			//}
+			/*FreeMusic(tCurrentSong);  // Free the previous song (if any)
+			tCurrentSong = LoadMusic(szCurSongName);
+			if (tCurrentSong)  {
+				PlayMusic(tCurrentSong);
+			}*/
 			PlayMusicAsync(szCurSongName);
 			szCurSongName = GetNameFromFile(szCurSongName);
 			// Update the marquee
@@ -649,9 +649,14 @@ void CMediaPlayer::Draw(SDL_Surface *bmpDest)
 	DrawImageAdv(bmpDest,tPlayerGfx.bmpWindow,0,src_x,iX+5,iY+5,tPlayerGfx.bmpWindow->w,tPlayerGfx.bmpWindow->h/3);
 
 	// Draw the current time
-	int h,m,s;
-	ConvertTime(GetSongTime(), &h,&m,&s);
-	tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow->w/2,iY+10,tLX->clMPlayerTime,"%d:%s%d",m,s<10 ? "0" : "",s);
+	if (IsSongLoading())  {
+		static int FontHalfWidth = tLX->cFont.GetWidth("Loading...")/2;
+		tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow->w/2-FontHalfWidth,iY+10,tLX->clMPlayerTime,"Loading...");
+	} else {
+		int h,m,s;
+		ConvertTime(GetSongTime(), &h,&m,&s);
+		tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow->w/2,iY+10,tLX->clMPlayerTime,"%d:%s%d",m,s<10 ? "0" : "",s);
+	}
 
 	// Draw all the widgets
 	cPlayerGui.Draw(bmpDest);

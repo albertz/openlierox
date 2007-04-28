@@ -264,9 +264,9 @@ int PlayThreadMain(void *n)
 			SDL_Delay(10);
 		else  {
 			FreeMusic(LoadedMusic);  // Free any loaded music
-			SDL_Delay(10); // No hurry...
+			//SDL_Delay(10); // No hurry...
 			LoadedMusic = LoadMusic(SongName);  // Load the new music
-			SDL_Delay(10);
+			//SDL_Delay(10);
 			PlayMusic(LoadedMusic);  // Play the music
 			LoadingSong = false;
 		}
@@ -286,6 +286,8 @@ void InitializeMusic(void)
 
 void PlayMusicAsync(const std::string& file)
 {
+	if (file == SongName) return;  // Already loading this
+	while (LoadingSong) SDL_Delay(5);  // If we're currently loading another song, wait
 	SongName = file;
 	LoadingSong = true;
 }
@@ -320,7 +322,8 @@ void PlayMusic(SoundMusic *music, int number_of_repeats)
 {
 	if (!music)
 		return;
-	Mix_PlayMusic(music->sndMusic,number_of_repeats);
+	//Mix_PlayMusic(music->sndMusic,number_of_repeats);
+	Mix_FadeInMusic(music->sndMusic,number_of_repeats,500);
 	fCurSongStart = GetMilliSeconds();
 	fTimePaused = 0;
 	bSongStopped = false;
@@ -328,12 +331,15 @@ void PlayMusic(SoundMusic *music, int number_of_repeats)
 
 void StopMusic(void) 
 {
+	byte oldvolume = GetMusicVolume();
+	SetMusicVolume(0);
 	Mix_HaltMusic(); 
 	if (Mix_PausedMusic())
 		Mix_ResumeMusic();
 	fCurSongStart = 0;
 	fTimePaused = 0;
 	bSongStopped = true;
+	SetMusicVolume(oldvolume);
 }
 
 float GetCurrentMusicTime(void)

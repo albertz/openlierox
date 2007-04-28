@@ -1166,7 +1166,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
     cWeaponsRest.SendMessage(wr_Scroll, SCM_SETITEMSPERBOX, 12, 0);
     cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMIN, (DWORD)0, 0);
     if(weaponCount>10)
-        cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, weaponCount, 0);
+        cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, weaponCount+1, 0);
     else
         cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, (DWORD)0, 0);
 

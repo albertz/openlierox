@@ -504,7 +504,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 	// TODO: i don't completly understand the sense of this
 	// (and i am realy sure that it is wrong in some cases)
 	isroot = IsRoot(tmp_dir);
-	if(!isroot) {
+	if(!isroot || (isroot && ((dir_name_pos = tmp_dir.find("../")) == std::string::npos))) {
 		// Handle the parent directory
 		if((dir_name_pos = tmp_dir.find("../")) != std::string::npos) {
 			tmp_dir.erase(dir_name_pos-1);
@@ -518,9 +518,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 		}
 	// Root directory and we want to go up
 	} else {
-		if((dir_name_pos = tmp_dir.find("../")) != std::string::npos) {
-			goto_drive_list = true;
-		}
+		goto_drive_list = true;
 	}
 
 	// Clear the listview
@@ -531,13 +529,13 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 		int index = 0;
 		drive_list drives = GetDrives();
 		char cur_drive = tmp_dir[0]; // TODO: use std::string
-		for (unsigned int i=0;i<drives.size();i++)  { // TODO: use iterators!!!
+		for (drive_list::const_iterator i=drives.begin(); i != drives.end();i++)  {
 #ifdef WIN32
-			if (drives[i].type != DRV_CDROM)  {
+			if (i->type != DRV_CDROM)  {
 #endif
-				lv->AddItem(drives[i].name,index,tLX->clListView);
-				lv->AddSubitem(LVS_TEXT,drives[i].name,NULL);
-				if (cur_drive == drives[i].name.at(0))
+				lv->AddItem(i->name,index,tLX->clListView);
+				lv->AddSubitem(LVS_TEXT,i->name,NULL);
+				if (cur_drive == i->name.at(0))
 					lv->setSelectedID(index);
 				index++;
 #ifdef WIN32
