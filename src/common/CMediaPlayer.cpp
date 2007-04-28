@@ -13,6 +13,12 @@
   Playlist filler stack
 
 */
+
+
+// TODO: remove all this, if we have tested it enough
+#define OWN_DIRSTACK 0
+#if OWN_DIRSTACK == 1
+
 typedef struct stackitem_s  {
 	std::string str;
 	stackitem_s *prev;
@@ -52,7 +58,25 @@ public:
 		}
 	}
 };
+#else // not OWN_DIRSTACK
 
+class CDirStack {
+private:
+	// TODO: test it also with deque
+	std::list<std::string> stack;
+public:
+	inline void Clear() { stack.clear(); }
+	inline void Push(const std::string& str) { stack.push_back(str); }
+	inline bool Pop(std::string& str) {
+		if(stack.size() == 0) return false;
+		str = stack.back(); stack.pop_back();
+		return true;
+	}
+};
+
+#endif
+
+// TODO: why the hell is this a global variable?
 CDirStack cStack;
 
 
@@ -77,10 +101,11 @@ void CPlayList::Clear(void)
 
 
 class PlaylistLoader { public:
+	// TODO: why does it need a playlist ref?
 	CPlayList* playlist;
 	PlaylistLoader(CPlayList* pl) : playlist(pl) {}
 	inline bool operator() (const std::string& dir) {
-		//playlist->Load(dir, true, true, false);
+		// TODO: only add it, if it is a dir
 		cStack.Push(dir);
 		return true;
 	}
@@ -94,7 +119,7 @@ class SongListFiller { public:
 		std::string ext = GetFileExtension(file);
 		stringlwr(ext);
 		for(register unsigned short i=0; i<sizeof(supported_media)/sizeof(std::string); i++)
-			if(stringcasecmp(supported_media[i],ext) == 0) {
+			if(supported_media[i] == ext) {
 				playlist->tSongList.push_back(file);
 				break;
 			}
@@ -203,18 +228,17 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	bLoadCancelled = false;
 	cStack.Clear();
 
-	if (!include_subdirs)  {
+	if(!include_subdirs)  {
 		FindFiles(SongListFiller(this), dir, FM_REG);
 		return;
 	}
 
 	std::string current_dir = dir;
 	cStack.Push(current_dir);
-	while (cStack.Pop(current_dir))  {
+	while(DrawLoadingProgress() && cStack.Pop(current_dir)) {
+		// TODO: merge SongListFiller with PlaylistLoader to speed it up
 		FindFiles(SongListFiller(this), current_dir, FM_REG);
-		if (!DrawLoadingProgress())
-			break;
-		FindFiles(PlaylistLoader(this), current_dir, FM_DIR);
+		FindFiles(PlaylistLoader(this), current_dir, FM_REG);
 	}
 }
 
@@ -236,17 +260,15 @@ void CPlayList::setShuffle(bool _s)
 
 ///////////////////
 // Get the current played song
-std::string CPlayList::GetCurSong(void)
-{
+std::string CPlayList::GetCurSong() {
 	static std::string result; result = "";
-	if (tSongList.size() == 0 || iCurSong < 0)
-		return "";
+	if(tSongList.size() == 0 || iCurSong < 0)
+		return result;
 
-	if (iCurSong >= (int)tSongList.size())
-		iCurSong = tSongList.size()-1;
-	if (iCurSong < 1) {
+	if(iCurSong < 1)
 		iCurSong = 0;
-	}
+	else if((size_t)iCurSong >= tSongList.size())
+		iCurSong = tSongList.size()-1;
 
 	result = tSongList[iCurSong];
 
@@ -255,15 +277,12 @@ std::string CPlayList::GetCurSong(void)
 
 //////////////////
 // Move to the next song in playlist
-void CPlayList::GoToNextSong(void)
-{
+void CPlayList::GoToNextSong() {
 	// Shuffle, just get some random song
 	if (bShuffle)  {
 		iCurSong = GetRandomInt(tSongList.size()-1);
 		iCurSong = abs(iCurSong);
-		while (iCurSong >= (int)tSongList.size())  {
-			iCurSong = iCurSong-tSongList.size();
-		}
+		iCurSong %= tSongList.size();
 	// Not shuffle, go to the next song
 	// If repeat is enabled, go to the first song if needed, else stop playing
 	} else {
@@ -301,8 +320,7 @@ void CPlayList::GoToPrevSong(void)
 
 //////////////////
 // Loads the previously saved playlist
-void CPlayList::LoadFromFile(const std::string& filename,bool absolute_path)
-{
+void CPlayList::LoadFromFile(const std::string& filename, bool absolute_path) {
 	// Clear first
 	tSongList.clear();
 	iCurSong = 0;
@@ -320,7 +338,7 @@ void CPlayList::LoadFromFile(const std::string& filename,bool absolute_path)
 	// Read the file line by line
 	static std::string line;
 	while(!feof(fp))  {
-		line = ReadUntil(fp);  // Remove the newline
+		line = ReadUntil(fp); // read a line
 		tSongList.push_back(line);
 	}
 
@@ -330,14 +348,13 @@ void CPlayList::LoadFromFile(const std::string& filename,bool absolute_path)
 //////////////////
 // Loads the previously saved playlist
 // NOTE: if the file exists, it will be overwritten
-void CPlayList::SaveToFile(const std::string& filename, bool absolute_path)
-{
+void CPlayList::SaveToFile(const std::string& filename, bool absolute_path) {
 	// Open the file
 	FILE *fp = NULL;
 	if (absolute_path)
-		fp = fopen(filename.c_str(),"w");
+		fp = fopen(filename.c_str(), "w");
 	else
-		fp = OpenGameFile(filename,"w");
+		fp = OpenGameFile(filename, "w");
 
 	if (!fp)
 		return;
@@ -361,8 +378,7 @@ void CPlayList::SaveToFile(const std::string& filename, bool absolute_path)
 
 /////////////////////
 // Clears the media player
-void CMediaPlayer::Clear(void)
-{
+void CMediaPlayer::Clear() {
 	tPlayList.Clear();
 	szCurSongName = "";
 	// TODO: why is this commented out? either remove it or COMMENT it!
@@ -437,9 +453,8 @@ std::string CMediaPlayer::GetNameFromFile(const std::string& path)
 
 //////////////////////
 // Loads the playlist from the specified file
-void CMediaPlayer::LoadPlaylistFromFile(const std::string& filename, bool absolute_path)
-{
-	tPlayList.LoadFromFile(filename,absolute_path);
+void CMediaPlayer::LoadPlaylistFromFile(const std::string& filename, bool absolute_path) {
+	tPlayList.LoadFromFile(filename, absolute_path);
 	if (tPlayList.getNumSongs() > 0)  {
 		tPlayList.SetCurSong(0);
 		szCurSongName = GetNameFromFile(tPlayList.GetCurSong());
@@ -676,7 +691,7 @@ void CMediaPlayer::Draw(SDL_Surface *bmpDest)
 	cPlayerGui.Draw(bmpDest);
 
 	// Draw the mouse
-	DrawImage(bmpDest,gfxGUI.bmpMouse[0],GetMouse()->X,GetMouse()->Y);
+	DrawImage(bmpDest, gfxGUI.bmpMouse[0], GetMouse()->X, GetMouse()->Y);
 }
 
 //////////////////////
@@ -687,7 +702,7 @@ void CMediaPlayer::SetDrawPlayer(bool _d)
 
 	// Redraw the menu if needed
 	if (!bDrawPlayer && tMenu->iMenuRunning)  {
-		Menu_redrawBufferRect(iX,iY,GetWidth(),GetHeight());
+		Menu_redrawBufferRect(iX, iY, GetWidth(), GetHeight());
 	}
 }
 
@@ -699,7 +714,7 @@ void CMediaPlayer::SetX(int x)
 
 	// Screen clipping
 	if (iX + GetWidth() >= SDL_GetVideoSurface()->w)
-		iX = SDL_GetVideoSurface()->w-GetWidth()-1;
+		iX = SDL_GetVideoSurface()->w - GetWidth() - 1;
 	else if (iX < 0)
 		iX = 0;
 
@@ -714,7 +729,7 @@ void CMediaPlayer::SetY(int y)
 
 	// Screen clipping
 	if (iY + GetHeight() >= SDL_GetVideoSurface()->h)
-		iY = SDL_GetVideoSurface()->h-GetHeight()-1;
+		iY = SDL_GetVideoSurface()->h - GetHeight() - 1;
 	else if (iY < 0)
 		iY = 0;
 
@@ -723,8 +738,7 @@ void CMediaPlayer::SetY(int y)
 
 /////////////////////
 // The processing frame
-void CMediaPlayer::Frame(void)
-{
+void CMediaPlayer::Frame() {
 	// If the song ended, go to next one in playlist
 	if (GetSongFinished())  {
 		Forward();
@@ -796,7 +810,7 @@ void CMediaPlayer::Frame(void)
 					PauseResume();
 				std::string dir = cOpenDialog.Execute("C:\\");
 				if(dir.size()>0)  {
-					tPlayList.Load(dir,cOpenDialog.getIncludeSubdirs(),cOpenDialog.getAdd());
+					tPlayList.Load(dir, cOpenDialog.getIncludeSubdirs(), cOpenDialog.getAdd());
 					if (!cOpenDialog.getAdd())
 						Stop();
 				}
@@ -830,12 +844,13 @@ void CMediaPlayer::Frame(void)
 				SetDrawPlayer(false);
 			break;
 		}
-	} else {
+
+	} else { // not event
 
 		// Process the mouse dragging
 		if (tMouse->Down)  {
 			if (!bGrabbed)  {
-				if (MouseInRect(iX,iY,GetWidth(),GetHeight()))  {
+				if (MouseInRect(iX, iY, GetWidth(), GetHeight()))  {
 					bGrabbed = true;
 					iLastMouseX = tMouse->X;
 					iLastMouseY = tMouse->Y;
@@ -843,10 +858,10 @@ void CMediaPlayer::Frame(void)
 			} else {
 				// Clear the current position from the menu screen if needed
 				if (tMenu->iMenuRunning)
-					Menu_redrawBufferRect(iX,iY,GetWidth(),GetHeight());
+					Menu_redrawBufferRect(iX, iY, GetWidth(), GetHeight());
 
-				SetX(iX+tMouse->X-iLastMouseX);
-				SetY(iY+tMouse->Y-iLastMouseY);
+				SetX(iX + tMouse->X - iLastMouseX);
+				SetY(iY + tMouse->Y - iLastMouseY);
 
 				iLastMouseX = tMouse->X;
 				iLastMouseY = tMouse->Y;
@@ -861,7 +876,7 @@ void CMediaPlayer::Frame(void)
 		if (GetKeyboard()->KeyDown[SDLK_ESCAPE])  {
 			bDrawPlayer = false;
 			if (tMenu->iMenuRunning)
-				Menu_redrawBufferRect(iX,iY,GetWidth(),GetHeight());
+				Menu_redrawBufferRect(iX, iY, GetWidth(), GetHeight());
 		}
 	}
 }
