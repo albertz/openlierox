@@ -225,7 +225,7 @@ void CPlayList::setShuffle(bool _s)
 // Get the current played song
 std::string CPlayList::GetCurSong(void)
 {
-	static std::string result = "";
+	static std::string result; result = "";
 	if (tSongList.size() == 0 || iCurSong < 0)
 		return "";
 
@@ -255,7 +255,7 @@ void CPlayList::GoToNextSong(void)
 	// If repeat is enabled, go to the first song if needed, else stop playing
 	} else {
 		iCurSong++;
-		if (iCurSong >= (int)tSongList.size())  {
+		if((size_t)iCurSong >= tSongList.size())  {
 			if (bRepeat)
 				iCurSong = 0;
 			else
@@ -272,9 +272,7 @@ void CPlayList::GoToPrevSong(void)
 	if (bShuffle)  {
 		iCurSong = GetRandomInt(tSongList.size()-1);
 		iCurSong = abs(iCurSong);
-		while (iCurSong >= (int)tSongList.size())  {
-			iCurSong = iCurSong-tSongList.size();
-		}
+		iCurSong %= tSongList.size();
 	// Not shuffle, go to the previous song
 	// If repeat is enabled, go to the last song if needed, else stop playing
 	} else {
@@ -333,9 +331,9 @@ void CPlayList::SaveToFile(const std::string& filename, bool absolute_path)
 
 	// Write the file
 	// Each song means one line
-	for (std::vector<std::string>::const_iterator i=tSongList.begin();i != tSongList.end();i++) {
-		fputs(i->c_str(),fp);
-		fputs("\n",fp);
+	for (std::vector<std::string>::const_iterator i = tSongList.begin(); i != tSongList.end(); i++) {
+		fputs(i->c_str(), fp);
+		fputs("\n", fp);
 	}
 
 	fclose(fp);
@@ -354,6 +352,7 @@ void CMediaPlayer::Clear(void)
 {
 	tPlayList.Clear();
 	szCurSongName = "";
+	// TODO: why is this commented out? either remove it or COMMENT it!
 	//FreeMusic(tCurrentSong);
 	//tCurrentSong = NULL;
 	bGfxInitialized = false;
@@ -409,7 +408,7 @@ std::string CMediaPlayer::GetNameFromFile(const std::string& path)
 	// Remove directory
 	size_t pos = findLastPathSep(path);
 	if(pos != std::string::npos)  {
-		name = path.substr(pos+1,path.length()-pos);
+		name = path.substr(pos+1);
 	} else {
 		name = path;
 	}
@@ -446,6 +445,7 @@ void CMediaPlayer::Play(void)
 	else  {
 		// The playlist is blank, do nothing
 		if (tPlayList.getNumSongs() == 0)  {
+			// TODO: why is this commented out? please COMMENT!
 			//FreeMusic(tCurrentSong);
 			//tCurrentSong = NULL;
 			szCurSongName = "";
@@ -456,6 +456,7 @@ void CMediaPlayer::Play(void)
 
 		szCurSongName = tPlayList.GetCurSong();  // Use szCurSongName as a temp
 		if (szCurSongName.length() > 1)  {
+			// TODO: what is wrong here? why is this commented out?
 			/*FreeMusic(tCurrentSong);  // Free the previous song (if any)
 			tCurrentSong = LoadMusic(szCurSongName);
 			if (tCurrentSong)  {
