@@ -574,18 +574,20 @@ gui_event_t *CGuiLayout::Process(void)
 
 				}  // switch
 
+
 				if(Event->type == SDL_KEYUP || Event->key.state == SDL_RELEASED)
 					ev = cFocused->KeyUp(input);
 
 				// Handle more keys at once keydown
-				for(int i=0; i<Keyboard->queueLength; i++)
-					if (Keyboard->keyQueue[i] != input)  {
-						ev = cFocused->KeyDown(Keyboard->keyQueue[i]);
-						if (ev != -1)  {
-							tEvent->iEventMsg = ev;
-							return tEvent;
+				if (Keyboard->queueLength > 1) 
+					for(int i=0; i<Keyboard->queueLength; i++)
+						if (Keyboard->keyQueue[i] != input)  {
+							ev = cFocused->KeyDown(Keyboard->keyQueue[i]);
+							if (ev != -1)  {
+								tEvent->iEventMsg = ev;
+								return tEvent;
+							}
 						}
-					}
 
 				// Keydown
 				if(Event->type == SDL_KEYDOWN)  {

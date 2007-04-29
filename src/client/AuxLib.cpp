@@ -285,8 +285,8 @@ void ProcessEvents(void)
 			// Check the characters
 			if(Event.key.state == SDL_PRESSED || Event.key.state == SDL_RELEASED) {
 
-				char input = (char)(Event.key.keysym.unicode & 0x007F);
-				if (input == 0)
+				int input = (Event.key.keysym.unicode);
+				if ((char)input == 0)
 					switch (Event.key.keysym.sym) {
 					case SDLK_HOME:
 						input = 2;

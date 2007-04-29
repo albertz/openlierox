@@ -1565,6 +1565,9 @@ void CClient::processChatter(void)
 // Process a single character chat
 void CClient::processChatCharacter(int c, bool bDown)
 {
+	if (!c)
+		return;
+
     // Up?
     if(!bDown) {
         iChat_Holding = false;
@@ -1600,17 +1603,23 @@ void CClient::processChatCharacter(int c, bool bDown)
     }
 
 	// Delete
-	if (GetKeyboard()->KeyDown[SDLK_DELETE])
+	if (GetKeyboard()->KeyDown[SDLK_DELETE])  {
 		//memmove(sChat_Text+iChat_Pos,sChat_Text+iChat_Pos+1,strlen(sChat_Text)-iChat_Pos+1);
 		sChat_Text.erase(iChat_Pos,1);
+		return;
+	}
 
 	// Home
-	if (GetKeyboard()->KeyDown[SDLK_HOME])
+	if (GetKeyboard()->KeyDown[SDLK_HOME])  {
 		iChat_Pos = 0;
+		return;
+	}
 
 	// End
-	if (GetKeyboard()->KeyDown[SDLK_END])
+	if (GetKeyboard()->KeyDown[SDLK_END])  {
 		iChat_Pos = sChat_Text.length();
+		return;
+	}
 
 	// Left arrow
 	if (GetKeyboard()->KeyDown[SDLK_LEFT]) {
@@ -1618,6 +1627,7 @@ void CClient::processChatCharacter(int c, bool bDown)
 			iChat_Pos--;
 		else
 			iChat_Pos = 0;
+		return;
 	}
 
 	// Right arrow
@@ -1626,10 +1636,11 @@ void CClient::processChatCharacter(int c, bool bDown)
 			iChat_Pos++;
 		else
 			iChat_Pos = sChat_Text.length();
+		return;
 	}
 
     // Enter
-    if((char) c == '\r') {
+    if(c == '\r') {
         iChat_Typing = false;
 
         // Send chat message to the server
@@ -1663,9 +1674,24 @@ void CClient::processChatCharacter(int c, bool bDown)
 	}
 
     // Normal key
-    if(iChat_Pos < ChatMaxLength-1 && c > 31 && c <127 ) {
-		char buf[2]; buf[0]=c; buf[1]=0;
-		sChat_Text.insert(iChat_Pos++,buf);
+    if(iChat_Pos < ChatMaxLength-1 && tLX->cFont.TranslateCharacter(c) != -1 ) {
+		char buf[2];
+		if (c >= 128)  {
+#ifdef WIN32			
+			static ushort utfbuf[2];
+			utfbuf[0] = c;
+			utfbuf[1] = 0;
+			::WideCharToMultiByte(CP_ACP,0,utfbuf,-1,buf, 1, NULL, NULL);
+			fix_markend(buf);
+#else // LINUX
+			buf[0] = 256-c;  // TODO: does it work?
+			buf[1] = '\0';
+#endif
+		} else  {
+			buf[0]=c; buf[1]=0;
+		}
+		sChat_Text.insert(iChat_Pos,buf);
+		iChat_Pos++;
     }
 }
 

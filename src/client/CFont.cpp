@@ -22,20 +22,65 @@
 #include "GfxPrimitives.h"
 
 
-char Fontstr[256] = {" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~~"};//\161\162\163\164\165\166\167\168\169\170\171\172\173\174\175\176\177\178\179\180\181\182\183\184\185\186\187\188\189\190\191\192\193\194\195\196\197\198\199\200\201\202\203\204\205\206\207\208\209\210\211\212\213\214\215\216\217\218\219\220\221\222\223\224\225\226\227\228\229\230\231\232\233\234\235\236\237\238\239\240\241\242\243\244\245\246\247\248\249\250\251\252\253\254\255"};
-size_t Fontstr_len = strlen(Fontstr);
+//char Fontstr[256] = {" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~ \161\162\163\164\165\166\167\168\169\170\171\172\173\174\175\176\177\178\179\180\181\182\183\184\185\186\187\188\189\190\191\192\193\194\195\196\197\198\199\200\201\202\203\204\205\206\207\208\209\210\211\212\213\214\215\216\217\218\219\220\221\222\223\224\225\226\227\228\229\230\231\232\233\234\235\236\237\238\239\240\241\242\243\244\245\246\247\248\249\250\251\252\253\254\255"};
+ushort Fontstr[NUM_CHARACTERS];
+size_t Fontstr_len = sizeof(Fontstr)/sizeof(short);
+
+// When you draw the font, use this to get rid of all possible color "bugs" in it
+
+/*bool SimilarColors(Uint32 color1, Uint32 color2, SDL_PixelFormat *fmt)  {
+	static unsigned __int8 r1,g1,b1,r2,g2,b2;
+	SDL_GetRGB(color1,fmt,&r1,&g1,&b1);
+	SDL_GetRGB(color2,fmt,&r2,&g2,&b2);
+	return (abs(r1-r2) <= 20) && (abs(g1-g2) <= 20) && (abs(b1-b2) <= 20);
+}
+
+void AdjustFont(SDL_Surface *bmp,const std::string& fname)
+{
+	SDL_Surface *dst = gfxCreateSurface(bmp->w,bmp->h);
+	Uint8 *spxr = (Uint8 *)bmp->pixels;
+	Uint8 *spx;
+	Uint32 blue = SDL_MapRGB(bmp->format,0,0,255);
+	Uint32 pink = SDL_MapRGB(bmp->format,255,0,255);
+	Uint32 white = SDL_MapRGB(bmp->format,255,255,255);
+	Uint32 black = 0;
+	for (int y=0;y<bmp->h;y++)  {
+		spx = spxr;
+		for (int x=0;x<bmp->w;x++,spx+=bmp->format->BytesPerPixel)  {
+			if (SimilarColors(GetPixelFromAddr(spx,bmp->format->BytesPerPixel),pink,bmp->format))
+				PutPixel(dst,x,y,pink);
+			else if (SimilarColors(GetPixelFromAddr(spx,bmp->format->BytesPerPixel),black,bmp->format)) 
+				PutPixel(dst,x,y,black);
+			else if (SimilarColors(GetPixelFromAddr(spx,bmp->format->BytesPerPixel),blue,bmp->format)) 
+				PutPixel(dst,x,y,blue);
+			else if (SimilarColors(GetPixelFromAddr(spx,bmp->format->BytesPerPixel),white,bmp->format)) 
+				PutPixel(dst,x,y,white);
+			else
+				PutPixel(dst,x,y,pink);
+		}
+		spxr += bmp->pitch;
+	}
+	SDL_SaveBMP(dst,fname.c_str());	
+}*/
 
 
 ///////////////////
 // Load a font
-int CFont::Load(const std::string& fontname, bool _colour, int _width)
+int CFont::Load(const std::string& fontname, bool _colour)
 {
+	register short i;
+	for (i=0; i<128; i++)
+		Fontstr[i] = i+32;
+	for (i=128; i<sizeof(Fontstr)/sizeof(short); i++)
+		Fontstr[i] = i+65;
+
 	LOAD_IMAGE(bmpFont,fontname);
 
 	Colour = _colour;
-	Width = _width;
 
 	if(!bmpFont) return false;
+
+	//AdjustFont(bmpFont,fontname+"_adj.bmp");
 
 	bmpWhite = gfxCreateSurface(bmpFont->w,bmpFont->h);
 	bmpGreen = gfxCreateSurface(bmpFont->w,bmpFont->h);
@@ -75,34 +120,53 @@ void CFont::Shutdown(void)
 }
 
 
+//////////////////
+// Helper function for CalculateWidth
+// Checks, whether a vertical line is free (all pixels pink)
+bool CFont::IsColumnFree(int x)
+{
+	static const Uint32 pink = SDL_MapRGB(bmpFont->format,255,0,255);
+	for (ushort i=0; i<bmpFont->h; i++)
+		if (GetPixel(bmpFont,x,i) != pink)
+			return false;
+	return true;
+}
+
 ///////////////////
 // Calculate Widths
 void CFont::CalculateWidth(void)
 {
-	unsigned int n;
-	Uint32 pixel;
-	int i,j;
-	int a,b;
+	int x,n;
+	int cur_w;
 
 	// Lock the surface
 	if(SDL_MUSTLOCK(bmpFont))
 		SDL_LockSurface(bmpFont);
 
-	Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
+	static const Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
 
-	for(n = 0; n < Fontstr_len; n++) {
-		a = n*Width;
-		for(j = 0; j < bmpFont->h; j++) {
-			for(i = a, b = 0; b < Width; i++, b++) {
+	n=0;
+	cur_w = 0;
+	for (x=0; x<bmpFont->w; x++)  {
+		if (Fontstr[n] != ' ')
+			while (IsColumnFree(x) && x<bmpFont->w)  // Ignore any free pixel columns before the character (but don't do this for spaces)
+				x++;
 
-				pixel = GetPixel(bmpFont, i, j);
-				if(pixel == blue) {
-					FontWidth[n] = b;
-					break;
-				}
-			}
+		// Read until a blue pixel or end of the image
+		while (GetPixel(bmpFont,x,0) != blue && x<bmpFont->w)  {
+			x++;
+			cur_w++;
 		}
+
+		// Blue pixel means end of the character
+		FontWidth[n] = cur_w;
+		CharacterOffset[n] = x-cur_w;
+		n++;
+		if (n == Fontstr_len)  // Safety
+			break;
+		cur_w = 0;
 	}
+
 
 
 	// Unlock the surface
@@ -197,7 +261,6 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	int a,b;
 	int length = Fontstr_len;
 
-
 	// Clipping rectangle
 	SDL_Rect rect = dst->clip_rect;
 
@@ -218,7 +281,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 	pos=0;
 	for(std::string::const_iterator p = txt.begin(); p != txt.end(); p++) {
-		l = *p - 32;
+		l = TranslateCharacter(*p);
 
 		// Line break
 		if (*p == '\n')  {
@@ -237,27 +300,27 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
             continue;
 
 		w=0;
-		a=l*Width;
+		a=CharacterOffset[l];
 
 		if(!Colour) {
 			SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, tLX->clPink);
 			DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-			pos+=FontWidth[l];
+			pos+=FontWidth[l]+Spacing;
 			continue;
 		}
 
 		if (!OutlineFont)  {
 			if (col2 == f_white)  {
 				DrawImageAdv(dst,bmpWhite,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-				pos+=FontWidth[l];
+				pos+=FontWidth[l]+Spacing;
 				continue;
 			} else if (!col2) {
 				DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-				pos+=FontWidth[l];
+				pos+=FontWidth[l]+Spacing;
 				continue;
 			} else if( col2 == f_green) {
 				DrawImageAdv(dst,bmpGreen,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-				pos+=FontWidth[l];
+				pos+=FontWidth[l]+Spacing;
 				continue;
 			}
 		}
@@ -288,23 +351,20 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 					pixel = GetPixelFromAddr(p,bpp);
 
-					if(pixel == f_pink)
-						continue;
 
-					if(pixel == 0 && OutlineFont)  {
+					if(OutlineFont)  {
+						if (pixel == tLX->clWhite)
+							PutPixel(dst,x+pos+b,y+j,col);
+						else if (!pixel)
 							PutPixel(dst,x+pos+b,y+j,0);
-							continue;
-					}
-
-
-					if(Colour)
+					} else if (!pixel)  // Put only black pixels
 						PutPixel(dst,x+pos+b,y+j,col);
 				}
 				src+= bmpFont->pitch;
 			}
 		}
 
-		pos+=FontWidth[l];
+		pos+=FontWidth[l]+Spacing;
 	}
 
 
@@ -325,14 +385,34 @@ int CFont::GetWidth(const std::string& buf) {
 	
 	// Calculate the length of the text
 	for(std::string::const_iterator p = buf.begin(); p != buf.end(); p++) {
-		l = *p - 32;
-		if(l < 0 || (ushort)l >= Fontstr_len)
-			continue;
-
-		length += FontWidth[l];
+		l = TranslateCharacter(*p);
+		if (l != -1)
+			length += FontWidth[l]+Spacing;
 	}
 
 	return length;
+}
+
+/////////////////////
+// Translates the character to the position in Fontstr array, returns -1 if impossible
+int CFont::TranslateCharacter(char c)
+{
+	if (c < 32)  {
+#ifdef WIN32
+		static char charbuf[2];
+		static ushort utfbuf[2];
+		charbuf[0] = c;
+		charbuf[1] = '\0';
+		::MultiByteToWideChar(CP_ACP, 0, charbuf, 1, utfbuf, 1);
+		if (utfbuf[0] > NUM_CHARACTERS+65)
+			return -1;
+		else
+			return utfbuf[0]-65;
+#else  // LINUX
+		return (uchar)c-32; // TODO: does it work?
+#endif
+	} else
+		return c-32;
 }
 
 

@@ -274,31 +274,44 @@ int CTextbox::KeyDown(int c)
 	}
 
 	// Enter
-	if((char) c == '\r') {
+	if(c == '\r') {
 		return TXT_ENTER;
 	}
 
     // Ctrl-v (paste)
-    if((char) c == 22 ) {
+    if((uchar) c == 22 ) {
         PasteText();
         return TXT_CHANGE;
     }
 
     // Ctrl-c (copy)
-    if((char) c == 3 ) {
+    if((uchar) c == 3 ) {
         CopyText();
         return TXT_NONE;
     }
 
     // Ctrl-x (cut)
-    if((char) c == 24 ) {
+    if((uchar) c == 24 ) {
         CopyText();
 		Delete();
         return TXT_CHANGE;
     }
 
 	// Insert character
-	Insert((char) c);
+	if (c >= 128)  {
+#ifdef WIN32
+		static char charbuf[2];
+		static ushort utfbuf[2];
+		utfbuf[0] = c;
+		utfbuf[1] = 0;
+		::WideCharToMultiByte(CP_ACP,0,utfbuf,-1,charbuf, 1, NULL, NULL);
+		Insert(charbuf[0]);
+#else  // LINUX
+		Insert((char)(256-c));  // TODO: does it work?
+#endif
+	} else {
+		Insert((char) c);
+	}
 
 	return TXT_CHANGE;
 }
@@ -506,7 +519,7 @@ void CTextbox::Insert(char c)
 	if(iLength >= iMax-2)
 		return;
 
-	if(c < 32 || c >126)
+	if(tLX->cFont.TranslateCharacter(c) == -1)
 		return;
 
 	// Safety

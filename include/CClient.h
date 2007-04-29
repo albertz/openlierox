@@ -76,6 +76,7 @@ public:
 		bmpScoreBuffer = NULL;
 		cChatList = NULL;
 		bUpdateScore = true;
+		bRedrawChat = true;
 
 		szServerName="";
 
@@ -154,6 +155,7 @@ private:
     CWpnRest    cWeaponRestrictions;
 	//float		fProjDrawTime;
 	//float		fProjSimulateTime;
+	bool		bRedrawChat;
 
 	// Ping below FPS
 	float		fMyPingSent;

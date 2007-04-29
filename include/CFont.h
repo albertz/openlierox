@@ -20,14 +20,16 @@
 #ifndef __CFONT_H__
 #define __CFONT_H__
 
+#define NUM_CHARACTERS 468
+
 class CFont {
 public:
 	// Constructor
 	CFont() {
 		bmpFont = NULL;
 		Colour = false;
-		Width=18;
 		OutlineFont = false;
+		Spacing = 1;
 	}
 
 
@@ -36,9 +38,10 @@ private:
 
 	SDL_Surface		*bmpFont;
 	bool			Colour;
-	int				Width;
-	int				FontWidth[256];
+	int				FontWidth[NUM_CHARACTERS];
+	int				CharacterOffset[NUM_CHARACTERS];
 	int				OutlineFont;
+	int				Spacing;
 
 	// Common colours
 	SDL_Surface		*bmpWhite;
@@ -50,11 +53,10 @@ private:
     Uint32 f_green;
 
 
-
 public:
 	// Methods
 
-	int				Load(const std::string& fontname, bool _colour, int _width);
+	int				Load(const std::string& fontname, bool _colour);
 	void			CalculateWidth(void);
 
 	void			PreCalculate(SDL_Surface *bmpSurf, Uint32 colour);
@@ -75,6 +77,12 @@ public:
 
 	int				GetWidth(const std::string& buf);
 	int				GetHeight(void)					{ return bmpFont->h; }
+	int				TranslateCharacter(char c);
+
+	inline void		SetSpacing(int _s)  { Spacing = _s; }
+	inline int		GetSpacing()		 { return Spacing; }
+private:
+	bool			IsColumnFree(int x);
 };
 
 
