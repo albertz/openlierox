@@ -174,7 +174,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 	cl->setGameReady(true);
 
 	// Let everyone know this client is ready to play
-	CBytestream bytes;
+	static CBytestream bytes;
 	bytes.Clear();
 	if (cl->getNumWorms() <= 2)  {
 		bytes.writeByte(S2C_CLREADY);
@@ -207,7 +207,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 // Parse an update packet
 void GameServer::ParseUpdate(CClient *cl, CBytestream *bs)
 {
-	for(int i=0; i<cl->getNumWorms(); i++) {
+	for(short i=0; i<cl->getNumWorms(); i++) {
 		CWorm *w = cl->getWorm(i);
 
 		w->readPacket(bs, cWorms);
@@ -236,7 +236,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 		return;
 
 	// Team names
-	static std::string TeamNames[] = {"blue", "red", "green", "yellow"};
+	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
 	int TeamCount[4];
 
     // If the game is already over, ignore this
@@ -691,7 +691,8 @@ void GameServer::ParseGetChallenge(void)
 	NetworkAddr	adrFrom;
 	float		OldestTime = 99999;
 	int			ChallengeToSet = -1;
-	CBytestream	bs;
+	static CBytestream	bs;
+	bs.Clear();
 
 	GetRemoteNetAddr(tSocket,&adrFrom);
 
@@ -747,7 +748,7 @@ void GameServer::ParseGetChallenge(void)
 // Handle a 'connect' message
 void GameServer::ParseConnect(CBytestream *bs)
 {
-	CBytestream		bytestr;
+	static CBytestream		bytestr;
 	NetworkAddr		adrFrom;
 	int				i,p,player=-1;
 	int				numplayers;
@@ -763,6 +764,8 @@ void GameServer::ParseConnect(CBytestream *bs)
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
 	if(iState != SVS_LOBBY)
 		return;
+
+	bytestr.Clear();
 
 	// User Info to get
 
@@ -1085,13 +1088,13 @@ void GameServer::ParseConnect(CBytestream *bs)
 // Parse a ping packet
 void GameServer::ParsePing(void)
 {
-	NetworkAddr		adrFrom;
+	static NetworkAddr		adrFrom;
 	GetRemoteNetAddr(tSocket,&adrFrom);
 
 	// Send the challenge details back to the client
 	SetRemoteNetAddr(tSocket,&adrFrom);
 
-	CBytestream bs;
+	static CBytestream bs;
 
 	bs.Clear();
 	bs.writeInt(-1,4);
@@ -1124,7 +1127,7 @@ void GameServer::ParseWantsJoin(CBytestream *bs)
 // Parse a query packet
 void GameServer::ParseQuery(CBytestream *bs)
 {
-	CBytestream bytestr;
+	static CBytestream bytestr;
 
     int num = bs->readByte();
 
@@ -1150,7 +1153,7 @@ void GameServer::ParseGetInfo(void)
 {
 	// TODO: more info
 
-    CBytestream     bs;
+    static CBytestream     bs;
     game_lobby_t    *gl = &tGameLobby;
 
     bs.Clear();

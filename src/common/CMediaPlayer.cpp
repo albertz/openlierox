@@ -77,6 +77,7 @@ public:
 #endif
 
 // TODO: why the hell is this a global variable?
+// It has to be accessible both from the functor and from CPlayList::Load
 CDirStack cStack;
 
 

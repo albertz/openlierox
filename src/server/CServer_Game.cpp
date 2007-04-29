@@ -29,7 +29,8 @@ void GameServer::SpawnWorm(CWorm *Worm)
 	Worm->Spawn(pos);
 
 	// Send a spawn packet to everyone
-	CBytestream bs;
+	static CBytestream bs;
+	bs.Clear();
 	bs.writeByte(S2C_SPAWNWORM);
 	bs.writeInt(Worm->getID(),1);
 	bs.writeInt( (int)pos.x, 2);
@@ -98,14 +99,15 @@ void GameServer::SimulateGame(void)
 	if(iState != SVS_PLAYING)
 		return;
 
+	if(iGameOver)
+		return;
+
 	// Process worms
 	CWorm *w = cWorms;
 	short i;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed())
 			continue;
-        if(iGameOver)
-            break;
 
 		if(!w->getAlive() && w->getLives() != WRM_OUT) {
 			// Check to see if they have been dead for longer then 2.5 seconds
@@ -137,7 +139,8 @@ void GameServer::SimulateGame(void)
 
 			// If it's been here too long, destroy it
 			if( tLX->fCurTime - cBonuses[i].getSpawnTime() > BONUS_LIFETIME ) {
-				CBytestream bs;
+				static CBytestream bs;
+				bs.Clear();
 				cBonuses[i].setUsed(false);
 
 				bs.writeByte(S2C_DESTROYBONUS);
@@ -373,10 +376,10 @@ void GameServer::WormShoot(CWorm *w)
 	if(w->getDirection() == DIR_LEFT)
 		Angle=180-Angle;
 
-	CVec sprd;
+	static CVec sprd;
 
 
-	CVec dir;
+	static CVec dir;
 	GetAngles((int)Angle,&dir,NULL);
 	CVec pos = w->getPos();// + dir*6;
 

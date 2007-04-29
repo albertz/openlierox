@@ -1362,7 +1362,7 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 	const std::vector<std::string>& ip_e = explode(Address,".");
 	if (ip_e.size() != 4) return "Hackerland";
 
-	CountryCvsReader reader;
+	static CountryCvsReader reader;
 	
 	// Convert the IP to the numeric representation
 	reader.myIP = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
@@ -1371,7 +1371,8 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 	reader.file = OpenGameFileR("ip_to_country.csv");
 	if(!reader.file) return "outer space";
 
-	std::string result = reader.readAndReturnCountry();
+	static std::string result;
+	result = reader.readAndReturnCountry();
 	if(result == "") result = "unknown country";
 
 	reader.file->close();

@@ -26,7 +26,7 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 	// Assume reliable
 	CClient *cl = cClients;
 
-	for(int c=0;c<MAX_CLIENTS;c++,cl++) {
+	for(short c=0;c<MAX_CLIENTS;c++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
@@ -38,13 +38,15 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 ///////////////////
 // Send all the clients a string of text
 void GameServer::SendGlobalText(const char* text, int type) {
-	CBytestream bs;
+	static CBytestream bs;
+	bs.Clear();
+
 	bs.writeByte(S2C_TEXT);
 	bs.writeInt(type,1);
 	bs.writeString("%s",text);
 
 	CClient *cl = cClients;
-	for(int c=0;c<MAX_CLIENTS;c++,cl++) {
+	for(short c=0;c<MAX_CLIENTS;c++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
@@ -63,7 +65,7 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 // Returns true if we sent an update
 bool GameServer::SendUpdate(CClient *cl)
 {
-	int i;
+	short i;
 
 	// Don't update so often
 	if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
@@ -73,7 +75,7 @@ bool GameServer::SendUpdate(CClient *cl)
 		}
 
 	// Delays for different net speeds
-	float	shootDelay[] = {0.025f, 0.010f, 0.005f, -1.0f};
+	static const float	shootDelay[] = {0.025f, 0.010f, 0.005f, -1.0f};
 
 
 	// Check if we have gone over the bandwidth rating for the client
@@ -93,7 +95,7 @@ bool GameServer::SendUpdate(CClient *cl)
     
     // Send all the _other_ worms details
     CWorm *w = cWorms;
-    int count = 0;
+    short count = 0;
     for(i=0;i<MAX_WORMS;i++,w++) {
         if(!w->isUsed())
             continue;
@@ -190,7 +192,9 @@ bool GameServer::checkBandwidth(CClient *cl)
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby(void)
 {
-	CBytestream bs;
+	static CBytestream bs;
+	bs.Clear();
+
 	game_lobby_t *gl = &tGameLobby;
 
 	// Check if the details have been set yet
@@ -216,9 +220,9 @@ void GameServer::UpdateGameLobby(void)
 // Send updates for all the worm lobby states
 void GameServer::SendWormLobbyUpdate(void)
 {
-    CBytestream bytestr;
+    static CBytestream bytestr;
 	bytestr.Clear();
-    int c,i;
+    short c,i;
 
     CClient *cl = cClients;
 	for(c=0;c<MAX_CLIENTS;c++,cl++) {
@@ -263,14 +267,16 @@ void GameServer::SendWormLobbyUpdate(void)
 // Tell all the clients that we're disconnecting
 void GameServer::SendDisconnect(void)
 {
-	CBytestream bs;
+	static CBytestream bs;
+	bs.Clear();
+
 	CClient *cl = cClients;
 	if (!cl)
 		return;
 	
 	bs.writeByte(S2C_LEAVING);
 
-	for(int c=0;c<MAX_CLIENTS;c++,cl++) {
+	for(short c=0;c<MAX_CLIENTS;c++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 

@@ -453,7 +453,7 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 
 
 
-
+		// TODO: this won't get even called!!!!!! Fix it!
 		class addDirToList { public:
 			CListview* lv;
 			int* index;
@@ -481,9 +481,9 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 // Fills the list with the subdirectories of the "dir"
 void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 {
-	static std::string directory;
-	static std::string tmp_dir;
-	static std::string parent_dir;
+	/*static*/ std::string directory;
+	/*static*/ std::string tmp_dir;
+	/*static*/ std::string parent_dir;
 	size_t dir_name_pos;
 	int index=0;
 	int len = 0;
