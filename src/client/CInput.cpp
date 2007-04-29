@@ -190,8 +190,10 @@ int CInput::Wait(std::string& strText)
 		i=n;
 		if(Mouse->Up & SDL_BUTTON(n)) {
 			// Swap rmb id wih mmb (mouse buttons)
-			if(n==2) i=3;
-			if(n==3) i=2;
+			switch (n)  {
+			case 2: i=3; break;
+			case 3: i=2; break;
+			}
 			strText = "ms"+itoa(i);
 			return true;
 		}

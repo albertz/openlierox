@@ -840,7 +840,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			int h,m,s;
 			static std::string buf;
 			ConvertTime(p->getTagTime(), &h,&m,&s);
-			buf = itoa(m)+(s<10 ? "0":"")+itoa(s);
+			buf = itoa(m)+":"+(s<10 ? "0":"")+itoa(s);
 			Uint32 col = tLX->clNormalLabel;
 			if(p->getTagIT())
 				col = MakeColour(255,0,0);

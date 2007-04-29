@@ -295,8 +295,6 @@ void GameServer::TagRandomWorm(void)
 	float time = 99999;
 	std::vector<int> all_lowest;
 
-	// TODO: in game start this always picks the host, which is not so fair 
-
 
 	// Go through finding the worm with the lowest tag time
 	// A bit more fairer then random picking

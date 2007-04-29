@@ -618,8 +618,10 @@ std::string GetAbsolutePath(const std::string& path) {
 	static int len;
 	len = GetFullPathName(path.c_str(),sizeof(buf)/sizeof(char),buf,NULL);
 	fix_markend(buf);
-	// TODO: return path, if error occured
-	return buf;
+	if (len)
+		return buf;
+	else  // Failed
+		return path;
 #else
 	if(realpath(path.c_str(), buf) != NULL) {
 		fix_markend(buf);

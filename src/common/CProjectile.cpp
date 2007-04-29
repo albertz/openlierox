@@ -284,11 +284,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		MIN_CHECKSTEP = 1;
 		MAX_CHECKSTEP = 3;
 		AVG_CHECKSTEP = 2;
-	} else if (len >= 14000 && len < 25000)  {
+	} else if (len >= 14000 && len < 75000)  {
 		MIN_CHECKSTEP = 1;
 		MAX_CHECKSTEP = 4;
 		AVG_CHECKSTEP = 2;
-	} else if (len >= 25000 && len < 250000)  {
+	} else if (len >= 75000 && len < 250000)  {
 		MIN_CHECKSTEP = 1;
 		MAX_CHECKSTEP = 5;
 		AVG_CHECKSTEP = 2;
@@ -322,7 +322,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	
 	// Dampening
 	if(tProjInfo->Dampening != 1)
-		newvel *= (float)pow(tProjInfo->Dampening, dt*10); // TODO: is this correct? change factor for dt if not
+		newvel *= (float)pow(tProjInfo->Dampening, dt*55);
 	
 	float checkstep = newvel.GetLength2(); // |v|^2
 	if(( checkstep*dt*dt > MAX_CHECKSTEP*MAX_CHECKSTEP )) { // |dp|^2=|v*dt|^2

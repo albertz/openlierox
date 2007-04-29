@@ -166,24 +166,6 @@ void Menu_LocalFrame(void)
 	CListview *lv;
 	profile_t *ply = NULL;
 
-	if (bActivated)  {
-		// Get the mod name
-		cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
-		if(it)
-			tLXOptions->tGameinfo.szModName = it->sIndex;
-
-		// Fill in the mod list
-		Menu_Local_FillModList( (CCombobox *)cLocalMenu.getWidget(ml_ModName));
-
-		// Fill in the levels list
-		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), true);
-
-		// Reload the minimap
-		if (tLXOptions->tGameinfo.sMapFilename != "_random_")
-			Menu_LocalShowMinimap(true);
-	}
-
 
     // Game Settings
 	if(bGameSettings) {
@@ -222,6 +204,26 @@ void Menu_LocalFrame(void)
 			bWeaponRest = false;
 		}
 		return;
+	}
+
+	// Reload the list if user switches back to the game
+	// Do not reload when a dialog is open
+	if (bActivated)  {
+		// Get the mod name
+		cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
+		if(it)
+			tLXOptions->tGameinfo.szModName = it->sIndex;
+
+		// Fill in the mod list
+		Menu_Local_FillModList( (CCombobox *)cLocalMenu.getWidget(ml_ModName));
+
+		// Fill in the levels list
+		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
+		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), true);
+
+		// Reload the minimap
+		if (tLXOptions->tGameinfo.sMapFilename != "_random_")
+			Menu_LocalShowMinimap(true);
 	}
 
 
@@ -1133,6 +1135,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
     }
 
     // Show the weapons
+	static std::string buf;
     for(i=0; i<num; i++) {
         if(!cWpnGameScript->weaponExists(psWpn[i].psLink->szName))
             continue;
@@ -1158,7 +1161,9 @@ bool Menu_WeaponsRestrictions_Frame(void)
             }
         }
 
-        tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour,psWpn[i].psLink->szName );
+		buf = psWpn[i].psLink->szName; 
+		stripdot(buf,245);
+        tLX->cFont.Draw( tMenu->bmpScreen, 150, y, Colour, buf );
         tLX->cFont.Draw( tMenu->bmpScreen, 400, y, Colour, szStates[psWpn[i].psLink->nState] );
     }
 

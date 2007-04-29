@@ -639,24 +639,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	cClient->Frame();
 
 
-	if (bActivated)  {
-		// Get the mod name
-		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
-		if(it)
-			tLXOptions->tGameinfo.szModName = it->sIndex;
-
-		// Fill in the mod list
-		Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
-
-		// Fill in the levels list
-		cHostLobby.SendMessage(hl_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
-
-		// Redraw the minimap
-		Menu_HostShowMinimap();
-	}
-
-
     // Game settings
 	if(bHostGameSettings) {
 		if(Menu_GameSettings_Frame()) {
@@ -708,6 +690,25 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			bServerSettings = false;
 		}
 		return;
+	}
+
+	// Reload the level and mod list when the user switches back to game
+	// Do not reaload when any of the dialogs is open
+	if (bActivated)  {
+		// Get the mod name
+		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
+		if(it)
+			tLXOptions->tGameinfo.szModName = it->sIndex;
+
+		// Fill in the mod list
+		Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
+
+		// Fill in the levels list
+		cHostLobby.SendMessage(hl_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
+		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
+
+		// Redraw the minimap
+		Menu_HostShowMinimap();
 	}
 
 
