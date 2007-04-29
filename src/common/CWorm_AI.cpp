@@ -79,7 +79,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) 
 	// loop over all directions until there is some obstacle
 	col = 0; dir = 1;
 	while(true) {
-		if(col == 15) // got we collisions in all directions?
+		if(col == 0xF) // got we collisions in all directions?
 			break;
 
 		// change direction
@@ -192,7 +192,7 @@ NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 // these function will either go parallel to the x-axe or parallel to the y-axe
 // (depends on which of them is the absolute greatest)
 inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
-	const uchar* pxflags = pcMap->GetPixelFlags();
+	register const uchar* pxflags = pcMap->GetPixelFlags();
 	uint map_w = pcMap->GetWidth();
 	uint map_h = pcMap->GetHeight();
 
@@ -302,7 +302,7 @@ public:
 
 			typedef std::multiset< VectorD2<int>, VectorD2__absolute_less<int> > p_mset;
 			// the set point here defines, where the 'best' point is (the sorting depends on it)
-			p_mset points(VectorD2__absolute_less<int>((base->target))); // + getCenter()*2 - start) / 2));
+			p_mset points(VectorD2__absolute_less<int>( base->target )); // + getCenter()*2 - start) / 2));
 
 			// insert now the points to the list
 			// the list will sort itself
@@ -369,7 +369,7 @@ public:
 			// this will be called by forEachChecklistItem
 			// pt is the checkpoint and dist the change to the new target
 			// it will search for the best node starting at the specific pos
-			inline bool operator()(VectorD2<int> pt, VectorD2<int> dist) {
+			inline bool operator() (VectorD2<int> pt, VectorD2<int> dist) {
 				bool trace = true;
 				VectorD2<int> dir, start;
 				unsigned short left, right;
@@ -677,10 +677,12 @@ public:
 	inline void restartThreadSearch(VectorD2<int> newstart, VectorD2<int> newtarget) {
 		// set signal
 		lock();
-		restart_thread_searching_signal = 1;
+		thread_is_ready = false;
+		restart_thread_searching_signal = 0;
 		restart_thread_searching_newdata.start = newstart;
 		restart_thread_searching_newdata.target = newtarget;
-		thread_is_ready = false;
+		// the reading of this isn't synchronized, so we have to set this at last
+		restart_thread_searching_signal = 1;
 		unlock();
 	}
 
@@ -697,26 +699,16 @@ private:
 
 	inline void breakThreadSignal() {
 		// we don't need more thread-safety here, because this will not fail
-		lock(); // hm, let's be thread-safe...
 		break_thread_signal = 1;
-		unlock();
 	}
 
 	inline bool shouldBreakThread() {
-		bool ret = false;
-		lock();
-		ret = (break_thread_signal != 0);
-		unlock();
-		return ret;
+		return (break_thread_signal != 0);
 	}
 
 public:
 	inline bool shouldRestartThread() {
-		bool ret = false;
-		lock();
-		ret = (restart_thread_searching_signal != 0);
-		unlock();
-		return ret;
+		return (restart_thread_searching_signal != 0);
 	}
 
 private:
@@ -812,8 +804,7 @@ private:
 
 ///////////////////
 // Initialize the AI
-bool CWorm::AI_Initialize(CMap *pcMap)
-{
+bool CWorm::AI_Initialize() {
     assert(pcMap);
 
     // Because this can be called multiple times, shutdown any previous allocated data
@@ -873,7 +864,7 @@ void CWorm::AI_Shutdown(void)
 	}
 	pathSearcher = NULL;
 
-	// in every case, the nodes of the current path is not handled by pathSearcher
+	// in every case, the nodes of the current path are not handled by pathSearcher
 	delete_ai_nodes(NEW_psPath);
 
     AI_CleanupPath(psPath);
@@ -931,9 +922,24 @@ void do_some_tests_with_fastTraceLine(CMap *pcMap) {
 #endif
 
 
+void CWorm::AI_Respawn() {
+	// find new target and reset the path
+
+    // Search for an unfriendly worm
+    psAITarget = findTarget(gametype, teamgame, taggame, pcMap);
+
+    // Any unfriendlies?
+    if(psAITarget) {
+        // We have an unfriendly target, so change to a 'move-to-target' state
+        nAITargetType = AIT_WORM;
+        nAIState = AI_MOVINGTOTARGET;
+		NEW_AI_CreatePath(true);
+	}
+}
+
 ///////////////////
 // Simulate the AI
-void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
+void CWorm::AI_GetInput(int gametype, int teamgame, int taggame)
 {
 	// Behave like humans and don't play immediatelly after spawn
 	if ((tLX->fCurTime-fSpawnTime) < 0.4)
@@ -1023,7 +1029,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap)
 
 ///////////////////
 // Find a target worm
-CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
+CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 {
 	CWorm	*w = cClient->getRemoteWorms();
 	CWorm	*trg = NULL;
@@ -1099,7 +1105,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame, CMap *pcMap)
 
 ///////////////////
 // Think State
-void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
+void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 {
     /*
       We start of in an think state. When we're here we decide what we should do.
@@ -1198,7 +1204,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap)
 ///////////////////
 // Find a health pack
 // Returns true if we found one
-bool CWorm::AI_FindHealth(CMap *pcMap)
+bool CWorm::AI_FindHealth()
 {
 	if (!tGameInfo.iBonusesOn)
 		return false;
@@ -1243,7 +1249,7 @@ bool CWorm::AI_FindHealth(CMap *pcMap)
 // Reloads the weapons
 void CWorm::AI_ReloadWeapons(void)
 {
-    int     i;
+    ushort  i;
 
     // Go through reloading the weapons
     for(i=0; i<5; i++) {
@@ -1257,7 +1263,7 @@ void CWorm::AI_ReloadWeapons(void)
 
 ///////////////////
 // Initialize a move-to-target
-void CWorm::AI_InitMoveToTarget(CMap *pcMap)
+void CWorm::AI_InitMoveToTarget()
 {
     memset(pnOpenCloseGrid, 0, nGridCols*nGridRows*sizeof(int));
 
@@ -1299,7 +1305,7 @@ void CWorm::AI_InitMoveToTarget(CMap *pcMap)
 
 ///////////////////
 // Path finding
-ai_node_t *CWorm::AI_ProcessNode(CMap *pcMap, ai_node_t *psParent, int curX, int curY, int tarX, int tarY)
+ai_node_t *CWorm::AI_ProcessNode(ai_node_t *psParent, int curX, int curY, int tarX, int tarY)
 {
     int     i;
     bool    bFound = false;
@@ -1548,7 +1554,7 @@ void CWorm::AI_CleanupPath(ai_node_t *node)
 
 ///////////////////
 // Move towards a target
-void CWorm::AI_MoveToTarget(CMap *pcMap)
+void CWorm::AI_MoveToTarget()
 {
     int     nCurrentCell[2];
     int     nTargetCell[2];
@@ -1889,7 +1895,7 @@ void CWorm::AI_MoveToTarget(CMap *pcMap)
 
 ///////////////////
 // DEBUG: Draw the path
-void CWorm::AI_DEBUG_DrawPath(CMap *pcMap, ai_node_t *node)
+void CWorm::AI_DEBUG_DrawPath(ai_node_t *node)
 {
 	return;
 
@@ -2029,8 +2035,7 @@ bool CWorm::AI_SetAim(CVec cPos)
 ///////////////////
 // A simpler method to get to a target
 // Used if we have no path
- // TODO: this is global for all worms (which is not what is wanted)
-void CWorm::AI_SimpleMove(CMap *pcMap, bool bHaveTarget)
+void CWorm::AI_SimpleMove(bool bHaveTarget)
 {
     worm_state_t *ws = &tState;
 
@@ -2193,7 +2198,7 @@ int CWorm::AI_FindClearingWeapon(void)
 
 ////////////////////
 // Returns true, if the weapon can hit the target
-bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
+bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 {
 	// Get the target position
 	if(!psAITarget)
@@ -2205,7 +2210,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos, CMap *pcMap)
 	// Convert the alpha to radians
 	float alpha = DEG2RAD(fAngle);
 	// Get the maximal X
-	int max_x = (int)(to->x-from->x);
+	int max_x = (int)(to->x - from->x);
 
 	wpnslot_t* wpnslot = getWeapon(getCurrentWeapon());
 	weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
@@ -2374,7 +2379,7 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 
 ///////////////////
 // Shoot!
-bool CWorm::AI_Shoot(CMap *pcMap)
+bool CWorm::AI_Shoot()
 {
     // Make sure the target is a worm
     if(nAITargetType != AIT_WORM)
@@ -2686,7 +2691,7 @@ bool CWorm::AI_Shoot(CMap *pcMap)
 ///////////////////
 // AI: Get the best weapon for the situation
 // Returns weapon id or -1 if no weapon is suitable for the situation
-int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *pcMap, float fTraceDist)
+int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, float fTraceDist)
 {
 	// if we are to close to the target, don't selct any weapon (=> move away)
 	/*if(fDistance < 5)
@@ -3019,7 +3024,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *
 ///////////////////
 // Trace a line from this worm to the target
 // Returns the distance the trace went
-int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs)
+int CWorm::traceLine(CVec target, float *fDist, int *nType, int divs)
 {
     assert( pcMap );
 
@@ -3067,7 +3072,7 @@ int CWorm::traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int div
 ///////////////////
 // Returns true, if the cell is empty
 // Cell can be: CELL_CURRENT, CELL_LEFT,CELL_DOWN,CELL_RIGHT,CELL_UP,CELL_LEFTDOWN,CELL_RIGHTDOWN,CELL_LEFTUP,CELL_RIGHTUP
-bool CWorm::IsEmpty(int Cell, CMap *pcMap)
+bool CWorm::IsEmpty(int Cell)
 {
   bool bEmpty = false;
   int cx = (int)(vPos.x / pcMap->getGridWidth());
@@ -3129,7 +3134,7 @@ bool CWorm::IsEmpty(int Cell, CMap *pcMap)
 // TEST TEST TEST
 //////////////////
 // Finds the nearest free cell in the map and returns coordinates of its midpoint
-CVec CWorm::NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap)
+CVec CWorm::NEW_AI_FindClosestFreeCell(CVec vPoint)
 {
 	// NOTE: highly unoptimized, looks many times to the same cells
 
@@ -3177,7 +3182,7 @@ CVec CWorm::NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap)
 
 /////////////////////
 // Trace the line for the current weapon
-int CWorm::traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType)
+int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
 {
    assert( pcMap );
 
@@ -3373,7 +3378,7 @@ int traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 
 ////////////////////////
 // Checks if there is enough free cells around us to shoot
-bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
+bool CWorm::NEW_AI_CheckFreeCells(int Num)
 {
 	// Get the cell
 	int cellX = (int) fabs((vPos.x)/pcMap->getGridWidth());
@@ -3471,12 +3476,12 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num,CMap *pcMap)
 
 ////////////////////
 // Creates the path
-int CWorm::NEW_AI_CreatePath(CMap *pcMap)
+int CWorm::NEW_AI_CreatePath(bool force_break)
 {
 
 	CVec trg = AI_GetTargetPos();
 
-	if(!bPathFinished) {
+	if(!force_break && !bPathFinished) {
 		// have we finished a current search?
 		if(((searchpath_base*)pathSearcher)->isReady()) {
 
@@ -3510,7 +3515,7 @@ int CWorm::NEW_AI_CreatePath(CMap *pcMap)
 		} else { // the searcher is still searching ...
 
 			// restart search in some cases
-			if(!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->fCurTime - fSearchStartTime >= 5.0f || !traceWormLine(vPos, ((searchpath_base*)pathSearcher)->start, pcMap) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target, pcMap))) {
+			if(force_break || (!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->fCurTime - fSearchStartTime >= 5.0f || !traceWormLine(vPos, ((searchpath_base*)pathSearcher)->start, pcMap) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target, pcMap)))) {
 				fSearchStartTime = tLX->fCurTime;
 				((searchpath_base*)pathSearcher)->restartThreadSearch(vPos, trg);
 			}

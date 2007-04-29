@@ -228,6 +228,8 @@ private:
 
 	float		fLastBlood;
 
+	CMap*		pcMap;
+
 
 	// Owner client
 	CClient		*cClient;
@@ -407,59 +409,60 @@ public:
     //
     // AI
     //
-    bool        AI_Initialize(CMap *pcMap);
+    bool        AI_Initialize();
     void        AI_Shutdown(void);
 
-	void		AI_GetInput(int gametype, int teamgame, int taggame, CMap *pcMap);
-    void        AI_Think(int gametype, int teamgame, int taggame, CMap *pcMap);
-    bool        AI_FindHealth(CMap *pcMap);
+	void		AI_GetInput(int gametype, int teamgame, int taggame);
+	void		AI_Respawn();
+    void        AI_Think(int gametype, int teamgame, int taggame);
+    bool        AI_FindHealth();
     bool        AI_SetAim(CVec cPos);
     CVec        AI_GetTargetPos(void);
     
-    void        AI_InitMoveToTarget(CMap *pcMap);
-    void        AI_MoveToTarget(CMap *pcMap);
-    void        AI_SimpleMove(CMap *pcMap, bool bHaveTarget=true);
-//    void        AI_PreciseMove(CMap *pcMap);
+    void        AI_InitMoveToTarget();
+    void        AI_MoveToTarget();
+    void        AI_SimpleMove(bool bHaveTarget=true);
+//    void        AI_PreciseMove();
     
-    ai_node_t   *AI_ProcessNode(CMap *pcMap, ai_node_t *psParent, int curX, int curY, int tarX, int tarY);
+    ai_node_t   *AI_ProcessNode(ai_node_t *psParent, int curX, int curY, int tarX, int tarY);
     void        AI_CleanupPath(ai_node_t *node);
     void		AI_splitUpNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
     void		AI_storeNodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
     
-    int         AI_FindClearingWeapon(void);
-    bool        AI_Shoot(CMap *pcMap);
+    int         AI_FindClearingWeapon();
+    bool        AI_Shoot();
     int         AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *pcMap, float fTraceDist);
-    void        AI_ReloadWeapons(void);
-    int         cycleWeapons(void);
+    void        AI_ReloadWeapons();
+    int         cycleWeapons();
 	void		AI_SetGameType(int type)  { iAiGameType = type; }
-	int			AI_GetGameType(void)  { return iAiGameType; }
+	int			AI_GetGameType()  { return iAiGameType; }
 
-    void        AI_DEBUG_DrawPath(CMap *pcMap, ai_node_t *node);
+    void        AI_DEBUG_DrawPath(ai_node_t *node);
 
-    CWorm       *findTarget(int gametype, int teamgame, int taggame, CMap *pcMap);   
-    int         traceLine(CVec target, CMap *pcMap, float *fDist, int *nType, int divs = 5);
-	int			traceWeaponLine(CVec target, CMap *pcMap, float *fDist, int *nType);
-	bool		weaponCanHit(int gravity,float speed, CVec cTrgPos, CMap *pcMap);
-	bool		IsEmpty(int Cell, CMap *pcMap);
-    //void        moveToTarget(CWorm *pcTarget, CMap *pcMap);
+    CWorm       *findTarget(int gametype, int teamgame, int taggame);
+    int         traceLine(CVec target, float *fDist, int *nType, int divs = 5);
+	int			traceWeaponLine(CVec target, float *fDist, int *nType);
+	bool		weaponCanHit(int gravity,float speed, CVec cTrgPos);
+	bool		IsEmpty(int Cell);
+    //void        moveToTarget(CWorm *pcTarget);
 
-	CVec		NEW_AI_GetBestRopeSpot(CVec trg, CMap *pcMap);
-	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint, CMap *pcMap);
-	bool		NEW_AI_CheckFreeCells(int Num,CMap *pcMap);
-	bool		NEW_AI_IsInAir(CVec pos, CMap *pcMap, int area_a=3);
-	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, CMap *pcMap,int Direction);
-	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint, CMap *pcMap);
-	int			NEW_AI_CreatePath(CMap *pcMap);
-	void		NEW_AI_MoveToTarget(CMap *pcMap);
-	void		NEW_AI_MoveToTargetDC(CMap *pcMap);
-	CVec		NEW_AI_GetNearestRopeSpot(CVec trg, CMap *pcMap);
+	CVec		NEW_AI_GetBestRopeSpot(CVec trg);
+	CVec		NEW_AI_FindClosestFreeCell(CVec vPoint);
+	bool		NEW_AI_CheckFreeCells(int Num);
+	bool		NEW_AI_IsInAir(CVec pos, int area_a=3);
+	CVec		NEW_AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction);
+	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint);
+	int			NEW_AI_CreatePath(bool force_break = false);
+	void		NEW_AI_MoveToTarget();
+	void		NEW_AI_MoveToTargetDC();
+	CVec		NEW_AI_GetNearestRopeSpot(CVec trg);
 #ifdef _AI_DEBUG
-	void		NEW_AI_DrawPath(CMap *pcMap);
+	void		NEW_AI_DrawPath();
 #endif
 
 
 
-    //int         getBestWeapon(int nGameType, float fDistance, CVec cTarget, CMap *pcMap);
+    //int         getBestWeapon(int nGameType, float fDistance, CVec cTarget);
     
     
 

@@ -232,8 +232,7 @@ void CWorm::setupLobby(void)
 
 ///////////////////
 // Spawn this worm
-void CWorm::Spawn(CVec position)
-{
+void CWorm::Spawn(CVec position) {
     iAlive = true;
 	fAngle = 0;
     fAngleSpeed = 0;
@@ -255,7 +254,7 @@ void CWorm::Spawn(CVec position)
     iNumWeaponSlots = 5;
 
 	// Reset the weapons
-	for(short n=0;n<iNumWeaponSlots;n++) {
+	for(ushort n = 0; n < iNumWeaponSlots; n++) {
 		tWeapons[n].Charge = 1;
 		tWeapons[n].Reloading = false;
 		tWeapons[n].SlotNum = n;
@@ -263,6 +262,9 @@ void CWorm::Spawn(CVec position)
 	}
 
 	fSpawnTime = tLX->fCurTime;
+
+    if(iType == PRF_COMPUTER)
+		AI_Respawn();
 }
 
 

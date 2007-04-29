@@ -90,12 +90,12 @@ void CFont::CalculateWidth(void)
 
 	Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
 
-	for(n=0;n<Fontstr_len;n++) {
-		a=n*Width;
-		for(j=0;j<bmpFont->h;j++) {
-			for(i=a,b=0;b<Width;i++,b++) {
+	for(n = 0; n < Fontstr_len; n++) {
+		a = n*Width;
+		for(j = 0; j < bmpFont->h; j++) {
+			for(i = a, b = 0; b < Width; i++, b++) {
 
-				pixel = GetPixel(bmpFont,i,j);
+				pixel = GetPixel(bmpFont, i, j);
 				if(pixel == blue) {
 					FontWidth[n] = b;
 					break;
