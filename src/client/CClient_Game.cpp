@@ -84,11 +84,11 @@ void CClient::Simulation(void)
 				if(w->getType() == PRF_HUMAN)
 					w->getInput();
 				else
-					w->AI_GetInput(iGameType, teamgame, iGameType == GMT_TAG, cMap);
+					w->AI_GetInput(iGameType, teamgame, iGameType == GMT_TAG);
             }
 
 			// Simulate the worm
-			w->Simulate(cMap, cRemoteWorms, local, tLX->fDeltaTime);
+			w->Simulate(cRemoteWorms, local, tLX->fDeltaTime);
 
             if(iGameOver)
                 continue;

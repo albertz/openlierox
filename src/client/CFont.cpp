@@ -68,7 +68,7 @@ void AdjustFont(SDL_Surface *bmp,const std::string& fname)
 // Load a font
 int CFont::Load(const std::string& fontname, bool _colour)
 {
-	register short i;
+	register ushort i;
 	for (i=0; i<128; i++)
 		Fontstr[i] = i+32;
 	for (i=128; i<sizeof(Fontstr)/sizeof(short); i++)
@@ -136,7 +136,7 @@ bool CFont::IsColumnFree(int x)
 // Calculate Widths
 void CFont::CalculateWidth(void)
 {
-	int x,n;
+	uint x,n;
 	int cur_w;
 
 	// Lock the surface
@@ -147,13 +147,13 @@ void CFont::CalculateWidth(void)
 
 	n=0;
 	cur_w = 0;
-	for (x=0; x<bmpFont->w; x++)  {
+	for (x=0; (int)x<bmpFont->w; x++)  {
 		if (Fontstr[n] != ' ')
-			while (IsColumnFree(x) && x<bmpFont->w)  // Ignore any free pixel columns before the character (but don't do this for spaces)
+			while (IsColumnFree(x) && (int)x<bmpFont->w)  // Ignore any free pixel columns before the character (but don't do this for spaces)
 				x++;
 
 		// Read until a blue pixel or end of the image
-		while (GetPixel(bmpFont,x,0) != blue && x<bmpFont->w)  {
+		while (GetPixel(bmpFont,x,0) != blue && (int)x<bmpFont->w)  {
 			x++;
 			cur_w++;
 		}

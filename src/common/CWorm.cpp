@@ -215,7 +215,7 @@ void CWorm::Prepare(CMap *pcMap)
 
     // If this is an AI worm, initialize the AI stuff
     if(iType == PRF_COMPUTER)
-        AI_Initialize(pcMap);
+        AI_Initialize();
 }
 
 
@@ -715,7 +715,7 @@ int	LeftMuzzle[14] =  {4,-12, -1,-12, -1,-9, -3,-8, -2,0, -2,4, 1,3};
 
 ///////////////////
 // Draw the worm
-void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
+void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 {
 	static int x,y,f,ang;
 
@@ -938,16 +938,16 @@ void CWorm::Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v)
 
 ///////////////////
 // Draw the worm's shadow
-void CWorm::DrawShadow(SDL_Surface *bmpDest, CMap *map, CViewport *v)
+void CWorm::DrawShadow(SDL_Surface *bmpDest, CViewport *v)
 {
     if( tLXOptions->iShadows && v )
-        map->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
+        pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
 
 ///////////////////
 // Quickly check if we are on the ground
-int CWorm::CheckOnGround(CMap *map)
+int CWorm::CheckOnGround()
 {
 	int px = (int)vPos.x;
 	int py = (int)vPos.y;
@@ -955,9 +955,9 @@ int CWorm::CheckOnGround(CMap *map)
 	for(byte y=6;y>0;y--) {
 
 		// Optimize: pixelflag + Width
-		if(!(map->GetPixelFlag(px-2,py+y) & PX_EMPTY))
+		if(!(pcMap->GetPixelFlag(px-2,py+y) & PX_EMPTY))
 			return true;
-		if(!(map->GetPixelFlag(px+2,py+y) & PX_EMPTY))
+		if(!(pcMap->GetPixelFlag(px+2,py+y) & PX_EMPTY))
 			return true;
 	}
 

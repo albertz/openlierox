@@ -370,8 +370,8 @@ public:
 	int			LoadGraphics(int gametype);
 	void		FreeGraphics(void);
 	SDL_Surface	*ChangeGraphics(const std::string& filename, int team);
-	void		Draw(SDL_Surface *bmpDest, CMap *map, CViewport *v);
-    void        DrawShadow(SDL_Surface *bmpDest, CMap *map, CViewport *v);
+	void		Draw(SDL_Surface *bmpDest, CViewport *v);
+    void        DrawShadow(SDL_Surface *bmpDest, CViewport *v);
 
 
 	//
@@ -393,10 +393,10 @@ public:
 	void		getMouseInput(void);
     void        clearInput(void);
 	void		getGamepadInput(void);
-	void		Simulate(CMap *map, CWorm *worms, int local, float dt);
+	void		Simulate(CWorm *worms, int local, float dt);
 	void		SimulateWeapon( float dt );
-	bool		CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jump );
-    int			CheckOnGround(CMap *map);
+	bool		CheckWormCollision( float dt, CVec pos, CVec *vel, int jump );
+    int			CheckOnGround();
 
 
 	//
@@ -431,7 +431,7 @@ public:
     
     int         AI_FindClearingWeapon();
     bool        AI_Shoot();
-    int         AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, CMap *pcMap, float fTraceDist);
+    int         AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, float fTraceDist);
     void        AI_ReloadWeapons();
     int         cycleWeapons();
 	void		AI_SetGameType(int type)  { iAiGameType = type; }

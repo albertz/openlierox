@@ -257,7 +257,7 @@ void CWorm::clearInput(void)
 
 ///////////////////
 // Simulate the worm
-void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
+void CWorm::Simulate(CWorm *worms, int local, float dt)
 {
 	float speed;
 	CVec dir;
@@ -271,8 +271,8 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 	// If the delta time is too big, divide it and run the simulation twice
 	if( dt > 0.25f ) {
 		dt /= 2;
-		Simulate(map,worms,local,dt);
-		Simulate(map,worms,local,dt);
+		Simulate(worms,local,dt);
+		Simulate(worms,local,dt);
 		return;
 	}
 
@@ -328,7 +328,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 	// Process the ninja rope
 	if(cNinjaRope.isReleased()) {
-		cNinjaRope.Simulate(dt,map,vPos,worms,iID);
+		cNinjaRope.Simulate(dt,pcMap,vPos,worms,iID);
 		vVelocity += cNinjaRope.GetForce(vPos)*dt;
 	}
 
@@ -343,7 +343,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 	// Process the carving
 	if(ws->iCarve) {
-		iDirtCount += CarveHole(map,vPos + dir*4);
+		iDirtCount += CarveHole(pcMap,vPos + dir*4);
 		//cClient->SendCarve(vPos + dir*4);
 	}
 
@@ -368,7 +368,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 	// Process the jump
 	if(ws->iJump) {
-		if(CheckOnGround(map)) {
+		if(CheckOnGround()) {
 			//vVelocity.x=(0);
 			vVelocity.y = wd->JumpForce;
 			iOnGround = false;
@@ -408,7 +408,7 @@ void CWorm::Simulate(CMap *map, CWorm *worms, int local, float dt)
 
 	//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
-	CheckWormCollision( dt, map, vOldPos, &vVelocity, jump );
+	CheckWormCollision( dt, vOldPos, &vVelocity, jump );
 
 	/*iOnGround = false;
 
@@ -561,7 +561,7 @@ void CWorm::SimulateWeapon( float dt )
 ///////////////////
 // Check collisions with the level
 // HINT: it directly manipulates vPos!
-bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int jump )
+bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 {
 	int x,y;
 	static const int maxspeed2 = 20;
@@ -569,8 +569,8 @@ bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int ju
 	// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 	if( (*vel*dt).GetLength2() > maxspeed2) {
 		dt /= 2;
-		if(CheckWormCollision(dt,map,pos,vel,jump)) return true;
-		return CheckWormCollision(dt,map,vPos,vel,jump);
+		if(CheckWormCollision(dt,pos,vel,jump)) return true;
+		return CheckWormCollision(dt,vPos,vel,jump);
 	}
 
 	pos += *vel*dt;
@@ -583,12 +583,12 @@ bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int ju
 	bool coll = false;
 	bool check_needed = false;
 
-	const uchar* gridflags = map->getAbsoluteGridFlags();
-	uint grid_w = map->getGridWidth();
-	uint grid_h = map->getGridHeight();
-	uint grid_cols = map->getGridCols();
-	if(y-4 < 0 || (uint)y+5 > map->GetHeight()-1
-	|| x-3 < 0 || (uint)x+3 > map->GetWidth()-1)
+	const uchar* gridflags = pcMap->getAbsoluteGridFlags();
+	uint grid_w = pcMap->getGridWidth();
+	uint grid_h = pcMap->getGridHeight();
+	uint grid_cols = pcMap->getGridCols();
+	if(y-4 < 0 || (uint)y+5 > pcMap->GetHeight()-1
+	|| x-3 < 0 || (uint)x+3 > pcMap->GetWidth()-1)
 		check_needed = true; // we will check later, what to do here
 	else if(grid_w < 7 || grid_h < 10 // this ensures, that this check is safe
 	|| gridflags[((y-4)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT)
@@ -597,7 +597,7 @@ bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int ju
 	|| gridflags[((y+5)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT))
 		check_needed = true;
 
-	if(check_needed && y >= 0 && (uint)y < map->GetHeight()) {
+	if(check_needed && y >= 0 && (uint)y < pcMap->GetHeight()) {
 		for(x=-3;x<4;x++) {
 			// Optimize: pixelflag++
 
@@ -613,8 +613,8 @@ bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int ju
 			}
 
 			// Right side clipping
-			if(pos.x+x >= map->GetWidth()) {
-				vPos.x=( (float)map->GetWidth() - 5 );
+			if(pos.x+x >= pcMap->GetWidth()) {
+				vPos.x=( (float)pcMap->GetWidth() - 5 );
 				coll = true;
 				if(fabs(vel->x) > 40)
 					vel->x *= -0.4f;
@@ -624,7 +624,7 @@ bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int ju
 			}
 
 
-			if(!(map->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
+			if(!(pcMap->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
 
 				coll = true;
 
@@ -653,7 +653,7 @@ bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int ju
 	int hit = false;
 	x = (int)pos.x;
 
-	if(check_needed && (uint)x < map->GetWidth()) {
+	if(check_needed && (uint)x < pcMap->GetWidth()) {
 		for(y=5;y>-5;y--) {
 			// Optimize: pixelflag + Width
 
@@ -667,8 +667,8 @@ bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int ju
 			}
 
 			// Bottom side clipping
-			if(pos.y+y >= map->GetHeight()) {
-				vPos.y=( (float)map->GetHeight() - 5 );
+			if(pos.y+y >= pcMap->GetHeight()) {
+				vPos.y=( (float)pcMap->GetHeight() - 5 );
 				coll = true;
                 iOnGround = true;
 				if(fabs(vel->y) > 40)
@@ -679,7 +679,7 @@ bool CWorm::CheckWormCollision( float dt, CMap *map, CVec pos, CVec *vel, int ju
 			}
 
 
-			if(!(map->GetPixelFlag(x,(int)pos.y+y) & PX_EMPTY)) {
+			if(!(pcMap->GetPixelFlag(x,(int)pos.y+y) & PX_EMPTY)) {
 				coll = true;
 
                 if(!hit && !jump) {

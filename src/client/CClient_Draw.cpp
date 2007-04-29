@@ -300,7 +300,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
         CWorm *w = cRemoteWorms;
         for(short i=0;i<MAX_WORMS;i++,w++) {
             if(w->isUsed() && w->getAlive())
-                w->DrawShadow(bmpDest, cMap, v);
+                w->DrawShadow(bmpDest, v);
         }
     }
 
@@ -318,7 +318,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	CWorm *w = cRemoteWorms;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed() && w->getAlive())
-			w->Draw(bmpDest, cMap, v);
+			w->Draw(bmpDest, v);
 	}
 
 	// Disable the special clipping
