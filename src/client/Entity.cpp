@@ -137,7 +137,7 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 	if (!iEntityCount)
 		return;
 
-	entity_t *ent = tEntities;
+	register entity_t *ent = tEntities;
 	static CVec end;
 
 	int wx = v->GetWorldX();
@@ -148,9 +148,9 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 	static int x,y;
 	static int x2,y2;
-	register ushort curcount,e;
+	ushort curcount,e;
 		
-	for(e=0,curcount=0;e<MAX_ENTITIES;ent++,e++) {
+	for(e=0,curcount=0; e<MAX_ENTITIES; ent++,e++) {
 		if(ent->bUsed)  {
 			curcount++;
 
@@ -212,9 +212,9 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 				// Jetpack spray
 				case ENT_JETPACKSPRAY:
 					static Uint8 r,g,b;
-					r = (Uint8)(0.314f * (255-ent->fFrame));
-					g = (Uint8)(0.588f * (255-ent->fFrame));
-					b = (Uint8)(0.784f * (255-ent->fFrame));
+					r = (Uint8)((float)MIN(0.314f * (255-ent->fFrame),255.0f));
+					g = (Uint8)((float)MIN(0.588f * (255-ent->fFrame),255.0f));
+					b = (Uint8)((float)MIN(0.784f * (255-ent->fFrame),255.0f));
 					DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,MakeColour(r,g,b));
 					break;
 
@@ -253,9 +253,9 @@ void SimulateEntities(float dt, CMap *map)
 	uint OriginalCount = iEntityCount;
 	uint curcount = 0;
 
-	entity_t *ent = tEntities;
+	register entity_t *ent = tEntities;
 
-	for(register ushort e=0;e<MAX_ENTITIES;e++,ent++) {
+	for(ushort e=0; e<MAX_ENTITIES; e++,ent++) {
 		if(!ent->bUsed)
 			continue;
 
@@ -267,8 +267,7 @@ void SimulateEntities(float dt, CMap *map)
 
 			case ENT_GIB:			
 				ent->iRotation += (int) (ent->fAnglVel * dt);
-				if(ent->iRotation > 4)
-					ent->iRotation = 0;
+				ent->iRotation %= 5;
 			
 			// Fallthrough
 			case ENT_JETPACKSPRAY:
@@ -278,22 +277,18 @@ void SimulateEntities(float dt, CMap *map)
 				ent->vVel.y += 100*dt;//vGravity;
 				ent->vPos += ent->vVel * dt;
 	
-			
-
 				// Clipping
 				if(ent->vPos.x < 0 || ent->vPos.y < 0 ||
-					(int)ent->vPos.x >= (int)map->GetWidth() || (int)ent->vPos.y >= (int)map->GetHeight()) {
+					(uint)ent->vPos.x >= (uint)map->GetWidth() || (uint)ent->vPos.y >= (uint)map->GetHeight()) {
 					ent->bUsed = false;
-					iEntityCount--;
-					continue;
+					break;
 				}
 
 				// Check if the particle has hit the map
 				uchar pf = map->GetPixelFlag((uint)ent->vPos.x,(uint)ent->vPos.y);
 
-				if((pf & PX_ROCK || pf & PX_DIRT)) {
+				if((pf & (PX_ROCK|PX_DIRT))) {
 					ent->bUsed = false;
-					iEntityCount--;
 
 					switch(ent->iType) {
 
@@ -301,6 +296,7 @@ void SimulateEntities(float dt, CMap *map)
 						case ENT_BLOOD:
 							PutPixel(map->GetImage(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
 
+							// TODO: create a wrapper-function for stuff like this
 							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2, (int)ent->vPos.y*2,ent->iColour);
 							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2+1, (int)ent->vPos.y*2,ent->iColour);
 							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2, (int)ent->vPos.y*2+1,ent->iColour);
@@ -312,7 +308,6 @@ void SimulateEntities(float dt, CMap *map)
 							if(ent->vVel.GetLength2() > 25600)  {
 								EntityBounce(ent);
 								ent->bUsed = true; // Still alive
-								iEntityCount++;
 							}
 							else {
 								// Add the gib to the map
@@ -321,14 +316,14 @@ void SimulateEntities(float dt, CMap *map)
 
 								// Clipping
 								// TODO: is it needed here? DrawImage*** should clip it...
-								if(x < 0)
+/*								if(x < 0)
 									x = 0;
 								if(x+4 > (int)map->GetWidth())
 									x = (int)map->GetWidth()-4;
 								if(y < 0)
 									y = 0;
 								if(y+4 > (int)map->GetHeight())
-									y = (int)map->GetHeight()-4;
+									y = (int)map->GetHeight()-4;*/
 
 								DrawImageAdv(map->GetImage(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
 								DrawImageStretch2(map->GetDrawImage(),map->GetImage(),x,y,x*2,y*2,4,4);
@@ -346,10 +341,7 @@ void SimulateEntities(float dt, CMap *map)
 			// Explosion
 			case ENT_EXPLOSION:
 				ent->fFrame += dt*40;
-				if(ent->fFrame > 15)  {
-					ent->bUsed = false;
-					iEntityCount--;
-				}
+				if(ent->fFrame > 15) ent->bUsed = false;
 				break;
 
 			// Smoke
@@ -357,56 +349,38 @@ void SimulateEntities(float dt, CMap *map)
 				// Fallthrough
 			case ENT_CHEMSMOKE:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 4)  {
-					ent->bUsed = false;
-					iEntityCount--;
-				}
+				if((int)ent->fFrame > 4) ent->bUsed = false;
 				break;
 
 			// Doomsday
 			case ENT_DOOMSDAY:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 3)  {
-					ent->bUsed = false;
-					iEntityCount--;
-				}
+				if((int)ent->fFrame > 3) ent->bUsed = false;
 				break;
 
 			// Spawn
 			case ENT_SPAWN:
 				ent->fFrame += dt*15;
-				if((int)ent->fFrame > 5)  {
-					ent->bUsed = false;
-					iEntityCount--;
-				}
+				if((int)ent->fFrame > 5) ent->bUsed = false;
 				break;
 
 			// Sparkle
 			case ENT_SPARKLE:
 				ent->vPos = ent->vPos + CVec(0,5.0f*dt);
 				ent->fFrame += dt*5;
-				if((int)ent->fFrame > 2)  {
-					ent->bUsed = false;
-					iEntityCount--;
-				}
+				if((int)ent->fFrame > 2) ent->bUsed = false;
 				break;
 
 			// Jetpack Spray
 			case ENT_JETPACKSPRAY:
 				ent->fFrame += dt*200;
-				if((int)ent->fFrame > 150)  {
-					ent->bUsed = false;
-					iEntityCount--;
-				}
+				if((int)ent->fFrame > 150) ent->bUsed = false;
 				break;
 
 			// Beam & Laser Sight
 			case ENT_BEAM:
 			case ENT_LASERSIGHT:
-				if((int)ent->fFrame == 1)  {
-					ent->bUsed = false;
-					iEntityCount--;
-				}
+				if((int)ent->fFrame == 1) ent->bUsed = false;
 				ent->fFrame++;
 				break;
 
@@ -421,6 +395,8 @@ void SimulateEntities(float dt, CMap *map)
 				ent->fExtra += dt;
 				break;
 		}
+
+		if(!ent->bUsed) iEntityCount--;
 
 		// All used entities already simulated, no need to check the rest
 		if (curcount >= OriginalCount)
