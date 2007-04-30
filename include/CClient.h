@@ -113,6 +113,8 @@ public:
 
 		iMuted = false;
 
+		for(ushort i=0; i<4; i++)
+			iTeamScores[i] = 0;
 	}
 
 

@@ -208,6 +208,8 @@ void CWorm::Prepare(CMap *pcMap)
 {
 	assert(cGameScript);
 
+	this->pcMap = pcMap;
+
 	// Setup the rope
 	cNinjaRope.Setup(cGameScript);
 

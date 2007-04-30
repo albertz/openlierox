@@ -634,6 +634,12 @@ private:
 
 			// start the main search
 			ret = base->findPath(base->start);
+			
+			// finishing the result
+			base->completeNodesInfo(ret);
+			base->simplifyPath(ret);
+			base->splitUpNodes(ret, NULL);
+			base->resulted_path = ret;
 
 			if(base->shouldRestartThread()) {
 				base->lock();
@@ -644,12 +650,7 @@ private:
 				continue;
 			}
 
-			base->completeNodesInfo(ret);
-			base->simplifyPath(ret);
-			base->splitUpNodes(ret, NULL);
-
 			// we are ready now
-			base->resulted_path = ret;
 			base->setReady(true);
 		}
 	}
@@ -1038,7 +1039,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 	float	fSightDistance = -1;
 
 	int NumTeams = 0;
-	int i;
+	uint i;
 	for (i=0; i<4; i++)
 		if (cClient->getTeamScore(i) > -1)
 			NumTeams++;
@@ -1049,6 +1050,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 	//
 
 	for(i=0; i<MAX_WORMS; i++, w++) {
+		if(w == NULL) break;
 
 		// Don't bother about unused or dead worms
 		if(!w->isUsed() || !w->getAlive())
@@ -1139,8 +1141,8 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
         // We have an unfriendly target, so change to a 'move-to-target' state
         nAITargetType = AIT_WORM;
         nAIState = AI_MOVINGTOTARGET;
-        //AI_InitMoveToTarget(pcMap);
-		NEW_AI_CreatePath(pcMap);
+        //AI_InitMoveToTarget();
+		NEW_AI_CreatePath();
         return;
     }
 	else
@@ -1194,8 +1196,8 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 		cPosTarget = CVec((float)(x*pcMap->getGridWidth()+(pcMap->getGridWidth()/2)), (float)(y*pcMap->getGridHeight()+(pcMap->getGridHeight()/2)));
 		nAITargetType = AIT_POSITION;
 		nAIState = AI_MOVINGTOTARGET;
-		//AI_InitMoveToTarget(pcMap);
-		NEW_AI_CreatePath(pcMap);
+		//AI_InitMoveToTarget();
+		NEW_AI_CreatePath();
 		break;
     }
 }
@@ -1237,7 +1239,7 @@ bool CWorm::AI_FindHealth()
         psBonusTarget = pcBonus;
         nAITargetType = AIT_BONUS;
         nAIState = AI_MOVINGTOTARGET;
-		NEW_AI_CreatePath(pcMap);
+		NEW_AI_CreatePath();
 		return true;
     }
 
@@ -3480,7 +3482,14 @@ int CWorm::NEW_AI_CreatePath(bool force_break)
 
 	CVec trg = AI_GetTargetPos();
 
-	if(!force_break && !bPathFinished) {
+	if(force_break) {
+		fSearchStartTime = tLX->fCurTime;
+		((searchpath_base*)pathSearcher)->restartThreadSearch(vPos, trg);
+		
+		return false;
+	}
+
+	if(!bPathFinished) {
 		// have we finished a current search?
 		if(((searchpath_base*)pathSearcher)->isReady()) {
 
@@ -3514,7 +3523,7 @@ int CWorm::NEW_AI_CreatePath(bool force_break)
 		} else { // the searcher is still searching ...
 
 			// restart search in some cases
-			if(force_break || (!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->fCurTime - fSearchStartTime >= 5.0f || !traceWormLine(vPos, ((searchpath_base*)pathSearcher)->start, pcMap) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target, pcMap)))) {
+			if(!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->fCurTime - fSearchStartTime >= 5.0f || !traceWormLine(vPos, ((searchpath_base*)pathSearcher)->start, pcMap) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target, pcMap))) {
 				fSearchStartTime = tLX->fCurTime;
 				((searchpath_base*)pathSearcher)->restartThreadSearch(vPos, trg);
 			}
@@ -4523,7 +4532,7 @@ void CWorm::NEW_AI_MoveToTarget()
 				fLastFace = tLX->fCurTime;
 			}
 
-            fAngle -= cGameScript->getWorm()->AngleSpeed*tLX->fDeltaTime;
+            fAngle -= cGameScript->getWorm()->AngleSpeed * tLX->fDeltaTime;
             // Clamp the angle
 	        fAngle = MIN((float)60,fAngle);
 	        fAngle = MAX((float)-90,fAngle);
@@ -4538,7 +4547,7 @@ void CWorm::NEW_AI_MoveToTarget()
 
             // Recalculate the path
             // TODO: should we do this in a more general way somewhere other?
-            NEW_AI_CreatePath(pcMap);
+            NEW_AI_CreatePath();
 
             if(!NEW_psCurrentNode || !NEW_psPath)
             	return;
@@ -4690,7 +4699,7 @@ void CWorm::NEW_AI_MoveToTargetDC()
 
     // Re-calculate the path?
     if(recalculate)  {
-        NEW_AI_CreatePath(pcMap);
+        NEW_AI_CreatePath();
 		return; // Quit
 	}
 
