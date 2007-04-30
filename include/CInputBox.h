@@ -35,7 +35,7 @@ enum {
 class CInputbox : public CWidget {
 public:
 	// Constructor
-	CInputbox(int val, const tString& _text, SDL_Surface *img, const tString& name) {
+	CInputbox(int val, const std::string& _text, SDL_Surface *img, const std::string& name) {
 		iKeyvalue = val;
 		sText = _text;
 		sName = name;
@@ -50,10 +50,10 @@ private:
 	// Attributes
 
 	int			iKeyvalue;
-	tString	sText;
+	std::string	sText;
 	SDL_Surface	*bmpImage;
 	int			iMouseOver;
-	tString	sName;
+	std::string	sName;
 
 
 public:
@@ -82,8 +82,8 @@ public:
 				return 0;
 			}
 
-	DWORD SendMessage(int iMsg, const tString& sStr, DWORD Param) { return 0; }
-	DWORD SendMessage(int iMsg, tString *sStr, DWORD Param)  {
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  {
 		if (iMsg == INS_GETTEXT)  {
 			*sStr = sText;
 		}
@@ -98,9 +98,9 @@ public:
 
 	inline int		getValue(void)						{ return iKeyvalue; }
 	inline void	setValue(int _v)					{ iKeyvalue = _v; }
-	inline tString	getText(void)				{ return sText; }
-	inline void	setText(const tString& _t)		{ sText = _t; }
-	inline tString	getName(void)				{ return sName; }
+	inline std::string	getText(void)				{ return sText; }
+	inline void	setText(const std::string& _t)		{ sText = _t; }
+	inline std::string	getName(void)				{ return sName; }
 
 };
 

@@ -64,7 +64,7 @@ class mouse_t { public:
 
 
 // Routines
-int			InitializeAuxLib(const tString& gname, const tString& config, int bpp, int vidflags);
+int			InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags);
 void		ShutdownAuxLib(void);
 int			SetVideoMode(void);
 
@@ -78,12 +78,12 @@ keyboard_t	*GetKeyboard(void);
 mouse_t		*GetMouse(void);
 SDL_Event	*GetEvent(void);
 
-tString	GetGameName(void);
+std::string	GetGameName(void);
 
-tString GetConfigFile(void);
+std::string GetConfigFile(void);
 
-tString GetClipboardText();
-int         SetClipboardText(const tString& szText);
+std::string GetClipboardText();
+int         SetClipboardText(const std::string& szText);
 void        TakeScreenshot(bool Tournament);
 
 // Subclass

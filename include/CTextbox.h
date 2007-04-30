@@ -68,7 +68,7 @@ public:
 private:
 	// Attributes
 
-	tString	sText;
+	std::string	sText;
 
 	int		iScrollPos;
 	int		iCurpos;
@@ -76,7 +76,7 @@ private:
 	int		iFlags;
 	int		iSelLength;
 	int		iSelStart;
-	tString	sSelectedText;
+	std::string	sSelectedText;
 
 	int		iMax;
 
@@ -115,15 +115,15 @@ public:
 	void	LoadStyle(void) {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const tString& sStr, DWORD Param);
-	DWORD SendMessage(int iMsg, tString *sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
 	void	Backspace(void);
 	void	Delete(void);
 	void	Insert(char c);
 
-	tString	getText(void)						{ return sText; }
-	void	setText(const tString& buf);
+	std::string	getText(void)						{ return sText; }
+	void	setText(const std::string& buf);
 
     void    PasteText(void);
 	void	CopyText(void);

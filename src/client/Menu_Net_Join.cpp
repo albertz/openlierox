@@ -37,12 +37,12 @@ enum {
 };
 
 int		iJoinMenu = join_connecting;
-tString	sJoinAddress;
+std::string	sJoinAddress;
 
 
 ///////////////////
 // Join a server
-int Menu_Net_JoinInitialize(const tString& sAddress)
+int Menu_Net_JoinInitialize(const std::string& sAddress)
 {
 	iNetMode = net_join;
 	iJoinMenu = join_connecting;
@@ -107,7 +107,7 @@ enum {
 
 ///////////////////
 // Initialize the connection menu
-int Menu_Net_JoinConnectionInitialize(const tString& sAddress)
+int Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 {
 	iJoinMenu = join_connecting;
 	tGameInfo.iGameType = GME_JOIN;
@@ -353,9 +353,9 @@ void Menu_Net_JoinGotoLobby(void)
 
 //////////////////////
 // Get the content of the chatbox
-tString Menu_Net_JoinLobbyGetText(void)
+std::string Menu_Net_JoinLobbyGetText(void)
 {
-	static tString buf;
+	static std::string buf;
 	cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 256);
 	return buf;
 }
@@ -545,7 +545,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         int x2 = x+105;
         y = 15;
 
-		const tString gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
+		const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
 
         tGameInfo.sMapname = gl->szMapName;
         tGameInfo.sModName = gl->szModName;
@@ -658,7 +658,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					// Send the msg to the server
 
 					// Get the text
-					static tString buf;
+					static std::string buf;
 					cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 0);
 
                     // Don't send empty messages
@@ -669,7 +669,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, "",0);
 
 					// Get name
-					tString text;
+					std::string text;
 					CWorm *rw = cClient->getRemoteWorms() + iJoinSpeaking;
 					if(!strincludes(buf,"/me"))
 						text = rw->getName() + ": " + buf;

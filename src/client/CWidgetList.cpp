@@ -25,7 +25,7 @@
 //////////////////
 // Adds a new item to the widget ID list
 // Returns the id of added item
-int CWidgetList::Add(const tString& Name)
+int CWidgetList::Add(const std::string& Name)
 {
 	if (Name == "")
 		return -1;
@@ -67,7 +67,7 @@ int CWidgetList::Add(const tString& Name)
 
 ////////////////
 // Get the name of widget by it's ID
-tString CWidgetList::getName(int ID)
+std::string CWidgetList::getName(int ID)
 {
 	// The list is empty
 	if (!tItems)
@@ -87,7 +87,7 @@ tString CWidgetList::getName(int ID)
 
 ////////////////
 // Get the ID of widget by it's name
-int	CWidgetList::getID(const tString& Name)
+int	CWidgetList::getID(const std::string& Name)
 {
 	// The list is empty
 	if (!tItems)

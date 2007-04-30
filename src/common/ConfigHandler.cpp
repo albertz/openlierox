@@ -28,7 +28,7 @@ keyword_t	Keywords[MAX_KEYWORDS];
 
 ///////////////////
 // Add a keyword to the list
-int AddKeyword(const tString& key, int value)
+int AddKeyword(const std::string& key, int value)
 {
 	// Check for enough spaces
 	if(NumKeywords >= MAX_KEYWORDS-1)
@@ -44,10 +44,10 @@ int AddKeyword(const tString& key, int value)
 
 ///////////////////
 // Read a keyword from a file
-int ReadKeyword(const tString& filename, const tString& section, const tString& key, int *value, int defaultv)
+int ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
 	int n;
-	static tString string;
+	static std::string string;
 
 	*value = defaultv;
 
@@ -67,10 +67,10 @@ int ReadKeyword(const tString& filename, const tString& section, const tString& 
 
 ///////////////////
 // Read a keyword from a file (bool version)
-bool ReadKeyword(const tString& filename, const tString& section, const tString& key, bool *value, bool defaultv)
+bool ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv)
 {
 	int n;
-	static tString string;
+	static std::string string;
 
 	*value = defaultv;
 
@@ -91,9 +91,9 @@ bool ReadKeyword(const tString& filename, const tString& section, const tString&
 
 ///////////////////
 // Read an interger from a file
-int ReadInteger(const tString& filename, const tString& section, const tString& key, int *value, int defaultv)
+int ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
-	static tString string;
+	static std::string string;
 
 	*value = defaultv;
 
@@ -108,7 +108,7 @@ int ReadInteger(const tString& filename, const tString& section, const tString& 
 
 ///////////////////
 // Read a string from a file
-int ReadString(const tString& filename, const tString& section, const tString& key, tString& value, const tString& defaultv)
+int ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv)
 {
 	value = defaultv;
 
@@ -125,9 +125,9 @@ int ReadString(const tString& filename, const tString& section, const tString& k
 
 ///////////////////
 // Read a float from a file
-int ReadFloat(const tString& filename, const tString& section, const tString& key, float *value, float defaultv)
+int ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv)
 {
-	static tString string;
+	static std::string string;
 
 	*value = defaultv;
 
@@ -142,9 +142,9 @@ int ReadFloat(const tString& filename, const tString& section, const tString& ke
 
 //////////////////
 // Read a colour
-int ReadColour(const tString& filename, const tString& section, const tString& key, Uint32 *value, Uint32 defaultv)
+int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Uint32 *value, Uint32 defaultv)
 {
-	static tString string;
+	static std::string string;
 
 	*value = defaultv;
 
@@ -159,14 +159,14 @@ int ReadColour(const tString& filename, const tString& section, const tString& k
 
 //////////////////
 // Reads an array of integers
-int ReadIntArray(const tString& filename, const tString& section, const tString& key, int *array, int num_items)
+int ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items)
 {
-	tString string;
+	std::string string;
 
 	if (!GetString(filename,section,key,string))
 		return false;
 
-	const std::vector<tString>& arr = explode(string,",");
+	const std::vector<std::string>& arr = explode(string,",");
 	for (register unsigned int i=0; i<MIN(num_items,arr.size()); i++)
 		array[i] = from_string<int>(arr[i]);
 
@@ -177,14 +177,14 @@ int ReadIntArray(const tString& filename, const tString& section, const tString&
 
 ///////////////////
 // Read a string
-int GetString(const tString& filename, const tString& section, const tString& key, tString& string)
+int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string)
 {
 	FILE	*config;
-	static tString	Line;
-	static tString	tmpLine;
-	static tString	curSection;
-	static tString	temp;
-	static tString	curKey;
+	static std::string	Line;
+	static std::string	tmpLine;
+	static std::string	curSection;
+	static std::string	temp;
+	static std::string	curKey;
 	size_t	chardest = 0;
 	int		Position;
 	int		found = false;
@@ -225,7 +225,7 @@ int GetString(const tString& filename, const tString& section, const tString& ke
 		////////
 		// Keys
 		chardest = Line.find('=');
-		if(chardest != tString::npos)
+		if(chardest != std::string::npos)
 		{
 			// Key
 			Position = chardest;

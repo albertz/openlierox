@@ -45,16 +45,16 @@ bool GameOptions::LoadFromDisc()
 {
 	printf("Loading options... \n");
 
-    static const tString    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    static const tString    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
-    static const tString    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
-    static const tString    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "MediaPlayer"};
-    static const tString    gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5", "F3"};
+    static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    static const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
+    static const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
+    static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "MediaPlayer"};
+    static const std::string    gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5", "F3"};
 	static const int	 def_widths[] = {32,180,70,80,60,150};
 
     unsigned int     i;
 
-	static const tString f = "cfg/options.cfg";
+	static const std::string f = "cfg/options.cfg";
 
 	AddKeyword("true",true);
 	AddKeyword("false",false);
@@ -62,8 +62,8 @@ bool GameOptions::LoadFromDisc()
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
 	InitBaseSearchPaths();
-	tString value;
-	tString item;
+	std::string value;
+	std::string item;
 	i = 1;
 	while(true) {
 		item = "SearchPath"; item += itoa(i,10);
@@ -113,7 +113,7 @@ bool GameOptions::LoadFromDisc()
 
     // Player controls
     int j;
-    tString def;
+    std::string def;
     i = 0; j = 1;
     while(true) {
         item = "Ply"; item += itoa(j); item += "Controls";
@@ -217,8 +217,8 @@ void ShutdownOptions(void)
 // Save the options
 void GameOptions::SaveToDisc()
 {
-    static const tString    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    static const tString    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "MediaPlayer"};
+    static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "MediaPlayer"};
     int     i;
 
     FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
@@ -356,7 +356,7 @@ bool NetworkTexts::LoadFromDisc()
 {
 	printf("Loading network texts... ");
 	
-	const tString f = "cfg/network.txt";
+	const std::string f = "cfg/network.txt";
 	ReadString (f, "NetworkTexts", "HasConnected",    sHasConnected,	"<player> has connected");
 	ReadString (f, "NetworkTexts", "HasLeft",	      sHasLeft,		"<player> has left");
 	ReadString (f, "NetworkTexts", "HasTimedOut",     sHasTimedOut,	"<player> has timed out");

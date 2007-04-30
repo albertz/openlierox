@@ -44,7 +44,7 @@ enum {
 
 // Chatbox line
 class chat_line_t { public:
-	tString	sText;
+	std::string	sText;
 	float	fTime;
 	float	fScroll;
 	int		iType;
@@ -151,7 +151,7 @@ private:
 	int			iTimeLimit;
 	int			iTagLimit;
 	float		fLoadingTime;
-	tString	sModName;
+	std::string	sModName;
 	int			iBonusesOn;
 	int			iShowBonusName;
     CWpnRest    cWeaponRestrictions;
@@ -192,7 +192,7 @@ private:
 	unsigned int	iChat_Pos;
 	float		fChat_TimePushed;
 	CInput		cChat_Input;
-	tString	sChat_Text;
+	std::string	sChat_Text;
 	float		fChat_BlinkTime;
 	int			iChat_CursorVisible;
 
@@ -215,7 +215,7 @@ private:
 	float		fServerTime;
 	int			iNetSpeed;
 	int			iNetStatus;
-	tString	strServerAddr;
+	std::string	strServerAddr;
 	int			iNumConnects;
 	float		fConnectTime;
 	int			iChallenge;
@@ -228,7 +228,7 @@ private:
     float       fZombieTime;
 	float		fSendWait;
 	float		fLastUpdateSent;
-	tString	szServerName;
+	std::string	szServerName;
 
 	// Ping
 	ping_t		tPing;
@@ -248,16 +248,16 @@ private:
 	game_lobby_t tGameLobby;
 
 	int			iBadConnection;
-	tString	strBadConnectMsg;
+	std::string	strBadConnectMsg;
 
 	int			iServerError;
-	tString	strServerErrorMsg;
+	std::string	strServerErrorMsg;
 
     int         iClientError;
 
 	// Logging variables
     bool		bInServer;
-	tString	cIConnectedBuf;
+	std::string	cIConnectedBuf;
 
 
 
@@ -333,12 +333,12 @@ public:
 	void		SimulateHud(void);
 
 	// Network
-	void		Connect(const tString& address);
+	void		Connect(const std::string& address);
 	void		Connecting(void);
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	void		SendDeath(int victim, int killer);
-	void		SendText(const tString& sText);
+	void		SendText(const std::string& sText);
 	void		Disconnect(void);
 	int			OwnsWorm(CWorm *w);
 
@@ -398,10 +398,10 @@ public:
 	game_lobby_t *getGameLobby(void)		{ return &tGameLobby; }
 
 	int			getBadConnection(void)		{ return iBadConnection; }
-	inline tString	getBadConnectionMsg(void)	{ return strBadConnectMsg; }
+	inline std::string	getBadConnectionMsg(void)	{ return strBadConnectMsg; }
 
 	int			getServerError(void)		{ return iServerError; }
-	inline tString	getServerErrorMsg(void)	{ return strServerErrorMsg; }
+	inline std::string	getServerErrorMsg(void)	{ return strServerErrorMsg; }
 
     int         getClientError(void)        { return iClientError; }
 
@@ -437,11 +437,11 @@ public:
 	inline int	getPing(void)				{ return iPing; }
 	inline void	setPing(int Ping)			{ iPing = Ping; }
 
-	inline void	setServerAddress(const tString& _a)	{ strServerAddr = _a; }
-	inline tString getServerAddress(void)		{ return strServerAddr; }
+	inline void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
+	inline std::string getServerAddress(void)		{ return strServerAddr; }
 
-	inline void setServerName(const tString& _n)		{ szServerName = _n; }
-	inline tString getServerName(void)		{ return szServerName; }
+	inline void setServerName(const std::string& _n)		{ szServerName = _n; }
+	inline std::string getServerName(void)		{ return szServerName; }
 
 };
 

@@ -1,6 +1,6 @@
 /*sex.cpp*/
 
-// TODO: let it use tString
+// TODO: let it use std::string
 
 /* Original author unknown.  Presumably this is public domain by now.
  * If you are the original author or know the original author, please
@@ -14,7 +14,7 @@
 
 #include "defs.h"
 
-static tChar     *faster[] = {
+static char     *faster[] = {
   "\"Let the games begin!\"",             "\"Sweet Jesus!\"",
   "\"Not that!\"",                        "\"At last!\"",
   "\"Land o' Goshen!\"",                  "\"Is that all?\"",
@@ -33,7 +33,7 @@ static tChar     *faster[] = {
   "\"The animals will hear!\"",           "\"Not in public!\"",
 };
 
-static tChar     *said[] = {
+static char     *said[] = {
         "bellowed",             "yelped",               "croaked",
         "growled",              "panted",               "moaned",
         "grunted",              "laughed",              "warbled",
@@ -44,11 +44,11 @@ static tChar     *said[] = {
         "said",
 };
 
-static tChar     *the[] = {
+static char     *the[] = {
         "the",
 };
 
-static tChar     *fadj[] = {
+static char     *fadj[] = {
         "saucy",                "wanton",               "unfortunate",
         "lust-crazed",          "nine-year-old",        "bull-dyke",
         "bisexual",             "gorgeous",             "sweet",
@@ -61,7 +61,7 @@ static tChar     *fadj[] = {
 };
 
 
-static tChar     *female[] = {
+static char     *female[] = {
    "baggage",              "hussy",                "woman",
    "Duchess",              "female impersonator",  "nymphomaniac",
    "virgin",               "leather freak",        "home-coming queen",
@@ -75,11 +75,11 @@ static tChar     *female[] = {
    "housewife",
 };
 
-static tChar     *asthe[] = {
+static char     *asthe[] = {
         "as the",
 };
 
-static tChar     *madjec[] = {
+static char     *madjec[] = {
    "thrashing",            "slurping",             "insatiable",
    "rabid",                "satanic",              "corpulent",
    "nose-grooming",        "tripe-fondling",       "dribbling",
@@ -91,7 +91,7 @@ static tChar     *madjec[] = {
    "clam shucking",        "egg-sucking",          "bicycle seat sniffing",
 };
 
-static tChar     *male[] = {
+static char     *male[] = {
    "rakehell",             "hunchback",            "lecherous lickspittle",
    "archduke",             "midget",               "hired hand",
    "great Dane",           "stallion",             "donkey",
@@ -103,7 +103,7 @@ static tChar     *male[] = {
    "dentist",              "judge",                "social worker",
 };
 
-static tChar     *diddled[] = {
+static char     *diddled[] = {
    "diddled",              "devoured",             "fondled",
    "mouthed",              "tongued",              "lashed",
    "tweaked",              "violated",             "defiled",
@@ -117,7 +117,7 @@ char *her[] = {
         "her",
 };
 
-static tChar     *titadj[] = {
+static char     *titadj[] = {
         "alabaster",            "pink-tipped",          "creamy",
         "rosebud",              "moist",                "throbbing",
         "juicy",                "heaving",              "straining",
@@ -128,7 +128,7 @@ static tChar     *titadj[] = {
         "pendulous",            "muscular",             "bovine",
 };
 
-static tChar     *knockers[] = {
+static char     *knockers[] = {
         "globes",               "melons",               "mounds",
         "buds",                 "paps",                 "chubbies",
         "protuberances",        "treasures",            "buns",
@@ -145,7 +145,7 @@ char *_and[] = {
         "and",
 };
 
-static tChar     *thrust[] = {
+static char     *thrust[] = {
         "plunged",              "thrust",               "squeezed",
         "pounded",              "drove",                "eased",
         "slid",                 "hammered",             "squished",
@@ -155,11 +155,11 @@ static tChar     *thrust[] = {
         "ripped",               "forced",               "wrenched",
 };
 
-static tChar     *his[] = {
+static char     *his[] = {
         "his",
 };
 
-static tChar     *dongadj[] = {
+static char     *dongadj[] = {
         "bursting",             "jutting",              "glistening",
         "Brobdingnagian",       "prodigious",           "purple",
         "searing",              "swollen",              "rigid",
@@ -174,7 +174,7 @@ static tChar     *dongadj[] = {
         "swelling",             "miniscule",            "boney",
 };
 
-static tChar     *dong[] = {
+static char     *dong[] = {
    "intruder",             "prong",                "stump",
    "member",               "meat loaf",            "majesty",
    "bowsprit",             "earthmover",           "jackhammer",
@@ -190,11 +190,11 @@ static tChar     *dong[] = {
    "stick shift",          "dong",                 "Linda Lovelace choker",
 };
 
-static tChar     *intoher[] = {
+static char     *intoher[] = {
         "into her",
 };
 
-static tChar     *twatadj[] = {
+static char     *twatadj[] = {
         "pulsing",              "hungry",               "hymeneal",
         "palpitating",          "gaping",               "slavering",
         "welcoming",            "glutted",              "gobbling",
@@ -208,7 +208,7 @@ static tChar     *twatadj[] = {
         "grateful",             "festering",
 };
 
-static tChar     *twat[] = {
+static char     *twat[] = {
         "swamp.",               "honeypot.",            "jam jar.",
         "butterbox.",           "furburger.",           "cherry pie.",
         "cush.",                "slot.",                "slit.",
@@ -247,7 +247,7 @@ TABLE   list[] = {
 static short    lwidth;
 
 const char* sex(short wraplen) {
-	static tChar sextmp[2048];
+	static char sextmp[2048];
    register TABLE  *ttp;
    register char   *cp;
    char* buffer = sextmp;

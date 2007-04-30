@@ -558,7 +558,7 @@ void GameServer::RecheckGame(void)
 
 		if (!iGameOver)  {
 
-			//static tChar buf[256];
+			//static char buf[256];
 			bool EndGame = false;
 
 			//
@@ -566,7 +566,7 @@ void GameServer::RecheckGame(void)
 			//
 			switch (iGameType)  {
 			case  GMT_TEAMDEATH:  {
-				const tString TeamNames[] = {"blue", "red", "green", "yellow"};
+				const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
 				int TeamCount[4];
 
 				w = cWorms;

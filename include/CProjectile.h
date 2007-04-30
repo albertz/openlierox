@@ -40,7 +40,7 @@
 
 // Projectile structure
 class proj_t { public:
-	tString	filename;		// Compiler use (was 64b before)
+	std::string	filename;		// Compiler use (was 64b before)
 	int		id;					// File ref use
 
 	int		Type;
@@ -48,7 +48,7 @@ class proj_t { public:
 	int		NumColours;
 	int		Colour1[3];
 	int		Colour2[3];
-	tString	ImgFilename; // (was 64b before)
+	std::string	ImgFilename; // (was 64b before)
 	int		Rotating;
 	int		RotIncrement;
 	int		RotSpeed;
@@ -76,7 +76,7 @@ class proj_t { public:
 	int		Hit_Projectiles;
 	int		Hit_UseSound;
 	int		Hit_Shake;
-	tString	Hit_SndFilename; // (was 64b before)
+	std::string	Hit_SndFilename; // (was 64b before)
 	float	Hit_BounceCoeff;
 	int		Hit_BounceExplode;
 
@@ -85,7 +85,7 @@ class proj_t { public:
 	int		Exp_Damage;
 	int		Exp_Projectiles;
 	int		Exp_UseSound;
-    tString	Exp_SndFilename; // (was 64b before)
+    std::string	Exp_SndFilename; // (was 64b before)
 	int		Exp_Shake;
 
 
@@ -94,7 +94,7 @@ class proj_t { public:
 	int		Tch_Damage;
 	int		Tch_Projectiles;
 	int		Tch_UseSound;
-    tString	Tch_SndFilename; // (was 64b before)
+    std::string	Tch_SndFilename; // (was 64b before)
 	int		Tch_Shake;
 
 

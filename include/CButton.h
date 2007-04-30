@@ -47,7 +47,7 @@ public:
 		bFreeSurface = false;
 	}
 
-	CButton(const tString& path) {
+	CButton(const std::string& path) {
 		iImageID = 0;
 		bmpImage = LoadImage(path);
 		iMouseOver = false;
@@ -84,8 +84,8 @@ public:
 	int		KeyUp(int c)						{ return BTN_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
-	DWORD SendMessage(int iMsg, const tString& sStr, DWORD Param) { return 0; }
-	DWORD SendMessage(int iMsg, tString *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	inline void	setRedrawMenu(bool _r)  { bRedrawMenu = _r; }
 	inline bool	getRedrawMenu(void)	 { return bRedrawMenu; }

@@ -27,7 +27,7 @@
 // Parse a connectionless packet
 void CClient::ParseConnectionlessPacket(CBytestream *bs)
 {
-	static tString cmd;
+	static std::string cmd;
 
 	cmd = bs->readString(128);
 
@@ -369,7 +369,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	} else {
 
 		// Load the map from a file
-		static tString buf;
+		static std::string buf;
 		buf = bs->readString();
 
 		// Invalid packet
@@ -384,8 +384,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 				// Show a cannot load level error message
 
 				SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
-				tString err;
-				err = tString("Could not load the level'") + buf + "'\n" + LxGetLastError();
+				std::string err;
+				err = std::string("Could not load the level'") + buf + "'\n" + LxGetLastError();
 
 				Menu_MessageBox("Loading Error",err, LMB_OK);
                 iClientError = true;
@@ -437,7 +437,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		// Show any error messages
 		//SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
 		DrawRectFill(tMenu->bmpBuffer,0,0,tMenu->bmpBuffer->w,tMenu->bmpBuffer->h,0);
-		tString err("Error load game mod: ");
+		std::string err("Error load game mod: ");
 		err += sModName + "\r\nError code: " + itoa(result);
 		Menu_MessageBox("Loading Error",err, LMB_OK);
         iClientError = true;
@@ -661,7 +661,7 @@ void CClient::ParseText(CBytestream *bs)
 		case TXT_NETWORK:	col = tLX->clNetworkText;	break;
 	}
 
-	static tString buf;
+	static std::string buf;
 	buf = bs->readString();
 
 	// If we are playing a local game, discard network messages
@@ -869,7 +869,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 		return;
 	}
 
-	static tString HostName;
+	static std::string HostName;
 
 	byte id;
 	CWorm *w;
@@ -909,7 +909,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 			return;
 		fputs("  <server hostname=\"",f);
 		fputs(HostName.c_str(),f);
-		static tString cTime = GetTime();
+		static std::string cTime = GetTime();
 		fprintf(f,"\" jointime=\"%s\">\r\n",cTime.c_str());
 		if(cIConnectedBuf != "")  {
 			fputs("    <message type=\"NETWORK\" text=\"",f);
@@ -1033,7 +1033,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 	// Convert the map filename to map name
 	if (gl->bHaveMap)  {
-		tString MapName = Menu_GetLevelName(gl->szMapName);
+		std::string MapName = Menu_GetLevelName(gl->szMapName);
 		gl->szDecodedMapName = (MapName != "") ? MapName : gl->szMapName;
 	}
 

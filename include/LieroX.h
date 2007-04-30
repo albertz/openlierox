@@ -117,7 +117,7 @@ class lierox_t { public:
 	Uint32			clWhite;
 
 
-	tString	debug_string;
+	std::string	debug_string;
 };
 
 
@@ -134,14 +134,14 @@ enum {
 class game_t { public:
 	int			iGameType;		// Local, remote, etc
 	int			iGameMode;		// DM, team DM, etc
-	tString		sModName;
-	tString		sMapname;
-    tString        sPassword;
-	tString		sModDir;
+	std::string		sModName;
+	std::string		sMapname;
+    std::string        sPassword;
+	std::string		sModDir;
     maprandom_t sMapRandom;
 	int			iLoadingTimes;
-	tString		sServername;
-	tString		sWelcomeMessage;
+	std::string		sServername;
+	std::string		sWelcomeMessage;
 	bool		bRegServer;
 	bool		bTournament;
 
@@ -167,10 +167,10 @@ class game_lobby_t { public:
 	int		nMaxKills;
 	int		nLoadingTime;
 	int		nBonuses;
-	tString	szMapName;
-	tString	szDecodedMapName;
-	tString	szModName;
-	tString	szModDir;
+	std::string	szMapName;
+	std::string	szDecodedMapName;
+	std::string	szModName;
+	std::string	szModDir;
 	bool	bHaveMap;
 	bool	bHaveMod;
 	bool	bTournament;
@@ -187,7 +187,7 @@ extern	CInput			cToggleMediaPlayer;
 extern  int				nDisableSound;
 extern	bool			bActivated;
 
-extern	tString		binary_dir;
+extern	std::string		binary_dir;
 
 
 // Main Routines
@@ -207,121 +207,87 @@ int		CheckCollision(CVec trg, CVec pos, uchar checkflags, CMap *map);
 void	ConvertTime(float time, int *hours, int *minutes, int *seconds);
 int 	CarveHole(CMap *cMap, CVec pos);
 void	StripQuotes(char *dest, char *src);
-void	StripQuotes(tString& str);
+void	StripQuotes(std::string& str);
 void    lx_strncpy(char *dest, char *src, int count);
 bool    MouseInRect(int x, int y, int w, int h);
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
-void TrimSpaces(tString& szLine);
+void TrimSpaces(std::string& szLine);
 bool	replace(char *text, const char *what, const char *with, char *result);
-bool	replace(const tString& text, const tString& what, const tString& with, tString& result);
-bool	replace(tString& text, const tString& what, const tString& with);
-tString replacemax(const tString& text, const tString& what, const tString& with, tString& result, int max);
-tString replacemax(const tString& text, const tString& what, const tString& with, int max);
+bool	replace(const std::string& text, const std::string& what, const std::string& with, std::string& result);
+bool	replace(std::string& text, const std::string& what, const std::string& with);
+std::string replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max);
+std::string replacemax(const std::string& text, const std::string& what, const std::string& with, int max);
 char	*strip(char *buf, int width);
-tString strip(const tString& text, int width);
+std::string strip(const std::string& text, int width);
 bool	stripdot(char *buf, int width);
-bool stripdot(tString& text, int width);
+bool stripdot(std::string& text, int width);
 char	*ucfirst(char *text);
-void	ucfirst(tString& text);
-void	stringtolower(tString& text);
-tString	ReadUntil(const tString& text, char until_character = '\n');
-tString	ReadUntil(FILE* fp, char until_character = '\n');
-Uint32	StrToCol(const tString& str);
+void	ucfirst(std::string& text);
+void	stringtolower(std::string& text);
+std::string	ReadUntil(const std::string& text, char until_character = '\n');
+std::string	ReadUntil(FILE* fp, char until_character = '\n');
+Uint32	StrToCol(const std::string& str);
 const char* sex(short wraplen = 0);
-const std::vector<tString>& explode(const tString& str, const tString& delim);
-tString freadstr(FILE *fp, size_t maxlen);
-inline tString freadfixedcstr(FILE *fp, size_t maxlen) { return ReadUntil(freadstr(fp, maxlen), '\0'); }
-size_t fwrite(const tString& txt, size_t len, FILE* fp);
-size_t findLastPathSep(const tString& path);
-void stringlwr(tString& txt);
-bool strincludes(const tString& str, const tString& what);
-short stringcasecmp(const tString& s1, const tString& s2);
-tString GetFileExtension(const tString& filename);
-void printf(const tString& txt);
+const std::vector<std::string>& explode(const std::string& str, const std::string& delim);
+std::string freadstr(FILE *fp, size_t maxlen);
+inline std::string freadfixedcstr(FILE *fp, size_t maxlen) { return ReadUntil(freadstr(fp, maxlen), '\0'); }
+size_t fwrite(const std::string& txt, size_t len, FILE* fp);
+size_t findLastPathSep(const std::string& path);
+void stringlwr(std::string& txt);
+bool strincludes(const std::string& str, const std::string& what);
+short stringcasecmp(const std::string& s1, const std::string& s2);
+std::string GetFileExtension(const std::string& filename);
+void printf(const std::string& txt);
 
 template<typename T>
-T from_string(const tString& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {
-#ifdef UNICODE
-	std::wistringstream iss(s); 
-#else
-	std::istringstream iss(s); 
-#endif
-	T t;
+T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {
+	std::istringstream iss(s); T t;
 	failed = (iss >> f >> t).fail();
 	return t;
 }
 
 template<typename T>
-T from_string(const tString& s, std::ios_base& (*f)(std::ios_base&)) {
-#ifdef UNICODE
-	std::wistringstream iss(s);
-#else
-	std::istringstream iss(s);
-#endif
-	T t;
+T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
+	std::istringstream iss(s); T t;
 	iss >> f >> t;
 	return t;
 }
 
 template<typename T>
-T from_string(const tString& s, bool& failed) {
-#ifdef UNICODE
-	std::wistringstream iss(s);
-#else
-	std::istringstream iss(s);
-#endif
-	T t;
+T from_string(const std::string& s, bool& failed) {
+	std::istringstream iss(s); T t;
 	failed = (iss >> t).fail();
 	return t;
 }
 
 template<typename T>
-T from_string(const tString& s) {
-#ifdef UNICODE
-	std::wistringstream iss(s);
-#else
-	std::istringstream iss(s);
-#endif
-	T t;
+T from_string(const std::string& s) {
+	std::istringstream iss(s); T t;
 	iss >> t;
 	return t;
 }
 
-template<typename T>
-tString to_string(T t) {
-#ifdef UNICODE
-	std::wostringstream iss(s);
-#else
-	std::ostringstream iss(s);
-#endif
-	iss << t << ends;
-	return iss;
-}
 
 
-// tString itoa
-inline tString itoa(int num,int base=10)  {
+// std::string itoa
+inline std::string itoa(int num,int base=10)  {
 	// TODO: better!! (use ostringstream)
-	static tChar buf[64];
-	static tString ret;
-#ifdef UNICODE
-	ret = itow(num,buf,base);
-#else
+	static char buf[64];
+	static std::string ret;
 	ret = itoa(num,buf,base);
-#endif
 	fix_markend(buf);
 	return ret;
 }
 
-inline int atoi(const tString& str)  { return from_string<int>(str);  }
-inline float atof(const tString& str) { return from_string<float>(str);  }
+inline int atoi(const std::string& str)  { return from_string<int>(str);  }
+inline float atof(const std::string& str) { return from_string<float>(str);  }
 
 
 
 class simple_reversestring_hasher { public:
-	inline size_t operator() (const tString& str) const {
-		tString::const_reverse_iterator pos = str.rbegin();
+	inline size_t operator() (const std::string& str) const {
+		std::string::const_reverse_iterator pos = str.rbegin();
 		unsigned short nibble = 0;
 		size_t result = 0;
 		for(; pos != str.rend() && nibble < sizeof(size_t)*2; pos++, nibble++)
@@ -332,10 +298,10 @@ class simple_reversestring_hasher { public:
 
 
 // Useful XML functions
-int		xmlGetInt(xmlNodePtr Node, const tString& Name);
-float	xmlGetFloat(xmlNodePtr Node, const tString& Name);
-Uint32	xmlGetColour(xmlNodePtr Node, const tString& Name);
-void	xmlEntities(tString& text);
+int		xmlGetInt(xmlNodePtr Node, const std::string& Name);
+float	xmlGetFloat(xmlNodePtr Node, const std::string& Name);
+Uint32	xmlGetColour(xmlNodePtr Node, const std::string& Name);
+void	xmlEntities(std::string& text);
 
 // Thread functions
 #ifdef WIN32

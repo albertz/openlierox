@@ -20,7 +20,7 @@
 #if OWN_DIRSTACK == 1
 
 typedef struct stackitem_s  {
-	tString str;
+	std::string str;
 	stackitem_s *prev;
 } stackitem_t;
 
@@ -38,7 +38,7 @@ public:
 			tStackTop = iter;
 		}
 	}
-	inline void Push(const tString& dir) {
+	inline void Push(const std::string& dir) {
 		iter = new stackitem_t;
 		if(iter) {
 			iter->prev = tStackTop;
@@ -46,7 +46,7 @@ public:
 			tStackTop = iter;
 		}
 	}
-	inline bool Pop(tString& dir)  { 
+	inline bool Pop(std::string& dir)  { 
 		if (tStackTop == NULL) {
 			return false; 
 		} else {
@@ -63,11 +63,11 @@ public:
 class CDirStack {
 private:
 	// TODO: test it also with deque
-	std::list<tString> stack;
+	std::list<std::string> stack;
 public:
 	inline void Clear() { stack.clear(); }
-	inline void Push(const tString& str) { stack.push_back(str); }
-	inline bool Pop(tString& str) {
+	inline void Push(const std::string& str) { stack.push_back(str); }
+	inline bool Pop(std::string& str) {
 		if(stack.size() == 0) return false;
 		str = stack.back(); stack.pop_back();
 		return true;
@@ -105,7 +105,7 @@ class PlaylistLoader { public:
 	// TODO: why does it need a playlist ref?
 	CPlayList* playlist;
 	PlaylistLoader(CPlayList* pl) : playlist(pl) {}
-	inline bool operator() (const tString& dir) {
+	inline bool operator() (const std::string& dir) {
 		// TODO: only add it, if it is a dir
 		cStack.Push(dir);
 		return true;
@@ -115,11 +115,11 @@ class PlaylistLoader { public:
 class SongListFiller { public:
 	CPlayList* playlist;
 	SongListFiller(CPlayList* pl) : playlist(pl) {}
-	inline bool operator() (const tString& file) {
-		static const tString supported_media[] = {"mp3","ogg","mod","mid","voc"};
-		tString ext = GetFileExtension(file);
+	inline bool operator() (const std::string& file) {
+		static const std::string supported_media[] = {"mp3","ogg","mod","mid","voc"};
+		std::string ext = GetFileExtension(file);
 		stringlwr(ext);
-		for(register unsigned short i=0; i<sizeof(supported_media)/sizeof(tString); i++)
+		for(register unsigned short i=0; i<sizeof(supported_media)/sizeof(std::string); i++)
 			if(supported_media[i] == ext) {
 				playlist->tSongList.push_back(file);
 				break;
@@ -192,7 +192,7 @@ bool CPlayList::DrawLoadingProgress(void)
 
 //////////////////
 // Loads the directory and adds all music files in the playlist
-void CPlayList::Load(const tString& dir, bool include_subdirs, bool add_to_current_pl)
+void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_current_pl)
 {
 	// Reset the status when we're called for first time
 /*	if (firstcall)
@@ -234,7 +234,7 @@ void CPlayList::Load(const tString& dir, bool include_subdirs, bool add_to_curre
 		return;
 	}
 
-	tString current_dir = dir;
+	std::string current_dir = dir;
 	cStack.Push(current_dir);
 	while(DrawLoadingProgress() && cStack.Pop(current_dir)) {
 		// TODO: merge SongListFiller with PlaylistLoader to speed it up
@@ -261,8 +261,8 @@ void CPlayList::setShuffle(bool _s)
 
 ///////////////////
 // Get the current played song
-tString CPlayList::GetCurSong() {
-	static tString result; result = "";
+std::string CPlayList::GetCurSong() {
+	static std::string result; result = "";
 	if(tSongList.size() == 0 || iCurSong < 0)
 		return result;
 
@@ -321,7 +321,7 @@ void CPlayList::GoToPrevSong(void)
 
 //////////////////
 // Loads the previously saved playlist
-void CPlayList::LoadFromFile(const tString& filename, bool absolute_path) {
+void CPlayList::LoadFromFile(const std::string& filename, bool absolute_path) {
 	// Clear first
 	tSongList.clear();
 	iCurSong = 0;
@@ -337,7 +337,7 @@ void CPlayList::LoadFromFile(const tString& filename, bool absolute_path) {
 		return;
 
 	// Read the file line by line
-	static tString line;
+	static std::string line;
 	while(!feof(fp))  {
 		line = ReadUntil(fp); // read a line
 		tSongList.push_back(line);
@@ -349,7 +349,7 @@ void CPlayList::LoadFromFile(const tString& filename, bool absolute_path) {
 //////////////////
 // Loads the previously saved playlist
 // NOTE: if the file exists, it will be overwritten
-void CPlayList::SaveToFile(const tString& filename, bool absolute_path) {
+void CPlayList::SaveToFile(const std::string& filename, bool absolute_path) {
 	// Open the file
 	FILE *fp = NULL;
 	if (absolute_path)
@@ -362,7 +362,7 @@ void CPlayList::SaveToFile(const tString& filename, bool absolute_path) {
 
 	// Write the file
 	// Each song means one line
-	for (std::vector<tString>::const_iterator i = tSongList.begin(); i != tSongList.end(); i++) {
+	for (std::vector<std::string>::const_iterator i = tSongList.begin(); i != tSongList.end(); i++) {
 		fputs(i->c_str(), fp);
 		fputs("\n", fp);
 	}
@@ -420,9 +420,9 @@ void CMediaPlayer::Shutdown(void)
 
 /////////////////////
 // Get the song name from the path
-tString CMediaPlayer::GetNameFromFile(const tString& path)
+std::string CMediaPlayer::GetNameFromFile(const std::string& path)
 {
-	tString name = "";
+	std::string name = "";
 
 	// Try to get the MP3 info
 	id3v1_t mp3tag = GetMP3Info(path);
@@ -437,7 +437,7 @@ tString CMediaPlayer::GetNameFromFile(const tString& path)
 
 	// Remove directory
 	size_t pos = findLastPathSep(path);
-	if(pos != tString::npos)  {
+	if(pos != std::string::npos)  {
 		name = path.substr(pos+1);
 	} else {
 		name = path;
@@ -445,7 +445,7 @@ tString CMediaPlayer::GetNameFromFile(const tString& path)
 
 	// Remove extension
 	pos = name.find_last_of('.');
-	if(pos != tString::npos)  {
+	if(pos != std::string::npos)  {
 		name.erase(pos);
 	}
 
@@ -454,7 +454,7 @@ tString CMediaPlayer::GetNameFromFile(const tString& path)
 
 //////////////////////
 // Loads the playlist from the specified file
-void CMediaPlayer::LoadPlaylistFromFile(const tString& filename, bool absolute_path) {
+void CMediaPlayer::LoadPlaylistFromFile(const std::string& filename, bool absolute_path) {
 	tPlayList.LoadFromFile(filename, absolute_path);
 	if (tPlayList.getNumSongs() > 0)  {
 		tPlayList.SetCurSong(0);
@@ -809,7 +809,7 @@ void CMediaPlayer::Frame() {
 			if (ev->iEventMsg == MP_BTN_CLICK)  {
 				if (!Paused() && Playing())
 					PauseResume();
-				tString dir = cOpenDialog.Execute("C:\\");
+				std::string dir = cOpenDialog.Execute("C:\\");
 				if(dir.size()>0)  {
 					tPlayList.Load(dir, cOpenDialog.getIncludeSubdirs(), cOpenDialog.getAdd());
 					if (!cOpenDialog.getAdd())

@@ -70,8 +70,8 @@ public:
 	int		KeyUp(int c)							{ return BOX_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
-	DWORD SendMessage(int iMsg, const tString& sStr, DWORD Param) { return 0; }
-	DWORD SendMessage(int iMsg, tString *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	int		CheckEvent(void);
 

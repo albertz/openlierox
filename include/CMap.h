@@ -63,7 +63,7 @@ class object_t { public:
 class maprandom_t { public:
 
     bool        bUsed;
-    tString szTheme;
+    std::string szTheme;
     int         nNumObjects;
     object_t    *psObjects;
 
@@ -73,7 +73,7 @@ class maprandom_t { public:
 
 // Theme structure
 class theme_t { public:
-	tString	name;
+	std::string	name;
 	Uint32		iDefaultColour;
 	SDL_Surface	*bmpFronttile;
 	SDL_Surface	*bmpBacktile;
@@ -126,7 +126,7 @@ public:
 private:
 	// Attributes
 
-	tString	Name;
+	std::string	Name;
 	int			Type;
 	uint		Width;
 	uint		Height;
@@ -172,10 +172,10 @@ private:
 public:
 	// Methods
 
-	int			New(uint _width, uint _height, const tString& _theme);
-	int			Load(const tString& filename);
+	int			New(uint _width, uint _height, const std::string& _theme);
+	int			Load(const std::string& filename);
 	int			LoadOriginal(FILE *fp);
-	int			Save(const tString& name, const tString& filename);
+	int			Save(const std::string& name, const std::string& filename);
 	int			SaveImageFormat(FILE *fp);
 	int			LoadImageFormat(FILE *fp);	
 	void		Clear(void);
@@ -185,7 +185,7 @@ public:
 
 	void		Shutdown(void);
 
-	int			LoadTheme(const tString& _theme);
+	int			LoadTheme(const std::string& _theme);
 	int			CreateSurface(void);
 	int			CreatePixelFlags(void);
     bool        createGrid(void);
@@ -212,8 +212,8 @@ public:
 			flagsLock.endReadAccess(); 
 	}
 
-    static tString findRandomTheme();
-    static bool validateTheme(const tString& name);
+    static std::string findRandomTheme();
+    static bool validateTheme(const std::string& name);
 
     void        PutImagePixel(uint x, uint y, Uint32 colour);
 
@@ -289,7 +289,7 @@ public:
     inline const uchar *getGridFlags(void) const { return GridFlags; }
 	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
 	inline bool			getCreated(void)	{ return Created; }
-	inline tString getName(void)		{ return Name; }
+	inline std::string getName(void)		{ return Name; }
 
 
 };

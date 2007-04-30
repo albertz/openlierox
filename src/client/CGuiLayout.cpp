@@ -173,16 +173,16 @@ bool CGuiLayout::Build(void)
 	//	1. Get the file to parse
 	//
 
-	tString sFilename = "";
+	std::string sFilename = "";
 
 	// Default skin extension
-	tString sExtension = "skn";
+	std::string sExtension = "skn";
 
 	// Get the skin path
-	tString path = tLXOptions->sSkinPath+tLXOptions->sResolution;
+	std::string path = tLXOptions->sSkinPath+tLXOptions->sResolution;
 
 	// Temp
-	static tString file = "";
+	static std::string file = "";
 
 	// Get the file name of the skin file
 	switch (iID)  {
@@ -847,7 +847,7 @@ int	CGuiLayout::GetIdByName(xmlChar *Name)
 // Notifies about the error that occured
 void CGuiLayout::Error(int ErrorCode, char *Format, ...)
 {
-	static tChar buf[512];
+	static char buf[512];
 	va_list	va;
 
 	va_start(va,Format);
@@ -885,7 +885,7 @@ DWORD CGuiLayout::SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2
 	return w->SendMessage(iMsg, Param1, Param2);
 }
 
-DWORD CGuiLayout::SendMessage(int iControl, int iMsg, const tString& sStr, DWORD Param)
+DWORD CGuiLayout::SendMessage(int iControl, int iMsg, const std::string& sStr, DWORD Param)
 {
 	CWidget *w = getWidget(iControl);
 
@@ -897,7 +897,7 @@ DWORD CGuiLayout::SendMessage(int iControl, int iMsg, const tString& sStr, DWORD
 
 }
 
-DWORD CGuiLayout::SendMessage(int iControl, int iMsg, tString *sStr, DWORD Param)
+DWORD CGuiLayout::SendMessage(int iControl, int iMsg, std::string *sStr, DWORD Param)
 {
 	// Check the string
 	if (!sStr)

@@ -42,7 +42,7 @@ void CBytestream::Append(CBytestream *bs)
 // Dump the data out
 void CBytestream::Dump(void)
 {
-    static tChar buf[MAX_DATA+1];
+    static char buf[MAX_DATA+1];
 
     memcpy(buf, Data, Length);
     buf[Length] = '\0';
@@ -169,7 +169,7 @@ int CBytestream::writeFloat(float value)
 // Write a string to the stream
 int CBytestream::writeString(char *fmt,...)
 {
-	static tChar buf[1024];
+	static char buf[1024];
 	va_list	va;
 
 	va_start(va,fmt);
@@ -189,7 +189,7 @@ int CBytestream::writeString(char *fmt,...)
 	return true;
 }
 
-int	CBytestream::writeString(const tString& value) {
+int	CBytestream::writeString(const std::string& value) {
 	size_t len = value.length();
 	
 	if(len + CurByte >= MAX_DATA)
@@ -340,13 +340,13 @@ char *CBytestream::readString(char *str, size_t maxlen)
 	return str;
 }
 
-tString CBytestream::readString() {
-	static tString result;
+std::string CBytestream::readString() {
+	static std::string result;
 	size_t i;
 	size_t len = (size_t)GetLength();
 	for(i=CurByte; i<len; i++)
 		if(Data[i] == '\0') {
-			result = tString((char*)(&Data[CurByte]), i-CurByte);
+			result = std::string((char*)(&Data[CurByte]), i-CurByte);
 			CurByte = i+1;
 			return result;		
 		}
@@ -354,13 +354,13 @@ tString CBytestream::readString() {
 	return "";
 }
 
-tString CBytestream::readString(size_t maxlen) {
-	static tString result;
+std::string CBytestream::readString(size_t maxlen) {
+	static std::string result;
 	size_t i;
 	size_t len = MIN((size_t)GetLength(), CurByte+maxlen+1);
 	for(i=CurByte; i<len; i++)
 		if(Data[i] == '\0') {
-			result = tString((char *)(&Data[CurByte]), i-CurByte);
+			result = std::string((char *)(&Data[CurByte]), i-CurByte);
 			CurByte = i+1;
 			return result;		
 		}

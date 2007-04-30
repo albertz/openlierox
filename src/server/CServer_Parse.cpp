@@ -236,7 +236,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 		return;
 
 	// Team names
-	static const tString TeamNames[] = {"blue", "red", "green", "yellow"};
+	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
 	int TeamCount[4];
 
     // If the game is already over, ignore this
@@ -264,7 +264,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 		return;
 	}
 
-	static tString buf;
+	static std::string buf;
 
 	// Kill
 	if (networkTexts->sKilled != "<none>")  { // Take care of the <none> tag
@@ -529,7 +529,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs)
 		if (cl->getMuted())
 			return;
 
-	static tChar buf[256];
+	static char buf[256];
 	SendGlobalText( bs->readString(buf, sizeof(buf)), TXT_CHAT);
 }
 
@@ -664,7 +664,7 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 // Parses connectionless packets
 void GameServer::ParseConnectionlessPacket(CBytestream *bs)
 {
-	static tString cmd;
+	static std::string cmd;
 
 	cmd = bs->readString(128);
 
@@ -777,7 +777,7 @@ void GameServer::ParseConnect(CBytestream *bs)
 		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);
 
 		// Get the string to send
-		static tString buf;
+		static std::string buf;
 		if(networkTexts->sTeamHasWon != "<none>")  {
 			replacemax(networkTexts->sWrongProtocol,"<version>",itoa(PROTOCOL_VERSION),buf,1);
 		}
@@ -793,7 +793,7 @@ void GameServer::ParseConnect(CBytestream *bs)
 		return;
 	}
 
-	static tString szAddress;
+	static std::string szAddress;
 	NetAddrToString(&adrFrom,szAddress);
 
 	// Is this IP banned?
@@ -1022,7 +1022,7 @@ void GameServer::ParseConnect(CBytestream *bs)
 		// TODO: Set socket info
 		// TODO: This better
 
-		static tString buf;
+		static std::string buf;
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>")  {
 			for(i=0;i<numworms;i++) {
@@ -1041,9 +1041,9 @@ void GameServer::ParseConnect(CBytestream *bs)
 			replacemax(buf,"<me>",cWorms[0].getName(),buf,1);
 
 			// Country
-			if (buf.find("<country>") != tString::npos)  {
-				static tString country;
-				static tString str_addr;
+			if (buf.find("<country>") != std::string::npos)  {
+				static std::string country;
+				static std::string str_addr;
 				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
 				if (str_addr != "")  {
 					country = GetCountryFromIP(str_addr);
@@ -1052,11 +1052,11 @@ void GameServer::ParseConnect(CBytestream *bs)
 			}
 
 			// Address
-			static tString str_addr;
+			static std::string str_addr;
 			NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
 			// Remove port
 			size_t pos = str_addr.rfind(':');
-			if(pos != tString::npos)
+			if(pos != std::string::npos)
 				str_addr.erase(pos);
 			replacemax(buf,"<ip>",str_addr,buf,1);
 
@@ -1111,9 +1111,9 @@ void GameServer::ParseWantsJoin(CBytestream *bs)
 
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;
-	static tString Nick;
+	static std::string Nick;
 	Nick = bs->readString();
-	static tString buf;
+	static std::string buf;
 
 	// Notify about the wants to join
 	if (networkTexts->sWantsJoin!="<none>")  {

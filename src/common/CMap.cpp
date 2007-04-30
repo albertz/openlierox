@@ -25,7 +25,7 @@
 
 ///////////////////
 // Create a new map
-int CMap::New(uint _width, uint _height, const tString& _theme)
+int CMap::New(uint _width, uint _height, const std::string& _theme)
 {
 	if(Created)
 		Shutdown();
@@ -244,13 +244,13 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
 
 ///////////////////
 // Load the theme
-int CMap::LoadTheme(const tString& _theme)
+int CMap::LoadTheme(const std::string& _theme)
 {
 	// Already loaded
 	if (Theme.name == _theme && sRandomLayout.szTheme == _theme)
 		return true;
 
-	static tString thm,buf,cfg;
+	static std::string thm,buf,cfg;
 	int n,x,y;
 
 	thm = "data/themes/" + _theme;
@@ -310,19 +310,19 @@ int CMap::LoadTheme(const tString& _theme)
 
 
     // Load the green dirt mask
-    LOAD_IMAGE(bmpGreenMask, tString("data/gfx/greenball.png"));
+    LOAD_IMAGE(bmpGreenMask, std::string("data/gfx/greenball.png"));
 
 	return true;
 }
 
 
-	typedef std::vector<tString> themelist;
+	typedef std::vector<std::string> themelist;
 	class ThemesCounter { public:
 		themelist* themes;
 		ThemesCounter(themelist* t) : themes(t) {}
-		inline bool operator() (const tString& dir) {
+		inline bool operator() (const std::string& dir) {
 			size_t pos = findLastPathSep(dir);
-			tString theme = dir.substr(pos+1);
+			std::string theme = dir.substr(pos+1);
 			if(CMap::validateTheme(theme))
 				themes->push_back(theme);
 			return true;
@@ -331,7 +331,7 @@ int CMap::LoadTheme(const tString& _theme)
 
 ///////////////////
 // Finds a theme at random and returns the name
-tString CMap::findRandomTheme() {
+std::string CMap::findRandomTheme() {
     // Find directories in the theme dir
 	themelist themes;
 
@@ -353,13 +353,13 @@ tString CMap::findRandomTheme() {
 
 ///////////////////
 // Checks if a theme is a valid theme
-bool CMap::validateTheme(const tString& name) {
+bool CMap::validateTheme(const std::string& name) {
     // Does simple checks to see if the main files exists
     // Ie 'backtile.png' 'fronttile.png' & 'theme.txt'
 
-    static tString thm,buf;
+    static std::string thm,buf;
 
-	thm = tString("data/themes/") + name;
+	thm = std::string("data/themes/") + name;
 
     // Backtile.png
     buf = thm + "/backtile.png";
@@ -1860,7 +1860,7 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *wo
 
 ///////////////////
 // Load the map
-int CMap::Load(const tString& filename)
+int CMap::Load(const std::string& filename)
 {
 	// Weird
 	if (filename == "")
@@ -1880,7 +1880,7 @@ int CMap::Load(const tString& filename)
 
 
 	// Header
-	static tString id;
+	static std::string id;
 	id = freadfixedcstr(fp, 32);
 	int		version;
 	fread(&version,		sizeof(int),	1,	fp);
@@ -1900,7 +1900,7 @@ int CMap::Load(const tString& filename)
 	EndianSwap(Height);
 	fread(&Type,		sizeof(int),	1,	fp);
 	EndianSwap(Type);
-	static tString Theme_Name;
+	static std::string Theme_Name;
 	Theme_Name = freadfixedcstr(fp, 32);
 	int		numobj;
 	fread(&numobj,		sizeof(int),	1,	fp);
@@ -2041,7 +2041,7 @@ int CMap::Load(const tString& filename)
 
 ///////////////////
 // Save the map
-int CMap::Save(const tString& name, const tString& filename)
+int CMap::Save(const std::string& name, const std::string& filename)
 {
 	FILE *fp = OpenGameFile(filename,"wb");
 	if(fp == NULL)
@@ -2389,7 +2389,7 @@ int CMap::LoadOriginal(FILE *fp)
 
 	// Load the palette from the same file if it's a powerlevel
 	if(Powerlevel) {
-		static tChar id[11];
+		static char id[11];
 		// Load id
 		fread(id,sizeof(uchar),10,fp);
 		id[10] = '\0';

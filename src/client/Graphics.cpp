@@ -112,7 +112,7 @@ int LoadGraphics(void)
     SDL_SetColorKey(gfxGame.bmpViewportMgr, SDL_SRCCOLORKEY, pink);
 
 	// Load the colours from a file
-	const tString colorfile = "data/frontend/colours.cfg";
+	const std::string colorfile = "data/frontend/colours.cfg";
 	ReadColour(colorfile,"Colours","ChatText",		 &tLX->clChatText,		tLX->clChatText);
 	ReadColour(colorfile,"Colours","Credits1",		 &tLX->clCredits1,		tLX->clCredits1);
 	ReadColour(colorfile,"Colours","Credits2",		 &tLX->clCredits2,		tLX->clCredits2);

@@ -35,7 +35,7 @@ std::vector<CCache> Cache;
 
 ///////////////////
 // Load an image
-SDL_Surface* _LoadImage(const tString& filename)
+SDL_Surface* _LoadImage(const std::string& filename)
 {
     /*SDL_Surface *psSurf = NULL;
     Uint32 Rmask, Gmask, Bmask, Amask;
@@ -71,7 +71,7 @@ SDL_Surface* _LoadImage(const tString& filename)
 
     return psSurf;*/
 
-	tString fname = GetFullFileName(filename);
+	std::string fname = GetFullFileName(filename);
 	if(fname.size() == 0)
 		return NULL;
 		
@@ -94,7 +94,7 @@ SDL_Surface* _LoadImage(const tString& filename)
 
 ///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
-SDL_Surface *CCache::LoadImgBPP(const tString& _file, bool withalpha) {
+SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 	Type = CCH_IMAGE;
 	Filename = _file;
 
@@ -128,12 +128,12 @@ SDL_Surface *CCache::LoadImgBPP(const tString& _file, bool withalpha) {
 
 ///////////////////
 // Load a sample
-SoundSample* CCache::LoadSample(const tString& _file, int maxplaying)
+SoundSample* CCache::LoadSample(const std::string& _file, int maxplaying)
 {
 	Type = CCH_SOUND;
 	Filename = _file;
 	
-	tString fullfname = GetFullFileName(Filename);
+	std::string fullfname = GetFullFileName(Filename);
 	if(fullfname.size() == 0)
 	{
 //		SetError("Error loading sample %s: file not found", _file.c_str());

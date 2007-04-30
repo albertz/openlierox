@@ -1645,8 +1645,8 @@ void CClient::processChatCharacter(int c, bool bDown)
 
         // Send chat message to the server
         if(sChat_Text != "") {
-            tString buf;
-			if(buf.find("/me") == tString::npos)
+            std::string buf;
+			if(buf.find("/me") == std::string::npos)
 				buf = cLocalWorms[0]->getName() + ": " + sChat_Text;
 			else
 				buf =  replacemax(sChat_Text,"/me",cLocalWorms[0]->getName(),buf,2);
@@ -1664,7 +1664,7 @@ void CClient::processChatCharacter(int c, bool bDown)
 			iChat_Pos = text_len;
 
 		// Get the text
-		tString buf;
+		std::string buf;
 		buf = GetClipboardText();
 
 		// Paste

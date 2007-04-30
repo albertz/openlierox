@@ -384,7 +384,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     // Dirt count
     if( iGameType == GMT_DEMOLITION ) {
         tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "%s", "Dirt Count:");
-        static tString buf;
+        static std::string buf;
         int count = worm->getDirtCount();
 
         // Draw short versions
@@ -688,7 +688,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 	// Teams
 	static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
-	static const tString teamnames[] = {"Blue", "Red", "Green", "Yellow"};
+	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
 
 	int width = bmpImage->w;
 	int height = bmpImage->h;
@@ -838,7 +838,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			// Total time of being IT
 			int h,m,s;
-			static tString buf;
+			static std::string buf;
 			ConvertTime(p->getTagTime(), &h,&m,&s);
 			buf = itoa(m)+":"+(s<10 ? "0":"")+itoa(s);
 			Uint32 col = tLX->clNormalLabel;
@@ -946,7 +946,7 @@ void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fg
 	va_list arg;
 
 	va_start(arg, fmt);
-	static tChar buf[512];
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf), fmt, arg);
 	fix_markend(buf);
 	va_end(arg);

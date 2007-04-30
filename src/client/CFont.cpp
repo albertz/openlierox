@@ -35,7 +35,7 @@ size_t Fontstr_len = sizeof(Fontstr)/sizeof(short);
 	return (abs(r1-r2) <= 20) && (abs(g1-g2) <= 20) && (abs(b1-b2) <= 20);
 }
 
-void AdjustFont(SDL_Surface *bmp,const tString& fname)
+void AdjustFont(SDL_Surface *bmp,const std::string& fname)
 {
 	SDL_Surface *dst = gfxCreateSurface(bmp->w,bmp->h);
 	Uint8 *spxr = (Uint8 *)bmp->pixels;
@@ -66,7 +66,7 @@ void AdjustFont(SDL_Surface *bmp,const tString& fname)
 
 ///////////////////
 // Load a font
-int CFont::Load(const tString& fontname, bool _colour)
+int CFont::Load(const std::string& fontname, bool _colour)
 {
 	register ushort i;
 	for (i=0; i<128; i++)
@@ -226,15 +226,15 @@ void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt,...) {
 	va_list arg;
 
 	va_start(arg, fmt);
-	static tChar buf[512];
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
 
-	DrawAdv(dst,x,y,99999,col,tString(buf));
+	DrawAdv(dst,x,y,99999,col,std::string(buf));
 }
 
-void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, const tString& txt) {
+void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
 	DrawAdv(dst,x,y,99999,col,txt);
 }
 
@@ -242,17 +242,17 @@ void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, const tString& txt)
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char *fmt,...) {
 	va_list arg;
 	va_start(arg, fmt);
-	static tChar buf[512];
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
 	
-	DrawAdv(dst, x, y, max_w, col, tString(buf));
+	DrawAdv(dst, x, y, max_w, col, std::string(buf));
 }
 
 ///////////////////
 // Draw a font (advanced)
-void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const tString& txt) {
+void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
 	int pos=0;
 	short l;
 	Uint32 pixel;
@@ -280,7 +280,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	Uint32 col2 = col;
 
 	pos=0;
-	for(tString::const_iterator p = txt.begin(); p != txt.end(); p++) {
+	for(std::string::const_iterator p = txt.begin(); p != txt.end(); p++) {
 		l = TranslateCharacter(*p);
 
 		// Line break
@@ -379,12 +379,12 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 ///////////////////
 // Calculate the width of a string of text
-int CFont::GetWidth(const tString& buf) {
+int CFont::GetWidth(const std::string& buf) {
 	int length = 0;
 	short l;
 	
 	// Calculate the length of the text
-	for(tString::const_iterator p = buf.begin(); p != buf.end(); p++) {
+	for(std::string::const_iterator p = buf.begin(); p != buf.end(); p++) {
 		l = TranslateCharacter(*p);
 		if (l != -1)
 			length += FontWidth[l]+Spacing;
@@ -399,7 +399,7 @@ int CFont::TranslateCharacter(char c)
 {
 	if (c < 32)  {
 #ifdef WIN32
-		static tChar charbuf[2];
+		static char charbuf[2];
 		static ushort utfbuf[2];
 		charbuf[0] = c;
 		charbuf[1] = '\0';
@@ -416,7 +416,7 @@ int CFont::TranslateCharacter(char c)
 }
 
 
-void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const tString& txt) {
+void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
 	int length = GetWidth(txt);
 	int pos = x-length/2;
 	Draw(dst,pos,y,col,txt);
@@ -427,16 +427,16 @@ void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const tString
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt, ...) {
 	va_list arg;
 	va_start(arg, fmt);
-	static tChar buf[512];
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
 
-	DrawCentre(dst, x,y,col, tString(buf));
+	DrawCentre(dst, x,y,col, std::string(buf));
 }
 
 
-void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const tString& txt) {
+void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
 	int length = GetWidth(txt);
 	int pos = MAX(min_x, x-length/2);
 	DrawAdv(dst,pos,y,max_w,col,txt);
@@ -447,10 +447,10 @@ void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, 
 void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, char *fmt, ...) {
 	va_list arg;
 	va_start(arg, fmt);
-	static tChar buf[512];
+	static char buf[512];
 	vsnprintf(buf, sizeof(buf),fmt, arg);
 	fix_markend(buf);
 	va_end(arg);
 
-	DrawCentreAdv(dst, x, y, min_x, max_w, col, tString(buf));
+	DrawCentreAdv(dst, x, y, min_x, max_w, col, std::string(buf));
 }

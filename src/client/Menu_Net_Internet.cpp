@@ -23,7 +23,7 @@
 #include "FindFile.h"
 
 CGuiLayout	cInternet;
-tString szNetCurServer;
+std::string szNetCurServer;
 
 // Internet widgets
 enum {
@@ -129,7 +129,7 @@ void Menu_Net_NETFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	static tString	addr;
+	static std::string	addr;
 
 
 	// Process & Draw the gui
@@ -333,7 +333,7 @@ void Menu_Net_NETFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szNetCurServer);
-							static tString Nick;
+							static std::string Nick;
 							cInternet.SendMessage(mi_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
 								Menu_SvrList_WantsJoin(Nick, sv);
@@ -386,7 +386,7 @@ void Menu_Net_NETFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_NETJoinServer(const tString& sAddress, const tString& sName)
+void Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sName)
 {
 	tGameInfo.iNumPlayers = 1;
 
@@ -489,7 +489,7 @@ void Menu_Net_NETAddServer(void)
 				case na_Add:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						static tString addr;
+						static std::string addr;
 						cAddSvr.SendMessage(na_Address, TXS_GETTEXT, &addr, 0);
 
 						Menu_SvrList_AddServer(addr, true);
@@ -548,7 +548,7 @@ void Menu_Net_NETUpdateList(void)
     int SvrCount = 0;
     int CurServer = 0;
     bool SentRequest = false;
-    static tString szLine;
+    static std::string szLine;
     FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
     if( !fp )
         return;
@@ -628,7 +628,7 @@ void Menu_Net_NETUpdateList(void)
 
         // Process the http request
         if( SentRequest ) {
-			static tString szError;
+			static std::string szError;
             http_result = http_ProcessRequest(&szError);
 
             // Parse the list if the request was successful
@@ -702,16 +702,16 @@ void Menu_Net_NETUpdateList(void)
 // Parse the downloaded server list
 void Menu_Net_NETParseList(void)
 {
-	const tString& content = http_GetContent();
+	const std::string& content = http_GetContent();
 
-	static tString addr, ptr;
+	static std::string addr, ptr;
 	
-	tString::const_iterator it = content.begin();
+	std::string::const_iterator it = content.begin();
 	size_t i = 0;
 	size_t startpos = 0;	
 	for(; it != content.end(); it++, i++) {	
 		if(*it != '\n') continue;
-		const std::vector<tString>& tokens = explode(content.substr(startpos, i-startpos), ",");
+		const std::vector<std::string>& tokens = explode(content.substr(startpos, i-startpos), ",");
 		startpos = i+1;
 		
 		// we need at least 2 items
@@ -743,7 +743,7 @@ enum  {
 
 ///////////////////
 // Show a server's details
-void Menu_Net_NETShowServer(const tString& szAddress)
+void Menu_Net_NETShowServer(const std::string& szAddress)
 {
     mouse_t     *Mouse = GetMouse();
     int         nMouseCur = 0;

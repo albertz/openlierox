@@ -616,7 +616,7 @@ private:
 
 		// Name the thread
 #ifdef WIN32
-		static tChar name[32];
+		static char name[32];
 		sprintf(name,"AI thread %i",(int)b);
 		nameThread(-1,name);
 #endif // WIN32
@@ -2173,7 +2173,7 @@ int CWorm::AI_FindClearingWeapon(void)
 			}
 
 			// Suspicious
-			static tString name;
+			static std::string name;
 			name = tWeapons[i].Weapon->Name;
 			stringlwr(name);
 			if(strincludes(name,"dirt") || strincludes(name,"napalm") || strincludes(name,"grenade") || strincludes(name,"nuke") || strincludes(name,"mine"))

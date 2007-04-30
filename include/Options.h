@@ -17,7 +17,7 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
 
-typedef std::vector<tString> searchpathlist;
+typedef std::vector<std::string> searchpathlist;
 
 
 // Setup input id's
@@ -66,18 +66,18 @@ enum {
 // input controls structure (for local players)
 class controls_t {
 private:
-	tString ctrl[8];
+	std::string ctrl[8];
 public:
-	tString& operator[] (const short i) {
+	std::string& operator[] (const short i) {
 		assert(i >= 0 && i < 8);
 		return ctrl[i];
 	}
-	const tString& operator[] (const short i) const {
+	const std::string& operator[] (const short i) const {
 		assert(i >= 0 && i < 8);
 		return ctrl[i];	
 	}
 
-	inline byte ControlCount(void) const  { return sizeof(ctrl)/sizeof(tString); }
+	inline byte ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
 	// TODO: add specific functions
 };
 
@@ -89,47 +89,47 @@ public:
 	static bool Init();
 	bool LoadFromDisc();
 	
-	tString sHasLeft ;
-	tString sHasConnected ;
-	tString sHasTimedOut ;
+	std::string sHasLeft ;
+	std::string sHasConnected ;
+	std::string sHasTimedOut ;
 
-	tString sHasBeenKicked ;
-	tString sHasBeenBanned ;
-	tString sHasBeenMuted ;
-	tString sHasBeenUnmuted ;
+	std::string sHasBeenKicked ;
+	std::string sHasBeenBanned ;
+	std::string sHasBeenMuted ;
+	std::string sHasBeenUnmuted ;
 
-	tString sKickedYou ;
-	tString sBannedYou ;
-	tString sYouTimed ;
-	tString sYouQuit ;
+	std::string sKickedYou ;
+	std::string sBannedYou ;
+	std::string sYouTimed ;
+	std::string sYouQuit ;
 
-	tString sKilled ;
-	tString sCommitedSuicide ;
-	tString sFirstBlood ;
-	tString sTeamkill ;
+	std::string sKilled ;
+	std::string sCommitedSuicide ;
+	std::string sFirstBlood ;
+	std::string sTeamkill ;
 
-	tString sPlayerOut ;
-	tString sPlayerHasWon ;
-	tString sTeamOut ;
-	tString sTeamHasWon ;
+	std::string sPlayerOut ;
+	std::string sPlayerHasWon ;
+	std::string sTeamOut ;
+	std::string sTeamHasWon ;
 
-	tString sWormIsIt ;
+	std::string sWormIsIt ;
 
-	tString sSpree1 ;
-	tString sSpree2 ;
-	tString sSpree3 ;
-	tString sSpree4 ;
-	tString sSpree5 ;
+	std::string sSpree1 ;
+	std::string sSpree2 ;
+	std::string sSpree3 ;
+	std::string sSpree4 ;
+	std::string sSpree5 ;
 
-	tString sServerFull ;
-	tString sNoEmptySlots ;
-	tString sWrongProtocol ;
-	tString sBadVerification ;
-	tString sNoIpVerification ;
-	tString sGameInProgress ;
-	tString sYouAreBanned ;
-	tString sBotsNotAllowed ;
-	tString sWantsJoin ;
+	std::string sServerFull ;
+	std::string sNoEmptySlots ;
+	std::string sWrongProtocol ;
+	std::string sBadVerification ;
+	std::string sNoIpVerification ;
+	std::string sGameInProgress ;
+	std::string sYouAreBanned ;
+	std::string sBotsNotAllowed ;
+	std::string sWantsJoin ;
 };
 
 // Options structure
@@ -144,7 +144,7 @@ public:
 	int		iFullscreen;
 	int		iShowFPS;
 	int		iOpenGL;
-	tString	sResolution;
+	std::string	sResolution;
 	int		iColourDepth;
 
 	// Network
@@ -168,7 +168,7 @@ public:
 	int		iShowHealth;
 	int		iColorizeNicks;
 	int		iAutoTyping;
-	tString	sSkinPath;
+	std::string	sSkinPath;
 
     // Advanced
     int     nMaxFPS;
@@ -206,12 +206,12 @@ public:
 		int		iShowBonusName;
 		int		iMaxPlayers;
 		bool	bTournament;
-		tString	sServerName;
-		tString	sWelcomeMessage;
-		tString	sMapFilename;
+		std::string	sServerName;
+		std::string	sWelcomeMessage;
+		std::string	sMapFilename;
         int     nGameType;
-        tString szModName;
-        tString szPassword;
+        std::string szModName;
+        std::string szPassword;
 		bool	bRegServer;
 		int		iLastSelectedPlayer;
 		bool	bAllowWantsJoinMsg;

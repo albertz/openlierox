@@ -36,13 +36,13 @@ class profile_t { public:
 	int				iID;
 
 	int				iType;
-	tString		sName;
-	tString     szSkin;
+	std::string		sName;
+	std::string     szSkin;
     int             nDifficulty;
-	tString		sUsername;
-	tString		sPassword;
+	std::string		sUsername;
+	std::string		sPassword;
 	Uint8			R,G,B;
-	tString		sWeaponSlots[5];
+	std::string		sWeaponSlots[5];
 	int				iTeam;
 	SDL_Surface		*bmpWorm;
 
@@ -57,7 +57,7 @@ void	ShutdownProfiles(void);
 
 void    AddDefaultPlayers(void);
 void	SaveProfile(FILE *fp, profile_t *p);
-void    AddProfile(const tString& name, const tString& skin, const tString& username, const tString& password,  int R, int G, int B, int type, int difficulty);
+void    AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty);
 void	LoadProfile(FILE *fp, int id);
 int		FindProfileID(void);
 void	DeleteProfile(int id);
@@ -67,7 +67,7 @@ profile_t *GetProfiles(void);
 profile_t *FindProfile(int id);
 
 // General function for all to use
-SDL_Surface *LoadSkin(const tString& szSkin, int colR, int colG, int colB);
+SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB);
 
 
 

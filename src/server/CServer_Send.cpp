@@ -54,7 +54,7 @@ void GameServer::SendGlobalText(const char* text, int type) {
 	}
 }
 
-void GameServer::SendGlobalText(const tString& text, int type) {
+void GameServer::SendGlobalText(const std::string& text, int type) {
 	SendGlobalText(text.c_str(), type);
 }
 

@@ -26,7 +26,7 @@ inline float	GetMilliSeconds(void) { return (float)SDL_GetTicks() * 0.001f; }
 
 
 int				GetFPS(void);
-tString		GetTime();
+std::string		GetTime();
 
 
 
