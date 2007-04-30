@@ -41,9 +41,9 @@ int GetFPS(void)
 
 ///////////////////
 // Get the actual time
-std::string GetTime()
+tString GetTime()
 {
-	static char cTime[100];
+	static tChar cTime[100];
 	time_t t;
 	time(&t);
 	struct tm* tp;

@@ -616,7 +616,7 @@ private:
 
 		// Name the thread
 #ifdef WIN32
-		static char name[32];
+		static tChar name[32];
 		sprintf(name,"AI thread %i",(int)b);
 		nameThread(-1,name);
 #endif // WIN32
@@ -1711,7 +1711,7 @@ void CWorm::AI_MoveToTarget()
 
     if(psCurrentNode == NULL || psPath == NULL) {
          // If we don't have a path, resort to simpler AI methods
-        AI_SimpleMove(pcMap);
+        AI_SimpleMove(psAITarget != NULL);
         return;
     }
 
@@ -2173,7 +2173,7 @@ int CWorm::AI_FindClearingWeapon(void)
 			}
 
 			// Suspicious
-			static std::string name;
+			static tString name;
 			name = tWeapons[i].Weapon->Name;
 			stringlwr(name);
 			if(strincludes(name,"dirt") || strincludes(name,"napalm") || strincludes(name,"grenade") || strincludes(name,"nuke") || strincludes(name,"mine"))
@@ -4637,7 +4637,7 @@ void CWorm::NEW_AI_MoveToTargetDC()
 
 	// Pathfinding problem, resort to simpler AI methods
 	if (!NEW_psPath || !NEW_psCurrentNode || !NEW_psLastNode)  {
-		AI_SimpleMove(pcMap);
+		AI_SimpleMove(psAITarget != NULL);
 		return;
 	}
 

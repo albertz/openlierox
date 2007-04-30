@@ -766,7 +766,7 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 
 ///////////////////
 // Load an image
-SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
+SDL_Surface *LoadImage(const tString& _filename, bool withalpha)
 {
 	// Has this been already loaded?
 	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
@@ -816,11 +816,11 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 
 ///////////////////////
 // Saves the surface into the specified file with the specified format
-bool SaveSurface ( SDL_Surface *image, const std::string& FileName, int Format, bool Tournament )
+bool SaveSurface ( SDL_Surface *image, const tString& FileName, int Format, bool Tournament )
 {
 	if ( Format == FMT_BMP )
 	{
-		std::string abs_fn = GetWriteFullFileName ( FileName, true );
+		tString abs_fn = GetWriteFullFileName ( FileName, true );
 		SDL_SaveBMP ( image, abs_fn.c_str() );
 
 		// Log

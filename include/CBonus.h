@@ -49,7 +49,7 @@ private:
 	int		iType;
 	int		iWeapon;
 
-	std::string	sWeapon;
+	tString	sWeapon;
 
 	CVec	vPos;
 	CVec	vVelocity;

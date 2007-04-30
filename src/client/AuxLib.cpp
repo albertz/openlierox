@@ -26,12 +26,12 @@
 #include "FindFile.h"
 
 // Game info
-std::string	GameName;
+tString	GameName;
 int         nFocus = true;
 bool		bActivated = false;
 
 // Config file
-std::string	ConfigFile;
+tString	ConfigFile;
 
 // Keyboard, Mouse, & Event
 keyboard_t	Keyboard;
@@ -45,7 +45,7 @@ SDL_Surface *bmpIcon=NULL;
 
 ///////////////////
 // Initialize the standard Auxiliary Library
-int InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags)
+int InitializeAuxLib(const tString& gname, const tString& config, int bpp, int vidflags)
 {
 	// Set the game info
 	GameName=gname;
@@ -440,7 +440,7 @@ void ShutdownAuxLib(void)
 
 ///////////////////
 // Return the game name
-std::string GetGameName(void)
+tString GetGameName(void)
 {
 	return GameName;
 }
@@ -461,7 +461,7 @@ mouse_t *GetMouse(void)
 
 ///////////////////
 // Return the config filename
-std::string GetConfigFile(void)
+tString GetConfigFile(void)
 {
 	return ConfigFile;
 }
@@ -478,9 +478,9 @@ SDL_Event *GetEvent(void)
 ///////////////////
 // Get text from the clipboard
 // Returns the length of the text (0 for no text)
-std::string GetClipboardText() {
+tString GetClipboardText() {
 #ifdef WIN32
-	std::string szText;
+	tString szText;
     
     // Get the window handle
 	SDL_SysWMinfo info;
@@ -519,7 +519,7 @@ std::string GetClipboardText() {
 ///////////////////
 // Set text to the clipboard
 // Returns the length of the text (0 for no text)
-int SetClipboardText(const std::string& szText)
+int SetClipboardText(const tString& szText)
 {
 #ifdef WIN32
     // Get the window handle
@@ -572,9 +572,9 @@ int SetClipboardText(const std::string& szText)
 // Take a screenshot
 void TakeScreenshot(bool Tournament)
 {
-	static std::string	picname;
-	static std::string	fullname;
-	static std::string	extension;
+	static tString	picname;
+	static tString	fullname;
+	static tString	extension;
 	int			i;
 
 	// Set the extension

@@ -113,7 +113,7 @@ int LoadProfiles(void)
 void AddDefaultPlayers(void)
 {
 	short		i;
-	static std::string	buf;
+	static tString	buf;
 
 	// Pre-set cpu colours
 	Uint32 cpuColours[] = { 255,0,0,  0,255,0,  0,0,255,  255,0,255,  0,255,255,  128,128,128,
@@ -150,7 +150,7 @@ void SaveProfiles(void)
 		return;
 
 	// ID & Version
-	static char id[32] = {"lx:profile"};
+	static tChar id[32] = {"lx:profile"};
 	id[10] = '\0';
 	fwrite(id, sizeof(char), 32, fp);
 
@@ -197,7 +197,7 @@ void ShutdownProfiles(void)
 	}
 
 	// ID & Version
-	static char id[32] = {"lx:profile"};
+	static tChar id[32] = {"lx:profile"};
 	id[10] = '\0';
 	fwrite(id, sizeof(char), 32, fp);
 
@@ -364,7 +364,7 @@ void DeleteProfile(int id)
 
 ///////////////////
 // Add a profile to the list
-void AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty)
+void AddProfile(const tString& name, const tString& skin, const tString& username, const tString& password,  int R, int G, int B, int type, int difficulty)
 {
 	profile_t	*p;
 
@@ -524,9 +524,9 @@ int LoadProfileGraphics(profile_t *p)
 
 ///////////////////
 // General skin colouriser
-SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
+SDL_Surface *LoadSkin(const tString& szSkin, int colR, int colG, int colB)
 {
-   static  std::string buf;
+   static  tString buf;
 
     // Load the skin
     buf = "skins/"; buf += szSkin;

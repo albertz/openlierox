@@ -633,7 +633,7 @@ void Menu_OptionsFrame(void)
 						f = OpenGameFile("Conversations.log","a");
 						if (f)  {
 							if (tLXOptions->iLogConvos)  {
-								static std::string cTime = GetTime();
+								static tString cTime = GetTime();
 								fprintf(f,"<game starttime=\"%s\">\r\n",cTime.c_str());
 							}
 							else
@@ -695,7 +695,7 @@ void Menu_OptionsFrame(void)
 ///////////////////
 // Process an input box waiting thing
 // ply=-1 : general ; ply>=0 : normal player
-void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
+void Menu_OptionsWaitInput(int ply, const tString& name, CInputbox *b)
 {
 	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
@@ -738,7 +738,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		if(kb->KeyUp[SDLK_ESCAPE])
 			break;
 
-		static std::string tmp;
+		static tString tmp;
 		if(inp.Wait(tmp)) {
 			b->setText(tmp);
 			break;

@@ -28,6 +28,8 @@
 #endif // _DEBUG
 #endif // _MSC_VER
 
+//#define UNICODE
+
 // Standard includes
 #include <assert.h>
 #include <stdio.h>
@@ -48,9 +50,6 @@
 #pragma warning(disable: 4996)
 #endif
 
-
-
-
 // file input/output
 
 #include <sys/types.h>
@@ -64,6 +63,11 @@
 inline int mkdir(const char *path, int mode) { return _mkdir(path); }
 #if _MSC_VER <= 1200
 inline size_t strnlen(const char *str, size_t maxlen)  { 
+	register unsigned int i=0;
+	for (;i<maxlen && str[i];i++) {}
+	return i;
+}
+inline size_t wcsnlen(const wchar_t *str, size_t maxlen)  { 
 	register unsigned int i=0;
 	for (;i<maxlen && str[i];i++) {}
 	return i;
@@ -130,9 +134,20 @@ inline char* itoa(int val, char* buf, int base) {
 	
 	return &buf[i+1];
 }
+
+inline wchar_t* itow(int val, wchar_t* buf, int base) {
+	int i = 29; // TODO: bad style!
+	buf[i+1] = '\0';
+
+	for(; val && i ; --i, val /= base)	
+		buf[i] = L"0123456789abcdef"[val % base];
+	
+	return &buf[i+1];
+}
 #	define		stricmp		strcasecmp
 #else // WIN32
 #	define		strcasecmp	stricmp
+#	define		itow		_itow
 #endif
 
 // --------------------------------------------
@@ -196,6 +211,76 @@ inline T* GetByteSwapped(const T b)
 			{	size_t destlen = strnlen(dest, len); \
 				strncpy(&dest[destlen], src, len-destlen); \
 				dest[len-1] = '\0'; }
+
+
+
+//////////////////////////
+// UNICODE and ASCII handling
+//////////////////////////
+
+#ifdef UNICODE
+//////////
+// UNICODE
+
+wchar_t *AsciiToUnicode(const char *Str, size_t MaxLen)  {
+	if (!Str || !MaxLen) return NULL;
+	size_t len = strnlen(Str,MaxLen);
+	wchar_t *result = new wchar_t[len+1];
+	if (!result) return NULL;
+	for (register unsigned int i=0;i<len; i++)  {
+		result[i] = (wchar_t)Str[i];
+	}
+	result[len] = 0;
+	return result;
+}
+
+char *UnicodeToAscii(const wchar_t *Str, size_t MaxLen)  {
+	if (!Str || !MaxLen) return NULL;
+	size_t len = wcsnlen(Str,MaxLen);
+	char *result = new char[len+1];
+	if (!result) return NULL;
+	for (register unsigned int i=0;i<len; i++)  {
+		result[i] = (char)Str[i];
+	}
+	result[len] = '\0';
+	return result;
+}
+
+/*class tString: public std::wstring  {
+public:
+	tString(const char *str)  { 
+		wchar_t *wstr = AsciiToUnicode(str,strlen(str));
+		if (wstr)  {
+			assign(wstr);
+			delete[] wstr;
+		}
+	}
+
+	inline tString& operator=(const char *str)  {
+		wchar_t *wstr = AsciiToUnicode(str,strlen(str));
+		tString& result=tString("");
+		if (wstr)  {
+			result.assign(wstr);
+			delete[] wstr;
+		}
+		return result;
+	}
+
+	inline tString& operator=(const wchar_t *str)  {
+		return assign(str);
+	}
+};*/
+typedef std::wstring tString;
+
+typedef wchar_t tChar;
+
+////////
+// ASCII
+#else
+
+typedef std::string tString;
+typedef char tChar;
+#endif
 
 
 #include "Networking.h"

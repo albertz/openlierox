@@ -43,7 +43,7 @@
 
 class conline_t { public:
 	int			Colour;
-	std::string	strText;
+	tString	strText;
 };
 
 
@@ -83,10 +83,10 @@ void	Con_ProcessCharacter(int input);
 void	Con_Hide(void);
 void	Con_Draw(SDL_Surface *bmpDest);
 
-void	Con_AddText(int colour, const std::string& text);
+void	Con_AddText(int colour, const tString& text);
 void	Con_Printf(int colour, char *fmt, ...);
-void	Con_Printf(int colour, const std::string& txt); // same as Con_AddText
-void	Con_AddHistory(const std::string& text);
+void	Con_Printf(int colour, const tString& txt); // same as Con_AddText
+void	Con_AddHistory(const tString& text);
 
 void	Con_Parse(void);
 

@@ -21,7 +21,7 @@
 
 ///////////////////
 // Save the script (compiler)
-int CGameScript::Save(const std::string& filename)
+int CGameScript::Save(const tString& filename)
 {
 	FILE *fp;
 	int n;
@@ -296,12 +296,12 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 
 ///////////////////
 // Load the game script from a file (game)
-int CGameScript::Load(const std::string& dir)
+int CGameScript::Load(const tString& dir)
 {
 	
 	FILE *fp;
 	int n;	
-	static std::string filename;
+	static tString filename;
 
 	filename = dir + "/script.lgs";
 	sDirectory = dir;
@@ -729,10 +729,10 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 
 ///////////////////
 // Load an image
-SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
+SDL_Surface *CGameScript::LoadGSImage(const tString& dir, const tString& filename)
 {
 	SDL_Surface *img = NULL;
-	static std::string buf;
+	static tString buf;
 
 	// First, check the gfx directory in the mod dir
 	buf = dir + "/gfx/" + filename;
@@ -742,17 +742,17 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 		return img;
 
 	// Check the gfx directory in the data dir
-	buf = std::string("data/gfx/") + filename;
+	buf = tString("data/gfx/") + filename;
 	return LoadImage(buf);
 }
 
 
 ///////////////////
 // Load a sample
-SoundSample* CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
+SoundSample* CGameScript::LoadGSSample(const tString& dir, const tString& filename)
 {
 	SoundSample* smp = NULL;
-	static std::string buf;
+	static tString buf;
 
 	// First, check the sfx directory in the mod dir
 	buf = dir + "/sfx/" + filename;
@@ -772,7 +772,7 @@ SoundSample* CGameScript::LoadGSSample(const std::string& dir, const std::string
 
 ///////////////////
 // Find a weapon based on its name
-weapon_t *CGameScript::FindWeapon(const std::string& name)
+weapon_t *CGameScript::FindWeapon(const tString& name)
 {
 	int n;
 
@@ -791,7 +791,7 @@ weapon_t *CGameScript::FindWeapon(const std::string& name)
 
 ///////////////////
 // Returns true if the weapon is in the game script
-bool CGameScript::weaponExists(const std::string& szName)
+bool CGameScript::weaponExists(const tString& szName)
 {
     // Go through each weapon
 	weapon_t *wpn = Weapons;
@@ -808,7 +808,7 @@ bool CGameScript::weaponExists(const std::string& szName)
 
 ///////////////////
 // Write a string in pascal format
-void CGameScript::writeString(const std::string& szString, FILE *fp)
+void CGameScript::writeString(const tString& szString, FILE *fp)
 {
     if(szString == "") return;
 
@@ -826,9 +826,9 @@ void CGameScript::writeString(const std::string& szString, FILE *fp)
 
 ///////////////////
 // Read a string in pascal format
-std::string CGameScript::readString(FILE *fp)
+tString CGameScript::readString(FILE *fp)
 {
-	static char buf[256];
+	static tChar buf[256];
 
     uchar length;
     fread( &length, sizeof(uchar), 1, fp );
@@ -882,10 +882,10 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 
 ///////////////////
 // Check if a file is a valid liero game script
-int CGameScript::CheckFile(const std::string& dir, std::string& name)
+int CGameScript::CheckFile(const tString& dir, tString& name)
 {
 	name = "";
-	std::string filename = dir + "/script.lgs";
+	tString filename = dir + "/script.lgs";
 	
 	// Open it
 	FILE *fp = OpenGameFile(filename,"rb");
@@ -914,9 +914,9 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name)
 
 ///////////////////
 // Return an error message based on code
-std::string CGameScript::getError(int code)
+tString CGameScript::getError(int code)
 {
-	std::string text = "Undefined error";
+	tString text = "Undefined error";
 
 	switch(code) {
 
@@ -945,7 +945,7 @@ std::string CGameScript::getError(int code)
 // Write info to a mod log file
 void CGameScript::modLog(char *fmt, ...)
 {
-    static char    buf[1024];
+    static tChar    buf[1024];
 
     va_list	va;
 

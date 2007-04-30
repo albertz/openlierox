@@ -21,8 +21,8 @@
 // Ban List structure
 class banlist_t { public:
 
-    std::string szNick;
-    std::string szAddress;
+    tString szNick;
+    tString szAddress;
 
     banlist_t   *psNext;
     banlist_t   *psLink;        // For sorted array
@@ -38,7 +38,7 @@ private:
     banlist_t   *m_psBanList;
     banlist_t   *m_psSortedList;
     int         m_nCount;
-	std::string	m_szPath;
+	tString	m_szPath;
 	bool		m_bLoading;
 
 
@@ -49,15 +49,15 @@ public:
     // Constructor
     CBanList();
 
-    void        loadList(const std::string& szFilename);
-    void        saveList(const std::string& szFilename);
+    void        loadList(const tString& szFilename);
+    void        saveList(const tString& szFilename);
     void        Shutdown(void);
 
-    bool        isBanned(const std::string& szAddress);
+    bool        isBanned(const tString& szAddress);
 
-	void		addBanned(const std::string& szAddress, const std::string& szNick);
-	void		removeBanned(const std::string& stAddress);
-    banlist_t   *findBanned(const std::string& szAddress);
+	void		addBanned(const tString& szAddress, const tString& szNick);
+	void		removeBanned(const tString& stAddress);
+    banlist_t   *findBanned(const tString& szAddress);
 
     void        sortList(void);
 	void		Clear(void);
@@ -65,9 +65,9 @@ public:
     banlist_t   *getList(void);
     int         getNumItems(void);
 
-	std::string getPath(void);
+	tString getPath(void);
 	banlist_t	*getItemById(int ID);
-	int			getIdByAddr(const std::string& szAddress);
+	int			getIdByAddr(const tString& szAddress);
 
 };
 

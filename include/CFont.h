@@ -56,26 +56,26 @@ private:
 public:
 	// Methods
 
-	int				Load(const std::string& fontname, bool _colour);
+	int				Load(const tString& fontname, bool _colour);
 	void			CalculateWidth(void);
 
 	void			PreCalculate(SDL_Surface *bmpSurf, Uint32 colour);
 
 	void			Draw(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt,...);
-	void			Draw(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt);
+	void			Draw(SDL_Surface *dst, int x, int y, Uint32 col, const tString& txt);
 	void			DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, char *fmt,...);
-	void			DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt);
+	void			DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const tString& txt);
 	void			DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, char *fmt,...);
-	void			DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt);
+	void			DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const tString& txt);
 	void			DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, char *fmt,...);
-	void			DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt);
+	void			DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const tString& txt);
 
 	void			Shutdown(void);
 
 	void			SetOutline(int Outline);
 	int				IsOutline(void);
 
-	int				GetWidth(const std::string& buf);
+	int				GetWidth(const tString& buf);
 	int				GetHeight(void)					{ return bmpFont->h; }
 	int				TranslateCharacter(char c);
 

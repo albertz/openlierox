@@ -41,7 +41,7 @@ SDL_Surface	*Screen;
 
 CVec		vGravity = CVec(0,4);
 
-std::string	binary_dir; // given by argv[0]
+tString	binary_dir; // given by argv[0]
 
 ///////////////////
 // Main entry point
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
 	binary_dir = argv[0];
 	size_t slashpos = findLastPathSep(binary_dir);
-	if(slashpos != std::string::npos)
+	if(slashpos != tString::npos)
 		binary_dir.erase(slashpos);
 	else
 		binary_dir = "."; // TODO get exact path of binary
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 
 		f = OpenGameFile("Conversations.log","a");
 		if (f)  {	
-			std::string cTime = GetTime();
+			tString cTime = GetTime();
 			fputs("<game starttime=\"",f);
 			fputs(cTime.c_str(),f);
 			fputs("\">\r\n",f);

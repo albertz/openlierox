@@ -58,7 +58,7 @@ enum {
 
 // Column structure
 class lv_column_t { public:
-	std::string	sText;
+	tString	sText;
 	int			iWidth;
 	bool		bDown;
 	int			iSorted; // -1 = unsorted, 0 = descending, 1 = ascending
@@ -71,7 +71,7 @@ class lv_column_t { public:
 // Sub item structure
 class lv_subitem_t { public:
 	int			iType;
-	std::string	sText;
+	tString	sText;
 	SDL_Surface	*bmpImage;
 	int			iVisible;
 	int			iExtra;
@@ -83,7 +83,7 @@ class lv_subitem_t { public:
 
 // Item structure
 class lv_item_t { public:
-	std::string	sIndex;
+	tString	sIndex;
 	int			iIndex;
     int         _iID;
 	int			iSelected;
@@ -178,8 +178,8 @@ public:
 	void	LoadStyle(void) {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
-	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, const tString& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, tString *sStr, DWORD Param);
 
 	void	ReadjustScrollbar(void);
 
@@ -188,9 +188,9 @@ public:
 	void	SortBy(int column, bool ascending);
 	void	ReSort(void);
 
-	void	AddColumn(const std::string& sText, int iWidth);
-	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img);
+	void	AddColumn(const tString& sText, int iWidth);
+	void	AddItem(const tString& sIndex, int iIndex, int iColour);
+	void	AddSubitem(int iType, const tString& sText, SDL_Surface *img);
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
 
@@ -207,7 +207,7 @@ public:
     void    scrollLast(void);
 
 	int		getCurIndex(void)		{ if(tSelected) return tSelected->iIndex; else return -1; }
-	std::string getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return NULL; }
+	tString getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return NULL; }
 	lv_subitem_t	*getCurSubitem(int index);
 
 	int		getCursor(void)			{ return iCursor; }
@@ -219,7 +219,7 @@ public:
 	lv_item_t	*getItems(void)			{ return tItems; }
 	lv_item_t	*getLastItem(void)	{ return tLastItem; }
 	lv_item_t* getItem(int index);
-	lv_item_t* getItem(const std::string& name);
+	lv_item_t* getItem(const tString& name);
 
 	int		getClickedSub(void)		{ return iClickedSub; }
 

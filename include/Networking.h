@@ -53,13 +53,13 @@
 // TODO: put this into a class and clean it up a bit
 // HTTP Request
 void	http_Init();
-bool	http_InitializeRequest(const std::string& host, const std::string& url);
-void	http_ConvertUrl(std::string& dest, const std::string& url);
-int		http_ProcessRequest(std::string *szError);
+bool	http_InitializeRequest(const tString& host, const tString& url);
+void	http_ConvertUrl(tString& dest, const tString& url);
+int		http_ProcessRequest(tString *szError);
 bool	http_SendRequest(void);
 void	http_RemoveHeader(void);
-const std::string& http_GetContent(void);
-void    http_CreateHostUrl(const std::string& host, const std::string& url);
+const tString& http_GetContent(void);
+void    http_CreateHostUrl(const tString& host, const tString& url);
 void	http_Quit(void);
 
 // socket address; this type will be given around as pointer
@@ -82,13 +82,13 @@ bool	ConnectSocket(NetworkSocket sock, const NetworkAddr* addr);
 bool	ListenSocket(NetworkSocket sock);
 bool	CloseSocket(NetworkSocket sock);
 int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
-int		WriteSocket(NetworkSocket sock, const std::string& buffer);
+int		WriteSocket(NetworkSocket sock, const tString& buffer);
 int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
 bool	IsSocketStateValid(NetworkSocket sock);
 void	SetSocketStateValid(NetworkSocket& sock, bool valid);
 
 int		GetSocketErrorNr();
-const std::string	GetSocketErrorStr(int errnr);
+const tString	GetSocketErrorStr(int errnr);
 bool	IsMessageEndSocketErrorNr(int errnr);
 
 bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr);
@@ -97,13 +97,13 @@ bool	SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr* addr);
 bool	IsNetAddrValid(NetworkAddr* addr);
 bool	SetNetAddrValid(NetworkAddr* addr, bool valid);
 void	ResetNetAddr(NetworkAddr* addr);
-bool	StringToNetAddr(const std::string& string, NetworkAddr* addr);
-bool	NetAddrToString(const NetworkAddr* addr, std::string& string);
+bool	StringToNetAddr(const tString& string, NetworkAddr* addr);
+bool	NetAddrToString(const NetworkAddr* addr, tString& string);
 unsigned short GetNetAddrPort(NetworkAddr* addr);
 bool	SetNetAddrPort(NetworkAddr* addr, unsigned short port);
 bool	AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2);
-bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr* addr);
-void	AddToDnsCache(const std::string& name, const NetworkAddr* addr);
-bool	GetFromDnsCache(const std::string& name, NetworkAddr* addr);
+bool	GetNetAddrFromNameAsync(const tString& name, NetworkAddr* addr);
+void	AddToDnsCache(const tString& name, const NetworkAddr* addr);
+bool	GetFromDnsCache(const tString& name, NetworkAddr* addr);
 
 #endif  //  __NETWORKING_H__

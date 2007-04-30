@@ -40,7 +40,7 @@ void CImage::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Changes the image
-void CImage::Change(const std::string& Path)
+void CImage::Change(const tString& Path)
 {
 	if(Path == "")
 		return;

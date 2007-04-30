@@ -27,7 +27,7 @@
 
 // Command structure
 class command_t { public:
-	std::string		strName;
+	tString		strName;
 	void			(*func) ( void );
 
 	command_t	*Next;
@@ -36,16 +36,16 @@ class command_t { public:
 
 // Arguments
 int		Cmd_GetNumArgs(void);
-void	Cmd_AddArg(const std::string& text);
-std::string Cmd_GetArg(int a);
+void	Cmd_AddArg(const tString& text);
+tString Cmd_GetArg(int a);
 
 
 
 // Command routines
-command_t	*Cmd_GetCommand(const std::string& strName);
-void	Cmd_ParseLine(const std::string& text);
-int		Cmd_AutoComplete(std::string& strVar, int *iLength);
-int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ));
+command_t	*Cmd_GetCommand(const tString& strName);
+void	Cmd_ParseLine(const tString& text);
+int		Cmd_AutoComplete(tString& strVar, int *iLength);
+int		Cmd_AddCommand(const tString& strName, void (*func) ( void ));
 void	Cmd_FreeCommands(void);
 void	Cmd_Free(void);
 

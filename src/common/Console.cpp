@@ -314,7 +314,7 @@ void Con_ProcessCharacter(int input)
 			Console->iCurpos = Console->iCurLength;
 
 		// Get the text
-		std::string buf;
+		tString buf;
 		buf = GetClipboardText();
 
 		// Paste
@@ -361,7 +361,7 @@ void Con_ProcessCharacter(int input)
 		if (Console->iCurpos > Console->iCurLength)
 			Console->iCurpos = Console->iCurLength;
 
-		static std::string tmp;
+		static tString tmp;
 		tmp = (char)input;
 		Console->Line[0].Colour = CNC_NORMAL;
 		Console->Line[0].strText.insert(Console->iCurpos, tmp);
@@ -375,7 +375,7 @@ void Con_ProcessCharacter(int input)
 // Print a formatted string to the console
 void Con_Printf(int colour, char *fmt, ...)
 {
-	static char buf[2048];
+	static tChar buf[2048];
 	va_list	va;
 
 	va_start(va,fmt);
@@ -388,18 +388,18 @@ void Con_Printf(int colour, char *fmt, ...)
     //printf("Con: %s\n",buf);
 }
 
-void Con_Printf(int color, const std::string& txt) {
+void Con_Printf(int color, const tString& txt) {
 	Con_AddText(color, txt);
 }
 
 ///////////////////
 // Add a string of text to the console
-void Con_AddText(int colour, const std::string& text)
+void Con_AddText(int colour, const tString& text)
 {
 	if (text == "")
 		return;
 
-	const std::vector<std::string>& lines = explode(text,"\n");
+	const std::vector<tString>& lines = explode(text,"\n");
 
 	// Move all the text up, losing the last line
 	int n;
@@ -411,7 +411,7 @@ void Con_AddText(int colour, const std::string& text)
 
 	// Add the lines
 	n=1;
-	for (std::vector<std::string>::const_iterator it=lines.begin();it != lines.end();it++,n++)  {
+	for (std::vector<tString>::const_iterator it=lines.begin();it != lines.end();it++,n++)  {
 		Console->Line[n].strText = *it;
 		Console->Line[n].Colour = colour;
 	}
@@ -420,7 +420,7 @@ void Con_AddText(int colour, const std::string& text)
 
 ///////////////////
 // Add a command to the history
-void Con_AddHistory(const std::string& text)
+void Con_AddHistory(const tString& text)
 {
 	// Move the history up one, dropping the last
 	for(int n=MAX_CONHISTORY-2;n>=0;n--)
@@ -443,7 +443,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 
 	int y = (int)(-Console->fPosition * (float)Console->bmpConPic->h);
 	int texty = y+Console->bmpConPic->h-28;
-	static std::string buf;
+	static tString buf;
 
 	const Uint32 Colours[6] = {tLX->clWhite, MakeColour(200,200,200), MakeColour(255,0,0), MakeColour(200,128,128),
 		                 MakeColour(100,100,255), MakeColour(100,255,100) };

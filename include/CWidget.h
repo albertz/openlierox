@@ -125,8 +125,8 @@ public:
 	virtual	void	Draw(SDL_Surface *bmpDest) = 0;
 
 	virtual DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;
-	virtual DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) = 0;
-	virtual DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param) = 0;
+	virtual DWORD	SendMessage(int iMsg, const tString& sStr, DWORD Param) = 0;
+	virtual DWORD	SendMessage(int iMsg, tString *sStr, DWORD Param) = 0;
 };
 
 

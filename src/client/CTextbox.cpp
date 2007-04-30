@@ -42,8 +42,8 @@ void CTextbox::Create(void)
 // Draw the text box
 void CTextbox::Draw(SDL_Surface *bmpDest)
 {
-	std::string buf = "";
-	std::string text = "";
+	tString buf = "";
+	tString text = "";
 
 	text = sText;
 
@@ -54,7 +54,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
-		for(std::string::iterator t=text.begin();t!=text.end();t++)
+		for(tString::iterator t=text.begin();t!=text.end();t++)
 			*t='*';
 	}
 
@@ -254,10 +254,10 @@ int CTextbox::KeyDown(int c)
 
 		if (tLX->cFont.GetWidth(sText) > iWidth-3)  {
 			iScrollPos = 0;
-			static std::string buf;
-			for (std::string::iterator it=sText.begin(); it != sText.end(); it++)  {
+			static tString buf;
+			for (tString::iterator it=sText.begin(); it != sText.end(); it++)  {
 				iScrollPos++;
-				if(tLX->cFont.GetWidth(std::string(it, sText.end())) < iWidth)
+				if(tLX->cFont.GetWidth(tString(it, sText.end())) < iWidth)
 					break;
 			}
 		}
@@ -300,7 +300,7 @@ int CTextbox::KeyDown(int c)
 	// Insert character
 	if (c >= 128)  {
 #ifdef WIN32
-		static char charbuf[2];
+		static tChar charbuf[2];
 		static ushort utfbuf[2];
 		utfbuf[0] = c;
 		utfbuf[1] = 0;
@@ -333,7 +333,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	int deltaX = tMouse->X - iX;
 	iDrawCursor = true;
 
-	//static std::string buf;
+	//static tString buf;
 
 	if (sText == "")
 		return TXT_MOUSEOVER;
@@ -377,7 +377,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		if (deltaX < (tLX->cFont.GetWidth(sText.substr(0,1))/2))  // Area before the first character
 			iCurpos = iScrollPos;
 		else  {
-			std::string buf = sText.substr(iScrollPos);
+			tString buf = sText.substr(iScrollPos);
 			size_t pos = sText.length();
 			int w,prev_w;
 			w=prev_w=0;
@@ -545,12 +545,12 @@ void CTextbox::Insert(char c)
 
 /////////////////////
 // Replace the current text with the buf
-void CTextbox::setText(const std::string& buf)
+void CTextbox::setText(const tString& buf)
 {
 	sText = "";
 
 	// Copy the text and ignore unknown characters
-	for (std::string::const_iterator it=buf.begin(); it != buf.end(); it++)
+	for (tString::const_iterator it=buf.begin(); it != buf.end(); it++)
 		if(*it > 31 && *it <127)
 			sText += *it;
 
@@ -590,7 +590,7 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 	return 0;
 }
 
-DWORD CTextbox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
+DWORD CTextbox::SendMessage(int iMsg, const tString& sStr, DWORD Param)
 {
 	switch (iMsg)  {
 
@@ -604,7 +604,7 @@ DWORD CTextbox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 }
 
 
-DWORD CTextbox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
+DWORD CTextbox::SendMessage(int iMsg, tString *sStr, DWORD Param)
 {
 	switch (iMsg)  {
 
@@ -623,7 +623,7 @@ DWORD CTextbox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 // Paste some text from the clipboard
 void CTextbox::PasteText(void)
 {
-	std::string text;
+	tString text;
 
 	if(iSelLength)
 		Delete();
@@ -631,7 +631,7 @@ void CTextbox::PasteText(void)
     text = GetClipboardText();
 
 	// Insert the text
-	for(std::string::const_iterator i = text.begin(); i != text.end(); i++)
+	for(tString::const_iterator i = text.begin(); i != text.end(); i++)
 		Insert( *i );
 }
 

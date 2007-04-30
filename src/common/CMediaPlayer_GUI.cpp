@@ -152,7 +152,7 @@ int CPlayerToggleBtn::MouseUp(mouse_t *tMouse,int nDown)
 
 /////////////////////////
 // Constructor
-CPlayerMarquee::CPlayerMarquee(const std::string& text, Uint32 col)  {
+CPlayerMarquee::CPlayerMarquee(const tString& text, Uint32 col)  {
 	szText = text;
 	fTime = 0;
 	fEndWait = 0;
@@ -240,7 +240,7 @@ enum  {
 
 ////////////////////////
 // Runs the dialog, returns the directory user selected
-std::string COpenAddDir::Execute(const std::string& default_dir)
+tString COpenAddDir::Execute(const tString& default_dir)
 {
 	szDir = default_dir;
 
@@ -322,7 +322,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 					// Check that this is not the parent or current directory
 					// TODO !
 					size_t dir_name_pos = findLastPathSep(lv->getCurSIndex());
-					if (dir_name_pos == std::string::npos)
+					if (dir_name_pos == tString::npos)
 						break;
 
 					if(lv->getCurSIndex().substr(dir_name_pos+1) == ".." || lv->getCurSIndex().substr(dir_name_pos+1) == ".")
@@ -412,11 +412,11 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 
 ////////////////////
 // Checks if the given directory is the root directory
-bool COpenAddDir::IsRoot(const std::string& dir)
+bool COpenAddDir::IsRoot(const tString& dir)
 {
 	// TODO: what is the sense of this?
 
-	std::string tmp;
+	tString tmp;
 	tmp = dir;
 
 	// Adjust
@@ -431,15 +431,15 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 
 	// If we can't find another slash, this must be the parent directory
 	size_t slash = findLastPathSep(tmp);
-	if(slash == std::string::npos)
+	if(slash == tString::npos)
 		return true;
 
 	// If there's a slash and this is the link to the parent directory, check, if there's another slash
-	if(tmp.compare(slash+1,std::string::npos,"..") == 0) {
+	if(tmp.compare(slash+1,tString::npos,"..") == 0) {
 		tmp.erase(slash);
 		slash = findLastPathSep(tmp);
 		// Not another slash, this is a root directory
-		if (slash == std::string::npos)
+		if (slash == tString::npos)
 			return true;
 
 	}
@@ -458,14 +458,14 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 			CListview* lv;
 			int* index;
 			int* selected;
-			const std::string& parent_dir;
-			addDirToList(CListview* l, int* i, int* s, const std::string& pd) : lv(l), index(i), selected(s), parent_dir(pd) {}
-			inline bool operator() (const std::string& directory) {
+			const tString& parent_dir;
+			addDirToList(CListview* l, int* i, int* s, const tString& pd) : lv(l), index(i), selected(s), parent_dir(pd) {}
+			inline bool operator() (const tString& directory) {
 				// Extract the directory name from the path
 				size_t dir_sep = findLastPathSep(directory);
 
 				// Add the directory
-				if (dir_sep != std::string::npos)  {
+				if (dir_sep != tString::npos)  {
 					if(parent_dir == directory.substr(dir_sep+1))
 						*selected = *index;
 
@@ -479,11 +479,11 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 
 ///////////////////////
 // Fills the list with the subdirectories of the "dir"
-void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
+void COpenAddDir::ReFillList(CListview *lv, const tString& dir)
 {
-	/*static*/ std::string directory;
-	/*static*/ std::string tmp_dir;
-	/*static*/ std::string parent_dir;
+	/*static*/ tString directory;
+	/*static*/ tString tmp_dir;
+	/*static*/ tString parent_dir;
 	size_t dir_name_pos;
 	int index=0;
 	int len = 0;
@@ -504,12 +504,12 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 	// TODO: i don't completly understand the sense of this
 	// (and i am realy sure that it is wrong in some cases)
 	isroot = IsRoot(tmp_dir);
-	if(!isroot || (isroot && ((dir_name_pos = tmp_dir.find("../")) == std::string::npos))) {
+	if(!isroot || (isroot && ((dir_name_pos = tmp_dir.find("../")) == tString::npos))) {
 		// Handle the parent directory
-		if((dir_name_pos = tmp_dir.find("../")) != std::string::npos) {
+		if((dir_name_pos = tmp_dir.find("../")) != tString::npos) {
 			tmp_dir.erase(dir_name_pos-1);
 			dir_name_pos = findLastPathSep(tmp_dir);
-			if(dir_name_pos != std::string::npos)  {
+			if(dir_name_pos != tString::npos)  {
 				parent_dir = tmp_dir.substr(dir_name_pos+1);
 				tmp_dir.erase(dir_name_pos+1);
 			}
@@ -528,7 +528,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 	if (goto_drive_list)  {
 		int index = 0;
 		drive_list drives = GetDrives();
-		char cur_drive = tmp_dir[0]; // TODO: use std::string
+		char cur_drive = tmp_dir[0]; // TODO: use tString
 		for (drive_list::const_iterator i=drives.begin(); i != drives.end();i++)  {
 #ifdef WIN32
 			if (i->type != DRV_CDROM)  {

@@ -120,7 +120,7 @@ typedef struct {
 // Weapon structure
 class weapon_t { public:
 	int		ID;
-	std::string	Name; // (was 64b before)
+	tString	Name; // (was 64b before)
 	int		Type;
 	int		Special;
 	int		Class;
@@ -129,7 +129,7 @@ class weapon_t { public:
 	float	Drain;
 	float	ROF;
 	int		UseSound;
-	std::string	SndFilename; // (was 64b before)
+	tString	SndFilename; // (was 64b before)
 	int		LaserSight;
 	
 	// Projectile
@@ -174,7 +174,7 @@ public:
 private:
 	// Attributes
 
-	std::string		sDirectory;
+	tString		sDirectory;
 
 
 	// Header
@@ -201,30 +201,30 @@ private:
 public:
 	// Methods
 
-	int			Load(const std::string& dir);
+	int			Load(const tString& dir);
 	proj_t		*LoadProjectile(FILE *fp);
 	
-	int			Save(const std::string& filename);
+	int			Save(const tString& filename);
 	int			SaveProjectile(proj_t *proj, FILE *fp);
 
-    void        writeString(const std::string& szString, FILE *fp);
-    std::string readString(FILE *fp);
+    void        writeString(const tString& szString, FILE *fp);
+    tString readString(FILE *fp);
 
 	void		Shutdown(void);
 	void		ShutdownProjectile(proj_t *prj);
 
-	std::string	getError(int code);
+	tString	getError(int code);
 
-	weapon_t	*FindWeapon(const std::string& name);
-    bool        weaponExists(const std::string& szName);
+	weapon_t	*FindWeapon(const tString& name);
+    bool        weaponExists(const tString& szName);
 
-	static int	CheckFile(const std::string& dir, std::string& name);
+	static int	CheckFile(const tString& dir, tString& name);
 
     void        modLog(char *fmt, ...);
 
 #ifndef _CONSOLE
-	SDL_Surface* LoadGSImage(const std::string& dir, const std::string& filename);
-	SoundSample* LoadGSSample(const std::string& dir, const std::string& filename);
+	SDL_Surface* LoadGSImage(const tString& dir, const tString& filename);
+	SoundSample* LoadGSSample(const tString& dir, const tString& filename);
 #endif
 
 

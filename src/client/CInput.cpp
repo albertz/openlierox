@@ -159,9 +159,9 @@ SDL_Joystick *joy1,*joy2;
 
 ///////////////////
 // Load the input from a config file
-int CInput::Load(const std::string& name, const std::string& section)
+int CInput::Load(const tString& name, const tString& section)
 {
-	static std::string string;
+	static tString string;
 
 	Down = false;
 
@@ -173,13 +173,13 @@ int CInput::Load(const std::string& name, const std::string& section)
 
 
 int CInput::Wait() {
-	static std::string tmp;
+	static tString tmp;
 	return Wait(tmp);
 }
 
 ///////////////////
 // Waits for any input (used in a loop)
-int CInput::Wait(std::string& strText)
+int CInput::Wait(tString& strText)
 {
 	mouse_t *Mouse = GetMouse();
 	keyboard_t *kb = GetKeyboard();
@@ -217,7 +217,7 @@ int CInput::Wait(std::string& strText)
 
 ///////////////////
 // Setup
-int CInput::Setup(const std::string& string)
+int CInput::Setup(const tString& string)
 {
 	unsigned int n;
 

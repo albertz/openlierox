@@ -29,13 +29,13 @@
 extern	int		iSurfaceFormat;
 
 
-SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
+SDL_Surface*	LoadImage(const tString& _filename, bool withalpha = false);
 
 #define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
 #define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
 
 
-inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
+inline bool Load_Image(SDL_Surface*& bmp, const tString& name)  {
 	bmp = LoadImage(name); 
 	if (bmp == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
@@ -44,7 +44,7 @@ inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
 	return true;
 }
 
-inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
+inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const tString& name)  {
 	bmp = LoadImage(name, true);
 	if (bmp == NULL)  { 
 		printf("WARNING: could not load image %s\n", name.c_str()); 
@@ -237,6 +237,6 @@ void	DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 
-bool	SaveSurface(SDL_Surface *Image, const std::string& FileName, int Format, bool Tournament);
+bool	SaveSurface(SDL_Surface *Image, const tString& FileName, int Format, bool Tournament);
 
 #endif  //  __GFXPRIMITIVES_H__
