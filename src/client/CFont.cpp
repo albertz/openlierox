@@ -281,7 +281,9 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 	pos=0;
 	for(std::string::const_iterator p = txt.begin(); p != txt.end(); p++) {
-		l = TranslateCharacter(*p);
+		l = TranslateCharacter(p);
+		if (l == -1)
+			continue;
 
 		// Line break
 		if (*p == '\n')  {
@@ -385,7 +387,7 @@ int CFont::GetWidth(const std::string& buf) {
 	
 	// Calculate the length of the text
 	for(std::string::const_iterator p = buf.begin(); p != buf.end(); p++) {
-		l = TranslateCharacter(*p);
+		l = TranslateCharacter(p);
 		if (l != -1)
 			length += FontWidth[l]+Spacing;
 	}
@@ -395,24 +397,13 @@ int CFont::GetWidth(const std::string& buf) {
 
 /////////////////////
 // Translates the character to the position in Fontstr array, returns -1 if impossible
-int CFont::TranslateCharacter(char c)
+uint CFont::TranslateCharacter(std::string::const_iterator &it)
 {
-	if (c < 32)  {
-#ifdef WIN32
-		static char charbuf[2];
-		static ushort utfbuf[2];
-		charbuf[0] = c;
-		charbuf[1] = '\0';
-		::MultiByteToWideChar(CP_ACP, 0, charbuf, 1, utfbuf, 1);
-		if (utfbuf[0] > NUM_CHARACTERS+65)
-			return -1;
-		else
-			return utfbuf[0]-65;
-#else  // LINUX
-		return (uchar)c-32; // TODO: does it work?
-#endif
-	} else
-		return c-32;
+	uint result = GetNextUnicodeFromUtf8(it);
+	if (result > 127) result -= 65;
+	else if (result < 32 || result >= NUM_CHARACTERS) result = -1;
+	else result -= 32;
+	return result;
 }
 
 

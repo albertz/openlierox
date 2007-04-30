@@ -714,7 +714,6 @@ std::string GetFileExtension(const std::string& filename) {
 
 void printf(const std::string& txt) {
 	printf("%s", txt.c_str());
-
 // Print out to debug pane
 #ifdef _MSC_VER
 	// TODO: this is wrong!
@@ -723,6 +722,83 @@ void printf(const std::string& txt) {
 	// 3. for debugging, we should create and use some common function
 	OutputDebugStringA(txt.c_str());
 #endif
+}
+
+void UNICODE_to_UTF8(char *utf8, ushort unicode)
+{
+    int j=0;
+
+    if (unicode < 0x80)
+    {
+        utf8[j] = unicode & 0x7F;
+    }
+    else if (unicode < 0x800)
+    {
+        utf8[j] = 0xC0 | (unicode >> 6);
+        utf8[++j] = 0x80 | (unicode & 0x3F);
+    }
+    else if (unicode < 0x10000)
+    {
+        utf8[j] = 0xE0 | (unicode >> 12);
+        utf8[++j] = 0x80 | ((unicode >> 6) & 0x3F);
+        utf8[++j] = 0x80 | (unicode & 0x3F);
+    }
+    else if (unicode < 0x200000)
+    {
+        utf8[j] = 0xF0 | (unicode >> 18);
+        utf8[++j] = 0x80 | ((unicode >> 12) & 0x3F);
+        utf8[++j] = 0x80 | ((unicode >> 6) & 0x3F);
+        utf8[++j] = 0x80 | (unicode & 0x3F);
+    }
+    else if (unicode < 0x4000000)
+    {
+        utf8[j] = 0xF8 | (unicode >> 24);
+        utf8[++j] = 0x80 | ((unicode >> 18) & 0x3F);
+        utf8[++j] = 0x80 | ((unicode >> 12) & 0x3F);
+        utf8[++j] = 0x80 | ((unicode >> 6) & 0x3F);
+        utf8[++j] = 0x80 | (unicode & 0x3F);
+    }
+    else if (unicode < 0x80000000)
+    {
+            utf8[j] = 0xFC | (unicode >> 30);
+        utf8[++j] = 0x80 | ((unicode >> 24) & 0x3F);
+        utf8[++j] = 0x80 | ((unicode >> 18) & 0x3F);
+        utf8[++j] = 0x80 | ((unicode >> 12) & 0x3F);
+        utf8[++j] = 0x80 | ((unicode >> 6) & 0x3F);
+        utf8[++j] = 0x80 | (unicode & 0x3F);
+    }
+
+    utf8[++j] = 0;
+}
+
+
+uint GetNextUnicodeFromUtf8(std::string::const_iterator &it)
+{
+	ushort ch = 0;
+	ch = ((const unsigned char)*it);
+	if ( ch >= 0xF0 ) {
+		ch  =  (Uint16)(*it&0x07) << 18;it++;
+		ch |=  (Uint16)(*it&0x3F) << 12;it++;
+		ch |=  (Uint16)(*it&0x3F) << 6;it++;
+		ch |=  (Uint16)(*it&0x3F);
+	} else
+	if ( ch >= 0xE0 ) {
+		ch  =  (Uint16)(*it&0x0F) << 12;it++;
+		ch |=  (Uint16)(*it&0x3F) << 6;it++;
+		ch |=  (Uint16)(*it&0x3F);
+	} else
+	if ( ch >= 0xC0 ) {
+		ch  =  (Uint16)(*it&0x1F) << 6;it++;
+		ch |=  (Uint16)(*it&0x3F);
+	}
+	return ch;
+}
+
+std::string GetUtf8FromUnicode(uint UnicodeChar)
+{
+	static char utf8[8];
+	UNICODE_to_UTF8(utf8,UnicodeChar);
+	return std::string(utf8);
 }
 
 

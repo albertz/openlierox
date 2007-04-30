@@ -52,7 +52,6 @@ private:
     Uint32 f_white;
     Uint32 f_green;
 
-
 public:
 	// Methods
 
@@ -77,7 +76,7 @@ public:
 
 	int				GetWidth(const std::string& buf);
 	int				GetHeight(void)					{ return bmpFont->h; }
-	int				TranslateCharacter(char c);
+	uint			TranslateCharacter(std::string::const_iterator &it);
 
 	inline void		SetSpacing(int _s)  { Spacing = _s; }
 	inline int		GetSpacing()		 { return Spacing; }

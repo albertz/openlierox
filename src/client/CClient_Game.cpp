@@ -1674,8 +1674,8 @@ void CClient::processChatCharacter(int c, bool bDown)
 	}
 
     // Normal key
-    if(iChat_Pos < ChatMaxLength-1 && tLX->cFont.TranslateCharacter(c) != -1 ) {
-		char buf[2];
+    if(iChat_Pos < ChatMaxLength-1 ) {
+		/*char buf[2];
 		if (c >= 128)  {
 #ifdef WIN32			
 			static ushort utfbuf[2];
@@ -1689,8 +1689,8 @@ void CClient::processChatCharacter(int c, bool bDown)
 #endif
 		} else  {
 			buf[0]=c; buf[1]=0;
-		}
-		sChat_Text.insert(iChat_Pos,buf);
+		}*/
+		sChat_Text.insert(iChat_Pos,GetUtf8FromUnicode(c));
 		iChat_Pos++;
     }
 }

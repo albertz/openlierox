@@ -239,6 +239,8 @@ bool strincludes(const std::string& str, const std::string& what);
 short stringcasecmp(const std::string& s1, const std::string& s2);
 std::string GetFileExtension(const std::string& filename);
 void printf(const std::string& txt);
+uint GetNextUnicodeFromUtf8(std::string::const_iterator &it);
+std::string GetUtf8FromUnicode(uint UnicodeChar);
 
 template<typename T>
 T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {

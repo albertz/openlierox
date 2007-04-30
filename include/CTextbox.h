@@ -120,7 +120,7 @@ public:
 
 	void	Backspace(void);
 	void	Delete(void);
-	void	Insert(char c);
+	void	Insert(uint c);
 
 	std::string	getText(void)						{ return sText; }
 	void	setText(const std::string& buf);

@@ -298,20 +298,7 @@ int CTextbox::KeyDown(int c)
     }
 
 	// Insert character
-	if (c >= 128)  {
-#ifdef WIN32
-		static char charbuf[2];
-		static ushort utfbuf[2];
-		utfbuf[0] = c;
-		utfbuf[1] = 0;
-		::WideCharToMultiByte(CP_ACP,0,utfbuf,-1,charbuf, 1, NULL, NULL);
-		Insert(charbuf[0]);
-#else  // LINUX
-		Insert((char)(256-c));  // TODO: does it work?
-#endif
-	} else {
-		Insert((char) c);
-	}
+	Insert((uint)c);
 
 	return TXT_CHANGE;
 }
@@ -509,7 +496,7 @@ void CTextbox::Delete(void)
 
 ///////////////////
 // Insert a character
-void CTextbox::Insert(char c)
+void CTextbox::Insert(uint c)
 {
 	// Delete any selection
 	if (iSelLength)
@@ -519,18 +506,12 @@ void CTextbox::Insert(char c)
 	if(iLength >= iMax-2)
 		return;
 
-	if(tLX->cFont.TranslateCharacter(c) == -1)
-		return;
-
 	// Safety
 	if(iCurpos > iLength)
 		iCurpos = iLength;
 
 	//memmove(sText+iCurpos+1,sText+iCurpos,iLength-iCurpos+1);
-	char buf[2];
-	buf[0]=c;
-	buf[1]=0;
-	sText.insert(iCurpos++,buf);
+	sText.insert(iCurpos++,GetUtf8FromUnicode(c));
 	iLength++;
 
 	//sText[iCurpos++] = c;
