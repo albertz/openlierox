@@ -280,17 +280,18 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	Uint32 col2 = col;
 
 	pos=0;
-	for(std::string::const_iterator p = txt.begin(); p != txt.end(); p++) {
-		l = TranslateCharacter(p);
-		if (l == -1)
-			continue;
-
+	for(std::string::const_iterator p = txt.begin(); p != txt.end(); ) {
 		// Line break
 		if (*p == '\n')  {
 			y += bmpFont->h+3;
 			pos = 0;
+			p++;
 			continue;
 		}
+		
+		l = TranslateCharacter(p, txt);
+		if (l == -1)
+			continue;
 
 		// Maximal width overflowed
 		// TODO: doesn't support multiline texts, but it's faster...
@@ -386,8 +387,8 @@ int CFont::GetWidth(const std::string& buf) {
 	short l;
 	
 	// Calculate the length of the text
-	for(std::string::const_iterator p = buf.begin(); p != buf.end(); p++) {
-		l = TranslateCharacter(p);
+	for(std::string::const_iterator p = buf.begin(); p != buf.end(); ) {
+		l = TranslateCharacter(p, buf);
 		if (l != -1)
 			length += FontWidth[l]+Spacing;
 	}
@@ -397,12 +398,18 @@ int CFont::GetWidth(const std::string& buf) {
 
 /////////////////////
 // Translates the character to the position in Fontstr array, returns -1 if impossible
-uint CFont::TranslateCharacter(std::string::const_iterator &it)
+int CFont::TranslateCharacter(std::string::const_iterator &it, const std::string& str)
 {
-	uint result = GetNextUnicodeFromUtf8(it);
-	if (result > 127) result -= 65;
-	else if (result < 32 || result >= NUM_CHARACTERS) result = -1;
-	else result -= 32;
+	// TODO: remove all this and make it new
+	// a hardcoded translation for a font should NEVER be used,
+	// this makes every upcoming version with perhaps more available chars incompatible
+	// perhaps it's also best to not use a translation at all (and directly use Unicode)
+
+	UnicodeChar ch = GetNextUnicodeFromUtf8(it, str);
+	int result;
+	if(ch > 127) result = ch - 65;
+	else if (ch < 32 || ch >= NUM_CHARACTERS) result = -1;
+	else result = ch - 32;
 	return result;
 }
 

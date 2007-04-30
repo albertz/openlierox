@@ -1563,7 +1563,7 @@ void CClient::processChatter(void)
 
 ///////////////////
 // Process a single character chat
-void CClient::processChatCharacter(int c, bool bDown)
+void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 {
 	if (!c)
 		return;
@@ -1593,18 +1593,15 @@ void CClient::processChatCharacter(int c, bool bDown)
     iChat_Lastchar = c;
 
     // Backspace
-    if((char) c == '\b') {
+    if(c == '\b') {
 		if(iChat_Pos > 0)  {
-			//memmove(sChat_Text+iChat_Pos-1,sChat_Text+iChat_Pos,strlen(sChat_Text)-iChat_Pos+1);
 			sChat_Text.erase(--iChat_Pos,1);
-			//iChat_Pos--;
 		}
         return;
     }
 
 	// Delete
 	if (GetKeyboard()->KeyDown[SDLK_DELETE])  {
-		//memmove(sChat_Text+iChat_Pos,sChat_Text+iChat_Pos+1,strlen(sChat_Text)-iChat_Pos+1);
 		sChat_Text.erase(iChat_Pos,1);
 		return;
 	}
@@ -1656,7 +1653,7 @@ void CClient::processChatCharacter(int c, bool bDown)
     }
 
 	// Paste
-	if ((char) c == 22)  {
+	if (c == 22)  {
 		size_t text_len = sChat_Text.length();
 
 		// Safety
@@ -1664,33 +1661,17 @@ void CClient::processChatCharacter(int c, bool bDown)
 			iChat_Pos = text_len;
 
 		// Get the text
-		std::string buf;
-		buf = GetClipboardText();
+		std::string buf = GetClipboardText();
 
 		// Paste
-		sChat_Text.insert(iChat_Pos,buf);
+		sChat_Text.insert(iChat_Pos, buf);
 		iChat_Pos += buf.length();
 		return;
 	}
 
     // Normal key
     if(iChat_Pos < ChatMaxLength-1 ) {
-		/*char buf[2];
-		if (c >= 128)  {
-#ifdef WIN32			
-			static ushort utfbuf[2];
-			utfbuf[0] = c;
-			utfbuf[1] = 0;
-			::WideCharToMultiByte(CP_ACP,0,utfbuf,-1,buf, 1, NULL, NULL);
-			fix_markend(buf);
-#else // LINUX
-			buf[0] = 256-c;  // TODO: does it work?
-			buf[1] = '\0';
-#endif
-		} else  {
-			buf[0]=c; buf[1]=0;
-		}*/
-		sChat_Text.insert(iChat_Pos,GetUtf8FromUnicode(c));
+		sChat_Text.insert(iChat_Pos, GetUtf8FromUnicode(c));
 		iChat_Pos++;
     }
 }

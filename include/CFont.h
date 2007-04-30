@@ -76,7 +76,7 @@ public:
 
 	int				GetWidth(const std::string& buf);
 	int				GetHeight(void)					{ return bmpFont->h; }
-	uint			TranslateCharacter(std::string::const_iterator &it);
+	int				TranslateCharacter(std::string::const_iterator &it, const std::string& str);
 
 	inline void		SetSpacing(int _s)  { Spacing = _s; }
 	inline int		GetSpacing()		 { return Spacing; }

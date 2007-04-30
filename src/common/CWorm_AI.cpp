@@ -1324,7 +1324,7 @@ ai_node_t *CWorm::AI_ProcessNode(ai_node_t *psParent, int curX, int curY, int ta
 
     // Is this node impassable (rock)?
     uchar pf = *(pcMap->getGridFlags() + (curY*nGridCols) + curX);
-    if(pf & PX_ROCK && !bFound) {
+    if((pf & PX_ROCK) && !bFound) {
         if(psParent != NULL)  // Parent can be on rock
             return NULL;
     }
@@ -3110,10 +3110,10 @@ bool CWorm::IsEmpty(int Cell)
 	  break;
   }
 
-  if (cx < 0 || cx > pcMap->getGridCols())
+  if ((cx < 0 || cx > pcMap->getGridCols()))
 	  return false;
 
-  if (cy < 0 || cy > pcMap->getGridRows())
+  if ((cy < 0 || cy > pcMap->getGridRows()))
 	  return false;
 
   /*int dx = cx*pcMap->getGridCols()*2;
@@ -3416,13 +3416,13 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num)
 
 		// Check the Num*Num square
 		int x,y;
-		for (x=cellX-Num-1;x<cellX;x++)  {
+		for (x = cellX - Num - 1; x < cellX; x++)  {
 			// Clipping means rock
-			if (x < 0 || x > pcMap->getGridCols())
+			if ((x < 0 || x > pcMap->getGridCols()))
 				return false;
-			for (y=cellY+dir;y<cellY+dir+Num;y++)  {
+			for (y = cellY + dir; y < cellY + dir + Num; y++)  {
 				// Clipping means rock
-				if (y < 0 || y > pcMap->getGridRows())
+				if ((y < 0 || y > pcMap->getGridRows()))
 					return false;
 
 				// Clipping means rock
@@ -3454,15 +3454,15 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num)
 		int x,y;
 		for (x=cellX;x<=cellX+Num;x++)  {
 			// Clipping means rock
-			if (x< 0 || x > pcMap->getGridCols())
+			if((x< 0 || x > pcMap->getGridCols()))
 				return false;
-			for (y=cellY+dir;y<cellY+dir+Num;y++)  {
+			for(y=cellY+dir;y<cellY+dir+Num;y++)  {
 				// Clipping means rock
-				if (y < 0 || y > pcMap->getGridRows())
+				if((y < 0 || y > pcMap->getGridRows()))
 					return false;
 
 				// Rock cell
-				if (*(pcMap->getGridFlags() + y*pcMap->getGridCols() +x) & PX_ROCK)
+				if(*(pcMap->getGridFlags() + y*pcMap->getGridCols() +x) & PX_ROCK)
 					return false;
 			}
 		}
@@ -4046,7 +4046,7 @@ bool CWorm::NEW_AI_IsInAir(CVec pos, int area_a)
 
 		// Rock or dirt - not in air
 		tmp_pf = *(pcMap->getGridFlags() + y*pcMap->getGridCols() +x);
-		if (tmp_pf & PX_ROCK || tmp_pf & PX_DIRT)
+		if(tmp_pf & (PX_ROCK|PX_DIRT))
 			return false;
 
 		x++;

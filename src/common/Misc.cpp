@@ -13,6 +13,7 @@
 // Created 18/8/02
 // Jason Boettcher
 
+#include <iostream>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -713,7 +714,7 @@ std::string GetFileExtension(const std::string& filename) {
 }
 
 void printf(const std::string& txt) {
-	printf("%s", txt.c_str());
+	std::cout << txt << std::flush;
 // Print out to debug pane
 #ifdef _MSC_VER
 	// TODO: this is wrong!
@@ -724,7 +725,8 @@ void printf(const std::string& txt) {
 #endif
 }
 
-void UNICODE_to_UTF8(char *utf8, ushort unicode)
+// grabbed from SDL_ttf
+void UNICODE_to_UTF8(char *utf8, UnicodeChar unicode)
 {
     int j=0;
 
@@ -760,7 +762,7 @@ void UNICODE_to_UTF8(char *utf8, ushort unicode)
     }
     else if (unicode < 0x80000000)
     {
-            utf8[j] = 0xFC | (unicode >> 30);
+        utf8[j] = 0xFC | (unicode >> 30);
         utf8[++j] = 0x80 | ((unicode >> 24) & 0x3F);
         utf8[++j] = 0x80 | ((unicode >> 18) & 0x3F);
         utf8[++j] = 0x80 | ((unicode >> 12) & 0x3F);
@@ -772,32 +774,50 @@ void UNICODE_to_UTF8(char *utf8, ushort unicode)
 }
 
 
-uint GetNextUnicodeFromUtf8(std::string::const_iterator &it)
-{
-	ushort ch = 0;
-	ch = ((const unsigned char)*it);
+UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string& str) {
+	if(it == str.end()) return 0;
+	
+	uchar ch = *it;
+	UnicodeChar res = ch;
+	if ( ch >= 0xFC ) {
+		res  =  (UnicodeChar)ch&0x01 << 30; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 24; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 18; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 12; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F;
+	} else
+	if ( ch >= 0xF8 ) {
+		res  =  (UnicodeChar)ch&0x03 << 24; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 18; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 12; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F;
+	} else
 	if ( ch >= 0xF0 ) {
-		ch  =  (Uint16)(*it&0x07) << 18;it++;
-		ch |=  (Uint16)(*it&0x3F) << 12;it++;
-		ch |=  (Uint16)(*it&0x3F) << 6;it++;
-		ch |=  (Uint16)(*it&0x3F);
+		res  =  (UnicodeChar)ch&0x07 << 18; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 12; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F;
 	} else
 	if ( ch >= 0xE0 ) {
-		ch  =  (Uint16)(*it&0x0F) << 12;it++;
-		ch |=  (Uint16)(*it&0x3F) << 6;it++;
-		ch |=  (Uint16)(*it&0x3F);
+		res  =  (UnicodeChar)ch&0x0F << 12; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F;
 	} else
 	if ( ch >= 0xC0 ) {
-		ch  =  (Uint16)(*it&0x1F) << 6;it++;
-		ch |=  (Uint16)(*it&0x3F);
+		res  =  (UnicodeChar)ch&0x1F << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (UnicodeChar)ch&0x3F;
 	}
-	return ch;
+
+	it++;
+	return res;
 }
 
-std::string GetUtf8FromUnicode(uint UnicodeChar)
-{
-	static char utf8[8];
-	UNICODE_to_UTF8(utf8,UnicodeChar);
+std::string GetUtf8FromUnicode(UnicodeChar ch) {
+	if(ch == 0) return std::string("\0", 1);
+	static char utf8[7];
+	UNICODE_to_UTF8(utf8, ch);
 	return std::string(utf8);
 }
 

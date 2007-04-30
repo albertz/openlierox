@@ -187,7 +187,7 @@ private:
 
 	// Send chat
 	int			iChat_Typing;
-	int			iChat_Lastchar;
+	UnicodeChar	iChat_Lastchar;
 	int			iChat_Holding;
 	unsigned int	iChat_Pos;
 	float		fChat_TimePushed;
@@ -297,7 +297,7 @@ public:
     void        CheckDemolitionsGame(void);
 
 	void		processChatter(void);
-    void        processChatCharacter(int c, bool bDown);
+    void        processChatCharacter(UnicodeChar c, bool bDown);
 
 
 	void		SimulateBonuses(float dt);

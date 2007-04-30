@@ -34,10 +34,6 @@ int LoadProfiles(void)
 	//
 	FILE *fp = OpenGameFile("cfg/players.dat","rb");
 	if(fp == NULL) {
-//#ifdef WIN32
-//		MessageBox(0,"Error loading profiles: Could not open the file","Error",MB_OK);
-//#endif
-
         // Add the default players
         AddDefaultPlayers();
 		return false;
@@ -53,10 +49,6 @@ int LoadProfiles(void)
 	fread(id, sizeof(char), 32, fp);
 	id[10] = '\0';
 	if(strcmp(id, "lx:profile") != 0) {
-//#ifdef WIN32
-		//MessageBox(0,"Error loading profiles: File is invalid","Error",MB_OK);
-//#endif
-
         // Add the default players
         AddDefaultPlayers();
 		fclose(fp);
@@ -68,10 +60,6 @@ int LoadProfiles(void)
 	fread(&ver, sizeof(int), 1, fp);
 	EndianSwap(ver);
 	if(ver != PROFILE_VERSION) {
-//#ifdef WIN32
-//		MessageBox(0,"Error loading profiles: Invalid version","Error",MB_OK);
-//#endif
-
         // Add the default players
         AddDefaultPlayers();
 		fclose(fp);
@@ -85,11 +73,6 @@ int LoadProfiles(void)
 
 	// Safety check
 	if(num < 0) {
-
-//#ifdef WIN32
-//		MessageBox(0,"Error loading profiles: None players found in the file","Error",MB_OK);
-//#endif
-
 		// Just leave
 		fclose(fp);
         // Add the default players
@@ -190,9 +173,6 @@ void ShutdownProfiles(void)
 	//
 	FILE *fp = OpenGameFile("cfg/players.dat","wb");
 	if(fp == NULL)  {
-//#ifdef WIN32
-//		MessageBox(0,"The profiles could not be saved","Error",MB_OK);
-//#endif
 		return;
 	}
 
