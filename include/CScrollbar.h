@@ -18,6 +18,9 @@
 #define __CSCROLLBAR_H__
 
 
+#include "InputEvents.h"
+
+
 // Scrollbar events
 enum {
 	SCR_NONE=-1,

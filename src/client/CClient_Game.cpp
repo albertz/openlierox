@@ -21,6 +21,7 @@
 #include "CBonus.h"
 #include "console.h"
 #include "GfxPrimitives.h"
+#include "StringUtils.h"
 
 
 CClient		*cClient = NULL;

@@ -21,6 +21,8 @@
 #include "CGameScript.h"
 #include "CNinjaRope.h"
 #include "CWpnRest.h"
+#include "Options.h" // for control_t
+#include "Utils.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"

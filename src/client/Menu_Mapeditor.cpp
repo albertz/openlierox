@@ -20,6 +20,7 @@
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 
 CGuiLayout	cMaped;
@@ -542,10 +543,10 @@ void Menu_MapEd_New(void)
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 210,170, 210,170, 220, 260);
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 175, tLX->clNormalLabel,"%s", "Level details");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 202, tLX->clNormalLabel,"%s", "Width");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 232, tLX->clNormalLabel,"%s", "Height");
-		tLX->cFont.Draw(tMenu->bmpScreen, 220, 262, tLX->clNormalLabel,"%s", "Theme");
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 175, tLX->clNormalLabel, "Level details");
+		tLX->cFont.Draw(tMenu->bmpScreen, 220, 202, tLX->clNormalLabel, "Width");
+		tLX->cFont.Draw(tMenu->bmpScreen, 220, 232, tLX->clNormalLabel, "Height");
+		tLX->cFont.Draw(tMenu->bmpScreen, 220, 262, tLX->clNormalLabel, "Theme");
 
 		ev = cg.Process();
 		cg.Draw(tMenu->bmpScreen);
@@ -726,8 +727,8 @@ void Menu_MapEd_LoadSave(int save)
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel,"%s", save ? "Save" : "Load");
-		tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel,"%s","Level name");
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
+		tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel, "Level name");
 
 		ev = cg.Process();
 		cg.Draw(tMenu->bmpScreen);

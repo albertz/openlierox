@@ -11,6 +11,9 @@
 #ifndef __CIMAGE_H__
 #define __CIMAGE_H__
 
+#include "InputEvents.h"
+
+
 
 // Event types
 enum {

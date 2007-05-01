@@ -13,6 +13,7 @@
 // Created 1/7/02
 // Jason Boettcher
 
+#include <assert.h>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -22,6 +23,7 @@
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 ///////////////////
 // Parse a connectionless packet

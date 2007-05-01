@@ -246,7 +246,7 @@ TABLE   list[] = {
 
 static short    lwidth;
 
-const char* sex(short wraplen) {
+const char* sex__cstring(short wraplen) {
 	static char sextmp[2048];
    register TABLE  *ttp;
    register char   *cp;
@@ -274,4 +274,8 @@ const char* sex(short wraplen) {
    buffer[pos] = '\0';
 
    return buffer;
+}
+
+std::string sex(short wraplen) {
+	return sex__cstring(wraplen);
 }

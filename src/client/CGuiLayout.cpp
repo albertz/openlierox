@@ -13,10 +13,82 @@
 // Created 5/6/02
 // Jason Boettcher
 
+#include <assert.h>
 
 #include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
+#include "StringUtils.h"
+
+
+
+
+// XML parsing library
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+
+
+/*
+// Useful XML functions
+int		xmlGetInt(xmlNodePtr Node, const std::string& Name);
+float	xmlGetFloat(xmlNodePtr Node, const std::string& Name);
+Uint32	xmlGetColour(xmlNodePtr Node, const std::string& Name);
+*/
+
+
+// ==============================
+//
+// Useful XML functions
+//
+// ==============================
+
+#define		CMP(str1,str2)  !xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2)
+
+
+///////////////////
+// Get an integer from the specified property
+int xmlGetInt(xmlNodePtr Node, const std::string& Name)
+{
+	xmlChar *sValue;
+	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
+	if(!sValue)
+		return 0;
+	int result = atoi((const char *)sValue);
+	xmlFree(sValue);
+	return result;
+}
+
+///////////////////
+// Get a float from the specified property
+float xmlGetFloat(xmlNodePtr Node, const std::string& Name)
+{
+	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
+	if (!sValue)
+		return 0;
+	float result = (float)atof((const char *)sValue);
+	xmlFree(sValue);
+	return result;
+}
+
+///////////////////
+// Get a colour from the specified property
+Uint32 xmlGetColour(xmlNodePtr Node, const std::string& Name)
+{
+	xmlChar *sValue;
+
+	// Get the value
+	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
+
+	Uint32 result = StrToCol((char*)sValue);
+
+	xmlFree(sValue);
+	return result;
+}
+
+
+
+
+
 
 
 ///////////////////
@@ -139,8 +211,10 @@ void CGuiLayout::Draw(SDL_Surface *bmpDest)
 
 //////////////////
 // Reads common events, that are available for almost every widget
-void CGuiLayout::ReadEvents(xmlNodePtr Node, generic_events_t *Events)
+void CGuiLayout_ReadEvents(CGuiLayout* gui, xmlNodePtr Node, generic_events_t *Events)
 {
+	// TODO: this function was a member function before; this is now gui
+	
 	// Load the values
 	xmlChar *evs[NumEvents];
 	evs[OnMouseOver] = xmlGetProp(Node,(const xmlChar *)"onmouseover");
@@ -283,11 +357,11 @@ bool CGuiLayout::Build(void)
 			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			xmlChar *src  = xmlGetProp(tCurrentNode,(const xmlChar *)"src");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the image
 			CImage *Image = new CImage((char *) src);
-			Add(Image,GetIdByName(name),left,top,width,height);
+			Add(Image,GetIdByName((char*)name),left,top,width,height);
 			Image->SetupEvents(&Events);
 
 			// Free resources
@@ -305,11 +379,11 @@ bool CGuiLayout::Build(void)
 			xmlChar *name	 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			xmlChar *src	 = xmlGetProp(tCurrentNode,(const xmlChar *)"src");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the button
 			CButton *Button = new CButton((char *)src);
-			Add(Button,GetIdByName(name),left,top,width,height);
+			Add(Button,GetIdByName((char*)name),left,top,width,height);
 			Button->SetupEvents(&Events);
 
 			xmlFree(name);
@@ -325,11 +399,11 @@ bool CGuiLayout::Build(void)
 			int height = xmlGetInt(tCurrentNode,"height");
 			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the checkbox
 			CCheckbox *Checkbox = new CCheckbox(false);
-			Add(Checkbox,GetIdByName(name),left,top,width,height);
+			Add(Checkbox,GetIdByName((char*)name),left,top,width,height);
 			Checkbox->SetupEvents(&Events);
 
 			xmlFree(name);
@@ -344,11 +418,11 @@ bool CGuiLayout::Build(void)
 			int height = xmlGetInt(tCurrentNode,"height");
 			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the combobox
 			CCombobox *Combobox = new CCombobox();
-			Add(Combobox,GetIdByName(name),left,top,width,height);
+			Add(Combobox,GetIdByName((char*)name),left,top,width,height);
 			Combobox->SetupEvents(&Events);
 
 			xmlFree(name);
@@ -365,7 +439,7 @@ bool CGuiLayout::Build(void)
 			xmlChar *image	 = xmlGetProp(tCurrentNode,(const xmlChar *)"image");
 			xmlChar *title	 = xmlGetProp(tCurrentNode,(const xmlChar *)"title");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			//CInputbox *Inputbox = new CInputbox(0,"",(char *)image,(char *)title);
 			//Add(Inputbox,GetIdByName(name),left,top,width,height);
@@ -386,11 +460,11 @@ bool CGuiLayout::Build(void)
 			xmlChar *text = xmlGetProp(tCurrentNode,(const xmlChar *)"text");
 			Uint32 colour = xmlGetColour(tCurrentNode,"color");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the label
 			CLabel *Label = new CLabel((char *)text,colour);
-			Add(Label,GetIdByName(name),left,top,width,height);
+			Add(Label,GetIdByName((char*)name),left,top,width,height);
 			Label->SetupEvents(&Events);
 
 			xmlFree(name);
@@ -405,11 +479,11 @@ bool CGuiLayout::Build(void)
 			int height = xmlGetInt(tCurrentNode,"height");
 			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the listview
 			CListview *Listview = new CListview();
-			Add(Listview,GetIdByName(name),left,top,width,height);
+			Add(Listview,GetIdByName((char*)name),left,top,width,height);
 			Listview->SetupEvents(&Events);
 
 			xmlFree(name);
@@ -423,11 +497,11 @@ bool CGuiLayout::Build(void)
 			int height = xmlGetInt(tCurrentNode,"height");
 			xmlChar *name	= xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the scrollbar
 			CScrollbar *Scrollbar = new CScrollbar();
-			Add(Scrollbar,GetIdByName(name),left,top,width,height);
+			Add(Scrollbar,GetIdByName((char*)name),left,top,width,height);
 			Scrollbar->SetupEvents(&Events);
 
 			xmlFree(name);
@@ -441,11 +515,11 @@ bool CGuiLayout::Build(void)
 			int height = xmlGetInt(tCurrentNode,"height");
 			xmlChar *name		 = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the slider
 			CSlider *Slider = new CSlider(1);
-			Add(Slider,GetIdByName(name),left,top,width,height);
+			Add(Slider,GetIdByName((char*)name),left,top,width,height);
 			Slider->SetupEvents(&Events);
 
 			xmlFree(name);
@@ -459,11 +533,11 @@ bool CGuiLayout::Build(void)
 			int height = xmlGetInt(tCurrentNode,"height");
 			xmlChar *name	= xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			generic_events_t Events;
-			ReadEvents(tCurrentNode,&Events);
+			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 
 			// Add the textbox
 			CTextbox *Textbox = new CTextbox();
-			Add(Textbox,GetIdByName(name),left,top,width,height);
+			Add(Textbox,GetIdByName((char*)name),left,top,width,height);
 			Textbox->SetupEvents(&Events);
 
 			xmlFree(name);
@@ -831,7 +905,7 @@ CWidget *CGuiLayout::getWidget(int id)
 
 ////////////////////
 // Get the widget ID
-int	CGuiLayout::GetIdByName(xmlChar *Name)
+int	CGuiLayout::GetIdByName(char *Name)
 {
 	int ID = -1;
 	// Find the standard or previously added widget

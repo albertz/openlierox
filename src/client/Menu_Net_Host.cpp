@@ -21,6 +21,7 @@
 #include "CServer.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "StringUtils.h"
 
 
 /*
@@ -493,7 +494,7 @@ void Menu_Net_HostLobbyDraw(void)
 	Menu_DrawBox(tMenu->bmpBuffer, 460,29, 593, 130);
     DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
 
-    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel,"%s", "[  Lobby  ]");
+    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
     DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, 0);
@@ -1172,7 +1173,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 					int png = client->getPing();
 					if (png > 99999 || png < 0)
 						png = 0;
-					tLX->cFont.Draw(bmpDest, x+280, y-2, tLX->clNormalLabel, "%d", png);
+					tLX->cFont.Draw(bmpDest, x+280, y-2, tLX->clNormalLabel, itoa(png));
 				}
 
 				break;
@@ -1245,7 +1246,7 @@ void Menu_Net_HostDeregister(void)
 	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,0);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel,"%s", "De-Registering server...");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, "De-Registering server...");
 
 	Menu_RedrawMouse(true);
 

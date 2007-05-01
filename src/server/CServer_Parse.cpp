@@ -20,7 +20,7 @@
 #include "CServer.h"
 #include "CClient.h"
 #include "CChannel.h"
-
+#include "StringUtils.h"
 
 
 /*

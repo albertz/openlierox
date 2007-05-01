@@ -1,5 +1,6 @@
 // OpenLieroX Media Player
 // Made by Dark Charlie and Albert Zeyer
+// code under LGPL
 
 #include "defs.h"
 #include "LieroX.h"
@@ -7,6 +8,7 @@
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 /*
 
@@ -685,7 +687,8 @@ void CMediaPlayer::Draw(SDL_Surface *bmpDest)
 	} else {
 		int h,m,s;
 		ConvertTime(GetSongTime(), &h,&m,&s);
-		tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow->w/2,iY+10,tLX->clMPlayerTime,"%d:%s%d",m,s<10 ? "0" : "",s);
+		tLX->cFont.Draw(bmpDest,iX+5+tPlayerGfx.bmpWindow->w/2,iY+10,tLX->clMPlayerTime,
+			itoa(m) + ":" + (s<10 ? "0" : "") + itoa(s));
 	}
 
 	// Draw all the widgets

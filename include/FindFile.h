@@ -21,6 +21,13 @@
 #define __FINDFILE_H__
 
 #include <fstream>
+#include <string>
+#include <list>
+
+#ifndef WIN32
+#	include <sys/dir.h>
+#	include <unistd.h>
+#endif
 
 #ifndef SYSTEM_DATA_DIR
 #	define	SYSTEM_DATA_DIR	"/usr/share"
@@ -32,14 +39,13 @@
 
 // Windows
 #ifdef WIN32
-#define DRV_UNKNOWN		DRIVE_UNKNOWN		// The drive is unknown
-#define DRV_NO_ROOT_DIR DRIVE_NO_ROOT_DIR	// The root path is invalid; for example, there is no volume is mounted at the path.
-#define DRV_REMOVABLE	DRIVE_REMOVABLE		// The drive has removable media; for example, a floppy drive or flash card reader.
-#define DRV_FIXED		DRIVE_FIXED			// The drive has fixed media; for example, a hard drive, flash drive, or thumb drive.
-#define DRV_REMOTE		DRIVE_REMOTE		// The drive is a remote (network) drive.
-#define DRV_CDROM		DRIVE_CDROM			// The drive is a CD-ROM drive.
-#define DRV_RAMDISK		DRIVE_RAMDISK		// The drive is a RAM disk.
-
+#	define DRV_UNKNOWN		DRIVE_UNKNOWN		// The drive is unknown
+#	define DRV_NO_ROOT_DIR DRIVE_NO_ROOT_DIR	// The root path is invalid; for example, there is no volume is mounted at the path.
+#	define DRV_REMOVABLE	DRIVE_REMOVABLE		// The drive has removable media; for example, a floppy drive or flash card reader.
+#	define DRV_FIXED		DRIVE_FIXED			// The drive has fixed media; for example, a hard drive, flash drive, or thumb drive.
+#	define DRV_REMOTE		DRIVE_REMOTE		// The drive is a remote (network) drive.
+#	define DRV_CDROM		DRIVE_CDROM			// The drive is a CD-ROM drive.
+#	define DRV_RAMDISK		DRIVE_RAMDISK		// The drive is a RAM disk.
 #endif
 
 

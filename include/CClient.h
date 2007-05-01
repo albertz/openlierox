@@ -21,6 +21,8 @@
 #include "CChannel.h"
 
 #include "CViewport.h"
+#include "InputEvents.h"
+
 
 #define		MAX_CLIENTS		32
 #define		MAX_PLAYERS		8
@@ -322,7 +324,7 @@ public:
 	void		DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage);
 	void		DrawTime(SDL_Surface *bmpDest, int x, int y, float t);
 	void		DrawReadyOverlay(SDL_Surface *bmpDest);
-	void		DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, char *fmt, ...);
+	void		DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, const std::string& buf);
 	void		DrawLocalChat(SDL_Surface *bmpDest);
 	void		DrawRemoteChat(SDL_Surface *bmpDest);
     void        DrawScoreboard(SDL_Surface *bmpDest);

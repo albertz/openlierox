@@ -18,6 +18,9 @@
 #define __CTEXTBOX_H__
 
 
+#include "InputEvents.h"
+
+
 // Event types
 enum {
 	TXT_NONE=-1,

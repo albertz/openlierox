@@ -18,6 +18,9 @@
 #define __CCOMBOBOX_H__
 
 
+#include "InputEvents.h"
+
+
 // Combo box events
 enum {
 	CMB_NONE=-1,

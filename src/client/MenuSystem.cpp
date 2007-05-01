@@ -13,6 +13,7 @@
 // Created 30/6/02
 // Jason Boettcher
 
+#include <assert.h>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -21,6 +22,7 @@
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 menu_t	*tMenu = NULL;
 
@@ -1700,7 +1702,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 
     Menu_DrawBox(tMenu->bmpScreen, x,y, w,h);
 	DrawRectFillA(tMenu->bmpScreen, x+1,y+1, w-1,h-1, 0, 230);
-    tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Server Details")/2, y+5, tLX->clNormalLabel,"%s", "Server Details");
+    tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Server Details")/2, y+5, tLX->clNormalLabel, "Server Details");
 
 
     // Get the server details
@@ -1727,7 +1729,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 
     if(nTries < 3 && !bGotDetails && !bOldLxBug) {
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Loading info...")/2, y+h/2-8, tLX->clNormalLabel, "%s", "Loading info...");
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Loading info...")/2, y+h/2-8, tLX->clNormalLabel,  "Loading info...");
 
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
@@ -1808,31 +1810,31 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 	y+=25;
 	x+=15;
     // Draw the server details
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel,"%s", "Server name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel,"%s", "Level name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel,"%s", "Mod name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel,"%s", "State:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel,"%s", "Playing:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel, "Server name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, "Level name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel, "Mod name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel, "State:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel, "Playing:");
 
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel,"%s", "Game Type:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel,"%s", "Lives:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel,"%s", "Max Kills:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel,"%s", "Loading Times:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+180, tLX->clNormalLabel,"%s", "Bonuses:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel, "Game Type:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel, "Lives:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel, "Max Kills:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel, "Loading Times:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+180, tLX->clNormalLabel, "Bonuses:");
 	if (!nState)  // Dont show kills when the server is open
-		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel,"%s", "Players:");
+		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel, "Players:");
 	else
-		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel,"%s", "Players/Kills:");
+		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel, "Players/Kills:");
 
 	x+=110;
 
     if(!bGotDetails) {
-        tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clError,"%s", "Unable to query server");
+        tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clError, "Unable to query server");
         return;
     }
 
     if(bOldLxBug) {
-        tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clError,"%s", "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
+        tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clError, "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
         return;
     }
 
@@ -1847,13 +1849,13 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, szMapName);
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel,  szModName);
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel,  states[nState]);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel, "%d / %d", nNumPlayers, nMaxWorms);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel, itoa(nNumPlayers) + " / " + itoa(nMaxWorms));
 
     tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel,  gamemodes[nGameMode]);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel, "%d", nLives);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel, "%d", nMaxKills);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel, "%d", nLoadingTime);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+180, tLX->clNormalLabel, "%s", nBonuses ? "on" : "off");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel, itoa(nLives));
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel, itoa(nMaxKills));
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel, itoa(nLoadingTime));
+    tLX->cFont.Draw(tMenu->bmpScreen, x,y+180, tLX->clNormalLabel, nBonuses ? "on" : "off");
 
 	// Don't draw kills when the server is open
 	if(!nState)
@@ -1862,7 +1864,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 	else
 		for (int i=0; i<nNumPlayers; i++)  {
 			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, cWorms[i].getName());
-			tLX->cFont.Draw(tMenu->bmpScreen, x+150,y+200+i*18, tLX->clNormalLabel, "%d", cWorms[i].getKills());
+			tLX->cFont.Draw(tMenu->bmpScreen, x+150,y+200+i*18, tLX->clNormalLabel, itoa( cWorms[i].getKills()));
 		}
 
 }

@@ -21,6 +21,7 @@
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 CGuiLayout	cInternet;
 std::string szNetCurServer;
@@ -594,7 +595,7 @@ void Menu_Net_NETUpdateList(void)
 
         if( SvrCount > 0 ) {
             DrawRectFill(tMenu->bmpScreen, 222,282, (int) (222+((float)CurServer/(float)SvrCount)*200.0f), 299, MakeColour(0,136,250));
-            tLX->cOutlineFont.DrawCentre(tMenu->bmpScreen, 320,283,tLX->clWhite,"%d/%d", CurServer,SvrCount);
+            tLX->cOutlineFont.DrawCentre(tMenu->bmpScreen, 320,283,tLX->clWhite, itoa(CurServer) + "/" + itoa(SvrCount));
         }
 
         // Do the HTTP requests of the master servers

@@ -17,6 +17,7 @@
 // By Jason Boettcher
 
 
+#include <assert.h>
 #include <gd.h>
 
 #include "defs.h"
@@ -25,6 +26,7 @@
 #include "CServer.h"
 #include "Cache.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 

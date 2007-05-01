@@ -17,6 +17,8 @@
 #ifndef __CINPUTBOX_H__
 #define __CINPUTBOX_H__
 
+#include "InputEvents.h"
+
 
 // Inputbox events
 enum {

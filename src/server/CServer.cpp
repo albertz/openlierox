@@ -22,6 +22,7 @@
 #include "CBanList.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 
 GameServer	*cServer = NULL;

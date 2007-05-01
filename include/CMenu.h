@@ -18,6 +18,9 @@
 #define __CMENU_H__
 
 
+#include "InputEvents.h"
+
+
 // Event types
 enum {
 	MNU_NONE=-1,

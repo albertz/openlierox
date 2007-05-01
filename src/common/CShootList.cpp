@@ -13,6 +13,8 @@
 // Created 20/12/02
 // Jason Boettcher
 
+#include <assert.h>
+
 
 #include "defs.h"
 #include "LieroX.h"

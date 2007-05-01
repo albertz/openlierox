@@ -20,6 +20,7 @@
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "StringUtils.h"
 
 
 /*
@@ -152,7 +153,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Process the client frame
-	tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 180, tLX->clNormalLabel, "Connecting to %s",sJoinAddress.c_str());
+	tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 180, tLX->clNormalLabel, "Connecting to " + sJoinAddress);
 	cClient->Frame();
 
 
@@ -284,7 +285,7 @@ void Menu_Net_JoinDrawLobby(void)
 
     // Title
     DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
-    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel,"%s", "[  Lobby  ]");
+    tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
     DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, 0);
@@ -560,29 +561,28 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(tMenu->bmpScreen, x, y+20,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
 			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel, gl->szDecodedMapName);
-		    //f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clNormalLabel, gl->szMapName);
 		}
         else
             f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
-		f->Draw(tMenu->bmpScreen, x, y+40, tLX->clNormalLabel,"%s", "Game Mode:");
+		f->Draw(tMenu->bmpScreen, x, y+40, tLX->clNormalLabel, "Game Mode:");
 		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, gamemodes[gl->nGameMode]);
-        f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel, "%s", "Mod:");
+        f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel,  "Mod:");
         if(gl->bHaveMod)
             f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clNormalLabel,  gl->szModName);
         else
             f->Draw(tMenu->bmpScreen, x2, y+60, tLX->clError, gl->szModName);
 
-		f->Draw(tMenu->bmpScreen, x, y+80, tLX->clNormalLabel, "%s", "Lives:");
+		f->Draw(tMenu->bmpScreen, x, y+80, tLX->clNormalLabel, "Lives:");
 		if(gl->nLives >= 0)
-			f->Draw(tMenu->bmpScreen, x2, y+80, tLX->clNormalLabel, "%d",gl->nLives);
+			f->Draw(tMenu->bmpScreen, x2, y+80, tLX->clNormalLabel, itoa(gl->nLives));
 
-		f->Draw(tMenu->bmpScreen, x, y+100, tLX->clNormalLabel, "%s", "Max Kills:");
+		f->Draw(tMenu->bmpScreen, x, y+100, tLX->clNormalLabel, "Max Kills:");
 		if(gl->nMaxKills >= 0)
-			f->Draw(tMenu->bmpScreen, x2, y+100, tLX->clNormalLabel, "%d",gl->nMaxKills);
-		f->Draw(tMenu->bmpScreen,     x, y+120, tLX->clNormalLabel, "%s", "Loading time:");
-		f->Draw(tMenu->bmpScreen,     x2, y+120, tLX->clNormalLabel, "%d%%", gl->nLoadingTime);
-        f->Draw(tMenu->bmpScreen,     x, y+140, tLX->clNormalLabel, "%s", "Bonuses:");
-        f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, "%s", gl->nBonuses ? "On" : "Off");
+			f->Draw(tMenu->bmpScreen, x2, y+100, tLX->clNormalLabel, itoa(gl->nMaxKills));
+		f->Draw(tMenu->bmpScreen,     x, y+120, tLX->clNormalLabel, "Loading time:");
+		f->Draw(tMenu->bmpScreen,     x2, y+120, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%");
+        f->Draw(tMenu->bmpScreen,     x, y+140, tLX->clNormalLabel, "Bonuses:");
+        f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, gl->nBonuses ? "On" : "Off");
 	}
 
 

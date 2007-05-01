@@ -17,6 +17,9 @@
 #ifndef __CSIMULATION_H__
 #define __CSIMULATION_H__
 
+#include "CVec.h"
+
+
 
 class CSimulation {
 public:

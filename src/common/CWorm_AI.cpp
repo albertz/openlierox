@@ -19,6 +19,7 @@
 #pragma warning(disable: 4786)
 #endif
 
+#include <assert.h>
 #include <set>
 #include <list>
 
@@ -27,6 +28,7 @@
 #include "CClient.h"
 #include "CBonus.h"
 #include "GfxPrimitives.h"
+#include "StringUtils.h"
 
 
 // we need it here for some debugging...

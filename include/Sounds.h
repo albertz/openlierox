@@ -19,6 +19,8 @@
 
 #include "CViewport.h"
 #include "CMap.h"
+#include "Timer.h"
+
 
 // we are using SDL_mixer at the moment
 #include <SDL/SDL_mixer.h>

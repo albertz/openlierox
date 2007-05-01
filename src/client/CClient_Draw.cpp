@@ -13,7 +13,6 @@
 // Created 9/7/02
 // Jason Boettcher
 
-
 #include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
@@ -22,6 +21,7 @@
 #include "Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
+#include "StringUtils.h"
 
 
 SDL_Surface		*bmpMenuButtons = NULL;
@@ -170,7 +170,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 					cServer->setTakeScreenshot(true);
 		}
         else
-            tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText,"%s", "Game Over");
+            tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
     }
 
 	// Game menu
@@ -193,7 +193,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Chatter
 	if(iChat_Typing)  {
-		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clNormalText, "Talk: %s",sChat_Text.c_str());
+		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clNormalText, "Talk: " + sChat_Text);
 		if (iChat_CursorVisible)  {
 			DrawVLine(bmpDest, 368, 378, 4+tLX->cFont.GetWidth("Talk: ")+tLX->cFont.GetWidth(sChat_Text.substr(0,iChat_Pos)), tLX->clNormalText);
 		}
@@ -233,7 +233,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	// FPS on the top right
 	if(tLXOptions->iShowFPS) {
 		int fps = GetFPS();
-		tLX->cOutlineFont.Draw(bmpDest, 570, 0, tLX->clNormalText, "FPS: %d",fps);
+		tLX->cOutlineFont.Draw(bmpDest, 570, 0, tLX->clNormalText, "FPS: " + itoa(fps));
 	}
 
 	// Ping on the top right
@@ -242,7 +242,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		// Put it below FPS, if it's displayed
 		int pos = tLXOptions->iShowFPS*16;
 
-		tLX->cOutlineFont.Draw(bmpDest, 570, pos, tLX->clNormalText, "Ping: %d",iMyPing);
+		tLX->cOutlineFont.Draw(bmpDest, 570, pos, tLX->clNormalText, "Ping: " + itoa(iMyPing));
 
 		// Send every second
 		if (tLX->fCurTime - fMyPingRefreshed > 1) {
@@ -342,13 +342,13 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     CWorm *worm = v->getTarget();
 
 	// Health
-	tLX->cFont.Draw(bmpDest, x+2, y+2, tLX->clNormalLabel,"%s","Health:");
+	tLX->cFont.Draw(bmpDest, x+2, y+2, tLX->clNormalLabel,"Health:");
 	DrawRectFill(bmpDest,x+63,y+6,x+165,y+13,grey);
 	DrawRectFill(bmpDest,x+64,y+7,x+64+worm->getHealth(),y+12,MakeColour(64,255,64));
 
 	// Weapon
 	wpnslot_t *Slot = worm->getCurWeapon();
-	tLX->cFont.Draw(bmpDest, x+2, y+20,tLX->clNormalLabel,"%s","Weapon:");
+	tLX->cFont.Draw(bmpDest, x+2, y+20,tLX->clNormalLabel, "Weapon:");
 	DrawRectFill(bmpDest,x+63,y+24,x+165,y+31,grey);
 	Uint32 col = MakeColour(64,64,255);
 	if(Slot->Reloading)
@@ -360,30 +360,30 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 
 
 	// Lives
-	tLX->cFont.Draw(bmpDest,x+2, y+38, tLX->clNormalLabel, "%s", "Lives:");
+	tLX->cFont.Draw(bmpDest,x+2, y+38, tLX->clNormalLabel,  "Lives:");
 	switch (worm->getLives())  {
 	case WRM_OUT:
-		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%s", "Out");
+		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel,  "Out");
 		break;
 	case WRM_UNLIM:
 		DrawImage(bmpDest, gfxGame.bmpInfinite, x+61,y+41);
 		break;
 	default:
 		if (worm->getLives() >= 0)
-			tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, "%d",worm->getLives());
+			tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, itoa(worm->getLives()));
 	}
 
 	// Kills
-	tLX->cFont.Draw(bmpDest,x+2, y+56, tLX->clNormalLabel, "%s", "Kills:");
-	tLX->cFont.Draw(bmpDest,x+61,y+56, tLX->clNormalLabel, "%d",worm->getKills());
+	tLX->cFont.Draw(bmpDest,x+2, y+56, tLX->clNormalLabel, "Kills:");
+	tLX->cFont.Draw(bmpDest,x+61,y+56, tLX->clNormalLabel, itoa(worm->getKills()));
 
 	// Am i IT?
 	if(worm->getTagIT() && iGameType == GMT_TAG)
-		tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "%s", "You are IT!!");
+		tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "You are IT!!");
 
     // Dirt count
     if( iGameType == GMT_DEMOLITION ) {
-        tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "%s", "Dirt Count:");
+        tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "Dirt Count:");
         static std::string buf;
         int count = worm->getDirtCount();
 
@@ -589,7 +589,7 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 	// Draw a timer when we're going back to the lobby
 	float timeleft = LX_ENDWAIT - (tLX->fCurTime - fGameOverTime);
 	timeleft = MAX(timeleft,(float)0);
-	tLX->cFont.Draw(bmpDest, x+width-180, j+2, MakeColour(200,200,200), "Returning to lobby in %d", (int)timeleft);
+	tLX->cFont.Draw(bmpDest, x+width-180, j+2, MakeColour(200,200,200), "Returning to lobby in " + itoa((int)timeleft));
 
 
 	// Draw the mouse
@@ -703,16 +703,16 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	switch(iGameType) {
 	case GMT_DEATHMATCH:  {
 
-		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"%s","Players");
+		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"Players");
 		if(iLives != WRM_UNLIM)
-			tLX->cFont.Draw(bmpDest, x+300, y+45, tLX->clNormalLabel,"%s","Lives");
+			tLX->cFont.Draw(bmpDest, x+300, y+45, tLX->clNormalLabel,"Lives");
 
 		// Draw ping if host
 		if (tGameInfo.iGameType == GME_HOST)  {
-			tLX->cFont.Draw(bmpDest, x+340, y+45, tLX->clNormalLabel,"%s","Kills");
-			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"%s","Ping");
+			tLX->cFont.Draw(bmpDest, x+340, y+45, tLX->clNormalLabel,"Kills");
+			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"Ping");
 		} else
-			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"%s","Kills");
+			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"Kills");
 
 		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clWhite);
 		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clWhite);
@@ -727,18 +727,18 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, p->getName());
 
 			if(p->getLives() >= 0)
-				tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "%d",p->getLives());
+				tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, itoa(p->getLives()));
 			else if(p->getLives() == WRM_OUT)
-				tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "%s", "out");
+				tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "out");
 
 			// Draw ping if host
 			if (tGameInfo.iGameType == GME_HOST)  {
-				tLX->cFont.DrawCentre(bmpDest, x+353, j, tLX->clNormalLabel, "%d",p->getKills());
+				tLX->cFont.DrawCentre(bmpDest, x+353, j, tLX->clNormalLabel, itoa(p->getKills()));
 				CClient *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
-					tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, "%d",remoteClient->getPing());
+					tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
 			} else
-				tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, "%d",p->getKills());
+				tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, itoa(p->getKills()));
 
 			j+=20;
 		}
@@ -749,10 +749,10 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
     // Demolitions scoreboard
 	case GMT_DEMOLITION: {
 
-		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"%s","Players");
+		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"Players");
 		if(iLives != WRM_UNLIM)
-			tLX->cFont.Draw(bmpDest, x+270, y+45, tLX->clNormalLabel,"%s","Lives");
-		tLX->cFont.Draw(bmpDest, x+340, y+45, tLX->clNormalLabel,"%s","Dirt Count");
+			tLX->cFont.Draw(bmpDest, x+270, y+45, tLX->clNormalLabel,"Lives");
+		tLX->cFont.Draw(bmpDest, x+340, y+45, tLX->clNormalLabel,"Dirt Count");
 		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clWhite);
 		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clWhite);
 
@@ -768,12 +768,12 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,  p->getName());
 
 			if(p->getLives() >= 0)
-				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, "%d",p->getLives());
+				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, itoa(p->getLives()));
 			else if(p->getLives() == WRM_OUT)
-				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, "%s", "out");
+				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, "out");
 
 
-			tLX->cFont.DrawCentre(bmpDest, x+372, j, tLX->clNormalLabel, "%d",p->getDirtCount());
+			tLX->cFont.DrawCentre(bmpDest, x+372, j, tLX->clNormalLabel, itoa(p->getDirtCount()));
             dirtcount += p->getDirtCount();
 
 			j+=20;
@@ -783,8 +783,8 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
         j+=10;
         DrawHLine(bmpDest,x+15,x+width-15, j, tLX->clWhite);
         j+=5;
-        tLX->cFont.Draw(bmpDest, x+250, j, tLX->clNormalLabel,"%s","Total");
-        tLX->cFont.DrawCentre(bmpDest, x+372, j, tLX->clNormalLabel,"%dk / %.0fk", dirtcount / 1000, ((float)cMap->GetDirtCount()*0.8f) / 1000);
+        tLX->cFont.Draw(bmpDest, x+250, j, tLX->clNormalLabel,"Total");
+        tLX->cFont.DrawCentre(bmpDest, x+372, j, tLX->clNormalLabel, itoa(dirtcount / 1000) + "k / " + itoa((int)(((float)cMap->GetDirtCount()*0.8f) / 1000)) + "k");
 	}
 	break;  // DEMOLITIONS
 
@@ -792,19 +792,19 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	// Tag scoreboard
 	case GMT_TAG: {
 
-		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"%s","Players");
+		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"Players");
 		if(iLives != WRM_UNLIM)
-			tLX->cFont.Draw(bmpDest, x+220, y+45, tLX->clNormalLabel,"%s","Lives");
+			tLX->cFont.Draw(bmpDest, x+220, y+45, tLX->clNormalLabel,"Lives");
 
 		// Draw the ping if host
 		if(tGameInfo.iGameType == GME_HOST)  {
-			tLX->cFont.Draw(bmpDest, x+280, y+45, tLX->clNormalLabel,"%s","Kills");
-			tLX->cFont.Draw(bmpDest, x+322, y+45, tLX->clNormalLabel,"%s","Ping");
+			tLX->cFont.Draw(bmpDest, x+280, y+45, tLX->clNormalLabel,"Kills");
+			tLX->cFont.Draw(bmpDest, x+322, y+45, tLX->clNormalLabel,"Ping");
 		}  else
-			tLX->cFont.Draw(bmpDest, x+290, y+45, tLX->clNormalLabel,"%s","Kills");
+			tLX->cFont.Draw(bmpDest, x+290, y+45, tLX->clNormalLabel,"Kills");
 
 
-		tLX->cFont.Draw(bmpDest, x+360, y+45, tLX->clNormalLabel,"%s","Tag time");
+		tLX->cFont.Draw(bmpDest, x+360, y+45, tLX->clNormalLabel,"Tag time");
 		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clWhite);
 		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clWhite);
 
@@ -820,21 +820,21 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			// Check if it
 			if(p->getTagIT())
-				tLX->cFont.Draw( bmpDest, x+160, j, MakeColour(255,0,0),"%s", "IT");
+				tLX->cFont.Draw( bmpDest, x+160, j, MakeColour(255,0,0), "IT");
 
 			if(p->getLives() >= 0)
-				tLX->cFont.DrawCentre(bmpDest, x+237, j, tLX->clNormalLabel, "%d",p->getLives());
+				tLX->cFont.DrawCentre(bmpDest, x+237, j, tLX->clNormalLabel, itoa(p->getLives()));
 			else if(p->getLives() == WRM_OUT)
-				tLX->cFont.DrawCentre(bmpDest, x+237, j, tLX->clNormalLabel,"%s", "out");
+				tLX->cFont.DrawCentre(bmpDest, x+237, j, tLX->clNormalLabel, "out");
 
 			// Draw the ping if host
 			if (tGameInfo.iGameType == GME_HOST)  {
-				tLX->cFont.DrawCentre(bmpDest, x+293, j, tLX->clNormalLabel, "%d",p->getKills());
+				tLX->cFont.DrawCentre(bmpDest, x+293, j, tLX->clNormalLabel, itoa(p->getKills()));
 				CClient *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
-					tLX->cFont.DrawCentre(bmpDest, x+333, j, tLX->clNormalLabel, "%d",remoteClient->getPing());
+					tLX->cFont.DrawCentre(bmpDest, x+333, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
 			} else
-				tLX->cFont.DrawCentre(bmpDest, x+303, j, tLX->clNormalLabel, "%d",p->getKills());
+				tLX->cFont.DrawCentre(bmpDest, x+303, j, tLX->clNormalLabel, itoa(p->getKills()));
 
 			// Total time of being IT
 			int h,m,s;
@@ -871,15 +871,15 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			colour = MakeColour( teamcolours[team*3], teamcolours[team*3+1],teamcolours[team*3+2]);
 
-			tLX->cFont.Draw(bmpDest, x+15, j, colour, "%s team  (%d)",teamnames[team].c_str(),score);
+			tLX->cFont.Draw(bmpDest, x+15, j, colour, teamnames[team] + " team  (" + itoa(score) + ")");
 			if(iLives != WRM_UNLIM)
-				tLX->cFont.Draw(bmpDest, x+300, j, colour,"%s","Lives");
+				tLX->cFont.Draw(bmpDest, x+300, j, colour,"Lives");
 			if(tGameInfo.iGameType == GME_HOST)  {
-				tLX->cFont.Draw(bmpDest, x+343, j, colour,"%s","Kills");
-				tLX->cFont.Draw(bmpDest, x+380, j, colour,"%s","Ping");
+				tLX->cFont.Draw(bmpDest, x+343, j, colour,"Kills");
+				tLX->cFont.Draw(bmpDest, x+380, j, colour,"Ping");
 			}
 			else
-				tLX->cFont.Draw(bmpDest, x+380, j, colour,"%s","Kills");
+				tLX->cFont.Draw(bmpDest, x+380, j, colour,"Kills");
 			DrawHLine(bmpDest, x+15,x+width-15, j+15,tLX->clWhite);
 			j+=20;
 
@@ -897,18 +897,18 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 				tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, p->getName());
 
 				if(p->getLives() >= 0)
-					tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "%d",p->getLives());
+					tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, itoa(p->getLives()));
 				else if(p->getLives() == WRM_OUT)
-					tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel,"%s", "out");
+					tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "out");
 
 				// Draw ping if host
 				if (tGameInfo.iGameType == GME_HOST)  {
-					tLX->cFont.DrawCentre(bmpDest, x+353, j, tLX->clNormalLabel, "%d",p->getKills());
+					tLX->cFont.DrawCentre(bmpDest, x+353, j, tLX->clNormalLabel, itoa(p->getKills()));
 					CClient *remoteClient = cServer->getClient(p->getID());
 					if (remoteClient && p->getID())
-						tLX->cFont.DrawCentre(bmpDest, x+396, j, tLX->clNormalLabel, "%d",remoteClient->getPing());
+						tLX->cFont.DrawCentre(bmpDest, x+396, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
 				} else
-					tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, "%d",p->getKills());
+					tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, itoa(p->getKills()));
 
 				j+=20;
 			}
@@ -941,23 +941,15 @@ void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 
 ///////////////////
 // Draw text that is shadowed
-void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, char *fmt, ...)
+void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, const std::string& buf)
 {
-	va_list arg;
-
-	va_start(arg, fmt);
-	static char buf[512];
-	vsnprintf(buf, sizeof(buf), fmt, arg);
-	fix_markend(buf);
-	va_end(arg);
-
 	if(centre) {
 		//tLX->cOutlineFont.DrawCentre(bmpDest, x+1, y+1, 0,"%s", buf);
-		tLX->cOutlineFont.DrawCentre(bmpDest, x, y, fgcol,"%s", buf);
+		tLX->cOutlineFont.DrawCentre(bmpDest, x, y, fgcol, buf);
 	}
 	else {
 		//tLX->cOutlineFont.Draw(bmpDest, x+1, y+1, 0,"%s", buf);
-		tLX->cOutlineFont.Draw(bmpDest, x, y, fgcol,"%s", buf);
+		tLX->cOutlineFont.Draw(bmpDest, x, y, fgcol, buf);
 	}
 }
 
@@ -1166,8 +1158,8 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
 	// Draw the back image
 	DrawImage(bmpDest,gfxGame.bmpViewportMgr,x,y);
 
-    tLX->cFont.Draw(bmpDest, x+75,y+50, tLX->clNormalLabel,"%s","Viewport 1");
-    tLX->cFont.Draw(bmpDest, x+gfxGame.bmpViewportMgr->w/2+40,y+50, tLX->clNormalLabel,"%s","Viewport 2");
+    tLX->cFont.Draw(bmpDest, x+75,y+50, tLX->clNormalLabel,"Viewport 1");
+    tLX->cFont.Draw(bmpDest, x+gfxGame.bmpViewportMgr->w/2+40,y+50, tLX->clNormalLabel,"Viewport 2");
 
     ViewportMgr.Draw(bmpDest);
     gui_event_t *ev = ViewportMgr.Process();
@@ -1297,16 +1289,16 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
     DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, 0);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
 
-    tLX->cFont.Draw(bmpDest, x+5, y+4, tLX->clNormalLabel,"%s", "Players");
+    tLX->cFont.Draw(bmpDest, x+5, y+4, tLX->clNormalLabel, "Players");
     if(!bShowReady) {
-        tLX->cFont.Draw(bmpDest, x+180, y+4, tLX->clNormalLabel,"%s", "L");
-        tLX->cFont.Draw(bmpDest, x+210, y+4, tLX->clNormalLabel,"%s", "K");
+        tLX->cFont.Draw(bmpDest, x+180, y+4, tLX->clNormalLabel, "L");
+        tLX->cFont.Draw(bmpDest, x+210, y+4, tLX->clNormalLabel, "K");
 		if(tGameInfo.iGameType == GME_HOST)
-			tLX->cFont.Draw(bmpDest, x+237, y+4, tLX->clNormalLabel,"%s", "P");
+			tLX->cFont.Draw(bmpDest, x+237, y+4, tLX->clNormalLabel, "P");
     }
 	else
 		if (tGameInfo.iGameType == GME_HOST)
-			tLX->cFont.Draw(bmpDest, x+250, y+4, tLX->clNormalLabel,"%s", "Ping");
+			tLX->cFont.Draw(bmpDest, x+250, y+4, tLX->clNormalLabel, "Ping");
 
     DrawHLine(bmpDest, x+4, x+w-4, y+20, tLX->clWhite);
 
@@ -1329,7 +1321,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
         if(p->getType() == PRF_HUMAN && p->getLocal())
             DrawRectFill(bmpDest, x+2,j-2, x+w-1, j+18, MakeColour(52,52,52));
 
-		tLX->cFont.Draw(bmpDest, x+5, j+1, tLX->clWhite,"#%d",p->getID());
+		tLX->cFont.Draw(bmpDest, x+5, j+1, tLX->clWhite, "#" + itoa(p->getID()));
 
         // Pic & Name
         DrawImage(bmpDest, p->getPicimg(), x+30, j);
@@ -1341,29 +1333,29 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
         // Score
         if(!bShowReady) {
             if(p->getLives() >= 0)
-                tLX->cFont.DrawCentre(bmpDest, x+185, j, tLX->clNormalLabel, "%d",p->getLives());
+                tLX->cFont.DrawCentre(bmpDest, x+185, j, tLX->clNormalLabel, itoa(p->getLives()));
             else if(p->getLives() == WRM_OUT)
-                tLX->cFont.DrawCentre(bmpDest, x+185, j, tLX->clNormalLabel,"%s", "out");
+                tLX->cFont.DrawCentre(bmpDest, x+185, j, tLX->clNormalLabel, "out");
 
-            tLX->cFont.DrawCentre(bmpDest, x+215, j, tLX->clNormalLabel, "%d",p->getKills());
+            tLX->cFont.DrawCentre(bmpDest, x+215, j, tLX->clNormalLabel, itoa(p->getKills()));
 
 			if(tGameInfo.iGameType == GME_HOST)  {
 				CClient *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
-					tLX->cFont.DrawCentre(bmpDest, x+240, j, tLX->clNormalLabel, "%d",remoteClient->getPing());
+					tLX->cFont.DrawCentre(bmpDest, x+240, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
 			}
         } else {
             // Ready state
             if(p->getGameReady())
-                tLX->cFont.Draw(bmpDest, x+180, j, tLX->clReady,"%s", "Ready");
+                tLX->cFont.Draw(bmpDest, x+180, j, tLX->clReady, "Ready");
             else
-                tLX->cFont.Draw(bmpDest, x+180, j, tLX->clWaiting,"%s", "Waiting");
+                tLX->cFont.Draw(bmpDest, x+180, j, tLX->clWaiting, "Waiting");
 
 			// Show ping if host
 			if(tGameInfo.iGameType == GME_HOST)  {
 				CClient *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
-					tLX->cFont.DrawCentre(bmpDest, x+260, j, tLX->clNormalLabel, "%d",remoteClient->getPing());
+					tLX->cFont.DrawCentre(bmpDest, x+260, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
 			}
         }
 
@@ -1399,35 +1391,35 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
     DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, 0);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
 
-    tLX->cFont.Draw(bmpDest, x+60, y+5, tLX->clNormalLabel,"%s", "Current settings");
+    tLX->cFont.Draw(bmpDest, x+60, y+5, tLX->clNormalLabel, "Current settings");
     DrawHLine(bmpDest, x+4, x+w-4, y+22, tLX->clWhite);
 
 	/*tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s","Level:");
 	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname.c_str());*/
-	tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s", "Mod:");
+	tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel, "Mod:");
 	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel, tGameInfo.sModName);
-	tLX->cFont.Draw(bmpDest, x+5, y+43, tLX->clNormalLabel,"%s","Game Type:");
+	tLX->cFont.Draw(bmpDest, x+5, y+43, tLX->clNormalLabel,"Game Type:");
 	switch (tGameInfo.iGameMode)  {
 	case GMT_DEATHMATCH:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"%s","Deathmatch");
+	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Deathmatch");
 	  break;
 	case GMT_TAG:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"%s","Tag");
+	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Tag");
 	  break;
 	case GMT_TEAMDEATH:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"%s","Team Deathmatch");
+	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Team Deathmatch");
 	  break;
 	case GMT_DEMOLITION:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"%s","Demolition");
+	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Demolition");
 	  break;
 	}  // switch
-	tLX->cFont.Draw(bmpDest, x+5, y+61, tLX->clNormalLabel,"%s","Loading Time:");
-	tLX->cFont.Draw(bmpDest, x+105, y+61, tLX->clNormalLabel,"%d%%",tGameInfo.iLoadingTimes);
-	tLX->cFont.Draw(bmpDest, x+5, y+79, tLX->clNormalLabel,"%s","Lives:");
-	tLX->cFont.Draw(bmpDest, x+105, y+79, tLX->clNormalLabel,"%d",tGameInfo.iLives);
-	tLX->cFont.Draw(bmpDest, x+5, y+97, tLX->clNormalLabel,"%s","Max Kills:");
-	tLX->cFont.Draw(bmpDest, x+105, y+97, tLX->clNormalLabel,"%d",tGameInfo.iKillLimit);
-	tLX->cFont.Draw(bmpDest, x+5, y+115, tLX->clNormalLabel,"%s","Bonuses:");
+	tLX->cFont.Draw(bmpDest, x+5, y+61, tLX->clNormalLabel,"Loading Time:");
+	tLX->cFont.Draw(bmpDest, x+105, y+61, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTimes) + "%");
+	tLX->cFont.Draw(bmpDest, x+5, y+79, tLX->clNormalLabel,"Lives:");
+	tLX->cFont.Draw(bmpDest, x+105, y+79, tLX->clNormalLabel,itoa(tGameInfo.iLives));
+	tLX->cFont.Draw(bmpDest, x+5, y+97, tLX->clNormalLabel,"Max Kills:");
+	tLX->cFont.Draw(bmpDest, x+105, y+97, tLX->clNormalLabel,itoa(tGameInfo.iKillLimit));
+	tLX->cFont.Draw(bmpDest, x+5, y+115, tLX->clNormalLabel,"Bonuses:");
 	if (tGameInfo.iBonusesOn)
 		tLX->cFont.Draw(bmpDest, x+105, y+115, tLX->clNormalLabel,"On");
 	else

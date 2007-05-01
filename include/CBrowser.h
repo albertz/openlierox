@@ -18,6 +18,9 @@
 #define __CBROWSER_H__
 
 
+#include "InputEvents.h"
+
+
 // Notes: Everything is an object. Tags are objects & strings of text are objects
 // The renderer goes through each object. Tag objects setup the properties, and string objects get drawn
 

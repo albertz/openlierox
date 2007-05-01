@@ -17,6 +17,7 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "Cache.h"
+#include "StringUtils.h"
 
 
 ///////////////////

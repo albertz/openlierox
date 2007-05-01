@@ -13,10 +13,12 @@
 // Created 30/3/03
 // Jason Boettcher
 
+#include <assert.h>
 
 #include "defs.h"
 #include "LieroX.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 
 ///////////////////

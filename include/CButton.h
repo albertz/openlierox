@@ -17,6 +17,8 @@
 #ifndef __CBUTTON_H__
 #define __CBUTTON_H__
 
+#include "InputEvents.h"
+
 
 // Event types
 enum {

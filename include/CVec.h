@@ -20,6 +20,8 @@
 #ifndef __CVEC_H__
 #define __CVEC_H__
 
+#include <math.h>
+
 
 template<typename _T>
 class VectorD2 {

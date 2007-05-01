@@ -17,6 +17,8 @@
 #include "LieroX.h"
 #include "FindFile.h"
 #include "CBanList.h"
+#include "StringUtils.h"
+
 
 ///////////////////
 // BanList Constructor

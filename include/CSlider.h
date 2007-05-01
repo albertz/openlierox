@@ -17,6 +17,9 @@
 #ifndef __CSLIDER_H__
 #define __CSLIDER_H__
 
+#include "InputEvents.h"
+
+
 
 // Slider events
 enum {

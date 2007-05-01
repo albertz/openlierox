@@ -20,7 +20,8 @@
 #include "LieroX.h"
 #include "console.h"
 #include "GfxPrimitives.h"
-
+#include "InputEvents.h"
+#include "StringUtils.h"
 
 console_t	*Console = NULL;
 
@@ -128,6 +129,7 @@ void Con_Process(float dt)
 
 
 	// Add text to the console
+	// TODO: why is this commented?
 	//ProcessEvents();
 	//SDL_Event *Ev = GetEvent();
 
@@ -141,6 +143,8 @@ void Con_Process(float dt)
 	if(Ev->key.state == SDL_PRESSED) {
 		input = Ev->key.keysym.unicode;
 
+		// TODO: why is this so complicated? isn't there an easier method?
+		// and why are there no comments on this code?
 		if (input == 0)  {
 			switch (Ev->key.keysym.sym) {
 					case SDLK_LEFT:

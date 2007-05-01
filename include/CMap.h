@@ -18,8 +18,13 @@
 #define __CMAP_H__
 
 #include "ReadWriteLock.h"
+#include "types.h"
+
+
 // TODO: remove this after we changed network
 #include "CBytestream.h"
+
+
 
 #define		MAP_VERSION	0
 

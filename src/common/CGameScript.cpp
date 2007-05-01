@@ -17,6 +17,7 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 
 ///////////////////

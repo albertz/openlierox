@@ -13,12 +13,14 @@
 // Created 3/9/02
 // Jason Boettcher
 
+#include <assert.h>
 
 #include "defs.h"
 #include "LieroX.h"
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "StringUtils.h"
 
 
 ///////////////////

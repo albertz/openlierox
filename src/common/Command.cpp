@@ -22,6 +22,8 @@
 #include "CServer.h"
 #include "CClient.h"
 #include "console.h"
+#include "StringUtils.h"
+#include "sex.h"
 
 command_t	*Commands = NULL;
 

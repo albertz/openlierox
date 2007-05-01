@@ -20,6 +20,8 @@
 #define __CONSOLE_H__
 
 #include "con_cmd.h"
+#include "Unicode.h"
+
 
 // Console states
 #define		CON_HIDDEN		0
@@ -51,7 +53,7 @@ class console_t { public:
 
 	int			iState;
 	float		fPosition;
-	UnicodeChar		iLastchar;
+	UnicodeChar	iLastchar;
 
 	size_t		iCurpos;
 	conline_t	Line[MAX_CONLINES];

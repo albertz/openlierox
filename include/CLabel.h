@@ -17,6 +17,9 @@
 #ifndef __CLABEL_H__
 #define __CLABEL_H__
 
+#include "InputEvents.h"
+
+
 
 // Label events
 enum {

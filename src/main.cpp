@@ -7,6 +7,7 @@
 // code under LGPL
 
 #include <iostream>
+#include <assert.h>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -17,7 +18,8 @@
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
-
+#include "InputEvents.h"
+#include "StringUtils.h"
 
 #ifndef WIN32
 #include <sys/dir.h>

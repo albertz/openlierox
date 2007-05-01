@@ -13,6 +13,8 @@
 // Created 30/6/02
 // Jason Boettcher
 
+#include <assert.h>
+
 #include "defs.h"
 #include "LieroX.h"
 #include "Graphics.h"
@@ -21,6 +23,7 @@
 #include "CListview.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 
 CGuiLayout cLocalMenu;
@@ -69,7 +72,7 @@ void Menu_LocalInitialize(void)
     Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
 
     // Minimap box
-    tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
+    tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"Playing");
     //tLX->cFont.Draw(tMenu->bmpBuffer, 480,240,tLX->clWhite,"%s","H");
     //tLX->cFont.Draw(tMenu->bmpBuffer, 515,240,tLX->clWhite,"%s","T");
 	Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
@@ -176,7 +179,7 @@ void Menu_LocalFrame(void)
             Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
             Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
-            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
+            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"Playing");
 
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
@@ -196,7 +199,7 @@ void Menu_LocalFrame(void)
             Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
             Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
-            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"%s","Playing");
+            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"Playing");
 
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
@@ -1327,9 +1330,9 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		DrawImageAdv(tMenu->bmpScreen, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
 		DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel,"%s", save ? "Save" : "Load");
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
 		if (save)
-			tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel,"%s","Preset name");
+			tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel,"Preset name");
 
 		if (!cMediaPlayer.GetDrawPlayer())
 			ev = cWpnPresets.Process();

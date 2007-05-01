@@ -17,6 +17,11 @@
 #ifndef __CVIEWPORT_H__
 #define	__CVIEWPORT_H__
 
+#include "CInput.h"
+#include "CVec.h"
+#include "Options.h" // for control_t
+
+
 
 // Viewport types
 // !!! Don't change the order !!!

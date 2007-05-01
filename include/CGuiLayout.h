@@ -89,8 +89,6 @@ private:
 	// Can we set focus to another widget?
 	int			iCanFocus;
 
-	// Methods
-	void		ReadEvents(xmlNodePtr Node, generic_events_t *Events);
 
 
 public:
@@ -103,7 +101,7 @@ public:
 	void		Add(CWidget *widget, int id, int x, int y, int w, int h);
 	CWidget		*getWidget(int id);
     void        removeWidget(int id);
-	int			GetIdByName(xmlChar *Name);
+	int			GetIdByName(char *Name);
 	void		Error(int ErrorCode, char *Format, ...);
 
 	gui_event_t	*Process(void);

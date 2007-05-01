@@ -19,6 +19,7 @@
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 ///////////////////
 // The create event

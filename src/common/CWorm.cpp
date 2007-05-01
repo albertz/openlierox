@@ -13,6 +13,7 @@
 // Created 28/6/02
 // Jason Boettcher
 
+#include <assert.h>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -562,7 +563,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     }
 	
 	//tLX->cFont.DrawCentre(bmpDest, centrex+2, t+82, 0,"%s", "Weapons Selection");
-	tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWhite,"%s", "Weapons Selection");
+	tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWhite, "Weapons Selection");
 
 	bool iChat_Typing = false;
 	if (getClient())
@@ -682,16 +683,16 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
     y+=5;
 	if(iCurrentWeapon == iNumWeaponSlots)
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWhite,"%s", "Random");
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWhite, "Random");
 	else
-		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, tLX->clWhite,"%s", "Random");
+		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, tLX->clWhite, "Random");
 
     y+=18;
 
 	if(iCurrentWeapon == iNumWeaponSlots+1)
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWhite,"%s", "Done");
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWhite, "Done");
 	else
-		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, tLX->clWhite,"%s", "Done");
+		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, tLX->clWhite, "Done");
 
 
 	if(iChat_Typing)

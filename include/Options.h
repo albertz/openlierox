@@ -17,6 +17,9 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
 
+#include <vector>
+#include <string>
+
 typedef std::vector<std::string> searchpathlist;
 
 
@@ -68,16 +71,10 @@ class controls_t {
 private:
 	std::string ctrl[8];
 public:
-	std::string& operator[] (const short i) {
-		assert(i >= 0 && i < 8);
-		return ctrl[i];
-	}
-	const std::string& operator[] (const short i) const {
-		assert(i >= 0 && i < 8);
-		return ctrl[i];	
-	}
+	std::string& operator[] (const short i) { return (i >= 0 && i < 8) ? ctrl[i] : ctrl[-9999]; }
+	const std::string& operator[] (const short i) const { return (i >= 0 && i < 8) ? ctrl[i] : ctrl[-9999]; }
 
-	inline byte ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
+	inline unsigned short ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
 	// TODO: add specific functions
 };
 

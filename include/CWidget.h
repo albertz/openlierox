@@ -17,6 +17,7 @@
 #ifndef __CWIDGET_H__
 #define __CWIDGET_H__
 
+#include "InputEvents.h"
 
 // Widget messages
 #define		WDM_SETENABLE	-1

@@ -11,6 +11,9 @@
 #ifndef __CBOX_H__
 #define __CBOX_H__
 
+#include "InputEvents.h"
+
+
 
 // Event types
 enum {

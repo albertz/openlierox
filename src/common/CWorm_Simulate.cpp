@@ -17,7 +17,7 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
-
+#include "InputEvents.h"
 
 
 ///////////////////

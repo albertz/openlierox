@@ -19,7 +19,7 @@
 
 #include "defs.h"
 #include "CBytestream.h"
-
+#include "StringUtils.h"
 
 
 ///////////////////

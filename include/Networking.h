@@ -17,6 +17,10 @@
 #ifndef __NETWORKING_H__
 #define __NETWORKING_H__
 
+#include <string>
+
+#include "Utils.h"
+
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
 #endif
@@ -63,14 +67,10 @@ void    http_CreateHostUrl(const std::string& host, const std::string& url);
 void	http_Quit(void);
 
 // socket address; this type will be given around as pointer
-struct NetworkAddr {
-	NLaddress adr;
-};
+DEFINE_INTERNDATA_CLASS(NetworkAddr);
 
 // socket itself; the structure/type itself will be given around
-struct NetworkSocket {
-	NLsocket socket;
-};
+DEFINE_INTERNDATA_CLASS(NetworkSocket);
 
 // general networking
 bool	InitNetworkSystem();

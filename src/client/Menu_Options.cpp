@@ -20,6 +20,7 @@
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "StringUtils.h"
 
 
 int OptionsMode = 0;
@@ -452,7 +453,7 @@ void Menu_OptionsFrame(void)
 		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
 		//s = (CSlider *)cOpt_Game.getWidget(og_BloodAmount);
         DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 385,140, 385,140, 70,50);
-		tLX->cFont.Draw(tMenu->bmpScreen,385, 148, tLX->clNormalLabel,"%d%%",val);
+		tLX->cFont.Draw(tMenu->bmpScreen,385, 148, tLX->clNormalLabel, itoa(val)+"%");
 
 		//val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
         //DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 285,260, 285,260, 100,50);
@@ -708,11 +709,11 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 212,172, 212,172, 217,137);
     DrawRectFill(tMenu->bmpBuffer, 212,172,429,309,0);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,180,MakeColour(128,200,255),"%s","Input for:");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,180,MakeColour(128,200,255),"Input for:");
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),name);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,270,MakeColour(255,255,255),"%s","Press any key/mouse");
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,285,MakeColour(128,128,128),"%s","(Escape to cancel)");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,270,MakeColour(255,255,255),"Press any key/mouse");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,285,MakeColour(128,128,128),"(Escape to cancel)");
 
 	TopButtons[OptionsMode].MouseOver(Mouse);
 	for(ushort i=0;i<3;i++) {

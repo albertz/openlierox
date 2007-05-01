@@ -19,6 +19,9 @@
 
 #include "defs.h"
 #include "LieroX.h"
+#include "InputEvents.h"
+#include "StringUtils.h"
+
 
 keys_t Keys[] = {
 	{ "", 0 },

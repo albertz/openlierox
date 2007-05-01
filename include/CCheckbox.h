@@ -18,6 +18,9 @@
 #define __CCHECKBOX_H__
 
 
+#include "InputEvents.h"
+
+
 // Checkbox events
 enum {
 	CHK_NONE=-1,

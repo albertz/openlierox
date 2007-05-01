@@ -5,6 +5,9 @@
 #ifndef __MEDIAPLAYER_H__
 #define __MEDIAPLAYER_H__
 
+#include "InputEvents.h"
+
+
 #include <vector>
 
 typedef std::vector<std::string> song_list;
