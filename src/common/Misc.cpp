@@ -776,39 +776,39 @@ void UNICODE_to_UTF8(uchar *utf8, UnicodeChar unicode)
 }
 
 
-UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string& str) {
-	if(it == str.end()) return 0;
+UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last) {
+	if(it == last) return 0;
 	
 	uchar ch = *it;
 	UnicodeChar res = ch;
 	if ( ch >= 0xFC ) {
-		res  =  (ch&0x01) << 30; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 24; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 18; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 12; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res  =  (ch&0x01) << 30; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 24; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 18; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xF8 ) {
-		res  =  (ch&0x03) << 24; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 18; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 12; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res  =  (ch&0x03) << 24; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 18; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xF0 ) {
-		res  =  (ch&0x07) << 18; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 12; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res  =  (ch&0x07) << 18; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xE0 ) {
-		res  =  (ch&0x0F) << 12; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (ch&0x3F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res  =  (ch&0x0F) << 12; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xC0 ) {
-		res  =  (ch&0x1F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res  =  (ch&0x1F) << 6; it++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	}
 

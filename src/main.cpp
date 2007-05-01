@@ -61,10 +61,10 @@ void test_Unicode_UTF8_Conversion() {
 //		print_binary_string(tmp);
 		tmpbegin = tmp.begin();
 //		std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp) << std::endl;
-		if(GetNextUnicodeFromUtf8(tmpbegin, tmp) != c) {
+		if(GetNextUnicodeFromUtf8(tmpbegin, tmp.end()) != c) {
 			std::cout << std::hex << c << " -> ";
 			print_binary_string(tmp);
-			std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp) << std::endl;
+			std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp.end()) << std::endl;
 		}
 	}
 }

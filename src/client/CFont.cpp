@@ -289,7 +289,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 			continue;
 		}
 		
-		l = TranslateCharacter(p, txt);
+		l = TranslateCharacter(p, txt.end());
 		if (l == -1)
 			continue;
 
@@ -388,7 +388,7 @@ int CFont::GetWidth(const std::string& buf) {
 	
 	// Calculate the length of the text
 	for(std::string::const_iterator p = buf.begin(); p != buf.end(); ) {
-		l = TranslateCharacter(p, buf);
+		l = TranslateCharacter(p, buf.end());
 		if (l != -1)
 			length += FontWidth[l]+Spacing;
 	}
@@ -398,14 +398,14 @@ int CFont::GetWidth(const std::string& buf) {
 
 /////////////////////
 // Translates the character to the position in Fontstr array, returns -1 if impossible
-int CFont::TranslateCharacter(std::string::const_iterator &it, const std::string& str)
+int CFont::TranslateCharacter(std::string::const_iterator &it, const std::string::const_iterator& last)
 {
 	// TODO: remove all this and make it new
 	// a hardcoded translation for a font should NEVER be used,
 	// this makes every upcoming version with perhaps more available chars incompatible
 	// perhaps it's also best to not use a translation at all (and directly use Unicode)
 
-	UnicodeChar ch = GetNextUnicodeFromUtf8(it, str);
+	UnicodeChar ch = GetNextUnicodeFromUtf8(it, last);
 	int result;
 	if(ch > 127) result = ch - 65;
 	else if (ch < 32 || ch >= NUM_CHARACTERS) result = -1;
