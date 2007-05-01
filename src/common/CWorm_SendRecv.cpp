@@ -72,7 +72,10 @@ void CWorm::readScore(CBytestream *bs)
 {
 	// NOTE: ID and S2C_SCOREUPDATE is read in CClient::ParseScoreUpdate
 	// TODO: make this better
-	iLives = MAX((int)bs->readInt16(),WRM_OUT);
+	if (tGameInfo.iLives == WRM_UNLIM)
+		iLives = MAX((int)bs->readInt16(),WRM_UNLIM);
+	else
+		iLives = MAX((int)bs->readInt16(),WRM_OUT);
 	iKills = MAX(bs->readInt(1),0);
 }
 
