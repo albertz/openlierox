@@ -118,8 +118,8 @@ public:
 	virtual	int		MouseDown(mouse_t *tMouse, int nDown) = 0;
 	virtual	int		MouseWheelUp(mouse_t *tMouse ) = 0;
 	virtual	int		MouseWheelDown(mouse_t *tMouse) = 0;
-	virtual	int		KeyDown(int c) = 0;
-	virtual	int		KeyUp(int c) = 0;
+	virtual	int		KeyDown(UnicodeChar c) = 0;
+	virtual	int		KeyUp(UnicodeChar c) = 0;
 
 	virtual	void	LoadStyle(void) = 0;
 	virtual	void	Draw(SDL_Surface *bmpDest) = 0;

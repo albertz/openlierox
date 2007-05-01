@@ -241,50 +241,6 @@ std::string GetFileExtension(const std::string& filename);
 void printf(const std::string& txt);
 
 
-typedef Uint32 UnicodeChar;
-// the iterator shows at the next character after this operation
-UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator& it, const std::string::const_iterator& last);
-std::string GetUtf8FromUnicode(UnicodeChar ch);
-
-
-
-template<typename _RandomAccessType, typename _ValueType, typename _PosType = size_t>
-class iterator {
-protected:
-	_RandomAccessType& base;
-	_PosType pos;
-public:
-	iterator(_RandomAccessType& b, _PosType p) : base(b), pos(p) {}
-	static iterator end(_RandomAccessType& b) {
-		return iterator<_RandomAccessType, _ValueType>(b, -1); }
-
-	template<typename _ValueType2, typename _PosType2>
-	void operator==(const iterator<_RandomAccessType, _ValueType2, _PosType2>& it) {
-		return base == it->base && (pos == it->pos || MIN(pos,it->pos) >= base.size()); }
-	
-	void operator++() { pos++; }
-	void operator--() { pos--; }
-	_ValueType operator*() { return base[pos]; }
-};
-
-template<typename _RandomAccessType, typename _ValueType, typename _PosType = size_t>
-class reverse_iterator : public iterator<_RandomAccessType, _ValueType, _PosType> {
-public:
-	reverse_iterator(_RandomAccessType& b, _PosType p) : iterator<_RandomAccessType, _ValueType, _PosType>(b, p) {}
-	void operator++() { this->pos--; }
-	void operator--() { this->pos++; }
-};
-
-template<typename _Iterator>
-void IncUtf8StringIterator(_Iterator& it, const _Iterator& last) {
-	uchar c;
-	for(it++; it != last; it++) {
-		c = *it;
-		if(!(c&0x80) || (c&0xC0)) break;
-	}
-}
-
-
 
 
 template<typename T>

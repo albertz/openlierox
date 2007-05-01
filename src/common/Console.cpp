@@ -36,7 +36,6 @@ int Con_Initialize(void)
 
 	Console->fPosition = 1.0f;
 	Console->iState = CON_HIDDEN;
-	Console->iCurLength = 0;
 	Console->iLastchar = 0;
 	Console->icurHistory = -1;
 	Console->iNumHistory = 0;
@@ -121,7 +120,6 @@ void Con_Process(float dt)
 		Console->iState = CON_HIDDEN;
 		Console->fPosition = 1;
 
-		Console->iCurLength = 0;
 		Console->Line[0].strText = "";
 	}
 
@@ -137,11 +135,11 @@ void Con_Process(float dt)
 	if(Ev->type != SDL_KEYUP && Ev->type != SDL_KEYDOWN)
 		return;
 
-	int input = 0;
+	UnicodeChar input = 0;
 
 	// Check the characters
 	if(Ev->key.state == SDL_PRESSED) {
-		input = (Ev->key.keysym.unicode & 0x007F);
+		input = Ev->key.keysym.unicode;
 
 		if (input == 0)  {
 			switch (Ev->key.keysym.sym) {
@@ -166,16 +164,16 @@ void Con_Process(float dt)
 					case SDLK_KP_MINUS:
 					case SDLK_KP_PLUS:
 					case SDLK_KP_EQUALS:
-						input = (char) (Ev->key.keysym.sym - 208);
+						input = (uchar) (Ev->key.keysym.sym - 208);
 						break;
 					case SDLK_KP_PERIOD:
 					case SDLK_KP_DIVIDE:
-						input = (char) (Ev->key.keysym.sym - 220);
+						input = (uchar) (Ev->key.keysym.sym - 220);
 						break;
 					case SDLK_KP_ENTER:
 						input = '\r';
 						break;
-                    default: // TODO: a lot of keys are not handled here
+                    default:
                         break;
 			}  // switch
 		}
@@ -186,8 +184,8 @@ void Con_Process(float dt)
 
 	// Handle more keys at once keydown
 	for(int i=0; i<kb->queueLength; i++)
-		if (kb->keyQueue[i] != input)
-			Con_ProcessCharacter(kb->keyQueue[i]);
+		if (kb->keyQueue[i].down && kb->keyQueue[i].ch != input)
+			Con_ProcessCharacter(kb->keyQueue[i].ch);
 
 	// Key up
 	if(Ev->key.state == SDL_RELEASED && Ev->type == SDL_KEYUP)  {
@@ -207,8 +205,7 @@ void Con_Process(float dt)
 		if(Console->icurHistory >= 0) {
 			Console->Line[0].Colour = CNC_NORMAL;
 			Console->Line[0].strText =  Console->History[Console->icurHistory].strText;
-			Console->iCurLength = Console->Line[0].strText.size();
-			Console->iCurpos = Console->iCurLength;
+			Console->iCurpos = Console->Line[0].strText.size();
 		}
 	}
 
@@ -218,10 +215,8 @@ void Con_Process(float dt)
 		if(Console->icurHistory >= 0) {
 			Console->Line[0].Colour = CNC_NORMAL;
 			Console->Line[0].strText = Console->History[Console->icurHistory].strText;
-			Console->iCurLength = Console->Line[0].strText.size();
 		} else {
 			Console->Line[0].strText = "";
-			Console->iCurLength=0;
 		}
 
 		Console->icurHistory = MAX(Console->icurHistory,-1);
@@ -231,7 +226,7 @@ void Con_Process(float dt)
 
 ///////////////////
 // Handles the character typed in the console
-void Con_ProcessCharacter(int input)
+void Con_ProcessCharacter(UnicodeChar input)
 {
 	if (!input)
 		return;
@@ -262,10 +257,9 @@ void Con_ProcessCharacter(int input)
 
 
 	// Backspace
-	if((char) input == '\b') {
+	if(input == '\b') {
 		if(Console->iCurpos > 0)  {
-			Console->Line[0].strText.erase(--Console->iCurpos,1);
-			Console->iCurLength--;
+			Console->Line[0].strText.erase(--Console->iCurpos,1); // TODO utf
 		}
 		Console->icurHistory = -1;
 		return;
@@ -273,9 +267,8 @@ void Con_ProcessCharacter(int input)
 
 	// Delete
 	if(input == SDLK_DELETE)  {
-		if(Console->iCurLength > 0 && Console->iCurLength > Console->iCurpos)  {
-			Console->Line[0].strText.erase(Console->iCurpos,1);
-			Console->iCurLength--;
+		if(Console->Line[0].strText.size() > 0 && Console->Line[0].strText.size() > Console->iCurpos)  {
+			Console->Line[0].strText.erase(Console->iCurpos,1); // TODO utf
 		}
 		Console->icurHistory = -1;
 		return;
@@ -284,14 +277,14 @@ void Con_ProcessCharacter(int input)
 	// Left arrow
 	if(input == SDLK_LEFT)  {
 		if(Console->iCurpos > 0)
-			Console->iCurpos--;
+			Console->iCurpos--; // TODO utf
 		return;
 	}
 
 	// Right arrow
 	if(input == SDLK_RIGHT)  {
-		if(Console->iCurpos < Console->iCurLength)
-			Console->iCurpos++;
+		if(Console->iCurpos < Console->Line[0].strText.size())
+			Console->iCurpos++; // TODO utf
 		return;
 	}
 
@@ -308,10 +301,10 @@ void Con_ProcessCharacter(int input)
 	}
 
 	// Paste
-	if((char)input == 22)  {
+	if(input == 22)  {
 		// Safety
-		if (Console->iCurpos > Console->iCurLength)
-			Console->iCurpos = Console->iCurLength;
+		if (Console->iCurpos > Console->Line[0].strText.length())
+			Console->iCurpos = Console->Line[0].strText.length();
 
 		// Get the text
 		std::string buf;
@@ -321,7 +314,6 @@ void Con_ProcessCharacter(int input)
 		Console->Line[0].Colour = CNC_NORMAL;
 		Console->Line[0].strText.insert(Console->iCurpos,buf);
 		Console->iCurpos += buf.length();
-		Console->iCurLength = Console->Line[0].strText.size();
 		Console->icurHistory = -1;
 
 		return;
@@ -329,9 +321,9 @@ void Con_ProcessCharacter(int input)
 
 
 	// Enter key
-	if((char) input == '\n' || (char) input == '\r') {
+	if(input == '\n' || input == '\r') {
 
-		Con_Printf(CNC_NORMAL,"]%s",Console->Line[0].strText.c_str());
+		Con_Printf(CNC_NORMAL, "]" + Console->Line[0].strText);
 
 		// Parse the line
 		Cmd_ParseLine(Console->Line[0].strText);
@@ -339,54 +331,32 @@ void Con_ProcessCharacter(int input)
 
 
 		Console->Line[0].strText = "";
-		Console->iCurLength = 0;
 		Console->iCurpos = 0;
 
 		return;
 	}
 
 	// Tab
-	if((char) input == '\t') {
+	if(input == '\t') {
 		// Auto-complete
-		Cmd_AutoComplete(Console->Line[0].strText,&Console->iCurLength);
-		//CV_AutoComplete(Console->Line[0].strText,&Console->iCurLength);
-		Console->iCurpos = Console->iCurLength;
+		Cmd_AutoComplete(Console->Line[0].strText);
+		Console->iCurpos = Console->Line[0].strText.length();
 		Console->icurHistory = -1;
 		return;
 	}
 
 	// Normal key
-	if((char)input > 31 && (char)input <127) {
+	if(input > 31) {
 		// Safety
-		if (Console->iCurpos > Console->iCurLength)
-			Console->iCurpos = Console->iCurLength;
+		if (Console->iCurpos > Console->Line[0].strText.length())
+			Console->iCurpos = Console->Line[0].strText.length();
 
-		static std::string tmp;
-		tmp = (char)input;
 		Console->Line[0].Colour = CNC_NORMAL;
-		Console->Line[0].strText.insert(Console->iCurpos, tmp);
-		Console->iCurpos++; Console->iCurLength++;
+		Console->iCurpos = InsertUnicodeChar(Console->Line[0].strText, Console->iCurpos, input);
 		Console->icurHistory = -1;
 	}
 }
 
-
-///////////////////
-// Print a formatted string to the console
-void Con_Printf(int colour, char *fmt, ...)
-{
-	static char buf[2048];
-	va_list	va;
-
-	va_start(va,fmt);
-	vsnprintf(buf,sizeof(buf),fmt,va);
-	fix_markend(buf);
-	va_end(va);
-
-	Con_AddText(colour, buf);
-
-    //printf("Con: %s\n",buf);
-}
 
 void Con_Printf(int color, const std::string& txt) {
 	Con_AddText(color, txt);

@@ -44,7 +44,7 @@ std::string Cmd_GetArg(int a);
 // Command routines
 command_t	*Cmd_GetCommand(const std::string& strName);
 void	Cmd_ParseLine(const std::string& text);
-int		Cmd_AutoComplete(std::string& strVar, int *iLength);
+int		Cmd_AutoComplete(std::string& strVar);
 int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ));
 void	Cmd_FreeCommands(void);
 void	Cmd_Free(void);

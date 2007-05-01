@@ -535,7 +535,7 @@ gui_event_t *CGuiLayout::Process(void)
 				tEvent->cWidget = cFocused;
 				tEvent->iControlID = cFocused->getID();
 
-				int input = (Event->key.keysym.unicode);
+				UnicodeChar input = Event->key.keysym.unicode;
 				if (input == 0)
 					switch (Event->key.keysym.sym) {
 					case SDLK_LEFT:
@@ -559,11 +559,11 @@ gui_event_t *CGuiLayout::Process(void)
 					case SDLK_KP_MINUS:
 					case SDLK_KP_PLUS:
 					case SDLK_KP_EQUALS:
-						input = (char) (Event->key.keysym.sym - 208);
+						input = (uchar) (Event->key.keysym.sym - 208);
 						break;
 					case SDLK_KP_PERIOD:
 					case SDLK_KP_DIVIDE:
-						input = (char) (Event->key.keysym.sym - 220);
+						input = (uchar) (Event->key.keysym.sym - 220);
 						break;
 					case SDLK_KP_ENTER:
 						input = '\r';
@@ -581,8 +581,8 @@ gui_event_t *CGuiLayout::Process(void)
 				// Handle more keys at once keydown
 				if (Keyboard->queueLength > 1) 
 					for(int i=0; i<Keyboard->queueLength; i++)
-						if (Keyboard->keyQueue[i] != input)  {
-							ev = cFocused->KeyDown(Keyboard->keyQueue[i]);
+						if(!Keyboard->keyQueue[i].down || Keyboard->keyQueue[i].ch != input)  {
+							ev = cFocused->KeyDown(Keyboard->keyQueue[i].ch);
 							if (ev != -1)  {
 								tEvent->iEventMsg = ev;
 								return tEvent;

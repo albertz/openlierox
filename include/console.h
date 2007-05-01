@@ -51,10 +51,9 @@ class console_t { public:
 
 	int			iState;
 	float		fPosition;
-	int			iLastchar;
+	UnicodeChar		iLastchar;
 
-	int			iCurLength;
-	int			iCurpos;
+	size_t		iCurpos;
 	conline_t	Line[MAX_CONLINES];
 
 	int			icurHistory;
@@ -79,12 +78,11 @@ int		Con_Initialize(void);
 void	Con_Shutdown(void);
 void	Con_Toggle(void);
 void	Con_Process(float dt);
-void	Con_ProcessCharacter(int input);
+void	Con_ProcessCharacter(UnicodeChar input);
 void	Con_Hide(void);
 void	Con_Draw(SDL_Surface *bmpDest);
 
 void	Con_AddText(int colour, const std::string& text);
-void	Con_Printf(int colour, char *fmt, ...);
 void	Con_Printf(int colour, const std::string& txt); // same as Con_AddText
 void	Con_AddHistory(const std::string& text);
 

@@ -76,8 +76,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
-	int		KeyDown(int c)					{ return SCR_NONE; }
-	int		KeyUp(int c)					{ return SCR_NONE; }
+	int		KeyDown(UnicodeChar c)					{ return SCR_NONE; }
+	int		KeyUp(UnicodeChar c)					{ return SCR_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 

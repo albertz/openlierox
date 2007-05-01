@@ -155,7 +155,7 @@ private:
 	int				iSavedScrollbarPos;
 
     bool            bShowSelect;
-	int				iLastChar;
+	UnicodeChar			iLastChar;
 
 
 public:
@@ -170,8 +170,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
-	int		KeyDown(int c);
-	int		KeyUp(int c)					{ iLastChar = 0; return LV_NONE; }
+	int		KeyDown(UnicodeChar c);
+	int		KeyUp(UnicodeChar c)					{ iLastChar = 0; return LV_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 

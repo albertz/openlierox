@@ -234,8 +234,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
-	int		KeyDown(int c)						{ return MP_WID_NONE; }
-	int		KeyUp(int c)						{ return MP_WID_NONE; }
+	int		KeyDown(UnicodeChar c)						{ return MP_WID_NONE; }
+	int		KeyUp(UnicodeChar c)						{ return MP_WID_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 
@@ -269,8 +269,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
-	int		KeyDown(int c)						{ return MP_WID_NONE; }
-	int		KeyUp(int c)						{ return MP_WID_NONE; }
+	int		KeyDown(UnicodeChar c)						{ return MP_WID_NONE; }
+	int		KeyUp(UnicodeChar c)						{ return MP_WID_NONE; }
 
 	inline int GetValue(void)  { return iValue; }
 	inline void SetValue(int _v) {iValue = _v; }
@@ -311,8 +311,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown) {return MP_WID_MOUSEDOWN; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
-	int		KeyDown(int c)						{ return MP_WID_NONE; }
-	int		KeyUp(int c)						{ return MP_WID_NONE; }
+	int		KeyDown(UnicodeChar c)						{ return MP_WID_NONE; }
+	int		KeyUp(UnicodeChar c)						{ return MP_WID_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 
@@ -355,8 +355,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown) {return MP_WID_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
-	int		KeyDown(int c)						{ return MP_WID_NONE; }
-	int		KeyUp(int c)						{ return MP_WID_NONE; }
+	int		KeyDown(UnicodeChar c)						{ return MP_WID_NONE; }
+	int		KeyUp(UnicodeChar c)						{ return MP_WID_NONE; }
 
 	void	RedrawBuffer(void);
 	void	Draw(SDL_Surface *bmpDest);

@@ -18,8 +18,6 @@
 #define __CTEXTBOX_H__
 
 
-#define		MAX_TEXTLENGTH		256
-
 // Event types
 enum {
 	TXT_NONE=-1,
@@ -70,19 +68,20 @@ private:
 
 	std::string	sText;
 
-	int		iScrollPos;
-	int		iCurpos;
-	int		iLength;
+	// these are related to the size of the string (sText.size()), NOT the displayed size
+	size_t	iScrollPos;
+	size_t	iCurpos;
+	int		iSelLength; // if < 0, selection to the left, otherwise to the right
+	size_t	iSelStart;
+	
 	int		iFlags;
-	int		iSelLength;
-	int		iSelStart;
 	std::string	sSelectedText;
 
-	int		iMax;
+	size_t	iMax;
 
 	int		iHolding;
 	float	fTimePushed;
-	int		iLastchar;
+	UnicodeChar		iLastchar;
 
 	int		iHoldingMouse;
 	float	fTimeHolding;
@@ -107,8 +106,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return TXT_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return TXT_NONE; }
-	int		KeyDown(int c);
-	int		KeyUp(int c);
+	int		KeyDown(UnicodeChar c);
+	int		KeyUp(UnicodeChar c);
 
 	void	Draw(SDL_Surface *bmpDest);
 
@@ -120,7 +119,7 @@ public:
 
 	void	Backspace(void);
 	void	Delete(void);
-	void	Insert(uint c);
+	void	Insert(UnicodeChar c);
 
 	std::string	getText(void)						{ return sText; }
 	void	setText(const std::string& buf);

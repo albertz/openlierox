@@ -6,6 +6,8 @@
 #ifndef __CSS_PARSER_H__
 #define __CSS_PARSER_H__
 
+// TODO: recode everything here! (use std::string)
+
 typedef struct property_s {
 	char		*sName;
 	char		*sValue;
@@ -32,8 +34,8 @@ private:
 	// Attributes
 	node_t	*tNodes;
 
-	int		iPos;
-	int		iLength;
+	size_t	iPos;
+	size_t	iLength;
 	char	*sData;
 
 	// Internal methods

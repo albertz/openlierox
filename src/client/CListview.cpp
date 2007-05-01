@@ -1044,12 +1044,12 @@ int	CListview::MouseWheelUp(mouse_t *tMouse)
 
 /////////////////
 // Key down event
-int CListview::KeyDown(int c)
+int CListview::KeyDown(UnicodeChar c)
 {
 	if (c == iLastChar && c)
 		return LV_NONE;
 
-	if ((char)c >= 31 && (char)c < 127)  {
+	if (c >= 31)  {
 		// TODO: handle normal characters
 		return LV_NONE;
 	}

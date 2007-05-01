@@ -782,12 +782,12 @@ void GameServer::kickWorm(int wormID)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '%d'",wormID);
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
 		return;
 	}
 
 	if (!wormID)  {
-		Con_Printf(CNC_NOTIFY,"You can't kick yourself!");
+		Con_Printf(CNC_NOTIFY, "You can't kick yourself!");
 		return;  // Don't kick ourself
 	}
 
@@ -795,7 +795,7 @@ void GameServer::kickWorm(int wormID)
     CWorm *w = cWorms + wormID;
     if( !w->isUsed() )  {
 		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '%d'",wormID);
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
 
@@ -865,7 +865,7 @@ void GameServer::kickWorm(const std::string& szWormName)
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName.c_str());
+    Con_Printf(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
 }
 
 ///////////////////
@@ -874,12 +874,12 @@ void GameServer::banWorm(int wormID)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '%d'",wormID);
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
 
 	if (!wormID)  {
-		Con_Printf(CNC_NOTIFY,"You can't ban yourself!");
+		Con_Printf(CNC_NOTIFY, "You can't ban yourself!");
 		return;  // Don't ban ourself
 	}
 
@@ -890,7 +890,7 @@ void GameServer::banWorm(int wormID)
 
     if( !w->isUsed() )  {
 		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '%d'",wormID);
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
 
@@ -966,7 +966,7 @@ void GameServer::banWorm(const std::string& szWormName)
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName.c_str());
+    Con_Printf(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
 }
 
 ///////////////////
@@ -976,7 +976,7 @@ void GameServer::muteWorm(int wormID)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '%d'",wormID);
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
 
@@ -992,7 +992,7 @@ void GameServer::muteWorm(int wormID)
 
     if( !w->isUsed() )  {
 		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '%d'",wormID);
+			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
 
@@ -1041,7 +1041,7 @@ void GameServer::muteWorm(const std::string& szWormName)
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName.c_str());
+    Con_Printf(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
 }
 
 ///////////////////
@@ -1051,7 +1051,7 @@ void GameServer::unmuteWorm(int wormID)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '%d'",wormID);
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
 
@@ -1067,7 +1067,7 @@ void GameServer::unmuteWorm(int wormID)
 
     if( !w->isUsed() )  {
 		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY,"Could not find worm with ID '%d'",wormID);
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
 
@@ -1104,7 +1104,7 @@ void GameServer::unmuteWorm(const std::string& szWormName)
     }
 
     // Didn't find the worm
-    Con_Printf(CNC_NOTIFY, "Could not find worm '%s'",szWormName.c_str());
+    Con_Printf(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
 }
 
 

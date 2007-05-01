@@ -1465,14 +1465,8 @@ void CClient::processChatter(void)
 
         // Go through the keyboard queue
         for(short i=0; i<kb->queueLength; i++) {
-            int c = kb->keyQueue[i];
-            bool down = true;
-
-            // Was it an up keypress?
-            if(c < 0) {
-                c = -c;
-                down = false;
-            }
+            UnicodeChar c = kb->keyQueue[i].ch;
+            bool down = kb->keyQueue[i].down;
 
 			iChat_CursorVisible = true;
 
@@ -1512,17 +1506,17 @@ void CClient::processChatter(void)
 		return;
 
     for(short i=0; i<kb->queueLength; i++) {
-        int c = kb->keyQueue[i];
-        bool down = true;
+        UnicodeChar c = kb->keyQueue[i].ch;
+        bool down = kb->keyQueue[i].down;
 
         // Was it an up keypress?
-        if(c < 0) {
+        if(!down) {
 			return;
         }
 
 		if (!iChat_Typing)  {
 
-			if (c<=32 || c>= 126)  {
+			if (c<32)  {
 				//iChat_Typing = false;
 				return;
 			}

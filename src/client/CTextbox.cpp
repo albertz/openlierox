@@ -26,15 +26,14 @@ void CTextbox::Create(void)
 {
 	iCurpos = 0;
 	iLastCurpos = 0;
-	iLength = 0;
 	sText = "";
-	iMax = MAX_TEXTLENGTH;
+	iMax = -1; // highest possible size_t value
 	iHolding = false;
 	iHoldingMouse = false;
 	fTimeHolding = 0;
 	fTimePushed = -9999;
 	fLastRepeat = -9999;
-	iLastchar = -1;
+	iLastchar = 0;
 }
 
 
@@ -54,8 +53,10 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
-		for(std::string::iterator t=text.begin();t!=text.end();t++)
-			*t='*';
+		text = "";
+		size_t len = Utf8StringLength(sText);
+		for(size_t i = 0; i < len; i++)
+			text += '*';
 	}
 
 	int cursorpos = iCurpos;
@@ -64,7 +65,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	cursorpos -= iScrollPos;
 	if (cursorpos < 0)  {
 		cursorpos = 5;  // Number of characters, that will be displayed on left if we scroll left and cursor is on the most left
-		iScrollPos -= 5;
+		iScrollPos -= 5;// TODO utf string
 		if (iScrollPos < 0)
 			iScrollPos = 0;
 	}
@@ -86,7 +87,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 	// The scrollpos can be 0 and the text still overlapps
 	// User can move in the editbox using keys/mouse
-	i=iLength-1;
+	i=sText.size()-1;
 	text = strip(text,iWidth-5);
 
 	// Draw selection
@@ -138,7 +139,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Keydown event
-int CTextbox::KeyDown(int c)
+int CTextbox::KeyDown(UnicodeChar c)
 {
 	keyboard_t *kb = GetKeyboard();
 
@@ -173,7 +174,7 @@ int CTextbox::KeyDown(int c)
 
 
 	// Backspace
-	if((char) c == '\b') {
+	if(c == '\b') {
 		Backspace();
 		return TXT_CHANGE;
 	}
@@ -184,29 +185,29 @@ int CTextbox::KeyDown(int c)
 		if(iCurpos >= 0) {
 			if (bShift)  {
 				if (iCurpos)
-					iSelLength++;
+					iSelLength++;// TODO utf string
 			}
 			else
 				iSelLength = 0;
 
 			if(iCurpos)
-				iCurpos--;
+				iCurpos--;// TODO utf string
 		}
 		return TXT_NONE;
 	}
 
 	// Right arrow
 	if(c == SDLK_RIGHT) {
-		if(iCurpos < iLength)  {
+		if(iCurpos < sText.size())  {
 			if (bShift)  {
-				if (iCurpos != iLength)
-					iSelLength--;
+				if (iCurpos != sText.size())
+					iSelLength--;// TODO utf string
 			}
 			else
 				iSelLength = 0;
 
-			if (iCurpos != iLength)
-				iCurpos++;
+			if (iCurpos != sText.size())
+				iCurpos++;// TODO utf string
 		}
 
 		// Prevents weird behavior when we're at the end of text
@@ -218,7 +219,7 @@ int CTextbox::KeyDown(int c)
 		// Set the scroll position
 		if (iCurpos)
 			if(tLX->cFont.GetWidth(sText.substr(0,iCurpos)) > (iWidth-7))
-				iScrollPos++;
+				iScrollPos++;// TODO utf string
 
 		return TXT_NONE;
 	}
@@ -226,17 +227,17 @@ int CTextbox::KeyDown(int c)
 	// Home
 	if(c == SDLK_HOME) {
 		// If the shift key is down, select the text
-		if (bShift)
-			if (iSelLength > 0)
-				iSelLength += iCurpos;
+		if(bShift)
+			if(iSelLength > 0)
+				iSelLength += iCurpos;// TODO utf string
 			else
 				iSelLength = iCurpos;
 		else
 			iSelLength = 0;
 
 		// Safety
-		if (iSelLength > iLength)
-			iSelLength = iLength;
+		if((size_t)iSelLength > sText.size())
+			iSelLength = sText.size();
 
 		iCurpos=0;
 		iScrollPos=0;
@@ -246,17 +247,17 @@ int CTextbox::KeyDown(int c)
 	// End
 	if(c == SDLK_END) {
 		if (bShift)
-			iSelLength = -(iLength-iCurpos);
+			iSelLength = -(sText.size()-iCurpos);
 		else
 			iSelLength = 0;
 
-		iCurpos = iLength;
+		iCurpos = sText.size();
 
 		if (tLX->cFont.GetWidth(sText) > iWidth-3)  {
 			iScrollPos = 0;
 			static std::string buf;
 			for (std::string::iterator it=sText.begin(); it != sText.end(); it++)  {
-				iScrollPos++;
+				iScrollPos++;// TODO utf string
 				if(tLX->cFont.GetWidth(std::string(it, sText.end())) < iWidth)
 					break;
 			}
@@ -279,26 +280,26 @@ int CTextbox::KeyDown(int c)
 	}
 
     // Ctrl-v (paste)
-    if((uchar) c == 22 ) {
+    if(c == 22 ) {
         PasteText();
         return TXT_CHANGE;
     }
 
     // Ctrl-c (copy)
-    if((uchar) c == 3 ) {
+    if(c == 3 ) {
         CopyText();
         return TXT_NONE;
     }
 
     // Ctrl-x (cut)
-    if((uchar) c == 24 ) {
+    if(c == 24 ) {
         CopyText();
 		Delete();
         return TXT_CHANGE;
     }
 
 	// Insert character
-	Insert((uint)c);
+	Insert(c);
 
 	return TXT_CHANGE;
 }
@@ -306,7 +307,7 @@ int CTextbox::KeyDown(int c)
 
 ///////////////////
 // Keyup event
-int CTextbox::KeyUp(int c)
+int CTextbox::KeyUp(UnicodeChar c)
 {
 	iHolding = false;
 
@@ -337,17 +338,17 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		// Scroll left
 		if(iScrollPos && tMouse->X-iX <= -5)  {
 			if(iScrollPos > 0)  {
-				iScrollPos--;
-				iCurpos--;
+				iScrollPos--;// TODO utf string
+				iCurpos--;// TODO utf string
 				scrolled = true;
 			}
 		}
 
 		// Scroll right
 		else if(tLX->cFont.GetWidth(sText.substr(iScrollPos)) > iWidth-5 && tMouse->X > iX+iWidth)  {
-			if (iCurpos <= iLength)  {
-				iScrollPos++;
-				iCurpos++;
+			if (iCurpos <= sText.size())  {
+				iScrollPos++;// TODO utf string
+				iCurpos++;// TODO utf string
 				scrolled = true;
 			}
 		}
@@ -357,7 +358,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 
 	// If we click somewhere behind the text, but in the text box, set the cursor to the end
 	if(deltaX > tLX->cFont.GetWidth(sText.substr(iScrollPos)) && InBox(tMouse->X,tMouse->Y))  {
-		iCurpos = iLength;
+		iCurpos = sText.size();
 	}
 	else  {
 		// Set the new cursor pos
@@ -369,7 +370,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 			int w,prev_w;
 			w=prev_w=0;
 			while ((w=tLX->cFont.GetWidth(buf)) > deltaX)  {
-				buf.erase(buf.length()-1);
+				buf.erase(buf.length()-1); // TODO utf string
 				pos--;
 				prev_w = w;
 			}
@@ -389,8 +390,8 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		iHoldingMouse = true;
 
 	// Safety (must be *after* mouse scrolling)
-	if (iCurpos > iLength)  {
-		iCurpos = iLength;
+	if (iCurpos > sText.size())  {
+		iCurpos = sText.size();
 	}
 
 	if(iHoldingMouse)  {
@@ -457,10 +458,8 @@ void CTextbox::Backspace(void)
 	if(iCurpos<=0)
 		return;
 
-//	memmove(sText+iCurpos-1,sText+iCurpos,iLength-iCurpos+1);
-	sText.erase(--iCurpos,1);
+	sText.erase(--iCurpos,1); // TODO utf string
 
-	iLength--;
 	if (iScrollPos)
 		iScrollPos--;
 }
@@ -472,10 +471,9 @@ void CTextbox::Delete(void)
 {
 	// Delete selection
 	if(iSelLength)  {
-		sText.erase(iSelStart,abs(iSelLength));
+		sText.erase(iSelStart,abs(iSelLength)); // TODO utf string
 		iCurpos = iSelStart;
 		iSelLength = 0;
-		iLength = sText.length();
 		if (iScrollPos > iCurpos)
 			iScrollPos = iCurpos;
 		if (tLX->cFont.GetWidth(sText) <= iWidth-5)
@@ -484,42 +482,34 @@ void CTextbox::Delete(void)
 	}
 
 
-	if(iCurpos >= iLength)
+	if(iCurpos >= sText.size())
 		return;
 
-	//memmove(sText+iCurpos,sText+iCurpos+1,iLength-iCurpos+1);
-	sText.erase(iCurpos,1);
-
-	iLength--;
+	sText.erase(iCurpos,1); // TODO utf string
 }
 
 
 ///////////////////
 // Insert a character
-void CTextbox::Insert(uint c)
+void CTextbox::Insert(UnicodeChar c)
 {
 	// Delete any selection
 	if (iSelLength)
 		Delete();
 
 	// Check for the max
-	if(iLength >= iMax-2)
+	if(sText.size() >= iMax-2)
 		return;
 
 	// Safety
-	if(iCurpos > iLength)
-		iCurpos = iLength;
+	if(iCurpos > sText.size())
+		iCurpos = sText.size();
 
-	//memmove(sText+iCurpos+1,sText+iCurpos,iLength-iCurpos+1);
-	sText.insert(iCurpos++,GetUtf8FromUnicode(c));
-	iLength++;
-
-	//sText[iCurpos++] = c;
-	//sText[++iLength] = '\0';
+	sText.insert(iCurpos++,GetUtf8FromUnicode(c));// TODO utf string
 
     // If the text size is greater than the textbox size, scroll the text
-	if (iCurpos == iLength)
-		while(tLX->cFont.GetWidth(&sText[iScrollPos]) > iWidth-5) {
+	if (iCurpos == sText.size())
+		while(tLX->cFont.GetWidth(sText.substr(iScrollPos)) > iWidth-5) {// TODO utf string
 			iScrollPos++;
 		}
 }
@@ -530,12 +520,13 @@ void CTextbox::setText(const std::string& buf)
 {
 	sText = "";
 
-	// Copy the text and ignore unknown characters
+/*	// Copy the text
 	for (std::string::const_iterator it=buf.begin(); it != buf.end(); it++)
-		if(*it > 31 && *it <127)
-			sText += *it;
+		sText += *it; // TODO: filter was removed here; is it ok?
+*/
+	sText = buf;
 
-	iCurpos=iLength=sText.length();
+	iCurpos=sText.length();
 	iScrollPos=0;
 	iSelStart=iCurpos;
 	iSelLength=0;
@@ -553,7 +544,7 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Get the text length
 		case TXM_GETTEXTLENGTH:
-			return iLength;
+			return sText.size();
 			break;
 
 		// Set some flags
@@ -564,6 +555,7 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		// Set the max length
 		case TXM_SETMAX:
 			iMax = Param1;
+			// TODO: cut to big string here?
 			break;
 
 	}
@@ -612,8 +604,8 @@ void CTextbox::PasteText(void)
     text = GetClipboardText();
 
 	// Insert the text
-	for(std::string::const_iterator i = text.begin(); i != text.end(); i++)
-		Insert( *i );
+	for(std::string::const_iterator i = text.begin(); i != text.end(); )
+		Insert( GetNextUnicodeFromUtf8(i, text.end()) );
 }
 
 ///////////////////

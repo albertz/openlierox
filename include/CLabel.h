@@ -58,8 +58,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return LBL_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return LBL_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return LBL_NONE; }
-	int		KeyDown(int c)						{ return LBL_NONE; }
-	int		KeyUp(int c)						{ return LBL_NONE; }
+	int		KeyDown(UnicodeChar c)						{ return LBL_NONE; }
+	int		KeyUp(UnicodeChar c)						{ return LBL_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { if (iMsg == LBS_SETTEXT) {sText = sStr;} return 0; }

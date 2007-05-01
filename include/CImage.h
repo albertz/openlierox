@@ -61,8 +61,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return IMG_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)			{ return IMG_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)			{ return IMG_NONE; }
-	int		KeyDown(int c)							{ return IMG_NONE; }
-	int		KeyUp(int c)							{ return IMG_NONE; }
+	int		KeyDown(UnicodeChar c)							{ return IMG_NONE; }
+	int		KeyUp(UnicodeChar c)							{ return IMG_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }

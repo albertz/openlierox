@@ -142,7 +142,7 @@ void Cmd_ParseLine(const std::string& text)
 	}
 
 	std::string tmp = Cmd_GetArg(0);
-	Con_Printf(CNC_NOTIFY,"Unknown command '%s'",tmp.c_str());
+	Con_Printf(CNC_NOTIFY, "Unknown command '" + tmp + "'");
 }
 
 
@@ -162,7 +162,7 @@ command_t *Cmd_GetCommand(const std::string& strName)
 
 ///////////////////
 // Auto complete a command
-int Cmd_AutoComplete(std::string& strVar, int *iLength)
+int Cmd_AutoComplete(std::string& strVar)
 {
 	int len = strVar.size();
 	command_t *cmd;
@@ -174,7 +174,6 @@ int Cmd_AutoComplete(std::string& strVar, int *iLength)
 	cmd = Cmd_GetCommand(strVar);
 	if(cmd) {
 		strVar = cmd->strName + " ";
-		*iLength = strVar.size();
 		return true;
 	}
 
@@ -182,7 +181,6 @@ int Cmd_AutoComplete(std::string& strVar, int *iLength)
 	for(cmd=Commands ; cmd ; cmd=cmd->Next)
 		if(!stringcasecmp(strVar, cmd->strName.substr(0,len))) {
 			strVar = cmd->strName + " ";
-			*iLength = strVar.size();
 			return true;
 		}
 
@@ -204,7 +202,7 @@ int Cmd_AddCommand(const std::string& strName, void (*func) ( void ))
 
 	// Make sure the command isn't already used
 	if(Cmd_GetCommand(strName)) {
-		Con_Printf(CNC_WARNING,"%s already defined as a command",strName.c_str());
+		Con_Printf(CNC_WARNING, strName + " already defined as a command");
 		return false;
 	}
 
@@ -488,7 +486,7 @@ void Cmd_Suicide(void)
 {
 	if (cClient)  {
 		if(cClient->getStatus() != NET_PLAYING)  {
-			Con_Printf(CNC_NORMAL,"%s","Cannot suicide when not playing!");
+			Con_Printf(CNC_NORMAL, "Cannot suicide when not playing!");
 			return;
 		}
 
@@ -538,7 +536,7 @@ void Cmd_Unstuck(void)
 	if (cClient)  {
 		// Not playing
 		if(cClient->getStatus() != NET_PLAYING)  {
-			Con_Printf(CNC_NORMAL,"%s","Cannot unstuck when not playing!");
+			Con_Printf(CNC_NORMAL, "Cannot unstuck when not playing!");
 			return;
 		}
 
@@ -555,7 +553,7 @@ void Cmd_WantsJoin(void)
 {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL,"%s","Usage: wantsjoin <on/off>");
+		Con_Printf(CNC_NORMAL, "Usage: wantsjoin <on/off>");
 		return;
 	}
 
@@ -563,11 +561,11 @@ void Cmd_WantsJoin(void)
 
 	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
-		Con_Printf(CNC_NORMAL,"%s","\"Wants to join\" messages have been enabled");
+		Con_Printf(CNC_NORMAL, "\"Wants to join\" messages have been enabled");
 	}
 	else  {
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = false;
-		Con_Printf(CNC_NORMAL,"%s","\"Wants to join\" messages have been disabled");
+		Con_Printf(CNC_NORMAL, "\"Wants to join\" messages have been disabled");
 	}
 }
 
@@ -575,13 +573,13 @@ void Cmd_RenameServer(void)
 {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL,"%s","Usage: servername <new name>");
+		Con_Printf(CNC_NORMAL, "Usage: servername <new name>");
 		return;
 	}
 
 	// Check if hosting
 	if (tGameInfo.iGameType != GME_HOST)  {
-		Con_Printf(CNC_NORMAL,"%s","This command is available only for host");
+		Con_Printf(CNC_NORMAL, "This command is available only for host");
 		return;
 	}
 	
@@ -594,7 +592,7 @@ void Cmd_RenameServer(void)
 }
 
 void Cmd_Help() {
-	Con_Printf(CNC_NORMAL,"Available commands:");
+	Con_Printf(CNC_NORMAL, "Available commands:");
 	static std::string cmd_help_buf;
 	command_t* cmd;
 	unsigned short count = 0;
@@ -607,23 +605,23 @@ void Cmd_Help() {
 			count++;
 			if(count >= 5) {
 				count = 0;
-				Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf.c_str());
+				Con_Printf(CNC_NORMAL, "  " + cmd_help_buf);
 				cmd_help_buf = "";
 			}
 		}
 	}
 	if(count && cmd_help_buf != "") {
-		Con_Printf(CNC_NORMAL,"  %s",cmd_help_buf.c_str());
+		Con_Printf(CNC_NORMAL, "  " + cmd_help_buf);
 	}
 }
 
 void Cmd_About() {
 	std::string name = GetGameName();
-	Con_Printf(CNC_NOTIFY,"%s v%s",name.c_str(),LX_VERSION);
+	Con_Printf(CNC_NOTIFY, name + " v" + LX_VERSION);
 }
 
 void Cmd_BadWord() {
-	Con_Printf(CNC_NOTIFY,"%s",sex(50));
+	Con_Printf(CNC_NOTIFY, sex(50));
 }
 
 void Cmd_Quit() {
@@ -634,7 +632,7 @@ void Cmd_Quit() {
 // Set sound volume
 void Cmd_Volume()  {
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL,"%s","Usage: volume <0-100>");
+		Con_Printf(CNC_NORMAL, "Usage: volume <0-100>");
 	}
 
 	std::string arg = Cmd_GetArg(1);
@@ -651,7 +649,7 @@ void Cmd_Volume()  {
 void Cmd_Sound()  {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL,"%s","Usage: sound <on/off>");
+		Con_Printf(CNC_NORMAL, "Usage: sound <on/off>");
 	}
 
 	std::string arg = Cmd_GetArg(1);

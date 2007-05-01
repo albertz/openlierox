@@ -60,8 +60,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return CHK_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return CHK_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return CHK_NONE; }
-	int		KeyDown(int c)						{ return CHK_NONE; }
-	int		KeyUp(int c)						{ return CHK_NONE; }
+	int		KeyDown(UnicodeChar c)						{ return CHK_NONE; }
+	int		KeyUp(UnicodeChar c)						{ return CHK_NONE; }
 	
 
 	// Process a message sent

@@ -1,3 +1,11 @@
+0.57_beta3
+==========
+- full Unicode/UTF8 support
+- Worm AI improvements
+- ninjarope physic simulation is BPP independent
+- profile-saving is correct now
+
+
 0.57_beta2
 ==========
 - BPP independent

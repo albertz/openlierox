@@ -68,8 +68,8 @@ public:
 	inline int		MouseDown(mouse_t *tMouse, int nDown)	{ return INB_NONE; }
 	inline int		MouseWheelDown(mouse_t *tMouse)		{ return INB_NONE; }
 	inline int		MouseWheelUp(mouse_t *tMouse)		{ return INB_NONE; }
-	inline int		KeyDown(int c)						{ return INB_NONE; }
-	inline int		KeyUp(int c)						{ return INB_NONE; }	
+	inline int		KeyDown(UnicodeChar c)						{ return INB_NONE; }
+	inline int		KeyUp(UnicodeChar c)						{ return INB_NONE; }
 
 
 	// Process a message sent

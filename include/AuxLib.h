@@ -19,6 +19,8 @@
 #ifndef __AUXLIB_H__
 #define __AUXLIB_H__
 
+#include "Unicode.h"
+
 
 // Initialization sub-systems
 #define		AUX_INIT_SDL		0
@@ -33,13 +35,19 @@
 #define     MAX_KEYQUEUE        32
 
 
+class KeyboardEvent {
+public:
+    UnicodeChar ch;
+	bool down;
+};
+
 // Keyboard structure
 class keyboard_t { public:
 	Uint8	*keys;
-	Uint8	KeyUp[SDLK_LAST];
-	Uint8	KeyDown[SDLK_LAST];
+	UnicodeChar	KeyUp[SDLK_LAST];
+	UnicodeChar	KeyDown[SDLK_LAST];
     int     queueLength;
-    int     keyQueue[MAX_KEYQUEUE];
+    KeyboardEvent keyQueue[MAX_KEYQUEUE];
 };
 
 

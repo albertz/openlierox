@@ -1,6 +1,7 @@
 TODO list
 
-[ ] 16bit doesn't seem to be endian independent; fix this
+[ ] select different key for ingame console
+[ ] 24/32 bit doesn't work in OpenGL mode; fix...
 [ ] fix some segfaults
 [ ] fix lobby freeze (!)
 { ] make network more stable
@@ -8,7 +9,6 @@ TODO list
 [ ] improve mediaplayer
 [ ] improve player profile options (many skins need long load time)
 [ ] make physics more like original LX (we should abstract it now!)
-[x] ninja rope physic should be FPS independent
 [x] fallback to software rendering on Windows on error
 [ ] better bot aiming
 [ ] better bot behavior

@@ -285,8 +285,8 @@ void ProcessEvents(void)
 			// Check the characters
 			if(Event.key.state == SDL_PRESSED || Event.key.state == SDL_RELEASED) {
 
-				int input = (Event.key.keysym.unicode);
-				if ((char)input == 0)
+				UnicodeChar input = Event.key.keysym.unicode;
+				if (input == 0)
 					switch (Event.key.keysym.sym) {
 					case SDLK_HOME:
 						input = 2;
@@ -308,18 +308,17 @@ void ProcessEvents(void)
 					case SDLK_KP_MINUS:
 					case SDLK_KP_PLUS:
 					case SDLK_KP_EQUALS:
-						input = (char) (Event.key.keysym.sym - 208);
+						input = (uchar) (Event.key.keysym.sym - 208);
 						break;
 					case SDLK_KP_PERIOD:
 					case SDLK_KP_DIVIDE:
-						input = (char) (Event.key.keysym.sym - 220);
+						input = (uchar) (Event.key.keysym.sym - 220);
 						break;
 					case SDLK_KP_ENTER:
 						input = '\r';
 						break;
-                    default: // these are a lot; comment out and activate warnings to list them
+                    default:
                         // nothing
-                        // TODO: is that correct?
                         break;
 				}  // switch
 
@@ -332,13 +331,17 @@ void ProcessEvents(void)
 
                 // Key down
                 if(Event.type == SDL_KEYDOWN) {
-                    Keyboard.keyQueue[Keyboard.queueLength++] = input;
+					Keyboard.keyQueue[Keyboard.queueLength].down = true;
+                    Keyboard.keyQueue[Keyboard.queueLength].ch = input;
+                    Keyboard.queueLength++;
                 }
 
 				// Key up
-				if(Event.type == SDL_KEYUP || Event.key.state == SDL_RELEASED)
-                    Keyboard.keyQueue[Keyboard.queueLength++] = -input;
-
+				if(Event.type == SDL_KEYUP || Event.key.state == SDL_RELEASED) {
+					Keyboard.keyQueue[Keyboard.queueLength].down = false;
+                    Keyboard.keyQueue[Keyboard.queueLength].ch = input;
+                    Keyboard.queueLength++;
+				}
 
             }
         }

@@ -96,8 +96,8 @@ private:
 
 
 	// Reading
-	long		iPos;
-	long		iLength;
+	size_t		iPos;
+	size_t		iLength;
 	char		*sData;
 
 
@@ -115,8 +115,8 @@ public:
 	int		MouseWheelDown(mouse_t *tMouse)		{ return BRW_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return BRW_NONE; }
 	int		MouseDown(mouse_t *tMouse, int nDown);
-	int		KeyDown(int c)						{ return BRW_NONE; }
-	int		KeyUp(int c)						{ return BRW_NONE; }
+	int		KeyDown(UnicodeChar c)						{ return BRW_NONE; }
+	int		KeyUp(UnicodeChar c)						{ return BRW_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }

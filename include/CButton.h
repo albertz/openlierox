@@ -80,8 +80,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ iMouseOver=true; return BTN_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return BTN_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return BTN_NONE; }
-	int		KeyDown(int c)						{ return BTN_NONE; }
-	int		KeyUp(int c)						{ return BTN_NONE; }
+	int		KeyDown(UnicodeChar c)						{ return BTN_NONE; }
+	int		KeyUp(UnicodeChar c)						{ return BTN_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
