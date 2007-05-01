@@ -679,10 +679,9 @@ public:
 		// set signal
 		lock();
 		thread_is_ready = false;
-		restart_thread_searching_signal = 0;
 		restart_thread_searching_newdata.start = newstart;
 		restart_thread_searching_newdata.target = newtarget;
-		// the reading of this isn't synchronized, so we have to set this at last
+		// HINT: the reading of this isn't synchronized
 		restart_thread_searching_signal = 1;
 		unlock();
 	}
@@ -3483,28 +3482,32 @@ int CWorm::NEW_AI_CreatePath(bool force_break)
 	CVec trg = AI_GetTargetPos();
 
 	if(force_break) {
+		bPathFinished = false;
 		fSearchStartTime = tLX->fCurTime;
 		((searchpath_base*)pathSearcher)->restartThreadSearch(vPos, trg);
 		
 		return false;
 	}
 
+	// bPathFinished also implicates, that there is currently no search
+	// if bPathFinished is set in the wrong way, this will result in multithreading errors!
+	// TODO: something has to be changed here, because the name bPathFinished doesn't indicates this
 	if(!bPathFinished) {
 		// have we finished a current search?
 		if(((searchpath_base*)pathSearcher)->isReady()) {
 
+			bPathFinished = true;
 			NEW_ai_node_t* res = ((searchpath_base*)pathSearcher)->resultedPath();
 
 			// have we found something?
 			if(res) {
-				// in every case, the nodes of the current path is not handled by pathSearcher
+				// in every case, the nodes of the current path are not handled by pathSearcher
 				// so we have to delete it here
 				delete_ai_nodes(NEW_psPath);
 
 				NEW_psPath = res;
 				NEW_psLastNode = get_last_ai_node(NEW_psPath);
 				NEW_psCurrentNode = NEW_psPath;
-				bPathFinished = true;
 
 				// prevent it from deleting the current path (it will be deleted, when the new path is found)
 				((searchpath_base*)pathSearcher)->removePathFromList(NEW_psPath);
@@ -3550,6 +3553,7 @@ int CWorm::NEW_AI_CreatePath(bool force_break)
 	}
 
 	// if we are here, we want to start a new search
+	// the searcher-thread is currently ready
 	bPathFinished = false;
 
 	// start a new search
