@@ -6,6 +6,7 @@
 
 // code under LGPL
 
+#include <iostream>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -42,6 +43,32 @@ SDL_Surface	*Screen;
 CVec		vGravity = CVec(0,4);
 
 std::string	binary_dir; // given by argv[0]
+
+
+void print_binary_string(const std::string& txt) {
+	for(std::string::const_iterator it = txt.begin(); it != txt.end(); it++) {
+		std::cout << std::hex << (ushort)(uchar)(*it) << " ";
+	}
+}
+
+void test_Unicode_UTF8_Conversion() {
+	std::string tmp;
+	std::string::const_iterator tmpbegin;
+	for(UnicodeChar c = 1; c != 0; c++) {
+		if(c % 0x100000 == 0) std::cout << std::hex << c << " ..." << std::endl;
+//		std::cout << std::hex << c << " -> ";
+		tmp = GetUtf8FromUnicode(c);
+//		print_binary_string(tmp);
+		tmpbegin = tmp.begin();
+//		std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp) << std::endl;
+		if(GetNextUnicodeFromUtf8(tmpbegin, tmp) != c) {
+			std::cout << std::hex << c << " -> ";
+			print_binary_string(tmp);
+			std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp) << std::endl;
+		}
+	}
+}
+
 
 ///////////////////
 // Main entry point

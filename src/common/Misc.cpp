@@ -726,7 +726,7 @@ void printf(const std::string& txt) {
 }
 
 // grabbed from SDL_ttf
-void UNICODE_to_UTF8(char *utf8, UnicodeChar unicode)
+void UNICODE_to_UTF8(uchar *utf8, UnicodeChar unicode)
 {
     int j=0;
 
@@ -769,6 +769,8 @@ void UNICODE_to_UTF8(char *utf8, UnicodeChar unicode)
         utf8[++j] = 0x80 | ((unicode >> 6) & 0x3F);
         utf8[++j] = 0x80 | (unicode & 0x3F);
     }
+    else
+    	utf8[j] = 0;
 
     utf8[++j] = 0;
 }
@@ -780,34 +782,34 @@ UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::s
 	uchar ch = *it;
 	UnicodeChar res = ch;
 	if ( ch >= 0xFC ) {
-		res  =  (UnicodeChar)ch&0x01 << 30; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 24; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 18; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 12; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 6; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F;
+		res  =  (ch&0x01) << 30; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 24; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 18; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xF8 ) {
-		res  =  (UnicodeChar)ch&0x03 << 24; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 18; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 12; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 6; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F;
+		res  =  (ch&0x03) << 24; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 18; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xF0 ) {
-		res  =  (UnicodeChar)ch&0x07 << 18; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 12; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 6; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F;
+		res  =  (ch&0x07) << 18; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xE0 ) {
-		res  =  (UnicodeChar)ch&0x0F << 12; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F << 6; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F;
+		res  =  (ch&0x0F) << 12; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xC0 ) {
-		res  =  (UnicodeChar)ch&0x1F << 6; it++; if(it == str.end()) return 0; ch = *it;
-		res |=  (UnicodeChar)ch&0x3F;
+		res  =  (ch&0x1F) << 6; it++; if(it == str.end()) return 0; ch = *it;
+		res |=  (ch&0x3F);
 	}
 
 	it++;
@@ -816,9 +818,9 @@ UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::s
 
 std::string GetUtf8FromUnicode(UnicodeChar ch) {
 	if(ch == 0) return std::string("\0", 1);
-	static char utf8[7];
+	static uchar utf8[7];
 	UNICODE_to_UTF8(utf8, ch);
-	return std::string(utf8);
+	return (const char*)utf8;
 }
 
 
