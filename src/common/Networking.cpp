@@ -535,9 +535,8 @@ bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
 	}
 }
 
-using namespace std;
 // TODO: use hash_map
-typedef map<string, NetworkAddr> dnsCacheT; 
+typedef std::map<std::string, NetworkAddr> dnsCacheT; 
 dnsCacheT dnsCache;
 
 void AddToDnsCache(const std::string& name, const NetworkAddr* addr) {

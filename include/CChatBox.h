@@ -25,7 +25,7 @@
 
 // Line structure
 class line_t { public:
-	std::string	strLine;
+	UCString	strLine;
 	Uint32	iColour;
 	float	fTime;
 	bool	bNew;
@@ -48,12 +48,12 @@ private:
 	unsigned int	iNewLine;
 
 	// Methods
-	void	AddWrapped(const std::string& txt, int colour, float time);
+	void	AddWrapped(const UCString& txt, int colour, float time);
 
 public:
 	// Methods
 	void	Clear(void);
-	void    AddText(const std::string& txt, int colour, float time);
+	void    AddText(const UCString& txt, int colour, float time);
 
     // Variables
 	line_t *GetLine(int n);

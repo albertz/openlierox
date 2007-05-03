@@ -30,7 +30,7 @@ enum {
 class CImage : public CWidget {
 public:
 	// Constructor
-	CImage(const std::string& Path) {
+	CImage(const UCString& Path) {
 		iType = wid_Image;
 		sPath = Path;
 		tImage = NULL;
@@ -45,7 +45,7 @@ public:
 private:
     // Attributes
 	SDL_Surface	*tImage;
-	std::string	sPath;
+	UCString	sPath;
 
 
 public:
@@ -54,9 +54,9 @@ public:
     void			Create(void)		{ iType = wid_Image; }
 	void			Destroy(void)		{  }
 
-	inline std::string	getPath(void)		{ return sPath; }
+	inline UCString	getPath(void)		{ return sPath; }
 	SDL_Surface		*getSurface(void)	{ return tImage; }
-	void			Change(const std::string& Path);
+	void			Change(const UCString& Path);
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)				{ return IMG_NONE; }
@@ -68,8 +68,8 @@ public:
 	int		KeyUp(UnicodeChar c)							{ return IMG_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
-	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface *bmpDest);
 

@@ -32,7 +32,7 @@
 
 
 // Routines
-int			InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags);
+int			InitializeAuxLib(const UCString& gname, const UCString& config, int bpp, int vidflags);
 void		ShutdownAuxLib(void);
 int			SetVideoMode(void);
 
@@ -42,12 +42,12 @@ HWND		GetWindowHandle(void);
 
 void        FlipScreen(SDL_Surface *psScreen);
 
-std::string	GetGameName(void);
+UCString	GetGameName(void);
 
-std::string GetConfigFile(void);
+UCString GetConfigFile(void);
 
-std::string GetClipboardText();
-int         SetClipboardText(const std::string& szText);
+UCString GetClipboardText();
+int         SetClipboardText(const UCString& szText);
 void        TakeScreenshot(bool Tournament);
 
 // Subclass

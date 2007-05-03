@@ -101,8 +101,8 @@ public:
 	int		getGrabbed(void)				{ return iSliderGrabbed; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
-	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
 
 
 

@@ -69,7 +69,7 @@ public:
 	int			writeInt16(Sint16 value);
 	int			writeFloat(float value);
 	int			writeString(char *fmt,...);
-	int			writeString(const std::string& value);
+	int			writeString(const UCString& value);
 	int			write2Int12(short x, short y);
 	int			write2Int4(short x, short y);
 	
@@ -80,8 +80,8 @@ public:
 	Sint16		readInt16(void);
 	float		readFloat(void);
 	char		*readString(char *str, size_t maxlen);
-	std::string readString();
-	std::string readString(size_t maxlen);
+	UCString readString();
+	UCString readString(size_t maxlen);
 	void		read2Int12(short& x, short& y);
 	void		read2Int4(short& x, short& y);
 	

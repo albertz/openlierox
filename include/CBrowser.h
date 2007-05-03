@@ -53,7 +53,7 @@ class ht_object_t { public:
 	int		iType;
 	int		iEnd;
 	Uint32	iValue;
-	std::string	strText;
+	UCString	strText;
 
 	ht_object_t *tNext;
 
@@ -122,19 +122,19 @@ public:
 	int		KeyUp(UnicodeChar c)						{ return BRW_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
-	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
 
 	void	Draw(SDL_Surface *bmpDest);
 	void	LoadStyle(void) {}
 
 	// Loading
-	int			Load(const std::string& sFilename);
+	int			Load(const UCString& sFilename);
 	void		ReadObject(void);
 	void		ReadNewline(void);
 	void		ReadTag(void);
 	void		ReadText(void);
-	void		AddObject(const std::string& sText, const std::string& sVal, int iType, int iEnd);
+	void		AddObject(const UCString& sText, const UCString& sVal, int iType, int iEnd);
 
 };
 
