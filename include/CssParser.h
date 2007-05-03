@@ -6,7 +6,7 @@
 #ifndef __CSS_PARSER_H__
 #define __CSS_PARSER_H__
 
-// TODO: recode everything here! (use std::string)
+// TODO: recode everything here! (use UCString)
 
 typedef struct property_s {
 	char		*sName;

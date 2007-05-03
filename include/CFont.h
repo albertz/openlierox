@@ -20,7 +20,7 @@
 #ifndef __CFONT_H__
 #define __CFONT_H__
 
-#include <string>
+#include "UCString.h"
 
 
 #define NUM_CHARACTERS 468

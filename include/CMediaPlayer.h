@@ -10,7 +10,7 @@
 
 #include <vector>
 
-typedef std::vector<std::string> song_list;
+typedef std::vector<UCString> song_list;
 
 
 //
@@ -28,7 +28,7 @@ public:
 		iY = 240-iHeight/2;
 	}
 private:
-	std::string	szDir;
+	UCString	szDir;
 	bool	bAdd;
 	bool	bIncludeSubdirs;
 	int		iX;
@@ -38,10 +38,10 @@ private:
 CGuiLayout cOpenGui;
 
 	// Methods
-	void		ReFillList(CListview *lv, const std::string& dir);
-	bool		IsRoot(const std::string& dir);
+	void		ReFillList(CListview *lv, const UCString& dir);
+	bool		IsRoot(const UCString& dir);
 public:
-	std::string Execute(const std::string& default_dir);
+	UCString Execute(const UCString& default_dir);
 	inline bool getAdd(void) { return bAdd; }
 	inline bool getIncludeSubdirs(void) { return bIncludeSubdirs; }
 };
@@ -65,8 +65,8 @@ private:
 	bool		DrawLoadingProgress(void);
 public:
 	void		Clear(void);
-	void		Load(const std::string& dir,bool include_subdirs, bool add_to_current_pl);
-	std::string	GetCurSong(void);
+	void		Load(const UCString& dir,bool include_subdirs, bool add_to_current_pl);
+	UCString	GetCurSong(void);
 	void		GoToNextSong(void);
 	void		GoToPrevSong(void);
 	void		setRepeat(bool _r);
@@ -77,8 +77,8 @@ public:
 	inline bool	getShuffle(void) { return bShuffle; }
 	inline int	getNumSongs(void) { return tSongList.size(); }
 
-	void		SaveToFile(const std::string& filename,bool absolute_path);
-	void		LoadFromFile(const std::string& filename,bool absolute_path);
+	void		SaveToFile(const UCString& filename,bool absolute_path);
+	void		LoadFromFile(const UCString& filename,bool absolute_path);
 };
 
 
@@ -146,7 +146,7 @@ public:
 
 private:
 	// Attributes
-	std::string		szCurSongName;
+	UCString		szCurSongName;
 	CPlayList		tPlayList;
 
 	// Drawing
@@ -168,7 +168,7 @@ public:
 	 void		Clear(void);
 	 bool		Initialize(void);
 	 void		Shutdown(void);
-	 std::string	GetNameFromFile(const std::string& path);
+	 UCString	GetNameFromFile(const UCString& path);
 	 void		Play(void);
 	 void		PauseResume(void);
 	 void		Stop(void);
@@ -186,11 +186,11 @@ public:
 	 inline bool	GetRepeatPlaylist(void)		{return tPlayList.getRepeat(); }
 	 inline void	SetShufflePlaylist(bool _s)  {tPlayList.setShuffle(_s); }
 	 inline bool	GetShufflePlaylist(void)		{return tPlayList.getShuffle(); }
-	 inline void	OpenDirectory(const std::string& dir,bool include_subdirs=true,bool add_to_current_pl=true)  {tPlayList.Load(dir,include_subdirs,add_to_current_pl); }
-	 inline const std::string& GetCurrentSongName(void)	{return szCurSongName; }
+	 inline void	OpenDirectory(const UCString& dir,bool include_subdirs=true,bool add_to_current_pl=true)  {tPlayList.Load(dir,include_subdirs,add_to_current_pl); }
+	 inline const UCString& GetCurrentSongName(void)	{return szCurSongName; }
 
-	 void			LoadPlaylistFromFile(const std::string& filename,bool absolute_path=false);
-	 inline void	SavePlaylistToFile(const std::string& filename,bool absolute_path=false)  {tPlayList.SaveToFile(filename,absolute_path); }
+	 void			LoadPlaylistFromFile(const UCString& filename,bool absolute_path=false);
+	 inline void	SavePlaylistToFile(const UCString& filename,bool absolute_path=false)  {tPlayList.SaveToFile(filename,absolute_path); }
 
 	 // Drawing and GUI processing
 	 bool			InitializeGfx(void);
@@ -244,8 +244,8 @@ public:
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
-	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
-	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
+	DWORD	SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
+	DWORD	SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
 };
 
 // Slider
@@ -285,8 +285,8 @@ public:
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
-	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
-	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
+	DWORD	SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
+	DWORD	SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
 };
 
 // Toggle button
@@ -323,8 +323,8 @@ public:
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
-	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
-	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
+	DWORD	SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
+	DWORD	SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
 };
 
 // Marquee
@@ -333,10 +333,10 @@ public:
 #define MARQUEE_ENDWAIT 0.2f
 class CPlayerMarquee: public CWidget  {
 public:
-	CPlayerMarquee(const std::string& text, Uint32 col);
+	CPlayerMarquee(const UCString& text, Uint32 col);
 
 private:
-	std::string szText;
+	UCString szText;
 	float	fTime;
 	float	fEndWait;
 	int		iFrame;
@@ -367,13 +367,13 @@ public:
 	inline Uint32 getColour(void)  { return iColour; }
 	inline void	setColour(Uint32 _c)		{ iColour = _c; }
 
-	inline std::string getText(void)	{ return szText; }
-	inline void setText(const std::string& text)	{ szText = text; iFrame = 0; fTime=0; RedrawBuffer(); }
+	inline UCString getText(void)	{ return szText; }
+	inline void setText(const UCString& text)	{ szText = text; iFrame = 0; fTime=0; RedrawBuffer(); }
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}
-	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
-	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
+	DWORD	SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
+	DWORD	SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
 };
 
 

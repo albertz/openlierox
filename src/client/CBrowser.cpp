@@ -68,7 +68,7 @@ DWORD CBrowser::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 ///////////////////
 // Load the cmht file
-int CBrowser::Load(const std::string& sFilename)
+int CBrowser::Load(const UCString& sFilename)
 {
 	FILE *fp;
 
@@ -179,7 +179,7 @@ void CBrowser::ReadNewline(void)
 // Read a tag
 void CBrowser::ReadTag(void)
 {
-	// TODO: use std::string
+	// TODO: use UCString
 	static char sName[32];
 	static char sVal[32];
 	int i = 0;
@@ -279,7 +279,7 @@ void CBrowser::ReadText(void)
 
 ///////////////////
 // Add an object to the list
-void CBrowser::AddObject(const std::string& sText, const std::string& sVal, int iType, int iEnd)
+void CBrowser::AddObject(const UCString& sText, const UCString& sVal, int iType, int iEnd)
 {
 	ht_object_t *obj;
 	int r,g,b;
@@ -311,7 +311,7 @@ void CBrowser::AddObject(const std::string& sText, const std::string& sVal, int 
 			// Triple value
 			case HTO_COLOUR:
 			case HTO_BOX:
-				const std::vector<std::string>& tok = explode(sVal,",");
+				const std::vector<UCString>& tok = explode(sVal,",");
 				if(tok.size() >= 3) {
 					r = from_string<int>(tok[0]);
 					g = from_string<int>(tok[1]);
@@ -370,7 +370,7 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 	int x,y,s,p,w,c;
 	ht_object_t *obj = tObjects;
 	CFont *fnt = &tLX->cFont;
-	static std::string buf;
+	static UCString buf;
 	int lcount = 0;
 
 	DrawRectFill(bmpDest, iX+1, iY+1, iX+iWidth-1, iY+iHeight-1, tLX->clWhite);

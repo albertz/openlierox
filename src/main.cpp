@@ -44,29 +44,29 @@ SDL_Surface	*Screen;
 
 CVec		vGravity = CVec(0,4);
 
-std::string	binary_dir; // given by argv[0]
+UCString	binary_dir; // given by argv[0]
 
 
-void print_binary_string(const std::string& txt) {
-	for(std::string::const_iterator it = txt.begin(); it != txt.end(); it++) {
+void print_binary_string(const UCString& txt) {
+	for(UCString::const_iterator it = txt.begin(); it != txt.end(); it++) {
 		std::cout << std::hex << (ushort)(uchar)(*it) << " ";
 	}
 }
 
 void test_Unicode_UTF8_Conversion() {
-	std::string tmp;
-	std::string::const_iterator tmpbegin;
+	UCString tmp;
+	UCString::const_iterator tmpbegin;
 	for(UnicodeChar c = 1; c != 0; c++) {
-		if(c % 0x100000 == 0) std::cout << std::hex << c << " ..." << std::endl;
+		//if(c % 0x100000 == 0) std::cout << std::hex << c << " ..." << std::endl;
 //		std::cout << std::hex << c << " -> ";
 		tmp = GetUtf8FromUnicode(c);
 //		print_binary_string(tmp);
 		tmpbegin = tmp.begin();
 //		std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp) << std::endl;
 		if(GetNextUnicodeFromUtf8(tmpbegin, tmp.end()) != c) {
-			std::cout << std::hex << c << " -> ";
+			//std::cout << std::hex << c << " -> ";
 			print_binary_string(tmp);
-			std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp.end()) << std::endl;
+			//std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp.end()) << std::endl;
 		}
 	}
 }
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
 	binary_dir = argv[0];
 	size_t slashpos = findLastPathSep(binary_dir);
-	if(slashpos != std::string::npos)
+	if(slashpos != UCString::npos)
 		binary_dir.erase(slashpos);
 	else
 		binary_dir = "."; // TODO get exact path of binary
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
 		f = OpenGameFile("Conversations.log","a");
 		if (f)  {	
-			std::string cTime = GetTime();
+			UCString cTime = GetTime();
 			fputs("<game starttime=\"",f);
 			fputs(cTime.c_str(),f);
 			fputs("\">\r\n",f);

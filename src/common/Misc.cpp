@@ -257,7 +257,7 @@ bool MouseInRect(int x, int y, int w, int h)
 
 /////////////////
 // Replaces all the escape characters with html entities
-void xmlEntities(std::string& text)
+void xmlEntities(UCString& text)
 {
 	replace(text,"\"","&quot;",text);  // "
 	replace(text,"'", "&apos;",text);  // '
@@ -286,7 +286,7 @@ void ByteSwap(unsigned char * b, int n)
 
 
 
-void printf(const std::string& txt) {
+void printf(const UCString& txt) {
 	std::cout << txt << std::flush;
 // Print out to debug pane
 #ifdef _MSC_VER

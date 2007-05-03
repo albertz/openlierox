@@ -8,6 +8,9 @@
 	by Albert Zeyer and Dark Charlie
 */
 
+#ifdef WIN32
+#include <SDL/SDL_syswm.h>
+#endif
 #include "InputEvents.h"
 #include "AuxLib.h"
 #include "LieroX.h"

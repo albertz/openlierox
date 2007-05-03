@@ -16,6 +16,7 @@
 #include "defs.h"
 #include "LieroX.h"
 #include "Utils.h"
+#include "StringUtils.h"
 
 
 #ifdef _MSC_VER
@@ -68,9 +69,9 @@ NetworkSocket	http_Socket;
 bool			http_Connected;
 bool			http_Requested;
 bool			http_SocketReady;
-std::string		http_url;
-std::string		http_host;
-std::string		http_content;
+UCString		http_url;
+UCString		http_host;
+UCString		http_content;
 float           http_ResolveTime = -9999;
 
 
@@ -82,7 +83,7 @@ void http_Init() {
 
 ///////////////////
 // Initialize a HTTP get request
-bool http_InitializeRequest(const std::string& host, const std::string& url)
+bool http_InitializeRequest(const UCString& host, const UCString& url)
 {
 	// Make the url http friendly (get rid of spaces)	
 	// TODO: why was this commented out?
@@ -127,7 +128,7 @@ bool http_InitializeRequest(const std::string& host, const std::string& url)
 // 0  : still processing
 // 1  : complete
 // HINT: it doesn't do http_Quit now
-int http_ProcessRequest(std::string* szError)
+int http_ProcessRequest(UCString* szError)
 {
     if(szError)
         *szError = "";
@@ -239,7 +240,7 @@ int http_ProcessRequest(std::string* szError)
 // Send a request
 bool http_SendRequest(void)
 {
-	static std::string request;
+	static UCString request;
 
 	// Build the url
 	request = "GET " + http_url + " HTTP/1.0\n";
@@ -270,7 +271,7 @@ void http_Quit(void)
 
 ///////////////////
 // Convert the url into a friendly url (no spaces)
-void http_ConvertUrl(std::string& dest, const std::string& url)
+void http_ConvertUrl(UCString& dest, const UCString& url)
 {
 	size_t i;
 	char buffer[3];
@@ -301,14 +302,14 @@ void http_ConvertUrl(std::string& dest, const std::string& url)
 ///////////////////
 // Create the host & url strings
 // host is the beginning of an URL, url is the end (to be appended)
-void http_CreateHostUrl(const std::string& host, const std::string& url)
+void http_CreateHostUrl(const UCString& host, const UCString& url)
 {
     http_host = "";
     http_url = "";
 
     // All characters up to a / goes into the host
 	size_t i;
-    std::string::const_iterator it = host.begin();
+    UCString::const_iterator it = host.begin();
     for( i=0; it != host.end(); i++, it++ ) {
         if( *it == '/' ) {
 			http_host = host.substr(0,i);
@@ -329,7 +330,7 @@ void http_RemoveHeader(void)
 	ushort	crfound = 0;
 
     size_t i=1;
-    std::string::const_iterator it = http_content.begin();
+    UCString::const_iterator it = http_content.begin();
 	for(; it != http_content.end(); i++, it++) {
 
 		if( *it == 0x0D )
@@ -352,7 +353,7 @@ void http_RemoveHeader(void)
 
 ///////////////////
 // Get the content buffer
-const std::string& http_GetContent(void)
+const UCString& http_GetContent(void)
 {
 	return http_content;
 }
@@ -427,7 +428,7 @@ int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 	return nlWrite(*NetworkSocketData(&sock), buffer, nbytes);
 }
 
-int	WriteSocket(NetworkSocket sock, const std::string& buffer) {
+int	WriteSocket(NetworkSocket sock, const UCString& buffer) {
 	return WriteSocket(sock, buffer.data(), buffer.size());
 }
 
@@ -447,8 +448,8 @@ int GetSocketErrorNr() {
 	return nlGetError();
 }
 
-const std::string GetSocketErrorStr(int errnr) {
-	return std::string(nlGetErrorStr(errnr));
+const UCString GetSocketErrorStr(int errnr) {
+	return UCString(nlGetErrorStr(errnr));
 }
 
 bool IsMessageEndSocketErrorNr(int errnr) {
@@ -496,14 +497,14 @@ void ResetNetAddr(NetworkAddr* addr) {
 	SetNetAddrValid(addr, false);
 }
 
-bool StringToNetAddr(const std::string& string, NetworkAddr* addr) {
+bool StringToNetAddr(const UCString& string, NetworkAddr* addr) {
 	if(addr == NULL) {
 		return false;
 	} else	
 		return (nlStringToAddr(string.c_str(), NetworkAddrData(addr)) != NL_FALSE);
 }
 
-bool NetAddrToString(const NetworkAddr* addr, std::string& string) {
+bool NetAddrToString(const NetworkAddr* addr, UCString& string) {
 	static char buf[256];
 	nlAddrToString(NetworkAddrData(addr), buf);
 	string = buf;
@@ -536,14 +537,14 @@ bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
 }
 
 // TODO: use hash_map
-typedef std::map<std::string, NetworkAddr> dnsCacheT; 
+typedef std::map<UCString, NetworkAddr> dnsCacheT; 
 dnsCacheT dnsCache;
 
-void AddToDnsCache(const std::string& name, const NetworkAddr* addr) {
+void AddToDnsCache(const UCString& name, const NetworkAddr* addr) {
 	dnsCache[name] = *addr;
 }
 
-bool GetFromDnsCache(const std::string& name, NetworkAddr* addr) {
+bool GetFromDnsCache(const UCString& name, NetworkAddr* addr) {
 	dnsCacheT::iterator it = dnsCache.find(name);
 	if(it != dnsCache.end()) {
 		*addr = it->second;
@@ -552,7 +553,7 @@ bool GetFromDnsCache(const std::string& name, NetworkAddr* addr) {
 		return false;
 }
 
-bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr* addr) {
+bool GetNetAddrFromNameAsync(const UCString& name, NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
 	else {

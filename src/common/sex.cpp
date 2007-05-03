@@ -1,6 +1,6 @@
 /*sex.cpp*/
 
-// TODO: let it use std::string
+// TODO: let it use UCString
 
 /* Original author unknown.  Presumably this is public domain by now.
  * If you are the original author or know the original author, please
@@ -276,6 +276,6 @@ const char* sex__cstring(short wraplen) {
    return buffer;
 }
 
-std::string sex(short wraplen) {
+UCString sex(short wraplen) {
 	return sex__cstring(wraplen);
 }

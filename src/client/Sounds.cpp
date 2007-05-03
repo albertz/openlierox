@@ -22,7 +22,7 @@
 
 ///////////////////
 // Load a sample
-SoundSample* LoadSample(const std::string& _filename, int maxplaying)
+SoundSample* LoadSample(const UCString& _filename, int maxplaying)
 {
 	// Has it been already loaded?
 	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
@@ -126,7 +126,7 @@ bool QuitSoundSystem() {
 	return true;
 }
 
-SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays) {
+SoundSample* LoadSoundSample(const UCString& filename, int maxsimulplays) {
 	if(!SoundSystemAvailable) return NULL;
 
 	if(filename.size() > 0) {
@@ -255,7 +255,7 @@ bool  bSongFinished;
 SDL_Thread *PlayMusThread = NULL;
 bool		breakPlayThread = false;
 bool		LoadingSong = false;
-std::string SongName = "";
+UCString SongName = "";
 SoundMusic *LoadedMusic;
 
 int PlayThreadMain(void *n)
@@ -285,7 +285,7 @@ void InitializeMusic(void)
 	PlayMusThread = SDL_CreateThread(PlayThreadMain,NULL);
 }
 
-void PlayMusicAsync(const std::string& file)
+void PlayMusicAsync(const UCString& file)
 {
 	if (file == SongName) return;  // Already loading this
 	while (LoadingSong) SDL_Delay(5);  // If we're currently loading another song, wait
@@ -293,7 +293,7 @@ void PlayMusicAsync(const std::string& file)
 	LoadingSong = true;
 }
 
-SoundMusic *LoadMusic(const std::string& file)
+SoundMusic *LoadMusic(const UCString& file)
 {
 	if (file == "")
 		return NULL;
@@ -373,7 +373,7 @@ void MusicFinishedHook(void)
 	bSongFinished = !GetSongStopped();
 }
 
-id3v1_t GetMP3Info(const std::string& file)
+id3v1_t GetMP3Info(const UCString& file)
 {
 	id3v1_t info;
 	// Clear the info

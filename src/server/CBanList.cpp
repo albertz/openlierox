@@ -33,15 +33,15 @@ CBanList::CBanList()
 
 ///////////////////
 // Find a banned worm in the list
-banlist_t *CBanList::findBanned(const std::string& szAddress)
+banlist_t *CBanList::findBanned(const UCString& szAddress)
 {
 	if (m_nCount <= 0)
 		return NULL;
 
 	// Remove the port from the address
-	std::string addr = szAddress;
+	UCString addr = szAddress;
 	size_t pos = addr.find(':');
-	if(pos != std::string::npos) {
+	if(pos != UCString::npos) {
 		addr.erase(pos);
 	}
 	TrimSpaces( addr );
@@ -59,15 +59,15 @@ banlist_t *CBanList::findBanned(const std::string& szAddress)
 
 ///////////////////
 // Get the item ID from an address
-int CBanList::getIdByAddr(const std::string& szAddress)
+int CBanList::getIdByAddr(const UCString& szAddress)
 {
 	if (m_nCount <= 0)
 		return -1;
 
 	// Remove the port from the address
-	std::string addr = szAddress;
+	UCString addr = szAddress;
 	size_t pos = addr.find(':');
-	if(pos != std::string::npos) {
+	if(pos != UCString::npos) {
 		addr.erase(pos);
 	}
 	TrimSpaces( addr );
@@ -86,12 +86,12 @@ int CBanList::getIdByAddr(const std::string& szAddress)
 
 ///////////////////
 // Ban a worm
-void CBanList::addBanned(const std::string& szAddress, const std::string& szNick)
+void CBanList::addBanned(const UCString& szAddress, const UCString& szNick)
 {
 	// Remove the port from the address
-	std::string addr = szAddress;
+	UCString addr = szAddress;
 	size_t p = addr.find(':');
-	if(p != std::string::npos) {
+	if(p != UCString::npos) {
 		addr.erase(p);
 	}
 
@@ -116,12 +116,12 @@ void CBanList::addBanned(const std::string& szAddress, const std::string& szNick
 
 ///////////////////
 // Unban a worm
-void CBanList::removeBanned(const std::string& szAddress)
+void CBanList::removeBanned(const UCString& szAddress)
 {
 	// Remove the port from the address
-	std::string addr = szAddress;
+	UCString addr = szAddress;
 	size_t pos = addr.find(':');
-	if(pos != std::string::npos) {
+	if(pos != UCString::npos) {
 		addr.erase(pos);
 	}
 
@@ -167,7 +167,7 @@ void CBanList::removeBanned(const std::string& szAddress)
 
 ///////////////////
 // Save the ban list
-void CBanList::saveList(const std::string& szFilename)
+void CBanList::saveList(const UCString& szFilename)
 {
     // Save it as plain text
     FILE *fp = OpenGameFile(szFilename, "wt");
@@ -190,7 +190,7 @@ void CBanList::saveList(const std::string& szFilename)
 
 ///////////////////
 // Load the ban list
-void CBanList::loadList(const std::string& szFilename)
+void CBanList::loadList(const UCString& szFilename)
 {
 	m_bLoading = true;
     // Shutdown the list first
@@ -231,9 +231,9 @@ void CBanList::Clear(void)
 
 ///////////////////
 // Checks if the IP is banned
-bool CBanList::isBanned(const std::string& szAddress)
+bool CBanList::isBanned(const UCString& szAddress)
 {
-	if(szAddress.find("127.0.0.1") != std::string::npos)
+	if(szAddress.find("127.0.0.1") != UCString::npos)
 		return false;
 
     banlist_t *psWorm = findBanned(szAddress);
@@ -311,7 +311,7 @@ void CBanList::sortList(void) {
 
 ///////////////////
 // Path to the ban list file
-std::string CBanList::getPath(void) {
+UCString CBanList::getPath(void) {
 	return m_szPath;
 }
 

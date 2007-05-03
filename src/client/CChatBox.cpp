@@ -31,7 +31,7 @@ void CChatBox::Clear(void)
 
 ///////////////////
 // Add a line of text to the chat box
-void CChatBox::AddText(const std::string& txt, int colour, float time)
+void CChatBox::AddText(const UCString& txt, int colour, float time)
 {
 	if (txt == "")
 		return;
@@ -53,13 +53,13 @@ void CChatBox::AddText(const std::string& txt, int colour, float time)
 
 ////////////////////
 // Adds the text to wrapped lines
-void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
+void CChatBox::AddWrapped(const UCString& txt, int colour, float time)
 {
 	//
 	// Wrap
 	//
 
-	static std::string buf;
+	static UCString buf;
 
 	if (txt == "")
 		return;
@@ -68,7 +68,7 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 	buf = txt;
 	if((uint)tLX->cFont.GetWidth(txt) >= nWidth) {
 		// TODO: this cannot work and has to be redone
-		// 1. *it = '\0' don't cut std::string! (it's not a C-string)
+		// 1. *it = '\0' don't cut UCString! (it's not a C-string)
 		// 2. what if buf.size()<2?
 		// 3. don't ever use int as a replacement for size_t
 		// (I would fix it myself, but no time atm, sorry ...)
@@ -79,7 +79,7 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 
 		size_t j = buf.length()-1;
 		// Find the nearest space
-		for (std::string::iterator it2=buf.end()-2; it2!=buf.begin() && *it2 != ' '; it2--,j--) {}
+		for (UCString::iterator it2=buf.end()-2; it2!=buf.begin() && *it2 != ' '; it2--,j--) {}
 
 		// Hard break
 		if(j < 24)

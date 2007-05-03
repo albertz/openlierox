@@ -36,7 +36,5 @@ typedef uchar byte;
 typedef unsigned short ushort;
 #endif
 
-
-
 #endif  // __TYPES_H__
 

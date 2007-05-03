@@ -567,7 +567,7 @@ void GameServer::RecheckGame(void)
 			//
 			switch (iGameType)  {
 			case  GMT_TEAMDEATH:  {
-				const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
+				const UCString TeamNames[] = {"blue", "red", "green", "yellow"};
 				int TeamCount[4];
 
 				w = cWorms;

@@ -18,6 +18,7 @@
 
 
 #include "defs.h"
+#include <time.h>
 
 int		Frames = 0;
 float	OldFPSTime = 0;
@@ -41,7 +42,7 @@ int GetFPS(void)
 
 ///////////////////
 // Get the actual time
-std::string GetTime()
+UCString GetTime()
 {
 	static char cTime[100];
 	time_t t;

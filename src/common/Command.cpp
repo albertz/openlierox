@@ -51,7 +51,7 @@ int Cmd_GetNumArgs(void)
 
 ///////////////////
 // Get an argument by index
-std::string Cmd_GetArg(int a)
+UCString Cmd_GetArg(int a)
 {
 	if(a>=0 && a<NumArgs)
 		return Arguments[a];
@@ -62,11 +62,11 @@ std::string Cmd_GetArg(int a)
 
 ///////////////////
 // Parse a line of text
-void Cmd_ParseLine(const std::string& text)
+void Cmd_ParseLine(const UCString& text)
 {
 	size_t		i,ti;
 	int		quote = false;
-	static char	token[128]; // TODO: use std::string!
+	static char	token[128]; // TODO: use UCString!
 
 	// Clear the arguments
 	NumArgs = 0;
@@ -143,14 +143,14 @@ void Cmd_ParseLine(const std::string& text)
 		return;
 	}
 
-	std::string tmp = Cmd_GetArg(0);
+	UCString tmp = Cmd_GetArg(0);
 	Con_Printf(CNC_NOTIFY, "Unknown command '" + tmp + "'");
 }
 
 
 ///////////////////
 // Find a command with the same name
-command_t *Cmd_GetCommand(const std::string& strName)
+command_t *Cmd_GetCommand(const UCString& strName)
 {
 	command_t *cmd;
 
@@ -164,7 +164,7 @@ command_t *Cmd_GetCommand(const std::string& strName)
 
 ///////////////////
 // Auto complete a command
-int Cmd_AutoComplete(std::string& strVar)
+int Cmd_AutoComplete(UCString& strVar)
 {
 	int len = strVar.size();
 	command_t *cmd;
@@ -193,7 +193,7 @@ int Cmd_AutoComplete(std::string& strVar)
 
 ///////////////////
 // Add a command to the list
-int Cmd_AddCommand(const std::string& strName, void (*func) ( void ))
+int Cmd_AddCommand(const UCString& strName, void (*func) ( void ))
 {
 	// Make sure the command isn't a variable
 	/*if(CV_Find(strName)) {
@@ -344,7 +344,7 @@ void Cmd_KickId(void)
         return;
     }
 
-	std::string arg = Cmd_GetArg(1);
+	UCString arg = Cmd_GetArg(1);
 	char cID[6];
 	int ID;
 	size_t j = 0;
@@ -379,7 +379,7 @@ void Cmd_BanId(void)
 
 	char cID[6];
 	int ID;
-	std::string arg = Cmd_GetArg(1);
+	UCString arg = Cmd_GetArg(1);
 	size_t j = 0;
 	for (size_t i=0; i<arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
@@ -412,7 +412,7 @@ void Cmd_MuteId(void)
 
 	char cID[6];
 	int ID;
-	std::string arg = Cmd_GetArg(1);
+	UCString arg = Cmd_GetArg(1);
 	size_t j = 0;
 	for (size_t i=0; i< arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
@@ -445,7 +445,7 @@ void Cmd_UnmuteId(void)
 
 	char cID[6];
 	int ID;
-	std::string arg = Cmd_GetArg(1);
+	UCString arg = Cmd_GetArg(1);
 	size_t j = 0;
 	for (size_t i=0; i<arg.size() && j<6; i++) // TODO: iterators!
 		if (arg[i] >= 48 && arg[i] <= 57)  {
@@ -503,7 +503,7 @@ void Cmd_Suicide(void)
 			// Get the number
 			char cNumber[6];
 			int number;
-			std::string arg = Cmd_GetArg(1);
+			UCString arg = Cmd_GetArg(1);
 			size_t j = 0;
 			size_t i;
 			for (i=0; i< arg.size() && j<6; i++) // TODO: iterators!
@@ -559,7 +559,7 @@ void Cmd_WantsJoin(void)
 		return;
 	}
 
-	std::string arg = Cmd_GetArg(1);
+	UCString arg = Cmd_GetArg(1);
 
 	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
@@ -586,7 +586,7 @@ void Cmd_RenameServer(void)
 	}
 	
 	if (cServer)  {
-		std::string name = Cmd_GetArg(1);
+		UCString name = Cmd_GetArg(1);
 		for (int i=2; i<Cmd_GetNumArgs();i++)
 			name += " "+Cmd_GetArg(i);
 		cServer->setName(name);
@@ -595,7 +595,7 @@ void Cmd_RenameServer(void)
 
 void Cmd_Help() {
 	Con_Printf(CNC_NORMAL, "Available commands:");
-	static std::string cmd_help_buf;
+	static UCString cmd_help_buf;
 	command_t* cmd;
 	unsigned short count = 0;
 	cmd_help_buf = "";
@@ -618,7 +618,7 @@ void Cmd_Help() {
 }
 
 void Cmd_About() {
-	std::string name = GetGameName();
+	UCString name = GetGameName();
 	Con_Printf(CNC_NOTIFY, name + " v" + LX_VERSION);
 }
 
@@ -637,7 +637,7 @@ void Cmd_Volume()  {
 		Con_Printf(CNC_NORMAL, "Usage: volume <0-100>");
 	}
 
-	std::string arg = Cmd_GetArg(1);
+	UCString arg = Cmd_GetArg(1);
 	if(arg != "")  {
 		int vol = from_string<int>(arg);
 		vol = MIN(vol,100);
@@ -654,7 +654,7 @@ void Cmd_Sound()  {
 		Con_Printf(CNC_NORMAL, "Usage: sound <on/off>");
 	}
 
-	std::string arg = Cmd_GetArg(1);
+	UCString arg = Cmd_GetArg(1);
 
 	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
 		StartSoundSystem();

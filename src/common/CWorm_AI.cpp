@@ -2174,7 +2174,7 @@ int CWorm::AI_FindClearingWeapon(void)
 			}
 
 			// Suspicious
-			static std::string name;
+			static UCString name;
 			name = tWeapons[i].Weapon->Name;
 			stringlwr(name);
 			if(strincludes(name,"dirt") || strincludes(name,"napalm") || strincludes(name,"grenade") || strincludes(name,"nuke") || strincludes(name,"mine"))

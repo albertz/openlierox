@@ -17,10 +17,11 @@
 #ifndef __SOUNDS_H__
 #define __SOUNDS_H__
 
+typedef unsigned char byte;
+
 #include "CViewport.h"
 #include "CMap.h"
 #include "Timer.h"
-
 
 // we are using SDL_mixer at the moment
 #include <SDL/SDL_mixer.h>
@@ -65,6 +66,7 @@ typedef struct {
 
 // ID3 tag format
 // HINT: this are fixed widths, which are directly read out of the file
+// TODO: ID3v2 support
 typedef struct id3v1_s {
 	char		name[30];
 	char		interpreter[30];
@@ -75,7 +77,7 @@ typedef struct id3v1_s {
 } id3v1_t;
 
 
-SoundSample*	LoadSample(const std::string& _filename, int maxplaying);
+SoundSample*	LoadSample(const UCString& _filename, int maxplaying);
 
 // Routines
 bool	InitSoundSystem(int rate, int channels, int buffers);
@@ -84,7 +86,7 @@ bool	StopSoundSystem();
 bool	SetSoundVolume(int vol);
 int		GetSoundVolume(void);
 bool	QuitSoundSystem();
-SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays);
+SoundSample* LoadSoundSample(const UCString& filename, int maxsimulplays);
 bool	FreeSoundSample(SoundSample* sample);
 bool	PlaySoundSample(SoundSample* sample);
 
@@ -95,14 +97,14 @@ void	StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me);
 extern float fCurSongStart;
 extern float fTimePaused;
 extern bool	 bSongStopped;
-extern byte	 iMusicVolume;
+extern byte iMusicVolume;
 extern bool	 bSongFinished;
 
 
 // Music
 void			MusicFinishedHook(void);
-SoundMusic		*LoadMusic(const std::string& file);
-void			PlayMusicAsync(const std::string& file);
+SoundMusic		*LoadMusic(const UCString& file);
+void			PlayMusicAsync(const UCString& file);
 bool			IsSongLoading();
 void			FreeMusic(SoundMusic *music);
 void			PlayMusic(SoundMusic *music, int number_of_repeats=1);
@@ -117,7 +119,7 @@ inline int		GetMusicType(SoundMusic *music = NULL) {if (music) {return Mix_GetMu
 float			GetCurrentMusicTime(void);
 inline bool		GetSongStopped(void) {return bSongStopped; }
 inline bool		GetSongFinished(void) { bool tmp = bSongFinished; bSongFinished = false; return tmp; }
-id3v1_t			GetMP3Info(const std::string& file);
+id3v1_t			GetMP3Info(const UCString& file);
 
 void			SetMusicVolume(byte vol);
 inline byte		GetMusicVolume(void) { return iMusicVolume; }

@@ -74,7 +74,7 @@ void CClient::SendDeath(int victim, int killer)
 
 ///////////////////
 // Send a string of text
-void CClient::SendText(const std::string& sText)
+void CClient::SendText(const UCString& sText)
 {
 	CBytestream *bs = cNetChan.getMessageBS();
 

@@ -342,7 +342,7 @@ void CClient::SendPackets(void)
 
 ///////////////////
 // Start a connection with the server
-void CClient::Connect(const std::string& address)
+void CClient::Connect(const UCString& address)
 {
 	iNetStatus = NET_CONNECTING;
 	strServerAddr = address;

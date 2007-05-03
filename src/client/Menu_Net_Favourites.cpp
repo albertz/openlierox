@@ -23,7 +23,7 @@
 
 
 CGuiLayout	cFavourites;
-std::string szFavouritesCurServer;
+UCString szFavouritesCurServer;
 
 
 // Widgets
@@ -128,7 +128,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	static std::string		addr;
+	static UCString		addr;
 
 
 	// Process & Draw the gui
@@ -280,7 +280,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 					addr = "";
 					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					server_t *sv = Menu_SvrList_FindServerStr(addr);
-					static std::string buf;
+					static UCString buf;
 					if (sv)  {
 						if (Menu_MessageBox("Confirmation","Are you sure you want to remove "+sv->szName+" server from favourites?",LMB_YESNO) == MBR_YES)  {
 							if(result && addr != "") {
@@ -303,7 +303,7 @@ void Menu_Net_FavouritesFrame(int mouse)
                      // Remove server from favourites
 				case MNU_USER+0:  {
 						server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
-						static std::string buf;
+						static UCString buf;
 						if (sv)  {
 							if (Menu_MessageBox("Confirmation","Are you sure you want to remove "+sv->szName+" server from favourites?",LMB_YESNO) == MBR_YES)  {
 								Menu_SvrList_RemoveServer(szFavouritesCurServer);
@@ -349,7 +349,7 @@ void Menu_Net_FavouritesFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
-							static std::string Nick;
+							static UCString Nick;
 							cFavourites.SendMessage(mf_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
 								Menu_SvrList_WantsJoin(Nick, sv);
@@ -391,7 +391,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName)
+void Menu_Net_FavouritesJoinServer(const UCString& sAddress, const UCString& sName)
 {
 	tGameInfo.iNumPlayers = 1;
 
@@ -434,7 +434,7 @@ extern CButton cNetButtons[5];
 
 ///////////////////
 // Show a server's details
-void Menu_Net_FavouritesShowServer(const std::string& szAddress)
+void Menu_Net_FavouritesShowServer(const UCString& szAddress)
 {
     mouse_t     *Mouse = GetMouse();
     int         nMouseCur = 0;
@@ -517,7 +517,7 @@ enum  {
 	rs_NewName
 };
 
-void Menu_Net_RenameServer(const std::string& szName)
+void Menu_Net_RenameServer(const UCString& szName)
 {
 	CGuiLayout	cRename;
 	int			mouse = 0;
@@ -683,8 +683,8 @@ void Menu_Net_FavouritesAddServer(void)
 				case fa_Add:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						static std::string addr;
-						static std::string name;
+						static UCString addr;
+						static UCString name;
 						cAddSvr.SendMessage(2, TXS_GETTEXT, &addr, 0);
 						cAddSvr.SendMessage(3, TXS_GETTEXT, &name, 0);
 

@@ -80,7 +80,7 @@ void GameServer::Clear(void)
 
 ///////////////////
 // Start a server
-int GameServer::StartServer(const std::string& name, int port, int maxplayers, bool regserver)
+int GameServer::StartServer(const UCString& name, int port, int maxplayers, bool regserver)
 {
 	// Shutdown and clear any previous server settings
 	Shutdown();
@@ -264,7 +264,7 @@ int GameServer::StartGame(void)
 
 	} else {
 
-		sMapFilename = std::string("levels/") + tGameInfo.sMapname;
+		sMapFilename = UCString("levels/") + tGameInfo.sMapname;
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
@@ -519,15 +519,15 @@ void GameServer::SendPackets(void)
 void GameServer::RegisterServer(void)
 {
 	// Create the url
-	static std::string url;
-	static std::string buf;
+	static UCString url;
+	static UCString buf;
 
 	NetworkAddr addr;
 
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
-	url = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	url = UCString(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
 
     bServerRegistered = false;
 
@@ -560,7 +560,7 @@ void GameServer::RegisterServer(void)
 // Process the registering of the server
 void GameServer::ProcessRegister(void)
 {
-    static std::string szError;
+    static UCString szError;
 
 	if(!bRegServer || bServerRegistered)
 		return;
@@ -611,15 +611,15 @@ bool GameServer::DeRegisterServer(void)
 		return false;
 
 	// Create the url
-	static std::string url;
-	static std::string buf;
+	static UCString url;
+	static UCString buf;
 
 	NetworkAddr addr;
 
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
-	url = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	url = UCString(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
 
 	// Initialize the request
 	bServerRegistered = false;
@@ -687,7 +687,7 @@ void GameServer::CheckTimeouts(void)
 // Drop a client
 void GameServer::DropClient(CClient *cl, int reason)
 {
-    static std::string cl_msg;
+    static UCString cl_msg;
     cl_msg = "";
 
 	// Tell everyone that the client's worms have left both through the net & text
@@ -695,7 +695,7 @@ void GameServer::DropClient(CClient *cl, int reason)
 	bs.writeByte(S2C_CLLEFT);
 	bs.writeByte(cl->getNumWorms());
 
-	static std::string buf;
+	static UCString buf;
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
@@ -851,7 +851,7 @@ void GameServer::kickWorm(int wormID)
 
 ///////////////////
 // Kick a worm out of the server (by name)
-void GameServer::kickWorm(const std::string& szWormName)
+void GameServer::kickWorm(const UCString& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -939,7 +939,7 @@ void GameServer::banWorm(int wormID)
 		}
 	}
 
-	static std::string szAddress;
+	static UCString szAddress;
 	NetAddrToString(cl->getChannel()->getAddress(),szAddress);
 
 	getBanList()->addBanned(szAddress,w->getName());
@@ -949,7 +949,7 @@ void GameServer::banWorm(int wormID)
 }
 
 
-void GameServer::banWorm(const std::string& szWormName)
+void GameServer::banWorm(const UCString& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -1024,7 +1024,7 @@ void GameServer::muteWorm(int wormID)
 }
 
 
-void GameServer::muteWorm(const std::string& szWormName)
+void GameServer::muteWorm(const UCString& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -1087,7 +1087,7 @@ void GameServer::unmuteWorm(int wormID)
 }
 
 
-void GameServer::unmuteWorm(const std::string& szWormName)
+void GameServer::unmuteWorm(const UCString& szWormName)
 {
     // Find the worm name
     CWorm *w = cWorms;
@@ -1162,7 +1162,7 @@ bool GameServer::WriteLogToFile(FILE *f)
 	if (!tGameLog->tWorms)
 		return false;
 
-	static std::string levelfile,modfile,level,mod,player,skin;
+	static UCString levelfile,modfile,level,mod,player,skin;
 
 	printf("Filling in the game details... ");
 
@@ -1240,10 +1240,10 @@ public:
 	
 	// collected data
 	int tindex;
-	std::string token;	
+	UCString token;	
 	
 	bool hasresult;
-	std::string result;
+	UCString result;
 	
 	CountryCvsReader() : inquote(false), waitforkomma(false), ignoreline(false), tindex(0), hasresult(false) {}
 	
@@ -1285,7 +1285,7 @@ public:
 		tindex++;
 	}
 	
-	std::string readAndReturnCountry() {
+	UCString readAndReturnCountry() {
 		char nextch;
 		while(!file->eof() && !hasresult) {
 			file->get(nextch);
@@ -1355,12 +1355,12 @@ public:
 
 //////////////////////
 // Returns the country for the specified IP
-std::string GameServer::GetCountryFromIP(const std::string& Address)
+UCString GameServer::GetCountryFromIP(const UCString& Address)
 {
 	// Don't check against local IP
-	if (Address.find("127.0.0.1") != std::string::npos)	return "Home";
+	if (Address.find("127.0.0.1") != UCString::npos)	return "Home";
 
-	const std::vector<std::string>& ip_e = explode(Address,".");
+	const std::vector<UCString>& ip_e = explode(Address,".");
 	if (ip_e.size() != 4) return "Hackerland";
 
 	static CountryCvsReader reader;
@@ -1372,7 +1372,7 @@ std::string GameServer::GetCountryFromIP(const std::string& Address)
 	reader.file = OpenGameFileR("ip_to_country.csv");
 	if(!reader.file) return "outer space";
 
-	static std::string result;
+	static UCString result;
 	result = reader.readAndReturnCountry();
 	if(result == "") result = "unknown country";
 

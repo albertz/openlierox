@@ -14,7 +14,7 @@
 #include "GfxPrimitives.h" // for MakeColour
 #include "LieroX.h" // for tLX
 
-void StripQuotes(std::string& str)
+void StripQuotes(UCString& str)
 {
 	if(str.size() > 0 && str[0] == '\"')  {
 		str.erase(0, 1);
@@ -28,15 +28,15 @@ void StripQuotes(std::string& str)
 
 ///////////////////
 // Trim the leading & ending spaces from a string
-void TrimSpaces(std::string& szLine) {
+void TrimSpaces(UCString& szLine) {
 	size_t n = 0;
-	std::string::iterator p;
+	UCString::iterator p;
 	for(p = szLine.begin(); p != szLine.end(); p++, n++)
 		if(!isspace(*p) || isgraph(*p)) break;
 	if(n>0) szLine.erase(0,n);
 
 	n = 0;
-	std::string::reverse_iterator p2;
+	UCString::reverse_iterator p2;
 	for(p2 = szLine.rbegin(); p2 != szLine.rend(); p2++, n++)
 		if(!isspace(*p2) || isgraph(*p2)) break;
 	if(n>0) szLine.erase(szLine.size()-n);
@@ -45,7 +45,7 @@ void TrimSpaces(std::string& szLine) {
 
 ///////////////////
 // Replace a string in text, returns true, if something was replaced
-bool replace(const std::string& text, const std::string& what, const std::string& with, std::string& result)
+bool replace(const UCString& text, const UCString& what, const UCString& with, UCString& result)
 {
 	result = text;
 	return replace(result, what, with);
@@ -53,14 +53,14 @@ bool replace(const std::string& text, const std::string& what, const std::string
 
 ///////////////////
 // Replace a string in text, returns result, replaces maximally max occurences
-std::string replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max)
+UCString replacemax(const UCString& text, const UCString& what, const UCString& with, UCString& result, int max)
 {
 	result = text;
 
 	size_t pos = 0;
 	size_t what_len = what.length();
 	size_t with_len = with.length();
-	if((pos = result.find(what, pos)) != std::string::npos) {
+	if((pos = result.find(what, pos)) != UCString::npos) {
 		result.replace(pos, what_len, with);
 		pos += with_len;
 	}
@@ -68,20 +68,20 @@ std::string replacemax(const std::string& text, const std::string& what, const s
 	return result;
 }
 
-std::string replacemax(const std::string& text, const std::string& what, const std::string& with, int max) {
-	std::string result;
+UCString replacemax(const UCString& text, const UCString& what, const UCString& with, int max) {
+	UCString result;
 	return replacemax(text, what, with, result, max);
 }
 
 ///////////////////
 // Replace a string in text, returns result, replaces maximally max occurences
 // returns true, if at least one replace was made
-bool replace(std::string& text, const std::string& what, const std::string& with) {
+bool replace(UCString& text, const UCString& what, const UCString& with) {
 	bool one_repl = false;
 	size_t pos = 0;
 	size_t what_len = what.length();
 	size_t with_len = with.length();
-	while((pos = text.find(what, pos)) != std::string::npos) {
+	while((pos = text.find(what, pos)) != UCString::npos) {
 		text.replace(pos, what_len, with);
 		pos += with_len;
 		one_repl = true;
@@ -97,18 +97,18 @@ int chrcasecmp(const char c1, const char c2)
 
 //////////////////
 // Gets the string [beginning of text,searched character)
-std::string ReadUntil(const std::string& text, char until_character) {
+UCString ReadUntil(const UCString& text, char until_character) {
 	size_t pos = 0;
-	for(std::string::const_iterator i = text.begin(); i != text.end(); i++, pos++) {
+	for(UCString::const_iterator i = text.begin(); i != text.end(); i++, pos++) {
 		if(*i == until_character)
 			return text.substr(0,pos);
 	}
 	return text;
 }
 
-std::string	ReadUntil(FILE* fp, char until_character) {
+UCString	ReadUntil(FILE* fp, char until_character) {
 	static char buf[256];
-	static std::string res;
+	static UCString res;
 	res = "";
 	size_t buf_pos = 0;
 	while(true) {
@@ -129,12 +129,12 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 
 //////////////////
 // Converts a string to a colour
-Uint32 StrToCol(const std::string& str) {
+Uint32 StrToCol(const UCString& str) {
 	if (str == "")
 		return tLX->clPink;
 
 	// Create the temp and copy it there
-	static std::string temp;
+	static UCString temp;
 	temp = str;
 
 	// Is the # character present?
@@ -157,8 +157,8 @@ Uint32 StrToCol(const std::string& str) {
 	return MakeColour(r,g,b);
 }
 
-short stringcasecmp(const std::string& s1, const std::string& s2) {
-	std::string::const_iterator p1, p2;
+short stringcasecmp(const UCString& s1, const UCString& s2) {
+	UCString::const_iterator p1, p2;
 	p1 = s1.begin();
 	p2 = s2.begin();
 	short dif;
@@ -181,14 +181,14 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 }
 
 // HINT: it returns a reference
-const std::vector<std::string>& explode(const std::string& str, const std::string& delim) {
-	static std::vector<std::string> result;
+const std::vector<UCString>& explode(const UCString& str, const UCString& delim) {
+	static std::vector<UCString> result;
 	result.clear();
 
 	size_t delim_len = delim.size();
-	std::string rest = str;
+	UCString rest = str;
 	size_t pos;
-	while((pos = rest.find(delim)) != std::string::npos) {
+	while((pos = rest.find(delim)) != UCString::npos) {
 		result.push_back(rest.substr(0,pos));
 		rest.erase(0,pos+delim_len);
 	}
@@ -198,10 +198,10 @@ const std::vector<std::string>& explode(const std::string& str, const std::strin
 }
 
 // reads up to maxlen-1 chars from fp
-std::string freadstr(FILE *fp, size_t maxlen) {
+UCString freadstr(FILE *fp, size_t maxlen) {
 	if (!fp) return "";
 
-	static std::string result;
+	static UCString result;
 	static char buf[1024];
 	size_t ret, c;
 	result = "";
@@ -219,7 +219,7 @@ std::string freadstr(FILE *fp, size_t maxlen) {
 }
 
 
-size_t fwrite(const std::string& txt, size_t len, FILE* fp) {
+size_t fwrite(const UCString& txt, size_t len, FILE* fp) {
 	size_t len_of_txt = MIN(txt.size()+1, len-1);
 	size_t ret = fwrite(txt.c_str(), 1, len_of_txt, fp);
 	if(ret != len_of_txt)
@@ -231,37 +231,37 @@ size_t fwrite(const std::string& txt, size_t len, FILE* fp) {
 }
 
 
-size_t findLastPathSep(const std::string& path) {
+size_t findLastPathSep(const UCString& path) {
 	size_t slash = path.rfind('\\');
 	size_t slash2 = path.rfind('/');
-	if(slash == std::string::npos)
+	if(slash == UCString::npos)
 		slash = slash2;
-	else if(slash2 != std::string::npos)
+	else if(slash2 != UCString::npos)
 		slash = MAX(slash, slash2);
 	return slash;
 }
 
 
-void stringlwr(std::string& txt) {
-	for(std::string::iterator i = txt.begin(); i != txt.end(); i++)
+void stringlwr(UCString& txt) {
+	for(UCString::iterator i = txt.begin(); i != txt.end(); i++)
 		*i = tolower(*i);
 }
 
 
-bool strincludes(const std::string& str, const std::string& what) {
-	return str.find(what) != std::string::npos;
+bool strincludes(const UCString& str, const UCString& what) {
+	return str.find(what) != UCString::npos;
 }
 
-std::string GetFileExtension(const std::string& filename) {
+UCString GetFileExtension(const UCString& filename) {
 	size_t p = filename.rfind('.');
-	if(p == std::string::npos) return "";
+	if(p == UCString::npos) return "";
 	return filename.substr(p+1);
 }
 
-std::string strip(const std::string& buf, int width)
+UCString strip(const UCString& buf, int width)
 {
 	// TODO: this width depends on tLX->cFont; this is no solution, fix it
-	static std::string result;
+	static UCString result;
 	result = buf;
 	for(int j=result.length()-1; tLX->cFont.GetWidth(result) > width && j>0; j--)
 		result.erase(result.length()-1);
@@ -270,7 +270,7 @@ std::string strip(const std::string& buf, int width)
 }
 
 
-bool stripdot(std::string& buf, int width)
+bool stripdot(UCString& buf, int width)
 {
 	// TODO: this width depends on tLX->cFont; this is no solution, fix it
 	int dotwidth = tLX->cFont.GetWidth("...");
@@ -289,14 +289,14 @@ bool stripdot(std::string& buf, int width)
 }
 
 
-void ucfirst(std::string& text)
+void ucfirst(UCString& text)
 {
 	if (text == "") return;
 
 	text[0] = toupper(text[0]);
 	bool wasalpha = isalpha(text[0]) != 0;
 
-	for (std::string::iterator it=text.begin()+1;it != text.end();it++)  {
+	for (UCString::iterator it=text.begin()+1;it != text.end();it++)  {
 		if (isalpha(*it))  {
 			if (wasalpha)
 				*it = tolower(*it);
@@ -497,7 +497,7 @@ bool stripdot(char *buf, int width)
 // Changes the string to have all first letters upper case
 // Returns text
 // TODO: the parameter will be changed directly; that's bad style
-// TODO: remove this function; it should not be used, as we should use std::string everywhere
+// TODO: remove this function; it should not be used, as we should use UCString everywhere
 char *ucfirst(char *text)
 {
 	size_t i = 0;

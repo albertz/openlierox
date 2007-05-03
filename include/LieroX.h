@@ -18,8 +18,6 @@
 #define __LIEROX_H__
 
 
-
-
 #ifdef _MSC_VER
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC
@@ -27,6 +25,10 @@
 #include <crtdbg.h>
 #endif // _DEBUG
 #endif // _MSC_VER
+
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 #if DEBUG == 1
 #define		_AI_DEBUG
@@ -122,7 +124,7 @@ class lierox_t { public:
 	Uint32			clWhite;
 
 
-	std::string	debug_string;
+	UCString	debug_string;
 };
 
 
@@ -139,14 +141,14 @@ enum {
 class game_t { public:
 	int			iGameType;		// Local, remote, etc
 	int			iGameMode;		// DM, team DM, etc
-	std::string		sModName;
-	std::string		sMapname;
-    std::string        sPassword;
-	std::string		sModDir;
+	UCString		sModName;
+	UCString		sMapname;
+    UCString        sPassword;
+	UCString		sModDir;
     maprandom_t sMapRandom;
 	int			iLoadingTimes;
-	std::string		sServername;
-	std::string		sWelcomeMessage;
+	UCString		sServername;
+	UCString		sWelcomeMessage;
 	bool		bRegServer;
 	bool		bTournament;
 
@@ -172,10 +174,10 @@ class game_lobby_t { public:
 	int		nMaxKills;
 	int		nLoadingTime;
 	int		nBonuses;
-	std::string	szMapName;
-	std::string	szDecodedMapName;
-	std::string	szModName;
-	std::string	szModDir;
+	UCString	szMapName;
+	UCString	szDecodedMapName;
+	UCString	szModName;
+	UCString	szModDir;
 	bool	bHaveMap;
 	bool	bHaveMod;
 	bool	bTournament;
@@ -192,7 +194,7 @@ extern	CInput			cToggleMediaPlayer;
 extern  int				nDisableSound;
 extern	bool			bActivated;
 
-extern	std::string		binary_dir;
+extern	UCString		binary_dir;
 
 
 // Main Routines
@@ -218,11 +220,11 @@ bool    MouseInRect(int x, int y, int w, int h);
 
 
 
-void printf(const std::string& txt);
+void printf(const UCString& txt);
 
 
 // TODO: remove this from here
-void	xmlEntities(std::string& text);
+void	xmlEntities(UCString& text);
 
 
 

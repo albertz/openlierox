@@ -33,14 +33,14 @@ void SystemError(char *fmt, ...);
 
 void GuiSkinError(char *fmt, ...);
 
-/*void Hint(const std::string& text) {}
-void Debug(const std::string& text) {}
-void Warning(const std::string& text) {}
-void Error(const std::string& text) {}
-void FatalError(const std::string& text) {}*/
+/*void Hint(const UCString& text) {}
+void Debug(const UCString& text) {}
+void Warning(const UCString& text) {}
+void Error(const UCString& text) {}
+void FatalError(const UCString& text) {}*/
 
-void LxSetLastError(const std::string& desc);
-std::string LxGetLastError(void);
+void LxSetLastError(const UCString& desc);
+UCString LxGetLastError(void);
 
 // WIN32 exception handling
 #ifdef WIN32

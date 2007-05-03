@@ -30,9 +30,9 @@
 
 /*
 // Useful XML functions
-int		xmlGetInt(xmlNodePtr Node, const std::string& Name);
-float	xmlGetFloat(xmlNodePtr Node, const std::string& Name);
-Uint32	xmlGetColour(xmlNodePtr Node, const std::string& Name);
+int		xmlGetInt(xmlNodePtr Node, const UCString& Name);
+float	xmlGetFloat(xmlNodePtr Node, const UCString& Name);
+Uint32	xmlGetColour(xmlNodePtr Node, const UCString& Name);
 */
 
 
@@ -47,7 +47,7 @@ Uint32	xmlGetColour(xmlNodePtr Node, const std::string& Name);
 
 ///////////////////
 // Get an integer from the specified property
-int xmlGetInt(xmlNodePtr Node, const std::string& Name)
+int xmlGetInt(xmlNodePtr Node, const UCString& Name)
 {
 	xmlChar *sValue;
 	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
@@ -60,7 +60,7 @@ int xmlGetInt(xmlNodePtr Node, const std::string& Name)
 
 ///////////////////
 // Get a float from the specified property
-float xmlGetFloat(xmlNodePtr Node, const std::string& Name)
+float xmlGetFloat(xmlNodePtr Node, const UCString& Name)
 {
 	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if (!sValue)
@@ -72,7 +72,7 @@ float xmlGetFloat(xmlNodePtr Node, const std::string& Name)
 
 ///////////////////
 // Get a colour from the specified property
-Uint32 xmlGetColour(xmlNodePtr Node, const std::string& Name)
+Uint32 xmlGetColour(xmlNodePtr Node, const UCString& Name)
 {
 	xmlChar *sValue;
 
@@ -247,16 +247,16 @@ bool CGuiLayout::Build(void)
 	//	1. Get the file to parse
 	//
 
-	std::string sFilename = "";
+	UCString sFilename = "";
 
 	// Default skin extension
-	std::string sExtension = "skn";
+	UCString sExtension = "skn";
 
 	// Get the skin path
-	std::string path = tLXOptions->sSkinPath+tLXOptions->sResolution;
+	UCString path = tLXOptions->sSkinPath+tLXOptions->sResolution;
 
 	// Temp
-	static std::string file = "";
+	static UCString file = "";
 
 	// Get the file name of the skin file
 	switch (iID)  {
@@ -959,7 +959,7 @@ DWORD CGuiLayout::SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2
 	return w->SendMessage(iMsg, Param1, Param2);
 }
 
-DWORD CGuiLayout::SendMessage(int iControl, int iMsg, const std::string& sStr, DWORD Param)
+DWORD CGuiLayout::SendMessage(int iControl, int iMsg, const UCString& sStr, DWORD Param)
 {
 	CWidget *w = getWidget(iControl);
 
@@ -971,7 +971,7 @@ DWORD CGuiLayout::SendMessage(int iControl, int iMsg, const std::string& sStr, D
 
 }
 
-DWORD CGuiLayout::SendMessage(int iControl, int iMsg, std::string *sStr, DWORD Param)
+DWORD CGuiLayout::SendMessage(int iControl, int iMsg, UCString *sStr, DWORD Param)
 {
 	// Check the string
 	if (!sStr)

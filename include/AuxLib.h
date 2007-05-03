@@ -19,6 +19,9 @@
 #ifndef __AUXLIB_H__
 #define __AUXLIB_H__
 
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 // Initialization sub-systems
 #define		AUX_INIT_SDL		0

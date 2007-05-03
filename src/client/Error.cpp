@@ -24,8 +24,8 @@
 
 
 int		GotError = false;
-char	ErrorMsg[1024]; // HINT: if we change this to std::string, check other code here; sizeof(ErrorMsg) is used for example
-std::string	LastError;
+char	ErrorMsg[1024]; // HINT: if we change this to UCString, check other code here; sizeof(ErrorMsg) is used for example
+UCString	LastError;
 
 FILE *ErrorFile = NULL;
 
@@ -149,12 +149,12 @@ void GuiSkinError(char *fmt, ...)
 
 }
 
-void LxSetLastError(const std::string& desc)
+void LxSetLastError(const UCString& desc)
 {
 	LastError = desc;
 }
 
-std::string LxGetLastError(void)
+UCString LxGetLastError(void)
 {
 	return LastError;
 }
@@ -176,7 +176,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	cbMiniDump.CallbackParam = 0;
 
 	// Get the file name
-	static std::string checkname;
+	static UCString checkname;
 
 	FILE *f = NULL;
 	for (int i=1;1;i++)  {
@@ -190,7 +190,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 
 	// Open the file
-	std::string wffn = GetWriteFullFileName(checkname,true);
+	UCString wffn = GetWriteFullFileName(checkname,true);
 	HANDLE hFile = CreateFile((LPCSTR)wffn.c_str(),GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 
 
@@ -217,7 +217,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	snprintf(buf,sizeof(buf),"\"%s\"",checkname); fix_markend(buf);
 	//MessageBox(0,GetFullFileName("BugReport.exe"),"Debug",MB_OK);
 
-	std::string ffn = GetFullFileName("BugReport.exe");
+	UCString ffn = GetFullFileName("BugReport.exe");
 	ShellExecute(NULL,"open",ffn.c_str(),buf,NULL,SW_SHOWNORMAL);
 
 	return EXCEPTION_EXECUTE_HANDLER;

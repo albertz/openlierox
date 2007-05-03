@@ -12,15 +12,15 @@
 #define __UNICODE_H__
 
 #include <SDL/SDL.h> // for Uint32
-#include <string>
+#include "UCString.h"
 
 #include "Utils.h"
 
 
 typedef Uint32 UnicodeChar;
 // the iterator shows at the next character after this operation
-UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator& it, const std::string::const_iterator& last);
-std::string GetUtf8FromUnicode(UnicodeChar ch);
+UnicodeChar GetNextUnicodeFromUtf8(UCString::const_iterator& it, const UCString::const_iterator& last);
+UCString GetUtf8FromUnicode(UnicodeChar ch);
 
 
 
@@ -41,9 +41,9 @@ void MultIncUtf8StringIterator(_Iterator& it, const _Iterator& last, size_t coun
 	}
 }
 
-inline size_t Utf8StringLength(const std::string& utf8string) {
+inline size_t Utf8StringLength(const UCString& utf8string) {
 	size_t len = 0;
-	std::string::const_iterator it = utf8string.begin();
+	UCString::const_iterator it = utf8string.begin();
 	while(it != utf8string.end()) {
 		len++;
 		IncUtf8StringIterator(it, utf8string.end());
@@ -52,8 +52,8 @@ inline size_t Utf8StringLength(const std::string& utf8string) {
 }
 
 // returns the new pos
-inline size_t InsertUnicodeChar(std::string& str, size_t pos, UnicodeChar ch) {
-	std::string tmp = GetUtf8FromUnicode(ch);
+inline size_t InsertUnicodeChar(UCString& str, size_t pos, UnicodeChar ch) {
+	UCString tmp = GetUtf8FromUnicode(ch);
 	str.insert(pos, tmp);
 	return pos + tmp.size();
 }

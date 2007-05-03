@@ -49,7 +49,7 @@ private:
 
 	int		Type;
 
-	std::string	Filename;
+	UCString	Filename;
 
 	// Image
 	SDL_Surface*	Image;
@@ -63,8 +63,8 @@ public:
 
 	
 	// Loading
-	SDL_Surface*	LoadImgBPP(const std::string& _file, bool withalpha);
-	SoundSample*	LoadSample(const std::string& _file, int maxplaying);
+	SDL_Surface*	LoadImgBPP(const UCString& _file, bool withalpha);
+	SoundSample*	LoadSample(const UCString& _file, int maxplaying);
 
 
 	// Shutdowning
@@ -73,7 +73,7 @@ public:
 
 	// Variables
 	int				getType(void)			{ return Type; }
-	std::string		getFilename(void)		{ return Filename; }
+	UCString		getFilename(void)		{ return Filename; }
 
 	SDL_Surface		*GetImage(void)			{ return Image; }
 	SoundSample*	GetSample(void)			{ return Sample; }

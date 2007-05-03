@@ -474,9 +474,9 @@ enum {
 		int i;
 		int* dirtindex;
 		ComboboxFiller(CGuiLayout* g, int c, int* d) : gui(g), comboindex(c), i(0), dirtindex(d) {}
-		inline bool operator() (const std::string& dir) {
+		inline bool operator() (const UCString& dir) {
 			size_t p = findLastPathSep(dir);
-			std::string f = dir.substr(p+1);
+			UCString f = dir.substr(p+1);
 			gui->SendMessage(comboindex,CBS_ADDITEM,f,i);
 			if(stringcasecmp(f,"dirt"))
 				*dirtindex = i;
@@ -575,7 +575,7 @@ void Menu_MapEd_New(void)
 						PlaySoundSample(sfxGeneral.smpClick);
 						int w = from_string<int>(t1->getText());
 						int h = from_string<int>(t2->getText());
-						std::string theme;
+						UCString theme;
 						theme = "dirt";
 						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,(DWORD)0,0);
 						if(it)
@@ -628,9 +628,9 @@ enum  {
 	class LevelListFiller { public:
 		CListview* lv;
 		LevelListFiller(CListview* l) : lv(l) {}
-		inline bool operator() (const std::string& filename) {
+		inline bool operator() (const UCString& filename) {
 			size_t pos = findLastPathSep(filename);
-			std::string f = filename.substr(pos+1);
+			UCString f = filename.substr(pos+1);
 
 			// Liero Xtreme level
 			if( stringcasecmp(GetFileExtension(filename), "lxl") == 0) {
@@ -759,11 +759,11 @@ void Menu_MapEd_LoadSave(int save)
 						if(t->getText().length() > 0) {
 
 							quitloop = true;
-							static std::string buf;
+							static UCString buf;
 							if(save) {
 
 								// Save
-								buf = std::string("levels/") + t->getText();
+								buf = UCString("levels/") + t->getText();
 
 								// Check if it exists already. If so, ask user if they wanna overwrite
 								if(Menu_MapEd_OkSave(buf))
@@ -811,9 +811,9 @@ void Menu_MapEd_LoadSave(int save)
 
 ///////////////////
 // Check if there is a possible overwrite
-int Menu_MapEd_OkSave(const std::string& szFilename)
+int Menu_MapEd_OkSave(const UCString& szFilename)
 {
-	std::string filename = szFilename;
+	UCString filename = szFilename;
 
 	// Adjust the filename
 	if( stringcasecmp(GetFileExtension( szFilename ), "lxl") != 0)

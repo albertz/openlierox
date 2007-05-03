@@ -76,7 +76,7 @@ int LoadGraphics(void)
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpScoreboard,"data/gfx/scoreboard.png");
     LOAD_IMAGE(gfxGame.bmpViewportMgr,"data/gfx/viewportmgr.png");
 	LOAD_IMAGE(gfxGame.bmpSparkle, "data/gfx/sparkle.png");
-	LOAD_IMAGE(gfxGame.bmpInfinite,"data/gfx/infinite.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpInfinite,"data/gfx/infinite.png");
 	LOAD_IMAGE(gfxGame.bmpLag, "data/gfx/lag.png");
 
 	LOAD_IMAGE(gfxGame.bmpBonus, "data/gfx/bonus.png");
@@ -112,7 +112,7 @@ int LoadGraphics(void)
     SDL_SetColorKey(gfxGame.bmpViewportMgr, SDL_SRCCOLORKEY, pink);
 
 	// Load the colours from a file
-	const std::string colorfile = "data/frontend/colours.cfg";
+	const UCString colorfile = "data/frontend/colours.cfg";
 	ReadColour(colorfile,"Colours","ChatText",		 &tLX->clChatText,		tLX->clChatText);
 	ReadColour(colorfile,"Colours","Credits1",		 &tLX->clCredits1,		tLX->clCredits1);
 	ReadColour(colorfile,"Colours","Credits2",		 &tLX->clCredits2,		tLX->clCredits2);

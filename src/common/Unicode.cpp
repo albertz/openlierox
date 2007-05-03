@@ -60,15 +60,15 @@ void UNICODE_to_UTF8(unsigned char *utf8, UnicodeChar unicode)
     utf8[++j] = 0;
 }
 
-std::string GetUtf8FromUnicode(UnicodeChar ch) {
-	if(ch == 0) return std::string("\0", 1);
+UCString GetUtf8FromUnicode(UnicodeChar ch) {
+	if(ch == 0) return UCString("\0", 1);
 	static unsigned char utf8[7];
 	UNICODE_to_UTF8(utf8, ch);
 	return (const char*)utf8;
 }
 
 
-UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last) {
+UnicodeChar GetNextUnicodeFromUtf8(UCString::const_iterator &it, const UCString::const_iterator& last) {
 	if(it == last) return 0;
 	
 	unsigned char ch = *it;

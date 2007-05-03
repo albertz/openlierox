@@ -17,6 +17,7 @@
 // By Jason Boettcher
 
 #include "defs.h"
+#include <time.h>
 #include <SDL/SDL_syswm.h>
 #include "LieroX.h"
 #include "CServer.h"
@@ -29,10 +30,10 @@
 
 
 // Game info
-std::string	GameName;
+UCString	GameName;
 
 // Config file
-std::string	ConfigFile;
+UCString	ConfigFile;
 
 // Screen
 
@@ -41,7 +42,7 @@ SDL_Surface *bmpIcon=NULL;
 
 ///////////////////
 // Initialize the standard Auxiliary Library
-int InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags)
+int InitializeAuxLib(const UCString& gname, const UCString& config, int bpp, int vidflags)
 {
 	// Set the game info
 	GameName=gname;
@@ -258,7 +259,7 @@ void ShutdownAuxLib(void)
 
 ///////////////////
 // Return the game name
-std::string GetGameName(void)
+UCString GetGameName(void)
 {
 	return GameName;
 }
@@ -267,9 +268,9 @@ std::string GetGameName(void)
 ///////////////////
 // Get text from the clipboard
 // Returns the length of the text (0 for no text)
-std::string GetClipboardText() {
+UCString GetClipboardText() {
 #ifdef WIN32
-	std::string szText;
+	UCString szText;
     
     // Get the window handle
 	SDL_SysWMinfo info;
@@ -308,7 +309,7 @@ std::string GetClipboardText() {
 ///////////////////
 // Set text to the clipboard
 // Returns the length of the text (0 for no text)
-int SetClipboardText(const std::string& szText)
+int SetClipboardText(const UCString& szText)
 {
 #ifdef WIN32
     // Get the window handle
@@ -358,7 +359,7 @@ int SetClipboardText(const std::string& szText)
 
 ///////////////////
 // Return the config filename
-std::string GetConfigFile(void)
+UCString GetConfigFile(void)
 {
 	return ConfigFile;
 }
@@ -368,9 +369,9 @@ std::string GetConfigFile(void)
 // Take a screenshot
 void TakeScreenshot(bool Tournament)
 {
-	static std::string	picname;
-	static std::string	fullname;
-	static std::string	extension;
+	static UCString	picname;
+	static UCString	fullname;
+	static UCString	extension;
 	int			i;
 
 	// Set the extension

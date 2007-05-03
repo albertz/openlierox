@@ -116,12 +116,12 @@ void CWpnRest::cycleVisible(CGameScript *pcGameS)
 
 ///////////////////
 // Find a weapon in the list
-wpnrest_t *CWpnRest::findWeapon(const std::string& szName)
+wpnrest_t *CWpnRest::findWeapon(const UCString& szName)
 {
     if(szName == "")
     	return NULL;
 
-    static std::string tmp = "";
+    static UCString tmp = "";
 	tmp = szName;
 	TrimSpaces(tmp);
 
@@ -142,7 +142,7 @@ wpnrest_t *CWpnRest::findWeapon(const std::string& szName)
 
 ///////////////////
 // Add a weapon to the list
-void CWpnRest::addWeapon(const std::string& szName, int nState)
+void CWpnRest::addWeapon(const UCString& szName, int nState)
 {
     if(szName == "") return;
 
@@ -165,7 +165,7 @@ void CWpnRest::addWeapon(const std::string& szName, int nState)
 
 ///////////////////
 // Save the weapons restrictions list
-void CWpnRest::saveList(const std::string& szFilename)
+void CWpnRest::saveList(const UCString& szFilename)
 {
     // Save it as plain text
     FILE *fp = OpenGameFile(szFilename, "wt");
@@ -183,7 +183,7 @@ void CWpnRest::saveList(const std::string& szFilename)
 
 ///////////////////
 // Load the weapons restrictions list
-void CWpnRest::loadList(const std::string& szFilename)
+void CWpnRest::loadList(const UCString& szFilename)
 {
     // Shutdown the list first
     Shutdown();
@@ -192,11 +192,11 @@ void CWpnRest::loadList(const std::string& szFilename)
     if( !fp )
         return;
 
-    static std::string line;
+    static UCString line;
 	
     while( !feof(fp) ) {
         line = ReadUntil(fp, '\n');
-		const std::vector<std::string>& exploded = explode(line,",");
+		const std::vector<UCString>& exploded = explode(line,",");
 		if (exploded.size() >= 2)
 			addWeapon(exploded[0],from_string<int>(exploded[1]));
     }
@@ -210,7 +210,7 @@ void CWpnRest::loadList(const std::string& szFilename)
 
 ///////////////////
 // Checks if the weapon is enabled or not
-bool CWpnRest::isEnabled(const std::string& szName)
+bool CWpnRest::isEnabled(const UCString& szName)
 {
     wpnrest_t *psWpn = findWeapon(szName);
 
@@ -224,7 +224,7 @@ bool CWpnRest::isEnabled(const std::string& szName)
 
 ///////////////////
 // Finds a weapon that is enabled and returns the name
-std::string CWpnRest::findEnabledWeapon(CGameScript *pcGameS) {
+UCString CWpnRest::findEnabledWeapon(CGameScript *pcGameS) {
     assert(pcGameS);
 
     // Go from the start of the list looking for an enabled weapon
@@ -250,7 +250,7 @@ std::string CWpnRest::findEnabledWeapon(CGameScript *pcGameS) {
 
 ///////////////////
 // Get the state of a weapon
-int CWpnRest::getWeaponState(const std::string& szName)
+int CWpnRest::getWeaponState(const UCString& szName)
 {
     wpnrest_t *psWpn = findWeapon(szName);
 
@@ -359,7 +359,7 @@ void CWpnRest::sendList(CBytestream *psByteS)
 // Receive the list
 void CWpnRest::readList(CBytestream *psByteS)
 {
-    static std::string szName;
+    static UCString szName;
     int nState;
     wpnrest_t *psWpn = NULL;
 

@@ -42,8 +42,8 @@ void CTextbox::Create(void)
 // Draw the text box
 void CTextbox::Draw(SDL_Surface *bmpDest)
 {
-	std::string buf = "";
-	std::string text = "";
+	UCString buf = "";
+	UCString text = "";
 
 	text = sText;
 
@@ -256,10 +256,10 @@ int CTextbox::KeyDown(UnicodeChar c)
 
 		if (tLX->cFont.GetWidth(sText) > iWidth-3)  {
 			iScrollPos = 0;
-			static std::string buf;
-			for (std::string::iterator it=sText.begin(); it != sText.end(); it++)  {
+			static UCString buf;
+			for (UCString::iterator it=sText.begin(); it != sText.end(); it++)  {
 				iScrollPos++;// TODO utf string
-				if(tLX->cFont.GetWidth(std::string(it, sText.end())) < iWidth)
+				if(tLX->cFont.GetWidth(UCString(it, sText.end())) < iWidth)
 					break;
 			}
 		}
@@ -322,7 +322,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	int deltaX = tMouse->X - iX;
 	iDrawCursor = true;
 
-	//static std::string buf;
+	//static UCString buf;
 
 	if (sText == "")
 		return TXT_MOUSEOVER;
@@ -366,7 +366,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		if (deltaX < (tLX->cFont.GetWidth(sText.substr(0,1))/2))  // Area before the first character
 			iCurpos = iScrollPos;
 		else  {
-			std::string buf = sText.substr(iScrollPos);
+			UCString buf = sText.substr(iScrollPos);
 			size_t pos = sText.length();
 			int w,prev_w;
 			w=prev_w=0;
@@ -517,12 +517,12 @@ void CTextbox::Insert(UnicodeChar c)
 
 /////////////////////
 // Replace the current text with the buf
-void CTextbox::setText(const std::string& buf)
+void CTextbox::setText(const UCString& buf)
 {
 	sText = "";
 
 /*	// Copy the text
-	for (std::string::const_iterator it=buf.begin(); it != buf.end(); it++)
+	for (UCString::const_iterator it=buf.begin(); it != buf.end(); it++)
 		sText += *it; // TODO: filter was removed here; is it ok?
 */
 	sText = buf;
@@ -564,7 +564,7 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 	return 0;
 }
 
-DWORD CTextbox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
+DWORD CTextbox::SendMessage(int iMsg, const UCString& sStr, DWORD Param)
 {
 	switch (iMsg)  {
 
@@ -578,7 +578,7 @@ DWORD CTextbox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 }
 
 
-DWORD CTextbox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
+DWORD CTextbox::SendMessage(int iMsg, UCString *sStr, DWORD Param)
 {
 	switch (iMsg)  {
 
@@ -597,7 +597,7 @@ DWORD CTextbox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 // Paste some text from the clipboard
 void CTextbox::PasteText(void)
 {
-	std::string text;
+	UCString text;
 
 	if(iSelLength)
 		Delete();
@@ -605,7 +605,7 @@ void CTextbox::PasteText(void)
     text = GetClipboardText();
 
 	// Insert the text
-	for(std::string::const_iterator i = text.begin(); i != text.end(); )
+	for(UCString::const_iterator i = text.begin(); i != text.end(); )
 		Insert( GetNextUnicodeFromUtf8(i, text.end()) );
 }
 
