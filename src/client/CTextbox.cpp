@@ -55,7 +55,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 		// Draw astericks for password
 		text = "";
-		size_t len = Utf8StringLength(sText);
+		size_t len = sText.size();
 		for(size_t i = 0; i < len; i++)
 			text += '*';
 	}

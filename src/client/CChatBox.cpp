@@ -79,7 +79,7 @@ void CChatBox::AddWrapped(const UCString& txt, int colour, float time)
 
 		size_t j = buf.length()-1;
 		// Find the nearest space
-		for (UCString::iterator it2=buf.end()-2; it2!=buf.begin() && *it2 != ' '; it2--,j--) {}
+		for (UCString::reverse_iterator it2=buf.rbegin(); it2!=buf.rend() && *it2 != ' '; it2++,j--) {}
 
 		// Hard break
 		if(j < 24)

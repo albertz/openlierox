@@ -207,7 +207,7 @@ public:
     void    scrollLast(void);
 
 	int		getCurIndex(void)		{ if(tSelected) return tSelected->iIndex; else return -1; }
-	UCString getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return NULL; }
+	UCString getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return ""; }
 	lv_subitem_t	*getCurSubitem(int index);
 
 	int		getCursor(void)			{ return iCursor; }
