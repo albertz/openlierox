@@ -39,12 +39,12 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "../../distrib/win32/"
+# PROP Output_Dir "../../share/gamedir/"
 # PROP Intermediate_Dir "obj/Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "../../include" /I "blast" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FR /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /Zi /O2 /I "../../include" /I "blast" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0xc09 /d "NDEBUG"
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"obj/debug/Game.bsc"
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBC" /out:"../../distrib/win32/LieroX.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBC" /out:"../../share/gamedir/LieroX.exe"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "Game - Win32 Debug"
@@ -235,6 +235,10 @@ SOURCE=..\..\include\Graphics.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\client\InputEvents.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\MathLib.cpp
 # End Source File
 # Begin Source File
@@ -255,6 +259,18 @@ SOURCE=..\..\src\common\sex.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\sex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\common\StringUtils.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\StringUtils.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\Timer.cpp
 # End Source File
 # Begin Source File
@@ -264,6 +280,18 @@ SOURCE=..\..\include\Timer.h
 # Begin Source File
 
 SOURCE=..\..\include\types.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\UCString.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\common\Unicode.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Unicode.h
 # End Source File
 # End Group
 # Begin Group "Game files"
@@ -439,6 +467,10 @@ SOURCE=..\..\src\client\Entity.cpp
 # Begin Source File
 
 SOURCE=..\..\include\Entity.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\InputEvents.h
 # End Source File
 # Begin Source File
 
@@ -787,6 +819,10 @@ SOURCE=..\..\src\client\Sounds.cpp
 # Begin Source File
 
 SOURCE=..\..\include\Sounds.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Utils.h
 # End Source File
 # End Group
 # End Target

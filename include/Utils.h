@@ -57,37 +57,27 @@ public:
 	private: \
 		void init(); \
 		void reset(); \
-		unsigned int* refcount; \
 	};
 	
 #define	DECLARE_INTERNDATA_CLASS(_classname, _datatype) \
 	_classname::_classname() { init(); } \
 	void _classname::init() { \
 		intern_data = new _datatype; \
-		refcount = new unsigned int(1); \
 	} \
 	_classname::~_classname() { reset(); } \
 	void _classname::reset() { \
-		if(!intern_data || !refcount) return; \
-		(*refcount)--; \
-		if(*refcount == 0) { \
-			delete (_datatype*)intern_data; \
-			delete refcount; \
-		} \
+		if(!intern_data) return; \
+		delete (_datatype*)intern_data; \
 		intern_data = NULL; \
-		refcount = NULL; \
 	} \
 	_classname::_classname(const _classname& b) { \
-		intern_data = b.intern_data; \
-		refcount = b.refcount; \
-		(*refcount)++; \
+		init(); \
+		if (intern_data) \
+			memcpy(intern_data,b.intern_data,sizeof(_datatype)); \
 	} \
 	void _classname::operator=(const _classname& b) { \
-		if(&b == this) return; \
-		reset(); \
-		intern_data = b.intern_data; \
-		refcount = b.refcount; \
-		(*refcount)++; \
+		if(&b == this || !intern_data) return; \
+		memcpy(intern_data,b.intern_data,sizeof(_datatype)); \
 	} \
 	_datatype* _classname##Data(_classname* obj) { \
 		if(obj) return (_datatype*)obj->intern_data; \
