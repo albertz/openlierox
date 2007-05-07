@@ -28,19 +28,6 @@
 #endif // _DEBUG
 #endif // _MSC_VER
 
-// Standard includes
-/*
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <time.h>
-#include <ctype.h>
-#include <vector>
-#include <list>
-*/
-
 // Disable this silly warning
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
@@ -82,10 +69,6 @@ void d_printf(char *fmt, ...);
 // --------------------------------------------
 // Endian checks and conversions
 
-#ifndef WIN32
-#include <endian.h>
-#endif
-
 #define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
 
 void ByteSwap(unsigned char * b, int n);
@@ -98,19 +81,14 @@ inline T* GetByteSwapped(const T b)
 	return (T*)byteswap_buffer;
 }
 
-#ifdef WIN32
-// WIN32 doesn't define this, endian.h doesn't exist there
-#define	__BYTE_ORDER	__LITTLE_ENDIAN
+#if !defined(SDL_BYTEORDER)
+#	error SDL_BYTEORDER not defined
 #endif
-
-#if !defined(__BYTE_ORDER)
-#	error __BYTE_ORDER not defined
-#endif
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #	define EndianSwap(x)		;
 #	define BEndianSwap(x)		ByteSwap5(x);
 #	define GetEndianSwapped(x)	(&x)
-#elif __BYTE_ORDER == __BIG_ENDIAN
+#elif SDL_BYTEORDER == SDL_BIG_ENDIAN
 #	define EndianSwap(x)		ByteSwap5(x);
 #	define BEndianSwap(x)		;
 #	define GetEndianSwapped(x)	(GetByteSwapped(x))

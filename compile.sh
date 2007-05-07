@@ -5,6 +5,8 @@
 #	SYSTEM_DATA_DIR		- the global data dir for the game; default=/usr/share
 #	COMPILER			- sets the compiler
 #	CXXFLAGS			- some other compiler flags
+#	INCLUDE_PATH		- adds one or more include paths
+#	LIB_PATH			- adds one or more lib paths
 #	DEBUG				- if set to 1, the game will compiled with debug-info
 #	ACTIVATE_GDB		- sets the -ggdb flag
 #						( it will automatically be activated, if you haven't
@@ -22,10 +24,15 @@
 [ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
 [ "$VERSION" == "" ] && [ -e VERSION ] && VERSION=$(cat VERSION)
 
+# add standards to include path list
+INCLUDE_PATH="/usr/include /usr/local/include /sw/include"
+
 # some simple existance-test-function
 function test_include_file() {
-	[ -e /usr/include/$1 -o -e /usr/local/include/$1 ]
-	return $?
+	for p in $INCLUDE_PATH; do
+		[ -e $p/$1 ] && return 0
+	done
+	return -1
 }
 
 echo "--- OpenLieroX compile.sh ---"
@@ -98,11 +105,20 @@ echo "* $COMPILER will be used for compilation"
 
 mkdir -p bin
 
+# build full include list
+INCLUDE_ADDITIONAL=". libxml2 hawknl"
+INCLUDE_STRING=""
+for p in $INCLUDE_PATH; do
+	for a in $INCLUDE_ADDITIONAL; do
+		INCLUDE_STRING="$INCLUDE_STRING -I $p/$a"
+	done
+done
+
 echo ">>> compiling now, this could take some time ..."
 if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$HAWKNL_GCC_PARAM \
-	-I include -I /usr/include/libxml2 -I /usr/include/hawknl \
-	-I /usr/local/include/libxml2 -I /usr/local/include/hawknl \
+	-I include \
+	$INCLUDE_STRING \
 	-lSDL -lSDL_image -lSDL_mixer -lz -lgd -lxml2 \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \

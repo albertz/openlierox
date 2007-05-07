@@ -6,10 +6,181 @@
 	objectVersion = 42;
 	objects = {
 
+/* Begin PBXFileReference section */
+		EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuxLib.cpp; path = ../../src/client/AuxLib.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BEF0BEFCEB400C6547E /* Cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cache.cpp; path = ../../src/client/Cache.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF00BEFCEB400C6547E /* CBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBox.cpp; path = ../../src/client/CBox.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF10BEFCEB400C6547E /* CBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBrowser.cpp; path = ../../src/client/CBrowser.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF20BEFCEB400C6547E /* CButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CButton.cpp; path = ../../src/client/CButton.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF30BEFCEB400C6547E /* CChatBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CChatBox.cpp; path = ../../src/client/CChatBox.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF40BEFCEB400C6547E /* CCheckbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCheckbox.cpp; path = ../../src/client/CCheckbox.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF50BEFCEB400C6547E /* CClient_Draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CClient_Draw.cpp; path = ../../src/client/CClient_Draw.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF60BEFCEB400C6547E /* CClient_Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CClient_Game.cpp; path = ../../src/client/CClient_Game.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF70BEFCEB400C6547E /* CClient_Parse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CClient_Parse.cpp; path = ../../src/client/CClient_Parse.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF80BEFCEB400C6547E /* CClient_Send.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CClient_Send.cpp; path = ../../src/client/CClient_Send.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BF90BEFCEB400C6547E /* CCombobox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCombobox.cpp; path = ../../src/client/CCombobox.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BFA0BEFCEB400C6547E /* CFont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CFont.cpp; path = ../../src/client/CFont.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BFB0BEFCEB400C6547E /* CGuiLayout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CGuiLayout.cpp; path = ../../src/client/CGuiLayout.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BFC0BEFCEB400C6547E /* CImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CImage.cpp; path = ../../src/client/CImage.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BFD0BEFCEB400C6547E /* CInput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CInput.cpp; path = ../../src/client/CInput.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BFE0BEFCEB400C6547E /* CInputBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CInputBox.cpp; path = ../../src/client/CInputBox.cpp; sourceTree = SOURCE_ROOT; };
+		EA430BFF0BEFCEB400C6547E /* CListview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CListview.cpp; path = ../../src/client/CListview.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C000BEFCEB400C6547E /* CMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CMenu.cpp; path = ../../src/client/CMenu.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C010BEFCEB400C6547E /* CNinjaRope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CNinjaRope.cpp; path = ../../src/client/CNinjaRope.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C020BEFCEB400C6547E /* CScrollbar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CScrollbar.cpp; path = ../../src/client/CScrollbar.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C030BEFCEB400C6547E /* CSlider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CSlider.cpp; path = ../../src/client/CSlider.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C040BEFCEB400C6547E /* CTextbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CTextbox.cpp; path = ../../src/client/CTextbox.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C050BEFCEB400C6547E /* CTitleButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CTitleButton.cpp; path = ../../src/client/CTitleButton.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C060BEFCEB400C6547E /* CViewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CViewport.cpp; path = ../../src/client/CViewport.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C070BEFCEB400C6547E /* CWeather.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWeather.cpp; path = ../../src/client/CWeather.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C080BEFCEB400C6547E /* CWidget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWidget.cpp; path = ../../src/client/CWidget.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C090BEFCEB400C6547E /* CWidgetList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWidgetList.cpp; path = ../../src/client/CWidgetList.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C0A0BEFCEB400C6547E /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Entity.cpp; path = ../../src/client/Entity.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C0B0BEFCEB400C6547E /* Error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Error.cpp; path = ../../src/client/Error.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GfxPrimitives.cpp; path = ../../src/client/GfxPrimitives.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C0D0BEFCEB400C6547E /* Graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Graphics.cpp; path = ../../src/client/Graphics.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C0E0BEFCEB400C6547E /* InputEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputEvents.cpp; path = ../../src/client/InputEvents.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C0F0BEFCEB400C6547E /* Menu_Local.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Local.cpp; path = ../../src/client/Menu_Local.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C100BEFCEB400C6547E /* Menu_Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Main.cpp; path = ../../src/client/Menu_Main.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C110BEFCEB400C6547E /* Menu_Mapeditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Mapeditor.cpp; path = ../../src/client/Menu_Mapeditor.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C120BEFCEB400C6547E /* Menu_Net.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Net.cpp; path = ../../src/client/Menu_Net.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C130BEFCEB400C6547E /* Menu_Net_Favourites.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Net_Favourites.cpp; path = ../../src/client/Menu_Net_Favourites.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C140BEFCEB400C6547E /* Menu_Net_Host.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Net_Host.cpp; path = ../../src/client/Menu_Net_Host.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C150BEFCEB400C6547E /* Menu_Net_Internet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Net_Internet.cpp; path = ../../src/client/Menu_Net_Internet.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C160BEFCEB400C6547E /* Menu_Net_Join.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Net_Join.cpp; path = ../../src/client/Menu_Net_Join.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C170BEFCEB400C6547E /* Menu_Net_Lan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Net_Lan.cpp; path = ../../src/client/Menu_Net_Lan.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C180BEFCEB400C6547E /* Menu_Net_Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Net_Main.cpp; path = ../../src/client/Menu_Net_Main.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C190BEFCEB400C6547E /* Menu_Net_News.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Net_News.cpp; path = ../../src/client/Menu_Net_News.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C1A0BEFCEB400C6547E /* Menu_Options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Options.cpp; path = ../../src/client/Menu_Options.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C1B0BEFCEB400C6547E /* Menu_Player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Menu_Player.cpp; path = ../../src/client/Menu_Player.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C1C0BEFCEB400C6547E /* MenuSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MenuSystem.cpp; path = ../../src/client/MenuSystem.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C1D0BEFCEB400C6547E /* Options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Options.cpp; path = ../../src/client/Options.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProfileSystem.cpp; path = ../../src/client/ProfileSystem.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C1F0BEFCEB400C6547E /* Sounds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sounds.cpp; path = ../../src/client/Sounds.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C210BEFCEB400C6547E /* CBonus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBonus.cpp; path = ../../src/common/CBonus.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C220BEFCEB400C6547E /* CBytestream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBytestream.cpp; path = ../../src/common/CBytestream.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C230BEFCEB400C6547E /* CChannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CChannel.cpp; path = ../../src/common/CChannel.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C240BEFCEB400C6547E /* CClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CClient.cpp; path = ../../src/common/CClient.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C250BEFCEB400C6547E /* CGameScript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CGameScript.cpp; path = ../../src/common/CGameScript.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C260BEFCEB400C6547E /* CMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CMap.cpp; path = ../../src/common/CMap.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C270BEFCEB400C6547E /* CMediaPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CMediaPlayer.cpp; path = ../../src/common/CMediaPlayer.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C280BEFCEB400C6547E /* CMediaPlayer_GUI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CMediaPlayer_GUI.cpp; path = ../../src/common/CMediaPlayer_GUI.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C290BEFCEB400C6547E /* Command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Command.cpp; path = ../../src/common/Command.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C2A0BEFCEB400C6547E /* ConfigHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigHandler.cpp; path = ../../src/common/ConfigHandler.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C2B0BEFCEB400C6547E /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Console.cpp; path = ../../src/common/Console.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C2C0BEFCEB400C6547E /* CProjectile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CProjectile.cpp; path = ../../src/common/CProjectile.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C2D0BEFCEB400C6547E /* CShootList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CShootList.cpp; path = ../../src/common/CShootList.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C2E0BEFCEB400C6547E /* CSimulation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CSimulation.cpp; path = ../../src/common/CSimulation.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C2F0BEFCEB400C6547E /* CssParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CssParser.cpp; path = ../../src/common/CssParser.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C300BEFCEB400C6547E /* CWorm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWorm.cpp; path = ../../src/common/CWorm.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C310BEFCEB400C6547E /* CWorm_AI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWorm_AI.cpp; path = ../../src/common/CWorm_AI.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C320BEFCEB400C6547E /* CWorm_SendRecv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWorm_SendRecv.cpp; path = ../../src/common/CWorm_SendRecv.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C330BEFCEB400C6547E /* CWorm_Simulate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWorm_Simulate.cpp; path = ../../src/common/CWorm_Simulate.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C340BEFCEB400C6547E /* CWpnRest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWpnRest.cpp; path = ../../src/common/CWpnRest.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C350BEFCEB400C6547E /* FindFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FindFile.cpp; path = ../../src/common/FindFile.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C360BEFCEB400C6547E /* MathLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MathLib.cpp; path = ../../src/common/MathLib.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C370BEFCEB400C6547E /* Misc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Misc.cpp; path = ../../src/common/Misc.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C380BEFCEB400C6547E /* Networking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Networking.cpp; path = ../../src/common/Networking.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C390BEFCEB400C6547E /* sex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sex.cpp; path = ../../src/common/sex.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C3A0BEFCEB400C6547E /* StringUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StringUtils.cpp; path = ../../src/common/StringUtils.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C3B0BEFCEB400C6547E /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timer.cpp; path = ../../src/common/Timer.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C3C0BEFCEB400C6547E /* Unicode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Unicode.cpp; path = ../../src/common/Unicode.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C3D0BEFCEB400C6547E /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../src/main.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C3F0BEFCEB400C6547E /* CBanList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBanList.cpp; path = ../../src/server/CBanList.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C400BEFCEB400C6547E /* CServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CServer.cpp; path = ../../src/server/CServer.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C410BEFCEB400C6547E /* CServer_Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CServer_Game.cpp; path = ../../src/server/CServer_Game.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C420BEFCEB400C6547E /* CServer_Parse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CServer_Parse.cpp; path = ../../src/server/CServer_Parse.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C430BEFCEB400C6547E /* CServer_Send.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CServer_Send.cpp; path = ../../src/server/CServer_Send.cpp; sourceTree = SOURCE_ROOT; };
+		EA430C450BEFCEDE00C6547E /* AuxLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuxLib.h; path = ../../include/AuxLib.h; sourceTree = SOURCE_ROOT; };
+		EA430C460BEFCEDE00C6547E /* Cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Cache.h; path = ../../include/Cache.h; sourceTree = SOURCE_ROOT; };
+		EA430C470BEFCEDE00C6547E /* CBanList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CBanList.h; path = ../../include/CBanList.h; sourceTree = SOURCE_ROOT; };
+		EA430C480BEFCEDE00C6547E /* CBonus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CBonus.h; path = ../../include/CBonus.h; sourceTree = SOURCE_ROOT; };
+		EA430C490BEFCEDE00C6547E /* CBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CBox.h; path = ../../include/CBox.h; sourceTree = SOURCE_ROOT; };
+		EA430C4A0BEFCEDE00C6547E /* CBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CBrowser.h; path = ../../include/CBrowser.h; sourceTree = SOURCE_ROOT; };
+		EA430C4B0BEFCEDE00C6547E /* CButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CButton.h; path = ../../include/CButton.h; sourceTree = SOURCE_ROOT; };
+		EA430C4C0BEFCEDE00C6547E /* CBytestream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CBytestream.h; path = ../../include/CBytestream.h; sourceTree = SOURCE_ROOT; };
+		EA430C4D0BEFCEDE00C6547E /* CChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CChannel.h; path = ../../include/CChannel.h; sourceTree = SOURCE_ROOT; };
+		EA430C4E0BEFCEDE00C6547E /* CChatBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CChatBox.h; path = ../../include/CChatBox.h; sourceTree = SOURCE_ROOT; };
+		EA430C4F0BEFCEDE00C6547E /* CCheckbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCheckbox.h; path = ../../include/CCheckbox.h; sourceTree = SOURCE_ROOT; };
+		EA430C500BEFCEDE00C6547E /* CClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CClient.h; path = ../../include/CClient.h; sourceTree = SOURCE_ROOT; };
+		EA430C510BEFCEDE00C6547E /* CCombobox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCombobox.h; path = ../../include/CCombobox.h; sourceTree = SOURCE_ROOT; };
+		EA430C520BEFCEDE00C6547E /* CFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CFont.h; path = ../../include/CFont.h; sourceTree = SOURCE_ROOT; };
+		EA430C530BEFCEDE00C6547E /* CGameScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CGameScript.h; path = ../../include/CGameScript.h; sourceTree = SOURCE_ROOT; };
+		EA430C540BEFCEDE00C6547E /* CGuiLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CGuiLayout.h; path = ../../include/CGuiLayout.h; sourceTree = SOURCE_ROOT; };
+		EA430C550BEFCEDE00C6547E /* CImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CImage.h; path = ../../include/CImage.h; sourceTree = SOURCE_ROOT; };
+		EA430C560BEFCEDE00C6547E /* CInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CInput.h; path = ../../include/CInput.h; sourceTree = SOURCE_ROOT; };
+		EA430C570BEFCEDE00C6547E /* CInputBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CInputBox.h; path = ../../include/CInputBox.h; sourceTree = SOURCE_ROOT; };
+		EA430C580BEFCEDE00C6547E /* CLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLabel.h; path = ../../include/CLabel.h; sourceTree = SOURCE_ROOT; };
+		EA430C590BEFCEDE00C6547E /* CLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLine.h; path = ../../include/CLine.h; sourceTree = SOURCE_ROOT; };
+		EA430C5A0BEFCEDE00C6547E /* CListview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CListview.h; path = ../../include/CListview.h; sourceTree = SOURCE_ROOT; };
+		EA430C5B0BEFCEDE00C6547E /* CMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMap.h; path = ../../include/CMap.h; sourceTree = SOURCE_ROOT; };
+		EA430C5C0BEFCEDE00C6547E /* CMediaPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMediaPlayer.h; path = ../../include/CMediaPlayer.h; sourceTree = SOURCE_ROOT; };
+		EA430C5D0BEFCEDE00C6547E /* CMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMenu.h; path = ../../include/CMenu.h; sourceTree = SOURCE_ROOT; };
+		EA430C5E0BEFCEDE00C6547E /* CNinjaRope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CNinjaRope.h; path = ../../include/CNinjaRope.h; sourceTree = SOURCE_ROOT; };
+		EA430C5F0BEFCEDE00C6547E /* Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Command.h; path = ../../include/Command.h; sourceTree = SOURCE_ROOT; };
+		EA430C600BEFCEDE00C6547E /* con_cmd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = con_cmd.h; path = ../../include/con_cmd.h; sourceTree = SOURCE_ROOT; };
+		EA430C610BEFCEDE00C6547E /* ConfigHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigHandler.h; path = ../../include/ConfigHandler.h; sourceTree = SOURCE_ROOT; };
+		EA430C620BEFCEDE00C6547E /* console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = console.h; path = ../../include/console.h; sourceTree = SOURCE_ROOT; };
+		EA430C630BEFCEDE00C6547E /* CProjectile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CProjectile.h; path = ../../include/CProjectile.h; sourceTree = SOURCE_ROOT; };
+		EA430C640BEFCEDE00C6547E /* CScrollbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CScrollbar.h; path = ../../include/CScrollbar.h; sourceTree = SOURCE_ROOT; };
+		EA430C650BEFCEDE00C6547E /* CServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CServer.h; path = ../../include/CServer.h; sourceTree = SOURCE_ROOT; };
+		EA430C660BEFCEDE00C6547E /* CShootList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CShootList.h; path = ../../include/CShootList.h; sourceTree = SOURCE_ROOT; };
+		EA430C670BEFCEDE00C6547E /* CSimulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CSimulation.h; path = ../../include/CSimulation.h; sourceTree = SOURCE_ROOT; };
+		EA430C680BEFCEDE00C6547E /* CSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CSlider.h; path = ../../include/CSlider.h; sourceTree = SOURCE_ROOT; };
+		EA430C690BEFCEDE00C6547E /* CssParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CssParser.h; path = ../../include/CssParser.h; sourceTree = SOURCE_ROOT; };
+		EA430C6A0BEFCEDE00C6547E /* CTextbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CTextbox.h; path = ../../include/CTextbox.h; sourceTree = SOURCE_ROOT; };
+		EA430C6B0BEFCEDE00C6547E /* CTitleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CTitleButton.h; path = ../../include/CTitleButton.h; sourceTree = SOURCE_ROOT; };
+		EA430C6C0BEFCEDE00C6547E /* CVec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CVec.h; path = ../../include/CVec.h; sourceTree = SOURCE_ROOT; };
+		EA430C6D0BEFCEDE00C6547E /* CViewport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CViewport.h; path = ../../include/CViewport.h; sourceTree = SOURCE_ROOT; };
+		EA430C6E0BEFCEDE00C6547E /* CWeather.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CWeather.h; path = ../../include/CWeather.h; sourceTree = SOURCE_ROOT; };
+		EA430C6F0BEFCEDE00C6547E /* CWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CWidget.h; path = ../../include/CWidget.h; sourceTree = SOURCE_ROOT; };
+		EA430C700BEFCEDE00C6547E /* CWidgetList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CWidgetList.h; path = ../../include/CWidgetList.h; sourceTree = SOURCE_ROOT; };
+		EA430C710BEFCEDE00C6547E /* CWorm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CWorm.h; path = ../../include/CWorm.h; sourceTree = SOURCE_ROOT; };
+		EA430C720BEFCEDE00C6547E /* CWpnRest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CWpnRest.h; path = ../../include/CWpnRest.h; sourceTree = SOURCE_ROOT; };
+		EA430C730BEFCEDE00C6547E /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = defs.h; path = ../../include/defs.h; sourceTree = SOURCE_ROOT; };
+		EA430C740BEFCEDE00C6547E /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Entity.h; path = ../../include/Entity.h; sourceTree = SOURCE_ROOT; };
+		EA430C750BEFCEDE00C6547E /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../../include/Error.h; sourceTree = SOURCE_ROOT; };
+		EA430C760BEFCEDE00C6547E /* FindFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FindFile.h; path = ../../include/FindFile.h; sourceTree = SOURCE_ROOT; };
+		EA430C770BEFCEDE00C6547E /* Frame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Frame.h; path = ../../include/Frame.h; sourceTree = SOURCE_ROOT; };
+		EA430C780BEFCEDE00C6547E /* GfxPrimitives.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GfxPrimitives.h; path = ../../include/GfxPrimitives.h; sourceTree = SOURCE_ROOT; };
+		EA430C790BEFCEDE00C6547E /* Graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Graphics.h; path = ../../include/Graphics.h; sourceTree = SOURCE_ROOT; };
+		EA430C7A0BEFCEDE00C6547E /* InputEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputEvents.h; path = ../../include/InputEvents.h; sourceTree = SOURCE_ROOT; };
+		EA430C7B0BEFCEDE00C6547E /* LieroX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LieroX.h; path = ../../include/LieroX.h; sourceTree = SOURCE_ROOT; };
+		EA430C7C0BEFCEDE00C6547E /* MathLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MathLib.h; path = ../../include/MathLib.h; sourceTree = SOURCE_ROOT; };
+		EA430C7D0BEFCEDE00C6547E /* Menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Menu.h; path = ../../include/Menu.h; sourceTree = SOURCE_ROOT; };
+		EA430C7E0BEFCEDE00C6547E /* Networking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Networking.h; path = ../../include/Networking.h; sourceTree = SOURCE_ROOT; };
+		EA430C7F0BEFCEDE00C6547E /* Options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Options.h; path = ../../include/Options.h; sourceTree = SOURCE_ROOT; };
+		EA430C800BEFCEDE00C6547E /* ProfileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfileSystem.h; path = ../../include/ProfileSystem.h; sourceTree = SOURCE_ROOT; };
+		EA430C810BEFCEDE00C6547E /* Protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Protocol.h; path = ../../include/Protocol.h; sourceTree = SOURCE_ROOT; };
+		EA430C820BEFCEDE00C6547E /* RandomNumberList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RandomNumberList.h; path = ../../include/RandomNumberList.h; sourceTree = SOURCE_ROOT; };
+		EA430C830BEFCEDE00C6547E /* ReadWriteLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReadWriteLock.h; path = ../../include/ReadWriteLock.h; sourceTree = SOURCE_ROOT; };
+		EA430C840BEFCEDE00C6547E /* sex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sex.h; path = ../../include/sex.h; sourceTree = SOURCE_ROOT; };
+		EA430C850BEFCEDE00C6547E /* Sounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sounds.h; path = ../../include/Sounds.h; sourceTree = SOURCE_ROOT; };
+		EA430C860BEFCEDE00C6547E /* StringUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringUtils.h; path = ../../include/StringUtils.h; sourceTree = SOURCE_ROOT; };
+		EA430C870BEFCEDE00C6547E /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = ../../include/Timer.h; sourceTree = SOURCE_ROOT; };
+		EA430C880BEFCEDE00C6547E /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = types.h; path = ../../include/types.h; sourceTree = SOURCE_ROOT; };
+		EA430C890BEFCEDE00C6547E /* UCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UCString.h; path = ../../include/UCString.h; sourceTree = SOURCE_ROOT; };
+		EA430C8A0BEFCEDE00C6547E /* Unicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Unicode.h; path = ../../include/Unicode.h; sourceTree = SOURCE_ROOT; };
+		EA430C8B0BEFCEDE00C6547E /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = ../../include/Utils.h; sourceTree = SOURCE_ROOT; };
+		EA430C8F0BEFCF7F00C6547E /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = ../../CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		EA430C900BEFCF7F00C6547E /* compile.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = compile.sh; path = ../../compile.sh; sourceTree = SOURCE_ROOT; };
+		EA430C910BEFCF7F00C6547E /* install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = install.sh; path = ../../install.sh; sourceTree = SOURCE_ROOT; };
+		EA430C920BEFCF7F00C6547E /* start.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = start.sh; path = ../../start.sh; sourceTree = SOURCE_ROOT; };
+		EA430C930BEFCFA600C6547E /* DEPS */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = DEPS; path = ../../DEPS; sourceTree = SOURCE_ROOT; };
+		EA430C950BEFCFA600C6547E /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ChangeLog; path = ../../doc/ChangeLog; sourceTree = SOURCE_ROOT; };
+		EA430CA40BEFCFA600C6547E /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README; path = ../../doc/README; sourceTree = SOURCE_ROOT; };
+		EA430CA50BEFCFA600C6547E /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = TODO; path = ../../doc/TODO; sourceTree = SOURCE_ROOT; };
+		EA430CA70BEFCFD300C6547E /* create_archives.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = create_archives.sh; path = ../../distrib/create_archives.sh; sourceTree = SOURCE_ROOT; };
+		EA430CA80BEFCFD300C6547E /* create_snapshot.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = create_snapshot.sh; path = ../../distrib/create_snapshot.sh; sourceTree = SOURCE_ROOT; };
+		EA430CA90BEFCFD300C6547E /* distrib_files.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = distrib_files.sh; path = ../../distrib/distrib_files.sh; sourceTree = SOURCE_ROOT; };
+		EA430CAA0BEFCFD300C6547E /* receive_files.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = receive_files.sh; path = ../../distrib/receive_files.sh; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
 /* Begin PBXGroup section */
 		08FB7794FE84155DC02AAC07 /* OpenLieroX */ = {
 			isa = PBXGroup;
 			children = (
+				EA430C8E0BEFCF5B00C6547E /* Scripts */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -20,6 +191,8 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				EA430C440BEFCEDE00C6547E /* include */,
+				EA430BEC0BEFCEB400C6547E /* src */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -34,8 +207,242 @@
 		C6859E8C029090F304C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
+				EA430C930BEFCFA600C6547E /* DEPS */,
+				EA430C940BEFCFA600C6547E /* doc */,
 			);
 			name = Documentation;
+			sourceTree = "<group>";
+		};
+		EA430BEC0BEFCEB400C6547E /* src */ = {
+			isa = PBXGroup;
+			children = (
+				EA430BED0BEFCEB400C6547E /* client */,
+				EA430C200BEFCEB400C6547E /* common */,
+				EA430C3D0BEFCEB400C6547E /* main.cpp */,
+				EA430C3E0BEFCEB400C6547E /* server */,
+			);
+			name = src;
+			path = ../../src;
+			sourceTree = SOURCE_ROOT;
+		};
+		EA430BED0BEFCEB400C6547E /* client */ = {
+			isa = PBXGroup;
+			children = (
+				EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */,
+				EA430BEF0BEFCEB400C6547E /* Cache.cpp */,
+				EA430BF00BEFCEB400C6547E /* CBox.cpp */,
+				EA430BF10BEFCEB400C6547E /* CBrowser.cpp */,
+				EA430BF20BEFCEB400C6547E /* CButton.cpp */,
+				EA430BF30BEFCEB400C6547E /* CChatBox.cpp */,
+				EA430BF40BEFCEB400C6547E /* CCheckbox.cpp */,
+				EA430BF50BEFCEB400C6547E /* CClient_Draw.cpp */,
+				EA430BF60BEFCEB400C6547E /* CClient_Game.cpp */,
+				EA430BF70BEFCEB400C6547E /* CClient_Parse.cpp */,
+				EA430BF80BEFCEB400C6547E /* CClient_Send.cpp */,
+				EA430BF90BEFCEB400C6547E /* CCombobox.cpp */,
+				EA430BFA0BEFCEB400C6547E /* CFont.cpp */,
+				EA430BFB0BEFCEB400C6547E /* CGuiLayout.cpp */,
+				EA430BFC0BEFCEB400C6547E /* CImage.cpp */,
+				EA430BFD0BEFCEB400C6547E /* CInput.cpp */,
+				EA430BFE0BEFCEB400C6547E /* CInputBox.cpp */,
+				EA430BFF0BEFCEB400C6547E /* CListview.cpp */,
+				EA430C000BEFCEB400C6547E /* CMenu.cpp */,
+				EA430C010BEFCEB400C6547E /* CNinjaRope.cpp */,
+				EA430C020BEFCEB400C6547E /* CScrollbar.cpp */,
+				EA430C030BEFCEB400C6547E /* CSlider.cpp */,
+				EA430C040BEFCEB400C6547E /* CTextbox.cpp */,
+				EA430C050BEFCEB400C6547E /* CTitleButton.cpp */,
+				EA430C060BEFCEB400C6547E /* CViewport.cpp */,
+				EA430C070BEFCEB400C6547E /* CWeather.cpp */,
+				EA430C080BEFCEB400C6547E /* CWidget.cpp */,
+				EA430C090BEFCEB400C6547E /* CWidgetList.cpp */,
+				EA430C0A0BEFCEB400C6547E /* Entity.cpp */,
+				EA430C0B0BEFCEB400C6547E /* Error.cpp */,
+				EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */,
+				EA430C0D0BEFCEB400C6547E /* Graphics.cpp */,
+				EA430C0E0BEFCEB400C6547E /* InputEvents.cpp */,
+				EA430C0F0BEFCEB400C6547E /* Menu_Local.cpp */,
+				EA430C100BEFCEB400C6547E /* Menu_Main.cpp */,
+				EA430C110BEFCEB400C6547E /* Menu_Mapeditor.cpp */,
+				EA430C120BEFCEB400C6547E /* Menu_Net.cpp */,
+				EA430C130BEFCEB400C6547E /* Menu_Net_Favourites.cpp */,
+				EA430C140BEFCEB400C6547E /* Menu_Net_Host.cpp */,
+				EA430C150BEFCEB400C6547E /* Menu_Net_Internet.cpp */,
+				EA430C160BEFCEB400C6547E /* Menu_Net_Join.cpp */,
+				EA430C170BEFCEB400C6547E /* Menu_Net_Lan.cpp */,
+				EA430C180BEFCEB400C6547E /* Menu_Net_Main.cpp */,
+				EA430C190BEFCEB400C6547E /* Menu_Net_News.cpp */,
+				EA430C1A0BEFCEB400C6547E /* Menu_Options.cpp */,
+				EA430C1B0BEFCEB400C6547E /* Menu_Player.cpp */,
+				EA430C1C0BEFCEB400C6547E /* MenuSystem.cpp */,
+				EA430C1D0BEFCEB400C6547E /* Options.cpp */,
+				EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */,
+				EA430C1F0BEFCEB400C6547E /* Sounds.cpp */,
+			);
+			name = client;
+			path = ../../src/client;
+			sourceTree = SOURCE_ROOT;
+		};
+		EA430C200BEFCEB400C6547E /* common */ = {
+			isa = PBXGroup;
+			children = (
+				EA430C210BEFCEB400C6547E /* CBonus.cpp */,
+				EA430C220BEFCEB400C6547E /* CBytestream.cpp */,
+				EA430C230BEFCEB400C6547E /* CChannel.cpp */,
+				EA430C240BEFCEB400C6547E /* CClient.cpp */,
+				EA430C250BEFCEB400C6547E /* CGameScript.cpp */,
+				EA430C260BEFCEB400C6547E /* CMap.cpp */,
+				EA430C270BEFCEB400C6547E /* CMediaPlayer.cpp */,
+				EA430C280BEFCEB400C6547E /* CMediaPlayer_GUI.cpp */,
+				EA430C290BEFCEB400C6547E /* Command.cpp */,
+				EA430C2A0BEFCEB400C6547E /* ConfigHandler.cpp */,
+				EA430C2B0BEFCEB400C6547E /* Console.cpp */,
+				EA430C2C0BEFCEB400C6547E /* CProjectile.cpp */,
+				EA430C2D0BEFCEB400C6547E /* CShootList.cpp */,
+				EA430C2E0BEFCEB400C6547E /* CSimulation.cpp */,
+				EA430C2F0BEFCEB400C6547E /* CssParser.cpp */,
+				EA430C300BEFCEB400C6547E /* CWorm.cpp */,
+				EA430C310BEFCEB400C6547E /* CWorm_AI.cpp */,
+				EA430C320BEFCEB400C6547E /* CWorm_SendRecv.cpp */,
+				EA430C330BEFCEB400C6547E /* CWorm_Simulate.cpp */,
+				EA430C340BEFCEB400C6547E /* CWpnRest.cpp */,
+				EA430C350BEFCEB400C6547E /* FindFile.cpp */,
+				EA430C360BEFCEB400C6547E /* MathLib.cpp */,
+				EA430C370BEFCEB400C6547E /* Misc.cpp */,
+				EA430C380BEFCEB400C6547E /* Networking.cpp */,
+				EA430C390BEFCEB400C6547E /* sex.cpp */,
+				EA430C3A0BEFCEB400C6547E /* StringUtils.cpp */,
+				EA430C3B0BEFCEB400C6547E /* Timer.cpp */,
+				EA430C3C0BEFCEB400C6547E /* Unicode.cpp */,
+			);
+			name = common;
+			path = ../../src/common;
+			sourceTree = SOURCE_ROOT;
+		};
+		EA430C3E0BEFCEB400C6547E /* server */ = {
+			isa = PBXGroup;
+			children = (
+				EA430C3F0BEFCEB400C6547E /* CBanList.cpp */,
+				EA430C400BEFCEB400C6547E /* CServer.cpp */,
+				EA430C410BEFCEB400C6547E /* CServer_Game.cpp */,
+				EA430C420BEFCEB400C6547E /* CServer_Parse.cpp */,
+				EA430C430BEFCEB400C6547E /* CServer_Send.cpp */,
+			);
+			name = server;
+			path = ../../src/server;
+			sourceTree = SOURCE_ROOT;
+		};
+		EA430C440BEFCEDE00C6547E /* include */ = {
+			isa = PBXGroup;
+			children = (
+				EA430C450BEFCEDE00C6547E /* AuxLib.h */,
+				EA430C460BEFCEDE00C6547E /* Cache.h */,
+				EA430C470BEFCEDE00C6547E /* CBanList.h */,
+				EA430C480BEFCEDE00C6547E /* CBonus.h */,
+				EA430C490BEFCEDE00C6547E /* CBox.h */,
+				EA430C4A0BEFCEDE00C6547E /* CBrowser.h */,
+				EA430C4B0BEFCEDE00C6547E /* CButton.h */,
+				EA430C4C0BEFCEDE00C6547E /* CBytestream.h */,
+				EA430C4D0BEFCEDE00C6547E /* CChannel.h */,
+				EA430C4E0BEFCEDE00C6547E /* CChatBox.h */,
+				EA430C4F0BEFCEDE00C6547E /* CCheckbox.h */,
+				EA430C500BEFCEDE00C6547E /* CClient.h */,
+				EA430C510BEFCEDE00C6547E /* CCombobox.h */,
+				EA430C520BEFCEDE00C6547E /* CFont.h */,
+				EA430C530BEFCEDE00C6547E /* CGameScript.h */,
+				EA430C540BEFCEDE00C6547E /* CGuiLayout.h */,
+				EA430C550BEFCEDE00C6547E /* CImage.h */,
+				EA430C560BEFCEDE00C6547E /* CInput.h */,
+				EA430C570BEFCEDE00C6547E /* CInputBox.h */,
+				EA430C580BEFCEDE00C6547E /* CLabel.h */,
+				EA430C590BEFCEDE00C6547E /* CLine.h */,
+				EA430C5A0BEFCEDE00C6547E /* CListview.h */,
+				EA430C5B0BEFCEDE00C6547E /* CMap.h */,
+				EA430C5C0BEFCEDE00C6547E /* CMediaPlayer.h */,
+				EA430C5D0BEFCEDE00C6547E /* CMenu.h */,
+				EA430C5E0BEFCEDE00C6547E /* CNinjaRope.h */,
+				EA430C5F0BEFCEDE00C6547E /* Command.h */,
+				EA430C600BEFCEDE00C6547E /* con_cmd.h */,
+				EA430C610BEFCEDE00C6547E /* ConfigHandler.h */,
+				EA430C620BEFCEDE00C6547E /* console.h */,
+				EA430C630BEFCEDE00C6547E /* CProjectile.h */,
+				EA430C640BEFCEDE00C6547E /* CScrollbar.h */,
+				EA430C650BEFCEDE00C6547E /* CServer.h */,
+				EA430C660BEFCEDE00C6547E /* CShootList.h */,
+				EA430C670BEFCEDE00C6547E /* CSimulation.h */,
+				EA430C680BEFCEDE00C6547E /* CSlider.h */,
+				EA430C690BEFCEDE00C6547E /* CssParser.h */,
+				EA430C6A0BEFCEDE00C6547E /* CTextbox.h */,
+				EA430C6B0BEFCEDE00C6547E /* CTitleButton.h */,
+				EA430C6C0BEFCEDE00C6547E /* CVec.h */,
+				EA430C6D0BEFCEDE00C6547E /* CViewport.h */,
+				EA430C6E0BEFCEDE00C6547E /* CWeather.h */,
+				EA430C6F0BEFCEDE00C6547E /* CWidget.h */,
+				EA430C700BEFCEDE00C6547E /* CWidgetList.h */,
+				EA430C710BEFCEDE00C6547E /* CWorm.h */,
+				EA430C720BEFCEDE00C6547E /* CWpnRest.h */,
+				EA430C730BEFCEDE00C6547E /* defs.h */,
+				EA430C740BEFCEDE00C6547E /* Entity.h */,
+				EA430C750BEFCEDE00C6547E /* Error.h */,
+				EA430C760BEFCEDE00C6547E /* FindFile.h */,
+				EA430C770BEFCEDE00C6547E /* Frame.h */,
+				EA430C780BEFCEDE00C6547E /* GfxPrimitives.h */,
+				EA430C790BEFCEDE00C6547E /* Graphics.h */,
+				EA430C7A0BEFCEDE00C6547E /* InputEvents.h */,
+				EA430C7B0BEFCEDE00C6547E /* LieroX.h */,
+				EA430C7C0BEFCEDE00C6547E /* MathLib.h */,
+				EA430C7D0BEFCEDE00C6547E /* Menu.h */,
+				EA430C7E0BEFCEDE00C6547E /* Networking.h */,
+				EA430C7F0BEFCEDE00C6547E /* Options.h */,
+				EA430C800BEFCEDE00C6547E /* ProfileSystem.h */,
+				EA430C810BEFCEDE00C6547E /* Protocol.h */,
+				EA430C820BEFCEDE00C6547E /* RandomNumberList.h */,
+				EA430C830BEFCEDE00C6547E /* ReadWriteLock.h */,
+				EA430C840BEFCEDE00C6547E /* sex.h */,
+				EA430C850BEFCEDE00C6547E /* Sounds.h */,
+				EA430C860BEFCEDE00C6547E /* StringUtils.h */,
+				EA430C870BEFCEDE00C6547E /* Timer.h */,
+				EA430C880BEFCEDE00C6547E /* types.h */,
+				EA430C890BEFCEDE00C6547E /* UCString.h */,
+				EA430C8A0BEFCEDE00C6547E /* Unicode.h */,
+				EA430C8B0BEFCEDE00C6547E /* Utils.h */,
+			);
+			name = include;
+			path = ../../include;
+			sourceTree = SOURCE_ROOT;
+		};
+		EA430C8E0BEFCF5B00C6547E /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				EA430CA60BEFCFBE00C6547E /* distrib */,
+				EA430C8F0BEFCF7F00C6547E /* CMakeLists.txt */,
+				EA430C900BEFCF7F00C6547E /* compile.sh */,
+				EA430C910BEFCF7F00C6547E /* install.sh */,
+				EA430C920BEFCF7F00C6547E /* start.sh */,
+			);
+			name = Scripts;
+			sourceTree = "<group>";
+		};
+		EA430C940BEFCFA600C6547E /* doc */ = {
+			isa = PBXGroup;
+			children = (
+				EA430C950BEFCFA600C6547E /* ChangeLog */,
+				EA430CA40BEFCFA600C6547E /* README */,
+				EA430CA50BEFCFA600C6547E /* TODO */,
+			);
+			name = doc;
+			path = ../../doc;
+			sourceTree = SOURCE_ROOT;
+		};
+		EA430CA60BEFCFBE00C6547E /* distrib */ = {
+			isa = PBXGroup;
+			children = (
+				EA430CA70BEFCFD300C6547E /* create_archives.sh */,
+				EA430CA80BEFCFD300C6547E /* create_snapshot.sh */,
+				EA430CA90BEFCFD300C6547E /* distrib_files.sh */,
+				EA430CAA0BEFCFD300C6547E /* receive_files.sh */,
+			);
+			name = distrib;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
