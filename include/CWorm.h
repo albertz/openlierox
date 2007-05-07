@@ -168,9 +168,9 @@ private:
 	int			iType;
 	int			iLocal;
 	int			iTeam;
-	UCString	sName;
+	std::string	sName;
 	Uint8		iColComps[3];
-    UCString szSkin;
+    std::string szSkin;
 	uint		iColour;
 	int			iRanking;
 	int			iKillsInRow;
@@ -371,7 +371,7 @@ public:
 	//
 	int			LoadGraphics(int gametype);
 	void		FreeGraphics(void);
-	SDL_Surface	*ChangeGraphics(const UCString& filename, int team);
+	SDL_Surface	*ChangeGraphics(const std::string& filename, int team);
 	void		Draw(SDL_Surface *bmpDest, CViewport *v);
     void        DrawShadow(SDL_Surface *bmpDest, CViewport *v);
 
@@ -478,8 +478,8 @@ public:
 	inline bool		isUsed(void)				{ return bUsed; }
 	inline void		setUsed(bool _u)			{ bUsed = _u; }
 
-	inline UCString getName(void)			{ return sName; }
-	inline void		setName(const UCString& val) { sName = val; }
+	inline std::string getName(void)			{ return sName; }
+	inline void		setName(const std::string& val) { sName = val; }
 	inline uint		getColour(void)				{ return iColour; }
 	inline void		setColour(uint c)			{ iColour = c; }
 
@@ -564,7 +564,7 @@ public:
 	inline void		setTagTime(float _t)		{ fTagTime = _t; }
 	inline void		incrementTagTime(float dt)	{ fTagTime+=dt; }
 
-	inline UCString getSkin(void)				{ return szSkin; }
+	inline std::string getSkin(void)				{ return szSkin; }
 
 	inline void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
 	inline int		getKillsInRow(void)			{ return iKillsInRow; }

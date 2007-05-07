@@ -80,8 +80,8 @@ public:
 
 				return 0;
 			}
-	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
-	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 		
 
 	// Draw the title button

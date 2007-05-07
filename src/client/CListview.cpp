@@ -165,7 +165,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Add a column to the list view
-void CListview::AddColumn(const UCString& sText, int iWidth)
+void CListview::AddColumn(const std::string& sText, int iWidth)
 {
 	lv_column_t *col;
 
@@ -235,7 +235,7 @@ void CListview::AddColumn(const UCString& sText, int iWidth)
 
 ///////////////////
 // Add an item to the list view
-void CListview::AddItem(const UCString& sIndex, int iIndex, int iColour)
+void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 {
 	lv_item_t *item = new lv_item_t;
 
@@ -287,7 +287,7 @@ void CListview::AddItem(const UCString& sIndex, int iIndex, int iColour)
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, const UCString& sText, SDL_Surface *img)
+void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img)
 {
 	lv_subitem_t *sub = new lv_subitem_t;
 
@@ -1206,7 +1206,7 @@ lv_subitem_t *CListview::getCurSubitem(int index)
 // This widget is send a message
 DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
-	UCString s = "";
+	std::string s = "";
 
 	switch(iMsg) {
 
@@ -1266,7 +1266,7 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 	return 0;
 }
 
-DWORD CListview::SendMessage(int iMsg, const UCString& sStr, DWORD Param)
+DWORD CListview::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 {
 	switch (iMsg)  {
 
@@ -1296,7 +1296,7 @@ DWORD CListview::SendMessage(int iMsg, const UCString& sStr, DWORD Param)
 }
 
 
-DWORD CListview::SendMessage(int iMsg, UCString *sStr, DWORD Param)
+DWORD CListview::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 {
 	switch (iMsg)  {
 
@@ -1319,7 +1319,7 @@ lv_item_t* CListview::getItem(int index) {
 	return NULL;
 }
 
-lv_item_t* CListview::getItem(const UCString& name) {
+lv_item_t* CListview::getItem(const std::string& name) {
 	for(lv_item_t* i = tItems; i; i = i->tNext) {
 		if(stringcasecmp(i->sIndex,name) == 0)
 			return i;

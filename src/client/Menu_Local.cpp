@@ -471,8 +471,8 @@ void Menu_LocalShowMinimap(bool bReload)
 {
 	// TODO: optimize or recode this!
 	CMap map;
-	static UCString buf;
-	static UCString blah;
+	static std::string buf;
+	static std::string blah;
 
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
@@ -773,10 +773,10 @@ int Menu_LocalGetTeam(int count)
 		int* baseid;
 		int i;
 		addMod(CCombobox* cb_, int* id_) : combobox(cb_), baseid(id_), i(0) {}
-		inline bool operator() (const UCString& f) {
+		inline bool operator() (const std::string& f) {
 			size_t sep = findLastPathSep(f);
-			if(sep != UCString::npos) {
-				UCString name;
+			if(sep != std::string::npos) {
+				std::string name;
 				if(CGameScript::CheckFile(f,name)
 				&& !combobox->getItem(name)) {
 					combobox->addItem(i,f.substr(sep+1),name);
@@ -957,7 +957,7 @@ bool Menu_GameSettings_Frame(void)
 
 	// Set the value of the loading time label
 	int l = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	static UCString lstr; lstr = itoa(l)+"%";
+	static std::string lstr; lstr = itoa(l)+"%";
 	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0);
 
 	// Draw the mouse
@@ -971,7 +971,7 @@ bool Menu_GameSettings_Frame(void)
 // Grab the game settings info
 void Menu_GameSettings_GrabInfo(void)
 {
-	static UCString buf;
+	static std::string buf;
 
 	tLXOptions->tGameinfo.iLoadingTime = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
@@ -1057,7 +1057,7 @@ enum {
 
 ///////////////////
 // Initialize the weapons restrictions
-void Menu_WeaponsRestrictions(const UCString& szMod)
+void Menu_WeaponsRestrictions(const std::string& szMod)
 {
 
 	// Setup the buffer
@@ -1120,7 +1120,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
     assert(cWpnGameScript);
 
     // State strings
-    static const UCString    szStates[] = {"Enabled", "Bonus", "Banned"};
+    static const std::string    szStates[] = {"Enabled", "Bonus", "Banned"};
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
@@ -1138,7 +1138,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
     }
 
     // Show the weapons
-	static UCString buf;
+	static std::string buf;
     for(i=0; i<num; i++) {
         if(!cWpnGameScript->weaponExists(psWpn[i].psLink->szName))
             continue;
@@ -1265,11 +1265,11 @@ CGuiLayout cWpnPresets;
 	class addWeaponPresets { public:
 		CListview* listview;
 		addWeaponPresets(CListview* lv_) : listview(lv_) {}
-		inline bool operator() (const UCString& f) {
+		inline bool operator() (const std::string& f) {
 			if(stringcasecmp(GetFileExtension(f),"wps")) {
 				size_t sep = findLastPathSep(f);
-				if(sep != UCString::npos) {
-					UCString name = f.substr(sep+1);
+				if(sep != std::string::npos) {
+					std::string name = f.substr(sep+1);
 					if(!listview->getItem(name)) {
 						listview->AddItem(name,0,tLX->clListView);
 						listview->AddSubitem(LVS_TEXT,name,NULL);
@@ -1375,11 +1375,11 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 					if(t->getText().length() > 0) {
 
 						quitloop = true;
-						static UCString buf;
+						static std::string buf;
 						if(save) {
 
 							// Save
-							buf = UCString("cfg/presets/") + t->getText();
+							buf = std::string("cfg/presets/") + t->getText();
 
 							// Check if it exists already. If so, ask user if they wanna overwrite
 							if(Menu_WeaponPresetsOkSave(buf))
@@ -1389,7 +1389,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 						} else {
 
 							// Load
-							buf = UCString("cfg/presets/") + t->getText();
+							buf = std::string("cfg/presets/") + t->getText();
 							wpnrest->loadList(buf);
 						}
 					}
@@ -1423,9 +1423,9 @@ void Menu_WeaponPresetsShutdown(void)
 
 ///////////////////
 // Check if there is a possible overwrite
-int Menu_WeaponPresetsOkSave(const UCString& szFilename)
+int Menu_WeaponPresetsOkSave(const std::string& szFilename)
 {
-	UCString filename = szFilename;
+	std::string filename = szFilename;
 
 	// Adjust the filename
 	if( stringcasecmp(GetFileExtension( szFilename ), "wps") != 0)

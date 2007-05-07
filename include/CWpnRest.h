@@ -32,7 +32,7 @@ enum {
 // Weapon Restriction structure
 class wpnrest_t { public:
 
-	UCString    szName;
+	std::string    szName;
     int     nState;
 
     wpnrest_t   *psNext;
@@ -60,8 +60,8 @@ public:
     // Constructor
     CWpnRest();
 
-    void        loadList(const UCString& szFilename);
-    void        saveList(const UCString& szFilename);
+    void        loadList(const std::string& szFilename);
+    void        saveList(const std::string& szFilename);
     void        Shutdown(void);
 
     void        updateList(CGameScript *pcGameS);
@@ -73,10 +73,10 @@ public:
     void        sendList(CBytestream *psByteS);
     void        readList(CBytestream *psByteS);
 
-    bool        isEnabled(const UCString& szName);
-	UCString findEnabledWeapon(CGameScript *pcGameS);
+    bool        isEnabled(const std::string& szName);
+	std::string findEnabledWeapon(CGameScript *pcGameS);
 
-    int         getWeaponState(const UCString& szName);
+    int         getWeaponState(const std::string& szName);
 
     void        sortList(void);
 
@@ -87,8 +87,8 @@ public:
 private:
     // Internal methods
 
-    wpnrest_t   *findWeapon(const UCString& szName);
-    void        addWeapon(const UCString& szName, int nState);
+    wpnrest_t   *findWeapon(const std::string& szName);
+    void        addWeapon(const std::string& szName, int nState);
 };
 
 

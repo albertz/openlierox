@@ -38,8 +38,8 @@ using namespace __gnu_cxx;
 
 #endif
 
-bool IsFileAvailable(const UCString& f, bool absolute) {
-	static UCString abs_f;
+bool IsFileAvailable(const std::string& f, bool absolute) {
+	static std::string abs_f;
 	if(absolute) {
 		abs_f = f;
 	} else
@@ -122,8 +122,8 @@ list.clear();
 // checks, if path is statable (that means, it's existing)
 // HINT: absolute path and there is not case fixing
 // (used by GetExactFileName)
-bool IsPathStatable(const UCString& f) {
-	static UCString abs_f;
+bool IsPathStatable(const std::string& f) {
+	static std::string abs_f;
 	abs_f = f;
 
 	// remove trailing slashes
@@ -145,9 +145,9 @@ bool IsPathStatable(const UCString& f) {
 // used by unix-GetExactFileName
 // HINT: it only reads the first char of the seperators
 // it returns the start of the subdir (the pos _after_ the sep.)
-size_t GetNextName(const UCString& fullname, const char** seperators, UCString& nextname)
+size_t GetNextName(const std::string& fullname, const char** seperators, std::string& nextname)
 {
-	UCString::const_iterator pos;
+	std::string::const_iterator pos;
 	size_t p = 0;
 	unsigned short i;
 
@@ -164,9 +164,9 @@ size_t GetNextName(const UCString& fullname, const char** seperators, UCString& 
 }
 
 // get ending filename of a path
-size_t GetLastName(const UCString& fullname, const char** seperators)
+size_t GetLastName(const std::string& fullname, const char** seperators)
 {
-	UCString::const_reverse_iterator pos;
+	std::string::const_reverse_iterator pos;
 	size_t p = fullname.size();
 	unsigned short i;
 
@@ -184,7 +184,7 @@ size_t GetLastName(const UCString& fullname, const char** seperators)
 // does a case insensitive search for searchname in dir
 // sets filename to the first search result
 // returns true, if any file found
-bool CaseInsFindFile(const UCString& dir, const UCString& searchname, UCString& filename) {
+bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std::string& filename) {
 	if(searchname == "") {
 		filename = "";
 		return true;
@@ -207,12 +207,12 @@ bool CaseInsFindFile(const UCString& dir, const UCString& searchname, UCString& 
 }
 
 
-typedef hash_map<UCString, UCString, simple_reversestring_hasher> exactfilenamecache_t;
+typedef hash_map<std::string, std::string, simple_reversestring_hasher> exactfilenamecache_t;
 exactfilenamecache_t exactfilenamecache;
 
 bool is_searchname_in_exactfilenamecache(
-		const UCString& searchname,
-		UCString& exactname
+		const std::string& searchname,
+		std::string& exactname
 ) {
 	exactfilenamecache_t::iterator it = exactfilenamecache.find(searchname);
 	if(it != exactfilenamecache.end()) {
@@ -223,26 +223,26 @@ bool is_searchname_in_exactfilenamecache(
 }
 
 void add_searchname_to_exactfilenamecache(
-		const UCString& searchname,
-		const UCString& exactname
+		const std::string& searchname,
+		const std::string& exactname
 ) {
 	exactfilenamecache[searchname] = exactname;
 }
 
 
 // does case insensitive search for file
-bool GetExactFileName(const UCString& abs_searchname, UCString& filename) {
+bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
 	const char* seps[] = {"\\", "/", (char*)NULL};
 	if(abs_searchname.size() == 0) {
 		filename = "";
 		return false;
 	}
 
-	UCString sname = abs_searchname;
+	std::string sname = abs_searchname;
 	ReplaceFileVariables(sname);
 	
-	static UCString nextname; nextname = "";
-	static UCString nextexactname; nextexactname = "";
+	static std::string nextname; nextname = "";
+	static std::string nextexactname; nextexactname = "";
 	size_t pos;
 
 
@@ -324,9 +324,9 @@ void InitBaseSearchPaths() {
 #endif
 }
 
-void CreateRecDir(const UCString& abs_filename, bool last_is_dir) {
-	static UCString tmp;
-	UCString::const_iterator f = abs_filename.begin();
+void CreateRecDir(const std::string& abs_filename, bool last_is_dir) {
+	static std::string tmp;
+	std::string::const_iterator f = abs_filename.begin();
 	for(tmp = ""; f != abs_filename.end(); f++) {
 		if(*f == '\\' || *f == '/')
 			mkdir(tmp.c_str(), 0777);
@@ -336,7 +336,7 @@ void CreateRecDir(const UCString& abs_filename, bool last_is_dir) {
 		mkdir(tmp.c_str(), 0777);
 }
 
-UCString GetFirstSearchPath() {
+std::string GetFirstSearchPath() {
 	if(tLXOptions->tSearchPaths.size() > 0)
 		return tLXOptions->tSearchPaths.front();
 	else if(basesearchpaths.size() > 0)
@@ -348,12 +348,12 @@ UCString GetFirstSearchPath() {
 
 
 	class CheckSearchpathForFile { public: 
-		const UCString& filename;
-		UCString* result;
-		UCString* searchpath;
-		CheckSearchpathForFile(const UCString& f, UCString* r, UCString* s) : filename(f), result(r), searchpath(s) {}
-		inline bool operator() (const UCString& spath) {
-			UCString tmp = spath + filename;
+		const std::string& filename;
+		std::string* result;
+		std::string* searchpath;
+		CheckSearchpathForFile(const std::string& f, std::string* r, std::string* s) : filename(f), result(r), searchpath(s) {}
+		inline bool operator() (const std::string& spath) {
+			std::string tmp = spath + filename;
 			if(GetExactFileName(tmp, *result)) {
 				// we got here, if the file exists
 				if(searchpath) *searchpath = spath;
@@ -365,9 +365,9 @@ UCString GetFirstSearchPath() {
 		}
 	};
 
-UCString GetFullFileName(const UCString& path, UCString* searchpath) {
-	static UCString fname;
-	static UCString tmp;
+std::string GetFullFileName(const std::string& path, std::string* searchpath) {
+	static std::string fname;
+	static std::string tmp;
 
 	if(searchpath) *searchpath = "";
 
@@ -380,9 +380,9 @@ UCString GetFullFileName(const UCString& path, UCString* searchpath) {
 	return fname;
 }
 
-UCString GetWriteFullFileName(const UCString& path, bool create_nes_dirs) {
-	static UCString tmp;
-	static UCString fname;
+std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) {
+	static std::string tmp;
+	static std::string fname;
 
 	// get the dir, where we should write into
 	if(tLXOptions->tSearchPaths.size() == 0 && basesearchpaths.size() == 0) {
@@ -406,16 +406,16 @@ UCString GetWriteFullFileName(const UCString& path, bool create_nes_dirs) {
 	return tmp;
 }
 
-FILE *OpenGameFile(const UCString& path, const char *mode) {
+FILE *OpenGameFile(const std::string& path, const char *mode) {
 	if(path.size() == 0)
 		return NULL;
 
-	UCString fullfn = GetFullFileName(path);
+	std::string fullfn = GetFullFileName(path);
 
 	bool write_mode = strchr(mode, 'w') != 0;
 	bool append_mode = strchr(mode, 'a') != 0;
 	if(write_mode || append_mode) {
-		UCString writefullname = GetWriteFullFileName(path, true);
+		std::string writefullname = GetWriteFullFileName(path, true);
 		if(append_mode && fullfn != "") { // check, if we should copy the file
 			if(IsFileAvailable(fullfn,true)) { // we found the file
 				// GetWriteFullFileName ensures an exact filename,
@@ -443,11 +443,11 @@ FILE *OpenGameFile(const UCString& path, const char *mode) {
 
 
 
-std::ifstream* OpenGameFileR(const UCString& path) {
+std::ifstream* OpenGameFileR(const std::string& path) {
 	if(path.size() == 0)
 		return NULL;
 
-	UCString fullfn = GetFullFileName(path);
+	std::string fullfn = GetFullFileName(path);
 	if(fullfn.size() != 0) {
 		try {
 			std::ifstream* f = new std::ifstream(fullfn.c_str(), std::ios::in | std::ios::binary);
@@ -461,11 +461,11 @@ std::ifstream* OpenGameFileR(const UCString& path) {
 
 
 
-void AddToFileList(searchpathlist* l, const UCString& f) {
+void AddToFileList(searchpathlist* l, const std::string& f) {
 	if(!FileListIncludesExact(l, f)) l->push_back(f);
 }
 
-void removeEndingSlashes(UCString& s) {
+void removeEndingSlashes(std::string& s) {
 	// TODO: iterators!
 	for(
 		int i = s.size() - 1;
@@ -477,9 +477,9 @@ void removeEndingSlashes(UCString& s) {
 
 /////////////////
 // Returns true, if the list contains the path
-bool FileListIncludesExact(const searchpathlist* l, const UCString& f) {
-	static UCString tmp1;
-	static UCString tmp2;
+bool FileListIncludesExact(const searchpathlist* l, const std::string& f) {
+	static std::string tmp1;
+	static std::string tmp2;
 	tmp1 = f;
 	removeEndingSlashes(tmp1);
 	ReplaceFileVariables(tmp1);
@@ -498,7 +498,7 @@ bool FileListIncludesExact(const searchpathlist* l, const UCString& f) {
 	return false;
 }
 
-UCString GetHomeDir() {
+std::string GetHomeDir() {
 #ifndef WIN32
 	char* home = getenv("HOME");
 	if(home == NULL || home[0] == '\0') {
@@ -520,7 +520,7 @@ UCString GetHomeDir() {
 }
 
 
-UCString GetSystemDataDir() {
+std::string GetSystemDataDir() {
 #ifndef WIN32
 	return SYSTEM_DATA_DIR;
 #else
@@ -530,11 +530,11 @@ UCString GetSystemDataDir() {
 #endif
 }
 
-UCString GetBinaryDir() {
+std::string GetBinaryDir() {
 	return binary_dir;
 }
 
-UCString GetTempDir() {
+std::string GetTempDir() {
 #ifndef WIN32
 	return "/tmp"; // year, it's so simple :)
 #else
@@ -547,7 +547,7 @@ UCString GetTempDir() {
 #endif
 }
 
-void ReplaceFileVariables(UCString& filename) {
+void ReplaceFileVariables(std::string& filename) {
 	if(filename.compare(0,2,"~/")==0
 	|| filename.compare(0,2,"~\\")==0
 	|| filename == "~") {
@@ -560,7 +560,7 @@ void ReplaceFileVariables(UCString& filename) {
 }
 
 // returns true, if successfull
-bool FileCopy(const UCString& src, const UCString& dest) {
+bool FileCopy(const std::string& src, const std::string& dest) {
 	static char tmp[2048];
 
 	printf("FileCopy: %s -> %s\n", src.c_str(), dest.c_str());
@@ -600,9 +600,9 @@ bool FileCopy(const UCString& src, const UCString& dest) {
 	return success;
 }
 
-bool CanWriteToDir(const UCString& dir) {
+bool CanWriteToDir(const std::string& dir) {
 	// TODO: we have to make this a lot better!
-	UCString fname = dir + "/.some_stupid_temp_file";
+	std::string fname = dir + "/.some_stupid_temp_file";
 	FILE* fp = fopen(fname.c_str(), "w");
 	if(fp) {
 		fclose(fp);
@@ -613,7 +613,7 @@ bool CanWriteToDir(const UCString& dir) {
 }
 
 
-UCString GetAbsolutePath(const UCString& path) {
+std::string GetAbsolutePath(const std::string& path) {
 	static char buf[1024];
 #ifdef WIN32
 	static int len;
@@ -632,12 +632,12 @@ UCString GetAbsolutePath(const UCString& path) {
 #endif
 }
 
-bool PathListIncludes(const std::list<UCString>& list, const UCString& path) {
-	static UCString abs_path;
+bool PathListIncludes(const std::list<std::string>& list, const std::string& path) {
+	static std::string abs_path;
 	abs_path = GetAbsolutePath(path);
 	
 	// Go through the list, checking each item
-	for(std::list<UCString>::const_iterator i = list.begin(); i != list.end(); i++) {
+	for(std::list<std::string>::const_iterator i = list.begin(); i != list.end(); i++) {
 		if(abs_path == GetAbsolutePath(*i)) {
 			return true;
 		}

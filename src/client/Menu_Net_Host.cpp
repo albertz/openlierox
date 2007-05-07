@@ -324,7 +324,7 @@ void Menu_Net_HostPlyFrame(int mouse)
                         //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tGameInfo.sPassword, 0);
 
 						// Save the info
-						static UCString buf;
+						static std::string buf;
 						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->tGameinfo.sServerName, 0);
 						cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->tGameinfo.sWelcomeMessage, 0);
                         //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tLXOptions->tGameinfo.szPassword, 0);
@@ -563,9 +563,9 @@ void Menu_Net_HostLobbyCreateGui(void)
 
 //////////////////////
 // Get the content of the chatbox
-UCString Menu_Net_HostLobbyGetText(void)
+std::string Menu_Net_HostLobbyGetText(void)
 {
-	static UCString buf;
+	static std::string buf;
 	cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &buf, 256);
 	return buf;
 }
@@ -788,7 +788,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Send the msg to the server
 
 					// Get the text
-					static UCString buf;
+					static std::string buf;
 					cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &buf, 0);
 
                     // Don't send empty messages
@@ -799,7 +799,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, "", 0);
 
 					// Get name
-					UCString text;
+					std::string text;
 					CWorm *rw = cClient->getRemoteWorms() + iSpeaking;
 					if(!strincludes(buf,"/me"))
 						text = rw->getName() + ": " + buf;
@@ -840,7 +840,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Lives change
 			case hl_Lives:
 				if(ev->iEventMsg == TXT_CHANGE) {
-					static UCString buf;
+					static std::string buf;
 					cHostLobby.SendMessage(hl_Lives, TXS_GETTEXT, &buf, 0);
 					if(buf != "")
 						cServer->getLobby()->nLives = atoi(buf);
@@ -855,7 +855,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Max Kills
 			case hl_MaxKills:
 				if(ev->iEventMsg == TXT_CHANGE) {
-					static UCString buf;
+					static std::string buf;
 					cHostLobby.SendMessage(hl_MaxKills, TXS_GETTEXT, &buf, 0);
 					if(buf != "")
 						cServer->getLobby()->nMaxKills = atoi(buf);
@@ -1196,7 +1196,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 void Menu_HostShowMinimap(void)
 {
 	CMap map;
-	static UCString buf;
+	static std::string buf;
 
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
@@ -1374,7 +1374,7 @@ bool Menu_ServerSettings_Frame(void)
 					cServerSettings.SendMessage(ss_ServerName, TXS_GETTEXT, &tLXOptions->tGameinfo.sServerName, 0);
 					cServerSettings.SendMessage(ss_WelcomeMessage, TXS_GETTEXT, &tLXOptions->tGameinfo.sWelcomeMessage, 0);
 
-					UCString buf;
+					std::string buf;
 					cServerSettings.SendMessage(ss_MaxPlayers, TXS_GETTEXT, &buf, 0);
 					tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
 					// At least 2 players, and max 8

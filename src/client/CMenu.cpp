@@ -50,7 +50,7 @@ DWORD CMenu::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
     return 0;
 }
 
-DWORD CMenu::SendMessage(int iMsg, const UCString& sStr, DWORD Param)
+DWORD CMenu::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 {
 	switch (iMsg)  {
 
@@ -95,7 +95,7 @@ void CMenu::Destroy(void)
 
 ///////////////////
 // Add an item to the menu
-void CMenu::addItem(int nID, const UCString& szName)
+void CMenu::addItem(int nID, const std::string& szName)
 {
     mnu_item_t *i = new mnu_item_t;
     if( !i )

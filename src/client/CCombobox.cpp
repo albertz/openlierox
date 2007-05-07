@@ -30,7 +30,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	mouse_t *tMouse = GetMouse();
 
 	// Strip text buffer
-	static UCString buf;
+	static std::string buf;
 
 	// Count the item height
 	int ItemHeight = tLX->cFont.GetHeight()+1;
@@ -529,7 +529,7 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 	return 0;
 }
 
-DWORD CCombobox::SendMessage(int iMsg, const UCString& sStr, DWORD Param)
+DWORD CCombobox::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 {
 	switch (iMsg)  {
 	// Add item message
@@ -538,7 +538,7 @@ DWORD CCombobox::SendMessage(int iMsg, const UCString& sStr, DWORD Param)
 		break;
 	// Add item message (string index)
 	case CBS_ADDSITEM:
-		addItem(0, sStr, *((UCString *) Param));
+		addItem(0, sStr, *((std::string *) Param));
 		break;
 	// Set the current item based on the string index
 	case CBS_SETCURSINDEX:
@@ -549,7 +549,7 @@ DWORD CCombobox::SendMessage(int iMsg, const UCString& sStr, DWORD Param)
 	return 0;
 }
 
-DWORD CCombobox::SendMessage(int iMsg, UCString *sStr, DWORD Param)
+DWORD CCombobox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 {
 	switch (iMsg)  {
 	// Get the current item's string index
@@ -582,7 +582,7 @@ DWORD CCombobox::SendMessage(int iMsg, UCString *sStr, DWORD Param)
 
 ///////////////////
 // Add an item to the combo box
-void CCombobox::addItem(int index, const UCString& sindex, const UCString& name)
+void CCombobox::addItem(int index, const std::string& sindex, const std::string& name)
 {
 	cb_item_t *item;
 
@@ -650,7 +650,7 @@ void CCombobox::setCurItem(int index)
 
 ///////////////////
 // Set the current item based on string index
-void CCombobox::setCurSIndexItem(const UCString& szString)
+void CCombobox::setCurSIndexItem(const std::string& szString)
 {
     cb_item_t *i = tItems;
 	for(; i; i=i->tNext) {
@@ -721,7 +721,7 @@ int	CCombobox::getItemsCount() {
 	return c;
 }
 
-cb_item_t* CCombobox::getItem(const UCString& name) {
+cb_item_t* CCombobox::getItem(const std::string& name) {
 	for(cb_item_t* i = tItems; i; i = i->tNext) {
 		if(stringcasecmp(i->sName,name) == 0)
 			return i;

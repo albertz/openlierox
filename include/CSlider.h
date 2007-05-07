@@ -74,8 +74,8 @@ public:
 	void	LoadStyle(void) {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param) { return 0; }
-	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	int		getValue(void)						{ return iValue; }
 	void	setValue(int v)						{ iValue = v; }

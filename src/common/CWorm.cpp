@@ -332,7 +332,7 @@ int CWorm::LoadGraphics(int gametype)
 
 ///////////////////
 // Change the graphics of an image
-SDL_Surface *CWorm::ChangeGraphics(const UCString& filename, int team)
+SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 {
 	SDL_Surface *img;
 
@@ -444,7 +444,7 @@ void CWorm::InitWeaponSelection(void)
 
 		bool bRandomWeaps = true;
 		// Combo (rifle)
-		if ((tGameInfo.iLoadingTimes > 15 && tGameInfo.iLoadingTimes < 26) && (tGameInfo.sModName.find("Classic") != UCString::npos || tGameInfo.sModName.find("Liero v1.0") != UCString::npos ))  {
+		if ((tGameInfo.iLoadingTimes > 15 && tGameInfo.iLoadingTimes < 26) && (tGameInfo.sModName.find("Classic") != std::string::npos || tGameInfo.sModName.find("Liero v1.0") != std::string::npos ))  {
 			if (cWeaponRest->isEnabled("Rifle"))  {
 				for (i=0; i<5; i++)
 					tWeapons[i].Weapon = cGameScript->FindWeapon("Rifle");  // set all weapons to Rifle
@@ -453,7 +453,7 @@ void CWorm::InitWeaponSelection(void)
 			}
 		}
 		// 100 lt
-		else if ((tGameInfo.sModName.find("Liero") != UCString::npos || tGameInfo.sModName.find("Classic") != UCString::npos) && tGameInfo.iLoadingTimes == 100)  {
+		else if ((tGameInfo.sModName.find("Liero") != std::string::npos || tGameInfo.sModName.find("Classic") != std::string::npos) && tGameInfo.iLoadingTimes == 100)  {
 			int MyWeaps = cWeaponRest->isEnabled("Super Shotgun") + cWeaponRest->isEnabled("Napalm") + cWeaponRest->isEnabled("Cannon") + cWeaponRest->isEnabled("Doomsday") + cWeaponRest->isEnabled("Chaingun");
 			if (MyWeaps == 5)  {
 				// Set our weapons
@@ -467,7 +467,7 @@ void CWorm::InitWeaponSelection(void)
 			}
 		}
 		// Mortar game
-		else if ((tGameInfo.sModName.find("MW 1.0") != UCString::npos || tGameInfo.sModName.find("Modern Warfare1.0") != UCString::npos) && tGameInfo.iLoadingTimes < 50)  {
+		else if ((tGameInfo.sModName.find("MW 1.0") != std::string::npos || tGameInfo.sModName.find("Modern Warfare1.0") != std::string::npos) && tGameInfo.iLoadingTimes < 50)  {
 			if (cWeaponRest->isEnabled("Mortar Launcher"))  {
 				for (i=0; i<5; i++)
 					tWeapons[i].Weapon = cGameScript->FindWeapon("Mortar Launcher");  // set all weapons to Mortar

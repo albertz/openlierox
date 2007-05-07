@@ -21,7 +21,7 @@
 // Widget list item structure
 class widget_item_t { public:
 	int				iID;
-	UCString		sName;
+	std::string		sName;
 	widget_item_t	*tNext;
 };
 
@@ -43,9 +43,9 @@ private:
 public:
 	// Methods
 	int		getCount(void)	{return iCount; }
-	int		Add(const UCString& Name);
-	UCString	getName(int ID);
-	int		getID(const UCString& Name);
+	int		Add(const std::string& Name);
+	std::string	getName(int ID);
+	int		getID(const std::string& Name);
 	void	Shutdown(void);
 };
 

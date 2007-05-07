@@ -40,7 +40,7 @@ enum {
 // TODO: use std::vector/list
 class mnu_item_t { public:
     int     nID;
-	UCString  szName;
+	std::string  szName;
     int     nSelected;
 
     mnu_item_t   *psNext;
@@ -76,15 +76,15 @@ public:
 	int		KeyUp(UnicodeChar c)						{ return MNU_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param);
-	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
     
 	void	Draw(SDL_Surface *bmpDest);
 
 	void	LoadStyle(void) {}
 
 
-    void    addItem(int nID, const UCString& szName);
+    void    addItem(int nID, const std::string& szName);
 
 };
 

@@ -77,7 +77,7 @@ typedef struct id3v1_s {
 } id3v1_t;
 
 
-SoundSample*	LoadSample(const UCString& _filename, int maxplaying);
+SoundSample*	LoadSample(const std::string& _filename, int maxplaying);
 
 // Routines
 bool	InitSoundSystem(int rate, int channels, int buffers);
@@ -86,7 +86,7 @@ bool	StopSoundSystem();
 bool	SetSoundVolume(int vol);
 int		GetSoundVolume(void);
 bool	QuitSoundSystem();
-SoundSample* LoadSoundSample(const UCString& filename, int maxsimulplays);
+SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays);
 bool	FreeSoundSample(SoundSample* sample);
 bool	PlaySoundSample(SoundSample* sample);
 
@@ -103,8 +103,8 @@ extern bool	 bSongFinished;
 
 // Music
 void			MusicFinishedHook(void);
-SoundMusic		*LoadMusic(const UCString& file);
-void			PlayMusicAsync(const UCString& file);
+SoundMusic		*LoadMusic(const std::string& file);
+void			PlayMusicAsync(const std::string& file);
 bool			IsSongLoading();
 void			FreeMusic(SoundMusic *music);
 void			PlayMusic(SoundMusic *music, int number_of_repeats=1);
@@ -119,7 +119,7 @@ inline int		GetMusicType(SoundMusic *music = NULL) {if (music) {return Mix_GetMu
 float			GetCurrentMusicTime(void);
 inline bool		GetSongStopped(void) {return bSongStopped; }
 inline bool		GetSongFinished(void) { bool tmp = bSongFinished; bSongFinished = false; return tmp; }
-id3v1_t			GetMP3Info(const UCString& file);
+id3v1_t			GetMP3Info(const std::string& file);
 
 void			SetMusicVolume(byte vol);
 inline byte		GetMusicVolume(void) { return iMusicVolume; }

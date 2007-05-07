@@ -48,8 +48,8 @@ enum {
 
 // Structure for logging worms
 class log_worm_t { public:
-	UCString	sName;
-	UCString	sSkin;
+	std::string	sName;
+	std::string	sSkin;
 	int			iLives;
 	int			iKills;
 	int			iID;
@@ -61,7 +61,7 @@ class log_worm_t { public:
 	int			iLeavingReason;
 	float		fTimeLeft;
 	int			iType;
-	UCString	sIP;
+	std::string	sIP;
 };
 
 // Game log structure
@@ -69,7 +69,7 @@ class game_log_t { public:
 	log_worm_t	*tWorms;
 	int			iNumWorms;
 	float		fGameStart;
-	UCString	sGameStart;
+	std::string	sGameStart;
 };
 
 class GameServer {
@@ -84,7 +84,7 @@ private:
 	// Attributes
 
 	// General
-	UCString	sName;
+	std::string	sName;
 	int			iState;
 
 	// Logging
@@ -104,7 +104,7 @@ private:
 	int			iBonusesOn;
 	int			iShowBonusName;
 	int			iLoadingTimes;
-	UCString	sModName;
+	std::string	sModName;
 	CGameScript	cGameScript;
     CWpnRest    cWeaponRestrictions;
 
@@ -128,7 +128,7 @@ private:
 
 	// Map
 	int			iRandomMap;
-	UCString	sMapFilename;
+	std::string	sMapFilename;
 	CMap		*cMap;
 
 	// Simulation
@@ -156,7 +156,7 @@ public:
 
 
 	void		Clear(void);
-	int			StartServer(const UCString& name, int port, int maxplayers, bool regserver);
+	int			StartServer(const std::string& name, int port, int maxplayers, bool regserver);
 	void		Shutdown(void);	
 
     void        notifyLog(char *fmt, ...);
@@ -201,21 +201,21 @@ public:
 	void		CheckTimeouts(void);
 	void		DropClient(CClient *cl, int reason);
     void        kickWorm(int wormID);
-    void        kickWorm(const UCString& szWormName);
+    void        kickWorm(const std::string& szWormName);
 	void		banWorm(int wormID);
-	void		banWorm(const UCString& szWormName);
+	void		banWorm(const std::string& szWormName);
 	void		muteWorm(int wormID);
-	void		muteWorm(const UCString& szWormName);
+	void		muteWorm(const std::string& szWormName);
 	void		unmuteWorm(int wormID);
-	void		unmuteWorm(const UCString& szWormName);
+	void		unmuteWorm(const std::string& szWormName);
     void        CheckReadyClient(void);
-	UCString	GetCountryFromIP(const UCString& Address);
+	std::string	GetCountryFromIP(const std::string& Address);
 
 
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs);
 	void		SendGlobalText(const char* text, int type);
-	void		SendGlobalText(const UCString& text, int type);
+	void		SendGlobalText(const std::string& text, int type);
 	void		SendDisconnect(void);
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);
@@ -248,8 +248,8 @@ public:
 	inline CMap		*getMap(void)		{ return cMap; }
 	inline CBanList	*getBanList(void)	{ return &cBanList; }
 	CClient		*getClient(int iWormID);
-	inline UCString   getName(void)		{ return sName; }
-	inline void	setName(const UCString& _name){ sName = _name; }
+	inline std::string   getName(void)		{ return sName; }
+	inline void	setName(const std::string& _name){ sName = _name; }
 	inline int	getMaxWorms(void)	{ return iMaxWorms; }
 	inline void	setMaxWorms(int _n) { iMaxWorms = _n; }
 	inline bool		getGameOver(void)	{ return iGameOver != 0; }

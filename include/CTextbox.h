@@ -69,7 +69,7 @@ public:
 private:
 	// Attributes
 
-	UCString	sText;
+	std::string	sText;
 
 	// these are related to the size of the string (sText.size()), NOT the displayed size
 	size_t	iScrollPos;
@@ -78,7 +78,7 @@ private:
 	size_t	iSelStart;
 	
 	int		iFlags;
-	UCString	sSelectedText;
+	std::string	sSelectedText;
 
 	size_t	iMax;
 
@@ -117,15 +117,15 @@ public:
 	void	LoadStyle(void) {}
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param);
-	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
 	void	Backspace(void);
 	void	Delete(void);
 	void	Insert(UnicodeChar c);
 
-	UCString	getText(void)						{ return sText; }
-	void	setText(const UCString& buf);
+	std::string	getText(void)						{ return sText; }
+	void	setText(const std::string& buf);
 
     void    PasteText(void);
 	void	CopyText(void);

@@ -257,7 +257,7 @@ property_t *CCssParser::ReadProperty(void)
 	Property->bImportant = false;
 	Property->tNext = NULL;
 
-	// TODO: use UCString
+	// TODO: use std::string
 	// HINT: and change sizeof(buf) later
 	static char buf[64];
 	buf[63] = '\0';
@@ -563,7 +563,7 @@ bool CCssParser::Parse(char *sFilename)
 
 /////////////////
 // Parses border properties from a string
-// TODO: make it use UCString!!
+// TODO: make it use std::string!!
 void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint32 *DarkColour,uchar *type)
 {
 	// Defaults
@@ -580,7 +580,7 @@ void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint
 	TrimSpaces(val);
 
 	// Remove duplicate spaces
-	UCString tmp = val;
+	std::string tmp = val;
 	while (replace(tmp,"  "," ",tmp))
 		continue;
 	strcpy(val, tmp.c_str()); // TODO: this has to be done better...

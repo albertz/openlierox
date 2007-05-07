@@ -98,7 +98,7 @@ int LoadProfiles(void)
 void AddDefaultPlayers(void)
 {
 	short		i;
-	static UCString	buf;
+	static std::string	buf;
 
 	// Pre-set cpu colours
 	Uint32 cpuColours[] = { 255,0,0,  0,255,0,  0,0,255,  255,0,255,  0,255,255,  128,128,128,
@@ -346,7 +346,7 @@ void DeleteProfile(int id)
 
 ///////////////////
 // Add a profile to the list
-void AddProfile(const UCString& name, const UCString& skin, const UCString& username, const UCString& password,  int R, int G, int B, int type, int difficulty)
+void AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty)
 {
 	profile_t	*p;
 
@@ -506,9 +506,9 @@ int LoadProfileGraphics(profile_t *p)
 
 ///////////////////
 // General skin colouriser
-SDL_Surface *LoadSkin(const UCString& szSkin, int colR, int colG, int colB)
+SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 {
-   static  UCString buf;
+   static  std::string buf;
 
     // Load the skin
     buf = "skins/"; buf += szSkin;

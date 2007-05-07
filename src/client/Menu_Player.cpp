@@ -364,8 +364,8 @@ void Menu_Player_NewPlayer(int mouse)
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Get the details
-					UCString name = ((CTextbox *)cNewPlayer.getWidget(np_Name))->getText();
-					UCString skin;
+					std::string name = ((CTextbox *)cNewPlayer.getWidget(np_Name))->getText();
+					std::string skin;
                     cNewPlayer.SendMessage(np_PlySkin, CBS_GETCURSINDEX, &skin, 0);
 
 					// Add the profile
@@ -399,7 +399,7 @@ void Menu_Player_NewPlayer(int mouse)
             // Skin
             case np_PlySkin:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    static UCString buf;
+                    static std::string buf;
                     cNewPlayer.SendMessage(np_PlySkin, CBS_GETCURSINDEX, &buf, 0);
 
                     // Load the skin
@@ -452,7 +452,7 @@ void Menu_Player_NewPlayer(int mouse)
     // Draw the difficulty level
     int type = cNewPlayer.SendMessage(np_Type,CBM_GETCURINDEX,(DWORD)0,0);
     if( type == PRF_COMPUTER ) {
-        static const UCString difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cNewPlayer.SendMessage(np_AIDiff,SLM_GETVALUE,(DWORD)0,0);
         tLX->cFont.Draw(tMenu->bmpScreen, 250,363,tLX->clNormalLabel,difflevels[level]);
 
@@ -469,7 +469,7 @@ void Menu_Player_ViewPlayers(int mouse)
 {
 	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	static UCString buf;
+	static std::string buf;
 
 	// Process & draw the gui
 	if (!cMediaPlayer.GetDrawPlayer())
@@ -526,7 +526,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 
 							// Ask if they are sure they wanna delete it
-							buf = UCString("Delete player ") + p->sName;
+							buf = std::string("Delete player ") + p->sName;
 							if(Menu_MessageBox("Confirmation",buf,LMB_YESNO) == MBR_YES) {
 
 								// Delete the profile
@@ -638,7 +638,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->szSkin, 0);
 
                         // Load the skin
-                        static UCString buf;
+                        static std::string buf;
                         buf = "skins/" + p->szSkin;
                         tMenu->bmpWorm = LoadImage(buf);
 
@@ -664,7 +664,7 @@ void Menu_Player_ViewPlayers(int mouse)
             // Skin
             case vp_PlySkin:
                 if(ev->iEventMsg == CMB_CHANGED) {
-                    static UCString buf;
+                    static std::string buf;
                     cViewPlayers.SendMessage(vp_PlySkin, CBS_GETCURSINDEX, &buf, 0);
 
                     // Load the skin
@@ -722,7 +722,7 @@ void Menu_Player_ViewPlayers(int mouse)
     // Draw the difficulty level
     int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
     if( type == PRF_COMPUTER ) {
-        static const UCString difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
+        static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
         int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0);
         tLX->cFont.Draw(tMenu->bmpScreen, 530,313,tLX->clNormalLabel, difflevels[level]);
     }
@@ -802,17 +802,17 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 	   	int* def;
 	   	int index;
 		SkinAdder(CCombobox* cb_, int* d) : cb(cb_), def(d), index(0) {}
-		inline bool operator() (UCString file) {
-			UCString ext = GetFileExtension(file);
+		inline bool operator() (std::string file) {
+			std::string ext = GetFileExtension(file);
 			if(stringcasecmp(ext, "tga")==0
 			|| stringcasecmp(ext, "png")==0
 			|| stringcasecmp(ext, "bmp")==0
 			|| stringcasecmp(ext, "pcx")==0) {
 				size_t slash = findLastPathSep(file);
-				if(slash != UCString::npos)
+				if(slash != std::string::npos)
 					file.erase(0, slash+1);
 				
-				UCString name = file.substr(0, file.size()-4); // the size-calcing here is safe
+				std::string name = file.substr(0, file.size()-4); // the size-calcing here is safe
 				if (cb->getItem(name) != NULL)
 					return true;
 				cb->addItem(index, file, name);

@@ -23,7 +23,7 @@
 
 
 CGuiLayout	cLan;
-UCString szLanCurServer;
+std::string szLanCurServer;
 
 
 // Lan widgets
@@ -122,7 +122,7 @@ void Menu_Net_LANFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	UCString		addr;
+	std::string		addr;
 
 
 	// Process & Draw the gui
@@ -314,7 +314,7 @@ void Menu_Net_LANFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szLanCurServer);
-							static UCString Nick;
+							static std::string Nick;
 							cLan.SendMessage(nl_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
 								Menu_SvrList_WantsJoin(Nick, sv);
@@ -357,7 +357,7 @@ void Menu_Net_LANFrame(int mouse)
 
 ///////////////////
 // Join a server
-void Menu_Net_LANJoinServer(const UCString& sAddress, const UCString& sName)
+void Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sName)
 {
 
 	// Fill in the game structure
@@ -392,7 +392,7 @@ enum {
 
 ///////////////////
 // Show a server's details
-void Menu_Net_LanShowServer(const UCString& szAddress)
+void Menu_Net_LanShowServer(const std::string& szAddress)
 {
     mouse_t     *Mouse = GetMouse();
     int         nMouseCur = 0;

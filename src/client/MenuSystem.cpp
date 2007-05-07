@@ -44,7 +44,7 @@ int Menu_Initialize(bool *game)
 
 	// Load the CSS of all widgets
 	cWidgetStyles.Clear();
-	//static UCString path;
+	//static std::string path;
 	//sprintf(path,"%s/%s/widgets.css",tLXOptions->sSkinPath,tLXOptions->sResolution);
 	//cWidgetStyles.Parse(path);
 
@@ -336,11 +336,11 @@ void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
 ///////////////////
 // Get the level name from specified file
 // TODO: move this to CGameScript
-UCString Menu_GetLevelName(const UCString& filename)
+std::string Menu_GetLevelName(const std::string& filename)
 {
 	static char	id[32], name[128];
 	int		version;
-	static UCString	Path;
+	static std::string	Path;
 
 	Path = "levels/"+filename;
 
@@ -492,7 +492,7 @@ void Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool d
 
 ///////////////////
 // Show a message box
-int Menu_MessageBox(const UCString& sTitle, const UCString& sText, int type)
+int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type)
 {
 	int ret = -1;
 	keyboard_t *kb = GetKeyboard();
@@ -507,8 +507,8 @@ int Menu_MessageBox(const UCString& sTitle, const UCString& sText, int type)
 
 	// Handle multiline messages
 	unsigned int maxwidth = 0;
-	std::vector<UCString>::const_iterator it;
-	const std::vector<UCString>& lines = explode(sText,"\n");
+	std::vector<std::string>::const_iterator it;
+	const std::vector<std::string>& lines = explode(sText,"\n");
 	for (it=lines.begin(); it!=lines.end(); it++)  {
 		maxwidth = MAX(maxwidth,(uint)tLX->cFont.GetWidth(*it));
 	}
@@ -929,11 +929,11 @@ void Menu_AddDefaultWidgets(void)
 		int* index;
 		int* selected;
 		LevelComboFiller(CCombobox* c, int* i, int* s) : cmb(c), index(i), selected(s) {}
-		inline bool operator() (const UCString& filename) {
+		inline bool operator() (const std::string& filename) {
 			size_t pos = findLastPathSep(filename);
-			UCString f = filename.substr(pos+1);
+			std::string f = filename.substr(pos+1);
 
-			UCString mapName = Menu_GetLevelName(f);
+			std::string mapName = Menu_GetLevelName(f);
 			if(mapName != "" && !cmb->getItem(mapName)) {
 				cmb->addItem((*index), f, mapName);
 				
@@ -1100,7 +1100,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 
 ///////////////////
 // Send Wants To Join message
-void Menu_SvrList_WantsJoin(const UCString& Nick, server_t *svr)
+void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 {
 	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
 
@@ -1162,13 +1162,13 @@ void Menu_SvrList_RefreshServer(server_t *s)
 
 ///////////////////
 // Add a server onto the list (for list and manually)
-server_t *Menu_SvrList_AddServer(const UCString& address, bool bManual)
+server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 {
     // Check if the server is already in the list
     // If it is, don't bother adding it
     server_t *sv = psServerList;
     NetworkAddr ad;
-	UCString tmp_address = address;
+	std::string tmp_address = address;
     TrimSpaces(tmp_address);
     StringToNetAddr(tmp_address, &ad);
 
@@ -1198,7 +1198,7 @@ server_t *Menu_SvrList_AddServer(const UCString& address, bool bManual)
 	svr->szAddress = tmp_address;
 
 	// If the address doesn't have a port number, use the default lierox port number
-	if( svr->szAddress.rfind(':') == UCString::npos) {
+	if( svr->szAddress.rfind(':') == std::string::npos) {
 		svr->szAddress += ":"+itoa(LX_PORT,10);
 	}
 
@@ -1236,13 +1236,13 @@ server_t *Menu_SvrList_AddServer(const UCString& address, bool bManual)
 
 ///////////////////
 // Add a server onto the list and specify the name
-server_t *Menu_SvrList_AddNamedServer(const UCString& address, const UCString& name)
+server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::string& name)
 {
     // Check if the server is already in the list
     // If it is, don't bother adding it
     server_t *sv = psServerList;
     NetworkAddr ad;
-	UCString tmp_address = address;
+	std::string tmp_address = address;
     TrimSpaces(tmp_address);
     StringToNetAddr(tmp_address, &ad);
 
@@ -1273,7 +1273,7 @@ server_t *Menu_SvrList_AddNamedServer(const UCString& address, const UCString& n
 	svr->szAddress = tmp_address;
 
 	// If the address doesn't have a port number, use the default lierox port number
-	if( svr->szAddress.rfind(':') == UCString::npos) {
+	if( svr->szAddress.rfind(':') == std::string::npos) {
 		svr->szAddress += ":"+itoa(LX_PORT,10);
 	}
 
@@ -1311,7 +1311,7 @@ server_t *Menu_SvrList_AddNamedServer(const UCString& address, const UCString& n
 
 ///////////////////
 // Remove a server from the server list
-void Menu_SvrList_RemoveServer(const UCString& szAddress)
+void Menu_SvrList_RemoveServer(const std::string& szAddress)
 {
     server_t *sv = Menu_SvrList_FindServerStr(szAddress);
     if( !sv )
@@ -1333,7 +1333,7 @@ void Menu_SvrList_RemoveServer(const UCString& szAddress)
 
 ///////////////////
 // Find a server based on a string address
-server_t *Menu_SvrList_FindServerStr(const UCString& szAddress)
+server_t *Menu_SvrList_FindServerStr(const std::string& szAddress)
 {
     // Find a matching server
     server_t *sv = psServerList;
@@ -1353,7 +1353,7 @@ server_t *Menu_SvrList_FindServerStr(const UCString& szAddress)
 void Menu_SvrList_FillList(CListview *lv)
 {
 	server_t	*s = psServerList;
-	UCString		addr;
+	std::string		addr;
 	static const char*	states[] = {"Open", "Loading", "Playing"};
 
     // Store the ID of the currently selected item
@@ -1380,7 +1380,7 @@ void Menu_SvrList_FillList(CListview *lv)
 		// Remove the port from the address (save space)
 		addr = s->szAddress;
 		size_t p = addr.rfind(':');
-		if(p != UCString::npos)
+		if(p != std::string::npos)
 			addr.erase(p);
 
 
@@ -1502,7 +1502,7 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 {
 	NetworkAddr		adrFrom;
 	int				update = false;
-	static UCString cmd,buf;
+	static std::string cmd,buf;
 
 	// Check for connectionless packet header
 	if(*(int *)bs->GetData() == -1) {
@@ -1590,7 +1590,7 @@ server_t *Menu_SvrList_FindServer(NetworkAddr *addr)
 void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 {
 	// Don't update the name in favourites
-	static UCString buf;
+	static std::string buf;
 	buf = bs->readString();
 	if(iNetMode != net_favourites)
 		svr->szName = buf;
@@ -1614,7 +1614,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 
 ///////////////////
 // Save the server list
-void Menu_SvrList_SaveList(const UCString& szFilename)
+void Menu_SvrList_SaveList(const std::string& szFilename)
 {
     FILE *fp = OpenGameFile(szFilename,"wt");
     if( !fp )
@@ -1630,7 +1630,7 @@ void Menu_SvrList_SaveList(const UCString& szFilename)
 
 ///////////////////
 // Add a favourite server
-void Menu_SvrList_AddFavourite(const UCString& szName, const UCString& szAddress)
+void Menu_SvrList_AddFavourite(const std::string& szName, const std::string& szAddress)
 {
     FILE *fp = OpenGameFile("cfg/favourites.dat","a");  // We're appending
     if( !fp )  {
@@ -1648,13 +1648,13 @@ void Menu_SvrList_AddFavourite(const UCString& szName, const UCString& szAddress
 
 ///////////////////
 // Load the server list
-void Menu_SvrList_LoadList(const UCString& szFilename)
+void Menu_SvrList_LoadList(const std::string& szFilename)
 {
     FILE *fp = OpenGameFile(szFilename,"rt");
     if( !fp )
         return;
 
-    static UCString szLine = "";
+    static std::string szLine = "";
 
     // Go through every line
     while( !feof(fp) ) {
@@ -1663,7 +1663,7 @@ void Menu_SvrList_LoadList(const UCString& szFilename)
             continue;
 
 		// explode and copy it
-		std::vector<UCString> parsed = explode(szLine,",");
+		std::vector<std::string> parsed = explode(szLine,",");
 
         if( parsed.size() == 3 ) {
 			TrimSpaces(parsed[2]); // Address
@@ -1691,7 +1691,7 @@ float fStart = -9999;
 
 ///////////////////
 // Draw a 'server info' box
-void Menu_SvrList_DrawInfo(const UCString& szAddress)
+void Menu_SvrList_DrawInfo(const std::string& szAddress)
 {
 	int w = 450;
 	int h = 420;
@@ -1711,11 +1711,11 @@ void Menu_SvrList_DrawInfo(const UCString& szAddress)
 	// and we got everytime some new information,
 	// but we still want to show also the old ones
 	// TODO: make this better
-    static UCString    szName;
+    static std::string    szName;
     static int     nMaxWorms;
     static int     nState;
-    static UCString    szMapName;
-    static UCString    szModName;
+    static std::string    szMapName;
+    static std::string    szModName;
     static int     nGameMode;
     static int     nLives;
     static int     nMaxKills;
@@ -1734,7 +1734,7 @@ void Menu_SvrList_DrawInfo(const UCString& szAddress)
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
 	        if(*(int *)inbs.GetData() == -1) {
-                static UCString        cmd;
+                static std::string        cmd;
 
 		        inbs.SetPos(4);
 		        cmd = inbs.readString();
@@ -1790,7 +1790,7 @@ void Menu_SvrList_DrawInfo(const UCString& szAddress)
 			bOldLxBug = false;
 
             // Send a getinfo request
-			UCString tmp_addr = szAddress;
+			std::string tmp_addr = szAddress;
             TrimSpaces(tmp_addr);
             StringToNetAddr(tmp_addr, &addr);
 
@@ -1838,8 +1838,8 @@ void Menu_SvrList_DrawInfo(const UCString& szAddress)
         return;
     }
 
-   	static const UCString states[] = {"Open", "Loading", "Playing", "Unknown"};
-    static const UCString gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions", "Unknown"};
+   	static const std::string states[] = {"Open", "Loading", "Playing", "Unknown"};
+    static const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions", "Unknown"};
     if(nState < 0 || nState > 2)
         nState = 3;
     if(nGameMode < 0 || nGameMode > 3)

@@ -42,7 +42,7 @@ int GetFPS(void)
 
 ///////////////////
 // Get the actual time
-UCString GetTime()
+std::string GetTime()
 {
 	static char cTime[100];
 	time_t t;

@@ -30,10 +30,10 @@
 
 
 // Game info
-UCString	GameName;
+std::string	GameName;
 
 // Config file
-UCString	ConfigFile;
+std::string	ConfigFile;
 
 // Screen
 
@@ -42,7 +42,7 @@ SDL_Surface *bmpIcon=NULL;
 
 ///////////////////
 // Initialize the standard Auxiliary Library
-int InitializeAuxLib(const UCString& gname, const UCString& config, int bpp, int vidflags)
+int InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags)
 {
 	// Set the game info
 	GameName=gname;
@@ -259,7 +259,7 @@ void ShutdownAuxLib(void)
 
 ///////////////////
 // Return the game name
-UCString GetGameName(void)
+std::string GetGameName(void)
 {
 	return GameName;
 }
@@ -268,9 +268,9 @@ UCString GetGameName(void)
 ///////////////////
 // Get text from the clipboard
 // Returns the length of the text (0 for no text)
-UCString GetClipboardText() {
+std::string GetClipboardText() {
 #ifdef WIN32
-	UCString szText;
+	std::string szText;
     
     // Get the window handle
 	SDL_SysWMinfo info;
@@ -309,7 +309,7 @@ UCString GetClipboardText() {
 ///////////////////
 // Set text to the clipboard
 // Returns the length of the text (0 for no text)
-int SetClipboardText(const UCString& szText)
+int SetClipboardText(const std::string& szText)
 {
 #ifdef WIN32
     // Get the window handle
@@ -359,7 +359,7 @@ int SetClipboardText(const UCString& szText)
 
 ///////////////////
 // Return the config filename
-UCString GetConfigFile(void)
+std::string GetConfigFile(void)
 {
 	return ConfigFile;
 }
@@ -369,9 +369,9 @@ UCString GetConfigFile(void)
 // Take a screenshot
 void TakeScreenshot(bool Tournament)
 {
-	static UCString	picname;
-	static UCString	fullname;
-	static UCString	extension;
+	static std::string	picname;
+	static std::string	fullname;
+	static std::string	extension;
 	int			i;
 
 	// Set the extension

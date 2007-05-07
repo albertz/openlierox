@@ -37,7 +37,6 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
-#include "UCString.h"
 #include <vector>
 #include <list>
 */

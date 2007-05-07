@@ -60,9 +60,9 @@ private:
 public:
 	// Methods
 
-	int		Load(const UCString& name, const UCString& section);
-	int		Setup(const UCString& text);
-	int		Wait(UCString& strText);
+	int		Load(const std::string& name, const std::string& section);
+	int		Setup(const std::string& text);
+	int		Wait(std::string& strText);
 	int		Wait();
 
 	int		isUp(void);
@@ -77,7 +77,7 @@ public:
 // Keyboard structure
 class keys_t { public:
 #ifndef _MSC_VER
-	UCString	text;
+	std::string	text;
 #else
 	// TODO: this is absolute no solution!
 	char text[16];
@@ -89,7 +89,7 @@ class keys_t { public:
 // Joystick structure
 class joystick_t { public:
 #ifndef _MSC_VER
-	UCString	text;
+	std::string	text;
 #else
 	// TODO: this is absolute no solution!
 	char text[16];

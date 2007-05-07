@@ -48,8 +48,8 @@ enum {
 // Item structure
 class cb_item_t { public:
 	int			iIndex;
-	UCString	sIndex;
-	UCString	sName;
+	std::string	sIndex;
+	std::string	sName;
 	int			iSelected;
 	SDL_Surface *tImage;
 
@@ -120,17 +120,17 @@ public:
 	void	Sort(bool ascending);
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param);
-	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
     void    clear(void);
-	void	addItem(int index, const UCString& sindex, const UCString& name);
+	void	addItem(int index, const std::string& sindex, const std::string& name);
 	inline cb_item_t* getItems()	{ return tItems; }
 	cb_item_t* getItem(int index);
 	int		getItemsCount();
-	cb_item_t* getItem(const UCString& name);
+	cb_item_t* getItem(const std::string& name);
 	void	setCurItem(int index);
-    void    setCurSIndexItem(const UCString& szString);
+    void    setCurSIndexItem(const std::string& szString);
     void    setCurIndexItem(int nIndex);
 	void	setImage(SDL_Surface *img, int ItemIndex);
 	int		getDropped(void) { return iDropped; }

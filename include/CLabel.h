@@ -35,7 +35,7 @@ enum {
 class CLabel : public CWidget {
 public:
 	// Constructor
-	CLabel(const UCString& text, Uint32 col) {
+	CLabel(const std::string& text, Uint32 col) {
 		sText = text;
 		iColour = col;
 		iType = wid_Label;
@@ -45,7 +45,7 @@ public:
 private:
 	// Attributes
 
-	UCString	sText;
+	std::string	sText;
 	Uint32	iColour;
 
 
@@ -65,8 +65,8 @@ public:
 	int		KeyUp(UnicodeChar c)						{ return LBL_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
-	DWORD SendMessage(int iMsg, const UCString& sStr, DWORD Param) { if (iMsg == LBS_SETTEXT) {sText = sStr;} return 0; }
-	DWORD SendMessage(int iMsg, UCString *sStr, DWORD Param)  { return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { if (iMsg == LBS_SETTEXT) {sText = sStr;} return 0; }
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	ChangeColour(Uint32 col)			{ iColour = col; }
 

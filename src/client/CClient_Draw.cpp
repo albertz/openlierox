@@ -384,7 +384,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     // Dirt count
     if( iGameType == GMT_DEMOLITION ) {
         tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "Dirt Count:");
-        static UCString buf;
+        static std::string buf;
         int count = worm->getDirtCount();
 
         // Draw short versions
@@ -688,7 +688,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 	// Teams
 	static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
-	static const UCString teamnames[] = {"Blue", "Red", "Green", "Yellow"};
+	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
 
 	int width = bmpImage->w;
 	int height = bmpImage->h;
@@ -838,7 +838,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 			// Total time of being IT
 			int h,m,s;
-			static UCString buf;
+			static std::string buf;
 			ConvertTime(p->getTagTime(), &h,&m,&s);
 			buf = itoa(m)+":"+(s<10 ? "0":"")+itoa(s);
 			Uint32 col = tLX->clNormalLabel;
@@ -941,7 +941,7 @@ void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 
 ///////////////////
 // Draw text that is shadowed
-void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, const UCString& buf)
+void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, const std::string& buf)
 {
 	if(centre) {
 		//tLX->cOutlineFont.DrawCentre(bmpDest, x+1, y+1, 0,"%s", buf);

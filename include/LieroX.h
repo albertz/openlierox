@@ -124,7 +124,7 @@ class lierox_t { public:
 	Uint32			clWhite;
 
 
-	UCString	debug_string;
+	std::string	debug_string;
 };
 
 
@@ -141,14 +141,14 @@ enum {
 class game_t { public:
 	int			iGameType;		// Local, remote, etc
 	int			iGameMode;		// DM, team DM, etc
-	UCString		sModName;
-	UCString		sMapname;
-    UCString        sPassword;
-	UCString		sModDir;
+	std::string		sModName;
+	std::string		sMapname;
+    std::string        sPassword;
+	std::string		sModDir;
     maprandom_t sMapRandom;
 	int			iLoadingTimes;
-	UCString		sServername;
-	UCString		sWelcomeMessage;
+	std::string		sServername;
+	std::string		sWelcomeMessage;
 	bool		bRegServer;
 	bool		bTournament;
 
@@ -174,10 +174,10 @@ class game_lobby_t { public:
 	int		nMaxKills;
 	int		nLoadingTime;
 	int		nBonuses;
-	UCString	szMapName;
-	UCString	szDecodedMapName;
-	UCString	szModName;
-	UCString	szModDir;
+	std::string	szMapName;
+	std::string	szDecodedMapName;
+	std::string	szModName;
+	std::string	szModDir;
 	bool	bHaveMap;
 	bool	bHaveMod;
 	bool	bTournament;
@@ -194,7 +194,7 @@ extern	CInput			cToggleMediaPlayer;
 extern  int				nDisableSound;
 extern	bool			bActivated;
 
-extern	UCString		binary_dir;
+extern	std::string		binary_dir;
 
 
 // Main Routines
@@ -220,11 +220,11 @@ bool    MouseInRect(int x, int y, int w, int h);
 
 
 
-void printf(const UCString& txt);
+void printf(const std::string& txt);
 
 
 // TODO: remove this from here
-void	xmlEntities(UCString& text);
+void	xmlEntities(std::string& text);
 
 
 

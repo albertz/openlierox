@@ -18,9 +18,9 @@
 #define __OPTIONS_H__
 
 #include <vector>
-#include "UCString.h"
+#include <string>
 
-typedef std::vector<UCString> searchpathlist;
+typedef std::vector<std::string> searchpathlist;
 
 
 // Setup input id's
@@ -69,12 +69,12 @@ enum {
 // input controls structure (for local players)
 class controls_t {
 private:
-	UCString ctrl[8];
+	std::string ctrl[8];
 public:
-	UCString& operator[] (const short i) { return (i >= 0 && i < 8) ? ctrl[i] : ctrl[-9999]; }
-	const UCString& operator[] (const short i) const { return (i >= 0 && i < 8) ? ctrl[i] : ctrl[-9999]; }
+	std::string& operator[] (const short i) { return (i >= 0 && i < 8) ? ctrl[i] : ctrl[-9999]; }
+	const std::string& operator[] (const short i) const { return (i >= 0 && i < 8) ? ctrl[i] : ctrl[-9999]; }
 
-	inline unsigned short ControlCount(void) const  { return sizeof(ctrl)/sizeof(UCString); }
+	inline unsigned short ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
 	// TODO: add specific functions
 };
 
@@ -86,47 +86,47 @@ public:
 	static bool Init();
 	bool LoadFromDisc();
 	
-	UCString sHasLeft ;
-	UCString sHasConnected ;
-	UCString sHasTimedOut ;
+	std::string sHasLeft ;
+	std::string sHasConnected ;
+	std::string sHasTimedOut ;
 
-	UCString sHasBeenKicked ;
-	UCString sHasBeenBanned ;
-	UCString sHasBeenMuted ;
-	UCString sHasBeenUnmuted ;
+	std::string sHasBeenKicked ;
+	std::string sHasBeenBanned ;
+	std::string sHasBeenMuted ;
+	std::string sHasBeenUnmuted ;
 
-	UCString sKickedYou ;
-	UCString sBannedYou ;
-	UCString sYouTimed ;
-	UCString sYouQuit ;
+	std::string sKickedYou ;
+	std::string sBannedYou ;
+	std::string sYouTimed ;
+	std::string sYouQuit ;
 
-	UCString sKilled ;
-	UCString sCommitedSuicide ;
-	UCString sFirstBlood ;
-	UCString sTeamkill ;
+	std::string sKilled ;
+	std::string sCommitedSuicide ;
+	std::string sFirstBlood ;
+	std::string sTeamkill ;
 
-	UCString sPlayerOut ;
-	UCString sPlayerHasWon ;
-	UCString sTeamOut ;
-	UCString sTeamHasWon ;
+	std::string sPlayerOut ;
+	std::string sPlayerHasWon ;
+	std::string sTeamOut ;
+	std::string sTeamHasWon ;
 
-	UCString sWormIsIt ;
+	std::string sWormIsIt ;
 
-	UCString sSpree1 ;
-	UCString sSpree2 ;
-	UCString sSpree3 ;
-	UCString sSpree4 ;
-	UCString sSpree5 ;
+	std::string sSpree1 ;
+	std::string sSpree2 ;
+	std::string sSpree3 ;
+	std::string sSpree4 ;
+	std::string sSpree5 ;
 
-	UCString sServerFull ;
-	UCString sNoEmptySlots ;
-	UCString sWrongProtocol ;
-	UCString sBadVerification ;
-	UCString sNoIpVerification ;
-	UCString sGameInProgress ;
-	UCString sYouAreBanned ;
-	UCString sBotsNotAllowed ;
-	UCString sWantsJoin ;
+	std::string sServerFull ;
+	std::string sNoEmptySlots ;
+	std::string sWrongProtocol ;
+	std::string sBadVerification ;
+	std::string sNoIpVerification ;
+	std::string sGameInProgress ;
+	std::string sYouAreBanned ;
+	std::string sBotsNotAllowed ;
+	std::string sWantsJoin ;
 };
 
 // Options structure
@@ -141,7 +141,7 @@ public:
 	int		iFullscreen;
 	int		iShowFPS;
 	int		iOpenGL;
-	UCString	sResolution;
+	std::string	sResolution;
 	int		iColourDepth;
 
 	// Network
@@ -165,7 +165,7 @@ public:
 	int		iShowHealth;
 	int		iColorizeNicks;
 	int		iAutoTyping;
-	UCString	sSkinPath;
+	std::string	sSkinPath;
 
     // Advanced
     int     nMaxFPS;
@@ -203,12 +203,12 @@ public:
 		int		iShowBonusName;
 		int		iMaxPlayers;
 		bool	bTournament;
-		UCString	sServerName;
-		UCString	sWelcomeMessage;
-		UCString	sMapFilename;
+		std::string	sServerName;
+		std::string	sWelcomeMessage;
+		std::string	sMapFilename;
         int     nGameType;
-        UCString szModName;
-        UCString szPassword;
+        std::string szModName;
+        std::string szPassword;
 		bool	bRegServer;
 		int		iLastSelectedPlayer;
 		bool	bAllowWantsJoinMsg;

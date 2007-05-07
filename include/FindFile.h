@@ -21,7 +21,7 @@
 #define __FINDFILE_H__
 
 #include <fstream>
-#include "UCString.h"
+#include <string>
 #include <list>
 
 #ifndef WIN32
@@ -50,21 +50,21 @@
 
 
 class drive_t { public:
-	UCString name;
+	std::string name;
 	unsigned int type;
 };
 
 typedef std::vector<drive_t> drive_list;
 
-void	AddToFileList(searchpathlist* l, const UCString& f);
-bool	FileListIncludesExact(const searchpathlist* l, const UCString& f);
+void	AddToFileList(searchpathlist* l, const std::string& f);
+bool	FileListIncludesExact(const searchpathlist* l, const std::string& f);
 
 // this replaces ${var} in filename with concrete values
 // currently, the following variables are handled:
 //   ${HOME} - the home-dir, that means under unix ~  and under windows the 'my-documents'
 //   ${BIN} - the dir of the executable-binary
 //   ${SYSTEM_DATA} - data-dir of the system, that means usually /usr/share
-void	ReplaceFileVariables(UCString& filename);
+void	ReplaceFileVariables(std::string& filename);
 
 drive_list GetDrives(void);
 
@@ -75,17 +75,17 @@ drive_list GetDrives(void);
 // this function gives the case sensitive right name of a file
 // also, it replaces ${var} in the searchname
 // returns false if no success, true else
-bool GetExactFileName(const UCString& abs_searchname, UCString& filename);
+bool GetExactFileName(const std::string& abs_searchname, std::string& filename);
 
 #else // WIN32
 
 // This function converts relative paths to absolute paths
-UCString GetAbsolutePath(const UCString& path);
+std::string GetAbsolutePath(const std::string& path);
 
 // we don't have case sensitive file systems under windows
 // but we still need to replace ${var} in the searchname
 // returns true, if file/dir is existing and accessable, false else
-inline bool GetExactFileName(const UCString& abs_searchname, UCString& filename) {
+inline bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
 	filename = abs_searchname;
 
 	if(abs_searchname.size() == 0) {
@@ -121,43 +121,43 @@ void	InitBaseSearchPaths();
 // this does a search on all searchpaths for the file and returns the first one found
 // if none was found, NULL will be returned
 // if searchpath!=NULL, it will place there the searchpath
-UCString GetFullFileName(const UCString& path, UCString* searchpath = NULL);
+std::string GetFullFileName(const std::string& path, std::string* searchpath = NULL);
 
 // this give always a dir like searchpath[0]/path, but it ensures:
 // - the filename is correct, if the file exists
 // - it replaces ${var} with ReplaceFileVariables
 // if create_nes_dirs is set, the nessecary dirs will be created
-UCString GetWriteFullFileName(const UCString& path, bool create_nes_dirs = false);
+std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs = false);
 
 // replacement for the simple fopen
 // this does a search on all searchpaths for the file and opens the first one; if none was found, NULL will be returned
 // related to tLXOptions->tSearchPaths
-FILE*	OpenGameFile(const UCString& path, const char *mode);
+FILE*	OpenGameFile(const std::string& path, const char *mode);
 
-std::ifstream* OpenGameFileR(const UCString& path);
+std::ifstream* OpenGameFileR(const std::string& path);
 
-bool IsFileAvailable(const UCString& f, bool absolute = false);
+bool IsFileAvailable(const std::string& f, bool absolute = false);
 
 // the dir will be created recursivly
 // IMPORTANT: filename is absolute; no game-path!
-void	CreateRecDir(const UCString& abs_filename, bool last_is_dir = true);
+void	CreateRecDir(const std::string& abs_filename, bool last_is_dir = true);
 
 // copy the src-file to the dest
 // it will simply fopen(src, "r"), fopen(dest, "w") and write all the stuff
 // IMPORTANT: filenames are absolute; no game-path!
-bool	FileCopy(const UCString& src, const UCString& dest);
+bool	FileCopy(const std::string& src, const std::string& dest);
 
 // returns true, if we can write to the dir
-bool	CanWriteToDir(const UCString& dir);
+bool	CanWriteToDir(const std::string& dir);
 
 // returns the home-directory (used by ReplaceFileVariables)
-UCString	GetHomeDir();
+std::string	GetHomeDir();
 // returns the system-data-dir (under Linux, usually /usr/share)
-UCString	GetSystemDataDir();
+std::string	GetSystemDataDir();
 // returns the dir of the executable-binary
-UCString	GetBinaryDir();
+std::string	GetBinaryDir();
 // returns the temp-dir of the system
-UCString	GetTempDir();
+std::string	GetTempDir();
 
 
 typedef uchar filemodes_t;
@@ -166,16 +166,16 @@ enum {
 	FM_REG = 2
 };
 
-bool PathListIncludes(const std::list<UCString>& list, const UCString& path);
+bool PathListIncludes(const std::list<std::string>& list, const std::string& path);
 
 // _handler has to be a functor with
-// bool op() ( const UCString& path )
+// bool op() ( const std::string& path )
 // ending pathsep is ensured if needed
 // if return is false, it will break
 template<typename _handler>
 void ForEachSearchpath(_handler handler = _handler()) {
-	std::list<UCString> handled_dirs;
-	UCString path;
+	std::list<std::string> handled_dirs;
+	std::string path;
 	searchpathlist::const_iterator i;
 	
 	if(tLXOptions) for(
@@ -212,14 +212,14 @@ void ForEachSearchpath(_handler handler = _handler()) {
 template<typename _filehandler>
 class FindFilesHandler {
 public:
-	const UCString& dir;
-	const UCString& namefilter;
+	const std::string& dir;
+	const std::string& namefilter;
 	const filemodes_t modefilter;
 	_filehandler& filehandler;
 	
 	FindFilesHandler(
-		const UCString& dir_,
-		const UCString& namefilter_,
+		const std::string& dir_,
+		const std::string& namefilter_,
 		const filemodes_t modefilter_,
 		_filehandler& filehandler_) :
 		dir(dir_),
@@ -227,8 +227,8 @@ public:
 		modefilter(modefilter_),
 		filehandler(filehandler_) {}
 	
-	inline bool operator() (const UCString& path) {
-		UCString abs_path = path;
+	inline bool operator() (const std::string& path) {
+		std::string abs_path = path;
 		if(!GetExactFileName(path + dir, abs_path)) return true;
 		bool ret = true;
 		
@@ -251,7 +251,7 @@ public:
 				break;
 		}
 #else /* not WIN32 */
-		UCString filename;
+		std::string filename;
 		dirent* entry;
 		struct stat s;
 		DIR* handle = opendir(abs_path.c_str());
@@ -277,14 +277,14 @@ public:
 
 // FindFiles searches for files
 // _handler has to be a functor with
-// bool op()( const UCString& abs_filename )
+// bool op()( const std::string& abs_filename )
 // if it returns false, it will break
 template<typename _handler>
 void FindFiles(
 	_handler handler,
-	const UCString& dir,
+	const std::string& dir,
 	const filemodes_t modefilter = -1,
-	const UCString& namefilter = ""
+	const std::string& namefilter = ""
 ) {
 	if(namefilter != "*" && namefilter != "")
 		printf("FindFiles: WARNING: filter %s isn't handled yet\n", namefilter.c_str());

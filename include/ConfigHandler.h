@@ -28,32 +28,32 @@
 
 
 // Internal
-int		GetString(const UCString& filename, const UCString& section, const UCString& key, UCString& string);
+int		GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string);
 
 
 // Value reading
-int		ReadString(const UCString& filename, const UCString& section, const UCString& key, UCString& value, const UCString& defaultv);
-int		ReadInteger(const UCString& filename, const UCString& section, const UCString& key, int *value, int defaultv);
-int		ReadFloat(const UCString& filename, const UCString& section, const UCString& key, float *value, float defaultv);
-int		ReadColour(const UCString& filename, const UCString& section, const UCString& key, Uint32 *value, Uint32 defaultv);
-int		ReadIntArray(const UCString& filename, const UCString& section, const UCString& key, int *array, int num_items);
-//int		ReadVec2d(UCString& filename, UCString& section, UCString& key, CVec2d *value);
-int		ReadVec(const UCString& filename, const UCString& section, const UCString& key, CVec *value);
-//int		ReadRegion(UCString& filename, UCString& section, UCString& key, CRegion *value);
+int		ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, const std::string& defaultv);
+int		ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
+int		ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv);
+int		ReadColour(const std::string& filename, const std::string& section, const std::string& key, Uint32 *value, Uint32 defaultv);
+int		ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items);
+//int		ReadVec2d(std::string& filename, std::string& section, std::string& key, CVec2d *value);
+int		ReadVec(const std::string& filename, const std::string& section, const std::string& key, CVec *value);
+//int		ReadRegion(std::string& filename, std::string& section, std::string& key, CRegion *value);
 
 
 
 
 // Keywords
 class keyword_t { public:
-	UCString key;
+	std::string key;
 	int  Value;
 };
 
 
-int		AddKeyword(const UCString& key, int value);
-int		ReadKeyword(const UCString& filename, const UCString& section, const UCString& key, int *value, int defaultv);
-bool	ReadKeyword(const UCString& filename, const UCString& section, const UCString& key, bool *value, bool defaultv);
+int		AddKeyword(const std::string& key, int value);
+int		ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
+bool	ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv);
 
 
 

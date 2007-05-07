@@ -257,11 +257,11 @@ class server_t { public:
     float   fQueryTimes[MAX_QUERIES+1];
 
 	// Server address
-	UCString	szAddress;
+	std::string	szAddress;
 	NetworkAddr	sAddress;
 
 	// Server details
-	UCString	szName;
+	std::string	szName;
 	int		nState;
 	int		nNumPlayers;
 	int		nMaxPlayers;
@@ -313,36 +313,36 @@ void	Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int bor
 void    Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
 void    Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool down);
 int		Menu_LoadWormGfx(profile_t *ply);
-int		Menu_MessageBox(const UCString& sTitle, const UCString& sText, int type);
+int		Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type);
 void	Menu_AddDefaultWidgets(void);
 void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
-UCString	Menu_GetLevelName(const UCString& filename);
+std::string	Menu_GetLevelName(const std::string& filename);
 
 // Server list
 void		Menu_SvrList_Clear(void);
 void        Menu_SvrList_ClearAuto(void);
 void		Menu_SvrList_Shutdown(void);
 void		Menu_SvrList_PingLAN(void);
-server_t	*Menu_SvrList_AddServer(const UCString& address, bool bManual);
-server_t	*Menu_SvrList_AddNamedServer(const UCString& address, const UCString& name);
-server_t    *Menu_SvrList_FindServerStr(const UCString& szAddress);
-void        Menu_SvrList_RemoveServer(const UCString& szAddress);
+server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual);
+server_t	*Menu_SvrList_AddNamedServer(const std::string& address, const std::string& name);
+server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress);
+void        Menu_SvrList_RemoveServer(const std::string& szAddress);
 bool		Menu_SvrList_Process(void);
 int			Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
 server_t	*Menu_SvrList_FindServer(NetworkAddr *addr);
 void		Menu_SvrList_PingServer(server_t *svr);
-void		Menu_SvrList_WantsJoin(const UCString& Nick, server_t *svr);
+void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
 void		Menu_SvrList_RefreshList(void);
 void        Menu_SvrList_RefreshServer(server_t *s);
 void		Menu_SvrList_UpdateList(void);
 void		Menu_SvrList_FillList(CListview *lv);
-void        Menu_SvrList_SaveList(const UCString& szFilename);
-void        Menu_SvrList_LoadList(const UCString& szFilename);
-void        Menu_SvrList_DrawInfo(const UCString& szAddress);
-void		Menu_SvrList_AddFavourite(const UCString& szName, const UCString& szAddress);
+void        Menu_SvrList_SaveList(const std::string& szFilename);
+void        Menu_SvrList_LoadList(const std::string& szFilename);
+void        Menu_SvrList_DrawInfo(const std::string& szAddress);
+void		Menu_SvrList_AddFavourite(const std::string& szName, const std::string& szAddress);
 
 // Main menu
 void	Menu_MainInitialize(void);
@@ -371,7 +371,7 @@ void    Menu_Player_NewPlayerInit(void);
 void    Menu_Player_ViewPlayerInit(void);
 void	Menu_Player_NewPlayer(int mouse);
 void	Menu_Player_ViewPlayers(int mouse);
-void	Menu_Player_AddPlayer(const UCString& sName, Uint8 r, Uint8 g, Uint8 b);
+void	Menu_Player_AddPlayer(const std::string& sName, Uint8 r, Uint8 g, Uint8 b);
 void    Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB);
 void	Menu_Player_DeletePlayer(int index);
 void    Menu_Player_FillSkinCombo(CCombobox *cb);
@@ -382,7 +382,7 @@ int		Menu_MapEdInitialize(void);
 void	Menu_MapEdFrame(SDL_Surface *bmpDest, int process);
 void	Menu_MapEd_New(void);
 void	Menu_MapEd_LoadSave(int save);
-int		Menu_MapEd_OkSave(const UCString& szFilename);
+int		Menu_MapEd_OkSave(const std::string& szFilename);
 void	Menu_MapEdShutdown(void);
 
 // Game Settings
@@ -394,13 +394,13 @@ void    Menu_GameSettings_Default(void);
 
 
 // Weapons Restrictions
-void    Menu_WeaponsRestrictions(const UCString& szMod);
+void    Menu_WeaponsRestrictions(const std::string& szMod);
 bool    Menu_WeaponsRestrictions_Frame(void);
 void	Menu_WeaponsRestrictionsShutdown(void);
 
 // Load/save dialog
 void	Menu_WeaponPresets(int save, CWpnRest *gamescript);
-int		Menu_WeaponPresetsOkSave(const UCString& szFilename);
+int		Menu_WeaponPresetsOkSave(const std::string& szFilename);
 void	Menu_WeaponPresetsShutdown(void);
 
 // Ban List
@@ -418,7 +418,7 @@ void	Menu_ServerSettingsShutdown(void);
 int		Menu_OptionsInitialize(void);
 void	Menu_OptionsShutdown(void);
 void	Menu_OptionsFrame(void);
-void	Menu_OptionsWaitInput(int ply, const UCString& name, CInputbox *b);
+void	Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b);
 
 
 // Main net
@@ -448,7 +448,7 @@ void    Menu_Net_HostLobbyCreateGui(void);
 void	Menu_Net_HostGotoLobby(void);
 void	Menu_Net_HostLobbyFrame(int mouse);
 void	Menu_Net_HostLobbyShutdown(void);
-UCString	Menu_Net_HostLobbyGetText(void);
+std::string	Menu_Net_HostLobbyGetText(void);
 void	Menu_HostDrawLobby(SDL_Surface *bmpDest);
 void	Menu_HostShowMinimap(void);
 void	Menu_Net_HostDeregister(void);
@@ -459,12 +459,12 @@ int		Menu_Net_LANInitialize(void);
 void	Menu_Net_LANShutdown(void);
 void	Menu_Net_LANFrame(int mouse);
 void	Menu_Net_LANSendPing(void);
-void	Menu_Net_LANJoinServer(const UCString& sAddress, const UCString& sName);
-void    Menu_Net_LanShowServer(const UCString& szAddress);
+void	Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sName);
+void    Menu_Net_LanShowServer(const std::string& szAddress);
 
 
 // Net::Joining menu
-int		Menu_Net_JoinInitialize(const UCString& sAddress);
+int		Menu_Net_JoinInitialize(const std::string& sAddress);
 void	Menu_Net_JoinShutdown(void);
 void	Menu_Net_JoinFrame(int mouse);
 
@@ -472,16 +472,16 @@ void	Menu_Net_JoinFrame(int mouse);
 int		Menu_Net_FavouritesInitialize(void);
 void	Menu_Net_FavouritesShutdown(void);
 void	Menu_Net_FavouritesFrame(int mouse);
-void	Menu_Net_FavouritesJoinServer(const UCString& sAddress, const UCString& sName);
-void	Menu_Net_FavouritesShowServer(const UCString& szAddress);
-void	Menu_Net_RenameServer(const UCString& szName);
+void	Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName);
+void	Menu_Net_FavouritesShowServer(const std::string& szAddress);
+void	Menu_Net_RenameServer(const std::string& szName);
 void	Menu_Net_FavouritesAddServer(void);
 
 // deprecated
 //int	Menu_Net_JoinInitializePlayers(void);
 //void	Menu_Net_JoinPlayersFrame(int mouse);
 
-int		Menu_Net_JoinConnectionInitialize(const UCString& sAddress);
+int		Menu_Net_JoinConnectionInitialize(const std::string& sAddress);
 void	Menu_Net_JoinConnectionFrame(int mouse);
 void	Menu_Net_JoinConnectionShutdown(void);
 
@@ -489,7 +489,7 @@ int		Menu_Net_JoinLobbyInitialize(void);
 void    Menu_Net_JoinDrawLobby(void);
 void    Menu_Net_JoinLobbyCreateGui(void);
 void	Menu_Net_JoinGotoLobby(void);
-UCString	Menu_Net_JoinLobbyGetText(void);
+std::string	Menu_Net_JoinLobbyGetText(void);
 void	Menu_Net_JoinLobbyFrame(int mouse);
 void	Menu_Net_JoinLobbyShutdown(void);
 
@@ -498,10 +498,10 @@ void	Menu_Net_JoinLobbyShutdown(void);
 int		Menu_Net_NETInitialize(void);
 void	Menu_Net_NETShutdown(void);
 void	Menu_Net_NETFrame(int mouse);
-void	Menu_Net_NETJoinServer(const UCString& sAddress, const UCString& sName);
+void	Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sName);
 void	Menu_Net_NETAddServer(void);
 void	Menu_Net_NETUpdateList(void);
 void	Menu_Net_NETParseList(void);
-void    Menu_Net_NETShowServer(const UCString& szAddress);
+void    Menu_Net_NETShowServer(const std::string& szAddress);
 
 #endif  //  __MENU_H__

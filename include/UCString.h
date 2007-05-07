@@ -35,9 +35,9 @@ void MultIncUtf8StringIterator(_Iterator& it, const _Iterator& last, size_t coun
 	}
 }
 
-class UCString;
+class std::string;
 template<typename _BaseStringType, typename _BaseIteratorType> class Utf8StringIterator;
-UnicodeChar GetNextUnicodeFromUtf8(Utf8StringIterator<const UCString, std::string::const_iterator>& it, const Utf8StringIterator<const UCString, std::string::const_iterator>& last);
+UnicodeChar GetNextUnicodeFromUtf8(Utf8StringIterator<const std::string, std::string::const_iterator>& it, const Utf8StringIterator<const std::string, std::string::const_iterator>& last);
 
 
 
@@ -58,7 +58,7 @@ template<typename _BaseStringType, typename _BaseIteratorType/*, typename _IncFu
 class Utf8StringIterator {
 	template<typename _BaseStringType2, typename _BaseIteratorType2>
 	friend class Utf8StringIterator;
-	friend class UCString;
+	friend class std::string;
 
 private:
 	_BaseStringType* str;
@@ -106,23 +106,23 @@ public:
 	wrapper around std::string, which uses it as a represantation of an UTF8 string
 	it provides correct iterators for this issue
 */
-class UCString : public std::string {
+class std::string : public std::string {
 public:
 
-	typedef Utf8StringIterator<UCString, std::string::iterator> iterator;
-	typedef Utf8StringIterator<const UCString, std::string::const_iterator> const_iterator;
+	typedef Utf8StringIterator<std::string, std::string::iterator> iterator;
+	typedef Utf8StringIterator<const std::string, std::string::const_iterator> const_iterator;
 	// TODO
-	/*typedef Utf8StringIterator<UCString, std::string::reverse_iterator> reverse_iterator;
-	typedef Utf8StringIterator<const UCString, std::string::const_reverse_iterator> const_reverse_iterator;*/
+	/*typedef Utf8StringIterator<std::string, std::string::reverse_iterator> reverse_iterator;
+	typedef Utf8StringIterator<const std::string, std::string::const_reverse_iterator> const_reverse_iterator;*/
 	
-	UCString() {}
-	UCString(const char* s) : std::string(s) {}
-	UCString(const char* s, size_t len) : std::string(s, len) {}
-	UCString(const std::string& s) : std::string(s) {}
-	UCString(const UCString& s) : std::string(s) {}
-	UCString(const_iterator range_l, const_iterator range_r) : std::string(range_l.it, range_r.it) {}
+	std::string() {}
+	std::string(const char* s) : std::string(s) {}
+	std::string(const char* s, size_t len) : std::string(s, len) {}
+	std::string(const std::string& s) : std::string(s) {}
+	std::string(const std::string& s) : std::string(s) {}
+	std::string(const_iterator range_l, const_iterator range_r) : std::string(range_l.it, range_r.it) {}
 	void operator=(const char* s) { (std::string&)*this = s; }
-	void operator=(const UCString& s) { (std::string&)*this = s; }
+	void operator=(const std::string& s) { (std::string&)*this = s; }
 	
 	iterator begin() { return iterator(this, ((std::string*)this)->begin()); }
 	const_iterator begin() const { return const_iterator(this, ((std::string*)this)->begin()); }
@@ -145,8 +145,8 @@ public:
 	
 };
 
-UCString operator+(const UCString& str1, const UCString& str2) { return (std::string&)str1 + (std::string&)str2; }
-UCString operator+(const char* str1, const UCString& str2) { return std::string(str1) + (std::string&)str2; }
-UCString operator+(const UCString& str1, const char* str2) { return (std::string&)str1 + std::string(str2); }
+std::string operator+(const std::string& str1, const std::string& str2) { return (std::string&)str1 + (std::string&)str2; }
+std::string operator+(const char* str1, const std::string& str2) { return std::string(str1) + (std::string&)str2; }
+std::string operator+(const std::string& str1, const char* str2) { return (std::string&)str1 + std::string(str2); }
 
 #endif

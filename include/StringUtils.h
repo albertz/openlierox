@@ -13,7 +13,7 @@
 
 #include <SDL/SDL.h> // for Uint32
 #include <stdio.h> // for FILE
-#include "UCString.h"
+#include <string>
 #include <sstream>
 #include <vector>
 
@@ -76,34 +76,34 @@ inline char* itoa(int val, char* buf, int base) {
 
 
 
-void	TrimSpaces(UCString& szLine);
-bool	replace(const UCString& text, const UCString& what, const UCString& with, UCString& result);
-bool	replace(UCString& text, const UCString& what, const UCString& with);
-UCString replacemax(const UCString& text, const UCString& what, const UCString& with, UCString& result, int max);
-UCString replacemax(const UCString& text, const UCString& what, const UCString& with, int max);
-UCString strip(const UCString& text, int width);
-bool stripdot(UCString& text, int width);
-void	ucfirst(UCString& text);
-void	stringtolower(UCString& text);
-UCString	ReadUntil(const UCString& text, char until_character = '\n');
-UCString	ReadUntil(FILE* fp, char until_character = '\n');
-Uint32	StrToCol(const UCString& str);
-const std::vector<UCString>& explode(const UCString& str, const UCString& delim);
-UCString freadstr(FILE *fp, size_t maxlen);
-inline UCString freadfixedcstr(FILE *fp, size_t maxlen) { return ReadUntil(freadstr(fp, maxlen), '\0'); }
-size_t fwrite(const UCString& txt, size_t len, FILE* fp);
-size_t findLastPathSep(const UCString& path);
-void stringlwr(UCString& txt);
-bool strincludes(const UCString& str, const UCString& what);
-short stringcasecmp(const UCString& s1, const UCString& s2);
+void	TrimSpaces(std::string& szLine);
+bool	replace(const std::string& text, const std::string& what, const std::string& with, std::string& result);
+bool	replace(std::string& text, const std::string& what, const std::string& with);
+std::string replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max);
+std::string replacemax(const std::string& text, const std::string& what, const std::string& with, int max);
+std::string strip(const std::string& text, int width);
+bool stripdot(std::string& text, int width);
+void	ucfirst(std::string& text);
+void	stringtolower(std::string& text);
+std::string	ReadUntil(const std::string& text, char until_character = '\n');
+std::string	ReadUntil(FILE* fp, char until_character = '\n');
+Uint32	StrToCol(const std::string& str);
+const std::vector<std::string>& explode(const std::string& str, const std::string& delim);
+std::string freadstr(FILE *fp, size_t maxlen);
+inline std::string freadfixedcstr(FILE *fp, size_t maxlen) { return ReadUntil(freadstr(fp, maxlen), '\0'); }
+size_t fwrite(const std::string& txt, size_t len, FILE* fp);
+size_t findLastPathSep(const std::string& path);
+void stringlwr(std::string& txt);
+bool strincludes(const std::string& str, const std::string& what);
+short stringcasecmp(const std::string& s1, const std::string& s2);
 
 
-UCString GetFileExtension(const UCString& filename);
+std::string GetFileExtension(const std::string& filename);
 
 
 // TODO: remove all the following functions
 void	StripQuotes(char *dest, char *src); // TODO: remove this
-void	StripQuotes(UCString& str);
+void	StripQuotes(std::string& str);
 void    lx_strncpy(char *dest, char *src, int count); // TODO: remove this
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
@@ -116,28 +116,28 @@ char	*ucfirst(char *text);
 
 
 template<typename T>
-T from_string(const UCString& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {
+T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {
 	std::istringstream iss(s); T t;
 	failed = (iss >> f >> t).fail();
 	return t;
 }
 
 template<typename T>
-T from_string(const UCString& s, std::ios_base& (*f)(std::ios_base&)) {
+T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
 	std::istringstream iss(s); T t;
 	iss >> f >> t;
 	return t;
 }
 
 template<typename T>
-T from_string(const UCString& s, bool& failed) {
+T from_string(const std::string& s, bool& failed) {
 	std::istringstream iss(s); T t;
 	failed = (iss >> t).fail();
 	return t;
 }
 
 template<typename T>
-T from_string(const UCString& s) {
+T from_string(const std::string& s) {
 	std::istringstream iss(s); T t;
 	iss >> t;
 	return t;
@@ -145,24 +145,24 @@ T from_string(const UCString& s) {
 
 
 
-// UCString itoa
-inline UCString itoa(int num,int base=10)  {
+// std::string itoa
+inline std::string itoa(int num,int base=10)  {
 	// TODO: better!! (use ostringstream)
 	static char buf[64];
-	static UCString ret;
+	static std::string ret;
 	ret = itoa(num,buf,base);
 	fix_markend(buf);
 	return ret;
 }
 
-inline int atoi(const UCString& str)  { return from_string<int>(str);  }
-inline float atof(const UCString& str) { return from_string<float>(str);  }
+inline int atoi(const std::string& str)  { return from_string<int>(str);  }
+inline float atof(const std::string& str) { return from_string<float>(str);  }
 
 
 
 class simple_reversestring_hasher { public:
-	inline size_t operator() (const UCString& str) const {
-		UCString::const_reverse_iterator pos = str.rbegin();
+	inline size_t operator() (const std::string& str) const {
+		std::string::const_reverse_iterator pos = str.rbegin();
 		unsigned short nibble = 0;
 		size_t result = 0;
 		for(; pos != str.rend() && nibble < sizeof(size_t)*2; pos++, nibble++)
