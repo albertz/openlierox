@@ -48,18 +48,20 @@
 #	include <direct.h>
 	// wrappers to provide the standards
 	inline int mkdir(const char *path, int mode) { return _mkdir(path); }
-#	if _MSC_VER <= 1200
-		inline size_t strnlen(const char *str, size_t maxlen)  { 
-			register unsigned int i=0;
-			for (;i<maxlen && str[i];i++) {}
-			return i;
-		}
-#	endif // _MSC_VER <= 1200
 #	define stat _stat
 inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
 inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
 #endif
-	
+
+#if (defined(WIN32) && _MSC_VER <= 1200) || defined(MACOSX)
+// TODO: remove this from whole code! (we use std::string now)
+inline size_t strnlen(const char *str, size_t maxlen)  { 
+	register unsigned int i=0;
+	for (;i<maxlen && str[i];i++) {}
+	return i;
+}
+#endif
+
 
 #include <SDL/SDL.h>
 

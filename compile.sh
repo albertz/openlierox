@@ -25,7 +25,7 @@
 [ "$VERSION" == "" ] && [ -e VERSION ] && VERSION=$(cat VERSION)
 
 # add standards to include path list
-INCLUDE_PATH="/usr/include /usr/local/include /sw/include"
+INCLUDE_PATH="$INCLUDE_PATH /usr/include /usr/local/include /sw/include"
 
 # some simple existance-test-function
 function test_include_file() {
@@ -105,7 +105,7 @@ echo "* $COMPILER will be used for compilation"
 
 mkdir -p bin
 
-# build full include list
+# build full include path list
 INCLUDE_ADDITIONAL=". libxml2 hawknl"
 INCLUDE_STRING=""
 for p in $INCLUDE_PATH; do
@@ -114,11 +114,19 @@ for p in $INCLUDE_PATH; do
 	done
 done
 
+# build full lib path list
+LIB_STRING=""
+for p in $LIB_PATH; do
+	LIB_STRING="$LIB_STRING -L $p"
+done
+
+
 echo ">>> compiling now, this could take some time ..."
 if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$HAWKNL_GCC_PARAM \
 	-I include \
 	$INCLUDE_STRING \
+	$LIB_STRING \
 	-lSDL -lSDL_image -lSDL_mixer -lz -lgd -lxml2 \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
