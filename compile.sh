@@ -5,6 +5,7 @@
 #	SYSTEM_DATA_DIR		- the global data dir for the game; default=/usr/share
 #	COMPILER			- sets the compiler
 #	CXXFLAGS			- some other compiler flags
+#	LDFLAGS				- some other linker flags
 #	INCLUDE_PATH		- adds one or more include paths
 #	LIB_PATH			- adds one or more lib paths
 #	DEBUG				- if set to 1, the game will compiled with debug-info
@@ -26,6 +27,7 @@
 
 # add standards to include path list
 INCLUDE_PATH="$INCLUDE_PATH /usr/include /usr/local/include /sw/include"
+LIB_PATH="$LIB_PATH /sw/lib"
 
 # some simple existance-test-function
 function test_include_file() {
@@ -117,9 +119,8 @@ done
 # build full lib path list
 LIB_STRING=""
 for p in $LIB_PATH; do
-	LIB_STRING="$LIB_STRING -L $p"
+	LIB_STRING="$LIB_STRING -L$p"
 done
-
 
 echo ">>> compiling now, this could take some time ..."
 if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
@@ -133,6 +134,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
 	$( [ "$ACTIVATE_GDB" == "1" ] && echo -ggdb ) \
 	$CXXFLAGS \
+	$LDFLAGS \
 	-o bin/openlierox
 then
 	echo ">>> success"

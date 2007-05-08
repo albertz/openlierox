@@ -1,29 +1,47 @@
 This is the game OpenLieroX!
+                 ==========
 
+
+	Description
+	===========
 It's some type of a real-time, excessive clone of Worms.
 
+
+	About
+	=====
 OpenLieroX is based on Jason Boettchers famous Liero Xtreme.
 ( Take a look here: http://lxalliance.net/lierox/ )
 Jason B. has released his work in 2006 under the zlib-licence
 and after some months of work, we ported and enhanced his work
 and got OpenLieroX.
 
+
+	Compilation
+	===========
+Mac OS X:
+HAWKNL_BUILTIN=1 CXXFLAGS="-DMACOSX" LDFLAGS="-framework Cocoa -lSDLmain" ./compile.sh
+
+
+	Game search paths
+	=================
 The game uses case insensitive filenames (it will use the first
 found on case sensitive filesystems).
 The game searches the paths ~/.OpenLieroX, ./ and /usr/share/OpenLieroX
 (or under Gentoo: /usr/share/games/OpenLieroX) for game-data
-(all path are relativ to this bases) (in this order).
-You can also add more searchpathes in cfg/options.cfg
-(you also can change the searchpath-order here).
+(all path are relativ to this bases) (in this order) by default.
+You can also add more searchpathes and change this in cfg/options.cfg.
 Own modified configs, screenshots and other stuff always will
 be stored in ~/.OpenLieroX.
 
+
+	Thanks for all the fish
+	=======================
 So, well, I think that was all the important stuff.
 Look at the Homepage for further details.
 
-Homepage@Sourceforge: http://openlierox.sourceforge.net
-Project@Sourceforge: http://sourceforge.net/projects/openlierox/
-Homepage@AZ: http://www.az2000.de/projects/openlierox/
+Official homepage of OpenLieroX:	http://openlierox.sourceforge.net
+Project site on Sourceforge:		http://sourceforge.net/projects/openlierox/
+Homepage of Albert Zeyer:			http://www.az2000.de/
 
 Thank you for enjoying it!
 

@@ -102,17 +102,8 @@
 		EA430E420BEFEB6900C6547E /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3A0BEFCEB400C6547E /* StringUtils.cpp */; };
 		EA430E430BEFEB6900C6547E /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3B0BEFCEB400C6547E /* Timer.cpp */; };
 		EA430E440BEFEB6900C6547E /* Unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3C0BEFCEB400C6547E /* Unicode.cpp */; };
+		EA430EA10BF0ED9900C6547E /* libHawkNL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EA430DD20BEFEA8900C6547E /* libHawkNL.a */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		EA430E670BEFEE4B00C6547E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EA430DD10BEFEA8900C6547E /* HawkNL */;
-			remoteInfo = HawkNL;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuxLib.cpp; path = ../../src/client/AuxLib.cpp; sourceTree = SOURCE_ROOT; };
@@ -282,7 +273,7 @@
 		EA430CA80BEFCFD300C6547E /* create_snapshot.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = create_snapshot.sh; path = ../../distrib/create_snapshot.sh; sourceTree = SOURCE_ROOT; };
 		EA430CA90BEFCFD300C6547E /* distrib_files.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = distrib_files.sh; path = ../../distrib/distrib_files.sh; sourceTree = SOURCE_ROOT; };
 		EA430CAA0BEFCFD300C6547E /* receive_files.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = receive_files.sh; path = ../../distrib/receive_files.sh; sourceTree = SOURCE_ROOT; };
-		EA430CFF0BEFE36E00C6547E /* OpenLieroX_console */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = OpenLieroX_console; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA430CFF0BEFE36E00C6547E /* OpenLieroX_console */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenLieroX_console; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA430DD20BEFEA8900C6547E /* libHawkNL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHawkNL.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA430DD90BEFEB1000C6547E /* condition.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = condition.c; path = ../../hawknl/src/condition.c; sourceTree = SOURCE_ROOT; };
 		EA430DDA0BEFEB1000C6547E /* crc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crc.c; path = ../../hawknl/src/crc.c; sourceTree = SOURCE_ROOT; };
@@ -302,6 +293,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA430EA10BF0ED9900C6547E /* libHawkNL.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,11 +310,11 @@
 		08FB7794FE84155DC02AAC07 /* OpenLieroX */ = {
 			isa = PBXGroup;
 			children = (
-				EA430DEF0BEFEB1A00C6547E /* HawkNL source */,
-				EA430C8E0BEFCF5B00C6547E /* Scripts */,
 				08FB7795FE84155DC02AAC07 /* Source */,
+				EA430C8E0BEFCF5B00C6547E /* Scripts */,
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
+				EA430DEF0BEFEB1A00C6547E /* HawkNL source */,
 			);
 			name = OpenLieroX;
 			sourceTree = "<group>";
@@ -627,7 +619,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				EA430E680BEFEE4B00C6547E /* PBXTargetDependency */,
 			);
 			name = OpenLieroX_console;
 			productName = OpenLieroX_console;
@@ -779,18 +770,11 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		EA430E680BEFEE4B00C6547E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EA430DD10BEFEA8900C6547E /* HawkNL */;
-			targetProxy = EA430E670BEFEE4B00C6547E /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
 		1DEB923608733DC60010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
@@ -801,8 +785,22 @@
 				HEADER_SEARCH_PATHS = (
 					/sw/include,
 					/sw/include/libxml2,
+					../../hawknl/include,
 				);
+				LIBRARY_SEARCH_PATHS = /sw/lib;
+				LINK_WITH_STANDARD_LIBRARIES = NO;
 				OTHER_CFLAGS = "-DMACOSX";
+				OTHER_LDFLAGS = (
+					"-lSDL",
+					"-lSDL_image",
+					"-lSDL_mixer",
+					"-lz",
+					"-lgd",
+					"-lxml2",
+					"-framework",
+					Cocoa,
+					"-lSDLmain",
+				);
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = ../include;
@@ -812,6 +810,7 @@
 		1DEB923708733DC60010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
@@ -822,8 +821,22 @@
 				HEADER_SEARCH_PATHS = (
 					/sw/include,
 					/sw/include/libxml2,
+					../../hawknl/include,
 				);
+				LIBRARY_SEARCH_PATHS = /sw/lib;
+				LINK_WITH_STANDARD_LIBRARIES = NO;
 				OTHER_CFLAGS = "-DMACOSX";
+				OTHER_LDFLAGS = (
+					"-lSDL",
+					"-lSDL_image",
+					"-lSDL_mixer",
+					"-lz",
+					"-lgd",
+					"-lxml2",
+					"-framework",
+					Cocoa,
+					"-lSDLmain",
+				);
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = ../include;
@@ -836,24 +849,9 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					../../hawknl/include,
-				);
 				INSTALL_PATH = "$(HOME)/bin";
-				LIBRARY_SEARCH_PATHS = /sw/lib;
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-					"-lSDL_mixer",
-					"-lz",
-					"-lgd",
-					"-lxml2",
-				);
-				PREBINDING = NO;
+				PREBINDING = YES;
 				PRODUCT_NAME = OpenLieroX_console;
 				ZERO_LINK = NO;
 			};
@@ -864,22 +862,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					../../hawknl/include,
-				);
 				INSTALL_PATH = "$(HOME)/bin";
-				LIBRARY_SEARCH_PATHS = /sw/lib;
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-					"-lSDL_mixer",
-					"-lz",
-					"-lgd",
-					"-lxml2",
-				);
 				PREBINDING = NO;
 				PRODUCT_NAME = OpenLieroX_console;
 				ZERO_LINK = NO;

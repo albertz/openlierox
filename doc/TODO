@@ -1,5 +1,8 @@
 TODO list
 
+[ ] create Mac OS X application package
+[ ] make it run on Mac OS X
+[ ] finish documentation (README) (add more info there)
 [ ] select different key for ingame console
 [ ] 24/32 bit doesn't work in OpenGL mode; fix...
 [ ] fix some segfaults

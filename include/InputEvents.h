@@ -42,6 +42,7 @@ class mouse_t { public:
 	// HINT: the following three variables cannot be bool
 	//       because they contain info about the pressed button (left, right, ...)
 	//		 as well
+	// TODO: change this immediatly
 	int		Up;
 	int		Down;
     int     FirstDown;

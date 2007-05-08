@@ -85,8 +85,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 200265101;
-			PBXWorkspaceStateSaveDate = 200265101;
+			PBXPerProjectTemplateStateSaveDate = 200322582;
+			PBXWorkspaceStateSaveDate = 200322582;
 		};
 		sourceControlManager = EA430BE80BEFCDA000C6547E /* Source Control */;
 		userBuildSettings = {
@@ -111,12 +111,28 @@
 			sepNavVisRect = "{{0, 549}, {740, 121}}";
 		};
 	};
+	EA430C040BEFCEB400C6547E /* CTextbox.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {788, 8680}}";
+			sepNavSelRange = "{6009, 19}";
+			sepNavVisRect = "{{0, 4498}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
 	EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {908, 12768}}";
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRect = "{{0, 0}, {710, 529}}";
 			sepNavWindowFrame = "{{221, 79}, {749, 658}}";
+		};
+	};
+	EA430C220BEFCEB400C6547E /* CBytestream.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 5432}}";
+			sepNavSelRange = "{1704, 0}";
+			sepNavVisRect = "{{0, 995}, {710, 529}}";
+			sepNavWindowFrame = "{{252, 86}, {749, 658}}";
 		};
 	};
 	EA430C260BEFCEB400C6547E /* CMap.cpp */ = {
@@ -134,6 +150,46 @@
 			sepNavWindowFrame = "{{59, 86}, {749, 658}}";
 		};
 	};
+	EA430C3D0BEFCEB400C6547E /* main.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 8036}}";
+			sepNavSelRange = "{2427, 0}";
+			sepNavVisRect = "{{0, 46}, {710, 529}}";
+			sepNavWindowFrame = "{{369, 88}, {749, 658}}";
+		};
+	};
+	EA430C470BEFCEDE00C6547E /* CBanList.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 1092}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 563}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
+	EA430C4C0BEFCEDE00C6547E /* CBytestream.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {818, 1456}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 826}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
+	EA430C520BEFCEDE00C6547E /* CFont.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {764, 1316}}";
+			sepNavSelRange = "{1295, 0}";
+			sepNavVisRect = "{{0, 787}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
+	EA430C530BEFCEDE00C6547E /* CGameScript.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 3626}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 967}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
 	EA430C730BEFCEDE00C6547E /* defs.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {583, 1862}}";
@@ -142,12 +198,20 @@
 			sepNavWindowFrame = "{{301, 88}, {749, 658}}";
 		};
 	};
+	EA430C7A0BEFCEDE00C6547E /* InputEvents.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 910}}";
+			sepNavSelRange = "{825, 0}";
+			sepNavVisRect = "{{0, 261}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
 	EA430C890BEFCEDE00C6547E /* UCString.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1142, 2142}}";
-			sepNavSelRange = "{976, 0}";
-			sepNavVisRect = "{{0, 1511}, {710, 529}}";
-			sepNavWindowFrame = "{{261, 59}, {749, 658}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1106, 2142}}";
+			sepNavSelRange = "{5709, 0}";
+			sepNavVisRect = "{{0, 0}, {710, 529}}";
+			sepNavWindowFrame = "{{164, 69}, {749, 658}}";
 		};
 	};
 	EA430C8A0BEFCEDE00C6547E /* Unicode.h */ = {
@@ -158,12 +222,44 @@
 			sepNavWindowFrame = "{{432, 72}, {749, 658}}";
 		};
 	};
+	EA430C8B0BEFCEDE00C6547E /* Utils.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 1470}}";
+			sepNavSelRange = "{1219, 0}";
+			sepNavVisRect = "{{0, 71}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
+	EA430C8F0BEFCF7F00C6547E /* CMakeLists.txt */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 529}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
 	EA430C900BEFCF7F00C6547E /* compile.sh */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {710, 2030}}";
-			sepNavSelRange = "{4060, 0}";
-			sepNavVisRect = "{{0, 1408}, {710, 529}}";
+			sepNavIntBoundsRect = "{{0, 0}, {710, 2058}}";
+			sepNavSelRange = "{4544, 0}";
+			sepNavVisRect = "{{0, 1515}, {710, 529}}";
 			sepNavWindowFrame = "{{434, 82}, {749, 658}}";
+		};
+	};
+	EA430CA40BEFCFA600C6547E /* README */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 686}}";
+			sepNavSelRange = "{541, 0}";
+			sepNavVisRect = "{{0, 0}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
+	EA430CA50BEFCFA600C6547E /* TODO */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 529}}";
+			sepNavSelRange = "{78, 0}";
+			sepNavVisRect = "{{0, 0}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
 		};
 	};
 	EA430CFE0BEFE36E00C6547E /* OpenLieroX_console */ = {

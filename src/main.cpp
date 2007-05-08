@@ -92,7 +92,6 @@ int main(int argc, char *argv[])
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
 	assert(sizeof(char) == 1);
-	assert(sizeof(bool) == 1); // CBytestream
 	assert(sizeof(short) == 2);
 	assert(sizeof(int) == 4);
 	assert(sizeof(float) == 4);
