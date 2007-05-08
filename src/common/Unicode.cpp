@@ -109,4 +109,12 @@ UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::s
 }
 
 
+std::string::iterator Utf8PositionToIterator(std::string& str, size_t pos)
+{
+	std::string::iterator res = str.begin();
+	if (!pos) return res;
+	MultIncUtf8StringIterator(res,str.end(),pos);
+	return res;
+}
+
 

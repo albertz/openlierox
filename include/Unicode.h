@@ -36,6 +36,21 @@ void MultIncUtf8StringIterator(_Iterator& it, const _Iterator& last, size_t coun
 	}
 }
 
+///////////////////
+// The iterator points at first byte of the UTF8 encoded character
+template<typename _Iterator1, typename _Iterator2>
+void DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
+	unsigned char c;
+	for(it--; first != it; it--) {
+		c = *it;
+		if(!(c&0x80) || (c&0xC0)) {
+			break;
+		}
+	}
+}
+
+std::string::iterator Utf8PositionToIterator(std::string& str, size_t pos);
+
 
 
 
@@ -57,6 +72,24 @@ inline size_t InsertUnicodeChar(std::string& str, size_t pos, UnicodeChar ch) {
 	return pos + tmp.size();
 }
 
+inline void InsertUnicodeChar(std::string& str, std::string::iterator pos, UnicodeChar ch) {
+	std::string tmp = GetUtf8FromUnicode(ch);
+	size_t intpos=0;
+	std::string::iterator it;
+	for(it=str.begin();it!=pos;it++,intpos++) {}
+	str.insert(intpos, tmp);
+}
+
+inline size_t Utf8StringSize(std::string& str)  {
+	if (str == "") return 0;
+	size_t res=0;
+	std::string::iterator it = str.begin();
+	for(;it != str.end();IncUtf8StringIterator(it,str.end())) {
+		res++;
+	}
+
+	return res;
+}
 
 
 #endif
