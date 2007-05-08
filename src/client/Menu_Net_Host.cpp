@@ -1509,6 +1509,8 @@ bool Menu_BanList_Frame(void)
 			mouse = 1;
 		if(ev->cWidget->getType() == wid_Textbox)
 			mouse = 2;
+		if(ev->cWidget->getType() == wid_Listview)
+			mouse = ((CListview *)(ev->cWidget))->getCursor();
 
 		switch(ev->iControlID) {
 
@@ -1546,7 +1548,10 @@ bool Menu_BanList_Frame(void)
 	}
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	if (mouse !=3)
+		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	else
+		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X-(gfxGUI.bmpMouse[mouse]->w/2),Mouse->Y-(gfxGUI.bmpMouse[mouse]->h/2));
 
 	return false;
 }

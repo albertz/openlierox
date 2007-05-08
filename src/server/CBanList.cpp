@@ -200,18 +200,13 @@ void CBanList::loadList(const std::string& szFilename)
     if( !fp )
         return;
 
-    static char line[256];
-    strcpy(line, "");
-
+    static std::string line;
+	
     while( !feof(fp) ) {
-        fscanf(fp, "%[^\n]\n",line);
-
-		if (!strchr(line,','))
-			continue;
-
-        char* tok = strtok(line,",");
-        if( tok ) 
-            addBanned( tok, strtok(NULL,",") );
+        line = ReadUntil(fp, '\n');
+		const std::vector<std::string>& exploded = explode(line,",");
+		if (exploded.size() >= 2)
+			addBanned(exploded[0],exploded[1]);
     }
 
     fclose(fp);
