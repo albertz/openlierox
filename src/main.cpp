@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 			// cap the delta
 			tLX->fDeltaTime = MIN(tLX->fDeltaTime, 0.5f);
 
-		            ProcessEvents();
+			ProcessEvents();
 
 			// Main frame
 			GameLoop();

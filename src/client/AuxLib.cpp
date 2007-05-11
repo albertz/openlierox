@@ -139,7 +139,7 @@ int SetVideoMode(void)
 	}
 
 	// BlueBeret's addition (2007): OpenGL support
-	int opengl = tLXOptions->iOpenGL;
+	bool opengl = tLXOptions->iOpenGL;
 
 	// Initialize the video
 	if(tLXOptions->iFullscreen)  {
@@ -148,10 +148,14 @@ int SetVideoMode(void)
 
 	if (opengl) {
 		printf("HINT: using OpenGL\n");
+		vidflags |= SDL_OPENGL;
 		vidflags |= SDL_OPENGLBLIT;
-		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   5);
-		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, 5);
-		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  5);
+#ifndef MACOSX		
+		short colorbitsize = (tLXOptions->iColourDepth == 16) ? 5 : 8;
+		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
+		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
+		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
+#endif
 		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
 	}
 
@@ -168,7 +172,7 @@ int SetVideoMode(void)
 	if(DoubleBuf)
 		vidflags |= SDL_DOUBLEBUF;
 
-
+	
 	if( SDL_SetVideoMode(640,480, tLXOptions->iColourDepth,vidflags) == NULL) {
 		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, tLXOptions->iColourDepth,SDL_GetError());
 		return false;
