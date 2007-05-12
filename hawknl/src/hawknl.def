@@ -1,0 +1,67 @@
+LIBRARY HawkNL
+
+
+EXPORTS
+
+nlAcceptConnection     = _nlAcceptConnection@4
+nlAddrCompare          = _nlAddrCompare@8
+nlAddrToString         = _nlAddrToString@8
+nlClear                = _nlClear@4
+nlClearSocketStat      = _nlClearSocketStat@8
+nlClose                = _nlClose@4
+nlCondBroadcast        = _nlCondBroadcast@4
+nlCondDestroy          = _nlCondDestroy@4
+nlCondInit             = _nlCondInit@4
+nlCondSignal           = _nlCondSignal@4
+nlCondWait             = _nlCondWait@8
+nlConnect              = _nlConnect@8
+nlDisable              = _nlDisable@4
+nlEnable               = _nlEnable@4
+nlGetAddrFromName      = _nlGetAddrFromName@8
+nlGetAddrFromNameAsync = _nlGetAddrFromNameAsync@8
+nlGetAllLocalAddr      = _nlGetAllLocalAddr@4
+nlGetBoolean           = _nlGetBoolean@4
+nlGetCRC16             = _nlGetCRC16@8
+nlGetCRC32             = _nlGetCRC32@8
+nlGetError             = _nlGetError@0
+nlGetErrorStr          = _nlGetErrorStr@4
+nlGetInteger           = _nlGetInteger@4
+nlGetLocalAddr         = _nlGetLocalAddr@8
+nlGetNameFromAddr      = _nlGetNameFromAddr@8
+nlGetNameFromAddrAsync = _nlGetNameFromAddrAsync@8
+nlGetPortFromAddr      = _nlGetPortFromAddr@4
+nlGetRemoteAddr        = _nlGetRemoteAddr@8
+nlGetSocketStat        = _nlGetSocketStat@8
+nlGetString            = _nlGetString@4
+nlGetSystemError       = _nlGetSystemError@0
+nlGetSystemErrorStr    = _nlGetSystemErrorStr@4
+nlGroupAddSocket       = _nlGroupAddSocket@8
+nlGroupCreate          = _nlGroupCreate@0
+nlGroupDeleteSocket    = _nlGroupDeleteSocket@8
+nlGroupDestroy         = _nlGroupDestroy@4
+nlGroupGetSockets      = _nlGroupGetSockets@12
+nlHint                 = _nlHint@8
+nlInit                 = _nlInit@0
+nlListen               = _nlListen@4
+nlMutexDestroy         = _nlMutexDestroy@4
+nlMutexInit            = _nlMutexInit@4
+nlMutexLock            = _nlMutexLock@4
+nlMutexUnlock          = _nlMutexUnlock@4
+nlOpen                 = _nlOpen@8
+nlPollGroup            = _nlPollGroup@20
+nlRead                 = _nlRead@12
+nlSelectNetwork        = _nlSelectNetwork@4
+nlSetAddrPort          = _nlSetAddrPort@8
+nlSetLocalAddr         = _nlSetLocalAddr@4
+nlSetRemoteAddr        = _nlSetRemoteAddr@8
+nlShutdown             = _nlShutdown@0
+nlStringToAddr         = _nlStringToAddr@8
+nlSwapd                = _nlSwapd@8
+nlSwapf                = _nlSwapf@4
+nlSwapl                = _nlSwapl@4
+nlSwaps                = _nlSwaps@4
+nlThreadCreate         = _nlThreadCreate@12
+nlThreadJoin           = _nlThreadJoin@8
+nlThreadYield          = _nlThreadYield@0
+nlTime                 = _nlTime@4
+nlWrite                = _nlWrite@12

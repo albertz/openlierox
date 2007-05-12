@@ -1,0 +1,80 @@
+CC = c++
+AR = ar cru
+RANLIB = ranlib
+MAJOR_VERSION = 1
+MINOR_VERSION = 6
+PATCH_LEVEL = 8
+VERSION = $(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)
+LIBDIR = /usr/lib
+INCDIR = /usr/include
+INCLUDE = -I../include
+LIBNAME = NL
+OUTPUT = lib$(LIBNAME).$(VERSION).dylib
+STATIC = libNL.a
+OPTFLAGS = -funroll-all-loops -ffast-math -fomit-frame-pointer -O2 -D_REENTRANT -DMACOSX
+CFLAGS = -Wall -fPIC $(INCLUDE) $(OPTFLAGS)
+LIBFLAGS = -dylib -r -lpthread -Wl,-x
+OBJECTS = crc.o errorstr.o nl.o sock.o group.o loopback.o err.o thread.o mutex.o condition.o nltime.o
+
+all: $(OBJECTS)
+	$(CC) -o $(OUTPUT) $(OBJECTS) $(LIBFLAGS) $(CFLAGS)
+	$(AR) $(STATIC) $(OBJECTS)
+	$(RANLIB) $(STATIC)
+
+nl.o : nlinternal.h nl.c
+sock.o : nlinternal.h sock.h sock.c
+errorstr.o : nlinternal.h errorstr.c
+crc.o : ../include/nl.h crc.c
+group.o : nlinternal.h group.c
+loopback.o : nlinternal.h loopback.h loopback.c
+err.o : nlinternal.h err.c
+thread.o : nlinternal.h thread.c
+mutex.o : nlinternal.h mutex.c
+condition.o : nlinternal.h condition.c
+nltime.o : nlinternal.h nltime.c
+
+install:
+	@echo ""
+	@echo "*************************************************"
+	@echo "* If you forgot to su to root, this probably    *"
+	@echo "* wont work                                     *"
+	@echo "*************************************************"
+	cp $(OUTPUT) $(LIBDIR)
+	cp $(STATIC) $(LIBDIR)
+	chmod 755 $(LIBDIR)/$(OUTPUT)
+	ln -s $(LIBDIR)/$(OUTPUT) $(LIBDIR)/lib$(LIBNAME).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
+	ln -s $(LIBDIR)/$(OUTPUT) $(LIBDIR)/lib$(LIBNAME).$(MAJOR_VERSION).dylib
+	ln -s $(LIBDIR)/$(OUTPUT) $(LIBDIR)/lib$(LIBNAME).dylib
+	cp ../include/nl.h $(INCDIR)/nl.h
+	chmod 644 $(INCDIR)/nl.h
+	@echo ""
+	@echo "*************************************************"
+	@echo "* Installed HawkNL.                             *"
+	@echo "* Remember to run /sbin/ldconfig before using   *"
+	@echo "* the library, you may also want to check that  *"
+	@echo "* $(LIBDIR) is included in /etc/ld.so.conf      *"
+	@echo "* You must be root to run ldconfig.             *"
+	@echo "*************************************************"
+
+uninstall:
+	@echo ""
+	@echo "*************************************************"
+	@echo "* If you forgot to su to root, this probably    *"
+	@echo "* wont work                                     *"
+	@echo "*************************************************"
+	rm -f $(LIBDIR)/$(OUTPUT)
+	rm -f $(LIBDIR)/lib$(LIBNAME).so.$(MAJOR_VERSION).$(MINOR_VERSION)
+	rm -f $(LIBDIR)/lib$(LIBNAME).so.$(MAJOR_VERSION)
+	rm -f $(LIBDIR)/lib$(LIBNAME).so
+	rm -f $(LIBDIR)/$(STATIC)
+	rm -f $(INCDIR)/nl.h
+	@echo ""
+	@echo "*************************************************"
+	@echo "* HawkNL uninstalled.                           *"
+	@echo "*************************************************"
+
+.PHONY : clean
+clean:
+	rm $(OBJECTS) $(OUTPUT) $(STATIC)
+
+

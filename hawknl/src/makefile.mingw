@@ -1,0 +1,87 @@
+# I'm no expert at makefiles, i tried to keep this as similiar as possible to
+# the makefile.linux from which i derived it. 
+# Elias Pschernig elias@users.sourceforge.net
+
+# I don't know any simple way to get the install dir, so let the user tell it
+ifeq ($(MINGDIR),)
+patherror:
+	@echo Please specify your mingw32 directory via set MINGDIR=*
+endif
+
+CC = gcc
+AR = ar crus # create, replace, update, symbols
+
+INCLUDE = -I../include
+OUTPUT = NL.dll
+LIBNAME = NL
+STATIC = libNL_s.a
+IMPORT = libNL.a
+OPTFLAGS = -funroll-all-loops -ffast-math -fomit-frame-pointer -O2 -D_REENTRANT
+CFLAGS = -Wall $(INCLUDE) $(OPTFLAGS)
+LIBFLAGS = -shared -lpthreadGC -lwsock32
+OBJECTS = crc.o errorstr.o nl.o sock.o group.o ipx.o err.o thread.o loopback.o mutex.o condition.o nltime.o
+
+ifeq ($(OS),Windows_NT)
+  SYSDIR = $(SystemRoot)/system32 # not sure about this, can someone test it under NT/2K ?
+else
+  SYSDIR = $(windir)/system # on win95/98/ME this is the path to the DLL dir
+endif
+
+LIBDIR = $(MINGDIR)/lib
+INCDIR = $(MINGDIR)/include
+
+.PHONY : clean
+
+ifdef STATICLINK
+
+all: $(OBJECTS)	
+	@echo building static library
+	$(AR) $(STATIC) $(OBJECTS)	
+	
+install:	
+	cp $(STATIC) $(LIBDIR)		
+	cp ../include/nl.h $(INCDIR)/nl.h	
+	
+uninstall:	
+	rm -f $(LIBDIR)/$(STATIC)
+	rm -f $(INCDIR)/nl.h	
+	
+clean:
+	rm -f $(OBJECTS) $(STATIC)	
+	
+else
+
+all: $(OBJECTS)
+	@echo building dynamic library, set STATICLINK for static lib
+	$(CC) -o $(OUTPUT) $(OBJECTS) $(LIBFLAGS) $(CFLAGS) -Wl,--out-implib=$(IMPORT)
+		
+install:
+	cp $(OUTPUT) $(SYSDIR)
+	cp $(IMPORT) $(LIBDIR)		
+	cp ../include/nl.h $(INCDIR)/nl.h		
+	
+uninstall:
+	rm -f $(SYSDIR)/$(OUTPUT)	
+	rm -f $(LIBDIR)/$(IMPORT)
+	rm -f $(INCDIR)/nl.h	
+	
+clean:
+	rm -f $(OBJECTS) $(OUTPUT) $(IMPORT)	
+		
+endif
+	
+crc.o: ../include/nl.h
+err.o: nlinternal.h ../include/nl.h sock.h loopback.h serial.h parallel.h ipx.h 
+errorstr.o: wsock.h nlinternal.h ../include/nl.h sock.h loopback.h serial.h parallel.h ipx.h
+group.o: nlinternal.h ../include/nl.h sock.h loopback.h serial.h parallel.h ipx.h
+ipx.o: wsock.h nlinternal.h ../include/nl.h sock.h loopback.h serial.h parallel.h ipx.h
+loopback.o: nlinternal.h ../include/nl.h sock.h loopback.h serial.h parallel.h ipx.h
+mutex.o: nlinternal.h ../include/nl.h
+nl.o: nlinternal.h ../include/nl.h sock.h loopback.h serial.h parallel.h ipx.h
+sock.o: wsock.h nlinternal.h ../include/nl.h sock.h loopback.h serial.h parallel.h ipx.h
+thread.o: nlinternal.h ../include/nl.h
+condition.o: nlinternal.h ../include/nl.h
+nltime: nlinternal.h ../include/nl.h
+
+.PHONY : default
+default: all	

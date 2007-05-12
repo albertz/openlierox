@@ -1,0 +1,462 @@
+Change log for HawkNL
+
+Version 1.68
+Fixed potential mutex contention with multiple CPU systems
+Added NL_ERROR_STATUS to nlPollGroup
+Fixed nlThreadCreate bug when using native Windows threads on Win9x
+Fixed 'double bind' bug with UDP connections
+De-linted source files; several minor corrections
+
+
+Version 1.67
+Cleaned up internal references to NL_INVALID, INVALID_SOCKET, and SOCKET_ERROR
+Fixed Winsock bug with connect() that limited connecting more than 8000 TCP sockets
+Fixed compiler warning in err.c for MSVC 6.0 and eMbedded Visual C++ 3.0
+Fixed bug in nlGroupDeleteSocket
+Native Windows threads are now the default when compiled on Windows
+Fixed bug in nlWrite which caused a segfault with a non-blocking connect on some Unix OSs
+Modified socket stats to be more accurate during the first 8 seconds of use
+
+
+Version 1.66
+Modified nlConnect, nlGetNameFromAddrAsync, and nlGetAddrFromNameAsync so that they
+  copy the const data
+Fixed nlGroupDestroy bug
+Modified nlInit so that it clears out any previous error
+Enabled linger on TCP sockets
+
+
+Version 1.65
+Fixed potential error in nlGetError when called before any error had been set
+Fixed Linux bug where first error message would not be set properly
+Fixed bug in nlGetAllLocalAddr where it could return improperly allocated memory
+  when address count was 0
+Fixed a bug where the localhost address would sometimes show as 247.0.0.1
+Re-enabled some MSVC compiler warnings and cleaned up code
+Replaced Winsock macros FD_CLR, FD_SET, and FD_ISSET with inlined functions
+Fixed bug where nlPollGroup with the NL_LOOP_BACK driver ignored the timeout value
+Fixed bug in nlGetAllLocalAddr where it could return no local addresses
+Fixed bug in nlGetLocalAddr with NL_LOOP_BACK driver
+Fixed several Linux/Unix sample app compile errors
+
+
+Version 1.64
+Added more error detection to nlMutexUnlock with Windows threads
+Added new error code for nlMutexUnlock, NL_MUTEX_OWNER
+Removed redundent calculation in nlPollGroup of highest real socket for select()
+Updated NLaddress for future IPv6 address support, and to hide more network details
+Fixed an NL_UDP deadlock when blocking on nlRead on one thread, and calling nlSetRemoteAddr
+  on a second thread
+Fixed a bug in nlGroupDeleteSocket when deleting a closed socket
+Fixed a bug in nlGetSystemError when called before nlInit
+Added more comments in multicast.c to clarify port numbers for clients and servers
+Fixed bug where nlStringToAddr where a port number higher than 65535 would wrap the port number
+  instead of returning an error
+Cleaned up the Windows code for nlTime
+Fixed nlListen bug when using a system assigned port number (port 0)
+Updated clientserver.c for a more graceful shutdown
+
+
+Version 1.63
+Fixed several sample apps so that they compile on Linux/Unix
+Added root makefile for Linux
+Added TCP/IP specific aliases for connection types:
+  NL_TCP           = NL_RELIABLE
+  NL_TCP_PACKETS   = NL_RELIABLE_PACKETS
+  NL_UDP           = NL_UNRELIABLE
+  NL_UDP_BROADCAST = NL_BROADCAST
+  NL_UDP_MULTICAST = NL_MULTICAST
+Added updated HawkNL.pas file and Delphi sample applications for broadcast, eqtest, max, and test
+Fixed two potential memory problems when reallocating memory
+Fixed IN_MULTICAST macro bug in sock.c
+Fixed potential memory problem with nlGroupCreate
+
+
+Version 1.62
+Performed another security audit and made more changes for better buffer overflow prevention
+Fixed a recursion bug in nlMutexLock with Windows threads
+Fixed potential memory leak in nlMutexInit and nlThreadCreate with pthreads
+Fixed MacOS 7-9 build; GUSI is not POSIX compliant and does not support PTHREAD_MUTEX_ERRORCHECK
+
+
+Version 1.61
+Added code to prevent Format String Exploits to nlStringToAddr and nlGetAddrFromName*
+Updated overrun.c to test the Format String Exploit code
+Fixed potential bug in GetNameFromAddrAsync where you could read an incomplete string
+Fixed bug with NL_RELIABLE_PACKETS; monitor thread would sometimes stop working
+Fixed potential loss of unsent data when closing an NL_RELIABLE_PACKETS socket
+
+
+Version 1.6
+Fixed Linux/GCC compiler errors and warnings
+Updated Linux makefile to install to user/local/
+Added monitor thread to make sure any buffered nlWrites with NL_RELIABLE_PACKETS are sent
+
+
+Version 1.6 beta 4
+Fixed bug where nlMutexLock and nlMutexUnlock did not return NL_TRUE
+Fixed bug in nlShutdown with NL_LOOP_BACK driver
+Fixed bug in nlThreadCreate with Windows threads
+Updated to new pthread for Win32 library
+Added recursion checks to Windows mutex code
+Added error NL_MUTEX_RECURSION
+Changed pthread mutex type to PTHREAD_MUTEX_ERRORCHECK
+Removed NL_THREADSAFE compile option; NL always compiles with thread safety
+Fixed nlShutdown deadlock bug when a blocking socket was blocked on a socket call
+Fixed nlGetSystemError bug where the error was sometimes lost on Windows
+Removed NL_CON_TERM error, check for NL_SOCK_DISCONNECT instead
+Fixed bug where nlRead was not reporting the socket disconnect with NL_LOOP_BACK driver
+Fixed nlShutdown bug when called from two threads at the same time
+Fixed another deadlock when nlShutdown and nlClose were called from two threads at the same time
+Updated NL_IPX driver with improved code from NL_IP driver
+
+
+Version 1.6 beta 3
+Updated nlMutexInit, nlMutexLock, nlMutexUnlock, and nlMutexDestroy to return NLboolean
+Updated nlCondDestroy to return NLboolean
+Added better error detection for NULL pointers in nlCond* and nlMutex* functions
+Updated Windows pthread code to better handle pthread errors
+Updated nlThreadJoin to return NLboolean value
+Updated nlClose, nlClearSocketStat, nlHint, nlClear, nlEnable, and nlDisable to return NLboolean
+Updated nlGroupDestroy, nlGroupDeleteSocket, and nlGroupGetSockets to return NLboolean
+Fixed bug when using groups with NLlong user data
+Added 'const' qualifier to many parameters
+Updated nlStringToAddr, nlGetRemoteAddr, nlSetRemoteAddr, nlGetLocalAddr, nlSetLocalAddr,
+  nlGetAddrFromName*, nlGetNameFromAddrAsync, and nlSetAddrPort to return NLboolean
+Fixed potential buffer over-runs in nlStringToAddr and nlGetAddrFromName*
+Updated nlWrite with NL_RELIABLE_PACKETS to return 0 when the last packet is still unsent;
+  this is just like UDP, and only one packet will be buffered at a time
+Added NL_STRING_OVER_RUN, NL_SOCKET_NOT_FOUND, and NL_TIMED_OUT error codes
+Updated nlThreadCreate to return NL_INVALID cast to NLthreadID on error
+Updated nlTime to return NLboolean
+
+
+Version 1.6 beta 2
+Fixed small memory leak in sock.c
+Fixed MacOS X compile problems
+Fixed problem where mutexes were being double locked
+Fixed bug in loopback driver
+Moved some include files to reduce scope of internal modules
+Fixed Linux compile problems with condition.c
+Ported buffer.c to compile on WinCE
+Fixed writeString and readString macros for WinCE and UNICODE
+Added ProjectBuilder project files for MacOS X
+
+
+Version 1.6 beta 1
+Cleaned up use of NLsocket in code
+Removed the hardcoded limit on number of sockets; max.c may now take a LONG time
+Number of sockets is now dynamic to decrease memory, and to increase server scalability
+Removed NL_MAX_SOCKETS enumerant from nlGetInteger
+Reduced UDP/TCP internal socket memory usage from 408 bytes to 216 bytes
+Reduced group memory usage from 64K bytes per group down to a minimum of 80 bytes
+Groups are now suitable to store any NLlong user data
+More WinCE fixes; WinCE does not have ANSI C time functions or errno
+Fixed compile errors with NL_THREAD_SAFE undefined
+Exposed thread and mutex API for NLU and user apps
+Updated clientserver.c to use the new multithread API
+Added project file for eMbedded Visual C++ 3.0 for Windows CE
+MANY more little fixes for WinCE compile; now compiles cleanly
+Removed some no longer used error messages and the defines
+Removed NL_KEEPALIVE hint since it is actually a useless and misleading TCP option
+Added more compile options; loopback network driver can be eliminated if desired
+Fixed minor Mac OSX compile error
+Added condition variables, nlCond*
+Added nlMtime for millisecond accurate time similar to ftime()
+Renamed NL_SOCKET_ERROR error to NL_SYSTEM_ERROR
+Rewrote the nlMutex* and nlCond* code
+Added nlUtime for microsecond accurate time similar to gettimeofday()
+Fixed buffer bug in nlWrite with NL_RELIABLE_PACKETS
+Added time.c sample app to test timer resolution
+Modified nlMtime so that on Windows it is simply a wrapper around nlUtime
+Updated getfile.c so that it works with non-blocking or blocking IO
+Added threadpool.c sample app the test threads, conditions, and mutexes
+Fixed multithread connect/accept problem with NL_LOOP_BACK
+Combined nlMtime and nlUtime into nlTime
+
+
+Version 1.51 update
+Finished unicode (UCS-2 for Windows NT/2000/XP/CE) and WinCE support
+Updated async.c for unicode and WinCE
+When compiling on WinCE, NL will use native threads and will not include IPX
+Fixed another bug in nlRead with NL_RELIABLE_PACKETS
+
+
+Version 1.5 release
+Fixed nlInit problem when called multiple times
+Modified nlShutdown to be more thread safe
+Fixed multithread problem with GNE; closing sockets while polling groups could deadlock
+Added first part of unicode (UCS-2 for Windows) and WinCE support, but not yet complete
+
+
+Version 1.5 beta 2
+Fixed MacOS X compile problems, again
+Fixed potential threading problem with NL_RELIABLE_PACKETS and nlPollGroup
+Fixed bug in nlRead with NL_RELIABLE_PACKETS
+Added nlGetAllLocalAddr to get all addresses on a multihomed system
+Updated broadcast.c, max.c, and multicast.c to use nlGetAllLocalAddr
+
+
+Version 1.5 beta 1
+Added makefile for SGI
+Fixed SGI compile problems
+Added additional mutex locking in group API
+Fixed a potential threading problem in nlPollGroup
+Fixed MacOS X compile problems
+Fixed bug in nlInit
+Changed nlSwap* from inlined to regular API calls
+Modified nlSwap* so that you can choose big endian or little endian data format. This also effects
+  the read*/write* macros
+Added NL_BIG_ENDIAN_DATA and NL_LITTLE_ENDIAN_DATA defines for nlEnable and nlDisable. Disabling
+  one enables the other, and enabling one disables the other. Default is NL_BIG_ENDIAN_DATA enabled
+Modified nlPollGroup for better support of NL_RELIABLE_PACKETS
+Modified NL_RELIABLE_PACKETS so that they use less memory per socket
+Fixed Linux compile warnings for loopback.c and err.c
+
+
+Version 1.42 Release update
+Added hawknl.def file for Visual Basic support (non decorated function names)
+Fixed a bug where all global state variables were not reset properly after calling nlInit,
+  nlShutdown, then nlInit again
+Fixed nlConnect bug where some Unixs would return an error of EINPROGRESS instead of
+  EWOULDBLOCK for non-blocking sockets
+Added new error string for EINPROGRESS, non-Windows systems have the proper description
+
+
+Version 1.41 Release update
+Modifed max.c to test for both UDP and connected TCP sockets
+Fixed bug where nlGetSocketStat would return 0
+Added ELOOK system error string for MacOS
+Added NL_SAFE_COPY option to nl.h to fix nlRead* and nlWrite* macro problems on Sparc CPUs
+Modified makefile.solaris to define NL_SAFE_COPY
+Added #include <string.h> to nl.h for the nlRead* and nlWrite* macros
+Fixed Solaris compile problems
+Removed NLChat Windows example, made it a separate download
+
+
+Version 1.4 Release
+Fixed non-Microsoft compiler errors in wsock.h and mutex.h
+Fixed a potential access violation in nlGroupGetSockets
+De-linted all source files, various minor fixes
+More minor compile fixes
+Updated nlStringToAddr, nlGetRemoteAddr, nlGetLocalAddr, and nlGetAddrFromName so that
+  address.valid will tell you if the function was successful
+Fixed nlGetAddrFromName* so they will always handle a port number, example: www.name.com:80
+Fixed nlGetNameFromAddr* so they always add the port number if port!=0
+Updated async.c to show the nlGetAddrFromName* and nlGetNameFromAddr* fixes
+Updated nlGetLocalAddr so that it also returns the local port of the socket
+
+
+Version 1.4 beta 4
+Merged in Ryan Haksi's Mac modifications
+Cleaned up code in err.c and thread.c
+Updated sock_ReadPacket for better error detection, and simplified the code
+Added NL_PACKET_SYNC error code for NL_RELIABLE_PACKETS
+Added compile option to remove mutexes and per-thread error codes for single threaded apps
+Added socklen_t define to sock.c for better POSIX compliance
+Updated clientserver.c to show more NL features
+Fixed bug in nlAccept for NL_RELIABLE_PACKETS
+Changed err.c to use TLS (thread local storage) for error codes
+Added NL_TLS_ERROR code
+Added makefile.osx
+
+
+Version 1.4 beta 3
+Fixed Linux and Solaris makefiles
+Fixed several bugs in err.c for POSIX systems
+Moved system include files before NL include files
+Added the NL_REUSE_ADDRESS hint to IPX
+
+
+Version 1.4 beta 2
+Moved NL_TCP_NO_DELAY from nlEnable/nlDisable/nlGetBoolean to nlHint
+Added Windows compile option to remove IPX support
+Added NL_CONNECTION_TYPES to nlGetString
+Fixed NL_NETWORK_TYPES to return the network types and not the connection types
+Added NL_PARALLEL network type for future support of parallel ports
+Added NL_RAW connection type for NL_SERIAL and NL_PARALLEL network types
+Fixed bad error message when calling nlGetAddrFromName
+Fixed an error when sending to a group where a socket in that group had been closed
+Fixed getfile.c which was broken by non-blocking connects
+Added NL_LOOP_BACK network code
+Fixed bug in IPX code that caused it not to init properly
+Updated broadcast.c to add the network choice on the command line
+Renamed test2.c to clientserver.c and added it to the MSVC workspace
+Updated clientserver.c to add the network choice on the command line
+Fixed bug in multicast code
+Added mutexes to each socket for better thread safety
+
+
+Version 1.4 beta 1
+Added changes to support Mingw32 compiler for Windows
+Added nlSetLocalAddr to choose the local address, or network interface
+nlOpen has been modified to create NL_BROADCAST and NL_MULTICAST sockets
+nlBroadcast has been been eliminated, use nlWrite
+nlConnectMulticast has been been eliminated, use nlConnect
+broadcast.c and multicast.c have been updated
+Added a millisecond timeout value to nlPollGroup
+Modified nlConnect so that it does not block on a non-blocking TCP socket
+Added NL_WRONG_TYPE and NL_CON_PENDING to errorstr.c
+Added nlHint for advanced control of sockets
+Added wrappers for mutex and thread APIs for future portability
+nlSetMulticastTTL has been eliminated, use nlHint BEFORE nlConnect
+Added per thread NL error messages
+Added threads for the non-blocking UDP connect
+Added Windows option to use native Windows threads instead of pthreads
+
+
+Version 1.3
+Added new makefiles for Linux and Solaris
+Added a Windows static library for those that do not want to use a DLL
+Changed address_t to NLaddress
+Now compiles with LCC for Windows
+
+
+Version 1.3 beta 2
+Fixed several things for better UNIX compatibility; Solaris is now supported
+Added NL_PACKET_SIZE to errorstr.c
+
+
+Version 1.3 beta 1
+Added nlSetRemoteAddr, which I overlooked months ago
+Updated getfile.c to strip off the HTTP header, and to be more HTTP 1.0 compliant
+Added nlPollGroup for added scalability. Uses select() to check the read or write status of all
+  sockets in a group, and returns a list of those sockets
+Updated test2.c to use nlPollGroup
+Updated the IPX code to test for packets larger than the 1466 byte limit
+
+
+Version 1.2
+Fixed Win9x nlConnect error with NL_UNRELIABLE connection
+Updated nlAccept so that it connects NL_UNRELIABLE connections
+
+
+Version 1.2 beta 3
+Fixed multicast support broken in beta 2
+Updated nlOpen to automatically reuse TCP server addresses (SO_REUSEADDR)
+Updated nlConnect to speed up connecting NL_UNRELIABLE sockets
+
+
+Version 1.2 beta 2
+Added mutexes around global variables to make them thread safe. The following are now thread safe:
+    All read/write functions when updating stats
+    All functions that create or destroy NLsockets
+    All group functions
+    nlClear
+Added NL_SOCKET_STATS enumerant to nlEnable and nlDisable socket read/write statistics
+Added NL_HIGH_BYTES_SENT, NL_PACKETS_RECEIVED, NL_AVE_BYTES_RECEIVED and NL_HIGH_BYTES_RECEIVED
+Updated nlGetInteger and nlGetSocketStat to return NLlong
+Added nlClearSocketStat to clear the stats for an individual socket
+Added a packet size limit of 16384 bytes to NL_UNRELIABLE and NL_RELIABLE_PACKETS
+Updated getfile.c to use the new socket read/write statistics
+Added the first 64 bit CPU compatibility code
+
+
+Version 1.2 beta 1
+Added the nlGroup API to create groups of sockets
+Added NL_RELIABLE_PACKETS to packetize the TCP stream
+Added more error codes and error checking
+Removed NLPeek because of potential misuse, and the high performance penalty on Windows
+Moved most error checking from the drivers to nl.c to reduce code size
+
+
+Version 1.0 beta 1
+Added some missing error strings to errorstr.c
+Fixed a minor bug in sock_Broadcast
+Added double macros: nlSwapd, readDouble, and writeDouble
+Added buffer.c to show how the swap and read/write buffer macros work
+Updated nlOpen to use NLushort for port number
+Added error checking to sock_StringToAddr
+Fixed sock_GetAddrFromName so that the address will always return something valid
+Added NL_BAD_ADDR error code
+Added asynchronous calls nlGetAddrFromNameAsync and nlGetNameFromAddrAsync
+  using the PTHREADS-WIN32 library
+Added async.c to show how to use the new asynchronous calls
+Updated nlGetAddrFromName and nlGetAddrFromNameAsync so they will accept a numeric address string
+Added max.c to test how many ports can be opened at once on a system
+Added NL_MESSAGE_END error message for TCP with non-blocking to notify the app the message is done
+Updated nlRead to support the NL_MESSAGE_END error message
+Added getfile.c to show how to download a file from a web server
+Updated nlGetLocalAddr so that you now need to pass an NLsocket to it, just like nlGetRemoteAddr
+Updated nlGetLocalAddr so that it is accurate with a connected socket on a multihomed system
+Updated NLChat to use TCP instead of UDP
+Changed NLChat default port to 1258 (HawkNLU port), and added 209.204.172.76 (www.hawksoft.com)
+  to the address list
+Fixed nlSetMulticastTTL so that it works on all Unix's and Windows Winsock versions
+Renamed nlGetSocketPort to nlGetPortFromAddr
+Renamed nlSetSocketPort to nlSetAddrPort
+Added nlGetSocketStat to get the statistics for an individual socket (nlGetInteger returns the
+  statistics for all sockets combined)
+
+
+Change log for HawkNL and NLU
+
+Version 0.6 alpha
+Added a new sample, NLChat, a Windows chat program, courtesy of Tim Lyakhovetskiy <teenytim@hotmail.com>
+Reoganized MSVC workspace, object files are now separate from the .exes, .dlls, and .libs
+Bumped the Warning Level up to Level 4 (the max) for NLU
+Moved the endian and read*/write* macros to nl.h where they can be easily used by apps
+Added crc functions to NLU
+Updated sock_Peek to return NLulong
+Added multicast support with nlConnectMulticast and nlSetMulticastTTL
+Moved CRC functions from NLU to NL so other apps can use them
+Fixed the elusive 'Win95 cannot connect a UDP socket' failure that caused test.c to only work with TCP
+Added a multicast sample
+Added NL_SOCK_DISCONNECT error code to let you know if the socket has been disconnected, or other
+  network error has occurred, each time you read or write, so you can shut down the socket
+Changed nlGetSocketPort to return NLushort port number
+Changed nlSetSocketPort to use NLushort port number
+NL code is now compiling cleanly with Warning Level 4
+Started 'de-linting' the source code with LCLint
+Renamed sockets.c and sockets.h to sock.c and sock.h to avoid name collisions on some platforms
+
+
+Version 0.5 alpha
+Added official port numbers to protocol.h
+For Windows, changed from _cdecl to _stdcall calling convention
+Added Delphi headers and project files courtesy of 'Johnny' <VILLAJ@RELIASCHEV.COM>
+Renamed convert* functions to nluSwap*
+Converted nluSwaps and nluSwapl to macros
+Inlined nluSwapf
+Added nlGetErrorStr and nlGetSystemErrorStr to convert error codes to strings,
+  based on code supplied by Ryan Haksi <cryogen@infoserve.net>
+Added a reference count to nlInit and nlShutdown
+Added NL_TCP_NO_DELAY enumerant to nlEnable and nlDisable
+Added nlGetBoolean (how did I miss that one?)
+Added NL_CON_REFUSED error code
+Reorganized NLU API to make it event driven
+Deleted nluServerAcceptPlayer and nluVoiceServerPump because NLU is now event driven
+Added nluBanAddress
+Refined NLU protocol some more
+Added nluGetConnectionStats
+Consolidated nluPlayerSend and nluServerSend to nluSend
+Consolidated nluPlayerReceive and nluServerReceive to nluReceive
+Changed all nluVoicePlayer* functions to nluVoice*
+Changed the library name to HawkNL
+
+
+Version 0.4 alpha
+Added NLlong and NLulong
+Fixed nlAddrToString and nlGetString to make them thread safe
+Altered nlGetNameFromAddr to make it easier to use
+Deleted nluVoicePlayerPump
+Added nluVoicePlayerSend and nluVoicePlayerReceive
+Removed NLU_CRC and NLU_SEQUENCE options, they really should be transparent
+Fixed sock_ConnectUDP and sock_AcceptUDP so they should now work through firewalls
+Deleted nluSelectNetwork, just use nlSelectNetwork
+Added nluGroupGetPlayers
+Changed server_t and player_t to nlu_server_t and nlu_player_t
+Changed callback functions in nlu.h to return NLboolean values
+Rewrote getNewSocket to be more efficient
+Added NL_MAX_SOCKETS and NL_OPEN_SOCKETS enumerants to nlGetInteger
+
+
+Version 0.3 alpha
+Added IPX/SPX code for Windows
+Added nlEnable/Disable to API
+Added option to choose blocking IO for threaded apps
+Added many functions to the NLU API, including the first of the voice API
+
+
+Version 0.2 alpha
+Initial release
