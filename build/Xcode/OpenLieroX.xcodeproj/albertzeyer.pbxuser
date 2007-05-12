@@ -1,7 +1,7 @@
 // !$*UTF8*$!
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
-		activeBuildConfigurationName = Release;
+		activeBuildConfigurationName = Debug;
 		activeExecutable = EA430D000BEFE36E00C6547E /* OpenLieroX_console */;
 		activeTarget = EA430CFE0BEFE36E00C6547E /* OpenLieroX_console */;
 		addToTargets = (
