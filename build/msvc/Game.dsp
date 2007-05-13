@@ -239,6 +239,14 @@ SOURCE=..\..\src\client\InputEvents.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\IpToCountry.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IpToCountry.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\MathLib.cpp
 # End Source File
 # Begin Source File

@@ -19,6 +19,7 @@
 
 #include "CBanList.h"
 #include "CBonus.h"
+#include "IpToCountry.h"
 
 
 #define		MAX_CHALLENGES		1024
@@ -76,7 +77,13 @@ class GameServer {
 public:
 	// Constructor
 	GameServer() {
+		tIpToCountry = new CIpToCountry("ip_to_country.csv");
 		Clear();
+	}
+
+	~GameServer()  {
+		if (tIpToCountry)
+			delete tIpToCountry;
 	}
 
 
@@ -151,6 +158,8 @@ private:
 	int			bServerRegistered;
 	float		fLastRegister;
 
+	CIpToCountry *tIpToCountry;
+
 public:
 	// Methods
 
@@ -209,8 +218,6 @@ public:
 	void		unmuteWorm(int wormID);
 	void		unmuteWorm(const std::string& szWormName);
     void        CheckReadyClient(void);
-	std::string	GetCountryFromIP(const std::string& Address);
-
 
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs);
