@@ -14,6 +14,9 @@
 #include "IpToCountry.h"
 
 
+// TODO: enhance cache
+// TODO: merge these two classes
+
 class CountryCvsReader {
 public:
 	std::ifstream* file;
@@ -92,7 +95,7 @@ public:
 		tindex++;
 	}
 	
-	ipinfo_t readAndReturnCountry() {
+	ipinfo_t readAndReturnInfo() {
 		char nextch;
 		while(!file->eof() && !hasresult) {
 			file->get(nextch);
@@ -214,6 +217,7 @@ ipinfo_t CIpToCountry::GetInfoAboutIP(const std::string& Address)
 	reader->myIP = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
 
 	// Open the database
+	tDatabase->seekg(0);  // To the beginning
 	reader->file = tDatabase;
 	if(!tDatabase)  {
 		Result.Continent = "outer space";
@@ -221,7 +225,7 @@ ipinfo_t CIpToCountry::GetInfoAboutIP(const std::string& Address)
 		return Result;
 	}
 
-	Result = reader->readAndReturnCountry();
+	Result = reader->readAndReturnInfo();
 	if(Result.Country == "")  {
 		Result.Continent = "unknown continent";
 		Result.Country = "unknown country";

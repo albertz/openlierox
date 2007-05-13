@@ -100,9 +100,6 @@ void GameServer::SimulateGame(void)
 	if(iState != SVS_PLAYING)
 		return;
 
-	if(iGameOver)
-		return;
-
 	// Process worms
 	CWorm *w = cWorms;
 	short i;
