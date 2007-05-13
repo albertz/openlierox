@@ -225,7 +225,7 @@ size_t fwrite(const std::string& txt, size_t len, FILE* fp) {
 	if(ret != len_of_txt)
 		return ret;
 	for(; len_of_txt < len; len_of_txt++)
-		if(fwrite("\n", 1, 1, fp) == 0)
+		if(fwrite("\0", 1, 1, fp) == 0)
 			return len_of_txt;
 	return len;
 }

@@ -52,7 +52,7 @@ int LoadProfiles(void)
 	id[10] = '\0';
 	if(strcmp(id, "lx:profile") != 0) {
 		std::string tmp = "Could not load profiles: \""+std::string(id)+"\" is not equal to \"lx:profile\"";
-		MessageBox(0,tmp.c_str(),"Error",MB_OK);
+		printf("ERROR: " + tmp + "\n");
 
         // Add the default players
         AddDefaultPlayers();
@@ -66,8 +66,8 @@ int LoadProfiles(void)
 	EndianSwap(ver);
 	if(ver != PROFILE_VERSION) {
 		std::string tmp = "Could not load profiles: \""+itoa(ver)+"\" is not equal to \""+itoa(PROFILE_VERSION)+"\"";
-		MessageBox(0,tmp.c_str(),"Error",MB_OK);
-
+		printf("ERROR: " + tmp + "\n");
+		
         // Add the default players
         AddDefaultPlayers();
 		fclose(fp);
@@ -138,14 +138,12 @@ void SaveProfiles(void)
 	//
 	FILE *fp = OpenGameFile("cfg/players.dat","wb");
 	if(fp == NULL)  {
-		MessageBox(0,"Error saving profiles: could not open file cfg/players.dat","Error",MB_OK);
+		printf("ERROR: could not open cfg/players.dat for writing\n");
 		return;
 	}
 
 	// ID & Version
-	static char id[32] = {"lx:profile"};
-	id[10] = '\0';
-	fwrite(id, sizeof(char), 32, fp);
+	fwrite("lx:profile", 32, fp);
 
 	int ver = PROFILE_VERSION;
 	fwrite(GetEndianSwapped(ver), sizeof(int), 1, fp);
@@ -183,22 +181,14 @@ void ShutdownProfiles(void)
 	//
 	FILE *fp = OpenGameFile("cfg/players.dat","wb");
 	if(fp == NULL)  {
-		MessageBox(0,"Error saving profiles: could not open file cfg/players.dat","Error",MB_OK);
+		printf("ERROR: could not open cfg/players.dat for writing\n");
 		return;
 	}
 
 	// ID & Version
-	/*char id[32] = {"lx:profile"};
-	id[10] = '\0';
-	fwrite(id, sizeof(char), 32, fp);*/
-	// NOTE: this is a dirty way to check, whether the saving profile bug is caused
-	// by the above commented lines
-	// TODO: fix this hack
-	static char zeros[22];
-	memset(&zeros,0,sizeof(zeros));
-	fprintf(fp,"%s","lx:profile");
-	fwrite(zeros,sizeof(zeros),fp);
-
+	fwrite("lx:profile", 32, fp);
+	
+	
 	int ver = PROFILE_VERSION;
 	fwrite(GetEndianSwapped(ver), sizeof(int), 1, fp);
 

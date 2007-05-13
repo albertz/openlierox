@@ -349,10 +349,10 @@
 		EA430BEC0BEFCEB400C6547E /* src */ = {
 			isa = PBXGroup;
 			children = (
-				EA430BED0BEFCEB400C6547E /* client */,
-				EA430C200BEFCEB400C6547E /* common */,
 				EA430C3D0BEFCEB400C6547E /* main.cpp */,
+				EA430BED0BEFCEB400C6547E /* client */,
 				EA430C3E0BEFCEB400C6547E /* server */,
+				EA430C200BEFCEB400C6547E /* common */,
 			);
 			name = src;
 			path = ../../src;
@@ -461,9 +461,8 @@
 				EA430C420BEFCEB400C6547E /* CServer_Parse.cpp */,
 				EA430C430BEFCEB400C6547E /* CServer_Send.cpp */,
 			);
-			name = server;
-			path = ../../src/server;
-			sourceTree = SOURCE_ROOT;
+			path = server;
+			sourceTree = "<group>";
 		};
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
