@@ -16,6 +16,8 @@
 // Created 12/11/01
 // By Jason Boettcher
 
+#include <stdarg.h>
+
 #include "defs.h"
 #include "LieroX.h"
 #include "FindFile.h"

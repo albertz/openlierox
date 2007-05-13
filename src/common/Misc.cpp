@@ -13,6 +13,7 @@
 // Created 18/8/02
 // Jason Boettcher
 
+#include <stdarg.h>
 #include <iostream>
 #include <assert.h>
 

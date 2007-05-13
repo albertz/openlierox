@@ -13,6 +13,7 @@
 // Created 7/2/02
 // Jason Boettcher
 
+#include <stdarg.h>
 
 #include "defs.h"
 #include "LieroX.h"

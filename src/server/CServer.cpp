@@ -14,6 +14,8 @@
 // Jason Boettcher
 
 
+#include <stdarg.h>
+
 #include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"

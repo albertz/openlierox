@@ -16,6 +16,7 @@
 // Created 13/10/01
 // Jason Boettcher
 
+#include <stdarg.h>
 
 #include "defs.h"
 #include "CBytestream.h"
