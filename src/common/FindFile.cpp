@@ -24,6 +24,7 @@
 
 
 #ifdef WIN32
+#   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	include <shlobj.h>
 #else
 #	include <ext/hash_map>
@@ -510,7 +511,7 @@ std::string GetHomeDir() {
 	return home;	
 #else
 	static char tmp[1024];
-	if (!SHGetSpecialFolderPath(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
+	if (!SHGetSpecialFolderPathA(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
 		// TODO: get dynamicaly another possible path
 		// the following is only a workaround!
 		return "C:\\OpenLieroX";

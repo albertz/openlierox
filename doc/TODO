@@ -1,5 +1,7 @@
 TODO list
 
+[ ] make Dev-C++ project working (fix the issue with libxml lib)
+[ ] uniform warning/notification/error system
 [ ] add macro-variable to {en/dis}able the mediaplayer
 [ ] standalone dedicated server
 [ ] create Mac OS X application package

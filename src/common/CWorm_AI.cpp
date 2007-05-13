@@ -617,7 +617,7 @@ private:
 		NEW_ai_node_t* ret;
 
 		// Name the thread
-#ifdef WIN32
+#ifdef _MSC_VER
 		static char name[32];
 		sprintf(name,"AI thread %i",(int)b);
 		nameThread(-1,name);

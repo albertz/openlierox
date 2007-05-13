@@ -2,7 +2,7 @@
 ==========
 - full Unicode/UTF8 support
 - Worm AI improvements
-- ninjarope physic simulation is BPP independent
+- ninjarope physic simulation is FPS independent
 - profile-saving is correct now
 
 

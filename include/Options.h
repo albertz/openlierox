@@ -140,7 +140,7 @@ public:
 	// Video
 	int		iFullscreen;
 	int		iShowFPS;
-	int		iOpenGL;
+	bool	bOpenGL;
 	std::string	sResolution;
 	int		iColourDepth;
 

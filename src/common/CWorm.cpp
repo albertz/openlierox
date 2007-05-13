@@ -553,6 +553,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	int t = 0;
 	short i,id;
 	int centrex = 320;
+	keyboard_t *kb = GetKeyboard();
 
     if( v ) {
         if( v->getUsed() ) {
@@ -652,7 +653,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     if(iCurrentWeapon == iNumWeaponSlots) {
 
 		// Fire on the random button?
-		if(cShoot.isUp() && !iChat_Typing) {
+		if((cShoot.isUp() || kb->KeyDown[SDLK_RETURN]) && !iChat_Typing) {
 			GetRandomWeapons();
 		}
 	}
@@ -662,7 +663,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	if(iCurrentWeapon == iNumWeaponSlots+1) {
 
 		// Fire on the done button?
-		if(cShoot.isUp() && !iChat_Typing) {
+		if((cShoot.isUp() || kb->KeyDown[SDLK_RETURN]) && !iChat_Typing) {
 			iWeaponsReady = true;
 			iCurrentWeapon = 0;
 

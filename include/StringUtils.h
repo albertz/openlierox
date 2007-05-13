@@ -45,7 +45,9 @@
 
 
 #ifdef WIN32
+#if (defined(_MSC_VER) && (_MSC_VER <= 1200))
 	inline int strncasecmp(const char *str1, const char *str2, size_t l) {return _strnicmp(str1,str2,l); }
+#endif
 #	define vsnprintf _vsnprintf
 #	define snprintf	 _snprintf
 #else

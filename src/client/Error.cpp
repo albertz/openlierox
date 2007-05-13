@@ -16,7 +16,6 @@
 // Created 12/11/01
 // By Jason Boettcher
 
-
 #include "defs.h"
 #include "LieroX.h"
 #include "FindFile.h"
@@ -159,7 +158,8 @@ std::string LxGetLastError(void)
 	return LastError;
 }
 
-#ifdef WIN32
+#ifdef _MSC_VER
+
 ///////////////////
 // This callback function is called whenever an unhandled exception occurs
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)

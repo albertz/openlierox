@@ -316,7 +316,7 @@ float GetFixedRandomNum(uchar index)
 //////////////////
 // Gives a name to the thread
 // Code taken from Thread Validator help
-#ifdef WIN32
+#ifdef _MSC_VER
 void nameThread(const DWORD threadId, const char *name)
 {
    // You can name your threads by using the following code.

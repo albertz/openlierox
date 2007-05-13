@@ -35,8 +35,6 @@
 #endif
 
 
-
-
 // file input/output
 
 #include <sys/types.h>
@@ -49,8 +47,10 @@
 	// wrappers to provide the standards
 	inline int mkdir(const char *path, int mode) { return _mkdir(path); }
 #	define stat _stat
+#ifndef S_ISREG
 inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
 inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
+#endif
 #endif
 
 #if (defined(WIN32) && _MSC_VER <= 1200) || defined(MACOSX)

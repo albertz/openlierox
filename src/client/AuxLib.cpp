@@ -139,7 +139,7 @@ int SetVideoMode(void)
 	}
 
 	// BlueBeret's addition (2007): OpenGL support
-	bool opengl = tLXOptions->iOpenGL;
+	bool opengl = tLXOptions->bOpenGL;
 
 	// Initialize the video
 	if(tLXOptions->iFullscreen)  {
@@ -227,7 +227,7 @@ void FlipScreen(SDL_Surface *psScreen)
     if( cTakeScreenshot.isDownOnce() || cServer->getTakeScreenshot() )
         TakeScreenshot(tGameInfo.bTournament);
 
-	/*if (tLXOptions->iOpenGL) SDL_GL_SwapBuffers();
+	/*if (tLXOptions->bOpenGL) SDL_GL_SwapBuffers();
     else*/ SDL_Flip( psScreen );
 }
 

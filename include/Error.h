@@ -43,7 +43,7 @@ void LxSetLastError(const std::string& desc);
 std::string LxGetLastError(void);
 
 // WIN32 exception handling
-#ifdef WIN32
+#ifdef _MSC_VER
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo);
 void InstallExceptionFilter(void);
 #endif

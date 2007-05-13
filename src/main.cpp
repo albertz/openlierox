@@ -242,13 +242,13 @@ void ParseArguments(int argc, char *argv[])
         // -opengl
         // Turns OpenGL on
         if( stricmp(a, "-opengl") == 0 ) {
-            tLXOptions->iOpenGL = true;
+            tLXOptions->bOpenGL = true;
         } else
 
         // -noopengl
         // Turns OpenGL off
         if( stricmp(a, "-noopengl") == 0 ) {
-            tLXOptions->iOpenGL = false;
+            tLXOptions->bOpenGL = false;
         } else
 
         // -nosound

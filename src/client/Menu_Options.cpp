@@ -217,7 +217,7 @@ int Menu_OptionsInitialize(void)
 #ifndef WIN32
 	cOpt_System.Add( new CLabel("OpenGL acceleration",tLX->clNormalLabel),Static, 440, 170, 0,0);
 #endif
-	cOpt_System.Add( new CCheckbox(tLXOptions->iOpenGL),    os_OpenGL, 590, 170, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
 
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
 	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
@@ -342,7 +342,7 @@ void Menu_OptionsFrame(void)
 	mouse_t		*Mouse = GetMouse();
 	int			mouse = 0;
 	gui_event_t *ev = NULL;
-//	int opengl = tLXOptions->iOpenGL; // TODO: not used
+//	int opengl = tLXOptions->bOpenGL; // TODO: not used
 //	int fullscr = tLXOptions->iFullscreen; // TODO: not used
 // 	static const char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"}; // TODO: not used
 	int			val;
@@ -541,7 +541,7 @@ void Menu_OptionsFrame(void)
 		int fullscr = c->getValue();
 		// OpenGL accel value
 		c2 = (CCheckbox *)cOpt_System.getWidget(os_OpenGL);
-		int opengl = c2->getValue ();
+		bool opengl = c2->getValue ();
 		// Color depth
 		int cdepth = ((CCombobox *)cOpt_System.getWidget(os_ColourDepth))->getSelectedIndex();
 		switch (cdepth)  {
@@ -578,7 +578,7 @@ void Menu_OptionsFrame(void)
 
 						// Set to fullscreen / OpenGL / change colour depth
 						tLXOptions->iFullscreen = fullscr;
-						tLXOptions->iOpenGL = opengl;
+						tLXOptions->bOpenGL = opengl;
 						tLXOptions->iColourDepth = cdepth;
 						PlaySoundSample(sfxGeneral.smpClick);
 
@@ -676,7 +676,7 @@ void Menu_OptionsFrame(void)
 		}
 
 
-		if((fullscr != tLXOptions->iFullscreen) || (opengl != tLXOptions->iOpenGL))
+		if((fullscr != tLXOptions->iFullscreen) || (opengl != tLXOptions->bOpenGL))
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
         else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);

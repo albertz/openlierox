@@ -96,7 +96,7 @@ bool GameOptions::LoadFromDisc()
     // Video
     ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, true);
     ReadKeyword(f, "Video", "ShowFPS",      &iShowFPS, false);
-    ReadKeyword(f, "Video", "OpenGL",       &iOpenGL, false);
+    ReadKeyword(f, "Video", "OpenGL",       &bOpenGL, false);
 	ReadInteger(f, "Video", "ColourDepth",	&iColourDepth, 16);
 
     // Network
@@ -233,7 +233,7 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "[Video]\n");
     fprintf(fp, "Fullscreen = %s\n",iFullscreen ? "true" : "false");
     fprintf(fp, "ShowFPS = %s\n",iShowFPS ? "true" : "false");
-    fprintf(fp, "OpenGL = %s\n",iOpenGL ? "true" : "false");
+    fprintf(fp, "OpenGL = %s\n",bOpenGL ? "true" : "false");
 	fprintf(fp, "ColourDepth = %d\n",iColourDepth);
     fprintf(fp, "\n");
 
@@ -282,6 +282,7 @@ void GameOptions::SaveToDisc()
 	fprintf(fp, "AutoTyping = %s\n", iAutoTyping ? "true" : "false");
     fprintf(fp, "\n");
 
+	// TODO: outdated comment?
 	// TODO: these arrays never got intialized!
 	fprintf(fp, "[Widgets]\n");
 	fprintf(fp, "InternetListCols = ");
