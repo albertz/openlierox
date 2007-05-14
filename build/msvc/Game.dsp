@@ -239,11 +239,11 @@ SOURCE=..\..\src\client\InputEvents.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\IpToCountry.cpp
+SOURCE=..\..\src\common\IpToCountryDB.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IpToCountry.h
+SOURCE=..\..\include\IpToCountryDB.h
 # End Source File
 # Begin Source File
 

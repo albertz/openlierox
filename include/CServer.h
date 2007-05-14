@@ -19,7 +19,7 @@
 
 #include "CBanList.h"
 #include "CBonus.h"
-#include "IpToCountry.h"
+#include "IpToCountryDB.h"
 
 
 #define		MAX_CHALLENGES		1024

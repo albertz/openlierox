@@ -25,7 +25,6 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
-#include "IpToCountry.h"
 
 
 GameServer	*cServer = NULL;
