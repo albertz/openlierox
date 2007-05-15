@@ -295,7 +295,10 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 				nextexactname // resulted name
 		)) {
 			// we doesn't get any result
-			filename += sname; // just add rest to it
+			// just add rest to it
+			filename += nextname;
+			if(pos > 0) filename += "/" + sname; 
+			printf("not found: %s\n", filename.c_str());
 			return false; // error (not found)
 		}
 		
@@ -307,6 +310,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		first_iter = false;
 	}
 
+	printf("found: %s\n", filename.c_str());
 	return true;
 }
 
@@ -406,6 +410,7 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) 
 	}
 
 	GetExactFileName(tmp, fname);
+	printf("tmp=%s ; fname=%s\n", tmp.c_str(), fname.c_str());
 	if(create_nes_dirs) CreateRecDir(fname, false);
 	return tmp;
 }
