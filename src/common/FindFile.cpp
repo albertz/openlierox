@@ -27,7 +27,7 @@
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	include <shlobj.h>
 #else
-#	include <ext/hash_map>
+#	include <ext/hash_set>
 using namespace __gnu_cxx;
 
 // for getpwduid
@@ -168,7 +168,7 @@ size_t GetNextName(const std::string& fullname, const char** seperators, std::st
 size_t GetLastName(const std::string& fullname, const char** seperators)
 {
 	std::string::const_reverse_iterator pos;
-	size_t p = fullname.size();
+	size_t p = fullname.size()-1;
 	unsigned short i;
 
 	for(pos = fullname.rbegin(); pos != fullname.rend(); pos++, p--) {
@@ -178,6 +178,7 @@ size_t GetLastName(const std::string& fullname, const char** seperators)
 			}
 	}
 
+	// makes no difference if we return 0 here
 	return 0;
 }
 
@@ -208,7 +209,7 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 }
 
 
-typedef hash_map<std::string, std::string, simple_reversestring_hasher> exactfilenamecache_t;
+typedef hash_set<std::string, simple_reversestring_hasher> exactfilenamecache_t;
 exactfilenamecache_t exactfilenamecache;
 
 bool is_searchname_in_exactfilenamecache(
@@ -217,17 +218,14 @@ bool is_searchname_in_exactfilenamecache(
 ) {
 	exactfilenamecache_t::iterator it = exactfilenamecache.find(searchname);
 	if(it != exactfilenamecache.end()) {
-		exactname = it->second;
+		exactname = *it;
 		return true;
 	} else
 		return false;	
 }
 
-void add_searchname_to_exactfilenamecache(
-		const std::string& searchname,
-		const std::string& exactname
-) {
-	exactfilenamecache[searchname] = exactname;
+void add_searchname_to_exactfilenamecache(const std::string& exactname) {
+	exactfilenamecache.insert(exactname);
 }
 
 
@@ -246,46 +244,52 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 	static std::string nextexactname; nextexactname = "";
 	size_t pos;
 
+	bool first_iter = true; // this is used in the bottom loop
 
-
+	filename = "";
 	// search in cache
-	
-	// sname[0..pos-2] is left rest, excluding the /
+/*	
+	// sname[0..pos-1] is left rest, excluding the /
 	pos = sname.size();
+	std::string rest;
 	while(true) {
-		if(is_searchname_in_exactfilenamecache(sname.substr(0,pos-1), filename)) {
+		rest = sname.substr(0,pos);
+		if(is_searchname_in_exactfilenamecache(rest, filename)) {
 			if(IsPathStatable(filename)) {
+				printf("%s -> %s\n", rest.c_str(), filename.c_str());
 				// filename is the correct one here			
-				filename += "/";
-				sname.erase(0,pos);
+				sname.erase(0,pos+1);
+				first_iter = false; // prevents the following loop from not adding a "/" to filename
 				break;
 			}
 		}
-		pos = GetLastName(sname.substr(0,pos-1), seps);
+		pos = GetLastName(rest, seps);
 		if(pos == 0) {
 			filename = "";
 			break;
 		}
 	}
 
-	
+*/	
 
 
 	// search the filesystem for the name
 
 	// sname contains the rest of the path
 	// filename contains the start (including a "/" if necces.)
+	// if first_iter is set to true, don't add leading "/"
 	while(true) {
 		pos = GetNextName(sname, seps, nextname);
-		// pos>0  => found a sep
+		// pos>0  => found a sep (pos is right behind the sep)
 		// pos==0  => none found
 		if(pos > 0) sname.erase(0,pos);
-
-		if(nextname == "")
+		
+		filename += (first_iter ? "" : "/");
+		if(nextname == "") {
 			// simply ignore this case
 			// (we accept sth like /usr///share/)
 			nextexactname = "";
-		else if(!CaseInsFindFile(
+		} else if(!CaseInsFindFile(
 				filename, // dir
 				nextname, // ~name
 				nextexactname // resulted name
@@ -295,13 +299,12 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			return false; // error (not found)
 		}
 		
-		add_searchname_to_exactfilenamecache(filename + nextname, filename + nextexactname);
-
 		filename += nextexactname;
-		if(pos > 0)
-			filename += "/";
-		else
-			break;
+		if(nextexactname != "")
+			add_searchname_to_exactfilenamecache(filename);
+
+		if(pos == 0) break;
+		first_iter = false;
 	}
 
 	return true;
