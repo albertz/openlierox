@@ -208,8 +208,14 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 	return false;
 }
 
+class strcasecomparer {
+public:
+	inline bool operator()(const std::string& str1, const std::string& str2) const {
+		return stringcasecmp(str1, str2) == 0;
+	}
+};
 
-typedef hash_set<std::string, simple_reversestring_hasher> exactfilenamecache_t;
+typedef hash_set<std::string, simple_reversestring_hasher, strcasecomparer> exactfilenamecache_t;
 exactfilenamecache_t exactfilenamecache;
 
 bool is_searchname_in_exactfilenamecache(
@@ -246,9 +252,8 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 
 	bool first_iter = true; // this is used in the bottom loop
 
-	filename = "";
 	// search in cache
-/*	
+	
 	// sname[0..pos-1] is left rest, excluding the /
 	pos = sname.size();
 	std::string rest;
@@ -256,7 +261,9 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		rest = sname.substr(0,pos);
 		if(is_searchname_in_exactfilenamecache(rest, filename)) {
 			if(IsPathStatable(filename)) {
-				printf("%s -> %s\n", rest.c_str(), filename.c_str());
+				if(pos == sname.size()) // do we got the whole filename?
+					return true;
+				
 				// filename is the correct one here			
 				sname.erase(0,pos+1);
 				first_iter = false; // prevents the following loop from not adding a "/" to filename
@@ -269,8 +276,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			break;
 		}
 	}
-
-*/	
+	
 
 
 	// search the filesystem for the name
@@ -298,7 +304,6 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 			// just add rest to it
 			filename += nextname;
 			if(pos > 0) filename += "/" + sname; 
-			printf("not found: %s\n", filename.c_str());
 			return false; // error (not found)
 		}
 		
@@ -310,7 +315,6 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		first_iter = false;
 	}
 
-	printf("found: %s\n", filename.c_str());
 	return true;
 }
 
@@ -410,7 +414,6 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) 
 	}
 
 	GetExactFileName(tmp, fname);
-	printf("tmp=%s ; fname=%s\n", tmp.c_str(), fname.c_str());
 	if(create_nes_dirs) CreateRecDir(fname, false);
 	return tmp;
 }
