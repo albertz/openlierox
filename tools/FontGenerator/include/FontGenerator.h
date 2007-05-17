@@ -3,9 +3,7 @@
 ////////////////////////////
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
 #include <string>
-#include <GD/gd.h>
 
 ///////////////////////
 // Global defines
@@ -29,13 +27,13 @@
 ///////////////////////
 typedef unsigned int color_t;
 typedef unsigned char byte;
-typedef byte uchar;
+typedef unsigned char uchar;
 
 ///////////////////////
 // Global variables
 ///////////////////////
 
-SDL_Surface *Screen = NULL;
+extern SDL_Surface *Screen;
 
 //////////////////////
 // Functions

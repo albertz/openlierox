@@ -1,4 +1,20 @@
+/*
+	OpenLieroX - FontGenerator
+	
+	by Dark Charlie, Albert Zeyer
+	Code under LGPL
+	( 15-05-2007 )
+*/
+
+#include <iostream>
+#include <SDL/SDL_ttf.h>
+#include <gd/gd.h>
+
 #include "FontGenerator.h"
+
+SDL_Surface* Screen = NULL;
+
+using namespace std;
 
 // Main entry point
 int main(int argc, char *argv[])
@@ -52,7 +68,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Outline, size and output file
-	std::string OutputFile = "./"+std::string(InputFile.substr(FindLastPathSep(InputFile),InputFile.rfind(".")))+".png";
+	std::string OutputFile = "./"+InputFile.substr(FindLastPathSep(InputFile),InputFile.rfind("."))+".png";
 	bool Outline = false;
 	size_t Size = 12;
 
@@ -150,7 +166,7 @@ int main(int argc, char *argv[])
 void Output(const std::string& str)
 {
 	if (str != "")
-		printf("%s\n",str.c_str());
+		cout << str << endl;
 }
 
 // Closes the libraries
