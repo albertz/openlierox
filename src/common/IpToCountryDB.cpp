@@ -169,22 +169,37 @@ typedef std::map<std::string, IpInfo> ipcache_t;
 
 class IpToCountryData {
 public:
-	~IpToCountryData() {
-		if (tDatabase)  {
-			tDatabase->close();
-			delete tDatabase;
-		}
-		tDatabase = NULL;
-		if (tReader)
-			delete ((CountryCvsReader *)tReader);
-		tReader = NULL;
-		tIPCache.clear();
-	}
-	
 	std::string		sFile;
 	ipcache_t		tIPCache;
 	std::ifstream	*tDatabase;
 	CountryCvsReader	*tReader;
+	
+	void loadFile(const std::string& f) {
+		sFile = f;
+		if(tDatabase) {
+			tDatabase->close();
+			delete tDatabase;
+		}
+		tDatabase = OpenGameFileR(f);		
+	}
+	
+	IpToCountryData() {
+		tDatabase = NULL;
+		tReader = new CountryCvsReader;
+	}
+	
+	~IpToCountryData() {
+		if(tDatabase)  {
+			tDatabase->close();
+			delete tDatabase;
+		}
+		tDatabase = NULL;
+		if(tReader)
+			delete tReader;
+		tReader = NULL;
+		tIPCache.clear();
+	}
+	
 };
 
 DECLARE_INTERNDATA_CLASS(IpToCountryDB, IpToCountryData);
@@ -192,10 +207,13 @@ DECLARE_INTERNDATA_CLASS(IpToCountryDB, IpToCountryData);
 
 IpToCountryDB::IpToCountryDB(const std::string &dbfile) {
 	init(); // needed INTERNCLASS-init function
-	IpToCountryDBData(this)->sFile = dbfile;
-	IpToCountryDBData(this)->tDatabase = OpenGameFileR(dbfile);
-	IpToCountryDBData(this)->tReader = new CountryCvsReader;
+	LoadDBFile(dbfile);
 }
+
+void IpToCountryDB::LoadDBFile(const std::string& dbfile) {
+	IpToCountryDBData(this)->loadFile(dbfile);
+}
+
 
 IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 {

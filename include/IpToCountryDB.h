@@ -23,6 +23,7 @@ struct IpInfo {
 INTERNDATA_CLASS_BEGIN(IpToCountryDB)
 public:	
 	IpToCountryDB(const std::string& dbfile);
+	void LoadDBFile(const std::string& dbfile);
 	IpInfo	GetInfoAboutIP(const std::string& Address);
 INTERNDATA_CLASS_END
 
