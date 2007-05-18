@@ -20,8 +20,7 @@
 #include <vector>
 #include <string>
 
-typedef std::vector<std::string> searchpathlist;
-
+#include "FindFile.h" // for searchpathlist; TODO: extract this to an own file
 
 // Setup input id's
 enum {
@@ -176,9 +175,6 @@ public:
 	int		iShowPing;
 	int		iScreenshotFormat;
 	
-	// File handling
-	searchpathlist	tSearchPaths;
-
 	// Widget states
 	int		iInternetList[6];
 	int		iLANList[6];

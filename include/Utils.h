@@ -46,7 +46,7 @@ public:
 	helpers for declaration/definition of classes
 */
 
-#define DEFINE_INTERNDATA_CLASS(_classname) \
+#define INTERNDATA_CLASS_BEGIN(_classname) \
 	class _classname { \
 	public: \
 		_classname(); \
@@ -54,10 +54,17 @@ public:
 		void operator=(const _classname& b); \
 		~_classname(); \
 		void* intern_data; \
+	private:
+	
+#define INTERNDATA_CLASS_END \
 	private: \
 		void init(); \
 		void reset(); \
 	};
+
+#define DEFINE_INTERNDATA_CLASS(_classname) \
+	INTERNDATA_CLASS_BEGIN(_classname) \
+	INTERNDATA_CLASS_END
 	
 #define	DECLARE_INTERNDATA_CLASS(_classname, _datatype) \
 	_classname::_classname() { init(); } \

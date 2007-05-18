@@ -11,9 +11,8 @@
 #ifndef __IPTOCOUNTRY_H__
 #define	__IPTOCOUNTRY_H__
 
-#include <map>
 #include <string>
-#include <vector>
+#include "Utils.h"
 
 struct IpInfo {
 	std::string		Country;
@@ -21,19 +20,10 @@ struct IpInfo {
 	std::string		CountryShortcut;
 };
 
-typedef std::map<std::string, IpInfo> ipcache_t;
-
-class IpToCountryDB  {
-public:
+INTERNDATA_CLASS_BEGIN(IpToCountryDB)
+public:	
 	IpToCountryDB(const std::string& dbfile);
-	~IpToCountryDB();
-private:
-	std::string		sFile;
-	ipcache_t		tIPCache;
-	std::ifstream	*tDatabase;
-	void			*tReader;
-public:
 	IpInfo	GetInfoAboutIP(const std::string& Address);
-};
+INTERNDATA_CLASS_END
 
 #endif

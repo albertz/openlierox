@@ -194,7 +194,6 @@ extern	CInput			cToggleMediaPlayer;
 extern  int				nDisableSound;
 extern	bool			bActivated;
 
-extern	std::string		binary_dir;
 
 
 // Main Routines

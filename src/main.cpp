@@ -44,7 +44,6 @@ SDL_Surface	*Screen;
 
 CVec		vGravity = CVec(0,4);
 
-std::string	binary_dir; // given by argv[0]
 
 
 void print_binary_string(const std::string& txt) {

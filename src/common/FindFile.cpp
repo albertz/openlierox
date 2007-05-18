@@ -17,8 +17,9 @@
 // By Jason Boettcher
 
 
-#include "defs.h"
-#include "LieroX.h"
+
+
+
 #include "FindFile.h"
 #include "StringUtils.h"
 
@@ -38,6 +39,10 @@ using namespace __gnu_cxx;
 #	include <unistd.h>
 
 #endif
+
+
+searchpathlist tSearchPaths;
+
 
 bool IsFileAvailable(const std::string& f, bool absolute) {
 	static std::string abs_f;
@@ -349,8 +354,8 @@ void CreateRecDir(const std::string& abs_filename, bool last_is_dir) {
 }
 
 std::string GetFirstSearchPath() {
-	if(tLXOptions->tSearchPaths.size() > 0)
-		return tLXOptions->tSearchPaths.front();
+	if(tSearchPaths.size() > 0)
+		return tSearchPaths.front();
 	else if(basesearchpaths.size() > 0)
 		return basesearchpaths.front();
 	else
@@ -397,7 +402,7 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) 
 	static std::string fname;
 
 	// get the dir, where we should write into
-	if(tLXOptions->tSearchPaths.size() == 0 && basesearchpaths.size() == 0) {
+	if(tSearchPaths.size() == 0 && basesearchpaths.size() == 0) {
 		printf("ERROR: we want to write somewhere, but don't know where => we are writing to your temp-dir now...\n");
 		tmp = GetTempDir() + "/" + path;
 	} else {
@@ -541,6 +546,9 @@ std::string GetSystemDataDir() {
 	return "";
 #endif
 }
+
+
+std::string	binary_dir; // given by argv[0], set by main()
 
 std::string GetBinaryDir() {
 	return binary_dir;

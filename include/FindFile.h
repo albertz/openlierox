@@ -23,15 +23,36 @@
 #include <fstream>
 #include <string>
 #include <list>
+#include <vector>
 
 #ifndef WIN32
 #	include <sys/dir.h>
 #	include <unistd.h>
 #endif
 
+// file input/output
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#ifdef WIN32
+#	include <windows.h>
+#	include <io.h>
+#	include <direct.h>
+	// wrappers to provide the standards
+	inline int mkdir(const char *path, int mode) { return _mkdir(path); }
+#	define stat _stat
+#ifndef S_ISREG
+inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
+inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
+#endif
+#endif
+
+
 #ifndef SYSTEM_DATA_DIR
 #	define	SYSTEM_DATA_DIR	"/usr/share"
 #endif
+
+extern	std::string		binary_dir;
 
 //
 //	Drive types
@@ -55,6 +76,11 @@ class drive_t { public:
 };
 
 typedef std::vector<drive_t> drive_list;
+
+
+
+typedef std::vector<std::string> searchpathlist;
+extern searchpathlist tSearchPaths;
 
 void	AddToFileList(searchpathlist* l, const std::string& f);
 bool	FileListIncludesExact(const searchpathlist* l, const std::string& f);
@@ -131,7 +157,7 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs =
 
 // replacement for the simple fopen
 // this does a search on all searchpaths for the file and opens the first one; if none was found, NULL will be returned
-// related to tLXOptions->tSearchPaths
+// related to tSearchPaths
 FILE*	OpenGameFile(const std::string& path, const char *mode);
 
 std::ifstream* OpenGameFileR(const std::string& path);
@@ -160,7 +186,7 @@ std::string	GetBinaryDir();
 std::string	GetTempDir();
 
 
-typedef uchar filemodes_t;
+typedef char filemodes_t;
 enum {
 	FM_DIR = 1,
 	FM_REG = 2
@@ -178,9 +204,9 @@ void ForEachSearchpath(_handler handler = _handler()) {
 	std::string path;
 	searchpathlist::const_iterator i;
 	
-	if(tLXOptions) for(
-			i = tLXOptions->tSearchPaths.begin();
-			i != tLXOptions->tSearchPaths.end(); i++) {
+	for(
+			i = tSearchPaths.begin();
+			i != tSearchPaths.end(); i++) {
 		if(!GetExactFileName(*i, path)) continue;
 		if(!PathListIncludes(handled_dirs, path)) {
 			if(!handler(path + "/")) return;
@@ -191,7 +217,7 @@ void ForEachSearchpath(_handler handler = _handler()) {
 	for(
 			i = basesearchpaths.begin();
 			i != basesearchpaths.end(); i++) {
-		if(!tLXOptions || !FileListIncludesExact(&tLXOptions->tSearchPaths, *i)) {
+		if(!FileListIncludesExact(&tSearchPaths, *i)) {
 			if(!GetExactFileName(*i, path)) continue;
 			if(!PathListIncludes(handled_dirs, path)) {
 				if(!handler(path + "/")) return;

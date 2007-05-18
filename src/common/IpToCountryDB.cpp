@@ -8,13 +8,14 @@
 //
 /////////////////////////////////////////
 
-#include "defs.h"
+#include <map>
+#include <vector>
+
 #include "StringUtils.h"
 #include "FindFile.h"
 #include "IpToCountryDB.h"
 
-
-// TODO: enhance cache
+// TODO: enhance cache, use hashmap
 // TODO: merge these two classes // NO, don't do this, this makes no sence
 
 class CountryCvsReader {
@@ -163,25 +164,37 @@ public:
 
 };
 
+// TODO: use hashmap instead of map
+typedef std::map<std::string, IpInfo> ipcache_t;
 
-IpToCountryDB::IpToCountryDB(const std::string &dbfile)
-{
-	sFile = dbfile;
-	tDatabase = OpenGameFileR(dbfile);
-	tReader = new CountryCvsReader;
-}
-
-IpToCountryDB::~IpToCountryDB()
-{
-	if (tDatabase)  {
-		tDatabase->close();
-		delete tDatabase;
+class IpToCountryData {
+public:
+	~IpToCountryData() {
+		if (tDatabase)  {
+			tDatabase->close();
+			delete tDatabase;
+		}
+		tDatabase = NULL;
+		if (tReader)
+			delete ((CountryCvsReader *)tReader);
+		tReader = NULL;
+		tIPCache.clear();
 	}
-	tDatabase = NULL;
-	if (tReader)
-		delete ((CountryCvsReader *)tReader);
-	tReader = NULL;
-	tIPCache.clear();
+	
+	std::string		sFile;
+	ipcache_t		tIPCache;
+	std::ifstream	*tDatabase;
+	CountryCvsReader	*tReader;
+};
+
+DECLARE_INTERNDATA_CLASS(IpToCountryDB, IpToCountryData);
+
+
+IpToCountryDB::IpToCountryDB(const std::string &dbfile) {
+	init(); // needed INTERNCLASS-init function
+	IpToCountryDBData(this)->sFile = dbfile;
+	IpToCountryDBData(this)->tDatabase = OpenGameFileR(dbfile);
+	IpToCountryDBData(this)->tReader = new CountryCvsReader;
 }
 
 IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
@@ -191,7 +204,7 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	Result.Country = "";
 	Result.CountryShortcut = "";
 
-	static CountryCvsReader *reader = (CountryCvsReader *) tReader;
+	CountryCvsReader* reader = IpToCountryDBData(this)->tReader;
 
 	// Don't check against local IP
 	if (Address.find("127.0.0.1") != std::string::npos) {
@@ -208,8 +221,8 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	}
 
 	// If we've already read
-	ipcache_t::iterator it = tIPCache.find(Address);
-	if (it != tIPCache.end())  {
+	ipcache_t::iterator it = IpToCountryDBData(this)->tIPCache.find(Address);
+	if (it != IpToCountryDBData(this)->tIPCache.end())  {
 		return it->second;
 	}
 
@@ -217,11 +230,11 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	reader->myIP = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
 
 	// Open the database
-	tDatabase->seekg(0);  // To the beginning
-	reader->file = tDatabase;
-	if(!tDatabase)  {
-		Result.Continent = "outer space";
-		Result.Country = "outer space";
+	IpToCountryDBData(this)->tDatabase->seekg(0);  // To the beginning
+	reader->file = IpToCountryDBData(this)->tDatabase;
+	if(!reader->file)  {
+		Result.Continent = "invisibland";
+		Result.Country = "invisibland";
 		return Result;
 	}
 
@@ -232,7 +245,7 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	}
 
 	// Add to cache
-	tIPCache[Address] = Result;
+	IpToCountryDBData(this)->tIPCache[Address] = Result;
 		
 	
 	return Result;	

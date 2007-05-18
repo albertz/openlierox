@@ -75,19 +75,7 @@ SDL_Surface* _LoadImage(const std::string& filename)
 	if(fname.size() == 0)
 		return NULL;
 		
-#ifndef WIN32
-	struct stat s;
-	if(stat(fname.c_str(), &s) == 0 && S_ISREG(s.st_mode)) {
-//		printf("_LoadImage(%s): %0.1f kBytes\n", fname, s.st_size / 1024.0f);
-		return IMG_Load(fname.c_str());
-	}
-	else {
-//		printf("_LoadImage(%s): ERROR: cannot stat the file\n", fname);
-		return NULL;
-	}
-#else // WIN32
 	return IMG_Load(fname.c_str());
-#endif
 }
 
 
