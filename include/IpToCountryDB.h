@@ -15,25 +15,25 @@
 #include <string>
 #include <vector>
 
-typedef struct _ipinfo_t {
+struct IpInfo {
 	std::string		Country;
 	std::string		Continent;
 	std::string		CountryShortcut;
-} ipinfo_t;
+};
 
-typedef std::map<std::string,ipinfo_t> ipcache_t;
+typedef std::map<std::string, IpInfo> ipcache_t;
 
-class CIpToCountry  {
+class IpToCountryDB  {
 public:
-	CIpToCountry(const std::string& dbfile);
-	~CIpToCountry();
+	IpToCountryDB(const std::string& dbfile);
+	~IpToCountryDB();
 private:
 	std::string		sFile;
 	ipcache_t		tIPCache;
 	std::ifstream	*tDatabase;
 	void			*tReader;
 public:
-	ipinfo_t	GetInfoAboutIP(const std::string& Address);
+	IpInfo	GetInfoAboutIP(const std::string& Address);
 };
 
 #endif

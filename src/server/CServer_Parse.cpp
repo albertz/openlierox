@@ -1042,7 +1042,7 @@ void GameServer::ParseConnect(CBytestream *bs)
 
 			// Country
 			if (buf.find("<country>") != std::string::npos)  {
-				static ipinfo_t info;
+				static IpInfo info;
 				static std::string str_addr;
 				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
 				if (str_addr != "")  {
@@ -1053,7 +1053,7 @@ void GameServer::ParseConnect(CBytestream *bs)
 
 			// Continent
 			if (buf.find("<continent>") != std::string::npos)  {
-				static ipinfo_t info;
+				static IpInfo info;
 				static std::string str_addr;
 				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
 				if (str_addr != "")  {

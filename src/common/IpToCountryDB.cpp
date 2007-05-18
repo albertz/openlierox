@@ -15,7 +15,7 @@
 
 
 // TODO: enhance cache
-// TODO: merge these two classes
+// TODO: merge these two classes // NO, don't do this, this makes no sence
 
 class CountryCvsReader {
 public:
@@ -32,7 +32,7 @@ public:
 	std::string token;	
 	
 	bool hasresult;
-	ipinfo_t result;
+	IpInfo result;
 	
 	CountryCvsReader() : inquote(false), waitforkomma(false), ignoreline(false), tindex(0), hasresult(false) {}
 	
@@ -95,7 +95,7 @@ public:
 		tindex++;
 	}
 	
-	ipinfo_t readAndReturnInfo() {
+	IpInfo readAndReturnInfo() {
 		char nextch;
 		while(!file->eof() && !hasresult) {
 			file->get(nextch);
@@ -164,14 +164,14 @@ public:
 };
 
 
-CIpToCountry::CIpToCountry(const std::string &dbfile)
+IpToCountryDB::IpToCountryDB(const std::string &dbfile)
 {
 	sFile = dbfile;
 	tDatabase = OpenGameFileR(dbfile);
 	tReader = new CountryCvsReader;
 }
 
-CIpToCountry::~CIpToCountry()
+IpToCountryDB::~IpToCountryDB()
 {
 	if (tDatabase)  {
 		tDatabase->close();
@@ -184,9 +184,9 @@ CIpToCountry::~CIpToCountry()
 	tIPCache.clear();
 }
 
-ipinfo_t CIpToCountry::GetInfoAboutIP(const std::string& Address)
+IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 {
-	static ipinfo_t Result;
+	static IpInfo Result;
 	Result.Continent = "";
 	Result.Country = "";
 	Result.CountryShortcut = "";
