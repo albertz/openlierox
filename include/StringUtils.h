@@ -64,13 +64,15 @@ int chrcasecmp(const char c1, const char c2);
 
 #ifndef WIN32
 inline char* itoa(int val, char* buf, int base) {
-	int i = 29; // TODO: bad style!
+	int i = 29; // TODO: bad style
 	buf[i+1] = '\0';
 
-	for(; val && i ; --i, val /= base)	
-		buf[i] = "0123456789abcdef"[val % base];
-	
-	return &buf[i+1];
+    do {
+        buf = "0123456789abcdefghijklmnopqrstuvwxyz"[val % base] + buf;
+        --i, val /= base;
+    } while(val && i);
+
+    return &buf[i+1];
 }
 #	define		stricmp		strcasecmp
 #else // WIN32
@@ -150,13 +152,14 @@ T from_string(const std::string& s) {
 
 
 // std::string itoa
-inline std::string itoa(int num,int base=10)  {
-	// TODO: better!! (use ostringstream)
-	static char buf[64];
-	static std::string ret;
-	ret = itoa(num,buf,base);
-	fix_markend(buf);
-	return ret;
+inline std::string itoa(uint num, short base=10)  {
+	std::string buf;
+	do {	
+		buf = "0123456789abcdefghijklmnopqrstuvwxyz"[num % base] + buf;
+		num /= base;
+	} while(num);
+
+	return buf;
 }
 
 inline int atoi(const std::string& str)  { return from_string<int>(str);  }
