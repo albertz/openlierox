@@ -52,8 +52,9 @@
 #	define snprintf	 _snprintf
 #else
 inline char* strlwr(char* string) {
+	char* ret = string;
 	if(string) while( 0 != ( *string++ = (char)tolower( *string ) ) ) ;
-	return string;
+	return ret;
 }
 #endif
 
