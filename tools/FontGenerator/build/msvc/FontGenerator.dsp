@@ -98,7 +98,7 @@ SOURCE=..\..\src\main.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\inc\FontGenerator.h
+SOURCE=..\..\include\FontGenerator.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

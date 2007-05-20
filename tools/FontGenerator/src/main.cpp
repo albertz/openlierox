@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 	}
 
 	// File name
-	std::string InputFile = argv[1];  // Note: argv[0] is path to this program
+	/*std::string InputFile = argv[1];  // Note: argv[0] is path to this program
 	if (InputFile.rfind('.') == std::string::npos)
 		InputFile += ".ttf";
 
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	// Outline, size and output file
 	std::string OutputFile = "./"+InputFile.substr(FindLastPathSep(InputFile),InputFile.rfind("."))+".png";
 	bool Outline = false;
-	size_t Size = 12;
+	size_t Size = 15;
 
 	int i;
 	for (i=2;i<argc;i++)  {
@@ -82,33 +82,43 @@ int main(int argc, char *argv[])
 			OutputFile = argv[i];
 	}
 
-	if (!Size) Size = 12; // Check
+	if (!Size) Size = 15; // Check*/
+	arguments_t Arguments = ParseArguments(argc,argv);
 
 	//
 	// Create the font
 	//
-	TTF_Font *Font = TTF_OpenFont(InputFile.c_str(),Size);
+	TTF_Font *Font = TTF_OpenFont(Arguments.InputFile.c_str(),Arguments.Size);
 	if (!Font)  {
 		Output("Could not open the font!");
 		Quit();
 		return -1;
 	}
 
+	if (Arguments.Bold)
+		TTF_SetFontStyle(Font,TTF_STYLE_BOLD);
+	if (Arguments.Italic)
+		TTF_SetFontStyle(Font,TTF_STYLE_ITALIC);
+	if (Arguments.Underline)
+		TTF_SetFontStyle(Font,TTF_STYLE_UNDERLINE);
+
 	//
 	// Count the surface size
 	//
 	int SurfaceWidth = 0;
 	int SurfaceHeight = 0;
+	Uint16 Characters[(LAST_CHARACTER-FIRST_CHARACTER)*2+1];  // There's a space between each two characters to make some space for
+															  // the dividing line. There's no possibility to increase spacing and
+															  // TTF_RenderGlyph & TTF_GlyphMetrics don't give enough flexibility
+															  // to render the text (someone forgot on glyph y-offset)
 
-	int sw = 0;
-	Uint16 buf[2];
-	buf[1] = 0; // Terminating
-
-	for (register Uint16 c=FIRST_CHARACTER;c<=LAST_CHARACTER;c++)  {
-		buf[1] = c;
-		TTF_SizeUNICODE(Font,buf,&sw,&SurfaceHeight);
-		SurfaceWidth+=sw+1;  // +1 is the blue dividing line
+	for (register Uint16 c=0;c<(LAST_CHARACTER-FIRST_CHARACTER)*2;c++)  {
+		Characters[c] = (c/2)+FIRST_CHARACTER;
+		Characters[++c] = ' ';
 	}
+	Characters[(LAST_CHARACTER-FIRST_CHARACTER)*2] = 0; // Terminating
+	TTF_SizeUNICODE(Font,Characters,&SurfaceWidth,&SurfaceHeight);
+
 
 	//
 	// Create the surface
@@ -121,37 +131,71 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	SDL_FillRect(OutBmp,NULL,SDL_MapRGB(OutBmp->format,255,0,255));  // Fill with pink
+	color_t Pink = SDL_MapRGB(OutBmp->format,255,0,255);
+	SDL_FillRect(OutBmp,NULL,Pink);  // Fill with pink
 
 	const color_t Blue = SDL_MapRGB(OutBmp->format,0,0,255);  // Separator color
 
 	//
 	//  Render the font
 	//
-	SDL_Rect Rect; Rect.y = 0; Rect.x = 0;
-	SDL_Surface *character = NULL;
-	SDL_Color Black = {0,0,0};
-	for (c=FIRST_CHARACTER;c<=LAST_CHARACTER;c++)  {
-		buf[0] = c;
-		character = TTF_RenderUNICODE_Solid(Font,&buf[0],Black);  // Render the black character
-		if (character)  {
-			Rect.w = character->w;
-			Rect.h = character->h;
-			SDL_BlitSurface(character,NULL,OutBmp,&Rect);
-			Rect.x += Rect.w;
-			DrawVLine(OutBmp,Rect.x,Blue);
-			Rect.x++;
-			SDL_FreeSurface(character);
-		}
+
+	// First, render the font
+	//SDL_Color fntPink = {255,0,255};
+
+	// Replace all the not black/not pink colors with black/pink
+	// It looks better than TTF_RenderUNICODE_Solid then
+	/*color_t *px,*py;
+	unsigned short x,y;
+	color_t CurCol;
+	for (py= (color_t *)OutBmp->pixels,y=0;y<OutBmp->h;py+=OutBmp->pitch/4,y++)
+		for (px = py,x=0; x<OutBmp->w; px++,x++)  {
+			CurCol = *px;
+			if (abs(CurCol-Pink) < CurCol) *px=Pink;
+			else *px = 0;
+		}*/
+
+	/*color_t *px,*py;
+	unsigned short x,y;
+	Uint8 r,g,b,a;
+	for (py= (color_t *)Text->pixels,y=0;y<Text->h;py+=Text->pitch/4,y++)
+		for (px = py,x=0; x<Text->w; px++,x++)  {
+			SDL_GetRGBA(*px,Text->format,&r,&g,&b,&a);
+			if (a < 150) 
+				*px=Pink;
+			else 
+				*px = 0xff000000;
+		}*/
+
+	SDL_Color fntBlack = {0,0,0};
+	SDL_Surface *Text = TTF_RenderUNICODE_Solid(Font,Characters,fntBlack);
+	SDL_BlitSurface(Text,NULL,OutBmp,NULL);
+	SDL_FreeSurface(Text);
+
+	//
+	// Add the dividing lines
+	//
+	int cur_x = 0;
+	int space_width=0;
+	TTF_GlyphMetrics(Font,' ',NULL,NULL,NULL,NULL,&space_width);
+	int advance;
+
+	for (c=0;c<LAST_CHARACTER-FIRST_CHARACTER;c++)  {
+		if (TTF_GlyphMetrics(Font,Characters[c*2],NULL,NULL,NULL,NULL,&advance) != -1)  // c*2 because of the spaces
+			cur_x += advance;
+		else
+			continue;  // The character is not in the font
+
+		DrawVLine(OutBmp,cur_x,Blue);
+		cur_x += space_width;
 	}
 
 	//
 	// Save the font
 	//
 
-	if (!SavePNG(OutBmp,OutputFile))  
+	if (!SavePNG(OutBmp,Arguments.OutputFile))  
 		Output("Could not save the resulting bitmap.");
-
 
 	//
 	// Quit
@@ -160,6 +204,63 @@ int main(int argc, char *argv[])
 	Quit();
 
 	return 0;
+}
+
+// Parse the program arguments
+arguments_t ParseArguments(int argc,char *argv[])
+{
+	arguments_t Result;
+	Result.InputFile = "";
+	Result.OutputFile = "";
+	Result.Size = DEF_FONTSIZE;
+	Result.Bold = false;
+	Result.Italic = false;
+	Result.Underline = false;
+	Result.Outline = false;
+
+	int i;
+	for (i=1;i<argc;i++)  {
+		// Input and output
+		if (argv[i][0] != '-')  {
+			if (Result.InputFile == "")
+				Result.InputFile = argv[i];
+			else if (Result.OutputFile == "")
+				Result.OutputFile = argv[i];
+			else
+				Output("Unknown argument: "+std::string(argv[i]));
+			continue;
+		}
+
+		// Bold
+		if (!strcasecmp(argv[i],"-bold"))  {
+			Result.Bold = true;
+		// Italic
+		} else if (!strcasecmp(argv[i],"-italic"))  {
+			Result.Italic = true;
+		// Underline
+		} else if (!strcasecmp(argv[i],"-underline"))  {
+			Result.Underline = true;
+		// Outline
+		} else if (!strcasecmp(argv[i],"-outline"))  {
+			Result.Outline = true;
+		// Size
+		} else if (strstr(strlwr(argv[i]),"-size:"))  {
+			Result.Size = atoi(argv[i]+6); // 6 == strlen("size:")
+			if (Result.Size == 0)
+				Result.Size = DEF_FONTSIZE;
+		}
+	}
+
+	if (Result.InputFile.rfind('.') == std::string::npos)
+		Result.InputFile += ".ttf";
+
+	if (!FileExists(Result.InputFile))
+		return Result;
+
+	if (Result.OutputFile == "")
+		Result.OutputFile = "./"+Result.InputFile.substr(FindLastPathSep(Result.InputFile),Result.InputFile.rfind("."))+".png";
+
+	return Result;
 }
 
 // Print out an output
