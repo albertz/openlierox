@@ -2,6 +2,7 @@
 // Standard includes
 ////////////////////////////
 
+#include <iostream>
 #include <SDL/SDL.h>
 #include <string>
 
@@ -29,7 +30,7 @@
 typedef unsigned int color_t;
 typedef unsigned char byte;
 typedef unsigned char uchar;
-typedef struct _arguments_t{
+struct arguments_t {
 	std::string InputFile;
 	std::string OutputFile;
 	bool Outline;
@@ -37,27 +38,20 @@ typedef struct _arguments_t{
 	bool Italic;
 	bool Underline;
 	size_t Size;
-} arguments_t;
+};
 
 ///////////////////////
 // Global variables
 ///////////////////////
 
-extern SDL_Surface *Screen;
+extern SDL_Surface* Screen;
+extern std::ostream& Output;
 
 //////////////////////
 // Functions
 //////////////////////
 
-#ifdef _MSC_VER
-inline int strcasecmp(const char *a, const char *b) {return _stricmp(a,b); }  // To provide the standards
-#endif
-
-template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
-template <typename T> inline T MAX(T a, T b) { return a>b?a:b; }
-
 arguments_t ParseArguments(int argc, char *argv[]);
-void Output(const std::string& str);
 bool FileExists(const std::string& str);
 size_t FindLastPathSep(const std::string& path);
 void DrawVLine(SDL_Surface *bmpDest, int x, color_t color);

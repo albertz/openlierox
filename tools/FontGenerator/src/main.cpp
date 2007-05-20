@@ -11,11 +11,15 @@
 #include <gd.h>
 
 #include "StringUtils.h"
+#include "Utils.h"
+
 #include "FontGenerator.h"
 
 SDL_Surface* Screen = NULL;
 
 using namespace std;
+
+ostream& Output = cout;
 
 // Main entry point
 int main(int argc, char *argv[])
@@ -24,18 +28,18 @@ int main(int argc, char *argv[])
 	// Initialization
 	//
 
-	Output("Welcome to Font Generator!");
+	Output << "Welcome to Font Generator!" << endl;
 	
 	// Initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE) == -1) {
-		Output("Could not initialize the SDL library. Quitting.");
+		Output << "Could not initialize the SDL library. Quitting." << endl;
 		return -1;
 	}
 
 	// Initialize SDL_ttf
 	if (TTF_Init() == -1)  {
 		SDL_Quit();
-		Output("Could not initialize SDL_ttf library. Quitting.");
+		Output << "Could not initialize SDL_ttf library. Quitting." << endl;
 		return -1;
 	}
 
@@ -51,7 +55,12 @@ int main(int argc, char *argv[])
 	//
 
 	if (argc < 2)  {
-		Output("Not enough of parameters");
+		// TODO: own function for this output
+		// TODO: fill this with text
+		Output
+			<< "Too less parameters" << endl
+			<< "usage: " << endl
+			<< "  " << argv[0] << " <input_file>" << endl;
 		Quit();
 		return -1;
 	}
@@ -91,7 +100,7 @@ int main(int argc, char *argv[])
 	//
 	TTF_Font *Font = TTF_OpenFont(Arguments.InputFile.c_str(),Arguments.Size);
 	if (!Font)  {
-		Output("Could not open the font!");
+		Output << "Could not open the font!" << endl;
 		Quit();
 		return -1;
 	}
@@ -127,7 +136,7 @@ int main(int argc, char *argv[])
 	//
 	SDL_Surface *OutBmp = SDL_CreateRGBSurface(SDL_SWSURFACE,SurfaceWidth,SurfaceHeight,32,RMASK,GMASK,BMASK,AMASK);
 	if (!OutBmp)  {
-		Output("Out of memory while creating the bitmap surface.");
+		Output << "Out of memory while creating the bitmap surface." << endl;
 		TTF_CloseFont(Font);
 		Quit();
 		return -1;
@@ -197,7 +206,7 @@ int main(int argc, char *argv[])
 	//
 
 	if (!SavePNG(OutBmp,Arguments.OutputFile))  
-		Output("Could not save the resulting bitmap.");
+		Output << "Could not save the resulting bitmap." << endl;
 
 	//
 	// Quit
@@ -229,7 +238,7 @@ arguments_t ParseArguments(int argc,char *argv[])
 			else if (Result.OutputFile == "")
 				Result.OutputFile = argv[i];
 			else
-				Output("Unknown argument: "+std::string(argv[i]));
+				Output << "Unknown argument: " << argv[i] << endl;
 			continue;
 		}
 
@@ -263,13 +272,6 @@ arguments_t ParseArguments(int argc,char *argv[])
 		Result.OutputFile = "./"+Result.InputFile.substr(FindLastPathSep(Result.InputFile),Result.InputFile.rfind("."))+".png";
 
 	return Result;
-}
-
-// Print out an output
-void Output(const std::string& str)
-{
-	if (str != "")
-		cout << str << endl;
 }
 
 // Closes the libraries
