@@ -8,8 +8,9 @@
 
 #include <iostream>
 #include <SDL/SDL_ttf.h>
-#include <gd/gd.h>
+#include <gd.h>
 
+#include "StringUtils.h"
 #include "FontGenerator.h"
 
 SDL_Surface* Screen = NULL;
@@ -112,7 +113,8 @@ int main(int argc, char *argv[])
 															  // TTF_RenderGlyph & TTF_GlyphMetrics don't give enough flexibility
 															  // to render the text (someone forgot on glyph y-offset)
 
-	for (register Uint16 c=0;c<(LAST_CHARACTER-FIRST_CHARACTER)*2;c++)  {
+	register Uint16 c;
+	for (c=0;c<(LAST_CHARACTER-FIRST_CHARACTER)*2;c++)  {
 		Characters[c] = (c/2)+FIRST_CHARACTER;
 		Characters[++c] = ' ';
 	}

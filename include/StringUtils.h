@@ -51,8 +51,9 @@
 #	define vsnprintf _vsnprintf
 #	define snprintf	 _snprintf
 #else
-inline void strlwr(char* string) {
+inline char* strlwr(char* string) {
 	if(string) while( 0 != ( *string++ = (char)tolower( *string ) ) ) ;
+	return string;
 }
 #endif
 
