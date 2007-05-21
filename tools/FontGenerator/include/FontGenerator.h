@@ -52,9 +52,11 @@ extern std::ostream& Output;
 //////////////////////
 
 arguments_t ParseArguments(int argc, char *argv[]);
+void DisplayHelp(const std::string& ExeName);
 bool FileExists(const std::string& str);
 size_t FindLastPathSep(const std::string& path);
 void DrawVLine(SDL_Surface *bmpDest, int x, color_t color);
-void ApplyOutline(SDL_Surface *bmpFont);
+SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outline);
+void ApplyOutline(SDL_Surface *BitmapText);
 bool SavePNG(SDL_Surface *image, const std::string& file);
 void Quit();
