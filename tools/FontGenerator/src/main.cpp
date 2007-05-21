@@ -342,7 +342,10 @@ arguments_t ParseArguments(int argc,char *argv[])
 		return Result;
 
 	if (Result.OutputFile == "")
-		Result.OutputFile = "./"+Result.InputFile.substr(FindLastPathSep(Result.InputFile),Result.InputFile.rfind("."))+".png";
+		if (Result.Outline)
+			Result.OutputFile = "./"+Result.InputFile.substr(FindLastPathSep(Result.InputFile),Result.InputFile.rfind("."))+"_out"+".png";
+		else
+			Result.OutputFile = "./"+Result.InputFile.substr(FindLastPathSep(Result.InputFile),Result.InputFile.rfind("."))+".png";
 
 	return Result;
 }
