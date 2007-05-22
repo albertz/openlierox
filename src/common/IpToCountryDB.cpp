@@ -128,7 +128,7 @@ public:
 	std::string		filename;
 	DBData			data;
 	
-	void loadFile(const std::string& fn) {
+	inline void loadFile(const std::string& fn) {
 		filename = fn;		
 		data.clear();
 		
@@ -147,9 +147,9 @@ public:
 		delete f;
 	}
 	
-	const DBEntry* getEntry(Ip ip) {
+	inline const DBEntry* getEntry(Ip ip) {
 		DBData::const_iterator it = data.lower_bound(ip);
-		if(it != data.end() && it->first >= ip) // in range?
+		if(it != data.end() && it->second.RangeFrom <= ip) // in range?
 			return &it->second;
 		else
 			return NULL;
