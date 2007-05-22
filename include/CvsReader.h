@@ -11,6 +11,9 @@
 #ifndef __CVSREADER_H__
 #define __CVSREADER_H__
 
+#include <istream>
+#include <string>
+
 /*
 	_handler is supposed to be a functor, which is compatible to:
 		
@@ -45,7 +48,9 @@ public:
 	int tindex;
 	std::string token;	
 	
-	CvsReader(std::istream* s, _handler& h) : stream(s), handler(h), inquote(false), waitforkomma(false), ignoreline(false), tindex(0) {}
+	CvsReader(std::istream* s, _handler& h)
+		: stream(s), handler(h), inquote(false), waitforkomma(false),
+		ignoreline(false), tindex(0) {}
 	
 	// gets called at the end of line, if there was at least one entry
 	// if return-value is false, reading will break

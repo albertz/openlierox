@@ -45,7 +45,8 @@ public:
 	bool finished_entry;
 	DBEntry entry;
 	
-	CountryCvsReaderHandler(_handler& h) : handler(h), finished_entry(false) {}
+	CountryCvsReaderHandler(_handler& h)
+		: handler(h), finished_entry(false) {}
 
 	inline bool operator()(int tindex, const std::string& token) {
 		switch(tindex) {
