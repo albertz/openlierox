@@ -288,11 +288,11 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	Result.CountryShortcut = "";
 
 	// Local IP
-	/*if (Address.find("127.0.0.1") != std::string::npos)  {
+	if (Address.find("127.0.0.1") != std::string::npos)  {
 		Result.Continent = "Home";
 		Result.Country = "Home";
 		return Result;
-	}*/
+	}
 
 	// Convert the IP
 	const std::vector<std::string>& ip_e = explode(Address,".");
