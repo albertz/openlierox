@@ -63,7 +63,7 @@ public:
 		waitforkomma = false;
 		inquote = false;
 		
-		ignoreline = handler(tindex, token);
+		ignoreline = !handler(tindex, token);
 		
 		token = "";
 		tindex++;
@@ -72,7 +72,7 @@ public:
 	void read() {
 		char nextch;
 		while(!stream->eof()) {
-			stream->get(nextch);
+			stream->get(nextch);			
 			switch(nextch) {
 			case 0:
 				break;

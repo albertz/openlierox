@@ -112,6 +112,8 @@ public:
 };
 
 
+using namespace std;
+
 class AddEntrysToDBData {
 public:
 	DBData& data;
@@ -134,14 +136,17 @@ public:
 		
 		std::ifstream* f = OpenGameFileR(fn);
 		if(f == NULL) {
-			std::cerr << "ERROR: cannot read " << fn << std::endl;
+			cerr << "ERROR: cannot read " << fn << endl;
 			return;
 		}
+		f->seekg(0);		
 		
+		cout << "IpToCountryDB: reading " << fn << " ..." << endl;
 		AddEntrysToDBData adder(data);
 		CountryCvsReaderHandler<AddEntrysToDBData> cvsReaderHandler(adder);
 		CvsReader<CountryCvsReaderHandler<AddEntrysToDBData> > cvsReader(f, cvsReaderHandler);
 		cvsReader.read();
+		cout << "  finished, " << data.size() << " entries" << endl;
 		
 		f->close();
 		delete f;
