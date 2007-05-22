@@ -192,7 +192,7 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	}
 
 	// Convert the IP to the numeric representation
-	Ip ip = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
+	Ip ip = from_string<Ip>(ip_e[0]) * 16777216 + from_string<Ip>(ip_e[1]) * 65536 + from_string<Ip>(ip_e[2]) * 256 + from_string<Ip>(ip_e[3]);
 
 	const DBEntry* entry = IpToCountryDBData(this)->getEntry(ip);
 	if(entry == NULL) {
