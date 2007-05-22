@@ -73,7 +73,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		if (bOldStyle)
 			y = iY+tLX->cFont.GetHeight()+2;
 		else
-			y = iY+tLX->cFont.GetHeight()+4;
+			y = iY+tLX->cFont.GetHeight()+6;
 	} else {
 		if (bDrawBorder)  {
 			y += 2;
@@ -93,7 +93,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	if(iGotScrollbar)
 		selectsize = x+iWidth-20;
 
-	int h=18;
+	int h=tLX->cFont.GetHeight();
 	int texty = 0;
 
 
@@ -101,14 +101,14 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		if(count++ < cScrollbar.getValue())
 			continue;
 
-		h = 18;
+		h = tLX->cFont.GetHeight();
 		x = iX+4;
 
 		col = tColumns;
 
 		// Find the max height
 		h = item->iHeight;
-		texty = y + (h-18)/2;
+		texty = y + (h-tLX->cFont.GetHeight())/2;
 
 		// Selected?
 		if(item->iSelected && bShowSelect) {
@@ -250,7 +250,7 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 	item->tNext = NULL;
 	item->iSelected = false;
 	item->tSubitems = NULL;
-	item->iHeight = 18;			// Text height
+	item->iHeight = tLX->cFont.GetHeight();			// Text height
 	item->iColour = iColour;
     item->_iID = iItemID++;
 
@@ -848,7 +848,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 	iClickedSub = -1;
 
 	// Go through the items
-	int y = iY+17;
+	int y = iY+tLX->cFont.GetHeight();
 	if (!tColumns)
 		y = iY+2;
 	lv_item_t *item = tItems;
@@ -952,7 +952,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	iClickedSub = -1;
 
 	// Go through the items
-	int y = iY+17;
+	int y = iY+tLX->cFont.GetHeight()+4;
 	if (!tColumns)
 		y = iY+2;
 	lv_item_t *item = tItems;

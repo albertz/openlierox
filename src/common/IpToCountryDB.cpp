@@ -8,8 +8,8 @@
 //
 /////////////////////////////////////////
 
-#include <map>
-#include <vector>
+/*#include <map>
+#include <vector>*/
 
 #include "StringUtils.h"
 #include "FindFile.h"
@@ -18,7 +18,7 @@
 // TODO: enhance cache, use hashmap
 // TODO: merge these two classes // NO, don't do this, this makes no sence
 
-class CountryCvsReader {
+/*class CountryCvsReader {
 public:
 	std::ifstream* file;
 	Uint32 myIP;
@@ -267,4 +267,130 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 		
 	
 	return Result;	
+}
+*/
+
+IpToCountryDB::IpToCountryDB(const std::string& dbfile)
+{
+	fDatabase.open(dbfile.c_str());
+}
+
+IpToCountryDB::~IpToCountryDB()
+{
+	fDatabase.close();
+}
+
+IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
+{
+	static IpInfo Result;
+	Result.Continent = "";
+	Result.Country = "";
+	Result.CountryShortcut = "";
+
+	// Local IP
+	/*if (Address.find("127.0.0.1") != std::string::npos)  {
+		Result.Continent = "Home";
+		Result.Country = "Home";
+		return Result;
+	}*/
+
+	// Convert the IP
+	const std::vector<std::string>& ip_e = explode(Address,".");
+	if (ip_e.size() != 4)  {
+		Result.Continent = "Hackerland";
+		Result.Country = "Hackerland";
+		return Result;
+	}
+	unsigned int Ip = from_string<int>(ip_e[0]) * 16777216 + from_string<int>(ip_e[1]) * 65536 + from_string<int>(ip_e[2]) * 256 + from_string<int>(ip_e[3]);
+
+	// Check the IP cache
+	IpCache::iterator it1 = tIpCache.find(Ip);
+	if (it1 != tIpCache.end())  {
+		return it1->second;
+	}
+
+	// Check the DB cache
+	DBCache::iterator it2 = tDBCache.begin();
+	for (;it2 != tDBCache.end();it2++)  {
+		if (it2->RangeFrom <= Ip && it2->RangeTo >= Ip)  {
+			return it2->Info;
+		}
+	}
+
+	// Check
+	if (!fDatabase.is_open())  {
+		Result.Continent = "invisibland";
+		Result.Country = "invisibland";
+		return Result;
+	}
+
+	char firstchar;
+	std::string from,to,reg,ctr,country;
+	static CacheItem cach;
+	while (!fDatabase.eof())  {
+
+		// Check for comment
+		fDatabase.read(&firstchar,1);
+		if (firstchar == '#' || firstchar == ' ' || firstchar == '\r' || firstchar == '\n')  {
+			fDatabase.ignore(256,'\n');
+			continue;
+		}
+
+		std::getline(fDatabase,from,',');  // From
+		std::getline(fDatabase,to,',');    // To
+		std::getline(fDatabase,reg,',');   // Continent
+		fDatabase.ignore(16,',');		   // Added date
+		std::getline(fDatabase,ctr,',');   // Short country code
+		fDatabase.ignore(8,',');		   // Long country code
+		std::getline(fDatabase,country);   // Country name
+
+		// Remove quotes
+		from.erase(from.size()-1); // At the beginning " is skipped  by checking for comment
+		to.erase(0,1); to.erase(to.size()-1);
+		reg.erase(0,1); reg.erase(reg.size()-1);
+		ctr.erase(0,1); ctr.erase(ctr.size()-1);
+		country.erase(0,1); country.erase(country.size()-1);
+
+		// Adjust the name
+		ucfirst(country);
+
+		// Cache the info
+		cach.RangeFrom = from_string<uint>(from);
+		cach.RangeTo = from_string<uint>(to);
+		cach.Info.Country = country;
+		cach.Info.CountryShortcut = ctr;
+
+		// Continent
+		if (country == "Australia")  // Small hack, Australia is considered as asia by the DB
+			cach.Info.Continent = "Australia";
+		else  {
+			if (reg == "IANA")
+				cach.Info.Continent = "Local Network";
+			else if (reg == "ARIN")
+				cach.Info.Continent = "North America";
+			else if (reg == "LACNIC")
+				cach.Info.Continent = "South America";
+			else if (reg == "AFRINIC")
+				cach.Info.Continent = "Africa";
+			else if (reg == "RIPE")
+				cach.Info.Continent = "Europe";
+			else if (reg == "APNIC")
+				cach.Info.Continent = "Asia";
+			else
+				cach.Info.Continent = "Outer space";
+		}
+
+		// Add to cache
+		tDBCache.push_back(cach);
+
+		// Check the range
+		if (cach.RangeFrom <= Ip && cach.RangeTo >= Ip)  {
+			return cach.Info;
+		}
+	}
+
+	// Not found
+	Result.Country = "unknown country";
+	Result.Continent = "unknown continent";
+	return Result;
 }

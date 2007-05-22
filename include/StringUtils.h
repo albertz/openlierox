@@ -17,6 +17,7 @@
 #include <sstream>
 #include <vector>
 
+typedef unsigned int uint;
 
 // secure str handling macros
 // WARNING: don't use expressions like buf[i++] with the macros, because the "i" variable will be incremented twice in some macros!
@@ -47,6 +48,11 @@
 #ifdef WIN32
 #if (defined(_MSC_VER) && (_MSC_VER <= 1200))
 	inline int strncasecmp(const char *str1, const char *str2, size_t l) {return _strnicmp(str1,str2,l); }
+	inline size_t strnlen(const char *str, size_t maxlen);/*  {
+		register size_t i;
+		for (i=maxlen; str[i] && maxlen; --i) {}
+		return i;
+	}*/
 #endif
 #	define vsnprintf _vsnprintf
 #	define snprintf	 _snprintf
@@ -152,7 +158,7 @@ T from_string(const std::string& s) {
 
 
 // std::string itoa
-inline std::string itoa(uint num, short base=10)  {
+inline std::string itoa(unsigned int num, short base=10)  {
 	std::string buf;
 	do {	
 		buf = "0123456789abcdefghijklmnopqrstuvwxyz"[num % base] + buf;
