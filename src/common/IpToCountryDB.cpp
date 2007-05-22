@@ -385,6 +385,9 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 
 		// Check the range
 		if (cach.RangeFrom <= Ip && cach.RangeTo >= Ip)  {
+			// Add the current IP to the cache
+			tIpCache[Ip] = cach.Info;
+
 			return cach.Info;
 		}
 	}
@@ -392,5 +395,9 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	// Not found
 	Result.Country = "unknown country";
 	Result.Continent = "unknown continent";
+
+	// Add to cache
+	tIpCache[Ip] = Result;
+
 	return Result;
 }
