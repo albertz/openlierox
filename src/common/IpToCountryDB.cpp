@@ -13,7 +13,7 @@
 
 #include "IpToCountryDB.h"
 #include "StringUtils.h"
-#include "CvsReader.h"
+#include "CsvReader.h"
 #include "FindFile.h"
 
 
@@ -38,14 +38,14 @@ typedef std::map<Ip,DBEntry> DBData;
 		return: if false, it will break
 */
 template<typename _handler>
-class CountryCvsReaderHandler {
+class CountryCsvReaderHandler {
 public:
 	_handler& handler;
 	
 	bool finished_entry;
 	DBEntry entry;
 	
-	CountryCvsReaderHandler(_handler& h)
+	CountryCsvReaderHandler(_handler& h)
 		: handler(h), finished_entry(false) {}
 
 	inline bool operator()(int tindex, const std::string& token) {
@@ -86,7 +86,7 @@ public:
 			
 		case 6:
 			entry.Info.Country = token;
-			//ucfirst(result.Country); // TODO: realy needed?
+			ucfirst(entry.Info.Country);
 			// Small hack, Australia is considered as asia by the database
 			if(entry.Info.Country == "Australia")
 				entry.Info.Continent = "Australia";
@@ -143,9 +143,9 @@ public:
 		
 		cout << "IpToCountryDB: reading " << fn << " ..." << endl;
 		AddEntrysToDBData adder(data);
-		CountryCvsReaderHandler<AddEntrysToDBData> cvsReaderHandler(adder);
-		CvsReader<CountryCvsReaderHandler<AddEntrysToDBData> > cvsReader(f, cvsReaderHandler);
-		cvsReader.read();
+		CountryCsvReaderHandler<AddEntrysToDBData> csvReaderHandler(adder);
+		CsvReader<CountryCsvReaderHandler<AddEntrysToDBData> > csvReader(f, csvReaderHandler);
+		csvReader.read();
 		cout << "  finished, " << data.size() << " entries" << endl;
 		
 		f->close();

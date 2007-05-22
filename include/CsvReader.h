@@ -34,7 +34,7 @@
 			
 */
 template<typename _handler>
-class CvsReader {
+class CsvReader {
 public:
 	std::istream* stream;
 	_handler& handler;
@@ -48,7 +48,7 @@ public:
 	int tindex;
 	std::string token;	
 	
-	CvsReader(std::istream* s, _handler& h)
+	CsvReader(std::istream* s, _handler& h)
 		: stream(s), handler(h), inquote(false), waitforkomma(false),
 		ignoreline(false), tindex(0) {}
 	
