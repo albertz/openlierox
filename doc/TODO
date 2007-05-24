@@ -1,5 +1,6 @@
 TODO list
 
+[ ] create a SVG icon for the game
 [ ] make Dev-C++ project working (fix the issue with libxml lib)
 [ ] uniform warning/notification/error system
 [ ] add macro-variable to {en/dis}able the mediaplayer
