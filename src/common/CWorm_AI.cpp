@@ -21,7 +21,6 @@
 
 #include <assert.h>
 #include <set>
-#include <list>
 
 #include "defs.h"
 #include "LieroX.h"
@@ -439,9 +438,9 @@ public:
 			if(bestNode) {
 				// start at the pos inside of the area
 				bestNode = createNewAiNode((float)bestPosOutside.x, (float)bestPosOutside.y, bestNode);
-				base->nodes.push_back(bestNode);
+				base->nodes.insert(bestNode);
 				bestNode = createNewAiNode((float)bestPosInside.x, (float)bestPosInside.y, bestNode);
-				base->nodes.push_back(bestNode);
+				base->nodes.insert(bestNode);
 				return bestNode;
 			}
 
@@ -452,12 +451,12 @@ public:
 	}; // class area_item
 
 	typedef std::multiset< area_item*, area_item::pseudoless > area_mset;
-	typedef std::list< NEW_ai_node_t* > node_list;
+	typedef std::set< NEW_ai_node_t* > node_set;
 
 	// these neccessary attributes have to be set manually
 	CMap* pcMap;
 	area_mset areas;
-	node_list nodes;
+	node_set nodes;
 	VectorD2<int> start, target;
 
 	searchpath_base() :
@@ -469,7 +468,6 @@ public:
 		restart_thread_searching_signal(0) {
 		thread_mut = SDL_CreateMutex();
 		//printf("starting thread for %i ...\n", (long)this);
-		// TODO: it will not freed in every case (says valgrind)
 		thread = SDL_CreateThread(threadSearch, this);
 	}
 
@@ -487,7 +485,7 @@ public:
 
 	void removePathFromList(NEW_ai_node_t* start) {
 		for(NEW_ai_node_t* node = start; node; node = node->psNext)
-			nodes.remove(node);
+			nodes.erase(node);
 	}
 
 private:
@@ -504,7 +502,7 @@ private:
 	}
 
 	void clear_nodes() {
-		for(node_list::iterator it = nodes.begin(); it != nodes.end(); it++) {
+		for(node_set::iterator it = nodes.begin(); it != nodes.end(); it++) {
 			delete *it;
 		}
 		nodes.clear();
@@ -537,6 +535,9 @@ private:
 	}
 
 public:
+	// WARNING: you should never use this function directly;
+	//          it is called inside from our searcher-thread
+	// it searches for the path (recursive algo)
 	NEW_ai_node_t* findPath(VectorD2<int> start) {
 		// lower priority to this thread
 		SDL_Delay(1);
@@ -554,7 +555,7 @@ public:
 			pcMap->unlockFlags(false);
 			// yippieh!
 			NEW_ai_node_t* ret = createNewAiNode((float)target.x, (float)target.y);
-			nodes.push_back(ret);
+			nodes.insert(ret);
 			return ret;
 		}
 		pcMap->unlockFlags(false);
@@ -597,13 +598,11 @@ public:
 	}
 
 	// this function will start the search, if it was not started right now
+	// WARNING: the searcher-thread will clear all current saved nodes
 	void startThreadSearch() {
 
 		// if we are still searching, do nothing
 		if(!isReady()) return;
-
-		clear();
-		resulted_path = NULL;
 
 		// this is the signal to start the search
 		setReady(false);
@@ -634,6 +633,9 @@ private:
 				SDL_Delay(100);
 			}
 
+			base->resulted_path = NULL;
+			base->clear(); // this is save and important here, else we would have invalid pointers
+			
 			// start the main search
 			ret = base->findPath(base->start);
 			
@@ -644,6 +646,9 @@ private:
 			base->resulted_path = ret;
 
 			if(base->shouldRestartThread()) {
+				// HINT: both locks (of shouldRestartThread and the following) are seperated
+				//       this don't make any trouble, because here is the only place where we
+				//       reset it and we have always restart_thread_searching_signal==true here
 				base->lock();
 				base->restart_thread_searching_signal = 0;
 				base->start = base->restart_thread_searching_newdata.start;
@@ -666,6 +671,8 @@ public:
 		return ret;
 	}
 
+	// HINT: threadSearch is the only function, who should set this to true again!
+	// a set to false means for threadSearch, that it should start the search now
 	inline void setReady(bool state) {
 		lock();
 		thread_is_ready = state;
@@ -740,7 +747,7 @@ private:
 			if(s1*(n->fX - n->psNext->fX) > dist || s2*(n->fY - n->psNext->fY) > dist) {
 				tmpnode = new NEW_ai_node_t;
 				if(tmpnode) {
-					nodes.push_back(tmpnode);
+					nodes.insert(tmpnode);
 					if(s1*(n->fX - n->psNext->fX) >= s2*(n->fY - n->psNext->fY)) {
 						tmpnode->fX = n->fX - s1*dist;
 						tmpnode->fY = n->fY

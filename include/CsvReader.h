@@ -70,7 +70,7 @@ public:
 	}
 	
 	void read() {
-		char nextch;
+		char nextch = '\0';
 		while(!stream->eof()) {
 			stream->get(nextch);			
 			switch(nextch) {

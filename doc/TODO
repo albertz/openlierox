@@ -16,12 +16,10 @@ TODO list
 [ ] improve mediaplayer
 [ ] improve player profile options (many skins need long load time)
 [ ] make physics more like original LX (we should abstract it now!)
-[x] fallback to software rendering on Windows on error
 [ ] better bot aiming
 [ ] better bot behavior
 [ ] add MaxFPS option in option dialog
 [ ] add some help for weapon selection (cause not everybody understand it)
-[ ] add virtual filesystem for users who has inotify or who enabled it
 [ ] allow more than 2 viewports
 [ ] allow a higher resolution (reduce it while playing with LX56?)
 [ ] join all viewports, if map is smaller than resolution
@@ -31,3 +29,4 @@ TODO list
 minor things:
 [ ] save selected player list in local play and return in this menu after playing
 [ ] treat ZIP-files in game-directory as virtual searchpaths
+[ ] add virtual filesystem for users who has inotify or who enabled it
