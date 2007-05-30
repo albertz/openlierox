@@ -1437,3 +1437,4 @@ void CClient::DrawMediaPlayer(SDL_Surface *bmpDest)
 	cMediaPlayer.Draw(bmpDest);
 }
 #endif
+

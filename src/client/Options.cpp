@@ -49,11 +49,7 @@ bool GameOptions::LoadFromDisc()
     static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
     static const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
     static const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
-#ifdef WITH_MEDIAPLAYER
-    static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "MediaPlayer"};
-#else  // Without Media Player string
-	static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode"};
-#endif
+	static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "MediaPlayer"};
     static const std::string    gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5", "F3"};
 	static const int	 def_widths[] = {32,180,70,80,60,150};
 
@@ -156,13 +152,11 @@ bool GameOptions::LoadFromDisc()
 	ReadIntArray(f, "Widgets","FavouritesListCols",	&iFavouritesList[0],6);
 
 	// Media player
-#ifdef WITH_MEDIAPLAYER
 	ReadKeyword(f, "MediaPlayer", "Repeat",		&bRepeatPlaylist, true);
 	ReadKeyword(f, "MediaPlayer", "Shuffle",	&bShufflePlaylist, false);
 	ReadInteger(f, "MediaPlayer", "Left",		&iMPlayerLeft, 350);
 	ReadInteger(f, "MediaPlayer", "Top",		&iMPlayerTop, 240);
 	ReadInteger(f, "MediaPlayer", "MusicVolume",&iMusicVolume, 50);
-#endif
 
 
     // Last Game
@@ -309,7 +303,6 @@ void GameOptions::SaveToDisc()
 	fprintf(fp, "%i\n",iFavouritesList[5]);
 	fprintf(fp, "\n");
 
-#ifdef WITH_MEDIAPLAYER
     fprintf(fp, "[MediaPlayer]\n");
     fprintf(fp, "Repeat = %s\n",   bRepeatPlaylist ? "true" : "false");
     fprintf(fp, "Shuffle = %s\n", bShufflePlaylist ? "true" : "false");
@@ -317,7 +310,6 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "Top = %d\n", iMPlayerTop);
     fprintf(fp, "MusicVolume = %d\n", iMusicVolume);
     fprintf(fp, "\n");
-#endif
 
     fprintf(fp, "[LastGame]\n");
     fprintf(fp, "Lives = %d\n",     tGameinfo.iLives);
