@@ -92,7 +92,9 @@ enum {
 	oc_Gen_TakeScreenshot,
 	oc_Gen_ViewportManager,
 	oc_Gen_SwitchMode,
+#ifdef WITH_MEDIAPLAYER
 	oc_Gen_MediaPlayer
+#endif
 };
 
 
@@ -203,9 +205,11 @@ int Menu_OptionsInitialize(void)
 	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch video mode"),
 						   oc_Gen_SwitchMode, 515, 340, 50,17);
 
+#ifdef WITH_MEDIAPLAYER
 	cOpt_Controls.Add( new CLabel("Toggle Media Player", tLX->clNormalLabel), Static, 380, 365, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_MEDIAPLAYER, tLXOptions->sGeneralControls[SIN_MEDIAPLAYER], tMenu->bmpInputbox, "Toggle Media Player"),
 						   oc_Gen_MediaPlayer, 515, 365, 50,17);
+#endif
 
 
 
@@ -377,7 +381,9 @@ void Menu_OptionsFrame(void)
 
 
 	// Process the gui layout
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cOptions.Process();
 	cOptions.Draw(tMenu->bmpScreen);
 
@@ -411,7 +417,9 @@ void Menu_OptionsFrame(void)
 	if(OptionsMode == 0) {
 
 		// Controls
+#ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
+#endif
 			ev = cOpt_Controls.Process();
 		cOpt_Controls.Draw(tMenu->bmpScreen);
 
@@ -435,8 +443,10 @@ void Menu_OptionsFrame(void)
 						cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 					if (ev->iControlID == oc_Gen_SwitchMode)
 						cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+#ifdef WITH_MEDIAPLAYER
 					if (ev->iControlID == oc_Gen_MediaPlayer)
 						cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
+#endif
 				}
 			}
 		}
@@ -446,7 +456,9 @@ void Menu_OptionsFrame(void)
 	if(OptionsMode == 1) {
 
 		// Game
+#ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
+#endif
 			ev = cOpt_Game.Process();
 		cOpt_Game.Draw(tMenu->bmpScreen);
 
@@ -541,7 +553,7 @@ void Menu_OptionsFrame(void)
 		int fullscr = c->getValue();
 		// OpenGL accel value
 		c2 = (CCheckbox *)cOpt_System.getWidget(os_OpenGL);
-		bool opengl = c2->getValue ();
+		bool opengl = c2->getValue () != 0;
 		// Color depth
 		int cdepth = ((CCombobox *)cOpt_System.getWidget(os_ColourDepth))->getSelectedIndex();
 		switch (cdepth)  {
@@ -558,7 +570,9 @@ void Menu_OptionsFrame(void)
 
 
 		// System
+#ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
+#endif
 			ev = cOpt_System.Process();
 		cOpt_System.Draw(tMenu->bmpScreen);
 

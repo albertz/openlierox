@@ -2,6 +2,7 @@
 // Made by Dark Charlie and Alber Zeyer
 // code under LGPL
 
+#ifdef WITH_MEDIAPLAYER
 #ifndef __MEDIAPLAYER_H__
 #define __MEDIAPLAYER_H__
 
@@ -382,3 +383,4 @@ extern	CMediaPlayer	cMediaPlayer;
 
 
 #endif  //  __MEDAIPLAYER_H__
+#endif  //  WITH_MEDIAPLAYR

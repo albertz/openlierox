@@ -83,7 +83,9 @@ void Menu_MainFrame(void)
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,430, 20,430, 60,40);
 
 	// Process the buttons
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cMainMenu.Process();
 	cMainMenu.Draw(tMenu->bmpScreen);
 

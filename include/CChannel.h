@@ -83,28 +83,28 @@ public:
 	void		Create(NetworkAddr *_adr, int _port, NetworkSocket _sock);
 	void		Transmit( CBytestream *bs );
 	int			Process(CBytestream *bs);
-	void		Clear(void)				{ fLastPckRecvd = 0;
+	inline void		Clear(void)				{ fLastPckRecvd = 0;
 		iPort = 23400; SetSocketStateValid(Socket, false);
 										  iPacketsDropped = 0; iPacketsGood = 0; }
 
 
-	int			getPacketLoss(void)		{ return iPacketsDropped; }
-	float		getLastReceived(void)	{ return fLastPckRecvd; }
-	float		getLastSent(void)		{ return fLastSent; }
-	NetworkAddr	*getAddress(void)		{ return &RemoteAddr; }	
+	inline int			getPacketLoss(void)		{ return iPacketsDropped; }
+	inline float		getLastReceived(void)	{ return fLastPckRecvd; }
+	inline float		getLastSent(void)		{ return fLastSent; }
+	inline NetworkAddr	*getAddress(void)		{ return &RemoteAddr; }	
 
 	// Packets
-	CBytestream	*getMessageBS(void)		{ return &Message; }
+	inline CBytestream	*getMessageBS(void)		{ return &Message; }
 	
-	int			getInSeq(void)			{ return iIncomingSequence; }
-	int			getOutSeq(void)			{ return iOutgoingSequence; }
-	void		setInSeq(int _s)		{ iIncomingSequence = _s; }
-	void		setOutSeq(int _s)		{ iOutgoingSequence = _s; }
+	inline int	getInSeq(void)			{ return iIncomingSequence; }
+	inline int	getOutSeq(void)			{ return iOutgoingSequence; }
+	inline void	setInSeq(int _s)		{ iIncomingSequence = _s; }
+	inline void	setOutSeq(int _s)		{ iOutgoingSequence = _s; }
 
-	int			getInAck(void)			{ return iIncomingAcknowledged; }
+	inline int	getInAck(void)			{ return iIncomingAcknowledged; }
 
-	int			getOutoing(void)		{ return iOutgoingBytes; }
-	int			getIncoming(void)		{ return iIncomingBytes; }
+	inline int	getOutoing(void)		{ return iOutgoingBytes; }
+	inline int	getIncoming(void)		{ return iIncomingBytes; }
 
 	NetworkSocket	getSocket(void)			{ return Socket; }
 };

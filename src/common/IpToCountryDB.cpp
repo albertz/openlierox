@@ -16,8 +16,11 @@
 #include "CsvReader.h"
 #include "FindFile.h"
 
-
+#ifdef _MSC_VER  // MSVC 6 has problems with from_string<Uint32>
+typedef unsigned int Ip;
+#else
 typedef Uint32 Ip;
+#endif
 
 struct DBEntry {
 	Ip			RangeFrom;

@@ -324,7 +324,9 @@ void Menu_Player_NewPlayer(int mouse)
 	mouse_t *Mouse = GetMouse();
 
 	// Process & draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cNewPlayer.Process();
 	cNewPlayer.Draw(tMenu->bmpScreen);
 
@@ -472,7 +474,9 @@ void Menu_Player_ViewPlayers(int mouse)
 	static std::string buf;
 
 	// Process & draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cViewPlayers.Process();
 	cViewPlayers.Draw(tMenu->bmpScreen);
 

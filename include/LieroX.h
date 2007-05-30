@@ -190,9 +190,11 @@ extern	game_t			tGameInfo;
 extern	CVec			vGravity;
 extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
-extern	CInput			cToggleMediaPlayer;
 extern  int				nDisableSound;
 extern	bool			bActivated;
+#ifdef WITH_MEDIAPLAYER
+extern	CInput			cToggleMediaPlayer;
+#endif
 
 
 

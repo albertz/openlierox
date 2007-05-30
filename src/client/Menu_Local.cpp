@@ -244,7 +244,9 @@ void Menu_LocalFrame(void)
 
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cLocalMenu.Process();
 	cLocalMenu.Draw(tMenu->bmpScreen);
 
@@ -922,7 +924,9 @@ bool Menu_GameSettings_Frame(void)
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cGameSettings.Process();
 	cGameSettings.Draw(tMenu->bmpScreen);
 
@@ -1179,7 +1183,9 @@ bool Menu_WeaponsRestrictions_Frame(void)
         cWeaponsRest.SendMessage(wr_Scroll, SCM_SETMAX, (DWORD)0, 0);
 
 
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cWeaponsRest.Process();
 	cWeaponsRest.Draw(tMenu->bmpScreen);
 
@@ -1334,13 +1340,19 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		if (save)
 			tLX->cFont.Draw(tMenu->bmpScreen, 180,288,tLX->clNormalLabel,"Preset name");
 
+#ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
+#endif
 			ev = cWpnPresets.Process();
 		cWpnPresets.Draw(tMenu->bmpScreen);
 
 		// Process the widgets
 		mouse = 0;
+#ifdef WITH_MEDIAPLAYER
 		if(ev && !cMediaPlayer.GetDrawPlayer()) {
+#else
+		if(ev)  {
+#endif
 			if(ev->cWidget->getType() == wid_Button)
 				mouse = 1;
 			if(ev->cWidget->getType() == wid_Textbox)

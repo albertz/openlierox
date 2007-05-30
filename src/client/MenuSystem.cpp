@@ -251,8 +251,10 @@ void Menu_Loop(void)
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 
+#ifdef WITH_MEDIAPLAYER
 		// Media player frame
 		cMediaPlayer.Frame();
+#endif
 
 		switch(tMenu->iMenuType) {
 
@@ -287,8 +289,10 @@ void Menu_Loop(void)
 				break;
 		}
 
+#ifdef WITH_MEDIAPLAYER
 		// At last draw the media player
 		cMediaPlayer.Draw(tMenu->bmpScreen);
+#endif
 
         FlipScreen(tMenu->bmpScreen);
 	}

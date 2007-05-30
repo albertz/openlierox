@@ -90,7 +90,9 @@ void Menu_Net_MainFrame(int mouse)
 
 
 	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cMain.Process();
 	cMain.Draw( tMenu->bmpScreen );
 

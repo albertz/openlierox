@@ -64,7 +64,9 @@ void Menu_Net_NewsFrame(int mouse)
 
 
 	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cNews.Process();
 	cNews.Draw( tMenu->bmpScreen );
 

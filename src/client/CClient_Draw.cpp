@@ -199,7 +199,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
+#ifdef WITH_MEDIAPLAYER
 	DrawMediaPlayer(bmpDest);
+#endif
 
 	// Console
     Con_Draw(bmpDest);
@@ -1429,7 +1431,9 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 
 ///////////////////
 // Draws the media player
+#ifdef WITH_MEDIAPLAYER
 void CClient::DrawMediaPlayer(SDL_Surface *bmpDest)
 {
 	cMediaPlayer.Draw(bmpDest);
 }
+#endif

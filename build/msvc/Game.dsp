@@ -199,6 +199,10 @@ SOURCE=..\..\include\CVec.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\CvsReader.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\defs.h
 # End Source File
 # Begin Source File

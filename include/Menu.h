@@ -35,7 +35,9 @@
 #include "CMenu.h"
 #include "CImage.h"
 #include "CBox.h"
+#ifdef WITH_MEDIAPLAYER
 #include "CMediaPlayer.h"
+#endif
 #include "CssParser.h"
 
 

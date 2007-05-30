@@ -184,7 +184,9 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cConnecting.Process();
 	cConnecting.Draw( tMenu->bmpScreen );
 
@@ -420,7 +422,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 
 	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cJoinLobby.Process();
 	cJoinLobby.Draw( tMenu->bmpScreen );
 

@@ -3,6 +3,9 @@
 // code under LGPL
 
 #include "defs.h"
+
+#ifdef WITH_MEDIAPLAYER
+
 #include "LieroX.h"
 #include "Graphics.h"
 #include "Menu.h"
@@ -562,3 +565,5 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 	}
 
 }
+
+#endif // WITH_MEDIAPLAYER

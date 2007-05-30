@@ -134,7 +134,9 @@ void Menu_Net_NETFrame(int mouse)
 
 
 	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cInternet.Process();
 	cInternet.Draw( tMenu->bmpScreen );
 
@@ -780,13 +782,17 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 		ProcessEvents();
 		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
+#ifdef WITH_MEDIAPLAYER
 		cMediaPlayer.Frame();
+#endif
 
 		Menu_SvrList_DrawInfo(szAddress);
 
         cDetails.Draw(tMenu->bmpScreen);
         gui_event_t *ev = NULL;
+#ifdef WITH_MEDIAPLAYER
 		if (!cMediaPlayer.GetDrawPlayer())
+#endif
 			ev = cDetails.Process();
         if(ev) {
             if(ev->cWidget->getType() == wid_Button)
@@ -804,7 +810,9 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 			}
         }
 
+#ifdef WITH_MEDIAPLAYER
 		cMediaPlayer.Draw(tMenu->bmpScreen);
+#endif
 
         DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
 		FlipScreen(tMenu->bmpScreen);

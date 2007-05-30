@@ -182,7 +182,9 @@ void Menu_Net_HostPlyFrame(int mouse)
 	profile_t	*ply;
 
 	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cHostPly.Process();
 	cHostPly.Draw( tMenu->bmpScreen );
 
@@ -746,7 +748,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	Menu_HostDrawLobby(tMenu->bmpScreen);
 
 	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cHostLobby.Process();
 	cHostLobby.Draw( tMenu->bmpScreen );
 
@@ -1350,8 +1354,9 @@ bool Menu_ServerSettings_Frame(void)
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Process events and draw gui
-
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cServerSettings.Process();
 	cServerSettings.Draw(tMenu->bmpScreen);
 
@@ -1498,8 +1503,9 @@ bool Menu_BanList_Frame(void)
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
     // Process events and draw gui
-
+#ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
+#endif
 		ev = cBanListGui.Process();
 	cBanListGui.Draw(tMenu->bmpScreen);
 

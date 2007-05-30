@@ -152,8 +152,10 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs)
 // Parse a 'im ready' packet
 void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 {
-	if (iState != SVS_GAME)
+	if (iState != SVS_GAME)  {
+		printf("GameServer::ParseImReady: Not playing, packet is being ignored.\n");
 		return;
+	}
 
 	int i,j;
 	// Note: This isn't a lobby ready
@@ -224,31 +226,42 @@ void GameServer::ParseUpdate(CClient *cl, CBytestream *bs)
 void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 {
 	// No kills in lobby
-	if (iState != SVS_PLAYING)
+	if (iState != SVS_PLAYING)  {
+		printf("GameServer::ParseDeathPacket: Not playing, ignoring the packet.\n");
 		return;
+	}
 
 	CBytestream byte;
 	int victim = bs->readInt(1);
 	int killer = bs->readInt(1);
 
 	// Bad packet
-	if (bs->GetPos() > bs->GetLength())
+	if (bs->GetPos() > bs->GetLength())  {
+		printf("GameServer::ParseDeathPacket: Reading beyond the end of stream.\n");
 		return;
+	}
 
 	// Team names
 	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
 	int TeamCount[4];
 
     // If the game is already over, ignore this
-    if(iGameOver)
+	// TODO: is this safe?
+    if(iGameOver)  {
+		printf("GameServer::ParseDeathPacket: Game is over, ignoring.\n");
         return;
+	}
 
 
 	// Safety check
-	if(victim < 0 || victim >= MAX_WORMS)
+	if(victim < 0 || victim >= MAX_WORMS)  {
+		printf("GameServer::ParseDeathPacket: victim ID out of bounds.\n");
 		return;
-	if(killer < 0 || killer >= MAX_WORMS)
+	}
+	if(killer < 0 || killer >= MAX_WORMS)  {
+		printf("GameServer::ParseDeathPacket: killer ID out of bounds.\n");
 		return;
+	}
 
 	CWorm *vict = &cWorms[victim];
 	CWorm *kill = &cWorms[killer];
@@ -256,11 +269,14 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	log_worm_t *log_kill = GetLogWorm(kill->getID());
 
 	// Cheat prevention check: Make sure the victim is one of the client's worms
-	if (!cl->OwnsWorm(vict))
+	if (!cl->OwnsWorm(vict))  {
+		printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 		return;
+	}
 
 	// Cheat prevention, game behaves weird if this happens
 	if(vict->getLives() < 0 && iLives >= 0)  {
+		printf("GameServer::ParseDeathPacket: victim is already out of the game.\n");
 		return;
 	}
 
@@ -524,13 +540,15 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs)
 {
+	static char buf[256];
+	bs->readString(buf, sizeof(buf));
+
 	// Don't send text from muted players
 	if (cl)
 		if (cl->getMuted())
 			return;
 
-	static char buf[256];
-	SendGlobalText( bs->readString(buf, sizeof(buf)), TXT_CHAT);
+	SendGlobalText( buf, TXT_CHAT);
 }
 
 
@@ -539,8 +557,10 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs)
 void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 {
 	// Must be in lobby
-	if (iState != SVS_LOBBY)
+	if (iState != SVS_LOBBY)  {
+		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
 		return;
+	}
 
 	int ready = bs->readByte();
 	int i;
@@ -585,8 +605,10 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 void GameServer::ParseDisconnect(CClient *cl)
 {
 	// Check if the client hasn't already left
-	if(cl->getStatus() == NET_DISCONNECTED)
+	if(cl->getStatus() == NET_DISCONNECTED)  {
+		printf("GameServer::ParseDisconnect: Client has already disconnected.\n");
 		return;
+	}
 
 	DropClient(cl, CLL_QUIT);
 }
@@ -600,6 +622,8 @@ void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs)
 
 	if( id >= 0 && id < MAX_WORMS)
 		cWorms[id].readWeapons(bs);
+	else
+		printf("GameServer::ParseWeaponList: worm ID out of bounds.\n");
 }
 
 
@@ -607,8 +631,10 @@ void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs)
 // Parse a 'grab bonus' packet
 void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 {
-	if (iState != SVS_PLAYING)
+	if (iState != SVS_PLAYING)  {
+		printf("GameServer::ParseGrabBonus: Not playing.\n");
 		return;
+	}
 
 	int id = bs->readByte();
 	int wormid = bs->readByte();
@@ -642,8 +668,14 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 				bs.writeByte(S2C_DESTROYBONUS);
 				bs.writeByte(id);
 				SendGlobalPacket(&bs);
+			} else {
+				printf("GameServer::ParseGrabBonus: Bonus already destroyed.\n");
 			}
+		} else {
+			printf("GameServer::ParseGrabBonus: Invalid bonus ID\n");
 		}
+	} else {
+		printf("GameServer::ParseGrabBonus: invalid worm ID\n");
 	}
 }
 
@@ -680,6 +712,8 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs)
         ParseGetInfo();
 	else if(cmd == "lx::wantsjoin")
 		ParseWantsJoin(bs);
+	else 
+		printf("GameServer::ParseConnectionlessPacket: unknown packet\n");
 }
 
 
@@ -703,6 +737,7 @@ void GameServer::ParseGetChallenge(void)
 		bs.writeString("%s","lx::badconnect");
 		bs.writeString(networkTexts->sGameInProgress);
 		bs.Send(tSocket);
+		printf("GameServer::ParseGetChallenge: Cannot join, the game is in progress.");
 		return;
 	}
 
@@ -762,8 +797,10 @@ void GameServer::ParseConnect(CBytestream *bs)
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
-	if(iState != SVS_LOBBY)
+	if(iState != SVS_LOBBY)  {
+		printf("GameServer::ParseConnect: In game, ignoring.");
 		return;
+	}
 
 	bytestr.Clear();
 
@@ -790,6 +827,7 @@ void GameServer::ParseConnect(CBytestream *bs)
 		bytestr.writeString("%s","lx::badconnect");
 		bytestr.writeString(buf);
 		bytestr.Send(tSocket);
+		printf("GameServer::ParseConnect: Wrong protocol version");
 		return;
 	}
 
