@@ -1,5 +1,7 @@
 TODO list
 
+[ ] finish unicode support (!)
+[ ] possibility to change options when playing
 [ ] create a SVG icon for the game
 [ ] make Dev-C++ project working (fix the issue with libxml lib)
 [ ] uniform warning/notification/error system
@@ -19,9 +21,10 @@ TODO list
 [ ] make physics more like original LX (we should abstract it now!)
 [ ] better bot aiming
 [ ] better bot behavior
-[ ] add MaxFPS option in option dialog
+[X] add MaxFPS option in option dialog
 [ ] add some help for weapon selection (cause not everybody understand it)
 [ ] allow more than 2 viewports
+[ ] allow more than one monitor (let user choose what vireports will be displayed on what screen)
 [ ] allow a higher resolution (reduce it while playing with LX56?)
 [ ] join all viewports, if map is smaller than resolution
 [ ] allow different sound settings (44k or 22k / mono or stereo / ...)

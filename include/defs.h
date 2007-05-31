@@ -18,7 +18,7 @@
 #define __DEFS_H__
 
 // Compilation options
-//#define	WITH_MEDIAPLAYER // Remove this line to compile the game without Media Player included
+#define	WITH_MEDIAPLAYER // Remove this line to compile the game without Media Player included
 
 // Global compile defines
 #ifndef DEBUG

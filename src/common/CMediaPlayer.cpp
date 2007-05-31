@@ -388,7 +388,8 @@ void CPlayList::SaveToFile(const std::string& filename, bool absolute_path) {
 void CMediaPlayer::Clear() {
 	tPlayList.Clear();
 	szCurSongName = "";
-	// TODO: why is this commented out? either remove it or COMMENT it!
+	// The song is freed by the playing thread now, so no need to free it
+	// When you switch to single threaded mode, uncomment it after removing the thread
 	//FreeMusic(tCurrentSong);
 	//tCurrentSong = NULL;
 	bGfxInitialized = false;
