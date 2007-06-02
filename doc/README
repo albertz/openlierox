@@ -18,8 +18,32 @@ and got OpenLieroX.
 
 	Compilation
 	===========
-Mac OS X:
-HAWKNL_BUILTIN=1 CXXFLAGS="-DMACOSX" LDFLAGS="-framework Cocoa -lSDLmain" ./compile.sh
+There are 2 ways to compile the game. The easier one is to use
+the compile.sh script, which do everything for you. Take a look
+inside for additional options. Basically, you have to call
+	./compile.sh
+or for example, if you want to have HawkNL support builtin (it
+would be linked against otherwise)
+	HAWKNL_BUILTIN=1 ./compile.sh
+
+If you want to develop on the source, I recommend you to use the
+CMake-based make-system we use. You have to install CMake on your
+system and then call
+	cmake .
+This will create you a Makefile so you can simply call
+	make
+now for your compilation. But note that the CMakeLists.txt (the
+base file for CMake) is experimental. It's possible that you
+have to change the file a bit depending on your environment.
+
+Macro-variables of the source:
+	WITH_MEDIAPLAYER - if set, mediaplayer support will be built in
+	MACOSX - activates some special settings for Mac OS X
+	DEBUG - if set to 1, debugging is activated
+	
+Mac OS X: (experimental)
+	HAWKNL_BUILTIN=1 CXXFLAGS="-DMACOSX" \
+	LDFLAGS="-framework Cocoa -lSDLmain" ./compile.sh
 
 
 	Game search paths
