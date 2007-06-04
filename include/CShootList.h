@@ -109,8 +109,13 @@ public:
 	void		writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index );
 
 	void		readSingle( CBytestream *bs );
+	static inline bool skipSingle( CBytestream *bs )  { return bs->Skip(17); }
 	void		readMulti( CBytestream *bs );
+	static inline bool skipMulti( CBytestream *bs )  {	bs->Skip(7); byte num=bs->readByte(); bs->Skip(10);
+														for (byte i=0; i<num-1;i++) skipSmallShot(bs); 
+														return bs->GetPos() >= bs->GetLength()-1; }
 	void		readSmallShot( shoot_t *psFirst, CBytestream *bs, int index );
+	static bool	skipSmallShot(CBytestream *bs);
 
 	void		Clear(void);
 

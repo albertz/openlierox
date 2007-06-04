@@ -215,6 +215,25 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	}
 }
 
+////////////////
+// Skip the packet
+bool CWorm::skipPacket(CBytestream *bs)
+{
+	bs->Skip(4);  // Position + angle
+	uchar bits = (uchar)bs->readByte(); // Flags
+	bs->Skip(1);  // Current weapon
+	if (bits & 0x10)  {  // Skip rope info (see CNinjaRope::read for more details)
+		int type = bs->readByte(); // Rope type
+		bs->Skip(3);
+		if (type == ROP_SHOOTING || type == ROP_PLYHOOKED)
+			bs->Skip(1);
+	}
+	if (bits & 0x20)  {
+		bs->Skip(4);  // 2*Int16
+	}
+	return bs->GetPos() >= bs->GetLength()-1;
+}
+
 
 ///////////////////
 // Read a packet (client side)
@@ -263,7 +282,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 }
 
-
+	
 ///////////////////
 // Write out the weapons
 void CWorm::writeWeapons(CBytestream *bs)

@@ -343,15 +343,21 @@ public:
 	//
 	void		writeInfo(CBytestream *bs);
 	void		readInfo(CBytestream *bs);
+	static inline bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
 	void		writeScore(CBytestream *bs);
 	void		readScore(CBytestream *bs);
+	static inline bool	skipScore(CBytestream *bs)  { return bs->Skip(3); }
 	void		writePacket(CBytestream *bs);
 	void		readPacket(CBytestream *bs, CWorm *worms);
+	static bool	skipPacket(CBytestream *bs);
 	void		readPacketState(CBytestream *bs, CWorm *worms);
+	static inline bool	skipPacketState(CBytestream *bs)  {return skipPacket(bs); } // For skipping it's the same as skipPacket
 	void		writeWeapons(CBytestream *bs);
 	void		readWeapons(CBytestream *bs);
+	static inline bool	skipWeapons(CBytestream *bs)  { return bs->Skip(5); } // 5 weapons 
 	void		writeStatUpdate(CBytestream *bs);
 	void		readStatUpdate(CBytestream *bs);
+	static inline bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
 	int			GetMyPing(void);
 
 	void		setupLobby(void);

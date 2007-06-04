@@ -608,6 +608,7 @@ void CClient::ParseWormInfo(CBytestream *bs)
 	// Validate the id
 	if (id < 0 || id >= MAX_WORMS)  {
 		printf("CClient::ParseWormInfo: invalid ID ("+itoa(id)+")\n");
+		CWorm::skipInfo(bs); // Skip not to break other packets
 		return;
 	}
 
@@ -720,8 +721,7 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 		cRemoteWorms[id].readScore(bs);
 	else
 		// do this to get the right position in net stream
-		// WARNING: this has to be changed, if we change writeScore later
-		bs->readInt(3);
+		CWorm::skipScore(bs);
 	
 	UpdateScoreboard();
 }
@@ -827,6 +827,11 @@ void CClient::ParseCLReady(CBytestream *bs)
 	if((numworms < 1 || numworms > MAX_PLAYERS) && tGameInfo.iGameType != GME_LOCAL) {
 		// bad packet
 		printf("CClient::ParseCLReady: invalid numworms ("+itoa(numworms)+")\n");
+		// Skip to get the right position
+		for (short i=0;i<numworms;i++)  {
+			bs->Skip(1); // id
+			CWorm::skipWeapons(bs);
+		}
 		return;
 	}
 
@@ -847,6 +852,10 @@ void CClient::ParseCLReady(CBytestream *bs)
 
 			// Read the weapon info
 			w->readWeapons(bs);
+		} else {
+			// Skip the info and if end of packet, just end
+			if (CWorm::skipWeapons(bs))
+				break;
 		}
 
 	}
@@ -857,17 +866,17 @@ void CClient::ParseCLReady(CBytestream *bs)
 // Parse an update-lobby packet
 void CClient::ParseUpdateLobby(CBytestream *bs)
 {
-	if (iNetStatus != NET_CONNECTED)  {
-		printf("CClient::ParseUpdateLobby: not in lobby - ignoring\n");
-		return;
-	}
-
 	int numworms = bs->readByte();
 	int ready = bs->readByte();
 
-	if(numworms < 1 || numworms > MAX_WORMS) {
-		// bad packet
-		printf("CClient::ParseUpdateLobby: invalid numworms value ("+itoa(numworms)+")\n");
+	if (iNetStatus != NET_CONNECTED || numworms < 1 || numworms > MAX_WORMS)  {
+		if (iNetStatus != NET_CONNECTED)
+			printf("CClient::ParseUpdateLobby: not in lobby - ignoring\n");
+		else
+			printf("CClient::ParseUpdateLobby: invalid numworms value ("+itoa(numworms)+")\n");
+
+		// Skip to get the right position in stream
+		bs->Skip(numworms);
 		return;
 	}
 
@@ -934,6 +943,10 @@ void CClient::ParseClientLeft(CBytestream *bs)
 	if(numworms < 1 || numworms > MAX_PLAYERS) {
 		// bad packet
 		printf("CClient::ParseClientLeft: bad numworms count ("+itoa(numworms)+")\n");
+
+		// Skip to the right position
+		bs->Skip(numworms);
+
 		return;
 	}
 
@@ -967,6 +980,13 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 	byte count = bs->readByte();
 	if (count >= MAX_WORMS)  {
 		printf("CClient::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");
+
+		// Skip to the right position
+		for (byte i=0;i<count;i++)  {
+			bs->Skip(1);
+			CWorm::skipPacketState(bs);
+		}
+
 		return;
 	}
 
@@ -977,6 +997,9 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 
 		if (id >= MAX_WORMS)  {
 			printf("CClient::ParseUpdateWorms: invalid worm ID ("+itoa(id)+")\n");
+			if (CWorm::skipPacketState(bs))  {  // Skip not to lose the right position
+				break;
+			}
 			continue;
 		}
 
@@ -998,6 +1021,14 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	if (iNetStatus != NET_CONNECTED)  {
 		printf("CClient::ParseUpdateLobbyGame: not in lobby - ignoring\n");
+
+		// Skip to get the right position
+		bs->Skip(1);
+		bs->SkipString();
+		bs->SkipString();
+		bs->SkipString();
+		bs->Skip(8); // All other info
+
 		return;
 	}
 
@@ -1058,6 +1089,7 @@ void CClient::ParseWormDown(CBytestream *bs)
 	// Don't allow anyone to kill us in lobby
 	if (iNetStatus != NET_PLAYING)  {
 		printf("CClient::ParseWormDown: not playing - ignoring\n");
+		bs->Skip(1);  // ID
 		return;
 	}
 
@@ -1126,6 +1158,7 @@ void CClient::ParseSingleShot(CBytestream *bs)
 {
 	if(iNetStatus != NET_PLAYING)  {
 		printf("CClient::ParseSingleShot: not playing - ignoring\n");
+		CShootList::skipSingle(bs); // Skip to get to the correct position
 		return;
 	}
 
@@ -1143,6 +1176,7 @@ void CClient::ParseMultiShot(CBytestream *bs)
 {
 	if(iNetStatus != NET_PLAYING)  {
 		printf("CClient::ParseMultiShot: not playing - ignoring\n");
+		CShootList::skipMulti(bs); // Skip to get to the correct position 
 		return;
 	}
 
@@ -1161,10 +1195,16 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 	if (num > MAX_PLAYERS)
 		printf("CClient::ParseUpdateStats: invalid worm count ("+itoa(num)+") - clamping\n");
 
+	short oldnum = num;
 	num = MIN(num,MAX_PLAYERS);
 
 	for(byte i=0; i<num; i++)
 		getWorm(i)->readStatUpdate(bs);
+
+	// Skip if there were some clamped worms
+	for (i=0;i<oldnum-num;i++)
+		if (CWorm::skipStatUpdate(bs))
+			break;
 }
 
 

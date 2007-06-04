@@ -612,3 +612,55 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 
 	m_nNumShootings++;
 }
+
+////////////////
+// Skip the small shot packet
+bool CShootList::skipSmallShot(CBytestream *bs)
+{
+	// For comments see the above function
+	byte flags = bs->readByte();
+	byte extraflags = 0;
+	if (flags & SHF_EXTRAFLAGS)
+		extraflags = bs->readByte();
+
+	if (flags & SHF_TIMEOFF)
+		bs->Skip(1);
+
+	if( flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF ) 
+		if( extraflags & SHF_LARGEXOFF )
+			bs->Skip(1);
+
+	if( flags & SHF_YPOSOFF || flags & SHF_NG_YPOSOFF ) 
+		if( extraflags & SHF_LARGEYOFF )
+			bs->Skip(1);
+
+	if( (flags & SHF_XPOSOFF || flags & SHF_NG_XPOSOFF) && (flags & SHF_YPOSOFF || flags & SHF_NG_YPOSOFF) ) 
+		if( !(extraflags & SHF_LARGEXOFF) && !(extraflags & SHF_LARGEYOFF) )
+			bs->Skip(1);
+
+	if( flags & SHF_ANGLEOFF )
+		bs->Skip(1);
+
+	if( flags & SHF_SPEEDOFF )
+		bs->Skip(1);
+
+	if( extraflags & SHF_NG_ANGLEOFF )
+		bs->Skip(1);
+
+	if( extraflags & SHF_NG_SPEEDOFF )
+		bs->Skip(1);
+
+	if( extraflags & SHF_XWRMVEL )
+		bs->Skip(1);
+
+	if( extraflags & SHF_YWRMVEL )
+		bs->Skip(1);
+
+	if( extraflags & SHF_NG_XWRMVEL )
+		bs->Skip(1);
+
+	if( extraflags & SHF_NG_YWRMVEL )
+		bs->Skip(1);
+
+	return bs->GetPos() >= bs->GetLength()-1;
+}

@@ -386,3 +386,19 @@ void CBytestream::read2Int4(short& x, short& y) {
 	x = tmp & 0xf;
 	y = (short)((tmp & 0xf0) / 0x10);
 }
+
+// Skips a string, including the terminating character
+// Returns true if we're at the end of the stream after the skip
+bool CBytestream::SkipString()  {
+	for (;CurByte<Length;CurByte++) {
+		if (!Data[CurByte])  {  // Zero byte terminates the string
+			CurByte++; // Skip the zero byte as well
+			break;
+		}
+	}
+	if (CurByte >= Length-1)  {
+		CurByte = Length-1;
+		return true;
+	}
+	return false;  // Stream not yet ending
+}
