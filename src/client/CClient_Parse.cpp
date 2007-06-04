@@ -48,6 +48,12 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 		iBadConnection = true;
 		strBadConnectMsg = bs->readString(256);
 	}
+
+	// Unknown
+	else  {
+		printf("CClient::ParseConnectionlessPacket: unknown command \""+cmd+"\"");
+		bs->SetPos(bs->GetLength()-1); // Safety: ignore any data behind this unknown packet
+	}
 }
 
 

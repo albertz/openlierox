@@ -154,6 +154,14 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 {
 	if (iState != SVS_GAME)  {
 		printf("GameServer::ParseImReady: Not playing, packet is being ignored.\n");
+
+		// Skip to get the correct position in the stream
+		int num=bs->readByte();
+		for(int i=0;i<num;i++)  {
+			bs->Skip(1);
+			CWorm::skipWeapons(bs);
+		}
+
 		return;
 	}
 
@@ -168,6 +176,8 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 			cWorms[id].readWeapons(bs);
 			for (j=0;j<5;j++)
 				cWorms[id].getWeapon(j)->Enabled = cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name);
+		} else { // Skip to get the right position
+			CWorm::skipWeapons(bs);
 		}
 	}
 
@@ -187,6 +197,8 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 		}
 
 		SendGlobalPacket(&bytes);
+	// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
+	// Otherwise, 0.56b would not parse the packet correctly
 	} else {
 		int written = 0;
 		while (written < cl->getNumWorms())  {
@@ -228,6 +240,10 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	// No kills in lobby
 	if (iState != SVS_PLAYING)  {
 		printf("GameServer::ParseDeathPacket: Not playing, ignoring the packet.\n");
+
+		// Skip to get the correct position in the stream
+		bs->Skip(2);
+
 		return;
 	}
 
@@ -246,7 +262,6 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	int TeamCount[4];
 
     // If the game is already over, ignore this
-	// TODO: is this safe?
     if(iGameOver)  {
 		printf("GameServer::ParseDeathPacket: Game is over, ignoring.\n");
         return;
@@ -559,6 +574,10 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 	// Must be in lobby
 	if (iState != SVS_LOBBY)  {
 		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
+
+		// Skip to get the right position
+		bs->Skip(1);
+
 		return;
 	}
 
@@ -584,6 +603,8 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 			bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
 		}
 		SendGlobalPacket(&bytestr);
+	// HACK: pretend there are clients handling the bots to get around the
+	// "bug" in 0.56b
 	} else {
 		int written = 0;
 		while (written < cl->getNumWorms())  {
@@ -622,8 +643,10 @@ void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs)
 
 	if( id >= 0 && id < MAX_WORMS)
 		cWorms[id].readWeapons(bs);
-	else
+	else  {
 		printf("GameServer::ParseWeaponList: worm ID out of bounds.\n");
+		CWorm::skipWeapons(bs);  // Skip to get to the right position in the stream
+	}
 }
 
 
@@ -631,14 +654,15 @@ void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs)
 // Parse a 'grab bonus' packet
 void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 {
+	int id = bs->readByte();
+	int wormid = bs->readByte();
+	int curwpn = bs->readByte();
+
+	// Check
 	if (iState != SVS_PLAYING)  {
 		printf("GameServer::ParseGrabBonus: Not playing.\n");
 		return;
 	}
-
-	int id = bs->readByte();
-	int wormid = bs->readByte();
-	int curwpn = bs->readByte();
 
 
 	// Worm ID ok?
@@ -712,8 +736,10 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs)
         ParseGetInfo();
 	else if(cmd == "lx::wantsjoin")
 		ParseWantsJoin(bs);
-	else 
+	else  {
 		printf("GameServer::ParseConnectionlessPacket: unknown packet\n");
+		bs->SetPos(bs->GetLength()-1); // Safety: ignore any data behind this unknown packet
+	}
 }
 
 

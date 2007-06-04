@@ -13,8 +13,8 @@ TODO list
 [ ] select different key for ingame console
 [ ] 24/32 bit doesn't work in OpenGL mode; fix...
 [ ] fix some segfaults
-[ ] fix lobby freeze (!)
-[ ] make network more stable
+[x] fix lobby freeze (!)
+[x] make network more stable
 [ ] increase FPS (and determit, why it is bad in beta2)
 [ ] improve mediaplayer
 [ ] improve player profile options (many skins need long load time)
@@ -24,7 +24,7 @@ TODO list
 [X] add MaxFPS option in option dialog
 [ ] add some help for weapon selection (cause not everybody understand it)
 [ ] allow more than 2 viewports
-[ ] allow more than one monitor (let user choose what vireports will be displayed on what screen)
+[ ] allow more than one monitor (let user choose what viewports will be displayed on what screen)
 [ ] allow a higher resolution (reduce it while playing with LX56?)
 [ ] join all viewports, if map is smaller than resolution
 [ ] allow different sound settings (44k or 22k / mono or stereo / ...)
