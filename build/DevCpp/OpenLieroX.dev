@@ -2,7 +2,7 @@
 FileName=OpenLieroX.dev
 Name=OpenLieroX
 UnitCount=157
-Type=0
+Type=1
 Ver=1
 ObjFiles=
 Includes=../../hawknl/include;../../include
@@ -15,7 +15,7 @@ CppCompiler=
 Linker=-lmingw32_@@_-lSDLmain_@@_-lSDL_@@_-mwindows_@@_-lSDL_mixer_@@_-lSDL_image_@@_-lz_@@_-lbgd_@@_libs/libxml2.lib_@@_libs/hawknl.lib_@@_
 IsCpp=1
 Icon=OpenLieroX.ico
-ExeOutput=
+ExeOutput=../../distrib/win32/
 ObjectOutput=
 OverrideOutput=0
 OverrideOutputName=OpenLieroX.exe

@@ -13,8 +13,10 @@ I have used the Package manager to download the following packets:
 - SDL_image (1.2.4-notiff)
 - SDL_mixer (1.2.6)
 
-http://www.libgd.org/Downloads
-gd-2.0.34-win32.zip
+I only had to download libgd manually. I did this here:
+	http://www.libgd.org/Downloads
+I downloaded the file:
+	gd-2.0.34-win32.zip
+And extracted all the contents simply directly to my Dev-C++ (so all includet files goes to the right subdirs).
 
-http://www.zlatkovic.com/libxml.en.html
--> http://www.zlatkovic.com/pub/libxml/
+The provides Dev-C++ project-file (under build/DevCpp) should work now.
