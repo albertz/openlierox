@@ -1204,7 +1204,8 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 	short oldnum = num;
 	num = MIN(num,MAX_PLAYERS);
 
-	for(byte i=0; i<num; i++)
+	short i;
+	for(i=0; i<num; i++)
 		getWorm(i)->readStatUpdate(bs);
 
 	// Skip if there were some clamped worms

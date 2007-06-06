@@ -28,7 +28,7 @@ void CTextbox::Create(void)
 	iCurpos = 0;
 	iLastCurpos = 0;
 	sText = "";
-	iMax = -1; // highest possible size_t value
+	iMax = -1; // highest possible size_t value // TODO: remove iMax
 	iHolding = false;
 	iHoldingMouse = false;
 	fTimeHolding = 0;

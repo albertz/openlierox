@@ -27,6 +27,7 @@
 #ifdef WIN32
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	include <shlobj.h>
+#	include "defs.h" // for strnlen
 #else
 #	include <ext/hash_set>
 using namespace __gnu_cxx;
