@@ -122,6 +122,7 @@ public:
 		iLastChar = 0;
 		bRedrawMenu = true;
 		bDrawBorder = true;
+		bNeedsRepaint = true;
 	}
 
 
@@ -130,6 +131,7 @@ private:
 	bool			bOldStyle;
 	bool			bRedrawMenu;
 	bool			bDrawBorder;
+	bool            bShowSelect;
 
 	// Columns
 	int				iNumColumns;
@@ -154,8 +156,9 @@ private:
 	CScrollbar		cScrollbar;
 	int				iSavedScrollbarPos;
 
-    bool            bShowSelect;
-	UnicodeChar			iLastChar;
+	// Other
+	bool			bNeedsRepaint;
+	UnicodeChar		iLastChar;
 
 
 public:
@@ -229,6 +232,9 @@ public:
 
 	void	SaveScrollbarPos(void)    { iSavedScrollbarPos = cScrollbar.getValue(); }
 	void	RestoreScrollbarPos(void) { cScrollbar.setValue(iSavedScrollbarPos); iSavedScrollbarPos = 0; }
+
+	inline bool	NeedsRepaint()  {return bNeedsRepaint; }
+	inline void	SetRepaint(bool _r)  { bNeedsRepaint = _r; }  // Explicitly set this listview needs to be repainted
 
 };
 

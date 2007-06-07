@@ -111,6 +111,7 @@ std::string GetAbsolutePath(const std::string& path);
 // we don't have case sensitive file systems under windows
 // but we still need to replace ${var} in the searchname
 // returns true, if file/dir is existing and accessable, false else
+
 inline bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
 	filename = abs_searchname;
 

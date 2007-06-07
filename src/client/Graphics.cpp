@@ -83,16 +83,16 @@ int LoadGraphics(void)
 	LOAD_IMAGE(gfxGame.bmpHealth, "data/gfx/health.png");
 
 
+	tLX->cOutlineFont.SetOutline(true);
+	tLX->cOutlineFont.SetSpacing(0);
+	tLX->cOutlineFontGrey.SetSpacing(0);
+
 	if(!tLX->cFont.Load("data/gfx/font.png",true))
 		return false;
 	if(!tLX->cOutlineFont.Load("data/gfx/out_font.png",true))
 		return false;
 	if(!tLX->cOutlineFontGrey.Load("data/gfx/out_fontgrey.png",false))
 		return false;
-
-	tLX->cOutlineFont.SetOutline(true);
-	tLX->cOutlineFont.SetSpacing(0);
-	tLX->cOutlineFontGrey.SetSpacing(0);
 
 	// Set the colour keys
 	Uint32 pink = tLX->clPink;

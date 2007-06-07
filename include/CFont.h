@@ -20,31 +20,37 @@
 #ifndef __CFONT_H__
 #define __CFONT_H__
 
-#include <string>
+#include "Unicode.h"
 
 
-#define NUM_CHARACTERS 468
+#define FIRST_CHARACTER 32 // space
 
 class CFont {
 public:
 	// Constructor
 	CFont() {
 		bmpFont = NULL;
-		Colour = false;
+		Colorize = false;
 		OutlineFont = false;
 		Spacing = 1;
+		VSpacing = 3;
+		NumCharacters = 0;
+		Fontstr = (UnicodeChar *)"";
 	}
 
 
 private:
 	// Attributes
 
-	SDL_Surface		*bmpFont;
-	bool			Colour;
-	int				FontWidth[NUM_CHARACTERS];
-	int				CharacterOffset[NUM_CHARACTERS];
-	int				OutlineFont;
-	int				Spacing;
+	SDL_Surface						*bmpFont;
+	bool							Colorize;
+	std::vector<int>				FontWidth;
+	std::vector<int>				CharacterOffset;
+	std::basic_string<UnicodeChar>	Fontstr;
+	bool							OutlineFont;
+	int								Spacing;
+	int								VSpacing;
+	size_t							NumCharacters;
 
 	// Common colours
 	SDL_Surface		*bmpWhite;
@@ -58,29 +64,37 @@ private:
 public:
 	// Methods
 
-	int				Load(const std::string& fontname, bool _colour);
-	void			CalculateWidth(void);
+	int					Load(const std::string& fontname, bool _colour);
 
-	void			PreCalculate(SDL_Surface *bmpSurf, Uint32 colour);
+	inline void			Draw(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt)  { DrawAdv(dst,x,y,99999,col,txt); }
+	void				DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt);
+	void				DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt);
+	void				DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt);
 
-	void			Draw(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt);
-	void			DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt);
-	void			DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt);
-	void			DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt);
+	void				Shutdown(void);
 
-	void			Shutdown(void);
+	inline void			SetOutline(bool _o)  { OutlineFont = _o; }
+	inline bool			IsOutline(void)  { return OutlineFont; }
 
-	void			SetOutline(int Outline);
-	int				IsOutline(void);
+	int					GetWidth(const std::string& buf);
+	inline int			GetHeight(void)					{ return bmpFont->h; }
+	int					GetHeight(const std::string& buf);
 
-	int				GetWidth(const std::string& buf);
-	int				GetHeight(void)					{ return bmpFont->h; }
-	int				TranslateCharacter(std::string::const_iterator &it, const std::string::const_iterator& last);
+	// Translates the character to the position in Fontstr array, returns -1 if impossible
+	inline int			TranslateCharacter(std::string::const_iterator &it, const std::string::const_iterator& last)  {
+							UnicodeChar ch = GetNextUnicodeFromUtf8(it, last);
+							if (ch > FIRST_CHARACTER+NumCharacters-1 || ch < FIRST_CHARACTER) return -1;
+							return ch-FIRST_CHARACTER;
+						}
 
-	inline void		SetSpacing(int _s)  { Spacing = _s; }
-	inline int		GetSpacing()		 { return Spacing; }
+	inline void			SetSpacing(int _s)  { Spacing = _s; }
+	inline int			GetSpacing()		 { return Spacing; }
+	inline void			SetVSpacing(int _v) { VSpacing = _v; }
+	inline int			GetVSpacing()	{ return VSpacing; }
 private:
-	bool			IsColumnFree(int x);
+	bool				IsColumnFree(int x);
+	void				Parse(void);
+	void				PreCalculate(SDL_Surface *bmpSurf, Uint32 colour);
 };
 
 

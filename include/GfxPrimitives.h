@@ -79,7 +79,7 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 	const Uint32 alpha = 0xff000000;
 
 	return SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA,
-		width, height, fmt->BitsPerPixel + 8,
+		width, height, fmt->BitsPerPixel,
 		fmt->Rmask, fmt->Gmask, fmt->Bmask, alpha);
 }
 
@@ -157,7 +157,6 @@ inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) {
 	memcpy((Uint8 *)bmpDest->pixels+y*bmpDest->pitch+x*bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
 }
 
-
 // Get a pixel from an 8bit address
 inline Uint32 GetPixelFromAddr(Uint8 *p, int bpp) {
 	static Uint32 result;
@@ -170,6 +169,9 @@ inline Uint32 GetPixelFromAddr(Uint8 *p, int bpp) {
 inline Uint32 GetPixel(SDL_Surface *bmpSrc, int x, int y) {
 	return GetPixelFromAddr((Uint8 *)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel, bmpSrc->format->BytesPerPixel);
 }
+
+// Put pixel alpha blended with the background
+extern inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a);
 
 
 // Extract 4 colour components from a packed int
@@ -185,6 +187,8 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
 inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 	return SDL_MapRGBA(SDL_GetVideoSurface()->format,r,g,b,a);
 }
+
+void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
 
 // Line drawing
 void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);

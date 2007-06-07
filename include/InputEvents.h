@@ -37,6 +37,7 @@ class keyboard_t { public:
 // Mouse structure
 class mouse_t { public:
 	int		X,Y;
+	int		deltaX,deltaY;
 	int		Button;
 
 	// HINT: the following three variables cannot be bool

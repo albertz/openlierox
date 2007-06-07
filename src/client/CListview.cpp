@@ -25,6 +25,8 @@
 // Draw the list view
 void CListview::Draw(SDL_Surface *bmpDest)
 {
+	bNeedsRepaint = false; // We're repainting :)
+
 	lv_subitem_t *sub = NULL;
 
 	if (bRedrawMenu)
@@ -46,7 +48,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			col_w = col->iWidth;
 			// Last column has to be thiner
 			if (i == iNumColumns)  {
-				if (x-2+col_w-1 != iX+iWidth-4)  {
+				if (x-2+col_w-1 != iX+iWidth-4)  { // Column wider than the space for it
 					col_w = iWidth-x+iX+4;
 					col->iWidth = col_w;  // Update it when we've counted it...
 				}
@@ -73,7 +75,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		if (bOldStyle)
 			y = iY+tLX->cFont.GetHeight()+2;
 		else
-			y = iY+tLX->cFont.GetHeight()+6;
+			y = iY+tLX->cFont.GetHeight()+4;
 	} else {
 		if (bDrawBorder)  {
 			y += 2;
@@ -230,6 +232,7 @@ void CListview::AddColumn(const std::string& sText, int iWidth)
 	}
 
 	iNumColumns++;
+	bNeedsRepaint = true; // We need a repaint
 }
 
 
@@ -282,6 +285,9 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 
 	// Readjust the scrollbar
 	ReadjustScrollbar();
+
+	// We need a repaint
+	bNeedsRepaint = true;
 }
 
 
@@ -338,6 +344,8 @@ void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img
 
 	// Readjust the scrollbar
 	ReadjustScrollbar();
+
+	bNeedsRepaint = true; // Repaint required
 }
 
 
@@ -466,6 +474,8 @@ void CListview::RemoveItem(int iIndex)
 
 	// Readjust the scrollbar
 	ReadjustScrollbar();
+
+	bNeedsRepaint = true; // Repaint required
 }
 
 
@@ -611,6 +621,8 @@ void CListview::SortBy(int column, bool ascending)
 			break;
 		}
 
+	bNeedsRepaint = true; // Repaint required
+
 }
 
 
@@ -644,6 +656,7 @@ void CListview::Clear(void)
 	iItemCount=0;
     iItemID = 0;
 	iGotScrollbar=false;
+	bNeedsRepaint = true; // Repaint required
 }
 
 
@@ -664,6 +677,8 @@ void CListview::Create(void)
 	cScrollbar.setMin(0);
 	cScrollbar.setMax(1);
 	cScrollbar.setValue(0);
+
+	bNeedsRepaint = true; // Repaint required
 }
 
 
@@ -751,6 +766,8 @@ int	CListview::MouseOver(mouse_t *tMouse)
 			}
 		}
 	}
+
+	bNeedsRepaint = true; // Repaint required
 
 	return LV_NONE;
 }
@@ -848,7 +865,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 	iClickedSub = -1;
 
 	// Go through the items
-	int y = iY+tLX->cFont.GetHeight();
+	int y = iY+tLX->cFont.GetHeight()+2;
 	if (!tColumns)
 		y = iY+2;
 	lv_item_t *item = tItems;
@@ -906,6 +923,8 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 			break;
 	}
 
+	bNeedsRepaint = true; // Repaint required
+
 	return LV_NONE;
 }
 
@@ -952,7 +971,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	iClickedSub = -1;
 
 	// Go through the items
-	int y = iY+tLX->cFont.GetHeight()+4;
+	int y = iY+tLX->cFont.GetHeight()+2;
 	if (!tColumns)
 		y = iY+2;
 	lv_item_t *item = tItems;
@@ -1020,6 +1039,8 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 			break;
 	}
 
+	bNeedsRepaint = true; // Repaint required
+
 	return LV_NONE;
 }
 
@@ -1027,8 +1048,10 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 // Mouse wheel down event
 int	CListview::MouseWheelDown(mouse_t *tMouse)
 {
-	if(iGotScrollbar)
+	if(iGotScrollbar)  {
 		cScrollbar.MouseWheelDown(tMouse);
+		bNeedsRepaint = true; // Repaint required
+	}
 
 	return LV_NONE;
 }
@@ -1037,8 +1060,10 @@ int	CListview::MouseWheelDown(mouse_t *tMouse)
 // Mouse wheel up event
 int	CListview::MouseWheelUp(mouse_t *tMouse)
 {
-	if(iGotScrollbar)
+	if(iGotScrollbar)  {
 		cScrollbar.MouseWheelUp(tMouse);
+		bNeedsRepaint = true; // Repaint required
+	}
 
 	return LV_NONE;
 }
@@ -1140,6 +1165,8 @@ int CListview::KeyDown(UnicodeChar c)
 		return LV_ENTER;
 	}
 
+	bNeedsRepaint = true; // Repaint required
+
 	return LV_NONE;
 }
 
@@ -1187,6 +1214,7 @@ void CListview::scrollLast(void)
 	if (iGotScrollbar)  {
 		cScrollbar.setValue(cScrollbar.getMax());
 		cScrollbar.UpdatePos();
+		bNeedsRepaint = true; // Repaint required
 	}
 }
 
@@ -1244,6 +1272,7 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		// Set the old-style property
 		case LVM_SETOLDSTYLE:
 			bOldStyle = true;
+			bNeedsRepaint = true; // Repaint required
 			break;
 
 		// Get the column width

@@ -192,7 +192,11 @@ void ProcessEvents(void)
 
 
 	// Mouse
+	int oldX = Mouse.X;
+	int oldY = Mouse.Y;
 	Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y);
+	Mouse.deltaX = Mouse.X-oldX;
+	Mouse.deltaY = Mouse.Y-oldY;
 	Mouse.Up = 0;
     Mouse.FirstDown = 0;
 

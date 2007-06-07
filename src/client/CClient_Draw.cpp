@@ -59,9 +59,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	float dt = tLX->fDeltaTime;
 
 	// TODO: allow more worms
-	// TODO: check if it works without this restriction
-	num = iNumWorms;
-	//num = MIN(2,iNumWorms);
+	num = MIN(2,iNumWorms);
 
 
 	// Check for any communication errors
@@ -80,10 +78,12 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
     // TODO: allow more viewports
     // Draw the borders
-	//SDL_LockSurface(bmpDest);
-    //memset((void *)((Uint8 *)bmpDest->pixels+(bmpDest->pitch*382)),0,bmpDest->pitch*98);// it's the same as DrawRectFill(bmpDest,0,382,640,480,0)
-	//SDL_UnlockSurface(bmpDest);
-	DrawRectFill(bmpDest,0,382,640,480,0);
+	if (tGameInfo.iGameType == GME_LOCAL)  {
+		DrawRectFill(bmpDest,0,382,640,480,0);
+	} else {
+		DrawRectFill(bmpDest,0,382,165,480,0);  // Health area
+		DrawRectFill(bmpDest,511,382,640,480,0);  // Minimap area
+	}
 	
     if(cViewports[1].getUsed())
         DrawRectFill(bmpDest,318,0,322,384,0);
@@ -193,9 +193,10 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Chatter
 	if(iChat_Typing)  {
+		static const int talk_w = 4+tLX->cOutlineFont.GetWidth("Talk: ");
 		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clNormalText, "Talk: " + sChat_Text);
 		if (iChat_CursorVisible)  {
-			DrawVLine(bmpDest, 368, 378, 4+tLX->cFont.GetWidth("Talk: ")+tLX->cFont.GetWidth(sChat_Text.substr(0,iChat_Pos)), tLX->clNormalText);
+			DrawVLine(bmpDest, 368, 378, talk_w+tLX->cOutlineFont.GetWidth(sChat_Text.substr(0,iChat_Pos)), tLX->clNormalText);
 		}
 	}
 
@@ -1008,24 +1009,28 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	}
 
     // If there are too many lines, remove the top one
-    while(lv->getItemCount() > 256) {
-        if(lv->getItems())  {
-            lv->RemoveItem(lv->getItems()->iIndex);
+	if (lv->getItems())  
+		while(lv->getItemCount() > 256) {
+			lv->RemoveItem(lv->getItems()->iIndex);
 			lv->scrollLast();
 		}
-    }
 
-	lv->Draw(bmpDest);
+	mouse_t *Mouse = GetMouse();
+	int inbox = lv->InBox(Mouse->X,Mouse->Y+gfxGUI.bmpMouse[0]->h);	// small hack: count the mouse height so we avoid "freezing
+																	// the mouse image when the user moves cursor away
+	if (lv->NeedsRepaint() || inbox)  {
+		DrawRectFill(bmpDest,165,382,511,480,0);
+		lv->Draw(bmpDest);
+	}
 
 
 	// Events
-	mouse_t *Mouse = GetMouse();
 	if (Mouse->WheelScrollDown)
 		lv->MouseWheelDown(Mouse);
 	else if (Mouse->WheelScrollUp)
 		lv->MouseWheelUp(Mouse);
 
-	if (lv->InBox(Mouse->X,Mouse->Y))  {
+	if (inbox)  {
 
 		// Draw the mouse
 		DrawImage(bmpDest,gfxGUI.bmpMouse[0],Mouse->X,Mouse->Y);

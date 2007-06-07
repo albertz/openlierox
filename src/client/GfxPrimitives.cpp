@@ -30,6 +30,61 @@
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
+/////////////////
+// Put the pixel alpha blended with the background
+inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
+	if (!(byte)(~a))  { // Fully opaque
+		PutPixel(bmpDest,x,y,colour);
+		return;
+	}
+
+	static Uint32 R,G,B,A;
+	register Uint32 pixel = GetPixel(bmpDest,x,y);
+
+	#define Rmask bmpDest->format->Rmask
+	#define Gmask bmpDest->format->Gmask
+	#define Bmask bmpDest->format->Bmask
+	#define Amask bmpDest->format->Amask
+
+	R = ((pixel & Rmask) + (( (colour & Rmask) - (pixel & Rmask) ) * a >> 8)) & Rmask;
+	G = ((pixel & Gmask) + (( (colour & Gmask) - (pixel & Gmask) ) * a >> 8)) & Gmask;
+	B = ((pixel & Bmask) + (( (colour & Bmask) - (pixel & Bmask) ) * a >> 8)) & Bmask;
+	A = ((pixel & Amask) + (( (colour & Amask) - (pixel & Amask) ) * a >> 8)) & Amask;
+
+	pixel = (R|G|B|A);
+
+	#undef Rmask
+	#undef Gmask
+	#undef Bmask
+	#undef Amask
+
+	PutPixel(bmpDest,x,y,pixel);
+}
+
+//////////////////////
+// Set a color key for alpha surface (SDL_SetColorKey does not work for alpha surfaces)
+void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b)
+{
+	// Just set transparent alpha to pixels that match the color key
+	register Uint8 *pxr = (Uint8 *)dst->pixels;
+	register Uint8 *px;
+	int x,y;
+	Uint8 dr,dg,db;
+	Uint32 pixel;
+	for (y=0;y<dst->h;y++,pxr+=dst->pitch)  {
+		px = pxr;
+		for (x=0;x<dst->w;x++,px+=dst->format->BytesPerPixel)  {
+			pixel = GetPixelFromAddr(px,dst->format->BytesPerPixel);
+			SDL_GetRGB(pixel,dst->format,&dr,&dg,&db);
+			if (!(r+g+b-dr-dg-db))  {  // Key?
+				pixel &= (dst->format->Amask & SDL_ALPHA_TRANSPARENT) | dst->format->Rmask | dst->format->Gmask | dst->format->Bmask;
+				memcpy(px,&pixel,dst->format->BytesPerPixel);
+			}
+		}
+	}
+			
+}
+
 ///////////////////
 // Draw the image mirrored with a huge amount of options
 void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)

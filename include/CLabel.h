@@ -31,6 +31,7 @@ enum {
 	LBS_SETTEXT
 };
 
+extern void Menu_redrawBufferRect(int x, int y, int w, int h);
 
 class CLabel : public CWidget {
 public:
@@ -52,7 +53,7 @@ private:
 public:
 	// Methods
 
-	void	Create(void) { }
+	void	Create(void) { iWidth = tLX->cFont.GetWidth(sText); iHeight = tLX->cFont.GetHeight(sText); }
 	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1
@@ -65,13 +66,18 @@ public:
 	int		KeyUp(UnicodeChar c)						{ return LBL_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
-	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { if (iMsg == LBS_SETTEXT) {sText = sStr;} return 0; }
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { 
+			if (iMsg == LBS_SETTEXT) 
+				{sText = sStr; iWidth = tLX->cFont.GetWidth(sText); iHeight = tLX->cFont.GetHeight(sText);} 
+			return 0; 	}
+
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	void	ChangeColour(Uint32 col)			{ iColour = col; }
 
 	// Draw the label
-	void	Draw(SDL_Surface *bmpDest) {
+	inline void	Draw(SDL_Surface *bmpDest) {
+				Menu_redrawBufferRect(iX,iY,iWidth,iHeight);
 				tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
 

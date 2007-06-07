@@ -24,8 +24,6 @@
 
 
 //char Fontstr[256] = {" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~ \161\162\163\164\165\166\167\168\169\170\171\172\173\174\175\176\177\178\179\180\181\182\183\184\185\186\187\188\189\190\191\192\193\194\195\196\197\198\199\200\201\202\203\204\205\206\207\208\209\210\211\212\213\214\215\216\217\218\219\220\221\222\223\224\225\226\227\228\229\230\231\232\233\234\235\236\237\238\239\240\241\242\243\244\245\246\247\248\249\250\251\252\253\254\255"};
-ushort Fontstr[NUM_CHARACTERS];
-size_t Fontstr_len = sizeof(Fontstr)/sizeof(short);
 
 // When you draw the font, use this to get rid of all possible color "bugs" in it
 
@@ -69,38 +67,36 @@ void AdjustFont(SDL_Surface *bmp,const std::string& fname)
 // Load a font
 int CFont::Load(const std::string& fontname, bool _colour)
 {
-	register ushort i;
-	for (i=0; i<128; i++)
-		Fontstr[i] = i+32;
-	for (i=128; i<sizeof(Fontstr)/sizeof(short); i++)
-		Fontstr[i] = i+65;
 
-	LOAD_IMAGE(bmpFont,fontname);
+	LOAD_IMAGE_WITHALPHA(bmpFont,fontname);
 
-	Colour = _colour;
+	Colorize = _colour;
 
-	if(!bmpFont) return false;
+	//if(!bmpFont) return false;
 
 	//AdjustFont(bmpFont,fontname+"_adj.bmp");
 
-	bmpWhite = gfxCreateSurface(bmpFont->w,bmpFont->h);
-	bmpGreen = gfxCreateSurface(bmpFont->w,bmpFont->h);
+	bmpWhite = gfxCreateSurfaceAlpha(bmpFont->w,bmpFont->h);
+	bmpGreen = gfxCreateSurfaceAlpha(bmpFont->w,bmpFont->h);
 
-	// Calculate the font width for each character
-	CalculateWidth();
+	// Calculate the width of each character, number of characters and the fontstr
+	Parse();
 
-	PreCalculate(bmpWhite,ConvertColor(tLX->clNormalLabel,SDL_GetVideoSurface()->format,bmpWhite->format));
-	PreCalculate(bmpGreen,ConvertColor(tLX->clChatText,SDL_GetVideoSurface()->format,bmpGreen->format));
+	// Precache some common font colors (but only if this font should be colorized)
+	if (Colorize)  {
+		PreCalculate(bmpWhite,ConvertColor(tLX->clNormalLabel,SDL_GetVideoSurface()->format,bmpWhite->format));
+		PreCalculate(bmpGreen,ConvertColor(tLX->clChatText,SDL_GetVideoSurface()->format,bmpGreen->format));
+	}
 
 
-		// Pre-calculate some colours
-	f_pink = ConvertColor(tLX->clPink,SDL_GetVideoSurface()->format,bmpFont->format);
-	f_blue = ConvertColor(tLX->clHeading,SDL_GetVideoSurface()->format,bmpFont->format);//SDL_MapRGB(bmpFont->format,0,0,255);
+	// Pre-calculate some colours
+	f_pink = ConvertColor(tLX->clPink,SDL_GetVideoSurface()->format,bmpFont->format) | bmpFont->format->Amask;
+	f_blue = ConvertColor(tLX->clHeading,SDL_GetVideoSurface()->format,bmpFont->format) | bmpFont->format->Amask;//SDL_MapRGB(bmpFont->format,0,0,255);
 	f_white = ConvertColor(tLX->clNormalLabel,SDL_GetVideoSurface()->format,bmpFont->format);//MakeColour(255,255,255);
-	f_green = ConvertColor(tLX->clChatText,SDL_GetVideoSurface()->format,bmpFont->format);//MakeColour(0,255,0);
+	f_green = ConvertColor(tLX->clChatText,SDL_GetVideoSurface()->format,bmpFont->format) | bmpFont->format->Amask;//MakeColour(0,255,0);
 
-	// Must do this after PreCalculate
-	SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, f_pink);
+	// Set the color key for this alpha surface (SDL_SetColorKey does not work for alpha blended surfaces)
+	SetColorKeyAlpha(bmpFont, 255,0,255);
 
 	return true;
 }
@@ -126,19 +122,24 @@ void CFont::Shutdown(void)
 // Checks, whether a vertical line is free (all pixels pink)
 bool CFont::IsColumnFree(int x)
 {
-	static const Uint32 pink = SDL_MapRGB(bmpFont->format,255,0,255);
-	for (ushort i=0; i < bmpFont->h; i++)
-		if (GetPixel(bmpFont,x,i) != pink)
+	// NOTE: antialiased (alpha blended) fonts use pink as background color, too
+	// it's only completelly see through
+	static Uint8 R,G,B;
+	for (ushort i=0; i < bmpFont->h; i++)  {
+		SDL_GetRGB(GetPixel(bmpFont,x,i),bmpFont->format,&R,&G,&B);
+		if ((byte)(~R+~B+G))  // ~R+~B+G = 0+0+0 => 0 is pink, otherwise not pink and stop
 			return false;
+	}
 
 	return true;
 }
 
 ///////////////////
-// Calculate Widths
-void CFont::CalculateWidth(void)
+// Calculate character widths, number of characters, fontstr and offsets
+void CFont::Parse(void)
 {
-	uint x,n;
+	uint x;
+	UnicodeChar CurChar=FIRST_CHARACTER;
 	int cur_w;
 
 	// Lock the surface
@@ -147,10 +148,11 @@ void CFont::CalculateWidth(void)
 
 	static const Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
 
-	n=0;
 	cur_w = 0;
+	uint tmp_x = 0;
 	for (x=0; (int)x<bmpFont->w; x++)  {
-		if (Fontstr[n] != ' ')
+
+		if (CurChar != ' ')
 			while (IsColumnFree(x) && (int)x<bmpFont->w)  // Ignore any free pixel columns before the character (but don't do this for spaces)
 				x++;
 
@@ -160,12 +162,21 @@ void CFont::CalculateWidth(void)
 			cur_w++;
 		}
 
+		// Ignore any free pixel columns *after* the character
+		tmp_x = x-1; // -1 - blue line
+		if (CurChar != ' ')  {
+			while (IsColumnFree(tmp_x))  {
+				cur_w--;
+				tmp_x--;
+			}
+		}
+
 		// Blue pixel means end of the character
-		FontWidth[n] = cur_w;
-		CharacterOffset[n] = x-cur_w;
-		n++;
-		if (n == Fontstr_len)  // Safety
-			break;
+		FontWidth.push_back(cur_w);
+		CharacterOffset.push_back(tmp_x-cur_w+1);
+		Fontstr += CurChar;
+		NumCharacters++;
+		CurChar++;
 		cur_w = 0;
 	}
 
@@ -184,20 +195,42 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 	register Uint32 pixel;
 	int x,y;
 
-	DrawRectFill(bmpSurf,0,0,bmpSurf->w,bmpSurf->h,tLX->clPink);
-	SDL_BlitSurface(bmpFont,NULL,bmpSurf,NULL);
+	DrawRectFill(bmpSurf,0,0,bmpSurf->w,bmpSurf->h,SDL_MapRGBA(bmpSurf->format,255,0,255,SDL_ALPHA_TRANSPARENT));
 
-
-	// Replace black with the appropriate colour
+	// Lock the surface
 	if(SDL_MUSTLOCK(bmpSurf))
 		SDL_LockSurface(bmpSurf);
 
-	for(y=0;y<bmpSurf->h;y++) {
-		for(x=0;x<bmpSurf->w;x++) {
-			pixel = GetPixel(bmpSurf,x,y);
+	Uint8 R,G,B;
+	Uint32 alpha;
+	Uint8 sr,sg,sb;
+	SDL_GetRGB(colour,bmpFont->format,&sr,&sg,&sb);
 
-			if(pixel == 0)
-				PutPixel(bmpSurf,x,y,colour);
+	// Outline font: replace white pixels with appropriate color, put black pixels
+	if (OutlineFont)  {
+		for(y=0;y<bmpSurf->h;y++) {
+			for(x=0;x<bmpSurf->w;x++) {
+				pixel = GetPixel(bmpFont,x,y);
+				SDL_GetRGB(pixel,bmpSurf->format,&R,&G,&B);
+				alpha = bmpSurf->format->Amask-(pixel & bmpSurf->format->Amask);
+
+				if(!(byte)(~R+~G+~B))  // White
+					PutPixel(bmpSurf,x,y,colour - alpha);
+				else if (!(R+G+B)) // Black
+					PutPixel(bmpSurf,x,y,pixel); // "pixel", not 0, because "pixel" containst alpha info
+			}
+		}
+	// Not outline: replace black pixels with appropriate color
+	} else {
+		for(y=0;y<bmpSurf->h;y++) {
+			for(x=0;x<bmpSurf->w;x++) {
+				pixel = GetPixel(bmpFont,x,y);
+				SDL_GetRGB(pixel,bmpSurf->format,&R,&G,&B);
+				alpha = bmpSurf->format->Amask-(pixel & bmpSurf->format->Amask);
+
+				if(!(R+G+B))
+					PutPixel(bmpSurf,x,y,colour - alpha);
+			}
 		}
 	}
 
@@ -205,141 +238,141 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 	// Unlock the surface
 	if(SDL_MUSTLOCK(bmpSurf))
 		SDL_UnlockSurface(bmpSurf);
-
-	SDL_SetColorKey(bmpSurf, SDL_SRCCOLORKEY, tLX->clPink);
 }
 
 
-///////////////////
-// Set to true, if this is an outline font
-void CFont::SetOutline(int Outline) {
-	OutlineFont = Outline;
-}
-
-///////////////////
-// Is this an outline font?
-int CFont::IsOutline(void) {
-	return OutlineFont;
-}
-
-//////////////////
-// Draw a text
-void CFont::Draw(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
-	DrawAdv(dst,x,y,99999,col,txt);
+////////////////////
+// Get height of multiline text
+int CFont::GetHeight(const std::string& buf)
+{
+	int numlines=1;
+	for (std::string::const_iterator i=buf.begin();i!=buf.end();i++)
+		if (*i == '\n') numlines++;
+	return numlines*bmpFont->h;
 }
 
 ///////////////////
 // Draw a font (advanced)
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
-	int pos=0;
+	int pos=0; // Offset, x+pos is current character position
 	short l;
 	Uint32 pixel;
 	int i,j;
 	int w;
-	int a,b;
-	int length = Fontstr_len;
+	int a,b; // a = offset in bmpFont
+	static const Uint32 black = SDL_MapRGBA(bmpFont->format,0,0,0,SDL_ALPHA_OPAQUE);
+	static const Uint32 white = SDL_MapRGBA(bmpFont->format,255,255,255,SDL_ALPHA_OPAQUE);
+	static const Uint32 pink = SDL_MapRGBA(bmpFont->format,255,0,255,SDL_ALPHA_OPAQUE);
 
 	// Clipping rectangle
-	SDL_Rect rect = dst->clip_rect;
+	SDL_Rect oldrect = dst->clip_rect;
+	SDL_Rect newrect = dst->clip_rect;
 
-	int	top = rect.y;
-	int left = rect.x;
-	int right = rect.x + rect.w;
-	int bottom = rect.y + rect.h;
+	int	top = oldrect.y;
+	int left = oldrect.x;
+	int right = MIN(oldrect.x + oldrect.w,x+max_w);
+	int bottom = oldrect.y + oldrect.h;
 
+	// Set the newrect width and use this newrect temporarily to draw the font
+	// We use this rect because of precached fonts which use SDL_Blit for drawing (and it takes care of cliprect)
+	newrect.w = right-left;
+	SDL_SetClipRect(dst,&newrect);
+
+
+	// Look in the precached fonts if there's some for this color
+	SDL_Surface *bmpCached = NULL;
+	if (Colorize)  {
+		Uint32 col2 = col | bmpFont->format->Amask;
+		if (col2 == f_white)  
+			bmpCached = bmpWhite;
+		else if (col2 == black)
+			bmpCached = bmpFont;
+		else if (col2 == f_green)
+			bmpCached = bmpGreen;
+	}
+	// Not colourize, bmpFont itself should be blitted without any changes, so it's precached
+	else  {
+		bmpCached = bmpFont;
+	}
 
 	// Lock the surfaces
 	if(SDL_MUSTLOCK(dst))
 		SDL_LockSurface(dst);
-	if(SDL_MUSTLOCK(bmpFont))
+	if(SDL_MUSTLOCK(bmpFont) && !bmpCached)  // If we use cached font, we do not access the pixels
 		SDL_LockSurface(bmpFont);
 
-
-	Uint32 col2 = col;
+	Uint8 R,G,B,A;
+	short clip_x,clip_y,clip_w,clip_h;
 
 	pos=0;
 	for(std::string::const_iterator p = txt.begin(); p != txt.end(); ) {
 		// Line break
 		if (*p == '\n')  {
-			y += bmpFont->h+3;
+			y += bmpFont->h+VSpacing;
 			pos = 0;
 			p++;
 			continue;
 		}
 		
+		// Translate and ignore unknown
 		l = TranslateCharacter(p, txt.end());
 		if (l == -1)
 			continue;
 
-		// Maximal width overflowed
-		// TODO: doesn't support multiline texts, but it's faster...
-		if (pos > max_w)
-			break;
-
-        // Ignore unkown characters
-        if(l >= length || l < 0)
-            continue;
-
 		w=0;
 		a=CharacterOffset[l];
 
-		if(!Colour) {
-			SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, tLX->clPink);
-			DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
+		// Precached fonts
+		if (bmpCached)  {
+			DrawImageAdv(dst,bmpCached,a,0,x+pos,y,FontWidth[l],bmpFont->h);
 			pos+=FontWidth[l]+Spacing;
 			continue;
 		}
 
-		if (!OutlineFont)  {
-			if (col2 == f_white)  {
-				DrawImageAdv(dst,bmpWhite,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-				pos+=FontWidth[l]+Spacing;
-				continue;
-			} else if (!col2) {
-				DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-				pos+=FontWidth[l]+Spacing;
-				continue;
-			} else if( col2 == f_green) {
-				DrawImageAdv(dst,bmpGreen,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-				pos+=FontWidth[l]+Spacing;
-				continue;
-			}
-		}
+		// Calculate clipping
+		clip_x = MAX(left-x-pos,0);
+		clip_y = MAX(top-y,0);
+		clip_w = FontWidth[l];
+		if (x+pos+clip_w >= right)
+			clip_w = right-x-pos;
+		clip_h = bmpFont->h;
+		if (y+clip_h >= bottom)
+			clip_h = bottom-y;
 
-		/*if(!Colour) {
-			SDL_SetColorKey(bmpFont, SDL_SRCCOLORKEY, tLX->clPink);
-			DrawImageAdv(dst,bmpFont,a,0,x+pos,y,FontWidth[l],bmpFont->h);
-		}
-		else */{
-			register Uint8 *src = (Uint8 *)bmpFont->pixels + a * bmpFont->format->BytesPerPixel;
-			register Uint8 *p;
-			register byte bpp = bmpFont->format->BytesPerPixel;
-			for(j=0;j<bmpFont->h;j++) {
+		register Uint8 *src = (Uint8 *)bmpFont->pixels + a * bmpFont->format->BytesPerPixel;
+		register Uint8 *p;
+		register byte bpp = bmpFont->format->BytesPerPixel;
+
+		// Outline font
+		if (OutlineFont)  {
+			for(j=clip_y;j<clip_h;j++) {
 				p = src;
-				for(i=a,b=0;b<FontWidth[l];i++,b++,p+=bpp) {
-
-					// Clipping
-					// TODO: calculate the clipping before entering loops, it will speed this up
-					if(x+pos+b < left)
-						continue;
-					if(y+j < top)
-						break;
-
-					if(y+j >= bottom)
-						break;
-					if(x+pos+b >= right)
-						break;
+				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,p+=bpp) {
 
 					pixel = GetPixelFromAddr(p,bpp);
+					SDL_GetRGBA(pixel,bmpFont->format,&R,&G,&B,&A);
 
+					// Put black pixels and colorize white ones
+					if (!(byte)(~R+~G+~B))  // White
+						PutPixelA(dst,x+pos+b,y+j,col,A); // Put the pixel and blend it with background
+					else if (!(R+G+B))  // Black
+						PutPixelA(dst,x+pos+b,y+j,0,A);
+				}
+				src+= bmpFont->pitch;
+			}
+		}
+		// Not outline
+		else {
+			for(j=clip_y;j<clip_h;j++) {
+				p = src;
+				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,p+=bpp) {
 
-					if(OutlineFont)  {
-						if (pixel == tLX->clWhite)
-							PutPixel(dst,x+pos+b,y+j,col);
-						else if (!pixel)
-							PutPixel(dst,x+pos+b,y+j,0);
-					} else if (!pixel)  // Put only black pixels
-						PutPixel(dst,x+pos+b,y+j,col);
+					pixel = GetPixelFromAddr(p,bpp);
+					SDL_GetRGBA(pixel,bmpFont->format,&R,&G,&B,&A);
+
+					// Put only black pixels
+					if (!(R+G+B))  
+						PutPixelA(dst,x+pos+b,y+j,col,A);
 				}
 				src+= bmpFont->pitch;
 			}
@@ -347,6 +380,9 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 		pos+=FontWidth[l]+Spacing;
 	}
+
+	// Restore the original clipping rect
+	SDL_SetClipRect(dst,&oldrect);
 
 
 	// Unlock the surfaces
@@ -373,24 +409,6 @@ int CFont::GetWidth(const std::string& buf) {
 
 	return length;
 }
-
-/////////////////////
-// Translates the character to the position in Fontstr array, returns -1 if impossible
-int CFont::TranslateCharacter(std::string::const_iterator &it, const std::string::const_iterator& last)
-{
-	// TODO: remove all this and make it new
-	// a hardcoded translation for a font should NEVER be used,
-	// this makes every upcoming version with perhaps more available chars incompatible
-	// perhaps it's also best to not use a translation at all (and directly use Unicode)
-
-	UnicodeChar ch = GetNextUnicodeFromUtf8(it, last);
-	int result;
-	/*if(ch > 127) result = ch - 65;
-	else*/ if (ch < 32 || ch >= NUM_CHARACTERS) result = -1;
-	else result = ch - 32;
-	return result;
-}
-
 
 ///////////////////
 // Draws the text in centre alignment

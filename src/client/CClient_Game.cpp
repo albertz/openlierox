@@ -1441,6 +1441,8 @@ size_t ChatMaxLength = 48;
 // Process any chatter
 void CClient::processChatter(void)
 {
+	if (tGameInfo.iGameType == GME_LOCAL)
+		return;
 
     keyboard_t *kb = GetKeyboard();
 
@@ -1501,9 +1503,6 @@ void CClient::processChatter(void)
 
     // Start typing on any keypress, if we can
 	if (!tLXOptions->iAutoTyping)
-		return;
-
-	if (tGameInfo.iGameType == GME_LOCAL)
 		return;
 
     for(short i=0; i<kb->queueLength; i++) {
