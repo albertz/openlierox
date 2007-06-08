@@ -72,8 +72,9 @@ int main(int argc, char *argv[])
 		TTF_SetFontStyle(Font,TTF_STYLE_BOLD);
 	if (Arguments.Italic)
 		TTF_SetFontStyle(Font,TTF_STYLE_ITALIC);
-	if (Arguments.Underline)
-		TTF_SetFontStyle(Font,TTF_STYLE_UNDERLINE);
+	// TODO: remove underline at all, it makes no sense
+	//if (Arguments.Underline)
+	//	TTF_SetFontStyle(Font,TTF_STYLE_UNDERLINE);
 
 	//
 	// Prepare for rendering
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
 
 	Output << "Rendering the font." << endl;
 
-	SDL_Surface *OutBmp = RenderText(Font,Characters,(LAST_CHARACTER-FIRST_CHARACTER),Arguments.Outline);
+	SDL_Surface *OutBmp = RenderText(Font,Characters,(LAST_CHARACTER-FIRST_CHARACTER),Arguments.Outline,Arguments.Antialiased);
 	if (!OutBmp)  {
 		TTF_CloseFont(Font);
 		Quit();
@@ -107,8 +108,9 @@ int main(int argc, char *argv[])
 	//
 
 	Output << "Saving in " << Arguments.OutputFile << endl;
-	if (!SavePNG(OutBmp,Arguments.OutputFile))  
+	if (!SavePNG(OutBmp,Arguments.OutputFile,Arguments.Antialiased))  
 		Output << "Could not save the resulting bitmap." << endl;
+	//SDL_SaveBMP(OutBmp,(Arguments.OutputFile+".bmp").c_str());
 
 	//
 	// Quit
@@ -122,7 +124,7 @@ int main(int argc, char *argv[])
 }
 
 // Render the text
-SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outline)
+SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outline, bool Antialiased)
 {
 	//
 	// Variables
@@ -140,7 +142,7 @@ SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outli
 	int YOffset = TTF_FontAscent(Font);  // Actually a baseline
 
 	// Glyph metrics
-	int maxy,advance;
+	int minx,maxy,advance;
 
 	//
 	// Count the font descent
@@ -171,11 +173,20 @@ SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outli
 	//
 
 	// Get the surface dimensions
-	if (TTF_SizeUNICODE(Font,Text,&SurfaceWidth,&SurfaceHeight) == -1)  {
+	/*if (TTF_SizeUNICODE(Font,Text,&SurfaceWidth,&SurfaceHeight) == -1)  {
 		Output << "Cannot get the font size!" << endl;
 		return NULL;
+	}*/
+	SurfaceWidth = 0;
+	for (size_t i=0;i<TextLen;i++)  {
+		if (TTF_GlyphMetrics(Font,Text[i],&minx,NULL,NULL,&maxy,&advance) == -1)
+			continue;
+		SurfaceWidth += advance + 2;  // Space for separators and "what if" space
+		if (minx < 0)
+			SurfaceWidth -= minx;
 	}
-	SurfaceWidth += TextLen; // Space for separators
+
+	SurfaceHeight = TTF_FontHeight(Font); // Height
 
 	if (!TTF_FontDescent(Font))  {  // SDL_ttf bug, see the comment above
 		// This means the SurfaceHeight is also wrong, so we fix it here
@@ -191,32 +202,47 @@ SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outli
 
 	// Create the surface
 	// NOTE: MUST be 32 bit, SDLSurface2GDSurface requires it!!!
+	Uint32 flags = SDL_SWSURFACE;
+	if (Antialiased)
+		flags |= SDL_SRCALPHA;
 	Result = SDL_CreateRGBSurface(SDL_SWSURFACE,SurfaceWidth,SurfaceHeight,32,RMASK,GMASK,BMASK,AMASK);
 	if (!Result)  {
 		Output << "Out of memory while creating the bitmap surface." << endl;
 		return NULL;
 	}
 
-	SDL_FillRect(Result,NULL,SDL_MapRGB(Result->format,255,0,255));  // Fill with pink (transparent)
+	if (Antialiased)   {
+		SDL_FillRect(Result,NULL,SDL_MapRGBA(Result->format,255,0,255,SDL_ALPHA_TRANSPARENT));  // Set the whole surface to transparent
+	}
+	else
+		SDL_FillRect(Result,NULL,SDL_MapRGB(Result->format,255,0,255));  // Fill with pink (=transparent)
 
 
 	//
 	// Render the text, glyph by glyph
 	//
-	const color_t Blue = SDL_MapRGB(Result->format,0,0,255);
+	const color_t Blue = SDL_MapRGBA(Result->format,0,0,255,SDL_ALPHA_OPAQUE);
 
-	for (size_t i=0;i<TextLen;i++)  {
+	for (i=0;i<TextLen;i++)  {
 		// Get the glyph metrics
-		if (TTF_GlyphMetrics(Font,Text[i],NULL,NULL,NULL,&maxy,&advance) == -1)
+		if (TTF_GlyphMetrics(Font,Text[i],&minx,NULL,NULL,&maxy,&advance) == -1)
 			continue;
 
 		// Blit the glyph
-		Glyph = TTF_RenderGlyph_Solid(Font,Text[i],Color);
+		if (Antialiased)
+			Glyph = TTF_RenderGlyph_Blended(Font,Text[i],Color);
+		else
+			Glyph = TTF_RenderGlyph_Solid(Font,Text[i],Color);
 		if (!Glyph)
 			continue;
 		Rect.y = YOffset-maxy;
-		SDL_BlitSurface(Glyph,NULL,Result,&Rect);
-		Rect.x += advance+Outline;  // Outline is either 0 (disabled) or 1 (enabled)
+		if (Antialiased)
+			BlitAlpha(Result,Glyph,Rect.x,Rect.y);
+		else
+			SDL_BlitSurface(Glyph,NULL,Result,&Rect);
+		Rect.x += advance+Outline+1;  // Outline is either 0 (disabled) or 1 (enabled), +1 is "what if" space
+		if (minx < 0)
+			Rect.x -= minx;
 		SDL_FreeSurface(Glyph);
 
 		// Dividing line
@@ -240,35 +266,37 @@ SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outli
 // * Must not be NULL
 void ApplyOutline(SDL_Surface *BitmapText)
 {
-	const color_t Transparent = SDL_MapRGB(BitmapText->format,255,0,255);
+	//const color_t Transparent = SDL_MapRGB(BitmapText->format,255,0,255);
 	const color_t FontColor = SDL_MapRGB(BitmapText->format,255,255,255);
-	const color_t OutlineColor = 0;
+	const color_t OutlineColor = SDL_MapRGB(BitmapText->format,0,0,0);
 
 	unsigned short pitchstep = BitmapText->pitch/sizeof(color_t);
 	Uint32 *pxrow = (Uint32 *)BitmapText->pixels+pitchstep;
 	Uint32 *px;
 	Uint32 *TempPx;
+	Uint8 r,g,b;
 	int x,y;
 
 	for (y=1;y<BitmapText->h-1;y++,pxrow+=pitchstep)  {
 		px = pxrow+1;
 		for (x=1;x<BitmapText->w-1;x++,px++)  {
-			if (*px == FontColor)  {
+			SDL_GetRGB(*px,BitmapText->format,&r,&g,&b);
+			if (!(byte)(~r+~g+~b))  {  // White
 				// Left pixel
-				TempPx = px-1;
-				if (*TempPx == Transparent) *TempPx = OutlineColor;
+				TempPx = px-1; SDL_GetRGB(*TempPx,BitmapText->format,&r,&g,&b);
+				if (!(byte)(~r+g+~b)) *TempPx = OutlineColor;  // ~r+g+b~ = 0 is valid only for pink
 
 				// Top pixel
-				TempPx = px-pitchstep;
-				if (*TempPx == Transparent) *TempPx = OutlineColor;
+				TempPx = px-pitchstep; SDL_GetRGB(*TempPx,BitmapText->format,&r,&g,&b);
+				if (!(byte)(~r+g+~b)) *TempPx = OutlineColor;
 
 				// Right pixel
-				TempPx = px+1;
-				if (*TempPx == Transparent) *TempPx = OutlineColor;
+				TempPx = px+1; SDL_GetRGB(*TempPx,BitmapText->format,&r,&g,&b);
+				if (!(byte)(~r+g+~b)) *TempPx = OutlineColor;
 
 				// Bottom pixel
-				TempPx = px+pitchstep;
-				if (*TempPx == Transparent) *TempPx = OutlineColor;
+				TempPx = px+pitchstep; SDL_GetRGB(*TempPx,BitmapText->format,&r,&g,&b);
+				if (!(byte)(~r+g+~b)) *TempPx = OutlineColor;
 			}
 		}
 	}
@@ -278,7 +306,7 @@ void ApplyOutline(SDL_Surface *BitmapText)
 void DisplayHelp(const std::string& ExeName)
 {
 	Output << "Usage:" << endl
-	<< ExeName << " " << "<input file> [<output file>] [-bold] [-italic] [-underline] [-outline]" << endl;
+	<< ExeName << " " << "<input file> [<output file>] [-bold] [-italic] [-underline] [-outline] [-antialiasing]" << endl;
 
 #ifdef WIN32
 	Output << endl << endl;
@@ -297,6 +325,7 @@ arguments_t ParseArguments(int argc,char *argv[])
 	Result.Italic = false;
 	Result.Underline = false;
 	Result.Outline = false;
+	Result.Antialiased = false;
 
 	int i;
 	for (i=1;i<argc;i++)  {
@@ -328,6 +357,9 @@ arguments_t ParseArguments(int argc,char *argv[])
 			Result.Size = atoi(argv[i]+6); // 6 == strlen("size:")
 			if (Result.Size == 0)
 				Result.Size = DEF_FONTSIZE;
+		// Antialiasing
+		} else if (strstr(strlwr(argv[i]),"-antialiasing"))  {
+			Result.Antialiased = true;
 		}
 		// Unknown
 		else  {
@@ -348,6 +380,40 @@ arguments_t ParseArguments(int argc,char *argv[])
 			Result.OutputFile = "./"+Result.InputFile.substr(FindLastPathSep(Result.InputFile),Result.InputFile.rfind("."))+".png";
 
 	return Result;
+}
+
+// Blits one surface to another, keeping the alpha
+void BlitAlpha(SDL_Surface *dst,SDL_Surface *src,int x, int y)
+{
+	// Clipping
+	int clip_w = src->w;
+	int clip_h = src->h;
+	int off_x = 0;
+	int off_y = 0;
+
+	if (x+src->w > dst->w) { clip_w = dst->w-x; }
+	if (x < 0)  { off_x = -x; }
+	if (y+src->h > dst->h) { clip_h = dst->h-y; }
+	if (y < 0) { off_y = -y; }
+
+	Uint8 r,g,b,a;
+
+	uchar *src_pxr = (uchar *)src->pixels + src->pitch*off_y + src->format->BytesPerPixel*off_x;
+	uchar *src_px = NULL;
+	uchar *dst_pxr = (uchar *)dst->pixels + dst->pitch*(y+off_y) + dst->format->BytesPerPixel*(x+off_x);
+	uchar *dst_px = NULL;
+	int i,j;
+	for (j=off_y;j<clip_h;j++,src_pxr+=src->pitch,dst_pxr+=dst->pitch)  {
+		src_px = src_pxr;
+		dst_px = dst_pxr;
+		for (i=0;i<src->w;i++,src_px+=src->format->BytesPerPixel,dst_px+=dst->format->BytesPerPixel)  {
+			// HINT: folowing line requires a 32 bit surface
+			SDL_GetRGBA(*(Uint32 *)src_px,src->format,&r,&g,&b,&a);
+			if (a != SDL_ALPHA_TRANSPARENT)  { // ignore completely transparent pixels
+				memcpy(dst_px,src_px,src->format->BytesPerPixel);
+			}
+		}
+	}
 }
 
 // Closes the libraries
@@ -396,27 +462,41 @@ size_t FindLastPathSep(const std::string& path)
 }
 
 // Converts the SDL_surface to gdImagePtr
-gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
+gdImagePtr SDLSurface2GDImage(SDL_Surface* src, bool alpha) {
 	// WARNING: src has to be a 32bpp surface!
 
 	gdImagePtr gd_image = gdImageCreateTrueColor(src->w,src->h);
 	if(!gd_image)
 		return NULL;
-	
-	for(int y = 0; y < src->h; y++) {
-		memcpy(gd_image->tpixels[y], (uchar*)src->pixels + y*src->pitch, src->pitch);	
+
+	if (alpha)  {
+		uchar *pxr = (uchar *)src->pixels;
+		Uint32 *px = NULL;
+		Uint8 R,G,B,A;
+		for (int y=0;y<src->h;y++,pxr+=src->pitch)  {
+			px=(Uint32 *)pxr;
+			for (int x=0;x<src->w;x++,px++)  {
+				SDL_GetRGBA(*px,src->format,&R,&G,&B,&A);
+				gd_image->tpixels[y][x] = gdTrueColorAlpha(R, G, B, ~(A/2));
+			}
+		}
+	} else {
+		for(int y = 0; y < src->h; y++) {
+			memcpy(gd_image->tpixels[y], (uchar*)src->pixels + y*src->pitch, src->pitch);
+		}
 	}
 	
 	return gd_image;
 }
 
 // Saves the surface in PNG format
-bool SavePNG(SDL_Surface *image, const std::string& file)  {
+bool SavePNG(SDL_Surface *image, const std::string& file, bool alpha)  {
 	gdImagePtr gd_image = NULL;
 
-	gd_image = SDLSurface2GDImage ( image );
+	gd_image = SDLSurface2GDImage ( image, alpha );
 	if ( !gd_image )
 		return false;
+	gd_image->saveAlphaFlag = alpha;
 
 	// Save the image
 	FILE *out;

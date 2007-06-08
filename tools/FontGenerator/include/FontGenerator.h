@@ -12,7 +12,7 @@
 #define RMASK  0x00ff0000
 #define GMASK  0x0000ff00
 #define BMASK  0x000000ff
-#define AMASK  0x00000000
+#define AMASK  0xff000000
 
 // For 16bit surface
 /*#define RMASK  0x0f00
@@ -38,6 +38,7 @@ struct arguments_t {
 	bool Italic;
 	bool Underline;
 	size_t Size;
+	bool Antialiased;
 };
 
 ///////////////////////
@@ -56,7 +57,8 @@ void DisplayHelp(const std::string& ExeName);
 bool FileExists(const std::string& str);
 size_t FindLastPathSep(const std::string& path);
 void DrawVLine(SDL_Surface *bmpDest, int x, color_t color);
-SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outline);
+SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outline, bool Antialiased);
 void ApplyOutline(SDL_Surface *BitmapText);
-bool SavePNG(SDL_Surface *image, const std::string& file);
+void BlitAlpha(SDL_Surface *dst,SDL_Surface *src,int x, int y);
+bool SavePNG(SDL_Surface *image, const std::string& file, bool alpha);
 void Quit();
