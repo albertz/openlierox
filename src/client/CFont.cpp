@@ -23,45 +23,7 @@
 #include "Unicode.h"
 
 
-//char Fontstr[256] = {" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~ \161\162\163\164\165\166\167\168\169\170\171\172\173\174\175\176\177\178\179\180\181\182\183\184\185\186\187\188\189\190\191\192\193\194\195\196\197\198\199\200\201\202\203\204\205\206\207\208\209\210\211\212\213\214\215\216\217\218\219\220\221\222\223\224\225\226\227\228\229\230\231\232\233\234\235\236\237\238\239\240\241\242\243\244\245\246\247\248\249\250\251\252\253\254\255"};
-
-// When you draw the font, use this to get rid of all possible color "bugs" in it
-
-/*bool SimilarColors(Uint32 color1, Uint32 color2, SDL_PixelFormat *fmt)  {
-	static unsigned __int8 r1,g1,b1,r2,g2,b2;
-	SDL_GetRGB(color1,fmt,&r1,&g1,&b1);
-	SDL_GetRGB(color2,fmt,&r2,&g2,&b2);
-	return (abs(r1-r2) <= 20) && (abs(g1-g2) <= 20) && (abs(b1-b2) <= 20);
-}
-
-void AdjustFont(SDL_Surface *bmp,const std::string& fname)
-{
-	SDL_Surface *dst = gfxCreateSurface(bmp->w,bmp->h);
-	Uint8 *spxr = (Uint8 *)bmp->pixels;
-	Uint8 *spx;
-	Uint32 blue = SDL_MapRGB(bmp->format,0,0,255);
-	Uint32 pink = SDL_MapRGB(bmp->format,255,0,255);
-	Uint32 white = SDL_MapRGB(bmp->format,255,255,255);
-	Uint32 black = 0;
-	for (int y=0;y<bmp->h;y++)  {
-		spx = spxr;
-		for (int x=0;x<bmp->w;x++,spx+=bmp->format->BytesPerPixel)  {
-			if (SimilarColors(GetPixelFromAddr(spx,bmp->format->BytesPerPixel),pink,bmp->format))
-				PutPixel(dst,x,y,pink);
-			else if (SimilarColors(GetPixelFromAddr(spx,bmp->format->BytesPerPixel),black,bmp->format)) 
-				PutPixel(dst,x,y,black);
-			else if (SimilarColors(GetPixelFromAddr(spx,bmp->format->BytesPerPixel),blue,bmp->format)) 
-				PutPixel(dst,x,y,blue);
-			else if (SimilarColors(GetPixelFromAddr(spx,bmp->format->BytesPerPixel),white,bmp->format)) 
-				PutPixel(dst,x,y,white);
-			else
-				PutPixel(dst,x,y,pink);
-		}
-		spxr += bmp->pitch;
-	}
-	SDL_SaveBMP(dst,fname.c_str());	
-}*/
-
+// For font drawing use FontGenerator tool in /tools/fontgenerator
 
 ///////////////////
 // Load a font
@@ -72,14 +34,10 @@ int CFont::Load(const std::string& fontname, bool _colour)
 
 	Colorize = _colour;
 
-	//if(!bmpFont) return false;
-
-	//AdjustFont(bmpFont,fontname+"_adj.bmp");
-
 	bmpWhite = gfxCreateSurfaceAlpha(bmpFont->w,bmpFont->h);
 	bmpGreen = gfxCreateSurfaceAlpha(bmpFont->w,bmpFont->h);
 
-	// Calculate the width of each character, number of characters and the fontstr
+	// Calculate the width of each character and number of characters
 	Parse();
 
 	// Precache some common font colors (but only if this font should be colorized)
@@ -135,7 +93,7 @@ bool CFont::IsColumnFree(int x)
 }
 
 ///////////////////
-// Calculate character widths, number of characters, fontstr and offsets
+// Calculate character widths, number of characters and offsets
 void CFont::Parse(void)
 {
 	uint x;
@@ -174,7 +132,6 @@ void CFont::Parse(void)
 		// Blue pixel means end of the character
 		FontWidth.push_back(cur_w);
 		CharacterOffset.push_back(tmp_x-cur_w+1);
-		Fontstr += CurChar;
 		NumCharacters++;
 		CurChar++;
 		cur_w = 0;

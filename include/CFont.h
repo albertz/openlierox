@@ -35,7 +35,6 @@ public:
 		Spacing = 1;
 		VSpacing = 3;
 		NumCharacters = 0;
-		Fontstr = (UnicodeChar *)"";
 	}
 
 
@@ -46,7 +45,6 @@ private:
 	bool							Colorize;
 	std::vector<int>				FontWidth;
 	std::vector<int>				CharacterOffset;
-	std::basic_string<UnicodeChar>	Fontstr;
 	bool							OutlineFont;
 	int								Spacing;
 	int								VSpacing;
