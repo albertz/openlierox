@@ -218,8 +218,9 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	int w;
 	int a,b; // a = offset in bmpFont
 	static const Uint32 black = SDL_MapRGBA(bmpFont->format,0,0,0,SDL_ALPHA_OPAQUE);
-	static const Uint32 white = SDL_MapRGBA(bmpFont->format,255,255,255,SDL_ALPHA_OPAQUE);
-	static const Uint32 pink = SDL_MapRGBA(bmpFont->format,255,0,255,SDL_ALPHA_OPAQUE);
+	// TODO: not used
+//	static const Uint32 white = SDL_MapRGBA(bmpFont->format,255,255,255,SDL_ALPHA_OPAQUE);
+//	static const Uint32 pink = SDL_MapRGBA(bmpFont->format,255,0,255,SDL_ALPHA_OPAQUE);
 
 	// Clipping rectangle
 	SDL_Rect oldrect = dst->clip_rect;

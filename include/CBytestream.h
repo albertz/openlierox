@@ -88,9 +88,9 @@ public:
 	// Skips
 	// Folowing functions return true if we're at the end of stream after the skip
 	inline bool	Skip(size_t num)  { CurByte += num; if (CurByte >= Length)  {CurByte = Length-1; return true; } else return false;}
-	inline bool SkipInt() { Skip(sizeof(int)); }  // TODO: should be Skip(4)?
-	inline bool SkipFloat() { Skip(sizeof(float)); }  // TODO: should be Skip(4)?
-	inline bool SkipShort()  { Skip(sizeof(short)); }  // TODO: should be Skip(2)?
+	inline bool SkipInt() { return Skip(4); }
+	inline bool SkipFloat() { return Skip(4); }
+	inline bool SkipShort()  { return Skip(2); }
 	bool		SkipString();
 	
 	// Networking stuff

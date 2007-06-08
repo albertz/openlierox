@@ -171,7 +171,7 @@ inline Uint32 GetPixel(SDL_Surface *bmpSrc, int x, int y) {
 }
 
 // Put pixel alpha blended with the background
-extern inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a);
+void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a);
 
 
 // Extract 4 colour components from a packed int

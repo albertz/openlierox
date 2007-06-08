@@ -134,7 +134,7 @@ int SetVideoMode(void)
 	case 16:
 	case 24:
 	case 32:
-		{} break;
+		break;
 	default: tLXOptions->iColourDepth = 16;
 	}
 
@@ -156,6 +156,9 @@ int SetVideoMode(void)
 		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
 #endif
+		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
+		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
+		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
 		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
 	}
 
@@ -178,7 +181,7 @@ int SetVideoMode(void)
 		return false;
 	}
 
-
+	// TODO: why is this placed here? just for fun or is there any reason?
 	SDL_EnableUNICODE(1);
 	SDL_EnableKeyRepeat(200,20);
 	SDL_WM_SetCaption(GameName.c_str(),NULL);

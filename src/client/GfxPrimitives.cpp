@@ -32,7 +32,7 @@ int iSurfaceFormat = SDL_SWSURFACE;
 
 /////////////////
 // Put the pixel alpha blended with the background
-inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
+void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	if (!(byte)(~a))  { // Fully opaque
 		PutPixel(bmpDest,x,y,colour);
 		return;
