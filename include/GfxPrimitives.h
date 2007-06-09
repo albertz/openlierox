@@ -33,7 +33,24 @@ SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
 
 #define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
 #define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
-#define		COLORKEY(bmp) (bmp)->format->colorkey
+#define		COLORKEY(bmp) SDLColourToNativeColour((bmp)->format->colorkey)
+
+
+inline Uint32 SDLColourToNativeColour(Uint32 pixel) {
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	return (pixel << (32 - SDL_GetVideoSurface()->format->BitsPerPixel));
+#else
+	return pixel;
+#endif
+}
+
+inline Uint32 NativeColourToSDLColour(Uint32 pixel) {
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	return (pixel >> (32 - SDL_GetVideoSurface()->format->BitsPerPixel));
+#else
+	return pixel;
+#endif
+}
 
 
 inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
@@ -53,13 +70,6 @@ inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
 	}
 	return true;
 }
-
-inline Uint32 ConvertColor(Uint32 Color, SDL_PixelFormat *from, SDL_PixelFormat *to)  {
-	static Uint8 r,g,b;
-	SDL_GetRGB(Color,from,&r,&g,&b);
-	return SDL_MapRGB(to,r,g,b);
-}
-
 
 // Surface stuff
 
@@ -87,6 +97,7 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
 
 	// it's also correct for big endian
+	// TODO: is it realy??
 	const Uint32 alpha = 0xff000000;
 
 	SDL_Surface *result = SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA,
@@ -190,17 +201,18 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a);
 
 
 // Extract 4 colour components from a packed int
+// TODO: remove img parameter
 inline void GetColour4(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a) {
-	SDL_GetRGBA(pixel,img->format,r,g,b,a);
+	SDL_GetRGBA(NativeColourToSDLColour(pixel),img->format,r,g,b,a);
 }
 
 // Creates a int colour based on the 3 components
 inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
-	return SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b);
+	return SDLColourToNativeColour(SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b));
 }
 
 inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-	return SDL_MapRGBA(SDL_GetVideoSurface()->format,r,g,b,a);
+	return SDLColourToNativeColour(SDL_MapRGBA(SDL_GetVideoSurface()->format,r,g,b,a));
 }
 
 void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
@@ -225,14 +237,13 @@ inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uin
 	r.y = y;
 	r.w = x2-x;
 	r.h = y2-y;
-	SDL_FillRect(bmpDest,&r,color);
+	SDL_FillRect(bmpDest,&r,NativeColourToSDLColour(color));
 }
 
 ////////////////////
 // Fills the surface with specified colour
-inline void FillSurface(SDL_Surface *dst,Uint32 colour)
-{
-	SDL_FillRect(dst,NULL,NativeColourToSDLColour(color));
+inline void FillSurface(SDL_Surface* dst, Uint32 colour) {
+	SDL_FillRect(dst, NULL, NativeColourToSDLColour(colour));
 }
 
 ////////////////////
@@ -251,7 +262,7 @@ inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Ui
 	if (tmp)  {
 		// TODO: optimise
 		SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, alpha);
-		SDL_FillRect(tmp,NULL,color);
+		SDL_FillRect(tmp,NULL,NativeColourToSDLColour(color));
 		DrawImage(bmpDest,tmp,x,y);
 		SDL_FreeSurface(tmp);
 	}

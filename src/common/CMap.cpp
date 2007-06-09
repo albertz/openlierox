@@ -287,7 +287,8 @@ int CMap::LoadTheme(const std::string& _theme)
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	SDL_Surface *hole = Theme.bmpHoles[0];
 	Uint32 pink = tLX->clPink;
-	Uint32 black = tLX->clBlack;
+	// TODO: not used
+//	Uint32 black = tLX->clBlack;
 	Uint32 pixel = 0;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
@@ -697,6 +698,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 		x_end -= c_x2-dtx-l-w;
 	}*/
 
+	Uint32 colorkey = SDLColourToNativeColour(bmpObj->format->colorkey);
 	for( y=/*y_start*/sy,dy=wy/*+y_start*/,j=0; y</*y_end*/(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
 		// World Clipping
 		if(dy < 0) continue;
@@ -726,7 +728,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 			if( dtx+l+i >= c_x2 ) continue;
 
 			// Put the pixel, if it's not transparent
-			if (memcmp(objpix,&COLORKEY(bmpObj),screenbpp))
+			if (memcmp(objpix,&colorkey,screenbpp))
 				memcpy(destpix,srcpix,screenbpp);
 		}
 	}

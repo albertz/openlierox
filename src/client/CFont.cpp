@@ -42,8 +42,8 @@ int CFont::Load(const std::string& fontname, bool _colour)
 
 	// Precache some common font colors (but only if this font should be colorized)
 	if (Colorize)  {
-		PreCalculate(bmpWhite,ConvertColor(tLX->clNormalLabel,SDL_GetVideoSurface()->format,bmpWhite->format));
-		PreCalculate(bmpGreen,ConvertColor(tLX->clChatText,SDL_GetVideoSurface()->format,bmpGreen->format));
+		PreCalculate(bmpWhite,tLX->clNormalLabel);
+		PreCalculate(bmpGreen,tLX->clChatText);
 	}
 
 
@@ -166,7 +166,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 				pixel = GetPixel(bmpFont,x,y);
 				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
 
-				if(!(~R) && !(~G) && !(~B))  // White
+				if(R == 255 && G == 255 && B == 255)  // White
 					PutPixel(bmpSurf,x,y,MakeColour(255,255,255,A));
 				else if (!R && !G && !B) // Black
 					PutPixel(bmpSurf,x,y,MakeColour(sr,sg,sb,A)); // "pixel", not 0, because "pixel" containst alpha info
@@ -302,7 +302,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 					SDL_GetRGBA(pixel,bmpFont->format,&R,&G,&B,&A);
 
 					// Put black pixels and colorize white ones
-					if (!(~R) && !(~G) && !(~B))  // White
+					if (R == 255 && G == 255 && B == 255)  // White
 						PutPixelA(dst,x+pos+b,y+j,col,A); // Put the pixel and blend it with background
 					else if (!R && !G && !B)  // Black
 						PutPixelA(dst,x+pos+b,y+j,0,A);
