@@ -75,14 +75,14 @@ void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b)
 		px = pxr;
 		for (x=0;x<dst->w;x++,px+=dst->format->BytesPerPixel)  {
 			pixel = GetPixelFromAddr(px,dst->format->BytesPerPixel);
-			SDL_GetRGB(pixel,dst->format,&dr,&dg,&db);
-			if (!(r+g+b-dr-dg-db))  {  // Key?
+			GetColour3(pixel,dst,&dr,&dg,&db);
+			if (r==dr && g==dg && b==db)  {  // Key?
 				pixel &= (dst->format->Amask & SDL_ALPHA_TRANSPARENT) | dst->format->Rmask | dst->format->Gmask | dst->format->Bmask;
 				memcpy(px,&pixel,dst->format->BytesPerPixel);
 			}
 		}
 	}
-			
+
 }
 
 ///////////////////

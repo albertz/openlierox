@@ -82,7 +82,7 @@ bool CFont::IsColumnFree(int x)
 	// it's only completelly see through
 	static Uint8 R,G,B;
 	for (ushort i=0; i < bmpFont->h; i++)  {
-		SDL_GetRGB(GetPixel(bmpFont,x,i),bmpFont->format,&R,&G,&B);
+		GetColour3(GetPixel(bmpFont,x,i),bmpFont,&R,&G,&B);
 		if (R!=255 || G || B!=255)
 			return false;
 	}
@@ -157,14 +157,14 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 
 	Uint8 R,G,B,A;
 	Uint8 sr,sg,sb;
-	SDL_GetRGB(colour,bmpFont->format,&sr,&sg,&sb);
+	GetColour3(colour,bmpFont,&sr,&sg,&sb);
 
 	// Outline font: replace white pixels with appropriate color, put black pixels
 	if (OutlineFont)  {
 		for(y=0;y<bmpSurf->h;y++) {
 			for(x=0;x<bmpSurf->w;x++) {
 				pixel = GetPixel(bmpFont,x,y);
-				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
+				GetColour4(pixel,bmpSurf,&R,&G,&B,&A);
 
 				if(R == 255 && G == 255 && B == 255)  // White
 					PutPixel(bmpSurf,x,y,MakeColour(255,255,255,A));
@@ -177,7 +177,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 		for(y=0;y<bmpSurf->h;y++) {
 			for(x=0;x<bmpSurf->w;x++) {
 				pixel = GetPixel(bmpFont,x,y);
-				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
+				GetColour4(pixel,bmpSurf,&R,&G,&B,&A);
 
 				if(!R && !G && !B) // Black
 					PutPixel(bmpSurf,x,y,MakeColour(sr,sg,sb,A));
@@ -299,7 +299,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,p+=bpp) {
 
 					pixel = GetPixelFromAddr(p,bpp);
-					SDL_GetRGBA(pixel,bmpFont->format,&R,&G,&B,&A);
+					GetColour4(pixel,bmpFont,&R,&G,&B,&A);
 
 					// Put black pixels and colorize white ones
 					if (R == 255 && G == 255 && B == 255)  // White
@@ -317,7 +317,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,p+=bpp) {
 
 					pixel = GetPixelFromAddr(p,bpp);
-					SDL_GetRGBA(pixel,bmpFont->format,&R,&G,&B,&A);
+					GetColour4(pixel,bmpFont,&R,&G,&B,&A);
 
 					// Put only black pixels
 					if (!R && !G && !B)  

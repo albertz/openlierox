@@ -206,6 +206,13 @@ inline void GetColour4(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8
 	SDL_GetRGBA(NativeColourToSDLColour(pixel),img->format,r,g,b,a);
 }
 
+// Extract 3 colour components from a packed int
+// TODO: remove img parameter
+inline void GetColour3(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b) {
+	SDL_GetRGB(NativeColourToSDLColour(pixel),img->format,r,g,b);
+}
+
+
 // Creates a int colour based on the 3 components
 inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
 	return SDLColourToNativeColour(SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b));

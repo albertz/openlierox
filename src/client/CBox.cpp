@@ -66,9 +66,9 @@ void CBox::PreDraw(void)
 
 	// Create gradient
 	Uint8 dark_r,dark_g,dark_b;
-	SDL_GetRGB(iDarkColour,bmpBuffer->format,&dark_r,&dark_g,&dark_b);
+	GetColour3(iDarkColour,bmpBuffer,&dark_r,&dark_g,&dark_b);
 	Uint8 light_r,light_g,light_b;
-	SDL_GetRGB(iLightColour,bmpBuffer->format,&light_r,&light_g,&light_b);
+	GetColour3(iLightColour,bmpBuffer,&light_r,&light_g,&light_b);
 	int rstep=0,gstep=0,bstep=0;
 	if (iBorder)  {
 		rstep = (light_r-dark_r)/iBorder;
