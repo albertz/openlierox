@@ -272,7 +272,7 @@ int CMap::LoadTheme(const std::string& _theme)
 	for(n=0;n<Theme.NumStones;n++) {
 		buf = thm + "/Stone" + itoa(n+1) + ".png";
 		LOAD_IMAGE(Theme.bmpStones[n],buf);
-		SDL_SetColorKey(Theme.bmpStones[n], SDL_SRCCOLORKEY, tLX->clPink);
+		SetColorKey(Theme.bmpStones[n]);
 	}
 
 
@@ -286,7 +286,8 @@ int CMap::LoadTheme(const std::string& _theme)
 	// Calculate the default colour from a non-pink, non-black colour in the hole image
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	SDL_Surface *hole = Theme.bmpHoles[0];
-	Uint32 pink = tLX->clPink;
+	Uint32 pink = SDL_MapRGB(Theme.bmpHoles[0]->format,255,0,255);
+	Uint32 black = SDL_MapRGB(Theme.bmpHoles[0]->format,0,0,0);
 	Uint32 pixel = 0;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
@@ -407,8 +408,8 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
-	SDL_SetColorKey(bmpDebugImage, SDL_SRCCOLORKEY, tLX->clPink);
-	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,tLX->clPink);
+	SetColorKey(bmpDebugImage);
+	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,COLORKEY(bmpDebugImage));
 #endif
 
 	bmpDrawImage = gfxCreateSurface(Width*2, Height*2);
@@ -664,8 +665,6 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 	if (SDL_MUSTLOCK(bmpShadowMap))
 		SDL_LockSurface(bmpShadowMap);
 
-	Uint32 pink = tLX->clPink;
-
 	static int x,y,dx,dy,i,j;
 	uchar *pf = NULL;
 
@@ -727,7 +726,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 			if( dtx+l+i >= c_x2 ) continue;
 
 			// Put the pixel, if it's not transparent
-			if (memcmp(objpix,&pink,screenbpp))
+			if (memcmp(objpix,&COLORKEY(bmpObj),screenbpp))
 				memcpy(destpix,srcpix,screenbpp);
 		}
 	}
@@ -778,7 +777,6 @@ int CMap::CarveHole(int size, CVec pos)
 	//int bx,by;
 	int x,y;
 	int w,h;
-	Uint32 pink = tLX->clPink;
 
     int nNumDirt = 0;
 
@@ -795,6 +793,8 @@ int CMap::CarveHole(int size, CVec pos)
 		return 0;
 	w = hole->w;
 	h = hole->h;
+
+	Uint32 pink = SDL_MapRGB(hole->format,255,0,255);
 
 	sx = (int)pos.x-(hole->w>>1);
 	sy = (int)pos.y-(hole->h>>1);
@@ -967,7 +967,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 	int w,h;
 	Uint32 pixel;
 	uchar flag;
-	Uint32 pink = tLX->clPink;
 
     int nDirtCount = 0;
 
@@ -980,6 +979,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	// Calculate half
 	hole = Theme.bmpHoles[size];
+	Uint32 pink = SDL_MapRGB(hole->format,255,0,255);
 	w = hole->w;
 	h = hole->h;
 
@@ -1100,24 +1100,23 @@ int CMap::PlaceDirt(int size, CVec pos)
 // Returns the number of dirt pixels placed
 int CMap::PlaceGreenDirt(CVec pos)
 {
+	if (!bmpGreenMask)
+		return 0;
+
  	int dx,dy, sx,sy;
 	int bx,by;
 	int x,y;
 	int w,h;
 	Uint32 pixel;
 	uchar flag;
-	Uint32 pink = tLX->clPink;
-    Uint32 green = MakeColour(0,255,0);
-    Uint32 greens[4] = {MakeColour(148,136,0),
-                        MakeColour(136,124,0),
-                        MakeColour(124,112,0),
-                        MakeColour(116,100,0)};
+    Uint32 green = SDL_MapRGB(bmpGreenMask->format,0,255,0);
+	Uint32 pink = SDL_MapRGB(bmpGreenMask->format,255,0,255);
+    Uint32 greens[4] = {SDL_MapRGB(bmpImage->format,148,136,0),
+                        SDL_MapRGB(bmpImage->format,136,124,0),
+                        SDL_MapRGB(bmpImage->format,124,112,0),
+                        SDL_MapRGB(bmpImage->format,116,100,0)};
 
     int nGreenCount = 0;
-
-	if (!bmpGreenMask)
-		return 0;
-
 
 	// Calculate half
 	w = bmpGreenMask->w;
@@ -1385,8 +1384,6 @@ void CMap::PlaceStone(int size, CVec pos)
 	short x,y;
 	short w,h;
 
-	Uint32 pink = tLX->clPink;
-
 	if(size < 0 || size >= Theme.NumStones) {
 		// TODO: Bail out or warning of overflow
 		d_printf("Bad stone size\n");
@@ -1410,6 +1407,8 @@ void CMap::PlaceStone(int size, CVec pos)
 	stone = Theme.bmpStones[size];
 	w = stone->w;
 	h = stone->h;
+
+	Uint32 pink = COLORKEY(stone);
 
 	sx = (int)pos.x-(stone->w>>1);
 	sy = (int)pos.y-(stone->h>>1);
@@ -1491,8 +1490,6 @@ void CMap::PlaceMisc(int id, CVec pos)
 	short x,y;
 	short w,h;
 
-	Uint32 pink = tLX->clPink;
-
 	if(id < 0 || id >= Theme.NumMisc) {
 		d_printf("Bad misc size\n");
 		if(id < 0) id = 0;
@@ -1513,6 +1510,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 	misc = Theme.bmpMisc[id];
 	w = misc->w;
 	h = misc->h;
+
+	Uint32 pink = COLORKEY(misc);
 
 	sx = (int)pos.x-(misc->w>>1);
 	sy = (int)pos.y-(misc->h>>1);
@@ -2665,6 +2664,6 @@ void CMap::Shutdown(void)
 
 
 #ifdef _AI_DEBUG
-void CMap::ClearDebugImage()   { if (bmpDebugImage) { DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,tLX->clPink);}}
+void CMap::ClearDebugImage()   { if (bmpDebugImage) { DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,COLORKEY(bmpDebugImage));}}
 #endif
 

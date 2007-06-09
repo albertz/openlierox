@@ -317,14 +317,14 @@ int CWorm::LoadGraphics(int gametype)
     
     // Create the minipic
     bmpPic = gfxCreateSurface(18,16);
-    SDL_SetColorKey(bmpPic, SDL_SRCCOLORKEY, tLX->clPink);
-    DrawRectFill(bmpPic, 0,0,bmpPic->w,bmpPic->h, tLX->clPink);
+    SetColorKey(bmpPic);
+    DrawRectFill(bmpPic, 0,0,bmpPic->w,bmpPic->h, COLORKEY(bmpPic));
     DrawImageAdv(bmpPic, bmpWormRight, 134,2,0,0, 18,16);
 
 	
     // Shadow buffer
     bmpShadowPic = gfxCreateSurface(32,18);
-    SDL_SetColorKey(bmpShadowPic, SDL_SRCCOLORKEY, tLX->clPink);
+    SetColorKey(bmpShadowPic);
 
 	return bmpWormRight && bmpWormLeft && bmpGibs && bmpPic && bmpShadowPic;
 }
@@ -343,7 +343,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename.c_str());
 		return NULL;
 	}
-	SDL_SetColorKey(img, SDL_SRCCOLORKEY, tLX->clPink);
+	SetColorKey(img);
 
 
 	// Set the colour of the img
@@ -369,9 +369,9 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	float r2,g2,b2;
 
 	float dr, dg, db;
-	static const Uint32 gun1 = MakeColour(216,216,216);
-	static const Uint32 gun2 = MakeColour(180,180,180);
-	static const Uint32 gun3 = MakeColour(144,144,144);
+	const Uint32 gun1 = SDL_MapRGB(img->format,216,216,216);
+	const Uint32 gun2 = SDL_MapRGB(img->format,180,180,180);
+	const Uint32 gun3 = SDL_MapRGB(img->format,144,144,144);
 
 	for(y=0; y<img->h; y++) {
 		for(x=0; x<img->w; x++) {
@@ -380,7 +380,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 			GetColour4(pixel,img,&r,&g,&b,&a);
 
 			// Ignore pink & gun colours
-			if(pixel == tLX->clPink)
+			if(pixel == COLORKEY(img))
 				continue;
 			else if(pixel == gun1)
 				continue;
@@ -838,7 +838,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
     
 	// Draw the worm
-    DrawRectFill(bmpShadowPic,0,0,32,18,tLX->clPink);
+    DrawRectFill(bmpShadowPic,0,0,32,18,COLORKEY(bmpShadowPic));
 	if(iDirection == DIR_RIGHT)
         DrawImageAdv(bmpShadowPic, bmpWormRight, f,0, 6,0, 32,18);
 	else
@@ -875,7 +875,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
 				(x-12)+RightMuzzle[ang*2],
 				(y-10)+RightMuzzle[ang*2+1],
-				16,16,tLX->clPink);
+				16,16,COLORKEY(gfxGame.bmpMuzzle));
 		}
 		break;
 
@@ -886,7 +886,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 			
 			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,(x-21)+LeftMuzzle[ang*2],
 															   (y-10)+LeftMuzzle[ang*2+1],
-															   16,16,tLX->clPink);
+															   16,16,COLORKEY(gfxGame.bmpMuzzle));
 		}
 		break;
 

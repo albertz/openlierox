@@ -40,8 +40,8 @@ void CBox::PreDraw(void)
 	}
 
 	// Set the whole buffer transparent
-	SDL_SetColorKey(bmpBuffer, SDL_SRCCOLORKEY, tLX->clPink);
-	DrawRectFill(bmpBuffer,0,0,iWidth,iHeight,tLX->clPink);
+	SetColorKey(bmpBuffer);
+	DrawRectFill(bmpBuffer,0,0,iWidth,iHeight,COLORKEY(bmpBuffer));
 
 	// Clip the border and radius
 	if (iRound < 0 || iBorder < 0)

@@ -955,7 +955,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame)
 		return;
 
 #ifdef _AI_DEBUG
-/*	DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,tLX->clPink);
+/*	DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,COLORKEY(pcMap->GetDebugImage()));
 	do_some_tests_with_fastTraceLine(pcMap);
 	usleep(1000000);
 	return; */
@@ -2240,7 +2240,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 	int x,y;
 
 #ifdef _AI_DEBUG
-	//DrawRectFill(pcMap->GetDebugImage(),0,0,pcMap->GetDebugImage()->w,pcMap->GetDebugImage()->h,tLX->clPink);
+	//pcMap->ClearDebugImage();
 	//DrawRectFill(pcMap->GetDebugImage(),cTrgPos.x*2-2,cTrgPos.y*2-2,cTrgPos.x*2+2,cTrgPos.y*2+2,tLX->clWhite);
 #endif
 
@@ -3398,10 +3398,7 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num)
 		return false;
 
 /*#ifdef _AI_DEBUG
-	SDL_Surface *bmpDest = pcMap->GetDebugImage();
-	if (!bmpDest)
-		return false;
-	DrawRectFill(bmpDest,0,0,bmpDest->w,bmpDest->h,tLX->clPink);
+	pcMap->ClearDebugImage();
 #endif*/
 
 	// Direction to left

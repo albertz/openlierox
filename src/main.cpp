@@ -189,6 +189,7 @@ int main(int argc, char *argv[])
 
 		// Pre-game initialization
 		Screen = SDL_GetVideoSurface();
+		SDL_FillRect(Screen,NULL,SDL_MapRGB(Screen->format,0,0,0));
 		float oldtime = GetMilliSeconds();
 		
 		ClearEntities();
@@ -342,6 +343,7 @@ int InitializeLieroX(void)
 	// Init these special colours
 	tLX->clPink = MakeColour(255,0,255);
 	tLX->clWhite = MakeColour(255,255,255);
+	tLX->clBlack = MakeColour(0,0,0);
 
 	// Load the graphics
     if(!LoadGraphics()) {

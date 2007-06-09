@@ -144,7 +144,6 @@ void CFont::Parse(void)
 		SDL_UnlockSurface(bmpFont);
 }
 
-
 ///////////////////
 // Precalculate a font's colour
 void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
@@ -158,8 +157,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 	if(SDL_MUSTLOCK(bmpSurf))
 		SDL_LockSurface(bmpSurf);
 
-	Uint8 R,G,B;
-	Uint32 alpha;
+	Uint8 R,G,B,A;
 	Uint8 sr,sg,sb;
 	SDL_GetRGB(colour,bmpFont->format,&sr,&sg,&sb);
 
@@ -168,13 +166,12 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 		for(y=0;y<bmpSurf->h;y++) {
 			for(x=0;x<bmpSurf->w;x++) {
 				pixel = GetPixel(bmpFont,x,y);
-				SDL_GetRGB(pixel,bmpSurf->format,&R,&G,&B);
-				alpha = bmpSurf->format->Amask-(pixel & bmpSurf->format->Amask);
+				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
 
 				if(!(byte)(~R+~G+~B))  // White
-					PutPixel(bmpSurf,x,y,colour - alpha);
+					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,255,255,255,A));
 				else if (!(R+G+B)) // Black
-					PutPixel(bmpSurf,x,y,pixel); // "pixel", not 0, because "pixel" containst alpha info
+					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,sr,sg,sb,A)); // "pixel", not 0, because "pixel" containst alpha info
 			}
 		}
 	// Not outline: replace black pixels with appropriate color
@@ -182,11 +179,10 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 		for(y=0;y<bmpSurf->h;y++) {
 			for(x=0;x<bmpSurf->w;x++) {
 				pixel = GetPixel(bmpFont,x,y);
-				SDL_GetRGB(pixel,bmpSurf->format,&R,&G,&B);
-				alpha = bmpSurf->format->Amask-(pixel & bmpSurf->format->Amask);
+				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
 
 				if(!(R+G+B))
-					PutPixel(bmpSurf,x,y,colour - alpha);
+					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,sr,sg,sb,A));
 			}
 		}
 	}

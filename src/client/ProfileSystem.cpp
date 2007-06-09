@@ -487,8 +487,8 @@ int LoadProfileGraphics(profile_t *p)
 		// Error
 		return false;
 	}
-	SDL_SetColorKey(p->bmpWorm, SDL_SRCCOLORKEY, tLX->clPink);
-    DrawRectFill(p->bmpWorm, 0,0,p->bmpWorm->w,p->bmpWorm->h, tLX->clPink);
+	SetColorKey(p->bmpWorm);
+    DrawRectFill(p->bmpWorm, 0,0,p->bmpWorm->w,p->bmpWorm->h, COLORKEY(p->bmpWorm));
 
     // Draw the preview pic
     SDL_Surface *w = LoadSkin(p->szSkin, p->R, p->G, p->B);
@@ -500,7 +500,7 @@ int LoadProfileGraphics(profile_t *p)
 	// Apply a little cpu pic on the worm pic on ai players
 	SDL_Surface *ai = LoadImage("data/frontend/cpu.png");
 	if(ai) {
-		SDL_SetColorKey(ai, SDL_SRCCOLORKEY, tLX->clPink);
+		SetColorKey(ai);
 		
         if(p->iType == PRF_COMPUTER)
             DrawImageAdv(p->bmpWorm, ai, p->nDifficulty*10,0, 0,p->bmpWorm->h - ai->h, 10,ai->h);
@@ -526,20 +526,22 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
         if( !worm )
             return NULL;
     }
+	SetColorKey(worm);
 
     SDL_Surface *skin = gfxCreateSurface(672,18);
     if( !skin )
         return NULL;
 
     // Set the pink colour key & fill it with pink
-    SDL_SetColorKey(skin, SDL_SRCCOLORKEY, tLX->clPink);
-    DrawRectFill(skin,0,0,skin->w,skin->h,tLX->clPink);
+    SetColorKey(skin);
+    DrawRectFill(skin,0,0,skin->w,skin->h,COLORKEY(skin));
 
 
     // Set the colour of the worm
 	int x,y;
 	Uint8 r,g,b,a;
 	Uint32 pixel, mask;
+	const Uint32 black = SDL_MapRGB(skin->format,0,0,0);
 	float r2,g2,b2;
 
 	for(y=0; y<18; y++) {
@@ -554,13 +556,13 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
             //
             
             // Black means to just copy the colour but don't alter it
-            if( mask == 0 ) {
+            if( mask == black ) {
                 PutPixel(skin, x,y, pixel);
                 continue;
             }
 
             // Pink means just ignore the pixel completely
-            if( mask == tLX->clPink )
+            if( mask == COLORKEY(worm) )
                 continue;
 
             // Must be white (or some over unknown colour)

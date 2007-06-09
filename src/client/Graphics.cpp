@@ -95,21 +95,20 @@ int LoadGraphics(void)
 		return false;
 
 	// Set the colour keys
-	Uint32 pink = tLX->clPink;
 	for(i=0;i<4;i++)
-		SDL_SetColorKey(gfxGUI.bmpMouse[i], SDL_SRCCOLORKEY, pink);
+		SetColorKey(gfxGUI.bmpMouse[i]);
 
-	SDL_SetColorKey(gfxGame.bmpCrosshair, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpMuzzle, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpExplosion, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpSmoke, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpChemSmoke, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpSpawn, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpHook, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpBonus, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpHealth, SDL_SRCCOLORKEY, pink);
-	SDL_SetColorKey(gfxGame.bmpSparkle, SDL_SRCCOLORKEY, pink);
-    SDL_SetColorKey(gfxGame.bmpViewportMgr, SDL_SRCCOLORKEY, pink);
+	SetColorKey(gfxGame.bmpCrosshair);
+	SetColorKey(gfxGame.bmpMuzzle);
+	SetColorKey(gfxGame.bmpExplosion);
+	SetColorKey(gfxGame.bmpSmoke);
+	SetColorKey(gfxGame.bmpChemSmoke);
+	SetColorKey(gfxGame.bmpSpawn);
+	SetColorKey(gfxGame.bmpHook);
+	SetColorKey(gfxGame.bmpBonus);
+	SetColorKey(gfxGame.bmpHealth);
+	SetColorKey(gfxGame.bmpSparkle);
+    SetColorKey(gfxGame.bmpViewportMgr);
 
 	// Load the colours from a file
 	const std::string colorfile = "data/frontend/colours.cfg";

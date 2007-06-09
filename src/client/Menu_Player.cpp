@@ -748,6 +748,7 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 	int x,y,sx;
 	Uint8 r,g,b,a;
 	Uint32 pixel, mask;
+	const Uint32 black = SDL_MapRGB(tMenu->bmpWorm->format,0,0,0);
 	float r2,g2,b2;
 
 	for(y=0; y<18; y++) {
@@ -762,13 +763,13 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
             //
 
             // Black means to just copy the colour but don't alter it
-            if( mask == 0 ) {
+            if( mask == black ) {
                 PutPixel(bmpDest, sx+dx,y+dy, pixel);
                 continue;
             }
 
-            // Pink means just ignore the pixel completely
-            if( mask == tLX->clPink )
+            // Colorkey means just ignore the pixel completely
+            if( mask == COLORKEY(tMenu->bmpWorm) )
                 continue;
 
             // Must be white (or some over unknown colour)

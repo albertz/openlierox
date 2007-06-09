@@ -39,7 +39,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 			if ((tItems->tImage->h+1) > ItemHeight)
 				ItemHeight = tItems->tImage->h+1;
 
-    Menu_redrawBufferRect( iX,iY, iWidth+15,17);
+    Menu_redrawBufferRect( iX,iY, iWidth+15,tLX->cFont.GetHeight()+4);
     if( !iDropped && iLastDropped ) {
         Menu_redrawBufferRect( iX,iY+17, iWidth+15,117);
         iLastDropped = false;
@@ -376,7 +376,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 
 	// Go through the items checking for a mouse click
 	int count=0;
-	int y = iY+20;
+	int y = iY+tLX->cFont.GetHeight()+4;
 	int w = iX+iWidth-1;
 	if(iGotScrollbar)
 		w-=16;
@@ -387,7 +387,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 			continue;
 
 		if(tMouse->X > iX && tMouse->X < w)
-			if(tMouse->Y >= y && tMouse->Y < y+16)
+			if(tMouse->Y >= y && tMouse->Y < y+tLX->cFont.GetHeight())
 				if(tMouse->Up & SDL_BUTTON(1)) {
                     if(tSelected)
                         tSelected->iSelected = false;
@@ -399,7 +399,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 				}
 
 
-		y+=16;
+		y+=tLX->cFont.GetHeight();
 		if(y > iY+iHeight)
 			break;
 	}

@@ -33,6 +33,7 @@ SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
 
 #define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
 #define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
+#define		COLORKEY(bmp) (bmp)->format->colorkey
 
 
 inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
@@ -64,23 +65,37 @@ inline Uint32 ConvertColor(Uint32 Color, SDL_PixelFormat *from, SDL_PixelFormat 
 
 // Creates a buffer with the same details as the screen
 inline SDL_Surface* gfxCreateSurface(int width, int height) {
+	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
+		return NULL;
+
 	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
 
-	return SDL_CreateRGBSurface(iSurfaceFormat, width, height, 
+	SDL_Surface *result = SDL_CreateRGBSurface(iSurfaceFormat, width, height, 
 		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+
+	if (result)
+		SDL_FillRect( result, NULL, SDL_MapRGB(result->format,0,0,0)); // OpenGL strictly requires the surface to be cleared
+	return result;
 }
 
 
 // Creates a buffer with the same details as screen, but with alpha channel
 inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
+	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
+		return NULL;
+
 	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
 
 	// it's also correct for big endian
 	const Uint32 alpha = 0xff000000;
 
-	return SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA,
+	SDL_Surface *result = SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA,
 		width, height, fmt->BitsPerPixel,
 		fmt->Rmask, fmt->Gmask, fmt->Bmask, alpha);
+
+	if (result)
+		SDL_FillRect( result, NULL, SDL_MapRGB(result->format,0,0,0)); // OpenGL strictly requires the surface to be cleared
+	return result;
 }
 
 
@@ -189,6 +204,14 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 }
 
 void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
+// Set's the game's default color key (pink) to the surface
+// Works for both alpha and nonalpha surfaces
+inline void SetColorKey(SDL_Surface *dst)  {
+	if (dst->flags & SDL_SRCALPHA)
+		SetColorKeyAlpha(dst,255,0,255);
+	else
+		SDL_SetColorKey(dst,SDL_SRCCOLORKEY,SDL_MapRGB(dst->format,255,0,255));
+}
 
 // Line drawing
 void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);

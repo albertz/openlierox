@@ -39,7 +39,6 @@ std::string	ConfigFile;
 
 SDL_Surface *bmpIcon=NULL;
 
-
 ///////////////////
 // Initialize the standard Auxiliary Library
 int InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags)
@@ -77,6 +76,10 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
     // Enable the system events
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+
+	// Enable unicode and key repeat
+	SDL_EnableUNICODE(1);
+	SDL_EnableKeyRepeat(200,20);
 
 
     if( !nDisableSound ) {
@@ -150,11 +153,15 @@ int SetVideoMode(void)
 		printf("HINT: using OpenGL\n");
 		vidflags |= SDL_OPENGL;
 		vidflags |= SDL_OPENGLBLIT;
-#ifndef MACOSX		
-		short colorbitsize = (tLXOptions->iColourDepth == 16) ? 5 : 8;
+#ifndef MACOSX
+#ifndef WIN32
+		short colorbitsize = tLXOptions->iColourDepth==16 ? 5 : 8;
 		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
+		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
+		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
+#endif
 #endif
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
@@ -172,7 +179,7 @@ int SetVideoMode(void)
 		iSurfaceFormat = SDL_SWSURFACE;
 	}
 
-	if(DoubleBuf)
+	if(DoubleBuf && !opengl)
 		vidflags |= SDL_DOUBLEBUF;
 
 	
@@ -181,9 +188,6 @@ int SetVideoMode(void)
 		return false;
 	}
 
-	// TODO: why is this placed here? just for fun or is there any reason?
-	SDL_EnableUNICODE(1);
-	SDL_EnableKeyRepeat(200,20);
 	SDL_WM_SetCaption(GameName.c_str(),NULL);
 	SDL_ShowCursor(SDL_DISABLE);
 
@@ -230,8 +234,10 @@ void FlipScreen(SDL_Surface *psScreen)
     if( cTakeScreenshot.isDownOnce() || cServer->getTakeScreenshot() )
         TakeScreenshot(tGameInfo.bTournament);
 
-	/*if (tLXOptions->bOpenGL) SDL_GL_SwapBuffers();
-    else*/ SDL_Flip( psScreen );
+	if (tLXOptions->bOpenGL)  {
+		SDL_GL_SwapBuffers();
+	}
+    SDL_Flip( psScreen );
 }
 
 

@@ -44,8 +44,8 @@ int CClient::InitializeDrawing(void)
 
 	// Initialize the score buffer
 	bmpScoreBuffer = gfxCreateSurface(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h);
-	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,tLX->clPink);
-	SDL_SetColorKey(bmpScoreBuffer, SDL_SRCCOLORKEY, tLX->clPink);
+	SetColorKey(bmpScoreBuffer);
+	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,COLORKEY(bmpScoreBuffer));
 
 	return true;
 }
@@ -79,14 +79,14 @@ void CClient::Draw(SDL_Surface *bmpDest)
     // TODO: allow more viewports
     // Draw the borders
 	if (tGameInfo.iGameType == GME_LOCAL)  {
-		DrawRectFill(bmpDest,0,382,640,480,0);
+		DrawRectFill(bmpDest,0,382,640,480,tLX->clBlack);
 	} else {
-		DrawRectFill(bmpDest,0,382,165,480,0);  // Health area
-		DrawRectFill(bmpDest,511,382,640,480,0);  // Minimap area
+		DrawRectFill(bmpDest,0,382,165,480,tLX->clBlack);  // Health area
+		DrawRectFill(bmpDest,511,382,640,480,tLX->clBlack);  // Minimap area
 	}
 	
     if(cViewports[1].getUsed())
-        DrawRectFill(bmpDest,318,0,322,384,0);
+        DrawRectFill(bmpDest,318,0,322,384,tLX->clBlack);
 
 
 	// Draw the viewports
@@ -671,7 +671,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 {
 	if (bUpdateScore)  {
-		DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,tLX->clPink);
+		DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,COLORKEY(bmpScoreBuffer));
 		UpdateScoreBuf(bmpScoreBuffer,bmpImage);
 	}
 

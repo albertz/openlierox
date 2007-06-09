@@ -77,7 +77,7 @@ class GameServer {
 public:
 	// Constructor
 	GameServer() {
-		tIpToCountry = new IpToCountryDB("ip_to_country.csv");
+		tIpToCountry = NULL;//new IpToCountryDB("ip_to_country.csv");
 		Clear();
 	}
 

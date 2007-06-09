@@ -180,8 +180,8 @@ void CPlayerMarquee::RedrawBuffer(void)
 	bmpBuffer = gfxCreateSurface(iTextWidth,tLX->cFont.GetHeight());
 	if (!bmpBuffer)
 		return;
-	SDL_SetColorKey(bmpBuffer, SDL_SRCCOLORKEY, tLX->clPink);
-	DrawRectFill(bmpBuffer,0,0,bmpBuffer->w,bmpBuffer->h,tLX->clPink);
+	SetColorKey(bmpBuffer);
+	DrawRectFill(bmpBuffer,0,0,bmpBuffer->w,bmpBuffer->h,COLORKEY(bmpBuffer));
 
 	// Blit on the buffer
 	if (szText != "")

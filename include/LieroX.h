@@ -122,6 +122,7 @@ class lierox_t { public:
 
 	Uint32			clPink;
 	Uint32			clWhite;
+	Uint32			clBlack;
 
 
 	std::string	debug_string;

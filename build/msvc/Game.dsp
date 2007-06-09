@@ -802,10 +802,6 @@ SOURCE=..\..\src\main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\main.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\common\Misc.cpp
 # End Source File
 # Begin Source File

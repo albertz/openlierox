@@ -40,9 +40,6 @@ enum {
 // Initialize the main menu
 void Menu_MainInitialize(void)
 {
-	// TEMP FOR NOW ??
-	//Menu_Net_NETInitialize();
-
 	int i;
 	assert(tMenu);
 	tMenu->iMenuRunning = true;
@@ -65,10 +62,6 @@ void Menu_MainInitialize(void)
 
 	// Quit
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
-
-	// Temp
-	//cMainMenu.Add( new CBox(10,2,MakeColour(128,128,128),MakeColour(64,64,64),MakeColour(0,0,0)),10,100,100,100,100);
-
 }
 
 
