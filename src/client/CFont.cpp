@@ -85,7 +85,7 @@ bool CFont::IsColumnFree(int x)
 	static Uint8 R,G,B;
 	for (ushort i=0; i < bmpFont->h; i++)  {
 		SDL_GetRGB(GetPixel(bmpFont,x,i),bmpFont->format,&R,&G,&B);
-		if ((byte)(~R+~B+G))  // ~R+~B+G = 0+0+0 => 0 is pink, otherwise not pink and stop
+		if (R||B||G)  // (~R,~B,~G) = (0,0,0) => 0 is pink, otherwise not pink and stop
 			return false;
 	}
 
