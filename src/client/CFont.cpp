@@ -102,7 +102,7 @@ void CFont::Parse(void)
 	if(SDL_MUSTLOCK(bmpFont))
 		SDL_LockSurface(bmpFont);
 
-	static const Uint32 blue = MakeColour(0,0,255);
+	static const Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
 
 	cur_w = 0;
 	uint tmp_x = 0;
