@@ -553,7 +553,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	//DrawImage(tMenu->bmpBuffer, shadow, 177,167);
 	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clBlack);
-	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,SDL_MapRGB(tMenu->bmpBuffer->format,64,64,64));
+	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,MakeColour(64,64,64));
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,sTitle);
 	for (it=lines.begin(); it!=lines.end(); it++)  {

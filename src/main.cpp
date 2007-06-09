@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 
 		// Pre-game initialization
 		Screen = SDL_GetVideoSurface();
-		SDL_FillRect(Screen,NULL,SDL_MapRGB(Screen->format,0,0,0));
+		FillSurface(Screen,tLX->clBlack);
 		float oldtime = GetMilliSeconds();
 		
 		ClearEntities();

@@ -369,9 +369,9 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	float r2,g2,b2;
 
 	float dr, dg, db;
-	const Uint32 gun1 = SDL_MapRGB(img->format,216,216,216);
-	const Uint32 gun2 = SDL_MapRGB(img->format,180,180,180);
-	const Uint32 gun3 = SDL_MapRGB(img->format,144,144,144);
+	const Uint32 gun1 = MakeColour(216,216,216);
+	const Uint32 gun2 = MakeColour(180,180,180);
+	const Uint32 gun3 = MakeColour(144,144,144);
 
 	for(y=0; y<img->h; y++) {
 		for(x=0; x<img->w; x++) {

@@ -154,14 +154,12 @@ int SetVideoMode(void)
 		vidflags |= SDL_OPENGL;
 		vidflags |= SDL_OPENGLBLIT;
 #ifndef MACOSX
-#ifndef WIN32
 		short colorbitsize = tLXOptions->iColourDepth==16 ? 5 : 8;
 		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
-#endif
 #endif
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);

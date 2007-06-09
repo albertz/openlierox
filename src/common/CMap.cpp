@@ -280,14 +280,14 @@ int CMap::LoadTheme(const std::string& _theme)
 	for(n=0;n<5;n++) {
 		buf = thm + "/Hole" + itoa(n+1) + ".png";
 		LOAD_IMAGE(Theme.bmpHoles[n],buf);
-		SDL_SetColorKey(Theme.bmpHoles[n], SDL_SRCCOLORKEY, SDL_MapRGB(Theme.bmpHoles[n]->format,0,0,0));
+		SDL_SetColorKey(Theme.bmpHoles[n], SDL_SRCCOLORKEY, tLX->clBlack);
 	}
 
 	// Calculate the default colour from a non-pink, non-black colour in the hole image
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	SDL_Surface *hole = Theme.bmpHoles[0];
-	Uint32 pink = SDL_MapRGB(Theme.bmpHoles[0]->format,255,0,255);
-	Uint32 black = SDL_MapRGB(Theme.bmpHoles[0]->format,0,0,0);
+	Uint32 pink = tLX->clPink;
+	Uint32 black = tLX->clBlack;
 	Uint32 pixel = 0;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
@@ -794,7 +794,7 @@ int CMap::CarveHole(int size, CVec pos)
 	w = hole->w;
 	h = hole->h;
 
-	Uint32 pink = SDL_MapRGB(hole->format,255,0,255);
+	Uint32 pink = tLX->clPink;
 
 	sx = (int)pos.x-(hole->w>>1);
 	sy = (int)pos.y-(hole->h>>1);
@@ -979,7 +979,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	// Calculate half
 	hole = Theme.bmpHoles[size];
-	Uint32 pink = SDL_MapRGB(hole->format,255,0,255);
+	Uint32 pink = tLX->clPink;
 	w = hole->w;
 	h = hole->h;
 
@@ -1109,12 +1109,12 @@ int CMap::PlaceGreenDirt(CVec pos)
 	int w,h;
 	Uint32 pixel;
 	uchar flag;
-    Uint32 green = SDL_MapRGB(bmpGreenMask->format,0,255,0);
-	Uint32 pink = SDL_MapRGB(bmpGreenMask->format,255,0,255);
-    Uint32 greens[4] = {SDL_MapRGB(bmpImage->format,148,136,0),
-                        SDL_MapRGB(bmpImage->format,136,124,0),
-                        SDL_MapRGB(bmpImage->format,124,112,0),
-                        SDL_MapRGB(bmpImage->format,116,100,0)};
+    Uint32 green = MakeColour(0,255,0);
+	Uint32 pink = MakeColour(255,0,255);
+    Uint32 greens[4] = {MakeColour(148,136,0),
+                        MakeColour(136,124,0),
+                        MakeColour(124,112,0),
+                        MakeColour(116,100,0)};
 
     int nGreenCount = 0;
 
@@ -2240,7 +2240,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	for (y=0;y<Height;y++,PixelRow+=bmpBackImage->pitch)  {
 		curpixel = PixelRow;
 		for (x=0;x<Width;x++,curpixel+=bmpBackImage->format->BytesPerPixel)  {
-			curcolor = SDL_MapRGB(bmpBackImage->format,pDest[p],pDest[p+1],pDest[p+2]);
+			curcolor = MakeColour(pDest[p],pDest[p+1],pDest[p+2]);
 			p+=3;
 			memcpy(curpixel,&curcolor,bmpBackImage->format->BytesPerPixel);
 		}
@@ -2252,7 +2252,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	for (y=0;y<Height;y++,PixelRow+=bmpImage->pitch)  {
 		curpixel = PixelRow;
 		for (x=0;x<Width;x++,curpixel+=bmpImage->format->BytesPerPixel)  {
-			curcolor = SDL_MapRGB(bmpImage->format,pDest[p],pDest[p+1],pDest[p+2]);
+			curcolor = MakeColour(pDest[p],pDest[p+1],pDest[p+2]);
 			p+=3;
 			memcpy(curpixel,&curcolor,bmpImage->format->BytesPerPixel);
 		}

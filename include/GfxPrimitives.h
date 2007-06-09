@@ -71,7 +71,7 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
 
 	SDL_Surface *result = SDL_CreateRGBSurface(iSurfaceFormat, width, height, 
-		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, 0x00000000);
 
 	if (result)
 		SDL_FillRect( result, NULL, SDL_MapRGB(result->format,0,0,0)); // OpenGL strictly requires the surface to be cleared
@@ -226,6 +226,13 @@ inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uin
 	r.w = x2-x;
 	r.h = y2-y;
 	SDL_FillRect(bmpDest,&r,color);
+}
+
+////////////////////
+// Fills the surface with specified colour
+inline void FillSurface(SDL_Surface *dst,Uint32 colour)
+{
+	SDL_FillRect(dst,NULL,NativeColourToSDLColour(color));
 }
 
 ////////////////////

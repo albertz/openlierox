@@ -54,8 +54,6 @@ private:
 	SDL_Surface		*bmpWhite;
 	SDL_Surface		*bmpGreen;
     
-    Uint32 f_pink;
-    Uint32 f_blue;
     Uint32 f_white;
     Uint32 f_green;
 

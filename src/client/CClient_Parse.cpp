@@ -391,7 +391,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			if(!cMap->Load(buf)) {
 				// Show a cannot load level error message
 
-				SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
+				FillSurface(tMenu->bmpBuffer, tLX->clBlack);
 				std::string err;
 				err = std::string("Could not load the level'") + buf + "'\n" + LxGetLastError();
 
@@ -443,8 +443,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	if(result != GSE_OK) {
 
 		// Show any error messages
-		//SDL_FillRect(tMenu->bmpBuffer, NULL, 0);
-		DrawRectFill(tMenu->bmpBuffer,0,0,tMenu->bmpBuffer->w,tMenu->bmpBuffer->h,0);
+		FillSurface(tMenu->bmpBuffer,tLX->clBlack);
 		std::string err("Error load game mod: ");
 		err += sModName + "\r\nError code: " + itoa(result);
 		Menu_MessageBox("Loading Error",err, LMB_OK);

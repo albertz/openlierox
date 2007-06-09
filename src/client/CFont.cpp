@@ -48,10 +48,8 @@ int CFont::Load(const std::string& fontname, bool _colour)
 
 
 	// Pre-calculate some colours
-	f_pink = ConvertColor(tLX->clPink,SDL_GetVideoSurface()->format,bmpFont->format) | bmpFont->format->Amask;
-	f_blue = ConvertColor(tLX->clHeading,SDL_GetVideoSurface()->format,bmpFont->format) | bmpFont->format->Amask;//SDL_MapRGB(bmpFont->format,0,0,255);
-	f_white = ConvertColor(tLX->clNormalLabel,SDL_GetVideoSurface()->format,bmpFont->format);//MakeColour(255,255,255);
-	f_green = ConvertColor(tLX->clChatText,SDL_GetVideoSurface()->format,bmpFont->format) | bmpFont->format->Amask;//MakeColour(0,255,0);
+	f_white = tLX->clNormalLabel;
+	f_green = tLX->clChatText;
 
 	// Set the color key for this alpha surface (SDL_SetColorKey does not work for alpha blended surfaces)
 	SetColorKeyAlpha(bmpFont, 255,0,255);
@@ -104,7 +102,7 @@ void CFont::Parse(void)
 	if(SDL_MUSTLOCK(bmpFont))
 		SDL_LockSurface(bmpFont);
 
-	static const Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
+	static const Uint32 blue = MakeColour(0,0,255);
 
 	cur_w = 0;
 	uint tmp_x = 0;
@@ -151,7 +149,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 	register Uint32 pixel;
 	int x,y;
 
-	DrawRectFill(bmpSurf,0,0,bmpSurf->w,bmpSurf->h,SDL_MapRGBA(bmpSurf->format,255,0,255,SDL_ALPHA_TRANSPARENT));
+	DrawRectFill(bmpSurf,0,0,bmpSurf->w,bmpSurf->h,MakeColour(255,0,255,SDL_ALPHA_TRANSPARENT));
 
 	// Lock the surface
 	if(SDL_MUSTLOCK(bmpSurf))
@@ -169,9 +167,9 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
 
 				if(!(~R) && !(~G) && !(~B))  // White
-					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,255,255,255,A));
+					PutPixel(bmpSurf,x,y,MakeColour(255,255,255,A));
 				else if (!R && !G && !B) // Black
-					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,sr,sg,sb,A)); // "pixel", not 0, because "pixel" containst alpha info
+					PutPixel(bmpSurf,x,y,MakeColour(sr,sg,sb,A)); // "pixel", not 0, because "pixel" containst alpha info
 			}
 		}
 	// Not outline: replace black pixels with appropriate color
@@ -182,7 +180,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
 
 				if(!R && !G && !B) // Black
-					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,sr,sg,sb,A));
+					PutPixel(bmpSurf,x,y,MakeColour(sr,sg,sb,A));
 			}
 		}
 	}
@@ -213,7 +211,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	int i,j;
 	int w;
 	int a,b; // a = offset in bmpFont
-	static const Uint32 black = SDL_MapRGB(bmpFont->format,0,0,0);
+	static const Uint32 black = tLX->clBlack;
 
 	// Clipping rectangle
 	SDL_Rect oldrect = dst->clip_rect;

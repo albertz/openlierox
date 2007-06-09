@@ -49,7 +49,7 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	R = ((((pixel & Rmask) * (255-a) >> 8) + (( (colour & Rmask) * a >> 8))) & Rmask);
 	G = ((((pixel & Gmask) * (255-a) >> 8) + (( (colour & Gmask) * a >> 8))) & Gmask);
 	B = ((((pixel & Bmask) * (255-a) >> 8) + (( (colour & Bmask) * a >> 8))) & Bmask);
-	A = ((((pixel & Amask) * (255-a) >> 8) + (( (colour & Amask) * a >> 8))) & Amask);
+	A = pixel & Amask;
 
 	pixel = (R|G|B|A);
 	
@@ -653,8 +653,12 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	register uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
 
 	SDL_LockSurface(bmpDest);
-	for (register uchar *px= (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x;px <= px2;px+=bpp)
+	for (register uchar *px= (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x;px <= px2;px+=bpp)  {
 		memcpy(px,&colour,bpp);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		EndianSwap(px,bpp);
+#endif
+	}
 
 	SDL_UnlockSurface(bmpDest);
 

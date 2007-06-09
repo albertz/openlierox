@@ -541,7 +541,7 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 	int x,y;
 	Uint8 r,g,b,a;
 	Uint32 pixel, mask;
-	const Uint32 black = SDL_MapRGB(skin->format,0,0,0);
+	const Uint32 black = tLX->clBlack;
 	float r2,g2,b2;
 
 	for(y=0; y<18; y++) {

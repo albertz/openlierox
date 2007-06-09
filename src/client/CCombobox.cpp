@@ -81,7 +81,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 
 
 		Menu_DrawBox(bmpDest, iX, iY+ItemHeight+2, iX+iWidth, iY+iHeight);
-		DrawRectFill(bmpDest, iX+2,iY+ItemHeight+4,iX+iWidth-1, iY+iHeight-1,0);
+		DrawRectFill(bmpDest, iX+2,iY+ItemHeight+4,iX+iWidth-1, iY+iHeight-1,tLX->clBlack);
 
 		// Draw the items
 		int count=0;
