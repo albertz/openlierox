@@ -21,7 +21,7 @@
 #define AMASK  0x0000*/
 
 #define FIRST_CHARACTER 32  // Space
-#define LAST_CHARACTER 512 // TODO: some normal range
+#define LAST_CHARACTER 1000 // TODO: some normal range
 #define DEF_FONTSIZE 15
 
 ///////////////////////

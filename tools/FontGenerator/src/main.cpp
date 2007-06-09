@@ -223,7 +223,7 @@ SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outli
 	//
 	const color_t Blue = SDL_MapRGBA(Result->format,0,0,255,SDL_ALPHA_OPAQUE);
 
-	for (i=0;i<TextLen;i++)  {
+	for(size_t i=0;i<TextLen;i++)  {
 		// Get the glyph metrics
 		if (TTF_GlyphMetrics(Font,Text[i],&minx,NULL,NULL,&maxy,&advance) == -1)
 			continue;
@@ -267,7 +267,8 @@ SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outli
 void ApplyOutline(SDL_Surface *BitmapText)
 {
 	//const color_t Transparent = SDL_MapRGB(BitmapText->format,255,0,255);
-	const color_t FontColor = SDL_MapRGB(BitmapText->format,255,255,255);
+	// TODO: not used
+//	const color_t FontColor = SDL_MapRGB(BitmapText->format,255,255,255);
 	const color_t OutlineColor = SDL_MapRGB(BitmapText->format,0,0,0);
 
 	unsigned short pitchstep = BitmapText->pitch/sizeof(color_t);

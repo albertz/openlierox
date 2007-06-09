@@ -2,15 +2,13 @@
 //
 //             OpenLieroX
 //
-//        Copyright RIP Clan 2006
+//        Ban List class
 //
+//        created 9/8/06
+//        by Dark Charlie and Albert Zeyer
+//        Code under LGPL
 //
 /////////////////////////////////////////
-
-
-// Ban List class
-// Created 9/8/06
-// Dark Charlie
 
 
 #include "defs.h"

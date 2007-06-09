@@ -209,12 +209,12 @@ void Menu_MainFrame(void)
 	// Draw the version number
 	Menu_redrawBufferRect(370,379,270,100);
 	tLX->cFont.Draw(tMenu->bmpScreen, 370, 379, tLX->clCredits1, "  " + GetGameName() + " v" + LX_VERSION);
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 391, tLX->clCredits2, "¤ Original code by Jason Boettcher");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 404, tLX->clCredits2, "¤ Ported and enhanced by");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 391, tLX->clCredits2, "\312\230 Original code by Jason Boettcher");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 404, tLX->clCredits2, "\341\232\233 Ported and enhanced by");
 	tLX->cFont.Draw(tMenu->bmpScreen, 370, 417, tLX->clCredits2, "  Dark Charlie and Albert Zeyer");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 430, tLX->clCredits2, "¤ Supported by the [RIP] clan");
+	tLX->cFont.Draw(tMenu->bmpScreen, 370, 430, tLX->clCredits2, "\314\275 Supported by the [RIP] clan");
 // TODO: include this, if he join the team :)
-//	tLX->cFont.Draw(tMenu->bmpScreen, 370, 443, tLX->clCredits2,"%s", "¤ Enhanced by FilE");
+//	tLX->cFont.Draw(tMenu->bmpScreen, 370, 443, tLX->clCredits2,"%s", "\314\220 Enhanced by FilE");
 
 
 	// Draw the mouse
