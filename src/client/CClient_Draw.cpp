@@ -1293,7 +1293,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 		if (cViewports[1].getUsed())
 			x += 125;
 	}
-    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, 0);
+    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clBlack);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
 
     tLX->cFont.Draw(bmpDest, x+5, y+4, tLX->clNormalLabel, "Players");
@@ -1395,7 +1395,7 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 		}
 	}
 
-    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, 0);
+    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clBlack);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
 
     tLX->cFont.Draw(bmpDest, x+60, y+5, tLX->clNormalLabel, "Current settings");

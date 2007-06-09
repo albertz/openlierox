@@ -85,7 +85,7 @@ bool CFont::IsColumnFree(int x)
 	static Uint8 R,G,B;
 	for (ushort i=0; i < bmpFont->h; i++)  {
 		SDL_GetRGB(GetPixel(bmpFont,x,i),bmpFont->format,&R,&G,&B);
-		if (R||B||G)  // (~R,~B,~G) = (0,0,0) => 0 is pink, otherwise not pink and stop
+		if (R!=255 || G || B!=255)
 			return false;
 	}
 
@@ -168,9 +168,9 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 				pixel = GetPixel(bmpFont,x,y);
 				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
 
-				if(!(byte)(~R+~G+~B))  // White
+				if(!(~R) && !(~G) && !(~B))  // White
 					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,255,255,255,A));
-				else if (!(R+G+B)) // Black
+				else if (!R && !G && !B) // Black
 					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,sr,sg,sb,A)); // "pixel", not 0, because "pixel" containst alpha info
 			}
 		}
@@ -181,7 +181,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 				pixel = GetPixel(bmpFont,x,y);
 				SDL_GetRGBA(pixel,bmpSurf->format,&R,&G,&B,&A);
 
-				if(!(R+G+B))
+				if(!R && !G && !B) // Black
 					PutPixel(bmpSurf,x,y,SDL_MapRGBA(bmpSurf->format,sr,sg,sb,A));
 			}
 		}
@@ -213,10 +213,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	int i,j;
 	int w;
 	int a,b; // a = offset in bmpFont
-	static const Uint32 black = SDL_MapRGBA(bmpFont->format,0,0,0,SDL_ALPHA_OPAQUE);
-	// TODO: not used
-//	static const Uint32 white = SDL_MapRGBA(bmpFont->format,255,255,255,SDL_ALPHA_OPAQUE);
-//	static const Uint32 pink = SDL_MapRGBA(bmpFont->format,255,0,255,SDL_ALPHA_OPAQUE);
+	static const Uint32 black = SDL_MapRGB(bmpFont->format,0,0,0);
 
 	// Clipping rectangle
 	SDL_Rect oldrect = dst->clip_rect;
@@ -307,9 +304,9 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 					SDL_GetRGBA(pixel,bmpFont->format,&R,&G,&B,&A);
 
 					// Put black pixels and colorize white ones
-					if (!(byte)(~R+~G+~B))  // White
+					if (!(~R) && !(~G) && !(~B))  // White
 						PutPixelA(dst,x+pos+b,y+j,col,A); // Put the pixel and blend it with background
-					else if (!(R+G+B))  // Black
+					else if (!R && !G && !B)  // Black
 						PutPixelA(dst,x+pos+b,y+j,0,A);
 				}
 				src+= bmpFont->pitch;
@@ -325,7 +322,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 					SDL_GetRGBA(pixel,bmpFont->format,&R,&G,&B,&A);
 
 					// Put only black pixels
-					if (!(R+G+B))  
+					if (!R && !G && !B)  
 						PutPixelA(dst,x+pos+b,y+j,col,A);
 				}
 				src+= bmpFont->pitch;
