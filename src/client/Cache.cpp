@@ -95,8 +95,17 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 	}
 
 	// Convert the image to the screen's colour depth
-	if (withalpha)
-		Image = SDL_DisplayFormatAlpha(img);
+	if (withalpha)  {
+		SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);
+		fmt.BitsPerPixel = 32;
+		fmt.BytesPerPixel = 4;
+		fmt.Rmask = ALPHASURFACE_RMASK;
+		fmt.Gmask = ALPHASURFACE_GMASK;
+		fmt.Bmask = ALPHASURFACE_BMASK;
+		fmt.Amask = ALPHASURFACE_AMASK;
+		int flags = iSurfaceFormat | SDL_SRCALPHA;
+		Image = SDL_ConvertSurface(img,&fmt,flags);
+	}
 	else  {
 		Image = SDL_DisplayFormat(img);
 	}

@@ -562,7 +562,7 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
             }
 
             // Pink means just ignore the pixel completely
-            if( mask == COLORKEY(worm) )
+            if( IsTransparent(worm,mask) )
                 continue;
 
             // Must be white (or some over unknown colour)

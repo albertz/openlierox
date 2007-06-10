@@ -22,6 +22,12 @@
 #include "GfxPrimitives.h"
 #include "Unicode.h"
 
+//
+// IMPORTANT: all surfaces in CFont are alpha blended which means they can (and mostly do) have another format than screen.
+// Because of this we cannot use almost any of the color handling functions from GfxPrimitives
+// Format of the surfaces is guaranted to be 32bit ARGB
+//
+
 
 // For font drawing use FontGenerator tool in /tools/fontgenerator
 
@@ -102,18 +108,17 @@ void CFont::Parse(void)
 	if(SDL_MUSTLOCK(bmpFont))
 		SDL_LockSurface(bmpFont);
 
-	static const Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
+	static Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
 
 	cur_w = 0;
 	uint tmp_x = 0;
 	for (x=0; (int)x<bmpFont->w; x++)  {
-
 		if (CurChar != ' ')
 			while (IsColumnFree(x) && (int)x<bmpFont->w)  // Ignore any free pixel columns before the character (but don't do this for spaces)
 				x++;
 
 		// Read until a blue pixel or end of the image
-		while (GetPixel(bmpFont,x,0) != blue && (int)x<bmpFont->w)  {
+		while ( GetPixel(bmpFont,x,0) != blue && (int)x<bmpFont->w)  {
 			x++;
 			cur_w++;
 		}
@@ -167,9 +172,9 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 				GetColour4(pixel,bmpSurf,&R,&G,&B,&A);
 
 				if(R == 255 && G == 255 && B == 255)  // White
-					PutPixel(bmpSurf,x,y,MakeColour(255,255,255,A));
+					PutPixel(bmpSurf,x,y,MakeColour(sr,sg,sb,A));
 				else if (!R && !G && !B) // Black
-					PutPixel(bmpSurf,x,y,MakeColour(sr,sg,sb,A)); // "pixel", not 0, because "pixel" containst alpha info
+					PutPixel(bmpSurf,x,y,MakeColour(0,0,0,A));
 			}
 		}
 	// Not outline: replace black pixels with appropriate color

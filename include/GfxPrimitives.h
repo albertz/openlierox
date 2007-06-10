@@ -28,6 +28,11 @@
 
 extern	int		iSurfaceFormat;
 
+#define ALPHASURFACE_AMASK 0xff000000
+#define ALPHASURFACE_RMASK 0x00ff0000
+#define ALPHASURFACE_GMASK 0x0000ff00
+#define ALPHASURFACE_BMASK 0x000000ff
+
 
 SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
 
@@ -89,20 +94,15 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 }
 
 
-// Creates a buffer with the same details as screen, but with alpha channel
+// Creates an ARGB 32bit surface
 inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
-	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
-
-	// it's also correct for big endian
-	// TODO: is it realy??
-	const Uint32 alpha = 0xff000000;
-
+	// NOTE: must match format in CCache::LoadImageBPP
 	SDL_Surface *result = SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA,
-		width, height, fmt->BitsPerPixel,
-		fmt->Rmask, fmt->Gmask, fmt->Bmask, alpha);
+		width, height, 32,
+		ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
 
 	if (result)
 		SDL_FillRect( result, NULL, SDL_MapRGB(result->format,0,0,0)); // OpenGL strictly requires the surface to be cleared
@@ -222,6 +222,16 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 	return SDLColourToNativeColour(SDL_MapRGBA(SDL_GetVideoSurface()->format,r,g,b,a));
 }
 
+// Returns true if the color is considered as transparent on the surface
+inline bool IsTransparent(SDL_Surface *surf, Uint32 colour)  {
+	if (surf->flags & SDL_SRCCOLORKEY)
+		return colour == COLORKEY(surf);
+	else if (surf->flags & SDL_SRCALPHA)
+		return !(colour & surf->format->Amask); // TODO: works only when Transparent = 0
+	else return false;
+}
+		
+
 void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
 // Set's the game's default color key (pink) to the surface
 // Works for both alpha and nonalpha surfaces
@@ -229,7 +239,7 @@ inline void SetColorKey(SDL_Surface *dst)  {
 	if (dst->flags & SDL_SRCALPHA)
 		SetColorKeyAlpha(dst,255,0,255);
 	else
-		SDL_SetColorKey(dst,SDL_SRCCOLORKEY,SDL_MapRGB(dst->format,255,0,255));
+		SDL_SetColorKey(dst,SDL_SRCCOLORKEY,SDL_MapRGB(dst->format,255,0,255)); 
 }
 
 // Line drawing
