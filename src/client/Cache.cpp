@@ -94,6 +94,9 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 		return NULL;
 	}
 
+	if (!withalpha)
+		img->flags &= ~SDL_SRCALPHA; // Remove the alpha flag, just for sure...
+
 	// Convert the image to the screen's colour depth
 	if (withalpha)  {
 		SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);

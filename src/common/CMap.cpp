@@ -239,7 +239,8 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
     // Calculate the total dirt count
     CalculateDirtCount();
 
-	// No need to update minimap, because it's updated in CarveHole and PlaceXXX
+	//CalculateShadowMap();
+	UpdateMiniMap(true);
 }
 
 
@@ -727,7 +728,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 			if( dtx+l+i >= c_x2 ) continue;
 
 			// Put the pixel, if it's not transparent
-			if (memcmp(objpix,&colorkey,screenbpp))
+			if (!IsTransparent(bmpObj, GetPixelFromAddr(objpix, screenbpp)))
 				memcpy(destpix,srcpix,screenbpp);
 		}
 	}
