@@ -286,15 +286,12 @@ int CMap::LoadTheme(const std::string& _theme)
 	// Calculate the default colour from a non-pink, non-black colour in the hole image
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	SDL_Surface *hole = Theme.bmpHoles[0];
-	Uint32 pink = tLX->clPink;
-	// TODO: not used
-//	Uint32 black = tLX->clBlack;
 	Uint32 pixel = 0;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
 			for(x=0; x<hole->w; x++) {
 				pixel = GetPixel(hole,x,y);
-				if(pixel != 0 && pixel != pink)  {
+				if(pixel != tLX->clBlack && pixel != tLX->clPink)  {
 					Theme.iDefaultColour = pixel;
 					break;
 				}
@@ -309,6 +306,7 @@ int CMap::LoadTheme(const std::string& _theme)
 	for(n=0;n<Theme.NumMisc;n++) {
 		buf = thm + "/misc" + itoa(n+1) + ".png";
 		LOAD_IMAGE(Theme.bmpMisc[n],buf);
+		SetColorKey(Theme.bmpMisc[n]);
 	}
 
 
@@ -1528,9 +1526,9 @@ void CMap::PlaceMisc(int id, CVec pos)
 	short clip_y = 0; 
 	short clip_x = 0; 
 	if (sy<0) 
-		clip_y = abs(sy);
+		clip_y = -sy;
 	if (sx<0) 
-		clip_x = abs(sx);
+		clip_x = -sx;
 
 	Uint8 *p = NULL;
 	Uint8 *PixelRow = (Uint8 *)misc->pixels+clip_y*misc->pitch;

@@ -244,7 +244,7 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
 
 // Returns true if the color is considered as transparent on the surface
 inline bool IsTransparent(SDL_Surface *surf, Uint32 colour)  {
-	if((surf->flags & SDL_SRCALPHA) && (colour & surf->format->Amask != surf->format->Amask))
+	if((surf->flags & SDL_SRCALPHA) && ((colour & surf->format->Amask) != surf->format->Amask))
 		return true;
 	if((surf->flags & SDL_SRCCOLORKEY) && (EqualRGB(colour, COLORKEY(surf))))
 		return true;
