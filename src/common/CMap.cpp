@@ -1165,8 +1165,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 			// Put pixels that are not green/pink (eg, dark green)
             if(pixel != green && pixel != pink && flag & PX_EMPTY) {
-				//*(Uint16 *)p2 = (Uint16)pixel;
-				// TODO: endian
 				PutPixel(bmpImage, dx, dy, pixel);
                 *(uchar *)px = PX_DIRT;
                 nGreenCount++;
