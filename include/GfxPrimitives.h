@@ -38,7 +38,7 @@ SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
 
 #define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
 #define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
-#define		COLORKEY(bmp) SDLColourToNativeColour((bmp)->format->colorkey)
+#define		COLORKEY(bmp) ((bmp)->format->colorkey)
 
 
 inline Uint32 SDLColourToNativeColour(Uint32 pixel) {
@@ -230,7 +230,7 @@ inline void GetColour3(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8
 
 inline bool EqualRGB(Uint32 p1, Uint32 p2) {
 	// this works for both non-alpha (if Amask bytes are not used in any other way) and alpha-surfaces
-	return (p1|ALPHASURFACE_AMASK == p2|ALPHASURFACE_AMASK);
+	return ((p1|ALPHASURFACE_AMASK) == (p2|ALPHASURFACE_AMASK));
 }
 
 // Creates a int colour based on the 3 components
