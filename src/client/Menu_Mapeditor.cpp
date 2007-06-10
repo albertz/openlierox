@@ -503,7 +503,7 @@ void Menu_MapEd_New(void)
 	Menu_DrawBox(tMenu->bmpBuffer, 210, 170, 430, 310);
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 212,172, 212,172, 217,137);
     Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
-	//DrawRectFill(tMenu->bmpBuffer, 212, 172, 429, 309, 0);
+	//DrawRectFill(tMenu->bmpBuffer, 212, 172, 429, 309, tLX->clBlack);
 
 	Menu_RedrawMouse(true);
 

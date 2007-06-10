@@ -729,7 +729,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 
 	Menu_DrawBox(tMenu->bmpBuffer, 210, 170, 430, 310);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 212,172, 212,172, 217,137);
-    DrawRectFill(tMenu->bmpBuffer, 212,172,429,309,0);
+    DrawRectFill(tMenu->bmpBuffer, 212,172,429,309,tLX->clBlack);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,180,MakeColour(128,200,255),"Input for:");
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),name);

@@ -405,7 +405,7 @@ int InitializeLieroX(void)
 void StartGame(void)
 {
     // Clear the screen
-    DrawRectFill(SDL_GetVideoSurface(), 0,0, 640,480, 0);
+    FillSurface(SDL_GetVideoSurface(), tLX->clBlack);
 
 	// Local game
 	if(tGameInfo.iGameType == GME_LOCAL) {

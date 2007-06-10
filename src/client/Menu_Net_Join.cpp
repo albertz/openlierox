@@ -290,7 +290,7 @@ void Menu_Net_JoinDrawLobby(void)
     tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
-    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, 0);
+    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clBlack);
 
     // Player box
     Menu_DrawBox(tMenu->bmpBuffer, 15, 29, 340, 235);

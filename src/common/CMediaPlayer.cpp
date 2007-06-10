@@ -172,7 +172,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	cMediaPlayer.Draw(screen);
 
 	// Draw the dialog
-	DrawRectFill(screen,x,y,x+w,y+h,0);
+	DrawRectFill(screen,x,y,x+w,y+h,tLX->clBlack);
 	Menu_DrawBox(screen,x,y,x+w,y+h);
 
 	tLX->cFont.DrawCentre(screen,x+w/2,y+5,tLX->clNormalLabel,"Searching for songs, please wait...");

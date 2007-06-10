@@ -499,7 +499,7 @@ void Menu_Net_HostLobbyDraw(void)
     tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
-    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, 0);
+    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clBlack);
 
     // Player box
     Menu_DrawBox(tMenu->bmpBuffer, 15, 29, 340, 235);
@@ -1248,7 +1248,7 @@ void Menu_Net_HostDeregister(void)
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawBox(tMenu->bmpBuffer, 15,60, 625, 465);
 	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
-	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,0);
+	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clBlack);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, "De-Registering server...");
 

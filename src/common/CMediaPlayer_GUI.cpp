@@ -300,7 +300,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 		DrawImage(Screen,bmpBuffer,0,0);
 
 		// Background
-		DrawRectFill(Screen,iX,iY,iX+iWidth,iY+iHeight,0);
+		DrawRectFill(Screen,iX,iY,iX+iWidth,iY+iHeight,tLX->clBlack);
 
 		// Title bar
 		DrawRectFill(Screen,iX,iY,iX+iWidth,iY+22,MakeColour(0,0,64));

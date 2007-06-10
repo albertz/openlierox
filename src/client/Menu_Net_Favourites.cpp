@@ -538,7 +538,7 @@ void Menu_Net_RenameServer(const std::string& szName)
 	cFavourites.Draw( tMenu->bmpBuffer );
 	Menu_DrawBox(tMenu->bmpBuffer, 200, 210, 470, 340);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer, 202,212,469,339,0);
+    DrawRectFill(tMenu->bmpBuffer, 202,212,469,339,tLX->clBlack);
 	Menu_RedrawMouse(true);
 
 
@@ -644,7 +644,7 @@ void Menu_Net_FavouritesAddServer(void)
 	cFavourites.Draw( tMenu->bmpBuffer );
 	Menu_DrawBox(tMenu->bmpBuffer, 200, 220, 440, 340);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer, 202,222,439,339,0);
+    DrawRectFill(tMenu->bmpBuffer, 202,222,439,339,tLX->clBlack);
 	Menu_RedrawMouse(true);
 
 

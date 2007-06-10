@@ -415,7 +415,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 	// Draw the colour
 	//DrawRectFill(tMenu->bmpScreen, 260, 230, 280, 250, MakeColour(r,g,b));
-	DrawRectFill(tMenu->bmpScreen,  255, 195, 285, 225, 0);
+	DrawRectFill(tMenu->bmpScreen,  255, 195, 285, 225, tLX->clBlack);
 	Menu_DrawBox(tMenu->bmpScreen,  255, 195, 285, 225);
 	//DrawRect(tMenu->bmpScreen,		255, 195, 285, 225, MakeColour(128,128,128));
 
@@ -696,7 +696,7 @@ void Menu_Player_ViewPlayers(int mouse)
 	    tLX->cFont.Draw(tMenu->bmpScreen, 530, 293, tLX->clNormalLabel, itoa(b));
 
 		// Draw the worm image
-		DrawRectFill(tMenu->bmpScreen,  300, 165, 330, 195, 0);
+		DrawRectFill(tMenu->bmpScreen,  300, 165, 330, 195, tLX->clBlack);
 		Menu_DrawBox(tMenu->bmpScreen,  300, 165, 330, 195);
 
 		Menu_Player_DrawWormImage(tMenu->bmpScreen,(int)(fPlayerSkinFrame)*7+(int)( fPlayerSkinAngle/151 * 7 )+4, 301, 170, r, g, b);

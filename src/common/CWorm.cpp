@@ -859,7 +859,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
     /*x = (int)( (tLX->debug_pos.x-wx)*2+l );
 	y = (int)( (tLX->debug_pos.y-wy)*2+t );
-    DrawRectFill(bmpDest, x-5,y-5,x+5,y+5,0);*/
+    DrawRectFill(bmpDest, x-5,y-5,x+5,y+5,tLX->clBlack);*/
 
 	
 	//

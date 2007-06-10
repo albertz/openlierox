@@ -1915,7 +1915,7 @@ void CWorm::AI_DEBUG_DrawPath(ai_node_t *node)
     int x = node->nX * pcMap->getGridWidth();
     int y = node->nY * pcMap->getGridHeight();
 
-    //DrawRectFill(pcMap->GetImage(), x,y, x+pcMap->getGridWidth(), y+pcMap->getGridHeight(), 0);
+    //DrawRectFill(pcMap->GetImage(), x,y, x+pcMap->getGridWidth(), y+pcMap->getGridHeight(), tLX->clBlack);
 
     if(node->psPath) {
         int cx = node->psPath->nX * pcMap->getGridWidth();

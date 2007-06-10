@@ -148,7 +148,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	}
 
 	// DEBUG
-	//DrawRectFill(bmpDest,0,0,100,40,0);
+	//DrawRectFill(bmpDest,0,0,100,40,tLX->clBlack);
 	//tLX->cFont.Draw(bmpDest,0,0,tLX->clWhite,"iNetStatus = %i",iNetStatus);
 	//tLX->cFont.Draw(bmpDest,0,20,tLX->clWhite,"iGameReady = %i",iGameReady);
 
@@ -1019,7 +1019,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	int inbox = lv->InBox(Mouse->X,Mouse->Y+gfxGUI.bmpMouse[0]->h);	// small hack: count the mouse height so we avoid "freezing
 																	// the mouse image when the user moves cursor away
 	if (lv->NeedsRepaint() || inbox)  {
-		DrawRectFill(bmpDest,165,382,511,480,0);
+		DrawRectFill(bmpDest,165,382,511,480,tLX->clBlack);
 		lv->Draw(bmpDest);
 	}
 

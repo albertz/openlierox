@@ -821,7 +821,7 @@ int CMap::CarveHole(int size, CVec pos)
 	int src_tmp = clip_x*hole->format->BytesPerPixel;
 	int pf_tmp = sx+clip_x; 
 	int dst_tmp = (sx+clip_x)*bmpImage->format->BytesPerPixel;
-	static Uint32 black = 0;
+	static Uint32 black = tLX->clBlack;
 
 	// Pixels
 	Uint8 *srcpix;
@@ -1295,8 +1295,6 @@ void CMap::ApplyShadow(uint sx, uint sy, uint w, uint h)
                     src = (Uint8 *)bmpShadowMap->pixels + offset;
                     //*pixel = *src;
 					memcpy(pixel,src,screenbpp);
-
-					//PutPixel(bmpImage,ox,oy,0);
 
 					*(uchar *)p |= PX_EMPTY | PX_SHADOW;
 					ox++; oy++;
@@ -2501,7 +2499,7 @@ void CMap::DEBUG_DrawPixelFlags(void)
 
 			switch(PixelFlags[n]) { //NOOO
 
-				case PX_EMPTY:	PutPixel(bmpImage,x,y,0);	break;
+				case PX_EMPTY:	PutPixel(bmpImage,x,y,tLX->clBlack);	break;
 				case PX_DIRT:	PutPixel(bmpImage,x,y,MakeColour(255,0,0));	break;
 				case PX_ROCK:	PutPixel(bmpImage,x,y,MakeColour(128,128,128));	break;
 			}

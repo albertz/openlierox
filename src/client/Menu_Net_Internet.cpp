@@ -445,7 +445,7 @@ void Menu_Net_NETAddServer(void)
 	cInternet.Draw( tMenu->bmpBuffer );
 	Menu_DrawBox(tMenu->bmpBuffer, 200, 220, 440, 340);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer, 202,222,439,339,0);
+    DrawRectFill(tMenu->bmpBuffer, 202,222,439,339,tLX->clBlack);
 	for(int i=1;i<5;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
 	Menu_RedrawMouse(true);
@@ -575,7 +575,7 @@ void Menu_Net_NETUpdateList(void)
 	cInternet.Draw( tMenu->bmpBuffer );
 	Menu_DrawBox(tMenu->bmpBuffer, 200, 220, 440, 340);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer, 202, 222, 439, 339, 0);
+    DrawRectFill(tMenu->bmpBuffer, 202, 222, 439, 339, tLX->clBlack);
     Menu_DrawBox(tMenu->bmpBuffer, 220, 280, 420, 300);
 	for(ushort i=0;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
