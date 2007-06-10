@@ -1406,8 +1406,6 @@ void CMap::PlaceStone(int size, CVec pos)
 	w = stone->w;
 	h = stone->h;
 
-	Uint32 pink = COLORKEY(stone);
-
 	sx = (int)pos.x-(stone->w>>1);
 	sy = (int)pos.y-(stone->h>>1);
 
@@ -1416,8 +1414,6 @@ void CMap::PlaceStone(int size, CVec pos)
 
 	if(SDL_MUSTLOCK(stone))
 		SDL_LockSurface(stone);
-
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
 	lockFlags();
 
@@ -1447,7 +1443,7 @@ void CMap::PlaceStone(int size, CVec pos)
 		for(x=clip_x;x<clip_w;x++) {
 
 			// Rock?
-			if(!EqualRGB(GetPixelFromAddr(p, screenbpp), pink)) {
+			if(!IsTransparent(stone, GetPixelFromAddr(p, stone->format->BytesPerPixel))) {
 				*(uchar *)px = PX_ROCK;
 			}
 
@@ -1509,8 +1505,6 @@ void CMap::PlaceMisc(int id, CVec pos)
 	w = misc->w;
 	h = misc->h;
 
-	Uint32 pink = COLORKEY(misc);
-
 	sx = (int)pos.x-(misc->w>>1);
 	sy = (int)pos.y-(misc->h>>1);
 
@@ -1545,19 +1539,15 @@ void CMap::PlaceMisc(int id, CVec pos)
 		p = PixelRow+p_tmp;
 		px = PixelFlags + dy * Width + pf_tmp;
 
-		for(x=clip_x,dx=dx_tmp;x<clip_w;dx++,x++) {
+		for(x = clip_x, dx = dx_tmp; x < clip_w; dx++, x++) {
 
 			// Put the pixel down
-			if(!EqualRGB(GetPixelFromAddr(p, misc->format->BytesPerPixel), pink) && *px & PX_DIRT) {
-				static Uint32 tmp;
-				tmp = 0;
-				memcpy(&tmp,p,misc->format->BytesPerPixel);
-
-				PutPixel(bmpImage,dx,dy,tmp);
-				*(uchar *)px = PX_DIRT;
+			if(!IsTransparent(misc, GetPixelFromAddr(p, misc->format->BytesPerPixel)) && (*px & PX_DIRT)) {
+				PutPixel(bmpImage, dx, dy, GetPixelFromAddr(p, misc->format->BytesPerPixel));
+				*(uchar*)px = PX_DIRT;
 			}
 
-			p+=misc->format->BytesPerPixel;
+			p += misc->format->BytesPerPixel;
 			px++;
 		}
 	}
