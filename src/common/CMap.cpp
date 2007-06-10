@@ -794,7 +794,7 @@ int CMap::CarveHole(int size, CVec pos)
 	w = hole->w;
 	h = hole->h;
 
-	Uint32 pink = tLX->clPink;
+	Uint32 pink = SDLColourToNativeColour(tLX->clPink);
 
 	sx = (int)pos.x-(hole->w>>1);
 	sy = (int)pos.y-(hole->h>>1);
@@ -819,8 +819,8 @@ int CMap::CarveHole(int size, CVec pos)
 	int src_tmp = clip_x*hole->format->BytesPerPixel;
 	int pf_tmp = sx+clip_x; 
 	int dst_tmp = (sx+clip_x)*bmpImage->format->BytesPerPixel;
-	static Uint32 black = tLX->clBlack;
-
+	static Uint32 black; black = SDLColourToNativeColour(tLX->clBlack);
+	
 	// Pixels
 	Uint8 *srcpix;
 	Uint8 *SrcRow = (Uint8 *)hole->pixels+(clip_y)*hole->pitch;
