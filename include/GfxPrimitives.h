@@ -180,20 +180,36 @@ void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour);
 
 // Pixel drawing
 inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) {
-	memcpy((Uint8 *)bmpDest->pixels+y*bmpDest->pitch+x*bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	memcpy(
+		(Uint8*)bmpDest->pixels + y*bmpDest->pitch + x*bmpDest->format->BytesPerPixel,
+		(Uint8*)&colour + 4 - bmpDest->format->BytesPerPixel,
+		bmpDest->format->BytesPerPixel);
+#else	
+	memcpy(
+		(Uint8*)bmpDest->pixels + y*bmpDest->pitch + x*bmpDest->format->BytesPerPixel,
+		&colour,
+		bmpDest->format->BytesPerPixel);
+#endif
 }
 
 // Get a pixel from an 8bit address
-inline Uint32 GetPixelFromAddr(Uint8 *p, int bpp) {
+inline Uint32 GetPixelFromAddr(Uint8* p, int bpp) {
 	static Uint32 result;
 	result = 0;
-	memcpy(&result,p,bpp);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	memcpy((Uint8*)&result + 4 - bpp, p, bpp);
+#else
+	memcpy(&result, p, bpp);
+#endif	
 	return result;
 }
 
 // Get a pixel from the surface
 inline Uint32 GetPixel(SDL_Surface *bmpSrc, int x, int y) {
-	return GetPixelFromAddr((Uint8 *)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel, bmpSrc->format->BytesPerPixel);
+	return GetPixelFromAddr(
+		(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
+		bmpSrc->format->BytesPerPixel);
 }
 
 // Put pixel alpha blended with the background
@@ -203,34 +219,38 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a);
 // Extract 4 colour components from a packed int
 // TODO: remove img parameter
 inline void GetColour4(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a) {
-	SDL_GetRGBA(NativeColourToSDLColour(pixel),img->format,r,g,b,a);
+	SDL_GetRGBA(pixel,img->format,r,g,b,a);
 }
 
 // Extract 3 colour components from a packed int
 // TODO: remove img parameter
 inline void GetColour3(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b) {
-	SDL_GetRGB(NativeColourToSDLColour(pixel),img->format,r,g,b);
+	SDL_GetRGB(pixel,img->format,r,g,b);
 }
 
+inline bool EqualRGB(Uint32 p1, Uint32 p2) {
+	// this works for both non-alpha (if Amask bytes are not used in any other way) and alpha-surfaces
+	return (p1|ALPHASURFACE_AMASK == p2|ALPHASURFACE_AMASK);
+}
 
 // Creates a int colour based on the 3 components
 inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
-	return SDLColourToNativeColour(SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b));
+	return SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b);
 }
 
 inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-	return SDLColourToNativeColour(SDL_MapRGBA(SDL_GetVideoSurface()->format,r,g,b,a));
+	return SDL_MapRGBA(SDL_GetVideoSurface()->format,r,g,b,a);
 }
 
 // Returns true if the color is considered as transparent on the surface
 inline bool IsTransparent(SDL_Surface *surf, Uint32 colour)  {
-	if (surf->flags & SDL_SRCCOLORKEY)
-		return colour == COLORKEY(surf);
-	else if (surf->flags & SDL_SRCALPHA)
-		return !(colour & surf->format->Amask); // TODO: works only when Transparent = 0
-	else return false;
+	if((surf->flags & SDL_SRCALPHA) && (colour & surf->format->Amask != surf->format->Amask))
+		return true;
+	if((surf->flags & SDL_SRCCOLORKEY) && (EqualRGB(colour, COLORKEY(surf))))
+		return true;
+	return false;
 }
-		
+
 
 void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
 // Set's the game's default color key (pink) to the surface
@@ -254,13 +274,13 @@ inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uin
 	r.y = y;
 	r.w = x2-x;
 	r.h = y2-y;
-	SDL_FillRect(bmpDest,&r,NativeColourToSDLColour(color));
+	SDL_FillRect(bmpDest,&r,color);
 }
 
 ////////////////////
 // Fills the surface with specified colour
 inline void FillSurface(SDL_Surface* dst, Uint32 colour) {
-	SDL_FillRect(dst, NULL, NativeColourToSDLColour(colour));
+	SDL_FillRect(dst, NULL, colour);
 }
 
 ////////////////////
@@ -279,7 +299,7 @@ inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Ui
 	if (tmp)  {
 		// TODO: optimise
 		SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, alpha);
-		SDL_FillRect(tmp,NULL,NativeColourToSDLColour(color));
+		SDL_FillRect(tmp,NULL,color);
 		DrawImage(bmpDest,tmp,x,y);
 		SDL_FreeSurface(tmp);
 	}

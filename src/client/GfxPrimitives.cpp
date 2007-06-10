@@ -77,7 +77,7 @@ void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b)
 			pixel = GetPixelFromAddr(px,dst->format->BytesPerPixel);
 			GetColour3(pixel,dst,&dr,&dg,&db);
 			if (r==dr && g==dg && b==db)  {  // Key?
-				pixel &= (dst->format->Amask & SDL_ALPHA_TRANSPARENT) | dst->format->Rmask | dst->format->Gmask | dst->format->Bmask;
+				pixel &= ~dst->format->Amask;
 				memcpy(px,&pixel,dst->format->BytesPerPixel);
 			}
 		}
@@ -269,6 +269,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	int doublepitch = bmpDest->pitch*2;
 	register byte bpp = bmpDest->format->BytesPerPixel;
 	register byte doublebpp = bpp*2;
+	key = SDLColourToNativeColour(key);
 
     for(y=0;y<h;y++) {
 
@@ -351,6 +352,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	register byte bpp = bmpDest->format->BytesPerPixel;
 	register byte doublebpp = bpp*2;
 	int realw = w*bpp;
+	key = SDLColourToNativeColour(key);
 
     for(y=0;y<h;y++) {
 
@@ -418,6 +420,7 @@ inline void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 	static Uint32 ropecols[2] = { MakeColour(160,80,0), MakeColour(200,100,0) };
 	ropecolour = !ropecolour;
 	colour = ropecols[ropecolour];
+	colour = SDLColourToNativeColour(colour);
 
 	//boxColor(bmpDest, x,y,x+1,y+1, colour);
 	//DrawRectFill(bmpDest,x,y,x+2,y+2,colour);
@@ -454,6 +457,8 @@ inline void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 		return;
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
+	
+	colour = SDLColourToNativeColour(colour);
 
 	//boxColor(bmpDest, x,y,x+1,y+1, colour);
 	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
@@ -483,6 +488,7 @@ inline void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour
 
 	static Uint32 laseraltcols[] = { MakeColour(190,0,0), MakeColour(160,0,0) };
 	colour = laseraltcols[ GetRandomInt(1) ];
+	colour = SDLColourToNativeColour(colour);
 
 	// Snap to nearest 2nd pixel
 	x -= x % 2;
@@ -651,7 +657,8 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 
 	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	register uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
-
+	colour = SDLColourToNativeColour(colour);
+	
 	SDL_LockSurface(bmpDest);
 	for (register uchar *px= (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x;px <= px2;px+=bpp)
 		memcpy(px,&colour,bpp);
@@ -683,6 +690,7 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	register ushort pitch = (ushort)bmpDest->pitch;
 	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	register uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
+	colour = SDLColourToNativeColour(colour);
 
 	SDL_LockSurface(bmpDest);
 	for (register uchar *px= (uchar *)bmpDest->pixels+pitch*y+bpp*x;px <= px2;px+=pitch)

@@ -1449,7 +1449,7 @@ void CMap::PlaceStone(int size, CVec pos)
 		for(x=clip_x;x<clip_w;x++) {
 
 			// Rock?
-			if (memcmp(p,&pink,screenbpp))  {
+			if(!EqualRGB(GetPixelFromAddr(p, screenbpp), pink)) {
 				*(uchar *)px = PX_ROCK;
 			}
 
@@ -1550,7 +1550,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 		for(x=clip_x,dx=dx_tmp;x<clip_w;dx++,x++) {
 
 			// Put the pixel down
-			if(memcmp(p,&pink,misc->format->BytesPerPixel) && *px & PX_DIRT) {
+			if(!EqualRGB(GetPixelFromAddr(p, misc->format->BytesPerPixel), pink) && *px & PX_DIRT) {
 				static Uint32 tmp;
 				tmp = 0;
 				memcpy(&tmp,p,misc->format->BytesPerPixel);
