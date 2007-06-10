@@ -154,10 +154,6 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	// bmpGibs is freed by the cache
-
-	// TODO: something is wrong here with the memory management (it gets freed twice and similar things)
-
 	if(bmpWormLeft) {
 		SDL_FreeSurface(bmpWormLeft);
 		bmpWormLeft = NULL;
@@ -177,6 +173,11 @@ void CWorm::FreeGraphics(void)
         SDL_FreeSurface(bmpShadowPic);
         bmpShadowPic = NULL;
     }
+
+	if(bmpGibs)  {
+		SDL_FreeSurface(bmpGibs);
+		bmpGibs = NULL;
+	}
 }
 
 
@@ -335,23 +336,32 @@ int CWorm::LoadGraphics(int gametype)
 SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 {
 	SDL_Surface *img;
+	SDL_Surface *loaded;
 
 	// Load the image
-	img = LoadImage(filename);
-	if(img == NULL) {
+	loaded = LoadImage(filename);
+	if(loaded == NULL) {
 		// Error: Couldn't load image
 		printf("CWorm::ChangeGraphics: Error: Could not load image %s\n", filename.c_str());
 		return NULL;
 	}
+
+	img = gfxCreateSurface(loaded->w,loaded->h);
+	if (img == NULL)  {
+		printf("CWorm::ChangeGraphics: Not enough of memory.");
+		return NULL;
+	}
+	DrawImage(img,loaded,0,0); // Blit to the new surface
+
 	SetColorKey(img);
 
 
 	// Set the colour of the img
 	register int x,y;
-	Uint8 r,g,b,a;
+	Uint8 r,g,b;
 	Uint32 pixel;
 	
-	GetColour4(iColour,SDL_GetVideoSurface(),&r,&g,&b,&a);
+	GetColour3(iColour,SDL_GetVideoSurface(),&r,&g,&b);
 
 	// Team graphics
 	static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
@@ -377,10 +387,10 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 		for(x=0; x<img->w; x++) {
 
 			pixel = GetPixel(img,x,y);
-			GetColour4(pixel,img,&r,&g,&b,&a);
+			GetColour3(pixel,img,&r,&g,&b);
 
 			// Ignore pink & gun colours
-			if(pixel == COLORKEY(img))
+			if(IsTransparent(img,pixel))
 				continue;
 			else if(pixel == gun1)
 				continue;
@@ -397,9 +407,9 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 			g2 = (float)ColG * dg;
 			b2 = (float)ColB * db;
 
-			r2 = MIN((float)255,r2);
-			g2 = MIN((float)255,g2);
-			b2 = MIN((float)255,b2);
+			r2 = MIN(255.0f,r2);
+			g2 = MIN(255.0f,g2);
+			b2 = MIN(255.0f,b2);
 
 			// Make sure it isn't exactly 'magic pink'
 			if(MakeColour((int)r2, (int)g2, (int)b2) == tLX->clPink) {

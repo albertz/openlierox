@@ -1423,9 +1423,15 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	tLX->cFont.Draw(bmpDest, x+5, y+61, tLX->clNormalLabel,"Loading Time:");
 	tLX->cFont.Draw(bmpDest, x+105, y+61, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTimes) + "%");
 	tLX->cFont.Draw(bmpDest, x+5, y+79, tLX->clNormalLabel,"Lives:");
-	tLX->cFont.Draw(bmpDest, x+105, y+79, tLX->clNormalLabel,itoa(tGameInfo.iLives));
+	if (tGameInfo.iLives < 0)
+		DrawImage(bmpDest,gfxGame.bmpInfinite,x+105,y+88-gfxGame.bmpInfinite->h/2);
+	else
+		tLX->cFont.Draw(bmpDest, x+105, y+79, tLX->clNormalLabel,itoa(tGameInfo.iLives));
 	tLX->cFont.Draw(bmpDest, x+5, y+97, tLX->clNormalLabel,"Max Kills:");
-	tLX->cFont.Draw(bmpDest, x+105, y+97, tLX->clNormalLabel,itoa(tGameInfo.iKillLimit));
+	if (tGameInfo.iKillLimit < 0)
+		DrawImage(bmpDest,gfxGame.bmpInfinite,x+105,y+106-gfxGame.bmpInfinite->h/2);
+	else
+		tLX->cFont.Draw(bmpDest, x+105, y+97, tLX->clNormalLabel,itoa(tGameInfo.iKillLimit));
 	tLX->cFont.Draw(bmpDest, x+5, y+115, tLX->clNormalLabel,"Bonuses:");
 	if (tGameInfo.iBonusesOn)
 		tLX->cFont.Draw(bmpDest, x+105, y+115, tLX->clNormalLabel,"On");

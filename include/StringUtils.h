@@ -158,12 +158,22 @@ T from_string(const std::string& s) {
 
 
 // std::string itoa
-inline std::string itoa(unsigned int num, short base=10)  {
+inline std::string itoa(int num, short base=10)  {
 	std::string buf;
+	bool negative = false;
+	if (num<0)  { // Handle negative values
+		negative = true;
+		num = -num;
+	}
+
 	do {	
 		buf = "0123456789abcdefghijklmnopqrstuvwxyz"[num % base] + buf;
 		num /= base;
 	} while(num);
+
+	// Sign
+	if (negative)
+		buf = "-"+buf;
 
 	return buf;
 }

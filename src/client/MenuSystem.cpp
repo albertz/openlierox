@@ -1812,22 +1812,25 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 
 	y+=25;
 	x+=15;
-    // Draw the server details
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel, "Server name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, "Level name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel, "Mod name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel, "State:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel, "Playing:");
+	static const int FontHeight = MIN(tLX->cFont.GetHeight(),20); // TODO: get rid of this constraint
+	int cy=y;
 
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel, "Game Type:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel, "Lives:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel, "Max Kills:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel, "Loading Times:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+180, tLX->clNormalLabel, "Bonuses:");
+    // Draw the server details
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy, tLX->clNormalLabel, "Server name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Level name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Mod name:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "State:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Playing:");
+
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Game Type:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Lives:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Max Kills:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Loading Times:");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Bonuses:");
 	if (!nState)  // Dont show kills when the server is open
-		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel, "Players:");
+		tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Players:");
 	else
-		tLX->cFont.Draw(tMenu->bmpScreen, x,y+200, tLX->clNormalLabel, "Players/Kills:");
+		tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Players/Kills:");
 
 	x+=110;
 
@@ -1848,26 +1851,39 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
     if(nGameMode < 0 || nGameMode > 3)
         nGameMode = 4;
 
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clNormalLabel,  szName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+20, tLX->clNormalLabel, szMapName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+40, tLX->clNormalLabel,  szModName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+60, tLX->clNormalLabel,  states[nState]);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+80, tLX->clNormalLabel, itoa(nNumPlayers) + " / " + itoa(nMaxWorms));
+	cy = y;
 
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+100, tLX->clNormalLabel,  gamemodes[nGameMode]);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+120, tLX->clNormalLabel, itoa(nLives));
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+140, tLX->clNormalLabel, itoa(nMaxKills));
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+160, tLX->clNormalLabel, itoa(nLoadingTime));
-    tLX->cFont.Draw(tMenu->bmpScreen, x,y+180, tLX->clNormalLabel, nBonuses ? "on" : "off");
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy, tLX->clNormalLabel,  szName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, szMapName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel,  szModName);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel,  states[nState]);
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, itoa(nNumPlayers) + " / " + itoa(nMaxWorms));
+
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel,  gamemodes[nGameMode]);
+	if (nLives < 0)  {  // For infinite lives draw the infinite icon
+		DrawImage(tMenu->bmpScreen,gfxGame.bmpInfinite,x,cy+FontHeight+FontHeight/2-gfxGame.bmpInfinite->h/2);
+		cy += FontHeight;
+	}
+	else
+		tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, itoa(nLives));
+
+	if (nMaxKills < 0)  {  // For infinite kills draw the infinite icon
+		DrawImage(tMenu->bmpScreen,gfxGame.bmpInfinite,x,cy+FontHeight+FontHeight/2-gfxGame.bmpInfinite->h/2);
+		cy += FontHeight;
+	}
+	else
+		tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, itoa(nMaxKills));
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, itoa(nLoadingTime));
+    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, nBonuses ? "on" : "off");
 
 	// Don't draw kills when the server is open
 	if(!nState)
 		for (int i=0; i<nNumPlayers; i++)
-			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, cWorms[i].getName());
+			tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, cWorms[i].getName());
 	else
 		for (int i=0; i<nNumPlayers; i++)  {
-			tLX->cFont.Draw(tMenu->bmpScreen, x,y+200+i*18, tLX->clNormalLabel, cWorms[i].getName());
-			tLX->cFont.Draw(tMenu->bmpScreen, x+150,y+200+i*18, tLX->clNormalLabel, itoa( cWorms[i].getKills()));
+			tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, cWorms[i].getName());
+			tLX->cFont.Draw(tMenu->bmpScreen, x+150,cy, tLX->clNormalLabel, itoa( cWorms[i].getKills()));
 		}
 
 }
