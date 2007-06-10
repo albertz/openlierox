@@ -216,7 +216,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	int i,j;
 	int w;
 	int a,b; // a = offset in bmpFont
-	static const Uint32 black = tLX->clBlack;
+	static Uint32 black; black = tLX->clBlack;
 
 	// Clipping rectangle
 	SDL_Rect oldrect = dst->clip_rect;

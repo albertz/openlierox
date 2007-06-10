@@ -697,6 +697,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 	}*/
 
 	Uint32 colorkey = SDLColourToNativeColour(bmpObj->format->colorkey);
+	
 	for( y=/*y_start*/sy,dy=wy/*+y_start*/,j=0; y</*y_end*/(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
 		// World Clipping
 		if(dy < 0) continue;
@@ -993,7 +994,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 	Uint8 *p;
 	uchar *px;
 	Uint8 *p2;
-	Uint32 tmp=0;
 
 	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
@@ -1016,10 +1016,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 			if(dx<0) {	p+=screenbpp; p2+=screenbpp; px++;	continue; }
 			if(dx>=bmpImage->w)				break;
 
-			//pixel = *(Uint16 *)p;
-			// TODO: endian
-			pixel = 0;
-			memcpy(&pixel,p,screenbpp); // bpp independent
+			pixel = GetPixelFromAddr(p,screenbpp);
 			flag = *(uchar *)px;
 
 			int ix = dx % Theme.bmpFronttile->w;
@@ -1033,17 +1030,12 @@ int CMap::PlaceDirt(int size, CVec pos)
 				*(uchar *)px = PX_DIRT;
 
 				// Place the dirt image
-				tmp = GetPixel(Theme.bmpFronttile,ix,iy);
-				// TODO: endian
-				memcpy(p2,&tmp,screenbpp);
-				//*(Uint16 *)p2 = (Uint16)GetPixel(Theme.bmpFronttile,ix,iy);
+				PutPixel(bmpImage, dx, dy, GetPixel(Theme.bmpFronttile, ix, iy));
 			}
 
 			// Put pixels that are not black/pink (eg, brown)
             if(pixel != 0 && pixel != pink && flag & PX_EMPTY) {
-				//*(Uint16 *)p2 = (Uint16)pixel;
-				// TODO: endian
-				memcpy(p2,&pixel,screenbpp);
+				PutPixel(bmpImage, dx, dy, pixel);
                 *(uchar *)px = PX_DIRT;
                 nDirtCount++;
             }
@@ -1156,8 +1148,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 			if(dx>=bmpImage->w)				break;
 
 			//pixel = *(Uint16 *)p;
-			pixel = 0;
-			memcpy(&pixel,p,screenbpp);
+			pixel = GetPixelFromAddr(p,screenbpp);
 			flag = *(uchar *)px;
 
 			// Set the flag to empty
@@ -1169,16 +1160,14 @@ int CMap::PlaceGreenDirt(CVec pos)
                 Uint32 gr = greens[ GetRandomInt(3) ];
 
 				// Place the dirt image
-				//*(Uint16 *)p2 = (Uint16)gr;
-				// TODO: endian
-				memcpy(p2,&gr,screenbpp);
+				PutPixel(bmpImage, dx, dy, gr);
 			}
 
 			// Put pixels that are not green/pink (eg, dark green)
             if(pixel != green && pixel != pink && flag & PX_EMPTY) {
 				//*(Uint16 *)p2 = (Uint16)pixel;
 				// TODO: endian
-				memcpy(p2,&pixel,screenbpp);
+				PutPixel(bmpImage, dx, dy, pixel);
                 *(uchar *)px = PX_DIRT;
                 nGreenCount++;
             }
@@ -1681,7 +1670,6 @@ void CMap::UpdateMiniMap(bool force)
 			sp = tmp1+(int)mx*bmpImage->format->BytesPerPixel;
 			tp = tmp2+mmx*bmpMiniMap->format->BytesPerPixel;
 
-			// TODO: endian
 			memcpy(tp,sp,bmpMiniMap->format->BytesPerPixel);
 
 			//PutPixel(bmpMiniMap,mmx,mmy,GetPixel(bmpImage,(int)mx,(int)my));  // Slow
@@ -2230,7 +2218,7 @@ int CMap::LoadImageFormat(FILE *fp)
 		for (x=0;x<Width;x++,curpixel+=bmpBackImage->format->BytesPerPixel)  {
 			curcolor = MakeColour(pDest[p],pDest[p+1],pDest[p+2]);
 			p+=3;
-			memcpy(curpixel,&curcolor,bmpBackImage->format->BytesPerPixel);
+			PutPixel(bmpBackImage, x, y, curcolor);
 		}
 	}
 
@@ -2242,7 +2230,7 @@ int CMap::LoadImageFormat(FILE *fp)
 		for (x=0;x<Width;x++,curpixel+=bmpImage->format->BytesPerPixel)  {
 			curcolor = MakeColour(pDest[p],pDest[p+1],pDest[p+2]);
 			p+=3;
-			memcpy(curpixel,&curcolor,bmpImage->format->BytesPerPixel);
+			PutPixel(bmpImage, x, y, curcolor);
 		}
 	}
 
