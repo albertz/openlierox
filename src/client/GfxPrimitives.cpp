@@ -40,15 +40,16 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 
 	static Uint32 R,G,B,A;
 	register Uint64 pixel = GetPixel(bmpDest,x,y);
-
+	register Uint64 col = colour;
+	
 	#define Rmask bmpDest->format->Rmask
 	#define Gmask bmpDest->format->Gmask
 	#define Bmask bmpDest->format->Bmask
 	#define Amask bmpDest->format->Amask
 
-	R = ((((pixel & Rmask) * (255-a) >> 8) + (( (colour & Rmask) * a >> 8))) & Rmask);
-	G = ((((pixel & Gmask) * (255-a) >> 8) + (( (colour & Gmask) * a >> 8))) & Gmask);
-	B = ((((pixel & Bmask) * (255-a) >> 8) + (( (colour & Bmask) * a >> 8))) & Bmask);
+	R = ((((pixel & Rmask) * (255-a) >> 8) + (( (col & Rmask) * a >> 8))) & Rmask);
+	G = ((((pixel & Gmask) * (255-a) >> 8) + (( (col & Gmask) * a >> 8))) & Gmask);
+	B = ((((pixel & Bmask) * (255-a) >> 8) + (( (col & Bmask) * a >> 8))) & Bmask);
 	A = pixel & Amask;
 
 	pixel = (R|G|B|A);
