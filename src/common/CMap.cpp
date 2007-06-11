@@ -697,8 +697,6 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 		x_end -= c_x2-dtx-l-w;
 	}*/
 
-	Uint32 colorkey = SDLColourToNativeColour(bmpObj->format->colorkey);
-	
 	for( y=/*y_start*/sy,dy=wy/*+y_start*/,j=0; y</*y_end*/(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
 		// World Clipping
 		if(dy < 0) continue;
@@ -1024,7 +1022,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 			int iy = dy % Theme.bmpFronttile->h;
 
 			// Set the flag to empty
-			if(pixel == pink && !(flag & PX_ROCK)) {
+			if(!IsTransparent(hole, pixel) && !(flag & PX_ROCK)) {
                 if( flag & PX_EMPTY )
                     nDirtCount++;
 
@@ -1035,7 +1033,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 			}
 
 			// Put pixels that are not black/pink (eg, brown)
-            if(pixel != 0 && pixel != pink && flag & PX_EMPTY) {
+            if(!IsTransparent(hole, pixel) && pixel != pink && flag & PX_EMPTY) {
 				PutPixel(bmpImage, dx, dy, pixel);
                 *(uchar *)px = PX_DIRT;
                 nDirtCount++;
