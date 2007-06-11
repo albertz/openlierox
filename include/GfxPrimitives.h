@@ -234,12 +234,9 @@ inline bool EqualRGB(Uint32 p1, Uint32 p2) {
 }
 
 // Creates a int colour based on the 3 components
+// HINT: format is that one from videosurface!
 inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
 	return SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b);
-}
-
-inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
-	return SDL_MapRGBA(SDL_GetVideoSurface()->format,r,g,b,a);
 }
 
 // Returns true if the color is considered as transparent on the surface
