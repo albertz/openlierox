@@ -156,8 +156,8 @@ inline SDL_Surface *GetMirroredImage(SDL_Surface *bmpSrc)  {
 			bmpSrc->w, bmpSrc->h,
 			bmpSrc->format->BitsPerPixel,
 			bmpSrc->format->Rmask,
-			bmpSrc->format->Bmask,
 			bmpSrc->format->Gmask,
+			bmpSrc->format->Bmask,
 			bmpSrc->format->Amask);
 	if (!result)
 		return NULL;
