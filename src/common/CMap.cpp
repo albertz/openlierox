@@ -436,9 +436,6 @@ int CMap::CreateSurface(void)
 		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
 		return false;
 	}
-	bmpShadowMap->format->Amask = SDL_GetVideoSurface()->format->Amask; // HACK: amask must be same as screen's amask, else
-																		// DrawObjectShadow doesn't work (memcpy problem)
-																		// TODO: fix
 
 	return true;
 }
@@ -533,10 +530,10 @@ void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
 	uchar *pf;
 
     // Go through every pixel in the cell and get a solid flag count
-    for(uint b=y; b<clip_h; b++) {
+    for(int b = y; b < clip_h; b++) {
 
         pf = PixelFlags + b*Width + x;
-        for(uint a=x; a<clip_w; a++, pf++) {
+        for(int a = x; a < clip_w; a++, pf++) {
 
             if(*pf & PX_DIRT)
                 dirtCount++;
@@ -1225,7 +1222,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 		return;
 
 	static const ushort Drop = 3;
-	uint x,y,n;
+	int x, y, n;
 	uchar *px;
 	uchar *p;
 	uint ox,oy;
@@ -1241,10 +1238,10 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	lockFlags();
 
-	int clip_y = MAX(sy,(int)0); 
+	int clip_y = MAX(sy, (int)0); 
 	int clip_x = MAX(sx, (int)0);
-	int clip_h = MIN(sy+h,Height);
-	int clip_w = MIN(sx+w,Width);
+	int clip_h = MIN(sy + h, Height);
+	int clip_w = MIN(sx + w, Width);
 
 	for(y = clip_y; y < clip_h; y++) {
 
@@ -1262,21 +1259,21 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 				ox = x+1; oy = y+1;
 
 				// Draw the shadow
-				for(n=0;n<Drop;n++) {
+				for(n = 0; n < Drop; n++) {
 
 					// Clipping
-					if(ox>=Width)	break;
-					if(oy>=Height)	break;
+					if(ox >= Width) break;
+					if(oy >= Height) break;
 
 					p = PixelFlags + oy * Width + ox;
 					if(!(*(uchar *)p & PX_EMPTY))
 						break;
 
                     offset = oy*bmpImage->pitch + ox*screenbpp;
-                    pixel = (Uint8 *)bmpImage->pixels + offset;
-                    src = (Uint8 *)bmpShadowMap->pixels + offset;
+                    pixel = (Uint8*)bmpImage->pixels + offset;
+                    src = (Uint8*)bmpShadowMap->pixels + offset;
                     //*pixel = *src;
-					memcpy(pixel,src,screenbpp);
+					memcpy(pixel, src, screenbpp);
 
 					*(uchar *)p |= PX_EMPTY | PX_SHADOW;
 					ox++; oy++;
@@ -1301,12 +1298,12 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 void CMap::CalculateShadowMap(void)
 {
 	// This should be faster
-	SDL_Surface *tmp = gfxCreateSurface(bmpImage->w,bmpImage->h);
+	SDL_Surface* tmp = gfxCreateSurface(bmpImage->w, bmpImage->h);
 	if (!tmp)
 		return;
-	SDL_BlitSurface(bmpBackImage,NULL,bmpShadowMap,NULL);
-	SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, 100);
-	SDL_BlitSurface(tmp,NULL,bmpShadowMap,NULL);
+	SDL_BlitSurface(bmpBackImage, NULL, bmpShadowMap, NULL);
+	SDL_SetAlpha(tmp, SDL_SRCALPHA | SDL_RLEACCEL, 100);
+	SDL_BlitSurface(tmp, NULL, bmpShadowMap, NULL);
 	SDL_FreeSurface(tmp);
 	
  /*   int x,y;
@@ -1390,11 +1387,11 @@ void CMap::PlaceStone(int size, CVec pos)
 	w = stone->w;
 	h = stone->h;
 
-	sx = (int)pos.x-(stone->w>>1);
-	sy = (int)pos.y-(stone->h>>1);
+	sx = (int)pos.x - (stone->w >> 1);
+	sy = (int)pos.y - (stone->h >> 1);
 
 	// Blit the stone to the surface
-	DrawImage(bmpImage,stone,sx,sy);
+	DrawImage(bmpImage, stone, sx, sy);
 
 	if(SDL_MUSTLOCK(stone))
 		SDL_LockSurface(stone);
@@ -1402,8 +1399,8 @@ void CMap::PlaceStone(int size, CVec pos)
 	lockFlags();
 
 	// Calculate the clipping bounds, so we don't have to check each loop then
-	short clip_h = MIN(sy+stone->h,bmpImage->h)-sy;
-	short clip_w = MIN(sx+stone->w,bmpImage->w)-sx;
+	short clip_h = MIN(sy+stone->h, bmpImage->h) - sy;
+	short clip_w = MIN(sx+stone->w, bmpImage->w) - sx;
 	short clip_y = 0; 
 	short clip_x = 0; 
 	if (sy<0) 
@@ -1413,25 +1410,25 @@ void CMap::PlaceStone(int size, CVec pos)
 
 	// Pixels
 	Uint8 *p = NULL;
-	Uint8 *PixelRow = (Uint8 *)stone->pixels + clip_y*stone->pitch;
+	Uint8 *PixelRow = (Uint8*)stone->pixels + clip_y*stone->pitch;
 	uchar *px = PixelFlags;
-	short pf_tmp = MAX((short)0,sx);
-	short p_tmp = clip_x*stone->format->BytesPerPixel;
+	short pf_tmp = MAX((short)0, sx);
+	short p_tmp = clip_x * stone->format->BytesPerPixel;
 
 	// Go through the pixels in the stone and update pixel flags
-	for(y=clip_y,dy=MAX((short)0,sy);y<clip_h;y++,dy++,PixelRow+=stone->pitch) {
+	for(y = clip_y, dy = MAX((short)0, sy); y < clip_h; y++, dy++, PixelRow += stone->pitch) {
 
 		p = PixelRow+p_tmp;
 		px = PixelFlags + dy * Width + pf_tmp;
 
-		for(x=clip_x;x<clip_w;x++) {
+		for(x = clip_x; x < clip_w; x++) {
 
 			// Rock?
 			if(!IsTransparent(stone, GetPixelFromAddr(p, stone->format->BytesPerPixel))) {
-				*(uchar *)px = PX_ROCK;
+				*(uchar*)px = PX_ROCK;
 			}
 
-			p+=stone->format->BytesPerPixel;
+			p += stone->format->BytesPerPixel;
 			px++;
 		}
 	}
@@ -1442,18 +1439,20 @@ void CMap::PlaceStone(int size, CVec pos)
 		SDL_UnlockSurface(stone);
 
 	// Apply the shadow
-	ApplyShadow(sx-5,sy-5,w+10,h+10);
+	ApplyShadow(sx - 5, sy - 5, w + 10, h + 10);
 
 	// Update the draw image
-	short draw_x = MAX(sx-5,0);
-	short draw_y = MAX(sy-5,0);
-	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,stone->w+10,stone->h+10);
+	short draw_x = MAX(sx - 5, 0);
+	short draw_y = MAX(sy - 5, 0);
+	DrawImageStretch2(bmpDrawImage, bmpImage,
+			draw_x, draw_y, draw_x * 2, draw_y * 2,
+			stone->w + 10, stone->h + 10);
 
     // Calculate the total dirt count
     CalculateDirtCount();
 
 	// Update the minimap rectangle
-	UpdateMiniMapRect(draw_x, draw_y, stone->w+10, stone->h+10);
+	UpdateMiniMapRect(draw_x, draw_y, stone->w + 10, stone->h + 10);
 	//bMiniMapDirty = true;
 }
 

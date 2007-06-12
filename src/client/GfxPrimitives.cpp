@@ -64,23 +64,19 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 
 //////////////////////
 // Set a color key for alpha surface (SDL_SetColorKey does not work for alpha surfaces)
-void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b)
+// TODO: use colorkey directly, don't pass r/g/b here
+void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b)
 {
 	// Just set transparent alpha to pixels that match the color key
 	register Uint8 *pxr = (Uint8 *)dst->pixels;
 	register Uint8 *px;
 	int x,y;
-	Uint8 dr,dg,db;
-	Uint32 pixel;
-	for (y=0;y<dst->h;y++,pxr+=dst->pitch)  {
+	Uint32 colorkey = SDL_MapRGBA(dst->format, r, g, b, 0);
+	for(y = 0; y < dst->h; y++, pxr += dst->pitch)  {
 		px = pxr;
-		for (x=0;x<dst->w;x++,px+=dst->format->BytesPerPixel)  {
-			pixel = GetPixelFromAddr(px,dst->format->BytesPerPixel);
-			GetColour3(pixel,dst,&dr,&dg,&db);
-			if (r==dr && g==dg && b==db)  {  // Key?
-				pixel &= ~dst->format->Amask;
-				memcpy(px,&pixel,dst->format->BytesPerPixel);
-			}
+		for(x = 0; x < dst->w; x++, px += dst->format->BytesPerPixel)  {
+			if(EqualRGB(colorkey, GetPixelFromAddr(px, dst->format->BytesPerPixel)))
+				PutPixel(dst, x, y, colorkey);
 		}
 	}
 

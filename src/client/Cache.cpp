@@ -35,42 +35,7 @@ std::vector<CCache> Cache;
 
 ///////////////////
 // Load an image
-SDL_Surface* _LoadImage(const std::string& filename)
-{
-    /*SDL_Surface *psSurf = NULL;
-    Uint32 Rmask, Gmask, Bmask, Amask;
-    Rmask = Gmask = Bmask = Amask = 0;
-
-    if ( SDL_BYTEORDER == SDL_LIL_ENDIAN ) {
-	    Rmask = 0x000000FF;
-		Gmask = 0x0000FF00;
-		Bmask = 0x00FF0000;
-		Amask = 0xFF000000;
-	} else {	    
-		Rmask = 0xFF000000;
-		Gmask = 0x00FF0000;
-		Bmask = 0x0000FF00;
-		Amask = 0x000000FF;
-	}
-
-    // Load the image (32bpp)
-	corona::Image* image = corona::OpenImage(filename,corona::FF_AUTODETECT,corona::PF_R8G8B8A8);
-
-	if(!image)
-		return NULL;
-
-    
-    psSurf = SDL_CreateRGBSurface(iSurfaceFormat, image->getWidth(), image->getHeight(), 32, Rmask, Gmask, Bmask, Amask);
-    if( !psSurf )
-        return NULL;
-
-    // Copy the data over
-    memcpy( psSurf->pixels, image->getPixels(), psSurf->w*psSurf->h*4);
-
-    delete image;
-
-    return psSurf;*/
-
+SDL_Surface* _LoadImage(const std::string& filename) {
 	std::string fname = GetFullFileName(filename);
 	if(fname.size() == 0)
 		return NULL;
@@ -106,9 +71,16 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 		int flags = iSurfaceFormat | SDL_SRCALPHA;
 		Image = SDL_ConvertSurface(img,&fmt,flags);
 	}
-	else  {
+	else {
+		// Remove the alpha flag, just for sure...
+		// TODO: is this enough?
+		//	if it has an Amask!=0, perhaps it ignores this flag
+		//	perhaps better solution (if this isn't enough; needs more testing):
+		//		like withalpha, copy videosurf->format
+		//		TODO: what should we do with alpha-data? just set everything to Amask?
+		img->flags &= ~SDL_SRCALPHA;
+
 		Image = SDL_DisplayFormat(img);
-		Image->flags &= ~SDL_SRCALPHA; // Remove the alpha flag, just for sure...
 	}
 
 	SDL_FreeSurface(img);
