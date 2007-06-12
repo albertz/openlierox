@@ -60,17 +60,10 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 		fmt.Gmask = ALPHASURFACE_GMASK;
 		fmt.Bmask = ALPHASURFACE_BMASK;
 		fmt.Amask = ALPHASURFACE_AMASK;
-		int flags = iSurfaceFormat | SDL_SRCALPHA;
-		Image = SDL_ConvertSurface(img, &fmt, flags);
+		Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat | SDL_SRCALPHA);
 	} else {
-		// Remove the alpha flag, just for sure...
-		// TODO: is this enough?
-		//	if it has an Amask!=0, perhaps it ignores this flag
-		//	perhaps better solution (if this isn't enough; needs more testing):
-		//		like withalpha, copy videosurf->format
-		//		TODO: what should we do with alpha-data? just set everything to Amask?
-		img->flags &= ~SDL_SRCALPHA;
 		Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
+		ResetAlpha(Image);
 	}
 
 	SDL_FreeSurface(img);

@@ -273,6 +273,16 @@ inline void SetColorKey(SDL_Surface* dst)  {
 		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
 }
 
+// resets the alpha-channel and the colorkey
+inline void ResetAlpha(SDL_Surface* dst) {
+	dst->flags &= ~(SDL_SRCCOLORKEY); // reset colorkey flag
+	
+	int x, y;
+	for(y = 0; y < dst->h; y++)
+		for(x = 0; x < dst->w; x++)
+			PutPixel(dst, x, y, GetPixel(dst, x, y) | dst->format->Amask);
+}
+
 // Line drawing
 void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
 
