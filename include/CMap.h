@@ -271,7 +271,7 @@ public:
 	void		PlaceStone(int size, CVec pos);
 	void		PlaceMisc(int id, CVec pos);
     int         PlaceGreenDirt(CVec pos);
-	void		ApplyShadow(uint sx, uint sy, uint w, uint h);
+	void		ApplyShadow(int sx, int sy, int w, int h);
 
 	void		DeleteObject(CVec pos);
 	void		DeleteStone(object_t *obj);

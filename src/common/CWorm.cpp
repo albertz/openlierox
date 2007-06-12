@@ -319,7 +319,7 @@ int CWorm::LoadGraphics(int gametype)
     // Create the minipic
     bmpPic = gfxCreateSurface(18,16);
     SetColorKey(bmpPic);
-    DrawRectFill(bmpPic, 0,0,bmpPic->w,bmpPic->h, COLORKEY(bmpPic));
+    FillSurface(bmpPic, COLORKEY(bmpPic));
     DrawImageAdv(bmpPic, bmpWormRight, 134,2,0,0, 18,16);
 
 	

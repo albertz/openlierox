@@ -22,6 +22,7 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "InputEvents.h"
 
 
 ///////////////////
@@ -409,7 +410,7 @@ int CMap::CreateSurface(void)
 	}
 
 	SetColorKey(bmpDebugImage);
-	DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,COLORKEY(bmpDebugImage));
+	FillSurface(bmpDebugImage, COLORKEY(bmpDebugImage));
 #endif
 
 	bmpDrawImage = gfxCreateSurface(Width*2, Height*2);
@@ -435,6 +436,9 @@ int CMap::CreateSurface(void)
 		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
 		return false;
 	}
+	bmpShadowMap->format->Amask = SDL_GetVideoSurface()->format->Amask; // HACK: amask must be same as screen's amask, else
+																		// DrawObjectShadow doesn't work (memcpy problem)
+																		// TODO: fix
 
 	return true;
 }
@@ -511,6 +515,9 @@ void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
     x = i*nGridWidth;
     y = j*nGridHeight;
 
+	if (x >= Width || y >= Height)
+		return;
+
     uchar *cell = GridFlags + j*nGridCols + i;
     uchar *abs_cell = AbsoluteGridFlags + j*nGridCols + i;
 
@@ -521,20 +528,15 @@ void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
     int dirtCount = 0;
     int rockCount = 0;
 
+	int clip_h = MIN(y+nGridHeight,Height);
+	int clip_w = MIN(x+nGridWidth,Width);
+	uchar *pf;
+
     // Go through every pixel in the cell and get a solid flag count
-    for(uint b=y; b<y+nGridHeight; b++) {
-        // Clipping
-        if(b>=Height)
-            break;
-        if(x>=Width)
-            break;
+    for(uint b=y; b<clip_h; b++) {
 
-        uchar *pf = PixelFlags + b*Width + x;
-        for(uint a=x; a<x+nGridWidth; a++, pf++) {
-
-            // Clipping
-            if(a>=Width)
-                break;
+        pf = PixelFlags + b*Width + x;
+        for(uint a=x; a<clip_w; a++, pf++) {
 
             if(*pf & PX_DIRT)
                 dirtCount++;
@@ -620,8 +622,10 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 		//DEBUG_DrawPixelFlags();
 		DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #ifdef _AI_DEBUG
-		//if (GetKeyboard()->KeyDown[SDLK_F2])
-		//	DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
+		/*if (GetKeyboard()->KeyDown[SDLK_F2])
+			DrawImageStretch2(bmpDebugImage,bmpShadowMap,0, 0,0,0,Width,Height);
+		else
+			ClearDebugImage();*/
 		DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #endif
 }
@@ -840,21 +844,19 @@ int CMap::CarveHole(int size, CVec pos)
 
 		for(x=clip_x;x<clip_w;x++,px++,srcpix+=hole->format->BytesPerPixel,dstpix+=bmpImage->format->BytesPerPixel) {
 
-			if (*px & PX_ROCK) continue;
+			if (!(*px & PX_DIRT)) continue;
 
 			// Set the flag to empty
 			if(!memcmp(srcpix,&pink,hole->format->BytesPerPixel)) {
 
 				// Increase the dirt count
-				nNumDirt+=((*px & PX_DIRT) != 0) ? 1 : 0;
+				nNumDirt++;
 
 				*px = PX_EMPTY;
 
 			// Put pixels that are not black/pink (eg, brown)
-			} else {	
-				if((*px & PX_DIRT) != 0 && memcmp(srcpix,&black,hole->format->BytesPerPixel))
-					memcpy(dstpix,srcpix,bmpImage->format->BytesPerPixel);
-			}
+			} else if(memcmp(srcpix,&black,hole->format->BytesPerPixel))
+				memcpy(dstpix,srcpix,bmpImage->format->BytesPerPixel);
 		}
 	}
 
@@ -862,8 +864,6 @@ int CMap::CarveHole(int size, CVec pos)
 
 	if(SDL_MUSTLOCK(hole))
 		SDL_UnlockSurface(hole);
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
 
 	// If nothing has been carved, we don't have to bother with updating the state
 	if (!nNumDirt)
@@ -880,13 +880,11 @@ int CMap::CarveHole(int size, CVec pos)
 	clip_y = 0; 
 	clip_x = 0; 
 	if (sy<0) 
-		clip_y = abs(sy);
+		clip_y = -sy;
 	if (sx<0) 
-		clip_x = abs(sx);
+		clip_x = -sx;
 
 
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
 	if(SDL_MUSTLOCK(bmpBackImage))
 		SDL_LockSurface(bmpBackImage);
 
@@ -948,7 +946,6 @@ int CMap::CarveHole(int size, CVec pos)
 	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
 
 	UpdateMiniMapRect(MAX(0,sx-5), MAX(0,sy-5), w+25, h+25);
-	//bMiniMapDirty = true;
 
     return nNumDirt;
 }
@@ -962,9 +959,9 @@ int CMap::PlaceDirt(int size, CVec pos)
 {
 	SDL_Surface *hole;
 	int dx,dy, sx,sy;
-	int bx,by;
 	int x,y;
 	int w,h;
+	int ix,iy;
 	Uint32 pixel;
 	uchar flag;
 
@@ -996,30 +993,30 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
+	// Calculate clipping
+	int clip_y = MAX(sy, 0);
+	int clip_x = MAX(sx, 0);
+	int clip_h = MIN(sy+h, bmpImage->h);
+	int clip_w = MIN(sx+w, bmpImage->w);
+	int hole_clip_y = -MIN(sy,(int)0);
+	int hole_clip_x = -MIN(sx,(int)0);
+
 	lockFlags();
 
 	// Go through the pixels in the hole, setting the flags to dirt
-	for(y=0,dy=sy,by=16;y<hole->h;y++,dy++,by++) {
+	for(y=hole_clip_y,dy=clip_y;dy<clip_h;y++,dy++) {
 
-		// Clipping
-		if(dy<0)			continue;
-		if(dy>=bmpImage->h)	break;
+		p = (Uint8 *)hole->pixels + y * hole->pitch + hole_clip_x * hole->format->BytesPerPixel;
+		px = PixelFlags + dy * Width + clip_x;
+		p2 = (Uint8 *)bmpImage->pixels + dy * bmpImage->pitch + clip_x * bmpImage->format->BytesPerPixel;
 
-		p = (Uint8 *)hole->pixels + y * hole->pitch;
-		px = PixelFlags + dy * Width + sx;
-		p2 = (Uint8 *)bmpImage->pixels + dy * bmpImage->pitch + sx * bmpImage->format->BytesPerPixel;
-
-		for(x=0,dx=sx,bx=16;x<hole->w;x++,dx++,bx++) {
-
-			// Clipping
-			if(dx<0) {	p+=screenbpp; p2+=screenbpp; px++;	continue; }
-			if(dx>=bmpImage->w)				break;
+		for(x=hole_clip_x,dx=clip_x;dx<clip_w;x++,dx++) {
 
 			pixel = GetPixelFromAddr(p,screenbpp);
 			flag = *(uchar *)px;
 
-			int ix = dx % Theme.bmpFronttile->w;
-			int iy = dy % Theme.bmpFronttile->h;
+			ix = dx % Theme.bmpFronttile->w;
+			iy = dy % Theme.bmpFronttile->h;
 
 			// Set the flag to empty
 			if(!IsTransparent(hole, pixel) && !(flag & PX_ROCK)) {
@@ -1095,17 +1092,16 @@ int CMap::PlaceGreenDirt(CVec pos)
 		return 0;
 
  	int dx,dy, sx,sy;
-	int bx,by;
 	int x,y;
 	int w,h;
 	Uint32 pixel;
 	uchar flag;
-    Uint32 green = MakeColour(0,255,0);
-	Uint32 pink = MakeColour(255,0,255);
-    Uint32 greens[4] = {MakeColour(148,136,0),
-                        MakeColour(136,124,0),
-                        MakeColour(124,112,0),
-                        MakeColour(116,100,0)};
+    const Uint32 green = MakeColour(0,255,0);
+	const Uint32 pink = MakeColour(255,0,255);
+    const Uint32 greens[4] = {MakeColour(148,136,0),
+				              MakeColour(136,124,0),
+						      MakeColour(124,112,0),
+							  MakeColour(116,100,0)};
 
     int nGreenCount = 0;
 
@@ -1124,41 +1120,41 @@ int CMap::PlaceGreenDirt(CVec pos)
 	Uint8 *p;
 	uchar *px;
 	Uint8 *p2;
+	Uint32 gr;
+
+	// Calculate clipping
+	int clip_y = MAX(sy, 0);
+	int clip_x = MAX(sx, 0);
+	int clip_h = MIN(sy+h, bmpImage->h);
+	int clip_w = MIN(sx+w, bmpImage->w);
+	int green_clip_y = -MIN(sy,(int)0);
+	int green_clip_x = -MIN(sx,(int)0);
 
 	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
 	lockFlags();
 
 	// Go through the pixels in the hole, setting the flags to dirt
-	for(y=0,dy=sy,by=16; y<h; y++,dy++,by++) {
+	for(y=green_clip_y,dy=clip_y; dy<clip_h; y++,dy++) {
 
-		// Clipping
-		if(dy<0)			continue;
-		if(dy>=bmpImage->h)	break;
+		p = (Uint8 *)bmpGreenMask->pixels + y * bmpGreenMask->pitch + green_clip_x * bmpGreenMask->format->BytesPerPixel;
+		px = PixelFlags + dy * Width + clip_x;
+		p2 = (Uint8 *)bmpImage->pixels + dy * bmpImage->pitch + clip_x * bmpImage->format->BytesPerPixel;
 
-		p = (Uint8 *)bmpGreenMask->pixels + y * bmpGreenMask->pitch;
-		px = PixelFlags + dy * Width + sx;
-		p2 = (Uint8 *)bmpImage->pixels + dy * bmpImage->pitch + sx * bmpImage->format->BytesPerPixel;
+		for(x=green_clip_x,dx=clip_x; dx<clip_w; x++,dx++) {
 
-		for(x=0,dx=sx,bx=16; x<w; x++,dx++,bx++) {
-
-			// Clipping
-			if(dx<0) {	p+=screenbpp; p2+=screenbpp; px++;	continue; }
-			if(dx>=bmpImage->w)				break;
-
-			//pixel = *(Uint16 *)p;
 			pixel = GetPixelFromAddr(p,screenbpp);
 			flag = *(uchar *)px;
 
-			// Set the flag to empty
+			// Set the flag to dirt
 			if(pixel == green && flag & PX_EMPTY) {
 				*(uchar *)px = PX_DIRT;
                 nGreenCount++;
 
                 // Place a random green pixel
-                Uint32 gr = greens[ GetRandomInt(3) ];
+                gr = greens[ GetRandomInt(3) ];
 
-				// Place the dirt image
+				// Place the green pixel
 				PutPixel(bmpImage, dx, dy, gr);
 			}
 
@@ -1179,6 +1175,10 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 	if(SDL_MUSTLOCK(bmpGreenMask))
 		SDL_UnlockSurface(bmpGreenMask);
+
+	// Nothing placed, no need to update
+	if (nGreenCount == 0)
+		return 0;
 
 	if (!bmpDrawImage)
 		return nGreenCount;
@@ -1218,7 +1218,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 ///////////////////
 // Apply a shadow to an area
-void CMap::ApplyShadow(uint sx, uint sy, uint w, uint h)
+void CMap::ApplyShadow(int sx, int sy, int w, int h)
 {
 	// Draw shadows?
 	if(!tLXOptions->iShadows)
@@ -1230,6 +1230,7 @@ void CMap::ApplyShadow(uint sx, uint sy, uint w, uint h)
 	uchar *p;
 	uint ox,oy;
 	uchar flag;
+	Uint32 offset;
 
 	Uint8 *pixel,*src;
 
@@ -1240,19 +1241,16 @@ void CMap::ApplyShadow(uint sx, uint sy, uint w, uint h)
 
 	lockFlags();
 
-	for(y=sy;y<sy+h;y++) {
+	int clip_y = MAX(sy,(int)0); 
+	int clip_x = MAX(sx, (int)0);
+	int clip_h = MIN(sy+h,Height);
+	int clip_w = MIN(sx+w,Width);
 
-		// Clipping
-//		if(y < 0) continue; else 
-		if(y>=Height)	break;
+	for(y = clip_y; y < clip_h; y++) {
 
-		px = PixelFlags + y * Width + sx;
+		px = PixelFlags + y * Width + clip_x;
 
-		for(x=sx;x<sx+w;x++) {
-
-			// Clipping
-//			if(x<0) {	px++;	continue; } else
-			if(x>=Width)	break;
+		for(x = clip_x; x < clip_w; x++) {
 
 			flag = *(uchar *)px;
 
@@ -1274,7 +1272,7 @@ void CMap::ApplyShadow(uint sx, uint sy, uint w, uint h)
 					if(!(*(uchar *)p & PX_EMPTY))
 						break;
 
-                    Uint32 offset = oy*bmpImage->pitch + ox*screenbpp;
+                    offset = oy*bmpImage->pitch + ox*screenbpp;
                     pixel = (Uint8 *)bmpImage->pixels + offset;
                     src = (Uint8 *)bmpShadowMap->pixels + offset;
                     //*pixel = *src;
@@ -2427,9 +2425,6 @@ int CMap::LoadOriginal(FILE *fp)
 	}
 */
 
-	// Apply shadow
-	ApplyShadow(0,0,Width,Height);
-
 	delete[] palette;
 	delete[] bytearr;
 
@@ -2443,6 +2438,9 @@ int CMap::LoadOriginal(FILE *fp)
 
     // Calculate the shadowmap
     CalculateShadowMap();
+
+	// Apply shadow
+	ApplyShadow(0,0,Width,Height);
 
     // Calculate the grid
     calculateGrid();

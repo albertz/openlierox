@@ -308,7 +308,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 					if (R == 255 && G == 255 && B == 255)  // White
 						PutPixelA(dst,x+pos+b,y+j,col,A); // Put the pixel and blend it with background
 					else if (!R && !G && !B)  // Black
-						PutPixelA(dst,x+pos+b,y+j,MakeColour(0,0,0),A);
+						PutPixelA(dst,x+pos+b,y+j,tLX->clBlack,A);
 				}
 				src+= bmpFont->pitch;
 			}
