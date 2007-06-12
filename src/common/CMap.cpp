@@ -988,7 +988,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 	uchar *px;
 	Uint8 *p2;
 
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
+	short screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
 	// Calculate clipping
 	int clip_y = MAX(sy, 0);
@@ -1001,7 +1001,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 	lockFlags();
 
 	// Go through the pixels in the hole, setting the flags to dirt
-	for(y=hole_clip_y,dy=clip_y;dy<clip_h;y++,dy++) {
+	for(y = hole_clip_y, dy = clip_y; dy < clip_h; y++, dy++) {
 
 		p = (Uint8 *)hole->pixels + y * hole->pitch + hole_clip_x * hole->format->BytesPerPixel;
 		px = PixelFlags + dy * Width + clip_x;
@@ -1009,7 +1009,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 		for(x=hole_clip_x,dx=clip_x;dx<clip_w;x++,dx++) {
 
-			pixel = GetPixelFromAddr(p,screenbpp);
+			pixel = GetPixelFromAddr(p, screenbpp);
 			flag = *(uchar *)px;
 
 			ix = dx % Theme.bmpFronttile->w;
@@ -1020,21 +1020,21 @@ int CMap::PlaceDirt(int size, CVec pos)
                 if( flag & PX_EMPTY )
                     nDirtCount++;
 
-				*(uchar *)px = PX_DIRT;
+				*(uchar*)px = PX_DIRT;
 
 				// Place the dirt image
-				PutPixel(bmpImage, dx, dy, GetPixel(Theme.bmpFronttile, ix, iy));
+				PutPixelToAddr(p2, GetPixel(Theme.bmpFronttile, ix, iy), screenbpp);
 			}
 
 			// Put pixels that are not black/pink (eg, brown)
             if(!IsTransparent(hole, pixel) && pixel != pink && flag & PX_EMPTY) {
-				PutPixel(bmpImage, dx, dy, pixel);
-                *(uchar *)px = PX_DIRT;
+				PutPixelToAddr(p2, pixel, screenbpp);
+                *(uchar*)px = PX_DIRT;
                 nDirtCount++;
             }
 
-			p+=screenbpp;
-			p2+=screenbpp;
+			p += screenbpp;
+			p2 += screenbpp;
 			px++;
 		}
 	}
@@ -1127,43 +1127,45 @@ int CMap::PlaceGreenDirt(CVec pos)
 	int green_clip_y = -MIN(sy,(int)0);
 	int green_clip_x = -MIN(sx,(int)0);
 
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
+	short screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
 
 	lockFlags();
 
 	// Go through the pixels in the hole, setting the flags to dirt
-	for(y=green_clip_y,dy=clip_y; dy<clip_h; y++,dy++) {
+	for(y = green_clip_y, dy=clip_y; dy < clip_h; y++, dy++) {
 
-		p = (Uint8 *)bmpGreenMask->pixels + y * bmpGreenMask->pitch + green_clip_x * bmpGreenMask->format->BytesPerPixel;
+		p = (Uint8*)bmpGreenMask->pixels
+			+ y * bmpGreenMask->pitch
+			+ green_clip_x * bmpGreenMask->format->BytesPerPixel;
 		px = PixelFlags + dy * Width + clip_x;
 		p2 = (Uint8 *)bmpImage->pixels + dy * bmpImage->pitch + clip_x * bmpImage->format->BytesPerPixel;
 
-		for(x=green_clip_x,dx=clip_x; dx<clip_w; x++,dx++) {
+		for(x = green_clip_x, dx=clip_x; dx < clip_w; x++, dx++) {
 
 			pixel = GetPixelFromAddr(p,screenbpp);
-			flag = *(uchar *)px;
+			flag = *(uchar*)px;
 
 			// Set the flag to dirt
 			if(pixel == green && flag & PX_EMPTY) {
-				*(uchar *)px = PX_DIRT;
+				*(uchar*)px = PX_DIRT;
                 nGreenCount++;
 
                 // Place a random green pixel
                 gr = greens[ GetRandomInt(3) ];
 
 				// Place the green pixel
-				PutPixel(bmpImage, dx, dy, gr);
+				PutPixelToAddr(p2, gr, screenbpp);
 			}
 
 			// Put pixels that are not green/pink (eg, dark green)
             if(pixel != green && pixel != pink && flag & PX_EMPTY) {
-				PutPixel(bmpImage, dx, dy, pixel);
-                *(uchar *)px = PX_DIRT;
+				PutPixelToAddr(p2, pixel, screenbpp);
+                *(uchar*)px = PX_DIRT;
                 nGreenCount++;
             }
 
-			p+=screenbpp;
-			p2+=screenbpp;
+			p += screenbpp;
+			p2 += screenbpp;
 			px++;
 		}
 	}
@@ -1187,26 +1189,24 @@ int CMap::PlaceGreenDirt(CVec pos)
 	int draw_x = sx-5;
 	int draw_y = sy-5;
 	// Clipping
-	if(draw_x+w+25 > bmpImage->w)
-		draw_x = bmpImage->w-w-25;
-	if(draw_y+h+25 > bmpImage->h)
-		draw_y = bmpImage->h-h-25;
+	if(draw_x + w + 25 > bmpImage->w)
+		draw_x = bmpImage->w - w - 25;
+	if(draw_y + h + 25 > bmpImage->h)
+		draw_y = bmpImage->h - h - 25;
 	if (draw_x < 0)
 		draw_x = 0;
 	if (draw_y < 0)
 		draw_y = 0;
-	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
+	DrawImageStretch2(bmpDrawImage, bmpImage, draw_x, draw_y, draw_x * 2, draw_y * 2, w + 25, h + 25);
 
-	UpdateMiniMapRect(draw_x,draw_y,w+25,h+25);
+	UpdateMiniMapRect(draw_x, draw_y, w + 25, h + 25);
 	//bMiniMapDirty = true;
 
 	// Recalculate the grid
 	lockFlags();
-	for(y=sy; y<sy+h+nGridHeight; y+=nGridHeight) {
-		for(x=sx; x<sx+w+nGridWidth; x+=nGridWidth) {
+	for(y = sy; y < sy + h + nGridHeight; y += nGridHeight)
+		for(x = sx; x < sx + w + nGridWidth; x += nGridWidth)
 			calculateGridCell(x, y, false);
-		}
-	}
 	unlockFlags();
 
     return nGreenCount;
@@ -1517,9 +1517,9 @@ void CMap::PlaceMisc(int id, CVec pos)
 	short dx_tmp = MAX((short)0,sx);
 
 	// Go through the pixels in the misc item
-	for(y=clip_y,dy=MAX((short)0,sy);y<clip_h;y++,dy++,PixelRow+=misc->pitch) {
+	for(y = clip_y, dy = MAX((short)0, sy); y < clip_h; y++, dy++, PixelRow += misc->pitch) {
 
-		p = PixelRow+p_tmp;
+		p = PixelRow + p_tmp;
 		px = PixelFlags + dy * Width + pf_tmp;
 
 		for(x = clip_x, dx = dx_tmp; x < clip_w; dx++, x++) {
@@ -2201,40 +2201,33 @@ int CMap::LoadImageFormat(FILE *fp)
 
 	p=0;
 	Uint32 curcolor=0;
-	Uint8 *curpixel = (Uint8 *)bmpBackImage->pixels;
-	Uint8 *PixelRow = curpixel;
+	Uint8* curpixel = (Uint8*)bmpBackImage->pixels;
+	Uint8* PixelRow = curpixel;
 
 	// TODO: check if pDest is big enough
 
 	// Load the back image
-	for (y=0;y<Height;y++,PixelRow+=bmpBackImage->pitch)  {
+	for (y = 0; y < Height; y++, PixelRow += bmpBackImage->pitch)  {
 		curpixel = PixelRow;
-		for (x=0;x<Width;x++,curpixel+=bmpBackImage->format->BytesPerPixel)  {
-			curcolor = MakeColour(pDest[p],pDest[p+1],pDest[p+2]);
-			p+=3;
-			PutPixel(bmpBackImage, x, y, curcolor);
+		for (x = 0; x < Width; x++, curpixel += bmpBackImage->format->BytesPerPixel)  {
+			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
+			p += 3;
+			PutPixelToAddr(curpixel, curcolor, bmpBackImage->format->BytesPerPixel);
 		}
 	}
 
 	// Load the front image
 	curpixel = (Uint8 *)bmpImage->pixels;
 	PixelRow = curpixel;
-	for (y=0;y<Height;y++,PixelRow+=bmpImage->pitch)  {
+	for (y = 0; y < Height; y++, PixelRow += bmpImage->pitch)  {
 		curpixel = PixelRow;
-		for (x=0;x<Width;x++,curpixel+=bmpImage->format->BytesPerPixel)  {
-			curcolor = MakeColour(pDest[p],pDest[p+1],pDest[p+2]);
-			p+=3;
-			PutPixel(bmpImage, x, y, curcolor);
+		for (x = 0;x < Width; x++, curpixel += bmpImage->format->BytesPerPixel)  {
+			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
+			p += 3;
+			PutPixelToAddr(curpixel, curcolor, bmpImage->format->BytesPerPixel);
 		}
 	}
 
-	//SDL_SaveBMP(bmpImage, "image.bmp");
-	//SDL_SaveBMP(bmpBackImage, "backimage.bmp");
-
-	// TEMP
-	//SDL_PixelFormat *fmt = bmpImage->format;
-	//SDL_Surface *pxf = SDL_CreateRGBSurface(iSurfaceFormat, Width, Height, fmt->BitsPerPixel,
-	//								fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	// Load the pixel flags and calculate dirt count
 	n=0;
@@ -2252,13 +2245,10 @@ int CMap::LoadImageFormat(FILE *fp)
 		backpixel = BackPixelRow;
 		for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
 			PixelFlags[n] = pDest[p++];
-			memcpy(curpixel,backpixel,bmpImage->format->BytesPerPixel*(PixelFlags[n] & PX_EMPTY)); // If the pixelflag isn't empty, copies 0 bytes
+			if(!(PixelFlags[n] & PX_EMPTY))
+				memcpy(curpixel, backpixel, bmpImage->format->BytesPerPixel);
 			nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
 			n++;
-			/*if(t & PX_ROCK)
-				PutPixel(pxf, x,y, MakeColour(128,128,128));
-			else if(t & PX_DIRT)
-				PutPixel(pxf, x,y, MakeColour(128,64,64));*/
 		}
 	}
 	unlockFlags();
@@ -2416,13 +2406,6 @@ int CMap::LoadOriginal(FILE *fp)
 		}
 	}
 	unlockFlags();
-
-/*
-	// Dump the palette
-	for(n=0;n<256;n++) {
-		//printf("Index: %d =  %d, %d, %d\n",n,palette[n*3], palette[n*3+1], palette[n*3+2]);
-	}
-*/
 
 	delete[] palette;
 	delete[] bytearr;
@@ -2634,6 +2617,10 @@ void CMap::Shutdown(void)
 
 
 #ifdef _AI_DEBUG
-void CMap::ClearDebugImage()   { if (bmpDebugImage) { DrawRectFill(bmpDebugImage,0,0,bmpDebugImage->w,bmpDebugImage->h,COLORKEY(bmpDebugImage));}}
+void CMap::ClearDebugImage() {
+	if (bmpDebugImage) {
+		DrawRectFill(bmpDebugImage, 0, 0, bmpDebugImage->w, bmpDebugImage->h, COLORKEY(bmpDebugImage));
+	}
+}
 #endif
 

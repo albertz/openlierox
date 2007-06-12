@@ -83,13 +83,16 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
-	SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
+	SDL_PixelFormat* fmt = SDL_GetVideoSurface()->format;
 
-	SDL_Surface *result = SDL_CreateRGBSurface(iSurfaceFormat, width, height, 
-		fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, 0x00000000);
+	SDL_Surface* result = SDL_CreateRGBSurface(
+			iSurfaceFormat, width, height, 
+			fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if (result)
-		SDL_FillRect( result, NULL, SDL_MapRGB(result->format,0,0,0)); // OpenGL strictly requires the surface to be cleared
+		// OpenGL strictly requires the surface to be cleared
+		SDL_FillRect(result, NULL, SDL_MapRGBA(result->format, 0, 0, 0, 255));
+	
 	return result;
 }
 
@@ -100,12 +103,15 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 		return NULL;
 
 	// NOTE: must match format in CCache::LoadImageBPP
-	SDL_Surface *result = SDL_CreateRGBSurface(iSurfaceFormat | SDL_SRCALPHA,
-		width, height, 32,
-		ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
+	SDL_Surface* result = SDL_CreateRGBSurface(
+			iSurfaceFormat | SDL_SRCALPHA,
+			width, height, 32,
+			ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
 
 	if (result)
-		SDL_FillRect( result, NULL, SDL_MapRGB(result->format,0,0,0)); // OpenGL strictly requires the surface to be cleared
+		// OpenGL strictly requires the surface to be cleared
+		SDL_FillRect( result, NULL, SDL_MapRGB(result->format,0,0,0));
+	
 	return result;
 }
 
@@ -145,10 +151,17 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key);
 
 inline SDL_Surface *GetMirroredImage(SDL_Surface *bmpSrc)  {
-	SDL_Surface *result = SDL_CreateRGBSurface(bmpSrc->flags,bmpSrc->w,bmpSrc->h,bmpSrc->format->BitsPerPixel,bmpSrc->format->Rmask,bmpSrc->format->Bmask,bmpSrc->format->Gmask,bmpSrc->format->Amask);
+	SDL_Surface* result = SDL_CreateRGBSurface(
+			bmpSrc->flags,
+			bmpSrc->w, bmpSrc->h,
+			bmpSrc->format->BitsPerPixel,
+			bmpSrc->format->Rmask,
+			bmpSrc->format->Bmask,
+			bmpSrc->format->Gmask,
+			bmpSrc->format->Amask);
 	if (!result)
 		return NULL;
-	DrawImageAdv_Mirror(result,bmpSrc,0,0,0,0,bmpSrc->w,bmpSrc->h);
+	DrawImageAdv_Mirror(result, bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
 	return result;
 }
 
@@ -159,7 +172,7 @@ inline void	DrawImageStretch(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, 
 
 // Draws a sprite doubly stretched, with a colour key and not so advanced
 inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint32 key) {
-	DrawImageStretch2Key(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h, key);
+	DrawImageStretch2Key(bmpDest, bmpSrc, 0, 0, dx, dy, bmpSrc->w, bmpSrc->h, key);
 }
 
 
@@ -177,24 +190,24 @@ void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour);
 
 
 
-
-// Pixel drawing
-inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) {
+inline void PutPixelToAddr(Uint8* p, Uint32 color, short bpp) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	memcpy(
-		(Uint8*)bmpDest->pixels + y*bmpDest->pitch + x*bmpDest->format->BytesPerPixel,
-		(Uint8*)&colour + 4 - bmpDest->format->BytesPerPixel,
-		bmpDest->format->BytesPerPixel);
+	memcpy(p, (Uint8*)&color + 4 - bpp, bpp);
 #else	
-	memcpy(
-		(Uint8*)bmpDest->pixels + y*bmpDest->pitch + x*bmpDest->format->BytesPerPixel,
-		&colour,
-		bmpDest->format->BytesPerPixel);
+	memcpy(p, &color, bpp);
 #endif
 }
 
+// Pixel drawing
+inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 color) {
+	PutPixelToAddr(
+			(Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel,
+			color,
+			bmpDest->format->BytesPerPixel);
+}
+
 // Get a pixel from an 8bit address
-inline Uint32 GetPixelFromAddr(Uint8* p, int bpp) {
+inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 	static Uint32 result;
 	result = 0;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -206,10 +219,10 @@ inline Uint32 GetPixelFromAddr(Uint8* p, int bpp) {
 }
 
 // Get a pixel from the surface
-inline Uint32 GetPixel(SDL_Surface *bmpSrc, int x, int y) {
+inline Uint32 GetPixel(SDL_Surface* bmpSrc, int x, int y) {
 	return GetPixelFromAddr(
-		(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
-		bmpSrc->format->BytesPerPixel);
+			(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
+			bmpSrc->format->BytesPerPixel);
 }
 
 // Put pixel alpha blended with the background
@@ -217,20 +230,17 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a);
 
 
 // Extract 4 colour components from a packed int
-// TODO: remove img parameter
-inline void GetColour4(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a) {
-	SDL_GetRGBA(pixel,img->format,r,g,b,a);
+inline void GetColour4(Uint32 pixel, SDL_Surface* img, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a) {
+	SDL_GetRGBA(pixel, img->format, r, g, b, a);
 }
 
 // Extract 3 colour components from a packed int
-// TODO: remove img parameter
-inline void GetColour3(Uint32 pixel, SDL_Surface *img, Uint8 *r, Uint8 *g, Uint8 *b) {
-	SDL_GetRGB(pixel,img->format,r,g,b);
+inline void GetColour3(Uint32 pixel, SDL_Surface* img, Uint8 *r, Uint8 *g, Uint8 *b) {
+	SDL_GetRGB(pixel, img->format, r, g, b);
 }
 
-inline bool EqualRGB(Uint32 p1, Uint32 p2) {
-	// this works for both non-alpha (if Amask bytes are not used in any other way) and alpha-surfaces
-	return ((p1|ALPHASURFACE_AMASK) == (p2|ALPHASURFACE_AMASK));
+inline bool EqualRGB(Uint32 p1, Uint32 p2, SDL_PixelFormat* fmt) {
+	return ((p1|fmt->Amask) == (p2|fmt->Amask));
 }
 
 // Creates a int colour based on the 3 components
@@ -239,24 +249,28 @@ inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
 	return SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b);
 }
 
-// Returns true if the color is considered as transparent on the surface
-inline bool IsTransparent(SDL_Surface *surf, Uint32 colour)  {
-	if((surf->flags & SDL_SRCALPHA) && ((colour & surf->format->Amask) != surf->format->Amask))
+// Returns true if the color is considered as (partly) transparent on the surface
+inline bool IsTransparent(SDL_Surface* surf, Uint32 color)  {
+	if((surf->flags & SDL_SRCALPHA) && ((color & surf->format->Amask) != surf->format->Amask))
 		return true;
-	if((surf->flags & SDL_SRCCOLORKEY) && (EqualRGB(colour, COLORKEY(surf))))
+	
+	// TODO: should this check be done, if SDL_SRCALPHA was set? SDL/OpenGL possibly will ignore it
+	if((surf->flags & SDL_SRCCOLORKEY) && (EqualRGB(color, COLORKEY(surf), surf->format)))
 		return true;
+		
 	return false;
 }
 
 
 void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
+
 // Set's the game's default color key (pink) to the surface
 // Works for both alpha and nonalpha surfaces
-inline void SetColorKey(SDL_Surface *dst)  {
+inline void SetColorKey(SDL_Surface* dst)  {
 	if (dst->flags & SDL_SRCALPHA)
-		SetColorKeyAlpha(dst,255,0,255);
+		SetColorKeyAlpha(dst, 255, 0, 255);
 	else
-		SDL_SetColorKey(dst,SDL_SRCCOLORKEY,SDL_MapRGB(dst->format,255,0,255)); 
+		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
 }
 
 // Line drawing

@@ -33,17 +33,6 @@ std::vector<CCache> Cache;
 //////////////////////////////////////
 
 
-///////////////////
-// Load an image
-SDL_Surface* _LoadImage(const std::string& filename) {
-	std::string fname = GetFullFileName(filename);
-	if(fname.size() == 0)
-		return NULL;
-		
-	return IMG_Load(fname.c_str());
-}
-
-
 
 ///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
@@ -52,7 +41,10 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 	Filename = _file;
 
 	// Load the image
-	SDL_Surface* img = _LoadImage(Filename);
+	std::string fullfname = GetFullFileName(_file);
+	if(fullfname.size() == 0)
+		return NULL;
+	SDL_Surface* img = IMG_Load(fullfname.c_str());
 
 	if(!img) {
 //		printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename.c_str());
@@ -60,8 +52,8 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 	}
 
 	// Convert the image to the screen's colour depth
+	SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);
 	if (withalpha)  {
-		SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);
 		fmt.BitsPerPixel = 32;
 		fmt.BytesPerPixel = 4;
 		fmt.Rmask = ALPHASURFACE_RMASK;
@@ -69,9 +61,8 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 		fmt.Bmask = ALPHASURFACE_BMASK;
 		fmt.Amask = ALPHASURFACE_AMASK;
 		int flags = iSurfaceFormat | SDL_SRCALPHA;
-		Image = SDL_ConvertSurface(img,&fmt,flags);
-	}
-	else {
+		Image = SDL_ConvertSurface(img, &fmt, flags);
+	} else {
 		// Remove the alpha flag, just for sure...
 		// TODO: is this enough?
 		//	if it has an Amask!=0, perhaps it ignores this flag
@@ -79,13 +70,11 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 		//		like withalpha, copy videosurf->format
 		//		TODO: what should we do with alpha-data? just set everything to Amask?
 		img->flags &= ~SDL_SRCALPHA;
-
-		Image = SDL_DisplayFormat(img);
+		Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
 	}
 
 	SDL_FreeSurface(img);
 
-	
 	if(!Image) {
 		printf("ERROR: LoadImgBPP: cannot create new surface\n");
 		return NULL;
