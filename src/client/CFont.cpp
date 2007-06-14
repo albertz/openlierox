@@ -36,7 +36,11 @@
 int CFont::Load(const std::string& fontname, bool _colour)
 {
 
+	// Load the font
 	LOAD_IMAGE_WITHALPHA(bmpFont,fontname);
+
+	// Set the color key for this alpha surface (SDL_SetColorKey does not work for alpha blended surfaces)
+	SetColorKeyAlpha(bmpFont, 255,0,255);
 
 	Colorize = _colour;
 
@@ -56,9 +60,6 @@ int CFont::Load(const std::string& fontname, bool _colour)
 	// Pre-calculate some colours
 	f_white = tLX->clNormalLabel;
 	f_green = tLX->clChatText;
-
-	// Set the color key for this alpha surface (SDL_SetColorKey does not work for alpha blended surfaces)
-	SetColorKeyAlpha(bmpFont, 255,0,255);
 
 	return true;
 }
