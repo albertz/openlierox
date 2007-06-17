@@ -488,12 +488,12 @@ int LoadProfileGraphics(profile_t *p)
 		return false;
 	}
 	SetColorKey(p->bmpWorm);
-    DrawRectFill(p->bmpWorm, 0,0,p->bmpWorm->w,p->bmpWorm->h, COLORKEY(p->bmpWorm));
+    FillSurface(p->bmpWorm, COLORKEY(p->bmpWorm));
 
     // Draw the preview pic
     SDL_Surface *w = LoadSkin(p->szSkin, p->R, p->G, p->B);
     if(w) {
-        DrawImageAdv(p->bmpWorm, w, 134,2,0,0, 18,16);
+        CopySurface(p->bmpWorm, w, 134,2,0,0, 18,16);
         SDL_FreeSurface(w);
     }
 	
@@ -503,7 +503,7 @@ int LoadProfileGraphics(profile_t *p)
 		SetColorKey(ai);
 		
         if(p->iType == PRF_COMPUTER)
-            DrawImageAdv(p->bmpWorm, ai, p->nDifficulty*10,0, 0,p->bmpWorm->h - ai->h, 10,ai->h);
+            CopySurface(p->bmpWorm, ai, p->nDifficulty*10,0, 0,p->bmpWorm->h - ai->h, 10,ai->h);
 	}
 
 	return true;

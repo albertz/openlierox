@@ -1298,13 +1298,8 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 void CMap::CalculateShadowMap(void)
 {
 	// This should be faster
-	SDL_Surface* tmp = gfxCreateSurface(bmpImage->w, bmpImage->h);
-	if (!tmp)
-		return;
 	SDL_BlitSurface(bmpBackImage, NULL, bmpShadowMap, NULL);
-	SDL_SetAlpha(tmp, SDL_SRCALPHA | SDL_RLEACCEL, 100);
-	SDL_BlitSurface(tmp, NULL, bmpShadowMap, NULL);
-	SDL_FreeSurface(tmp);
+	DrawRectFillA(bmpShadowMap,0,0,bmpShadowMap->w,bmpShadowMap->h,tLX->clBlack,96);
 	
  /*   int x,y;
 
@@ -2204,7 +2199,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	Uint8* curpixel = (Uint8*)bmpBackImage->pixels;
 	Uint8* PixelRow = curpixel;
 
-	// TODO: check if pDest is big enough
+	// TODO: Check if pDest is big enough
 
 	// Load the back image
 	for (y = 0; y < Height; y++, PixelRow += bmpBackImage->pitch)  {
@@ -2245,7 +2240,7 @@ int CMap::LoadImageFormat(FILE *fp)
 		backpixel = BackPixelRow;
 		for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
 			PixelFlags[n] = pDest[p++];
-			if(!(PixelFlags[n] & PX_EMPTY))
+			if(PixelFlags[n] & PX_EMPTY)
 				memcpy(curpixel, backpixel, bmpImage->format->BytesPerPixel);
 			nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
 			n++;

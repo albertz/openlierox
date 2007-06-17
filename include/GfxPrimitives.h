@@ -29,9 +29,15 @@
 extern	int		iSurfaceFormat;
 
 #define ALPHASURFACE_AMASK 0xff000000
-#define ALPHASURFACE_RMASK 0x00ff0000
-#define ALPHASURFACE_GMASK 0x0000ff00
-#define ALPHASURFACE_BMASK 0x000000ff
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	#define ALPHASURFACE_RMASK 0x00ff0000
+	#define ALPHASURFACE_GMASK 0x0000ff00
+	#define ALPHASURFACE_BMASK 0x000000ff
+#else // Little endian
+	#define ALPHASURFACE_RMASK 0x000000ff
+	#define ALPHASURFACE_GMASK 0x0000ff00
+	#define ALPHASURFACE_BMASK 0x00ff0000
+#endif
 
 
 SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
@@ -114,6 +120,9 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 	
 	return result;
 }
+
+
+void CopySurface(SDL_Surface *dst, SDL_Surface *src, ushort sx, ushort sy, ushort dx, ushort dy, ushort w, ushort h);
 
 
 
@@ -316,11 +325,13 @@ inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 
 ///////////////////
 // Draws a rectangle with transparency
 inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
-	SDL_Surface *tmp = gfxCreateSurface(x2-x,y2-y);
+	SDL_Surface *tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
+	static Uint8 r,g,b;
+	GetColour3(color,bmpDest,&r,&g,&b);
+	Uint32 friendly_col = SDL_MapRGBA(tmp->format,r,g,b,alpha);
 	if (tmp)  {
 		// TODO: optimise
-		SDL_SetAlpha(tmp,SDL_SRCALPHA | SDL_RLEACCEL, alpha);
-		SDL_FillRect(tmp,NULL,color);
+		SDL_FillRect(tmp,NULL,friendly_col);
 		DrawImage(bmpDest,tmp,x,y);
 		SDL_FreeSurface(tmp);
 	}

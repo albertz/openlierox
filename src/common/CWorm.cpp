@@ -320,7 +320,7 @@ int CWorm::LoadGraphics(int gametype)
     bmpPic = gfxCreateSurface(18,16);
     SetColorKey(bmpPic);
     FillSurface(bmpPic, COLORKEY(bmpPic));
-    DrawImageAdv(bmpPic, bmpWormRight, 134,2,0,0, 18,16);
+    CopySurface(bmpPic, bmpWormRight, 134,2,0,0, 18,16);
 
 	
     // Shadow buffer
@@ -851,9 +851,9 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	// Draw the worm
     DrawRectFill(bmpShadowPic,0,0,32,18,COLORKEY(bmpShadowPic));
 	if(iDirection == DIR_RIGHT)
-        DrawImageAdv(bmpShadowPic, bmpWormRight, f,0, 6,0, 32,18);
+        CopySurface(bmpShadowPic, bmpWormRight, f,0, 6,0, 32,18);
 	else
-        DrawImageAdv(bmpShadowPic, bmpWormLeft, bmpWormLeft->w-f-32,0, 0,0, 32,18);
+        CopySurface(bmpShadowPic, bmpWormLeft, bmpWormLeft->w-f-32,0, 0,0, 32,18);
 
     DrawImage(bmpDest, bmpShadowPic, x-18,y-10);
 

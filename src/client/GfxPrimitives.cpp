@@ -30,6 +30,69 @@
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
+///////////////////////
+// Copies area from one image to another (not blitting so the alpha values are kept!)
+void CopySurface(SDL_Surface *dst, SDL_Surface *src, ushort sx, ushort sy, ushort dx, ushort dy, ushort w, ushort h)
+{
+	// The surfaces must have same properties
+	assert(src->format->Amask == dst->format->Amask);
+	assert(src->format->Rmask == dst->format->Rmask);
+	assert(src->format->Gmask == dst->format->Gmask);
+	assert(src->format->Bmask == dst->format->Bmask);
+	assert(src->format->BytesPerPixel == dst->format->BytesPerPixel);
+
+	// Source clipping
+	if (sx+w > src->w) {
+		if (sx >= src->w) return;  // >= because copying area of 0px width makes no sense as well
+		w = src->w - sx;
+	}
+
+	if (sy+h > src->h) {
+		if (sy >= src->h) return;
+		h = src->h - sy;
+	}
+
+	// Dest clipping
+	if (dx+w > dst->w) {
+		if (dx >= dst->w) return;
+		w = dst->w - dx;
+	}
+
+	if (dy+h > dst->h) {
+		if (dy >= dst->h) return;
+		h = dst->h - dy;
+	}
+
+	// Initialize
+	ushort lower_bound  = sy+h;
+	register uint byte_bound = (w-1)*src->format->BytesPerPixel;
+	register ushort src_pitch = src->pitch;
+	register ushort dst_pitch = dst->pitch;
+	Uint8 *srcrow = (Uint8 *)src->pixels + (sy * src->pitch) + (sx * src->format->BytesPerPixel);
+	Uint8 *dstrow = (Uint8 *)dst->pixels + (dy * dst->pitch) + (dx * dst->format->BytesPerPixel);
+
+	// Copy row by row
+	if (h & 1)  {
+		for (register ushort i=sy; i<lower_bound; ++i)  {
+			memcpy(dstrow,srcrow,byte_bound);
+			dstrow += dst_pitch;
+			srcrow += src_pitch;
+		}
+	} else {  // h is even, we can optimize :)
+		for (register ushort i=sy;i<lower_bound;++i)  {
+			// Copy two rows at once
+			memcpy(dstrow,srcrow,byte_bound);
+			dstrow += dst_pitch;
+			srcrow += src_pitch;
+			++i;
+
+			memcpy(dstrow,srcrow,byte_bound);
+			dstrow += dst_pitch;
+			srcrow += src_pitch;
+		}
+	}
+}
+
 /////////////////
 // Put the pixel alpha blended with the background
 void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
@@ -77,6 +140,9 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 				PutPixelToAddr(px, colorkey, dst->format->BytesPerPixel);
 		}
 	}
+
+	// Makes the dst->format->colorkey to match specified colorkey
+	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, colorkey);
 
 }
 

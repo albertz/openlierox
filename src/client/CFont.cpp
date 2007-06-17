@@ -161,7 +161,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 
 	Uint8 R, G, B, A;
 	Uint8 sr, sg, sb;
-	GetColour3(colour, bmpFont, &sr, &sg, &sb);
+	GetColour3(colour, SDL_GetVideoSurface(), &sr, &sg, &sb);
 
 	// Outline font: replace white pixels with appropriate color, put black pixels
 	if (OutlineFont)  {
@@ -209,7 +209,7 @@ int CFont::GetHeight(const std::string& buf)
 ///////////////////
 // Draw a font (advanced)
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
-	int pos = 0; // Offset, x+pos is current character position
+	int pos = 0; // Offset, x+pos is current character position in pixels
 	short l;
 	Uint32 pixel;
 	int i,j;

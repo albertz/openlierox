@@ -700,7 +700,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	const int y = 0;
 
 	// Draw the back image
-	DrawImage(bmpDest,bmpImage,x,y);
+	CopySurface(bmpDest,bmpImage,x,y,x,y,bmpImage->w,bmpImage->h);
 
 	// Deathmatch scoreboard
 	switch(iGameType) {
