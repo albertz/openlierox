@@ -151,6 +151,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 
+	Menu_redrawBufferRect(0,180,640,tLX->cFont.GetHeight());
 
 	// Process the client frame
 	tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 180, tLX->clNormalLabel, "Connecting to " + sJoinAddress);

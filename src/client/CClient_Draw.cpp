@@ -43,7 +43,7 @@ int CClient::InitializeDrawing(void)
         cChatbox.setWidth(325);
 
 	// Initialize the score buffer
-	bmpScoreBuffer = gfxCreateSurface(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h);
+	bmpScoreBuffer = gfxCreateSurfaceAlpha(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h); // Must be alpha, like scoreboard, gameover etc.
 	SetColorKey(bmpScoreBuffer);
 	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,COLORKEY(bmpScoreBuffer));
 

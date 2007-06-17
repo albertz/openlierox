@@ -52,8 +52,8 @@ int LoadGraphics(void)
 	tLX->clWinBtnBody = MakeColour(128,128,128);
 	tLX->clWinBtnDark = MakeColour(64,64,64);
 	tLX->clWinBtnLight = MakeColour(192,192,192);
-	tLX->clMPlayerSong = 0;
-	tLX->clMPlayerTime = 0;
+	tLX->clMPlayerSong = tLX->clBlack;
+	tLX->clMPlayerTime = tLX->clBlack;
 
 	int i;
 	LOAD_IMAGE(gfxGUI.bmpMouse[0], "data/frontend/mouse.png");

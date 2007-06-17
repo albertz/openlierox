@@ -716,13 +716,17 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 		x2 = tmp;
 	}
 
+	static Uint8 r,g,b;
+	GetColour3(colour,SDL_GetVideoSurface(),&r,&g,&b);
+	Uint32 friendly_col = SDL_MapRGB(bmpDest->format,r,g,b);
+
 	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	register uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
-	colour = SDLColourToNativeColour(colour);
+	friendly_col = SDLColourToNativeColour(friendly_col);
 	
 	SDL_LockSurface(bmpDest);
 	for (register uchar *px= (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x;px <= px2;px+=bpp)
-		memcpy(px,&colour,bpp);
+		memcpy(px,&friendly_col,bpp);
 	
 	SDL_UnlockSurface(bmpDest);
 
@@ -748,14 +752,18 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 		y2 = tmp;
 	}
 
+	static Uint8 r,g,b;
+	GetColour3(colour,SDL_GetVideoSurface(),&r,&g,&b);
+	Uint32 friendly_col = SDL_MapRGB(bmpDest->format,r,g,b);
+
 	register ushort pitch = (ushort)bmpDest->pitch;
 	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	register uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
-	colour = SDLColourToNativeColour(colour);
+	friendly_col = SDLColourToNativeColour(friendly_col);
 
 	SDL_LockSurface(bmpDest);
 	for (register uchar *px= (uchar *)bmpDest->pixels+pitch*y+bpp*x;px <= px2;px+=pitch)
-		memcpy(px,&colour,bpp);
+		memcpy(px,&friendly_col,bpp);
 
 	SDL_UnlockSurface(bmpDest);
 }
