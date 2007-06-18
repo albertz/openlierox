@@ -80,21 +80,6 @@ std::string GetUtf8FromUnicode(UnicodeChar ch);
 
 
 
-// returns the new pos
-inline size_t InsertUnicodeChar(std::string& str, size_t pos, UnicodeChar ch) {
-	std::string tmp = GetUtf8FromUnicode(ch);
-	str.insert(pos, tmp);
-	return pos + tmp.size();
-}
-
-inline void InsertUnicodeChar(std::string& str, std::string::iterator pos, UnicodeChar ch) {
-	std::string tmp = GetUtf8FromUnicode(ch);
-	size_t intpos=0;
-	std::string::iterator it;
-	for(it=str.begin();it!=pos;it++,intpos++) {}
-	str.insert(intpos, tmp);
-}
-
 inline size_t Utf8StringSize(const std::string& str)  {
 	size_t res = 0;
 	std::string::const_iterator it = str.begin();
@@ -117,6 +102,11 @@ inline void Utf8Erase(std::string& str, size_t start, size_t n = -1) {
 
 inline void Utf8Insert(std::string& str, size_t start, const std::string& s) {
 	str.insert(Utf8PositionToIterator(str, start), s.begin(), s.end());
+}
+
+inline void InsertUnicodeChar(std::string& str, size_t pos, UnicodeChar ch) {
+	std::string tmp = GetUtf8FromUnicode(ch);
+	Utf8Insert(str, pos, tmp);
 }
 
 #endif

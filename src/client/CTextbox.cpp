@@ -387,7 +387,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 			w = prev_w = 0;
 			while ((w = tLX->cFont.GetWidth(buf)) > deltaX)  {
 				pos--;
-				buf.erase(Utf8PositionToIterator(buf, pos - 1));
+				buf.erase(Utf8PositionToIterator(buf, pos));
 				prev_w = w;
 			}
 

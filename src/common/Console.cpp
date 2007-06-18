@@ -262,7 +262,7 @@ void Con_ProcessCharacter(UnicodeChar input)
 	// Backspace
 	if(input == '\b') {
 		if(Console->iCurpos > 0)  {
-			Console->Line[0].strText.erase(--Console->iCurpos,1); // TODO utf
+			Utf8Erase(Console->Line[0].strText, --Console->iCurpos, 1);
 		}
 		Console->icurHistory = -1;
 		return;
@@ -270,8 +270,8 @@ void Con_ProcessCharacter(UnicodeChar input)
 
 	// Delete
 	if(input == SDLK_DELETE)  {
-		if(Console->Line[0].strText.size() > 0 && Console->Line[0].strText.size() > Console->iCurpos)  {
-			Console->Line[0].strText.erase(Console->iCurpos,1); // TODO utf
+		if(Utf8StringSize(Console->Line[0].strText) > 0 && Utf8StringSize(Console->Line[0].strText) > Console->iCurpos)  {
+			Utf8Erase(Console->Line[0].strText, Console->iCurpos, 1);
 		}
 		Console->icurHistory = -1;
 		return;
@@ -286,8 +286,8 @@ void Con_ProcessCharacter(UnicodeChar input)
 
 	// Right arrow
 	if(input == SDLK_RIGHT)  {
-		if(Console->iCurpos < Console->Line[0].strText.size())
-			Console->iCurpos++; // TODO utf
+		if(Console->iCurpos < Utf8StringSize(Console->Line[0].strText))
+			Console->iCurpos++;
 		return;
 	}
 
@@ -299,15 +299,15 @@ void Con_ProcessCharacter(UnicodeChar input)
 
 	// End
 	if(input == SDLK_END)  {
-		Console->iCurpos = Console->Line[0].strText.length();
+		Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
 		return;
 	}
 
 	// Paste
 	if(input == 22)  {
 		// Safety
-		if (Console->iCurpos > Console->Line[0].strText.length())
-			Console->iCurpos = Console->Line[0].strText.length();
+		if (Console->iCurpos > Utf8StringSize(Console->Line[0].strText))
+			Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
 
 		// Get the text
 		std::string buf;
@@ -315,8 +315,8 @@ void Con_ProcessCharacter(UnicodeChar input)
 
 		// Paste
 		Console->Line[0].Colour = CNC_NORMAL;
-		Console->Line[0].strText.insert(Console->iCurpos,buf);
-		Console->iCurpos += buf.length();
+		Utf8Insert(Console->Line[0].strText, Console->iCurpos, buf);
+		Console->iCurpos += Utf8StringSize(buf);
 		Console->icurHistory = -1;
 
 		return;
@@ -343,7 +343,7 @@ void Con_ProcessCharacter(UnicodeChar input)
 	if(input == '\t') {
 		// Auto-complete
 		Cmd_AutoComplete(Console->Line[0].strText);
-		Console->iCurpos = Console->Line[0].strText.length();
+		Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
 		Console->icurHistory = -1;
 		return;
 	}
@@ -351,11 +351,11 @@ void Con_ProcessCharacter(UnicodeChar input)
 	// Normal key
 	if(input > 31) {
 		// Safety
-		if (Console->iCurpos > Console->Line[0].strText.length())
-			Console->iCurpos = Console->Line[0].strText.length();
+		if (Console->iCurpos > Utf8StringSize(Console->Line[0].strText))
+			Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
 
 		Console->Line[0].Colour = CNC_NORMAL;
-		Console->iCurpos = InsertUnicodeChar(Console->Line[0].strText, Console->iCurpos, input);
+		InsertUnicodeChar(Console->Line[0].strText, Console->iCurpos++, input);
 		Console->icurHistory = -1;
 	}
 }
@@ -384,7 +384,7 @@ void Con_AddText(int colour, const std::string& text)
 
 	// Add the lines
 	n=1;
-	for (std::vector<std::string>::const_iterator it=lines.begin();it != lines.end();it++,n++)  {
+	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, n++)  {
 		Console->Line[n].strText = *it;
 		Console->Line[n].Colour = colour;
 	}
@@ -396,12 +396,12 @@ void Con_AddText(int colour, const std::string& text)
 void Con_AddHistory(const std::string& text)
 {
 	// Move the history up one, dropping the last
-	for(int n=MAX_CONHISTORY-2;n>=0;n--)
+	for(int n = MAX_CONHISTORY - 2; n >= 0; n--)
 		Console->History[n+1].strText = Console->History[n].strText;
 
-	Console->icurHistory=-1;
+	Console->icurHistory = -1;
 	Console->iNumHistory++;
-	Console->iNumHistory = MIN(Console->iNumHistory,MAX_CONHISTORY-1);
+	Console->iNumHistory = MIN(Console->iNumHistory, MAX_CONHISTORY - 1);
 
 	Console->History[0].strText = text;
 }
@@ -425,7 +425,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 
 
 	// Draw the lines of text
-	for(int n=0;n<MAX_CONLINES;n++,texty-=15) {
+	for(int n = 0; n < MAX_CONLINES; n++, texty -= 15) {
 		buf = "";
 
 
@@ -439,10 +439,15 @@ void Con_Draw(SDL_Surface *bmpDest)
 			Console->fBlinkTime = 0;
 		}
 		if(n==0 && Console->iBlinkState)  {
-			DrawVLine(bmpDest,texty,texty+tLX->cFont.GetHeight(),17+tLX->cFont.GetWidth(Console->Line[n].strText.substr(0,Console->iCurpos)),tLX->clWhite);
+			DrawVLine(
+				bmpDest,
+				texty, texty + tLX->cFont.GetHeight(),
+				17 + tLX->cFont.GetWidth(
+					Utf8SubStr(Console->Line[n].strText, 0, Console->iCurpos)),
+				tLX->clWhite);
 		}
 
-		tLX->cFont.Draw(bmpDest,12,texty,Colours[Console->Line[n].Colour],buf);
+		tLX->cFont.Draw(bmpDest, 12, texty, Colours[Console->Line[n].Colour], buf);
 	}
 }
 
