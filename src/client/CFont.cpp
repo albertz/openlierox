@@ -116,13 +116,13 @@ void CFont::Parse(void)
 				x++;
 
 		// Read until a blue pixel or end of the image
-		while ( GetPixel(bmpFont,x,0) != blue && (int)x<bmpFont->w)  {
+		while ( GetPixel(bmpFont,x,0) != blue && (int)x < bmpFont->w)  {
 			x++;
 			cur_w++;
 		}
 
 		// Ignore any free pixel columns *after* the character
-		tmp_x = x-1; // -1 - blue line
+		tmp_x = x - 1; // -1 : blue line
 		if (CurChar != ' ')  {
 			while (IsColumnFree(tmp_x))  {
 				cur_w--;
@@ -132,7 +132,7 @@ void CFont::Parse(void)
 
 		// Blue pixel means end of the character
 		FontWidth.push_back(cur_w);
-		CharacterOffset.push_back(tmp_x-cur_w+1);
+		CharacterOffset.push_back(tmp_x - cur_w + 1);
 		NumCharacters++;
 		CurChar++;
 		cur_w = 0;
@@ -171,9 +171,11 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 				GetColour4(pixel, bmpSurf, &R, &G, &B, &A);
 
 				if(R == 255 && G == 255 && B == 255)  // White
-					PutPixel(bmpSurf, x, y, SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
+					PutPixel(bmpSurf, x, y,
+						SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
 				else if (!R && !G && !B) // Black
-					PutPixel(bmpSurf, x, y, SDL_MapRGBA(bmpSurf->format, 0, 0, 0, A));
+					PutPixel(bmpSurf, x, y,
+						SDL_MapRGBA(bmpSurf->format, 0, 0, 0, A));
 			}
 		}
 	// Not outline: replace black pixels with appropriate color
@@ -184,7 +186,8 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 				GetColour4(pixel, bmpSurf, &R, &G, &B, &A);
 
 				if(!R && !G && !B) // Black
-					PutPixel(bmpSurf, x, y, SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
+					PutPixel(bmpSurf, x, y,
+						SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
 			}
 		}
 	}

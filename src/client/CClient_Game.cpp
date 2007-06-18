@@ -13,8 +13,8 @@
 // Created 21/7/02
 // Jason Boettcher
 
-
-#include "defs.h"
+#include "AuxLib.h"
+#include "MathLib.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -31,7 +31,6 @@ CClient		*cClient = NULL;
 // Simulation
 void CClient::Simulation(void)
 {
-//	frame_t *f = &tFrames[ iServerFrame & FRAME_MASK ];  // TODO: not used
 	short local,i;
 	bool teamgame;
     CWorm *w;
@@ -46,7 +45,7 @@ void CClient::Simulation(void)
 
 			// Clear the input of the local worms
 			w = cRemoteWorms;
-			for(i=0;i<MAX_WORMS;i++,w++) {
+			for(i = 0; i < MAX_WORMS; i++, w++) {
 				if(!w->isUsed())
 					continue;
 
@@ -66,7 +65,7 @@ void CClient::Simulation(void)
 
 	// Player simulation
 	w = cRemoteWorms;
-	for(i=0;i<MAX_WORMS;i++,w++) {
+	for(i = 0; i < MAX_WORMS; i++, w++) {
 		if(!w->isUsed())
 			continue;
 
@@ -100,7 +99,7 @@ void CClient::Simulation(void)
 			CBonus *b = cBonuses;
 			int MaxBonuses = tGameInfo.iBonusesOn;
 			MaxBonuses *= MAX_BONUSES;
-			for(short n=0;n<MaxBonuses;n++,b++) {
+			for(short n = 0; n < MaxBonuses; n++, b++) {
 				if(!b->getUsed())
 					continue;
 
@@ -196,7 +195,7 @@ void CClient::SimulateProjectiles(float dt)
 
 	// Clear the heading projectiles
 	CWorm *w = cRemoteWorms;
-	for(i=0;i<MAX_WORMS;i++,w++) {
+	for(i = 0; i < MAX_WORMS; i++, w++) {
 		w->setHeading(NULL);
 	}
 
@@ -204,7 +203,7 @@ void CClient::SimulateProjectiles(float dt)
 	bool spawnprojectiles;
 	proj_t *pi;
 	float f;
-    for(int p=0;p<nTopProjectile;p++,prj++) {
+    for(int p = 0; p < nTopProjectile; p++, prj++) {
 		if(!prj->isUsed())
 			continue;
 		explode = false;
@@ -252,7 +251,8 @@ void CClient::SimulateProjectiles(float dt)
 
             // Carve
 			if(pi->Timer_Type == PJ_CARVE) {
-				int d = cMap->CarveHole(pi->Timer_Damage,prj->GetPosition());
+				int d = cMap->CarveHole(
+					pi->Timer_Damage, prj->GetPosition());
                 prj->setUsed(false);
 
                 if(pi->Timer_Projectiles)
@@ -267,7 +267,7 @@ void CClient::SimulateProjectiles(float dt)
 
 		// Simulate the projectile
         wormid = -1;
-        result = prj->Simulate(dt,cMap, cRemoteWorms, &wormid);
+        result = prj->Simulate(dt, cMap, cRemoteWorms, &wormid);
 
         /*
         ===================
@@ -299,7 +299,8 @@ void CClient::SimulateProjectiles(float dt)
 
 			// Carve
 			if(pi->Hit_Type == PJ_CARVE) {
-				int d = cMap->CarveHole(pi->Hit_Damage,prj->GetPosition());
+				int d = cMap->CarveHole(
+					pi->Hit_Damage, prj->GetPosition());
                 prj->setUsed(false);
 
                 // Increment the dirt count
@@ -1589,14 +1590,14 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
     // Backspace
     if(c == '\b') {
 		if(iChat_Pos > 0)  {
-			sChat_Text.erase(--iChat_Pos,1);
+			Utf8Erase(sChat_Text, --iChat_Pos, 1);
 		}
         return;
     }
 
 	// Delete
 	if (GetKeyboard()->KeyDown[SDLK_DELETE])  {
-		sChat_Text.erase(iChat_Pos,1);
+		Utf8Erase(sChat_Text, iChat_Pos, 1);
 		return;
 	}
 
@@ -1608,7 +1609,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 
 	// End
 	if (GetKeyboard()->KeyDown[SDLK_END])  {
-		iChat_Pos = sChat_Text.length();
+		iChat_Pos = Utf8StringSize(sChat_Text);
 		return;
 	}
 
@@ -1623,10 +1624,10 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 
 	// Right arrow
 	if (GetKeyboard()->KeyDown[SDLK_RIGHT]) {
-		if (iChat_Pos < sChat_Text.length())
+		if (iChat_Pos < Utf8StringSize(sChat_Text))
 			iChat_Pos++;
 		else
-			iChat_Pos = sChat_Text.length();
+			iChat_Pos = Utf8StringSize(sChat_Text);
 		return;
 	}
 
@@ -1648,7 +1649,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 
 	// Paste
 	if (c == 22)  {
-		size_t text_len = sChat_Text.length();
+		size_t text_len = Utf8StringSize(sChat_Text);
 
 		// Safety
 		if (iChat_Pos > text_len)
@@ -1658,14 +1659,14 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 		std::string buf = GetClipboardText();
 
 		// Paste
-		sChat_Text.insert(iChat_Pos, buf);
-		iChat_Pos += buf.length();
+		Utf8Insert(sChat_Text, iChat_Pos, buf);
+		iChat_Pos += Utf8StringSize(buf);
 		return;
 	}
 
     // Normal key
     if(iChat_Pos < ChatMaxLength-1 ) {
-		sChat_Text.insert(iChat_Pos, GetUtf8FromUnicode(c));
+    	InsertUnicodeChar(sChat_Text, iChat_Pos, c);
 		iChat_Pos++;
     }
 }

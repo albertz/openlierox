@@ -21,6 +21,7 @@
 #ifndef __MATHLIB_H__
 #define __MATHLIB_H__
 
+#include "CVec.h"
 
 // Constants
 #define PI		3.14159265358979323846

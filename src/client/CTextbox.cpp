@@ -215,7 +215,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 
 	// Right arrow
 	if(c == SDLK_RIGHT) {
-		if(iCurpos < sText.size())  {
+		if(iCurpos < Utf8StringSize(sText))  {
 			if (bShift)  {
 				if (iCurpos != Utf8StringSize(sText))
 					iSelLength--;
@@ -268,7 +268,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 		else
 			iSelLength = 0;
 
-		iCurpos = sText.size();
+		iCurpos = Utf8StringSize(sText);
 
 		if (tLX->cFont.GetWidth(sText) > iWidth - 3)  {
 			iScrollPos = 0;
