@@ -17,6 +17,8 @@
 #ifndef __FRAME_H__
 #define __FRAME_H__
 
+#include <SDL/SDL.h>
+
 
 // Frame flags
 #define		FRM_POSX		0x01

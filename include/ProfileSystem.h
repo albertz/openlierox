@@ -17,6 +17,9 @@
 #ifndef __PROFILESYSTEM_H__
 #define __PROFILESYSTEM_H__
 
+#include <SDL/SDL.h>
+#include <string>
+#include <stdlib.h>
 
 #define		PROFILE_VERSION		5
 

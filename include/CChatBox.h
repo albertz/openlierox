@@ -17,6 +17,7 @@
 #ifndef __CCHATBOX_H__
 #define __CCHATBOX_H__
 
+#include <SDL/SDL.h>
 #include <vector>
 
 

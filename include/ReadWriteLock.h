@@ -1,12 +1,13 @@
-#ifndef __READWRITELOCK_H__
-#define __READWRITELOCK_H__
-
 /*
  *	simple ReadWriteLock, implemented by using mutex's
  *
  *	by Albert Zeyer,  code under LGPL
 */
 
+#ifndef __READWRITELOCK_H__
+#define __READWRITELOCK_H__
+
+#include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 
 class ReadWriteLock {

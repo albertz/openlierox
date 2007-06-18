@@ -17,6 +17,8 @@
 #ifndef __CVIEWPORT_H__
 #define	__CVIEWPORT_H__
 
+#include <SDL/SDL.h>
+
 #include "CInput.h"
 #include "CVec.h"
 #include "Options.h" // for control_t

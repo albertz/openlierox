@@ -19,6 +19,9 @@
 #ifndef __AUXLIB_H__
 #define __AUXLIB_H__
 
+#include <SDL/SDL.h>
+#include <string>
+
 #ifdef WIN32
 #include <windows.h>
 #endif
