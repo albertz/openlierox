@@ -32,8 +32,7 @@
 
 ///////////////////
 // Parses a general packet
-void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs)
-{
+void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
 	CChannel *chan = cl->getChannel();
 	ping_t *ping;
 	bool bResetPing = false;
@@ -42,16 +41,16 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 	ping = cl->getPingStruct();
 	if (ping->iSequence <= chan->getInAck())  {
 		if ((tLX->fCurTime - cl->getLastPingTime()) > 1)  {  // Update ping once per second
-			int png = (int)((tLX->fCurTime - ping->fSentTime)*1000-20);
+			int png = (int)((tLX->fCurTime - ping->fSentTime) * 1000 - 20);
 
 			if (cl->getPing() > 99999)
 				cl->setPing(0);
 
 			// Make the ping slighter
 			if (png - cl->getPing() > 5 && cl->getPing() && png)
-				png = (png + cl->getPing() + cl->getPing())/3;
+				png = (png + cl->getPing() + cl->getPing()) / 3;
 			if (cl->getPing() - png > 5 && cl->getPing() && png)
-				png = (png + png + cl->getPing())/3;
+				png = (png + png + cl->getPing()) / 3;
 
 			if (png > 99999)
 				png = 0;
@@ -64,12 +63,12 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 	}
 
 	// Ensure the incoming sequence matchs the outgoing sequence
-	if(chan->getInSeq() >= chan->getOutSeq())
+	if (chan->getInSeq() >= chan->getOutSeq())
 		chan->setOutSeq(chan->getInSeq());
 	else
 		// Sequences have slipped
 		bResetPing = true;
-		// TODO: Set the player's send_data property to false
+	// TODO: Set the player's send_data property to false
 
 
 	// Set the sent out time for ping calculations
@@ -85,64 +84,63 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs)
 	//player->SetLocalTime(ServerTime);
 
 	// Parse the packet messages
-	ParsePacket(cl,bs);
+	ParsePacket(cl, bs);
 }
 
 
 ///////////////////
 // Parse a packet
-void GameServer::ParsePacket(CClient *cl, CBytestream *bs)
-{
+void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 	uchar cmd;
 
-	if(bs->GetLength()==0)
+	if (bs->GetLength() == 0)
 		return;
 
-	while(1) {
+	while (1) {
 		cmd = bs->readInt(1);
 
-		if(bs->GetPos() > bs->GetLength())
+		if (bs->GetPos() > bs->GetLength())
 			break;
 
-		switch(cmd) {
+		switch (cmd) {
 
 			// Client is ready
-			case C2S_IMREADY:
-				ParseImReady(cl,bs);
-				break;
+		case C2S_IMREADY:
+			ParseImReady(cl, bs);
+			break;
 
 			// Update packet
-			case C2S_UPDATE:
-				ParseUpdate(cl,bs);
-				break;
+		case C2S_UPDATE:
+			ParseUpdate(cl, bs);
+			break;
 
 			// Death
-			case C2S_DEATH:
-				ParseDeathPacket(cl,bs);
-				break;
+		case C2S_DEATH:
+			ParseDeathPacket(cl, bs);
+			break;
 
 			// Chat text
-			case C2S_CHATTEXT:
-				ParseChatText(cl,bs);
-				break;
+		case C2S_CHATTEXT:
+			ParseChatText(cl, bs);
+			break;
 
 			// Update lobby
-			case C2S_UPDATELOBBY:
-				ParseUpdateLobby(cl,bs);
-				break;
+		case C2S_UPDATELOBBY:
+			ParseUpdateLobby(cl, bs);
+			break;
 
 			// Disconnect
-			case C2S_DISCONNECT:
-				ParseDisconnect(cl);
-				break;
+		case C2S_DISCONNECT:
+			ParseDisconnect(cl);
+			break;
 
 			// Bonus grabbed
-			case C2S_GRABBONUS:
-				ParseGrabBonus(cl, bs);
-				break;
+		case C2S_GRABBONUS:
+			ParseGrabBonus(cl, bs);
+			break;
 
-			default:
-				printf("sv: Bad command in packet\n");
+		default:
+			printf("sv: Bad command in packet\n");
 		}
 	}
 }
@@ -150,14 +148,13 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs)
 
 ///////////////////
 // Parse a 'im ready' packet
-void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
-{
+void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 	if (iState != SVS_GAME)  {
 		printf("GameServer::ParseImReady: Not playing, packet is being ignored.\n");
 
 		// Skip to get the correct position in the stream
-		int num=bs->readByte();
-		for(int i=0;i<num;i++)  {
+		int num = bs->readByte();
+		for (int i = 0;i < num;i++)  {
 			bs->Skip(1);
 			CWorm::skipWeapons(bs);
 		}
@@ -165,16 +162,16 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 		return;
 	}
 
-	int i,j;
+	int i, j;
 	// Note: This isn't a lobby ready
 
 	// Read the worms weapons
 	int num = bs->readByte();
-	for(i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		int id = bs->readByte();
-		if( id >= 0 && id < MAX_WORMS)  {
+		if (id >= 0 && id < MAX_WORMS)  {
 			cWorms[id].readWeapons(bs);
-			for (j=0;j<5;j++)
+			for (j = 0;j < 5;j++)
 				cWorms[id].getWeapon(j)->Enabled = cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name);
 		} else { // Skip to get the right position
 			CWorm::skipWeapons(bs);
@@ -191,14 +188,14 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 	if (cl->getNumWorms() <= 2)  {
 		bytes.writeByte(S2C_CLREADY);
 		bytes.writeByte(cl->getNumWorms());
-		for(i=0;i<cl->getNumWorms();i++) {
+		for (i = 0;i < cl->getNumWorms();i++) {
 			// Send the weapon info here (also contains id)
 			cWorms[cl->getWorm(i)->getID()].writeWeapons(&bytes);
 		}
 
 		SendGlobalPacket(&bytes);
-	// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
-	// Otherwise, 0.56b would not parse the packet correctly
+		// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
+		// Otherwise, 0.56b would not parse the packet correctly
 	} else {
 		int written = 0;
 		while (written < cl->getNumWorms())  {
@@ -212,22 +209,21 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs)
 	}
 
 
-    // Check if all the clients are ready
-    CheckReadyClient();
+	// Check if all the clients are ready
+	CheckReadyClient();
 }
 
 
 ///////////////////
 // Parse an update packet
-void GameServer::ParseUpdate(CClient *cl, CBytestream *bs)
-{
-	for(short i=0; i<cl->getNumWorms(); i++) {
+void GameServer::ParseUpdate(CClient *cl, CBytestream *bs) {
+	for (short i = 0; i < cl->getNumWorms(); i++) {
 		CWorm *w = cl->getWorm(i);
 
 		w->readPacket(bs, cWorms);
 
 		// If the worm is shooting, handle it
-		if(w->getWormState()->iShoot && w->getAlive() && iState == SVS_PLAYING)
+		if (w->getWormState()->iShoot && w->getAlive() && iState == SVS_PLAYING)
 			WormShoot(w);
 	}
 }
@@ -235,8 +231,7 @@ void GameServer::ParseUpdate(CClient *cl, CBytestream *bs)
 
 ///////////////////
 // Parse a death packet
-void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
-{
+void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	// No kills in lobby
 	if (iState != SVS_PLAYING)  {
 		printf("GameServer::ParseDeathPacket: Not playing, ignoring the packet.\n");
@@ -258,22 +253,23 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	}
 
 	// Team names
-	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
+	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"
+	                                       };
 	int TeamCount[4];
 
-    // If the game is already over, ignore this
-    if(iGameOver)  {
+	// If the game is already over, ignore this
+	if (iGameOver)  {
 		printf("GameServer::ParseDeathPacket: Game is over, ignoring.\n");
-        return;
+		return;
 	}
 
 
 	// Safety check
-	if(victim < 0 || victim >= MAX_WORMS)  {
+	if (victim < 0 || victim >= MAX_WORMS)  {
 		printf("GameServer::ParseDeathPacket: victim ID out of bounds.\n");
 		return;
 	}
-	if(killer < 0 || killer >= MAX_WORMS)  {
+	if (killer < 0 || killer >= MAX_WORMS)  {
 		printf("GameServer::ParseDeathPacket: killer ID out of bounds.\n");
 		return;
 	}
@@ -290,7 +286,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	}
 
 	// Cheat prevention, game behaves weird if this happens
-	if(vict->getLives() < 0 && iLives >= 0)  {
+	if (vict->getLives() < 0 && iLives >= 0)  {
 		printf("GameServer::ParseDeathPacket: victim is already out of the game.\n");
 		return;
 	}
@@ -299,35 +295,34 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 	// Kill
 	if (networkTexts->sKilled != "<none>")  { // Take care of the <none> tag
-		if(killer != victim)  {
-			replacemax(networkTexts->sKilled,"<killer>",kill->getName(),buf,1);
-			replacemax(buf,"<victim>",vict->getName(),buf,1);
-		}
-		else
-			replacemax(networkTexts->sCommitedSuicide,"<player>",vict->getName(),buf,1);
+		if (killer != victim)  {
+			replacemax(networkTexts->sKilled, "<killer>", kill->getName(), buf, 1);
+			replacemax(buf, "<victim>", vict->getName(), buf, 1);
+		} else
+			replacemax(networkTexts->sCommitedSuicide, "<player>", vict->getName(), buf, 1);
 
-		SendGlobalText(buf,TXT_NORMAL);
+		SendGlobalText(buf, TXT_NORMAL);
 	}
 
 	// First blood
-	if (bFirstBlood && killer != victim && networkTexts->sFirstBlood!="<none>")  {
-		replacemax(networkTexts->sFirstBlood,"<player>",kill->getName(),buf,1);
+	if (bFirstBlood && killer != victim && networkTexts->sFirstBlood != "<none>")  {
+		replacemax(networkTexts->sFirstBlood, "<player>", kill->getName(), buf, 1);
 		bFirstBlood = false;
-		SendGlobalText(buf,TXT_NORMAL);
+		SendGlobalText(buf, TXT_NORMAL);
 	}
 
 	// Teamkill
 	if (iGameType == GMT_TEAMDEATH && vict->getTeam() == kill->getTeam() && killer != victim)  {
 		//Take care of the <none> tag
-		if (networkTexts->sTeamkill!="<none>")  {
-			replacemax(networkTexts->sTeamkill,"<player>",kill->getName(),buf,1);
-			SendGlobalText(buf,TXT_NORMAL);
+		if (networkTexts->sTeamkill != "<none>")  {
+			replacemax(networkTexts->sTeamkill, "<player>", kill->getName(), buf, 1);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 	}
 
 	vict->setKillsInRow(0);
 
-	if(killer != victim)  {
+	if (killer != victim)  {
 		kill->addKillInRow();
 		kill->AddKill();
 		if (log_kill)
@@ -345,45 +340,45 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 	// Killing spree message
 	switch (kill->getKillsInRow())  {
 	case 3:
-		if (networkTexts->sSpree1!="<none>")  {
-			replacemax(networkTexts->sSpree1,"<player>",kill->getName(),buf,1);
-			SendGlobalText(buf,TXT_NORMAL);
+		if (networkTexts->sSpree1 != "<none>")  {
+			replacemax(networkTexts->sSpree1, "<player>", kill->getName(), buf, 1);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 		break;
 	case 5:
-		if (networkTexts->sSpree2!="<none>")  {
-			replacemax(networkTexts->sSpree2,"<player>",kill->getName(),buf,1);
-			SendGlobalText(buf,TXT_NORMAL);
+		if (networkTexts->sSpree2 != "<none>")  {
+			replacemax(networkTexts->sSpree2, "<player>", kill->getName(), buf, 1);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 		break;
 	case 7:
-		if (networkTexts->sSpree3!="<none>")  {
-			replacemax(networkTexts->sSpree3,"<player>",kill->getName(),buf,1);
-			SendGlobalText(buf,TXT_NORMAL);
+		if (networkTexts->sSpree3 != "<none>")  {
+			replacemax(networkTexts->sSpree3, "<player>", kill->getName(), buf, 1);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 		break;
 	case 9:
-		if (networkTexts->sSpree4!="<none>")  {
-			replacemax(networkTexts->sSpree4,"<player>",kill->getName(),buf,1);
-			SendGlobalText(buf,TXT_NORMAL);
+		if (networkTexts->sSpree4 != "<none>")  {
+			replacemax(networkTexts->sSpree4, "<player>", kill->getName(), buf, 1);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 		break;
 	case 10:
-		if (networkTexts->sSpree5!="<none>")  {
-			replacemax(networkTexts->sSpree5,"<player>",kill->getName(),buf,1);
-			SendGlobalText(buf,TXT_NORMAL);
+		if (networkTexts->sSpree5 != "<none>")  {
+			replacemax(networkTexts->sSpree5, "<player>", kill->getName(), buf, 1);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 		break;
 	}
 
 
-	if(vict->Kill()) {
+	if (vict->Kill()) {
 
 
 		// This worm is out of the game
-		if(networkTexts->sPlayerOut!="<none>") {
-			replacemax(networkTexts->sPlayerOut,"<player>",vict->getName(),buf,1);
-			SendGlobalText(buf,TXT_NORMAL);
+		if (networkTexts->sPlayerOut != "<none>") {
+			replacemax(networkTexts->sPlayerOut, "<player>", vict->getName(), buf, 1);
+			SendGlobalText(buf, TXT_NORMAL);
 		}
 
 		// Check if only one person is left
@@ -391,29 +386,29 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 		int wormid = 0;
 		CWorm *w = cWorms;
 		int i;
-		for(i=0;i<MAX_WORMS;i++,w++) {
-			if(w->isUsed() && w->getLives() != WRM_OUT) {
+		for (i = 0;i < MAX_WORMS;i++, w++) {
+			if (w->isUsed() && w->getLives() != WRM_OUT) {
 				wormsleft++;
 				wormid = i;
 			}
 		}
 
-		if(wormsleft == 1 /*temphack*/ || wormsleft == 0) {
+		if (wormsleft == 1 /*temphack*/ || wormsleft == 0) {
 			// Declare the winner
 			switch (iGameType)  {
 			case GMT_DEATHMATCH:
-				if (networkTexts->sPlayerHasWon!="<none>")  {
+				if (networkTexts->sPlayerHasWon != "<none>")  {
 					CWorm *winner = cWorms + wormid;
-					replacemax(networkTexts->sPlayerHasWon,"<player>",winner->getName(),buf,1);
-					SendGlobalText(buf,TXT_NORMAL);
+					replacemax(networkTexts->sPlayerHasWon, "<player>", winner->getName(), buf, 1);
+					SendGlobalText(buf, TXT_NORMAL);
 				}
-			break;  // DEATHMATCH
+				break;  // DEATHMATCH
 			case GMT_TAG:
 				// Get the worm with greatest tag time
 				float fMaxTagTime = 0;
 				int wormid = 0;
 				CWorm *w = cWorms;
-				for (int i=0;i<MAX_WORMS;i++)
+				for (int i = 0;i < MAX_WORMS;i++)
 					if (w->isUsed())
 						if (w->getTagTime() > fMaxTagTime)  {
 							fMaxTagTime = w->getTagTime();
@@ -421,21 +416,21 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 						}
 
 				// Worm with greatest tag time
-				w = cWorms+wormid;
+				w = cWorms + wormid;
 
 				// Send the text
-				if (networkTexts->sPlayerHasWon!="<none>")  {
-					replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),buf,1);
-					SendGlobalText(buf,TXT_NORMAL);
+				if (networkTexts->sPlayerHasWon != "<none>")  {
+					replacemax(networkTexts->sPlayerHasWon, "<player>", w->getName(), buf, 1);
+					SendGlobalText(buf, TXT_NORMAL);
 				}
-			break;  // TAG
+				break;  // TAG
 
-			// TEAM DEATHMATCH is handled below
+				// TEAM DEATHMATCH is handled below
 			}
 
 			// Let everyone know that the game is over
 			byte.writeByte(S2C_GAMEOVER);
-			byte.writeInt(wormid,1);
+			byte.writeInt(wormid, 1);
 
 			// Game over
 			if (iGameType != GMT_TEAMDEATH)  {  // Team deathmatch is handled below
@@ -450,52 +445,52 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 		// If the game is still going and this is a teamgame, check if the team this worm was in still
 		// exists
-		if(!iGameOver && iGameType == GMT_TEAMDEATH) {
+		if (!iGameOver && iGameType == GMT_TEAMDEATH) {
 			int team = vict->getTeam();
 			int teamcount = 0;
 
-			for(i=0;i<4;i++)
-				TeamCount[i]=0;
+			for (i = 0;i < 4;i++)
+				TeamCount[i] = 0;
 
 			// Check if anyone else is left on the team
 			w = cWorms;
-			for(i=0;i<MAX_WORMS;i++,w++) {
-				if(w->isUsed()) {
-					if(w->getLives() != WRM_OUT && w->getTeam() == team)
+			for (i = 0;i < MAX_WORMS;i++, w++) {
+				if (w->isUsed()) {
+					if (w->getLives() != WRM_OUT && w->getTeam() == team)
 						teamcount++;
 
-					if(w->getLives() != WRM_OUT)
+					if (w->getLives() != WRM_OUT)
 						TeamCount[w->getTeam()]++;
 				}
 			}
 
 			// No-one left in the team
-			if(teamcount==0) {
-				if (networkTexts->sTeamOut!="<none>")  {
-					replacemax(networkTexts->sTeamOut,"<team>",TeamNames[team],buf,1);
-					SendGlobalText(buf,TXT_NORMAL);
+			if (teamcount == 0) {
+				if (networkTexts->sTeamOut != "<none>")  {
+					replacemax(networkTexts->sTeamOut, "<team>", TeamNames[team], buf, 1);
+					SendGlobalText(buf, TXT_NORMAL);
 				}
 			}
 
 			// If there is only 1 team left, declare the last team the winner
 			int teamsleft = 0;
-			team=0;
-			for(i=0;i<4;i++) {
-				if(TeamCount[i]) {
+			team = 0;
+			for (i = 0;i < 4;i++) {
+				if (TeamCount[i]) {
 					teamsleft++;
-					team=i;
+					team = i;
 				}
 			}
 
-			if(teamsleft == 1) {
-				if (networkTexts->sTeamHasWon!="<none>")  {
-					replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],buf,1);
-					SendGlobalText(buf,TXT_NORMAL);
+			if (teamsleft == 1) {
+				if (networkTexts->sTeamHasWon != "<none>")  {
+					replacemax(networkTexts->sTeamHasWon, "<team>", TeamNames[team], buf, 1);
+					SendGlobalText(buf, TXT_NORMAL);
 				}
 
 				byte.Clear();
 				byte.writeByte(S2C_GAMEOVER);
-				byte.writeInt(team,1);
+				byte.writeInt(team, 1);
 				iGameOver = true;
 				fGameOverTime = tLX->fCurTime;
 
@@ -506,11 +501,11 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 
 	// Check if the max kills has been reached
-	if(iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills && !iGameOver) {
+	if (iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills && !iGameOver) {
 
 		// Game over (max kills reached)
 		byte.writeByte(S2C_GAMEOVER);
-		byte.writeInt(kill->getID(),1);
+		byte.writeInt(kill->getID(), 1);
 		iGameOver = true;
 		fGameOverTime = tLX->fCurTime;
 	}
@@ -518,19 +513,19 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 	// If the worm killed is IT, then make the killer now IT
 	if (iGameType == GMT_TAG && !iGameOver)  {
-		if(killer != victim) {
-			if(vict->getTagIT()) {
+		if (killer != victim) {
+			if (vict->getTagIT()) {
 				vict->setTagIT(false);
 
 				// If the killer is dead, tag a worm randomly
-				if(!kill->getAlive() || kill->getLives() == WRM_OUT)
+				if (!kill->getAlive() || kill->getLives() == WRM_OUT)
 					TagRandomWorm();
 				else
 					TagWorm(kill->getID());
 			}
 		} else {
 			// If it's a suicide and the worm was it, tag a random person
-			if(vict->getTagIT()) {
+			if (vict->getTagIT()) {
 				vict->setTagIT(false);
 				TagRandomWorm();
 			}
@@ -539,12 +534,12 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 	// Update everyone on the victims & killers score
 	vict->writeScore(&byte);
-	if(killer != victim)
+	if (killer != victim)
 		kill->writeScore(&byte);
 
 	// Let everyone know that the worm is now dead
-    byte.writeByte(S2C_WORMDOWN);
-    byte.writeByte(victim);
+	byte.writeByte(S2C_WORMDOWN);
+	byte.writeByte(victim);
 
 
 	SendGlobalPacket(&byte);
@@ -553,8 +548,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs)
 
 ///////////////////
 // Parse a chat text packet
-void GameServer::ParseChatText(CClient *cl, CBytestream *bs)
-{
+void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	static char buf[256];
 	bs->readString(buf, sizeof(buf));
 
@@ -563,14 +557,13 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs)
 		if (cl->getMuted())
 			return;
 
-	SendGlobalText( buf, TXT_CHAT);
+	SendGlobalText(buf, TXT_CHAT);
 }
 
 
 ///////////////////
 // Parse a 'update lobby' packet
-void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
-{
+void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 	// Must be in lobby
 	if (iState != SVS_LOBBY)  {
 		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
@@ -585,9 +578,9 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 	int i;
 
 	// Set the client worms lobby ready state
-	for(i=0; i<cl->getNumWorms(); i++) {
+	for (i = 0; i < cl->getNumWorms(); i++) {
 		lobbyworm_t *l = cl->getWorm(i)->getLobby();
-		if(l)
+		if (l)
 			l->iReady = ready;
 	}
 
@@ -598,13 +591,13 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 		bytestr.writeByte(S2C_UPDATELOBBY);
 		bytestr.writeByte(cl->getNumWorms());
 		bytestr.writeByte(ready);
-		for(i=0; i<cl->getNumWorms(); i++) {
+		for (i = 0; i < cl->getNumWorms(); i++) {
 			bytestr.writeByte(cl->getWorm(i)->getID());
 			bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
 		}
 		SendGlobalPacket(&bytestr);
-	// HACK: pretend there are clients handling the bots to get around the
-	// "bug" in 0.56b
+		// HACK: pretend there are clients handling the bots to get around the
+		// "bug" in 0.56b
 	} else {
 		int written = 0;
 		while (written < cl->getNumWorms())  {
@@ -623,10 +616,9 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs)
 
 ///////////////////
 // Parse a disconnect packet
-void GameServer::ParseDisconnect(CClient *cl)
-{
+void GameServer::ParseDisconnect(CClient *cl) {
 	// Check if the client hasn't already left
-	if(cl->getStatus() == NET_DISCONNECTED)  {
+	if (cl->getStatus() == NET_DISCONNECTED)  {
 		printf("GameServer::ParseDisconnect: Client has already disconnected.\n");
 		return;
 	}
@@ -637,11 +629,10 @@ void GameServer::ParseDisconnect(CClient *cl)
 
 ///////////////////
 // Parse a weapon list packet
-void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs)
-{
+void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs) {
 	int id = bs->readByte();
 
-	if( id >= 0 && id < MAX_WORMS)
+	if (id >= 0 && id < MAX_WORMS)
 		cWorms[id].readWeapons(bs);
 	else  {
 		printf("GameServer::ParseWeaponList: worm ID out of bounds.\n");
@@ -652,8 +643,7 @@ void GameServer::ParseWeaponList(CClient *cl, CBytestream *bs)
 
 ///////////////////
 // Parse a 'grab bonus' packet
-void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
-{
+void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
 	int id = bs->readByte();
 	int wormid = bs->readByte();
 	int curwpn = bs->readByte();
@@ -666,22 +656,22 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 
 
 	// Worm ID ok?
-	if( wormid >= 0 && wormid < MAX_WORMS ) {
+	if (wormid >= 0 && wormid < MAX_WORMS) {
 		CWorm *w = &cWorms[wormid];
 
 		// Bonus id ok?
-		if( id >= 0 && id < MAX_BONUSES ) {
+		if (id >= 0 && id < MAX_BONUSES) {
 			CBonus *b = &cBonuses[id];
 
-			if( b->getUsed() ) {
+			if (b->getUsed()) {
 
 				// If it's a weapon, change the worm's current weapon
-				if( b->getType() == BNS_WEAPON ) {
+				if (b->getType() == BNS_WEAPON) {
 
-					if( curwpn >= 0 && curwpn < 5 ) {
+					if (curwpn >= 0 && curwpn < 5) {
 
 						wpnslot_t *wpn = w->getWeapon(curwpn);
-						wpn->Weapon = cGameScript.GetWeapons()+b->getWeapon();
+						wpn->Weapon = cGameScript.GetWeapons() + b->getWeapon();
 						wpn->Charge = 1;
 						wpn->Reloading = false;
 					}
@@ -718,35 +708,33 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs)
 
 ///////////////////
 // Parses connectionless packets
-void GameServer::ParseConnectionlessPacket(CBytestream *bs)
-{
+void GameServer::ParseConnectionlessPacket(CBytestream *bs) {
 	static std::string cmd;
 
 	cmd = bs->readString(128);
 
-	if(cmd == "lx::getchallenge")
+	if (cmd == "lx::getchallenge")
 		ParseGetChallenge();
-	else if(cmd == "lx::connect")
+	else if (cmd == "lx::connect")
 		ParseConnect(bs);
-	else if(cmd == "lx::ping")
+	else if (cmd == "lx::ping")
 		ParsePing();
-	else if(cmd == "lx::query")
+	else if (cmd == "lx::query")
 		ParseQuery(bs);
-    else if(cmd == "lx::getinfo")
-        ParseGetInfo();
-	else if(cmd == "lx::wantsjoin")
+	else if (cmd == "lx::getinfo")
+		ParseGetInfo();
+	else if (cmd == "lx::wantsjoin")
 		ParseWantsJoin(bs);
 	else  {
 		printf("GameServer::ParseConnectionlessPacket: unknown packet\n");
-		bs->SetPos(bs->GetLength()-1); // Safety: ignore any data behind this unknown packet
+		bs->SetPos(bs->GetLength() - 1); // Safety: ignore any data behind this unknown packet
 	}
 }
 
 
 ///////////////////
 // Handle a "getchallenge" msg
-void GameServer::ParseGetChallenge(void)
-{
+void GameServer::ParseGetChallenge(void) {
 	int			i;
 	NetworkAddr	adrFrom;
 	float		OldestTime = 99999;
@@ -754,13 +742,13 @@ void GameServer::ParseGetChallenge(void)
 	static CBytestream	bs;
 	bs.Clear();
 
-	GetRemoteNetAddr(tSocket,&adrFrom);
+	GetRemoteNetAddr(tSocket, &adrFrom);
 
 	// If were in the game, deny challenges
-	if(iState != SVS_LOBBY) {
+	if (iState != SVS_LOBBY) {
 		bs.Clear();
-		bs.writeInt(-1,4);
-		bs.writeString("%s","lx::badconnect");
+		bs.writeInt(-1, 4);
+		bs.writeString("%s", "lx::badconnect");
 		bs.writeString(networkTexts->sGameInProgress);
 		bs.Send(tSocket);
 		printf("GameServer::ParseGetChallenge: Cannot join, the game is in progress.");
@@ -769,12 +757,12 @@ void GameServer::ParseGetChallenge(void)
 
 
 	// see if we already have a challenge for this ip
-	for(i=0;i<MAX_CHALLENGES;i++) {
+	for (i = 0;i < MAX_CHALLENGES;i++) {
 
-		if(IsNetAddrValid(&tChallenges[i].Address)) {
-			if(AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
+		if (IsNetAddrValid(&tChallenges[i].Address)) {
+			if (AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
 				break;
-			if(ChallengeToSet < 0 || tChallenges[i].fTime < OldestTime) {
+			if (ChallengeToSet < 0 || tChallenges[i].fTime < OldestTime) {
 				OldestTime = tChallenges[i].fTime;
 				ChallengeToSet = i;
 			}
@@ -784,7 +772,7 @@ void GameServer::ParseGetChallenge(void)
 		}
 	}
 
-	if(ChallengeToSet >= 0) {
+	if (ChallengeToSet >= 0) {
 
 		// overwrite the oldest
 		tChallenges[ChallengeToSet].iNum = (rand() << 16) ^ rand();
@@ -795,25 +783,24 @@ void GameServer::ParseGetChallenge(void)
 	}
 
 	// Send the challenge details back to the client
-	SetRemoteNetAddr(tSocket,&adrFrom);
+	SetRemoteNetAddr(tSocket, &adrFrom);
 
 
-	bs.writeInt(-1,4);
-	bs.writeString("%s","lx::challenge");
-	bs.writeInt(tChallenges[i].iNum,4);
+	bs.writeInt(-1, 4);
+	bs.writeString("%s", "lx::challenge");
+	bs.writeInt(tChallenges[i].iNum, 4);
 	bs.Send(tSocket);
 }
 
 
 ///////////////////
 // Handle a 'connect' message
-void GameServer::ParseConnect(CBytestream *bs)
-{
+void GameServer::ParseConnect(CBytestream *bs) {
 	static CBytestream		bytestr;
 	NetworkAddr		adrFrom;
-	int				i,p,player=-1;
+	int				i, p, player = -1;
 	int				numplayers;
-	CClient			*cl,*newcl;
+	CClient			*cl, *newcl;
 
 	// Connection details
 	int		ProtocolVersion;
@@ -823,7 +810,7 @@ void GameServer::ParseConnect(CBytestream *bs)
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
-	if(iState != SVS_LOBBY)  {
+	if (iState != SVS_LOBBY)  {
 		printf("GameServer::ParseConnect: In game, ignoring.");
 		return;
 	}
@@ -832,25 +819,24 @@ void GameServer::ParseConnect(CBytestream *bs)
 
 	// User Info to get
 
-	GetRemoteNetAddr(tSocket,&adrFrom);
+	GetRemoteNetAddr(tSocket, &adrFrom);
 
 	// Read packet
 	ProtocolVersion = bs->readInt(1);
-	if(ProtocolVersion != PROTOCOL_VERSION) {
+	if (ProtocolVersion != PROTOCOL_VERSION) {
 		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);
 
 		// Get the string to send
 		static std::string buf;
-		if(networkTexts->sTeamHasWon != "<none>")  {
-			replacemax(networkTexts->sWrongProtocol,"<version>",itoa(PROTOCOL_VERSION),buf,1);
-		}
-		else
+		if (networkTexts->sTeamHasWon != "<none>")  {
+			replacemax(networkTexts->sWrongProtocol, "<version>", itoa(PROTOCOL_VERSION), buf, 1);
+		} else
 			buf = " ";
 
 		// Wrong protocol version, don't connect client
 		bytestr.Clear();
-		bytestr.writeInt(-1,4);
-		bytestr.writeString("%s","lx::badconnect");
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("%s", "lx::badconnect");
 		bytestr.writeString(buf);
 		bytestr.Send(tSocket);
 		printf("GameServer::ParseConnect: Wrong protocol version");
@@ -858,14 +844,14 @@ void GameServer::ParseConnect(CBytestream *bs)
 	}
 
 	static std::string szAddress;
-	NetAddrToString(&adrFrom,szAddress);
+	NetAddrToString(&adrFrom, szAddress);
 
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
 		printf("Banned client %s was trying to connect\n", szAddress.c_str());
 		bytestr.Clear();
-		bytestr.writeInt(-1,4);
-		bytestr.writeString("%s","lx::badconnect");
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("%s", "lx::badconnect");
 		bytestr.writeString(networkTexts->sYouAreBanned);
 		bytestr.Send(tSocket);
 		return;
@@ -876,22 +862,22 @@ void GameServer::ParseConnect(CBytestream *bs)
 	iNetSpeed = bs->readInt(1);
 
 	// Make sure the net speed is within bounds, because it's used for indexing
-	iNetSpeed = MIN(iNetSpeed,3);
-	iNetSpeed = MAX(iNetSpeed,0);
+	iNetSpeed = MIN(iNetSpeed, 3);
+	iNetSpeed = MAX(iNetSpeed, 0);
 
 
 	// Get user info
 	int numworms = bs->readInt(1);
-	numworms = MIN(numworms,MAX_PLAYERS);
+	numworms = MIN(numworms, MAX_PLAYERS);
 	CWorm worms[MAX_PLAYERS];
-	for(i=0;i<numworms;i++) {
+	for (i = 0;i < numworms;i++) {
 		worms[i].readInfo(bs);
 		// If bots aren't allowed, disconnect the client
-		if (worms[i].getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strincludes(szAddress,"127.0.0.1"))  {
+		if (worms[i].getType() == PRF_COMPUTER && !tLXOptions->tGameinfo.bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
 			printf("Bot was trying to connect\n");
 			bytestr.Clear();
-			bytestr.writeInt(-1,4);
-			bytestr.writeString("%s","lx::badconnect");
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("%s", "lx::badconnect");
 			bytestr.writeString(networkTexts->sBotsNotAllowed);
 			bytestr.Send(tSocket);
 			return;
@@ -900,16 +886,16 @@ void GameServer::ParseConnect(CBytestream *bs)
 
 
 	// See if the challenge is valid
-	for(i=0;i<MAX_CHALLENGES;i++) {
-		if(IsNetAddrValid(&tChallenges[i].Address) && AreNetAddrEqual(&adrFrom, &tChallenges[i].Address)) {
+	for (i = 0;i < MAX_CHALLENGES;i++) {
+		if (IsNetAddrValid(&tChallenges[i].Address) && AreNetAddrEqual(&adrFrom, &tChallenges[i].Address)) {
 
-			if(ChallId == tChallenges[i].iNum)
+			if (ChallId == tChallenges[i].iNum)
 				break;		// good
 
 			printf("Bad connection verification of client\n");
 			bytestr.Clear();
-			bytestr.writeInt(-1,4);
-			bytestr.writeString("%s","lx::badconnect");
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("%s", "lx::badconnect");
 			bytestr.writeString(networkTexts->sBadVerification);
 			bytestr.Send(tSocket);
 			return;
@@ -917,11 +903,11 @@ void GameServer::ParseConnect(CBytestream *bs)
 	}
 
 	// Ran out of challenges
-	if(i == MAX_CHALLENGES-1) {
+	if (i == MAX_CHALLENGES - 1) {
 		printf("No connection verification for client found\n");
 		bytestr.Clear();
-		bytestr.writeInt(-1,4);
-		bytestr.writeString("%s","lx::badconnect");
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("%s", "lx::badconnect");
 		bytestr.writeString(networkTexts->sNoIpVerification);
 		bytestr.Send(tSocket);
 		return;
@@ -944,9 +930,9 @@ void GameServer::ParseConnect(CBytestream *bs)
 				bytestr.Clear();
 				bytestr.writeInt(-1,4);
 				bytestr.writeString("%s","lx::goodconnection");
-                // Send the worm ids
-                for( int i=0; i<cl->getNumWorms(); i++ )
-                    bytestr.writeInt(cl->getWorm(i)->getID(), 1);
+	               // Send the worm ids
+	               for( int i=0; i<cl->getNumWorms(); i++ )
+	                   bytestr.writeInt(cl->getWorm(i)->getID(), 1);
 				bytestr.Send(tSocket);
 				return;
 			}
@@ -964,38 +950,38 @@ void GameServer::ParseConnect(CBytestream *bs)
 	player = -1;
 	cl = cClients;
 	newcl = NULL;
-	for(p=0;p<MAX_CLIENTS;p++,cl++) {
-		if(cl->getStatus() == NET_DISCONNECTED) {
+	for (p = 0;p < MAX_CLIENTS;p++, cl++) {
+		if (cl->getStatus() == NET_DISCONNECTED) {
 			newcl = cl;
 			break;
 		}
 	}
 
 	// Calculate number of players
-	numplayers=0;
+	numplayers = 0;
 	CWorm *w = cWorms;
-	for(p=0;p<MAX_WORMS;p++,w++) {
-		if(w->isUsed())
+	for (p = 0;p < MAX_WORMS;p++, w++) {
+		if (w->isUsed())
 			numplayers++;
 	}
 
 	// Ran out of slots
-	if(!newcl) {
+	if (!newcl) {
 		printf("I have no more open slots for the new client\n");
 		bytestr.Clear();
-		bytestr.writeInt(-1,4);
-		bytestr.writeString("%s","lx::badconnect");
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("%s", "lx::badconnect");
 		bytestr.writeString(networkTexts->sNoEmptySlots);
 		bytestr.Send(tSocket);
 		return;
 	}
 
 	// Server full (maxed already, or the number of extra worms wanting to join will go over the max)
-	if(numplayers >= iMaxWorms || numplayers+numworms > iMaxWorms) {
+	if (numplayers >= iMaxWorms || numplayers + numworms > iMaxWorms) {
 		printf("I am full, so the new client cannot join\n");
 		bytestr.Clear();
-		bytestr.writeInt(-1,4);
-		bytestr.writeString("%s","lx::badconnect");
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("%s", "lx::badconnect");
 		bytestr.writeString(networkTexts->sServerFull);
 		bytestr.Send(tSocket);
 		return;
@@ -1003,7 +989,7 @@ void GameServer::ParseConnect(CBytestream *bs)
 
 
 	// Connect
-	if(newcl) {
+	if (newcl) {
 
 		newcl->setStatus(NET_CONNECTED);
 
@@ -1014,11 +1000,11 @@ void GameServer::ParseConnect(CBytestream *bs)
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];
 		int i;
-		for(i=0;i<numworms;i++) {
+		for (i = 0;i < numworms;i++) {
 
 			w = cWorms;
-			for(p=0;p<MAX_WORMS;p++,w++) {
-				if(w->isUsed())
+			for (p = 0;p < MAX_WORMS;p++, w++) {
+				if (w->isUsed())
 					continue;
 
 				*w = worms[i];
@@ -1026,28 +1012,28 @@ void GameServer::ParseConnect(CBytestream *bs)
 				w->setClient(newcl);
 				w->setUsed(true);
 				w->setupLobby();
-				newcl->setWorm(i,w);
+				newcl->setWorm(i, w);
 				ids[i] = p;
 				break;
 			}
 		}
 
 
-		iNumPlayers = numplayers+numworms;
+		iNumPlayers = numplayers + numworms;
 
 		// Let em know they connected good
 		bytestr.Clear();
-		bytestr.writeInt(-1,4);
-		bytestr.writeString("%s","lx::goodconnection");
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("%s", "lx::goodconnection");
 
 		// Tell the client the id's of the worms
-		for(i=0;i<numworms;i++)
-			bytestr.writeInt(ids[i],1);
+		for (i = 0;i < numworms;i++)
+			bytestr.writeInt(ids[i], 1);
 
 		bytestr.Send(tSocket);
 
 
-		newcl->getChannel()->Create(&adrFrom,Port,tSocket);
+		newcl->getChannel()->Create(&adrFrom, Port, tSocket);
 		newcl->setLastReceived(tLX->fCurTime);
 		newcl->setNetSpeed(iNetSpeed);
 
@@ -1063,19 +1049,19 @@ void GameServer::ParseConnect(CBytestream *bs)
 		}*/
 
 
-        //
+		//
 		// Resend data about all worms to everybody
-        // This is so the new client knows about all the worms
-        // And the current client knows about the new worms
-        //
+		// This is so the new client knows about all the worms
+		// And the current client knows about the new worms
+		//
 		w = cWorms;
-		for(i=0;i<MAX_WORMS;i++,w++) {
+		for (i = 0;i < MAX_WORMS;i++, w++) {
 
-			if(!w->isUsed())
+			if (!w->isUsed())
 				continue;
 
 			bytestr.writeByte(S2C_WORMINFO);
-			bytestr.writeInt(w->getID(),1);
+			bytestr.writeInt(w->getID(), 1);
 			w->writeInfo(&bytestr);
 		}
 
@@ -1089,29 +1075,29 @@ void GameServer::ParseConnect(CBytestream *bs)
 		static std::string buf;
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>")  {
-			for(i=0;i<numworms;i++) {
-				SendGlobalText(replacemax(networkTexts->sHasConnected,"<player>",worms[i].getName(),1),TXT_NETWORK);
+			for (i = 0;i < numworms;i++) {
+				SendGlobalText(replacemax(networkTexts->sHasConnected, "<player>", worms[i].getName(), 1), TXT_NETWORK);
 			}
 		}
 
 		// Welcome message
 		buf = tGameInfo.sWelcomeMessage;
-		if(buf.size() > 0)  {
+		if (buf.size() > 0)  {
 
 			// Server name
-			replacemax(buf,"<server>",tGameInfo.sServername,buf,1);
+			replacemax(buf, "<server>", tGameInfo.sServername, buf, 1);
 
 			// Host name
-			replacemax(buf,"<me>",cWorms[0].getName(),buf,1);
+			replacemax(buf, "<me>", cWorms[0].getName(), buf, 1);
 
 			// Country
 			if (buf.find("<country>") != std::string::npos)  {
 				static IpInfo info;
 				static std::string str_addr;
-				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
+				NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 				if (str_addr != "")  {
 					info = tIpToCountry->GetInfoAboutIP(str_addr);
-					replacemax(buf,"<country>",info.Country,buf,1);
+					replacemax(buf, "<country>", info.Country, buf, 1);
 				}
 			}
 
@@ -1119,27 +1105,27 @@ void GameServer::ParseConnect(CBytestream *bs)
 			if (buf.find("<continent>") != std::string::npos)  {
 				static IpInfo info;
 				static std::string str_addr;
-				NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
+				NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 				if (str_addr != "")  {
 					info = tIpToCountry->GetInfoAboutIP(str_addr);
-					replacemax(buf,"<continent>",info.Continent,buf,1);
+					replacemax(buf, "<continent>", info.Continent, buf, 1);
 				}
 			}
 
 
 			// Address
 			static std::string str_addr;
-			NetAddrToString(newcl->getChannel()->getAddress(),str_addr);
+			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 			// Remove port
 			size_t pos = str_addr.rfind(':');
-			if(pos != std::string::npos)
+			if (pos != std::string::npos)
 				str_addr.erase(pos);
-			replacemax(buf,"<ip>",str_addr,buf,1);
+			replacemax(buf, "<ip>", str_addr, buf, 1);
 
-			for(int i=0; i<numworms; i++)  {
+			for (int i = 0; i < numworms; i++)  {
 				// Player name
 				// Send the welcome message
-				SendGlobalText(replacemax(buf,"<player>",worms[i].getName(),1),TXT_NETWORK);
+				SendGlobalText(replacemax(buf, "<player>", worms[i].getName(), 1), TXT_NETWORK);
 			}
 		}
 
@@ -1147,8 +1133,8 @@ void GameServer::ParseConnect(CBytestream *bs)
 		// Tell the client the game lobby details
 		// Note: This sends a packet to ALL clients, not just the new client
 		UpdateGameLobby();
-        if( tGameInfo.iGameType != GME_LOCAL )
-            SendWormLobbyUpdate();
+		if (tGameInfo.iGameType != GME_LOCAL)
+			SendWormLobbyUpdate();
 
 		// Recolorize the nicks in lobby
 		iHost_Recolorize = true;
@@ -1162,27 +1148,25 @@ void GameServer::ParseConnect(CBytestream *bs)
 
 ///////////////////
 // Parse a ping packet
-void GameServer::ParsePing(void)
-{
+void GameServer::ParsePing(void) {
 	static NetworkAddr		adrFrom;
-	GetRemoteNetAddr(tSocket,&adrFrom);
+	GetRemoteNetAddr(tSocket, &adrFrom);
 
 	// Send the challenge details back to the client
-	SetRemoteNetAddr(tSocket,&adrFrom);
+	SetRemoteNetAddr(tSocket, &adrFrom);
 
 	static CBytestream bs;
 
 	bs.Clear();
-	bs.writeInt(-1,4);
-	bs.writeString("%s","lx::pong");
+	bs.writeInt(-1, 4);
+	bs.writeString("%s", "lx::pong");
 
 	bs.Send(tSocket);
 }
 
 ///////////////////
 // Parse a "wants to join" packet
-void GameServer::ParseWantsJoin(CBytestream *bs)
-{
+void GameServer::ParseWantsJoin(CBytestream *bs) {
 	// TODO: Accept these messages from banned clients?
 
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
@@ -1192,30 +1176,29 @@ void GameServer::ParseWantsJoin(CBytestream *bs)
 	static std::string buf;
 
 	// Notify about the wants to join
-	if (networkTexts->sWantsJoin!="<none>")  {
-		replacemax(networkTexts->sWantsJoin,"<player>",Nick,buf,1);
-		SendGlobalText(buf,TXT_NORMAL);
+	if (networkTexts->sWantsJoin != "<none>")  {
+		replacemax(networkTexts->sWantsJoin, "<player>", Nick, buf, 1);
+		SendGlobalText(buf, TXT_NORMAL);
 	}
 }
 
 
 ///////////////////
 // Parse a query packet
-void GameServer::ParseQuery(CBytestream *bs)
-{
+void GameServer::ParseQuery(CBytestream *bs) {
 	static CBytestream bytestr;
 
-    int num = bs->readByte();
+	int num = bs->readByte();
 
 	bytestr.Clear();
-	bytestr.writeInt(-1,4);
-	bytestr.writeString("%s","lx::queryreturn");
+	bytestr.writeInt(-1, 4);
+	bytestr.writeString("%s", "lx::queryreturn");
 
 	bytestr.writeString(sName);
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
 	bytestr.writeByte(iState);
-    bytestr.writeByte(num);
+	bytestr.writeByte(num);
 
 	bytestr.Send(tSocket);
 
@@ -1225,70 +1208,69 @@ void GameServer::ParseQuery(CBytestream *bs)
 
 ///////////////////
 // Parse a get_info packet
-void GameServer::ParseGetInfo(void)
-{
+void GameServer::ParseGetInfo(void) {
 	// TODO: more info
 
-    static CBytestream     bs;
-    game_lobby_t    *gl = &tGameLobby;
+	static CBytestream     bs;
+	game_lobby_t    *gl = &tGameLobby;
 
-    bs.Clear();
-	bs.writeInt(-1,4);
-	bs.writeString("%s","lx::serverinfo");
+	bs.Clear();
+	bs.writeInt(-1, 4);
+	bs.writeString("%s", "lx::serverinfo");
 
 	bs.writeString(sName);
 	bs.writeByte(iMaxWorms);
 	bs.writeByte(iState);
 
-    // If in lobby
-    if(iState == SVS_LOBBY && gl->nSet) {
-	    bs.writeString(gl->szMapName);
-        bs.writeString(gl->szModName);
-	    bs.writeByte(gl->nGameMode);
-	    bs.writeInt16(gl->nLives);
-	    bs.writeInt16(gl->nMaxKills);
-	    bs.writeInt16(gl->nLoadingTime);
-        bs.writeByte(gl->nBonuses);
-    }
-    // If in game
-    else if(iState == SVS_PLAYING) {
-        bs.writeString(sMapFilename);
-        bs.writeString(sModName);
-	    bs.writeByte(iGameType);
-	    bs.writeInt16(iLives);
-	    bs.writeInt16(iMaxKills);
-	    bs.writeInt16(iLoadingTimes);
-        bs.writeByte(iBonusesOn);
-    }
+	// If in lobby
+	if (iState == SVS_LOBBY && gl->nSet) {
+		bs.writeString(gl->szMapName);
+		bs.writeString(gl->szModName);
+		bs.writeByte(gl->nGameMode);
+		bs.writeInt16(gl->nLives);
+		bs.writeInt16(gl->nMaxKills);
+		bs.writeInt16(gl->nLoadingTime);
+		bs.writeByte(gl->nBonuses);
+	}
+	// If in game
+	else if (iState == SVS_PLAYING) {
+		bs.writeString(sMapFilename);
+		bs.writeString(sModName);
+		bs.writeByte(iGameType);
+		bs.writeInt16(iLives);
+		bs.writeInt16(iMaxKills);
+		bs.writeInt16(iLoadingTimes);
+		bs.writeByte(iBonusesOn);
+	}
 	// Loading
 	else {
-        bs.writeString(tGameInfo.sMapname);
-        bs.writeString(tGameInfo.sModName);
-	    bs.writeByte(tGameInfo.iGameType);
-	    bs.writeInt16(tGameInfo.iLives);
-	    bs.writeInt16(tGameInfo.iKillLimit);
-	    bs.writeInt16(tGameInfo.iLoadingTimes);
-        bs.writeByte(tGameInfo.iBonusesOn);
+		bs.writeString(tGameInfo.sMapname);
+		bs.writeString(tGameInfo.sModName);
+		bs.writeByte(tGameInfo.iGameType);
+		bs.writeInt16(tGameInfo.iLives);
+		bs.writeInt16(tGameInfo.iKillLimit);
+		bs.writeInt16(tGameInfo.iLoadingTimes);
+		bs.writeByte(tGameInfo.iBonusesOn);
 	}
 
 
-    // Players
-    int     numplayers=0;
-    int     p;
+	// Players
+	int     numplayers = 0;
+	int     p;
 	CWorm *w = cWorms;
-	for(p=0;p<MAX_WORMS;p++,w++) {
-		if(w->isUsed())
+	for (p = 0;p < MAX_WORMS;p++, w++) {
+		if (w->isUsed())
 			numplayers++;
-    }
+	}
 
-    bs.writeByte(numplayers);
-    w = cWorms;
-	for(p=0;p<MAX_WORMS;p++,w++) {
-        if(w->isUsed()) {
-            bs.writeString(w->getName());
-            bs.writeInt(w->getKills(), 2);
-        }
-    }
+	bs.writeByte(numplayers);
+	w = cWorms;
+	for (p = 0;p < MAX_WORMS;p++, w++) {
+		if (w->isUsed()) {
+			bs.writeString(w->getName());
+			bs.writeInt(w->getKills(), 2);
+		}
+	}
 
 
 	bs.Send(tSocket);

@@ -33,27 +33,26 @@
 
 ///////////////////
 // Load a font
-int CFont::Load(const std::string& fontname, bool _colour)
-{
+int CFont::Load(const std::string& fontname, bool _colour) {
 
 	// Load the font
-	LOAD_IMAGE_WITHALPHA(bmpFont,fontname);
+	LOAD_IMAGE_WITHALPHA(bmpFont, fontname);
 
 	// Set the color key for this alpha surface (SDL_SetColorKey does not work for alpha blended surfaces)
-	SetColorKeyAlpha(bmpFont, 255,0,255);
+	SetColorKeyAlpha(bmpFont, 255, 0, 255);
 
 	Colorize = _colour;
 
-	bmpWhite = gfxCreateSurfaceAlpha(bmpFont->w,bmpFont->h);
-	bmpGreen = gfxCreateSurfaceAlpha(bmpFont->w,bmpFont->h);
+	bmpWhite = gfxCreateSurfaceAlpha(bmpFont->w, bmpFont->h);
+	bmpGreen = gfxCreateSurfaceAlpha(bmpFont->w, bmpFont->h);
 
 	// Calculate the width of each character and number of characters
 	Parse();
 
 	// Precache some common font colors (but only if this font should be colorized)
-	if (Colorize)  {
-		PreCalculate(bmpWhite,tLX->clNormalLabel);
-		PreCalculate(bmpGreen,tLX->clChatText);
+	if (Colorize) {
+		PreCalculate(bmpWhite, tLX->clNormalLabel);
+		PreCalculate(bmpGreen, tLX->clChatText);
 	}
 
 
@@ -67,13 +66,12 @@ int CFont::Load(const std::string& fontname, bool _colour)
 
 ///////////////////
 // Shutdown the font
-void CFont::Shutdown(void)
-{
-	if(bmpWhite)  {
+void CFont::Shutdown(void) {
+	if (bmpWhite) {
 		SDL_FreeSurface(bmpWhite);
 		bmpWhite = NULL;
 	}
-	if(bmpGreen)  {
+	if (bmpGreen) {
 		SDL_FreeSurface(bmpGreen);
 		bmpGreen = NULL;
 	}
@@ -83,11 +81,10 @@ void CFont::Shutdown(void)
 //////////////////
 // Helper function for CalculateWidth
 // Checks, whether a vertical line is free (all pixels pink)
-bool CFont::IsColumnFree(int x)
-{
+bool CFont::IsColumnFree(int x) {
 	// it's only completelly see through
-	for (ushort i=0; i < bmpFont->h; i++)  {
-		if((GetPixel(bmpFont, x, i) & ALPHASURFACE_AMASK) != 0)
+	for (ushort i = 0; i < bmpFont->h; i++) {
+		if ((GetPixel(bmpFont, x, i) & ALPHASURFACE_AMASK) != 0)
 			return false;
 	}
 
@@ -96,35 +93,34 @@ bool CFont::IsColumnFree(int x)
 
 ///////////////////
 // Calculate character widths, number of characters and offsets
-void CFont::Parse(void)
-{
+void CFont::Parse(void) {
 	uint x;
-	UnicodeChar CurChar=FIRST_CHARACTER;
+	UnicodeChar CurChar = FIRST_CHARACTER;
 	int cur_w;
 
 	// Lock the surface
-	if(SDL_MUSTLOCK(bmpFont))
+	if (SDL_MUSTLOCK(bmpFont))
 		SDL_LockSurface(bmpFont);
 
-	Uint32 blue = SDL_MapRGB(bmpFont->format,0,0,255);
+	Uint32 blue = SDL_MapRGB(bmpFont->format, 0, 0, 255);
 
 	cur_w = 0;
 	uint tmp_x = 0;
-	for (x=0; (int)x<bmpFont->w; x++)  {
+	for (x = 0; (int) x < bmpFont->w; x++) {
 		if (CurChar != ' ')
-			while (IsColumnFree(x) && (int)x<bmpFont->w)  // Ignore any free pixel columns before the character (but don't do this for spaces)
+			while (IsColumnFree(x) && (int) x < bmpFont->w)       // Ignore any free pixel columns before the character (but don't do this for spaces)
 				x++;
 
 		// Read until a blue pixel or end of the image
-		while ( GetPixel(bmpFont,x,0) != blue && (int)x < bmpFont->w)  {
+		while (GetPixel(bmpFont, x, 0) != blue && (int) x < bmpFont->w) {
 			x++;
 			cur_w++;
 		}
 
 		// Ignore any free pixel columns *after* the character
 		tmp_x = x - 1; // -1 : blue line
-		if (CurChar != ' ')  {
-			while (IsColumnFree(tmp_x))  {
+		if (CurChar != ' ') {
+			while (IsColumnFree(tmp_x)) {
 				cur_w--;
 				tmp_x--;
 			}
@@ -141,22 +137,21 @@ void CFont::Parse(void)
 
 
 	// Unlock the surface
-	if(SDL_MUSTLOCK(bmpFont))
+	if (SDL_MUSTLOCK(bmpFont))
 		SDL_UnlockSurface(bmpFont);
 }
 
 ///////////////////
 // Precalculate a font's colour
-void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
-{
+void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 	register Uint32 pixel;
-	int x,y;
+	int x, y;
 
 	DrawRectFill(bmpSurf, 0, 0, bmpSurf->w, bmpSurf->h,
-			SDL_MapRGBA(bmpSurf->format, 255, 0, 255, 0));
+	             SDL_MapRGBA(bmpSurf->format, 255, 0, 255, 0));
 
 	// Lock the surface
-	if(SDL_MUSTLOCK(bmpSurf))
+	if (SDL_MUSTLOCK(bmpSurf))
 		SDL_LockSurface(bmpSurf);
 
 	Uint8 R, G, B, A;
@@ -164,46 +159,45 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour)
 	GetColour3(colour, SDL_GetVideoSurface(), &sr, &sg, &sb);
 
 	// Outline font: replace white pixels with appropriate color, put black pixels
-	if (OutlineFont)  {
-		for(y = 0; y < bmpSurf->h; y++) {
-			for(x = 0; x < bmpSurf->w; x++) {
+	if (OutlineFont) {
+		for (y = 0; y < bmpSurf->h; y++) {
+			for (x = 0; x < bmpSurf->w; x++) {
 				pixel = GetPixel(bmpFont, x, y);
 				GetColour4(pixel, bmpSurf, &R, &G, &B, &A);
 
-				if(R == 255 && G == 255 && B == 255)  // White
+				if (R == 255 && G == 255 && B == 255)    // White
 					PutPixel(bmpSurf, x, y,
-						SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
-				else if (!R && !G && !B) // Black
+					         SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
+				else if (!R && !G && !B)   // Black
 					PutPixel(bmpSurf, x, y,
-						SDL_MapRGBA(bmpSurf->format, 0, 0, 0, A));
+					         SDL_MapRGBA(bmpSurf->format, 0, 0, 0, A));
 			}
 		}
-	// Not outline: replace black pixels with appropriate color
+		// Not outline: replace black pixels with appropriate color
 	} else {
-		for(y = 0; y < bmpSurf->h; y++) {
-			for(x = 0; x < bmpSurf->w; x++) {
+		for (y = 0; y < bmpSurf->h; y++) {
+			for (x = 0; x < bmpSurf->w; x++) {
 				pixel = GetPixel(bmpFont, x, y);
 				GetColour4(pixel, bmpSurf, &R, &G, &B, &A);
 
-				if(!R && !G && !B) // Black
+				if (!R && !G && !B)   // Black
 					PutPixel(bmpSurf, x, y,
-						SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
+					         SDL_MapRGBA(bmpSurf->format, sr, sg, sb, A));
 			}
 		}
 	}
 
 
 	// Unlock the surface
-	if(SDL_MUSTLOCK(bmpSurf))
+	if (SDL_MUSTLOCK(bmpSurf))
 		SDL_UnlockSurface(bmpSurf);
 }
 
 
 ////////////////////
 // Get height of multiline text
-int CFont::GetHeight(const std::string& buf)
-{
-	int numlines=1;
+int CFont::GetHeight(const std::string& buf) {
+	int numlines = 1;
 	for (std::string::const_iterator i = buf.begin(); i != buf.end(); i++)
 		if (*i == '\n') numlines++;
 	return numlines*bmpFont->h;
@@ -215,10 +209,11 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	int pos = 0; // Offset, x+pos is current character position in pixels
 	short l;
 	Uint32 pixel;
-	int i,j;
+	int i, j;
 	int w;
-	int a,b; // a = offset in bmpFont
-	static Uint32 black; black = tLX->clBlack;
+	int a, b; // a = offset in bmpFont
+	static Uint32 black;
+	black = tLX->clBlack;
 
 	// Clipping rectangle
 	SDL_Rect oldrect = dst->clip_rect;
@@ -226,20 +221,20 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 	int	top = oldrect.y;
 	int left = oldrect.x;
-	int right = MIN(oldrect.x + oldrect.w,x+max_w);
+	int right = MIN(oldrect.x + oldrect.w, x + max_w);
 	int bottom = oldrect.y + oldrect.h;
-	Uint8 R,G,B,A;
+	Uint8 R, G, B, A;
 
 	// Set the newrect width and use this newrect temporarily to draw the font
 	// We use this rect because of precached fonts which use SDL_Blit for drawing (and it takes care of cliprect)
-	newrect.w = right-left;
-	SDL_SetClipRect(dst,&newrect);
+	newrect.w = right - left;
+	SDL_SetClipRect(dst, &newrect);
 
 
 	// Look in the precached fonts if there's some for this color
 	SDL_Surface *bmpCached = NULL;
-	if (Colorize)  {
-		if (col == f_white)  
+	if (Colorize) {
+		if (col == f_white)
 			bmpCached = bmpWhite;
 		else if (col == black)
 			bmpCached = bmpFont;
@@ -247,33 +242,33 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 			bmpCached = bmpGreen;
 	}
 	// Not colourize, bmpFont itself should be blitted without any changes, so it's precached
-	else  {
+	else {
 		bmpCached = bmpFont;
 	}
 
 
 	// Lock the surfaces
-	if(SDL_MUSTLOCK(dst))
+	if (SDL_MUSTLOCK(dst))
 		SDL_LockSurface(dst);
-	if(SDL_MUSTLOCK(bmpFont) && !bmpCached)  // If we use cached font, we do not access the pixels
+	if (SDL_MUSTLOCK(bmpFont) && !bmpCached)       // If we use cached font, we do not access the pixels
 		SDL_LockSurface(bmpFont);
 
-	short clip_x,clip_y,clip_w,clip_h;
+	short clip_x, clip_y, clip_w, clip_h;
 
 	// Adjust the color to the dest-suface format
-	GetColour3(col,SDL_GetVideoSurface(),&R,&G,&B);
-	col = SDLColourToNativeColour(SDL_MapRGB(dst->format,R,G,B));
+	GetColour3(col, SDL_GetVideoSurface(), &R, &G, &B);
+	col = SDLColourToNativeColour(SDL_MapRGB(dst->format, R, G, B));
 
-	pos=0;
-	for(std::string::const_iterator p = txt.begin(); p != txt.end(); ) {
+	pos = 0;
+	for (std::string::const_iterator p = txt.begin(); p != txt.end();) {
 		// Line break
-		if (*p == '\n')  {
-			y += bmpFont->h+VSpacing;
+		if (*p == '\n') {
+			y += bmpFont->h + VSpacing;
 			pos = 0;
 			p++;
 			continue;
 		}
-		
+
 		// Translate and ignore unknown
 		l = TranslateCharacter(p, txt.end());
 		if (l == -1)
@@ -283,7 +278,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 		a = CharacterOffset[l];
 
 		// Precached fonts
-		if (bmpCached)  {
+		if (bmpCached) {
 			DrawImageAdv(dst, bmpCached, a, 0, x + pos, y, FontWidth[l], bmpFont->h);
 			pos += FontWidth[l] + Spacing;
 			continue;
@@ -300,22 +295,22 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 			clip_h = bottom - y;
 
 		register byte bpp = bmpFont->format->BytesPerPixel;
-		register Uint8 *src = (Uint8 *)bmpFont->pixels + a * bpp;
+		register Uint8 *src = (Uint8 *) bmpFont->pixels + a * bpp;
 		register Uint8 *px;
 
 		// Outline font
-		if (OutlineFont)  {
-			for(j=clip_y;j<clip_h;j++) {
+		if (OutlineFont) {
+			for (j = clip_y;j < clip_h;j++) {
 				px = src;
-				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,px+=bpp) {
+				for (i = a + clip_x, b = clip_x;b < clip_w;i++, b++, px += bpp) {
 
-					pixel = GetPixelFromAddr(px,bpp);
-					GetColour4(pixel,bmpFont,&R,&G,&B,&A);
+					pixel = GetPixelFromAddr(px, bpp);
+					GetColour4(pixel, bmpFont, &R, &G, &B, &A);
 
 					// Put black pixels and colorize white ones
-					if (R == 255 && G == 255 && B == 255)  // White
-						PutPixelA(dst, x + pos + b, y + j, col, A); // Put the pixel and blend it with background
-					else if (!R && !G && !B)  // Black
+					if (R == 255 && G == 255 && B == 255)    // White
+						PutPixelA(dst, x + pos + b, y + j, col, A);    // Put the pixel and blend it with background
+					else if (!R && !G && !B)    // Black
 						PutPixelA(dst, x + pos + b, y + j, tLX->clBlack, A);
 				}
 				src += bmpFont->pitch;
@@ -323,15 +318,15 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 		}
 		// Not outline
 		else {
-			for(j = clip_y; j < clip_h; j++) {
+			for (j = clip_y; j < clip_h; j++) {
 				px = src;
-				for(i = a + clip_x, b = clip_x; b < clip_w; i++, b++, px += bpp) {
+				for (i = a + clip_x, b = clip_x; b < clip_w; i++, b++, px += bpp) {
 
 					pixel = GetPixelFromAddr(px, bpp);
-					GetColour4(pixel,bmpFont, &R, &G, &B, &A);
+					GetColour4(pixel, bmpFont, &R, &G, &B, &A);
 
 					// Put only black pixels
-					if (!R && !G && !B)  
+					if (!R && !G && !B)
 						PutPixelA(dst, x + pos + b, y + j, col, A);
 				}
 				src += bmpFont->pitch;
@@ -346,9 +341,9 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 
 	// Unlock the surfaces
-	if(SDL_MUSTLOCK(dst))
+	if (SDL_MUSTLOCK(dst))
 		SDL_UnlockSurface(dst);
-	if(SDL_MUSTLOCK(bmpFont))
+	if (SDL_MUSTLOCK(bmpFont))
 		SDL_UnlockSurface(bmpFont);
 
 }
@@ -359,12 +354,12 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 int CFont::GetWidth(const std::string& buf) {
 	int length = 0;
 	short l;
-	
+
 	// Calculate the length of the text
-	for(std::string::const_iterator p = buf.begin(); p != buf.end(); ) {
+	for (std::string::const_iterator p = buf.begin(); p != buf.end();) {
 		l = TranslateCharacter(p, buf.end());
 		if (l != -1)
-			length += FontWidth[l]+Spacing;
+			length += FontWidth[l] + Spacing;
 	}
 
 	return length;
