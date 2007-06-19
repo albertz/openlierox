@@ -65,6 +65,11 @@ int Menu_Initialize(bool *game)
     //LOAD_IMAGE(tMenu->bmpMainBack_lg,"data/frontend/background_lg.png");
     LOAD_IMAGE(tMenu->bmpMainBack_wob,"data/frontend/background_wob.png");
 
+	// bmpMainBack_common, for backward compatibility: if it doesn't exist, we use bmpMainBack_wob
+	tMenu->bmpMainBack_common = LoadImage("data/frontend/background_common.png");
+	if (!tMenu->bmpMainBack_common)
+		tMenu->bmpMainBack_common = tMenu->bmpMainBack_wob;
+
 
 	tMenu->bmpBuffer = gfxCreateSurface(640,480);
     if(tMenu->bmpBuffer == NULL) {
@@ -138,6 +143,9 @@ void Menu_LoadFrontendInfo()
 {
 	ReadInteger("data/frontend/frontend.cfg","MainTitles","X",&tMenu->tFrontendInfo.iMainTitlesLeft,50);
 	ReadInteger("data/frontend/frontend.cfg","MainTitles","Y",&tMenu->tFrontendInfo.iMainTitlesTop,160);
+	ReadInteger("data/frontend/frontend.cfg","Credits","X",&tMenu->tFrontendInfo.iCreditsLeft,370);
+	ReadInteger("data/frontend/frontend.cfg","Credits","Y",&tMenu->tFrontendInfo.iCreditsTop,379);
+	ReadInteger("data/frontend/frontend.cfg","Credits","Spacing",&tMenu->tFrontendInfo.iCreditsSpacing,0);
 	ReadInteger("data/frontend/frontend.cfg","MainTitles","Spacing",&tMenu->tFrontendInfo.iMainTitlesSpacing,15);
 	ReadKeyword("data/frontend/frontend.cfg","PageBoxes","Visible",&tMenu->tFrontendInfo.bPageBoxes,true);
 }
@@ -566,8 +574,8 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	// Draw to the buffer
 	//DrawImage(tMenu->bmpBuffer, shadow, 177,167);
 	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
-	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clBlack);
-	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,MakeColour(64,64,64));
+	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clDialogBackground);
+	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+25,tLX->clDialogCaption);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, y+5, tLX->clNormalLabel,sTitle);
 	for (it=lines.begin(); it!=lines.end(); it++)  {
@@ -1719,7 +1727,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 	Menu_redrawBufferRect(x,y,w,h);
 
     Menu_DrawBox(tMenu->bmpScreen, x,y, w,h);
-	DrawRectFillA(tMenu->bmpScreen, x+1,y+1, w-1,h-1, 0, 230);
+	DrawRectFillA(tMenu->bmpScreen, x+1,y+1, w-1,h-1, tLX->clDialogBackground, 230);
     tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Server Details")/2, y+5, tLX->clNormalLabel, "Server Details");
 
 

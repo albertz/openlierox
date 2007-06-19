@@ -484,16 +484,16 @@ int Menu_Net_HostLobbyInitialize(void)
 void Menu_Net_HostLobbyDraw(void)
 {
     // Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
 	Menu_DrawBox(tMenu->bmpBuffer, 460,29, 593, 130);
-    DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
+    DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 281,0, 281,0, 79,20);
 
     tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
-    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clBlack);
+    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clChatBoxBackground);
 
     // Player box
     Menu_DrawBox(tMenu->bmpBuffer, 15, 29, 340, 235);
@@ -1171,7 +1171,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		}
 
         // Dividing line
-        DrawHLine(bmpDest, x, x+315, y+20, MakeColour(64,64,64));
+        DrawHLine(bmpDest, x, x+315, y+20, tLX->clPlayerDividingLine);
 
         y+=25;
 	}
@@ -1192,7 +1192,7 @@ void Menu_HostShowMinimap(void)
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
 	// Draw a background over the old minimap
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 463,32,463,32,128,96);
+	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 463,32,463,32,128,96);
 
 	// Load the map
 	buf ="levels/"+buf;
@@ -1232,11 +1232,11 @@ void Menu_Net_HostDeregister(void)
 	mouse_t *Mouse = GetMouse();
 
 
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,60, 625, 465);
 	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
-	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clBlack);
+	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clDialogBackground);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer, cx, cy, tLX->clNormalLabel, "De-Registering server...");
 
@@ -1297,8 +1297,8 @@ enum {
 void Menu_ServerSettings(void)
 {
 	// Setup the buffer
-	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,130,120,130, 400,200);
-	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,325, 0, 200);
+	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,130,120,130, 400,200);
+	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,325, tLX->clDialogBackground, 200);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,325);
 
 	Menu_RedrawMouse(true);
@@ -1433,7 +1433,7 @@ enum {
 void Menu_BanList(void)
 {
 	// Setup the buffer
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,130,120,130, 400,320);
+	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,130,120,130, 400,320);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 520,440);
 	//DrawRectFillA(tMenu->bmpBuffer, 125,155, 380,260, 0, 100);
 

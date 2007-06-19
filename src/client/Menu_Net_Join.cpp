@@ -276,16 +276,16 @@ void Menu_Net_JoinLobbyShutdown(void)
 void Menu_Net_JoinDrawLobby(void)
 {
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
 
     // Title
-    DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
+    DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 281,0, 281,0, 79,20);
     tLX->cFont.DrawCentre(tMenu->bmpBuffer, 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
 
 	// Chat box
-    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clBlack);
+    DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clChatBoxBackground);
 
     // Player box
     Menu_DrawBox(tMenu->bmpBuffer, 15, 29, 340, 235);
@@ -399,7 +399,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	// Check if the communication link between us & server is still ok
 	if(cClient->getServerError()) {
 		// Create the buffer
-		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 		Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_LOBBY);
 
 		Menu_MessageBox("Communication", cClient->getServerErrorMsg(), LMB_OK);
@@ -529,7 +529,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		}
 
         // Dividing line
-        DrawHLine(tMenu->bmpScreen, x, x+315, y+20, MakeColour(64,64,64));
+        DrawHLine(tMenu->bmpScreen, x, x+315, y+20, tLX->clPlayerDividingLine);
         y+=25;
 	}
 

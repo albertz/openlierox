@@ -1,0 +1,190 @@
+/////////////////////////////////////////
+//
+//             OpenLieroX
+//
+// code under LGPL, based on JasonBs work,
+// enhanced by Dark Charlie and Albert Zeyer
+//
+//
+/////////////////////////////////////////
+
+
+// Cursor source file
+// Created 18/6/07
+// Dark Charlie
+
+#include "defs.h"
+#include "LieroX.h"
+#include "InputEvents.h"
+#include "GfxPrimitives.h"
+
+//
+// Game cursor handling
+//
+
+
+CCursor *tCurrentCursor = NULL;
+CCursor *tCursors[CURSOR_COUNT];
+float fCursorFrameTime = 0.2f;
+
+//////////////////
+// Initialize cursors
+bool InitializeCursors()
+{
+	tCurrentCursor = NULL;
+	
+	// Load the cursors
+	tCursors[CURSOR_ARROW] = new CCursor("data/frontend/mouse.png",CUR_ARROW);
+	tCursors[CURSOR_HAND] = new CCursor("data/frontend/mouse_hand.png",CUR_ARROW);
+	tCursors[CURSOR_TEXT] = new CCursor("data/frontend/mouse_text.png",CUR_TEXT);
+	tCursors[CURSOR_RESIZE] = new CCursor("data/frontend/mouse_resize.png",CUR_SPLITTER);
+
+	// Load the frame time from external config
+	ReadFloat("data/frontend/frontend.cfg","Cursors","FrameTime",&fCursorFrameTime,0.2f);
+
+	// Check that all were loaded correctly
+	for (byte i=0;i<CURSOR_COUNT;i++)
+		if (!tCursors[i])
+			return false;
+	return true;
+}
+
+//////////////////
+// Shutdown the cursors
+void ShutdownCursors()
+{
+	// Free all the cursor structures
+	for (byte i=0; i<CURSOR_COUNT; i++)
+		if (tCursors[i])  {
+			delete tCursors[i];
+			tCursors[i] = NULL;
+		}
+}
+
+////////////////
+// Set the current cursor
+void SetGameCursor(int c)  {
+	if (c < 0 || c >= CURSOR_COUNT)
+		tCurrentCursor = NULL;
+	else
+		tCurrentCursor = tCursors[c];
+}
+
+/////////////////
+// Draw game cursor
+void DrawCursor(SDL_Surface *dst) {
+	if (tCurrentCursor)
+		tCurrentCursor->Draw(dst);
+}
+
+///////////////////
+// Get height of a cursor
+int GetCursorHeight(int c)  {
+	if (c < 0 || c >= CURSOR_COUNT)
+		return 0;
+	else
+		return tCursors[c]->GetHeight();
+}
+
+
+///////////////////
+// Get width of a cursor
+int GetCursorWidth(int c)  {
+	if (c < 0 || c >= CURSOR_COUNT)
+		return 0;
+	else
+		return tCursors[c]->GetWidth();
+}
+
+
+
+
+//
+// Cursor class
+//
+
+/////////////////
+// Constructor
+CCursor::CCursor(const std::string filename, int type)
+{
+	// Defaults
+	iType = type;
+	fAnimationSwapTime = tLX->fCurTime;
+	bAnimated = false;
+	iFrameWidth = 0;
+	iNumFrames = 0;
+	iFrame = 0;
+
+
+	// Load the cursor
+	bmpCursor = LoadImage(filename,true);
+	if (bmpCursor)  {
+		if (bmpCursor->w >= 2*bmpCursor->h && (bmpCursor->w % bmpCursor->h) == 0)  {  // The file contains more frames
+			bAnimated = true;
+			iFrameWidth = bmpCursor->h;
+			iNumFrames = bmpCursor->w / iFrameWidth;
+			iFrame = 0;
+			
+		} else {  // Only one frame
+			bAnimated = false;
+			iFrameWidth = bmpCursor->w;
+			iNumFrames = 1;
+			iFrame = 0;
+		}
+
+		// Set the color key
+		SetColorKey(bmpCursor);
+	}
+}
+
+////////////////
+// Destructor
+CCursor::~CCursor()
+{
+	// Freed by the cache
+	bmpCursor = NULL;
+}
+
+//////////////////
+// Draw the cursor
+void CCursor::Draw(SDL_Surface *dst)
+{
+	// Check
+	if (!dst || !bmpCursor)
+		return;
+
+	mouse_t *Mouse = GetMouse();
+
+	// Image position
+	int X = Mouse->X;
+	int Y = Mouse->Y;
+
+	// Change the position depending on the type
+	switch (iType)  {
+	case CUR_ARROW:
+	case CUR_TEXT:
+		// No position change needed
+		break;
+	case CUR_SPLITTER:
+		X -= iFrameWidth / 2;
+		break;
+	case CUR_AIM:
+		X -= iFrameWidth / 2;
+		Y -= bmpCursor->h / 2;
+		break;
+	default:
+		printf("Warning: CCursor::Draw - unknown type");
+		break;
+	};
+
+
+	// Process animating
+	if ((tLX->fCurTime - fAnimationSwapTime) >= fCursorFrameTime)  {
+		iFrame++;
+		if (iFrame >= iNumFrames)
+			iFrame = 0;
+	}
+
+	// Draw the cursor
+	DrawImageAdv(dst,bmpCursor,iFrame*iFrameWidth,0,X,Y,iFrameWidth,bmpCursor->h);
+}

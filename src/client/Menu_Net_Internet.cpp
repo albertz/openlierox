@@ -433,7 +433,7 @@ void Menu_Net_NETAddServer(void)
 	cInternet.Draw( tMenu->bmpBuffer );
 	Menu_DrawBox(tMenu->bmpBuffer, 200, 220, 440, 340);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer, 202,222,439,339,tLX->clBlack);
+    DrawRectFill(tMenu->bmpBuffer, 202,222,439,339,tLX->clDialogBackground);
 	for(int i=1;i<5;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
 	Menu_RedrawMouse(true);
@@ -507,7 +507,7 @@ void Menu_Net_NETAddServer(void)
 	cAddSvr.Shutdown();
 
 	// Re-draw the background
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
@@ -557,7 +557,7 @@ void Menu_Net_NETUpdateList(void)
 	cInternet.Draw( tMenu->bmpBuffer );
 	Menu_DrawBox(tMenu->bmpBuffer, 200, 220, 440, 340);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer, 202, 222, 439, 339, tLX->clBlack);
+    DrawRectFill(tMenu->bmpBuffer, 202, 222, 439, 339, tLX->clDialogBackground);
     Menu_DrawBox(tMenu->bmpBuffer, 220, 280, 420, 300);
 	for(ushort i=0;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
@@ -577,7 +577,7 @@ void Menu_Net_NETUpdateList(void)
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
         if( SvrCount > 0 ) {
-            DrawRectFill(tMenu->bmpScreen, 222,282, (int) (222+((float)CurServer/(float)SvrCount)*200.0f), 299, MakeColour(0,136,250));
+            DrawRectFill(tMenu->bmpScreen, 222,282, (int) (222+((float)CurServer/(float)SvrCount)*200.0f), 299, tLX->clProgress);
             tLX->cOutlineFont.DrawCentre(tMenu->bmpScreen, 320,283,tLX->clWhite, itoa(CurServer) + "/" + itoa(SvrCount));
         }
 
@@ -669,7 +669,7 @@ void Menu_Net_NETUpdateList(void)
 
 
 	// Re-draw the background
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
@@ -728,7 +728,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
     CGuiLayout  cDetails;
 
     // Create the buffer
-    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
     Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	cInternet.Draw(tMenu->bmpBuffer);
@@ -747,7 +747,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 	nTries = 0;
 	fStart = -9999;
 
-	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,0,230); // Dirty; because of button redrawing
+	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,tLX->clDialogBackground,230); // Dirty; because of button redrawing
 
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
@@ -794,7 +794,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 
 
     // Redraw the background
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);

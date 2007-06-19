@@ -27,9 +27,9 @@ void CSlider::Draw(SDL_Surface *bmpDest)
 {
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 
-	DrawHLine( bmpDest, iX+5, iX+iWidth-5, iY+iHeight/2-1, MakeColour(90,90,90));
-	DrawHLine( bmpDest, iX+5, iX+iWidth-5, iY+iHeight/2,   MakeColour(115,115,115));
-	DrawHLine( bmpDest, iX+5, iX+iWidth-5, iY+iHeight/2+1, MakeColour(90,90,90));
+	DrawHLine( bmpDest, iX+5, iX+iWidth-5, iY+iHeight/2-1, tLX->clSliderDark);
+	DrawHLine( bmpDest, iX+5, iX+iWidth-5, iY+iHeight/2,   tLX->clSliderLight);
+	DrawHLine( bmpDest, iX+5, iX+iWidth-5, iY+iHeight/2+1, tLX->clSliderDark);
 
 	// Draw the button
 	int x = iX+5;

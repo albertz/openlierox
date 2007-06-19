@@ -53,7 +53,7 @@ int Menu_MapEdInitialize(void)
 	Menu_DrawBox(tMenu->bmpBuffer,20,171, 619,458);
 	Menu_DrawBox(tMenu->bmpBuffer,20,135, 54,169);*/
 
-    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
@@ -497,7 +497,7 @@ void Menu_MapEd_New(void)
 	Menu_MapEdFrame(tMenu->bmpBuffer,false);
 
 	Menu_DrawBox(tMenu->bmpBuffer, 210, 170, 430, 310);
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 212,172, 212,172, 217,137);
+	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 212,172, 212,172, 217,137);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	//DrawRectFill(tMenu->bmpBuffer, 212, 172, 429, 309, tLX->clBlack);
@@ -595,7 +595,7 @@ void Menu_MapEd_New(void)
 	}
 
 	// Redraw back to normal
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
@@ -689,7 +689,7 @@ void Menu_MapEd_LoadSave(int save)
 	Menu_MapEdFrame(tMenu->bmpBuffer,false);
 
 	Menu_DrawBox(tMenu->bmpBuffer, 170, 150, 470, 330);
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
+	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
 
 	Menu_RedrawMouse(true);
 
@@ -785,7 +785,7 @@ void Menu_MapEd_LoadSave(int save)
 	}
 
 	// Redraw back to normal
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
@@ -827,7 +827,7 @@ int Menu_MapEd_OkSave(const std::string& szFilename)
 	// Fix the screen up
 	Menu_MapEdFrame(tMenu->bmpBuffer,false);
 	Menu_DrawBox(tMenu->bmpBuffer, 170, 150, 470, 330);
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
+	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
 	Menu_RedrawMouse(true);
 
 	return false;

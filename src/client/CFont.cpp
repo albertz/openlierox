@@ -260,6 +260,10 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 	short clip_x,clip_y,clip_w,clip_h;
 
+	// Adjust the color to the dest-suface format
+	GetColour3(col,SDL_GetVideoSurface(),&R,&G,&B);
+	col = NativeColourToSDLColour(SDL_MapRGB(dst->format,R,G,B));
+
 	pos=0;
 	for(std::string::const_iterator p = txt.begin(); p != txt.end(); ) {
 		// Line break

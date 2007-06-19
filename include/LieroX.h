@@ -129,9 +129,14 @@ class lierox_t { public:
 	Uint32			clScrollbarFront;
 	Uint32			clScrollbarHighlight;
 	Uint32			clScrollbarShadow;
+	Uint32			clSliderLight;
+	Uint32			clSliderDark;
 	Uint32			clCurrentSettingsBg;
 	Uint32			clScoreBackground;
 	Uint32			clDialogCaption;
+	Uint32			clPlayerDividingLine;
+	Uint32			clLine;
+	Uint32			clProgress;
 
 	Uint32			clPink;
 	Uint32			clWhite;

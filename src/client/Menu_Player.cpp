@@ -79,7 +79,7 @@ void Menu_PlayerInitialize(void)
 	CListview *lv;
 
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_PLAYER);
@@ -561,7 +561,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 
 						// Re-draw the buffer again
-						DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+						DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 						if (tMenu->tFrontendInfo.bPageBoxes)
 							Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 						Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_PLAYER);

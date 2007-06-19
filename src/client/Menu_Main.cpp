@@ -159,7 +159,8 @@ void Menu_MainFrame(void)
 
 					    // Create the buffer
 					    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-                        Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+						if (tMenu->tFrontendInfo.bPageBoxes)
+							Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 					    DrawImage(tMenu->bmpBuffer,tMenu->bmpLieroXtreme, 320 - tMenu->bmpLieroXtreme->w/2, 10);
 					    Menu_RedrawMouse(true);
 				    }
@@ -194,17 +195,47 @@ void Menu_MainFrame(void)
 		lastimg = img;
 	}
 
+	/*static const std::string credits[] = {
+				"  " + GetGameName() + " v" + LX_VERSION,
+				"¤ Original code by Jason Boettcher",
+				"¤ Ported and enhanced by",
+				"  Dark Charlie and Albert Zeyer",
+				"¤ Supported by the [RIP] clan"
+	};*/
 
-	// TODO: do this in a more general way (autocalc the pos-values)
+	static const std::string credits1 = "  " + GetGameName() + " v" + LX_VERSION;
+
+	static const std::string credits2 = std::string("¤ Original code by Jason Boettcher\n") +
+										std::string("¤ Ported and enhanced by\n") +
+										std::string("  Dark Charlie and Albert Zeyer\n") +
+										std::string("¤ Supported by the [RIP] clan");
+										//std::string("¤ Enhanced by FilE");// TODO: include this, if he join the team :)
+
+
+	//
 	// Draw the version number
-	Menu_redrawBufferRect(370,379,270,100);
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 379, tLX->clCredits1, "  " + GetGameName() + " v" + LX_VERSION);
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 391, tLX->clCredits2, "\312\230 Original code by Jason Boettcher");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 404, tLX->clCredits2, "\341\232\233 Ported and enhanced by");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 417, tLX->clCredits2, "  Dark Charlie and Albert Zeyer");
-	tLX->cFont.Draw(tMenu->bmpScreen, 370, 430, tLX->clCredits2, "\314\275 Supported by the [RIP] clan");
-// TODO: include this, if he join the team :)
-//	tLX->cFont.Draw(tMenu->bmpScreen, 370, 443, tLX->clCredits2,"%s", "\314\220 Enhanced by FilE");
+	//
+
+	// Set special spacing for credits
+	int orig_spacing = tLX->cFont.GetVSpacing();
+	tLX->cFont.SetVSpacing(tMenu->tFrontendInfo.iCreditsSpacing);
+
+	int x = tMenu->tFrontendInfo.iCreditsLeft;
+	int y = tMenu->tFrontendInfo.iCreditsTop;
+	static int w = 0;
+	if (!w)
+		w = MAX(tLX->cFont.GetWidth(credits1),tLX->cFont.GetWidth(credits2));
+	static int h = 0;
+	if (!h)
+		h = tLX->cFont.GetHeight()+tLX->cFont.GetHeight(credits2);
+
+	Menu_redrawBufferRect(x,y,w,h);
+	tLX->cFont.Draw(tMenu->bmpScreen,x,y,tLX->clCredits1,credits1);
+	tLX->cFont.Draw(tMenu->bmpScreen,x,y+tLX->cFont.GetHeight(),tLX->clCredits2,credits2);
+
+
+	// Restore the original spacing
+	tLX->cFont.SetVSpacing(orig_spacing);
 
 
 	// Draw the mouse

@@ -66,9 +66,10 @@ void Menu_LocalInitialize(void)
 	bGameSettings = false;
 
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
     Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
 
     // Minimap box
@@ -172,7 +173,7 @@ void Menu_LocalFrame(void)
 	if(bGameSettings) {
 		if(Menu_GameSettings_Frame()) {
 			// Re-do the buffer
-			DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+			DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	        Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
             Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
@@ -192,7 +193,7 @@ void Menu_LocalFrame(void)
     if(bWeaponRest) {
 		if(Menu_WeaponsRestrictions_Frame()) {
 			// Re-do the buffer
-			DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+			DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	        Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
             Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
@@ -589,7 +590,7 @@ void Menu_LocalStartGame(void)
 		// Couldn't find a mod to load
 		cLocalMenu.Draw(tMenu->bmpBuffer);
 		Menu_MessageBox("Error","Could not find a mod to load!", LMB_OK);
-		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
         Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 		Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_LOCAL);
 		Menu_RedrawMouse(true);
@@ -846,7 +847,7 @@ void Menu_GameSettings(void)
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 120,150,120,150, 400,300);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,150, 520,440);
-	DrawRectFillA(tMenu->bmpBuffer, 122,152, 518,438, 0, 200);
+	DrawRectFillA(tMenu->bmpBuffer, 122,152, 518,438, tLX->clDialogBackground, 200);
 
 	// Lives
 	// Max kills
@@ -1051,7 +1052,7 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
 {
 
 	// Setup the buffer
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,150,120,150, 400,330);
+	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,150,120,150, 400,330);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,150, 520,470);
 	//DrawRectFillA(tMenu->bmpBuffer, 122,152, 518,438, 0, 100);
 
@@ -1311,8 +1312,8 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 
 		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
 		Menu_DrawBox(tMenu->bmpScreen, 170, 150, 470, 330);
-		DrawImageAdv(tMenu->bmpScreen, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
-		DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 172,152, 172,152, 297,177);
+		DrawImageAdv(tMenu->bmpScreen, tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
+		DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 172,152, 172,152, 297,177);
 
 		tLX->cFont.DrawCentre(tMenu->bmpScreen, 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
 		if (save)
@@ -1390,7 +1391,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	}
 
 	// Redraw back to normal
-	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 120,150,122,152, 396,316);
+	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,150,122,152, 396,316);
 	DrawImage(tMenu->bmpScreen,tMenu->bmpBuffer,0,0);
 
 	Menu_RedrawMouse(true);

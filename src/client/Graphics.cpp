@@ -62,10 +62,15 @@ int LoadGraphics(void)
 	tLX->clScrollbarHighlight = MakeColour(25,155,255);
 	tLX->clScrollbarBackLight = MakeColour(0,75,113);
 	tLX->clScrollbarShadow = MakeColour(0,40,65);
+	tLX->clSliderDark = MakeColour(90,90,90);
+	tLX->clSliderLight = MakeColour(115,115,115);
 	tLX->clChatBoxBackground = tLX->clBlack;
 	tLX->clScoreBackground = tLX->clBlack;
 	tLX->clCurrentSettingsBg = tLX->clBlack;
 	tLX->clDialogCaption = MakeColour(0,0,64);
+	tLX->clPlayerDividingLine = MakeColour(64,64,64);
+	tLX->clLine = tLX->clWhite;
+	tLX->clProgress = MakeColour(0,136,250);
 
 
 	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
@@ -157,6 +162,11 @@ int LoadGraphics(void)
 	ReadColour(colorfile,"Colours","ScoreBack",			&tLX->clScoreBackground,	tLX->clScoreBackground);
 	ReadColour(colorfile,"Colours","CurrentSettBack",	&tLX->clCurrentSettingsBg,	tLX->clCurrentSettingsBg);
 	ReadColour(colorfile,"Colours","DialogCaption",		&tLX->clDialogCaption,		tLX->clDialogCaption);
+	ReadColour(colorfile,"Colours","SliderLight",		&tLX->clSliderLight,		tLX->clSliderLight);
+	ReadColour(colorfile,"Colours","SliderDark",		&tLX->clSliderDark,			tLX->clSliderDark);
+	ReadColour(colorfile,"Colours","PlayerDividingLine",&tLX->clPlayerDividingLine,	tLX->clPlayerDividingLine);
+	ReadColour(colorfile,"Colours","Line",				&tLX->clLine,				tLX->clLine);
+	ReadColour(colorfile,"Colours","Progress",			&tLX->clProgress,			tLX->clProgress);
 
 	return true;
 }

@@ -126,7 +126,7 @@ int Menu_OptionsInitialize(void)
     int i;
 
 	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_OPTIONS);
@@ -713,7 +713,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 
 	Menu_DrawBox(tMenu->bmpBuffer, 210, 170, 430, 310);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 212,172, 212,172, 217,137);
-    DrawRectFill(tMenu->bmpBuffer, 212,172,429,309,tLX->clBlack);
+    DrawRectFill(tMenu->bmpBuffer, 212,172,429,309,tLX->clDialogBackground);
 
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,180,MakeColour(128,200,255),"Input for:");
 	tLX->cFont.DrawCentre(tMenu->bmpBuffer,320,205,MakeColour(255,255,255),name);
@@ -764,7 +764,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	Mouse->Down = 0;
 	Mouse->Up = 0;
 
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_OPTIONS);

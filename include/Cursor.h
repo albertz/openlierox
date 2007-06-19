@@ -1,0 +1,63 @@
+/////////////////////////////////////////
+//
+//             OpenLieroX
+//
+// code under LGPL, based on JasonBs work,
+// enhanced by Dark Charlie and Albert Zeyer
+//
+//
+/////////////////////////////////////////
+
+
+// Cursor header file
+// Created 18/6/07
+// Dark Charlie
+
+// Cursor indexes
+enum {
+	CURSOR_NONE = -1,
+	CURSOR_ARROW = 0,
+	CURSOR_HAND,
+	CURSOR_TEXT,
+	CURSOR_RESIZE,
+	CURSOR_COUNT
+};
+
+// Cursor types
+enum {
+	CUR_ARROW=0,
+	CUR_SPLITTER,
+	CUR_TEXT,
+	CUR_AIM  // for future use, cursors like cross
+};
+
+// Cursor class
+class CCursor  {
+public:
+	CCursor(const std::string filename, int type);
+	~CCursor();
+private:
+	SDL_Surface		*bmpCursor;
+	int				iFrame;
+	int				iFrameWidth;
+	float			fAnimationSwapTime;
+	bool			bAnimated;
+	int				iNumFrames;
+	int				iType;
+public:
+	void			Draw(SDL_Surface *dst);
+	inline bool		IsAnimated()  { return bAnimated; }
+	inline int		GetType()  { return iType; }
+	inline void		SetType(int _t)  { iType = _t; }
+	inline int		GetHeight()  { return bmpCursor ? bmpCursor->h : 0; }
+	inline int		GetWidth()  { return bmpCursor ? bmpCursor->w : 0; }
+};
+
+// Game cursors handling
+
+bool InitializeCursors();
+void ShutdownCursors();
+void SetGameCursor(int c);
+void DrawCursor(SDL_Surface *dst);
+int GetCursorHeight(int c);
+int GetCursorWidth(int c);

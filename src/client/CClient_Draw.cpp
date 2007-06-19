@@ -79,14 +79,14 @@ void CClient::Draw(SDL_Surface *bmpDest)
     // TODO: allow more viewports
     // Draw the borders
 	if (tGameInfo.iGameType == GME_LOCAL)  {
-		DrawRectFill(bmpDest,0,382,640,480,tLX->clBlack);
+		DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
 	} else {
-		DrawRectFill(bmpDest,0,382,165,480,tLX->clBlack);  // Health area
-		DrawRectFill(bmpDest,511,382,640,480,tLX->clBlack);  // Minimap area
+		DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
+		DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
 	}
 	
     if(cViewports[1].getUsed())
-        DrawRectFill(bmpDest,318,0,322,384,tLX->clBlack);
+        DrawRectFill(bmpDest,318,0,322,384,tLX->clViewportSplit);
 
 
 	// Draw the viewports
@@ -728,8 +728,8 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 		} else
 			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"Kills");
 
-		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clWhite);
-		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clWhite);
+		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clLine);
+		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clLine);
 
 		// Draw the players
 		j = y+65;
@@ -767,8 +767,8 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 		if(iLives != WRM_UNLIM)
 			tLX->cFont.Draw(bmpDest, x+270, y+45, tLX->clNormalLabel,"Lives");
 		tLX->cFont.Draw(bmpDest, x+340, y+45, tLX->clNormalLabel,"Dirt Count");
-		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clWhite);
-		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clWhite);
+		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clLine);
+		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clLine);
 
         int dirtcount = 0;
 
@@ -795,7 +795,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
         // Draw the total
         j+=10;
-        DrawHLine(bmpDest,x+15,x+width-15, j, tLX->clWhite);
+        DrawHLine(bmpDest,x+15,x+width-15, j, tLX->clLine);
         j+=5;
         tLX->cFont.Draw(bmpDest, x+250, j, tLX->clNormalLabel,"Total");
         tLX->cFont.DrawCentre(bmpDest, x+372, j, tLX->clNormalLabel, itoa(dirtcount / 1000) + "k / " + itoa((int)(((float)cMap->GetDirtCount()*0.8f) / 1000)) + "k");
@@ -819,8 +819,8 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 
 
 		tLX->cFont.Draw(bmpDest, x+360, y+45, tLX->clNormalLabel,"Tag time");
-		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clWhite);
-		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clWhite);
+		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clLine);
+		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clLine);
 
 		// Draw the players
 		j = y+65;
@@ -869,7 +869,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	// Team deathmatch scoreboard
 	case GMT_TEAMDEATH: {
 
-		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clWhite);
+		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clLine);
 
 		// Go through each team
 		j = y+50;
@@ -894,7 +894,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			}
 			else
 				tLX->cFont.Draw(bmpDest, x+380, j, colour,"Kills");
-			DrawHLine(bmpDest, x+15,x+width-15, j+15,tLX->clWhite);
+			DrawHLine(bmpDest, x+15,x+width-15, j+15,tLX->clLine);
 			j+=20;
 
 
@@ -1308,7 +1308,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 		if (cViewports[1].getUsed())
 			x += 125;
 	}
-    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clBlack);
+    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clScoreBackground);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
 
     tLX->cFont.Draw(bmpDest, x+5, y+4, tLX->clNormalLabel, "Players");
@@ -1322,7 +1322,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 		if (tGameInfo.iGameType == GME_HOST)
 			tLX->cFont.Draw(bmpDest, x+250, y+4, tLX->clNormalLabel, "Ping");
 
-    DrawHLine(bmpDest, x+4, x+w-4, y+20, tLX->clWhite);
+    DrawHLine(bmpDest, x+4, x+w-4, y+20, tLX->clLine);
 
 
     // Draw the players
@@ -1410,11 +1410,11 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 		}
 	}
 
-    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clBlack);
+    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clCurrentSettingsBg);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
 
     tLX->cFont.Draw(bmpDest, x+60, y+5, tLX->clNormalLabel, "Current settings");
-    DrawHLine(bmpDest, x+4, x+w-4, y+22, tLX->clWhite);
+    DrawHLine(bmpDest, x+4, x+w-4, y+22, tLX->clLine);
 
 	/*tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s","Level:");
 	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname.c_str());*/

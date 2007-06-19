@@ -387,7 +387,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
     CGuiLayout  cDetails;
 
     // Create the buffer
-    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+    DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
@@ -407,7 +407,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 	nTries = 0;
 	fStart = -9999;
 
-	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,0,230); // Dirty; because of button redrawing
+	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,tLX->clDialogBackground,230); // Dirty; because of button redrawing
 
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
@@ -454,7 +454,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
 
     // Redraw the background
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);

@@ -178,6 +178,9 @@ class frontendinfo_t { public:
 	int				iMainTitlesLeft;
 	int				iMainTitlesTop;
 	int				iMainTitlesSpacing;
+	int				iCreditsLeft;
+	int				iCreditsTop;
+	int				iCreditsSpacing;
 	bool			bPageBoxes;
 };
 
@@ -188,6 +191,7 @@ class menu_t { public:
 	//SDL_Surface		*bmpMainBack;
     //SDL_Surface		*bmpMainBack_lg;
     SDL_Surface		*bmpMainBack_wob;
+	SDL_Surface		*bmpMainBack_common;
 	SDL_Surface		*bmpBuffer;
 	SDL_Surface		*bmpScreen;
 	SDL_Surface		*bmpMsgBuffer;
