@@ -33,7 +33,7 @@ void GameServer::SpawnWorm(CWorm *Worm)
 	static CBytestream bs;
 	bs.Clear();
 	bs.writeByte(S2C_SPAWNWORM);
-	bs.writeInt(Worm->getID(),1);
+	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt( (int)pos.x, 2);
 	bs.writeInt( (int)pos.y, 2);
 	SendGlobalPacket(&bs);
@@ -47,8 +47,8 @@ CVec GameServer::FindSpot(void)
     int     x, y;
     int     px, py;
     bool    first = true;
-    int     cols = cMap->getGridCols()-1;       // Note: -1 because the grid is slightly larger than the
-    int     rows = cMap->getGridRows()-1;       // level size
+    int     cols = cMap->getGridCols() - 1;       // Note: -1 because the grid is slightly larger than the
+    int     rows = cMap->getGridRows() - 1;       // level size
     int     gw = cMap->getGridWidth();
     int     gh = cMap->getGridHeight();
 
@@ -67,24 +67,24 @@ CVec GameServer::FindSpot(void)
             // and should leave
             if(!first) {
                 if(px == x && py == y) {
-                    return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
+                    return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
                 }
             }
             first = false;
 
             pf = *(cMap->getGridFlags() + y*cMap->getGridCols() + x);
             if(!(pf & PX_ROCK))
-                return CVec((float)x*gw+gw/2, (float)y*gh+gh/2);
+                return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
 
             if(++x >= cols) {
-                x=0;
+                x = 0;
                 break;
             }
         }
 
         if(++y >= rows) {
-            y=0;
-            x=0;
+            y = 0;
+            x = 0;
         }
     }
 

@@ -197,19 +197,19 @@ void Menu_MainFrame(void)
 
 	/*static const std::string credits[] = {
 				"  " + GetGameName() + " v" + LX_VERSION,
-				"¤ Original code by Jason Boettcher",
-				"¤ Ported and enhanced by",
+				"áš› Original code by Jason Boettcher",
+				"áš› Ported and enhanced by",
 				"  Dark Charlie and Albert Zeyer",
-				"¤ Supported by the [RIP] clan"
+				"áš› Supported by the [RIP] clan"
 	};*/
 
 	static const std::string credits1 = "  " + GetGameName() + " v" + LX_VERSION;
 
-	static const std::string credits2 = std::string("¤ Original code by Jason Boettcher\n") +
-										std::string("¤ Ported and enhanced by\n") +
+	static const std::string credits2 = std::string("áš› Original code by Jason Boettcher\n") +
+										std::string("áš› Ported and enhanced by\n") +
 										std::string("  Dark Charlie and Albert Zeyer\n") +
-										std::string("¤ Supported by the [RIP] clan");
-										//std::string("¤ Enhanced by FilE");// TODO: include this, if he join the team :)
+										std::string("áš› Supported by the [RIP] clan");
+										//std::string("áš› Enhanced by FilE");// TODO: include this, if he join the team :)
 
 
 	//
@@ -224,14 +224,14 @@ void Menu_MainFrame(void)
 	int y = tMenu->tFrontendInfo.iCreditsTop;
 	static int w = 0;
 	if (!w)
-		w = MAX(tLX->cFont.GetWidth(credits1),tLX->cFont.GetWidth(credits2));
+		w = MAX(tLX->cFont.GetWidth(credits1), tLX->cFont.GetWidth(credits2));
 	static int h = 0;
 	if (!h)
-		h = tLX->cFont.GetHeight()+tLX->cFont.GetHeight(credits2);
+		h = tLX->cFont.GetHeight() + tLX->cFont.GetHeight(credits2);
 
-	Menu_redrawBufferRect(x,y,w,h);
-	tLX->cFont.Draw(tMenu->bmpScreen,x,y,tLX->clCredits1,credits1);
-	tLX->cFont.Draw(tMenu->bmpScreen,x,y+tLX->cFont.GetHeight(),tLX->clCredits2,credits2);
+	Menu_redrawBufferRect(x, y, w, h);
+	tLX->cFont.Draw(tMenu->bmpScreen, x, y, tLX->clCredits1, credits1);
+	tLX->cFont.Draw(tMenu->bmpScreen, x, y + tLX->cFont.GetHeight(), tLX->clCredits2, credits2);
 
 
 	// Restore the original spacing

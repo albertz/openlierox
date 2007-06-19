@@ -262,7 +262,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 	// Adjust the color to the dest-suface format
 	GetColour3(col,SDL_GetVideoSurface(),&R,&G,&B);
-	col = NativeColourToSDLColour(SDL_MapRGB(dst->format,R,G,B));
+	col = SDLColourToNativeColour(SDL_MapRGB(dst->format,R,G,B));
 
 	pos=0;
 	for(std::string::const_iterator p = txt.begin(); p != txt.end(); ) {
@@ -279,8 +279,8 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 		if (l == -1)
 			continue;
 
-		w=0;
-		a=CharacterOffset[l];
+		w = 0;
+		a = CharacterOffset[l];
 
 		// Precached fonts
 		if (bmpCached)  {
@@ -299,9 +299,9 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 		if (y + clip_h >= bottom)
 			clip_h = bottom - y;
 
-		register Uint8 *src = (Uint8 *)bmpFont->pixels + a * bmpFont->format->BytesPerPixel;
-		register Uint8 *px;
 		register byte bpp = bmpFont->format->BytesPerPixel;
+		register Uint8 *src = (Uint8 *)bmpFont->pixels + a * bpp;
+		register Uint8 *px;
 
 		// Outline font
 		if (OutlineFont)  {
@@ -314,35 +314,35 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 					// Put black pixels and colorize white ones
 					if (R == 255 && G == 255 && B == 255)  // White
-						PutPixelA(dst,x+pos+b,y+j,col,A); // Put the pixel and blend it with background
+						PutPixelA(dst, x + pos + b, y + j, col, A); // Put the pixel and blend it with background
 					else if (!R && !G && !B)  // Black
-						PutPixelA(dst,x+pos+b,y+j,tLX->clBlack,A);
+						PutPixelA(dst, x + pos + b, y + j, tLX->clBlack, A);
 				}
-				src+= bmpFont->pitch;
+				src += bmpFont->pitch;
 			}
 		}
 		// Not outline
 		else {
-			for(j=clip_y;j<clip_h;j++) {
+			for(j = clip_y; j < clip_h; j++) {
 				px = src;
-				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,px+=bpp) {
+				for(i = a + clip_x, b = clip_x; b < clip_w; i++, b++, px += bpp) {
 
-					pixel = GetPixelFromAddr(px,bpp);
-					GetColour4(pixel,bmpFont,&R,&G,&B,&A);
+					pixel = GetPixelFromAddr(px, bpp);
+					GetColour4(pixel,bmpFont, &R, &G, &B, &A);
 
 					// Put only black pixels
 					if (!R && !G && !B)  
-						PutPixelA(dst,x+pos+b,y+j,col,A);
+						PutPixelA(dst, x + pos + b, y + j, col, A);
 				}
-				src+= bmpFont->pitch;
+				src += bmpFont->pitch;
 			}
 		}
 
-		pos+=FontWidth[l]+Spacing;
+		pos += FontWidth[l] + Spacing;
 	}
 
 	// Restore the original clipping rect
-	SDL_SetClipRect(dst,&oldrect);
+	SDL_SetClipRect(dst, &oldrect);
 
 
 	// Unlock the surfaces
@@ -374,14 +374,14 @@ int CFont::GetWidth(const std::string& buf) {
 // Draws the text in centre alignment
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
 	int length = GetWidth(txt);
-	int pos = x-length/2;
-	Draw(dst,pos,y,col,txt);
+	int pos = x - length / 2;
+	Draw(dst, pos, y, col, txt);
 }
 
 ///////////////////
 // Draw's the text in centre alignment
 void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
 	int length = GetWidth(txt);
-	int pos = MAX(min_x, x-length/2);
-	DrawAdv(dst,pos,y,max_w,col,txt);
+	int pos = MAX(min_x, x - length / 2);
+	DrawAdv(dst, pos, y, max_w, col, txt);
 }
