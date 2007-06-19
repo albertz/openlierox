@@ -55,7 +55,8 @@ int Menu_MapEdInitialize(void)
 
     DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 
     Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
     Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box
@@ -109,7 +110,6 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
-	int mouse = 0;
 	int x,y,n,i;
 
 	// Re-draw the buffer over buttons
@@ -330,12 +330,9 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	if(ev) {
 
 		if(ev->cWidget->getType() == wid_Button) {
-			mouse = 1;
 			if(ev->iEventMsg == BTN_MOUSEUP)
 				PlaySoundSample(sfxGeneral.smpClick);
 		}
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
 
 		switch(ev->iControlID) {
 
@@ -454,7 +451,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 		//	DrawImageStretchKey(tMenu->bmpScreen,MouseImg, Mouse->X-w, Mouse->Y-h, tLX->clPink);
 	}
 	else
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 }
 
 
@@ -493,7 +490,6 @@ void Menu_MapEd_New(void)
 	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	int mouse=0;
 	int quitloop = false;
 	CTextbox *t1,*t2;
 
@@ -502,7 +498,8 @@ void Menu_MapEd_New(void)
 
 	Menu_DrawBox(tMenu->bmpBuffer, 210, 170, 430, 310);
 	DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 212,172, 212,172, 217,137);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	//DrawRectFill(tMenu->bmpBuffer, 212, 172, 429, 309, tLX->clBlack);
 
 	Menu_RedrawMouse(true);
@@ -554,12 +551,7 @@ void Menu_MapEd_New(void)
 		cg.Draw(tMenu->bmpScreen);
 
 		// Process the widgets
-		mouse = 0;
 		if(ev) {
-			if(ev->cWidget->getType() == wid_Button)
-				mouse = 1;
-			if(ev->cWidget->getType() == wid_Textbox)
-				mouse = 2;
 
 			switch(ev->iControlID) {
 
@@ -597,7 +589,7 @@ void Menu_MapEd_New(void)
 		}
 
 
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 
 		FlipScreen(tMenu->bmpScreen);
 	}
@@ -605,7 +597,8 @@ void Menu_MapEd_New(void)
 	// Redraw back to normal
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 
     Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
     Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box
@@ -689,7 +682,6 @@ void Menu_MapEd_LoadSave(int save)
 	keyboard_t *kb = GetKeyboard();
 	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	int mouse=0;
 	int quitloop = false;
 	CTextbox *t;
 
@@ -736,12 +728,7 @@ void Menu_MapEd_LoadSave(int save)
 		cg.Draw(tMenu->bmpScreen);
 
 		// Process the widgets
-		mouse = 0;
 		if(ev) {
-			if(ev->cWidget->getType() == wid_Button)
-				mouse = 1;
-			if(ev->cWidget->getType() == wid_Textbox)
-				mouse = 2;
 
 			switch(ev->iControlID) {
 
@@ -792,7 +779,7 @@ void Menu_MapEd_LoadSave(int save)
 		}
 
 
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 
 		FlipScreen(tMenu->bmpScreen);
 	}
@@ -800,7 +787,8 @@ void Menu_MapEd_LoadSave(int save)
 	// Redraw back to normal
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
     Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_MAPED,18);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 
     Menu_DrawBox(tMenu->bmpBuffer,20,105, 54,139);      // Preview box
     Menu_DrawBox(tMenu->bmpBuffer,20,146, 619,459);     // Level box

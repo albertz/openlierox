@@ -80,7 +80,8 @@ void Menu_PlayerInitialize(void)
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_PLAYER);
 
 	Menu_RedrawMouse(true);
@@ -338,11 +339,6 @@ void Menu_Player_NewPlayer(int mouse)
 
 	if(ev) {
 
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-
 		switch(ev->iControlID) {
 
 			// Back button
@@ -461,7 +457,7 @@ void Menu_Player_NewPlayer(int mouse)
     }
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 
@@ -482,11 +478,6 @@ void Menu_Player_ViewPlayers(int mouse)
 
 
 	if(ev) {
-
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
 
 		switch(ev->iControlID) {
 
@@ -571,7 +562,8 @@ void Menu_Player_ViewPlayers(int mouse)
 
 						// Re-draw the buffer again
 						DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-                        Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+						if (tMenu->tFrontendInfo.bPageBoxes)
+							Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 						Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_PLAYER);
 						Menu_RedrawMouse(true);
 
@@ -733,7 +725,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 

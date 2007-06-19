@@ -127,7 +127,8 @@ int Menu_OptionsInitialize(void)
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_OPTIONS);
 
 	Menu_RedrawMouse(true);
@@ -350,7 +351,6 @@ int Menu_OptionsInitialize(void)
 void Menu_OptionsFrame(void)
 {
 	mouse_t		*Mouse = GetMouse();
-	int			mouse = 0;
 	gui_event_t *ev = NULL;
 //	int opengl = tLXOptions->bOpenGL; // TODO: not used
 //	int fullscr = tLXOptions->iFullscreen; // TODO: not used
@@ -363,9 +363,10 @@ void Menu_OptionsFrame(void)
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer,  180,110,  180,110,  300,30);
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 
-
+	
 	// Process the top buttons
 	TopButtons[OptionsMode].MouseOver(Mouse);
+	SetGameCursor(CURSOR_ARROW); // Hack: button changed the cursor to hand, we need to change it back
 	for(int i=op_Controls;i<=op_System;i++) {
 
 		TopButtons[i].Draw(tMenu->bmpScreen);
@@ -375,7 +376,6 @@ void Menu_OptionsFrame(void)
 
 		if(TopButtons[i].InBox(Mouse->X,Mouse->Y)) {
 			TopButtons[i].MouseOver(Mouse);
-			mouse = 1;
 			if(Mouse->Up) {
                 DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 				OptionsMode = i;
@@ -390,15 +390,10 @@ void Menu_OptionsFrame(void)
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
 #endif
-		ev = cOptions.Process();
+	ev = cOptions.Process();
 	cOptions.Draw(tMenu->bmpScreen);
 
 	if(ev) {
-
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
 
 		switch(ev->iControlID) {
 
@@ -480,11 +475,6 @@ void Menu_OptionsFrame(void)
 
 
 		if(ev) {
-
-			if(ev->cWidget->getType() == wid_Button)
-				mouse = 1;
-			if(ev->cWidget->getType() == wid_Textbox)
-				mouse = 2;
 
 			switch(ev->iControlID) {
 
@@ -583,12 +573,6 @@ void Menu_OptionsFrame(void)
 		cOpt_System.Draw(tMenu->bmpScreen);
 
 		if(ev) {
-
-			if(ev->cWidget->getType() == wid_Button)
-				mouse = 1;
-			if(ev->cWidget->getType() == wid_Textbox)
-				mouse = 2;
-
 
 			switch(ev->iControlID) {
 
@@ -711,7 +695,7 @@ void Menu_OptionsFrame(void)
 
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 
@@ -751,11 +735,12 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	Mouse->Down = 0;
 
 
+	SetGameCursor(CURSOR_ARROW);
 	while(true) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[0], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 
 		// Escape quits the wait for user input
 		if(kb->KeyUp[SDLK_ESCAPE])
@@ -780,7 +765,8 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	Mouse->Up = 0;
 
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_OPTIONS);
 
 	Menu_RedrawMouse(true);

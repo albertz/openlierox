@@ -55,6 +55,9 @@ int Menu_Initialize(bool *game)
 		return false;
     }
 
+	// Load the frontend info
+	Menu_LoadFrontendInfo();
+
 	tMenu->iReturnTo = net_internet;
 
 	// Load the images
@@ -129,6 +132,15 @@ int Menu_Initialize(bool *game)
 	return true;
 }
 
+/////////////////////////
+// Load the infor about frontend
+void Menu_LoadFrontendInfo()
+{
+	ReadInteger("data/frontend/frontend.cfg","MainTitles","X",&tMenu->tFrontendInfo.iMainTitlesLeft,50);
+	ReadInteger("data/frontend/frontend.cfg","MainTitles","Y",&tMenu->tFrontendInfo.iMainTitlesTop,160);
+	ReadInteger("data/frontend/frontend.cfg","MainTitles","Spacing",&tMenu->tFrontendInfo.iMainTitlesSpacing,15);
+	ReadKeyword("data/frontend/frontend.cfg","PageBoxes","Visible",&tMenu->tFrontendInfo.bPageBoxes,true);
+}
 
 ///////////////////
 // Shutdown the menu
@@ -504,6 +516,8 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	int mouse = 0;
 	gui_event_t *ev = NULL;
 
+	SetGameCursor(CURSOR_ARROW);
+
 	unsigned int x = 160;
 	unsigned int y = 170;
 	unsigned int w = 320;
@@ -578,7 +592,8 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 	while(!kb->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning && ret == -1) {
 		Menu_RedrawMouse(true);
 		ProcessEvents();
-		mouse = 0;
+		
+		SetGameCursor(CURSOR_ARROW);
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, x,y, x,y, w, h);
 
@@ -589,9 +604,9 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 		if(ev) {
 
 			if(ev->cWidget->getType() == wid_Button)
-				mouse = 1;
+				SetGameCursor(CURSOR_HAND);
 			if(ev->cWidget->getType() == wid_Textbox)
-				mouse = 2;
+				SetGameCursor(CURSOR_TEXT);
 
 			if(ev->iEventMsg == BTN_MOUSEUP) {
 				switch(ev->iControlID) {
@@ -627,12 +642,12 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 
 
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 
 		FlipScreen(tMenu->bmpScreen);
 	}
 
-
+	SetGameCursor(CURSOR_ARROW);
 	msgbox.Shutdown();
 
 	// Restore the old buffer

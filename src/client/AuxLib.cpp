@@ -180,7 +180,10 @@ int SetVideoMode(void)
 	if(DoubleBuf && !opengl)
 		vidflags |= SDL_DOUBLEBUF;
 
-	
+#ifdef WIN32
+	UnSubclassWindow();
+#endif
+
 	if( SDL_SetVideoMode(640,480, tLXOptions->iColourDepth,vidflags) == NULL) {
 		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, tLXOptions->iColourDepth,SDL_GetError());
 		return false;
@@ -198,9 +201,6 @@ int SetVideoMode(void)
 
 	if (!tLXOptions->iFullscreen)  {
 		SubclassWindow();
-	}
-	else {
-		UnSubclassWindow();
 	}
 #endif
 

@@ -42,7 +42,8 @@ int Menu_NetInitialize(void)
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
 
@@ -88,7 +89,8 @@ void Menu_Net_GotoHostLobby(void)
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
 
@@ -123,7 +125,8 @@ void Menu_Net_GotoJoinLobby(void)
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
 

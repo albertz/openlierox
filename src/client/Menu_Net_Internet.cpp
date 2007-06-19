@@ -152,14 +152,6 @@ void Menu_Net_NETFrame(int mouse)
 	// Process any events
 	if(ev) {
 
-		// Mouse type
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-		if(ev->cWidget->getType() == wid_Listview)
-			mouse = ((CListview *)(ev->cWidget))->getCursor();
-
 		switch(ev->iControlID) {
 
 			// Add Server
@@ -379,10 +371,7 @@ void Menu_Net_NETFrame(int mouse)
 	}
 
 	// Draw the mouse
-	if (mouse !=3)
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
-	else
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X-(gfxGUI.bmpMouse[mouse]->w/2),Mouse->Y-(gfxGUI.bmpMouse[mouse]->h/2));
+	DrawCursor(tMenu->bmpScreen);
 
 }
 
@@ -435,7 +424,6 @@ enum  {
 void Menu_Net_NETAddServer(void)
 {
 	CGuiLayout	cAddSvr;
-	int			mouse = 0;
 	gui_event_t *ev = NULL;
 	mouse_t		*Mouse = GetMouse();
 	bool		addServerMsg = true;
@@ -462,7 +450,6 @@ void Menu_Net_NETAddServer(void)
 
 
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->iMenuRunning) {
-		mouse = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
@@ -479,12 +466,6 @@ void Menu_Net_NETAddServer(void)
 
 		// Process any events
 		if(ev) {
-
-			// Mouse type
-			if(ev->cWidget->getType() == wid_Button)
-				mouse = 1;
-			if(ev->cWidget->getType() == wid_Textbox)
-				mouse = 2;
 
 			switch(ev->iControlID) {
 
@@ -518,7 +499,7 @@ void Menu_Net_NETAddServer(void)
 		}
 
 
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
 	}
 
@@ -528,7 +509,8 @@ void Menu_Net_NETAddServer(void)
 	// Re-draw the background
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_RedrawMouse(true);
 }
 
@@ -590,7 +572,6 @@ void Menu_Net_NETUpdateList(void)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
-		mouse = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
@@ -660,12 +641,6 @@ void Menu_Net_NETUpdateList(void)
 		// Process any events
 		if(ev) {
 
-			// Mouse type
-			if(ev->cWidget->getType() == wid_Button)
-				mouse = 1;
-			if(ev->cWidget->getType() == wid_Textbox)
-				mouse = 2;
-
 			switch(ev->iControlID) {
 
 				// Cancel
@@ -683,7 +658,7 @@ void Menu_Net_NETUpdateList(void)
 		}
 
 
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
 	}
 
@@ -695,7 +670,8 @@ void Menu_Net_NETUpdateList(void)
 
 	// Re-draw the background
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
 }
@@ -749,7 +725,6 @@ enum  {
 void Menu_Net_NETShowServer(const std::string& szAddress)
 {
     mouse_t     *Mouse = GetMouse();
-    int         nMouseCur = 0;
     CGuiLayout  cDetails;
 
     // Create the buffer
@@ -777,7 +752,6 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
-		nMouseCur = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
@@ -795,8 +769,6 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 #endif
 			ev = cDetails.Process();
         if(ev) {
-            if(ev->cWidget->getType() == wid_Button)
-                nMouseCur = 1;
 
 			// Ok
             if(ev->iControlID == nd_Ok && ev->iEventMsg == BTN_MOUSEUP) {
@@ -814,7 +786,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 		cMediaPlayer.Draw(tMenu->bmpScreen);
 #endif
 
-        DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
+        DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
     }
 
@@ -823,7 +795,8 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 
     // Redraw the background
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
 }

@@ -74,13 +74,6 @@ void Menu_Net_NewsFrame(int mouse)
 	// Process any events
 	if(ev) {
 
-		// Mouse type
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-
-
 		switch(ev->iControlID) {
 
 			// Back
@@ -103,5 +96,5 @@ void Menu_Net_NewsFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }

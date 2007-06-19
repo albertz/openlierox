@@ -24,7 +24,6 @@ enum {
 	LV_CHANGED=0,
     LV_RIGHTCLK,
 	LV_DOUBLECLK,
-	LV_RESIZECURSOR,
 	LV_DELETE,
 	LV_ENTER
 };
@@ -113,7 +112,6 @@ public:
 		fLastMouseUp = -99999;
 		iContentHeight = 0;
         iItemID = 0;
-		iCursor = 0;
         bShowSelect = true;
 		iLastMouseX = 0;
 		iGrabbed = 0;
@@ -136,7 +134,6 @@ private:
 	// Columns
 	int				iNumColumns;
 	lv_column_t		*tColumns;
-	int				iCursor;
 	int				iGrabbed;
 	int				iLastMouseX;
 
@@ -212,8 +209,6 @@ public:
 	int		getCurIndex(void)		{ if(tSelected) return tSelected->iIndex; else return -1; }
 	std::string getCurSIndex(void)		{ if(tSelected) return tSelected->sIndex; else return ""; }
 	lv_subitem_t	*getCurSubitem(int index);
-
-	int		getCursor(void)			{ return iCursor; }
 
 
 	lv_subitem_t	*getCurSub(void);

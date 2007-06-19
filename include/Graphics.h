@@ -20,7 +20,6 @@
 
 // Gui graphics
 class gfxgui_t { public:
-	SDL_Surface		*bmpMouse[4];
 	SDL_Surface		*bmpScrollbar;
 	SDL_Surface		*bmpSliderBut;
 };

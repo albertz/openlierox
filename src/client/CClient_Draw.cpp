@@ -492,9 +492,10 @@ void CClient::SimulateHud(void)
 // Draw the game over
 void CClient::DrawGameOver(SDL_Surface *bmpDest)
 {
-	mouse_t *Mouse = GetMouse();
 	keyboard_t *Keyboard = GetKeyboard();
-	static int mouse;
+	mouse_t *Mouse = GetMouse();
+
+	SetGameCursor(CURSOR_ARROW);
 
 	DrawScore(bmpDest,gfxGame.bmpGameover);
 
@@ -506,7 +507,6 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 
 
 	// Buttons
-	mouse = 0;
 //	int width = gfxGame.bmpGameover->w;  // TODO: not used
 	int height = gfxGame.bmpGameover->h;
 
@@ -522,7 +522,7 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 	// OK
 	if(ok.InBox(Mouse->X,Mouse->Y)) {
 		ok.MouseOver(Mouse);
-		mouse=1;
+		SetGameCursor(CURSOR_HAND);
 	}
 	ok.Draw2(bmpDest);
 
@@ -531,15 +531,18 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 		if(ok.InBox(Mouse->X,Mouse->Y)) {
 			// Quit
 			tLX->iQuitEngine = true;
+			SetGameCursor(CURSOR_NONE);
 		}
 	}
 
 	// Quit
-	if (Keyboard->KeyDown[SDLK_RETURN] || Keyboard->KeyDown[SDLK_KP_ENTER] || Keyboard->KeyDown[SDLK_ESCAPE])
+	if (Keyboard->KeyDown[SDLK_RETURN] || Keyboard->KeyDown[SDLK_KP_ENTER] || Keyboard->KeyDown[SDLK_ESCAPE])  {
 		tLX->iQuitEngine = true;
+		SetGameCursor(CURSOR_NONE);
+	}
 
 	// Draw the mouse
-	DrawImage(bmpDest,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(bmpDest);
 }
 
 
@@ -548,10 +551,11 @@ void CClient::DrawGameOver(SDL_Surface *bmpDest)
 void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 {
 	mouse_t *Mouse = GetMouse();
-	static int mouse;
+	
+	
+	SetGameCursor(CURSOR_ARROW);
 
 	// Buttons
-	mouse = 0;
 	int width = gfxGame.bmpGameover->w;
 	int height = gfxGame.bmpGameover->h;
 
@@ -567,7 +571,7 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 	// OK
 	if(leave.InBox(Mouse->X,Mouse->Y)) {
 		leave.MouseOver(Mouse);
-		mouse=1;
+		SetGameCursor(CURSOR_HAND);
 	}
 	leave.Draw(bmpDest);
 
@@ -578,10 +582,12 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 			// If this is a host, we go back to the lobby
 			// The host can only quit the game via the lobby
 			if(tGameInfo.iGameType == GME_HOST) {
+				SetGameCursor(CURSOR_NONE);
 
 				cServer->gotoLobby();
 
 			} else {
+				SetGameCursor(CURSOR_NONE);
 
 				// Quit
 				QuittoMenu();
@@ -596,7 +602,7 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 
 
 	// Draw the mouse
-	DrawImage(bmpDest,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(bmpDest);
 
 }
 
@@ -605,8 +611,8 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 // Draw the in-game menu
 void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 {
+	SetGameCursor(CURSOR_ARROW);
 	mouse_t *Mouse = GetMouse();
-	int mouse = 0;
 
 	DrawScore(bmpDest, gfxGame.bmpScoreboard);
 
@@ -628,14 +634,14 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 	// Quit
 	if(quit.InBox(Mouse->X,Mouse->Y)) {
 		quit.MouseOver(Mouse);
-		mouse=1;
+		SetGameCursor(CURSOR_HAND);
 	}
 	quit.Draw2(bmpDest);
 
 	// Resume
 	if(resume.InBox(Mouse->X,Mouse->Y)) {
 		resume.MouseOver(Mouse);
-		mouse=1;
+		SetGameCursor(CURSOR_HAND);
 	}
 	resume.Draw2(bmpDest);
 
@@ -646,23 +652,28 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 			// We don't directly go back to the lobby, instead we send the message
 			// and the client on this machine does the goto lobby when it gets the packet
 			if(tGameInfo.iGameType == GME_HOST) {
+				SetGameCursor(CURSOR_NONE);
 
 				cServer->gotoLobby();
 
 			} else {
+				SetGameCursor(CURSOR_NONE);
 
 				// Quit
 				QuittoMenu();
 			}
 		}
 
-		if(resume.InBox(Mouse->X,Mouse->Y))
+		if(resume.InBox(Mouse->X,Mouse->Y))  {
 			// Resume
 			iGameMenu = false;
+
+			SetGameCursor(CURSOR_NONE);
+		}
 	}
 
 	// Draw the mouse
-	DrawImage(bmpDest,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(bmpDest);
 }
 
 
@@ -1016,8 +1027,8 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 		}
 
 	mouse_t *Mouse = GetMouse();
-	int inbox = lv->InBox(Mouse->X,Mouse->Y+gfxGUI.bmpMouse[0]->h);	// small hack: count the mouse height so we avoid "freezing
-																	// the mouse image when the user moves cursor away
+	int inbox = lv->InBox(Mouse->X,Mouse->Y+GetCursorHeight(CURSOR_ARROW));	// small hack: count the mouse height so we avoid "freezing
+																			// the mouse image when the user moves cursor away
 	if (lv->NeedsRepaint() || inbox)  {
 		DrawRectFill(bmpDest,165,382,511,480,tLX->clBlack);
 		lv->Draw(bmpDest);
@@ -1031,14 +1042,17 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 		lv->MouseWheelUp(Mouse);
 
 	if (inbox)  {
+		SetGameCursor(CURSOR_ARROW);
 
 		// Draw the mouse
-		DrawImage(bmpDest,gfxGUI.bmpMouse[0],Mouse->X,Mouse->Y);
+		DrawCursor(bmpDest);
 		lv->MouseOver(Mouse);
 		if (Mouse->Down)
 			lv->MouseDown(Mouse,true);
 		else if (Mouse->Up)
 			lv->MouseUp(Mouse,false);
+	} else {
+		SetGameCursor(CURSOR_NONE);
 	}
 }
 
@@ -1156,11 +1170,11 @@ void CClient::InitializeViewportManager(void)
 // Draw the viewport manager
 void CClient::DrawViewportManager(SDL_Surface *bmpDest)
 {
-    mouse_t *Mouse = GetMouse();
-    int mcursor = 0;
-
     int x = 320-gfxGame.bmpViewportMgr->w/2;
     int y = 200-gfxGame.bmpViewportMgr->h/2;
+
+	SetGameCursor(CURSOR_ARROW);
+	mouse_t *Mouse = GetMouse();
 
 	// Draw the back image
 	DrawImage(bmpDest,gfxGame.bmpViewportMgr,x,y);
@@ -1172,10 +1186,10 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
     gui_event_t *ev = ViewportMgr.Process();
 
     if( ViewportMgr.getWidget(v_ok)->InBox(Mouse->X,Mouse->Y) )
-        mcursor = 1;
+        SetGameCursor(CURSOR_HAND);
 
     // Draw the mouse
-    DrawImage(bmpDest,gfxGUI.bmpMouse[mcursor], Mouse->X,Mouse->Y);
+    DrawCursor(bmpDest);
 
     if(!ev)
         return;
@@ -1252,6 +1266,7 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
                 // Shutdown & leave
                 ViewportMgr.Shutdown();
                 bViewportMgr = false;
+				SetGameCursor(CURSOR_NONE);
                 return;
             }
             break;

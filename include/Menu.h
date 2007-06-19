@@ -173,6 +173,14 @@ enum {
 	BUT_ADDTOFAVOURITES
 };
 
+// Frontend info
+class frontendinfo_t { public:
+	int				iMainTitlesLeft;
+	int				iMainTitlesTop;
+	int				iMainTitlesSpacing;
+	bool			bPageBoxes;
+};
+
 // Menu structure
 class menu_t { public:
 
@@ -210,11 +218,10 @@ class menu_t { public:
 
 	SDL_Surface		*bmpMapEdTool;
 
-	SDL_Surface		*bmpMouse;
-
 	// Other
 	int				iMenuRunning;
 	int				iMenuType;
+	frontendinfo_t	tFrontendInfo;
 
 	// Map Editor
 	int				iEditMode;
@@ -303,6 +310,7 @@ extern	float		fStart;
 
 // Routines
 int		Menu_Initialize(bool *game);
+void	Menu_LoadFrontendInfo();
 void	Menu_Shutdown(void);
 void	Menu_Start(void);
 void	Menu_RedrawMouse(int total);

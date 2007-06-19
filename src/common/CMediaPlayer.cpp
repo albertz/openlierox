@@ -181,7 +181,8 @@ bool CPlayList::DrawLoadingProgress(void)
 	btnCancel.Draw2(screen);
 
 	// Draw mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[0], mouse->X,mouse->Y);
+	SetGameCursor(CURSOR_ARROW);
+	DrawCursor(tMenu->bmpScreen);
 
 	// Flip the screen
 	FlipScreen(screen);
@@ -189,7 +190,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	// Redraw the menu
 	if (tMenu->iMenuRunning)  {
 		Menu_redrawBufferRect(x,y,w+1,h+1);
-		Menu_redrawBufferRect(mouse->X,mouse->Y,gfxGUI.bmpMouse[0]->w,gfxGUI.bmpMouse[0]->h);
+		Menu_redrawBufferRect(mouse->X,mouse->Y,GetCursorWidth(CURSOR_ARROW),GetCursorHeight(CURSOR_ARROW));
 	}
 
 	bLoadCancelled = !result;
@@ -700,7 +701,8 @@ void CMediaPlayer::Draw(SDL_Surface *bmpDest)
 	cPlayerGui.Draw(bmpDest);
 
 	// Draw the mouse
-	DrawImage(bmpDest, gfxGUI.bmpMouse[0], GetMouse()->X, GetMouse()->Y);
+	SetGameCursor(CURSOR_ARROW);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 //////////////////////

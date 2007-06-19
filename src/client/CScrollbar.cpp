@@ -58,9 +58,9 @@ void CScrollbar::Draw(SDL_Surface *bmpDest)
 	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,14, iX,iY+iHeight-14, 15,14);
 
 	// Main bit
-	DrawRectFill(bmpDest, iX,iY+14, iX+iWidth, iY+iHeight-14, MakeColour(0,66,100));
-	DrawVLine(bmpDest, iY+14, iY+iHeight-14, iX,MakeColour(0,75,113));
-	DrawVLine(bmpDest, iY+14, iY+iHeight-14, iX+iWidth,MakeColour(0,75,113));
+	DrawRectFill(bmpDest, iX,iY+14, iX+iWidth, iY+iHeight-14, tLX->clScrollbarBack);
+	DrawVLine(bmpDest, iY+14, iY+iHeight-14, iX,tLX->clScrollbarBackLight);
+	DrawVLine(bmpDest, iY+14, iY+iHeight-14, iX+iWidth,tLX->clScrollbarBackLight);
 
 	// Slider
 	if(iMax >= iItemsperbox && iMax > 0) {
@@ -75,18 +75,14 @@ void CScrollbar::Draw(SDL_Surface *bmpDest)
 		if (pos < 0)  
 			pos = 0;
 
-        Uint32 shine = MakeColour(25,155,255);
-        Uint32 middle = MakeColour(0,100,180);
-        Uint32 dark = MakeColour(0,40,65);
-		
-		DrawRectFill(bmpDest, iX+2, iY+15+pos, iX+iWidth-1, iY+15+pos+length, middle);
+		DrawRectFill(bmpDest, iX+2, iY+15+pos, iX+iWidth-1, iY+15+pos+length, tLX->clScrollbarFront);
 
         // Shine
-        DrawVLine(bmpDest, iY+15+pos, iY+15+pos+length, iX+1, shine);
-        DrawHLine(bmpDest, iX+1, iX+iWidth-1, iY+15+pos, shine);
+        DrawVLine(bmpDest, iY+15+pos, iY+15+pos+length, iX+1, tLX->clScrollbarHighlight);
+        DrawHLine(bmpDest, iX+1, iX+iWidth-1, iY+15+pos, tLX->clScrollbarHighlight);
         // Dark
-        DrawVLine(bmpDest, iY+15+pos, iY+15+pos+length, iX+iWidth-1, dark);
-        DrawHLine(bmpDest, iX+1, iX+iWidth-1, iY+15+pos+length, dark);
+        DrawVLine(bmpDest, iY+15+pos, iY+15+pos+length, iX+iWidth-1, tLX->clScrollbarShadow);
+        DrawHLine(bmpDest, iX+1, iX+iWidth-1, iY+15+pos+length, tLX->clScrollbarShadow);
 	}
 
 	// Slight hack

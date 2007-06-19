@@ -144,16 +144,6 @@ void Menu_Net_LANFrame(int mouse)
 	// Process any events
 	if(ev) {
 
-		// Mouse type
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-		if(ev->cWidget->getType() == wid_Listview)
-			mouse = ((CListview *)(ev->cWidget))->getCursor();
-
-
-
 		switch(ev->iControlID) {
 
 			// Back
@@ -350,10 +340,7 @@ void Menu_Net_LANFrame(int mouse)
 
 
 	// Draw the mouse
-	if (mouse !=3)
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
-	else
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X-(gfxGUI.bmpMouse[mouse]->w/2),Mouse->Y-(gfxGUI.bmpMouse[mouse]->h/2));
+	DrawCursor(tMenu->bmpScreen);
 }
 
 
@@ -397,12 +384,12 @@ enum {
 void Menu_Net_LanShowServer(const std::string& szAddress)
 {
     mouse_t     *Mouse = GetMouse();
-    int         nMouseCur = 0;
     CGuiLayout  cDetails;
 
     // Create the buffer
     DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	cLan.Draw(tMenu->bmpBuffer);
 
@@ -425,7 +412,6 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
-		nMouseCur = 0;
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
@@ -443,8 +429,6 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 #endif
 			ev = cDetails.Process();
         if(ev) {
-            if(ev->cWidget->getType() == wid_Button)
-                nMouseCur = 1;
 
 			// Ok
             if(ev->iControlID == ld_Ok && ev->iEventMsg == BTN_MOUSEUP) {
@@ -462,7 +446,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 		cMediaPlayer.Draw(tMenu->bmpScreen);
 #endif
 
-        DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[nMouseCur], Mouse->X,Mouse->Y);
+        DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
     }
 
@@ -471,7 +455,8 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
     // Redraw the background
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
 }

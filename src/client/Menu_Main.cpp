@@ -49,7 +49,8 @@ void Menu_MainInitialize(void)
 	assert(tMenu->bmpBuffer);
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpLieroXtreme, 320 - tMenu->bmpLieroXtreme->w/2, 10);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 
 	Menu_RedrawMouse(true);
 
@@ -57,8 +58,9 @@ void Menu_MainInitialize(void)
 	lastimg = -1;
 
 	// Menu buttons
+	int titleheight = tMenu->bmpMainTitles->h/((mm_Quit-mm_LocalPlay)*2);
 	for(i=mm_LocalPlay;i<mm_Quit;i++)
-		cMainMenu.Add( new CTitleButton(i, tMenu->bmpMainTitles), i, 50, 160+i*60, tMenu->bmpMainTitles->w, 35);
+		cMainMenu.Add( new CTitleButton(i, tMenu->bmpMainTitles), i, tMenu->tFrontendInfo.iMainTitlesLeft, tMenu->tFrontendInfo.iMainTitlesTop+i*(titleheight+tMenu->tFrontendInfo.iMainTitlesSpacing), tMenu->bmpMainTitles->w, titleheight);
 
 	// Quit
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
@@ -84,13 +86,8 @@ void Menu_MainFrame(void)
 
 	int mouseover = false;
 	int img = lastimg;
-	int mouse = 0;
 
 	if(ev) {
-
-        if( ev->cWidget->getType() == wid_Titlebutton ||
-            ev->cWidget->getType() == wid_Button )
-            mouse = 1;
 
 		switch(ev->iControlID) {
 
@@ -211,7 +208,7 @@ void Menu_MainFrame(void)
 
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 

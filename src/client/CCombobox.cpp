@@ -41,7 +41,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 
     Menu_redrawBufferRect( iX,iY, iWidth+15,tLX->cFont.GetHeight()+4);
     if( !iDropped && iLastDropped ) {
-        Menu_redrawBufferRect( iX,iY+17, iWidth+15,117);
+        Menu_redrawBufferRect( iX,iY+tLX->cFont.GetHeight(), iWidth+15,iHeight);
         iLastDropped = false;
     }
 
@@ -77,7 +77,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 			iGotScrollbar = true;
 			iHeight = ItemHeight*(display_count+1)+5;
 		}
-		cScrollbar.Setup(0, iX+iWidth-16, iY+ItemHeight+4, 14, iHeight-22);
+		cScrollbar.Setup(0, iX+iWidth-16, iY+ItemHeight+4, 14, iHeight-tLX->cFont.GetHeight()-6);
 
 
 		Menu_DrawBox(bmpDest, iX, iY+ItemHeight+2, iX+iWidth, iY+iHeight);

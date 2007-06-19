@@ -60,7 +60,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			case 1:	DrawImage(bmpDest,tMenu->bmpTriangleDown,x+col_w-tMenu->bmpTriangleDown->w-9,iY+7); break;
 			}
 
-			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x/*-20*/), tLX->clNormalLabel, col->sText);
+			tLX->cFont.DrawCentreAdv(bmpDest, x+(col_w/2)-3, iY+2, x+2, MIN(col_w-2,iX+iWidth-x), tLX->clNormalLabel, col->sText);
 
 			x += col->iWidth-2;
 		}
@@ -73,12 +73,11 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	int y=iY;
 	if (tColumns)  {
 		if (bOldStyle)
-			y = iY+tLX->cFont.GetHeight()+2;
+			y = iY+tLX->cFont.GetHeight();
 		else
 			y = iY+tLX->cFont.GetHeight()+4;
 	} else {
 		if (bDrawBorder)  {
-			y += 2;
 			// Re-setup the scrollbar
 			cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight-2);
 		} else {
@@ -743,7 +742,7 @@ int	CListview::MouseOver(mouse_t *tMouse)
 		cScrollbar.MouseOver(tMouse);
 
 	// Reset the cursor
-	iCursor = 0;
+	SetGameCursor(CURSOR_ARROW);
 
 	// Go through the columns and check, if the mouse is in the space between two columns
 	if (!bOldStyle)  {
@@ -758,8 +757,8 @@ int	CListview::MouseOver(mouse_t *tMouse)
 			prev = col;
 			for (;col;col = col->tNext)  {
 				if (tMouse->X >= x && tMouse->X <= x+4)  {
-					iCursor = 3;
-					return LV_RESIZECURSOR;
+					SetGameCursor(CURSOR_RESIZE);
+					return LV_NONE;
 				}
 				x += col->iWidth-2;
 				prev = col;
@@ -826,9 +825,9 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 
 
 			iLastMouseX = tMouse->X;
-			iCursor = 3;
+			SetGameCursor(CURSOR_RESIZE);
 
-			return LV_RESIZECURSOR;
+			return LV_NONE;
 		}
 
 		// Not grabbed
@@ -847,7 +846,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 				}
 				// Click
 				else if (tMouse->X >= x && tMouse->X <= x+col->iWidth-3 && iGrabbed <= 0)  {
-					iCursor = 0;
+					SetGameCursor(CURSOR_ARROW);
 					col->bDown = true;
 				}
 				x += col->iWidth-2;

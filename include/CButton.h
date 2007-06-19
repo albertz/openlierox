@@ -77,9 +77,9 @@ public:
 	void	Destroy(void) { if(bFreeSurface && bmpImage) SDL_FreeSurface(bmpImage); }
 
 	//These events return an event id, otherwise they return -1
-	int		MouseOver(mouse_t *tMouse)			{ iMouseOver=true; return BTN_MOUSEOVER; }
+	int		MouseOver(mouse_t *tMouse)			{ iMouseOver=true; SetGameCursor(CURSOR_HAND); return BTN_MOUSEOVER; }
 	int		MouseUp(mouse_t *tMouse, int nDown)		{ return BTN_MOUSEUP; }
-	int		MouseDown(mouse_t *tMouse, int nDown)	{ iMouseOver=true; return BTN_NONE; }
+	int		MouseDown(mouse_t *tMouse, int nDown)	{ iMouseOver=true; SetGameCursor(CURSOR_HAND); return BTN_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return BTN_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return BTN_NONE; }
 	int		KeyDown(UnicodeChar c)						{ return BTN_NONE; }

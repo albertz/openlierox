@@ -195,13 +195,6 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 	// Process any events
 	if(ev) {
 
-		// Mouse type
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		else if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-
-
 		switch(ev->iControlID) {
 
 			// Cancel
@@ -222,7 +215,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 
@@ -284,7 +277,8 @@ void Menu_Net_JoinDrawLobby(void)
 {
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
 
     // Title
     DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
@@ -596,13 +590,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	// Process any events
 	if(ev) {
 
-		// Mouse type
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-
-
 		switch(ev->iControlID) {
 
 			// Back
@@ -689,5 +676,5 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }

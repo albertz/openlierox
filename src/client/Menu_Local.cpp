@@ -164,11 +164,9 @@ void Menu_LocalFrame(void)
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
-	int mouse = 0;
     int i;
 	CListview *lv;
 	profile_t *ply = NULL;
-
 
     // Game Settings
 	if(bGameSettings) {
@@ -251,11 +249,6 @@ void Menu_LocalFrame(void)
 	cLocalMenu.Draw(tMenu->bmpScreen);
 
 	if(ev) {
-
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
 
 		switch(ev->iControlID) {
 			// Back
@@ -449,7 +442,7 @@ void Menu_LocalFrame(void)
 	}
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 
@@ -919,8 +912,6 @@ void Menu_GameSettingsShutdown(void)
 bool Menu_GameSettings_Frame(void)
 {
 	gui_event_t *ev = NULL;
-	mouse_t *Mouse = GetMouse();
-	int mouse = 0;
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
@@ -931,11 +922,6 @@ bool Menu_GameSettings_Frame(void)
 	cGameSettings.Draw(tMenu->bmpScreen);
 
 	if(ev) {
-
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
 
 		switch(ev->iControlID) {
 
@@ -965,7 +951,7 @@ bool Menu_GameSettings_Frame(void)
 	cGameSettings.SendMessage(gs_LoadingTimeLabel, LBS_SETTEXT, lstr, 0);
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 
 	return false;
 }
@@ -1118,7 +1104,6 @@ bool Menu_WeaponsRestrictions_Frame(void)
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
-	int mouse = 0;
     //Uint32 blue = MakeColour(0,138,251);
 
     assert(cWpnGameScript);
@@ -1191,11 +1176,6 @@ bool Menu_WeaponsRestrictions_Frame(void)
 
 	if(ev) {
 
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-
 		if(ev->iEventMsg == SDL_BUTTON_WHEELUP)  {
 			CScrollbar *tScrollbar = (CScrollbar *)cWeaponsRest.getWidget(wr_Scroll);
 			tScrollbar->MouseWheelUp(NULL);
@@ -1250,7 +1230,7 @@ bool Menu_WeaponsRestrictions_Frame(void)
 	}
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 
 	return false;
 }
@@ -1292,9 +1272,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		return;
 
 	keyboard_t *kb = GetKeyboard();
-	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	int mouse=0;
 	int quitloop = false;
 	CTextbox *t;
 
@@ -1347,16 +1325,11 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		cWpnPresets.Draw(tMenu->bmpScreen);
 
 		// Process the widgets
-		mouse = 0;
 #ifdef WITH_MEDIAPLAYER
 		if(ev && !cMediaPlayer.GetDrawPlayer()) {
 #else
 		if(ev)  {
 #endif
-			if(ev->cWidget->getType() == wid_Button)
-				mouse = 1;
-			if(ev->cWidget->getType() == wid_Textbox)
-				mouse = 2;
 
 			switch(ev->iControlID) {
 				// Cancel
@@ -1410,7 +1383,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 		}
 
 		// Draw mouse
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 
 		// Display the dialog
 		FlipScreen(tMenu->bmpScreen);

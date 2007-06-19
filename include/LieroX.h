@@ -76,6 +76,7 @@ const float	R2D(5.729578e+1f); // radians to degrees
 
 
 #include "CFont.h"
+#include "Cursor.h"
 
 // LieroX structure
 class lierox_t { public:
@@ -119,6 +120,18 @@ class lierox_t { public:
 	Uint32			clWinBtnDark;
 	Uint32			clMPlayerTime;
 	Uint32			clMPlayerSong;
+	Uint32			clChatBoxBackground;
+	Uint32			clDialogBackground;
+	Uint32			clGameBackground;
+	Uint32			clViewportSplit;
+	Uint32			clScrollbarBack;
+	Uint32			clScrollbarBackLight;
+	Uint32			clScrollbarFront;
+	Uint32			clScrollbarHighlight;
+	Uint32			clScrollbarShadow;
+	Uint32			clCurrentSettingsBg;
+	Uint32			clScoreBackground;
+	Uint32			clDialogCaption;
 
 	Uint32			clPink;
 	Uint32			clWhite;

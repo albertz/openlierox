@@ -52,7 +52,7 @@ public:
 	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1
-	int		MouseOver(mouse_t *tMouse)			{ iMouseOver=true; return TBT_MOUSEOVER; }
+	int		MouseOver(mouse_t *tMouse)			{ iMouseOver=true; SetGameCursor(CURSOR_HAND); return TBT_MOUSEOVER; }
 	int		MouseUp(mouse_t *tMouse, int nDown)		{ return TBT_MOUSEUP; }
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ iMouseOver=true; return TBT_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return TBT_NONE; }

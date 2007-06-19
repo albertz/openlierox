@@ -54,12 +54,19 @@ int LoadGraphics(void)
 	tLX->clWinBtnLight = MakeColour(192,192,192);
 	tLX->clMPlayerSong = tLX->clBlack;
 	tLX->clMPlayerTime = tLX->clBlack;
+	tLX->clDialogBackground = tLX->clBlack;
+	tLX->clGameBackground = tLX->clBlack;
+	tLX->clViewportSplit = tLX->clBlack;
+	tLX->clScrollbarBack = MakeColour(0,66,100);
+	tLX->clScrollbarFront = MakeColour(0,100,180);
+	tLX->clScrollbarHighlight = MakeColour(25,155,255);
+	tLX->clScrollbarBackLight = MakeColour(0,75,113);
+	tLX->clScrollbarShadow = MakeColour(0,40,65);
+	tLX->clChatBoxBackground = tLX->clBlack;
+	tLX->clScoreBackground = tLX->clBlack;
+	tLX->clCurrentSettingsBg = tLX->clBlack;
+	tLX->clDialogCaption = MakeColour(0,0,64);
 
-	int i;
-	LOAD_IMAGE(gfxGUI.bmpMouse[0], "data/frontend/mouse.png");
-	LOAD_IMAGE(gfxGUI.bmpMouse[1], "data/frontend/mouse_hand.png");
-	LOAD_IMAGE(gfxGUI.bmpMouse[2], "data/frontend/mouse_text.png");
-	LOAD_IMAGE(gfxGUI.bmpMouse[3], "data/frontend/mouse_resize.png");
 
 	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
 	LOAD_IMAGE(gfxGUI.bmpSliderBut,"data/frontend/sliderbut.png");
@@ -82,6 +89,9 @@ int LoadGraphics(void)
 	LOAD_IMAGE(gfxGame.bmpBonus, "data/gfx/bonus.png");
 	LOAD_IMAGE(gfxGame.bmpHealth, "data/gfx/health.png");
 
+	// Cursors
+	if (!InitializeCursors())
+		return false;
 
 	tLX->cOutlineFont.SetOutline(true);
 	tLX->cOutlineFont.SetSpacing(0);
@@ -95,9 +105,6 @@ int LoadGraphics(void)
 		return false;
 
 	// Set the colour keys
-	for(i=0;i<4;i++)
-		SetColorKey(gfxGUI.bmpMouse[i]);
-
 	SetColorKey(gfxGame.bmpCrosshair);
 	SetColorKey(gfxGame.bmpMuzzle);
 	SetColorKey(gfxGame.bmpExplosion);
@@ -138,6 +145,18 @@ int LoadGraphics(void)
 	ReadColour(colorfile,"Colours","WinButtonLight", &tLX->clWinBtnLight,	tLX->clWinBtnLight);
 	ReadColour(colorfile,"Colours","MPlayerSongTime",&tLX->clMPlayerTime,	tLX->clMPlayerTime);
 	ReadColour(colorfile,"Colours","MPlayerSongName",&tLX->clMPlayerSong,	tLX->clMPlayerSong);
+	ReadColour(colorfile,"Colours","DialogBackground",	&tLX->clDialogBackground,	tLX->clDialogBackground);
+	ReadColour(colorfile,"Colours","GameBackground",	&tLX->clGameBackground,		tLX->clGameBackground);
+	ReadColour(colorfile,"Colours","ViewportSplit",		&tLX->clViewportSplit,		tLX->clViewportSplit);
+	ReadColour(colorfile,"Colours","ScrollbarBack",		&tLX->clScrollbarBack,		tLX->clScrollbarBack);
+	ReadColour(colorfile,"Colours","ScrollbarBackLight",&tLX->clScrollbarBackLight,	tLX->clScrollbarBackLight);
+	ReadColour(colorfile,"Colours","ScrollbarFront",	&tLX->clScrollbarFront,		tLX->clScrollbarFront);
+	ReadColour(colorfile,"Colours","ScrollbarHighlight",&tLX->clScrollbarHighlight,	tLX->clScrollbarHighlight);
+	ReadColour(colorfile,"Colours","ScrollbarShadow",	&tLX->clScrollbarShadow,	tLX->clScrollbarShadow);
+	ReadColour(colorfile,"Colours","ChatBoxBackground", &tLX->clChatBoxBackground,	tLX->clChatBoxBackground);
+	ReadColour(colorfile,"Colours","ScoreBack",			&tLX->clScoreBackground,	tLX->clScoreBackground);
+	ReadColour(colorfile,"Colours","CurrentSettBack",	&tLX->clCurrentSettingsBg,	tLX->clCurrentSettingsBg);
+	ReadColour(colorfile,"Colours","DialogCaption",		&tLX->clDialogCaption,		tLX->clDialogCaption);
 
 	return true;
 }
@@ -147,6 +166,7 @@ int LoadGraphics(void)
 // Shutdown the graphics
 void ShutdownGraphics(void)
 {
+	ShutdownCursors();
 	tLX->cFont.Shutdown();
 	tLX->cOutlineFont.Shutdown();
 	tLX->cOutlineFontGrey.Shutdown();

@@ -392,7 +392,8 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 		}
 
 		// Draw the mouse
-		DrawImage(Screen,gfxGUI.bmpMouse[0],GetMouse()->X,GetMouse()->Y);
+		SetGameCursor(CURSOR_ARROW);
+		DrawCursor(tMenu->bmpScreen);
 
 		FlipScreen(Screen);
 	}

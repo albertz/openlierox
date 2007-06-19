@@ -561,6 +561,8 @@ gui_event_t *CGuiLayout::Process(void)
 	int ev=-1;
 	int widget = false;
 
+	SetGameCursor(CURSOR_ARROW); // Reset the cursor here
+
 	if (!tEvent)  {
 		tEvent = new gui_event_t;
 		if (!tEvent)

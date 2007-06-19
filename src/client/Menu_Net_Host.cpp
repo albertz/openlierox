@@ -192,13 +192,6 @@ void Menu_Net_HostPlyFrame(int mouse)
 	// Process any events
 	if(ev) {
 
-		// Mouse type
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-
-
 		switch(ev->iControlID) {
 
 			// Back
@@ -357,7 +350,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 //////////////
@@ -492,7 +485,8 @@ void Menu_Net_HostLobbyDraw(void)
 {
     // Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 5,5, 635, 475);
 	Menu_DrawBox(tMenu->bmpBuffer, 460,29, 593, 130);
     DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_wob, 281,0, 281,0, 79,20);
 
@@ -759,13 +753,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Process any events
 	if(ev) {
 
-		// Mouse type
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-
-
 		switch(ev->iControlID) {
 
 			// Back
@@ -996,7 +983,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 }
 
 ////////////////////
@@ -1246,7 +1233,8 @@ void Menu_Net_HostDeregister(void)
 
 
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
-    Menu_DrawBox(tMenu->bmpBuffer, 15,60, 625, 465);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer, 15,60, 625, 465);
 	Menu_DrawBox(tMenu->bmpBuffer, x, y, x+w, y+h);
 	DrawRectFill(tMenu->bmpBuffer, x+2,y+2, x+w-1,y+h-1,tLX->clBlack);
 
@@ -1255,6 +1243,7 @@ void Menu_Net_HostDeregister(void)
 	Menu_RedrawMouse(true);
 
 	float starttime = tLX->fCurTime;
+	SetGameCursor(CURSOR_ARROW);
 
 	while(1) {
 		Menu_RedrawMouse(false);
@@ -1272,7 +1261,7 @@ void Menu_Net_HostDeregister(void)
 			break;
 		}
 
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[0], Mouse->X,Mouse->Y);
+		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
 	}
 }
@@ -1348,8 +1337,6 @@ bool Menu_ServerSettings_Frame(void)
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
-	int mouse = 0;
-    //Uint32 blue = MakeColour(0,138,251);
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
@@ -1361,11 +1348,6 @@ bool Menu_ServerSettings_Frame(void)
 	cServerSettings.Draw(tMenu->bmpScreen);
 
 	if(ev) {
-
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
 
 		switch(ev->iControlID) {
 
@@ -1413,7 +1395,7 @@ bool Menu_ServerSettings_Frame(void)
 	}
 
 	// Draw the mouse
-	DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
+	DrawCursor(tMenu->bmpScreen);
 
 	return false;
 }
@@ -1496,7 +1478,6 @@ bool Menu_BanList_Frame(void)
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
-	int mouse = 0;
 	CListview *tListBox = (CListview *)cBanListGui.getWidget(bl_ListBox);
 
 
@@ -1510,13 +1491,6 @@ bool Menu_BanList_Frame(void)
 	cBanListGui.Draw(tMenu->bmpScreen);
 
 	if(ev) {
-
-		if(ev->cWidget->getType() == wid_Button)
-			mouse = 1;
-		if(ev->cWidget->getType() == wid_Textbox)
-			mouse = 2;
-		if(ev->cWidget->getType() == wid_Listview)
-			mouse = ((CListview *)(ev->cWidget))->getCursor();
 
 		switch(ev->iControlID) {
 
@@ -1554,10 +1528,7 @@ bool Menu_BanList_Frame(void)
 	}
 
 	// Draw the mouse
-	if (mouse !=3)
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X,Mouse->Y);
-	else
-		DrawImage(tMenu->bmpScreen,gfxGUI.bmpMouse[mouse], Mouse->X-(gfxGUI.bmpMouse[mouse]->w/2),Mouse->Y-(gfxGUI.bmpMouse[mouse]->h/2));
+	DrawCursor(tMenu->bmpScreen);
 
 	return false;
 }

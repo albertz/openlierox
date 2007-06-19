@@ -296,16 +296,16 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 			clip_h = bottom - y;
 
 		register Uint8 *src = (Uint8 *)bmpFont->pixels + a * bmpFont->format->BytesPerPixel;
-		register Uint8 *p;
+		register Uint8 *px;
 		register byte bpp = bmpFont->format->BytesPerPixel;
 
 		// Outline font
 		if (OutlineFont)  {
 			for(j=clip_y;j<clip_h;j++) {
-				p = src;
-				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,p+=bpp) {
+				px = src;
+				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,px+=bpp) {
 
-					pixel = GetPixelFromAddr(p,bpp);
+					pixel = GetPixelFromAddr(px,bpp);
 					GetColour4(pixel,bmpFont,&R,&G,&B,&A);
 
 					// Put black pixels and colorize white ones
@@ -320,10 +320,10 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 		// Not outline
 		else {
 			for(j=clip_y;j<clip_h;j++) {
-				p = src;
-				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,p+=bpp) {
+				px = src;
+				for(i=a+clip_x,b=clip_x;b<clip_w;i++,b++,px+=bpp) {
 
-					pixel = GetPixelFromAddr(p,bpp);
+					pixel = GetPixelFromAddr(px,bpp);
 					GetColour4(pixel,bmpFont,&R,&G,&B,&A);
 
 					// Put only black pixels
