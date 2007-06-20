@@ -204,10 +204,10 @@ void Menu_MainFrame(void)
 
 	static const std::string credits1 = "  " + GetGameName() + " v" + LX_VERSION;
 
-	static const std::string credits2 = std::string("᚛ Original code by Jason Boettcher\n") +
-										std::string("᚛ Ported and enhanced by\n") +
+	static const std::string credits2 = std::string("- Original code by Jason Boettcher\n") +
+										std::string("- Ported and enhanced by\n") +
 										std::string("  Dark Charlie and Albert Zeyer\n") +
-										std::string("᚛ Supported by the [RIP] clan");
+										std::string("- Supported by the [RIP] clan");
 										//std::string("᚛ Enhanced by FilE");// TODO: include this, if he join the team :)
 
 

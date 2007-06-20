@@ -21,6 +21,7 @@ typedef Uint32 UnicodeChar;  // Note: only 16bits are currently being used by OL
 
 template<typename _Iterator1, typename _Iterator2>
 inline void IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
+	if(it == last) return;
 	unsigned char c;
 	for(it++; last != it; it++) {
 		c = *it;
@@ -40,6 +41,7 @@ inline void MultIncUtf8StringIterator(_Iterator& it, const _Iterator& last, size
 // The iterator points at first byte of the UTF8 encoded character
 template<typename _Iterator1, typename _Iterator2>
 inline void DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
+	if(it == first) return;
 	unsigned char c;
 	for(it--; first != it; it--) {
 		c = *it;
@@ -90,8 +92,8 @@ inline size_t Utf8StringSize(const std::string& str)  {
 }
 
 inline std::string Utf8SubStr(const std::string& str, size_t start, size_t n = -1) {
-	if (n == -1)
-		return std::string(Utf8PositionToIterator(str,start),str.end());
+	if (n == (size_t)-1)
+		return std::string(Utf8PositionToIterator(str, start), str.end());
 	else
 		return std::string(
 			Utf8PositionToIterator(str, start),
