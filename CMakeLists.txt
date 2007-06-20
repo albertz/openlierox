@@ -12,7 +12,7 @@ SET(ALL_SRCS ${MAIN_SRCS} ${CLIENT_SRCS} ${COMMON_SRCS} ${SERVER_SRCS})
 IF (WIN32)
 	# equivalent here?
 ELSE (WIN32)
-	ADD_DEFINITIONS(-ggdb -Wall)
+	ADD_DEFINITIONS(-ggdb -Wall --no-inline)
 ENDIF (WIN32)
 
 ADD_EXECUTABLE(bin/openlierox ${ALL_SRCS})

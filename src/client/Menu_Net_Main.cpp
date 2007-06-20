@@ -85,7 +85,6 @@ void Menu_Net_MainShutdown(void)
 // The net main menu frame
 void Menu_Net_MainFrame(int mouse)
 {
-	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 
 

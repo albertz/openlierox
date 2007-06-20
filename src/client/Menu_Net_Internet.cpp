@@ -128,7 +128,6 @@ void Menu_Net_NETShutdown(void)
 // Net Internet frame
 void Menu_Net_NETFrame(int mouse)
 {
-	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 	static std::string	addr;
 
@@ -425,7 +424,6 @@ void Menu_Net_NETAddServer(void)
 {
 	CGuiLayout	cAddSvr;
 	gui_event_t *ev = NULL;
-	mouse_t		*Mouse = GetMouse();
 	bool		addServerMsg = true;
 
 
@@ -521,9 +519,7 @@ void Menu_Net_NETAddServer(void)
 void Menu_Net_NETUpdateList(void)
 {
 	CGuiLayout	cListUpdate;
-	int			mouse = 0;
 	gui_event_t *ev = NULL;
-	mouse_t		*Mouse = GetMouse();
 	bool		updateList = true;
 	int			http_result = 0;
 
@@ -724,7 +720,6 @@ enum  {
 // Show a server's details
 void Menu_Net_NETShowServer(const std::string& szAddress)
 {
-    mouse_t     *Mouse = GetMouse();
     CGuiLayout  cDetails;
 
     // Create the buffer

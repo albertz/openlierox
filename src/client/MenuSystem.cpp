@@ -520,8 +520,6 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 {
 	int ret = -1;
 	keyboard_t *kb = GetKeyboard();
-	mouse_t *Mouse = GetMouse();
-	int mouse = 0;
 	gui_event_t *ev = NULL;
 
 	SetGameCursor(CURSOR_ARROW);

@@ -488,7 +488,6 @@ enum {
 void Menu_MapEd_New(void)
 {
 	keyboard_t *kb = GetKeyboard();
-	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 	int quitloop = false;
 	CTextbox *t1,*t2;
@@ -680,7 +679,6 @@ enum  {
 void Menu_MapEd_LoadSave(int save)
 {
 	keyboard_t *kb = GetKeyboard();
-	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 	int quitloop = false;
 	CTextbox *t;

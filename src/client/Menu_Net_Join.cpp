@@ -148,7 +148,6 @@ void Menu_Net_JoinConnectionShutdown(void)
 // Connection frame
 void Menu_Net_JoinConnectionFrame(int mouse)
 {
-	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 
 	Menu_redrawBufferRect(0,180,640,tLX->cFont.GetHeight());

@@ -176,7 +176,6 @@ void Menu_Net_HostFrame(int mouse)
 // Player selection frame
 void Menu_Net_HostPlyFrame(int mouse)
 {
-	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 	CListview	*lv, *lv2;
 	profile_t	*ply;
@@ -628,7 +627,6 @@ void Menu_Net_HostGotoLobby(void)
 // Host lobby frame
 void Menu_Net_HostLobbyFrame(int mouse)
 {
-	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 
 	// Process the server & client frames
@@ -1229,7 +1227,6 @@ void Menu_Net_HostDeregister(void)
 	int h = 140;
 	int cx = x+w/2;
 	int cy = y+h/2;
-	mouse_t *Mouse = GetMouse();
 
 
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
@@ -1336,7 +1333,6 @@ void Menu_ServerSettings(void)
 bool Menu_ServerSettings_Frame(void)
 {
 	gui_event_t *ev = NULL;
-	mouse_t *Mouse = GetMouse();
 
 	DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 120,150, 120,150, 400,300);
 
@@ -1477,7 +1473,6 @@ void Menu_BanList(void)
 bool Menu_BanList_Frame(void)
 {
 	gui_event_t *ev = NULL;
-	mouse_t *Mouse = GetMouse();
 	CListview *tListBox = (CListview *)cBanListGui.getWidget(bl_ListBox);
 
 

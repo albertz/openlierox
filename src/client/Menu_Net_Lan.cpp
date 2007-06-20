@@ -120,7 +120,6 @@ void Menu_Net_LANShutdown(void)
 // Net LAN frame
 void Menu_Net_LANFrame(int mouse)
 {
-	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 	std::string		addr;
 
@@ -383,7 +382,6 @@ enum {
 // Show a server's details
 void Menu_Net_LanShowServer(const std::string& szAddress)
 {
-    mouse_t     *Mouse = GetMouse();
     CGuiLayout  cDetails;
 
     // Create the buffer

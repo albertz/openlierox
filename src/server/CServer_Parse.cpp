@@ -96,7 +96,7 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 	if (bs->GetLength() == 0)
 		return;
 
-	while (1) {
+	while (true) {
 		cmd = bs->readInt(1);
 
 		if (bs->GetPos() > bs->GetLength())

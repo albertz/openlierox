@@ -72,7 +72,6 @@ void Menu_MainInitialize(void)
 void Menu_MainFrame(void)
 {
 	gui_event_t *ev = NULL;
-	mouse_t *Mouse = GetMouse();
 
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 50,160, 50,160, 320,290);
 	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,430, 20,430, 60,40);

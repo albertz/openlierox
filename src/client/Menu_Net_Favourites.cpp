@@ -126,7 +126,6 @@ void Menu_Net_FavouritesShutdown(void)
 // Net favourites frame
 void Menu_Net_FavouritesFrame(int mouse)
 {
-	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 	static std::string		addr;
 
@@ -425,7 +424,6 @@ extern CButton cNetButtons[5];
 // Show a server's details
 void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 {
-    mouse_t     *Mouse = GetMouse();
     CGuiLayout  cDetails;
 
     // Create the buffer
@@ -512,7 +510,6 @@ void Menu_Net_RenameServer(const std::string& szName)
 {
 	CGuiLayout	cRename;
 	gui_event_t *ev = NULL;
-	mouse_t		*Mouse = GetMouse();
 	bool		renameServerMsg = true;
 
 
@@ -611,7 +608,6 @@ void Menu_Net_FavouritesAddServer(void)
 {
 	CGuiLayout	cAddSvr;
 	gui_event_t *ev = NULL;
-	mouse_t		*Mouse = GetMouse();
 	bool		addServerMsg = true;
 
 
