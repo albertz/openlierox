@@ -49,16 +49,15 @@ int CFont::Load(const std::string& fontname, bool _colour) {
 	// Calculate the width of each character and number of characters
 	Parse();
 
-	// Precache some common font colors (but only if this font should be colorized)
-	if (Colorize) {
-		PreCalculate(bmpWhite, tLX->clNormalLabel);
-		PreCalculate(bmpGreen, tLX->clChatText);
-	}
-
-
 	// Pre-calculate some colours
 	f_white = tLX->clNormalLabel;
 	f_green = tLX->clChatText;
+	
+	// Precache some common font colors (but only if this font should be colorized)
+	if (Colorize) {
+		PreCalculate(bmpWhite, f_white);
+		PreCalculate(bmpGreen, f_green);
+	}
 
 	return true;
 }
@@ -80,11 +79,11 @@ void CFont::Shutdown(void) {
 
 //////////////////
 // Helper function for CalculateWidth
-// Checks, whether a vertical line is free (all pixels pink)
+// Checks, whether a vertical line is free
 bool CFont::IsColumnFree(int x) {
 	// it's only completelly see through
-	for (ushort i = 0; i < bmpFont->h; i++) {
-		if ((GetPixel(bmpFont, x, i) & ALPHASURFACE_AMASK) != 0)
+	for (int y = 0; y < bmpFont->h; y++) {
+		if ((GetPixel(bmpFont, x, y) & ALPHASURFACE_AMASK) != 0)
 			return false;
 	}
 
@@ -94,7 +93,7 @@ bool CFont::IsColumnFree(int x) {
 ///////////////////
 // Calculate character widths, number of characters and offsets
 void CFont::Parse(void) {
-	uint x;
+	int x;
 	UnicodeChar CurChar = FIRST_CHARACTER;
 	int cur_w;
 
@@ -106,13 +105,14 @@ void CFont::Parse(void) {
 
 	cur_w = 0;
 	uint tmp_x = 0;
-	for (x = 0; (int) x < bmpFont->w; x++) {
+	for (x = 0; x < bmpFont->w; x++) {
 		if (CurChar != ' ')
-			while (IsColumnFree(x) && (int) x < bmpFont->w)       // Ignore any free pixel columns before the character (but don't do this for spaces)
+			// Ignore any free pixel columns before the character (but don't do this for spaces)
+			while (IsColumnFree(x) && x < bmpFont->w)
 				x++;
 
 		// Read until a blue pixel or end of the image
-		while (GetPixel(bmpFont, x, 0) != blue && (int) x < bmpFont->w) {
+		while (GetPixel(bmpFont, x, 0) != blue && x < bmpFont->w) {
 			x++;
 			cur_w++;
 		}
