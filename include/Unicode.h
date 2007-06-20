@@ -90,9 +90,12 @@ inline size_t Utf8StringSize(const std::string& str)  {
 }
 
 inline std::string Utf8SubStr(const std::string& str, size_t start, size_t n = -1) {
-	return std::string(
-		Utf8PositionToIterator(str, start),
-		Utf8PositionToIterator(str, start + n));
+	if (n == -1)
+		return std::string(Utf8PositionToIterator(str,start),str.end());
+	else
+		return std::string(
+			Utf8PositionToIterator(str, start),
+			Utf8PositionToIterator(str, start + n));
 }
 
 inline void Utf8Erase(std::string& str, size_t start, size_t n = -1) {

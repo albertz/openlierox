@@ -114,9 +114,9 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		// Selected?
 		if(item->iSelected && bShowSelect) {
 			if(iFocused)
-				DrawRectFill(bmpDest,x-2,y,selectsize,y+h-2,MakeColour(0,66,102));
+				DrawRectFill(bmpDest,x-2,y,selectsize,y+h-2,tLX->clListviewSelected);
 			else
-				DrawRect(bmpDest,x-2,y,selectsize-1,y+h-2,MakeColour(0,66,102));
+				DrawRect(bmpDest,x-2,y,selectsize-1,y+h-2,tLX->clListviewSelected);
 		}
 
 		// Draw the sub items
@@ -918,7 +918,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 		}
 
 		y+=h;
-		if(y>=iY+iHeight-h)
+		if(y>=iY+iHeight)
 			break;
 	}
 

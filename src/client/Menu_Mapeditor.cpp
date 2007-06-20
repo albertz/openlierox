@@ -510,8 +510,8 @@ void Menu_MapEd_New(void)
 
 	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), mn_Cancel, 220,285, 75,15);
 	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     mn_Ok, 390,285, 40,15);
-	cg.Add( new CTextbox(),                             mn_Width, 280,200, 100,20);
-	cg.Add( new CTextbox(),                             mn_Height, 280,230, 100,20);
+	cg.Add( new CTextbox(),                             mn_Width, 280,200, 100,tLX->cFont.GetHeight());
+	cg.Add( new CTextbox(),                             mn_Height, 280,230, 100,tLX->cFont.GetHeight());
 	cg.Add( new CCombobox(),							mn_Scheme, 280,260, 120,17);
 
 	cg.SendMessage(2,TXM_SETMAX,64,0);
@@ -700,7 +700,7 @@ void Menu_MapEd_LoadSave(int save)
 	cg.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), 0, 180,310, 75,15);
 	cg.Add( new CButton(BUT_OK, tMenu->bmpButtons),     1, 430,310, 40,15);
 	cg.Add( new CListview(),                            2, 180,170, 280,110);
-	cg.Add( new CTextbox(),                             3, 260,285, 200,20);
+	cg.Add( new CTextbox(),                             3, 260,285, 200,tLX->cFont.GetHeight());
 
 	cg.SendMessage(2,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 

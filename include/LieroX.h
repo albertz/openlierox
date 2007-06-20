@@ -137,6 +137,20 @@ class lierox_t { public:
 	Uint32			clPlayerDividingLine;
 	Uint32			clLine;
 	Uint32			clProgress;
+	Uint32			clListviewSelected;
+	Uint32			clMenuSelected;
+	Uint32			clMenuBackground;
+	Uint32			clGameChatter;
+	Uint32			clSelection;
+	Uint32			clTextboxCursor;
+	Uint32			clGameChatCursor;
+	Uint32			clConsoleCursor;
+	Uint32			clConsoleNormal;
+	Uint32			clConsoleNotify;
+	Uint32			clConsoleError;
+	Uint32			clConsoleWarning;
+	Uint32			clConsoleDev;
+	Uint32			clConsoleChat;
 
 	Uint32			clPink;
 	Uint32			clWhite;

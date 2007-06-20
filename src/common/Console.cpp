@@ -418,8 +418,8 @@ void Con_Draw(SDL_Surface *bmpDest)
 	int texty = y+Console->bmpConPic->h-28;
 	static std::string buf;
 
-	const Uint32 Colours[6] = {tLX->clWhite, MakeColour(200,200,200), MakeColour(255,0,0), MakeColour(200,128,128),
-		                 MakeColour(100,100,255), MakeColour(100,255,100) };
+	const Uint32 Colours[6] = {tLX->clConsoleNormal, tLX->clConsoleNotify, tLX->clConsoleError, tLX->clConsoleWarning,
+		                 tLX->clConsoleDev, tLX->clConsoleChat };
 
 	DrawImage(bmpDest,Console->bmpConPic,0,y);
 
@@ -444,7 +444,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 				texty, texty + tLX->cFont.GetHeight(),
 				17 + tLX->cFont.GetWidth(
 					Utf8SubStr(Console->Line[n].strText, 0, Console->iCurpos)),
-				tLX->clWhite);
+				tLX->clConsoleCursor);
 		}
 
 		tLX->cFont.Draw(bmpDest, 12, texty, Colours[Console->Line[n].Colour], buf);

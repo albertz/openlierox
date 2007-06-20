@@ -51,9 +51,8 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	std::string text = sText;
 
     Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
-	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
+	Menu_DrawBoxInset(bmpDest, iX, iY-2, iX+iWidth, iY+iHeight+2);
 
-	int i;
 	if(iFlags & TXF_PASSWORD) {
 
 		// Draw astericks for password
@@ -87,12 +86,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	}*/
 
 	// Shift the text, if it overlapps
-	text.erase(0,iScrollPos);
-
-	// The scrollpos can be 0 and the text still overlapps
-	// User can move in the editbox using keys/mouse
-	i=sText.size()-1;
-	text = strip(text,iWidth-5);
+	Utf8Erase(text,0,iScrollPos);
 
 	// Draw selection
 	if (iSelLength)  {
@@ -126,12 +120,12 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 		DrawRectFill(
 			bmpDest,
-			iX + x1, iY + 3, iX + x2, iY + iHeight - 3,
-			MakeColour(0, 100, 150));
+			iX + x1, iY + 2, iX + x2, iY + iHeight,
+			tLX->clSelection);
 	}
 
 	// Draw text
-	tLX->cFont.Draw(bmpDest, iX + 3, iY + 3, tLX->clTextBox, text);
+	tLX->cFont.DrawAdv(bmpDest, iX + 3, iY, iWidth-4, tLX->clTextBox, text);
 
 	// Draw cursor (only when focused)
 	if(iFocused) {
@@ -148,7 +142,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 			DrawVLine(
 				bmpDest,
 				iY + 3, iY + iHeight - 3, iX + x + 3,
-				MakeColour(50, 150, 200));
+				tLX->clTextboxCursor);
 		}
 	}
 }

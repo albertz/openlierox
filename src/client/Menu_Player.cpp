@@ -105,7 +105,7 @@ void Menu_PlayerInitialize(void)
 	cNewPlayer.Add( new CButton(BUT_CREATE, tMenu->bmpButtons), np_Create, 540,440, 70,15);
 
 	cNewPlayer.Add( new CLabel("Worm Details", tLX->clHeading),Static, 30, 170, 0,0);
-	cNewPlayer.Add( new CTextbox(),		       np_Name,  120, 200,120,20);
+	cNewPlayer.Add( new CTextbox(),		       np_Name,  120, 200,120,tLX->cFont.GetHeight());
 	cNewPlayer.Add( new CLabel("Name",tLX->clNormalLabel), Static, 40, 202,0,  0);
 	cNewPlayer.Add( new CLabel("Red",tLX->clNormalLabel),  Static, 40, 300,0,  0);
 	cNewPlayer.Add( new CLabel("Green",tLX->clNormalLabel),Static, 40, 320,0,  0);
@@ -127,8 +127,8 @@ void Menu_PlayerInitialize(void)
 	//cNewPlayer.Add( new CLabel("Multiplayer (optional)", tLX->clHeading),Static, 370, 170, 0,0);
 	//cNewPlayer.Add( new CLabel("Username", tLX->clNormalLabel), Static, 380, 202, 0,0);
 	//cNewPlayer.Add( new CLabel("Password", tLX->clNormalLabel), Static, 380, 232, 0,0);
-	cNewPlayer.Add( new CTextbox(),			   np_Username, 470, 200, 110, 20);
-	cNewPlayer.Add( new CTextbox(),			   np_Password, 470, 230, 110, 20);
+	cNewPlayer.Add( new CTextbox(),			   np_Username, 470, 200, 110, tLX->cFont.GetHeight());
+	cNewPlayer.Add( new CTextbox(),			   np_Password, 470, 230, 110, tLX->cFont.GetHeight());
 
 	//cNewPlayer.Add( new CLabel("Note: To register a username, visit the OpenLieroX web site", tLX->clSubHeading),Static, 30, 410, 0,0);
 
@@ -163,7 +163,7 @@ void Menu_PlayerInitialize(void)
 	cViewPlayers.Add( new CButton(BUT_BACK, tMenu->bmpButtons),     vp_Back,   25, 440, 50, 15);
 	cViewPlayers.Add( new CListview(),                              vp_Players,40, 150, 200,165);
     cViewPlayers.Add( new CLabel("Name", tLX->clNormalLabel),                   Static, 350,172, 0,  0);
-    cViewPlayers.Add( new CTextbox(),                               vp_Name,  400,170, 120,20);
+    cViewPlayers.Add( new CTextbox(),                               vp_Name,  400,170, 120,tLX->cFont.GetHeight());
 	cViewPlayers.Add( new CButton(BUT_DELETE, tMenu->bmpButtons),   vp_Delete, 330,340, 70, 15);
     cViewPlayers.Add( new CButton(BUT_APPLY, tMenu->bmpButtons),    vp_Apply,  500,340, 55, 15);
 

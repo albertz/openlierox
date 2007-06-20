@@ -233,7 +233,7 @@ int Menu_OptionsInitialize(void)
 
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 280, 0,0);
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 300, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 297, 100,20);
+	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 297, 100,tLX->cFont.GetHeight());
 	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,330, 0,0);
 
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
@@ -245,7 +245,7 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CCheckbox(tLXOptions->iShowPing),  os_ShowPing, 365,415,17,17);
 	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);
 	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,385, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,20);
+	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,tLX->cFont.GetHeight());
 
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);

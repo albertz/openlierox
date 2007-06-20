@@ -873,8 +873,8 @@ void Menu_GameSettings(void)
 		cGameSettings.Add( new CLabel("Tournament mode", tLX->clNormalLabel),	    -1,	        150,350, 0, 0);
 	//cGameSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			-1,	   150,240, 0, 0);
 
-	cGameSettings.Add( new CTextbox(),							gs_Lives,		320,197, 100,20);
-	cGameSettings.Add( new CTextbox(),							gs_MaxKills,	320,227, 100,20);
+	cGameSettings.Add( new CTextbox(),							gs_Lives,		320,197, 100,tLX->cFont.GetHeight());
+	cGameSettings.Add( new CTextbox(),							gs_MaxKills,	320,227, 100,tLX->cFont.GetHeight());
 	cGameSettings.Add( new CSlider(500),						gs_LoadingTime,315,257, 160,20);
 	cGameSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 480, 260, 0, 0);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.iBonusesOn),	gs_Bonuses, 320,287,17,17);
@@ -1287,7 +1287,7 @@ void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
 	cWpnPresets.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons), wp_Cancel, 180,310, 75,15);
 	cWpnPresets.Add( new CButton(BUT_OK, tMenu->bmpButtons),     wp_Ok, 430,310, 40,15);
 	cWpnPresets.Add( new CListview(),                            wp_PresetList, 180,170, 280,110+(!save)*20);
-	cWpnPresets.Add( new CTextbox(),                             wp_PresetName, 270,285, 190,20);
+	cWpnPresets.Add( new CTextbox(),                             wp_PresetName, 270,285, 190,tLX->cFont.GetHeight());
 
 	cWpnPresets.SendMessage(wp_PresetList,LVM_SETOLDSTYLE,(DWORD)0,0);
 

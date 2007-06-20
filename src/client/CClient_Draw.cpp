@@ -194,9 +194,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	// Chatter
 	if(iChat_Typing)  {
 		static const int talk_w = 4+tLX->cOutlineFont.GetWidth("Talk: ");
-		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clNormalText, "Talk: " + sChat_Text);
+		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clGameChatter, "Talk: " + sChat_Text);
 		if (iChat_CursorVisible)  {
-			DrawVLine(bmpDest, 368, 378, talk_w+tLX->cOutlineFont.GetWidth(sChat_Text.substr(0,iChat_Pos)), tLX->clNormalText);
+			DrawVLine(bmpDest, 368, 378, talk_w+tLX->cOutlineFont.GetWidth(sChat_Text.substr(0,iChat_Pos)), tLX->clGameChatCursor);
 		}
 	}
 

@@ -24,7 +24,7 @@
 // Draw the input box
 void CInputbox::Draw(SDL_Surface *bmpDest)
 {
-    Menu_redrawBufferRect(iX,iY, bmpImage->w,17);
+    Menu_redrawBufferRect(iX,iY, bmpImage->w,tLX->cFont.GetHeight());
 
 	int y=0;
 	if(iMouseOver)

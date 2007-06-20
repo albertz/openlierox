@@ -293,7 +293,9 @@ public:
     inline int         getGridRows(void) const  { return nGridRows; }
     inline int         getGridWidth(void) const { return nGridWidth; }
     inline int         getGridHeight(void) const { return nGridHeight; }
-    inline const uchar *getGridFlags(void) const { return GridFlags; }
+    inline const uchar *getGridFlags(void) const { 
+		return GridFlags; 
+	}
 	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
 	inline bool			getCreated(void)	{ return Created; }
 	inline std::string getName(void)		{ return Name; }

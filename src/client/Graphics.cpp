@@ -71,6 +71,20 @@ int LoadGraphics(void)
 	tLX->clPlayerDividingLine = MakeColour(64,64,64);
 	tLX->clLine = tLX->clWhite;
 	tLX->clProgress = MakeColour(0,136,250);
+	tLX->clListviewSelected = MakeColour(0,66,102);
+	tLX->clMenuBackground = tLX->clBlack;
+	tLX->clMenuSelected = MakeColour(0,66,102);
+	tLX->clGameChatter = tLX->clWhite;
+	tLX->clSelection = MakeColour(0, 100, 150);
+	tLX->clTextboxCursor = MakeColour(50, 150, 200);
+	tLX->clGameChatCursor = tLX->clWhite;
+	tLX->clConsoleCursor = tLX->clWhite;
+	tLX->clConsoleNormal = tLX->clWhite;
+	tLX->clConsoleNotify = MakeColour(200,200,200);
+	tLX->clConsoleError = MakeColour(255,0,0);
+	tLX->clConsoleWarning = MakeColour(200,128,128);
+	tLX->clConsoleDev = MakeColour(100,100,255);
+	tLX->clConsoleChat = MakeColour(100,255,100);
 
 
 	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
@@ -167,6 +181,21 @@ int LoadGraphics(void)
 	ReadColour(colorfile,"Colours","PlayerDividingLine",&tLX->clPlayerDividingLine,	tLX->clPlayerDividingLine);
 	ReadColour(colorfile,"Colours","Line",				&tLX->clLine,				tLX->clLine);
 	ReadColour(colorfile,"Colours","Progress",			&tLX->clProgress,			tLX->clProgress);
+	ReadColour(colorfile,"Colours","ListviewSelected",	&tLX->clListviewSelected,	tLX->clListviewSelected);
+	ReadColour(colorfile,"Colours","MenuBackground",	&tLX->clMenuBackground,		tLX->clMenuBackground);
+	ReadColour(colorfile,"Colours","MenuSelected",		&tLX->clMenuSelected,		tLX->clMenuSelected);
+	ReadColour(colorfile,"Colours","GameChatter",		&tLX->clGameChatter,		tLX->clGameChatter);
+	ReadColour(colorfile,"Colours","Selection",			&tLX->clSelection,			tLX->clSelection);
+	ReadColour(colorfile,"Colours","TextboxCursor",		&tLX->clTextboxCursor,		tLX->clTextboxCursor);
+	ReadColour(colorfile,"Colours","GameChatCursor",	&tLX->clGameChatCursor,		tLX->clGameChatCursor);
+	ReadColour(colorfile,"Colours","ConsoleCursor",		&tLX->clConsoleCursor,		tLX->clConsoleCursor);
+	ReadColour(colorfile,"Colours","ConsoleNormal",		&tLX->clConsoleNormal,		tLX->clConsoleNormal);
+	ReadColour(colorfile,"Colours","ConsoleNotify",		&tLX->clConsoleNotify,		tLX->clConsoleNotify);
+	ReadColour(colorfile,"Colours","ConsoleError",		&tLX->clConsoleError,		tLX->clConsoleError);
+	ReadColour(colorfile,"Colours","ConsoleWarning",	&tLX->clConsoleWarning,		tLX->clConsoleWarning);
+	ReadColour(colorfile,"Colours","ConsoleDev",		&tLX->clConsoleDev,			tLX->clConsoleDev);
+	ReadColour(colorfile,"Colours","ConsoleChat",		&tLX->clConsoleChat,		tLX->clConsoleChat);
+
 
 	return true;
 }

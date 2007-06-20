@@ -444,7 +444,7 @@ void Menu_Net_NETAddServer(void)
 	cAddSvr.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),na_Cancel, 350, 320, 70,15);
 	cAddSvr.Add( new CLabel("Add a server", tLX->clNormalLabel),		-1,275, 225, 0, 0);
 	cAddSvr.Add( new CLabel("Address", tLX->clNormalLabel),				-1,215, 267, 0, 0);
-	cAddSvr.Add( new CTextbox(),							na_Address, 280, 265, 140, 20);
+	cAddSvr.Add( new CTextbox(),							na_Address, 280, 265, 140, tLX->cFont.GetHeight());
 
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
 

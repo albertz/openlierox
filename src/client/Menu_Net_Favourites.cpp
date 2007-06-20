@@ -529,7 +529,7 @@ void Menu_Net_RenameServer(const std::string& szName)
 	cRename.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),rs_Cancel, 350, 310, 70,15);
 	cRename.Add( new CLabel("Rename a server", tLX->clNormalLabel),		-1,275, 225, 0, 0);
 	cRename.Add( new CLabel("New name", tLX->clNormalLabel),			-1,215, 267, 0, 0);
-	cRename.Add( new CTextbox(),							rs_NewName, 300, 265, 150, 20);
+	cRename.Add( new CTextbox(),							rs_NewName, 300, 265, 150, tLX->cFont.GetHeight());
 
 	cRename.SendMessage(2,TXM_SETMAX,30,0);
 	cRename.SendMessage(2,TXS_SETTEXT,szName,0); // Fill in the current server name
@@ -628,9 +628,9 @@ void Menu_Net_FavouritesAddServer(void)
 	cAddSvr.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),fa_Cancel, 350, 320, 70,15);
 	cAddSvr.Add( new CLabel("Add a server", tLX->clNormalLabel),		-1,275, 225, 0, 0);
 	cAddSvr.Add( new CLabel("Address", tLX->clNormalLabel),				-1,215, 267, 0, 0);
-	cAddSvr.Add( new CTextbox(),							fa_Address, 280, 265, 140, 20);
+	cAddSvr.Add( new CTextbox(),							fa_Address, 280, 265, 140, tLX->cFont.GetHeight());
 	cAddSvr.Add( new CLabel("Name", tLX->clNormalLabel),				-1,215, 290, 0, 0);
-	cAddSvr.Add( new CTextbox(),							fa_Name, 280, 288, 140, 20);
+	cAddSvr.Add( new CTextbox(),							fa_Name, 280, 288, 140, tLX->cFont.GetHeight());
 
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
 	cAddSvr.SendMessage(3,TXM_SETMAX,32,0);

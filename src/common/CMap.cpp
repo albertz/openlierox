@@ -2407,6 +2407,9 @@ int CMap::LoadOriginal(FILE *fp)
 
 	fclose(fp);
 
+	// Update the minimap
+	UpdateMiniMap(true);
+
 	// Update the draw image
 	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
 

@@ -114,6 +114,8 @@ CCursor::CCursor(const std::string filename, int type)
 	iFrameWidth = 0;
 	iNumFrames = 0;
 	iFrame = 0;
+	cUp = NULL;
+	cDown = NULL;
 
 
 	// Load the cursor
@@ -135,6 +137,18 @@ CCursor::CCursor(const std::string filename, int type)
 		// Set the color key
 		SetColorKey(bmpCursor);
 	}
+
+	// Get the filename for the "down" cursor
+	std::string down_filename = filename.substr(0,filename.rfind('.')) + "_down.png";
+
+	// Get the filename for the "up" cursor
+	std::string up_filename = filename.substr(0,filename.rfind('.')) + "_up.png";
+
+	// Load up and down states if they're present
+	if (IsFileAvailable(down_filename))
+		cDown = new CCursor(down_filename,iType);
+	if (IsFileAvailable(up_filename))
+		cUp = new CCursor(up_filename,iType);
 }
 
 ////////////////
@@ -143,6 +157,12 @@ CCursor::~CCursor()
 {
 	// Freed by the cache
 	bmpCursor = NULL;
+
+	// Free the special cases
+	if (cDown)
+		delete cDown;
+	if (cUp)
+		delete cUp;
 }
 
 //////////////////
@@ -154,6 +174,18 @@ void CCursor::Draw(SDL_Surface *dst)
 		return;
 
 	mouse_t *Mouse = GetMouse();
+
+	// Special states first
+	if (Mouse->FirstDown)  // Mouse down
+		if (cDown)  {
+			cDown->Draw(dst);
+			return;
+		}
+	else if (Mouse->Up) // Mouse up
+		if (cUp)  {
+			cUp->Draw(dst);
+			return;
+		}
 
 	// Image position
 	int X = Mouse->X;

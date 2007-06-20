@@ -163,29 +163,7 @@ CPlayerMarquee::CPlayerMarquee(const std::string& text, Uint32 col)  {
 	iFrame = 0;
 	iColour = col;
 	iDirection = 1;
-	bmpBuffer = NULL;
-
-	RedrawBuffer();
-}
-
-//////////////////////
-// Redraws the buffer with the marquee text
-void CPlayerMarquee::RedrawBuffer(void)
-{
-	if (bmpBuffer)
-		SDL_FreeSurface(bmpBuffer);
-
 	iTextWidth = tLX->cFont.GetWidth(szText);
-
-	bmpBuffer = gfxCreateSurface(iTextWidth,tLX->cFont.GetHeight());
-	if (!bmpBuffer)
-		return;
-	SetColorKey(bmpBuffer);
-	DrawRectFill(bmpBuffer,0,0,bmpBuffer->w,bmpBuffer->h,COLORKEY(bmpBuffer));
-
-	// Blit on the buffer
-	if (szText != "")
-		tLX->cFont.Draw(bmpBuffer,0,0,iColour,szText);
 }
 
 /////////////////////
@@ -194,7 +172,7 @@ void CPlayerMarquee::Draw(SDL_Surface *bmpDest)
 {
 	if (iTextWidth <= iWidth)  {
 		int x = iX + iWidth/2 - iTextWidth/2;
-		DrawImage(bmpDest,bmpBuffer,x,iY);
+		tLX->cFont.Draw(bmpDest,x,iY,iColour,szText);
 		return;
 	}
 
@@ -203,7 +181,7 @@ void CPlayerMarquee::Draw(SDL_Surface *bmpDest)
 	if (fTime > MARQUEE_TIME)  {
 		fTime = 0;
 		iFrame += MARQUEE_STEP*iDirection;
-		if (iFrame+iWidth >= iTextWidth)  {
+		if (iFrame+iWidth >= iTextWidth+4)  { // +4 - let some space behind, looks better
 			fEndWait += tLX->fDeltaTime;
 			if (fEndWait >= MARQUEE_ENDWAIT)  {
 				iDirection = -1;
@@ -227,7 +205,22 @@ void CPlayerMarquee::Draw(SDL_Surface *bmpDest)
 			}
 		}
 	}
-	DrawImageAdv(bmpDest,bmpBuffer,iFrame,0,iX,iY,iWidth,iHeight);
+
+	// Set the special clipping for the font drawing
+	SDL_Rect newr,oldr;
+	newr.x = iX;
+	newr.y = iY;
+	newr.w = iWidth;
+	newr.h = iHeight;
+
+	SDL_GetClipRect(bmpDest,&oldr);  // Save the old rect
+	SDL_SetClipRect(bmpDest,&newr);
+
+	// Draw the font passed into the new rect
+	tLX->cFont.Draw(bmpDest,iX-iFrame,iY,iColour,szText);
+
+	// Restore the old rect
+	SDL_SetClipRect(bmpDest,&oldr);
 }
 
 //

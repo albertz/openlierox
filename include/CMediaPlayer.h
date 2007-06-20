@@ -344,14 +344,11 @@ private:
 	Uint32	iColour;
 	int		iDirection;  // 1 = right, -1 = left
 	int		iTextWidth;
-	SDL_Surface *bmpBuffer;
 
 public:
 	// Methods
 	void	Create(void) { }
-	void	Destroy(void) {
-		if (bmpBuffer)  {SDL_FreeSurface(bmpBuffer); bmpBuffer = NULL;}
-	}
+	void	Destroy(void) {	}
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
@@ -362,14 +359,13 @@ public:
 	int		KeyDown(UnicodeChar c)						{ return MP_WID_NONE; }
 	int		KeyUp(UnicodeChar c)						{ return MP_WID_NONE; }
 
-	void	RedrawBuffer(void);
 	void	Draw(SDL_Surface *bmpDest);
 
 	inline Uint32 getColour(void)  { return iColour; }
 	inline void	setColour(Uint32 _c)		{ iColour = _c; }
 
 	inline std::string getText(void)	{ return szText; }
-	inline void setText(const std::string& text)	{ szText = text; iFrame = 0; fTime=0; RedrawBuffer(); }
+	inline void setText(const std::string& text)	{ szText = text; iTextWidth = tLX->cFont.GetWidth(text); iFrame = 0; fTime=0; }
 
 	void	LoadStyle(void) {}
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) {return 0;}

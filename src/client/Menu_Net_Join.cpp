@@ -305,7 +305,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
     cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);
 	cJoinLobby.Add( new CButton(BUT_ADDTOFAVOURITES, tMenu->bmpButtons), jl_Favourites,360,220,150,15);
 	cJoinLobby.Add( new CLabel("Players",tLX->clHeading),	  -1,		15,  15,  0,   0);
-	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, 20);
+	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, tLX->cFont.GetHeight());
     cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  268, 610, 150);
 
 	cJoinLobby.SendMessage(jl_ChatText,TXM_SETMAX,64,0);

@@ -38,6 +38,8 @@ public:
 	~CCursor();
 private:
 	SDL_Surface		*bmpCursor;
+	CCursor			*cDown;
+	CCursor			*cUp;
 	int				iFrame;
 	int				iFrameWidth;
 	float			fAnimationSwapTime;

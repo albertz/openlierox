@@ -105,8 +105,8 @@ void CMenu::addItem(int nID, const std::string& szName)
     i->psNext = NULL;
     i->nSelected = false;
     i->szName = szName;
-    m_nHeight += 20;
-    m_nHeight = MAX(m_nHeight, 23);
+    m_nHeight += tLX->cFont.GetHeight();
+    m_nHeight = MAX(m_nHeight, tLX->cFont.GetHeight()+4);
 
     m_nWidth = MAX(m_nWidth, tLX->cFont.GetWidth(szName)+10 );
 
@@ -140,7 +140,7 @@ void CMenu::Draw(SDL_Surface *bmpDest)
 
     Menu_redrawBufferRect(X+1, Y+1, W-1,H-1);
 
-    DrawRectFill(bmpDest, X+1, Y+1, X+W-1, Y+H-1, tLX->clBlack);
+    DrawRectFill(bmpDest, X+1, Y+1, X+W-1, Y+H-1, tLX->clMenuBackground);
     Menu_DrawBox(bmpDest, X, Y, X+W, Y+H);
 
     mnu_item_t *it = m_psItemList;
@@ -148,12 +148,12 @@ void CMenu::Draw(SDL_Surface *bmpDest)
     for(; it; it=it->psNext) {
 
         if( it->nSelected )
-            DrawRectFill(bmpDest, X+2,y,  X+W-1, y+20, MakeColour(0,66,102));            
-        tLX->cFont.Draw(bmpDest, X+5, y+2, tLX->clPopupMenu, it->szName);
+            DrawRectFill(bmpDest, X+2,y,  X+W-1, y+tLX->cFont.GetHeight(), tLX->clMenuSelected);            
+        tLX->cFont.Draw(bmpDest, X+5, y, tLX->clPopupMenu, it->szName);
 
         it->nSelected = false;
 
-        y+=20;
+        y+=tLX->cFont.GetHeight();
     }
 
 	m_nPosX = X;
@@ -172,12 +172,12 @@ int CMenu::MouseOver(mouse_t *tMouse)
     mnu_item_t *it = m_psItemList;
     for(; it; it=it->psNext) {
 
-        if( tMouse->Y > y && tMouse->Y < y+20 ) {
+        if( tMouse->Y > y && tMouse->Y < y+tLX->cFont.GetHeight() ) {
             it->nSelected = true;
             break;
         }
 
-        y+=20;
+        y+=tLX->cFont.GetHeight();
     }
 
     return MNU_NONE;
@@ -196,10 +196,10 @@ int CMenu::MouseUp(mouse_t *tMouse, int nDown)
     mnu_item_t *it = m_psItemList;
     for(; it; it=it->psNext) {
 
-        if( tMouse->Y > y && tMouse->Y < y+20 )
+        if( tMouse->Y > y && tMouse->Y < y+tLX->cFont.GetHeight() )
             return MNU_USER + it->nID;
 
-        y+=20;
+        y+=tLX->cFont.GetHeight();
     }
 
     return MNU_NONE;
