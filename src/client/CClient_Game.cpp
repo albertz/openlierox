@@ -13,8 +13,10 @@
 // Created 21/7/02
 // Jason Boettcher
 
-#include "AuxLib.h"
-#include "MathLib.h"
+#include "defs.h"
+//#include "AuxLib.h"
+//#include "MathLib.h"
+
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"

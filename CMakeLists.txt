@@ -6,7 +6,13 @@ INCLUDE_DIRECTORIES(include /usr/include/libxml2)
 # remove the following stuff if you don't want STLport
 INCLUDE_DIRECTORIES(/usr/include/stlport)
 ADD_DEFINITIONS(-D_PTHREADS)
-ADD_DEFINITIONS(-D_STLP_DEBUG)
+ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64) # hm, don't know, at least it works for me (ppc32/amd32)
+# debugging stuff for STLport
+ADD_DEFINITIONS(-D_STLP_DEBUG=1)
+ADD_DEFINITIONS(-D_STLP_DEBUG_LEVEL=_STLP_STANDARD_DBG_LEVEL)
+ADD_DEFINITIONS(-D_STLP_SHRED_BYTE=0xA3)
+ADD_DEFINITIONS(-D_STLP_DEBUG_UNINITIALIZED=1)
+ADD_DEFINITIONS(-D_STLP_DEBUG_ALLOC=1)
 
 AUX_SOURCE_DIRECTORY(src MAIN_SRCS)
 AUX_SOURCE_DIRECTORY(src/client CLIENT_SRCS)
@@ -24,5 +30,5 @@ ADD_EXECUTABLE(bin/openlierox ${ALL_SRCS})
 TARGET_LINK_LIBRARIES(bin/openlierox SDL SDL_image SDL_mixer NL gd z xml2)
 
 # needed for STLport
-TARGET_LINK_LIBRARIES(bin/openlierox stlportstlg stlport)
+TARGET_LINK_LIBRARIES(bin/openlierox stlportstlg)
 
