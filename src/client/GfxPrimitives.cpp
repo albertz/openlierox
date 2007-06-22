@@ -32,7 +32,7 @@ int iSurfaceFormat = SDL_SWSURFACE;
 
 ///////////////////////
 // Copies area from one image to another (not blitting so the alpha values are kept!)
-void CopySurface(SDL_Surface *dst, SDL_Surface *src, ushort sx, ushort sy, ushort dx, ushort dy, ushort w, ushort h)
+void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// The surfaces must have same properties
 	assert(src->format->Amask == dst->format->Amask);
@@ -40,68 +40,57 @@ void CopySurface(SDL_Surface *dst, SDL_Surface *src, ushort sx, ushort sy, ushor
 	assert(src->format->Gmask == dst->format->Gmask);
 	assert(src->format->Bmask == dst->format->Bmask);
 	assert(src->format->BytesPerPixel == dst->format->BytesPerPixel);
-
+	
 	// Source clipping
-	if (sx+w > src->w) {
+	if (sx + w > src->w) {
 		if (sx >= src->w) return;  // >= because copying area of 0px width makes no sense as well
 		w = src->w - sx;
 	}
-
-	if (sy+h > src->h) {
+	
+	if (sy + h > src->h) {
 		if (sy >= src->h) return;
 		h = src->h - sy;
 	}
-
+	
 	// Dest clipping
-	if (dx+w > dst->w) {
+	if (dx + w > dst->w) {
 		if (dx >= dst->w) return;
 		w = dst->w - dx;
 	}
-
-	if (dy+h > dst->h) {
+	
+	if (dy + h > dst->h) {
 		if (dy >= dst->h) return;
 		h = dst->h - dy;
 	}
-
+	
 	// Initialize
-	ushort lower_bound  = sy+h;
-	register uint byte_bound = (w-1)*src->format->BytesPerPixel;
-	register ushort src_pitch = src->pitch;
-	register ushort dst_pitch = dst->pitch;
-	Uint8 *srcrow = (Uint8 *)src->pixels + (sy * src->pitch) + (sx * src->format->BytesPerPixel);
-	Uint8 *dstrow = (Uint8 *)dst->pixels + (dy * dst->pitch) + (dx * dst->format->BytesPerPixel);
-
+	int lower_bound  = sy + h;
+	int byte_bound = (w - 1)*src->format->BytesPerPixel;
+	int src_pitch = src->pitch;
+	int dst_pitch = dst->pitch;
+	register Uint8* srcrow = (Uint8 *)src->pixels
+		+ (sy * src->pitch) + (sx * src->format->BytesPerPixel);
+	register Uint8* dstrow = (Uint8 *)dst->pixels
+		+ (dy * dst->pitch) + (dx * dst->format->BytesPerPixel);
+	
 	// Copy row by row
-	if (h & 1)  {
-		for (register ushort i=sy; i<lower_bound; ++i)  {
-			memcpy(dstrow,srcrow,byte_bound);
-			dstrow += dst_pitch;
-			srcrow += src_pitch;
-		}
-	} else {  // h is even, we can optimize :)
-		for (register ushort i=sy;i<lower_bound;++i)  {
-			// Copy two rows at once
-			memcpy(dstrow,srcrow,byte_bound);
-			dstrow += dst_pitch;
-			srcrow += src_pitch;
-			++i;
-
-			memcpy(dstrow,srcrow,byte_bound);
-			dstrow += dst_pitch;
-			srcrow += src_pitch;
-		}
+	for (register int i = sy; i < lower_bound; ++i)  {
+		memcpy(dstrow, srcrow, byte_bound);
+		dstrow += dst_pitch;
+		srcrow += src_pitch;
 	}
 }
 
 /////////////////
 // Put the pixel alpha blended with the background
+// NOTICE: colour has to be of the same format as bmpDest->format
 void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	if (a == 255)  { // Fully opaque
-		PutPixel(bmpDest,x,y,colour);
+		PutPixel(bmpDest, x, y, colour);
 		return;
 	}
 
-	static Uint32 R,G,B,A;
+	static Uint32 R, G, B, A;
 	register Uint64 pixel = GetPixel(bmpDest,x,y);
 	register Uint64 col = colour;
 	
@@ -122,7 +111,7 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	#undef Bmask
 	#undef Amask
 
-	PutPixel(bmpDest,x,y,pixel);
+	PutPixel(bmpDest, x, y, pixel);
 }
 
 //////////////////////
@@ -131,17 +120,21 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 	// Just set transparent alpha to pixels that match the color key
 	register Uint8* pxr = (Uint8*)dst->pixels;
 	register Uint8* px;
-	int x,y;
+	int x, y;
 	Uint32 colorkey = SDL_MapRGBA(dst->format, r, g, b, 0);
 	for(y = 0; y < dst->h; y++, pxr += dst->pitch)  {
 		px = pxr;
 		for(x = 0; x < dst->w; x++, px += dst->format->BytesPerPixel)  {
-			if(EqualRGB(colorkey, GetPixelFromAddr(px, dst->format->BytesPerPixel), dst->format))
+			if(EqualRGB(
+					colorkey,
+					GetPixelFromAddr(px, dst->format->BytesPerPixel),
+					dst->format))
 				PutPixelToAddr(px, colorkey, dst->format->BytesPerPixel);
 		}
 	}
 
 	// Makes the dst->format->colorkey to match specified colorkey
+	// TODO: why are we doing this here? is it realy safe? and nevertheless, it's useless, isn't it?
 	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, colorkey);
 
 }

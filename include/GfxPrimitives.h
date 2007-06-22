@@ -116,13 +116,13 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 
 	if (result)
 		// OpenGL strictly requires the surface to be cleared
-		SDL_FillRect( result, NULL, SDL_MapRGB(result->format,0,0,0));
+		SDL_FillRect( result, NULL, SDL_MapRGB(result->format, 0, 0, 0));
 	
 	return result;
 }
 
 
-void CopySurface(SDL_Surface *dst, SDL_Surface *src, ushort sx, ushort sy, ushort dx, ushort dy, ushort w, ushort h);
+void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h);
 
 
 

@@ -61,8 +61,8 @@ src_install() {
 	doins -r doc/original_lx_docs
 
 	echo ">>> creating icon and desktop entry ..."
-	doicon share/OpenLieroX.png
-	make_desktop_entry openlierox OpenLieroX OpenLieroX.png Game
+	doicon share/OpenLieroX.svg
+	make_desktop_entry openlierox OpenLieroX OpenLieroX.svg Game
 
 	prepgamesdirs
 }

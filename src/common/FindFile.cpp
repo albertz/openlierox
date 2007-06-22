@@ -28,9 +28,16 @@
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	include <shlobj.h>
 #	include "defs.h" // for strnlen
-#else
-#	include <ext/hash_set>
-using namespace __gnu_cxx;
+
+#else // WIN32
+
+#	ifndef STLPORT
+#		include <ext/hash_set>
+		using namespace __gnu_cxx;
+#	else // !STLPORT
+#		include <hash_set>
+		using std::hash_set;
+#	endif // !STLPORT
 
 // for getpwduid
 #	include <pwd.h>
