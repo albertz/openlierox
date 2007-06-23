@@ -14,13 +14,15 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "CBonus.h"
 #include "Menu.h"
 #include "console.h"
 #include "FindFile.h"
+#include "CWorm.h"
+#include "Error.h"
+#include "Protocol.h"
 
 
 ///////////////////

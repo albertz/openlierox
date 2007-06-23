@@ -190,22 +190,22 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	register byte bpp = bmpDest->format->BytesPerPixel;
+	short bpp = bmpDest->format->BytesPerPixel;
 
 	register Uint8 *sp,*tp;
 	for(y=0;y<h;y++) {
 
 		sp = SrcPix;
 		tp = TrgPix + w*bpp;
-		for(x=0;x<w;x++) {
+		for(x = 0; x < w; x++) {
 			// Copy the pixel
-			tp-=bpp;
-			memcpy(tp,sp,bpp);
-			sp+=bpp;
+			tp -= bpp;
+			memcpy(tp, sp, bpp);
+			sp += bpp;
 		}
 
-		SrcPix+=bmpSrc->pitch;
-		TrgPix+=bmpDest->pitch;
+		SrcPix += bmpSrc->pitch;
+		TrgPix += bmpDest->pitch;
 	}
 
 	// Unlock em

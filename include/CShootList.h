@@ -17,6 +17,9 @@
 #ifndef __CSHOOTLIST_H__
 #define __CSHOOTLIST_H__
 
+#include "CBytestream.h"
+#include "CWorm.h"
+
 
 // Shoot Main flags
 #define		SMF_LARGEANGLE	0x01
@@ -51,7 +54,8 @@
 
 
 // Weapon Shooting structure
-class shoot_t { public:
+class shoot_t {
+public:
 
 	float	fTime;
 	int		nWeapon;
@@ -59,9 +63,9 @@ class shoot_t { public:
 	CVec	cWormVel;
 	int		nAngle;
 	int		nRandom;
-	int		nSpeed;	
+	int		nSpeed;
 	int		nWormID;
-	
+
 	int		devID;
 
 };
@@ -101,29 +105,41 @@ public:
 	bool		Initialize(void);
 	void		Shutdown(void);
 
-	bool		addShoot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm );
-	
-	bool		writePacket( CBytestream *bs );
-	void		writeSingle( CBytestream *bs, int index );
-	void		writeMulti( CBytestream *bs, int index );
-	void		writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index );
+	bool		addShoot(float fTime, float fSpeed, int nAngle, CWorm *pcWorm);
 
-	void		readSingle( CBytestream *bs );
-	static inline bool skipSingle( CBytestream *bs )  { return bs->Skip(17); }
-	void		readMulti( CBytestream *bs );
-	static inline bool skipMulti( CBytestream *bs )  {	bs->Skip(7); byte num=bs->readByte(); bs->Skip(10);
-														for (byte i=0; i<num-1;i++) skipSmallShot(bs); 
-														return bs->GetPos() >= bs->GetLength()-1; }
-	void		readSmallShot( shoot_t *psFirst, CBytestream *bs, int index );
+	bool		writePacket(CBytestream *bs);
+	void		writeSingle(CBytestream *bs, int index);
+	void		writeMulti(CBytestream *bs, int index);
+	void		writeSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
+
+	void		readSingle(CBytestream *bs);
+	static inline bool skipSingle(CBytestream *bs)  {
+		return bs->Skip(17);
+	}
+	void		readMulti(CBytestream *bs);
+	static inline bool skipMulti(CBytestream *bs)  {
+		bs->Skip(7);
+		byte num = bs->readByte();
+		bs->Skip(10);
+		for (byte i = 0; i < num - 1;i++) skipSmallShot(bs);
+		return bs->GetPos() >= bs->GetLength() - 1;
+	}
+	void		readSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
 	static bool	skipSmallShot(CBytestream *bs);
 
 	void		Clear(void);
 
-	shoot_t		*getShot( int index );
+	shoot_t		*getShot(int index);
 
-	int			getNumShots(void)			{ return m_nNumShootings; }
-	float		getStartTime(void)			{ return m_fStartTime; }
-	float		getLastWrite(void)			{ return m_fLastWrite; }
+	int			getNumShots(void)			{
+		return m_nNumShootings;
+	}
+	float		getStartTime(void)			{
+		return m_fStartTime;
+	}
+	float		getLastWrite(void)			{
+		return m_fLastWrite;
+	}
 
 };
 

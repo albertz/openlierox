@@ -15,12 +15,13 @@
 
 #include <assert.h>
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "Graphics.h"
 #include "GfxPrimitives.h"
+#include "CWorm.h"
+#include "MathLib.h"
 
 
 ///////////////////

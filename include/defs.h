@@ -49,40 +49,10 @@ inline size_t strnlen(const char *str, size_t maxlen)  {
 #endif
 
 
-#include <SDL/SDL.h>
 
 
 void d_printf(char *fmt, ...);
 
-// --------------------------------------------
-// Endian checks and conversions
-
-#define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
-
-void ByteSwap(unsigned char * b, int n);
-extern unsigned char byteswap_buffer[16];
-template <typename T>
-inline T* GetByteSwapped(const T b)
-{
-	*((T*)byteswap_buffer) = b;
-	ByteSwap(byteswap_buffer, sizeof(T));
-	return (T*)byteswap_buffer;
-}
-
-#if !defined(SDL_BYTEORDER)
-#	error SDL_BYTEORDER not defined
-#endif
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#	define EndianSwap(x)		;
-#	define BEndianSwap(x)		ByteSwap5(x);
-#	define GetEndianSwapped(x)	(&x)
-#elif SDL_BYTEORDER == SDL_BIG_ENDIAN
-#	define EndianSwap(x)		ByteSwap5(x);
-#	define BEndianSwap(x)		;
-#	define GetEndianSwapped(x)	(GetByteSwapped(x))
-#else
-#	error unknown ENDIAN type
-#endif
 
 
 

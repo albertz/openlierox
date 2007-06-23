@@ -14,9 +14,10 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
+#include "Protocol.h"
+#include "CWorm.h"
 
 
 ///////////////////

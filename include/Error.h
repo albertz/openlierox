@@ -24,6 +24,7 @@
 #include <dbghelp.h>
 #endif
 
+#include <string>
 
 void SetError(char *fmt, ...);
 void ShowError(void);

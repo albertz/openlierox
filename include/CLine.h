@@ -59,7 +59,7 @@ public:
 
 	// Draw the line
 	void	Draw(SDL_Surface *bmpDest) {
-				DrawLine(bmpDest,iX1,iY1,iX2,iY2,iColour); 
+		DrawLine(bmpDest,iX1,iY1,iX2,iY2,iColour); 
 	}
 
 	void	LoadStyle(void) {}

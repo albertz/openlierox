@@ -22,12 +22,13 @@
 #include <assert.h>
 #include <set>
 
-#include "defs.h"
 #include "LieroX.h"
+#include "MathLib.h"
 #include "CClient.h"
 #include "CBonus.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "CWorm.h"
 
 
 // we need it here for some debugging...

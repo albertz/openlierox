@@ -14,9 +14,10 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
+#include "CWorm.h"
+#include "Protocol.h"
 
 
 ///////////////////
@@ -270,7 +271,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 	// Safety check
 	if( iCurrentWeapon < 0 || iCurrentWeapon > 4) {
-		d_printf("Bad iCurrentWeapon in worm update packet\n");
+		printf("Bad iCurrentWeapon in worm update packet\n");
 		iCurrentWeapon = 0;
 	}
 
@@ -293,7 +294,7 @@ void CWorm::writeWeapons(CBytestream *bs)
 		if(tWeapons[i].Weapon)
 			bs->writeByte(tWeapons[i].Weapon->ID);
 		else
-			d_printf("tWeapons[%d].Weapon not set\n",i);
+			printf("tWeapons[%d].Weapon not set\n",i);
 	}
 }
 

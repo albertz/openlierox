@@ -14,9 +14,11 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
+#include "CViewport.h"
+#include "CWeather.h"
+#include "MathLib.h"
 
 
 ///////////////////

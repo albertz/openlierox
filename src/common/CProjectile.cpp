@@ -14,9 +14,13 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
+#include "CProjectile.h"
+#include "Protocol.h"
+#include "CWorm.h"
+#include "Entity.h"
+#include "MathLib.h"
 
 
 ///////////////////

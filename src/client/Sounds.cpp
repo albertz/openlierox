@@ -14,10 +14,11 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "Cache.h"
 #include "StringUtils.h"
+#include "Sounds.h"
+#include "MathLib.h"
 
 
 ///////////////////

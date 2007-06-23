@@ -17,6 +17,7 @@
 #ifndef __CPROJECTILE_H__
 #define __CPROJECTILE_H__
 
+#include <string>
 #include "Sounds.h"
 #include "GfxPrimitives.h"
 

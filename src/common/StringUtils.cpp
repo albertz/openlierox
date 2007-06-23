@@ -101,7 +101,7 @@ std::string ReadUntil(const std::string& text, char until_character) {
 	size_t pos = 0;
 	for(std::string::const_iterator i = text.begin(); i != text.end(); i++, pos++) {
 		if(*i == until_character)
-			return text.substr(0,pos);
+			return text.substr(0, pos);
 	}
 	return text;
 }
@@ -210,7 +210,7 @@ std::string freadstr(FILE *fp, size_t maxlen) {
 		c = MIN(sizeof(buf), maxlen - len);
 		ret = fread(buf, 1, c, fp);
 		if(ret > 0)
-			result.append(buf,ret);
+			result.append(buf, ret);
 		if(ret < c)
 			break;
 	}

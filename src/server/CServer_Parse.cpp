@@ -14,13 +14,14 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "CChannel.h"
 #include "StringUtils.h"
+#include "CWorm.h"
+#include "Protocol.h"
 
 
 /*
@@ -171,7 +172,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 		int id = bs->readByte();
 		if (id >= 0 && id < MAX_WORMS)  {
 			cWorms[id].readWeapons(bs);
-			for (j = 0;j < 5;j++)
+			for (j = 0; j < 5; j++)
 				cWorms[id].getWeapon(j)->Enabled = cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name);
 		} else { // Skip to get the right position
 			CWorm::skipWeapons(bs);
@@ -1202,7 +1203,7 @@ void GameServer::ParseQuery(CBytestream *bs) {
 
 	bytestr.Send(tSocket);
 
-	d_printf("sv: Sending query return\n");
+	printf("sv: Sending query return\n");
 }
 
 

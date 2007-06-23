@@ -21,6 +21,7 @@
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
+#include "Options.h"
 
 console_t	*Console = NULL;
 

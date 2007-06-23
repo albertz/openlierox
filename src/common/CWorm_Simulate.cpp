@@ -14,10 +14,12 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
+#include "CWorm.h"
+#include "MathLib.h"
+#include "Entity.h"
 
 
 ///////////////////

@@ -21,6 +21,9 @@
 #define __CBITSTREAM_H__
 
 
+#include "types.h"
+#include "Networking.h"
+
 
 #define		MAX_DATA		4096
 

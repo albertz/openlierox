@@ -17,19 +17,21 @@
 #ifndef __CWORM_H__
 #define __CWORM_H__
 
+#include "LieroX.h" // for MAX_WORMS
 #include "CProjectile.h"
 #include "CGameScript.h"
 #include "CNinjaRope.h"
 #include "CWpnRest.h"
 #include "Options.h" // for control_t
 #include "Utils.h"
+#include "Frame.h"
+
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
 
 
 #define		MAX_WEAPONSLOTS		10
-#define		MAX_WORMS			32
 
 // Direction
 #define		DIR_LEFT			0

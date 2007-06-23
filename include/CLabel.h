@@ -17,6 +17,7 @@
 #ifndef __CLABEL_H__
 #define __CLABEL_H__
 
+
 #include "InputEvents.h"
 
 
@@ -31,7 +32,7 @@ enum {
 	LBS_SETTEXT
 };
 
-extern void Menu_redrawBufferRect(int x, int y, int w, int h);
+void Menu_redrawBufferRect(int x, int y, int w, int h);
 
 class CLabel : public CWidget {
 public:
@@ -77,8 +78,8 @@ public:
 
 	// Draw the label
 	inline void	Draw(SDL_Surface *bmpDest) {
-				Menu_redrawBufferRect(iX,iY,iWidth,iHeight);
-				tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
+		Menu_redrawBufferRect(iX,iY,iWidth,iHeight);
+		tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
 
 	void	LoadStyle(void) {}

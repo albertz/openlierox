@@ -20,6 +20,7 @@
 #ifndef __CONFIGHANDLER_H__
 #define __CONFIGHANDLER_H__
 
+#include <string>
 
 #define		MAX_STRING_LENGTH	4096
 #define		MAX_MINOR_LENGTH	256

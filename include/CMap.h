@@ -18,10 +18,12 @@
 #define __CMAP_H__
 
 #include <SDL/SDL.h>
+#include <string>
 
+#include "LieroX.h" // for possible define of _AI_DEBUG; TODO: please, clean something up there...
 #include "ReadWriteLock.h"
 #include "types.h"
-
+#include "CViewport.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -55,26 +57,6 @@ class CWorm;
 
 
 
-// Object structure
-// HINT: DON'T change the variable types because they are saved directly to the file (CMap.cpp)
-class object_t { public:
-	int		Type;
-	int		Size;
-	int     X, Y;
-
-};
-
-
-
-// Random map data
-class maprandom_t { public:
-
-    bool        bUsed;
-    std::string szTheme;
-    int         nNumObjects;
-    object_t    *psObjects;
-
-};
 
 
 
@@ -478,6 +460,8 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 	return checkflag_action;
 }
 
+int		CheckCollision(CVec trg, CVec pos, uchar checkflags, CMap *map);
+int 	CarveHole(CMap *cMap, CVec pos);
 
 
 #endif  //  __CMAP_H__

@@ -20,6 +20,8 @@
 #ifndef __CON_COMMAND_H__
 #define __CON_COMMAND_H__
 
+#include <string>
+
 
 #define		MAX_ARGS		32
 #define		MAX_ARGLENGTH	128

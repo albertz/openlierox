@@ -20,8 +20,17 @@
 // TODO: remove this after we changed network
 #include "CChannel.h"
 
+#include "CGameScript.h"
+#include "CWpnRest.h"
+#include "CChatBox.h"
+#include "CWeather.h"
+#include "CShootList.h"
+#include "CMap.h"
 #include "CViewport.h"
 #include "InputEvents.h"
+#include "CProjectile.h"
+#include "CBonus.h"
+#include "Frame.h"
 
 
 #define		MAX_CLIENTS		32

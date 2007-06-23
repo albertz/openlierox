@@ -17,6 +17,7 @@
 #ifndef __CSLIDER_H__
 #define __CSLIDER_H__
 
+#include <string>
 #include "InputEvents.h"
 
 

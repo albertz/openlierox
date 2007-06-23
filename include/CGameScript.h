@@ -79,26 +79,24 @@
 // WARNING: never change this!
 // it's used in CGameScript.cpp and it represents
 // the original file format
-typedef struct {
-
+struct gs_header_t {
 	char	ID[18];
 	Uint32	Version;
 	char	ModName[64];
-
-} gs_header_t;
+};
 
 
 // Special structure
-typedef struct {
+struct gs_special_t {
 	Uint32	Thrust;
-} gs_special_t;
+};
 
 
 // Worm structure
 // WARNING: never change this!
 // it's used in CGameScript.cpp and it represents
 // the original file format
-typedef struct {
+struct gs_worm_t {
 	float	AngleSpeed;
 
 	float	GroundSpeed;
@@ -108,7 +106,7 @@ typedef struct {
 	float	AirFriction;
 	float	GroundFriction;
 
-} gs_worm_t;
+};
 
 
 

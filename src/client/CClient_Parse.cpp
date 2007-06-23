@@ -15,7 +15,6 @@
 
 #include <assert.h>
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -24,6 +23,11 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "Protocol.h"
+#include "CWorm.h"
+#include "Error.h"
+#include "Entity.h"
+#include "MathLib.h"
 
 ///////////////////
 // Parse a connectionless packet

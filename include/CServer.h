@@ -20,6 +20,8 @@
 #include "CBanList.h"
 #include "CBonus.h"
 #include "IpToCountryDB.h"
+#include "CClient.h"
+#include "CBytestream.h"
 
 
 #define		MAX_CHALLENGES		1024

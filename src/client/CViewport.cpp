@@ -14,10 +14,11 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "Options.h" // for controls_t
+#include "CWorm.h"
+#include "MathLib.h"
 
 
 ///////////////////

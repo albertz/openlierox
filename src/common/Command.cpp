@@ -17,13 +17,15 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "console.h"
 #include "StringUtils.h"
 #include "sex.h"
+#include "CWorm.h"
+#include "AuxLib.h"
+
 
 command_t	*Commands = NULL;
 

@@ -17,12 +17,18 @@
 #include <zlib.h>
 #include <list>
 
-#include "defs.h"
+#include "CMap.h"
+#include "EndianSwap.h"
+#include "MathLib.h"
+#include "Error.h"
+#include "ConfigHandler.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "InputEvents.h"
+#include "CWorm.h"
+#include "Entity.h"
 
 
 ///////////////////
@@ -119,7 +125,7 @@ void CMap::Clear(void)
 // Apply a random set to the map
 void CMap::ApplyRandom(void)
 {
-	int n,x,y,i;
+	int n, x, y, i;
     int objCount = 0;
 
     int nNumRocks = 15;
@@ -139,7 +145,7 @@ void CMap::ApplyRandom(void)
 	}
 
 	// Spawn 15 random rocks
-	for(n=0;n<nNumRocks;n++) {
+	for(n = 0; n < nNumRocks; n++) {
 		x = (int)(fabs(GetRandomNum()) * (float)Width);
 		y = (int)(fabs(GetRandomNum()) * (float)Height);
 		i = (int)(fabs(GetRandomNum()) * (float)Theme.NumStones);
@@ -151,11 +157,11 @@ void CMap::ApplyRandom(void)
         sRandomLayout.psObjects[objCount].Y = y;
         objCount++;
 
-		PlaceStone(i,CVec((float)x,(float)y));
+		PlaceStone(i, CVec( (float)x, (float)y ));
 	}
 
 	// Spawn 20 random misc
-	for(n=0;n<nNumMisc;n++) {
+	for(n = 0; n < nNumMisc; n++) {
 		x = (int)(fabs(GetRandomNum()) * (float)Width);
 		y = (int)(fabs(GetRandomNum()) * (float)Height);
 		i = (int)(fabs(GetRandomNum()) * (float)Theme.NumMisc);
@@ -167,28 +173,28 @@ void CMap::ApplyRandom(void)
         sRandomLayout.psObjects[objCount].Y = y;
         objCount++;
 
-		PlaceMisc(i,CVec((float)x,(float)y));
+		PlaceMisc(i, CVec( (float)x, (float)y ));
 	}
 
 
 	// Spawn 10 random holes
-	for(n=0;n<nNumHoles;n++) {
+	for(n = 0; n < nNumHoles; n++) {
 		x = (int)(fabs(GetRandomNum()) * (float)Width);
 		y = (int)(fabs(GetRandomNum()) * (float)Height);
 
 		// Spawn a hole group of holes around this hole
-		for(int i=0;i<nNumHoleGroup;i++) {
+		for(int i = 0; i < nNumHoleGroup; i++) {
 			int a = (int) (GetRandomNum() * (float)15);
 			int b = (int) (GetRandomNum() * (float)15);
 
             // Store the object
             sRandomLayout.psObjects[objCount].Type = OBJ_HOLE;
             sRandomLayout.psObjects[objCount].Size = 4;
-            sRandomLayout.psObjects[objCount].X = x+a;
-            sRandomLayout.psObjects[objCount].Y = y+b;
+            sRandomLayout.psObjects[objCount].X = x + a;
+            sRandomLayout.psObjects[objCount].Y = y + b;
             objCount++;
 
-			CarveHole(4,CVec( (float)(x+a), (float)(y+b)));
+			CarveHole(4, CVec( (float)(x + a), (float)(y + b) ));
 		}
 	}
 
@@ -213,24 +219,33 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
 
     // Apply the objects
 	if (psRandom->psObjects)  {
-		for( int i=0; i<psRandom->nNumObjects; i++ ) {
+		for( int i = 0; i < psRandom->nNumObjects; i++ ) {
 			if( psRandom->psObjects ) {
 
 				switch(psRandom->psObjects[i].Type) {
 
 					// Stone
 					case OBJ_STONE:
-						PlaceStone(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
+						PlaceStone(psRandom->psObjects[i].Size,
+							CVec(
+								(float)(psRandom->psObjects[i].X),
+								(float)(psRandom->psObjects[i].Y)));
 						break;
 
 					// Misc
 					case OBJ_MISC:
-						PlaceMisc(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
+						PlaceMisc(psRandom->psObjects[i].Size,
+							CVec(
+								(float)(psRandom->psObjects[i].X),
+								(float)(psRandom->psObjects[i].Y)));
 						break;
 
 					// Hole
 					case OBJ_HOLE:
-						CarveHole(psRandom->psObjects[i].Size,CVec((float)(psRandom->psObjects[i].X), (float)(psRandom->psObjects[i].Y)));
+						CarveHole(psRandom->psObjects[i].Size,
+							CVec(
+								(float)(psRandom->psObjects[i].X),
+								(float)(psRandom->psObjects[i].Y)));
 						break;
 				}
 			}
@@ -343,8 +358,8 @@ std::string CMap::findRandomTheme() {
 
 	if(themes.size() == 0) {
 		// If we get here, then default to dirt
-		d_printf("CMap::findRandomTheme(): no themes found\n");
-		d_printf("                         Defaulting to \"dirt\"\n");
+		printf("CMap::findRandomTheme(): no themes found\n");
+		printf("                         Defaulting to \"dirt\"\n");
 		return "dirt";
 	}
 
@@ -1360,7 +1375,7 @@ void CMap::PlaceStone(int size, CVec pos)
 
 	if(size < 0 || size >= Theme.NumStones) {
 		// TODO: Bail out or warning of overflow
-		d_printf("Bad stone size\n");
+		printf("Bad stone size\n");
 		if(size < 0) size = 0;
 		else size = Theme.NumStones-1;
 	}
@@ -1463,7 +1478,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 	short w,h;
 
 	if(id < 0 || id >= Theme.NumMisc) {
-		d_printf("Bad misc size\n");
+		printf("Bad misc size\n");
 		if(id < 0) id = 0;
 		else id = Theme.NumMisc-1;
 	}
@@ -2622,3 +2637,167 @@ void CMap::ClearDebugImage() {
 }
 #endif
 
+///////////////////
+// Carve a hole
+// Returns the number of dirt pixels carved
+int CarveHole(CMap *cMap, CVec pos)
+{
+	int x,y,n;
+	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
+
+	// Go through until we find dirt to throw around
+	y = MIN((int)pos.y,cMap->GetHeight()-1);
+
+	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
+		// Clipping
+		if(x<0)	continue;
+		if((uint)x>=cMap->GetWidth())	break;
+
+		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
+			Colour = GetPixel(cMap->GetImage(),x,(int)pos.y);
+			for(n=0;n<3;n++)
+				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
+			break;
+		}
+	}
+
+	// Just carve a hole for the moment
+	return cMap->CarveHole(3,pos);
+}
+
+
+
+
+
+/*
+===========================
+
+    Collision Detection
+
+===========================
+*/
+
+class set_col_and_break {
+public:
+	CVec collision;
+	bool hit;
+
+	set_col_and_break() : hit(false) {}
+	bool operator()(int x, int y) {
+		hit = true;
+		collision.x = x;
+		collision.y = y;
+		return false;
+	}
+};
+
+
+
+///////////////////
+// Check for a collision
+// HINT: this function is not used at the moment; and it is incomplete...
+int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
+{
+/*	set_col_and_break col_action;
+	col_action = fastTraceLine(trg, pos, map, checkflags, col_action);
+	if(col_action.hit) {
+
+	}*/
+	assert(false);
+	return 0;
+
+/*	int		CollisionSide = 0;
+	int		mw = map->GetWidth();
+	int		mh = map->GetHeight();
+	int		px,py, x,y, w,h;
+	int		top,bottom,left,right;
+
+	px=(int)pos.x;
+	py=(int)pos.y;
+
+	top=bottom=left=right=0;
+
+	w = width;
+	h = height;
+
+	// Hit edges
+	// Check the collision side
+	if(px-w<0)
+		CollisionSide |= COL_LEFT;
+	if(py-h<0)
+		CollisionSide |= COL_TOP;
+	if(px+w>=mw)
+		CollisionSide |= COL_RIGHT;
+	if(py+h>=mh)
+		CollisionSide |= COL_BOTTOM;
+	if(CollisionSide) return CollisionSide;
+
+
+
+
+	for(y=py-h;y<=py+h;y++) {
+
+		// Clipping means that it has collided
+		if(y<0)	{
+			CollisionSide |= COL_TOP;
+			return CollisionSide;
+		}
+		if(y>=mh) {
+			CollisionSide |= COL_BOTTOM;
+			return CollisionSide;
+		}
+
+
+		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
+
+		for(x=px-w;x<=px+w;x++) {
+
+			// Clipping
+			if(x<0) {
+				CollisionSide |= COL_LEFT;
+				return CollisionSide;
+			}
+			if(x>=mw) {
+				CollisionSide |= COL_RIGHT;
+				return CollisionSide;
+			}
+
+			if(*pf & PX_DIRT || *pf & PX_ROCK) {
+				if(y<py)
+					top++;
+				if(y>py)
+					bottom++;
+				if(x<px)
+					left++;
+				if(x>px)
+					right++;
+
+				//return Collision(*pf);
+			}
+
+			pf++;
+		}
+	}
+
+	// Check for a collision
+	if(top || bottom || left || right) {
+		CollisionSide = 0;
+
+
+		// Find the collision side
+		if( (left>right || left>2) && left>1 && vel.x < 0)
+			CollisionSide = COL_LEFT;
+
+		if( (right>left || right>2) && right>1 && vel.x > 0)
+			CollisionSide = COL_RIGHT;
+
+		if(top>1 && vel.y < 0)
+			CollisionSide = COL_TOP;
+
+		if(bottom>1 && vel.y > 0)
+			CollisionSide = COL_BOTTOM;
+	}
+
+
+	return CollisionSide; */
+}

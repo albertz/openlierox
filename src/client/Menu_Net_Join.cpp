@@ -14,13 +14,14 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "CWorm.h"
+#include "Protocol.h"
 
 
 /*

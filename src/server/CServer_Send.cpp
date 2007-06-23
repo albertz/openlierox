@@ -14,10 +14,12 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CServer.h"
 #include "CClient.h"
+#include "Protocol.h"
+#include "CWorm.h"
+
 
 ///////////////////
 // Send all the clients a packet
@@ -26,7 +28,7 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 	// Assume reliable
 	CClient *cl = cClients;
 
-	for(short c=0;c<MAX_CLIENTS;c++,cl++) {
+	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
@@ -43,10 +45,10 @@ void GameServer::SendGlobalText(const char* text, int type) {
 
 	bs.writeByte(S2C_TEXT);
 	bs.writeInt(type,1);
-	bs.writeString("%s",text);
+	bs.writeString("%s", text);
 
 	CClient *cl = cClients;
-	for(short c=0;c<MAX_CLIENTS;c++,cl++) {
+	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 

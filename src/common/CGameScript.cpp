@@ -15,10 +15,12 @@
 
 #include <stdarg.h>
 
-#include "defs.h"
+#include "EndianSwap.h"
 #include "LieroX.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CGameScript.h"
+#include "Error.h"
 
 
 ///////////////////

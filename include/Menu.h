@@ -18,6 +18,7 @@
 #define __MENU_H__
 
 
+#include "Networking.h"
 #include "CWidget.h"
 #include "CGuiLayout.h"
 #include "CWidgetList.h"
@@ -39,6 +40,8 @@
 #include "CMediaPlayer.h"
 #endif
 #include "CssParser.h"
+#include "CBytestream.h"
+#include "CWpnRest.h"
 
 
 // Menu sockets

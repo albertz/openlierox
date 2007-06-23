@@ -294,7 +294,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 		if (y + clip_h >= bottom)
 			clip_h = bottom - y;
 
-		register byte bpp = bmpFont->format->BytesPerPixel;
+		short bpp = bmpFont->format->BytesPerPixel;
 		register Uint8 *src = (Uint8 *) bmpFont->pixels + a * bpp;
 		register Uint8 *px;
 

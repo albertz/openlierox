@@ -14,10 +14,12 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "Graphics.h"
+#include "Entity.h"
+#include "MathLib.h"
+
 
 entity_t *tEntities = NULL;
 unsigned int iEntityCount=0;

@@ -18,6 +18,8 @@
 #define __CTITLEBUTTON_H__
 
 #include "InputEvents.h"
+#include "Cursor.h"
+
 
 // Event types
 enum {

@@ -6,10 +6,10 @@
 #ifndef __MEDIAPLAYER_H__
 #define __MEDIAPLAYER_H__
 
-#include "InputEvents.h"
-
-
 #include <vector>
+#include <string>
+
+#include "InputEvents.h"
 
 typedef std::vector<std::string> song_list;
 
@@ -28,6 +28,7 @@ public:
 		iX = 320-iWidth/2;
 		iY = 240-iHeight/2;
 	}
+	
 private:
 	std::string	szDir;
 	bool	bAdd;
@@ -36,11 +37,12 @@ private:
 	int		iY;
 	int		iWidth;
 	int		iHeight;
-CGuiLayout cOpenGui;
+	CGuiLayout cOpenGui;
 
 	// Methods
 	void		ReFillList(CListview *lv, const std::string& dir);
 	bool		IsRoot(const std::string& dir);
+	
 public:
 	std::string Execute(const std::string& default_dir);
 	inline bool getAdd(void) { return bAdd; }

@@ -20,6 +20,7 @@
 
 #include "defs.h"
 #include "CBytestream.h"
+#include "EndianSwap.h"
 #include "StringUtils.h"
 
 

@@ -13,10 +13,8 @@
 // Created 21/7/02
 // Jason Boettcher
 
-#include "defs.h"
-//#include "AuxLib.h"
-//#include "MathLib.h"
-
+#include "AuxLib.h"
+#include "MathLib.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -24,6 +22,9 @@
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "CWorm.h"
+#include "Entity.h"
+#include "Protocol.h"
 
 
 CClient		*cClient = NULL;

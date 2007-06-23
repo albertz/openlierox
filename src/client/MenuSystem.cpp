@@ -16,6 +16,7 @@
 #include <assert.h>
 
 #include "defs.h"
+#include "EndianSwap.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "Graphics.h"
@@ -23,6 +24,8 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CWorm.h"
+
 
 menu_t	*tMenu = NULL;
 

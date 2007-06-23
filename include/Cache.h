@@ -20,6 +20,9 @@
 #ifndef __CACHE_H__
 #define __CACHE_H__
 
+#include <SDL/SDL.h>
+#include <vector>
+#include <string>
 
 // Cached item types
 #define		CCH_IMAGE		0

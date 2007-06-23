@@ -14,11 +14,13 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "StringUtils.h"
+#include "Protocol.h"
+#include "CWorm.h"
+#include "MathLib.h"
 
 
 ///////////////////
@@ -61,8 +63,8 @@ CVec GameServer::FindSpot(void)
 
     // Start from the cell and go through until we get to an empty cell
 	uchar pf;
-    while(1) {
-        while(1) {
+    while(true) {
+        while(true) {
             // If we're on the original starting cell, and it's not the first move we have checked all cells
             // and should leave
             if(!first) {

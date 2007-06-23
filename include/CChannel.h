@@ -17,6 +17,8 @@
 #ifndef __CCHANNEL_H__
 #define __CCHANNEL_H__
 
+#include "CBytestream.h"
+
 // TODO: where is this class used effectivly?
 // NOTE: in no part of the whole code is the Socket set 
 

@@ -16,7 +16,6 @@
 
 #include <stdarg.h>
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -25,6 +24,10 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CWorm.h"
+#include "Protocol.h"
+#include "Error.h"
+
 
 
 GameServer	*cServer = NULL;
@@ -266,7 +269,7 @@ int GameServer::StartGame(void)
 
 	} else {
 
-		sMapFilename = std::string("levels/") + tGameInfo.sMapname;
+		sMapFilename = "levels/" + tGameInfo.sMapname;
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;

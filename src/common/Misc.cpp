@@ -29,140 +29,7 @@
 
 
 
-/*
-===========================
 
-    Collision Detection
-
-===========================
-*/
-
-
-
-class set_col_and_break {
-public:
-	CVec collision;
-	bool hit;
-
-	set_col_and_break() : hit(false) {}
-	bool operator()(int x, int y) {
-		hit = true;
-		collision.x = x;
-		collision.y = y;
-		return false;
-	}
-};
-
-
-
-///////////////////
-// Check for a collision
-// HINT: this function is not used at the moment; and it is incomplete...
-int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
-{
-/*	set_col_and_break col_action;
-	col_action = fastTraceLine(trg, pos, map, checkflags, col_action);
-	if(col_action.hit) {
-
-	}*/
-	assert(false);
-	return 0;
-
-/*	int		CollisionSide = 0;
-	int		mw = map->GetWidth();
-	int		mh = map->GetHeight();
-	int		px,py, x,y, w,h;
-	int		top,bottom,left,right;
-
-	px=(int)pos.x;
-	py=(int)pos.y;
-
-	top=bottom=left=right=0;
-
-	w = width;
-	h = height;
-
-	// Hit edges
-	// Check the collision side
-	if(px-w<0)
-		CollisionSide |= COL_LEFT;
-	if(py-h<0)
-		CollisionSide |= COL_TOP;
-	if(px+w>=mw)
-		CollisionSide |= COL_RIGHT;
-	if(py+h>=mh)
-		CollisionSide |= COL_BOTTOM;
-	if(CollisionSide) return CollisionSide;
-
-
-
-
-	for(y=py-h;y<=py+h;y++) {
-
-		// Clipping means that it has collided
-		if(y<0)	{
-			CollisionSide |= COL_TOP;
-			return CollisionSide;
-		}
-		if(y>=mh) {
-			CollisionSide |= COL_BOTTOM;
-			return CollisionSide;
-		}
-
-
-		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
-
-		for(x=px-w;x<=px+w;x++) {
-
-			// Clipping
-			if(x<0) {
-				CollisionSide |= COL_LEFT;
-				return CollisionSide;
-			}
-			if(x>=mw) {
-				CollisionSide |= COL_RIGHT;
-				return CollisionSide;
-			}
-
-			if(*pf & PX_DIRT || *pf & PX_ROCK) {
-				if(y<py)
-					top++;
-				if(y>py)
-					bottom++;
-				if(x<px)
-					left++;
-				if(x>px)
-					right++;
-
-				//return Collision(*pf);
-			}
-
-			pf++;
-		}
-	}
-
-	// Check for a collision
-	if(top || bottom || left || right) {
-		CollisionSide = 0;
-
-
-		// Find the collision side
-		if( (left>right || left>2) && left>1 && vel.x < 0)
-			CollisionSide = COL_LEFT;
-
-		if( (right>left || right>2) && right>1 && vel.x > 0)
-			CollisionSide = COL_RIGHT;
-
-		if(top>1 && vel.y < 0)
-			CollisionSide = COL_TOP;
-
-		if(bottom>1 && vel.y > 0)
-			CollisionSide = COL_BOTTOM;
-	}
-
-
-	return CollisionSide; */
-}
 
 
 
@@ -193,33 +60,6 @@ void ConvertTime(float time, int *hours, int *minutes, int *seconds)
 }
 
 
-///////////////////
-// Carve a hole
-// Returns the number of dirt pixels carved
-int CarveHole(CMap *cMap, CVec pos)
-{
-	int x,y,n;
-	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
-
-	// Go through until we find dirt to throw around
-	y = MIN((int)pos.y,cMap->GetHeight()-1);
-
-	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
-		// Clipping
-		if(x<0)	continue;
-		if((uint)x>=cMap->GetWidth())	break;
-
-		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = GetPixel(cMap->GetImage(),x,(int)pos.y);
-			for(n=0;n<3;n++)
-				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
-			break;
-		}
-	}
-
-	// Just carve a hole for the moment
-	return cMap->CarveHole(3,pos);
-}
 
 
 ///////////////////
@@ -270,19 +110,8 @@ void xmlEntities(std::string& text)
 
 
 // for GetByteSwapped, declared in defs.h
+// TODO: remove this from here (or not?)
 unsigned char byteswap_buffer[16];
-
-void ByteSwap(unsigned char * b, int n)
-{
-   register int i = 0;
-   register int j = n-1;
-   register unsigned char tmp;
-   while (i<j)
-   {
-      tmp = b[i]; b[i] = b[j]; b[j] = tmp;
-      i++, j--;
-   }
-}
 
 
 

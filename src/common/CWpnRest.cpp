@@ -15,10 +15,12 @@
 
 #include <assert.h>
 
-#include "defs.h"
 #include "LieroX.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CWpnRest.h"
+#include "CBytestream.h"
+#include "MathLib.h"
 
 
 ///////////////////

@@ -17,6 +17,7 @@
 #ifndef __CLISTVIEW_H__
 #define __CLISTVIEW_H__
 
+#include <string>
 
 // Event msg's for this control
 enum {

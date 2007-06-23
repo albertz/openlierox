@@ -13,7 +13,6 @@
 // Created 9/7/02
 // Jason Boettcher
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -22,6 +21,9 @@
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "CWorm.h"
+#include "Protocol.h"
+#include "Entity.h"
 
 
 SDL_Surface		*bmpMenuButtons = NULL;

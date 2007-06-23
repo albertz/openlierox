@@ -30,6 +30,10 @@
 #include <windows.h>
 #endif
 
+#include <string>
+#include "ProfileSystem.h"
+
+
 #if DEBUG == 1
 #define		_AI_DEBUG
 #endif
@@ -40,6 +44,9 @@
 #	define		LX_VERSION		"0.57_beta3"
 #endif
 #define		LX_ENDWAIT		9.0f
+
+
+#define		MAX_WORMS			32
 
 
 // Game types
@@ -58,25 +65,11 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #define RAD2DEG(a)  (a * R2D)
 
 
-// Game includes
-#include "ProfileSystem.h"
-#include "Networking.h"
-#include "CChatBox.h"
-#include "Frame.h"
-#include "CViewport.h"
-#include "CSimulation.h"
-#include "Command.h"
-#include "CWorm.h"
-#include "CProjectile.h"
-#include "CShootList.h"
-#include "Entity.h"
-#include "CWeather.h"
-#include "Protocol.h"
-#include "Options.h"
-
-
 #include "CFont.h"
-#include "Cursor.h"
+#include "CVec.h"
+#include "CInput.h"
+#include "types.h"
+
 
 // LieroX structure
 class lierox_t { public:
@@ -169,6 +162,25 @@ enum {
 };
 
 
+// Object structure (for maprandom_t)
+// HINT: DON'T change the variable types because they are saved directly to the file (CMap.cpp)
+class object_t { public:
+	int		Type;
+	int		Size;
+	int     X, Y;
+};
+
+
+
+// Random map data
+class maprandom_t { public:
+    bool        bUsed;
+    std::string szTheme;
+    int         nNumObjects;
+    object_t    *psObjects;
+};
+
+
 
 // Game structure
 class game_t { public:
@@ -244,9 +256,7 @@ void	GotoLocalGameMenu(void);
 
 // Miscellanous routines
 float	GetFixedRandomNum(uchar index);
-int		CheckCollision(CVec trg, CVec pos, uchar checkflags, CMap *map);
 void	ConvertTime(float time, int *hours, int *minutes, int *seconds);
-int 	CarveHole(CMap *cMap, CVec pos);
 bool    MouseInRect(int x, int y, int w, int h);
 
 

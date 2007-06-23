@@ -18,7 +18,7 @@
 #define __CBUTTON_H__
 
 #include "InputEvents.h"
-
+#include "GfxPrimitives.h"
 
 // Event types
 enum {

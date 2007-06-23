@@ -12,6 +12,7 @@
 #define __CIMAGE_H__
 
 #include "InputEvents.h"
+#include "GfxPrimitives.h"
 
 
 

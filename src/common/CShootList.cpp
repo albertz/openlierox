@@ -16,9 +16,11 @@
 #include <assert.h>
 
 
-#include "defs.h"
 #include "LieroX.h"
-
+#include "CShootList.h"
+#include "CWorm.h"
+#include "Protocol.h"
+#include "MathLib.h"
 
 
 ///////////////////

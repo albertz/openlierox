@@ -9,8 +9,8 @@
 #include <iostream>
 #include <assert.h>
 
-#include "defs.h"
 #include "LieroX.h"
+#include "AuxLib.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "Graphics.h"
@@ -20,6 +20,9 @@
 #include "FindFile.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
+#include "Entity.h"
+#include "Error.h"
+
 
 #ifndef WIN32
 #include <sys/dir.h>
@@ -27,7 +30,7 @@
 #endif
 
 // TODO: i hate globals ...
-// we have to create a basic class CGame or something
+// we have to create a basic class Game or something
 
 lierox_t	*tLX = NULL;
 game_t		tGameInfo;
@@ -35,7 +38,6 @@ CInput		cTakeScreenshot;
 CInput		cSwitchMode;
 #ifdef WITH_MEDIAPLAYER
 CInput		cToggleMediaPlayer;
-
 CMediaPlayer cMediaPlayer;
 #endif
 
