@@ -40,10 +40,11 @@ void CBar::Draw(SDL_Surface *dst)  {
 	static std::string progress;
 	progress = itoa(Position) + " %";
 	int pos = MIN(MAX(Position, 0), 100);
-	int bar_h = (bmpBar->h - 1)/2;
-	int bar_w = (bmpBar->w - 1)/2;
 
 	if (bmpBar)  {  // We got a bitmap - many options and possibilities for drawing
+
+		int bar_h = (bmpBar->h - 1)/2;
+		int bar_w = (bmpBar->w - 1)/2;
 
 		// Background
 		DrawImageAdv(dst,bmpBar, 0, bar_h, X, Y, bmpBar->w, bar_h);
