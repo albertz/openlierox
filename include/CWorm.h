@@ -17,7 +17,7 @@
 #ifndef __CWORM_H__
 #define __CWORM_H__
 
-#include "LieroX.h" // for MAX_WORMS
+#include "LieroX.h" // for MAX_WORMS, _AI_DEBUG
 #include "CProjectile.h"
 #include "CGameScript.h"
 #include "CNinjaRope.h"
@@ -25,8 +25,6 @@
 #include "Options.h" // for control_t
 #include "Utils.h"
 #include "Frame.h"
-
-
 #include "CBar.h"
 
 // TODO: remove this after we changed network
@@ -61,20 +59,22 @@
 
 
 // Weapon slot structure
-typedef struct {
+struct wpnslot_t {
 	weapon_t	*Weapon;
 	int			SlotNum;
 	float		Charge;
 	int			Reloading;
 	float		LastFire;
 	bool		Enabled;
-} wpnslot_t;
+};
 
-typedef struct {
-	int Weap1,Weap2,Weap3,Weap4,Weap5;
-} randweapons_t;
+struct randweapons_t {
+	int Weap1, Weap2, Weap3, Weap4, Weap5;
+};
 
 // the files have to be included yourself later
+// they are used here; but their headers depends on this header
+// TODO: remove the usage of these in this header
 class CClient;
 class CBonus;
 
@@ -84,12 +84,12 @@ class CBonus;
 #define		LBY_CLOSED	1
 #define		LBY_USED	2
 
-typedef struct {
+struct lobbyworm_t {
 	int			iType;
     int         iTeam;
 	int			iHost;
 	int			iReady;
-} lobbyworm_t;
+};
 
 
 
@@ -119,7 +119,8 @@ enum {
 
 
 // Path finding node
-typedef struct ai_node_s {
+class ai_node_t {
+public:
 
     int     nX, nY;
     int     nCost;
@@ -127,16 +128,17 @@ typedef struct ai_node_s {
     int     nCount;
     //int     *nOpenClose;
 
-    struct ai_node_s    *psParent;
-    struct ai_node_s    *psPath;
-    struct ai_node_s    *psChildren[8];
+    ai_node_t    *psParent;
+    ai_node_t    *psPath;
+    ai_node_t    *psChildren[8];
 
-} ai_node_t;
+};
 
-typedef struct NEW_ai_node_s {
-	float fX,fY;
-	struct NEW_ai_node_s *psPrev, *psNext;
-} NEW_ai_node_t;
+class NEW_ai_node_t {
+public:	
+	float fX, fY;
+	NEW_ai_node_t *psPrev, *psNext;
+};
 
 NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n);
 void delete_ai_nodes(NEW_ai_node_t* start);
@@ -146,16 +148,16 @@ float get_ai_nodes_length(NEW_ai_node_t* start);
 float get_ai_nodes_length2(NEW_ai_node_t* start);
 
 
-/*
-typedef std::multimap< CVec, NEW_ai_node_t* > nodes_map;
-typedef std::pair< const CVec, NEW_ai_node_t* > nodes_pair;
-*/
-
 
 class CWorm {
 public:
 	// Constructor
 	CWorm() {
+		// Graphics
+		cHealthBar = new CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
+		if(cHealthBar)
+			cHealthBar->SetLabelVisible(false);
+		
 		Clear();
 	}
 

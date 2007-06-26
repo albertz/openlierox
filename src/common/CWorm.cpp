@@ -128,11 +128,6 @@ void CWorm::Clear(void)
 	fLastJump = 999999;
 	fLastWeaponChange = 0;
 	fLastCompleting = -9999;
-
-	// Graphics
-	cHealthBar = new CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
-	if (cHealthBar)
-		cHealthBar->SetLabelVisible(false);
 }
 
 
