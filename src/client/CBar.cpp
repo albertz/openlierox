@@ -43,35 +43,34 @@ void CBar::Draw(SDL_Surface *dst)  {
 
 	if (bmpBar)  {  // We got a bitmap - many options and possibilities for drawing
 
-		int bar_h = (bmpBar->h - 1)/2;
-		int bar_w = (bmpBar->w - 1)/2;
+		int bar_h = (bmpBar->h - 1) / 2;
+		int bar_w = (bmpBar->w - 1) / 2;
 
 		// Background
-		DrawImageAdv(dst,bmpBar, 0, bar_h, X, Y, bmpBar->w, bar_h);
+		DrawImageAdv(dst, bmpBar, 0, bar_h, X, Y, bmpBar->w, bar_h);
 
 		Uint32 clLabel = tLX->clWhite;
 		
 		// Draw the progress bitmap over the background depending on progress direction
+		int w, h;
 		switch (Direction)  {
 		case BAR_LEFTTORIGHT:
-			DrawImageAdv(dst,bmpBar, 0, 0, X, Y, (bmpBar->w*pos)/100, bar_h);  // Progress
+			DrawImageAdv(dst, bmpBar, 0, 0, X, Y, (bmpBar->w * pos) / 100, bar_h);  // Progress
 			clLabel = GetPixel(bmpBar, MAX(0, (bmpBar->w*pos)/100 - 1), bmpBar->h - 1);
 			break;
-		case BAR_RIGHTTOLEFT: {
-			int w = (bmpBar->w * pos) / 100;
+		case BAR_RIGHTTOLEFT:
+			w = (bmpBar->w * pos) / 100;
 			DrawImageAdv(dst, bmpBar, bmpBar->w - w, 0, X + bmpBar->w - w, Y, w, bar_h);  // Progress
 			clLabel = GetPixel(bmpBar, MIN(bmpBar->w - 1, bmpBar->w - w + 1), bmpBar->h - 1);
-			}
 			break;
 		case BAR_TOPTOBOTTOM: 
-			DrawImageAdv(dst, bmpBar, 0, 0, X, Y, bar_w, (bmpBar->h/100)*pos); // Progress
-			clLabel = GetPixel(bmpBar, bmpBar->w - 1, MAX(0, (bmpBar->h*pos)/100 - 1));
+			DrawImageAdv(dst, bmpBar, 0, 0, X, Y, bar_w, (bmpBar->h / 100) * pos); // Progress
+			clLabel = GetPixel(bmpBar, bmpBar->w - 1, MAX(0, (bmpBar->h * pos)/100 - 1));
 			break;
-		case BAR_BOTTOMTOTOP:  {
-			int h = (bmpBar->w * pos) / 100;
+		case BAR_BOTTOMTOTOP:
+			h = (bmpBar->w * pos) / 100;
 			DrawImageAdv(dst, bmpBar, 0, bmpBar->h - h, X, Y + bmpBar->h - h, bar_w, h);  // Progress
 			clLabel = GetPixel(bmpBar, bmpBar->w - 1, MIN(bmpBar->h - 1, bmpBar->h - h - 1));
-			}
 			break;
 		default:
 			printf("Bad bar type in CBar::Draw");
@@ -79,7 +78,7 @@ void CBar::Draw(SDL_Surface *dst)  {
 		}
 
 		// bmpBar is an alpha surface so we need to convert the color from GetPixel
-		static Uint8 r, g, b;
+		Uint8 r, g, b;
 		GetColour3(clLabel, bmpBar, &r, &g, &b);
 		clLabel = MakeColour(r, g, b);
 
@@ -91,8 +90,8 @@ void CBar::Draw(SDL_Surface *dst)  {
 		int width = 100;
 		int height = 10;
 
-		DrawRectFill(dst, X, Y, (X + width + 1), Y+height, bgColor);
-		DrawRectFill(dst, X+1, Y+1, X + (width / 100) * pos + 1, Y+height-1, foreColor);
+		DrawRectFill(dst, X, Y, (X + width + 1), Y + height, bgColor);
+		DrawRectFill(dst, X + 1, Y + 1, X + (width / 100) * pos + 1, Y + height - 1, foreColor);
 	}
 
 
