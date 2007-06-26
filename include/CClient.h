@@ -31,6 +31,7 @@
 #include "CProjectile.h"
 #include "CBonus.h"
 #include "Frame.h"
+#include "CBar.h"
 
 
 #define		MAX_CLIENTS		32
@@ -41,8 +42,6 @@
 
 #define     NUM_VIEWPORTS   3
 #define     GAMEOVER_WAIT   3
-
-class CBar; // This forward declaration is needed here
 
 
 // Net status

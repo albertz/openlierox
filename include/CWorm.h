@@ -27,7 +27,7 @@
 #include "Frame.h"
 
 
-class CBar; // This forward declaration is needed here, defined in CBar.h
+#include "CBar.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"

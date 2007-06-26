@@ -13,8 +13,6 @@
 // Created 22/6/07
 // Dark Charlie
 
-#include "defs.h"
-#include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "CBar.h"
 #include "StringUtils.h"

@@ -16,6 +16,8 @@
 #ifndef __CBAR_H_
 #define __CBAR_H_
 
+#include <SDL/SDL.h>
+
 // Bar directions
 enum {
 	BAR_LEFTTORIGHT,
