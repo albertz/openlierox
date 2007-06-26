@@ -13,6 +13,9 @@
 // Created 18/6/07
 // Dark Charlie
 
+#ifndef __CURSOR_H_
+#define __CURSOR_H_
+
 // Cursor indexes
 enum {
 	CURSOR_NONE = -1,
@@ -63,3 +66,5 @@ void SetGameCursor(int c);
 void DrawCursor(SDL_Surface *dst);
 int GetCursorHeight(int c);
 int GetCursorWidth(int c);
+
+#endif // __CURSOR_H_

@@ -42,6 +42,8 @@
 #define     NUM_VIEWPORTS   3
 #define     GAMEOVER_WAIT   3
 
+class CBar; // This forward declaration is needed here
+
 
 // Net status
 enum {
@@ -69,6 +71,61 @@ class ping_t { public:
 	int		iSequence;
 };
 
+class interface_sett { public:
+	int		ChatterX;
+	int		ChatterY;
+	int		ChatBoxX;
+	int		ChatBoxY;
+	int		ChatBoxW;
+	int		ChatBoxH;
+	int		MiniMapX;
+	int		MiniMapY;
+	int		FpsX;
+	int		FpsY;
+	int		FpsW;
+	int		PingX;
+	int		PingY;
+	int		PingW;
+	int		LocalChatX;
+	int		LocalChatY;
+
+	// Player 1
+	int		Lives1X;
+	int		Lives1Y;
+	int		Lives1W;
+	int		Kills1X;
+	int		Kills1Y;
+	int		Kills1W;
+	int		Team1X;
+	int		Team1Y;
+	int		Team1W;
+	int		SpecMsg1X;
+	int		SpecMsg1Y;
+	int		SpecMsg1W;
+	int		HealthLabel1X;
+	int		HealthLabel1Y;
+	int		WeaponLabel1X;
+	int		WeaponLabel1Y;
+
+	// Player 2
+	int		Lives2X;
+	int		Lives2Y;
+	int		Lives2W;
+	int		Kills2X;
+	int		Kills2Y;
+	int		Kills2W;
+	int		Team2X;
+	int		Team2Y;
+	int		Team2W;
+	int		SpecMsg2X;
+	int		SpecMsg2Y;
+	int		SpecMsg2W;
+	int		HealthLabel2X;
+	int		HealthLabel2Y;
+	int		WeaponLabel2X;
+	int		WeaponLabel2Y;
+	// NOTE: bars are handled in CBar class
+};
 
 
 class CClient {
@@ -80,6 +137,13 @@ public:
 		cProjectiles = NULL;
 		cMap = NULL;
 		cBonuses = NULL;
+		bmpBoxBuffer = NULL;
+		bmpBoxLeft = NULL;
+		bmpBoxRight = NULL;
+		cHealthBar1 = NULL;
+		cHealthBar2 = NULL;
+		cWeaponBar1 = NULL;
+		cWeaponBar2 = NULL;
 		iGameType = GMT_DEATHMATCH;
 		iGameReady = false;
         nTopProjectile = 0;
@@ -179,6 +243,16 @@ private:
 	int			iScorePlayers;
 	int			iTeamScores[4];
 	int			iTeamList[4];
+
+	// Interface
+	interface_sett tInterfaceSettings;
+	CBar		*cHealthBar1;
+	CBar		*cHealthBar2;
+	CBar		*cWeaponBar1;
+	CBar		*cWeaponBar2;
+	SDL_Surface *bmpBoxBuffer;
+	SDL_Surface *bmpBoxLeft;
+	SDL_Surface *bmpBoxRight;
 
     CWeather    cWeather;
 
@@ -320,9 +394,11 @@ public:
 	void		Frame(void);
 
 	// Drawing
-	int			InitializeDrawing(void);
+	bool		InitializeDrawing(void);
+	bool		InitializeBar(byte number);
+	void		DrawBox(SDL_Surface *dst, int x, int y, int w);
 	void		Draw(SDL_Surface *bmpDest);
-	void		DrawViewport(SDL_Surface *bmpDest, CViewport *v);
+	void		DrawViewport(SDL_Surface *bmpDest, byte viewport_index);
 	void		DrawProjectiles(SDL_Surface *bmpDest, CViewport *v);
     void        DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v);
 	void		DrawGameOver(SDL_Surface *bmpDest);

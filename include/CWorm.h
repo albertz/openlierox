@@ -27,6 +27,8 @@
 #include "Frame.h"
 
 
+class CBar; // This forward declaration is needed here, defined in CBar.h
+
 // TODO: remove this after we changed network
 #include "CBytestream.h"
 
@@ -250,6 +252,7 @@ private:
 	SDL_Surface	*bmpGibs;
 	SDL_Surface	*bmpPic;
     SDL_Surface *bmpShadowPic;
+	CBar		*cHealthBar;
 	//CViewport	*pcViewport;
 
 

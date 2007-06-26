@@ -14,6 +14,7 @@
 // Jason Boettcher
 
 #include "LieroX.h"
+#include "ConfigHandler.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "Graphics.h"
@@ -21,6 +22,7 @@
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "CBar.h"
 #include "CWorm.h"
 #include "Protocol.h"
 #include "Entity.h"
@@ -32,24 +34,254 @@ float			fLagFlash;
 
 ///////////////////
 // Initialize the drawing routines
-int CClient::InitializeDrawing(void)
+bool CClient::InitializeDrawing(void)
 {
 	LOAD_IMAGE_WITHALPHA(bmpMenuButtons,"data/frontend/buttons.png");
-
-	//fLagFlash = 0;
-
-    // Set the appropriate chatbox width
-    if(tGameInfo.iGameType == GME_LOCAL)
-        cChatbox.setWidth(600);
-    else
-        cChatbox.setWidth(325);
 
 	// Initialize the score buffer
 	bmpScoreBuffer = gfxCreateSurfaceAlpha(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h); // Must be alpha, like scoreboard, gameover etc.
 	SetColorKey(bmpScoreBuffer);
 	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,COLORKEY(bmpScoreBuffer));
 
+	// Load the right and left part of box
+	bmpBoxLeft = LoadImage("data/frontend/box_left.png",true);
+	bmpBoxRight = LoadImage("data/frontend/box_right.png",true);
+
+	// Initialize the box buffer
+	SDL_Surface *box_middle = LoadImage("data/frontend/box_middle.png",true);
+	if (box_middle)  { // Doesn't have to exist
+		// Tile the buffer with the middle box part
+		bmpBoxBuffer = gfxCreateSurface(640,box_middle->h);
+		for (int i=0; i < bmpBoxBuffer->w; i += box_middle->w)
+			DrawImage( bmpBoxBuffer, box_middle, i, 0);
+	} else {
+		bmpBoxBuffer = NULL;
+	}
+
+	// Local and network have different layouts and sections in the config file
+	std::string section = "";
+	if (tGameInfo.iGameType == GME_LOCAL)
+		section = "LocalGameInterface";
+	else
+		section = "NetworkGameInterface";
+
+	// Read the info from the frontend.cfg file
+	ReadInteger("data/frontend/frontend.cfg",section,"GameChatterX",&tInterfaceSettings.ChatterX, 0);
+	ReadInteger("data/frontend/frontend.cfg",section,"GameChatterY",&tInterfaceSettings.ChatterY, 366);
+	ReadInteger("data/frontend/frontend.cfg",section,"ChatBoxX",&tInterfaceSettings.ChatBoxX, 165);
+	ReadInteger("data/frontend/frontend.cfg",section,"ChatBoxY",&tInterfaceSettings.ChatBoxY, 382);
+	ReadInteger("data/frontend/frontend.cfg",section,"ChatBoxW",&tInterfaceSettings.ChatBoxW, 346);
+	ReadInteger("data/frontend/frontend.cfg",section,"ChatBoxH",&tInterfaceSettings.ChatBoxH, 98);
+	ReadInteger("data/frontend/frontend.cfg",section,"FpsX",&tInterfaceSettings.FpsX, 575);
+	ReadInteger("data/frontend/frontend.cfg",section,"FpsY",&tInterfaceSettings.FpsY, 1);
+	ReadInteger("data/frontend/frontend.cfg",section,"FpsW",&tInterfaceSettings.FpsW, 65);
+
+	if (tGameInfo.iGameType == GME_LOCAL)  {  // Local play can handle two players, it means all the top boxes twice
+		ReadInteger("data/frontend/frontend.cfg",section,"MinimapX",&tInterfaceSettings.MiniMapX, 255);
+		ReadInteger("data/frontend/frontend.cfg",section,"MinimapY",&tInterfaceSettings.MiniMapY, 382);
+
+		ReadInteger("data/frontend/frontend.cfg",section,"Lives1X",&tInterfaceSettings.Lives1X, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"Lives1Y",&tInterfaceSettings.Lives1Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"Lives1W",&tInterfaceSettings.Lives1W, 75);
+		ReadInteger("data/frontend/frontend.cfg",section,"Kills1X",&tInterfaceSettings.Kills1X, 80);
+		ReadInteger("data/frontend/frontend.cfg",section,"Kills1Y",&tInterfaceSettings.Kills1Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"Kills1W",&tInterfaceSettings.Kills1W, 65);
+		ReadInteger("data/frontend/frontend.cfg",section,"Team1X",&tInterfaceSettings.Team1X, 150);
+		ReadInteger("data/frontend/frontend.cfg",section,"Team1Y",&tInterfaceSettings.Team1Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"Team1W",&tInterfaceSettings.Team1W, 70);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsg1X",&tInterfaceSettings.SpecMsg1X, 150);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsg1Y",&tInterfaceSettings.SpecMsg1Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsg1W",&tInterfaceSettings.SpecMsg1W, 100);
+		ReadInteger("data/frontend/frontend.cfg",section,"HealthLabel1X",&tInterfaceSettings.HealthLabel1X, 5);
+		ReadInteger("data/frontend/frontend.cfg",section,"HealthLabel1Y",&tInterfaceSettings.HealthLabel1Y, 400);
+		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel1X",&tInterfaceSettings.WeaponLabel1X, 5);
+		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel1Y",&tInterfaceSettings.WeaponLabel1Y, 425);
+
+		ReadInteger("data/frontend/frontend.cfg",section,"Lives2X",&tInterfaceSettings.Lives2X, 323);
+		ReadInteger("data/frontend/frontend.cfg",section,"Lives2Y",&tInterfaceSettings.Lives2Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"Lives2W",&tInterfaceSettings.Lives2W, 75);
+		ReadInteger("data/frontend/frontend.cfg",section,"Kills2X",&tInterfaceSettings.Kills2X, 403);
+		ReadInteger("data/frontend/frontend.cfg",section,"Kills2Y",&tInterfaceSettings.Kills2Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"Kills2W",&tInterfaceSettings.Kills2W, 65);
+		ReadInteger("data/frontend/frontend.cfg",section,"Team2X",&tInterfaceSettings.Team2X, 473);
+		ReadInteger("data/frontend/frontend.cfg",section,"Team2Y",&tInterfaceSettings.Team2Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"Team2W",&tInterfaceSettings.Team2W, 70);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsg2X",&tInterfaceSettings.SpecMsg2X, 473);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsg2Y",&tInterfaceSettings.SpecMsg2Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsg2W",&tInterfaceSettings.SpecMsg2W, 100);
+		ReadInteger("data/frontend/frontend.cfg",section,"HealthLabel2X",&tInterfaceSettings.HealthLabel2X, 390);
+		ReadInteger("data/frontend/frontend.cfg",section,"HealthLabel2Y",&tInterfaceSettings.HealthLabel2Y, 400);
+		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel2X",&tInterfaceSettings.WeaponLabel2X, 390);
+		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel2Y",&tInterfaceSettings.WeaponLabel2Y, 425);
+
+		ReadInteger("data/frontend/frontend.cfg",section,"LocalChatX",&tInterfaceSettings.LocalChatX, 0);
+		ReadInteger("data/frontend/frontend.cfg",section,"LocalChatY",&tInterfaceSettings.LocalChatY, tLX->cFont.GetHeight());
+	} else {  // Network allows only one player
+		ReadInteger("data/frontend/frontend.cfg",section,"MinimapX",&tInterfaceSettings.MiniMapX, 511);
+		ReadInteger("data/frontend/frontend.cfg",section,"MinimapY",&tInterfaceSettings.MiniMapY, 382);
+
+		ReadInteger("data/frontend/frontend.cfg",section,"PingX",&tInterfaceSettings.PingX, 540);
+		ReadInteger("data/frontend/frontend.cfg",section,"PingY",&tInterfaceSettings.PingY, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"PingW",&tInterfaceSettings.PingW, 50);
+		ReadInteger("data/frontend/frontend.cfg",section,"LivesX",&tInterfaceSettings.Lives1X, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"LivesY",&tInterfaceSettings.Lives1Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"LivesW",&tInterfaceSettings.Lives1W, 75);
+		ReadInteger("data/frontend/frontend.cfg",section,"KillsX",&tInterfaceSettings.Kills1X, 80);
+		ReadInteger("data/frontend/frontend.cfg",section,"KillsY",&tInterfaceSettings.Kills1Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"KillsW",&tInterfaceSettings.Kills1W, 65);
+		ReadInteger("data/frontend/frontend.cfg",section,"TeamX",&tInterfaceSettings.Team1X, 150);
+		ReadInteger("data/frontend/frontend.cfg",section,"TeamY",&tInterfaceSettings.Team1Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"TeamW",&tInterfaceSettings.Team1W, 70);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsgX",&tInterfaceSettings.SpecMsg1X, 150);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsgY",&tInterfaceSettings.SpecMsg1Y, 1);
+		ReadInteger("data/frontend/frontend.cfg",section,"SpecMsgW",&tInterfaceSettings.SpecMsg1W, 100);
+		ReadInteger("data/frontend/frontend.cfg",section,"HealthLabelX",&tInterfaceSettings.HealthLabel1X, 5);
+		ReadInteger("data/frontend/frontend.cfg",section,"HealthLabelY",&tInterfaceSettings.HealthLabel1Y, 400);
+		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabelX",&tInterfaceSettings.WeaponLabel1X, 5);
+		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabelY",&tInterfaceSettings.WeaponLabel1Y, 425);
+	}
+
+    // Set the appropriate chatbox width
+    if(tGameInfo.iGameType == GME_LOCAL)
+        cChatbox.setWidth(600);
+    else
+        cChatbox.setWidth(tInterfaceSettings.ChatBoxW-4);  // -4 - leave some space
+
+	// Setup the loading boxes
+	int NumBars = tGameInfo.iGameType == GME_LOCAL ? 4 : 2;
+	for (byte i=0; i<NumBars; i++)  
+		if (!InitializeBar(i))
+			return false;
+
+
 	return true;
+}
+
+/////////////////
+// Initialize one of the game bars
+bool CClient::InitializeBar(byte number)  {
+	int x, y, label_x, label_y, direction;
+	std::string dir,key;
+	std::string fname = "data/frontend/";
+	CBar **bar;
+	Uint32 foreCl;
+
+	// Fill in the details according to the index given
+	switch (number)  {
+	case 0: 
+		key = "FirstHealthBar"; 
+		fname += "healthbar1.png";
+		bar = &cHealthBar1;
+		foreCl = MakeColour(64, 255, 64);
+
+		// Defaults
+		x = 70;
+		y = 405;
+		label_x = 163;
+		label_y = 395;
+
+		break;
+
+	case 1: 
+		key = "FirstWeaponBar";
+		fname += "weaponbar1.png";
+		bar = &cWeaponBar1;
+		foreCl = MakeColour(64, 64, 255);
+
+		// Defaults
+		x = 70;
+		y = 430;
+		label_x = 163;
+		label_y = 425;
+
+		break;
+
+	case 2: 
+		key = "SecondHealthBar"; 
+		fname += "healthbar2.png";
+		bar = &cHealthBar2;
+		foreCl = MakeColour(64, 255, 64);
+
+		// Defaults
+		x = 450;
+		y = 405;
+		label_x = 550;
+		label_y = 395;
+
+		break;
+
+	case 3: 
+		key = "SecondWeaponBar";
+		fname += "weaponbar2.png";
+		bar = &cWeaponBar2;
+		foreCl = MakeColour(64, 64, 255);
+
+		// Defaults
+		x = 450;
+		y = 430;
+		label_x = 550;
+		label_y = 420;
+
+		break;
+	default: return false;
+	}
+
+	// Local and network have different layouts and sections in the config file
+	std::string section = "";
+	if (tGameInfo.iGameType == GME_LOCAL)
+		section = "LocalGameInterface";
+	else
+		section = "NetworkGameInterface";
+
+	// Read the info
+	ReadInteger("data/frontend/frontend.cfg",section, key+"X",&x, x);
+	ReadInteger("data/frontend/frontend.cfg",section, key+"Y", &y, y);
+	ReadInteger("data/frontend/frontend.cfg",section, key+"LabelX", &label_x, label_x);
+	ReadInteger("data/frontend/frontend.cfg",section, key+"LabelY",&label_y, label_y);
+	ReadString("data/frontend/frontend.cfg",section, key+"Direction", dir, "lefttoright");
+
+	// Convert the direction
+	if (!stringcasecmp(dir,"lefttoright"))
+		direction = BAR_LEFTTORIGHT;
+	else if (!stringcasecmp(dir,"righttoleft"))
+		direction = BAR_RIGHTTOLEFT;
+	else if (!stringcasecmp(dir,"toptobottom"))
+		direction = BAR_TOPTOBOTTOM;
+	else if (!stringcasecmp(dir,"bottomtotop"))
+		direction = BAR_BOTTOMTOTOP;
+	else
+		return false;
+
+	// Create the bar
+	*bar = new CBar(LoadImage(fname, true), x, y, label_x, label_y, direction);
+	if ( !(*bar) )
+		return false;
+
+	// Some default colors in case the image does not exist
+	(*bar)->SetBgColor(MakeColour(128,128,128));
+	(*bar)->SetForeColor(foreCl);
+
+	return true;
+
+}
+
+//////////////////
+// Draw a box
+void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
+{
+	// Check
+	if (!bmpBoxBuffer || !bmpBoxLeft || !bmpBoxRight)  {
+		DrawRect(dst, x, y, x+w, y+tLX->cFont.GetHeight(), tLX->clBoxLight); // backward compatibility
+		return;
+	}
+
+	int middle_w = w - bmpBoxLeft->w - bmpBoxRight->w;
+	if (middle_w < 0)  // Too small
+		return; // TODO: some better way?
+
+	DrawImage(dst, bmpBoxLeft, x, y);  // Left part
+	DrawImageAdv(dst, bmpBoxBuffer, 0, 0, x + bmpBoxLeft->w, y, middle_w, bmpBoxBuffer->h);  // Middle part
+	DrawImage(dst, bmpBoxRight, x + bmpBoxLeft->w + middle_w, y); // Right part
 }
 
 
@@ -78,17 +310,44 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		return;
 	}
 
+	// Local and network use different background images
+	SDL_Surface *bgImage = gfxGame.bmpGameNetBackground;
+	if (tGameInfo.iGameType == GME_LOCAL)
+		bgImage = gfxGame.bmpGameLocalBackground;
+
     // TODO: allow more viewports
     // Draw the borders
 	if (tGameInfo.iGameType == GME_LOCAL)  {
-		DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
+		if (bgImage)  // Doesn't have to exist (backward compatibility)
+			DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
+		else
+			DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
 	} else {
-		DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
-		DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
+		if (bgImage)  { // Doesn't have to exist (backward compatibility)
+			DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, tInterfaceSettings.ChatBoxX, bgImage->h);
+			DrawImageAdv(
+						bmpDest,
+						bgImage,
+						tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+						0,
+						tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+						480 - bgImage->h,
+						640 - tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+						bgImage->h);
+		} else {
+			DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
+			DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
+		}
 	}
 	
     if(cViewports[1].getUsed())
-        DrawRectFill(bmpDest,318,0,322,384,tLX->clViewportSplit);
+        DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
+
+	// Top bar
+	if (gfxGame.bmpGameTopBar)
+		DrawImage( bmpDest, gfxGame.bmpGameTopBar, 0, 0);
+	else
+		DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
 
 
 	// Draw the viewports
@@ -98,7 +357,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
         for( i=0; i<NUM_VIEWPORTS; i++ ) {
             if( cViewports[i].getUsed() )  {
 				cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
-                DrawViewport(bmpDest, &cViewports[i]);
+                DrawViewport(bmpDest, i);
 			}
         }
 
@@ -106,14 +365,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
         // Mini-Map
         //
 
-		// Single screen
-		if( !cViewports[1].getUsed() )  {
-			cMap->DrawMiniMap( bmpDest, 511,382, dt, cRemoteWorms, iGameType );
-		}
-        else  {
-            // Split screen
-			cMap->DrawMiniMap( bmpDest, 257,383, dt, cRemoteWorms, iGameType);
-		}
+		cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
 	}
 
 
@@ -195,10 +447,14 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Chatter
 	if(iChat_Typing)  {
-		static const int talk_w = 4+tLX->cOutlineFont.GetWidth("Talk: ");
-		tLX->cOutlineFont.Draw(bmpDest, 4, 366, tLX->clGameChatter, "Talk: " + sChat_Text);
+		const int text_start = tInterfaceSettings.ChatterX+tLX->cOutlineFont.GetWidth("Talk: ");
+		tLX->cOutlineFont.Draw(bmpDest, tInterfaceSettings.ChatterX, tInterfaceSettings.ChatterY, tLX->clGameChatter, "Talk: " + sChat_Text);
 		if (iChat_CursorVisible)  {
-			DrawVLine(bmpDest, 368, 378, talk_w+tLX->cOutlineFont.GetWidth(sChat_Text.substr(0,iChat_Pos)), tLX->clGameChatCursor);
+			DrawVLine(bmpDest,
+					tInterfaceSettings.ChatterY,
+					tInterfaceSettings.ChatterY + tLX->cOutlineFont.GetHeight(),
+					text_start+tLX->cOutlineFont.GetWidth(sChat_Text.substr(0,iChat_Pos)),
+					tLX->clGameChatCursor );
 		}
 	}
 
@@ -219,35 +475,33 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	}
 
 
-	// Lag icon
-	/*if(tGameInfo.iGameType != GME_LOCAL) {
-		if(cNetChan.getOutSeq() - cNetChan.getInAck() > 127) {
-			fLagFlash += dt;
-			if(fLagFlash>=2)
-				fLagFlash=0;
-
-			// Draw the lag icon
-			int y = 0;
-			if(fLagFlash>1)
-				y = 43;
-			//DrawImageAdv(bmpDest, gfxGame.bmpLag, 0,y, 640-gfxGame.bmpLag->w, 0, gfxGame.bmpLag->w,43);
-		}
-	}*/
-
-
-	// FPS on the top right
+	// FPS
 	if(tLXOptions->iShowFPS) {
-		int fps = GetFPS();
-		tLX->cOutlineFont.Draw(bmpDest, 570, 0, tLX->clNormalText, "FPS: " + itoa(fps));
+		// Get the string and its width
+		static std::string fps_str;
+		fps_str = "FPS: " + itoa(GetFPS());
+
+		DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
+		tLX->cFont.Draw( // Draw the text
+					bmpDest,
+					tInterfaceSettings.FpsX + 2,
+					tInterfaceSettings.FpsY,
+					tLX->clFPSLabel,
+					fps_str);
 	}
 
 	// Ping on the top right
 	if(tLXOptions->iShowPing && tGameInfo.iGameType == GME_JOIN)  {
 
-		// Put it below FPS, if it's displayed
-		int pos = tLXOptions->iShowFPS*16;
+		// Draw the box around it
+		DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
 
-		tLX->cOutlineFont.Draw(bmpDest, 570, pos, tLX->clNormalText, "Ping: " + itoa(iMyPing));
+		tLX->cFont.DrawCentre( // Draw the text
+					bmpDest,
+					tInterfaceSettings.PingX + 2,
+					tInterfaceSettings.PingY,
+					tLX->clPingLabel,
+					"Ping: " + itoa(iMyPing));
 
 		// Send every second
 		if (tLX->fCurTime - fMyPingRefreshed > 1) {
@@ -274,17 +528,15 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Draw a viewport
-void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
+void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 {
-    // If the viewport is null, or not used: exit
-    if( !v )  {
-		printf("WARNING: The viewport is NULL\n");
-        return;
-	}
-    if( !v->getUsed() )
-        return;
+    // Check the parameters
+	if (viewport_index >= NUM_VIEWPORTS)
+		return;
 
-    static const Uint32 grey = MakeColour(128,128,128);
+    CViewport *v = &cViewports[viewport_index];
+	if (!v->getUsed())
+		return;
 
     //CWorm *worm = v->getTarget();
 
@@ -329,16 +581,63 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
 	// Disable the special clipping
 	SDL_SetClipRect(bmpDest,NULL);
 
+	//
 	// Draw the worm details
-	int x = v->GetLeft();
-	int y = v->GetTop() + v->GetVirtH();
+	//
 
-	if(x > 0)
-		x = 386;
+	// The positions are different for different viewports
+	int *HealthLabelX, *WeaponLabelX, *LivesX, *KillsX, *TeamX, *SpecMsgX;
+	int *HealthLabelY, *WeaponLabelY, *LivesY, *KillsY, *TeamY, *SpecMsgY;
+	int	*LivesW, *KillsW, *TeamW, *SpecMsgW;
+	CBar *HealthBar, *WeaponBar;
 
-	// If we don't need to redraw this, don't do it
-	//if (!bRedrawBottomPart)
-	//	return;
+	if (viewport_index == 0)  {  // Viewport 1
+		HealthLabelX = &tInterfaceSettings.HealthLabel1X;	HealthLabelY = &tInterfaceSettings.HealthLabel1Y;
+		WeaponLabelX = &tInterfaceSettings.WeaponLabel1X;	WeaponLabelY = &tInterfaceSettings.WeaponLabel1Y;
+
+		LivesX = &tInterfaceSettings.Lives1X;
+		LivesY = &tInterfaceSettings.Lives1Y;
+		LivesW = &tInterfaceSettings.Lives1W;
+
+		KillsX = &tInterfaceSettings.Kills1X;
+		KillsY = &tInterfaceSettings.Kills1Y;
+		KillsW = &tInterfaceSettings.Kills1W;
+
+		TeamX = &tInterfaceSettings.Team1X;
+		TeamY = &tInterfaceSettings.Team1Y;
+		TeamW = &tInterfaceSettings.Team1W;
+
+		SpecMsgX = &tInterfaceSettings.SpecMsg1X;	
+		SpecMsgY = &tInterfaceSettings.SpecMsg1Y;
+		SpecMsgW = &tInterfaceSettings.SpecMsg1W;
+
+		HealthBar = cHealthBar1;
+		WeaponBar = cWeaponBar1;
+	} else { // Viewport 2
+		HealthLabelX = &tInterfaceSettings.HealthLabel2X;	HealthLabelY = &tInterfaceSettings.HealthLabel2Y;
+		WeaponLabelX = &tInterfaceSettings.WeaponLabel2X;	WeaponLabelY = &tInterfaceSettings.WeaponLabel2Y;
+
+		LivesX = &tInterfaceSettings.Lives2X;
+		LivesY = &tInterfaceSettings.Lives2Y;
+		LivesW = &tInterfaceSettings.Lives2W;
+
+		KillsX = &tInterfaceSettings.Kills2X;
+		KillsY = &tInterfaceSettings.Kills2Y;
+		KillsW = &tInterfaceSettings.Kills2W;
+
+		TeamX = &tInterfaceSettings.Team2X;
+		TeamY = &tInterfaceSettings.Team2Y;
+		TeamW = &tInterfaceSettings.Team2W;
+
+		SpecMsgX = &tInterfaceSettings.SpecMsg2X;	
+		SpecMsgY = &tInterfaceSettings.SpecMsg2Y;
+		SpecMsgW = &tInterfaceSettings.SpecMsg2W;		
+
+		HealthBar = cHealthBar2;
+		WeaponBar = cWeaponBar2;
+	}
+
+
 
 	// The following is only drawn for viewports with a worm target
     if( v->getType() > VW_CYCLE )
@@ -347,59 +646,88 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, CViewport *v)
     CWorm *worm = v->getTarget();
 
 	// Health
-	tLX->cFont.Draw(bmpDest, x+2, y+2, tLX->clNormalLabel,"Health:");
-	DrawRectFill(bmpDest,x+63,y+6,x+165,y+13,grey);
-	DrawRectFill(bmpDest,x+64,y+7,x+64+worm->getHealth(),y+12,MakeColour(64,255,64));
+	tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel,"Health:");
+	HealthBar->SetPosition(worm->getHealth());
+	HealthBar->Draw(bmpDest);
+	//DrawRectFill(bmpDest,x+63,y+6,x+165,y+13,grey);
+	//DrawRectFill(bmpDest,x+64,y+7,x+64+worm->getHealth(),y+12,MakeColour(64,255,64));
 
 	// Weapon
 	wpnslot_t *Slot = worm->getCurWeapon();
-	tLX->cFont.Draw(bmpDest, x+2, y+20,tLX->clNormalLabel, "Weapon:");
-	DrawRectFill(bmpDest,x+63,y+24,x+165,y+31,grey);
-	Uint32 col = MakeColour(64,64,255);
+	tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, "Weapon:");
+	//DrawRectFill(bmpDest,x+63,y+24,x+165,y+31,grey);
+	WeaponBar->SetForeColor(MakeColour(64,64,255));
 	if(Slot->Reloading)
-		col = MakeColour(128,64,64);
-
-	float c = 1;
-	c = Slot->Charge;
-	DrawRectFill(bmpDest,x+64,y+25,x+64+(int)(c*100.0f),y+30,col);
+		WeaponBar->SetForeColor(MakeColour(128,64,64));
+	
+	//DrawRectFill(bmpDest,x+64,y+25,x+64+(int)(c*100.0f),y+30,col);
+	WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
+	WeaponBar->Draw( bmpDest );
 
 
 	// Lives
-	tLX->cFont.Draw(bmpDest,x+2, y+38, tLX->clNormalLabel,  "Lives:");
+	DrawBox(bmpDest, *LivesX, *LivesY, *LivesW); // Box first
+
+	static std::string lives_str;
+	lives_str = "Lives: ";
 	switch (worm->getLives())  {
 	case WRM_OUT:
-		tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel,  "Out");
+		lives_str += "Out";	
+		tLX->cFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
 		break;
 	case WRM_UNLIM:
-		DrawImage(bmpDest, gfxGame.bmpInfinite, x+61,y+41);
+		tLX->cFont.Draw(bmpDest, *LivesX+2, *LivesY, tLX->clLivesLabel, lives_str); // Text
+		DrawImage(bmpDest, gfxGame.bmpInfinite, *LivesX + *LivesW - gfxGame.bmpInfinite->w, *LivesY); // Infinite
 		break;
 	default:
-		if (worm->getLives() >= 0)
-			tLX->cFont.Draw(bmpDest,x+61,y+38, tLX->clNormalLabel, itoa(worm->getLives()));
+		if (worm->getLives() >= 0)  {
+			lives_str += itoa( worm->getLives() );
+			tLX->cFont.Draw(bmpDest,*LivesX + 2, *LivesY, tLX->clLivesLabel, lives_str);
+		}
 	}
 
 	// Kills
-	tLX->cFont.Draw(bmpDest,x+2, y+56, tLX->clNormalLabel, "Kills:");
-	tLX->cFont.Draw(bmpDest,x+61,y+56, tLX->clNormalLabel, itoa(worm->getKills()));
+	DrawBox( bmpDest, *KillsX, *KillsY, *KillsW );
+	tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, "Kills: " + itoa( worm->getKills() ));
 
-	// Am i IT?
-	if(worm->getTagIT() && iGameType == GMT_TAG)
-		tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "You are IT!!");
+	static std::string spec_msg;
 
-    // Dirt count
-    if( iGameType == GMT_DEMOLITION ) {
-        tLX->cFont.Draw(bmpDest, x+2, y+75, tLX->clNormalLabel, "Dirt Count:");
-        static std::string buf;
-        int count = worm->getDirtCount();
+	switch (iGameType)  {
+	case GMT_TAG:
+		// Am i IT?
+		if(worm->getTagIT())  {
+			spec_msg = "You are IT!";
+			DrawBox( bmpDest, *SpecMsgX, *SpecMsgY, *SpecMsgW);
+			tLX->cFont.Draw(bmpDest, *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
+		}
+		break;
 
-        // Draw short versions
-        if( count < 1000 )
-			buf = itoa(count);
-		else
-            buf = itoa(count/1000)+"k";
 
-        tLX->cFont.Draw(bmpDest,x+85,y+75, tLX->clNormalLabel, buf);
-    }
+    case GMT_DEMOLITION: {
+		    // Dirt count
+			int count = worm->getDirtCount();
+			spec_msg = "Dirt count: ";
+
+			// Draw short versions
+			if( count < 1000 )
+				spec_msg += itoa(count);
+			else
+				spec_msg += itoa(count/1000)+"k";
+
+			DrawBox( bmpDest, *SpecMsgX, *SpecMsgY, *SpecMsgW);
+			tLX->cFont.Draw(bmpDest, *SpecMsgX+2, *SpecMsgY, tLX->clSpecMsgLabel, spec_msg);
+		}
+		break;
+
+	case GMT_TEAMDEATH:  {
+			if (worm->getTeam() >= 0 && worm->getTeam() < 4)  {
+				DrawBox( bmpDest, *TeamX, *TeamY, *TeamW);
+				tLX->cFont.Draw( bmpDest, *TeamX+2, *TeamY, tLX->clTeamColors[worm->getTeam()], "Team");
+				DrawImage( bmpDest, gfxGame.bmpTeamColours[worm->getTeam()], 
+						   *TeamX + *TeamW - gfxGame.bmpTeamColours[worm->getTeam()]->w - 2, *TeamY );
+			}
+		}
+	}
 
 	// Debug
 	/*CViewport *view = worm->getViewport();
@@ -575,7 +903,7 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 		leave.MouseOver(Mouse);
 		SetGameCursor(CURSOR_HAND);
 	}
-	leave.Draw(bmpDest);
+	leave.Draw2(bmpDest);
 
 
 	if(Mouse->Up) {
@@ -600,7 +928,7 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 	// Draw a timer when we're going back to the lobby
 	float timeleft = LX_ENDWAIT - (tLX->fCurTime - fGameOverTime);
 	timeleft = MAX(timeleft,(float)0);
-	tLX->cFont.Draw(bmpDest, x+width-180, j+2, MakeColour(200,200,200), "Returning to lobby in " + itoa((int)timeleft));
+	tLX->cFont.Draw(bmpDest, x+width-180, j+2, tLX->clReturningToLobby, "Returning to lobby in " + itoa((int)timeleft));
 
 
 	// Draw the mouse
@@ -703,7 +1031,6 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 	bUpdateScore = false;
 
 	// Teams
-	static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
 	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
 
 	int width = bmpImage->w;
@@ -885,7 +1212,7 @@ void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 			if(score == -1)
 				continue;
 
-			colour = MakeColour( teamcolours[team*3], teamcolours[team*3+1],teamcolours[team*3+2]);
+			colour = tLX->clTeamColors[team];
 
 			tLX->cFont.Draw(bmpDest, x+15, j, colour, teamnames[team] + " team  (" + itoa(score) + ")");
 			if(iLives != WRM_UNLIM)
@@ -974,16 +1301,16 @@ void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fg
 // Draw the local chat
 void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 {
-	int y = 0;
+	int y = tInterfaceSettings.LocalChatY;
 	unsigned int i;
 	for(i=(uint)MAX((int)0,(int)cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
 		line_t *l = cChatbox.GetLine(i);
 
-		// This chat times out after a few seconds AND is on the top of the screen
+		// This chat times out after a few seconds
 		if(l && tLX->fCurTime - l->fTime < 3) {
-			tLX->cFont.Draw(bmpDest, 6, y+1, 0, l->strLine);
-			tLX->cFont.Draw(bmpDest, 5, y, l->iColour, l->strLine);
-			y+=18;
+			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, l->strLine); // Shadow
+			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, l->iColour, l->strLine);
+			y+=tLX->cFont.GetHeight()+1; // +1 - shadow
 		}
 	}
 }
@@ -995,21 +1322,10 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 {
 	if (!cChatList)
 		return;
-	/*int i;
-	int y = 386;
 
-	for(i=MAX(0,cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
-		line_t *l = cChatbox.GetLine(i);
-
-		// This chat is in the black region of the screen
-		if(l) {
-			//tLX->cFont.Draw(bmpDest, 190, y+1, 0, l->strLine);
-			tLX->cFont.Draw(bmpDest, 190, y, l->iColour, l->strLine);
-			y+=15;
-		}
-	}*/
 	CListview *lv = (CListview *)cChatList;
 
+	// Get any new lines
 	line_t *l = NULL;
 	while((l = cChatbox.GetNewLine()) != NULL) {
 
@@ -1031,8 +1347,25 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	mouse_t *Mouse = GetMouse();
 	int inbox = lv->InBox(Mouse->X,Mouse->Y+GetCursorHeight(CURSOR_ARROW));	// small hack: count the mouse height so we avoid "freezing
 																			// the mouse image when the user moves cursor away
-	if (lv->NeedsRepaint() || inbox)  {
-		DrawRectFill(bmpDest,165,382,511,480,tLX->clBlack);
+	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)))  {	// Repainting when new messages/scrolling, 
+																				// or when user is moving the mouse over the chat
+
+		// Local and net play use different backgrounds
+		SDL_Surface *bgImage = gfxGame.bmpGameNetBackground;
+		if (tGameInfo.iGameType == GME_LOCAL)
+			bgImage = gfxGame.bmpGameLocalBackground;
+
+		if (bgImage)  // Due to backward compatibility, this doesn't have to exist
+			DrawImageAdv(bmpDest,
+						 bgImage,
+						 tInterfaceSettings.ChatBoxX,
+						 0,
+						 tInterfaceSettings.ChatBoxX,
+						 480 - bgImage->h,
+						 tInterfaceSettings.ChatBoxW,
+						 bgImage->h);
+		else
+			DrawRectFill(bmpDest,165,382,511,480,tLX->clGameBackground);
 		lv->Draw(bmpDest);
 	}
 
@@ -1330,16 +1663,13 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
     // Draw the players
 	int j = y+25;
     short i;
+	Uint32 iColor;
+	CWorm *p;
     for(i=0;i<iScorePlayers;i++) {
-        CWorm *p = &cRemoteWorms[iScoreboard[i]];
+        p = &cRemoteWorms[iScoreboard[i]];
 
 		// Get the team colour
-								// Blue				Red				Green			Yellow
-		static const Uint8 teamcolours[] = {0x02,0xB8,0xFC,  0xFF,0x02,0x02,  0x20,0xFD,0x00,  0xFD,0xF4,0x00};
-		Uint8 clR = teamcolours[p->getTeam()*3];
-		Uint8 clG = teamcolours[p->getTeam()*3+1];
-		Uint8 clB = teamcolours[p->getTeam()*3+2];
-		Uint32 iColor = MakeColour(clR,clG,clB);
+		iColor = tLX->clTeamColors[p->getTeam()];
 
         // If this player is local & human, highlight it
         if(p->getType() == PRF_HUMAN && p->getLocal())

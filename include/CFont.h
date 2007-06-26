@@ -69,6 +69,7 @@ public:
 	void				DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt);
 	void				DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt);
 	void				DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt);
+	void				DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string& txt);
 
 	void				Shutdown(void);
 

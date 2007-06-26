@@ -99,7 +99,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /I "include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "WITH_MEDIAPLAYER" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "../../include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "WITH_MEDIAPLAYER" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0xc09 /d "NDEBUG"
@@ -324,6 +324,14 @@ SOURCE=..\..\src\server\CBanList.cpp
 # Begin Source File
 
 SOURCE=..\..\include\CBanList.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\client\CBar.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CBar.h
 # End Source File
 # Begin Source File
 

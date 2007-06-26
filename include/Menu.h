@@ -37,6 +37,7 @@
 #include "CImage.h"
 #include "CBox.h"
 #ifdef WITH_MEDIAPLAYER
+#include "Sounds.h"
 #include "CMediaPlayer.h"
 #endif
 #include "CssParser.h"
@@ -214,7 +215,6 @@ class menu_t { public:
 	SDL_Surface		*bmpHost;
 	SDL_Surface		*bmpConnectionSpeeds[4];
 	SDL_Surface		*bmpSpeech;
-	SDL_Surface		*bmpTeamColours[4];
     SDL_Surface     *bmpHandicap;
 
 	SDL_Surface		*bmpTriangleUp;

@@ -41,6 +41,10 @@ class gfxgame_t { public:
 	SDL_Surface		*bmpSparkle;
 	SDL_Surface		*bmpInfinite;
 	SDL_Surface		*bmpLag;
+	SDL_Surface		*bmpGameNetBackground;
+	SDL_Surface		*bmpGameLocalBackground;
+	SDL_Surface		*bmpGameTopBar;
+	SDL_Surface		*bmpTeamColours[4];
 
 	SDL_Surface		*bmpBonus;
 	SDL_Surface		*bmpHealth;

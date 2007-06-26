@@ -111,10 +111,6 @@ int Menu_Initialize(bool *game)
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[2], "data/frontend/con_bad.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[3], "data/frontend/con_none.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpSpeech, "data/frontend/speech.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpTeamColours[0], "data/frontend/team_1.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpTeamColours[1], "data/frontend/team_2.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpTeamColours[2], "data/frontend/team_3.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpTeamColours[3], "data/frontend/team_4.png");
     LOAD_IMAGE_WITHALPHA(tMenu->bmpHandicap, "data/frontend/handicap.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");

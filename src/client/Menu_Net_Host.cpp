@@ -1134,7 +1134,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
                 sv_w->getLobby()->iTeam = l->iTeam;
                 if( gl->nGameMode == GMT_TEAMDEATH ) {
 
-                    DrawImage(bmpDest, tMenu->bmpTeamColours[l->iTeam], x+200, y-2);
+                    DrawImage(bmpDest, gfxGame.bmpTeamColours[l->iTeam], x+200, y-2);
 
                     // Check if the team colour was clicked on
                     if( MouseInRect(x+200, y-2, 18,16) && Mouse->Up ) {

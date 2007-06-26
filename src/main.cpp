@@ -29,6 +29,15 @@
 #include <sys/stat.h>
 #endif
 
+// Leak checking
+#ifdef _MSC_VER
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif // _DEBUG
+#endif // _MSC_VER
+
 // TODO: i hate globals ...
 // we have to create a basic class Game or something
 

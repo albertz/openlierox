@@ -1287,8 +1287,6 @@ void GameServer::Shutdown(void)
 	}
 
 	if(cWorms) {
-		for(i=0;i<MAX_WORMS;i++)
-			cWorms[i].Shutdown();
 		delete[] cWorms;
 		cWorms = NULL;
 	}

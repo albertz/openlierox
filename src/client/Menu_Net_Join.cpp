@@ -515,7 +515,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 						bRecolorized = true;
 					}
 
-					DrawImage(tMenu->bmpScreen, tMenu->bmpTeamColours[l->iTeam], x+200, y-2);
+					DrawImage(tMenu->bmpScreen, gfxGame.bmpTeamColours[l->iTeam], x+200, y-2);
 				}
 				else  {
 					// Recolorize the skin

@@ -204,8 +204,33 @@ int CFont::GetHeight(const std::string& buf) {
 }
 
 ///////////////////
+// Draws a font at X, Y, but visible only in specified rect
+void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
+	// Set the special clipping rectangle and then draw the font
+
+	static SDL_Rect oldrect, newrect;
+	SDL_GetClipRect(dst,&oldrect);  // Save the old rect
+
+	// Fill in the details
+	newrect.x = rectX;
+	newrect.y = rectY;
+	newrect.w = rectW;
+	newrect.h = rectH;
+
+	// Special clipping
+	SDL_SetClipRect(dst,&newrect);
+
+	// Blit the font
+	DrawAdv(dst, x, y, 9999, col, txt);
+
+	// Restore original clipping rect
+	SDL_SetClipRect(dst, &oldrect);
+}
+
+///////////////////
 // Draw a font (advanced)
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
+	
 	int pos = 0; // Offset, x+pos is current character position in pixels
 	short l;
 	Uint32 pixel;

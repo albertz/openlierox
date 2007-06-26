@@ -20,6 +20,8 @@
 #include "Menu.h"
 #include "console.h"
 #include "FindFile.h"
+#include "Graphics.h"
+#include "CBar.h"
 #include "CWorm.h"
 #include "Error.h"
 #include "Protocol.h"
@@ -219,6 +221,7 @@ int CClient::Initialize(void)
 	if(!InitializeDrawing())
 		return false;
 
+	// Initialize chat box (must be after drawing because of interface settings)
 	cChatList = (void *)(new CListview);
 	if (!cChatList)
 		return false;
@@ -226,7 +229,11 @@ int CClient::Initialize(void)
 	((CListview *)cChatList)->setShowSelect(false);
 	((CListview *)cChatList)->setRedrawMenu(false);
 	((CListview *)cChatList)->setDrawBorder(false);
-	((CListview *)cChatList)->Setup(0,170,385,340,95);
+	((CListview *)cChatList)->Setup(0, 
+									tInterfaceSettings.ChatBoxX,
+									tInterfaceSettings.ChatBoxY,
+									tInterfaceSettings.ChatBoxW,
+									tInterfaceSettings.ChatBoxH);
 	
 	
 
@@ -236,6 +243,7 @@ int CClient::Initialize(void)
 	// Initialize the shooting list
 	cShootList.Initialize();
 
+	// General key shortcuts
 	cChat_Input.Setup(tLXOptions->sGeneralControls[SIN_CHAT]);
     cShowScore.Setup(tLXOptions->sGeneralControls[SIN_SCORE]);
 	cShowHealth.Setup(tLXOptions->sGeneralControls[SIN_HEALTH]);
@@ -432,7 +440,7 @@ void CClient::Disconnect(void)
 // Setup the viewports for the local players
 void CClient::SetupViewports(void)
 {
-    for( int i=0; i<3; i++ )
+    for( int i=0; i<NUM_VIEWPORTS; i++ )
         cViewports[i].setUsed(false);
 
     // Setup inputs
@@ -440,12 +448,24 @@ void CClient::SetupViewports(void)
     cViewports[1].setupInputs( tLXOptions->sPlayerControls[1] );
 
 
+	// Setup according to top and bottom interface bars
+	SDL_Surface *topbar = gfxGame.bmpGameTopBar;
+	SDL_Surface *bottombar = NULL;
+	if (tGameInfo.iGameType == GME_LOCAL)
+		bottombar = gfxGame.bmpGameLocalBackground;
+	else
+		bottombar = gfxGame.bmpGameNetBackground;
+
+
+	int top = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 4); // Top bound of the viewports
+	int h = bottombar ? (480 - bottombar->h - top) : (382 - top); // Height of the viewports
+
 	// If there is only 1 local player, setup 1 main viewport
 	if(iNumWorms == 1) {
         // HACK HACK: FOR AI TESTING
         //cViewports[0].Setup(0,0,640,382,VW_FREELOOK);
 
-        cViewports[0].Setup(0,0,640,382,VW_FOLLOW);
+        cViewports[0].Setup(0, top, 640, h, VW_FOLLOW);
         cViewports[0].setTarget(cLocalWorms[0]);
 		cViewports[0].setUsed(true);
 	}
@@ -454,18 +474,20 @@ void CClient::SetupViewports(void)
 	if(iNumWorms >= 2) {
         bool both = (cLocalWorms[1]->getType() == PRF_HUMAN);
 
-        if( !both ) {
-            cViewports[0].Setup(0,0,640,382,VW_FOLLOW);
+        if( !both ) {  // only one human
+
+            cViewports[0].Setup(0, top, 640, h, VW_FOLLOW);
             cViewports[0].setTarget(cLocalWorms[0]);
 		    cViewports[0].setUsed(true);
         }
 
-        if( both ) {
-            cViewports[0].Setup(0,0,318,382,VW_FOLLOW);
+        else { // two humans
+
+            cViewports[0].Setup(0, top, 318, h, VW_FOLLOW);
             cViewports[0].setTarget(cLocalWorms[0]);
 		    cViewports[0].setUsed(true);
 
-		    cViewports[1].Setup(322,0,318,382,VW_FOLLOW);
+		    cViewports[1].Setup(322, top, 318, h, VW_FOLLOW);
             cViewports[1].setTarget(cLocalWorms[1]);
 		    cViewports[1].setUsed(true);
         }
@@ -599,11 +621,29 @@ void CClient::Shutdown(void)
 		cMap = NULL;
 	}
 
+	// Box buffer
+	if (bmpBoxBuffer)  {
+		SDL_FreeSurface(bmpBoxBuffer);
+		bmpBoxBuffer = NULL;
+	}
+
 	// Scoreboard buffer
 	if (bmpScoreBuffer)  {
 		SDL_FreeSurface(bmpScoreBuffer);
 		bmpScoreBuffer = NULL;
 	}
+
+	// Bars
+	if (cHealthBar1)
+		delete cHealthBar1;
+	if (cHealthBar2)
+		delete cHealthBar2;
+	if (cWeaponBar1)
+		delete cWeaponBar1;
+	if (cWeaponBar2)
+		delete cWeaponBar2;
+
+	cHealthBar1 = cHealthBar2 = cWeaponBar1 = cWeaponBar2 = NULL;
 
 	// Shooting list
 	cShootList.Shutdown();

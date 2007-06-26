@@ -21,6 +21,7 @@
 #include "Graphics.h"
 #include "GfxPrimitives.h"
 #include "CWorm.h"
+#include "CBar.h"
 #include "MathLib.h"
 
 
@@ -127,6 +128,11 @@ void CWorm::Clear(void)
 	fLastJump = 999999;
 	fLastWeaponChange = 0;
 	fLastCompleting = -9999;
+
+	// Graphics
+	cHealthBar = new CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
+	if (cHealthBar)
+		cHealthBar->SetLabelVisible(false);
 }
 
 
@@ -144,6 +150,12 @@ void CWorm::Init(void)
 void CWorm::Shutdown(void)
 {
 	FreeGraphics();
+
+	// Free the healthbar
+	if (cHealthBar)  {
+		delete cHealthBar;
+	}
+	cHealthBar = NULL;
 
     // Shutdown the AI
     if(iType == PRF_COMPUTER)
@@ -278,7 +290,6 @@ void CWorm::Spawn(CVec position) {
 int CWorm::LoadGraphics(int gametype)
 {
 	bool team = false;
-    static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
     Uint8 r=0,g=0,b=0;
     
 	// Destroy any previous graphics
@@ -303,10 +314,8 @@ int CWorm::LoadGraphics(int gametype)
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH) {
 		team = true;
-		r = teamcolours[iTeam*3];
-		g = teamcolours[iTeam*3+1];
-		b = teamcolours[iTeam*3+2];
-		iColour = MakeColour(r,g,b);
+		GetColour3(tLX->clTeamColors[iTeam], SDL_GetVideoSurface(), &r, &g, &b);
+		iColour = tLX->clTeamColors[iTeam];
 	}
 
 	
@@ -362,17 +371,10 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	Uint8 r,g,b;
 	Uint32 pixel;
 	
+	if (team)
+		iColour = tLX->clTeamColors[iTeam];
+
 	GetColour3(iColour,SDL_GetVideoSurface(),&r,&g,&b);
-
-	// Team graphics
-	static const Uint8 teamcolours[] = {102,153,255,  255,51,0,  51,153,0,  255,255,0};
-
-	if(team) {
-		r = teamcolours[iTeam*3];
-		g = teamcolours[iTeam*3+1];
-		b = teamcolours[iTeam*3+2];
-		iColour = MakeColour(r,g,b);
-	}
 
 	int ColR = r;
 	int ColG = g;
@@ -777,26 +779,37 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 		if (!iLocal || iType != PRF_HUMAN)  {
 			x += v->GetLeft();
 
-			static Uint32 BorderColor;
-			BorderColor = MakeColour(0x49,0x50,0x65);
-			int iShowHealth = Round((float)((getHealth()+15)/20));
-			DrawRect(bmpDest,x-10,y-20,x+15,y-15,BorderColor);
-			DrawVLine(bmpDest,y-19,y-16,x-5,BorderColor);
-			DrawVLine(bmpDest,y-19,y-16,x,BorderColor);
-			DrawVLine(bmpDest,y-19,y-16,x+5,BorderColor);
-			DrawVLine(bmpDest,y-19,y-16,x+10,BorderColor);
+			if (cHealthBar->IsProperlyLoaded())  {
 
-										// Red			Orange				Yellow		   Light Green		  Green	
-			static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
+				cHealthBar->SetX(x);
+				cHealthBar->SetY(y);
+				cHealthBar->Draw( bmpDest );
 
-			// Clamp it
-			if (iShowHealth > 5)
-				iShowHealth = 5;
+			} else {  // Old style healthbar
 
-			Uint32 CurColor;
-			for (short i=0; i<iShowHealth; i++) {
-				CurColor = MakeColour(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
-				DrawRectFill(bmpDest,x-10+(i*5+1),y-19,x-10+(i*5+1)+4,y-15,CurColor);
+				// Draw the "grid"
+				static Uint32 BorderColor;
+				BorderColor = MakeColour(0x49,0x50,0x65);
+				int iShowHealth = Round((float)((getHealth()+15)/20));
+				DrawRect(bmpDest,x-10,y-20,x+15,y-15,BorderColor);
+				DrawVLine(bmpDest,y-19,y-16,x-5,BorderColor);
+				DrawVLine(bmpDest,y-19,y-16,x,BorderColor);
+				DrawVLine(bmpDest,y-19,y-16,x+5,BorderColor);
+				DrawVLine(bmpDest,y-19,y-16,x+10,BorderColor);
+
+											// Red			Orange				Yellow		   Light Green		  Green	
+				static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
+
+				// Clamp it
+				if (iShowHealth > 5)
+					iShowHealth = 5;
+
+				Uint32 CurColor;
+				for (short i=0; i<iShowHealth; i++) {
+					CurColor = MakeColour(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
+					DrawRectFill(bmpDest,x-10+(i*5+1),y-19,x-10+(i*5+1)+4,y-15,CurColor);
+				}
+
 			}
 
 			WormNameY = 35;
@@ -935,13 +948,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	if(!iLocal || (iLocal && iType != PRF_HUMAN)) {
 		//tLX->cFont.DrawCentre(bmpDest,x+1,y-29,0,sName);
 		if (tGameInfo.iGameMode == GMT_TEAMDEATH && tLXOptions->iColorizeNicks)  {
-									// Blue				Red				Green			Yellow
-			static const Uint8 teamcolours[] = {0x02,0xB8,0xFC,  0xFF,0x02,0x02,  0x20,0xFD,0x00,  0xFD,0xF4,0x00};
-			Uint8 clR = teamcolours[iTeam*3];
-			Uint8 clG = teamcolours[iTeam*3+1];
-			Uint8 clB = teamcolours[iTeam*3+2];
-			Uint32 iColor = MakeColour(clR,clG,clB);
-			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,iColor,sName);
+			Uint32 col = tLX->clTeamColors[iTeam];
+			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,sName);
 		} // if
 		else
 		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,sName);

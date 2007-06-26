@@ -13,12 +13,11 @@
 // Created 18/6/07
 // Dark Charlie
 
-#include "LieroX.h"
+#include "FindFile.h"
 #include "InputEvents.h"
 #include "GfxPrimitives.h"
-#include "Cursor.h"
-#include "FindFile.h"
 #include "ConfigHandler.h"
+#include "Cursor.h"
 
 //
 // Game cursor handling

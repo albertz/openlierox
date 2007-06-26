@@ -14,9 +14,8 @@
 // Jason Boettcher
 
 
-#include "LieroX.h"
-#include "Graphics.h"
 #include "GfxPrimitives.h"
+#include "Graphics.h"
 #include "Cursor.h"
 #include "ConfigHandler.h"
 
@@ -86,6 +85,18 @@ int LoadGraphics(void)
 	tLX->clConsoleWarning = MakeColour(200,128,128);
 	tLX->clConsoleDev = MakeColour(100,100,255);
 	tLX->clConsoleChat = MakeColour(100,255,100);
+	tLX->clReturningToLobby = MakeColour(200,200,200);
+	tLX->clTeamColors[0] = MakeColour(2, 184, 252);  // Blue
+	tLX->clTeamColors[1] = MakeColour(255, 2, 2); // Red
+	tLX->clTeamColors[2] = MakeColour(32, 253, 0); // Green
+	tLX->clTeamColors[3] = MakeColour(253, 244, 0); // Yellow
+	tLX->clHealthLabel = MakeColour(0, 222, 0);
+	tLX->clWeaponLabel = MakeColour(0, 0, 222);
+	tLX->clLivesLabel = MakeColour(0, 222, 0);
+	tLX->clKillsLabel = MakeColour(222, 0, 0);
+	tLX->clFPSLabel = tLX->clWhite;
+	tLX->clPingLabel = tLX->clWhite;
+	tLX->clSpecMsgLabel = tLX->clWhite;
 
 
 	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
@@ -105,9 +116,18 @@ int LoadGraphics(void)
 	LOAD_IMAGE(gfxGame.bmpSparkle, "data/gfx/sparkle.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpInfinite,"data/gfx/infinite.png");
 	LOAD_IMAGE(gfxGame.bmpLag, "data/gfx/lag.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[0], "data/frontend/team_1.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[1], "data/frontend/team_2.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[2], "data/frontend/team_3.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[3], "data/frontend/team_4.png");
 
 	LOAD_IMAGE(gfxGame.bmpBonus, "data/gfx/bonus.png");
 	LOAD_IMAGE(gfxGame.bmpHealth, "data/gfx/health.png");
+
+	// These files don't have to be present (backward compatibility)
+	gfxGame.bmpGameNetBackground = LoadImage("data/frontend/background_netgame.png",false);
+	gfxGame.bmpGameLocalBackground = LoadImage("data/frontend/background_localgame.png",false);
+	gfxGame.bmpGameTopBar = LoadImage("data/frontend/top_bar.png",false);
 
 	// Cursors
 	if (!InitializeCursors())
@@ -196,6 +216,18 @@ int LoadGraphics(void)
 	ReadColour(colorfile,"Colours","ConsoleWarning",	&tLX->clConsoleWarning,		tLX->clConsoleWarning);
 	ReadColour(colorfile,"Colours","ConsoleDev",		&tLX->clConsoleDev,			tLX->clConsoleDev);
 	ReadColour(colorfile,"Colours","ConsoleChat",		&tLX->clConsoleChat,		tLX->clConsoleChat);
+	ReadColour(colorfile,"Colours","ReturningToLobby",	&tLX->clReturningToLobby,	tLX->clReturningToLobby);
+	ReadColour(colorfile,"Colours","Team1",				&tLX->clTeamColors[0],		tLX->clTeamColors[0]);
+	ReadColour(colorfile,"Colours","Team2",				&tLX->clTeamColors[1],		tLX->clTeamColors[1]);
+	ReadColour(colorfile,"Colours","Team3",				&tLX->clTeamColors[2],		tLX->clTeamColors[2]);
+	ReadColour(colorfile,"Colours","Team4",				&tLX->clTeamColors[3],		tLX->clTeamColors[3]);
+	ReadColour(colorfile,"Colours","HealthLabel",		&tLX->clHealthLabel,		tLX->clHealthLabel);
+	ReadColour(colorfile,"Colours","WeaponLabel",		&tLX->clWeaponLabel,		tLX->clWeaponLabel);
+	ReadColour(colorfile,"Colours","LivesLabel",		&tLX->clLivesLabel,			tLX->clLivesLabel);
+	ReadColour(colorfile,"Colours","KillsLabel",		&tLX->clKillsLabel,			tLX->clKillsLabel);
+	ReadColour(colorfile,"Colours","FPSLabel",			&tLX->clFPSLabel,			tLX->clFPSLabel);
+	ReadColour(colorfile,"Colours","PingLabel",			&tLX->clPingLabel,			tLX->clPingLabel);
+	ReadColour(colorfile,"Colours","SpecialMsgLabel",	&tLX->clSpecMsgLabel,		tLX->clSpecMsgLabel);
 
 
 	return true;

@@ -206,21 +206,8 @@ void CPlayerMarquee::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
-	// Set the special clipping for the font drawing
-	SDL_Rect newr,oldr;
-	newr.x = iX;
-	newr.y = iY;
-	newr.w = iWidth;
-	newr.h = iHeight;
-
-	SDL_GetClipRect(bmpDest,&oldr);  // Save the old rect
-	SDL_SetClipRect(bmpDest,&newr);
-
-	// Draw the font passed into the new rect
-	tLX->cFont.Draw(bmpDest,iX-iFrame,iY,iColour,szText);
-
-	// Restore the old rect
-	SDL_SetClipRect(bmpDest,&oldr);
+	// Draw the font passed into the widget rect
+	tLX->cFont.DrawInRect(bmpDest,iX-iFrame,iY,iX,iY,iWidth,iHeight,iColour,szText);
 }
 
 //

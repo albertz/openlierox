@@ -60,7 +60,7 @@ public:
 	line_t *GetLine(int n);
 	line_t *GetNewLine(void);
     void    setWidth(int w);
-	unsigned int		getNumLines(void)	{ return WrappedLines.size(); }
+	inline unsigned int		getNumLines(void)	{ return WrappedLines.size(); }
 };
 
 

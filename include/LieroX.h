@@ -18,20 +18,9 @@
 #define __LIEROX_H__
 
 
-#ifdef _MSC_VER
-#ifdef _DEBUG
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#endif // _DEBUG
-#endif // _MSC_VER
-
 #ifdef WIN32
 #include <windows.h>
 #endif
-
-#include <string>
-#include "ProfileSystem.h"
 
 
 #if DEBUG == 1
@@ -65,6 +54,7 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #define RAD2DEG(a)  (a * R2D)
 
 
+#include "ProfileSystem.h"
 #include "CFont.h"
 #include "CVec.h"
 #include "CInput.h"
@@ -144,6 +134,16 @@ class lierox_t { public:
 	Uint32			clConsoleWarning;
 	Uint32			clConsoleDev;
 	Uint32			clConsoleChat;
+	Uint32			clReturningToLobby;
+	Uint32			clTeamColors[4];
+	Uint32			clHealthLabel;
+	Uint32			clWeaponLabel;
+	Uint32			clLivesLabel;
+	Uint32			clKillsLabel;
+	Uint32			clFPSLabel;
+	Uint32			clPingLabel;
+	Uint32			clSpecMsgLabel;
+
 
 	Uint32			clPink;
 	Uint32			clWhite;

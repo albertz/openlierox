@@ -175,7 +175,8 @@ void Menu_LocalFrame(void)
 			// Re-do the buffer
 			DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	        Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
-            Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+			if (tMenu->tFrontendInfo.bPageBoxes)
+				Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
             Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
             tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"Playing");
@@ -195,7 +196,8 @@ void Menu_LocalFrame(void)
 			// Re-do the buffer
 			DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
 	        Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
-            Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
+			if (tMenu->tFrontendInfo.bPageBoxes)
+				Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
             Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
             tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"Playing");
@@ -388,7 +390,7 @@ void Menu_LocalFrame(void)
 								sub->iExtra=3;
 
 							// Change the image
-							sub->bmpImage = tMenu->bmpTeamColours[sub->iExtra];
+							sub->bmpImage = gfxGame.bmpTeamColours[sub->iExtra];
 						}
 					}
 				}
@@ -516,6 +518,7 @@ void Menu_LocalShowMinimap(bool bReload)
 		        // Draw the minimap
 		        //map.UpdateMiniMap(true);
 		        DrawImage(tMenu->bmpMiniMapBuffer, map.GetMiniMap(), 0,0);
+
 		        map.Shutdown();
 	        }
         }
@@ -700,7 +703,7 @@ void Menu_LocalDrawPlayingList(void)
 
         // Team
         if(team) {
-            DrawImage(tMenu->bmpScreen, tMenu->bmpTeamColours[sLocalPlayers[i].nTeam], 510, y);
+            DrawImage(tMenu->bmpScreen, gfxGame.bmpTeamColours[sLocalPlayers[i].nTeam], 510, y);
             // Check for a click
             if(MouseInRect(510,y,18,16)) {
                 if(m_leftup)
