@@ -18,6 +18,7 @@
 #include "Graphics.h"
 #include "Cursor.h"
 #include "ConfigHandler.h"
+#include "LieroX.h"
 
 
 gfxgui_t	gfxGUI;

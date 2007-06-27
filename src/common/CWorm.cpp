@@ -381,8 +381,8 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	const Uint32 gun2 = MakeColour(180,180,180);
 	const Uint32 gun3 = MakeColour(144,144,144);
 
-	for(y=0; y<img->h; y++) {
-		for(x=0; x<img->w; x++) {
+	for(y = 0; y < img->h; y++) {
+		for(x = 0; x < img->w; x++) {
 
 			pixel = GetPixel(img,x,y);
 			GetColour3(pixel,img,&r,&g,&b);

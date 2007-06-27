@@ -17,6 +17,8 @@
 #ifndef __CSERVER_H__
 #define	__CSERVER_H__
 
+#include <string>
+#include "CWorm.h"
 #include "CBanList.h"
 #include "CBonus.h"
 #include "IpToCountryDB.h"

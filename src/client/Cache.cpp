@@ -17,7 +17,6 @@
 // By Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "Sounds.h"
 #include "Cache.h"

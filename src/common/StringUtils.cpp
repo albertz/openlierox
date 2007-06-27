@@ -20,8 +20,8 @@ void StripQuotes(std::string& str)
 		str.erase(0, 1);
 	}
 
-	if(str.size() > 0 && str[str.size()-1] == '\"')  {
-		str.erase(str.length()-1);
+	if(str.size() > 0 && str[str.size() - 1] == '\"')  {
+		str.erase(str.size() - 1);
 	}
 }
 

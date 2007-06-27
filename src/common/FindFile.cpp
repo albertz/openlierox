@@ -17,9 +17,6 @@
 // By Jason Boettcher
 
 
-
-
-
 #include "FindFile.h"
 #include "StringUtils.h"
 

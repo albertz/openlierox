@@ -16,6 +16,9 @@
 #include "GfxPrimitives.h"
 #include "CBar.h"
 #include "StringUtils.h"
+#include "MathLib.h"
+#include "LieroX.h"
+
 
 //////////////
 // Constructor

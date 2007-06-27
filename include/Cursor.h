@@ -16,6 +16,9 @@
 #ifndef __CURSOR_H_
 #define __CURSOR_H_
 
+#include <string>
+
+
 // Cursor indexes
 enum {
 	CURSOR_NONE = -1,
@@ -37,7 +40,7 @@ enum {
 // Cursor class
 class CCursor  {
 public:
-	CCursor(const std::string filename, int type);
+	CCursor(const std::string& filename, int type);
 	~CCursor();
 private:
 	SDL_Surface		*bmpCursor;

@@ -20,10 +20,9 @@
 #ifndef __GFXPRIMITIVES_H__
 #define __GFXPRIMITIVES_H__
 
+#include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
-
-#include "LieroX.h"
-
+#include <string>
 
 
 extern	int		iSurfaceFormat;

@@ -18,6 +18,9 @@
 #include "GfxPrimitives.h"
 #include "ConfigHandler.h"
 #include "Cursor.h"
+#include "types.h"
+#include "LieroX.h"
+
 
 //
 // Game cursor handling
@@ -106,7 +109,7 @@ int GetCursorWidth(int c)  {
 
 /////////////////
 // Constructor
-CCursor::CCursor(const std::string filename, int type)
+CCursor::CCursor(const std::string& filename, int type)
 {
 	// Defaults
 	iType = type;

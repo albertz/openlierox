@@ -15,7 +15,6 @@
 
 #include <assert.h>
 
-#include "defs.h"
 #include "EndianSwap.h"
 #include "LieroX.h"
 #include "Menu.h"
