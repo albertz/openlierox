@@ -79,6 +79,8 @@ class interface_sett { public:
 	int		ChatBoxH;
 	int		MiniMapX;
 	int		MiniMapY;
+	int		MiniMapW;
+	int		MiniMapH;
 	int		FpsX;
 	int		FpsY;
 	int		FpsW;

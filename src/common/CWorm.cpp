@@ -128,6 +128,10 @@ void CWorm::Clear(void)
 	fLastJump = 999999;
 	fLastWeaponChange = 0;
 	fLastCompleting = -9999;
+
+	// Graphics
+	cHealthBar = CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
+	cHealthBar.SetLabelVisible(false);
 }
 
 
@@ -145,12 +149,6 @@ void CWorm::Init(void)
 void CWorm::Shutdown(void)
 {
 	FreeGraphics();
-
-	// Free the healthbar
-	if (cHealthBar)  {
-		delete cHealthBar;
-	}
-	cHealthBar = NULL;
 
     // Shutdown the AI
     if(iType == PRF_COMPUTER)
@@ -774,11 +772,11 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 		if (!iLocal || iType != PRF_HUMAN)  {
 			x += v->GetLeft();
 
-			if (cHealthBar->IsProperlyLoaded())  {
+			if (cHealthBar.IsProperlyLoaded())  {
 
-				cHealthBar->SetX(x);
-				cHealthBar->SetY(y);
-				cHealthBar->Draw( bmpDest );
+				cHealthBar.SetX(x);
+				cHealthBar.SetY(y);
+				cHealthBar.Draw( bmpDest );
 
 			} else {  // Old style healthbar
 

@@ -28,6 +28,7 @@ enum {
 
 class CBar {
 public:
+	CBar() {}
 	CBar(SDL_Surface *bmp, int x, int y, int label_x, int label_y, int dir);
 
 private:

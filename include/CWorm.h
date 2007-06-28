@@ -153,11 +153,6 @@ class CWorm {
 public:
 	// Constructor
 	CWorm() {
-		// Graphics
-		cHealthBar = new CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
-		if(cHealthBar)
-			cHealthBar->SetLabelVisible(false);
-		
 		Clear();
 	}
 
@@ -254,7 +249,7 @@ private:
 	SDL_Surface	*bmpGibs;
 	SDL_Surface	*bmpPic;
     SDL_Surface *bmpShadowPic;
-	CBar		*cHealthBar;
+	CBar		cHealthBar;
 	//CViewport	*pcViewport;
 
 

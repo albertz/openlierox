@@ -364,7 +364,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		// If we're remotely joining a server, we need to load the map
 		// Note: This shouldn't happen, coz network games can't use random maps
 		if(tGameInfo.iGameType == GME_JOIN) {
-			if(!cMap->New(504,350,"dirt")) {
+			if(!cMap->New(504,350,"dirt",tInterfaceSettings.MiniMapW,tInterfaceSettings.MiniMapH)) {
 				Disconnect();
 				iGameReady = false;
 				printf("CClient::ParsePrepareGame: could not create random map\n");
@@ -392,6 +392,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		}
 
 		if(tGameInfo.iGameType == GME_JOIN) {
+			cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
 			if(!cMap->Load(buf)) {
 				// Show a cannot load level error message
 
@@ -414,6 +415,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
             // Grab the server's copy of the map
 			cMap = cServer->getMap();
+			cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
 			bMapGrabbed = true;
 		}
 

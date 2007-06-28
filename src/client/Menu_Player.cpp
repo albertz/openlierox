@@ -403,6 +403,7 @@ void Menu_Player_NewPlayer(int mouse)
                     // Load the skin
 					buf = "skins/"+buf;
 					tMenu->bmpWorm = LoadImage(buf);
+					SetColorKey(tMenu->bmpWorm);
                 }
                 break;
 		}

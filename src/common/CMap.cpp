@@ -33,13 +33,15 @@
 
 ///////////////////
 // Create a new map
-int CMap::New(uint _width, uint _height, const std::string& _theme)
+int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
 {
 	if(Created)
 		Shutdown();
 
 	Width = _width;
 	Height = _height;
+	MinimapWidth = _minimap_w;
+	MinimapHeight = _minimap_h;
 	NumObjects = 0;
     nTotalDirtCount = 0;
     sRandomLayout.bUsed = false;
@@ -440,7 +442,7 @@ int CMap::CreateSurface(void)
 		return false;
 	}
 
-	bmpMiniMap = gfxCreateSurface(128, 96);
+	bmpMiniMap = gfxCreateSurface(MinimapWidth, MinimapHeight);
 	if(bmpMiniMap == NULL) {
 		SetError("CMap::CreateSurface(): bmpMiniMap creation failed, perhaps out of memory");
 		return false;
@@ -453,6 +455,24 @@ int CMap::CreateSurface(void)
 	}
 
 	return true;
+}
+
+////////////////
+// Set dimensions of the minimap
+void CMap::SetMinimapDimensions(uint _w, uint _h)
+{
+	// If already created, reallocate
+	if (bmpMiniMap)  {
+		SDL_FreeSurface(bmpMiniMap);
+		bmpMiniMap = gfxCreateSurface(_w, _h);
+		MinimapWidth = _w;
+		MinimapHeight = _h;
+		UpdateMiniMap(true);
+	// Just set it and CreateSurface will do the rest of the job
+	} else {
+		MinimapWidth = _w;
+		MinimapHeight = _h;
+	}
 }
 
 

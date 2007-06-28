@@ -119,6 +119,8 @@ private:
 	int			Type;
 	uint		Width;
 	uint		Height;
+	uint		MinimapWidth;
+	uint		MinimapHeight;
 	theme_t		Theme;
     uint         nTotalDirtCount;
 
@@ -161,7 +163,7 @@ private:
 public:
 	// Methods
 
-	int			New(uint _width, uint _height, const std::string& _theme);
+	int			New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	int			Load(const std::string& filename);
 	int			LoadOriginal(FILE *fp);
 	int			Save(const std::string& name, const std::string& filename);
@@ -269,6 +271,9 @@ public:
 
 	inline uint			GetWidth(void) const	{ return Width; }
 	inline uint			GetHeight(void)	const	{ return Height; }
+	inline uint			GetMinimapWidth() const { return MinimapWidth; }
+	inline uint			GetMinimapHeight() const { return MinimapHeight; }
+	void				SetMinimapDimensions(uint _w, uint _h);
     inline uint         GetDirtCount(void) const { return nTotalDirtCount; }
 
     inline int         getGridCols(void) const  { return nGridCols; }

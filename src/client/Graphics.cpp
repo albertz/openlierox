@@ -14,11 +14,11 @@
 // Jason Boettcher
 
 
+#include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "Graphics.h"
 #include "Cursor.h"
 #include "ConfigHandler.h"
-#include "LieroX.h"
 
 
 gfxgui_t	gfxGUI;
