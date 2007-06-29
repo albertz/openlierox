@@ -195,6 +195,10 @@ SOURCE=..\..\include\CssParser.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\CsvReader.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\Cursor.cpp
 # End Source File
 # Begin Source File
@@ -204,10 +208,6 @@ SOURCE=..\..\include\Cursor.h
 # Begin Source File
 
 SOURCE=..\..\include\CVec.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\CvsReader.h
 # End Source File
 # Begin Source File
 

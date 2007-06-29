@@ -1085,7 +1085,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		buf = tGameInfo.sWelcomeMessage;
 		if (buf.size() > 0)  {
 
-			// Server name
+			// Server name3
 			replacemax(buf, "<server>", tGameInfo.sServername, buf, 1);
 
 			// Host name
@@ -1097,7 +1097,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				static std::string str_addr;
 				NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 				if (str_addr != "")  {
-					info = tIpToCountry->GetInfoAboutIP(str_addr);
+					info = tIpToCountryDB->GetInfoAboutIP(str_addr);
 					replacemax(buf, "<country>", info.Country, buf, 1);
 				}
 			}
@@ -1108,7 +1108,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				static std::string str_addr;
 				NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 				if (str_addr != "")  {
-					info = tIpToCountry->GetInfoAboutIP(str_addr);
+					info = tIpToCountryDB->GetInfoAboutIP(str_addr);
 					replacemax(buf, "<continent>", info.Continent, buf, 1);
 				}
 			}

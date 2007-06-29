@@ -54,6 +54,7 @@ int         nDisableSound = false;
 
 keyboard_t	*kb;
 SDL_Surface	*Screen;
+IpToCountryDB *tIpToCountryDB;
 
 CVec		vGravity = CVec(0,4);
 
@@ -179,6 +180,13 @@ int main(int argc, char *argv[])
 #ifdef WITH_MEDIAPLAYER
 	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 #endif
+
+	// Init the IP to country database
+	tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
+	if (!tIpToCountryDB)  {
+		printf("Error: Could not allocate the IP to Country database.");
+		return -1;
+	}
 
 	while(!tLX->iQuitGame) {
 
@@ -547,6 +555,10 @@ void ShutdownLieroX(void)
 
 	Menu_Shutdown();
 	ShutdownProfiles();
+
+	// Free the IP to Country DB
+	if (IpToCountryDB)
+		delete tIpToCountryDB;
 
     // Free the game info structure
     if(tGameInfo.sMapRandom.psObjects)

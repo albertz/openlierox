@@ -54,6 +54,13 @@ enum {
 	LVS_TEXT
 };
 
+// Subitem vertical aligns
+enum  {
+	VALIGN_TOP=0,
+	VALIGN_MIDDLE,
+	VALIGN_BOTTOM
+};
+
 
 
 // Column structure
@@ -75,6 +82,7 @@ class lv_subitem_t { public:
 	SDL_Surface	*bmpImage;
 	int			iVisible;
 	int			iExtra;
+	int			iValign;
 
 	lv_subitem_t *tNext;
 
@@ -122,6 +130,10 @@ public:
 		bRedrawMenu = true;
 		bDrawBorder = true;
 		bNeedsRepaint = true;
+	}
+
+	~CListview() {
+		Destroy();
 	}
 
 
@@ -191,7 +203,7 @@ public:
 
 	void	AddColumn(const std::string& sText, int iWidth);
 	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img);
+	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, int iVAlign = VALIGN_MIDDLE);
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
 

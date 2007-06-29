@@ -19,6 +19,7 @@
 #include "EndianSwap.h"
 #include "LieroX.h"
 #include "CClient.h"
+#include "IpToCountryDB.h"
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
@@ -358,7 +359,7 @@ void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
 
 ///////////////////
 // Get the level name from specified file
-// TODO: move this to CGameScript
+// TODO: move this to CGameScript (Why???? It's a level, not mod related thing)
 std::string Menu_GetLevelName(const std::string& filename)
 {
 	static char	id[32], name[128];
@@ -383,7 +384,11 @@ std::string Menu_GetLevelName(const std::string& filename)
 			}
 			fclose(fp);
 		}
-		return filename;
+		size_t dotpos = filename.rfind('.');
+		if (dotpos == std::string::npos)
+			return filename;
+		else
+			return filename.substr(dotpos);
 	}
 
 	// Liero level
@@ -1711,48 +1716,44 @@ bool bGotDetails = false;
 bool bOldLxBug = false;
 int nTries = 0;
 float fStart = -9999;
+CListview lvInfo;
+
 
 ///////////////////
 // Draw a 'server info' box
-void Menu_SvrList_DrawInfo(const std::string& szAddress)
+void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 {
-	int w = 450;
-	int h = 420;
 	int y = tMenu->bmpBuffer->h/2 - h/2;
 	int x = tMenu->bmpBuffer->w/2 - w/2;
 
 	Menu_redrawBufferRect(x,y,w,h);
 
-    Menu_DrawBox(tMenu->bmpScreen, x,y, w,h);
-	DrawRectFillA(tMenu->bmpScreen, x+1,y+1, w-1,h-1, tLX->clDialogBackground, 230);
-    tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Server Details")/2, y+5, tLX->clNormalLabel, "Server Details");
+    Menu_DrawBox(tMenu->bmpScreen, x,y, x+w, y+h);
+	DrawRectFillA(tMenu->bmpScreen, x+2,y+2, x+w-2, y+h-2, tLX->clDialogBackground, 230);
+    tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2, y+5, tLX->clNormalLabel, "Server Details");
 
 
     // Get the server details
-	// NOTE: must be static else doesn't work,
-	// because this fct got called again and again
-	// and we got everytime some new information,
-	// but we still want to show also the old ones
-	// TODO: make this better
-    static std::string    szName;
-    static int     nMaxWorms;
-    static int     nState;
-    static std::string    szMapName;
-    static std::string    szModName;
-    static int     nGameMode;
-    static int     nLives;
-    static int     nMaxKills;
-    static int     nLoadingTime;
-    static int     nBonuses;
-    static int     nNumPlayers;
-    static CWorm   cWorms[MAX_WORMS];
+    std::string		szName;
+    int				nMaxWorms;
+    int				nState;
+    std::string		szMapName;
+    std::string		szModName;
+    int				nGameMode;
+    int				nLives;
+    int				nMaxKills;
+    int				nLoadingTime;
+    int				nBonuses;
+    int				nNumPlayers;
+	IpInfo			tIpInfo;
+    CWorm			cWorms[MAX_WORMS];
 
     CBytestream inbs;
     NetworkAddr   addr;
 
     if(nTries < 3 && !bGotDetails && !bOldLxBug) {
 
-		tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2-tLX->cFont.GetWidth("Loading info...")/2, y+h/2-8, tLX->clNormalLabel,  "Loading info...");
+		tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2, y+h/2-8, tLX->clNormalLabel,  "Loading info...");
 
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
@@ -1769,6 +1770,16 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 		        if(cmd == "lx::serverinfo") {
                     bGotDetails = true;
 
+					// Get the IP info
+					std::string str_ip;
+					if (NetAddrToString(&addr, str_ip))
+						tIpInfo = tIpToCountryDB->GetInfoAboutIP(str_ip);
+					else  {
+						tIpInfo.Country = "Hackerland";
+						tIpInfo.Continent = "Hackerland";
+					}
+						
+
                     // Read the info
                     szName = inbs.readString(64);
 	                nMaxWorms = MIN(MAX_PLAYERS,MAX((int)inbs.readByte(),0));
@@ -1779,6 +1790,12 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 					}
 
                     szMapName = inbs.readString(256);
+					// Adjust the map name
+					if (szMapName.find("levels/") == 0) 
+						szMapName.erase(0,7); // Remove the path if present
+					szMapName = Menu_GetLevelName(szMapName);
+
+
                     szModName = inbs.readString(256);
 	                nGameMode = inbs.readByte();
 	                nLives = inbs.readInt16();
@@ -1825,85 +1842,166 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress)
 	        bs.Send(tMenu->tSocket[SCK_NET]);
         }
 
-		if (!bGotDetails)  {
+		// Got details, fill in the listview
+		if (bGotDetails && !bOldLxBug)  {
+
+			// States and gamemodes
+   			const std::string states[] = {"Open", "Loading", "Playing", "Unknown"};
+			const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions", "Unknown"};
+
+
+			// Checks
+			if (nState < 0 || nState > 2)
+				nState = 3;
+			if (nGameMode < 0 || nGameMode > 3)
+				nGameMode = 4;
+			nNumPlayers = MIN(nNumPlayers, MAX_WORMS-1);
+
+
+			// Setup the listview
+			lvInfo.Setup(0, x + 15, y+5, w - 30, h - 25);
+			lvInfo.setDrawBorder(false);
+			lvInfo.setRedrawMenu(false);
+			lvInfo.setShowSelect(false);
+			lvInfo.setOldStyle(true);
+
+
+			lvInfo.Destroy(); // Clear any old info
+
+			// Columns
+			int first_column_width = tLX->cFont.GetWidth("Loading Times:") + 30; // Width of the widest item in this column + some space
+			int last_column_width = tLX->cFont.GetWidth("999"); // Kills width
+			lvInfo.AddColumn("", first_column_width); 
+			lvInfo.AddColumn("", lvInfo.getWidth() - first_column_width - last_column_width - gfxGUI.bmpScrollbar->w); // The rest
+			lvInfo.AddColumn("", last_column_width);
+
+			int index = 0;  // Current item index
+
+			// Server name
+			lvInfo.AddItem("servername", index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Server name:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szName, NULL);
+
+			// Country and continent
+			lvInfo.AddItem("country", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Country:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", NULL);
+
+			// Map name
+			lvInfo.AddItem("mapname", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Level name:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szMapName, NULL);
+
+			// Mod name
+			lvInfo.AddItem("modname", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Mod name:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szModName, NULL);
+
+			// State
+			lvInfo.AddItem("state", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "State:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, states[nState], NULL);
+
+			// Playing
+			lvInfo.AddItem("playing", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Playing:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, itoa(nNumPlayers) + " / " + itoa(nMaxWorms), NULL);
+
+			// Game type
+			lvInfo.AddItem("game type", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Game Type:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, gamemodes[nGameMode], NULL);
+
+			// Lives
+			lvInfo.AddItem("lives", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Lives:", NULL);
+			if (nLives < 0)
+				lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite);
+			else
+				lvInfo.AddSubitem(LVS_TEXT, itoa(nLives), NULL);
+
+			// Max kills
+			lvInfo.AddItem("maxkills", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Max Kills:", NULL);
+			if (nMaxKills < 0)
+				lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite);
+			else
+				lvInfo.AddSubitem(LVS_TEXT, itoa(nMaxKills), NULL);
+
+			// Loading times
+			lvInfo.AddItem("loading", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Loading Times:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, itoa(nLoadingTime) + " %", NULL);
+
+			// Bonuses
+			lvInfo.AddItem("bonuses", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL);
+
+			// Players / kills
+			lvInfo.AddItem("players", ++index, tLX->clNormalLabel);
+			if (nState)  {
+				lvInfo.AddSubitem(LVS_TEXT, "Players/Kills:", NULL);
+
+				// First player (located next to the Players/Kills label)
+				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL);
+				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getKills()), NULL);
+
+				// Rest of the players
+				for (int i=1; i < nNumPlayers; i++)  {
+					lvInfo.AddItem("players"+itoa(i+1), ++index, tLX->clNormalLabel);
+					lvInfo.AddSubitem(LVS_TEXT, "", NULL);
+					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL);
+					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getKills()), NULL);
+				}
+			}
+
+			else  { // Don't draw kills when the server is open
+				lvInfo.AddSubitem(LVS_TEXT, "Players:", NULL);
+
+				// First player (located next to the Players/Kills label)
+				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL);
+
+				// Rest of the players
+				for (int i = 0; i < nNumPlayers; i++)  {
+					lvInfo.AddItem("players"+itoa(i+1), ++index, tLX->clNormalLabel);
+					lvInfo.AddSubitem(LVS_TEXT, "", NULL);
+					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL);
+				}
+			}			
+
+		}
+		else // No details yet
 			return;
-		}
     }
 
-	y+=25;
-	x+=15;
-	static const int FontHeight = MIN(tLX->cFont.GetHeight(),20); // TODO: get rid of this constraint
-	int cy=y;
-
-    // Draw the server details
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy, tLX->clNormalLabel, "Server name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Level name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Mod name:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "State:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Playing:");
-
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Game Type:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Lives:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Max Kills:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Loading Times:");
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Bonuses:");
-	if (!nState)  // Dont show kills when the server is open
-		tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Players:");
-	else
-		tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, "Players/Kills:");
-
-	x+=110;
-
+	// No details, server down
     if(!bGotDetails) {
-        tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clError, "Unable to query server");
+        tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "Unable to query server");
         return;
     }
 
+	// Old bug
     if(bOldLxBug) {
-        tLX->cFont.Draw(tMenu->bmpScreen, x,y, tLX->clError, "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
+        tLX->cFont.Draw(tMenu->bmpScreen, x+15,y+tLX->cFont.GetHeight()+10, tLX->clError, "You can't view details\nof this server because\nLieroX v0.56 contains a bug.\n\nPlease wait until the server\nchanges its state to Playing\nand try again.");
         return;
     }
 
-   	static const std::string states[] = {"Open", "Loading", "Playing", "Unknown"};
-    static const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions", "Unknown"};
-    if(nState < 0 || nState > 2)
-        nState = 3;
-    if(nGameMode < 0 || nGameMode > 3)
-        nGameMode = 4;
-
-	cy = y;
-
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy, tLX->clNormalLabel,  szName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, szMapName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel,  szModName);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel,  states[nState]);
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, itoa(nNumPlayers) + " / " + itoa(nMaxWorms));
-
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel,  gamemodes[nGameMode]);
-	if (nLives < 0)  {  // For infinite lives draw the infinite icon
-		DrawImage(tMenu->bmpScreen,gfxGame.bmpInfinite,x,cy+FontHeight+FontHeight/2-gfxGame.bmpInfinite->h/2);
-		cy += FontHeight;
+	// Process the listview events
+	mouse_t *Mouse = GetMouse();
+	if (lvInfo.InBox(Mouse->X, Mouse->Y))  {
+		lvInfo.MouseOver(Mouse);
+		if (Mouse->Down)
+			lvInfo.MouseDown(Mouse, true);
+		else if (Mouse->Up)
+			lvInfo.MouseUp(Mouse, false);
+		
+		if (Mouse->WheelScrollUp)
+			lvInfo.MouseWheelUp(Mouse);
+		else if (Mouse->WheelScrollDown)
+			lvInfo.MouseWheelDown(Mouse);
 	}
-	else
-		tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, itoa(nLives));
 
-	if (nMaxKills < 0)  {  // For infinite kills draw the infinite icon
-		DrawImage(tMenu->bmpScreen,gfxGame.bmpInfinite,x,cy+FontHeight+FontHeight/2-gfxGame.bmpInfinite->h/2);
-		cy += FontHeight;
-	}
-	else
-		tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, itoa(nMaxKills));
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, itoa(nLoadingTime));
-    tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, nBonuses ? "on" : "off");
-
-	// Don't draw kills when the server is open
-	if(!nState)
-		for (int i=0; i<nNumPlayers; i++)
-			tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, cWorms[i].getName());
-	else
-		for (int i=0; i<nNumPlayers; i++)  {
-			tLX->cFont.Draw(tMenu->bmpScreen, x,cy+=FontHeight, tLX->clNormalLabel, cWorms[i].getName());
-			tLX->cFont.Draw(tMenu->bmpScreen, x+150,cy, tLX->clNormalLabel, itoa( cWorms[i].getKills()));
-		}
-
+	// All ok, draw the details
+	lvInfo.Draw( tMenu->bmpScreen );
 }

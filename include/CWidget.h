@@ -99,6 +99,11 @@ public:
 	int				getEnabled(void)				{ return iEnabled; }
 	void			setEnabled(int _e)				{ iEnabled = _e; }
 
+	int				getX()							{ return iX; }
+	int				getY()							{ return iY; }
+	int				getWidth()						{ return iWidth; }
+	int				getHeight()						{ return iHeight; }
+
 	void			*getParent(void)				{ return cParent; }
 	void			setParent(void *l)				{ cParent = l; }
 

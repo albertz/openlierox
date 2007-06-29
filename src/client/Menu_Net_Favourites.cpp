@@ -437,9 +437,14 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
 	Menu_RedrawMouse(true);
 
+	int center = tMenu->bmpScreen->w/2;
+	int y = tMenu->bmpScreen->h/2 - INFO_H/2;
+
     cDetails.Initialize();
-	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  fd_Refresh,		200,400, 85,15);
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    fd_Ok,      310,400, 40,15);
+	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  fd_Refresh,	center - 105, y+INFO_H-20, 85,15);
+    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    fd_Ok,      center + 20, y+INFO_H-20, 40,15);
+	((CButton *)cDetails.getWidget(fd_Refresh))->setRedrawMenu(false);
+	((CButton *)cDetails.getWidget(fd_Ok))->setRedrawMenu(false);
 
 	bGotDetails = false;
 	bOldLxBug = false;
@@ -459,7 +464,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 		cMediaPlayer.Frame();
 #endif
 
-		Menu_SvrList_DrawInfo(szAddress);
+		Menu_SvrList_DrawInfo(szAddress, INFO_W, INFO_H);
 
         cDetails.Draw(tMenu->bmpScreen);
         gui_event_t *ev = NULL;

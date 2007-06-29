@@ -76,16 +76,17 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			y = iY+tLX->cFont.GetHeight();
 		else
 			y = iY+tLX->cFont.GetHeight()+4;
-	} else {
-		if (bDrawBorder)  {
-			// Re-setup the scrollbar
-			cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight-2);
-		} else {
-			// Re-setup the scrollbar
-			cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight);
-		}
+	} 
+	
 
+	if (bDrawBorder)  {
+		// Re-setup the scrollbar
+		cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight - (y - iY) - 2);
+	} else {
+		// Re-setup the scrollbar
+		cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight - (y - iY));
 	}
+
 	x = iX+4;
 	lv_item_t *item = tItems;
 	int count=0;
@@ -108,8 +109,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		col = tColumns;
 
 		// Find the max height
-		h = item->iHeight;
-		texty = y + (h-tLX->cFont.GetHeight())/2;
+		h = MAX(h, item->iHeight);
 
 		// Selected?
 		if(item->iSelected && bShowSelect) {
@@ -124,6 +124,21 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 			sub = item->tSubitems;
 			col = tColumns;
+
+
+			// Text vertical position
+			switch (sub->iValign)  {
+			case VALIGN_TOP:
+				texty = y;
+				break;
+			case VALIGN_BOTTOM:
+				texty = y + h - tLX->cFont.GetHeight();
+				break;
+			default: // Middle
+				texty = y + (h-tLX->cFont.GetHeight())/2;
+				break;
+			}
+
 			for(;sub;sub = sub->tNext) {
 
 				if(sub->iVisible) {
@@ -132,12 +147,27 @@ void CListview::Draw(SDL_Surface *bmpDest)
 						if (col && !bOldStyle)
 							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,sub->sText);
 						else
-							tLX->cFont.DrawAdv(bmpDest,x,texty,iWidth-2,item->iColour,sub->sText);
+							tLX->cFont.DrawAdv(bmpDest,x,texty,iX+iWidth-x-2,item->iColour,sub->sText);
 					}
 					break;
 
 					case LVS_IMAGE:
-						DrawImage(bmpDest,sub->bmpImage,x,y);
+
+						// Draw according to valign
+						switch (sub->iValign)  {
+						case VALIGN_TOP:
+							DrawImage(bmpDest,sub->bmpImage,x,y);
+							break;
+
+						case VALIGN_BOTTOM:
+							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight - sub->bmpImage->h);
+							break;
+
+						// Middle
+						default:
+							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage->h/2);
+							break;
+						}
 					break;
 					}
 				}
@@ -292,7 +322,7 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img)
+void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img, int iVAlign)
 {
 	lv_subitem_t *sub = new lv_subitem_t;
 
@@ -308,6 +338,7 @@ void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img
 	sub->tNext = NULL;
 	sub->iVisible = true;
 	sub->iExtra = 0;
+	sub->iValign = iVAlign;
 	if(iType == LVS_IMAGE)
 		sub->bmpImage = img;
 

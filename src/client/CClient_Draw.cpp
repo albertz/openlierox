@@ -78,9 +78,19 @@ bool CClient::InitializeDrawing(void)
 	ReadInteger("data/frontend/frontend.cfg",section,"MinimapW",&tInterfaceSettings.MiniMapW, 128);
 	ReadInteger("data/frontend/frontend.cfg",section,"MinimapH",&tInterfaceSettings.MiniMapH, 96);
 
+	ReadInteger("data/frontend/frontend.cfg",section,"CurrentSettingsX",&tInterfaceSettings.CurrentSettingsX, 0);
+	ReadInteger("data/frontend/frontend.cfg",section,"CurrentSettingsY",&tInterfaceSettings.CurrentSettingsY, 0);
+	ReadInteger("data/frontend/frontend.cfg",section,"CurrentSettingsTwoPlayersX",&tInterfaceSettings.CurrentSettingsTwoPlayersX, 75);
+	ReadInteger("data/frontend/frontend.cfg",section,"CurrentSettingsTwoPlayersY",&tInterfaceSettings.CurrentSettingsTwoPlayersY, 195);
+	ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardX",&tInterfaceSettings.ScoreboardX, 0);
+	ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardY",&tInterfaceSettings.ScoreboardY, 180);
+
+
 	if (tGameInfo.iGameType == GME_LOCAL)  {  // Local play can handle two players, it means all the top boxes twice
 		ReadInteger("data/frontend/frontend.cfg",section,"MinimapX",&tInterfaceSettings.MiniMapX, 255);
 		ReadInteger("data/frontend/frontend.cfg",section,"MinimapY",&tInterfaceSettings.MiniMapY, 382);
+		ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardTwoPlayersX",&tInterfaceSettings.ScoreboardOtherPosX, 200);
+		ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardTwoPlayersY",&tInterfaceSettings.ScoreboardOtherPosY, 195);
 
 		ReadInteger("data/frontend/frontend.cfg",section,"Lives1X",&tInterfaceSettings.Lives1X, 1);
 		ReadInteger("data/frontend/frontend.cfg",section,"Lives1Y",&tInterfaceSettings.Lives1Y, 1);
@@ -121,6 +131,8 @@ bool CClient::InitializeDrawing(void)
 	} else {  // Network allows only one player
 		ReadInteger("data/frontend/frontend.cfg",section,"MinimapX",&tInterfaceSettings.MiniMapX, 511);
 		ReadInteger("data/frontend/frontend.cfg",section,"MinimapY",&tInterfaceSettings.MiniMapY, 382);
+		ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardNotReadyX",&tInterfaceSettings.ScoreboardOtherPosX, 125);
+		ReadInteger("data/frontend/frontend.cfg",section,"ScoreboardNotReadyY",&tInterfaceSettings.ScoreboardOtherPosY, 180);
 
 		ReadInteger("data/frontend/frontend.cfg",section,"PingX",&tInterfaceSettings.PingX, 540);
 		ReadInteger("data/frontend/frontend.cfg",section,"PingY",&tInterfaceSettings.PingY, 1);
@@ -1630,20 +1642,19 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
     if(!bShowScore)
         return;
 
-    int y = 180;
-    int x = 0;
+    int y = tInterfaceSettings.ScoreboardY;
+    int x = tInterfaceSettings.ScoreboardX;
     int w = 240;
     int h = 185;
-	if (tGameInfo.iGameType == GME_HOST)  {
+	if (tGameInfo.iGameType == GME_HOST || cViewports[1].getUsed())  {
 		w = 260;
 		if (bShowReady)  {
-			x = 200;
-			y = 195;
 			w = 300;
 			h = 185;
 		}
-		if (cViewports[1].getUsed())
-			x += 125;
+
+		x = tInterfaceSettings.ScoreboardOtherPosX;
+		y = tInterfaceSettings.ScoreboardOtherPosY;
 	}
     DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clScoreBackground);
     Menu_DrawBox(bmpDest, x, y, x+w, y+h);
@@ -1730,18 +1741,13 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
     if(iNetStatus != NET_CONNECTED && !cShowSettings.isDown())
 		return;
 
-    int y = 0;
-    int x = 0;
+    int y = tInterfaceSettings.CurrentSettingsY;
+    int x = tInterfaceSettings.CurrentSettingsX;
 	int w = 240;
 	int h = 132;
 	if (cViewports[1].getUsed())  {
-		y = 250;
-		if (tGameInfo.iGameType == GME_LOCAL)
-			x = 200;
-		else {
-			x = 75;
-			y = 195;
-		}
+		x = tInterfaceSettings.CurrentSettingsTwoPlayersX;
+		y = tInterfaceSettings.CurrentSettingsTwoPlayersY;
 	}
 
     DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clCurrentSettingsBg);

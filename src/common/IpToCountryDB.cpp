@@ -28,10 +28,6 @@ struct DBEntry {
 	IpInfo		Info;
 };
 
-struct ThreadParam  {
-	std::string dbfile;
-	void *this_pointer;
-};
 
 // key-value is ending-ip (RangeTo) of representing ip-range
 typedef std::map<Ip,DBEntry> DBData;
@@ -95,7 +91,7 @@ public:
 		case 6:
 			entry.Info.Country = token;
 			ucfirst(entry.Info.Country);
-			// Small hack, Australia is considered as asia by the database
+			// Small hack, Australia is considered as Asia by the database
 			if(entry.Info.Country == "Australia")
 				entry.Info.Continent = "Australia";
 				
@@ -175,23 +171,11 @@ DECLARE_INTERNDATA_CLASS(IpToCountryDB, IpToCountryData);
 
 IpToCountryDB::IpToCountryDB(const std::string &dbfile) {
 	init(); // needed INTERNCLASS-init function
-	bDbReady = false; // Not yet ready
 	LoadDBFile(dbfile);
 }
 
-int IpToCountryDB::threadMain( void *param )  {
-	ThreadParam parameter;
-	parameter = *(ThreadParam *)param;
-	SDL_Delay(5000);
-	IpToCountryDBData((IpToCountryDB *)parameter.this_pointer)->loadFile( parameter.dbfile );
-	return 0;
-}
-
 void IpToCountryDB::LoadDBFile(const std::string& dbfile) {
-	ThreadParam param;
-	param.dbfile = dbfile;
-	param.this_pointer = this;
-	loadThread = SDL_CreateThread (	IpToCountryDB::threadMain, &param);
+	IpToCountryDBData(this)->loadFile( dbfile );
 }
 
 
@@ -201,13 +185,6 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	Result.Continent = "";
 	Result.Country = "";
 	Result.CountryShortcut = "";
-
-	// Database not yet ready
-	if (!bDbReady)  {
-		Result.Continent = "Solar System";
-		Result.Country = "Earth";
-		Result.CountryShortcut = "EARTH";
-	}
 
 	// Don't check against local IP
 	if (Address.find("127.0.0.1") != std::string::npos) {

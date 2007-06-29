@@ -21,7 +21,6 @@
 #include "CWorm.h"
 #include "CBanList.h"
 #include "CBonus.h"
-#include "IpToCountryDB.h"
 #include "CClient.h"
 #include "CBytestream.h"
 
@@ -81,13 +80,11 @@ class GameServer {
 public:
 	// Constructor
 	GameServer() {
-		tIpToCountry = new IpToCountryDB("ip_to_country.csv");
 		Clear();
 	}
 
 	~GameServer()  {
-		if (tIpToCountry)
-			delete tIpToCountry;
+
 	}
 
 
@@ -161,8 +158,6 @@ private:
 	bool		bRegServer;	
 	int			bServerRegistered;
 	float		fLastRegister;
-
-	IpToCountryDB *tIpToCountry;
 
 public:
 	// Methods

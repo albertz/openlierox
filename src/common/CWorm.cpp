@@ -765,7 +765,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 		a=180-a;
 
 
-	int WormNameY = 30; // If health is displayed, worm name has another position
+	int WormNameY = tLX->cFont.GetHeight()+12; // Font height + worm height/2 + some space
 
 
 	if (tLXOptions->iShowHealth)  {
@@ -774,9 +774,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
 			if (cHealthBar.IsProperlyLoaded())  {
 
-				cHealthBar.SetX(x);
-				cHealthBar.SetY(y);
+				cHealthBar.SetX(x-cHealthBar.GetWidth()/2);
+				cHealthBar.SetY(y+3);
 				cHealthBar.Draw( bmpDest );
+				WormNameY += cHealthBar.GetHeight();
 
 			} else {  // Old style healthbar
 
@@ -784,11 +785,11 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 				static Uint32 BorderColor;
 				BorderColor = MakeColour(0x49,0x50,0x65);
 				int iShowHealth = Round((float)((getHealth()+15)/20));
-				DrawRect(bmpDest,x-10,y-20,x+15,y-15,BorderColor);
-				DrawVLine(bmpDest,y-19,y-16,x-5,BorderColor);
-				DrawVLine(bmpDest,y-19,y-16,x,BorderColor);
-				DrawVLine(bmpDest,y-19,y-16,x+5,BorderColor);
-				DrawVLine(bmpDest,y-19,y-16,x+10,BorderColor);
+				DrawRect(bmpDest,x-10,y-1,x+15,y+5,BorderColor);
+				DrawVLine(bmpDest,y,y+4,x-5,BorderColor);
+				DrawVLine(bmpDest,y,y+4,x,BorderColor);
+				DrawVLine(bmpDest,y,y+4,x+5,BorderColor);
+				DrawVLine(bmpDest,y,y+4,x+10,BorderColor);
 
 											// Red			Orange				Yellow		   Light Green		  Green	
 				static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
@@ -800,12 +801,13 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 				Uint32 CurColor;
 				for (short i=0; i<iShowHealth; i++) {
 					CurColor = MakeColour(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
-					DrawRectFill(bmpDest,x-10+(i*5+1),y-19,x-10+(i*5+1)+4,y-15,CurColor);
+					DrawRectFill(bmpDest,x-10+(i*5+1),y,x-10+(i*5+1)+4,y+5,CurColor);
 				}
+
+				WormNameY += 12;
 
 			}
 
-			WormNameY = 35;
 		}
 	}
 

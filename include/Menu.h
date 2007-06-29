@@ -49,6 +49,10 @@
 #define		SCK_LAN		0
 #define		SCK_NET		1
 
+// Server info dialog dimensions
+#define		INFO_W		350
+#define		INFO_H		390
+
 // Menu types
 enum {
 	MNU_MAIN=0,
@@ -358,7 +362,7 @@ void		Menu_SvrList_UpdateList(void);
 void		Menu_SvrList_FillList(CListview *lv);
 void        Menu_SvrList_SaveList(const std::string& szFilename);
 void        Menu_SvrList_LoadList(const std::string& szFilename);
-void        Menu_SvrList_DrawInfo(const std::string& szAddress);
+void        Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h);
 void		Menu_SvrList_AddFavourite(const std::string& szName, const std::string& szAddress);
 
 // Main menu

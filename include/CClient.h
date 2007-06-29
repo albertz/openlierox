@@ -89,6 +89,14 @@ class interface_sett { public:
 	int		PingW;
 	int		LocalChatX;
 	int		LocalChatY;
+	int		CurrentSettingsX;
+	int		CurrentSettingsY;
+	int		ScoreboardX;
+	int		ScoreboardY;
+	int		CurrentSettingsTwoPlayersX;
+	int		CurrentSettingsTwoPlayersY;
+	int		ScoreboardOtherPosX;  // In local it's for two players, in net when selecting weapons
+	int		ScoreboardOtherPosY;
 
 	// Player 1
 	int		Lives1X;
