@@ -557,7 +557,7 @@ void ShutdownLieroX(void)
 	ShutdownProfiles();
 
 	// Free the IP to Country DB
-	if (IpToCountryDB)
+	if (tIpToCountryDB)
 		delete tIpToCountryDB;
 
     // Free the game info structure
