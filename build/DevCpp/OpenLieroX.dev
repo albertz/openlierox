@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=157
+UnitCount=161
 Type=1
 Ver=1
 ObjFiles=
@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=
-Linker=-lmingw32_@@_-lSDLmain_@@_-lSDL_@@_-mwindows_@@_-lSDL_mixer_@@_-lSDL_image_@@_-lz_@@_-lbgd_@@_libs/libxml2.lib_@@_libs/hawknl.lib_@@_
+Linker=-lmingw32_@@_-lSDLmain_@@_-lSDL_@@_-mwindows_@@_-lSDL_mixer_@@_-lSDL_image_@@_-lz_@@_libs/bgd.lib_@@_libs/libxml2.lib_@@_libs/hawknl.lib_@@_
 IsCpp=1
 Icon=OpenLieroX.ico
 ExeOutput=../../distrib/win32/
@@ -1618,9 +1618,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit159]
-FileName=..\..\hawknl\src\parallel.h
+FileName=..\..\include\Cursor.h
 CompileCpp=1
-Folder=HawkNL
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
@@ -1628,9 +1628,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit160]
-FileName=..\..\hawknl\src\serial.h
+FileName=..\..\src\client\Cursor.cpp
 CompileCpp=1
-Folder=HawkNL
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
@@ -1638,9 +1638,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit161]
-FileName=..\..\hawknl\src\sock.c
+FileName=..\..\src\client\CBar.cpp
 CompileCpp=1
-Folder=HawkNL
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
@@ -1791,6 +1791,16 @@ BuildCmd=
 FileName=..\..\hawknl\src\ipx.c
 CompileCpp=1
 Folder=HawkNL
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit158]
+FileName=..\..\include\CBar.h
+CompileCpp=1
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
