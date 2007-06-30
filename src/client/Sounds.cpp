@@ -421,7 +421,8 @@ void ShutdownMusic(void)
 {
 	breakPlayThread = true;
 	Mix_HookMusicFinished(NULL);
-	SDL_WaitThread(PlayMusThread, NULL);
+	if (PlayMusThread)
+		SDL_WaitThread(PlayMusThread, NULL);
 	FreeMusic(LoadedMusic);
 }
 

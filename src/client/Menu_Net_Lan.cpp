@@ -101,15 +101,18 @@ int Menu_Net_LANInitialize(void)
 // Shutdown the LAN menu
 void Menu_Net_LANShutdown(void)
 {
-	// Save the selected player
-	cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
-	if (item)
-		tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+	if (tLXOptions)  {
 
-	if (iNetMode == net_lan)  {
-		// Save the column widths
-		for (int i=0;i<6;i++)
-			tLXOptions->iLANList[i] = cLan.SendMessage(nl_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+		// Save the selected player
+		cb_item_t *item = (cb_item_t *)cLan.SendMessage(nl_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+		if (item)
+			tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+
+		if (iNetMode == net_lan)  {
+			// Save the column widths
+			for (int i=0;i<6;i++)
+				tLXOptions->iLANList[i] = cLan.SendMessage(nl_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+		}
 	}
 
 	cLan.Shutdown();

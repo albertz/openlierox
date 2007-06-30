@@ -144,6 +144,7 @@ class lierox_t { public:
 	Uint32			clFPSLabel;
 	Uint32			clPingLabel;
 	Uint32			clSpecMsgLabel;
+	Uint32			clLoadingLabel;
 
 
 	Uint32			clPink;

@@ -199,10 +199,14 @@ int SetVideoMode(void)
 	GetMouse()->FirstDown = 0;
 	GetMouse()->Up = 0;
 
-	if (!tLXOptions->iFullscreen)  {
+	if (!tLXOptions->iFullscreen && !tLXOptions->bOpenGL)  {
 		SubclassWindow();
 	}
 #endif
+
+	// Tell the client to repaint the chatbox
+	if (cClient)
+		cClient->setRepaintChatbox(true);
 
 	return true;
 }
@@ -229,8 +233,13 @@ void FlipScreen(SDL_Surface *psScreen)
     // Take a screenshot?
     // We do this here, because there are so many graphics loops, but this function is common
     // to all of them
-    if( cTakeScreenshot.isDownOnce() || cServer->getTakeScreenshot() )
+    if( cTakeScreenshot.isDownOnce())
         TakeScreenshot(tGameInfo.bTournament);
+
+	// TODO: this better
+	if (cServer)  // Automatic screenshot after the game ends
+		if (cServer->getTakeScreenshot() )
+			TakeScreenshot(tGameInfo.bTournament);
 
 	if (tLXOptions->bOpenGL)  {
 		SDL_GL_SwapBuffers();

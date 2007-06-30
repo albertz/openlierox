@@ -291,7 +291,7 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 
 	int middle_w = w - bmpBoxLeft->w - bmpBoxRight->w;
 	if (middle_w < 0)  // Too small
-		return; // TODO: some better way?
+		return; // TODO: any better way?
 
 	DrawImage(dst, bmpBoxLeft, x, y);  // Left part
 	DrawImageAdv(dst, bmpBoxBuffer, 0, 0, x + bmpBoxLeft->w, y, middle_w, bmpBoxBuffer->h);  // Middle part
@@ -433,6 +433,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
         if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)  {
 			bScoreAndSett = false;
 		    DrawGameOver(bmpDest);
+			// TODO: this better
 			if (cServer)
 				if (!cServer->getScreenshotToken() && tGameInfo.iGameType == GME_HOST && tGameInfo.bTournament)
 					cServer->setTakeScreenshot(true);
@@ -510,7 +511,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		// Draw the box around it
 		DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
 
-		tLX->cFont.DrawCentre( // Draw the text
+		tLX->cFont.Draw( // Draw the text
 					bmpDest,
 					tInterfaceSettings.PingX + 2,
 					tInterfaceSettings.PingY,
@@ -661,22 +662,24 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
 	// Health
 	tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel,"Health:");
-	HealthBar->SetPosition(worm->getHealth());
-	HealthBar->Draw(bmpDest);
+	if (HealthBar)  {
+		HealthBar->SetPosition(worm->getHealth());
+		HealthBar->Draw(bmpDest);
+	}
 	//DrawRectFill(bmpDest,x+63,y+6,x+165,y+13,grey);
 	//DrawRectFill(bmpDest,x+64,y+7,x+64+worm->getHealth(),y+12,MakeColour(64,255,64));
 
 	// Weapon
 	wpnslot_t *Slot = worm->getCurWeapon();
 	tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, "Weapon:");
-	//DrawRectFill(bmpDest,x+63,y+24,x+165,y+31,grey);
-	WeaponBar->SetForeColor(MakeColour(64,64,255));
-	if(Slot->Reloading)
-		WeaponBar->SetForeColor(MakeColour(128,64,64));
 	
-	//DrawRectFill(bmpDest,x+64,y+25,x+64+(int)(c*100.0f),y+30,col);
-	WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
-	WeaponBar->Draw( bmpDest );
+	if (WeaponBar)  {
+		WeaponBar->SetForeColor(MakeColour(64,64,255));
+		if(Slot->Reloading)
+			WeaponBar->SetForeColor(MakeColour(128,64,64));  // In case it's not loaded properly
+		WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
+		WeaponBar->Draw( bmpDest );
+	}
 
 
 	// Lives
@@ -1361,7 +1364,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	mouse_t *Mouse = GetMouse();
 	int inbox = lv->InBox(Mouse->X,Mouse->Y+GetCursorHeight(CURSOR_ARROW));	// small hack: count the mouse height so we avoid "freezing
 																			// the mouse image when the user moves cursor away
-	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)))  {	// Repainting when new messages/scrolling, 
+	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox)  {	// Repainting when new messages/scrolling, 
 																				// or when user is moving the mouse over the chat
 
 		// Local and net play use different backgrounds

@@ -196,6 +196,7 @@ public:
 		fSendWait = 0;
 
 		iMuted = false;
+		bRepaintChatbox = true;
 
 		for(ushort i=0; i<4; i++)
 			iTeamScores[i] = 0;
@@ -278,6 +279,7 @@ private:
 
 	CChatBox	cChatbox;		// Our chatbox
 	void		*cChatList;		// Ingame chatlist (this is the type of CListview)
+	bool		bRepaintChatbox;
 
 	// Send chat
 	int			iChat_Typing;
@@ -492,6 +494,7 @@ public:
 	void		setGameReady(int _g)		{ iGameReady = _g; }
 
     CChatBox    *getChatbox(void)           { return &cChatbox; }
+	void		setRepaintChatbox(bool _r)  { bRepaintChatbox = true; }
 
 	game_lobby_t *getGameLobby(void)		{ return &tGameLobby; }
 

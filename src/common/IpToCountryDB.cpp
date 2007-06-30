@@ -133,6 +133,7 @@ class IpToCountryData {
 public:
 	std::string		filename;
 	DBData			data;
+
 	
 	inline void loadFile(const std::string& fn) {
 		filename = fn;		

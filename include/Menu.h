@@ -190,6 +190,7 @@ class frontendinfo_t { public:
 	int				iCreditsTop;
 	int				iCreditsSpacing;
 	bool			bPageBoxes;
+	std::string		sFrontendCredits;
 };
 
 // Menu structure

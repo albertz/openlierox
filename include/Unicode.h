@@ -22,11 +22,17 @@ typedef Uint32 UnicodeChar;  // Note: only 16bits are currently being used by OL
 template<typename _Iterator1, typename _Iterator2>
 inline void IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
 	if(it == last) return;
-	unsigned char c;
-	for(it++; last != it; it++) {
-		c = *it;
-		if(!(c&0x80) || (c&0xC0)) break;
-	}
+	unsigned char c = *it;
+	if ( (c&0x80) )  {
+		for(; last != it; it++) {
+			c = *it;
+			if((c&0x80) == (c&0xC2) ) {
+				if (it != last) it++;
+				break;
+			}
+		}
+	} else
+		it++;
 }
 
 template<typename _Iterator>
@@ -43,9 +49,14 @@ template<typename _Iterator1, typename _Iterator2>
 inline void DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
 	if(it == first) return;
 	unsigned char c;
-	for(it--; first != it; it--) {
+	//bool normal_read = false; // true if we've read a character, that is not a special UTF-8 character
+	//bool utf_read = false;  // true if we've read a character, that is a special UTF-8 character
+	for(; first != it; it--) {
 		c = *it;
-		if(!(c&0x80) || (c&0xC0)) {
+		if((c&0x80) && (c&0xC0)) 
+			continue;
+		else  {
+			if (it != first) it--;
 			break;
 		}
 	}

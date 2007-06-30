@@ -104,8 +104,9 @@ void SystemError(char *fmt, ...)
 	// TODO: uniform message system
 	printf("SystemError: %s\n", buf);
 
-	// Quit the SDL
-	SDL_Quit();
+	// It should work anytime
+	ShutdownLieroX();
+
 #ifdef WIN32
 	MessageBox(NULL,buf,GetGameName().c_str(),MB_OK | MB_ICONEXCLAMATION);
 #endif

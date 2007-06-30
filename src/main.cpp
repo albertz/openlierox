@@ -13,6 +13,8 @@
 #include "AuxLib.h"
 #include "CClient.h"
 #include "CServer.h"
+#include "CBar.h"
+#include "ConfigHandler.h"
 #include "Graphics.h"
 #include "Menu.h"
 #include "console.h"
@@ -57,6 +59,34 @@ SDL_Surface	*Screen;
 IpToCountryDB *tIpToCountryDB;
 
 CVec		vGravity = CVec(0,4);
+
+
+//
+// Loading screen info and functions
+//
+class LoadingScreen  { public:
+	LoadingScreen() {
+		iBackgroundX = iBackgroundY = 0;
+		bmpBackground = NULL;
+		cBar = NULL;
+	}
+
+	int iBackgroundX;
+	int iBackgroundY;
+	int iLabelX;
+	int iLabelY;
+	Uint32 clLabel;
+	SDL_Surface *bmpBackground;
+	CBar *cBar;
+};
+
+LoadingScreen cLoading;
+
+void InitializeLoading();
+void DrawLoading(byte percentage, const std::string &text);
+void ShutdownLoading();
+
+
 
 
 
@@ -133,22 +163,33 @@ int main(int argc, char *argv[])
     ParseArguments(argc, argv);
 
 	// Initialize LX
-	if(!InitializeLieroX())
+	if(!InitializeLieroX())  {
+		SystemError("Could not initialize LieroX.");
 		return -1;
+	}
+
 	kb = GetKeyboard();
 	Screen = SDL_GetVideoSurface();
+	if (!Screen) {
+		SystemError("Could not find screen.");
+		return -1;
+	}
+
+	DrawLoading(60, "Initializing menu system");
 
 	// Initialize menu
 	if(!Menu_Initialize(&startgame)) {
         SystemError("Error: Could not initialize the menu system.\nError when loading graphics files");
-		ShutdownLieroX();
 		return -1;
 	}
+
+
+#ifdef WITH_MEDIAPLAYER
+	DrawLoading(70, "Initializing Media Player");
 
 	// Initialize the music system
 	InitializeMusic();
 
-#ifdef WITH_MEDIAPLAYER
 	// Initialize the media player
 	if (!cMediaPlayer.Initialize())  {
 		printf("Warning: Media Player could not be initialized");
@@ -181,12 +222,19 @@ int main(int argc, char *argv[])
 	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 #endif
 
+	DrawLoading(80, "Initializing IP To Country database");
+
 	// Init the IP to country database
 	tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
 	if (!tIpToCountryDB)  {
-		printf("Error: Could not allocate the IP to Country database.");
+		SystemError("Could not allocate the IP to Country database.");
 		return -1;
 	}
+
+	DrawLoading(100, "Done! Starting menu");
+
+	// Everything loaded, this is not needed anymore
+	ShutdownLoading();
 
 	while(!tLX->iQuitGame) {
 
@@ -295,14 +343,19 @@ void ParseArguments(int argc, char *argv[])
             tLXOptions->iFullscreen = true;
         } else
         
-        if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") ) {
+		// -help
+		// Displays help and quits
+        if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") || !stricmp(a, "/?")) {
         	printf("available parameters:\n");
-     		printf("   -opengl\n");   	
-     		printf("   -noopengl\n");   	
-     		printf("   -nosound\n");   	
-     		printf("   -window\n");   	
-     		printf("   -fullscreen\n");
-     		exit(0); // uuuh!
+     		printf("   -opengl       OpenLieroX will use OpenGL for drawing\n");   	
+     		printf("   -noopengl     Explicitly disable using OpenGL\n");   	
+     		printf("   -nosound      Disable sound\n");   	
+     		printf("   -window       Run in window mode\n");   	
+     		printf("   -fullscreen   Run in fullscreen mode\n");
+
+			// Shutdown and quit
+			ShutdownLieroX();
+     		exit(0);
         }
     }
 }
@@ -320,11 +373,38 @@ int InitializeLieroX(void)
 		return false;
 	}
 
+	// Initialize the LieroX structure
+	tLX = new lierox_t;
+    if(!tLX) {
+        SystemError("Error: InitializeLieroX() Out of memory on creating lierox_t");
+		return false;
+    }
+	tLX->iQuitGame = false;
+	tLX->debug_string = "";
+	tLX->fCurTime = 0;
+	tLX->fDeltaTime = 0;
+
+	// Initialize the game colors (must be called after SDL_GetVideoSurface is not NULL and tLX is not NULL)
+	InitializeColors();
+
+	// Load the fonts (must be after colors, because colors are used inside CFont::Load)
+	if (!LoadFonts())  {
+		SystemError("Could not load the fonts");
+		return false;
+	}
+
+	// Initialize the loading screen
+	InitializeLoading();
+
+	DrawLoading(0, "Initializing network");
+
 	// Initialize the network
     if(!InitNetworkSystem()) {
         SystemError("Error: Failed to initialize the network library");
 		return false;
     }
+
+	DrawLoading(5, "Initializing client and server");
 
 	// Allocate the client & server
 	cClient = new CClient;
@@ -341,34 +421,24 @@ int InitializeLieroX(void)
 		return false;
     }
 
+	DrawLoading(10, "Initializing game entities");
+
 	// Initialize the entities
     if(!InitializeEntities()) {
         SystemError("Error: InitializeEntities() Out of memory on initializing the entities");
 		return false;
     }
 
+	DrawLoading(15, "Loading graphics");
 
-	// Initialize the LieroX structure
-	tLX = new lierox_t;
-    if(tLX == NULL) {
-        SystemError("Error: InitializeLieroX() Out of memory on creating lierox_t");
-		return false;
-    }
-	tLX->iQuitGame = false;
-	tLX->debug_string = "";
-	// TODO: more initiation of the values
-	tLX->fCurTime = 0;
-	tLX->fDeltaTime = 0;
-	// Init these special colours
-	tLX->clPink = MakeColour(255,0,255);
-	tLX->clWhite = MakeColour(255,255,255);
-	tLX->clBlack = MakeColour(0,0,0);
 
 	// Load the graphics
     if(!LoadGraphics()) {
         SystemError("Error: Error loading graphics");
 		return false;
     }
+
+	DrawLoading(40, "Initializing console");
 
     // Initialize the console
     if(!Con_Initialize()) {
@@ -401,10 +471,13 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("exit", Cmd_Quit);
 	Cmd_AddCommand("volume", Cmd_Volume);
 	Cmd_AddCommand("sound", Cmd_Sound);
+
+	DrawLoading(45, "Loading sounds");
 	
 	// Load the sounds
 	LoadSounds();
 
+	DrawLoading(55, "Loading player profiles");
 
 	// Load the profiles
 	LoadProfiles();
@@ -526,6 +599,79 @@ void QuittoMenu(void)
 	cClient->Disconnect();
 }
 
+////////////////////
+// Initialize the loading screen
+void InitializeLoading()  {
+	FillSurface(SDL_GetVideoSurface(), MakeColour(0,0,0));
+
+	int bar_x, bar_y, bar_label_x, bar_label_y,bar_dir;
+	bool bar_visible;
+	std::string bar_direction;
+
+	// Load the details
+	ReadInteger("data/frontend/frontend.cfg", "Loading", "LoadingBarX", &bar_x, 210);
+	ReadInteger("data/frontend/frontend.cfg", "Loading", "LoadingBarY", &bar_y, 230);
+	ReadString ("data/frontend/frontend.cfg", "Loading", "LoadingBarDirection", bar_direction, "lefttoright");
+	ReadInteger("data/frontend/frontend.cfg", "Loading", "PercentageLabelX", &bar_label_x, 0);
+	ReadInteger("data/frontend/frontend.cfg", "Loading", "PercentageLabelY", &bar_label_y, 0);
+	ReadKeyword("data/frontend/frontend.cfg", "Loading", "PercentageLabelVisible", &bar_visible, false);
+	ReadInteger("data/frontend/frontend.cfg", "Loading", "BackgroundX", &cLoading.iBackgroundX, 190);
+	ReadInteger("data/frontend/frontend.cfg", "Loading", "BackgroundY", &cLoading.iBackgroundY, 170);
+	ReadInteger("data/frontend/frontend.cfg", "Loading", "LabelX", &cLoading.iLabelX, 235);
+	ReadInteger("data/frontend/frontend.cfg", "Loading", "LabelY", &cLoading.iLabelY, 190);
+
+	// Convert the loading direction
+	if (!stringcasecmp(bar_direction,"lefttoright"))
+		bar_dir = BAR_LEFTTORIGHT;
+	else if (!stringcasecmp(bar_direction,"righttoleft"))
+		bar_dir = BAR_RIGHTTOLEFT;
+	else if (!stringcasecmp(bar_direction,"toptobottom"))
+		bar_dir = BAR_TOPTOBOTTOM;
+	else if (!stringcasecmp(bar_direction,"bottomtotop"))
+		bar_dir = BAR_BOTTOMTOTOP;
+	else
+		bar_dir = BAR_LEFTTORIGHT;
+
+
+	// Allocate bar
+	cLoading.cBar = new CBar(LoadImage("./data/frontend/loading_bar.png",true), bar_x, bar_y, bar_label_x, bar_label_y, bar_dir);
+	if (cLoading.cBar)
+		cLoading.cBar->SetLabelVisible(bar_visible);
+
+	// Load the background
+	cLoading.bmpBackground = LoadImage("./data/frontend/background_loading.png", true);
+}
+
+/////////////////////
+// Draw the loading
+void DrawLoading(byte percentage, const std::string &text)  {
+	// Update the repainted area
+	int x = MIN(cLoading.iBackgroundX, cLoading.cBar->GetX());
+	int y = MIN(cLoading.cBar->GetY(), cLoading.iBackgroundY);
+	int w = MAX(cLoading.bmpBackground->w, cLoading.cBar->GetWidth());
+	int h = MAX(cLoading.bmpBackground->h, cLoading.cBar->GetHeight());
+	DrawRectFill(SDL_GetVideoSurface(), x, y, x+w, y+h, MakeColour(0,0,0));
+				
+	if (cLoading.bmpBackground)
+		DrawImage(SDL_GetVideoSurface(), cLoading.bmpBackground, cLoading.iBackgroundX, cLoading.iBackgroundY);
+
+	if (cLoading.cBar)  {
+		cLoading.cBar->SetPosition(percentage);
+		cLoading.cBar->Draw( SDL_GetVideoSurface() );
+	}
+
+	tLX->cFont.Draw(SDL_GetVideoSurface(), cLoading.iLabelX, cLoading.iLabelY, tLX->clLoadingLabel, text);
+
+	FlipScreen( SDL_GetVideoSurface() );
+}
+
+////////////////////
+// Shutdown the loading screen
+void ShutdownLoading()  {
+	if (cLoading.cBar)
+		delete cLoading.cBar;
+	cLoading.cBar = NULL;
+}
 
 ///////////////////
 // Shutdown the game
@@ -550,6 +696,8 @@ void ShutdownLieroX(void)
 #endif
 
     Con_Shutdown();
+
+	ShutdownLoading();  // In case we're called when an error occured
 
 	ShutdownGraphics();
 
@@ -579,27 +727,25 @@ void ShutdownLieroX(void)
 		cServer = NULL;
 	}
 
-	// Free the bots
-	/*if (cBots)  {
-		for (int i=0;i<tGameInfo.iNumBots;i++)
-			cBots[i].Shutdown();
-		delete[] cBots;
-		cBots = NULL;
-	}*/
-
+	// Entitites
 	ShutdownEntities();
 	
+	// LieroX structure
 	if(tLX) {
 		delete tLX;
 		tLX = NULL;
 	}
 
+	// Console commands
 	Cmd_Free();
 
+	// Network
 	QuitNetworkSystem();
 	
+	// SDL, Cache and other small stuff
 	ShutdownAuxLib();
 
+	// Save and clear options
 	ShutdownOptions();
 
 	printf("Everything was shut down\n");

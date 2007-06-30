@@ -777,7 +777,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 				cHealthBar.SetX(x-cHealthBar.GetWidth()/2);
 				cHealthBar.SetY(y+3);
 				cHealthBar.Draw( bmpDest );
-				WormNameY += cHealthBar.GetHeight();
+				cHealthBar.SetPosition(getHealth());
+				WormNameY += cHealthBar.GetHeight()+3; // Leave some space
 
 			} else {  // Old style healthbar
 

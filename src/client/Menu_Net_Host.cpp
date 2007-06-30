@@ -226,7 +226,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						ply = FindProfile(index);
 
 						if(ply) {
-							if (ply->iType == PRF_COMPUTER || iHumanPlayers < 2)  {
+							if (ply->iType == PRF_COMPUTER || iHumanPlayers < 1)  {
 								lv2->AddItem("",index,tLX->clListView);
 								lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
 								lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
@@ -1414,7 +1414,7 @@ void Menu_ServerSettingsShutdown(void)
 
 
 CGuiLayout		cBanListGui;
-CBanList        *cBanList;
+CBanList        *cBanList = NULL;
 
 // Ban List
 enum {
@@ -1534,6 +1534,7 @@ bool Menu_BanList_Frame(void)
 // Shutdown
 void Menu_BanListShutdown(void)
 {
-	cBanList->saveList(cBanList->getPath());
+	if (cBanList)
+		cBanList->saveList(cBanList->getPath());
 	cBanListGui.Shutdown();
 }

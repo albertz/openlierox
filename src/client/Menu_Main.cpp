@@ -207,8 +207,10 @@ void Menu_MainFrame(void)
 	static const std::string credits2 = std::string("- Original code by Jason Boettcher\n") +
 										std::string("- Ported and enhanced by\n") +
 										std::string("  Dark Charlie and Albert Zeyer\n") +
-										std::string("- Supported by the [RIP] clan");
-										//std::string("᚛ Enhanced by FilE");// TODO: include this, if he join the team :)
+										std::string("- Supported by the [RIP] clan\n" +
+										//std::string("- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
+										tMenu->tFrontendInfo.sFrontendCredits
+										);
 
 
 	//
@@ -224,8 +226,9 @@ void Menu_MainFrame(void)
 	static int w = 0;
 	if (!w)
 		w = MAX(tLX->cFont.GetWidth(credits1), tLX->cFont.GetWidth(credits2));
+
 	static int h = 0;
-	if (!h)
+	if (!h) 
 		h = tLX->cFont.GetHeight() + tLX->cFont.GetHeight(credits2);
 
 	Menu_redrawBufferRect(x, y, w, h);

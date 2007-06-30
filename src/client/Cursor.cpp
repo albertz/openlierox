@@ -28,7 +28,7 @@
 
 
 CCursor *tCurrentCursor = NULL;
-CCursor *tCursors[CURSOR_COUNT];
+CCursor *tCursors[CURSOR_COUNT] = {NULL, NULL, NULL, NULL}; // TODO: any cursor_count independent way?
 float fCursorFrameTime = 0.2f;
 
 //////////////////

@@ -118,10 +118,11 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 		// Update the selected text
 		sSelectedText = Utf8SubStr(sText, iSelStart, abs(iSelLength));
 
-		DrawRectFill(
-			bmpDest,
-			iX + x1, iY + 2, iX + x2, iY + iHeight,
-			tLX->clSelection);
+		if (x1 < x2)
+			DrawRectFill(
+				bmpDest,
+				iX + x1, iY + 2, iX + x2, iY + iHeight,
+				tLX->clSelection);
 	}
 
 	// Draw text
@@ -141,7 +142,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 			DrawVLine(
 				bmpDest,
-				iY + 3, iY + iHeight - 3, iX + x + 3,
+				iY + 3, iY + iHeight - 3, MIN(iX + x + 3, iX + iWidth),
 				tLX->clTextboxCursor);
 		}
 	}
@@ -464,7 +465,6 @@ void CTextbox::Backspace(void)
 		return;
 	}
 
-
 	if(iCurpos<=0)
 		return;
 
@@ -509,6 +509,10 @@ void CTextbox::Insert(UnicodeChar c)
 
 	// Check for the max
 	if(Utf8StringSize(sText) >= iMax - 2)
+		return;
+
+	// Check that the current font can display this character, if not, quit
+	if (!tLX->cFont.CanDisplayCharacter(c))
 		return;
 
 	// Safety

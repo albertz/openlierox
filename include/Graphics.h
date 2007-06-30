@@ -56,7 +56,9 @@ extern	gfxgame_t	gfxGame;
 
 
 // Routines
-int		LoadGraphics(void);
+void	InitializeColors();
+bool	LoadFonts();
+bool	LoadGraphics(void);
 void	ShutdownGraphics(void);
 
 

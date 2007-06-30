@@ -265,9 +265,13 @@ int Menu_Net_JoinLobbyInitialize(void)
 // Shutdown the join lobby
 void Menu_Net_JoinLobbyShutdown(void)
 {
-	cClient->Disconnect();
+	if (cClient)
+		cClient->Disconnect();
+
 	cJoinLobby.Shutdown();
-	cClient->Shutdown();
+
+	if (cClient)
+		cClient->Shutdown();
 }
 
 

@@ -96,23 +96,17 @@ int Menu_Initialize(bool *game)
 
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainTitles,"data/frontend/maintitles.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpLieroXtreme,"data/frontend/lierox.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainLocal,"data/frontend/img_local.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainNet,"data/frontend/img_net.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpSubTitles,"data/frontend/subtitles.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpButtons,"data/frontend/buttons.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpMapEdTool,"data/frontend/map_toolbar.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpCheckbox,"data/frontend/checkbox.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpInputbox,"data/frontend/inputbox.png");
 	//LOAD_IMAGE_WITHALPHA(tMenu->bmpAI,"data/frontend/cpu.png");
-	//LOAD_IMAGE_WITHALPHA(tMenu->bmpWorm, "data/frontend/wormimage.bmp");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpLobbyState, "data/frontend/lobbyready.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpHost, "data/frontend/host.png");
+	LOAD_IMAGE_WITHALPHA(tMenu->bmpLobbyState, "data/frontend/lobbyready.png");;
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[0], "data/frontend/con_good.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[1], "data/frontend/con_average.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[2], "data/frontend/con_bad.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[3], "data/frontend/con_none.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpSpeech, "data/frontend/speech.png");
-    LOAD_IMAGE_WITHALPHA(tMenu->bmpHandicap, "data/frontend/handicap.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 
@@ -146,6 +140,7 @@ void Menu_LoadFrontendInfo()
 	ReadInteger("data/frontend/frontend.cfg","Credits","X",&tMenu->tFrontendInfo.iCreditsLeft,370);
 	ReadInteger("data/frontend/frontend.cfg","Credits","Y",&tMenu->tFrontendInfo.iCreditsTop,379);
 	ReadInteger("data/frontend/frontend.cfg","Credits","Spacing",&tMenu->tFrontendInfo.iCreditsSpacing,0);
+	ReadString ("data/frontend/frontend.cfg","Credits","FrontendCredits", tMenu->tFrontendInfo.sFrontendCredits, " ");
 	ReadInteger("data/frontend/frontend.cfg","MainTitles","Spacing",&tMenu->tFrontendInfo.iMainTitlesSpacing,15);
 	ReadKeyword("data/frontend/frontend.cfg","PageBoxes","Visible",&tMenu->tFrontendInfo.bPageBoxes,true);
 }
@@ -214,8 +209,8 @@ void Menu_Shutdown(void)
 	}
 
 	// Shutdown the layouts
-	for (int i=0; i<LAYOUT_COUNT; i++)
-		LayoutWidgets[i].Shutdown();
+	//for (int i=0; i<LAYOUT_COUNT; i++)
+	//	LayoutWidgets[i].Shutdown();
 
 	Menu_SvrList_Shutdown();
 }
@@ -481,6 +476,12 @@ void Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 // Draw an inset box
 void Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 {
+	// Clipping
+	if (x < 0) { x2 += x; x = 0; }
+	if (x2 >= bmpDest->w) { x2 = bmpDest->w - 1; }
+	if (y < 0) { y2 += y; y = 0; }
+	if (y2 >= bmpDest->h) { y2 = bmpDest->h - 1; }
+
     Uint32 dark = tLX->clBoxDark;
     Uint32 light = tLX->clBoxLight;
 

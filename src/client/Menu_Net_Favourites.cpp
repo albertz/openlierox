@@ -104,18 +104,22 @@ int Menu_Net_FavouritesInitialize(void)
 // Shutdown the favourites menu
 void Menu_Net_FavouritesShutdown(void)
 {
-	// Save the selected player
-	cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
-	if (item)
-		tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+	if (tLXOptions)  {
 
-	// Save the list
-	if (iNetMode == net_favourites)  {
-		Menu_SvrList_SaveList("cfg/favourites.dat");
+		// Save the selected player
+		cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+		if (item)
+			tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
-		// Save the column widths
-		for (int i=0;i<6;i++)
-			tLXOptions->iFavouritesList[i] = cFavourites.SendMessage(mf_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+		// Save the list
+		if (iNetMode == net_favourites)  {
+			Menu_SvrList_SaveList("cfg/favourites.dat");
+
+			// Save the column widths
+			for (int i=0;i<6;i++)
+				tLXOptions->iFavouritesList[i] = cFavourites.SendMessage(mf_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+		}
+
 	}
 
 	cFavourites.Shutdown();

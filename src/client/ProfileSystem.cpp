@@ -172,8 +172,11 @@ void SaveProfiles(void)
 // Shutdown & save the profiles
 void ShutdownProfiles(void)
 {
+	if (!tProfiles)  // Profiles not loaded, don't write and empty file (and delete all user's prifiles!)
+		return;
+
 	profile_t	*p = tProfiles;
-	profile_t	*pf;
+	profile_t	*pf = NULL;
 
 
 	//

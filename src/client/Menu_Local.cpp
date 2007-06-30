@@ -152,8 +152,10 @@ void Menu_LocalShutdown(void)
 
 
 	// Save the level and mod
-	cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-	cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.szModName, 0);
+	if (tLXOptions)  {
+		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
+		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.szModName, 0);
+	}
 
 	cLocalMenu.Shutdown();
 }
@@ -1095,9 +1097,11 @@ void Menu_WeaponsRestrictionsShutdown(void)
     cWpnRestList.saveList("cfg/wpnrest.dat");
     cWpnRestList.Shutdown();
 
-    cWpnGameScript->Shutdown();
-    delete cWpnGameScript;
-    cWpnGameScript = NULL;
+	if (cWpnGameScript)  {
+		cWpnGameScript->Shutdown();
+		delete cWpnGameScript;
+		cWpnGameScript = NULL;
+	}
 }
 
 

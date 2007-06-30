@@ -99,3 +99,43 @@ void CBar::Draw(SDL_Surface *dst)  {
 
 
 }
+
+//////////////////
+// Get width of this bar
+int CBar::GetWidth()
+{
+	if (bmpBar) {
+		switch (Direction)  {
+		case BAR_LEFTTORIGHT:
+		case BAR_RIGHTTOLEFT:
+			return bmpBar->w;
+		case BAR_TOPTOBOTTOM:
+		case BAR_BOTTOMTOTOP:
+			return (bmpBar->w-1)/2;
+		default:
+			return bmpBar->w;
+		}
+	} else {
+		return 100;
+	}
+}
+
+//////////////////
+// Get width of this bar
+int CBar::GetHeight()
+{
+	if (bmpBar) {
+		switch (Direction)  {
+		case BAR_LEFTTORIGHT:
+		case BAR_RIGHTTOLEFT:
+			return (bmpBar->h-1)/2;
+		case BAR_TOPTOBOTTOM:
+		case BAR_BOTTOMTOTOP:
+			return bmpBar->h;
+		default:
+			return bmpBar->h;
+		}
+	} else {
+		return 10;
+	}
+}

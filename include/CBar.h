@@ -49,6 +49,8 @@ private:
 public:
 	// Methods
 	void		Draw(SDL_Surface *dst);
+	int			GetWidth();
+	int			GetHeight();
 	inline int	GetPosition()  { return Position; }
 	inline void SetPosition(int _p) { Position = _p; }
 	inline int	GetX() { return X; }
@@ -65,8 +67,6 @@ public:
 	inline void SetBgColor(Uint32 _cl)  { bgColor = _cl; }
 	inline Uint32 GetForeColor()  { return foreColor; }
 	inline void SetForeColor(Uint32 _cl)  { foreColor = _cl; }
-	inline int GetWidth()  { return bmpBar ? bmpBar->w : 100; }
-	inline int GetHeight()  { return bmpBar ? (bmpBar->h - 1)/2 : 10; }
 	inline bool IsProperlyLoaded()  { return bmpBar != NULL; }
 };
 

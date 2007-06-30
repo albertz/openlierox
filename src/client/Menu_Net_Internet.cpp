@@ -106,19 +106,23 @@ int Menu_Net_NETInitialize(void)
 // Shutdown the internet menu
 void Menu_Net_NETShutdown(void)
 {
-    // Save the list
-    if( iNetMode == net_internet )  {
-        Menu_SvrList_SaveList("cfg/svrlist.dat");
+	if (tLXOptions)  {
 
-		// Save the column widths
-		for (int i=0;i<6;i++)
-			tLXOptions->iInternetList[i] = cInternet.SendMessage(mi_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+		// Save the list
+		if( iNetMode == net_internet )  {
+			Menu_SvrList_SaveList("cfg/svrlist.dat");
+
+			// Save the column widths
+			for (int i=0;i<6;i++)
+				tLXOptions->iInternetList[i] = cInternet.SendMessage(mi_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+		}
+
+		// Save the selected player
+		cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+		if (item)
+			tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+
 	}
-
-	// Save the selected player
-	cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
-	if (item)
-		tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
 	cInternet.Shutdown();
 }

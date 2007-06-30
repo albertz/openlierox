@@ -26,8 +26,65 @@ gfxgame_t	gfxGame;
 
 ///////////////////
 // Load the graphics
-int LoadGraphics(void)
+bool LoadGraphics(void)
 {
+
+	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
+	LOAD_IMAGE(gfxGUI.bmpSliderBut,"data/frontend/sliderbut.png");
+
+	LOAD_IMAGE(gfxGame.bmpCrosshair,"data/gfx/crosshair.bmp");
+	LOAD_IMAGE(gfxGame.bmpMuzzle,"data/gfx/muzzle.bmp");
+	LOAD_IMAGE(gfxGame.bmpExplosion,"data/gfx/explosion.png");
+	LOAD_IMAGE(gfxGame.bmpSmoke,"data/gfx/smoke.png");
+	LOAD_IMAGE(gfxGame.bmpChemSmoke,"data/gfx/chemsmoke.png");
+	LOAD_IMAGE(gfxGame.bmpSpawn,"data/gfx/spawn.png");
+	LOAD_IMAGE(gfxGame.bmpHook,"data/gfx/hook.bmp");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpGameover,"data/gfx/gameover.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpScoreboard,"data/gfx/scoreboard.png");
+    LOAD_IMAGE(gfxGame.bmpViewportMgr,"data/gfx/viewportmgr.png");
+	LOAD_IMAGE(gfxGame.bmpSparkle, "data/gfx/sparkle.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpInfinite,"data/gfx/infinite.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[0], "data/frontend/team_1.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[1], "data/frontend/team_2.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[2], "data/frontend/team_3.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[3], "data/frontend/team_4.png");
+
+	LOAD_IMAGE(gfxGame.bmpBonus, "data/gfx/bonus.png");
+	LOAD_IMAGE(gfxGame.bmpHealth, "data/gfx/health.png");
+
+	// These files don't have to be present (backward compatibility)
+	gfxGame.bmpGameNetBackground = LoadImage("data/frontend/background_netgame.png",false);
+	gfxGame.bmpGameLocalBackground = LoadImage("data/frontend/background_localgame.png",false);
+	gfxGame.bmpGameTopBar = LoadImage("data/frontend/top_bar.png",false);
+
+	// Cursors
+	if (!InitializeCursors())
+		return false;
+
+	// Set the color keys
+	SetColorKey(gfxGame.bmpCrosshair);
+	SetColorKey(gfxGame.bmpMuzzle);
+	SetColorKey(gfxGame.bmpExplosion);
+	SetColorKey(gfxGame.bmpSmoke);
+	SetColorKey(gfxGame.bmpChemSmoke);
+	SetColorKey(gfxGame.bmpSpawn);
+	SetColorKey(gfxGame.bmpHook);
+	SetColorKey(gfxGame.bmpBonus);
+	SetColorKey(gfxGame.bmpHealth);
+	SetColorKey(gfxGame.bmpSparkle);
+    SetColorKey(gfxGame.bmpViewportMgr);
+
+	return true;
+}
+
+////////////////////////
+// Load the colors from the config
+void InitializeColors()  {
+	// Init these special colors first
+	tLX->clPink = MakeColour(255,0,255);
+	tLX->clWhite = MakeColour(255,255,255);
+	tLX->clBlack = MakeColour(0,0,0);
+
 	// Initialize the colours
 	tLX->clChatText = MakeColour(128,255,128);
 	tLX->clSubHeading = MakeColour(143,176,207);
@@ -98,65 +155,7 @@ int LoadGraphics(void)
 	tLX->clFPSLabel = tLX->clWhite;
 	tLX->clPingLabel = tLX->clWhite;
 	tLX->clSpecMsgLabel = tLX->clWhite;
-
-
-	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
-	LOAD_IMAGE(gfxGUI.bmpSliderBut,"data/frontend/sliderbut.png");
-
-	LOAD_IMAGE(gfxGame.bmpCrosshair,"data/gfx/crosshair.bmp");
-	LOAD_IMAGE(gfxGame.bmpMuzzle,"data/gfx/muzzle.bmp");
-	LOAD_IMAGE(gfxGame.bmpExplosion,"data/gfx/explosion.png");
-	LOAD_IMAGE(gfxGame.bmpSmoke,"data/gfx/smoke.png");
-	LOAD_IMAGE(gfxGame.bmpChemSmoke,"data/gfx/chemsmoke.png");
-	LOAD_IMAGE(gfxGame.bmpSpawn,"data/gfx/spawn.png");
-	LOAD_IMAGE(gfxGame.bmpHook,"data/gfx/hook.bmp");
-	LOAD_IMAGE_WITHALPHA(gfxGame.bmpGameover,"data/gfx/gameover.png");
-	LOAD_IMAGE(gfxGame.bmpInGame,"data/gfx/ingame.png");
-	LOAD_IMAGE_WITHALPHA(gfxGame.bmpScoreboard,"data/gfx/scoreboard.png");
-    LOAD_IMAGE(gfxGame.bmpViewportMgr,"data/gfx/viewportmgr.png");
-	LOAD_IMAGE(gfxGame.bmpSparkle, "data/gfx/sparkle.png");
-	LOAD_IMAGE_WITHALPHA(gfxGame.bmpInfinite,"data/gfx/infinite.png");
-	LOAD_IMAGE(gfxGame.bmpLag, "data/gfx/lag.png");
-	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[0], "data/frontend/team_1.png");
-	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[1], "data/frontend/team_2.png");
-	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[2], "data/frontend/team_3.png");
-	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[3], "data/frontend/team_4.png");
-
-	LOAD_IMAGE(gfxGame.bmpBonus, "data/gfx/bonus.png");
-	LOAD_IMAGE(gfxGame.bmpHealth, "data/gfx/health.png");
-
-	// These files don't have to be present (backward compatibility)
-	gfxGame.bmpGameNetBackground = LoadImage("data/frontend/background_netgame.png",false);
-	gfxGame.bmpGameLocalBackground = LoadImage("data/frontend/background_localgame.png",false);
-	gfxGame.bmpGameTopBar = LoadImage("data/frontend/top_bar.png",false);
-
-	// Cursors
-	if (!InitializeCursors())
-		return false;
-
-	tLX->cOutlineFont.SetOutline(true);
-	tLX->cOutlineFont.SetSpacing(0);
-	tLX->cOutlineFontGrey.SetSpacing(0);
-
-	if(!tLX->cFont.Load("data/gfx/font.png",true))
-		return false;
-	if(!tLX->cOutlineFont.Load("data/gfx/out_font.png",true))
-		return false;
-	if(!tLX->cOutlineFontGrey.Load("data/gfx/out_fontgrey.png",false))
-		return false;
-
-	// Set the colour keys
-	SetColorKey(gfxGame.bmpCrosshair);
-	SetColorKey(gfxGame.bmpMuzzle);
-	SetColorKey(gfxGame.bmpExplosion);
-	SetColorKey(gfxGame.bmpSmoke);
-	SetColorKey(gfxGame.bmpChemSmoke);
-	SetColorKey(gfxGame.bmpSpawn);
-	SetColorKey(gfxGame.bmpHook);
-	SetColorKey(gfxGame.bmpBonus);
-	SetColorKey(gfxGame.bmpHealth);
-	SetColorKey(gfxGame.bmpSparkle);
-    SetColorKey(gfxGame.bmpViewportMgr);
+	tLX->clLoadingLabel = tLX->clWhite;
 
 	// Load the colours from a file
 	const std::string colorfile = "data/frontend/colours.cfg";
@@ -229,7 +228,29 @@ int LoadGraphics(void)
 	ReadColour(colorfile,"Colours","FPSLabel",			&tLX->clFPSLabel,			tLX->clFPSLabel);
 	ReadColour(colorfile,"Colours","PingLabel",			&tLX->clPingLabel,			tLX->clPingLabel);
 	ReadColour(colorfile,"Colours","SpecialMsgLabel",	&tLX->clSpecMsgLabel,		tLX->clSpecMsgLabel);
+	ReadColour(colorfile,"Colours","LoadingLabel",		&tLX->clLoadingLabel,		tLX->clLoadingLabel);
+}
 
+
+///////////////////
+// Initialize the fonts
+bool LoadFonts()  {
+	tLX->cOutlineFont.SetOutline(true);
+	tLX->cOutlineFont.SetSpacing(0);
+	tLX->cOutlineFontGrey.SetSpacing(0);
+
+	// Normal font
+	if(!tLX->cFont.Load("data/gfx/font.png",true))
+		return false;
+
+	// Outline font
+	if(!tLX->cOutlineFont.Load("data/gfx/out_font.png",true))
+		return false;
+
+	// Grey outline font
+	// TODO: get rid of this font
+	if(!tLX->cOutlineFontGrey.Load("data/gfx/out_fontgrey.png",false))
+		return false;
 
 	return true;
 }
@@ -240,7 +261,9 @@ int LoadGraphics(void)
 void ShutdownGraphics(void)
 {
 	ShutdownCursors();
-	tLX->cFont.Shutdown();
-	tLX->cOutlineFont.Shutdown();
-	tLX->cOutlineFontGrey.Shutdown();
+	if (tLX)  {
+		tLX->cFont.Shutdown();
+		tLX->cOutlineFont.Shutdown();
+		tLX->cOutlineFontGrey.Shutdown();
+	}
 }
