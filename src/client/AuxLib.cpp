@@ -127,9 +127,13 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 int SetVideoMode(void)
 {
 	// TODO: Use DOUBLEBUF and hardware surfaces
-	int HardwareBuf = false;
+	bool HardwareAcceleration = false;
 	int DoubleBuf = false;
 	int vidflags = 0;
+
+	// Use doublebuf when hardware accelerated
+	if (HardwareAcceleration)
+		DoubleBuf = true;
 
 	// Check that the bpp is valid
 	switch (tLXOptions->iColourDepth) {
@@ -153,13 +157,14 @@ int SetVideoMode(void)
 		printf("HINT: using OpenGL\n");
 		vidflags |= SDL_OPENGL;
 		vidflags |= SDL_OPENGLBLIT;
+
 #ifndef MACOSX
 		short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
 		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
-		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
+		SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
 #endif
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
@@ -167,8 +172,8 @@ int SetVideoMode(void)
 		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, DoubleBuf);
 	} 
 
-	if(HardwareBuf)  {
-		vidflags |= SDL_HWSURFACE;
+	if(HardwareAcceleration)  {
+		vidflags |= SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL;
 		if (tLXOptions->iFullscreen)
 			iSurfaceFormat = SDL_HWSURFACE;
 	}
@@ -181,7 +186,16 @@ int SetVideoMode(void)
 		vidflags |= SDL_DOUBLEBUF;
 
 #ifdef WIN32
-	UnSubclassWindow();
+	UnSubclassWindow();  // Unsubclass before doing anything with the window
+#endif
+
+
+#ifdef WIN32
+	// Reset the video subsystem under WIN32, else we get a "Could not reset OpenGL context" error when switching mode
+	if (opengl && tLX)  {  // Don't reset when we're setting up the mode for first time (OpenLieroX not yet initialized)
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+		SDL_InitSubSystem(SDL_INIT_VIDEO);
+	}
 #endif
 
 	if( SDL_SetVideoMode(640,480, tLXOptions->iColourDepth,vidflags) == NULL) {
@@ -199,7 +213,7 @@ int SetVideoMode(void)
 	GetMouse()->FirstDown = 0;
 	GetMouse()->Up = 0;
 
-	if (!tLXOptions->iFullscreen && !tLXOptions->bOpenGL)  {
+	if (!tLXOptions->iFullscreen)  {
 		SubclassWindow();
 	}
 #endif

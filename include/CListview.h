@@ -130,6 +130,8 @@ public:
 		bRedrawMenu = true;
 		bDrawBorder = true;
 		bNeedsRepaint = true;
+		bCustomScrollbarSetup = false;
+		bAlwaysVisibleScrollbar = false;
 	}
 
 	~CListview() {
@@ -143,6 +145,8 @@ private:
 	bool			bRedrawMenu;
 	bool			bDrawBorder;
 	bool            bShowSelect;
+	bool			bCustomScrollbarSetup;
+	bool			bAlwaysVisibleScrollbar;
 
 	// Columns
 	int				iNumColumns;
@@ -195,6 +199,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
 	void	ReadjustScrollbar(void);
+	void	SetupScrollbar(int x, int y, int h, bool always_visible);
 
 	void	Clear(void);
 

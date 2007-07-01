@@ -134,6 +134,18 @@ public:
 	std::string		filename;
 	DBData			data;
 
+	~IpToCountryData() {
+#ifdef _MSC_VER
+#ifndef _DEBUG
+		// Probably because of some bug in MSVC, data.clear() in release mode is incredibly slow (30 secs)
+		// This does the same but faster
+		// FIXME: fix this asap
+		while (data.size())
+			data.erase(data.begin());
+#endif
+#endif
+	}
+
 	
 	inline void loadFile(const std::string& fn) {
 		filename = fn;		

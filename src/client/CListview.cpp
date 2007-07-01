@@ -66,9 +66,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
-	//DrawHLine(bmpDest,iX+3,iX+iWidth-3,iY+tLX->cFont.GetHeight()+4,tLX->clWhite);
-
-
+	
 	// Draw the items
 	int y=iY;
 	if (tColumns)  {
@@ -78,12 +76,10 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			y = iY+tLX->cFont.GetHeight()+4;
 	} 
 	
-
-	if (bDrawBorder)  {
-		// Re-setup the scrollbar
-		cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight - (y - iY) - 2);
-	} else {
-		// Re-setup the scrollbar
+	// Re-setup the scrollbar
+	if (!bCustomScrollbarSetup)  {
+		if (bDrawBorder)
+			y += 2;
 		cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight - (y - iY));
 	}
 
@@ -92,7 +88,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	int count=0;
 
 	int selectsize = x+iWidth-5;
-	if(iGotScrollbar)
+	if(iGotScrollbar || bAlwaysVisibleScrollbar)
 		selectsize = x+iWidth-20;
 
 	int h=tLX->cFont.GetHeight();
@@ -185,12 +181,12 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	}
 
 	// Draw the scrollbar
-	if(iGotScrollbar)
+	if(iGotScrollbar || bAlwaysVisibleScrollbar)
 		cScrollbar.Draw(bmpDest);
 
     // Draw the rectangle last
 	if (bDrawBorder)
-		Menu_DrawBoxInset(bmpDest, iX, iY+15*bOldStyle, iX+iWidth, iY+iHeight);
+		Menu_DrawBoxInset(bmpDest, iX, iY+(tLX->cFont.GetHeight()-1)*bOldStyle, iX+iWidth, iY+iHeight);
 }
 
 
@@ -1369,7 +1365,8 @@ DWORD CListview::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 	return 0;
 }
 
-
+///////////////////
+// Get an item based on the index
 lv_item_t* CListview::getItem(int index) {
 	for(lv_item_t* i = tItems; i; i = i->tNext) {
 		if(i->iIndex == index)
@@ -1378,10 +1375,59 @@ lv_item_t* CListview::getItem(int index) {
 	return NULL;
 }
 
+/////////////////
+// Get an item based on the name
 lv_item_t* CListview::getItem(const std::string& name) {
 	for(lv_item_t* i = tItems; i; i = i->tNext) {
 		if(stringcasecmp(i->sIndex,name) == 0)
 			return i;
 	}
 	return NULL;
+}
+
+////////////////
+// Custom scrollbar setup
+void CListview::SetupScrollbar(int x, int y, int h, bool always_visible)
+{
+	int full_auto_setup = 0;
+
+	if (h <= 0) { // Height should be set automatically
+		full_auto_setup++;
+		h = iHeight;
+		if (tColumns)  {
+			h -= tLX->cFont.GetHeight();
+			if (!bOldStyle)
+				h -= 4;
+		}
+
+		if (bDrawBorder)
+			h -= 4;
+
+		h = MAX(h, 1); // Safety
+	}
+
+	if (y < 0)  { // Y position should be set automatically
+		full_auto_setup++;
+		y = iY;
+		if (tColumns)  {
+			iY += tLX->cFont.GetHeight();
+			if (!bOldStyle)
+				h += 4;
+		}
+
+		if (bDrawBorder)
+			y += 2;
+	}
+
+	if (x < 0)  { // X position should be set automatically
+		full_auto_setup++;
+		x = iX + iWidth - 14;
+	}
+	
+
+	// Setup the scrollbar
+	cScrollbar.Setup(0, x, y, 14, h);
+	bAlwaysVisibleScrollbar = always_visible;
+	bCustomScrollbarSetup = (full_auto_setup != 3); // If full auto setup is 3, all the three params should
+													// be set up automatically
 }

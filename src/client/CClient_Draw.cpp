@@ -153,6 +153,11 @@ bool CClient::InitializeDrawing(void)
 		ReadInteger("data/frontend/frontend.cfg",section,"HealthLabelY",&tInterfaceSettings.HealthLabel1Y, 400);
 		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabelX",&tInterfaceSettings.WeaponLabel1X, 5);
 		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabelY",&tInterfaceSettings.WeaponLabel1Y, 425);
+
+		ReadInteger("data/frontend/frontend.cfg",section,"ChatboxScrollbarX",&tInterfaceSettings.ChatboxScrollbarX, -1);
+		ReadInteger("data/frontend/frontend.cfg",section,"ChatboxScrollbarY",&tInterfaceSettings.ChatboxScrollbarY, -1);
+		ReadInteger("data/frontend/frontend.cfg",section,"ChatboxScrollbarH",&tInterfaceSettings.ChatboxScrollbarH, -1);
+		ReadKeyword("data/frontend/frontend.cfg",section,"ChatboxScrollbarAlwaysVisible",&tInterfaceSettings.ChatboxScrollbarAlwaysVisible, false);
 	}
 
     // Set the appropriate chatbox width
@@ -358,8 +363,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
         DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
 
 	// Top bar
-	if (gfxGame.bmpGameTopBar)
-		DrawImage( bmpDest, gfxGame.bmpGameTopBar, 0, 0);
+	SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
+	if (top_bar)
+		DrawImage( bmpDest, top_bar, 0, 0);
 	else
 		DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
 
@@ -666,12 +672,14 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 		HealthBar->SetPosition(worm->getHealth());
 		HealthBar->Draw(bmpDest);
 	}
-	//DrawRectFill(bmpDest,x+63,y+6,x+165,y+13,grey);
-	//DrawRectFill(bmpDest,x+64,y+7,x+64+worm->getHealth(),y+12,MakeColour(64,255,64));
 
 	// Weapon
 	wpnslot_t *Slot = worm->getCurWeapon();
-	tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, "Weapon:");
+	static std::string weapon_name;
+	weapon_name = Slot->Weapon->Name;
+	stripdot(weapon_name, 100);
+	weapon_name += ":";
+	tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
 	
 	if (WeaponBar)  {
 		WeaponBar->SetForeColor(MakeColour(64,64,255));
@@ -1014,6 +1022,8 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 		if(resume.InBox(Mouse->X,Mouse->Y))  {
 			// Resume
 			iGameMenu = false;
+
+			bRepaintChatbox = true;
 
 			SetGameCursor(CURSOR_NONE);
 		}
@@ -1362,8 +1372,11 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 		}
 
 	mouse_t *Mouse = GetMouse();
-	int inbox = lv->InBox(Mouse->X,Mouse->Y+GetCursorHeight(CURSOR_ARROW));	// small hack: count the mouse height so we avoid "freezing
-																			// the mouse image when the user moves cursor away
+
+	// Small hack: count the mouse height so we avoid "freezing
+	// the mouse image when the user moves cursor away
+	int inbox = MouseInRect(lv->getX(),lv->getY(), lv->getWidth(), lv->getHeight()+GetCursorHeight(CURSOR_ARROW));
+
 	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox)  {	// Repainting when new messages/scrolling, 
 																				// or when user is moving the mouse over the chat
 

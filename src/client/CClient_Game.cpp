@@ -1563,8 +1563,6 @@ void CClient::processChatter(void)
 // Process a single character chat
 void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 {
-	if (!c)
-		return;
 
     // Up?
     if(!bDown) {

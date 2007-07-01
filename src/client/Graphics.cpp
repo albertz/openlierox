@@ -55,7 +55,8 @@ bool LoadGraphics(void)
 	// These files don't have to be present (backward compatibility)
 	gfxGame.bmpGameNetBackground = LoadImage("data/frontend/background_netgame.png",false);
 	gfxGame.bmpGameLocalBackground = LoadImage("data/frontend/background_localgame.png",false);
-	gfxGame.bmpGameTopBar = LoadImage("data/frontend/top_bar.png",false);
+	gfxGame.bmpGameLocalTopBar = LoadImage("data/frontend/top_bar_local.png",false);
+	gfxGame.bmpGameNetTopBar = LoadImage("data/frontend/top_bar_net.png",false);
 
 	// Cursors
 	if (!InitializeCursors())

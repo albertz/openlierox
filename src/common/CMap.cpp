@@ -1733,11 +1733,13 @@ void CMap::UpdateMiniMapRect(ushort x, ushort y, ushort w, ushort h)
 
 	Uint8 *sp,*tp,*tmp1,*tmp2;
 	ushort mmx_tmp = (ushort)((float)x/xstep);
+	ushort mmy_tmp = (ushort)((float)y/ystep);
 	float mx_tmp = (float)((short)(x/xstep)*xstep);  // This makes sure the shrink will be the same as in UpdateMinimap
+	float my_tmp = (float)((short)(y/ystep)*ystep);
 	ushort y2 = y+h;
 	ushort x2 = x+w;
 
-	for(my=(float)((short)(y/ystep)*ystep),mmy=(short)((float)y/ystep);my<y2;my+=ystep,mmy++) {
+	for(my=my_tmp,mmy=mmy_tmp;my<y2;my+=ystep,mmy++) {
 
 		if(mmy >= mh)
 			break;

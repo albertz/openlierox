@@ -48,17 +48,17 @@ inline void MultIncUtf8StringIterator(_Iterator& it, const _Iterator& last, size
 template<typename _Iterator1, typename _Iterator2>
 inline void DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
 	if(it == first) return;
-	unsigned char c;
-	//bool normal_read = false; // true if we've read a character, that is not a special UTF-8 character
-	//bool utf_read = false;  // true if we've read a character, that is a special UTF-8 character
-	for(; first != it; it--) {
-		c = *it;
-		if((c&0x80) && (c&0xC0)) 
-			continue;
-		else  {
-			if (it != first) it--;
-			break;
+	unsigned char c = *it;
+	if (c & 0x80)  {
+		for(it--; first != it; it--) {
+			c = *it;
+			if( ((c&0x80) == (c&0xC2)) || !(c&0x80))   {
+				it++;
+				break;
+			}
 		}
+	} else {
+		it--;
 	}
 }
 

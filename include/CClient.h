@@ -97,6 +97,10 @@ class interface_sett { public:
 	int		CurrentSettingsTwoPlayersY;
 	int		ScoreboardOtherPosX;  // In local it's for two players, in net when selecting weapons
 	int		ScoreboardOtherPosY;
+	int		ChatboxScrollbarX;
+	int		ChatboxScrollbarY;
+	int		ChatboxScrollbarH;
+	bool	ChatboxScrollbarAlwaysVisible;
 
 	// Player 1
 	int		Lives1X;

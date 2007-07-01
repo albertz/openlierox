@@ -244,6 +244,10 @@ int CClient::Initialize(void)
 									tInterfaceSettings.ChatBoxY,
 									tInterfaceSettings.ChatBoxW,
 									tInterfaceSettings.ChatBoxH);
+	((CListview *)cChatList)->SetupScrollbar(tInterfaceSettings.ChatboxScrollbarX,
+											 tInterfaceSettings.ChatboxScrollbarY,
+											 tInterfaceSettings.ChatboxScrollbarH,
+											 tInterfaceSettings.ChatboxScrollbarAlwaysVisible);
 	
 	
 
@@ -459,15 +463,18 @@ void CClient::SetupViewports(void)
 
 
 	// Setup according to top and bottom interface bars
-	SDL_Surface *topbar = gfxGame.bmpGameTopBar;
+	SDL_Surface *topbar = NULL;
 	SDL_Surface *bottombar = NULL;
-	if (tGameInfo.iGameType == GME_LOCAL)
+	if (tGameInfo.iGameType == GME_LOCAL)  {
 		bottombar = gfxGame.bmpGameLocalBackground;
-	else
+		topbar = gfxGame.bmpGameLocalTopBar;
+	} else {
 		bottombar = gfxGame.bmpGameNetBackground;
+		topbar = gfxGame.bmpGameNetTopBar;
+	}
 
 
-	int top = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 4); // Top bound of the viewports
+	int top = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
 	int h = bottombar ? (480 - bottombar->h - top) : (382 - top); // Height of the viewports
 
 	// If there is only 1 local player, setup 1 main viewport
@@ -480,8 +487,8 @@ void CClient::SetupViewports(void)
 		cViewports[0].setUsed(true);
 	}
 
-	// If there are more then 2 local players, only use 2 viewports if the first two are humans
-	if(iNumWorms >= 2) {
+	// If there are more than 2 local players, only use 2 viewports if the first two are humans
+	else if(iNumWorms >= 2) {
         bool both = (cLocalWorms[1]->getType() == PRF_HUMAN);
 
         if( !both ) {  // only one human

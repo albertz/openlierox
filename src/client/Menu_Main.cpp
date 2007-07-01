@@ -194,19 +194,14 @@ void Menu_MainFrame(void)
 		lastimg = img;
 	}
 
-	/*static const std::string credits[] = {
-				"  " + GetGameName() + " v" + LX_VERSION,
-				"᚛ Original code by Jason Boettcher",
-				"᚛ Ported and enhanced by",
-				"  Dark Charlie and Albert Zeyer",
-				"᚛ Supported by the [RIP] clan"
-	};*/
+
+	// Credits
 
 	static const std::string credits1 = "  " + GetGameName() + " v" + LX_VERSION;
 
 	static const std::string credits2 = std::string("- Original code by Jason Boettcher\n") +
 										std::string("- Ported and enhanced by\n") +
-										std::string("  Dark Charlie and Albert Zeyer\n") +
+										std::string("  Karel Petránek and Albert Zeyer\n") +
 										std::string("- Supported by the [RIP] clan\n" +
 										//std::string("- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
 										tMenu->tFrontendInfo.sFrontendCredits
