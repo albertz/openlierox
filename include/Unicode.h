@@ -17,22 +17,17 @@
 #include "Utils.h"
 
 
-typedef Uint32 UnicodeChar;  // Note: only 16bits are currently being used by OLX
+typedef Uint32 UnicodeChar;
 
 template<typename _Iterator1, typename _Iterator2>
 inline void IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
 	if(it == last) return;
-	unsigned char c = *it;
-	if ( (c&0x80) )  {
-		for(; last != it; it++) {
-			c = *it;
-			if((c&0x80) == (c&0xC2) ) {
-				if (it != last) it++;
-				break;
-			}
-		}
-	} else
-		it++;
+	unsigned char c;
+	it++;
+	for(; last != it; it++) {
+		c = *it;
+		if(!(c&0x80) || (c&0xC0)) break;
+	}
 }
 
 template<typename _Iterator>
@@ -48,17 +43,11 @@ inline void MultIncUtf8StringIterator(_Iterator& it, const _Iterator& last, size
 template<typename _Iterator1, typename _Iterator2>
 inline void DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
 	if(it == first) return;
-	unsigned char c = *it;
-	if (c & 0x80)  {
-		for(it--; first != it; it--) {
-			c = *it;
-			if( ((c&0x80) == (c&0xC2)) || !(c&0x80))   {
-				it++;
-				break;
-			}
-		}
-	} else {
-		it--;
+	unsigned char c;
+	it--;
+	for(; first != it; it--) {
+		c = *it;
+		if(!(c&0x80) || (c&0xC0)) break;
 	}
 }
 
