@@ -1668,7 +1668,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 	}
 
     // Normal key
-    if(iChat_Pos < ChatMaxLength-1 ) {
+    if(iChat_Pos < ChatMaxLength-1 && tLX->cFont.CanDisplayCharacter(c) ) {
     	InsertUnicodeChar(sChat_Text, iChat_Pos, c);
 		iChat_Pos++;
     }

@@ -176,6 +176,7 @@ class object_t { public:
 
 // Random map data
 class maprandom_t { public:
+	maprandom_t()  { psObjects = NULL; bUsed = false; }
     bool        bUsed;
     std::string szTheme;
     int         nNumObjects;

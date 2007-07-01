@@ -202,6 +202,11 @@ public:
 			iTeamScores[i] = 0;
 	}
 
+	~CClient()  {
+		Shutdown();
+		Clear();
+	}
+
 
 private:
 	// Attributes

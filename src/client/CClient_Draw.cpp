@@ -468,7 +468,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			DrawVLine(bmpDest,
 					tInterfaceSettings.ChatterY,
 					tInterfaceSettings.ChatterY + tLX->cOutlineFont.GetHeight(),
-					text_start+tLX->cOutlineFont.GetWidth(sChat_Text.substr(0,iChat_Pos)),
+					text_start+tLX->cOutlineFont.GetWidth(Utf8SubStr(sChat_Text, 0, iChat_Pos)),
 					tLX->clGameChatCursor );
 		}
 	}

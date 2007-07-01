@@ -424,6 +424,7 @@ int Menu_Net_HostLobbyInitialize(void)
 	tGameInfo.iShowBonusName = tLXOptions->tGameinfo.iShowBonusName;
     tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
 
+	cClient->Shutdown();
     cClient->Clear();
 
 

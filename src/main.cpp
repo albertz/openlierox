@@ -54,9 +54,9 @@ CMediaPlayer cMediaPlayer;
 
 int         nDisableSound = false;
 
-keyboard_t	*kb;
-SDL_Surface	*Screen;
-IpToCountryDB *tIpToCountryDB;
+keyboard_t	*kb = NULL;
+SDL_Surface	*Screen = NULL;
+IpToCountryDB *tIpToCountryDB = NULL;
 
 CVec		vGravity = CVec(0,4);
 
@@ -85,8 +85,6 @@ LoadingScreen cLoading;
 void InitializeLoading();
 void DrawLoading(byte percentage, const std::string &text);
 void ShutdownLoading();
-
-
 
 
 

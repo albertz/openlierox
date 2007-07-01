@@ -31,6 +31,16 @@
 // Clear the client details
 void CClient::Clear(void)
 {
+
+#ifdef DEBUG
+	if (cRemoteWorms || cProjectiles || cBonuses)  {
+#ifdef _MSC_VER
+		__asm int 3; // Breakpoint
+#endif
+		printf("FIXME: clearing a client that wasn't shut down! This will cause a memleak!");
+	}
+#endif
+
 	iNumWorms = 0;
 	int i;
 	for(i=0;i<MAX_PLAYERS;i++)
