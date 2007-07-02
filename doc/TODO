@@ -1,9 +1,10 @@
 TODO list
 
+[ ] are there new network errors?
 [ ] finish unicode support (!)
 [ ] possibility to change options when playing
-[ ] create a SVG icon for the game
-[ ] make Dev-C++ project working (fix the issue with libxml lib)
+[x] create a SVG icon for the game
+[x] make Dev-C++ project working (fix the issue with libxml lib)
 [ ] uniform warning/notification/error system
 [X] add macro-variable to {en/dis}able the mediaplayer
 [ ] standalone dedicated server
