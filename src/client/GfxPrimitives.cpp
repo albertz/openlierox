@@ -81,6 +81,17 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 	}
 }
 
+template<typename T>
+inline T force_in_range(T val, T min, T max) {
+	return MIN(MAX(val, min), max);
+}
+
+inline Uint8 relative(Uint8 v1, Uint8 v2, Uint8 c) {
+	return (Uint8)force_in_range(
+		(((float)v1 * (float)c) + ((float)v2 * (float)(255 - c))) / 255.0f,
+		0.0f, 255.0f);
+}
+
 /////////////////
 // Put the pixel alpha blended with the background
 // NOTICE: colour has to be of the same format as bmpDest->format
@@ -90,28 +101,11 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 		return;
 	}
 
-	static Uint32 R, G, B, A;
-	register Uint64 pixel = GetPixel(bmpDest,x,y);
-	register Uint64 col = colour;
-	
-	#define Rmask bmpDest->format->Rmask
-	#define Gmask bmpDest->format->Gmask
-	#define Bmask bmpDest->format->Bmask
-	#define Amask bmpDest->format->Amask
-
-	R = ((((pixel & Rmask) * (255-a) >> 8) + (( (col & Rmask) * a >> 8))) & Rmask);
-	G = ((((pixel & Gmask) * (255-a) >> 8) + (( (col & Gmask) * a >> 8))) & Gmask);
-	B = ((((pixel & Bmask) * (255-a) >> 8) + (( (col & Bmask) * a >> 8))) & Bmask);
-	A = pixel & Amask;
-
-	pixel = (R|G|B|A);
-	
-	#undef Rmask
-	#undef Gmask
-	#undef Bmask
-	#undef Amask
-
-	PutPixel(bmpDest, x, y, pixel);
+	static Uint8 R1, G1, B1, A1, R2, G2, B2;
+	SDL_GetRGBA(GetPixel(bmpDest, x, y), bmpDest->format, &R1, &G1, &B1, &A1);
+	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2);
+	PutPixel(bmpDest, x, y, SDL_MapRGBA(bmpDest->format,
+		relative(R2, R1, a), relative(G2, G1, a), relative(B2, B1, a), A1));
 }
 
 //////////////////////
