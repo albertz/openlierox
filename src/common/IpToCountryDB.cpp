@@ -8,6 +8,8 @@
 //
 /////////////////////////////////////////
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_thread.h>
 #include <iostream>
 #include <map>
 
@@ -133,43 +135,78 @@ class IpToCountryData {
 public:
 	std::string		filename;
 	DBData			data;
+	SDL_Thread*		loader;
+	bool			dbReady;
 
+	IpToCountryData() : loader(NULL), dbReady(true) {}
+	
 	~IpToCountryData() {
+		if(!dbReady) {
+			cout << "IpToCountryDB destroying: " << filename << " is still loading ..." << endl;
+			while(!dbReady) { SDL_Delay(100); }
+		}
+		// SDL_WaitThread(thread, NULL);
+	
 #ifdef _MSC_VER
 #ifndef _DEBUG
 		// Probably because of some bug in MSVC, data.clear() in release mode is incredibly slow (30 secs)
 		// This does the same but faster
 		// FIXME: fix this asap
-		while (data.size())
-			data.erase(data.begin());
+		// TODO: this CANNOT be the reason for the slowness, so don't add some hack which works with current code because of randomness; search the real bug instead
+/*		while (data.size())
+			data.erase(data.begin()); */
 #endif
 #endif
+		data.clear();
 	}
 
-	
+	// HINT: this should only called from the mainthread
+	// (or at least from the same thread where this DB is used),
+	// because the handling of dbReady isn't threadsafe
 	inline void loadFile(const std::string& fn) {
-		filename = fn;		
+		if(!dbReady) {
+			cout << "IpToCountryDB loadFile: other file " << filename << " is still loading ..." << endl;
+			while(!dbReady) { SDL_Delay(100); }
+		}
+		dbReady = false;
+		
+		filename = fn;
 		data.clear();
 		
-		std::ifstream* f = OpenGameFileR(fn);
+		loader = SDL_CreateThread(loaderMain, this);
+	}
+	
+	static int loaderMain(void* obj) {
+		IpToCountryData* _this = (IpToCountryData*)obj;
+
+		std::ifstream* f = OpenGameFileR(_this->filename);
 		if(f == NULL) {
-			cerr << "ERROR: cannot read " << fn << endl;
-			return;
+			cerr << "ERROR: cannot read " << _this->filename << endl;
+			_this->dbReady = true;
+			return 0; // TODO: other return? who got this?
 		}
 		f->seekg(0);		
 		
-		cout << "IpToCountryDB: reading " << fn << " ..." << endl;
-		AddEntrysToDBData adder(data);
+		cout << "IpToCountryDB: reading " << _this->filename << " ..." << endl;
+		AddEntrysToDBData adder(_this->data);
 		CountryCsvReaderHandler<AddEntrysToDBData> csvReaderHandler(adder);
 		CsvReader<CountryCsvReaderHandler<AddEntrysToDBData> > csvReader(f, csvReaderHandler);
 		csvReader.read();
-		cout << "  finished, " << data.size() << " entries" << endl;
+		cout << "IpToCountryDB: reading finished, " << _this->data.size() << " entries" << endl;
 		
 		f->close();
 		delete f;
+		
+		_this->dbReady = true;
+		return 0;
 	}
 	
 	inline const DBEntry* getEntry(Ip ip) {
+		if(!dbReady) {
+			cout << "IpToCountryDB getEntry: " << filename << " is still loading ..." << endl;
+			while(!dbReady) { SDL_Delay(100); }
+		}
+
 		DBData::const_iterator it = data.lower_bound(ip);
 		if(it != data.end() && it->second.RangeFrom <= ip) // in range?
 			return &it->second;
