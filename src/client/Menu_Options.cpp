@@ -64,7 +64,7 @@ enum {
 	og_ShowWormHealth,
 	og_ColorizeNicks,
 	og_AutoTyping,
-	og_ScreenshotFormat
+	og_Antialiasing
 };
 
 enum {
@@ -331,6 +331,8 @@ int Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CCheckbox(tLXOptions->iColorizeNicks),og_ColorizeNicks, 280, 270, 17,17);
 	cOpt_Game.Add( new CLabel("Start typing after any key press",tLX->clNormalLabel), Static, 40, 300, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->iAutoTyping),og_AutoTyping, 280, 300, 17,17);
+	cOpt_Game.Add( new CLabel("Use antialiasing (slow)",tLX->clNormalLabel), Static, 40, 330, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bAntiAliasing),og_Antialiasing, 280, 330, 17,17);
 	//cOpt_Game.Add( new CLabel("AI Difficulty",tLX->clNormalLabel), Static, 40, 270, 0,0);
 	//cOpt_Game.Add( new CSlider(3), og_AIDifficulty,   175, 267, 100, 20);
 
@@ -533,6 +535,12 @@ void Menu_OptionsFrame(void)
 				case og_AutoTyping:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->iAutoTyping = cOpt_Game.SendMessage(og_AutoTyping, CKM_GETCHECK, (DWORD)0, 0);
+					break;
+
+				// Antialiasing
+				case og_Antialiasing:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bAntiAliasing = cOpt_Game.SendMessage(og_Antialiasing, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 			}

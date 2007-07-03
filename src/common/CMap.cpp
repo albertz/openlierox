@@ -457,6 +457,17 @@ int CMap::CreateSurface(void)
 	return true;
 }
 
+////////////////////
+// Updates the bmpDrawImage with data from bmpImage
+// X, Y, W, H apply to bmpImage, not bmpDrawImage
+void CMap::UpdateDrawImage(int x, int y, int w, int h)
+{
+	if (tLXOptions->bAntiAliasing)
+		DrawImageResampledAdv(bmpDrawImage, bmpImage, x, y, x*2, y*2, w, h, 2, 2, MAP_BLUR);
+	else
+		DrawImageStretch2(bmpDrawImage, bmpImage, x, y, x*2, y*2, w, h);
+}
+
 ////////////////
 // Set dimensions of the minimap
 void CMap::SetMinimapDimensions(uint _w, uint _h)
@@ -975,7 +986,7 @@ int CMap::CarveHole(int size, CVec pos)
 		draw_x = 0;
 	if (draw_y < 0)
 		draw_y = 0;
-	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
+	UpdateDrawImage(draw_x, draw_y, w+25, h+25);
 
 	UpdateMiniMapRect(MAX(0,sx-5), MAX(0,sy-5), w+25, h+25);
 
@@ -1094,7 +1105,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 		draw_x = 0;
 	if (draw_y < 0)
 		draw_y = 0;
-	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,w+25,h+25);
+	UpdateDrawImage(draw_x, draw_y, w+25, h+25);
 
 	UpdateMiniMapRect(draw_x,draw_y,w+25,h+25);
 	//bMiniMapDirty = true;
@@ -1232,7 +1243,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 		draw_x = 0;
 	if (draw_y < 0)
 		draw_y = 0;
-	DrawImageStretch2(bmpDrawImage, bmpImage, draw_x, draw_y, draw_x * 2, draw_y * 2, w + 25, h + 25);
+	UpdateDrawImage(draw_x, draw_y, w + 25, h + 25);
 
 	UpdateMiniMapRect(draw_x, draw_y, w + 25, h + 25);
 	//bMiniMapDirty = true;
@@ -1474,9 +1485,7 @@ void CMap::PlaceStone(int size, CVec pos)
 	// Update the draw image
 	short draw_x = MAX(sx - 5, 0);
 	short draw_y = MAX(sy - 5, 0);
-	DrawImageStretch2(bmpDrawImage, bmpImage,
-			draw_x, draw_y, draw_x * 2, draw_y * 2,
-			stone->w + 10, stone->h + 10);
+	UpdateDrawImage(draw_x, draw_y,	stone->w + 10, stone->h + 10);
 
     // Calculate the total dirt count
     CalculateDirtCount();
@@ -1573,7 +1582,7 @@ void CMap::PlaceMisc(int id, CVec pos)
 	// Update the draw image
 	short draw_x = MAX(sx-5,0);
 	short draw_y = MAX(sy-5,0);
-	DrawImageStretch2(bmpDrawImage,bmpImage,draw_x,draw_y,draw_x*2,draw_y*2,clip_w+10,clip_h+10);
+	UpdateDrawImage(draw_x, draw_y, clip_w+10, clip_h+10);
 
 	UpdateMiniMapRect(draw_x, draw_y, clip_w+10, clip_h+10);
 	//bMiniMapDirty = true;
@@ -1654,57 +1663,19 @@ void CMap::PutImagePixel(uint x, uint y, Uint32 colour)
 // Update the minimap
 void CMap::UpdateMiniMap(bool force)
 {
-	float xstep,ystep;
-	float mx,my;
-	uint mmx,mmy;
-	uint mw = bmpMiniMap->w;
-	uint mh = bmpMiniMap->h;
-
 	if(!bMiniMapDirty && !force)
 		return;
 
+	float xratio,yratio;
 
-	// Calculate steps
-	xstep = (float)Width/ (float)mw;
-	ystep = (float)Height / (float)mh;
+	// Calculate ratios
+	xratio = (float)bmpMiniMap->w/ (float)bmpImage->w;
+	yratio = (float)bmpMiniMap->h / (float)bmpImage->h;
 
-	// Lock
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
-	if (SDL_MUSTLOCK(bmpMiniMap))
-		SDL_LockSurface(bmpMiniMap);
-
-	Uint8 *sp,*tp,*tmp1,*tmp2;
-
-	for(my=0,mmy=0;my<Height;my+=ystep,mmy++) {
-
-		if(mmy >= mh)
-			break;
-
-		// Save the pointer to the first pixel in current line to make the loop faster
-		tmp1 = (Uint8 *)bmpImage->pixels + (int)my*bmpImage->pitch;
-		tmp2 = (Uint8 *)bmpMiniMap->pixels + mmy*bmpMiniMap->pitch;
-
-		for(mx=0,mmx=0;mx<Width;mx+=xstep,mmx++) {
-
-			if(mmx >= mw)
-				break;
-
-			// Copy the pixel
-			sp = tmp1+(int)mx*bmpImage->format->BytesPerPixel;
-			tp = tmp2+mmx*bmpMiniMap->format->BytesPerPixel;
-
-			memcpy(tp,sp,bmpMiniMap->format->BytesPerPixel);
-
-			//PutPixel(bmpMiniMap,mmx,mmy,GetPixel(bmpImage,(int)mx,(int)my));  // Slow
-		}
-	}
-
-	// Unlock
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
-	if (SDL_MUSTLOCK(bmpMiniMap))
-		SDL_UnlockSurface(bmpMiniMap);
+	if (tLXOptions->bAntiAliasing)
+		DrawImageResampledAdv(bmpMiniMap, bmpImage, 0, 0, 0, 0, bmpImage->w, bmpImage->h, xratio, yratio, MINIMAP_BLUR);
+	else
+		DrawImageResizedAdv(bmpMiniMap, bmpImage, 0, 0, 0, 0, bmpImage->w, bmpImage->h, xratio, yratio);
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
@@ -1715,62 +1686,27 @@ void CMap::UpdateMiniMap(bool force)
 // X, Y, W and H apply to the bmpImage, not bmpMinimap
 void CMap::UpdateMiniMapRect(ushort x, ushort y, ushort w, ushort h)
 {
-	float xstep,ystep;
-	float mx,my;  // bmpImage coordinates
-	ushort mmx,mmy;  // bmpMiniMap coordinates
-	ushort mw = bmpMiniMap->w;
-	ushort mh = bmpMiniMap->h;
+	float xratio,yratio;
 
-	// Calculate steps
-	xstep = (float)Width/ (float)mw;
-	ystep = (float)Height / (float)mh;
+	// Calculate ratios
+	xratio = (float)bmpMiniMap->w/ (float)bmpImage->w;
+	yratio = (float)bmpMiniMap->h / (float)bmpImage->h;
 
-	// Lock
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
-	if (SDL_MUSTLOCK(bmpMiniMap))
-		SDL_LockSurface(bmpMiniMap);
-
-	Uint8 *sp,*tp,*tmp1,*tmp2;
-	ushort mmx_tmp = (ushort)((float)x/xstep);
-	ushort mmy_tmp = (ushort)((float)y/ystep);
-	float mx_tmp = (float)((short)(x/xstep)*xstep);  // This makes sure the shrink will be the same as in UpdateMinimap
-	float my_tmp = (float)((short)(y/ystep)*ystep);
-	ushort y2 = y+h;
-	ushort x2 = x+w;
-
-	for(my=my_tmp,mmy=mmy_tmp;my<y2;my+=ystep,mmy++) {
-
-		if(mmy >= mh)
-			break;
-
-		// Save the pointer to the first pixel in current line to make the loop faster
-		tmp1 = (Uint8 *)bmpImage->pixels + (short)my*bmpImage->pitch;
-		tmp2 = (Uint8 *)bmpMiniMap->pixels + mmy*bmpMiniMap->pitch;
-
-		for(mx=mx_tmp,mmx=mmx_tmp;mx<x2;mx+=xstep,mmx++) {
-
-			if(mmx >= mw)
-				break;
-
-			// Copy the pixel
-			sp = tmp1+(short)mx*bmpImage->format->BytesPerPixel;
-			tp = tmp2+mmx*bmpMiniMap->format->BytesPerPixel;
-
-			memcpy(tp,sp,bmpMiniMap->format->BytesPerPixel);
-
-			//PutPixel(bmpMiniMap,mmx,mmy,GetPixel(bmpImage,(int)mx,(int)my));  // Slow
-		}
-	}
-
-	// Unlock
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
-	if (SDL_MUSTLOCK(bmpMiniMap))
-		SDL_UnlockSurface(bmpMiniMap);
+	if (tLXOptions->bAntiAliasing)
+		DrawImageResampledAdv(bmpMiniMap, bmpImage, x, y, Round((float)x * xratio), Round((float)y * yratio), w, h, xratio, yratio, MINIMAP_BLUR);
+	else
+		DrawImageResizedAdv(bmpMiniMap, bmpImage, x, y, Round((float)x * xratio), Round((float)y * yratio), w, h, xratio, yratio);
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
+
+	return;
+	
+	
+	/*
+	float mx_tmp = (float)((int)(x/xratio)*xratio);  // This makes sure the shrink will be the same as in UpdateMinimap
+	float my_tmp = (float)((int)(y/yratio)*yratio);
+*/
 }
 
 
@@ -2304,7 +2240,7 @@ int CMap::LoadImageFormat(FILE *fp)
 	ApplyShadow(0,0,Width,Height);
 
 	// Update the draw image
-	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
+	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
 
 	// Update the minimap
 	UpdateMiniMap(true);
@@ -2448,7 +2384,7 @@ int CMap::LoadOriginal(FILE *fp)
 	UpdateMiniMap(true);
 
 	// Update the draw image
-	DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
+	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
 
     // Calculate the total dirt count
     CalculateDirtCount();

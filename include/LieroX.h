@@ -23,9 +23,7 @@
 #endif
 
 
-#if DEBUG == 1
-#define		_AI_DEBUG
-#endif
+// HINT: for AI debug define _AI_DEBUG in your IDE/compiler
 
 #define		LX_PORT			23400
 #define		SPAWN_HOLESIZE	4

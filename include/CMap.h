@@ -51,6 +51,10 @@
 
 #define		MAX_OBJECTS	8192
 
+// Antialiasing blur
+#define		MAP_BLUR		0.2f
+#define		MINIMAP_BLUR	10.0f
+
 
 
 class CWorm;
@@ -157,6 +161,9 @@ private:
 	// Water
 	int			*m_pnWater1;
 	int			*m_pnWater2;
+
+private:
+	void		UpdateDrawImage(int x, int y, int w, int h);
 
 
 

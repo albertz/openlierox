@@ -515,7 +515,7 @@ enum  {
 	rs_NewName
 };
 
-void Menu_Net_RenameServer(const std::string& szName)
+void Menu_Net_RenameServer(std::string& szName)
 {
 	CGuiLayout	cRename;
 	gui_event_t *ev = NULL;
@@ -565,7 +565,7 @@ void Menu_Net_RenameServer(const std::string& szName)
 				case rs_Ok:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						cRename.SendMessage(2, TXS_SETTEXT, szName, 0);
+						cRename.SendMessage(2, TXS_GETTEXT, &szName, 0);
 
 						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 

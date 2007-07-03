@@ -496,7 +496,7 @@ void	Menu_Net_FavouritesShutdown(void);
 void	Menu_Net_FavouritesFrame(int mouse);
 void	Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName);
 void	Menu_Net_FavouritesShowServer(const std::string& szAddress);
-void	Menu_Net_RenameServer(const std::string& szName);
+void	Menu_Net_RenameServer(std::string& szName);
 void	Menu_Net_FavouritesAddServer(void);
 
 // deprecated

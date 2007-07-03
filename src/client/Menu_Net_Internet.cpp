@@ -569,6 +569,7 @@ void Menu_Net_NETUpdateList(void)
 	cListUpdate.Add( new CLabel("Getting server list", tLX->clNormalLabel),	-1,260, 227, 0, 0);
 
 
+	float senttime = 0;
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
@@ -601,8 +602,10 @@ void Menu_Net_NETUpdateList(void)
                         // Clear the data for another request
 		                SentRequest = false;
                         CurServer++;
-                    } else
+                    } else {
+						senttime = GetMilliSeconds();
                         SentRequest = true;
+					}
 
                     break;
                 }
@@ -611,7 +614,7 @@ void Menu_Net_NETUpdateList(void)
 
 
         // Process the http request
-        if( SentRequest ) {
+        else {
 			std::string szError;
             http_result = http_ProcessRequest(&szError);
 
@@ -621,11 +624,12 @@ void Menu_Net_NETUpdateList(void)
             } else if( http_result == -1 )
             	printf("HTTP ERROR: %s\n", szError.c_str());
 
-            if( http_result != 0 ) {
+            if( http_result != 0 || (tLX->fCurTime - senttime) >= 5.0f ) {
                 SentRequest = false;
                 CurServer++;
                 http_Quit();
             }
+
         }
 
 		// Process the server list

@@ -74,6 +74,7 @@ public:
     void        readList(CBytestream *psByteS);
 
     bool        isEnabled(const std::string& szName);
+	bool        isBonus(const std::string& szName);
 	std::string findEnabledWeapon(CGameScript *pcGameS);
 
     int         getWeaponState(const std::string& szName);

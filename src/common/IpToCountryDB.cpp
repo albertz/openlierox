@@ -145,18 +145,7 @@ public:
 			cout << "IpToCountryDB destroying: " << filename << " is still loading ..." << endl;
 			while(!dbReady) { SDL_Delay(100); }
 		}
-		// SDL_WaitThread(thread, NULL);
-	
-#ifdef _MSC_VER
-#ifndef _DEBUG
-		// Probably because of some bug in MSVC, data.clear() in release mode is incredibly slow (30 secs)
-		// This does the same but faster
-		// FIXME: fix this asap
-		// TODO: this CANNOT be the reason for the slowness, so don't add some hack which works with current code because of randomness; search the real bug instead
-/*		while (data.size())
-			data.erase(data.begin()); */
-#endif
-#endif
+		
 		data.clear();
 	}
 

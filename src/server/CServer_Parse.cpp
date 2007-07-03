@@ -173,7 +173,8 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 		if (id >= 0 && id < MAX_WORMS)  {
 			cWorms[id].readWeapons(bs);
 			for (j = 0; j < 5; j++)
-				cWorms[id].getWeapon(j)->Enabled = cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name);
+				cWorms[id].getWeapon(j)->Enabled =	cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name) ||
+													cWeaponRestrictions.isBonus(cWorms[id].getWeapon(j)->Weapon->Name);
 		} else { // Skip to get the right position
 			CWorm::skipWeapons(bs);
 		}

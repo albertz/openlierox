@@ -1964,7 +1964,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL);
 
 				// Rest of the players
-				for (int i = 0; i < nNumPlayers; i++)  {
+				for (int i = 1; i < nNumPlayers; i++)  {
 					lvInfo.AddItem("players"+itoa(i+1), ++index, tLX->clNormalLabel);
 					lvInfo.AddSubitem(LVS_TEXT, "", NULL);
 					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL);

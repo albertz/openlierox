@@ -167,6 +167,7 @@ public:
 	int		iColorizeNicks;
 	int		iAutoTyping;
 	std::string	sSkinPath;
+	bool	bAntiAliasing;
 
     // Advanced
     int     nMaxFPS;

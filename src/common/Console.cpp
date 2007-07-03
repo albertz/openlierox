@@ -108,6 +108,11 @@ void Con_Process(float dt)
 	if(kb->KeyUp[SDLK_BACKQUOTE] || kb->KeyUp[SDLK_F1])
 		Con_Toggle();
 
+	if( kb->KeyUp[SDLK_ESCAPE] ) {
+		if (Console->iState != CON_HIDING && Console->iState != CON_HIDDEN)
+			Con_Toggle();
+	}
+
 	if(Console->iState == CON_DROPPING)
 		Console->fPosition -= 3.0f*dt;
 	if(Console->iState == CON_HIDING)

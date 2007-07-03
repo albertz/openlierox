@@ -714,7 +714,6 @@ void ShutdownLieroX(void)
 
 	// Free the client & server
 	if(cClient) {
-		cClient->Shutdown();
 		delete cClient;
 		cClient = NULL;
 	}

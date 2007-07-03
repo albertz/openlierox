@@ -223,6 +223,19 @@ bool CWpnRest::isEnabled(const std::string& szName)
     return (psWpn->nState == wpr_enabled);
 }
 
+///////////////////
+// Checks if the weapon is bonus or not
+bool CWpnRest::isBonus(const std::string& szName)
+{
+    wpnrest_t *psWpn = findWeapon(szName);
+
+    // If we can't find the weapon, then assume it is banned
+    if( !psWpn )
+        return false;
+    
+    return (psWpn->nState == wpr_bonus);
+}
+
 
 ///////////////////
 // Finds a weapon that is enabled and returns the name

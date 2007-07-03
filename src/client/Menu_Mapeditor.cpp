@@ -474,6 +474,8 @@ enum {
 		int* dirtindex;
 		ComboboxFiller(CGuiLayout* g, int c, int* d) : gui(g), comboindex(c), i(0), dirtindex(d) {}
 		inline bool operator() (const std::string& dir) {
+			if (!IsFileAvailable(dir+"/theme.txt"))
+				return true;
 			size_t p = findLastPathSep(dir);
 			std::string f = dir.substr(p+1);
 			gui->SendMessage(comboindex,CBS_ADDITEM,f,i);

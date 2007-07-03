@@ -129,6 +129,9 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 
 	// Makes the dst->format->colorkey to match specified colorkey
 	// TODO: why are we doing this here? is it realy safe? and nevertheless, it's useless, isn't it?
+	// It's not useless, because without this the COLORKEY() macro doesn't work and it's necessary in
+	// some parts of code (mainly worm graphics) and this won't cause any harm at all (look at source
+	// of SDL_SetColorKey)
 	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, colorkey);
 
 }
@@ -282,8 +285,10 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	int c;
 
 	// Source clipping
+	if (sx >= bmpSrc->w || (sx + w) <= 0) return;
+	if (sy >= bmpSrc->h || (sy + h) <= 0) return;
 	if (sx < 0)  { w+=sx; sx=0; }
-	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w -sx; } // TODO: not exactly what perhaps is intended...
+	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w -sx; }
 	if (sy < 0) { h+=sy; sy=0;}
 	else if((sy+h) > bmpSrc->h)  { h = bmpSrc->h -sy; }
 	
@@ -433,6 +438,234 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 		SDL_UnlockSurface(bmpSrc);
 }
 
+/////////////////////////
+// Draw the image resized
+void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
+{
+	int dw = Round((float)sw * xratio);
+	int dh = Round((float)sh * yratio);
+
+	// Clipping rectangle
+	SDL_Rect src_cliprect, dst_cliprect;
+	SDL_GetClipRect(bmpSrc, &src_cliprect);
+	SDL_GetClipRect(bmpDest, &dst_cliprect);
+
+	// Source clipping
+	if (sx > (src_cliprect.x + src_cliprect.w) || (sx + sw) <= 0) return;
+	if (sy > (src_cliprect.y + src_cliprect.h) || (sy + sh) <= 0) return;
+	if ( (sx + sw) > (src_cliprect.x + src_cliprect.w) )
+		sw = (src_cliprect.x + src_cliprect.w) - sx;
+	if ( (sy + sh) > (src_cliprect.y + src_cliprect.h) )
+		sh = (src_cliprect.y + src_cliprect.h) - sy;
+	if (sx < 0)  {
+		sw += sx;
+		sx = 0;
+	}
+	if (sy < 0)  {
+		sh += sy;
+		sy = 0;
+	}
+
+	// Destination clipping
+	if (dx > (dst_cliprect.x + dst_cliprect.w) || (dx + dw) <= 0) return;
+	if (dy > (dst_cliprect.y + dst_cliprect.h) || (dy + dh) <= 0) return;
+	if ( (dx + dw) > (dst_cliprect.x + dst_cliprect.w) )
+		dw = (dst_cliprect.x + dst_cliprect.w) - dx;
+	if ( (dy + dh) > (dst_cliprect.y + dst_cliprect.h) )
+		dh = (dst_cliprect.y + dst_cliprect.h) - dy;
+	if (dx < 0)  {
+		dw += dx;
+		dx = 0;
+	}
+	if (dy < 0)  {
+		dh += dy;
+		dy = 0;
+	}
+
+	float xstep = (float)sw/(float)dw; // X step we'll do on the source surface
+	float ystep = (float)sh/(float)dh; // Y step we'll do on the source surface
+	float src_xstart = Round((float)sx/xstep) * xstep; // Starting X coordinate on source surface
+	float src_ystart = Round((float)sy/ystep) * ystep; // Starting Y coordinate on source surface
+	float src_x, src_y;  // Current coordinates on the source surface
+	int dest_x = dx; // Current X on dest surface
+	int dest_y = dy; // Current Y on dest surface
+	int dest_x2 = dx + dw;  // Right bound
+	int dest_y2 = dy + dh;  // Bottom bound
+
+	// Lock the surfaces
+	if (SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+	if (SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+
+	// Pixels
+	register Uint8 *src_px = NULL;
+	register Uint8 *src_pxrow = NULL;
+	register Uint8 *dst_px = NULL;
+	register Uint8 *dst_pxrow = (Uint8 *)bmpDest->pixels + (dy * bmpDest->pitch) + (dx * bmpDest->format->BytesPerPixel);
+	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
+
+	for (src_y = src_ystart; dest_y < dest_y2; dest_y++)  {
+		src_pxrow = (Uint8 *)bmpSrc->pixels + Round(src_y) * bmpSrc->pitch;
+		dst_px = dst_pxrow;
+
+		// Copy the row
+		for (dest_x = dx, src_x = src_xstart; dest_x < dest_x2; dest_x++)  {
+			src_px = src_pxrow + Round(src_x) * bpp;
+			memcpy(dst_px, src_px, bpp);
+			src_x += xstep;
+			dst_px += bpp;
+		}
+
+		src_y += ystep;
+		dst_pxrow += bmpDest->pitch;
+	}
+
+	// Unlock
+	if (SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+	if (SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+}
+
+////////////////////////
+// Draws the image nicely resampled
+// blur - the greater the value is, the more will be the destination image blurred
+void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur)
+{
+	// How this works:
+	// We take four neighbour pixels from the source and make average of them
+
+	// For 1px width/height no one will notice the difference and it will 
+	// avoid many checks here
+	if (sw < 2 || sh < 2)  {
+		DrawImageResizedAdv(bmpDest, bmpSrc, sx, sy, dx, dy, sw, sh, xratio, yratio);
+		return;
+	}
+
+	int dw = Round((float)sw * xratio);
+	int dh = Round((float)sh * yratio);
+
+	// Clipping rectangle
+	SDL_Rect src_cliprect, dst_cliprect;
+	SDL_GetClipRect(bmpSrc, &src_cliprect);
+	SDL_GetClipRect(bmpDest, &dst_cliprect);
+
+	// Source clipping
+	if (sx > (src_cliprect.x + src_cliprect.w) || (sx + sw) <= 0) return;
+	if (sy > (src_cliprect.y + src_cliprect.h) || (sy + sh) <= 0) return;
+	if ( (sx + sw) > (src_cliprect.x + src_cliprect.w) )
+		sw = (src_cliprect.x + src_cliprect.w) - sx;
+	if ( (sy + sh) > (src_cliprect.y + src_cliprect.h) )
+		sh = (src_cliprect.y + src_cliprect.h) - sy;
+	if (sx < 0)  {
+		sw += sx;
+		sx = 0;
+	}
+	if (sy < 0)  {
+		sh += sy;
+		sy = 0;
+	}
+
+	// Destination clipping
+	if (dx > (dst_cliprect.x + dst_cliprect.w) || (dx + dw) <= 0) return;
+	if (dy > (dst_cliprect.y + dst_cliprect.h) || (dy + dh) <= 0) return;
+	if ( (dx + dw) > (dst_cliprect.x + dst_cliprect.w) )
+		dw = (dst_cliprect.x + dst_cliprect.w) - dx;
+	if ( (dy + dh) > (dst_cliprect.y + dst_cliprect.h) )
+		dh = (dst_cliprect.y + dst_cliprect.h) - dy;
+	if (dx < 0)  {
+		dw += dx;
+		dx = 0;
+	}
+	if (dy < 0)  {
+		dh += dy;
+		dy = 0;
+	}
+
+	float xstep = (float)sw/(float)dw; // X step we'll do on the source surface
+	float ystep = (float)sh/(float)dh; // Y step we'll do on the source surface
+	float src_x = (float)sx; // Current X on source surface
+	float src_y = (float)sy; // Current Y on source surface
+	int dest_x = dx; // Current X on dest surface
+	int dest_y = dy; // Current Y on dest surface
+	int dest_x2 = dx + dw;  // Right bound
+	int dest_y2 = dy + dh;  // Bottom bound
+	float src_right_bound = sx + sw -1;  // Right bound on source
+	float src_bottom_bound = sy + sh - 1;  // Bottom bound on source
+	blur = 1.0f/blur;  // Actually, in the loop it's flipped
+	float avg_divide = 5.0f + blur - 1;// To make the loop a bit faster, we precalculate this value, 5 = number of neighbor pixels + current pixel
+
+	// Lock the surfaces
+	if (SDL_MUSTLOCK(bmpSrc))
+		SDL_LockSurface(bmpSrc);
+	if (SDL_MUSTLOCK(bmpDest))
+		SDL_LockSurface(bmpDest);
+
+	// Pixels
+	register Uint8 *src_px = NULL;
+	register Uint8 *src_pxrow = NULL;
+	register Uint8 *dst_px = NULL;
+	register Uint8 *dst_pxrow = (Uint8 *)bmpDest->pixels + (dy * bmpDest->pitch) + (dx * bmpDest->format->BytesPerPixel);
+	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
+
+	static Uint32 leftpixel, toppixel, rightpixel, bottompixel, curpixel;
+	static Uint8 rleft, rtop, rright, rbottom, rcurrent, gleft, gtop, gright, gbottom, gcurrent, bleft, btop, bright, bbottom, bcurrent;
+	static Uint32 avg_r, avg_g, avg_b;
+	register byte first_row, first_col; // 0 when first row/column, 1 when not
+	first_row = first_col = 0;
+
+	for (; dest_y < dest_y2; dest_y++)  {
+		src_pxrow = (Uint8 *)bmpSrc->pixels + (int)(src_y) * bmpSrc->pitch;
+		dst_px = dst_pxrow;
+
+		first_col = 0;
+
+		// Copy the row
+		for (dest_x = dx, src_x = (float)sx; dest_x < dest_x2; dest_x++)  {
+			src_px = src_pxrow + (int)(src_x) * bpp;
+
+			// If we're reading last row/column, instead of the pixel that is outside the source surface
+			// (left, right, top or bottom) we use the current pixel
+			// This ensures the  "* (expression)" where expression is 0 when we read the last source row or column
+			curpixel = GetPixelFromAddr(src_px, bpp);
+			leftpixel = GetPixelFromAddr(src_px - bpp*first_col, bpp);
+			toppixel = GetPixelFromAddr(src_px - bmpSrc->pitch*first_row, bpp);
+			rightpixel = GetPixelFromAddr(src_px + bpp*(src_x < src_right_bound), bpp);
+			bottompixel = GetPixelFromAddr(src_px + bmpSrc->pitch*(src_y < src_bottom_bound), bpp);
+
+			// Get the R/G/B values for each of the pixels
+			SDL_GetRGB(curpixel, bmpSrc->format, &rcurrent, &gcurrent, &bcurrent);
+			SDL_GetRGB(leftpixel, bmpSrc->format, &rleft, &gleft, &bleft);
+			SDL_GetRGB(toppixel, bmpSrc->format, &rtop, &gtop, &btop);
+			SDL_GetRGB(rightpixel, bmpSrc->format, &rright, &gright, &bright);
+			SDL_GetRGB(bottompixel, bmpSrc->format, &rbottom, &gbottom, &bbottom);
+
+			// Count the average color and put it on the dest surface
+			// Blur depends on how much we prefer current pixel to the neighbours
+			avg_r = (int)( (float)( (float)rcurrent*blur + rleft + rright + rtop + rbottom ) / avg_divide); 
+			avg_g = (int)( (float)( (float)gcurrent*blur + gleft + gright + gtop + gbottom ) / avg_divide);
+			avg_b = (int)( (float)( (float)bcurrent*blur + bleft + bright + btop + bbottom ) / avg_divide);
+			PutPixelToAddr(dst_px, SDL_MapRGB(bmpDest->format, (Uint8)avg_r, (Uint8)avg_g, (Uint8)avg_b), bpp);
+
+
+			src_x += xstep;
+			dst_px += bpp;
+			first_col = src_x > 0.5f; // Round(src_x) must be greater than zero
+		}
+
+		src_y += ystep;
+		first_row = src_y > 0.5f;  // Round(src_y) must be greater than zero
+		dst_pxrow += bmpDest->pitch;
+	}
+
+	// Unlock
+	if (SDL_MUSTLOCK(bmpSrc))
+		SDL_UnlockSurface(bmpSrc);
+	if (SDL_MUSTLOCK(bmpDest))
+		SDL_UnlockSurface(bmpDest);
+}
+
 /*
  * Special line drawing
  */
@@ -576,8 +809,8 @@ inline void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d
    #define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)     \
    {                                                                         \
       if (d##pri_c == 0) {                                                   \
-	 proc(bmp, x1, y1, d);                                               \
-	 return;                                                             \
+		 proc(bmp, x1, y1, d);                                               \
+		 return;                                                             \
       }                                                                      \
 									     \
       i1 = 2 * d##sec_c;                                                     \
@@ -588,16 +821,16 @@ inline void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d
       y = y1;                                                                \
 									     \
       while (pri_c pri_cond pri_c##2) {                                      \
-	 proc(bmp, x, y, d);                                                 \
-									     \
-	 if (dd sec_cond 0) {                                                \
-	    sec_c sec_sign##= 1;                                             \
-	    dd += i2;                                                        \
-	 }                                                                   \
-	 else                                                                \
-	    dd += i1;                                                        \
-									     \
-	 pri_c pri_sign##= 1;                                                \
+		 proc(bmp, x, y, d);                                                 \
+										 \
+		 if (dd sec_cond 0) {                                                \
+			sec_c sec_sign##= 1;                                             \
+			dd += i2;                                                        \
+		 }                                                                   \
+		 else                                                                \
+			dd += i1;                                                        \
+										 \
+		 pri_c pri_sign##= 1;                                                \
       }                                                                      \
    }
 

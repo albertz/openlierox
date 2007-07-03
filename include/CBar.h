@@ -16,6 +16,7 @@
 #ifndef __CBAR_H_
 #define __CBAR_H_
 
+#include "Utils.h"
 #include <SDL/SDL.h>
 
 // Bar directions
@@ -29,7 +30,7 @@ enum {
 class CBar {
 public:
 	CBar() {}
-	CBar(SDL_Surface *bmp, int x, int y, int label_x, int label_y, int dir);
+	CBar(SDL_Surface *bmp, int x, int y, int label_x, int label_y, int dir, int num_states = 1);
 
 private:
 	// Variables
@@ -40,6 +41,8 @@ private:
 	bool LabelVisible;
 	int  Direction;
 	int  Position;
+	int  NumStates;
+	int  CurrentState;
 
 	SDL_Surface *bmpBar;
 
@@ -61,6 +64,10 @@ public:
 	inline void SetLabelX(int _x) { LabelX = _x; }
 	inline int	GetLabelY() { return LabelY; }
 	inline void SetLabelY(int _y) { LabelY = _y; }
+	inline int	GetNumStates()  { return NumStates; }
+	inline void SetNumStates(int _s) { NumStates = _s; }  // NOTE: number of states is one state less than count of images
+	inline int	GetCurrentState()  { return CurrentState; }  // 
+	inline void SetCurrentState(int _s) { CurrentState = MIN(NumStates-1, _s); } // NOTE: the first state is 0
 	inline bool IsLabelVisible()  { return LabelVisible; }
 	inline void SetLabelVisible(bool _v)  { LabelVisible = _v; }
 	inline Uint32 GetBgColor()  { return bgColor; }
