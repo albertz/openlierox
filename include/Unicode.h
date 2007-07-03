@@ -26,7 +26,7 @@ inline void IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
 	it++;
 	for(; last != it; it++) {
 		c = *it;
-		if(!(c&0x80) || (c&0xC0)) break;
+		if(!(c&0x80) || (c&0xC0 == 0xC0)) break;
 	}
 }
 
@@ -47,7 +47,7 @@ inline void DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
 	it--;
 	for(; first != it; it--) {
 		c = *it;
-		if(!(c&0x80) || (c&0xC0)) break;
+		if(!(c&0x80) || (c&0xC0 == 0xC0)) break;
 	}
 }
 
