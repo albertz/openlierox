@@ -610,16 +610,16 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, i
 		SDL_LockSurface(bmpDest);
 
 	// Pixels
-	register Uint8 *src_px = NULL;
-	register Uint8 *src_pxrow = NULL;
-	register Uint8 *dst_px = NULL;
-	register Uint8 *dst_pxrow = (Uint8 *)bmpDest->pixels + (dy * bmpDest->pitch) + (dx * bmpDest->format->BytesPerPixel);
-	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
+	Uint8 *src_px = NULL;
+	Uint8 *src_pxrow = NULL;
+	Uint8 *dst_px = NULL;
+	Uint8 *dst_pxrow = (Uint8 *)bmpDest->pixels + (dy * bmpDest->pitch) + (dx * bmpDest->format->BytesPerPixel);
+	byte bpp = (byte)bmpDest->format->BytesPerPixel;
 
 	static Uint32 leftpixel, toppixel, rightpixel, bottompixel, curpixel;
 	static Uint8 rleft, rtop, rright, rbottom, rcurrent, gleft, gtop, gright, gbottom, gcurrent, bleft, btop, bright, bbottom, bcurrent;
 	static Uint32 avg_r, avg_g, avg_b;
-	register byte first_row, first_col; // 0 when first row/column, 1 when not
+	byte first_row, first_col; // 0 when first row/column, 1 when not
 	first_row = first_col = 0;
 
 	for (; dest_y < dest_y2; dest_y++)  {
@@ -699,10 +699,10 @@ inline void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, flo
 	if (ropealt)
 		ropecolour = !ropecolour;
 	colour = ropecols[ropecolour];
-	colour = SDLColourToNativeColour(colour);
 
 	// No alpha weight, use direct pixel access (faster)
-	if (alpha == 1)  {
+	if (alpha == 1.0f)  {
+		colour = SDLColourToNativeColour(colour);
 		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 		Uint8 *px2 = px+bmpDest->pitch;
 		memcpy(px,&colour,bmpDest->format->BytesPerPixel);
@@ -730,10 +730,9 @@ inline void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, flo
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 	
-	colour = SDLColourToNativeColour(colour);
-
 	// No alpha weight, use direct pixel access
 	if (alpha == 1)  {
+		colour = SDLColourToNativeColour(colour);
 		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 		Uint8 *px2 = px+bmpDest->pitch;
 		memcpy(px,&colour,bmpDest->format->BytesPerPixel);
@@ -935,12 +934,12 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	GetColour3(colour,SDL_GetVideoSurface(),&r,&g,&b);
 	Uint32 friendly_col = SDL_MapRGB(bmpDest->format,r,g,b);
 
-	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
-	register uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
+	byte bpp = (byte)bmpDest->format->BytesPerPixel;
+	uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
 	friendly_col = SDLColourToNativeColour(friendly_col);
 	
 	SDL_LockSurface(bmpDest);
-	for (register uchar *px= (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x;px <= px2;px+=bpp)
+	for (register uchar* px = (uchar*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)
 		memcpy(px,&friendly_col,bpp);
 	
 	SDL_UnlockSurface(bmpDest);
@@ -971,9 +970,9 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	GetColour3(colour,SDL_GetVideoSurface(),&r,&g,&b);
 	Uint32 friendly_col = SDL_MapRGB(bmpDest->format,r,g,b);
 
-	register ushort pitch = (ushort)bmpDest->pitch;
-	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
-	register uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
+	ushort pitch = (ushort)bmpDest->pitch;
+	byte bpp = (byte)bmpDest->format->BytesPerPixel;
+	uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
 	friendly_col = SDLColourToNativeColour(friendly_col);
 
 	SDL_LockSurface(bmpDest);
@@ -1203,7 +1202,7 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 	// Has this been already loaded?
 	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
 		if (it->getType() == CCH_IMAGE)  {
-			if (stringcasecmp(it->getFilename(),_filename) == 0)
+			if (stringcasecmp(it->getFilename(), _filename) == 0)
 				if (it->GetImage())
 					return it->GetImage();
 		}
@@ -1211,7 +1210,7 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 
 	// Didn't find one already loaded? Create a new one
 	CCache tmp;
-	SDL_Surface *result = tmp.LoadImgBPP(_filename,withalpha);
+	SDL_Surface *result = tmp.LoadImgBPP(_filename, withalpha);
 	Cache.push_back(tmp);
 
 
