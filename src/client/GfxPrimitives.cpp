@@ -96,7 +96,7 @@ inline Uint8 relative(Uint8 v1, Uint8 v2, Uint8 c) {
 // Put the pixel alpha blended with the background
 // NOTICE: colour has to be of the same format as bmpDest->format
 void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
-	if (a == 255)  { // Fully opaque
+	if (a == SDL_ALPHA_OPAQUE)  { // Fully opaque
 		PutPixel(bmpDest, x, y, colour);
 		return;
 	}
@@ -107,6 +107,21 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
 	PutPixel(bmpDest, x, y, SDL_MapRGBA(bmpDest->format,
 		relative(R2, R1, a), relative(G2, G1, a), relative(B2, B1, a), A1));
 }
+
+inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a)  {
+	register Uint8 R1, G1, B1, A1, R2, G2, B2;
+	static float not_a;
+	not_a = 1.0f - a;
+	register Uint8 *px = (Uint8 *)bmpDest->pixels + y*bmpDest->pitch + x*bmpDest->format->BytesPerPixel;
+	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
+	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2);
+	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format,
+		(Uint8) (R1 * a + R2 * not_a),
+		(Uint8) (G1 * a + G2 * not_a),
+		(Uint8) (B1 * a + B2 * not_a),
+		A1), bmpDest->format->BytesPerPixel);
+}
+
 
 //////////////////////
 // Set a color key for alpha surface (SDL_SetColorKey does not work for alpha surfaces)
@@ -667,88 +682,98 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, i
 }
 
 /*
- * Special line drawing
+ * Special line and pixel drawing
  */
+
 
 int ropecolour = 0;
 int ropealt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-inline void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
+inline void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
 {
 	// Warning: lock the surface before calling this!
+	// Warning: passing NULL surface will cause a segfault
 
-	ropealt = !ropealt;
+	//ropealt = !ropealt;
 
-	if(ropealt)
-		return;
-
-	if(!bmpDest)
-		return;
+	/*if(ropealt)
+		return;*/
 
 	// Snap to nearest 2nd pixel
-	x -= x % 2;
-	y -= y % 2;
+//	x -= x % 2;
+//	y -= y % 2;
 
-	if( x < 0 || y < 0 )
-		return;
-	if( x < bmpDest->clip_rect.x || y < bmpDest->clip_rect.y )
-		return;
-	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
+	if( (uint)x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || (uint)y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 
 	static Uint32 ropecols[2] = { MakeColour(160,80,0), MakeColour(200,100,0) };
-	ropecolour = !ropecolour;
+	if (ropealt)
+		ropecolour = !ropecolour;
 	colour = ropecols[ropecolour];
-	colour = SDLColourToNativeColour(colour);
+	//colour = SDLColourToNativeColour(colour);
 
-	//boxColor(bmpDest, x,y,x+1,y+1, colour);
-	//DrawRectFill(bmpDest,x,y,x+2,y+2,colour);
-	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
-	Uint8 *px2 = px+bmpDest->pitch;
-	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
-	memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
-	memcpy(px2,&colour,bmpDest->format->BytesPerPixel);
-	memcpy(px2+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+	// No alpha weight, use direct pixel access (faster)
+	if (alpha == 1)  {
+		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
+		Uint8 *px2 = px+bmpDest->pitch;
+		memcpy(px,&colour,bmpDest->format->BytesPerPixel);
+		memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+		memcpy(px2,&colour,bmpDest->format->BytesPerPixel);
+		memcpy(px2+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+	} else { // Alpha, use special routine
+		PutPixelA(bmpDest, x, y, colour, alpha);
+		PutPixelA(bmpDest, x+1, y, colour, alpha);
+		PutPixelA(bmpDest, x, y+1, colour, alpha);
+		PutPixelA(bmpDest, x+1, y+1, colour, alpha);
+	}
 }
+
+inline void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
+	RopePutPixelA(bmpDest, x, y, colour, 1); }
 
 
 int beamalt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-inline void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
+inline void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
 {
-	beamalt = !beamalt;
+	/*beamalt = !beamalt;
 
 	if(beamalt)
-		return;
-
-	if(!bmpDest)
-		return;
+		return;*/
 
 	// Snap to nearest 2nd pixel
-	x -= x % 2;
-	y -= y % 2;
+	//x -= x % 2;
+	//y -= y % 2;
 
-	if( x < 0 || y < 0 )
-		return;
 	if( x < bmpDest->clip_rect.x || y < bmpDest->clip_rect.y )
 		return;
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 	
-	colour = SDLColourToNativeColour(colour);
+	//colour = SDLColourToNativeColour(colour);
 
-	//boxColor(bmpDest, x,y,x+1,y+1, colour);
-	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
-	Uint8 *px2 = px+bmpDest->pitch;
-	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
-	memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
-	memcpy(px2,&colour,bmpDest->format->BytesPerPixel);
-	memcpy(px2+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+	// No alpha weight, use direct pixel access
+	if (alpha == 1)  {
+		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
+		Uint8 *px2 = px+bmpDest->pitch;
+		memcpy(px,&colour,bmpDest->format->BytesPerPixel);
+		memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+		memcpy(px2,&colour,bmpDest->format->BytesPerPixel);
+		memcpy(px2+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+	} else { // Alpha weight, use special routine
+		PutPixelA(bmpDest, x, y, colour, alpha);
+		PutPixelA(bmpDest, x+1, y, colour, alpha);
+		PutPixelA(bmpDest, x, y+1, colour, alpha);
+		PutPixelA(bmpDest, x+1, y+1, colour, alpha);
+	}
 }
+
+inline void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
+	BeamPutPixelA(bmpDest, x, y, colour, 1); }
 
 
 int laseralt = 0;
@@ -763,10 +788,6 @@ inline void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour
 	if(laseralt)
 		return;
 
-	if(!bmpDest)
-		return;
-
-
 	static Uint32 laseraltcols[] = { MakeColour(190,0,0), MakeColour(160,0,0) };
 	colour = laseraltcols[ GetRandomInt(1) ];
 	colour = SDLColourToNativeColour(colour);
@@ -775,14 +796,12 @@ inline void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour
 	x -= x % 2;
 	y -= y % 2;
 
-	if( x < 0 || y < 0 )
-		return;
 	if( x < bmpDest->clip_rect.x || y < bmpDest->clip_rect.y )
 		return;
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 
-	//boxColor(bmpDest, x,y,x+1,y+1, colour);
+	// Laser sight is never antialiased
 	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 	Uint8 *px2 = px+bmpDest->pitch;
 	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
@@ -994,6 +1013,89 @@ void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint
 	secure_perform_line(dst, x1, y1, x2, y2, color, PutPixel);
 }
 
+//////////////////////
+// Draw antialiased line with an putpixel callback
+// Code taken from CTGraphics by darkoman (http://www.codeproject.com/gdi/CTGraphics.asp)
+void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, int thickness, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float))
+{
+	// Calculate line params
+	int dx = (x2 - x1);
+	int dy = (y2 - y1);
+	int temp;
+	float k;
+	float distance;
+	Uint8 alpha1, alpha2;
+
+	int half_thickness = thickness/2;
+
+	// Set start pixel
+	proc(dst, x1, y1, color, SDL_ALPHA_OPAQUE);
+
+	// X-dominant line
+	if (abs(dx) > abs(dy))
+	{
+		// Ex-change line end points
+		if (dx < 0)
+		{
+			temp = x1;
+			x1 = x2;
+			x2 = temp;
+
+			temp = y1;
+			y1 = y2;
+			y2 = temp;
+		}
+		k = (float)dy / (float)dx;
+		k *= (float) thickness;
+
+		// Set middle pixels
+		int xs;
+		float yt = (float)y1 + k;
+		for (xs=x1+thickness; xs<x2; xs += thickness)
+		{
+			distance = (float)(yt - (int)(yt));
+
+			proc(dst, xs, (int)yt, color, distance);
+			proc(dst, xs, (int)yt+half_thickness, color, 1.0f-distance);
+
+			yt += k;
+		}
+	}
+	// Y-dominant line
+	else
+	{
+		// Ex-change line end points
+		if (dy < 0)
+		{
+			temp = x1;
+			x1 = x2;
+			x2 = temp;
+
+			temp = y1;
+			y1 = y2;
+			y2 = temp;
+		}
+		k = (float)dx / (float)dy;
+		k *= (float) thickness;
+
+		// Set middle pixels
+		int ys;
+		float xt = (float)x1 + k;
+		for (ys=y1+thickness; ys<y2; ys += thickness)
+		{
+			distance = (float)(xt - (int)(xt));
+
+			proc(dst, (int)xt, ys, color, distance);
+			proc(dst, (int)xt+half_thickness, ys, color, 1.0f-distance);			
+
+			xt += k;
+		}
+	}
+
+	// Set end pixel
+	proc(dst, x2, y2, color, SDL_ALPHA_OPAQUE);
+}
+
 
 ///////////////////
 // Draws a rope line
@@ -1032,7 +1134,10 @@ void DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 	t = true;
 
 
-	perform_line(bmp, x1, y1, x2, y2, color, RopePutPixel);
+	if (tLXOptions->bAntiAliasing)
+		AntiAliasedLine(bmp, x1, y1, x2, y2, 2, color, RopePutPixelA);
+	else
+		perform_line(bmp, x1, y1, x2, y2, color, RopePutPixel);
 }
 
 
@@ -1071,7 +1176,10 @@ void DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 
 	t = true;
 
-	perform_line(bmp, x1, y1, x2, y2, color, BeamPutPixel);
+	if (tLXOptions->bAntiAliasing)
+		AntiAliasedLine(bmp, x1, y1, x2, y2, 2, color, BeamPutPixelA);
+	else
+		perform_line(bmp, x1, y1, x2, y2, color, BeamPutPixel);
 }
 
 
