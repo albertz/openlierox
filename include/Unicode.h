@@ -23,7 +23,7 @@ template<typename _Iterator1, typename _Iterator2>
 inline void IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
 	if(it == last) return;
 	unsigned char c;
-	for(; last != it; it++) {
+	for(it++; last != it; it++) {
 		c = *it;
 		if(!(c&0x80) || (c&0xC0 == 0xC0)) break;
 	}

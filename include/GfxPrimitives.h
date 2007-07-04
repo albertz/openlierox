@@ -199,7 +199,7 @@ void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour);
 // Draw vertical line
 void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour);
 
-void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, int thickness, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float));
+void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float));
 
 
 

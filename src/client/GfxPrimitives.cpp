@@ -992,7 +992,7 @@ void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint
 //////////////////////
 // Draw antialiased line with an putpixel callback
 // Code taken from CTGraphics by darkoman (http://www.codeproject.com/gdi/CTGraphics.asp)
-void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, int thickness, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float))
+void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float))
 {
 	// Calculate line params
 	int dx = (x2 - x1);
@@ -1106,7 +1106,7 @@ void DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 
 
 	if (tLXOptions->bAntiAliasing)
-		AntiAliasedLine(bmp, x1, y1, x2, y2, 2, color, RopePutPixelA);
+		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);
 	else
 		perform_line(bmp, x1, y1, x2, y2, color, RopePutPixel);
 }
@@ -1147,7 +1147,7 @@ void DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 	t = true;
 
 	if (tLXOptions->bAntiAliasing)
-		AntiAliasedLine(bmp, x1, y1, x2, y2, 2, color, BeamPutPixelA);
+		AntiAliasedLine(bmp, x1, y1, x2, y2, color, BeamPutPixelA);
 	else
 		perform_line(bmp, x1, y1, x2, y2, color, BeamPutPixel);
 }
