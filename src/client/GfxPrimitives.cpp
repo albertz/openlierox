@@ -688,15 +688,10 @@ inline void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, flo
 	// Warning: lock the surface before calling this!
 	// Warning: passing NULL surface will cause a segfault
 
-	//ropealt = !ropealt;
+	ropealt = !ropealt;
 
-	/*if(ropealt)
-		return;*/
-
-	// Snap to nearest 2nd pixel
-//	x -= x % 2;
-//	y -= y % 2;
-
+	if( x < bmpDest->clip_rect.x || y < bmpDest->clip_rect.y )
+		return;
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 
@@ -704,7 +699,7 @@ inline void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, flo
 	if (ropealt)
 		ropecolour = !ropecolour;
 	colour = ropecols[ropecolour];
-	//colour = SDLColourToNativeColour(colour);
+	colour = SDLColourToNativeColour(colour);
 
 	// No alpha weight, use direct pixel access (faster)
 	if (alpha == 1)  {
@@ -726,27 +721,16 @@ inline void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) { //
 	RopePutPixelA(bmpDest, x, y, colour, 1); }
 
 
-int beamalt = 0;
-
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
 inline void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
 {
-	/*beamalt = !beamalt;
-
-	if(beamalt)
-		return;*/
-
-	// Snap to nearest 2nd pixel
-	//x -= x % 2;
-	//y -= y % 2;
-
 	if( x < bmpDest->clip_rect.x || y < bmpDest->clip_rect.y )
 		return;
 	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
 		return;
 	
-	//colour = SDLColourToNativeColour(colour);
+	colour = SDLColourToNativeColour(colour);
 
 	// No alpha weight, use direct pixel access
 	if (alpha == 1)  {
@@ -1017,10 +1001,8 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, int thic
 	float k;
 	float distance;
 
-	int half_thickness = thickness/2;
-
 	// Set start pixel
-	proc(dst, x1, y1, color, SDL_ALPHA_OPAQUE);
+	proc(dst, x1, y1, color, 1.0f);
 
 	// X-dominant line
 	if (abs(dx) > abs(dy))
@@ -1037,17 +1019,16 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, int thic
 			y2 = temp;
 		}
 		k = (float)dy / (float)dx;
-		k *= (float) thickness;
 
 		// Set middle pixels
 		int xs;
 		float yt = (float)y1 + k;
-		for (xs=x1+thickness; xs<x2; xs += thickness)
+		for (xs=x1 + 1; xs<x2; ++xs)
 		{
 			distance = (float)(yt - (int)(yt));
 
-			proc(dst, xs, (int)yt, color, distance);
-			proc(dst, xs, (int)yt+half_thickness, color, 1.0f-distance);
+			proc(dst, xs, (int)yt, color, 1.0f-distance);
+			proc(dst, xs, (int)yt+1, color, distance);
 
 			yt += k;
 		}
@@ -1067,24 +1048,23 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, int thic
 			y2 = temp;
 		}
 		k = (float)dx / (float)dy;
-		k *= (float) thickness;
 
 		// Set middle pixels
 		int ys;
 		float xt = (float)x1 + k;
-		for (ys=y1+thickness; ys<y2; ys += thickness)
+		for (ys=y1+1; ys<y2; ++ys)
 		{
 			distance = (float)(xt - (int)(xt));
 
-			proc(dst, (int)xt, ys, color, distance);
-			proc(dst, (int)xt+half_thickness, ys, color, 1.0f-distance);			
+			proc(dst, (int)xt, ys, color, 1.0f-distance);
+			proc(dst, (int)xt+1, ys, color, distance);			
 
 			xt += k;
 		}
 	}
 
 	// Set end pixel
-	proc(dst, x2, y2, color, SDL_ALPHA_OPAQUE);
+	proc(dst, x2, y2, color, 1);
 }
 
 
@@ -1137,7 +1117,6 @@ void DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 void DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
 	int sx, sy, dx, dy, t;
-	beamalt = 0;
 
 	SDL_Rect rect = bmp->clip_rect;
 	int	ct = rect.y;
