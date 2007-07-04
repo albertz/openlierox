@@ -1073,7 +1073,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 			}
 
 			// Put pixels that are not black/pink (eg, brown)
-            if(!IsTransparent(hole, pixel) && pixel != pink && flag & PX_EMPTY) {
+            if(!IsTransparent(hole, pixel) && pixel != pink && (flag & PX_EMPTY)) {
 				PutPixelToAddr(p2, pixel, screenbpp);
                 *(uchar*)px = PX_DIRT;
                 nDirtCount++;
@@ -1192,7 +1192,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 			flag = *(uchar*)px;
 
 			// Set the flag to dirt
-			if(pixel == green && flag & PX_EMPTY) {
+			if(pixel == green && (flag & PX_EMPTY)) {
 				*(uchar*)px = PX_DIRT;
                 nGreenCount++;
 
@@ -1204,7 +1204,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 			}
 
 			// Put pixels that are not green/pink (eg, dark green)
-            if(pixel != green && pixel != pink && flag & PX_EMPTY) {
+            if(pixel != green && pixel != pink && (flag & PX_EMPTY)) {
 				PutPixelToAddr(p2, pixel, screenbpp);
                 *(uchar*)px = PX_DIRT;
                 nGreenCount++;
@@ -1312,13 +1312,12 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 					if(oy >= Height) break;
 
 					p = PixelFlags + oy * Width + ox;
-					if(!(*(uchar *)p & PX_EMPTY))
+					if(!( (*(uchar *)p) & PX_EMPTY))
 						break;
 
                     offset = oy*bmpImage->pitch + ox*screenbpp;
                     pixel = (Uint8*)bmpImage->pixels + offset;
                     src = (Uint8*)bmpShadowMap->pixels + offset;
-                    //*pixel = *src;
 					memcpy(pixel, src, screenbpp);
 
 					*(uchar *)p |= PX_EMPTY | PX_SHADOW;
@@ -2013,7 +2012,7 @@ int CMap::Save(const std::string& name, const std::string& filename)
 
 		// 1 bit == 1 pixel with a yes/no dirt flag
 		for(ushort i=0;i<8;i++) {
-			uchar value = PixelFlags[n++] & PX_EMPTY;
+			uchar value = (PixelFlags[n++] & PX_EMPTY);
 			t |= (value << i);
 		}
 
@@ -2461,7 +2460,7 @@ void CMap::Send(CBytestream *bs)
 		uchar t = 0;
 
 		for(ushort i=0;i<8;i++) {
-			uchar value = PixelFlags[n++] & 0x01;
+			uchar value = (PixelFlags[n++] & PX_EMPTY);
 			t |= (value << i);
 		}
 
