@@ -101,9 +101,9 @@ inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a
 	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
 	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2);
 	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format,
-		(Uint8) force_in_range(R1 * a + R2 * not_a, 0.0f, 255.0f),
-		(Uint8) force_in_range(G1 * a + G2 * not_a, 0.0f, 255.0f),
-		(Uint8) force_in_range(B1 * a + B2 * not_a, 0.0f, 255.0f),
+		(Uint8) force_in_range(R1 * not_a + R2 * a, 0.0f, 255.0f),
+		(Uint8) force_in_range(G1 * not_a + G2 * a, 0.0f, 255.0f),
+		(Uint8) force_in_range(B1 * not_a + B2 * a, 0.0f, 255.0f),
 		A1), bmpDest->format->BytesPerPixel);
 }
 
