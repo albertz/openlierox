@@ -95,7 +95,7 @@ void print_binary_string(const std::string& txt) {
 }
 
 void test_Unicode_UTF8_Conversion() {
-	std::string tmp;
+/*	std::string tmp;
 	std::string::const_iterator tmpbegin;
 	for(UnicodeChar c = 1; c != 0; c++) {
 		//if(c % 0x100000 == 0) std::cout << std::hex << c << " ..." << std::endl;
@@ -109,7 +109,13 @@ void test_Unicode_UTF8_Conversion() {
 			print_binary_string(tmp);
 			//std::cout << " -> " << std::hex << GetNextUnicodeFromUtf8(tmpbegin, tmp.end()) << std::endl;
 		}
-	}
+	}*/
+
+	/*char buf[5] = { 0xF1, 0xE1, 0xC3, 0x81, 0x00 };
+	std::string tmp = buf;
+	std::string::iterator i = tmp.begin();
+	IncUtf8StringIterator(i, tmp.end());*/
+	
 }
 
 
@@ -119,7 +125,7 @@ int main(int argc, char *argv[])
 {
 #ifdef _MSC_VER
 #ifdef _DEBUG
-	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif // _DEBUG
 	
 	InstallExceptionFilter();
