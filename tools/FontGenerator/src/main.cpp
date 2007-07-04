@@ -221,9 +221,9 @@ SDL_Surface *RenderText(TTF_Font *Font, Uint16 *Text, size_t TextLen, bool Outli
 	//
 	// Render the text, glyph by glyph
 	//
-	const color_t Blue = SDL_MapRGBA(Result->format,0,0,255,SDL_ALPHA_OPAQUE);
+	const color_t Blue = SDL_MapRGBA(Result->format, 0, 0, 255, SDL_ALPHA_OPAQUE);
 
-	for(i=0;i<TextLen;i++)  {
+	for(size_t i = 0; i < TextLen; i++)  {
 		// Get the glyph metrics
 		if (TTF_GlyphMetrics(Font,Text[i],&minx,NULL,NULL,&maxy,&advance) == -1)
 			continue;
