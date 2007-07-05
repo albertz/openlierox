@@ -31,6 +31,11 @@ enum {
 int		iNetMode = net_main;
 int		iHostType = 0;
 CButton	cNetButtons[5];
+CAnimation cIpToCountryAnim;
+CProgressBar cIpToCountryProgress;
+CLabel		cIpToCountryLabel;
+SDL_Rect tLoadingRect;
+
 
 
 ///////////////////
@@ -47,6 +52,34 @@ int Menu_NetInitialize(void)
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
 
+	// Setup the animation
+	cIpToCountryAnim = CAnimation("data/frontend/iploading_anim.png", tMenu->tFrontendInfo.fLoadingAnimFrameTime);
+	cIpToCountryAnim.Setup(-1, tMenu->tFrontendInfo.iLoadingAnimLeft, tMenu->tFrontendInfo.iLoadingAnimTop, 0, 0);
+	cIpToCountryAnim.Create();
+
+	// Setup the progressbar
+	cIpToCountryProgress = CProgressBar(LoadImage("data/frontend/iploading_progress.png",true), 0, 0, false, 1);
+	cIpToCountryProgress.Setup(-1, tMenu->tFrontendInfo.iLoadingBarLeft, tMenu->tFrontendInfo.iLoadingBarTop, 0, 0);
+	cIpToCountryProgress.SetPosition(0);
+	cIpToCountryProgress.Create();
+	cIpToCountryProgress.SetRedrawMenu(false);
+
+	// Setup the label
+	cIpToCountryLabel = CLabel("Loading IpToCountry database...", tLX->clIpLoadingLabel);
+	cIpToCountryLabel.Setup(-1, tMenu->tFrontendInfo.iLoadingLabelLeft, tMenu->tFrontendInfo.iLoadingLabelTop, 0, 0);
+	cIpToCountryLabel.Create();
+	cIpToCountryLabel.SetRedrawMenu(false);
+
+	// Get the loading rect (used for redrawing)
+	tLoadingRect.x = MIN(tMenu->tFrontendInfo.iLoadingLabelLeft, MIN(tMenu->tFrontendInfo.iLoadingAnimLeft, tMenu->tFrontendInfo.iLoadingBarLeft));
+	tLoadingRect.y = MIN(tMenu->tFrontendInfo.iLoadingLabelTop, MIN(tMenu->tFrontendInfo.iLoadingAnimTop, tMenu->tFrontendInfo.iLoadingBarTop));
+	tLoadingRect.w = MAX(cIpToCountryLabel.getX() + cIpToCountryLabel.getWidth(), 
+					 MAX(cIpToCountryAnim.getX() + cIpToCountryAnim.getWidth(),
+						 cIpToCountryProgress.getX() + cIpToCountryProgress.getWidth())) - tLoadingRect.x;
+	tLoadingRect.h = MAX(cIpToCountryLabel.getY() + cIpToCountryLabel.getHeight(), 
+					 MAX(cIpToCountryAnim.getY() + cIpToCountryAnim.getHeight(),
+						 cIpToCountryProgress.getY() + cIpToCountryProgress.getHeight())) - tLoadingRect.y;
+
 	// Setup the top buttons
     for(int i=mn_Internet; i<=mn_Favourites; i++) {
 		cNetButtons[i] = CButton(BUT_INTERNET+i,	tMenu->bmpButtons);
@@ -58,6 +91,16 @@ int Menu_NetInitialize(void)
 	cNetButtons[mn_Host].Setup(mn_Host, 325, 110, 50, 15);
 	cNetButtons[mn_Favourites].Setup(mn_Favourites, 400, 110, 105, 15);
 	//cNetButtons[4].Setup(4, 400, 110, 105, 15);
+
+
+	// Init the IP to country database
+	if (!tIpToCountryDB)  {
+		tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
+		if (!tIpToCountryDB)  {
+			SystemError("Could not allocate the IP to Country database.");
+			return -1;
+		}
+	}
 
 	// Return back to the menu we came from
 	switch(tMenu->iReturnTo)  {
@@ -221,6 +264,20 @@ void Menu_NetFrame(void)
 				}
 			}
 		}
+	}
+
+	Menu_redrawBufferRect(tLoadingRect.x, tLoadingRect.y, tLoadingRect.w, tLoadingRect.h);
+	if (!tIpToCountryDB->Loaded())  {
+
+		// Draw the animation
+		cIpToCountryAnim.Draw( tMenu->bmpScreen );
+
+		// Draw the label
+		cIpToCountryLabel.Draw( tMenu->bmpScreen );
+
+		// Setup and draw the progressbar
+		cIpToCountryProgress.SetPosition(tIpToCountryDB->GetProgress());
+		cIpToCountryProgress.Draw( tMenu->bmpScreen );
 	}
 
 

@@ -25,6 +25,8 @@ public:
 	IpToCountryDB(const std::string& dbfile);
 	void LoadDBFile(const std::string& dbfile);
 	IpInfo GetInfoAboutIP(const std::string& Address);
+	int	GetProgress();
+	bool Loaded();
 INTERNDATA_CLASS_END
 
 #endif

@@ -32,15 +32,16 @@ enum {
 	LBS_SETTEXT
 };
 
-void Menu_redrawBufferRect(int x, int y, int w, int h);
-
 class CLabel : public CWidget {
 public:
+	CLabel() {}
+
 	// Constructor
 	CLabel(const std::string& text, Uint32 col) {
 		sText = text;
 		iColour = col;
 		iType = wid_Label;
+		bRedrawMenu = true;
 	}
 
 
@@ -49,6 +50,7 @@ private:
 
 	std::string	sText;
 	Uint32	iColour;
+	bool bRedrawMenu;
 
 
 public:
@@ -78,9 +80,11 @@ public:
 
 	// Draw the label
 	inline void	Draw(SDL_Surface *bmpDest) {
-		Menu_redrawBufferRect(iX,iY,iWidth,iHeight);
+		if (bRedrawMenu)
+			redrawBuffer();
 		tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
+	inline void SetRedrawMenu(bool _r) { bRedrawMenu = _r; }
 
 	void	LoadStyle(void) {}
 

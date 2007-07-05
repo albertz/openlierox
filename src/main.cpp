@@ -226,15 +226,6 @@ int main(int argc, char *argv[])
 	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 #endif
 
-	DrawLoading(80, "Initializing IP To Country database");
-
-	// Init the IP to country database
-	tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
-	if (!tIpToCountryDB)  {
-		SystemError("Could not allocate the IP to Country database.");
-		return -1;
-	}
-
 	DrawLoading(100, "Done! Starting menu");
 
 	// Everything loaded, this is not needed anymore

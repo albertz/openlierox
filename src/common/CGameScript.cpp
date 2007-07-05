@@ -540,7 +540,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
             modLog("Could not open image '%s'",proj->ImgFilename.c_str());
 		
 		// Set the colour key
-		if(proj->bmpImage)
+		else
 			SetColorKey(proj->bmpImage);
 
 		fread(&proj->Rotating, sizeof(int), 1, fp);
@@ -742,8 +742,9 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 	buf = dir + "/gfx/" + filename;
 	img = LoadImage(buf);
 
-	if(img)
+	if(img)  {
 		return img;
+	}
 
 	// Check the gfx directory in the data dir
 	buf = std::string("data/gfx/") + filename;

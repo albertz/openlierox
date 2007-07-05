@@ -570,7 +570,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     }
 	
 	//tLX->cFont.DrawCentre(bmpDest, centrex+2, t+82, 0,"%s", "Weapons Selection");
-	tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWhite, "Weapons Selection");
+	tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
 
 	bool iChat_Typing = false;
 	if (getClient())
@@ -581,9 +581,9 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 		
 		//tLX->cFont.Draw(bmpDest, centrex-69, y+1, 0,"%s", tWeapons[i].Weapon->Name.c_str());
 		if(iCurrentWeapon == i)
-			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWhite,  tWeapons[i].Weapon->Name);
+			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionActive,  tWeapons[i].Weapon->Name);
 		else
-			tLX->cOutlineFontGrey.Draw(bmpDest, centrex-70, y, tLX->clWhite,  tWeapons[i].Weapon->Name);
+			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionDefault,  tWeapons[i].Weapon->Name);
 
 		if (iChat_Typing)  {
 			y += 18;
@@ -690,16 +690,16 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
     y+=5;
 	if(iCurrentWeapon == iNumWeaponSlots)
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWhite, "Random");
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionActive, "Random");
 	else
-		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, tLX->clWhite, "Random");
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionDefault, "Random");
 
     y+=18;
 
 	if(iCurrentWeapon == iNumWeaponSlots+1)
-		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWhite, "Done");
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionActive, "Done");
 	else
-		tLX->cOutlineFontGrey.DrawCentre(bmpDest, centrex, y, tLX->clWhite, "Done");
+		tLX->cOutlineFont.DrawCentre(bmpDest, centrex, y, tLX->clWeaponSelectionDefault, "Done");
 
 
 	if(iChat_Typing)

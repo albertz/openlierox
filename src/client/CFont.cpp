@@ -199,7 +199,7 @@ int CFont::GetHeight(const std::string& buf) {
 	int numlines = 1;
 	for (std::string::const_iterator i = buf.begin(); i != buf.end(); i++)
 		if (*i == '\n') numlines++;
-	return numlines*bmpFont->h;
+	return numlines*(bmpFont->h + VSpacing);
 }
 
 ///////////////////

@@ -82,7 +82,7 @@ public:
 
 	int					GetWidth(const std::string& buf);
 	inline int			GetHeight(void)					{
-		return bmpFont->h;
+		return bmpFont->h + VSpacing;
 	}
 	int					GetHeight(const std::string& buf);
 

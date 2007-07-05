@@ -138,10 +138,12 @@ public:
 	std::string		filename;
 	DBData			data;
 	SDL_Thread*		loader;
+	std::ifstream	*file;
+	size_t			filesize;
 	bool			dbReady;
 	bool			loaderBreakSignal;
 	
-	IpToCountryData() : loader(NULL), dbReady(true), loaderBreakSignal(false) {}
+	IpToCountryData() : loader(NULL), dbReady(true), loaderBreakSignal(false), file(NULL) {}
 	
 	~IpToCountryData() {
 		if(!dbReady) {
@@ -157,6 +159,9 @@ public:
 	// (or at least from the same thread where this DB is used),
 	// because the handling of dbReady isn't threadsafe
 	inline void loadFile(const std::string& fn) {
+		if (filename == fn)
+			return;
+
 		if(!dbReady) {
 			cout << "IpToCountryDB loadFile: other file " << filename << " is still loading ..." << endl;
 			while(!dbReady) { SDL_Delay(100); }
@@ -173,26 +178,29 @@ public:
 	static int loaderMain(void* obj) {
 		IpToCountryData* _this = (IpToCountryData*)obj;
 
-		std::ifstream* f = OpenGameFileR(_this->filename);
-		if(f == NULL) {
+		_this->file = OpenGameFileR(_this->filename);
+		if(_this->file == NULL) {
 			cerr << "ERROR: cannot read " << _this->filename << endl;
 			_this->dbReady = true;
 			return 0; // TODO: other return? who got this?
 		}
-		f->seekg(0);		
+		_this->file->seekg(0, std::ios::end);
+		_this->filesize = _this->file->tellg();
+		_this->file->seekg(0, std::ios::beg);		
 		
 		cout << "IpToCountryDB: reading " << _this->filename << " ..." << endl;
 		AddEntrysToDBData adder(_this->data, _this->loaderBreakSignal);
 		CountryCsvReaderHandler<AddEntrysToDBData> csvReaderHandler(adder);
-		CsvReader<CountryCsvReaderHandler<AddEntrysToDBData> > csvReader(f, csvReaderHandler);
+		CsvReader<CountryCsvReaderHandler<AddEntrysToDBData> > csvReader(_this->file, csvReaderHandler);
 		if(csvReader.read()) {
 			cout << "IpToCountryDB: reading finished, " << _this->data.size() << " entries" << endl;
 		} else {
 			cout << "IpToCountryDB: reading breaked, read " << _this->data.size() << " entries so far" << endl;
 		}
 		
-		f->close();
-		delete f;
+		_this->file->close();
+		delete _this->file;
+		_this->file = NULL;
 		
 		_this->dbReady = true;
 		return 0;
@@ -209,6 +217,13 @@ public:
 			return &it->second;
 		else
 			return NULL;
+	}
+
+	
+	inline int getProgress()  {
+		if (!file) return 100;
+
+		return (int)(((float)file->tellg()/(float)filesize) * 100.0f);
 	}
 	
 };
@@ -259,4 +274,12 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	}
 	
 	return Result;	
+}
+
+int IpToCountryDB::GetProgress()  {
+	return IpToCountryDBData(this)->getProgress();
+}
+
+bool IpToCountryDB::Loaded()  {
+	return IpToCountryDBData(this)->dbReady;
 }

@@ -179,7 +179,7 @@ bool CClient::InitializeDrawing(void)
 /////////////////
 // Initialize one of the game bars
 bool CClient::InitializeBar(byte number)  {
-	int x, y, label_x, label_y, direction, numstates;
+	int x, y, label_x, label_y, direction, numforestates, numbgstates;
 	std::string dir,key;
 	std::string fname = "data/frontend/";
 	CBar **bar;
@@ -198,7 +198,7 @@ bool CClient::InitializeBar(byte number)  {
 		y = 405;
 		label_x = 163;
 		label_y = 395;
-		numstates = 1;
+		numforestates = numbgstates = 1;
 
 		break;
 
@@ -213,7 +213,7 @@ bool CClient::InitializeBar(byte number)  {
 		y = 430;
 		label_x = 163;
 		label_y = 425;
-		numstates = 2;
+		numforestates = numbgstates = 2;
 
 		break;
 
@@ -228,7 +228,7 @@ bool CClient::InitializeBar(byte number)  {
 		y = 405;
 		label_x = 550;
 		label_y = 395;
-		numstates = 1;
+		numforestates = numbgstates = 1;
 
 
 		break;
@@ -244,7 +244,7 @@ bool CClient::InitializeBar(byte number)  {
 		y = 430;
 		label_x = 550;
 		label_y = 420;
-		numstates = 2;
+		numforestates = numbgstates = 2;
 
 		break;
 	default: return false;
@@ -277,7 +277,7 @@ bool CClient::InitializeBar(byte number)  {
 		return false;
 
 	// Create the bar
-	*bar = new CBar(LoadImage(fname, true), x, y, label_x, label_y, direction, numstates);
+	*bar = new CBar(LoadImage(fname, true), x, y, label_x, label_y, direction, numforestates, numbgstates);
 	if ( !(*bar) )
 		return false;
 
@@ -690,10 +690,12 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 	if (WeaponBar)  {
 		if(Slot->Reloading)  {
 			WeaponBar->SetForeColor(MakeColour(128,64,64));  // In case it's not loaded properly
-			WeaponBar->SetCurrentState(1);  // Loading state
+			WeaponBar->SetCurrentForeState(1);  // Loading state
+			WeaponBar->SetCurrentBgState(1);
 		} else {
 			WeaponBar->SetForeColor(MakeColour(64,64,255));
-			WeaponBar->SetCurrentState(0);  // "Shooting" state 
+			WeaponBar->SetCurrentForeState(0);  // "Shooting" state 
+			WeaponBar->SetCurrentBgState(0);
 		}
 		WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
 		WeaponBar->Draw( bmpDest );

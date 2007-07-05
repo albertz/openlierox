@@ -36,6 +36,8 @@
 #include "CMenu.h"
 #include "CImage.h"
 #include "CBox.h"
+#include "CAnimation.h"
+#include "CProgressBar.h"
 #ifdef WITH_MEDIAPLAYER
 #include "Sounds.h"
 #include "CMediaPlayer.h"
@@ -191,6 +193,13 @@ class frontendinfo_t { public:
 	int				iCreditsSpacing;
 	bool			bPageBoxes;
 	std::string		sFrontendCredits;
+	float			fLoadingAnimFrameTime;
+	int				iLoadingAnimLeft;
+	int				iLoadingAnimTop;
+	int				iLoadingBarLeft;
+	int				iLoadingBarTop;
+	int				iLoadingLabelLeft;
+	int				iLoadingLabelTop;
 };
 
 // Menu structure

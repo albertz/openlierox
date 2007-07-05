@@ -288,12 +288,15 @@ inline void SetColorKey(SDL_Surface* dst)  {
 
 // resets the alpha-channel and the colorkey
 inline void ResetAlpha(SDL_Surface* dst) {
-	dst->flags &= ~(SDL_SRCCOLORKEY); // reset colorkey flag
+	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
+	SDL_SetAlpha(dst, 0, 0); // Remove the alpha
 	
-	int x, y;
+	// TODO: slow! 
+	// TODO: what is the purpose of this?
+	/*int x, y;
 	for(y = 0; y < dst->h; y++)
 		for(x = 0; x < dst->w; x++)
-			PutPixel(dst, x, y, GetPixel(dst, x, y) | dst->format->Amask);
+			PutPixel(dst, x, y, GetPixel(dst, x, y) | dst->format->Amask);*/
 }
 
 // Line drawing

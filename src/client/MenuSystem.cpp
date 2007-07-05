@@ -143,6 +143,13 @@ void Menu_LoadFrontendInfo()
 	ReadString ("data/frontend/frontend.cfg","Credits","FrontendCredits", tMenu->tFrontendInfo.sFrontendCredits, " ");
 	ReadInteger("data/frontend/frontend.cfg","MainTitles","Spacing",&tMenu->tFrontendInfo.iMainTitlesSpacing,15);
 	ReadKeyword("data/frontend/frontend.cfg","PageBoxes","Visible",&tMenu->tFrontendInfo.bPageBoxes,true);
+	ReadInteger("data/frontend/frontend.cfg","IpToCountryLoading","AnimX",&tMenu->tFrontendInfo.iLoadingAnimLeft,5);
+	ReadInteger("data/frontend/frontend.cfg","IpToCountryLoading","AnimY",&tMenu->tFrontendInfo.iLoadingAnimTop,5);
+	ReadFloat("data/frontend/frontend.cfg","IpToCountryLoading","AnimFrameTime",&tMenu->tFrontendInfo.fLoadingAnimFrameTime,0.2f);
+	ReadInteger("data/frontend/frontend.cfg","IpToCountryLoading","BarX",&tMenu->tFrontendInfo.iLoadingBarLeft,5);
+	ReadInteger("data/frontend/frontend.cfg","IpToCountryLoading","BarY",&tMenu->tFrontendInfo.iLoadingBarTop,80);
+	ReadInteger("data/frontend/frontend.cfg","IpToCountryLoading","LabelX",&tMenu->tFrontendInfo.iLoadingLabelLeft,5);
+	ReadInteger("data/frontend/frontend.cfg","IpToCountryLoading","LabelY",&tMenu->tFrontendInfo.iLoadingLabelTop,60);
 }
 
 ///////////////////

@@ -49,7 +49,8 @@ enum {
 	wid_Checkbox,
 	wid_Inputbox,
 	wid_Image,
-	wid_Frame
+	wid_Frame,
+	wid_Animation
 };
 
 

@@ -157,6 +157,10 @@ void InitializeColors()  {
 	tLX->clPingLabel = tLX->clWhite;
 	tLX->clSpecMsgLabel = tLX->clWhite;
 	tLX->clLoadingLabel = tLX->clWhite;
+	tLX->clIpLoadingLabel = tLX->clWhite;
+	tLX->clWeaponSelectionActive = tLX->clWhite;
+	tLX->clWeaponSelectionDefault = MakeColour(150, 150, 150);
+	tLX->clWeaponSelectionTitle = tLX->clWhite;
 
 	// Load the colours from a file
 	const std::string colorfile = "data/frontend/colours.cfg";
@@ -230,6 +234,10 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","PingLabel",			&tLX->clPingLabel,			tLX->clPingLabel);
 	ReadColour(colorfile,"Colours","SpecialMsgLabel",	&tLX->clSpecMsgLabel,		tLX->clSpecMsgLabel);
 	ReadColour(colorfile,"Colours","LoadingLabel",		&tLX->clLoadingLabel,		tLX->clLoadingLabel);
+	ReadColour(colorfile,"Colours","IpLoadingLabel",	&tLX->clIpLoadingLabel,		tLX->clIpLoadingLabel);
+	ReadColour(colorfile,"Colours","WeaponSelectionTitle",	&tLX->clWeaponSelectionTitle,	tLX->clWeaponSelectionTitle);
+	ReadColour(colorfile,"Colours","WeaponSelectionActive",	&tLX->clWeaponSelectionActive,	tLX->clWeaponSelectionActive);
+	ReadColour(colorfile,"Colours","WeaponSelectionDefault",&tLX->clWeaponSelectionDefault,	tLX->clWeaponSelectionDefault);
 }
 
 

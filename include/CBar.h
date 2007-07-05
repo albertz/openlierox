@@ -30,7 +30,7 @@ enum {
 class CBar {
 public:
 	CBar() {}
-	CBar(SDL_Surface *bmp, int x, int y, int label_x, int label_y, int dir, int num_states = 1);
+	CBar(SDL_Surface *bmp, int x, int y, int label_x, int label_y, int dir, int num_fore_states = 1, int num_bg_states = 1);
 
 private:
 	// Variables
@@ -41,8 +41,10 @@ private:
 	bool LabelVisible;
 	int  Direction;
 	int  Position;
-	int  NumStates;
-	int  CurrentState;
+	int  NumForeStates;
+	int	 NumBgStates;
+	int  CurrentForeState;
+	int	 CurrentBgState;
 
 	SDL_Surface *bmpBar;
 
@@ -64,10 +66,14 @@ public:
 	inline void SetLabelX(int _x) { LabelX = _x; }
 	inline int	GetLabelY() { return LabelY; }
 	inline void SetLabelY(int _y) { LabelY = _y; }
-	inline int	GetNumStates()  { return NumStates; }
-	inline void SetNumStates(int _s) { NumStates = _s; }  // NOTE: number of states is one state less than count of images
-	inline int	GetCurrentState()  { return CurrentState; }  // 
-	inline void SetCurrentState(int _s) { CurrentState = MIN(NumStates-1, _s); } // NOTE: the first state is 0
+	inline int	GetNumForeStates()  { return NumForeStates; }
+	inline void SetNumForeStates(int _s) { NumForeStates = _s; }  // NOTE: number of states is one state less than count of images
+	inline int	GetCurrentForeState()  { return CurrentForeState; }  // 
+	inline void SetCurrentForeState(int _s) { CurrentForeState = MIN(NumForeStates-1, _s); } // NOTE: the first state is 0
+	inline int	GetNumBgStates()  { return NumBgStates; }
+	inline void SetNumBgStates(int _s) { NumBgStates = _s; }  // NOTE: number of states is one state less than count of images
+	inline int	GetCurrentBgState()  { return CurrentBgState; }  // 
+	inline void SetCurrentBgState(int _s) { CurrentBgState = MIN(NumBgStates-1, _s); } // NOTE: the first state is 0
 	inline bool IsLabelVisible()  { return LabelVisible; }
 	inline void SetLabelVisible(bool _v)  { LabelVisible = _v; }
 	inline Uint32 GetBgColor()  { return bgColor; }

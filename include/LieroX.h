@@ -143,6 +143,10 @@ class lierox_t { public:
 	Uint32			clPingLabel;
 	Uint32			clSpecMsgLabel;
 	Uint32			clLoadingLabel;
+	Uint32			clIpLoadingLabel;
+	Uint32			clWeaponSelectionTitle;
+	Uint32			clWeaponSelectionActive;
+	Uint32			clWeaponSelectionDefault;
 
 
 	Uint32			clPink;
