@@ -37,7 +37,7 @@
 #include "CImage.h"
 #include "CBox.h"
 #include "CAnimation.h"
-#include "CProgressBar.h"
+#include "CProgressbar.h"
 #ifdef WITH_MEDIAPLAYER
 #include "Sounds.h"
 #include "CMediaPlayer.h"

@@ -1,12 +1,11 @@
-/////////////////////////////////////////
-//
-//             OpenLieroX
-//
-// code under LGPL, based on JasonBs work,
-// enhanced by Dark Charlie and Albert Zeyer
-//
-//
-/////////////////////////////////////////
+/*
+	OpenLieroX
+
+	reader for IpToCountry database
+	
+	code under LGPL
+	by Albert Zeyer and Dark Charlie
+*/
 
 #ifndef __IPTOCOUNTRY_H__
 #define	__IPTOCOUNTRY_H__

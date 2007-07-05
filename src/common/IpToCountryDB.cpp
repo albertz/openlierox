@@ -1,18 +1,18 @@
-/////////////////////////////////////////
-//
-//             OpenLieroX
-//
-// code under LGPL, based on JasonBs work,
-// enhanced by Dark Charlie and Albert Zeyer
-//
-//
-/////////////////////////////////////////
+/*
+	OpenLieroX
+
+	reader for IpToCountry database
+	
+	code under LGPL
+	by Albert Zeyer and Dark Charlie
+*/
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 #include <iostream>
 #include <map>
 
+#include "TSVar.h"
 #include "IpToCountryDB.h"
 #include "FindFile.h"
 #include "StringUtils.h"
@@ -120,14 +120,29 @@ public:
 
 using namespace std;
 
-class AddEntrysToDBData {
+template<typename _handler, typename _PosType>
+class DBEntryHandler {
 public:
-	DBData& data;
+	_handler& handler;
 	bool& breakSignal;
-	AddEntrysToDBData(DBData& d, bool& b) : data(d), breakSignal(b) {}
+	ifstream* file;
+	_PosType& filePos;
+	DBEntryHandler(_handler& h, bool& b, ifstream* f, _PosType& fp)
+		: handler(h), breakSignal(b), file(f), filePos(fp) {}
 	
 	inline bool operator()(const DBEntry& entry) {
 		if(breakSignal) return false;
+		filePos = file->tellg();
+		return handler(entry);
+	}
+};
+
+class AddEntrysToDBData {
+public:
+	DBData& data;
+	AddEntrysToDBData(DBData& d) : data(d) {}
+	
+	inline bool operator()(const DBEntry& entry) {
 		data[entry.RangeTo] = entry;
 		return true;
 	}
@@ -138,12 +153,12 @@ public:
 	std::string		filename;
 	DBData			data;
 	SDL_Thread*		loader;
-	std::ifstream	*file;
-	size_t			filesize;
+	size_t			fileSize;
+	TSVar<size_t>	filePos;
 	bool			dbReady;
 	bool			loaderBreakSignal;
 	
-	IpToCountryData() : loader(NULL), dbReady(true), loaderBreakSignal(false), file(NULL) {}
+	IpToCountryData() : loader(NULL), fileSize(0), dbReady(true), loaderBreakSignal(false) { filePos = 0; }
 	
 	~IpToCountryData() {
 		if(!dbReady) {
@@ -178,29 +193,31 @@ public:
 	static int loaderMain(void* obj) {
 		IpToCountryData* _this = (IpToCountryData*)obj;
 
-		_this->file = OpenGameFileR(_this->filename);
-		if(_this->file == NULL) {
+		std::ifstream* file = OpenGameFileR(_this->filename);
+		if(file == NULL) {
 			cerr << "ERROR: cannot read " << _this->filename << endl;
 			_this->dbReady = true;
 			return 0; // TODO: other return? who got this?
 		}
-		_this->file->seekg(0, std::ios::end);
-		_this->filesize = _this->file->tellg();
-		_this->file->seekg(0, std::ios::beg);		
+		file->seekg(0, std::ios::end);
+		_this->fileSize = file->tellg();
+		file->seekg(0, std::ios::beg);		
 		
 		cout << "IpToCountryDB: reading " << _this->filename << " ..." << endl;
-		AddEntrysToDBData adder(_this->data, _this->loaderBreakSignal);
-		CountryCsvReaderHandler<AddEntrysToDBData> csvReaderHandler(adder);
-		CsvReader<CountryCsvReaderHandler<AddEntrysToDBData> > csvReader(_this->file, csvReaderHandler);
+		AddEntrysToDBData adder(_this->data);
+		typedef DBEntryHandler<AddEntrysToDBData, TSVar<size_t> > DBEH;
+		DBEH dbEntryHandler(adder, _this->loaderBreakSignal, file, _this->filePos);
+		typedef CountryCsvReaderHandler<DBEH> CCRH;
+		CCRH csvReaderHandler(dbEntryHandler);
+		CsvReader<CCRH> csvReader(file, csvReaderHandler);
 		if(csvReader.read()) {
 			cout << "IpToCountryDB: reading finished, " << _this->data.size() << " entries" << endl;
 		} else {
 			cout << "IpToCountryDB: reading breaked, read " << _this->data.size() << " entries so far" << endl;
 		}
 		
-		_this->file->close();
-		delete _this->file;
-		_this->file = NULL;
+		file->close();
+		delete file;
 		
 		_this->dbReady = true;
 		return 0;
@@ -220,10 +237,9 @@ public:
 	}
 
 	
-	inline int getProgress()  {
-		if (!file) return 100;
-
-		return (int)(((float)file->tellg()/(float)filesize) * 100.0f);
+	inline int getProgress() {
+		if(fileSize == 0) return 100;
+		return (int)(((float)filePos / (float)fileSize) * 100.0f);
 	}
 	
 };
