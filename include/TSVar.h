@@ -25,7 +25,7 @@ public:
 	operator T() {
 		T ret = dat1;
 		while(ret != dat2) { ret = dat1; }
-		return dat2;
+		return ret;
 	}
 };
 
