@@ -49,11 +49,10 @@ public:
 	_handler& handler;
 	
 	bool finished_entry;
-	bool breaked;
 	DBEntry entry;
 	
 	CountryCsvReaderHandler(_handler& h)
-		: handler(h), finished_entry(false), breaked(false) {}
+		: handler(h), finished_entry(false) {}
 
 	inline bool operator()(int tindex, const std::string& token) {
 		switch(tindex) {
