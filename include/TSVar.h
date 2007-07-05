@@ -23,8 +23,8 @@ public:
 		return *this;
 	}
 	operator T() {
-		T ret = dat1;
-		while(ret != dat2) { ret = dat1; }
+		T ret = dat2;
+		while(ret != dat1) { ret = dat2; }
 		return ret;
 	}
 };
