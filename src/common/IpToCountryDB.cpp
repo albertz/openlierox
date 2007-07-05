@@ -49,10 +49,11 @@ public:
 	_handler& handler;
 	
 	bool finished_entry;
+	bool breaked;
 	DBEntry entry;
 	
 	CountryCsvReaderHandler(_handler& h)
-		: handler(h), finished_entry(false) {}
+		: handler(h), finished_entry(false), breaked(false) {}
 
 	inline bool operator()(int tindex, const std::string& token) {
 		switch(tindex) {
@@ -123,9 +124,11 @@ using namespace std;
 class AddEntrysToDBData {
 public:
 	DBData& data;
-	AddEntrysToDBData(DBData& d) : data(d) {}
+	bool& breakSignal;
+	AddEntrysToDBData(DBData& d, bool& b) : data(d), breakSignal(b) {}
 	
 	inline bool operator()(const DBEntry& entry) {
+		if(breakSignal) return false;
 		data[entry.RangeTo] = entry;
 		return true;
 	}
@@ -137,12 +140,14 @@ public:
 	DBData			data;
 	SDL_Thread*		loader;
 	bool			dbReady;
-
-	IpToCountryData() : loader(NULL), dbReady(true) {}
+	bool			loaderBreakSignal;
+	
+	IpToCountryData() : loader(NULL), dbReady(true), loaderBreakSignal(false) {}
 	
 	~IpToCountryData() {
 		if(!dbReady) {
 			cout << "IpToCountryDB destroying: " << filename << " is still loading ..." << endl;
+			loaderBreakSignal = true;
 			while(!dbReady) { SDL_Delay(100); }
 		}
 		
@@ -158,6 +163,7 @@ public:
 			while(!dbReady) { SDL_Delay(100); }
 		}
 		dbReady = false;
+		loaderBreakSignal = false;
 		
 		filename = fn;
 		data.clear();
@@ -177,11 +183,14 @@ public:
 		f->seekg(0);		
 		
 		cout << "IpToCountryDB: reading " << _this->filename << " ..." << endl;
-		AddEntrysToDBData adder(_this->data);
+		AddEntrysToDBData adder(_this->data, _this->loaderBreakSignal);
 		CountryCsvReaderHandler<AddEntrysToDBData> csvReaderHandler(adder);
 		CsvReader<CountryCsvReaderHandler<AddEntrysToDBData> > csvReader(f, csvReaderHandler);
-		csvReader.read();
-		cout << "IpToCountryDB: reading finished, " << _this->data.size() << " entries" << endl;
+		if(csvReader.read()) {
+			cout << "IpToCountryDB: reading finished, " << _this->data.size() << " entries" << endl;
+		} else {
+			cout << "IpToCountryDB: reading breaked, read " << _this->data.size() << " entries so far" << endl;
+		}
 		
 		f->close();
 		delete f;

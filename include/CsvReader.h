@@ -52,6 +52,7 @@ public:
 		: stream(s), handler(h), inquote(false), waitforkomma(false),
 		ignoreline(false), tindex(0) {}
 	
+private:
 	// gets called at the end of line, if there was at least one entry
 	// if return-value is false, reading will break
 	inline bool endEntry() {
@@ -68,8 +69,10 @@ public:
 		token = "";
 		tindex++;
 	}
-	
-	void read() {
+
+public:	
+	// returns false, if there was a break
+	bool read() {
 		char nextch = '\0';
 		while(!stream->eof()) {
 			stream->get(nextch);			
@@ -98,7 +101,7 @@ public:
 			case 10: // LF (newline)
 			case 13: // CR
 				if(!ignoreline && !waitforkomma) endToken();
-				if(tindex > 0) if(!endEntry()) return;
+				if(tindex > 0) if(!endEntry()) return false;
 				ignoreline = false;
 				waitforkomma = false;
 				inquote = false;
@@ -133,7 +136,8 @@ public:
 		}
 	
 		// stream->eof() here
-		if(tindex > 0) endEntry();		
+		if(tindex > 0) if(!endEntry()) return false;
+		return true;
 	}
 
 };
