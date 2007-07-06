@@ -1,6 +1,9 @@
 0.57_beta3
 ==========
+- new design & icon
 - full Unicode/UTF8 support
+- working Dev-C++ project (therefore MingW support)
+- MaxFPS in option-dialog
 - Worm AI improvements
 - ninjarope physic simulation is FPS independent
 - profile-saving is correct now

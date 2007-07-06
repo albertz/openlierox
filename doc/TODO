@@ -1,35 +1,37 @@
 TODO list
 
-[ ] are there new network errors?
-[ ] finish unicode support (!)
+[ ] new graphics engine (waytracing & pixelcache) (!)
+[ ] are there new network errors? (!!)
+[?] finish unicode support (!!)
 [ ] possibility to change options when playing
 [x] create a SVG icon for the game
-[x] make Dev-C++ project working (fix the issue with libxml lib)
-[ ] uniform warning/notification/error system
+[ ] uniform warning/notification/error system (!)
 [X] add macro-variable to {en/dis}able the mediaplayer
-[ ] standalone dedicated server
-[ ] create Mac OS X application package
-[ ] make it run on Mac OS X
-[ ] finish documentation (README) (add more info there)
+[ ] standalone dedicated server (!)
+[ ] create Mac OS X application package (!!)
+[ ] make it run on Mac OS X (!!)
+[ ] finish documentation (README) (add more info there) (!!)
+[ ] begin developer documentation (basic info about the code and hints) (!)
 [ ] select different key for ingame console
-[ ] 24/32 bit doesn't work in OpenGL mode; fix...
+[?] 24/32 bit doesn't work in OpenGL mode; fix... (!!)
 [ ] fix some segfaults
-[x] fix lobby freeze (!)
-[x] make network more stable
-[ ] increase FPS (and determit, why it is bad in beta2)
-[ ] improve mediaplayer
-[ ] improve player profile options (many skins need long load time)
-[ ] make physics more like original LX (we should abstract it now!)
-[ ] better bot aiming
-[ ] better bot behavior
-[X] add MaxFPS option in option dialog
+[?] fix lobby freeze (!)
+[?] make network more stable (!)
+[?] increase FPS (and determit, why it is bad in beta2)
+[?] improve mediaplayer
+[?] improve player profile options (many skins need long load time)
+[?] make physics more like original LX (we should abstract it now!)
+[ ] better bot aiming (fast numerical pre-physics-calculations) (!)
+[ ] better bot behavior (!)
+[ ] add option to save/load weapon selection
 [ ] add some help for weapon selection (cause not everybody understand it)
-[ ] allow more than 2 viewports
+[ ] allow more than 2 viewports (!)
+[ ] joystick-support (!)
 [ ] allow more than one monitor (let user choose what viewports will be displayed on what screen)
-[ ] allow a higher resolution (reduce it while playing with LX56?)
-[ ] join all viewports, if map is smaller than resolution
-[ ] allow different sound settings (44k or 22k / mono or stereo / ...)
-[ ] abstraction of the engines (network / physic / ...)
+[ ] allow a higher resolution (reduce it while playing with LX56?) (!)
+[ ] join all viewports, if map is smaller than resolution (!)
+[ ] allow different sound settings (44k or 22k / mono or stereo / ...) (!)
+[ ] abstraction of the engines (network / physic / ...) (!)
 
 minor things:
 [ ] save selected player list in local play and return in this menu after playing
