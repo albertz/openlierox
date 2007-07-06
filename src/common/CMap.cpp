@@ -820,8 +820,7 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, uint wx, uint 
 int CMap::CarveHole(int size, CVec pos)
 {
 	SDL_Surface *hole;
-	int dy, sx,sy;
-	//int bx,by;
+	int dy, sx, sy;
 	int x,y;
 	int w,h;
 
@@ -829,8 +828,8 @@ int CMap::CarveHole(int size, CVec pos)
 
 	if(size < 0 || size > 4) {
 		// Just clamp it and continue
-		size = MAX(size,0);
-		size = MIN(size,4);
+		size = MAX(size, 0);
+		size = MIN(size, 4);
 	}
 
 
@@ -841,10 +840,10 @@ int CMap::CarveHole(int size, CVec pos)
 	w = hole->w;
 	h = hole->h;
 
-	Uint32 pink = SDLColourToNativeColour(tLX->clPink);
+	Uint32 pink = SDLColourToNativeColour(tLX->clPink, hole->format->BytesPerPixel);
 
-	sx = (int)pos.x-(hole->w>>1);
-	sy = (int)pos.y-(hole->h>>1);
+	sx = (int)pos.x - (hole->w >> 1);
+	sy = (int)pos.y - (hole->h >> 1);
 
 	if(SDL_MUSTLOCK(hole))
 		SDL_LockSurface(hole);
@@ -853,8 +852,8 @@ int CMap::CarveHole(int size, CVec pos)
 
 
 	// Calculate the clipping bounds, so we don't have to check each loop then
-	int clip_h = MIN(sy+hole->h,bmpImage->h)-sy;
-	int clip_w = MIN(sx+hole->w,bmpImage->w)-sx;
+	int clip_h = MIN(sy + hole->h, bmpImage->h) - sy;
+	int clip_w = MIN(sx + hole->w, bmpImage->w) - sx;
 	int clip_y = 0; 
 	int clip_x = 0; 
 	if (sy<0) 
@@ -863,10 +862,10 @@ int CMap::CarveHole(int size, CVec pos)
 		clip_x = abs(sx);
 
 	// Some temps to make the loop faster
-	int src_tmp = clip_x*hole->format->BytesPerPixel;
-	int pf_tmp = sx+clip_x; 
-	int dst_tmp = (sx+clip_x)*bmpImage->format->BytesPerPixel;
-	static Uint32 black; black = SDLColourToNativeColour(tLX->clBlack);
+	int src_tmp = clip_x * hole->format->BytesPerPixel;
+	int pf_tmp = sx + clip_x; 
+	int dst_tmp = (sx + clip_x) * bmpImage->format->BytesPerPixel;
+	Uint32 black = SDLColourToNativeColour(tLX->clBlack, bmpImage->format->BytesPerPixel);
 	
 	// Pixels
 	Uint8 *srcpix;

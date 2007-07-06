@@ -1055,10 +1055,10 @@ void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
 		UpdateScoreBuf(bmpScoreBuffer,bmpImage);
 	}
 
-	static int x = 320 - bmpImage->w/2;
-	static int y = 200 - bmpImage->h/2;
-
-	DrawImage(bmpDest,bmpScoreBuffer,x,y);
+	DrawImage(
+		bmpDest, bmpScoreBuffer,
+		320 - bmpImage->w / 2,
+		200 - bmpImage->h / 2);
 }
 
 ///////////////////

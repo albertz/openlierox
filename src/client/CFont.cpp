@@ -143,8 +143,8 @@ void CFont::Parse(void) {
 ///////////////////
 // Precalculate a font's colour
 void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
-	register Uint32 pixel;
-	int x, y;
+	Uint32 pixel;
+	register int x, y;
 
 	DrawRectFill(bmpSurf, 0, 0, bmpSurf->w, bmpSurf->h,
 	             SDL_MapRGBA(bmpSurf->format, 255, 0, 255, 0));
@@ -204,11 +204,12 @@ int CFont::GetHeight(const std::string& buf) {
 
 ///////////////////
 // Draws a font at X, Y, but visible only in specified rect
+// HINT: not thread-safe
 void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
 	// Set the special clipping rectangle and then draw the font
 
 	static SDL_Rect oldrect, newrect;
-	SDL_GetClipRect(dst,&oldrect);  // Save the old rect
+	SDL_GetClipRect(dst, &oldrect);  // Save the old rect
 
 	// Fill in the details
 	newrect.x = rectX;
@@ -217,7 +218,7 @@ void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int
 	newrect.h = rectH;
 
 	// Special clipping
-	SDL_SetClipRect(dst,&newrect);
+	SDL_SetClipRect(dst, &newrect);
 
 	// Blit the font
 	DrawAdv(dst, x, y, 9999, col, txt);
@@ -231,13 +232,11 @@ void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
 	
 	int pos = 0; // Offset, x+pos is current character position in pixels
-	short l;
+	int l;
 	Uint32 pixel;
 	int i, j;
 	int w;
 	int a, b; // a = offset in bmpFont
-	static Uint32 black;
-	black = tLX->clBlack;
 
 	// Clipping rectangle
 	SDL_Rect oldrect = dst->clip_rect;
@@ -260,7 +259,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	if (Colorize) {
 		if (col == f_white)
 			bmpCached = bmpWhite;
-		else if (col == black)
+		else if (col == tLX->clBlack)
 			bmpCached = bmpFont;
 		else if (col == f_green)
 			bmpCached = bmpGreen;
@@ -281,7 +280,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 	// Adjust the color to the dest-suface format
 	GetColour3(col, SDL_GetVideoSurface(), &R, &G, &B);
-	col = SDLColourToNativeColour(SDL_MapRGB(dst->format, R, G, B));
+	col = SDL_MapRGB(dst->format, R, G, B);
 
 	pos = 0;
 	for (std::string::const_iterator p = txt.begin(); p != txt.end();) {
@@ -292,7 +291,8 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 			p++;
 			continue;
 		}
-
+		
+		
 		// Translate and ignore unknown
 		l = TranslateCharacter(p, txt.end());
 		if (l == -1)

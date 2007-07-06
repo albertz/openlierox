@@ -284,6 +284,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 
 ///////////////////
 // Draws a sprite doubly stretched with colour key
+// HINT: doesn't work with alpha-surfaces
 void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
 {
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
@@ -323,13 +324,13 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
-	register Uint8 *sp,*tp_x,*tp_y;
+	register Uint8 *sp, *tp_x, *tp_y;
 
 	// Pre-calculate some things, so the loop is faster
-	int doublepitch = bmpDest->pitch*2;
-	register byte bpp = bmpDest->format->BytesPerPixel;
-	register byte doublebpp = bpp*2;
-	key = SDLColourToNativeColour(key);
+	int doublepitch = bmpDest->pitch * 2;
+	byte bpp = bmpDest->format->BytesPerPixel;
+	byte doublebpp = bpp * 2;
+	key = SDLColourToNativeColour(key, bmpSrc->format->BytesPerPixel);
 
     for(y=0;y<h;y++) {
 
@@ -350,7 +351,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 				sp += bpp;
 			} else {
 				// Skip the transparent pixel
-				sp+=bpp;
+				sp += bpp;
 				tp_x += doublebpp;
 				tp_y += doublebpp;
 			}
@@ -370,6 +371,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 
 ///////////////////
 // Draws a sprite mirrored doubly stretched with colour key
+// HINT: doesn't work with alpha-surfaces
 void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
 {
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
@@ -409,10 +411,10 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 
 	// Pre-calculate some things, so the loop is faster
 	int doublepitch = bmpDest->pitch*2;
-	register byte bpp = bmpDest->format->BytesPerPixel;
-	register byte doublebpp = bpp*2;
+	byte bpp = bmpDest->format->BytesPerPixel;
+	byte doublebpp = bpp*2;
 	int realw = w*bpp;
-	key = SDLColourToNativeColour(key);
+	key = SDLColourToNativeColour(key, bmpSrc->format->BytesPerPixel);
 
     for(y=0;y<h;y++) {
 
@@ -702,7 +704,7 @@ inline void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, flo
 
 	// No alpha weight, use direct pixel access (faster)
 	if (alpha == 1.0f)  {
-		colour = SDLColourToNativeColour(colour);
+		colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 		Uint8 *px2 = px+bmpDest->pitch;
 		memcpy(px,&colour,bmpDest->format->BytesPerPixel);
@@ -732,7 +734,7 @@ inline void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, flo
 	
 	// No alpha weight, use direct pixel access
 	if (alpha == 1)  {
-		colour = SDLColourToNativeColour(colour);
+		colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 		Uint8 *px2 = px+bmpDest->pitch;
 		memcpy(px,&colour,bmpDest->format->BytesPerPixel);
@@ -765,7 +767,7 @@ inline void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour
 
 	static Uint32 laseraltcols[] = { MakeColour(190,0,0), MakeColour(160,0,0) };
 	colour = laseraltcols[ GetRandomInt(1) ];
-	colour = SDLColourToNativeColour(colour);
+	colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 
 	// Snap to nearest 2nd pixel
 	x -= x % 2;
@@ -911,6 +913,7 @@ inline void secure_perform_line(SDL_Surface* bmpDest, int x1, int y1, int x2, in
 }
 
 // Draw horizontal line
+// HINT: not thread-safe
 void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	// TODO: does this need more improvement/optimisation ?
 	//secure_perform_line(bmpDest, x, y, x2, y, colour, PutPixel);  // slow
@@ -932,15 +935,15 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 
 	static Uint8 r,g,b;
 	GetColour3(colour,SDL_GetVideoSurface(),&r,&g,&b);
-	Uint32 friendly_col = SDL_MapRGB(bmpDest->format,r,g,b);
+	Uint32 friendly_col = SDLColourToNativeColour(
+		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
 
 	byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
-	friendly_col = SDLColourToNativeColour(friendly_col);
 	
 	SDL_LockSurface(bmpDest);
 	for (register uchar* px = (uchar*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)
-		memcpy(px,&friendly_col,bpp);
+		memcpy(px, &friendly_col, bpp);
 	
 	SDL_UnlockSurface(bmpDest);
 
@@ -967,17 +970,17 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	}
 
 	static Uint8 r,g,b;
-	GetColour3(colour,SDL_GetVideoSurface(),&r,&g,&b);
-	Uint32 friendly_col = SDL_MapRGB(bmpDest->format,r,g,b);
+	GetColour3(colour, SDL_GetVideoSurface(), &r, &g, &b);
+	Uint32 friendly_col = SDLColourToNativeColour(
+		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
 
 	ushort pitch = (ushort)bmpDest->pitch;
 	byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
-	friendly_col = SDLColourToNativeColour(friendly_col);
 
 	SDL_LockSurface(bmpDest);
-	for (register uchar *px= (uchar *)bmpDest->pixels+pitch*y+bpp*x;px <= px2;px+=pitch)
-		memcpy(px,&friendly_col,bpp);
+	for (register uchar *px= (uchar *)bmpDest->pixels+pitch*y + bpp*x; px <= px2; px+=pitch)
+		memcpy(px, &friendly_col, bpp);
 
 	SDL_UnlockSurface(bmpDest);
 }

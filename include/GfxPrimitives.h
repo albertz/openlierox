@@ -45,18 +45,19 @@ SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
 #define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
 #define		COLORKEY(bmp) ((bmp)->format->colorkey)
 
-
-inline Uint32 SDLColourToNativeColour(Uint32 pixel) {
+// if you want to use the adress of some Uint32 directly with memcpy or similar, use this
+inline Uint32 SDLColourToNativeColour(Uint32 pixel, short bpp) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	return (pixel << (32 - SDL_GetVideoSurface()->format->BitsPerPixel));
+	return (pixel << (32 - 8 * bpp));
 #else
 	return pixel;
 #endif
 }
 
-inline Uint32 NativeColourToSDLColour(Uint32 pixel) {
+// if you copied some data directly with memcpy into an Uint32, use this
+inline Uint32 NativeColourToSDLColour(Uint32 pixel, short bpp) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	return (pixel >> (32 - SDL_GetVideoSurface()->format->BitsPerPixel));
+	return (pixel >> (32 - 8 * bpp));
 #else
 	return pixel;
 #endif

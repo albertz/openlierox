@@ -163,6 +163,8 @@ void InitializeColors()  {
 	tLX->clWeaponSelectionTitle = tLX->clWhite;
 
 	// Load the colours from a file
+	// TODO: recode this! this is not crossplatform and even not bpp-independent!
+/*	
 	const std::string colorfile = "data/frontend/colours.cfg";
 	ReadColour(colorfile,"Colours","ChatText",		 &tLX->clChatText,		tLX->clChatText);
 	ReadColour(colorfile,"Colours","Credits1",		 &tLX->clCredits1,		tLX->clCredits1);
@@ -238,6 +240,7 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","WeaponSelectionTitle",	&tLX->clWeaponSelectionTitle,	tLX->clWeaponSelectionTitle);
 	ReadColour(colorfile,"Colours","WeaponSelectionActive",	&tLX->clWeaponSelectionActive,	tLX->clWeaponSelectionActive);
 	ReadColour(colorfile,"Colours","WeaponSelectionDefault",&tLX->clWeaponSelectionDefault,	tLX->clWeaponSelectionDefault);
+	*/
 }
 
 
