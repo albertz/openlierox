@@ -226,6 +226,22 @@ int main(int argc, char *argv[])
 	cToggleMediaPlayer.Setup(tLXOptions->sGeneralControls[SIN_MEDIAPLAYER]);
 #endif
 
+	// If the user wants to load the database on startup, do it
+	if (tLXOptions->bLoadDbAtStartup)  {
+		DrawLoading(80, "Loading IP To Country Database");
+
+		// Allocate & load
+		tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
+		if (!tIpToCountryDB)  {
+			SystemError("Could not allocate the IP to Country database.");
+			return -1;
+		}
+
+		// Wait while it fully loads
+		while (!tIpToCountryDB->Loaded())
+			Sleep(50);
+	}
+
 	DrawLoading(100, "Done! Starting menu");
 
 	// Everything loaded, this is not needed anymore

@@ -192,8 +192,6 @@ public:
 		iPing = 0;
 		fTimePingUpdated = 0;
 
-		iCanToggle = true;
-
 		//fProjDrawTime = 0;
 		//fProjSimulateTime = 0;
 
@@ -303,9 +301,9 @@ private:
 
     CInput      cShowScore;
 	CInput		cShowHealth;
-	int			iCanToggle;
 	CInput		cShowSettings;
 	CInput		cViewportMgr;
+	CInput		cToggleTopBar;
 
 	int			iMuted;
 

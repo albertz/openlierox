@@ -21,6 +21,7 @@
 #include "CBonus.h"
 #include "console.h"
 #include "GfxPrimitives.h"
+#include "Graphics.h"
 #include "StringUtils.h"
 #include "CWorm.h"
 #include "Entity.h"
@@ -65,6 +66,36 @@ void CClient::Simulation(void)
         return;
 
 
+	//
+	// Key shortcuts
+	//
+	
+	// Top bar toggle
+	if (cToggleTopBar.isDownOnce() && !iChat_Typing)  {
+		tLXOptions->tGameinfo.bTopBarVisible = !tLXOptions->tGameinfo.bTopBarVisible;
+
+		SDL_Surface *topbar = (tGameInfo.iGameType == GME_LOCAL) ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
+			
+		int toph = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
+		int top = toph;
+		if (!tLXOptions->tGameinfo.bTopBarVisible)  {
+			toph = -toph;
+			top = 0;
+		}
+
+		// Setup the viewports
+		cViewports[0].SetTop(top);
+		cViewports[0].SetVirtHeight(cViewports[0].GetVirtH() - toph);
+		if (cViewports[1].getUsed()) {
+			cViewports[1].SetTop(top);
+			cViewports[1].SetVirtHeight(cViewports[1].GetVirtH() - toph);
+		}
+	}
+
+	// Health bar toggle
+	if (cShowHealth.isDownOnce() && !iChat_Typing)  {
+		tLXOptions->iShowHealth = !tLXOptions->iShowHealth;
+	}
 
 	// Player simulation
 	w = cRemoteWorms;
@@ -1526,7 +1557,7 @@ void CClient::processChatter(void)
 			}
 
 			// Check, if we can start typing
-			int controls = cChat_Input.isDown() + cShowScore.isDown() + cShowHealth.isDown() + cShowSettings.isDown() + kb->KeyDown[SDLK_BACKQUOTE] + kb->KeyDown[SDLK_F12];
+			int controls = cChat_Input.isDown() + cShowScore.isDown() + cShowHealth.isDown() + cShowSettings.isDown() + cToggleTopBar.isDown() + cToggleMediaPlayer.isDown() + kb->KeyDown[SDLK_BACKQUOTE] + kb->KeyDown[SDLK_F12];
 
 			if (controls)
 				return;

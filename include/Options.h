@@ -45,6 +45,7 @@ enum {
 	SIN_SCREENSHOTS,
 	SIN_VIEWPORTS,
 	SIN_SWITCHMODE,
+	SIN_TOGGLETOPBAR,
 #ifdef WITH_MEDIAPLAYER
 	SIN_MEDIAPLAYER
 #endif
@@ -70,10 +71,10 @@ enum {
 // input controls structure (for local players)
 class controls_t {
 private:
-	std::string ctrl[8];
+	std::string ctrl[9];
 public:
-	std::string& operator[] (const short i) { return (i >= 0 && i < 8) ? ctrl[i] : ctrl[-9999]; }
-	const std::string& operator[] (const short i) const { return (i >= 0 && i < 8) ? ctrl[i] : ctrl[-9999]; }
+	std::string& operator[] (const short i) { return (i >= 0 && i < 9) ? ctrl[i] : ctrl[-9999]; }
+	const std::string& operator[] (const short i) const { return (i >= 0 && i < 9) ? ctrl[i] : ctrl[-9999]; }
 
 	inline unsigned short ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
 	// TODO: add specific functions
@@ -149,6 +150,8 @@ public:
 	int		iNetworkPort;
 	int		iNetworkSpeed;
 	float	fUpdatePeriod;
+	bool	bUseIpToCountry;
+	bool	bLoadDbAtStartup;
 
 	// Audio
 	int		iSoundOn;
@@ -212,6 +215,7 @@ public:
 		int		iLastSelectedPlayer;
 		bool	bAllowWantsJoinMsg;
 		bool	bAllowRemoteBots;
+		bool	bTopBarVisible;
 	} tGameinfo;
 
 };

@@ -93,7 +93,7 @@ int Menu_NetInitialize(void)
 	//cNetButtons[4].Setup(4, 400, 110, 105, 15);
 
 
-	// Init the IP to country database
+	// Init the IP to country database (if not already inited)
 	if (!tIpToCountryDB)  {
 		tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
 		if (!tIpToCountryDB)  {
@@ -101,6 +101,11 @@ int Menu_NetInitialize(void)
 			return -1;
 		}
 	}
+
+	// In case the database hasn't been loaded yet (for example user was here -> went to
+	// Options -> enalbed this DB and came back)
+	// HINT: if the file is already loaded/being loaded, the database won't try to load it again
+	tIpToCountryDB->LoadDBFile("ip_to_country.csv");
 
 	// Return back to the menu we came from
 	switch(tMenu->iReturnTo)  {

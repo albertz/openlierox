@@ -492,17 +492,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
     Con_Draw(bmpDest);
 
 
-	// Health bar toggle
-	iCanToggle = (iCanToggle || cShowHealth.isUp()) && (!iChat_Typing);
-
-	if (cShowHealth.isDown() && iCanToggle)  {
-		tLXOptions->iShowHealth = !tLXOptions->iShowHealth;
-		iCanToggle = false;
-	}
-
-
 	// FPS
-	if(tLXOptions->iShowFPS) {
+	if(tLXOptions->iShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
 		// Get the string and its width
 		static std::string fps_str;
 		fps_str = "FPS: " + itoa(GetFPS());
@@ -517,7 +508,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	}
 
 	// Ping on the top right
-	if(tLXOptions->iShowPing && tGameInfo.iGameType == GME_JOIN)  {
+	if(tLXOptions->iShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
 
 		// Draw the box around it
 		DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
@@ -701,6 +692,10 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 		WeaponBar->Draw( bmpDest );
 	}
 
+	// The following are items on top bar, so don't draw them when we shouldn't
+	if (!tLXOptions->tGameinfo.bTopBarVisible)
+		return;
+
 
 	// Lives
 	DrawBox(bmpDest, *LivesX, *LivesY, *LivesW); // Box first
@@ -727,6 +722,8 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 	DrawBox( bmpDest, *KillsX, *KillsY, *KillsW );
 	tLX->cFont.Draw(bmpDest,*KillsX+2, *KillsY, tLX->clKillsLabel, "Kills: " + itoa( worm->getKills() ));
 
+
+	// Special message
 	static std::string spec_msg;
 
 	switch (iGameType)  {
@@ -758,10 +755,12 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
 	case GMT_TEAMDEATH:  {
 			if (worm->getTeam() >= 0 && worm->getTeam() < 4)  {
+				int box_h = bmpBoxLeft ? bmpBoxLeft->h : tLX->cFont.GetHeight();
 				DrawBox( bmpDest, *TeamX, *TeamY, *TeamW);
 				tLX->cFont.Draw( bmpDest, *TeamX+2, *TeamY, tLX->clTeamColors[worm->getTeam()], "Team");
 				DrawImage( bmpDest, gfxGame.bmpTeamColours[worm->getTeam()], 
-						   *TeamX + *TeamW - gfxGame.bmpTeamColours[worm->getTeam()]->w - 2, *TeamY );
+						   *TeamX + *TeamW - gfxGame.bmpTeamColours[worm->getTeam()]->w - 2, 
+						   *TeamY + MAX(1, box_h/2 - gfxGame.bmpTeamColours[worm->getTeam()]->h/2));
 			}
 		}
 	}

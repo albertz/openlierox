@@ -73,7 +73,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		if (bOldStyle)
 			y = iY+tLX->cFont.GetHeight();
 		else
-			y = iY+tLX->cFont.GetHeight()+4;
+			y = iY+tLX->cFont.GetHeight()+2;
 	} 
 	
 	// Re-setup the scrollbar

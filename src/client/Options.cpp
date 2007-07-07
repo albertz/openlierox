@@ -47,12 +47,12 @@ bool GameOptions::LoadFromDisc()
 {
 	printf("Loading options... \n");
 
-    static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    static const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
-    static const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
-	static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "MediaPlayer"};
-    static const std::string    gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5", "F3"};
-	static const int	 def_widths[] = {32,180,70,80,60,150};
+    const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
+    const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
+	const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
+    const std::string    gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5", "F8", "F3"};
+	const int	 def_widths[] = {32,180,70,80,60,150};
 
     unsigned int     i;
 
@@ -103,6 +103,8 @@ bool GameOptions::LoadFromDisc()
     // Network
     ReadInteger(f, "Network", "Port",       &iNetworkPort, LX_PORT);
     ReadInteger(f, "Network", "Speed",      &iNetworkSpeed, NST_MODEM);
+	ReadKeyword(f, "Network", "UseIpToCountry", &bUseIpToCountry, true);
+	ReadKeyword(f, "Network", "LoadDbAtStartup", &bLoadDbAtStartup, false);
 
     // Audio
     ReadKeyword(f, "Audio", "Enabled",      &iSoundOn, true);
@@ -135,7 +137,7 @@ bool GameOptions::LoadFromDisc()
     }
 
     // General controls
-    for(i=0; i<8; i++)
+    for(i=0; i<9; i++)
         ReadString(f, "GeneralControls", gen_keys[i], sGeneralControls[i], gen_def[i]);
 
     // Game
@@ -181,6 +183,7 @@ bool GameOptions::LoadFromDisc()
 	ReadInteger(f, "LastGame", "LastSelectedPlayer",&tGameinfo.iLastSelectedPlayer, 0);
 	ReadKeyword(f, "LastGame", "AllowWantsJoinMsg",&tGameinfo.bAllowWantsJoinMsg, true);
 	ReadKeyword(f, "LastGame", "AllowRemoteBots", &tGameinfo.bAllowRemoteBots, true);
+	ReadKeyword(f, "LastGame", "TopBarVisible", &tGameinfo.bTopBarVisible, true);
 
     // Advanced
     ReadInteger(f, "Advanced", "MaxFPS",    &nMaxFPS, 95);
@@ -220,11 +223,11 @@ void ShutdownOptions(void)
 // Save the options
 void GameOptions::SaveToDisc()
 {
-    static const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
 #ifdef WITH_MEDIAPLAYER
-    static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "MediaPlayer"};
+    const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
 #else  // Without Media Player
-	static const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode"};
+	const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "ToggleTopBar", ""};
 #endif
     int     i;
 
@@ -246,6 +249,8 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "[Network]\n");
     fprintf(fp, "Port = %d\n",      iNetworkPort);
     fprintf(fp, "Speed = %d\n",     iNetworkSpeed);
+	fprintf(fp, "UseIpToCountry = %s\n",     bUseIpToCountry ? "true" : "false");
+	fprintf(fp, "LoadDbAtStartup = %s\n",    bLoadDbAtStartup ? "true" : "false");
     fprintf(fp, "\n");
 
     fprintf(fp, "[Audio]\n");
@@ -274,7 +279,7 @@ void GameOptions::SaveToDisc()
 	}
 
     fprintf(fp, "[GeneralControls]\n");
-    for(i=0; i<8; i++)
+    for(i=0; i<9; i++)
         fprintf(fp, "%s = %s\n", gen_keys[i].c_str(), sGeneralControls[i].c_str());
     fprintf(fp, "\n");
 
@@ -289,8 +294,6 @@ void GameOptions::SaveToDisc()
 	fprintf(fp, "Antialiasing = %s\n", bAntiAliasing ? "true" : "false");
     fprintf(fp, "\n");
 
-	// TODO: outdated comment?
-	// TODO: these arrays never got intialized!
 	fprintf(fp, "[Widgets]\n");
 	fprintf(fp, "InternetListCols = ");
 	for (i=0;i<5;i++)
@@ -334,6 +337,7 @@ void GameOptions::SaveToDisc()
 	fprintf(fp, "LastSelectedPlayer = %d\n",tGameinfo.iLastSelectedPlayer);
 	fprintf(fp, "AllowWantsJoinMsg = %s\n",tGameinfo.bAllowWantsJoinMsg ? "true" : "false");
 	fprintf(fp, "AllowRemoteBots = %s\n",tGameinfo.bAllowRemoteBots ? "true" : "false");
+	fprintf(fp, "TopBarVisible = %s\n",tGameinfo.bTopBarVisible ? "true" : "false");
     fprintf(fp, "\n");
 
     fprintf(fp, "[Advanced]\n");

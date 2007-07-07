@@ -46,6 +46,8 @@ enum {
 	os_SoundVolume,
 	os_NetworkPort,
 	os_NetworkSpeed,
+	os_UseIpToCountry,
+	os_LoadDbAtStartup,
 	os_ShowFPS,
 	os_OpenGL,
 	os_ShowPing,
@@ -93,13 +95,14 @@ enum {
 	oc_Gen_TakeScreenshot,
 	oc_Gen_ViewportManager,
 	oc_Gen_SwitchMode,
+	oc_Gen_ToggleTopBar,
 #ifdef WITH_MEDIAPLAYER
 	oc_Gen_MediaPlayer
 #endif
 };
 
 
-char *InputNames[] = {
+std::string InputNames[] = {
 	"Up",
 	"Down",
 	"Left",
@@ -110,7 +113,7 @@ char *InputNames[] = {
 	"Ninja Rope"
 };
 
-char *NetworkSpeeds[] = {
+std::string NetworkSpeeds[] = {
 	"Modem",
 	"ISDN",
 	"LAN"
@@ -187,30 +190,35 @@ int Menu_OptionsInitialize(void)
 	cOpt_Controls.Add( new CInputbox(SIN_SCORE, tLXOptions->sGeneralControls[SIN_SCORE], tMenu->bmpInputbox, "Scoreboard"),
 						   oc_Gen_Score, 515, 215, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Health bar", tLX->clNormalLabel), Static, 380, 240, 0,0);
-	cOpt_Controls.Add( new CInputbox(SIN_HEALTH, tLXOptions->sGeneralControls[SIN_HEALTH], tMenu->bmpInputbox, "Health bar"),
+    cOpt_Controls.Add( new CLabel("Health Bar", tLX->clNormalLabel), Static, 380, 240, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_HEALTH, tLXOptions->sGeneralControls[SIN_HEALTH], tMenu->bmpInputbox, "Health Bar"),
 						   oc_Gen_Health, 515, 240, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Current settings", tLX->clNormalLabel), Static, 380, 265, 0,0);
-	cOpt_Controls.Add( new CInputbox(SIN_SETTINGS, tLXOptions->sGeneralControls[SIN_SETTINGS], tMenu->bmpInputbox, "Current settings"),
+    cOpt_Controls.Add( new CLabel("Current Settings", tLX->clNormalLabel), Static, 380, 265, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_SETTINGS, tLXOptions->sGeneralControls[SIN_SETTINGS], tMenu->bmpInputbox, "Current Settings"),
 						   oc_Gen_CurSettings, 515, 265, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Take screenshot", tLX->clNormalLabel), Static, 380, 290, 0,0);
+    cOpt_Controls.Add( new CLabel("Take Screenshot", tLX->clNormalLabel), Static, 380, 290, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_SCREENSHOTS, tLXOptions->sGeneralControls[SIN_SCREENSHOTS], tMenu->bmpInputbox, "Take Screenshot"),
 						   oc_Gen_TakeScreenshot, 515, 290, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Viewport manager", tLX->clNormalLabel), Static, 380, 315, 0,0);
+    cOpt_Controls.Add( new CLabel("Viewport Manager", tLX->clNormalLabel), Static, 380, 315, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_VIEWPORTS, tLXOptions->sGeneralControls[SIN_VIEWPORTS], tMenu->bmpInputbox, "Viewport Manager"),
 						   oc_Gen_ViewportManager, 515, 315, 50,17);
 
-    cOpt_Controls.Add( new CLabel("Switch video mode", tLX->clNormalLabel), Static, 380, 340, 0,0);
-	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch video mode"),
+    cOpt_Controls.Add( new CLabel("Switch Video Mode", tLX->clNormalLabel), Static, 380, 340, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_SWITCHMODE, tLXOptions->sGeneralControls[SIN_SWITCHMODE], tMenu->bmpInputbox, "Switch Video Mode"),
 						   oc_Gen_SwitchMode, 515, 340, 50,17);
 
+    cOpt_Controls.Add( new CLabel("Toggle Top Bar", tLX->clNormalLabel), Static, 380, 365, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_TOGGLETOPBAR, tLXOptions->sGeneralControls[SIN_TOGGLETOPBAR], tMenu->bmpInputbox, "Toggle Top Bar"),
+						   oc_Gen_ToggleTopBar, 515, 365, 50,17);
+
+
 #ifdef WITH_MEDIAPLAYER
-	cOpt_Controls.Add( new CLabel("Toggle Media Player", tLX->clNormalLabel), Static, 380, 365, 0,0);
+	cOpt_Controls.Add( new CLabel("Toggle Media Player", tLX->clNormalLabel), Static, 380, 390, 0,0);
 	cOpt_Controls.Add( new CInputbox(SIN_MEDIAPLAYER, tLXOptions->sGeneralControls[SIN_MEDIAPLAYER], tMenu->bmpInputbox, "Toggle Media Player"),
-						   oc_Gen_MediaPlayer, 515, 365, 50,17);
+						   oc_Gen_MediaPlayer, 515, 390, 50,17);
 #endif
 
 
@@ -235,6 +243,10 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 300, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 297, 100,tLX->cFont.GetHeight());
 	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,330, 0,0);
+	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 300, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,300,17,17);
+	cOpt_System.Add( new CLabel("Load Database at Startup",tLX->clNormalLabel),	Static, 330, 330, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bLoadDbAtStartup),  os_LoadDbAtStartup, 530,330,17,17);
 
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
@@ -660,6 +672,18 @@ void Menu_OptionsFrame(void)
 				case os_ShowPing:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->iShowPing = cOpt_System.SendMessage(os_ShowPing, CKM_GETCHECK, (DWORD)0, 0);
+					break;
+
+				// Use Ip To Country
+				case os_UseIpToCountry:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bUseIpToCountry = cOpt_System.SendMessage(os_UseIpToCountry, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+
+				// Load Database at Startup
+				case os_LoadDbAtStartup:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bLoadDbAtStartup = cOpt_System.SendMessage(os_LoadDbAtStartup, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 			}
 		}

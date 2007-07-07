@@ -84,7 +84,6 @@ void CClient::Clear(void)
 	fSendWait = 0;
 	fLastUpdateSent = -9999;
 
-	iCanToggle = true;
 
 	bInServer = false;
 	cIConnectedBuf = ""; 
@@ -263,6 +262,7 @@ int CClient::Initialize(void)
 	cShowHealth.Setup(tLXOptions->sGeneralControls[SIN_HEALTH]);
 	cShowSettings.Setup(tLXOptions->sGeneralControls[SIN_SETTINGS]);
 	cViewportMgr.Setup(tLXOptions->sGeneralControls[SIN_VIEWPORTS]);
+	cToggleTopBar.Setup(tLXOptions->sGeneralControls[SIN_TOGGLETOPBAR]);
 
 	// Clear the frames
 
@@ -475,6 +475,9 @@ void CClient::SetupViewports(void)
 
 
 	int top = topbar ? (topbar->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
+	if (!tLXOptions->tGameinfo.bTopBarVisible)
+		top = 0;
+
 	int h = bottombar ? (480 - bottombar->h - top) : (382 - top); // Height of the viewports
 
 	// If there is only 1 local player, setup 1 main viewport

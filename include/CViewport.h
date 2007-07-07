@@ -121,8 +121,10 @@ public:
 	int		GetVirtW(void)		{ return VirtWidth; }
 	int		GetVirtH(void)		{ return VirtHeight; }
 
-	void	SetLeft(int _l)		{ Left=_l; }
-	void	SetTop(int _t)		{ Top=_t; }
+	void	SetLeft(int _l)		{ Left = _l; }
+	void	SetTop(int _t)		{ Top = _t; }
+	void	SetVirtWidth(int _w)	{ Width = _w/2; VirtWidth = _w; }
+	void	SetVirtHeight(int _h)	{ Height = _h/2; VirtHeight = _h; }
 	void	SetWorldX(int _x)	{ WorldX = _x; }
 	void	SetWorldY(int _y)	{ WorldY = _y; }
 

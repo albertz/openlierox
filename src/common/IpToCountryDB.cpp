@@ -12,6 +12,7 @@
 #include <iostream>
 #include <map>
 
+#include "Options.h"
 #include "TSVar.h"
 #include "IpToCountryDB.h"
 #include "FindFile.h"
@@ -253,7 +254,8 @@ IpToCountryDB::IpToCountryDB(const std::string &dbfile) {
 }
 
 void IpToCountryDB::LoadDBFile(const std::string& dbfile) {
-	IpToCountryDBData(this)->loadFile( dbfile );
+	if (tLXOptions->bUseIpToCountry)
+		IpToCountryDBData(this)->loadFile( dbfile );
 }
 
 
@@ -275,6 +277,14 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 	if (ip_e.size() != 4)  {
 		Result.Continent = "Hackerland";
 		Result.Country = "Hackerland";
+		return Result;
+	}
+
+	// User doesn't want to use this DB
+	if (!tLXOptions->bUseIpToCountry)  {
+		Result.Continent = "Unknown";
+		Result.Country = "Unknown";
+		Result.CountryShortcut = "UNK";
 		return Result;
 	}
 
