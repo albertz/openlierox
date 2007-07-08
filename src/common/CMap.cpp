@@ -676,30 +676,25 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 
 ///////////////////
 // Draw an object's shadow
-void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, uint sy, uint w, uint h, CViewport *view, uint wx, uint wy)
+void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
 	// TODO: optimize
 
-    int v_wx = view->GetWorldX();
+	int v_wx = view->GetWorldX();
 	int v_wy = view->GetWorldY();
 	int l = view->GetLeft();
 	int t = view->GetTop();
 
-    // Drop the shadow
-    static const int Drop = 3;
-    wx += Drop;
-    wy += Drop;
-
-    // Clipping rectangle
+	// Drop the shadow
+	static const int Drop = 3;
+	wx += Drop;
+	wy += Drop;
+	
+	// Clipping rectangle
 	SDL_Rect rect = bmpDest->clip_rect;
-	int	c_y = rect.y;
-	int c_x = rect.x;
-	int c_x2 = rect.x + rect.w;
-	int c_y2 = rect.y + rect.h;
 
-
-    int dtx = (wx - v_wx)*2;
-    int dty = (wy - v_wy)*2;
+	int dtx = (wx - v_wx)*2;
+	int dty = (wy - v_wy)*2;
 
 	// Screen bytes per pixel
 	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
@@ -722,36 +717,14 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 	SrcPixel = (Uint8*)bmpShadowMap->pixels + (wy * bmpShadowMap->pitch + wx*screenbpp);
 	ObjPixel = (Uint8 *)bmpObj->pixels + (sy*bmpObj->pitch+sx*screenbpp);
 
-	/*int y_start = sy;
-	if (wy < 0) y_start -= wy;
-	if (dty+t < c_y) y_start += c_y-dty-t;
-	int y_end = (int)(sy+h);
-	if ((int)(dy+h/2) >= Height)  {
-		if (dty+t+h >= c_y2) y_end -= MAX((dy+h/2)-Height,c_y2-dty-t-h);
-		else y_end -= (dy+h/2)-Height;
-	} else if (dty+t+h >= c_y2) {
-		y_end -= c_y2-dty-t-h;
-	}
-
-	int x_start = sx;
-	if (wx < 0) x_start = -wx;
-	if (dtx+l < c_x) x_start += c_x-dtx-l;
-	int x_end = (int)(sx+w);
-	if ((int)(dx+w/2) >= Width)  {
-		if (dtx+l+w >= c_x2) x_end -= MAX((dx+w/2)-Width,c_x2-dtx-l-w);
-		else x_end -= (dx+w/2)-Width;
-	} else if (dtx+l+w >= c_x2) {
-		x_end -= c_x2-dtx-l-w;
-	}*/
-
-	for( y=/*y_start*/sy,dy=wy/*+y_start*/,j=0; y</*y_end*/(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
+	for( y=sy, dy=wy, j=0; y<(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
 		// World Clipping
 		if(dy < 0) continue;
-		if((uint)dy >= Height) break;
+		if(dy >= Height) break;
 
 		// Screen clipping
-		if( dty+t+j < c_y ) continue;
-		if( dty+t+j >= c_y2 ) break;
+		if( dty+t+j < rect.y ) continue;
+		if( dty+t+j >= rect.y + rect.h ) break;
 
 		// Get the first pixel adresses for each of the three images
 		pf = &PixelFlags[dy * Width + wx];
@@ -763,14 +736,14 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 
 			// Clipping
 			if(dx < 0) continue;
-			if((uint)dx >= Width) break;
+			if(dx >= Width) break;
 
 			// Is this pixel solid?
 			if( !(*pf & PX_EMPTY) ) continue;
 
 			// Screen clipping
-			if( dtx+l+i < c_x ) continue;
-			if( dtx+l+i >= c_x2 ) continue;
+			if( dtx+l+i < rect.x ) continue;
+			if( dtx+l+i >= rect.x + rect.w ) continue;
 
 			// Put the pixel, if it's not transparent
 			if (!IsTransparent(bmpObj, GetPixelFromAddr(objpix, screenbpp)))
@@ -790,7 +763,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, 
 
 ///////////////////
 // Draw a pixel sized shadow
-void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, uint wx, uint wy)
+void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy)
 {
     uint v_wx = view->GetWorldX();
 	uint v_wy = view->GetWorldY();

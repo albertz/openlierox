@@ -27,6 +27,8 @@ ELSE (WIN32)
 	ADD_DEFINITIONS(-ggdb -Wall)
 ENDIF (WIN32)
 
+ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
+
 ADD_EXECUTABLE(bin/openlierox ${ALL_SRCS})
 TARGET_LINK_LIBRARIES(bin/openlierox SDL SDL_image SDL_mixer NL gd z xml2)
 

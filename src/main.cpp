@@ -690,6 +690,8 @@ void ShutdownLieroX(void)
 {
 	printf("Shutting me down...\n");	
 	
+	tLXOptions->SaveToDisc();
+
 	if (tLXOptions->iLogConvos)  {
 		FILE *f;
 

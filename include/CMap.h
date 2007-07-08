@@ -221,9 +221,9 @@ public:
 	void		Send(CBytestream *bs);
 
 	void		Draw(SDL_Surface *bmpDest, CViewport *view);
-    void        DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, uint sx, uint sy, uint w, uint h, CViewport *view, uint wx, uint wy);
-    void        DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, uint wx, uint wy);
-    void		DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype);
+	void        DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
+	void        DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy);
+	void		DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *worms, int gametype);
 
 private:
 	// not thread-safe, therefore private	

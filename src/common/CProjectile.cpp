@@ -715,12 +715,12 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 // Draw the projectiles shadow
 void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 {
-    int wx = view->GetWorldX();
+	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
 	int l = view->GetLeft();
 	int t = view->GetTop();
 
-    int x=((int)vPosition.x-wx)*2+l;
+	int x=((int)vPosition.x-wx)*2+l;
 	int y=((int)vPosition.y-wy)*2+t;
 
 	// Clipping on the viewport
@@ -729,18 +729,18 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 	if((y<t || y>t+view->GetVirtH()))
 		return;
 
-    // Pixel
-    if(tProjInfo->Type == PRJ_PIXEL)
-        map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
+	// Pixel
+	if(tProjInfo->Type == PRJ_PIXEL)
+		map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
 
-    // Image
-    else if(tProjInfo->Type == PRJ_IMAGE) {
-        if(tProjInfo->bmpImage == NULL)
-            return;
+	// Image
+	else if(tProjInfo->Type == PRJ_IMAGE) {
+		if(tProjInfo->bmpImage == NULL)
+			return;
 
-        int size = tProjInfo->bmpImage->h;
-        int half = size/2;
-        map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
+	int size = tProjInfo->bmpImage->h;
+	int half = size/2;
+	map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
     }
 }
 

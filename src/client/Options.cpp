@@ -206,8 +206,6 @@ bool GameOptions::LoadFromDisc()
 void ShutdownOptions(void)
 {
 	if(tLXOptions) {
-	    tLXOptions->SaveToDisc();
-	
 		delete tLXOptions;
 		tLXOptions = NULL;
 	}
@@ -215,7 +213,7 @@ void ShutdownOptions(void)
 	if(networkTexts) {
 		delete networkTexts;
 		networkTexts = NULL;	
-	}	
+	}
 }
 
 
