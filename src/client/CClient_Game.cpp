@@ -1557,7 +1557,17 @@ void CClient::processChatter(void)
 			}
 
 			// Check, if we can start typing
-			int controls = cChat_Input.isDown() + cShowScore.isDown() + cShowHealth.isDown() + cShowSettings.isDown() + cToggleTopBar.isDown() + cToggleMediaPlayer.isDown() + kb->KeyDown[SDLK_BACKQUOTE] + kb->KeyDown[SDLK_F12];
+			int controls =
+				cChat_Input.isDown() + 
+				cShowScore.isDown() + 
+				cShowHealth.isDown() + 
+				cShowSettings.isDown() + 
+				cToggleTopBar.isDown() + 
+#ifdef WITH_MEDIAPLAYER
+				cToggleMediaPlayer.isDown() + 
+#endif
+				kb->KeyDown[SDLK_BACKQUOTE] + 
+				kb->KeyDown[SDLK_F12];
 
 			if (controls)
 				return;

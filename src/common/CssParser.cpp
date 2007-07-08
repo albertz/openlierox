@@ -11,13 +11,14 @@
 //
 /////////////////////////////////////////
 
-#include "defs.h"
+#include <iostream>
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 
+using namespace std;
 
 /////////////////////
 // Clears the parser
@@ -286,7 +287,11 @@ property_t *CCssParser::ReadProperty(void)
 		if (*(sData+iPos) < 65 || *(sData+iPos) > 90)
 			if (*(sData+iPos) < 97 || *(sData+iPos) > 122)
 				if (*(sData+iPos) != '_' && *(sData+iPos) != '-')  {
-					printf("Syntax error: invalid character '%c' (%ul) on position %ul",*(sData+iPos),(int)*(sData+iPos),iPos);
+					cout
+						<< "Syntax error: invalid character '"
+						<< *(sData+iPos) << "' ("
+						<< (int)*(sData+iPos) 
+						<< ") on position " << iPos << endl;
 					delete Property;
 					Property = NULL;
 					return NULL;
@@ -465,7 +470,11 @@ node_t *CCssParser::ReadNode(void)
 		if (*(sData+iPos) < 'A' || *(sData+iPos) > 'Z')
 			if (*(sData+iPos) < 'a' || *(sData+iPos) > 'z')
 				if (*(sData+iPos) != '_' && *(sData+iPos) != '-')  {
-					printf("Syntax error: invalid character '%c' (%ul) on position %ul",*(sData+iPos),(int)*(sData+iPos),iPos);
+					cout
+						<< "Syntax error: invalid character '"
+						<< *(sData+iPos) << "' ("
+						<< (int)*(sData+iPos) 
+						<< ") on position " << iPos << endl;
 					delete node;
 					return NULL;
 				}
