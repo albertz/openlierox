@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 
 		// Wait while it fully loads
 		while (!tIpToCountryDB->Loaded())
-			Sleep(50);
+			SDL_Delay(50);
 	}
 
 	DrawLoading(100, "Done! Starting menu");
