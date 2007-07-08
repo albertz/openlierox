@@ -30,17 +30,28 @@
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
+inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h) {
+	// Initialize
+	int byte_bound = w * src->format->BytesPerPixel;
+	int src_pitch = src->pitch;
+	int dst_pitch = dst->pitch;
+	Uint8* srcrow = (Uint8 *)src->pixels
+		+ (sy * src->pitch) + (sx * src->format->BytesPerPixel);
+	Uint8* dstrow = (Uint8 *)dst->pixels
+		+ (dy * dst->pitch) + (dx * dst->format->BytesPerPixel);
+	
+	// Copy row by row
+	for (register int i = 0; i < h; ++i)  {
+		memcpy(dstrow, srcrow, byte_bound);
+		dstrow += dst_pitch;
+		srcrow += src_pitch;
+	}
+}
+
 ///////////////////////
 // Copies area from one image to another (not blitting so the alpha values are kept!)
 void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h)
 {
-	// The surfaces must have same properties
-	assert(src->format->Amask == dst->format->Amask);
-	assert(src->format->Rmask == dst->format->Rmask);
-	assert(src->format->Gmask == dst->format->Gmask);
-	assert(src->format->Bmask == dst->format->Bmask);
-	assert(src->format->BytesPerPixel == dst->format->BytesPerPixel);
-	
 	// Source clipping
 	if (sx + w > src->w) {
 		if (sx >= src->w) return;  // >= because copying area of 0px width makes no sense as well
@@ -62,22 +73,25 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 		if (dy >= dst->h) return;
 		h = dst->h - dy;
 	}
-	
-	// Initialize
-	int lower_bound  = sy + h;
-	int byte_bound = (w - 1)*src->format->BytesPerPixel;
-	int src_pitch = src->pitch;
-	int dst_pitch = dst->pitch;
-	register Uint8* srcrow = (Uint8 *)src->pixels
-		+ (sy * src->pitch) + (sx * src->format->BytesPerPixel);
-	register Uint8* dstrow = (Uint8 *)dst->pixels
-		+ (dy * dst->pitch) + (dx * dst->format->BytesPerPixel);
-	
-	// Copy row by row
-	for (register int i = sy; i < lower_bound; ++i)  {
-		memcpy(dstrow, srcrow, byte_bound);
-		dstrow += dst_pitch;
-		srcrow += src_pitch;
+
+	if(
+		src->format->Amask == dst->format->Amask &&
+		src->format->Rmask == dst->format->Rmask &&
+		src->format->Gmask == dst->format->Gmask &&
+		src->format->Bmask == dst->format->Bmask &&
+		src->format->BytesPerPixel == dst->format->BytesPerPixel) {
+
+		CopySurfaceFast(dst, src, sx, sy, dx, dy, w, h);
+	} else {
+
+		Uint8 R, G, B, A;
+
+		for(register int x = 0; x < w; x++) {
+			for(register int y = 0; y < h; y++) {
+				SDL_GetRGBA(GetPixel(src, x + sx, y + sy), src->format, &R, &G, &B, &A);
+				PutPixel(dst, x + dx, y + dy, SDL_MapRGBA(dst->format, R, G, B, A));
+			}
+		}
 	}
 }
 

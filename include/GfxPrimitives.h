@@ -110,7 +110,7 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 
 	// NOTE: must match format in CCache::LoadImageBPP
 	SDL_Surface* result = SDL_CreateRGBSurface(
-			iSurfaceFormat | SDL_SRCALPHA,
+			(iSurfaceFormat & ~SDL_SRCCOLORKEY) | SDL_SRCALPHA,
 			width, height, 32,
 			ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
 

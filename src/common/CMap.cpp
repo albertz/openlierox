@@ -720,7 +720,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	for( y=sy, dy=wy, j=0; y<(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
 		// World Clipping
 		if(dy < 0) continue;
-		if(dy >= Height) break;
+		if((uint)dy >= Height) break;
 
 		// Screen clipping
 		if( dty+t+j < rect.y ) continue;
@@ -736,7 +736,7 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 			// Clipping
 			if(dx < 0) continue;
-			if(dx >= Width) break;
+			if((uint)dx >= Width) break;
 
 			// Is this pixel solid?
 			if( !(*pf & PX_EMPTY) ) continue;
@@ -776,7 +776,7 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
 
     // Clipping
     if( wx<0 || wy<0 ) return;
-    if( wx>=Width || wy>=Height ) return;
+    if( (uint)wx>=Width || (uint)wy>=Height ) return;
 
     int x = (wx - v_wx)*2;
     int y = (wy - v_wy)*2;

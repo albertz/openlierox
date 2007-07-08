@@ -162,7 +162,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 		for (y = 0; y < bmpSurf->h; y++) {
 			for (x = 0; x < bmpSurf->w; x++) {
 				pixel = GetPixel(bmpFont, x, y);
-				GetColour4(pixel, bmpSurf, &R, &G, &B, &A);
+				GetColour4(pixel, bmpFont, &R, &G, &B, &A);
 
 				if (R == 255 && G == 255 && B == 255)    // White
 					PutPixel(bmpSurf, x, y,
@@ -177,7 +177,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 		for (y = 0; y < bmpSurf->h; y++) {
 			for (x = 0; x < bmpSurf->w; x++) {
 				pixel = GetPixel(bmpFont, x, y);
-				GetColour4(pixel, bmpSurf, &R, &G, &B, &A);
+				GetColour4(pixel, bmpFont, &R, &G, &B, &A);
 
 				if (!R && !G && !B)   // Black
 					PutPixel(bmpSurf, x, y,
@@ -199,7 +199,7 @@ int CFont::GetHeight(const std::string& buf) {
 	int numlines = 1;
 	for (std::string::const_iterator i = buf.begin(); i != buf.end(); i++)
 		if (*i == '\n') numlines++;
-	return numlines*(bmpFont->h + VSpacing);
+	return numlines * (bmpFont->h + VSpacing);
 }
 
 ///////////////////
