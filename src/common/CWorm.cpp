@@ -317,7 +317,13 @@ int CWorm::LoadGraphics(int gametype)
 
     // Load the skin
     bmpWormRight = LoadSkin(szSkin, r,g,b);
-    bmpWormLeft = GetMirroredImage(bmpWormRight);
+	if (!bmpWormRight)  {
+		bmpWormLeft = NULL;
+		bmpPic = NULL;
+		bmpShadowPic = NULL;
+		return false;
+	}
+	bmpWormLeft = GetMirroredImage(bmpWormRight);
     
     // Create the minipic
     bmpPic = gfxCreateSurface(18,16);

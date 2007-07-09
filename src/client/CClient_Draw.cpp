@@ -439,6 +439,51 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	bool bScoreAndSett = true;
 
+	// FPS
+	if(tLXOptions->iShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
+		// Get the string and its width
+		static std::string fps_str;
+		fps_str = "FPS: " + itoa(GetFPS());
+
+		DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
+		tLX->cFont.Draw( // Draw the text
+					bmpDest,
+					tInterfaceSettings.FpsX + 2,
+					tInterfaceSettings.FpsY,
+					tLX->clFPSLabel,
+					fps_str);
+	}
+
+	// Ping on the top right
+	if(tLXOptions->iShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
+
+		// Draw the box around it
+		DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
+
+		tLX->cFont.Draw( // Draw the text
+					bmpDest,
+					tInterfaceSettings.PingX + 2,
+					tInterfaceSettings.PingY,
+					tLX->clPingLabel,
+					"Ping: " + itoa(iMyPing));
+
+		// Send every second
+		if (tLX->fCurTime - fMyPingRefreshed > 1) {
+			CBytestream *bs = cClient->getChannel()->getMessageBS();
+			CBytestream ping;
+
+			ping.Clear();
+			ping.writeInt(-1,4);
+			ping.writeString("%s","lx::ping");
+
+			bs->Append(&ping);
+			bs->Send(cClient->getChannel()->getSocket());
+
+			fMyPingSent = tLX->fCurTime;
+			fMyPingRefreshed = tLX->fCurTime;
+		}
+	}
+
 	// Game over
     if(iGameOver) {
         if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)  {
@@ -490,52 +535,6 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Console
     Con_Draw(bmpDest);
-
-
-	// FPS
-	if(tLXOptions->iShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
-		// Get the string and its width
-		static std::string fps_str;
-		fps_str = "FPS: " + itoa(GetFPS());
-
-		DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
-		tLX->cFont.Draw( // Draw the text
-					bmpDest,
-					tInterfaceSettings.FpsX + 2,
-					tInterfaceSettings.FpsY,
-					tLX->clFPSLabel,
-					fps_str);
-	}
-
-	// Ping on the top right
-	if(tLXOptions->iShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
-
-		// Draw the box around it
-		DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
-
-		tLX->cFont.Draw( // Draw the text
-					bmpDest,
-					tInterfaceSettings.PingX + 2,
-					tInterfaceSettings.PingY,
-					tLX->clPingLabel,
-					"Ping: " + itoa(iMyPing));
-
-		// Send every second
-		if (tLX->fCurTime - fMyPingRefreshed > 1) {
-			CBytestream *bs = cClient->getChannel()->getMessageBS();
-			CBytestream ping;
-
-			ping.Clear();
-			ping.writeInt(-1,4);
-			ping.writeString("%s","lx::ping");
-
-			bs->Append(&ping);
-			bs->Send(cClient->getChannel()->getSocket());
-
-			fMyPingSent = tLX->fCurTime;
-			fMyPingRefreshed = tLX->fCurTime;
-		}
-	}
 
 
     //tLX->cOutlineFont.Draw(bmpDest, 4,20, tLX->clNormalText, "%s",tLX->debug_string);

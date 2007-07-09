@@ -87,9 +87,9 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	lv_item_t *item = tItems;
 	int count=0;
 
-	int selectsize = x+iWidth-5;
+	int right_bound = x+iWidth-3;
 	if(iGotScrollbar || bAlwaysVisibleScrollbar)
-		selectsize = MIN(cScrollbar.getX() - 2, iX + iWidth - 3);
+		right_bound = MIN(cScrollbar.getX() - 2, iX + iWidth - 3);
 
 	int h=tLX->cFont.GetHeight();
 	int texty = 0;
@@ -110,9 +110,9 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		// Selected?
 		if(item->iSelected && bShowSelect) {
 			if(iFocused)
-				DrawRectFill(bmpDest,x-2,y,selectsize,y+h-2,tLX->clListviewSelected);
+				DrawRectFill(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);
 			else
-				DrawRect(bmpDest,x-2,y,selectsize-1,y+h-2,tLX->clListviewSelected);
+				DrawRect(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);
 		}
 
 		// Draw the sub items
@@ -141,9 +141,9 @@ void CListview::Draw(SDL_Surface *bmpDest)
 					switch(sub->iType)  {
 					case LVS_TEXT:  {
 						if (col && !bOldStyle)
-							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,iX+iWidth-x-20),item->iColour,sub->sText);
+							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,right_bound-x),item->iColour,sub->sText);
 						else
-							tLX->cFont.DrawAdv(bmpDest,x,texty,iX+iWidth-x-2,item->iColour,sub->sText);
+							tLX->cFont.DrawAdv(bmpDest,x,texty,right_bound-x-2,item->iColour,sub->sText);
 					}
 					break;
 
