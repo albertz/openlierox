@@ -89,7 +89,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 	int selectsize = x+iWidth-5;
 	if(iGotScrollbar || bAlwaysVisibleScrollbar)
-		selectsize = x+iWidth-20;
+		selectsize = MIN(cScrollbar.getX() - 2, iX + iWidth - 3);
 
 	int h=tLX->cFont.GetHeight();
 	int texty = 0;

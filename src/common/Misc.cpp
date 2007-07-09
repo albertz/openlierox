@@ -84,14 +84,8 @@ void d_printf(char *fmt, ...)
 bool MouseInRect(int x, int y, int w, int h)
 {
     mouse_t *m = GetMouse();
-
-    if( m->X >= x && m->X <= x+w ) {
-        if( m->Y >= y && m->Y <= y+h ) {
-            return true;
-        }
-    }
-
-    return false;
+	return ((m->X >= x) && (m->X <= x+w))  &&
+		   ((m->Y >= y) && (m->Y <= y+h));
 }
 
 

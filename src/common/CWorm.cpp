@@ -770,27 +770,29 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
 	if (tLXOptions->iShowHealth)  {
 		if (!iLocal || iType != PRF_HUMAN)  {
-			x += v->GetLeft();
+			int hx = x + l;
+			int hy = y + t - 9; // -8 = worm height/2
 
 			if (cHealthBar.IsProperlyLoaded())  {
 
-				cHealthBar.SetX(x-cHealthBar.GetWidth()/2);
-				cHealthBar.SetY(y+3);
+				cHealthBar.SetX(hx - cHealthBar.GetWidth()/2);
+				cHealthBar.SetY(hy - cHealthBar.GetHeight() - 1);
 				cHealthBar.Draw( bmpDest );
 				cHealthBar.SetPosition(getHealth());
-				WormNameY += cHealthBar.GetHeight()+3; // Leave some space
+				WormNameY += cHealthBar.GetHeight()+2; // Leave some space
 
 			} else {  // Old style healthbar
+				hy -= 7;
 
 				// Draw the "grid"
 				static Uint32 BorderColor;
 				BorderColor = MakeColour(0x49,0x50,0x65);
 				int iShowHealth = Round((float)((getHealth()+15)/20));
-				DrawRect(bmpDest,x-10,y-1,x+15,y+5,BorderColor);
-				DrawVLine(bmpDest,y,y+4,x-5,BorderColor);
-				DrawVLine(bmpDest,y,y+4,x,BorderColor);
-				DrawVLine(bmpDest,y,y+4,x+5,BorderColor);
-				DrawVLine(bmpDest,y,y+4,x+10,BorderColor);
+				DrawRect(bmpDest, hx-10,hy-1,hx+15,hy+5,BorderColor);
+				DrawVLine(bmpDest, hy, hy+4, hx-5,BorderColor);
+				DrawVLine(bmpDest, hy, hy+4, hx,BorderColor);
+				DrawVLine(bmpDest, hy, hy+4, hx+5,BorderColor);
+				DrawVLine(bmpDest, hy, hy+4, hx+10,BorderColor);
 
 											// Red			Orange				Yellow		   Light Green		  Green	
 				static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
@@ -802,10 +804,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 				Uint32 CurColor;
 				for (short i=0; i<iShowHealth; i++) {
 					CurColor = MakeColour(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
-					DrawRectFill(bmpDest,x-10+(i*5+1),y,x-10+(i*5+1)+4,y+5,CurColor);
+					DrawRectFill(bmpDest,hx-10+(i*5+1),hy,hx-10+(i*5+1)+4,hy+5,CurColor);
 				}
 
-				WormNameY += 12;
+				WormNameY += 7;
 
 			}
 

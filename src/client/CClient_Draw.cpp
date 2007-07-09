@@ -1384,9 +1384,10 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 
 	mouse_t *Mouse = GetMouse();
 
-	// Small hack: count the mouse height so we avoid "freezing
+	// Small hack: count the mouse height so we avoid "freezing"
 	// the mouse image when the user moves cursor away
-	int inbox = MouseInRect(lv->getX(),lv->getY(), lv->getWidth(), lv->getHeight()+GetCursorHeight(CURSOR_ARROW));
+	int inbox = MouseInRect(lv->getX(),lv->getY(), lv->getWidth(), lv->getHeight()+GetCursorHeight(CURSOR_ARROW)) ||
+				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14, tInterfaceSettings.ChatboxScrollbarH);
 
 	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox)  {	// Repainting when new messages/scrolling, 
 																				// or when user is moving the mouse over the chat

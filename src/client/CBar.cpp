@@ -148,7 +148,7 @@ int CBar::GetHeight()
 		switch (Direction)  {
 		case BAR_LEFTTORIGHT:
 		case BAR_RIGHTTOLEFT:
-			return (bmpBar->h-numstates)/(numstates + 1);
+			return (bmpBar->h-NumForeStates)/(numstates);
 		case BAR_TOPTOBOTTOM:
 		case BAR_BOTTOMTOTOP:
 			return bmpBar->h;

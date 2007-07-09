@@ -27,6 +27,9 @@
 // Spawn a worm
 void GameServer::SpawnWorm(CWorm *Worm)
 {
+	if (iGameOver)
+		return;
+
 	CVec pos = FindSpot();
 
 	Worm->Spawn(pos);
@@ -102,6 +105,13 @@ void GameServer::SimulateGame(void)
 	if(iState != SVS_PLAYING)
 		return;
 
+	// If this is a remote game, and game over,
+	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
+	if(iGameOver && tLX->fCurTime - fGameOverTime > LX_ENDWAIT && iState != SVS_LOBBY && tGameInfo.iGameType == GME_HOST) {
+		gotoLobby();
+		return;
+	}
+
 	// Process worms
 	CWorm *w = cWorms;
 	short i;
@@ -152,22 +162,12 @@ void GameServer::SimulateGame(void)
 
 
 
-	float BonusSpawnTime = BONUS_SPAWNFREQ;
-
 	// Check if we need to spawn a bonus
-	if(tLX->fCurTime - fLastBonusTime > BonusSpawnTime && iBonusesOn && !iGameOver) {
+	if(tLX->fCurTime - fLastBonusTime > BONUS_SPAWNFREQ && iBonusesOn && !iGameOver) {
 
 		SpawnBonus();
 
 		fLastBonusTime = tLX->fCurTime;
-	}
-
-
-
-	// If this is a remote game, and game over,
-	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
-	if(iGameOver && tLX->fCurTime - fGameOverTime > LX_ENDWAIT && iState != SVS_LOBBY && tGameInfo.iGameType == GME_HOST) {
-		gotoLobby();
 	}
 }
 

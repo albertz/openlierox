@@ -52,7 +52,7 @@
 #define		MAX_OBJECTS	8192
 
 // Antialiasing blur
-#define		MAP_BLUR		0.2f
+#define		MAP_BLUR		0.1f
 #define		MINIMAP_BLUR	10.0f
 
 
