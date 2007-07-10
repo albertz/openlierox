@@ -694,7 +694,7 @@ std::string Utf8String(const std::string &OldLxString)
 		// Unicode character
 
 		result += std::string(last_it, utf8_it); // Keep the UTF8
-		if (*utf8_it <= 0x80)  { // If after the unicode character comes another one, just continue
+		if ((unsigned char)(*utf8_it) <= 0x80)  { // If after the unicode character comes another one, just continue
 
 			// Ignore if the converted character comes after UTF8 character
 			// NOTE: the check if the character is really a valid converted UTF8 is not made because

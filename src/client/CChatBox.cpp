@@ -172,7 +172,7 @@ lines_iterator CChatBox::At(int i)  {
 	if (i <= 0)
 		return WrappedLines.begin();
 
-	if (i >= WrappedLines.size())
+	if (i >= (int)WrappedLines.size())
 		return WrappedLines.end();
 
 	// Go to the right iterator
