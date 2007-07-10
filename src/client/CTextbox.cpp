@@ -380,9 +380,9 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 			size_t pos = Utf8StringSize(sText);
 			int w, prev_w;
 			w = prev_w = 0;
-			while ((w = tLX->cFont.GetWidth(buf)) > deltaX)  {
+			while ((w = tLX->cFont.GetWidth(buf)) > deltaX && pos)  {
 				pos--;
-				buf.erase(Utf8PositionToIterator(buf, pos));
+				Utf8Erase(buf, pos);
 				prev_w = w;
 			}
 
@@ -506,6 +506,13 @@ void CTextbox::Insert(UnicodeChar c)
 	// Delete any selection
 	if (iSelLength)
 		Delete();
+
+	// If no unicode, try to convert to ascii
+	if (iFlags & TXF_NOUNICODE)  {
+		c = UnicodeCharToAsciiChar(c);
+		if (c == 0xFF)  // Cannot convert
+			return;
+	}
 
 	// Check for the max
 	if(Utf8StringSize(sText) >= iMax - 2)

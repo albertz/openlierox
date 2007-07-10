@@ -1143,7 +1143,7 @@ void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 	CBytestream bs;
 	bs.writeInt(-1,4);
 	bs.writeString("lx::wantsjoin");
-	bs.writeString(Nick);
+	bs.writeString(RemoveSpecialChars(Nick));
 	bs.Send(tMenu->tSocket[SCK_NET]);
 }
 
@@ -1390,7 +1390,7 @@ void Menu_SvrList_FillList(CListview *lv)
 {
 	server_t	*s = psServerList;
 	std::string		addr;
-	static const char*	states[] = {"Open", "Loading", "Playing"};
+	static const std::string states[] = {"Open", "Loading", "Playing"};
 
     // Store the ID of the currently selected item
     int curID = lv->getSelectedID();
@@ -1627,7 +1627,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 {
 	// Don't update the name in favourites
 	static std::string buf;
-	buf = bs->readString();
+	buf = Utf8String(bs->readString());
 	if(iNetMode != net_favourites)
 		svr->szName = buf;
 	svr->nNumPlayers = bs->readByte();
@@ -1789,7 +1789,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 						
 
                     // Read the info
-                    szName = inbs.readString(64);
+                    szName = Utf8String(inbs.readString(64));
 	                nMaxWorms = MIN(MAX_PLAYERS,MAX((int)inbs.readByte(),0));
 	                nState = inbs.readByte();
 

@@ -16,8 +16,17 @@
 
 #include "Utils.h"
 
-
 typedef Uint32 UnicodeChar;
+
+struct ConversionItem {
+	UnicodeChar Unicode;
+	unsigned char Utf8[4];
+	char Ascii;
+};
+
+#define UNKNOWN_CHARACTER ' '  // Characters not in conversion table
+extern ConversionItem tConversionTable[];
+
 
 template<typename _Iterator1, typename _Iterator2>
 inline void IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
@@ -112,5 +121,14 @@ inline void InsertUnicodeChar(std::string& str, size_t pos, UnicodeChar ch) {
 	std::string tmp = GetUtf8FromUnicode(ch);
 	Utf8Insert(str, pos, tmp);
 }
+
+// Conversion functions
+
+int FindTableIndex(UnicodeChar c);
+char UnicodeCharToAsciiChar(UnicodeChar c);
+std::string OldLxCompatibleString(const std::string &Utf8String);
+std::string Utf8String(const std::string &OldLxString);
+std::string RemoveSpecialChars(const std::string &Utf8String);
+
 
 #endif

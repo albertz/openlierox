@@ -122,6 +122,7 @@ void Menu_PlayerInitialize(void)
     cNewPlayer.Add( new CCombobox(),           np_Type,  120, 230,120,17);
 
 	cNewPlayer.SendMessage(np_Name,TXM_SETMAX,20,0);
+	cNewPlayer.SendMessage( np_Name, TXM_SETFLAGS, TXF_NOUNICODE, 0); // Disable unicode for backward compatibility
 
 
 	//cNewPlayer.Add( new CLabel("Multiplayer (optional)", tLX->clHeading),Static, 370, 170, 0,0);
@@ -182,6 +183,8 @@ void Menu_PlayerInitialize(void)
     cViewPlayers.Add( new CCombobox(),                              vp_Type,   400,200, 120,17);
 
 	cViewPlayers.SendMessage(vp_Name,TXM_SETMAX,20,0);
+	cViewPlayers.SendMessage(vp_Name, TXM_SETFLAGS, TXF_NOUNICODE, 0); // Disable unicode for backward compatibility
+
 	cViewPlayers.SendMessage(vp_Players,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 
     // Hide the AI stuff until 'Computer' type is selected
@@ -363,6 +366,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 					// Get the details
 					std::string name = ((CTextbox *)cNewPlayer.getWidget(np_Name))->getText();
+					name = RemoveSpecialChars(name);  // Remove any special characters (backward compatibility)
 					std::string skin;
                     cNewPlayer.SendMessage(np_PlySkin, CBS_GETCURSINDEX, &skin, 0);
 

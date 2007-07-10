@@ -800,6 +800,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 						text = rw->getName() + ": " + buf;
 					else
 						text = replacemax(buf,"/me",rw->getName(),text,2);
+
+					text = OldLxCompatibleString(text);
+
 					cServer->SendGlobalText(text,TXT_CHAT);
 				}
 				break;

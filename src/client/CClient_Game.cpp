@@ -1684,6 +1684,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 				buf = cLocalWorms[0]->getName() + ": " + sChat_Text;
 			else
 				buf =  replacemax(sChat_Text,"/me",cLocalWorms[0]->getName(),buf,2);
+			buf = OldLxCompatibleString(buf);
             SendText(buf);
         }
         return;

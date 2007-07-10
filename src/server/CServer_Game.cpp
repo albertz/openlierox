@@ -282,8 +282,9 @@ void GameServer::TagWorm(int id)
 	SendGlobalPacket(&bs);
 
 	//Take care of the <none> tag
-	if (networkTexts->sTeamkill != "<none>")  {
-		SendGlobalText(replacemax(networkTexts->sWormIsIt,"<player>",w->getName(),1),TXT_NORMAL);
+	if (networkTexts->sWormIsIt != "<none>")  {
+		SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sWormIsIt,"<player>",w->getName(),1)),
+						TXT_NORMAL);
 	}
 }
 
@@ -593,7 +594,8 @@ void GameServer::RecheckGame(void)
 				// Send the text
 				if (teamsleft <= 1)  {
 					if (networkTexts->sTeamHasWon != "<none>")  {
-						SendGlobalText(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1),TXT_NORMAL);
+						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
+										TXT_NORMAL);
 					}
 					EndGame = true;
 				}
@@ -611,7 +613,8 @@ void GameServer::RecheckGame(void)
 
 					// Send the text
 					if (networkTexts->sPlayerHasWon != "<none>")  {
-						SendGlobalText(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
+						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
+										TXT_NORMAL);
 					}
 					EndGame = true;
 				}
@@ -640,7 +643,8 @@ void GameServer::RecheckGame(void)
 
 					// Send the text
 					if (networkTexts->sPlayerHasWon!="<none>")  {
-						SendGlobalText(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1),TXT_NORMAL);
+						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
+										TXT_NORMAL);
 					}
 
 					EndGame = true;

@@ -39,13 +39,13 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 
 ///////////////////
 // Send all the clients a string of text
-void GameServer::SendGlobalText(const char* text, int type) {
+void GameServer::SendGlobalText(const std::string& text, int type) {
 	static CBytestream bs;
 	bs.Clear();
 
 	bs.writeByte(S2C_TEXT);
 	bs.writeInt(type,1);
-	bs.writeString("%s", text);
+	bs.writeString(text);
 
 	CClient *cl = cClients;
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
@@ -54,10 +54,6 @@ void GameServer::SendGlobalText(const char* text, int type) {
 
 		cl->getChannel()->getMessageBS()->Append(&bs);
 	}
-}
-
-void GameServer::SendGlobalText(const std::string& text, int type) {
-	SendGlobalText(text.c_str(), type);
 }
 
 

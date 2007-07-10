@@ -303,14 +303,14 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		} else
 			replacemax(networkTexts->sCommitedSuicide, "<player>", vict->getName(), buf, 1);
 
-		SendGlobalText(buf, TXT_NORMAL);
+		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 	}
 
 	// First blood
 	if (bFirstBlood && killer != victim && networkTexts->sFirstBlood != "<none>")  {
 		replacemax(networkTexts->sFirstBlood, "<player>", kill->getName(), buf, 1);
 		bFirstBlood = false;
-		SendGlobalText(buf, TXT_NORMAL);
+		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 	}
 
 	// Teamkill
@@ -318,7 +318,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		//Take care of the <none> tag
 		if (networkTexts->sTeamkill != "<none>")  {
 			replacemax(networkTexts->sTeamkill, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(buf, TXT_NORMAL);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 		}
 	}
 
@@ -344,31 +344,31 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	case 3:
 		if (networkTexts->sSpree1 != "<none>")  {
 			replacemax(networkTexts->sSpree1, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(buf, TXT_NORMAL);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 		}
 		break;
 	case 5:
 		if (networkTexts->sSpree2 != "<none>")  {
 			replacemax(networkTexts->sSpree2, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(buf, TXT_NORMAL);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 		}
 		break;
 	case 7:
 		if (networkTexts->sSpree3 != "<none>")  {
 			replacemax(networkTexts->sSpree3, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(buf, TXT_NORMAL);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 		}
 		break;
 	case 9:
 		if (networkTexts->sSpree4 != "<none>")  {
 			replacemax(networkTexts->sSpree4, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(buf, TXT_NORMAL);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 		}
 		break;
 	case 10:
 		if (networkTexts->sSpree5 != "<none>")  {
 			replacemax(networkTexts->sSpree5, "<player>", kill->getName(), buf, 1);
-			SendGlobalText(buf, TXT_NORMAL);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 		}
 		break;
 	}
@@ -380,7 +380,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		// This worm is out of the game
 		if (networkTexts->sPlayerOut != "<none>") {
 			replacemax(networkTexts->sPlayerOut, "<player>", vict->getName(), buf, 1);
-			SendGlobalText(buf, TXT_NORMAL);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 		}
 
 		// Check if only one person is left
@@ -402,7 +402,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				if (networkTexts->sPlayerHasWon != "<none>")  {
 					CWorm *winner = cWorms + wormid;
 					replacemax(networkTexts->sPlayerHasWon, "<player>", winner->getName(), buf, 1);
-					SendGlobalText(buf, TXT_NORMAL);
+					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 				}
 				break;  // DEATHMATCH
 			case GMT_TAG:
@@ -423,7 +423,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				// Send the text
 				if (networkTexts->sPlayerHasWon != "<none>")  {
 					replacemax(networkTexts->sPlayerHasWon, "<player>", w->getName(), buf, 1);
-					SendGlobalText(buf, TXT_NORMAL);
+					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 				}
 				break;  // TAG
 
@@ -470,7 +470,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			if (teamcount == 0) {
 				if (networkTexts->sTeamOut != "<none>")  {
 					replacemax(networkTexts->sTeamOut, "<team>", TeamNames[team], buf, 1);
-					SendGlobalText(buf, TXT_NORMAL);
+					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 				}
 			}
 
@@ -487,7 +487,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			if (teamsleft <= 1) { // There can be also 0 teams left (you play TDM alone and suicide)
 				if (networkTexts->sTeamHasWon != "<none>")  {
 					replacemax(networkTexts->sTeamHasWon, "<team>", TeamNames[team], buf, 1);
-					SendGlobalText(buf, TXT_NORMAL);
+					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 				}
 
 				byte.Clear();
@@ -751,7 +751,7 @@ void GameServer::ParseGetChallenge(void) {
 		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("%s", "lx::badconnect");
-		bs.writeString(networkTexts->sGameInProgress);
+		bs.writeString(OldLxCompatibleString(networkTexts->sGameInProgress));
 		bs.Send(tSocket);
 		printf("GameServer::ParseGetChallenge: Cannot join, the game is in progress.");
 		return;
@@ -839,7 +839,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("%s", "lx::badconnect");
-		bytestr.writeString(buf);
+		bytestr.writeString(OldLxCompatibleString(buf));
 		bytestr.Send(tSocket);
 		printf("GameServer::ParseConnect: Wrong protocol version");
 		return;
@@ -854,7 +854,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("%s", "lx::badconnect");
-		bytestr.writeString(networkTexts->sYouAreBanned);
+		bytestr.writeString(OldLxCompatibleString(networkTexts->sYouAreBanned));
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -880,7 +880,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			bytestr.Clear();
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("%s", "lx::badconnect");
-			bytestr.writeString(networkTexts->sBotsNotAllowed);
+			bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
 			bytestr.Send(tSocket);
 			return;
 		}
@@ -898,7 +898,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			bytestr.Clear();
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("%s", "lx::badconnect");
-			bytestr.writeString(networkTexts->sBadVerification);
+			bytestr.writeString(OldLxCompatibleString(networkTexts->sBadVerification));
 			bytestr.Send(tSocket);
 			return;
 		}
@@ -910,7 +910,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("%s", "lx::badconnect");
-		bytestr.writeString(networkTexts->sNoIpVerification);
+		bytestr.writeString(OldLxCompatibleString(networkTexts->sNoIpVerification));
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -973,7 +973,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("%s", "lx::badconnect");
-		bytestr.writeString(networkTexts->sNoEmptySlots);
+		bytestr.writeString(OldLxCompatibleString(networkTexts->sNoEmptySlots));
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -984,7 +984,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("%s", "lx::badconnect");
-		bytestr.writeString(networkTexts->sServerFull);
+		bytestr.writeString(OldLxCompatibleString(networkTexts->sServerFull));
 		bytestr.Send(tSocket);
 		return;
 	}
@@ -1078,7 +1078,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>")  {
 			for (i = 0;i < numworms;i++) {
-				SendGlobalText(replacemax(networkTexts->sHasConnected, "<player>", worms[i].getName(), 1), TXT_NETWORK);
+				SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasConnected, "<player>", worms[i].getName(), 1)),
+								TXT_NETWORK);
 			}
 		}
 
@@ -1127,7 +1128,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			for (int i = 0; i < numworms; i++)  {
 				// Player name
 				// Send the welcome message
-				SendGlobalText(replacemax(buf, "<player>", worms[i].getName(), 1), TXT_NETWORK);
+				SendGlobalText(OldLxCompatibleString(replacemax(buf, "<player>", worms[i].getName(), 1)),
+								TXT_NETWORK);
 			}
 		}
 
@@ -1180,7 +1182,7 @@ void GameServer::ParseWantsJoin(CBytestream *bs) {
 	// Notify about the wants to join
 	if (networkTexts->sWantsJoin != "<none>")  {
 		replacemax(networkTexts->sWantsJoin, "<player>", Nick, buf, 1);
-		SendGlobalText(buf, TXT_NORMAL);
+		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 	}
 }
 
@@ -1196,7 +1198,7 @@ void GameServer::ParseQuery(CBytestream *bs) {
 	bytestr.writeInt(-1, 4);
 	bytestr.writeString("%s", "lx::queryreturn");
 
-	bytestr.writeString(sName);
+	bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
 	bytestr.writeByte(iState);
@@ -1220,7 +1222,7 @@ void GameServer::ParseGetInfo(void) {
 	bs.writeInt(-1, 4);
 	bs.writeString("%s", "lx::serverinfo");
 
-	bs.writeString(sName);
+	bs.writeString(OldLxCompatibleString(sName));
 	bs.writeByte(iMaxWorms);
 	bs.writeByte(iState);
 
@@ -1269,7 +1271,7 @@ void GameServer::ParseGetInfo(void) {
 	w = cWorms;
 	for (p = 0;p < MAX_WORMS;p++, w++) {
 		if (w->isUsed()) {
-			bs.writeString(w->getName());
+			bs.writeString(RemoveSpecialChars(w->getName()));
 			bs.writeInt(w->getKills(), 2);
 		}
 	}

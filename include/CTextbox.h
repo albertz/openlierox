@@ -42,6 +42,7 @@ enum {
 
 // Flags
 #define		TXF_PASSWORD	0x0001
+#define		TXF_NOUNICODE	0x0002
 
 
 class CTextbox : public CWidget {
@@ -77,7 +78,7 @@ private:
 	int		iSelLength; // if < 0, selection to the left, otherwise to the right
 	size_t	iSelStart;
 	
-	int		iFlags;
+	Uint32	iFlags;
 	std::string	sSelectedText;
 
 	size_t	iMax;
@@ -126,6 +127,8 @@ public:
 
 	std::string	getText(void)						{ return sText; }
 	void	setText(const std::string& buf);
+	inline void setFlag(Uint32 flag) { iFlags |= flag; }
+	inline void unsetFlag(Uint32 flag) { iFlags &= ~flag; }
 
     void    PasteText(void);
 	void	CopyText(void);

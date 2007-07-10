@@ -50,7 +50,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd == "lx::badconnect") {
 		iNetStatus = NET_DISCONNECTED;
 		iBadConnection = true;
-		strBadConnectMsg = bs->readString(256);
+		strBadConnectMsg = Utf8String(bs->readString(256));
 	}
 
 	// Unknown
@@ -84,7 +84,7 @@ void CClient::ParseChallenge(CBytestream *bs)
     //
 
 	for(uint i=0;i<iNumWorms;i++) {
-		bytestr.writeString(tProfiles[i]->sName);
+		bytestr.writeString(RemoveSpecialChars(tProfiles[i]->sName));
 		bytestr.writeInt(tProfiles[i]->iType,1);
 		bytestr.writeInt(tProfiles[i]->iTeam,1);
         bytestr.writeString(tProfiles[i]->szSkin);
@@ -688,6 +688,8 @@ void CClient::ParseText(CBytestream *bs)
 
     FILE *f;
 
+	buf = Utf8String(buf);  // Convert any possible pseudo-UTF8 (old LX compatible) to normal UTF8 string
+
 	cChatbox.AddText(buf,col,tLX->fCurTime);
 
 
@@ -1272,7 +1274,7 @@ void CClient::ParseDropped(CBytestream *bs)
 
 	// Not so much an error, but i message as to why i was dropped
 	iServerError = true;
-	strServerErrorMsg = bs->readString(256);
+	strServerErrorMsg = Utf8String(bs->readString(256));
 
 	if (tLXOptions->iLogConvos)  {
 		if(!bInServer)

@@ -673,6 +673,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 						text = rw->getName() + ": " + buf;
 					else
 						text = replacemax(buf,"/me",rw->getName(),text,2);
+
+					text = OldLxCompatibleString(text);
+
 					cClient->SendText(text);
 				}
 				break;

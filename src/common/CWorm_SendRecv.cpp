@@ -24,7 +24,7 @@
 // Write my info to a bytestream
 void CWorm::writeInfo(CBytestream *bs)
 {
-	bs->writeString(sName);
+	bs->writeString(RemoveSpecialChars(sName));
 	bs->writeInt(iType,1);
 	bs->writeInt(iTeam,1);
     bs->writeString(szSkin);

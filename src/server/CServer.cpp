@@ -742,7 +742,7 @@ void GameServer::DropClient(CClient *cl, int reason)
 
 		// Send only if the text isn't <none>
 		if(buf != "<none>")
-			SendGlobalText(buf,TXT_NETWORK);
+			SendGlobalText(OldLxCompatibleString(buf),TXT_NETWORK);
 
 		// Reset variables
 		cl->setMuted(false);
@@ -761,7 +761,7 @@ void GameServer::DropClient(CClient *cl, int reason)
     // Send the client directly a dropped packet
     bs.Clear();
     bs.writeByte(S2C_DROPPED);
-    bs.writeString(cl_msg);
+    bs.writeString(OldLxCompatibleString(cl_msg));
     cl->getChannel()->getMessageBS()->Append(&bs);
 
 
@@ -834,7 +834,8 @@ void GameServer::kickWorm(int wormID)
 			SendGlobalPacket(&bs);
 
 			// Send the message
-			SendGlobalText(replacemax(networkTexts->sHasBeenKicked,"<player>", w->getName(), 1),TXT_NETWORK);
+			SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasBeenKicked,"<player>", w->getName(), 1)),
+						TXT_NETWORK);
 
 			// Now that a player has left, re-check the game status
 			RecheckGame();
@@ -930,7 +931,8 @@ void GameServer::banWorm(int wormID)
 			SendGlobalPacket(&bs);
 
 			// Send the message
-			SendGlobalText(replacemax(networkTexts->sHasBeenBanned,"<player>", w->getName(), 1),TXT_NETWORK);
+			SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasBeenBanned,"<player>", w->getName(), 1)),
+							TXT_NETWORK);
 
 			// Now that a player has left, re-check the game status
 			RecheckGame();
@@ -1012,7 +1014,8 @@ void GameServer::muteWorm(int wormID)
 	if (cClient)  {
 		if (cClient->OwnsWorm(w))  {
 			// Send the message
-			SendGlobalText(replacemax(networkTexts->sHasBeenMuted,"<player>", w->getName(), 1),TXT_NETWORK);
+			SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasBeenMuted,"<player>", w->getName(), 1)),
+							TXT_NETWORK);
 
 			// End here
 			return;
@@ -1023,8 +1026,9 @@ void GameServer::muteWorm(int wormID)
 	cl->setMuted(true);
 
 	// Send the text
-	if (networkTexts->sHasBeenUnmuted!="<none>")  {
-		SendGlobalText(replacemax(networkTexts->sHasBeenMuted,"<player>",w->getName(),1),TXT_NETWORK);
+	if (networkTexts->sHasBeenMuted!="<none>")  {
+		SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasBeenMuted,"<player>",w->getName(),1)),
+						TXT_NETWORK);
 	}
 }
 
@@ -1087,7 +1091,8 @@ void GameServer::unmuteWorm(int wormID)
 
 	// Send the message
 	if (networkTexts->sHasBeenUnmuted!="<none>")  {
-		SendGlobalText(replacemax(networkTexts->sHasBeenUnmuted,"<player>",w->getName(),1),TXT_NETWORK);
+		SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasBeenUnmuted,"<player>",w->getName(),1)),
+						TXT_NETWORK);
 	}
 }
 
