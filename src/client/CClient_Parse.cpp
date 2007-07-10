@@ -496,11 +496,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	CListview *lv = (CListview *)cChatList;
 	if (lv)  {
 		lv->Clear();
-		lines_iterator it = cChatbox.Begin();
-		byte i = 255; // Max 255 messages
+		lines_iterator it = cChatbox.At(cChatbox.getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
 		int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
 
-		for (; i && it != cChatbox.End(); i--, it++)  {
+		for (; it != cChatbox.End(); it++)  {
 
 			// Add only chat text
 			if (it->iColour == tLX->clChatText)  {

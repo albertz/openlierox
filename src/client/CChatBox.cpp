@@ -158,10 +158,29 @@ line_t *CChatBox::GetNewLine(void)
 	if (NewLines.empty())
 		return NULL;
 
-	static line_t result;
+	static line_t result; // We're giving a pointer to it, must always exist
 	result = *NewLines.begin();
 	NewLines.erase(NewLines.begin());
 
 	return &result;
 }
 
+////////////////////
+// Convert the index to iterator
+lines_iterator CChatBox::At(int i)  {
+	// Checks
+	if (i <= 0)
+		return WrappedLines.begin();
+
+	if (i >= WrappedLines.size())
+		return WrappedLines.end();
+
+	// Go to the right iterator
+	lines_iterator it = WrappedLines.begin();
+	while (i)  {
+		it++;
+		i--;
+	}
+
+	return it;
+}
