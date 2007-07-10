@@ -608,18 +608,21 @@ void Menu_Net_HostGotoLobby(void)
 	// Add the chat to the chatbox
 	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
 	if (lv)  {
-		line_t *l = NULL;
-		for (uint i=(uint)MAX((int)0,(int)(cClient->getChatbox()->getNumLines()-255));i<cClient->getChatbox()->getNumLines();i++)  {
-			l = cClient->getChatbox()->GetLine(i);
-			if (l) if (l->iColour == tLX->clChatText)  {
-				if(lv->getLastItem())
-					lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
-				else
-					lv->AddItem("", 0, l->iColour);
-				lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+		CChatBox *Chatbox = cClient->getChatbox();
+		lines_iterator it = Chatbox->Begin();
+		byte i = 255; // Max 255 messages
+		int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+
+		for (; it != Chatbox->End() && i; i--, it++)  {
+			if (it->iColour == tLX->clChatText)  {  // Add only chat messages
+				lv->AddItem("", id, it->iColour);
+				lv->AddSubitem(LVS_TEXT, it->strLine, NULL);
+				id++;
 			}
 		}
+
 		lv->scrollLast();
+		lv->setShowSelect(false);
 	}
 
 	cServer->UpdateGameLobby();

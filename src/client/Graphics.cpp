@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "FindFile.h"
 #include "GfxPrimitives.h"
 #include "Graphics.h"
 #include "Cursor.h"
@@ -74,6 +75,11 @@ bool LoadGraphics(void)
 	SetColorKey(gfxGame.bmpHealth);
 	SetColorKey(gfxGame.bmpSparkle);
     SetColorKey(gfxGame.bmpViewportMgr);
+
+	// Check that the default skin is available (game can crash without this skin!!)
+	if (!IsFileAvailable("skins/default.png"))
+		return false;
+
 
 	return true;
 }
@@ -164,7 +170,9 @@ void InitializeColors()  {
 
 	// Load the colours from a file
 	// TODO: recode this! this is not crossplatform and even not bpp-independent!
-/*	
+	// What's wrong with it? It uses MakeColour internally which should be ok... Give a
+	// suggestion how to fix it please
+	
 	const std::string colorfile = "data/frontend/colours.cfg";
 	ReadColour(colorfile,"Colours","ChatText",		 &tLX->clChatText,		tLX->clChatText);
 	ReadColour(colorfile,"Colours","Credits1",		 &tLX->clCredits1,		tLX->clCredits1);
@@ -240,13 +248,14 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","WeaponSelectionTitle",	&tLX->clWeaponSelectionTitle,	tLX->clWeaponSelectionTitle);
 	ReadColour(colorfile,"Colours","WeaponSelectionActive",	&tLX->clWeaponSelectionActive,	tLX->clWeaponSelectionActive);
 	ReadColour(colorfile,"Colours","WeaponSelectionDefault",&tLX->clWeaponSelectionDefault,	tLX->clWeaponSelectionDefault);
-	*/
+	
 }
 
 
 ///////////////////
 // Initialize the fonts
 bool LoadFonts()  {
+	tLX->cFont.SetVSpacing(0);
 	tLX->cOutlineFont.SetOutline(true);
 	tLX->cOutlineFont.SetSpacing(0);
 	tLX->cOutlineFontGrey.SetSpacing(0);

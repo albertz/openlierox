@@ -24,8 +24,8 @@ void CChatBox::Clear(void)
 {
 	Lines.clear();
 	WrappedLines.clear();
+	NewLines.clear();
 	nWidth = 500;
-	iNewLine = 0;
 }
 
 
@@ -42,18 +42,19 @@ void CChatBox::AddText(const std::string& txt, int colour, float time)
 	newline.fTime = time;
 	newline.iColour = colour;
 	newline.strLine = txt;
+	newline.iID = Lines.size();
 
 	// Add to lines
 	Lines.push_back(newline);
 
 	// Add to wrapped lines
-	AddWrapped(txt,colour,time);
+	AddWrapped(txt,colour,time,WrappedLines,true);
 }
 
 
 ////////////////////
 // Adds the text to wrapped lines
-void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
+void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new)
 {
 	//
 	// Wrap
@@ -67,11 +68,6 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
     // If this line is too long, break it up
 	buf = txt;
 	if((uint)tLX->cFont.GetWidth(txt) >= nWidth) {
-		// TODO: this cannot work and has to be redone
-		// 1. *it = '\0' don't cut std::string! (it's not a C-string)
-		// 2. what if buf.size()<2?
-		// 3. don't ever use int as a replacement for size_t
-		// (I would fix it myself, but no time atm, sorry ...)
 
 		size_t i;
 		for (i=buf.length()-2; (uint)tLX->cFont.GetWidth(buf) > nWidth && i >= 1; i--)
@@ -87,8 +83,8 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 
 		// Add the lines recursively
 		// Note: if the second line is also too long, it will be wrapped, because of recursion
-		AddWrapped(txt.substr(0,j),colour,time);  // Line 1
-		AddWrapped(txt.substr(j),colour,time);  // Line 2
+		AddWrapped(txt.substr(0,j), colour, time, lines, mark_as_new);  // Line 1
+		AddWrapped(txt.substr(j), colour, time, lines, mark_as_new);  // Line 2
 
 		return;
 	}
@@ -100,15 +96,12 @@ void CChatBox::AddWrapped(const std::string& txt, int colour, float time)
 
 	newline.fTime = time;
 	newline.iColour = colour;
-	newline.bNew = true;
 	newline.strLine = txt;
+	newline.iID = WrappedLines.size();
 
-	WrappedLines.push_back(newline);
-
-	iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()-1));
-
-	if (!WrappedLines[iNewLine].bNew)
-		iNewLine = WrappedLines.size()-1;
+	lines.push_back(newline);
+	if (mark_as_new)
+		NewLines.push_back(newline);
 }
 
 ///////////////////
@@ -117,45 +110,58 @@ void CChatBox::setWidth(int w)
 {
 	nWidth = w;
 	WrappedLines.clear();
+	NewLines.clear();
+
+	ct_lines_t::const_iterator i;
 
 	// Recalculate the wrapped lines
-	for (ct_lines_t::const_iterator i=Lines.begin();i!=Lines.end();i++)
-		AddWrapped(i->strLine,i->iColour,i->fTime);
-	iNewLine = WrappedLines.size();
+	for (i=Lines.begin();i!=Lines.end();i++)
+		AddWrapped(i->strLine,i->iColour,i->fTime, WrappedLines, false);
 
+	// Recalculate new lines
+	if (!NewLines.empty())  {
+		ct_lines_t wrapped_newlines;
+		for (i=NewLines.begin();i!=NewLines.end();i++)
+			AddWrapped(i->strLine, i->iColour, i->fTime, wrapped_newlines, false);
+		NewLines.clear();
+		NewLines = wrapped_newlines;
+	}
 }
 
 ///////////////////
 // Get a line from chatbox
 line_t *CChatBox::GetLine(int n)
 {
-	if (n >= 0 && n < (int)WrappedLines.size())  {
-		line_t *ln = &WrappedLines[n];
-		if (ln->bNew)  {
-			ln->bNew = false;
-			if (n == (int)iNewLine)  {
-				iNewLine++;
-				iNewLine = MAX(0,(int)MIN(iNewLine,(int)WrappedLines.size()-1));
-			}
+	lines_iterator it;
+	int i;
+	for (i = 0, it = WrappedLines.begin(); i <= n && it != WrappedLines.end(); it++, i++) {}
+
+	if (it == WrappedLines.end())
+		return NULL;
+
+	// Remove from new lines
+	lines_iterator it2 = NewLines.begin();
+	for (; it2 != NewLines.end(); it2++)
+		if (it2->iID == it->iID)  {
+			NewLines.erase(it2);
+			break;
 		}
-		return ln;
-	}
-	return NULL;
+
+	return &(*it);
 }
 
 /////////////////////
 // Get a new line from the chatbox
+// WARNING: not threadsafe
 line_t *CChatBox::GetNewLine(void)
 {
-	if (iNewLine >= 0 && iNewLine < WrappedLines.size())  {
-		line_t *ln = &WrappedLines[iNewLine];
-		if (ln->bNew)  {
-			ln->bNew = false;
-			iNewLine = MAX(0,(int)MIN(++iNewLine,(int)WrappedLines.size()-1));
-			ln->bNew = false;
-			return ln;
-		}
-	}
-	return NULL;
+	if (NewLines.empty())
+		return NULL;
+
+	static line_t result;
+	result = *NewLines.begin();
+	NewLines.erase(NewLines.begin());
+
+	return &result;
 }
 

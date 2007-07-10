@@ -496,16 +496,17 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	CListview *lv = (CListview *)cChatList;
 	if (lv)  {
 		lv->Clear();
-		line_t *l = NULL;
-		for (uint i=(uint)MAX((int)0,(int)(cChatbox.getNumLines()-254));i<cChatbox.getNumLines();i++)  {
-			l = cChatbox.GetLine(i);
+		lines_iterator it = cChatbox.Begin();
+		byte i = 255; // Max 255 messages
+		int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+
+		for (; i && it != cChatbox.End(); i--, it++)  {
+
 			// Add only chat text
-			if (l) if (l->iColour == tLX->clChatText)  {
-				if(lv->getLastItem() && lv->getItems())
-					lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
-				else
-					lv->AddItem("", 0, l->iColour);
-				lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+			if (it->iColour == tLX->clChatText)  {
+				lv->AddItem("", id, it->iColour);
+				lv->AddSubitem(LVS_TEXT, it->strLine, NULL);
+				id++;
 			}
 		}
 		lv->scrollLast();

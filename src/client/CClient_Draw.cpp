@@ -1339,15 +1339,16 @@ void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fg
 void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 {
 	int y = tInterfaceSettings.LocalChatY;
-	unsigned int i;
-	for(i=(uint)MAX((int)0,(int)cChatbox.getNumLines()-6);i<cChatbox.getNumLines();i++) {
-		line_t *l = cChatbox.GetLine(i);
+	lines_riterator it = cChatbox.RBegin();
+	byte i;
+
+	for(i = 0; i < 6 && it != cChatbox.REnd(); i++, it++) { // Last 6 messages
 
 		// This chat times out after a few seconds
-		if(l && tLX->fCurTime - l->fTime < 3) {
-			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, l->strLine); // Shadow
-			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, l->iColour, l->strLine);
-			y+=tLX->cFont.GetHeight()+1; // +1 - shadow
+		if(tLX->fCurTime - it->fTime < 3.0f) {
+			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, it->strLine); // Shadow
+			tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, it->iColour, it->strLine);
+			y += tLX->cFont.GetHeight()+1; // +1 - shadow
 		}
 	}
 }
@@ -1364,14 +1365,14 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 
 	// Get any new lines
 	line_t *l = NULL;
+	int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+
 	while((l = cChatbox.GetNewLine()) != NULL) {
 
-        if(lv->getLastItem())
-            lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
-        else
-            lv->AddItem("", 0, l->iColour);
+		lv->AddItem("", id, l->iColour);
         lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
 		lv->scrollLast();
+		id++;
 	}
 
     // If there are too many lines, remove the top one

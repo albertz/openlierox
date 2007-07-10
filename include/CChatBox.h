@@ -18,7 +18,7 @@
 #define __CCHATBOX_H__
 
 #include <SDL/SDL.h>
-#include <vector>
+#include <list>
 
 
 #define MAX_LLENGTH		128
@@ -29,10 +29,12 @@ class line_t { public:
 	std::string	strLine;
 	Uint32	iColour;
 	float	fTime;
-	bool	bNew;
+	unsigned int iID;
 };
 
-typedef std::vector<line_t> ct_lines_t;
+typedef std::list<line_t> ct_lines_t;
+typedef ct_lines_t::iterator lines_iterator;
+typedef ct_lines_t::reverse_iterator lines_riterator;
 
 class CChatBox {
 public:
@@ -41,15 +43,19 @@ public:
 		Clear();
 	}
 
+	~CChatBox() {
+		Clear();
+	}
+
 private:
 	// Attributes
 	ct_lines_t		Lines;
 	ct_lines_t		WrappedLines;
+	ct_lines_t		NewLines;
     unsigned int	nWidth;
-	unsigned int	iNewLine;
 
 	// Methods
-	void	AddWrapped(const std::string& txt, int colour, float time);
+	void	AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new);
 
 public:
 	// Methods
@@ -58,6 +64,10 @@ public:
 
     // Variables
 	line_t *GetLine(int n);
+	inline lines_iterator Begin()  { return WrappedLines.begin(); }
+	inline lines_iterator End()  { return WrappedLines.end(); }
+	inline lines_riterator RBegin()  { return WrappedLines.rbegin(); }
+	inline lines_riterator REnd()  { return WrappedLines.rend(); }
 	line_t *GetNewLine(void);
     void    setWidth(int w);
 	inline unsigned int		getNumLines(void)	{ return WrappedLines.size(); }

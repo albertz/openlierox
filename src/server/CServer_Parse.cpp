@@ -395,7 +395,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			}
 		}
 
-		if (wormsleft == 1 /*temphack*/ || wormsleft == 0) {
+		if (wormsleft <= 1) { // There can be also 0 players left (you play alone and suicide)
 			// Declare the winner
 			switch (iGameType)  {
 			case GMT_DEATHMATCH:
@@ -484,7 +484,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				}
 			}
 
-			if (teamsleft == 1) {
+			if (teamsleft <= 1) { // There can be also 0 teams left (you play TDM alone and suicide)
 				if (networkTexts->sTeamHasWon != "<none>")  {
 					replacemax(networkTexts->sTeamHasWon, "<team>", TeamNames[team], buf, 1);
 					SendGlobalText(buf, TXT_NORMAL);
