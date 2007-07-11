@@ -63,10 +63,8 @@ void CScrollbar::Draw(SDL_Surface *bmpDest)
 	DrawVLine(bmpDest, iY+14, iY+iHeight-14, iX+iWidth,tLX->clScrollbarBackLight);
 
 	// Slider
-	if(iMax >= iItemsperbox && iMax > 0) {
+	if(iMax > iItemsperbox && iMax > 0) {
 		length = (int)((float)iItemsperbox/(float)iMax * iHeight-30);
-		/*if(iMax == iItemsperbox)
-			length -= 3;*/
         length = MAX(length, 12);
         
 		int pos = iScrollPos;

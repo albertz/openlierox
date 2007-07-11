@@ -391,15 +391,9 @@ void CListview::ReadjustScrollbar(void)
 
 	// Buffer size on top & bottom
 	if (tColumns)
-		size += 13;
+		size += tLX->cFont.GetHeight() + 4;
 	if (bDrawBorder)
 		size += 4;
-
-	iGotScrollbar = false;
-	if(size >= iHeight)
-		iGotScrollbar = true;
-	else
-		cScrollbar.setValue(0);
 
 	if(count == 0) {
 		cScrollbar.setItemsperbox(0);
@@ -418,8 +412,7 @@ void CListview::ReadjustScrollbar(void)
     cScrollbar.setMax(count);
     cScrollbar.setValue(0);
 
-	//if(cScrollbar.getValue() + h > count)
-		//cScrollbar.setValue(count-h+1);
+	iGotScrollbar = count > h;
 }
 
 
