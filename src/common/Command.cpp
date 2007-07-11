@@ -472,17 +472,6 @@ void Cmd_Crash(void)
 	//		(I myself just tested this command without knowing and BANG,
 	//		I got an access violation. Perhaps the hoster of an important
 	//		clan war does it...)
-/*
-	// Let's make an access violation
-	char *crashbuf = NULL;
-	*(crashbuf+789456) = '\n';
-*/
-	//Include it, it's good for debugging
-	// (no, it is not, it's just unstable!)
-#if defined(_DEBUG) && defined(_MSC_VER)
-	char *crashbuf = NULL;
-	*crashbuf = '\n';
-#endif
 }
 
 ///////////////////

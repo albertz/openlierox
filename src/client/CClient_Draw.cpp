@@ -368,11 +368,13 @@ void CClient::Draw(SDL_Surface *bmpDest)
         DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
 
 	// Top bar
-	SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
-	if (top_bar)
-		DrawImage( bmpDest, top_bar, 0, 0);
-	else
-		DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
+	if (tLXOptions->tGameinfo.bTopBarVisible)  {
+		SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
+		if (top_bar)
+			DrawImage( bmpDest, top_bar, 0, 0);
+		else
+			DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
+	}
 
 
 	// Draw the viewports
@@ -387,7 +389,10 @@ void CClient::Draw(SDL_Surface *bmpDest)
         }
 
         // Mini-Map
-		cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
+		if (iNetStatus == NET_PLAYING)
+			cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
+		else
+			DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
 
 		//
 		// Players not yet ready
@@ -557,33 +562,36 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
 	cMap->Draw(bmpDest, v);
 
-    if( tLXOptions->iShadows ) {
-		// Draw the projectile shadows
-		DrawProjectileShadows(bmpDest, v);
+	// The following will be drawn only when playing
+	if (iNetStatus == NET_PLAYING)  {
+		if( tLXOptions->iShadows ) {
+			// Draw the projectile shadows
+			DrawProjectileShadows(bmpDest, v);
 
-        // Draw the worm shadows
-        CWorm *w = cRemoteWorms;
-        for(short i=0;i<MAX_WORMS;i++,w++) {
-            if(w->isUsed() && w->getAlive())
-                w->DrawShadow(bmpDest, v);
-        }
-    }
+			// Draw the worm shadows
+			CWorm *w = cRemoteWorms;
+			for(short i=0;i<MAX_WORMS;i++,w++) {
+				if(w->isUsed() && w->getAlive())
+					w->DrawShadow(bmpDest, v);
+			}
+		}
 
-	// Draw the entities
-	DrawEntities(bmpDest, v);
+		// Draw the entities
+		DrawEntities(bmpDest, v);
 
-	// Draw the projectiles
-	DrawProjectiles(bmpDest, v);
+		// Draw the projectiles
+		DrawProjectiles(bmpDest, v);
 
-	// Draw the bonuses
-	DrawBonuses(bmpDest, v);
+		// Draw the bonuses
+		DrawBonuses(bmpDest, v);
 
-	// Draw all the worms in the game
-	ushort i;
-	CWorm *w = cRemoteWorms;
-	for(i=0;i<MAX_WORMS;i++,w++) {
-		if(w->isUsed() && w->getAlive())
-			w->Draw(bmpDest, v);
+		// Draw all the worms in the game
+		ushort i;
+		CWorm *w = cRemoteWorms;
+		for(i=0;i<MAX_WORMS;i++,w++) {
+			if(w->isUsed() && w->getAlive())
+				w->Draw(bmpDest, v);
+		}
 	}
 
 	// Disable the special clipping
