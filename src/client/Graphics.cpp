@@ -169,10 +169,6 @@ void InitializeColors()  {
 	tLX->clWeaponSelectionTitle = tLX->clWhite;
 
 	// Load the colours from a file
-	// TODO: recode this! this is not crossplatform and even not bpp-independent!
-	// What's wrong with it? It uses MakeColour internally which should be ok... Give a
-	// suggestion how to fix it please
-	
 	const std::string colorfile = "data/frontend/colours.cfg";
 	ReadColour(colorfile,"Colours","ChatText",		 &tLX->clChatText,		tLX->clChatText);
 	ReadColour(colorfile,"Colours","Credits1",		 &tLX->clCredits1,		tLX->clCredits1);

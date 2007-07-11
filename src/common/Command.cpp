@@ -478,7 +478,8 @@ void Cmd_Crash(void)
 	*(crashbuf+789456) = '\n';
 */
 	//Include it, it's good for debugging
-#if DEBUG == 1 || defined(_DEBUG)
+	// (no, it is not, it's just unstable!)
+#if defined(_DEBUG) && defined(_MSC_VER)
 	char *crashbuf = NULL;
 	*crashbuf = '\n';
 #endif
