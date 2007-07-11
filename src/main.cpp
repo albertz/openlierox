@@ -294,9 +294,6 @@ int main(int argc, char *argv[])
 			tLX->fDeltaTime = tLX->fCurTime - oldtime;
 			oldtime = tLX->fCurTime;
 						
-			// cap the delta
-			tLX->fDeltaTime = MIN(tLX->fDeltaTime, 0.5f);
-
 			ProcessEvents();
 
 			// Main frame

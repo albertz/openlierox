@@ -115,6 +115,7 @@ inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a
 	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
 	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2);
 	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format,
+		// TODO: is force_in_range necesary here?
 		(Uint8) force_in_range(R1 * not_a + R2 * a, 0.0f, 255.0f),
 		(Uint8) force_in_range(G1 * not_a + G2 * a, 0.0f, 255.0f),
 		(Uint8) force_in_range(B1 * not_a + B2 * a, 0.0f, 255.0f),
@@ -256,9 +257,9 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 
 	// Dest clipping
 	if (dx<0)  { sx-=dx; w+=dx; dx=0;}
-	else if (dx+w > bmpDest->w)  { w = bmpDest->w-dx; }
+	else if (dx + 2*w > bmpDest->w)  { w = (bmpDest->w-dx) / 2; }
 	if (dy<0)  { sy-=dy; h+=dy; dy=0;}
-	else if (dy+h > bmpDest->h)  { h = bmpDest->h-dy; }
+	else if (dy + 2*h > bmpDest->h)  { h = (bmpDest->h-dy) / 2; }
 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;

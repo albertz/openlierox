@@ -376,7 +376,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 
 	// Draw the viewports
-	if(iNetStatus == NET_PLAYING) {
+	if((iNetStatus == NET_CONNECTED && iGameReady) || (iNetStatus == NET_PLAYING)) {
 
         // Draw the viewports
         for( i=0; i<NUM_VIEWPORTS; i++ ) {
@@ -386,43 +386,37 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			}
         }
 
-        //
         // Mini-Map
-        //
-
 		cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
-	}
 
+		//
+		// Players not yet ready
+		//
 
-	// Connected
-	else if(iNetStatus == NET_CONNECTED && iGameReady) {
-		bool ready = true;
+		if (iNetStatus == NET_CONNECTED)  {
+			bool ready = true;
 
-		// Go through and draw the first two worms select menus
-		for(i=0;i<num;i++) {
+			// Go through and draw the first two worms select menus
+			for(i=0;i<num;i++) {
 
-			// Draw Map
-            if( cViewports[i].getUsed() )  {
-			    cMap->Draw(bmpDest, &cViewports[i]);
+				// Select weapons
+				if(!cLocalWorms[i]->getWeaponsReady()) {
+					ready = false;
+					cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
+				}
 			}
 
-			// Select weapons
-			if(!cLocalWorms[i]->getWeaponsReady()) {
-				ready = false;
-				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
+			// If we're ready, let the server know
+			if(ready && !iReadySent) {
+				iReadySent = true;
+				CBytestream *bytes = cNetChan.getMessageBS();
+				bytes->writeByte(C2S_IMREADY);
+				bytes->writeByte(iNumWorms);
+
+				// Send my worm's weapon details
+				for(i=0;i<iNumWorms;i++)
+					cLocalWorms[i]->writeWeapons(bytes);
 			}
-		}
-
-		// If we're ready, let the server know
-		if(ready && !iReadySent) {
-			iReadySent = true;
-			CBytestream *bytes = cNetChan.getMessageBS();
-			bytes->writeByte(C2S_IMREADY);
-			bytes->writeByte(iNumWorms);
-
-			// Send my worm's weapon details
-			for(i=0;i<iNumWorms;i++)
-				cLocalWorms[i]->writeWeapons(bytes);
 		}
 	}
 
@@ -469,15 +463,13 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		// Send every second
 		if (tLX->fCurTime - fMyPingRefreshed > 1) {
-			CBytestream *bs = cClient->getChannel()->getMessageBS();
 			CBytestream ping;
 
 			ping.Clear();
 			ping.writeInt(-1,4);
 			ping.writeString("%s","lx::ping");
 
-			bs->Append(&ping);
-			bs->Send(cClient->getChannel()->getSocket());
+			ping.Send(cClient->getChannel()->getSocket());
 
 			fMyPingSent = tLX->fCurTime;
 			fMyPingRefreshed = tLX->fCurTime;

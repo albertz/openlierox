@@ -80,14 +80,14 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	if (!bCustomScrollbarSetup)  {
 		if (bDrawBorder)
 			y += 2;
-		cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight - (y - iY));
+		cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight - y + iY - 1);
 	}
 
 	x = iX+4;
 	lv_item_t *item = tItems;
 	int count=0;
 
-	int right_bound = x+iWidth-3;
+	int right_bound = iX+iWidth-3;
 	if(iGotScrollbar || bAlwaysVisibleScrollbar)
 		right_bound = MIN(cScrollbar.getX() - 2, iX + iWidth - 3);
 

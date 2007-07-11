@@ -271,18 +271,21 @@ void Menu_NetFrame(void)
 		}
 	}
 
-	Menu_redrawBufferRect(tLoadingRect.x, tLoadingRect.y, tLoadingRect.w, tLoadingRect.h);
-	if (!tIpToCountryDB->Loaded())  {
+	// Don't draw in host lobby/join (no space for it)
+	if (!(iNetMode == net_host && iHostType == 1) && iNetMode != net_join)  {
+		Menu_redrawBufferRect(tLoadingRect.x, tLoadingRect.y, tLoadingRect.w, tLoadingRect.h);
+		if (!tIpToCountryDB->Loaded())  {
 
-		// Draw the animation
-		cIpToCountryAnim.Draw( tMenu->bmpScreen );
+			// Draw the animation
+			cIpToCountryAnim.Draw( tMenu->bmpScreen );
 
-		// Draw the label
-		cIpToCountryLabel.Draw( tMenu->bmpScreen );
+			// Draw the label
+			cIpToCountryLabel.Draw( tMenu->bmpScreen );
 
-		// Setup and draw the progressbar
-		cIpToCountryProgress.SetPosition(tIpToCountryDB->GetProgress());
-		cIpToCountryProgress.Draw( tMenu->bmpScreen );
+			// Setup and draw the progressbar
+			cIpToCountryProgress.SetPosition(tIpToCountryDB->GetProgress());
+			cIpToCountryProgress.Draw( tMenu->bmpScreen );
+		}
 	}
 
 
