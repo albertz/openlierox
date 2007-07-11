@@ -1205,8 +1205,6 @@ void GameServer::ParseQuery(CBytestream *bs) {
 	bytestr.writeByte(num);
 
 	bytestr.Send(tSocket);
-
-	printf("sv: Sending query return\n");
 }
 
 
