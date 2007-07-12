@@ -356,7 +356,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	// Pre-calculate some things, so the loop is faster
 	int doublepitch = bmpDest->pitch * 2;
 	byte bpp = bmpDest->format->BytesPerPixel;
-	byte doublebpp = bpp * 2;
+	byte doublebpp = (byte)(bpp * 2);
 	key = SDLColourToNativeColour(key, bmpSrc->format->BytesPerPixel);
 
     for(y=0;y<h;y++) {
@@ -439,7 +439,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	// Pre-calculate some things, so the loop is faster
 	int doublepitch = bmpDest->pitch*2;
 	byte bpp = bmpDest->format->BytesPerPixel;
-	byte doublebpp = bpp*2;
+	byte doublebpp = (byte)(bpp*2);
 	int realw = w*bpp;
 	key = SDLColourToNativeColour(key, bmpSrc->format->BytesPerPixel);
 
@@ -490,15 +490,15 @@ void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, f
 	if (sx > (src_cliprect.x + src_cliprect.w) || (sx + sw) <= 0) return;
 	if (sy > (src_cliprect.y + src_cliprect.h) || (sy + sh) <= 0) return;
 	if ( (sx + sw) > (src_cliprect.x + src_cliprect.w) )
-		sw = (src_cliprect.x + src_cliprect.w) - sx;
+		sw = (int)((float)(src_cliprect.x + src_cliprect.w) - sx);
 	if ( (sy + sh) > (src_cliprect.y + src_cliprect.h) )
-		sh = (src_cliprect.y + src_cliprect.h) - sy;
+		sh = (int)((float)(src_cliprect.y + src_cliprect.h) - sy);
 	if (sx < 0)  {
-		sw += sx;
+		sw += (int)sx;
 		sx = 0;
 	}
 	if (sy < 0)  {
-		sh += sy;
+		sh += (int)sy;
 		sy = 0;
 	}
 
@@ -574,7 +574,7 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx,
 
 	// For 1px width/height no one will notice the difference and it will 
 	// avoid many checks here
-	if (sw < 2 || sh < 2)  {
+	if (sw < 2.0f || sh < 2.0f)  {
 		DrawImageResizedAdv(bmpDest, bmpSrc, sx, sy, dx, dy, sw, sh, xratio, yratio);
 		return;
 	}
@@ -588,18 +588,18 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx,
 	SDL_GetClipRect(bmpDest, &dst_cliprect);
 
 	// Source clipping
-	if (sx > (src_cliprect.x + src_cliprect.w) || (sx + sw) <= 0) return;
-	if (sy > (src_cliprect.y + src_cliprect.h) || (sy + sh) <= 0) return;
+	if (sx > (float)(src_cliprect.x + src_cliprect.w) || (sx + sw) <= 0) return;
+	if (sy > (float)(src_cliprect.y + src_cliprect.h) || (sy + sh) <= 0) return;
 	if ( (sx + sw) > (src_cliprect.x + src_cliprect.w) )
-		sw = (src_cliprect.x + src_cliprect.w) - sx;
+		sw = (int)((float)(src_cliprect.x + src_cliprect.w) - sx);
 	if ( (sy + sh) > (src_cliprect.y + src_cliprect.h) )
-		sh = (src_cliprect.y + src_cliprect.h) - sy;
+		sh = (int)((float)(src_cliprect.y + src_cliprect.h) - sy);
 	if (sx < 0)  {
-		sw += sx;
+		sw += (int)sx;
 		sx = 0;
 	}
 	if (sy < 0)  {
-		sh += sy;
+		sh += (int)sy;
 		sy = 0;
 	}
 
