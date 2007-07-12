@@ -64,6 +64,8 @@ const float	R2D(5.729578e+1f); // radians to degrees
 class lierox_t { public:
 	float	fCurTime;
 	float	fDeltaTime;
+	float	fRealDeltaTime; // Delta time used for network synchronization,
+							// it is not clamped like the previous one
 	CFont	cFont;
 	CFont	cOutlineFont;
 	CFont	cOutlineFontGrey;

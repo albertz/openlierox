@@ -415,7 +415,7 @@ void GameServer::Frame(void)
 {
 	// Playing frame
 	if(iState == SVS_PLAYING) {
-		fServertime += tLX->fDeltaTime;
+		fServertime += tLX->fRealDeltaTime;
 		iServerFrame++;
 	}
 

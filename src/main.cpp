@@ -292,6 +292,7 @@ int main(int argc, char *argv[])
 
 			// Timing
 			tLX->fDeltaTime = tLX->fCurTime - oldtime;
+			tLX->fRealDeltaTime = tLX->fDeltaTime;
 			oldtime = tLX->fCurTime;
 
 			// cap the delta 	 

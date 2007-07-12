@@ -127,16 +127,16 @@ void GameServer::SimulateGame(void)
 
 		// Add their time in a game of tag
 		if(iGameType == GMT_TAG && w->getTagIT() && w->getAlive())  {
-			w->incrementTagTime(tLX->fDeltaTime);
+			w->incrementTagTime(tLX->fRealDeltaTime);
 
 			// Log
 			log_worm_t *logworm = GetLogWorm(w->getID());
 			if (logworm)
-				logworm->fTagTime += tLX->fDeltaTime;
+				logworm->fTagTime += tLX->fRealDeltaTime;
 		}
 
 		// Simulate the worm's weapons
-		w->SimulateWeapon( tLX->fDeltaTime );
+		w->SimulateWeapon( tLX->fRealDeltaTime );
 	}
 
 

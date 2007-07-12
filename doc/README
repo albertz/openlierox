@@ -9,7 +9,7 @@ It's some type of a real-time, excessive clone of Worms.
 
 	About
 	=====
-OpenLieroX is based on Jason Boettchers famous Liero Xtreme.
+OpenLieroX is based on Jason Boettcher's famous Liero Xtreme.
 ( Take a look here: http://lxalliance.net/lierox/ )
 Jason B. has released his work in 2006 under the zlib-licence
 and after some months of work, we ported and enhanced his work
@@ -19,10 +19,10 @@ and got OpenLieroX.
 	Compilation
 	===========
 There are 2 ways to compile the game. The easier one is to use
-the compile.sh script, which do everything for you. Take a look
-inside for additional options. Basically, you have to call
+the compile.sh script, which does everything for you. Take a look
+inside for additional options. Basically, you call
 	./compile.sh
-or for example, if you want to have HawkNL support builtin (it
+or, if you want to have HawkNL support builtin (it
 would be linked against otherwise)
 	HAWKNL_BUILTIN=1 ./compile.sh
 
@@ -52,7 +52,7 @@ The game uses case insensitive filenames (it will use the first
 found on case sensitive filesystems).
 The game searches the paths ~/.OpenLieroX, ./ and /usr/share/OpenLieroX
 (or under Gentoo: /usr/share/games/OpenLieroX) for game-data
-(all path are relativ to this bases) (in this order) by default.
+(all path are relative to this bases) (in this order) by default.
 You can also add more searchpathes and change this in cfg/options.cfg.
 Own modified configs, screenshots and other stuff always will
 be stored in ~/.OpenLieroX.
