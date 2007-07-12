@@ -8,7 +8,6 @@
 // code under LGPL
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"

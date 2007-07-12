@@ -14,7 +14,6 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
 #include "StringUtils.h"

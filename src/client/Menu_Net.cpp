@@ -14,8 +14,8 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
+#include "Error.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 

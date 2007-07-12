@@ -17,8 +17,10 @@
 // By Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
+#include "AuxLib.h"  // for GetConfig()
+#include "Error.h"
+#include "ConfigHandler.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
 

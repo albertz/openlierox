@@ -18,8 +18,9 @@
 
 #include <stdarg.h>
 
-#include "defs.h"
 #include "LieroX.h"
+#include "AuxLib.h"
+#include "Error.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 

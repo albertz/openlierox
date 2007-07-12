@@ -14,7 +14,6 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
@@ -66,7 +65,7 @@ void CCheckbox::LoadStyle(void/*node_t *cssNode*/)
 		}
 		// Unknown
 		else {
-			GuiSkinError("Warning: Unknown property %s in main Checkbox class",prop->sName);
+			printf("Warning: Unknown property %s in main Checkbox class",prop->sName);
 		}
 	}
 }

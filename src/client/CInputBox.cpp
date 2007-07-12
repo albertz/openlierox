@@ -14,7 +14,6 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
@@ -24,7 +23,7 @@
 // Draw the input box
 void CInputbox::Draw(SDL_Surface *bmpDest)
 {
-    Menu_redrawBufferRect(iX,iY, bmpImage->w,tLX->cFont.GetHeight());
+    Menu_redrawBufferRect(iX,iY, bmpImage->w, MAX(bmpImage->h, tLX->cFont.GetHeight()));
 
 	int y=0;
 	if(iMouseOver)

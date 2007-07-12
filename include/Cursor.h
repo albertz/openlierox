@@ -37,6 +37,9 @@ enum {
 	CUR_AIM  // for future use, cursors like cross
 };
 
+extern int iMaxCursorWidth;
+extern int iMaxCursorHeight;
+
 // Cursor class
 class CCursor  {
 public:
@@ -69,5 +72,7 @@ void SetGameCursor(int c);
 void DrawCursor(SDL_Surface *dst);
 int GetCursorHeight(int c);
 int GetCursorWidth(int c);
+inline int GetMaxCursorHeight()  { return iMaxCursorHeight; }
+inline int GetMaxCursorWidth()  { return iMaxCursorWidth; }
 
 #endif // __CURSOR_H_

@@ -20,8 +20,8 @@
 #include <assert.h>
 #include <gd.h>
 
-#include "defs.h"
 #include "LieroX.h"
+#include "MathLib.h"
 #include "GfxPrimitives.h"
 #include "CServer.h"
 #include "Cache.h"

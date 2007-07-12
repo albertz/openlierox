@@ -17,8 +17,8 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include <time.h>
+#include "Timer.h"
 
 int		Frames = 0;
 float	OldFPSTime = 0;

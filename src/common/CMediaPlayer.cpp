@@ -3,11 +3,12 @@
 // code under LGPL
 
 
-#include "defs.h"
 
 #ifdef WITH_MEDIAPLAYER
 
 #include "LieroX.h"
+#include "MathLib.h"
+#include "AuxLib.h"
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"

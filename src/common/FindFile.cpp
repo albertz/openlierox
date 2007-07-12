@@ -24,7 +24,6 @@
 #ifdef WIN32
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	include <shlobj.h>
-#	include "defs.h" // for strnlen
 
 #else // WIN32
 
@@ -66,7 +65,6 @@ bool IsFileAvailable(const std::string& f, bool absolute) {
 	}
 
 	// HINT: this should also work on WIN32, as we have _stat here
-	// (see the #include and #define in defs.h)
 	struct stat s;
 	if(stat(abs_f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
 		// it's not stat-able or not a reg file
@@ -147,7 +145,6 @@ bool IsPathStatable(const std::string& f) {
 	}
 
 	// HINT: this should also work on WIN32, as we have _stat here
-	// (see the #include and #define in defs.h)
 	struct stat s;
 	return (stat(abs_f.c_str(), &s) == 0); // ...==0, if successfull
 }

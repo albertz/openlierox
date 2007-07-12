@@ -15,9 +15,11 @@
 
 #include <assert.h>
 
-#include "defs.h"
 #include "EndianSwap.h"
 #include "LieroX.h"
+#include "AuxLib.h"
+#include "Error.h"
+#include "ConfigHandler.h"
 #include "CClient.h"
 #include "IpToCountryDB.h"
 #include "Graphics.h"
@@ -330,11 +332,17 @@ void Menu_RedrawMouse(int total)
 		return;
 	}
 
+	int hw = GetMaxCursorWidth() / 2;
+	int hh = GetMaxCursorHeight() / 2;
+
 	mouse_t *m = GetMouse();
 	DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer,
-				m->X-30,m->Y-30,
-				m->X-30,m->Y-30,
-				60,60);
+				m->X - hw - m->deltaX,
+				m->Y - hh - m->deltaY,
+
+				m->X - hw - m->deltaX,
+				m->Y - hh - m->deltaY,
+				GetMaxCursorWidth(), GetMaxCursorHeight());
 }
 
 

@@ -17,7 +17,6 @@
 #include <iostream>
 #include <assert.h>
 
-#include "defs.h"
 #include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
@@ -103,7 +102,7 @@ void xmlEntities(std::string& text)
 
 
 
-// for GetByteSwapped, declared in defs.h
+// for GetByteSwapped, declared in EndianSwap.h
 // TODO: remove this from here (or not?)
 unsigned char byteswap_buffer[16];
 

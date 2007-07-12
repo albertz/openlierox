@@ -8,8 +8,8 @@
 // code under LGPL
 
 
-#include "defs.h"
 #include "LieroX.h"
+#include "MathLib.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
@@ -310,7 +310,7 @@ void CBox::LoadStyle(void/*node_t *cssNode*/)
 		}
 		// Unknown
 		else {
-			GuiSkinError("Warning: Unknown property %s in main Checkbox class",prop->sName);
+			printf("Warning: Unknown property %s in main Checkbox class",prop->sName);
 		}
 	}
 }

@@ -15,7 +15,6 @@
 // Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "CChannel.h"
 

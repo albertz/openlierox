@@ -12,7 +12,9 @@
  * Changed a little bit for OpenLieroX.
  */
 
-#include "defs.h"
+#include "LieroX.h"
+#include "MathLib.h"
+
 
 static char     *faster[] = {
   "\"Let the games begin!\"",             "\"Sweet Jesus!\"",

@@ -15,8 +15,8 @@
 
 #include <assert.h>
 
-#include "defs.h"
 #include "LieroX.h"
+#include "AuxLib.h"
 #include "Menu.h"
 #include "StringUtils.h"
 

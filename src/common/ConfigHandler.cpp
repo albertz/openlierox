@@ -17,8 +17,8 @@
 // By Jason Boettcher
 
 
-#include "defs.h"
 #include "LieroX.h"
+#include "ConfigHandler.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 

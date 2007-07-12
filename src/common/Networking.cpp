@@ -13,8 +13,9 @@
 // Created 18/12/02
 // Jason Boettcher
 
-#include "defs.h"
 #include "LieroX.h"
+#include "Error.h"
+#include "Networking.h"
 #include "Utils.h"
 #include "StringUtils.h"
 
@@ -93,7 +94,7 @@ bool http_InitializeRequest(const std::string& host, const std::string& url)
     // Ie, '/'s from host goes into url
     http_CreateHostUrl(host, url);
 
-    d_printf("Sending HTTP request %s %s\n",http_host.c_str(), http_url.c_str());
+    printf("Sending HTTP request %s %s\n",http_host.c_str(), http_url.c_str());
 
 	http_content = "";
 

@@ -18,7 +18,6 @@
 
 #include <stdarg.h>
 
-#include "defs.h"
 #include "CBytestream.h"
 #include "EndianSwap.h"
 #include "StringUtils.h"
@@ -30,7 +29,7 @@ void CBytestream::Append(CBytestream *bs)
 {
 	// Check to make sure we don't overflow the buffer
 	if(CurByte + bs->GetLength() >= MAX_DATA) {
-		d_printf("byte stream is too big to append any extra data\n");
+		printf("byte stream is too big to append any extra data\n");
 		return;
 	}
 

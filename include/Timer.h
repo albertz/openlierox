@@ -20,6 +20,9 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+#include <string>
+#include <SDL/SDL.h>
+
 ///////////////////
 // Get the number of milliseconds since SDL started the timer
 inline float	GetMilliSeconds(void) { return (float)SDL_GetTicks() * 0.001f; }

@@ -11,7 +11,6 @@
 /////////////////////////////////////////
 
 
-#include "defs.h"
 #include "LieroX.h"
 #include "FindFile.h"
 #include "CBanList.h"

@@ -31,6 +31,9 @@ CCursor *tCurrentCursor = NULL;
 CCursor *tCursors[CURSOR_COUNT] = {NULL, NULL, NULL, NULL}; // TODO: any cursor_count independent way?
 float fCursorFrameTime = 0.2f;
 
+int iMaxCursorWidth = 0;
+int iMaxCursorHeight = 0;
+
 //////////////////
 // Initialize cursors
 bool InitializeCursors()
@@ -46,11 +49,22 @@ bool InitializeCursors()
 	// Load the frame time from external config
 	ReadFloat("data/frontend/frontend.cfg","Cursors","FrameTime",&fCursorFrameTime,0.2f);
 
-	// Check that all were loaded correctly
+	// Check that all were loaded correctly and calculate maximal width/height
+	bool result = true;
 	for (byte i=0;i<CURSOR_COUNT;i++)
-		if (!tCursors[i])
-			return false;
-	return true;
+		if (tCursors[i])  {
+			// Max width/height
+			if (tCursors[i]->GetWidth() > iMaxCursorWidth)
+				iMaxCursorWidth = tCursors[i]->GetWidth();
+
+			if (tCursors[i]->GetHeight() > iMaxCursorHeight)
+				iMaxCursorHeight = tCursors[i]->GetHeight();
+		} else {
+			result = false;
+		}
+
+
+	return result;
 }
 
 //////////////////
@@ -99,7 +113,6 @@ int GetCursorWidth(int c)  {
 	else
 		return tCursors[c]->GetWidth();
 }
-
 
 
 

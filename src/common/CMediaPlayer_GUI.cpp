@@ -2,11 +2,10 @@
 // Made by Dark Charlie and Albert Zeyer
 // code under LGPL
 
-#include "defs.h"
-
 #ifdef WITH_MEDIAPLAYER
 
 #include "LieroX.h"
+#include "AuxLib.h"
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"

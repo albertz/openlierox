@@ -16,8 +16,11 @@
 // Created 20/12/01
 // Jason Boettcher
 
+#include <stdlib.h>
+#include <math.h>
+#include "Utils.h" // for MIN
+#include "MathLib.h"
 
-#include "defs.h"
 
 const int HALF_RAND = (RAND_MAX / 2);
 
