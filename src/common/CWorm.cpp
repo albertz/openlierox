@@ -897,7 +897,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	if (iDrawMuzzle)  {
 		switch(iDirection) {
 
-		case DIR_RIGHT:  {
+		case DIR_RIGHT:
 			ang = (int)( (fAngle+90)/151 * 7 );
 			ang = 6-ang;
 			f = ang*16;
@@ -905,36 +905,21 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 				(x-12)+RightMuzzle[ang*2],
 				(y-10)+RightMuzzle[ang*2+1],
 				16,16,COLORKEY(gfxGame.bmpMuzzle));
-		}
-		break;
+			break;
 
-		case DIR_LEFT: {
+		case DIR_LEFT:
 			ang = (int)( (fAngle+90)/151 * 7 );
 			f = (ang+7)*16;
-			
-			
-			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,(x-21)+LeftMuzzle[ang*2],
-															   (y-10)+LeftMuzzle[ang*2+1],
-															   16,16,COLORKEY(gfxGame.bmpMuzzle));
-		}
-		break;
+			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
+				(x-21)+LeftMuzzle[ang*2],
+				(y-10)+LeftMuzzle[ang*2+1],
+				16,16,COLORKEY(gfxGame.bmpMuzzle));
+			break;
 
 		}  // switch
 	} // if
 	iDrawMuzzle = false;
 	
-
-
-
-
-	/*wpnslot_t *Slot = &tWeapons[CurrentWeapon];
-
-	// Draw the player's weapon info
-	DrawRectFill(bmpDest,l,t+3,l+Health,t+8,MakeColour(64,255,64));
-	DrawRectFill(bmpDest,l,t+10,l+(Slot->Charge * 100.0f),t+15,MakeColour(64,64,255));
-
-	if(Slot->Reloading)
-		GfxGui.Font.Draw(bmpDest,l,t+5,tLX->clWhite,"Reloading...");*/
 
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
@@ -958,8 +943,6 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 		else
 		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,sName);
 
-		//if(iTagIT)
-		//	tLX->cFont.DrawCentre(bmpDest, x,y+20, tLX->clWhite,"%s", "IT");
 	}
 }
 
@@ -980,12 +963,12 @@ int CWorm::CheckOnGround()
 	int px = (int)vPos.x;
 	int py = (int)vPos.y;
 
-	for(byte y=6;y>0;y--) {
+	for(short y = 6; y > 0; y--) {
 
 		// Optimize: pixelflag + Width
-		if(!(pcMap->GetPixelFlag(px-2,py+y) & PX_EMPTY))
+		if(!(pcMap->GetPixelFlag(px - 2, py + y) & PX_EMPTY))
 			return true;
-		if(!(pcMap->GetPixelFlag(px+2,py+y) & PX_EMPTY))
+		if(!(pcMap->GetPixelFlag(px + 2, py + y) & PX_EMPTY))
 			return true;
 	}
 
@@ -998,9 +981,9 @@ int CWorm::CheckOnGround()
 // Returns true if i was killed by this injury
 int CWorm::Injure(int damage)
 {
-	iHealth-=damage;
+	iHealth -= damage;
 
-	if(iHealth<0) {
+	if(iHealth < 0) {
 		iHealth = 0;
 		return true;
 	}
@@ -1032,7 +1015,7 @@ int CWorm::CheckBonusCollision(CBonus *b)
 {
 	CVec diff = vPos - b->getPosition();
 
-	return fabs(diff.x) < 7 &&  fabs(diff.y) < 7;
+	return (fabs(diff.x) < 7) && (fabs(diff.y) < 7);
 }
 
 
@@ -1091,7 +1074,5 @@ int CWorm::GetMyPing(void)
 // Resturns true, if we can start typing
 int CWorm::CanType(void)
 {
-	int result = 0;
-	result += cUp.isDown() + cDown.isDown() + cLeft.isDown() + cRight.isDown() + cShoot.isDown() + cJump.isDown() + cSelWeapon.isDown() + cInpRope.isDown();
-	return result == 0;
+	return (cUp.isDown() + cDown.isDown() + cLeft.isDown() + cRight.isDown() + cShoot.isDown() + cJump.isDown() + cSelWeapon.isDown() + cInpRope.isDown()) == 0;
 }

@@ -222,11 +222,7 @@ void ShutdownOptions(void)
 void GameOptions::SaveToDisc()
 {
     const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-#ifdef WITH_MEDIAPLAYER
     const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
-#else  // Without Media Player
-	const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "ToggleTopBar", ""};
-#endif
     int     i;
 
     FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
