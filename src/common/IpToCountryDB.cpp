@@ -162,13 +162,28 @@ public:
 	IpToCountryData() : loader(NULL), fileSize(0), dbReady(true), loaderBreakSignal(false) { filePos = 0; }
 	
 	~IpToCountryData() {
+		breakLoaderThread();
+		data.clear();
+	}
+
+	// Cancel the loading
+	void breakLoaderThread()  {
+		// Thread not created
+		if (loader == NULL)
+			return;
+
 		if(!dbReady) {
-			cout << "IpToCountryDB destroying: " << filename << " is still loading ..." << endl;
+			cout << "IpToCountryDB destroying thread: " << filename << " is still loading ..." << endl;
 			loaderBreakSignal = true;
 			while(!dbReady) { SDL_Delay(100); }
 		}
 		
-		data.clear();
+		SDL_WaitThread(loader, NULL); // This destroys the thread
+
+		// Cleanup
+		loader = NULL;
+		dbReady = false;
+		loaderBreakSignal = false;
 	}
 
 	// HINT: this should only called from the mainthread
@@ -178,10 +193,8 @@ public:
 		if (filename == fn)
 			return;
 
-		if(!dbReady) {
-			cout << "IpToCountryDB loadFile: other file " << filename << " is still loading ..." << endl;
-			while(!dbReady) { SDL_Delay(100); }
-		}
+		// Destroy any previous loading
+		breakLoaderThread();
 		dbReady = false;
 		loaderBreakSignal = false;
 		
