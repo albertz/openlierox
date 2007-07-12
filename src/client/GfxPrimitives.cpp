@@ -463,10 +463,10 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 
 /////////////////////////
 // Draw the image resized
-void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
+void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
 {
-	int dw = Round((float)sw * xratio);
-	int dh = Round((float)sh * yratio);
+	int dw = (int)((float)sw * xratio);
+	int dh = (int)((float)sh * yratio);
 
 	// Clipping rectangle
 	SDL_Rect src_cliprect, dst_cliprect;
@@ -507,8 +507,8 @@ void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 
 	float xstep = (float)sw/(float)dw; // X step we'll do on the source surface
 	float ystep = (float)sh/(float)dh; // Y step we'll do on the source surface
-	float src_xstart = Round((float)sx/xstep) * xstep; // Starting X coordinate on source surface
-	float src_ystart = Round((float)sy/ystep) * ystep; // Starting Y coordinate on source surface
+	float src_xstart = (int)((float)sx/xstep) * xstep; // Starting X coordinate on source surface
+	float src_ystart = (int)((float)sy/ystep) * ystep; // Starting Y coordinate on source surface
 	float src_x, src_y;  // Current coordinates on the source surface
 	int dest_x = dx; // Current X on dest surface
 	int dest_y = dy; // Current Y on dest surface
@@ -529,12 +529,12 @@ void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
 
 	for (src_y = src_ystart; dest_y < dest_y2; dest_y++)  {
-		src_pxrow = (Uint8 *)bmpSrc->pixels + Round(src_y) * bmpSrc->pitch;
+		src_pxrow = (Uint8 *)bmpSrc->pixels + (int)(src_y) * bmpSrc->pitch;
 		dst_px = dst_pxrow;
 
 		// Copy the row
 		for (dest_x = dx, src_x = src_xstart; dest_x < dest_x2; dest_x++)  {
-			src_px = src_pxrow + Round(src_x) * bpp;
+			src_px = src_pxrow + (int)(src_x) * bpp;
 			memcpy(dst_px, src_px, bpp);
 			src_x += xstep;
 			dst_px += bpp;
@@ -554,7 +554,7 @@ void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 ////////////////////////
 // Draws the image nicely resampled
 // blur - the greater the value is, the more will be the destination image blurred
-void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur)
+void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur)
 {
 	// How this works:
 	// We take four neighbour pixels from the source and make average of them
@@ -566,8 +566,8 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, i
 		return;
 	}
 
-	int dw = Round((float)sw * xratio);
-	int dh = Round((float)sh * yratio);
+	int dw = (int)((float)sw * xratio);
+	int dh = (int)((float)sh * yratio);
 
 	// Clipping rectangle
 	SDL_Rect src_cliprect, dst_cliprect;

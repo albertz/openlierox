@@ -52,7 +52,7 @@ int Menu_Net_FavouritesInitialize(void)
 	cFavourites.Add( new CButton(BUT_ADD, tMenu->bmpButtons),	  mf_Add,		   190,440, 83,  15);
 	cFavourites.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mf_Refresh,	   350,440, 83,  15);
 	cFavourites.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    mf_Join,	   570,440, 43,  15);
-	cFavourites.Add( new CListview(),							   mf_ServerList, 40, 180, 560, 240);
+	cFavourites.Add( new CListview(),							   mf_ServerList, 40, 180, 560, 242);
 	cFavourites.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
 	cFavourites.Add( new CCombobox(),								mf_PlayerSelection,		225,150, 170,  19);
 

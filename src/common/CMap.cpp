@@ -1644,9 +1644,9 @@ void CMap::UpdateMiniMap(bool force)
 	yratio = (float)bmpMiniMap->h / (float)bmpImage->h;
 
 	if (tLXOptions->bAntiAliasing)
-		DrawImageResampledAdv(bmpMiniMap, bmpImage, 0, 0, 0, 0, bmpImage->w, bmpImage->h, xratio, yratio, MINIMAP_BLUR);
+		DrawImageResampledAdv(bmpMiniMap, bmpImage, 0.0f, 0.0f, 0, 0, bmpImage->w, bmpImage->h, xratio, yratio, MINIMAP_BLUR);
 	else
-		DrawImageResizedAdv(bmpMiniMap, bmpImage, 0, 0, 0, 0, bmpImage->w, bmpImage->h, xratio, yratio);
+		DrawImageResizedAdv(bmpMiniMap, bmpImage, 0.0f, 0.0f, 0, 0, bmpImage->w, bmpImage->h, xratio, yratio);
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
@@ -1663,21 +1663,18 @@ void CMap::UpdateMiniMapRect(ushort x, ushort y, ushort w, ushort h)
 	xratio = (float)bmpMiniMap->w/ (float)bmpImage->w;
 	yratio = (float)bmpMiniMap->h / (float)bmpImage->h;
 
+	float sx = (float)((int)(x * xratio) / xratio);
+	float sy = (float)((int)(y * yratio) / yratio);
+	int dx = x * xratio;
+	int dy = y * yratio;
+
 	if (tLXOptions->bAntiAliasing)
-		DrawImageResampledAdv(bmpMiniMap, bmpImage, x, y, Round((float)x * xratio), Round((float)y * yratio), w, h, xratio, yratio, MINIMAP_BLUR);
+		DrawImageResampledAdv(bmpMiniMap, bmpImage, sx, sy, dx, dy, w, h, xratio, yratio, MINIMAP_BLUR);
 	else
-		DrawImageResizedAdv(bmpMiniMap, bmpImage, x, y, Round((float)x * xratio), Round((float)y * yratio), w, h, xratio, yratio);
+		DrawImageResizedAdv(bmpMiniMap, bmpImage, sx, sy, dx, dy, w, h, xratio, yratio);
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
-
-	return;
-	
-	
-	/*
-	float mx_tmp = (float)((int)(x/xratio)*xratio);  // This makes sure the shrink will be the same as in UpdateMinimap
-	float my_tmp = (float)((int)(y/yratio)*yratio);
-*/
 }
 
 

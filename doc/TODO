@@ -1,6 +1,6 @@
 TODO list
 
-[ ] fix minimap updating (behaves weird when carving) (!!)
+[?] fix minimap updating (behaves weird when carving) (!!)
 [X] fix delta time (network synchronization) (!!)
 [ ] fix physics bugs (!!)
 [ ] new graphics engine (waytracing & pixelcache) (!)

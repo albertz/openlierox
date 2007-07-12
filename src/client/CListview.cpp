@@ -67,7 +67,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	}
 
 	
-	// Draw the items
+	// Get the top
 	int y=iY;
 	if (tColumns)  {
 		if (bOldStyle)
@@ -75,11 +75,12 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		else
 			y = iY+tLX->cFont.GetHeight()+2;
 	} 
+
+	if (bDrawBorder)
+		y += 2;
 	
 	// Re-setup the scrollbar
 	if (!bCustomScrollbarSetup)  {
-		if (bDrawBorder)
-			y += 2;
 		cScrollbar.Setup(0, iX+iWidth-16, y, 14, iHeight - y + iY - 1);
 	}
 
@@ -87,6 +88,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	lv_item_t *item = tItems;
 	int count=0;
 
+	// Right bound
 	int right_bound = iX+iWidth-2;
 	if(iGotScrollbar || bAlwaysVisibleScrollbar)
 		right_bound = MIN(cScrollbar.getX() - 2, iX + iWidth - 3);
@@ -95,12 +97,16 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	int texty = 0;
 
 
+	// Draw the items
 	for(;item;item = item->tNext) {
 		if(count++ < cScrollbar.getValue())
 			continue;
 
 		h = tLX->cFont.GetHeight();
 		x = iX+4;
+
+		if(y + h > iY + iHeight)
+			break;
 
 		col = tColumns;
 
@@ -175,9 +181,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			}
 		}
 
-		y+=h;
-		if(y>=iY+iHeight-h)
-			break;
+		y += h;
 	}
 
 	// Draw the scrollbar
@@ -390,14 +394,16 @@ void CListview::ReadjustScrollbar(void)
 	}
 
 	// Buffer size on top & bottom
+	int display_height = iHeight;  // Size of box with items
 	if (tColumns)
-		size += tLX->cFont.GetHeight() + 4;
+		display_height -= tLX->cFont.GetHeight() + 4;
 	if (bDrawBorder)
-		size += 4;
+		display_height -= 4;
 
 	if(count == 0) {
 		cScrollbar.setItemsperbox(0);
 		cScrollbar.setValue(0);
+		iGotScrollbar = false;
 
 		// Return to prevent a divide-by-zero
 		return;
@@ -406,7 +412,7 @@ void CListview::ReadjustScrollbar(void)
 	// Find the average
 	size /= count;
 
-	int h = iHeight / size;
+	int h = display_height / size;
 
 	cScrollbar.setItemsperbox( h );
     cScrollbar.setMax(count);

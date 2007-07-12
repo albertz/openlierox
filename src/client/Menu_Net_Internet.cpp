@@ -49,7 +49,7 @@ int Menu_Net_NETInitialize(void)
 	cInternet.Shutdown();
 	cInternet.Initialize();
 
-	cInternet.Add( new CListview(),								mi_ServerList, 40, 180, 560, 240);
+	cInternet.Add( new CListview(),								mi_ServerList, 40, 180, 560, 242);
 	cInternet.Add( new CButton(BUT_BACK, tMenu->bmpButtons),    mi_Back,       25, 440, 50,  15);
 	cInternet.Add( new CButton(BUT_ADD, tMenu->bmpButtons),		mi_AddServer,  140,440, 40,  15);
 	cInternet.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), mi_Refresh,	250,440, 83,  15);
