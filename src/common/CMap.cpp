@@ -1665,8 +1665,8 @@ void CMap::UpdateMiniMapRect(ushort x, ushort y, ushort w, ushort h)
 
 	float sx = (float)((int)(x * xratio) / xratio);
 	float sy = (float)((int)(y * yratio) / yratio);
-	int dx = x * xratio;
-	int dy = y * yratio;
+	int dx = (int)((float)x * xratio);
+	int dy = (int)((float)y * yratio);
 
 	if (tLXOptions->bAntiAliasing)
 		DrawImageResampledAdv(bmpMiniMap, bmpImage, sx, sy, dx, dy, w, h, xratio, yratio, MINIMAP_BLUR);
