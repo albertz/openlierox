@@ -40,6 +40,7 @@ Macro-variables of the source:
 	WITH_MEDIAPLAYER - if set, mediaplayer support will be built in
 	MACOSX - activates some special settings for Mac OS X
 	DEBUG - if set to 1, debugging is activated
+	_AI_DEBUG - if set, activates some debugging-things for AI (deprecated!)
 	
 Mac OS X: (experimental)
 	HAWKNL_BUILTIN=1 CXXFLAGS="-DMACOSX" \
