@@ -27,15 +27,16 @@
 
 extern	int		iSurfaceFormat;
 
-#define ALPHASURFACE_AMASK 0xff000000
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	#define ALPHASURFACE_RMASK 0x00ff0000
-	#define ALPHASURFACE_GMASK 0x0000ff00
-	#define ALPHASURFACE_BMASK 0x000000ff
+	#define ALPHASURFACE_RMASK 0xff000000
+	#define ALPHASURFACE_GMASK 0x00ff0000
+	#define ALPHASURFACE_BMASK 0x0000ff00
+	#define ALPHASURFACE_AMASK 0x000000ff
 #else // Little endian
 	#define ALPHASURFACE_RMASK 0x000000ff
 	#define ALPHASURFACE_GMASK 0x0000ff00
 	#define ALPHASURFACE_BMASK 0x00ff0000
+	#define ALPHASURFACE_AMASK 0xff000000
 #endif
 
 
@@ -108,9 +109,8 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
-	// NOTE: must match format in CCache::LoadImageBPP
 	SDL_Surface* result = SDL_CreateRGBSurface(
-			(iSurfaceFormat & ~SDL_SRCCOLORKEY) | SDL_SRCALPHA,
+			SDL_SWSURFACE | SDL_SRCALPHA,
 			width, height, 32,
 			ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
 
