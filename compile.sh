@@ -26,8 +26,8 @@
 [ "$VERSION" == "" ] && [ -e VERSION ] && VERSION=$(cat VERSION)
 
 # add standards to include path list
-INCLUDE_PATH="$INCLUDE_PATH /usr/include /usr/local/include /sw/include"
-LIB_PATH="$LIB_PATH /sw/lib"
+INCLUDE_PATH="$INCLUDE_PATH /usr/include /usr/local/include /sw/include /opt/local/include"
+LIB_PATH="$LIB_PATH /sw/lib /opt/local/lib"
 
 # some simple existance-test-function
 function test_include_file() {
