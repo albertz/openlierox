@@ -20,8 +20,6 @@
 
 using namespace std;
 
-unsigned int strnlen(const char *str, size_t maxlen) { return strlen(str); }
-
 /////////////////////
 // Clears the parser
 void CCssParser::Clear(void)

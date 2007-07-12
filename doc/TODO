@@ -4,7 +4,7 @@ TODO list
 [X] fix delta time (network synchronization) (!!)
 [ ] fix physics bugs (!!)
 [ ] new graphics engine (waytracing & pixelcache) (!)
-[ ] are there new network errors? (!!)
+[?] are there new network errors? (!!)
 [?] finish unicode support (!!)
 [ ] possibility to change options when playing
 [x] create a SVG icon for the game
