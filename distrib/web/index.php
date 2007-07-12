@@ -88,17 +88,30 @@
 </p>
 <p>
 	<h2>Installation under Debian/Ubuntu</h2>
-	Ekir Gustafsson has created now a Debain-package for you. Give it a try.
-	(Download link is in the download section.)<br>
+	Erik Gustafsson has created now a Debain-package for you. Give it a try.
+	(Download link is in the download section.) This package currently
+	doesn't do the dependency check for you, so you have still to install
+	all needed dependencies (libraries) manually.<br>
+	The following commands should install all needed dependencies on
+	your system:
+	<pre>
+		sudo apt-get install build-essential
+		sudo apt-get install libsdl1.2-dev 
+		sudo apt-get install libsdl-mixer1.2-dev
+		sudo apt-get install libsdl-image1.2-dev 
+		sudo apt-get install libsdl-gfx1.2-dev # dep. will be removed in future versions
+		sudo apt-get install libgd2-noxpd-dev
+		sudo apt-get install zlib1g-dev
+		sudo apt-get install libxml2-dev
+	</pre>
 	If you want to compile/install it manually yourself:
 	Follow the installation @somewhere. You have only one problem:
 	HawkNL doesn't exist for Debian/Ubuntu. But there is the possibility
 	to compile OpenLieroX with HawkNL builtin. Simply do (after you have
-	checked the file <i>DEPS</i> for other needed packages, you have to install
-	with 'sudo apt-get install PACKAGE'):
+	installed the needed dependencies):
 	<pre>
 		HAWKNL_BUILTIN=1 ./compile.sh
-	</pre>
+	</pre><br>
 </p>
 <p>
 	<h2>Details</h2>

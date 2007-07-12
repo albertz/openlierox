@@ -224,7 +224,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 
 		// Prevents weird behavior when we're at the end of text
 		if(iScrollPos)  {
-			if(tLX->cFont.GetWidth(Utf8SubStr(sText, iScrollPos, -1)) < (iWidth - 4))
+			if(tLX->cFont.GetWidth(Utf8SubStr(sText, iScrollPos, (size_t)-1)) < (iWidth - 4))
 				return TXT_NONE;
 		}
 

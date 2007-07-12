@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EA38B0330C467928008ABAAE /* CAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0300C467928008ABAAE /* CAnimation.cpp */; };
+		EA38B0340C467928008ABAAE /* CBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0310C467928008ABAAE /* CBar.cpp */; };
+		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
 		EA430DE40BEFEB1100C6547E /* condition.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DD90BEFEB1000C6547E /* condition.c */; };
 		EA430DE50BEFEB1100C6547E /* crc.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DDA0BEFEB1000C6547E /* crc.c */; };
 		EA430DE60BEFEB1100C6547E /* err.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DDB0BEFEB1100C6547E /* err.c */; };
@@ -103,9 +106,120 @@
 		EA430E430BEFEB6900C6547E /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3B0BEFCEB400C6547E /* Timer.cpp */; };
 		EA430E440BEFEB6900C6547E /* Unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3C0BEFCEB400C6547E /* Unicode.cpp */; };
 		EA430EA10BF0ED9900C6547E /* libHawkNL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EA430DD20BEFEA8900C6547E /* libHawkNL.a */; };
+		EA430FF10BF8BA0800C6547E /* IpToCountryDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */; };
+		EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */; };
+		EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */; };
+		EAD99F690C063ECA003BE563 /* CBanList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3F0BEFCEB400C6547E /* CBanList.cpp */; };
+		EAD99F6A0C063ECA003BE563 /* CBonus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C210BEFCEB400C6547E /* CBonus.cpp */; };
+		EAD99F6B0C063ECA003BE563 /* CBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF00BEFCEB400C6547E /* CBox.cpp */; };
+		EAD99F6C0C063ECA003BE563 /* CBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF10BEFCEB400C6547E /* CBrowser.cpp */; };
+		EAD99F6D0C063ECA003BE563 /* CButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF20BEFCEB400C6547E /* CButton.cpp */; };
+		EAD99F6E0C063ECA003BE563 /* CBytestream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C220BEFCEB400C6547E /* CBytestream.cpp */; };
+		EAD99F6F0C063ECA003BE563 /* CChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C230BEFCEB400C6547E /* CChannel.cpp */; };
+		EAD99F700C063ECA003BE563 /* CChatBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF30BEFCEB400C6547E /* CChatBox.cpp */; };
+		EAD99F710C063ECA003BE563 /* CCheckbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF40BEFCEB400C6547E /* CCheckbox.cpp */; };
+		EAD99F720C063ECA003BE563 /* CClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C240BEFCEB400C6547E /* CClient.cpp */; };
+		EAD99F730C063ECA003BE563 /* CClient_Draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF50BEFCEB400C6547E /* CClient_Draw.cpp */; };
+		EAD99F740C063ECA003BE563 /* CClient_Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF60BEFCEB400C6547E /* CClient_Game.cpp */; };
+		EAD99F750C063ECA003BE563 /* CClient_Parse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF70BEFCEB400C6547E /* CClient_Parse.cpp */; };
+		EAD99F760C063ECA003BE563 /* CClient_Send.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF80BEFCEB400C6547E /* CClient_Send.cpp */; };
+		EAD99F770C063ECA003BE563 /* CCombobox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BF90BEFCEB400C6547E /* CCombobox.cpp */; };
+		EAD99F780C063ECA003BE563 /* CFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BFA0BEFCEB400C6547E /* CFont.cpp */; };
+		EAD99F790C063ECA003BE563 /* CGameScript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C250BEFCEB400C6547E /* CGameScript.cpp */; };
+		EAD99F7A0C063ECA003BE563 /* CGuiLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BFB0BEFCEB400C6547E /* CGuiLayout.cpp */; };
+		EAD99F7B0C063ECA003BE563 /* CImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BFC0BEFCEB400C6547E /* CImage.cpp */; };
+		EAD99F7C0C063ECA003BE563 /* CInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BFD0BEFCEB400C6547E /* CInput.cpp */; };
+		EAD99F7D0C063ECA003BE563 /* CInputBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BFE0BEFCEB400C6547E /* CInputBox.cpp */; };
+		EAD99F7E0C063ECA003BE563 /* CListview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BFF0BEFCEB400C6547E /* CListview.cpp */; };
+		EAD99F7F0C063ECA003BE563 /* CMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C260BEFCEB400C6547E /* CMap.cpp */; };
+		EAD99F800C063ECA003BE563 /* CMediaPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C270BEFCEB400C6547E /* CMediaPlayer.cpp */; };
+		EAD99F810C063ECA003BE563 /* CMediaPlayer_GUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C280BEFCEB400C6547E /* CMediaPlayer_GUI.cpp */; };
+		EAD99F820C063ECA003BE563 /* CMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C000BEFCEB400C6547E /* CMenu.cpp */; };
+		EAD99F830C063ECA003BE563 /* CNinjaRope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C010BEFCEB400C6547E /* CNinjaRope.cpp */; };
+		EAD99F840C063ECA003BE563 /* Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C290BEFCEB400C6547E /* Command.cpp */; };
+		EAD99F850C063ECA003BE563 /* ConfigHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2A0BEFCEB400C6547E /* ConfigHandler.cpp */; };
+		EAD99F860C063ECA003BE563 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2B0BEFCEB400C6547E /* Console.cpp */; };
+		EAD99F870C063ECA003BE563 /* CProjectile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2C0BEFCEB400C6547E /* CProjectile.cpp */; };
+		EAD99F880C063ECA003BE563 /* CScrollbar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C020BEFCEB400C6547E /* CScrollbar.cpp */; };
+		EAD99F890C063ECA003BE563 /* CServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C400BEFCEB400C6547E /* CServer.cpp */; };
+		EAD99F8A0C063ECA003BE563 /* CServer_Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C410BEFCEB400C6547E /* CServer_Game.cpp */; };
+		EAD99F8B0C063ECA003BE563 /* CServer_Parse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C420BEFCEB400C6547E /* CServer_Parse.cpp */; };
+		EAD99F8C0C063ECA003BE563 /* CServer_Send.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C430BEFCEB400C6547E /* CServer_Send.cpp */; };
+		EAD99F8D0C063ECA003BE563 /* CShootList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2D0BEFCEB400C6547E /* CShootList.cpp */; };
+		EAD99F8E0C063ECA003BE563 /* CSimulation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2E0BEFCEB400C6547E /* CSimulation.cpp */; };
+		EAD99F8F0C063ECA003BE563 /* CSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C030BEFCEB400C6547E /* CSlider.cpp */; };
+		EAD99F900C063ECA003BE563 /* CssParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2F0BEFCEB400C6547E /* CssParser.cpp */; };
+		EAD99F910C063ECA003BE563 /* CTextbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C040BEFCEB400C6547E /* CTextbox.cpp */; };
+		EAD99F920C063ECA003BE563 /* CTitleButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C050BEFCEB400C6547E /* CTitleButton.cpp */; };
+		EAD99F930C063ECA003BE563 /* CViewport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C060BEFCEB400C6547E /* CViewport.cpp */; };
+		EAD99F940C063ECA003BE563 /* CWeather.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C070BEFCEB400C6547E /* CWeather.cpp */; };
+		EAD99F950C063ECA003BE563 /* CWidget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C080BEFCEB400C6547E /* CWidget.cpp */; };
+		EAD99F960C063ECA003BE563 /* CWidgetList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C090BEFCEB400C6547E /* CWidgetList.cpp */; };
+		EAD99F970C063ECA003BE563 /* CWorm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C300BEFCEB400C6547E /* CWorm.cpp */; };
+		EAD99F980C063ECA003BE563 /* CWorm_AI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C310BEFCEB400C6547E /* CWorm_AI.cpp */; };
+		EAD99F990C063ECA003BE563 /* CWorm_SendRecv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C320BEFCEB400C6547E /* CWorm_SendRecv.cpp */; };
+		EAD99F9A0C063ECA003BE563 /* CWorm_Simulate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C330BEFCEB400C6547E /* CWorm_Simulate.cpp */; };
+		EAD99F9B0C063ECA003BE563 /* CWpnRest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C340BEFCEB400C6547E /* CWpnRest.cpp */; };
+		EAD99F9C0C063ECA003BE563 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0A0BEFCEB400C6547E /* Entity.cpp */; };
+		EAD99F9D0C063ECA003BE563 /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0B0BEFCEB400C6547E /* Error.cpp */; };
+		EAD99F9E0C063ECA003BE563 /* FindFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C350BEFCEB400C6547E /* FindFile.cpp */; };
+		EAD99F9F0C063ECA003BE563 /* GfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */; };
+		EAD99FA00C063ECA003BE563 /* Graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0D0BEFCEB400C6547E /* Graphics.cpp */; };
+		EAD99FA10C063ECA003BE563 /* InputEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0E0BEFCEB400C6547E /* InputEvents.cpp */; };
+		EAD99FA20C063ECA003BE563 /* IpToCountryDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */; };
+		EAD99FA30C063ECA003BE563 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3D0BEFCEB400C6547E /* main.cpp */; };
+		EAD99FA40C063ECA003BE563 /* MathLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C360BEFCEB400C6547E /* MathLib.cpp */; };
+		EAD99FA50C063ECA003BE563 /* Menu_Local.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0F0BEFCEB400C6547E /* Menu_Local.cpp */; };
+		EAD99FA60C063ECA003BE563 /* Menu_Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C100BEFCEB400C6547E /* Menu_Main.cpp */; };
+		EAD99FA70C063ECA003BE563 /* Menu_Mapeditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C110BEFCEB400C6547E /* Menu_Mapeditor.cpp */; };
+		EAD99FA80C063ECA003BE563 /* Menu_Net.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C120BEFCEB400C6547E /* Menu_Net.cpp */; };
+		EAD99FA90C063ECA003BE563 /* Menu_Net_Favourites.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C130BEFCEB400C6547E /* Menu_Net_Favourites.cpp */; };
+		EAD99FAA0C063ECA003BE563 /* Menu_Net_Host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C140BEFCEB400C6547E /* Menu_Net_Host.cpp */; };
+		EAD99FAB0C063ECA003BE563 /* Menu_Net_Internet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C150BEFCEB400C6547E /* Menu_Net_Internet.cpp */; };
+		EAD99FAC0C063ECA003BE563 /* Menu_Net_Join.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C160BEFCEB400C6547E /* Menu_Net_Join.cpp */; };
+		EAD99FAD0C063ECA003BE563 /* Menu_Net_Lan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C170BEFCEB400C6547E /* Menu_Net_Lan.cpp */; };
+		EAD99FAE0C063ECA003BE563 /* Menu_Net_Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C180BEFCEB400C6547E /* Menu_Net_Main.cpp */; };
+		EAD99FAF0C063ECA003BE563 /* Menu_Net_News.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C190BEFCEB400C6547E /* Menu_Net_News.cpp */; };
+		EAD99FB00C063ECA003BE563 /* Menu_Options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1A0BEFCEB400C6547E /* Menu_Options.cpp */; };
+		EAD99FB10C063ECA003BE563 /* Menu_Player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1B0BEFCEB400C6547E /* Menu_Player.cpp */; };
+		EAD99FB20C063ECA003BE563 /* MenuSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1C0BEFCEB400C6547E /* MenuSystem.cpp */; };
+		EAD99FB30C063ECA003BE563 /* Misc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C370BEFCEB400C6547E /* Misc.cpp */; };
+		EAD99FB40C063ECA003BE563 /* Networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C380BEFCEB400C6547E /* Networking.cpp */; };
+		EAD99FB50C063ECA003BE563 /* Options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1D0BEFCEB400C6547E /* Options.cpp */; };
+		EAD99FB60C063ECA003BE563 /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */; };
+		EAD99FB70C063ECA003BE563 /* sex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C390BEFCEB400C6547E /* sex.cpp */; };
+		EAD99FB80C063ECA003BE563 /* Sounds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1F0BEFCEB400C6547E /* Sounds.cpp */; };
+		EAD99FB90C063ECA003BE563 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3A0BEFCEB400C6547E /* StringUtils.cpp */; };
+		EAD99FBA0C063ECA003BE563 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3B0BEFCEB400C6547E /* Timer.cpp */; };
+		EAD99FBB0C063ECA003BE563 /* Unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3C0BEFCEB400C6547E /* Unicode.cpp */; };
+		EAD99FBE0C063F0D003BE563 /* OpenLieroX.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD99FBD0C063F0D003BE563 /* OpenLieroX.png */; };
+		EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EA430DD20BEFEA8900C6547E /* libHawkNL.a */; };
+		EAD99FDC0C0644D6003BE563 /* SDL in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD99FDB0C0644D6003BE563 /* SDL */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		EAD99FC10C063F42003BE563 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EA430DD10BEFEA8900C6547E;
+			remoteInfo = HawkNL;
+		};
+		EAD99FC30C063F53003BE563 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EA430DD10BEFEA8900C6547E;
+			remoteInfo = HawkNL;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		EA38B0300C467928008ABAAE /* CAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CAnimation.cpp; path = ../../src/client/CAnimation.cpp; sourceTree = SOURCE_ROOT; };
+		EA38B0310C467928008ABAAE /* CBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBar.cpp; path = ../../src/client/CBar.cpp; sourceTree = SOURCE_ROOT; };
+		EA38B0320C467928008ABAAE /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cursor.cpp; path = ../../src/client/Cursor.cpp; sourceTree = SOURCE_ROOT; };
+		EA38B0360C467967008ABAAE /* EndianSwap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EndianSwap.h; path = ../../include/EndianSwap.h; sourceTree = SOURCE_ROOT; };
+		EA38B0370C467967008ABAAE /* TSVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TSVar.h; path = ../../include/TSVar.h; sourceTree = SOURCE_ROOT; };
 		EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuxLib.cpp; path = ../../src/client/AuxLib.cpp; sourceTree = SOURCE_ROOT; };
 		EA430BEF0BEFCEB400C6547E /* Cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cache.cpp; path = ../../src/client/Cache.cpp; sourceTree = SOURCE_ROOT; };
 		EA430BF00BEFCEB400C6547E /* CBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBox.cpp; path = ../../src/client/CBox.cpp; sourceTree = SOURCE_ROOT; };
@@ -286,6 +400,13 @@
 		EA430DE10BEFEB1100C6547E /* nltime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nltime.c; path = ../../hawknl/src/nltime.c; sourceTree = SOURCE_ROOT; };
 		EA430DE20BEFEB1100C6547E /* sock.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sock.c; path = ../../hawknl/src/sock.c; sourceTree = SOURCE_ROOT; };
 		EA430DE30BEFEB1100C6547E /* thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thread.c; path = ../../hawknl/src/thread.c; sourceTree = SOURCE_ROOT; };
+		EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IpToCountryDB.cpp; path = ../../src/common/IpToCountryDB.cpp; sourceTree = SOURCE_ROOT; };
+		EA430FF20BF8BA3100C6547E /* IpToCountryDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IpToCountryDB.h; path = ../../include/IpToCountryDB.h; sourceTree = SOURCE_ROOT; };
+		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OpenLieroX-Info.plist"; sourceTree = "<group>"; };
+		EAD99FBD0C063F0D003BE563 /* OpenLieroX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.png; path = ../../share/OpenLieroX.png; sourceTree = SOURCE_ROOT; };
+		EAD99FDB0C0644D6003BE563 /* SDL */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = SDL; path = libs/SDL; sourceTree = SOURCE_ROOT; };
+		EAE6E6F30C062D9400F6AFB4 /* CsvReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvReader.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -304,17 +425,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EAD99F5F0C063CA6003BE563 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
+				EAD99FDC0C0644D6003BE563 /* SDL in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		08FB7794FE84155DC02AAC07 /* OpenLieroX */ = {
 			isa = PBXGroup;
 			children = (
+				EAD99FDB0C0644D6003BE563 /* SDL */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				EA430C8E0BEFCF5B00C6547E /* Scripts */,
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				EA430DEF0BEFEB1A00C6547E /* HawkNL source */,
+				EAD99FD10C06408E003BE563 /* share */,
+				EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */,
 			);
 			name = OpenLieroX;
 			sourceTree = "<group>";
@@ -322,6 +455,11 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				EA38B0360C467967008ABAAE /* EndianSwap.h */,
+				EA38B0370C467967008ABAAE /* TSVar.h */,
+				EA38B0300C467928008ABAAE /* CAnimation.cpp */,
+				EA38B0310C467928008ABAAE /* CBar.cpp */,
+				EA38B0320C467928008ABAAE /* Cursor.cpp */,
 				EA430C440BEFCEDE00C6547E /* include */,
 				EA430BEC0BEFCEB400C6547E /* src */,
 			);
@@ -333,6 +471,7 @@
 			children = (
 				EA430CFF0BEFE36E00C6547E /* OpenLieroX_console */,
 				EA430DD20BEFEA8900C6547E /* libHawkNL.a */,
+				EAD99F610C063CA6003BE563 /* OpenLieroX.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -419,6 +558,7 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */,
 				EA430C210BEFCEB400C6547E /* CBonus.cpp */,
 				EA430C220BEFCEB400C6547E /* CBytestream.cpp */,
 				EA430C230BEFCEB400C6547E /* CChannel.cpp */,
@@ -467,6 +607,8 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				EAE6E6F30C062D9400F6AFB4 /* CsvReader.h */,
+				EA430FF20BF8BA3100C6547E /* IpToCountryDB.h */,
 				EA430C450BEFCEDE00C6547E /* AuxLib.h */,
 				EA430C460BEFCEDE00C6547E /* Cache.h */,
 				EA430C470BEFCEDE00C6547E /* CBanList.h */,
@@ -595,6 +737,14 @@
 			name = "HawkNL source";
 			sourceTree = "<group>";
 		};
+		EAD99FD10C06408E003BE563 /* share */ = {
+			isa = PBXGroup;
+			children = (
+				EAD99FBD0C063F0D003BE563 /* OpenLieroX.png */,
+			);
+			name = share;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -618,6 +768,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				EAD99FC40C063F53003BE563 /* PBXTargetDependency */,
 			);
 			name = OpenLieroX_console;
 			productName = OpenLieroX_console;
@@ -641,6 +792,25 @@
 			productReference = EA430DD20BEFEA8900C6547E /* libHawkNL.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		EAD99F600C063CA6003BE563 /* OpenLieroX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAD99F640C063CAA003BE563 /* Build configuration list for PBXNativeTarget "OpenLieroX" */;
+			buildPhases = (
+				EAD99F5D0C063CA6003BE563 /* Resources */,
+				EAD99F5E0C063CA6003BE563 /* Sources */,
+				EAD99F5F0C063CA6003BE563 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			comments = "visit us at http://openlierox.sourceforge.net !";
+			dependencies = (
+				EAD99FC20C063F42003BE563 /* PBXTargetDependency */,
+			);
+			name = OpenLieroX;
+			productName = OpenLieroX;
+			productReference = EAD99F610C063CA6003BE563 /* OpenLieroX.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -653,9 +823,21 @@
 			targets = (
 				EA430CFE0BEFE36E00C6547E /* OpenLieroX_console */,
 				EA430DD10BEFEA8900C6547E /* HawkNL */,
+				EAD99F600C063CA6003BE563 /* OpenLieroX */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EAD99F5D0C063CA6003BE563 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAD99FBE0C063F0D003BE563 /* OpenLieroX.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		EA430CFC0BEFE36E00C6547E /* Sources */ = {
@@ -746,6 +928,7 @@
 				EA430E420BEFEB6900C6547E /* StringUtils.cpp in Sources */,
 				EA430E430BEFEB6900C6547E /* Timer.cpp in Sources */,
 				EA430E440BEFEB6900C6547E /* Unicode.cpp in Sources */,
+				EA430FF10BF8BA0800C6547E /* IpToCountryDB.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -767,7 +950,115 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EAD99F5E0C063CA6003BE563 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */,
+				EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */,
+				EAD99F690C063ECA003BE563 /* CBanList.cpp in Sources */,
+				EAD99F6A0C063ECA003BE563 /* CBonus.cpp in Sources */,
+				EAD99F6B0C063ECA003BE563 /* CBox.cpp in Sources */,
+				EAD99F6C0C063ECA003BE563 /* CBrowser.cpp in Sources */,
+				EAD99F6D0C063ECA003BE563 /* CButton.cpp in Sources */,
+				EAD99F6E0C063ECA003BE563 /* CBytestream.cpp in Sources */,
+				EAD99F6F0C063ECA003BE563 /* CChannel.cpp in Sources */,
+				EAD99F700C063ECA003BE563 /* CChatBox.cpp in Sources */,
+				EAD99F710C063ECA003BE563 /* CCheckbox.cpp in Sources */,
+				EAD99F720C063ECA003BE563 /* CClient.cpp in Sources */,
+				EAD99F730C063ECA003BE563 /* CClient_Draw.cpp in Sources */,
+				EAD99F740C063ECA003BE563 /* CClient_Game.cpp in Sources */,
+				EAD99F750C063ECA003BE563 /* CClient_Parse.cpp in Sources */,
+				EAD99F760C063ECA003BE563 /* CClient_Send.cpp in Sources */,
+				EAD99F770C063ECA003BE563 /* CCombobox.cpp in Sources */,
+				EAD99F780C063ECA003BE563 /* CFont.cpp in Sources */,
+				EAD99F790C063ECA003BE563 /* CGameScript.cpp in Sources */,
+				EAD99F7A0C063ECA003BE563 /* CGuiLayout.cpp in Sources */,
+				EAD99F7B0C063ECA003BE563 /* CImage.cpp in Sources */,
+				EAD99F7C0C063ECA003BE563 /* CInput.cpp in Sources */,
+				EAD99F7D0C063ECA003BE563 /* CInputBox.cpp in Sources */,
+				EAD99F7E0C063ECA003BE563 /* CListview.cpp in Sources */,
+				EAD99F7F0C063ECA003BE563 /* CMap.cpp in Sources */,
+				EAD99F800C063ECA003BE563 /* CMediaPlayer.cpp in Sources */,
+				EAD99F810C063ECA003BE563 /* CMediaPlayer_GUI.cpp in Sources */,
+				EAD99F820C063ECA003BE563 /* CMenu.cpp in Sources */,
+				EAD99F830C063ECA003BE563 /* CNinjaRope.cpp in Sources */,
+				EAD99F840C063ECA003BE563 /* Command.cpp in Sources */,
+				EAD99F850C063ECA003BE563 /* ConfigHandler.cpp in Sources */,
+				EAD99F860C063ECA003BE563 /* Console.cpp in Sources */,
+				EAD99F870C063ECA003BE563 /* CProjectile.cpp in Sources */,
+				EAD99F880C063ECA003BE563 /* CScrollbar.cpp in Sources */,
+				EAD99F890C063ECA003BE563 /* CServer.cpp in Sources */,
+				EAD99F8A0C063ECA003BE563 /* CServer_Game.cpp in Sources */,
+				EAD99F8B0C063ECA003BE563 /* CServer_Parse.cpp in Sources */,
+				EAD99F8C0C063ECA003BE563 /* CServer_Send.cpp in Sources */,
+				EAD99F8D0C063ECA003BE563 /* CShootList.cpp in Sources */,
+				EAD99F8E0C063ECA003BE563 /* CSimulation.cpp in Sources */,
+				EAD99F8F0C063ECA003BE563 /* CSlider.cpp in Sources */,
+				EAD99F900C063ECA003BE563 /* CssParser.cpp in Sources */,
+				EAD99F910C063ECA003BE563 /* CTextbox.cpp in Sources */,
+				EAD99F920C063ECA003BE563 /* CTitleButton.cpp in Sources */,
+				EAD99F930C063ECA003BE563 /* CViewport.cpp in Sources */,
+				EAD99F940C063ECA003BE563 /* CWeather.cpp in Sources */,
+				EAD99F950C063ECA003BE563 /* CWidget.cpp in Sources */,
+				EAD99F960C063ECA003BE563 /* CWidgetList.cpp in Sources */,
+				EAD99F970C063ECA003BE563 /* CWorm.cpp in Sources */,
+				EAD99F980C063ECA003BE563 /* CWorm_AI.cpp in Sources */,
+				EAD99F990C063ECA003BE563 /* CWorm_SendRecv.cpp in Sources */,
+				EAD99F9A0C063ECA003BE563 /* CWorm_Simulate.cpp in Sources */,
+				EAD99F9B0C063ECA003BE563 /* CWpnRest.cpp in Sources */,
+				EAD99F9C0C063ECA003BE563 /* Entity.cpp in Sources */,
+				EAD99F9D0C063ECA003BE563 /* Error.cpp in Sources */,
+				EAD99F9E0C063ECA003BE563 /* FindFile.cpp in Sources */,
+				EAD99F9F0C063ECA003BE563 /* GfxPrimitives.cpp in Sources */,
+				EAD99FA00C063ECA003BE563 /* Graphics.cpp in Sources */,
+				EAD99FA10C063ECA003BE563 /* InputEvents.cpp in Sources */,
+				EAD99FA20C063ECA003BE563 /* IpToCountryDB.cpp in Sources */,
+				EAD99FA30C063ECA003BE563 /* main.cpp in Sources */,
+				EAD99FA40C063ECA003BE563 /* MathLib.cpp in Sources */,
+				EAD99FA50C063ECA003BE563 /* Menu_Local.cpp in Sources */,
+				EAD99FA60C063ECA003BE563 /* Menu_Main.cpp in Sources */,
+				EAD99FA70C063ECA003BE563 /* Menu_Mapeditor.cpp in Sources */,
+				EAD99FA80C063ECA003BE563 /* Menu_Net.cpp in Sources */,
+				EAD99FA90C063ECA003BE563 /* Menu_Net_Favourites.cpp in Sources */,
+				EAD99FAA0C063ECA003BE563 /* Menu_Net_Host.cpp in Sources */,
+				EAD99FAB0C063ECA003BE563 /* Menu_Net_Internet.cpp in Sources */,
+				EAD99FAC0C063ECA003BE563 /* Menu_Net_Join.cpp in Sources */,
+				EAD99FAD0C063ECA003BE563 /* Menu_Net_Lan.cpp in Sources */,
+				EAD99FAE0C063ECA003BE563 /* Menu_Net_Main.cpp in Sources */,
+				EAD99FAF0C063ECA003BE563 /* Menu_Net_News.cpp in Sources */,
+				EAD99FB00C063ECA003BE563 /* Menu_Options.cpp in Sources */,
+				EAD99FB10C063ECA003BE563 /* Menu_Player.cpp in Sources */,
+				EAD99FB20C063ECA003BE563 /* MenuSystem.cpp in Sources */,
+				EAD99FB30C063ECA003BE563 /* Misc.cpp in Sources */,
+				EAD99FB40C063ECA003BE563 /* Networking.cpp in Sources */,
+				EAD99FB50C063ECA003BE563 /* Options.cpp in Sources */,
+				EAD99FB60C063ECA003BE563 /* ProfileSystem.cpp in Sources */,
+				EAD99FB70C063ECA003BE563 /* sex.cpp in Sources */,
+				EAD99FB80C063ECA003BE563 /* Sounds.cpp in Sources */,
+				EAD99FB90C063ECA003BE563 /* StringUtils.cpp in Sources */,
+				EAD99FBA0C063ECA003BE563 /* Timer.cpp in Sources */,
+				EAD99FBB0C063ECA003BE563 /* Unicode.cpp in Sources */,
+				EA38B0330C467928008ABAAE /* CAnimation.cpp in Sources */,
+				EA38B0340C467928008ABAAE /* CBar.cpp in Sources */,
+				EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EAD99FC20C063F42003BE563 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EA430DD10BEFEA8900C6547E /* HawkNL */;
+			targetProxy = EAD99FC10C063F42003BE563 /* PBXContainerItemProxy */;
+		};
+		EAD99FC40C063F53003BE563 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EA430DD10BEFEA8900C6547E /* HawkNL */;
+			targetProxy = EAD99FC30C063F53003BE563 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1DEB923608733DC60010E9CD /* Debug */ = {
@@ -914,6 +1205,72 @@
 			};
 			name = Release;
 		};
+		EAD99F650C063CAA003BE563 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				INFOPLIST_FILE = "OpenLieroX-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/libs\"";
+				MACOSX_DEPLOYMENT_TARGET = 10.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = OpenLieroX;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		EAD99F660C063CAA003BE563 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				INFOPLIST_FILE = "OpenLieroX-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/libs\"";
+				MACOSX_DEPLOYMENT_TARGET = 10.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Carbon,
+				);
+				PREBINDING = YES;
+				PRODUCT_NAME = OpenLieroX;
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -940,6 +1297,15 @@
 			buildConfigurations = (
 				EA430DD40BEFEAA800C6547E /* Debug */,
 				EA430DD50BEFEAA800C6547E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EAD99F640C063CAA003BE563 /* Build configuration list for PBXNativeTarget "OpenLieroX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EAD99F650C063CAA003BE563 /* Debug */,
+				EAD99F660C063CAA003BE563 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

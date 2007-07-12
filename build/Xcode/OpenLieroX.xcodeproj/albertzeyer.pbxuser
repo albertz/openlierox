@@ -2,10 +2,10 @@
 {
 	08FB7793FE84155DC02AAC07 /* Project object */ = {
 		activeBuildConfigurationName = Debug;
-		activeExecutable = EA430D000BEFE36E00C6547E /* OpenLieroX_console */;
-		activeTarget = EA430CFE0BEFE36E00C6547E /* OpenLieroX_console */;
+		activeExecutable = EAD99F620C063CA6003BE563 /* OpenLieroX */;
+		activeTarget = EAD99F600C063CA6003BE563 /* OpenLieroX */;
 		addToTargets = (
-			EA430DD10BEFEA8900C6547E /* HawkNL */,
+			EAD99F600C063CA6003BE563 /* OpenLieroX */,
 		);
 		breakpoints = (
 		);
@@ -13,6 +13,7 @@
 		codeSenseManager = EA430BE90BEFCDA000C6547E /* Code sense */;
 		executables = (
 			EA430D000BEFE36E00C6547E /* OpenLieroX_console */,
+			EAD99F620C063CA6003BE563 /* OpenLieroX */,
 		);
 		perUserDictionary = {
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
@@ -20,7 +21,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					240,
+					294,
 					20,
 					48,
 					43,
@@ -111,12 +112,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 200748269;
-			PBXWorkspaceStateSaveDate = 200748269;
-		};
-		perUserProjectItems = {
-			EA430FD30BF72EA400C6547E /* PBXTextBookmark */ = EA430FD30BF72EA400C6547E /* PBXTextBookmark */;
-			EA430FDA0BF72F1700C6547E /* PBXTextBookmark */ = EA430FDA0BF72F1700C6547E /* PBXTextBookmark */;
+			PBXPerProjectTemplateStateSaveDate = 205944921;
+			PBXWorkspaceStateSaveDate = 205944921;
 		};
 		sourceControlManager = EA430BE80BEFCDA000C6547E /* Source Control */;
 		userBuildSettings = {
@@ -207,6 +204,13 @@
 			sepNavIntBoundsRect = "{{0, 0}, {812, 7910}}";
 			sepNavSelRange = "{10126, 0}";
 			sepNavVisRect = "{{0, 6263}, {461, 285}}";
+		};
+	};
+	EA430C2F0BEFCEB400C6547E /* CssParser.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {782, 8680}}";
+			sepNavSelRange = "{5431, 113}";
+			sepNavVisRect = "{{0, 3947}, {743, 185}}";
 		};
 	};
 	EA430C390BEFCEB400C6547E /* sex.cpp */ = {
@@ -312,10 +316,10 @@
 	};
 	EA430C730BEFCEDE00C6547E /* defs.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {583, 1862}}";
-			sepNavSelRange = "{1262, 21}";
-			sepNavVisRect = "{{0, 817}, {583, 191}}";
-			sepNavWindowFrame = "{{301, 88}, {749, 658}}";
+			sepNavIntBoundsRect = "{{0, 0}, {743, 1246}}";
+			sepNavSelRange = "{0, 43}";
+			sepNavVisRect = "{{0, 0}, {743, 185}}";
+			sepNavWindowFrame = "{{27, 75}, {749, 503}}";
 		};
 	};
 	EA430C770BEFCEDE00C6547E /* Frame.h */ = {
@@ -357,6 +361,14 @@
 			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
 		};
 	};
+	EA430C860BEFCEDE00C6547E /* StringUtils.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {806, 2646}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
 	EA430C890BEFCEDE00C6547E /* UCString.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1106, 2142}}";
@@ -375,9 +387,9 @@
 	};
 	EA430C8B0BEFCEDE00C6547E /* Utils.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {743, 1470}}";
-			sepNavSelRange = "{1179, 36}";
-			sepNavVisRect = "{{0, 461}, {743, 185}}";
+			sepNavIntBoundsRect = "{{0, 0}, {710, 1568}}";
+			sepNavSelRange = "{153, 34}";
+			sepNavVisRect = "{{0, 0}, {710, 529}}";
 			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
 		};
 	};
@@ -484,21 +496,41 @@
 			sepNavWindowFrame = "{{248, 73}, {749, 658}}";
 		};
 	};
-	EA430FD30BF72EA400C6547E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = EA430C3A0BEFCEB400C6547E /* StringUtils.cpp */;
-		rLen = 1;
-		rLoc = 221;
-		rType = 1;
+	EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {878, 2968}}";
+			sepNavSelRange = "{314, 24}";
+			sepNavVisRect = "{{0, 125}, {743, 185}}";
+		};
 	};
-	EA430FDA0BF72F1700C6547E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = EA430C3A0BEFCEB400C6547E /* StringUtils.cpp */;
-		name = "StringUtils.cpp: 228";
-		rLen = 0;
-		rLoc = 5350;
-		rType = 0;
-		vrLen = 831;
-		vrLoc = 5072;
+	EAD99F600C063CA6003BE563 /* OpenLieroX */ = {
+		activeExec = 0;
+		executables = (
+			EAD99F620C063CA6003BE563 /* OpenLieroX */,
+		);
+	};
+	EAD99F620C063CA6003BE563 /* OpenLieroX */ = {
+		isa = PBXExecutable;
+		activeArgIndex = 2147483647;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = OpenLieroX;
+		sourceDirectories = (
+		);
 	};
 }
