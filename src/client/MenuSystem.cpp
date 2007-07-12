@@ -332,8 +332,8 @@ void Menu_RedrawMouse(int total)
 		return;
 	}
 
-	int hw = GetMaxCursorWidth() / 2;
-	int hh = GetMaxCursorHeight() / 2;
+	int hw = GetMaxCursorWidth() / 2 - 1;
+	int hh = GetMaxCursorHeight() / 2 - 1;
 
 	mouse_t *m = GetMouse();
 	DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer,
@@ -342,7 +342,7 @@ void Menu_RedrawMouse(int total)
 
 				m->X - hw - m->deltaX,
 				m->Y - hh - m->deltaY,
-				GetMaxCursorWidth(), GetMaxCursorHeight());
+				GetMaxCursorWidth() * 2, GetMaxCursorHeight() * 2);
 }
 
 
