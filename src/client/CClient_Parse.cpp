@@ -536,6 +536,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			// Also set some game details
 			w->setLives(iLives);
             w->setKills(0);
+			w->setHealth(100);
 			w->setGameScript(&cGameScript);
             w->setWpnRest(&cWeaponRestrictions);
 			w->setLoadingTime(fLoadingTime);

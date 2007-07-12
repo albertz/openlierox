@@ -495,6 +495,7 @@ public:
 	inline int			getLocal(void)				{ return iLocal; }
 
 	inline int			getHealth(void)				{ return iHealth; }
+	inline void			setHealth(int _h)			{ iHealth = MIN(100, MAX(0, _h)); }
 	inline int			getLives(void)				{ return iLives; }
 	inline int			getKills(void)				{ return iKills; }
 	inline void		setLives(int l)				{ iLives = l; }
