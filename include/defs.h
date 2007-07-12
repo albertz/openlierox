@@ -38,19 +38,6 @@
 
 
 
-#if (defined(WIN32) && (!defined(_MSC_VER) || _MSC_VER <= 1200)) || defined(MACOSX)
-#include <stddef.h> // for size_t
-// TODO: remove this from whole code! (we use std::string now)
-inline size_t strnlen(const char *str, size_t maxlen)  { 
-	register unsigned int i=0;
-	for (;i<maxlen && str[i];i++) {}
-	return i;
-}
-#endif
-
-
-
-
 void d_printf(char *fmt, ...);
 
 
