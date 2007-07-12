@@ -1,5 +1,8 @@
 TODO list
 
+[ ] fix minimap updating (behaves weird when carving) (!!)
+[X] fix delta time (network synchronization) (!!)
+[ ] fix physics bugs (!!)
 [ ] new graphics engine (waytracing & pixelcache) (!)
 [ ] are there new network errors? (!!)
 [?] finish unicode support (!!)
@@ -34,6 +37,6 @@ TODO list
 [ ] abstraction of the engines (network / physic / ...) (!)
 
 minor things:
-[ ] save selected player list in local play and return in this menu after playing
+[ ] save selected player list in local play and return in this menu after playing (!)
 [ ] treat ZIP-files in game-directory as virtual searchpaths
 [ ] add virtual filesystem for users who has inotify or who enabled it

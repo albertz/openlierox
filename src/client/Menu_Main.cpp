@@ -220,11 +220,11 @@ void Menu_MainFrame(void)
 	int y = tMenu->tFrontendInfo.iCreditsTop;
 	static int w = 0;
 	if (!w)
-		w = MAX(tLX->cFont.GetWidth(credits1), tLX->cFont.GetWidth(credits2));
+		w = MAX(tLX->cFont.GetWidth(credits1), tLX->cFont.GetWidth(credits2)) + 4;
 
 	static int h = 0;
-	if (!h) 
-		h = tLX->cFont.GetHeight() + tLX->cFont.GetHeight(credits2);
+	if (!h)
+		h = tLX->cFont.GetHeight() + tLX->cFont.GetHeight(credits2) + 4;
 
 	Menu_redrawBufferRect(x, y, w, h);
 	tLX->cFont.Draw(tMenu->bmpScreen, x, y, tLX->clCredits1, credits1);

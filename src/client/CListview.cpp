@@ -87,7 +87,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	lv_item_t *item = tItems;
 	int count=0;
 
-	int right_bound = iX+iWidth-3;
+	int right_bound = iX+iWidth-2;
 	if(iGotScrollbar || bAlwaysVisibleScrollbar)
 		right_bound = MIN(cScrollbar.getX() - 2, iX + iWidth - 3);
 
