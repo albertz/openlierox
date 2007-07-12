@@ -418,8 +418,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 
     // Clear the player list and game settings
-    Menu_redrawBufferRect(15, 20,  335, 230);
-    Menu_redrawBufferRect(360,20,  280, 200);
+    Menu_redrawBufferRect(15, 15,  335, 230);
+    Menu_redrawBufferRect(360,15,  280, 200);
 
 
 	// Process & Draw the gui
@@ -546,7 +546,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	// Draw the game info
 	if(gl->nSet) {
 		CFont *f = &tLX->cFont;
-		Uint32 blue = MakeColour(0,138,251);
         int x = 360;
         int x2 = x+105;
         y = 15;
@@ -562,7 +561,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		tGameInfo.iLives = gl->nLives;
 		tGameInfo.iLoadingTimes = gl->nLoadingTime;
 
-		f->Draw(tMenu->bmpScreen, x, y,  blue, "Game Details");
+		f->Draw(tMenu->bmpScreen, x, y,  tLX->clHeading, "Game Details");
 		f->Draw(tMenu->bmpScreen, x, y+20,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
 			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel, gl->szDecodedMapName);

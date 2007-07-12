@@ -100,7 +100,6 @@ void CGuiLayout::Initialize(int LayoutID)
 	iID = LayoutID;
 
 	cWidgets = NULL;
-	tEvent = new gui_event_t;
 	cFocused = NULL;
 	cMouseOverWidget = NULL;
 
@@ -177,10 +176,7 @@ void CGuiLayout::Shutdown(void)
 	}
 	cWidgets = NULL;
 
-	if(tEvent) {
-		delete tEvent;
-		tEvent = NULL;
-	}
+	// tEvent is freed in destructor
 
 	cFocused = NULL;
 	cMouseOverWidget = NULL;
@@ -564,9 +560,7 @@ gui_event_t *CGuiLayout::Process(void)
 	SetGameCursor(CURSOR_ARROW); // Reset the cursor here
 
 	if (!tEvent)  {
-		tEvent = new gui_event_t;
-		if (!tEvent)
-			return NULL;
+		return NULL;
 	}
 
 	// Switch between window and fullscreen mode

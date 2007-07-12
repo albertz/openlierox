@@ -58,7 +58,7 @@ class CGuiLayout {
 public:
 	// Constructor
 	CGuiLayout() {
-		tEvent = NULL;
+		tEvent = new gui_event_t;
 		cFocused = NULL;
 		cWidgets = NULL;
 		cMouseOverWidget = NULL;
@@ -69,7 +69,9 @@ public:
 
 	// Destructor
 	~CGuiLayout() {
-		//Shutdown();
+		if (tEvent)
+			delete tEvent;
+		tEvent = NULL;
 	}
 
 
