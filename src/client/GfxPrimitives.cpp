@@ -36,9 +36,9 @@ inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, 
 	int src_pitch = src->pitch;
 	int dst_pitch = dst->pitch;
 	Uint8* srcrow = (Uint8 *)src->pixels
-		+ (sy * src->pitch) + (sx * src->format->BytesPerPixel);
+		+ (sy * src_pitch) + (sx * src->format->BytesPerPixel);
 	Uint8* dstrow = (Uint8 *)dst->pixels
-		+ (dy * dst->pitch) + (dx * dst->format->BytesPerPixel);
+		+ (dy * dst_pitch) + (dx * dst->format->BytesPerPixel);
 	
 	// Copy row by row
 	for (register int i = 0; i < h; ++i)  {
@@ -74,6 +74,12 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 		h = dst->h - dy;
 	}
 
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(dst))
+		SDL_LockSurface(dst);
+	if(SDL_MUSTLOCK(src))
+		SDL_LockSurface(src);
+
 	if(
 		src->format->Amask == dst->format->Amask &&
 		src->format->Rmask == dst->format->Rmask &&
@@ -88,11 +94,18 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 
 		for(register int x = 0; x < w; x++) {
 			for(register int y = 0; y < h; y++) {
-				SDL_GetRGBA(GetPixel(src, x + sx, y + sy), src->format, &R, &G, &B, &A);
+				Uint32 pixel = GetPixel(src, x + sx, y + sy);
+				SDL_GetRGBA(pixel, src->format, &R, &G, &B, &A);
 				PutPixel(dst, x + dx, y + dy, SDL_MapRGBA(dst->format, R, G, B, A));
 			}
 		}
 	}
+	
+	// Unlock em
+	if(SDL_MUSTLOCK(dst))
+		SDL_UnlockSurface(dst);
+	if(SDL_MUSTLOCK(src))
+		SDL_UnlockSurface(src);
 }
 
 template<typename T>

@@ -491,8 +491,10 @@ void Menu_LocalShowMinimap(bool bReload)
 			    map.ApplyRandom();
 
                 // Free any old random map object list
-                if( tGameInfo.sMapRandom.psObjects )
+                if( tGameInfo.sMapRandom.psObjects ) {
                     delete[] tGameInfo.sMapRandom.psObjects;
+                    tGameInfo.sMapRandom.psObjects = NULL;
+                }
 
                 // Copy the layout
                 maprandom_t *psRand = map.getRandomLayout();

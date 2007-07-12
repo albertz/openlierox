@@ -27,17 +27,11 @@
 
 extern	int		iSurfaceFormat;
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	#define ALPHASURFACE_RMASK 0xff000000
-	#define ALPHASURFACE_GMASK 0x00ff0000
-	#define ALPHASURFACE_BMASK 0x0000ff00
-	#define ALPHASURFACE_AMASK 0x000000ff
-#else // Little endian
-	#define ALPHASURFACE_RMASK 0x000000ff
-	#define ALPHASURFACE_GMASK 0x0000ff00
-	#define ALPHASURFACE_BMASK 0x00ff0000
-	#define ALPHASURFACE_AMASK 0xff000000
-#endif
+// like in SDL_video.c in SDL_DisplayFormatAlpha
+#define ALPHASURFACE_RMASK 0x00ff0000
+#define ALPHASURFACE_GMASK 0x0000ff00
+#define ALPHASURFACE_BMASK 0x000000ff
+#define ALPHASURFACE_AMASK 0xff000000
 
 
 SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
