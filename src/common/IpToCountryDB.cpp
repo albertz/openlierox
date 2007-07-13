@@ -19,6 +19,107 @@
 #include "StringUtils.h"
 #include "CsvReader.h"
 
+#ifdef _MSC_VER  // MSVC 6 has problems with from_string<Uint32>
+typedef unsigned int Ip;
+#else
+typedef Uint32 Ip;
+#endif
+
+struct DBEntry {
+	Ip			RangeFrom;
+	Ip			RangeTo;
+	IpInfo		Info;
+};
+
+
+// key-value is ending-ip (RangeTo) of representing ip-range
+typedef std::map<Ip,DBEntry> DBData;
+
+
+/*
+	_handler has to be a functor, which is compatible to:
+	
+	(called after we have a new entry)
+		bool _handler(const DBEntry& dbentry);
+	whereby
+		return: if false, it will break
+*/
+template<typename _handler>
+class CountryCsvReaderHandler {
+public:
+	_handler& handler;
+	
+	bool finished_entry;
+	DBEntry entry;
+	
+	CountryCsvReaderHandler(_handler& h)
+		: handler(h), finished_entry(false) {}
+
+	inline bool operator()(int tindex, const std::string& token) {
+		switch(tindex) {
+		case 0:
+			entry.RangeFrom = from_string<Ip>(token);
+			return true;
+			
+		case 1:
+			entry.RangeTo = from_string<Ip>(token);
+			return true;
+		
+		case 2:
+			if (token == "IANA")
+				entry.Info.Continent = "Local Network";
+			else if (token == "ARIN")
+				entry.Info.Continent = "North America";
+			else if (token == "LACNIC")
+				entry.Info.Continent = "South America";
+			else if (token == "AFRINIC")
+				entry.Info.Continent = "Africa";
+			else if (token == "RIPE")
+				entry.Info.Continent = "Europe";
+			else if (token == "APNIC")
+				entry.Info.Continent = "Asia";
+			else
+				entry.Info.Continent = token;
+			return true;
+			
+		case 3:
+		case 5:
+			// ignore
+			return true;
+
+		case 4: 
+			entry.Info.CountryShortcut = token;
+			return true;
+			
+		case 6:
+			entry.Info.Country = token;
+			ucfirst(entry.Info.Country);
+			// Small hack, Australia is considered as Asia by the database
+			if(entry.Info.Country == "Australia")
+				entry.Info.Continent = "Australia";
+				
+			finished_entry = true;
+			return false;
+		
+		default:
+			return false;
+		}
+	}
+	
+	inline bool operator()() {
+		if(finished_entry) {
+			if(!handler(entry)) return false;		
+			finished_entry = false;
+		}
+		
+		return true;
+	}
+
+
+};
+
+
+using namespace std;
 
 template<typename _handler, typename _PosType>
 class DBEntryHandler {
