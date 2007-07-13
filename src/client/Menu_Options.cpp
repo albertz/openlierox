@@ -228,12 +228,7 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
 	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 170, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 140, 170, 17,17);
-#ifndef WIN32
-	cOpt_System.Add( new CLabel("OpenGL acceleration",tLX->clNormalLabel),Static, 440, 170, 0,0);
-#else // WIN32
-	// On Windows it's slower so Acceleration isn't the right word I think...
 	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 170, 0,0);
-#endif
 	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
 
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
