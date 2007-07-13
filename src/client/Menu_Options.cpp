@@ -230,6 +230,9 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 140, 170, 17,17);
 #ifndef WIN32
 	cOpt_System.Add( new CLabel("OpenGL acceleration",tLX->clNormalLabel),Static, 440, 170, 0,0);
+#else // WIN32
+	// On Windows it's slower so Acceleration isn't the right word I think...
+	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 170, 0,0);
 #endif
 	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
 
@@ -261,10 +264,6 @@ int Menu_OptionsInitialize(void)
 
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);
-
-#ifdef WIN32
-	cOpt_System.getWidget(os_OpenGL)->setEnabled(false);
-#endif
 
 	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
 
@@ -708,13 +707,14 @@ void Menu_OptionsFrame(void)
 		default: tLXOptions->iColourDepth = 16;
 		}
 
-		if (cdepth != tLXOptions->iColourDepth)  {
+		if ((cdepth != tLXOptions->iColourDepth) || (opengl != tLXOptions->bOpenGL))  {
 			Menu_MessageBox("Information","You need to restart LieroX for the changes to take effect",LMB_OK);
 			Menu_redrawBufferRect(0,0,640,480);
+			tLXOptions->bOpenGL = opengl;
 		}
 
 
-		if((fullscr != tLXOptions->iFullscreen) || (opengl != tLXOptions->bOpenGL))
+		if(fullscr != tLXOptions->iFullscreen)
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
         else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
