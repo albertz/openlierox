@@ -15,12 +15,26 @@
 			EAD99F620C063CA6003BE563 /* OpenLieroX */,
 		);
 		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					135,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					300,
+					247,
 					20,
 					48,
 					43,
@@ -94,8 +108,8 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					200,
-					120,
+					255,
+					20,
 					20,
 					48,
 					43,
@@ -189,6 +203,14 @@
 	EA430C0F0BEFCEB400C6547E /* Menu_Local.cpp */ = {
 		uiCtxt = {
 			sepNavWindowFrame = "{{15, 81}, {749, 658}}";
+		};
+	};
+	EA430C1A0BEFCEB400C6547E /* Menu_Options.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {884, 11368}}";
+			sepNavSelRange = "{6959, 0}";
+			sepNavVisRect = "{{0, 3096}, {710, 374}}";
+			sepNavWindowFrame = "{{15, 75}, {749, 503}}";
 		};
 	};
 	EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */ = {
@@ -527,10 +549,10 @@
 	};
 	EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {710, 374}}";
-			sepNavSelRange = "{0, 0}";
+			sepNavIntBoundsRect = "{{0, 0}, {710, 378}}";
+			sepNavSelRange = "{393, 0}";
 			sepNavVisRect = "{{0, 0}, {710, 374}}";
-			sepNavWindowFrame = "{{15, 75}, {749, 503}}";
+			sepNavWindowFrame = "{{48, 73}, {749, 503}}";
 		};
 	};
 	EAE7662C0C47941F00788523 /* PBXTextBookmark */ = {

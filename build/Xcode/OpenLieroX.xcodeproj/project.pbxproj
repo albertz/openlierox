@@ -21,7 +21,19 @@
 		EA430DEC0BEFEB1100C6547E /* nltime.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DE10BEFEB1100C6547E /* nltime.c */; };
 		EA430DED0BEFEB1100C6547E /* sock.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DE20BEFEB1100C6547E /* sock.c */; };
 		EA430DEE0BEFEB1100C6547E /* thread.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DE30BEFEB1100C6547E /* thread.c */; };
-		EAD6E4540C47B89D00D6C836 /* SDL in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD99FDB0C0644D6003BE563 /* SDL */; };
+		EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */; };
+		EAD6E4C80C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */; };
+		EAD6E4C90C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C00C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png */; };
+		EAD6E4CA0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.64.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C10C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.64.png */; };
+		EAD6E4CB0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.128.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C20C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.128.png */; };
+		EAD6E4CC0C47EF5900D6C836 /* OpenLieroX.16.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C30C47EF5900D6C836 /* OpenLieroX.16.png */; };
+		EAD6E4CD0C47EF5900D6C836 /* OpenLieroX.32.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C40C47EF5900D6C836 /* OpenLieroX.32.png */; };
+		EAD6E4CE0C47EF5900D6C836 /* OpenLieroX.64.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C50C47EF5900D6C836 /* OpenLieroX.64.png */; };
+		EAD6E4CF0C47EF5900D6C836 /* OpenLieroX.128.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C60C47EF5900D6C836 /* OpenLieroX.128.png */; };
+		EAD6E4D00C47EF5900D6C836 /* OpenLieroX.alt.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */; };
+		EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
+		EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
+		EAD6E50C0C4819D200D6C836 /* macosx.icns in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E50B0C4819CF00D6C836 /* macosx.icns */; };
 		EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */; };
 		EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */; };
 		EAD99F690C063ECA003BE563 /* CBanList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3F0BEFCEB400C6547E /* CBanList.cpp */; };
@@ -107,7 +119,6 @@
 		EAD99FB90C063ECA003BE563 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3A0BEFCEB400C6547E /* StringUtils.cpp */; };
 		EAD99FBA0C063ECA003BE563 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3B0BEFCEB400C6547E /* Timer.cpp */; };
 		EAD99FBB0C063ECA003BE563 /* Unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3C0BEFCEB400C6547E /* Unicode.cpp */; };
-		EAD99FBE0C063F0D003BE563 /* OpenLieroX.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD99FBD0C063F0D003BE563 /* OpenLieroX.png */; };
 		EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EA430DD20BEFEA8900C6547E /* libHawkNL.a */; };
 		EAE7663A0C4794C200788523 /* IfyouDontLikeItThenIWillEatYourSoul.svg in Resources */ = {isa = PBXBuildFile; fileRef = EAE766380C4794C200788523 /* IfyouDontLikeItThenIWillEatYourSoul.svg */; };
 		EAE7663B0C4794C200788523 /* OpenLieroX.svg in Resources */ = {isa = PBXBuildFile; fileRef = EAE766390C4794C200788523 /* OpenLieroX.svg */; };
@@ -122,6 +133,20 @@
 			remoteInfo = HawkNL;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EAD6E4FD0C47F47200D6C836 /* Copy Frameworks into .app */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 11;
+			files = (
+				EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */,
+			);
+			name = "Copy Frameworks into .app";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		EA38B0300C467928008ABAAE /* CAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAnimation.cpp; sourceTree = "<group>"; };
@@ -310,10 +335,20 @@
 		EA430DE30BEFEB1100C6547E /* thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thread.c; path = ../../hawknl/src/thread.c; sourceTree = SOURCE_ROOT; };
 		EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IpToCountryDB.cpp; path = ../../src/common/IpToCountryDB.cpp; sourceTree = SOURCE_ROOT; };
 		EA430FF20BF8BA3100C6547E /* IpToCountryDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IpToCountryDB.h; path = ../../include/IpToCountryDB.h; sourceTree = SOURCE_ROOT; };
+		EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.16.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.16.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4C00C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.32.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.32.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4C10C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.64.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.64.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4C20C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.128.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.128.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4C30C47EF5900D6C836 /* OpenLieroX.16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.16.png; path = ../../share/OpenLieroX.16.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4C40C47EF5900D6C836 /* OpenLieroX.32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.32.png; path = ../../share/OpenLieroX.32.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4C50C47EF5900D6C836 /* OpenLieroX.64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.64.png; path = ../../share/OpenLieroX.64.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4C60C47EF5900D6C836 /* OpenLieroX.128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.128.png; path = ../../share/OpenLieroX.128.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.alt.png; path = ../../share/OpenLieroX.alt.png; sourceTree = SOURCE_ROOT; };
+		EAD6E4D10C47EF7500D6C836 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
+		EAD6E50B0C4819CF00D6C836 /* macosx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = macosx.icns; path = ../../share/macosx.icns; sourceTree = SOURCE_ROOT; };
 		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OpenLieroX-Info.plist"; sourceTree = "<group>"; };
-		EAD99FBD0C063F0D003BE563 /* OpenLieroX.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.png; path = ../../share/OpenLieroX.png; sourceTree = SOURCE_ROOT; };
-		EAD99FDB0C0644D6003BE563 /* SDL */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = SDL; path = libs/SDL; sourceTree = SOURCE_ROOT; };
 		EAE6E6F30C062D9400F6AFB4 /* CsvReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvReader.h; sourceTree = "<group>"; };
 		EAE766270C4793C800788523 /* CAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAnimation.h; sourceTree = "<group>"; };
 		EAE766280C4793C800788523 /* CBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBar.h; sourceTree = "<group>"; };
@@ -335,8 +370,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EAD6E4540C47B89D00D6C836 /* SDL in Frameworks */,
 				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
+				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
+				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,8 +388,8 @@
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				EA430DEF0BEFEB1A00C6547E /* HawkNL source */,
 				EAD99FD10C06408E003BE563 /* share */,
+				EAD6E4BE0C47EF1F00D6C836 /* Frameworks */,
 				EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */,
-				EAD99FDB0C0644D6003BE563 /* SDL */,
 			);
 			name = OpenLieroX;
 			sourceTree = "<group>";
@@ -646,12 +682,30 @@
 			name = "HawkNL source";
 			sourceTree = "<group>";
 		};
+		EAD6E4BE0C47EF1F00D6C836 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EAD6E4D10C47EF7500D6C836 /* SDL.framework */,
+				EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		EAD99FD10C06408E003BE563 /* share */ = {
 			isa = PBXGroup;
 			children = (
+				EAD6E50B0C4819CF00D6C836 /* macosx.icns */,
+				EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */,
+				EAD6E4C00C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png */,
+				EAD6E4C10C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.64.png */,
+				EAD6E4C20C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.128.png */,
+				EAD6E4C30C47EF5900D6C836 /* OpenLieroX.16.png */,
+				EAD6E4C40C47EF5900D6C836 /* OpenLieroX.32.png */,
+				EAD6E4C50C47EF5900D6C836 /* OpenLieroX.64.png */,
+				EAD6E4C60C47EF5900D6C836 /* OpenLieroX.128.png */,
+				EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */,
 				EAE766380C4794C200788523 /* IfyouDontLikeItThenIWillEatYourSoul.svg */,
 				EAE766390C4794C200788523 /* OpenLieroX.svg */,
-				EAD99FBD0C063F0D003BE563 /* OpenLieroX.png */,
 			);
 			name = share;
 			sourceTree = "<group>";
@@ -693,6 +747,7 @@
 				EAD99F5D0C063CA6003BE563 /* Resources */,
 				EAD99F5E0C063CA6003BE563 /* Sources */,
 				EAD99F5F0C063CA6003BE563 /* Frameworks */,
+				EAD6E4FD0C47F47200D6C836 /* Copy Frameworks into .app */,
 			);
 			buildRules = (
 			);
@@ -726,9 +781,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EAD99FBE0C063F0D003BE563 /* OpenLieroX.png in Resources */,
 				EAE7663A0C4794C200788523 /* IfyouDontLikeItThenIWillEatYourSoul.svg in Resources */,
 				EAE7663B0C4794C200788523 /* OpenLieroX.svg in Resources */,
+				EAD6E4C80C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png in Resources */,
+				EAD6E4C90C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png in Resources */,
+				EAD6E4CA0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.64.png in Resources */,
+				EAD6E4CB0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.128.png in Resources */,
+				EAD6E4CC0C47EF5900D6C836 /* OpenLieroX.16.png in Resources */,
+				EAD6E4CD0C47EF5900D6C836 /* OpenLieroX.32.png in Resources */,
+				EAD6E4CE0C47EF5900D6C836 /* OpenLieroX.64.png in Resources */,
+				EAD6E4CF0C47EF5900D6C836 /* OpenLieroX.128.png in Resources */,
+				EAD6E4D00C47EF5900D6C836 /* OpenLieroX.alt.png in Resources */,
+				EAD6E50C0C4819D200D6C836 /* macosx.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1006,9 +1070,6 @@
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/libs\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/libs\"";
 				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-lSDL",
 					"-lSDLmain",
 					"-lSDL_image",
 					"-lSDL_mixer",
@@ -1042,9 +1103,6 @@
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/libs\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/libs\"";
 				OTHER_LDFLAGS = (
-					"-framework",
-					Cocoa,
-					"-lSDL",
 					"-lSDLmain",
 					"-lSDL_image",
 					"-lSDL_mixer",
