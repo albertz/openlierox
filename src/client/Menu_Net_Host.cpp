@@ -696,6 +696,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Reload the level and mod list when the user switches back to game
 	// Do not reaload when any of the dialogs is open
 	if (bActivated)  {
+
 		// Get the mod name
 		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
 		if(it)
@@ -706,10 +707,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Fill in the levels list
 		cHostLobby.SendMessage(hl_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
+		std::string oldmap = tLXOptions->tGameinfo.sMapFilename;
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 
-		// Redraw the minimap
-		Menu_HostShowMinimap();
+		// Redraw the minimap if the level has changed
+		if (stringcasecmp(oldmap, tLXOptions->tGameinfo.sMapFilename))
+			Menu_HostShowMinimap();
 	}
 
 
