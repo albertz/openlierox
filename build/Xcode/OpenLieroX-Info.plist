@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>OpenLieroX</string>
+	<string>IfyouDontLikeItThenIWillEatYourSoul</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.OpenLieroX</string>
 	<key>CFBundleInfoDictionaryVersion</key>

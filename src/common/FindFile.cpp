@@ -330,16 +330,20 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 
 searchpathlist	basesearchpaths;
 void InitBaseSearchPaths() {
-	// TODO: it would be nice to have also Mac OS X conversions
 	basesearchpaths.clear();
-#ifndef WIN32
-	AddToFileList(&basesearchpaths, "${HOME}/.OpenLieroX");
+#if defined(MACOSX)
+	AddToFileList(&basesearchpaths, "${HOME}/Library/Application Support/OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX"); // no use of ${SYSTEM_DATA}, because it is uncommon and could cause confusion to the user
-#else // Win32
+	AddToFileList(&basesearchpaths, "${BIN}/../Resources");
+	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX");
+#elif defined(WIN32)
 	AddToFileList(&basesearchpaths, "${HOME}/OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
 	AddToFileList(&basesearchpaths, "${BIN}");
+#else // all other systems (Linux, *BSD, OS/2, ...)
+	AddToFileList(&basesearchpaths, "${HOME}/.OpenLieroX");
+	AddToFileList(&basesearchpaths, ".");
+	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX"); // no use of ${SYSTEM_DATA}, because it is uncommon and could cause confusion to the user
 #endif
 }
 
@@ -436,7 +440,7 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 	if(write_mode || append_mode) {
 		std::string writefullname = GetWriteFullFileName(path, true);
 		if(append_mode && fullfn != "") { // check, if we should copy the file
-			if(IsFileAvailable(fullfn,true)) { // we found the file
+			if(IsFileAvailable(fullfn, true)) { // we found the file
 				// GetWriteFullFileName ensures an exact filename,
 				// so no case insensitive check is needed here
 				if(fullfn != writefullname) {
