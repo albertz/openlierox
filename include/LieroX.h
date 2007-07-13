@@ -68,7 +68,6 @@ class lierox_t { public:
 							// it is not clamped like the previous one
 	CFont	cFont;
 	CFont	cOutlineFont;
-	CFont	cOutlineFontGrey;
 
 	int		iQuitGame;
 	int		iQuitEngine;

@@ -254,7 +254,6 @@ bool LoadFonts()  {
 	tLX->cFont.SetVSpacing(0);
 	tLX->cOutlineFont.SetOutline(true);
 	tLX->cOutlineFont.SetSpacing(0);
-	tLX->cOutlineFontGrey.SetSpacing(0);
 
 	// Normal font
 	if(!tLX->cFont.Load("data/gfx/font.png",true))
@@ -262,11 +261,6 @@ bool LoadFonts()  {
 
 	// Outline font
 	if(!tLX->cOutlineFont.Load("data/gfx/out_font.png",true))
-		return false;
-
-	// Grey outline font
-	// TODO: get rid of this font
-	if(!tLX->cOutlineFontGrey.Load("data/gfx/out_fontgrey.png",false))
 		return false;
 
 	return true;
@@ -281,6 +275,5 @@ void ShutdownGraphics(void)
 	if (tLX)  {
 		tLX->cFont.Shutdown();
 		tLX->cOutlineFont.Shutdown();
-		tLX->cOutlineFontGrey.Shutdown();
 	}
 }

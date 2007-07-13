@@ -39,7 +39,7 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "../../share/gamedir/"
+# PROP Output_Dir "../../distrib/win32"
 # PROP Intermediate_Dir "obj/Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"obj/debug/Game.bsc"
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBC" /out:"../../share/gamedir/LieroX.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBC" /out:"../../share/gamedir/OpenLieroX.exe"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "Game - Win32 Debug"
@@ -81,8 +81,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"obj/debug/Game.bsc"
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /pdb:"obj/debug/Game.pdb" /debug /debugtype:both /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /MAPINFO:LINES /MAPINFO:EXPORTS
-# SUBTRACT LINK32 /pdb:none /incremental:no
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:windows /pdb:"obj/debug/Game.pdb" /debug /debugtype:cv /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /MAPINFO:LINES /MAPINFO:EXPORTS
+# SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "Game - Win32 Profile"
 
@@ -208,10 +208,6 @@ SOURCE=..\..\include\Cursor.h
 # Begin Source File
 
 SOURCE=..\..\include\CVec.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\defs.h
 # End Source File
 # Begin Source File
 
@@ -518,6 +514,14 @@ SOURCE=..\..\include\Protocol.h
 # PROP Default_Filter "cpp; h"
 # Begin Source File
 
+SOURCE=..\..\src\client\CAnimation.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CAnimation.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\CBox.cpp
 # End Source File
 # Begin Source File
@@ -603,6 +607,10 @@ SOURCE=..\..\src\client\CMenu.cpp
 # Begin Source File
 
 SOURCE=..\..\include\CMenu.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CProgressbar.h
 # End Source File
 # Begin Source File
 
@@ -774,20 +782,12 @@ SOURCE=.\libs\sdlgfx.lib
 # PROP Default_Filter "*"
 # Begin Source File
 
-SOURCE=..\..\share\ico00001.ico
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\share\icon1.ico
+SOURCE=..\..\share\OpenLieroX.ico
 # End Source File
 # Begin Source File
 
 SOURCE=.\resource.rc
 # End Source File
-# End Group
-# Begin Group "Blast"
-
-# PROP Default_Filter "cpp, h"
 # End Group
 # Begin Group "Game Core"
 
