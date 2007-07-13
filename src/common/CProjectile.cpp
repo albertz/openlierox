@@ -101,9 +101,6 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 				return res;*/
 			return res;
 		}
-
-		// TODO: comment outdated
-		// Don't leave, coz we still need to process it with a normal delta time
 	}
 
 /*
@@ -301,7 +298,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	} else if (len >= 250000)  {
 		int rnd = GetRandomInt(2)*SIGN(GetRandomNum());
 		MIN_CHECKSTEP = 6;
-		MAX_CHECKSTEP = 9 +r nd;
+		MAX_CHECKSTEP = 9 + rnd;
 		AVG_CHECKSTEP = 6 + rnd;
 	}
 	

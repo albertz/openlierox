@@ -117,10 +117,10 @@ int Menu_Initialize(bool *game)
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
 
-	// Open a socket for communicating over the net (UDP)
-	tMenu->tSocket[SCK_NET] = OpenUnreliableSocket(0);
 	// Open a socket for broadcasting over a LAN (UDP)
 	tMenu->tSocket[SCK_LAN] = OpenBroadcastSocket(0);
+	// Open a socket for communicating over the net (UDP)
+	tMenu->tSocket[SCK_NET] = OpenUnreliableSocket(0);
 
 	if(!IsSocketStateValid(tMenu->tSocket[SCK_LAN]) || !IsSocketStateValid(tMenu->tSocket[SCK_NET])) {
 		SystemError("Error: Failed to open a socket for networking");

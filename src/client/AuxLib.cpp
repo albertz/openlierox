@@ -69,7 +69,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
 	bmpIcon = SDL_LoadBMP("data/icon.bmp");
 	if(bmpIcon)
-		SDL_WM_SetIcon(bmpIcon,NULL);
+		SDL_WM_SetIcon(bmpIcon, NULL);
 
 
 	if(!SetVideoMode())
