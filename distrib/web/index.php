@@ -19,12 +19,12 @@
 	The original game was coded by Jason Boettcher and later
 	released under the zlib-licence.<br>
 	This version is based on it, ported to Linux and a lot enhanced
-	by Dark Charlie and Albert Zeyer.
+	by Karel Petránek and Albert Zeyer.
 </p>
 <p>
 	<h2>Screenshots</h2>
-	<img src="lierox3.png"><br><br>
-	<img src="lierox31.png">
+	<img src="pics/lierox3.png"><br><br>
+	<img src="pics/lierox31.png">
 </p>
 <p>
 	<h2>Downloads</h2>
