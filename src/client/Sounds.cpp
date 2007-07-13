@@ -360,7 +360,7 @@ float GetCurrentMusicTime(void)
 
 void SetMusicVolume(byte vol)
 {
-	vol = MIN(vol,100);
+	vol = (byte)MIN(vol,100);
 	iMusicVolume = vol;
 	tLXOptions->iMusicVolume = vol;
 

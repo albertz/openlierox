@@ -353,7 +353,7 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	uchar cur = bs->readByte();
 	uchar charge = bs->readByte();
 
-    cur = MIN(cur, 4);
+    cur = (uchar)MIN(cur, 4);
 
 
 	// If this is a special weapon, and the charge is processed client side, don't set the charge

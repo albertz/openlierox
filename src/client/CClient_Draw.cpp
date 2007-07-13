@@ -317,7 +317,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	float dt = tLX->fDeltaTime;
 
 	// TODO: allow more worms
-	num = MIN(2,iNumWorms);
+	num = (ushort)MIN(2,iNumWorms);
 
 
 	// Check for any communication errors
@@ -384,7 +384,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
         for( i=0; i<NUM_VIEWPORTS; i++ ) {
             if( cViewports[i].getUsed() )  {
 				cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
-                DrawViewport(bmpDest, i);
+                DrawViewport(bmpDest, (byte)i);
 			}
         }
 

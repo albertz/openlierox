@@ -154,7 +154,7 @@ void GameServer::SimulateGame(void)
 				cBonuses[i].setUsed(false);
 
 				bs.writeByte(S2C_DESTROYBONUS);
-				bs.writeByte(i);
+				bs.writeByte((byte)i);
 				SendGlobalPacket(&bs);
 			}
 		}

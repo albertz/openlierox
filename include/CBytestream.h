@@ -38,9 +38,9 @@ public:
 private:
 	// Attributes
 
-	int			CurByte;
+	size_t		CurByte;
 
-	int			Length;
+	size_t			Length;
 	unsigned char	Data[MAX_DATA]; // TODO: use std::sstream
 
 
@@ -50,10 +50,10 @@ public:
 
 	// Generic data
 	uchar		*GetData(void)			{ return Data; }
-	int			GetLength(void)			{ return Length; }
-	void		SetLength(int l)		{ Length = l; }
-	int			GetPos(void)			{ return CurByte; }
-	void		SetPos(int _p)			{ CurByte = _p; }
+	size_t		GetLength(void)			{ return Length; }
+	void		SetLength(size_t l)		{ Length = l; }
+	size_t		GetPos(void)			{ return CurByte; }
+	void		SetPos(size_t _p)			{ CurByte = _p; }
 
 
 	void		Reset(void)				{ CurByte = 0; }
@@ -97,8 +97,8 @@ public:
 	bool		SkipString();
 	
 	// Networking stuff
-	inline void		Send(NetworkSocket sock)		{ WriteSocket(sock,Data,Length); }
-	inline int		Read(NetworkSocket sock)		{ Clear(); Length = ReadSocket(sock,Data,MAX_DATA); return (Length>0)?Length:0; }
+	inline void		Send(NetworkSocket sock)		{ WriteSocket(sock,Data,(int)Length); }
+	inline size_t	Read(NetworkSocket sock)		{ Clear(); Length = ReadSocket(sock,Data,MAX_DATA); return (Length>0)?Length:0; }
 	
 
 

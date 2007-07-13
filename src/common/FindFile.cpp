@@ -22,7 +22,10 @@
 
 
 #ifdef WIN32
+#	ifndef _WIN32_IE
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
+#	endif
+
 #	include <shlobj.h>
 
 #else // WIN32
@@ -94,7 +97,7 @@ list.clear();
 	int len = GetLogicalDriveStrings(sizeof(drives),drives); // Get the list of drives
 	drive_t tmp;
 	if (len)  {
-		for (register int i=0; i<len; i+=strnlen(&drives[i],4)+1)  {
+		for (register int i=0; i<len; i+=(int)strnlen(&drives[i],4)+1)  {
 			// Create the name (for example: C:\)
 			tmp.name = &drives[i];
 			// Get the type
@@ -491,7 +494,7 @@ void AddToFileList(searchpathlist* l, const std::string& f) {
 void removeEndingSlashes(std::string& s) {
 	// TODO: iterators!
 	for(
-		int i = s.size() - 1;
+		int i = (int)s.size() - 1;
 		i > 0 && (s[i] == '\\' || s[i] == '/');
 		i--
 	)

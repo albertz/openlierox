@@ -259,7 +259,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 	// End
 	if(c == SDLK_END) {
 		if (bShift)
-			iSelLength = -Utf8StringSize(sText) + iCurpos;
+			iSelLength = -(int)Utf8StringSize(sText) + iCurpos;
 		else
 			iSelLength = 0;
 
@@ -409,7 +409,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		if ((abs(tMouse->X - iLastMouseX) && (iCurpos - iLastCurpos)) || (scrolled))  {
 			if (scrolled)
 				scrolled = true;
-			iSelLength += -(iCurpos - iLastCurpos);
+			iSelLength += -(int)(iCurpos - iLastCurpos);
 			// We can't lose the focus
 			iCanLoseFocus = false;
 		}

@@ -75,10 +75,10 @@ public:
 	void		setRepeat(bool _r);
 	inline bool	getRepeat(void)		{return bRepeat; }
 	inline bool	getPlaylistEnded(void) { return (iCurSong == -1) || (tSongList.size() == 0); }
-	inline void SetCurSong(int s) { s=MIN(s,tSongList.size()); s=MAX(0,s); iCurSong = s; }
+	inline void SetCurSong(int s) { s=MIN(s,(int)tSongList.size()); s=MAX((int)0,s); iCurSong = s; }
 	void		setShuffle(bool _s);
 	inline bool	getShuffle(void) { return bShuffle; }
-	inline int	getNumSongs(void) { return tSongList.size(); }
+	inline size_t getNumSongs(void) { return tSongList.size(); }
 
 	void		SaveToFile(const std::string& filename,bool absolute_path);
 	void		LoadFromFile(const std::string& filename,bool absolute_path);

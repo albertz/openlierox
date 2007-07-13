@@ -436,7 +436,7 @@ void Menu_Player_NewPlayer(int mouse)
 		else
 			fPlayerSkinAngle -= tLX->fDeltaTime*220;
 
-		fPlayerSkinFrame += tLX->fDeltaTime*7.5;
+		fPlayerSkinFrame += tLX->fDeltaTime*7.5f;
 
 
 		if ((int)fPlayerSkinAngle >= 60)  {
@@ -586,9 +586,9 @@ void Menu_Player_ViewPlayers(int mouse)
 	                profile_t *p = FindProfile(sel);
 	                if(p) {
                         cViewPlayers.SendMessage(vp_Name, TXS_GETTEXT, &p->sName, 0);
-                        p->R = cViewPlayers.SendMessage(vp_Red,SLM_GETVALUE,(DWORD)0,0);
-                        p->G = cViewPlayers.SendMessage(vp_Green,SLM_GETVALUE,(DWORD)0,0);
-                        p->B = cViewPlayers.SendMessage(vp_Blue,SLM_GETVALUE,(DWORD)0,0);
+                        p->R = (Uint8)cViewPlayers.SendMessage(vp_Red,SLM_GETVALUE,(DWORD)0,0);
+                        p->G = (Uint8)cViewPlayers.SendMessage(vp_Green,SLM_GETVALUE,(DWORD)0,0);
+                        p->B = (Uint8)cViewPlayers.SendMessage(vp_Blue,SLM_GETVALUE,(DWORD)0,0);
                         p->iType = cViewPlayers.SendMessage(vp_Type, CBM_GETCURINDEX,(DWORD)0,0);
                         p->nDifficulty = cViewPlayers.SendMessage(vp_AIDiff, SLM_GETVALUE,(DWORD)0,0);
                         cViewPlayers.SendMessage(vp_PlySkin, CBS_GETCURSINDEX, &p->szSkin, 0);
@@ -705,7 +705,7 @@ void Menu_Player_ViewPlayers(int mouse)
 			else
 				fPlayerSkinAngle -= tLX->fDeltaTime*200;
 
-			fPlayerSkinFrame += tLX->fDeltaTime*7.5;
+			fPlayerSkinFrame += tLX->fDeltaTime*7.5f;
 
 			if (fPlayerSkinAngle >= 60)  {
 				fPlayerSkinAngle = 60;

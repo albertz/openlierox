@@ -522,7 +522,7 @@ public:
 
 	inline CVec		getFollowPos(void)				{ return (bFollowOverride?vFollowPos:vPos); }
 	inline void		resetFollow(void)				{ bFollowOverride = false; }
-	inline void		doFollow(int x, int y)				{ bFollowOverride = true; vFollowPos.x = x; vFollowPos.y = y; }
+	inline void		doFollow(int x, int y)				{ bFollowOverride = true; vFollowPos.x = (float)x; vFollowPos.y = (float)y; }
 	
 	inline CVec		getPos(void)				{ return vPos; }
 	inline void		setPos(CVec v)				{ vPos = v; }

@@ -169,7 +169,7 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 		return false;
 
 	const std::vector<std::string>& arr = explode(string,",");
-	for (register unsigned int i=0; i<MIN(num_items,arr.size()); i++)
+	for (register int i=0; i<MIN(num_items,(int)arr.size()); i++)
 		array[i] = from_string<int>(arr[i]);
 
 	return num_items == (int)arr.size();
@@ -236,7 +236,7 @@ int GetString(const std::string& filename, const std::string& section, const std
 		if(chardest != std::string::npos)
 		{
 			// Key
-			Position = chardest;
+			Position = (int)chardest;
 			tmpLine = Line;
 			tmpLine.erase(Position);
 			TrimSpaces(tmpLine);

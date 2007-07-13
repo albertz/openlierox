@@ -71,7 +71,7 @@ public:
 	inline lines_riterator REnd()  { return WrappedLines.rend(); }
 	line_t *GetNewLine(void);
     void    setWidth(int w);
-	inline unsigned int		getNumLines(void)	{ return WrappedLines.size(); }
+	inline size_t		getNumLines(void)	{ return WrappedLines.size(); }
 };
 
 

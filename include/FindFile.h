@@ -77,7 +77,12 @@ class drive_t { public:
 
 typedef std::vector<drive_t> drive_list;
 
-
+// Define intptr_t if not defined
+#ifdef WIN32
+#ifndef _INTPTR_T_DEFINED
+typedef long intptr_t;
+#endif
+#endif
 
 typedef std::vector<std::string> searchpathlist;
 extern searchpathlist tSearchPaths;
@@ -262,7 +267,7 @@ public:
 #ifdef WIN32
 		struct _finddata_t fileinfo;
 		abs_path.append("/*");
-		long handle = _findfirst(abs_path.c_str(), &fileinfo);
+		intptr_t handle = _findfirst(abs_path.c_str(), &fileinfo);
 		while(handle > 0) {
 			//If file is not self-directory or parent-directory
 			if(fileinfo.name[0] != '.' || (fileinfo.name[1] != '\0' && (fileinfo.name[1] != '.' || fileinfo.name[2] != '\0'))) {

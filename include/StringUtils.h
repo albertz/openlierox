@@ -58,6 +58,8 @@
 #endif
 #	define vsnprintf _vsnprintf
 #	define snprintf	 _snprintf
+#	define stricmp _stricmp
+#	define fcloseall _fcloseall
 #else
 inline char* strlwr(char* string) {
 	char* ret = string;

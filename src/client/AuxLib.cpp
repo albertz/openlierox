@@ -366,7 +366,7 @@ int SetClipboardText(const std::string& szText)
 
 	// Allocate memory
 	LPTSTR  lptstrCopy;
-	int cch = szText.size();
+	size_t cch = szText.size();
 	HGLOBAL hglbCopy = GlobalAlloc(GMEM_SHARE | GMEM_MOVEABLE, (cch + 1) * sizeof(TCHAR));
     if (hglbCopy == NULL)
     {
@@ -386,7 +386,7 @@ int SetClipboardText(const std::string& szText)
 	// Close the clipboard
 	CloseClipboard();
 
-    return szText.size();
+    return (int)szText.size();
 #else
 	// TODO: what is with linux here?
 	return 0;
@@ -437,7 +437,7 @@ void TakeScreenshot(bool Tournament)
 }
 
 #ifdef WIN32
-WNDPROC wpOriginal;
+LONG wpOriginal;
 bool Subclassed = false;
 
 ////////////////////
@@ -446,7 +446,10 @@ void SubclassWindow(void)
 {
 	if (Subclassed)
 		return;
-	wpOriginal = (WNDPROC)SetWindowLong(GetWindowHandle(),GWL_WNDPROC,(LONG)&WindowProc);
+
+#pragma warning(disable:4311)  // Temporarily disable, the typecast is OK here
+	wpOriginal = SetWindowLong(GetWindowHandle(),GWL_WNDPROC,(LONG)(&WindowProc));
+#pragma warning(default:4311) // Enable the warning
 	Subclassed = true;
 }
 
@@ -456,7 +459,9 @@ void UnSubclassWindow(void)
 {
 	if (!Subclassed)
 		return;
-	SetWindowLong(GetWindowHandle(),GWL_WNDPROC, (LONG)wpOriginal);
+
+	SetWindowLong(GetWindowHandle(),GWL_WNDPROC, wpOriginal);
+
 	Subclassed = false;
 }
 
@@ -476,6 +481,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 
-	return CallWindowProc(wpOriginal,hwnd,uMsg,wParam,lParam);
+#pragma warning(disable:4312)
+	return CallWindowProc((WNDPROC)wpOriginal,hwnd,uMsg,wParam,lParam);
+#pragma warning(default:4312)
 }
 #endif

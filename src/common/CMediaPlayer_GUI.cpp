@@ -400,6 +400,10 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 {
 	// TODO: what is the sense of this?
 
+
+	if (dir == "")
+		return true;
+
 	std::string tmp;
 	tmp = dir;
 
@@ -407,7 +411,7 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 	replace(tmp,"//","/",tmp);
 	replace(tmp,"\\/","/",tmp);
 
-	int len = tmp.size();
+	size_t len = tmp.size();
 
 	// Remove the ending slash
 	if (tmp[len-1] == '\\' || tmp[len-1] == '/')
@@ -465,12 +469,15 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 // Fills the list with the subdirectories of the "dir"
 void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 {
-	/*static*/ std::string directory;
-	/*static*/ std::string tmp_dir;
-	/*static*/ std::string parent_dir;
+	if (dir == "")
+		return;
+
+	std::string directory;
+	std::string tmp_dir;
+	std::string parent_dir;
 	size_t dir_name_pos;
 	int index=0;
-	int len = 0;
+	size_t len = 0;
 	bool isroot = false;  // True if we're in root directory of the current drive
 	bool goto_drive_list = false;  // True if we're going to go in the drive list
 

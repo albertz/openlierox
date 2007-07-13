@@ -58,7 +58,6 @@ void        TakeScreenshot(bool Tournament);
 
 // Subclass
 #ifdef WIN32
-extern WNDPROC wpOriginal;
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void		SubclassWindow(void);
 void		UnSubclassWindow(void);

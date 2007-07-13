@@ -1211,7 +1211,7 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 		printf("CClient::ParseUpdateStats: invalid worm count ("+itoa(num)+") - clamping\n");
 
 	short oldnum = num;
-	num = MIN(num,MAX_PLAYERS);
+	num = (byte)MIN(num,MAX_PLAYERS);
 
 	short i;
 	for(i=0; i<num; i++)

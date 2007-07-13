@@ -2282,7 +2282,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 			/*if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
 				return false;
 			}*/
-			if(CProjectile::CheckCollision(wpnproj,1,pcMap,*from+CVec(x,y),CVec(2,dy)))
+			if(CProjectile::CheckCollision(wpnproj,1,pcMap,*from+CVec((float)x, (float)y),CVec(2.0f, (float)dy)))
 				return false;
 
 	#ifdef _AI_DEBUG
@@ -2312,7 +2312,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 			/*if (pcMap->GetPixelFlag(x+(int)from->x,y+(int)from->y) & (PX_ROCK|PX_DIRT))  {
 				return false;
 			}*/
-			if(CProjectile::CheckCollision(wpnproj,1,pcMap,*from+CVec(x,y),CVec(-2,dy)))
+			if(CProjectile::CheckCollision(wpnproj,1,pcMap,*from+CVec((float)x, (float)y), CVec(-2.0f, (float)dy)))
 				return false;
 
 	#ifdef _AI_DEBUG

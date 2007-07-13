@@ -21,6 +21,11 @@
 
 using namespace std;
 
+// Disable this warnings before we turn this to std::string
+#ifdef _MSC_VER
+#pragma warning(disable:4996)
+#endif
+
 /////////////////////
 // Clears the parser
 void CCssParser::Clear(void)
@@ -627,3 +632,7 @@ void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint
 		*LightColour = *DarkColour;
 }
 
+// Enable the warning
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#endif

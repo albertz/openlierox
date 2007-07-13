@@ -463,7 +463,7 @@ int CMap::CreateSurface(void)
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
 {
 	if (tLXOptions->bAntiAliasing)
-		DrawImageResampledAdv(bmpDrawImage, bmpImage, x, y, x*2, y*2, w, h, 2, 2, MAP_BLUR);
+		DrawImageResampledAdv(bmpDrawImage, bmpImage, (float)x, (float)y, x*2, y*2, w, h, 2, 2, MAP_BLUR);
 	else
 		DrawImageStretch2(bmpDrawImage, bmpImage, x, y, x*2, y*2, w, h);
 }
@@ -2611,8 +2611,8 @@ public:
 	set_col_and_break() : hit(false) {}
 	bool operator()(int x, int y) {
 		hit = true;
-		collision.x = x;
-		collision.y = y;
+		collision.x = (float)x;
+		collision.y = (float)y;
 		return false;
 	}
 };

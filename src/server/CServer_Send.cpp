@@ -93,7 +93,7 @@ bool GameServer::SendUpdate(CClient *cl)
     
     // Send all the _other_ worms details
     CWorm *w = cWorms;
-    short count = 0;
+    byte count = 0;
     for(i=0;i<MAX_WORMS;i++,w++) {
         if(!w->isUsed())
             continue;

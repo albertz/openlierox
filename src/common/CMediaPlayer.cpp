@@ -177,7 +177,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	Menu_DrawBox(screen,x,y,x+w,y+h);
 
 	tLX->cFont.DrawCentre(screen,x+w/2,y+5,tLX->clNormalLabel,"Searching for songs, please wait...");
-	tLX->cFont.Draw(screen,x+w/4,y+5+tLX->cFont.GetHeight()+5,tLX->clNormalLabel,"Songs found: "+itoa(tSongList.size()));
+	tLX->cFont.Draw(screen,x+w/4,y+5+tLX->cFont.GetHeight()+5,tLX->clNormalLabel,"Songs found: "+itoa((int)tSongList.size()));
 
 	btnCancel.Draw2(screen);
 
@@ -277,7 +277,7 @@ std::string CPlayList::GetCurSong() {
 	if(iCurSong < 1)
 		iCurSong = 0;
 	else if((size_t)iCurSong >= tSongList.size())
-		iCurSong = tSongList.size()-1;
+		iCurSong = (int)tSongList.size()-1;
 
 	result = tSongList[iCurSong];
 
@@ -289,7 +289,7 @@ std::string CPlayList::GetCurSong() {
 void CPlayList::GoToNextSong() {
 	// Shuffle, just get some random song
 	if (bShuffle)  {
-		iCurSong = GetRandomInt(tSongList.size()-1);
+		iCurSong = GetRandomInt((int)tSongList.size()-1);
 		iCurSong = abs(iCurSong);
 		iCurSong %= tSongList.size();
 	// Not shuffle, go to the next song
@@ -311,7 +311,7 @@ void CPlayList::GoToPrevSong(void)
 {
 	// Shuffle, just get some random song
 	if (bShuffle)  {
-		iCurSong = GetRandomInt(tSongList.size()-1);
+		iCurSong = GetRandomInt((int)tSongList.size()-1);
 		iCurSong = abs(iCurSong);
 		iCurSong %= tSongList.size();
 	// Not shuffle, go to the previous song
@@ -320,7 +320,7 @@ void CPlayList::GoToPrevSong(void)
 		iCurSong--;
 		if (iCurSong < 0)  {
 			if (bRepeat)
-				iCurSong = tSongList.size()-1;
+				iCurSong = (int)tSongList.size()-1;
 			else
 				iCurSong = -1;
 		}
