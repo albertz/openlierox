@@ -279,9 +279,9 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static const int NONE_COL_RET = -1000;
 	static const int SOME_COL_RET = -1;
 	
-	static int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
-	static int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
-	static int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
+	int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
+	int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
+	int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
 	static const int WORM_CHECKSTEP = 2; // this is used for worm collisions
 	int len = (int)vVelocity.GetLength2();
 	if (len < 14000)  {
@@ -301,8 +301,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	} else if (len >= 250000)  {
 		int rnd = GetRandomInt(2)*SIGN(GetRandomNum());
 		MIN_CHECKSTEP = 6;
-		MAX_CHECKSTEP = 9+rnd;
-		AVG_CHECKSTEP = 6+rnd;
+		MAX_CHECKSTEP = 9 +r nd;
+		AVG_CHECKSTEP = 6 + rnd;
 	}
 	
 	// Check if it hit the terrain

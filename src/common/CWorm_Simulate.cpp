@@ -566,7 +566,7 @@ void CWorm::SimulateWeapon( float dt )
 bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 {
 	int x,y;
-	static const int maxspeed2 = 20;
+	static const int maxspeed2 = 10;
 
 	// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 	if( (*vel*dt).GetLength2() > maxspeed2) {
