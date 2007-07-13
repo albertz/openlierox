@@ -293,8 +293,6 @@ void ucfirst(std::string& text)
 {
 	if (text == "") return;
 
-	if ((uchar)text[0] > 255)
-		__asm int 3;
 	text[0] = toupper(text[0]);
 	bool wasalpha = isalpha(text[0]) != 0;
 

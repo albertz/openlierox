@@ -636,3 +636,4 @@ void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint
 #ifdef _MSC_VER
 #pragma warning(default: 4996)
 #endif
+
