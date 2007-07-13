@@ -156,7 +156,7 @@ public:
 	SDL_Thread*		loader;
 	size_t			fileSize;
 	TSVar<size_t>	filePos;
-	bool			dbReady;
+	bool			dbReady; // false, if loaderThread is running
 	bool			loaderBreakSignal;
 	
 	IpToCountryData() : loader(NULL), fileSize(0), dbReady(true), loaderBreakSignal(false) { filePos = 0; }
@@ -182,7 +182,7 @@ public:
 
 		// Cleanup
 		loader = NULL;
-		dbReady = false;
+		dbReady = true;
 		loaderBreakSignal = false;
 	}
 

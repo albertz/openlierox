@@ -145,6 +145,7 @@ int SetVideoMode(void)
 		break;
 	default: tLXOptions->iColourDepth = 16;
 	}
+	printf("ColorDepth: %i\n", tLXOptions->iColourDepth);
 
 	// BlueBeret's addition (2007): OpenGL support
 	bool opengl = tLXOptions->bOpenGL;
