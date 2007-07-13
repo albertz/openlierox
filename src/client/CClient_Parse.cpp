@@ -376,6 +376,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			assert(cServer);
 
 			cMap = cServer->getMap();
+			cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
 		}
 
 	} else {

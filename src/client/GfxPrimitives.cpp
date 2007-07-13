@@ -478,8 +478,8 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 // Draw the image resized
 void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
 {
-	int dw = (int)((float)sw * xratio);
-	int dh = (int)((float)sh * yratio);
+	int dw = Round((float)sw * xratio);
+	int dh = Round((float)sh * yratio);
 
 	// Clipping rectangle
 	SDL_Rect src_cliprect, dst_cliprect;
@@ -579,8 +579,8 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx,
 		return;
 	}
 
-	int dw = (int)((float)sw * xratio);
-	int dh = (int)((float)sh * yratio);
+	int dw = Round((float)sw * xratio);
+	int dh = Round((float)sh * yratio);
 
 	// Clipping rectangle
 	SDL_Rect src_cliprect, dst_cliprect;
