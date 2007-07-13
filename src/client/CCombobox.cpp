@@ -31,6 +31,8 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	// Strip text buffer
 	static std::string buf;
 
+	int mainbitheight = MAX(tLX->cFont.GetHeight()+1, 16);  // 16 - arrow height
+
 	// Count the item height
 	int ItemHeight = tLX->cFont.GetHeight()+1;
 	if (iItemCount)
@@ -45,7 +47,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
     }
 
 	// Draw the background bit
-	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+ItemHeight+1);
+	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+mainbitheight+1);
 
 	if(iDropped) {
 		// Dropped down
