@@ -998,7 +998,8 @@ inline void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d
 
 
 inline void secure_perform_line(SDL_Surface* bmpDest, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
-	ClipLine(bmpDest, &x1, &y1, &x2, &y2); // Clipping
+	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
+		return;
 
 	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
 }
@@ -1166,7 +1167,8 @@ void DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 	ropecolour = 0;
 
 	// Clipping
-	ClipLine(bmp, &x1, &y1, &x2, &y2); 
+	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
+		return;
 
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);
@@ -1180,7 +1182,8 @@ void DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 void DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
 	// Clipping
-	ClipLine(bmp, &x1, &y1, &x2, &y2); 
+	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
+		return;
 
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, BeamPutPixelA);
@@ -1194,7 +1197,8 @@ void DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
 	// Clipping
-	ClipLine(bmp, &x1, &y1, &x2, &y2); 
+	if (!ClipLine(bmp, &x1, &y1, &x2, &y2))
+		return;
 
 	perform_line(bmp, x1, y1, x2, y2, color, LaserSightPutPixel);
 }
