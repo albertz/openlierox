@@ -1,8 +1,10 @@
 TODO list
 
+[ ] test and fix new CBytestream (!!)
+[ ] avoid unneeded multi loading of maps (!)
 [X] fix minimap updating (behaves weird when carving) (!!)
 [X] fix delta time (network synchronization) (!!)
-[ ] fix physics bugs (!!)
+[x] fix physics bugs (!!)
 [ ] new graphics engine (waytracing & pixelcache) (!)
 [?] are there new network errors? (!!)
 [?] finish unicode support (!!)
@@ -12,7 +14,7 @@ TODO list
 [X] add macro-variable to {en/dis}able the mediaplayer
 [ ] standalone dedicated server (!)
 [ ] create Mac OS X application package (!!)
-[ ] make it run on Mac OS X (!!)
+[x] make it run on Mac OS X (!!)
 [ ] finish documentation (README) (add more info there) (!!)
 [ ] begin developer documentation (basic info about the code and hints) (!)
 [ ] select different key for ingame console
@@ -25,7 +27,7 @@ TODO list
 [?] improve player profile options (many skins need long load time)
 [?] make physics more like original LX (we should abstract it now!)
 [ ] better bot aiming (fast numerical pre-physics-calculations) (!)
-[ ] better bot behavior (!)
+[ ] better bot behavior (!!)
 [ ] add option to save/load weapon selection
 [ ] add some help for weapon selection (cause not everybody understand it)
 [ ] allow more than 2 viewports (!)

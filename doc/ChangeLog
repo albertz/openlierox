@@ -1,5 +1,6 @@
 0.57_beta3
 ==========
+- runs on MacOSX 
 - new design & icon
 - full Unicode/UTF8 support
 - working Dev-C++ project (therefore MingW support)
