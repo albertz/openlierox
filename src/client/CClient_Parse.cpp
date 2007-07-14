@@ -33,9 +33,7 @@
 // Parse a connectionless packet
 void CClient::ParseConnectionlessPacket(CBytestream *bs)
 {
-	static std::string cmd;
-
-	cmd = bs->readString(128);
+	std::string cmd = bs->readString(128);
 
 	if(cmd == "lx::challenge")
 		ParseChallenge(bs);
@@ -55,8 +53,8 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	// Unknown
 	else  {
-		printf("CClient::ParseConnectionlessPacket: unknown command \""+cmd+"\"");
-		bs->SetPos(bs->GetLength()-1); // Safety: ignore any data behind this unknown packet
+		printf("CClient::ParseConnectionlessPacket: unknown command \"" + cmd + "\"");
+		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
 	}
 }
 
@@ -72,7 +70,7 @@ void CClient::ParseChallenge(CBytestream *bs)
 
 	// Tell the server we are connecting, and give the server our details
 	bytestr.writeInt(-1,4);
-	bytestr.writeString("%s","lx::connect");
+	bytestr.writeString("lx::connect");
 	bytestr.writeInt(PROTOCOL_VERSION,1);
 	bytestr.writeInt(iChallenge,4);
 	bytestr.writeInt(iNetSpeed,1);
@@ -170,15 +168,8 @@ void CClient::ParsePacket(CBytestream *bs)
 {
 	uchar cmd;
 
-	if(bs->GetLength()==0)
-		return;
-
-
-	while(1) {
+	while(!bs->isPosAtEnd()) {
 		cmd = bs->readInt(1);
-
-		if(bs->GetPos() > bs->GetLength())
-			break;
 
 		switch(cmd) {
 

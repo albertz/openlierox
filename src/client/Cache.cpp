@@ -58,8 +58,8 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
 		} else {
 			Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
-	// TODO: needed?
-	//		ResetAlpha(Image);
+			// TODO: needed?
+			//ResetAlpha(Image);
 		}
 	
 		SDL_FreeSurface(img);

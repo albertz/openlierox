@@ -97,8 +97,7 @@ void CChannel::Transmit( CBytestream *bs )
 
 	// And add on the un reliable data if room in the packet struct
 	if(bs) {
-		if(outpack.GetLength() + bs->GetLength() < MAX_DATA)
-			outpack.Append(bs);
+		outpack.Append(bs);
 	}
 	
 
@@ -126,7 +125,7 @@ int CChannel::Process(CBytestream *bs)
 	int drop;
 
 	// Start from the beginning of the packet
-	bs->Reset();
+	bs->ResetPosToBegin();
 
 	// Read the reliable packet header
 	Sequence = bs->readInt(4);

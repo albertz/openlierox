@@ -315,11 +315,11 @@ void CClient::ReadPackets(void)
 	while(bs.Read(tSocket)) {
 
 		// Check for connectionless packets (four leading 0xff's)
-		if(*(int *)bs.GetData() == -1) {
-			bs.SetPos(4);
+		if(bs.readInt(4) == -1) {
 			ParseConnectionlessPacket(&bs);
 			continue;
 		}
+		bs.ResetPosToBegin();
 
 		if(iNetStatus == NET_DISCONNECTED || iNetStatus == NET_CONNECTING)
 			continue;
@@ -409,7 +409,7 @@ void CClient::Connecting(void)
 	// Request a challenge id
 	CBytestream bs;
 	bs.writeInt(-1,4);
-	bs.writeString("%s","lx::getchallenge");
+	bs.writeString("lx::getchallenge");
 	
 	SetRemoteNetAddr(tSocket,&addr);
 	bs.Send(tSocket);

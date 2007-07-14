@@ -128,11 +128,6 @@ bool CShootList::writePacket( CBytestream *bs )
 		writeMulti( &strm, 0 );
 
 
-	// If there is no room in the bytestream, return false so the server knows that the client has
-	// overflowed (during lag)
-	if(strm.GetLength() + bs->GetPos() > MAX_DATA)
-		return false;
-
 	// Otherwise, append the shootlist onto the bytestream
 	// Don't append for now
 	bs->Append( &strm );

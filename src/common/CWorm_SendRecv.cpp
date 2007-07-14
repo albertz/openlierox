@@ -232,7 +232,7 @@ bool CWorm::skipPacket(CBytestream *bs)
 	if (bits & 0x20)  {
 		bs->Skip(4);  // 2*Int16
 	}
-	return bs->GetPos() >= bs->GetLength()-1;
+	return bs->isPosAtEnd();
 }
 
 

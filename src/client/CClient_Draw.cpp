@@ -472,7 +472,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 			ping.Clear();
 			ping.writeInt(-1,4);
-			ping.writeString("%s","lx::ping");
+			ping.writeString("lx::ping");
 
 			ping.Send(cClient->getChannel()->getSocket());
 

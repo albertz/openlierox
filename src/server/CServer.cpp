@@ -450,12 +450,11 @@ void GameServer::ReadPackets(void)
 		SetRemoteNetAddr(tSocket,&adrFrom);
 
 		// Check for connectionless packets (four leading 0xff's)
-		if(*(int *)bs.GetData() == -1) {
-			bs.SetPos(4);
+		if(bs.readInt(4) == -1) {
 			ParseConnectionlessPacket(&bs);
 			continue;
 		}
-
+		bs.ResetPosToBegin();
 
 		// Read packets
 		CClient *cl = cClients;

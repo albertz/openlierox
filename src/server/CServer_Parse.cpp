@@ -94,14 +94,8 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
 void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 	uchar cmd;
 
-	if (bs->GetLength() == 0)
-		return;
-
-	while (true) {
+	while (!bs->isPosAtEnd()) {
 		cmd = bs->readInt(1);
-
-		if (bs->GetPos() > bs->GetLength())
-			break;
 
 		switch (cmd) {
 
@@ -255,8 +249,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	}
 
 	// Team names
-	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"
-	                                       };
+	static const std::string TeamNames[] = {"blue", "red", "green", "yellow"};
 	int TeamCount[4];
 
 	// If the game is already over, ignore this
@@ -551,8 +544,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 ///////////////////
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
-	static char buf[256];
-	bs->readString(buf, sizeof(buf));
+	std::string buf = bs->readString(256);
 
 	// Don't send text from muted players
 	if (cl)
@@ -729,7 +721,7 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs) {
 		ParseWantsJoin(bs);
 	else  {
 		printf("GameServer::ParseConnectionlessPacket: unknown packet\n");
-		bs->SetPos(bs->GetLength() - 1); // Safety: ignore any data behind this unknown packet
+		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
 	}
 }
 
@@ -750,7 +742,7 @@ void GameServer::ParseGetChallenge(void) {
 	if (iState != SVS_LOBBY) {
 		bs.Clear();
 		bs.writeInt(-1, 4);
-		bs.writeString("%s", "lx::badconnect");
+		bs.writeString("lx::badconnect");
 		bs.writeString(OldLxCompatibleString(networkTexts->sGameInProgress));
 		bs.Send(tSocket);
 		printf("GameServer::ParseGetChallenge: Cannot join, the game is in progress.");
@@ -789,7 +781,7 @@ void GameServer::ParseGetChallenge(void) {
 
 
 	bs.writeInt(-1, 4);
-	bs.writeString("%s", "lx::challenge");
+	bs.writeString("lx::challenge");
 	bs.writeInt(tChallenges[i].iNum, 4);
 	bs.Send(tSocket);
 }
@@ -838,7 +830,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// Wrong protocol version, don't connect client
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("%s", "lx::badconnect");
+		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(buf));
 		bytestr.Send(tSocket);
 		printf("GameServer::ParseConnect: Wrong protocol version");
@@ -853,7 +845,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		printf("Banned client %s was trying to connect\n", szAddress.c_str());
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("%s", "lx::badconnect");
+		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sYouAreBanned));
 		bytestr.Send(tSocket);
 		return;
@@ -879,7 +871,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			printf("Bot was trying to connect\n");
 			bytestr.Clear();
 			bytestr.writeInt(-1, 4);
-			bytestr.writeString("%s", "lx::badconnect");
+			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
 			bytestr.Send(tSocket);
 			return;
@@ -897,7 +889,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			printf("Bad connection verification of client\n");
 			bytestr.Clear();
 			bytestr.writeInt(-1, 4);
-			bytestr.writeString("%s", "lx::badconnect");
+			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sBadVerification));
 			bytestr.Send(tSocket);
 			return;
@@ -909,7 +901,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		printf("No connection verification for client found\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("%s", "lx::badconnect");
+		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sNoIpVerification));
 		bytestr.Send(tSocket);
 		return;
@@ -972,7 +964,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		printf("I have no more open slots for the new client\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("%s", "lx::badconnect");
+		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sNoEmptySlots));
 		bytestr.Send(tSocket);
 		return;
@@ -983,7 +975,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		printf("I am full, so the new client cannot join\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("%s", "lx::badconnect");
+		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sServerFull));
 		bytestr.Send(tSocket);
 		return;
@@ -1026,7 +1018,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// Let em know they connected good
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("%s", "lx::goodconnection");
+		bytestr.writeString("lx::goodconnection");
 
 		// Tell the client the id's of the worms
 		for (i = 0;i < numworms;i++)
@@ -1163,7 +1155,7 @@ void GameServer::ParsePing(void) {
 
 	bs.Clear();
 	bs.writeInt(-1, 4);
-	bs.writeString("%s", "lx::pong");
+	bs.writeString("lx::pong");
 
 	bs.Send(tSocket);
 }
@@ -1196,7 +1188,7 @@ void GameServer::ParseQuery(CBytestream *bs) {
 
 	bytestr.Clear();
 	bytestr.writeInt(-1, 4);
-	bytestr.writeString("%s", "lx::queryreturn");
+	bytestr.writeString("lx::queryreturn");
 
 	bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
@@ -1218,7 +1210,7 @@ void GameServer::ParseGetInfo(void) {
 
 	bs.Clear();
 	bs.writeInt(-1, 4);
-	bs.writeString("%s", "lx::serverinfo");
+	bs.writeString("lx::serverinfo");
 
 	bs.writeString(OldLxCompatibleString(sName));
 	bs.writeByte(iMaxWorms);

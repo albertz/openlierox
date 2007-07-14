@@ -1109,7 +1109,7 @@ void Menu_SvrList_PingLAN(void)
 	CBytestream bs;
 	bs.Clear();
 	bs.writeInt(-1,4);
-	bs.writeString("%s","lx::ping");
+	bs.writeString("lx::ping");
 
 	NetworkAddr a;
 	StringToNetAddr("255.255.255.255",&a);
@@ -1134,7 +1134,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
-	bs.writeString("%s","lx::ping");
+	bs.writeString("lx::ping");
 	bs.Send(tMenu->tSocket[SCK_NET]);
 
 	svr->bProcessing = true;
@@ -1164,7 +1164,7 @@ void Menu_SvrList_QueryServer(server_t *svr)
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
-	bs.writeString("%s","lx::query");
+	bs.writeString("lx::query");
     bs.writeByte(svr->nQueries);
 	bs.Send(tMenu->tSocket[SCK_NET]);
     svr->fQueryTimes[svr->nQueries] = tLX->fCurTime;
@@ -1549,8 +1549,7 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 	static std::string cmd,buf;
 
 	// Check for connectionless packet header
-	if(*(int *)bs->GetData() == -1) {
-		bs->SetPos(4);
+	if(bs->readInt(4) == -1) {
 		cmd = bs->readString();
 
 		GetRemoteNetAddr(sock,&adrFrom);
@@ -1773,12 +1772,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
         if (inbs.Read(tMenu->tSocket[SCK_NET])) {
             // Check for connectionless packet header
-	        if(*(int *)inbs.GetData() == -1) {
-                static std::string        cmd;
-
-		        inbs.SetPos(4);
-		        cmd = inbs.readString();
-
+	        if(inbs.readInt(4) == -1) {
+                std::string cmd = inbs.readString();
 
 		        GetRemoteNetAddr(tMenu->tSocket[SCK_NET],&addr);
 
@@ -1798,7 +1793,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
                     // Read the info
                     szName = Utf8String(inbs.readString(64));
-	                nMaxWorms = MIN(MAX_PLAYERS,MAX((int)inbs.readByte(),0));
+	                nMaxWorms = MIN(MAX_PLAYERS, MAX((int)inbs.readByte(), 0));
 	                nState = inbs.readByte();
 
 					if (nState < 0)  {
@@ -1854,7 +1849,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 	        CBytestream bs;
 	        bs.writeInt(-1,4);
-	        bs.writeString("%s","lx::getinfo");
+	        bs.writeString("lx::getinfo");
 	        bs.Send(tMenu->tSocket[SCK_NET]);
         }
 

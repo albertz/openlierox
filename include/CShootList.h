@@ -113,16 +113,16 @@ public:
 	void		writeSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
 
 	void		readSingle(CBytestream *bs);
-	static inline bool skipSingle(CBytestream *bs)  {
+	static bool skipSingle(CBytestream *bs)  {
 		return bs->Skip(17);
 	}
 	void		readMulti(CBytestream *bs);
-	static inline bool skipMulti(CBytestream *bs)  {
+	static bool skipMulti(CBytestream *bs)  {
 		bs->Skip(7);
 		byte num = bs->readByte();
 		bs->Skip(10);
 		for (byte i = 0; i < num - 1;i++) skipSmallShot(bs);
-		return bs->GetPos() >= bs->GetLength() - 1;
+		return bs->isPosAtEnd();
 	}
 	void		readSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
 	static bool	skipSmallShot(CBytestream *bs);
@@ -131,15 +131,9 @@ public:
 
 	shoot_t		*getShot(int index);
 
-	int			getNumShots(void)			{
-		return m_nNumShootings;
-	}
-	float		getStartTime(void)			{
-		return m_fStartTime;
-	}
-	float		getLastWrite(void)			{
-		return m_fLastWrite;
-	}
+	int			getNumShots(void)			{ return m_nNumShootings; }
+	float		getStartTime(void)			{ return m_fStartTime; }
+	float		getLastWrite(void)			{ return m_fLastWrite; }
 
 };
 

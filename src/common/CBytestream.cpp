@@ -17,25 +17,18 @@
 // Jason Boettcher
 
 #include <stdarg.h>
-
+#include <iostream>
 #include "CBytestream.h"
 #include "EndianSwap.h"
 #include "StringUtils.h"
 
+using namespace std;
 
 ///////////////////
 // Append another bytestream onto this one
 void CBytestream::Append(CBytestream *bs)
 {
-	// Check to make sure we don't overflow the buffer
-	if(CurByte + bs->GetLength() >= MAX_DATA) {
-		printf("byte stream is too big to append any extra data\n");
-		return;
-	}
-
-	memcpy(Data+CurByte,bs->GetData(),bs->GetLength());
-	CurByte+=bs->GetLength();
-	Length+=bs->GetLength();
+	Data << bs->Data.str();
 }
 
 
@@ -43,27 +36,7 @@ void CBytestream::Append(CBytestream *bs)
 // Dump the data out
 void CBytestream::Dump(void)
 {
-    static char buf[MAX_DATA+1];
-
-    memcpy(buf, Data, Length);
-    buf[Length] = '\0';
-
-    fwrite(buf,1,Length,stdout);
-
-}
-
-
-///////////////////
-// Append some data onto this bytestream
-void CBytestream::AppendData(char *_data, int _length)
-{
-	// Check to make sure we don't overflow the buffer
-	if(CurByte + _length >= MAX_DATA)
-		return;
-
-	memcpy(Data+CurByte,_data,_length);
-	CurByte += _length;
-	Length += _length;
+	cout << Data.str() << endl;
 }
 
 
@@ -73,38 +46,24 @@ void CBytestream::AppendData(char *_data, int _length)
 
 ///////////////////
 // Writes a single byte
-int CBytestream::writeByte(uchar byte)
+bool CBytestream::writeByte(uchar byte)
 {
-	if(CurByte >= MAX_DATA)
-		return false;
-
-	Data[CurByte] = byte;
-	CurByte++;
-	Length++;
+	Data << byte;
 	return true;
 }
 
 
 ///////////////////
 // Writes a boolean value to the stream
-int CBytestream::writeBool(bool value)
+bool CBytestream::writeBool(bool value)
 {
 	return writeByte((uchar)value);
 }
 
 
 ///////////////////
-// Writes a signed short
-/*void CBytestream::writeSShort(short value)
-{
-
-
-}*/
-
-
-///////////////////
 // Writes an integer to the stream
-int CBytestream::writeInt(int value, uchar numbytes)
+bool CBytestream::writeInt(int value, uchar numbytes)
 {
 	// Numbytes cannot be more then 4
 	if(numbytes <= 0 || numbytes >= 5)
@@ -114,11 +73,11 @@ int CBytestream::writeInt(int value, uchar numbytes)
 	// HINT: this is endian independent code; it uses little endian
 	uchar bytes[4];
 	bytes[0] = (uint)value & 0xff;
-	bytes[1] = ((uint)value & 0xff00) / 0x100;
-	bytes[2] = ((uint)value & 0xff0000) / 0x10000;
-	bytes[3] = ((uint)value & 0xff000000) / 0x1000000;
+	bytes[1] = ((uint)value & 0xff00) >> 8;
+	bytes[2] = ((uint)value & 0xff0000) >> 16;
+	bytes[3] = ((uint)value & 0xff000000) >> 24;
 
-	for(short n=0;n<numbytes;n++)
+	for(short n=0; n<numbytes; n++)
 		if(!writeByte(bytes[n]))
 			return false;
 
@@ -128,12 +87,12 @@ int CBytestream::writeInt(int value, uchar numbytes)
 
 ///////////////////
 // Write a short to the stream
-int CBytestream::writeInt16(Sint16 value)
+bool CBytestream::writeInt16(Sint16 value)
 {
 	// HINT: this time, the value is stored in big endian
 	uchar dat[2];
 	dat[1] = (Uint16)value & 0xff;
-	dat[0] = ((Uint16)value & 0xff00) / 0x100;
+	dat[0] = ((Uint16)value & 0xff00) >> 8;
 
 	if (!writeByte(dat[0]))
 		return false;
@@ -147,7 +106,7 @@ int CBytestream::writeInt16(Sint16 value)
 
 ///////////////////
 // Writes a float to the stream
-int CBytestream::writeFloat(float value)
+bool CBytestream::writeFloat(float value)
 {
 	union {
 		uchar bin[4];
@@ -166,55 +125,23 @@ int CBytestream::writeFloat(float value)
 }
 
 
-///////////////////
-// Write a string to the stream
-int CBytestream::writeString(char *fmt,...)
-{
-	static char buf[1024];
-	va_list	va;
-
-	va_start(va,fmt);
-	vsnprintf(buf,sizeof(buf),fmt,va);	fix_markend(buf);
-	va_end(va);
-
-	int len = fix_strnlen(buf);
-
-	if(len+CurByte >= MAX_DATA)
-		return false;
-
-	memcpy((char *)Data+CurByte,buf,len);
-	Data[CurByte+len] = '\0';
-	CurByte+=len+1;
-	Length+=len+1;
-
-	return true;
-}
-
-int	CBytestream::writeString(const std::string& value) {
-	size_t len = value.length();
-	
-	if(len + CurByte >= MAX_DATA)
-		return false;
-	
-	memcpy((char*)Data+CurByte, value.c_str(), len);
-	Data[CurByte + len] = '\0';
-	CurByte += len + 1;
-	Length += len + 1;
-	
+bool CBytestream::writeString(const std::string& value) {
+	Data << value.c_str(); // convert it to a C-string because we don't want null-bytes in it
+	Data << (char)'\0';
 	return true;
 }
 
 // cast 2 int12 to 3 bytes
-int	CBytestream::write2Int12(short x, short y) {
-	if(!writeByte(x & 0xff)) return false;
-	if(!writeByte(((x & 0xf00) / 0x100) + (y & 0xf) * 0x10)) return false;
-	if(!writeByte((y & 0xff0) / 0x10)) return false;
+bool CBytestream::write2Int12(short x, short y) {
+	if(!writeByte((ushort)x & 0xff)) return false;
+	if(!writeByte((((ushort)x & 0xf00) >> 8) + (((ushort)y & 0xf) << 4))) return false;
+	if(!writeByte(((ushort)y & 0xff0) >> 4)) return false;
 	return true;
 }
 
 // cast 2 int4 to 1 byte
-int CBytestream::write2Int4(short x, short y) {
-	return writeByte((x & 0xf) + (y & 0xf) * 0x10);
+bool CBytestream::write2Int4(short x, short y) {
+	return writeByte(((ushort)x & 0xf) + (((ushort)y & 0xf) << 4));
 }
 
 
@@ -229,10 +156,7 @@ int CBytestream::write2Int4(short x, short y) {
 // Reads a single byte
 uchar CBytestream::readByte(void)
 {
-	if(CurByte >= MAX_DATA)
-		return 0;
-
-	return Data[CurByte++];
+	return Data.get();
 }
 
 
@@ -253,7 +177,7 @@ int CBytestream::readInt(uchar numbytes)
 		return 0;
 
 	uchar bytes[4];
-	for(short n=0;n<numbytes;n++)
+	for(short n=0; n<numbytes; n++)
 		bytes[n] = readByte();
 
 	// HINT: this is endian independent; value is stored in little endian
@@ -261,11 +185,11 @@ int CBytestream::readInt(uchar numbytes)
 	if(numbytes>0)
 		ret = (uint)bytes[0];
 	if(numbytes>1)
-		ret += (uint)bytes[1] * 0x100;
+		ret += (uint)bytes[1] << 8;
 	if(numbytes>2)
-		ret += (uint)bytes[2] * 0x10000;
+		ret += (uint)bytes[2] << 16;
 	if(numbytes>3)
-		ret += (uint)bytes[3] * 0x1000000;
+		ret += (uint)bytes[3] << 24;
 	
 	return (int)ret;
 }
@@ -281,8 +205,8 @@ Sint16 CBytestream::readInt16(void)
 	dat[0] = readByte();
 
 	Uint16 value;
-	value = dat[0];
-	value += dat[1] * 0x100;
+	value = (Uint16)dat[0];
+	value += (Uint16)dat[1] << 8;
 
 	return (Sint16)value;
 }
@@ -310,95 +234,76 @@ float CBytestream::readFloat(void)
 }
 
 
-///////////////////
-// Read a string from the stream
-char *CBytestream::readString(char *str, size_t maxlen)
-{
-	if (!str)
-		return false;
-
-	// Validate that there is some terminating character
-	bool valid = false;
-	size_t len = 0;
-	for (len=CurByte; len<(size_t)GetLength(); len++)
-		if(Data[len] == '\0')
-		{
-			valid = true;
-			len -= CurByte;
-			break;	
-		}
-
-	// Invalid
-	if (!valid || len >= maxlen)  {
-		str[0] = '\0';
-		return str;
-	}
-
-	memcpy(str,(char *)Data+CurByte, MIN(len+1, maxlen-1));
-	str[maxlen-1] = '\0';
-	CurByte += len+1;
-
-	return str;
-}
-
 std::string CBytestream::readString() {
-	static std::string result;
-	size_t i;
-	size_t len = (size_t)GetLength();
-	for(i=CurByte; i<len; i++)
-		if(Data[i] == '\0') {
-			result = std::string((char*)(&Data[CurByte]), i-CurByte);
-			CurByte = i+1;
-			return result;		
-		}
-
-	return "";
+	static std::string result; result = "";
+	uchar b;
+	while((b = readByte()) != 0) result += b;
+	return result;
 }
 
 std::string CBytestream::readString(size_t maxlen) {
-	static std::string result;
-	size_t i;
-	size_t len = MIN((size_t)GetLength(), CurByte+maxlen+1);
-	for(i=CurByte; i<len; i++)
-		if(Data[i] == '\0') {
-			result = std::string((char *)(&Data[CurByte]), i-CurByte);
-			CurByte = i+1;
-			return result;		
-		}
-
-	return "";
+	static std::string result; result = "";
+	size_t i = 0;
+	uchar b;
+	while(i < maxlen && (b = readByte()) != 0) {
+		result += b;
+		i++;
+	}
+	return result;
 }
 
 // cast 3 bytes to 2 int12
 void CBytestream::read2Int12(short& x, short& y) {
-	short dat[3];
+	static ushort dat[3];
 	dat[0] = readByte();
 	dat[1] = readByte();
 	dat[2] = readByte();
 
-	x = dat[0] + ((dat[1] & 0xf) * 0x100);
-	y = (short)(((dat[1] & 0xf0) / 0x10) + dat[2] * 0x10);
+	x = dat[0] + ((dat[1] & 0xf) << 8);
+	y = (short)(((dat[1] & 0xf0) >> 4) + (dat[2] << 4));
 }
 
 // cast 1 byte to 2 int4
 void CBytestream::read2Int4(short& x, short& y) {
 	uchar tmp = readByte();
 	x = tmp & 0xf;
-	y = (short)((tmp & 0xf0) / 0x10);
+	y = (short)((tmp & 0xf0) >> 4);
 }
 
 // Skips a string, including the terminating character
 // Returns true if we're at the end of the stream after the skip
 bool CBytestream::SkipString()  {
-	for (;CurByte<Length;CurByte++) {
-		if (!Data[CurByte])  {  // Zero byte terminates the string
-			CurByte++; // Skip the zero byte as well
-			break;
-		}
+	readString();
+	return isPosAtEnd();
+}
+
+bool CBytestream::Skip(size_t num) {
+	Data.seekg(num, ios::cur);
+	if(Data.fail()) {
+		Data.clear();
+		Data.seekg(0, ios::end);
 	}
-	if (CurByte >= Length-1)  {
-		CurByte = Length-1;
-		return true;
+	return isPosAtEnd();
+}
+
+
+size_t CBytestream::Read(NetworkSocket sock) {
+	Clear();
+	#define BUFSIZE 1024
+	static char buf[BUFSIZE];
+	size_t len = 0, res;
+	while(true) {
+		res = ReadSocket(sock, buf, BUFSIZE);
+		if(res <= 0) break;
+		Data.write(buf, res);
+		len += res;
+		if(res < BUFSIZE) break;
 	}
-	return false;  // Stream not yet ending
+	Data.sync();
+	return len;
+}
+
+void CBytestream::Send(NetworkSocket sock) {
+	Data.sync();
+	WriteSocket(sock, Data.str().data(), Data.str().size());
 }
