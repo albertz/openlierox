@@ -104,10 +104,10 @@ bool GameServer::SendUpdate(CClient *cl)
     bs->writeByte(wormList.size());
     
     // Send all the _other_ worms details
-    for(vector<CWorm*>::iterator w = wormList.begin(); w != wormList.end(); w++) {
+    for(vector<CWorm*>::iterator w_it = wormList.begin(); w_it != wormList.end(); w_it++) {
         // Send out the update			
-        bs->writeByte((*w)->getID());
-        (*w)->writePacket(bs);
+        bs->writeByte((*w_it)->getID());
+        (*w_it)->writePacket(bs);
     }
     
     
