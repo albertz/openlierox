@@ -67,10 +67,6 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 		return false;
 	}
 
-	bmpIcon = SDL_LoadBMP("data/icon.bmp");
-	if(bmpIcon)
-		SDL_WM_SetIcon(bmpIcon, NULL);
-
 
 	if(!SetVideoMode())
 		return false;
@@ -107,6 +103,9 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	if(!InitializeCache())
 		return false;
 
+	bmpIcon = LoadImage("data/icon.png", true);
+	if(bmpIcon)
+		SDL_WM_SetIcon(bmpIcon, NULL);
 
 
 	// Initialize the keyboard & mouse
@@ -268,9 +267,6 @@ void FlipScreen(SDL_Surface *psScreen)
 // Shutdown the standard Auxiliary Library
 void ShutdownAuxLib(void)
 {
-	if(bmpIcon)
-		SDL_FreeSurface(bmpIcon);
-
 	QuitSoundSystem();
 
 	// Shutdown the error system

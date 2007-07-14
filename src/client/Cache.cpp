@@ -50,19 +50,25 @@ SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
 		return NULL;
 	}
 
-	// Convert the image to the screen's colour depth
-	SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);
-	if (withalpha)  {
-		Image = gfxCreateSurfaceAlpha(img->w, img->h);
-		CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
+	if(SDL_GetVideoSurface()) {
+		// Convert the image to the screen's colour depth
+		SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);
+		if (withalpha)  {
+			Image = gfxCreateSurfaceAlpha(img->w, img->h);
+			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
+		} else {
+			Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
+	// TODO: needed?
+	//		ResetAlpha(Image);
+		}
+	
+		SDL_FreeSurface(img);
 	} else {
-		Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
-// TODO: needed?
-//		ResetAlpha(Image);
+		// we haven't initialized the screen yet
+		printf("WARNING: screen not initialized yet while loading image\n");
+		Image = img;
 	}
-
-	SDL_FreeSurface(img);
-
+	
 	if(!Image) {
 		printf("ERROR: LoadImgBPP: cannot create new surface\n");
 		return NULL;
