@@ -21,6 +21,7 @@
 #define __CBITSTREAM_H__
 
 #include <SDL/SDL.h> // for SInt16
+#include <sstream>
 #include "types.h"
 #include "Networking.h"
 

@@ -13,13 +13,14 @@
 // Created 1/7/02
 // Jason Boettcher
 
-
+#include <vector>
 #include "LieroX.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "Protocol.h"
 #include "CWorm.h"
 
+using namespace std;
 
 ///////////////////
 // Send all the clients a packet
@@ -87,41 +88,33 @@ bool GameServer::SendUpdate(CClient *cl)
     CBytestream *bs = cl->getUnreliable();
     bs->writeByte(S2C_UPDATEWORMS);
     
-    // Save the position of the worm count
-    int num = bs->GetPos();
-    bs->writeByte(0);
+    vector<CWorm*> wormList;
+    i = 0;
+	for(CWorm *w = cWorms; i < MAX_WORMS; i++, w++) {
+		if(!w->isUsed())
+			continue;
+		
+		// Check if this client owns the worms
+		if(cl->OwnsWorm(w))
+			continue;
+	
+		wormList.push_back(w);
+	}
+	
+    bs->writeByte(wormList.size());
     
     // Send all the _other_ worms details
-    CWorm *w = cWorms;
-    byte count = 0;
-    for(i=0;i<MAX_WORMS;i++,w++) {
-        if(!w->isUsed())
-            continue;
-        
-        // Check if this client owns the worms
-        if(cl->OwnsWorm(w))
-            continue;
-        
+    for(vector<CWorm*>::iterator w = wormList.begin(); w != wormList.end(); w++) {
         // Send out the update			
-        bs->writeByte(w->getID());
-        w->writePacket(bs);
-        count++;
+        bs->writeByte((*w)->getID());
+        (*w)->writePacket(bs);
     }
-    
-    // Go back and set the worm count
-    int p = bs->GetPos();
-    bs->SetPos(num);
-    bs->writeByte(count);
-    
-    // Go back to the end of the stream
-    bs->SetPos(p);
-    bs->SetLength( bs->GetLength() - 1 );
     
     
     // Write out a stat packet
     bs->writeByte( S2C_UPDATESTATS );
     bs->writeByte( cl->getNumWorms() );
-    for(i=0; i<cl->getNumWorms(); i++)
+    for(i = 0; i < cl->getNumWorms(); i++)
         cl->getWorm(i)->writeStatUpdate(bs);
     
     // Send the shootlist (reliable)
