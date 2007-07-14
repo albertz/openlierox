@@ -565,7 +565,6 @@ void CWorm::SimulateWeapon( float dt )
 // HINT: it directly manipulates vPos!
 bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 {
-	int x,y;
 	static const int maxspeed2 = 10;
 
 	// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
@@ -579,9 +578,10 @@ bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 	vPos = pos;
 
 
+	int x,y;
 	x = (int)pos.x;
 	y = (int)pos.y;
-	int clip = 0;
+	short clip = 0; // 0x1=left, 0x2=right, 0x4=top, 0x8=bottom
 	bool coll = false;
 	bool check_needed = false;
 
@@ -593,10 +593,10 @@ bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 	|| x-3 < 0 || (uint)x+3 > pcMap->GetWidth()-1)
 		check_needed = true; // we will check later, what to do here
 	else if(grid_w < 7 || grid_h < 10 // this ensures, that this check is safe
-	|| gridflags[((y-4)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((y+5)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((y-4)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((y+5)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT))
+	|| (gridflags[((y-4)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT))
+	|| (gridflags[((y+5)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT))
+	|| (gridflags[((y-4)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT))
+	|| (gridflags[((y+5)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT)))
 		check_needed = true;
 
 	if(check_needed && y >= 0 && (uint)y < pcMap->GetHeight()) {
@@ -605,54 +605,53 @@ bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 
 			// Left side clipping
 			if(pos.x+x <= 2) {
+				clip |= 0x01;
 				vPos.x=( 5 );
 				coll = true;
 				if(fabs(vel->x) > 40)
 					vel->x *=  -0.4f;
 				else
 					vel->x=(0);
-				break;
+				continue;
 			}
 
 			// Right side clipping
 			if(pos.x+x >= pcMap->GetWidth()) {
 				vPos.x=( (float)pcMap->GetWidth() - 5 );
 				coll = true;
+				clip |= 0x02;
 				if(fabs(vel->x) > 40)
 					vel->x *= -0.4f;
 				else
 					vel->x=(0);
-				break;
+				continue;
 			}
 
 
 			if(!(pcMap->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
-
 				coll = true;
+				
+				if(x<0) {
+					clip |= 0x01;
+					vPos.x=( pos.x+x+4 );
+				}
+				else {
+					clip |= 0x02;
+					vPos.x=( pos.x+x-4 );
+				}
 
 				// Bounce
 				if(fabs(vel->x) > 30)
 					vel->x *= -0.4f;
 				else
 					vel->x=(0);
-
-				int width = 4;
-				if(x<0) {
-					clip |= 0x01;
-					vPos.x=( pos.x+x+width );
-				}
-				else {
-					clip |= 0x02;
-					vPos.x=( pos.x+x-width );
-				}
-				break;
 			}
 		}
 	}
 
 	iOnGround = false;
 
-	int hit = false;
+	bool hit = false;
 	x = (int)pos.x;
 
 	if(check_needed && (uint)x < pcMap->GetWidth()) {
@@ -663,21 +662,23 @@ bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 			if(pos.y+y <= 1) {
 				vPos.y=( 6 );
 				coll = true;
+				clip |= 0x04;
 				if(fabs(vel->y) > 40)
 					vel->y *= -0.4f;
-				break;
+				continue;
 			}
 
 			// Bottom side clipping
 			if(pos.y+y >= pcMap->GetHeight()) {
 				vPos.y=( (float)pcMap->GetHeight() - 5 );
+				clip |= 0x08;
 				coll = true;
                 iOnGround = true;
 				if(fabs(vel->y) > 40)
 					vel->y *= -0.4f;
 				else
 					vel->y=(0);
-				break;
+				continue;
 			}
 
 
@@ -694,14 +695,13 @@ bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 				hit = true;
 				iOnGround = true;
 
-				int height = 5;
 				if(y<0) {
 					clip |= 0x04;
-					vPos.y=( pos.y+y+height );
+					vPos.y=( pos.y+y+5 );
 				}
 				else {
 					clip |= 0x08;
-					vPos.y=( pos.y+y-height );
+					vPos.y=( pos.y+y-5 );
 				}
 
 				//if(y>3 && !jump) {
@@ -714,7 +714,7 @@ bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 	}
 
 	// If we are stuck in left & right or top & bottom, just don't move
-	if((clip & 0x01 && clip & 0x02) || (clip & 0x04 && clip & 0x08))
+	if(((clip & 0x01) && (clip & 0x02)) || ((clip & 0x04) && (clip & 0x08)))
 		vPos = vOldPos;
 
 	// If we collided with the ground and we were going pretty fast, make a bump sound
