@@ -167,6 +167,10 @@ void InitializeColors()  {
 	tLX->clWeaponSelectionActive = tLX->clWhite;
 	tLX->clWeaponSelectionDefault = MakeColour(150, 150, 150);
 	tLX->clWeaponSelectionTitle = tLX->clWhite;
+	tLX->clRopeColors[0] = MakeColour(160, 80, 0);
+	tLX->clRopeColors[1] = MakeColour(200, 100, 0);
+	tLX->clLaserSightColors[0] = MakeColour(190,0,0);
+	tLX->clLaserSightColors[1] = MakeColour(160,0,0);
 
 	// Load the colours from a file
 	const std::string colorfile = "data/frontend/colours.cfg";
@@ -244,6 +248,10 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","WeaponSelectionTitle",	&tLX->clWeaponSelectionTitle,	tLX->clWeaponSelectionTitle);
 	ReadColour(colorfile,"Colours","WeaponSelectionActive",	&tLX->clWeaponSelectionActive,	tLX->clWeaponSelectionActive);
 	ReadColour(colorfile,"Colours","WeaponSelectionDefault",&tLX->clWeaponSelectionDefault,	tLX->clWeaponSelectionDefault);
+	ReadColour(colorfile,"Colours","RopeColour1",			&tLX->clRopeColors[0],			tLX->clRopeColors[0]);
+	ReadColour(colorfile,"Colours","RopeColour2",			&tLX->clRopeColors[1],			tLX->clRopeColors[1]);
+	ReadColour(colorfile,"Colours","LaserSightColour1",		&tLX->clLaserSightColors[0],	tLX->clLaserSightColors[0]);
+	ReadColour(colorfile,"Colours","LaserSightColour2",		&tLX->clLaserSightColors[1],	tLX->clLaserSightColors[1]);
 	
 }
 

@@ -30,93 +30,16 @@
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
-inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h) {
-	// Initialize
-	int byte_bound = w * src->format->BytesPerPixel;
-	int src_pitch = src->pitch;
-	int dst_pitch = dst->pitch;
-	Uint8* srcrow = (Uint8 *)src->pixels
-		+ (sy * src_pitch) + (sx * src->format->BytesPerPixel);
-	Uint8* dstrow = (Uint8 *)dst->pixels
-		+ (dy * dst_pitch) + (dx * dst->format->BytesPerPixel);
-	
-	// Copy row by row
-	for (register int i = 0; i < h; ++i)  {
-		memcpy(dstrow, srcrow, byte_bound);
-		dstrow += dst_pitch;
-		srcrow += src_pitch;
-	}
-}
 
-///////////////////////
-// Copies area from one image to another (not blitting so the alpha values are kept!)
-void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h)
-{
-	// Source clipping
-	if (sx + w > src->w) {
-		if (sx >= src->w) return;  // >= because copying area of 0px width makes no sense as well
-		w = src->w - sx;
-	}
-	
-	if (sy + h > src->h) {
-		if (sy >= src->h) return;
-		h = src->h - sy;
-	}
-	
-	// Dest clipping
-	if (dx + w > dst->w) {
-		if (dx >= dst->w) return;
-		w = dst->w - dx;
-	}
-	
-	if (dy + h > dst->h) {
-		if (dy >= dst->h) return;
-		h = dst->h - dy;
-	}
-
-	// Lock the surfaces
-	if(SDL_MUSTLOCK(dst))
-		SDL_LockSurface(dst);
-	if(SDL_MUSTLOCK(src))
-		SDL_LockSurface(src);
-
-	if(
-		src->format->Amask == dst->format->Amask &&
-		src->format->Rmask == dst->format->Rmask &&
-		src->format->Gmask == dst->format->Gmask &&
-		src->format->Bmask == dst->format->Bmask &&
-		src->format->BytesPerPixel == dst->format->BytesPerPixel) {
-
-		CopySurfaceFast(dst, src, sx, sy, dx, dy, w, h);
-	} else {
-
-		Uint8 R, G, B, A;
-
-		for(register int x = 0; x < w; x++) {
-			for(register int y = 0; y < h; y++) {
-				Uint32 pixel = GetPixel(src, x + sx, y + sy);
-				SDL_GetRGBA(pixel, src->format, &R, &G, &B, &A);
-				PutPixel(dst, x + dx, y + dy, SDL_MapRGBA(dst->format, R, G, B, A));
-			}
-		}
-	}
-	
-	// Unlock em
-	if(SDL_MUSTLOCK(dst))
-		SDL_UnlockSurface(dst);
-	if(SDL_MUSTLOCK(src))
-		SDL_UnlockSurface(src);
-}
+/////////////////////////
+//
+// Misc routines
+//
+//////////////////////////
 
 template<typename T>
 inline T force_in_range(T val, T min, T max) {
 	return MIN(MAX(val, min), max);
-}
-
-inline Uint8 relative(Uint8 v1, Uint8 v2, Uint8 c) {
-	return (Uint8)force_in_range(
-		(((float)v1 * (float)c) + ((float)v2 * (float)(255 - c))) / 255.0f,
-		0.0f, 255.0f);
 }
 
 // HINT: not threadsafe!
@@ -162,13 +85,245 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 	}
 
 	// Makes the dst->format->colorkey to match specified colorkey
-	// TODO: why are we doing this here? is it realy safe? and nevertheless, it's useless, isn't it?
-	// It's not useless, because without this the COLORKEY() macro doesn't work and it's necessary in
+
+	// Without this the COLORKEY() macro doesn't work and it's necessary in
 	// some parts of code (mainly worm graphics) and this won't cause any harm at all (look at source
 	// of SDL_SetColorKey)
 	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, colorkey);
 
 }
+
+
+/////////////////////////
+//
+// Clipping routines
+//
+/////////////////////////
+
+
+//
+// Line clipping - grabbed from SDL_gfx
+//
+
+#define CLIP_LEFT_EDGE   0x1
+#define CLIP_RIGHT_EDGE  0x2
+#define CLIP_BOTTOM_EDGE 0x4
+#define CLIP_TOP_EDGE    0x8
+#define CLIP_INSIDE(a)   (!a)
+#define CLIP_REJECT(a,b) (a&b)
+#define CLIP_ACCEPT(a,b) (!(a|b))
+
+static int clipEncode(int x, int y, int left, int top, int right, int bottom)
+{
+    int code = 0;
+
+    if (x < left) {
+		code |= CLIP_LEFT_EDGE;
+    } else if (x > right) {
+		code |= CLIP_RIGHT_EDGE;
+    }
+
+    if (y < top) {
+		code |= CLIP_TOP_EDGE;
+    } else if (y > bottom) {
+		code |= CLIP_BOTTOM_EDGE;
+    }
+
+    return code;
+}
+
+/////////////////////
+// Clip the line tp the surface
+static bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
+{
+    int left, right, top, bottom;
+    int code1, code2;
+    bool draw = false;
+    int swaptmp;
+    float m;
+
+    // Get clipping boundary 
+    left = dst->clip_rect.x;
+    right = dst->clip_rect.x + dst->clip_rect.w - 1;
+    top = dst->clip_rect.y;
+    bottom = dst->clip_rect.y + dst->clip_rect.h - 1;
+
+    while (true) {
+		code1 = clipEncode(*x1, *y1, left, top, right, bottom);
+		code2 = clipEncode(*x2, *y2, left, top, right, bottom);
+		if (CLIP_ACCEPT(code1, code2)) {
+			draw = true;
+			break;
+		} else if (CLIP_REJECT(code1, code2))
+			break;
+		else {
+			if (CLIP_INSIDE(code1)) {
+				swaptmp = *x2;
+				*x2 = *x1;
+				*x1 = swaptmp;
+				swaptmp = *y2;
+				*y2 = *y1;
+				*y1 = swaptmp;
+				swaptmp = code2;
+				code2 = code1;
+				code1 = swaptmp;
+			}
+			
+			if (*x2 != *x1) {
+				m = (*y2 - *y1) / (float) (*x2 - *x1);
+			} else {
+				m = 1.0f;
+			}
+			
+			if (code1 & CLIP_LEFT_EDGE) {
+				*y1 += (Sint16) ((left - *x1) * m);
+				*x1 = left;
+			} else if (code1 & CLIP_RIGHT_EDGE) {
+				*y1 += (Sint16) ((right - *x1) * m);
+				*x1 = right;
+			} else if (code1 & CLIP_BOTTOM_EDGE) {
+				if (*x2 != *x1) {
+					*x1 += (Sint16) ((bottom - *y1) / m);
+				}
+				*y1 = bottom;
+			} else if (code1 & CLIP_TOP_EDGE) {
+				if (*x2 != *x1) {
+					*x1 += (Sint16) ((top - *y1) / m);
+				}
+				*y1 = top;
+			}
+		}
+    }
+
+    return draw;
+}
+
+//
+// Rect clipping
+//
+
+// Rect used for clipping
+template<typename _T>
+class ClipRect {
+	public:
+		ClipRect(_T *left, _T *top, _T *width, _T *height)  {
+			x = left;
+			y = top;
+			w = width;
+			h = height; }
+		ClipRect(SDL_Rect *r)  {
+			// Safety asserts
+			assert(sizeof(_T) == sizeof(r->x));
+			assert(sizeof(_T) == sizeof(r->w));
+
+			x = (_T *) &(r->x);
+			y = (_T *) &(r->y);
+			w = (_T *) &(r->w);
+			h = (_T *) &(r->h);
+		}
+
+		_T *x, *y, *w, *h;
+
+		template <typename _T2>
+
+		// Make an intersection, returns false when the result rect is empty
+		inline bool IntersectWith(ClipRect<_T2> r2, ClipRect &result)  {
+			_T Min, Max;
+
+			// Horizontal
+			Min = MAX( (_T)(*r2.x), *x );
+			Max = MIN( (_T)(*r2.x) + (_T)(*r2.w), *x + *w);
+			*result.x = Min;
+			*result.w = MAX((_T)0, Max - Min);
+
+			// Vertical
+			Min = MAX( (_T)(*r2.y), *y );
+			Max = MIN( (_T)(*r2.y) + (_T)(*r2.h), *y + *h);
+			*result.y = Min;
+			*result.h = MAX((_T)0, Max - Min);
+
+			return (*result.w && *result.h);
+		}
+};
+
+typedef ClipRect<Sint16> SDLClipRect;
+
+
+//////////////////
+//
+// Blitting and drawing routines
+//
+//////////////////
+
+
+inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h) {
+	// Initialize
+	int byte_bound = w * src->format->BytesPerPixel;
+	int src_pitch = src->pitch;
+	int dst_pitch = dst->pitch;
+	Uint8* srcrow = (Uint8 *)src->pixels
+		+ (sy * src_pitch) + (sx * src->format->BytesPerPixel);
+	Uint8* dstrow = (Uint8 *)dst->pixels
+		+ (dy * dst_pitch) + (dx * dst->format->BytesPerPixel);
+	
+	// Copy row by row
+	for (register int i = 0; i < h; ++i)  {
+		memcpy(dstrow, srcrow, byte_bound);
+		dstrow += dst_pitch;
+		srcrow += src_pitch;
+	}
+}
+
+///////////////////////
+// Copies area from one image to another (not blitting so the alpha values are kept!)
+void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h)
+{
+	// Source clipping
+	ClipRect<int> clip = ClipRect<int>(&sx, &sy, &w, &h);
+	if (!clip.IntersectWith(SDLClipRect(&src->clip_rect), clip))
+		return;
+	
+	// Dest clipping
+	clip = ClipRect<int>(&dx, &dy, &w, &h);
+	if (!clip.IntersectWith(SDLClipRect(&dst->clip_rect), clip))
+		return;
+	
+
+	// Lock the surfaces
+	if(SDL_MUSTLOCK(dst))
+		SDL_LockSurface(dst);
+	if(SDL_MUSTLOCK(src))
+		SDL_LockSurface(src);
+
+	if(
+		src->format->Amask == dst->format->Amask &&
+		src->format->Rmask == dst->format->Rmask &&
+		src->format->Gmask == dst->format->Gmask &&
+		src->format->Bmask == dst->format->Bmask &&
+		src->format->BytesPerPixel == dst->format->BytesPerPixel) {
+
+		CopySurfaceFast(dst, src, sx, sy, dx, dy, w, h);
+	} else {
+
+		Uint8 R, G, B, A;
+		Uint32 pixel;
+
+		for(register int x = 0; x < w; x++) {
+			for(register int y = 0; y < h; y++) {
+				pixel = GetPixel(src, x + sx, y + sy);
+				SDL_GetRGBA(pixel, src->format, &R, &G, &B, &A);
+				PutPixel(dst, x + dx, y + dy, SDL_MapRGBA(dst->format, R, G, B, A));
+			}
+		}
+	}
+	
+	// Unlock em
+	if(SDL_MUSTLOCK(dst))
+		SDL_UnlockSurface(dst);
+	if(SDL_MUSTLOCK(src))
+		SDL_UnlockSurface(src);
+}
+
 
 ///////////////////
 // Draw the image mirrored with a huge amount of options
@@ -177,7 +332,14 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	// Warning: Both surfaces have to have same bpp!
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 
-	int x,y,c;
+	// Warning: Doesn't do clipping on the source surface
+
+	// Clipping on dest surface
+	ClipRect<int> dest = ClipRect<int>(&dx, &dy, &w, &h);
+	if (!dest.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dest))
+		return;
+
+	int x,y;
 
 	// Lock the surfaces
 	if(SDL_MUSTLOCK(bmpDest))
@@ -186,49 +348,17 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 		SDL_LockSurface(bmpSrc);
 
 
-	// Warning: Doesn't do clipping on the source surface
-	int cx = bmpDest->clip_rect.x;
-	int cy = bmpDest->clip_rect.y;
-	int cex = cx + bmpDest->clip_rect.w;
-	int cey = cy + bmpDest->clip_rect.h;
-
-	// Do clipping on the DEST surface
-	if(dx+w<cx || dy+h<cy) return;
-	if(dx>=cex || dy>=cey) return;
-
-	if(dx<cx) {
-		c = cx-dx;
-		dx=cx;
-		w-=c;
-	}
-	if(dy<cy) {
-		c = cy-dy;
-		dy=cy;
-		h-=c;
-	}
-
-	if(dx+w > cex) {
-		c = dx+w - cex;
-		w-=c;
-		sx+=c;
-	}
-	if(dy+h > cey) {
-		c = dy+h - cey;
-		h-=c;
-		sy+=c;
-	}
-
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
 
 	short bpp = bmpDest->format->BytesPerPixel;
 
 	register Uint8 *sp,*tp;
-	for(y=0;y<h;y++) {
+	for(y = h; y; --y) {
 
 		sp = SrcPix;
 		tp = TrgPix + w*bpp;
-		for(x = 0; x < w; x++) {
+		for(x = w; x; --x) {
 			// Copy the pixel
 			tp -= bpp;
 			memcpy(tp, sp, bpp);
@@ -254,6 +384,8 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 	
 	int x,y;
+	int dw = w * 2;
+	int dh = h * 2;
 
 	// Lock the surfaces
 	if(SDL_MUSTLOCK(bmpDest))
@@ -262,16 +394,17 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 		SDL_LockSurface(bmpSrc);
 
 	// Source clipping
-	if (sx < 0)  { w+=sx; sx=0; }
-	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w -sx; } // TODO: not exactly what perhaps is intended...
-	if (sy < 0) { h+=sy; sy=0;}
-	else if((sy+h) > bmpSrc->h)  { h = bmpSrc->h -sy; }
+	ClipRect<int> clip = ClipRect<int>(&sx, &sy, &w, &h);
+	if (!clip.IntersectWith(SDLClipRect(&bmpSrc->clip_rect), clip))
+		return;
 
 	// Dest clipping
-	if (dx<0)  { sx-=dx; w+=dx; dx=0;}
-	else if (dx + 2*w > bmpDest->w)  { w = (bmpDest->w-dx) / 2; }
-	if (dy<0)  { sy-=dy; h+=dy; dy=0;}
-	else if (dy + 2*h > bmpDest->h)  { h = (bmpDest->h-dy) / 2; }
+	clip = ClipRect<int>(&dx, &dy, &dw, &dh);
+	if (!clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), clip))
+		return;
+
+	w = MIN(w, dw/2);
+	h = MIN(h, dh/2);
 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
@@ -280,12 +413,12 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 	int doublepitch = bmpDest->pitch*2;
 	register byte bpp = bmpDest->format->BytesPerPixel;
 
-    for(y=0;y<h;y++) {
+    for(y = h; y; --y) {
 
 		sp = SrcPix;
 		tp_x = TrgPix;
 		tp_y = tp_x+bmpDest->pitch;
-		for(x=0;x<w;x++) {
+		for(x = w; x; --x) {
             // Copy the 1 source pixel into a 4 pixel block on the destination surface
 			memcpy(tp_x,sp,bpp);
 			tp_x += bpp;
@@ -317,30 +450,24 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 
 	int x,y;
-	int c;
+
+	int dw = w * 2;
+	int dh = h * 2;
 
 	// Source clipping
-	if (sx >= bmpSrc->w || (sx + w) <= 0) return;
-	if (sy >= bmpSrc->h || (sy + h) <= 0) return;
-	if (sx < 0)  { w+=sx; sx=0; }
-	else if((sx+w) > bmpSrc->w)  { w = bmpSrc->w -sx; }
-	if (sy < 0) { h+=sy; sy=0;}
-	else if((sy+h) > bmpSrc->h)  { h = bmpSrc->h -sy; }
-	
-	int cx = bmpDest->clip_rect.x;
-	int cy = bmpDest->clip_rect.y;
-	int cex = cx+bmpDest->clip_rect.w;
-	int cey = cy+bmpDest->clip_rect.h;
+	ClipRect<int> clip = ClipRect<int>(&sx, &sy, &w, &h);
+	if (!clip.IntersectWith(SDLClipRect(&bmpSrc->clip_rect), clip))
+		return;
 
-	// Do clipping on the DEST surface
-	if(dx+w*2<cx || dy+h*2<cy) return;
-	if(dx>=cex || dy>=cey) return;
+	// Dest clipping
+	clip = ClipRect<int>(&dx, &dy, &dw, &dh);
+	if (!clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), clip))
+		return;
 
-	if(dx<cx) {	c=cx-dx;	dx=cx; c/=2; sx+=c;	w-=c; }
-	if(dy<cy) {	c=cy-dy;	dy=cy; c/=2; sy+=c;	h-=c; }
 
-	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; w-=c; }
-	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; h-=c; }
+	w = MIN(w, dw/2);
+	h = MIN(h, dh/2);
+
 
 	// Lock the surfaces
 	if(SDL_MUSTLOCK(bmpDest))
@@ -359,12 +486,12 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	byte doublebpp = (byte)(bpp * 2);
 	key = SDLColourToNativeColour(key, bmpSrc->format->BytesPerPixel);
 
-    for(y=0;y<h;y++) {
+    for(y=h; y ; --y) {
 
 		sp = SrcPix;
 		tp_x = TrgPix;
 		tp_y = tp_x+bmpDest->pitch;
-		for(x=0;x<w;x++) {
+		for(x = w; x; --x) {
 			if (memcmp(&key,sp,bpp))  {
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
 				memcpy(tp_x,sp,bpp);
@@ -404,24 +531,20 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 	
 	int x,y;
-	int c;
+
+	int dw = w * 2;
+	int dh = h * 2;
 
 	// Warning: Doesn't do clipping on the source surface
 
-	int cx = bmpDest->clip_rect.x;
-	int cy = bmpDest->clip_rect.y;
-	int cex = cx+bmpDest->clip_rect.w;
-	int cey = cy+bmpDest->clip_rect.h;
+	// Clipping on dest surface
+	ClipRect<int> clip = ClipRect<int>(&dx, &dy, &dw, &dh);
+	if (!clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), clip))
+		return;
 
-	// Do clipping on the DEST surface
-	if(dx+w*2<cx || dy+h*2<cy) return;
-	if(dx>=cex || dy>=cey) return;
-
-	if(dx<cx) {	c=cx-dx; dx+=c; w-=c;}
-	if(dy<cy) {	c=cy-dy; dy+=c; h-=c;}
-
-	if(dx+w*2>cex) {	c=(dx+w*2)-cex;	c/=2; sx+=c; w-=c;}
-	if(dy+h*2>cey) {	c=(dy+h*2)-cey;	c/=2; sy+=c; h-=c;}
+	// Clipping could change w or h
+	w = dw / 2;
+	h = dh / 2;
 
 
 	// Lock the surfaces
@@ -443,12 +566,12 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	int realw = w*bpp;
 	key = SDLColourToNativeColour(key, bmpSrc->format->BytesPerPixel);
 
-    for(y=0;y<h;y++) {
+    for(y = h; y; --y) {
 
 		sp = SrcPix;
 		tp_x = TrgPix+realw;
 		tp_y = tp_x+bmpDest->pitch;
-		for(x=0;x<w;x++) {
+		for(x = w; x; --x) {
 			if (memcmp(&key,sp,bmpDest->format->BytesPerPixel))  {
 				// Non-transparent
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
@@ -481,42 +604,24 @@ void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, f
 	int dw = Round((float)sw * xratio);
 	int dh = Round((float)sh * yratio);
 
-	// Clipping rectangle
-	SDL_Rect src_cliprect, dst_cliprect;
-	SDL_GetClipRect(bmpSrc, &src_cliprect);
-	SDL_GetClipRect(bmpDest, &dst_cliprect);
-
 	// Source clipping
-	if (sx > (src_cliprect.x + src_cliprect.w) || (sx + sw) <= 0) return;
-	if (sy > (src_cliprect.y + src_cliprect.h) || (sy + sh) <= 0) return;
-	if ( (sx + sw) > (src_cliprect.x + src_cliprect.w) )
-		sw = (int)((float)(src_cliprect.x + src_cliprect.w) - sx);
-	if ( (sy + sh) > (src_cliprect.y + src_cliprect.h) )
-		sh = (int)((float)(src_cliprect.y + src_cliprect.h) - sy);
-	if (sx < 0)  {
-		sw += (int)sx;
-		sx = 0;
-	}
-	if (sy < 0)  {
-		sh += (int)sy;
-		sy = 0;
-	}
+	float clip_sw = (float)sw;
+	float clip_sh = (float)sh;
+	ClipRect<float> src_clip = ClipRect<float>(&sx, &sy, &clip_sw, &clip_sh);
+	if (!src_clip.IntersectWith(SDLClipRect(&bmpSrc->clip_rect), src_clip))
+		return;
 
-	// Destination clipping
-	if (dx > (dst_cliprect.x + dst_cliprect.w) || (dx + dw) <= 0) return;
-	if (dy > (dst_cliprect.y + dst_cliprect.h) || (dy + dh) <= 0) return;
-	if ( (dx + dw) > (dst_cliprect.x + dst_cliprect.w) )
-		dw = (dst_cliprect.x + dst_cliprect.w) - dx;
-	if ( (dy + dh) > (dst_cliprect.y + dst_cliprect.h) )
-		dh = (dst_cliprect.y + dst_cliprect.h) - dy;
-	if (dx < 0)  {
-		dw += dx;
-		dx = 0;
-	}
-	if (dy < 0)  {
-		dh += dy;
-		dy = 0;
-	}
+	// Dest clipping
+	ClipRect<int> dst_clip = ClipRect<int>(&dx, &dy, &dw, &dh);
+	if (!dst_clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dst_clip))
+		return;
+
+	// Update the widths/heights according to clipping
+	sw = (int)clip_sw;
+	sh = (int)clip_sh;
+	dw = MIN(dw, Round(clip_sw * xratio));
+	dh = MIN(dh, Round(clip_sh * yratio));
+	
 
 	float xstep = (float)sw/(float)dw; // X step we'll do on the source surface
 	float ystep = (float)sh/(float)dh; // Y step we'll do on the source surface
@@ -582,42 +687,25 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx,
 	int dw = Round((float)sw * xratio);
 	int dh = Round((float)sh * yratio);
 
-	// Clipping rectangle
-	SDL_Rect src_cliprect, dst_cliprect;
-	SDL_GetClipRect(bmpSrc, &src_cliprect);
-	SDL_GetClipRect(bmpDest, &dst_cliprect);
-
 	// Source clipping
-	if (sx > (float)(src_cliprect.x + src_cliprect.w) || (sx + sw) <= 0) return;
-	if (sy > (float)(src_cliprect.y + src_cliprect.h) || (sy + sh) <= 0) return;
-	if ( (sx + sw) > (src_cliprect.x + src_cliprect.w) )
-		sw = (int)((float)(src_cliprect.x + src_cliprect.w) - sx);
-	if ( (sy + sh) > (src_cliprect.y + src_cliprect.h) )
-		sh = (int)((float)(src_cliprect.y + src_cliprect.h) - sy);
-	if (sx < 0)  {
-		sw += (int)sx;
-		sx = 0;
-	}
-	if (sy < 0)  {
-		sh += (int)sy;
-		sy = 0;
-	}
+	float clip_sw = (float)sw;
+	float clip_sh = (float)sh;
+	ClipRect<float> src_clip = ClipRect<float>(&sx, &sy, &clip_sw, &clip_sh);
+	if (!src_clip.IntersectWith(SDLClipRect(&bmpSrc->clip_rect), src_clip))
+		return;
 
-	// Destination clipping
-	if (dx > (dst_cliprect.x + dst_cliprect.w) || (dx + dw) <= 0) return;
-	if (dy > (dst_cliprect.y + dst_cliprect.h) || (dy + dh) <= 0) return;
-	if ( (dx + dw) > (dst_cliprect.x + dst_cliprect.w) )
-		dw = (dst_cliprect.x + dst_cliprect.w) - dx;
-	if ( (dy + dh) > (dst_cliprect.y + dst_cliprect.h) )
-		dh = (dst_cliprect.y + dst_cliprect.h) - dy;
-	if (dx < 0)  {
-		dw += dx;
-		dx = 0;
-	}
-	if (dy < 0)  {
-		dh += dy;
-		dy = 0;
-	}
+	// Dest clipping
+	ClipRect<int> dst_clip = ClipRect<int>(&dx, &dy, &dw, &dh);
+	if (!dst_clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dst_clip))
+		return;
+
+	// Update the widths/heights according to clipping
+	sw = (int)clip_sw;
+	sh = (int)clip_sh;
+	dw = MIN(dw, Round(clip_sw * xratio));
+	dh = MIN(dh, Round(clip_sh * yratio));
+
+
 
 	float xstep = (float)sw/(float)dw; // X step we'll do on the source surface
 	float ystep = (float)sh/(float)dh; // Y step we'll do on the source surface
@@ -702,9 +790,11 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx,
 		SDL_UnlockSurface(bmpDest);
 }
 
-/*
- * Special line and pixel drawing
- */
+/////////////////
+//
+// Special line and pixel drawing
+//
+/////////////////
 
 
 int ropecolour = 0;
@@ -712,27 +802,22 @@ int ropealt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-inline void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
+void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
 {
 	// Warning: lock the surface before calling this!
 	// Warning: passing NULL surface will cause a segfault
 
-	ropealt = !ropealt;
+	ropealt++;
+	ropealt %= 3;
 
-	if( x < bmpDest->clip_rect.x || y < bmpDest->clip_rect.y )
-		return;
-	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
-		return;
-
-	static Uint32 ropecols[2] = { MakeColour(160,80,0), MakeColour(200,100,0) };
-	if (ropealt)
+	if (ropealt == 2)
 		ropecolour = !ropecolour;
-	colour = ropecols[ropecolour];
+	colour = tLX->clRopeColors[ropecolour];
 
 	// No alpha weight, use direct pixel access (faster)
-	if (alpha == 1.0f)  {
+	if ((int)alpha)  {
 		colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
-		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
+		Uint8 *px = (Uint8 *)bmpDest->pixels + bmpDest->pitch*y + x*bmpDest->format->BytesPerPixel;
 		Uint8 *px2 = px+bmpDest->pitch;
 		memcpy(px,&colour,bmpDest->format->BytesPerPixel);
 		memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
@@ -746,21 +831,32 @@ inline void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, flo
 	}
 }
 
-inline void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
-	RopePutPixelA(bmpDest, x, y, colour, 1); }
+// For compatibility with perform_line
+// NOTE: it's slightly different, to keep the rope looking the same
+void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) {
+	ropealt = !ropealt;
+
+	if (ropealt)
+		ropecolour = !ropecolour;
+	colour = tLX->clRopeColors[ropecolour];
+
+	// Put the pixel
+	colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
+	Uint8 *px = (Uint8 *)bmpDest->pixels + bmpDest->pitch*y + x*bmpDest->format->BytesPerPixel;
+	Uint8 *px2 = px+bmpDest->pitch;
+	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px2,&colour,bmpDest->format->BytesPerPixel);
+	memcpy(px2+bmpDest->format->BytesPerPixel,&colour,bmpDest->format->BytesPerPixel);
+}
 
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-inline void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
+void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
 {
-	if( x < bmpDest->clip_rect.x || y < bmpDest->clip_rect.y )
-		return;
-	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
-		return;
-	
-	// No alpha weight, use direct pixel access
-	if (alpha == 1)  {
+	// No alpha, use direct pixel access
+	if ((int)alpha)  {
 		colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 		Uint8 *px2 = px+bmpDest->pitch;
@@ -775,16 +871,16 @@ inline void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, flo
 		PutPixelA(bmpDest, x+1, y+1, colour, alpha);
 	}
 }
-
-inline void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
-	BeamPutPixelA(bmpDest, x, y, colour, 1); }
+ 
+void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
+	BeamPutPixelA(bmpDest, x, y, colour, 1.0f); }
 
 
 int laseralt = 0;
 
 ///////////////////
-// Put a pixel on the surface (while checking for clipping)
-inline void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
+// Put a laser-sight pixel on the surface
+void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour)
 {
 	laseralt++;
 	laseralt %= GetRandomInt(35)+1;
@@ -792,20 +888,14 @@ inline void LaserSightPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour
 	if(laseralt)
 		return;
 
-	static Uint32 laseraltcols[] = { MakeColour(190,0,0), MakeColour(160,0,0) };
-	colour = laseraltcols[ GetRandomInt(1) ];
+	colour = tLX->clLaserSightColors[ GetRandomInt(1) ];
 	colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 
 	// Snap to nearest 2nd pixel
 	x -= x % 2;
 	y -= y % 2;
 
-	if( x < bmpDest->clip_rect.x || y < bmpDest->clip_rect.y )
-		return;
-	if( x >= bmpDest->clip_rect.x+bmpDest->clip_rect.w || y >= bmpDest->clip_rect.y+bmpDest->clip_rect.h )
-		return;
-
-	// Laser sight is never antialiased
+	// Put the pixel (laser sight is never antialiased)
 	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 	Uint8 *px2 = px+bmpDest->pitch;
 	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
@@ -908,33 +998,7 @@ inline void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d
 
 
 inline void secure_perform_line(SDL_Surface* bmpDest, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
-	int sx, sy, dx, dy, t;
-	
-	SDL_Rect rect = bmpDest->clip_rect;
-	int	ct = rect.y;
-	int cl = rect.x;
-	int cr = rect.x + rect.w;
-	int cb = rect.y + rect.h;
-
-	sx = x1;
-    sy = y1;
-    dx = x2;
-	dy = y2;
-
-    if (sx > dx) {
-		t = sx;
-		sx = dx;
-		dx = t;
-    }
-
-    if (sy > dy) {
-		t = sy;
-	    sy = dy;
-	    dy = t;
-    }
-
-    if ((sx >= cr) || (sy >= cb) || (dx < cl) || (dy < ct))
-		return;
+	ClipLine(bmpDest, &x1, &y1, &x2, &y2); // Clipping
 
 	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
 }
@@ -942,8 +1006,7 @@ inline void secure_perform_line(SDL_Surface* bmpDest, int x1, int y1, int x2, in
 // Draw horizontal line
 // HINT: not thread-safe
 void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
-	// TODO: does this need more improvement/optimisation ?
-	//secure_perform_line(bmpDest, x, y, x2, y, colour, PutPixel);  // slow
+
 	if (x < 0) x = 0;
 	else if (x >= bmpDest->w) x=bmpDest->w-1;
 
@@ -978,8 +1041,6 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 
 // Draw vertical line
 void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
-	// TODO: does this need more improvement/optimisation ?
-//	secure_perform_line(bmpDest, x, y, x, y2, colour, PutPixel);  // slow
 	if (x < 0) x = 0;
 	else if (x >= bmpDest->w) x=bmpDest->w-1;
 
@@ -1101,38 +1162,11 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 // Draws a rope line
 void DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
-	int sx, sy, dx, dy, t;
 	ropealt = 0;
 	ropecolour = 0;
 
-	SDL_Rect rect = bmp->clip_rect;
-	int	ct = rect.y;
-	int cl = rect.x;
-	int cr = rect.x + rect.w;
-	int cb = rect.y + rect.h;
-
-	sx = x1;
-    sy = y1;
-    dx = x2;
-	dy = y2;
-
-    if (sx > dx) {
-		t = sx;
-		sx = dx;
-		dx = t;
-    }
-
-    if (sy > dy) {
-		t = sy;
-	    sy = dy;
-	    dy = t;
-    }
-
-    if ((sx >= cr) || (sy >= cb) || (dx < cl) || (dy < ct))
-		return;
-
-	t = true;
-
+	// Clipping
+	ClipLine(bmp, &x1, &y1, &x2, &y2); 
 
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);
@@ -1145,35 +1179,8 @@ void DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 // Draws a beam
 void DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
-	int sx, sy, dx, dy, t;
-
-	SDL_Rect rect = bmp->clip_rect;
-	int	ct = rect.y;
-	int cl = rect.x;
-	int cr = rect.x + rect.w;
-	int cb = rect.y + rect.h;
-
-	sx = x1;
-    sy = y1;
-    dx = x2;
-	dy = y2;
-
-    if (sx > dx) {
-		t = sx;
-		sx = dx;
-		dx = t;
-    }
-
-    if (sy > dy) {
-		t = sy;
-	    sy = dy;
-	    dy = t;
-    }
-
-    if ((sx >= cr) || (sy >= cb) || (dx < cl) || (dy < ct))
-		return;
-
-	t = true;
+	// Clipping
+	ClipLine(bmp, &x1, &y1, &x2, &y2); 
 
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, BeamPutPixelA);
@@ -1186,44 +1193,18 @@ void DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 // Draws a laser sight
 void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color)
 {
-	int sx, sy, dx, dy, t;
-	laseralt = GetRandomInt(2);
-
-	SDL_Rect rect = bmp->clip_rect;
-	int	ct = rect.y;
-	int cl = rect.x;
-	int cr = rect.x + rect.w;
-	int cb = rect.y + rect.h;
-
-	sx = x1;
-    sy = y1;
-    dx = x2;
-	dy = y2;
-
-    if (sx > dx) {
-		t = sx;
-		sx = dx;
-		dx = t;
-    }
-
-    if (sy > dy) {
-		t = sy;
-	    sy = dy;
-	    dy = t;
-    }
-
-    if ((sx >= cr) || (sy >= cb) || (dx < cl) || (dy < ct))
-		return;
-
-	t = true;
+	// Clipping
+	ClipLine(bmp, &x1, &y1, &x2, &y2); 
 
 	perform_line(bmp, x1, y1, x2, y2, color, LaserSightPutPixel);
 }
 
 
-/*
- *  Image loading/saving routines
- */
+////////////////////////
+//
+//  Image loading/saving routines
+//
+////////////////////////
 
 ///////////////////
 // Load an image

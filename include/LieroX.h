@@ -148,6 +148,8 @@ class lierox_t { public:
 	Uint32			clWeaponSelectionTitle;
 	Uint32			clWeaponSelectionActive;
 	Uint32			clWeaponSelectionDefault;
+	Uint32			clRopeColors[2];
+	Uint32			clLaserSightColors[2];
 
 
 	Uint32			clPink;
