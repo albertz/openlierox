@@ -44,6 +44,9 @@ private:
 public:
 	// Methods
 
+	// Debug
+	void		Test();
+
 
 	// Generic data
 	void		ResetPosToBegin()		{ Data.seekg(0, std::ios::beg); }

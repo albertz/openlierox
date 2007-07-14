@@ -24,6 +24,122 @@
 
 using namespace std;
 
+void CBytestream::Test()
+{
+	std::cout << std::endl;
+	std::cout << "Running a Bytestream debug test:" << std::endl;
+	std::cout << "Tested function / Original / Write / Read / Warning" << std::endl;
+
+	// Byte
+	uchar b = 125;
+	std::cout << "Byte: (" << b << ") ";
+	writeByte(b);
+	ResetPosToBegin();
+	std::cout << "(" << Data.str() << ") ";
+	uchar b2 = readByte();
+	std::cout << "(" << b2 << ") ";
+	if (b2 != b)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
+	// Bool
+	bool boo = true;
+	std::cout << "Bool: (" << boo << ") ";
+	writeByte(boo);
+	ResetPosToBegin();
+	std::cout << "(" << Data.str() << ") ";
+	bool boo2 = readBool();
+	std::cout << "(" << boo2 << ") ";
+	if (boo2 != boo)
+		std::cout << "NOT SAME!";
+	std::cout << std::endl;
+	Clear();
+
+	// Integer
+	int i = 125;
+	std::cout << "Int: (" << i << ") ";
+	writeInt(i, 4);
+	ResetPosToBegin();
+	std::cout << "(" << Data.str() << ") ";
+	int i2 = readInt(4);
+	std::cout << "(" << itoa(i2) << ") ";
+	if (i2 != i)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
+	// Short
+	short s = 125;
+	std::cout << "Short: (" << s << ") ";
+	writeInt16(s);
+	ResetPosToBegin();
+	std::cout << "(" << Data.str() << ") ";
+	short s2 = readInt16();
+	std::cout << "(" << s2 << ") ";
+	if (s2 != s)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
+	// Float
+	float f = 125.125f;
+	std::cout << "Float: (" << f << ") ";
+	writeFloat(f);
+	ResetPosToBegin();
+	std::cout << "(" << Data.str() << ") ";
+	float f2 = readFloat();
+	std::cout << "(" << f2 << ") ";
+	if (f2 != f)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
+	// String
+	std::string str = "Test";
+	std::cout << "String: (" << str << ") ";
+	writeString(str);
+	ResetPosToBegin();
+	std::cout << "(" << Data.str() << ") ";
+	std::string str2 = readString();
+	std::cout << "(" << str2 << ") ";
+	if (str2 != str)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
+	// 2Int12
+	short x = 125;
+	short y = 521;
+	std::cout << "2Int12: (" << x << "/" << y << ") ";
+	write2Int12(x, y);
+	ResetPosToBegin();
+	std::cout << "(" << Data.str() << ") ";
+	short x2, y2;
+	read2Int12(x2, y2);
+	std::cout << "(" << x2 << "/" << y2 << ") ";
+	if (x2 != x || y2 != y)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
+	// 2Int4
+	short u = 10;
+	short v = 12;
+	std::cout << "2Int4: (" << u << "/" << v << ") ";
+	write2Int4(u, v);
+	ResetPosToBegin();
+	std::cout << "(" << Data.str() << ") ";
+	short u2, v2;
+	read2Int4(u2, v2);
+	std::cout << "(" << u2 + "/" << v2 << ") ";
+	if (u2 != u || v2 != v)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
+}
+
 ///////////////////
 // Append another bytestream onto this one
 void CBytestream::Append(CBytestream *bs)
