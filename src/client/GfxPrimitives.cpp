@@ -85,10 +85,14 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 	}
 
 	// Makes the dst->format->colorkey to match specified colorkey
-
 	// Without this the COLORKEY() macro doesn't work and it's necessary in
 	// some parts of code (mainly worm graphics) and this won't cause any harm at all (look at source
 	// of SDL_SetColorKey)
+	// TODO: fix this, don't use this here, it makes no sense
+	// and if this is needed in other parts, than the other parts are coded wrong!
+	// and i think, COLORKEY is also used wrong
+	// (COLORKEY should return the colorkey, which makes no sense for alpha surfaces;
+	//  if one want to check for transparency, use the IsTransparent function)	
 	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, colorkey);
 
 }
@@ -306,12 +310,9 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 	} else {
 
 		Uint8 R, G, B, A;
-		Uint32 pixel;
-
 		for(register int x = 0; x < w; x++) {
 			for(register int y = 0; y < h; y++) {
-				pixel = GetPixel(src, x + sx, y + sy);
-				SDL_GetRGBA(pixel, src->format, &R, &G, &B, &A);
+				SDL_GetRGBA(GetPixel(src, x + sx, y + sy), src->format, &R, &G, &B, &A);
 				PutPixel(dst, x + dx, y + dy, SDL_MapRGBA(dst->format, R, G, B, A));
 			}
 		}
@@ -411,7 +412,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 
 	register Uint8 *sp,*tp_x,*tp_y;
 	int doublepitch = bmpDest->pitch*2;
-	register byte bpp = bmpDest->format->BytesPerPixel;
+	byte bpp = bmpDest->format->BytesPerPixel;
 
     for(y = h; y; --y) {
 

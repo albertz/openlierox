@@ -291,9 +291,11 @@ bool CBytestream::write2Int4(short x, short y) {
 
 ///////////////////
 // Reads a single byte
-uchar CBytestream::readByte(void)
-{
-	return Data.get();
+uchar CBytestream::readByte(void) {
+	if(Data.good())
+		return Data.get();
+	else
+		return 0;
 }
 
 
@@ -437,6 +439,7 @@ size_t CBytestream::Read(NetworkSocket sock) {
 		if(res < BUFSIZE) break;
 	}
 	Data.sync();
+	Data.seekg(0, ios::beg);
 	return len;
 }
 
