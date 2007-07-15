@@ -161,7 +161,8 @@ void CBytestream::Append(CBytestream *bs) {
 // Dump the data out
 void CBytestream::Dump() {
 	size_t i = 0;
-	for(string::const_iterator it = Data.str().begin(); it != Data.str().end(); it++, i++) {
+	string str = Data.str();
+	for(string::const_iterator it = str.begin(); it != str.end(); it++, i++) {
 		if((uchar)*it <= 127 && (uchar)*it >= 32) {
 			// Write out the byte and its ascii representation
 			if(*it != '\\')
@@ -289,8 +290,10 @@ bool CBytestream::write2Int4(short x, short y) {
 uchar CBytestream::readByte(void) {
 	if(Data.good())
 		return Data.get();
-	else
+	else {
+		printf("WARNING: reading from non-good stream\n");
 		return 0;
+	}
 }
 
 

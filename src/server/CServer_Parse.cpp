@@ -165,6 +165,10 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 	for (i = 0; i < num; i++) {
 		int id = bs->readByte();
 		if (id >= 0 && id < MAX_WORMS)  {
+			if(!cWorms[id].isUsed()) {
+				printf("WARNING: got unusged worm-ID!\n");
+				continue;
+			}
 			cWorms[id].readWeapons(bs);
 			for (j = 0; j < 5; j++)
 				cWorms[id].getWeapon(j)->Enabled =	cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name) ||

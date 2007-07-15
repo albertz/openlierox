@@ -357,6 +357,11 @@ void GameServer::WormShoot(CWorm *w)
 	if (!Slot->Enabled)
 		return;
 
+	if(!Slot->Weapon) {
+		printf("WARNING: trying to shoot with an unitialized weapon!");
+		return;
+	}
+
 	Slot->LastFire = Slot->Weapon->ROF;
 
 
