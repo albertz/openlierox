@@ -18,6 +18,7 @@
 
 #include <stdarg.h>
 #include <iostream>
+#include <iomanip>
 #include "CBytestream.h"
 #include "EndianSwap.h"
 #include "StringUtils.h"
@@ -152,28 +153,25 @@ void CBytestream::Append(CBytestream *bs)
 // Dump the data out
 void CBytestream::Dump(void)
 {
-	std::string buf = Data.str();
-	std::string::iterator it;
-
 	std::cout << std::endl << "Dumping stream:" << std::endl;
 
-	int i = 1;
-	uchar c = 0;
-	for (it = buf.begin(); it != buf.end(); it++, i++)  {
-		c = (uchar)*it;
+	size_t i = 0;
+	for(string::const_iterator it = Data.str().begin(); it != Data.str().end(); it++, i++) {
+		if((uchar)*it <= 127 && (uchar)*it >= 32) {
+			// Write out the byte and its ascii representation
+			if(*it != '\\')
+				cout << *it;
+			else
+				cout << "\\\\";
+		} else
+			cout << "\\" << hex << (uint)*it << dec;
 
-		// Write out the byte and its ascii representation
-		if (c <= 0xF)
-			std::cout << "0" << itoa(c, 16) << "[" << (char)c << "] ";
-		else
-			std::cout << itoa(c, 16) << "[" << (char)c << "] ";
-
-		// Linebreak after 8 dumped bytes
-		if ((i % 9) == 0)
-			std::cout << endl;
+		// Linebreak after 16 dumped bytes
+		if((i % 16) == 15)
+			cout << endl;
 	}
 
-	std::cout << std::endl;
+	cout << endl;
 }
 
 

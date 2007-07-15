@@ -145,7 +145,8 @@ int CChannel::Process(CBytestream *bs)
 
 	// Get rid of the old packets
 	if(Sequence <= (Uint32)iIncomingSequence) {
-		//Con_Printf(CNC_WARNING,"Warning: Packet dropped");
+		printf("Warning: Packet dropped");
+		bs->Dump();
 		return false;
 	}
 
