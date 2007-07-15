@@ -164,7 +164,7 @@ void CBytestream::Dump(void)
 			else
 				cout << "\\\\";
 		} else
-			cout << "\\" << hex << (uint)*it << dec;
+			cout << "\\" << hex << (uint)(uchar)*it << dec;
 
 		// Linebreak after 16 dumped bytes
 		if((i % 16) == 15)
