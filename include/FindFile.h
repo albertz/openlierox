@@ -78,7 +78,7 @@ class drive_t { public:
 typedef std::vector<drive_t> drive_list;
 
 // Define intptr_t if not defined
-#ifdef WIN32
+#ifdef _MSC_VER
 #ifndef _INTPTR_T_DEFINED
 typedef long intptr_t;
 #endif

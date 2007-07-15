@@ -1494,6 +1494,8 @@ ai_node_t *CWorm::AI_ProcessNode(ai_node_t *psParent, int curX, int curY, int ta
     cost = 99999;
     for(i=0; i<8; i++) {
         int h,v;
+        h = v = 0;
+        
         // Up/Down
         if(horDir == 0) {
             h = upCase[i*2];

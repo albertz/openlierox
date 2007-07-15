@@ -1750,16 +1750,16 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
     // Get the server details
     std::string		szName;
-    int				nMaxWorms;
-    int				nState;
+    int				nMaxWorms = 0;
+    int				nState = 0;
     std::string		szMapName;
     std::string		szModName;
-    int				nGameMode;
-    int				nLives;
-    int				nMaxKills;
-    int				nLoadingTime;
-    int				nBonuses;
-    int				nNumPlayers;
+    int				nGameMode = 0;
+    int				nLives = 0;
+    int				nMaxKills = 0;
+    int				nLoadingTime = 0;
+    int				nBonuses = 0;
+    int				nNumPlayers = 0;
 	IpInfo			tIpInfo;
     CWorm			cWorms[MAX_WORMS];
 

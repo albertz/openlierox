@@ -42,7 +42,7 @@
 
 
 
-#if defined(MACOSX) || (defined(_MSC_VER) && (_MSC_VER <= 1200))
+#ifndef __USE_GNU
 	inline size_t strnlen(const char *str, size_t maxlen) {
 		register size_t i;
 		for(i = 0; (i < maxlen) && str[i]; ++i) {}

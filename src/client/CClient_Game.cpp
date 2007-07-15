@@ -550,7 +550,7 @@ void CClient::SimulateProjectiles(float dt)
 // Explosion
 void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 {
-	uint		x,y,px;
+	int		x,y,px;
 	ushort i;
 	CWorm	*w;
 	Uint32	Colour = cMap->GetTheme()->iDefaultColour;
@@ -563,8 +563,8 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 	for(x=px-2; x<px+2; x++) {
 		// Clipping
-		if(x<0)	continue;
-		if(x>=cMap->GetWidth())	break;
+		if(x < 0)	continue;
+		if(x >= (int)cMap->GetWidth())	break;
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
 			Colour = GetPixel(cMap->GetImage(),x,y);

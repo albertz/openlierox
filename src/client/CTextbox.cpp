@@ -194,17 +194,16 @@ int CTextbox::KeyDown(UnicodeChar c)
 
 	// Left arrow
 	if (c == SDLK_LEFT) {
-		if(iCurpos >= 0) {
-			if (bShift)  {
-				if (iCurpos)
-					iSelLength++;
-			}
-			else
-				iSelLength = 0;
-
-			if(iCurpos)
-				iCurpos--;
+		if (bShift)  {
+			if (iCurpos)
+				iSelLength++;
 		}
+		else
+			iSelLength = 0;
+
+		if(iCurpos)
+			iCurpos--;
+
 		return TXT_NONE;
 	}
 
