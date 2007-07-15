@@ -151,7 +151,7 @@ void CWorm::Shutdown(void)
 	FreeGraphics();
 
     // Shutdown the AI
-    if(iType == PRF_COMPUTER)
+    if(iType == PRF_COMPUTER && iLocal)
         AI_Shutdown();
 }
 
@@ -224,7 +224,7 @@ void CWorm::Prepare(CMap *pcMap)
 	iCurrentWeapon = 0;
 
     // If this is an AI worm, initialize the AI stuff
-    if(iType == PRF_COMPUTER)
+    if(iType == PRF_COMPUTER && iLocal)
         AI_Initialize();
 }
 
@@ -273,7 +273,7 @@ void CWorm::Spawn(CVec position) {
 
 	fSpawnTime = tLX->fCurTime;
 
-    if(iType == PRF_COMPUTER)
+    if(iType == PRF_COMPUTER && iLocal)
 		AI_Respawn();
 }
 
@@ -452,7 +452,7 @@ void CWorm::InitWeaponSelection(void)
 
 
 	// If this is an AI worm, lets give him a preset or random arsenal
-	if(iType == PRF_COMPUTER) {
+	if(iType == PRF_COMPUTER && iLocal) {
 
 		bool bRandomWeaps = true;
 		// Combo (rifle)
@@ -688,7 +688,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     
 
 	// AI Worms select their weapons automatically
-	if(iType == PRF_COMPUTER) {
+	if(iType == PRF_COMPUTER && iLocal) {
 		iWeaponsReady = true;
 		iCurrentWeapon = 0;
 	}
