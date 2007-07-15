@@ -152,7 +152,28 @@ void CBytestream::Append(CBytestream *bs)
 // Dump the data out
 void CBytestream::Dump(void)
 {
-	cout << Data.str() << endl;
+	std::string buf = Data.str();
+	std::string::iterator it;
+
+	std::cout << std::endl << "Dumping stream:" << std::endl;
+
+	int i = 1;
+	uchar c = 0;
+	for (it = buf.begin(); it != buf.end(); it++, i++)  {
+		c = (uchar)*it;
+
+		// Write out the byte and its ascii representation
+		if (c <= 0xF)
+			std::cout << "0" << itoa(c, 16) << "[" << (char)c << "] ";
+		else
+			std::cout << itoa(c, 16) << "[" << (char)c << "] ";
+
+		// Linebreak after 8 dumped bytes
+		if ((i % 9) == 0)
+			std::cout << endl;
+	}
+
+	std::cout << std::endl;
 }
 
 
