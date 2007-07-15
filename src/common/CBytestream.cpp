@@ -133,7 +133,7 @@ void CBytestream::Test()
 	std::cout << "(" << Data.str() << ") ";
 	short u2, v2;
 	read2Int4(u2, v2);
-	std::cout << "(" << u2 + "/" << v2 << ") ";
+	std::cout << "(" << u2 << "/" << v2 << ") ";
 	if (u2 != u || v2 != v)
 		std::cout << "NOT SAME!";
 	std::cout <<std::endl;
@@ -145,7 +145,7 @@ void CBytestream::Test()
 // Append another bytestream onto this one
 void CBytestream::Append(CBytestream *bs)
 {
-	Data << bs->Data.str();
+	Data.str(Data.str() + bs->Data.str());
 }
 
 
@@ -157,12 +157,13 @@ void CBytestream::Dump(void)
 
 	std::cout << std::endl << "Dumping stream:" << std::endl;
 
-	std::string::const_iterator ascii_it = Data.str().begin();
+	std::string str = Data.str();
+	std::string::const_iterator ascii_it = str.begin();
 
 	size_t i = 0;
 	size_t j = 0;
 	uchar c;
-	for(string::const_iterator it = Data.str().begin(); it != Data.str().end(); it++, i++) {
+	for(string::const_iterator it = str.begin(); it != str.end(); it++, i++) {
 		c = *it;
 
 		if (c <= 0xF)
@@ -173,7 +174,7 @@ void CBytestream::Dump(void)
 		// 8 dumped bytes, dump the ascii
 		if((i % BYTESPERLINE) == BYTESPERLINE - 1)  {
 			cout << "    ";
-			for (j = 0; j < 8; j++)  {
+			for (j = 0; j < BYTESPERLINE; j++)  {
 				c = *ascii_it;
 				if (c <= 127 && c >= 32)
 					cout << (char)c << " ";
@@ -187,12 +188,12 @@ void CBytestream::Dump(void)
 	}
 
 	// Last unfinished line
-	if (ascii_it != Data.str().end())  {
+	if (ascii_it != str.end())  {
 		int numspaces = (BYTESPERLINE - i % BYTESPERLINE) * 3 + 4;
 		for (j = 0; j < numspaces; j++)
 			cout << ' ';
 		
-		while (ascii_it != Data.str().end()) {
+		while (ascii_it != str.end()) {
 				c = *ascii_it;
 				if (c <= 127 && c >= 32)
 					cout << (char)c << " ";
@@ -237,17 +238,13 @@ bool CBytestream::writeInt(int value, uchar numbytes)
 	if(numbytes <= 0 || numbytes >= 5)
 		return false;
 
-	// Copy the interger into individual bytes
 	// HINT: this is endian independent code; it uses little endian
-	uchar bytes[4];
-	bytes[0] = (uint)value & 0xff;
-	bytes[1] = ((uint)value & 0xff00) >> 8;
-	bytes[2] = ((uint)value & 0xff0000) >> 16;
-	bytes[3] = ((uint)value & 0xff000000) >> 24;
 
-	for(short n=0; n<numbytes; n++)
-		if(!writeByte(bytes[n]))
-			return false;
+	Uint32 val = (Uint32)value; // Make sure it's 4 bytes long
+	EndianSwap(val); // On big endian systems convert to little endian
+
+	for(short n = 0; n < numbytes; n++)
+		writeByte( ((uchar *)&val)[n] );
 
 	return true;
 }
@@ -258,15 +255,12 @@ bool CBytestream::writeInt(int value, uchar numbytes)
 bool CBytestream::writeInt16(Sint16 value)
 {
 	// HINT: this time, the value is stored in big endian
-	uchar dat[2];
-	dat[1] = (Uint16)value & 0xff;
-	dat[0] = ((Uint16)value & 0xff00) >> 8;
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+	ByteSwap5(value);
+#endif
 
-	if (!writeByte(dat[0]))
-		return false;
-
-	if (!writeByte(dat[1]))
-		return false;
+	writeByte( ((uchar *)&value)[0]);
+	writeByte( ((uchar *)&value)[1]);
 
 	return true;
 }
@@ -286,8 +280,7 @@ bool CBytestream::writeFloat(float value)
 	EndianSwap(tmp.bin);
 
 	for(short i = 0; i < 4; i++)
-		if(!writeByte(tmp.bin[i]))
-			return false;
+		writeByte(tmp.bin[i]);
 			
 	return true;
 }
@@ -296,14 +289,15 @@ bool CBytestream::writeFloat(float value)
 bool CBytestream::writeString(const std::string& value) {
 	Data << value.c_str(); // convert it to a C-string because we don't want null-bytes in it
 	Data << (char)'\0';
+	
 	return true;
 }
 
 // cast 2 int12 to 3 bytes
 bool CBytestream::write2Int12(short x, short y) {
-	if(!writeByte((ushort)x & 0xff)) return false;
-	if(!writeByte((((ushort)x & 0xf00) >> 8) + (((ushort)y & 0xf) << 4))) return false;
-	if(!writeByte(((ushort)y & 0xff0) >> 4)) return false;
+	writeByte((ushort)x & 0xff);
+	writeByte((((ushort)x & 0xf00) >> 8) + (((ushort)y & 0xf) << 4));
+	writeByte(((ushort)y & 0xff0) >> 4);
 	return true;
 }
 
@@ -346,20 +340,9 @@ int CBytestream::readInt(uchar numbytes)
 	if(numbytes <= 0 || numbytes >= 5)
 		return 0;
 
-	uchar bytes[4];
+	Uint32 ret = 0;
 	for(short n=0; n<numbytes; n++)
-		bytes[n] = readByte();
-
-	// HINT: this is endian independent; value is stored in little endian
-	uint ret = 0;	
-	if(numbytes>0)
-		ret = (uint)bytes[0];
-	if(numbytes>1)
-		ret += (uint)bytes[1] << 8;
-	if(numbytes>2)
-		ret += (uint)bytes[2] << 16;
-	if(numbytes>3)
-		ret += (uint)bytes[3] << 24;
+		ret += readByte() << (n << 3);
 	
 	return (int)ret;
 }
@@ -407,7 +390,7 @@ float CBytestream::readFloat(void)
 std::string CBytestream::readString() {
 	static std::string result; result = "";
 	uchar b;
-	while((b = readByte()) != 0) result += b;
+	while((b = readByte()) != 0) result += (char)b;
 	return result;
 }
 
@@ -417,7 +400,7 @@ std::string CBytestream::readString(size_t maxlen) {
 	uchar b;
 	while(i < maxlen && (b = readByte()) != 0) {
 		result += b;
-		i++;
+		++i;
 	}
 	return result;
 }
