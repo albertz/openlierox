@@ -153,23 +153,56 @@ void CBytestream::Append(CBytestream *bs)
 // Dump the data out
 void CBytestream::Dump(void)
 {
+#define BYTESPERLINE 8
+
 	std::cout << std::endl << "Dumping stream:" << std::endl;
 
-	size_t i = 0;
-	for(string::const_iterator it = Data.str().begin(); it != Data.str().end(); it++, i++) {
-		if((uchar)*it <= 127 && (uchar)*it >= 32) {
-			// Write out the byte and its ascii representation
-			if(*it != '\\')
-				cout << *it;
-			else
-				cout << "\\\\";
-		} else
-			cout << "\\" << hex << (uint)(uchar)*it << dec;
+	std::string::const_iterator ascii_it = Data.str().begin();
 
-		// Linebreak after 16 dumped bytes
-		if((i % 16) == 15)
+	size_t i = 0;
+	size_t j = 0;
+	uchar c;
+	for(string::const_iterator it = Data.str().begin(); it != Data.str().end(); it++, i++) {
+		c = *it;
+
+		if (c <= 0xF)
+			cout << "0" << hex << (uint)c << dec << ' ';
+		else
+			cout << hex << (uint)c << dec << ' ';
+
+		// 8 dumped bytes, dump the ascii
+		if((i % BYTESPERLINE) == BYTESPERLINE - 1)  {
+			cout << "    ";
+			for (j = 0; j < 8; j++)  {
+				c = *ascii_it;
+				if (c <= 127 && c >= 32)
+					cout << (char)c << " ";
+				else
+					cout << ". ";
+
+				ascii_it++;
+			}
 			cout << endl;
+		}
 	}
+
+	// Last unfinished line
+	if (ascii_it != Data.str().end())  {
+		int numspaces = (BYTESPERLINE - i % BYTESPERLINE) * 3 + 4;
+		for (j = 0; j < numspaces; j++)
+			cout << ' ';
+		
+		while (ascii_it != Data.str().end()) {
+				c = *ascii_it;
+				if (c <= 127 && c >= 32)
+					cout << (char)c << " ";
+				else
+					cout << ". ";
+
+				ascii_it++;
+		}
+	}
+
 
 	cout << endl;
 }
