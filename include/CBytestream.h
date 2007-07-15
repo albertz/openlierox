@@ -17,8 +17,8 @@
 // Jason Boettcher
 
 
-#ifndef __CBITSTREAM_H__
-#define __CBITSTREAM_H__
+#ifndef __CBYTESTREAM_H__
+#define __CBYTESTREAM_H__
 
 #include <SDL/SDL.h> // for SInt16
 #include <string>
@@ -30,10 +30,12 @@
 class CBytestream {
 public:
 	// Constructor
-	CBytestream()	{ Clear(); }
+	CBytestream()	{}
 	CBytestream(const CBytestream& bs)	{ (*this) = bs; }
 	CBytestream& operator=(const CBytestream& bs) {
 		Data.str(bs.Data.str());
+		Data.seekg(0, std::ios::beg);
+		Data.seekp(0, std::ios::end);
 		return *this;
 	}
 	
@@ -49,15 +51,13 @@ public:
 
 
 	// Generic data
-	void		ResetPosToBegin()		{ Data.seekg(0, std::ios::beg); }
-	size_t		GetLength(void)	const	{ return Data.str().size(); }
-	size_t		GetPos(void) 			{ return Data.tellg(); }
+	void		ResetPosToBegin()	{ Data.seekg(0, std::ios::beg); }
+	size_t		GetLength()	const	{ return Data.str().size(); }
+	size_t		GetPos() 			{ return Data.tellg(); }
 
-	void		Clear(void)				{ Data.str(""); }
-
+	void		Clear();
 	void		Append(CBytestream *bs);
-
-    void        Dump(void);
+    void        Dump();
 	
 
 	// Writes

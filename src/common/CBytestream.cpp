@@ -141,70 +141,41 @@ void CBytestream::Test()
 
 }
 
+void CBytestream::Clear() {
+	Data.str("");
+	Data.seekg(0, ios::beg);
+	Data.seekp(0, ios::beg);	
+}
+
+
 ///////////////////
 // Append another bytestream onto this one
-void CBytestream::Append(CBytestream *bs)
-{
+void CBytestream::Append(CBytestream *bs) {
+	// we cannot use 'Data << bs->Data.str()' here because MSVC has a bug there
 	Data.str(Data.str() + bs->Data.str());
+	Data.seekp(0, ios::end);
 }
 
 
 ///////////////////
 // Dump the data out
-void CBytestream::Dump(void)
-{
-#define BYTESPERLINE 8
-
-	std::cout << std::endl << "Dumping stream:" << std::endl;
-
-	std::string str = Data.str();
-	std::string::const_iterator ascii_it = str.begin();
-
+void CBytestream::Dump() {
 	size_t i = 0;
-	size_t j = 0;
-	uchar c;
-	for(string::const_iterator it = str.begin(); it != str.end(); it++, i++) {
-		c = *it;
-
-		if (c <= 0xF)
-			cout << "0" << hex << (uint)c << dec << ' ';
-		else
-			cout << hex << (uint)c << dec << ' ';
-
-		// 8 dumped bytes, dump the ascii
-		if((i % BYTESPERLINE) == BYTESPERLINE - 1)  {
-			cout << "    ";
-			for (j = 0; j < BYTESPERLINE; j++)  {
-				c = *ascii_it;
-				if (c <= 127 && c >= 32)
-					cout << (char)c << " ";
-				else
-					cout << ". ";
-
-				ascii_it++;
-			}
+	for(string::const_iterator it = Data.str().begin(); it != Data.str().end(); it++, i++) {
+		if((uchar)*it <= 127 && (uchar)*it >= 32) {
+			// Write out the byte and its ascii representation
+			if(*it != '\\')
+				cout << *it;
+			else
+				cout << "\\\\";
+		} else
+			cout << "\\" << hex << (uint)(uchar)*it << dec;
+ 
+		// Linebreak after 16 dumped bytes
+		if((i % 16) == 15)
 			cout << endl;
-		}
 	}
-
-	// Last unfinished line
-	if (ascii_it != str.end())  {
-		int numspaces = (BYTESPERLINE - i % BYTESPERLINE) * 3 + 4;
-		for (j = 0; j < numspaces; j++)
-			cout << ' ';
-		
-		while (ascii_it != str.end()) {
-				c = *ascii_it;
-				if (c <= 127 && c >= 32)
-					cout << (char)c << " ";
-				else
-					cout << ". ";
-
-				ascii_it++;
-		}
-	}
-
-
+ 
 	cout << endl;
 }
 
@@ -238,10 +209,9 @@ bool CBytestream::writeInt(int value, uchar numbytes)
 	if(numbytes <= 0 || numbytes >= 5)
 		return false;
 
-	// HINT: this is endian independent code; it uses little endian
-
-	Uint32 val = (Uint32)value; // Make sure it's 4 bytes long
-	EndianSwap(val); // On big endian systems convert to little endian
+	// HINT: we send always in little endian
+	Uint32 val = (Uint32)value;
+	EndianSwap(val);
 
 	for(short n = 0; n < numbytes; n++)
 		writeByte( ((uchar *)&val)[n] );
@@ -342,7 +312,7 @@ int CBytestream::readInt(uchar numbytes)
 
 	Uint32 ret = 0;
 	for(short n=0; n<numbytes; n++)
-		ret += readByte() << (n << 3);
+		ret += (Uint32)readByte() << (n << 3);
 	
 	return (int)ret;
 }
