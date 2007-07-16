@@ -23,6 +23,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <string>
+#include <assert.h>
 
 //
 // Misc routines, defines and variables
@@ -494,7 +495,6 @@ inline void ResetAlpha(SDL_Surface* dst) {
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
 	SDL_SetAlpha(dst, 0, 0); // Remove the alpha
 	
-	// TODO: optimize!
 	int x, y;
 	for(y = 0; y < dst->h; y++)
 		for(x = 0; x < dst->w; x++)
