@@ -29,12 +29,11 @@
 
 class CBytestream {
 public:
-	// Constructor
-	CBytestream()	{}
-	CBytestream(const CBytestream& bs)	{ (*this) = bs; }
-	CBytestream& operator=(const CBytestream& bs) {
+	CBytestream& operator=(CBytestream& bs) {
+		bs.Data.sync();
+		Clear();
 		Data.str(bs.Data.str());
-		Data.seekg(0, std::ios::beg);
+		Data.seekg(0, bs.Data.tellg());
 		Data.seekp(0, std::ios::end);
 		return *this;
 	}
@@ -51,9 +50,9 @@ public:
 
 
 	// Generic data
-	void		ResetPosToBegin()	{ Data.seekg(0, std::ios::beg); }
-	size_t		GetLength()	const	{ return Data.str().size(); }
-	size_t		GetPos() 			{ return Data.tellg(); }
+	void		ResetPosToBegin()	{ Data.clear(); Data.seekg(0, std::ios::beg); }
+	size_t		GetLength()			{ Data.sync(); std::string str = Data.str(); return str.size(); }
+	size_t		GetPos() 			{ Data.clear(); return Data.tellg(); }
 
 	void		Clear();
 	void		Append(CBytestream *bs);
@@ -88,9 +87,9 @@ public:
 	inline bool SkipFloat()		{ return Skip(4); }
 	inline bool SkipShort()		{ return Skip(2); }
 	bool		SkipString();
-	void		SkipAll()		{ Data.seekg(0, std::ios::end); }
+	void		SkipAll()		{ Data.clear(); Data.seekg(0, std::ios::end); }
 	
-	bool		isPosAtEnd() 	{ return Data.tellg() >= GetLength(); }
+	bool		isPosAtEnd() 	{ return GetPos() >= GetLength(); }
 	
 	// Networking stuff
 	void	Send(NetworkSocket sock);

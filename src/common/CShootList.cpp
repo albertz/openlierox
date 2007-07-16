@@ -659,5 +659,5 @@ bool CShootList::skipSmallShot(CBytestream *bs)
 	if( extraflags & SHF_NG_YWRMVEL )
 		bs->Skip(1);
 
-	return bs->GetPos() >= bs->GetLength()-1;
+	return bs->isPosAtEnd();
 }

@@ -142,6 +142,8 @@ void CBytestream::Test()
 }
 
 void CBytestream::Clear() {
+	Data.clear();
+	Data.sync();
 	Data.str("");
 	Data.seekg(0, ios::beg);
 	Data.seekp(0, ios::beg);	
@@ -152,7 +154,11 @@ void CBytestream::Clear() {
 // Append another bytestream onto this one
 void CBytestream::Append(CBytestream *bs) {
 	// we cannot use 'Data << bs->Data.str()' here because MSVC has a bug there
+	Data.clear();
+	Data.sync();
+	size_t gpos = Data.tellg();
 	Data.str(Data.str() + bs->Data.str());
+	Data.seekg(gpos, ios::beg);
 	Data.seekp(0, ios::end);
 }
 
@@ -160,6 +166,7 @@ void CBytestream::Append(CBytestream *bs) {
 ///////////////////
 // Dump the data out
 void CBytestream::Dump() {
+	Data.sync();
 	size_t i = 0;
 	string str = Data.str();
 	for(string::const_iterator it = str.begin(); it != str.end(); it++, i++) {
@@ -288,10 +295,11 @@ bool CBytestream::write2Int4(short x, short y) {
 ///////////////////
 // Reads a single byte
 uchar CBytestream::readByte(void) {
-	if(Data.good())
+	Data.clear();
+	if(!isPosAtEnd())
 		return Data.get();
 	else {
-		printf("WARNING: reading from non-good stream\n");
+		printf("WARNING: reading from stream behind end\n");
 		return 0;
 	}
 }
@@ -315,7 +323,7 @@ int CBytestream::readInt(uchar numbytes)
 
 	Uint32 ret = 0;
 	for(short n=0; n<numbytes; n++)
-		ret += (Uint32)readByte() << (n << 3);
+		ret += (Uint32)readByte() << (n * 8);
 	
 	return (int)ret;
 }
@@ -375,6 +383,7 @@ std::string CBytestream::readString(size_t maxlen) {
 		result += b;
 		++i;
 	}
+	if(b != 0) printf("WARNING: CBytestream: stop reading string at no real ending\n");
 	return result;
 }
 
@@ -404,8 +413,10 @@ bool CBytestream::SkipString()  {
 }
 
 bool CBytestream::Skip(size_t num) {
+	Data.clear();
 	Data.seekg(num, ios::cur);
 	if(Data.fail()) {
+		printf("CBytestream: skipping too far\n");
 		Data.clear();
 		Data.seekg(0, ios::end);
 	}
@@ -432,5 +443,6 @@ size_t CBytestream::Read(NetworkSocket sock) {
 
 void CBytestream::Send(NetworkSocket sock) {
 	Data.sync();
-	WriteSocket(sock, Data.str().data(), Data.str().size());
+	string str = Data.str();
+	WriteSocket(sock, str.data(), str.size());
 }
