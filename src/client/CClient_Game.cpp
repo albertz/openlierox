@@ -1524,7 +1524,7 @@ void CClient::processChatter(void)
 		iChat_Typing = true;
 		iChat_Pos = 0;
 		sChat_Text = "";
-		iChat_Lastchar = -1; // TODO: something is wrong here
+		iChat_Lastchar = 0;
 		iChat_Holding = false;
 		fChat_TimePushed = -9999;
 
@@ -1590,7 +1590,7 @@ void CClient::processChatter(void)
 			iChat_Typing = true;
 			iChat_Pos = 0;
 			sChat_Text = "";
-			iChat_Lastchar = -1; // TODO: something is wrong here
+			iChat_Lastchar = 0;
 			iChat_Holding = false;
 			fChat_TimePushed = -9999;
 		}

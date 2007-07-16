@@ -24,23 +24,21 @@
 #include <SDL/SDL_image.h>
 #include <string>
 
+//
+// Misc routines, defines and variables
+//
 
+// Flags used for screen and new surfaces
 extern	int		iSurfaceFormat;
 
-// like in SDL_video.c in SDL_DisplayFormatAlpha
+// Like in SDL_video.c in SDL_DisplayFormatAlpha
 #define ALPHASURFACE_RMASK 0x00ff0000
 #define ALPHASURFACE_GMASK 0x0000ff00
 #define ALPHASURFACE_BMASK 0x000000ff
 #define ALPHASURFACE_AMASK 0xff000000
 
-
-SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
-
-#define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
-#define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
-#define		COLORKEY(bmp) ((bmp)->format->colorkey)
-
-// if you want to use the adress of some Uint32 directly with memcpy or similar, use this
+///////////////////
+// If you want to use the adress of some Uint32 directly with memcpy or similar, use this
 inline Uint32 SDLColourToNativeColour(Uint32 pixel, short bpp) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	return (pixel << (32 - 8 * bpp));
@@ -49,7 +47,8 @@ inline Uint32 SDLColourToNativeColour(Uint32 pixel, short bpp) {
 #endif
 }
 
-// if you copied some data directly with memcpy into an Uint32, use this
+/////////////////
+// If you copied some data directly with memcpy into an Uint32, use this
 inline Uint32 NativeColourToSDLColour(Uint32 pixel, short bpp) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	return (pixel >> (32 - 8 * bpp));
@@ -59,6 +58,79 @@ inline Uint32 NativeColourToSDLColour(Uint32 pixel, short bpp) {
 }
 
 
+//
+// Clipping routines
+//
+
+/////////////////////
+// Clip the line to the surface
+bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2);
+
+////////////////////
+// Clipping rect class
+template<typename _T>
+class ClipRect {
+	public:
+		ClipRect(_T *left, _T *top, _T *width, _T *height) : x(left), y(top), w(width), h(height) {}
+		ClipRect(SDL_Rect *r)  {
+			// Safety asserts
+			assert(sizeof(_T) == sizeof(r->x));
+			assert(sizeof(_T) == sizeof(r->w));
+
+			x = (_T *) &(r->x);
+			y = (_T *) &(r->y);
+			w = (_T *) &(r->w);
+			h = (_T *) &(r->h);
+		}
+
+		_T *x, *y, *w, *h;
+
+		template <typename _T2>
+
+		////////////////////
+		// Make an intersection, returns false when the result rect is empty
+		inline bool IntersectWith(ClipRect<_T2> r2, ClipRect &result)  {
+			_T Min, Max;
+
+			// Horizontal
+			Min = MAX( (_T)(*r2.x), *x );
+			Max = MIN( (_T)(*r2.x) + (_T)(*r2.w), *x + *w);
+			*result.x = Min;
+			*result.w = MAX((_T)0, Max - Min);
+
+			// Vertical
+			Min = MAX( (_T)(*r2.y), *y );
+			Max = MIN( (_T)(*r2.y) + (_T)(*r2.h), *y + *h);
+			*result.y = Min;
+			*result.h = MAX((_T)0, Max - Min);
+
+			return (*result.w && *result.h);
+		}
+};
+
+typedef ClipRect<Sint16> SDLClipRect;  // Use this for creating clipping rects from SDL
+
+
+//
+// Image loading and saving
+//
+
+//////////////////
+// Load an image
+SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
+
+/////////////////
+// Loads an image and quits with error if could not load
+#define		LOAD_IMAGE(bmp,name) if (!Load_Image(bmp,name)) {return false;}
+#define		LOAD_IMAGE_WITHALPHA(bmp,name) if (!Load_Image_WithAlpha(bmp,name)) {return false;}
+
+/////////////////
+// Gets the colorkey from the surface
+#define		COLORKEY(bmp) ((bmp)->format->colorkey)
+
+
+/////////////////////
+// Load an image, without alpha channel
 inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
 	bmp = LoadImage(name); 
 	if (bmp == NULL)  { 
@@ -68,6 +140,8 @@ inline bool Load_Image(SDL_Surface*& bmp, const std::string& name)  {
 	return true;
 }
 
+////////////////////
+// Load an image with alpha channel
 inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
 	bmp = LoadImage(name, true);
 	if (bmp == NULL)  { 
@@ -77,8 +151,16 @@ inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
 	return true;
 }
 
-// Surface stuff
+///////////////////
+// Save surface in the specified format
+bool SaveSurface(SDL_Surface *Image, const std::string& FileName, int Format, bool Tournament);
 
+
+//
+// Surface stuff
+//
+
+//////////////////
 // Creates a buffer with the same details as the screen
 inline SDL_Surface* gfxCreateSurface(int width, int height) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
@@ -98,6 +180,7 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 }
 
 
+///////////////////
 // Creates an ARGB 32bit surface
 inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
@@ -116,12 +199,16 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 }
 
 
+
+//
+// Image drawing
+//
+
+///////////////
+// Copies one surface to another (not blitting, so the alpha values are kept!)
 void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h);
 
-
-
-// Image drawing
-
+///////////////
 // Simply draw the image
 inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
 	static SDL_Rect	rDest;
@@ -129,6 +216,7 @@ inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
 	SDL_BlitSurface(bmpSrc,NULL,bmpDest,&rDest);
 }
 
+///////////////
 // Draw the image, with more options
 inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h) {
 	static SDL_Rect	rDest, rSrc;
@@ -138,6 +226,7 @@ inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y,
 	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
 }
 
+//////////////
 // Draw the image with a huge amount of options
 inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
 	static SDL_Rect	rDest, rSrc;
@@ -148,11 +237,26 @@ inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 }
 
 
+///////////////
+// Draws image mirror flipped
+// WARNING: passing invalid source x/y/w/h causes a segfault
 void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+
+////////////////
+// Draws the image doubly stretched (fast)
 void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h);
+
+/////////////////
+// Draws the image doubly stretched while checking for colorkey
 void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key);
+
+/////////////////
+// Draws image doubly stretched, mirrored and checking for colorkey
+// WARNING: passing invalid source x/y/w/h causes a segfault
 void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key);
 
+/////////////////
+// Creates a new surface of the same size and draws the image mirror flipped onto it
 inline SDL_Surface *GetMirroredImage(SDL_Surface *bmpSrc)  {
 	SDL_Surface* result = SDL_CreateRGBSurface(
 			bmpSrc->flags,
@@ -168,36 +272,34 @@ inline SDL_Surface *GetMirroredImage(SDL_Surface *bmpSrc)  {
 	return result;
 }
 
+/////////////////
 // Draws a sprite doubly stretched but not so advanced
 inline void	DrawImageStretch(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy) {
 	DrawImageStretch2(bmpDest,bmpSrc,0,0,dx,dy,bmpSrc->w,bmpSrc->h);
 }
 
+/////////////////
 // Draws a sprite doubly stretched, with a colour key and not so advanced
 inline void	DrawImageStretchKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int dy, Uint32 key) {
 	DrawImageStretch2Key(bmpDest, bmpSrc, 0, 0, dx, dy, bmpSrc->w, bmpSrc->h, key);
 }
 
+/////////////////
+// Draws the image resized according to ratios
 void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
+
+/////////////////
+// Draws the image nicely resampled, blur says how much the result should be blurred
 void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur = 1.0f);
 
 
-// Solid drawing
+//
+// Pixel and color routines
+//
 
-
-
-///////////////////
-// Draw horizontal line
-void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour);
-
-///////////////////
-// Draw vertical line
-void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour);
-
-void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float));
-
-
-
+/////////////////
+// Put pixel to a specified address
+// WARNING: passing an invalid adress will cause a segfault
 inline void PutPixelToAddr(Uint8* p, Uint32 color, short bpp) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	memcpy(p, (Uint8*)&color + 4 - bpp, bpp);
@@ -206,7 +308,9 @@ inline void PutPixelToAddr(Uint8* p, Uint32 color, short bpp) {
 #endif
 }
 
+//////////////
 // Pixel drawing
+// WARNING: passing invalid coordinates will cause a segfault
 inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 color) {
 	PutPixelToAddr(
 			(Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel,
@@ -214,7 +318,9 @@ inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 color) {
 			bmpDest->format->BytesPerPixel);
 }
 
+////////////////
 // Get a pixel from an 8bit address
+// WARNING: passing invalid adress will cause a segfault
 inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 	static Uint32 result;
 	result = 0;
@@ -226,37 +332,46 @@ inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 	return result;
 }
 
+////////////////
 // Get a pixel from the surface
+// WARNING: passing invalid coordinates will cause a segfault
 inline Uint32 GetPixel(SDL_Surface* bmpSrc, int x, int y) {
 	return GetPixelFromAddr(
 			(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
 			bmpSrc->format->BytesPerPixel);
 }
 
+////////////////
 // Put pixel alpha blended with the background
+// WARNING: passing invalid coordinates will cause a segfault
 void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a);
 
-
+////////////////
 // Extract 4 colour components from a packed int
 inline void GetColour4(Uint32 pixel, SDL_Surface* img, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a) {
 	SDL_GetRGBA(pixel, img->format, r, g, b, a);
 }
 
+///////////////
 // Extract 3 colour components from a packed int
 inline void GetColour3(Uint32 pixel, SDL_Surface* img, Uint8 *r, Uint8 *g, Uint8 *b) {
 	SDL_GetRGB(pixel, img->format, r, g, b);
 }
 
+///////////////
+// Returns true if the two colors are the same, ignoring the alpha
 inline bool EqualRGB(Uint32 p1, Uint32 p2, SDL_PixelFormat* fmt) {
 	return ((p1|fmt->Amask) == (p2|fmt->Amask));
 }
 
+///////////////
 // Creates a int colour based on the 3 components
 // HINT: format is that one from videosurface!
 inline Uint32 MakeColour(Uint8 r, Uint8 g, Uint8 b) {
 	return SDL_MapRGB(SDL_GetVideoSurface()->format,r,g,b);
 }
 
+////////////////
 // Returns true if the color is considered as (partly) transparent on the surface
 inline bool IsTransparent(SDL_Surface* surf, Uint32 color)  {
 	if((surf->flags & SDL_SRCALPHA) && ((color & surf->format->Amask) != surf->format->Amask))
@@ -270,34 +385,32 @@ inline bool IsTransparent(SDL_Surface* surf, Uint32 color)  {
 }
 
 
-void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
 
-// Set's the game's default color key (pink) to the surface
-// Works for both alpha and nonalpha surfaces
-inline void SetColorKey(SDL_Surface* dst)  {
-	if (dst->flags & SDL_SRCALPHA)
-		SetColorKeyAlpha(dst, 255, 0, 255);
-	else
-		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
-}
 
-// resets the alpha-channel and the colorkey
-inline void ResetAlpha(SDL_Surface* dst) {
-	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
-	SDL_SetAlpha(dst, 0, 0); // Remove the alpha
-	
-	int x, y;
-	for(y = 0; y < dst->h; y++)
-		for(x = 0; x < dst->w; x++)
-			PutPixel(dst, x, y, GetPixel(dst, x, y) | dst->format->Amask);
-}
+//
+// Solid drawing
+//
 
-// Line drawing
-void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
 
+///////////////////
+// Draw horizontal line
+void	DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour);
+
+///////////////////
+// Draw vertical line
+void	DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour);
+
+///////////////////
+// Draw a line
+void	DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color);
+
+//////////////////
+// Draw the line nicely antialiased
+void	AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float));
 
 /////////////////////
 // Draws a filled rectangle
+// WARNING: not threadsafe
 inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
 	static SDL_Rect r;
 	r.x = x;
@@ -324,6 +437,7 @@ inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 
 
 ///////////////////
 // Draws a rectangle with transparency
+// WARNING: not threadsafe
 inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
 	SDL_Surface *tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
 	static Uint8 r,g,b;
@@ -347,10 +461,44 @@ inline void DrawTriangle(SDL_Surface *bmpDest, int x1, int y1, int x2, int y2, i
 
 
 
+//
+// Special lines (rope, laser sight, beam)
+//
+
 void	DrawRope(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	DrawBeam(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 void	DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 color);
 
-bool	SaveSurface(SDL_Surface *Image, const std::string& FileName, int Format, bool Tournament);
+
+//
+// Colorkey handling
+//
+
+/////////////////
+// Set colorkey for an alpha blended surface
+void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
+
+//////////////////
+// Set's the game's default color key (pink) to the surface
+// Works for both alpha and nonalpha surfaces
+inline void SetColorKey(SDL_Surface* dst)  {
+	if (dst->flags & SDL_SRCALPHA)
+		SetColorKeyAlpha(dst, 255, 0, 255);
+	else
+		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
+}
+
+//////////////////
+// Resets the alpha-channel and the colorkey
+inline void ResetAlpha(SDL_Surface* dst) {
+	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
+	SDL_SetAlpha(dst, 0, 0); // Remove the alpha
+	
+	// TODO: optimize!
+	int x, y;
+	for(y = 0; y < dst->h; y++)
+		for(x = 0; x < dst->w; x++)
+			PutPixel(dst, x, y, GetPixel(dst, x, y) | dst->format->Amask);
+}
 
 #endif  //  __GFXPRIMITIVES_H__

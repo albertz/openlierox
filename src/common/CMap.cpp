@@ -462,10 +462,9 @@ int CMap::CreateSurface(void)
 // X, Y, W, H apply to bmpImage, not bmpDrawImage
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
 {
-	if (tLXOptions->bAntiAliasing)
-		DrawImageResampledAdv(bmpDrawImage, bmpImage, (float)x, (float)y, x*2, y*2, w, h, 2, 2, MAP_BLUR);
-	else
-		DrawImageStretch2(bmpDrawImage, bmpImage, x, y, x*2, y*2, w, h);
+	// HINT: we're not using DrawImageResampled when antialiasing is enabled because
+	// the blurred level looks weird
+	DrawImageStretch2(bmpDrawImage, bmpImage, x, y, x*2, y*2, w, h);
 }
 
 ////////////////
@@ -627,7 +626,7 @@ void CMap::TileMap(void)
 	}
 
 	// Update the draw image
-	DrawImageStretch(bmpDrawImage,bmpImage,0,0);
+	UpdateDrawImage(0, 0, Width, Height);
 	
 	// Set the pixel flags
 	lockFlags();

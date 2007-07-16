@@ -436,7 +436,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	cFavourites.Draw(tMenu->bmpBuffer);
 
-	for(int i=1;i<4;i++)
+	for(int i=0;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
 
 	Menu_RedrawMouse(true);

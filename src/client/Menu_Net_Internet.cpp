@@ -436,7 +436,7 @@ void Menu_Net_NETAddServer(void)
 	Menu_DrawBox(tMenu->bmpBuffer, 200, 220, 440, 340);
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
     DrawRectFill(tMenu->bmpBuffer, 202,222,439,339,tLX->clDialogBackground);
-	for(int i=1;i<5;i++)
+	for(int i=0;i<4;i++)
 		cNetButtons[i].Draw(tMenu->bmpBuffer);
 	Menu_RedrawMouse(true);
 

@@ -117,7 +117,7 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 #define CLIP_REJECT(a,b) (a&b)
 #define CLIP_ACCEPT(a,b) (!(a|b))
 
-static int clipEncode(int x, int y, int left, int top, int right, int bottom)
+static inline int clipEncode(int x, int y, int left, int top, int right, int bottom)
 {
     int code = 0;
 
@@ -137,8 +137,8 @@ static int clipEncode(int x, int y, int left, int top, int right, int bottom)
 }
 
 /////////////////////
-// Clip the line tp the surface
-static bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
+// Clip the line to the surface
+bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 {
     int left, right, top, bottom;
     int code1, code2;
@@ -180,19 +180,19 @@ static bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 			}
 			
 			if (code1 & CLIP_LEFT_EDGE) {
-				*y1 += (Sint16) ((left - *x1) * m);
+				*y1 += (int) ((left - *x1) * m);
 				*x1 = left;
 			} else if (code1 & CLIP_RIGHT_EDGE) {
-				*y1 += (Sint16) ((right - *x1) * m);
+				*y1 += (int) ((right - *x1) * m);
 				*x1 = right;
 			} else if (code1 & CLIP_BOTTOM_EDGE) {
 				if (*x2 != *x1) {
-					*x1 += (Sint16) ((bottom - *y1) / m);
+					*x1 += (int) ((bottom - *y1) / m);
 				}
 				*y1 = bottom;
 			} else if (code1 & CLIP_TOP_EDGE) {
 				if (*x2 != *x1) {
-					*x1 += (Sint16) ((top - *y1) / m);
+					*x1 += (int) ((top - *y1) / m);
 				}
 				*y1 = top;
 			}
@@ -201,56 +201,6 @@ static bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 
     return draw;
 }
-
-//
-// Rect clipping
-//
-
-// Rect used for clipping
-template<typename _T>
-class ClipRect {
-	public:
-		ClipRect(_T *left, _T *top, _T *width, _T *height)  {
-			x = left;
-			y = top;
-			w = width;
-			h = height; }
-		ClipRect(SDL_Rect *r)  {
-			// Safety asserts
-			assert(sizeof(_T) == sizeof(r->x));
-			assert(sizeof(_T) == sizeof(r->w));
-
-			x = (_T *) &(r->x);
-			y = (_T *) &(r->y);
-			w = (_T *) &(r->w);
-			h = (_T *) &(r->h);
-		}
-
-		_T *x, *y, *w, *h;
-
-		template <typename _T2>
-
-		// Make an intersection, returns false when the result rect is empty
-		inline bool IntersectWith(ClipRect<_T2> r2, ClipRect &result)  {
-			_T Min, Max;
-
-			// Horizontal
-			Min = MAX( (_T)(*r2.x), *x );
-			Max = MIN( (_T)(*r2.x) + (_T)(*r2.w), *x + *w);
-			*result.x = Min;
-			*result.w = MAX((_T)0, Max - Min);
-
-			// Vertical
-			Min = MAX( (_T)(*r2.y), *y );
-			Max = MIN( (_T)(*r2.y) + (_T)(*r2.h), *y + *h);
-			*result.y = Min;
-			*result.h = MAX((_T)0, Max - Min);
-
-			return (*result.w && *result.h);
-		}
-};
-
-typedef ClipRect<Sint16> SDLClipRect;
 
 
 //////////////////

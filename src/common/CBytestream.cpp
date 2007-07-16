@@ -411,7 +411,8 @@ size_t CBytestream::Read(NetworkSocket sock) {
 	Clear();
 	#define BUFSIZE 1024
 	static char buf[BUFSIZE];
-	size_t len = 0, res;
+	size_t len = 0;
+	int res; // MUST be signed, else an overflow can occur (ReadScoket can return -1!)
 	while(true) {
 		res = ReadSocket(sock, buf, BUFSIZE);
 		if(res <= 0) break;
