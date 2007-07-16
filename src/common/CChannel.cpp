@@ -38,7 +38,7 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iIncomingAcknowledged = 0;
 	iIncoming_ReliableAcknowledged = 0;
 	iIncoming_ReliableSequence = 0;
-	iOutgoingSequence = 0;
+	iOutgoingSequence = 1;
 	iReliableSequence = 0;
 	iLast_ReliableSequence = 0;
 	iOutgoingBytes = 0;
@@ -55,11 +55,6 @@ void CChannel::Transmit( CBytestream *bs )
 	Uint32 r1,r2;	
 
 	outpack.Clear();
-
-	// Quick Hack
-	/*if(Message.Overflowed()) {
-		conprintf("Overflow!\n");
-	}*/
 
 	// If the remote side dropped the last reliable packet, re-send it
 	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)
@@ -83,10 +78,11 @@ void CChannel::Transmit( CBytestream *bs )
 	r1 = iOutgoingSequence | (SendReliable<<31);
 	r2 = iIncomingSequence | (iIncoming_ReliableSequence<<31);
 
-	iOutgoingSequence++;
-	
+
 	outpack.writeInt(r1,4);
 	outpack.writeInt(r2,4);
+
+	iOutgoingSequence++;
 
 	
 	// If were sending a reliable message, send it first
@@ -101,14 +97,12 @@ void CChannel::Transmit( CBytestream *bs )
 	}
 	
 
-	// Send the packet
-
+	// Send the packet (only if we got something to send)
 	SetRemoteNetAddr(Socket,&RemoteAddr);
 	outpack.Send(Socket);
 
 	iOutgoingBytes += outpack.GetLength();
 	fLastSent = tLX->fCurTime;
-
 
 	// TODO: Setup the clear time for the choke
 
