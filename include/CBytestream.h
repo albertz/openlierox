@@ -22,25 +22,22 @@
 
 #include <SDL/SDL.h> // for SInt16
 #include <string>
-#include <sstream>
 #include "types.h"
 #include "Networking.h"
 
 
 class CBytestream {
 public:
-	CBytestream& operator=(CBytestream& bs) {
-		bs.Data.sync();
-		Clear();
-		Data.str(bs.Data.str());
-		Data.seekg(0, bs.Data.tellg());
-		Data.seekp(0, std::ios::end);
+	CBytestream& operator=(const CBytestream& bs) {
+		pos = bs.pos;
+		Data = bs.Data;
 		return *this;
 	}
 	
 private:
 	// Attributes
-	std::stringstream Data;
+	size_t pos;
+	std::string Data;
 
 public:
 	// Methods
@@ -50,9 +47,9 @@ public:
 
 
 	// Generic data
-	void		ResetPosToBegin()	{ Data.clear(); Data.seekg(0, std::ios::beg); }
-	size_t		GetLength()			{ Data.sync(); std::string str = Data.str(); return str.size(); }
-	size_t		GetPos() 			{ Data.clear(); return Data.tellg(); }
+	void		ResetPosToBegin()	{ pos = 0; }
+	size_t		GetLength()			{ return Data.size(); }
+	size_t		GetPos() 			{ return pos; }
 
 	void		Clear();
 	void		Append(CBytestream *bs);
@@ -87,7 +84,7 @@ public:
 	inline bool SkipFloat()		{ return Skip(4); }
 	inline bool SkipShort()		{ return Skip(2); }
 	bool		SkipString();
-	void		SkipAll()		{ Data.clear(); Data.seekg(0, std::ios::end); }
+	void		SkipAll()		{ pos = Data.size(); }
 	
 	bool		isPosAtEnd() 	{ return GetPos() >= GetLength(); }
 	

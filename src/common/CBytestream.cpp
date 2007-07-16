@@ -36,7 +36,7 @@ void CBytestream::Test()
 	std::cout << "Byte: (" << b << ") ";
 	writeByte(b);
 	ResetPosToBegin();
-	std::cout << "(" << Data.str() << ") ";
+	std::cout << "(" << Data << ") ";
 	uchar b2 = readByte();
 	std::cout << "(" << b2 << ") ";
 	if (b2 != b)
@@ -49,7 +49,7 @@ void CBytestream::Test()
 	std::cout << "Bool: (" << boo << ") ";
 	writeByte(boo);
 	ResetPosToBegin();
-	std::cout << "(" << Data.str() << ") ";
+	std::cout << "(" << Data << ") ";
 	bool boo2 = readBool();
 	std::cout << "(" << boo2 << ") ";
 	if (boo2 != boo)
@@ -62,7 +62,7 @@ void CBytestream::Test()
 	std::cout << "Int: (" << i << ") ";
 	writeInt(i, 4);
 	ResetPosToBegin();
-	std::cout << "(" << Data.str() << ") ";
+	std::cout << "(" << Data << ") ";
 	int i2 = readInt(4);
 	std::cout << "(" << itoa(i2) << ") ";
 	if (i2 != i)
@@ -75,7 +75,7 @@ void CBytestream::Test()
 	std::cout << "Short: (" << s << ") ";
 	writeInt16(s);
 	ResetPosToBegin();
-	std::cout << "(" << Data.str() << ") ";
+	std::cout << "(" << Data << ") ";
 	short s2 = readInt16();
 	std::cout << "(" << s2 << ") ";
 	if (s2 != s)
@@ -88,7 +88,7 @@ void CBytestream::Test()
 	std::cout << "Float: (" << f << ") ";
 	writeFloat(f);
 	ResetPosToBegin();
-	std::cout << "(" << Data.str() << ") ";
+	std::cout << "(" << Data << ") ";
 	float f2 = readFloat();
 	std::cout << "(" << f2 << ") ";
 	if (f2 != f)
@@ -101,7 +101,7 @@ void CBytestream::Test()
 	std::cout << "String: (" << str << ") ";
 	writeString(str);
 	ResetPosToBegin();
-	std::cout << "(" << Data.str() << ") ";
+	std::cout << "(" << Data << ") ";
 	std::string str2 = readString();
 	std::cout << "(" << str2 << ") ";
 	if (str2 != str)
@@ -115,7 +115,7 @@ void CBytestream::Test()
 	std::cout << "2Int12: (" << x << "/" << y << ") ";
 	write2Int12(x, y);
 	ResetPosToBegin();
-	std::cout << "(" << Data.str() << ") ";
+	std::cout << "(" << Data << ") ";
 	short x2, y2;
 	read2Int12(x2, y2);
 	std::cout << "(" << x2 << "/" << y2 << ") ";
@@ -130,7 +130,7 @@ void CBytestream::Test()
 	std::cout << "2Int4: (" << u << "/" << v << ") ";
 	write2Int4(u, v);
 	ResetPosToBegin();
-	std::cout << "(" << Data.str() << ") ";
+	std::cout << "(" << Data << ") ";
 	short u2, v2;
 	read2Int4(u2, v2);
 	std::cout << "(" << u2 << "/" << v2 << ") ";
@@ -142,34 +142,23 @@ void CBytestream::Test()
 }
 
 void CBytestream::Clear() {
-	Data.clear();
-	Data.sync();
-	Data.str("");
-	Data.seekg(0, ios::beg);
-	Data.seekp(0, ios::beg);	
+	Data = "";
+	pos = 0;
 }
 
 
 ///////////////////
 // Append another bytestream onto this one
 void CBytestream::Append(CBytestream *bs) {
-	// we cannot use 'Data << bs->Data.str()' here because MSVC has a bug there
-	Data.clear();
-	Data.sync();
-	size_t gpos = Data.tellg();
-	Data.str(Data.str() + bs->Data.str());
-	Data.seekg(gpos, ios::beg);
-	Data.seekp(0, ios::end);
+	Data += bs->Data;
 }
 
 
 ///////////////////
 // Dump the data out
 void CBytestream::Dump() {
-	Data.sync();
 	size_t i = 0;
-	string str = Data.str();
-	for(string::const_iterator it = str.begin(); it != str.end(); it++, i++) {
+	for(string::const_iterator it = Data.begin(); it != Data.end(); it++, i++) {
 		if((uchar)*it <= 127 && (uchar)*it >= 32) {
 			// Write out the byte and its ascii representation
 			if(*it != '\\')
@@ -196,7 +185,7 @@ void CBytestream::Dump() {
 // Writes a single byte
 bool CBytestream::writeByte(uchar byte)
 {
-	Data << byte;
+	Data += byte;
 	return true;
 }
 
@@ -265,8 +254,8 @@ bool CBytestream::writeFloat(float value)
 
 
 bool CBytestream::writeString(const std::string& value) {
-	Data << value.c_str(); // convert it to a C-string because we don't want null-bytes in it
-	Data << (char)'\0';
+	Data += value.c_str(); // convert it to a C-string because we don't want null-bytes in it
+	Data += (char)'\0';
 	
 	return true;
 }
@@ -295,9 +284,8 @@ bool CBytestream::write2Int4(short x, short y) {
 ///////////////////
 // Reads a single byte
 uchar CBytestream::readByte(void) {
-	Data.clear();
 	if(!isPosAtEnd())
-		return Data.get();
+		return Data[pos++];
 	else {
 		printf("WARNING: reading from stream behind end\n");
 		return 0;
@@ -383,7 +371,8 @@ std::string CBytestream::readString(size_t maxlen) {
 		result += b;
 		++i;
 	}
-	if(b != 0) printf("WARNING: CBytestream: stop reading string at no real ending\n");
+	if(b != 0)
+		printf("WARNING: CBytestream: stop reading string at no real ending\n");
 	return result;
 }
 
@@ -407,19 +396,13 @@ void CBytestream::read2Int4(short& x, short& y) {
 
 // Skips a string, including the terminating character
 // Returns true if we're at the end of the stream after the skip
-bool CBytestream::SkipString()  {
+bool CBytestream::SkipString() {
 	readString();
 	return isPosAtEnd();
 }
 
 bool CBytestream::Skip(size_t num) {
-	Data.clear();
-	Data.seekg(num, ios::cur);
-	if(Data.fail()) {
-		printf("CBytestream: skipping too far\n");
-		Data.clear();
-		Data.seekg(0, ios::end);
-	}
+	pos += num;
 	return isPosAtEnd();
 }
 
@@ -432,17 +415,13 @@ size_t CBytestream::Read(NetworkSocket sock) {
 	while(true) {
 		res = ReadSocket(sock, buf, BUFSIZE);
 		if(res <= 0) break;
-		Data.write(buf, res);
+		Data.append(buf, res);
 		len += res;
 		if(res < BUFSIZE) break;
 	}
-	Data.sync();
-	Data.seekg(0, ios::beg);
 	return len;
 }
 
 void CBytestream::Send(NetworkSocket sock) {
-	Data.sync();
-	string str = Data.str();
-	WriteSocket(sock, str.data(), str.size());
+	WriteSocket(sock, Data.data(), Data.size());
 }

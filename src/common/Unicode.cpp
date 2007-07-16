@@ -676,7 +676,7 @@ std::string OldLxCompatibleString(const std::string &Utf8String)
 /////////////////////////
 // Converts the string created by function above back to a normal UTF8 string
 // WARNING: passing a normal UTF8 string in this function will result in wrong output
-std::string Utf8String(const std::string &OldLxString)
+std::string Utf8String(const std::string& OldLxString)
 {
 	std::string result = "";
 	std::string::const_iterator utf8_it = OldLxString.begin();
@@ -694,6 +694,7 @@ std::string Utf8String(const std::string &OldLxString)
 		// Unicode character
 
 		result += std::string(last_it, utf8_it); // Keep the UTF8
+		if(utf8_it == OldLxString.end()) break;
 		if ((unsigned char)(*utf8_it) <= 0x80)  { // If after the unicode character comes another one, just continue
 
 			// Ignore if the converted character comes after UTF8 character
