@@ -9,6 +9,7 @@
 #	INCLUDE_PATH		- adds one or more include paths
 #	LIB_PATH			- adds one or more lib paths
 #	DEBUG				- if set to 1, the game will compiled with debug-info
+#                       ( activated by default )
 #	ACTIVATE_GDB		- sets the -ggdb flag
 #						( it will automatically be activated, if you haven't
 #						  set it manually and DEBUG==1 )
@@ -20,7 +21,7 @@
 
 # check variables and set default values if unset
 [ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
-[ "$DEBUG" == "" ] && DEBUG=0
+[ "$DEBUG" == "" ] && DEBUG=1
 [ "$COMPILER" == "" ] && COMPILER=g++
 [ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
 [ "$VERSION" == "" ] && [ -e VERSION ] && VERSION=$(cat VERSION)

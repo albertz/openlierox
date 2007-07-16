@@ -1,5 +1,10 @@
 TODO list
 
+[ ] OpenGL(?) redraw issue (!!)
+[ ] bot: more effective use of ninjarope (use closer / more intelligent spots) (!)
+[ ] bot: ninjarope is shot too fast (!!)
+[ ] bot: go one step away if too close (!!)
+[ ] bot: don't move too close if shooting is possible (!!)
 [ ] test and fix new CBytestream (!!)
 [ ] avoid unneeded multi loading of maps (!)
 [X] fix minimap updating (behaves weird when carving) (!!)
@@ -19,7 +24,7 @@ TODO list
 [ ] begin developer documentation (basic info about the code and hints) (!)
 [ ] select different key for ingame console
 [?] 24/32 bit doesn't work in OpenGL mode; fix... (!!)
-[ ] fix some segfaults
+[ ] fix some segfaults (!!)
 [?] fix lobby freeze (!)
 [?] make network more stable (!)
 [?] increase FPS (and determit, why it is bad in beta2)
@@ -32,6 +37,7 @@ TODO list
 [ ] add some help for weapon selection (cause not everybody understand it)
 [ ] allow more than 2 viewports (!)
 [ ] joystick-support (!)
+[ ] possibility to switch bot control / user control of a worm
 [ ] allow more than one monitor (let user choose what viewports will be displayed on what screen)
 [ ] allow a higher resolution (reduce it while playing with LX56?) (!)
 [ ] join all viewports, if map is smaller than resolution (!)
