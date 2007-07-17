@@ -328,6 +328,8 @@ int CTextbox::KeyUp(UnicodeChar c)
 // Mouse down event
 int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 {
+	SetGameCursor(CURSOR_TEXT);
+
 	int deltaX = tMouse->X - iX;
 	iDrawCursor = true;
 
@@ -437,7 +439,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 // Mouse up event
 int	CTextbox::MouseUp(mouse_t *tMouse, int nDown)
 {
-	// Remove any previous selection
+	SetGameCursor(CURSOR_TEXT);
 
 	fTimeHolding = 0;
 
