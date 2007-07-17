@@ -677,26 +677,51 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 // Draw an object's shadow
 void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
-	// TODO: optimize
+	const int Drop = 3;
 
-	int v_wx = view->GetWorldX();
-	int v_wy = view->GetWorldY();
-	int l = view->GetLeft();
-	int t = view->GetTop();
+	// Calculate positions
+	int dest_real_x = ((wx + Drop - view->GetWorldX()) * 2) + view->GetLeft();
+	int dest_real_y = ((wy + Drop - view->GetWorldY()) * 2) + view->GetTop();
 
-	// Drop the shadow
-	static const int Drop = 3;
-	wx += Drop;
-	wy += Drop;
+	int object_real_x = sx;
+	int object_real_y = sy;
+
+	int shadowmap_real_x = wx + Drop;
+	int shadowmap_real_y = wy + Drop;
+
+	int pixelflags_start_x = wx + Drop;  // X starting for pixelflags
+	int pixelflags_y = wy + Drop; // current Y in pixelflags
 	
-	// Clipping rectangle
-	SDL_Rect rect = bmpDest->clip_rect;
+	// Clipping
+	ClipRect<int> dst_cliprect = ClipRect<int>(&dest_real_x, &dest_real_y, &w, &h);
+	dst_cliprect.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dst_cliprect); // Destination clipping
+	
+	ClipRect<int> obj_cliprect = ClipRect<int>(&object_real_x, &object_real_y, &w, &h);
+	obj_cliprect.IntersectWith(SDLClipRect(&bmpObj->clip_rect), obj_cliprect); // Object clipping
 
-	int dtx = (wx - v_wx)*2;
-	int dty = (wy - v_wy)*2;
+	ClipRect<int> shadowmap_cliprect = ClipRect<int>(&shadowmap_real_x, &shadowmap_real_y, &w, &h);
+	shadowmap_cliprect.IntersectWith(SDLClipRect(&bmpShadowMap->clip_rect), shadowmap_cliprect); // Map clipping
 
-	// Screen bytes per pixel
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
+	// Pixels
+	byte bpp = bmpDest->format->BytesPerPixel;
+	Uint8 *dest_px, *obj_px, *shadowmap_px;
+	Sint16 DestRowStep, ObjRowStep;
+	Uint8 *ShadowmapPxRow;  // We draw shadowmap doubly stretched so we cannot use step there
+
+	dest_px		   = (Uint8 *)bmpDest->pixels + (dest_real_y * bmpDest->pitch) + (dest_real_x * bpp);
+	obj_px		   = (Uint8 *)bmpObj->pixels + (object_real_y * bmpObj->pitch) + (object_real_x * bpp);
+	ShadowmapPxRow = (Uint8 *)bmpShadowMap->pixels + (shadowmap_real_y * bmpShadowMap->pitch) + (shadowmap_real_x * bpp);
+
+	DestRowStep	 = bmpDest->pitch - (w * bpp);
+	ObjRowStep	 = bmpObj->pitch - (w * bpp);
+
+	// Pixelflags
+	uchar *PixelFlag;
+
+	// Loop variables
+	int loop_x, loop_y;
+	int loop_max_x = w;
+	int loop_max_y = h;
 
 	// Lock the surfaces
 	if (SDL_MUSTLOCK(bmpDest))
@@ -706,48 +731,32 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	if (SDL_MUSTLOCK(bmpShadowMap))
 		SDL_LockSurface(bmpShadowMap);
 
-	static int x,y,dx,dy,i,j;
-	uchar *pf = NULL;
+	// Draw the shadow
+	for (loop_y = loop_max_y; loop_y; --loop_y)  {
+		PixelFlag = &PixelFlags[pixelflags_y * Width + pixelflags_start_x];
+		shadowmap_px = ShadowmapPxRow;
 
-	Uint8 *destpix,*srcpix,*objpix;
-	Uint8 *DestPixel,*SrcPixel,*ObjPixel;
+		for (loop_x = loop_max_x; loop_x; --loop_x)  {
 
-	DestPixel = (Uint8 *)bmpDest->pixels + ((dty+t)*bmpDest->pitch+(dtx+l)*screenbpp);
-	SrcPixel = (Uint8*)bmpShadowMap->pixels + (wy * bmpShadowMap->pitch + wx*screenbpp);
-	ObjPixel = (Uint8 *)bmpObj->pixels + (sy*bmpObj->pitch+sx*screenbpp);
+			if ( (*PixelFlag & PX_EMPTY))  { // Don't draw shadow on solid objects
 
-	for( y=sy, dy=wy, j=0; y<(int)(sy+h); y++,j++, dy += (wy+j)&1,DestPixel+=bmpDest->pitch,SrcPixel+=((wy+j)&1)*bmpShadowMap->pitch,ObjPixel+=bmpObj->pitch ) {
-		// World Clipping
-		if(dy < 0) continue;
-		if((uint)dy >= Height) break;
+				// Put pixel of not tranparent
+				if (!IsTransparent(bmpObj, GetPixelFromAddr(obj_px, bpp)))
+					memcpy(dest_px, shadowmap_px, bpp);
+			}
 
-		// Screen clipping
-		if( dty+t+j < rect.y ) continue;
-		if( dty+t+j >= rect.y + rect.h ) break;
-
-		// Get the first pixel adresses for each of the three images
-		pf = &PixelFlags[dy * Width + wx];
-		srcpix = SrcPixel;
-		destpix = DestPixel;
-		objpix = ObjPixel;
-
-		for( x=/*x_start*/sx,dx=wx/*+x_start*/,i=0; x<(int)(sx+w)/*x_end*/; x++,i++, dx+=(wx+i)&1, pf+=(wx+i)&1, destpix+=screenbpp, objpix+=screenbpp, srcpix+=((wx+i)&1)*screenbpp ) {
-
-			// Clipping
-			if(dx < 0) continue;
-			if((uint)dx >= Width) break;
-
-			// Is this pixel solid?
-			if( !(*pf & PX_EMPTY) ) continue;
-
-			// Screen clipping
-			if( dtx+l+i < rect.x ) continue;
-			if( dtx+l+i >= rect.x + rect.w ) continue;
-
-			// Put the pixel, if it's not transparent
-			if (!IsTransparent(bmpObj, GetPixelFromAddr(objpix, screenbpp)))
-				memcpy(destpix,srcpix,screenbpp);
+			// Update the pixels & flag
+			dest_px		 += bpp;
+			obj_px		 += bpp;
+			shadowmap_px += bpp * (loop_x & 1); // We draw the shadow doubly stretched -> only 1/2 pixel on shadowmap
+			PixelFlag	 += loop_x & 1;
 		}
+
+		// Skip to next row
+		dest_px		   += DestRowStep;
+		obj_px		   += ObjRowStep;
+		ShadowmapPxRow += bmpShadowMap->pitch * (loop_y & 1); // We draw the shadow doubly stretched -> only 1/2 row on shadowmap
+		pixelflags_y   += loop_y & 1;
 	}
 
 	// Unlock the surfaces
@@ -764,24 +773,18 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 // Draw a pixel sized shadow
 void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy)
 {
-    uint v_wx = view->GetWorldX();
-	uint v_wy = view->GetWorldY();
-	uint l = view->GetLeft();
-	uint t = view->GetTop();
-
-    static const int Drop = 3;
+    const int Drop = 3;
     wx += Drop;
     wy += Drop;
 
-    // Clipping
-    if( wx<0 || wy<0 ) return;
-    if( (uint)wx>=Width || (uint)wy>=Height ) return;
+	// HINT: Clipping is done by DrawImageAdv
 
-    int x = (wx - v_wx)*2;
-    int y = (wy - v_wy)*2;
+	// Get real coordinatesf
+    int x = (wx - view->GetWorldX()) * 2 + view->GetLeft();
+    int y = (wy - view->GetWorldY()) * 2 + view->GetTop();
 
-    if( PixelFlags[wy * Width + wx] & PX_EMPTY )
-        DrawRectFill( bmpDest, x+l, y+t, x+l+2, y+t+2, GetPixel(bmpShadowMap,wx,wy) );
+    if( PixelFlags[wy * Width + wx] & PX_EMPTY )  // We should check all the 4 pixels, but no one will ever notice it
+        DrawImageAdv( bmpDest, bmpShadowMap, wx, wy,  x, y, 2, 2 );
 }
 
 
@@ -1713,8 +1716,8 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *wo
 
 	// Show worms
 	CWorm *w = worms;
-	static byte dr,dg,db;
-	static Uint32 col;
+	byte dr,dg,db;
+	Uint32 col;
 	bool big=false;
 	for(n=0;n<MAX_WORMS;n++,w++) {
 		if(!w->getAlive() || !w->isUsed())
