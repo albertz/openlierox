@@ -1823,7 +1823,7 @@ int CMap::Load(const std::string& filename)
 	printf("  numobj = %i\n", numobj);
 */
 	// Create the map
-	if(!New(Width, Height, Theme_Name)) {
+	if(!New(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
 		printf("CMap::Load (%s): ERROR: cannot create map\n", filename.c_str());
 		fclose(fp);
 		return false;
