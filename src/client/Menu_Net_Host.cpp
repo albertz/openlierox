@@ -1206,6 +1206,7 @@ void Menu_HostShowMinimap(void)
 
 	// Load the map
 	buf ="levels/"+buf;
+	map.SetMinimapDimensions(128, 96);
 	if(map.Load(buf)) {
 
 		// Draw the minimap

@@ -88,6 +88,8 @@ public:
 	CMap() {
 		Width = 800;
 		Height = 700;
+		MinimapWidth = 128;
+		MinimapHeight = 96;
 		Type = MPT_PIXMAP;
         nTotalDirtCount = 0;
 
