@@ -16,6 +16,7 @@
 // Created 13/10/01
 // Jason Boettcher
 
+#include <assert.h>
 #include <stdarg.h>
 #include <iostream>
 #include <iomanip>
@@ -203,8 +204,7 @@ bool CBytestream::writeBool(bool value)
 bool CBytestream::writeInt(int value, uchar numbytes)
 {
 	// Numbytes cannot be more then 4
-	if(numbytes <= 0 || numbytes >= 5)
-		return false;
+	assert(numbytes > 0 && numbytes < 5);
 
 	// HINT: we send always in little endian
 	Uint32 val = (Uint32)value;

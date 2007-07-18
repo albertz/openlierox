@@ -683,6 +683,8 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 	int shadowmap_real_x = wx + Drop;
 	int shadowmap_real_y = wy + Drop;
+	int shadowmap_real_w = w / 2;
+	int shadowmap_real_h = h / 2;
 
 	int pixelflags_start_x = wx + Drop;  // X starting for pixelflags
 	int pixelflags_y = wy + Drop; // current Y in pixelflags
@@ -694,8 +696,11 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	ClipRect<int> obj_cliprect = ClipRect<int>(&object_real_x, &object_real_y, &w, &h);
 	obj_cliprect.IntersectWith(SDLClipRect(&bmpObj->clip_rect), obj_cliprect); // Object clipping
 
-	ClipRect<int> shadowmap_cliprect = ClipRect<int>(&shadowmap_real_x, &shadowmap_real_y, &w, &h);
+	ClipRect<int> shadowmap_cliprect = ClipRect<int>(&shadowmap_real_x, &shadowmap_real_y, &shadowmap_real_w, &shadowmap_real_h);
 	shadowmap_cliprect.IntersectWith(SDLClipRect(&bmpShadowMap->clip_rect), shadowmap_cliprect); // Map clipping
+
+	w = MIN(w, shadowmap_real_w * 2);
+	h = MIN(h, shadowmap_real_h * 2);
 
 	// Pixels
 	byte bpp = bmpDest->format->BytesPerPixel;
@@ -774,7 +779,7 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
 
 	// HINT: Clipping is done by DrawImageAdv
 
-	// Get real coordinatesf
+	// Get real coordinates
     int x = (wx - view->GetWorldX()) * 2 + view->GetLeft();
     int y = (wy - view->GetWorldY()) * 2 + view->GetTop();
 
@@ -801,9 +806,37 @@ int CMap::CarveHole(int size, CVec pos)
 		return 0;
 
 	int nNumDirt = 0;
-	const int map_x = (int)pos.x - (hole->w / 2);
-	const int map_y = (int)pos.y - (hole->h / 2);
+	int map_x = (int)pos.x - (hole->w / 2);
+	int map_y = (int)pos.y - (hole->h / 2);
+	int w = hole->w;
+	int h = hole->h;
+
+	// Clipping
+	ClipRect<int> clip = ClipRect<int>(&map_x, &map_y, &w, &h);
+	if (!clip.IntersectWith(SDLClipRect(&bmpImage->clip_rect), clip))	// HINT: backImage has same size so no need
+		return 0;															// to perform clipping on it
 	
+	// Variables
+	int hx, hy;
+	Uint8 *hole_px, *mapimage_px, *mapback_px;
+	uchar *PixelFlag;
+	int HoleRowStep, MapImageRowStep, MapBackRowStep, PixelFlagRowStep;
+	byte bpp = bmpImage->format->BytesPerPixel;
+	Uint32 CurrentPixel;
+
+	hole_px = (Uint8 *)hole->pixels;
+	mapimage_px = (Uint8 *)bmpImage->pixels + map_y * bmpImage->pitch + map_x * bpp;
+	mapback_px = (Uint8 *)bmpBackImage->pixels + map_y * bmpBackImage->pitch + map_x * bpp;
+	PixelFlag = PixelFlags + map_y * Width + map_x;
+
+	HoleRowStep = hole->pitch - (w * bpp);
+	MapImageRowStep = bmpImage->pitch - (w * bpp);
+	MapBackRowStep = bmpBackImage->pitch - (w * bpp);
+	PixelFlagRowStep = Width - w;
+
+
+
+	// Lock
 	lockFlags();
 	
 	if(SDL_MUSTLOCK(hole))
@@ -813,36 +846,46 @@ int CMap::CarveHole(int size, CVec pos)
 	if(SDL_MUSTLOCK(bmpBackImage))
 		SDL_LockSurface(bmpBackImage);
 	
-	for(int hx = 0; hx < hole->w; hx++)
-		for(int hy = 0; hy < hole->h; hy++) {
-			const int x = map_x + hx;
-			const int y = map_y + hy;
-			if(y < 0) continue;
-			if((uint)y >= Height) break;
-			if(x < 0 || (uint)x >= Width) break;			
-			uchar* px = PixelFlags + y * Width + x;
+	for(hy = h; hy; --hy)  {
+		for(hx = w; hx; --hx) {		
 			
-			if(*px & PX_DIRT) {
+			// Carve only dirt
+			if (*PixelFlag & PX_DIRT)  {
+
+				CurrentPixel = GetPixelFromAddr(hole_px, bpp);
+
 				// Set the flag to empty
-				if(GetPixel(hole, hx, hy) == tLX->clPink) {
-		
+				if(CurrentPixel == tLX->clPink) {
+
 					// Increase the dirt count
 					nNumDirt++;
-		
-					*px = PX_EMPTY;
-		
+
+					*PixelFlag = PX_EMPTY;
+					PutPixelToAddr(mapimage_px, GetPixelFromAddr(mapback_px, bpp), bpp);
+
 				// Put pixels that are not black/pink (eg, brown)
-				} else if(GetPixel(hole, hx, hy) != tLX->clBlack)
-					PutPixel(bmpImage, x, y, GetPixel(hole, hx, hy));			
+				} else if(CurrentPixel != tLX->clBlack)
+					PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
 			}
-		
-			if(*px & PX_EMPTY) {
-				// redraw background-pixel because perhaps we don't have shadow here any more
-				// we will update the shadowed pixel later
-				PutPixel(bmpImage, x, y, GetPixel(bmpBackImage, x, y));
+			
+			// Redraw the background (to get rid of shadow that could be there)
+			if (*PixelFlag & PX_EMPTY)  {
+				PutPixelToAddr(mapimage_px, GetPixelFromAddr(mapback_px, bpp), bpp);
 			}
+
+
+			hole_px += bpp;
+			mapimage_px += bpp;
+			mapback_px += bpp;
+			PixelFlag++;
 		
 		}
+
+		hole_px += HoleRowStep;
+		mapimage_px += MapImageRowStep;
+		mapback_px += MapBackRowStep;
+		PixelFlag += PixelFlagRowStep;
+	}
 
 	unlockFlags();
 
@@ -861,8 +904,8 @@ int CMap::CarveHole(int size, CVec pos)
 
     // Recalculate the grid
     lockFlags();
-	for(int hx = 0; hx < hole->w; hx += nGridWidth)
-		for(int hy = 0; hy < hole->h; hy += nGridHeight) {
+	for(hx = 0; hx < w; hx += nGridWidth)
+		for(hy = 0; hy < h; hy += nGridHeight) {
 			const int x = map_x + hx;
 			const int y = map_y + hy;
 			calculateGridCell(x, y, true);

@@ -28,6 +28,11 @@
 
 class CBytestream {
 public:
+	CBytestream()  {
+		pos = 0;
+		Data = "";
+	}
+
 	CBytestream& operator=(const CBytestream& bs) {
 		pos = bs.pos;
 		Data = bs.Data;

@@ -135,7 +135,7 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			break;
 
 		default:
-			printf("sv: Bad command in packet\n");
+			printf("sv: Bad command in packet (" + itoa(cmd) + ")");
 		}
 	}
 }
