@@ -822,20 +822,25 @@ int CMap::CarveHole(int size, CVec pos)
 			if(x < 0 || (uint)x >= Width) break;			
 			uchar* px = PixelFlags + y * Width + x;
 			
-			if (!(*px & PX_DIRT)) continue;
-
-			// Set the flag to empty
-			if(GetPixel(hole, hx, hy) == tLX->clPink) {
-
-				// Increase the dirt count
-				nNumDirt++;
-
-				*px = PX_EMPTY;
+			if(*px & PX_DIRT) {
+				// Set the flag to empty
+				if(GetPixel(hole, hx, hy) == tLX->clPink) {
+		
+					// Increase the dirt count
+					nNumDirt++;
+		
+					*px = PX_EMPTY;
+		
+				// Put pixels that are not black/pink (eg, brown)
+				} else if(GetPixel(hole, hx, hy) != tLX->clBlack)
+					PutPixel(bmpImage, x, y, GetPixel(hole, hx, hy));			
+			}
+		
+			if(*px & PX_EMPTY) {
+				// redraw background-pixel because perhaps we don't have shadow here any more
+				// we will update the shadowed pixel later
 				PutPixel(bmpImage, x, y, GetPixel(bmpBackImage, x, y));
-
-			// Put pixels that are not black/pink (eg, brown)
-			} else if(GetPixel(hole, hx, hy) != tLX->clBlack)
-				PutPixel(bmpImage, x, y, GetPixel(hole, hx, hy));			
+			}
 		
 		}
 
