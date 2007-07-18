@@ -218,7 +218,7 @@ public:
     void        PutImagePixel(uint x, uint y, Uint32 colour);
 
 	void		UpdateMiniMap(bool force = false);
-	void		UpdateMiniMapRect(ushort x, ushort y, ushort w, ushort h);	
+	void		UpdateMiniMapRect(int x, int y, int w, int h);	
 
 	void		Send(CBytestream *bs);
 

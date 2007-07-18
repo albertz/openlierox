@@ -115,6 +115,7 @@ void CClient::Simulation(void)
 			*/
 
 			if(local && !iGameMenu && !iChat_Typing && !iGameOver && !con) {
+				// TODO: use one getInput for both
 				if(w->getType() == PRF_HUMAN)
 					w->getInput();
 				else
@@ -166,6 +167,7 @@ void CClient::Simulation(void)
 
 			// If the worm is using a weapon with a laser sight, spawn a laser sight
 			// ALERT: sometimes weapon is undefined and causes crash when the game starts!
+			// TODO: is this ALERT up-to-date? if yes, why the hell isn't this fixed?
 			if(w->getCurWeapon()->Weapon->LaserSight) {
 					LaserSight(w);
 			}

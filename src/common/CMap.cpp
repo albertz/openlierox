@@ -547,6 +547,9 @@ void CMap::calculateGrid(void)
 // WARNING: not thread-safe (the caller has to ensure the threadsafty!)
 void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
 {
+	if (x >= Width || y >= Height)
+		return;
+    
     uint i = x/nGridWidth;
     uint j = y/nGridHeight;
 
@@ -556,9 +559,6 @@ void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
 
     x = i*nGridWidth;
     y = j*nGridHeight;
-
-	if (x >= Width || y >= Height)
-		return;
 
     uchar *cell = GridFlags + j*nGridCols + i;
     uchar *abs_cell = AbsoluteGridFlags + j*nGridCols + i;
@@ -794,175 +794,85 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
 // Returns the number of dirt pixels carved
 int CMap::CarveHole(int size, CVec pos)
 {
-	SDL_Surface *hole;
-	int dy, sx, sy;
-	int x,y;
-	int w,h;
-
-    int nNumDirt = 0;
-
 	if(size < 0 || size > 4) {
 		// Just clamp it and continue
 		size = MAX(size, 0);
 		size = MIN(size, 4);
 	}
 
-
 	// Calculate half
-	hole = Theme.bmpHoles[size];
+	SDL_Surface* hole = Theme.bmpHoles[size];
 	if (!hole)
 		return 0;
-	w = hole->w;
-	h = hole->h;
 
-	Uint32 pink = SDLColourToNativeColour(tLX->clPink, hole->format->BytesPerPixel);
-
-	sx = (int)pos.x - (hole->w >> 1);
-	sy = (int)pos.y - (hole->h >> 1);
-
+	int nNumDirt = 0;
+	const int map_x = (int)pos.x - (hole->w / 2);
+	const int map_y = (int)pos.y - (hole->h / 2);
+	
+	lockFlags();
+	
 	if(SDL_MUSTLOCK(hole))
 		SDL_LockSurface(hole);
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);
-
-
-	// Calculate the clipping bounds, so we don't have to check each loop then
-	int clip_h = MIN(sy + hole->h, bmpImage->h) - sy;
-	int clip_w = MIN(sx + hole->w, bmpImage->w) - sx;
-	int clip_y = 0; 
-	int clip_x = 0; 
-	if (sy<0) 
-		clip_y = abs(sy);
-	if (sx<0) 
-		clip_x = abs(sx);
-
-	// Some temps to make the loop faster
-	int src_tmp = clip_x * hole->format->BytesPerPixel;
-	int pf_tmp = sx + clip_x; 
-	int dst_tmp = (sx + clip_x) * bmpImage->format->BytesPerPixel;
-	Uint32 black = SDLColourToNativeColour(tLX->clBlack, bmpImage->format->BytesPerPixel);
+	if(SDL_MUSTLOCK(bmpBackImage))
+		SDL_LockSurface(bmpBackImage);
 	
-	// Pixels
-	Uint8 *srcpix;
-	Uint8 *SrcRow = (Uint8 *)hole->pixels+(clip_y)*hole->pitch;
-	Uint8 *dstpix;
-	Uint8 *DstRow = (Uint8 *)bmpImage->pixels+(sy+clip_y)*bmpImage->pitch;
-	uchar *px;
-
-
-	lockFlags();
-
-	// Go through the pixels in the hole, setting the flags to empty
-	for(y=clip_y,dy=MAX((int)0,sy);y<clip_h;y++,dy++,SrcRow+=hole->pitch,DstRow+=bmpImage->pitch) {
-
-		srcpix = SrcRow+src_tmp;
-		px = PixelFlags + dy * Width + pf_tmp;
-		dstpix = DstRow+dst_tmp;
-
-		for(x=clip_x;x<clip_w;x++,px++,srcpix+=hole->format->BytesPerPixel,dstpix+=bmpImage->format->BytesPerPixel) {
-
+	for(int hx = 0; hx < hole->w; hx++)
+		for(int hy = 0; hy < hole->h; hy++) {
+			const int x = map_x + hx;
+			const int y = map_y + hy;
+			if(y < 0) continue;
+			if((uint)y >= Height) break;
+			if(x < 0 || (uint)x >= Width) break;			
+			uchar* px = PixelFlags + y * Width + x;
+			
 			if (!(*px & PX_DIRT)) continue;
 
 			// Set the flag to empty
-			if(!memcmp(srcpix,&pink,hole->format->BytesPerPixel)) {
+			if(GetPixel(hole, hx, hy) == tLX->clPink) {
 
 				// Increase the dirt count
 				nNumDirt++;
 
 				*px = PX_EMPTY;
+				PutPixel(bmpImage, x, y, GetPixel(bmpBackImage, x, y));
 
 			// Put pixels that are not black/pink (eg, brown)
-			} else if(memcmp(srcpix,&black,hole->format->BytesPerPixel))
-				memcpy(dstpix,srcpix,bmpImage->format->BytesPerPixel);
+			} else if(GetPixel(hole, hx, hy) != tLX->clBlack)
+				PutPixel(bmpImage, x, y, GetPixel(hole, hx, hy));			
+		
 		}
-	}
 
 	unlockFlags();
 
 	if(SDL_MUSTLOCK(hole))
 		SDL_UnlockSurface(hole);
-
-	// If nothing has been carved, we don't have to bother with updating the state
-	if (!nNumDirt)
-		return 0;
-
-
-	// Go through and clean up the hole
-	sx-=5;
-	sy-=5;
-
-	// Calculate the clipping bounds, so we don't have to check each loop then
-	clip_h = MIN(sy+hole->h+20,bmpImage->h)-sy;
-	clip_w = MIN(sx+hole->w+20,bmpImage->w)-sx;
-	clip_y = 0; 
-	clip_x = 0; 
-	if (sy<0) 
-		clip_y = -sy;
-	if (sx<0) 
-		clip_x = -sx;
-
-
-	if(SDL_MUSTLOCK(bmpBackImage))
-		SDL_LockSurface(bmpBackImage);
-
-	lockFlags();
-
-	// Some temps to make the loop faster
-	src_tmp = (sx+clip_x)*bmpBackImage->format->BytesPerPixel;
-	pf_tmp = sx+clip_x; 
-	dst_tmp = (sx+clip_x)*bmpImage->format->BytesPerPixel;
-
-	// Initialize pixels
-	SrcRow = (Uint8 *)bmpBackImage->pixels + (sy+clip_y)*bmpBackImage->pitch;
-	DstRow = (Uint8 *)bmpImage->pixels + (sy+clip_y)*bmpImage->pitch;
-
-	for(y=clip_y;y<clip_h;y++,SrcRow+=bmpBackImage->pitch,DstRow+=bmpImage->pitch) {
-
-		srcpix = SrcRow+src_tmp;
-		dstpix = DstRow+dst_tmp;
-		px = PixelFlags + (sy+y) * Width + pf_tmp;
-
-		for(x=clip_x;x<clip_w;x++,px++,srcpix+=bmpBackImage->format->BytesPerPixel,dstpix+=bmpImage->format->BytesPerPixel) {		
-			memcpy(dstpix,srcpix,bmpImage->format->BytesPerPixel*((*px & PX_EMPTY) != 0)); // when not PX_EMPTY, copies 0 bytes
-		}
-	}
-
-	unlockFlags();
-
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
 	if(SDL_MUSTLOCK(bmpBackImage))
 		SDL_UnlockSurface(bmpBackImage);
 
+	if(!nNumDirt)
+		return 0;
+
 	// Apply a shadow
-	ApplyShadow(sx-5,sy-5,w+25,h+25);
+	ApplyShadow(map_x, map_y, hole->w + 25, hole->h + 25);
 
     // Recalculate the grid
-    int hw = w/2;
-    int hh = h/2;
     lockFlags();
-    for(y=sy-hh; y<sy+h+hh; y+=nGridHeight/2) {
-        for(x=sx-hw; x<sx+w+hw; x+=nGridWidth/2) {
-            calculateGridCell(x, y, true);
-        }
-    }
+	for(int hx = 0; hx < hole->w; hx += nGridWidth)
+		for(int hy = 0; hy < hole->h; hy += nGridHeight) {
+			const int x = map_x + hx;
+			const int y = map_y + hy;
+			calculateGridCell(x, y, true);
+		}
 	unlockFlags();
 
 	// Update the draw image
-	int draw_x = sx-5;
-	int draw_y = sy-5;
-	// Clipping
-	if(draw_x+w+25 > bmpImage->w)
-		draw_x = bmpImage->w-w-25;
-	if(draw_y+h+25 > bmpImage->h)
-		draw_y = bmpImage->h-h-25;
-	if (draw_x < 0)
-		draw_x = 0;
-	if (draw_y < 0)
-		draw_y = 0;
-	UpdateDrawImage(draw_x, draw_y, w+25, h+25);
+	UpdateDrawImage(map_x, map_y, hole->w + 25, hole->h + 25);
 
-	UpdateMiniMapRect(MAX(0,sx-5), MAX(0,sy-5), w+25, h+25);
+	UpdateMiniMapRect(map_x, map_y, hole->w, hole->h);
 
     return nNumDirt;
 }
@@ -1639,11 +1549,9 @@ void CMap::UpdateMiniMap(bool force)
 	if(!bMiniMapDirty && !force)
 		return;
 
-	float xratio,yratio;
-
 	// Calculate ratios
-	xratio = (float)bmpMiniMap->w/ (float)bmpImage->w;
-	yratio = (float)bmpMiniMap->h / (float)bmpImage->h;
+	float xratio = (float)bmpMiniMap->w / (float)bmpImage->w;
+	float yratio = (float)bmpMiniMap->h / (float)bmpImage->h;
 
 	if (tLXOptions->bAntiAliasing)
 		DrawImageResampledAdv(bmpMiniMap, bmpImage, 0.0f, 0.0f, 0, 0, bmpImage->w, bmpImage->h, xratio, yratio, MINIMAP_BLUR);
@@ -1657,18 +1565,16 @@ void CMap::UpdateMiniMap(bool force)
 ///////////////////
 // Update an area of the minimap
 // X, Y, W and H apply to the bmpImage, not bmpMinimap
-void CMap::UpdateMiniMapRect(ushort x, ushort y, ushort w, ushort h)
+void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 {
-	float xratio,yratio;
-
 	// Calculate ratios
-	xratio = (float)bmpMiniMap->w/ (float)bmpImage->w;
-	yratio = (float)bmpMiniMap->h / (float)bmpImage->h;
+	const float xratio = (float)bmpMiniMap->w / (float)bmpImage->w;
+	const float yratio = (float)bmpMiniMap->h / (float)bmpImage->h;
 
-	float sx = (float)((int)(x * xratio) / xratio);
-	float sy = (float)((int)(y * yratio) / yratio);
-	int dx = (int)((float)x * xratio);
-	int dy = (int)((float)y * yratio);
+	const float sx = (float)((int)(x * xratio) / xratio);
+	const float sy = (float)((int)(y * yratio) / yratio);
+	const int dx = (int)((float)x * xratio);
+	const int dy = (int)((float)y * yratio);
 
 	if (tLXOptions->bAntiAliasing)
 		DrawImageResampledAdv(bmpMiniMap, bmpImage, sx, sy, dx, dy, w, h, xratio, yratio, MINIMAP_BLUR);
@@ -2570,20 +2476,20 @@ void CMap::ClearDebugImage() {
 // Returns the number of dirt pixels carved
 int CarveHole(CMap *cMap, CVec pos)
 {
-	int x,y,n;
+	int x,y;
 	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
 
 	// Go through until we find dirt to throw around
-	y = MIN((int)pos.y,cMap->GetHeight()-1);
+	y = MAX(MIN((int)pos.y, (int)cMap->GetHeight() - 1), 0);
 
 	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
 		// Clipping
-		if(x<0)	continue;
-		if((uint)x>=cMap->GetWidth())	break;
+		if(x < 0) continue;
+		if((uint)x >= cMap->GetWidth())	break;
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
 			Colour = GetPixel(cMap->GetImage(),x,(int)pos.y);
-			for(n=0;n<3;n++)
+			for(short n=0; n<3; n++)
 				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
 			break;
 		}

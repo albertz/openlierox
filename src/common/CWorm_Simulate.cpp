@@ -337,6 +337,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 	// If we are hooked, we need to be pulled in the direction of the other worm
 	if(iHooked && pcHookWorm) {
+		// TODO: please be more precice: was is wrong here? and why is this not changed?
 		// FIXME: This isn't 'right'
 		//vVelocity = vVelocity + cNinjaRope.CalculateForce(vPos,pcHookWorm->getPos())*dt;
 	}
@@ -345,7 +346,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 	// Process the carving
 	if(ws->iCarve) {
-		iDirtCount += CarveHole(pcMap,vPos + dir*4);
+		iDirtCount += CarveHole(pcMap, vPos + dir*4);
 		//cClient->SendCarve(vPos + dir*4);
 	}
 
@@ -399,117 +400,13 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 	// Check collisions
 
 	// TODO: Use a projectile style collision system based on velocity speed
-
-	//int x,y;
-
 	vOldPos = vPos;
-
-	//CVec newpos = vPos + vVelocity*dt;
 	vPos += vVelocity * dt;
-
 
 	//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 	CheckWormCollision( dt, vOldPos, &vVelocity, jump );
 
-	/*iOnGround = false;
-
-	int coll = CheckCollision(newpos, vVelocity, 3, 3, map);
-
-	if(coll) {
-		iOnGround = true;
-
-		// Top & Bottom
-		if(coll & COL_TOP  ||  coll & COL_BOTTOM)
-			vVelocity = vVelocity * CVec(0.8f,-0.5f);
-
-		// Left & Right
-		if(coll & COL_LEFT  ||  coll & COL_RIGHT) {
-			if(fabs(vVelocity.x) > 160)
-				vVelocity = vVelocity * CVec(-0.4f,1);
-			else
-				vVelocity.x=(0);
-		}
-	}
-
-	tLX->debug_int = coll;*/
-
-	/*x = newpos.x+4;
-	y = newpos.y;
-	int clip = 0;
-
-	if(y >= 0 && y < map->GetHeight()) {
-		for(x=-3;x<4;x++) {
-			// Optimize: pixelflag++
-
-			// Clipping
-			if(newpos.x+x < 0 || newpos.x+x >= map->GetWidth())
-				continue;
-
-			if(!(map->GetPixelFlag(newpos.x+x,y) & PX_EMPTY)) {
-				if(fabs(vVelocity.x) > 40)
-					vVelocity = vVelocity * CVec(-0.4f,1);
-				else
-					vVelocity.x=(0);
-
-				int width = 4;
-				if(x<0) {
-					clip |= 0x01;
-					vPos.x=( newpos.x+x+width );
-				}
-				else {
-					clip |= 0x02;
-					vPos.x=( newpos.x+x-width );
-				}
-				break;
-			}
-		}
-	}
-
-	iOnGround = false;
-
-	int hit = false;
-	x = newpos.x;
-
-	if(x >= 0 && x < map->GetWidth()) {
-		for(y=4;y>-5;y--) {
-			// Optimize: pixelflag + Width
-
-			// Clipping
-			if(newpos.y+y < 0 || newpos.y+y >= map->GetHeight())
-				continue;
-
-			if(!(map->GetPixelFlag(x,newpos.y+y) & PX_EMPTY)) {
-				if(fabs(vVelocity.y) > 40 && !hit && !jump)
-					vVelocity = vVelocity * CVec(1,-0.4f);
-				else if(!jump)
-					vVelocity.y=(0);
-
-				hit = true;
-				iOnGround = true;
-
-				int height = 5;
-				if(y<0) {
-					clip |= 0x04;
-					vPos.y=( newpos.y+y+height );
-				}
-				else {
-					clip |= 0x08;
-					vPos.y=( newpos.y+y-height );
-				}
-
-				//if(y>3 && !jump) {
-					//vVelocity.y=(-10);
-					//Velocity.y=(0);
-				//	break;
-				//}
-			}
-		}
-	}
-
-	// If we are stuck in left & right or top & bottom, just don't move
-	if((clip & 0x01 && clip & 0x02) || (clip & 0x04 && clip & 0x08))
-		vPos = oldpos;*/
 
 
 	// Ultimate in friction
