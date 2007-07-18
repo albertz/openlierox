@@ -547,18 +547,13 @@ void CMap::calculateGrid(void)
 // WARNING: not thread-safe (the caller has to ensure the threadsafty!)
 void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
 {
-	if (x >= Width || y >= Height)
-		return;
-    
-    uint i = x/nGridWidth;
-    uint j = y/nGridHeight;
+    uint i = x / nGridWidth;
+    uint j = y / nGridHeight;
 
-    // Clamp it
-    i = MIN(i,nGridCols-1);
-    j = MIN(j,nGridRows-1);
+    if((int)i >= nGridCols || (int)j >= nGridRows) return;
 
-    x = i*nGridWidth;
-    y = j*nGridHeight;
+    x = i * nGridWidth;
+    y = j * nGridHeight;
 
     uchar *cell = GridFlags + j*nGridCols + i;
     uchar *abs_cell = AbsoluteGridFlags + j*nGridCols + i;
@@ -649,9 +644,9 @@ void CMap::CalculateDirtCount(void)
 {
     nTotalDirtCount = 0;
 	uint n;
-	const uint size = Width*Height;
+	const uint size = Width * Height;
 
-	for (n=0;n<size;n++)
+	for (n = 0; n < size; n++)
 		nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
 }
 
@@ -857,7 +852,7 @@ int CMap::CarveHole(int size, CVec pos)
 		return 0;
 
 	// Apply a shadow
-	ApplyShadow(map_x, map_y, hole->w + 25, hole->h + 25);
+	ApplyShadow(map_x - 5, map_y - 5, hole->w + 25, hole->h + 25);
 
     // Recalculate the grid
     lockFlags();
@@ -870,7 +865,7 @@ int CMap::CarveHole(int size, CVec pos)
 	unlockFlags();
 
 	// Update the draw image
-	UpdateDrawImage(map_x, map_y, hole->w + 25, hole->h + 25);
+	UpdateDrawImage(map_x - 5, map_y - 5, hole->w + 25, hole->h + 25);
 
 	UpdateMiniMapRect(map_x, map_y, hole->w, hole->h);
 
