@@ -90,7 +90,7 @@ class ClipRect {
 
 		////////////////////
 		// Make an intersection, returns false when the result rect is empty
-		inline bool IntersectWith(ClipRect<_T2> r2, ClipRect &result)  {
+		inline bool IntersectWith(const ClipRect<_T2>& r2, ClipRect &result)  {
 			_T Min, Max;
 
 			// Horizontal
@@ -341,6 +341,21 @@ inline Uint32 GetPixel(SDL_Surface* bmpSrc, int x, int y) {
 			(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
 			bmpSrc->format->BytesPerPixel);
 }
+
+inline void CopyPixel_SameFormat(
+	SDL_Surface* dst, SDL_Surface* src,
+	int dx, int dy, int sx, int sy) {
+	memcpy(
+		(Uint8*)dst->pixels + dy * dst->pitch + dx * dst->format->BytesPerPixel,
+		(Uint8*)src->pixels + sy * src->pitch + sx * dst->format->BytesPerPixel,
+		dst->format->BytesPerPixel);
+}
+
+inline void CopyPixel_SameFormat(
+	SDL_Surface* dst, SDL_Surface* src, int x, int y) {
+	CopyPixel_SameFormat(dst, src, x, y, x, y);
+}
+
 
 ////////////////
 // Put pixel alpha blended with the background

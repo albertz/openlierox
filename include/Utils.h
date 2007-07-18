@@ -108,4 +108,27 @@ inline unsigned long MIN(unsigned long a, unsigned int b) { return a<b?a:b; }
 
 
 
+// some basic functors
+// TODO: perhaps move them elsewhere?
+
+// joins 2 functors
+template<typename _F1, typename _F2>
+class JoinedFunctors : _F1, _F2 {
+private:	
+	_F1& f1; _F2& f2;
+public:
+	JoinedFunctors(_F1& f1_, _F2& f2_) : f1(f1_), f2(f2_) {}
+		
+	template<typename Targ1>
+	bool operator()(Targ1 arg1) {
+		return f1(arg1) && f2(arg1);
+	}
+	
+	template<typename Targ1, typename Targ2>
+	bool operator()(Targ1 arg1, Targ2 arg2) {
+		return f1(arg1, arg2) && f2(arg1, arg2);
+	}
+	
+};
+
 #endif

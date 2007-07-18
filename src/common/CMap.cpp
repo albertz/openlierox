@@ -683,8 +683,6 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 	int shadowmap_real_x = wx + Drop;
 	int shadowmap_real_y = wy + Drop;
-	int shadowmap_real_w = w / 2;
-	int shadowmap_real_h = h / 2;
 
 	int pixelflags_start_x = wx + Drop;  // X starting for pixelflags
 	int pixelflags_y = wy + Drop; // current Y in pixelflags
@@ -696,11 +694,8 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	ClipRect<int> obj_cliprect = ClipRect<int>(&object_real_x, &object_real_y, &w, &h);
 	obj_cliprect.IntersectWith(SDLClipRect(&bmpObj->clip_rect), obj_cliprect); // Object clipping
 
-	ClipRect<int> shadowmap_cliprect = ClipRect<int>(&shadowmap_real_x, &shadowmap_real_y, &shadowmap_real_w, &shadowmap_real_h);
+	ClipRect<int> shadowmap_cliprect = ClipRect<int>(&shadowmap_real_x, &shadowmap_real_y, &w, &h);
 	shadowmap_cliprect.IntersectWith(SDLClipRect(&bmpShadowMap->clip_rect), shadowmap_cliprect); // Map clipping
-
-	w = MIN(w, shadowmap_real_w * 2);
-	h = MIN(h, shadowmap_real_h * 2);
 
 	// Pixels
 	byte bpp = bmpDest->format->BytesPerPixel;
@@ -779,7 +774,7 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
 
 	// HINT: Clipping is done by DrawImageAdv
 
-	// Get real coordinates
+	// Get real coordinatesf
     int x = (wx - view->GetWorldX()) * 2 + view->GetLeft();
     int y = (wy - view->GetWorldY()) * 2 + view->GetTop();
 
@@ -787,6 +782,47 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
         DrawImageAdv( bmpDest, bmpShadowMap, wx, wy,  x, y, 2, 2 );
 }
 
+
+
+inline void CarveHole_handlePixel(CMap* map, int& nNumDirt, int map_x, int map_y, Uint32 hole_pixel) {
+	uchar* px = map->GetPixelFlags() + map_y * map->GetWidth() + map_x;
+	
+	if(*px & PX_DIRT) {
+		// Set the flag to empty
+		if(hole_pixel == tLX->clPink) {
+
+			// Increase the dirt count
+			nNumDirt++;
+
+			*px = PX_EMPTY;
+
+		// Put pixels that are not black/pink (eg, brown)
+		} else if(hole_pixel != tLX->clBlack)
+			PutPixel(map->GetImage(), map_x, map_y, hole_pixel);
+	}
+
+	if(*px & PX_EMPTY) {
+		// redraw background-pixel because perhaps we don't have shadow here any more
+		// we will update the shadowed pixel later
+		CopyPixel_SameFormat(map->GetImage(), map->GetBackImage(), map_x, map_y);
+	}
+	
+}
+
+class CarveHole_PixelWalker {
+public:
+	CMap* map; SDL_Surface* hole; int& nNumDirt;
+	int map_left, map_top;
+	
+	CarveHole_PixelWalker(CMap* map_, SDL_Surface* hole_, int& nNumDirt_, int map_left_, int map_top_) :
+		map(map_), hole(hole_), nNumDirt(nNumDirt_), map_left(map_left_), map_top(map_top_) {}
+	
+	inline bool operator()(int map_x, int map_y) {
+		CarveHole_handlePixel(map, nNumDirt, map_x, map_y, GetPixel(hole, map_x - map_left, map_y - map_top));
+		return true;
+	}
+	
+};
 
 ///////////////////
 // Carve a hole in the map
@@ -806,37 +842,9 @@ int CMap::CarveHole(int size, CVec pos)
 		return 0;
 
 	int nNumDirt = 0;
-	int map_x = (int)pos.x - (hole->w / 2);
-	int map_y = (int)pos.y - (hole->h / 2);
-	int w = hole->w;
-	int h = hole->h;
-
-	// Clipping
-	ClipRect<int> clip = ClipRect<int>(&map_x, &map_y, &w, &h);
-	if (!clip.IntersectWith(SDLClipRect(&bmpImage->clip_rect), clip))	// HINT: backImage has same size so no need
-		return 0;															// to perform clipping on it
+	int map_left = (int)pos.x - (hole->w / 2);
+	int map_top = (int)pos.y - (hole->h / 2);
 	
-	// Variables
-	int hx, hy;
-	Uint8 *hole_px, *mapimage_px, *mapback_px;
-	uchar *PixelFlag;
-	int HoleRowStep, MapImageRowStep, MapBackRowStep, PixelFlagRowStep;
-	byte bpp = bmpImage->format->BytesPerPixel;
-	Uint32 CurrentPixel;
-
-	hole_px = (Uint8 *)hole->pixels;
-	mapimage_px = (Uint8 *)bmpImage->pixels + map_y * bmpImage->pitch + map_x * bpp;
-	mapback_px = (Uint8 *)bmpBackImage->pixels + map_y * bmpBackImage->pitch + map_x * bpp;
-	PixelFlag = PixelFlags + map_y * Width + map_x;
-
-	HoleRowStep = hole->pitch - (w * bpp);
-	MapImageRowStep = bmpImage->pitch - (w * bpp);
-	MapBackRowStep = bmpBackImage->pitch - (w * bpp);
-	PixelFlagRowStep = Width - w;
-
-
-
-	// Lock
 	lockFlags();
 	
 	if(SDL_MUSTLOCK(hole))
@@ -846,47 +854,8 @@ int CMap::CarveHole(int size, CVec pos)
 	if(SDL_MUSTLOCK(bmpBackImage))
 		SDL_LockSurface(bmpBackImage);
 	
-	for(hy = h; hy; --hy)  {
-		for(hx = w; hx; --hx) {		
-			
-			// Carve only dirt
-			if (*PixelFlag & PX_DIRT)  {
-
-				CurrentPixel = GetPixelFromAddr(hole_px, bpp);
-
-				// Set the flag to empty
-				if(CurrentPixel == tLX->clPink) {
-
-					// Increase the dirt count
-					nNumDirt++;
-
-					*PixelFlag = PX_EMPTY;
-					PutPixelToAddr(mapimage_px, GetPixelFromAddr(mapback_px, bpp), bpp);
-
-				// Put pixels that are not black/pink (eg, brown)
-				} else if(CurrentPixel != tLX->clBlack)
-					PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
-			}
-			
-			// Redraw the background (to get rid of shadow that could be there)
-			if (*PixelFlag & PX_EMPTY)  {
-				PutPixelToAddr(mapimage_px, GetPixelFromAddr(mapback_px, bpp), bpp);
-			}
-
-
-			hole_px += bpp;
-			mapimage_px += bpp;
-			mapback_px += bpp;
-			PixelFlag++;
-		
-		}
-
-		hole_px += HoleRowStep;
-		mapimage_px += MapImageRowStep;
-		mapback_px += MapBackRowStep;
-		PixelFlag += PixelFlagRowStep;
-	}
-
+	walkPixels(ClipRect<int>(&map_left, &map_top, &hole->w, &hole->h), CarveHole_PixelWalker(this, hole, nNumDirt, map_left, map_top));
+	
 	unlockFlags();
 
 	if(SDL_MUSTLOCK(hole))
@@ -899,23 +868,23 @@ int CMap::CarveHole(int size, CVec pos)
 	if(!nNumDirt)
 		return 0;
 
-	// Apply a shadow
-	ApplyShadow(map_x - 5, map_y - 5, hole->w + 25, hole->h + 25);
-
     // Recalculate the grid
     lockFlags();
-	for(hx = 0; hx < w; hx += nGridWidth)
-		for(hy = 0; hy < h; hy += nGridHeight) {
-			const int x = map_x + hx;
-			const int y = map_y + hy;
+	for(int hx = 0; hx < hole->w; hx += nGridWidth)
+		for(int hy = 0; hy < hole->h; hy += nGridHeight) {
+			const int x = map_left + hx;
+			const int y = map_top + hy;
 			calculateGridCell(x, y, true);
 		}
 	unlockFlags();
 
-	// Update the draw image
-	UpdateDrawImage(map_x - 5, map_y - 5, hole->w + 25, hole->h + 25);
+	// Apply a shadow
+	ApplyShadow(map_left - 5, map_top - 5, hole->w + 25, hole->h + 25);
 
-	UpdateMiniMapRect(map_x, map_y, hole->w, hole->h);
+	// Update the draw image
+	UpdateDrawImage(map_left - 5, map_top - 5, hole->w + 25, hole->h + 25);
+
+	UpdateMiniMapRect(map_left, map_top, hole->w, hole->h);
 
     return nNumDirt;
 }

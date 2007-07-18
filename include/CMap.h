@@ -20,10 +20,11 @@
 #include <SDL/SDL.h>
 #include <string>
 
-#include "LieroX.h" // for possible define of _AI_DEBUG; TODO: please, clean something up there...
+#include "LieroX.h"
 #include "ReadWriteLock.h"
 #include "types.h"
 #include "CViewport.h"
+#include "GfxPrimitives.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -248,10 +249,11 @@ public:
 		return PixelFlags[y * Width + x];
 	}
 
-	inline const uchar	*GetPixelFlags() const	{ return PixelFlags; }
+	inline uchar	*GetPixelFlags() const	{ return PixelFlags; }
 
 	inline SDL_Surface	*GetDrawImage()		{ return bmpDrawImage; }
 	inline SDL_Surface	*GetImage()			{ return bmpImage; }
+	inline SDL_Surface* GetBackImage()		{ return bmpBackImage; }
 	inline SDL_Surface	*GetMiniMap()		{ return bmpMiniMap; }
 #ifdef _AI_DEBUG
 	inline SDL_Surface *GetDebugImage()	{ return bmpDebugImage; }
@@ -297,6 +299,20 @@ public:
 	inline std::string getName(void)		{ return Name; }
 
 
+	
+	// _F has to be a functor with provides compatible functions to:
+	//   bool operator()(int x, int y, int adr_offset); // handle one point; if returns false, break
+	template<typename _F>
+	inline void walkPixels(ClipRect<int> r, _F walker = _F()) {
+		static uint map_x = 0, map_y = 0;
+		if(!r.IntersectWith(ClipRect<uint>(&map_x, &map_y, &Width, &Height), r))
+			return;
+		
+		for(int y = *r.y; y < *r.y + *r.h; y++)
+			for(int x = *r.x; x < *r.x + *r.w; x++)
+				if(!walker(x, y)) return;
+	}
+	
 };
 
 
@@ -316,15 +332,15 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 		return checkflag_action;
 		
 	float quot;
-	int s_x = (dir.x>=0) ? 1 : -1;
-	int s_y = (dir.y>=0) ? 1 : -1;	
+	int s_x = (dir.x >= 0) ? 1 : -1;
+	int s_y = (dir.y >= 0) ? 1 : -1;	
 	// ensure, that |quot| <= 1 (we swap the whole map virtuelly for this, this is, what dom saves)
-	if(s_x*dir.x >= s_y*dir.y) {
+	if(s_x * dir.x >= s_y * dir.y) {
 		dom = X_DOM;
-		quot = dir.y/dir.x;
+		quot = dir.y / dir.x;
 	} else {
 		dom = Y_DOM;
-		quot = dir.x/dir.y;
+		quot = dir.x / dir.y;
 	}
 	
 #ifdef _AI_DEBUG
