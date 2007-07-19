@@ -22,7 +22,7 @@
 
 #include <SDL/SDL.h>
 #include <vector>
-#include <string>
+#include <map>
 
 // Cached item types
 #define		CCH_IMAGE		0
@@ -82,7 +82,7 @@ public:
 	SoundSample*	GetSample(void)			{ return Sample; }
 };
 
-extern std::vector<CCache> Cache;
+extern std::map<std::string, CCache> Cache;
 
 
 

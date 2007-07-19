@@ -23,7 +23,7 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 
-std::vector<CCache> Cache;
+std::map<std::string, CCache> Cache;
 
 
 
@@ -158,8 +158,8 @@ void ShutdownCache(void)
 		return;
 
 
-	for (std::vector<CCache>::iterator it=Cache.begin(); it != Cache.end(); it++)  {
-		it->Shutdown();
+	for (std::map<std::string, CCache>::iterator it=Cache.begin(); it != Cache.end(); it++)  {
+		it->second.Shutdown();
 	}
 }
 

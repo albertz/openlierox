@@ -510,7 +510,6 @@ void Menu_LocalShowMinimap(bool bReload)
                 }
 
                 // Draw the minimap
-		        map.UpdateMiniMap(true);
 		        DrawImage(tMenu->bmpMiniMapBuffer, map.GetMiniMap(), 0,0);
 		        map.Shutdown();
             }
@@ -520,7 +519,6 @@ void Menu_LocalShowMinimap(bool bReload)
             if(map.Load(blah)) {
 
 		        // Draw the minimap
-		        //map.UpdateMiniMap(true);
 		        DrawImage(tMenu->bmpMiniMapBuffer, map.GetMiniMap(), 0,0);
 
 		        map.Shutdown();

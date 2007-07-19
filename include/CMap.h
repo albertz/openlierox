@@ -53,8 +53,10 @@
 #define		MAX_OBJECTS	8192
 
 // Antialiasing blur
-#define		MAP_BLUR		0.1f
 #define		MINIMAP_BLUR	10.0f
+
+// Shadow drop
+#define		SHADOW_DROP	3
 
 
 
@@ -166,7 +168,11 @@ private:
 	int			*m_pnWater2;
 
 private:
+	// Update functions
 	void		UpdateDrawImage(int x, int y, int w, int h);
+	void		UpdateMiniMap(bool force = false);
+	void		UpdateMiniMapRect(int x, int y, int w, int h);
+	void		UpdateArea(int x, int y, int w, int h, bool update_image = false);
 
 
 
@@ -217,9 +223,6 @@ public:
     static bool validateTheme(const std::string& name);
 
     void        PutImagePixel(uint x, uint y, Uint32 colour);
-
-	void		UpdateMiniMap(bool force = false);
-	void		UpdateMiniMapRect(int x, int y, int w, int h);	
 
 	void		Send(CBytestream *bs);
 
@@ -299,19 +302,21 @@ public:
 	inline std::string getName(void)		{ return Name; }
 
 
+	// TODO: this needs to be made much more general to be as fast as the current routines
 	
 	// _F has to be a functor with provides compatible functions to:
 	//   bool operator()(int x, int y, int adr_offset); // handle one point; if returns false, break
-	template<typename _F>
-	inline void walkPixels(ClipRect<int> r, _F walker = _F()) {
-		static uint map_x = 0, map_y = 0;
-		if(!r.IntersectWith(ClipRect<uint>(&map_x, &map_y, &Width, &Height), r))
+	/*template<typename _F>
+	inline void walkPixels(ClipRect<int> r, _F walker) {
+		uint map_x = 0, map_y = 0;
+		uint map_w = Width, map_h = Height;
+		if(!r.IntersectWith(ClipRect<uint>(&map_x, &map_y, &map_w, &map_h), r))
 			return;
 		
 		for(int y = *r.y; y < *r.y + *r.h; y++)
 			for(int x = *r.x; x < *r.x + *r.w; x++)
 				if(!walker(x, y)) return;
-	}
+	}*/
 	
 };
 

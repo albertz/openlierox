@@ -1165,19 +1165,20 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 // Load an image
 SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 {
+	std::string fname = _filename;
+
+	// Convert filename to lower case
+	stringlwr(fname);
+
 	// Has this been already loaded?
-	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
-		if (it->getType() == CCH_IMAGE)  {
-			if (stringcasecmp(it->getFilename(), _filename) == 0)
-				if (it->GetImage())
-					return it->GetImage();
-		}
-	}
+	std::map<std::string, CCache>::iterator item = Cache.find(fname);
+	if (item->second.getType() == CCH_IMAGE && item->second.GetImage())
+		return item->second.GetImage();
 
 	// Didn't find one already loaded? Create a new one
 	CCache tmp;
-	SDL_Surface *result = tmp.LoadImgBPP(_filename, withalpha);
-	Cache.push_back(tmp);
+	SDL_Surface *result = tmp.LoadImgBPP(fname, withalpha);
+	Cache[_filename] = tmp;
 
 
 

@@ -458,6 +458,86 @@ int CMap::CreateSurface(void)
 }
 
 ////////////////////
+// Updates an area according to pixel flags, recalculates minimap, draw image, pixel flags and shadow
+void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
+{
+	int i, j;
+
+	// When drawing shadows, we have to update a bigger area
+	if (tLXOptions->iShadows)  {
+		x -= SHADOW_DROP;
+		y -= SHADOW_DROP;
+		w += 2 * SHADOW_DROP;
+		h += 2 * SHADOW_DROP;
+	}
+
+	// Clipping
+	ClipRect<int> clip = ClipRect<int>(&x, &y, &w, &h);
+	if (!clip.IntersectWith(SDLClipRect(&bmpImage->clip_rect), clip))
+		return;
+
+	// Grid
+	lockFlags(true);
+    for(j = y; j < y + h; j += nGridHeight)
+        for(i = x; i < x + w; i += nGridWidth)
+            calculateGridCell(i, j, true);
+
+	// Update the bmpImage according to pixel flags
+	if (update_image)  {
+		if (SDL_MUSTLOCK(bmpImage))
+			SDL_LockSurface(bmpImage);
+		if (SDL_MUSTLOCK(bmpBackImage))
+			SDL_LockSurface(bmpBackImage);
+
+		// Init the variables
+		Uint8 *img_pixel, *back_pixel;
+		Uint16 ImgRowStep, BackRowStep, FlagsRowStep;
+		uchar *pf;
+		byte bpp = bmpImage->format->BytesPerPixel;
+
+		img_pixel = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch + x * bpp;
+		back_pixel = (Uint8 *)bmpBackImage->pixels + y * bmpBackImage->pitch + x * bpp;
+		pf = PixelFlags + y * Width + x;
+
+		ImgRowStep = bmpImage->pitch - (w * bpp);
+		BackRowStep = bmpBackImage->pitch - (w * bpp);
+		FlagsRowStep = Width - w;
+
+		// Update
+		for (i = h; i; --i)  {
+			for (j = w; j; --j)  {
+				if (*pf & PX_EMPTY) // Empty pixel - copy from the background image
+					memcpy(img_pixel, back_pixel, bpp);
+
+				img_pixel += bpp;
+				back_pixel += bpp;
+				pf++;
+			}
+
+			img_pixel += ImgRowStep;
+			back_pixel += BackRowStep;
+			pf += FlagsRowStep;
+		}
+
+		if (SDL_MUSTLOCK(bmpImage))
+			SDL_UnlockSurface(bmpImage);
+		if (SDL_MUSTLOCK(bmpBackImage))
+			SDL_UnlockSurface(bmpBackImage);
+	}
+
+	unlockFlags(true);
+
+	// Apply shadow
+	ApplyShadow(x - SHADOW_DROP, y - SHADOW_DROP, w + 2 * SHADOW_DROP, h + 2 * SHADOW_DROP);
+
+	// Update draw image
+	UpdateDrawImage(x, y, w, h);
+
+	// Update minimap
+	UpdateMiniMapRect(x, y, w, h);
+}
+
+////////////////////
 // Updates the bmpDrawImage with data from bmpImage
 // X, Y, W, H apply to bmpImage, not bmpDrawImage
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
@@ -672,20 +752,18 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 // Draw an object's shadow
 void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
-	const int Drop = 3;
-
 	// Calculate positions
-	int dest_real_x = ((wx + Drop - view->GetWorldX()) * 2) + view->GetLeft();
-	int dest_real_y = ((wy + Drop - view->GetWorldY()) * 2) + view->GetTop();
+	int dest_real_x = ((wx + SHADOW_DROP - view->GetWorldX()) * 2) + view->GetLeft();
+	int dest_real_y = ((wy + SHADOW_DROP - view->GetWorldY()) * 2) + view->GetTop();
 
 	int object_real_x = sx;
 	int object_real_y = sy;
 
-	int shadowmap_real_x = wx + Drop;
-	int shadowmap_real_y = wy + Drop;
+	int shadowmap_real_x = wx + SHADOW_DROP;
+	int shadowmap_real_y = wy + SHADOW_DROP;
 
-	int pixelflags_start_x = wx + Drop;  // X starting for pixelflags
-	int pixelflags_y = wy + Drop; // current Y in pixelflags
+	int pixelflags_start_x = wx + SHADOW_DROP;  // X starting for pixelflags
+	int pixelflags_y = wy + SHADOW_DROP; // current Y in pixelflags
 	
 	// Clipping
 	ClipRect<int> dst_cliprect = ClipRect<int>(&dest_real_x, &dest_real_y, &w, &h);
@@ -768,9 +846,8 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 // Draw a pixel sized shadow
 void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy)
 {
-    const int Drop = 3;
-    wx += Drop;
-    wy += Drop;
+    wx += SHADOW_DROP;
+    wy += SHADOW_DROP;
 
 	// HINT: Clipping is done by DrawImageAdv
 
@@ -783,8 +860,105 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
 }
 
 
+///////////////////
+// Carve a hole in the map
+//
+// Returns the number of dirt pixels carved
+int CMap::CarveHole(int size, CVec pos)
+{
+	// Just clamp it and continue
+	size = MAX(size, 0);
+	size = MIN(size, 4);
 
-inline void CarveHole_handlePixel(CMap* map, int& nNumDirt, int map_x, int map_y, Uint32 hole_pixel) {
+	// Calculate half
+	SDL_Surface* hole = Theme.bmpHoles[size];
+	if (!hole)
+		return 0;
+
+	int nNumDirt = 0;
+	int map_x = (int)pos.x - (hole->w / 2);
+	int map_y = (int)pos.y - (hole->h / 2);
+	int w = hole->w;
+	int h = hole->h;
+
+	// Clipping
+	ClipRect<int> clip = ClipRect<int>(&map_x, &map_y, &w, &h);
+	if (!clip.IntersectWith(SDLClipRect(&bmpImage->clip_rect), clip))
+		return 0;
+	
+	// Variables
+	int hx, hy;
+	Uint8 *hole_px, *mapimage_px;
+	uchar *PixelFlag;
+	int HoleRowStep, MapImageRowStep, PixelFlagRowStep;
+	byte bpp = bmpImage->format->BytesPerPixel;
+	Uint32 CurrentPixel;
+
+	hole_px = (Uint8 *)hole->pixels;
+	mapimage_px = (Uint8 *)bmpImage->pixels + map_y * bmpImage->pitch + map_x * bpp;
+	PixelFlag = PixelFlags + map_y * Width + map_x;
+
+	HoleRowStep = hole->pitch - (w * bpp);
+	MapImageRowStep = bmpImage->pitch - (w * bpp);
+	PixelFlagRowStep = Width - w;
+
+
+
+	// Lock
+	lockFlags();
+	
+	if(SDL_MUSTLOCK(hole))
+		SDL_LockSurface(hole);
+	if(SDL_MUSTLOCK(bmpImage))
+		SDL_LockSurface(bmpImage);
+	
+	for(hy = h; hy; --hy)  {
+		for(hx = w; hx; --hx) {		
+			
+			// Carve only dirt
+			if (*PixelFlag & PX_DIRT)  {
+
+				CurrentPixel = GetPixelFromAddr(hole_px, bpp);
+
+				// Set the flag to empty
+				if(CurrentPixel == tLX->clPink) {
+
+					// Increase the dirt count
+					nNumDirt++;
+
+					*PixelFlag = PX_EMPTY;
+
+				// Put pixels that are not black/pink (eg, brown)
+				} else if(CurrentPixel != tLX->clBlack)
+					PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
+			}
+
+			hole_px += bpp;
+			mapimage_px += bpp;
+			PixelFlag++;
+		
+		}
+
+		hole_px += HoleRowStep;
+		mapimage_px += MapImageRowStep;
+		PixelFlag += PixelFlagRowStep;
+	}
+
+	unlockFlags();
+
+	if(SDL_MUSTLOCK(hole))
+		SDL_UnlockSurface(hole);
+	if(SDL_MUSTLOCK(bmpImage))
+		SDL_UnlockSurface(bmpImage);
+
+	if(nNumDirt) // Update only when something has been carved
+		UpdateArea(map_x, map_y, w, h, true);
+
+    return nNumDirt;
+}
+
+
+/*inline void CarveHole_handlePixel(CMap* map, int& nNumDirt, int map_x, int map_y, Uint32 hole_pixel) {
 	uchar* px = map->GetPixelFlags() + map_y * map->GetWidth() + map_x;
 	
 	if(*px & PX_DIRT) {
@@ -823,6 +997,7 @@ public:
 	}
 	
 };
+
 
 ///////////////////
 // Carve a hole in the map
@@ -887,7 +1062,7 @@ int CMap::CarveHole(int size, CVec pos)
 	UpdateMiniMapRect(map_left, map_top, hole->w, hole->h);
 
     return nNumDirt;
-}
+}*/
 
 
 ///////////////////
@@ -906,11 +1081,9 @@ int CMap::PlaceDirt(int size, CVec pos)
 
     int nDirtCount = 0;
 
-	if(size < 0 || size > 4) {
-		// Just clamp it and continue
-		size = MAX(size,0);
-		size = MIN(size,4);
-	}
+	// Just clamp it and continue
+	size = MAX(size,0);
+	size = MIN(size,4);
 
 
 	// Calculate half
@@ -986,35 +1159,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 	if(SDL_MUSTLOCK(hole))
 		SDL_UnlockSurface(hole);
 
-	// Apply a shadow
-	ApplyShadow(sx-5,sy-5,w+25,h+25);
-
-	// Update the draw image
-	int draw_x = sx-5;
-	int draw_y = sy-5;
-	// Clipping
-	if(draw_x+w+25 > bmpImage->w)
-		draw_x = bmpImage->w-w-25;
-	if(draw_y+h+25 > bmpImage->h)
-		draw_y = bmpImage->h-h-25;
-	if (draw_x < 0)
-		draw_x = 0;
-	if (draw_y < 0)
-		draw_y = 0;
-	UpdateDrawImage(draw_x, draw_y, w+25, h+25);
-
-	UpdateMiniMapRect(draw_x,draw_y,w+25,h+25);
-	//bMiniMapDirty = true;
-
-
-	// Recalculate the grid
-	lockFlags();
-	for(y=sy; y<sy+h+nGridHeight; y+=nGridHeight) {
-		for(x=sx; x<sx+w+nGridWidth; x+=nGridWidth) {
-			calculateGridCell(x, y, false);
-		}
-	}
-	unlockFlags();
+	UpdateArea(sx, sy, w, h);
 
 
     return nDirtCount;
@@ -1118,38 +1263,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 		SDL_UnlockSurface(bmpGreenMask);
 
 	// Nothing placed, no need to update
-	if (nGreenCount == 0)
-		return 0;
-
-	if (!bmpDrawImage)
-		return nGreenCount;
-
-	// Apply a shadow
-	ApplyShadow(sx-5,sy-5,w+25,h+25);
-
-	// Update the draw image
-	int draw_x = sx-5;
-	int draw_y = sy-5;
-	// Clipping
-	if(draw_x + w + 25 > bmpImage->w)
-		draw_x = bmpImage->w - w - 25;
-	if(draw_y + h + 25 > bmpImage->h)
-		draw_y = bmpImage->h - h - 25;
-	if (draw_x < 0)
-		draw_x = 0;
-	if (draw_y < 0)
-		draw_y = 0;
-	UpdateDrawImage(draw_x, draw_y, w + 25, h + 25);
-
-	UpdateMiniMapRect(draw_x, draw_y, w + 25, h + 25);
-	//bMiniMapDirty = true;
-
-	// Recalculate the grid
-	lockFlags();
-	for(y = sy; y < sy + h + nGridHeight; y += nGridHeight)
-		for(x = sx; x < sx + w + nGridWidth; x += nGridWidth)
-			calculateGridCell(x, y, false);
-	unlockFlags();
+	if (nGreenCount)
+		UpdateArea(sx, sy, w, h);
 
     return nGreenCount;
 }
@@ -1163,7 +1278,6 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 	if(!tLXOptions->iShadows)
 		return;
 
-	static const ushort Drop = 3;
 	int x, y, n;
 	uchar *px;
 	uchar *p;
@@ -1201,7 +1315,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 				ox = x+1; oy = y+1;
 
 				// Draw the shadow
-				for(n = 0; n < Drop; n++) {
+				for(n = 0; n < SHADOW_DROP; n++) {
 
 					// Clipping
 					if(ox >= Width) break;
@@ -1241,52 +1355,6 @@ void CMap::CalculateShadowMap(void)
 	// This should be faster
 	SDL_BlitSurface(bmpBackImage, NULL, bmpShadowMap, NULL);
 	DrawRectFillA(bmpShadowMap,0,0,bmpShadowMap->w,bmpShadowMap->h,tLX->clBlack,96);
-	
- /*   int x,y;
-
-    Uint32 Rmask = bmpImage->format->Rmask, Gmask = bmpImage->format->Gmask, Bmask = bmpImage->format->Bmask, Amask = bmpImage->format->Amask;
-	Uint32 R,G,B,A = 0;
-	Uint8 alpha = 100;
-	Uint32 color = 0;
-	Uint32 dc = 0;
-
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
-
-    Uint8 *pixel = (Uint8 *)bmpShadowMap->pixels;
-    Uint8 *srcpixel = (Uint8 *)bmpBackImage->pixels;
-
-	if(SDL_MUSTLOCK(bmpBackImage))
-		SDL_LockSurface(bmpBackImage);
-    if(SDL_MUSTLOCK(bmpShadowMap))
-		SDL_LockSurface(bmpShadowMap);
-
-    for( y=0; y<Height; y++ ) {
-
-		for( x=0; x<Width; x++, pixel += screenbpp, srcpixel+=screenbpp ) {
-
-			// Transparency
-			//Uint32 dc = *srcpixel;
-			dc=0;
-			memcpy(&dc,srcpixel,screenbpp);
-
-			R = ((dc & Rmask) + (( (color & Rmask) - (dc & Rmask) ) * alpha >> 8)) & Rmask;
-			G = ((dc & Gmask) + (( (color & Gmask) - (dc & Gmask) ) * alpha >> 8)) & Gmask;
-			B = ((dc & Bmask) + (( (color & Bmask) - (dc & Bmask) ) * alpha >> 8)) & Bmask;
-			if( Amask )
-				A = ((dc & Amask) + (( (color & Amask) - (dc & Amask) ) * alpha >> 8)) & Amask;
-
-			// TODO: endian
-			dc = (R | G | B | A);
-			memcpy(pixel,&dc,screenbpp);
-			// *pixel= (Uint16)dc;
-		}
-
-    }
-
-    if(SDL_MUSTLOCK(bmpBackImage))
-		SDL_UnlockSurface(bmpBackImage);
-    if(SDL_MUSTLOCK(bmpShadowMap))
-		SDL_UnlockSurface(bmpShadowMap);*/
 }
 
 
@@ -1374,20 +1442,10 @@ void CMap::PlaceStone(int size, CVec pos)
 	if(SDL_MUSTLOCK(stone))
 		SDL_UnlockSurface(stone);
 
-	// Apply the shadow
-	ApplyShadow(sx - 5, sy - 5, w + 10, h + 10);
-
-	// Update the draw image
-	short draw_x = MAX(sx - 5, 0);
-	short draw_y = MAX(sy - 5, 0);
-	UpdateDrawImage(draw_x, draw_y,	stone->w + 10, stone->h + 10);
+	UpdateArea(sx, sy, w, h);
 
     // Calculate the total dirt count
     CalculateDirtCount();
-
-	// Update the minimap rectangle
-	UpdateMiniMapRect(draw_x, draw_y, stone->w + 10, stone->h + 10);
-	//bMiniMapDirty = true;
 }
 
 
@@ -1475,12 +1533,9 @@ void CMap::PlaceMisc(int id, CVec pos)
 		SDL_UnlockSurface(misc);
 
 	// Update the draw image
-	short draw_x = MAX(sx-5,0);
-	short draw_y = MAX(sy-5,0);
-	UpdateDrawImage(draw_x, draw_y, clip_w+10, clip_h+10);
+	UpdateDrawImage(sx, sy, clip_w, clip_h);
 
-	UpdateMiniMapRect(draw_x, draw_y, clip_w+10, clip_h+10);
-	//bMiniMapDirty = true;
+	UpdateMiniMapRect(sx, sy, clip_w, clip_h);
 }
 
 

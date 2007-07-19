@@ -25,19 +25,20 @@
 // Load a sample
 SoundSample* LoadSample(const std::string& _filename, int maxplaying)
 {
-	// Has it been already loaded?
-	for (std::vector<CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
-		if (it->getType() == CCH_SOUND)  {
-			if (stringcasecmp(it->getFilename(),_filename) == 0)
-				if (it->GetSample())
-					return it->GetSample();
-		}
-	}
+	std::string fname = _filename;
+
+	// Convert filename to lower case
+	stringlwr(fname);
+
+	// Has this been already loaded?
+	std::map<std::string, CCache>::iterator item = Cache.find(fname);
+	if (item->second.getType() == CCH_SOUND && item->second.GetSample())
+		return item->second.GetSample();
 
 	// Didn't find one already loaded? Load new one
 	CCache tmp;
-	SoundSample *result = tmp.LoadSample(_filename,maxplaying);
-	Cache.push_back(tmp);
+	SoundSample *result = tmp.LoadSample(fname, maxplaying);
+	Cache[fname] = tmp;
 
 	return result;
 }

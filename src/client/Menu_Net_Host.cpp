@@ -1210,7 +1210,6 @@ void Menu_HostShowMinimap(void)
 	if(map.Load(buf)) {
 
 		// Draw the minimap
-		map.UpdateMiniMap(true);
 		DrawImage(tMenu->bmpBuffer, map.GetMiniMap(), 463,32);
 		map.Shutdown();
 	}
