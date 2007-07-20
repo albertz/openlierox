@@ -849,13 +849,13 @@ void CMap::DrawPixelShadow(SDL_Surface *bmpDest, CViewport *view, int wx, int wy
     wx += SHADOW_DROP;
     wy += SHADOW_DROP;
 
-	// HINT: Clipping is done by DrawImageAdv
+	// HINT: Clipping is done by DrawImageAdv/GetPixelFlag
 
 	// Get real coordinatesf
     int x = (wx - view->GetWorldX()) * 2 + view->GetLeft();
     int y = (wy - view->GetWorldY()) * 2 + view->GetTop();
 
-    if( PixelFlags[wy * Width + wx] & PX_EMPTY )  // We should check all the 4 pixels, but no one will ever notice it
+    if( GetPixelFlag(wx, wy) & PX_EMPTY )  // We should check all the 4 pixels, but no one will ever notice it
         DrawImageAdv( bmpDest, bmpShadowMap, wx, wy,  x, y, 2, 2 );
 }
 

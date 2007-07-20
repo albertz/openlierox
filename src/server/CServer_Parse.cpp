@@ -82,7 +82,9 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
 
 	cl->setLastReceived(tLX->fCurTime);
 
-	//player->SetLocalTime(ServerTime);
+	// Do not process empty packets
+	if (bs->isPosAtEnd())
+		return;
 
 	// Parse the packet messages
 	ParsePacket(cl, bs);
@@ -134,8 +136,19 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			ParseGrabBonus(cl, bs);
 			break;
 
+			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
+			// which leads to warnings here - we simply parse it here and avoid warnings
+		case 0xFF:
+			bs->SetPos(-1);
+			if (bs->GetLength() - bs->GetPos() > 4) // avoid "reading from stream behind end" warning
+				if (bs->readInt(4) == -1)
+					ParseConnectionlessPacket(bs);
+			else
+				printf("sv: Bad command in packet (255)");
+			break;
+
 		default:
-			printf("sv: Bad command in packet (" + itoa(cmd) + ")");
+			printf("sv: Bad command in packet (" + itoa(cmd) + ")\n");
 		}
 	}
 }

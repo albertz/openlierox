@@ -177,6 +177,16 @@ void CBytestream::Dump() {
 	cout << endl;
 }
 
+/////////////////
+// Set position in the stream
+void CBytestream::SetPos(int _p)
+{
+	if (_p < 0)
+		pos = MAX(0, (int)pos + _p);
+	else
+		pos = MIN(_p, Data.size());
+}
+
 
 
 // Writes

@@ -298,6 +298,8 @@ void CClient::ParsePacket(CBytestream *bs)
 // Parse a prepare game packet
 bool CClient::ParsePrepareGame(CBytestream *bs)
 {
+	printf("Got ParsePrepareGame\n");
+
 	// We've already got this packet
 	if (iGameReady && iNetStatus != NET_CONNECTED)  {
 		printf("CClient::ParsePrepareGame: we already got this\n");
@@ -320,7 +322,6 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	if(tGameInfo.iGameType == GME_JOIN) {
 		if(cMap) {
 			cMap->Shutdown();
-			assert(cMap);
 			delete cMap;
 			cMap = NULL;
 		}
