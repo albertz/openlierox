@@ -454,6 +454,30 @@ void CClient::Disconnect(void)
 // Setup the viewports for the local players
 void CClient::SetupViewports(void)
 {
+	// Two players
+	if (iNumWorms >= 2)
+		if (cLocalWorms[1])
+			if (cLocalWorms[1]->getType() == PRF_HUMAN)  {
+				SetupViewports(cLocalWorms[0], cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
+				return;
+			}
+	
+	// Only one player
+	SetupViewports(cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+
+}
+
+
+///////////////////
+// Setup the viewports
+void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
+{
+	if (w1 == NULL)  {
+		printf("CClient::SetupViewports: Worm1 is NULL, quitting!");
+		return;
+	}
+
+	// Reset
     for( int i=0; i<NUM_VIEWPORTS; i++ )
         cViewports[i].setUsed(false);
 
@@ -480,37 +504,25 @@ void CClient::SetupViewports(void)
 
 	int h = bottombar ? (480 - bottombar->h - top) : (382 - top); // Height of the viewports
 
-	// If there is only 1 local player, setup 1 main viewport
-	if(iNumWorms == 1) {
+	// One worm
+	if(w2 == NULL) {
         // HACK HACK: FOR AI TESTING
         //cViewports[0].Setup(0,0,640,382,VW_FREELOOK);
 
-        cViewports[0].Setup(0, top, 640, h, VW_FOLLOW);
-        cViewports[0].setTarget(cLocalWorms[0]);
+        cViewports[0].Setup(0, top, 640, h, type1);
+        cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
 	}
 
-	// If there are more than 2 local players, only use 2 viewports if the first two are humans
-	else if(iNumWorms >= 2) {
-        bool both = (cLocalWorms[1]->getType() == PRF_HUMAN);
+	// Two worms
+	else  {
+        cViewports[0].Setup(0, top, 318, h, type1);
+        cViewports[0].setTarget(w1);
+		cViewports[0].setUsed(true);
 
-        if( !both ) {  // only one human
-
-            cViewports[0].Setup(0, top, 640, h, VW_FOLLOW);
-            cViewports[0].setTarget(cLocalWorms[0]);
-		    cViewports[0].setUsed(true);
-        }
-
-        else { // two humans
-
-            cViewports[0].Setup(0, top, 318, h, VW_FOLLOW);
-            cViewports[0].setTarget(cLocalWorms[0]);
-		    cViewports[0].setUsed(true);
-
-		    cViewports[1].Setup(322, top, 318, h, VW_FOLLOW);
-            cViewports[1].setTarget(cLocalWorms[1]);
-		    cViewports[1].setUsed(true);
-        }
+		cViewports[1].Setup(322, top, 318, h, type2);
+        cViewports[1].setTarget(w2);
+		cViewports[1].setUsed(true);
 	}
 }
 

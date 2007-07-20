@@ -477,10 +477,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 		return;
 
 	// Grid
-	lockFlags(true);
-    for(j = y; j < y + h; j += nGridHeight)
-        for(i = x; i < x + w; i += nGridWidth)
-            calculateGridCell(i, j, true);
+	lockFlags();
 
 	// Update the bmpImage according to pixel flags
 	if (update_image)  {
@@ -525,7 +522,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 			SDL_UnlockSurface(bmpBackImage);
 	}
 
-	unlockFlags(true);
+	unlockFlags();
 
 	// Apply shadow
 	ApplyShadow(x - SHADOW_DROP, y - SHADOW_DROP, w + 2 * SHADOW_DROP, h + 2 * SHADOW_DROP);
@@ -752,6 +749,8 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 // Draw an object's shadow
 void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
+	// TODO: behaves weird when the worm is on the left border of the viewport
+
 	// Calculate positions
 	int dest_real_x = ((wx + SHADOW_DROP - view->GetWorldX()) * 2) + view->GetLeft();
 	int dest_real_y = ((wy + SHADOW_DROP - view->GetWorldY()) * 2) + view->GetTop();
@@ -761,10 +760,9 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 	int shadowmap_real_x = wx + SHADOW_DROP;
 	int shadowmap_real_y = wy + SHADOW_DROP;
+	int shadowmap_real_w = w / 2;
+	int shadowmap_real_h = h / 2;
 
-	int pixelflags_start_x = wx + SHADOW_DROP;  // X starting for pixelflags
-	int pixelflags_y = wy + SHADOW_DROP; // current Y in pixelflags
-	
 	// Clipping
 	ClipRect<int> dst_cliprect = ClipRect<int>(&dest_real_x, &dest_real_y, &w, &h);
 	dst_cliprect.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dst_cliprect); // Destination clipping
@@ -772,8 +770,15 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	ClipRect<int> obj_cliprect = ClipRect<int>(&object_real_x, &object_real_y, &w, &h);
 	obj_cliprect.IntersectWith(SDLClipRect(&bmpObj->clip_rect), obj_cliprect); // Object clipping
 
-	ClipRect<int> shadowmap_cliprect = ClipRect<int>(&shadowmap_real_x, &shadowmap_real_y, &w, &h);
+	ClipRect<int> shadowmap_cliprect = ClipRect<int>(&shadowmap_real_x, &shadowmap_real_y, &shadowmap_real_w, &shadowmap_real_h);
 	shadowmap_cliprect.IntersectWith(SDLClipRect(&bmpShadowMap->clip_rect), shadowmap_cliprect); // Map clipping
+
+	// HINT: pixelflags use same coordinates as shadowmap
+	int pixelflags_start_x = shadowmap_real_x; // Starting X coordinate for pixel flags
+	int pixelflags_y = shadowmap_real_y; // Current Y coordinate for pixel flags
+
+	w = MIN(w, shadowmap_real_w * 2);
+	h = MIN(h, shadowmap_real_h * 2);
 
 	// Pixels
 	byte bpp = bmpDest->format->BytesPerPixel;
@@ -793,8 +798,6 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 	// Loop variables
 	int loop_x, loop_y;
-	int loop_max_x = w;
-	int loop_max_y = h;
 
 	// Lock the surfaces
 	if (SDL_MUSTLOCK(bmpDest))
@@ -805,11 +808,11 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 		SDL_LockSurface(bmpShadowMap);
 
 	// Draw the shadow
-	for (loop_y = loop_max_y; loop_y; --loop_y)  {
+	for (loop_y = h; loop_y; --loop_y)  {
 		PixelFlag = &PixelFlags[pixelflags_y * Width + pixelflags_start_x];
 		shadowmap_px = ShadowmapPxRow;
 
-		for (loop_x = loop_max_x; loop_x; --loop_x)  {
+		for (loop_x = w; loop_x; --loop_x)  {
 
 			if ( (*PixelFlag & PX_EMPTY))  { // Don't draw shadow on solid objects
 
@@ -951,8 +954,15 @@ int CMap::CarveHole(int size, CVec pos)
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
 
-	if(nNumDirt) // Update only when something has been carved
+	if(nNumDirt)  { // Update only when something has been carved
 		UpdateArea(map_x, map_y, w, h, true);
+
+		// Grid
+		int i, j;
+		for(j = map_y; j < map_y + h; j += nGridHeight)
+			for(i = map_x; i < map_x + w; i += nGridWidth)
+				calculateGridCell(i, j, true);
+	}
 
     return nNumDirt;
 }
@@ -1161,6 +1171,13 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	UpdateArea(sx, sy, w, h);
 
+	// Grid
+	int i, j;
+	for(j = sy; j < sy + h + nGridHeight; j += nGridHeight)
+		for(i = sx; i < sx + w + nGridWidth; i += nGridWidth)
+			calculateGridCell(i, j, false);
+ 
+
 
     return nDirtCount;
 }
@@ -1263,8 +1280,15 @@ int CMap::PlaceGreenDirt(CVec pos)
 		SDL_UnlockSurface(bmpGreenMask);
 
 	// Nothing placed, no need to update
-	if (nGreenCount)
+	if (nGreenCount)  {
 		UpdateArea(sx, sy, w, h);
+
+		// Grid
+		int i, j;
+		for(j = sy; j < sy + h + nGridHeight; j += nGridHeight)
+			for(i = sx; i < sx + w + nGridWidth; i += nGridWidth)
+				calculateGridCell(i, j, false);
+	}
 
     return nGreenCount;
 }

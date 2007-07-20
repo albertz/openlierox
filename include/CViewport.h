@@ -135,6 +135,7 @@ public:
     CWorm   *getTarget(void)    { return pcTargetWorm; }
 
     int     getType(void)       { return nType; }
+	void	setType(int _t)		{ nType = _t; }
 
     void    setID(int id)       { nID = id; }
 	

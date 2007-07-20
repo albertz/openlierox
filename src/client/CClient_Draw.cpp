@@ -1610,23 +1610,11 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
                     cViewports[i].reset();
                 }
 
-                // If both viewports are used, resize the viewports
-                if( !b_on ) {
-                    cViewports[0].Setup(0,0,640,382,a_type);
-		            cViewports[0].setUsed(true);
-                    cViewports[0].setTarget(cLocalWorms[0]);
+                // Re-setup the viewports
+                if( !b_on || iNumWorms <= 1 ) {
+                    SetupViewports(cLocalWorms[0], NULL, a_type, VW_FOLLOW);
                 } else {
-                    cViewports[0].Setup(0,0,318,382,a_type);
-                    cViewports[0].setTarget(cLocalWorms[0]);
-		            cViewports[0].setUsed(true);
-
-		            cViewports[1].Setup(322,0,318,382,b_type);
-		            cViewports[1].setUsed(true);
-                    if( iNumWorms >= 2 )
-                        cViewports[1].setTarget(cLocalWorms[1]);
-                    else
-                        cViewports[1].setTarget(NULL);
-
+                    SetupViewports(cLocalWorms[0], cLocalWorms[1], a_type, b_type);
                 }
 
 				// Set the worms to follow

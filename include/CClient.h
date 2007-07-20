@@ -380,6 +380,7 @@ public:
 	// Game
 	void		Simulation(void);
 	void		SetupViewports(void);
+	void		SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2);
 	void		SendCarve(CVec pos);
 	void		PlayerShoot(CWorm *w);
 	void		ShootSpecial(CWorm *w);
