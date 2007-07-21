@@ -467,7 +467,7 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("banid", Cmd_BanId);
 	Cmd_AddCommand("muteid", Cmd_MuteId);
 	Cmd_AddCommand("unmuteid", Cmd_UnmuteId);
-	Cmd_AddCommand("crash", Cmd_Crash);
+	Cmd_AddCommand("crash", Cmd_Crash, true);
 	Cmd_AddCommand("suicide", Cmd_Suicide);
 	Cmd_AddCommand("unstuck", Cmd_Unstuck);
 	Cmd_AddCommand("wantsjoin", Cmd_WantsJoin);
@@ -475,10 +475,10 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("help", Cmd_Help);
 	Cmd_AddCommand("version", Cmd_About);
 	Cmd_AddCommand("about", Cmd_About);
-	Cmd_AddCommand("fuck", Cmd_BadWord);
-	Cmd_AddCommand("ass", Cmd_BadWord);
-	Cmd_AddCommand("bitch", Cmd_BadWord);
-	Cmd_AddCommand("sex", Cmd_BadWord);
+	Cmd_AddCommand("fuck", Cmd_BadWord, true);
+	Cmd_AddCommand("ass", Cmd_BadWord, true);
+	Cmd_AddCommand("bitch", Cmd_BadWord, true);
+	Cmd_AddCommand("sex", Cmd_BadWord, true);
 	Cmd_AddCommand("quit", Cmd_Quit);
 	Cmd_AddCommand("exit", Cmd_Quit);
 	Cmd_AddCommand("volume", Cmd_Volume);

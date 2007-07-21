@@ -195,7 +195,7 @@ int Cmd_AutoComplete(std::string& strVar)
 
 ///////////////////
 // Add a command to the list
-int Cmd_AddCommand(const std::string& strName, void (*func) ( void ))
+int Cmd_AddCommand(const std::string& strName, void (*func) ( void ), bool hide)
 {
 	// Make sure the command isn't a variable
 	/*if(CV_Find(strName)) {
@@ -217,6 +217,7 @@ int Cmd_AddCommand(const std::string& strName, void (*func) ( void ))
 	cmd = new command_t;
 	cmd->strName = strName;
 	cmd->func = func;
+	cmd->bHidden = hide;
 
 	// link the command in
 	cmd->Next = Commands;
@@ -593,7 +594,7 @@ void Cmd_Help() {
 	cmd_help_buf = "";
 
 	for(cmd=Commands; cmd; cmd=cmd->Next) {
-		if(cmd->func != Cmd_BadWord) {
+		if(!cmd->bHidden) {
 			cmd_help_buf += cmd->strName;
 			cmd_help_buf += " ";
 			count++;

@@ -31,6 +31,7 @@
 class command_t { public:
 	std::string		strName;
 	void			(*func) ( void );
+	bool			bHidden;
 
 	command_t	*Next;
 };
@@ -47,7 +48,7 @@ std::string Cmd_GetArg(int a);
 command_t	*Cmd_GetCommand(const std::string& strName);
 void	Cmd_ParseLine(const std::string& text);
 int		Cmd_AutoComplete(std::string& strVar);
-int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ));
+int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ), bool hide = false);
 void	Cmd_FreeCommands(void);
 void	Cmd_Free(void);
 
