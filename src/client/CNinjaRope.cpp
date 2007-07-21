@@ -230,6 +230,12 @@ void CNinjaRope::Draw(SDL_Surface *bmpDest, CViewport *view, CVec ppos)
 	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
 
+	// HINT: the hooked worm position could change since the Simulate procedure was called,
+	// because the worms are being processed "randomly" -> we simulate and then the hook worm
+	// is simulated -> we have a wrong position, that's why we are correcting it here:
+	if(HookAttached && PlayerAttached && Worm)
+		HookPos = Worm->getPos();
+
 	int hx = (int)HookPos.x;
 	int hy = (int)HookPos.y;
 

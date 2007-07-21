@@ -338,6 +338,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 	// If we are hooked, we need to be pulled in the direction of the other worm
 	if(iHooked && pcHookWorm) {
 		// TODO: please be more precice: was is wrong here? and why is this not changed?
+		// RE: I didn't add it here, i thought it was you...
 		// FIXME: This isn't 'right'
 		//vVelocity = vVelocity + cNinjaRope.CalculateForce(vPos,pcHookWorm->getPos())*dt;
 	}
@@ -352,7 +353,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 
 	// Process the moving
-	if(ws->iMove) { // if we are following a projectile, don't move...
+	if(ws->iMove) {
 		if(iDirection == DIR_RIGHT) {
 
 			// Right
@@ -610,9 +611,15 @@ bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 		}
 	}
 
-	// If we are stuck in left & right or top & bottom, just don't move
-	if(((clip & 0x01) && (clip & 0x02)) || ((clip & 0x04) && (clip & 0x08)))
-		vPos = vOldPos;
+	// If we are stuck in left & right or top & bottom, just don't move in that direction
+	if ((clip & 0x01) && (clip & 0x02))
+		vPos.x = vOldPos.x;
+
+	// HINT: when stucked horizontal we move slower - it's more like original LX
+	if ((clip & 0x04) && (clip & 0x08))  {
+		vPos.y = vOldPos.y;
+		vPos.x -= (vPos.x - vOldPos.x) / 2;
+	}
 
 	// If we collided with the ground and we were going pretty fast, make a bump sound
 	if(coll) {
