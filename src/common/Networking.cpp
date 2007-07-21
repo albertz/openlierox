@@ -97,7 +97,7 @@ bool http_InitializeRequest(const std::string& host, const std::string& url)
     // Ie, '/'s from host goes into url
     http_CreateHostUrl(friendly_host, friendly_url);
 
-    printf("Sending HTTP request %s%s\n",http_host.c_str(), http_url.c_str());
+    printf("Sending HTTP request " + http_host + http_url + "\n");
 
 	http_content = "";
 
@@ -194,7 +194,7 @@ int http_ProcessRequest(std::string* szError)
 		}
 	} else {
 
-		// Havn't resolved the address yet, so leave but let the 
+		// Haven't resolved the address yet, so leave but let the 
 		// caller of this function keep processing us
 		return 0;
 	}
@@ -525,9 +525,9 @@ bool StringToNetAddr(const std::string& string, NetworkAddr* addr) {
 
 bool NetAddrToString(const NetworkAddr* addr, std::string& string) {
 	static char buf[256];
-	nlAddrToString(NetworkAddrData(addr), buf);
+	NLchar *res = nlAddrToString(NetworkAddrData(addr), buf);
 	string = buf;
-	return true; // TODO: check it
+	return res != NULL;
 }
 
 unsigned short GetNetAddrPort(NetworkAddr* addr) {
