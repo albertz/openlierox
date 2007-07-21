@@ -15,7 +15,7 @@ CppCompiler=-WITH_MEDIAPLAYER_@@_
 Linker=-lmingw32_@@_-lSDLmain_@@_-lSDL_@@_-mwindows_@@_-lSDL_mixer_@@_-lSDL_image_@@_-lz_@@_libs/bgd.lib_@@_libs/libxml2.lib_@@_libs/hawknl.lib_@@_
 IsCpp=1
 Icon=OpenLieroX.ico
-ExeOutput=..\..\share\gamedir
+ExeOutput=..\..\distrib\win32\
 ObjectOutput=
 OverrideOutput=0
 OverrideOutputName=OpenLieroX.exe
@@ -27,7 +27,7 @@ CustomMakefile=
 IncludeVersionInfo=1
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000001000001001000000
+CompilerSettings=0000001001001001000000
 
 [VersionInfo]
 Major=0

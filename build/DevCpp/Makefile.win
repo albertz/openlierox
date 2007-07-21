@@ -11,8 +11,8 @@ LIBS =  -L"C:/Dev-Cpp/lib" -lmingw32 -lSDLmain -lSDL -mwindows -lSDL_mixer -lSDL
 INCS =  -I"C:/Dev-Cpp/include"  -I"../../hawknl/include"  -I"../../include" 
 CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"../../hawknl/include"  -I"../../include" 
 BIN  = ../../share/gamedir/OpenLieroX.exe
-CXXFLAGS = $(CXXINCS) -WITH_MEDIAPLAYER   -fexceptions -O3 -g3
-CFLAGS = $(INCS)    -fexceptions -O3 -g3
+CXXFLAGS = $(CXXINCS) -WITH_MEDIAPLAYER   -fexceptions -fexpensive-optimizations -O3 -g3
+CFLAGS = $(INCS)    -fexceptions -fexpensive-optimizations -O3 -g3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
