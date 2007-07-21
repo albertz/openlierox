@@ -78,7 +78,7 @@ float           http_ResolveTime = -9999;
 
 
 void http_Init() {
-	SetSocketStateValid(http_Socket, false);
+	InvalidateSocketState(http_Socket);
 }
 
 
@@ -86,15 +86,18 @@ void http_Init() {
 // Initialize a HTTP get request
 bool http_InitializeRequest(const std::string& host, const std::string& url)
 {
-	// Make the url http friendly (get rid of spaces)	
-	// TODO: why was this commented out?
-	//http_ConvertUrl(http_url, url);
+	// Make the urls http friendly (get rid of spaces)
+	std::string friendly_url = url;
+	std::string friendly_host = host;
+
+	http_ConvertUrl(friendly_url, url);
+	http_ConvertUrl(friendly_host, host);
 	
     // Convert the host & url into a good set
     // Ie, '/'s from host goes into url
-    http_CreateHostUrl(host, url);
+    http_CreateHostUrl(friendly_host, friendly_url);
 
-    printf("Sending HTTP request %s %s\n",http_host.c_str(), http_url.c_str());
+    printf("Sending HTTP request %s%s\n",http_host.c_str(), http_url.c_str());
 
 	http_content = "";
 
@@ -249,10 +252,7 @@ bool http_SendRequest(void)
 	int count = WriteSocket( http_Socket, request );
 
 	// Anything written?
-	if( count < 0 )
-		return false;
-
-	return true;
+	return (count > 0);
 }
 
 
@@ -262,7 +262,7 @@ void http_Quit(void)
 {
 	if( IsSocketStateValid(http_Socket) ) {
 		CloseSocket(http_Socket);
-		SetSocketStateValid(http_Socket, false);
+		InvalidateSocketState(http_Socket);
 	}
 
 	http_RemoveHeader();
@@ -274,29 +274,29 @@ void http_Quit(void)
 // Convert the url into a friendly url (no spaces)
 void http_ConvertUrl(std::string& dest, const std::string& url)
 {
-	size_t i;
-	char buffer[3];
-	char c;
-
-
 	dest = "";
 
-	// TODO: use iterators!
-	for( i=0; i < url.size(); i++) {
-		c = url[i];
-		
+	std::string::const_iterator url_it;
+	for( url_it = url.begin(); url_it != url.end(); url_it++) {
+	
 //		if(url[i] == '_')
 //			c = ' ';
 			
 
-		if( isalnum(c) )
-			dest += c;
+		if( isalnum(*url_it) || *url_it == '/' || *url_it == '.' || *url_it == '_' )
+			dest += *url_it;
 		else {
-			snprintf(buffer,sizeof(buffer),"%X",c);
 			dest += '%';
-			dest += buffer[0]; dest += buffer[1];
+			if (*url_it <= 0xF)
+				dest += '0';
+
+			dest += itoa((int)*url_it, 16);
 		}
 	}
+
+	// Remove slashes at the end (looks nicer when printed to console :) )
+	if (*dest.rbegin() == '/')
+		dest.erase(dest.size()-1);
 }
 
 
@@ -426,7 +426,25 @@ bool CloseSocket(NetworkSocket sock) {
 }
 
 int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
-	return nlWrite(*NetworkSocketData(&sock), buffer, nbytes);
+	NLint ret = nlWrite(*NetworkSocketData(&sock), buffer, nbytes);
+
+#ifdef DEBUG
+	// Error checking
+	if (ret == NL_INVALID)  {
+		if (nlGetError() == NL_SYSTEM_ERROR)
+			printf("WriteSocket: " + std::string(nlGetSystemErrorStr(nlGetSystemError())) + "\n");
+		else
+			printf("WriteSocket: " + std::string(nlGetErrorStr(nlGetError())) + "\n");
+
+		return NL_INVALID;
+	}
+
+	if (ret == 0) {
+		printf("WriteSocket: Could not send the packet, network buffers are full.\n");
+	}
+#endif // DEBUG == 1
+
+	return ret;
 }
 
 int	WriteSocket(NetworkSocket sock, const std::string& buffer) {
@@ -441,7 +459,7 @@ bool IsSocketStateValid(NetworkSocket sock) {
 	return (*NetworkSocketData(&sock) != NL_INVALID);
 }
 
-void SetSocketStateValid(NetworkSocket& sock, bool valid) {
+void InvalidateSocketState(NetworkSocket& sock) {
 	*NetworkSocketData(&sock) = NL_INVALID;
 }
 
@@ -537,7 +555,6 @@ bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
 	}
 }
 
-// TODO: use hash_map
 typedef std::map<std::string, NetworkAddr> dnsCacheT; 
 dnsCacheT dnsCache;
 

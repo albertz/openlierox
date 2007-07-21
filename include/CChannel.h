@@ -86,7 +86,7 @@ public:
 	void		Transmit( CBytestream *bs );
 	int			Process(CBytestream *bs);
 	inline void		Clear(void)				{ fLastPckRecvd = 0;
-		iPort = 23400; SetSocketStateValid(Socket, false);
+		iPort = 23400; InvalidateSocketState(Socket);
 										  iPacketsDropped = 0; iPacketsGood = 0; }
 
 

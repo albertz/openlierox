@@ -55,7 +55,7 @@ void GameServer::Clear(void)
 	iGameOver = false;
 	iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
-	SetSocketStateValid(tSocket, false);
+	InvalidateSocketState(tSocket);
 	tGameLobby.nSet = false;
 	bRegServer = false;
 	bServerRegistered = false;
@@ -1281,7 +1281,7 @@ void GameServer::Shutdown(void)
 
 	if(IsSocketStateValid(tSocket))
 		CloseSocket(tSocket);
-	SetSocketStateValid(tSocket, false);
+	InvalidateSocketState(tSocket);
 
 	if(cClients) {
 		for(i=0;i<MAX_CLIENTS;i++)

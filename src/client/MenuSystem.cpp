@@ -208,8 +208,8 @@ void Menu_Shutdown(void)
 		if(IsSocketStateValid(tMenu->tSocket[SCK_NET]))
 			CloseSocket(tMenu->tSocket[SCK_NET]);
 
-		SetSocketStateValid(tMenu->tSocket[SCK_LAN], false);
-		SetSocketStateValid(tMenu->tSocket[SCK_NET], false);
+		InvalidateSocketState(tMenu->tSocket[SCK_LAN]);
+		InvalidateSocketState(tMenu->tSocket[SCK_NET]);
 
 		// The rest get free'd in the cache
 		assert(tMenu);

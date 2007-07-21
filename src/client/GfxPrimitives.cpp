@@ -1167,9 +1167,6 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 {
 	std::string fname = _filename;
 
-	// Convert filename to lower case
-	stringlwr(fname);
-
 	// Has this been already loaded?
 	std::map<std::string, CCache>::iterator item = Cache.find(fname);
 	if (item->second.getType() == CCH_IMAGE && item->second.GetImage())

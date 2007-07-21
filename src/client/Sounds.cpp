@@ -27,9 +27,6 @@ SoundSample* LoadSample(const std::string& _filename, int maxplaying)
 {
 	std::string fname = _filename;
 
-	// Convert filename to lower case
-	stringlwr(fname);
-
 	// Has this been already loaded?
 	std::map<std::string, CCache>::iterator item = Cache.find(fname);
 	if (item->second.getType() == CCH_SOUND && item->second.GetSample())

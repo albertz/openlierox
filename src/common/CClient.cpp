@@ -61,7 +61,7 @@ void CClient::Clear(void)
 	bUpdateScore = true;
 	cChatList = NULL;
 
-	SetSocketStateValid(tSocket, false);
+	InvalidateSocketState(tSocket);
 
     cChatbox.setWidth(325);
 	cChatbox.Clear();
@@ -704,7 +704,7 @@ void CClient::Shutdown(void)
 	// Close the socket
 	if(IsSocketStateValid(tSocket))
 		CloseSocket(tSocket);
-	SetSocketStateValid(tSocket, false);
+	InvalidateSocketState(tSocket);
 
 	// Log this
 	if (tLXOptions->iLogConvos)  {
