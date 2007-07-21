@@ -136,18 +136,19 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			ParseGrabBonus(cl, bs);
 			break;
 
+		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
 			// which leads to warnings here - we simply parse it here and avoid warnings
-		case 0xFF:
-			bs->SetPos(-1);
-			if (bs->GetLength() - bs->GetPos() > 4) // avoid "reading from stream behind end" warning
-				if (bs->readInt(4) == -1)
-					ParseConnectionlessPacket(bs);
-			else
-				printf("sv: Bad command in packet (255)");
-			break;
 
-		default:
+			// Avoid "reading from stream behind end" warning if this is really a bad packet
+			// and print the bad command instead
+			if (cmd == 0xff && bs->GetLength() - bs->GetPos() > 3)
+				if (bs->readByte() == 0xff && bs->readByte() == 0xff && bs->readByte() == 0xff)  {
+					ParseConnectionlessPacket(bs);
+					break;
+				}
+
+			// Really a bad packet
 			printf("sv: Bad command in packet (" + itoa(cmd) + ")\n");
 		}
 	}
