@@ -749,17 +749,20 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 // Draw an object's shadow
 void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
-	// TODO: behaves weird when the worm is on the left border of the viewport
+	// TODO: simplify, possibly think up a better algo...
 
-	// Calculate positions
+	// Calculate positions and clipping
+	int clip_shift_x = - MIN(0, wx - view->GetWorldX() + SHADOW_DROP) * 2;  // When we clip left/top on dest, we have to
+	int clip_shift_y = - MIN(0, wy - view->GetWorldY() + SHADOW_DROP) * 2;  // "shift" the coordinates on other surfaces, too
+
 	int dest_real_x = ((wx + SHADOW_DROP - view->GetWorldX()) * 2) + view->GetLeft();
 	int dest_real_y = ((wy + SHADOW_DROP - view->GetWorldY()) * 2) + view->GetTop();
 
-	int object_real_x = sx;
-	int object_real_y = sy;
+	int object_real_x = sx + clip_shift_x;
+	int object_real_y = sy + clip_shift_y;
 
-	int shadowmap_real_x = wx + SHADOW_DROP;
-	int shadowmap_real_y = wy + SHADOW_DROP;
+	int shadowmap_real_x = wx + SHADOW_DROP + clip_shift_x;
+	int shadowmap_real_y = wy + SHADOW_DROP + clip_shift_y;
 	int shadowmap_real_w = w / 2;
 	int shadowmap_real_h = h / 2;
 
