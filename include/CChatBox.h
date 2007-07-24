@@ -55,7 +55,7 @@ private:
     unsigned int	nWidth;
 
 	// Methods
-	void	AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new);
+	void	AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new, int rec_count = 0);
 
 public:
 	// Methods

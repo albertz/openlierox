@@ -54,8 +54,15 @@ void CChatBox::AddText(const std::string& txt, int colour, float time)
 
 ////////////////////
 // Adds the text to wrapped lines
-void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new)
+void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new, int rec_count)
 {
+
+	// Avoid stack overflow (this limits the message to 32 lines, let's hope no one will need it)
+	// TODO: iterative algo to remove this restriction?
+	if (rec_count > 32)
+		return;
+	++rec_count;
+
 	//
 	// Wrap
 	//
@@ -73,9 +80,13 @@ void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_
 		for (i=buf.length()-2; (uint)tLX->cFont.GetWidth(buf) > nWidth && i >= 1; i--)
 			buf.erase(i);
 
+		// Damaged text, would cause overflowý
+		if (buf.empty())
+			return;
+
 		size_t j = buf.length()-1;
 		// Find the nearest space
-		for (std::string::reverse_iterator it2=buf.rbegin(); it2!=buf.rend() && *it2 != ' '; it2++,j--) {}
+		for (std::string::reverse_iterator it2=buf.rbegin(); it2!=buf.rend() && *it2 != ' ' && j; it2++,j--) {}
 
 		// Hard break
 		if(j < 24)
@@ -83,8 +94,8 @@ void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_
 
 		// Add the lines recursively
 		// Note: if the second line is also too long, it will be wrapped, because of recursion
-		AddWrapped(txt.substr(0,j), colour, time, lines, mark_as_new);  // Line 1
-		AddWrapped(txt.substr(j), colour, time, lines, mark_as_new);  // Line 2
+		AddWrapped(txt.substr(0,j), colour, time, lines, mark_as_new, rec_count);  // Line 1
+		AddWrapped(txt.substr(j), colour, time, lines, mark_as_new, rec_count);  // Line 2
 
 		return;
 	}
