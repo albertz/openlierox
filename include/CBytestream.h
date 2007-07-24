@@ -94,7 +94,7 @@ public:
 	bool		isPosAtEnd() 	{ return GetPos() >= GetLength(); }
 	
 	// Networking stuff
-	void	Send(NetworkSocket sock);
+	bool	Send(NetworkSocket sock);
 	size_t	Read(NetworkSocket sock);
 
 };

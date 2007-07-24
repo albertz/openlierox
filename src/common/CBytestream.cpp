@@ -409,7 +409,7 @@ bool CBytestream::Skip(size_t num) {
 
 size_t CBytestream::Read(NetworkSocket sock) {
 	Clear();
-	#define BUFSIZE 1024
+	#define BUFSIZE 2048
 	static char buf[BUFSIZE];
 	size_t len = 0;
 	int res; // MUST be signed, else an overflow can occur (ReadScoket can return -1!)
@@ -422,7 +422,6 @@ size_t CBytestream::Read(NetworkSocket sock) {
 	}
 	return len;
 }
-
-void CBytestream::Send(NetworkSocket sock) {
-	WriteSocket(sock, Data.data(), Data.size());
+bool CBytestream::Send(NetworkSocket sock) {
+	return WriteSocket(sock, Data.data(), Data.size()) == Data.size();
 }

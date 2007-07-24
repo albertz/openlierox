@@ -442,7 +442,7 @@ int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 	if (ret == 0) {
 		printf("WriteSocket: Could not send the packet, network buffers are full.\n");
 	}
-#endif // DEBUG == 1
+#endif // DEBUG
 
 	return ret;
 }
@@ -452,7 +452,21 @@ int	WriteSocket(NetworkSocket sock, const std::string& buffer) {
 }
 
 int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
-	return nlRead(*NetworkSocketData(&sock), buffer, nbytes);
+	NLint ret = nlRead(*NetworkSocketData(&sock), buffer, nbytes);
+
+#ifdef DEBUG
+	// Error checking
+	if (ret == NL_INVALID)  {
+		if (nlGetError() == NL_SYSTEM_ERROR)
+			printf("ReadSocket: " + std::string(nlGetSystemErrorStr(nlGetSystemError())) + "\n");
+		else
+			printf("ReadSocket: " + std::string(nlGetErrorStr(nlGetError())) + "\n");
+
+		return NL_INVALID;
+	}
+#endif // DEBUG
+
+	return ret;
 }
 
 bool IsSocketStateValid(NetworkSocket sock) {
