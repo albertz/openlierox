@@ -13,6 +13,10 @@
 // Created 29/7/02
 // Jason Boettcher
 
+// Disable this pseudo-warning
+#ifdef _MSC_VER
+#pragma warning(disable: 4786)
+#endif
 
 #include "LieroX.h"
 #include "Cache.h"

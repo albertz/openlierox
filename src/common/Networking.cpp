@@ -276,14 +276,12 @@ void http_ConvertUrl(std::string& dest, const std::string& url)
 {
 	dest = "";
 
-	std::string::const_iterator url_it;
-	for( url_it = url.begin(); url_it != url.end(); url_it++) {
-	
-//		if(url[i] == '_')
-//			c = ' ';
-			
+	const std::string dont_encode = "-_.!~*'()&?/="; // Characters that won't be encoded in any way
 
-		if( isalnum(*url_it) || *url_it == '/' || *url_it == '.' || *url_it == '_' )
+	std::string::const_iterator url_it;
+	for( url_it = url.begin(); url_it != url.end(); url_it++) {	
+
+		if( isalnum(*url_it) || dont_encode.find(*url_it) != std::string::npos)
 			dest += *url_it;
 		else {
 			dest += '%';
