@@ -199,7 +199,7 @@ public:
     void        calculateGrid(void);
 private:
 	// not thread-safe    
-    void        calculateGridCell(uint x, uint y, bool bSkipEmpty);
+    void        calculateGridCell(int x, int y, bool bSkipEmpty);
 public:	
 	void		TileMap(void);
     
@@ -306,17 +306,15 @@ public:
 	
 	// _F has to be a functor with provides compatible functions to:
 	//   bool operator()(int x, int y, int adr_offset); // handle one point; if returns false, break
-	/*template<typename _F>
-	inline void walkPixels(ClipRect<int> r, _F walker) {
-		uint map_x = 0, map_y = 0;
-		uint map_w = Width, map_h = Height;
-		if(!r.IntersectWith(ClipRect<uint>(&map_x, &map_y, &map_w, &map_h), r))
+	template<typename _T, typename _F>
+	inline void walkPixels(Rect<_T> r, _F walker) {
+		if(!r.clipWith((SDLRect){0, 0, Width, Height}))
 			return;
 		
-		for(int y = *r.y; y < *r.y + *r.h; y++)
-			for(int x = *r.x; x < *r.x + *r.w; x++)
+		for(int y = r.y(); y < r.y2(); y++)
+			for(int x = r.x(); x < r.x2(); x++)
 				if(!walker(x, y)) return;
-	}*/
+	}
 	
 };
 

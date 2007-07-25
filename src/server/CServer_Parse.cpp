@@ -142,8 +142,8 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 
 			// Avoid "reading from stream behind end" warning if this is really a bad packet
 			// and print the bad command instead
-			if (cmd == 0xff && bs->GetLength() - bs->GetPos() > 3)
-				if (bs->readByte() == 0xff && bs->readByte() == 0xff && bs->readByte() == 0xff)  {
+			if (cmd == 0xff && bs->GetRestLen() > 3)
+				if (bs->readInt(3) == 0xffffff) {
 					ParseConnectionlessPacket(bs);
 					break;
 				}

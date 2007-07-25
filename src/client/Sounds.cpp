@@ -33,7 +33,7 @@ SoundSample* LoadSample(const std::string& _filename, int maxplaying)
 
 	// Has this been already loaded?
 	std::map<std::string, CCache>::iterator item = Cache.find(fname);
-	if (item->second.getType() == CCH_SOUND && item->second.GetSample())
+	if(item != Cache.end())
 		return item->second.GetSample();
 
 	// Didn't find one already loaded? Load new one

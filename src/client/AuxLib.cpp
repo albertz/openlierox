@@ -280,7 +280,7 @@ void ShutdownAuxLib(void)
 	ShutdownCache();
 
 	// Shutdown the SDL system
-	// this is a workaround to prevent the default segfault-routine
+	// this is a (non-working) workaround to prevent the default segfault-routine
 	try { SDL_Quit(); }
 	catch(...) {
 		printf("WARNING: ERROR while shutting down SDL\n");

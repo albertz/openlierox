@@ -537,9 +537,13 @@ bool StringToNetAddr(const std::string& string, NetworkAddr* addr) {
 
 bool NetAddrToString(const NetworkAddr* addr, std::string& string) {
 	static char buf[256];
-	NLchar *res = nlAddrToString(NetworkAddrData(addr), buf);
-	string = buf;
-	return res != NULL;
+	NLchar* res = nlAddrToString(NetworkAddrData(addr), buf);
+	if(res) {
+		fix_markend(buf);
+		string = buf;
+		return true;
+	} else
+		return false;
 }
 
 unsigned short GetNetAddrPort(NetworkAddr* addr) {

@@ -67,49 +67,106 @@ inline Uint32 NativeColourToSDLColour(Uint32 pixel, short bpp) {
 // Clip the line to the surface
 bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2);
 
-////////////////////
-// Clipping rect class
-template<typename _T>
-class ClipRect {
-	public:
-		ClipRect(_T *left, _T *top, _T *width, _T *height) : x(left), y(top), w(width), h(height) {}
-		ClipRect(SDL_Rect *r)  {
-			// Safety asserts
-			assert(sizeof(_T) == sizeof(r->x));
-			assert(sizeof(_T) == sizeof(r->w));
 
-			x = (_T *) &(r->x);
-			y = (_T *) &(r->y);
-			w = (_T *) &(r->w);
-			h = (_T *) &(r->h);
-		}
-
-		_T *x, *y, *w, *h;
-
-		template <typename _T2>
-
-		////////////////////
-		// Make an intersection, returns false when the result rect is empty
-		inline bool IntersectWith(const ClipRect<_T2>& r2, ClipRect &result)  {
-			_T Min, Max;
-
-			// Horizontal
-			Min = MAX( (_T)(*r2.x), *x );
-			Max = MIN( (_T)(*r2.x) + (_T)(*r2.w), *x + *w);
-			*result.x = Min;
-			*result.w = MAX((_T)0, Max - Min);
-
-			// Vertical
-			Min = MAX( (_T)(*r2.y), *y );
-			Max = MIN( (_T)(*r2.y) + (_T)(*r2.h), *y + *h);
-			*result.y = Min;
-			*result.h = MAX((_T)0, Max - Min);
-
-			return (*result.w && *result.h);
-		}
+class SDLRectBasic : private SDL_Rect {
+public:
+	typedef Sint16 Type;
+	typedef Uint16 TypeS;
+	
+	inline Type& x() { return ((SDL_Rect*)this)->x; }
+	inline Type& y() { return ((SDL_Rect*)this)->y; }
+	inline TypeS& width() { return w; }
+	inline TypeS& height() { return h; }
+	
+	inline Type x() const { return ((SDL_Rect*)this)->x; }
+	inline Type y() const { return ((SDL_Rect*)this)->y; }
+	inline Type width() const { return w; }
+	inline Type height() const { return h; }
 };
 
-typedef ClipRect<Sint16> SDLClipRect;  // Use this for creating clipping rects from SDL
+template<typename _Type, typename _TypeS>
+class RefRectBasic {
+public:
+	typedef _Type Type;
+	typedef _TypeS TypeS;
+private:
+	Type &m_x, &m_y;
+	TypeS &m_w, &m_h;
+public:
+	RefRectBasic(Type& x_, Type& y_, TypeS& w_, TypeS& h_)
+	: m_x(x_), m_y(y_), m_w(w_), m_h(h_) {}
+	
+	inline Type& x() { return m_x; }
+	inline Type& y() { return m_y; }
+	inline TypeS& width() { return m_w; }
+	inline TypeS& height() { return m_h; }
+	
+	inline Type x() const { return m_x; }
+	inline Type y() const { return m_y; }
+	inline Type width() const { return m_w; }
+	inline Type height() const { return m_h; }
+};
+
+
+// _RectBasic has to provide the following public members:
+//		typedef ... Type; // type for x,y
+//		typedef ... TypeS; // type for w,h
+//		Type x();
+//		Type y();
+//		TypeS width();
+//		TypeS height();
+//		and the above as const
+template<typename _RectBasic>
+class Rect : public _RectBasic {
+public:
+	
+	class AssignX2 : private Rect {
+	public:
+		inline AssignX2& operator=(const typename Rect::Type& v)
+		{ this->Rect::width() = v - this->Rect::x(); return *this; }
+		inline operator typename Rect::Type () const
+		{ return this->Rect::x() + this->Rect::width(); }
+	};
+	inline AssignX2& x2() { return (AssignX2&)*this; }
+	inline const AssignX2& x2() const { return (const AssignX2&)*this; }
+	
+	class AssignY2 : private Rect {
+	public:
+		inline AssignY2& operator=(const typename Rect::Type& v)
+		{ this->Rect::height() = v - this->Rect::y(); return *this; }
+		inline operator typename Rect::Type () const
+		{ return this->Rect::y() + this->Rect::height(); }
+	};
+	inline AssignY2& y2() { return (AssignY2&)*this; }
+	inline const AssignY2& y2() const { return (AssignY2&)*this; }
+	
+	template<typename _ClipRect>
+	inline bool clipWith(const _ClipRect& clip) {
+		// Horizontal
+		this->Rect::x() = MAX( (typename Rect::Type)this->Rect::x(), (typename Rect::Type)clip.x() );
+		this->Rect::x2() = MIN( (typename Rect::Type)this->Rect::x2(), (typename Rect::Type)clip.x2() );
+		
+		// Vertical
+		this->Rect::y() = MAX( (typename Rect::Type)this->Rect::y(), (typename Rect::Type)clip.y() );
+		this->Rect::y2() = MIN( (typename Rect::Type)this->Rect::y2(), (typename Rect::Type)clip.y2() );
+		
+		return (this->Rect::width() && this->Rect::height());
+	}
+};
+
+
+typedef Rect<SDLRectBasic> SDLRect;  // Use this for creating clipping rects from SDL
+
+template<typename _Type, typename _TypeS, typename _ClipRect>
+inline bool ClipRefRectWith(_Type& x, _Type& y, _TypeS& w, _TypeS& h, const _ClipRect& clip) {
+	RefRectBasic<_Type, _TypeS> refrect = RefRectBasic<_Type, _TypeS>(x, y, w, h);
+	return ((Rect<RefRectBasic<_Type, _TypeS> >&) refrect).clipWith(clip);
+}
+
+template<typename _ClipRect>
+inline bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
+	return ((SDLRect&)rect).clipWith(clip);
+}
 
 
 //

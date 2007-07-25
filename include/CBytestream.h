@@ -55,7 +55,8 @@ public:
 	void		ResetPosToBegin()	{ pos = 0; }
 	size_t		GetLength()			{ return Data.size(); }
 	size_t		GetPos() 			{ return pos; }
-
+	size_t		GetRestLen()		{ return Data.size() - pos; }
+	
 	void		Clear();
 	void		Append(CBytestream *bs);
     void        Dump();

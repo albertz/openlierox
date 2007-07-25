@@ -37,6 +37,7 @@ int iSurfaceFormat = SDL_SWSURFACE;
 //
 //////////////////////////
 
+// TODO: perhaps move this elsewhere?
 template<typename T>
 inline T force_in_range(T val, T min, T max) {
 	return MIN(MAX(val, min), max);
@@ -92,7 +93,7 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 	// and if this is needed in other parts, than the other parts are coded wrong!
 	// and i think, COLORKEY is also used wrong
 	// (COLORKEY should return the colorkey, which makes no sense for alpha surfaces;
-	//  if one want to check for transparency, use the IsTransparent function)	
+	//  if one want to check for transparency, use the IsTransparent function)
 	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, colorkey);
 
 }
@@ -117,6 +118,7 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 #define CLIP_REJECT(a,b) (a&b)
 #define CLIP_ACCEPT(a,b) (!(a|b))
 
+// TODO: why is int the return here?
 static inline int clipEncode(int x, int y, int left, int top, int right, int bottom)
 {
     int code = 0;
@@ -212,7 +214,7 @@ bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 
 inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h) {
 	// Initialize
-	int byte_bound = w * src->format->BytesPerPixel;
+	size_t byte_bound = w * src->format->BytesPerPixel;
 	int src_pitch = src->pitch;
 	int dst_pitch = dst->pitch;
 	Uint8* srcrow = (Uint8 *)src->pixels
@@ -233,13 +235,11 @@ inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, 
 void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// Source clipping
-	ClipRect<int> clip = ClipRect<int>(&sx, &sy, &w, &h);
-	if (!clip.IntersectWith(SDLClipRect(&src->clip_rect), clip))
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)src->clip_rect))
 		return;
 	
 	// Dest clipping
-	clip = ClipRect<int>(&dx, &dy, &w, &h);
-	if (!clip.IntersectWith(SDLClipRect(&dst->clip_rect), clip))
+	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)dst->clip_rect))
 		return;
 	
 
@@ -286,8 +286,7 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	// Warning: Doesn't do clipping on the source surface
 
 	// Clipping on dest surface
-	ClipRect<int> dest = ClipRect<int>(&dx, &dy, &w, &h);
-	if (!dest.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dest))
+	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
 		return;
 
 	int x,y;
@@ -332,6 +331,8 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 // Draws a sprite doubly stretched
 void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
+	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
+	
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 	
 	int x,y;
@@ -345,13 +346,11 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 		SDL_LockSurface(bmpSrc);
 
 	// Source clipping
-	ClipRect<int> clip = ClipRect<int>(&sx, &sy, &w, &h);
-	if (!clip.IntersectWith(SDLClipRect(&bmpSrc->clip_rect), clip))
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
 		return;
 
 	// Dest clipping
-	clip = ClipRect<int>(&dx, &dy, &dw, &dh);
-	if (!clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), clip))
+	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
 		return;
 
 	w = MIN(w, dw/2);
@@ -398,6 +397,8 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 // HINT: doesn't work with alpha-surfaces
 void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
 {
+	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
+	
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 
 	int x,y;
@@ -406,13 +407,11 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	int dh = h * 2;
 
 	// Source clipping
-	ClipRect<int> clip = ClipRect<int>(&sx, &sy, &w, &h);
-	if (!clip.IntersectWith(SDLClipRect(&bmpSrc->clip_rect), clip))
+	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
 		return;
 
 	// Dest clipping
-	clip = ClipRect<int>(&dx, &dy, &dw, &dh);
-	if (!clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), clip))
+	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
 		return;
 
 
@@ -479,6 +478,8 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 // HINT: doesn't work with alpha-surfaces
 void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
 {
+	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
+	
 	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
 	
 	int x,y;
@@ -489,8 +490,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	// Warning: Doesn't do clipping on the source surface
 
 	// Clipping on dest surface
-	ClipRect<int> clip = ClipRect<int>(&dx, &dy, &dw, &dh);
-	if (!clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), clip))
+	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
 		return;
 
 	// Clipping could change w or h
@@ -552,19 +552,19 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 // Draw the image resized
 void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio)
 {
+	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
+	
 	int dw = Round((float)sw * xratio);
 	int dh = Round((float)sh * yratio);
 
 	// Source clipping
 	float clip_sw = (float)sw;
 	float clip_sh = (float)sh;
-	ClipRect<float> src_clip = ClipRect<float>(&sx, &sy, &clip_sw, &clip_sh);
-	if (!src_clip.IntersectWith(SDLClipRect(&bmpSrc->clip_rect), src_clip))
+	if (!ClipRefRectWith(sx, sy, clip_sw, clip_sh, (SDLRect&)bmpSrc->clip_rect))
 		return;
 
 	// Dest clipping
-	ClipRect<int> dst_clip = ClipRect<int>(&dx, &dy, &dw, &dh);
-	if (!dst_clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dst_clip))
+	if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
 		return;
 
 	// Update the widths/heights according to clipping
@@ -595,7 +595,7 @@ void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, f
 	register Uint8 *src_pxrow = NULL;
 	register Uint8 *dst_px = NULL;
 	register Uint8 *dst_pxrow = (Uint8 *)bmpDest->pixels + (dy * bmpDest->pitch) + (dx * bmpDest->format->BytesPerPixel);
-	register byte bpp = (byte)bmpDest->format->BytesPerPixel;
+	byte bpp = (byte)bmpDest->format->BytesPerPixel;
 
 	for (src_y = src_ystart; dest_y < dest_y2; dest_y++)  {
 		src_pxrow = (Uint8 *)bmpSrc->pixels + (int)(src_y) * bmpSrc->pitch;
@@ -625,6 +625,8 @@ void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, f
 // blur - the greater the value is, the more will be the destination image blurred
 void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, float sy, int dx, int dy, int sw, int sh, float xratio, float yratio, float blur)
 {
+	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
+
 	// How this works:
 	// We take four neighbour pixels from the source and make average of them
 
@@ -641,13 +643,11 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx,
 	// Source clipping
 	float clip_sw = (float)sw;
 	float clip_sh = (float)sh;
-	ClipRect<float> src_clip = ClipRect<float>(&sx, &sy, &clip_sw, &clip_sh);
-	if (!src_clip.IntersectWith(SDLClipRect(&bmpSrc->clip_rect), src_clip))
+	if (!ClipRefRectWith(sx, sy, clip_sw, clip_sh, (SDLRect&)bmpSrc->clip_rect))
 		return;
 
 	// Dest clipping
-	ClipRect<int> dst_clip = ClipRect<int>(&dx, &dy, &dw, &dh);
-	if (!dst_clip.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dst_clip))
+	if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
 		return;
 
 	// Update the widths/heights according to clipping
@@ -1165,19 +1165,15 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 // Load an image
 SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 {
-	std::string fname = _filename;
-
 	// Has this been already loaded?
-	std::map<std::string, CCache>::iterator item = Cache.find(fname);
-	if (item->second.getType() == CCH_IMAGE && item->second.GetImage())
+	std::map<std::string, CCache>::iterator item = Cache.find(_filename);
+	if(item != Cache.end())
 		return item->second.GetImage();
 
 	// Didn't find one already loaded? Create a new one
 	CCache tmp;
-	SDL_Surface *result = tmp.LoadImgBPP(fname, withalpha);
+	SDL_Surface *result = tmp.LoadImgBPP(_filename, withalpha);
 	Cache[_filename] = tmp;
-
-
 
 	return result;
 }
@@ -1190,7 +1186,7 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 		return NULL;
 
 	Uint32 rmask, gmask, bmask;
-	// Works also for little endian
+	// format of gdImage
 	rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF;
 	
 	SDL_Surface* formated = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);

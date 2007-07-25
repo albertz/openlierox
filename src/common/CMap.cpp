@@ -472,8 +472,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 	}
 
 	// Clipping
-	ClipRect<int> clip = ClipRect<int>(&x, &y, &w, &h);
-	if (!clip.IntersectWith(SDLClipRect(&bmpImage->clip_rect), clip))
+	if (!ClipRefRectWith(x, y, w, h, (SDLRect&)bmpImage->clip_rect))
 		return;
 
 	// Grid
@@ -622,12 +621,12 @@ void CMap::calculateGrid(void)
 // Calculate a single grid cell
 // x & y are pixel locations, not grid cell locations
 // WARNING: not thread-safe (the caller has to ensure the threadsafty!)
-void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
+void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
 {
-    uint i = x / nGridWidth;
-    uint j = y / nGridHeight;
+    int i = x / nGridWidth;
+    int j = y / nGridHeight;
 
-    if((int)i >= nGridCols || (int)j >= nGridRows) return;
+    if(i < 0 || j < 0 || i >= nGridCols || j >= nGridRows) return;
 
     x = i * nGridWidth;
     y = j * nGridHeight;
@@ -636,14 +635,14 @@ void CMap::calculateGridCell(uint x, uint y, bool bSkipEmpty)
     uchar *abs_cell = AbsoluteGridFlags + j*nGridCols + i;
 
     // Skip empty cells?
-    if(*cell == PX_EMPTY && bSkipEmpty)
+    if(bSkipEmpty && *cell == PX_EMPTY)
         return;
 
     int dirtCount = 0;
     int rockCount = 0;
 
-	int clip_h = MIN(y+nGridHeight,Height);
-	int clip_w = MIN(x+nGridWidth,Width);
+	int clip_h = MIN(y + nGridHeight, Height);
+	int clip_w = MIN(x + nGridWidth, Width);
 	uchar *pf;
 
     // Go through every pixel in the cell and get a solid flag count
@@ -750,7 +749,8 @@ void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
 	// TODO: simplify, possibly think up a better algo...
-
+	// TODO: reduce local variables to 5
+	
 	// Calculate positions and clipping
 	int clip_shift_x = - MIN(0, wx - view->GetWorldX() + SHADOW_DROP) * 2;  // When we clip left/top on dest, we have to
 	int clip_shift_y = - MIN(0, wy - view->GetWorldY() + SHADOW_DROP) * 2;  // "shift" the coordinates on other surfaces, too
@@ -767,14 +767,9 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	int shadowmap_real_h = h / 2;
 
 	// Clipping
-	ClipRect<int> dst_cliprect = ClipRect<int>(&dest_real_x, &dest_real_y, &w, &h);
-	dst_cliprect.IntersectWith(SDLClipRect(&bmpDest->clip_rect), dst_cliprect); // Destination clipping
-	
-	ClipRect<int> obj_cliprect = ClipRect<int>(&object_real_x, &object_real_y, &w, &h);
-	obj_cliprect.IntersectWith(SDLClipRect(&bmpObj->clip_rect), obj_cliprect); // Object clipping
-
-	ClipRect<int> shadowmap_cliprect = ClipRect<int>(&shadowmap_real_x, &shadowmap_real_y, &shadowmap_real_w, &shadowmap_real_h);
-	shadowmap_cliprect.IntersectWith(SDLClipRect(&bmpShadowMap->clip_rect), shadowmap_cliprect); // Map clipping
+	ClipRefRectWith(dest_real_x, dest_real_y, w, h, (SDLRect&)bmpDest->clip_rect);
+	ClipRefRectWith(object_real_x, object_real_y, w, h, (SDLRect&)bmpObj->clip_rect);
+	ClipRefRectWith(shadowmap_real_x, shadowmap_real_y, shadowmap_real_w, shadowmap_real_h, (SDLRect&)bmpShadowMap->clip_rect);
 
 	// HINT: pixelflags use same coordinates as shadowmap
 	int pixelflags_start_x = shadowmap_real_x; // Starting X coordinate for pixel flags
@@ -888,8 +883,7 @@ int CMap::CarveHole(int size, CVec pos)
 	int h = hole->h;
 
 	// Clipping
-	ClipRect<int> clip = ClipRect<int>(&map_x, &map_y, &w, &h);
-	if (!clip.IntersectWith(SDLClipRect(&bmpImage->clip_rect), clip))
+	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)bmpImage->clip_rect))
 		return 0;
 	
 	// Variables
