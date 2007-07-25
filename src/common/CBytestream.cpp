@@ -409,16 +409,15 @@ bool CBytestream::Skip(size_t num) {
 
 size_t CBytestream::Read(NetworkSocket sock) {
 	Clear();
-	#define BUFSIZE 4096
-	static char buf[BUFSIZE];
+	static char buf[4096];
 	size_t len = 0;
 	int res; // MUST be signed, else an overflow can occur (ReadScoket can return -1!)
 	while(true) {
-		res = ReadSocket(sock, buf, BUFSIZE);
+		res = ReadSocket(sock, buf, sizeof(buf));
 		if(res <= 0) break;
 		Data.append(buf, res);
 		len += res;
-		if(res < BUFSIZE) break;
+		if(res < sizeof(buf)) break;
 	}
 	return len;
 }

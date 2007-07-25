@@ -90,21 +90,22 @@ public:
 	typedef _Type Type;
 	typedef _TypeS TypeS;
 private:
-	Type &m_x, &m_y;
-	TypeS &m_w, &m_h;
+	Type *m_x, *m_y;
+	TypeS *m_w, *m_h;
 public:
+	RefRectBasic() : m_x(NULL), m_y(NULL), m_w(NULL), m_h(NULL) {}
 	RefRectBasic(Type& x_, Type& y_, TypeS& w_, TypeS& h_)
-	: m_x(x_), m_y(y_), m_w(w_), m_h(h_) {}
+	: m_x(&x_), m_y(&y_), m_w(&w_), m_h(&h_) {}
 	
-	inline Type& x() { return m_x; }
-	inline Type& y() { return m_y; }
-	inline TypeS& width() { return m_w; }
-	inline TypeS& height() { return m_h; }
+	inline Type& x() { return *m_x; }
+	inline Type& y() { return *m_y; }
+	inline TypeS& width() { return *m_w; }
+	inline TypeS& height() { return *m_h; }
 	
-	inline Type x() const { return m_x; }
-	inline Type y() const { return m_y; }
-	inline Type width() const { return m_w; }
-	inline Type height() const { return m_h; }
+	inline Type x() const { return *m_x; }
+	inline Type y() const { return *m_y; }
+	inline Type width() const { return *m_w; }
+	inline Type height() const { return *m_h; }
 };
 
 

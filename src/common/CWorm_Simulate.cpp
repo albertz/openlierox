@@ -261,6 +261,14 @@ void CWorm::clearInput(void)
 // Simulate the worm
 void CWorm::Simulate(CWorm *worms, int local, float dt)
 {
+	// If the delta time is too big, divide it and run the simulation twice
+	if( dt > 0.25f ) {
+		dt /= 2;
+		Simulate(worms,local,dt);
+		Simulate(worms,local,dt);
+		return;
+	}
+
 	float speed;
 	CVec dir;
 	bool jump = false;
@@ -269,14 +277,6 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 	float	fFrameRate = 7.5f;
 
 	worm_state_t *ws = &tState;
-
-	// If the delta time is too big, divide it and run the simulation twice
-	if( dt > 0.25f ) {
-		dt /= 2;
-		Simulate(worms,local,dt);
-		Simulate(worms,local,dt);
-		return;
-	}
 
 	// Simulate the viewport
 	//cViewport.Process(vPos,map->GetWidth(),map->GetHeight());
@@ -472,7 +472,7 @@ bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
 		return CheckWormCollision(dt,vPos,vel,jump);
 	}
 
-	pos += *vel*dt;
+	pos += *vel * dt;
 	vPos = pos;
 
 

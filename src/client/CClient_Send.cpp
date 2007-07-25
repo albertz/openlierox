@@ -51,11 +51,9 @@ void CClient::SendWormDetails(void)
 
 	bs.writeByte(C2S_UPDATE);
 	
-	for(i=0;i<iNumWorms;i++) {
-		w = cLocalWorms[i];
-
+	w = cLocalWorms[0];
+	for(i = 0; i < iNumWorms; i++, w++)
 		w->writePacket(&bs);
-	}
 
 	bsUnreliable.Append(&bs);
 }
