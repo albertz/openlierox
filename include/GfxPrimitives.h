@@ -68,7 +68,7 @@ inline Uint32 NativeColourToSDLColour(Uint32 pixel, short bpp) {
 bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2);
 
 
-class SDLRectBasic : private SDL_Rect {
+class SDLRectBasic : public SDL_Rect {
 public:
 	typedef Sint16 Type;
 	typedef Uint16 TypeS;
@@ -125,7 +125,7 @@ public:
 	public:
 		inline AssignX2& operator=(const typename _RectBasic::Type& v)
 		{ this->_RectBasic::width() = v - this->_RectBasic::x(); return *this; }
-		inline operator typename _RectBasic::Type () const
+		operator typename _RectBasic::Type () const
 		{ return this->_RectBasic::x() + this->_RectBasic::width(); }
 	};
 	inline AssignX2& x2() { return (AssignX2&)*this; }
@@ -135,7 +135,7 @@ public:
 	public:
 		inline AssignY2& operator=(const typename _RectBasic::Type& v)
 		{ this->_RectBasic::height() = v - this->_RectBasic::y(); return *this; }
-		inline operator typename _RectBasic::Type () const
+		operator typename _RectBasic::Type () const
 		{ return this->_RectBasic::y() + this->_RectBasic::height(); }
 	};
 	inline AssignY2& y2() { return (AssignY2&)*this; }

@@ -464,12 +464,13 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 	int i, j;
 
 	// When drawing shadows, we have to update a bigger area
-	if (tLXOptions->iShadows)  {
-		x -= SHADOW_DROP;
-		y -= SHADOW_DROP;
-		w += 2 * SHADOW_DROP;
-		h += 2 * SHADOW_DROP;
-	}
+	int shadow_update = tLXOptions->iShadows ? SHADOW_DROP : 0;
+
+	x -= shadow_update;
+	y -= shadow_update;
+	w += 2 * shadow_update;
+	h += 2 * shadow_update;
+
 
 	// Clipping
 	if (!ClipRefRectWith(x, y, w, h, (SDLRect&)bmpImage->clip_rect))
@@ -524,13 +525,13 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 	unlockFlags();
 
 	// Apply shadow
-	ApplyShadow(x - SHADOW_DROP, y - SHADOW_DROP, w + 2 * SHADOW_DROP, h + 2 * SHADOW_DROP);
+	ApplyShadow(x - shadow_update, y - shadow_update, w + 2 * shadow_update, h + 2 * shadow_update);
 
 	// Update draw image
 	UpdateDrawImage(x, y, w, h);
 
 	// Update minimap
-	UpdateMiniMapRect(x, y, w, h);
+	UpdateMiniMapRect(x - shadow_update, y - shadow_update, w + 2 * shadow_update, h + 2 * shadow_update);
 }
 
 ////////////////////

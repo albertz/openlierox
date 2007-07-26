@@ -10,21 +10,21 @@ LINKOBJ  = ../../src/main.o ../../src/common/Unicode.o ../../src/common/CBonus.o
 LIBS =  -L"C:/Dev-Cpp/lib" -lmingw32 -lSDLmain -lSDL -mwindows -lSDL_mixer -lSDL_image -lz libs/bgd.lib libs/libxml2.lib libs/hawknl.lib  -g3 
 INCS =  -I"C:/Dev-Cpp/include"  -I"../../hawknl/include"  -I"../../include" 
 CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I"../../hawknl/include"  -I"../../include" 
-BIN  = ../../share/gamedir/OpenLieroX.exe
+BIN  = ../../distrib/win32/OpenLieroX.exe
 CXXFLAGS = $(CXXINCS) -WITH_MEDIAPLAYER   -fexceptions -fexpensive-optimizations -O3 -g3
 CFLAGS = $(INCS)    -fexceptions -fexpensive-optimizations -O3 -g3
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before ../../share/gamedir/OpenLieroX.exe all-after
+all: all-before ../../distrib/win32/OpenLieroX.exe all-after
 
 
 clean: clean-custom
 	${RM} $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "..\..\share\gamedir\OpenLieroX.exe" $(LIBS)
+	$(CPP) $(LINKOBJ) -o "..\..\distrib\win32\OpenLieroX.exe" $(LIBS)
 
 ../../src/main.o: ../../src/main.cpp
 	$(CPP) -c ../../src/main.cpp -o ../../src/main.o $(CXXFLAGS)
