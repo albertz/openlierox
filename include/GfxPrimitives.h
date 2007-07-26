@@ -146,10 +146,12 @@ public:
 		// Horizontal
 		this->Rect::x() = MAX( (typename Rect::Type)this->Rect::x(), (typename Rect::Type)clip.x() );
 		this->Rect::x2() = MIN( (typename Rect::Type)this->Rect::x2(), (typename Rect::Type)clip.x2() );
-		
+		this->Rect::x2() = MAX( (typename Rect::Type)this->Rect::x(), (typename Rect::Type)this->Rect::x2() );
+
 		// Vertical
 		this->Rect::y() = MAX( (typename Rect::Type)this->Rect::y(), (typename Rect::Type)clip.y() );
 		this->Rect::y2() = MIN( (typename Rect::Type)this->Rect::y2(), (typename Rect::Type)clip.y2() );
+		this->Rect::y2() = MAX( (typename Rect::Type)this->Rect::y(), (typename Rect::Type)this->Rect::y2() );
 		
 		return (this->Rect::width() && this->Rect::height());
 	}
