@@ -73,15 +73,15 @@ public:
 	typedef Sint16 Type;
 	typedef Uint16 TypeS;
 	
-	inline Type& x() { return ((SDL_Rect*)this)->x; }
-	inline Type& y() { return ((SDL_Rect*)this)->y; }
-	inline TypeS& width() { return w; }
-	inline TypeS& height() { return h; }
+	Type& x() { return this->SDL_Rect::x; }
+	Type& y() { return this->SDL_Rect::y; }
+	TypeS& width() { return this->SDL_Rect::w; }
+	TypeS& height() { return this->SDL_Rect::h; }
 	
-	inline Type x() const { return ((SDL_Rect*)this)->x; }
-	inline Type y() const { return ((SDL_Rect*)this)->y; }
-	inline Type width() const { return w; }
-	inline Type height() const { return h; }
+	Type x() const { return this->SDL_Rect::x; }
+	Type y() const { return this->SDL_Rect::y; }
+	TypeS width() const { return this->SDL_Rect::w; }
+	TypeS height() const { return this->SDL_Rect::h; }
 };
 
 template<typename _Type, typename _TypeS>
@@ -93,19 +93,22 @@ private:
 	Type *m_x, *m_y;
 	TypeS *m_w, *m_h;
 public:
-	RefRectBasic() : m_x(NULL), m_y(NULL), m_w(NULL), m_h(NULL) {}
+	RefRectBasic() : m_x(NULL), m_y(NULL), m_w(NULL), m_h(NULL) {
+		// HINT: never use this constructor directly; it's only there to avoid some possible compiler-warnings
+		assert(false);
+	}
 	RefRectBasic(Type& x_, Type& y_, TypeS& w_, TypeS& h_)
 	: m_x(&x_), m_y(&y_), m_w(&w_), m_h(&h_) {}
 	
-	inline Type& x() { return *m_x; }
-	inline Type& y() { return *m_y; }
-	inline TypeS& width() { return *m_w; }
-	inline TypeS& height() { return *m_h; }
+	Type& x() { return *m_x; }
+	Type& y() { return *m_y; }
+	TypeS& width() { return *m_w; }
+	TypeS& height() { return *m_h; }
 	
-	inline Type x() const { return *m_x; }
-	inline Type y() const { return *m_y; }
-	inline Type width() const { return *m_w; }
-	inline Type height() const { return *m_h; }
+	Type x() const { return *m_x; }
+	Type y() const { return *m_y; }
+	TypeS width() const { return *m_w; }
+	TypeS height() const { return *m_h; }
 };
 
 
@@ -123,26 +126,26 @@ public:
 	
 	class AssignX2 : private _RectBasic {
 	public:
-		inline AssignX2& operator=(const typename _RectBasic::Type& v)
+		AssignX2& operator=(const typename _RectBasic::Type& v)
 		{ this->_RectBasic::width() = v - this->_RectBasic::x(); return *this; }
 		operator typename _RectBasic::Type () const
 		{ return this->_RectBasic::x() + this->_RectBasic::width(); }
 	};
-	inline AssignX2& x2() { return (AssignX2&)*this; }
-	inline const AssignX2& x2() const { return (const AssignX2&)*this; }
+	AssignX2& x2() { return (AssignX2&)*this; }
+	const AssignX2& x2() const { return (const AssignX2&)*this; }
 	
 	class AssignY2 : private _RectBasic {
 	public:
-		inline AssignY2& operator=(const typename _RectBasic::Type& v)
+		AssignY2& operator=(const typename _RectBasic::Type& v)
 		{ this->_RectBasic::height() = v - this->_RectBasic::y(); return *this; }
 		operator typename _RectBasic::Type () const
 		{ return this->_RectBasic::y() + this->_RectBasic::height(); }
 	};
-	inline AssignY2& y2() { return (AssignY2&)*this; }
-	inline const AssignY2& y2() const { return (AssignY2&)*this; }
+	AssignY2& y2() { return (AssignY2&)*this; }
+	const AssignY2& y2() const { return (AssignY2&)*this; }
 	
 	template<typename _ClipRect>
-	inline bool clipWith(const _ClipRect& clip) {
+	bool clipWith(const _ClipRect& clip) {
 		// Horizontal
 		this->Rect::x() = MAX( (typename Rect::Type)this->Rect::x(), (typename Rect::Type)clip.x() );
 		this->Rect::x2() = MIN( (typename Rect::Type)this->Rect::x2(), (typename Rect::Type)clip.x2() );
@@ -161,13 +164,13 @@ public:
 typedef Rect<SDLRectBasic> SDLRect;  // Use this for creating clipping rects from SDL
 
 template<typename _Type, typename _TypeS, typename _ClipRect>
-inline bool ClipRefRectWith(_Type& x, _Type& y, _TypeS& w, _TypeS& h, const _ClipRect& clip) {
+bool ClipRefRectWith(_Type& x, _Type& y, _TypeS& w, _TypeS& h, const _ClipRect& clip) {
 	RefRectBasic<_Type, _TypeS> refrect = RefRectBasic<_Type, _TypeS>(x, y, w, h);
 	return ((Rect<RefRectBasic<_Type, _TypeS> >&) refrect).clipWith(clip);
 }
 
 template<typename _ClipRect>
-inline bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
+bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
 	return ((SDLRect&)rect).clipWith(clip);
 }
 

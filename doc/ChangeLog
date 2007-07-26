@@ -1,5 +1,6 @@
 0.57_beta3
 ==========
+- 16/24/32 bit graphic support and OpenGL support
 - runs on MacOSX 
 - new design & icon
 - full Unicode/UTF8 support
