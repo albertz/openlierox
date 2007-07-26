@@ -164,6 +164,7 @@ int SetVideoMode(void)
 		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
+		// TODO: why is this commented out?
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
 #endif

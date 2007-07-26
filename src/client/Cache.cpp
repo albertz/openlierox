@@ -158,7 +158,7 @@ void ShutdownCache(void)
 		return;
 
 
-	for (std::map<std::string, CCache>::iterator it=Cache.begin(); it != Cache.end(); it++)  {
+	for (std::map<std::string, CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
 		it->second.Shutdown();
 	}
 }

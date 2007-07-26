@@ -417,7 +417,7 @@ size_t CBytestream::Read(NetworkSocket sock) {
 		if(res <= 0) break;
 		Data.append(buf, res);
 		len += res;
-		if(res < sizeof(buf)) break;
+		if((size_t)res < sizeof(buf)) break;
 	}
 	return len;
 }

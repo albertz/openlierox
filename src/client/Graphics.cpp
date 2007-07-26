@@ -42,7 +42,7 @@ bool LoadGraphics(void)
 	LOAD_IMAGE(gfxGame.bmpHook,"data/gfx/hook.bmp");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpGameover,"data/gfx/gameover.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpScoreboard,"data/gfx/scoreboard.png");
-    LOAD_IMAGE(gfxGame.bmpViewportMgr,"data/gfx/viewportmgr.png");
+	LOAD_IMAGE(gfxGame.bmpViewportMgr,"data/gfx/viewportmgr.png");
 	LOAD_IMAGE(gfxGame.bmpSparkle, "data/gfx/sparkle.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpInfinite,"data/gfx/infinite.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpTeamColours[0], "data/frontend/team_1.png");
@@ -74,7 +74,7 @@ bool LoadGraphics(void)
 	SetColorKey(gfxGame.bmpBonus);
 	SetColorKey(gfxGame.bmpHealth);
 	SetColorKey(gfxGame.bmpSparkle);
-    SetColorKey(gfxGame.bmpViewportMgr);
+	SetColorKey(gfxGame.bmpViewportMgr);
 
 	// Check that the default skin is available (game can crash without this skin!!)
 	if (!IsFileAvailable("skins/default.png"))

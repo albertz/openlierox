@@ -121,22 +121,22 @@ template<typename _RectBasic>
 class Rect : public _RectBasic {
 public:
 	
-	class AssignX2 : private Rect {
+	class AssignX2 : private _RectBasic {
 	public:
-		inline AssignX2& operator=(const typename Rect::Type& v)
-		{ this->Rect::width() = v - this->Rect::x(); return *this; }
-		inline operator typename Rect::Type () const
-		{ return this->Rect::x() + this->Rect::width(); }
+		inline AssignX2& operator=(const typename _RectBasic::Type& v)
+		{ this->_RectBasic::width() = v - this->_RectBasic::x(); return *this; }
+		inline operator typename _RectBasic::Type () const
+		{ return this->_RectBasic::x() + this->_RectBasic::width(); }
 	};
 	inline AssignX2& x2() { return (AssignX2&)*this; }
 	inline const AssignX2& x2() const { return (const AssignX2&)*this; }
 	
-	class AssignY2 : private Rect {
+	class AssignY2 : private _RectBasic {
 	public:
-		inline AssignY2& operator=(const typename Rect::Type& v)
-		{ this->Rect::height() = v - this->Rect::y(); return *this; }
-		inline operator typename Rect::Type () const
-		{ return this->Rect::y() + this->Rect::height(); }
+		inline AssignY2& operator=(const typename _RectBasic::Type& v)
+		{ this->_RectBasic::height() = v - this->_RectBasic::y(); return *this; }
+		inline operator typename _RectBasic::Type () const
+		{ return this->_RectBasic::y() + this->_RectBasic::height(); }
 	};
 	inline AssignY2& y2() { return (AssignY2&)*this; }
 	inline const AssignY2& y2() const { return (AssignY2&)*this; }
