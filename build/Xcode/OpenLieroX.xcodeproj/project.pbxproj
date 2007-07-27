@@ -21,6 +21,17 @@
 		EA430DEC0BEFEB1100C6547E /* nltime.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DE10BEFEB1100C6547E /* nltime.c */; };
 		EA430DED0BEFEB1100C6547E /* sock.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DE20BEFEB1100C6547E /* sock.c */; };
 		EA430DEE0BEFEB1100C6547E /* thread.c in Sources */ = {isa = PBXBuildFile; fileRef = EA430DE30BEFEB1100C6547E /* thread.c */; };
+		EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
+		EABBC24B0C5A0BA8003884A9 /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */; };
+		EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
+		EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */; };
+		EABBC2590C5A5718003884A9 /* MacMain.m in Sources */ = {isa = PBXBuildFile; fileRef = EABBC2580C5A5718003884A9 /* MacMain.m */; };
+		EABBC2B50C5A9DEE003884A9 /* GD.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2A70C5A9DEE003884A9 /* GD.framework */; };
+		EABBC2B80C5A9E1D003884A9 /* GD.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2A70C5A9DEE003884A9 /* GD.framework */; };
+		EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2C30C5AA00B003884A9 /* FreeType.framework */; };
+		EABBC3220C5AA02B003884A9 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
+		EABBC3230C5AA046003884A9 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
+		EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2C30C5AA00B003884A9 /* FreeType.framework */; };
 		EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */; };
 		EAD6E4C80C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */; };
 		EAD6E4C90C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C00C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png */; };
@@ -141,7 +152,12 @@
 			dstPath = "";
 			dstSubfolderSpec = 11;
 			files = (
+				EABBC3230C5AA046003884A9 /* UnixImageIO.framework in Copy Frameworks into .app */,
+				EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */,
+				EABBC2B80C5A9E1D003884A9 /* GD.framework in Copy Frameworks into .app */,
 				EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */,
+				EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */,
+				EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */,
 			);
 			name = "Copy Frameworks into .app";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,7 +300,6 @@
 		EA430C700BEFCEDE00C6547E /* CWidgetList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CWidgetList.h; path = ../../include/CWidgetList.h; sourceTree = SOURCE_ROOT; };
 		EA430C710BEFCEDE00C6547E /* CWorm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CWorm.h; path = ../../include/CWorm.h; sourceTree = SOURCE_ROOT; };
 		EA430C720BEFCEDE00C6547E /* CWpnRest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CWpnRest.h; path = ../../include/CWpnRest.h; sourceTree = SOURCE_ROOT; };
-		EA430C730BEFCEDE00C6547E /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = defs.h; path = ../../include/defs.h; sourceTree = SOURCE_ROOT; };
 		EA430C740BEFCEDE00C6547E /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Entity.h; path = ../../include/Entity.h; sourceTree = SOURCE_ROOT; };
 		EA430C750BEFCEDE00C6547E /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Error.h; path = ../../include/Error.h; sourceTree = SOURCE_ROOT; };
 		EA430C760BEFCEDE00C6547E /* FindFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FindFile.h; path = ../../include/FindFile.h; sourceTree = SOURCE_ROOT; };
@@ -335,6 +350,14 @@
 		EA430DE30BEFEB1100C6547E /* thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thread.c; path = ../../hawknl/src/thread.c; sourceTree = SOURCE_ROOT; };
 		EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IpToCountryDB.cpp; path = ../../src/common/IpToCountryDB.cpp; sourceTree = SOURCE_ROOT; };
 		EA430FF20BF8BA3100C6547E /* IpToCountryDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IpToCountryDB.h; path = ../../include/IpToCountryDB.h; sourceTree = SOURCE_ROOT; };
+		EABBC2400C5A021F003884A9 /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = /Library/Frameworks/SDL_image.framework; sourceTree = "<absolute>"; };
+		EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_mixer.framework; path = /Library/Frameworks/SDL_mixer.framework; sourceTree = "<absolute>"; };
+		EABBC2580C5A5718003884A9 /* MacMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MacMain.m; sourceTree = "<group>"; };
+		EABBC2900C5A89F5003884A9 /* Development */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Development; sourceTree = "<group>"; };
+		EABBC29C0C5A8B3B003884A9 /* DevCpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = DevCpp; path = ../../doc/DevCpp; sourceTree = SOURCE_ROOT; };
+		EABBC2A70C5A9DEE003884A9 /* GD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GD.framework; path = /Library/Frameworks/GD.framework; sourceTree = "<absolute>"; };
+		EABBC2C30C5AA00B003884A9 /* FreeType.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FreeType.framework; path = /Library/Frameworks/FreeType.framework; sourceTree = "<absolute>"; };
+		EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UnixImageIO.framework; path = /Library/Frameworks/UnixImageIO.framework; sourceTree = "<absolute>"; };
 		EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.16.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.16.png; sourceTree = SOURCE_ROOT; };
 		EAD6E4C00C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.32.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.32.png; sourceTree = SOURCE_ROOT; };
@@ -370,9 +393,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
-				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
 				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
+				EABBC3220C5AA02B003884A9 /* UnixImageIO.framework in Frameworks */,
+				EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */,
+				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
+				EABBC2B50C5A9DEE003884A9 /* GD.framework in Frameworks */,
+				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
+				EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */,
+				EABBC24B0C5A0BA8003884A9 /* SDL_mixer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,6 +443,7 @@
 		C6859E8C029090F304C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
+				EABBC29C0C5A8B3B003884A9 /* DevCpp */,
 				EA430C930BEFCFA600C6547E /* DEPS */,
 				EA430C940BEFCFA600C6547E /* doc */,
 			);
@@ -424,6 +453,7 @@
 		EA430BEC0BEFCEB400C6547E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				EABBC2580C5A5718003884A9 /* MacMain.m */,
 				EA430C3D0BEFCEB400C6547E /* main.cpp */,
 				EA430BED0BEFCEB400C6547E /* client */,
 				EA430C3E0BEFCEB400C6547E /* server */,
@@ -600,7 +630,6 @@
 				EA430C700BEFCEDE00C6547E /* CWidgetList.h */,
 				EA430C710BEFCEDE00C6547E /* CWorm.h */,
 				EA430C720BEFCEDE00C6547E /* CWpnRest.h */,
-				EA430C730BEFCEDE00C6547E /* defs.h */,
 				EA430C740BEFCEDE00C6547E /* Entity.h */,
 				EA430C750BEFCEDE00C6547E /* Error.h */,
 				EA430C760BEFCEDE00C6547E /* FindFile.h */,
@@ -648,6 +677,7 @@
 				EA430C950BEFCFA600C6547E /* ChangeLog */,
 				EA430CA40BEFCFA600C6547E /* README */,
 				EA430CA50BEFCFA600C6547E /* TODO */,
+				EABBC2900C5A89F5003884A9 /* Development */,
 			);
 			name = doc;
 			path = ../../doc;
@@ -685,6 +715,11 @@
 		EAD6E4BE0C47EF1F00D6C836 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */,
+				EABBC2C30C5AA00B003884A9 /* FreeType.framework */,
+				EABBC2A70C5A9DEE003884A9 /* GD.framework */,
+				EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */,
+				EABBC2400C5A021F003884A9 /* SDL_image.framework */,
 				EAD6E4D10C47EF7500D6C836 /* SDL.framework */,
 				EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */,
 			);
@@ -821,6 +856,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EABBC2590C5A5718003884A9 /* MacMain.m in Sources */,
 				EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */,
 				EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */,
 				EA38B0330C467928008ABAAE /* CAnimation.cpp in Sources */,
@@ -949,7 +985,6 @@
 					/sw/include/libxml2,
 					../../hawknl/include,
 				);
-				LIBRARY_SEARCH_PATHS = /sw/lib;
 				OTHER_CFLAGS = "-DMACOSX";
 				OTHER_LDFLAGS = (
 					"-lSDL",
@@ -962,6 +997,7 @@
 					Cocoa,
 					"-lSDLmain",
 				);
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};
 			name = Debug;
@@ -992,7 +1028,6 @@
 					/sw/include/libxml2,
 					../../hawknl/include,
 				);
-				LIBRARY_SEARCH_PATHS = /sw/lib;
 				OTHER_CFLAGS = "-DMACOSX";
 				OTHER_LDFLAGS = (
 					"-lSDL",
@@ -1005,6 +1040,7 @@
 					Cocoa,
 					"-lSDLmain",
 				);
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};
 			name = Release;
@@ -1014,7 +1050,7 @@
 			buildSettings = {
 				ARCHS = (
 					ppc,
-					x86,
+					i386,
 				);
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1035,7 +1071,7 @@
 			buildSettings = {
 				ARCHS = (
 					ppc,
-					x86,
+					i386,
 				);
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -1052,7 +1088,10 @@
 		EAD99F650C063CAA003BE563 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = ppc;
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -1070,11 +1109,7 @@
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/libs\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/libs\"";
 				OTHER_LDFLAGS = (
-					"-lSDLmain",
-					"-lSDL_image",
-					"-lSDL_mixer",
 					"-lz",
-					"-lgd",
 					"-lxml2",
 				);
 				PREBINDING = NO;
@@ -1087,7 +1122,10 @@
 		EAD99F660C063CAA003BE563 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = ppc;
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -1103,11 +1141,7 @@
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/libs\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/libs\"";
 				OTHER_LDFLAGS = (
-					"-lSDLmain",
-					"-lSDL_image",
-					"-lSDL_mixer",
 					"-lz",
-					"-lgd",
 					"-lxml2",
 				);
 				PREBINDING = NO;
