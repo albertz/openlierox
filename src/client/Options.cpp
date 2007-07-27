@@ -48,7 +48,7 @@ bool GameOptions::LoadFromDisc()
 	printf("Loading options... \n");
 
     const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "z"};
+    const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x"};
     const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
 	const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
     const std::string    gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5", "F8", "F3"};
@@ -83,7 +83,9 @@ bool GameOptions::LoadFromDisc()
 	// print the searchpaths, this may be very usefull for the user
 	printf("I have now the following searchpaths (in this direction):\n");
 	for(searchpathlist::const_iterator p2 = tSearchPaths.begin(); p2 != tSearchPaths.end(); p2++) {
-		printf("  %s\n", p2->c_str());
+		std::string path = *p2;
+		ReplaceFileVariables(path);
+		printf("  %s\n", path.c_str());
 	}
 	printf(" And that's all.\n");
 
@@ -98,8 +100,14 @@ bool GameOptions::LoadFromDisc()
     ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, true);
     ReadKeyword(f, "Video", "ShowFPS",      &iShowFPS, false);
     ReadKeyword(f, "Video", "OpenGL",       &bOpenGL, false);
+#ifdef MACOSX	
+	// this seems currently to be better for Mac OS X (16 bit looks crappy)
+	// TODO: also 24bit for others?
+	ReadInteger(f, "Video", "ColourDepth",	&iColourDepth, 24);
+#else
 	ReadInteger(f, "Video", "ColourDepth",	&iColourDepth, 16);
-
+#endif
+	
     // Network
     ReadInteger(f, "Network", "Port",       &iNetworkPort, LX_PORT);
     ReadInteger(f, "Network", "Speed",      &iNetworkSpeed, NST_MODEM);

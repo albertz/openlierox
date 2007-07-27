@@ -337,7 +337,7 @@ void InitBaseSearchPaths() {
 #if defined(MACOSX)
 	AddToFileList(&basesearchpaths, "${HOME}/Library/Application Support/OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
-	AddToFileList(&basesearchpaths, "${BIN}/../../Resources");
+	AddToFileList(&basesearchpaths, "${BIN}/../Resources/gamedir");
 	AddToFileList(&basesearchpaths, SYSTEM_DATA_DIR"/OpenLieroX");
 #elif defined(WIN32)
 	AddToFileList(&basesearchpaths, "${HOME}/OpenLieroX");

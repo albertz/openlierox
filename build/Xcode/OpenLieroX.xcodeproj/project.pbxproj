@@ -32,6 +32,7 @@
 		EABBC3220C5AA02B003884A9 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
 		EABBC3230C5AA046003884A9 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
 		EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2C30C5AA00B003884A9 /* FreeType.framework */; };
+		EABBCCB40C5AA2D2003884A9 /* gamedir in Game files */ = {isa = PBXBuildFile; fileRef = EABBC3530C5AA2CE003884A9 /* gamedir */; };
 		EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */; };
 		EAD6E4C80C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */; };
 		EAD6E4C90C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E4C00C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png */; };
@@ -146,6 +147,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		EABBC3500C5AA170003884A9 /* Game files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				EABBCCB40C5AA2D2003884A9 /* gamedir in Game files */,
+			);
+			name = "Game files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EAD6E4FD0C47F47200D6C836 /* Copy Frameworks into .app */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -354,10 +366,10 @@
 		EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_mixer.framework; path = /Library/Frameworks/SDL_mixer.framework; sourceTree = "<absolute>"; };
 		EABBC2580C5A5718003884A9 /* MacMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MacMain.m; sourceTree = "<group>"; };
 		EABBC2900C5A89F5003884A9 /* Development */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Development; sourceTree = "<group>"; };
-		EABBC29C0C5A8B3B003884A9 /* DevCpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = DevCpp; path = ../../doc/DevCpp; sourceTree = SOURCE_ROOT; };
 		EABBC2A70C5A9DEE003884A9 /* GD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GD.framework; path = /Library/Frameworks/GD.framework; sourceTree = "<absolute>"; };
 		EABBC2C30C5AA00B003884A9 /* FreeType.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FreeType.framework; path = /Library/Frameworks/FreeType.framework; sourceTree = "<absolute>"; };
 		EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UnixImageIO.framework; path = /Library/Frameworks/UnixImageIO.framework; sourceTree = "<absolute>"; };
+		EABBC3530C5AA2CE003884A9 /* gamedir */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gamedir; path = ../../share/gamedir; sourceTree = SOURCE_ROOT; };
 		EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.16.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.16.png; sourceTree = SOURCE_ROOT; };
 		EAD6E4C00C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.32.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.32.png; sourceTree = SOURCE_ROOT; };
@@ -410,6 +422,7 @@
 		08FB7794FE84155DC02AAC07 /* OpenLieroX */ = {
 			isa = PBXGroup;
 			children = (
+				EABBC3530C5AA2CE003884A9 /* gamedir */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				EA430C8E0BEFCF5B00C6547E /* Scripts */,
 				C6859E8C029090F304C91782 /* Documentation */,
@@ -443,7 +456,6 @@
 		C6859E8C029090F304C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
-				EABBC29C0C5A8B3B003884A9 /* DevCpp */,
 				EA430C930BEFCFA600C6547E /* DEPS */,
 				EA430C940BEFCFA600C6547E /* doc */,
 			);
@@ -783,6 +795,7 @@
 				EAD99F5E0C063CA6003BE563 /* Sources */,
 				EAD99F5F0C063CA6003BE563 /* Frameworks */,
 				EAD6E4FD0C47F47200D6C836 /* Copy Frameworks into .app */,
+				EABBC3500C5AA170003884A9 /* Game files */,
 			);
 			buildRules = (
 			);

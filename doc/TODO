@@ -1,5 +1,6 @@
-TODO list
+TODO
 
+[ ] fix: font isn't visible in OGL on MacOSX (!!)
 [?] OpenGL(?) redraw issue (!!)
 [ ] bot: more effective use of ninjarope (use closer / more intelligent spots) (!)
 [ ] bot: ninjarope is shot too fast (!!)
@@ -18,7 +19,7 @@ TODO list
 [ ] uniform warning/notification/error system (!)
 [X] add macro-variable to {en/dis}able the mediaplayer
 [ ] standalone dedicated server (!)
-[ ] create Mac OS X application package (!!)
+[x] create Mac OS X application package (!!)
 [x] make it run on Mac OS X (!!)
 [ ] finish documentation (README) (add more info there) (!!)
 [ ] begin developer documentation (basic info about the code and hints) (!)
