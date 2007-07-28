@@ -97,7 +97,12 @@ bool GameOptions::LoadFromDisc()
 
 
     // Video
+#ifdef WIN32
     ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, true);
+#else
+	// non-windows users probably like this more
+    ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, false);
+#endif	
     ReadKeyword(f, "Video", "ShowFPS",      &iShowFPS, false);
     ReadKeyword(f, "Video", "OpenGL",       &bOpenGL, false);
 #ifdef MACOSX	
