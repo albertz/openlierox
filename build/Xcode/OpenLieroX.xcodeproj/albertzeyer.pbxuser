@@ -29,6 +29,20 @@
 					PBXBookmarksDataSource_CommentsID,
 				);
 			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXErrorsWarningsDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXErrorsWarningsDataSource_LocationID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					300,
+					145.2085,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXErrorsWarningsDataSource_TypeID,
+					PBXErrorsWarningsDataSource_MessageID,
+					PBXErrorsWarningsDataSource_LocationID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
@@ -139,12 +153,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 207224452;
-			PBXWorkspaceStateSaveDate = 207224452;
-		};
-		perUserProjectItems = {
-			EABBCCCE0C5AA598003884A9 /* PBXBookmark */ = EABBCCCE0C5AA598003884A9 /* PBXBookmark */;
-			EABBCCE80C5AAB99003884A9 /* PBXTextBookmark */ = EABBCCE80C5AAB99003884A9 /* PBXTextBookmark */;
+			PBXPerProjectTemplateStateSaveDate = 207320103;
+			PBXWorkspaceStateSaveDate = 207320103;
 		};
 		sourceControlManager = EA430BE80BEFCDA000C6547E /* Source Control */;
 		userBuildSettings = {
@@ -274,11 +284,19 @@
 			sepNavVisRect = "{{0, 3947}, {743, 185}}";
 		};
 	};
+	EA430C320BEFCEB400C6547E /* CWorm_SendRecv.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {710, 5404}}";
+			sepNavSelRange = "{7258, 0}";
+			sepNavVisRect = "{{0, 4805}, {710, 529}}";
+			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
+		};
+	};
 	EA430C350BEFCEB400C6547E /* FindFile.cpp */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {956, 9478}}";
 			sepNavSelRange = "{7970, 0}";
-			sepNavVisRect = "{{0, 4566}, {710, 374}}";
+			sepNavVisRect = "{{0, 4567}, {710, 374}}";
 			sepNavWindowFrame = "{{230, 146}, {749, 503}}";
 		};
 	};
@@ -542,20 +560,6 @@
 			sepNavWindowFrame = "{{296, 88}, {749, 658}}";
 		};
 	};
-	EABBCCCE0C5AA598003884A9 /* PBXBookmark */ = {
-		isa = PBXBookmark;
-		fRef = EA430C350BEFCEB400C6547E /* FindFile.cpp */;
-	};
-	EABBCCE80C5AAB99003884A9 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = EA430C350BEFCEB400C6547E /* FindFile.cpp */;
-		name = "FindFile.cpp: 340";
-		rLen = 0;
-		rLoc = 7970;
-		rType = 0;
-		vrLen = 942;
-		vrLoc = 7659;
-	};
 	EAD99F600C063CA6003BE563 /* OpenLieroX */ = {
 		activeExec = 0;
 		executables = (
@@ -591,7 +595,7 @@
 			sepNavIntBoundsRect = "{{0, 0}, {710, 378}}";
 			sepNavSelRange = "{361, 0}";
 			sepNavVisRect = "{{0, 0}, {710, 374}}";
-			sepNavWindowFrame = "{{40, 71}, {749, 503}}";
+			sepNavWindowFrame = "{{227, 166}, {749, 503}}";
 		};
 	};
 }

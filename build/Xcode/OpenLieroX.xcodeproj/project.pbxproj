@@ -29,7 +29,6 @@
 		EABBC2B50C5A9DEE003884A9 /* GD.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2A70C5A9DEE003884A9 /* GD.framework */; };
 		EABBC2B80C5A9E1D003884A9 /* GD.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2A70C5A9DEE003884A9 /* GD.framework */; };
 		EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2C30C5AA00B003884A9 /* FreeType.framework */; };
-		EABBC3220C5AA02B003884A9 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
 		EABBC3230C5AA046003884A9 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
 		EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2C30C5AA00B003884A9 /* FreeType.framework */; };
 		EABBCCB40C5AA2D2003884A9 /* gamedir in Game files */ = {isa = PBXBuildFile; fileRef = EABBC3530C5AA2CE003884A9 /* gamedir */; };
@@ -46,6 +45,7 @@
 		EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
 		EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
 		EAD6E50C0C4819D200D6C836 /* macosx.icns in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E50B0C4819CF00D6C836 /* macosx.icns */; };
+		EAD801000C5B6FFC00D033E7 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
 		EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */; };
 		EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */; };
 		EAD99F690C063ECA003BE563 /* CBanList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3F0BEFCEB400C6547E /* CBanList.cpp */; };
@@ -162,7 +162,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 11;
+			dstSubfolderSpec = 10;
 			files = (
 				EABBC3230C5AA046003884A9 /* UnixImageIO.framework in Copy Frameworks into .app */,
 				EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */,
@@ -406,9 +406,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
-				EABBC3220C5AA02B003884A9 /* UnixImageIO.framework in Frameworks */,
 				EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */,
 				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
+				EAD801000C5B6FFC00D033E7 /* UnixImageIO.framework in Frameworks */,
 				EABBC2B50C5A9DEE003884A9 /* GD.framework in Frameworks */,
 				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
 				EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */,
@@ -422,7 +422,6 @@
 		08FB7794FE84155DC02AAC07 /* OpenLieroX */ = {
 			isa = PBXGroup;
 			children = (
-				EABBC3530C5AA2CE003884A9 /* gamedir */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				EA430C8E0BEFCF5B00C6547E /* Scripts */,
 				C6859E8C029090F304C91782 /* Documentation */,
@@ -741,6 +740,7 @@
 		EAD99FD10C06408E003BE563 /* share */ = {
 			isa = PBXGroup;
 			children = (
+				EABBC3530C5AA2CE003884A9 /* gamedir */,
 				EAD6E50B0C4819CF00D6C836 /* macosx.icns */,
 				EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */,
 				EAD6E4C00C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.32.png */,
@@ -999,17 +999,6 @@
 					../../hawknl/include,
 				);
 				OTHER_CFLAGS = "-DMACOSX";
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-					"-lSDL_mixer",
-					"-lz",
-					"-lgd",
-					"-lxml2",
-					"-framework",
-					Cocoa,
-					"-lSDLmain",
-				);
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};
@@ -1042,17 +1031,6 @@
 					../../hawknl/include,
 				);
 				OTHER_CFLAGS = "-DMACOSX";
-				OTHER_LDFLAGS = (
-					"-lSDL",
-					"-lSDL_image",
-					"-lSDL_mixer",
-					"-lz",
-					"-lgd",
-					"-lxml2",
-					"-framework",
-					Cocoa,
-					"-lSDLmain",
-				);
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};

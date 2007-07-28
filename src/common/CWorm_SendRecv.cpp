@@ -353,9 +353,14 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	uchar cur = bs->readByte();
 	uchar charge = bs->readByte();
 
-    cur = (uchar)MIN(cur, 4);
+    // TODO: isn't it saver / more sensefull to ignore the info if cur>4 ?
+	cur = (uchar)MIN(cur, 4);
 
-
+	if(tWeapons[cur].Weapon == NULL) {
+		printf("WARNING: readStatUpdate: Weapon == NULL\n");
+		return;
+	}
+	
 	// If this is a special weapon, and the charge is processed client side, don't set the charge
 	if( tWeapons[cur].Weapon->Type == WPN_SPECIAL )
 		return;
