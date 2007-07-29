@@ -56,7 +56,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 			if (tSelected->tImage)  {
 				DrawImage(bmpDest,tSelected->tImage,iX+3,iY+1);
 				stripdot(buf,iWidth-(6+tSelected->tImage->w+iGotScrollbar*15));
-				tLX->cFont.Draw(bmpDest, iX+6+tSelected->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), MakeColour(128,128,128), buf);
+				tLX->cFont.Draw(bmpDest, iX+6+tSelected->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDisabled, buf);
 			}
 			else  {
 				stripdot(buf,iWidth-(3+iGotScrollbar*15));
@@ -110,7 +110,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 				selected = true;
 
             if(selected)
-                DrawRectFill(bmpDest, iX+2, y, w, y+ItemHeight-1, MakeColour(0,66,102));
+                DrawRectFill(bmpDest, iX+2, y, w, y+ItemHeight-1, tLX->clComboboxSelected);
 
 			buf = item->sName;
 
@@ -131,8 +131,8 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 					}
 					int y2 = y1+tLX->cFont.GetHeight();
 
-					DrawRect(bmpDest,x1-1,y1-1,x2,y2,MakeColour(220,220,220));
-					DrawRectFill(bmpDest,x1,y1,x2,y2,MakeColour(40,84,122));
+					DrawRect(bmpDest,x1-1,y1-1,x2,y2, tLX->clComboboxShowAllBorder);
+					DrawRectFill(bmpDest,x1,y1,x2,y2, tLX->clComboboxShowAllMain);
 					tLX->cFont.Draw(bmpDest, x1+2, y1-1, tLX->clDropDownText,item->sName);
 				}
 			}
@@ -149,8 +149,8 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 					}
 					int y2 = y1+tLX->cFont.GetHeight();
 
-					DrawRect(bmpDest,x1-1,y1-1,x2,y2,MakeColour(220,220,220));
-					DrawRectFill(bmpDest,x1,y1,x2,y2,MakeColour(40,84,122));
+					DrawRect(bmpDest,x1-1,y1-1,x2,y2, tLX->clComboboxShowAllBorder);
+					DrawRectFill(bmpDest,x1,y1,x2,y2, tLX->clComboboxShowAllMain);
 					tLX->cFont.Draw(bmpDest, x1-1, y1, tLX->clDropDownText, item->sName);
 				}
 			}

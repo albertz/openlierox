@@ -121,6 +121,9 @@ class lierox_t { public:
 	Uint32			clLine;
 	Uint32			clProgress;
 	Uint32			clListviewSelected;
+	Uint32			clComboboxSelected;
+	Uint32			clComboboxShowAllMain;
+	Uint32			clComboboxShowAllBorder;
 	Uint32			clMenuSelected;
 	Uint32			clMenuBackground;
 	Uint32			clGameChatter;
