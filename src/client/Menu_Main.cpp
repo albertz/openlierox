@@ -204,6 +204,7 @@ void Menu_MainFrame(void)
 										std::string("  Karel Petránek and Albert Zeyer\n") +
 										std::string("- Supported by the [RIP] clan\n" +
 										//std::string("- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
+										std::string("- Enhanced by Martin Griffin\n") + 
 										tMenu->tFrontendInfo.sFrontendCredits
 										);
 
