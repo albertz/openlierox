@@ -220,7 +220,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					int index = lv->getCurIndex();
 
 					// Make sure there is 0-8 players in the list
-					if(lv2->getItemCount() < 8) {
+					if(lv2->getItemCount() < MAX_PLAYERS) {
 
 						// Get the profile
 						ply = FindProfile(index);
@@ -273,7 +273,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 
 					// Make sure there is 1-7 players in the list
-					if (lv->getItemCount() > 0 && lv->getItemCount() <= 7) {
+					if (lv->getItemCount() > 0 && lv->getItemCount() <= MAX_PLAYERS - 1) {
 
 						tGameInfo.iNumPlayers = lv->getItemCount();
 
@@ -327,9 +327,9 @@ void Menu_Net_HostPlyFrame(int mouse)
 						cHostPly.SendMessage( hs_MaxPlayers, TXS_GETTEXT, &buf, 0);
 
 						tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
-						// At least 2 players, and max 8
+						// At least 2 players, and max MAX_PLAYERS
 						tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
-						tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,8);
+						tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
 						tLXOptions->tGameinfo.bRegServer =  cHostPly.SendMessage( hs_Register, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->tGameinfo.bAllowWantsJoinMsg = cHostPly.SendMessage( hs_AllowWantsJoin, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->tGameinfo.bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
@@ -1372,9 +1372,9 @@ bool Menu_ServerSettings_Frame(void)
 					std::string buf;
 					cServerSettings.SendMessage(ss_MaxPlayers, TXS_GETTEXT, &buf, 0);
 					tLXOptions->tGameinfo.iMaxPlayers = atoi(buf);
-					// At least 2 players, and max 8
+					// At least 2 players, and max MAX_PLAYERS
 					tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
-					tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,8);
+					tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
 
 					// Set up the server
 					if(cServer)  {

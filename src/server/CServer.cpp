@@ -51,7 +51,7 @@ void GameServer::Clear(void)
 	iServerFrame=0;
 	iNumPlayers = 0;
 	iRandomMap = false;
-	iMaxWorms = 8;
+	iMaxWorms = MAX_PLAYERS;
 	iGameOver = false;
 	iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;

@@ -388,7 +388,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 			continue;
 
 		if(tMouse->X > iX && tMouse->X < w)
-			if(tMouse->Y >= y && tMouse->Y < y+tLX->cFont.GetHeight())
+			if(tMouse->Y >= y && tMouse->Y < y + tLX->cFont.GetHeight() + 1)
 				if(tMouse->Up & SDL_BUTTON(1)) {
                     if(tSelected)
                         tSelected->iSelected = false;
@@ -400,7 +400,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 				}
 
 
-		y+=tLX->cFont.GetHeight();
+		y += tLX->cFont.GetHeight() + 1;
 		if(y > iY+iHeight)
 			break;
 	}

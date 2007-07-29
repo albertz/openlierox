@@ -73,7 +73,7 @@ void CClient::Clear(void)
 	iGameMenu = false;
     bViewportMgr = false;
 	tGameLobby.nSet = false;
-	tGameLobby.nMaxWorms = 8;
+	tGameLobby.nMaxWorms = MAX_PLAYERS;
 
 	iBadConnection = false;
 	iServerError = false;

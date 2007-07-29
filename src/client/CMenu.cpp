@@ -195,7 +195,7 @@ int CMenu::MouseUp(mouse_t *tMouse, int nDown)
     mnu_item_t *it = m_psItemList;
     for(; it; it=it->psNext) {
 
-        if( tMouse->Y > y && tMouse->Y < y+tLX->cFont.GetHeight() )
+        if( tMouse->Y >= y && tMouse->Y < y+tLX->cFont.GetHeight() )
             return MNU_USER + it->nID;
 
         y+=tLX->cFont.GetHeight();

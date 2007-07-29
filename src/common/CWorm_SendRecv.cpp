@@ -353,7 +353,7 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	uchar cur = bs->readByte();
 	uchar charge = bs->readByte();
 
-    // TODO: isn't it saver / more sensefull to ignore the info if cur>4 ?
+    // TODO: isn't it safer / more sensefull to ignore the info if cur>4 ?
 	cur = (uchar)MIN(cur, 4);
 
 	if(tWeapons[cur].Weapon == NULL) {

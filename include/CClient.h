@@ -35,7 +35,7 @@
 
 
 #define		MAX_CLIENTS		32
-#define		MAX_PLAYERS		8
+#define		MAX_PLAYERS		32
 #define		MAX_CHATLINES	8
 
 #define		RATE_NUMMSGS	10
