@@ -281,13 +281,14 @@ void GameServer::SendDisconnect(void)
 void GameServer::UpdateWorms(void)
 {
 	static CBytestream bytestr;
-	CWorm * w;
+	bytestr.Clear();
+	CWorm* w;
 	w = cWorms;
-	for(int i=0;i<MAX_WORMS;i++,w++) {
+	for(int i = 0; i < MAX_WORMS; i++, w++) {
 		if(!w->isUsed())
 			continue;
 		bytestr.writeByte(S2C_WORMINFO);
-		bytestr.writeInt(w->getID(),1);
+		bytestr.writeInt(w->getID(), 1);
 		w->writeInfo(&bytestr);
 	}
 	SendGlobalPacket(&bytestr);

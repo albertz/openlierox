@@ -562,6 +562,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 ///////////////////
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
+	// TODO: recode this with usage of std::string
+	
 	std::string buf = bs->readString(256);
 	char bufarray [256]; // I plan on making the code work with strings at a later date (Martin)
 	buf.copy(bufarray,256);
@@ -590,6 +592,12 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			UpdateWorms();
 		}
 		if(!strcmp(*arg,"/setcolour")) {
+			// TODO: This wont work because color got overriden
+			// by profile-color.
+			// some possibilities:
+			// 1. create a new color-variable which will be used over profile and if game is not teamdeathmatch
+			// 2. override profile-color with this
+			// 3. don't change color in CWorm::LoadGraphics but at the point where the gametype is defined
 			w->setColour(atoi(arg[nextarg]),atoi(arg[nextarg+1]),atoi(arg[nextarg+2]));
 			printf("args: %d",args);
 			UpdateWorms();
@@ -603,7 +611,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	}
 	// Check for Clx (a cheating version of lx)
 	if(*bufarray==0x4) {
-		sprintf(bufarray, "%s seems to have CLX or some other hack", cl->getWorm(0)->getName());
+		sprintf(bufarray, "%s seems to have CLX or some other hack", cl->getWorm(0)->getName().c_str());
 		SendGlobalText(bufarray,TXT_NORMAL);
 		kickWorm(cl->getWorm(0)->getID());
 		return;

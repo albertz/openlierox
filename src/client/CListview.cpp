@@ -841,7 +841,6 @@ int	CListview::MouseOver(mouse_t *tMouse)
 	tMouseOverSubWidget = NULL; // Reset it here
 	lv_item_t *item = tItems;
 	lv_subitem_t *subitem = NULL;
-	int count=0;
 	int result = LV_NONE;
 	for(;item;item = item->tNext) {
 		subitem = item->tSubitems;

@@ -282,6 +282,8 @@ void CWorm::Spawn(CVec position) {
 // Load the graphics
 int CWorm::LoadGraphics(int gametype)
 {
+	// TODO: create some good way to allow custom colors
+	
 	bool team = false;
     Uint8 r=0,g=0,b=0;
     
@@ -296,19 +298,15 @@ int CWorm::LoadGraphics(int gametype)
         szSkin = tProfile->szSkin;
     }
 
-    // Use the colours set on the network
-    // Profile or team colours will override this
-    r = iColComps[0];
-    g = iColComps[1];
-    b = iColComps[2];
-
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH) {
 		team = true;
-		GetColour3(tLX->clTeamColors[iTeam], SDL_GetVideoSurface(), &r, &g, &b);
 		iColour = tLX->clTeamColors[iTeam];
 	}
 
+    // Use the colours set on the network
+    // Profile or team colours will override this
+    GetColour3(iColour, SDL_GetVideoSurface(), &r, &g, &b);
 	
     // Colourise the giblets
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
@@ -364,7 +362,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 
 
 	// Set the colour of the img
-	register int x,y;
+	int x,y;
 	Uint8 r,g,b;
 	Uint32 pixel;
 	

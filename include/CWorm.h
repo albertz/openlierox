@@ -170,9 +170,8 @@ private:
 	int			iLocal;
 	int			iTeam;
 	std::string	sName;
-	Uint8		iColComps[3];
     std::string szSkin;
-	uint		iColour;
+	Uint32		iColour;
 	int			iRanking;
 	int			iKillsInRow;
 
@@ -488,9 +487,9 @@ public:
 
 	inline std::string getName(void)			{ return sName; }
 	inline void		setName(const std::string& val) { sName = val; }
-	inline uint		getColour(void)				{ return iColour; }
-	inline void		setColour(uint c)			{ iColour = c; }
-	inline void		setColour(int r, int g, int b) { iColComps[0]=r; iColComps[1]=g; iColComps[2]=b; }
+	inline Uint32	getColour(void)				{ return iColour; }
+	inline void		setColour(Uint32 c)			{ iColour = c; }
+	inline void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColour = MakeColour(r,g,b); }
 
 	inline void		setLocal(int _l)			{ iLocal = _l; }
 	inline int			getLocal(void)				{ return iLocal; }

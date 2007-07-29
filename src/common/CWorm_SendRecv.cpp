@@ -25,12 +25,15 @@
 void CWorm::writeInfo(CBytestream *bs)
 {
 	bs->writeString(RemoveSpecialChars(sName));
-	bs->writeInt(iType,1);
-	bs->writeInt(iTeam,1);
+	bs->writeInt(iType, 1);
+	bs->writeInt(iTeam, 1);
     bs->writeString(szSkin);
 
-	for(ushort i=0;i<3;i++)
-		bs->writeInt(iColComps[i],1);
+	Uint8 rgb[3];
+    GetColour3(iColour, SDL_GetVideoSurface(), &rgb[0], &rgb[1], &rgb[2]);
+
+	for(short i = 0; i < 3; i++)
+		bs->writeInt(rgb[i], 1);
 }
 
 
@@ -47,10 +50,6 @@ void CWorm::readInfo(CBytestream *bs)
 	Uint8 r = bs->readByte();
 	Uint8 g = bs->readByte();
 	Uint8 b = bs->readByte();
-
-	iColComps[0] = r;
-	iColComps[1] = g;
-	iColComps[2] = b;
 	
 	iColour = MakeColour(r,g,b);
 }

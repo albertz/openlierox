@@ -133,10 +133,13 @@ float GetFixedRandomNum(uchar index)
 // Tokenise (is that even the right word) a string by spaces
 int token (char *input, char *output)
 {
+	// TODO: never ever use char* ! use std::string instead
+	
 	int quotes=0;
 	int whitespace=1;
 	int j=0;
-	for(int i=0;i<256;i++)
+	int i;
+	for(i=0;i<256;i++)
 	{
 		// Check if the string is in quotes
 		if(input[i]=='"') {
