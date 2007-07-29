@@ -276,3 +276,19 @@ void GameServer::SendDisconnect(void)
 			cl->getChannel()->Transmit(&bs);
 	}	
 }
+
+// Update the worm names, skins, colours etc
+void GameServer::UpdateWorms(void)
+{
+	static CBytestream bytestr;
+	CWorm * w;
+	w = cWorms;
+	for(int i=0;i<MAX_WORMS;i++,w++) {
+		if(!w->isUsed())
+			continue;
+		bytestr.writeByte(S2C_WORMINFO);
+		bytestr.writeInt(w->getID(),1);
+		w->writeInfo(&bytestr);
+	}
+	SendGlobalPacket(&bytestr);
+}

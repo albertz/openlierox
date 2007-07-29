@@ -282,6 +282,9 @@ void printf(const std::string& txt);
 // TODO: remove this from here
 void	xmlEntities(std::string& text);
 
+// TODO: remove this and put it somewhere sensible
+int		token(char *input, char *output);
+
 
 
 

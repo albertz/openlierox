@@ -3,7 +3,7 @@
 //             OpenLieroX
 //
 // code under LGPL, based on JasonBs work,
-// enhanced by Dark Charlie and Albert Zeyer
+// enhanced by Dark Charlie, Albert Zeyer and Martin Griffin
 //
 //
 /////////////////////////////////////////
@@ -563,6 +563,51 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	std::string buf = bs->readString(256);
+	char bufarray [256]; // I plan on making the code work with strings at a later date (Martin)
+	buf.copy(bufarray,256);
+
+
+	// Check for special commands
+	char	*string = bufarray + cl->getWorm(0)->getName().length() + 2;
+	int		args=0;
+	char	arg [8] [256];
+	int		nextarg=1;
+	CWorm	*w=cWorms;
+	int     i;
+	if(*string=='/') {
+		// Get all the arguments (seperated by spaces)
+		while(args<8)
+			string+=token(string,arg[args++]);
+		// Set pointer to the worm to affect, depending on if the command is ID or normal
+		int id = cl->getWorm(0)->getID();
+		if(!strcmp(arg[nextarg+1],"id")) {
+			nextarg+=2;
+			id = atoi(arg[nextarg]);
+		}
+		w+= id;
+				if(!strcmp(*arg,"/setname")) {
+			w->setName(arg[nextarg]);
+			UpdateWorms();
+		}
+		if(!strcmp(*arg,"/setcolour")) {
+			w->setColour(atoi(arg[nextarg]),atoi(arg[nextarg+1]),atoi(arg[nextarg+2]));
+			printf("args: %d",args);
+			UpdateWorms();
+		}
+		if(!strcmp(*arg,"/suicide")) {
+			for(i=0;i<atoi(arg[nextarg]);i++)
+			//	w->Injure(100);
+				cl->getWorm(0)->Injure(100);
+		}
+		return;
+	}
+	// Check for Clx (a cheating version of lx)
+	if(*bufarray==0x4) {
+		sprintf(bufarray, "%s seems to have CLX or some other hack", cl->getWorm(0)->getName());
+		SendGlobalText(bufarray,TXT_NORMAL);
+		kickWorm(cl->getWorm(0)->getID());
+		return;
+	}
 
 	// Don't send text from muted players
 	if (cl)

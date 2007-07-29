@@ -224,6 +224,7 @@ public:
 	void		SendDisconnect(void);
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);
+	void		UpdateWorms(void);
 
 	// Parsing
 	void		ParseClientPacket(CClient *cl, CBytestream *bs);

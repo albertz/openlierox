@@ -288,13 +288,6 @@ int CWorm::LoadGraphics(int gametype)
 	// Destroy any previous graphics
 	FreeGraphics();
 
-    // Use the colours set on the network
-    // Profile or team colours will override this
-    r = iColComps[0];
-    g = iColComps[1];
-    b = iColComps[2];
-
-
     if(tProfile) {
 		iColour = MakeColour(tProfile->R, tProfile->G, tProfile->B);
         r = tProfile->R;
@@ -303,6 +296,11 @@ int CWorm::LoadGraphics(int gametype)
         szSkin = tProfile->szSkin;
     }
 
+    // Use the colours set on the network
+    // Profile or team colours will override this
+    r = iColComps[0];
+    g = iColComps[1];
+    b = iColComps[2];
 
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH) {

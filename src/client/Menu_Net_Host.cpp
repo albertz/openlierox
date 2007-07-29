@@ -806,7 +806,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 					text = OldLxCompatibleString(text);
 
-					cServer->SendGlobalText(text,TXT_CHAT);
+//					cServer->SendGlobalText(text,TXT_CHAT);
+					// Allows host to use /setname etc in lobby
+					cClient->SendText(text);
 				}
 				break;
 
