@@ -562,57 +562,98 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 ///////////////////
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
-	// TODO: recode this with usage of std::string
-	
 	std::string buf = bs->readString(256);
-	char bufarray [256]; // I plan on making the code work with strings at a later date (Martin)
-	buf.copy(bufarray,256);
 
+	if (buf == "")  // Ignore empty messages
+		return;
+
+	std::string command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
 	// Check for special commands
-	char	*string = bufarray + cl->getWorm(0)->getName().length() + 2;
-	int		args=0;
-	char	arg [8] [256];
-	int		nextarg=1;
-	CWorm	*w=cWorms;
-	int     i;
-	if(*string=='/') {
-		// Get all the arguments (seperated by spaces)
-		while(args<8)
-			string+=token(string,arg[args++]);
+	std::string::iterator it = command_buf.begin();
+	CWorm	*worm = cWorms;
+
+	if (*it == '/') {
+		std::string cmd = ReadUntil(command_buf, ' '); // Get the command
+		it += cmd.size();  // Skip the command
+
+		// Get the arguments
+		std::vector<std::string> arguments;
+		std::vector<std::string>::iterator cur_arg;
+		std::string current_argument = "";
+		while (it != command_buf.end())  { // it++ - skip the space
+			if (*it == '\"')
+				current_argument = ReadUntil(std::string(++it, command_buf.end()), '\"'); // TODO: doesn't support " inside arguments
+			else if (*it == ' ')  {
+				it++;
+				continue;
+			}
+			else
+				current_argument = ReadUntil(std::string(it, command_buf.end()), ' ');
+
+			it += current_argument.size();
+			arguments.push_back(current_argument);
+		}
+
+		if (arguments.empty())
+			return;
+
+		// Process the arguments and command
+		cur_arg = arguments.begin();
+
 		// Set pointer to the worm to affect, depending on if the command is ID or normal
 		int id = cl->getWorm(0)->getID();
-		if(!strcmp(arg[nextarg+1],"id")) {
-			nextarg+=2;
-			id = atoi(arg[nextarg]);
+		if(!stringcasecmp(*cur_arg, "id")) {
+			cur_arg++;
+			if (cur_arg == arguments.end())
+				return;
+
+			id = atoi(*cur_arg);
+
+			// Skip to next argument
+			cur_arg++;
+			if (cur_arg == arguments.end())
+				return;
+
+			// Only host is allowed to change other player's info
+			std::string addr = "";
+			NetAddrToString(cl->getChannel()->getAddress(), addr);
+			if (addr.find("127.0.0.1") == std::string::npos)
+				id = cl->getWorm(0)->getID();
 		}
-		w+= id;
-				if(!strcmp(*arg,"/setname")) {
-			w->setName(arg[nextarg]);
+		worm += id;
+
+		// Change the name
+		if(!stringcasecmp(cmd, "/setname")) {
+			std::string name = RemoveSpecialChars(*cur_arg);
+			worm->setName(name.substr(0, MIN(32, name.size())));
 			UpdateWorms();
 		}
-		if(!strcmp(*arg,"/setcolour")) {
+
+		// Change the color
+		if(!stringcasecmp(cmd, "/setcolour")) {
 			// TODO: This wont work because color got overriden
 			// by profile-color.
 			// some possibilities:
 			// 1. create a new color-variable which will be used over profile and if game is not teamdeathmatch
 			// 2. override profile-color with this
 			// 3. don't change color in CWorm::LoadGraphics but at the point where the gametype is defined
-			w->setColour(atoi(arg[nextarg]),atoi(arg[nextarg+1]),atoi(arg[nextarg+2]));
-			printf("args: %d",args);
+
+			Uint8 r, g, b;
+			r = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
+			g = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
+			b = (Uint8) atoi(*cur_arg);
+
+			worm->setColour(r, g, b);
 			UpdateWorms();
 		}
-		if(!strcmp(*arg,"/suicide")) {
-			for(i=0;i<atoi(arg[nextarg]);i++)
-			//	w->Injure(100);
-				cl->getWorm(0)->Injure(100);
-		}
+
 		return;
 	}
+
 	// Check for Clx (a cheating version of lx)
-	if(*bufarray==0x4) {
-		sprintf(bufarray, "%s seems to have CLX or some other hack", cl->getWorm(0)->getName().c_str());
-		SendGlobalText(bufarray,TXT_NORMAL);
+	if(buf[0] == 0x04) {
+		SendGlobalText(cl->getWorm(0)->getName() + " seems to have CLX or some other hack", TXT_NORMAL);
 		kickWorm(cl->getWorm(0)->getID());
 		return;
 	}
