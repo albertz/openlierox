@@ -26,7 +26,8 @@ enum {
     LV_RIGHTCLK,
 	LV_DOUBLECLK,
 	LV_DELETE,
-	LV_ENTER
+	LV_ENTER,
+	LV_WIDGETEVENT
 };
 
 
@@ -51,7 +52,8 @@ enum {
 // Sub-item types
 enum {
 	LVS_IMAGE=0,
-	LVS_TEXT
+	LVS_TEXT,
+	LVS_WIDGET
 };
 
 // Subitem vertical aligns
@@ -77,9 +79,12 @@ class lv_column_t { public:
 
 // Sub item structure
 class lv_subitem_t { public:
+	~lv_subitem_t()  { if (tWidget) delete tWidget; }
+
 	int			iType;
 	std::string	sText;
 	SDL_Surface	*bmpImage;
+	CWidget		*tWidget;
 	int			iVisible;
 	int			iExtra;
 	int			iValign;
@@ -104,8 +109,7 @@ class lv_item_t { public:
 
 };
 
-
-// Button control class
+// Listview control class
 class CListview: public CWidget {
 public:
 	// Constructors
@@ -132,6 +136,8 @@ public:
 		bNeedsRepaint = true;
 		bCustomScrollbarSetup = false;
 		bAlwaysVisibleScrollbar = false;
+		tFocusedSubWidget = NULL;
+		tMouseOverSubWidget = NULL;
 	}
 
 	~CListview() {
@@ -173,6 +179,9 @@ private:
 	// Other
 	bool			bNeedsRepaint;
 	UnicodeChar		iLastChar;
+	gui_event_t		tLastWidgetEvent;
+	CWidget			*tFocusedSubWidget;
+	CWidget			*tMouseOverSubWidget;
 
 
 public:
@@ -188,7 +197,7 @@ public:
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
 	int		KeyDown(UnicodeChar c);
-	int		KeyUp(UnicodeChar c)					{ iLastChar = 0; return LV_NONE; }
+	int		KeyUp(UnicodeChar c);
 
 	void	Draw(SDL_Surface *bmpDest);
 
@@ -208,7 +217,7 @@ public:
 
 	void	AddColumn(const std::string& sText, int iWidth);
 	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, int iVAlign = VALIGN_MIDDLE);
+	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign = VALIGN_MIDDLE);
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
 
@@ -238,6 +247,7 @@ public:
 	lv_item_t* getItem(const std::string& name);
 
 	int		getClickedSub(void)		{ return iClickedSub; }
+	gui_event_t *getWidgetEvent()	{ return &tLastWidgetEvent; }
 
     void    setShowSelect(bool s)   { bShowSelect = s; }
 	void	setRedrawMenu(bool _r)	{ bRedrawMenu = _r; }

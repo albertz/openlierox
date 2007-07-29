@@ -645,7 +645,7 @@ enum  {
 
 						if(!lv->getItem(name)) {
 							lv->AddItem(f,0,tLX->clListView);
-							lv->AddSubitem(LVS_TEXT,name,NULL);
+							lv->AddSubitem(LVS_TEXT, name, NULL, NULL);
 						}
 					}
 					fclose(fp);
@@ -666,7 +666,7 @@ enum  {
 
 						if(lv->getItem(f)) {
 							lv->AddItem(f,0,tLX->clListView);
-							lv->AddSubitem(LVS_TEXT,f,NULL);
+							lv->AddSubitem(LVS_TEXT, f, NULL, NULL);
 						}
 					}
 

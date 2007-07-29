@@ -104,13 +104,13 @@ void CListview::Draw(SDL_Surface *bmpDest)
 		h = tLX->cFont.GetHeight();
 		x = iX+4;
 
-		if(y + h > iY + iHeight)
-			break;
-
 		col = tColumns;
 
 		// Find the max height
 		h = MAX(h, item->iHeight);
+
+		if(y + h > iY + iHeight)
+			break;
 
 		// Selected?
 		if(item->iSelected && bShowSelect) {
@@ -169,6 +169,28 @@ void CListview::Draw(SDL_Surface *bmpDest)
 							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage->h/2);
 							break;
 						}
+					break;
+
+					case LVS_WIDGET:
+						CWidget *w = sub->tWidget;
+
+						// Draw according to valign
+						switch (sub->iValign)  {
+						case VALIGN_TOP:
+							w->Setup(w->getID(), x, y, w->getWidth(), w->getHeight());
+							break;
+
+						case VALIGN_BOTTOM:
+							w->Setup(w->getID(), x, y + item->iHeight - w->getHeight(), w->getWidth(), w->getHeight());
+							break;
+
+						// Middle
+						default:
+							w->Setup(w->getID(), x, y + item->iHeight/2 - w->getHeight()/2, w->getWidth(), w->getHeight());
+							break;
+						}
+
+						w->Draw(bmpDest);
 					break;
 					}
 				}
@@ -321,8 +343,14 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img, int iVAlign)
+void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign)
 {
+	// No last item
+	if (!tLastItem)  {
+		return;
+	}
+
+	// Allocate
 	lv_subitem_t *sub = new lv_subitem_t;
 
 	if(sub == NULL) {
@@ -334,20 +362,31 @@ void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img
 	sub->iType = iType;
 	sub->sText = sText;
 	sub->bmpImage = NULL;
+	sub->tWidget = NULL;
 	sub->tNext = NULL;
 	sub->iVisible = true;
 	sub->iExtra = 0;
 	sub->iValign = iVAlign;
-	if(iType == LVS_IMAGE)
+
+	// Set special info
+	switch (iType)  {
+	case LVS_IMAGE:
+		if (!img)  {
+			delete sub;
+			return;
+		}
 		sub->bmpImage = img;
-
-
-	// No last item
-	if(!tLastItem) {
-		delete sub;
-		return;
+		tLastItem->iHeight = MAX(tLastItem->iHeight, img->h);
+		break;
+	case LVS_WIDGET:
+		if (!wid)  {
+			delete sub;
+			return;
+		}
+		sub->tWidget = wid;
+		tLastItem->iHeight = MAX(tLastItem->iHeight, wid->getHeight());
+		break;
 	}
-
 
 	// Add this sub item to the current item
 	if(tLastItem->tSubitems) {
@@ -446,6 +485,8 @@ void CListview::RemoveItem(int iIndex)
 				// Free the sub items
 				for(s=i->tSubitems;s;s=sub) {
 					sub = s->tNext;
+					if (s->tWidget == tFocusedSubWidget)
+						tFocusedSubWidget = NULL;
 					delete s;
 				}
 				delete i;
@@ -456,6 +497,8 @@ void CListview::RemoveItem(int iIndex)
 				// Free the sub items
 				for(s=i->tSubitems;s;s=sub) {
 					sub = s->tNext;
+					if (s->tWidget == tFocusedSubWidget)
+						tFocusedSubWidget = NULL;
 					delete s;
 				}
 				delete i;
@@ -673,6 +716,8 @@ void CListview::Clear(void)
 	tItems = NULL;
 	tLastItem = NULL;
 	tSelected = NULL;
+	tFocusedSubWidget = NULL;
+	tMouseOverSubWidget = NULL;
 
 	cScrollbar.setMin(0);
 	cScrollbar.setMax(1);
@@ -736,6 +781,8 @@ void CListview::Destroy(void)
 		delete i;
 	}
 
+	tFocusedSubWidget = NULL;
+	tMouseOverSubWidget = NULL;
 	tItems = NULL;
 }
 
@@ -774,20 +821,40 @@ int	CListview::MouseOver(mouse_t *tMouse)
 		if( tMouse->Y >= iY+2 && tMouse->Y <= iY+2+tLX->cFont.GetHeight()+1)  {
 			lv_column_t *col = tColumns;
 			lv_column_t *prev = NULL;
-			if (!col)
-				return LV_NONE;
-
-			int x = iX+col->iWidth-2;
-			col = col->tNext;
-			prev = col;
-			for (;col;col = col->tNext)  {
-				if (tMouse->X >= x && tMouse->X <= x+4)  {
-					SetGameCursor(CURSOR_RESIZE);
-					return LV_NONE;
-				}
-				x += col->iWidth-2;
+			if (col)  {
+				int x = iX+col->iWidth-2;
+				col = col->tNext;
 				prev = col;
+				for (;col;col = col->tNext)  {
+					if (tMouse->X >= x && tMouse->X <= x+4)  {
+						SetGameCursor(CURSOR_RESIZE);
+						return LV_NONE;
+					}
+					x += col->iWidth-2;
+					prev = col;
+				}
 			}
+		}
+	}
+
+	// Go through items and subitems, processing the widgets
+	tMouseOverSubWidget = NULL; // Reset it here
+	lv_item_t *item = tItems;
+	lv_subitem_t *subitem = NULL;
+	int count=0;
+	int result = LV_NONE;
+	for(;item;item = item->tNext) {
+		subitem = item->tSubitems;
+		for (; subitem; subitem = subitem->tNext)  {
+			if (subitem->iType == LVS_WIDGET)
+				if (subitem->tWidget->InBox(tMouse->X, tMouse->Y))  {
+					tLastWidgetEvent.cWidget = subitem->tWidget;
+					tLastWidgetEvent.iControlID = subitem->tWidget->getID();
+					tLastWidgetEvent.iEventMsg = subitem->tWidget->MouseOver(tMouse);
+					tMouseOverSubWidget = subitem->tWidget;
+					if (tLastWidgetEvent.iEventMsg != -1)
+						result = LV_WIDGETEVENT;
+				}
 		}
 	}
 
@@ -882,8 +949,8 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 		}
 	}
 
-    if( !(tMouse->FirstDown & SDL_BUTTON(1)) )
-        return LV_NONE;
+    /*if( !(tMouse->FirstDown & SDL_BUTTON(1)) )
+        return LV_NONE;*/
 
 
 	iClickedSub = -1;
@@ -894,6 +961,12 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 		y = iY+2;
 	lv_item_t *item = tItems;
 	int count=0;
+	
+	// Remove focus from the active widget, the following loop will maybe recover it
+	if (tFocusedSubWidget)
+		if (tFocusedSubWidget->CanLoseFocus())
+			tFocusedSubWidget->setFocused(false);
+
 	for(;item;item = item->tNext) {
 		if(count++ < cScrollbar.getValue())
 			continue;
@@ -901,7 +974,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 		// Find the max height
 		int h = item->iHeight;
 
-		if(tMouse->Y > y && tMouse->Y < y+h) {
+		if(tMouse->Y >= y && tMouse->Y < y+h) {
 
 			int event = LV_CHANGED;
 
@@ -916,6 +989,27 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 					if(col) {
 						if(tMouse->X > x && tMouse->X < x+col->iWidth)
 							iClickedSub = i;
+					}
+				}
+
+				// Process any widget
+				if (sub->tWidget && sub->iType == LVS_WIDGET)  {
+					if (sub->tWidget->InBox(tMouse->X, tMouse->Y))  {
+						bool go_event = false; // True if we should process the event
+						if (tFocusedSubWidget)
+							go_event = tFocusedSubWidget->CanLoseFocus() || tFocusedSubWidget == sub->tWidget;
+						else
+							go_event = true;
+
+						if (go_event)  {
+							tLastWidgetEvent.cWidget = sub->tWidget;
+							tLastWidgetEvent.iControlID = sub->tWidget->getID();
+							tLastWidgetEvent.iEventMsg = sub->tWidget->MouseDown(tMouse, nDown);
+							sub->tWidget->setFocused(true);
+							tFocusedSubWidget = sub->tWidget;
+							if (tLastWidgetEvent.iEventMsg != -1)
+								event = LV_WIDGETEVENT;
+						}
 					}
 				}
 
@@ -946,6 +1040,9 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 		if(y>=iY+iHeight)
 			break;
 	}
+
+	// If we get here, the focus wasn't restored and we clear the focused widget
+	tFocusedSubWidget = NULL;
 
 	bNeedsRepaint = true; // Repaint required
 
@@ -1000,6 +1097,12 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 		y = iY+2;
 	lv_item_t *item = tItems;
 	int count=0;
+
+	// Remove focus from the active widget, the following loop will maybe recover it
+	if (tFocusedSubWidget)
+		if (tFocusedSubWidget->CanLoseFocus())
+			tFocusedSubWidget->setFocused(false);
+
 	for(;item;item = item->tNext) {
 		if(count++ < cScrollbar.getValue())
 			continue;
@@ -1038,6 +1141,27 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 					}
 				}
 
+				// Process any widget
+				if (sub->tWidget && sub->iType == LVS_WIDGET)  {
+					if (sub->tWidget->InBox(tMouse->X, tMouse->Y))  {
+						bool go_event = false;
+						if (tFocusedSubWidget)
+							go_event = tFocusedSubWidget->CanLoseFocus() || tFocusedSubWidget == sub->tWidget;
+						else
+							go_event = true;
+
+						if (go_event) {
+							tLastWidgetEvent.cWidget = sub->tWidget;
+							tLastWidgetEvent.iControlID = sub->tWidget->getID();
+							tLastWidgetEvent.iEventMsg = sub->tWidget->MouseUp(tMouse, nDown);
+							sub->tWidget->setFocused(true);
+							tFocusedSubWidget = sub->tWidget;
+							if (tLastWidgetEvent.iEventMsg != -1)
+								event = LV_WIDGETEVENT;
+						}
+					}
+				}
+
 				if(col) {
 					x += col->iWidth;
 					col = col->tNext;
@@ -1063,6 +1187,9 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 			break;
 	}
 
+	// If we get here, the focus wasn't restored and we clear the focused widget
+	tFocusedSubWidget = NULL;
+
 	bNeedsRepaint = true; // Repaint required
 
 	return LV_NONE;
@@ -1072,6 +1199,15 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 // Mouse wheel down event
 int	CListview::MouseWheelDown(mouse_t *tMouse)
 {
+	// Any sub-widget is active?
+	if (tMouseOverSubWidget)  {
+		tLastWidgetEvent.cWidget = tMouseOverSubWidget;
+		tLastWidgetEvent.iControlID = tMouseOverSubWidget->getID();
+		tLastWidgetEvent.iEventMsg = tMouseOverSubWidget->MouseWheelDown(tMouse);
+		if (tLastWidgetEvent.iEventMsg != -1)
+			return LV_WIDGETEVENT;
+	}
+
 	if(iGotScrollbar)  {
 		cScrollbar.MouseWheelDown(tMouse);
 		bNeedsRepaint = true; // Repaint required
@@ -1084,6 +1220,15 @@ int	CListview::MouseWheelDown(mouse_t *tMouse)
 // Mouse wheel up event
 int	CListview::MouseWheelUp(mouse_t *tMouse)
 {
+	// Any sub-widget is active?
+	if (tMouseOverSubWidget)  {
+		tLastWidgetEvent.cWidget = tMouseOverSubWidget;
+		tLastWidgetEvent.iControlID = tMouseOverSubWidget->getID();
+		tLastWidgetEvent.iEventMsg = tMouseOverSubWidget->MouseWheelUp(tMouse);
+		if (tLastWidgetEvent.iEventMsg != -1)
+			return LV_WIDGETEVENT;
+	}
+
 	if(iGotScrollbar)  {
 		cScrollbar.MouseWheelUp(tMouse);
 		bNeedsRepaint = true; // Repaint required
@@ -1096,6 +1241,16 @@ int	CListview::MouseWheelUp(mouse_t *tMouse)
 // Key down event
 int CListview::KeyDown(UnicodeChar c)
 {
+	// Any sub-widget is active?
+	if (tFocusedSubWidget)  {
+		tLastWidgetEvent.cWidget = tFocusedSubWidget;
+		tLastWidgetEvent.iControlID = tFocusedSubWidget->getID();
+		tLastWidgetEvent.iEventMsg = tFocusedSubWidget->KeyDown(c);
+		if (tLastWidgetEvent.iEventMsg != -1)
+			return LV_WIDGETEVENT;
+	}
+
+
 	if (c == iLastChar && c)
 		return LV_NONE;
 
@@ -1194,6 +1349,21 @@ int CListview::KeyDown(UnicodeChar c)
 	return LV_NONE;
 }
 
+////////////////
+// Key up event
+int CListview::KeyUp(UnicodeChar c)
+{
+	// Any sub-widget is active?
+	if (tFocusedSubWidget)  {
+		tLastWidgetEvent.cWidget = tFocusedSubWidget;
+		tLastWidgetEvent.iControlID = tFocusedSubWidget->getID();
+		tLastWidgetEvent.iEventMsg = tFocusedSubWidget->KeyUp(c);
+		if (tLastWidgetEvent.iEventMsg != -1)
+			return LV_WIDGETEVENT;
+	}
+
+	return LV_NONE;
+}
 
 ///////////////////
 // Get the ID of the currently selected item
@@ -1307,7 +1477,9 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		// Add a sub item
 		case LVS_ADDSUBITEM:
 			if(Param2 == LVS_IMAGE)
-				AddSubitem(LVS_IMAGE, "", (SDL_Surface *)Param1);
+				AddSubitem(LVS_IMAGE, "", (SDL_Surface *)Param1, NULL);
+			else if (Param2 == LVS_WIDGET)
+				AddSubitem(LVS_WIDGET, "", NULL, (CWidget *)Param1);
 			else
 				printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
 			break;
@@ -1336,7 +1508,7 @@ DWORD CListview::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 	// Add a sub item
 	case LVS_ADDSUBITEM:
 		if(Param == LVS_TEXT)
-			AddSubitem(Param, sStr, NULL);
+			AddSubitem(Param, sStr, NULL, NULL);
 		else
 			printf("WARNING: LVS_ADDSUBITEM message got unknown type\n");
 		break;

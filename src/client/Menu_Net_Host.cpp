@@ -228,8 +228,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 						if(ply) {
 							if (ply->iType == PRF_COMPUTER || iHumanPlayers < 1)  {
 								lv2->AddItem("",index,tLX->clListView);
-								lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
-								lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
+								lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
+								lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 								if (ply->iType == PRF_HUMAN)
 									iHumanPlayers++;
 
@@ -258,8 +258,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 					if(ply) {
 						lv2->AddItem("",index,tLX->clListView);
-						lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
-						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL);
+						lv2->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
+						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 						if (ply->iType == PRF_HUMAN)
 							iHumanPlayers--;
 					}
@@ -616,7 +616,7 @@ void Menu_Net_HostGotoLobby(void)
 		for (; it != Chatbox->End(); it++)  {
 			if (it->iColour == tLX->clChatText)  {  // Add only chat messages
 				lv->AddItem("", id, it->iColour);
-				lv->AddSubitem(LVS_TEXT, it->strLine, NULL);
+				lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
 				id++;
 			}
 		}
@@ -725,7 +725,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
             lv->AddItem("", lv->getLastItem()->iIndex+1, l->iColour);
         else
             lv->AddItem("", 0, l->iColour);
-        lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+        lv->AddSubitem(LVS_TEXT, l->strLine, NULL, NULL);
         lv->setShowSelect(false);
 
         // If there are too many lines, remove the top one
@@ -1475,8 +1475,8 @@ void Menu_BanList(void)
 		if (!item)
 			continue;
 		tListBox->AddItem(item->szAddress,i,tLX->clListView);
-		tListBox->AddSubitem(LVS_TEXT, item->szAddress, NULL);
-		tListBox->AddSubitem(LVS_TEXT, item->szNick, NULL);
+		tListBox->AddSubitem(LVS_TEXT, item->szAddress, NULL, NULL);
+		tListBox->AddSubitem(LVS_TEXT, item->szNick, NULL, NULL);
 	}
 }
 

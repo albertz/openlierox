@@ -343,7 +343,7 @@ void Menu_Net_JoinGotoLobby(void)
 		for (; it != Chatbox->End(); it++)  {
 			if (it->iColour == tLX->clChatText)  {  // Add only chat messages
 				lv->AddItem("", id, it->iColour);
-				lv->AddSubitem(LVS_TEXT, it->strLine, NULL);
+				lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
 				id++;
 			}
 		}
@@ -439,7 +439,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
             lv->AddItem("", lv->getLastItem()->iIndex+1, ln->iColour);
         else
             lv->AddItem("", 0, ln->iColour);
-        lv->AddSubitem(LVS_TEXT, ln->strLine, NULL);
+        lv->AddSubitem(LVS_TEXT, ln->strLine, NULL, NULL);
         lv->setShowSelect(false);
 
         // If there are too many lines, remove the top line

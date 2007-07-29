@@ -694,8 +694,8 @@ void Menu_LocalDrawPlayingList(void)
                 // Add it back onto the player list
                 CListview *lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
 				lv->AddItem("",sLocalPlayers[i].psProfile->iID,tLX->clListView);
-				lv->AddSubitem(LVS_IMAGE, "", sLocalPlayers[i].psProfile->bmpWorm);
-				lv->AddSubitem(LVS_TEXT, sLocalPlayers[i].psProfile->sName, NULL);
+				lv->AddSubitem(LVS_IMAGE, "", sLocalPlayers[i].psProfile->bmpWorm, NULL);
+				lv->AddSubitem(LVS_TEXT, sLocalPlayers[i].psProfile->sName, NULL, NULL);
 
                 continue;
             }
@@ -1266,7 +1266,7 @@ CGuiLayout cWpnPresets;
 					std::string name = f.substr(sep+1);
 					if(!listview->getItem(name)) {
 						listview->AddItem(name,0,tLX->clListView);
-						listview->AddSubitem(LVS_TEXT,name,NULL);
+						listview->AddSubitem(LVS_TEXT, name, NULL, NULL);
 					}
 				}
 			}

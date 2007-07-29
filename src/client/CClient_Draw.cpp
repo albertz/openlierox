@@ -1370,7 +1370,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	while((l = cChatbox.GetNewLine()) != NULL) {
 
 		lv->AddItem("", id, l->iColour);
-        lv->AddSubitem(LVS_TEXT, l->strLine, NULL);
+        lv->AddSubitem(LVS_TEXT, l->strLine, NULL, NULL);
 		lv->scrollLast();
 		id++;
 	}

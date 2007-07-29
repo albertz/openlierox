@@ -458,7 +458,7 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 						*selected = *index;
 
 					lv->AddItem(directory,(*index)++,tLX->clListView);
-					lv->AddSubitem(LVS_TEXT,directory.substr(dir_sep+1),NULL);
+					lv->AddSubitem(LVS_TEXT, directory.substr(dir_sep+1), NULL, NULL);
 				}
 
 				return true;
@@ -525,7 +525,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 			if (i->type != DRV_CDROM)  {
 #endif
 				lv->AddItem(i->name,index,tLX->clListView);
-				lv->AddSubitem(LVS_TEXT,i->name,NULL);
+				lv->AddSubitem(LVS_TEXT, i->name, NULL, NULL);
 				if (cur_drive == i->name.at(0))
 					lv->setSelectedID(index);
 				index++;
@@ -543,7 +543,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 
 		// Add the parent directory
 		lv->AddItem(directory,index++,tLX->clListView);
-		lv->AddSubitem(LVS_TEXT,"..",NULL);
+		lv->AddSubitem(LVS_TEXT, "..", NULL, NULL);
 
 		int selected = 0;
 

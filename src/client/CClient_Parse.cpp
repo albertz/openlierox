@@ -497,7 +497,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			// Add only chat text
 			if (it->iColour == tLX->clChatText)  {
 				lv->AddItem("", id, it->iColour);
-				lv->AddSubitem(LVS_TEXT, it->strLine, NULL);
+				lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
 				id++;
 			}
 		}

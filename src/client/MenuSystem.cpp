@@ -1441,23 +1441,23 @@ void Menu_SvrList_FillList(CListview *lv)
 
 		// Add the server to the list
 		lv->AddItem(s->szAddress, 0, colour);
-		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num]);
-		lv->AddSubitem(LVS_TEXT, s->szName, NULL);
+		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num], NULL);
+		lv->AddSubitem(LVS_TEXT, s->szName, NULL, NULL);
         if(s->bProcessing)
-            lv->AddSubitem(LVS_TEXT, "querying", NULL);
+            lv->AddSubitem(LVS_TEXT, "querying", NULL, NULL);
         else if(num == 3)
-            lv->AddSubitem(LVS_TEXT, "down", NULL);
+            lv->AddSubitem(LVS_TEXT, "down", NULL, NULL);
         else
-		    lv->AddSubitem(LVS_TEXT, states[state], NULL);
+		    lv->AddSubitem(LVS_TEXT, states[state], NULL, NULL);
 
         if(num == 3)
             continue;
 
 		// Players
-		lv->AddSubitem(LVS_TEXT, itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10), NULL);
+		lv->AddSubitem(LVS_TEXT, itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10), NULL, NULL);
 
-		lv->AddSubitem(LVS_TEXT, itoa(s->nPing,10), NULL);
-		lv->AddSubitem(LVS_TEXT, addr, NULL);
+		lv->AddSubitem(LVS_TEXT, itoa(s->nPing,10), NULL, NULL);
+		lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
 	}
 
     lv->setSelectedID(curID);
@@ -1890,94 +1890,94 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 			// Server name
 			lvInfo.AddItem("servername", index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Server name:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, szName, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Server name:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szName, NULL, NULL);
 
 			// Country and continent
 			lvInfo.AddItem("country", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Country:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Country:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", NULL, NULL);
 
 			// Map name
 			lvInfo.AddItem("mapname", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Level name:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, szMapName, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Level name:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szMapName, NULL, NULL);
 
 			// Mod name
 			lvInfo.AddItem("modname", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Mod name:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, szModName, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Mod name:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szModName, NULL, NULL);
 
 			// State
 			lvInfo.AddItem("state", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "State:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, states[nState], NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "State:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, states[nState], NULL, NULL);
 
 			// Playing
 			lvInfo.AddItem("playing", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Playing:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, itoa(nNumPlayers) + " / " + itoa(nMaxWorms), NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Playing:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, itoa(nNumPlayers) + " / " + itoa(nMaxWorms), NULL, NULL);
 
 			// Game type
 			lvInfo.AddItem("game type", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Game Type:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, gamemodes[nGameMode], NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Game Type:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, gamemodes[nGameMode], NULL, NULL);
 
 			// Lives
 			lvInfo.AddItem("lives", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Lives:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Lives:", NULL, NULL);
 			if (nLives < 0)
-				lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite);
+				lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
 			else
-				lvInfo.AddSubitem(LVS_TEXT, itoa(nLives), NULL);
+				lvInfo.AddSubitem(LVS_TEXT, itoa(nLives), NULL, NULL);
 
 			// Max kills
 			lvInfo.AddItem("maxkills", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Max Kills:", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Max Kills:", NULL, NULL);
 			if (nMaxKills < 0)
-				lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite);
+				lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
 			else
-				lvInfo.AddSubitem(LVS_TEXT, itoa(nMaxKills), NULL);
+				lvInfo.AddSubitem(LVS_TEXT, itoa(nMaxKills), NULL, NULL);
 
 			// Loading times
 			lvInfo.AddItem("loading", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Loading Times:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, itoa(nLoadingTime) + " %", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Loading Times:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, itoa(nLoadingTime) + " %", NULL, NULL);
 
 			// Bonuses
 			lvInfo.AddItem("bonuses", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL);
-			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL, NULL);
 
 			// Players / kills
 			lvInfo.AddItem("players", ++index, tLX->clNormalLabel);
 			if (nState)  {
-				lvInfo.AddSubitem(LVS_TEXT, "Players/Kills:", NULL);
+				lvInfo.AddSubitem(LVS_TEXT, "Players/Kills:", NULL, NULL);
 
 				// First player (located next to the Players/Kills label)
-				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL);
-				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getKills()), NULL);
+				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getKills()), NULL, NULL);
 
 				// Rest of the players
 				for (int i=1; i < nNumPlayers; i++)  {
 					lvInfo.AddItem("players"+itoa(i+1), ++index, tLX->clNormalLabel);
-					lvInfo.AddSubitem(LVS_TEXT, "", NULL);
-					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL);
-					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getKills()), NULL);
+					lvInfo.AddSubitem(LVS_TEXT, "", NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getKills()), NULL, NULL);
 				}
 			}
 
 			else  { // Don't draw kills when the server is open
-				lvInfo.AddSubitem(LVS_TEXT, "Players:", NULL);
+				lvInfo.AddSubitem(LVS_TEXT, "Players:", NULL, NULL);
 
 				// First player (located next to the Players/Kills label)
-				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL);
+				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL, NULL);
 
 				// Rest of the players
 				for (int i = 1; i < nNumPlayers; i++)  {
 					lvInfo.AddItem("players"+itoa(i+1), ++index, tLX->clNormalLabel);
-					lvInfo.AddSubitem(LVS_TEXT, "", NULL);
-					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL);
+					lvInfo.AddSubitem(LVS_TEXT, "", NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL, NULL);
 				}
 			}			
 
