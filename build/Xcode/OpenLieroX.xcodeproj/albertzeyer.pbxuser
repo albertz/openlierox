@@ -8,6 +8,7 @@
 			EAD99F600C063CA6003BE563 /* OpenLieroX */,
 		);
 		breakpoints = (
+			EAC6F21F0C5CA5DE00381E70 /* CFont.cpp:308 */,
 		);
 		breakpointsGroup = EA430DC10BEFE6E100C6547E /* XCBreakpointsBucket */;
 		codeSenseManager = EA430BE90BEFCDA000C6547E /* Code sense */;
@@ -153,8 +154,16 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 207326541;
-			PBXWorkspaceStateSaveDate = 207326541;
+			PBXPerProjectTemplateStateSaveDate = 207397145;
+			PBXWorkspaceStateSaveDate = 207397145;
+		};
+		perUserProjectItems = {
+			EAC6F2220C5CB2E100381E70 /* PBXBookmark */ = EAC6F2220C5CB2E100381E70 /* PBXBookmark */;
+			EAC6F2250C5CB89800381E70 /* PBXTextBookmark */ = EAC6F2250C5CB89800381E70 /* PBXTextBookmark */;
+			EAC6F2260C5CB89800381E70 /* PBXTextBookmark */ = EAC6F2260C5CB89800381E70 /* PBXTextBookmark */;
+			EAC6F2290C5CB89800381E70 /* PBXTextBookmark */ = EAC6F2290C5CB89800381E70 /* PBXTextBookmark */;
+			EAC6F22C0C5CB89800381E70 /* PBXTextBookmark */ = EAC6F22C0C5CB89800381E70 /* PBXTextBookmark */;
+			EAC6F22D0C5CB89800381E70 /* PBXTextBookmark */ = EAC6F22D0C5CB89800381E70 /* PBXTextBookmark */;
 		};
 		sourceControlManager = EA430BE80BEFCDA000C6547E /* Source Control */;
 		userBuildSettings = {
@@ -178,14 +187,22 @@
 			sepNavIntBoundsRect = "{{0, 0}, {746, 2996}}";
 			sepNavSelRange = "{839, 13}";
 			sepNavVisRect = "{{0, 549}, {740, 121}}";
+			sepNavWindowFrame = "{{15, 75}, {749, 503}}";
+		};
+	};
+	EA430BF50BEFCEB400C6547E /* CClient_Draw.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1010, 25522}}";
+			sepNavSelRange = "{25073, 0}";
+			sepNavVisRect = "{{0, 9695}, {687, 168}}";
 		};
 	};
 	EA430BFA0BEFCEB400C6547E /* CFont.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {3050, 5740}}";
-			sepNavSelRange = "{10024, 0}";
-			sepNavVisRect = "{{0, 5211}, {710, 529}}";
-			sepNavWindowFrame = "{{274, 88}, {749, 658}}";
+			sepNavIntBoundsRect = "{{0, 0}, {842, 5670}}";
+			sepNavSelRange = "{5756, 0}";
+			sepNavVisRect = "{{0, 4162}, {710, 374}}";
+			sepNavWindowFrame = "{{41, 71}, {749, 503}}";
 		};
 	};
 	EA430C040BEFCEB400C6547E /* CTextbox.cpp */ = {
@@ -198,17 +215,18 @@
 	};
 	EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {908, 12768}}";
+			sepNavIntBoundsRect = "{{0, 0}, {992, 18214}}";
 			sepNavSelRange = "{0, 0}";
-			sepNavVisRect = "{{0, 0}, {710, 529}}";
-			sepNavWindowFrame = "{{221, 79}, {749, 658}}";
+			sepNavVisRect = "{{0, 0}, {710, 374}}";
+			sepNavWindowFrame = "{{8, 57}, {749, 503}}";
 		};
 	};
 	EA430C0D0BEFCEB400C6547E /* Graphics.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {758, 4018}}";
+			sepNavIntBoundsRect = "{{0, 0}, {758, 4032}}";
 			sepNavSelRange = "{367, 20}";
-			sepNavVisRect = "{{0, 195}, {743, 185}}";
+			sepNavVisRect = "{{0, 0}, {710, 374}}";
+			sepNavWindowFrame = "{{15, 75}, {749, 503}}";
 		};
 	};
 	EA430C0F0BEFCEB400C6547E /* Menu_Local.cpp */ = {
@@ -326,9 +344,9 @@
 	};
 	EA430C3D0BEFCEB400C6547E /* main.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {710, 8036}}";
-			sepNavSelRange = "{1346, 0}";
-			sepNavVisRect = "{{0, 695}, {710, 529}}";
+			sepNavIntBoundsRect = "{{0, 0}, {794, 10738}}";
+			sepNavSelRange = "{16704, 0}";
+			sepNavVisRect = "{{0, 9359}, {687, 168}}";
 			sepNavWindowFrame = "{{308, 82}, {749, 658}}";
 		};
 	};
@@ -357,9 +375,9 @@
 	};
 	EA430C520BEFCEDE00C6547E /* CFont.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {764, 1316}}";
-			sepNavSelRange = "{437, 11}";
-			sepNavVisRect = "{{0, 335}, {743, 185}}";
+			sepNavIntBoundsRect = "{{0, 0}, {902, 1736}}";
+			sepNavSelRange = "{1137, 0}";
+			sepNavVisRect = "{{0, 847}, {687, 168}}";
 			sepNavWindowFrame = "{{15, 83}, {749, 658}}";
 		};
 	};
@@ -412,8 +430,8 @@
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1040, 8162}}";
 			sepNavSelRange = "{5023, 0}";
-			sepNavVisRect = "{{0, 1834}, {710, 529}}";
-			sepNavWindowFrame = "{{67, 60}, {749, 658}}";
+			sepNavVisRect = "{{0, 1989}, {710, 374}}";
+			sepNavWindowFrame = "{{6, 75}, {749, 503}}";
 		};
 	};
 	EA430C7A0BEFCEDE00C6547E /* InputEvents.h */ = {
@@ -524,6 +542,7 @@
 		isa = XCBreakpointsBucket;
 		name = "Project Breakpoints";
 		objects = (
+			EAC6F21F0C5CA5DE00381E70 /* CFont.cpp:308 */,
 		);
 	};
 	EA430DD10BEFEA8900C6547E /* HawkNL */ = {
@@ -560,6 +579,69 @@
 			sepNavWindowFrame = "{{296, 88}, {749, 658}}";
 		};
 	};
+	EAC6F21F0C5CA5DE00381E70 /* CFont.cpp:308 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		delayBeforeContinue = 0;
+		fileReference = EA430BFA0BEFCEB400C6547E /* CFont.cpp */;
+		functionName = "CFont::DrawAdv()";
+		hitCount = 2;
+		lineNumber = 308;
+		location = OpenLieroX;
+		modificationTime = 207399187.455649;
+		state = 1;
+	};
+	EAC6F2220C5CB2E100381E70 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */;
+	};
+	EAC6F2250C5CB89800381E70 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = EA430C780BEFCEDE00C6547E /* GfxPrimitives.h */;
+		rLen = 0;
+		rLoc = 2147483647;
+		rType = 0;
+	};
+	EAC6F2260C5CB89800381E70 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = EA430C780BEFCEDE00C6547E /* GfxPrimitives.h */;
+		name = "GfxPrimitives.h: 257";
+		rLen = 0;
+		rLoc = 7563;
+		rType = 0;
+		vrLen = 804;
+		vrLoc = 6924;
+	};
+	EAC6F2290C5CB89800381E70 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */;
+		name = "Cache.cpp: 58";
+		rLen = 0;
+		rLoc = 1330;
+		rType = 0;
+		vrLen = 777;
+		vrLoc = 999;
+	};
+	EAC6F22C0C5CB89800381E70 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */;
+		rLen = 0;
+		rLoc = 2147483647;
+		rType = 0;
+	};
+	EAC6F22D0C5CB89800381E70 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */;
+		name = "GfxPrimitives.cpp: 268";
+		rLen = 0;
+		rLoc = 7303;
+		rType = 0;
+		vrLen = 747;
+		vrLoc = 6688;
+	};
 	EAD99F600C063CA6003BE563 /* OpenLieroX */ = {
 		activeExec = 0;
 		executables = (
@@ -587,8 +669,17 @@
 		executableUserSymbolLevel = 0;
 		libgmallocEnabled = 0;
 		name = OpenLieroX;
+		savedGlobals = {
+		};
 		sourceDirectories = (
 		);
+		variableFormatDictionary = {
+			"Amask-Uint32-CFont::DrawAdv" = 1;
+			"Bmask-Uint32-CFont::DrawAdv" = 1;
+			"Gmask-Uint32-CFont::DrawAdv" = 1;
+			"Rmask-Uint32-CFont::DrawAdv" = 1;
+			"flags-Uint32-CFont::DrawAdv" = 1;
+		};
 	};
 	EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {
 		uiCtxt = {

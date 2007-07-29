@@ -231,6 +231,8 @@ void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int
 // Draw a font (advanced)
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
 	
+	// TODO: reduce the amount of local variables to 5
+	
 	int pos = 0; // Offset, x+pos is current character position in pixels
 	int l;
 	Uint32 pixel;
@@ -392,15 +394,11 @@ int CFont::GetWidth(const std::string& buf) {
 ///////////////////
 // Draws the text in centre alignment
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {
-	int length = GetWidth(txt);
-	int pos = x - length / 2;
-	Draw(dst, pos, y, col, txt);
+	Draw(dst, x - GetWidth(txt) / 2, y, col, txt);
 }
 
 ///////////////////
 // Draw's the text in centre alignment
 void CFont::DrawCentreAdv(SDL_Surface *dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
-	int length = GetWidth(txt);
-	int pos = MAX(min_x, x - length / 2);
-	DrawAdv(dst, pos, y, max_w, col, txt);
+	DrawAdv(dst, MAX(min_x, x - GetWidth(txt) / 2), y, max_w, col, txt);
 }
