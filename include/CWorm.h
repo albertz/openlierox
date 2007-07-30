@@ -378,7 +378,8 @@ public:
 	// Graphics
 	//
 	int			LoadGraphics(int gametype);
-	void		LoadProfileGraphics(Uint8 *r, Uint8 *g, Uint8 *b);
+	void		LoadProfileGraphics();
+	void		DeactivateProfileGraphicsOnce() { ProfileGraphics = false; }
 	void		FreeGraphics(void);
 	SDL_Surface	*ChangeGraphics(const std::string& filename, int team);
 	void		Draw(SDL_Surface *bmpDest, CViewport *v);

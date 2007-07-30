@@ -279,12 +279,12 @@ void GameServer::SendDisconnect(void)
 	
 	bs.writeByte(S2C_LEAVING);
 
-	for(short c=0;c<MAX_CLIENTS;c++,cl++) {
+	for(short c=0; c<MAX_CLIENTS; c++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
 		// Send it out-of-bounds 3 times to make sure all the clients received it
-		for(int i=0;i<3;i++)
+		for(short i=0; i<3; i++)
 			cl->getChannel()->Transmit(&bs);
 	}	
 }

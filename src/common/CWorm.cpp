@@ -132,7 +132,8 @@ void CWorm::Clear(void)
 	// Graphics
 	cHealthBar = CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
-	ProfileGraphics=false;
+	
+	ProfileGraphics = true;
 }
 
 
@@ -291,12 +292,12 @@ int CWorm::LoadGraphics(int gametype)
 	// Destroy any previous graphics
 	FreeGraphics();
 
-	// Only load the profile graphics once (is that a bad idea?)
-	if(!ProfileGraphics) {
-		LoadProfileGraphics(&r, &g, &b);
-		ProfileGraphics=true;
-	}
-
+	if(ProfileGraphics)
+		LoadProfileGraphics();
+	else
+		// load profile-graphics next time
+		ProfileGraphics = true;
+		
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH) {
 		team = true;
@@ -312,6 +313,7 @@ int CWorm::LoadGraphics(int gametype)
 
     // Load the skin
     bmpWormRight = LoadSkin(szSkin, r,g,b);
+    // TODO: if user has set a non-available szSkin, should we try to load another one here?
 	if (!bmpWormRight)  {
 		bmpWormLeft = NULL;
 		bmpPic = NULL;
@@ -336,15 +338,12 @@ int CWorm::LoadGraphics(int gametype)
 
 ///////////////////
 // Load the graphics
-void CWorm::LoadProfileGraphics(Uint8 *r, Uint8 *g, Uint8 *b)
-{
+void CWorm::LoadProfileGraphics() {
     if(tProfile) {
 		iColour = MakeColour(tProfile->R, tProfile->G, tProfile->B);
-        *r = tProfile->R;
-        *g = tProfile->G;
-        *b = tProfile->B;
         szSkin = tProfile->szSkin;
-    }
+    } else
+    	printf("WARNING: LoadProfileGraphics: tProfile isn't set\n");
 }
 
 ///////////////////

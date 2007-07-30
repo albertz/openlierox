@@ -130,54 +130,6 @@ float GetFixedRandomNum(uchar index)
 }
 
 
-// Tokenise (is that even the right word) a string by spaces
-int token (char *input, char *output)
-{
-	// TODO: never ever use char* ! use std::string instead
-	
-	int quotes=0;
-	int whitespace=1;
-	int j=0;
-	int i;
-	for(i=0;i<256;i++)
-	{
-		// Check if the string is in quotes
-		if(input[i]=='"') {
-			quotes=(quotes^1)&1;
-			continue;
-		}
-		// Check for whitespace to end the token
-		if(input[i]==' ' || input[i]=='\t' || input[i]=='\n' || input[i]=='\0')
-			if(!quotes && !whitespace)
-				break;
-		// Check for escape (right word?) sequences
-		if(input[i]=='\\') {
-			if(input[i+1]=='\\')
-				output[j]='\\';
-			if(input[i+1]=='n')
-				output[j]='\n';
-			if(input[i+1]=='t')
-				output[j]='\t';
-			if(input[i+1]=='"')
-				output[j]='"';
-			i++,j++;
-			continue;
-		}
-		// Remove non-printable characters
-		if(input[i]<32)
-			continue;
-		if(input[i]!=' ')
-			whitespace=0;
-		// Remove leading whitespace
-		if(!whitespace)
-			output[j++]=input[i];
-	}
-	// Null terminate the returned string
-	output[j]='\0';
-	// Return the offset to check from to get the next token
-	return i+1;
-}
-
 
 //
 // Thread functions
