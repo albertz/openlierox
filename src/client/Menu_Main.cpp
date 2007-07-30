@@ -202,9 +202,10 @@ void Menu_MainFrame(void)
 	static const std::string credits2 = std::string("- Original code by Jason Boettcher\n") +
 										std::string("- Ported and enhanced by\n") +
 										std::string("  Karel Petránek and Albert Zeyer\n") +
-										std::string("- Supported by the [RIP] clan\n" +
+										std::string("- Supported by the [RIP] clan\n") +
 										//std::string("- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
 										std::string("- Enhanced by Martin Griffin\n") + 
+										std::string("- Design by Michal Futer\n" + 
 										tMenu->tFrontendInfo.sFrontendCredits
 										);
 
@@ -228,8 +229,8 @@ void Menu_MainFrame(void)
 		h = tLX->cFont.GetHeight() + tLX->cFont.GetHeight(credits2) + 4;
 
 	Menu_redrawBufferRect(x, y, w, h);
-	tLX->cFont.Draw(tMenu->bmpScreen, x, y, tLX->clCredits1, credits1);
-	tLX->cFont.Draw(tMenu->bmpScreen, x, y + tLX->cFont.GetHeight(), tLX->clCredits2, credits2);
+	tLX->cFont.Draw(tMenu->bmpScreen, x, y-tLX->cFont.GetHeight(), tLX->clCredits1, credits1);
+	tLX->cFont.Draw(tMenu->bmpScreen, x, y , tLX->clCredits2, credits2);
 
 
 	// Restore the original spacing

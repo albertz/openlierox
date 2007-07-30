@@ -545,7 +545,7 @@ public:
 	int			getMuted(void)				{ return iMuted; }
 	void		setMuted(int _m)			{ iMuted = _m; }
 
-	int			getAuthorised(void)			{ return iAuthorised; }
+	int			getAuthorised(int _a)			{ return iAuthorised&_a; }
 	void		setAuthorised(int _a)		{ iAuthorised = _a; }
 
 	inline int	getPing(void)				{ return iPing; }
