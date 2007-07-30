@@ -571,6 +571,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	if (buf == "")  // Ignore empty messages
 		return;
 
+
 	std::string command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
 	// Check for special commands
@@ -609,26 +610,38 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 		int id = cl->getWorm(0)->getID();
 		if(!stringcasecmp(*cur_arg, "id")) {
 			cur_arg++;
-			if (cur_arg == arguments.end())
-				return;
 
 			id = atoi(*cur_arg);
 
 			// Skip to next argument
 			cur_arg++;
-			if (cur_arg == arguments.end())
-				return;
 
-			// Only host is allowed to change other player's info
-			std::string addr = "";
-			NetAddrToString(cl->getChannel()->getAddress(), addr);
-			if (addr.find("127.0.0.1") == std::string::npos)
+			// Only authorised users are allowed to change other player's info
+			if (!cl->getAuthorised())
 				id = cl->getWorm(0)->getID();
 		}
 		worm += id;
 
+		// Authorise a user
+		if(!stringcasecmp(cmd, "/authorise") && cl->getAuthorised()) {
+			CClient *remote_cl = cServer->getClient(id);
+			remote_cl->setAuthorised(true);
+		}
+
+		// Kick a worm out of the server
+		if(!stringcasecmp(cmd, "/kick") && cl->getAuthorised()) {
+			if(cl->getWorm(0)->getID() == id)
+				kickWorm(*cur_arg);
+			else {
+				kickWorm(id);
+				SendGlobalText("Worm should have been kicked. ID: "+itoa(id),TXT_NORMAL);
+			}
+		}
+
 		// Change the name
 		if(!stringcasecmp(cmd, "/setname")) {
+			if(cur_arg == arguments.end())
+				return;
 			std::string name = RemoveSpecialChars(*cur_arg);
 			worm->setName(name.substr(0, MIN(32, name.size())));
 			UpdateWorms();
@@ -637,6 +650,8 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 		// Change the color
 		if(!stringcasecmp(cmd, "/setcolour")) {
 			// Fixed: The profile graphics are only loaded once
+			if(cur_arg == arguments.end())
+				return;
 			Uint8 r, g, b;
 			r = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
 			g = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
@@ -648,12 +663,16 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 		// Change the skin
 		if(!stringcasecmp(cmd, "/setskin")) {
+			if(cur_arg == arguments.end())
+				return;
 			worm->setSkin(*cur_arg);
 			UpdateWorms();
 		}
 
 		// Commit suicide
 		if(!stringcasecmp(cmd, "/suicide")) {
+			if(cur_arg == arguments.end())
+				return;
 			// Make sure the client suicides themselves
 			worm=cl->getWorm(0);
 			int lives = MAX(atoi(*cur_arg),1);
@@ -666,12 +685,13 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	}
 
 	// Check for Clx (a cheating version of lx)
-	if(buf[0] == 0x04) {
+	// TODO: Make olx not crash when a clx message is recieved
+/*	if(clxcheck[0] == 0x04) {
 		SendGlobalText(cl->getWorm(0)->getName() + " seems to have CLX or some other hack", TXT_NORMAL);
 		kickWorm(cl->getWorm(0)->getID());
 		return;
 	}
-
+*/
 	// Don't send text from muted players
 	if (cl)
 		if (cl->getMuted())
@@ -865,7 +885,7 @@ void GameServer::ParseGetChallenge(void) {
 	GetRemoteNetAddr(tSocket, &adrFrom);
 
 	// If were in the game, deny challenges
-	if (iState == SVS_PLAYING) {
+	if (iState != SVS_LOBBY) {
 		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
@@ -1262,7 +1282,9 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// Recolorize the nicks in lobby
 		iHost_Recolorize = true;
 
-
+		// Make host authorised
+		if(!newcl->getWorm(0)->getID())
+			newcl->setAuthorised(true);
 
 		// Client spawns when the game starts
 	}

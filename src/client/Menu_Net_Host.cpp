@@ -984,6 +984,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 							}
 						}
 						break;
+					case MNU_USER+3:
+							CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
+							if (remote_cl) 
+								remote_cl->setAuthorised(true);
+						break;
                 }
 
                 // Remove the menu widget
@@ -1128,6 +1133,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 						else
 							cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Mute player",2 );
 					}
+					cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Authorise player", 3 );
 
                 }
 
