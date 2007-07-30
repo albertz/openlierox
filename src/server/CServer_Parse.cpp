@@ -293,7 +293,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	log_worm_t *log_kill = GetLogWorm(kill->getID());
 
 	// Cheat prevention check: Make sure the victim is one of the client's worms
-	if (!cl->OwnsWorm(vict))  {
+	// Allows host to kill regardless of whether they own the worm to allow for a suicide command
+	if (!cl->OwnsWorm(vict) && cl->getWorm(0)->getID())  {
 		printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 		return;
 	}
@@ -336,10 +337,13 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	vict->setKillsInRow(0);
 
 	if (killer != victim)  {
-		kill->addKillInRow();
-		kill->AddKill();
-		if (log_kill)
-			log_kill->iKills++;
+		// Don't add a kill for teamkilling
+		if(iGameType == GMT_TEAMDEATH && vict->getTeam() == kill->getTeam() && killer != victim) {
+			kill->addKillInRow();
+			kill->AddKill();
+			if (log_kill)
+				log_kill->iKills++;
+		}
 	} else {
 		// Log the suicide
 		if (log_vict)
@@ -648,6 +652,16 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			UpdateWorms();
 		}
 
+		// Commit suicide
+		if(!stringcasecmp(cmd, "/suicide")) {
+			// Makes sure client suicides themselves
+			worm=cl->getWorm(0);
+			int lives = MAX(atoi(*cur_arg),1);
+			lives = MIN(lives, worm->getLives()+1);
+			for(int i=0;i<lives;i++)
+				cClient->SendDeath(worm->getID(),worm->getID());
+		}
+
 		return;
 	}
 
@@ -851,7 +865,7 @@ void GameServer::ParseGetChallenge(void) {
 	GetRemoteNetAddr(tSocket, &adrFrom);
 
 	// If were in the game, deny challenges
-	if (iState != SVS_LOBBY) {
+	if (iState == SVS_PLAYING) {
 		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
@@ -916,7 +930,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
-	if (iState != SVS_LOBBY)  {
+//	if (iState != SVS_LOBBY)  {
+	if (iState == SVS_PLAYING) {
 		printf("GameServer::ParseConnect: In game, ignoring.");
 		return;
 	}
@@ -1250,6 +1265,9 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 
 		// Client spawns when the game starts
+
+		// If ingame then send the command to goto the weapon selection screen
+		// It's being worked on right now
 	}
 }
 
