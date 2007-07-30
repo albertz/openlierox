@@ -517,7 +517,7 @@ void StartGame(void)
 		// TODO: uniform message system
 
 		// Start the server
-		if(!cServer->StartServer( "local", tLXOptions->iNetworkPort, 8, false )) {
+		if(!cServer->StartServer( "local", tLXOptions->iNetworkPort, MAX_PLAYERS, false )) {
 			// ERROR
 			//MessageBox(NULL, "Error: Could not start server", "OpenLieroX Error", MB_OK);
 			printf("Error: Could not start server\n");
