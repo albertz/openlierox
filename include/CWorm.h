@@ -577,7 +577,7 @@ public:
 	inline void		incrementTagTime(float dt)	{ fTagTime+=dt; }
 
 	inline std::string getSkin(void)				{ return szSkin; }
-	inline void		setSkin(std::string skin)	{ szSkin = skin; }
+	inline void		setSkin(const std::string& skin)	{ szSkin = skin; }
 
 	inline void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
 	inline int		getKillsInRow(void)			{ return iKillsInRow; }

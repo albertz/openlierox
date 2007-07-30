@@ -197,8 +197,8 @@ public:
 
 		fSendWait = 0;
 
-		iMuted = false;
-		iAuthorised = false;
+		bMuted = false;
+		bAuthorised = false;
 		bRepaintChatbox = true;
 
 		for(ushort i=0; i<4; i++)
@@ -306,8 +306,8 @@ private:
 	CInput		cViewportMgr;
 	CInput		cToggleTopBar;
 
-	int			iMuted;
-	int			iAuthorised;
+	bool		bMuted;
+	bool		bAuthorised;
 
 
     // Viewport manager
@@ -542,12 +542,11 @@ public:
 
 	int			isTyping(void)				{ return iChat_Typing; }
 
-	int			getMuted(void)				{ return iMuted; }
-	void		setMuted(int _m)			{ iMuted = _m; }
+	bool		getMuted(void)				{ return bMuted; }
+	void		setMuted(bool _m)			{ bMuted = _m; }
 
-	// TODO: what does it stand for? why is it an integer?
-	int			getAuthorised(int _a)		{ return iAuthorised&_a; }
-	void		setAuthorised(int _a)		{ iAuthorised = _a; }
+	bool		getAuthorised(void)			{ return bAuthorised; }
+	void		setAuthorised(bool _a)		{ bAuthorised = _a; }
 
 	inline int	getPing(void)				{ return iPing; }
 	inline void	setPing(int Ping)			{ iPing = Ping; }
