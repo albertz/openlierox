@@ -337,7 +337,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	vict->setKillsInRow(0);
 
 	if (killer != victim)  {
-		// Don't add a kill for teamkilling
+		// Don't add a kill for teamkilling, sorry for the if being so ugly
 		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH ) {
 			kill->addKillInRow();
 			kill->AddKill();
@@ -654,7 +654,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 		// Commit suicide
 		if(!stringcasecmp(cmd, "/suicide")) {
-			// Makes sure client suicides themselves
+			// Make sure the client suicides themselves
 			worm=cl->getWorm(0);
 			int lives = MAX(atoi(*cur_arg),1);
 			lives = MIN(lives, worm->getLives()+1);

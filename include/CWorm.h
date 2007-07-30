@@ -172,7 +172,7 @@ private:
 	std::string	sName;
     std::string szSkin;
 	Uint32		iColour;
-	Uint32		iColourset;
+	bool		ProfileGraphics;
 	int			iRanking;
 	int			iKillsInRow;
 
@@ -378,6 +378,7 @@ public:
 	// Graphics
 	//
 	int			LoadGraphics(int gametype);
+	void		LoadProfileGraphics(Uint8 *r, Uint8 *g, Uint8 *b);
 	void		FreeGraphics(void);
 	SDL_Surface	*ChangeGraphics(const std::string& filename, int team);
 	void		Draw(SDL_Surface *bmpDest, CViewport *v);
@@ -490,7 +491,7 @@ public:
 	inline void		setName(const std::string& val) { sName = val; }
 	inline Uint32	getColour(void)				{ return iColour; }
 	inline void		setColour(Uint32 c)			{ iColour = c; }
-	inline void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColourset = MakeColour(r,g,b); }
+	inline void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColour = MakeColour(r,g,b); }
 
 	inline void		setLocal(int _l)			{ iLocal = _l; }
 	inline int			getLocal(void)				{ return iLocal; }

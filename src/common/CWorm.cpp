@@ -38,7 +38,6 @@ void CWorm::Clear(void)
 	iClientID = 0;
 	iClientWormID = 0;
     szSkin = "";
-	iColourset=0;
     
 	iKills = 0;
 	iDeaths = 0;
@@ -133,6 +132,7 @@ void CWorm::Clear(void)
 	// Graphics
 	cHealthBar = CBar(LoadImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
+	ProfileGraphics=false;
 }
 
 
@@ -291,17 +291,11 @@ int CWorm::LoadGraphics(int gametype)
 	// Destroy any previous graphics
 	FreeGraphics();
 
-    if(tProfile) {
-		iColour = MakeColour(tProfile->R, tProfile->G, tProfile->B);
-        r = tProfile->R;
-        g = tProfile->G;
-        b = tProfile->B;
-        szSkin = tProfile->szSkin;
-    }
-
-	// iColourset overrides profile colours, allows use of /setcolour
-	if(iColourset)
-		iColour=iColourset;
+	// Only load the profile graphics once (is that a bad idea?)
+	if(!ProfileGraphics) {
+		LoadProfileGraphics(&r, &g, &b);
+		ProfileGraphics=true;
+	}
 
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH) {
@@ -312,7 +306,7 @@ int CWorm::LoadGraphics(int gametype)
     // Use the colours set on the network
     // Profile or team colours will override this
     GetColour3(iColour, SDL_GetVideoSurface(), &r, &g, &b);
-	
+
     // Colourise the giblets
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
@@ -340,6 +334,18 @@ int CWorm::LoadGraphics(int gametype)
 	return bmpWormRight && bmpWormLeft && bmpGibs && bmpPic && bmpShadowPic;
 }
 
+///////////////////
+// Load the graphics
+void CWorm::LoadProfileGraphics(Uint8 *r, Uint8 *g, Uint8 *b)
+{
+    if(tProfile) {
+		iColour = MakeColour(tProfile->R, tProfile->G, tProfile->B);
+        *r = tProfile->R;
+        *g = tProfile->G;
+        *b = tProfile->B;
+        szSkin = tProfile->szSkin;
+    }
+}
 
 ///////////////////
 // Change the graphics of an image

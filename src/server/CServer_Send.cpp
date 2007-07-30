@@ -277,6 +277,8 @@ void GameServer::SendDisconnect(void)
 	}	
 }
 
+
+///////////////////
 // Update the worm names, skins, colours etc
 void GameServer::UpdateWorms(void)
 {
