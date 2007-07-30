@@ -963,17 +963,20 @@ void Menu_Net_HostLobbyFrame(int mouse)
             // Popup menu
             case hl_PopupMenu:
                 switch( ev->iEventMsg ) {
-                	// TODO: add comments, what each menuitem is
+                	
                     // Kick the player
                     case MNU_USER+0:
-                        // Kick the player
                         if( g_nLobbyWorm > 0 )
                             cServer->kickWorm( g_nLobbyWorm );
                         break;
+
+					// Ban the player
 					case MNU_USER+1:
 						if ( g_nLobbyWorm > 0 )
 							cServer->banWorm( g_nLobbyWorm );
 						break;
+
+					// Mute/unmute
 					case MNU_USER+2:
 						if ( g_nLobbyWorm > 0 )  {
 							CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
@@ -985,11 +988,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 							}
 						}
 						break;
-					case MNU_USER+3: // authorise
+
+					// Authorize
+					case MNU_USER+3:
 							CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
 							if (remote_cl) 
-								// TODO: true doesn't make sense for integer
-								remote_cl->setAuthorised(true);
+								remote_cl->getRights()->Everything();
 						break;
                 }
 

@@ -13,6 +13,7 @@
 // Created 1/7/02
 // Jason Boettcher
 
+
 #include "LieroX.h"
 #include "Menu.h"
 #include "CServer.h"
@@ -21,7 +22,6 @@
 #include "StringUtils.h"
 #include "CWorm.h"
 #include "Protocol.h"
-#include "RemoteHost.h"
 
 
 /*
@@ -619,19 +619,20 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			cur_arg++;
 
 			// Only authorised users are allowed to change other player's info
-			if (!cl->getAuthorised())
+			if (!cl->getRights()->NameChange)
 				id = cl->getWorm(0)->getID();
 		}
 		worm += id;
 
 		// Authorise a user
-		if(!stringcasecmp(cmd, "/authorise") && cl->getAuthorised()) {
+		if( (!stringcasecmp(cmd, "/authorize") || !stringcasecmp(cmd, "/authorise")) && cl->getRights()->Authorize) {
 			CClient *remote_cl = cServer->getClient(id);
-			remote_cl->setAuthorised(true);
+			if (remote_cl)
+				remote_cl->getRights()->Everything();
 		}
 
 		// Kick a worm out of the server
-		if(!stringcasecmp(cmd, "/kick") && cl->getAuthorised()) {
+		if(!stringcasecmp(cmd, "/kick") && cl->getRights()->Kick) {
 			if(cl->getWorm(0)->getID() == id)
 				kickWorm(*cur_arg);
 			else 
@@ -646,12 +647,16 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 				if(!cWorms[i].isUsed())
 					continue;
 				if(cWorms[i].getTeam() == worm->getTeam())
-					SendText(cServer->getClient(i),worm->getName()+": "+*cur_arg,TXT_CHAT);
+					SendText(cServer->getClient(i),*cur_arg,TXT_CHAT);
 			}
 		}
 
 		// Change the name
 		if(!stringcasecmp(cmd, "/setname")) {
+			// Changing others names can only authorized users
+			if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)
+				return;
+
 			if(cur_arg == arguments.end())
 				return;
 			std::string name = RemoveSpecialChars(*cur_arg);
@@ -661,6 +666,10 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 		// Change the color
 		if(!stringcasecmp(cmd, "/setcolour")) {
+			// Changing others color can only authorized users
+			if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)
+				return;
+
 			// Fixed: The profile graphics are only loaded once
 			if(cur_arg == arguments.end())
 				return;
@@ -676,6 +685,10 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 		// Change the skin
 		if(!stringcasecmp(cmd, "/setskin")) {
+			// Changing others skin can only authorized users
+			if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)
+				return;
+
 			if(cur_arg == arguments.end())
 				return;
 			worm->setSkin(*cur_arg);
@@ -1298,13 +1311,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		iHost_Recolorize = true;
 
 		// Make host authorised
-		if(!newcl->getWorm(0)->getID())
-			newcl->setAuthorised(HOST_ALL);
-
-		// Make host authorised
-		if(!newcl->getWorm(0)->getID())
-			// TODO: true doesn't make sense for integer
-			newcl->setAuthorised(true);
+		if(newcl->getWorm(0)->getID() == 0)  // ID 0 = host
+			newcl->getRights()->Everything();
 
 		// Client spawns when the game starts
 	}

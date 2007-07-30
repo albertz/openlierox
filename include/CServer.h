@@ -39,7 +39,7 @@ class challenge_t { public:
 enum {
 	SVS_LOBBY=0,		// Lobby
 	SVS_GAME,			// Game, waiting for players to load
-	SVS_PLAYING			// Actually playing
+	SVS_PLAYING			// Currently playing
 };
 
 // Client leaving reasons

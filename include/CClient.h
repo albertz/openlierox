@@ -140,6 +140,22 @@ class interface_sett { public:
 	// NOTE: bars are handled in CBar class
 };
 
+// Client rights on a server
+class ClientRights { public:
+	ClientRights(): NameChange(false), Kick(false), Ban(false), Mute(false), ChooseLevel(false), ChooseMod(false), StartGame(false), Authorize(false) {}
+	void Everything ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = true; }
+	void Nothing ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = false; }
+
+	bool NameChange;
+	bool Kick;
+	bool Ban;
+	bool Mute;
+	bool ChooseLevel;
+	bool ChooseMod;
+	bool StartGame;
+	bool Authorize;
+};
+
 
 class CClient {
 public:
@@ -198,7 +214,6 @@ public:
 		fSendWait = 0;
 
 		bMuted = false;
-		bAuthorised = false;
 		bRepaintChatbox = true;
 
 		for(ushort i=0; i<4; i++)
@@ -307,7 +322,6 @@ private:
 	CInput		cToggleTopBar;
 
 	bool		bMuted;
-	bool		bAuthorised;
 
 
     // Viewport manager
@@ -334,6 +348,7 @@ private:
 	float		fSendWait;
 	float		fLastUpdateSent;
 	std::string	szServerName;
+	ClientRights tRights;
 
 	// Ping
 	ping_t		tPing;
@@ -545,8 +560,7 @@ public:
 	bool		getMuted(void)				{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
 
-	bool		getAuthorised(void)			{ return bAuthorised; }
-	void		setAuthorised(bool _a)		{ bAuthorised = _a; }
+	ClientRights *getRights()				{ return &tRights; }
 
 	inline int	getPing(void)				{ return iPing; }
 	inline void	setPing(int Ping)			{ iPing = Ping; }
