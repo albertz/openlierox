@@ -545,7 +545,8 @@ public:
 	int			getMuted(void)				{ return iMuted; }
 	void		setMuted(int _m)			{ iMuted = _m; }
 
-	int			getAuthorised(int _a)			{ return iAuthorised&_a; }
+	// TODO: what does it stand for? why is it an integer?
+	int			getAuthorised(int _a)		{ return iAuthorised&_a; }
 	void		setAuthorised(int _a)		{ iAuthorised = _a; }
 
 	inline int	getPing(void)				{ return iPing; }

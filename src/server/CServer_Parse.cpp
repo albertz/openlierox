@@ -1303,6 +1303,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		// Make host authorised
 		if(!newcl->getWorm(0)->getID())
+			// TODO: true doesn't make sense for integer
 			newcl->setAuthorised(true);
 
 		// Client spawns when the game starts
