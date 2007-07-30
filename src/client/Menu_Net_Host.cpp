@@ -380,6 +380,7 @@ enum {
 	hl_ChatText,
 	hl_ChatList,
 	hl_LevelList,
+	hl_PlayerList,
 	hl_Lives,
 	hl_MaxKills,
 	hl_ModName,
@@ -398,7 +399,7 @@ bool		bServerSettings = false;
 CGuiLayout	cHostLobby;
 int			iSpeaking=-1;
 int         g_nLobbyWorm = -1;
-int			iHost_Recolorize = false;
+bool		bHost_Update = false;
 
 
 ///////////////////
@@ -449,20 +450,6 @@ int Menu_Net_HostLobbyInitialize(void)
 
 	cClient->getChatbox()->setWidth(590);
 
-	// Initialize the bots
-	/*cBots = new CClient[tGameInfo.iNumBots];
-	if (cBots)  {
-		for (int i=0; i<tGameInfo.iNumBots; i++) {
-			if (!cBots[i].Initialize(true,i))  {
-				cHostLobby.Shutdown();
-				return false;
-			}
-
-			// Connect the bot
-			cBots[i].Connect("127.0.0.1");
-		}
-	}*/
-
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();
 	gl->nSet = true;
@@ -498,7 +485,7 @@ void Menu_Net_HostLobbyDraw(void)
     DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clChatBoxBackground);
 
     // Player box
-    Menu_DrawBox(tMenu->bmpBuffer, 15, 29, 340, 235);
+    //Menu_DrawBox(tMenu->bmpBuffer, 15, 29, 340, 235);
 
 	Menu_RedrawMouse(true);
 }
@@ -507,9 +494,7 @@ void Menu_Net_HostLobbyDraw(void)
 ///////////////////
 // Create the lobby gui
 void Menu_Net_HostLobbyCreateGui(void)
-{
-    //Uint32 blue = MakeColour(0,138,251);
-
+{   
     // Lobby gui layout
 	cHostLobby.Shutdown();
 	cHostLobby.Initialize();
@@ -518,7 +503,6 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),hl_Start,	560, 450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);
 	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);
-	cHostLobby.Add( new CLabel("Players",tLX->clHeading),				  -1,		15,  15,  0,   0);
 	cHostLobby.Add( new CTextbox(),							  hl_ChatText, 15,  421, 610, tLX->cFont.GetHeight());
     cHostLobby.Add( new CListview(),                          hl_ChatList, 15,  268, 610, 150);
 
@@ -531,6 +515,8 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Add( new CCombobox(),				hl_Gametype,   440, 157, 170, 17);
     cHostLobby.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, 136, 0,   0);
     cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
+	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, MAX(0, 29 - tLX->cFont.GetHeight()), 325, 206 + tLX->cFont.GetHeight());
+	cHostLobby.Add( new CLabel("Players",tLX->clHeading),				  -1,		15,  15,  0,   0);
 
 	cHostLobby.SendMessage(hl_ChatText,TXM_SETMAX,64,0);
 
@@ -557,6 +543,20 @@ void Menu_Net_HostLobbyCreateGui(void)
     cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gl->szModName, 0);
     cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gl->szModDir, 0);
     cHostLobby.SendMessage(hl_Gametype,  CBM_SETCURINDEX, gl->nGameMode, 0);
+
+	// Setup the player list
+	CListview *player_list = (CListview *)cHostLobby.getWidget(hl_PlayerList);
+	if (player_list)  {
+		player_list->setShowSelect(false);
+		player_list->setOldStyle(true);
+		player_list->AddColumn("", gfxGUI.bmpCommandBtn->w / 2 + 2);  // Command button
+		player_list->AddColumn("", tMenu->bmpLobbyReady->w + 2);  // Lobby ready
+		player_list->AddColumn("", 30);  // Skin
+		player_list->AddColumn("", 205); // Name
+		player_list->AddColumn("", -1); // Ping
+	}
+
+	iSpeaking = 0; // The first client is always speaking
 }
 
 //////////////////////
@@ -835,7 +835,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			case hl_Gametype:
 				if(ev->iEventMsg == CMB_CHANGED) {
 					cServer->getLobby()->nGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
-					iHost_Recolorize = true;
+					bHost_Update = true;
 					cServer->UpdateGameLobby();
 				}
 				break;
@@ -960,6 +960,37 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				}
 				break;
 
+			// Player list
+			case hl_PlayerList:
+				if (ev->iEventMsg == LV_WIDGETEVENT)  {
+					ev = ((CListview *)ev->cWidget)->getWidgetEvent();
+
+					// Click on the command button
+					if (ev->iEventMsg == BTN_MOUSEUP)  {
+						// Remove old popup menu
+						cHostLobby.removeWidget(hl_PopupMenu);
+
+						g_nLobbyWorm = ev->cWidget->getID();  // Widget ID is the same as player ID
+						if (g_nLobbyWorm == 0) // Not for host
+							break;
+
+						CClient *remote_cl = cServer->getClient(g_nLobbyWorm);
+						mouse_t *Mouse = GetMouse();
+
+						cHostLobby.Add( new CMenu(Mouse->X, Mouse->Y), hl_PopupMenu, 0,0, 640,480 );
+						cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Kick player", 0 );
+						cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Ban player", 1 );
+						if (remote_cl)  {
+							if (remote_cl->getMuted())
+								cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Unmute player",2 );
+							else
+								cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Mute player",2 );
+						}
+						cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Authorise player", 3 );
+					}
+				}
+				break;
+
             // Popup menu
             case hl_PopupMenu:
                 switch( ev->iEventMsg ) {
@@ -1042,167 +1073,60 @@ void Menu_Net_HostLobbyShutdown(void)
 // Draw the host lobby screen
 void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 {
-	int		i,y,local;
-	mouse_t *Mouse = GetMouse();
+	CListview *player_list = (CListview *)cHostLobby.getWidget(hl_PlayerList);
+	if (!player_list)  // Weird, shouldn't happen
+		return;
 
-	// Draw the connected players
-	CWorm *w = cClient->getRemoteWorms();
-	game_lobby_t *gl = cClient->getGameLobby();
-	lobbyworm_t *l;
-	local = false;
-    y = 40;
-	bool bRecolorized = false;
-	for(i=0; i<MAX_PLAYERS; i++, w++) {
-        if( !w->isUsed() )
-            continue;
-
-		l = w->getLobby();
-
-		local = false;
-		if(w->isUsed())
-			local = w->getLocal();
-
-		if(local && iSpeaking == -1)
-			iSpeaking = i;
-
-		// Check for a click
-		if(Mouse->Up & SDL_BUTTON(1)) {
-			if(Mouse->Y > y && Mouse->Y < y+18) {
-
-				// Speech
-				/*if(Mouse->X > 20 && Mouse->X < 34) {
-					if(l->iType == LBY_USED &&
-					   local &&
-					   cClient->getNumWorms()>1 &&
-					   iSpeaking != i)
-					      iSpeaking = i;
-				}*/
-
-				// Name
-				if(Mouse->X > 77 && Mouse->X < 120) {
-
-					// Open/Closed
-					/*if(l->iType == LBY_OPEN)
-						l->iType = LBY_CLOSED;
-					else if(l->iType == LBY_CLOSED)
-						l->iType = LBY_OPEN;*/
-
-					// Name selection
-				}
-			}
+	// Update the pings first
+	CWorm *w = cClient->getRemoteWorms() + 1;
+	int i;
+	for (i=1; i < MAX_PLAYERS; i++, w++)  {  // Start from 1 (exclude host)
+		CClient *client = cServer->getClient(w->getID());
+		if (client)  {
+			lv_subitem_t *subit = player_list->getSubItem(i, 4);
+			if (subit)
+				subit->sText = itoa(client->getPing());
 		}
-
-        int x = 20;
-
-		switch(l->iType) {
-
-			// Open
-			case LBY_OPEN:
-				//tLX->cFont.Draw(bmpDest, 77, y, tLX->clNormalLabel,"%s", "------");
-
-                //DrawHLine(bmpDest, x, x+315, y+20, MakeColour(64,64,64));
-				break;
-
-			// Closed
-			case LBY_CLOSED:
-				//tLX->cFont.Draw(bmpDest, 77, y, tLX->clNormalLabel,"%s", "Closed");
-				break;
-
-			// Used
-			case LBY_USED:
-
-                //
-                // Draw the worm details
-                //
-
-                // Function button
-                bool down = false;
-                if( MouseInRect(x,y, 10,10) && Mouse->Down )
-                    down = true;
-                Menu_DrawWinButton(bmpDest, x,y, 10,10, down);
-
-                // Check if the function button was clicked
-                // Note: Function button only used on clients, not the host worm
-                if( MouseInRect(x,y,10,10) && Mouse->Up && i > 0 ) {
-                    g_nLobbyWorm = i;
-                    // Remove old popup menu
-                    cHostLobby.removeWidget(hl_PopupMenu);
-
-					CClient *remote_cl = cServer->getClient(i);
-
-                    cHostLobby.Add( new CMenu(Mouse->X, Mouse->Y), hl_PopupMenu, 0,0, 640,480 );
-                    cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Kick player", 0 );
-					cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Ban player", 1 );
-					if (remote_cl)  {
-						if (remote_cl->getMuted())
-							cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Unmute player",2 );
-						else
-							cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Mute player",2 );
-					}
-					cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Authorise player", 3 );
-
-                }
-
-                // Ready icon
-                if(l->iReady)
-					DrawImageAdv(bmpDest, tMenu->bmpLobbyState, 0,0, x+15,y-1,12,12);
-				else
-					DrawImageAdv(bmpDest, tMenu->bmpLobbyState, 0,12,x+15,y-1,12,12);
-
-                // Worm
-                DrawImage(bmpDest, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(bmpDest, x+55, y-2, tLX->clNormalLabel,w->getName());
-
-                // Team
-                CWorm *sv_w = cServer->getWorms() + i;
-                sv_w->getLobby()->iTeam = l->iTeam;
-                if( gl->nGameMode == GMT_TEAMDEATH ) {
-
-                    DrawImage(bmpDest, gfxGame.bmpTeamColours[l->iTeam], x+200, y-2);
-
-                    // Check if the team colour was clicked on
-                    if( MouseInRect(x+200, y-2, 18,16) && Mouse->Up ) {
-                        sv_w->getLobby()->iTeam = (l->iTeam+1) % 4;
-
-                        // Send the worm state updates
-                        cServer->SendWormLobbyUpdate();
-
-						iHost_Recolorize = true;
-                    }
-
-                    sv_w->setTeam(sv_w->getLobby()->iTeam);
-					w->setTeam(sv_w->getLobby()->iTeam);
-
-				}
-
-				// Colorize the worm
-				if (iHost_Recolorize)  {
-					w->LoadGraphics(gl->nGameMode);
-					bRecolorized = true;
-				}
-
-
-				// Ping
-				CClient *client = cServer->getClient(sv_w->getID());
-				if (client && sv_w->getID())  {
-					int png = client->getPing();
-					if (png > 99999 || png < 0)
-						png = 0;
-					tLX->cFont.Draw(bmpDest, x+280, y-2, tLX->clNormalLabel, itoa(png));
-				}
-
-				break;
-		}
-
-        // Dividing line
-        DrawHLine(bmpDest, x, x+315, y+20, tLX->clPlayerDividingLine);
-
-        y+=25;
 	}
 
-	if (bRecolorized)
-		iHost_Recolorize = false;
 
+	if (!bHost_Update)  // If no further update is needed, do not do it
+		return;
+
+	player_list->Clear();  // Clear any old info
+
+	lobbyworm_t *lobby_worm = NULL;
+	w = cClient->getRemoteWorms();
+	CButton *cmd_button = NULL;
+
+	for (i=0; i < MAX_PLAYERS; i++, w++)  {
+		if (!w->isUsed())  // Don't bother with unused worms
+			continue;
+
+		lobby_worm = w->getLobby();
+
+		// Create and setup the command button
+		cmd_button = new CButton(0, gfxGUI.bmpCommandBtn);
+		if (!cmd_button)
+			continue;
+		cmd_button->setType(BUT_TWOSTATES);
+		cmd_button->setRedrawMenu(false);
+		cmd_button->Setup(w->getID(), 0, 0, gfxGUI.bmpCommandBtn->w, gfxGUI.bmpCommandBtn->h);
+
+		// Add the item
+		player_list->AddItem(w->getName(), i, tLX->clNormalLabel); 
+		player_list->AddSubitem(LVS_WIDGET, "", NULL, cmd_button);  // Command button
+		if (lobby_worm->iReady)  // Ready control
+			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
+		else
+			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
+		player_list->AddSubitem(LVS_IMAGE, "", w->getPicimg(), NULL);  // Skin
+		player_list->AddSubitem(LVS_TEXT, w->getName(), NULL, NULL);  // Name
+		player_list->AddSubitem(LVS_TEXT, "", NULL, NULL); // Ping
+	}
+
+	// Updated :)
+	bHost_Update = false;
 }
 
 

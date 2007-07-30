@@ -504,9 +504,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			case LBY_USED:
 				// Ready icon
                 if(l->iReady)
-					DrawImageAdv(tMenu->bmpScreen, tMenu->bmpLobbyState, 0,0, x+15,y-1,12,12);
+					DrawImageAdv(tMenu->bmpScreen, tMenu->bmpLobbyReady, 0,0, x+15,y-1,12,12);
 				else
-					DrawImageAdv(tMenu->bmpScreen, tMenu->bmpLobbyState, 0,12,x+15,y-1,12,12);
+					DrawImageAdv(tMenu->bmpScreen, tMenu->bmpLobbyNotReady, 0,0,x+15,y-1,12,12);
 
                 // Worm
                 DrawImage(tMenu->bmpScreen, w->getPicimg(), x+30, y-2);

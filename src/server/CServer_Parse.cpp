@@ -573,8 +573,9 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	if (buf == "")  // Ignore empty messages
 		return;
 
-
-	std::string command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
+	std::string command_buf = buf;
+	if (buf.size() > cl->getWorm(0)->getName().size() + 2)
+		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
 	// Check for special commands
 	std::string::iterator it = command_buf.begin();
@@ -617,10 +618,6 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 			// Skip to next argument
 			cur_arg++;
-
-			// Only authorised users are allowed to change other player's info
-			if (!cl->getRights()->NameChange)
-				id = cl->getWorm(0)->getID();
 		}
 		worm += id;
 
@@ -633,7 +630,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 		// Kick a worm out of the server
 		if(!stringcasecmp(cmd, "/kick") && cl->getRights()->Kick) {
-			if(cl->getWorm(0)->getID() == id)
+			if(cl->getWorm(0)->getID() == id && cur_arg != arguments.end())
 				kickWorm(*cur_arg);
 			else 
 				kickWorm(id);
@@ -1309,8 +1306,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		if (tGameInfo.iGameType != GME_LOCAL)
 			SendWormLobbyUpdate();
 
-		// Recolorize the nicks in lobby
-		iHost_Recolorize = true;
+		// Update players listbox
+		bHost_Update = true;
 
 		// Make host authorised
 		if(newcl->getWorm(0)->getID() == 0)  // ID 0 = host

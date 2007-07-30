@@ -136,6 +136,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	cNetChan.Create(&addr,0,tSocket);
 
 	iJoin_Recolorize = true;
+	bHost_Update = true;
 }
 
 //////////////////
@@ -575,6 +576,12 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	int x = bs->readInt(2);
 	int y = bs->readInt(2);
 
+	// Check
+	if (iNetStatus != NET_PLAYING)  {
+		printf("CClient::ParseSpawnWorm: Cannot spawn when not playing (packet ignored)\n");
+		return;
+	}
+
 	// Is the spawnpoint in the map?
 	if (x > (int)cMap->GetWidth() || x < 0)  {
 		printf("CClient::ParseSpawnWorm: X-coordinate not in map ("+itoa(x)+")\n");
@@ -628,6 +635,8 @@ void CClient::ParseWormInfo(CBytestream *bs)
 	cRemoteWorms[id].setupLobby();
 
 	UpdateScoreboard();
+
+	bHost_Update = true;
 }
 
 
@@ -731,6 +740,8 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 		CWorm::skipScore(bs);
 	
 	UpdateScoreboard();
+
+	bHost_Update = true;
 }
 
 
@@ -764,6 +775,12 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 	int id = bs->readByte();
 	int x = bs->readInt(2);
 	int y = bs->readInt(2);
+
+	// Check
+	if (iNetStatus != NET_PLAYING)  {
+		printf("CClient::ParseSpawnBonus: Cannot spawn bonus when not playing (packet ignored)\n");
+		return;
+	}
 
 	if (id < 0 || id >= MAX_BONUSES)  {
 		printf("CClient::ParseSpawnBonus: invalid bonus ID ("+itoa(id)+")\n");
@@ -910,8 +927,9 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
         }
 	}
 
-	// Recolorize the skins
+	// Update lobby
 	iJoin_Recolorize = true;
+	bHost_Update = true;
 
 	// Log the conversation
 	if (tLXOptions->iLogConvos)  {
@@ -976,6 +994,8 @@ void CClient::ParseClientLeft(CBytestream *bs)
 		}
 	}
 
+	bHost_Update = true;
+
 	UpdateScoreboard();
 }
 
@@ -1019,6 +1039,7 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 	}
 
 	iJoin_Recolorize = true;
+	bHost_Update = true;
 }
 
 
@@ -1085,6 +1106,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
         fclose(fp);
 
 	iJoin_Recolorize = true;
+	bHost_Update = true;
 
 }
 
@@ -1221,6 +1243,11 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 void CClient::ParseDestroyBonus(CBytestream *bs)
 {
 	byte id = bs->readByte();
+
+	if (iNetStatus != NET_PLAYING)  {
+		printf("CClient::ParseDestroyBonus: Ignoring, the game is not running.\n");
+		return;
+	}
 
 	if( id < MAX_BONUSES )
 		cBonuses[id].setUsed(false);

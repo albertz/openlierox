@@ -225,7 +225,8 @@ class menu_t { public:
 
 	SDL_Surface		*bmpMainLocal;
 	SDL_Surface		*bmpMainNet;
-	SDL_Surface		*bmpLobbyState;
+	SDL_Surface		*bmpLobbyReady;
+	SDL_Surface		*bmpLobbyNotReady;
 	SDL_Surface		*bmpHost;
 	SDL_Surface		*bmpConnectionSpeeds[4];
 	SDL_Surface		*bmpSpeech;
@@ -318,7 +319,7 @@ extern	int			iNetMode;
 extern	int			iJoinMenu;
 extern	int			iHostType;
 extern	int			iSkipStart;
-extern  int			iHost_Recolorize;
+extern  bool		bHost_Update;
 extern	int			iJoin_Recolorize;
 extern  CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 extern	CCssParser	cWidgetStyles;

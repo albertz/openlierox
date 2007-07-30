@@ -27,59 +27,70 @@ enum {
 	BTN_MOUSEOVER
 };
 
+// Button types
+enum {
+	BUT_MENU,  // Used for menu buttons
+	BUT_TWOSTATES, // A button with two states (up/down)
+	BUT_THREESTATES // A button with three states (up/over/down)
+};
+
 
 class CButton : public CWidget {
 public:
 	// Constructor
 	CButton() {
-		iMouseOver = false;
+		bMouseOver = false;
+		bMouseDown = false;
 		iType = wid_Button;
         iGoodWidth = 250;
 		bRedrawMenu = true;
-		bFreeSurface = false;
+		iType = BUT_MENU;
 	}
 
 	CButton(int imgid, SDL_Surface *image) {
 		iImageID = imgid;
 		bmpImage = image;
-		iMouseOver = false;
+		bMouseOver = false;
+		bMouseDown = false;
 		bRedrawMenu = true;
 		iType = wid_Button;
         iGoodWidth = 250;
-		bFreeSurface = false;
+		iType = BUT_MENU;
 	}
 
 	CButton(const std::string& path) {
 		iImageID = 0;
 		bmpImage = LoadImage(path);
-		iMouseOver = false;
+		bMouseOver = false;
+		bMouseDown = false;
 		bRedrawMenu = true;
 		iType = wid_Button;
         iGoodWidth = 250;
-		bFreeSurface = true;
+		iType = BUT_TWOSTATES;
 	}
 
 
 private:
 	// Attributes
 
-	int			iMouseOver;
+	bool		bMouseOver;
+	bool		bMouseDown;
 	SDL_Surface	*bmpImage;
 	int			iImageID;
     int         iGoodWidth;
-	bool		bFreeSurface;
+	int			iType;
 	bool		bRedrawMenu;
 
 public:
 	// Methods
 
 	void	Create(void);
-	void	Destroy(void) { if(bFreeSurface && bmpImage) SDL_FreeSurface(bmpImage); }
+	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1
-	int		MouseOver(mouse_t *tMouse)			{ iMouseOver=true; SetGameCursor(CURSOR_HAND); return BTN_MOUSEOVER; }
-	int		MouseUp(mouse_t *tMouse, int nDown)		{ return BTN_MOUSEUP; }
-	int		MouseDown(mouse_t *tMouse, int nDown)	{ iMouseOver=true; SetGameCursor(CURSOR_HAND); return BTN_NONE; }
+	int		MouseOver(mouse_t *tMouse)			{ bMouseOver = true; SetGameCursor(CURSOR_HAND); return BTN_MOUSEOVER; }
+	int		MouseUp(mouse_t *tMouse, int nDown)		{ bMouseOver = true; bMouseDown = false; SetGameCursor(CURSOR_HAND); return BTN_MOUSEUP; }
+	int		MouseDown(mouse_t *tMouse, int nDown)	{ bMouseOver = true; bMouseDown = true; SetGameCursor(CURSOR_HAND); return BTN_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return BTN_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return BTN_NONE; }
 	int		KeyDown(UnicodeChar c)						{ return BTN_NONE; }
@@ -98,6 +109,8 @@ public:
 
 	void	LoadStyle(void) {}
 
+	int		getType()  { return iType; }
+	void	setType(int _t)  { iType = _t; }
 
 
 };

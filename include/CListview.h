@@ -245,6 +245,7 @@ public:
 	lv_item_t	*getLastItem(void)	{ return tLastItem; }
 	lv_item_t* getItem(int index);
 	lv_item_t* getItem(const std::string& name);
+	lv_subitem_t *getSubItem(int item_index, int subitem_index);
 
 	int		getClickedSub(void)		{ return iClickedSub; }
 	gui_event_t *getWidgetEvent()	{ return &tLastWidgetEvent; }

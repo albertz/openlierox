@@ -46,7 +46,7 @@ int Menu_Initialize(bool *game)
 	bGame = game;
 	*bGame = false;
 	iJoin_Recolorize = true;
-	iHost_Recolorize = true;
+	bHost_Update = true;
 
 	// Load the CSS of all widgets
 	cWidgetStyles.Clear();
@@ -96,6 +96,7 @@ int Menu_Initialize(bool *game)
 		return false;
     }
 
+	SDL_Surface *lobby_state = NULL;
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpMainTitles,"data/frontend/maintitles.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpLieroXtreme,"data/frontend/lierox.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpSubTitles,"data/frontend/subtitles.png");
@@ -104,13 +105,28 @@ int Menu_Initialize(bool *game)
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpCheckbox,"data/frontend/checkbox.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpInputbox,"data/frontend/inputbox.png");
 	//LOAD_IMAGE_WITHALPHA(tMenu->bmpAI,"data/frontend/cpu.png");
-	LOAD_IMAGE_WITHALPHA(tMenu->bmpLobbyState, "data/frontend/lobbyready.png");;
+	LOAD_IMAGE_WITHALPHA(lobby_state, "data/frontend/lobbyready.png");;
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[0], "data/frontend/con_good.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[1], "data/frontend/con_average.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[2], "data/frontend/con_bad.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpConnectionSpeeds[3], "data/frontend/con_none.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
+
+	// Split up the lobby ready image
+	tMenu->bmpLobbyReady = gfxCreateSurfaceAlpha(lobby_state->w, 12);
+	if (!tMenu->bmpLobbyReady)  {
+		printf("Out of memory while creating tMenu->bmpLobbyReady\n");
+		return false;
+	}
+	CopySurface(tMenu->bmpLobbyReady, lobby_state, 0, 0, 0, 0, lobby_state->w, 12);
+
+	tMenu->bmpLobbyNotReady = gfxCreateSurfaceAlpha(lobby_state->w, 12);
+	if (!tMenu->bmpLobbyNotReady)  {
+		printf("Out of memory while creating tMenu->bmpLobbyNotReady\n");
+		return false;
+	}
+	CopySurface(tMenu->bmpLobbyNotReady, lobby_state, 0, 12, 0, 0, lobby_state->w, 12);
 
 
     tMenu->bmpWorm = NULL;
@@ -202,6 +218,12 @@ void Menu_Shutdown(void)
 
         if(tMenu->bmpMiniMapBuffer)
 			SDL_FreeSurface(tMenu->bmpMiniMapBuffer);
+
+		if(tMenu->bmpLobbyReady)
+			SDL_FreeSurface(tMenu->bmpLobbyReady);
+
+		if(tMenu->bmpLobbyNotReady)
+			SDL_FreeSurface(tMenu->bmpLobbyNotReady);
 
 		if(IsSocketStateValid(tMenu->tSocket[SCK_LAN]))
 			CloseSocket(tMenu->tSocket[SCK_LAN]);

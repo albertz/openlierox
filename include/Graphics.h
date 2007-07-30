@@ -22,6 +22,7 @@
 class gfxgui_t { public:
 	SDL_Surface		*bmpScrollbar;
 	SDL_Surface		*bmpSliderBut;
+	SDL_Surface		*bmpCommandBtn;
 };
 
 

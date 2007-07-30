@@ -23,24 +23,36 @@
 // Draw the button
 void CButton::Draw(SDL_Surface *bmpDest)
 {
-	// If we shouldn't redraw the menu, call the other Draw
-	if (!bRedrawMenu)  {
-		Draw2(bmpDest);
-		return;
-	}
-
 	// Don't draw empty image
 	if (!bmpImage)
 		return;
 
-	int y2 = 5+iImageID*40;
-    if(iMouseOver)
-	    y2+=20;
+	if (iType == BUT_MENU)  {
+		if (bRedrawMenu)
+			Menu_redrawBufferRect(iX,iY, iGoodWidth, 18);
 
-    Menu_redrawBufferRect(iX,iY, iGoodWidth,18);
+		int y2 = 5+iImageID*40;
+		if(bMouseOver)
+			y2+=20;
 
-	DrawImageAdv(bmpDest,bmpImage, 5,y2, iX,iY, iGoodWidth, 18);
-    iMouseOver = false;	
+		DrawImageAdv(bmpDest,bmpImage, 5,y2, iX,iY, iGoodWidth, 18);
+		bMouseOver = false;	
+	} else { // Two state and three state buttons
+		if (bRedrawMenu)
+			Menu_redrawBufferRect(iX,iY, iGoodWidth, bmpImage->h);
+
+		int numstates = iType == BUT_TWOSTATES ? 2: 3;
+
+		int x2 = 0;
+		if (bMouseOver)
+			x2 = (numstates - 2) * bmpImage->w / numstates;
+		if (bMouseDown)
+			x2 = (numstates - 1) * bmpImage->w / numstates;
+
+		DrawImageAdv(bmpDest, bmpImage, x2, 0, iX, iY, bmpImage->w / numstates, bmpImage->h);
+
+		bMouseOver = false;
+	}
 }
 
 
@@ -53,11 +65,11 @@ void CButton::Draw2(SDL_Surface *bmpDest)
 		return;
 
 	int y2 = 5+iImageID*40;
-    if(iMouseOver)
+    if(bMouseOver)
 	    y2+=20;
 
 	DrawImageAdv(bmpDest,bmpImage, 5,y2, iX,iY, iGoodWidth, 18);
-    iMouseOver = false;	
+    bMouseOver = false;	
 }
 
 

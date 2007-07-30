@@ -32,6 +32,7 @@ bool LoadGraphics(void)
 
 	LOAD_IMAGE(gfxGUI.bmpScrollbar,"data/frontend/scrollbar.png");
 	LOAD_IMAGE(gfxGUI.bmpSliderBut,"data/frontend/sliderbut.png");
+	LOAD_IMAGE_WITHALPHA(gfxGUI.bmpCommandBtn,"data/frontend/commandbtn.png");
 
 	LOAD_IMAGE(gfxGame.bmpCrosshair,"data/gfx/crosshair.bmp");
 	LOAD_IMAGE(gfxGame.bmpMuzzle,"data/gfx/muzzle.bmp");
