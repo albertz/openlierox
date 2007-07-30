@@ -636,19 +636,19 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 		// Change the color
 		if(!stringcasecmp(cmd, "/setcolour")) {
-			// TODO: This wont work because color got overriden
-			// by profile-color.
-			// some possibilities:
-			// 1. create a new color-variable which will be used over profile and if game is not teamdeathmatch
-			// 2. override profile-color with this
-			// 3. don't change color in CWorm::LoadGraphics but at the point where the gametype is defined
-
+			// Fixed: The profile graphics are only loaded once
 			Uint8 r, g, b;
 			r = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
 			g = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
 			b = (Uint8) atoi(*cur_arg);
 
 			worm->setColour(r, g, b);
+			UpdateWorms();
+		}
+
+		// Change the skin
+		if(!stringcasecmp(cmd, "/setskin")) {
+			worm->setSkin(*cur_arg);
 			UpdateWorms();
 		}
 
@@ -930,8 +930,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
-//	if (iState != SVS_LOBBY)  {
-	if (iState == SVS_PLAYING) {
+	if (iState != SVS_LOBBY)  {
+//	if (iState == SVS_PLAYING) {
 		printf("GameServer::ParseConnect: In game, ignoring.");
 		return;
 	}
@@ -1265,9 +1265,6 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 
 		// Client spawns when the game starts
-
-		// If ingame then send the command to goto the weapon selection screen
-		// It's being worked on right now
 	}
 }
 

@@ -198,6 +198,7 @@ public:
 		fSendWait = 0;
 
 		iMuted = false;
+		iAuthorised = false;
 		bRepaintChatbox = true;
 
 		for(ushort i=0; i<4; i++)
@@ -306,6 +307,7 @@ private:
 	CInput		cToggleTopBar;
 
 	int			iMuted;
+	int			iAuthorised;
 
 
     // Viewport manager
@@ -542,6 +544,9 @@ public:
 
 	int			getMuted(void)				{ return iMuted; }
 	void		setMuted(int _m)			{ iMuted = _m; }
+
+	int			getAuthorised(void)			{ return iAuthorised; }
+	void		setAuthorised(int _a)		{ iAuthorised = _a; }
 
 	inline int	getPing(void)				{ return iPing; }
 	inline void	setPing(int Ping)			{ iPing = Ping; }
