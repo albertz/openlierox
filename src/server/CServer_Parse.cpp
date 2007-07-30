@@ -1162,6 +1162,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		newcl->setStatus(NET_CONNECTED);
 
+		newcl->getRights()->Nothing();  // Reset the rights here
+
 		// Set the worm info
 		newcl->setNumWorms(numworms);
 		//newcl->SetupWorms(numworms, worms);
