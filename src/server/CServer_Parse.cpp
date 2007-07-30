@@ -617,23 +617,35 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			cur_arg++;
 
 			// Only authorised users are allowed to change other player's info
-			if (!cl->getAuthorised(0xffffffff))
+			if (!cl->getAuthorised(HOST_ALL))
 				id = cl->getWorm(0)->getID();
 		}
 		worm += id;
 
 		// Authorise a user
-		if(!stringcasecmp(cmd, "/authorise") && cl->getAuthorised(0xffffffff)) {
+		if(!stringcasecmp(cmd, "/authorise") && cl->getAuthorised(HOST_AUTHORISE)) {
 			CClient *remote_cl = cServer->getClient(id);
-			remote_cl->setAuthorised(true);
+			remote_cl->setAuthorised(HOST_ALL);
 		}
 
 		// Kick a worm out of the server
-		if(!stringcasecmp(cmd, "/kick") && cl->getAuthorised(0xffffffff)) {
+		if(!stringcasecmp(cmd, "/kick") && cl->getAuthorised(HOST_KICK)) {
 			if(cl->getWorm(0)->getID() == id)
 				kickWorm(*cur_arg);
 			else 
 				kickWorm(id);
+		}
+
+		// Private chat to all team members
+		if(!stringcasecmp(cmd, "/teamchat")) {
+			if(cur_arg == arguments.end())
+				return;
+			for(int i=0;i<MAX_WORMS;i++) {
+				if(!cWorms[i].isUsed())
+					continue;
+				if(cWorms[i].getTeam() == worm->getTeam())
+					SendText(cServer->getClient(i),*cur_arg,TXT_CHAT);
+			}
 		}
 
 		// Change the name
@@ -1282,7 +1294,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		// Make host authorised
 		if(!newcl->getWorm(0)->getID())
-			newcl->setAuthorised(true);
+			newcl->setAuthorised(HOST_ALL);
 
 		// Client spawns when the game starts
 	}

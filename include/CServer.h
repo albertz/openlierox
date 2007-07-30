@@ -221,6 +221,7 @@ public:
 
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs);
+	void		SendText(CClient *cl, const std::string& text, int type);
 	void		SendGlobalText(const std::string& text, int type);
 	void		SendDisconnect(void);
     void        SendWormLobbyUpdate(void);

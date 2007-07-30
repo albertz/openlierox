@@ -58,6 +58,18 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 }
 
 
+///////////////////
+// Send a client a string of text
+void GameServer::SendText(CClient *cl, const std::string& text, int type) {
+	static CBytestream bs;
+	bs.Clear();
+
+	bs.writeByte(S2C_TEXT);
+	bs.writeInt(type,1);
+	bs.writeString(text);
+
+	cl->getChannel()->getMessageBS()->Append(&bs);
+}
 
 ///////////////////
 // Update all the client about the playing worms
