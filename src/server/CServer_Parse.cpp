@@ -13,7 +13,6 @@
 // Created 1/7/02
 // Jason Boettcher
 
-
 #include "LieroX.h"
 #include "Menu.h"
 #include "CServer.h"
@@ -22,6 +21,7 @@
 #include "StringUtils.h"
 #include "CWorm.h"
 #include "Protocol.h"
+#include "RemoteHost.h"
 
 
 /*

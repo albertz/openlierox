@@ -1,3 +1,12 @@
+/*
+	OpenLieroX
+
+	code under LGPL
+
+	created on 30-07-2007
+	by Martin Griffin, Dark Charlie and Albert Zeyer
+*/
+
 #ifndef __REMOTEHOST_H__
 #define __REMOTEHOST_H__
 

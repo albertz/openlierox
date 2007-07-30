@@ -23,7 +23,6 @@
 #include "CBonus.h"
 #include "CClient.h"
 #include "CBytestream.h"
-#include "RemoteHost.h"
 
 
 #define		MAX_CHALLENGES		1024
