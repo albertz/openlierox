@@ -38,6 +38,7 @@ void CWorm::Clear(void)
 	iClientID = 0;
 	iClientWormID = 0;
     szSkin = "";
+	iColourset=0;
     
 	iKills = 0;
 	iDeaths = 0;
@@ -297,6 +298,10 @@ int CWorm::LoadGraphics(int gametype)
         b = tProfile->B;
         szSkin = tProfile->szSkin;
     }
+
+	// iColourset overrides profile colours, allows use of /setcolour
+	if(iColourset)
+		iColour=iColourset;
 
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH) {

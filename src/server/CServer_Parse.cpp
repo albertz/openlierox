@@ -338,7 +338,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 	if (killer != victim)  {
 		// Don't add a kill for teamkilling
-		if(iGameType == GMT_TEAMDEATH && vict->getTeam() == kill->getTeam() && killer != victim) {
+		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH ) {
 			kill->addKillInRow();
 			kill->AddKill();
 			if (log_kill)
