@@ -199,15 +199,15 @@ void Menu_MainFrame(void)
 
 	static const std::string credits1 = "  " + GetGameName() + " v" + LX_VERSION;
 
-	static const std::string credits2 = std::string("- Original code by Jason Boettcher\n") +
-										std::string("- Ported and enhanced by\n") +
-										std::string("  Karel Petránek and Albert Zeyer\n") +
-										std::string("- Supported by the [RIP] clan\n") +
-										//std::string("- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
-										std::string("- Enhanced by Martin Griffin\n") + 
-										std::string("- Design by Michal Futer\n" + 
-										tMenu->tFrontendInfo.sFrontendCredits
-										);
+	static const std::string credits2 = std::string(
+		"- Original code by Jason Boettcher\n"
+		"- Ported and enhanced by\n"
+		"  Karel Petránek and Albert Zeyer\n"
+		"- Supported by the [RIP] clan\n"
+		//"- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
+		"- Enhanced by Martin Griffin\n"
+		"- Design by Michal Futer\n")
+		+ tMenu->tFrontendInfo.sFrontendCredits;
 
 
 	//

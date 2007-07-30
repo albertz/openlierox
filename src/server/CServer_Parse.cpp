@@ -568,133 +568,6 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 ///////////////////
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
-<<<<<<< .mine
-	std::string buf = bs->readString(256);
-
-	if (buf == "")  // Ignore empty messages
-		return;
-
-
-	std::string command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
-
-	// Check for special commands
-	std::string::iterator it = command_buf.begin();
-	CWorm	*worm = cWorms;
-
-	if (*it == '/') {
-		std::string cmd = ReadUntil(command_buf, ' '); // Get the command
-		it += cmd.size();  // Skip the command
-
-		// Get the arguments
-		std::vector<std::string> arguments;
-		std::vector<std::string>::iterator cur_arg;
-		std::string current_argument = "";
-		while (it != command_buf.end())  { // it++ - skip the space
-			if (*it == '\"')
-				current_argument = ReadUntil(std::string(++it, command_buf.end()), '\"'); // TODO: doesn't support " inside arguments
-			else if (*it == ' ')  {
-				it++;
-				continue;
-			}
-			else
-				current_argument = ReadUntil(std::string(it, command_buf.end()), ' ');
-
-			it += current_argument.size();
-			arguments.push_back(current_argument);
-		}
-
-		if (arguments.empty())
-			return;
-
-		// Process the arguments and command
-		cur_arg = arguments.begin();
-
-		// Set pointer to the worm to affect, depending on if the command is ID or normal
-		int id = cl->getWorm(0)->getID();
-		if(!stringcasecmp(*cur_arg, "id")) {
-			cur_arg++;
-
-			id = atoi(*cur_arg);
-
-			// Skip to next argument
-			cur_arg++;
-
-			// Only authorised users are allowed to change other player's info
-			if (!cl->getAuthorised(0xffffffff))
-				id = cl->getWorm(0)->getID();
-		}
-		worm += id;
-
-		// Authorise a user
-		if(!stringcasecmp(cmd, "/authorise") && cl->getAuthorised(0xffffffff)) {
-			CClient *remote_cl = cServer->getClient(id);
-			remote_cl->setAuthorised(true);
-		}
-
-		// Kick a worm out of the server
-		if(!stringcasecmp(cmd, "/kick") && cl->getAuthorised(0xffffffff)) {
-			if(cl->getWorm(0)->getID() == id)
-				kickWorm(*cur_arg);
-			else 
-				kickWorm(id);
-		}
-
-		// Change the name
-		if(!stringcasecmp(cmd, "/setname")) {
-			if(cur_arg == arguments.end())
-				return;
-			std::string name = RemoveSpecialChars(*cur_arg);
-			worm->setName(name.substr(0, MIN(32, name.size())));
-			UpdateWorms();
-		}
-
-		// Change the color
-		if(!stringcasecmp(cmd, "/setcolour")) {
-			// Fixed: The profile graphics are only loaded once
-			if(cur_arg == arguments.end())
-				return;
-			Uint8 r, g, b;
-			r = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
-			g = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
-			b = (Uint8) atoi(*cur_arg);
-
-			worm->setColour(r, g, b);
-			worm->DeactivateProfileGraphicsOnce();
-			UpdateWorms();
-		}
-
-		// Change the skin
-		if(!stringcasecmp(cmd, "/setskin")) {
-			if(cur_arg == arguments.end())
-				return;
-			worm->setSkin(*cur_arg);
-			worm->DeactivateProfileGraphicsOnce();
-			UpdateWorms();
-		}
-
-		// Commit suicide
-		if(!stringcasecmp(cmd, "/suicide")) {
-			if(cur_arg == arguments.end())
-				return;
-			// Make sure the client suicides themselves
-			worm=cl->getWorm(0);
-			int lives = MAX(atoi(*cur_arg),1);
-			lives = MIN(lives, worm->getLives()+1);
-			for(int i=0;i<lives;i++)
-				cClient->SendDeath(worm->getID(),worm->getID());
-		}
-
-		return;
-	}
-
-	// Check for Clx (a cheating version of lx)
-	// TODO: Make olx not crash when a clx message is recieved
-/*	if(clxcheck[0] == 0x04) {
-		SendGlobalText(cl->getWorm(0)->getName() + " seems to have CLX or some other hack", TXT_NORMAL);
-		kickWorm(cl->getWorm(0)->getID());
-		return;
-	}
-=======
 	std::string buf = bs->readString(256);
 
 	if (buf == "")  // Ignore empty messages
@@ -797,6 +670,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			b = (Uint8) atoi(*cur_arg);
 
 			worm->setColour(r, g, b);
+			worm->DeactivateProfileGraphicsOnce();
 			UpdateWorms();
 		}
 
@@ -805,6 +679,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			if(cur_arg == arguments.end())
 				return;
 			worm->setSkin(*cur_arg);
+			worm->DeactivateProfileGraphicsOnce();
 			UpdateWorms();
 		}
 
@@ -830,7 +705,6 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 		kickWorm(cl->getWorm(0)->getID());
 		return;
 	}
->>>>>>> .r840
 */
 
 	// Don't send text from muted players
