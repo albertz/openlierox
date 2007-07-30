@@ -619,19 +619,19 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			cur_arg++;
 
 			// Only authorised users are allowed to change other player's info
-			if (!cl->getAuthorised(HOST_ALL))
+			if (!cl->getAuthorised())
 				id = cl->getWorm(0)->getID();
 		}
 		worm += id;
 
 		// Authorise a user
-		if(!stringcasecmp(cmd, "/authorise") && cl->getAuthorised(HOST_AUTHORISE)) {
+		if(!stringcasecmp(cmd, "/authorise") && cl->getAuthorised()) {
 			CClient *remote_cl = cServer->getClient(id);
-			remote_cl->setAuthorised(HOST_ALL);
+			remote_cl->setAuthorised(true);
 		}
 
 		// Kick a worm out of the server
-		if(!stringcasecmp(cmd, "/kick") && cl->getAuthorised(HOST_KICK)) {
+		if(!stringcasecmp(cmd, "/kick") && cl->getAuthorised()) {
 			if(cl->getWorm(0)->getID() == id)
 				kickWorm(*cur_arg);
 			else 
