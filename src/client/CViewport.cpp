@@ -120,9 +120,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
-				WorldX = (int)(pcTargetWorm->getPos().x-hx);
-				WorldY = (int)(pcTargetWorm->getPos().y-hy);
-										
+					WorldX = (int)(pcTargetWorm->getPos().x-hx);
+					WorldY = (int)(pcTargetWorm->getPos().y-hy);									
 
                 // Clear the timer
                 fTimer = -1;
@@ -170,7 +169,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         // Follow the worm
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
-	            WorldX = (int)(pcTargetWorm->getPos().x-hx);
+				WorldX = (int)(pcTargetWorm->getPos().x-hx);
 				WorldY = (int)(pcTargetWorm->getPos().y-hy);
 
                 // Clear the timer

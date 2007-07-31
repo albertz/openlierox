@@ -644,7 +644,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 				if(!cWorms[i].isUsed())
 					continue;
 				if(cWorms[i].getTeam() == worm->getTeam())
-					SendText(cServer->getClient(i),*cur_arg,TXT_CHAT);
+					SendText(cServer->getClient(i),worm->getName()+": "+*cur_arg,TXT_CHAT);
 			}
 		}
 
@@ -662,7 +662,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 		}
 
 		// Change the color
-		if(!stringcasecmp(cmd, "/setcolour")) {
+		if(!stringcasecmp(cmd, "/setcolour") || !stringcasecmp(cmd, "/setcolor")) {
 			// Changing others color can only authorized users
 			if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)
 				return;

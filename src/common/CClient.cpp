@@ -514,7 +514,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 		cViewports[0].setUsed(true);
 	}
 
-	// Two worms
+	// Two wormsize
 	else  {
         cViewports[0].Setup(0, top, 318, h, type1);
         cViewports[0].setTarget(w1);

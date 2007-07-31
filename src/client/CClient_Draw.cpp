@@ -1611,10 +1611,11 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
                 }
 
                 // Re-setup the viewports
-                if( !b_on || iNumWorms <= 1 ) {
+				// FIXED: Only one viewport was available in net play
+                if( !b_on /*|| iNumWorms <= 1*/ ) {
                     SetupViewports(cLocalWorms[0], NULL, a_type, VW_FOLLOW);
                 } else {
-                    SetupViewports(cLocalWorms[0], cLocalWorms[1], a_type, b_type);
+                    SetupViewports(cLocalWorms[0], cLocalWorms[0], a_type, b_type);
                 }
 
 				// Set the worms to follow
@@ -1624,8 +1625,8 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
 						cViewports[0].setTarget(trg_v1);
 
 				CWorm *trg_v2 = &cRemoteWorms[v2_target];
-				if (trg_v2)
-					if (trg_v2->isUsed() && trg_v2->getAlive())
+				if (trg_v2) 
+					if (trg_v2->isUsed() && trg_v2->getAlive()) 
 						cViewports[1].setTarget(trg_v2);
 
                 // Shutdown & leave

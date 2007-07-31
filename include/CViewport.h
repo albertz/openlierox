@@ -86,8 +86,6 @@ private:
     CInput  cUp, cRight, cDown, cLeft;
 
 
-
-
 public:
 	// Methods
 
@@ -138,8 +136,6 @@ public:
 	void	setType(int _t)		{ nType = _t; }
 
     void    setID(int id)       { nID = id; }
-	
-
 
 };
 
