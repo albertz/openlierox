@@ -397,7 +397,7 @@ bool		bHostWeaponRest = false;
 bool		bBanList = false;
 bool		bServerSettings = false;
 CGuiLayout	cHostLobby;
-int			iSpeaking=-1;
+int			iSpeaking = 0;
 int         g_nLobbyWorm = -1;
 bool		bHost_Update = false;
 
@@ -515,8 +515,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Add( new CCombobox(),				hl_Gametype,   440, 157, 170, 17);
     cHostLobby.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, 136, 0,   0);
     cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
-	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, MAX(0, 29 - tLX->cFont.GetHeight()), 325, 206 + tLX->cFont.GetHeight());
-	cHostLobby.Add( new CLabel("Players",tLX->clHeading),				  -1,		15,  15,  0,   0);
+	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, 15, 325, 220);
 
 	cHostLobby.SendMessage(hl_ChatText,TXM_SETMAX,64,0);
 
@@ -549,14 +548,15 @@ void Menu_Net_HostLobbyCreateGui(void)
 	if (player_list)  {
 		player_list->setShowSelect(false);
 		player_list->setOldStyle(true);
-		player_list->AddColumn("", gfxGUI.bmpCommandBtn->w / 2 + 2);  // Command button
+		player_list->AddColumn("Players", gfxGUI.bmpCommandBtn->w / 2 + 2, tLX->clHeading);  // Command button/Player label
 		player_list->AddColumn("", tMenu->bmpLobbyReady->w + 2);  // Lobby ready
 		player_list->AddColumn("", 30);  // Skin
-		player_list->AddColumn("", 205); // Name
+		player_list->AddColumn("", 200 - gfxGame.bmpTeamColours[0]->w); // Name
+		player_list->AddColumn("", gfxGame.bmpTeamColours[0]->w + 10);  // Team
 		player_list->AddColumn("", -1); // Ping
 	}
 
-	iSpeaking = 0; // The first client is always speaking
+	iSpeaking = 0; // The first player always speaks
 }
 
 //////////////////////
@@ -966,7 +966,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					ev = ((CListview *)ev->cWidget)->getWidgetEvent();
 
 					// Click on the command button
-					if (ev->iEventMsg == BTN_MOUSEUP)  {
+					if (ev->cWidget->getType() == wid_Button && ev->iEventMsg == BTN_MOUSEUP)  {
 						// Remove old popup menu
 						cHostLobby.removeWidget(hl_PopupMenu);
 
@@ -987,6 +987,20 @@ void Menu_Net_HostLobbyFrame(int mouse)
 								cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Mute player",2 );
 						}
 						cHostLobby.SendMessage( hl_PopupMenu, MNS_ADDITEM, "Authorise player", 3 );
+
+					// Click on the team mark
+					} else if (ev->cWidget->getType() == wid_Image && ev->iEventMsg == IMG_CLICK)  {
+						int id = ev->cWidget->getID();
+						if (id >= MAX_WORMS || id < 0 || !cServer->getWorms()) // Safety
+							break;
+
+						// Set the team
+						CWorm *w = cServer->getWorms() + id;
+						w->setTeam((w->getTeam() + 1) % 4);
+						w->getLobby()->iTeam = w->getTeam();
+
+						cServer->SendWormLobbyUpdate();  // Update
+						bHost_Update = true;
 					}
 				}
 				break;
@@ -1083,7 +1097,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 	for (i=1; i < MAX_PLAYERS; i++, w++)  {  // Start from 1 (exclude host)
 		CClient *client = cServer->getClient(w->getID());
 		if (client)  {
-			lv_subitem_t *subit = player_list->getSubItem(i, 4);
+			lv_subitem_t *subit = player_list->getSubItem(i, 5);
 			if (subit)
 				subit->sText = itoa(client->getPing());
 		}
@@ -1093,17 +1107,24 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 	if (!bHost_Update)  // If no further update is needed, do not do it
 		return;
 
+	player_list->SaveScrollbarPos();
 	player_list->Clear();  // Clear any old info
 
+	game_lobby_t *gl = cClient->getGameLobby();
 	lobbyworm_t *lobby_worm = NULL;
 	w = cClient->getRemoteWorms();
 	CButton *cmd_button = NULL;
+	CImage *team_img = NULL;
 
 	for (i=0; i < MAX_PLAYERS; i++, w++)  {
 		if (!w->isUsed())  // Don't bother with unused worms
 			continue;
 
 		lobby_worm = w->getLobby();
+
+		// Reload the worm graphics
+		w->setTeam(lobby_worm->iTeam);
+		w->LoadGraphics(cClient->getGameLobby()->nGameMode);
 
 		// Create and setup the command button
 		cmd_button = new CButton(0, gfxGUI.bmpCommandBtn);
@@ -1122,8 +1143,28 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
 		player_list->AddSubitem(LVS_IMAGE, "", w->getPicimg(), NULL);  // Skin
 		player_list->AddSubitem(LVS_TEXT, w->getName(), NULL, NULL);  // Name
-		player_list->AddSubitem(LVS_TEXT, "", NULL, NULL); // Ping
+
+		// Display the team mark if TDM
+		if (gl->nGameMode == GMT_TEAMDEATH)  {
+			team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
+			if (!team_img)
+				continue;
+			team_img->setID(w->getID());
+			team_img->setRedrawMenu(false);
+
+			player_list->AddSubitem(LVS_WIDGET, "", NULL, team_img); // Team
+		} else {
+			player_list->AddSubitem(LVS_TEXT, "", NULL, NULL); // Ping has to be the fifth subitem
+		}
+
+		// Ping
+		CClient *cl = cServer->getClient(w->getID());
+		int ping = 0;
+		if (cl)	ping = cl->getPing();
+		player_list->AddSubitem(LVS_TEXT, w->getID() != 0 ? itoa(ping) : "", NULL, NULL); // Don't draw for host
 	}
+
+	player_list->RestoreScrollbarPos();  // Scroll back to where we were before
 
 	// Updated :)
 	bHost_Update = false;

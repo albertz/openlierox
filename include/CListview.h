@@ -71,6 +71,7 @@ class lv_column_t { public:
 	int			iWidth;
 	bool		bDown;
 	int			iSorted; // -1 = unsorted, 0 = descending, 1 = ascending
+	Uint32		iColour;
 
 	lv_column_t *tNext;
 
@@ -215,7 +216,7 @@ public:
 	void	SortBy(int column, bool ascending);
 	void	ReSort(void);
 
-	void	AddColumn(const std::string& sText, int iWidth);
+	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour = tLX->clNormalLabel);
 	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
 	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign = VALIGN_MIDDLE);
 	void	RemoveItem(int iIndex);

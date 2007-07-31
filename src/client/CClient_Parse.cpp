@@ -135,7 +135,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	GetRemoteNetAddr(tSocket, &addr);
 	cNetChan.Create(&addr,0,tSocket);
 
-	iJoin_Recolorize = true;
+	bJoin_Update = true;
 	bHost_Update = true;
 }
 
@@ -636,6 +636,7 @@ void CClient::ParseWormInfo(CBytestream *bs)
 
 	UpdateScoreboard();
 
+	bJoin_Update = true;
 	bHost_Update = true;
 }
 
@@ -741,6 +742,7 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 	
 	UpdateScoreboard();
 
+	bJoin_Update = true;
 	bHost_Update = true;
 }
 
@@ -922,13 +924,14 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
         if(w) {
 			w->getLobby()->iReady = ready;
             w->getLobby()->iTeam = team;
+			w->setTeam(team);
 			if(i==0)
 				HostName = w->getName();
         }
 	}
 
 	// Update lobby
-	iJoin_Recolorize = true;
+	bJoin_Update = true;
 	bHost_Update = true;
 
 	// Log the conversation
@@ -994,6 +997,7 @@ void CClient::ParseClientLeft(CBytestream *bs)
 		}
 	}
 
+	bJoin_Update = true;
 	bHost_Update = true;
 
 	UpdateScoreboard();
@@ -1038,7 +1042,7 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 		cRemoteWorms[id].readPacketState(bs,cRemoteWorms);
 	}
 
-	iJoin_Recolorize = true;
+	bJoin_Update = true;
 	bHost_Update = true;
 }
 
@@ -1105,7 +1109,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
     else
         fclose(fp);
 
-	iJoin_Recolorize = true;
+	bJoin_Update = true;
 	bHost_Update = true;
 
 }

@@ -91,6 +91,7 @@ public:
 	CWidget			*getPrev(void)					{ return cPrev; }
 
 	int				getID(void)						{ return iID; }
+	void			setID(int _i)					{ iID = _i; }
 	int				getType(void)					{ return iType; }
 
 	void			setFocused(int _f)				{ iFocused = _f; }

@@ -342,8 +342,8 @@ void CWorm::LoadProfileGraphics() {
     if(tProfile) {
 		iColour = MakeColour(tProfile->R, tProfile->G, tProfile->B);
         szSkin = tProfile->szSkin;
-    } else
-    	printf("WARNING: LoadProfileGraphics: tProfile isn't set\n");
+    }/* else
+    	printf("WARNING: LoadProfileGraphics: tProfile isn't set\n");*/
 }
 
 ///////////////////

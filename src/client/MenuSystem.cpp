@@ -45,7 +45,7 @@ int Menu_Initialize(bool *game)
 {
 	bGame = game;
 	*bGame = false;
-	iJoin_Recolorize = true;
+	bJoin_Update = true;
 	bHost_Update = true;
 
 	// Load the CSS of all widgets

@@ -231,14 +231,15 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 */
 
 CGuiLayout	cJoinLobby;
-int			iJoinSpeaking=-1;
-int			iJoin_Recolorize = true;
+int			iJoinSpeaking = 0;
+bool		bJoin_Update = true;
 enum {
 	jl_Back=0,
 	jl_Ready,
 	jl_ChatText,
 	jl_ChatList,
-	jl_Favourites
+	jl_Favourites,
+	jl_PlayerList
 };
 
 
@@ -256,7 +257,7 @@ int Menu_Net_JoinLobbyInitialize(void)
 
 	cClient->getChatbox()->Clear();
     cClient->getChatbox()->setWidth(570);
-    iJoinSpeaking=-1;
+    iJoinSpeaking = 0;  // The first player is always speaking
 
 	return true;
 }
@@ -291,9 +292,6 @@ void Menu_Net_JoinDrawLobby(void)
 	// Chat box
     DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clChatBoxBackground);
 
-    // Player box
-    Menu_DrawBox(tMenu->bmpBuffer, 15, 29, 340, 235);
-
 	Menu_RedrawMouse(true);
 }
 
@@ -308,12 +306,24 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),jl_Back,	15,  450, 60,  15);
     cJoinLobby.Add( new CButton(BUT_READY, tMenu->bmpButtons),jl_Ready,	560, 450, 65,  15);
 	cJoinLobby.Add( new CButton(BUT_ADDTOFAVOURITES, tMenu->bmpButtons), jl_Favourites,360,220,150,15);
-	cJoinLobby.Add( new CLabel("Players",tLX->clHeading),	  -1,		15,  15,  0,   0);
 	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, tLX->cFont.GetHeight());
     cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  268, 610, 150);
+	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
 
 	cJoinLobby.SendMessage(jl_ChatText,TXM_SETMAX,64,0);
-	//cJoinLobby.SendMessage(jl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
+
+	// Setup the player list
+	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
+	if (player_list)  {
+		player_list->setShowSelect(false);
+		player_list->setOldStyle(true);
+		player_list->AddColumn("Players", tMenu->bmpLobbyReady->w + 2, tLX->clHeading);  // Lobby ready/Players label
+		player_list->AddColumn("", 30);  // Skin
+		player_list->AddColumn("", 220); // Name
+		player_list->AddColumn("", -1); // Team
+	}
+
+	iJoinSpeaking = 0; // The first client is always speaking
 }
 
 
@@ -352,7 +362,7 @@ void Menu_Net_JoinGotoLobby(void)
 		lv->setShowSelect(false);
 	}
 
-    iJoinSpeaking=-1;
+    iJoinSpeaking = 0; // The first player is always speaking
 }
 
 //////////////////////
@@ -371,7 +381,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	int			i,y,local;
+	int			i,y;
 
 	// Process the client
 	cClient->Frame();
@@ -379,7 +389,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
     // If there is a client error, leave
     if(cClient->getClientError()) {
 
-        cJoinLobby.Shutdown();
+		Menu_Net_JoinShutdown();
         Menu_NetInitialize();
 		return;
     }
@@ -452,95 +462,56 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 
-	// Draw the connected players
-	CWorm *w = cClient->getRemoteWorms();
 	game_lobby_t *gl = cClient->getGameLobby();
-	lobbyworm_t *l;
-	local = false;
-    y = 40;
-	bool bRecolorized = false;
-	for(i=0; i<MAX_WORMS; i++, w++) {
-		if( !w->isUsed() )
-            continue;
 
-		l = w->getLobby();
+	// Draw the connected players
+	if (bJoin_Update)  {
+		CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
+		if (!player_list)  // Weird, shouldn't happen
+			return;
+		player_list->SaveScrollbarPos();
+		player_list->Clear();  // Clear first
 
-		local = false;
-		if(w->isUsed())
-			local = w->getLocal();
+		CWorm *w = cClient->getRemoteWorms() + 1;
+		lobbyworm_t *lobby_worm = NULL;
+		w = cClient->getRemoteWorms();
+		CImage *team_img = NULL;
 
-		if(local && iJoinSpeaking == -1)
-			iJoinSpeaking = i;
+		for (i=0; i < MAX_PLAYERS; i++, w++)  {
+			if (!w->isUsed())  // Don't bother with unused worms
+				continue;
 
-		// Check for a click
-		if(Mouse->Up & SDL_BUTTON(1)) {
-			if(Mouse->Y > y && Mouse->Y < y+18) {
+			lobby_worm = w->getLobby();
 
-				// Speech
-				/*if(Mouse->X > 20 && Mouse->X < 34) {
-					if(l->iType == LBY_USED &&
-					   local &&
-					   cClient->getNumWorms()>1 &&
-					   iJoinSpeaking != i)
-					      iJoinSpeaking = i;
-				}*/
+			// Reload the worm graphics
+			w->setTeam(lobby_worm->iTeam);
+			w->LoadGraphics(cClient->getGameLobby()->nGameMode);
+
+			// Add the item
+			player_list->AddItem(w->getName(), i, tLX->clNormalLabel); 
+			if (lobby_worm->iReady)  // Ready control
+				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
+			else
+				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
+			player_list->AddSubitem(LVS_IMAGE, "", w->getPicimg(), NULL);  // Skin
+			player_list->AddSubitem(LVS_TEXT, w->getName(), NULL, NULL);  // Name
+
+			// Display the team mark if TDM
+			if (gl->nGameMode == GMT_TEAMDEATH)  {
+				team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
+				if (!team_img)
+					continue;
+				team_img->setID(w->getID());
+				team_img->setRedrawMenu(false);
+
+				player_list->AddSubitem(LVS_WIDGET, "", NULL, team_img); // Team
 			}
 		}
 
-        int x = 20;
-		switch(l->iType) {
+		player_list->RestoreScrollbarPos();  // Scroll back to where we were before the update
 
-			// Open
-			case LBY_OPEN:
-				//tLX->cFont.Draw(tMenu->bmpScreen, 77, y, tLX->clNormalLabel,"%s", "------");
-				break;
-
-			// Closed
-			case LBY_CLOSED:
-				//tLX->cFont.Draw(tMenu->bmpScreen, 77, y, tLX->clNormalLabel,"%s", "Closed");
-				break;
-
-			// Used
-			case LBY_USED:
-				// Ready icon
-                if(l->iReady)
-					DrawImageAdv(tMenu->bmpScreen, tMenu->bmpLobbyReady, 0,0, x+15,y-1,12,12);
-				else
-					DrawImageAdv(tMenu->bmpScreen, tMenu->bmpLobbyNotReady, 0,0,x+15,y-1,12,12);
-
-                // Worm
-                DrawImage(tMenu->bmpScreen, w->getPicimg(), x+30, y-2);
-				tLX->cFont.Draw(tMenu->bmpScreen, x+55, y-2, tLX->clNormalLabel, w->getName());
-
-                // Team
-                if( gl->nGameMode == GMT_TEAMDEATH )  {
-					// Colorize the worm
-					if (iJoin_Recolorize) {
-						w->setTeam(l->iTeam);
-						w->LoadGraphics(GMT_TEAMDEATH);
-						bRecolorized = true;
-					}
-
-					DrawImage(tMenu->bmpScreen, gfxGame.bmpTeamColours[l->iTeam], x+200, y-2);
-				}
-				else  {
-					// Recolorize the skin
-					if (iJoin_Recolorize) {
-						w->LoadGraphics(gl->nGameMode);
-						bRecolorized = true;
-					}
-				}
-
-				break;
-		}
-
-        // Dividing line
-        DrawHLine(tMenu->bmpScreen, x, x+315, y+20, tLX->clPlayerDividingLine);
-        y+=25;
+		bJoin_Update = false;
 	}
-
-	if (bRecolorized)
-		iJoin_Recolorize = false;
 
 
 	// Draw the game info

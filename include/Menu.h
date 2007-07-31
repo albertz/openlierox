@@ -320,7 +320,7 @@ extern	int			iJoinMenu;
 extern	int			iHostType;
 extern	int			iSkipStart;
 extern  bool		bHost_Update;
-extern	int			iJoin_Recolorize;
+extern	bool		bJoin_Update;
 extern  CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 extern	CCssParser	cWidgetStyles;
 

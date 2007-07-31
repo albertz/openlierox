@@ -21,7 +21,8 @@ void CImage::Draw(SDL_Surface *bmpDest)
 	if (!tImage)
 		return;
 
-    Menu_redrawBufferRect(iX,iY, tImage->w,tImage->h);
+	if (bRedrawMenu)
+		Menu_redrawBufferRect(iX,iY, tImage->w,tImage->h);
 
 	// Clipping
 	if(iX+iWidth > bmpDest->w)

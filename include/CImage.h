@@ -18,7 +18,8 @@
 
 // Event types
 enum {
-	IMG_NONE=-1
+	IMG_NONE = -1,
+	IMG_CLICK = 0,
 };
 
 
@@ -35,9 +36,21 @@ public:
 		iType = wid_Image;
 		sPath = Path;
 		tImage = NULL;
+		bRedrawMenu = true;
 		if (Path != "")  {
 			tImage = LoadImage(Path);
 
+			iWidth = tImage->w;
+			iHeight = tImage->h;
+		}
+	}
+
+	CImage(SDL_Surface *img) {
+		iType = wid_Image;
+		sPath = "";
+		tImage = img;
+		bRedrawMenu = true;
+		if (tImage)  {
 			iWidth = tImage->w;
 			iHeight = tImage->h;
 		}
@@ -47,7 +60,7 @@ private:
     // Attributes
 	SDL_Surface	*tImage;
 	std::string	sPath;
-
+	bool bRedrawMenu;
 
 public:
     // Methods
@@ -61,7 +74,7 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)				{ return IMG_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown)		{ return IMG_NONE; }
+	int		MouseUp(mouse_t *tMouse, int nDown)		{ return IMG_CLICK; }
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return IMG_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)			{ return IMG_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)			{ return IMG_NONE; }
@@ -75,6 +88,9 @@ public:
 	void	Draw(SDL_Surface *bmpDest);
 
 	void	LoadStyle(void) {}
+
+	void	setRedrawMenu(bool _r)  { bRedrawMenu = _r; }
+	bool	getRedrawMenu()			{ return bRedrawMenu; }
 
 };
 

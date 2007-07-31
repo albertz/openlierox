@@ -38,7 +38,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 	if (bOldStyle)  {
 		for(short i=1;col;col = col->tNext,i++)   {
-			tLX->cFont.Draw(bmpDest, x, iY, tLX->clNormalLabel, col->sText);
+			tLX->cFont.Draw(bmpDest, x, iY, col->iColour, col->sText);
 			x += col->iWidth-2;
 		}
 	} else {
@@ -217,7 +217,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Add a column to the list view
-void CListview::AddColumn(const std::string& sText, int iWidth)
+void CListview::AddColumn(const std::string& sText, int iWidth, Uint32 iColour)
 {
 	lv_column_t *col;
 
@@ -233,6 +233,7 @@ void CListview::AddColumn(const std::string& sText, int iWidth)
 	col->tNext = NULL;
 	col->bDown = false;
 	col->iSorted = -1;
+	col->iColour = iColour;
 
 
 	// Add it to the list
