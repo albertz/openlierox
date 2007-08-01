@@ -1852,6 +1852,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
                         cWorms[i].setName(inbs.readString());
                         cWorms[i].setKills(inbs.readInt(2));
                     }
+					for(i=0; i<nNumPlayers; i++) 
+                        cWorms[i].setLives(inbs.readInt(2));
                 }
             }
         }
@@ -1905,7 +1907,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			int first_column_width = tLX->cFont.GetWidth("Loading Times:") + 30; // Width of the widest item in this column + some space
 			int last_column_width = tLX->cFont.GetWidth("999"); // Kills width
 			lvInfo.AddColumn("", first_column_width); 
-			lvInfo.AddColumn("", lvInfo.getWidth() - first_column_width - last_column_width - gfxGUI.bmpScrollbar->w); // The rest
+			lvInfo.AddColumn("", lvInfo.getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar->w); // The rest
+			lvInfo.AddColumn("", last_column_width);
 			lvInfo.AddColumn("", last_column_width);
 
 			int index = 0;  // Current item index
@@ -1971,14 +1974,15 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL, NULL);
 			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL, NULL);
 
-			// Players / kills
+			// Players / kills / lives
 			lvInfo.AddItem("players", ++index, tLX->clNormalLabel);
 			if (nState)  {
-				lvInfo.AddSubitem(LVS_TEXT, "Players/Kills:", NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, "Players/Kills/Lives:", NULL, NULL);
 
-				// First player (located next to the Players/Kills label)
+				// First player (located next to the Players/Kills/Lives label)
 				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL, NULL);
 				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getKills()), NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getLives()), NULL, NULL);
 
 				// Rest of the players
 				for (int i=1; i < nNumPlayers; i++)  {
@@ -1986,6 +1990,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					lvInfo.AddSubitem(LVS_TEXT, "", NULL, NULL);
 					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL, NULL);
 					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getKills()), NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getLives()), NULL, NULL);
 				}
 			}
 

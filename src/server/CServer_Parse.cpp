@@ -1442,6 +1442,13 @@ void GameServer::ParseGetInfo(void) {
 		}
 	}
 
+	w = cWorms;
+	// Write out lives 
+	for (p = 0;p < MAX_WORMS;p++, w++) {
+		if (w->isUsed()) 
+			bs.writeInt(w->getLives(), 2);
+	}
+
 
 	bs.Send(tSocket);
 }
