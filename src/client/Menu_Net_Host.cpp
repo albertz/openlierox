@@ -966,7 +966,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					ev = ((CListview *)ev->cWidget)->getWidgetEvent();
 
 					// Click on the command button
-					if (ev->cWidget->getType() == wid_Button && ev->iEventMsg == BTN_MOUSEUP)  {
+					if (ev->cWidget->getType() == -1 && ev->iEventMsg == BTN_MOUSEUP)  {
 						// Remove old popup menu
 						cHostLobby.removeWidget(hl_PopupMenu);
 
