@@ -1611,11 +1611,11 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
                 }
 
                 // Re-setup the viewports
-				// FIXED: Only one viewport was available in net play
+				// TODO: is it safe to ignore count of worms here?
                 if( !b_on /*|| iNumWorms <= 1*/ ) {
                     SetupViewports(cLocalWorms[0], NULL, a_type, VW_FOLLOW);
                 } else {
-                    SetupViewports(cLocalWorms[0], cLocalWorms[0], a_type, b_type);
+                    SetupViewports(cLocalWorms[0], cLocalWorms[1], a_type, b_type);
                 }
 
 				// Set the worms to follow
