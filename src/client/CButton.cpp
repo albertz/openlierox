@@ -27,7 +27,7 @@ void CButton::Draw(SDL_Surface *bmpDest)
 	if (!bmpImage)
 		return;
 
-	if (iType == BUT_MENU)  {
+	if (iButtonType == BUT_MENU)  {
 		if (bRedrawMenu)
 			Menu_redrawBufferRect(iX,iY, iGoodWidth, 18);
 
@@ -41,7 +41,7 @@ void CButton::Draw(SDL_Surface *bmpDest)
 		if (bRedrawMenu)
 			Menu_redrawBufferRect(iX,iY, iGoodWidth, bmpImage->h);
 
-		int numstates = iType == BUT_TWOSTATES ? 2: 3;
+		int numstates = iButtonType == BUT_TWOSTATES ? 2: 3;
 
 		int x2 = 0;
 		if (bMouseOver)
@@ -60,16 +60,11 @@ void CButton::Draw(SDL_Surface *bmpDest)
 // Draw the button, without the buffer update
 void CButton::Draw2(SDL_Surface *bmpDest)
 {  
-	// Don't draw empty image
-	if (!bmpImage)
-		return;
-
-	int y2 = 5+iImageID*40;
-    if(bMouseOver)
-	    y2+=20;
-
-	DrawImageAdv(bmpDest,bmpImage, 5,y2, iX,iY, iGoodWidth, 18);
-    bMouseOver = false;	
+	// Temporarily disable buffer update and draw
+	bool old_redraw = bRedrawMenu;
+	bRedrawMenu = false;
+	Draw(bmpDest);
+	bRedrawMenu = old_redraw;
 }
 
 

@@ -44,7 +44,7 @@ public:
 		iType = wid_Button;
         iGoodWidth = 250;
 		bRedrawMenu = true;
-		iType = BUT_MENU;
+		iButtonType = BUT_MENU;
 	}
 
 	CButton(int imgid, SDL_Surface *image) {
@@ -55,7 +55,7 @@ public:
 		bRedrawMenu = true;
 		iType = wid_Button;
         iGoodWidth = 250;
-		iType = BUT_MENU;
+		iButtonType = BUT_MENU;
 	}
 
 	CButton(const std::string& path) {
@@ -66,7 +66,7 @@ public:
 		bRedrawMenu = true;
 		iType = wid_Button;
         iGoodWidth = 250;
-		iType = BUT_TWOSTATES;
+		iButtonType = BUT_TWOSTATES;
 	}
 
 
@@ -78,7 +78,7 @@ private:
 	SDL_Surface	*bmpImage;
 	int			iImageID;
     int         iGoodWidth;
-	int			iType;
+	int			iButtonType;
 	bool		bRedrawMenu;
 
 public:
@@ -109,8 +109,8 @@ public:
 
 	void	LoadStyle(void) {}
 
-	int		getType()  { return iType; }
-	void	setType(int _t)  { iType = _t; }
+	int		getType()  { return iButtonType; }
+	void	setType(int _t)  { iButtonType = _t; }
 
 
 };
