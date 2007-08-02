@@ -657,6 +657,15 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 			if(cur_arg == arguments.end())
 				return;
 			std::string name = RemoveSpecialChars(*cur_arg);
+
+			// Check no other user has this name
+			CWorm *w = cWorms;
+			for(int i=0;i<MAX_WORMS;i++,w++) {
+				if(!w->isUsed())
+					continue;
+				if(!stringcasecmp(name,w->getName()))
+					return;
+			}
 			worm->setName(name.substr(0, MIN(32, name.size())));
 			UpdateWorms();
 		}

@@ -1852,8 +1852,9 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
                         cWorms[i].setName(inbs.readString());
                         cWorms[i].setKills(inbs.readInt(2));
                     }
-					for(i=0; i<nNumPlayers; i++) 
-                        cWorms[i].setLives(inbs.readInt(2));
+					if(!inbs.isPosAtEnd())
+						for(i=0; i<nNumPlayers; i++) 
+							cWorms[i].setLives(inbs.readInt(2));
                 }
             }
         }
