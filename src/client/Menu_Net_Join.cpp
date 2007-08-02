@@ -379,7 +379,6 @@ std::string Menu_Net_JoinLobbyGetText(void)
 // Join lobby frame
 void Menu_Net_JoinLobbyFrame(int mouse)
 {
-	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
 	int			i,y;
 

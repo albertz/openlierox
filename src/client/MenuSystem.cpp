@@ -1848,7 +1848,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					// Check
 					nNumPlayers = MIN(nMaxWorms,nNumPlayers);
 
-                    for(int i=0; i<nNumPlayers; i++) {
+					int i;
+                    for(i=0; i<nNumPlayers; i++) {
                         cWorms[i].setName(inbs.readString());
                         cWorms[i].setKills(inbs.readInt(2));
                     }
