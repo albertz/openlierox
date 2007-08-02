@@ -138,7 +138,9 @@ int CChannel::Process(CBytestream *bs)
 	// TODO: Get rate estimation
 
 	// Get rid of the old packets
-	if(Sequence <= (Uint32)iIncomingSequence) {
+	// Small hack: there's a bug in old clients causing the forst packet is ignored and needs to be resent
+	// It caused a delay when joining (especially on high-ping servers), this hack improves it
+	if((Sequence <= (Uint32)iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
 		printf("Warning: Packet dropped");
 		bs->Dump();
 		return false;

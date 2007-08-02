@@ -1784,6 +1784,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
     int				nNumPlayers = 0;
 	IpInfo			tIpInfo;
     CWorm			cWorms[MAX_WORMS];
+	bool			bHaveLives = false;
 
     CBytestream inbs;
     NetworkAddr   addr;
@@ -1853,9 +1854,13 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
                         cWorms[i].setName(inbs.readString());
                         cWorms[i].setKills(inbs.readInt(2));
                     }
-					if(!inbs.isPosAtEnd())
+
+					// Lives (only OLX servers)
+					if(!inbs.isPosAtEnd())  {
+						bHaveLives = true;
 						for(i=0; i<nNumPlayers; i++) 
 							cWorms[i].setLives(inbs.readInt(2));
+					}
                 }
             }
         }
@@ -1984,7 +1989,18 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				// First player (located next to the Players/Kills/Lives label)
 				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL, NULL);
 				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getKills()), NULL, NULL);
-				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getLives()), NULL, NULL);
+				if (bHaveLives)  {
+					switch ((short)cWorms[0].getLives())  {
+					case -1:  // Out
+						lvInfo.AddSubitem(LVS_TEXT, "Out", NULL, NULL);
+						break;
+					case -2:  // Unlim
+						lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+						break;
+					default:
+						lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getLives()), NULL, NULL);
+					}
+				}
 
 				// Rest of the players
 				for (int i=1; i < nNumPlayers; i++)  {
@@ -1992,7 +2008,18 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					lvInfo.AddSubitem(LVS_TEXT, "", NULL, NULL);
 					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL, NULL);
 					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getKills()), NULL, NULL);
-					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getLives()), NULL, NULL);
+					if (bHaveLives)  {
+						switch ((short)cWorms[i].getLives())  {
+						case -1:  // Out
+							lvInfo.AddSubitem(LVS_TEXT, "Out", NULL, NULL);
+							break;
+						case -2:  // Unlim
+							lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+							break;
+						default:
+							lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getLives()), NULL, NULL);
+						}
+					}
 				}
 			}
 

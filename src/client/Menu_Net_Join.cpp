@@ -637,8 +637,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 					// Get name
 					std::string text;
-					CWorm *rw = cClient->getRemoteWorms() + iJoinSpeaking;
-					rw = cClient->getWorm(0);
+					CWorm *rw = cClient->getWorm(0); // The first worm is always speaking
 					if(!strincludes(buf,"/me"))
 						text = rw->getName() + ": " + buf;
 					else
