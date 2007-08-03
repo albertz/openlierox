@@ -85,6 +85,7 @@ int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
 int		WriteSocket(NetworkSocket sock, const std::string& buffer);
 int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
 bool	IsSocketStateValid(NetworkSocket sock);
+bool	IsSocketReady(NetworkSocket sock);
 void	InvalidateSocketState(NetworkSocket& sock);
 
 int		GetSocketErrorNr();

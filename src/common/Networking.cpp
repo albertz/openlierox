@@ -154,7 +154,7 @@ int http_ProcessRequest(std::string* szError)
     
 	// Make sure the socket is ready for writing
 	if( !http_SocketReady && http_Connected) {
-		if( WriteSocket(http_Socket, "", 0) >= 0) {
+		if( IsSocketReady(http_Socket)) {
 			http_SocketReady = true;
 		}
 		else {
@@ -469,6 +469,10 @@ int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 
 bool IsSocketStateValid(NetworkSocket sock) {
 	return (*NetworkSocketData(&sock) != NL_INVALID);
+}
+
+bool IsSocketReady(NetworkSocket sock)  {
+	return nlWrite(*NetworkSocketData(&sock), (void *)"", 0) >= 0;
 }
 
 void InvalidateSocketState(NetworkSocket& sock) {
