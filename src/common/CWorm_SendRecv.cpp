@@ -163,12 +163,13 @@ bool CWorm::checkPacketNeeded()
 			return true;
 
 	// Angle
-	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.25f)
+	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.1f)
 		return true;
 
 	// Time
-	if (tLX->fCurTime - fLastUpdateWritten >= 1.5f)
-		return true;
+	if (vVelocity.GetLength2())
+		if (tLX->fCurTime - fLastUpdateWritten >= 2.0f/vVelocity.GetLength())
+			return true;
 
 	// Rope
 	return cNinjaRope.writeNeeded();
