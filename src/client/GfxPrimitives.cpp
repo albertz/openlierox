@@ -395,7 +395,7 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 ///////////////////
 // Draws a sprite doubly stretched with colour key
 // HINT: doesn't work with alpha-surfaces
-void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
 	
@@ -411,7 +411,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		return;
 
 	// Dest clipping
-	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)bmpDest->clip_rect))
+	if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
 		return;
 
 
@@ -434,7 +434,6 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 	int doublepitch = bmpDest->pitch * 2;
 	byte bpp = bmpDest->format->BytesPerPixel;
 	byte doublebpp = (byte)(bpp * 2);
-	key = SDLColourToNativeColour(key, bmpSrc->format->BytesPerPixel);
 
     for(y=h; y ; --y) {
 
@@ -442,7 +441,12 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 		tp_x = TrgPix;
 		tp_y = tp_x+bmpDest->pitch;
 		for(x = w; x; --x) {
-			if (memcmp(&key,sp,bpp))  {
+			if (IsTransparent(bmpSrc, GetPixelFromAddr(sp, bpp)))  {
+				// Skip the transparent pixel
+				sp += bpp;
+				tp_x += doublebpp;
+				tp_y += doublebpp;
+			} else {
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
 				memcpy(tp_x,sp,bpp);
 				tp_x += bpp;
@@ -453,11 +457,6 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 				memcpy(tp_y,sp,bpp);
 				tp_y += bpp;
 				sp += bpp;
-			} else {
-				// Skip the transparent pixel
-				sp += bpp;
-				tp_x += doublebpp;
-				tp_y += doublebpp;
 			}
 		}
 		TrgPix += doublepitch;
@@ -475,8 +474,7 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 
 ///////////////////
 // Draws a sprite mirrored doubly stretched with colour key
-// HINT: doesn't work with alpha-surfaces
-void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h, Uint32 key)
+void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
 	// TODO: recode this; avoid this amount of variables, only use ~5 local variables in a function!
 	
@@ -515,7 +513,6 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 	byte bpp = bmpDest->format->BytesPerPixel;
 	byte doublebpp = (byte)(bpp*2);
 	int realw = w*bpp;
-	key = SDLColourToNativeColour(key, bmpSrc->format->BytesPerPixel);
 
     for(y = h; y; --y) {
 
@@ -523,7 +520,7 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 		tp_x = TrgPix+realw;
 		tp_y = tp_x+bmpDest->pitch;
 		for(x = w; x; --x) {
-			if (memcmp(&key,sp,bmpDest->format->BytesPerPixel))  {
+			if (!IsTransparent(bmpSrc, GetPixelFromAddr(sp, bpp)))  {
 				// Non-transparent
 				// Copy the 1 source pixel into a 4 pixel block on the destination surface
 				memcpy(tp_x,sp,bpp);

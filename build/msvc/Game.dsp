@@ -772,10 +772,6 @@ SOURCE=.\libs\lua5.1.lib
 
 SOURCE=.\libs\dbghelp.lib
 # End Source File
-# Begin Source File
-
-SOURCE=.\libs\sdlgfx.lib
-# End Source File
 # End Group
 # Begin Group "Resources"
 

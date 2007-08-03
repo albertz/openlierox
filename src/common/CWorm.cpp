@@ -910,7 +910,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
 				(x-12)+RightMuzzle[ang*2],
 				(y-10)+RightMuzzle[ang*2+1],
-				16,16,COLORKEY(gfxGame.bmpMuzzle));
+				16,16);
 			break;
 
 		case DIR_LEFT:
@@ -919,7 +919,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 			DrawImageStretch2Key(bmpDest,gfxGame.bmpMuzzle,f,0,
 				(x-21)+LeftMuzzle[ang*2],
 				(y-10)+LeftMuzzle[ang*2+1],
-				16,16,COLORKEY(gfxGame.bmpMuzzle));
+				16,16);
 			break;
 
 		}  // switch
