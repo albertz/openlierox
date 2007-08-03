@@ -109,6 +109,10 @@ bool GameServer::SendUpdate(CClient *cl)
 		// Check if this client owns the worms
 		if(cl->OwnsWorm(w))
 			continue;
+
+		// Doesn't need update
+		if (!w->checkPacketNeeded())
+			continue;
 	
 		wormList.push_back(w);
 	}
@@ -117,9 +121,15 @@ bool GameServer::SendUpdate(CClient *cl)
     
     // Send all the _other_ worms details
     for(vector<CWorm*>::iterator w_it = wormList.begin(); w_it != wormList.end(); w_it++) {
-        // Send out the update			
-        bs->writeByte((*w_it)->getID());
-        (*w_it)->writePacket(bs);
+        // Send out the update
+		bs->writeByte((*w_it)->getID());
+		(*w_it)->writePacket(bs);
+
+		static int wp = 0;
+		printf("Writing update %i\n", wp);
+		wp++;
+
+		(*w_it)->updateCheckVariables();  // Synchronize the variables
     }
     
     

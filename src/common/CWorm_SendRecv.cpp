@@ -167,8 +167,11 @@ bool CWorm::checkPacketNeeded()
 		return true;
 
 	// Time
-	if (vVelocity.GetLength2())
-		if (tLX->fCurTime - fLastUpdateWritten >= 2.0f/vVelocity.GetLength())
+	CVec vel = (vPos - vOldPos);
+	vel = vel / (tLX->fCurTime - fLastPosUpdate);
+	fLastPosUpdate = tLX->fCurTime;
+	if (vel.GetLength2())
+		if (tLX->fCurTime - fLastUpdateWritten >= 3.0f/vel.GetLength())
 			return true;
 
 	// Rope
@@ -219,6 +222,7 @@ bool CWorm::checkPacketNeeded()
 void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 {
 	// Position
+	vOldPos = vPos;
 	short x, y;
 	bs->read2Int12( x, y );
 	vPos.x=( (float)x );

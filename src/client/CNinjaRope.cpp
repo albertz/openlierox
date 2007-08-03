@@ -90,6 +90,8 @@ void CNinjaRope::Setup(CGameScript *gs)
 // Simulate the thing
 void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int owner)
 {
+	OldHookPos = HookPos;
+
 	if(!Released)
 		return;
 
@@ -328,12 +330,19 @@ void CNinjaRope::updateCheckVariables()
 // Returns true if the write function needs to be called
 bool CNinjaRope::writeNeeded()
 {
-	return  (LastReleased != Released) ||
+	if		((LastReleased != Released) ||
 			(LastHookShooting != HookShooting) ||
 			(LastHookAttached != HookAttached) ||
 			(LastPlayerAttached != PlayerAttached) ||
-			(LastWorm != Worm) ||
-			((tLX->fCurTime - LastWrite >= 1.5f) && (Released));
+			(LastWorm != Worm))
+				return true;
+	CVec vel = HookPos - OldHookPos;
+	vel = vel / (tLX->fCurTime - LastPosUpdate);
+	LastPosUpdate = tLX->fCurTime;
+	if (vel.GetLength2())
+		return (tLX->fCurTime - LastWrite >= 3.0f/vel.GetLength()) && Released;
+
+	return false;
 }
 
 ///////////////////
@@ -394,6 +403,7 @@ void CNinjaRope::write(CBytestream *bs)
 // Read rope details from a bytestream
 void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 {
+	OldHookPos = HookPos;
 	int type = bs->readByte();
 	Released = true;
 	Worm = NULL;

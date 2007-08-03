@@ -30,6 +30,7 @@ public:
 		Clear();
 
 		LastWrite = -9999;
+		LastPosUpdate = -9999;
 		Strength = 0.4f;
 	}
 
@@ -50,6 +51,7 @@ private:
 
 	CVec		HookPos;
 	CVec		HookDir;
+	CVec		OldHookPos;
 
 	// Used for writeNeeded check
 	bool		LastReleased;
@@ -58,6 +60,7 @@ private:
 	bool		LastPlayerAttached;
 	CWorm		*LastWorm;
 	float		LastWrite;
+	float		LastPosUpdate; // Used for velocity counting (client don't send velocity)
 	
 
 public:

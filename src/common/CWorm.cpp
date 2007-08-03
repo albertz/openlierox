@@ -85,6 +85,8 @@ void CWorm::Clear(void)
 
 	fLastBlood = -9999;
 
+	fLastPosUpdate = -9999;
+
 	bUsesMouse = false;
 
 	//pcViewport = NULL;//.Setup(0,0,640,480);

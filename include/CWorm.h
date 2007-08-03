@@ -243,6 +243,7 @@ private:
 	worm_state_t tLastState; // Used for checking if we need to send the packet
 	float		fLastAngle;
 	float		fLastUpdateWritten;
+	float		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
 
 
 
