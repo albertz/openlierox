@@ -43,6 +43,7 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iLast_ReliableSequence = 0;
 	iOutgoingBytes = 0;
 	iIncomingBytes = 0;
+	bAckRequired = false;
 }
 
 
@@ -51,14 +52,17 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 void CChannel::Transmit( CBytestream *bs )
 {
 	CBytestream outpack;
-	int SendReliable = false;
+	bool SendReliable = false;
+	bool SendPacket = false;
 	Uint32 r1,r2;	
 
 	outpack.Clear();
 
 	// If the remote side dropped the last reliable packet, re-send it
-	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)
+	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
 		SendReliable = true;
+		SendPacket = true;
+	}
 
 
 	// If the reliable buffer is empty, copy the reliable message into it
@@ -68,6 +72,7 @@ void CChannel::Transmit( CBytestream *bs )
 		
 		// We got a reliable packet to send
 		SendReliable = true;
+		SendPacket = true;
 
 		// XOR the reliable sequence
 		iReliableSequence ^= 1;
@@ -82,27 +87,36 @@ void CChannel::Transmit( CBytestream *bs )
 	outpack.writeInt(r1,4);
 	outpack.writeInt(r2,4);
 
-	iOutgoingSequence++;
 
-	
 	// If were sending a reliable message, send it first
 	if(SendReliable) {
 		outpack.Append(&Reliable);
-		iLast_ReliableSequence = iOutgoingSequence;
+		if (outpack.GetLength() > 4096) // Compatibility check
+			printf("WARNING: the current reliable packet could be ignored!");
+		iLast_ReliableSequence = iOutgoingSequence + 1;
 	}
 
 	// And add on the un reliable data if room in the packet struct
-	if(bs) {
-		outpack.Append(bs);
-	}
+	if(bs)
+		if (bs->GetLength() + outpack.GetLength() < 4096)  {  // Backward compatibility
+			outpack.Append(bs);
+			SendPacket = SendPacket || bs->GetLength() > 0;
+		}
 	
 
 	// Send the packet (only if we got something to send)
-	SetRemoteNetAddr(Socket,&RemoteAddr);
-	outpack.Send(Socket);
+	if (SendPacket || bAckRequired || tLX->fCurTime - fLastSent >= (float)(LX_CLTIMEOUT - 5))  {
+		SetRemoteNetAddr(Socket,&RemoteAddr);
+		outpack.Send(Socket);
 
-	iOutgoingBytes += outpack.GetLength();
-	fLastSent = tLX->fCurTime;
+		iOutgoingBytes += outpack.GetLength();
+		fLastSent = tLX->fCurTime;
+
+		iOutgoingSequence++;
+		bAckRequired = false; // Ack sent
+
+		printf("Sending packet\n");
+	}
 
 	// TODO: Setup the clear time for the choke
 
@@ -167,8 +181,12 @@ int CChannel::Process(CBytestream *bs)
 	iIncomingSequence = Sequence;
 	iIncomingAcknowledged = SequenceAck;
 	iIncoming_ReliableAcknowledged = ReliableAck;
-	if(ReliableMessage)
+	if(ReliableMessage)  {
 		iIncoming_ReliableSequence ^= 1;
+		
+		// Got a message that needs an acknowledgement
+		bAckRequired = true;
+	}
 
 
 	// Update the statistics

@@ -35,6 +35,7 @@ public:
 		iOutgoingBytes = 0;
 		iIncomingBytes = 0;
 		fLastSent = -9999;
+		bAckRequired = false;
 	}
 
 private:
@@ -59,6 +60,8 @@ private:
 	int			iOutgoingSequence;
 	int			iReliableSequence;					// single bit
 	int			iLast_ReliableSequence;				// sequence number of last send
+
+	bool		bAckRequired;						// true if we should send an acknowledgement
 
 	// Packets
 	CBytestream	Message;							// Reliable message
