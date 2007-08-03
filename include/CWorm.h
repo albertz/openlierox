@@ -240,6 +240,9 @@ private:
 	// Network
 	float		fFrameTimes[NUM_FRAMES];
 	lobbyworm_t tLobbyState;
+	worm_state_t tLastState; // Used for checking if we need to send the packet
+	float		fLastAngle;
+	float		fLastUpdateWritten;
 
 
 
@@ -349,6 +352,8 @@ public:
 	void		writeScore(CBytestream *bs);
 	void		readScore(CBytestream *bs);
 	static inline bool	skipScore(CBytestream *bs)  { return bs->Skip(3); }
+	void		updateCheckVariables();
+	bool		checkPacketNeeded();
 	void		writePacket(CBytestream *bs);
 	void		readPacket(CBytestream *bs, CWorm *worms);
 	static bool	skipPacket(CBytestream *bs);

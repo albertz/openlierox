@@ -131,8 +131,48 @@ void CWorm::writePacket(CBytestream *bs)
 		bs->writeInt16( (Sint16)v.x );
 		bs->writeInt16( (Sint16)v.y );
 	}
+
+	// Update the "last" variables
+	updateCheckVariables();
 }
 
+//////////////
+// Synchronizes the variables used for check below
+void CWorm::updateCheckVariables()
+{
+	tLastState = tState;
+	fLastAngle = fAngle;
+	fLastUpdateWritten = tLX->fCurTime;
+	cNinjaRope.updateCheckVariables();
+}
+
+////////////////////
+// Checks if we need to call writePacket, false when not
+bool CWorm::checkPacketNeeded()
+{
+	// State
+	if (tState.iShoot || tState.iCarve)
+		return true;
+
+	if (
+		(tLastState.iCarve != tState.iCarve) ||
+		(tLastState.iDirection != tState.iDirection)  ||
+		(tLastState.iMove != tState.iMove) ||
+		(tLastState.iJump != tState.iJump) ||
+		(tLastState.iShoot != tState.iShoot))
+			return true;
+
+	// Angle
+	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.25f)
+		return true;
+
+	// Time
+	if (tLX->fCurTime - fLastUpdateWritten >= 1.5f)
+		return true;
+
+	// Rope
+	return cNinjaRope.writeNeeded();
+}
 
 ///////////////////
 // Write a packet out (from client 2 server)

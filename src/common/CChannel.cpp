@@ -114,8 +114,6 @@ void CChannel::Transmit( CBytestream *bs )
 
 		iOutgoingSequence++;
 		bAckRequired = false; // Ack sent
-
-		printf("Sending packet\n");
 	}
 
 	// TODO: Setup the clear time for the choke

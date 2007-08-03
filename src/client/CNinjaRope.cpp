@@ -33,6 +33,12 @@ void CNinjaRope::Clear(void)
 	//RopeLength = false;
 	PlayerAttached = false;
 	Worm = NULL;
+
+	LastReleased = Released;
+	LastHookShooting = HookShooting;
+	LastHookAttached = HookAttached;
+	LastPlayerAttached = PlayerAttached;
+	LastWorm = NULL;
 }
 
 
@@ -49,7 +55,7 @@ void CNinjaRope::Release(void)
 
 
 ///////////////////
-// Shoot the fucka
+// Shoot the rope
 void CNinjaRope::Shoot(CVec pos, CVec dir)
 {
 	Clear();
@@ -306,7 +312,29 @@ CVec CNinjaRope::CalculateForce(CVec playerpos, CVec hookpos)
 	return dir;
 }
 
+//////////////
+// Synchronizes the variables used for check below
+void CNinjaRope::updateCheckVariables()
+{
+	LastReleased = Released;
+	LastHookShooting = HookShooting;
+	LastHookAttached = HookAttached;
+	LastPlayerAttached = PlayerAttached;
+	LastWorm = Worm;
+	LastWrite = tLX->fCurTime;
+}
 
+//////////////
+// Returns true if the write function needs to be called
+bool CNinjaRope::writeNeeded()
+{
+	return  (LastReleased != Released) ||
+			(LastHookShooting != HookShooting) ||
+			(LastHookAttached != HookAttached) ||
+			(LastPlayerAttached != PlayerAttached) ||
+			(LastWorm != Worm) ||
+			((tLX->fCurTime - LastWrite >= 1.5f) && (Released));
+}
 
 ///////////////////
 // Write out the rope details to a bytestream
@@ -356,6 +384,9 @@ void CNinjaRope::write(CBytestream *bs)
 	if(type == ROP_PLYHOOKED) {
 		bs->writeByte( Worm->getID() );
 	}
+
+	// Update the "last" variables
+	updateCheckVariables();
 }
 
 

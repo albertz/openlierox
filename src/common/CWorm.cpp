@@ -60,6 +60,9 @@ void CWorm::Clear(void)
 	vVelocity = CVec(0,0);
 	vFollowPos = CVec(0,0);
 	bFollowOverride = false;
+	fLastUpdateWritten = -9999;
+	tLastState = worm_state_t();
+	fLastAngle = -1;
 
 	cNinjaRope.Clear();
 	fRopeTime = -9999;

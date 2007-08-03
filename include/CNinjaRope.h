@@ -29,6 +29,7 @@ public:
 	CNinjaRope() {
 		Clear();
 
+		LastWrite = -9999;
 		Strength = 0.4f;
 	}
 
@@ -36,10 +37,10 @@ public:
 private:
 	// Attributes
 	
-	int			Released;
-	int			HookShooting;
-	int			HookAttached;
-	int			PlayerAttached;
+	bool		Released;
+	bool		HookShooting;
+	bool		HookAttached;
+	bool		PlayerAttached;
 	CWorm		*Worm;
 	float		RopeLength;
 	float		RestLength;
@@ -49,6 +50,14 @@ private:
 
 	CVec		HookPos;
 	CVec		HookDir;
+
+	// Used for writeNeeded check
+	bool		LastReleased;
+	bool		LastHookShooting;
+	bool		LastHookAttached;
+	bool		LastPlayerAttached;
+	CWorm		*LastWorm;
+	float		LastWrite;
 	
 
 public:
@@ -70,6 +79,8 @@ public:
 	int			isReleased(void)		{ return Released; }
 	void		Release(void);
 
+	void		updateCheckVariables();
+	bool		writeNeeded();
 	void		write(CBytestream *bs);
 	void		read(CBytestream *bs, CWorm *worms, int owner);
 

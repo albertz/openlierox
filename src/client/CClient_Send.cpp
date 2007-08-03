@@ -48,7 +48,23 @@ void CClient::SendWormDetails(void)
 		return;
 
 
+	// Check if we need to write the state update
+	bool update = false;
+	w = cLocalWorms[0];
+	for(i = 0; i < iNumWorms; i++, w++)
+		if (w->checkPacketNeeded())  {
+			update = true;
+			break;
+		}
+	// No update, just quit
+	if (!update)
+		return;
 
+	static int wp = 0;
+	printf("Writting worm packet %i\n", wp);
+	wp++;
+
+	// Write the update
 	bs.writeByte(C2S_UPDATE);
 	
 	w = cLocalWorms[0];
