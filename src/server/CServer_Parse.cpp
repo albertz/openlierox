@@ -650,9 +650,14 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 
 		// Change the name
 		if(!stringcasecmp(cmd, "/setname")) {
-			// Changing others names can only authorized users
-			if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)
+			// Nick changing not allowed
+			if (!tLXOptions->tGameinfo.bAllowNickChange)
 				return;
+
+			// Changing others name can only authorized users
+			if (!cl->OwnsWorm(cWorms + id))
+				if (!cl->getRights()->NameChange)
+					return;
 
 			if(cur_arg == arguments.end())
 				return;

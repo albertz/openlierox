@@ -478,6 +478,9 @@ enum {
 				return true;
 			size_t p = findLastPathSep(dir);
 			std::string f = dir.substr(p+1);
+			if (((CCombobox *)gui->getWidget(comboindex))->getItem(f) != NULL)
+				return true;
+
 			gui->SendMessage(comboindex,CBS_ADDITEM,f,i);
 			if(stringcasecmp(f,"dirt"))
 				*dirtindex = i;
@@ -588,6 +591,10 @@ void Menu_MapEd_New(void)
 			}
 
 		}
+
+		// Game close
+		if (tLX->iQuitGame || !tMenu->iMenuRunning)
+			break;
 
 
 		DrawCursor(tMenu->bmpScreen);

@@ -1769,6 +1769,11 @@ int CMap::Load(const std::string& filename)
 	if (filename == "")
 		return true;
 
+	// Already loaded?
+	if (filename == FileName)
+		return true;
+	FileName = filename;
+
 	FILE *fp = OpenGameFile(filename,"rb");
 	if(fp == NULL)
 		return false;
@@ -1797,6 +1802,7 @@ int CMap::Load(const std::string& filename)
 	}
 
 	Name = freadfixedcstr(fp, 64);
+
 	fread(&Width,		sizeof(int),	1,	fp);
 	EndianSwap(Width);
 	fread(&Height,		sizeof(int),	1,	fp);
@@ -2547,6 +2553,7 @@ void CMap::Shutdown(void)
 	}
 
 	Created = false;
+	FileName = "";
 
 	unlockFlags();
 }

@@ -216,6 +216,7 @@ public:
 		bool	bAllowWantsJoinMsg;
 		bool	bAllowRemoteBots;
 		bool	bTopBarVisible;
+		bool	bAllowNickChange;
 	} tGameinfo;
 
 };

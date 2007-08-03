@@ -97,6 +97,7 @@ public:
         nTotalDirtCount = 0;
 
 		Created = false;
+		FileName = "";
 
 		bmpImage = NULL;
 #ifdef _AI_DEBUG
@@ -125,6 +126,7 @@ private:
 	// Attributes
 
 	std::string	Name;
+	std::string FileName;
 	int			Type;
 	uint		Width;
 	uint		Height;

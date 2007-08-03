@@ -1611,8 +1611,7 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
                 }
 
                 // Re-setup the viewports
-				// TODO: is it safe to ignore count of worms here?
-                if( !b_on /*|| iNumWorms <= 1*/ ) {
+                if( !b_on) {
                     SetupViewports(cLocalWorms[0], NULL, a_type, VW_FOLLOW);
                 } else {
                     SetupViewports(cLocalWorms[0], cLocalWorms[1], a_type, b_type);
