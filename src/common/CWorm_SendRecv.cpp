@@ -18,6 +18,7 @@
 #include "GfxPrimitives.h"
 #include "CWorm.h"
 #include "Protocol.h"
+#include "CServer.h"
 
 
 ///////////////////
@@ -258,6 +259,14 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
+
+	// Check for a position hack (can occur from severe lag or screenshoting)
+	if(x>cServer->getMap()->GetWidth() || y>cServer->getMap()->GetHeight())
+		cServer->kickWorm(iID);
+
+	// Check for wall hack (can occur from lag or recoil)
+	if(cServer->getMap()->GetPixelFlag(x,y)==PX_ROCK)
+		cServer->kickWorm(iID);
 }
 
 ////////////////

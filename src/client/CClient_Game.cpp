@@ -139,7 +139,7 @@ void CClient::Simulation(void)
 					continue;
 
 				if(w->CheckBonusCollision(b)) {
-					if(local) {
+					if(local || cLocalWorms[0]->getID()==0) {
 						if( w->GiveBonus(b) ) {
 
 							// Pickup noise
@@ -684,7 +684,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		// His dead Jim
 
 		// Kill me
-		if(me) {
+		if(me || cLocalWorms[0]->getID()==0) {
 			w->setAlive(false);
 			w->Kill();
             w->clearInput();
