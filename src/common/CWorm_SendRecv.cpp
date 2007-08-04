@@ -262,11 +262,11 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 	// Check for a position hack (can occur from severe lag or screenshoting)
 	if(x>cServer->getMap()->GetWidth() || y>cServer->getMap()->GetHeight())
-		cServer->kickWorm(iID);
+		vPos=cServer->FindSpot();
 
 	// Check for wall hack (can occur from lag or recoil)
 	if(cServer->getMap()->GetPixelFlag(x,y)==PX_ROCK)
-		cServer->kickWorm(iID);
+		vPos=cServer->FindSpot();
 }
 
 ////////////////
