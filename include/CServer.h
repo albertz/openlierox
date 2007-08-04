@@ -182,7 +182,7 @@ public:
 	void		BeginMatch(void);
 
 	void		SpawnWorm(CWorm *Worm);
-	void		SpawnWorm(CWorm *Worm, CVec pos);
+	void		SpawnWorm(CWorm *Worm, CVec pos, CClient *cl);
 	void		SimulateGame(void);
 	CVec		FindSpot(void);
 	void		SpawnBonus(void);
@@ -220,6 +220,7 @@ public:
     void        CheckReadyClient(void);
 
 	// Sending
+	void		SendPacket(CBytestream *bs, CClient *cl);
 	void		SendGlobalPacket(CBytestream *bs);
 	void		SendText(CClient *cl, const std::string& text, int type);
 	void		SendGlobalText(const std::string& text, int type);

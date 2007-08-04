@@ -23,6 +23,16 @@
 using namespace std;
 
 ///////////////////
+// Send a client a packet
+void GameServer::SendPacket(CBytestream *bs, CClient *cl)
+{
+	if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+		return;
+
+	cl->getChannel()->getMessageBS()->Append(bs);
+}
+
+///////////////////
 // Send all the clients a packet
 void GameServer::SendGlobalPacket(CBytestream *bs)
 {

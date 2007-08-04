@@ -47,7 +47,7 @@ void GameServer::SpawnWorm(CWorm *Worm)
 
 ///////////////////
 // Spawn a worm
-void GameServer::SpawnWorm(CWorm *Worm, CVec pos)
+void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 {
 	if (iGameOver)
 		return;
@@ -61,7 +61,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec pos)
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt( (int)pos.x, 2);
 	bs.writeInt( (int)pos.y, 2);
-	SendGlobalPacket(&bs);
+	SendPacket(&bs, cl);
 }
 
 
