@@ -261,12 +261,17 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	}
 
 	// Check for a position hack (can occur from severe lag or screenshoting)
-	if(x>cServer->getMap()->GetWidth() || y>cServer->getMap()->GetHeight())
-		vPos=cServer->FindSpot();
+	if (tGameInfo.iGameType == GME_HOST)  {
 
-	// Check for wall hack (can occur from lag or recoil)
-	if(cServer->getMap()->GetPixelFlag(x,y)==PX_ROCK)
-		vPos=cServer->FindSpot();
+		if(x > cServer->getMap()->GetWidth() || y > cServer->getMap()->GetHeight())
+			//vPos=cServer->FindSpot(); // Would not work because local worms are simulated on client's machine
+			cClient->SendDeath(iID, iID);
+
+		// Check for wall hack (can occur from lag or recoil)
+		if(cServer->getMap()->GetPixelFlag(x, y) & PX_ROCK)
+			//vPos=cServer->FindSpot();
+			cClient->SendDeath(iID, iID);
+	}
 }
 
 ////////////////

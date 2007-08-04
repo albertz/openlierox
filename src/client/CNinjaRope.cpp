@@ -330,6 +330,9 @@ void CNinjaRope::updateCheckVariables()
 // Returns true if the write function needs to be called
 bool CNinjaRope::writeNeeded()
 {
+	if (!Released)
+		return false;
+
 	if		((LastReleased != Released) ||
 			(LastHookShooting != HookShooting) ||
 			(LastHookAttached != HookAttached) ||
