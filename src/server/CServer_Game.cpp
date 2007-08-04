@@ -46,6 +46,26 @@ void GameServer::SpawnWorm(CWorm *Worm)
 
 
 ///////////////////
+// Spawn a worm
+void GameServer::SpawnWorm(CWorm *Worm, CVec pos)
+{
+	if (iGameOver)
+		return;
+
+	Worm->Spawn(pos);
+
+	// Send a spawn packet to everyone
+	static CBytestream bs;
+	bs.Clear();
+	bs.writeByte(S2C_SPAWNWORM);
+	bs.writeInt(Worm->getID(), 1);
+	bs.writeInt( (int)pos.x, 2);
+	bs.writeInt( (int)pos.y, 2);
+	SendGlobalPacket(&bs);
+}
+
+
+///////////////////
 // Find a spot with no rock
 CVec GameServer::FindSpot(void)
 {

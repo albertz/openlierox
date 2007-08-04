@@ -182,6 +182,7 @@ public:
 	void		BeginMatch(void);
 
 	void		SpawnWorm(CWorm *Worm);
+	void		SpawnWorm(CWorm *Worm, CVec pos);
 	void		SimulateGame(void);
 	CVec		FindSpot(void);
 	void		SpawnBonus(void);

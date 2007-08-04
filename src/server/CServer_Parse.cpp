@@ -293,10 +293,9 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	log_worm_t *log_kill = GetLogWorm(kill->getID());
 
 	// Cheat prevention check (God Mode etc), make sure killer is the host
-	// Cheat prevention check: Make sure the victim is one of the client's worms
-	// Allows host to kill regardless of whether they own the worm to allow for a suicide command
-	if (/*!cl->OwnsWorm(vict) && */cl->getWorm(0)->getID())  {
+	if (cl->getWorm(0)->getID())  {
 	//	printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
+		SpawnWorm(vict, vict->getPos());
 		return;
 	}
 
