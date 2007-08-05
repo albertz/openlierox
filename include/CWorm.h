@@ -190,6 +190,7 @@ private:
 	CVec		vPos;
 	CVec		vOldPos;
 	CVec		vVelocity;
+	CVec		vLastPos;
 	int			iOnGround;
 
 	CVec		vFollowPos;
