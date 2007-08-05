@@ -41,7 +41,6 @@ public:
 		sText = text;
 		iColour = col;
 		iType = wid_Label;
-		bRedrawMenu = true;
 	}
 
 
@@ -84,7 +83,6 @@ public:
 			redrawBuffer();
 		tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
-	inline void SetRedrawMenu(bool _r) { bRedrawMenu = _r; }
 
 	void	LoadStyle(void) {}
 

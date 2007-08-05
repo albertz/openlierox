@@ -132,7 +132,6 @@ public:
 		bOldStyle = false;
 		iSavedScrollbarPos = 0;
 		iLastChar = 0;
-		bRedrawMenu = true;
 		bDrawBorder = true;
 		bNeedsRepaint = true;
 		bCustomScrollbarSetup = false;
@@ -149,7 +148,6 @@ public:
 private:
 	// Attributes
 	bool			bOldStyle;
-	bool			bRedrawMenu;
 	bool			bDrawBorder;
 	bool            bShowSelect;
 	bool			bCustomScrollbarSetup;
@@ -252,7 +250,6 @@ public:
 	gui_event_t *getWidgetEvent()	{ return &tLastWidgetEvent; }
 
     void    setShowSelect(bool s)   { bShowSelect = s; }
-	void	setRedrawMenu(bool _r)	{ bRedrawMenu = _r; }
 	void	setDrawBorder(bool _d)	{ bDrawBorder = _d; }
 
 	void	SaveScrollbarPos(void)    { iSavedScrollbarPos = cScrollbar.getValue(); }

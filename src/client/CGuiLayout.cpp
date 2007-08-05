@@ -946,7 +946,7 @@ DWORD CGuiLayout::SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2
 
 			// Set the enabled state of the widget
 			case WDM_SETENABLE:
-				w->setEnabled(Param1);
+				w->setEnabled(Param1 != 0);
 				break;
 		}
 		return 0;

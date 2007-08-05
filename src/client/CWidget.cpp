@@ -28,7 +28,7 @@ void CWidget::Setup(int id, int x, int y, int w, int h)
 	iY = y;
 	iWidth = w;
 	iHeight = h;
-	iEnabled = true;
+	bEnabled = true;
 
 	// Reset the events
 	int i;
@@ -39,13 +39,9 @@ void CWidget::Setup(int id, int x, int y, int w, int h)
 
 ///////////////////
 // Returns true if a point is inside this widget
-int CWidget::InBox(int x, int y)
+bool CWidget::InBox(int x, int y)
 {
-	if(x > iX && x < iX+iWidth)
-		if(y > iY && y < iY+iHeight)
-			return true;
-
-	return false;
+	return (x > iX && x < iX+iWidth)  && (y > iY && y < iY+iHeight);
 }
 
 

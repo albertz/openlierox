@@ -181,6 +181,8 @@ public:
     // Advanced
     int     nMaxFPS;
 	int		iJpegQuality;
+	bool	bCountTeamkills;
+	bool	bServerSideHealth;
 
 	// Misc.
 	int     iLogConvos;

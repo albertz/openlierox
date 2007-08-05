@@ -271,7 +271,7 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return MP_WID_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown) { iCanLoseFocus = true; return MP_WID_NONE; }
+	int		MouseUp(mouse_t *tMouse, int nDown) { bCanLoseFocus = true; return MP_WID_NONE; }
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }

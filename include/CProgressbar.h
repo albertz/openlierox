@@ -35,7 +35,6 @@ public:
 private:
 	// Attributes
 	CBar	cProgressBar;
-	bool	bRedrawMenu;
 
 public:
 	// Methods
@@ -66,7 +65,6 @@ public:
 	}
 
 	inline void SetPosition(int _pos)  { cProgressBar.SetPosition(_pos); }
-	inline void SetRedrawMenu(bool _r) { bRedrawMenu = _r; }
 
 	void	LoadStyle(void) {}
 

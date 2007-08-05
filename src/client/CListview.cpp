@@ -114,7 +114,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 		// Selected?
 		if(item->iSelected && bShowSelect) {
-			if(iFocused)
+			if(bFocused)
 				DrawRectFill(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);
 			else
 				DrawRect(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);

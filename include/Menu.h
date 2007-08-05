@@ -431,7 +431,7 @@ bool    Menu_WeaponsRestrictions_Frame(void);
 void	Menu_WeaponsRestrictionsShutdown(void);
 
 // Load/save dialog
-void	Menu_WeaponPresets(int save, CWpnRest *gamescript);
+void	Menu_WeaponPresets(bool save, CWpnRest *gamescript);
 int		Menu_WeaponPresetsOkSave(const std::string& szFilename);
 void	Menu_WeaponPresetsShutdown(void);
 

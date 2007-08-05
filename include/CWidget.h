@@ -45,28 +45,29 @@ public:
 		iType = -1;
 		iX = iY = 0;
 		iWidth = iHeight = 1;
-		iFocused = false;
-		iEnabled = true;
-
-		iCanLoseFocus = true;
+		bFocused = false;
+		bEnabled = true;
+		bRedrawMenu = true;
+		bCanLoseFocus = true;
 	}
 
     // what is it? what is it??? well yes, it's the destructor!!
     virtual ~CWidget() {}
 
-public:
+protected:
 	// Attributes
 
 	int		iX, iY;
 	int		iWidth, iHeight;
-	int		iFocused;
+	bool	bFocused;
 	int		iType;
-	int		iCanLoseFocus;
+	bool	bRedrawMenu;
+	bool	bCanLoseFocus;
 
 
 private:
 	int					iID;
-	int					iEnabled;
+	bool				bEnabled;
 
 	generic_events_t	tEvents;
 	void				*cParent;
@@ -81,7 +82,7 @@ public:
 
 	// Widget functions
 	void			Setup(int id, int x, int y, int w, int h);
-	int				InBox(int x, int y);
+	bool			InBox(int x, int y);
 
     void            redrawBuffer(void);
 
@@ -94,11 +95,14 @@ public:
 	void			setID(int _i)					{ iID = _i; }
 	int				getType(void)					{ return iType; }
 
-	void			setFocused(int _f)				{ iFocused = _f; }
-	int				getFocused(void)				{ return iFocused; }
+	void			setFocused(bool _f)				{ bFocused = _f; }
+	bool			getFocused(void)				{ return bFocused; }
 
-	int				getEnabled(void)				{ return iEnabled; }
-	void			setEnabled(int _e)				{ iEnabled = _e; }
+	bool			getEnabled(void)				{ return bEnabled; }
+	void			setEnabled(bool _e)				{ bEnabled = _e; }
+
+	bool			getRedrawMenu(void)				{ return bRedrawMenu; }
+	void			setRedrawMenu(bool _r)			{ bRedrawMenu = _r; }
 
 	int				getX()							{ return iX; }
 	int				getY()							{ return iY; }
@@ -108,8 +112,8 @@ public:
 	void			*getParent(void)				{ return cParent; }
 	void			setParent(void *l)				{ cParent = l; }
 
-	int				CanLoseFocus(void)				{ return iCanLoseFocus; }
-	void			setLoseFocus(int _f)			{ iCanLoseFocus = _f; }
+	bool			CanLoseFocus(void)				{ return bCanLoseFocus; }
+	void			setLoseFocus(bool _f)			{ bCanLoseFocus = _f; }
 
 	void			SetupEvents(generic_events_t *Events);
 	void			ProcessEvent(int Event);

@@ -205,6 +205,8 @@ bool GameOptions::LoadFromDisc()
     ReadInteger(f, "Advanced", "MaxFPS",    &nMaxFPS, 95);
 	ReadInteger(f, "Advanced", "JpegQuality", &iJpegQuality, 80);
 	ReadFloat  (f, "Advanced", "NetworkUpdatePeriod", &fUpdatePeriod,0.05f);
+	ReadKeyword(f, "Advanced", "CountTeamkills", &bCountTeamkills, false);
+	ReadKeyword(f, "Advanced", "ServerSideHealth", &bServerSideHealth, true);
 
 	// Clamp the Jpeg quality
 	if (iJpegQuality < 1)
@@ -357,6 +359,8 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "MaxFPS = %d\n",    nMaxFPS);
 	fprintf(fp, "JpegQuality = %d\n", iJpegQuality);
 	fprintf(fp, "NetworkUpdatePeriod = %f\n", fUpdatePeriod);
+	fprintf(fp, "CountTeamkills = %s\n", bCountTeamkills ? "true" : "false");
+	fprintf(fp, "ServerSideHealth = %s\n", bServerSideHealth ? "true" : "false");
 
     fclose(fp);
 }

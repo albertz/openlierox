@@ -43,7 +43,6 @@ public:
 		bMouseDown = false;
 		iType = wid_Button;
         iGoodWidth = 250;
-		bRedrawMenu = true;
 		iButtonType = BUT_MENU;
 	}
 
@@ -52,7 +51,6 @@ public:
 		bmpImage = image;
 		bMouseOver = false;
 		bMouseDown = false;
-		bRedrawMenu = true;
 		iType = wid_Button;
         iGoodWidth = 250;
 		iButtonType = BUT_MENU;
@@ -63,7 +61,6 @@ public:
 		bmpImage = LoadImage(path);
 		bMouseOver = false;
 		bMouseDown = false;
-		bRedrawMenu = true;
 		iType = wid_Button;
         iGoodWidth = 250;
 		iButtonType = BUT_TWOSTATES;
@@ -99,9 +96,6 @@ public:
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
-
-	inline void	setRedrawMenu(bool _r)  { bRedrawMenu = _r; }
-	inline bool	getRedrawMenu(void)	 { return bRedrawMenu; }
 
 	// Draw the button
 	void	Draw(SDL_Surface *bmpDest);

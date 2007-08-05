@@ -104,7 +104,7 @@ void CPlayerSlider::Draw(SDL_Surface *bmpDest)
 // Mouse down event on the slider
 int CPlayerSlider::MouseDown(mouse_t *tMouse, int nDown)
 {
-	iCanLoseFocus = false;
+	bCanLoseFocus = false;
 
 	int x = iX+5;
 	int w = iWidth - 10;

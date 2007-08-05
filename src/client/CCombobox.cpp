@@ -184,7 +184,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 		x=15;
 	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,14, iX+iWidth-16,iY+2, 15,14);
 
-	if(!iFocused)  {
+	if(!bFocused)  {
 		iDropped = false;
 		iKeySelectedItem = -1;
 	}

@@ -1274,7 +1274,7 @@ CGuiLayout cWpnPresets;
 		}
 	};
 
-void Menu_WeaponPresets(int save, CWpnRest *wpnrest)
+void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 {
 	if (!wpnrest)
 		return;

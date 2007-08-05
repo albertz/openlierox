@@ -36,7 +36,6 @@ public:
 		iType = wid_Image;
 		sPath = Path;
 		tImage = NULL;
-		bRedrawMenu = true;
 		if (Path != "")  {
 			tImage = LoadImage(Path);
 
@@ -49,7 +48,6 @@ public:
 		iType = wid_Image;
 		sPath = "";
 		tImage = img;
-		bRedrawMenu = true;
 		if (tImage)  {
 			iWidth = tImage->w;
 			iHeight = tImage->h;
@@ -88,10 +86,6 @@ public:
 	void	Draw(SDL_Surface *bmpDest);
 
 	void	LoadStyle(void) {}
-
-	void	setRedrawMenu(bool _r)  { bRedrawMenu = _r; }
-	bool	getRedrawMenu()			{ return bRedrawMenu; }
-
 };
 
 

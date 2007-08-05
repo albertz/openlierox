@@ -62,13 +62,13 @@ int Menu_NetInitialize(void)
 	cIpToCountryProgress.Setup(-1, tMenu->tFrontendInfo.iLoadingBarLeft, tMenu->tFrontendInfo.iLoadingBarTop, 0, 0);
 	cIpToCountryProgress.SetPosition(0);
 	cIpToCountryProgress.Create();
-	cIpToCountryProgress.SetRedrawMenu(false);
+	cIpToCountryProgress.setRedrawMenu(false);
 
 	// Setup the label
 	cIpToCountryLabel = CLabel("Loading IpToCountry database...", tLX->clIpLoadingLabel);
 	cIpToCountryLabel.Setup(-1, tMenu->tFrontendInfo.iLoadingLabelLeft, tMenu->tFrontendInfo.iLoadingLabelTop, 0, 0);
 	cIpToCountryLabel.Create();
-	cIpToCountryLabel.SetRedrawMenu(false);
+	cIpToCountryLabel.setRedrawMenu(false);
 
 	// Get the loading rect (used for redrawing)
 	tLoadingRect.x = MIN(tMenu->tFrontendInfo.iLoadingLabelLeft, MIN(tMenu->tFrontendInfo.iLoadingAnimLeft, tMenu->tFrontendInfo.iLoadingBarLeft));

@@ -129,7 +129,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	tLX->cFont.DrawAdv(bmpDest, iX + 3, iY, iWidth-4, tLX->clTextBox, text);
 
 	// Draw cursor (only when focused)
-	if(iFocused) {
+	if(bFocused) {
 
 		if ((GetMilliSeconds()-fBlinkTime) > 0.5)  {
 			iDrawCursor = !iDrawCursor;
@@ -412,7 +412,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 				scrolled = true;
 			iSelLength += -(int)(iCurpos - iLastCurpos);
 			// We can't lose the focus
-			iCanLoseFocus = false;
+			bCanLoseFocus = false;
 		}
 	}
 	else  {
@@ -422,7 +422,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 		sSelectedText = "";
 		iLastCurpos = iCurpos;
 		// We can lose focus now
-		iCanLoseFocus = true;
+		bCanLoseFocus = true;
 	}
 
 	// Set up the variables for selection
@@ -450,7 +450,7 @@ int	CTextbox::MouseUp(mouse_t *tMouse, int nDown)
 	fScrollTime = 0;  // We can scroll the textbox using mouse
 
 	// We can lose focus now
-	iCanLoseFocus = true;
+	bCanLoseFocus = true;
 
 	return TXT_NONE;
 }
