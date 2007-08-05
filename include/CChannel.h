@@ -73,6 +73,11 @@ private:
 	float		fLastPckRecvd;
 	float		fLastSent;
 
+	// Pinging
+	int			iPing;								// current ping
+	float		fLastPingSent;
+	int			iPongSequence;						// expected pong sequence, -1 when not pinging
+
 
 	// Statistics
 	int			iPacketsDropped;
@@ -88,7 +93,7 @@ public:
 	void		Transmit( CBytestream *bs );
 	int			Process(CBytestream *bs);
 	inline void		Clear(void)				{ fLastPckRecvd = 0;
-		iPort = 23400; InvalidateSocketState(Socket);
+		iPort = LX_PORT; InvalidateSocketState(Socket);
 										  iPacketsDropped = 0; iPacketsGood = 0; }
 
 
@@ -109,6 +114,8 @@ public:
 
 	inline int	getOutoing(void)		{ return iOutgoingBytes; }
 	inline int	getIncoming(void)		{ return iIncomingBytes; }
+
+	inline int	getPing()				{ return iPing; }
 
 	NetworkSocket	getSocket(void)			{ return Socket; }
 };

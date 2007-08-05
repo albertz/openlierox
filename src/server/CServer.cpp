@@ -669,13 +669,13 @@ void GameServer::CheckTimeouts(void)
 
 	// Cycle through clients
 	CClient *cl = cClients;
-	for(c=0;c<MAX_CLIENTS;c++,cl++) {
+	for(c = 0; c < MAX_CLIENTS; c++, cl++) {
 		// Client not connected
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
         // Check for a drop
-		if(cl->getLastReceived() < dropvalue && cl->getStatus() != NET_ZOMBIE) {
+		if(cl->getLastReceived() < dropvalue && cl->getStatus() != NET_ZOMBIE && cl->getWorm(0)->getID() != 0) {
 			DropClient(cl, CLL_TIMEOUT);
 		}
 

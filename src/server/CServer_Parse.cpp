@@ -35,52 +35,17 @@
 // Parses a general packet
 void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
 	CChannel *chan = cl->getChannel();
-	ping_t *ping;
-	bool bResetPing = false;
-
-	// Calculate the ping time
-	ping = cl->getPingStruct();
-	if (ping->iSequence <= chan->getInAck())  {
-		if ((tLX->fCurTime - cl->getLastPingTime()) > 1)  {  // Update ping once per second
-			int png = (int)((tLX->fCurTime - ping->fSentTime) * 1000 - 20);
-
-			if (cl->getPing() > 99999)
-				cl->setPing(0);
-
-			// Make the ping slighter
-			if (png - cl->getPing() > 5 && cl->getPing() && png)
-				png = (png + cl->getPing() + cl->getPing()) / 3;
-			if (cl->getPing() - png > 5 && cl->getPing() && png)
-				png = (png + png + cl->getPing()) / 3;
-
-			if (png > 99999)
-				png = 0;
-
-			cl->setPing(png);
-			cl->setLastPingTime(tLX->fCurTime);
-
-		}
-		bResetPing = true;
-	}
 
 	// Ensure the incoming sequence matchs the outgoing sequence
 	if (chan->getInSeq() >= chan->getOutSeq())
 		chan->setOutSeq(chan->getInSeq());
-	else
+	else {
 		// Sequences have slipped
-		bResetPing = true;
-	// TODO: Set the player's send_data property to false
-
-
-	// Set the sent out time for ping calculations
-	ping = cl->getPingStruct();
-	if (bResetPing || !ping->bInitialized) {
-		ping->fSentTime = chan->getLastSent();
-		ping->iSequence = chan->getOutSeq();
-		ping->bInitialized  = true;
+		// TODO: Set the player's send_data property to false
 	}
 
 	cl->setLastReceived(tLX->fCurTime);
+
 
 	// Do not process empty packets
 	if (bs->isPosAtEnd())

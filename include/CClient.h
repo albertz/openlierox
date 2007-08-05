@@ -63,13 +63,6 @@ class chat_line_t { public:
 };
 
 
-// Ping structure
-class ping_t { public:
-	bool	bInitialized;
-	float	fSentTime;
-	int		iSequence;
-};
-
 class interface_sett { public:
 	int		ChatterX;
 	int		ChatterY;
@@ -198,15 +191,9 @@ public:
 		iNetSpeed = 3;
 		fLastUpdateSent = -9999;
 
-		tPing.bInitialized = false;
-		tPing.iSequence = 0;
-		tPing.fSentTime = 0;
-
 		iMyPing = 0;
 		fMyPingRefreshed = 0;
 		fMyPingSent = 0;
-		iPing = 0;
-		fTimePingUpdated = 0;
 
 		//fProjDrawTime = 0;
 		//fProjSimulateTime = 0;
@@ -349,11 +336,6 @@ private:
 	float		fLastUpdateSent;
 	std::string	szServerName;
 	ClientRights tRights;
-
-	// Ping
-	ping_t		tPing;
-	int			iPing;
-	float		fTimePingUpdated;
 
 	int			iReadySent;
 
@@ -546,12 +528,7 @@ public:
     void        setZombieTime(float z)      { fZombieTime = z; }
     float       getZombieTime(void)         { return fZombieTime; }
 
-	float		getLastPingTime(void)		{ return fTimePingUpdated; }
-	void		setLastPingTime(float Time) { fTimePingUpdated = Time; }
-
 	frame_t		*getFrame(int FrameID)		{ return &tFrames[ FrameID ]; }
-
-	ping_t		*getPingStruct(void)		{ return &tPing; }
 
 	int			getTeamScore(int team)		{ return iTeamScores[team]; }
 
@@ -562,8 +539,7 @@ public:
 
 	ClientRights *getRights()				{ return &tRights; }
 
-	inline int	getPing(void)				{ return iPing; }
-	inline void	setPing(int Ping)			{ iPing = Ping; }
+	inline int	getPing(void)				{ return cNetChan.getPing(); }
 
 	inline void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
 	inline std::string getServerAddress(void)		{ return strServerAddr; }

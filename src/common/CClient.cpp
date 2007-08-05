@@ -80,7 +80,6 @@ void CClient::Clear(void)
     iClientError = false;
 	iChat_Typing = false;
 	fLastReceived = 99999;
-	iPing = 0;
 	fSendWait = 0;
 	fLastUpdateSent = -9999;
 

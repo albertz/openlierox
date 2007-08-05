@@ -32,6 +32,9 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iPacketsDropped=0;
 	iPacketsGood=0;
 	fLastSent = tLX->fCurTime-1;
+	fLastPingSent = fLastSent;
+	iPongSequence = -1;
+	iPing = 0;
 
 	// Clear the sequences
 	iIncomingSequence = 0;
@@ -52,36 +55,50 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 void CChannel::Transmit( CBytestream *bs )
 {
 	CBytestream outpack;
-	bool SendReliable = false;
+	int SendReliable = 0;
 	bool SendPacket = false;
+	bool XorSequence = false;
 	Uint32 r1,r2;	
 
 	outpack.Clear();
 
 	// If the remote side dropped the last reliable packet, re-send it
 	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
-		SendReliable = true;
+		SendReliable = 1;
 		SendPacket = true;
 	}
 
 
 	// If the reliable buffer is empty, copy the reliable message into it
-	if(Reliable.GetLength() == 0 && Message.GetLength() > 0) {
-		Reliable = Message;
-		Message.Clear();
+	if(Reliable.GetLength() == 0) {
+		bool got_reliable = false;
+
+		if (Message.GetLength() > 0)  {
+			Reliable = Message;
+			Message.Clear();
+			got_reliable = true;
+		}
+
+		if (tLX->fCurTime - fLastPingSent >= 1.5f)  { // Send the packet if needed for pinging and wait for ack
+			iPongSequence = iOutgoingSequence;
+			fLastPingSent = tLX->fCurTime;
+			got_reliable = true;
+		}
 		
 		// We got a reliable packet to send
-		SendReliable = true;
-		SendPacket = true;
+		if (got_reliable)  {
+			SendReliable = 1;
+			SendPacket = true;
 
-		// XOR the reliable sequence
-		iReliableSequence ^= 1;
+			// XOR the reliable sequence
+			iReliableSequence ^= 1;
+		}
 	}
 
 
 	// Create the reliable packet header
-	r1 = iOutgoingSequence | (SendReliable<<31);
-	r2 = iIncomingSequence | (iIncoming_ReliableSequence<<31);
+	r1 = iOutgoingSequence | (SendReliable << 31);
+	r2 = iIncomingSequence | (iIncoming_ReliableSequence << 31);
 
 
 	outpack.writeInt(r1,4);
@@ -98,7 +115,7 @@ void CChannel::Transmit( CBytestream *bs )
 
 	// And add on the un reliable data if room in the packet struct
 	if(bs)
-		if (bs->GetLength() + outpack.GetLength() < 4096)  {  // Backward compatibility
+		if (bs->GetLength() + outpack.GetLength() <= 4096)  {  // Backward compatibility
 			outpack.Append(bs);
 			SendPacket = SendPacket || bs->GetLength() > 0;
 		}
@@ -150,10 +167,10 @@ int CChannel::Process(CBytestream *bs)
 	// TODO: Get rate estimation
 
 	// Get rid of the old packets
-	// Small hack: there's a bug in old clients causing the forst packet is ignored and needs to be resent
+	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later
 	// It caused a delay when joining (especially on high-ping servers), this hack improves it
 	if((Sequence <= (Uint32)iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
-		printf("Warning: Packet dropped");
+		printf("Warning: Packet dropped (Sequence: %i, IncomingSequence: %i)\n", Sequence, iIncomingSequence);
 		bs->Dump();
 		return false;
 	}
@@ -184,6 +201,15 @@ int CChannel::Process(CBytestream *bs)
 		
 		// Got a message that needs an acknowledgement
 		bAckRequired = true;
+	}
+
+	// Ping update
+	if ((Uint32)iPongSequence <= SequenceAck)  {
+		iPing = (int)((tLX->fCurTime - fLastPingSent) * 1000) - 20;  // -20 - the ping is received by the channel, then
+																	 // frame is simulated and then the reply is sent -> delay
+																	 // most of people have FPS between 60 - 100, so about 20ms delay
+																	 // It's dirty but no better solution is possible with the current protocol
+		iPongSequence = -1;
 	}
 
 

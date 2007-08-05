@@ -152,7 +152,9 @@ void CWorm::updateCheckVariables()
 bool CWorm::checkPacketNeeded()
 {
 	// State
-	if (tState.iShoot || tState.iCarve)
+	if (tState.iCarve)
+		return true;
+	if (tState.iShoot && !tWeapons[iCurrentWeapon].Reloading)
 		return true;
 
 	if (
