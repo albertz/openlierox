@@ -380,45 +380,51 @@ bool NetworkTexts::LoadFromDisc()
 	
 	const std::string f = "cfg/network.txt";
 	ReadString (f, "NetworkTexts", "HasConnected",    sHasConnected,	"<player> has connected");
-	ReadString (f, "NetworkTexts", "HasLeft",	      sHasLeft,		"<player> has left");
-	ReadString (f, "NetworkTexts", "HasTimedOut",     sHasTimedOut,	"<player> has timed out");
+	ReadString (f, "NetworkTexts", "HasLeft",	      sHasLeft,			"<player> has left");
+	ReadString (f, "NetworkTexts", "HasTimedOut",     sHasTimedOut,		"<player> has timed out");
 
 	ReadString (f, "NetworkTexts", "HasBeenKicked",   sHasBeenKicked,	"<player> has been kicked out");
 	ReadString (f, "NetworkTexts", "HasBeenBanned",   sHasBeenBanned,	"<player> has been banned");
 	ReadString (f, "NetworkTexts", "HasBeenMuted",    sHasBeenMuted,	"<player> has been muted");
-	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  sHasBeenUnmuted,"<player> has been unmuted");
+	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  sHasBeenUnmuted,	"<player> has been unmuted");
 	ReadString (f, "NetworkTexts", "KickedYou",		  sKickedYou,		"You have been kicked");
 	ReadString (f, "NetworkTexts", "BannedYou",		  sBannedYou,		"You have been banned");
-	ReadString (f, "NetworkTexts", "YouQuit",		  sYouQuit,		"You have quit");
+	ReadString (f, "NetworkTexts", "YouQuit",		  sYouQuit,			"You have quit");
 	ReadString (f, "NetworkTexts", "YouTimed",		  sYouTimed,		"You timed out");
 
-	ReadString (f, "NetworkTexts", "Killed",	      sKilled,		"<killer> killed <victim>");
-	ReadString (f, "NetworkTexts", "CommitedSuicide", sCommitedSuicide,"<player> commited suicide");
-	ReadString (f, "NetworkTexts", "FirstBlood",	  sFirstBlood,	"<player> drew first blood");
+	ReadString (f, "NetworkTexts", "Killed",	      sKilled,			"<killer> killed <victim>");
+	ReadString (f, "NetworkTexts", "CommitedSuicide", sCommitedSuicide,	"<player> commited suicide");
+	ReadString (f, "NetworkTexts", "FirstBlood",	  sFirstBlood,		"<player> drew first blood");
 	ReadString (f, "NetworkTexts", "TeamKill",		  sTeamkill,		"<player> is an ugly teamkiller");
 
 	ReadString (f, "NetworkTexts", "PlayerOut",		  sPlayerOut,		"<player> is out of the game");
-	ReadString (f, "NetworkTexts", "TeamOut",		  sTeamOut,		"The <team> team is out of the game");
+	ReadString (f, "NetworkTexts", "TeamOut",		  sTeamOut,			"The <team> team is out of the game");
 	ReadString (f, "NetworkTexts", "PlayerHasWon",	  sPlayerHasWon,	"<player> has won the match");
-	ReadString (f, "NetworkTexts", "TeamHasWon",	  sTeamHasWon,	"The <team> team has won the match");
+	ReadString (f, "NetworkTexts", "TeamHasWon",	  sTeamHasWon,		"The <team> team has won the match");
 
 	ReadString (f, "NetworkTexts", "WormIsIt",		  sWormIsIt,		"<player> is IT!");
 
-	ReadString (f, "NetworkTexts", "Spree1",		  sSpree1,		"<player> is on a killing spree!");
-	ReadString (f, "NetworkTexts", "Spree2",		  sSpree2,		"<player> is on a rampage!");
-	ReadString (f, "NetworkTexts", "Spree3",		  sSpree3,		"<player> is dominating!");
-	ReadString (f, "NetworkTexts", "Spree4",		  sSpree4,		"<player> is unstoppable!");
-	ReadString (f, "NetworkTexts", "Spree5",		  sSpree5,		"<player> is GODLIKE!");
+	ReadString (f, "NetworkTexts", "Spree1",		  sSpree1,			"<player> is on a killing spree!");
+	ReadString (f, "NetworkTexts", "Spree2",		  sSpree2,			"<player> is on a rampage!");
+	ReadString (f, "NetworkTexts", "Spree3",		  sSpree3,			"<player> is dominating!");
+	ReadString (f, "NetworkTexts", "Spree4",		  sSpree4,			"<player> is unstoppable!");
+	ReadString (f, "NetworkTexts", "Spree5",		  sSpree5,			"<player> is GODLIKE!");
+
+	ReadString (f, "NetworkTexts", "DyingSpree1",	  sDSpree1,			"<player> is on a dying spree!");
+	ReadString (f, "NetworkTexts", "DyingSpree2",	  sDSpree2,			"<player> is a target!");
+	ReadString (f, "NetworkTexts", "DyingSpree3",	  sDSpree3,			"<player> is a sitting duck!");
+	ReadString (f, "NetworkTexts", "DyingSpree4",	  sDSpree4,			"<player> is free kills!");
+	ReadString (f, "NetworkTexts", "DyingSpree5",	  sDSpree5,			"<player> is WORTHLESS!");
 
 	ReadString (f, "NetworkTexts", "ServerFull",	  sServerFull,		"Server is full");
-	ReadString (f, "NetworkTexts", "NoEmptySlots",	  sNoEmptySlots,		"The server has no emtpy slots");
-	ReadString (f, "NetworkTexts", "WrongProtocol",	  sWrongProtocol,		"Wrong protocol version. Server protocol version is <version>.");
+	ReadString (f, "NetworkTexts", "NoEmptySlots",	  sNoEmptySlots,	"The server has no emtpy slots");
+	ReadString (f, "NetworkTexts", "WrongProtocol",	  sWrongProtocol,	"Wrong protocol version. Server protocol version is <version>.");
 	ReadString (f, "NetworkTexts", "BadVerification", sBadVerification,	"Bad connection verification");
-	ReadString (f, "NetworkTexts", "NoIpVerification",sNoIpVerification,	"No verification for address");
+	ReadString (f, "NetworkTexts", "NoIpVerification",sNoIpVerification,"No verification for address");
 	ReadString (f, "NetworkTexts", "GameInProgress",  sGameInProgress,	"Cannot join, the game is currently in progress");
-	ReadString (f, "NetworkTexts", "YouAreBanned",	  sYouAreBanned,		"You are banned on this server");
+	ReadString (f, "NetworkTexts", "YouAreBanned",	  sYouAreBanned,	"You are banned on this server");
 	ReadString (f, "NetworkTexts", "BotsNotAllowed",  sBotsNotAllowed,	"Sorry, bots are not allowed on this server");
-	ReadString (f, "NetworkTexts", "WantsJoin",		  sWantsJoin,			"<player> wants to join the server");
+	ReadString (f, "NetworkTexts", "WantsJoin",		  sWantsJoin,		"<player> wants to join the server");
 
 	printf("DONE\n");
 	return true;

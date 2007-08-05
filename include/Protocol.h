@@ -29,6 +29,7 @@
 #define		TXT_IMPORTANT		3
 #define		TXT_NETWORK			4
 #define		TXT_PRIVATE			5
+#define		TXT_TEAMPM			6
 
 
 

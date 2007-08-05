@@ -120,6 +120,12 @@ public:
 	std::string sSpree4 ;
 	std::string sSpree5 ;
 
+	std::string sDSpree1 ;
+	std::string sDSpree2 ;
+	std::string sDSpree3 ;
+	std::string sDSpree4 ;
+	std::string sDSpree5 ;
+
 	std::string sServerFull ;
 	std::string sNoEmptySlots ;
 	std::string sWrongProtocol ;

@@ -175,6 +175,7 @@ private:
 	bool		ProfileGraphics;
 	int			iRanking;
 	int			iKillsInRow;
+	int			iDeathsInRow;
 
 	// Client info
 	int			iClientID;
@@ -589,6 +590,10 @@ public:
 	inline void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
 	inline int		getKillsInRow(void)			{ return iKillsInRow; }
 	inline void		addKillInRow(void)			{ iKillsInRow++; }
+
+	inline void		setDeathsInRow(int _k)		{ iDeathsInRow = 0; }
+	inline int		getDeathsInRow(void)		{ return iDeathsInRow; }
+	inline void		addDeathInRow(void)			{ iDeathsInRow++; }
 
 	inline void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
 	inline CProjectile *getHeading(void)			{ return psHeadingProjectile; }

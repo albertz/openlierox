@@ -307,6 +307,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	}
 
 	vict->setKillsInRow(0);
+	vict->addDeathInRow();
 
 	if (killer != victim)  {
 		// Don't add a kill for teamkilling, sorry for the if being so ugly
@@ -314,6 +315,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH ) {
 			kill->addKillInRow();
 			kill->AddKill();
+			kill->setDeathsInRow(0);
 			if (log_kill)
 				log_kill->iKills++;
 		}
@@ -360,6 +362,42 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 		break;
 	}
+
+	// Dying spree message
+	switch (vict->getDeathsInRow())  {
+	case 3:
+		if (networkTexts->sDSpree1 != "<none>")  {
+			replacemax(networkTexts->sDSpree1, "<player>", vict->getName(), buf, 1);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		}
+		break;
+	case 5:
+		if (networkTexts->sDSpree2 != "<none>")  {
+			replacemax(networkTexts->sDSpree2, "<player>", vict->getName(), buf, 1);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		}
+		break;
+	case 7:
+		if (networkTexts->sDSpree3 != "<none>")  {
+			replacemax(networkTexts->sDSpree3, "<player>", vict->getName(), buf, 1);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		}
+		break;
+	case 9:
+		if (networkTexts->sDSpree4 != "<none>")  {
+			replacemax(networkTexts->sDSpree4, "<player>", vict->getName(), buf, 1);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		}
+		break;
+	case 10:
+		if (networkTexts->sDSpree5 != "<none>")  {
+			replacemax(networkTexts->sDSpree5, "<player>", vict->getName(), buf, 1);
+			SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
+		}
+		break;
+	}
+
+	SendGlobalText("Deaths in row: "+itoa(vict->getDeathsInRow()),TXT_NORMAL);
 
 
 	if (vict->Kill()) {
@@ -625,7 +663,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 				if(!cWorms[i].isUsed())
 					continue;
 				if(cWorms[i].getTeam() == worm->getTeam())
-					SendText(cServer->getClient(i),worm->getName()+": "+*cur_arg,TXT_PRIVATE);
+					SendText(cServer->getClient(i),worm->getName()+": "+*cur_arg,TXT_TEAMPM);
 			}
 		}
 

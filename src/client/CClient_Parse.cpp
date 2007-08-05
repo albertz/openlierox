@@ -668,6 +668,7 @@ void CClient::ParseText(CBytestream *bs)
 	bs->readString(t->sText);*/
 
 	Uint32 col = tLX->clWhite;
+	int	t = cLocalWorms[0]->getTeam();
 	switch(type) {
 		// Chat
 		case TXT_CHAT:		col = tLX->clChatText;		break;
@@ -679,6 +680,8 @@ void CClient::ParseText(CBytestream *bs)
 		case TXT_NETWORK:	col = tLX->clNetworkText;	break;
 		// Private
 		case TXT_PRIVATE:	col = tLX->clPrivateText;	break;
+		// Team Private Chat
+		case TXT_TEAMPM:	col = tLX->clTeamColors[t];	break;
 	}
 
 	static std::string buf;
@@ -722,6 +725,8 @@ void CClient::ParseText(CBytestream *bs)
 			case TXT_NETWORK:	fputs("NETWORK",f);	break;
 			// Private
 			case TXT_PRIVATE:	fputs("PRIVATE",f);	break;
+			// Team Private Chat
+			case TXT_TEAMPM:	fputs("TEAMPM",f);	break;
 		}
 
 		fputs("\" text=\"",f);

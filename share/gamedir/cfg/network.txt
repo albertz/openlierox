@@ -30,6 +30,13 @@ Spree3 = <player> is dominating!
 Spree4 = <player> is unstoppable!
 Spree5 = <player> is GODLIKE!
 
+
+DyingSpree1 = <player> is on a dying spree!
+DyingSpree2 = <player> is a target!
+DyingSpree3 = <player> is a sitting duck!
+DyingSpree4 = <player> is free kills!
+DyingSpree5 = <player> is WORTHLESs!
+
 ServerFull = Server is full
 NoEmptySlots = Server has no empty slots
 WrongProtocol = Wrong protocol version. The server protocol version is <version>
