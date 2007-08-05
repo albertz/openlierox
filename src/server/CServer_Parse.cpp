@@ -260,13 +260,12 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	// Cheat prevention check (God Mode etc), make sure killer is the host
 	if (cl->getWorm(0)->getID())  {
 	//	printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
-		// Give the worm another life but only for them so they don't respawn when out
+		// Only spawn if still alive 
+		if(vict->getAlive())
+			SpawnWorm(vict, vict->getPos(), cl);
 		CBytestream bs;
-		vict->setLives(vict->getLives()+1);
 		vict->writeScore(&bs);
 		SendPacket(&bs, cl);
-		SpawnWorm(vict, vict->getPos(), cl);
-		vict->setLives(vict->getLives()-1);
 		return;
 	}
 
@@ -606,6 +605,16 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 				kickWorm(id);
 		}
 
+		// Private chat to a worm
+		if(!stringcasecmp(cmd, "/private") || !stringcasecmp(cmd, "/pm")) {
+			if(cur_arg == arguments.end())
+				return;
+			CClient *rcl = cClients+id;
+			if(rcl->getStatus()!=NET_DISCONNECTED && rcl->getStatus()!=NET_ZOMBIE)
+				SendText(rcl,cl->getWorm(0)->getName()+": "+*cur_arg,TXT_PRIVATE);
+			SendText(cl,cl->getWorm(0)->getName()+": "+*cur_arg,TXT_PRIVATE);
+		}
+
 		// Private chat to all team members
 		if(!stringcasecmp(cmd, "/teamchat")) {
 			if(cur_arg == arguments.end())
@@ -614,7 +623,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 				if(!cWorms[i].isUsed())
 					continue;
 				if(cWorms[i].getTeam() == worm->getTeam())
-					SendText(cServer->getClient(i),worm->getName()+": "+*cur_arg,TXT_CHAT);
+					SendText(cServer->getClient(i),worm->getName()+": "+*cur_arg,TXT_PRIVATE);
 			}
 		}
 
@@ -978,7 +987,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		// Get the string to send
 		static std::string buf;
-		if (networkTexts->sTeamHasWon != "<none>")  {
+		if (networkTexts->sWrongProtocol != "<none>")  {
 			replacemax(networkTexts->sWrongProtocol, "<version>", itoa(PROTOCOL_VERSION), buf, 1);
 		} else
 			buf = " ";

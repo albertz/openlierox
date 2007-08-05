@@ -98,6 +98,7 @@ void InitializeColors()  {
 	tLX->clSubHeading = MakeColour(143,176,207);
 	tLX->clHeading = MakeColour(0,138,251);
 	tLX->clNetworkText = MakeColour(200,200,200);
+	tLX->clPrivateText = MakeColour(207,176,143);
 	tLX->clNormalLabel = tLX->clWhite;
 	tLX->clNotice = MakeColour(200,200,200);
 	tLX->clNormalText = tLX->clWhite;
@@ -188,6 +189,7 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","ListView",				&tLX->clListView,		tLX->clListView);
 	ReadColour(colorfile,"Colours","MouseOver",				&tLX->clMouseOver,		tLX->clMouseOver);
 	ReadColour(colorfile,"Colours","NetworkText",			&tLX->clNetworkText,	tLX->clNetworkText);
+	ReadColour(colorfile,"Colours","PrivateText",			&tLX->clPrivateText,	tLX->clPrivateText);
 	ReadColour(colorfile,"Colours","NormalLabel",			&tLX->clNormalLabel,	tLX->clNormalLabel);
 	ReadColour(colorfile,"Colours","NormalText",			&tLX->clNormalText,		tLX->clNormalText);
 	ReadColour(colorfile,"Colours","Notice",				&tLX->clNotice,			tLX->clNotice);

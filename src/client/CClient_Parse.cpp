@@ -677,6 +677,8 @@ void CClient::ParseText(CBytestream *bs)
 		case TXT_NOTICE:	col = tLX->clNotice;		break;
 		// Network
 		case TXT_NETWORK:	col = tLX->clNetworkText;	break;
+		// Private
+		case TXT_PRIVATE:	col = tLX->clPrivateText;	break;
 	}
 
 	static std::string buf;
@@ -718,6 +720,8 @@ void CClient::ParseText(CBytestream *bs)
 			case TXT_NOTICE:	fputs("NOTICE",f);	break;
 			// Network
 			case TXT_NETWORK:	fputs("NETWORK",f);	break;
+			// Private
+			case TXT_PRIVATE:	fputs("PRIVATE",f);	break;
 		}
 
 		fputs("\" text=\"",f);

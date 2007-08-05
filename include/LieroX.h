@@ -82,6 +82,7 @@ class lierox_t { public:
 	Uint32			clSubHeading;
 	Uint32			clChatText;
 	Uint32			clNetworkText;
+	Uint32			clPrivateText;
 	Uint32			clNormalText;
 	Uint32			clNotice;
 	Uint32			clDropDownText;
