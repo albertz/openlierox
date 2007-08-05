@@ -51,7 +51,7 @@ bool GameOptions::LoadFromDisc()
     const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x"};
     const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
 	const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
-    const std::string    gen_def[]  = {"i",    "tab",	"h",	"space",   "F12",    "F2",  "F5", "F8", "F3"};
+    const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "F3"};
 	const int	 def_widths[] = {32,180,70,80,60,150};
 
     unsigned int     i;
@@ -198,6 +198,8 @@ bool GameOptions::LoadFromDisc()
 	ReadKeyword(f, "LastGame", "AllowRemoteBots", &tGameinfo.bAllowRemoteBots, true);
 	ReadKeyword(f, "LastGame", "TopBarVisible", &tGameinfo.bTopBarVisible, true);
 	ReadKeyword(f, "LastGame", "AllowNickChange", &tGameinfo.bAllowNickChange, true);
+	ReadFloat(f, "LastGame", "BonusFrequency", &tGameinfo.fBonusFreq, 30);
+	ReadFloat(f, "LastGame", "BonusLife", &tGameinfo.fBonusLife, 60);
 
     // Advanced
     ReadInteger(f, "Advanced", "MaxFPS",    &nMaxFPS, 95);
@@ -347,6 +349,8 @@ void GameOptions::SaveToDisc()
 	fprintf(fp, "AllowRemoteBots = %s\n",tGameinfo.bAllowRemoteBots ? "true" : "false");
 	fprintf(fp, "TopBarVisible = %s\n",tGameinfo.bTopBarVisible ? "true" : "false");
 	fprintf(fp, "AllowNickChange = %s\n",tGameinfo.bAllowNickChange ? "true" : "false");
+	fprintf(fp, "BonusFrequency = %f\n",tGameinfo.fBonusFreq);
+	fprintf(fp, "BonusLife = %f\n",tGameinfo.fBonusLife);
     fprintf(fp, "\n");
 
     fprintf(fp, "[Advanced]\n");

@@ -145,6 +145,8 @@ private:
 
 	float		fLastBonusTime;
 
+	int			iLastVictim;
+
 	// Network
 	NetworkSocket	tSocket;
 	int				nPort;

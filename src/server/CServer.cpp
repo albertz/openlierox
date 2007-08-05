@@ -408,6 +408,8 @@ void GameServer::BeginMatch(void)
 		if(cWorms[i].isUsed())
 			SpawnWorm(&cWorms[i]);
 	}
+
+	iLastVictim = -1;
 }
 
 

@@ -223,6 +223,8 @@ public:
 		bool	bAllowRemoteBots;
 		bool	bTopBarVisible;
 		bool	bAllowNickChange;
+		float	fBonusFreq;
+		float	fBonusLife;
 	} tGameinfo;
 
 };

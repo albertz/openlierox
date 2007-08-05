@@ -168,7 +168,7 @@ void GameServer::SimulateGame(void)
 				continue;
 
 			// If it's been here too long, destroy it
-			if( tLX->fCurTime - cBonuses[i].getSpawnTime() > BONUS_LIFETIME ) {
+			if( tLX->fCurTime - cBonuses[i].getSpawnTime() > tLXOptions->tGameinfo.fBonusLife ) {
 				static CBytestream bs;
 				bs.Clear();
 				cBonuses[i].setUsed(false);
@@ -183,7 +183,7 @@ void GameServer::SimulateGame(void)
 
 
 	// Check if we need to spawn a bonus
-	if(tLX->fCurTime - fLastBonusTime > BONUS_SPAWNFREQ && iBonusesOn && !iGameOver) {
+	if(tLX->fCurTime - fLastBonusTime > tLXOptions->tGameinfo.fBonusFreq && iBonusesOn && !iGameOver) {
 
 		SpawnBonus();
 
