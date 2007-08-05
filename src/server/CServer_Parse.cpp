@@ -364,7 +364,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	}
 
 	// Dying spree message
-	switch (vict->getDeathsInRow())  {
+	switch (vict->getDeathsInRow()) {
 	case 3:
 		if (networkTexts->sDSpree1 != "<none>")  {
 			replacemax(networkTexts->sDSpree1, "<player>", vict->getName(), buf, 1);
@@ -396,8 +396,6 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 		break;
 	}
-
-	SendGlobalText("Deaths in row: "+itoa(vict->getDeathsInRow()),TXT_NORMAL);
 
 
 	if (vict->Kill()) {

@@ -427,7 +427,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 
     // Clear the player list and game settings
-    Menu_redrawBufferRect(15, 15,  335, 230);
+    Menu_redrawBufferRect(15, 15,  400, 230);
     Menu_redrawBufferRect(360,15,  280, 200);
 
 
