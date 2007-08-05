@@ -15,6 +15,7 @@
 
 
 #include <stdarg.h>
+#include <vector>
 
 #include "LieroX.h"
 #include "CClient.h"
@@ -489,7 +490,6 @@ void GameServer::SendPackets(void)
 {
 	int c;
 	CClient *cl = cClients;
-	CBytestream *bs;
 	static float oldtime =0;
 
 	if(tLX->fCurTime - oldtime < 1.0/72.0)
@@ -498,19 +498,17 @@ void GameServer::SendPackets(void)
 		oldtime = tLX->fCurTime;
 
 
+	// If we are playing, send update to the clients
+	if (iState == SVS_PLAYING)
+		SendUpdate();
 
 	// Go through each client and send them a message
 	for(c=0;c<MAX_CLIENTS;c++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
-
-		if(iState == SVS_PLAYING && cl->getStatus() != NET_ZOMBIE)
-			SendUpdate(cl);
-
-		// Send out the packets if we havn't gone over the clients bandwidth
-		bs = cl->getUnreliable();
-		cl->getChannel()->Transmit(bs);
+		// Send out the packets if we haven't gone over the clients bandwidth
+		cl->getChannel()->Transmit(cl->getUnreliable());
 
 		// Clear the unreliable bytestream
 		cl->getUnreliable()->Clear();
@@ -1271,7 +1269,6 @@ void GameServer::ShutdownLog(void)
 
 	tGameLog = NULL;
 }
-
 
 ///////////////////
 // Shutdown the server

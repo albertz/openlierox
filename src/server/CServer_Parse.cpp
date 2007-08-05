@@ -257,20 +257,22 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	log_worm_t *log_vict = GetLogWorm(vict->getID());
 	log_worm_t *log_kill = GetLogWorm(kill->getID());
 
-	// Cheat prevention check (God Mode etc), make sure killer is the host
-	if (cl->getWorm(0)->getID())  {
-	//	printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
-		// Only spawn if still alive 
-		if(vict->getAlive())
-			SpawnWorm(vict, vict->getPos(), cl);
-		CBytestream bs;
-		vict->writeScore(&bs);
-		SendPacket(&bs, cl);
+	// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
+	if (cl->getWorm(0)->getID() != 0)  {
+		if (cl->OwnsWorm(vict))  {  // He wants to die, let's fulfill his dream ;)
+			CWorm *w = cClient->getRemoteWorms() + vict->getID();
+			cClient->InjureWorm(w, w->getHealth() + 1, kill->getID());
+		} else {
+			printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
+		}
+
+		// The client on this machine will send the death again, then we'll parse it
 		return;
 	}
 
 	// Cheat prevention, game behaves weird if this happens
 	if (vict->getLives() < 0 && iLives >= 0)  {
+		vict->setLives(WRM_OUT);  // Safety
 		printf("GameServer::ParseDeathPacket: victim is already out of the game.\n");
 		return;
 	}

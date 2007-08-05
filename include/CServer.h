@@ -200,7 +200,7 @@ public:
 	// Network
 	void		ReadPackets(void);
 	void		SendPackets(void);
-	bool		SendUpdate(CClient *cl);
+	bool		SendUpdate();
 	bool		checkBandwidth(CClient *cl);
 	void		RegisterServer(void);
 	void		ProcessRegister(void);

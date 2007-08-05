@@ -84,86 +84,104 @@ void GameServer::SendText(CClient *cl, const std::string& text, int type) {
 ///////////////////
 // Update all the client about the playing worms
 // Returns true if we sent an update
-bool GameServer::SendUpdate(CClient *cl)
+bool GameServer::SendUpdate()
 {
-	short i;
-
-	// Don't update so often
-	if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
-		if (tGameInfo.iGameType != GME_LOCAL)  {
-			fLastUpdateSent = tLX->fCurTime;
-			return false;
-		}
-
 	// Delays for different net speeds
 	static const float	shootDelay[] = {0.025f, 0.010f, 0.005f, -1.0f};
 
+	//
+	// Get the update packets for each worm that needs it and save them
+	//
+	std::list<CBytestream> worm_bytestreams;
+	std::list<CWorm *> worms_to_update;
+	CWorm *w = cWorms;
+	int i;
+	for (i=0; i < MAX_WORMS; i++, w++)  {
+		if (!w->isUsed())
+			continue;
 
-	// Check if we have gone over the bandwidth rating for the client
-	// If we have, just don't send a packet this frame
-	if( !checkBandwidth(cl) ) {
-		// We have gone over the bandwidth for the client, don't send a message this frame
-		return false;
+		CBytestream bytes;
+		if (w->checkPacketNeeded())  {
+			bytes.writeByte(w->getID());
+			w->writePacket(&bytes);
+			w->updateCheckVariables();
+			worm_bytestreams.push_back(bytes);
+			worms_to_update.push_back(w);
+		}
+	}
+	assert(worm_bytestreams.size() == worms_to_update.size());
+
+
+
+
+	CBytestream update_packets;  // Contains all the update packets except the one from this client
+	i=0;
+	for (CClient *cl = cClients; i < MAX_CLIENTS; cl++, i++)  {
+		if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+			continue;
+
+		// Check if we have gone over the bandwidth rating for the client
+		// If we have, just don't send a packet this frame
+		if( !checkBandwidth(cl) )
+			// We have gone over the bandwidth for the client, don't send a message this frame
+			continue;
+
+		CBytestream *bs = cl->getUnreliable();
+		bs->writeByte(S2C_UPDATEWORMS);
+    
+		byte num_worms = 0;
+   
+		// Send all the _other_ worms details
+		{
+			update_packets.Clear();
+			std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
+			std::list<CBytestream>::iterator bs_it = worm_bytestreams.begin();
+			for(; w_it != worms_to_update.end(); w_it++, bs_it++) {
+
+					// Check if this client owns the worm
+					if(cl->OwnsWorm(*w_it))
+						continue;
+
+					++num_worms;
+
+					// Send out the update
+					update_packets.Append(&(*bs_it));
+			}
+		}
+    
+		// Write the packets to the unreliable bytestream
+		bs->writeByte(num_worms);
+		bs->Append(&update_packets);
+    
+		// Write out a stat packet
+		bs->writeByte( S2C_UPDATESTATS );
+		bs->writeByte( cl->getNumWorms() );
+		for(short j = 0; j < cl->getNumWorms(); j++)
+			cl->getWorm(j)->writeStatUpdate(bs);
+    
+		// Send the shootlist (reliable)
+		CShootList *sh = cl->getShootList();
+		float delay = shootDelay[cl->getNetSpeed()];
+    
+		if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
+        
+			// Send the shootlist
+			if( sh->writePacket( cl->getChannel()->getMessageBS() ) )
+				sh->Clear();
+		}
+
+		// TODO: what is this good for?
+		// Add the length of the client's unreliable packet to the frame's message size
+		int *msgSize = cl->getMsgSize();
+		msgSize[iServerFrame % RATE_NUMMSGS] = cl->getUnreliable()->GetLength();
 	}
 
-
-    CBytestream *bs = cl->getUnreliable();
-    bs->writeByte(S2C_UPDATEWORMS);
-    
-    vector<CWorm*> wormList;
-    i = 0;
-	for(CWorm *w = cWorms; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-		
-		// Check if this client owns the worms
-		if(cl->OwnsWorm(w))
-			continue;
-
-		// Doesn't need update
-		if (!w->checkPacketNeeded())
-			continue;
-	
-		wormList.push_back(w);
-	}
-	
-    bs->writeByte(wormList.size());
-    
-    // Send all the _other_ worms details
-    for(vector<CWorm*>::iterator w_it = wormList.begin(); w_it != wormList.end(); w_it++) {
-        // Send out the update
-		bs->writeByte((*w_it)->getID());
-		(*w_it)->writePacket(bs);
-
+	// Debug
+	if (worms_to_update.size())  {
 		static int wp = 0;
 		printf("Writing update %i\n", wp);
 		wp++;
-
-		(*w_it)->updateCheckVariables();  // Synchronize the variables
-    }
-    
-    
-    // Write out a stat packet
-    bs->writeByte( S2C_UPDATESTATS );
-    bs->writeByte( cl->getNumWorms() );
-    for(i = 0; i < cl->getNumWorms(); i++)
-        cl->getWorm(i)->writeStatUpdate(bs);
-    
-    // Send the shootlist (reliable)
-    CShootList *sh = cl->getShootList();
-    float delay = shootDelay[cl->getNetSpeed()];
-    
-    if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
-        
-        // Send the shootlist
-        if( sh->writePacket( cl->getChannel()->getMessageBS() ) )
-            sh->Clear();
-    }
-	//}
-
-	// Add the length of the client's unreliable packet to the frame's message size
-	int *msgSize = cl->getMsgSize();
-	msgSize[iServerFrame % RATE_NUMMSGS] = cl->getUnreliable()->GetLength();
+	}
 
 
 	// All good
