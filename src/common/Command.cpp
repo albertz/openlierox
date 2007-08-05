@@ -488,8 +488,8 @@ void Cmd_Suicide(void)
 		CWorm *w = cClient->getWorm(0);
 		// Without arguments, just commit one suicide
 		if (Cmd_GetNumArgs() == 1)  {
-			if(w->isUsed() && w->getAlive())
-				cClient->InjureWorm(w,101,w->getID());
+			if(w->isUsed())
+				cClient->InjureWorm(w, w->getHealth() + 1, w->getID());
 		}
 		// A number has been entered, suicide the specified number
 		else  {
@@ -518,7 +518,7 @@ void Cmd_Suicide(void)
 			// Suicide
 			if (w->isUsed() && w->getAlive())
 				for (i = 0; i<(uint)number; i++)
-					cClient->InjureWorm(w,101,w->getID());
+					cClient->SendDeath(w->getID(), w->getID());
 		}
 	}
 }

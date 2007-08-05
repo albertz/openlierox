@@ -397,14 +397,32 @@ void CWorm::readWeapons(CBytestream *bs)
 	}
 }
 
+/////////////
+// Synchronizes the "stat needed" checking variables
+void CWorm::updateStatCheckVariables()
+{
+	iLastCharge = CLAMP((int)(tWeapons[iCurrentWeapon].Charge * 100.0f), 0, 100);
+	if (tWeapons[iCurrentWeapon].Reloading)
+		iLastCharge |= 0x80;
+	iLastCurWeapon = iCurrentWeapon;
+}
+
+
+/////////////
+// Returns true if we need to send the stat update
+bool CWorm::checkStatePacketNeeded()
+{
+	byte charge = CLAMP((int)(tWeapons[iCurrentWeapon].Charge * 100.0f), 0, 100);
+	if (tWeapons[iCurrentWeapon].Reloading)
+		charge |= 0x80;
+	return (charge != iLastCharge) || (iLastCurWeapon != iCurrentWeapon);
+}
 
 ///////////////////
 // Write a worm stat update
 void CWorm::writeStatUpdate(CBytestream *bs)
 {
-	byte charge = (int) (tWeapons[iCurrentWeapon].Charge * 100.0f);
-    charge = MAX(charge, (byte)0);
-    charge = MIN(charge, (byte)100);
+	byte charge = CLAMP((int) (tWeapons[iCurrentWeapon].Charge * 100.0f), 0, 100);
 
 	if(tWeapons[iCurrentWeapon].Reloading)
 		charge |= 0x80;

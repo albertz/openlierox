@@ -105,6 +105,7 @@ public:
 template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
 template <typename T> inline T MAX(T a, T b) { return a>b?a:b; }
 inline unsigned long MIN(unsigned long a, unsigned int b) { return a<b?a:b; }
+template <typename T> inline T CLAMP(T num, T lower_bound, T upper_bound) { return num < lower_bound ? lower_bound : (num > upper_bound ? upper_bound : num); }
 
 
 

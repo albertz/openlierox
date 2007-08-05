@@ -665,7 +665,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 // Injure a worm
 void CClient::InjureWorm(CWorm *w, int damage, int owner)
 {
-	if (!w->getAlive())  // Injuring a non-alive worm makes no sense...
+	if (!w->getAlive())  // Injuring a dead worm makes no sense
 		return;
 
 	bool me = false;
@@ -685,6 +685,8 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 
 	if(w->Injure(damage)) {
 		// His dead Jim
+
+		w->setAlreadyKilled(true);
 
 		// Kill me
 		if(me || cLocalWorms[0]->getID()==0) {

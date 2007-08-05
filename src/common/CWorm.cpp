@@ -64,6 +64,8 @@ void CWorm::Clear(void)
 	fLastUpdateWritten = -9999;
 	tLastState = worm_state_t();
 	fLastAngle = -1;
+	iLastCharge = 255;
+	iLastCurWeapon = 255;
 
 	cNinjaRope.Clear();
 	fRopeTime = -9999;
@@ -140,6 +142,7 @@ void CWorm::Clear(void)
 	cHealthBar.SetLabelVisible(false);
 	
 	ProfileGraphics = true;
+	bAlreadyKilled = false;
 }
 
 
@@ -252,6 +255,7 @@ void CWorm::setupLobby(void)
 // Spawn this worm
 void CWorm::Spawn(CVec position) {
     iAlive = true;
+	bAlreadyKilled = false;
 	fAngle = 0;
     fAngleSpeed = 0;
 	iHealth = 100;

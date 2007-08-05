@@ -176,6 +176,7 @@ private:
 	int			iRanking;
 	int			iKillsInRow;
 	int			iDeathsInRow;
+	bool		bAlreadyKilled;
 
 	// Client info
 	int			iClientID;
@@ -246,6 +247,8 @@ private:
 	float		fLastAngle;
 	float		fLastUpdateWritten;
 	float		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
+	byte		iLastCharge;
+	byte		iLastCurWeapon;
 
 
 
@@ -366,6 +369,8 @@ public:
 	void		readWeapons(CBytestream *bs);
 	static inline bool	skipWeapons(CBytestream *bs)  { return bs->Skip(5); } // 5 weapons 
 	void		writeStatUpdate(CBytestream *bs);
+	void		updateStatCheckVariables();
+	bool		checkStatePacketNeeded();
 	void		readStatUpdate(CBytestream *bs);
 	static inline bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
 	int			GetMyPing(void);
@@ -597,6 +602,9 @@ public:
 
 	inline void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
 	inline CProjectile *getHeading(void)			{ return psHeadingProjectile; }
+
+	inline bool		getAlreadyKilled()			{ return bAlreadyKilled; }
+	inline void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }
 
 
 };

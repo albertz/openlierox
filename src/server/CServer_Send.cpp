@@ -156,8 +156,20 @@ bool GameServer::SendUpdate()
 		// Write out a stat packet
 		bs->writeByte( S2C_UPDATESTATS );
 		bs->writeByte( cl->getNumWorms() );
-		for(short j = 0; j < cl->getNumWorms(); j++)
-			cl->getWorm(j)->writeStatUpdate(bs);
+		{
+			short j;
+			bool need_send = false;
+			for (j=0; j < cl->getNumWorms(); j++)
+				if (cl->getWorm(j)->checkStatePacketNeeded())  {
+					need_send = true;
+					break;
+				}
+
+			// Only if necessary
+			if (need_send)
+				for(j = 0; j < cl->getNumWorms(); j++)
+					cl->getWorm(j)->writeStatUpdate(bs);
+		}
     
 		// Send the shootlist (reliable)
 		CShootList *sh = cl->getShootList();
