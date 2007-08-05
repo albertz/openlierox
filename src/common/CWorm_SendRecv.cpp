@@ -265,7 +265,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	// Check for a position hack (can occur from severe lag or screenshoting)
 	if (tGameInfo.iGameType == GME_HOST)  {
 
-		if(x > cServer->getMap()->GetWidth() || y > cServer->getMap()->GetHeight())
+		if(x > (short)cServer->getMap()->GetWidth() || y > (short)cServer->getMap()->GetHeight())
 			//vPos=cServer->FindSpot(); // Would not work because local worms are simulated on client's machine
 			cClient->SendDeath(iID, iID);
 

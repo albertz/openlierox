@@ -3,7 +3,11 @@
 - 16/24/32 bit graphic support and OpenGL support
 - runs on MacOSX 
 - new design & icon
+- probably fixed any saving-problem
+  (problem was: sometimes SDL_Quit gives a segfault
+  and saving was done after this; now it's done before)
 - full Unicode/UTF8 support
+- font antialasing support
 - working Dev-C++ project (therefore MingW support)
 - MaxFPS in option-dialog
 - Worm AI improvements

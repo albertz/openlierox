@@ -57,7 +57,7 @@ void CChannel::Transmit( CBytestream *bs )
 	CBytestream outpack;
 	int SendReliable = 0;
 	bool SendPacket = false;
-	bool XorSequence = false;
+//	bool XorSequence = false; // TODO: not used
 	Uint32 r1,r2;	
 
 	outpack.Clear();
