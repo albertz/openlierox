@@ -1,30 +1,32 @@
 TODO
 
+[ ] create crossbuilding-scripts: (using crossbuilding in GCC)
+	[ ] Mac OS X ( + Application Bundle)
+	[ ] Windows EXE ( + ZIP package)
+	[ ] Linux binary
+		[ ] AMD64
+		[ ] PPC32
+		[ ] x86
+		[ ] others
+	[ ] Debian package
 [ ] fix: font isn't visible in OGL on MacOSX (!!)
-[?] OpenGL(?) redraw issue (!!)
+[?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
 [ ] bot: more effective use of ninjarope (use closer / more intelligent spots) (!)
 [ ] bot: ninjarope is shot too fast (!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
-[x] test and fix new CBytestream (!!)
 [ ] avoid unneeded multi loading of maps (!)
-[X] fix minimap updating (behaves weird when carving) (!!)
 [X] fix delta time (network synchronization) (!!)
 [x] fix physics bugs (!!)
 [ ] new graphics engine (waytracing & pixelcache) (!)
 [?] are there new network errors? (!!)
-[x] finish unicode support (!!)
 [ ] possibility to change options when playing
-[x] create a SVG icon for the game
 [ ] uniform warning/notification/error system (!)
 [X] add macro-variable to {en/dis}able the mediaplayer
 [ ] standalone dedicated server (!)
-[x] create Mac OS X application package (!!)
-[x] make it run on Mac OS X (!!)
-[ ] finish documentation (README) (add more info there) (!!)
-[ ] begin developer documentation (basic info about the code and hints) (!)
+[ ] fill documentation (README) (!!)
+[ ] fill developer documentation (basic info about the code and hints) (!)
 [ ] select different key for ingame console
-[x] 24/32 bit doesn't work in OpenGL mode; fix... (!!)
 [?] fix some segfaults (!!)
 [?] fix lobby freeze (!)
 [?] make network more stable (!)
@@ -35,7 +37,7 @@ TODO
 [ ] better bot aiming (fast numerical pre-physics-calculations) (!)
 [ ] better bot behavior (!!)
 [ ] add option to save/load weapon selection
-[ ] add some help for weapon selection (cause not everybody understand it)
+[ ] add some help for weapon selection (cause not everybody understand it) (!)
 [ ] allow more than 2 viewports (!)
 [ ] joystick-support (!)
 [ ] possibility to switch bot control / user control of a worm
