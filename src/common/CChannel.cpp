@@ -209,6 +209,7 @@ int CChannel::Process(CBytestream *bs)
 																	 // frame is simulated and then the reply is sent -> delay
 																	 // most of people have FPS between 60 - 100, so about 20ms delay
 																	 // It's dirty but no better solution is possible with the current protocol
+		iPing = MAX(0, iPing);  // Because of the above hack, this can happen
 		iPongSequence = -1;
 	}
 

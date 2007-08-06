@@ -302,9 +302,9 @@ void SaveProfile(FILE *fp, profile_t *p)
 	fwrite(p->sPassword, 	16, fp);
 
 	// Colour
-	fwrite(GetEndianSwapped(p->R),		sizeof(Uint8),	1,	fp);
-	fwrite(GetEndianSwapped(p->G),		sizeof(Uint8),	1,	fp);
-	fwrite(GetEndianSwapped(p->B),		sizeof(Uint8),	1,	fp);
+	fwrite(&p->R, 1,	1,	fp);
+	fwrite(&p->G, 1,	1,	fp);
+	fwrite(&p->B, 1,	1,	fp);
 
 	// Weapons		
 	for(int i=0; i<5; i++)

@@ -60,10 +60,6 @@ void CClient::SendWormDetails(void)
 	if (!update)
 		return;
 
-	static int wp = 0;
-	printf("Writting worm packet %i\n", wp);
-	wp++;
-
 	// Write the update
 	bs.writeByte(C2S_UPDATE);
 	
