@@ -998,8 +998,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 						// Set the team
 						CWorm *w = cServer->getWorms() + id;
-						w->setTeam((w->getTeam() + 1) % 4);
-						w->getLobby()->iTeam = w->getTeam();
+						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % 4;
+						w->setTeam(w->getLobby()->iTeam);
 
 						cServer->SendWormLobbyUpdate();  // Update
 						bHost_Update = true;
@@ -1148,6 +1148,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 
 		// Display the team mark if TDM
 		if (gl->nGameMode == GMT_TEAMDEATH)  {
+			lobby_worm->iTeam = CLAMP(lobby_worm->iTeam, 0, 4);
 			team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 			if (!team_img)
 				continue;
