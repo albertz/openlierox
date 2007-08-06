@@ -48,15 +48,21 @@ void CImage::Change(const std::string& Path)
 	// Copy the new path
 	sPath = Path;
 
-	// Free the current image
-	SDL_FreeSurface(tImage);
-
 	// Load the new image
 	tImage = LoadImage(sPath);
 
 	// Update the width and height
 	iWidth = tImage->w;
 	iHeight = tImage->h;
+}
+
+void CImage::Change(SDL_Surface *bmpImg)
+{
+	// Just re-setup the image-related variables
+	sPath = "";
+	tImage = bmpImg;
+	iWidth = bmpImg->w;
+	iHeight = bmpImg->h;
 }
 
 /////////////////////

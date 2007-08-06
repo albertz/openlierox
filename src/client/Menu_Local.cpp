@@ -70,12 +70,8 @@ void Menu_LocalInitialize(void)
 	Menu_DrawSubTitleAdv(tMenu->bmpBuffer,SUB_LOCAL,15);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
-    Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
 
     // Minimap box
-    tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"Playing");
-    //tLX->cFont.Draw(tMenu->bmpBuffer, 480,240,tLX->clWhite,"H");
-    //tLX->cFont.Draw(tMenu->bmpBuffer, 515,240,tLX->clWhite,"T");
 	Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
 
 	Menu_RedrawMouse(true);
@@ -87,7 +83,7 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.Add( new CButton(BUT_BACK, tMenu->bmpButtons), ml_Back, 25,440, 50,15);
 	cLocalMenu.Add( new CButton(BUT_START, tMenu->bmpButtons), ml_Start, 555,440, 60,15);
 	cLocalMenu.Add( new CListview(), ml_PlayerList,  410,115, 200, 120);
-	//cLocalMenu.Add( new CListview(), ml_Playing,     310,250, 300, 185);
+	cLocalMenu.Add( new CListview(), ml_Playing,     310,250, 300, 185);
 
 	cLocalMenu.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), ml_GameSettings, 30, 325, 170,15);
     cLocalMenu.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), ml_WeaponOptions,30, 350, 185,15);
@@ -100,10 +96,10 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
 
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 22);
-	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 90);
-	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 20);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0]->w - 50);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", -1);
 
-	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, (DWORD)0, 0);
+	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, (DWORD)1, 0);
 
 	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "Players", 22);
 	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "", 60);
@@ -167,7 +163,6 @@ void Menu_LocalFrame(void)
 {
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
-    int i;
 	CListview *lv;
 	profile_t *ply = NULL;
 
@@ -180,8 +175,6 @@ void Menu_LocalFrame(void)
 			if (tMenu->tFrontendInfo.bPageBoxes)
 				Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
-            Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
-            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"Playing");
 
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
@@ -201,8 +194,6 @@ void Menu_LocalFrame(void)
 			if (tMenu->tFrontendInfo.bPageBoxes)
 				Menu_DrawBox(tMenu->bmpBuffer, 15,100, 625, 465);
 	        Menu_DrawBox(tMenu->bmpBuffer, 133,129, 266, 230);
-            Menu_DrawBoxInset(tMenu->bmpBuffer, 310,255,610,435);
-            tLX->cFont.Draw(tMenu->bmpBuffer, 310,240,tLX->clNormalLabel,"Playing");
 
 			Menu_RedrawMouse(true);
 			Menu_LocalShowMinimap(false);
@@ -239,13 +230,6 @@ void Menu_LocalFrame(void)
             Menu_LocalShowMinimap(true);
     }
 
-
-    // Draw & Process the playing list
-    Menu_LocalDrawPlayingList();
-
-
-
-	//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 20,140, 20,140, 620,340);
 
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
@@ -296,45 +280,38 @@ void Menu_LocalFrame(void)
 						ply = FindProfile(index);
 
 						if(ply) {
-                            // Add a player onto the list
-                            for(i=0; i<MAX_PLAYERS; i++) {
-                                if(sLocalPlayers[i].bUsed)
-                                    continue;
+                            // Add a player onto the local players list
+							sLocalPlayers[index].bUsed = true;
+							sLocalPlayers[index].nHealth = 0;
+							sLocalPlayers[index].nTeam = 0;
+							sLocalPlayers[index].psProfile = ply;
 
-                                sLocalPlayers[i].bUsed = true;
-                                sLocalPlayers[i].nHealth = 0;
-                                sLocalPlayers[i].nTeam = 0;
-                                sLocalPlayers[i].psProfile = ply;
-                                break;
-                            }
-							/*lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
+							// Add the item
+							CImage *img = new CImage(gfxGame.bmpTeamColours[0]);
+							if (img)  {
+								img->setID(index);
+								img->setRedrawMenu(false);
+							}
+							lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 							lv->AddItem("",index,tLX->clListView);
-							lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
-							lv->AddSubitem(LVS_TEXT, ply->sName, NULL);
-							lv->AddSubitem(LVS_IMAGE, "", tMenu->bmpTeamColours[0]);
+							lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
+							lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
+							lv->AddSubitem(LVS_WIDGET, "", NULL, img);
 
 							// If we're in deathmatch, make the team colour invisible
-							lv_item_t *l= lv->getLastItem();
-							lv_subitem_t *sub = NULL;
-							if(l)
-								sub = l->tSubitems;
-
-							for(int i=0;i<2;i++) {
-								if(sub)
-									sub=sub->tNext;
-							}
+							lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
 							if(sub) {
 								if(iGameType != GMT_TEAMDEATH)
 									sub->iVisible = false;
 								sub->iExtra = 0;
-							}*/
+							}
 						}
 					}
 				}
 				break;
 
 			// Playing list
-			/*case ml_Playing:
+			case ml_Playing:
 				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
 
 					// Put the player back into the players list
@@ -342,67 +319,61 @@ void Menu_LocalFrame(void)
 					int index = lv->getCurIndex();
 					int i = lv->getClickedSub();
 
-					// If we double clicked on the colour box, modify this event to changed
-					if(i==2 && iGameType == GMT_TEAMDEATH)
-						ev->iEventMsg = LV_CHANGED;
+					// Remove the item from the list
+					lv->RemoveItem(index);
+					sLocalPlayers[index].bUsed = false;
 
-					else {
-						// Double clicked on something else, remove the player
+					ply = FindProfile(index);
 
-						// Remove the item from the list
-						lv->RemoveItem(index);
-
-						ply = FindProfile(index);
-
-						// Add the player into the players list
-						if(ply) {
-							lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
-							lv->AddItem("",index,tLX->clListView);
-							lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm);
-							lv->AddSubitem(LVS_TEXT, ply->sName, NULL);
-						}
+					// Add the player into the players list
+					if(ply) {
+						lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
+						lv->AddItem("", index, tLX->clListView);
+						lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
+						lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 					}
 				}
 
 
-				if(ev->iEventMsg == LV_CHANGED && iGameType == GMT_TEAMDEATH) {
+				if(ev->iEventMsg == LV_WIDGETEVENT && iGameType == GMT_TEAMDEATH) {
 
 					// If the team colour item was clicked on, change it
 					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
-					int i = lv->getClickedSub();
+					
+					ev = lv->getWidgetEvent();
+					if (ev->cWidget->getType() == wid_Image && ev->iEventMsg == IMG_CLICK)  {
+						lv_subitem_t *sub = lv->getSubItem(ev->iControlID, 2);
 
-					if(i==2) {
-						lv_subitem_t *sub = lv->getCurSub();
-
-						for(int i=0;i<2;i++) {
-							if(sub)
-								sub=sub->tNext;
-						}
 						if(sub) {
-							// Left mouse button increments, right mouse button decrements
-							if(Mouse->Up & SDL_BUTTON(1))
-								sub->iExtra++;
-							if(Mouse->Up & SDL_BUTTON(3))
-								sub->iExtra--;
-
-							// Loop around
-							if(sub->iExtra >= 4)
-								sub->iExtra=0;
-							if(sub->iExtra < 0)
-								sub->iExtra=3;
+							sub->iExtra++;
+							sub->iExtra %= 4;
 
 							// Change the image
-							sub->bmpImage = gfxGame.bmpTeamColours[sub->iExtra];
+							((CImage *)ev->cWidget)->Change(gfxGame.bmpTeamColours[sub->iExtra]);
 						}
+
+						sLocalPlayers[ev->iControlID].nTeam = sub->iExtra;
+						sLocalPlayers[ev->iControlID].psProfile->iTeam = sub->iExtra;
 					}
 				}
-				break;*/
+				break;
 
 
 			// Game type
 			case ml_Gametype:
 				if(ev->iEventMsg == CMB_CHANGED) {
 					iGameType = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+
+					// Go through the items and enable/disable the team flags
+					bool teams_on = iGameType == GMT_TEAMDEATH;
+					CListview *lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
+					lv_item_t *it = lv->getItems();
+					lv_subitem_t *sub = NULL;
+					for (; it; it = it->tNext)  {
+						sub = lv->getSubItem(it, 2);
+						if (sub)
+							sub->iVisible = teams_on;
+					}
 				}
 				break;
 
@@ -545,12 +516,11 @@ void Menu_LocalStartGame(void)
 	//
 	// Players
 	//
+	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
+
     // Calculate the number of players
-    tGameInfo.iNumPlayers = 0;
-    for(i=0; i<MAX_PLAYERS; i++) {
-        if(sLocalPlayers[i].bUsed)
-            tGameInfo.iNumPlayers++;
-    }
+    tGameInfo.iNumPlayers = lv_playing->getNumItems();
+
 	// Can't start a game with no-one playing
 	if(tGameInfo.iNumPlayers == 0)
 		return;
@@ -656,119 +626,6 @@ int Menu_LocalCheckPlaying(int index)
 }
 
 
-///////////////////
-// Draw the playing list
-void Menu_LocalDrawPlayingList(void)
-{
-    int     i;
-    int     y = 260;
-    mouse_t *Mouse = GetMouse();
-
-    int m_leftup = (Mouse->Up & SDL_BUTTON(1));
-    int m_rightup = (Mouse->Up & SDL_BUTTON(3));
-
-    int mode = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
-    bool team = (mode == GMT_TEAMDEATH);
-
-    DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 310,255,310,255,300,180);
-
-    for(i=0; i<MAX_PLAYERS; i++) {
-        if(!sLocalPlayers[i].bUsed)
-            continue;
-
-        // Pic & Name
-        DrawImage(tMenu->bmpScreen, sLocalPlayers[i].psProfile->bmpWorm, 315,y);
-
-
-        // Click on the name removes the player from the playing list
-        int nameCol = tLX->clListView;
-        int w = tLX->cFont.GetWidth(sLocalPlayers[i].psProfile->sName);
-        w = MAX(25,w);
-        if(MouseInRect(345,y,w,20)) {
-            nameCol = tLX->clMouseOver;
-            if(m_leftup) {
-                // Remove the player
-                sLocalPlayers[i].bUsed = false;
-                m_leftup = false;
-
-                // Add it back onto the player list
-                CListview *lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
-				lv->AddItem("",sLocalPlayers[i].psProfile->iID,tLX->clListView);
-				lv->AddSubitem(LVS_IMAGE, "", sLocalPlayers[i].psProfile->bmpWorm, NULL);
-				lv->AddSubitem(LVS_TEXT, sLocalPlayers[i].psProfile->sName, NULL, NULL);
-
-                continue;
-            }
-        }
-        tLX->cFont.Draw(tMenu->bmpScreen, 345, y, nameCol, sLocalPlayers[i].psProfile->sName);
-
-
-        // Team
-        if(team) {
-            DrawImage(tMenu->bmpScreen, gfxGame.bmpTeamColours[sLocalPlayers[i].nTeam], 510, y);
-            // Check for a click
-            if(MouseInRect(510,y,18,16)) {
-                if(m_leftup)
-                    sLocalPlayers[i].nTeam++;
-                if(m_rightup)
-                    sLocalPlayers[i].nTeam--;
-
-                // Wrap around
-                if(sLocalPlayers[i].nTeam >= 4)
-                    sLocalPlayers[i].nTeam = 0;
-                if(sLocalPlayers[i].nTeam < 0)
-                    sLocalPlayers[i].nTeam = 3;
-            }
-        }
-
-        // Handicap (health)
-        //DrawImageAdv(tMenu->bmpScreen, tMenu->bmpHandicap, (sLocalPlayers[i].nHealth+1)*19, 0, 475,y, 18,16);
-        if(MouseInRect(475,y,18,16)) {
-            if(m_leftup)
-                sLocalPlayers[i].nHealth++;
-            if(m_rightup)
-                sLocalPlayers[i].nHealth--;
-
-            // Wrap around
-            if(sLocalPlayers[i].nHealth >= 5)
-                sLocalPlayers[i].nHealth = -1;
-            if(sLocalPlayers[i].nHealth < -1)
-                sLocalPlayers[i].nHealth = 4;
-        }
-
-        y += 22;
-    }
-}
-
-
-///////////////////
-// Get the team number from a worm in the playing list
-int Menu_LocalGetTeam(int count)
-{
-	int team = 0;
-	CListview *lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
-	lv_item_t *items = lv->getItems();
-
-	int i;
-	for(i=0;i<count;i++)
-		items=items->tNext;
-
-	if(items) {
-		lv_subitem_t *sub = items->tSubitems;
-		for(i=0;i<2;i++) {
-			if(sub)
-				sub=sub->tNext;
-		}
-
-		// Return the team id
-		if(sub)
-			return sub->iExtra;
-	}
-
-	return team;
-}
-
-
 	class addMod { public:
 		CCombobox* combobox;
 		int* baseid;
@@ -850,7 +707,6 @@ enum {
 void Menu_GameSettings(void)
 {
 	// Setup the buffer
-	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 120,150,120,150, 400,300);
 	Menu_DrawBox(tMenu->bmpBuffer, 120,150, 520,440);
 	DrawRectFillA(tMenu->bmpBuffer, 122,152, 518,438, tLX->clDialogBackground, 200);
 

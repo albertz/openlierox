@@ -228,7 +228,7 @@ public:
 	void	setOldStyle(bool _s)	{ bOldStyle = _s; }
 	bool	getOldStyle(void)		{ return bOldStyle; }
 
-    int     getNumItems(void);
+    int     getNumItems(void)	{ return iItemCount; }
 
     void    scrollLast(void);
 
@@ -245,6 +245,7 @@ public:
 	lv_item_t* getItem(int index);
 	lv_item_t* getItem(const std::string& name);
 	lv_subitem_t *getSubItem(int item_index, int subitem_index);
+	lv_subitem_t *getSubItem(lv_item_t *it, int subitem_index);
 
 	int		getClickedSub(void)		{ return iClickedSub; }
 	gui_event_t *getWidgetEvent()	{ return &tLastWidgetEvent; }

@@ -389,10 +389,8 @@ void	Menu_LocalFrame(void);
 void	Menu_LocalAddProfiles(void);
 void	Menu_LocalStartGame(void);
 int		Menu_LocalCheckPlaying(int index);
-int		Menu_LocalGetTeam(int count);
 void	Menu_Local_FillModList( CCombobox *cb );
 void	Menu_LocalShowMinimap(bool bReload);
-void    Menu_LocalDrawPlayingList(void);
 void	Menu_LocalShutdown(void);
 
 

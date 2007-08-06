@@ -1625,3 +1625,16 @@ lv_subitem_t *CListview::getSubItem(int item_index, int subitem_index)
 
 	return sub;
 }
+
+/////////////////
+// Get a specified subitem
+lv_subitem_t *CListview::getSubItem(lv_item_t *it, int subitem_index)
+{
+	if (!it)
+		return NULL;
+
+	lv_subitem_t *sub = it->tSubitems;
+	for (int i=0; sub && i < subitem_index; sub = sub->tNext, ++i) {}
+
+	return sub;
+}

@@ -58,7 +58,6 @@ private:
     // Attributes
 	SDL_Surface	*tImage;
 	std::string	sPath;
-	bool bRedrawMenu;
 
 public:
     // Methods
@@ -69,6 +68,7 @@ public:
 	inline std::string	getPath(void)		{ return sPath; }
 	SDL_Surface		*getSurface(void)	{ return tImage; }
 	void			Change(const std::string& Path);
+	void			Change(SDL_Surface *bmpImg);
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)				{ return IMG_NONE; }
