@@ -153,6 +153,14 @@ void CListview::Draw(SDL_Surface *bmpDest)
 					break;
 
 					case LVS_IMAGE:
+						// Set special clipping
+						SDL_Rect old_rect, new_rect;
+						SDL_GetClipRect(bmpDest, &old_rect);  // Save the original clipping rect
+						new_rect.x = x;
+						new_rect.y = y;
+						new_rect.w = col->iWidth - 4;
+						new_rect.h = item->iHeight;
+						SDL_SetClipRect(bmpDest, &new_rect);
 
 						// Draw according to valign
 						switch (sub->iValign)  {
@@ -169,6 +177,8 @@ void CListview::Draw(SDL_Surface *bmpDest)
 							DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage->h/2);
 							break;
 						}
+
+						SDL_SetClipRect(bmpDest, &old_rect);  // Restore the original clipping
 					break;
 
 					case LVS_WIDGET:

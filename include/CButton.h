@@ -76,7 +76,6 @@ private:
 	int			iImageID;
     int         iGoodWidth;
 	int			iButtonType;
-	bool		bRedrawMenu;
 
 public:
 	// Methods

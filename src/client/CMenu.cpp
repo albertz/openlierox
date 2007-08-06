@@ -140,7 +140,8 @@ void CMenu::Draw(SDL_Surface *bmpDest)
     Menu_redrawBufferRect(X+1, Y+1, W-1,H-1);
 
     DrawRectFill(bmpDest, X+1, Y+1, X+W-1, Y+H-1, tLX->clMenuBackground);
-    Menu_DrawBox(bmpDest, X, Y, X+W, Y+H);
+	if (bRedrawMenu)
+		Menu_DrawBox(bmpDest, X, Y, X+W, Y+H);
 
     mnu_item_t *it = m_psItemList;
     int y = Y+2;

@@ -929,6 +929,32 @@ void CGuiLayout::Error(int ErrorCode, char *Format, ...)
 	printf("%i: %s",ErrorCode,buf);
 }
 
+///////////////
+// Set a property for all widgets
+void CGuiLayout::SetGlobalProperty(int property, int value)
+{
+	CWidget *w = cWidgets;
+# define FOREACH for (; w; w = w->getNext())
+
+	// Set the property
+	switch (property)  {
+	case PRP_REDRAWMENU:
+		FOREACH w->setRedrawMenu(value != 0);
+		break;
+	case PRP_ENABLED:
+		FOREACH w->setEnabled(value != 0);
+		break;
+	case PRP_ID:
+		FOREACH w->setID(value);
+		break;
+	default:
+		printf("CGuiLayout::SetGlobalProperty: unknown property\n");
+	}
+
+#undef FOREACH
+		
+}
+
 
 ///////////////////
 // Send a message to a widget

@@ -40,9 +40,11 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 			if ((tItems->tImage->h+1) > ItemHeight)
 				ItemHeight = tItems->tImage->h+1;
 
-    Menu_redrawBufferRect( iX,iY, iWidth+15,tLX->cFont.GetHeight()+4);
+	if (bRedrawMenu)
+		Menu_redrawBufferRect( iX,iY, iWidth+15,tLX->cFont.GetHeight()+4);
     if( !iDropped && iLastDropped ) {
-        Menu_redrawBufferRect( iX,iY+tLX->cFont.GetHeight(), iWidth+15,iHeight);
+		if (bRedrawMenu)
+			Menu_redrawBufferRect( iX,iY+tLX->cFont.GetHeight(), iWidth+15,iHeight);
         iLastDropped = false;
     }
 

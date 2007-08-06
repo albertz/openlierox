@@ -24,7 +24,8 @@
 // Draw the checkbox
 void CCheckbox::Draw(SDL_Surface *bmpDest)
 {
-    Menu_redrawBufferRect( iX,iY, 17,17 );
+	if (bRedrawMenu)
+		Menu_redrawBufferRect( iX,iY, 17,17 );
 
     if(iValue)
 		DrawImageAdv(bmpDest, bmpImage, 17,0,iX,iY,17,17);

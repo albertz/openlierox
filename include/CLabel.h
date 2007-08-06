@@ -49,7 +49,6 @@ private:
 
 	std::string	sText;
 	Uint32	iColour;
-	bool bRedrawMenu;
 
 
 public:

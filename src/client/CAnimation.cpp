@@ -70,7 +70,8 @@ void CAnimation::Draw(SDL_Surface *bmpDest)
 	if (!tAnimation || !iNumFrames)
 		return;
 
-    Menu_redrawBufferRect(iX,iY, tAnimation->w,tAnimation->h);
+	if (bRedrawMenu)
+		Menu_redrawBufferRect(iX,iY, tAnimation->w,tAnimation->h);
 
 	// Check if it's time to change the frame
 	if (tLX->fCurTime - fLastFrameChange >= fFrameTime) {

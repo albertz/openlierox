@@ -53,6 +53,14 @@ enum {
 	wid_Animation
 };
 
+// Global properties
+enum {
+	PRP_REDRAWMENU,
+	PRP_ENABLED,
+	PRP_ID
+};
+
+
 
 class CGuiLayout {
 public:
@@ -112,6 +120,7 @@ public:
 
 	void		Shutdown(void);
 
+	void		SetGlobalProperty(int property, int value);
 
 	// Messaging
 	DWORD		SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2);

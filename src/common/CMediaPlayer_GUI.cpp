@@ -214,7 +214,7 @@ void CPlayerMarquee::Draw(SDL_Surface *bmpDest)
 //
 
 enum  {
-	od_List,
+	od_List=0,
 	od_Ok,
 	od_Cancel,
 	od_Add,
@@ -244,6 +244,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 	cOpenGui.Add(new CLabel("Include subdirectories",tLX->clNormalLabel),-1,iX+25,iY+iHeight-45,0,0);
 	cOpenGui.Add(new CButton(BUT_CANCEL,tMenu->bmpButtons),od_Cancel,iX+iWidth/2,iY+iHeight-25,60,15);
 	cOpenGui.Add(new CButton(BUT_OK,tMenu->bmpButtons),od_Ok,iX+iWidth/2-50,iY+iHeight-25,30,15);
+	cOpenGui.SetGlobalProperty(PRP_REDRAWMENU, 0);
 
 	((CButton *)(cOpenGui.getWidget(od_Ok)))->setRedrawMenu(false);
 	((CButton *)(cOpenGui.getWidget(od_Cancel)))->setRedrawMenu(false);
