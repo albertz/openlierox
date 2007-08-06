@@ -1242,7 +1242,8 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 
 	short i;
 	for(i=0; i<num; i++)
-		getWorm(i)->readStatUpdate(bs);
+		if (getWorm(i))
+			getWorm(i)->readStatUpdate(bs);
 
 	// Skip if there were some clamped worms
 	for (i=0;i<oldnum-num;i++)

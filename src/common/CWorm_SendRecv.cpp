@@ -265,22 +265,24 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	CClient *cl = cServer->getClient(iID);
 	CWorm *w = cl->getWorm(0);
 
+	// Prevent a wall hack
 	if (tGameInfo.iGameType == GME_HOST)  {
 
+		// Out of map
 		if(x > (short)cServer->getMap()->GetWidth() || y > (short)cServer->getMap()->GetHeight())
 		{
 			vPos=vLastPos; 
-			cServer->SpawnWorm(w,vPos,cl);
+			cServer->SpawnWorm(w, vPos, cl);
 		}
 
+		// In rock
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_ROCK)
 		{
 			vPos=vLastPos;
-			cServer->SpawnWorm(w,vPos,cl);
+			cServer->SpawnWorm(w, vPos, cl);
 		}
 
-		if(vPos.x!=vLastPos.x && vPos.y!=vLastPos.y)
-			vLastPos=vPos;
+		vLastPos = vPos;
 	}
 }
 

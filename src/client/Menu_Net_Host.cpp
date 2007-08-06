@@ -489,9 +489,6 @@ void Menu_Net_HostLobbyDraw(void)
 	// Chat box
     DrawRectFill(tMenu->bmpBuffer, 16, 270, 624, 417, tLX->clChatBoxBackground);
 
-    // Player box
-    //Menu_DrawBox(tMenu->bmpBuffer, 15, 29, 340, 235);
-
 	Menu_RedrawMouse(true);
 }
 
@@ -582,7 +579,7 @@ void Menu_Net_HostGotoLobby(void)
 	iHostType = 1;
 	bHostGameSettings = false;
     bHostWeaponRest = false;
-    iSpeaking =- 1;
+    iSpeaking = 0;
 
     // Draw the lobby
 	Menu_Net_HostLobbyDraw();
