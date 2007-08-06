@@ -317,7 +317,6 @@ void Menu_LocalFrame(void)
 					// Put the player back into the players list
 					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 					int index = lv->getCurIndex();
-					int i = lv->getClickedSub();
 
 					// Remove the item from the list
 					lv->RemoveItem(index);

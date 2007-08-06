@@ -249,7 +249,6 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 	if(SDL_MUSTLOCK(src))
 		SDL_LockSurface(src);
 
-	// TODO: needed?
 	if(
 		src->format->Amask == dst->format->Amask &&
 		src->format->Rmask == dst->format->Rmask &&
@@ -260,26 +259,13 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 		CopySurfaceFast(dst, src, sx, sy, dx, dy, w, h);
 	} else {
 
-		/*Uint8 R, G, B, A;
+		Uint8 R, G, B, A;
 		for(register int x = 0; x < w; x++) {
 			for(register int y = 0; y < h; y++) {
 				SDL_GetRGBA(GetPixel(src, x + sx, y + sy), src->format, &R, &G, &B, &A);
 				PutPixel(dst, x + dx, y + dy, SDL_MapRGBA(dst->format, R, G, B, A));
 			}
-		}*/
-
-		// TODO: is it the same as the commented code?
-		SDL_Rect srcr, dstr;
-		srcr.x = sx; srcr.y = sy; srcr.w = w; srcr.h = h;
-		dstr.x = dx; dstr.y = dy; dstr.w = w; dstr.h = h;
-		bool isalpha = (src->flags & SDL_SRCALPHA) != 0;
-
-		if (isalpha) // Temporarily remove the alpha
-			SDL_SetAlpha(src, 0, 0);
-		SDL_LowerBlit(src, &srcr, dst, &dstr);  // Same as BlitSurface but without clipping check (not needed here)
-		if (isalpha) // Restore the alpha
-			SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
-
+		}
 	}
 	
 	// Unlock em

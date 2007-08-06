@@ -1769,9 +1769,9 @@ int CMap::Load(const std::string& filename)
 	if (filename == "")
 		return true;
 
+	// TODO: this is wrong; you also have to check, if it is unaltered
 	// Already loaded?
-	if (filename == FileName)
-		return true;
+	//if (filename == FileName) return true;
 	FileName = filename;
 
 	FILE *fp = OpenGameFile(filename,"rb");

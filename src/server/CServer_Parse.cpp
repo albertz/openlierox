@@ -274,6 +274,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
+		// TODO: why was cl->getWorm(0)->getID() != 0 added here?
 		if (!cl->OwnsWorm(vict) && cl->getWorm(0)->getID() != 0)  {
 			printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 			return;
@@ -321,6 +322,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 	if (killer != victim)  {
 		// Don't add a kill for teamkilling (if enabled in options)
+		// TODO: isn't this incompatible with original LX?
 		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH || tLXOptions->bCountTeamkills ) {
 			kill->addKillInRow();
 			kill->AddKill();

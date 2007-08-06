@@ -55,6 +55,7 @@ public:
 	int		iHookType;
 	int		iHookX, iHookY;
 
+	// TODO: put this together into a struct with the correct sizes or use boolean
 	// Command byte
 	int		iShoot;			// 1 bit   |
 	int		iCarve;			// 1 bit   |
