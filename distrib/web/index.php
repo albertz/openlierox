@@ -100,7 +100,7 @@
 		sudo apt-get install libsdl-mixer1.2-dev
 		sudo apt-get install libsdl-image1.2-dev 
 		sudo apt-get install libsdl-gfx1.2-dev # dep. will be removed in future versions
-		sudo apt-get install libgd2-noxpd-dev
+		sudo apt-get install libgd2-noxpm-dev
 		sudo apt-get install zlib1g-dev
 		sudo apt-get install libxml2-dev
 	</pre>
