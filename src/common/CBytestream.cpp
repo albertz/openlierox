@@ -366,7 +366,7 @@ std::string CBytestream::readString() {
 std::string CBytestream::readString(size_t maxlen) {
 	static std::string result; result = "";
 	size_t i = 0;
-	uchar b;
+	uchar b = 0;
 	while(i < maxlen && (b = readByte()) != 0) {
 		result += b;
 		++i;

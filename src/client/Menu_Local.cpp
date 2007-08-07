@@ -97,7 +97,7 @@ void Menu_LocalInitialize(void)
 
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 22);
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0]->w - 50);
-	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", -1);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", (DWORD)-1);
 
 	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, (DWORD)1, 0);
 

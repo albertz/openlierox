@@ -161,6 +161,30 @@ T from_string(const std::string& s) {
 
 
 
+template<typename T>
+std::string to_string(T val) {
+	std::ostringstream oss;
+	oss << val;
+	return oss.str();
+}
+
+inline std::string ftoa(float val, int precision = -1)
+{
+	std::string res = to_string<float>(val);
+	if (precision != -1)  {
+		size_t dotpos = res.find_last_of('.');
+		if (dotpos == std::string::npos)  {
+			res += '.';
+			for (int i = 0; i < precision; i++)
+				res += '0';
+		} else {
+			res = res.substr(0, dotpos + precision);
+		}
+	}
+
+	return res;
+}
+
 // std::string itoa
 inline std::string itoa(int num, short base=10)  {
 	std::string buf;

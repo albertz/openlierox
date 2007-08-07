@@ -26,13 +26,18 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iPort = _port;
 	fLastPckRecvd = tLX->fCurTime;
 	Socket = _sock;
-	dRate = 1.0f/2500.0f;			// 2500 bytes per second
 	Reliable.Clear();
 	Message.Clear();
 	iPacketsDropped=0;
 	iPacketsGood=0;
 	fLastSent = tLX->fCurTime-1;
 	fLastPingSent = fLastSent;
+	fIncomingClearTime = -9999;
+	fOutgoingClearTime = -9999;
+	fIncomingRate = 0;
+	fOutgoingRate = 0;
+	iCurrentIncomingBytes = 0;
+	iCurrentOutgoingBytes = 0;
 	iPongSequence = -1;
 	iPing = 0;
 
@@ -57,7 +62,6 @@ void CChannel::Transmit( CBytestream *bs )
 	CBytestream outpack;
 	int SendReliable = 0;
 	bool SendPacket = false;
-//	bool XorSequence = false; // TODO: not used
 	Uint32 r1,r2;	
 
 	outpack.Clear();
@@ -127,15 +131,19 @@ void CChannel::Transmit( CBytestream *bs )
 		outpack.Send(Socket);
 
 		iOutgoingBytes += outpack.GetLength();
+		iCurrentOutgoingBytes += outpack.GetLength();
 		fLastSent = tLX->fCurTime;
 
 		iOutgoingSequence++;
 		bAckRequired = false; // Ack sent
 	}
 
-	// TODO: Setup the clear time for the choke
-
-	// TODO: Calculate the bandwidth
+	// Calculate the bytes per second
+	if (tLX->fCurTime - fOutgoingClearTime >= 2.0f)  {
+		fOutgoingRate = (float)iCurrentOutgoingBytes/(tLX->fCurTime - fOutgoingClearTime);
+		iCurrentOutgoingBytes = 0;
+		fOutgoingClearTime = tLX->fCurTime;
+	}
 }
 
 
@@ -164,7 +172,13 @@ int CChannel::Process(CBytestream *bs)
 	SequenceAck &= ~(1<<31);
 
 
-	// TODO: Get rate estimation
+	// Calculate the bytes per second
+	iCurrentIncomingBytes += bs->GetLength();
+	if (tLX->fCurTime - fIncomingClearTime >= 2.0f)  {
+		fIncomingRate = (float)iCurrentIncomingBytes/(tLX->fCurTime - fIncomingClearTime);
+		iCurrentIncomingBytes = 0;
+		fIncomingClearTime = tLX->fCurTime;
+	}
 
 	// Get rid of the old packets
 	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later

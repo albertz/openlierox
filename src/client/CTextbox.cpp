@@ -33,7 +33,7 @@ void CTextbox::Create(void)
 	iCurpos = 0;
 	iLastCurpos = 0;
 	sText = "";
-	iMax = -1; // highest possible size_t value
+	iMax = (size_t) -1; // highest possible size_t value
 	iHolding = false;
 	iHoldingMouse = false;
 	fTimeHolding = 0;
@@ -69,7 +69,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	if (cursorpos < 0)  {
 		cursorpos = 5;  // Number of characters, that will be displayed on left if we scroll left and cursor is on the most left
 		iScrollPos -= 5;// TODO utf string
-		if (iScrollPos < 0)
+		if ((int)iScrollPos < 0)
 			iScrollPos = 0;
 	}
 

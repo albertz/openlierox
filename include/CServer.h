@@ -220,6 +220,8 @@ public:
 	void		unmuteWorm(int wormID);
 	void		unmuteWorm(const std::string& szWormName);
     void        CheckReadyClient(void);
+	float		GetDownload();
+	float		GetUpload();
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CClient *cl);

@@ -481,6 +481,27 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
+#ifdef DEBUG
+	// Upload and download rates
+	float up = 0;
+	float down = 0;
+
+	// Get the rates
+	switch (tGameInfo.iGameType)  {
+	case GME_JOIN:
+		down = cClient->getChannel()->getIncomingRate() / 1024.0f;
+		up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
+		break;
+	case GME_HOST:
+		down = cServer->GetDownload() / 1024.0f;
+		up = cServer->GetUpload() / 1024.0f;
+		break;
+	}
+
+	tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
+	tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
+#endif
+
 	// Game over
     if(iGameOver) {
         if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)  {

@@ -542,6 +542,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	UpdateScoreboard();
 
+	bJoin_Update = true;
+
     return true;
 }
 

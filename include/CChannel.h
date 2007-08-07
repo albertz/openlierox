@@ -46,8 +46,10 @@ private:
 
 	
 	// Bandwidth Estimation
-	double		dClearTime;
-	double		dRate;								// Bandwidth rate (bytes/second)
+	float		fIncomingClearTime;
+	float		fOutgoingClearTime;
+	float		fIncomingRate;								// Bandwidth rate (bytes/second)
+	float		fOutgoingRate;
 
 	
 	// Sequencing
@@ -82,6 +84,8 @@ private:
 	// Statistics
 	int			iPacketsDropped;
 	int			iPacketsGood;
+	int			iCurrentIncomingBytes;				// how many bytes received since last bandwidth calculation
+	int			iCurrentOutgoingBytes;				// how many bytes sent since last bandwidth calculation
 	int			iOutgoingBytes;
 	int			iIncomingBytes;
 
@@ -116,6 +120,9 @@ public:
 	inline int	getIncoming(void)		{ return iIncomingBytes; }
 
 	inline int	getPing()				{ return iPing; }
+
+	inline float getIncomingRate()		{ return fIncomingRate; }
+	inline float getOutgoingRate()		{ return fOutgoingRate; }
 
 	NetworkSocket	getSocket(void)			{ return Socket; }
 };

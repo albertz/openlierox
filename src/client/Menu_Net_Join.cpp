@@ -390,6 +390,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		Menu_Net_JoinShutdown();
         Menu_NetInitialize();
+		bJoin_Update = true;
 		return;
     }
 
@@ -407,6 +408,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		tMenu->iMenuRunning = false;
 		tGameInfo.iGameType = GME_JOIN;
 
+		bJoin_Update = true;
+
 		return;
 	}
 
@@ -422,6 +425,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         cJoinLobby.Shutdown();
 
 		Menu_NetInitialize();
+
+		bJoin_Update = true;
 		return;
 	}
 
@@ -429,14 +434,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
     // Clear the player list and game settings
     Menu_redrawBufferRect(15, 15,  400, 230);
     Menu_redrawBufferRect(360,15,  280, 200);
-
-
-	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cJoinLobby.Process();
-	cJoinLobby.Draw( tMenu->bmpScreen );
 
 
 	// Add chat to the listbox
@@ -511,6 +508,14 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		bJoin_Update = false;
 	}
+
+	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
+	if (!cMediaPlayer.GetDrawPlayer())
+#endif
+		ev = cJoinLobby.Process();
+
+	cJoinLobby.Draw( tMenu->bmpScreen );
 
 
 	// Draw the game info

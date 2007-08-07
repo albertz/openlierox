@@ -1256,6 +1256,39 @@ log_worm_t *GameServer::GetLogWorm(int id)
 	return NULL;
 }
 
+
+///////////////////
+// Get the download rate in bytes/s
+float GameServer::GetDownload()
+{
+	float result = 0;
+	CClient *cl = cClients;
+
+	// Sum downloads from all clients
+	for (int i=0; i < MAX_CLIENTS; i++, cl++)  {
+		if (cl->getStatus() != NET_DISCONNECTED)
+			result += cl->getChannel()->getIncomingRate();
+	}
+
+	return result;
+}
+
+///////////////////
+// Get the upload rate in bytes/s
+float GameServer::GetUpload()
+{
+	float result = 0;
+	CClient *cl = cClients;
+
+	// Sum downloads from all clients
+	for (int i=0; i < MAX_CLIENTS; i++, cl++)  {
+		if (cl->getStatus() != NET_DISCONNECTED)
+			result += cl->getChannel()->getOutgoingRate();
+	}
+
+	return result;
+}
+
 ///////////////////
 // Shutdown the log structure
 void GameServer::ShutdownLog(void)
