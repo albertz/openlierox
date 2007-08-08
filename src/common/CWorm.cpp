@@ -304,9 +304,6 @@ int CWorm::LoadGraphics(int gametype)
 
 	if(ProfileGraphics)
 		LoadProfileGraphics();
-	else
-		// load profile-graphics next time
-		ProfileGraphics = true;
 		
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH) {
@@ -352,6 +349,7 @@ void CWorm::LoadProfileGraphics() {
     if(tProfile) {
 		iColour = MakeColour(tProfile->R, tProfile->G, tProfile->B);
         szSkin = tProfile->szSkin;
+		ProfileGraphics = false;
     }/* else
     	printf("WARNING: LoadProfileGraphics: tProfile isn't set\n");*/
 }
