@@ -51,6 +51,10 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 		strBadConnectMsg = Utf8String(bs->readString(256));
 	}
 
+	// Host has OpenLX Beta 3
+	else if(cmd == "lx::openbeta3")
+		bHostOLXb3 = true;
+
 	// Unknown
 	else  {
 		printf("CClient::ParseConnectionlessPacket: unknown command \"" + cmd + "\"");
@@ -137,6 +141,8 @@ void CClient::ParseConnected(CBytestream *bs)
 
 	bJoin_Update = true;
 	bHost_Update = true;
+
+	bHostOLXb3 = false;
 }
 
 //////////////////

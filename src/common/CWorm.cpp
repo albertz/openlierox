@@ -302,6 +302,7 @@ int CWorm::LoadGraphics(int gametype)
 	// Destroy any previous graphics
 	FreeGraphics();
 
+	// Only load the profile graphics once
 	if(ProfileGraphics)
 		LoadProfileGraphics();
 		

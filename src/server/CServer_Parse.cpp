@@ -1242,6 +1242,12 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		bytestr.Send(tSocket);
 
+		// Let them know they are on an OpenLX beta 3 server
+		bytestr.Clear();
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("lx::openbeta3");
+		bytestr.Send(tSocket);
+
 
 		newcl->getChannel()->Create(&adrFrom, Port, tSocket);
 		newcl->setLastReceived(tLX->fCurTime);

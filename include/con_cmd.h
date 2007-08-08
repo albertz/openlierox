@@ -73,6 +73,9 @@ void	Cmd_BadWord();
 void	Cmd_Quit();
 void	Cmd_Volume();
 void	Cmd_Sound();
+void	Cmd_SetName();
+void	Cmd_SetSkin();
+void	Cmd_SetColour();
 
 
 

@@ -483,6 +483,10 @@ int InitializeLieroX(void)
 	Cmd_AddCommand("exit", Cmd_Quit);
 	Cmd_AddCommand("volume", Cmd_Volume);
 	Cmd_AddCommand("sound", Cmd_Sound);
+	Cmd_AddCommand("setname", Cmd_SetName);
+	Cmd_AddCommand("setskin", Cmd_SetSkin);
+	Cmd_AddCommand("setcolour", Cmd_SetColour);
+	Cmd_AddCommand("setcolor", Cmd_SetColour);
 
 	DrawLoading(45, "Loading sounds");
 	

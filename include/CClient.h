@@ -205,6 +205,8 @@ public:
 
 		for(ushort i=0; i<4; i++)
 			iTeamScores[i] = 0;
+
+		bHostOLXb3 = false;
 	}
 
 	~CClient()  {
@@ -336,6 +338,7 @@ private:
 	float		fLastUpdateSent;
 	std::string	szServerName;
 	ClientRights tRights;
+	bool		bHostOLXb3;
 
 	int			iReadySent;
 
@@ -546,6 +549,8 @@ public:
 
 	inline void setServerName(const std::string& _n)		{ szServerName = _n; }
 	inline std::string getServerName(void)		{ return szServerName; }
+
+	inline bool getHostBeta3(void)				{ return bHostOLXb3; }
 
 };
 

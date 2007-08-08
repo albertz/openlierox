@@ -89,6 +89,13 @@ void CClient::SendText(const std::string& sText)
 {
 	CBytestream *bs = cNetChan.getMessageBS();
 
+	// Do not allow client to send / commands is the host in not on beta 3
+	std::string command_buf = sText;
+	command_buf = Utf8String(sText.substr(cLocalWorms[0]->getName().size() + 2));
+	std::string::iterator it = command_buf.begin();
+	if(*it == '/' && !bHostOLXb3)
+		return;
+
 	bs->writeByte(C2S_CHATTEXT);
 	bs->writeString(sText);
 }
