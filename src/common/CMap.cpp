@@ -31,6 +31,85 @@
 #include "Entity.h"
 
 
+// after a shutdown, save the data here; perhaps we can reuse it
+CMap CachedMap;
+
+bool CMap::ReuseMapData(CMap* map) {
+	if(Created && !modified) {
+		map->Shutdown();
+		
+		map->Name = Name;
+		map->FileName = FileName;
+		map->Type = Type;
+		map->Width = Width;
+		map->Height = Height;
+		map->MinimapWidth = MinimapWidth;
+		map->MinimapHeight = MinimapHeight;
+		map->Theme = Theme;
+		map->nTotalDirtCount = nTotalDirtCount;
+		map->Created = true;
+		map->modified = false;
+		map->nGridWidth = nGridWidth;
+		map->nGridHeight = nGridHeight;
+		map->nGridCols = nGridCols;
+		map->nGridRows = nGridRows;	
+		map->sRandomLayout = sRandomLayout;	
+		sRandomLayout.bUsed = false; // needed because we reuse possible allocated data here too
+		map->bMiniMapDirty = bMiniMapDirty;	
+		map->NumObjects = NumObjects;
+		
+		// reusing our allocated data
+		map->bmpImage = bmpImage;
+		map->bmpDrawImage = bmpDrawImage;
+		map->bmpBackImage = bmpBackImage;
+		map->bmpMiniMap = bmpMiniMap;
+		map->bmpGreenMask = bmpGreenMask;
+		map->PixelFlags = PixelFlags;
+		map->bmpShadowMap = bmpShadowMap;
+#ifdef _AI_DEBUG
+		map->bmpDebugImage = bmpDebugImage;
+#endif
+		map->GridFlags = GridFlags;
+		map->AbsoluteGridFlags = AbsoluteGridFlags;
+		map->Objects = Objects;
+	
+		bmpImage = NULL;
+		bmpDrawImage = NULL;
+		bmpBackImage = NULL;
+		bmpMiniMap = NULL;
+		bmpGreenMask = NULL;
+		PixelFlags = NULL;
+		bmpShadowMap = NULL;
+#ifdef _AI_DEBUG
+		bmpDebugImage = NULL;
+#endif
+		GridFlags = NULL;
+		AbsoluteGridFlags = NULL;
+		Objects = NULL;
+		
+		Created = false; // this map is now clean and more or less shutdowned
+		
+		return true;
+	}
+	
+	return false;
+}
+
+// HINT: call this from Shutdown and only there; ReuseMapData will invalidate this
+void CMap::SaveCachedMap() {
+	ReuseMapData(&CachedMap);
+}
+
+bool CMap::LoadCachedMap() {
+	// TODO: should we allow case insensitive equality also?
+	if(CachedMap.Created && CachedMap.FileName == FileName) {
+		return CachedMap.ReuseMapData(this);
+	}
+	
+	return false;
+}
+
+
 ///////////////////
 // Create a new map
 int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
@@ -77,7 +156,7 @@ int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minima
     // Create the AI Grid
     if(!createGrid())
 	{
-		printf("CMap::New:: ERROR: cannot create AI grid\n");
+		printf("CMap::New: ERROR: cannot create AI grid\n");
 		return false;
 	}
 
@@ -94,22 +173,20 @@ int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minima
     calculateGrid();
 
 	Created = true;
-
+	modified = false;
 
 
 	//---------------------
 	// Water test
 	//---------------------
-
-
-	// TODO: valgrind says, this two arrays got lost
+/*	
+	// TODO: will we use it later? then uncomment this again, otherwise delete it
 	m_pnWater1 = new int[Width];
 	m_pnWater2 = new int[Width];
 
 	memset(m_pnWater1, 0, sizeof(int) * Width);
 	memset(m_pnWater2, 0, sizeof(int) * Width);
-
-
+*/
 
 	return true;
 }
@@ -1611,7 +1688,8 @@ void CMap::DeleteObject(CVec pos)
 void CMap::DeleteStone(object_t *obj)
 {
 	// Replace the stone pixels with dirt pixels
-
+	
+	// TODO: why is no code here?
 }
 
 
@@ -1766,13 +1844,19 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *wo
 int CMap::Load(const std::string& filename)
 {
 	// Weird
-	if (filename == "")
+	if (filename == "") {
+		printf("WARNING: loading unnamed map, ignoring ...\n");	
 		return true;
+	}
 
-	// TODO: this is wrong; you also have to check, if it is unaltered
-	// Already loaded?
-	//if (filename == FileName) return true;
 	FileName = filename;
+
+	// try loading a previosly cached map
+	if(LoadCachedMap()) {
+		// everything is ok
+		printf("HINT: reusing cached map for %s\n", filename.c_str());
+		return true;
+	}
 
 	FILE *fp = OpenGameFile(filename,"rb");
 	if(fp == NULL)
@@ -1826,7 +1910,11 @@ int CMap::Load(const std::string& filename)
 	printf("  Theme_Name = %s\n", Theme_Name);
 	printf("  numobj = %i\n", numobj);
 */
+
 	// Create the map
+	// TODO: This will also calculate GridCells and other stuff,
+	//	which is unneeded because we do it also later here.
+	//	So avoid this in some (clean) way.
 	if(!New(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
 		printf("CMap::Load (%s): ERROR: cannot create map\n", filename.c_str());
 		fclose(fp);
@@ -1863,6 +1951,7 @@ int CMap::Load(const std::string& filename)
 	}
 	fread(bitmask,size,1,fp);
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	// TODO: why is this swapped? sorry, perhaps I have only some blackout
 	static const unsigned char mask[] = {128,64,32,16,8,4,2,1};
 #else
 	static const unsigned char mask[] = {1,2,4,8,16,32,64,128};
@@ -1872,22 +1961,26 @@ int CMap::Load(const std::string& filename)
 
 	lockFlags();
 	
-	for(n=0,i=0;i<size;i++,x+=8) {
-		if (x>=Width)  {
+	for(n = 0, i = 0; i < size; i++, x += 8) {
+		if (x >= Width)  {
 			srcrow += bmpBackImage->pitch;
 			dstrow += bmpImage->pitch;
 			p1 = dstrow;
 			p2 = srcrow;
-			x=0;
+			x = 0;
 		}
 
 		// 1 bit == 1 pixel with a yes/no dirt flag
-		for(j=0;j<8;j++,n++,p1+=bmpImage->format->BytesPerPixel,p2+=bmpBackImage->format->BytesPerPixel) {
+		for(j = 0; j < 8;
+			j++,
+			n++,
+			p1 += bmpImage->format->BytesPerPixel,
+			p2 += bmpBackImage->format->BytesPerPixel) {
 
 			if(bitmask[i] & mask[j])  {
 				PixelFlags[n] = PX_EMPTY;
 				nTotalDirtCount--;
-				memcpy(p1,p2,bmpImage->format->BytesPerPixel);
+				memcpy(p1, p2, bmpImage->format->BytesPerPixel);
 			}
 		}
 	}
@@ -1905,7 +1998,7 @@ int CMap::Load(const std::string& filename)
 	// Objects
 	object_t o;
 	NumObjects = 0;
-	for(i=0;(int)i<numobj;i++) {
+	for(i = 0; (int)i < numobj; i++) {
 		fread(&o.Type,	sizeof(int),	1,	fp);
 		EndianSwap(o.Type);
 		fread(&o.Size,	sizeof(int),	1,	fp);
@@ -1917,9 +2010,9 @@ int CMap::Load(const std::string& filename)
 
 		// Place the object
 		if(o.Type == OBJ_STONE)
-			PlaceStone(o.Size,CVec((float)o.X, (float)o.Y));
+			PlaceStone(o.Size, CVec((float)o.X, (float)o.Y));
 		else if(o.Type == OBJ_MISC)
-			PlaceMisc(o.Size,CVec((float)o.X, (float)o.Y));
+			PlaceMisc(o.Size, CVec((float)o.X, (float)o.Y));
 	}
 
 	// Close the file
@@ -1927,10 +2020,10 @@ int CMap::Load(const std::string& filename)
 
 
 	// Apply the shadow
-	ApplyShadow(0,0,Width,Height);
+	ApplyShadow(0, 0, Width, Height);
 
 	// Update the draw image
-	DrawImageStretch(bmpDrawImage,bmpImage,0,0);
+	DrawImageStretch(bmpDrawImage, bmpImage, 0, 0);
 
 	// Update the minimap
 	UpdateMiniMap(true);
@@ -2474,6 +2567,8 @@ void CMap::Shutdown(void)
 
 	if(Created) {
 
+		if(this != &CachedMap) SaveCachedMap();
+		
 		//printf("some created map is shutting down...\n");
 
 		if(bmpImage)
@@ -2520,12 +2615,14 @@ void CMap::Shutdown(void)
 		Objects = NULL;
 		NumObjects = 0;
 
+/*		
 		if (m_pnWater1)
 			delete[] m_pnWater1;
 		if (m_pnWater2)
 			delete[] m_pnWater2;
 		m_pnWater1 = NULL;
 		m_pnWater2 = NULL;
+*/
 
         if( sRandomLayout.bUsed ) {
             sRandomLayout.bUsed = false;
@@ -2549,12 +2646,12 @@ void CMap::Shutdown(void)
 		GridFlags = NULL;
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
-		sRandomLayout.psObjects = NULL;
+		sRandomLayout.psObjects = NULL;	
 	}
 
 	Created = false;
 	FileName = "";
-
+	
 	unlockFlags();
 }
 

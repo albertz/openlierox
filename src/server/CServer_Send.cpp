@@ -178,21 +178,25 @@ bool GameServer::SendUpdate()
 				}
 			}
     
-			// Send the shootlist (reliable)
-			CShootList *sh = cl->getShootList();
-			float delay = shootDelay[cl->getNetSpeed()];
-    
-			if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
-        
-				// Send the shootlist
-				if( sh->writePacket( cl->getChannel()->getMessageBS() ) )
-					sh->Clear();
+    		{
+				// Send the shootlist (reliable)
+				CShootList *sh = cl->getShootList();
+				float delay = shootDelay[cl->getNetSpeed()];
+		
+				if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
+			
+					// Send the shootlist
+					if( sh->writePacket( cl->getChannel()->getMessageBS() ) )
+						sh->Clear();
+				}
 			}
 
-			// TODO: what is this good for?
-			// Add the length of the client's unreliable packet to the frame's message size
-			int *msgSize = cl->getMsgSize();
-			msgSize[iServerFrame % RATE_NUMMSGS] = cl->getUnreliable()->GetLength();
+			{
+				// TODO: what is this good for?
+				// Add the length of the client's unreliable packet to the frame's message size
+				int *msgSize = cl->getMsgSize();
+				msgSize[iServerFrame % RATE_NUMMSGS] = cl->getUnreliable()->GetLength();
+			}
 		}
 	}
 

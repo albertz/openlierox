@@ -380,6 +380,9 @@ int GameServer::StartGame(void)
 // Begin the match
 void GameServer::BeginMatch(void)
 {
+	printf("BeginMatch\n");
+	cMap->SetModifiedFlag();
+	
 	int i;
 
 	iState = SVS_PLAYING;

@@ -136,7 +136,8 @@ private:
     uint         nTotalDirtCount;
 
 	bool		Created;
-
+	bool		modified; // set, if map differs from FileName
+	
 	SDL_Surface	*bmpImage;
 	SDL_Surface	*bmpDrawImage;
 	SDL_Surface	*bmpBackImage;    
@@ -166,8 +167,8 @@ private:
 
 
 	// Water
-	int			*m_pnWater1;
-	int			*m_pnWater2;
+//	int			*m_pnWater1;
+//	int			*m_pnWater2;
 
 private:
 	// Update functions
@@ -176,7 +177,9 @@ private:
 	void		UpdateMiniMapRect(int x, int y, int w, int h);
 	void		UpdateArea(int x, int y, int w, int h, bool update_image = false);
 
-
+	bool		ReuseMapData(CMap* map);
+	void		SaveCachedMap();
+	bool		LoadCachedMap();
 
 public:
 	// Methods
@@ -254,14 +257,15 @@ public:
 		return PixelFlags[y * Width + x];
 	}
 
-	inline uchar	*GetPixelFlags() const	{ return PixelFlags; }
+	void	SetModifiedFlag()		{ modified = true; }
+	uchar	*GetPixelFlags() const	{ return PixelFlags; }
 
-	inline SDL_Surface	*GetDrawImage()		{ return bmpDrawImage; }
-	inline SDL_Surface	*GetImage()			{ return bmpImage; }
-	inline SDL_Surface* GetBackImage()		{ return bmpBackImage; }
-	inline SDL_Surface	*GetMiniMap()		{ return bmpMiniMap; }
+	SDL_Surface	*GetDrawImage()		{ return bmpDrawImage; }
+	SDL_Surface	*GetImage()			{ return bmpImage; }
+	SDL_Surface* GetBackImage()		{ return bmpBackImage; }
+	SDL_Surface	*GetMiniMap()		{ return bmpMiniMap; }
 #ifdef _AI_DEBUG
-	inline SDL_Surface *GetDebugImage()	{ return bmpDebugImage; }
+	SDL_Surface *GetDebugImage()	{ return bmpDebugImage; }
 
 	void		ClearDebugImage();
 #endif

@@ -44,15 +44,15 @@ void CWorm::readInfo(CBytestream *bs)
 {
 	sName = bs->readString();
 
-	iType = MAX(MIN(bs->readInt(1),1),0);
-	iTeam = MAX(MIN(bs->readInt(1),3),0);
+	iType = bs->readInt(1) ? 1 : 0;
+	iTeam = CLAMP(bs->readInt(1), 0, 3);
     szSkin = bs->readString();
 
 	Uint8 r = bs->readByte();
 	Uint8 g = bs->readByte();
 	Uint8 b = bs->readByte();
 	
-	iColour = MakeColour(r,g,b);
+	iColour = MakeColour(r, g, b);
 	iOldColour = iColour;
 }
 
@@ -62,9 +62,9 @@ void CWorm::readInfo(CBytestream *bs)
 void CWorm::writeScore(CBytestream *bs)
 {
 	bs->writeByte(S2C_SCOREUPDATE);
-	bs->writeInt(iID,1);
+	bs->writeInt(iID, 1);
 	bs->writeInt16(iLives);
-	bs->writeInt(iKills,1);
+	bs->writeInt(iKills, 1);
 }
 
 
@@ -78,7 +78,7 @@ void CWorm::readScore(CBytestream *bs)
 		iLives = MAX((int)bs->readInt16(),WRM_UNLIM);
 	else
 		iLives = MAX((int)bs->readInt16(),WRM_OUT);
-	iKills = MAX(bs->readInt(1),0);
+	iKills = MAX(bs->readInt(1), 0);
 }
 
 

@@ -1,5 +1,6 @@
 TODO
 
+[ ] same caching system for GameScript as for Map (!)
 [ ] create crossbuilding-scripts: (using crossbuilding in GCC)
 	[ ] Mac OS X ( + Application Bundle)
 	[ ] Windows EXE ( + ZIP package)
@@ -15,7 +16,7 @@ TODO
 [ ] bot: ninjarope is shot too fast (!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
-[ ] avoid unneeded multi loading of maps (!)
+[x] avoid unneeded multi loading of maps (!)
 [X] fix delta time (network synchronization) (!!)
 [x] fix physics bugs (!!)
 [ ] new graphics engine (waytracing & pixelcache) (!)

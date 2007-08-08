@@ -47,8 +47,8 @@ static const unsigned short wormsize = 7;
 */
 
 
-// returns the maximal possible free rectangle with the given point inside
-// (not in every case, but in most)
+// returns the biggest possible free rectangle with the given point inside
+// (not in every case, but in most it is the biggest; but it is ensured that the given rect is at least free)
 // the return-value of type SquareMatrix consists of the top-left and upper-right pixel
 // WARNING: if the given point is not in the map, the returned
 // area is also not in the map (but it will handle it correctly)
