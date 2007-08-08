@@ -419,7 +419,8 @@ void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 
 enum  {
 	fd_Ok,
-	fd_Refresh
+	fd_Refresh,
+	fd_Join
 };
 
 extern CButton cNetButtons[5];
@@ -446,9 +447,11 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
     cDetails.Initialize();
 	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  fd_Refresh,	center - 105, y+INFO_H-20, 85,15);
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    fd_Ok,      center + 20, y+INFO_H-20, 40,15);
+    cDetails.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),	    fd_Join,      center, y+INFO_H-20, 40,15);
+	cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    fd_Ok,      center + 60, y+INFO_H-20, 40,15);
 	((CButton *)cDetails.getWidget(fd_Refresh))->setRedrawMenu(false);
 	((CButton *)cDetails.getWidget(fd_Ok))->setRedrawMenu(false);
+	((CButton *)cDetails.getWidget(fd_Join))->setRedrawMenu(false);
 
 	bGotDetails = false;
 	bOldLxBug = false;
@@ -486,6 +489,16 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;
+			// Join
+			} else if (ev->iControlID == fd_Join && ev->iEventMsg == BTN_MOUSEUP)  {
+
+				lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
+
+				// Join
+				if (sub)
+					Menu_Net_FavouritesJoinServer(szAddress, sub->sText);
+
+				break;
 			}
         }
 

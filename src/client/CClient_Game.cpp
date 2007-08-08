@@ -1,4 +1,4 @@
-/////////////////////////////////////////
+////////////////////////////////////////
 //
 //             OpenLieroX
 //
@@ -166,11 +166,9 @@ void CClient::Simulation(void)
 			}
 
 			// If the worm is using a weapon with a laser sight, spawn a laser sight
-			// ALERT: sometimes weapon is undefined and causes crash when the game starts!
-			// TODO: is this ALERT up-to-date? if yes, why the hell isn't this fixed?
-			if(w->getCurWeapon()->Weapon->LaserSight) {
+			if (w->getCurWeapon()->Weapon)
+				if(w->getCurWeapon()->Weapon->LaserSight)
 					LaserSight(w);
-			}
 
 		}
 

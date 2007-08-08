@@ -374,7 +374,8 @@ extern CButton	cNetButtons[5];
 
 enum {
 	ld_Ok=0,
-	ld_Refresh
+	ld_Refresh,
+	ld_Join
 };
 
 ///////////////////
@@ -400,9 +401,11 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
     cDetails.Initialize();
 	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  ld_Refresh,	center - 105, y+INFO_H-20, 85,15);
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    ld_Ok,      center + 20, y+INFO_H-20, 40,15);
+    cDetails.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),	    ld_Join,      center, y+INFO_H-20, 40,15);
+	cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    ld_Ok,      center + 60, y+INFO_H-20, 40,15);
 	((CButton *)cDetails.getWidget(ld_Refresh))->setRedrawMenu(false);
 	((CButton *)cDetails.getWidget(ld_Ok))->setRedrawMenu(false);
+	((CButton *)cDetails.getWidget(ld_Join))->setRedrawMenu(false);
 
 	bGotDetails = false;
 	bOldLxBug = false;
@@ -439,6 +442,15 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;
+			} else if (ev->iControlID == ld_Join && ev->iEventMsg == BTN_MOUSEUP)  {
+
+				lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
+
+				// Join
+				if (sub)
+					Menu_Net_LANJoinServer(szAddress, sub->sText);
+
+				break;
 			}
         }
 

@@ -1418,6 +1418,9 @@ server_t *Menu_SvrList_FindServerStr(const std::string& szAddress)
 // Fill a listview box with the server list
 void Menu_SvrList_FillList(CListview *lv)
 {
+	if (!lv)
+		return;
+
 	server_t	*s = psServerList;
 	std::string		addr;
 	static const std::string states[] = {"Open", "Loading", "Playing"};

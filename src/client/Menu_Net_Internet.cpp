@@ -721,7 +721,8 @@ void Menu_Net_NETParseList(void)
 
 enum  {
 	nd_Ok=0,
-	nd_Refresh
+	nd_Refresh,
+	nd_Join
 };
 
 ///////////////////
@@ -746,9 +747,11 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 	
     cDetails.Initialize();
 	cDetails.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons),  nd_Refresh,	center - 105, y+INFO_H-20, 85,15);
-    cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    nd_Ok,      center + 20, y+INFO_H-20, 40,15);
+    cDetails.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),	    nd_Join,    center, y+INFO_H-20, 40,45);
+	cDetails.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    nd_Ok,      center + 60, y+INFO_H-20, 40,15);
 	((CButton *)cDetails.getWidget(nd_Refresh))->setRedrawMenu(false);
 	((CButton *)cDetails.getWidget(nd_Ok))->setRedrawMenu(false);
+	((CButton *)cDetails.getWidget(nd_Join))->setRedrawMenu(false);
 
 	bGotDetails = false;
 	bOldLxBug = false;
@@ -785,6 +788,17 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;
+			} else if (ev->iControlID == nd_Join && ev->iEventMsg == BTN_MOUSEUP)  {
+                // Save the list
+                Menu_SvrList_SaveList("cfg/svrlist.dat");
+
+				lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
+
+				// Join
+				if (sub)
+					Menu_Net_NETJoinServer(szAddress, sub->sText);
+
+				break;
 			}
         }
 
