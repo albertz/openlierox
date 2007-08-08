@@ -35,7 +35,7 @@ DyingSpree1 = <player> is on a dying spree!
 DyingSpree2 = <player> is a target!
 DyingSpree3 = <player> is a sitting duck!
 DyingSpree4 = <player> is free kills!
-DyingSpree5 = <player> is WORTHLESs!
+DyingSpree5 = <player> is WORTHLESS!
 
 ServerFull = Server is full
 NoEmptySlots = Server has no empty slots
