@@ -640,8 +640,6 @@ void CClient::ParseWormInfo(CBytestream *bs)
         printf("CClient::ParseWormInfo(): LoadGraphics() failed\n");
 	}
 
-	cRemoteWorms[id].setupLobby();
-
 	UpdateScoreboard();
 
 	bJoin_Update = true;
@@ -1128,7 +1126,6 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 
 	bJoin_Update = true;
 	bHost_Update = true;
-
 }
 
 

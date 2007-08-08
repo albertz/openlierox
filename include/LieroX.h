@@ -226,6 +226,7 @@ class game_t { public:
 class game_lobby_t { public:
 	int		nSet;
 	int		nGameMode;
+	int		nLastGameMode;
 	int		nLives;
 	int		nMaxWorms;
 	int		nMaxKills;

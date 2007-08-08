@@ -172,6 +172,7 @@ private:
 	std::string	sName;
     std::string szSkin;
 	Uint32		iColour;
+	Uint32		iOldColour;
 	bool		ProfileGraphics;
 	int			iRanking;
 	int			iKillsInRow;
@@ -605,6 +606,8 @@ public:
 
 	inline bool		getAlreadyKilled()			{ return bAlreadyKilled; }
 	inline void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }
+
+	inline void		setProfileGraphics(bool _p)	{ ProfileGraphics = _p; }
 
 
 };

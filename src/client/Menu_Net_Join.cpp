@@ -480,6 +480,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			lobby_worm = w->getLobby();
 
 			// Reload the worm graphics
+			if(gl->nLastGameMode == GMT_TEAMDEATH)
+				w->setProfileGraphics(true);
 			w->setTeam(lobby_worm->iTeam);
 			w->LoadGraphics(cClient->getGameLobby()->nGameMode);
 
@@ -501,6 +503,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				team_img->setRedrawMenu(false);
 
 				player_list->AddSubitem(LVS_WIDGET, "", NULL, team_img); // Team
+
+				gl->nLastGameMode = gl->nGameMode;
 			}
 		}
 

@@ -303,18 +303,23 @@ int CWorm::LoadGraphics(int gametype)
 	FreeGraphics();
 
 	// Only load the profile graphics once
-	if(ProfileGraphics)
+	if(ProfileGraphics) {
 		LoadProfileGraphics();
+		ProfileGraphics = false;
+	}
 		
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH) {
 		team = true;
+		iOldColour = iColour;
 		iColour = tLX->clTeamColors[iTeam];
 	}
+	else
+		iColour = iOldColour;
 
     // Use the colours set on the network
     // Profile or team colours will override this
-    GetColour3(iColour, SDL_GetVideoSurface(), &r, &g, &b);
+	GetColour3(iColour, SDL_GetVideoSurface(), &r, &g, &b);
 
     // Colourise the giblets
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
@@ -350,7 +355,6 @@ void CWorm::LoadProfileGraphics() {
     if(tProfile) {
 		iColour = MakeColour(tProfile->R, tProfile->G, tProfile->B);
         szSkin = tProfile->szSkin;
-		ProfileGraphics = false;
     }/* else
     	printf("WARNING: LoadProfileGraphics: tProfile isn't set\n");*/
 }

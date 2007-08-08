@@ -1125,6 +1125,8 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		lobby_worm = w->getLobby();
 
 		// Reload the worm graphics
+		if(gl->nLastGameMode == GMT_TEAMDEATH)
+			w->setProfileGraphics(true);
 		w->setTeam(lobby_worm->iTeam);
 		w->LoadGraphics(cClient->getGameLobby()->nGameMode);
 
@@ -1156,6 +1158,8 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 			team_img->setRedrawMenu(false);
 
 			player_list->AddSubitem(LVS_WIDGET, "", NULL, team_img); // Team
+
+			gl->nLastGameMode = gl->nGameMode;
 		} else {
 			player_list->AddSubitem(LVS_TEXT, "", NULL, NULL); // Ping has to be the fifth subitem
 		}
