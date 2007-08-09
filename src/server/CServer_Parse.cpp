@@ -684,6 +684,11 @@ void GameServer::ParseDisconnect(CClient *cl) {
 		return;
 	}
 
+	// Host cannot leave...
+	if (cl->getWorm(0))
+		if (cl->getWorm(0)->getID() == 0)
+			return;
+
 	DropClient(cl, CLL_QUIT);
 }
 
@@ -1565,6 +1570,12 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 	if(!stringcasecmp(cmd, "/suicide")) {
 		if(cur_arg == arguments.end())  {
 			SendText(cl, "Not enough of arguments.", TXT_NETWORK);
+			return true;
+		}
+
+		// Make sure we are playing
+		if (iState != SVS_PLAYING)  {
+			SendText(cl, "Cannot suicide when not playing.", TXT_NETWORK);
 			return true;
 		}
 

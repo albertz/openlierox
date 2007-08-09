@@ -375,7 +375,13 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			assert(cServer);
 
 			cMap = cServer->getMap();
-			cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
+			if (!cMap)  {  // Bad packet
+				iGameReady = false;
+				return false;
+			} else {
+				cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
+				bMapGrabbed = true;
+			}
 		}
 
 	} else {
@@ -415,8 +421,13 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
             // Grab the server's copy of the map
 			cMap = cServer->getMap();
-			cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
-			bMapGrabbed = true;
+			if (!cMap)  {  // Bad packet
+				iGameReady = false;
+				return false;
+			} else {
+				cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
+				bMapGrabbed = true;
+			}
 		}
 
 	}
@@ -446,6 +457,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	int result = cGameScript.Load(sModName);
 
+	// TODO: what if we are host? We should probably grab the server's mod rather than loading it again
 	if(result != GSE_OK) {
 
 		// Show any error messages
@@ -589,6 +601,9 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 		printf("CClient::ParseSpawnWorm: Cannot spawn when not playing (packet ignored)\n");
 		return;
 	}
+
+	if (!cMap)
+		return;
 
 	// Is the spawnpoint in the map?
 	if (x > (int)cMap->GetWidth() || x < 0)  {
@@ -803,6 +818,9 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 		printf("CClient::ParseSpawnBonus: invalid bonus ID ("+itoa(id)+")\n");
 		return;
 	}
+
+	if (!cMap) // Weird
+		return;
 
 	if (x > (int)cMap->GetWidth() || x < 0)  {
 		printf("CClient::ParseSpawnBonus: X-coordinate not in map ("+itoa(x)+")\n");

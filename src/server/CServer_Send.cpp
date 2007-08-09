@@ -19,6 +19,9 @@
 #include "CClient.h"
 #include "Protocol.h"
 #include "CWorm.h"
+#ifdef DEBUG
+#include "MathLib.h"
+#endif
 
 using namespace std;
 
@@ -361,3 +364,18 @@ void GameServer::UpdateWorms(void)
 	}
 	SendGlobalPacket(&bytestr);
 }
+
+#ifdef DEBUG
+///////////////
+// Used for testing network stability
+void GameServer::SendRandomPacket()
+{
+	CBytestream bs;
+	int random_length = GetRandomInt(50);
+	for (int i=0; i < random_length; i++)
+		bs.writeByte((uchar)GetRandomInt(255));
+
+	SendGlobalPacket(&bs);
+	printf("A random packet has been sent to all clients\n");
+}
+#endif

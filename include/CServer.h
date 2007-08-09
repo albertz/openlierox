@@ -233,6 +233,9 @@ public:
     void        SendWormLobbyUpdate(void);
 	void		UpdateGameLobby(void);
 	void		UpdateWorms(void);
+#ifdef DEBUG
+	void		SendRandomPacket();
+#endif
 
 	// Parsing
 	void		ParseClientPacket(CClient *cl, CBytestream *bs);

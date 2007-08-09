@@ -18,6 +18,9 @@
 #include "CClient.h"
 #include "Protocol.h"
 #include "CWorm.h"
+#ifdef DEBUG
+#include "MathLib.h"
+#endif
 
 
 ///////////////////
@@ -99,3 +102,18 @@ void CClient::SendText(const std::string& sText)
 	bs->writeByte(C2S_CHATTEXT);
 	bs->writeString(sText);
 }
+
+#ifdef DEBUG
+//////////////////
+// Send a random packet to server (used for debugging)
+void CClient::SendRandomPacket()
+{
+	printf("Sending a random packet to server\n");
+
+	CBytestream *bs = cNetChan.getMessageBS();
+
+	int random_length = GetRandomInt(50);
+	for (int i=0; i < random_length; i++)
+		bs->writeByte((uchar)GetRandomInt(255));
+}
+#endif

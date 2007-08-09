@@ -429,7 +429,7 @@ void CShootList::readSingle( CBytestream *bs )
 
 	// Read the packet
 	flags = bs->readByte();
-	psShot->nWormID = bs->readByte();
+	psShot->nWormID = MIN(bs->readByte(), MAX_WORMS); // Used for indexing
 	psShot->fTime = bs->readFloat();
 	psShot->nWeapon = bs->readByte();
 	bs->read2Int12( x, y );	
@@ -479,7 +479,7 @@ void CShootList::readMulti( CBytestream *bs )
 	shoot_t *psShot = m_psShoot;
 	
 	flags = bs->readByte();
-	psShot->nWormID = bs->readByte();
+	psShot->nWormID = MIN(bs->readByte(), MAX_WORMS); // Used for indexing
 	psShot->fTime = bs->readFloat();
 	psShot->nWeapon = bs->readByte();
 	num = bs->readByte();

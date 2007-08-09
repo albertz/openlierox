@@ -95,6 +95,7 @@ void CWorm::Clear(void)
 	//pcViewport = NULL;//.Setup(0,0,640,480);
 	tProfile = NULL;
 
+	cGameScript = NULL;
 	short i;
 	for(i=0;i<NUM_FRAMES;i++)
 		fFrameTimes[i] = -99999.0f;

@@ -28,6 +28,9 @@
 #include "CWorm.h"
 #include "Protocol.h"
 #include "Error.h"
+#ifdef DEBUG
+#include "MathLib.h"
+#endif
 
 
 
@@ -507,6 +510,13 @@ void GameServer::SendPackets(void)
 	// If we are playing, send update to the clients
 	if (iState == SVS_PLAYING)
 		SendUpdate();
+
+	// Randomly send a random packet :)
+#ifdef DEBUG
+	/*if (GetRandomInt(50) > 24 && iState == SVS_PLAYING)
+		SendRandomPacket();*/
+#endif
+
 
 	// Go through each client and send them a message
 	for(c=0;c<MAX_CLIENTS;c++,cl++) {

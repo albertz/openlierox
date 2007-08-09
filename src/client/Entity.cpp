@@ -252,6 +252,9 @@ void SimulateEntities(float dt, CMap *map)
 	if (!iEntityCount)
 		return;
 
+	if (!map)  // Weird
+		return;
+
 	uint OriginalCount = iEntityCount;
 	uint curcount = 0;
 

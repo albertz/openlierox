@@ -122,8 +122,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
         }
 
         // Clamp the current weapon
-        iCurrentWeapon = MIN(iCurrentWeapon, iNumWeaponSlots-1);
-        iCurrentWeapon = MAX(iCurrentWeapon, 0);
+        iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
 	}
 
 
@@ -438,6 +437,10 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 // Simulates the weapon
 void CWorm::SimulateWeapon( float dt )
 {
+	// Weird
+	if (iCurrentWeapon < 0 || iCurrentWeapon >= 5)
+		return;
+
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
 	if(Slot->LastFire>0)

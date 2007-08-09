@@ -1311,6 +1311,10 @@ void CClient::ProcessShot(shoot_t *shot)
     if(!w->getAlive())
         return;
 
+	// Weird
+	if (!cGameScript.GetWeapons())
+		return;
+
 	weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
 
 	// Process beam weapons differently

@@ -454,6 +454,9 @@ public:
 
 	// Sending
 	void		SendWormDetails(void);
+#ifdef DEBUG
+	void		SendRandomPacket();
+#endif
 
 	// Parsing
 	void		ParseConnectionlessPacket(CBytestream *bs);

@@ -25,6 +25,9 @@
 #include "CWorm.h"
 #include "Error.h"
 #include "Protocol.h"
+#ifdef DEBUG
+#include "MathLib.h"
+#endif
 
 
 ///////////////////
@@ -355,6 +358,12 @@ void CClient::SendPackets(void)
 	// Playing packets
 	if(iNetStatus == NET_PLAYING)
 		SendWormDetails();
+
+	// Randomly send a random packet
+#ifdef DEBUG
+	/*if (GetRandomInt(50) > 24)
+		SendRandomPacket();*/
+#endif
 
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
 		cNetChan.Transmit(&bsUnreliable);

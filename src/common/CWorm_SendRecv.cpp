@@ -237,7 +237,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 	// Flags
 	uchar bits = bs->readByte();
-	iCurrentWeapon = bs->readByte();
+	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 
 	iDirection = DIR_LEFT;
 		
@@ -267,7 +267,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	CWorm *w = cl->getWorm(0);
 
 	// Prevent a wall hack
-	if (tGameInfo.iGameType == GME_HOST)  {
+	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())  {
 
 		// Out of map
 		if(x > (short)cServer->getMap()->GetWidth() || y > (short)cServer->getMap()->GetHeight())
@@ -322,7 +322,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 	// Flags
 	uchar bits = bs->readByte();
-	iCurrentWeapon = bs->readByte();
+	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 	
 	tState.iDirection = DIR_LEFT;
 
