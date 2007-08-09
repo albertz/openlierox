@@ -247,7 +247,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	while(DrawLoadingProgress() && cStack.Pop(current_dir)) {
 		// TODO: merge SongListFiller with PlaylistLoader to speed it up
 		FindFiles(SongListFiller(this), current_dir, FM_REG);
-		FindFiles(PlaylistLoader(this), current_dir, FM_REG);
+		FindFiles(PlaylistLoader(this), current_dir, FM_DIR);
 	}
 }
 
@@ -287,6 +287,10 @@ std::string CPlayList::GetCurSong() {
 //////////////////
 // Move to the next song in playlist
 void CPlayList::GoToNextSong() {
+	// Another song is being loaded, just quit
+	if (IsSongLoading())
+		return;
+
 	// Shuffle, just get some random song
 	if (bShuffle)  {
 		iCurSong = GetRandomInt((int)tSongList.size()-1);
@@ -309,6 +313,10 @@ void CPlayList::GoToNextSong() {
 // Move to the previous song in playlist
 void CPlayList::GoToPrevSong(void)
 {
+	// Another song is being loaded, just quit
+	if (IsSongLoading())
+		return;
+
 	// Shuffle, just get some random song
 	if (bShuffle)  {
 		iCurSong = GetRandomInt((int)tSongList.size()-1);
