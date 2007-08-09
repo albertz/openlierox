@@ -1182,7 +1182,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 // Show the minimap
 void Menu_HostShowMinimap(void)
 {
-	static CMap map;
+	CMap map;
 	static std::string buf;
 
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &buf, 0);
