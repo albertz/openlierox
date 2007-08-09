@@ -171,11 +171,8 @@ bool CWorm::checkPacketNeeded()
 		return true;
 
 	// Time
-	CVec vel = (vPos - vOldPos);
-	vel = vel / (tLX->fCurTime - fLastPosUpdate);
-	fLastPosUpdate = tLX->fCurTime;
-	if (vel.GetLength2())
-		if (tLX->fCurTime - fLastUpdateWritten >= 3.0f/vel.GetLength())
+	if (vVelocity.GetLength2())
+		if (tLX->fCurTime - fLastUpdateWritten >= MAX(3.0f/vVelocity.GetLength(), 1.0f/30.0f))
 			return true;
 
 	// Rope
@@ -261,7 +258,12 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
+	} else {  // We have to count the velocity by ourself
+		vVelocity = (vPos - vOldPos);
+		vVelocity = vVelocity / (tLX->fCurTime - fLastPosUpdate);
+		fLastPosUpdate = tLX->fCurTime;
 	}
+
 
 	CClient *cl = cServer->getClient(iID);
 	CWorm *w = cl->getWorm(0);
