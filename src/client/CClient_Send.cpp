@@ -92,12 +92,17 @@ void CClient::SendText(const std::string& sText)
 {
 	CBytestream *bs = cNetChan.getMessageBS();
 
+	// TODO: this way is not good; it assumes, that the message is always of the format 'NICK: MSG'
 	// Do not allow client to send / commands is the host in not on beta 3
 	std::string command_buf = sText;
-	command_buf = Utf8String(sText.substr(cLocalWorms[0]->getName().size() + 2));
-	std::string::iterator it = command_buf.begin();
-	if(*it == '/' && !bHostOLXb3)
+	command_buf = Utf8String(sText.substr(cLocalWorms[0]->getName().size() + 2)); // get the message after "NICK: "
+	if(command_buf.size() == 0)
 		return;
+	
+	if(command_buf[0] == '/' && !bHostOLXb3) {
+		cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3 can", tLX->clNotice, tLX->fCurTime);
+		return;
+	}
 
 	bs->writeByte(C2S_CHATTEXT);
 	bs->writeString(sText);

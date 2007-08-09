@@ -1090,9 +1090,11 @@ void Menu_Net_HostLobbyShutdown(void)
 void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 {
 	CListview *player_list = (CListview *)cHostLobby.getWidget(hl_PlayerList);
-	if (!player_list)  // Weird, shouldn't happen
+	if (!player_list) { // Weird, shouldn't happen
+		printf("WARNING: Menu_HostDrawLobby: player_list not set\n");
 		return;
-
+	}
+	
 	// Update the pings first
 	CWorm *w = cClient->getRemoteWorms() + 1;
 	int i;

@@ -1308,12 +1308,16 @@ void CClient::ProcessShot(shoot_t *shot)
 	CWorm *w = &cRemoteWorms[shot->nWormID];
 
     // If this worm is dead, ignore the shot
-    if(!w->getAlive())
-        return;
+    if(!w->getAlive()) {
+    	printf("WARNING: dead worm was shooting\n");
+    	return;
+    }
 
 	// Weird
-	if (!cGameScript.GetWeapons())
+	if (!cGameScript.GetWeapons()) {
+		printf("WARNING: weapons not loaded while a client was shooting\n");
 		return;
+	}
 
 	weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
 

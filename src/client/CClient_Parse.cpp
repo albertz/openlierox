@@ -57,7 +57,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	// Unknown
 	else  {
-		printf("CClient::ParseConnectionlessPacket: unknown command \"" + cmd + "\"");
+		printf("CClient::ParseConnectionlessPacket: unknown command \"" + cmd + "\"\n");
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
 	}
 }
@@ -720,7 +720,7 @@ void CClient::ParseText(CBytestream *bs)
 
 	buf = Utf8String(buf);  // Convert any possible pseudo-UTF8 (old LX compatible) to normal UTF8 string
 
-	cChatbox.AddText(buf,col,tLX->fCurTime);
+	cChatbox.AddText(buf, col, tLX->fCurTime);
 
 
 	// Log the conversation
@@ -819,8 +819,10 @@ void CClient::ParseSpawnBonus(CBytestream *bs)
 		return;
 	}
 
-	if (!cMap) // Weird
+	if (!cMap) { // Weird
+		printf("WARNING: CClient::ParseSpawnBonus: cMap not set\n");
 		return;
+	}
 
 	if (x > (int)cMap->GetWidth() || x < 0)  {
 		printf("CClient::ParseSpawnBonus: X-coordinate not in map ("+itoa(x)+")\n");

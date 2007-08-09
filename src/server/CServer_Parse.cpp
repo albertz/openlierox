@@ -596,15 +596,9 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
 	// Check for special commands
-	std::string::iterator it = command_buf.begin();
-	CWorm	*worm = cWorms;
-
-	if (*it == '/') {
-		it++;
-		if (*it != '/')  {  // When two slashes at the beginning, parse as a normal message
-			ParseChatCommand(command_buf, cl);
-			return;
-		}
+	if (command_buf.substr(0, 2) == "//")  {  // When two slashes at the beginning, parse as a normal message
+		ParseChatCommand(command_buf, cl);
+		return;
 	}
 
 	// Check for Clx (a cheating version of lx)

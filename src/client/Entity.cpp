@@ -252,9 +252,11 @@ void SimulateEntities(float dt, CMap *map)
 	if (!iEntityCount)
 		return;
 
-	if (!map)  // Weird
+	if (!map) { // Weird
+		printf("WARNING. SimulateEntities gots no map\n");
 		return;
-
+	}
+	
 	uint OriginalCount = iEntityCount;
 	uint curcount = 0;
 

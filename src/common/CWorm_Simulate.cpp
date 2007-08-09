@@ -438,8 +438,10 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 void CWorm::SimulateWeapon( float dt )
 {
 	// Weird
-	if (iCurrentWeapon < 0 || iCurrentWeapon >= 5)
+	if (iCurrentWeapon < 0 || iCurrentWeapon >= 5) {
+		printf("WARNING: SimulateWeapon: iCurrentWeapon is bad\n");
 		return;
+	}
 
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 

@@ -463,8 +463,10 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	// Draw the connected players
 	if (bJoin_Update)  {
 		CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
-		if (!player_list)  // Weird, shouldn't happen
+		if (!player_list) { // Weird, shouldn't happen
+			printf("WARNING: Menu_Net_JoinLobbyFrame: player_list unset\n");
 			return;
+		}
 		player_list->SaveScrollbarPos();
 		player_list->Clear();  // Clear first
 

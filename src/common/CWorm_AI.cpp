@@ -2085,8 +2085,6 @@ void CWorm::AI_SimpleMove(bool bHaveTarget)
 	        if(iDirection==DIR_LEFT)
 		        dir.x=(-dir.x);
 
-			MessageBeep(0);
-
             cNinjaRope.Shoot(vPos,dir);
         }
 
@@ -3481,6 +3479,7 @@ bool CWorm::NEW_AI_CheckFreeCells(int Num)
 	}
 
 	// Weird, shouldn't happen
+	printf("ouh, what???\n");
 	return false;
 }
 
