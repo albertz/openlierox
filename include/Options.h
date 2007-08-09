@@ -135,6 +135,8 @@ public:
 	std::string sYouAreBanned ;
 	std::string sBotsNotAllowed ;
 	std::string sWantsJoin ;
+
+	std::string sKnownAs;
 };
 
 // Options structure

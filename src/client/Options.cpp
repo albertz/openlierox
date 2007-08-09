@@ -434,6 +434,8 @@ bool NetworkTexts::LoadFromDisc()
 	ReadString (f, "NetworkTexts", "BotsNotAllowed",  sBotsNotAllowed,	"Sorry, bots are not allowed on this server");
 	ReadString (f, "NetworkTexts", "WantsJoin",		  sWantsJoin,		"<player> wants to join the server");
 
+	ReadString (f, "NetworkTexts", "KnownAs",		  sKnownAs,			"<oldname> is now known as <newname>");
+
 	printf("DONE\n");
 	return true;
 }

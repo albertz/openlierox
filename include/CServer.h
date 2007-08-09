@@ -222,6 +222,7 @@ public:
     void        CheckReadyClient(void);
 	float		GetDownload();
 	float		GetUpload();
+	bool		ParseChatCommand(const std::string& message, CClient *cl);
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CClient *cl);

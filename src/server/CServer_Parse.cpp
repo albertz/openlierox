@@ -600,164 +600,18 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	CWorm	*worm = cWorms;
 
 	if (*it == '/') {
-		std::string cmd = ReadUntil(command_buf, ' '); // Get the command
-		it += cmd.size();  // Skip the command
-
-		// Get the arguments
-		std::vector<std::string> arguments;
-		std::vector<std::string>::iterator cur_arg;
-		std::string current_argument = "";
-		while (it != command_buf.end())  { // it++ - skip the space
-			if (*it == '\"')
-				current_argument = ReadUntil(std::string(++it, command_buf.end()), '\"'); // TODO: doesn't support " inside arguments
-			else if (*it == ' ')  {
-				it++;
-				continue;
-			}
-			else
-				current_argument = ReadUntil(std::string(it, command_buf.end()), ' ');
-
-			it += current_argument.size();
-			arguments.push_back(current_argument);
-		}
-
-		if (arguments.empty())
+		it++;
+		if (*it != '/')  {  // When two slashes at the beginning, parse as a normal message
+			ParseChatCommand(command_buf, cl);
 			return;
-
-		// Process the arguments and command
-		cur_arg = arguments.begin();
-
-		// Set pointer to the worm to affect, depending on if the command is ID or normal
-		int id = cl->getWorm(0)->getID();
-		if(!stringcasecmp(*cur_arg, "id")) {
-			cur_arg++;
-
-			id = atoi(*cur_arg);
-
-			// Skip to next argument
-			cur_arg++;
 		}
-		worm += id;
-
-		// Authorise a user
-		if( (!stringcasecmp(cmd, "/authorize") || !stringcasecmp(cmd, "/authorise")) && cl->getRights()->Authorize) {
-			CClient *remote_cl = cServer->getClient(id);
-			if (remote_cl)
-				remote_cl->getRights()->Everything();
-		}
-
-		// Kick a worm out of the server
-		if(!stringcasecmp(cmd, "/kick") && cl->getRights()->Kick) {
-			if(cl->getWorm(0)->getID() == id && cur_arg != arguments.end())
-				kickWorm(*cur_arg);
-			else 
-				kickWorm(id);
-		}
-
-		// Private chat to a worm
-		if(!stringcasecmp(cmd, "/private") || !stringcasecmp(cmd, "/pm")) {
-			if(cur_arg == arguments.end())
-				return;
-			CClient *rcl = cClients+id;
-			if(rcl->getStatus()!=NET_DISCONNECTED && rcl->getStatus()!=NET_ZOMBIE)
-				SendText(rcl,cl->getWorm(0)->getName()+": "+*cur_arg,TXT_PRIVATE);
-			SendText(cl,cl->getWorm(0)->getName()+": "+*cur_arg,TXT_PRIVATE);
-		}
-
-		// Private chat to all team members
-		if(!stringcasecmp(cmd, "/teamchat")) {
-			if(cur_arg == arguments.end())
-				return;
-			for(int i=0;i<MAX_WORMS;i++) {
-				if(!cWorms[i].isUsed())
-					continue;
-				if(cWorms[i].getTeam() == worm->getTeam())
-					SendText(cServer->getClient(i),worm->getName()+": "+*cur_arg,TXT_TEAMPM);
-			}
-		}
-
-		// Change the name
-		if(!stringcasecmp(cmd, "/setname")) {
-			// Nick changing not allowed
-			if (!tLXOptions->tGameinfo.bAllowNickChange)
-				return;
-
-			// Changing others name can only authorized users
-			if (!cl->OwnsWorm(cWorms + id))
-				if (!cl->getRights()->NameChange)
-					return;
-
-			if(cur_arg == arguments.end())
-				return;
-			std::string name = RemoveSpecialChars(*cur_arg);
-
-			// Check no other user has this name
-			CWorm *w = cWorms;
-			for(int i=0;i<MAX_WORMS;i++,w++) {
-				if(!w->isUsed())
-					continue;
-				if(!stringcasecmp(name,w->getName()))
-					return;
-			}
-			worm->setName(name.substr(0, MIN(32, name.size())));
-			UpdateWorms();
-		}
-
-		// Change the color
-		if(!stringcasecmp(cmd, "/setcolour") || !stringcasecmp(cmd, "/setcolor")) {
-			// Changing others color can only authorized users
-			if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)
-				return;
-
-			// Fixed: The profile graphics are only loaded once
-			if(cur_arg == arguments.end())
-				return;
-			Uint8 r, g, b;
-			r = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
-			g = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return;
-			b = (Uint8) atoi(*cur_arg);
-
-			worm->setColour(r, g, b);
-			worm->DeactivateProfileGraphicsOnce();
-			UpdateWorms();
-		}
-
-		// Change the skin
-		if(!stringcasecmp(cmd, "/setskin")) {
-			// Changing others skin can only authorized users
-			if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)
-				return;
-
-			if(cur_arg == arguments.end())
-				return;
-			worm->setSkin(*cur_arg);
-			worm->DeactivateProfileGraphicsOnce();
-			UpdateWorms();
-		}
-
-		// Commit suicide
-		if(!stringcasecmp(cmd, "/suicide")) {
-			if(cur_arg == arguments.end())
-				return;
-			// Make sure the client suicides themselves
-			worm=cl->getWorm(0);
-			int lives = MAX(atoi(*cur_arg),1);
-			lives = MIN(lives, worm->getLives()+1);
-			for(int i=0;i<lives;i++)
-				cClient->SendDeath(worm->getID(),worm->getID());
-		}
-
-		return;
 	}
 
 	// Check for Clx (a cheating version of lx)
 	// TODO: Make olx not crash when a clx message is recieved
-/*	if(clxcheck[0] == 0x04) {
+	if(buf[0] == 0x04) {
 		SendGlobalText(cl->getWorm(0)->getName() + " seems to have CLX or some other hack", TXT_NORMAL);
-		kickWorm(cl->getWorm(0)->getID());
-		return;
 	}
-*/
 
 	// Don't send text from muted players
 	if (cl)
@@ -1499,4 +1353,231 @@ void GameServer::ParseGetInfo(void) {
 
 
 	bs.Send(tSocket);
+}
+
+
+/////////////////////
+// Parse a chat command
+bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
+{
+	std::string::const_iterator it = message.begin();
+	std::string cmd = ReadUntil(message, ' '); // Get the command
+	it += cmd.size();  // Skip the command
+
+	// Could not parse the command
+	if (it == cmd.end())  {
+		SendText(cl, "Your command was not recognized.", TXT_NETWORK);
+		return false;
+	}
+
+	// Get the arguments
+	std::vector<std::string> arguments;
+	std::vector<std::string>::iterator cur_arg;
+	std::string current_argument = "";
+	while (it != message.end())  { // it++ - skip the space
+		if (*it == '\"')
+			current_argument = ReadUntil(std::string(++it, message.end()), '\"'); // TODO: doesn't support " inside arguments
+		else if (*it == ' ')  {
+			it++;
+			continue;
+		}
+		else
+			current_argument = ReadUntil(std::string(it, message.end()), ' ');
+
+		it += current_argument.size();
+		arguments.push_back(current_argument);
+	}
+
+	// No arguments
+	if (arguments.empty())  {
+		SendText(cl, "Not enough parameters.", TXT_NETWORK);
+		return false;
+	}
+
+	// Process the arguments and command
+	cur_arg = arguments.begin();
+
+	// Set pointer to the worm to affect, depending on if the command is ID or normal
+	CWorm *worm = cl->getWorm(0);
+	int id = cl->getWorm(0)->getID();
+	if(!stringcasecmp(*cur_arg, "id")) {
+		cur_arg++;
+
+		id = atoi(*cur_arg);
+
+		// Skip to next argument
+		cur_arg++;
+	}
+	worm += id;
+
+	// Authorise a user
+	if( (!stringcasecmp(cmd, "/authorize") || !stringcasecmp(cmd, "/authorise")) && cl->getRights()->Authorize) {
+		CClient *remote_cl = cServer->getClient(id);
+		if (remote_cl)
+			remote_cl->getRights()->Everything();
+		SendGlobalText(cl->getWorm(0)->getName() + " has been authorised.", TXT_NETWORK);
+		return true;
+	}
+
+	// Kick a worm out of the server
+	if(!stringcasecmp(cmd, "/kick") && cl->getRights()->Kick) {
+		// Make sure we don't kick a host
+		if (id == 0)  {
+			SendText(cl, "Cannot kick host.", TXT_NETWORK);
+			return true;
+		}
+
+		if(cl->getWorm(0)->getID() == id && cur_arg != arguments.end())
+			kickWorm(*cur_arg);
+		else 
+			kickWorm(id);
+
+		return true;
+	}
+
+	// Private chat to a worm
+	if(!stringcasecmp(cmd, "/private") || !stringcasecmp(cmd, "/pm")) {
+		if(cur_arg == arguments.end())  {
+			SendText(cl, "Please specify a text to send.", TXT_NETWORK);
+			return false;
+		}
+		CClient *rcl = cClients+id;
+		if(rcl->getStatus()!=NET_DISCONNECTED && rcl->getStatus()!=NET_ZOMBIE)
+			SendText(rcl,cl->getWorm(0)->getName()+": "+*cur_arg,TXT_PRIVATE);
+		SendText(cl,cl->getWorm(0)->getName()+": "+*cur_arg,TXT_PRIVATE);
+
+		return true;
+	}
+
+	// Private chat to all team members
+	if(!stringcasecmp(cmd, "/teamchat")) {
+		if(cur_arg == arguments.end())  {
+			SendText(cl, "Please specify a text to send.", TXT_NETWORK);
+			return true;
+		}
+
+		// Send the message
+		for(int i=0;i<MAX_WORMS;i++) {
+			if(!cWorms[i].isUsed())
+				continue;
+			if(cWorms[i].getTeam() == worm->getTeam())
+				SendText(cServer->getClient(i),worm->getName()+": "+*cur_arg,TXT_TEAMPM);
+		}
+
+		return true;
+	}
+
+	// Change the name
+	if(!stringcasecmp(cmd, "/setname")) {
+		// Nick changing not allowed
+		if (!tLXOptions->tGameinfo.bAllowNickChange)  {
+			SendText(cl, "Host has disabled nick changing.", TXT_NETWORK);
+			return true;
+		}
+
+		// Changing others name can only authorized users
+		if (!cl->OwnsWorm(cWorms + id))
+			if (!cl->getRights()->NameChange)  {
+				SendText(cl, "You do not have sufficient rights to change the nick.", TXT_NETWORK);
+				return true;
+			}
+
+		if(cur_arg == arguments.end())  {
+			SendText(cl, "Please specify a new nick.", TXT_NETWORK);
+			return false;
+		}
+		std::string name = RemoveSpecialChars(*cur_arg);  // Nicks cannot contain unicode characters
+
+		// Check no other user has this name
+		CWorm *w = cWorms;
+		for(int i=0;i<MAX_WORMS;i++,w++) {
+			if(!w->isUsed())
+				continue;
+			if(!stringcasecmp(name,w->getName()))  {
+				SendText(cl, "Another player is already using this nick.", TXT_NETWORK);
+				return false;
+			}
+		}
+
+		// Make sure the name length is <= 32 (backward compatibility)
+		name = name.substr(0, MIN(32, name.size()));
+
+		// Send the info about the changed nick
+		if (networkTexts->sKnownAs != "<none>")  {
+			std::string msg;
+			replace(networkTexts->sKnownAs, "<oldname>", worm->getName(), msg);
+			replace(msg, "<newname>", name, msg);
+			SendGlobalText(msg, TXT_NETWORK);
+		}
+
+		// Update the name
+		worm->setName(name);
+		UpdateWorms();
+
+		return true;
+	}
+
+	// Change the color
+	if(!stringcasecmp(cmd, "/setcolour") || !stringcasecmp(cmd, "/setcolor")) {
+		// Changing others color can only authorized users
+		if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)  {
+			SendText(cl, "You do not have sufficient rights to change the colour.", TXT_NETWORK);
+			return true;
+		}
+
+		// The profile graphics are only loaded once
+		if(cur_arg == arguments.end())  {
+			SendText(cl, "Not enough arguments, use /setcolor R G B", TXT_NETWORK);
+			return true;
+		}
+		Uint8 r, g, b;
+		r = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return true;
+		g = (Uint8) atoi(*cur_arg); cur_arg++; if (cur_arg == arguments.end()) return true;
+		b = (Uint8) atoi(*cur_arg);
+
+		worm->setColour(r, g, b);
+		worm->DeactivateProfileGraphicsOnce();
+		UpdateWorms();
+
+		return true;
+	}
+
+	// Change the skin
+	if(!stringcasecmp(cmd, "/setskin")) {
+		// Changing others skin can only authorized users
+		if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)  {
+			SendText(cl, "You do not have sufficient rights to change the skin.", TXT_NETWORK);
+			return true;
+		}
+
+		if(cur_arg == arguments.end())  {
+			SendText(cl, "Not enough arguments, use /setskin skin_name", TXT_NETWORK);
+			return false;
+		}
+		worm->setSkin(*cur_arg);
+		worm->DeactivateProfileGraphicsOnce();
+		UpdateWorms();
+
+		return true;
+	}
+
+	// Commit suicide
+	if(!stringcasecmp(cmd, "/suicide")) {
+		if(cur_arg == arguments.end())  {
+			SendText(cl, "Not enough of arguments.", TXT_NETWORK);
+			return true;
+		}
+
+		// Make sure the client suicides themselves
+		worm=cl->getWorm(0);
+		int lives = MAX(atoi(*cur_arg),1);
+		lives = MIN(lives, worm->getLives()+1);
+		for(int i=0;i<lives;i++)
+			cClient->SendDeath(worm->getID(),worm->getID());
+
+		return true;
+	}
+
+	SendText(cl, "The command is not supported.", TXT_NETWORK);
+	return false;
 }
