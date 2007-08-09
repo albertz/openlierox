@@ -491,9 +491,6 @@ void CMediaPlayer::Play(void)
 	else  {
 		// The playlist is blank, do nothing
 		if (tPlayList.getNumSongs() == 0)  {
-			// TODO: why is this commented out? please COMMENT!
-			//FreeMusic(tCurrentSong);
-			//tCurrentSong = NULL;
 			szCurSongName = "";
 			Stop();
 			return;
@@ -502,12 +499,6 @@ void CMediaPlayer::Play(void)
 
 		szCurSongName = tPlayList.GetCurSong();  // Use szCurSongName as a temp
 		if (szCurSongName.length() > 1)  {
-			// TODO: what is wrong here? why is this commented out?
-			/*FreeMusic(tCurrentSong);  // Free the previous song (if any)
-			tCurrentSong = LoadMusic(szCurSongName);
-			if (tCurrentSong)  {
-				PlayMusic(tCurrentSong);
-			}*/
 			PlayMusicAsync(szCurSongName);
 			szCurSongName = GetNameFromFile(szCurSongName);
 			// Update the marquee
@@ -549,9 +540,15 @@ void CMediaPlayer::Rewind(void)
 {
 	// If we're at the beginning, jump to the previous song
 	if (GetCurrentMusicTime() < 2.0f)  {
+		bool was_playing = PlayingMusic() && !PausedMusic();
 		Stop();
 		tPlayList.GoToPrevSong();
-		Play();
+		if (was_playing)
+			Play();
+		else if (bGfxInitialized)  {
+			szCurSongName = GetNameFromFile(tPlayList.GetCurSong());
+			((CPlayerMarquee *)(cPlayerGui.getWidget(mp_PlayingMarq)))->setText(szCurSongName);
+		}
 	}
 	// If we're somewhere further, just rewind to the beginning
 	else
@@ -562,9 +559,16 @@ void CMediaPlayer::Rewind(void)
 // Plays the next song in playlist
 void CMediaPlayer::Forward(void)
 {
+	bool was_playing = PlayingMusic() && !PausedMusic();
 	Stop();
 	tPlayList.GoToNextSong();
-	Play();
+	if (was_playing)
+		Play();
+	else if (bGfxInitialized)  {
+		szCurSongName = GetNameFromFile(tPlayList.GetCurSong());
+		((CPlayerMarquee *)(cPlayerGui.getWidget(mp_PlayingMarq)))->setText(szCurSongName);
+	}
+
 }
 
 ////////////////////
@@ -824,7 +828,7 @@ void CMediaPlayer::Frame() {
 			break;
 
 		// Select directory dialog
-		case mp_SelectDir:  {
+		case mp_SelectDir:
 			if (ev->iEventMsg == MP_BTN_CLICK)  {
 				if (!Paused() && Playing())
 					PauseResume();
@@ -834,7 +838,7 @@ void CMediaPlayer::Frame() {
 					if (!cOpenDialog.getAdd())
 						Stop();
 				}
-				if (Playing())
+				if (Playing())  {
 					Play();
 				}
 			}
