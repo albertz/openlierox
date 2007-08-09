@@ -13,7 +13,7 @@ TODO
 [ ] fix: font isn't visible in OGL on MacOSX (!!)
 [?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
 [ ] bot: more effective use of ninjarope (use closer / more intelligent spots) (!)
-[ ] bot: ninjarope is shot too fast (!!)
+[X] bot: ninjarope is shot too fast (!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
 [x] avoid unneeded multi loading of maps (!)

@@ -2085,6 +2085,8 @@ void CWorm::AI_SimpleMove(bool bHaveTarget)
 	        if(iDirection==DIR_LEFT)
 		        dir.x=(-dir.x);
 
+			MessageBeep(0);
+
             cNinjaRope.Shoot(vPos,dir);
         }
 
@@ -4437,10 +4439,7 @@ void CWorm::NEW_AI_MoveToTarget()
 	if((vPos.y < nodePos.y) /* && fRopeAttachedTime > 2.0f && cNinjaRope.getHookPos().y-vPos.y < 0.0f */) {
 		cNinjaRope.Release();
 		fireNinja = false;
-	}
-
-	// Not on ground? Shoot the rope
-	if(!CheckOnGround())
+	} else if(!CheckOnGround()) // Not on ground? Shoot the rope
 		fireNinja = true;
 
 	bool aim = false;

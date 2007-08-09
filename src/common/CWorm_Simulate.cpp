@@ -328,7 +328,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 
 	// Process the ninja rope
-	if(cNinjaRope.isReleased()) {
+	if(cNinjaRope.isReleased() && worms) {
 		cNinjaRope.Simulate(dt,pcMap,vPos,worms,iID);
 		vVelocity += cNinjaRope.GetForce(vPos)*dt;
 	}
