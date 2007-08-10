@@ -249,13 +249,13 @@ public:
 	void		ParseWeaponList(CClient *cl, CBytestream *bs);
 	void		ParseGrabBonus(CClient *cl, CBytestream *bs);
 
-	void		ParseConnectionlessPacket(CBytestream *bs);
+	void		ParseConnectionlessPacket(CBytestream *bs, const std::string& ip);
 	void		ParseGetChallenge(void);
 	void		ParseConnect(CBytestream *bs);
 	void		ParsePing(void);
 	void		ParseQuery(CBytestream *bs);
     void        ParseGetInfo(void);
-	void		ParseWantsJoin(CBytestream *bs);
+	void		ParseWantsJoin(CBytestream *bs, const std::string& ip);
 
 
 	// Variables

@@ -195,6 +195,7 @@ bool GameOptions::LoadFromDisc()
     ReadKeyword(f, "LastGame", "RegisterServer",&tGameinfo.bRegServer, true);
 	ReadInteger(f, "LastGame", "LastSelectedPlayer",&tGameinfo.iLastSelectedPlayer, 0);
 	ReadKeyword(f, "LastGame", "AllowWantsJoinMsg",&tGameinfo.bAllowWantsJoinMsg, true);
+	ReadKeyword(f, "LastGame", "WantsToJoinFromBanned",&tGameinfo.bWantsJoinBanned, true);
 	ReadKeyword(f, "LastGame", "AllowRemoteBots", &tGameinfo.bAllowRemoteBots, true);
 	ReadKeyword(f, "LastGame", "TopBarVisible", &tGameinfo.bTopBarVisible, true);
 	ReadKeyword(f, "LastGame", "AllowNickChange", &tGameinfo.bAllowNickChange, true);
@@ -348,6 +349,7 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "RegisterServer = %s\n",tGameinfo.bRegServer ? "true" : "false");
 	fprintf(fp, "LastSelectedPlayer = %d\n",tGameinfo.iLastSelectedPlayer);
 	fprintf(fp, "AllowWantsJoinMsg = %s\n",tGameinfo.bAllowWantsJoinMsg ? "true" : "false");
+	fprintf(fp, "WantsToJoinFromBanned = %s\n",tGameinfo.bWantsJoinBanned ? "true" : "false");
 	fprintf(fp, "AllowRemoteBots = %s\n",tGameinfo.bAllowRemoteBots ? "true" : "false");
 	fprintf(fp, "TopBarVisible = %s\n",tGameinfo.bTopBarVisible ? "true" : "false");
 	fprintf(fp, "AllowNickChange = %s\n",tGameinfo.bAllowNickChange ? "true" : "false");

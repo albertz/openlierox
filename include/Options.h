@@ -224,6 +224,7 @@ public:
 		bool	bRegServer;
 		int		iLastSelectedPlayer;
 		bool	bAllowWantsJoinMsg;
+		bool	bWantsJoinBanned;
 		bool	bAllowRemoteBots;
 		bool	bTopBarVisible;
 		bool	bAllowNickChange;

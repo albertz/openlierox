@@ -109,7 +109,9 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			// and print the bad command instead
 			if (cmd == 0xff && bs->GetRestLen() > 3)
 				if (bs->readInt(3) == 0xffffff) {
-					ParseConnectionlessPacket(bs);
+					std::string address;
+					NetAddrToString(cl->getChannel()->getAddress(), address);
+					ParseConnectionlessPacket(bs, address);
 					break;
 				}
 
@@ -768,7 +770,7 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
 
 ///////////////////
 // Parses connectionless packets
-void GameServer::ParseConnectionlessPacket(CBytestream *bs) {
+void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& ip) {
 	static std::string cmd;
 
 	cmd = bs->readString(128);
@@ -784,7 +786,7 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs) {
 	else if (cmd == "lx::getinfo")
 		ParseGetInfo();
 	else if (cmd == "lx::wantsjoin")
-		ParseWantsJoin(bs);
+		ParseWantsJoin(bs, ip);
 	else  {
 		printf("GameServer::ParseConnectionlessPacket: unknown packet\n");
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
@@ -1239,17 +1241,21 @@ void GameServer::ParsePing(void) {
 
 ///////////////////
 // Parse a "wants to join" packet
-void GameServer::ParseWantsJoin(CBytestream *bs) {
-	// TODO: Accept these messages from banned clients?
+void GameServer::ParseWantsJoin(CBytestream *bs, const std::string& ip) {
 
+	std::string Nick = bs->readString();
+
+	// Allowed?
 	if (!tLXOptions->tGameinfo.bAllowWantsJoinMsg)
 		return;
-	static std::string Nick;
-	Nick = bs->readString();
-	static std::string buf;
+
+	// Accept these messages from banned clients?
+	if (!tLXOptions->tGameinfo.bWantsJoinBanned && cBanList.isBanned(ip))
+		return;
 
 	// Notify about the wants to join
 	if (networkTexts->sWantsJoin != "<none>")  {
+		std::string buf;
 		replacemax(networkTexts->sWantsJoin, "<player>", Nick, buf, 1);
 		SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 	}

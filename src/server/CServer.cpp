@@ -461,7 +461,9 @@ void GameServer::ReadPackets(void)
 
 		// Check for connectionless packets (four leading 0xff's)
 		if(bs.readInt(4) == -1) {
-			ParseConnectionlessPacket(&bs);
+			std::string address;
+			NetAddrToString(&adrFrom, address);
+			ParseConnectionlessPacket(&bs, address);
 			continue;
 		}
 		bs.ResetPosToBegin();
