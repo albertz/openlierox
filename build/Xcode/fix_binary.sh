@@ -1,9 +1,14 @@
 #!/bin/bash
 
 cd build
+
 for rel in *; do
 	cd $rel
 	if [ -e OpenLieroX.app ]; then
+
+		echo ">>> copying gamedir"
+		rsync -avP --exclude=gmon.out --exclude=.svn ../../../../share/gamedir OpenLieroX.app/Contents/Resources/
+
 		for framework in \
 			GD.framework/Versions/2.0/GD \
 			UnixImageIO.framework/Versions/A/UnixImageIO \

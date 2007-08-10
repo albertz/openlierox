@@ -154,16 +154,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 207397145;
-			PBXWorkspaceStateSaveDate = 207397145;
-		};
-		perUserProjectItems = {
-			EAC6F2220C5CB2E100381E70 /* PBXBookmark */ = EAC6F2220C5CB2E100381E70 /* PBXBookmark */;
-			EAC6F2250C5CB89800381E70 /* PBXTextBookmark */ = EAC6F2250C5CB89800381E70 /* PBXTextBookmark */;
-			EAC6F2260C5CB89800381E70 /* PBXTextBookmark */ = EAC6F2260C5CB89800381E70 /* PBXTextBookmark */;
-			EAC6F2290C5CB89800381E70 /* PBXTextBookmark */ = EAC6F2290C5CB89800381E70 /* PBXTextBookmark */;
-			EAC6F22C0C5CB89800381E70 /* PBXTextBookmark */ = EAC6F22C0C5CB89800381E70 /* PBXTextBookmark */;
-			EAC6F22D0C5CB89800381E70 /* PBXTextBookmark */ = EAC6F22D0C5CB89800381E70 /* PBXTextBookmark */;
+			PBXPerProjectTemplateStateSaveDate = 208440779;
+			PBXWorkspaceStateSaveDate = 208440779;
 		};
 		sourceControlManager = EA430BE80BEFCDA000C6547E /* Source Control */;
 		userBuildSettings = {
@@ -593,54 +585,6 @@
 		location = OpenLieroX;
 		modificationTime = 207399187.455649;
 		state = 1;
-	};
-	EAC6F2220C5CB2E100381E70 /* PBXBookmark */ = {
-		isa = PBXBookmark;
-		fRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */;
-	};
-	EAC6F2250C5CB89800381E70 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = EA430C780BEFCEDE00C6547E /* GfxPrimitives.h */;
-		rLen = 0;
-		rLoc = 2147483647;
-		rType = 0;
-	};
-	EAC6F2260C5CB89800381E70 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = EA430C780BEFCEDE00C6547E /* GfxPrimitives.h */;
-		name = "GfxPrimitives.h: 257";
-		rLen = 0;
-		rLoc = 7563;
-		rType = 0;
-		vrLen = 804;
-		vrLoc = 6924;
-	};
-	EAC6F2290C5CB89800381E70 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */;
-		name = "Cache.cpp: 58";
-		rLen = 0;
-		rLoc = 1330;
-		rType = 0;
-		vrLen = 777;
-		vrLoc = 999;
-	};
-	EAC6F22C0C5CB89800381E70 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */;
-		rLen = 0;
-		rLoc = 2147483647;
-		rType = 0;
-	};
-	EAC6F22D0C5CB89800381E70 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */;
-		name = "GfxPrimitives.cpp: 268";
-		rLen = 0;
-		rLoc = 7303;
-		rType = 0;
-		vrLen = 747;
-		vrLoc = 6688;
 	};
 	EAD99F600C063CA6003BE563 /* OpenLieroX */ = {
 		activeExec = 0;
