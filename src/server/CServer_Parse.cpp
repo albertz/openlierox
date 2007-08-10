@@ -598,7 +598,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
 	// Check for special commands
-	if (command_buf.substr(0, 2) == "//")  {  // When two slashes at the beginning, parse as a normal message
+	if (command_buf.substr(0, 1) == "/" && command_buf.substr(0, 2) != "//")  {  // When two slashes at the beginning, parse as a normal message
 		ParseChatCommand(command_buf, cl);
 		return;
 	}
@@ -1403,7 +1403,7 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 	cur_arg = arguments.begin();
 
 	// Set pointer to the worm to affect, depending on if the command is ID or normal
-	CWorm *worm = cl->getWorm(0);
+	CWorm *worm = cWorms;
 	int id = cl->getWorm(0)->getID();
 	if(!stringcasecmp(*cur_arg, "id")) {
 		cur_arg++;
