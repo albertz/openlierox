@@ -60,7 +60,6 @@ void CClient::Clear(void)
 	iScorePlayers = 0;
 	cBonuses = NULL;
     nTopProjectile = 0;
-	bmpScoreBuffer = NULL;
 	bUpdateScore = true;
 	cChatList = NULL;
 
@@ -667,12 +666,6 @@ void CClient::Shutdown(void)
 		bmpBoxBuffer = NULL;
 	}
 
-	// Scoreboard buffer
-	if (bmpScoreBuffer)  {
-		SDL_FreeSurface(bmpScoreBuffer);
-		bmpScoreBuffer = NULL;
-	}
-
 	// Bars
 	if (cHealthBar1)
 		delete cHealthBar1;
@@ -687,6 +680,9 @@ void CClient::Shutdown(void)
 
 	// Shooting list
 	cShootList.Shutdown();
+
+	// Game menu
+	cGameMenuLayout.Shutdown();
 
 
 	// Bonuses

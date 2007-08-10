@@ -140,6 +140,7 @@ class lierox_t { public:
 	Uint32			clConsoleChat;
 	Uint32			clReturningToLobby;
 	Uint32			clTeamColors[4];
+	Uint32			clTagHighlight;
 	Uint32			clHealthLabel;
 	Uint32			clWeaponLabel;
 	Uint32			clLivesLabel;

@@ -723,7 +723,7 @@ void Menu_Player_ViewPlayers(int mouse)
     int type = cViewPlayers.SendMessage(vp_Type,CBM_GETCURINDEX,(DWORD)0,0);
     if( type == PRF_COMPUTER ) {
         static const std::string difflevels[] = {"Easy", "Medium", "Hard", "Xtreme"};
-        int level = cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0);
+        int level = (DWORD)CLAMP(cViewPlayers.SendMessage(vp_AIDiff,SLM_GETVALUE,(DWORD)0,0), (DWORD)0, (DWORD)3);
         tLX->cFont.Draw(tMenu->bmpScreen, 530,313,tLX->clNormalLabel, difflevels[level]);
     }
 

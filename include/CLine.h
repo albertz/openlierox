@@ -20,18 +20,17 @@ enum {
 class CLine : public CWidget {
 public:
 	// Constructor
-	CLine(int x1,int y1,int x2,int y2,Uint32 col) {
-		iX1 = x1;
-		iY1 = y1;
-		iX2 = x2;
-		iY2 = y2;
+	CLine(int x1, int y1, int dx, int dy, Uint32 col) {
+		iX = x1;
+		iY = y1;
+		iWidth = dx;
+		iHeight = dy;
 		iColour = col;
 	}
 
 
 private:
 	// Attributes
-	int		iX1,iY1,iX2,iY2;
 	Uint32	iColour;
 
 public:
@@ -59,7 +58,7 @@ public:
 
 	// Draw the line
 	void	Draw(SDL_Surface *bmpDest) {
-		DrawLine(bmpDest,iX1,iY1,iX2,iY2,iColour); 
+		DrawLine(bmpDest, iX, iY, iX + iWidth, iY + iHeight, iColour); 
 	}
 
 	void	LoadStyle(void) {}

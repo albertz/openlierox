@@ -38,6 +38,7 @@
 #include "CBox.h"
 #include "CAnimation.h"
 #include "CProgressbar.h"
+#include "CLine.h"
 #ifdef WITH_MEDIAPLAYER
 #include "Sounds.h"
 #include "CMediaPlayer.h"

@@ -781,7 +781,7 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 // Parse a game over packet
 void CClient::ParseGameOver(CBytestream *bs)
 {
-	iMatchWinner = bs->readInt(1);
+	iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
 	iGameOver = true;
 	fGameOverTime = tLX->fCurTime;
 

@@ -32,6 +32,10 @@
 #include "CBonus.h"
 #include "Frame.h"
 #include "CBar.h"
+#include "CWidget.h"
+#include "CGuiLayout.h"
+#include "CScrollbar.h"
+#include "CListview.h"
 
 
 #define		MAX_CLIENTS		32
@@ -170,7 +174,6 @@ public:
 		iGameReady = false;
         nTopProjectile = 0;
 		bMapGrabbed = false;
-		bmpScoreBuffer = NULL;
 		cChatList = NULL;
 		bUpdateScore = true;
 		bRedrawChat = true;
@@ -275,11 +278,11 @@ private:
 	SDL_Surface *bmpBoxBuffer;
 	SDL_Surface *bmpBoxLeft;
 	SDL_Surface *bmpBoxRight;
+	CGuiLayout  cGameMenuLayout;
 
     CWeather    cWeather;
 
 	// Game menu && score
-	SDL_Surface *bmpScoreBuffer;
 	bool		bUpdateScore;
 
 	// Bonus's
@@ -424,10 +427,10 @@ public:
     void        DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v);
 	void		DrawGameOver(SDL_Surface *bmpDest);
 	void		DrawRemoteGameOver(SDL_Surface *bmpDest);
+	void		InitializeGameMenu();
 	void		DrawGameMenu(SDL_Surface *bmpDest);
 	void		DrawBonuses(SDL_Surface *bmpDest, CViewport *v);
-	void		UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage);
-	void		DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage);
+	void		UpdateScore(CListview *Left, CListview *Right);
 	void		DrawTime(SDL_Surface *bmpDest, int x, int y, float t);
 	void		DrawReadyOverlay(SDL_Surface *bmpDest);
 	void		DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, const std::string& buf);
@@ -441,6 +444,7 @@ public:
     void        InitializeViewportManager(void);
     void        DrawViewportManager(SDL_Surface *bmpDest);
 	void		SimulateHud(void);
+	int			getTopBarBottom();
 
 	// Network
 	void		Connect(const std::string& address);

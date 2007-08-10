@@ -1037,6 +1037,8 @@ void CClient::UpdateScoreboard(void)
 	if(!iGameReady)
 		return;
 
+	bUpdateScore = true;
+
 	CWorm *w = cRemoteWorms;
 	int s;
 	short i,p,j;

@@ -160,6 +160,7 @@ void InitializeColors()  {
 	tLX->clTeamColors[1] = MakeColour(255, 2, 2); // Red
 	tLX->clTeamColors[2] = MakeColour(32, 253, 0); // Green
 	tLX->clTeamColors[3] = MakeColour(253, 244, 0); // Yellow
+	tLX->clTagHighlight = MakeColour(255, 0, 0);
 	tLX->clHealthLabel = MakeColour(0, 222, 0);
 	tLX->clWeaponLabel = MakeColour(0, 0, 222);
 	tLX->clLivesLabel = MakeColour(0, 222, 0);
@@ -245,6 +246,7 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","Team2",					&tLX->clTeamColors[1],		tLX->clTeamColors[1]);
 	ReadColour(colorfile,"Colours","Team3",					&tLX->clTeamColors[2],		tLX->clTeamColors[2]);
 	ReadColour(colorfile,"Colours","Team4",					&tLX->clTeamColors[3],		tLX->clTeamColors[3]);
+	ReadColour(colorfile,"Colours","TagHighlight",			&tLX->clTagHighlight,		tLX->clTagHighlight);
 	ReadColour(colorfile,"Colours","HealthLabel",			&tLX->clHealthLabel,		tLX->clHealthLabel);
 	ReadColour(colorfile,"Colours","WeaponLabel",			&tLX->clWeaponLabel,		tLX->clWeaponLabel);
 	ReadColour(colorfile,"Colours","LivesLabel",			&tLX->clLivesLabel,			tLX->clLivesLabel);

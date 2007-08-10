@@ -39,9 +39,9 @@ bool CClient::InitializeDrawing(void)
 	LOAD_IMAGE_WITHALPHA(bmpMenuButtons,"data/frontend/buttons.png");
 
 	// Initialize the score buffer
-	bmpScoreBuffer = gfxCreateSurfaceAlpha(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h); // Must be alpha, like scoreboard, gameover etc.
-	SetColorKey(bmpScoreBuffer);
-	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,COLORKEY(bmpScoreBuffer));
+//	bmpScoreBuffer = gfxCreateSurfaceAlpha(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h); // Must be alpha, like scoreboard, gameover etc.
+//	SetColorKey(bmpScoreBuffer);
+//	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,COLORKEY(bmpScoreBuffer));
 
 	// Load the right and left part of box
 	bmpBoxLeft = LoadImage("data/frontend/box_left.png",true);
@@ -177,6 +177,16 @@ bool CClient::InitializeDrawing(void)
 }
 
 /////////////////
+// Get the bottom border of the top bar
+int CClient::getTopBarBottom()
+{
+	if (tGameInfo.iGameType == GME_LOCAL)
+		return gfxGame.bmpGameLocalTopBar ? gfxGame.bmpGameLocalTopBar->h : tLX->cFont.GetHeight();
+	else
+		return gfxGame.bmpGameNetTopBar ? gfxGame.bmpGameNetTopBar->h : tLX->cFont.GetHeight();
+}
+
+/////////////////
 // Initialize one of the game bars
 bool CClient::InitializeBar(byte number)  {
 	int x, y, label_x, label_y, direction, numforestates, numbgstates;
@@ -301,7 +311,7 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 
 	int middle_w = w - bmpBoxLeft->w - bmpBoxRight->w;
 	if (middle_w < 0)  // Too small
-		return; // TODO: any better way?
+		return;
 
 	DrawImage(dst, bmpBoxLeft, x, y);  // Left part
 	DrawImageAdv(dst, bmpBoxBuffer, 0, 0, x + bmpBoxLeft->w, y, middle_w, bmpBoxBuffer->h);  // Middle part
@@ -368,7 +378,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
         DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
 
 	// Top bar
-	if (tLXOptions->tGameinfo.bTopBarVisible)  {
+	if (tLXOptions->tGameinfo.bTopBarVisible && !iGameMenu)  {
 		SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
 		if (top_bar)
 			DrawImage( bmpDest, top_bar, 0, 0);
@@ -506,7 +516,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
     if(iGameOver) {
         if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)  {
 			bScoreAndSett = false;
-		    DrawGameOver(bmpDest);
+			InitializeGameMenu();
+
 			// TODO: this better
 			if (cServer)
 				if (!cServer->getScreenshotToken() && tGameInfo.iGameType == GME_HOST && tGameInfo.bTournament)
@@ -581,37 +592,40 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
     // Weather
     //cWeather.Draw(bmpDest, v);
 
-	cMap->Draw(bmpDest, v);
+	// When game menu is visible, it covers all this anyway, so we won't bother to draw it)
+	if (!iGameMenu)  {
+		cMap->Draw(bmpDest, v);
 
-	// The following will be drawn only when playing
-	if (iNetStatus == NET_PLAYING)  {
-		if( tLXOptions->iShadows ) {
-			// Draw the projectile shadows
-			DrawProjectileShadows(bmpDest, v);
+		// The following will be drawn only when playing
+		if (iNetStatus == NET_PLAYING)  {
+			if( tLXOptions->iShadows ) {
+				// Draw the projectile shadows
+				DrawProjectileShadows(bmpDest, v);
 
-			// Draw the worm shadows
-			CWorm *w = cRemoteWorms;
-			for(short i=0;i<MAX_WORMS;i++,w++) {
-				if(w->isUsed() && w->getAlive())
-					w->DrawShadow(bmpDest, v);
+				// Draw the worm shadows
+				CWorm *w = cRemoteWorms;
+				for(short i=0;i<MAX_WORMS;i++,w++) {
+					if(w->isUsed() && w->getAlive())
+						w->DrawShadow(bmpDest, v);
+				}
 			}
-		}
 
-		// Draw the entities
-		DrawEntities(bmpDest, v);
+			// Draw the entities
+			DrawEntities(bmpDest, v);
 
-		// Draw the projectiles
-		DrawProjectiles(bmpDest, v);
+			// Draw the projectiles
+			DrawProjectiles(bmpDest, v);
 
-		// Draw the bonuses
-		DrawBonuses(bmpDest, v);
+			// Draw the bonuses
+			DrawBonuses(bmpDest, v);
 
-		// Draw all the worms in the game
-		ushort i;
-		CWorm *w = cRemoteWorms;
-		for(i=0;i<MAX_WORMS;i++,w++) {
-			if(w->isUsed() && w->getAlive())
-				w->Draw(bmpDest, v);
+			// Draw all the worms in the game
+			ushort i;
+			CWorm *w = cRemoteWorms;
+			for(i=0;i<MAX_WORMS;i++,w++) {
+				if(w->isUsed() && w->getAlive())
+					w->Draw(bmpDest, v);
+			}
 		}
 	}
 
@@ -859,7 +873,8 @@ void CClient::SimulateHud(void)
 	// Game Menu
     if(GetKeyboard()->KeyUp[SDLK_ESCAPE] && !iChat_Typing && !con) {
         if( !bViewportMgr )
-		    iGameMenu = !iGameMenu;
+			if (!iGameMenu)
+				InitializeGameMenu();
         else
             bViewportMgr = false;
     }
@@ -874,63 +889,430 @@ void CClient::SimulateHud(void)
 }
 
 
-///////////////////
-// Draw the game over
-void CClient::DrawGameOver(SDL_Surface *bmpDest)
+/////////////
+// Adds default columns to a scoreboard listview, used internally by InitializeGameMenu
+inline void AddColumns(CListview *lv)
 {
-	keyboard_t *Keyboard = GetKeyboard();
-	mouse_t *Mouse = GetMouse();
+	lv->AddColumn("", 25); // Skin
+	lv->AddColumn("", 180); // Player
+	lv->AddColumn("", 30); // Lives
+	if (tGameInfo.iGameMode == GMT_DEMOLITION)
+		lv->AddColumn("", 40); // Dirt count
+	else  
+		lv->AddColumn("", 30);  // Kills
+	if (tGameInfo.iGameType == GME_HOST) 
+		lv->AddColumn("", 35);  // Ping
+}
 
-	SetGameCursor(CURSOR_ARROW);
+///////////////////
+// Initialize the game menu/game over screen
+enum {
+	gm_Ok,
+	gm_Leave,
+	gm_QuitGame,
+	gm_Resume,
+	gm_Coutdown,
+	gm_TopMessage,
+	gm_LeftList,
+	gm_RightList
+};
 
-	DrawScore(bmpDest,gfxGame.bmpGameover);
+void CClient::InitializeGameMenu()
+{
+	iGameMenu = true;
+	GetKeyboard()->KeyUp[SDLK_ESCAPE] = false;  // Prevents immediate closing of the scoreboard
+	SetGameCursor(CURSOR_HAND);
 
-	// Network games have a different game over screen
-	if(tGameInfo.iGameType != GME_LOCAL) {
-		DrawRemoteGameOver(bmpDest);
-		return;
-	}
+	// Shutdown any previous instances
+	cGameMenuLayout.Shutdown();
+	bUpdateScore = true;
 
-
-	// Buttons
-//	int width = gfxGame.bmpGameover->w;  // TODO: not used
-	int height = gfxGame.bmpGameover->h;
-
-//	int x = 320 - width/2;  // TODO: not used
-	int y = 200 - height/2;
-
-	int j = y+height-27;
-	static CButton ok = CButton(BUT_OK,bmpMenuButtons);
-
-	ok.Setup(0, 305,j, 30, 15);
-    ok.Create();
-
-	// OK
-	if(ok.InBox(Mouse->X,Mouse->Y)) {
-		ok.MouseOver(Mouse);
-		SetGameCursor(CURSOR_HAND);
-	}
-	ok.Draw2(bmpDest);
-
-
-	if(Mouse->Up) {
-		if(ok.InBox(Mouse->X,Mouse->Y)) {
-			// Quit
-			tLX->iQuitEngine = true;
-			SetGameCursor(CURSOR_NONE);
+	if (tGameInfo.iGameType == GME_LOCAL)  {
+		if (iGameOver)
+			cGameMenuLayout.Add(new CButton(BUT_OK, bmpMenuButtons), gm_Ok, 310, 360, 30, 20);
+		else  {
+			cGameMenuLayout.Add(new CButton(BUT_QUITGAME, bmpMenuButtons), gm_QuitGame, 25, 360, 100, 20);
+			cGameMenuLayout.Add(new CButton(BUT_RESUME, bmpMenuButtons), gm_Resume, 540, 360, 80, 20);
+		}
+	} else {  // Remote playing
+		if (iGameOver)  {
+			std::string ReturningTo = "Returning to Lobby in ";
+			int ReturningToWidth = tLX->cFont.GetWidth(ReturningTo);
+			cGameMenuLayout.Add(new CButton(BUT_LEAVE, bmpMenuButtons), gm_Leave, 25, 360, 80, 20);
+			cGameMenuLayout.Add(new CLabel(ReturningTo, tLX->clReturningToLobby), -1, 600 - ReturningToWidth, 360, ReturningToWidth, tLX->cFont.GetHeight());
+			cGameMenuLayout.Add(new CLabel("5", tLX->clReturningToLobby), gm_Coutdown, 600, 360, 0, 0);
+		} else {
+			cGameMenuLayout.Add(new CButton(BUT_LEAVE, bmpMenuButtons), gm_Leave, 25, 360, 80, 20);
+			cGameMenuLayout.Add(new CButton(BUT_RESUME, bmpMenuButtons), gm_Resume, 540, 360, 80, 20);
 		}
 	}
 
-	// Quit
-	if (Keyboard->KeyDown[SDLK_RETURN] || Keyboard->KeyDown[SDLK_KP_ENTER] || Keyboard->KeyDown[SDLK_ESCAPE])  {
-		tLX->iQuitEngine = true;
-		SetGameCursor(CURSOR_NONE);
+	cGameMenuLayout.Add(new CLabel("", tLX->clNormalLabel), gm_TopMessage, 445, 5, 0, 0);
+
+	cGameMenuLayout.SetGlobalProperty(PRP_REDRAWMENU, false);
+
+	// Player lists
+	CListview *Left = new CListview();
+	CListview *Right = new CListview();
+	cGameMenuLayout.Add(Left, gm_LeftList, 17, 36 - tLX->cFont.GetHeight(), 305, gfxGame.bmpScoreboard->h - 43);
+	cGameMenuLayout.Add(Right, gm_RightList, 318, 36 - tLX->cFont.GetHeight(), 305, gfxGame.bmpScoreboard->h - 43);
+
+	Left->setDrawBorder(false);
+	Right->setDrawBorder(false);
+	Left->setShowSelect(false);
+	Right->setShowSelect(false);
+	Left->setRedrawMenu(false);
+	Right->setRedrawMenu(false);
+	Left->setOldStyle(true);
+	Right->setOldStyle(true);
+
+	AddColumns(Left);
+	AddColumns(Right);
+}
+
+
+///////////////////
+// Draw the game menu/game over screen
+void CClient::DrawGameMenu(SDL_Surface *bmpDest)
+{
+	// Background
+	if (iGameOver)  {
+		DrawImage(bmpDest, gfxGame.bmpGameover, 0, 0);
+	} else {
+		DrawImage(bmpDest, gfxGame.bmpScoreboard, 0, 0);
 	}
+
+	// Update the coutdown
+	if (iGameOver)  {
+		int sec = 5 + GAMEOVER_WAIT - (int)(tLX->fCurTime - fGameOverTime);
+		sec = MAX(0, sec); // Safety
+		cGameMenuLayout.SendMessage(gm_Coutdown, LBS_SETTEXT, itoa(sec), 0);
+	}
+
+	// Update the top message (winner/dirt count)
+	if (tGameInfo.iGameType == GMT_DEMOLITION)  {
+		// Get the dirt count
+		int dirtcount, i;
+		dirtcount = i = 0;
+		for (CWorm *w = cRemoteWorms; i < MAX_WORMS; i++, w++)  { if (w->isUsed()) dirtcount += w->getDirtCount(); }
+
+		cGameMenuLayout.SendMessage(gm_TopMessage, LBS_SETTEXT, "Total: " + itoa(dirtcount), 0);
+	}
+
+	if (iGameOver)  {
+		cGameMenuLayout.SendMessage(gm_TopMessage, LBS_SETTEXT, "Winner: " + cRemoteWorms[iMatchWinner].getName(), 0);
+	}
+
+
+	// Update the scoreboard if needed
+	UpdateScore((CListview *) cGameMenuLayout.getWidget(gm_LeftList), (CListview *) cGameMenuLayout.getWidget(gm_RightList));
+
+	// Draw the gui
+	gui_event_t *ev = cGameMenuLayout.Process();
+	cGameMenuLayout.Draw(bmpDest);
 
 	// Draw the mouse
 	DrawCursor(bmpDest);
+
+	// Process the gui
+	if (ev)  {
+		switch (ev->iControlID)  {
+
+		// Ok
+		case gm_Ok:
+			if (ev->iEventMsg == BTN_MOUSEUP)  {
+				tLX->iQuitEngine = true;
+			}
+			break;
+
+		// Leave
+		case gm_Leave:
+			if (ev->iEventMsg == BTN_MOUSEUP)  {
+
+				// If this is a host, we go back to the lobby
+				// The host can only quit the game via the lobby
+				if(tGameInfo.iGameType == GME_HOST)
+					cServer->gotoLobby();
+				else
+					// Quit
+					QuittoMenu();
+			}
+			break;
+
+		// Quit Game
+		case gm_QuitGame:
+			if (ev->iEventMsg == BTN_MOUSEUP)  {
+				tLX->iQuitEngine = true;
+			}
+			break;
+
+		// Resume
+		case gm_Resume:
+			if (ev->iEventMsg == BTN_MOUSEUP)  {
+				iGameMenu = false;
+				bRepaintChatbox = true;
+				SetGameCursor(CURSOR_NONE);
+			}
+			break;
+		}
+	}
+
+	// Process the keyboard
+	keyboard_t *Keyboard = GetKeyboard();
+
+	if (Keyboard->KeyUp[SDLK_RETURN] || Keyboard->KeyUp[SDLK_KP_ENTER] || Keyboard->KeyUp[SDLK_ESCAPE])  {
+		if (tGameInfo.iGameType == GME_LOCAL && iGameOver)  {
+			tLX->iQuitEngine = true;
+		} else if (!iGameOver)  {
+			iGameMenu = false;
+			bRepaintChatbox = true;
+			SetGameCursor(CURSOR_NONE);
+		}
+	}
 }
 
+///////////////////
+// Update the player list in game menu
+void CClient::UpdateScore(CListview *Left, CListview *Right)	
+{
+	// No need to update
+	if (!bUpdateScore)
+		return;
+
+	short i, n;
+
+	bUpdateScore = false;
+
+	// Clear any previous info
+	Left->Clear();
+	Right->Clear();
+
+	// Teams
+	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
+
+	// Deathmatch scoreboard
+	switch(iGameType) {
+	case GMT_DEATHMATCH:  {
+
+		// Fill the left listview
+		CListview *lv = Left;
+		for(i=0; i < iScorePlayers; i++) {
+			// Left listview overflowed, fill the right one
+			if (i >= 16)
+				lv = Right;
+
+			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+
+			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+
+			// Skin
+			lv->AddSubitem(LVS_IMAGE, "", p->getPicimg(), NULL);
+
+			// Name
+			lv->AddSubitem(LVS_TEXT, p->getName(), NULL, NULL);
+
+			// Lives
+			switch (p->getLives())  {
+			case WRM_UNLIM:
+				lv->AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+				break;
+			case WRM_OUT:
+				lv->AddSubitem(LVS_TEXT, "out", NULL, NULL);
+				break;
+			default:
+				lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				break;
+			}
+
+			// Kills 
+			lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+
+			// Ping
+			if (tGameInfo.iGameType == GME_HOST)  {
+				CClient *remoteClient = cServer->getClient(p->getID());
+				if (remoteClient && p->getID())
+					lv->AddSubitem(LVS_TEXT, itoa(p->getClient()->getPing()), NULL, NULL);
+			}
+		}
+	}
+	break; // TEAM DEATHMATCH
+
+
+    // Demolitions scoreboard
+	case GMT_DEMOLITION: {
+
+        int dirtcount = 0;
+
+		// Draw the players
+		CListview *lv = Left;
+		for(i = 0; i < iScorePlayers; i++) {
+			// If the left listview overflowed, use the right one
+			if (i >= 16)
+				lv = Right;
+
+			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+
+			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+
+			// Skin
+			lv->AddSubitem(LVS_IMAGE, "", p->getPicimg(), NULL);
+
+			// Name
+			lv->AddSubitem(LVS_TEXT, p->getName(), NULL, NULL);
+
+			// Lives
+			switch (p->getLives())  {
+			case WRM_UNLIM:
+				lv->AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+				break;
+			case WRM_OUT:
+				lv->AddSubitem(LVS_TEXT, "out", NULL, NULL);
+				break;
+			default:
+				lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				break;
+			}
+
+			// Dirt count
+			lv->AddSubitem(LVS_TEXT, itoa(p->getDirtCount()), NULL, NULL);
+		}
+	}
+	break;  // DEMOLITIONS
+
+
+	// Tag scoreboard
+	case GMT_TAG: {
+
+		// Draw the players
+		CListview *lv = Left;
+		for(i = 0; i < iScorePlayers; i++) {
+			// If the left listview overflowed, use the right one
+			if (i >= 16)
+				lv = Right;
+
+			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+
+			if(p->getTagIT())
+				lv->AddItem(p->getName(), i, tLX->clTagHighlight);
+			else
+				lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+
+			// Skin
+			lv->AddSubitem(LVS_IMAGE, "", p->getPicimg(), NULL);
+
+			// Name
+			lv->AddSubitem(LVS_TEXT, p->getName(), NULL, NULL);
+
+			// Lives
+			switch (p->getLives())  {
+			case WRM_UNLIM:
+				lv->AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+				break;
+			case WRM_OUT:
+				lv->AddSubitem(LVS_TEXT, "out", NULL, NULL);
+				break;
+			default:
+				lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				break;
+			}
+
+			// Kills
+			lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+
+			// Ping
+			if (tGameInfo.iGameType == GME_HOST)  {
+				CClient *remoteClient = cServer->getClient(p->getID());
+				if (remoteClient && p->getID())
+					lv->AddSubitem(LVS_TEXT, itoa(p->getClient()->getPing()), NULL, NULL);
+			}
+
+			// Total time of being IT
+			int h,m,s;
+			ConvertTime(p->getTagTime(),  &h, &m, &s);
+			lv->AddSubitem(LVS_TEXT, itoa(m) + ":" + (s < 10 ? "0" : "") + itoa(s), NULL, NULL);
+		}
+	}
+	break;  // TAG
+
+
+	// Team deathmatch scoreboard
+	case GMT_TEAMDEATH: {
+
+
+		// Go through each team
+		CListview *lv = Left;
+		int team, score;
+		Uint32 colour;
+
+		for(n = 0; n < 4; n++) {
+			team = iTeamList[n];
+			score = iTeamScores[team];
+
+			// Check if the team has any players
+			if(score == -1)
+				continue;
+
+			// If left would overflow after adding team header, switch to right
+			if (lv->getNumItems() + 1 >= 16)
+				lv = Right;
+
+			// Header
+			colour = tLX->clTeamColors[team];
+
+			lv->AddItem(teamnames[team], n + 1024, colour);
+
+			lv->AddSubitem(LVS_WIDGET, "", NULL, new CLine(0, 0, lv->getWidth() - 30, 0, colour), VALIGN_BOTTOM);  // Separating line
+			lv->AddSubitem(LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
+			lv->AddSubitem(LVS_TEXT, "L", NULL, NULL);  // Lives label
+			lv->AddSubitem(LVS_TEXT, "K", NULL, NULL);  // Kills label
+			if (tGameInfo.iGameType == GME_HOST)  // Ping label
+				lv->AddSubitem(LVS_TEXT, "P", NULL, NULL);
+
+			// Draw the players
+			CWorm *p;
+			for(i = 0; i < iScorePlayers; i++) {
+				// If the left listview overflowed, fill the right one
+				if (lv->getItemCount() >= 16)
+					lv = Right;
+
+				p = &cRemoteWorms[iScoreboard[i]];
+
+				if(p->getTeam() != team)
+					continue;
+
+				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
+
+				// Skin
+				lv->AddSubitem(LVS_IMAGE, "", p->getPicimg(), NULL);
+
+				// Name
+				lv->AddSubitem(LVS_TEXT, p->getName(), NULL, NULL);
+
+				// Lives
+				switch (p->getLives())  {
+				case WRM_UNLIM:
+					lv->AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+					break;
+				case WRM_OUT:
+					lv->AddSubitem(LVS_TEXT, "out", NULL, NULL);
+					break;
+				default:
+					lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+					break;
+				}
+
+				// Ping
+				if (tGameInfo.iGameType == GME_HOST)  {
+					CClient *remoteClient = cServer->getClient(p->getID());
+					if (remoteClient && p->getID())
+						lv->AddSubitem(LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+				}
+			}
+		}
+	}
+	break; // DEATHMATCH
+	} // switch	
+}
 
 ///////////////////
 // Draw a remote game over screen
@@ -991,336 +1373,6 @@ void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
 	DrawCursor(bmpDest);
 
 }
-
-
-///////////////////
-// Draw the in-game menu
-void CClient::DrawGameMenu(SDL_Surface *bmpDest)
-{
-	SetGameCursor(CURSOR_ARROW);
-	mouse_t *Mouse = GetMouse();
-
-	DrawScore(bmpDest, gfxGame.bmpScoreboard);
-
-	static CButton quit = CButton(BUT_QUITGAME,bmpMenuButtons);
-	static CButton resume = CButton(BUT_RESUME,bmpMenuButtons);
-
-	int width = gfxGame.bmpScoreboard->w;
-	int height = gfxGame.bmpScoreboard->h;
-
-	int x = 320 - width/2;
-	int y = 200 - height/2;
-
-	int j = y+height-27;
-	quit.Setup(0, x+width-130,j, 105, 15);
-	resume.Setup(1, x+20,j, 75, 15);
-    quit.Create();
-    resume.Create();
-
-	// Quit
-	if(quit.InBox(Mouse->X,Mouse->Y)) {
-		quit.MouseOver(Mouse);
-		SetGameCursor(CURSOR_HAND);
-	}
-	quit.Draw2(bmpDest);
-
-	// Resume
-	if(resume.InBox(Mouse->X,Mouse->Y)) {
-		resume.MouseOver(Mouse);
-		SetGameCursor(CURSOR_HAND);
-	}
-	resume.Draw2(bmpDest);
-
-	if(Mouse->Up) {
-		if(quit.InBox(Mouse->X,Mouse->Y)) {
-
-			// If we're the host tell all the clients that we're going back to the lobby
-			// We don't directly go back to the lobby, instead we send the message
-			// and the client on this machine does the goto lobby when it gets the packet
-			if(tGameInfo.iGameType == GME_HOST) {
-				SetGameCursor(CURSOR_NONE);
-
-				cServer->gotoLobby();
-
-			} else {
-				SetGameCursor(CURSOR_NONE);
-
-				// Quit
-				QuittoMenu();
-			}
-		}
-
-		if(resume.InBox(Mouse->X,Mouse->Y))  {
-			// Resume
-			iGameMenu = false;
-
-			bRepaintChatbox = true;
-
-			SetGameCursor(CURSOR_NONE);
-		}
-	}
-
-	// Draw the mouse
-	DrawCursor(bmpDest);
-}
-
-
-///////////////////
-// Draw the score
-void CClient::DrawScore(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
-{
-	if (bUpdateScore)  {
-		DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,COLORKEY(bmpScoreBuffer));
-		UpdateScoreBuf(bmpScoreBuffer,bmpImage);
-	}
-
-	DrawImage(
-		bmpDest, bmpScoreBuffer,
-		320 - bmpImage->w / 2,
-		200 - bmpImage->h / 2);
-}
-
-///////////////////
-// Display the score
-void CClient::UpdateScoreBuf(SDL_Surface *bmpDest, SDL_Surface *bmpImage)
-{
-	short i,j,n;
-
-	bUpdateScore = false;
-
-	// Teams
-	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
-
-	int width = bmpImage->w;
-	int height = bmpImage->h;
-
-	const int x = 0;
-	const int y = 0;
-
-	// Draw the back image
-	CopySurface(bmpDest,bmpImage,x,y,x,y,bmpImage->w,bmpImage->h);
-
-	// Deathmatch scoreboard
-	switch(iGameType) {
-	case GMT_DEATHMATCH:  {
-
-		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"Players");
-		if(iLives != WRM_UNLIM)
-			tLX->cFont.Draw(bmpDest, x+300, y+45, tLX->clNormalLabel,"Lives");
-
-		// Draw ping if host
-		if (tGameInfo.iGameType == GME_HOST)  {
-			tLX->cFont.Draw(bmpDest, x+340, y+45, tLX->clNormalLabel,"Kills");
-			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"Ping");
-		} else
-			tLX->cFont.Draw(bmpDest, x+380, y+45, tLX->clNormalLabel,"Kills");
-
-		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clLine);
-		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clLine);
-
-		// Draw the players
-		j = y+65;
-		for(i=0;i<iScorePlayers;i++) {
-			CWorm *p = &cRemoteWorms[iScoreboard[i]];
-
-			DrawImage(bmpDest, p->getPicimg(), x+15, j);
-
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, p->getName());
-
-			if(p->getLives() >= 0)
-				tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, itoa(p->getLives()));
-			else if(p->getLives() == WRM_OUT)
-				tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "out");
-
-			// Draw ping if host
-			if (tGameInfo.iGameType == GME_HOST)  {
-				tLX->cFont.DrawCentre(bmpDest, x+353, j, tLX->clNormalLabel, itoa(p->getKills()));
-				CClient *remoteClient = cServer->getClient(p->getID());
-				if (remoteClient && p->getID())
-					tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
-			} else
-				tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, itoa(p->getKills()));
-
-			j+=20;
-		}
-	}
-	break; // TEAM DEATHMATCH
-
-
-    // Demolitions scoreboard
-	case GMT_DEMOLITION: {
-
-		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"Players");
-		if(iLives != WRM_UNLIM)
-			tLX->cFont.Draw(bmpDest, x+270, y+45, tLX->clNormalLabel,"Lives");
-		tLX->cFont.Draw(bmpDest, x+340, y+45, tLX->clNormalLabel,"Dirt Count");
-		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clLine);
-		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clLine);
-
-        int dirtcount = 0;
-
-		// Draw the players
-		j = y+65;
-		for(i=0;i<iScorePlayers;i++) {
-			CWorm *p = &cRemoteWorms[iScoreboard[i]];
-
-			DrawImage(bmpDest, p->getPicimg(), x+15, j);
-
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel,  p->getName());
-
-			if(p->getLives() >= 0)
-				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, itoa(p->getLives()));
-			else if(p->getLives() == WRM_OUT)
-				tLX->cFont.DrawCentre(bmpDest, x+287, j, tLX->clNormalLabel, "out");
-
-
-			tLX->cFont.DrawCentre(bmpDest, x+372, j, tLX->clNormalLabel, itoa(p->getDirtCount()));
-            dirtcount += p->getDirtCount();
-
-			j+=20;
-		}
-
-        // Draw the total
-        j+=10;
-        DrawHLine(bmpDest,x+15,x+width-15, j, tLX->clLine);
-        j+=5;
-        tLX->cFont.Draw(bmpDest, x+250, j, tLX->clNormalLabel,"Total");
-        tLX->cFont.DrawCentre(bmpDest, x+372, j, tLX->clNormalLabel, itoa(dirtcount / 1000) + "k / " + itoa((int)(((float)cMap->GetDirtCount()*0.8f) / 1000)) + "k");
-	}
-	break;  // DEMOLITIONS
-
-
-	// Tag scoreboard
-	case GMT_TAG: {
-
-		tLX->cFont.Draw(bmpDest, x+15, y+45, tLX->clNormalLabel,"Players");
-		if(iLives != WRM_UNLIM)
-			tLX->cFont.Draw(bmpDest, x+220, y+45, tLX->clNormalLabel,"Lives");
-
-		// Draw the ping if host
-		if(tGameInfo.iGameType == GME_HOST)  {
-			tLX->cFont.Draw(bmpDest, x+280, y+45, tLX->clNormalLabel,"Kills");
-			tLX->cFont.Draw(bmpDest, x+322, y+45, tLX->clNormalLabel,"Ping");
-		}  else
-			tLX->cFont.Draw(bmpDest, x+290, y+45, tLX->clNormalLabel,"Kills");
-
-
-		tLX->cFont.Draw(bmpDest, x+360, y+45, tLX->clNormalLabel,"Tag time");
-		DrawHLine(bmpDest, x+15,x+width-15, y+60,tLX->clLine);
-		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clLine);
-
-		// Draw the players
-		j = y+65;
-		CWorm *p;
-		for(i=0;i<iScorePlayers;i++) {
-			p = &cRemoteWorms[iScoreboard[i]];
-
-			DrawImage(bmpDest, p->getPicimg(), x+15, j);
-
-			tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, p->getName());
-
-			// Check if it
-			if(p->getTagIT())
-				tLX->cFont.Draw( bmpDest, x+160, j, MakeColour(255,0,0), "IT");
-
-			if(p->getLives() >= 0)
-				tLX->cFont.DrawCentre(bmpDest, x+237, j, tLX->clNormalLabel, itoa(p->getLives()));
-			else if(p->getLives() == WRM_OUT)
-				tLX->cFont.DrawCentre(bmpDest, x+237, j, tLX->clNormalLabel, "out");
-
-			// Draw the ping if host
-			if (tGameInfo.iGameType == GME_HOST)  {
-				tLX->cFont.DrawCentre(bmpDest, x+293, j, tLX->clNormalLabel, itoa(p->getKills()));
-				CClient *remoteClient = cServer->getClient(p->getID());
-				if (remoteClient && p->getID())
-					tLX->cFont.DrawCentre(bmpDest, x+333, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
-			} else
-				tLX->cFont.DrawCentre(bmpDest, x+303, j, tLX->clNormalLabel, itoa(p->getKills()));
-
-			// Total time of being IT
-			int h,m,s;
-			static std::string buf;
-			ConvertTime(p->getTagTime(), &h,&m,&s);
-			buf = itoa(m)+":"+(s<10 ? "0":"")+itoa(s);
-			Uint32 col = tLX->clNormalLabel;
-			if(p->getTagIT())
-				col = MakeColour(255,0,0);
-			tLX->cFont.Draw(bmpDest, x+375, j, col, buf);
-
-			j+=20;
-		}
-	}
-	break;  // TAG
-
-
-	// Team deathmatch scoreboard
-	case GMT_TEAMDEATH: {
-
-		DrawHLine(bmpDest, x+15,x+width-15, y+height-30,tLX->clLine);
-
-		// Go through each team
-		j = y+50;
-		int team,score;
-		Uint32 colour;
-		for(n=0;n<4;n++) {
-			team = iTeamList[n];
-			score = iTeamScores[team];
-
-			// Check if the team has any players
-			if(score == -1)
-				continue;
-
-			colour = tLX->clTeamColors[team];
-
-			tLX->cFont.Draw(bmpDest, x+15, j, colour, teamnames[team] + " team  (" + itoa(score) + ")");
-			if(iLives != WRM_UNLIM)
-				tLX->cFont.Draw(bmpDest, x+300, j, colour,"Lives");
-			if(tGameInfo.iGameType == GME_HOST)  {
-				tLX->cFont.Draw(bmpDest, x+343, j, colour,"Kills");
-				tLX->cFont.Draw(bmpDest, x+380, j, colour,"Ping");
-			}
-			else
-				tLX->cFont.Draw(bmpDest, x+380, j, colour,"Kills");
-			DrawHLine(bmpDest, x+15,x+width-15, j+15,tLX->clLine);
-			j+=20;
-
-
-			// Draw the players
-			CWorm *p;
-			for(i=0;i<iScorePlayers;i++) {
-				p = &cRemoteWorms[iScoreboard[i]];
-
-				if(p->getTeam() != team)
-					continue;
-
-				DrawImage(bmpDest, p->getPicimg(), x+15, j);
-
-				tLX->cFont.Draw(bmpDest, x+40, j, tLX->clNormalLabel, p->getName());
-
-				if(p->getLives() >= 0)
-					tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, itoa(p->getLives()));
-				else if(p->getLives() == WRM_OUT)
-					tLX->cFont.DrawCentre(bmpDest, x+317, j, tLX->clNormalLabel, "out");
-
-				// Draw ping if host
-				if (tGameInfo.iGameType == GME_HOST)  {
-					tLX->cFont.DrawCentre(bmpDest, x+353, j, tLX->clNormalLabel, itoa(p->getKills()));
-					CClient *remoteClient = cServer->getClient(p->getID());
-					if (remoteClient && p->getID())
-						tLX->cFont.DrawCentre(bmpDest, x+396, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
-				} else
-					tLX->cFont.DrawCentre(bmpDest, x+393, j, tLX->clNormalLabel, itoa(p->getKills()));
-
-				j+=20;
-			}
-
-			j+=15;
-		}
-	}
-	break; // DEATHMATCH
-	} // switch
-}
-
 
 ///////////////////
 // Draw the bonuses

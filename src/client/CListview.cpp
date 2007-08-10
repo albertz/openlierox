@@ -158,7 +158,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 						SDL_GetClipRect(bmpDest, &old_rect);  // Save the original clipping rect
 						new_rect.x = x;
 						new_rect.y = y;
-						new_rect.w = col->iWidth - 4;
+						new_rect.w = col ? col->iWidth - 4 : bmpDest->w;
 						new_rect.h = item->iHeight;
 						SDL_SetClipRect(bmpDest, &new_rect);
 
