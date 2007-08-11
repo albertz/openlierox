@@ -90,6 +90,8 @@ void CClient::Simulation(void)
 			cViewports[1].SetTop(top);
 			cViewports[1].SetVirtHeight(cViewports[1].GetVirtH() - toph);
 		}
+
+		bShouldRepaintInfo = true;
 	}
 
 	// Health bar toggle
@@ -1464,8 +1466,6 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 
 
-size_t ChatMaxLength = 48;
-
 ///////////////////
 // Process any chatter
 void CClient::processChatter(void)
@@ -1546,7 +1546,6 @@ void CClient::processChatter(void)
 		if (!iChat_Typing)  {
 
 			if (c<32)  {
-				//iChat_Typing = false;
 				return;
 			}
 
@@ -1702,7 +1701,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 	}
 
     // Normal key
-    if(iChat_Pos < ChatMaxLength-1 && tLX->cFont.CanDisplayCharacter(c) ) {
+    if(tLX->cFont.CanDisplayCharacter(c) ) {
     	InsertUnicodeChar(sChat_Text, iChat_Pos, c);
 		iChat_Pos++;
     }

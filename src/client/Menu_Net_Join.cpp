@@ -314,8 +314,6 @@ void Menu_Net_JoinLobbyCreateGui(void)
     cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  268, 610, 150);
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
 
-	cJoinLobby.SendMessage(jl_ChatText,TXM_SETMAX,64,0);
-
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
 	if (player_list)  {

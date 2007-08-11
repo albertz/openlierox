@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "StringUtils.h"
 #include "CClient.h"
 #include "Protocol.h"
 #include "CWorm.h"
@@ -94,18 +95,26 @@ void CClient::SendText(const std::string& sText)
 
 	// TODO: this way is not good; it assumes, that the message is always of the format 'NICK: MSG'
 	// Do not allow client to send / commands is the host in not on beta 3
-	std::string command_buf = sText;
-	command_buf = Utf8String(sText.substr(cLocalWorms[0]->getName().size() + 2)); // get the message after "NICK: "
-	if(command_buf.size() == 0)
-		return;
-	
-	if(command_buf[0] == '/' && !bHostOLXb3) {
-		cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3 can", tLX->clNotice, tLX->fCurTime);
-		return;
+	if (cLocalWorms[0]->getName().size() + 2 < sText.size())  {
+		std::string command_buf = sText;
+
+		command_buf = Utf8String(sText.substr(cLocalWorms[0]->getName().size() + 2)); // get the message after "NICK: "
+		if(command_buf.size() == 0)
+			return;
+		
+		if(command_buf[0] == '/' && !bHostOLXb3) {
+			cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3 can", tLX->clNotice, tLX->fCurTime);
+			return;
+		}
 	}
 
-	bs->writeByte(C2S_CHATTEXT);
-	bs->writeString(sText);
+	// If the text is too long, split it in smaller pieces and then send (backward comaptibility)
+	const std::vector<std::string>& split = clever_split(sText, 63);
+
+	for (std::vector<std::string>::const_iterator it=split.begin(); it != split.end(); it++)  {
+		bs->writeByte(C2S_CHATTEXT);
+		bs->writeString(*it);
+	}
 }
 
 #ifdef DEBUG

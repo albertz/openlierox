@@ -117,7 +117,6 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.SendMessage(hs_Servername,TXM_SETMAX,32,0);
 	//cHostPly.SendMessage(hs_Password,TXM_SETMAX,32,0);
 	cHostPly.SendMessage(hs_MaxPlayers,TXM_SETMAX,6,0);
-	cHostPly.SendMessage(hs_WelcomeMessage,TXM_SETMAX,128,0);
 
 	// Use previous settings
 	cHostPly.SendMessage( hs_MaxPlayers, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iMaxPlayers), 0);
@@ -533,8 +532,6 @@ void Menu_Net_HostLobbyCreateGui(void)
     cHostLobby.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, 136, 0,   0);
     cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
 	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, 15, 325, 220);
-
-	cHostLobby.SendMessage(hl_ChatText,TXM_SETMAX,64,0);
 
 	//cHostLobby.SendMessage(hl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 

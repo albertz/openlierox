@@ -289,6 +289,7 @@ bool stripdot(std::string& buf, int width)
 }
 
 
+
 void ucfirst(std::string& text)
 {
 	if (text == "") return;
@@ -309,6 +310,44 @@ void ucfirst(std::string& text)
 	}
 
 
+}
+
+//////////////////////
+// Splits the string to pieces that none of the pieces can be longer than maxlen
+const std::vector<std::string>& clever_split(const std::string& str, int maxlen)
+{
+	int split = 0;
+	int current_part = maxlen;
+	std::string buf;
+	static std::vector<std::string> res;
+	res.clear();
+
+	while ((int)str.size() - split > maxlen)  {
+		buf = str.substr(split, maxlen);
+		current_part = maxlen;
+		size_t spacepos = buf.find_last_of(' ');
+		if (spacepos == std::string::npos)  {  // hardbreak
+			std::string::const_iterator it = buf.end();
+			it--;
+			while (*it >= 0x80 && it != buf.begin())  {  // make sure we don't break UTF8 character
+				it--;
+				current_part--;
+			}
+			buf = buf.substr(0, current_part);
+		} else {  // break in a space
+			buf = buf.substr(0, (int)spacepos);
+			current_part = (int)spacepos + 1;  // we don't include the space
+		}
+
+		split += current_part;
+
+		res.push_back(buf);
+	}
+
+	// Last part
+	res.push_back(str.substr(split, str.size()));
+
+	return res;
 }
 
 

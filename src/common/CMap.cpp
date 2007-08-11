@@ -1822,7 +1822,7 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *wo
 		col = MakeColour(r,g,b);
 
 		//PutPixel(bmpMiniMap,x,y,col);
-		DrawRectFill(bmpDest,i-1,j-1, i+1,j+1, col);
+		DrawRectFill(bmpDest, MAX((int)x, i-1), MAX((int)y, j-1), i+1,j+1, col);
 
 		// Our worms are bigger
 		big = false;
@@ -1835,7 +1835,7 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *wo
 		}
 
 		if(big)
-			DrawRectFill(bmpDest,i-1,j-1, i+2,j+2,col);
+			DrawRectFill(bmpDest, MAX(i-1, (int)x), MAX(j-1, (int)y), i+2, j+2, col);
 	}
 }
 

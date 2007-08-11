@@ -438,6 +438,7 @@ public:
     void        DrawViewportManager(SDL_Surface *bmpDest);
 	void		SimulateHud(void);
 	int			getTopBarBottom();
+	void		DrawChatter(SDL_Surface *bmpDest);
 
 	// Network
 	void		Connect(const std::string& address);

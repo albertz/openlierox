@@ -112,6 +112,7 @@ size_t findLastPathSep(const std::string& path);
 void stringlwr(std::string& txt);
 bool strincludes(const std::string& str, const std::string& what);
 short stringcasecmp(const std::string& s1, const std::string& s2);
+const std::vector<std::string>& clever_split(const std::string& str, int maxlen);
 
 
 std::string GetFileExtension(const std::string& filename);

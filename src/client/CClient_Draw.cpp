@@ -552,15 +552,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Chatter
 	if(iChat_Typing)  {
-		const int text_start = tInterfaceSettings.ChatterX+tLX->cOutlineFont.GetWidth("Talk: ");
-		tLX->cOutlineFont.Draw(bmpDest, tInterfaceSettings.ChatterX, tInterfaceSettings.ChatterY, tLX->clGameChatter, "Talk: " + sChat_Text);
-		if (iChat_CursorVisible)  {
-			DrawVLine(bmpDest,
-					tInterfaceSettings.ChatterY,
-					tInterfaceSettings.ChatterY + tLX->cOutlineFont.GetHeight(),
-					text_start+tLX->cOutlineFont.GetWidth(Utf8SubStr(sChat_Text, 0, iChat_Pos)),
-					tLX->clGameChatCursor );
-		}
+		DrawChatter(bmpDest);
 	}
 
 #ifdef WITH_MEDIAPLAYER
@@ -575,6 +567,30 @@ void CClient::Draw(SDL_Surface *bmpDest)
     //tLX->cOutlineFont.Draw(bmpDest, 4,40, tLX->clNormalText, "%f",tLX->debug_float);
 }
 
+///////////////////
+// Draw the chatter
+void CClient::DrawChatter(SDL_Surface *bmpDest)
+{
+	std::string text = "Talk: " + sChat_Text;
+	const std::vector<std::string>& lines = clever_split(text, 640/tLX->cOutlineFont.GetWidth("W"));
+	int x = tInterfaceSettings.ChatterX;
+	int y = tInterfaceSettings.ChatterY;
+
+	y -= MAX(0, (int)lines.size() - 1) * tLX->cOutlineFont.GetHeight();
+
+	// Draw the lines of text
+	int drawn_size = -6;  // 6 = length of "Talk: "
+	int i = 0;
+	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, i++)  {
+		tLX->cOutlineFont.Draw(bmpDest, x, y, tLX->clGameChatter, *it);
+		drawn_size += (int)Utf8StringSize((*it));
+		if (drawn_size >= iChat_Pos - i && iChat_CursorVisible)  {  // Draw the cursor
+			int cursor_x = tLX->cOutlineFont.GetWidth(Utf8SubStr((*it), 0, iChat_Pos - (drawn_size - (int)Utf8StringSize((*it)))));
+			DrawVLine(bmpDest, y, MIN(381, y + tLX->cOutlineFont.GetHeight()), cursor_x, tLX->clGameChatCursor);
+		}
+		y += tLX->cOutlineFont.GetHeight();
+	}
+}
 
 ///////////////////
 // Draw a viewport

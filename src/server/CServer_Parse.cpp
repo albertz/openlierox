@@ -276,7 +276,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
-		// TODO: why was cl->getWorm(0)->getID() != 0 added here?
+		// or if the client is host (host can kill anyone - server side health)
 		if (!cl->OwnsWorm(vict) && cl->getWorm(0)->getID() != 0)  {
 			printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 			return;
@@ -606,7 +606,6 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	}
 
 	// Check for Clx (a cheating version of lx)
-	// TODO: Make olx not crash when a clx message is recieved
 	if(buf[0] == 0x04) {
 		SendGlobalText(cl->getWorm(0)->getName() + " seems to have CLX or some other hack", TXT_NORMAL);
 	}

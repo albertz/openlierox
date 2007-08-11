@@ -15,6 +15,7 @@
 
 #include <vector>
 #include "LieroX.h"
+#include "StringUtils.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "Protocol.h"
@@ -57,9 +58,16 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 	static CBytestream bs;
 	bs.Clear();
 
-	bs.writeByte(S2C_TEXT);
-	bs.writeInt(type,1);
-	bs.writeString(text);
+	// HINT: if the message is longer than 64 characters, we split it in more messages
+	// (else we could exploit old clients... :( )
+	const std::vector<std::string>& split = clever_split(text, 63);
+		
+	for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
+		// Send it
+		bs.writeByte(S2C_TEXT);
+		bs.writeInt(type, 1);
+		bs.writeString(*it);
+	}
 
 	CClient *cl = cClients;
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
