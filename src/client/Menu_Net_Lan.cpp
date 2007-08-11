@@ -23,6 +23,7 @@
 #include "CButton.h"
 #include "CLabel.h"
 #include "CMenu.h"
+#include "CMediaPlayer.h"
 
 
 CGuiLayout	cLan;

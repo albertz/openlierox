@@ -30,6 +30,7 @@
 #include "CWorm.h"
 #include "Cursor.h"
 #include "CButton.h"
+#include "CMediaPlayer.h"
 
 
 menu_t	*tMenu = NULL;

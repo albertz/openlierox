@@ -31,6 +31,7 @@
 #include "CCheckbox.h"
 #include "CMenu.h"
 #include "CImage.h"
+#include "CMediaPlayer.h"
 
 
 /*

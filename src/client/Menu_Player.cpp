@@ -25,6 +25,7 @@
 #include "CLabel.h"
 #include "CTextbox.h"
 #include "CSlider.h"
+#include "CMediaPlayer.h"
 
 
 CGuiLayout	cNewPlayer;

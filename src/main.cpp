@@ -24,6 +24,7 @@
 #include "StringUtils.h"
 #include "Entity.h"
 #include "Error.h"
+#include "CMediaPlayer.h"
 
 
 #ifndef WIN32

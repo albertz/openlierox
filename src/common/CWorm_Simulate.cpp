@@ -25,7 +25,7 @@
 ///////////////////
 // Get the input from a human worm
 void CWorm::getInput(/*worm_state_t *ws*/)
-{
+	{
 	float	dt = tLX->fDeltaTime;
 	CVec	dir;
 	int		weap = false;

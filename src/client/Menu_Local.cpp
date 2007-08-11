@@ -30,6 +30,7 @@
 #include "CTextbox.h"
 #include "CSlider.h"
 #include "CCheckbox.h"
+#include "CMediaPlayer.h"
 
 
 CGuiLayout cLocalMenu;

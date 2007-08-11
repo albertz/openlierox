@@ -25,6 +25,7 @@
 #include "CButton.h"
 #include "CTextbox.h"
 #include "CImage.h"
+#include "CMediaPlayer.h"
 
 
 /*

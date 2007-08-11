@@ -115,11 +115,16 @@ void CClient::Simulation(void)
 			*/
 
 			if(local && !iGameMenu && !iChat_Typing && !iGameOver && !con) {
+				int old_weapon = w->getCurrentWeapon();
+
 				// TODO: use one getInput for both
 				if(w->getType() == PRF_HUMAN)
 					w->getInput();
 				else
 					w->AI_GetInput(iGameType, teamgame, iGameType == GMT_TAG);
+
+				if (w->isShooting() || old_weapon != w->getCurrentWeapon())  // The weapon bar is changing
+					bShouldRepaintInfo = true;
             }
 
 			// Simulate the worm
@@ -666,13 +671,16 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	if (!w->getAlive())  // Injuring a dead worm makes no sense
 		return;
 
+	if (w->getLocal())  // Health change
+		bShouldRepaintInfo = true;
+
 	bool me = false;
 	ushort i;
 	int localid=0;
 
 
 	// Make sure this is one of our worms
-	for(i=0;i<iNumWorms;i++) {
+	for(i=0; i < iNumWorms; i++) {
 		if(cLocalWorms[i]->getID() == w->getID()) {
 			me=true;
 			localid = i;
@@ -694,35 +702,6 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 
 			// Let the server know that i am dead
 			SendDeath(w->getID(), owner);
-
-
-			// If this worm is now out of the game and this viewport was used for a worm,
-			// change the viewport
-			/*if(w->getLives() == WRM_OUT && iNumWorms > 1) {
-				for(i=0;i<numworms;i++) {
-					if(iDrawingViews[i] == localid) {
-
-						cRemoteWorms[iDrawingViews[i]].getViewport()->setUsed(false);
-
-						// Find another worm that is alive
-						for(n=0;n<iNumWorms;n++) {
-							if(cLocalWorms[n]->getLives() != WRM_OUT && !cLocalWorms[n]->getViewport()->getUsed()) {
-								iDrawingViews[i] = n;
-								break;
-							}
-						}
-
-						// Setup the viewport
-						CViewport *v = cRemoteWorms[iDrawingViews[i]].getViewport();
-						v->setUsed(true);
-
-						if(i==0)
-							v->Setup(0,0,318,382);
-						else
-							v->Setup(322,0,318,382);
-					}
-				}
-			}*/
 		}
 	}
 

@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "CButton.h"
 #include "CTextbox.h"
+#include "CMediaPlayer.h"
 
 
 CGuiLayout	cMaped;

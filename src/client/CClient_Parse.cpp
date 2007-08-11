@@ -559,6 +559,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	}
 
 	UpdateScoreboard();
+	bShouldRepaintInfo = true;
 
 	bJoin_Update = true;
 
@@ -631,6 +632,8 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
 
 	UpdateScoreboard();
+	if (cRemoteWorms[id].getLocal())
+		bShouldRepaintInfo = true;
 }
 
 
@@ -656,6 +659,8 @@ void CClient::ParseWormInfo(CBytestream *bs)
 	}
 
 	UpdateScoreboard();
+	if (cRemoteWorms[id].getLocal())
+		bShouldRepaintInfo = true;
 
 	bJoin_Update = true;
 	bHost_Update = true;
@@ -764,8 +769,11 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 {	
 	short id = bs->readInt(1);
 
-	if(id >= 0 && id < MAX_WORMS)
+	if(id >= 0 && id < MAX_WORMS)  {
 		cRemoteWorms[id].readScore(bs);
+		if (cRemoteWorms[id].getLocal())
+			bShouldRepaintInfo = true;
+	}
 	else
 		// do this to get the right position in net stream
 		CWorm::skipScore(bs);
@@ -791,6 +799,7 @@ void CClient::ParseGameOver(CBytestream *bs)
     nTopProjectile = 0;
 
 	UpdateScoreboard();
+	bShouldRepaintInfo = true;
 }
 
 
@@ -1075,6 +1084,7 @@ void CClient::ParseUpdateWorms(CBytestream *bs)
 		}*/
 
 		cRemoteWorms[id].readPacketState(bs,cRemoteWorms);
+
 	}
 
 	bJoin_Update = true;
@@ -1267,8 +1277,11 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 
 	short i;
 	for(i=0; i<num; i++)
-		if (getWorm(i))
+		if (getWorm(i))  {
+			if (getWorm(i)->isWeaponReloading() && getWorm(i)->getLocal())
+				bShouldRepaintInfo = true;
 			getWorm(i)->readStatUpdate(bs);
+		}
 
 	// Skip if there were some clamped worms
 	for (i=0;i<oldnum-num;i++)

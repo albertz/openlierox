@@ -26,6 +26,7 @@
 #include "CCheckbox.h"
 #include "CTextbox.h"
 #include "CSlider.h"
+#include "CMediaPlayer.h"
 
 
 int OptionsMode = 0;

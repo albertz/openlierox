@@ -28,6 +28,7 @@
 #include "CCombobox.h"
 #include "CMenu.h"
 #include "CTextbox.h"
+#include "CMediaPlayer.h"
 
 
 CGuiLayout	cInternet;

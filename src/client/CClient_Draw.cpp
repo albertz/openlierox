@@ -18,6 +18,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "Graphics.h"
+#include "CMediaPlayer.h"
 #include "Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
@@ -320,7 +321,6 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 	DrawImage(dst, bmpBoxRight, x + bmpBoxLeft->w + middle_w, y); // Right part
 }
 
-
 ///////////////////
 // Main drawing routines
 void CClient::Draw(SDL_Surface *bmpDest)
@@ -353,26 +353,28 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
     // TODO: allow more viewports
     // Draw the borders
-	if (tGameInfo.iGameType == GME_LOCAL)  {
-		if (bgImage)  // Doesn't have to exist (backward compatibility)
-			DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
-		else
-			DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
-	} else {
-		if (bgImage)  { // Doesn't have to exist (backward compatibility)
-			DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, tInterfaceSettings.ChatBoxX, bgImage->h);
-			DrawImageAdv(
-						bmpDest,
-						bgImage,
-						tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-						0,
-						tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-						480 - bgImage->h,
-						640 - tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-						bgImage->h);
+	if (bShouldRepaintInfo)  {
+		if (tGameInfo.iGameType == GME_LOCAL)  {
+			if (bgImage)  // Doesn't have to exist (backward compatibility)
+				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
+			else
+				DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
 		} else {
-			DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
-			DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
+			if (bgImage)  { // Doesn't have to exist (backward compatibility)
+				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, tInterfaceSettings.ChatBoxX, bgImage->h);
+				DrawImageAdv(
+							bmpDest,
+							bgImage,
+							tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+							0,
+							tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+							480 - bgImage->h,
+							640 - tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+							bgImage->h);
+			} else {
+				DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
+				DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
+			}
 		}
 	}
 	
@@ -380,7 +382,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
         DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
 
 	// Top bar
-	if (tLXOptions->tGameinfo.bTopBarVisible && !iGameMenu)  {
+	if (tLXOptions->tGameinfo.bTopBarVisible && !iGameMenu && bShouldRepaintInfo)  {
 		SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
 		if (top_bar)
 			DrawImage( bmpDest, top_bar, 0, 0);
@@ -399,6 +401,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
                 DrawViewport(bmpDest, (byte)i);
 			}
         }
+		bShouldRepaintInfo = false;  // Just repainted it
 
         // Mini-Map
 		if (iNetStatus == NET_PLAYING)
@@ -690,11 +693,13 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 		WeaponBar = cWeaponBar2;
 	}
 
-
-
 	// The following is only drawn for viewports with a worm target
     if( v->getType() > VW_CYCLE )
         return;
+
+	// Do we need to draw this?
+	if (!bShouldRepaintInfo)
+		return;
 
     CWorm *worm = v->getTarget();
 
@@ -727,6 +732,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 		WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
 		WeaponBar->Draw( bmpDest );
 	}
+
 
 	// The following are items on top bar, so don't draw them when we shouldn't
 	if (!tLXOptions->tGameinfo.bTopBarVisible)
@@ -990,6 +996,9 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 		DrawImage(bmpDest, gfxGame.bmpScoreboard, 0, 0);
 	}
 
+	if (GetMouse()->Y >= gfxGame.bmpScoreboard->h - GetMaxCursorHeight())
+		bShouldRepaintInfo = true;
+
 	// Update the coutdown
 	if (iGameOver)  {
 		int sec = 5 + GAMEOVER_WAIT - (int)(tLX->fCurTime - fGameOverTime);
@@ -1139,7 +1148,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 			if (tGameInfo.iGameType == GME_HOST)  {
 				CClient *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
-					lv->AddSubitem(LVS_TEXT, itoa(p->getClient()->getPing()), NULL, NULL);
+					lv->AddSubitem(LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 			}
 		}
 	}
@@ -1229,7 +1238,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 			if (tGameInfo.iGameType == GME_HOST)  {
 				CClient *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
-					lv->AddSubitem(LVS_TEXT, itoa(p->getClient()->getPing()), NULL, NULL);
+					lv->AddSubitem(LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
 			}
 
 			// Total time of being IT
@@ -1465,8 +1474,8 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 
 	// Small hack: count the mouse height so we avoid "freezing"
 	// the mouse image when the user moves cursor away
-	int inbox = MouseInRect(lv->getX(),lv->getY(), lv->getWidth(), lv->getHeight()+GetCursorHeight(CURSOR_ARROW)) ||
-				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14, tInterfaceSettings.ChatboxScrollbarH);
+	int inbox = MouseInRect(lv->getX(),lv->getY(), lv->getWidth() + GetCursorWidth(CURSOR_ARROW), lv->getHeight()+GetCursorHeight(CURSOR_ARROW)) ||
+				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14 + GetCursorWidth(CURSOR_ARROW), tInterfaceSettings.ChatboxScrollbarH);
 
 	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox)  {	// Repainting when new messages/scrolling, 
 																				// or when user is moving the mouse over the chat
@@ -1483,10 +1492,11 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 						 0,
 						 tInterfaceSettings.ChatBoxX,
 						 480 - bgImage->h,
-						 tInterfaceSettings.ChatBoxW,
+						 MIN(tInterfaceSettings.ChatBoxW + tInterfaceSettings.ChatBoxX + GetCursorWidth(CURSOR_ARROW),
+							 tInterfaceSettings.MiniMapX) - tInterfaceSettings.ChatBoxX,
 						 bgImage->h);
 		else
-			DrawRectFill(bmpDest,165,382,511,480,tLX->clGameBackground);
+			DrawRectFill(bmpDest,165,382,541,480,tLX->clGameBackground);
 		lv->Draw(bmpDest);
 	}
 

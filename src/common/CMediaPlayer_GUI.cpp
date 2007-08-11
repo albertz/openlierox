@@ -6,11 +6,16 @@
 
 #include "LieroX.h"
 #include "AuxLib.h"
-#include "Graphics.h"
 #include "Menu.h"
+#include "Graphics.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CMediaPlayer.h"
+#include "CButton.h"
+#include "CLabel.h"
+#include "CCheckbox.h"
+#include "Cursor.h"
 
 
 //

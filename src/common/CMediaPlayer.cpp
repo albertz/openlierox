@@ -7,6 +7,7 @@
 #ifdef WITH_MEDIAPLAYER
 
 #include "LieroX.h"
+#include "InputEvents.h"
 #include "MathLib.h"
 #include "AuxLib.h"
 #include "Graphics.h"
@@ -14,6 +15,10 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CMediaPlayer.h"
+#include "CButton.h"
+#include "Menu.h"
+#include "Cursor.h"
 
 /*
 

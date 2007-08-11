@@ -610,6 +610,9 @@ public:
 
 	inline void		setProfileGraphics(bool _p)	{ ProfileGraphics = _p; }
 
+	bool			isShooting()				{ return tState.iShoot != 0; }
+	bool			isWeaponReloading()			{ return getCurWeapon()->Reloading != 0; }
+
 	inline bool		getVIP(void)				{ return bNoShooting; }
 	inline void		setVIP(bool _s)				{ bNoShooting = _s; }
 };

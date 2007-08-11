@@ -21,6 +21,7 @@
 #include "CButton.h"
 #include "CBrowser.h"
 #include "CLabel.h"
+#include "CMediaPlayer.h"
 
 
 CGuiLayout	cMain;

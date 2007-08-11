@@ -14,10 +14,10 @@
 // Jason Boettcher
 
 
-#include "CTitleButton.h"
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "CTitleButton.h"
 
 
 ///////////////////

@@ -10,6 +10,9 @@
 #include <string>
 
 #include "InputEvents.h"
+#include "CGuiLayout.h"
+#include "CListview.h"
+#include "Sounds.h"
 
 typedef std::vector<std::string> song_list;
 

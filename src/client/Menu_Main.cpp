@@ -22,6 +22,7 @@
 #include "GfxPrimitives.h"
 #include "CTitleButton.h"
 #include "CButton.h"
+#include "CMediaPlayer.h"
 
 
 CGuiLayout	cMainMenu;

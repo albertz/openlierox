@@ -46,7 +46,7 @@ CBar::CBar(SDL_Surface *bmp, int x, int y, int label_x, int label_y, int dir, in
 void CBar::Draw(SDL_Surface *dst)  {
 	static std::string progress;
 	progress = itoa(Position) + " %";
-	int pos = MIN(MAX(Position, 0), 100);
+	int pos = CLAMP(Position, 0, 100);
 
 	// In the bar image, there's the fully loaded image - it's always the first image starting at 0,0.
 	// Then there can be unlimited number of states for various purposes

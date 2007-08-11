@@ -171,7 +171,7 @@ public:
 		bMapGrabbed = false;
 		cChatList = NULL;
 		bUpdateScore = true;
-		bRedrawChat = true;
+		bShouldRepaintInfo = true;
 
 		szServerName="";
 
@@ -250,9 +250,6 @@ private:
 	int			iBonusesOn;
 	int			iShowBonusName;
     CWpnRest    cWeaponRestrictions;
-	//float		fProjDrawTime;
-	//float		fProjSimulateTime;
-	bool		bRedrawChat;
 
 	// Ping below FPS
 	float		fMyPingSent;
@@ -274,6 +271,7 @@ private:
 	SDL_Surface *bmpBoxLeft;
 	SDL_Surface *bmpBoxRight;
 	CGuiLayout  cGameMenuLayout;
+	bool		bShouldRepaintInfo;
 
     CWeather    cWeather;
 

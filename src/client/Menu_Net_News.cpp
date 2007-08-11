@@ -20,6 +20,7 @@
 #include "GfxPrimitives.h"
 #include "CButton.h"
 #include "CBrowser.h"
+#include "CMediaPlayer.h"
 
 
 CGuiLayout	cNews;
