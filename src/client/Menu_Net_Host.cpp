@@ -227,8 +227,10 @@ void Menu_Net_HostPlyFrame(int mouse)
 					lv2 = (CListview *)cHostPly.getWidget(hs_Playing);
 					int index = lv->getCurIndex();
 
-					// Make sure there is 0-MAX_PLAYERS players in the list
-					if(lv2->getItemCount() < MAX_PLAYERS) {
+					// Make sure there is 0-NumPlayers players in the list
+					std::string num_players;
+					cHostPly.SendMessage(hs_MaxPlayers, TXS_GETTEXT, &num_players, 0);
+					if(lv2->getItemCount() < MIN(MAX_PLAYERS, atoi(num_players))) {
 
 						// Get the profile
 						ply = FindProfile(index);

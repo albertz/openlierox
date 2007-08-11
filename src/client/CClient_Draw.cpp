@@ -38,11 +38,6 @@ bool CClient::InitializeDrawing(void)
 {
 	LOAD_IMAGE_WITHALPHA(bmpMenuButtons,"data/frontend/buttons.png");
 
-	// Initialize the score buffer
-//	bmpScoreBuffer = gfxCreateSurfaceAlpha(gfxGame.bmpScoreboard->w,gfxGame.bmpScoreboard->h); // Must be alpha, like scoreboard, gameover etc.
-//	SetColorKey(bmpScoreBuffer);
-//	DrawRectFill(bmpScoreBuffer,0,0,bmpScoreBuffer->w,bmpScoreBuffer->h,COLORKEY(bmpScoreBuffer));
-
 	// Load the right and left part of box
 	bmpBoxLeft = LoadImage("data/frontend/box_left.png",true);
 	bmpBoxRight = LoadImage("data/frontend/box_right.png",true);
@@ -913,6 +908,8 @@ enum {
 	gm_Resume,
 	gm_Coutdown,
 	gm_TopMessage,
+	gm_TopSkin,
+	gm_Winner,
 	gm_LeftList,
 	gm_RightList
 };
@@ -947,7 +944,11 @@ void CClient::InitializeGameMenu()
 		}
 	}
 
-	cGameMenuLayout.Add(new CLabel("", tLX->clNormalLabel), gm_TopMessage, 445, 5, 0, 0);
+	cGameMenuLayout.Add(new CLabel("", tLX->clNormalLabel), gm_TopMessage, 440, 5, 0, 0);
+	if (iGameOver)  {
+		cGameMenuLayout.Add(new CLabel(cRemoteWorms[iMatchWinner].getName(), tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
+		cGameMenuLayout.Add(new CImage(cRemoteWorms[iMatchWinner].getPicimg()), gm_TopSkin, 490, 5, 0, 0);
+	}
 
 	cGameMenuLayout.SetGlobalProperty(PRP_REDRAWMENU, false);
 
@@ -1000,7 +1001,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 	}
 
 	if (iGameOver)  {
-		cGameMenuLayout.SendMessage(gm_TopMessage, LBS_SETTEXT, "Winner: " + cRemoteWorms[iMatchWinner].getName(), 0);
+		cGameMenuLayout.SendMessage(gm_TopMessage, LBS_SETTEXT, "Winner:", 0);
 	}
 
 

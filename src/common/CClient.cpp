@@ -197,6 +197,7 @@ int CClient::Initialize(void)
 		cRemoteWorms[i].setID(i);
 		cRemoteWorms[i].setTagIT(false);
 		cRemoteWorms[i].setTagTime(0);
+		cRemoteWorms[i].setTeam(0);
 	}
 	
 

@@ -1077,6 +1077,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				w->setClient(newcl);
 				w->setUsed(true);
 				w->setupLobby();
+				w->setTeam(0);
 				newcl->setWorm(i, w);
 				ids[i] = p;
 				break;
