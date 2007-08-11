@@ -19,14 +19,18 @@
 #include "AuxLib.h"
 #include "Menu.h"
 #include "StringUtils.h"
-
-
+#include "CBox.h"
+#include "CImage.h"
+#include "CButton.h"
+#include "CCheckbox.h"
+#include "CLabel.h"
+#include "CSlider.h"
+#include "CTextbox.h"
 
 
 // XML parsing library
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
-
 
 /*
 // Useful XML functions

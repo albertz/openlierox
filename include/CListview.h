@@ -18,6 +18,9 @@
 #define __CLISTVIEW_H__
 
 #include <string>
+#include "CWidget.h"
+#include "CScrollbar.h"
+
 
 // Event msg's for this control
 enum {

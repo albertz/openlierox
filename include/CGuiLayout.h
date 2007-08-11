@@ -18,6 +18,10 @@
 #define __CGUILAYOUT_H__
 
 
+#include "CWidget.h"
+
+
+
 // layout event structure
 class gui_event_t { public:
 	int		iControlID;

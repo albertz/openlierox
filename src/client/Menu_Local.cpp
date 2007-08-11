@@ -24,6 +24,12 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CButton.h"
+#include "CLabel.h"
+#include "CImage.h"
+#include "CTextbox.h"
+#include "CSlider.h"
+#include "CCheckbox.h"
 
 
 CGuiLayout cLocalMenu;

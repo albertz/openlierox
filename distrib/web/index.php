@@ -28,12 +28,14 @@
 </p>
 <p>
 	<h2>Downloads</h2>
-	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059">
-	Download from SourceForge-mirros</a><br>
+	<b>0.57_beta3</b> (released 2007-08-08)<br>
+	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=531327">
+	OpenLieroX downloads</a> (with Mac OS X Universal Binary now!)<br>
+	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta3.ebuild">OpenLieroX Gentoo ebuild</a><br>
 	<br>
 	<b>0.57_beta2</b> (released 2007-04-09)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=499780">
-	OpenLieroX Source download & Win32 download</a><br>
+	OpenLieroX downloads</a><br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta2.ebuild">OpenLieroX Gentoo ebuild</a><br>
 	<a href="deb/openlierox-0.57-beta2.deb">OpenLieroX deb-package</a>
 	(very much thanks to Ekir Gustafsson!)<br>

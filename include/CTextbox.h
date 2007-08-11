@@ -19,6 +19,7 @@
 
 
 #include "InputEvents.h"
+#include "Cursor.h"
 
 
 // Event types

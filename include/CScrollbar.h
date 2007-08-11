@@ -19,6 +19,8 @@
 
 
 #include "InputEvents.h"
+#include "CWidget.h"
+#include "CGuiLayout.h"
 
 
 // Scrollbar events

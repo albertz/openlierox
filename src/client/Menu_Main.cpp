@@ -20,6 +20,8 @@
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "CTitleButton.h"
+#include "CButton.h"
 
 
 CGuiLayout	cMainMenu;

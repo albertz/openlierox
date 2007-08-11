@@ -20,6 +20,9 @@
 #include "CClient.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "CButton.h"
+#include "CLabel.h"
+#include "CMenu.h"
 
 
 CGuiLayout	cLan;

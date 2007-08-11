@@ -26,6 +26,13 @@
 #include "CWorm.h"
 #include "Protocol.h"
 #include "Entity.h"
+#include "Cursor.h"
+#include "CButton.h"
+#include "CLabel.h"
+#include "CImage.h"
+#include "CLine.h"
+#include "CCombobox.h"
+#include "CCheckbox.h"
 
 
 SDL_Surface		*bmpMenuButtons = NULL;
@@ -1141,8 +1148,6 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 
     // Demolitions scoreboard
 	case GMT_DEMOLITION: {
-
-        int dirtcount = 0;
 
 		// Draw the players
 		CListview *lv = Left;

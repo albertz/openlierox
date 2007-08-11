@@ -22,6 +22,13 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CButton.h"
+#include "CListview.h"
+#include "CLabel.h"
+#include "CCombobox.h"
+#include "CMenu.h"
+#include "CTextbox.h"
+
 
 CGuiLayout	cInternet;
 std::string szNetCurServer;

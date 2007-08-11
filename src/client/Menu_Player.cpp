@@ -20,6 +20,11 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CGuiLayout.h"
+#include "CButton.h"
+#include "CLabel.h"
+#include "CTextbox.h"
+#include "CSlider.h"
 
 
 CGuiLayout	cNewPlayer;

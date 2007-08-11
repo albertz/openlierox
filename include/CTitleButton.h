@@ -19,6 +19,9 @@
 
 #include "InputEvents.h"
 #include "Cursor.h"
+#include "CWidget.h"
+#include "types.h"
+#include "CGuiLayout.h"
 
 
 // Event types

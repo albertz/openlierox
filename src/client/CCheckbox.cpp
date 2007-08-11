@@ -18,6 +18,7 @@
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "CCheckbox.h"
 
 
 ///////////////////

@@ -11,6 +11,7 @@
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "CImage.h"
 
 
 ///////////////////

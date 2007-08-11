@@ -28,6 +28,8 @@
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CWorm.h"
+#include "Cursor.h"
+#include "CButton.h"
 
 
 menu_t	*tMenu = NULL;

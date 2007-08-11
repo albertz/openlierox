@@ -24,6 +24,13 @@
 #include "CWorm.h"
 #include "Protocol.h"
 #include "AuxLib.h"
+#include "CLabel.h"
+#include "CButton.h"
+#include "CListview.h"
+#include "CTextbox.h"
+#include "CCheckbox.h"
+#include "CMenu.h"
+#include "CImage.h"
 
 
 /*

@@ -18,6 +18,9 @@
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "CButton.h"
+#include "CBrowser.h"
+#include "CLabel.h"
 
 
 CGuiLayout	cMain;

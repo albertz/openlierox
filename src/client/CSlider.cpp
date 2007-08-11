@@ -18,6 +18,7 @@
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "CSlider.h"
 
 
 ///////////////////

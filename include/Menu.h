@@ -17,11 +17,23 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
+#include <SDL/SDL.h>
+#include <string>
 
+#include "CWidgetList.h"
+#include "CssParser.h"
+#include "CCombobox.h"
+#include "CInputBox.h"
 #include "Networking.h"
+#include "CBytestream.h"
+#include "CListview.h"
+#include "CWpnRest.h"
+
+
+
+/*
 #include "CWidget.h"
 #include "CGuiLayout.h"
-#include "CWidgetList.h"
 #include "CTitleButton.h"
 #include "CButton.h"
 #include "CScrollbar.h"
@@ -46,7 +58,7 @@
 #include "CssParser.h"
 #include "CBytestream.h"
 #include "CWpnRest.h"
-
+*/
 
 // Menu sockets
 #define		SCK_LAN		0

@@ -19,6 +19,7 @@
 
 
 #include "InputEvents.h"
+#include "CScrollbar.h"
 
 
 // Combo box events

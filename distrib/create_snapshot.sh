@@ -2,7 +2,7 @@
 
 if [ "$1" == "" ]
 then
-	echo "please say me a version-string"
+	echo "please say me a version-string (like 0.57_beta3)"
 	exit -1
 fi
 

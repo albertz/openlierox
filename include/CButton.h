@@ -19,6 +19,8 @@
 
 #include "InputEvents.h"
 #include "GfxPrimitives.h"
+#include "Cursor.h"
+
 
 // Event types
 enum {

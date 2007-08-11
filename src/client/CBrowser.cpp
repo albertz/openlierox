@@ -19,6 +19,8 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CBrowser.h"
+
 
 ///////////////////
 // The create event

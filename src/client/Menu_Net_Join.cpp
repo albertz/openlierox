@@ -22,6 +22,9 @@
 #include "StringUtils.h"
 #include "CWorm.h"
 #include "Protocol.h"
+#include "CButton.h"
+#include "CTextbox.h"
+#include "CImage.h"
 
 
 /*

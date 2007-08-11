@@ -21,6 +21,11 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CButton.h"
+#include "CLabel.h"
+#include "CCheckbox.h"
+#include "CTextbox.h"
+#include "CSlider.h"
 
 
 int OptionsMode = 0;

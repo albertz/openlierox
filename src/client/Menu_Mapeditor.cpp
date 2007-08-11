@@ -21,6 +21,8 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "CButton.h"
+#include "CTextbox.h"
 
 
 CGuiLayout	cMaped;

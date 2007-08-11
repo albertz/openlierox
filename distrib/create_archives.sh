@@ -9,7 +9,7 @@ echo $VERSION > VERSION
 SRC_FILES="src/*.cpp src/common/*.cpp src/client/*.cpp src/server/*.cpp include/*.h"
 STD_FILES="VERSION CMakeLists.txt compile.sh install.sh start.sh hawknl/install.sh hawknl/download.sh"
 DOC_FILES="COPYING.LIB DEPS doc"
-DAT_FILES="share/gamedir share/OpenLieroX.png"
+DAT_FILES="share/gamedir share/*.png share/*.icns share/*.ico share/*.svg"
 
 export SRC_RELEASE="$SRC_FILES $STD_FILES $DOC_FILES $DAT_FILES"
 export WIN32_RELEASE="doc/* COPYING.LIB share/gamedir/* distrib/win32/*"

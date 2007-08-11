@@ -13,6 +13,7 @@
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "CBox.h"
 
 
 ///////////////////

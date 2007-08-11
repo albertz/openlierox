@@ -18,6 +18,10 @@
 #include "Error.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
+#include "CButton.h"
+#include "CAnimation.h"
+#include "CProgressbar.h"
+#include "CLabel.h"
 
 
 enum {
