@@ -3260,6 +3260,18 @@ int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
 		}
 	}
 
+	if (cClient && tGameInfo.iGameMode == GMT_VIP)  {
+		CWorm *w = cClient->getRemoteWorms();
+		for (i=0;i<MAX_WORMS;i++,w++)  {
+			if (w)
+				if(w->isUsed() && w->getAlive() && w->getVIP() && iTeam == 0)
+					WormsPos[WormCount++] = w->getPos();
+				if (w->isUsed() && w->getAlive() && w->getTeam() == iTeam && w->getID() != iID)
+					WormsPos[WormCount++] = w->getPos();
+		}
+	}
+		
+
 
 	// Trace the line
 	int divs = first_division;

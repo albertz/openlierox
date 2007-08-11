@@ -271,6 +271,7 @@ private:
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
+	bool		bNoShooting;
     
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
@@ -609,7 +610,8 @@ public:
 
 	inline void		setProfileGraphics(bool _p)	{ ProfileGraphics = _p; }
 
-
+	inline bool		getVIP(void)				{ return bNoShooting; }
+	inline void		setVIP(bool _s)				{ bNoShooting = _s; }
 };
 
 

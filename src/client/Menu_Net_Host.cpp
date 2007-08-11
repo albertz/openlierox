@@ -534,6 +534,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Deathmatch", GMT_DEATHMATCH);
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Team Deathmatch", GMT_TEAMDEATH);
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
+	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
 
 	// Fill in the mod list
 	Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
@@ -1008,6 +1009,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % 4;
 						w->setTeam(w->getLobby()->iTeam);
 
+						if(w->getLobby()->iTeam == 2) // VIP
+							if(cServer->getLobby()->nGameMode == GMT_VIP) // Playing the VIP game type
+								w->setVIP(true);
+						if(w->getLobby()->iTeam != 2) // VIP
+							w->setVIP(false);
+
 						cServer->SendWormLobbyUpdate();  // Update
 						bHost_Update = true;
 					}
@@ -1134,7 +1141,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		lobby_worm = w->getLobby();
 
 		// Reload the worm graphics
-		if(gl->nLastGameMode == GMT_TEAMDEATH)
+		if(gl->nLastGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP)
 			w->setProfileGraphics(true);
 		w->setTeam(lobby_worm->iTeam);
 		w->LoadGraphics(cClient->getGameLobby()->nGameMode);
@@ -1158,7 +1165,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		player_list->AddSubitem(LVS_TEXT, w->getName(), NULL, NULL);  // Name
 
 		// Display the team mark if TDM
-		if (gl->nGameMode == GMT_TEAMDEATH)  {
+		if (gl->nGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP)  {
 			lobby_worm->iTeam = CLAMP(lobby_worm->iTeam, 0, 4);
 			team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 			if (!team_img)

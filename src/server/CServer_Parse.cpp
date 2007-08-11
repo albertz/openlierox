@@ -311,7 +311,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	}
 
 	// Teamkill
-	if (iGameType == GMT_TEAMDEATH && vict->getTeam() == kill->getTeam() && killer != victim)  {
+	if ((iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) && vict->getTeam() == kill->getTeam() && killer != victim)  {
 		//Take care of the <none> tag
 		if (networkTexts->sTeamkill != "<none>")  {
 			replacemax(networkTexts->sTeamkill, "<player>", kill->getName(), buf, 1);
@@ -472,7 +472,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			byte.writeInt(wormid, 1);
 
 			// Game over
-			if (iGameType != GMT_TEAMDEATH)  {  // Team deathmatch is handled below
+			if (iGameType != GMT_TEAMDEATH && iGameType != GMT_VIP)  {  // Team deathmatch is handled below
 				iGameOver = true;
 				fGameOverTime = tLX->fCurTime;
 			}
@@ -536,6 +536,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				// This packet is sent below
 			}
 		}
+		if (!iGameOver && iGameType == GMT_VIP)
+			RecheckGame();
 	}
 
 

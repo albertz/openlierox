@@ -226,7 +226,7 @@ int GameServer::StartGame(void)
 		tGameLog->tWorms[i].iLeavingReason = -1;
 		tGameLog->tWorms[i].iSuicides = 0;
 		tGameLog->tWorms[i].bTagIT = false;
-		if (tGameInfo.iGameMode == GMT_TEAMDEATH)
+		if (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP)
 			tGameLog->tWorms[i].iTeam = cWorms[i].getTeam();
 		else
 			tGameLog->tWorms[i].iTeam = -1;
@@ -327,7 +327,7 @@ int GameServer::StartGame(void)
     // If this is the host, and we have a team game: Send all the worm info back so the worms know what
     // teams they are on
     if( tGameInfo.iGameType == GME_HOST ) {
-        if( iGameType == GMT_TEAMDEATH ) {
+        if( iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP ) {
 
             CWorm *w = cWorms;
             CBytestream b;

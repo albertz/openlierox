@@ -266,7 +266,10 @@ void GameServer::UpdateGameLobby(void)
 	bs.writeString(gl->szMapName);
     bs.writeString(gl->szModName);
     bs.writeString(gl->szModDir);
-	bs.writeByte(gl->nGameMode);
+	if(gl->nGameMode == GMT_VIP)
+		bs.writeByte(GMT_TEAMDEATH);
+	else
+		bs.writeByte(gl->nGameMode);
 	bs.writeInt16(gl->nLives);
 	bs.writeInt16(gl->nMaxKills);
 	bs.writeInt16(gl->nLoadingTime);

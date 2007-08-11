@@ -365,6 +365,10 @@ void GameServer::TagRandomWorm(void)
 // Worm is shooting
 void GameServer::WormShoot(CWorm *w)
 {
+	// If the worm is a VIP (yellow team) and the gametype is VIP don't shoot
+	if(w->getVIP() && iGameType == GMT_VIP)
+		return;
+
 	wpnslot_t *Slot = w->getCurWeapon();
 
 	if(Slot->Reloading)
@@ -677,6 +681,58 @@ void GameServer::RecheckGame(void)
 			}
 
 			break;  // TAG
+
+			//
+			// VIP: Declare the wining team to be the one that killed the VIP or the VIP depending on who is alive
+			case GMT_VIP:  {
+				const std::string TeamNames[] = {"VIP Defenders", "VIP Attackers", "VIP", "yellow"};
+				int TeamCount[4];
+
+				w = cWorms;
+
+				for(i=0;i<4;i++)
+					TeamCount[i]=0;
+
+				short VIPs = 0;
+
+				// Check if anyone else is left on the team
+				for(i=0;i<MAX_WORMS;i++,w++) {
+					if(w->isUsed() && w->getLives() != WRM_OUT) {
+							TeamCount[w->getTeam()]++;
+							VIPs += w->getVIP();
+					}
+				}
+
+				short teamsleft = 0;
+				short team = 0;
+
+				// Get the number of teams left
+				for(i=0;i<2;i++)
+					if(TeamCount[i])  {
+						teamsleft++;
+						team = i;
+					}
+
+				// Send the text
+				if (teamsleft <= 1)  {
+					if (networkTexts->sTeamHasWon != "<none>")  {
+						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
+										TXT_NORMAL);
+					}
+					EndGame = true;
+				}
+
+				if(VIPs == 0) { // All the VIPs are out of the game
+					team = 1; // VIP Attackers win
+					if (networkTexts->sTeamHasWon != "<none>")  {
+						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
+										TXT_NORMAL);
+					}
+					EndGame = true;
+				}
+			}
+			break; // VIP
+			
 			}
 
 			// End the game

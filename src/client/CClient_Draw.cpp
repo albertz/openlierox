@@ -1782,7 +1782,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 
         // Pic & Name
         DrawImage(bmpDest, p->getPicimg(), x+30, j);
-		if (tGameInfo.iGameMode == GMT_TEAMDEATH  && tLXOptions->iColorizeNicks)
+		if ((tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP)  && tLXOptions->iColorizeNicks)
 			tLX->cFont.DrawAdv(bmpDest, x+56, j, 130, iColor, p->getName());
 		else
 			tLX->cFont.DrawAdv(bmpDest, x+56, j, 130, tLX->clNormalLabel, p->getName());
@@ -1863,6 +1863,9 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	  break;
 	case GMT_DEMOLITION:
 	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Demolition");
+	  break;
+	case GMT_VIP:
+	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"VIP");
 	  break;
 	}  // switch
 	tLX->cFont.Draw(bmpDest, x+5, y+61, tLX->clNormalLabel,"Loading Time:");

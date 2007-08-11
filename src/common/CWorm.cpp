@@ -310,7 +310,7 @@ int CWorm::LoadGraphics(int gametype)
 	}
 		
 	// If we are in a team game, use the team colours
-    if(gametype == GMT_TEAMDEATH) {
+    if(gametype == GMT_TEAMDEATH || gametype == GMT_VIP) {
 		team = true;
 		iOldColour = iColour;
 		iColour = tLX->clTeamColors[iTeam];
@@ -956,7 +956,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	// Draw the worm's name
 	if(!iLocal || (iLocal && iType != PRF_HUMAN)) {
 		//tLX->cFont.DrawCentre(bmpDest,x+1,y-29,0,sName);
-		if (tGameInfo.iGameMode == GMT_TEAMDEATH && tLXOptions->iColorizeNicks)  {
+		if ((tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && tLXOptions->iColorizeNicks)  {
 			Uint32 col = tLX->clTeamColors[iTeam];
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,sName);
 		} // if

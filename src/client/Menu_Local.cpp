@@ -111,6 +111,7 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Team Deathmatch", GMT_TEAMDEATH);
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
     cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Demolitions", GMT_DEMOLITION);
+	cLocalMenu.SendMessage(ml_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
 
 	/*cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,  "Capture the flag",1);
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,   "Flag hunt",1);*/
@@ -301,7 +302,7 @@ void Menu_LocalFrame(void)
 							// If we're in deathmatch, make the team colour invisible
 							lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
 							if(sub) {
-								if(iGameType != GMT_TEAMDEATH)
+								if(iGameType != GMT_TEAMDEATH && iGameType != GMT_VIP)
 									sub->iVisible = false;
 								sub->iExtra = 0;
 							}
@@ -364,7 +365,7 @@ void Menu_LocalFrame(void)
 					iGameType = cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
 
 					// Go through the items and enable/disable the team flags
-					bool teams_on = iGameType == GMT_TEAMDEATH;
+					bool teams_on = (iGameType == GMT_TEAMDEATH) || (iGameType == GMT_VIP);
 					CListview *lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 					lv_item_t *it = lv->getItems();
 					lv_subitem_t *sub = NULL;
