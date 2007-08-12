@@ -1895,6 +1895,9 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	case GMT_DEMOLITION:
 	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Demolition");
 	  break;
+	case GMT_CTF:
+	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Capture the Flag");
+	  break;
 	case GMT_VIP:
 	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"VIP");
 	  break;

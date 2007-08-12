@@ -42,7 +42,8 @@ enum {
 	GMT_TEAMDEATH,
 	GMT_TAG,
     GMT_DEMOLITION,
-	GMT_VIP
+	GMT_VIP,
+	GMT_CTF
 };
 
 

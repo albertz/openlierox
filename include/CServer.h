@@ -118,6 +118,9 @@ private:
 
 	bool		bTournament;
 
+	int			iFlagHolder;
+	float		fLastFlagPoint;
+
 	// Special messages
 	bool		bFirstBlood;
 
@@ -275,6 +278,9 @@ public:
 	inline void		setTakeScreenshot(bool _s) { bTakeScreenshot = _s; }
 	inline bool		getScreenshotToken(void) { return bScreenshotToken; }
 	inline void		setScreenshotToken(bool _s) { bScreenshotToken = _s; }
+
+	inline int		getFlag(void)			{ return iFlagHolder; }
+	inline void		setFlag(int _f)			{ iFlagHolder = _f; }
 };
 
 extern	GameServer		*cServer;

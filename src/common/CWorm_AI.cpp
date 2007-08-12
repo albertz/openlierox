@@ -949,7 +949,7 @@ void CWorm::AI_Respawn() {
 
 ///////////////////
 // Simulate the AI
-void CWorm::AI_GetInput(int gametype, int teamgame, int taggame)
+void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame)
 {
 	// Behave like humans and don't play immediatelly after spawn
 	if ((tLX->fCurTime-fSpawnTime) < 0.4)
@@ -964,6 +964,10 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame)
 
 	worm_state_t *ws = &tState;
 
+	// If the worm is a flag don't let it move
+	if(flaggame && getFlag())
+		return;
+
 	// Init the ws
 	ws->iCarve = false;
 	ws->iMove = false;
@@ -973,6 +977,8 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame)
 	iAiGame = gametype;
 	iAiTeams = teamgame;
 	iAiTag = taggame;
+	iAiVIP = VIPgame;
+	iAiCTF = flaggame;
 
     tLX->debug_string = "";
 
@@ -1076,6 +1082,21 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 
 		// If this is a game of tag, only target the worm it (unless it's me)
 		if(taggame && !w->getTagIT() && !iTagIT)
+			continue;
+
+		// If this is a VIP game target:
+		// Red worms if Blue
+		// Green & Blue worms if Red
+		// Blue worms if green
+		if(iAiVIP && iTeam == 0 && w->getTeam() != 1)
+			continue;
+		if(iAiVIP && iTeam == 1 && w->getTeam() == 1)
+			continue;
+		if(iAiVIP && iTeam == 2 && w->getTeam() != 0)
+			continue;
+
+		// If this is a capture the flag game just aim to get the flag
+		if(iAiCTF && !w->getFlag())
 			continue;
 
 		// Calculate distance between us two
@@ -3251,26 +3272,17 @@ int CWorm::traceWeaponLine(CVec target, float *fDist, int *nType)
 	CVec WormsPos[MAX_WORMS];
 	int	WormCount = 0;
 	int i;
-	if (cClient && tGameInfo.iGameMode == GMT_TEAMDEATH)  {
+	if (cClient && (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP))  {
 		CWorm *w = cClient->getRemoteWorms();
 		for (i=0;i<MAX_WORMS;i++,w++)  {
-			if (w)
-				if (w->isUsed() && w->getAlive() && w->getTeam() == iTeam && w->getID() != iID)
-					WormsPos[WormCount++] = w->getPos();
-		}
-	}
-
-	if (cClient && tGameInfo.iGameMode == GMT_VIP)  {
-		CWorm *w = cClient->getRemoteWorms();
-		for (i=0;i<MAX_WORMS;i++,w++)  {
-			if (w)
-				if(w->isUsed() && w->getAlive() && w->getVIP() && iTeam == 0)
+			if (w) {
+				if(w->isUsed() && w->getAlive() && w->getVIP() && iTeam == 0 && tGameInfo.iGameMode == GMT_VIP)
 					WormsPos[WormCount++] = w->getPos();
 				if (w->isUsed() && w->getAlive() && w->getTeam() == iTeam && w->getID() != iID)
 					WormsPos[WormCount++] = w->getPos();
+			}
 		}
-	}
-		
+	}		
 
 
 	// Trace the line

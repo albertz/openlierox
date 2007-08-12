@@ -276,6 +276,8 @@ void GameServer::UpdateGameLobby(void)
     bs.writeString(gl->szModDir);
 	if(gl->nGameMode == GMT_VIP)
 		bs.writeByte(GMT_TEAMDEATH);
+	else if(gl->nGameMode == GMT_CTF)
+		bs.writeByte(GMT_DEATHMATCH);
 	else
 		bs.writeByte(gl->nGameMode);
 	bs.writeInt16(gl->nLives);

@@ -123,7 +123,7 @@ void CClient::Simulation(void)
 				if(w->getType() == PRF_HUMAN)
 					w->getInput();
 				else
-					w->AI_GetInput(iGameType, teamgame, iGameType == GMT_TAG);
+					w->AI_GetInput(iGameType, teamgame, iGameType == GMT_TAG, iGameType == GMT_VIP, iGameType == GMT_CTF);
 
 				if (w->isShooting() || old_weapon != w->getCurrentWeapon())  // The weapon bar is changing
 					bShouldRepaintInfo = true;
@@ -185,6 +185,14 @@ void CClient::Simulation(void)
 		// In a game of tag, increment the tagged worms time
 		if(iGameType == GMT_TAG && w->getTagIT())
 			w->incrementTagTime(tLX->fDeltaTime);
+
+		// If playing capture the flag set the flag's position to that of its holder
+		if(w->getLocal() && w->getFlag() && iGameType == GMT_CTF && tGameInfo.iGameType == GME_HOST && cServer) {
+			if(cServer->getFlag() != -1)
+				w->setPos(cRemoteWorms[cServer->getFlag()].getPos());
+		}
+
+		// If someone is in the same position 
 	}
 
 	// Entities

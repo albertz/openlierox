@@ -322,7 +322,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	vict->setKillsInRow(0);
 	vict->addDeathInRow();
 
-	if (killer != victim)  {
+	// Kills don't count in capture the flag
+	if (killer != victim && iGameType != GMT_CTF)  {
 		// Don't add a kill for teamkilling (if enabled in options)
 		// TODO: isn't this incompatible with original LX?
 		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH || tLXOptions->bCountTeamkills ) {
@@ -337,6 +338,10 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		if (log_vict)
 			log_vict->iSuicides++;
 	}
+
+	// If the flag was attached to the dead worm then release the flag
+	if(getFlag() == victim && iGameType == GMT_CTF)
+		setFlag(-1);
 
 	// Log
 	if (log_vict)
@@ -536,7 +541,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				// This packet is sent below
 			}
 		}
-		if (!iGameOver && iGameType == GMT_VIP)
+		if (!iGameOver && (iGameType == GMT_VIP || iGameType == GMT_CTF))
 			RecheckGame();
 	}
 
@@ -1587,7 +1592,14 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 		lives = MIN(lives, worm->getLives()+1);
 		for(int i=0;i<lives;i++)
 			cClient->SendDeath(worm->getID(),worm->getID());
+		return true;
+	}
 
+	// Make second local worm a flag
+	if(!stringcasecmp(cmd, "/flagtest")) {
+		cClient->getWorm(1)->setFlag(1);
+		int id = cClient->getWorm(1)->getID();
+		cWorms[id].setFlag(1);
 		return true;
 	}
 

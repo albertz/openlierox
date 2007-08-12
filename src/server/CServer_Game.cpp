@@ -134,7 +134,16 @@ void GameServer::SimulateGame(void)
 
 	// Process worms
 	CWorm *w = cWorms;
+	CWorm *f = cWorms;
 	short i;
+	CVec flagpos;
+
+	for(i=0;i<MAX_WORMS;i++,f++) 
+		if(f->getFlag() && f->isUsed()) {
+			flagpos = f->getPos();
+			break;
+		}
+
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed())
 			continue;
@@ -157,6 +166,22 @@ void GameServer::SimulateGame(void)
 
 		// Simulate the worm's weapons
 		w->SimulateWeapon( tLX->fRealDeltaTime );
+
+		// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
+		if(iGameType == GMT_CTF && w->getAlive() && f->getID() != w->getID() && getFlag() == -1)
+			if(CalculateDistance(w->getPos(),flagpos) < 10) {
+				setFlag(i);
+				fLastFlagPoint = tLX->fCurTime;
+			}
+
+		// If the flag has been held for 5 seconds give the worm a point
+			if(tLX->fCurTime - fLastFlagPoint && w->getID() == getFlag()) {
+				w->AddKill();
+				CBytestream bs;
+				bs.Clear();
+				w->writeScore(&bs);
+				SendGlobalPacket(&bs);
+			}
 	}
 
 
@@ -365,8 +390,12 @@ void GameServer::TagRandomWorm(void)
 // Worm is shooting
 void GameServer::WormShoot(CWorm *w)
 {
-	// If the worm is a VIP (yellow team) and the gametype is VIP don't shoot
+	// If the worm is a VIP and the gametype is VIP don't shoot
 	if(w->getVIP() && iGameType == GMT_VIP)
+		return;
+
+	// If the worm is a Flag and the gametype is CTF don't shoot
+	if(w->getFlag() && iGameType == GMT_CTF)
 		return;
 
 	wpnslot_t *Slot = w->getCurWeapon();
@@ -685,7 +714,7 @@ void GameServer::RecheckGame(void)
 			//
 			// VIP: Declare the wining team to be the one that killed the VIP or the VIP depending on who is alive
 			case GMT_VIP:  {
-				const std::string TeamNames[] = {"VIP Defenders", "VIP Attackers", "VIP", "yellow"};
+				const std::string TeamNames[] = {"VIP Defenders", "VIP Attackers", "VIP", "Neutral"};
 				int TeamCount[4];
 
 				w = cWorms;
@@ -732,6 +761,38 @@ void GameServer::RecheckGame(void)
 				}
 			}
 			break; // VIP
+
+			//
+			// Capture the Flag: Declare the player with the most points the winner
+			//
+			case GMT_CTF:  {
+				// Only one worm left, end the game
+				if (wormcount < 2)  {
+					// Get the worm that is still alive and set his lives to out
+					w = cWorms + wormid;
+					w->setLives(WRM_OUT);
+					// Find the worm with the highest kills
+					int kills=0;
+					w = cWorms;
+					CWorm *winner = cWorms;
+					for(i=0;i<MAX_WORMS;i++,w++) {
+						if(!w->isUsed())
+							continue;
+						if(w->getKills()>kills) {
+							kills = w->getKills();
+							winner = w;
+						}
+					}
+
+					// Send the text
+					if (networkTexts->sPlayerHasWon != "<none>")  {
+						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",winner->getName(),1)),
+										TXT_NORMAL);
+					}
+					EndGame = true;
+				}
+			}
+			break; // DEATHMATCH
 			
 			}
 

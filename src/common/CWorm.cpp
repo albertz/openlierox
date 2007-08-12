@@ -144,6 +144,8 @@ void CWorm::Clear(void)
 	
 	ProfileGraphics = true;
 	bAlreadyKilled = false;
+
+	bNoShooting = false;
 }
 
 
@@ -1001,6 +1003,10 @@ int CWorm::CheckOnGround()
 // Returns true if i was killed by this injury
 int CWorm::Injure(int damage)
 {
+	// If playing CTF and I am a flag don't injure me
+	if(cServer && cServer->getLobby()->nGameMode == GMT_CTF && getFlag())
+		return false;
+
 	iHealth -= damage;
 
 	if(iHealth < 0) {

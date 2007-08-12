@@ -540,6 +540,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Team Deathmatch", GMT_TEAMDEATH);
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
 	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
+	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
 
 	// Fill in the mod list
 	Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
@@ -1011,7 +1012,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 						// Set the team
 						CWorm *w = cServer->getWorms() + id;
-						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % 4;
+						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % (4 - (cServer->getLobby()->nGameMode == GMT_VIP));
 						w->setTeam(w->getLobby()->iTeam);
 
 						if(w->getLobby()->iTeam == 2) // VIP

@@ -119,6 +119,7 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
     cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Demolitions", GMT_DEMOLITION);
 	cLocalMenu.SendMessage(ml_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
+	cLocalMenu.SendMessage(ml_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
 
 	/*cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,  "Capture the flag",1);
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,   "Flag hunt",1);*/
@@ -342,7 +343,7 @@ void Menu_LocalFrame(void)
 				}
 
 
-				if(ev->iEventMsg == LV_WIDGETEVENT && iGameType == GMT_TEAMDEATH) {
+				if(ev->iEventMsg == LV_WIDGETEVENT && (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP)) {
 
 					// If the team colour item was clicked on, change it
 					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);

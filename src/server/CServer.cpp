@@ -408,6 +408,10 @@ void GameServer::BeginMatch(void)
 	if(iGameType == GMT_TAG)
 		TagRandomWorm();
 
+	// If this is a game of Capture the Flag make the flag detach the flag
+	if(iGameType == GMT_CTF)
+		iFlagHolder = -1;
+
 
 	// Spawn the worms
 	for(i=0;i<MAX_WORMS;i++) {
@@ -416,6 +420,7 @@ void GameServer::BeginMatch(void)
 	}
 
 	iLastVictim = -1;
+	iFlagHolder = -1;
 }
 
 
