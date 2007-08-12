@@ -139,20 +139,22 @@ void CClient::Simulation(void)
 			// Check if this worm picked up a bonus
 
 			CBonus *b = cBonuses;
-			int MaxBonuses = tGameInfo.iBonusesOn;
-			MaxBonuses *= MAX_BONUSES;
-			for(short n = 0; n < MaxBonuses; n++, b++) {
-				if(!b->getUsed())
-					continue;
+			if (tGameInfo.iBonusesOn)  {
+				for(short n = 0; n < MAX_BONUSES; n++, b++) {
+					if(!b->getUsed())
+						continue;
 
-				if(w->CheckBonusCollision(b)) {
-					if(local || (cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
-						if( w->GiveBonus(b) ) {
+					if(w->CheckBonusCollision(b)) {
+						if(local || (cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+							if( w->GiveBonus(b) ) {
 
-							// Pickup noise
-							PlaySoundSample(sfxGame.smpPickup);
+								// Pickup noise
+								PlaySoundSample(sfxGame.smpPickup);
 
-							DestroyBonus(n, local, w->getID());
+								DestroyBonus(n, local, w->getID());
+
+								bShouldRepaintInfo = true;
+							}
 						}
 					}
 				}

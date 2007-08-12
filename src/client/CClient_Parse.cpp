@@ -1278,7 +1278,7 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 	short i;
 	for(i=0; i<num; i++)
 		if (getWorm(i))  {
-			if (getWorm(i)->isWeaponReloading() && getWorm(i)->getLocal())
+			if (getWorm(i)->getLocal())
 				bShouldRepaintInfo = true;
 			getWorm(i)->readStatUpdate(bs);
 		}
