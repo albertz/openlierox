@@ -353,7 +353,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
     // TODO: allow more viewports
     // Draw the borders
-	if (bShouldRepaintInfo)  {
+	if (bShouldRepaintInfo || tLX->bVideoModeChanged)  {
 		if (tGameInfo.iGameType == GME_LOCAL)  {
 			if (bgImage)  // Doesn't have to exist (backward compatibility)
 				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
@@ -663,6 +663,10 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 	int	*LivesW, *KillsW, *TeamW, *SpecMsgW;
 	CBar *HealthBar, *WeaponBar;
 
+	// Do we need to draw this?
+	if (!bShouldRepaintInfo && !tLX->bVideoModeChanged)
+		return;
+
 	if (viewport_index == 0)  {  // Viewport 1
 		HealthLabelX = &tInterfaceSettings.HealthLabel1X;	HealthLabelY = &tInterfaceSettings.HealthLabel1Y;
 		WeaponLabelX = &tInterfaceSettings.WeaponLabel1X;	WeaponLabelY = &tInterfaceSettings.WeaponLabel1Y;
@@ -712,10 +716,6 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 	// The following is only drawn for viewports with a worm target
     if( v->getType() > VW_CYCLE )
         return;
-
-	// Do we need to draw this?
-	if (!bShouldRepaintInfo)
-		return;
 
     CWorm *worm = v->getTarget();
 
@@ -1346,66 +1346,6 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 }
 
 ///////////////////
-// Draw a remote game over screen
-void CClient::DrawRemoteGameOver(SDL_Surface *bmpDest)
-{
-	mouse_t *Mouse = GetMouse();
-	
-	
-	SetGameCursor(CURSOR_ARROW);
-
-	// Buttons
-	int width = gfxGame.bmpGameover->w;
-	int height = gfxGame.bmpGameover->h;
-
-	int x = 320 - width/2;
-	int y = 200 - height/2;
-
-	int j = y+height-27;
-	static CButton leave = CButton(BUT_LEAVE,bmpMenuButtons);
-
-	leave.Setup(0, x+20,j, 60, 15);
-    leave.Create();
-
-	// OK
-	if(leave.InBox(Mouse->X,Mouse->Y)) {
-		leave.MouseOver(Mouse);
-		SetGameCursor(CURSOR_HAND);
-	}
-	leave.Draw2(bmpDest);
-
-
-	if(Mouse->Up) {
-		if(leave.InBox(Mouse->X,Mouse->Y)) {
-
-			// If this is a host, we go back to the lobby
-			// The host can only quit the game via the lobby
-			if(tGameInfo.iGameType == GME_HOST) {
-				SetGameCursor(CURSOR_NONE);
-
-				cServer->gotoLobby();
-
-			} else {
-				SetGameCursor(CURSOR_NONE);
-
-				// Quit
-				QuittoMenu();
-			}
-		}
-	}
-
-	// Draw a timer when we're going back to the lobby
-	float timeleft = LX_ENDWAIT - (tLX->fCurTime - fGameOverTime);
-	timeleft = MAX(timeleft,(float)0);
-	tLX->cFont.Draw(bmpDest, x+width-180, j+2, tLX->clReturningToLobby, "Returning to lobby in " + itoa((int)timeleft));
-
-
-	// Draw the mouse
-	DrawCursor(bmpDest);
-
-}
-
-///////////////////
 // Draw the bonuses
 void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 {
@@ -1493,7 +1433,7 @@ void CClient::DrawRemoteChat(SDL_Surface *bmpDest)
 	int inbox = MouseInRect(lv->getX(),lv->getY(), lv->getWidth() + GetCursorWidth(CURSOR_ARROW), lv->getHeight()+GetCursorHeight(CURSOR_ARROW)) ||
 				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14 + GetCursorWidth(CURSOR_ARROW), tInterfaceSettings.ChatboxScrollbarH);
 
-	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox)  {	// Repainting when new messages/scrolling, 
+	if (lv->NeedsRepaint() || (inbox && (Mouse->deltaX || Mouse->deltaY)) || bRepaintChatbox || tLX->bVideoModeChanged)  {	// Repainting when new messages/scrolling, 
 																				// or when user is moving the mouse over the chat
 
 		// Local and net play use different backgrounds

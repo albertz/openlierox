@@ -418,8 +418,6 @@ public:
 	void		DrawViewport(SDL_Surface *bmpDest, byte viewport_index);
 	void		DrawProjectiles(SDL_Surface *bmpDest, CViewport *v);
     void        DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v);
-	void		DrawGameOver(SDL_Surface *bmpDest);
-	void		DrawRemoteGameOver(SDL_Surface *bmpDest);
 	void		InitializeGameMenu();
 	void		DrawGameMenu(SDL_Surface *bmpDest);
 	void		DrawBonuses(SDL_Surface *bmpDest, CViewport *v);

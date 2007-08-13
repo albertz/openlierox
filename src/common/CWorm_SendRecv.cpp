@@ -172,7 +172,7 @@ bool CWorm::checkPacketNeeded()
 
 	// Time
 	if (vVelocity.GetLength2())
-		if (tLX->fCurTime - fLastUpdateWritten >= MAX(3.0f/vVelocity.GetLength(), 1.0f/30.0f))
+		if (tLX->fCurTime - fLastUpdateWritten >= MAX(3.0f/vVelocity.GetLength(), 1.0f/60.0f))
 			return true;
 
 	// Rope

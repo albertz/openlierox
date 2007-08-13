@@ -62,6 +62,10 @@ void ProcessEvents(void)
 	Mouse.WheelScrollUp = false;
 	Mouse.WheelScrollDown = false;
 
+	// Reset the video mode changed flag here
+	if (tLX)
+		tLX->bVideoModeChanged = false;
+
 	bActivated = false;
 
 	while(SDL_PollEvent(&Event)) {

@@ -220,9 +220,9 @@ int SetVideoMode(void)
 	}
 #endif
 
-	// Tell the client to repaint the chatbox
-	if (cClient)
-		cClient->setRepaintChatbox(true);
+	// Set the change mode flag
+	if (tLX)
+		tLX->bVideoModeChanged = true;
 
 	return true;
 }

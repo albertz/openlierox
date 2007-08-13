@@ -392,6 +392,7 @@ int InitializeLieroX(void)
         SystemError("Error: InitializeLieroX() Out of memory on creating lierox_t");
 		return false;
     }
+	tLX->bVideoModeChanged = false;
 	tLX->iQuitGame = false;
 	tLX->debug_string = "";
 	tLX->fCurTime = 0;

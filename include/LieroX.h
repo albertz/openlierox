@@ -71,6 +71,8 @@ class lierox_t { public:
 	CFont	cFont;
 	CFont	cOutlineFont;
 
+	bool	bVideoModeChanged;
+
 	int		iQuitGame;
 	int		iQuitEngine;
 
