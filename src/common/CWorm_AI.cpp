@@ -949,7 +949,7 @@ void CWorm::AI_Respawn() {
 
 ///////////////////
 // Simulate the AI
-void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame)
+void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame, int teamflaggame)
 {
 	// Behave like humans and don't play immediatelly after spawn
 	if ((tLX->fCurTime-fSpawnTime) < 0.4)
@@ -967,6 +967,8 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 	// If the worm is a flag don't let it move
 	if(flaggame && getFlag())
 		return;
+	if(teamflaggame && getFlag())
+		return;
 
 	// Init the ws
 	ws->iCarve = false;
@@ -979,6 +981,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 	iAiTag = taggame;
 	iAiVIP = VIPgame;
 	iAiCTF = flaggame;
+	iAiTeamCTF = teamflaggame;
 
     tLX->debug_string = "";
 
@@ -1097,6 +1100,10 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 
 		// If this is a capture the flag game just aim to get the flag
 		if(iAiCTF && !w->getFlag())
+			continue;
+
+		// If this is a teams capture the flag game just aim to get the flag
+		if(iAiTeamCTF && !w->getFlag())
 			continue;
 
 		// Calculate distance between us two

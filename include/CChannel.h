@@ -120,6 +120,7 @@ public:
 	inline int	getIncoming(void)		{ return iIncomingBytes; }
 
 	inline int	getPing()				{ return iPing; }
+	inline void	setPing(int _p)			{ iPing = _p; }
 
 	inline float getIncomingRate()		{ return fIncomingRate; }
 	inline float getOutgoingRate()		{ return fOutgoingRate; }

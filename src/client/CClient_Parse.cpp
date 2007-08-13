@@ -55,6 +55,10 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd == "lx::openbeta3")
 		bHostOLXb3 = true;
 
+	// Host has OpenLX Beta 4
+	else if(cmd == "lx::openbeta4")
+		bHostOLXb4 = true;
+
 	// Unknown
 	else  {
 		printf("CClient::ParseConnectionlessPacket: unknown command \"" + cmd + "\"\n");
@@ -143,6 +147,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	bHost_Update = true;
 
 	bHostOLXb3 = false;
+	bHostOLXb4 = false;
 }
 
 //////////////////
@@ -1052,6 +1057,7 @@ void CClient::ParseClientLeft(CBytestream *bs)
 // Parse an 'update-worms' packet
 void CClient::ParseUpdateWorms(CBytestream *bs)
 {
+	printf("Updating Worms");
 	byte count = bs->readByte();
 	if (count >= MAX_WORMS)  {
 		printf("CClient::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");

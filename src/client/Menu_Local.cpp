@@ -120,6 +120,7 @@ void Menu_LocalInitialize(void)
     cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Demolitions", GMT_DEMOLITION);
 	cLocalMenu.SendMessage(ml_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
 	cLocalMenu.SendMessage(ml_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
+	cLocalMenu.SendMessage(ml_Gametype,	   CBS_ADDITEM, "Teams Capture the Flag", GMT_TEAMCTF);
 
 	/*cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,  "Capture the flag",1);
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM,   "Flag hunt",1);*/

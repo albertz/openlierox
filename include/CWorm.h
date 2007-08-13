@@ -306,6 +306,7 @@ private:
 	int			iAiTag;
 	int			iAiVIP;
 	int			iAiCTF;
+	int			iAiTeamCTF;
 	int			iAiDiffLevel;
 	CProjectile *psHeadingProjectile;
 	int			iRandomSpread;
@@ -441,7 +442,7 @@ public:
     bool        AI_Initialize();
     void        AI_Shutdown(void);
 
-	void		AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame);
+	void		AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame, int teamflaggame);
 	void		AI_Respawn();
     void        AI_Think(int gametype, int teamgame, int taggame);
     bool        AI_FindHealth();

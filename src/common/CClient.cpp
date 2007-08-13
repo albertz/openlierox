@@ -198,6 +198,7 @@ int CClient::Initialize(void)
 		cRemoteWorms[i].setTagIT(false);
 		cRemoteWorms[i].setTagTime(0);
 		cRemoteWorms[i].setTeam(0);
+		cRemoteWorms[i].setFlag(false);
 	}
 	
 
@@ -293,12 +294,11 @@ void CClient::Frame(void)
 	else
 		oldtime = tLX->fCurTime;*/
 
-	
 	ReadPackets();
 
-    SimulateHud();
+	SimulateHud();
 
-    if(iNetStatus == NET_PLAYING)
+	if(iNetStatus == NET_PLAYING)
 		Simulation();
 
 	SendPackets();
@@ -472,7 +472,6 @@ void CClient::SetupViewports(void)
 	
 	// Only one player
 	SetupViewports(cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
-
 }
 
 

@@ -1003,9 +1003,15 @@ int CWorm::CheckOnGround()
 // Returns true if i was killed by this injury
 int CWorm::Injure(int damage)
 {
+	if(tGameInfo.iGameType == GME_HOST && cServer) {
 	// If playing CTF and I am a flag don't injure me
-	if(cServer && cServer->getLobby()->nGameMode == GMT_CTF && getFlag())
+	if(cServer->getLobby()->nGameMode == GMT_CTF && getFlag())
 		return false;
+
+	// If playing teams CTF and I am a flag don't injure me
+	if(cServer->getLobby()->nGameMode == GMT_TEAMCTF && getFlag())
+		return false;
+	}
 
 	iHealth -= damage;
 

@@ -383,7 +383,6 @@ int GameServer::StartGame(void)
 // Begin the match
 void GameServer::BeginMatch(void)
 {
-	printf("BeginMatch\n");
 	cMap->SetModifiedFlag();
 	
 	int i;
@@ -408,11 +407,6 @@ void GameServer::BeginMatch(void)
 	if(iGameType == GMT_TAG)
 		TagRandomWorm();
 
-	// If this is a game of Capture the Flag make the flag detach the flag
-	if(iGameType == GMT_CTF)
-		iFlagHolder = -1;
-
-
 	// Spawn the worms
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed())
@@ -420,7 +414,9 @@ void GameServer::BeginMatch(void)
 	}
 
 	iLastVictim = -1;
-	iFlagHolder = -1;
+
+	for(i=0;i<4;i++)
+		iFlagHolder[i] = -1;
 }
 
 

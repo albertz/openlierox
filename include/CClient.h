@@ -205,6 +205,7 @@ public:
 			iTeamScores[i] = 0;
 
 		bHostOLXb3 = false;
+		bHostOLXb4 = false;
 	}
 
 	~CClient()  {
@@ -335,6 +336,7 @@ private:
 	std::string	szServerName;
 	ClientRights tRights;
 	bool		bHostOLXb3;
+	bool		bHostOLXb4;
 
 	int			iReadySent;
 
@@ -542,6 +544,7 @@ public:
 	ClientRights *getRights()				{ return &tRights; }
 
 	inline int	getPing(void)				{ return cNetChan.getPing(); }
+	inline void setPing(int _p)				{ cNetChan.setPing(_p); }
 
 	inline void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
 	inline std::string getServerAddress(void)		{ return strServerAddr; }
@@ -550,6 +553,8 @@ public:
 	inline std::string getServerName(void)		{ return szServerName; }
 
 	inline bool getHostBeta3(void)				{ return bHostOLXb3; }
+	inline bool getHostBeta4(void)				{ return bHostOLXb4; }
+	inline void setHostBeta4(bool _b)			{ bHostOLXb4 = _b; }
 
 };
 

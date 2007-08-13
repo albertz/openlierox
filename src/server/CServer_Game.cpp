@@ -134,14 +134,18 @@ void GameServer::SimulateGame(void)
 
 	// Process worms
 	CWorm *w = cWorms;
-	CWorm *f = cWorms;
+	CWorm *f[MAX_WORMS+1];
 	short i;
-	CVec flagpos;
+	CVec flagpos[MAX_WORMS];
+	int flags = 0;
 
-	for(i=0;i<MAX_WORMS;i++,f++) 
-		if(f->getFlag() && f->isUsed()) {
-			flagpos = f->getPos();
-			break;
+	f[0] = cWorms;
+
+	for(i=0;i<MAX_WORMS;i++,f[flags]++) 
+		if(f[flags]->isUsed() && f[flags]->getFlag()) {
+			flagpos[flags] = f[flags]->getPos();
+			flags++;
+			f[flags]=cWorms+i;
 		}
 
 	for(i=0;i<MAX_WORMS;i++,w++) {
@@ -168,20 +172,40 @@ void GameServer::SimulateGame(void)
 		w->SimulateWeapon( tLX->fRealDeltaTime );
 
 		// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
-		if(iGameType == GMT_CTF && w->getAlive() && f->getID() != w->getID() && getFlag() == -1)
-			if(CalculateDistance(w->getPos(),flagpos) < 10) {
+		if(iGameType == GMT_CTF && w->getAlive() && f[0]->getID() != w->getID() && getFlag() == -1)
+			if(CalculateDistance(w->getPos(),flagpos[0]) < 10) {
 				setFlag(i);
 				fLastFlagPoint = tLX->fCurTime;
 			}
 
+		// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
+		if(iGameType == GMT_TEAMCTF && w->getAlive() && !w->getFlag())
+			for(int j=0;j<flags+1;j++) 
+				if(CalculateDistance(w->getPos(),flagpos[j]) < 10) 
+					setFlag(w->getID(), j);
+
 		// If the flag has been held for 5 seconds give the worm a point
-			if(tLX->fCurTime - fLastFlagPoint && w->getID() == getFlag()) {
-				w->AddKill();
-				CBytestream bs;
-				bs.Clear();
-				w->writeScore(&bs);
-				SendGlobalPacket(&bs);
-			}
+		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag() && iGameType == GMT_CTF) {
+			w->AddKill();
+			CBytestream bs;
+			bs.Clear();
+			w->writeScore(&bs);
+			SendGlobalPacket(&bs);
+			fLastFlagPoint = tLX->fCurTime;
+		}
+
+		// If a worm possesses both flags then respawn them and give the worm a point
+		if(w->getID() == getFlag() == getFlag(1) && !w->getFlag() && iGameType == GMT_TEAMCTF) {
+			w->AddKill();
+			CBytestream bs;
+			bs.Clear();
+			w->writeScore(&bs);
+			SendGlobalPacket(&bs);
+			SpawnWorm(f[0]);
+			SpawnWorm(f[1]);
+			setFlag(-1,0);
+			setFlag(-1,1);
+		}
 	}
 
 
@@ -395,7 +419,7 @@ void GameServer::WormShoot(CWorm *w)
 		return;
 
 	// If the worm is a Flag and the gametype is CTF don't shoot
-	if(w->getFlag() && iGameType == GMT_CTF)
+	if(w->getFlag() && (iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
 		return;
 
 	wpnslot_t *Slot = w->getCurWeapon();
@@ -766,8 +790,8 @@ void GameServer::RecheckGame(void)
 			// Capture the Flag: Declare the player with the most points the winner
 			//
 			case GMT_CTF:  {
-				// Only one worm left, end the game
-				if (wormcount < 2)  {
+				// Only two worms left (flag and another), end the game
+				if (wormcount < 3)  {
 					// Get the worm that is still alive and set his lives to out
 					w = cWorms + wormid;
 					w->setLives(WRM_OUT);
@@ -781,6 +805,7 @@ void GameServer::RecheckGame(void)
 						if(w->getKills()>kills) {
 							kills = w->getKills();
 							winner = w;
+							wormid = i;
 						}
 					}
 
@@ -792,7 +817,50 @@ void GameServer::RecheckGame(void)
 					EndGame = true;
 				}
 			}
-			break; // DEATHMATCH
+			break; // CTF
+
+			//
+			// TEAM CTF: Declare the team with the most points as winner
+			//
+			case  GMT_TEAMCTF:  {
+				const std::string TeamNames[] = {"blue", "red"};
+				int TeamCount[2];
+				int TeamScore[2];
+
+				w = cWorms;
+
+				for(i=0;i<2;i++) {
+					TeamCount[i]=0;
+					TeamScore[i]=0;
+				}
+
+				// Check if anyone else is left on the team
+				for(i=0;i<MAX_WORMS;i++,w++) {
+					if(w->isUsed() && w->getLives() != WRM_OUT) {
+							TeamCount[w->getTeam()]++;
+							TeamScore[w->getTeam()]+=w->getKills();
+					}
+				}
+
+				short teamsleft = 0;
+				short team = 0;
+
+				// Get the number of teams left
+				for(i=0;i<2;i++)
+					if(TeamCount[i])  
+						teamsleft++;
+				team = TeamScore[1]>TeamScore[0] ? 1 : 0;
+
+				// Send the text
+				if (teamsleft <= 1)  {
+					if (networkTexts->sTeamHasWon != "<none>")  {
+						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
+										TXT_NORMAL);
+					}
+					EndGame = true;
+				}
+			}
+			break; // TEAMDEATH
 			
 			}
 

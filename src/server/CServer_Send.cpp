@@ -274,7 +274,7 @@ void GameServer::UpdateGameLobby(void)
 	bs.writeString(gl->szMapName);
     bs.writeString(gl->szModName);
     bs.writeString(gl->szModDir);
-	if(gl->nGameMode == GMT_VIP)
+	if(gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
 		bs.writeByte(GMT_TEAMDEATH);
 	else if(gl->nGameMode == GMT_CTF)
 		bs.writeByte(GMT_DEATHMATCH);

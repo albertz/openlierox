@@ -541,6 +541,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
 	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
 	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
+	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Teams Capture the Flag", GMT_TEAMCTF);
 
 	// Fill in the mod list
 	Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
@@ -1147,7 +1148,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		lobby_worm = w->getLobby();
 
 		// Reload the worm graphics
-		if(gl->nLastGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP)
+		if(gl->nLastGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
 			w->setProfileGraphics(true);
 		w->setTeam(lobby_worm->iTeam);
 		w->LoadGraphics(cClient->getGameLobby()->nGameMode);
@@ -1171,7 +1172,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		player_list->AddSubitem(LVS_TEXT, w->getName(), NULL, NULL);  // Name
 
 		// Display the team mark if TDM
-		if (gl->nGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP)  {
+		if (gl->nGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)  {
 			lobby_worm->iTeam = CLAMP(lobby_worm->iTeam, 0, 4);
 			team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
 			if (!team_img)

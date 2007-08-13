@@ -323,7 +323,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	vict->addDeathInRow();
 
 	// Kills don't count in capture the flag
-	if (killer != victim && iGameType != GMT_CTF)  {
+	if (killer != victim && (iGameType != GMT_CTF && iGameType != GMT_TEAMCTF))  {
 		// Don't add a kill for teamkilling (if enabled in options)
 		// TODO: isn't this incompatible with original LX?
 		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH || tLXOptions->bCountTeamkills ) {
@@ -342,6 +342,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	// If the flag was attached to the dead worm then release the flag
 	if(getFlag() == victim && iGameType == GMT_CTF)
 		setFlag(-1);
+	if(getFlag(vict->getTeam()) == victim && iGameType == GMT_TEAMCTF) 
+		setFlag(-1,vict->getTeam());
 
 	// Log
 	if (log_vict)
@@ -541,7 +543,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				// This packet is sent below
 			}
 		}
-		if (!iGameOver && (iGameType == GMT_VIP || iGameType == GMT_CTF))
+		if (!iGameOver && (iGameType == GMT_VIP || iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
 			RecheckGame();
 	}
 
@@ -1104,10 +1106,14 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		bytestr.Send(tSocket);
 
-		// Let them know they are on an OpenLX beta 3 server
+		// Let them know they are on an OpenLX beta 4 server
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::openbeta3");
+		bytestr.Send(tSocket);
+		bytestr.Clear();
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("lx::openbeta4");
 		bytestr.Send(tSocket);
 
 
@@ -1600,6 +1606,17 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 		cClient->getWorm(1)->setFlag(1);
 		int id = cClient->getWorm(1)->getID();
 		cWorms[id].setFlag(1);
+		return true;
+	}
+
+	// Make third local worm a flag
+	if(!stringcasecmp(cmd, "/flagtest2")) {
+		cClient->getWorm(1)->setFlag(1);
+		int id = cClient->getWorm(1)->getID();
+		cWorms[id].setFlag(1);
+		cClient->getWorm(2)->setFlag(true);
+		id = cClient->getWorm(2)->getID();
+		cWorms[id].setFlag(true);
 		return true;
 	}
 

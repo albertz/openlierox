@@ -586,7 +586,6 @@ void GameLoop(void)
 		cClient->Draw(Screen);
 		break;
 
-
 	} // SWITCH
 
 	// Switch between window and fullscreen mode
@@ -604,7 +603,6 @@ void GameLoop(void)
 
 	// We put it here, so the mouse never displays
     SDL_ShowCursor(SDL_DISABLE);
-
 }
 
 
@@ -768,5 +766,4 @@ void ShutdownLieroX(void)
 	ShutdownOptions();
 
 	printf("Everything was shut down\n");
-	
 }

@@ -43,7 +43,8 @@ enum {
 	GMT_TAG,
     GMT_DEMOLITION,
 	GMT_VIP,
-	GMT_CTF
+	GMT_CTF,
+	GMT_TEAMCTF
 };
 
 

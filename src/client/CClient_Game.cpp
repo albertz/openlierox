@@ -42,7 +42,6 @@ void CClient::Simulation(void)
 
 	teamgame = iGameType == GMT_TEAMDEATH;
 
-
 	// If we're in a menu & a local game, don't do simulation
 	if (tGameInfo.iGameType == GME_LOCAL)  {
 		if( iGameOver || (iGameMenu || bViewportMgr) ) {
@@ -123,7 +122,7 @@ void CClient::Simulation(void)
 				if(w->getType() == PRF_HUMAN)
 					w->getInput();
 				else
-					w->AI_GetInput(iGameType, teamgame, iGameType == GMT_TAG, iGameType == GMT_VIP, iGameType == GMT_CTF);
+					w->AI_GetInput(iGameType, teamgame, iGameType == GMT_TAG, iGameType == GMT_VIP, iGameType == GMT_CTF, iGameType == GMT_TEAMCTF);
 
 				if (w->isShooting() || old_weapon != w->getCurrentWeapon())  // The weapon bar is changing
 					bShouldRepaintInfo = true;
@@ -132,7 +131,7 @@ void CClient::Simulation(void)
 			// Simulate the worm
 			w->Simulate(cRemoteWorms, local, tLX->fDeltaTime);
 
-            if(iGameOver)
+			if(iGameOver)
                 continue;
 
 
@@ -186,13 +185,19 @@ void CClient::Simulation(void)
 		if(iGameType == GMT_TAG && w->getTagIT())
 			w->incrementTagTime(tLX->fDeltaTime);
 
+		if(tGameInfo.iGameType == GME_HOST && cServer && w->getLocal()) {
 		// If playing capture the flag set the flag's position to that of its holder
-		if(w->getLocal() && w->getFlag() && iGameType == GMT_CTF && tGameInfo.iGameType == GME_HOST && cServer) {
+		if(w->getFlag() && iGameType == GMT_CTF) {
 			if(cServer->getFlag() != -1)
 				w->setPos(cRemoteWorms[cServer->getFlag()].getPos());
 		}
 
-		// If someone is in the same position 
+		// If playing teams capture the flag set the flag's position to that of its holder
+		if(w->getFlag() && iGameType == GMT_TEAMCTF) {
+			if(cServer->getFlag(w->getTeam()) != -1)
+				w->setPos(cRemoteWorms[cServer->getFlag(w->getTeam())].getPos());
+		}
+		}
 	}
 
 	// Entities
