@@ -3043,51 +3043,51 @@
 			Filter="lib"
 			>
 			<File
-				RelativePath="libs\bgd.lib"
+				RelativePath="..\msvc\libs\bgd.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\dbghelp.lib"
+				RelativePath="..\msvc\libs\dbghelp.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\libxml2.lib"
+				RelativePath="..\msvc\libs\libxml2.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\lua5.1.lib"
+				RelativePath="..\msvc\libs\lua5.1.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\NLstatic.lib"
+				RelativePath="..\msvc\libs\NLstatic.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\pthreadVCE.lib"
+				RelativePath="..\msvc\libs\pthreadVCE.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\SDL.lib"
+				RelativePath="..\msvc\libs\SDL.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\SDL_image.lib"
+				RelativePath="..\msvc\libs\SDL_image.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\SDL_mixer.lib"
+				RelativePath="..\msvc\libs\SDL_mixer.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\sdlgfx.lib"
+				RelativePath="..\msvc\libs\sdlgfx.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\SDLmain.lib"
+				RelativePath="..\msvc\libs\SDLmain.lib"
 				>
 			</File>
 			<File
-				RelativePath="libs\zlibstat.lib"
+				RelativePath="..\msvc\libs\zlibstat.lib"
 				>
 			</File>
 		</Filter>
