@@ -1122,6 +1122,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 
 	// Teams
 	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
+	static const std::string VIPteamnames[] = {"VIP Defenders", "VIP Attackers", "VIPs"};
 
 	// Deathmatch scoreboard
 	switch(iGameType) {
@@ -1486,10 +1487,10 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 			// Header
 			colour = tLX->clTeamColors[team];
 
-			lv->AddItem(teamnames[team], n + 1024, colour);
+			lv->AddItem(VIPteamnames[team], n + 1024, colour);
 
 			lv->AddSubitem(LVS_WIDGET, "", NULL, new CLine(0, 0, lv->getWidth() - 30, 0, colour), VALIGN_BOTTOM);  // Separating line
-			lv->AddSubitem(LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
+			lv->AddSubitem(LVS_TEXT, VIPteamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
 			lv->AddSubitem(LVS_TEXT, "L", NULL, NULL);  // Lives label
 			lv->AddSubitem(LVS_TEXT, "K", NULL, NULL);  // Kills label
 			if (tGameInfo.iGameType == GME_HOST)  // Ping label
@@ -1504,7 +1505,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 
 				p = &cRemoteWorms[iScoreboard[i]];
 
-				if(p->getTeam() != team && (p->getTeam()!=2 && team !=0))
+				if(p->getTeam() != team && (p->getTeam()!=2 || team !=0))
 					continue;
 
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
