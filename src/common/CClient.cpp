@@ -106,6 +106,8 @@ void CClient::Clear(void)
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
     }    
+
+	bHostOLXb4 = false;
 }
 
 

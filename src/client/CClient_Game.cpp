@@ -721,6 +721,11 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 			SendDeath(w->getID(), owner);
 		}
 	}
+	// If we are hosting then synchronise the serverside worms with the clientside ones
+	if(tGameInfo.iGameType == GME_HOST && cServer) {
+		CWorm *sw = cServer->getWorms() + w->getID();
+		sw->setHealth(w->getHealth());
+	}
 
 	// Spawn some blood
 	float amount = ((float)tLXOptions->iBloodAmount / 100.0f);
@@ -1054,7 +1059,23 @@ void CClient::UpdateScoreboard(void)
 		iScoreboard[iScorePlayers++] = p;
 
 		// Add to the team score
-		if(iGameType == GMT_TEAMDEATH) {
+		if(iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) {
+			// Make the score at least zero to say we have
+			int team = w->getTeam();
+			if (team < 0)  {  // prevents crashing sometimes
+				w->setTeam(0);
+				team = 0;
+			}
+			// On VIP treat the greens and blues as one team
+			if(iGameType == GMT_VIP && team == 2)
+				team = 0;
+			iTeamScores[team] = MAX(0,iTeamScores[team]);
+
+			if(w->getLives() != WRM_OUT && w->getLives() != WRM_UNLIM)
+				iTeamScores[team] += w->getLives();
+		}
+		// Add to the team score
+		if(iGameType == GMT_TEAMCTF) {
 			// Make the score at least zero to say we have
 			int team = w->getTeam();
 			if (team < 0)  {  // prevents crashing sometimes
@@ -1064,13 +1085,13 @@ void CClient::UpdateScoreboard(void)
 			iTeamScores[team] = MAX(0,iTeamScores[team]);
 
 			if(w->getLives() != WRM_OUT && w->getLives() != WRM_UNLIM)
-				iTeamScores[team] += w->getLives();
+				iTeamScores[team] += w->getKills();
 		}
 	}
 
 
 	// Sort the team lists
-	if(iGameType == GMT_TEAMDEATH) {
+	if(iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) {
 		for(i=0;i<4;i++) {
 			for(j=0;j<3-i;j++) {
 				if(iTeamScores[iTeamList[j]] < iTeamScores[iTeamList[j+1]]) {
@@ -1112,9 +1133,29 @@ void CClient::UpdateScoreboard(void)
 					iScoreboard[j+1] = s;
 				}
 
-			} else {
-				// DEATHMATCH or TEAM DEATHMATCH
+			} else if ( iGameType == GMT_CTF ) {
 
+				// CAPTURE THE FLAG
+				if(cRemoteWorms[iScoreboard[j]].getKills() < cRemoteWorms[iScoreboard[j + 1]].getKills()) {
+
+					// Swap the 2 scoreboard entries
+					s = iScoreboard[j];
+					iScoreboard[j] = iScoreboard[j+1];
+					iScoreboard[j+1] = s;
+				} else if(cRemoteWorms[iScoreboard[j]].getKills() == cRemoteWorms[iScoreboard[j + 1]].getKills()) {
+
+					// Equal kills, so compare lives
+					if(cRemoteWorms[iScoreboard[j]].getLives() < cRemoteWorms[iScoreboard[j + 1]].getLives()) {
+
+						// Swap the 2 scoreboard entries
+						s = iScoreboard[j];
+						iScoreboard[j] = iScoreboard[j+1];
+						iScoreboard[j+1] = s;
+					}
+				}
+			} else {
+
+				// DEATHMATCH or TEAM DEATHMATCH or VIP or TEAMCTF
 				if(cRemoteWorms[iScoreboard[j]].getLives() < cRemoteWorms[iScoreboard[j + 1]].getLives()) {
 
 					// Swap the 2 scoreboard entries

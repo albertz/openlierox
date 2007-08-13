@@ -1168,7 +1168,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 			}
 		}
 	}
-	break; // TEAM DEATHMATCH
+	break; // DEATHMATCH
 
 
     // Demolitions scoreboard
@@ -1341,7 +1341,203 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 			}
 		}
 	}
-	break; // DEATHMATCH
+	break; // TEAM DEATHMATCH
+	case GMT_CTF:  {
+
+		// Fill the left listview
+		CListview *lv = Left;
+		for(i=0; i < iScorePlayers; i++) {
+			// Left listview overflowed, fill the right one
+			if (i >= 16)
+				lv = Right;
+
+			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+
+			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+
+			// Skin
+			lv->AddSubitem(LVS_IMAGE, "", p->getPicimg(), NULL);
+
+			// Name
+			lv->AddSubitem(LVS_TEXT, p->getName(), NULL, NULL);
+
+			// Lives
+			switch (p->getLives())  {
+			case WRM_UNLIM:
+				lv->AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+				break;
+			case WRM_OUT:
+				lv->AddSubitem(LVS_TEXT, "out", NULL, NULL);
+				break;
+			default:
+				lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				break;
+			}
+
+			// Kills 
+			lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+
+			// Ping
+			if (tGameInfo.iGameType == GME_HOST)  {
+				CClient *remoteClient = cServer->getClient(p->getID());
+				if (remoteClient && p->getID())
+					lv->AddSubitem(LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+			}
+		}
+	}
+	break; // CTF
+		// Team CTF scoreboard
+	case GMT_TEAMCTF: {
+
+
+		// Go through each team
+		CListview *lv = Left;
+		int team, score;
+		Uint32 colour;
+
+		for(n = 0; n < 4; n++) {
+			team = iTeamList[n];
+			score = iTeamScores[team];
+
+			// Check if the team has any players
+			if(score == -1)
+				continue;
+
+			// If left would overflow after adding team header, switch to right
+			if (lv->getNumItems() + 1 >= 16)
+				lv = Right;
+
+			// Header
+			colour = tLX->clTeamColors[team];
+
+			lv->AddItem(teamnames[team], n + 1024, colour);
+
+			lv->AddSubitem(LVS_WIDGET, "", NULL, new CLine(0, 0, lv->getWidth() - 30, 0, colour), VALIGN_BOTTOM);  // Separating line
+			lv->AddSubitem(LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
+			lv->AddSubitem(LVS_TEXT, "L", NULL, NULL);  // Lives label
+			lv->AddSubitem(LVS_TEXT, "K", NULL, NULL);  // Kills label
+			if (tGameInfo.iGameType == GME_HOST)  // Ping label
+				lv->AddSubitem(LVS_TEXT, "P", NULL, NULL);
+
+			// Draw the players
+			CWorm *p;
+			for(i = 0; i < iScorePlayers; i++) {
+				// If the left listview overflowed, fill the right one
+				if (lv->getItemCount() >= 16)
+					lv = Right;
+
+				p = &cRemoteWorms[iScoreboard[i]];
+
+				if(p->getTeam() != team)
+					continue;
+
+				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
+
+				// Skin
+				lv->AddSubitem(LVS_IMAGE, "", p->getPicimg(), NULL);
+
+				// Name
+				lv->AddSubitem(LVS_TEXT, p->getName(), NULL, NULL);
+
+				// Lives
+				switch (p->getLives())  {
+				case WRM_UNLIM:
+					lv->AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+					break;
+				case WRM_OUT:
+					lv->AddSubitem(LVS_TEXT, "out", NULL, NULL);
+					break;
+				default:
+					lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+					break;
+				}
+
+				// Ping
+				if (tGameInfo.iGameType == GME_HOST)  {
+					CClient *remoteClient = cServer->getClient(p->getID());
+					if (remoteClient && p->getID())
+						lv->AddSubitem(LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+				}
+			}
+		}
+	}
+	break; // TEAM CTF
+	// VIP scoreboard
+	case GMT_VIP: {
+
+
+		// Go through each team
+		CListview *lv = Left;
+		int team, score;
+		Uint32 colour;
+
+		for(n = 0; n < 4; n++) {
+			team = iTeamList[n];
+			score = iTeamScores[team];
+
+			// Check if the team has any players
+			if(score == -1)
+				continue;
+
+			// If left would overflow after adding team header, switch to right
+			if (lv->getNumItems() + 1 >= 16)
+				lv = Right;
+
+			// Header
+			colour = tLX->clTeamColors[team];
+
+			lv->AddItem(teamnames[team], n + 1024, colour);
+
+			lv->AddSubitem(LVS_WIDGET, "", NULL, new CLine(0, 0, lv->getWidth() - 30, 0, colour), VALIGN_BOTTOM);  // Separating line
+			lv->AddSubitem(LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
+			lv->AddSubitem(LVS_TEXT, "L", NULL, NULL);  // Lives label
+			lv->AddSubitem(LVS_TEXT, "K", NULL, NULL);  // Kills label
+			if (tGameInfo.iGameType == GME_HOST)  // Ping label
+				lv->AddSubitem(LVS_TEXT, "P", NULL, NULL);
+
+			// Draw the players
+			CWorm *p;
+			for(i = 0; i < iScorePlayers; i++) {
+				// If the left listview overflowed, fill the right one
+				if (lv->getItemCount() >= 16)
+					lv = Right;
+
+				p = &cRemoteWorms[iScoreboard[i]];
+
+				if(p->getTeam() != team && (p->getTeam()!=2 && team !=0))
+					continue;
+
+				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
+
+				// Skin
+				lv->AddSubitem(LVS_IMAGE, "", p->getPicimg(), NULL);
+
+				// Name
+				lv->AddSubitem(LVS_TEXT, p->getName(), NULL, NULL);
+
+				// Lives
+				switch (p->getLives())  {
+				case WRM_UNLIM:
+					lv->AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+					break;
+				case WRM_OUT:
+					lv->AddSubitem(LVS_TEXT, "out", NULL, NULL);
+					break;
+				default:
+					lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+					break;
+				}
+
+				// Ping
+				if (tGameInfo.iGameType == GME_HOST)  {
+					CClient *remoteClient = cServer->getClient(p->getID());
+					if (remoteClient && p->getID())
+						lv->AddSubitem(LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+				}
+			}
+		}
+	}
+	break; // VIP
 	} // switch	
 }
 
