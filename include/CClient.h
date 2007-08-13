@@ -556,6 +556,8 @@ public:
 	inline bool getHostBeta4(void)				{ return bHostOLXb4; }
 	inline void setHostBeta4(bool _b)			{ bHostOLXb4 = _b; }
 
+	bool		getGamePaused()					{ return (bViewportMgr || iGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
+
 };
 
 extern	CClient			*cClient;

@@ -132,6 +132,10 @@ void GameServer::SimulateGame(void)
 		return;
 	}
 
+	// Don't process if the game is paused (local play only)
+	if (cClient->getGamePaused())
+		return;
+
 	// Process worms
 	CWorm *w = cWorms;
 	CWorm *f[MAX_WORMS+1];
