@@ -280,7 +280,7 @@ void CCombobox::Create(void)
 	cScrollbar.setMin(0);
 	cScrollbar.setMax(1);
 	cScrollbar.setValue(0);
-	cScrollbar.setItemsperbox(7);
+	cScrollbar.setItemsperbox(6);
 }
 
 
@@ -625,9 +625,7 @@ void CCombobox::addItem(int index, const std::string& sindex, const std::string&
 	iItemCount++;
     cScrollbar.setMax( iItemCount );
 
-	iGotScrollbar = false;
-	if(iItemCount*16 >= 100)
-		iGotScrollbar = true;
+	iGotScrollbar = iItemCount > 6;
 }
 
 
@@ -709,7 +707,10 @@ void CCombobox::clear(void)
 }
 
 
-cb_item_t* CCombobox::getItem(int index) {
+///////////////
+// Get the item based on its index property
+cb_item_t* CCombobox::getItem(int index) 
+{
 	for(cb_item_t* i = tItems; i; i = i->tNext) {
 		if(i->iIndex == index)
 			return i;
@@ -717,13 +718,14 @@ cb_item_t* CCombobox::getItem(int index) {
 	return NULL;
 }
 
+/////////////
+// Get the number of items
 int	CCombobox::getItemsCount() {
-	int c = 0;
-	for(cb_item_t* i = tItems; i; i = i->tNext)
-		c++;
-	return c;
+	return iItemCount;
 }
 
+/////////////
+// Get the item based on its displayed name
 cb_item_t* CCombobox::getItem(const std::string& name) {
 	for(cb_item_t* i = tItems; i; i = i->tNext) {
 		if(stringcasecmp(i->sName,name) == 0)
@@ -732,6 +734,8 @@ cb_item_t* CCombobox::getItem(const std::string& name) {
 	return NULL;
 }
 
+////////////
+// Get index if the selected item
 int CCombobox::getSelectedIndex()  {
 	int result = 0;
 	for (cb_item_t *i = tItems; i && i != tSelected; i=i->tNext,result++) {};
