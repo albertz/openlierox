@@ -29,7 +29,7 @@ TODO
 [ ] fill developer documentation (basic info about the code and hints) (!)
 [ ] select different key for ingame console
 [?] fix some segfaults (!!)
-[?] fix lobby freeze (!)
+[ ] fix lobby freeze (!)
 [?] make network more stable (!)
 [?] increase FPS (and determit, why it is bad in beta2)
 [?] improve mediaplayer
@@ -47,6 +47,8 @@ TODO
 [ ] join all viewports, if map is smaller than resolution (!)
 [ ] allow different sound settings (44k or 22k / mono or stereo / ...) (!)
 [ ] abstraction of the engines (network / physic / ...) (!)
+[ ] improve join lobby, merge host lobby and join lobby code (!)
+[ ] remove all non-widget drawing from menu system (create new widgets or use current ones) (!)
 
 minor things:
 [ ] save selected player list in local play and return in this menu after playing (!)
