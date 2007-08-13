@@ -584,7 +584,7 @@ void CClient::DrawChatter(SDL_Surface *bmpDest)
 	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, i++)  {
 		tLX->cOutlineFont.Draw(bmpDest, x, y, tLX->clGameChatter, *it);
 		drawn_size += (int)Utf8StringSize((*it));
-		if (drawn_size >= iChat_Pos - i && iChat_CursorVisible)  {  // Draw the cursor
+		if (drawn_size >= (int)iChat_Pos - i && iChat_CursorVisible)  {  // Draw the cursor
 			int cursor_x = tLX->cOutlineFont.GetWidth(Utf8SubStr((*it), 0, iChat_Pos - (drawn_size - (int)Utf8StringSize((*it)))));
 			DrawVLine(bmpDest, y, MIN(381, y + tLX->cOutlineFont.GetHeight()), cursor_x, tLX->clGameChatCursor);
 		}
