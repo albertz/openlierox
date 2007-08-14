@@ -282,7 +282,7 @@ int GameServer::StartGame(void)
 
 	// Load the game script
 	cGameScript.Shutdown();
-	if(!cGameScript.Load(sModName)) {
+	if(!cGameScript.Load(tGameInfo.sModDir)) {
 		printf("Error: Could not load the '%s' game script\n",sModName.c_str());
 		return false;
 	}
@@ -368,7 +368,7 @@ int GameServer::StartGame(void)
 	bs.writeInt(iShowBonusName, 1);
 	if(iGameType == GMT_TAG)
 		bs.writeInt16(iTagLimit);
-	bs.writeString(sModName);
+	bs.writeString(tGameInfo.sModDir);
 
     cWeaponRestrictions.sendList(&bs);
 
@@ -1194,7 +1194,7 @@ bool GameServer::WriteLogToFile(FILE *f)
 
 	// Fill in the details
 	levelfile = sMapFilename;
-	modfile = sModName;
+	modfile = tGameInfo.sModDir;
 	level = cMap->getName();
 	mod = cGameScript.GetHeader()->ModName;
 	xmlEntities(levelfile);

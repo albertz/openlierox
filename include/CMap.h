@@ -358,6 +358,9 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 	
 	const uchar* pxflags = pcMap->GetPixelFlags();
 	const uchar* gridflags = pcMap->getAbsoluteGridFlags();
+	if (!pxflags || !gridflags)  // map has been probably shut down in the meantime
+		return checkflag_action;
+
 	int map_w = pcMap->GetWidth();
 	int map_h = pcMap->GetHeight();	
     int grid_w = pcMap->getGridWidth();

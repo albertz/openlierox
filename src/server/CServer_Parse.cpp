@@ -276,7 +276,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		}
 	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
-		// or if the client is host (host can kill anyone - server side health)
+		// or if the client is host (host can kill anyone - /suicide command in chat)
 		if (!cl->OwnsWorm(vict) && cl->getWorm(0)->getID() != 0)  {
 			printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 			return;
@@ -933,13 +933,11 @@ void GameServer::ParseConnect(CBytestream *bs) {
 	iNetSpeed = bs->readInt(1);
 
 	// Make sure the net speed is within bounds, because it's used for indexing
-	iNetSpeed = MIN(iNetSpeed, 3);
-	iNetSpeed = MAX(iNetSpeed, 0);
-
+	iNetSpeed = CLAMP(iNetSpeed, 0, 3);
 
 	// Get user info
 	int numworms = bs->readInt(1);
-	numworms = MIN(numworms, MAX_PLAYERS);
+	numworms = CLAMP(numworms, 0, MAX_PLAYERS);
 	CWorm worms[MAX_PLAYERS];
 	for (i = 0;i < numworms;i++) {
 		worms[i].readInfo(bs);
@@ -1085,7 +1083,6 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				w->setClient(newcl);
 				w->setUsed(true);
 				w->setupLobby();
-				w->setTeam(0);
 				newcl->setWorm(i, w);
 				ids[i] = p;
 				break;

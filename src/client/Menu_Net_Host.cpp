@@ -823,7 +823,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 					text = OldLxCompatibleString(text);
 
-//					cServer->SendGlobalText(text,TXT_CHAT);
 					// Allows host to use /setname etc in lobby
 					cClient->SendText(text);
 				}
@@ -947,7 +946,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Get the mod
 					cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
                     if(it) {
-		                tGameInfo.sModName = it->sIndex;
+		                tGameInfo.sModName = it->sName;
 						tGameInfo.sModDir = it->sIndex;
                         tLXOptions->tGameinfo.szModName = it->sIndex;
                     }

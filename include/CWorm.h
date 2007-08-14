@@ -510,6 +510,8 @@ public:
 	inline Uint32	getColour(void)				{ return iColour; }
 	inline void		setColour(Uint32 c)			{ iColour = c; }
 	inline void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColour = MakeColour(r,g,b); }
+	inline void		setDefaultColour(Uint32 c)			{ iOldColour = c; }
+	inline void		setDefaultColour(Uint8 r, Uint8 g, Uint8 b)  { iOldColour = MakeColour(r,g,b); }
 
 	inline void		setLocal(int _l)			{ iLocal = _l; }
 	inline int			getLocal(void)				{ return iLocal; }
@@ -572,6 +574,7 @@ public:
 	inline int			getGameReady(void)			{ return iGameReady; }
 
 	inline void		setProfile(profile_t *p)	{ tProfile = p; }
+	inline profile_t *getProfile()				{ return tProfile; }
 
 	inline void		setTeam(int _t)				{ iTeam = _t; }
 	inline int			getTeam(void)				{ return iTeam; }

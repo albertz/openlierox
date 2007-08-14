@@ -29,37 +29,6 @@
 #include "CListview.h"
 #include "CWpnRest.h"
 
-
-
-/*
-#include "CWidget.h"
-#include "CGuiLayout.h"
-#include "CTitleButton.h"
-#include "CButton.h"
-#include "CScrollbar.h"
-#include "CListview.h"
-#include "CTextbox.h"
-#include "CLabel.h"
-#include "CSlider.h"
-#include "CCheckbox.h"
-#include "CInputBox.h"
-#include "CBrowser.h"
-#include "CCombobox.h"
-#include "CMenu.h"
-#include "CImage.h"
-#include "CBox.h"
-#include "CAnimation.h"
-#include "CProgressbar.h"
-#include "CLine.h"
-#ifdef WITH_MEDIAPLAYER
-#include "Sounds.h"
-#include "CMediaPlayer.h"
-#endif
-#include "CssParser.h"
-#include "CBytestream.h"
-#include "CWpnRest.h"
-*/
-
 // Menu sockets
 #define		SCK_LAN		0
 #define		SCK_NET		1
@@ -313,15 +282,6 @@ class server_t { public:
 
     server_t	*psPrev;
 	server_t	*psNext;
-};
-
-
-// Local player structure
-class local_ply_t { public:
-    bool        bUsed;
-    profile_t   *psProfile;
-    int         nTeam;
-    int         nHealth;
 };
 
 
