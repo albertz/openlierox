@@ -106,8 +106,7 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 #define CLIP_REJECT(a,b) (a&b)
 #define CLIP_ACCEPT(a,b) (!(a|b))
 
-// TODO: why is int the return here?
-static inline int clipEncode(int x, int y, int left, int top, int right, int bottom)
+static inline Uint32 clipEncode(int x, int y, int left, int top, int right, int bottom)
 {
     int code = 0;
 
@@ -131,7 +130,7 @@ static inline int clipEncode(int x, int y, int left, int top, int right, int bot
 bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 {
     int left, right, top, bottom;
-    int code1, code2;
+    Uint32 code1, code2;
     bool draw = false;
     int swaptmp;
     float m;
@@ -222,45 +221,37 @@ inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, 
 // Copies area from one image to another (not blitting so the alpha values are kept!)
 void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h)
 {
-	// Source clipping
-	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)src->clip_rect))
-		return;
-	
-	// Dest clipping
-	if (!ClipRefRectWith(dx, dy, w, h, (SDLRect&)dst->clip_rect))
-		return;
-	
+	// Copying is a normal blit without colorkey and alpha
+	// If the surface has alpha or colorkey set, we have to remove them and then put them back
 
-	// Lock the surfaces
-	if(SDL_MUSTLOCK(dst))
-		SDL_LockSurface(dst);
-	if(SDL_MUSTLOCK(src))
-		SDL_LockSurface(src);
-
-	if(
-		src->format->Amask == dst->format->Amask &&
-		src->format->Rmask == dst->format->Rmask &&
-		src->format->Gmask == dst->format->Gmask &&
-		src->format->Bmask == dst->format->Bmask &&
-		src->format->BytesPerPixel == dst->format->BytesPerPixel) {
-
-		CopySurfaceFast(dst, src, sx, sy, dx, dy, w, h);
-	} else {
-
-		Uint8 R, G, B, A;
-		for(register int x = 0; x < w; x++) {
-			for(register int y = 0; y < h; y++) {
-				SDL_GetRGBA(GetPixel(src, x + sx, y + sy), src->format, &R, &G, &B, &A);
-				PutPixel(dst, x + dx, y + dy, SDL_MapRGBA(dst->format, R, G, B, A));
-			}
-		}
+	// Save alpha values
+	bool HasAlpha = false;
+	Uint8 PerSurfaceAlpha = SDL_ALPHA_OPAQUE;
+	if (src->flags & SDL_SRCALPHA)  {
+		HasAlpha = true;
+		PerSurfaceAlpha = src->format->alpha;
 	}
-	
-	// Unlock em
-	if(SDL_MUSTLOCK(dst))
-		SDL_UnlockSurface(dst);
-	if(SDL_MUSTLOCK(src))
-		SDL_UnlockSurface(src);
+
+	// Save colorkey values
+	bool HasColorkey = false;
+	Uint32 Colorkey = 0;
+	if (src->flags & SDL_SRCCOLORKEY)  {
+		HasColorkey = true;
+		Colorkey = src->format->colorkey;
+	}
+
+	// Remove alpha and colorkey
+	SDL_SetAlpha(src, 0, 0);
+	SDL_SetColorKey(src, 0, 0);
+
+	// Blit
+	DrawImageAdv(dst, src, sx, sy, dx, dy, w, h);
+
+	// Return back alpha and colorkey
+	if (HasAlpha)
+		SDL_SetAlpha(src, SDL_SRCALPHA, PerSurfaceAlpha);
+	if (HasColorkey)
+		SDL_SetColorKey(src, SDL_SRCCOLORKEY, Colorkey);
 }
 
 
