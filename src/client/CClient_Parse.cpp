@@ -1057,7 +1057,6 @@ void CClient::ParseClientLeft(CBytestream *bs)
 // Parse an 'update-worms' packet
 void CClient::ParseUpdateWorms(CBytestream *bs)
 {
-	printf("Updating Worms\n");
 	byte count = bs->readByte();
 	if (count >= MAX_WORMS)  {
 		printf("CClient::ParseUpdateWorms: invalid worm count ("+itoa(count)+")\n");

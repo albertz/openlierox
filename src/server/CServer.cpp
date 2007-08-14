@@ -83,7 +83,6 @@ void GameServer::Clear(void)
 		tChallenges[i].fTime = 0;
 		tChallenges[i].iNum = 0;
 	}
-
 }
 
 
