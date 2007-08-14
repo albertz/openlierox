@@ -341,7 +341,7 @@ int CWorm::LoadGraphics(int gametype)
     // Create the minipic
     bmpPic = gfxCreateSurface(18,16);
     SetColorKey(bmpPic);
-    FillSurface(bmpPic, COLORKEY(bmpPic));
+    FillSurfaceTransparent(bmpPic);
     CopySurface(bmpPic, bmpWormRight, 134,2,0,0, 18,16);
 
 	
@@ -889,7 +889,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
     
 	// Draw the worm
-    DrawRectFill(bmpShadowPic,0,0,32,18,COLORKEY(bmpShadowPic));
+    FillSurfaceTransparent(bmpShadowPic);
 	if(iDirection == DIR_RIGHT)
         CopySurface(bmpShadowPic, bmpWormRight, f,0, 6,0, 32,18);
 	else

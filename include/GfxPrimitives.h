@@ -506,6 +506,18 @@ inline void FillSurface(SDL_Surface* dst, Uint32 colour) {
 }
 
 ////////////////////
+// Fills the whole surface with a transparent color
+inline void FillSurfaceTransparent(SDL_Surface *dst)  {
+	if (dst->flags & SDL_SRCCOLORKEY)
+		FillSurface(dst, COLORKEY(dst));
+	else if (dst->flags & SDL_SRCALPHA)
+		FillSurface(dst, SDL_MapRGBA(dst->format, 255, 0, 255, SDL_ALPHA_TRANSPARENT));
+	else
+		printf("Warning: There's no possibility to make this surface transparent!\n");
+}
+
+
+////////////////////
 // Draws a rectangle
 inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 colour) {
 	DrawHLine(bmpDest, x, x2, y, colour);

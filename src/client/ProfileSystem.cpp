@@ -485,13 +485,13 @@ int LoadProfileGraphics(profile_t *p)
     if(p->bmpWorm)
 		SDL_FreeSurface(p->bmpWorm);
 
-	p->bmpWorm = gfxCreateSurface(18,16);
+	p->bmpWorm = gfxCreateSurfaceAlpha(18,16);
 	if(p->bmpWorm == NULL) {
 		// Error
 		return false;
 	}
 	SetColorKey(p->bmpWorm);
-    FillSurface(p->bmpWorm, COLORKEY(p->bmpWorm));
+    FillSurfaceTransparent(p->bmpWorm);
 
     // Draw the preview pic
     SDL_Surface *w = LoadSkin(p->szSkin, p->R, p->G, p->B);
@@ -506,7 +506,7 @@ int LoadProfileGraphics(profile_t *p)
 		SetColorKey(ai);
 		
         if(p->iType == PRF_COMPUTER)
-            CopySurface(p->bmpWorm, ai, p->nDifficulty*10,0, 0,p->bmpWorm->h - ai->h, 10,ai->h);
+            DrawImageAdv(p->bmpWorm, ai, p->nDifficulty*10,0, 0,p->bmpWorm->h - ai->h, 10,ai->h);
 	}
 
 	return true;
@@ -521,30 +521,30 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 
     // Load the skin
     buf = "skins/"; buf += szSkin;
-    SDL_Surface *worm = LoadImage(buf);
+    SDL_Surface *worm = LoadImage(buf, true);
     if( !worm ) {
         
         // If we can't load the skin, try the default skin
-        worm = LoadImage("skins/default.png");
+        worm = LoadImage("skins/default.png", true);
         if( !worm )
             return NULL;
     }
 	SetColorKey(worm);
 
-    SDL_Surface *skin = gfxCreateSurface(672,18);
+    SDL_Surface *skin = gfxCreateSurfaceAlpha(672,18);
     if( !skin )
         return NULL;
 
     // Set the pink colour key & fill it with pink
     SetColorKey(skin);
-    DrawRectFill(skin,0,0,skin->w,skin->h,COLORKEY(skin));
+    FillSurfaceTransparent(skin);
 
 
     // Set the colour of the worm
 	int x,y;
 	Uint8 r,g,b,a;
 	Uint32 pixel, mask;
-	const Uint32 black = tLX->clBlack;
+	const Uint32 black = SDL_MapRGB(worm->format, 0, 0, 0);
 	float r2,g2,b2;
 
 	for(y=0; y<18; y++) {
@@ -559,7 +559,7 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
             //
             
             // Black means to just copy the colour but don't alter it
-            if( mask == black ) {
+            if( EqualRGB(mask, black, worm->format) ) {
                 PutPixel(skin, x,y, pixel);
                 continue;
             }
@@ -591,7 +591,7 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 			}
 
             // Put the colourised pixel
-			PutPixel(skin,x,y, MakeColour((int)r2, (int)g2, (int)b2));
+			PutPixel(skin,x,y, SDL_MapRGBA(skin->format, (int)r2, (int)g2, (int)b2, a));
 		}
 	}
 

@@ -28,7 +28,7 @@
 #define		LX_PORT			23400
 #define		SPAWN_HOLESIZE	4
 #ifndef		LX_VERSION
-#	define		LX_VERSION		"0.57_beta3"
+#	define		LX_VERSION		"0.57_beta4"
 #endif
 #define		LX_ENDWAIT		9.0f
 

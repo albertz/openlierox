@@ -43,7 +43,7 @@ void CBox::PreDraw(void)
 
 	// Set the whole buffer transparent
 	SetColorKey(bmpBuffer);
-	DrawRectFill(bmpBuffer,0,0,iWidth,iHeight,COLORKEY(bmpBuffer));
+	FillSurfaceTransparent(bmpBuffer);
 
 	// Clip the border and radius
 	if (iRound < 0 || iBorder < 0)

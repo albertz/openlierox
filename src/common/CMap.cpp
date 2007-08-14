@@ -504,7 +504,7 @@ int CMap::CreateSurface(void)
 	}
 
 	SetColorKey(bmpDebugImage);
-	FillSurface(bmpDebugImage, COLORKEY(bmpDebugImage));
+	FillSurfaceTransparent(bmpDebugImage);
 #endif
 
 	bmpDrawImage = gfxCreateSurface(Width*2, Height*2);
@@ -2659,7 +2659,7 @@ void CMap::Shutdown(void)
 #ifdef _AI_DEBUG
 void CMap::ClearDebugImage() {
 	if (bmpDebugImage) {
-		DrawRectFill(bmpDebugImage, 0, 0, bmpDebugImage->w, bmpDebugImage->h, COLORKEY(bmpDebugImage));
+		FillSurfaceTransparent(bmpDebugImage);
 	}
 }
 #endif

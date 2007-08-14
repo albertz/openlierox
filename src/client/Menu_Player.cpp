@@ -275,7 +275,7 @@ void Menu_Player_NewPlayerInit(void)
     Menu_Player_FillSkinCombo( (CCombobox *)cNewPlayer.getWidget(np_PlySkin) );
 
     // Load the default skin
-    tMenu->bmpWorm = LoadImage("skins/default.png");
+    tMenu->bmpWorm = LoadImage("skins/default.png", true);
 	SetColorKey(tMenu->bmpWorm);
     fPlayerSkinFrame = 0;
     bPlayerSkinAnimation = false;
@@ -319,7 +319,7 @@ void Menu_Player_ViewPlayerInit(void)
 	    cViewPlayers.getWidget(vp_AIDiff)->setEnabled(p->iType == PRF_COMPUTER);
 
         // Load the skin
-        tMenu->bmpWorm = LoadImage("skins/"+p->szSkin);
+        tMenu->bmpWorm = LoadImage("skins/"+p->szSkin, true);
 		SetColorKey(tMenu->bmpWorm);
         fPlayerSkinFrame = 0;
         bPlayerSkinAnimation = false;
@@ -413,7 +413,7 @@ void Menu_Player_NewPlayer(int mouse)
 
                     // Load the skin
 					buf = "skins/"+buf;
-					tMenu->bmpWorm = LoadImage(buf);
+					tMenu->bmpWorm = LoadImage(buf, true);
 					SetColorKey(tMenu->bmpWorm);
                 }
                 break;
@@ -648,7 +648,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         // Load the skin
                         static std::string buf;
                         buf = "skins/" + p->szSkin;
-                        tMenu->bmpWorm = LoadImage(buf);
+                        tMenu->bmpWorm = LoadImage(buf, true);
 						SetColorKey(tMenu->bmpWorm);
 
                         // Hide the AI stuff if it is a human type of player
@@ -678,7 +678,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
                     // Load the skin
                     buf = "skins/"+buf;
-                    tMenu->bmpWorm = LoadImage(buf);
+                    tMenu->bmpWorm = LoadImage(buf, true);
 					SetColorKey(tMenu->bmpWorm);
                 }
                 break;
@@ -754,7 +754,7 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 	int x,y,sx;
 	Uint8 r,g,b,a;
 	Uint32 pixel, mask;
-	const Uint32 black = tLX->clBlack;
+	const Uint32 black = SDL_MapRGB(tMenu->bmpWorm->format, 0, 0, 0);
 	float r2,g2,b2;
 
 	for(y=0; y<18; y++) {
@@ -769,13 +769,13 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
             //
 
             // Black means to just copy the colour but don't alter it
-            if( mask == black ) {
+            if( EqualRGB(mask, black, tMenu->bmpWorm->format) ) {
                 PutPixel(bmpDest, sx+dx,y+dy, pixel);
                 continue;
             }
 
             // Colorkey means just ignore the pixel completely
-            if( mask == COLORKEY(tMenu->bmpWorm) )
+            if( IsTransparent(tMenu->bmpWorm, mask) )
                 continue;
 
             // Must be white (or some over unknown colour)
@@ -801,7 +801,7 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 			}
 
             // Put the colourised pixel
-			PutPixel(bmpDest,sx+dx,y+dy, MakeColour((int)r2, (int)g2, (int)b2));
+			PutPixelA(bmpDest,sx+dx,y+dy, MakeColour((int)r2, (int)g2, (int)b2), a);
 		}
 	}
 }

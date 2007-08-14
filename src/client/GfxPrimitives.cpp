@@ -84,18 +84,6 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 				PutPixelToAddr(px, colorkey, dst->format->BytesPerPixel);
 		}
 	}
-
-	// Makes the dst->format->colorkey to match specified colorkey
-	// Without this the COLORKEY() macro doesn't work and it's necessary in
-	// some parts of code (mainly worm graphics) and this won't cause any harm at all (look at source
-	// of SDL_SetColorKey)
-	// TODO: fix this, don't use this here, it makes no sense
-	// and if this is needed in other parts, than the other parts are coded wrong!
-	// and i think, COLORKEY is also used wrong
-	// (COLORKEY should return the colorkey, which makes no sense for alpha surfaces;
-	//  if one want to check for transparency, use the IsTransparent function)
-	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, colorkey);
-
 }
 
 
