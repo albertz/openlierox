@@ -1333,6 +1333,9 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 					break;
 				}
 
+				// Kills
+				lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+
 				// Ping
 				if (tGameInfo.iGameType == GME_HOST)  {
 					CClient *remoteClient = cServer->getClient(p->getID());
@@ -1452,6 +1455,9 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 					lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
 					break;
 				}
+				
+				// Kills
+				lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 				// Ping
 				if (tGameInfo.iGameType == GME_HOST)  {
@@ -1528,6 +1534,9 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 					lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
 					break;
 				}
+
+				// Kills
+				lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
 
 				// Ping
 				if (tGameInfo.iGameType == GME_HOST)  {
