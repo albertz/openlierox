@@ -106,7 +106,7 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 #define CLIP_REJECT(a,b) (a&b)
 #define CLIP_ACCEPT(a,b) (!(a|b))
 
-static inline Uint32 clipEncode(int x, int y, int left, int top, int right, int bottom)
+static inline int clipEncode(int x, int y, int left, int top, int right, int bottom)
 {
     int code = 0;
 
@@ -134,6 +134,10 @@ bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
     bool draw = false;
     int swaptmp;
     float m;
+
+	// No line
+	if (*x1 == *x2 && *y1 == *y2)
+		return false;
 
     // Get clipping boundary 
     left = dst->clip_rect.x;
@@ -188,7 +192,7 @@ bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 		}
     }
 
-    return draw;
+    return draw && (*x1 != *x2 || *y1 != *y2);
 }
 
 

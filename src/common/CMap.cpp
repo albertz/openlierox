@@ -654,7 +654,10 @@ int CMap::CreatePixelFlags(void)
 		SetError("CMap::CreatePixelFlags(): Out of memory");
 		return false;
 	}
+
+	lockFlags();
 	ExtPixelFlags = new uchar[Width*Height];
+	unlockFlags();
 	if(ExtPixelFlags == NULL) {
 		SetError("CMap::CreatePixelFlags(): Out of memory");
 		return false;
@@ -2267,8 +2270,10 @@ int CMap::SaveImageFormat(FILE *fp)
 	fwrite(GetEndianSwapped(size), sizeof(Uint32), 1, fp);
 	fwrite(pDest, sizeof(uchar), destsize, fp);
 	FILE *efp = OpenGameFile("ExtendedPixelFlags.bmp","rb");
+	lockFlags();
 	fread(ExtPixelFlags, sizeof(uchar), Width*Height, efp);
 	fwrite(ExtPixelFlags, sizeof(uchar), Width*Height, fp);
+	unlockFlags();
 
 	delete[] pSource;
 	delete[] pDest;
@@ -2525,7 +2530,9 @@ int CMap::LoadImageFormatOpenLX(FILE *fp)
 	// Load the Extended Pixel Flags
 //	fread(ExtPixelFlags, sizeof(uchar), Width*Height, fp);
 	FILE *efp = OpenGameFile("ExtendedPixelFlags.bmp","rb");
+	lockFlags();
 	fread(ExtPixelFlags, sizeof(uchar), Width*Height, efp);
+	unlockFlags();
 
 	fclose(efp);
 	fclose(fp);
