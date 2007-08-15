@@ -507,7 +507,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 			fix_strncpy(sChat_Text,chattext);
 		}*/
 
-	cChatbox.setWidth(tInterfaceSettings.ChatBoxW);
+	cChatbox.setWidth(tInterfaceSettings.ChatBoxW - 4);
 
 	// Load the chat
 	CListview *lv = (CListview *)cChatList;

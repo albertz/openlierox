@@ -66,7 +66,7 @@ bool CMap::ReuseMapData(CMap* map) {
 		map->bmpMiniMap = bmpMiniMap;
 		map->bmpGreenMask = bmpGreenMask;
 		map->PixelFlags = PixelFlags;
-		map->ExtPixelFlags = PixelFlags;
+		map->ExtPixelFlags = ExtPixelFlags;
 		map->bmpShadowMap = bmpShadowMap;
 #ifdef _AI_DEBUG
 		map->bmpDebugImage = bmpDebugImage;

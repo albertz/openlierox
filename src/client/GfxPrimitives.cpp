@@ -37,32 +37,32 @@ int iSurfaceFormat = SDL_SWSURFACE;
 //
 //////////////////////////
 
-// TODO: perhaps move this elsewhere?
-template<typename T>
-inline T force_in_range(T val, T min, T max) {
-	return MIN(MAX(val, min), max);
-}
-
-// HINT: not threadsafe!
-inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a)  {
-	static Uint8 R1, G1, B1, A1, R2, G2, B2;
-	static float not_a;
-	not_a = 1.0f - a;
-	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
-	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
-	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2);
-	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format,
-		(Uint8) force_in_range(R1 * not_a + R2 * a, 0.0f, 255.0f),
-		(Uint8) force_in_range(G1 * not_a + G2 * a, 0.0f, 255.0f),
-		(Uint8) force_in_range(B1 * not_a + B2 * a, 0.0f, 255.0f),
-		A1), bmpDest->format->BytesPerPixel);
+///////////////////
+// Alpha blends the two components
+inline Uint8 AlphaBlend(Uint8 bgcolor, Uint8 fgcolor, Uint8 alpha)
+{
+	return (alpha * fgcolor + (255 - alpha) * bgcolor) >> 8;
 }
 
 /////////////////
 // Put the pixel alpha blended with the background
-// NOTICE: colour has to be of the same format as bmpDest->format
 void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
-	PutPixelA(bmpDest, x, y, colour, (float)a / 255.0f);
+#define fmt bmpDest->format
+
+	Uint32 R, G, B, bgpixel;
+	bgpixel = GetPixel(bmpDest, x, y);
+	R = AlphaBlend(GetR(bgpixel, fmt), GetR(colour, fmt), a);
+	G = AlphaBlend(GetG(bgpixel, fmt), GetG(colour, fmt), a);
+	B = AlphaBlend(GetB(bgpixel, fmt), GetB(colour, fmt), a);
+
+	Uint32 pixel = (R >> fmt->Rloss) << fmt->Rshift
+					| (G >> fmt->Gloss) << fmt->Gshift
+					| (B >> fmt->Bloss) << fmt->Bshift
+					| bgpixel & fmt->Amask;
+
+	PutPixel(bmpDest, x, y, pixel);
+
+#undef fmt
 }
 
 
@@ -729,7 +729,7 @@ int ropealt = 0;
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
+void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 alpha)
 {
 	// Warning: lock the surface before calling this!
 	// Warning: passing NULL surface will cause a segfault
@@ -742,7 +742,7 @@ void RopePutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alph
 	colour = tLX->clRopeColors[ropecolour];
 
 	// No alpha weight, use direct pixel access (faster)
-	if ((int)alpha)  {
+	if (alpha == 255)  {
 		colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 		Uint8 *px = (Uint8 *)bmpDest->pixels + bmpDest->pitch*y + x*bmpDest->format->BytesPerPixel;
 		Uint8 *px2 = px+bmpDest->pitch;
@@ -780,10 +780,10 @@ void RopePutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) {
 
 ///////////////////
 // Put a pixel on the surface (while checking for clipping)
-void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alpha)
+void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 alpha)
 {
 	// No alpha, use direct pixel access
-	if ((int)alpha)  {
+	if (alpha == 255)  {
 		colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 		Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 		Uint8 *px2 = px+bmpDest->pitch;
@@ -800,7 +800,7 @@ void BeamPutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float alph
 }
  
 void BeamPutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 colour) { // For compatibility with perform_line
-	BeamPutPixelA(bmpDest, x, y, colour, 1.0f); }
+	BeamPutPixelA(bmpDest, x, y, colour, 255); }
 
 
 int laseralt = 0;
@@ -932,7 +932,6 @@ inline void secure_perform_line(SDL_Surface* bmpDest, int x1, int y1, int x2, in
 }
 
 // Draw horizontal line
-// HINT: not thread-safe
 void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 
 	if (x < 0) x = 0;
@@ -945,13 +944,13 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	else if (y >= bmpDest->h) y=bmpDest->h-1;
 
 	if (x2 < x)  {
-		static int tmp;
+		int tmp;
 		tmp = x;
 		x = x2;
 		x2 = tmp;
 	}
 
-	static Uint8 r,g,b;
+	Uint8 r,g,b;
 	GetColour3(colour,SDL_GetVideoSurface(),&r,&g,&b);
 	Uint32 friendly_col = SDLColourToNativeColour(
 		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
@@ -960,7 +959,7 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
 	
 	SDL_LockSurface(bmpDest);
-	for (register uchar* px = (uchar*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)
+	for (uchar* px = (uchar*)bmpDest->pixels + bmpDest->pitch * y + bpp * x; px <= px2; px += bpp)
 		memcpy(px, &friendly_col, bpp);
 	
 	SDL_UnlockSurface(bmpDest);
@@ -979,13 +978,13 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	else if (y2 >= bmpDest->h) y2=bmpDest->h-1;
 
 	if (y2 < y)  {
-		static int tmp;
+		int tmp;
 		tmp = y;
 		y = y2;
 		y2 = tmp;
 	}
 
-	static Uint8 r,g,b;
+	Uint8 r,g,b;
 	GetColour3(colour, SDL_GetVideoSurface(), &r, &g, &b);
 	Uint32 friendly_col = SDLColourToNativeColour(
 		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
@@ -995,7 +994,7 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
 
 	SDL_LockSurface(bmpDest);
-	for (register uchar *px= (uchar *)bmpDest->pixels+pitch*y + bpp*x; px <= px2; px+=pitch)
+	for (uchar *px= (uchar *)bmpDest->pixels+pitch*y + bpp*x; px <= px2; px+=pitch)
 		memcpy(px, &friendly_col, bpp);
 
 	SDL_UnlockSurface(bmpDest);
@@ -1003,24 +1002,22 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 
 // Line drawing
 void DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color) {
-	// TODO: does this need more improvement/optimisation ?
 	secure_perform_line(dst, x1, y1, x2, y2, color, PutPixel);
 }
 
 //////////////////////
 // Draw antialiased line with an putpixel callback
-// Code taken from CTGraphics by darkoman (http://www.codeproject.com/gdi/CTGraphics.asp)
-void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float))
+// Code basis taken from CTGraphics by darkoman (http://www.codeproject.com/gdi/CTGraphics.asp)
+void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8))
 {
 	// Calculate line params
 	int dx = (x2 - x1);
 	int dy = (y2 - y1);
-	int temp;
-	float k;
-	float distance;
+	int k;
+	int distance;
 
 	// Set start pixel
-	proc(dst, x1, y1, color, 1.0f);
+	proc(dst, x1, y1, color, 255);
 
 	// X-dominant line
 	if (abs(dx) > abs(dy))
@@ -1028,6 +1025,8 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 		// Ex-change line end points
 		if (dx < 0)
 		{
+			int temp;
+
 			temp = x1;
 			x1 = x2;
 			x2 = temp;
@@ -1036,19 +1035,19 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 			y1 = y2;
 			y2 = temp;
 		}
-		k = (float)dy / (float)dx;
+		k = (dy * 255) / dx;
 
 		// Set middle pixels
 		int xs;
-		float yt = (float)y1 + k;
-		for (xs=x1 + 1; xs<x2; ++xs)
+		int yt = y1 * 256 + k;
+		distance = 0;
+		for (xs = x1 + 1; xs < x2; ++xs)
 		{
-			distance = (float)(yt - (int)(yt));
-
-			proc(dst, xs, (int)yt, color, 1.0f-distance);
-			proc(dst, xs, (int)yt+1, color, distance);
+			proc(dst, xs, yt / 256, color, (Uint8) (255 - distance));
+			proc(dst, xs, yt / 256 + 1, color, (Uint8) distance);
 
 			yt += k;
+			distance = yt & 255; // Same as: yt % 256
 		}
 	}
 	// Y-dominant line
@@ -1057,6 +1056,8 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 		// Ex-change line end points
 		if (dy < 0)
 		{
+			int temp;
+
 			temp = x1;
 			x1 = x2;
 			x2 = temp;
@@ -1065,24 +1066,21 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 			y1 = y2;
 			y2 = temp;
 		}
-		k = (float)dx / (float)dy;
+		k = (dx * 255) / dy;
 
 		// Set middle pixels
 		int ys;
-		float xt = (float)x1 + k;
+		int xt = x1 * 256 + k;
+		distance = 0;
 		for (ys=y1+1; ys<y2; ++ys)
 		{
-			distance = (float)(xt - (int)(xt));
-
-			proc(dst, (int)xt, ys, color, 1.0f-distance);
-			proc(dst, (int)xt+1, ys, color, distance);			
+			proc(dst, xt / 256, ys, color, (Uint8) (255 - distance));
+			proc(dst, xt / 256 + 1, ys, color, (Uint8) distance);			
 
 			xt += k;
+			distance = xt & 255;  // Same as: xt % 256
 		}
 	}
-
-	// Set end pixel
-	proc(dst, x2, y2, color, 1);
 }
 
 

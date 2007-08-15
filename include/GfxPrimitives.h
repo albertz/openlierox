@@ -438,6 +438,28 @@ inline void GetColour3(Uint32 pixel, SDL_Surface* img, Uint8 *r, Uint8 *g, Uint8
 }
 
 ///////////////
+// Get the specified component from the pixel (grabbed from SDL)
+inline Uint8 GetR(Uint32 pixel, SDL_PixelFormat *fmt)  {
+	return  (((pixel & fmt->Rmask) >> fmt->Rshift) << fmt->Rloss) + 
+			(((pixel & fmt->Rmask) >> fmt->Rshift) >> (8 - (fmt->Rloss << 1)));
+}
+
+inline Uint8 GetG(Uint32 pixel, SDL_PixelFormat *fmt)  {
+	return  (((pixel & fmt->Gmask) >> fmt->Gshift) << fmt->Gloss) + 
+			(((pixel & fmt->Gmask) >> fmt->Gshift) >> (8 - (fmt->Gloss << 1)));
+}
+
+inline Uint8 GetB(Uint32 pixel, SDL_PixelFormat *fmt)  {
+	return  (((pixel & fmt->Bmask) >> fmt->Bshift) << fmt->Bloss) + 
+			(((pixel & fmt->Bmask) >> fmt->Bshift) >> (8 - (fmt->Bloss << 1)));
+}
+
+inline Uint8 GetA(Uint32 pixel, SDL_PixelFormat *fmt)  {
+	return  (((pixel & fmt->Amask) >> fmt->Ashift) << fmt->Aloss) + 
+			(((pixel & fmt->Amask) >> fmt->Ashift) >> (8 - (fmt->Aloss << 1)));
+}
+
+///////////////
 // Returns true if the two colors are the same, ignoring the alpha
 inline bool EqualRGB(Uint32 p1, Uint32 p2, SDL_PixelFormat* fmt) {
 	return ((p1|fmt->Amask) == (p2|fmt->Amask));
@@ -485,7 +507,7 @@ void	DrawLine(SDL_Surface *dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint
 
 //////////////////
 // Draw the line nicely antialiased
-void	AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, float));
+void	AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8));
 
 /////////////////////
 // Draws a filled rectangle
