@@ -2006,7 +2006,17 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
 			lv->AddSubitem(LVS_TEXT, p->getGameReady() ? "Ready" : "Waiting", NULL, NULL, VALIGN_MIDDLE, p->getGameReady() ? tLX->clReady : tLX->clWaiting);
 		else  {
 			// Lives
-			lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+			switch (p->getLives())  {
+			case WRM_OUT:
+				lv->AddSubitem(LVS_TEXT, "out", NULL, NULL);
+				break;
+			case WRM_UNLIM:
+				lv->AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
+				break;
+			default:
+				lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				break;
+			}
 
 			// Kills
 			lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
@@ -2055,93 +2065,6 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 	
 	// Draw it!
 	cScoreLayout.Draw(bmpDest);
-
-/*    int y = tInterfaceSettings.ScoreboardY;
-    int x = tInterfaceSettings.ScoreboardX;
-    int w = 240;
-    int h = 185;
-	if (tGameInfo.iGameType == GME_HOST || cViewports[1].getUsed())  {
-		w = 260;
-		if (bShowReady)  {
-			w = 300;
-			h = 185;
-		}
-
-		x = tInterfaceSettings.ScoreboardOtherPosX;
-		y = tInterfaceSettings.ScoreboardOtherPosY;
-	}
-    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clScoreBackground);
-    Menu_DrawBox(bmpDest, x, y, x+w, y+h);
-
-    tLX->cFont.Draw(bmpDest, x+5, y+4, tLX->clNormalLabel, "Players");
-    if(!bShowReady) {
-        tLX->cFont.Draw(bmpDest, x+180, y+4, tLX->clNormalLabel, "L");
-        tLX->cFont.Draw(bmpDest, x+210, y+4, tLX->clNormalLabel, "K");
-		if(tGameInfo.iGameType == GME_HOST)
-			tLX->cFont.Draw(bmpDest, x+237, y+4, tLX->clNormalLabel, "P");
-    }
-	else
-		if (tGameInfo.iGameType == GME_HOST)
-			tLX->cFont.Draw(bmpDest, x+250, y+4, tLX->clNormalLabel, "Ping");
-
-    DrawHLine(bmpDest, x+4, x+w-4, y+20, tLX->clLine);
-
-
-    // Draw the players
-	int j = y+25;
-    short i;
-	Uint32 iColor;
-	CWorm *p;
-    for(i=0;i<iScorePlayers;i++) {
-        p = &cRemoteWorms[iScoreboard[i]];
-
-		// Get the team colour
-		iColor = tLX->clTeamColors[p->getTeam()];
-
-        // If this player is local & human, highlight it
-        if(p->getType() == PRF_HUMAN && p->getLocal())
-            DrawRectFill(bmpDest, x+2,j-2, x+w-1, j+18, MakeColour(52,52,52));
-
-		tLX->cFont.Draw(bmpDest, x+5, j+1, tLX->clWhite, "#" + itoa(p->getID()));
-
-        // Pic & Name
-        DrawImage(bmpDest, p->getPicimg(), x+30, j);
-		if ((tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP)  && tLXOptions->iColorizeNicks)
-			tLX->cFont.DrawAdv(bmpDest, x+56, j, 130, iColor, p->getName());
-		else
-			tLX->cFont.DrawAdv(bmpDest, x+56, j, 130, tLX->clNormalLabel, p->getName());
-
-        // Score
-        if(!bShowReady) {
-            if(p->getLives() >= 0)
-                tLX->cFont.DrawCentre(bmpDest, x+185, j, tLX->clNormalLabel, itoa(p->getLives()));
-            else if(p->getLives() == WRM_OUT)
-                tLX->cFont.DrawCentre(bmpDest, x+185, j, tLX->clNormalLabel, "out");
-
-            tLX->cFont.DrawCentre(bmpDest, x+215, j, tLX->clNormalLabel, itoa(p->getKills()));
-
-			if(tGameInfo.iGameType == GME_HOST)  {
-				CClient *remoteClient = cServer->getClient(p->getID());
-				if (remoteClient && p->getID())
-					tLX->cFont.DrawCentre(bmpDest, x+240, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
-			}
-        } else {
-            // Ready state
-            if(p->getGameReady())
-                tLX->cFont.Draw(bmpDest, x+180, j, tLX->clReady, "Ready");
-            else
-                tLX->cFont.Draw(bmpDest, x+180, j, tLX->clWaiting, "Waiting");
-
-			// Show ping if host
-			if(tGameInfo.iGameType == GME_HOST)  {
-				CClient *remoteClient = cServer->getClient(p->getID());
-				if (remoteClient && p->getID())
-					tLX->cFont.DrawCentre(bmpDest, x+260, j, tLX->clNormalLabel, itoa(remoteClient->getPing()));
-			}
-        }
-
-        j+=20;
-    }*/
 }
 
 ///////////////////
@@ -2150,8 +2073,6 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 {
     if(Con_IsUsed())
         return;
-
-	return;
 
     // Do checks on whether or not to show
     if(iNetStatus != NET_CONNECTED && !cShowSettings.isDown())
