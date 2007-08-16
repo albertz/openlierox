@@ -413,7 +413,7 @@ std::string Menu_GetLevelName(const std::string& filename)
 			fread(name,		sizeof(char),	64,	fp);
 			fix_markend(id); fix_markend(name);
 
-			if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
+			if((strcmp(id,"LieroX Level") == 0 || strcmp(id,"LieroX CTF Level") == 0) && version == MAP_VERSION) {
 				fclose(fp);
 				return name;
 			}

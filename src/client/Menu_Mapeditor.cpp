@@ -653,7 +653,7 @@ enum  {
 					id[32] = '\0';
 					name[64] = '\0';
 
-					if(strcmp(id,"LieroX Level") == 0 && version == MAP_VERSION) {
+					if((strcmp(id,"LieroX Level") == 0 || strcmp(id,"LieroX CTF Level") == 0) && version == MAP_VERSION) {
 
 						if(!lv->getItem(name)) {
 							lv->AddItem(f,0,tLX->clListView);
