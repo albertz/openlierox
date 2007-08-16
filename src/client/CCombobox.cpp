@@ -35,7 +35,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 
 	// Count the item height
 	int ItemHeight = tLX->cFont.GetHeight()+1;
-	if (iItemCount)
+	if (tItems)
 		if (tItems->tImage)
 			if ((tItems->tImage->h+1) > ItemHeight)
 				ItemHeight = tItems->tImage->h+1;
@@ -348,7 +348,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 
 
             // Drop it
-			iNow = (int)GetMilliSeconds();
+			iNow = (int)(GetMilliSeconds() * 1000);
 			if (!iDropped)  {
 				iArrowDown = true;
 				iDropped = true;
@@ -377,6 +377,13 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 		return CMB_NONE;
 	}
 
+	// Count the item height
+	int ItemHeight = tLX->cFont.GetHeight()+1;
+	if (tItems)
+		if (tItems->tImage)
+			if ((tItems->tImage->h+1) > ItemHeight)
+				ItemHeight = tItems->tImage->h+1;
+
 	// Go through the items checking for a mouse click
 	int count=0;
 	int y = iY+tLX->cFont.GetHeight()+4;
@@ -390,7 +397,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 			continue;
 
 		if(tMouse->X > iX && tMouse->X < w)
-			if(tMouse->Y >= y && tMouse->Y < y + tLX->cFont.GetHeight() + 1)
+			if(tMouse->Y >= y && tMouse->Y < y + ItemHeight)
 				if(tMouse->Up & SDL_BUTTON(1)) {
                     if(tSelected)
                         tSelected->iSelected = false;
@@ -402,7 +409,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 				}
 
 
-		y += tLX->cFont.GetHeight() + 1;
+		y += ItemHeight;
 		if(y > iY+iHeight)
 			break;
 	}
