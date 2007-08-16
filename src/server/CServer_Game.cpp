@@ -32,17 +32,12 @@ void GameServer::SpawnWorm(CWorm *Worm)
 
 	CVec pos = FindSpot();
 
-	// If the map supports the OpenLX beta 4 Extended Pixel Flags
-	if(cMap->getOLX()) {
-		// If this is VIP or TEAMCTF only allow the worm to spawn in an area designated for it's team
-		uchar TeamFlags [4] = { EPX_BSPAWN, EPX_RSPAWN, EPX_GSPAWN, EPX_YSPAWN };
-		if(iGameType == GMT_VIP || iGameType == GMT_TEAMCTF)
-			while(cMap->GetExtPixelFlag((uint)pos.x, (uint)pos.y) != TeamFlags[Worm->getTeam()]) {
-				if(cMap->GetExtPixelFlag((uint)pos.x, (uint)pos.y) == EPX_NONE)
-					break;
-				pos = FindSpot();
-			}
-	}
+	// Spawn the worm in the flag position if possible
+	if(Worm->getFlag() && iGameType == GMT_CTF)
+		pos = cMap->getFlagSpawn();
+
+	if(pos.x == -1 && pos.y == -1)
+		pos = FindSpot();
 
 	Worm->Spawn(pos);
 
@@ -200,8 +195,8 @@ void GameServer::SimulateGame(void)
 				if(CalculateDistance(w->getPos(),flagpos[j]) < 10) 
 					setFlag(w->getID(), j);
 
-		// If the flag has been held for 5 seconds give the worm a point
-		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag() && iGameType == GMT_CTF) {
+		// If the flag has been held for 5 seconds and the map doesn't have a base give the worm a point
+		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag() && iGameType == GMT_CTF && cMap->getBaseStart().x == -1) {
 			w->AddKill();
 			CBytestream bs;
 			bs.Clear();
@@ -223,43 +218,19 @@ void GameServer::SimulateGame(void)
 			setFlag(-1,1);
 		}
 */
-		int baseleft [4];
-		int baseright [4];
-		int basetop [4];
-		int basebottom [4];
-
-		{ for(short j=0; j<4; j++) {
-			baseleft[j]	 = (int)BasePos[j].x;
-			basetop[j]	 = (int)BasePos[j].y;
-			baseright[j] = baseleft[j] + (int)BaseSize[j].x;
-			basebottom[j]= basetop[j] + (int)BaseSize[j].y;
-		} }
-
-		// If the flag is within an ememy base then give the holder a point if it is an ememy and respawn
-		for(short j = 0; j<4; j++) {
-			if(w->getPos().x > baseleft[j] && w->getPos().x < baseright[j] && w->getPos().y > basetop[j] && w->getPos().y < basebottom[j]) {
-				if((w->getID() == getFlag(0) || w->getID() == getFlag(1)) && iGameType == GMT_TEAMCTF && !w->getFlag()) {
-					if(w->getID() == getFlag(0) && w->getTeam() != f[0]->getTeam()) {
-						w->AddKill();
-						CBytestream bs;
-						bs.Clear();
-						w->writeScore(&bs);
-						SendGlobalPacket(&bs);
-						SpawnWorm(f[0]);
-						setFlag(-1,0);
-					}
-					if(w->getID() == getFlag(1) && w->getTeam() != f[1]->getTeam()) {
-						w->AddKill();
-						CBytestream bs;
-						bs.Clear();
-						w->writeScore(&bs);
-						SendGlobalPacket(&bs);
-						SpawnWorm(f[1]);
-						setFlag(-1,1);
-					}
-				}
+		
+		// If the worm holds the flag and is within the base respawn the Flag and give the worm a point
+		if(w->getID() == getFlag() && iGameType == GMT_CTF)
+			if(w->getPos().x > cMap->getBaseStart().x && w->getPos().y > cMap->getBaseStart().y &&
+				w->getPos().x < cMap->getBaseEnd().x && w->getPos().y < cMap->getBaseEnd().y) {
+				w->AddKill();
+				CBytestream bs;
+				bs.Clear();
+				w->writeScore(&bs);
+				SendGlobalPacket(&bs);
+				SpawnWorm(f[0]);
+				setFlag(-1);
 			}
-		}
 	}
 
 

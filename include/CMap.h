@@ -44,13 +44,6 @@
 #define		PX_SHADOW	0x08
 #define		PX_WORM		0x10
 
-// Extended Pixel Flags
-#define		EPX_NONE	0x00
-#define		EPX_RSPAWN	0xF9
-#define		EPX_GSPAWN	0xFA
-#define		EPX_YSPAWN	0xFB
-#define		EPX_BSPAWN	0xFC
-
 // Object types
 #define		OBJ_HOLE	0
 #define		OBJ_STONE	1
@@ -112,7 +105,6 @@ public:
 		bmpBackImage = NULL;
 		bmpMiniMap = NULL;
 		PixelFlags = NULL;
-		ExtPixelFlags = NULL;
         bmpGreenMask = NULL;
         bmpShadowMap = NULL;
         GridFlags = NULL;
@@ -123,6 +115,13 @@ public:
 
 		bMiniMapDirty = true;
         sRandomLayout.bUsed = false;
+
+		FlagSpawnX = -1;
+		FlagSpawnY = -1;
+		BaseStartX = -1;
+		BaseStartY = -1;
+		BaseEndX   = -1;
+		BaseEndY   = -1;
    	}
 
 	~CMap() {
@@ -151,7 +150,6 @@ private:
 	SDL_Surface	*bmpMiniMap;
     SDL_Surface *bmpGreenMask;
 	uchar		*PixelFlags;  
-	uchar		*ExtPixelFlags;
     SDL_Surface *bmpShadowMap;
 #ifdef _AI_DEBUG
 	SDL_Surface *bmpDebugImage;
@@ -173,8 +171,13 @@ private:
 	int			NumObjects;
 	object_t	*Objects;
 
-	// OpenLX Stuff
-	bool		bOpenLX;
+	// CTF
+	short		FlagSpawnX;
+	short		FlagSpawnY;
+	short		BaseStartX;
+	short		BaseStartY;
+	short		BaseEndX;
+	short		BaseEndY;
 
 	// Water
 //	int			*m_pnWater1;
@@ -196,12 +199,11 @@ public:
 
 	int			New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	int			Load(const std::string& filename);
+	int			LoadCTF(const std::string& filename);
 	int			LoadOriginal(FILE *fp);
 	int			Save(const std::string& name, const std::string& filename);
 	int			SaveImageFormat(FILE *fp);
 	int			LoadImageFormat(FILE *fp);	
-	int			LoadOpenLX(const std::string& filename);
-	int			LoadImageFormatOpenLX(FILE *fp);
 	void		Clear(void);
 
     void		ApplyRandom(void);
@@ -269,11 +271,8 @@ public:
 		return PixelFlags[y * Width + x];
 	}
 
-	inline uchar GetExtPixelFlag(uint x, uint y) {	if(x >= Width || y >= Height) return EPX_NONE; return ExtPixelFlags[y * Width + x]; }
-
 	void	SetModifiedFlag()		{ modified = true; }
 	uchar	*GetPixelFlags() const	{ return PixelFlags; }
-	uchar	*GetExtPixelFlags() const { return ExtPixelFlags; }
 
 	SDL_Surface	*GetDrawImage()		{ return bmpDrawImage; }
 	SDL_Surface	*GetImage()			{ return bmpImage; }
@@ -322,7 +321,9 @@ public:
 	inline bool			getCreated(void)	{ return Created; }
 	inline std::string getName(void)		{ return Name; }
 
-	inline bool			getOLX(void)		{ return bOpenLX; }
+	inline CVec		getFlagSpawn(void)		{ return CVec(FlagSpawnX, FlagSpawnY); }
+	inline CVec		getBaseStart(void)		{ return CVec(BaseStartX, BaseStartY); }
+	inline CVec		getBaseEnd(void)		{ return CVec(BaseEndX, BaseEndY); }
 
 	// TODO: this needs to be made much more general to be as fast as the current routines
 	

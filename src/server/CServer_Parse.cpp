@@ -1617,19 +1617,6 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 		return true;
 	}
 
-	// Setteamspawn
-	if(!stringcasecmp(cmd, "/setteamspawn")) {
-		int team = atoi(*cur_arg);
-		TeamSpawn[team] = worm->getPos();
-		return true;
-	}
-
-	// Save map
-	if(!stringcasecmp(cmd, "/savemap")) {
-		cMap->Save("Olx "+cMap->getName(),*cur_arg+".lxl");
-		return true;
-	}
-
 	SendText(cl, "The command is not supported.", TXT_NETWORK);
 	return false;
 }

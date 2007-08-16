@@ -120,10 +120,6 @@ private:
 
 	int			iFlagHolder [4];
 	float		fLastFlagPoint;
-	CVec		FlagSpawn[4];
-	CVec		TeamSpawn[4];
-	CVec		BasePos[4];
-	CVec		BaseSize[4];
 
 	// Special messages
 	bool		bFirstBlood;
@@ -285,14 +281,6 @@ public:
 
 	inline int		getFlag(int team=0)			{ return iFlagHolder[team]; }
 	inline void		setFlag(int _f, int team=0)	{ iFlagHolder[team] = _f; }
-	inline void		setFlagSpawn(int i, CVec _v){ FlagSpawn[i] = _v; }
-	inline void		setTeamSpawn(int i, CVec _v){ TeamSpawn[i] = _v; }
-	inline void		setBasePos(int i, CVec _v)	{ BasePos[i] = _v; }
-	inline void		setBaseSize(int i, CVec _v)	{ BaseSize[i] = _v; }
-	inline CVec		getFlagSpawn(int i)			{ return FlagSpawn[i]; }
-	inline CVec		getTeamSpawn(int i)			{ return TeamSpawn[i]; }
-	inline CVec		getBasePos(int i)			{ return BasePos[i]; }
-	inline CVec		getBaseSize(int i)			{ return BaseSize[i]; }
 };
 
 extern	GameServer		*cServer;
