@@ -40,7 +40,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	if (bOldStyle)  {
 		for(short i=1;col;col = col->tNext,i++)   {
 			tLX->cFont.Draw(bmpDest, x, iY, col->iColour, col->sText);
-			x += col->iWidth-2;
+			x += col->iWidth;
 		}
 	} else {
 		short col_w;
@@ -146,10 +146,15 @@ void CListview::Draw(SDL_Surface *bmpDest)
 				if(sub->iVisible) {
 					switch(sub->iType)  {
 					case LVS_TEXT:  {
+						// Get the colour
+						Uint32 colour = item->iColour;
+						if (sub->iColour != tLX->clPink)
+							colour = sub->iColour;
+
 						if (col && !bOldStyle)
-							tLX->cFont.DrawAdv(bmpDest,x,texty,MIN(col->iWidth-8,right_bound-x),item->iColour,sub->sText);
+							tLX->cFont.DrawAdv(bmpDest, x, texty, MIN(col->iWidth-8, right_bound-x), colour, sub->sText);
 						else
-							tLX->cFont.DrawAdv(bmpDest,x,texty,right_bound-x-2,item->iColour,sub->sText);
+							tLX->cFont.DrawAdv(bmpDest, x, texty, right_bound-x-2, colour, sub->sText);
 					}
 					break;
 
@@ -355,7 +360,7 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign)
+void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign, Uint32 iColour)
 {
 	// No last item
 	if (!tLastItem)  {
@@ -379,6 +384,10 @@ void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img
 	sub->iVisible = true;
 	sub->iExtra = 0;
 	sub->iValign = iVAlign;
+	if (iColour == tLX->clPink)
+		sub->iColour = tLastItem->iColour;
+	else
+		sub->iColour = iColour;
 
 	// Set special info
 	switch (iType)  {

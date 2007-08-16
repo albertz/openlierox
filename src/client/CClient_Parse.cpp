@@ -591,6 +591,10 @@ void CClient::ParseStartGame(CBytestream *bs)
 	// Initialize some variables
 	iServerFrame = 0;
 	fServerTime = 0;
+
+	// Re-initialize the ingame scoreboard
+	InitializeIngameScore(false);
+	bUpdateScore = true;
 }
 
 
@@ -934,6 +938,8 @@ void CClient::ParseCLReady(CBytestream *bs)
 		}
 
 	}
+
+	bUpdateScore = true; // Change the ingame scoreboard
 }
 
 

@@ -279,6 +279,10 @@ private:
 	// Game menu && score
 	bool		bUpdateScore;
 
+	// Ingame scoreboard
+	SDL_Surface *bmpIngameScoreBg;
+	CGuiLayout	cScoreLayout;
+
 	// Bonus's
 	CBonus		*cBonuses;
 
@@ -424,6 +428,8 @@ public:
 	void		DrawGameMenu(SDL_Surface *bmpDest);
 	void		DrawBonuses(SDL_Surface *bmpDest, CViewport *v);
 	void		UpdateScore(CListview *Left, CListview *Right);
+	void		UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForPlayers);
+	void		InitializeIngameScore(bool WaitForPlayers);
 	void		DrawTime(SDL_Surface *bmpDest, int x, int y, float t);
 	void		DrawReadyOverlay(SDL_Surface *bmpDest);
 	void		DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, const std::string& buf);
@@ -438,6 +444,7 @@ public:
     void        DrawViewportManager(SDL_Surface *bmpDest);
 	void		SimulateHud(void);
 	int			getTopBarBottom();
+	int			getBottomBarTop();
 	void		DrawChatter(SDL_Surface *bmpDest);
 
 	// Network

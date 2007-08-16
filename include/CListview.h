@@ -92,6 +92,7 @@ class lv_subitem_t { public:
 	int			iVisible;
 	int			iExtra;
 	int			iValign;
+	Uint32		iColour;
 
 	lv_subitem_t *tNext;
 
@@ -105,7 +106,7 @@ class lv_item_t { public:
     int         _iID;
 	int			iSelected;
 	int			iHeight;
-	int			iColour;
+	Uint32		iColour;
 
 	lv_subitem_t *tSubitems;
 
@@ -219,7 +220,7 @@ public:
 
 	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour = tLX->clNormalLabel);
 	void	AddItem(const std::string& sIndex, int iIndex, int iColour);
-	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign = VALIGN_MIDDLE);
+	void	AddSubitem(int iType, const std::string& sText, SDL_Surface *img, CWidget *wid, int iVAlign = VALIGN_MIDDLE, Uint32 iColour = tLX->clPink);
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
 

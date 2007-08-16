@@ -195,6 +195,9 @@ NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 // (depends on which of them is the absolute greatest)
 inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
 	register const uchar* pxflags = pcMap->GetPixelFlags();
+	if (!pxflags)  {  // The map has been probably shut down
+		return false;
+	}
 	uint map_w = pcMap->GetWidth();
 	uint map_h = pcMap->GetHeight();
 
@@ -543,7 +546,7 @@ public:
 		// lower priority to this thread
 		SDL_Delay(1);
 
-		if(shouldBreakThread() || shouldRestartThread()) return NULL;
+		if(shouldBreakThread() || shouldRestartThread() || !pcMap->getCreated()) return NULL;
 
 		// is the start inside of the map?
 		if(start.x < 0 || (uint)start.x >= pcMap->GetWidth()

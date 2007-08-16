@@ -61,6 +61,17 @@ bool CClient::InitializeDrawing(void)
 		bmpBoxBuffer = NULL;
 	}
 
+	// Initialize the scoreboard
+	if (!bmpIngameScoreBg)  {  // Safety
+		bmpIngameScoreBg = gfxCreateSurface(640, getBottomBarTop());
+		if (!bmpIngameScoreBg)
+			return false;
+
+		SDL_SetAlpha(bmpIngameScoreBg, SDL_SRCALPHA, 128);  // Make it semi-transparent
+		FillSurface(bmpIngameScoreBg, tLX->clScoreBackground);
+	}
+	InitializeIngameScore(true);
+
 	// Local and network have different layouts and sections in the config file
 	std::string section = "";
 	if (tGameInfo.iGameType == GME_LOCAL)
@@ -187,6 +198,16 @@ int CClient::getTopBarBottom()
 		return gfxGame.bmpGameLocalTopBar ? gfxGame.bmpGameLocalTopBar->h : tLX->cFont.GetHeight();
 	else
 		return gfxGame.bmpGameNetTopBar ? gfxGame.bmpGameNetTopBar->h : tLX->cFont.GetHeight();
+}
+
+/////////////////
+// Get the top border of the bottom bar
+int CClient::getBottomBarTop()
+{
+	if (tGameInfo.iGameType == GME_LOCAL)
+		return gfxGame.bmpGameLocalBackground ? 480 - gfxGame.bmpGameLocalBackground->h : 382;
+	else
+		return gfxGame.bmpGameNetBackground ? 480 - gfxGame.bmpGameNetBackground->h : 382;
 }
 
 /////////////////
@@ -1889,6 +1910,118 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
     }
 }
 
+/////////////////////
+// Initialize the scoreboard
+enum  {
+	sb_Left,
+	sb_Right,
+};
+
+void CClient::InitializeIngameScore(bool WaitForPlayers)
+{
+	// Clear and initialize
+	cScoreLayout.Shutdown();
+	cScoreLayout.Initialize();
+
+	CListview *Left = new CListview();
+	CListview *Right = new CListview();
+
+	cScoreLayout.Add(Left, sb_Left, 17, getTopBarBottom() + 10, 305, getBottomBarTop() - getTopBarBottom() - 10);
+	cScoreLayout.Add(Right, sb_Right, 318, getTopBarBottom() + 10, 305, getBottomBarTop() - getTopBarBottom() - 10);
+
+	// Set the styles
+	Left->setDrawBorder(false);
+	Right->setDrawBorder(false);
+	Left->setShowSelect(false);
+	Right->setShowSelect(false);
+	Left->setRedrawMenu(false);
+	Right->setRedrawMenu(false);
+	Left->setOldStyle(true);
+	Right->setOldStyle(true);
+
+	// Add columns
+	Left->AddColumn("ID", 20, tLX->clHeading);  // ID
+	Right->AddColumn("ID", 20, tLX->clHeading);
+	Left->AddColumn("", 35, tLX->clHeading);  // Skin
+	Right->AddColumn("", 35, tLX->clHeading);
+	Left->AddColumn("Player", 140, tLX->clHeading);  // Player
+	Right->AddColumn("Player", 140, tLX->clHeading);
+	if (WaitForPlayers)  {
+		Left->AddColumn("", 80, tLX->clHeading);
+		Right->AddColumn("", 80, tLX->clHeading);
+	} else {
+		Left->AddColumn("L", 40, tLX->clHeading);  // Lives
+		Right->AddColumn("L", 40, tLX->clHeading);
+		Left->AddColumn("K", 30, tLX->clHeading);  // Kills
+		Right->AddColumn("K", 30, tLX->clHeading);
+	}
+
+	if (tGameInfo.iGameType == GME_HOST)  {
+		Left->AddColumn("P", 40, tLX->clHeading);  // Ping
+		Right->AddColumn("P", 40, tLX->clHeading);
+	}
+
+}
+
+////////////////////
+// Update the scoreboard
+void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForPlayers)
+{
+	CListview *lv = Left;
+	Uint32 iColor;
+
+	// Clear them first
+	Left->Clear();
+	Right->Clear();
+
+	// Fill the listviews
+    for(int i=0; i < iScorePlayers; i++) {
+		if (i >= 16)  // Left listview overflowed, fill in the right one
+			lv = Right;
+
+        CWorm *p = &cRemoteWorms[iScoreboard[i]];
+
+		// Get colour
+		if (tLXOptions->iColorizeNicks && (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP || tGameInfo.iGameMode == GMT_TEAMCTF))
+			iColor = tLX->clTeamColors[p->getTeam()];
+		else
+			iColor = tLX->clNormalLabel;
+
+        // If this player is local & human, highlight it
+        /*if(p->getType() == PRF_HUMAN && p->getLocal())
+            DrawRectFill(bmpDest, x+2,j-2, x+w-1, j+18, MakeColour(52,52,52));*/
+
+		lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+
+		// ID
+		lv->AddSubitem(LVS_TEXT, itoa(p->getID()), NULL, NULL);
+
+        // Skin
+		lv->AddSubitem(LVS_IMAGE, "", p->getPicimg(), NULL, VALIGN_TOP);
+
+		// Name
+		lv->AddSubitem(LVS_TEXT, p->getName(), NULL, NULL, VALIGN_MIDDLE, iColor);
+
+		if (WaitForPlayers)
+			lv->AddSubitem(LVS_TEXT, p->getGameReady() ? "Ready" : "Waiting", NULL, NULL, VALIGN_MIDDLE, p->getGameReady() ? tLX->clReady : tLX->clWaiting);
+		else  {
+			// Lives
+			lv->AddSubitem(LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+
+			// Kills
+			lv->AddSubitem(LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+		}
+
+		// Ping
+		if(tGameInfo.iGameType == GME_HOST)  {
+			CClient *remoteClient = cServer->getClient(p->getID());
+			if (remoteClient && p->getID())
+				lv->AddSubitem(LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+		}
+    }
+
+	bUpdateScore = false;
+}
 
 ///////////////////
 // Draw the scoreboard
@@ -1909,7 +2042,21 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
     if(!bShowScore)
         return;
 
-    int y = tInterfaceSettings.ScoreboardY;
+	// Background
+	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, 0,
+				tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg->w, bmpIngameScoreBg->h);
+
+	if (bUpdateScore)
+		UpdateIngameScore(((CListview *)cScoreLayout.getWidget(sb_Left)), ((CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
+
+	// Hide the second list if there are no players
+	cScoreLayout.getWidget(sb_Right)->setEnabled(iNumWorms > 16);
+
+	
+	// Draw it!
+	cScoreLayout.Draw(bmpDest);
+
+/*    int y = tInterfaceSettings.ScoreboardY;
     int x = tInterfaceSettings.ScoreboardX;
     int w = 240;
     int h = 185;
@@ -1994,7 +2141,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
         }
 
         j+=20;
-    }
+    }*/
 }
 
 ///////////////////
@@ -2003,6 +2150,8 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 {
     if(Con_IsUsed())
         return;
+
+	return;
 
     // Do checks on whether or not to show
     if(iNetStatus != NET_CONNECTED && !cShowSettings.isDown())

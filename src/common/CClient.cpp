@@ -62,6 +62,7 @@ void CClient::Clear(void)
     nTopProjectile = 0;
 	bUpdateScore = true;
 	cChatList = NULL;
+	bmpIngameScoreBg = NULL;
 
 	InvalidateSocketState(tSocket);
 
@@ -668,6 +669,12 @@ void CClient::Shutdown(void)
 		bmpBoxBuffer = NULL;
 	}
 
+	// Ingame score background
+	if (bmpIngameScoreBg)  {
+		SDL_FreeSurface(bmpIngameScoreBg);
+		bmpIngameScoreBg = NULL;
+	}
+
 	// Bars
 	if (cHealthBar1)
 		delete cHealthBar1;
@@ -685,6 +692,9 @@ void CClient::Shutdown(void)
 
 	// Game menu
 	cGameMenuLayout.Shutdown();
+
+	// Scoreboard
+	cScoreLayout.Shutdown();
 
 
 	// Bonuses
