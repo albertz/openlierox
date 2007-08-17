@@ -146,6 +146,7 @@ void CWorm::Clear(void)
 	bAlreadyKilled = false;
 
 	bNoShooting = false;
+	bFlag = false;
 }
 
 

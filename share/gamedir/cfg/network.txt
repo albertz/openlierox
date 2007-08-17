@@ -16,6 +16,7 @@ Killed = <killer> killed <victim>
 CommitedSuicide = <player> commited suicide
 FirstBlood = <player> drew first blood
 TeamKill = <player> is an ugly teamkiller
+CTFScore = <player> has scored
 
 PlayerOut = <player> is out of the game
 TeamOut = The <team> team is out of the game

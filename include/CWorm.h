@@ -272,7 +272,8 @@ private:
 	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
 	bool		bNoShooting;
-    
+    bool		bFlag;
+
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
     float       fForceWeapon_Time;
@@ -620,8 +621,8 @@ public:
 
 	inline bool		getVIP(void)				{ return bNoShooting; }
 	inline void		setVIP(bool _s)				{ bNoShooting = _s; }
-	inline bool		getFlag(void)				{ return bNoShooting; }
-	inline void		setFlag(bool _f)			{ bNoShooting = _f; }
+	inline bool		getFlag(void)				{ return bFlag; }
+	inline void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
 };
 
 

@@ -106,6 +106,7 @@ public:
 	std::string sCommitedSuicide ;
 	std::string sFirstBlood ;
 	std::string sTeamkill ;
+	std::string sHasScored;
 
 	std::string sPlayerOut ;
 	std::string sPlayerHasWon ;

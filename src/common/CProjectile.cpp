@@ -21,6 +21,7 @@
 #include "CWorm.h"
 #include "Entity.h"
 #include "MathLib.h"
+#include "CClient.h"
 
 
 ///////////////////
@@ -889,6 +890,8 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 	CWorm *w = worms;
 	for(short i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed() || !w->getAlive())
+			continue;
+		if(w->getFlag())
 			continue;
 
 		wx = (int)w->getPos().x;

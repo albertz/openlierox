@@ -230,6 +230,10 @@ void GameServer::SimulateGame(void)
 				SendGlobalPacket(&bs);
 				SpawnWorm(f[0]);
 				setFlag(-1);
+				if(w->getKills()==iMaxKills)
+					RecheckGame();
+				SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
+						TXT_NORMAL);
 			}
 	}
 
@@ -833,13 +837,36 @@ void GameServer::RecheckGame(void)
 							wormid = i;
 						}
 					}
-
-					// Send the text
-					if (networkTexts->sPlayerHasWon != "<none>")  {
-						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",winner->getName(),1)),
-										TXT_NORMAL);
+					for(i=0,w=cWorms;i<MAX_WORMS;i++,w++) {
+						if(!w->isUsed())
+							continue;
+						if(w->getKills()>=kills) {
+							// Send the text
+							if (networkTexts->sPlayerHasWon != "<none>")  {
+								SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
+												TXT_NORMAL);
+							}
+						}
 					}
 					EndGame = true;
+				}
+				// If the max points has been reached
+				else {
+					int kills=0;
+					w = cWorms;
+					CWorm *winner = cWorms;
+					for(i=0,w=cWorms;i<MAX_WORMS;i++,w++) {
+						if(!w->isUsed())
+							continue;
+						if(w->getKills()==iMaxKills) {
+							// Send the text
+							if (networkTexts->sPlayerHasWon != "<none>")  {
+								SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
+												TXT_NORMAL);
+							}
+							EndGame = true;
+						}
+					}
 				}
 			}
 			break; // CTF

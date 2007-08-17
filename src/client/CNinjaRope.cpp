@@ -21,6 +21,7 @@
 #include "CWorm.h"
 #include "MathLib.h"
 #include "Entity.h"
+#include "CClient.h"
 
 
 ///////////////////
@@ -196,6 +197,8 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 			if(!worms[i].getAlive())
 				continue;
 			if(worms[i].getID() == owner)
+				continue;
+			if(worms[i].getFlag())
 				continue;
 
 			if( ( worms[i].getPos() - HookPos ).GetLength2() < 25 ) {
