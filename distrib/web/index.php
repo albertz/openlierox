@@ -67,7 +67,7 @@
 		cd /usr/portage
 		mkdir -p games-action/openlierox
 		cd games-action/openlierox
-		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta2.ebuild
+		wget http://openlierox.sourceforge.net/games-action/openlierox/openlierox-0.57_beta3.ebuild
 		echo "games-action/openlierox ~x86" >> /etc/portage/package.keywords
 		FEATURES="-strict" emerge openlierox
 	</pre>
