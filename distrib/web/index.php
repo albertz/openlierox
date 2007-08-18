@@ -38,25 +38,16 @@
 	OpenLieroX downloads</a><br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta2.ebuild">OpenLieroX Gentoo ebuild</a><br>
 	<a href="deb/openlierox-0.57-beta2.deb">OpenLieroX deb-package</a>
-	(very much thanks to Ekir Gustafsson!)<br>
+	(very much thanks to Erik Gustafsson!)<br>
 	<br>
 	<b>0.57_beta1</b> (released 2007-01-27)<br>
 	<a href="tarball/OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
 	<a href="tarball/OpenLieroX_0.57_beta1.src.zip">OpenLieroX Source zip</a><br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta1.ebuild">OpenLieroX Gentoo ebuild</a><br>
-	(Feel free to post any success-stories on Gentoo
-	at <a href="http://bugs.gentoo.org/show_bug.cgi?id=164009">this topic</a>,
-	related to the ebuild, on the Gentoo-Bugtracker.)<br>
 	<br>
-	<b>Levels and mods</b><br>
+	<b>Levels and mods</b> (they are now included since Beta2 in the game)<br>
 	<a href="additions/lx0.56_pack1.9.zip">LieroX 0.56 Pack 1.9</a><br>
 	<a href="additions/another_lx_pack_2007_01_05.zip">another LX Pack (2007-01-05)</a><br>
-	<br>
-	<b>other Download-sources</b><br>
-	Take also a look in the 
-	<a href="http://lxalliance.net/smf/index.php/topic,3071.0.html">
-	OpenLieroX-related topic</a> on the biggest LieroX-forum. You will find
-	other Windows-releases and you can discuss anything about the game there.
 </p>
 <p>
 	<h2>Installation under Gentoo</h2>
@@ -71,6 +62,9 @@
 		echo "games-action/openlierox ~x86" >> /etc/portage/package.keywords
 		FEATURES="-strict" emerge openlierox
 	</pre>
+	(Feel free to post any success-stories on Gentoo
+	at <a href="http://bugs.gentoo.org/show_bug.cgi?id=164009">this topic</a>,
+	related to the ebuild, on the Gentoo-Bugtracker.)
 </p>
 <p>
 	<h2>Installation somewhere</h2>
@@ -90,7 +84,7 @@
 </p>
 <p>
 	<h2>Installation under Debian/Ubuntu</h2>
-	Erik Gustafsson has created now a Debain-package for you. Give it a try.
+	Erik Gustafsson has created now a Debain-package of Beta2 for you.
 	(Download link is in the download section.) This package currently
 	doesn't do the dependency check for you, so you have still to install
 	all needed dependencies (libraries) manually.<br>
@@ -101,7 +95,6 @@
 		sudo apt-get install libsdl1.2-dev 
 		sudo apt-get install libsdl-mixer1.2-dev
 		sudo apt-get install libsdl-image1.2-dev 
-		sudo apt-get install libsdl-gfx1.2-dev # dep. will be removed in future versions
 		sudo apt-get install libgd2-noxpm-dev
 		sudo apt-get install zlib1g-dev
 		sudo apt-get install libxml2-dev
@@ -138,6 +131,7 @@
 <p>
 	<h2>Links</h2>
 	<a href="http://sourceforge.net/projects/openlierox/">SourceForge project-site</a><br>
+	<a href="http://lxalliance.net/smf/index.php/topic,3071.0.html">LXA forum thread for OpenLieroX</a><br>
 	<a href="http://lxalliance.net/lierox/">official LieroX site</a><br>
 	<a href="http://www.az2000.de/">Alberts homepage</a>
 </p>
