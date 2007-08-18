@@ -491,14 +491,10 @@ void AddToFileList(searchpathlist* l, const std::string& f) {
 	if(!FileListIncludesExact(l, f)) l->push_back(f);
 }
 
-void removeEndingSlashes(std::string& s) {
-	// TODO: iterators!
-	for(
-		int i = (int)s.size() - 1;
-		i > 0 && (s[i] == '\\' || s[i] == '/');
-		i--
-	)
-		s.erase(i);
+void removeEndingSlashes(std::string& s) 
+{
+	while(s.size() > 0 && (*s.rbegin() == '\\' || *s.rbegin() == '/'))
+		s.erase(s.size() - 1);	
 }
 
 /////////////////
