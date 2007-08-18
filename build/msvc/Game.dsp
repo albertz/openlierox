@@ -746,7 +746,7 @@ SOURCE=.\libs\zlibstat.lib
 # End Source File
 # Begin Source File
 
-SOURCE="C:\Program Files\Microsoft Visual Studio\VC98\Lib\SHLWAPI.LIB"
+SOURCE=".\libs\SHLWAPI.LIB"
 # End Source File
 # Begin Source File
 
