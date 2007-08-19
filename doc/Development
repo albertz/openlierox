@@ -1,9 +1,23 @@
 Development information
 =======================
 
+Content
+=======
+Configure your IDE
+	Information for Dev-C++
+	Mac OS X
+	MSVC
+	Linux
+Code
+	SVN
+	Basic information
+	Style guidelines
+	Overview of the code
 
-Information for Dev-C++
-=======================
+
+	
+IDE : Information for Dev-C++
+=============================
 
 Firstly, I am using Dev-C++ 4.9.9.2 (some beta of v5).
 
@@ -28,8 +42,8 @@ The provides Dev-C++ project-file (under build/DevCpp) should work now.
 
 
 
-Mac OS X
-========
+IDE : Mac OS X
+==============
 
 You need the following frameworks (directories) in /Libraries/Frameworks/:
 	SDL.framework
@@ -43,4 +57,126 @@ Download SDL_image: http://www.libsdl.org/projects/SDL_image/release/SDL_image-1
 Download SDL_mixer: http://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-1.2.8.dmg
 Download GD, FreeType, UnixImageIO: http://www.kyngchaos.com/staticpages/index.php?page=software-unixport-frameworks
 
+You can use now the Xcode-projectfile under build/Xcode.
+
+
+
+IDE : MSVC
+==========
+[TODO]
+
+
+
+IDE : Linux
+===========
+
+First of all, you should install all packages (like SDL) this game depends on. Take a look into the file DEPS for a list. Then, you should install also a compiler (I would prefer GCC) and CMake (we use CMake as our make-system; feel free to add other makefiles - but not automake :)). Now let's test if the game compiles fine for you; type:
+	
+	cmake .	# this will create you an ordinary Makefile
+			# you only have to do this once or when you added new code-files
+	make	# this will start the compilation
+
+Run the game with:
+	
+	./start.sh
+
+If everything works fine and you want to start coding now, I would recommend you to use an IDE. I myself use KDevelop and I think it's also fine for you. In KDevelop, you can very easily import this project. Simply select the "import project" option in the menu and select the directory of OpenLieroX. It will find all source-files automatically now. Because it will also find the Makefile you have created with CMake, the building of the project will also work directly. The onliest thing you still have to set is the path to the binary (it is bin/openlierox). But look also over other project settings or general settings in KDevelop, perhaps you find some other nice features which you can enable.
+
+
+
+
+Code : SVN
+==========
+
+Some basic rules for your work with SVN:
+- Ensure that the code is compiling and working before you commit it!
+- Please commit only good code. See the guidelines.
+- Write a comment to every commit! When watching the changes, it helps a lot if I can read within a comment what you changed.
+- Make small commits. A commit should only contain one new feature or one bugfix, not more. It is a lot more easier to watch the changes if the commits are small. Also it is easier to find a bug later on.
+- Before you want make a real important or huge change to something in SVN, please contact the other developers and discuss this first.
+- Always keep in mind that others don't like to get disturbed by you.
+
+
+
+Code : Basic information
+========================
+
+If you want to work with the code, read this paragraph (and perhaps this whole file).
+
+Some starting hints:
+- Read the code-overview.
+- Esp., look at doc/TODO to get a rough idea what currently needs some work.
+- Look also at the other files under doc/.
+- Configure your IDE. That will help you a lot on working on it.
+- Do a global search in the source-code for the string "TODO". It will give you a lot of results. If you are bored or so, simply start fixing these TODOs. :) This will also gives you some impressions of the code.
+- Make some cleanups. I marked the most terrible parts which have to be recoded but there are much more which don't look that nice.
+- Talk to us.
+
+
+
+Code : Style guidelines
+=======================
+
+[TODO: this has to be extended]
+
+Some basic rules you should keep in every case:
+- Use standard C++. Not MS C++!!
+	For example:
+		for(int i = 0;;) {}
+		for(i = 0;;) {}
+	is *no* correct C++ code! But this is:
+		for(int i = 0;;) {}
+		for(int i = 0;;) {}
+- Don't make any realy crazy optimisations. Produce clear, simple and short code.
+- Make small functions! If your function is to big, cut it into pieces.
+- Don't use too much local variables in a function.
+	1. It is slow.
+	2. You made something wrong. Generaly, you don't need this.
+	3. It looks terrible!
+- Don't ever use C-technics. That includes for example all strcpy and related functions and of course in general C-strings.
+- Use the STL and STL-like technics (for example, use std::string, std::list, ...).
+	Some good links:
+	http://www.cppreference.com/index.html
+	http://www.sgi.com/tech/stl/table_of_contents.html
+- Produce abstract and general code!
+	(This is realy important because we soon want to change the base code and all code, which is not general enough has to be redone. Keep this in mind...)
+- Don't hack around. It's not good if you add some new features only with some small hacks to the code. The code becomes even more terrible by this. Also, almost every hacked-in feature isn't general enough to allow a simple reuse of it in a new codebase.
+
+...
+
+
+
+Code : Overview of the code
+===========================
+
+[TODO: this has to be extended a bit]
+[but don't extend it to much, it should only be an overview here that allows you withing an hour to get some basic ideas and impressions of the code :)]
+[also, don't explain every single code file here; if you want to know what each single code-file is for, look into them; they (should) contain this information themself]
+
+So, you are new to the code, so this will perhaps help you a bit:
+
+Files:
+src/main.cpp	; includes the main-entry point and the gameloop
+src/client/*	; mainly the menu and all client-related stuff
+src/common/*	; all more generaly stuff and also the main-structures (like worm, map, ..)
+src/server/*	; server-related stuff, also for example the game itself
+include/*		; header-files for all sources
+
+Take also a look to the most important structures:
+CMap, CWorm, CServer, CClient, CGameScript
+
+Game-logic:
+CServer, CClient, CGameScript
+
+Important for physics:
+CMap, CWorm, CProjectile, Entity, CNinjaRope
+
+Other important things:
+File-IO, also (mainly) searchpath-handling: FindFile
+Caching system for graphics and sounds: Cache
+Network-related things: Networking, CBytestream, CChannel
+Sound-related: Sounds
+Graphic-related: Graphics, GfxPrimitives
+
+...
 

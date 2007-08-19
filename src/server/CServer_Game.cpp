@@ -825,10 +825,10 @@ void GameServer::RecheckGame(void)
 					w = cWorms + wormid;
 					w->setLives(WRM_OUT);
 					// Find the worm with the highest kills
-					int kills=0;
+					int kills = 0;
 					w = cWorms;
 					CWorm *winner = cWorms;
-					for(i=0;i<MAX_WORMS;i++,w++) {
+					for(i = 0; i < MAX_WORMS; i++, w++) {
 						if(!w->isUsed())
 							continue;
 						if(w->getKills()>kills) {
@@ -837,10 +837,10 @@ void GameServer::RecheckGame(void)
 							wormid = i;
 						}
 					}
-					for(i=0,w=cWorms;i<MAX_WORMS;i++,w++) {
+					for(i = 0, w = cWorms; i < MAX_WORMS; i++, w++) {
 						if(!w->isUsed())
 							continue;
-						if(w->getKills()>=kills) {
+						if(w->getKills() >= kills) {
 							// Send the text
 							if (networkTexts->sPlayerHasWon != "<none>")  {
 								SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
@@ -852,13 +852,11 @@ void GameServer::RecheckGame(void)
 				}
 				// If the max points has been reached
 				else {
-					int kills=0;
 					w = cWorms;
-					CWorm *winner = cWorms;
-					for(i=0,w=cWorms;i<MAX_WORMS;i++,w++) {
+					for(i = 0, w = cWorms; i < MAX_WORMS; i++, w++) {
 						if(!w->isUsed())
 							continue;
-						if(w->getKills()==iMaxKills) {
+						if(w->getKills() == iMaxKills) {
 							// Send the text
 							if (networkTexts->sPlayerHasWon != "<none>")  {
 								SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
