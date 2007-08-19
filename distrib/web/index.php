@@ -9,17 +9,22 @@
 <body>
 <p>This is the homepage of <b>OpenLieroX</b>.</p>
 <p>
-	<h2>Description</h2>
-	OpenLierox is an extremely addictive realtime worms shoot-em-up backed
-	by an active gamers community.<br>
+	<h2>Short Description</h2>
+	OpenLierox is an extremely addictive realtime worms shoot-em-up backed by an active gamers community.<br>
 	Dozens of levels and mods are available to provide endless gaming pleasure.
 </p>
 <p>
+	<h2>Long Description</h2>
+	OpenLieroX is based and compatible to the famous LieroX. LieroX is a 2D shooter game. It is an unofficial sequel to Liero, and is the most popular of all the Liero clones. It features online play, fully customizable weapons, levels and characters. Liero Xtreme was created in C++ by Jason 'JasonB' Boettcher, an Australian programmer.<br>
+	<br>
+	The game is based on a deathmatch setting, where multiple players face off in a closed level. Each player is equipped with five weapons selected out of all the weapons allowed, and with a ninja rope that allows the player to move in any direction. Players begin with a set amount of lives, and whilst the game records the number of kills, the last man standing is usually considered the winner. LieroX also allows team deathmatches, which has made it common for players to form clans.<br>
+	<br>
+	Because of the huge community, there are dozens of levels and mods available. You also have no problem to find somebody on Internet to play with. Or if you want to play offline, you also can play with bots.
+</p>
+<p>
 	<h2>About</h2>
-	The original game was coded by Jason Boettcher and later
-	released under the zlib-licence.<br>
-	This version is based on it, ported to Linux and a lot enhanced
-	by Karel Petránek and Albert Zeyer.
+	The original game was coded by Jason Boettcher and later released under the zlib-licence.<br>
+	This version is based on it, ported to Linux and Mac OS X and a lot enhanced by Karel Petránek and Albert Zeyer.
 </p>
 <p>
 	<h2>Screenshots</h2>
@@ -68,13 +73,8 @@
 </p>
 <p>
 	<h2>Installation somewhere</h2>
-	Download the source and extract it. Take a look into the file
-	<i>DEPS</i> for the information, which dependencies are needed.
-	Install the missing dependencies.<br>
-	Then use the <i>compile.sh</i> to
-	compile it. If you want to install it into your system, use the
-	<i>install.sh</i>. Take a look at these both scripts, if you want
-	information about environment-variables you can use.<br>
+	Download the source and extract it. Take a look into the file <i>DEPS</i> for the information, which dependencies are needed. Install the missing dependencies.<br>
+	Then use the <i>compile.sh</i> to compile it. If you want to install it into your system, use the <i>install.sh</i>. Take a look at these both scripts, if you want information about environment-variables you can use.<br>
 	Use the start.sh script, if you don't want to install it.<br>
 	For example:<br>
 	<pre>
@@ -84,12 +84,8 @@
 </p>
 <p>
 	<h2>Installation under Debian/Ubuntu</h2>
-	Erik Gustafsson has created now a Debain-package of Beta2 for you.
-	(Download link is in the download section.) This package currently
-	doesn't do the dependency check for you, so you have still to install
-	all needed dependencies (libraries) manually.<br>
-	The following commands should install all needed dependencies on
-	your system:
+	Erik Gustafsson has created now a Debain-package of Beta2 for you. (Download link is in the download section.) This package currently doesn't do the dependency check for you, so you have still to install all needed dependencies (libraries) manually.<br>
+	The following commands should install all needed dependencies on your system:
 	<pre>
 		sudo apt-get install build-essential
 		sudo apt-get install libsdl1.2-dev 
@@ -99,33 +95,22 @@
 		sudo apt-get install zlib1g-dev
 		sudo apt-get install libxml2-dev
 	</pre>
-	If you want to compile/install it manually yourself:
-	Follow the installation @somewhere. You have only one problem:
-	HawkNL doesn't exist for Debian/Ubuntu. But there is the possibility
-	to compile OpenLieroX with HawkNL builtin. Simply do (after you have
-	installed the needed dependencies):
+	If you want to compile/install it manually yourself:<br>
+	Follow the installation @somewhere. You have only one problem: HawkNL doesn't exist for Debian/Ubuntu. But there is the possibility to compile OpenLieroX with HawkNL builtin. Simply do (after you have installed the needed dependencies):
 	<pre>
 		HAWKNL_BUILTIN=1 ./compile.sh
-	</pre><br>
+	</pre>
 </p>
 <p>
 	<h2>Details</h2>
-	The game uses case insensitive filenames (it will use the first 
-	found on case sensitive filesystems).<br>
-	The game searches the paths ~/.OpenLieroX, 
-	./ and /usr/share/OpenLieroX
-	(or under Gentoo: /usr/share/games/OpenLieroX)
-	for game-data (all path are relativ to this bases) (in this 
-	order). You can also
-	add more searchpathes in cfg/options.cfg (you also can change 
-	the searchpath-order here). Own modified configs,
-	screenshots and other stuff always will be stored in 
-	~/.OpenLieroX.
+	The game uses case insensitive filenames (it will use the first found on case sensitive filesystems).<br>
+	Under Linux, the game searches the paths ~/.OpenLieroX, ./ and /usr/share/OpenLieroX
+	(or under Gentoo: /usr/share/games/OpenLieroX) for game-data (all path are relativ to this bases) (in this order). You can also add more searchpathes in cfg/options.cfg (you also can change the searchpath-order here). Own modified configs, screenshots and other stuff always will be stored in ~/.OpenLieroX.<br>
+	Look also into the files in the directory <i>doc/</i>, they may be usefull (also for developers).
 </p>
 <p>
 	<h2>Contact</h2>
-	If you like to write any comments, bug reports or anything else,
-	use the following mail-adress for now:<br>
+	If you like to write any comments, bug reports or anything else, use the following mail-adress for now:<br>
 	<i>openlierox [at] az2000 [dot] de</i>
 </p>
 <p>
@@ -137,3 +122,4 @@
 </p>
 </body>
 </html>
+
