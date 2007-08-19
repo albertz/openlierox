@@ -95,6 +95,7 @@ Some basic rules for your work with SVN:
 - Make small commits. A commit should only contain one new feature or one bugfix, not more. It is a lot more easier to watch the changes if the commits are small. Also it is easier to find a bug later on.
 - Before you want make a real important or huge change to something in SVN, please contact the other developers and discuss this first.
 - Always keep in mind that others don't like to get disturbed by you.
+- Take a short look at the commits of the others. Perhaps they have made some changes to your code or placed some important comment there.
 
 
 
@@ -133,7 +134,7 @@ Some basic rules you should keep in every case:
 	1. It is slow.
 	2. You made something wrong. Generaly, you don't need this.
 	3. It looks terrible!
-- Don't ever use C-technics. That includes for example all strcpy and related functions and of course in general C-strings.
+- Don't ever use C-technics. That includes for example all strcpy and related functions and of course in general C-strings. Also don't use int if you mean bool. Things like these...
 - Use the STL and STL-like technics (for example, use std::string, std::list, ...).
 	Some good links:
 	http://www.cppreference.com/index.html
@@ -141,6 +142,11 @@ Some basic rules you should keep in every case:
 - Produce abstract and general code!
 	(This is realy important because we soon want to change the base code and all code, which is not general enough has to be redone. Keep this in mind...)
 - Don't hack around. It's not good if you add some new features only with some small hacks to the code. The code becomes even more terrible by this. Also, almost every hacked-in feature isn't general enough to allow a simple reuse of it in a new codebase.
+- Format and indent the code correct!
+- Place spaces between each element which should be read seperated!
+- Mark incomplete or temporary code with a TODO!
+- Comment your code where you made some strange, not selfexplaining stuff.
+- Don't upload any temporary testing-code into the code which produces for example some debug-files for you which is useless for the others.
 
 ...
 
@@ -163,7 +169,7 @@ src/server/*	; server-related stuff, also for example the game itself
 include/*		; header-files for all sources
 
 Take also a look to the most important structures:
-CMap, CWorm, CServer, CClient, CGameScript
+CMap, CWorm, CServer, CClient, CGameScript, LieroX
 
 Game-logic:
 CServer, CClient, CGameScript

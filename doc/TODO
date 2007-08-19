@@ -1,5 +1,6 @@
 TODO
 
+[ ] why were some of the default-levels changed in the repo? (!!)
 [ ] multiple masterservers (and registration on each) (!!)
 [ ] use better interpolation for remote worms (simulate with ping), both server and client side (!!)
 [ ] fix CChanel wrong ping calculations and sending packets twice when not wanted (!!)

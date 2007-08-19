@@ -321,6 +321,7 @@ public:
 	inline bool			getCreated(void)	{ return Created; }
 	inline std::string getName(void)		{ return Name; }
 
+	// TODO: why is this converted to CVec? either use directly CVec or don't use it at all! every conversion take performance away
 	inline CVec		getFlagSpawn(void)		{ return CVec(FlagSpawnX, FlagSpawnY); }
 	inline CVec		getBaseStart(void)		{ return CVec(BaseStartX, BaseStartY); }
 	inline CVec		getBaseEnd(void)		{ return CVec(BaseEndX, BaseEndY); }

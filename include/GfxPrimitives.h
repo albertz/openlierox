@@ -423,7 +423,12 @@ inline void CopyPixel_SameFormat(
 ////////////////
 // Put pixel alpha blended with the background
 // WARNING: passing invalid coordinates will cause a segfault
-void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a);
+void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a);
+
+inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a) {
+	PutPixelA(bmpDest, x, y, colour, (float)a / 255.0f);
+}
+
 
 ////////////////
 // Extract 4 colour components from a packed int

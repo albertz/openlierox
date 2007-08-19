@@ -118,11 +118,11 @@ private:
 
 	bool		bTournament;
 
-	int			iFlagHolder [4];
-	float		fLastFlagPoint;
+	int			iFlagHolder [4]; // TODO: what is this for? what does the magic const 4 mean?
+	float		fLastFlagPoint; // TODO: what is this for? why isn't it a CVec?
 
 	// Special messages
-	bool		bFirstBlood;
+	bool		bFirstBlood;	// TODO: what is this for?
 
 	// Clients
 	CClient		*cClients;
@@ -138,17 +138,17 @@ private:
 	CBonus		cBonuses[MAX_BONUSES];
 
 	// Map
-	int			iRandomMap;
+	int			iRandomMap;		// TODO: what is thi for
 	std::string	sMapFilename;
 	CMap		*cMap;
 
 	// Simulation
-	float		fServertime;
-	int			iServerFrame;
+	float		fServertime;	// TODO: what is this for
+	int			iServerFrame;	// TODO: what is this for
 
 	float		fLastBonusTime;
 
-	int			iLastVictim;
+	int			iLastVictim;	// TODO: what is this for
 
 	// Network
 	NetworkSocket	tSocket;
@@ -278,7 +278,8 @@ public:
 	inline void		setTakeScreenshot(bool _s) { bTakeScreenshot = _s; }
 	inline bool		getScreenshotToken(void) { return bScreenshotToken; }
 	inline void		setScreenshotToken(bool _s) { bScreenshotToken = _s; }
-
+	
+	// TODO: change the name of these functions; the sense should be clear
 	inline int		getFlag(int team=0)			{ return iFlagHolder[team]; }
 	inline void		setFlag(int _f, int team=0)	{ iFlagHolder[team] = _f; }
 };

@@ -79,11 +79,9 @@ std::string replacemax(const std::string& text, const std::string& what, const s
 bool replace(std::string& text, const std::string& what, const std::string& with) {
 	bool one_repl = false;
 	size_t pos = 0;
-	size_t what_len = what.length();
-	size_t with_len = with.length();
 	while((pos = text.find(what, pos)) != std::string::npos) {
-		text.replace(pos, what_len, with);
-		pos += with_len;
+		text.replace(pos, what.length(), with);
+		pos += with.length();
 		one_repl = true;
 	}
 	return one_repl;
@@ -129,6 +127,7 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 
 //////////////////
 // Converts a string to a colour
+// HINT: it uses MakeColour
 Uint32 StrToCol(const std::string& str) {
 	if (str == "")
 		return tLX->clPink;
@@ -181,6 +180,7 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 }
 
 // HINT: it returns a reference
+// TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
 const std::vector<std::string>& explode(const std::string& str, const std::string& delim) {
 	static std::vector<std::string> result;
 	result.clear();
@@ -314,6 +314,10 @@ void ucfirst(std::string& text)
 
 //////////////////////
 // Splits the string to pieces that none of the pieces can be longer than maxlen
+// TODO: change the name of the function; it should be a clear, self-explaining name
+// TODO: recode it, use iterators; for example, you should never ever to know about UTF8 in the function (you should never have to use *it >= 0x80)
+// TODO: don't convert simply to int only because the compiler makes a warning; think about why the compiler made the warning -> there is a possible not-seen overflow which occurs if you convert unsigned int to int; this possible overflow is what the warning means; in mostly all cases you should avoid a possible overflow
+// TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
 const std::vector<std::string>& clever_split(const std::string& str, int maxlen)
 {
 	int split = 0;
@@ -401,6 +405,7 @@ const std::vector<std::string>& clever_split(const std::string& str, int maxlen)
 
 ///////////////////
 // Strip quotes away from a string
+// TODO: remove this
 void StripQuotes(char *dest, char *src)
 {
 	if(!dest || !src)
@@ -440,6 +445,7 @@ void lx_strncpy(char *dest, char *src, int count)
 
 ///////////////////
 // Strip a string down to bare ascii characters
+// TODO: remove this
 char *StripLine(char *szLine)
 {
     // Convert newlines to spaces
@@ -453,6 +459,7 @@ char *StripLine(char *szLine)
 
 ///////////////////
 // Trim the leading & ending spaces from a string
+// TODO: remove this
 char *TrimSpaces(char *szLine)
 {
     // Remove preceeding spaces
@@ -474,6 +481,7 @@ char *TrimSpaces(char *szLine)
 // Replace a string in text, returns true, if something was replaced
 // NOTE: buffer unsafe
 // HINT: only for backward compatibility
+// TODO: remove this
 bool replace(char *text, const char *what, const char *with, char *result)
 {
   bool ret = false;
@@ -505,6 +513,7 @@ bool replace(char *text, const char *what, const char *with, char *result)
 
 ///////////////////
 // Strips the text to have the specified width, returns buf
+// TODO: remove this
 char *strip(char *buf, int width)
 {
 	for(int j=strlen(buf)-1; tLX->cFont.GetWidth(buf) > width && j>0; j--)
@@ -515,6 +524,7 @@ char *strip(char *buf, int width)
 
 ///////////////////
 // Strips the text to have the specified width and adds three dots at it's end, if the text was stripped
+// TODO: remove this
 bool stripdot(char *buf, int width)
 {
 	int dotwidth = tLX->cFont.GetWidth("...");

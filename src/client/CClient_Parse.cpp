@@ -51,6 +51,9 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 		strBadConnectMsg = Utf8String(bs->readString(256));
 	}
 
+	// TODO: don't make it like this! detect any future version here!
+	// TODO: also, don't use seperate bools for each version
+	
 	// Host has OpenLX Beta 3
 	else if(cmd == "lx::openbeta3")
 		bHostOLXb3 = true;

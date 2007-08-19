@@ -442,8 +442,10 @@ public:
     bool        AI_Initialize();
     void        AI_Shutdown(void);
 
+	// TODO: what is the sense of all these parameters? (expect gametype)
 	void		AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, int flaggame, int teamflaggame);
 	void		AI_Respawn();
+	// TODO: what is the sense of all these parameters?
     void        AI_Think(int gametype, int teamgame, int taggame);
     bool        AI_FindHealth();
     bool        AI_SetAim(CVec cPos);
@@ -621,6 +623,8 @@ public:
 
 	inline bool		getVIP(void)				{ return bNoShooting; }
 	inline void		setVIP(bool _s)				{ bNoShooting = _s; }
+	
+	// TODO: the sense of this isn't clear; so make it clear
 	inline bool		getFlag(void)				{ return bFlag; }
 	inline void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
 };

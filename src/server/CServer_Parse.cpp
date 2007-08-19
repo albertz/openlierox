@@ -1598,6 +1598,7 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 		return true;
 	}
 
+	// TODO: remove this
 	// Make second local worm a flag
 	if(!stringcasecmp(cmd, "/flagtest")) {
 		cClient->getWorm(1)->setFlag(1);
@@ -1606,6 +1607,7 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 		return true;
 	}
 
+	// TODO: remove this
 	// Make third local worm a flag
 	if(!stringcasecmp(cmd, "/flagtest2")) {
 		cClient->getWorm(1)->setFlag(1);
