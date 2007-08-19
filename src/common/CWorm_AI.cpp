@@ -196,6 +196,7 @@ NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 inline bool simpleTraceLine(CMap* pcMap, VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
 	register const uchar* pxflags = pcMap->GetPixelFlags();
 	if (!pxflags)  {  // The map has been probably shut down
+		printf("WARNING: simpleTraceLine with pxflags==NULL\n");
 		return false;
 	}
 	uint map_w = pcMap->GetWidth();
