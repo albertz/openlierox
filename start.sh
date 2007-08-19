@@ -13,7 +13,9 @@ get_backtrace() {
         -ex "thread apply all bt full" \
         -ex "quit"
 
-	echo "HINT: please send the file '$core' along with the above output to openlierox@az2000.de"
+	echo "HINT: Please send the above output to openlierox@az2000.de."
+	echo "	Perhaps we could also need the file '$core' later on,"
+	echo "	so it would be nice if you can keep it for now."
 }
 
 cd share/gamedir
