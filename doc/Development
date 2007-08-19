@@ -96,6 +96,8 @@ Some basic rules for your work with SVN:
 - Before you want make a real important or huge change to something in SVN, please contact the other developers and discuss this first.
 - Always keep in mind that others don't like to get disturbed by you.
 - Take a short look at the commits of the others. Perhaps they have made some changes to your code or placed some important comment there.
+	Webinterface to our SVN:
+	http://openlierox.svn.sourceforge.net/viewvc/openlierox/
 
 
 
