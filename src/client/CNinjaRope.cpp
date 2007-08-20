@@ -191,7 +191,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 		PlayerAttached = false;
 
 		for(short i=0; i<MAX_WORMS; i++) {
-			// Don't check against the worm if they aren't used, dead or the ninja rope was shot by the worm
+			// Don't check against the worm if they aren't used, dead, a flag or the ninja rope was shot by the worm
 			if(!worms[i].isUsed())
 				continue;
 			if(!worms[i].getAlive())

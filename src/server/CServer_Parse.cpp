@@ -1579,7 +1579,7 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 	// Commit suicide
 	if(!stringcasecmp(cmd, "/suicide")) {
 		if(cur_arg == arguments.end())  {
-			SendText(cl, "Not enough of arguments.", TXT_NETWORK);
+			SendText(cl, "Not enough arguments.", TXT_NETWORK);
 			return true;
 		}
 
@@ -1595,6 +1595,21 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 		lives = MIN(lives, worm->getLives()+1);
 		for(int i=0;i<lives;i++)
 			cClient->SendDeath(worm->getID(),worm->getID());
+		return true;
+	}
+
+	// Set a worm's weapon
+	if(!stringcasecmp(cmd, "/setweapon")) {
+		if(cur_arg == arguments.end())  {
+			SendText(cl, "Not enough arguments.", TXT_NETWORK);
+			return true;
+		}
+		if(iState != SVS_PLAYING) {
+			SendText(cl, "Can't set weapons when not playing.", TXT_NETWORK);
+			return true;
+		}
+		wpnslot_t *Slot = worm->getCurWeapon();
+		Slot->Weapon = cGameScript.FindWeapon(*cur_arg);
 		return true;
 	}
 
