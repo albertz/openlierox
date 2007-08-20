@@ -1,5 +1,6 @@
 TODO
 
+[ ] don't overwrite the whole config-file at the end but only the known-parts (this makes it compatible with future versions and don't deletes part of it) (!!)
 [ ] why were some of the default-levels changed in the repo? (!!)
 [ ] multiple masterservers (and registration on each) (!!)
 [ ] use better interpolation for remote worms (simulate with ping), both server and client side (!!)
