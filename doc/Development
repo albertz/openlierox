@@ -144,8 +144,14 @@ Some basic rules you should keep in every case:
 - Produce abstract and general code!
 	(This is realy important because we soon want to change the base code and all code, which is not general enough has to be redone. Keep this in mind...)
 - Don't hack around. It's not good if you add some new features only with some small hacks to the code. The code becomes even more terrible by this. Also, almost every hacked-in feature isn't general enough to allow a simple reuse of it in a new codebase.
-- Format and indent the code correct!
+- Format and indent the code correct! (Use tabs for indenting!)
 - Place spaces between each element which should be read seperated!
+	For example, this looks terrible:
+	CVec* v=somewhat;for(v->x=0,v->y=10;(v->x<10&&v->y>=0);v->x++,v->y--)cout<<v->x<<v->y<<endl;
+	This looks much better:
+	CVec* v = somewhat;
+	for(v->x = 0, v->y = 10; v->x < 10 && v->y >= 0; v->x++, v->y--)
+		cout << v->x << v->y << endl;
 - Mark incomplete or temporary code with a TODO!
 - Comment your code where you made some strange, not selfexplaining stuff.
 - Don't upload any temporary testing-code into the code which produces for example some debug-files for you which is useless for the others.
