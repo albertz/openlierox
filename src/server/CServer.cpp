@@ -291,6 +291,29 @@ int GameServer::StartGame(void)
     cWeaponRestrictions.loadList("cfg/wpnrest.dat");
     cWeaponRestrictions.updateList(&cGameScript);
 
+	// Setup the flags
+	int flags = (iGameType == GMT_CTF) + (iGameType == GMT_TEAMCTF)*2;
+	CBytestream bytestr;
+	bytestr.Clear();
+
+	for(i=0;i<MAX_WORMS;i++) {
+		if(cWorms[i].isUsed())
+			continue;
+		if(flags) {
+			cWorms[i].setID(i);
+			cWorms[i].setUsed(true);
+			cWorms[i].setupLobby();
+			cWorms[i].setFlag(true);
+			cWorms[i].setName("Flag "+itoa(flags));
+			cWorms[i].setSkin("flag.png");
+			cWorms[i].setColour(255, 255, 255);
+			bytestr.writeByte(S2C_WORMINFO);
+			bytestr.writeInt(i, 1);
+			cWorms[i].writeInfo(&bytestr);
+			flags--;
+		}
+	}
+	SendGlobalPacket(&bytestr);
 
 	// Set some info on the worms
 	for(i=0;i<MAX_WORMS;i++) {
@@ -416,6 +439,15 @@ void GameServer::BeginMatch(void)
 
 	for(i=0;i<4;i++)
 		iFlagHolder[i] = -1;
+
+	// Setup the flag worms
+	for(i=0;i<MAX_WORMS;i++) {
+		if(!cWorms[i].getFlag())
+			continue;
+		CWorm *worm = cClient->getRemoteWorms()+cWorms[i].getID();
+		worm->setFlag(true);
+		worm->setLocal(true);
+	}
 }
 
 

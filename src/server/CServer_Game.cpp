@@ -182,19 +182,6 @@ void GameServer::SimulateGame(void)
 		// Simulate the worm's weapons
 		w->SimulateWeapon( tLX->fRealDeltaTime );
 
-		// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
-		if(iGameType == GMT_CTF && w->getAlive() && f[0]->getID() != w->getID() && getFlag() == -1)
-			if(CalculateDistance(w->getPos(),flagpos[0]) < 10) {
-				setFlag(i);
-				fLastFlagPoint = tLX->fCurTime;
-			}
-
-		// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
-		if(iGameType == GMT_TEAMCTF && w->getAlive() && !w->getFlag())
-			for(int j=0;j<flags+1;j++) 
-				if(CalculateDistance(w->getPos(),flagpos[j]) < 10) 
-					setFlag(w->getID(), j);
-
 		// If the flag has been held for 5 seconds and the map doesn't have a base give the worm a point
 		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag() && iGameType == GMT_CTF && cMap->getBaseStart().x == -1) {
 			w->AddKill();
@@ -230,10 +217,10 @@ void GameServer::SimulateGame(void)
 				SendGlobalPacket(&bs);
 				SpawnWorm(f[0]);
 				setFlag(-1);
-				if(w->getKills()==iMaxKills)
-					RecheckGame();
 				SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
 						TXT_NORMAL);
+				if(w->getKills()==iMaxKills)
+					RecheckGame();
 			}
 	}
 

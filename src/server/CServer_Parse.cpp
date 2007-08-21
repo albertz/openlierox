@@ -1107,8 +1107,6 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::openbeta3");
-		bytestr.Send(tSocket);
-		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::openbeta4");
 		bytestr.Send(tSocket);
@@ -1153,12 +1151,13 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// TODO: Set socket info
 		// TODO: This better
 
+
 		static std::string buf;
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>")  {
 			for (i = 0;i < numworms;i++) {
-				SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasConnected, "<player>", worms[i].getName(), 1)),
-								TXT_NETWORK);
+				buf = replacemax(networkTexts->sHasConnected, "<player>", worms[i].getName(), 1);
+				SendGlobalText(OldLxCompatibleString(buf), TXT_NETWORK);
 			}
 		}
 
@@ -1485,7 +1484,7 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 	// Change the name
 	if(!stringcasecmp(cmd, "/setname")) {
 		// Nick changing not allowed
-		if (!tLXOptions->tGameinfo.bAllowNickChange)  {
+		if (!tLXOptions->tGameinfo.bAllowNickChange && !cl->getRights()->Override)  {
 			SendText(cl, "Host has disabled nick changing.", TXT_NETWORK);
 			return true;
 		}
@@ -1535,7 +1534,7 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 	// Change the color
 	if(!stringcasecmp(cmd, "/setcolour") || !stringcasecmp(cmd, "/setcolor")) {
 		// Changing others color can only authorized users
-		if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)  {
+		if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange && !cl->getRights()->Override)  {
 			SendText(cl, "You do not have sufficient rights to change the colour.", TXT_NETWORK);
 			return true;
 		}
@@ -1560,7 +1559,7 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 	// Change the skin
 	if(!stringcasecmp(cmd, "/setskin")) {
 		// Changing others skin can only authorized users
-		if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange)  {
+		if (!cl->OwnsWorm(cWorms + id) && !cl->getRights()->NameChange && !cl->getRights()->Override)  {
 			SendText(cl, "You do not have sufficient rights to change the skin.", TXT_NETWORK);
 			return true;
 		}
@@ -1590,47 +1589,12 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 		}
 
 		// Make sure the client suicides themselves
-		worm=cl->getWorm(0);
+		if(!cl->getRights()->Override)
+			worm=cl->getWorm(0);
 		int lives = MAX(atoi(*cur_arg),1);
 		lives = MIN(lives, worm->getLives()+1);
 		for(int i=0;i<lives;i++)
 			cClient->SendDeath(worm->getID(),worm->getID());
-		return true;
-	}
-
-	// Set a worm's weapon
-	if(!stringcasecmp(cmd, "/setweapon")) {
-		if(cur_arg == arguments.end())  {
-			SendText(cl, "Not enough arguments.", TXT_NETWORK);
-			return true;
-		}
-		if(iState != SVS_PLAYING) {
-			SendText(cl, "Can't set weapons when not playing.", TXT_NETWORK);
-			return true;
-		}
-		wpnslot_t *Slot = worm->getCurWeapon();
-		Slot->Weapon = cGameScript.FindWeapon(*cur_arg);
-		return true;
-	}
-
-	// TODO: remove this
-	// Make second local worm a flag
-	if(!stringcasecmp(cmd, "/flagtest")) {
-		cClient->getWorm(1)->setFlag(1);
-		int id = cClient->getWorm(1)->getID();
-		cWorms[id].setFlag(1);
-		return true;
-	}
-
-	// TODO: remove this
-	// Make third local worm a flag
-	if(!stringcasecmp(cmd, "/flagtest2")) {
-		cClient->getWorm(1)->setFlag(1);
-		int id = cClient->getWorm(1)->getID();
-		cWorms[id].setFlag(1);
-		cClient->getWorm(2)->setFlag(true);
-		id = cClient->getWorm(2)->getID();
-		cWorms[id].setFlag(true);
 		return true;
 	}
 

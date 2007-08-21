@@ -98,6 +98,21 @@ void CClient::Simulation(void)
 		tLXOptions->iShowHealth = !tLXOptions->iShowHealth;
 	}
 
+	// Generate the flag worms
+	w = cRemoteWorms;
+	CWorm *f[MAX_WORMS+1];
+	CVec flagpos[MAX_WORMS];
+	int flags = 0;
+
+	f[0] = cRemoteWorms;
+
+	for(i=0;i<MAX_WORMS;i++,f[flags]++) 
+		if(f[flags]->isUsed() && f[flags]->getFlag()) {
+			flagpos[flags] = f[flags]->getPos();
+			flags++;
+			f[flags]=cRemoteWorms+i;
+		}
+
 	// Player simulation
 	w = cRemoteWorms;
 	for(i = 0; i < MAX_WORMS; i++, w++) {
@@ -186,17 +201,24 @@ void CClient::Simulation(void)
 			w->incrementTagTime(tLX->fDeltaTime);
 
 		if(tGameInfo.iGameType == GME_HOST && cServer && w->getLocal()) {
-		// If playing capture the flag set the flag's position to that of its holder
-		if(w->getFlag() && iGameType == GMT_CTF) {
-			if(cServer->getFlag() != -1)
-				w->setPos(cRemoteWorms[cServer->getFlag()].getPos());
-		}
+			// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
+			if((iGameType == GMT_CTF || iGameType == GMT_TEAMCTF) && w->getAlive() && !w->getFlag())
+				for(int j=0;j<flags+1;j++) 
+					if(CalculateDistance(w->getPos(),flagpos[j]) < 10) 
+						cServer->setFlag(w->getID(), j);
 
-		// If playing teams capture the flag set the flag's position to that of its holder
-		if(w->getFlag() && iGameType == GMT_TEAMCTF) {
-			if(cServer->getFlag(w->getTeam()) != -1)
-				w->setPos(cRemoteWorms[cServer->getFlag(w->getTeam())].getPos());
-		}
+			// TODO: Merge these into one check
+			// If playing capture the flag set the flag's position to that of its holder
+			if(w->getFlag() && iGameType == GMT_CTF) {
+				if(cServer->getFlag() != -1)
+					w->setPos(cRemoteWorms[cServer->getFlag()].getPos());
+			}
+
+			// If playing teams capture the flag set the flag's position to that of its holder
+			if(w->getFlag() && iGameType == GMT_TEAMCTF) {
+				if(cServer->getFlag(w->getTeam()) != -1)
+					w->setPos(cRemoteWorms[cServer->getFlag(w->getTeam())].getPos());
+			}
 		}
 	}
 

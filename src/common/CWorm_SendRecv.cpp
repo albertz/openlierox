@@ -222,6 +222,9 @@ bool CWorm::checkPacketNeeded()
 // Read a packet (server side)
 void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 {
+	if(getFlag())
+		return;
+
 	// Position
 	vOldPos = vPos;
 	short x, y;

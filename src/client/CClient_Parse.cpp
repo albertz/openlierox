@@ -112,7 +112,6 @@ void CClient::ParseConnected(CBytestream *bs)
 {
 	NetworkAddr addr;
 
-
 	// Setup the client
 	iNetStatus = NET_CONNECTED;
 

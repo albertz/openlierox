@@ -134,9 +134,9 @@ class interface_sett { public:
 
 // Client rights on a server
 class ClientRights { public:
-	ClientRights(): NameChange(false), Kick(false), Ban(false), Mute(false), ChooseLevel(false), ChooseMod(false), StartGame(false), Authorize(false) {}
+	ClientRights(): NameChange(false), Kick(false), Ban(false), Mute(false), ChooseLevel(false), ChooseMod(false), StartGame(false), Authorize(false), Override(false) {}
 	void Everything ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = true; }
-	void Nothing ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = false; }
+	void Nothing ()  { NameChange = Kick = Ban = Mute = ChooseLevel = ChooseMod = StartGame = Authorize = Override = false; }
 
 	bool NameChange;
 	bool Kick;
@@ -146,6 +146,7 @@ class ClientRights { public:
 	bool ChooseMod;
 	bool StartGame;
 	bool Authorize;
+	bool Override;
 };
 
 
