@@ -333,7 +333,8 @@ const std::vector<std::string>& clever_split(const std::string& str, int maxlen)
 		if (spacepos == std::string::npos)  {  // hardbreak
 			std::string::const_iterator it = buf.end();
 			it--;
-			while (*it >= 0x80 && it != buf.begin())  {  // make sure we don't break UTF8 character
+			// TODO: avoid code like this!
+			while ((uchar)*it >= 0x80 && it != buf.begin())  {  // make sure we don't break UTF8 character
 				it--;
 				current_part--;
 			}
