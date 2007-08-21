@@ -584,11 +584,14 @@ void CWorm::GetRandomWeapons(void)
 // Draw/Process the weapon selection screen
 void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 {
+	// TODO: reduce local variables in this function
+	// TODO: make this function shorter
+	// TODO: give better names to local variables
+	
 	int l = 0;
 	int t = 0;
 	short i,id;
 	int centrex = 320;
-	keyboard_t *kb = GetKeyboard();
 
     if( v ) {
         if( v->getUsed() ) {
