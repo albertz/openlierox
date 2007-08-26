@@ -929,7 +929,7 @@ void CClient::SimulateHud(void)
         InitializeViewportManager();
 
     // Process Chatter
-    if(!iGameMenu && !bViewportMgr && !con)
+    if(!con)
 	    processChatter();
 }
 
@@ -1112,15 +1112,17 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 	}
 
 	// Process the keyboard
-	keyboard_t *Keyboard = GetKeyboard();
+	if (!iChat_Typing)  {
+		keyboard_t *Keyboard = GetKeyboard();
 
-	if (Keyboard->KeyUp[SDLK_RETURN] || Keyboard->KeyUp[SDLK_KP_ENTER] || Keyboard->KeyUp[SDLK_ESCAPE])  {
-		if (tGameInfo.iGameType == GME_LOCAL && iGameOver)  {
-			tLX->iQuitEngine = true;
-		} else if (!iGameOver)  {
-			iGameMenu = false;
-			bRepaintChatbox = true;
-			SetGameCursor(CURSOR_NONE);
+		if (Keyboard->KeyUp[SDLK_RETURN] || Keyboard->KeyUp[SDLK_KP_ENTER] || Keyboard->KeyUp[SDLK_ESCAPE])  {
+			if (tGameInfo.iGameType == GME_LOCAL && iGameOver)  {
+				tLX->iQuitEngine = true;
+			} else if (!iGameOver)  {
+				iGameMenu = false;
+				bRepaintChatbox = true;
+				SetGameCursor(CURSOR_NONE);
+			}
 		}
 	}
 }
@@ -1611,9 +1613,10 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 {
 	int y = tInterfaceSettings.LocalChatY;
 	lines_riterator it = cChatbox.RBegin();
-	byte i;
 
-	for(i = 0; i < 6 && it != cChatbox.REnd(); i++, it++) { // Last 6 messages
+	for(byte i = 0; i < 6 && it != cChatbox.REnd(); i++, it++) { } // Last 6 messages
+
+	for (; it != cChatbox.RBegin(); it--)  {  // Draw in reverse order
 
 		// This chat times out after a few seconds
 		if(tLX->fCurTime - it->fTime < 3.0f) {

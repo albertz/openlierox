@@ -239,7 +239,7 @@ private:
 
 
 	// Owner client
-	CClient		*cClient;
+	CClient		*cOwner;
 
 	// Network
 	float		fFrameTimes[NUM_FRAMES];
@@ -540,8 +540,8 @@ public:
 	inline float		getTimeofDeath(void)		{ return fTimeofDeath; }
 
 	inline void		setHooked(int h, CWorm *w)	{ iHooked=h; pcHookWorm=w; }
-	inline void		setClient(CClient *cl)		{ cClient = cl; }
-    inline CClient     *getClient(void)            { return cClient; }
+	inline void		setClient(CClient *cl)		{ cOwner = cl; }
+    inline CClient     *getClient(void)            { return cOwner; }
 
 	inline CInput		*getShoot(void)				{ return &cShoot; }
 

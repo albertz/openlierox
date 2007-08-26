@@ -604,9 +604,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	//tLX->cFont.DrawCentre(bmpDest, centrex+2, t+82, 0,"%s", "Weapons Selection");
 	tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
 
-	bool iChat_Typing = false;
-	if (getClient())
-		iChat_Typing = getClient()->isTyping() != 0;
+	bool iChat_Typing = cClient->isTyping() != 0;
 
 	int y = t + 60;
 	for(i=0;i<iNumWeaponSlots;i++) {
@@ -691,7 +689,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     if(iCurrentWeapon == iNumWeaponSlots) {
 
 		// Fire on the random button?
-		if(cShoot.isUp() && !iChat_Typing) {
+		if((cShoot.isUp()/* || GetKeyboard()->KeyDown[SDLK_RETURN]*/) && !iChat_Typing) {
 			GetRandomWeapons();
 		}
 	}
@@ -701,7 +699,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	if(iCurrentWeapon == iNumWeaponSlots+1) {
 
 		// Fire on the done button?
-		if(cShoot.isUp() && !iChat_Typing) {
+		if((cShoot.isUp()/* || GetKeyboard()->KeyUp[SDLK_RETURN]*/) && !iChat_Typing) {
 			iWeaponsReady = true;
 			iCurrentWeapon = 0;
 
