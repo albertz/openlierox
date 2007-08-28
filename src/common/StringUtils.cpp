@@ -198,10 +198,9 @@ const std::vector<std::string>& explode(const std::string& str, const std::strin
 }
 
 // reads up to maxlen-1 chars from fp
-std::string freadstr(FILE *fp, size_t maxlen) {
-	if (!fp) return "";
+void freadstr(std::string& result, size_t maxlen, FILE *fp) {
+	if (!fp) return;
 
-	static std::string result;
 	static char buf[1024];
 	size_t ret, c;
 	result = "";
@@ -214,8 +213,6 @@ std::string freadstr(FILE *fp, size_t maxlen) {
 		if(ret < c)
 			break;
 	}
-
-	return result;
 }
 
 
@@ -402,7 +399,7 @@ const std::vector<std::string>& clever_split(const std::string& str, int maxlen)
 
 
 
-
+/*
 
 ///////////////////
 // Strip quotes away from a string
@@ -434,12 +431,6 @@ void StripQuotes(char *dest, char *src)
 // Safe string copy routine
 void lx_strncpy(char *dest, char *src, int count)
 {
-/*    while (*src && count--)
-	{
-		*dest++ = *src++;
-	}
-	if (count)
-		*dest++ = 0; */
 	strncpy(dest, src, count); // this is faster
 }
 
@@ -566,3 +557,4 @@ char *ucfirst(char *text)
 
 	return text;
 }
+*/

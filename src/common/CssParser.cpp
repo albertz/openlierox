@@ -32,7 +32,7 @@ void CCssParser::Clear(void)
 {
 	iLength = 0;
 	iPos = 0;
-	sData = NULL;
+	sData = "";
 
 	// Already freed
 	if (!tNodes)
@@ -40,7 +40,7 @@ void CCssParser::Clear(void)
 
 	node_t *node = tNodes;
 	node_t *next = NULL;
-	for(;node;node = next) {
+	for(; node; node = next) {
 
 		// Free the node properties
 		next = node->tNext;
@@ -51,19 +51,8 @@ void CCssParser::Clear(void)
 
 		for(;property;property = next_prop)  {
 			next_prop = property->tNext;
-			if (property->sName)
-				delete[] property->sName;
-			if (property->sValue)
-				delete[] property->sValue;
-			property->sName = NULL;
-			property->sValue = NULL;
 			delete property;
 		}
-
-		// Free the node name
-		if (node->sName)
-			delete[] node->sName;
-		node->sName = NULL;
 
 		// Free the node
 		delete node;
@@ -87,7 +76,7 @@ bool CCssParser::AddNode(node_t *tNode)
 
 ////////////////////
 // Adds a property to the node
-bool CCssParser::AddProperty(property_t *tProperty,node_t *tNode)
+bool CCssParser::AddProperty(property_t *tProperty, node_t *tNode)
 {
 	if (!tNode || !tProperty)
 		return false;
@@ -100,16 +89,16 @@ bool CCssParser::AddProperty(property_t *tProperty,node_t *tNode)
 
 ////////////////////
 // Finds the specified CSS class, returns NULL when not found
-node_t *CCssParser::FindClass(char *sClassName)
+node_t *CCssParser::FindClass(const std::string& sClassName)
 {
 	// Check for valid parameters
-	if (!tNodes || !sClassName)
+	if (!tNodes)
 		return NULL;
 
 	// Find the class
 	node_t *node = tNodes;
-	for(;node;node=node->tNext)
-		if (!strcmp(node->sName,sClassName) && node->bClass)
+	for(; node; node=node->tNext)
+		if (node->sName == sClassName && node->bClass)
 			return node;
 
 	// Not found
@@ -118,16 +107,16 @@ node_t *CCssParser::FindClass(char *sClassName)
 
 ///////////////////
 // Finds the specified node, returns NULL when not found
-node_t *CCssParser::FindNode(char *sNodeName)
+node_t *CCssParser::FindNode(const std::string& sNodeName)
 {
 	// Check for valid parameters
-	if (!tNodes || !sNodeName)
+	if (!tNodes)
 		return NULL;
 
 	// Find the node
 	node_t *node = tNodes;
-	for(;node;node=node->tNext)
-		if (!strcmp(node->sName,sNodeName))
+	for(; node; node=node->tNext)
+		if (node->sName == sNodeName)
 			return node;
 
 	// Not found
@@ -136,10 +125,10 @@ node_t *CCssParser::FindNode(char *sNodeName)
 
 /////////////////////
 // Finds the Property in Node, returns NULL if the node doesn't contain the property
-property_t *CCssParser::GetProperty(char *sPropertyName,node_t *tNode)
+property_t *CCssParser::GetProperty(const std::string& sPropertyName, node_t *tNode)
 {
 	// Check for valid parameters
-	if (!sPropertyName || !tNode)
+	if (!tNode)
 		return NULL;
 
 	property_t *property = tNode->tProperties;
@@ -148,9 +137,7 @@ property_t *CCssParser::GetProperty(char *sPropertyName,node_t *tNode)
 
 	// Find the property
 	for(;property;property = property->tNext)  {
-		if (!property->sName)
-			continue;
-		if (!stricmp(sPropertyName,property->sName))
+		if (!stringcasecmp(sPropertyName, property->sName))
 			return property;
 	}
 
@@ -162,14 +149,11 @@ property_t *CCssParser::GetProperty(char *sPropertyName,node_t *tNode)
 // Skips blank characters
 bool CCssParser::SkipBlank(void)
 {
-	if (!sData)
-		return false;
-
 	if (iPos >= iLength)
 		return false;
 
 	// Read until blank characters are present
-	while (*(sData+iPos) == ' ' || *(sData+iPos) == '\n' || *(sData+iPos) == '\r' || *(sData+iPos) == '\t') {
+	while (sData[iPos] == ' ' || sData[iPos] == '\n' || sData[iPos] == '\r' || sData[iPos] == '\t') {
 		// End of data
 		if (iPos >= iLength)
 			return false;
@@ -183,9 +167,6 @@ bool CCssParser::SkipBlank(void)
 // Skips the comment
 bool CCssParser::SkipComments(void)
 {
-	if (!sData)
-		return false;
-
 	if (iPos >= iLength)
 		return false;
 
@@ -201,10 +182,10 @@ bool CCssParser::SkipComments(void)
 			return false;
 
 		// One line comment
-		if (*(sData+iPos) == '/' && *(sData+iPos+1) == '/')  {
+		if (sData[iPos] == '/' && sData[iPos+1] == '/')  {
 			iPos += 2;
 			// Read until new line
-			while(*(sData+iPos) != '\n')  {
+			while(sData[iPos] != '\n')  {
 				// End of data
 				if (iPos >= iLength)
 					return false;
@@ -212,10 +193,10 @@ bool CCssParser::SkipComments(void)
 			}
 		}
 		// Block comment
-		else if (*(sData+iPos) == '/' && *(sData+iPos+1) == '*')  {
+		else if (sData[iPos] == '/' && sData[iPos+1] == '*')  {
 			iPos += 2;
 			// Read until the end of comment
-			while (*(sData+iPos) != '*' && *(sData+iPos+1) != '/')  {
+			while (sData[iPos] != '*' && sData[iPos+1] != '/')  {
 				// End of data
 				if (iPos+1 >= iLength)
 					return false;
@@ -238,14 +219,11 @@ bool CCssParser::SkipComments(void)
 // Reads one property
 property_t *CCssParser::ReadProperty(void)
 {
-	if (!sData)
-		return NULL;
-
 	if (iPos >= iLength)
 		return NULL;
 
 	// Ending character of the node, no property can be read
-	if (*(sData+iPos) == '}')
+	if (sData[iPos] == '}')
 		return NULL;
 
 	// Skip blank space and comments
@@ -259,22 +237,21 @@ property_t *CCssParser::ReadProperty(void)
 	if (!Property)
 		return NULL;
 
-	Property->sName = NULL;
-	Property->sValue = NULL;
+	Property->sName = "";
+	Property->sValue = "";
 	Property->bImportant = false;
 	Property->tNext = NULL;
 
 	// TODO: use std::string
 	// HINT: and change sizeof(buf) later
-	static char buf[64];
-	buf[63] = '\0';
+	std::string buf;
 
 	unsigned int i=0;
 
 	//
 	//	Property name
 	//
-	while (*(sData+iPos) != ':')  {
+	while (sData[iPos] != ':')  {
 		// End of data
 		if (iPos >= iLength)
 			return Property;
@@ -286,34 +263,33 @@ property_t *CCssParser::ReadProperty(void)
 		}
 
 		// After skipping blank characters, this can happen
-		if (*(sData+iPos) == ':')
+		if (sData[iPos] == ':')
 			break;
 
 		// Check for syntax errors
-		if (*(sData+iPos) < 65 || *(sData+iPos) > 90)
-			if (*(sData+iPos) < 97 || *(sData+iPos) > 122)
-				if (*(sData+iPos) != '_' && *(sData+iPos) != '-')  {
+		if (sData[iPos] < 65 || sData[iPos] > 90)
+			if (sData[iPos] < 97 || sData[iPos] > 122)
+				if (sData[iPos] != '_' && sData[iPos] != '-')  {
 					cout
 						<< "Syntax error: invalid character '"
-						<< *(sData+iPos) << "' ("
-						<< (int)*(sData+iPos) 
-						<< ") on position " << iPos << endl;
+						<< sData[iPos]
+						<< "' on position " << iPos << endl;
 					delete Property;
 					Property = NULL;
 					return NULL;
 				}
 
 		// Too long name
-		if (i >= sizeof(buf))  {
+		// HINT: this magic constant 64 was the buffer-length before
+		// TODO: should we remove this limit? (perhaps this engine works better with some limit)
+		if (i >= 64)  {
 			delete Property;
 			return NULL;
 		}
 
-		buf[i++] = *(sData+iPos);
+		buf[i++] = sData[iPos];
 		iPos++;
 	}
-	// Terminate the string
-	buf[i] = '\0';
 
 	// Trim spaces
 	TrimSpaces(buf);
@@ -321,55 +297,42 @@ property_t *CCssParser::ReadProperty(void)
 	// Skip the ':' character
 	iPos++;
 
-	// Allocate the property name
-	size_t buflen = fix_strnlen(buf);
-	Property->sName = new char[buflen+1];
-	if (!Property->sName)  {
-		delete Property;
-		return NULL;
-	}
-
 	// Copy the property name
-	memcpy(Property->sName,buf,buflen+1);
+	Property->sName = buf;
 
 	//
 	//	Property value
 	//
-	buf[0] = 0;
+	buf = "";
 	i = 0;
 
 	// Skip comments and blank characters
 	if (!SkipBlank() || !SkipComments())  {
-		if (Property->sName)
-			delete[] Property->sName;
-		Property->sName = NULL;
+		Property->sName = "";
 		delete Property;
 		Property = NULL;
 		return NULL;
 	}
 
 
-	while (*(sData+iPos) != ';' && *(sData+iPos) != '}')  {
+	while (sData[iPos] != ';' && sData[iPos] != '}')  {
 		// End of data
 		if (iPos >= iLength)
 			return Property;
 
 		// Skip linebreaks
-		if (*(sData+iPos) == '\n' || *(sData+iPos) == '\r')  {
+		if (sData[iPos] == '\n' || sData[iPos] == '\r')  {
 			iPos++;
 			continue;
 		}
 
 		// Check for !important
-		if (*(sData+iPos) == '!' && *(sData+iPos-1) == ' ')  {
+		if (iPos > 0 && sData[iPos] == '!' && sData[iPos-1] == ' ')  {
 			iPos++;
-			const int imp_length = 9;
-			char important[imp_length+1];
-			strncpy(important,sData+iPos,imp_length);
-			important[imp_length] = '\0';
+			const int imp_length = 9; // "important".size
 
 			// Is the string equal to "important"?
-			if (!stricmp("important",important))  {
+			if (!stringcasecmp("important", sData.substr(iPos, imp_length)))  {
 				Property->bImportant = true;
 				iPos += imp_length;
 				continue;
@@ -378,42 +341,27 @@ property_t *CCssParser::ReadProperty(void)
 
 
 		// Too long value
-		if (i > sizeof(buf)) {
-			if (Property->sName)
-				delete[] Property->sName;
-			Property->sName = NULL;
+		// HINT: and again, we have this magic constant; see above ...
+		if (i > 64) {
+			Property->sName = "";
 			delete Property;
 			Property = NULL;
 			return NULL;
 		}
 
-		buf[i++] = *(sData+iPos);
+		buf[i++] = sData[iPos];
 		iPos++;
 	}
-
-	// Terminate the value
-	buf[i] = '\0';
 
 	// Trim spaces
 	TrimSpaces(buf);
 
 	// Skip the ending character (only ;, NOT } because it's handled by ReadNode)
-	if (*(sData+iPos) == ';')
+	if (sData[iPos] == ';')
 		iPos++;
 
-	// Allocate the value
-	buflen = fix_strnlen(buf);
-	Property->sValue = new char[buflen+1];
-	if (!Property->sValue)  {
-		delete[] Property->sName;
-		Property->sName = NULL;
-		delete Property;
-		Property = NULL;
-		return NULL;
-	}
-
 	// Copy the value
-	memcpy(Property->sValue,buf,buflen+1);
+	Property->sValue = buf;
 
 	return Property;
 }
@@ -422,9 +370,6 @@ property_t *CCssParser::ReadProperty(void)
 // Reads one node, returns NULL when error or end of data
 node_t *CCssParser::ReadNode(void)
 {
-	if (!sData)
-		return NULL;
-
 	if (iPos >= iLength)
 		return NULL;
 
@@ -438,16 +383,15 @@ node_t *CCssParser::ReadNode(void)
 	node_t *node = new node_t;
 	if (!node)
 		return NULL;
-	node->sName = NULL;
+	node->sName = "";
 	node->bClass = false;
 	node->tProperties = NULL;
 	node->tNext = NULL;
 
-	static char buf[64];
-	buf[0] = '\0';
+	std::string buf;
 
 	unsigned int i=0;
-	while(*(sData+iPos) != '{')  {
+	while(sData[iPos] != '{')  {
 		// End of data
 		if (iPos >= iLength) {
 			delete node;
@@ -461,11 +405,11 @@ node_t *CCssParser::ReadNode(void)
 		}
 
 		// After blank skipping, this can happen
-		if (*(sData+iPos) == '{')
+		if (sData[iPos] == '{')
 			break;
 
 		// Dot means a class
-		if (*(sData+iPos) == '.')  {
+		if (sData[iPos] == '.')  {
 			i = 0;
 			iPos++;
 			node->bClass = true;
@@ -473,29 +417,27 @@ node_t *CCssParser::ReadNode(void)
 		}
 
 		// Check for syntax errors
-		if (*(sData+iPos) < 'A' || *(sData+iPos) > 'Z')
-			if (*(sData+iPos) < 'a' || *(sData+iPos) > 'z')
-				if (*(sData+iPos) != '_' && *(sData+iPos) != '-')  {
+		if (sData[iPos] < 'A' || sData[iPos] > 'Z')
+			if (sData[iPos] < 'a' || sData[iPos] > 'z')
+				if (sData[iPos] != '_' && sData[iPos] != '-')  {
 					cout
 						<< "Syntax error: invalid character '"
-						<< *(sData+iPos) << "' ("
-						<< (int)*(sData+iPos) 
-						<< ") on position " << iPos << endl;
+						<< sData[iPos]
+						<< "' on position " << iPos << endl;
 					delete node;
 					return NULL;
 				}
 
 		// Too long name
-		if (i > sizeof(buf))  {
+		// HINT: again the magic constant...; see above ...
+		if (i > 64)  {
 			delete node;
 			return NULL;
 		}
 
-		buf[i++] = *(sData+iPos);
+		buf[i++] = sData[iPos];
 		iPos++;
 	}
-	// Terminate the buffer
-	buf[i] = '\0';
 
 	// Trim the spaces
 	TrimSpaces(buf);
@@ -503,19 +445,11 @@ node_t *CCssParser::ReadNode(void)
 	// Skip the { character
 	iPos++;
 
-	// Allocate the name
-	size_t buflen = fix_strnlen(buf);
-	node->sName = new char[buflen+1];
-	if (!node->sName)  {
-		delete node;
-		return NULL;
-	}
-
 	// Copy the name
-	memcpy(node->sName,buf,buflen+1);
+	node->sName = buf;
 
 	// Read & add the properties
-	while (AddProperty(ReadProperty(),node))
+	while (AddProperty(ReadProperty(), node))
 		continue;
 
 	// Skip the node ending character ('}')
@@ -526,19 +460,17 @@ node_t *CCssParser::ReadNode(void)
 
 ////////////////////
 // Parses the specified file
-bool CCssParser::Parse(char *sFilename)
+bool CCssParser::Parse(const std::string& sFilename)
 {
 	// Clear previous data
 	Clear();
 
 	// Check parameters
-	if (!sFilename)
-		return false;
-	if (!strcmp("",sFilename))
+	if (sFilename == "")
 		return false;
 
 	// Open the file
-	FILE *fp = OpenGameFile(sFilename,"rb");
+	FILE *fp = OpenGameFile(sFilename, "rb");
 	if (!fp)
 		return false;
 
@@ -554,11 +486,7 @@ bool CCssParser::Parse(char *sFilename)
 	}
 
 	// Get the data
-	sData = new char[iLength+1];
-	if (!sData)
-		return false;
-	iLength = fread(sData,1,iLength,fp);
-	sData[iLength] = '\0';
+	freadstr(sData, iLength, fp);
 
 	// Set the properties
 	iPos = 0;
@@ -568,8 +496,7 @@ bool CCssParser::Parse(char *sFilename)
 		continue;
 
 	// Free the data
-	delete[] sData;
-	sData = NULL;
+	sData = "";
 	iPos = 0;
 	iLength = 0;
 
@@ -578,8 +505,7 @@ bool CCssParser::Parse(char *sFilename)
 
 /////////////////
 // Parses border properties from a string
-// TODO: make it use std::string!!
-void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint32 *DarkColour,uchar *type)
+void CCssParser::BorderProperties(const std::string& val, int *border, Uint32 *LightColour, Uint32 *DarkColour, char *type)
 {
 	// Defaults
 	*border = 2;
@@ -587,46 +513,48 @@ void CCssParser::BorderProperties(char *val,int *border,Uint32 *LightColour,Uint
 	*DarkColour = MakeColour(64,64,64);
 	*type = BX_OUTSET; // Outset
 
-	// Check
-	if (!val)
-		return;
-
 	// Trim spaces
-	TrimSpaces(val);
+	std::string tmp = val;
+	TrimSpaces(tmp);
 
 	// Remove duplicate spaces
-	std::string tmp = val;
 	while (replace(tmp,"  "," ",tmp))
 		continue;
-	strcpy(val, tmp.c_str()); // TODO: this has to be done better...
 	
-
-	char *tok = strtok(val," ");
-	if (!tok)
+	size_t tok = tmp.find(" ");
+	if(tok == tmp.npos)
 		return;
 
 	// Border width
-	*border = atoi(tok); tok = strtok(NULL," ");
-	if (!tok)
+	*border = atoi(tmp.substr(0, tok));
+	tmp.erase(tok);
+	tok = tmp.find(" ");
+	if(tok == tmp.npos)
 		return;
 
 	// Border type
-	if (!stricmp("solid",tok)) *type = BX_SOLID;
-	else if (!stricmp("inset",tok)) *type = BX_INSET;
-	else *type = BX_OUTSET;
-	tok = strtok(NULL," ");
-	if (!tok)
+	if (!stringcasecmp("solid", tmp.substr(0, tok)))
+		*type = BX_SOLID;
+	else if (!stringcasecmp("inset", tmp.substr(0, tok)))
+		*type = BX_INSET;
+	else
+		*type = BX_OUTSET;
+	
+	tmp.erase(tok);
+	tok = tmp.find(" ");
+	if(tok == tmp.npos)
 		return;
 
 	// Dark colour
-	*DarkColour = StrToCol(tok);
-	tok = strtok(NULL," ");
-	if (!tok)
+	*DarkColour = StrToCol(tmp.substr(0, tok));
+	tmp.erase(tok);
+	tok = tmp.find(" ");
+	if(tok == tmp.npos)
 		return;
 
 	// Light colour
 	if (*type != BX_SOLID)  {
-		*LightColour = StrToCol(tok);
+		*LightColour = StrToCol(tmp.substr(0, tok));
 	}
 	else
 		*LightColour = *DarkColour;

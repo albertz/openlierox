@@ -1,26 +1,29 @@
 // OpenLieroX
+// code under LGPL
 
 // CSS Parser
 // Code taken from htmlcxx (http://htmlcxx.sourceforge.net/) (also LGPL)
+// recoded with std::string (28-08-07 by albert)
 
 #ifndef __CSS_PARSER_H__
 #define __CSS_PARSER_H__
 
-// TODO: recode everything here! (use std::string)
+#include <SDL/SDL.h>
+#include <string>
 
-typedef struct property_s {
-	char		*sName;
-	char		*sValue;
+struct property_t {
+	std::string	sName;
+	std::string	sValue;
 	bool		bImportant;
-	property_s	*tNext;
-} property_t;
+	property_t	*tNext;
+};
 
-typedef struct node_s {
-	char		*sName;
+struct node_t {
+	std::string	sName;
 	bool		bClass; 
 	property_t	*tProperties;
-	node_s		*tNext;
-} node_t;
+	node_t		*tNext;
+};
 
 class CCssParser {
 public:
@@ -36,11 +39,11 @@ private:
 
 	size_t	iPos;
 	size_t	iLength;
-	char	*sData;
+	std::string	sData;
 
 	// Internal methods
 	bool		AddNode(node_t *tNode);
-	bool		AddProperty(property_t *tProperty,node_t *tNode);
+	bool		AddProperty(property_t *tProperty, node_t *tNode);
 
 	bool		SkipBlank(void);
 	bool		SkipComments(void);
@@ -52,11 +55,11 @@ public:
 	// Methods
 	void		Clear(void);
 
-	bool		Parse(char *sFilename);
-	void		BorderProperties(char *val,int *border,Uint32 *LightColour,Uint32 *DarkColour,uchar *type);
-	node_t		*FindNode(char *sNodeName);
-	node_t		*FindClass(char *sClassName);
-	property_t	*GetProperty(char *sPropertyName, node_t *tNode);
+	bool		Parse(const std::string& sFilename);
+	void		BorderProperties(const std::string& val, int *border, Uint32 *LightColour, Uint32 *DarkColour, char *type);
+	node_t		*FindNode(const std::string& sNodeName);
+	node_t		*FindClass(const std::string& sClassName);
+	property_t	*GetProperty(const std::string& sPropertyName, node_t *tNode);
 };
 
 

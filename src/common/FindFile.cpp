@@ -16,6 +16,7 @@
 // Created 30/9/01
 // By Jason Boettcher
 
+#include <iostream>
 
 #include "FindFile.h"
 #include "StringUtils.h"
@@ -23,6 +24,7 @@
 
 #ifdef WIN32
 #	ifndef _WIN32_IE
+// TODO: why is this needed?
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	endif
 
@@ -30,6 +32,7 @@
 
 #else // WIN32
 
+// include hash_set support
 #	ifndef STLPORT
 #		include <ext/hash_set>
 		using namespace __gnu_cxx;
@@ -50,6 +53,7 @@
 
 searchpathlist tSearchPaths;
 
+using namespace std;
 
 bool IsFileAvailable(const std::string& f, bool absolute) {
 	static std::string abs_f;
@@ -210,6 +214,10 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 		if(strcasecmp(direntry->d_name, searchname.c_str()) == 0) {
 			filename = direntry->d_name;
 			closedir(dirhandle);
+#ifdef DEBUG
+			if(filename != searchname)
+				cerr << "filename case mismatch: " << searchname << " <-> " << filename << endl;
+#endif
 			return true;
 		}
 	}

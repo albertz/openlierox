@@ -35,8 +35,9 @@
 // after a shutdown, save the data here; perhaps we can reuse it
 CMap CachedMap;
 
+// reuse *this* map-data for the given map
 bool CMap::ReuseMapData(CMap* map) {
-	if(Created && !modified) {
+	if(Created && !modified && map != this) {
 		map->Shutdown();
 		
 		map->Name = Name;

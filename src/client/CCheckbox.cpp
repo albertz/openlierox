@@ -58,16 +58,16 @@ void CCheckbox::LoadStyle(void/*node_t *cssNode*/)
 	property_t *prop = cssNode->tProperties;
 	for(;prop;prop=prop->tNext) {
 		// Image
-		if (!stricmp(prop->sName,"image"))  {
+		if (!stringcasecmp(prop->sName,"image"))  {
 			bmpImage = LoadImage(prop->sValue);
 		}
 		// Image width
-		if (!stricmp(prop->sName,"image-width"))  {
+		if (!stringcasecmp(prop->sName,"image-width"))  {
 			//iImgWidth = atoi(prop->sValue);
 		}
 		// Unknown
 		else {
-			printf("Warning: Unknown property %s in main Checkbox class",prop->sName);
+			printf("Warning: Unknown property %s in main Checkbox class", prop->sName.c_str());
 		}
 	}
 }

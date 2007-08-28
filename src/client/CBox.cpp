@@ -290,28 +290,28 @@ void CBox::LoadStyle(void/*node_t *cssNode*/)
 	property_t *prop = cssNode->tProperties;
 	for(;prop;prop=prop->tNext) {
 		// Border
-		if (!stricmp(prop->sName,"thickness"))  {
+		if (!stringcasecmp(prop->sName,"thickness"))  {
 			iBorder = atoi(prop->sValue);
 		}
 		// Round
-		if (!stricmp(prop->sName,"round"))  {
+		if (!stringcasecmp(prop->sName,"round"))  {
 			iRound = atoi(prop->sValue);
 		}
 		// Light colour
-		if (!stricmp(prop->sName,"lightcolor"))  {
+		if (!stringcasecmp(prop->sName,"lightcolor"))  {
 			iLightColour = StrToCol(prop->sValue);
 		}
 		// Dark colour
-		if (!stricmp(prop->sName,"darkcolor"))  {
+		if (!stringcasecmp(prop->sName,"darkcolor"))  {
 			iDarkColour = StrToCol(prop->sValue);
 		}
 		// Bg colour
-		if (!stricmp(prop->sName,"bgcolor"))  {
+		if (!stringcasecmp(prop->sName,"bgcolor"))  {
 			iBgColour = StrToCol(prop->sValue);
 		}
 		// Unknown
 		else {
-			printf("Warning: Unknown property %s in main Checkbox class",prop->sName);
+			printf("Warning: Unknown property %s in main Checkbox class", prop->sName.c_str());
 		}
 	}
 }

@@ -105,22 +105,27 @@ std::string	ReadUntil(const std::string& text, char until_character = '\n');
 std::string	ReadUntil(FILE* fp, char until_character = '\n');
 Uint32	StrToCol(const std::string& str);
 const std::vector<std::string>& explode(const std::string& str, const std::string& delim);
-std::string freadstr(FILE *fp, size_t maxlen);
-inline std::string freadfixedcstr(FILE *fp, size_t maxlen) { return ReadUntil(freadstr(fp, maxlen), '\0'); }
+void freadstr(std::string& result, size_t maxlen, FILE *fp);
+inline std::string freadfixedcstr(FILE *fp, size_t maxlen) {
+	std::string fileData;
+	freadstr(fileData, maxlen, fp);
+	return ReadUntil(fileData, '\0');
+}
 size_t fwrite(const std::string& txt, size_t len, FILE* fp);
 size_t findLastPathSep(const std::string& path);
 void stringlwr(std::string& txt);
 bool strincludes(const std::string& str, const std::string& what);
 short stringcasecmp(const std::string& s1, const std::string& s2);
 const std::vector<std::string>& clever_split(const std::string& str, int maxlen);
+void	StripQuotes(std::string& str);
 
 
 std::string GetFileExtension(const std::string& filename);
 
 
 // TODO: remove all the following functions
+/*
 void	StripQuotes(char *dest, char *src); // TODO: remove this
-void	StripQuotes(std::string& str);
 void    lx_strncpy(char *dest, char *src, int count); // TODO: remove this
 char    *StripLine(char *szLine);
 char    *TrimSpaces(char *szLine);
@@ -128,7 +133,7 @@ bool	replace(char *text, const char *what, const char *with, char *result);
 char	*strip(char *buf, int width);
 bool	stripdot(char *buf, int width);
 char	*ucfirst(char *text);
-
+*/
 
 
 
