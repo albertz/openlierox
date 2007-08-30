@@ -4426,7 +4426,7 @@ void CWorm::NEW_AI_MoveToTarget()
 				if((wpn = AI_FindClearingWeapon()) != -1) {
 					iCurrentWeapon = wpn;
 					AI_SetAim(v); // aim at the dirt
-					ws->iShoot = true; // TODO: is it assured here, that we are aiming already correctly?
+					ws->iShoot = true; // TODO: is it ensured here, that we are aiming already correctly?
 					// Don't do any crazy things when shooting
 					ws->iMove = false;
 					ws->iJump = false;

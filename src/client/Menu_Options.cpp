@@ -366,9 +366,6 @@ void Menu_OptionsFrame(void)
 {
 	mouse_t		*Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-//	int opengl = tLXOptions->bOpenGL; // TODO: not used
-//	int fullscr = tLXOptions->iFullscreen; // TODO: not used
-// 	static const char		*Difficulties[] = {"Easy", "Medium", "Hard", "Xtreme"}; // TODO: not used
 	int			val;
 
 	CCheckbox	*c,*c2;

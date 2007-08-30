@@ -194,16 +194,17 @@ void ProcessEvents(void)
     if(!nFocus)
         SDL_Delay(14);
 
-
-	// Mouse
-	int oldX = Mouse.X;
-	int oldY = Mouse.Y;
-	Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y);
-	Mouse.deltaX = Mouse.X-oldX;
-	Mouse.deltaY = Mouse.Y-oldY;
-	Mouse.Up = 0;
-    Mouse.FirstDown = 0;
-
+	{
+		// Mouse
+		int oldX = Mouse.X;
+		int oldY = Mouse.Y;
+		Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y);
+		Mouse.deltaX = Mouse.X-oldX;
+		Mouse.deltaY = Mouse.Y-oldY;
+		Mouse.Up = 0;
+		Mouse.FirstDown = 0;
+	}
+	
 	// Left Mouse Button Up event
 	if(!(Mouse.Button & SDL_BUTTON(SDL_BUTTON_LEFT)) && Mouse.Down & SDL_BUTTON(SDL_BUTTON_LEFT))
 		Mouse.Up |= SDL_BUTTON(SDL_BUTTON_LEFT);

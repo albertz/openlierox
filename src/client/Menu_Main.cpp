@@ -184,8 +184,6 @@ void Menu_MainFrame(void)
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 410,260, 410,260, 200,64);
 
-//		int y = 640 - (int)(alpha * 10.0f)*64;  // TODO: not used
-
 		switch(img) {
 			case 0:
 				//DrawImageAdv(tMenu->bmpScreen, tMenu->bmpMainLocal, 0,y, 410, 260, tMenu->bmpMainLocal->w,64);

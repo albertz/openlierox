@@ -29,17 +29,15 @@
 
 command_t	*Commands = NULL;
 
-char	Arguments[MAX_ARGS][MAX_ARGLENGTH];
+std::string	Arguments[MAX_ARGS];
 int		NumArgs;
 
 
 ///////////////////
 // Add an argument to the list
-void Cmd_AddArg(char *text)
+void Cmd_AddArg(const std::string& text)
 {
-	// WARNING: don't change to Arguments[NumArgs++] else it will increase NumArgs by two (macro bug)
-	fix_strncpy(Arguments[NumArgs],text);
-	NumArgs++;
+	Arguments[NumArgs++] = text;
 }
 
 
@@ -68,7 +66,7 @@ void Cmd_ParseLine(const std::string& text)
 {
 	size_t		i,ti;
 	int		quote = false;
-	static char	token[128]; // TODO: use std::string!
+	std::string	token;
 
 	// Clear the arguments
 	NumArgs = 0;
@@ -78,7 +76,6 @@ void Cmd_ParseLine(const std::string& text)
 
 		// Check delimeters
 		if(text[i] == ' ' || text[i] == ',') {
-			token[ti] = '\0';
 			if(ti)
 				Cmd_AddArg(token);
 			ti=0;
@@ -87,7 +84,6 @@ void Cmd_ParseLine(const std::string& text)
 
 		// Check comments
 		if(text[i] == '/' && text[i+1] == '/') {
-			token[ti] = '\0';
 			if(ti)
 				Cmd_AddArg(token);
 			ti=0;
@@ -107,18 +103,19 @@ void Cmd_ParseLine(const std::string& text)
 					break;
 				}
 
-				token[ti++] = text[i];
+				ti++;
+				token += text[i];
 			}
 			continue;
 		}
 
 		// Normal text
-		token[ti++] = text[i];
+		ti++;
+		token += text[i];
 	}
 
 	// Add the last token, only if it's not in unfinished quotes
 	if(ti && !quote) {
-		token[ti] = '\0';
 		Cmd_AddArg(token);
 	}
 

@@ -394,7 +394,7 @@ void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
 
 ///////////////////
 // Get the level name from specified file
-// TODO: move this to CGameScript (Why???? It's a level, not mod related thing)
+// TODO: move this to CMap
 std::string Menu_GetLevelName(const std::string& filename)
 {
 	static char	id[32], name[128];

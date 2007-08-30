@@ -21,10 +21,6 @@
 
 using namespace std;
 
-// Disable this warnings before we turn this to std::string
-#ifdef _MSC_VER
-#pragma warning(disable:4996)
-#endif
 
 /////////////////////
 // Clears the parser
@@ -115,7 +111,7 @@ node_t *CCssParser::FindNode(const std::string& sNodeName)
 
 	// Find the node
 	node_t *node = tNodes;
-	for(; node; node=node->tNext)
+	for(; node; node = node->tNext)
 		if (node->sName == sNodeName)
 			return node;
 
@@ -136,7 +132,7 @@ property_t *CCssParser::GetProperty(const std::string& sPropertyName, node_t *tN
 		return NULL;
 
 	// Find the property
-	for(;property;property = property->tNext)  {
+	for(; property; property = property->tNext)  {
 		if (!stringcasecmp(sPropertyName, property->sName))
 			return property;
 	}
@@ -185,10 +181,12 @@ bool CCssParser::SkipComments(void)
 		if (sData[iPos] == '/' && sData[iPos+1] == '/')  {
 			iPos += 2;
 			// Read until new line
-			while(sData[iPos] != '\n')  {
+			while(true)  {
 				// End of data
 				if (iPos >= iLength)
 					return false;
+				if(sData[iPos] == '\n')
+					break;
 				iPos++;
 			}
 		}
@@ -196,10 +194,12 @@ bool CCssParser::SkipComments(void)
 		else if (sData[iPos] == '/' && sData[iPos+1] == '*')  {
 			iPos += 2;
 			// Read until the end of comment
-			while (sData[iPos] != '*' && sData[iPos+1] != '/')  {
+			while (true)  {
 				// End of data
 				if (iPos+1 >= iLength)
 					return false;
+				if(sData[iPos] == '*' || sData[iPos+1] == '/')
+					break;
 				iPos++;
 			}
 
@@ -251,10 +251,12 @@ property_t *CCssParser::ReadProperty(void)
 	//
 	//	Property name
 	//
-	while (sData[iPos] != ':')  {
+	while (true)  {
 		// End of data
 		if (iPos >= iLength)
 			return Property;
+		if(sData[iPos] == ':')
+			break;
 
 		// Skip any blank characters
 		if (!SkipBlank())  {
@@ -287,7 +289,8 @@ property_t *CCssParser::ReadProperty(void)
 			return NULL;
 		}
 
-		buf[i++] = sData[iPos];
+		i++;
+		buf += sData[iPos];
 		iPos++;
 	}
 
@@ -315,11 +318,13 @@ property_t *CCssParser::ReadProperty(void)
 	}
 
 
-	while (sData[iPos] != ';' && sData[iPos] != '}')  {
+	while (true)  {
 		// End of data
 		if (iPos >= iLength)
 			return Property;
-
+		if(sData[iPos] == ';' || sData[iPos] == '}')
+			break;
+			
 		// Skip linebreaks
 		if (sData[iPos] == '\n' || sData[iPos] == '\r')  {
 			iPos++;
@@ -349,7 +354,8 @@ property_t *CCssParser::ReadProperty(void)
 			return NULL;
 		}
 
-		buf[i++] = sData[iPos];
+		i++;
+		buf += sData[iPos];
 		iPos++;
 	}
 
@@ -357,7 +363,7 @@ property_t *CCssParser::ReadProperty(void)
 	TrimSpaces(buf);
 
 	// Skip the ending character (only ;, NOT } because it's handled by ReadNode)
-	if (sData[iPos] == ';')
+	if (iPos < iLength && sData[iPos] == ';')
 		iPos++;
 
 	// Copy the value
@@ -391,13 +397,15 @@ node_t *CCssParser::ReadNode(void)
 	std::string buf;
 
 	unsigned int i=0;
-	while(sData[iPos] != '{')  {
+	while(true)  {
 		// End of data
 		if (iPos >= iLength) {
 			delete node;
 			return NULL;
 		}
-
+		if(sData[iPos] == '{')
+			break;
+			
 		// Skip any blank characters
 		if (!SkipBlank())  {
 			delete node;
@@ -435,7 +443,8 @@ node_t *CCssParser::ReadNode(void)
 			return NULL;
 		}
 
-		buf[i++] = sData[iPos];
+		i++;
+		buf += sData[iPos];
 		iPos++;
 	}
 

@@ -448,6 +448,7 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 
 
 		// TODO: this won't get even called!!!!!! Fix it!
+		// TODO: is the comment realy up-to-date?
 		class addDirToList { public:
 			CListview* lv;
 			int* index;

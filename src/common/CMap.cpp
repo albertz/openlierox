@@ -1477,7 +1477,7 @@ void CMap::PlaceStone(int size, CVec pos)
 
 	if(size < 0 || size >= Theme.NumStones) {
 		// TODO: Bail out or warning of overflow
-		printf("Bad stone size\n");
+		printf("WARNING: Bad stone size\n");
 		if(size < 0) size = 0;
 		else size = Theme.NumStones-1;
 	}

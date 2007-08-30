@@ -123,19 +123,6 @@ void	StripQuotes(std::string& str);
 std::string GetFileExtension(const std::string& filename);
 
 
-// TODO: remove all the following functions
-/*
-void	StripQuotes(char *dest, char *src); // TODO: remove this
-void    lx_strncpy(char *dest, char *src, int count); // TODO: remove this
-char    *StripLine(char *szLine);
-char    *TrimSpaces(char *szLine);
-bool	replace(char *text, const char *what, const char *with, char *result);
-char	*strip(char *buf, int width);
-bool	stripdot(char *buf, int width);
-char	*ucfirst(char *text);
-*/
-
-
 
 template<typename T>
 T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {

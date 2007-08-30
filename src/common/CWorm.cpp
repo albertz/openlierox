@@ -627,10 +627,10 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
             // If select is held down, we will advance by 5 weapons at a time
             if(cSelWeapon.isDown())
-                id+=5;
+                id += 5;
             
             // Check if this weapon is enabled. If not, go to the next weapon in the list and check. and so on
-            while(1) {
+            while(true) {
                 id++;
                 if(id >= cGameScript->GetNumWeapons())
 				    id=0;
@@ -659,7 +659,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
                 id-=5;
             
             // Check if this weapon is enabled. If not, go to the next weapon in the list and check. and so on
-            while(1) {
+            while(true) {
                 id--;
                 if(id < 0)
 				    id = cGameScript->GetNumWeapons()-1;
@@ -753,20 +753,17 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 int	RightMuzzle[14] = {2,3, 5,3, 4,0, 5,-8, 3,-9, 2,-13, -2,-12};
 int	LeftMuzzle[14] =  {4,-12, -1,-12, -1,-9, -3,-8, -2,0, -2,4, 1,3};
 
+
+void DrawWormName(SDL_Surface* dest, const std::string& name, Uint32 x, Uint32 y) {
+}
+
+
 ///////////////////
 // Draw the worm
 void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 {
-	static int x,y,f,ang;
-
     if( !v )
         return;
-
-	int wx = v->GetWorldX();
-	int wy = v->GetWorldY();
-	int l = v->GetLeft();
-	int t = v->GetTop();
-
 	
 	//
 	// Draw the ninja rope
@@ -775,10 +772,13 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 		cNinjaRope.Draw(bmpDest,v,vPos);
 
 
+	int x,y,f,ang;
+	int l = v->GetLeft();
+	int t = v->GetTop();
 
 	// Are we inside the viewport?
-	x = (int)vPos.x - wx;
-	y = (int)vPos.y - wy;
+	x = (int)vPos.x - v->GetWorldX();
+	y = (int)vPos.y - v->GetWorldY();
 	x*=2;
 	y*=2;
 
@@ -805,7 +805,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
 			if (cHealthBar.IsProperlyLoaded())  {
 
-				cHealthBar.SetX(hx - cHealthBar.GetWidth()/2);
+				cHealthBar.SetX(hx - cHealthBar.GetWidth() / 2);
 				cHealthBar.SetY(hy - cHealthBar.GetHeight() - 1);
 				cHealthBar.Draw( bmpDest );
 				cHealthBar.SetPosition(getHealth());
@@ -815,19 +815,19 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 				hy -= 7;
 
 				// Draw the "grid"
-				static Uint32 BorderColor;
-				BorderColor = MakeColour(0x49,0x50,0x65);
-				int iShowHealth = Round((float)((getHealth()+15)/20));
-				DrawRect(bmpDest, hx-10,hy-1,hx+15,hy+5,BorderColor);
-				DrawVLine(bmpDest, hy, hy+4, hx-5,BorderColor);
-				DrawVLine(bmpDest, hy, hy+4, hx,BorderColor);
-				DrawVLine(bmpDest, hy, hy+4, hx+5,BorderColor);
-				DrawVLine(bmpDest, hy, hy+4, hx+10,BorderColor);
-
+				{
+					Uint32 BorderColor = MakeColour(0x49,0x50,0x65);
+					DrawRect(bmpDest, hx-10,hy-1,hx+15,hy+5,BorderColor);
+					DrawVLine(bmpDest, hy, hy+4, hx-5,BorderColor);
+					DrawVLine(bmpDest, hy, hy+4, hx,BorderColor);
+					DrawVLine(bmpDest, hy, hy+4, hx+5,BorderColor);
+					DrawVLine(bmpDest, hy, hy+4, hx+10,BorderColor);
+				}
 											// Red			Orange				Yellow		   Light Green		  Green	
 				static const Uint8 HealthColors[15] = {0xE3,0x04,0x04,  0xFE,0x85,0x03,  0xFE,0xE9,0x03,  0xA8,0xFE,0x03,  0x21,0xFE,0x03};
 
 				// Clamp it
+				int iShowHealth = Round((float)((getHealth()+15)/20));
 				if (iShowHealth > 5)
 					iShowHealth = 5;
 
@@ -849,14 +849,14 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	// Draw the crosshair
 	//
 	static CVec forw;
-	GetAngles(a,&forw,NULL);
+	GetAngles(a, &forw, NULL);
 	forw = forw*16.0f;
 
 	int cx = (int)forw.x + (int)vPos.x;
 	int cy = (int)forw.y + (int)vPos.y;
 
-	cx = (cx-wx)*2+l;
-	cy = (cy-wy)*2+t;
+	cx = (cx - v->GetWorldX()) * 2 + l;
+	cy = (cy - v->GetWorldY()) * 2 + t;
 
 	// Snap the position to a slighter bigger pixel grid (2x2)
 	cx -= cx % 2;
@@ -875,8 +875,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	//
 	// Draw the worm
 	//
-	x = (int) ( (vPos.x-wx)*2+l );
-	y = (int) ( (vPos.y-wy)*2+t );
+	x = (int) ( (vPos.x - v->GetWorldX()) * 2 + l );
+	y = (int) ( (vPos.y - v->GetWorldY()) * 2 + t );
 
 	// Find the right pic
 	f = ((int)fFrame*7)*32;
@@ -965,8 +965,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,sName);
 		} // if
 		else
-		  tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,sName);
-
+			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,sName);
 	}
 }
 

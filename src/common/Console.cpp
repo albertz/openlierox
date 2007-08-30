@@ -286,7 +286,7 @@ void Con_ProcessCharacter(UnicodeChar input)
 	// Left arrow
 	if(input == SDLK_LEFT)  {
 		if(Console->iCurpos > 0)
-			Console->iCurpos--; // TODO utf
+			Console->iCurpos--;
 		return;
 	}
 
