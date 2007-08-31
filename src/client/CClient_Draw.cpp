@@ -503,6 +503,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 					"Ping: " + itoa(iMyPing));
 
 		// Send every second
+		// TODO: move this somewhere else
 		if (tLX->fCurTime - fMyPingRefreshed > 1) {
 			CBytestream ping;
 
@@ -536,6 +537,23 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
 	tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
+
+	// Client and server velocity
+	if (tGameInfo.iGameType != GME_JOIN)  {
+		if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {
+			static std::string cl = "0.000";
+			static std::string sv = "0.000";
+			static float last_update = -9999;
+			if (tLX->fCurTime - last_update >= 0.5f)  {
+				cl = ftoa(cClient->getWorm(0)->getVelocity()->GetLength(), 3);
+				sv = ftoa(cServer->getClient(0)->getWorm(0)->getVelocity()->GetLength(), 3);
+				last_update = tLX->fCurTime;
+			}
+
+			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 2, tLX->clWhite, cl);
+			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 3, tLX->clWhite, sv);
+		}
+	}
 #endif
 
 	// Game over

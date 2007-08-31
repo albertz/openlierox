@@ -36,6 +36,7 @@ public:
 		iIncomingBytes = 0;
 		fLastSent = -9999;
 		bAckRequired = false;
+		iReceivedSinceLastSent = 1;
 	}
 
 private:
@@ -56,6 +57,7 @@ private:
 	int			iIncomingSequence;
 	int			iIncomingAcknowledged;
 	int			iIncoming_ReliableAcknowledged;		// single bit
+	int			iReceivedSinceLastSent;
 
 	int			iIncoming_ReliableSequence;			// single bit, maintained local
 
@@ -113,6 +115,7 @@ public:
 	inline int	getOutSeq(void)			{ return iOutgoingSequence; }
 	inline void	setInSeq(int _s)		{ iIncomingSequence = _s; }
 	inline void	setOutSeq(int _s)		{ iOutgoingSequence = _s; }
+	inline int	getDeficite()			{ return iReceivedSinceLastSent < 0 ? -iReceivedSinceLastSent : 0; }
 
 	inline int	getInAck(void)			{ return iIncomingAcknowledged; }
 

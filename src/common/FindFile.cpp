@@ -665,12 +665,12 @@ std::string GetAbsolutePath(const std::string& path) {
 #endif
 }
 
-bool PathListIncludes(const std::list<std::string>& list, const std::string& path) {
+bool PathListIncludes(const std::list<std::string>& pathlist, const std::string& path) {
 	static std::string abs_path;
 	abs_path = GetAbsolutePath(path);
 	
 	// Go through the list, checking each item
-	for(std::list<std::string>::const_iterator i = list.begin(); i != list.end(); i++) {
+	for(std::list<std::string>::const_iterator i = pathlist.begin(); i != pathlist.end(); i++) {
 		if(abs_path == GetAbsolutePath(*i)) {
 			return true;
 		}

@@ -23,6 +23,9 @@
 #include "CBytestream.h"
 #include "EndianSwap.h"
 #include "StringUtils.h"
+#ifdef DEBUG
+#include "MathLib.h"
+#endif
 
 using namespace std;
 
@@ -406,7 +409,9 @@ bool CBytestream::Skip(size_t num) {
 	return isPosAtEnd();
 }
 
-
+////////////////
+// Read from network
+// WARNING: overrides any previous data
 size_t CBytestream::Read(NetworkSocket sock) {
 	Clear();
 	static char buf[4096];
@@ -419,6 +424,18 @@ size_t CBytestream::Read(NetworkSocket sock) {
 		len += res;
 		if((size_t)res < sizeof(buf)) break;
 	}
+
+#ifdef DEBUG
+	// DEBUG: randomly drop packets to test network stability
+/*	if (GetRandomInt(128) > 110)  {
+		printf("DEBUG: packet ignored\n");
+		Dump();
+		printf("\n");
+		Clear();
+		return 0;
+	}*/
+#endif
+
 	return len;
 }
 

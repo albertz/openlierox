@@ -17,6 +17,9 @@
 
 #include "LieroX.h"
 #include "CChannel.h"
+#include "StringUtils.h"
+
+// TODO: recode this after dropping the backward compatibility
 
 ///////////////////
 // Setup the channel
@@ -52,6 +55,7 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iOutgoingBytes = 0;
 	iIncomingBytes = 0;
 	bAckRequired = false;
+	iReceivedSinceLastSent = 1;
 }
 
 
@@ -99,11 +103,11 @@ void CChannel::Transmit( CBytestream *bs )
 		}
 	}
 
+	iOutgoingSequence = iIncomingSequence;
 
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
 	r2 = iIncomingSequence | (iIncoming_ReliableSequence << 31);
-
 
 	outpack.writeInt(r1,4);
 	outpack.writeInt(r2,4);
@@ -114,7 +118,7 @@ void CChannel::Transmit( CBytestream *bs )
 		outpack.Append(&Reliable);
 		if (outpack.GetLength() > 4096) // Compatibility check
 			printf("WARNING: the current reliable packet could be ignored!");
-		iLast_ReliableSequence = iOutgoingSequence + 1;
+		iLast_ReliableSequence = iOutgoingSequence;
 	}
 
 	// And add on the un reliable data if room in the packet struct
@@ -125,16 +129,34 @@ void CChannel::Transmit( CBytestream *bs )
 		}
 	
 
-	// Send the packet (only if we got something to send)
+	// Send the packet
 	if (SendPacket || bAckRequired || tLX->fCurTime - fLastSent >= (float)(LX_CLTIMEOUT - 5))  {
+		if (iReceivedSinceLastSent <= 0)  {
+
+#ifdef DEBUG
+			//static bool already_told = false;
+			//if (!already_told)  {
+			//	printf("HINT: Probably a beta 3+ server, increasing outgoing deficite because I have to send something important\n");
+			//	already_told = true;
+			//}
+#endif
+
+			// Deficite :)
+			iReceivedSinceLastSent--;
+
+			printf("Deficite: " + itoa(-iReceivedSinceLastSent) + "\n");
+		}
+
 		SetRemoteNetAddr(Socket,&RemoteAddr);
 		outpack.Send(Socket);
 
+		// Update statistics
 		iOutgoingBytes += outpack.GetLength();
 		iCurrentOutgoingBytes += outpack.GetLength();
 		fLastSent = tLX->fCurTime;
 
-		iOutgoingSequence++;
+		iReceivedSinceLastSent = 0;
+
 		bAckRequired = false; // Ack sent
 	}
 
@@ -186,14 +208,23 @@ int CChannel::Process(CBytestream *bs)
 	if((Sequence <= (Uint32)iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
 		printf("Warning: Packet dropped (Sequence: %i, IncomingSequence: %i)\n", Sequence, iIncomingSequence);
 		bs->Dump();
+
+		// HINT: we can get here if our acknowledgement has been dropped
+		// To be sure, we simply send the ack once more. If we are wrong, the remote side will ignore it anyway
+		/*if (ReliableMessage)  { // Not needed, we (sadly) send packet every frame (backward compatibility)
+			printf("HINT: re-sending ACK\n");
+			bAckRequired = true;
+		}*/
+
 		return false;
 	}
 
+	iReceivedSinceLastSent++;
+
 	
 	// Check for dropped packets
-	drop = Sequence - (iIncomingSequence+1);
-	//iPacketDrop = drop;
-	if(drop>0) {
+	drop = Sequence - (iIncomingSequence + 1);
+	if(drop > 0) {
 		// Update statistics
 		iPacketsDropped++;
 
@@ -219,11 +250,7 @@ int CChannel::Process(CBytestream *bs)
 
 	// Ping update
 	if ((Uint32)iPongSequence <= SequenceAck)  {
-		iPing = (int)((tLX->fCurTime - fLastPingSent) * 1000) - 20;  // -20 - the ping is received by the channel, then
-																	 // frame is simulated and then the reply is sent -> delay
-																	 // most of people have FPS between 60 - 100, so about 20ms delay
-																	 // It's dirty but no better solution is possible with the current protocol
-		iPing = MAX(0, iPing);  // Because of the above hack, this can happen
+		iPing = (int)((tLX->fCurTime - fLastPingSent) * 1000); 
 		iPongSequence = -1;
 	}
 
