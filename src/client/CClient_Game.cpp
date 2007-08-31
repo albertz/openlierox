@@ -100,18 +100,22 @@ void CClient::Simulation(void)
 
 	// Generate the flag worms
 	w = cRemoteWorms;
-	CWorm *f[MAX_WORMS+1];
-	CVec flagpos[MAX_WORMS];
+	CWorm *f[2];
 	int flags = 0;
 
-	f[0] = cRemoteWorms;
 
-	for(i=0;i<MAX_WORMS;i++,f[flags]++) 
-		if(f[flags]->isUsed() && f[flags]->getFlag()) {
-			flagpos[flags] = f[flags]->getPos();
-			flags++;
-			f[flags]=cRemoteWorms+i;
-		}
+	if(tGameInfo.iGameType < GME_JOIN && cServer) {
+		f[0] = cServer->getWorms();
+
+		// WARNING: If there is more than 2 flags the game will crash
+		for(i=0;i<MAX_WORMS;i++,f[flags]++) 
+			if(f[flags]->isUsed() && f[flags]->getFlag()) {
+				flags++;
+				f[flags]=cServer->getWorms()+i;
+				if(flags==2)
+					break;
+			}
+	}
 
 	// Player simulation
 	w = cRemoteWorms;
@@ -200,26 +204,23 @@ void CClient::Simulation(void)
 		if(iGameType == GMT_TAG && w->getTagIT())
 			w->incrementTagTime(tLX->fDeltaTime);
 
-		if(tGameInfo.iGameType == GME_HOST && cServer && w->getLocal()) {
-			// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
-			if((iGameType == GMT_CTF || iGameType == GMT_TEAMCTF) && w->getAlive() && !w->getFlag())
-				for(int j=0;j<flags+1;j++) 
-					if(CalculateDistance(w->getPos(),flagpos[j]) < 10) 
-						cServer->setFlag(w->getID(), j);
-
-			// TODO: Merge these into one check
-			// If playing capture the flag set the flag's position to that of its holder
-			if(w->getFlag() && iGameType == GMT_CTF) {
-				if(cServer->getFlag() != -1)
-					w->setPos(cRemoteWorms[cServer->getFlag()].getPos());
+		// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
+		if(tGameInfo.iGameType < GME_JOIN && cServer && w->getAlive() && !w->getFlag()) 
+			for(int j=0;j<flags;j++) {
+				CWorm *lw = &cRemoteWorms[f[j]->getID()];
+				if(CalculateDistance(w->getPos(),lw->getPos()) < 10 && cServer->getFlag(j) == -1) 
+					cServer->setFlag(w->getID(),j);
 			}
 
-			// If playing teams capture the flag set the flag's position to that of its holder
-			if(w->getFlag() && iGameType == GMT_TEAMCTF) {
-				if(cServer->getFlag(w->getTeam()) != -1)
-					w->setPos(cRemoteWorms[cServer->getFlag(w->getTeam())].getPos());
+		// Reposition the flag if it is attached to someone
+		if(tGameInfo.iGameType < GME_JOIN && cServer) 
+			for(int j=0;j<flags;j++) {
+				if(w->getID() == cServer->getFlag(j)) {
+				/*	f[j]->setPos(w->getPos());*/
+					CWorm *lw = cRemoteWorms + f[j]->getID();
+					lw->setPos(w->getPos());
+				}
 			}
-		}
 	}
 
 	// Entities
@@ -1304,7 +1305,7 @@ void CClient::LaserSight(CWorm *w)
 	CVec dir;
 	GetAngles((int)Angle,&dir,NULL);
 
-	int divisions = 3;			// How many pixels we go through each check (more = slower)
+	int divisions = 3;			// How many pixels we go through each check (less = slower)
 
 	int stopbeam = false;
 

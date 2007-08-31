@@ -508,7 +508,6 @@ public:
 	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
 	CWorm		*getRemoteWorms(void)		{ return cRemoteWorms; }
-
 	int			getGameReady(void)			{ return iGameReady; }
 	void		setGameReady(int _g)		{ iGameReady = _g; }
 

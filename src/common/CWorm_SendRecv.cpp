@@ -175,6 +175,10 @@ bool CWorm::checkPacketNeeded()
 		if (tLX->fCurTime - fLastUpdateWritten >= MAX(3.0f/vVelocity.GetLength(), 1.0f/60.0f))
 			return true;
 
+	// Flag
+	if(getFlag())
+		return true;
+
 	// Rope
 	return cNinjaRope.writeNeeded();
 }
@@ -222,9 +226,6 @@ bool CWorm::checkPacketNeeded()
 // Read a packet (server side)
 void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 {
-	if(getFlag())
-		return;
-
 	// Position
 	vOldPos = vPos;
 	short x, y;
@@ -270,6 +271,11 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 	CClient *cl = cServer->getClient(iID);
 	CWorm *w = cl->getWorm(0);
+
+	// If the worm is inside dirt then it is probably carving
+	if (tGameInfo.iGameType == GME_HOST && cServer->getMap()) 
+		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
+			tState.iCarve = true;
 
 	// Prevent a wall hack
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())  {

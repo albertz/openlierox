@@ -286,7 +286,6 @@ int GameServer::StartGame(void)
 		return false;
 	}
 
-
     // Load & update the weapon restrictions
     cWeaponRestrictions.loadList("cfg/wpnrest.dat");
     cWeaponRestrictions.updateList(&cGameScript);
@@ -307,9 +306,11 @@ int GameServer::StartGame(void)
 			cWorms[i].setName("Flag "+itoa(flags));
 			cWorms[i].setSkin("flag.png");
 			cWorms[i].setColour(255, 255, 255);
+			cWorms[i].setTeam(flags-1);
 			bytestr.writeByte(S2C_WORMINFO);
 			bytestr.writeInt(i, 1);
 			cWorms[i].writeInfo(&bytestr);
+			iNumPlayers++;
 			flags--;
 		}
 	}
@@ -446,7 +447,6 @@ void GameServer::BeginMatch(void)
 			continue;
 		CWorm *worm = cClient->getRemoteWorms()+cWorms[i].getID();
 		worm->setFlag(true);
-		worm->setLocal(true);
 	}
 }
 

@@ -280,8 +280,8 @@ public:
 	inline void		setScreenshotToken(bool _s) { bScreenshotToken = _s; }
 	
 	// TODO: change the name of these functions; the sense should be clear
-	inline int		getFlag(int team=0)			{ return iFlagHolder[team]; }
-	inline void		setFlag(int _f, int team=0)	{ iFlagHolder[team] = _f; }
+	inline int		getFlag(int team)			{ return iFlagHolder[team]; }
+	inline void		setFlag(int _f, int team)	{ iFlagHolder[team] = _f; }
 };
 
 extern	GameServer		*cServer;

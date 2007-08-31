@@ -222,6 +222,8 @@ void CWorm::SetupInputs(const controls_t& Inputs)
 	cJump.Setup(	Inputs[SIN_JUMP] );
 	cSelWeapon.Setup(Inputs[SIN_SELWEAP] );
 	cInpRope.Setup(	Inputs[SIN_ROPE] );
+
+	cStrafe.Setup( Inputs[SIN_STRAFE] );
 }
 
 
@@ -286,6 +288,27 @@ void CWorm::Spawn(CVec position) {
 		tWeapons[n].SlotNum = n;
 		tWeapons[n].LastFire = 0;
 	}
+
+	fSpawnTime = tLX->fCurTime;
+
+    if(iType == PRF_COMPUTER && iLocal)
+		AI_Respawn();
+}
+
+
+///////////////////
+// Respawn this worm
+void CWorm::Respawn(CVec position) {
+	vPos = position;
+    nAIState = AI_THINK;
+	
+	iCarving = false;
+	fFrame = 0;
+	iDrawMuzzle = false;
+	iHooked = false;
+    bForceWeapon_Name = false;
+
+	iOnGround = false;
 
 	fSpawnTime = tLX->fCurTime;
 

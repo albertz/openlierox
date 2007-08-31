@@ -53,13 +53,13 @@ void GameServer::SpawnWorm(CWorm *Worm)
 
 
 ///////////////////
-// Spawn a worm
+// (Re)Spawn a worm
 void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 {
 	if (iGameOver)
 		return;
 
-	Worm->Spawn(pos);
+	Worm->Respawn(pos);
 
 	// Send a spawn packet to everyone
 	static CBytestream bs;
@@ -145,18 +145,18 @@ void GameServer::SimulateGame(void)
 
 	// Process worms
 	CWorm *w = cWorms;
-	CWorm *f[MAX_WORMS+1];
-	short i;
-	CVec flagpos[MAX_WORMS];
+	CWorm *f[2];
+	short i, j;
 	int flags = 0;
 
 	f[0] = cWorms;
 
 	for(i=0;i<MAX_WORMS;i++,f[flags]++) 
 		if(f[flags]->isUsed() && f[flags]->getFlag()) {
-			flagpos[flags] = f[flags]->getPos();
 			flags++;
 			f[flags]=cWorms+i;
+			if(flags==2)
+				break;
 		}
 
 	for(i=0;i<MAX_WORMS;i++,w++) {
@@ -183,7 +183,7 @@ void GameServer::SimulateGame(void)
 		w->SimulateWeapon( tLX->fRealDeltaTime );
 
 		// If the flag has been held for 5 seconds and the map doesn't have a base give the worm a point
-		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag() && iGameType == GMT_CTF && cMap->getBaseStart().x == -1) {
+		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag(0) && iGameType == GMT_CTF && cMap->getBaseStart().x == -1) {
 			w->AddKill();
 			CBytestream bs;
 			bs.Clear();
@@ -205,23 +205,35 @@ void GameServer::SimulateGame(void)
 			setFlag(-1,1);
 		}
 */
+
+		// HINT: Grab the simulated position of the flag
+		if(w->getFlag()) {
+			CWorm *rw = cClient->getRemoteWorms() + w->getID();
+			w->setPos(rw->getPos());
+		}
 		
 		// If the worm holds the flag and is within the base respawn the Flag and give the worm a point
-		if(w->getID() == getFlag() && iGameType == GMT_CTF)
-			if(w->getPos().x > cMap->getBaseStart().x && w->getPos().y > cMap->getBaseStart().y &&
-				w->getPos().x < cMap->getBaseEnd().x && w->getPos().y < cMap->getBaseEnd().y) {
-				w->AddKill();
-				CBytestream bs;
-				bs.Clear();
-				w->writeScore(&bs);
-				SendGlobalPacket(&bs);
-				SpawnWorm(f[0]);
-				setFlag(-1);
-				SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
+		for(j=0;j<flags;j++) {
+			if(w->getID() == getFlag(j) && iGameType == GMT_CTF) {
+				if(w->getPos().x > cMap->getBaseStart().x && w->getPos().y > cMap->getBaseStart().y &&
+						w->getPos().x < cMap->getBaseEnd().x && w->getPos().y < cMap->getBaseEnd().y) {
+					w->AddKill();
+					CBytestream bs;
+					bs.Clear();
+					w->writeScore(&bs);
+					SendGlobalPacket(&bs);
+					SpawnWorm(f[j]);
+					// HINT: If the client worm isn't repositioned here then a worm will repeatedly score until they win
+						CWorm *rw = cClient->getRemoteWorms() + f[j]->getID();
+						rw->setPos(f[j]->getPos());
+					setFlag(-1, j);
+					SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasScored,"<player>",w->getName(),1)),
 						TXT_NORMAL);
-				if(w->getKills()==iMaxKills)
-					RecheckGame();
+					if(w->getKills()==iMaxKills)
+						RecheckGame();
+				}
 			}
+		}
 	}
 
 
@@ -577,7 +589,18 @@ void GameServer::gotoLobby(void)
 			cWorms[i].setTagIT(false);
 			cWorms[i].setTagTime(0);
 		}
+		if(cWorms[i].getFlag()) {
+			cWorms[i].setUsed(false);
+			cWorms[i].setFlag(false);
+			CBytestream bs;
+			bs.writeByte(S2C_CLLEFT);
+			bs.writeByte(1);
+			bs.writeByte(i);
+			SendGlobalPacket(&bs);
+			iNumPlayers--;
+		}
 	}
+	UpdateGameLobby();
 
 	for(i=0; i<MAX_CLIENTS; i++) {
 		cClients[i].setGameReady(false);

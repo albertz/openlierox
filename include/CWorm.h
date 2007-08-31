@@ -185,7 +185,8 @@ private:
 
 	// Input
 	CInput		cUp, cDown, cLeft, cRight,
-				cShoot, cJump, cSelWeapon, cInpRope;
+				cShoot, cJump, cSelWeapon, cInpRope,
+				cStrafe;
 	bool		bUsesMouse;
 
 	// Simulation
@@ -212,6 +213,7 @@ private:
 	int			iAlive;
 	float		fTimeofDeath;
 	int			iDirection;
+	int			iStrafeDirection;
 	int			iGotTarget;
 	float		fAngle;
     float       fAngleSpeed;
@@ -409,6 +411,7 @@ public:
 	//
 	void		Prepare(CMap *pcMap);
 	void		Spawn(CVec position);
+	void		Respawn(CVec position);
 	int			Injure(int damage);
 	int			Kill(void);
 	int			CheckBonusCollision(CBonus *b);

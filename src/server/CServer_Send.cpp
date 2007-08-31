@@ -115,7 +115,7 @@ bool GameServer::SendUpdate()
 			++j;
 
 			CBytestream bytes;
-			if (w->checkPacketNeeded())  {
+			if (w->checkPacketNeeded()) {
 				bytes.writeByte(w->getID());
 				w->writePacket(&bytes);
 				w->updateCheckVariables();
@@ -274,6 +274,7 @@ void GameServer::UpdateGameLobby(void)
 	bs.writeString(gl->szMapName);
     bs.writeString(gl->szModName);
     bs.writeString(gl->szModDir);
+	// HACK: The VIP and CTF gametypes need to be disguised as Deathmatch or Team Deathmatches
 	if(gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)
 		bs.writeByte(GMT_TEAMDEATH);
 	else if(gl->nGameMode == GMT_CTF)

@@ -359,8 +359,9 @@ void CClient::SendPackets(void)
 	}*/
 
 	// Playing packets
-	if(iNetStatus == NET_PLAYING)
-		SendWormDetails();
+	if(iNetStatus == NET_PLAYING) 
+		SendWormDetails(); 
+
 
 	// Randomly send a random packet
 #ifdef DEBUG

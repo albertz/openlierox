@@ -33,7 +33,9 @@ enum {
 	SIN_SHOOT,
 	SIN_JUMP,
 	SIN_SELWEAP,
-	SIN_ROPE
+	SIN_ROPE,
+
+	SIN_STRAFE
 };
 
 // General controls

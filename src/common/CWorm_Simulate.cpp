@@ -31,6 +31,9 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	int		weap = false;
 	int		RightOnce = false;
 	int		move = false;
+	
+	// Backup the direction so that the worm can strafe
+	iStrafeDirection = iDirection;
 
 	worm_state_t *ws = &tState;
 
@@ -236,7 +239,6 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		}
 	}
 
-
 	ws->iAngle = (int)fAngle;
 	ws->iX = (int)vPos.x;
 	ws->iY = (int)vPos.y;
@@ -367,6 +369,9 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 			fFrame += fFrameRate * dt;
 		}
 	}
+
+	if(cStrafe.isDown())
+		iDirection = iStrafeDirection;
 
 
 	// Process the jump

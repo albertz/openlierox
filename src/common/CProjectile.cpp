@@ -89,7 +89,7 @@ float CProjectile::getRandomFloat(void)
 // Returns flags for anything that happened to the projectile
 int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 {
-    int res = PJC_NONE;
+	int res = PJC_NONE;
 
 	// If this is a remote projectile, the first frame is simulated with a longer delta time
 	if(iRemote) {
@@ -103,19 +103,6 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 			return res;
 		}
 	}
-
-/*
-	// If the dt is too great, half the simulation time & run it twice
-	if(dt > 0.15f) {
-		dt /= 2;
-		res = Simulate(dt,map,worms,wormid);
-        if( res != PJC_NONE )
-			return res;
-
-		return Simulate(dt,map,worms,wormid);
-	}
-*/
-
 	
 	// Check for collisions
 	// ATENTION: dt will manipulated directly here!

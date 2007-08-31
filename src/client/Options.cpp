@@ -47,9 +47,9 @@ bool GameOptions::LoadFromDisc()
 {
 	printf("Loading options... \n");
 
-    const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
-    const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x"};
-    const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/"};
+    const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe"};
+    const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z"};
+    const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/", "."};
 	const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
     const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "F3"};
 	const int	 def_widths[] = {32,180,70,80,60,150};
@@ -144,7 +144,7 @@ bool GameOptions::LoadFromDisc()
         sPlayerControls[j-1][i] = value;
 
         i++;
-        if(i >= 8) {
+        if(i >= 9) {
         	i = 0; j++;
         }
     }
@@ -240,7 +240,7 @@ void ShutdownOptions(void)
 // Save the options
 void GameOptions::SaveToDisc()
 {
-    const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope"};
+    const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe"};
     const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
     int     i;
 
@@ -286,7 +286,7 @@ void GameOptions::SaveToDisc()
 	uint j = 0;
 	for(;j<sPlayerControls.size();j++) {
 		fprintf(fp, "[Ply%iControls]\n", j+1);
-		for(i=0; i<8; i++)
+		for(i=0; i<9; i++)
         	fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), sPlayerControls[j][i].c_str());
 	    fprintf(fp, "\n");
 	}

@@ -340,10 +340,9 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	}
 
 	// If the flag was attached to the dead worm then release the flag
-	if(getFlag() == victim && iGameType == GMT_CTF)
-		setFlag(-1);
-	if(getFlag(vict->getTeam()) == victim && iGameType == GMT_TEAMCTF) 
-		setFlag(-1,vict->getTeam());
+	for(int j=0;j<2;j++)
+	if(getFlag(j) == victim && (iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
+		setFlag(-1, j);
 
 	// Log
 	if (log_vict)

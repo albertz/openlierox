@@ -84,6 +84,7 @@ enum {
 	oc_Ply1_Jump,
 	oc_Ply1_Selweapon,
 	oc_Ply1_Rope,
+	oc_Ply1_Strafe,
 
 	oc_Ply2_Up,
 	oc_Ply2_Down,
@@ -93,6 +94,7 @@ enum {
 	oc_Ply2_Jump,
 	oc_Ply2_Selweapon,
 	oc_Ply2_Rope,
+	oc_Ply2_Strafe,
 
 	oc_Gen_Chat,
     oc_Gen_Score,
@@ -116,7 +118,8 @@ std::string InputNames[] = {
 	"Shoot",
 	"Jump",
 	"Select Weapon",
-	"Ninja Rope"
+	"Ninja Rope",
+	"Strafe"
 };
 
 std::string NetworkSpeeds[] = {
@@ -177,7 +180,7 @@ int Menu_OptionsInitialize(void)
 	cOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading),Static, 380, 150, 0,0);
 
 	int y = 190;
-	for(i=0;i<8;i++,y+=25) {
+	for(i=0;i<9;i++,y+=25) {
 		cOpt_Controls.Add( new CLabel(InputNames[i],tLX->clNormalLabel), Static, 40, y, 0,0);
 
 		cOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[0][SIN_UP+i], tMenu->bmpInputbox, InputNames[i]),
@@ -442,7 +445,7 @@ void Menu_OptionsFrame(void)
 				if(ev->iEventMsg == INB_MOUSEUP) {
 
 					int ply = 0;
-					if(ev->iControlID >= oc_Ply2_Up && ev->iControlID <= oc_Ply2_Rope)
+					if(ev->iControlID >= oc_Ply2_Up && ev->iControlID <= oc_Ply2_Strafe)
 						ply = 1;
 					if(ev->iControlID >= oc_Gen_Chat)
 						ply = -1;
