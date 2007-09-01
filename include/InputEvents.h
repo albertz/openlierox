@@ -20,6 +20,7 @@
 
 class KeyboardEvent {
 public:
+	int sym;
     UnicodeChar ch;
 	bool down;
 };

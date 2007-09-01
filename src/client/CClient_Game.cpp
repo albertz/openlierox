@@ -1639,7 +1639,7 @@ void CClient::processChatter(void)
 				cToggleMediaPlayer.isDown() + 
 #endif
 				kb->KeyDown[SDLK_BACKQUOTE] + 
-				kb->KeyDown[SDLK_F12];
+				cTakeScreenshot.isDown();
 
 			if (controls)
 				return;

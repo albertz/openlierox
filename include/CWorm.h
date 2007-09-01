@@ -435,7 +435,7 @@ public:
 	//
 	// Misc.
 	//
-	int			CanType(void);
+	bool		CanType(void);
 
 
 

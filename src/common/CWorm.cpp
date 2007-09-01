@@ -776,7 +776,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 int	RightMuzzle[14] = {2,3, 5,3, 4,0, 5,-8, 3,-9, 2,-13, -2,-12};
 int	LeftMuzzle[14] =  {4,-12, -1,-12, -1,-9, -3,-8, -2,0, -2,4, 1,3};
 
-
+// TODO: what is this??
 void DrawWormName(SDL_Surface* dest, const std::string& name, Uint32 x, Uint32 y) {
 }
 
@@ -1128,7 +1128,16 @@ int CWorm::GetMyPing(void)
 
 ///////////////////
 // Resturns true, if we can start typing
-int CWorm::CanType(void)
+bool CWorm::CanType(void)
 {
-	return (cUp.isDown() + cDown.isDown() + cLeft.isDown() + cRight.isDown() + cShoot.isDown() + cJump.isDown() + cSelWeapon.isDown() + cInpRope.isDown()) == 0;
+	int c = GetKeyboard()->keyQueue[0].sym;
+	return	cUp.getData() != c &&
+			cDown.getData() != c &&
+			cLeft.getData() != c &&
+			cRight.getData() != c &&
+			cShoot.getData() != c &&
+			cJump.getData() != c &&
+			cSelWeapon.getData() != c &&
+			cInpRope.getData() != c &&
+			cStrafe.getData() != c;
 }

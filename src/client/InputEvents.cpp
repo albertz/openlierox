@@ -175,6 +175,7 @@ void ProcessEvents(void)
                 if(Event.type == SDL_KEYDOWN) {
 					Keyboard.keyQueue[Keyboard.queueLength].down = true;
                     Keyboard.keyQueue[Keyboard.queueLength].ch = input;
+					Keyboard.keyQueue[Keyboard.queueLength].sym = Event.key.keysym.sym;
                     Keyboard.queueLength++;
                 }
 
@@ -182,6 +183,7 @@ void ProcessEvents(void)
 				if(Event.type == SDL_KEYUP || Event.key.state == SDL_RELEASED) {
 					Keyboard.keyQueue[Keyboard.queueLength].down = false;
                     Keyboard.keyQueue[Keyboard.queueLength].ch = input;
+					Keyboard.keyQueue[Keyboard.queueLength].sym = Event.key.keysym.sym;
                     Keyboard.queueLength++;
 				}
 

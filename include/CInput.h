@@ -64,6 +64,7 @@ public:
 	int		Setup(const std::string& text);
 	int		Wait(std::string& strText);
 	int		Wait();
+	int		getData() { return Data; };
 
 	int		isUp(void);
 	int		isDown(void);
