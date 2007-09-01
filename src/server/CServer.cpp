@@ -870,8 +870,10 @@ void GameServer::DropClient(CClient *cl, int reason, std::string sReason)
 
             // Kicked
             case CLL_KICK:
-				replacemax(networkTexts->sHasBeenKicked,"<player>", cl->getWorm(i)->getName(), buf, 1);
-                cl_msg = sReason;
+				replacemax(networkTexts->sHasBeenKickedReason,"<player>", cl->getWorm(i)->getName(), buf, 1);
+				replacemax(buf,"<reason>", sReason, buf, 1);
+				replacemax(buf,"you", "they", buf, 1);
+                replacemax(networkTexts->sKickedYouReason,"<reason>",sReason, cl_msg, 1);
                 break;
 
 			// Banned

@@ -4,10 +4,12 @@ HasLeft = <player> has left
 HasTimedOut = <player> has timed out
 
 HasBeenKicked = <player> has been kicked out
+HasBeenKickedReason = <player> has been kicked because <reason>
 HasBeenBanned = <player> has been banned
 HasBeenMuted = <player> has been muted
 HasBeenUnmuted = <player> has been unmuted
 KickedYou = You have been kicked
+KickedYouReason = You have been kicked because <reason>
 BannedYou = You have been banned
 YouQuit = You have quit
 YouTimed = You timed out

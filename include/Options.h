@@ -95,11 +95,13 @@ public:
 	std::string sHasTimedOut ;
 
 	std::string sHasBeenKicked ;
+	std::string sHasBeenKickedReason ;
 	std::string sHasBeenBanned ;
 	std::string sHasBeenMuted ;
 	std::string sHasBeenUnmuted ;
 
 	std::string sKickedYou ;
+	std::string sKickedYouReason ;
 	std::string sBannedYou ;
 	std::string sYouTimed ;
 	std::string sYouQuit ;
