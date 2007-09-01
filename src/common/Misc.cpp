@@ -111,14 +111,6 @@ unsigned char byteswap_buffer[16];
 
 void printf(const std::string& txt) {
 	std::cout << txt << std::flush;
-// Print out to debug pane
-#ifdef _MSC_VER
-	// TODO: this is wrong!
-	// 1. it behaves different from printf (which is not acceptable)
-	// 2. printf is not for debugging use but for printing something on std
-	// 3. for debugging, we should create and use some common function
-	OutputDebugStringA(txt.c_str());
-#endif
 }
 
 

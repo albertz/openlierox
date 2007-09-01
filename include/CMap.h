@@ -179,10 +179,6 @@ private:
 	short		BaseEndX;
 	short		BaseEndY;
 
-	// Water
-//	int			*m_pnWater1;
-//	int			*m_pnWater2;
-
 private:
 	// Update functions
 	void		UpdateDrawImage(int x, int y, int w, int h);

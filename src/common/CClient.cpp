@@ -412,8 +412,7 @@ void CClient::Connecting(void)
 
 	StringToNetAddr(strServerAddr,&addr);
 	if(GetNetAddrPort(&addr) == 0)
-		SetNetAddrPort(&addr,tLXOptions->iNetworkPort);			// TODO: Potential error; What if we are 
-																// connecting remotely?
+		SetNetAddrPort(&addr, LX_PORT);  // Try the default port if no port specified
 
 	fConnectTime = tLX->fCurTime;
 	iNumConnects++;

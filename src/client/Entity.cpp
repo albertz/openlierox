@@ -321,17 +321,6 @@ void SimulateEntities(float dt, CMap *map)
 								int x = (int)ent->vPos.x-1;
 								int y = (int)ent->vPos.y-1;
 
-								// Clipping
-								// TODO: is it needed here? DrawImage*** should clip it...
-/*								if(x < 0)
-									x = 0;
-								if(x+4 > (int)map->GetWidth())
-									x = (int)map->GetWidth()-4;
-								if(y < 0)
-									y = 0;
-								if(y+4 > (int)map->GetHeight())
-									y = (int)map->GetHeight()-4;*/
-
 								DrawImageAdv(map->GetImage(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
 								DrawImageStretch2(map->GetDrawImage(),map->GetImage(),x,y,x*2,y*2,4,4);
 							}

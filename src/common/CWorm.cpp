@@ -353,7 +353,8 @@ int CWorm::LoadGraphics(int gametype)
 
     // Load the skin
     bmpWormRight = LoadSkin(szSkin, r,g,b);
-	// TODO: if user has set a non-available szSkin (via /setskin), should we try to load another one here?
+	
+	// HINT: should not happen because the default skin should be *always* available (else the game doesn't start)
 	if (!bmpWormRight)  {
 		bmpWormLeft = NULL;
 		bmpPic = NULL;

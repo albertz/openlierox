@@ -226,6 +226,7 @@ class menu_t { public:
 	int				iMenuRunning;
 	int				iMenuType;
 	frontendinfo_t	tFrontendInfo;
+	std::string		sSavedChatText;
 
 	// Map Editor
 	int				iEditMode;

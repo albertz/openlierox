@@ -69,7 +69,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	cursorpos -= iScrollPos;
 	if (cursorpos < 0)  {
 		cursorpos = 5;  // Number of characters, that will be displayed on left if we scroll left and cursor is on the most left
-		iScrollPos -= 5;// TODO utf string
+		iScrollPos -= 5;
 		if ((int)iScrollPos < 0)
 			iScrollPos = 0;
 	}
@@ -570,7 +570,9 @@ DWORD CTextbox::SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
 		// Set the max length
 		case TXM_SETMAX:
 			iMax = Param1;
-			// TODO: cut to big string here?
+			if (Utf8StringSize(sText) > iMax)
+				Utf8Erase(sText, iMax);
+
 			break;
 
 	}

@@ -252,7 +252,7 @@ void CScrollbar::UpdatePos(void)
         return;
     }
 
-    int mx = iMax-iItemsperbox/*+1*/; // TODO: why +1? Like this it works much better
+    int mx = iMax-iItemsperbox;
 
 	if(iValue > mx)
 		iValue = mx;

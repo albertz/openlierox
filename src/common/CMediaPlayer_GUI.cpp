@@ -526,7 +526,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 	if (goto_drive_list)  {
 		int index = 0;
 		drive_list drives = GetDrives();
-		char cur_drive = tmp_dir[0]; // TODO: use std::string
+		char cur_drive = tmp_dir[0];
 		for (drive_list::const_iterator i=drives.begin(); i != drives.end();i++)  {
 #ifdef WIN32
 			if (i->type != DRV_CDROM)  {

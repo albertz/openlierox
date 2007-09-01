@@ -17,7 +17,12 @@
 #include <sstream>
 #include <vector>
 
-// secure str handling macros
+//
+// C-string handling routines
+//
+// HINT: these are obsolete, use std::string where possible!!!
+
+// Secure c-string handling macros
 // WARNING: don't use expressions like buf[i++] with the macros, because the "i" variable will be incremented twice in some macros!
 #define		fix_markend(chrarray) \
 				chrarray[sizeof(chrarray)-1] = '\0';
@@ -41,7 +46,7 @@
 				dest[len-1] = '\0'; }
 
 
-
+// Strnlen definition for compilers that don't have it
 #ifndef __USE_GNU
 	inline size_t strnlen(const char *str, size_t maxlen) {
 		register size_t i;
@@ -50,6 +55,7 @@
 	}
 #endif
 
+// Misc cross-compiler compatibility problem solutions
 #ifdef WIN32
 #if (defined(_MSC_VER) && (_MSC_VER <= 1200))
 	inline int strncasecmp(const char *str1, const char *str2, size_t l) {
@@ -60,6 +66,7 @@
 #	define snprintf	 _snprintf
 #	define stricmp _stricmp
 #	define fcloseall _fcloseall
+#	define strcasecmp	stricmp
 #else
 inline char* strlwr(char* string) {
 	char* ret = string;
@@ -69,9 +76,12 @@ inline char* strlwr(char* string) {
 #endif
 
 
-// like strcasecmp, but for a char
+/////////////
+// Case-insensitive comparison of two chars, behaves like stringcasecmp
 int chrcasecmp(const char c1, const char c2);
 
+/////////////
+// C-string itoa for non-windows compilers (on Windows it's defined in windows.h)
 #ifndef WIN32
 inline char* itoa(int val, char* buf, int base) {
 	int i = 29; // TODO: bad style
@@ -84,45 +94,51 @@ inline char* itoa(int val, char* buf, int base) {
 
     return &buf[i+1];
 }
+
+// Cross-compiler compatibility
 #	define		stricmp		strcasecmp
-#else // WIN32
-#	define		strcasecmp	stricmp
 #endif
 
 
+//
+// C++ string (std::string) routines
+//
+// HINT: use these where possible
 
-
-void	TrimSpaces(std::string& szLine);
-bool	replace(const std::string& text, const std::string& what, const std::string& with, std::string& result);
-bool	replace(std::string& text, const std::string& what, const std::string& with);
-std::string replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max);
-std::string replacemax(const std::string& text, const std::string& what, const std::string& with, int max);
-std::string strip(const std::string& text, int width);
-bool stripdot(std::string& text, int width);
-void	ucfirst(std::string& text);
-void	stringtolower(std::string& text);
-std::string	ReadUntil(const std::string& text, char until_character = '\n');
-std::string	ReadUntil(FILE* fp, char until_character = '\n');
-Uint32	StrToCol(const std::string& str);
+void			TrimSpaces(std::string& szLine);
+bool			replace(const std::string& text, const std::string& what, const std::string& with, std::string& result);
+bool			replace(std::string& text, const std::string& what, const std::string& with);
+std::string		replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max);
+std::string		replacemax(const std::string& text, const std::string& what, const std::string& with, int max);
+std::string		strip(const std::string& text, int width);
+bool			stripdot(std::string& text, int width);
+void			ucfirst(std::string& text);
+void			stringtolower(std::string& text);
+std::string		ReadUntil(const std::string& text, char until_character = '\n');
+std::string		ReadUntil(FILE* fp, char until_character = '\n');
+Uint32			StrToCol(const std::string& str);
 const std::vector<std::string>& explode(const std::string& str, const std::string& delim);
-void freadstr(std::string& result, size_t maxlen, FILE *fp);
+void			freadstr(std::string& result, size_t maxlen, FILE *fp);
+size_t			fwrite(const std::string& txt, size_t len, FILE* fp);
+size_t			findLastPathSep(const std::string& path);
+void			stringlwr(std::string& txt);
+bool			strincludes(const std::string& str, const std::string& what);
+short			stringcasecmp(const std::string& s1, const std::string& s2);
+const std::vector<std::string>& clever_split(const std::string& str, int maxlen);
+void			StripQuotes(std::string& str);
+std::string		GetFileExtension(const std::string& filename);
+void			xmlEntities(std::string& text);
+
+////////////////////
+// Read a fixed-length C-string from a file
 inline std::string freadfixedcstr(FILE *fp, size_t maxlen) {
 	std::string fileData;
 	freadstr(fileData, maxlen, fp);
 	return ReadUntil(fileData, '\0');
 }
-size_t fwrite(const std::string& txt, size_t len, FILE* fp);
-size_t findLastPathSep(const std::string& path);
-void stringlwr(std::string& txt);
-bool strincludes(const std::string& str, const std::string& what);
-short stringcasecmp(const std::string& s1, const std::string& s2);
-const std::vector<std::string>& clever_split(const std::string& str, int maxlen);
-void	StripQuotes(std::string& str);
 
 
-std::string GetFileExtension(const std::string& filename);
-
-
+// Conversion functions from string to numbers
 
 template<typename T>
 T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {
@@ -152,7 +168,12 @@ T from_string(const std::string& s) {
 	return t;
 }
 
+inline int atoi(const std::string& str)  { return from_string<int>(str);  }
+inline float atof(const std::string& str) { return from_string<float>(str);  }
 
+
+
+// Conversion functions from numbers to string
 
 template<typename T>
 std::string to_string(T val) {
@@ -198,10 +219,6 @@ inline std::string itoa(int num, short base=10)  {
 
 	return buf;
 }
-
-inline int atoi(const std::string& str)  { return from_string<int>(str);  }
-inline float atof(const std::string& str) { return from_string<float>(str);  }
-
 
 
 class simple_reversestring_hasher { public:

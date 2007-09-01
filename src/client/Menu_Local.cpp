@@ -643,11 +643,6 @@ int Menu_LocalCheckPlaying(int index)
 
 	p = FindProfile(index);
 
-	// TODO: does it work with this removed restrictions ?
-	//	if not, make it working
-	// Doesn't work and cannot work for now, better uncomment the
-	// restrictions for now (it could lead to a crash)
-
 	// Check if there is too many players
 	if(plycount >= MAX_PLAYERS)
 		return false;

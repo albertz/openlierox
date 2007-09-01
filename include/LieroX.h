@@ -289,17 +289,7 @@ float	GetFixedRandomNum(uchar index);
 void	ConvertTime(float time, int *hours, int *minutes, int *seconds);
 bool    MouseInRect(int x, int y, int w, int h);
 
-
-
-
-
-
-void printf(const std::string& txt);
-
-
-// TODO: remove this from here
-void	xmlEntities(std::string& text);
-
+void	printf(const std::string& txt);
 
 
 

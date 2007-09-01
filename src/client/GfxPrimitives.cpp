@@ -37,15 +37,10 @@ int iSurfaceFormat = SDL_SWSURFACE;
 //
 //////////////////////////
 
-// TODO: perhaps move this elsewhere?
-template<typename T>
-inline T force_in_range(T val, T min, T max) {
-	return MIN(MAX(val, min), max);
-}
-
 /////////////////
 // Put the pixel alpha blended with the background
 void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a)  {
+	// TODO: optimize (less local variables, less conditions and no floats)
 	static Uint8 R1, G1, B1, A1, R2, G2, B2; 	 
 	static float not_a; 	 
 	not_a = 1.0f - a; 	 
@@ -53,9 +48,9 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a)  {
 	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1); 	 
 	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2); 	 
 	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format, 	 
-			(Uint8) force_in_range(R1 * not_a + R2 * a, 0.0f, 255.0f), 	 
-			(Uint8) force_in_range(G1 * not_a + G2 * a, 0.0f, 255.0f), 	 
-			(Uint8) force_in_range(B1 * not_a + B2 * a, 0.0f, 255.0f), 	 
+			(Uint8) CLAMP(R1 * not_a + R2 * a, 0.0f, 255.0f), 	 
+			(Uint8) CLAMP(G1 * not_a + G2 * a, 0.0f, 255.0f), 	 
+			(Uint8) CLAMP(B1 * not_a + B2 * a, 0.0f, 255.0f), 	 
 			A1), bmpDest->format->BytesPerPixel);
 }
 

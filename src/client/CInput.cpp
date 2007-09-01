@@ -94,6 +94,7 @@ keys_t Keys[] = {
 	{ "'", SDLK_QUOTE},
 	{ ",", SDLK_COMMA},
 	{ ".", SDLK_PERIOD},
+	{ "enter", SDLK_RETURN},
 	{ "tab", SDLK_TAB},
 	{ "space",SDLK_SPACE },
 	{ "up",SDLK_UP },

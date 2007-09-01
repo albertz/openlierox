@@ -480,6 +480,9 @@ int Menu_Net_HostLobbyInitialize(void)
 	gl->bTournament = tLXOptions->tGameinfo.bTournament;
 
 
+	// Clear the saved chat text
+	tMenu->sSavedChatText = "";
+
     // Create the GUI
     Menu_Net_HostLobbyCreateGui();
 
@@ -580,9 +583,13 @@ void Menu_Net_HostLobbyCreateGui(void)
 // Get the content of the chatbox
 std::string Menu_Net_HostLobbyGetText(void)
 {
-	static std::string buf;
-	cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &buf, 256);
-	return buf;
+	if (tMenu->iMenuRunning)  {
+		std::string buf;
+		cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &buf, 256);
+		return buf;
+	} else {
+		return tMenu->sSavedChatText;
+	}
 }
 
 ///////////////////
@@ -642,7 +649,12 @@ void Menu_Net_HostGotoLobby(void)
 		lv->setShowSelect(false);
 	}
 
+	// Add the ingame chatter text to lobby chatter
+	cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, cClient->getChatterText(), 0);
+
+
 	cServer->UpdateGameLobby();
+	tMenu->sSavedChatText = "";
 }
 
 
@@ -942,6 +954,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			// Start the game
 			case hl_Start:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
+
+					// Save the chat text
+					cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
 
 					// Get the mod
 					cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);

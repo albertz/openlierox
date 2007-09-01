@@ -262,6 +262,7 @@ int Menu_Net_JoinLobbyInitialize(void)
 	cClient->getChatbox()->Clear();
     cClient->getChatbox()->setWidth(570);
     iJoinSpeaking = 0;  // The first player is always speaking
+	tMenu->sSavedChatText = "";
 
 	return true;
 }
@@ -277,6 +278,8 @@ void Menu_Net_JoinLobbyShutdown(void)
 
 	if (cClient)
 		cClient->Shutdown();
+
+	tMenu->sSavedChatText = "";
 }
 
 
@@ -364,16 +367,24 @@ void Menu_Net_JoinGotoLobby(void)
 		lv->setShowSelect(false);
 	}
 
+	// Add the ingame chatter text to lobby chatter
+	cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, cClient->getChatterText(), 0);
+
     iJoinSpeaking = 0; // The first player is always speaking
+	tMenu->sSavedChatText = "";
 }
 
 //////////////////////
 // Get the content of the chatbox
 std::string Menu_Net_JoinLobbyGetText(void)
 {
-	static std::string buf;
-	cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 256);
-	return buf;
+	if (tMenu->iMenuRunning)  {
+		std::string buf;
+		cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 256);
+		return buf;
+	} else {
+		return tMenu->sSavedChatText;
+	}
 }
 
 
@@ -409,6 +420,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		*bGame = true;
 		tMenu->iMenuRunning = false;
 		tGameInfo.iGameType = GME_JOIN;
+
+		// Save the chat text
+		cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
 
 		bJoin_Update = true;
 

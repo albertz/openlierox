@@ -93,7 +93,9 @@ void CClient::SendText(const std::string& sText)
 {
 	CBytestream *bs = cNetChan.getMessageBS();
 
-	// TODO: this way is not good; it assumes, that the message is always of the format 'NICK: MSG'
+	// HINT: this way is not good; it assumes, that the message is always of the format 'NICK: MSG'
+	// However, there's no better possibility to detect the command :(
+
 	// Do not allow client to send / commands is the host in not on beta 3
 	if (cLocalWorms[0]->getName().size() + 2 < sText.size())  {
 		std::string command_buf = sText;

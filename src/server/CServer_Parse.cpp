@@ -330,7 +330,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	// Kills don't count in capture the flag
 	if (killer != victim && (iGameType != GMT_CTF && iGameType != GMT_TEAMCTF))  {
 		// Don't add a kill for teamkilling (if enabled in options)
-		// TODO: isn't this incompatible with original LX?
+		// Client's score and scoreboard is controlled by the server which makes this backward compatible
 		if((vict->getTeam() != kill->getTeam() && killer != victim) || iGameType != GMT_TEAMDEATH || tLXOptions->bCountTeamkills ) {
 			kill->addKillInRow();
 			kill->AddKill();

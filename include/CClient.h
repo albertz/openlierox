@@ -544,6 +544,7 @@ public:
 	int			getTeamScore(int team)		{ return iTeamScores[team]; }
 
 	int			isTyping(void)				{ return iChat_Typing; }
+	std::string& getChatterText()			{ return sChat_Text; }
 
 	bool		getMuted(void)				{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }

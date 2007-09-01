@@ -310,6 +310,7 @@ void CWpnRest::sortList(void)
         m_nCount++;
 
     // Allocate the sorted list
+	// TODO: is the following comment still valid?
     // TODO: valgrid says, this got lost
     m_psSortedList = new wpnrest_t[m_nCount];
     if( !m_psSortedList )

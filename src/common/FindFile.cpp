@@ -24,7 +24,7 @@
 
 #ifdef WIN32
 #	ifndef _WIN32_IE
-// TODO: why is this needed?
+// Some functions that are required are unavailable if this is not defined:
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	endif
 

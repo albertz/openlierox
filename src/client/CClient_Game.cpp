@@ -1644,8 +1644,7 @@ void CClient::processChatter(void)
 			if (controls)
 				return;
 
-			// TODO: does this need more work? (more than 2 viewports; disabled with only local players?)
-			for(ushort j=0; j<iNumWorms; j++)  {
+			for(ushort j=0; j < iNumWorms; j++)  {
 				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
 					// Can we type?
 					if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())

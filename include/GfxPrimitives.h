@@ -386,7 +386,7 @@ inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 color) {
 // Get a pixel from an 8bit address
 // WARNING: passing invalid adress will cause a segfault
 inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
-	static Uint32 result;
+	Uint32 result;
 	result = 0;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	memcpy((Uint8*)&result + 4 - bpp, p, bpp);
@@ -405,6 +405,9 @@ inline Uint32 GetPixel(SDL_Surface* bmpSrc, int x, int y) {
 			bmpSrc->format->BytesPerPixel);
 }
 
+////////////////
+// Copy pixel from one surface to another, both surfaces must have same format
+// WARNING: doesn't do clipping
 inline void CopyPixel_SameFormat(
 	SDL_Surface* dst, SDL_Surface* src,
 	int dx, int dy, int sx, int sy) {
@@ -414,6 +417,10 @@ inline void CopyPixel_SameFormat(
 		dst->format->BytesPerPixel);
 }
 
+////////////////
+// Copy pixel from one surface to another, the coordinate on both surfaces is the same
+// WARNING: doesn't do clipping
+// WARNING: surfaces must have same format
 inline void CopyPixel_SameFormat(
 	SDL_Surface* dst, SDL_Surface* src, int x, int y) {
 	CopyPixel_SameFormat(dst, src, x, y, x, y);
@@ -555,10 +562,9 @@ inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 
 
 ///////////////////
 // Draws a rectangle with transparency
-// WARNING: not threadsafe
 inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
 	SDL_Surface *tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
-	static Uint8 r,g,b;
+	Uint8 r,g,b;
 	GetColour3(color,bmpDest,&r,&g,&b);
 	Uint32 friendly_col = SDL_MapRGBA(tmp->format,r,g,b,alpha);
 	if (tmp)  {

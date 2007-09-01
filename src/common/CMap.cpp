@@ -184,19 +184,6 @@ int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minima
 	Created = true;
 	modified = false;
 
-
-	//---------------------
-	// Water test
-	//---------------------
-/*	
-	// TODO: will we use it later? then uncomment this again, otherwise delete it
-	m_pnWater1 = new int[Width];
-	m_pnWater2 = new int[Width];
-
-	memset(m_pnWater1, 0, sizeof(int) * Width);
-	memset(m_pnWater2, 0, sizeof(int) * Width);
-*/
-
 	return true;
 }
 
@@ -1476,10 +1463,8 @@ void CMap::PlaceStone(int size, CVec pos)
 	short w,h;
 
 	if(size < 0 || size >= Theme.NumStones) {
-		// TODO: Bail out or warning of overflow
 		printf("WARNING: Bad stone size\n");
-		if(size < 0) size = 0;
-		else size = Theme.NumStones-1;
+		size = CLAMP(size, 0, Theme.NumStones - 1);
 	}
 
 
@@ -1964,12 +1949,8 @@ int CMap::Load(const std::string& filename)
 		return false;
 	}
 	fread(bitmask,size,1,fp);
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	// TODO: why is this swapped? sorry, perhaps I have only some blackout
-	static const unsigned char mask[] = {128,64,32,16,8,4,2,1};
-#else
+
 	static const unsigned char mask[] = {1,2,4,8,16,32,64,128};
-#endif
 
 	nTotalDirtCount = Width*Height;  // Calculate the dirt count
 

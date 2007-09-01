@@ -32,8 +32,7 @@ void CBox::PreDraw(void)
 	if (!bmpBuffer)  {
 		SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
 		if (fmt)
-		// TODO: why is SDL_CreateRGBSurface used directly here?
-			bmpBuffer = SDL_CreateRGBSurface(iSurfaceFormat,iWidth,iHeight,fmt->BitsPerPixel,fmt->Rmask,fmt->Gmask,fmt->Bmask,fmt->Amask);
+			bmpBuffer = gfxCreateSurface(iWidth, iHeight);
 		else
 			bmpBuffer = NULL;
 

@@ -453,8 +453,11 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	uchar cur = bs->readByte();
 	uchar charge = bs->readByte();
 
-    // TODO: isn't it safer / more sensefull to ignore the info if cur>4 ?
-	cur = (uchar)MIN(cur, 4);
+    // Check
+	if (cur > 4)  {
+		printf("CWorm::readStatUpdate: current weapon not in range, ignored.\n");
+		return;
+	}
 
 	if(tWeapons[cur].Weapon == NULL) {
 		printf("WARNING: readStatUpdate: Weapon == NULL\n");

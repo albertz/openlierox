@@ -206,7 +206,6 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	CloseHandle(hFile);
 
 	// Quit SDL
-	// TODO: is it safe to call ShutdownLieroX()?
 	SDL_Quit();
 
 	// Close all opened files

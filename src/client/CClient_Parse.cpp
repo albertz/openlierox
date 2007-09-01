@@ -490,24 +490,22 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// TODO: Load any other stuff
 	iGameReady = true;
 
-	// TODO: make this working
-	// problem is: Menu_Net_*GetText reads the textbox of the lobby,
-	//	which already doesn't exist anymore here
-	/*char *chattext = NULL;
+	
+	// Copy the chat text from lobby to ingame chatbox
 	switch (tGameInfo.iGameType)  {
 	case GME_HOST:
-		chattext = Menu_Net_HostLobbyGetText();
+		sChat_Text = Menu_Net_HostLobbyGetText();
 		break;
 	case GME_JOIN:
-		chattext = Menu_Net_JoinLobbyGetText();
+		sChat_Text = Menu_Net_JoinLobbyGetText();
 		break;
 	}
-	if (chattext)
-		if (chattext[0])  {
-			iChat_Typing = true;
-			iChat_CursorVisible = true;
-			fix_strncpy(sChat_Text,chattext);
-		}*/
+
+	if (!sChat_Text.empty())  {
+		iChat_Typing = true;
+		iChat_CursorVisible = true;
+		iChat_Pos = sChat_Text.size();
+	}
 
 	cChatbox.setWidth(tInterfaceSettings.ChatBoxW - 4);
 
