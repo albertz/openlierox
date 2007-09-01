@@ -830,6 +830,100 @@ void GameServer::DropClient(CClient *cl, int reason)
 
 
 ///////////////////
+// Drop a client
+void GameServer::DropClient(CClient *cl, int reason, std::string sReason)
+{
+    static std::string cl_msg;
+    cl_msg = "";
+
+	// Tell everyone that the client's worms have left both through the net & text
+	CBytestream bs;
+	bs.writeByte(S2C_CLLEFT);
+	bs.writeByte(cl->getNumWorms());
+
+	static std::string buf;
+	int i;
+	for(i=0; i<cl->getNumWorms(); i++) {
+		bs.writeByte(cl->getWorm(i)->getID());
+
+		// Log worm leaving
+		log_worm_t *logworm = GetLogWorm(cl->getWorm(i)->getID());
+		if (logworm)  {
+			logworm->bLeft = true;
+			logworm->iLeavingReason = reason;
+			logworm->fTimeLeft = tLX->fCurTime;
+		}
+
+        switch(reason) {
+
+            // Quit
+            case CLL_QUIT:
+				replacemax(networkTexts->sHasLeft,"<player>", cl->getWorm(i)->getName(), buf, 1);
+                cl_msg = sReason;
+                break;
+
+            // Timeout
+            case CLL_TIMEOUT:
+				replacemax(networkTexts->sHasTimedOut,"<player>", cl->getWorm(i)->getName(), buf, 1);
+                cl_msg = sReason;
+                break;
+
+            // Kicked
+            case CLL_KICK:
+				replacemax(networkTexts->sHasBeenKicked,"<player>", cl->getWorm(i)->getName(), buf, 1);
+                cl_msg = sReason;
+                break;
+
+			// Banned
+			case CLL_BAN:
+				replacemax(networkTexts->sHasBeenBanned,"<player>", cl->getWorm(i)->getName(), buf, 1);
+				cl_msg = sReason;
+				break;
+        }
+
+		// Send only if the text isn't <none>
+		if(buf != "<none>")
+			SendGlobalText(OldLxCompatibleString(buf),TXT_NETWORK);
+
+		// Reset variables
+		cl->setMuted(false);
+		cl->getWorm(i)->setUsed(false);
+		cl->getWorm(i)->setAlive(false);
+	}
+
+
+    // Go into a zombie state for a while so the reliable channel can still get the
+    // reliable data to the client
+    cl->setStatus(NET_ZOMBIE);
+    cl->setZombieTime(tLX->fCurTime + 3);
+
+	SendGlobalPacket(&bs);
+
+    // Send the client directly a dropped packet
+    bs.Clear();
+    bs.writeByte(S2C_DROPPED);
+    bs.writeString(OldLxCompatibleString(cl_msg));
+    cl->getChannel()->getMessageBS()->Append(&bs);
+
+
+	// Re-Calculate number of players
+	iNumPlayers=0;
+	CWorm *w = cWorms;
+	for(i=0;i<MAX_WORMS;i++,w++) {
+		if(w->isUsed())
+			iNumPlayers++;
+	}
+
+    // Now that a player has left, re-check the game status
+    RecheckGame();
+
+    // If we're waiting for players to be ready, check again
+    if(iState == SVS_GAME)
+        CheckReadyClient();
+}
+
+
+///////////////////
 // Kick a worm out of the server
 void GameServer::kickWorm(int wormID)
 {
@@ -903,6 +997,79 @@ void GameServer::kickWorm(int wormID)
 
 
 ///////////////////
+// Kick a worm out of the server with a custom message
+void GameServer::kickWorm(int wormID, std::string sReason)
+{
+    if( wormID < 0 || wormID >= MAX_PLAYERS )  {
+		if (Con_IsUsed())
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
+		return;
+	}
+
+	if (!wormID)  {
+		Con_Printf(CNC_NOTIFY, "You can't kick yourself!");
+		return;  // Don't kick ourself
+	}
+
+    // Get the worm
+    CWorm *w = cWorms + wormID;
+    if( !w->isUsed() )  {
+		if (Con_IsUsed())
+			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
+        return;
+	}
+
+    // Get the client
+    CClient *cl = w->getClient();
+    if( !cl )
+        return;
+
+	// Local worms are handled another way
+	if (cClient)  {
+		if (cClient->OwnsWorm(w))  {
+
+			// Delete the worm from client and server
+			cClient->RemoveWorm(w->getID());
+			w->setAlive(false);
+			w->setKills(0);
+			w->setLives(WRM_OUT);
+			w->setUsed(false);
+
+			// Update the number of players on server/client
+			iNumPlayers--;
+			tGameInfo.iNumPlayers--;
+			cl->RemoveWorm(w->getID());
+
+			// Tell everyone that the client's worms have left both through the net & text
+			CBytestream bs;
+			bs.writeByte(S2C_CLLEFT);
+			bs.writeByte(1);
+			bs.writeByte(wormID);
+			SendGlobalPacket(&bs);
+
+			// Send the message
+			SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sHasBeenKicked,"<player>", w->getName(), 1)),
+						TXT_NETWORK);
+
+			// Now that a player has left, re-check the game status
+			RecheckGame();
+
+			// If we're waiting for players to be ready, check again
+			if(iState == SVS_GAME)
+				CheckReadyClient();
+
+			// End here
+			return;
+		}
+	}
+
+
+    // Drop the client
+	DropClient(cl, CLL_KICK, sReason);
+}
+
+
+///////////////////
 // Kick a worm out of the server (by name)
 void GameServer::kickWorm(const std::string& szWormName)
 {
@@ -914,6 +1081,26 @@ void GameServer::kickWorm(const std::string& szWormName)
 
         if(stringcasecmp(w->getName(), szWormName) == 0) {
             kickWorm(i);
+            return;
+        }
+    }
+
+    // Didn't find the worm
+    Con_Printf(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
+}
+
+///////////////////
+// Kick a worm out of the server (by name) with a custom kick message
+void GameServer::kickWorm(const std::string& szWormName, std::string sReason)
+{
+    // Find the worm name
+    CWorm *w = cWorms;
+    for(int i=0; i<MAX_WORMS; i++, w++) {
+        if(!w->isUsed())
+            continue;
+
+        if(stringcasecmp(w->getName(), szWormName) == 0) {
+            kickWorm(i, sReason);
             return;
         }
     }

@@ -1445,10 +1445,19 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 			return true;
 		}
 
-		if(cl->getWorm(0)->getID() == id && cur_arg != arguments.end())
-			kickWorm(*cur_arg);
-		else 
-			kickWorm(id);
+		if(cl->getWorm(0)->getID() == id && cur_arg != arguments.end()) {
+			std::string name = *cur_arg++;
+			if(cur_arg == arguments.end())
+				kickWorm(name);
+			else
+				kickWorm(name, *cur_arg);
+		}
+		else {
+			if(cur_arg == arguments.end())
+				kickWorm(id);
+			else
+				kickWorm(id, *cur_arg);
+		}
 
 		return true;
 	}

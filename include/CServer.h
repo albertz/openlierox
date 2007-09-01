@@ -214,8 +214,11 @@ public:
 	bool		ProcessDeRegister(void);
 	void		CheckTimeouts(void);
 	void		DropClient(CClient *cl, int reason);
-    void        kickWorm(int wormID);
+	void		DropClient(CClient *cl, int reason, std::string sReason);
+	void		kickWorm(int wormID);
+    void        kickWorm(int wormID, std::string sReason);
     void        kickWorm(const std::string& szWormName);
+	void        kickWorm(const std::string& szWormName, std::string sReason);
 	void		banWorm(int wormID);
 	void		banWorm(const std::string& szWormName);
 	void		muteWorm(int wormID);
