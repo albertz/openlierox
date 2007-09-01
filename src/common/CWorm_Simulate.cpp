@@ -111,22 +111,57 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	}
 
 
-    // If this is the first worm, let the user use the 1-5 keys for weapon shortcuts
-    if( iID == 0 ) {
-        keyboard_t *kb = GetKeyboard();
-        for( int i=SDLK_1; i<=SDLK_5; i++ ) {
-            if( kb->KeyDown[i] ) {
+	// Use keys 1-5 and 6-0 for fast weapon changing
+    switch (iID) {
 
-                iCurrentWeapon = i-SDLK_1;
+	// If this is the first worm, let the user use the 1-5 keys for weapon shortcuts
+	case 0:  {
+			keyboard_t *kb = GetKeyboard();
+			for(int i = SDLK_1; i <= SDLK_5; i++ ) {
+				if( kb->KeyDown[i] ) {
 
-                bForceWeapon_Name = true;
-                fForceWeapon_Time = tLX->fCurTime+0.75f;
-            }
-        }
+					iCurrentWeapon = i - SDLK_1;
 
-        // Clamp the current weapon
-        iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
+					// Let the weapon name show up for a short moment
+					bForceWeapon_Name = true;
+					fForceWeapon_Time = tLX->fCurTime + 0.75f;
+				}
+			}
+
+			// Clamp the current weapon
+			iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
+		}
+	break;
+
+	// If this is the second worm, let the user use the 6-0 keys for weapon shortcuts
+	case 1:  {
+			keyboard_t *kb = GetKeyboard();
+			for(int i = SDLK_6; i <= SDLK_9; i++ ) {
+				if( kb->KeyDown[i] ) {
+
+					iCurrentWeapon = i - SDLK_6;
+
+					// Let the weapon name show up for a short moment
+					bForceWeapon_Name = true;
+					fForceWeapon_Time = tLX->fCurTime + 0.75f;
+				}
+			}
+
+			// 0 has to be separate, its keysym is not SDLK_9 + 1
+			if (kb->KeyDown[SDLK_0])  {
+				iCurrentWeapon = 5;
+
+				// Let the weapon name show up for a short moment
+				bForceWeapon_Name = true;
+				fForceWeapon_Time = tLX->fCurTime + 0.75f;
+			}
+
+			// Clamp the current weapon
+			iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
+		}
+	break;
 	}
+
 
 
 	ws->iShoot = false;
