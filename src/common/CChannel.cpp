@@ -49,7 +49,7 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iIncomingAcknowledged = 0;
 	iIncoming_ReliableAcknowledged = 0;
 	iIncoming_ReliableSequence = 0;
-	iOutgoingSequence = 1;
+	iOutgoingSequence = 0;
 	iReliableSequence = 0;
 	iLast_ReliableSequence = 0;
 	iOutgoingBytes = 0;
@@ -103,7 +103,7 @@ void CChannel::Transmit( CBytestream *bs )
 		}
 	}
 
-	iOutgoingSequence = iIncomingSequence;
+	iOutgoingSequence++;
 
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
@@ -144,7 +144,7 @@ void CChannel::Transmit( CBytestream *bs )
 			// Deficite :)
 			iReceivedSinceLastSent--;
 
-			printf("Deficite: " + itoa(-iReceivedSinceLastSent) + "\n");
+			//printf("Deficite: " + itoa(-iReceivedSinceLastSent) + "\n");
 		}
 
 		SetRemoteNetAddr(Socket,&RemoteAddr);

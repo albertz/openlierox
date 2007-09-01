@@ -330,6 +330,7 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 	// Check
 	if (!bmpBoxBuffer || !bmpBoxLeft || !bmpBoxRight)  {
 		DrawRect(dst, x, y, x+w, y+tLX->cFont.GetHeight(), tLX->clBoxLight); // backward compatibility
+		DrawRectFill(dst, x + 1, y + 1, x + w - 1, y + tLX->cFont.GetHeight() - 1, tLX->clBoxDark);
 		return;
 	}
 

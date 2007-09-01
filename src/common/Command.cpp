@@ -64,58 +64,60 @@ std::string Cmd_GetArg(int a)
 // Parse a line of text
 void Cmd_ParseLine(const std::string& text)
 {
-	size_t		i,ti;
-	int		quote = false;
+	bool quote = false;
 	std::string	token;
 
 	// Clear the arguments
 	NumArgs = 0;
 
-	ti = 0;
-	for(i=0;i<text.size();i++) { // TODO: use iterators!
+	std::string::const_iterator i = text.begin();
+	std::string::const_iterator i2 = i;
+	for(i2++; i != text.end(); i++, i2++) {
 
 		// Check delimeters
-		if(text[i] == ' ' || text[i] == ',') {
-			if(ti)
+		if(*i == ' ' || *i == ',') {
+			if(!token.empty())
 				Cmd_AddArg(token);
-			ti=0;
+			token = "";
+
 			continue;
 		}
 
 		// Check comments
-		if(text[i] == '/' && text[i+1] == '/') {
-			if(ti)
-				Cmd_AddArg(token);
-			ti=0;
-			// Just end here
-			break;
+		if (i2 != text.end())  {
+			if(*i == '/' && *i2 == '/') {
+				if(!token.empty())
+					Cmd_AddArg(token);
+				token = "";
+
+				// Just end here
+				break;
+			}
 		}
 
 		// Check quotes
-		if(text[i] == '"') {
+		if(*i == '"') {
 			quote = true;
 
-			i++;
-			for(;i<text.size();i++) { // TODO: iterators!
+			// Read until another quote
+			for(i++; i != text.end(); i++) {
 
-				if(text[i] == '"') {
+				if(*i == '"') {
 					quote = false;
 					break;
 				}
 
-				ti++;
-				token += text[i];
+				token += *i;
 			}
 			continue;
 		}
 
 		// Normal text
-		ti++;
-		token += text[i];
+		token += *i;
 	}
 
 	// Add the last token, only if it's not in unfinished quotes
-	if(ti && !quote) {
+	if(!token.empty() && !quote) {
 		Cmd_AddArg(token);
 	}
 
