@@ -67,8 +67,6 @@ void GameServer::Clear(void)
 	nPort = LX_PORT;
 
 	tGameLog = NULL;
-	bTakeScreenshot = false;
-	bScreenshotToken = false;
 	bTournament = false;
 
 	fLastUpdateSent = -9999;
@@ -200,9 +198,6 @@ int GameServer::StartGame(void)
 	tGameLog->fGameStart = tLX->fCurTime;
 	tGameLog->iNumWorms = iNumPlayers;
 	tGameLog->sGameStart = GetTime();
-
-	bTakeScreenshot = false;
-	bScreenshotToken = false;
 
 	// Check
 	if (!cWorms)
@@ -1398,19 +1393,19 @@ CClient *GameServer::getClient(int iWormID)
 
 /////////////////
 // Writes the log into the specified file
-bool GameServer::WriteLogToFile(FILE *f)
+void GameServer::GetLogData(std::string& data)
 {
-	printf("WriteLogToFile intitializated\n");
+	// Clear
+	data = "";
 
-	if (!f || !tGameLog)
-		return false;
+	// Checks
+	if (!tGameLog)
+		return;
 
 	if (!tGameLog->tWorms)
-		return false;
+		return;
 
-	static std::string levelfile,modfile,level,mod,player,skin;
-
-	printf("Filling in the game details... ");
+	std::string levelfile, modfile, level, mod, player, skin;
 
 	// Fill in the details
 	levelfile = sMapFilename;
@@ -1422,25 +1417,25 @@ bool GameServer::WriteLogToFile(FILE *f)
 	xmlEntities(level);
 	xmlEntities(mod);
 
-	printf("DONE\n");
-
 	// Save the game info
-	fprintf(f,"<game datetime=\"%s\" length=\"%f\" loading=\"%i\" lives=\"%i\" maxkills=\"%i\" bonuses=\"%i\" bonusnames=\"%i\" levelfile=\"%s\" modfile=\"%s\" level=\"%s\" mod=\"%s\" gamemode=\"%i\">",
-				tGameLog->sGameStart.c_str(),fGameOverTime-tGameLog->fGameStart,iLoadingTimes,iLives,iMaxKills,iBonusesOn,iShowBonusName,levelfile.c_str(),modfile.c_str(),level.c_str(),mod.c_str(),iGameType);
-
-	printf("Game info saved\n");
+	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
+			"length=\"" + ftoa(fGameOverTime - tGameLog->fGameStart) + "\" " +
+			"loading=\"" + itoa(iLoadingTimes) + "\" " +
+			"lives=\"" + itoa(iLives) + "\" " + 
+			"maxkills=\"" + itoa(iMaxKills) + "\" " + 
+			"bonuses=\"" + (iBonusesOn ? "1" : "0") + "\" " + 
+			"bonusnames=\"" + (iShowBonusName ? "1" : "0") + "\" " + 
+			"levelfile=\"" + levelfile + "\" " + 
+			"modfile=\"" + modfile + "\" " + 
+			"level=\"" + level + "\" " + 
+			"mod=\"" + mod + "\" " + 
+			"gamemode=\"" + itoa(iGameType) + "\">";
 
 	// Save the general players info
-	fprintf(f,"<players startcount=\"%i\" endcount=\"%i\">",tGameLog->iNumWorms,iNumPlayers);
-
-	printf("Players info saved\n");
-
-	fflush(f);
+	data += "<players startcount=\"" + itoa(tGameLog->iNumWorms) + "\" endcount=\"" + itoa(iNumPlayers) + "\">";
 
 	// Info for each player
-	short i;
-	for (i=0;i<tGameLog->iNumWorms;i++)  {
-		printf("Writing player %i... ",i);
+	for (short i=0; i < tGameLog->iNumWorms; i++)  {
 
 		// Replace the entities
 		player = tGameLog->tWorms[i].sName;
@@ -1451,24 +1446,25 @@ bool GameServer::WriteLogToFile(FILE *f)
 		xmlEntities(skin);
 
 		// Write the info
-		fprintf(f,"<player name=\"%s\" skin=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\" type=\"%i\" ip=\"%s\"/>",
-		player.c_str(),skin.c_str(),tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart),tGameLog->tWorms[i].iType,tGameLog->tWorms[i].sIP.c_str());
-
-		/*fprintf(f,"<player name=\"%s\" id=\"%i\" kills=\"%i\" lives=\"%i\" suicides=\"%i\" team=\"%i\" tag=\"%i\" tagtime=\"%f\" left=\"%i\" leavingreason=\"%i\" timeleft=\"%f\"/>",
-				player,tGameLog->tWorms[i].iID,tGameLog->tWorms[i].iKills,tGameLog->tWorms[i].iLives,tGameLog->tWorms[i].iSuicides,tGameLog->tWorms[i].iTeam,tGameLog->tWorms[i].bTagIT,tGameLog->tWorms[i].fTagTime,tGameLog->tWorms[i].bLeft,tGameLog->tWorms[i].iLeavingReason,MAX(0.0f,tGameLog->tWorms[i].fTimeLeft-tGameLog->fGameStart));*/
-
-		fflush(f);
-
-		printf("DONE\n");
+		data += "<player name=\"" + player + "\" " + 
+				"skin=\"" + skin + "\" " + 
+				"id=\"" + itoa(tGameLog->tWorms[i].iID) + "\" "
+				"kills=\"" + itoa(tGameLog->tWorms[i].iKills) + "\" " + 
+				"lives=\"" + itoa(tGameLog->tWorms[i].iLives) + "\" " + 
+				"suicides=\"" + itoa(tGameLog->tWorms[i].iSuicides) + "\" " + 
+				"team=\"" + itoa(tGameLog->tWorms[i].iTeam) + "\" " + 
+				"tag=\"" + (tGameLog->tWorms[i].bTagIT ? "1" : "0") + "\" " + 
+				"tagtime=\"" + ftoa(tGameLog->tWorms[i].fTagTime) + "\" " + 
+				"left=\"" + (tGameLog->tWorms[i].bLeft ? "1" : "0") + "\" " +
+				"leavingreason=\"" + itoa(tGameLog->tWorms[i].iLeavingReason) + "\" " + 
+				"timeleft=\"" + ftoa(MAX(0.0f, tGameLog->tWorms[i].fTimeLeft - tGameLog->fGameStart)) + "\" " +
+				"type=\"" + itoa(tGameLog->tWorms[i].iType) + "\" " + 
+				"ip=\"" + tGameLog->tWorms[i].sIP + "\"/>";
 	}
 
-	printf("Writing end tags\n");
-
 	// End tags
-	fprintf(f,"</players>");
-	fprintf(f,"</game>");
-
-	return true;
+	data += "</players>";
+	data += "</game>";
 }
 
 //////////////////

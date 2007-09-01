@@ -217,7 +217,7 @@ inline bool Load_Image_WithAlpha(SDL_Surface*& bmp, const std::string& name)  {
 
 ///////////////////
 // Save surface in the specified format
-bool SaveSurface(SDL_Surface *Image, const std::string& FileName, int Format, bool Tournament);
+bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, const std::string Data);
 
 
 //

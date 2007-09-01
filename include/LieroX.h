@@ -22,6 +22,8 @@
 #include <windows.h>
 #endif
 
+#include <list>
+
 
 // HINT: for AI debug define _AI_DEBUG in your IDE/compiler
 
@@ -62,15 +64,23 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #include "types.h"
 #include "IpToCountryDB.h"
 
+// Screenshot structure
+class screenshot_t { public:
+	std::string sDir;
+	std::string	sData;
+};
+
 
 // LieroX structure
 class lierox_t { public:
 	float	fCurTime;
 	float	fDeltaTime;
 	float	fRealDeltaTime; // Delta time used for network synchronization,
-							// it is not clamped like the previous one
+							// it is not clamped unlike the above one
 	CFont	cFont;
 	CFont	cOutlineFont;
+
+	std::list<screenshot_t>	tScreenshotQueue;
 
 	bool	bVideoModeChanged;
 

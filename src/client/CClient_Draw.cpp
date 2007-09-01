@@ -559,16 +559,17 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Game over
     if(iGameOver) {
-        if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)  {
-			bScoreAndSett = false;
+        if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !iGameMenu)  {
 			InitializeGameMenu();
 
-			// TODO: this better
-			if (cServer)
-				if (!cServer->getScreenshotToken() && tGameInfo.iGameType == GME_HOST && tGameInfo.bTournament)
-					cServer->setTakeScreenshot(true);
-		}
-        else
+			// If this is a tournament, take screenshot of the final screen
+			if (tLXOptions->tGameinfo.bTournament && tGameInfo.iGameType == GME_HOST)  {
+				screenshot_t scrn;
+				scrn.sDir = "tourny_scrshots";
+				cServer->GetLogData(scrn.sData);
+				tLX->tScreenshotQueue.push_back(scrn);
+			}
+		} else
             tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
     }
 

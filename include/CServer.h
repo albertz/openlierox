@@ -97,8 +97,6 @@ private:
 
 	// Logging
 	game_log_t	*tGameLog;
-	bool		bTakeScreenshot;
-	bool		bScreenshotToken;
 
 	// Game rules
 	int			iGameOver;
@@ -122,38 +120,38 @@ private:
 	float		fLastFlagPoint; // TODO: what is this for? why isn't it a CVec?
 
 	// Special messages
-	bool		bFirstBlood;	// TODO: what is this for?
+	bool		bFirstBlood;	// True if no-one has been killed yet
 
 	// Clients
-	CClient		*cClients;
+	CClient		*cClients;		// TODO: use std::list or vector
 
 	// Worms
 	int			iNumPlayers;
-	CWorm		*cWorms;
+	CWorm		*cWorms;		// TODO: use std::list or vector
 
 	// Projectiles
 	//CProjectile	*cProjectiles;
 
 	// Bonuses
-	CBonus		cBonuses[MAX_BONUSES];
+	CBonus		cBonuses[MAX_BONUSES];  // TODO: use std::list or vector
 
 	// Map
-	int			iRandomMap;		// TODO: what is thi for
+	int			iRandomMap;		// TODO: what is this good for
 	std::string	sMapFilename;
 	CMap		*cMap;
 
 	// Simulation
-	float		fServertime;	// TODO: what is this for
-	int			iServerFrame;	// TODO: what is this for
+	float		fServertime;	// TODO: what is this good for
+	int			iServerFrame;	// TODO: what is this good for
 
 	float		fLastBonusTime;
 
-	int			iLastVictim;	// TODO: what is this for
+	int			iLastVictim;	// TODO: what is this good for
 
 	// Network
 	NetworkSocket	tSocket;
 	int				nPort;
-	challenge_t		tChallenges[MAX_CHALLENGES];
+	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	game_lobby_t	tGameLobby;
 	CShootList		cShootList;
 
@@ -177,7 +175,7 @@ public:
 	// Logging
 	void				ShutdownLog(void);
 	log_worm_t			*GetLogWorm(int id);
-	bool				WriteLogToFile(FILE *f);
+	void				GetLogData(std::string& data);
 
 
 
@@ -277,10 +275,6 @@ public:
 	inline void	setMaxWorms(int _n) { iMaxWorms = _n; }
 	inline bool		getGameOver(void)	{ return iGameOver != 0; }
 	inline float		getGameOverTime(void) { return fGameOverTime; }
-	inline bool		getTakeScreenshot(void)	{ return bTakeScreenshot; }
-	inline void		setTakeScreenshot(bool _s) { bTakeScreenshot = _s; }
-	inline bool		getScreenshotToken(void) { return bScreenshotToken; }
-	inline void		setScreenshotToken(bool _s) { bScreenshotToken = _s; }
 	
 	// TODO: change the name of these functions; the sense should be clear
 	inline int		getFlag(int team)			{ return iFlagHolder[team]; }

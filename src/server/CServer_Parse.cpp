@@ -456,7 +456,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			case GMT_TAG:
 				// Get the worm with greatest tag time
 				float fMaxTagTime = 0;
-				int wormid = 0;
+				wormid = 0;
 				CWorm *w = cWorms;
 				for (int i = 0;i < MAX_WORMS;i++)
 					if (w->isUsed())

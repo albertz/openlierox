@@ -54,7 +54,9 @@ std::string GetConfigFile(void);
 
 std::string GetClipboardText();
 int         SetClipboardText(const std::string& szText);
-void        TakeScreenshot(bool Tournament);
+
+void		ProcessScreenshots();
+void        TakeScreenshot(const std::string& scr_path, const std::string& additional_data);
 
 // Subclass
 #ifdef WIN32

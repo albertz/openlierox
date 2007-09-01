@@ -1179,51 +1179,55 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 
 ///////////////////////
 // Saves the surface into the specified file with the specified format
-bool SaveSurface ( SDL_Surface *image, const std::string& FileName, int Format, bool Tournament )
+bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, const std::string Data)
 {
-	if ( Format == FMT_BMP )
-	{
-		std::string abs_fn = GetWriteFullFileName ( FileName, true );
-		SDL_SaveBMP ( image, abs_fn.c_str() );
+	//
+	// BMP
+	//
 
-		// Log
-		if ( Tournament && cServer )
-		{
-			cServer->setTakeScreenshot ( false );
-			cServer->setScreenshotToken ( true );
+	// We use stadard SDL function for saving BMPs
+	if (Format == FMT_BMP)  {
 
-			FILE *f = OpenGameFile ( FileName,"ab" );
-			if ( !f )
+		// Save the image
+		std::string abs_fn = GetWriteFullFileName (FileName, true);  // SDL requires full paths
+		SDL_SaveBMP(image, abs_fn.c_str());
+
+		// Append any additional data
+		if (!Data.empty())  {
+
+			FILE *f = OpenGameFile (FileName, "ab");
+			if (!f)
 				return false;
-			if ( !cServer->WriteLogToFile ( f ) )
-			{
-				fclose ( f );
-				return false;
-			}
-			fclose ( f );
 
+			fwrite(Data.data(), 1, Data.size(), f);
+			fclose (f);
 		}
 
 		return true;
 	}
 
+
+	//
+	// JPG, PNG, GIF
+	//
+
+	// We use GD for saving these formats
 	gdImagePtr gd_image = NULL;
 
+	// Convert the surface
 	gd_image = SDLSurface2GDImage ( image );
 	if ( !gd_image )
 		return false;
 
 	// Save the image
-	FILE *out;
 	int s;
 	char *data = NULL;
-	out = OpenGameFile ( FileName, "wb" );
+	FILE *out = OpenGameFile (FileName, "wb");
 	if ( !out )
-	{
 		return false;
-	}
 
-	switch ( Format )
+	// Get the data depending on the format
+	switch (Format)
 	{
 		case FMT_PNG:
 			data = ( char * ) gdImagePngPtr ( gd_image, &s );
@@ -1239,34 +1243,25 @@ bool SaveSurface ( SDL_Surface *image, const std::string& FileName, int Format, 
 			break;
 	}
 
-	size_t size = s>0?s:-s;
-	if ( !data )
-	{
+	// Check
+	if (!data)
 		return false;
-	}
-	if ( fwrite ( data, 1, size, out ) != size )
-	{
-		return false;
-	}
 
-	// Write info about the game
-	if ( Tournament && cServer )
-	{
-		cServer->setTakeScreenshot ( false );
-		cServer->setScreenshotToken ( true );
-		if ( !cServer->WriteLogToFile ( out ) )
-			return false;
-	}
+	// Size of the data
+	size_t size = s > 0 ? s : -s;
 
-	if ( fclose ( out ) != 0 )
-	{
+	// Write the image data
+	if (fwrite(data, 1, size, out) != size)
 		return false;
-	}
+
+	// Write any additional data
+	if (!Data.empty())
+		fwrite(Data.data(), 1, Data.size(), out);
 
 	// Free everything
 	gdFree ( data );
-
 	gdImageDestroy ( gd_image );
 
-	return true;
+	// Close the file and quit
+	return fclose(out) == 0;
 }

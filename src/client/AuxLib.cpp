@@ -242,6 +242,28 @@ HWND GetWindowHandle(void)
 #endif
 
 
+////////////////
+// Process any screenshots
+void ProcessScreenshots()
+{
+	// Check if user pressed screenshot key
+	if (cTakeScreenshot.isDownOnce())  {
+		screenshot_t scr;
+		scr.sData = "";
+		scr.sDir = "scrshots";
+		tLX->tScreenshotQueue.push_back(scr);
+	}
+
+	// Process all the screenhots in the queue
+	for (std::list<screenshot_t>::iterator it = tLX->tScreenshotQueue.begin(); it != tLX->tScreenshotQueue.end(); it++)  {
+		TakeScreenshot(it->sDir, it->sData);
+	}
+
+	// Clear the queue
+	tLX->tScreenshotQueue.clear();
+}
+
+
 ///////////////////
 // Flip the screen
 void FlipScreen(SDL_Surface *psScreen)
@@ -249,17 +271,11 @@ void FlipScreen(SDL_Surface *psScreen)
     // Take a screenshot?
     // We do this here, because there are so many graphics loops, but this function is common
     // to all of them
-    if( cTakeScreenshot.isDownOnce())
-        TakeScreenshot(tGameInfo.bTournament);
+    ProcessScreenshots();
 
-	// TODO: this better
-	if (cServer)  // Automatic screenshot after the game ends
-		if (cServer->getTakeScreenshot() )
-			TakeScreenshot(tGameInfo.bTournament);
-
-	if (tLXOptions->bOpenGL)  {
+	if (tLXOptions->bOpenGL)
 		SDL_GL_SwapBuffers();
-	}
+
     SDL_Flip( psScreen );
 }
 
@@ -400,12 +416,20 @@ std::string GetConfigFile(void)
 
 ///////////////////
 // Take a screenshot
-void TakeScreenshot(bool Tournament)
+void TakeScreenshot(const std::string& scr_path, const std::string& additional_data)
 {
-	static std::string	picname;
-	static std::string	fullname;
-	static std::string	extension;
-	int			i;
+	if (scr_path.empty()) // Check
+		return;
+
+	std::string	picname;
+	std::string	fullname;
+	std::string	extension;
+	std::string path = scr_path;
+
+	// Append a slash if not present
+	if (path[path.size() - 1] != '/' && path[path.size() - 1] != '\\')  {
+		path += '/';
+	}
 
 	// Set the extension
 	switch (tLXOptions->iScreenshotFormat)  {
@@ -417,20 +441,17 @@ void TakeScreenshot(bool Tournament)
 	}
 
 	// Create the file name
-    for(i=0; 1; i++) {
-		picname = "lierox"+itoa(i)+extension;
+    for(unsigned int i=0; true; i++) {
+		picname = "lierox" + itoa(i) + extension;
 
-		if (Tournament)
-			fullname = "tourny_scrshots/"+picname;
-		else
-			fullname = "scrshots/" + picname;
+		fullname = path + picname;
 
 		if (!IsFileAvailable(fullname,false))
 			break;	// file doesn't exist
 	}
 
 	// Save the surface
-	SaveSurface(SDL_GetVideoSurface(),fullname,tLXOptions->iScreenshotFormat,Tournament && cServer->getTakeScreenshot());
+	SaveSurface(SDL_GetVideoSurface(), fullname, tLXOptions->iScreenshotFormat, additional_data);
 }
 
 #ifdef WIN32

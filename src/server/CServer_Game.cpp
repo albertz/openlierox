@@ -614,8 +614,6 @@ void GameServer::gotoLobby(void)
 
 	// Shutdown the game items
 	cGameScript.Shutdown();
-
-	bTakeScreenshot = false;
 }
 
 
