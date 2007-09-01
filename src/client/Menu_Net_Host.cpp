@@ -1168,7 +1168,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		else
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
 		player_list->AddSubitem(LVS_IMAGE, "", w->getPicimg(), NULL);  // Skin
-		player_list->AddSubitem(LVS_TEXT, w->getName(), NULL, NULL);  // Name
+		player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL);  // Name
 
 		// Display the team mark if TDM
 		if (gl->nGameMode == GMT_TEAMDEATH || gl->nGameMode == GMT_VIP || gl->nGameMode == GMT_TEAMCTF)  {
