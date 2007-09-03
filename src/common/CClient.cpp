@@ -411,8 +411,12 @@ void CClient::Connecting(void)
 	}
 
 	StringToNetAddr(strServerAddr,&addr);
-	if(GetNetAddrPort(&addr) == 0)
-		SetNetAddrPort(&addr, LX_PORT);  // Try the default port if no port specified
+	if(GetNetAddrPort(&addr) == 0)  {
+		if (tGameInfo.iGameType == GME_JOIN) // Remote joining
+			SetNetAddrPort(&addr, LX_PORT);  // Try the default port if no port specified
+		else // Host or local
+			SetNetAddrPort(&addr, tLXOptions->iNetworkPort);  // Use the port specified in options
+	}
 
 	fConnectTime = tLX->fCurTime;
 	iNumConnects++;

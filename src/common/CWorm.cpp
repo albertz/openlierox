@@ -38,6 +38,7 @@ void CWorm::Clear(void)
 	iClientID = 0;
 	iClientWormID = 0;
     szSkin = "";
+	cOwner = NULL;
     
 	iKills = 0;
 	iDeaths = 0;
