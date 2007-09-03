@@ -440,11 +440,40 @@ void GameServer::BeginMatch(void)
 	for(i=0;i<MAX_WORMS;i++) {
 		if(!cWorms[i].getFlag())
 			continue;
-		CWorm *worm = cClient->getRemoteWorms()+cWorms[i].getID();
+		CWorm *worm = cClient->getRemoteWorms() + cWorms[i].getID();
 		worm->setFlag(true);
 	}
 }
 
+
+////////////////
+// End the game
+void GameServer::GameOver(int winner)
+{
+	// The game is already over
+	if (iGameOver)
+		return;
+
+	iGameOver = true;
+	fGameOverTime = tLX->fCurTime;
+
+	// Let everyone know that the game is over
+	CBytestream bs;
+	bs.writeByte(S2C_GAMEOVER);
+	bs.writeInt(winner, 1);
+	SendGlobalPacket(&bs);
+
+	// Reset the state of all the worms so they don't keep shooting/moving after the game is over
+	// HINT: next frame will send the update to all worms
+	CWorm *w = cWorms;
+	for (int i=0; i < MAX_WORMS; i++, w++)  {
+		if (!w->isUsed())
+			continue;
+
+		w->clearInput();
+	}
+
+}
 
 ///////////////////
 // Main server frame

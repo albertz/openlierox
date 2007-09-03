@@ -145,17 +145,18 @@ void GameServer::SimulateGame(void)
 
 	// Process worms
 	CWorm *w = cWorms;
-	CWorm *f[2];
+	CWorm *f[2];  // 2 = maximum number of flags in the game
 	short i, j;
 	int flags = 0;
 
 	f[0] = cWorms;
 
+	// Get pointers to all flags in the game
 	for(i=0;i<MAX_WORMS;i++,f[flags]++) 
 		if(f[flags]->isUsed() && f[flags]->getFlag()) {
 			flags++;
 			f[flags]=cWorms+i;
-			if(flags==2)
+			if(flags == 2)
 				break;
 		}
 
@@ -442,6 +443,10 @@ void GameServer::TagRandomWorm(void)
 // Worm is shooting
 void GameServer::WormShoot(CWorm *w)
 {
+	// Don't shoot when the game is over
+	if (iGameOver)
+		return;
+
 	// If the worm is a VIP and the gametype is VIP don't shoot
 	if(w->getVIP() && iGameType == GMT_VIP)
 		return;

@@ -478,17 +478,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				// TEAM DEATHMATCH is handled below
 			}
 
-			// Let everyone know that the game is over
-			byte.writeByte(S2C_GAMEOVER);
-			byte.writeInt(wormid, 1);
-
-			// Game over
-			if (iGameType != GMT_TEAMDEATH && iGameType != GMT_VIP)  {  // Team deathmatch is handled below
-				iGameOver = true;
-				fGameOverTime = tLX->fCurTime;
-			}
-
-			// It's sent in the packet below
+			GameOver(wormid);
 		}
 
 
@@ -538,13 +528,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 				}
 
-				byte.Clear();
-				byte.writeByte(S2C_GAMEOVER);
-				byte.writeInt(team, 1);
-				iGameOver = true;
-				fGameOverTime = tLX->fCurTime;
-
-				// This packet is sent below
+				GameOver(team);
 			}
 		}
 		if (!iGameOver && (iGameType == GMT_VIP || iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
@@ -553,13 +537,10 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 
 	// Check if the max kills has been reached
-	if (iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills && !iGameOver) {
+	if (iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills) {
 
 		// Game over (max kills reached)
-		byte.writeByte(S2C_GAMEOVER);
-		byte.writeInt(kill->getID(), 1);
-		iGameOver = true;
-		fGameOverTime = tLX->fCurTime;
+		GameOver(kill->getID());
 	}
 
 

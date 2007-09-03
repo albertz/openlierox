@@ -1567,6 +1567,7 @@ void CClient::processChatter(void)
         if(GetKeyboard()->keys[SDLK_ESCAPE] || GetKeyboard()->KeyUp[SDLK_ESCAPE]) {
             // Stop typing
             iChat_Typing = false;
+			sChat_Text = "";
 
             GetKeyboard()->keys[SDLK_ESCAPE] = false;
             GetKeyboard()->KeyDown[SDLK_ESCAPE] = false;
@@ -1758,6 +1759,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 			buf = OldLxCompatibleString(buf);
             SendText(buf);
         }
+		sChat_Text = "";
         return;
     }
 

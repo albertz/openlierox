@@ -180,9 +180,10 @@ public:
 
 
 	// Game
-	void		Frame(void);
-	int			StartGame(void);
-	void		BeginMatch(void);
+	void		Frame();
+	int			StartGame();
+	void		BeginMatch();
+	void		GameOver(int winner);
 
 	void		SpawnWorm(CWorm *Worm);
 	void		SpawnWorm(CWorm *Worm, CVec pos, CClient *cl);
