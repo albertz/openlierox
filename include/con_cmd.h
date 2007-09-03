@@ -54,19 +54,19 @@ void	Cmd_Free(void);
 
 
 // User commands
-void    Cmd_Kick(void);
-void	Cmd_Ban(void);
-void	Cmd_KickId(void);
-void	Cmd_BanId(void);
-void    Cmd_Mute(void);
-void	Cmd_MuteId(void);
-void	Cmd_Unmute(void);
-void	Cmd_UnmuteId(void);
-void	Cmd_Crash(void);
-void	Cmd_Suicide(void);
-void	Cmd_Unstuck(void);
-void	Cmd_WantsJoin(void);
-void	Cmd_RenameServer(void);
+void    Cmd_Kick();
+void	Cmd_Ban();
+void	Cmd_KickId();
+void	Cmd_BanId();
+void    Cmd_Mute();
+void	Cmd_MuteId();
+void	Cmd_Unmute();
+void	Cmd_UnmuteId();
+void	Cmd_Crash();
+void	Cmd_Suicide();
+void	Cmd_Unstuck();
+void	Cmd_WantsJoin();
+void	Cmd_RenameServer();
 void	Cmd_Help();
 void	Cmd_About();
 void	Cmd_BadWord();
@@ -76,6 +76,7 @@ void	Cmd_Sound();
 void	Cmd_SetName();
 void	Cmd_SetSkin();
 void	Cmd_SetColour();
+void	Cmd_ServerSideHealth();
 
 
 

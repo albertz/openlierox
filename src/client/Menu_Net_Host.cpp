@@ -68,7 +68,8 @@ enum {
 	hs_AllowWantsJoin,
 	hs_WantsJoinBanned,
 	hs_AllowRemoteBots,
-	hs_AllowNickChange
+	hs_AllowNickChange,
+	hs_ServerSideHealth
 };
 
 int iHumanPlayers = 0;
@@ -110,6 +111,8 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowRemoteBots,	270,355,17, 17);
 	cHostPly.Add( new CLabel("Allow Nick Changing",			tLX->clNormalLabel),-1,	115, 388,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowNickChange,	270,385,17, 17);
+	cHostPly.Add( new CLabel("Server-side Health",			tLX->clNormalLabel),-1,	125, 418,0,  0);
+	cHostPly.Add( new CCheckbox(0),		                    hs_ServerSideHealth,	270,415,17, 17);
 
 	cHostPly.SendMessage(hs_Playing,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 	cHostPly.SendMessage(hs_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
@@ -127,6 +130,7 @@ int Menu_Net_HostInitialize(void)
 	cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_SETCHECK, tLXOptions->tGameinfo.bWantsJoinBanned, 0);
 	cHostPly.SendMessage( hs_AllowRemoteBots,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
 	cHostPly.SendMessage( hs_AllowNickChange,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowNickChange, 0);
+	cHostPly.SendMessage( hs_ServerSideHealth,  CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
     //cHostPly.SendMessage( hs_Password,   TXS_SETTEXT, tLXOptions->tGameinfo.szPassword, 0 );
 
 	// Add columns
@@ -352,6 +356,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						tLXOptions->tGameinfo.bWantsJoinBanned = cHostPly.SendMessage( hs_WantsJoinBanned,   CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->tGameinfo.bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->tGameinfo.bAllowNickChange = cHostPly.SendMessage( hs_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
+						tLXOptions->bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 						cHostPly.Shutdown();
 
@@ -1320,7 +1325,8 @@ enum {
 	ss_WantsJoinBanned,
 	ss_AllowRemoteBots,
 	ss_AllowNickChange,
-	ss_MaxPlayers
+	ss_MaxPlayers,
+	ss_ServerSideHealth
 };
 
 
@@ -1331,15 +1337,15 @@ void Menu_ServerSettings(void)
 {
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,130,120,130, 400,200);
-	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,385, tLX->clDialogBackground, 200);
-	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,385);
+	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,415, tLX->clDialogBackground, 200);
+	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,415);
 
 	Menu_RedrawMouse(true);
 
 	cServerSettings.Initialize();
 	cServerSettings.Add( new CLabel("Server Settings", tLX->clNormalLabel),		  -1,        275,140,  0, 0);
-    cServerSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  ss_Ok,	 360,360,  60,15);
-	cServerSettings.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),  ss_Cancel, 220,360,  70,15);
+    cServerSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  ss_Ok,	 360,390,  60,15);
+	cServerSettings.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),  ss_Cancel, 220,390,  70,15);
 	cServerSettings.Add( new CLabel("Server Name:", tLX->clNormalLabel),		  -1,        130,165,  0, 0);
 	cServerSettings.Add( new CLabel("Welcome Message:", tLX->clNormalLabel),	  -1,        130,193,  0, 0);
 	cServerSettings.Add( new CLabel("Max. Players:", tLX->clNormalLabel),		  -1,        130,218,  0, 0);
@@ -1354,6 +1360,8 @@ void Menu_ServerSettings(void)
 	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowRemoteBots,	360,305,17, 17);
 	cServerSettings.Add( new CLabel("Allow Nick Change",				tLX->clNormalLabel),-1,	130, 335,0,  0);
 	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowNickChange,	360,335,17, 17);
+	cServerSettings.Add( new CLabel("Server-side Health",				tLX->clNormalLabel),-1,	130, 365,0,  0);
+	cServerSettings.Add( new CCheckbox(0),		                    ss_ServerSideHealth,	360,365,17, 17);
 
 	cServerSettings.SendMessage(ss_ServerName,TXM_SETMAX,32,0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXM_SETMAX,256,0);
@@ -1363,6 +1371,7 @@ void Menu_ServerSettings(void)
 	cServerSettings.SendMessage(ss_WantsJoinBanned, CKM_SETCHECK, tLXOptions->tGameinfo.bWantsJoinBanned, 0);
 	cServerSettings.SendMessage(ss_AllowRemoteBots, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
 	cServerSettings.SendMessage(ss_AllowNickChange, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowNickChange, 0);
+	cServerSettings.SendMessage(ss_ServerSideHealth, CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
 	cServerSettings.SendMessage(ss_ServerName,TXS_SETTEXT,tGameInfo.sServername, 0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXS_SETTEXT,tGameInfo.sWelcomeMessage, 0);
 	cServerSettings.SendMessage(ss_MaxPlayers, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iMaxPlayers), 0);
@@ -1416,6 +1425,7 @@ bool Menu_ServerSettings_Frame(void)
 					tLXOptions->tGameinfo.bWantsJoinBanned = cServerSettings.SendMessage( ss_WantsJoinBanned, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					tLXOptions->tGameinfo.bAllowRemoteBots = cServerSettings.SendMessage( ss_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					tLXOptions->tGameinfo.bAllowNickChange = cServerSettings.SendMessage( ss_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					tLXOptions->bServerSideHealth = cServerSettings.SendMessage( ss_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 					Menu_ServerSettingsShutdown();
 
