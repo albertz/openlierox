@@ -111,7 +111,7 @@ void CClient::SendText(const std::string& sText)
 	}
 
 	// If the text is too long, split it in smaller pieces and then send (backward comaptibility)
-	const std::vector<std::string>& split = clever_split(sText, 63);
+	const std::vector<std::string>& split = splitstring(sText, 63, iNetStatus == NET_CONNECTED ? 600 : 300, tLX->cFont);
 
 	for (std::vector<std::string>::const_iterator it=split.begin(); it != split.end(); it++)  {
 		bs->writeByte(C2S_CHATTEXT);

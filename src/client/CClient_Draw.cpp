@@ -612,10 +612,10 @@ void CClient::Draw(SDL_Surface *bmpDest)
 // Draw the chatter
 void CClient::DrawChatter(SDL_Surface *bmpDest)
 {
-	std::string text = "Talk: " + sChat_Text;
-	const std::vector<std::string>& lines = clever_split(text, 640/tLX->cOutlineFont.GetWidth("W"));
 	int x = tInterfaceSettings.ChatterX;
 	int y = tInterfaceSettings.ChatterY;
+	std::string text = "Talk: " + sChat_Text;
+	const std::vector<std::string>& lines = splitstring(text, (size_t)-1, 640 - x, tLX->cOutlineFont);
 
 	y -= MAX(0, (int)lines.size() - 1) * tLX->cOutlineFont.GetHeight();
 

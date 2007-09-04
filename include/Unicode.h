@@ -28,35 +28,46 @@ struct ConversionItem {
 extern ConversionItem tConversionTable[];
 
 
+///////////////////////
+// Moves the iterator to next unicode character in the string, returns number of bytes skipped
 template<typename _Iterator1, typename _Iterator2>
-inline void IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
-	if(it == last) return;
+inline size_t IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
+	if(it == last) return 0;
 	unsigned char c;
-	for(it++; last != it; it++) {
+	size_t res = 1;
+	for(it++; last != it; it++, res++) {
 		c = *it;
 		if(!(c&0x80) || ((c&0xC0) == 0xC0)) break;
 	}
+
+	return res;
 }
 
 template<typename _Iterator>
-inline void MultIncUtf8StringIterator(_Iterator& it, const _Iterator& last, size_t count) {
+inline size_t MultIncUtf8StringIterator(_Iterator& it, const _Iterator& last, size_t count) {
+	size_t res = 0;
 	for(size_t i = 0; i < count; i++) {
 		if(it == last) break;
-		IncUtf8StringIterator(it, last);
+		res += IncUtf8StringIterator(it, last);
 	}
+
+	return res;
 }
 
 ///////////////////
-// The iterator points at first byte of the UTF8 encoded character
+// The iterator points at first byte of the UTF8 encoded character, returns number of bytes skipped
 template<typename _Iterator1, typename _Iterator2>
-inline void DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
-	if(it == first) return;
+inline size_t DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
+	if(it == first) return 0;
+	size_t res = 1;
 	unsigned char c;
 	it--;
-	for(; first != it; it--) {
+	for(; first != it; it--, res++) {
 		c = *it;
 		if(!(c&0x80) || ((c&0xC0) == 0xC0)) break;
 	}
+
+	return res;
 }
 
 template<typename _Iterator>

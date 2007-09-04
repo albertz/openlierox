@@ -1280,8 +1280,6 @@ void GameServer::ParseQuery(CBytestream *bs) {
 ///////////////////
 // Parse a get_info packet
 void GameServer::ParseGetInfo(void) {
-	// TODO: more info
-
 	static CBytestream     bs;
 	game_lobby_t    *gl = &tGameLobby;
 

@@ -60,7 +60,7 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 
 	// HINT: if the message is longer than 64 characters, we split it in more messages
 	// (else we could exploit old clients... :( )
-	const std::vector<std::string>& split = clever_split(text, 63);
+	const std::vector<std::string>& split = splitstring(text, 63, iState == SVS_LOBBY ? 600 : 300, tLX->cFont);
 		
 	for (std::vector<std::string>::const_iterator it = split.begin(); it != split.end(); it++)  {
 		// Send it

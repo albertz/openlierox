@@ -536,8 +536,9 @@ void GameServer::ReadPackets(void)
 			if(!AreNetAddrEqual(&adrFrom,cl->getChannel()->getAddress()))
 				continue;
 
-
-			// TODO: Check ports
+			// Check the port
+			if (GetNetAddrPort(&adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
+				continue;
 
 			// Process the net channel
             if(cl->getChannel()->Process(&bs)) {

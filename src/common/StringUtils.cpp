@@ -8,11 +8,15 @@
 	by Albert Zeyer and Dark Charlie
 */
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4786)  // WARNING: identifier XXX was truncated to 255 characters in the debug info...
+#endif
 
 #include "StringUtils.h"
 #include "Utils.h"
 #include "GfxPrimitives.h" // for MakeColour
 #include "LieroX.h" // for tLX
+#include "CFont.h" // for CFont
 
 void StripQuotes(std::string& str)
 {
@@ -309,46 +313,59 @@ void ucfirst(std::string& text)
 
 }
 
-//////////////////////
-// Splits the string to pieces that none of the pieces can be longer than maxlen
-// TODO: change the name of the function; it should be a clear, self-explaining name
-// TODO: recode it, use iterators; for example, you should never ever to know about UTF8 in the function (you should never have to use *it >= 0x80)
-// TODO: don't convert simply to int only because the compiler makes a warning; think about why the compiler made the warning -> there is a possible not-seen overflow which occurs if you convert unsigned int to int; this possible overflow is what the warning means; in mostly all cases you should avoid a possible overflow
-// TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
-const std::vector<std::string>& clever_split(const std::string& str, int maxlen)
+//////////////////
+// Splits the str in two pieces, part before space and part after space, if no space is found, the second string is empty
+void split_by_space(const std::string& str, std::string& before_space, std::string& after_space)
 {
-	int split = 0;
-	int current_part = maxlen;
-	std::string buf;
-	static std::vector<std::string> res;
-	res.clear();
+	size_t spacepos = str.rfind(' ');
+	if (spacepos == std::string::npos || spacepos == str.size() - 1 || str == "")  {
+		before_space = str;
+		after_space = "";
+	} else {
+		before_space = str.substr(0, spacepos);
+		after_space = str.substr(spacepos + 1); // exclude the space
+	}
+}
 
-	while ((int)str.size() - split > maxlen)  {
-		buf = str.substr(split, maxlen);
-		current_part = maxlen;
-		size_t spacepos = buf.find_last_of(' ');
-		if (spacepos == std::string::npos)  {  // hardbreak
-			std::string::const_iterator it = buf.end();
-			it--;
-			// TODO: avoid code like this!
-			while ((uchar)*it >= 0x80 && it != buf.begin())  {  // make sure we don't break UTF8 character
-				it--;
-				current_part--;
-			}
-			buf = buf.substr(0, current_part);
-		} else {  // break in a space
-			buf = buf.substr(0, (int)spacepos);
-			current_part = (int)spacepos + 1;  // we don't include the space
+//////////////////////
+// Splits the string to pieces that none of the pieces can be longer than maxlen and wider than maxwidth
+// TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
+const std::vector<std::string>& splitstring(const std::string& str, size_t maxlen, size_t maxwidth, CFont& font)
+{
+	static std::vector<std::string> result;
+	result.clear();
+	std::string::const_iterator it = str.begin();
+	std::string::const_iterator last_it = str.begin();
+	size_t i = 0;
+	std::string token;
+
+	for (it++; it != str.end(); i += IncUtf8StringIterator(it, str.end()))  {
+
+		// Check for maxlen
+		if (i > maxlen)  {
+			std::string before_space;
+			split_by_space(token, before_space, token);
+			result.push_back(before_space);
+			i = token.size();
 		}
 
-		split += current_part;
+		// Check for maxwidth
+		if (font.GetWidth(token) <= maxwidth && font.GetWidth(token + std::string(last_it, it)) > maxwidth) {
+			std::string before_space;
+			split_by_space(token, before_space, token);
+			result.push_back(before_space);
+			i = token.size();
+		}
 
-		res.push_back(buf);
+		// Add the current bytes to token
+		token += std::string(last_it, it);
+
+		last_it = it;
 	}
 
-	// Last part
-	res.push_back(str.substr(split, str.size()));
+	 // Last token
+	result.push_back(token + std::string(last_it, it));
 
-	return res;
+	return result;
 }
 
