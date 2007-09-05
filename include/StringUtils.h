@@ -84,15 +84,21 @@ int chrcasecmp(const char c1, const char c2);
 // C-string itoa for non-windows compilers (on Windows it's defined in windows.h)
 #ifndef WIN32
 inline char* itoa(int val, char* buf, int base) {
-	int i = 29; // TODO: bad style
-	buf[i+1] = '\0';
+	int i = 0;
 
+	// Convert it
     do {
-        buf = "0123456789abcdefghijklmnopqrstuvwxyz"[val % base] + buf;
-        --i, val /= base;
-    } while(val && i);
+        buf[i] = "0123456789abcdefghijklmnopqrstuvwxyz"[val % base];
+        ++i, val /= base;
+    } while(val);
 
-    return &buf[i+1];
+	// Terminating character
+	buf[i] = '\0';
+
+	// Reverse the string
+	strrev(buf);
+
+    return buf;
 }
 
 // Cross-compiler compatibility

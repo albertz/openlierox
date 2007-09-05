@@ -315,7 +315,8 @@ void ucfirst(std::string& text)
 
 //////////////////
 // Splits the str in two pieces, part before space and part after space, if no space is found, the second string is empty
-void split_by_space(const std::string& str, std::string& before_space, std::string& after_space)
+// Used internally by splitstring
+static void split_by_space(const std::string& str, std::string& before_space, std::string& after_space)
 {
 	size_t spacepos = str.rfind(' ');
 	if (spacepos == std::string::npos || spacepos == str.size() - 1 || str == "")  {

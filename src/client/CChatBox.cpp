@@ -15,6 +15,7 @@
 
 
 #include "LieroX.h"
+#include "StringUtils.h"
 #include "CChatBox.h"
 
 
@@ -54,65 +55,24 @@ void CChatBox::AddText(const std::string& txt, int colour, float time)
 
 ////////////////////
 // Adds the text to wrapped lines
-void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new, int rec_count)
+void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_lines_t &lines, bool mark_as_new)
 {
+	// Split it to the lines
+	const std::vector<std::string>& tmp = splitstring(txt, (size_t)-1, nWidth, tLX->cFont);
 
-	// Avoid stack overflow (this limits the message to 32 lines, let's hope no one will need it)
-	// TODO: iterative algo to remove this restriction?
-	if (rec_count > 32)
-		return;
-	++rec_count;
+	// Add the lines
+	for (std::vector<std::string>::const_iterator it = tmp.begin(); it != tmp.end(); it++)  {
+		line_t newline;
+		newline.fTime = time;
+		newline.iColour = colour;
+		newline.strLine = *it;
+		newline.iID = WrappedLines.size();
 
-	//
-	// Wrap
-	//
-
-	static std::string buf;
-
-	if (txt == "")
-		return;
-
-    // If this line is too long, break it up
-	buf = txt;
-	if((uint)tLX->cFont.GetWidth(txt) >= nWidth) {
-
-		size_t i;
-		for (i=buf.length()-2; (uint)tLX->cFont.GetWidth(buf) > nWidth && i >= 1; i--)
-			buf.erase(i);
-
-		// Damaged text, would cause overflowý
-		if (buf.empty())
-			return;
-
-		size_t j = buf.length()-1;
-		// Find the nearest space
-		for (std::string::reverse_iterator it2=buf.rbegin(); it2!=buf.rend() && *it2 != ' ' && j; it2++,j--) {}
-
-		// Hard break
-		if(j < 24)
-			j = i;
-
-		// Add the lines recursively
-		// Note: if the second line is also too long, it will be wrapped, because of recursion
-		AddWrapped(txt.substr(0,j), colour, time, lines, mark_as_new, rec_count);  // Line 1
-		AddWrapped(txt.substr(j), colour, time, lines, mark_as_new, rec_count);  // Line 2
-
-		return;
+		// Add and mark as new if needed
+		lines.push_back(newline);
+		if (mark_as_new)
+			NewLines.push_back(newline);
 	}
-
-	//
-	//	Add the wrapped line
-	//
-	line_t newline;
-
-	newline.fTime = time;
-	newline.iColour = colour;
-	newline.strLine = txt;
-	newline.iID = WrappedLines.size();
-
-	lines.push_back(newline);
-	if (mark_as_new)
-		NewLines.push_back(newline);
 }
 
 ///////////////////
@@ -143,9 +103,8 @@ void CChatBox::setWidth(int w)
 // Get a line from chatbox
 line_t *CChatBox::GetLine(int n)
 {
-	lines_iterator it;
-	int i;
-	for (i = 0, it = WrappedLines.begin(); i <= n && it != WrappedLines.end(); it++, i++) {}
+	lines_iterator it = WrappedLines.begin();
+	for (int i = 0 ; i <= n && it != WrappedLines.end(); it++, i++) {}
 
 	if (it == WrappedLines.end())
 		return NULL;
