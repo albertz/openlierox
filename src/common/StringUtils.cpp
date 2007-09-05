@@ -350,7 +350,7 @@ const std::vector<std::string>& splitstring(const std::string& str, size_t maxle
 		}
 
 		// Check for maxwidth
-		if (font.GetWidth(token) <= maxwidth && font.GetWidth(token + std::string(last_it, it)) > maxwidth) {
+		if ((size_t)font.GetWidth(token) <= maxwidth && (size_t)font.GetWidth(token + std::string(last_it, it)) > maxwidth) {
 			std::string before_space;
 			split_by_space(token, before_space, token);
 			result.push_back(before_space);
