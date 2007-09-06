@@ -1,5 +1,6 @@
 TODO
 
+[ ] own directory for mods -> better file management
 [ ] fix: map cache - carved dirt and blood stays in the map after reloading it from cache (maybe use CCache for caching maps?)
 [?] fix: sometimes you got into chat while playing online on some keys
 [X] fix: additional weapon selection keys for splitscreen for second player
