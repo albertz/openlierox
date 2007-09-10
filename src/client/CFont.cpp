@@ -144,10 +144,9 @@ void CFont::Parse(void) {
 // Precalculate a font's colour
 void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 	Uint32 pixel;
-	register int x, y;
+	int x, y;
 
-	DrawRectFill(bmpSurf, 0, 0, bmpSurf->w, bmpSurf->h,
-	             SDL_MapRGBA(bmpSurf->format, 255, 0, 255, 0));
+	FillSurface(bmpSurf, SDL_MapRGBA(bmpSurf->format, 255, 0, 255, 0));
 
 	// Lock the surface
 	if (SDL_MUSTLOCK(bmpSurf))
@@ -172,7 +171,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 					         SDL_MapRGBA(bmpSurf->format, 0, 0, 0, A));
 			}
 		}
-		// Not outline: replace black pixels with appropriate color
+	// Not outline: replace black pixels with appropriate color
 	} else {
 		for (y = 0; y < bmpSurf->h; y++) {
 			for (x = 0; x < bmpSurf->w; x++) {
@@ -291,7 +290,12 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 			y += bmpFont->h + VSpacing;
 			pos = 0;
 			p++;
-			continue;
+
+			// If the text wouldn't be drawn, just stop
+			if (y > bottom)
+				break;
+			else
+				continue;
 		}
 		
 		

@@ -133,14 +133,6 @@ void CChannel::Transmit( CBytestream *bs )
 	if (SendPacket || bAckRequired || tLX->fCurTime - fLastSent >= (float)(LX_CLTIMEOUT - 5))  {
 		if (iReceivedSinceLastSent <= 0)  {
 
-#ifdef DEBUG
-			//static bool already_told = false;
-			//if (!already_told)  {
-			//	printf("HINT: Probably a beta 3+ server, increasing outgoing deficite because I have to send something important\n");
-			//	already_told = true;
-			//}
-#endif
-
 			// Deficite :)
 			iReceivedSinceLastSent--;
 
@@ -148,16 +140,17 @@ void CChannel::Transmit( CBytestream *bs )
 		}
 
 		SetRemoteNetAddr(Socket,&RemoteAddr);
-		outpack.Send(Socket);
+		if (outpack.Send(Socket))  {
 
-		// Update statistics
-		iOutgoingBytes += outpack.GetLength();
-		iCurrentOutgoingBytes += outpack.GetLength();
-		fLastSent = tLX->fCurTime;
+			// Update statistics
+			iOutgoingBytes += outpack.GetLength();
+			iCurrentOutgoingBytes += outpack.GetLength();
+			fLastSent = tLX->fCurTime;
 
-		iReceivedSinceLastSent = 0;
+			iReceivedSinceLastSent = 0;
 
-		bAckRequired = false; // Ack sent
+			bAckRequired = false; // Ack sent
+		}
 	}
 
 	// Calculate the bytes per second
