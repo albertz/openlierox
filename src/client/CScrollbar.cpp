@@ -144,7 +144,7 @@ int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 	// Move the slider
 	if(iSliderGrabbed) {
 		float dist = (float)tMouse->Y - (iY+15+iScrollPos + iSliderGrabPos);
-		float increment = (float)iHeight/(float)iMax;
+		float increment = iMax ? (float)iHeight/(float)iMax : 0;
 		if(increment)
 			iValue += (int)(dist / increment);
 		UpdatePos();
@@ -254,10 +254,7 @@ void CScrollbar::UpdatePos(void)
 
     int mx = iMax-iItemsperbox;
 
-	if(iValue > mx)
-		iValue = mx;
-	if(iValue < 0)
-		iValue = 0;
+	iValue = CLAMP(iValue, 0, mx);
 
     // Prevent div by zero errors
     if(mx == 0)

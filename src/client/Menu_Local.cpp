@@ -666,8 +666,7 @@ int Menu_LocalCheckPlaying(int index)
 			size_t sep = findLastPathSep(f);
 			if(sep != std::string::npos) {
 				std::string name;
-				if(CGameScript::CheckFile(f,name)
-				&& !combobox->getItem(name)) {
+				if(CGameScript::CheckFile(f,name)) {
 					combobox->addItem(i,f.substr(sep+1),name);
 
 					// Store the index of the last used mod
@@ -689,6 +688,8 @@ void Menu_Local_FillModList( CCombobox *cb )
 	// Find all directories in the the lierox
 	int baseid = 0;
 
+	cb->setSorted(true);
+	cb->setUnique(true);
 	cb->clear();
 
 	FindFiles(addMod(cb,&baseid),".",FM_DIR);
@@ -696,9 +697,6 @@ void Menu_Local_FillModList( CCombobox *cb )
 	// Set the last used mod as default
 	if(baseid >= 0)
 		cb->setCurItem(baseid);
-
-	// Sort the mod list ascending
-	cb->Sort(true);
 }
 
 

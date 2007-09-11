@@ -824,11 +824,9 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 					file.erase(0, slash+1);
 				
 				std::string name = file.substr(0, file.size()-4); // the size-calcing here is safe
-				if (cb->getItem(name) != NULL)
-					return true;
 				cb->addItem(index, file, name);
 				
-				if(stringcasecmp(name, "default")==0)
+				if(name.size() == 7 && stringcasecmp(name, "default")==0)
 					*def = index;
 				
 				index++;
@@ -844,13 +842,12 @@ void Menu_Player_FillSkinCombo(CCombobox *cb) {
     if( !cb )
         return;
 
+	cb->setSorted(true);
+	cb->setUnique(true);
 	cb->clear();
     int def = -1;
         
     FindFiles(SkinAdder(cb, &def), "skins", FM_REG);
-    
-	// Ascending sort the list
-	cb->Sort(true);
 
     // Select the default
     cb->setCurItem(def);

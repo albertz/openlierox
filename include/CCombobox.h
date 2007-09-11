@@ -42,7 +42,9 @@ enum {
     CBS_SETCURSINDEX,
     CBM_SETCURINDEX,
 	CBM_SETIMAGE,
-	CBM_ISDROPPED
+	CBM_ISDROPPED,
+	CBM_SETSORTED,
+	CBM_SETUNIQUE
 };
 
 
@@ -54,6 +56,7 @@ class cb_item_t { public:
 	int			iSelected;
 	SDL_Surface *tImage;
 
+	cb_item_t	*tPrev;
 	cb_item_t	*tNext;
 };
 
@@ -64,6 +67,7 @@ public:
 	// Constructor
 	CCombobox() {
 		tItems = NULL;
+		tLastItem = NULL;
 		tSelected = NULL;
 		iItemCount = 0;
 		iGotScrollbar = false;
@@ -74,7 +78,8 @@ public:
 		iNow = 0;
 		iCanSearch = true;
 		iKeySelectedItem = -1;
-
+		bSorted = false;
+		bUnique = false;
 	}
 
 
@@ -83,6 +88,7 @@ private:
 
 	// Items
 	cb_item_t		*tItems;
+	cb_item_t		*tLastItem;
 	cb_item_t		*tSelected;
 	int				iItemCount;
 	int				iGotScrollbar;
@@ -95,6 +101,8 @@ private:
 
 	// Stuff
 	int				iCanSearch;
+	bool			bSorted;
+	bool			bUnique;
 
 	// Scrollbar
 	CScrollbar		cScrollbar;
@@ -136,6 +144,10 @@ public:
 	void	setImage(SDL_Surface *img, int ItemIndex);
 	int		getDropped(void) { return iDropped; }
 	int		getSelectedIndex(void);
+	void	setSorted(bool _s)  { bSorted = _s; }
+	bool	getSorted()	{ return bSorted; }
+	void	setUnique(bool _u)  { bUnique = _u; }
+	bool	getUnique()			{ return bUnique; }
 };
 
 

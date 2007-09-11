@@ -268,6 +268,7 @@ void CCombobox::Sort(bool ascending)
 void CCombobox::Create(void)
 {
 	tItems = NULL;
+	tLastItem = NULL;
 	tSelected = NULL;
 	iItemCount = 0;
 	iGotScrollbar = false;
@@ -299,6 +300,7 @@ void CCombobox::Destroy(void)
 	}
 
 	tItems = NULL;
+	tLastItem = NULL;
 	tSelected = NULL;
 
 	// Destroy the scrollbar
@@ -533,6 +535,16 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 		case CBM_ISDROPPED:
 			return iDropped;
 			break;
+
+		// Set the sorted property
+		case CBM_SETSORTED:
+			bSorted = Param1 != 0;
+			break;
+
+		// Set the unique property
+		case CBM_SETUNIQUE:
+			bUnique = Param1 != 0;
+			break;
 	}
 
 
@@ -605,28 +617,81 @@ void CCombobox::addItem(int index, const std::string& sindex, const std::string&
 	item->sIndex = sindex;
 	item->sName = name;
 	item->tNext = NULL;
+	item->tPrev = NULL;
 	item->iSelected = false;
 	item->tImage = NULL;
 
+	//
+	// Add it to the list
+	//
+
+	// First item
+	if (!tItems || !tLastItem)  {
+		tItems = item;
+		tLastItem = item;
+
+		// Select the first item
+		item->iSelected = true;
+		tSelected = item;
+
+		iItemCount++;
+
+		return;
+	}
+
+	// List should be automatically sorted when adding
+	if (bSorted)  {
+		cb_item_t *it = tLastItem;
+		int res = -1;
+		while (it)  {
+			if ((res = stringcasecmp(name, it->sName)) >= 0)
+				break;
+			it = it->tPrev;
+		}
+		
+		// Another item wih this name already exists
+		// If every item should be unique, we don't add it
+		if (res == 0 && bUnique)  {
+			delete item;
+			return;
+		}
+
+		// Link it in
+		if (it)  {
+			item->tPrev = it;
+			if (it->tNext)  // Somewhere in the middle
+				it->tNext->tPrev = item;
+			else  // Last item
+				tLastItem = item;
+			item->tNext = it->tNext;
+			it->tNext = item;
+		} else {  // First item
+			tItems->tPrev = item;
+			item->tNext = tItems;
+			tItems = item;
+		}
+
+	// Not sorted, just put it at the end
+	} else {
+		// Check for duplicates
+		if (bUnique)  {
+			for (cb_item_t *it = tLastItem; it; it = it->tPrev)
+				if (stringcasecmp(it->sName, name) == 0)  {
+					delete item;
+					return;
+				}
+		}
+
+		tLastItem->tNext = item;
+		item->tPrev = tLastItem;
+		tLastItem = item;
+	}
+
+	// If no item is selected, select this one
 	if(!tSelected) {
-		// Set the first item to selected
 		tSelected = item;
 		item->iSelected = true;
 	}
-
-
-	// Add it to the list
-	if(tItems) {
-		cb_item_t *i = tItems;
-		for(;i;i = i->tNext) {
-			if(i->tNext == NULL) {
-				i->tNext = item;
-				break;
-			}
-		}
-	}
-	else
-		tItems = item;
 
 
 	iItemCount++;

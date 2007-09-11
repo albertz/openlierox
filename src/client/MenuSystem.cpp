@@ -1003,7 +1003,7 @@ void Menu_AddDefaultWidgets(void)
 			std::string f = filename.substr(pos+1);
 
 			std::string mapName = Menu_GetLevelName(f);
-			if(mapName != "" && !cmb->getItem(mapName)) {
+			if(mapName != "") {
 				cmb->addItem((*index), f, mapName);
 				
 				if(f == tLXOptions->tGameinfo.sMapFilename)
@@ -1024,6 +1024,8 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	int		index = 0;
 	int		selected = -1;
 
+	cmb->setSorted(true);
+	cmb->setUnique(true);
 	cmb->clear();
 
 	// If random is true, we add the 'random' level to the list
@@ -1037,9 +1039,6 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 
 	if( selected >= 0 )
 		cmb->setCurItem( selected );
-
-	// Sort it ascending
-	cmb->Sort(true);
 }
 
 
