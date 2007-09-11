@@ -45,8 +45,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return LIN_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return LIN_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return LIN_NONE; }
-	int		KeyDown(UnicodeChar c)						{ return LIN_NONE; }
-	int		KeyUp(UnicodeChar c)						{ return LIN_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym)	{ return LIN_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym)	{ return LIN_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ 
 							return 0;

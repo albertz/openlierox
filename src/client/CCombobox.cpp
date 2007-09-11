@@ -461,7 +461,7 @@ int CCombobox::MouseWheelUp(mouse_t *tMouse)
 
 //////////////////
 // Key down event
-int CCombobox::KeyDown(UnicodeChar c)
+int CCombobox::KeyDown(UnicodeChar c, int keysym)
 {
 	// Search for items by pressed key
 	if (!iCanSearch)

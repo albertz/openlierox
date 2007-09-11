@@ -612,13 +612,6 @@ gui_event_t *CGuiLayout::Process(void)
 				UnicodeChar input = Event->key.keysym.unicode;
 				if (input == 0)
 					switch (Event->key.keysym.sym) {
-					case SDLK_LEFT:
-					case SDLK_RIGHT:
-					case SDLK_DELETE:
-					case SDLK_HOME:
-					case SDLK_END:
-						input = Event->key.keysym.sym;
-						break;
 					case SDLK_KP0:
 					case SDLK_KP1:
 					case SDLK_KP2:
@@ -650,13 +643,13 @@ gui_event_t *CGuiLayout::Process(void)
 
 
 				if(Event->type == SDL_KEYUP || Event->key.state == SDL_RELEASED)
-					ev = cFocused->KeyUp(input);
+					ev = cFocused->KeyUp(input, Event->key.keysym.sym);
 
 				// Handle more keys at once keydown
 				if (Keyboard->queueLength > 1) 
 					for(int i=0; i<Keyboard->queueLength; i++)
 						if(!Keyboard->keyQueue[i].down || Keyboard->keyQueue[i].ch != input)  {
-							ev = cFocused->KeyDown(Keyboard->keyQueue[i].ch);
+							ev = cFocused->KeyDown(Keyboard->keyQueue[i].ch, Keyboard->keyQueue[i].sym);
 							if (ev != -1)  {
 								tEvent->iEventMsg = ev;
 								return tEvent;
@@ -665,7 +658,7 @@ gui_event_t *CGuiLayout::Process(void)
 
 				// Keydown
 				if(Event->type == SDL_KEYDOWN)  {
-					ev = cFocused->KeyDown(input);
+					ev = cFocused->KeyDown(input, Event->key.keysym.sym);
 				}
 
 				// Tab switches between widgets

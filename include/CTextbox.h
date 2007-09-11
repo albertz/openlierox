@@ -64,6 +64,7 @@ public:
 		fTimeHolding = 0;
 		iLastMouseX = 0;
 		fLastRepeat = -9999;
+		fLastClick = -9999;
 		fScrollTime = 0;  // We can scroll
 	}
 
@@ -87,6 +88,7 @@ private:
 	int		iHolding;
 	float	fTimePushed;
 	UnicodeChar		iLastchar;
+	int		iLastKeysym;
 
 	int		iHoldingMouse;
 	float	fTimeHolding;
@@ -94,6 +96,7 @@ private:
 	int		iLastMouseX;
 	float	fScrollTime;
 	float	fLastRepeat;
+	float	fLastClick;
 
 	float	fBlinkTime;
 	int		iDrawCursor;
@@ -111,8 +114,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return TXT_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return TXT_NONE; }
-	int		KeyDown(UnicodeChar c);
-	int		KeyUp(UnicodeChar c);
+	int		KeyDown(UnicodeChar c, int keysym);
+	int		KeyUp(UnicodeChar c, int keysym);
 
 	void	Draw(SDL_Surface *bmpDest);
 
@@ -124,6 +127,7 @@ public:
 
 	void	Backspace(void);
 	void	Delete(void);
+	void	SelectWord(void);
 	void	Insert(UnicodeChar c);
 
 	std::string	getText(void)						{ return sText; }

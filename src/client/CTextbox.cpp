@@ -41,6 +41,7 @@ void CTextbox::Create(void)
 	fTimePushed = -9999;
 	fLastRepeat = -9999;
 	iLastchar = 0;
+	iLastKeysym = 0;
 }
 
 
@@ -152,14 +153,9 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Keydown event
-int CTextbox::KeyDown(UnicodeChar c)
+int CTextbox::KeyDown(UnicodeChar c, int keysym)
 {
 	keyboard_t *kb = GetKeyboard();
-
-    if(c == 0)  {
-        return -1;
-	}
-
 
 	bool bShift = kb->KeyDown[SDLK_RSHIFT] || kb->KeyDown[SDLK_LSHIFT];
 
@@ -167,7 +163,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 
 	// Handle holding keys
 	if(iHolding) {
-		if(iLastchar != c)
+		if(iLastchar != c || iLastKeysym != keysym)
 			iHolding = false;
 		else {
 			if(tLX->fCurTime - fTimePushed < 0.25f)
@@ -184,6 +180,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 	}
 
 	iLastchar = c;
+	iLastKeysym = keysym;
 
 
 	// Backspace
@@ -194,7 +191,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 
 
 	// Left arrow
-	if (c == SDLK_LEFT) {
+	if (keysym == SDLK_LEFT) {
 		if (bShift)  {
 			if (iCurpos)
 				iSelLength++;
@@ -209,16 +206,17 @@ int CTextbox::KeyDown(UnicodeChar c)
 	}
 
 	// Right arrow
-	if(c == SDLK_RIGHT) {
-		if(iCurpos < Utf8StringSize(sText))  {
+	if(keysym == SDLK_RIGHT) {
+		size_t len = Utf8StringSize(sText);
+		if(iCurpos <= len)  {
 			if (bShift)  {
-				if (iCurpos != Utf8StringSize(sText))
+				if (iCurpos != len)
 					iSelLength--;
 			}
 			else
 				iSelLength = 0;
 
-			if (iCurpos != Utf8StringSize(sText))
+			if (iCurpos != len)
 				iCurpos++;
 		}
 
@@ -237,7 +235,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 	}
 
 	// Home
-	if(c == SDLK_HOME) {
+	if(keysym == SDLK_HOME) {
 		// If the shift key is down, select the text
 		if(bShift)
 			if(iSelLength > 0)
@@ -257,7 +255,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 	}
 
 	// End
-	if(c == SDLK_END) {
+	if(keysym == SDLK_END) {
 		if (bShift)
 			iSelLength = -(int)Utf8StringSize(sText) + iCurpos;
 		else
@@ -279,8 +277,17 @@ int CTextbox::KeyDown(UnicodeChar c)
 		return TXT_NONE;
 	}
 
+	// Select all
+	if ((kb->KeyDown[SDLK_LCTRL] || kb->KeyDown[SDLK_RCTRL]) && kb->KeyDown[SDLK_a]) {
+		iCurpos = Utf8StringSize(sText);
+		iSelStart = 0;
+		iSelLength = -((int)Utf8StringSize(sText));
+
+		return TXT_NONE;
+	}
+
 	// Delete
-	if(c == SDLK_DELETE) {
+	if(keysym == SDLK_DELETE) {
 		Delete();
 		return TXT_CHANGE;
 	}
@@ -309,6 +316,11 @@ int CTextbox::KeyDown(UnicodeChar c)
         return TXT_CHANGE;
     }
 
+	// No visible character
+	if (c == 0)  {
+		return TXT_NONE;
+	}
+
 	// Insert character
 	Insert(c);
 
@@ -318,7 +330,7 @@ int CTextbox::KeyDown(UnicodeChar c)
 
 ///////////////////
 // Keyup event
-int CTextbox::KeyUp(UnicodeChar c)
+int CTextbox::KeyUp(UnicodeChar c, int keysym)
 {
 	iHolding = false;
 
@@ -333,8 +345,6 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 
 	int deltaX = tMouse->X - iX;
 	iDrawCursor = true;
-
-	//static std::string buf;
 
 	if (sText == "")
 		return TXT_MOUSEOVER;
@@ -391,7 +401,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 			if ((prev_w - w) / 3 < (deltaX - w))
 				pos++;
 
-			iCurpos = pos;
+			iCurpos = pos + iScrollPos;
 
 		}  // else 2
 	}  // else 1
@@ -450,10 +460,51 @@ int	CTextbox::MouseUp(mouse_t *tMouse, int nDown)
 
 	fScrollTime = 0;  // We can scroll the textbox using mouse
 
+	// Doubleclick
+	if (tLX->fCurTime - fLastClick <= 0.25)  {
+		SelectWord();
+	}
+
+	fLastClick = tLX->fCurTime;
+
 	// We can lose focus now
 	bCanLoseFocus = true;
 
 	return TXT_NONE;
+}
+
+////////////
+// Select a word
+void CTextbox::SelectWord(void)
+{
+	// Empty text
+	if (sText.size() == 0)
+		return;
+
+	std::string::iterator curpos = Utf8PositionToIterator(sText, iCurpos);
+	std::string::iterator left = curpos;
+	std::string::iterator right = curpos;
+
+	iSelStart = iCurpos;
+
+	// Go from cursor to left, until a beginning of a word or beginning of the text
+	do  {
+		DecUtf8StringIterator(left, sText.begin());
+		iSelStart--;
+	} while (left != sText.begin() && (isalnum((uchar)*left) || (uchar)*left >= 128));  // >= 128 - UTF8 hack, if you have a better idea how to do it, please fix it
+
+	if (!isalnum((uchar)*left) && (uchar)*left < 128)  {
+		iSelStart++;
+	}
+
+	// Go from cursor to right, until an end of a word or end of the text
+	do  {
+		IncUtf8StringIterator(right, sText.end());
+		iCurpos++;
+	} while (right != sText.end() && (isalnum((uchar)*right) || (uchar)*right >= 128));
+
+	// Set the selection
+	iSelLength = iSelStart - iCurpos;
 }
 
 

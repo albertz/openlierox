@@ -91,8 +91,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ bMouseOver = true; bMouseDown = true; SetGameCursor(CURSOR_HAND); return BTN_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return BTN_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return BTN_NONE; }
-	int		KeyDown(UnicodeChar c)						{ return BTN_NONE; }
-	int		KeyUp(UnicodeChar c)						{ return BTN_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym)	{ return BTN_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym)	{ return BTN_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }

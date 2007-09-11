@@ -199,8 +199,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
-	int		KeyDown(UnicodeChar c);
-	int		KeyUp(UnicodeChar c);
+	int		KeyDown(UnicodeChar c, int keysym);
+	int		KeyUp(UnicodeChar c, int keysym);
 
 	void	Draw(SDL_Surface *bmpDest);
 

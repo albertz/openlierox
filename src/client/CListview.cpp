@@ -1259,13 +1259,13 @@ int	CListview::MouseWheelUp(mouse_t *tMouse)
 
 /////////////////
 // Key down event
-int CListview::KeyDown(UnicodeChar c)
+int CListview::KeyDown(UnicodeChar c, int keysym)
 {
 	// Any sub-widget is active?
 	if (tFocusedSubWidget)  {
 		tLastWidgetEvent.cWidget = tFocusedSubWidget;
 		tLastWidgetEvent.iControlID = tFocusedSubWidget->getID();
-		tLastWidgetEvent.iEventMsg = tFocusedSubWidget->KeyDown(c);
+		tLastWidgetEvent.iEventMsg = tFocusedSubWidget->KeyDown(c, keysym);
 		if (tLastWidgetEvent.iEventMsg != -1)
 			return LV_WIDGETEVENT;
 	}
@@ -1371,13 +1371,13 @@ int CListview::KeyDown(UnicodeChar c)
 
 ////////////////
 // Key up event
-int CListview::KeyUp(UnicodeChar c)
+int CListview::KeyUp(UnicodeChar c, int keysym)
 {
 	// Any sub-widget is active?
 	if (tFocusedSubWidget)  {
 		tLastWidgetEvent.cWidget = tFocusedSubWidget;
 		tLastWidgetEvent.iControlID = tFocusedSubWidget->getID();
-		tLastWidgetEvent.iEventMsg = tFocusedSubWidget->KeyUp(c);
+		tLastWidgetEvent.iEventMsg = tFocusedSubWidget->KeyUp(c, keysym);
 		if (tLastWidgetEvent.iEventMsg != -1)
 			return LV_WIDGETEVENT;
 	}

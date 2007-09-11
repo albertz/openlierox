@@ -120,8 +120,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
-	int		KeyUp(UnicodeChar c)					{ iCanSearch = true; return CMB_NONE; }
-	int		KeyDown(UnicodeChar c);
+	int		KeyUp(UnicodeChar c, int keysym)	{ iCanSearch = true; return CMB_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym);
 
 	void	Draw(SDL_Surface *bmpDest);
 	void	LoadStyle(void) {}
