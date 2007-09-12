@@ -349,13 +349,18 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
             }
 
 
-            // Drop it
+            // Drop or close it
 			iNow = (int)(GetMilliSeconds() * 1000);
-			if (!iDropped)  {
-				iArrowDown = true;
-				iDropped = true;
-				iKeySelectedItem = -1;
-				iDropTime = iNow;
+			if (tMouse->FirstDown)  {
+				if (!iDropped)  {  // Not dropped, drop it
+					iArrowDown = true;
+					iDropped = true;
+					iKeySelectedItem = -1;
+					iDropTime = iNow;
+				} else {
+					// If clicked the arrow or body again, close the combobox
+					iDropped = false;
+				}
 			}
 
 			if (iNow-iDropTime <= 20 && iDropTime != 0 && (tMouse->Y < iY+20))  // let the arrow pushed a bit longer

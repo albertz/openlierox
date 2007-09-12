@@ -301,9 +301,9 @@ void ucfirst(std::string& text)
 	for (std::string::iterator it=text.begin()+1;it != text.end();it++)  {
 		if (isalpha(*it))  {
 			if (wasalpha)
-				*it = tolower(*it);
+				*it = tolower((uchar)*it);
 			else
-				*it = toupper(*it);
+				*it = toupper((uchar)*it);
 			wasalpha = true;
 		} else {
 			wasalpha = false;

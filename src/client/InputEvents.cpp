@@ -91,35 +91,18 @@ void ProcessEvents(void)
 		 }  // if
 
 
-#ifdef WIN32
-        // System events
-        if(Event.type == SDL_SYSWMEVENT) {
-            SDL_SysWMmsg *msg = Event.syswm.msg;
+		// Activation and deactivation
+		if(Event.type == SDL_ACTIVEEVENT)  {
+				nFocus = Event.active.gain;
+				bActivated = nFocus != 0;
 
-            switch(msg->msg) {
+				// HINT: Reset the mouse state - this should avoid the mouse staying pressed
+				Mouse.Button = 0;
+				Mouse.Down = 0;
+				Mouse.FirstDown = 0;
+				Mouse.Up = 0;
+		}
 
-                // Lose focus event
-                case WM_KILLFOCUS:
-			        nFocus = false;
-                    break;
-
-                // Gain focus event
-                case WM_SETFOCUS:  {
-						// Hint: Reset the mouse state - this should avoid the mouse staying pressed
-						Mouse.Button = 0;
-						Mouse.Down = 0;
-						Mouse.FirstDown = 0;
-						Mouse.Up = 0;
-
-						nFocus = true;
-						bActivated = true;
-					}
-                    break;
-            }
-        }
-#else
-	// TODO: ignore it?
-#endif
 
         // Keyboard events
 		if(Event.type == SDL_KEYUP || Event.type == SDL_KEYDOWN) {
