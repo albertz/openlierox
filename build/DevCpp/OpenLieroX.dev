@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=163
+UnitCount=165
 Type=1
 Ver=1
 ObjFiles=
@@ -1668,9 +1668,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit164]
-FileName=..\..\hawknl\src\wsock.h
+FileName=..\..\include\HTTP.h
 CompileCpp=1
-Folder=HawkNL
+Folder=System files
 Compile=1
 Link=1
 Priority=1000
@@ -1801,6 +1801,16 @@ BuildCmd=
 FileName=..\..\include\Cursor.h
 CompileCpp=1
 Folder=Frontend
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit165]
+FileName=..\..\src\common\HTTP.cpp
+CompileCpp=1
+Folder=System files
 Compile=1
 Link=1
 Priority=1000

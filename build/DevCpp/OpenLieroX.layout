@@ -17,7 +17,7 @@ CursorCol=74
 CursorRow=111
 TopLine=94
 LeftChar=1
-Open=1
+Open=0
 Top=0
 [Editor_64]
 CursorCol=1
@@ -41,7 +41,7 @@ LeftChar=1
 Open=0
 Top=0
 [Editors]
-Order=-1
+Order=
 Focused=-1
 [Editor_0]
 Open=0
@@ -474,7 +474,7 @@ CursorCol=13
 CursorRow=369
 TopLine=366
 LeftChar=1
-Open=1
+Open=0
 Top=0
 [Editor_74]
 CursorCol=1
@@ -819,7 +819,7 @@ CursorRow=1
 TopLine=1
 LeftChar=1
 [Editor_122]
-Open=1
+Open=0
 Top=0
 CursorCol=1
 CursorRow=534
@@ -885,8 +885,8 @@ LeftChar=1
 Open=0
 Top=0
 [Editor_133]
-Open=1
-Top=1
+Open=0
+Top=0
 CursorCol=64
 CursorRow=100
 TopLine=77
