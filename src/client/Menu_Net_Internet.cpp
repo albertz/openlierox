@@ -16,6 +16,7 @@
 
 #include "LieroX.h"
 #include "AuxLib.h"
+#include "HTTP.h"
 #include "Graphics.h"
 #include "CClient.h"
 #include "Menu.h"
@@ -577,6 +578,7 @@ void Menu_Net_NETUpdateList(void)
 	cListUpdate.Add( new CLabel("Getting server list", tLX->clNormalLabel),	-1,260, 227, 0, 0);
 
 
+	CHttp http;
 	float senttime = 0;
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
@@ -605,39 +607,29 @@ void Menu_Net_NETUpdateList(void)
                 if( szLine.length() > 0 ) {
 
                     // Send the request
-                    if( !http_InitializeRequest(szLine, LX_SVRLIST) ) {
-
-                        // Clear the data for another request
-		                SentRequest = false;
-                        CurServer++;
-                    } else {
-						senttime = GetMilliSeconds();
-                        SentRequest = true;
-					}
+                    http.RequestData(szLine + LX_SVRLIST);
+					senttime = GetMilliSeconds();
+					SentRequest = true;
 
                     break;
                 }
             }
-        }
-
-
-        // Process the http request
-        else {
-			std::string szError;
-            http_result = http_ProcessRequest(&szError);
+        } else { // Process the http request
+            http_result = http.ProcessRequest();
 
             // Parse the list if the request was successful
-            if( http_result == 1 ) {
-		        Menu_Net_NETParseList();
-            } else if( http_result == -1 )
-            	printf("HTTP ERROR: %s\n", szError.c_str());
+            if (http_result == HTTP_PROC_FINISHED) {
+		        Menu_Net_NETParseList(http);
+				break;
+			} else if (http_result == HTTP_PROC_ERROR || (tLX->fCurTime - senttime) >= 5.0f)  {
+				if (http.GetError().iError != HTTP_NO_ERROR)
+            		printf("HTTP ERROR: " + http.GetError().sErrorMsg + "\n");
 
-            if( http_result != 0 || (tLX->fCurTime - senttime) >= 5.0f ) {
-                SentRequest = false;
-                CurServer++;
-                http_Quit();
-            }
-
+				// Jump to next server
+				SentRequest = false;
+				CurServer++;
+				http.CancelProcessing();
+			}
         }
 
 		// Process the server list
@@ -652,20 +644,13 @@ void Menu_Net_NETUpdateList(void)
 
 		// Process any events
 		if(ev) {
+			if (ev->iControlID == 0 && ev->iEventMsg == BTN_MOUSEUP)  {  // Cancel
+				// Click!
+				PlaySoundSample(sfxGeneral.smpClick);
 
-			switch(ev->iControlID) {
-
-				// Cancel
-				case 0:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
-
-						// Click!
-						PlaySoundSample(sfxGeneral.smpClick);
-
-						http_result = 0;
-						updateList = false;
-					}
-					break;
+				http_result = 0;
+				updateList = false;
+				break;
 			}
 		}
 
@@ -691,11 +676,11 @@ void Menu_Net_NETUpdateList(void)
 
 ///////////////////
 // Parse the downloaded server list
-void Menu_Net_NETParseList(void)
+void Menu_Net_NETParseList(CHttp &http)
 {
-	const std::string& content = http_GetContent();
+	const std::string& content = http.GetData();
 
-	static std::string addr, ptr;
+	std::string addr, ptr;
 	
 	std::string::const_iterator it = content.begin();
 	size_t i = 0;

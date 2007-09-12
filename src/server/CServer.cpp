@@ -617,17 +617,14 @@ void GameServer::RegisterServer(void)
     }
 
     // Find the first line
-    while( !feof(fp) ) {
-        buf = ReadUntil(fp);
-        TrimSpaces(buf);
-        if( buf != "" ) {
-            if( !http_InitializeRequest(buf, url) ) {
-                bRegServer = false;
-                notifyLog("Could not register with master server: 'Could not open TCP socket'");
-            }
+	while( !feof(fp) ) {
+		buf = ReadUntil(fp);
+		TrimSpaces(buf);
+		if(buf != "") {
+			tHttp.RequestData(buf + url);
             break;
-        }
-    }
+		}
+	}
 
     fclose(fp);
 }
@@ -642,20 +639,24 @@ void GameServer::ProcessRegister(void)
 	if(!bRegServer || bServerRegistered)
 		return;
 
-	int result = http_ProcessRequest(&szError);
-
+	int result = tHttp.ProcessRequest();
+	
+	switch(result)  {
 	// Normal, keep going
-	if(result == 0)
+	case HTTP_PROC_PROCESSING:
 		return;
+
 	// Failed
-    if(result == -1) {
+	case HTTP_PROC_ERROR:
 		bRegServer = false;
-        notifyLog("Could not register with master server: %s", szError.c_str());
-    }
+		notifyLog("Could not register with master server: %s", tHttp.GetError().sErrorMsg.c_str());
+    break;
+
 	// Completed ok
-	if(result == 1) {
+	case HTTP_PROC_FINISHED:
 		bServerRegistered = true;
 		fLastRegister = tLX->fCurTime;
+	break;
 	}
 }
 
@@ -710,12 +711,9 @@ bool GameServer::DeRegisterServer(void)
     while( !feof(fp) ) {
     	buf = ReadUntil(fp);
         TrimSpaces(buf);
-        if( buf != "" ) {
-            if( !http_InitializeRequest(buf, url) ) {
-                fclose(fp);
-                return false;
-            }
-            break;
+        if(buf != "") {
+			tHttp.RequestData(buf + url);
+			break;
         }
     }
 
@@ -728,7 +726,7 @@ bool GameServer::DeRegisterServer(void)
 // Process the de-registering of the server
 bool GameServer::ProcessDeRegister(void)
 {
-	return http_ProcessRequest(NULL) != 0;
+	return tHttp.ProcessRequest() != 0;
 }
 
 

@@ -143,6 +143,14 @@ inline std::string freadfixedcstr(FILE *fp, size_t maxlen) {
 	return ReadUntil(fileData, '\0');
 }
 
+///////////////////
+// Convert a numerical position to iterator
+inline std::string::iterator PositionToIterator(std::string& str, size_t pos)  {
+	std::string::iterator res = str.begin();
+	for (size_t i=0; i < pos && res != str.end(); ++i, res++)  {}
+	return res;
+}
+
 
 // Conversion functions from string to numbers
 

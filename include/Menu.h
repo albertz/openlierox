@@ -505,7 +505,7 @@ void	Menu_Net_NETFrame(int mouse);
 void	Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sName);
 void	Menu_Net_NETAddServer(void);
 void	Menu_Net_NETUpdateList(void);
-void	Menu_Net_NETParseList(void);
+void	Menu_Net_NETParseList(class CHttp& http);
 void    Menu_Net_NETShowServer(const std::string& szAddress);
 
 #endif  //  __MENU_H__

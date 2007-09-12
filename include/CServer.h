@@ -23,7 +23,7 @@
 #include "CBonus.h"
 #include "CClient.h"
 #include "CBytestream.h"
-
+#include "HTTP.h"
 
 #define		MAX_CHALLENGES		1024
 
@@ -154,6 +154,7 @@ private:
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	game_lobby_t	tGameLobby;
 	CShootList		cShootList;
+	CHttp			tHttp;
 
 	CBanList	cBanList;
 	float		fLastUpdateSent;
@@ -276,6 +277,7 @@ public:
 	inline void	setMaxWorms(int _n) { iMaxWorms = _n; }
 	inline bool		getGameOver(void)	{ return iGameOver != 0; }
 	inline float		getGameOverTime(void) { return fGameOverTime; }
+	inline CHttp *getHttp()  { return &tHttp; }
 	
 	// TODO: change the name of these functions; the sense should be clear
 	inline int		getFlag(int team)			{ return iFlagHolder[team]; }

@@ -243,7 +243,19 @@ SOURCE=..\..\include\Graphics.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\HTTP.CPP
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\HTTP.H
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\InputEvents.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\InputEvents.h
 # End Source File
 # Begin Source File
 
@@ -491,10 +503,6 @@ SOURCE=..\..\src\client\Entity.cpp
 # Begin Source File
 
 SOURCE=..\..\include\Entity.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\InputEvents.h
 # End Source File
 # Begin Source File
 

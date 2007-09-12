@@ -359,7 +359,9 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 					iDropTime = iNow;
 				} else {
 					// If clicked the arrow or body again, close the combobox
-					iDropped = false;
+					int mainbitheight = MAX(tLX->cFont.GetHeight()+1, 16);
+					if (tMouse->Y < iY + mainbitheight)
+						iDropped = false;
 				}
 			}
 

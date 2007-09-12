@@ -48,23 +48,7 @@
 
 #define		LX_SVTIMEOUT	35
 #define		LX_CLTIMEOUT	30
-
-#define     HTTP_TIMEOUT    10
 #define     DNS_TIMEOUT		10
-
-
-
-// TODO: put this into a class and clean it up a bit
-// HTTP Request
-void	http_Init();
-bool	http_InitializeRequest(const std::string& host, const std::string& url);
-void	http_ConvertUrl(std::string& dest, const std::string& url);
-int		http_ProcessRequest(std::string *szError);
-bool	http_SendRequest(void);
-void	http_RemoveHeader(void);
-const std::string& http_GetContent(void);
-void    http_CreateHostUrl(const std::string& host, const std::string& url);
-void	http_Quit(void);
 
 // socket address; this type will be given around as pointer
 DEFINE_INTERNDATA_CLASS(NetworkAddr);

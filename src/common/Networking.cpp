@@ -63,7 +63,7 @@ DECLARE_INTERNDATA_CLASS(NetworkSocket, NLsocket);
 =============================
 */
 
-
+/*
 
 NetworkAddr		http_RemoteAddress;
 NetworkSocket	http_Socket;
@@ -356,7 +356,7 @@ const std::string& http_GetContent(void)
 {
 	return http_content;
 }
-
+*/
 
 /*
  *
@@ -376,8 +376,6 @@ bool InitNetworkSystem() {
         SystemError("could not select IP-based network");
 		return false;
     }
-	
-	http_Init();
 	
 	return true;
 }

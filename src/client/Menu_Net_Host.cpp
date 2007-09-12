@@ -1288,12 +1288,12 @@ void Menu_Net_HostDeregister(void)
 
 		// If we have gone over a 4 second limit, just leave
 		if( tLX->fCurTime - starttime > 4.0f ) {
-			http_Quit();
+			cServer->getHttp()->CancelProcessing();
 			break;
 		}
 
 		if( cServer->ProcessDeRegister() ) {
-			http_Quit();
+			cServer->getHttp()->CancelProcessing();
 			break;
 		}
 
