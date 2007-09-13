@@ -59,8 +59,11 @@ void CHttp::Clear()
 	sHeader = "";
 	sMimeType = "";
 	SetHttpError(HTTP_NO_ERROR);
+	iDataLength = 0;
+	iDataReceived = 0;
 	bConnected = false;
 	bRequested = false;
+	bGotHttpHeader = false;
 	bSocketReady = false;
 	fResolveTime = -9999;
 	ResetNetAddr(&tRemoteIP);
@@ -165,13 +168,14 @@ bool CHttp::AdjustUrl(std::string &dest, const std::string &url)
 		}
 	}
 
-	// Everything lowercase
-	stringlwr(dest);
+	// Remove http:// (not needed, we know we use http)
+	if (dest.size() > 9)
+		if (stringcasecmp(dest.substr(0, 9), "http%3a//") == 0)  {  // HINT - ":" is already URL-encoded
+			dest.erase(0, 9);
+		}
 
 	// Remove double slashes
 	while (replace(dest, "//", "/")) {}
-	// Except for http://...
-	replace(dest, "http:/", "http://");
 
 	return true;
 }
@@ -192,56 +196,89 @@ bool CHttp::SendRequest()
 // Process the received data
 void CHttp::ProcessData()
 {
-	ushort	lffound = 0;
-	ushort	crfound = 0;
+	// We only strip the header and parse it in this function
+	// If it has been already parsed, there's no work for us
+	if (bGotHttpHeader)
+		return;
 
-    std::string::const_iterator it = sData.begin();
-	for(size_t i=1; it != sData.end(); i++, it++) {
+	// Find the end of the header
+	uchar header_end_len = 2;
+	size_t header_end = sData.find("\n\n");  // Two LFs...
+	if (header_end == std::string::npos)  {
+		header_end = sData.find("\r\n\r\n"); // ... or two CR/LFs
+		header_end_len = 4;
+	}
 
-		if( *it == 0x0D )
-			crfound++;
-		else {
-			if( *it == 0x0A )
-				lffound++;
-			else
-				crfound = lffound = 0;
-		}
+	if (header_end == std::string::npos)  {  // No header is present
+		return;
+	} else {
+		header_end += header_end_len; // Two LFs
+		if (header_end > sData.size())  // Should not happen...
+			return;
 
-		// End of the header
-		if(lffound == 2) {
-			sHeader = sData.substr(0, i);
-			sData.erase(0, i);
-			break;
-		}
+		sHeader = sData.substr(0, header_end);
+		sData.erase(0, header_end);
+
+		// The header is ok :)
+		bGotHttpHeader = true;
 	}
 	
 	// Process the header
+	ParseHeader();
 
-	// Find the mime-type
-	size_t mt_pos = sHeader.find("Content-Type:");
-	if (mt_pos == std::string::npos)  {  // Mime-type not found
-		printf("HTTP Warning: no mime-type specified in header, assuming text/plain\n");
-		sMimeType = "text/plain";
-	} else {  // Mime-type found
-		mt_pos += std::string("Content-Type: ").size();
+}
+
+//////////////////
+// Reads a HTTP header property
+std::string CHttp::GetPropertyFromHeader(const std::string& prop)
+{
+	size_t pos = sHeader.find(prop + ":");
+	if (pos == std::string::npos)  // Not found
+		return "";
+	else {
+		pos += prop.size();
 
 		// Check
-		if (mt_pos >= sHeader.size())  {
-			printf("HTTP Warning: no mime-type specified in header, assuming text/plain\n");
-			sMimeType = "text/plain";
-			return;
+		if (pos >= sHeader.size())
+			return "";
+
+		// Get the value
+		std::string result = "";
+		std::string::iterator i = PositionToIterator(sHeader, pos);
+		for (; i!= sHeader.end(); i++)  {
+			if (*i == '\r' || *i == '\n')
+				break;
+			result += *i;
 		}
 
-		// Get the mime-type
-		sMimeType = "";
-		std::string::iterator i = PositionToIterator(sHeader, mt_pos);
-		for (; i != sHeader.end(); i++)  {
-			if (isalpha((uchar)*i) || *i == '/')
-				sMimeType += *i;
-			else
-				break;
-		}
+		// Remove any spaces
+		TrimSpaces(result);
+
+		return result;
 	}
+}
+
+////////////////
+// Parses the header
+void CHttp::ParseHeader()
+{
+	//
+	// Mime-type
+	//
+	sMimeType = GetPropertyFromHeader("Content-Type");
+
+	// Remove encoding
+	size_t semic_pos = sMimeType.find(';');
+	if (semic_pos != std::string::npos)
+		sMimeType.erase(semic_pos, std::string::npos);
+
+	//
+	// Content length
+	//
+	bool incorrect = false;
+	iDataLength = from_string<size_t>(GetPropertyFromHeader("Content-Length"), incorrect);
+	if (incorrect)
+		iDataLength = 0;
 }
 
 /////////////////
@@ -326,7 +363,6 @@ int CHttp::ProcessRequest()
 		if(IsMessageEndSocketErrorNr(err) ) {
 			// End of connection
 			// Complete!
-			ProcessData();
 			return HTTP_PROC_FINISHED;
 		} else {
 			// Error
@@ -337,8 +373,10 @@ int CHttp::ProcessRequest()
 	}
 
 	// Got some data
-	if(count > 0)
+	if(count > 0)  {
 		sData.append(buffer, count);
+		ProcessData();
+	}
 
 	// Still processing
 	return HTTP_PROC_PROCESSING;

@@ -13,6 +13,7 @@
 
 #include <SDL/SDL.h> // for Uint32
 #include <stdio.h> // for FILE
+#include <string.h> // for strrev
 #include <string>
 #include <sstream>
 #include <vector>

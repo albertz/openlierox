@@ -16,6 +16,9 @@
 // Created 9/4/02
 // Jason Boettcher
 
+#ifndef __HTTP_H__
+#define __HTTP_H__
+
 #include "Networking.h"
 
 // Some basic defines
@@ -61,25 +64,34 @@ private:
 	std::string		sMimeType;
 	HttpError		tError;
 
+	size_t			iDataLength;
+	size_t			iDataReceived;
 	bool			bConnected;
 	bool			bRequested;
 	bool			bSocketReady;
+	bool			bGotHttpHeader;
 	float			fResolveTime;
 	NetworkSocket	tSocket;
 	NetworkAddr		tRemoteIP;
 
-	void	SetHttpError(int id);
-	void	Clear();
-	bool	AdjustUrl(std::string& dest, const std::string& url);
-	bool	SendRequest();
-	void	ProcessData();
-	void	ParseAddress(const std::string& addr);
+	void				SetHttpError(int id);
+	void				Clear();
+	bool				AdjustUrl(std::string& dest, const std::string& url);
+	bool				SendRequest();
+	void				ProcessData();
+	std::string			GetPropertyFromHeader(const std::string& prop);
+	void				ParseHeader();
+	void				ParseAddress(const std::string& addr);
 
 public:
 	void				RequestData(const std::string& url);
 	int					ProcessRequest();
 	void				CancelProcessing();
-	HttpError			GetError()  { return tError; }
-	const std::string&	GetData()  { return sData; }
-	const std::string&	GetMimeType()  { return sMimeType; }
+	HttpError			GetError()				{ return tError; }
+	const std::string&	GetData()				{ return sData; }
+	const std::string&	GetMimeType()			{ return sMimeType; }
+	size_t				GetDataLength()			{ return iDataLength; }
+	size_t				GetReceivedDataLen()	{ return iDataReceived; }
 };
+
+#endif  // __HTTP_H__
