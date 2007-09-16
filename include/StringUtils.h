@@ -13,7 +13,6 @@
 
 #include <SDL/SDL.h> // for Uint32
 #include <stdio.h> // for FILE
-#include <string.h> // for strrev
 #include <string>
 #include <sstream>
 #include <vector>
@@ -84,22 +83,17 @@ int chrcasecmp(const char c1, const char c2);
 /////////////
 // C-string itoa for non-windows compilers (on Windows it's defined in windows.h)
 #ifndef WIN32
+// TODOL remove this
 inline char* itoa(int val, char* buf, int base) {
-	int i = 0;
+	int i = 29; // TODO: bad style
+	buf[i+1] = '\0';
 
-	// Convert it
     do {
-        buf[i] = "0123456789abcdefghijklmnopqrstuvwxyz"[val % base];
-        ++i, val /= base;
-    } while(val);
+        buf = "0123456789abcdefghijklmnopqrstuvwxyz"[val % base] + buf;
+        --i, val /= base;
+    } while(val && i);
 
-	// Terminating character
-	buf[i] = '\0';
-
-	// Reverse the string
-	strrev(buf);
-
-    return buf;
+    return &buf[i+1];
 }
 
 // Cross-compiler compatibility

@@ -20,7 +20,7 @@
 #include "HTTP.h"
 #include "Timer.h"
 #include "StringUtils.h"
-#include "Types.h"
+#include "types.h"
 
 // List of errors, MUST match error IDs in HTTP.h
 const std::string sHttpErrors[] = {
