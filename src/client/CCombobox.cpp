@@ -611,13 +611,13 @@ DWORD CCombobox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 
 ///////////////////
 // Add an item to the combo box
-void CCombobox::addItem(int index, const std::string& sindex, const std::string& name)
+bool CCombobox::addItem(int index, const std::string& sindex, const std::string& name)
 {
 	cb_item_t *item;
 
 	item = new cb_item_t;
 	if(item == NULL)
-		return;
+		return false;
 
 	// Fill in the info
 	item->iIndex = index;
@@ -643,7 +643,7 @@ void CCombobox::addItem(int index, const std::string& sindex, const std::string&
 
 		iItemCount++;
 
-		return;
+		return true;
 	}
 
 	// List should be automatically sorted when adding
@@ -660,7 +660,7 @@ void CCombobox::addItem(int index, const std::string& sindex, const std::string&
 		// If every item should be unique, we don't add it
 		if (res == 0 && bUnique)  {
 			delete item;
-			return;
+			return false;
 		}
 
 		// Link it in
@@ -685,7 +685,7 @@ void CCombobox::addItem(int index, const std::string& sindex, const std::string&
 			for (cb_item_t *it = tLastItem; it; it = it->tPrev)
 				if (stringcasecmp(it->sName, name) == 0)  {
 					delete item;
-					return;
+					return false;
 				}
 		}
 
@@ -705,6 +705,8 @@ void CCombobox::addItem(int index, const std::string& sindex, const std::string&
     cScrollbar.setMax( iItemCount );
 
 	iGotScrollbar = iItemCount > 6;
+
+	return true;
 }
 
 
@@ -725,6 +727,20 @@ void CCombobox::setCurItem(int index)
 			return;
 		}
 	}
+}
+
+///////////////////
+// Set the current item based on item pointer
+void CCombobox::setCurItem(cb_item_t *it)
+{
+	if (it == NULL)
+		return;
+
+	if(tSelected)
+		tSelected->iSelected = false;
+
+	tSelected = it;
+	tSelected->iSelected = true;
 }
 
 

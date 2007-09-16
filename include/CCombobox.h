@@ -133,12 +133,13 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
     void    clear(void);
-	void	addItem(int index, const std::string& sindex, const std::string& name);
+	bool	addItem(int index, const std::string& sindex, const std::string& name);
 	inline cb_item_t* getItems()	{ return tItems; }
 	cb_item_t* getItem(int index);
 	int		getItemsCount();
 	cb_item_t* getItem(const std::string& name);
 	void	setCurItem(int index);
+	void	setCurItem(cb_item_t *it);
     void    setCurSIndexItem(const std::string& szString);
     void    setCurIndexItem(int nIndex);
 	void	setImage(SDL_Surface *img, int ItemIndex);
@@ -148,6 +149,7 @@ public:
 	bool	getSorted()	{ return bSorted; }
 	void	setUnique(bool _u)  { bUnique = _u; }
 	bool	getUnique()			{ return bUnique; }
+	cb_item_t *getLastItem()	{ return tLastItem; }
 };
 
 

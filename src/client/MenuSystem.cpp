@@ -423,7 +423,7 @@ std::string Menu_GetLevelName(const std::string& filename)
 		if (dotpos == std::string::npos)
 			return filename;
 		else
-			return filename.substr(dotpos);
+			return filename.substr(0, dotpos);
 	}
 
 	// Liero level
@@ -996,20 +996,19 @@ void Menu_AddDefaultWidgets(void)
 	class LevelComboFiller { public:
 		CCombobox* cmb;
 		int* index;
-		int* selected;
-		LevelComboFiller(CCombobox* c, int* i, int* s) : cmb(c), index(i), selected(s) {}
+		LevelComboFiller(CCombobox* c, int* i) : cmb(c), index(i) {}
 		inline bool operator() (const std::string& filename) {
 			size_t pos = findLastPathSep(filename);
 			std::string f = filename.substr(pos+1);
 
 			std::string mapName = Menu_GetLevelName(f);
 			if(mapName != "") {
-				cmb->addItem((*index), f, mapName);
-				
-				if(f == tLXOptions->tGameinfo.sMapFilename)
-					*selected = *index;
-				
-				(*index)++;
+				if (cmb->addItem((*index), f, mapName))  {		
+					if(f == tLXOptions->tGameinfo.sMapFilename)
+						cmb->setCurItem(cmb->getLastItem());
+					
+					(*index)++;
+				}
 			}
 
 			return true;
@@ -1022,23 +1021,18 @@ void Menu_AddDefaultWidgets(void)
 void Menu_FillLevelList(CCombobox *cmb, int random)
 {
 	int		index = 0;
-	int		selected = -1;
 
 	cmb->setSorted(true);
 	cmb->setUnique(true);
 	cmb->clear();
 
 	// If random is true, we add the 'random' level to the list
-	if(random) {
-		cmb->addItem(index++, "_random_", "- Random level -");
-		if( tLXOptions->tGameinfo.sMapFilename == "_random_" )
-			selected = index-1;
-	}
+	if(random)
+		if (cmb->addItem(index++, "_random_", "- Random level -"))
+			if( tLXOptions->tGameinfo.sMapFilename == "_random_" )
+				cmb->setCurItem(cmb->getLastItem());
 
-	FindFiles(LevelComboFiller(cmb, &index, &selected), "levels", FM_REG);
-
-	if( selected >= 0 )
-		cmb->setCurItem( selected );
+	FindFiles(LevelComboFiller(cmb, &index), "levels", FM_REG);
 }
 
 
