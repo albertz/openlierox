@@ -129,6 +129,8 @@ const std::vector<std::string>& splitstring(const std::string& str, size_t maxle
 void			StripQuotes(std::string& str);
 std::string		GetFileExtension(const std::string& filename);
 void			xmlEntities(std::string& text);
+size_t			stringcasefind(const std::string& text, const std::string& search_for);
+size_t			stringcaserfind(const std::string& text, const std::string& search_for);
 
 ////////////////////
 // Read a fixed-length C-string from a file

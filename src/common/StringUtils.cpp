@@ -370,3 +370,80 @@ const std::vector<std::string>& splitstring(const std::string& str, size_t maxle
 	return result;
 }
 
+
+/////////////////////////
+// Find a substring in a string
+// WARNING: does NOT support UTF8, use Utf8StringCaseFind instead
+size_t stringcasefind(const std::string& text, const std::string& search_for)
+{
+	if (text.size() == 0 || search_for.size() == 0 || search_for.size() > text.size())
+		return std::string::npos;
+
+	std::string::const_iterator it1 = text.begin();
+	std::string::const_iterator it2 = search_for.begin();
+
+	size_t number_of_same = 0;
+	size_t result = 0;
+
+	// Go through the text
+	while (it1 != text.end())  {
+		char c1 = (char)tolower((uchar)*it1);
+		char c2 = (char)tolower((uchar)*it2);
+
+		// The two characters are the same
+		if (c1 == c2)  {
+			number_of_same++;  // If number of same characters equals to the size of the substring, we've found it!
+			if (number_of_same == search_for.size())
+				return result - number_of_same + 1;
+			it2++;
+		} else {
+			number_of_same = 0;
+			it2 = search_for.begin();
+		}
+
+		result++;
+		it1++;
+	}
+
+	return std::string::npos; // Not found
+}
+
+/////////////////////////
+// Find a substring in a string, starts searching from the end of the text
+// WARNING: does NOT support UTF8
+size_t stringcaserfind(const std::string& text, const std::string& search_for)
+{
+	// HINT: simply the above one with reverse iterators
+
+	if (text.size() == 0 || search_for.size() == 0 || search_for.size() > text.size())
+		return std::string::npos;
+
+	std::string::const_reverse_iterator it1 = text.rbegin();
+	std::string::const_reverse_iterator it2 = search_for.rbegin();
+
+	size_t number_of_same = 0;
+	size_t result = 0;
+
+	// Go through the text
+	while (it1 != text.rend())  {
+		char c1 = (char)tolower((uchar)*it1);
+		char c2 = (char)tolower((uchar)*it2);
+
+		// The two characters are the same
+		if (c1 == c2)  {
+			number_of_same++;  // If number of same characters equals to the size of the substring, we've found it!
+			if (number_of_same == search_for.size())
+				return text.size() - result - 1;
+			it2++;
+		} else {
+			number_of_same = 0;
+			it2 = search_for.rbegin();
+		}
+
+		result++;
+		it1++;
+	}
+
+	return std::string::npos; // Not found
+}
+

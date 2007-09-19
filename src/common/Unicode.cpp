@@ -11,7 +11,6 @@
 #include "Unicode.h"
 
 
-
 // Table used for removing diacritics and other backward incompatible characters
 ConversionItem tConversionTable[] = {
 	{ 0xA0, {0xC2, 0xA0, 0x00, 0x00}, ' '},
@@ -548,6 +547,8 @@ void UNICODE_to_UTF8(unsigned char *utf8, UnicodeChar unicode)
     utf8[++j] = 0;
 }
 
+/////////////////
+// Convert unicode to UTF8
 std::string GetUtf8FromUnicode(UnicodeChar ch) {
 	if(ch == 0) return std::string("\0", 1);
 	static unsigned char utf8[7];
@@ -556,43 +557,46 @@ std::string GetUtf8FromUnicode(UnicodeChar ch) {
 }
 
 
-UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last) {
+////////////////////
+// Convert UTF8 to unicode (takes iterator pointing to the first UTF8-encoded character)
+UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last, size_t& num_skipped) {
+	num_skipped = 0;
 	if(it == last) return 0;
 	
 	unsigned char ch = *it;
 	UnicodeChar res = ch;
 	if ( ch >= 0xFC ) {
-		res  =  (ch&0x01) << 30; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 24; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 18; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 12; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 6; it++; if(it == last) return 0; ch = *it;
+		res  =  (ch&0x01) << 30; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 24; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 18; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++;  num_skipped++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xF8 ) {
-		res  =  (ch&0x03) << 24; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 18; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 12; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 6; it++; if(it == last) return 0; ch = *it;
+		res  =  (ch&0x03) << 24; num_skipped++; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 18; num_skipped++; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; num_skipped++; it++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6;  num_skipped++; it++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xF0 ) {
-		res  =  (ch&0x07) << 18; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 12; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 6; it++; if(it == last) return 0; ch = *it;
+		res  =  (ch&0x07) << 18; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 12; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++;  num_skipped++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xE0 ) {
-		res  =  (ch&0x0F) << 12; it++; if(it == last) return 0; ch = *it;
-		res |=  (ch&0x3F) << 6; it++; if(it == last) return 0; ch = *it;
+		res  =  (ch&0x0F) << 12; it++; num_skipped++; if(it == last) return 0; ch = *it;
+		res |=  (ch&0x3F) << 6; it++; num_skipped++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	} else
 	if ( ch >= 0xC0 ) {
-		res  =  (ch&0x1F) << 6; it++; if(it == last) return 0; ch = *it;
+		res  =  (ch&0x1F) << 6; it++; num_skipped++; if(it == last) return 0; ch = *it;
 		res |=  (ch&0x3F);
 	}
 
-	it++;
+	it++; num_skipped++;
 	return res;
 }
 
@@ -641,8 +645,176 @@ char UnicodeCharToAsciiChar(UnicodeChar c)
 
 }
 
+////////////////////////
+// Like tolower() but for all international characters
+UnicodeChar	UnicodeToLower(UnicodeChar c)
+{
+	// ASCII
+	if (c < 0xC0)
+		return (UnicodeChar)tolower(c);
+
+	// Who the hell invented so crazzy mappings? :S
+
+	// European characters
+	if (c >= 0xC0 && c <= 0xD6)
+		return c + 0x20;
+
+	if (c >= 0xD8 && c <= 0xDE)
+		return c + 0x20;
+
+	if (c >= 0x100 && c <= 0x177 && !(c & 1))
+		return c + 1;
+
+	if (c == 0x178)
+		return 0xFF;
+
+	if (c >= 0x179 && c <= 0x17E && (c & 1))
+		return c + 1;
+
+	if (c == 0x18F)
+		return 0x259;
+
+	if (c >= 0x1A0 && c <= 0x1FF && !(c & 1))
+		return c + 1;
+
+	// Greece alphabet
+	if (c == 0x386)
+		return 0x3AC;
+
+	if (c >= 0x388 && c <= 0x38A)
+		return c + 0x25;
+
+	if (c >= 0x38C && c <= 0x38F)
+		return c + 0x40;
+
+	if (c >= 0x391 && c <= 0x3AB)
+		return c + 0x1B;
+
+	// Cyrilic
+	if (c >= 0x401 && c <= 0x40F)
+		return c + 0x50;
+
+	if (c >= 0x410 && c <= 0x42F)
+		return c + 0x20;
+
+	if (c >= 0x490 && c <= 0x4E9 && !(c & 1))
+		return c + 1;
+
+	// More European characters
+	if (c >= 0x1E80 && c <= 0x1EF9 && !(c & 1))
+		return c + 1;
+
+	// This character doesn't have lowercase
+	return c;
+}
+
+////////////////////////
+// Like toupper() but for all international characters
+UnicodeChar	Utf8ToUpper(UnicodeChar c)
+{
+	// ASCII
+	if (c < 0xC0)
+		return (UnicodeChar)toupper(c);
+
+	// Who the hell invented so crazzy mappings? :S
+
+	// European characters
+	if (c >= 0xE0 && c <= 0xF6)
+		return c - 0x20;
+
+	if (c >= 0xF8 && c <= 0xFE)
+		return c - 0x20;
+
+	if (c == 0xFF)
+		return 0x178;
+
+	if (c >= 0x100 && c <= 0x177 && (c & 1))
+		return c - 1;
+
+	if (c >= 0x179 && c <= 0x17E && !(c & 1))
+		return c - 1;
+
+	if (c == 0x259)
+		return 0x18F;
+
+	if (c >= 0x1A0 && c <= 0x1FF && (c & 1))
+		return c - 1;
+
+	// Greece alphabet
+	if (c == 0x3AC)
+		return 0x386;
+
+	if (c >= 0x3AD && c <= 0x3AF)
+		return c - 0x25;
+
+	if (c >= 0x3CC && c <= 0x3CF)
+		return c - 0x40;
+
+	if (c >= 0x3B1 && c <= 0x3CB)
+		return c - 0x1B;
+
+	// Cyrilic
+	if (c >= 0x451 && c <= 0x45F)
+		return c - 0x50;
+
+	if (c >= 0x430 && c <= 0x44F)
+		return c - 0x20;
+
+	if (c >= 0x490 && c <= 0x4E9 && (c & 1))
+		return c - 1;
+
+	// More European characters
+	if (c >= 0x1E80 && c <= 0x1EF9 && (c & 1))
+		return c - 1;
+
+	// This character doesn't have uppercase
+	return c;
+}
+
 /////////////////////////
-// Converts the Utf8 encoded string to format that will display correctly in olx LX
+// Find a substring in a string (case insensitive)
+// Handles UTF8 strings correctly
+size_t Utf8StringCaseFind(const std::string& text, const std::string& search_for)
+{
+	// HINT: same as stringcasefind, only using UTF8 functions instead (a bit slower)
+	size_t search_for_size = Utf8StringSize(search_for);
+
+	if (text.size() == 0 || search_for_size == 0 || search_for_size > Utf8StringSize(text))
+		return std::string::npos;
+
+	std::string::const_iterator it1 = text.begin();
+	std::string::const_iterator it2 = search_for.begin();
+
+	size_t number_of_same = 0;
+	size_t number_of_same_bytes = 0;
+	size_t result = 0;
+
+	// Go through the text
+	while (it1 != text.end())  {
+		size_t num_skipped = 0;
+		UnicodeChar c1 = UnicodeToLower(GetNextUnicodeFromUtf8(it1, text.end(), num_skipped));
+		UnicodeChar c2 = UnicodeToLower(GetNextUnicodeFromUtf8(it2, search_for.end()));
+
+		// The two characters are the same
+		if (c1 == c2)  {
+			number_of_same++;  // If number of same characters equals to the size of the substring, we've found it!
+			if (number_of_same == search_for_size)
+				return result - number_of_same_bytes;
+			number_of_same_bytes += num_skipped;
+		} else {
+			number_of_same = 0;
+			number_of_same_bytes = 0;
+			it2 = search_for.begin();
+		}
+
+		result += num_skipped;
+	}
+
+	return std::string::npos; // Not found
+}
+
+/////////////////////////
+// Converts the Utf8 encoded string to format that will display correctly in old LX
 std::string OldLxCompatibleString(const std::string &Utf8String)
 {
 	std::string result = "";

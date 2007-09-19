@@ -93,7 +93,9 @@ inline std::string::iterator Utf8PositionToIterator(std::string& str, size_t pos
 ////////////////////////
 // Reads next unicode character from a UTF8 encoded string
 // the iterator shows at the next character after this operation
-UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last);
+UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last, size_t& num_skipped);
+inline UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last)  {
+	size_t tmp;	return GetNextUnicodeFromUtf8(it, last, tmp); }
 
 ////////////////////
 // Gets the UTF8 representation of the unicode character (can be more bytes)
@@ -132,6 +134,10 @@ inline void InsertUnicodeChar(std::string& str, size_t pos, UnicodeChar ch) {
 	std::string tmp = GetUtf8FromUnicode(ch);
 	Utf8Insert(str, pos, tmp);
 }
+
+// Uppercase/lowercase handling
+UnicodeChar	UnicodeToLower(UnicodeChar c);
+UnicodeChar	UnicodeToUpper(UnicodeChar c);
 
 // Conversion functions
 
