@@ -24,6 +24,35 @@
 // Some basic defines
 #define		HTTP_TIMEOUT	10
 
+// HTTP Chunk parsing states
+enum  {
+	CHPAR_SKIPBLANK,
+	CHPAR_LENREAD,
+	CHPAR_DATAREAD
+};
+
+// HTTP Chunk parsing class
+class CChunkParser  {
+public:
+	CChunkParser(std::string *pure_data, size_t *final_length, size_t *received); 
+
+private:
+	std::string *sPureData;
+	size_t		*iFinalLength;
+	size_t		*iReceived;
+
+	// Internal
+	int			iState;
+	int			iNextState;  // What state should come after the current one (used when iState = CHPAR_SKIPBLANK)
+	std::string sChunkLenStr;  // Current chunk length as a string (temporary variable)
+	size_t		iCurRead;  // How many bytes read from the current chunk
+	size_t		iCurLength;  // How many bytes does the current chunk have
+
+public:
+	bool	ParseNext(char c);
+	void	Reset();
+};
+
 // HTTP error struct
 class HttpError  { public:
 	std::string sErrorMsg;
@@ -41,6 +70,7 @@ enum  {
 	HTTP_ERROR_SENDING_REQ,
 	HTTP_NO_CONNECTION,
 	HTTP_NET_ERROR,
+	HTTP_FILE_NOT_FOUND
 };
 
 // HTTP processing results
@@ -59,17 +89,22 @@ private:
 	std::string		sHost;
 	std::string		sUrl;
 	std::string		sRemoteAddress;
-	std::string		sData;
+	std::string		sData;  // Data received from the network, can be chunked and whatever
+	std::string		sPureData;  // Pure data, without chunks or any other stuff
 	std::string		sHeader;
 	std::string		sMimeType;
 	HttpError		tError;
+	char			*tBuffer;
+	CChunkParser	*tChunkParser;
 
 	size_t			iDataLength;
 	size_t			iDataReceived;
+	bool			bTransferFinished;
 	bool			bConnected;
 	bool			bRequested;
 	bool			bSocketReady;
 	bool			bGotHttpHeader;
+	bool			bChunkedTransfer;
 	float			fResolveTime;
 	NetworkSocket	tSocket;
 	NetworkAddr		tRemoteIP;
@@ -81,6 +116,7 @@ private:
 	void				ProcessData();
 	std::string			GetPropertyFromHeader(const std::string& prop);
 	void				ParseHeader();
+	void				ParseChunks();
 	void				ParseAddress(const std::string& addr);
 
 public:
@@ -88,10 +124,11 @@ public:
 	int					ProcessRequest();
 	void				CancelProcessing();
 	HttpError			GetError()				{ return tError; }
-	const std::string&	GetData()				{ return sData; }
+	const std::string&	GetData()				{ return sPureData; }
 	const std::string&	GetMimeType()			{ return sMimeType; }
 	size_t				GetDataLength()			{ return iDataLength; }
 	size_t				GetReceivedDataLen()	{ return iDataReceived; }
+	bool				RequestedData()			{ return bRequested; }
 };
 
 #endif  // __HTTP_H__

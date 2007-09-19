@@ -17,6 +17,7 @@
 // Jason Boettcher
 
 #include <iostream>
+#include "LieroX.h" // for LX_VERSION
 #include "HTTP.h"
 #include "Timer.h"
 #include "StringUtils.h"
@@ -31,13 +32,110 @@ const std::string sHttpErrors[] = {
 	"DNS timeout",
 	"Error sending HTTP request",
 	"Could not connect to the server",
-	"Network error: "
+	"Network error: ",
+	"File not found"
 };
+
+
+//
+// Chunk parser class
+//
+
+//////////////
+// Contructor
+CChunkParser::CChunkParser(std::string *pure_data, size_t *final_length, size_t *received)
+{
+	Reset();
+	sPureData = pure_data;
+	iFinalLength = final_length;
+	iReceived = received;
+}
+
+//////////////////
+// Parse a next character from the received data
+// NOTE: the caller is responsible for a valid iterator
+bool CChunkParser::ParseNext(char c)
+{
+	switch (iState)  {
+	// Reading the chunk length
+	case CHPAR_LENREAD:
+		if (isspace((uchar)c) || c == ';')  {  // Ends with a whitespace or a semicolon
+			// Get the length
+			bool failed = false;
+			iCurLength = from_string<size_t>(sChunkLenStr, std::hex, failed);
+			sChunkLenStr = "";  // Not needed anymore
+			if (failed)  {
+				printf("Failed: \"" + sChunkLenStr + "\", " + itoa((uint)c) + "\n");
+				iCurLength = 0;
+				return false;  // Still processing
+			}
+
+			// End?
+			if (iCurLength == 0)  {  // 0-length chunk = end of the chunk message
+				iNextState = CHPAR_SKIPBLANK; // Not needed, but if someone continued calling us, this is what we should do
+				return true;  // Finished!
+			}
+
+			(*iFinalLength) += iCurLength;
+
+			// Change the state
+			iState = CHPAR_SKIPBLANK;
+			iNextState = CHPAR_DATAREAD;
+		} else
+			sChunkLenStr += c;
+	return false;  // Still processing
+
+	// Reading the data
+	case CHPAR_DATAREAD:
+		(*sPureData) += c;
+		(*iReceived)++;
+		iCurRead++;
+		if (iCurRead >= iCurLength)  {
+			// Reset
+			iCurRead = 0;
+			iCurLength = 0;
+
+			// Change the state
+			iState = CHPAR_SKIPBLANK;
+			iNextState = CHPAR_LENREAD;
+		}
+	return false; // Still processing
+
+	// Skip blank characters
+	case CHPAR_SKIPBLANK:
+		if (!isspace((uchar)c))  {  // Not a blank character, we finished our job
+			iState = iNextState; // Change the state
+			ParseNext(c);  // Parse the non-blank character
+		}
+	return false;  // Still processing
+	}
+
+	return false;  // Should not happen
+}
+
+
+////////////
+// Reset the state and all variables and prepare for a new reading
+void CChunkParser::Reset()
+{
+	iState = CHPAR_SKIPBLANK;
+	iNextState = CHPAR_LENREAD;
+	sChunkLenStr = "";
+	iCurRead = 0;
+	iCurLength = 0;
+}
+
+
+//
+// HTTP class
+//
 
 //////////////
 // Constructor
 CHttp::CHttp()
 {
+	tBuffer = new char[4096];
+	tChunkParser = new CChunkParser(&sPureData, &iDataLength, &iDataReceived);
 	Clear();
 }
 
@@ -45,6 +143,12 @@ CHttp::CHttp()
 // Destructor
 CHttp::~CHttp()
 {
+	if (tBuffer)
+		delete[] tBuffer;
+	if (tChunkParser)
+		delete tChunkParser;
+	tBuffer = NULL;
+	tChunkParser = NULL;
 	CancelProcessing();
 }
 
@@ -56,18 +160,23 @@ void CHttp::Clear()
 	sUrl = "";
 	sRemoteAddress = "";
 	sData = "";
+	sPureData = "";
 	sHeader = "";
 	sMimeType = "";
 	SetHttpError(HTTP_NO_ERROR);
 	iDataLength = 0;
 	iDataReceived = 0;
+	bTransferFinished = false;
 	bConnected = false;
 	bRequested = false;
 	bGotHttpHeader = false;
 	bSocketReady = false;
+	bChunkedTransfer = false;
 	fResolveTime = -9999;
 	ResetNetAddr(&tRemoteIP);
 	InvalidateSocketState(tSocket);
+	if (tChunkParser)
+		tChunkParser->Reset();
 }
 
 ///////////////
@@ -187,8 +296,10 @@ bool CHttp::SendRequest()
 	std::string request;
 
 	// Build the url
-	request = "GET " + sUrl + " HTTP/1.0\n";
-	request += "Host: " + sHost + "\n\n";
+	request = "GET " + sUrl + " HTTP/1.1\r\n";
+	request += "Host: " + sHost + "\r\n";
+	request += "User-Agent: OpenLieroX/" + std::string(LX_VERSION) + "\r\n";
+	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
 	return WriteSocket(tSocket, request) > 0;  // Anything written?
 }
 
@@ -196,7 +307,19 @@ bool CHttp::SendRequest()
 // Process the received data
 void CHttp::ProcessData()
 {
-	// We only strip the header and parse it in this function
+	// If the data is split into chunks, we have to parse them
+	if (bChunkedTransfer)
+		ParseChunks();
+	else  {
+		if (bGotHttpHeader)  {  // We don't know if the data is chunked or not if we haven't parsed the header,
+								// don't do anything if we don't know what to do
+
+			sPureData += sData;  // No parsing, just add them
+			sData = ""; // HINT: save memory, don't keep the data twice
+		}
+	}
+
+	// We only strip the header and parse it here
 	// If it has been already parsed, there's no work for us
 	if (bGotHttpHeader)
 		return;
@@ -212,7 +335,7 @@ void CHttp::ProcessData()
 	if (header_end == std::string::npos)  {  // No header is present
 		return;
 	} else {
-		header_end += header_end_len; // Two LFs
+		header_end += header_end_len; // Two LFs or two CR/LFs
 		if (header_end > sData.size())  // Should not happen...
 			return;
 
@@ -226,17 +349,24 @@ void CHttp::ProcessData()
 	// Process the header
 	ParseHeader();
 
+	// We could just receive the header and find out the data is chunked...
+	if (bChunkedTransfer)  {
+		ParseChunks();
+	} else  {
+		sPureData += sData;  // No parsing, just add them
+		sData = ""; // HINT: save memory, don't keep the data twice
+	}
 }
 
 //////////////////
 // Reads a HTTP header property
 std::string CHttp::GetPropertyFromHeader(const std::string& prop)
 {
-	size_t pos = sHeader.find(prop + ":");
+	size_t pos = stringcasefind(sHeader, prop + ":");
 	if (pos == std::string::npos)  // Not found
 		return "";
 	else {
-		pos += prop.size();
+		pos += prop.size() + 1;  // 1 - ":" character
 
 		// Check
 		if (pos >= sHeader.size())
@@ -246,8 +376,17 @@ std::string CHttp::GetPropertyFromHeader(const std::string& prop)
 		std::string result = "";
 		std::string::iterator i = PositionToIterator(sHeader, pos);
 		for (; i!= sHeader.end(); i++)  {
-			if (*i == '\r' || *i == '\n')
-				break;
+			if (*i == '\r' || *i == '\n')  {
+
+				// Does it continue on next line?
+				std::string::iterator i2 = i;
+				i2++;
+				if (*i2 == '\n') i2++;
+
+				if (*i2 != ' ' && *i2 != '\t')  // Not beginning with space or tab, it's a real end
+					break;
+			}
+
 			result += *i;
 		}
 
@@ -258,10 +397,73 @@ std::string CHttp::GetPropertyFromHeader(const std::string& prop)
 	}
 }
 
+
+//////////////////
+// Gets the data from chunks
+void CHttp::ParseChunks()
+{
+	// Parse the chunks
+	std::string::iterator chunk_it = sData.begin();
+	for (; chunk_it != sData.end(); chunk_it++)
+		if (tChunkParser->ParseNext(*chunk_it))  {
+			bTransferFinished = true;
+			break;  // Finished!
+		}
+
+	// Remove the parsed data
+	sData = "";
+	
+	// There could be still some footers, but we don't care about them
+}
+
 ////////////////
 // Parses the header
 void CHttp::ParseHeader()
 {
+	//
+	// Error checking
+	//
+	std::string::iterator i = sHeader.begin();
+	while (i != sHeader.end())  {  // Skip the "HTTP/1.1 " thingy
+		if (*i == ' ')  {
+			i++;
+			break;
+		}
+
+		i++;
+	}
+
+	// Get the code
+	std::string code;
+	while (i != sHeader.end())  {
+		if (*i == ' ')  {
+			i++;
+			break;
+		}
+
+		code += *i;
+		i++;
+	}
+	
+	// Check the code
+	if (code[0] != '2') {  // 2XX = success
+		if (code == "440")  {  // Special error for us, file not found
+			SetHttpError(HTTP_FILE_NOT_FOUND);
+			return;
+		}
+
+		if (code == "100")  {  // 100 Continue - we should wait for a real header
+			bGotHttpHeader = false;
+			return;
+		}
+
+		// Other errors
+		tError.iError = atoi(code);
+		tError.sErrorMsg = std::string(i, PositionToIterator(sHeader, sHeader.find('\n')));  // From error code to the end of the line
+		return;
+	}
+
+
 	//
 	// Mime-type
 	//
@@ -279,6 +481,11 @@ void CHttp::ParseHeader()
 	iDataLength = from_string<size_t>(GetPropertyFromHeader("Content-Length"), incorrect);
 	if (incorrect)
 		iDataLength = 0;
+
+	//
+	// Check for a chunked connection
+	//
+	bChunkedTransfer = stringcasecmp(GetPropertyFromHeader("Transfer-Encoding"), "chunked") == 0;
 }
 
 /////////////////
@@ -353,9 +560,9 @@ int CHttp::ProcessRequest()
 		return HTTP_PROC_PROCESSING;
 
 	// Check if we have a response
-	static char buffer[4096];
-	buffer[0] = '\0';
-	int count = ReadSocket(tSocket, buffer, sizeof(buffer));
+	int count = 0;
+	if (tBuffer != NULL)
+		count = ReadSocket(tSocket, tBuffer, sizeof(tBuffer));
 	
 	// Error, or end of connection?
 	if(count < 0) {
@@ -363,6 +570,7 @@ int CHttp::ProcessRequest()
 		if(IsMessageEndSocketErrorNr(err) ) {
 			// End of connection
 			// Complete!
+			bTransferFinished = true;
 			return HTTP_PROC_FINISHED;
 		} else {
 			// Error
@@ -374,8 +582,14 @@ int CHttp::ProcessRequest()
 
 	// Got some data
 	if(count > 0)  {
-		sData.append(buffer, count);
+		sData.append(tBuffer, count);
+		iDataReceived += count;
 		ProcessData();
+	}
+
+	// Transfer fininshed (can get here if chunk message end happened)
+	if (bTransferFinished)  {
+		return HTTP_PROC_FINISHED;
 	}
 
 	// Still processing
