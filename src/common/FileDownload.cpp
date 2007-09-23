@@ -177,7 +177,7 @@ void CFileDownload::ProcessDownload()
 		Lock();
 		if (tHttp.GetError().iError == HTTP_FILE_NOT_FOUND)  {
 			iCurrentServer++;
-			if (iCurrentServer < tDownloadServers->size())  {
+			if ((size_t)iCurrentServer < tDownloadServers->size())  {
 				tHttp.RequestData((*tDownloadServers)[iCurrentServer] + sFileName);  // Request the file
 				iState = FILEDL_INITIALIZING;
 				Unlock();

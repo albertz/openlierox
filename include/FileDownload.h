@@ -27,6 +27,8 @@
 #include <SDL/SDL_thread.h>
 #include <SDL/SDL_mutex.h>
 #include "HTTP.h"
+#include "types.h"
+
 
 // File download states
 enum {
@@ -62,17 +64,17 @@ class CFileDownload  {
 public:
 	// Constructors and destructors
 	CFileDownload() : 
-		iState(FILEDL_NO_FILE),
 		tFile(NULL),
 		tDownloadServers(NULL),
-		iID(0)
+		iState(FILEDL_NO_FILE),
+		iID(0),
+		tMutex(NULL)
 		{ tMutex = SDL_CreateMutex(); }
 
 	CFileDownload(std::vector<std::string> *download_servers, size_t id) :
-		iState(FILEDL_NO_FILE),
 		tFile(NULL),
-		tMutex(NULL),
 		tDownloadServers(download_servers),
+		iState(FILEDL_NO_FILE),
 		iID(id)
 		{ tMutex = SDL_CreateMutex(); }
 
