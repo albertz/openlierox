@@ -219,6 +219,14 @@ SOURCE=..\..\include\Error.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\FileDownload.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\FileDownload.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\FindFile.cpp
 # End Source File
 # Begin Source File

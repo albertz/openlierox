@@ -680,6 +680,8 @@ void Menu_Net_NETParseList(CHttp &http)
 {
 	const std::string& content = http.GetData();
 
+	printf("\nHTTP Data:\n" + content + "\n=================================\n");
+
 	std::string addr, ptr;
 	
 	std::string::const_iterator it = content.begin();

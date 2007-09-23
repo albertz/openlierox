@@ -562,9 +562,20 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(tMenu->bmpScreen, x, y+20,  tLX->clNormalLabel, "Level:");
         if(gl->bHaveMap)  {
 			f->Draw(tMenu->bmpScreen, x2, y+20, tLX->clNormalLabel, gl->szDecodedMapName);
+		} else {  // Don't have the map
+			if (cClient->getDownloadingMap())  {  // Currently downloading the map
+				f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName + " (" + itoa(cClient->getMapDlProgress()) + "%)");
+			} else { // Not downloading
+				f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
+				if (MouseInRect(x2, y+20, 640-x2, tLX->cFont.GetHeight()))  {
+					SetGameCursor(CURSOR_HAND);
+					if (GetMouse()->Up)
+						cClient->DownloadMap(gl->szMapName); // Download the map
+				} else {
+					SetGameCursor(CURSOR_ARROW);
+				}
+			}
 		}
-        else
-            f->Draw(tMenu->bmpScreen, x2, y+20,  tLX->clError, gl->szMapName);
 		f->Draw(tMenu->bmpScreen, x, y+40, tLX->clNormalLabel, "Game Mode:");
 		f->Draw(tMenu->bmpScreen, x2, y+40, tLX->clNormalLabel, gamemodes[gl->nGameMode]);
         f->Draw(tMenu->bmpScreen, x, y+60, tLX->clNormalLabel,  "Mod:");

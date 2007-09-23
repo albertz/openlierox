@@ -419,17 +419,20 @@ void CClient::Draw(SDL_Surface *bmpDest)
         // Draw the viewports
         for( i=0; i<NUM_VIEWPORTS; i++ ) {
             if( cViewports[i].getUsed() )  {
-				cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
+				if (cMap != NULL)
+					cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
                 DrawViewport(bmpDest, (byte)i);
 			}
         }
 		bShouldRepaintInfo = false;  // Just repainted it
 
         // Mini-Map
-		if (iNetStatus == NET_PLAYING)
-			cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
-		else
-			DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+		if (cMap != NULL)  {
+			if (iNetStatus == NET_PLAYING)
+				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
+			else
+				DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+		}
 
 		//
 		// Players not yet ready
@@ -449,7 +452,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			}
 
 			// If we're ready, let the server know
-			if(ready && !iReadySent) {
+			if(ready && !iReadySent && !bDownloadingMap) {
 				iReadySent = true;
 				CBytestream *bytes = cNetChan.getMessageBS();
 				bytes->writeByte(C2S_IMREADY);
@@ -656,7 +659,8 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
 	// When game menu is visible, it covers all this anyway, so we won't bother to draw it)
 	if (!iGameMenu)  {
-		cMap->Draw(bmpDest, v);
+		if (cMap)
+			cMap->Draw(bmpDest, v);
 
 		// The following will be drawn only when playing
 		if (iNetStatus == NET_PLAYING)  {

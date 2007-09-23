@@ -109,6 +109,13 @@ void CClient::Clear(void)
     }    
 
 	bHostOLXb4 = false;
+
+	bDownloadingMap = false;
+	cFileDownloader = NULL;
+	sMapDownloadName = "";
+	bMapDlError = false;
+	sMapDlError = "";
+	iMapDlProgress = 0;
 }
 
 
@@ -280,6 +287,114 @@ int CClient::Initialize(void)
 	return true;
 }
 
+/////////////////
+// Initialize map downloading
+void CClient::InitializeDownloads()
+{
+	if (!cFileDownloader)
+		cFileDownloader = new CFileDownloader();
+	bDownloadingMap = false;
+	bMapDlError = false;
+	iMapDlProgress = 0;
+	sMapDlError = "";
+	sMapDownloadName = "";
+}
+
+/////////////////
+// Shutdown map downloading
+void CClient::ShutdownDownloads()
+{
+	if (cFileDownloader)
+		delete cFileDownloader;
+	cFileDownloader = NULL;
+	bDownloadingMap = false;
+	bMapDlError = false;
+	iMapDlProgress = 0;
+	sMapDlError = "";
+	sMapDownloadName = "";
+}
+
+/////////////////
+// Download a map
+void CClient::DownloadMap(const std::string& mapname)
+{
+	// Initialize if not initialized
+	InitializeDownloads();
+
+	// Check
+	if (!cFileDownloader)  {
+		sMapDlError = "Could not initialize the downloader";
+		bMapDlError = true;
+		return;
+	}
+
+	cFileDownloader->StartFileDownload(mapname, "levels");
+	sMapDownloadName = mapname;
+	bDownloadingMap = true;
+}
+
+/////////////////
+// Process map downloading
+void CClient::ProcessMapDownloads()
+{
+	// Nothing to process
+	if (!bDownloadingMap || cFileDownloader == NULL)
+		return;
+
+	// Download finished
+	if (cFileDownloader->IsFileDownloaded(sMapDownloadName))  {
+		bDownloadingMap = false;
+		bMapDlError = false;
+		sMapDlError = "";
+		iMapDlProgress = 100;
+		
+		// Check that the file exists (it should!)
+		if (IsFileAvailable("levels/" + sMapDownloadName, false))  {
+			tGameLobby.bHaveMap = true;
+			tGameLobby.szDecodedMapName = Menu_GetLevelName(sMapDownloadName);
+
+			// If playing, load the map
+			if (iNetStatus == NET_PLAYING)  {
+				if (cMap)  {
+					printf("WARNING: Finished map downloading but another map is already loaded. Deleting it.\n");
+					delete cMap;
+				}
+
+				cMap = new CMap;
+				if (cMap)  {
+					if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
+						// Weird
+						printf("Could not load the downloaded map!\n");
+						Disconnect();
+						QuittoMenu();
+					}
+				}
+			}
+		} else {  // Inaccessible
+			printf("Cannot access the downloaded map!\n");
+			if (iNetStatus == NET_PLAYING)  {
+				Disconnect();
+				QuittoMenu();
+			}
+		}
+
+		sMapDownloadName = "";
+
+		return;
+	}
+
+	// Error check
+	DownloadError error = cFileDownloader->FileDownloadError(sMapDownloadName);
+	if (error.iError != FILEDL_ERROR_NO_ERROR)  {
+		bDownloadingMap = false;
+		sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
+		sMapDownloadName = "";
+		bMapDlError = true;
+	}
+
+	// Get the progress
+	iMapDlProgress = cFileDownloader->GetFileProgress(sMapDownloadName);
+}
 
 ///////////////////
 // Main frame
@@ -296,6 +411,8 @@ void CClient::Frame(void)
 		return;		// So we don't flood packets out to the clients
 	else
 		oldtime = tLX->fCurTime;*/
+
+	ProcessMapDownloads();
 
 	ReadPackets();
 
@@ -725,6 +842,9 @@ void CClient::Shutdown(void)
 	if(IsSocketStateValid(tSocket))
 		CloseSocket(tSocket);
 	InvalidateSocketState(tSocket);
+
+	// Shutdown map downloads
+	ShutdownDownloads();
 
 	// Log this
 	if (tLXOptions->iLogConvos)  {

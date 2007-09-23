@@ -20,6 +20,7 @@
 // TODO: remove this after we changed network
 #include "CChannel.h"
 
+#include "FileDownload.h"
 #include "CGameScript.h"
 #include "CWpnRest.h"
 #include "CChatBox.h"
@@ -207,6 +208,13 @@ public:
 
 		bHostOLXb3 = false;
 		bHostOLXb4 = false;
+
+		bDownloadingMap = false;
+		cFileDownloader = NULL;
+		sMapDownloadName = "";
+		bMapDlError = false;
+		sMapDlError = "";
+		iMapDlProgress = 0;
 	}
 
 	~CClient()  {
@@ -343,6 +351,14 @@ private:
 	bool		bHostOLXb3;
 	bool		bHostOLXb4;
 
+	// Map downloading
+	bool		bDownloadingMap;
+	CFileDownloader *cFileDownloader;
+	std::string	sMapDownloadName;
+	bool		bMapDlError;
+	std::string	sMapDlError;
+	byte		iMapDlProgress;
+
 	int			iReadySent;
 
 	int			iGameOver;
@@ -464,7 +480,7 @@ public:
 	void		SendRandomPacket();
 #endif
 
-	// Parsing
+	// Parsing & network
 	void		ParseConnectionlessPacket(CBytestream *bs);
 	void		ParseChallenge(CBytestream *bs);
 	void		ParseConnected(CBytestream *bs);
@@ -493,6 +509,11 @@ public:
 	void		ParseDestroyBonus(CBytestream *bs);
 	void		ParseGotoLobby(CBytestream *bs);
     void        ParseDropped(CBytestream *bs);
+
+	void		InitializeDownloads();
+	void		DownloadMap(const std::string& mapname);
+	void		ProcessMapDownloads();
+	void		ShutdownDownloads();
 
 
 	// Variables
@@ -565,6 +586,9 @@ public:
 	inline void setHostBeta4(bool _b)			{ bHostOLXb4 = _b; }
 
 	bool		getGamePaused()					{ return (bViewportMgr || iGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
+
+	byte		getMapDlProgress()				{ return iMapDlProgress; }
+	bool		getDownloadingMap()				{ return bDownloadingMap; }
 
 };
 
