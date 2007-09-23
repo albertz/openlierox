@@ -1,5 +1,9 @@
 TODO
 
+[ ] more options for the bots, for example restricted weapons or special behavior
+[ ] restrict weapon settings depending on worm character
+[ ] allow more than 5 weapons
+[ ] configureable blood
 [ ] own directory for mods -> better file management
 [ ] fix: map cache - carved dirt and blood stays in the map after reloading it from cache (maybe use CCache for caching maps?)
 [?] fix: sometimes you got into chat while playing online on some keys
@@ -43,7 +47,7 @@ TODO
 [?] increase FPS (and determit, why it is bad in beta2)
 [?] improve mediaplayer
 [?] improve player profile options (many skins need long load time)
-[x] make physics more like original LX
+[ ] make physics more like original LX
 [ ] better bot aiming (fast numerical pre-physics-calculations) (!)
 [ ] better bot behavior (!!)
 [ ] add option to save/load weapon selection
