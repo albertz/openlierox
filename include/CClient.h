@@ -565,25 +565,26 @@ public:
 	int			getTeamScore(int team)		{ return iTeamScores[team]; }
 
 	int			isTyping(void)				{ return iChat_Typing; }
-	std::string& getChatterText()			{ return sChat_Text; }
+	const std::string& getChatterText()			{ return sChat_Text; }
 
 	bool		getMuted(void)				{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
 
 	ClientRights *getRights()				{ return &tRights; }
 
-	inline int	getPing(void)				{ return cNetChan.getPing(); }
-	inline void setPing(int _p)				{ cNetChan.setPing(_p); }
+	int	getPing(void)				{ return cNetChan.getPing(); }
+	void setPing(int _p)				{ cNetChan.setPing(_p); }
 
-	inline void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
-	inline std::string getServerAddress(void)		{ return strServerAddr; }
+	void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
+	const std::string& getServerAddress(void)		{ return strServerAddr; }
 
-	inline void setServerName(const std::string& _n)		{ szServerName = _n; }
-	inline std::string getServerName(void)		{ return szServerName; }
+	void setServerName(const std::string& _n)		{ szServerName = _n; }
+	const std::string& getServerName(void)		{ return szServerName; }
 
-	inline bool getHostBeta3(void)				{ return bHostOLXb3; }
-	inline bool getHostBeta4(void)				{ return bHostOLXb4; }
-	inline void setHostBeta4(bool _b)			{ bHostOLXb4 = _b; }
+	// TODO: don't use bool for a number
+	bool getHostBeta3(void)				{ return bHostOLXb3; }
+	bool getHostBeta4(void)				{ return bHostOLXb4; }
+	void setHostBeta4(bool _b)			{ bHostOLXb4 = _b; }
 
 	bool		getGamePaused()					{ return (bViewportMgr || iGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
 

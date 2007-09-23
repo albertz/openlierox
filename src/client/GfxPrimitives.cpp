@@ -40,17 +40,14 @@ int iSurfaceFormat = SDL_SWSURFACE;
 /////////////////
 // Put the pixel alpha blended with the background
 void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a)  {
-	// TODO: optimize (less local variables, less conditions and no floats)
-	static Uint8 R1, G1, B1, A1, R2, G2, B2; 	 
-	static float not_a; 	 
-	not_a = 1.0f - a; 	 
+	Uint8 R1, G1, B1, A1, R2, G2, B2; 	 
 	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel; 	 
 	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1); 	 
 	SDL_GetRGB(colour, bmpDest->format, &R2, &G2, &B2); 	 
 	PutPixelToAddr(px, SDL_MapRGBA(bmpDest->format, 	 
-			(Uint8) CLAMP(R1 * not_a + R2 * a, 0.0f, 255.0f), 	 
-			(Uint8) CLAMP(G1 * not_a + G2 * a, 0.0f, 255.0f), 	 
-			(Uint8) CLAMP(B1 * not_a + B2 * a, 0.0f, 255.0f), 	 
+			(Uint8) CLAMP(R1 * (1.0f - a) + R2 * a, 0.0f, 255.0f), 	 
+			(Uint8) CLAMP(G1 * (1.0f - a) + G2 * a, 0.0f, 255.0f), 	 
+			(Uint8) CLAMP(B1 * (1.0f - a) + B2 * a, 0.0f, 255.0f), 	 
 			A1), bmpDest->format->BytesPerPixel);
 }
 
@@ -59,8 +56,8 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a)  {
 // Set a color key for alpha surface (SDL_SetColorKey does not work for alpha surfaces)
 void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 	// Just set transparent alpha to pixels that match the color key
-	register Uint8* pxr = (Uint8*)dst->pixels;
-	register Uint8* px;
+	Uint8* pxr = (Uint8*)dst->pixels;
+	Uint8* px;
 	int x, y;
 	Uint32 colorkey = SDL_MapRGBA(dst->format, r, g, b, 0);
 	for(y = 0; y < dst->h; y++, pxr += dst->pitch)  {

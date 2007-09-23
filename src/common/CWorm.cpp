@@ -353,10 +353,9 @@ int CWorm::LoadGraphics(int gametype)
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
     // Load the skin
-    bmpWormRight = LoadSkin(szSkin, r,g,b);
-	
-	// HINT: should not happen because the default skin should be *always* available (else the game doesn't start)
+    bmpWormRight = LoadSkin(szSkin, r,g,b);	
 	if (!bmpWormRight)  {
+		// HINT: should not happen because the default skin should be *always* available (else the game doesn't start)
 		bmpWormLeft = NULL;
 		bmpPic = NULL;
 		bmpShadowPic = NULL;

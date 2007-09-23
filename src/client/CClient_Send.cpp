@@ -95,7 +95,7 @@ void CClient::SendText(const std::string& sText)
 
 	// HINT: this way is not good; it assumes, that the message is always of the format 'NICK: MSG'
 	// However, there's no better possibility to detect the command :(
-
+	// TODO: remove this whole part if it is not possible to do it in another way
 	// Do not allow client to send / commands is the host in not on beta 3
 	if (cLocalWorms[0]->getName().size() + 2 < sText.size())  {
 		std::string command_buf = sText;

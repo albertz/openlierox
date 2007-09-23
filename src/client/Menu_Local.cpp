@@ -643,6 +643,8 @@ int Menu_LocalCheckPlaying(int index)
 
 	p = FindProfile(index);
 
+	// TODO: make it possible to use more than 2 local players
+	
 	// Check if there is too many players
 	if(plycount >= MAX_PLAYERS)
 		return false;
