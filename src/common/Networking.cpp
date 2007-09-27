@@ -609,17 +609,15 @@ bool GetNetAddrFromName(const std::string& name, NetworkAddr* addr) {
 			SetNetAddrValid( addr, true );
 			return true;
 		}
-		if( nlGetAddrFromName(name.c_str(), NetworkAddrData(addr)) != NL_FALSE )
-		{
+		if( nlGetAddrFromName(name.c_str(), NetworkAddrData(addr)) != NL_FALSE ) {
 			AddToDnsCache( name, addr );
 			return true;
-		};
+		}
 		return false;
 	}
 }
 
-bool isDataAvailable(NetworkSocket sock)
-{
+bool isDataAvailable(NetworkSocket sock) {
 	NLint group = nlGroupCreate();
 	nlGroupAddSocket( group, *NetworkSocketData(&sock) );
 	NLsocket sock_out[2];

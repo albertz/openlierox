@@ -192,7 +192,7 @@ int CInput::Wait(std::string& strText)
 	unsigned int n,i;
 
 	// First check the mouse
-	for(n=1;n<4;n++) {
+	for(n=0;n<MAX_MOUSEBUTTONS;n++) {
 		i=n;
 		if(Mouse->Up & SDL_BUTTON(n)) {
 			// Swap rmb id wih mmb (mouse buttons)
@@ -233,19 +233,11 @@ int CInput::Setup(const std::string& string)
 
 	// Check if it's a mouse
 	// TODO: allow more mouse buttons
-	if(string == "ms1") {
+	if(string.substr(0,2) == "ms") {
 		Type = INP_MOUSE;
-		Data = 1;
-		return true;
-	}
-	else if(string == "ms2") {
-		Type = INP_MOUSE;
-		Data = 3;
-		return true;
-	}
-	else if(string == "ms3") {
-		Type = INP_MOUSE;
-		Data = 2;
+		Data = atoi(string.substr(2).c_str());
+		if( Data == 3 ) Data = 2;
+		else if( Data == 2 ) Data = 3;
 		return true;
 	}
 

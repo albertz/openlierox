@@ -591,6 +591,8 @@ public:
 	byte		getMapDlProgress()				{ return iMapDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
 
+	CViewport * getViewports()					{ return cViewports; }
+
 };
 
 extern	CClient			*cClient;

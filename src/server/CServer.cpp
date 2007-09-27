@@ -119,7 +119,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
 	
 	ResetNetAddr( &tSTUNAddress );
-	if( tLXOptions->sSTUNServer != "" && regserver )
+	if( tLXOptions->sSTUNServer != "" /* && regserver */ )
 	{
 		try	// STUN server is not critical, so if it failed just proceed further
 		{

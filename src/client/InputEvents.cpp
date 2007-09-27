@@ -190,16 +190,9 @@ void ProcessEvents(void)
 		Mouse.FirstDown = 0;
 	}
 	
-	// Left Mouse Button Up event
-	if(!(Mouse.Button & SDL_BUTTON(SDL_BUTTON_LEFT)) && Mouse.Down & SDL_BUTTON(SDL_BUTTON_LEFT))
-		Mouse.Up |= SDL_BUTTON(SDL_BUTTON_LEFT);
-
-	// Right Mouse Button Up event
-	if(!(Mouse.Button & SDL_BUTTON(SDL_BUTTON_RIGHT)) && Mouse.Down & SDL_BUTTON(SDL_BUTTON_RIGHT))
-		Mouse.Up |= SDL_BUTTON(SDL_BUTTON_RIGHT);
-
-	// First down
-    for( int i=0; i<3; i++ ) {
+    for( int i=0; i<MAX_MOUSEBUTTONS; i++ ) {
+		if(!(Mouse.Button & SDL_BUTTON(i)) && Mouse.Down & SDL_BUTTON(i))
+			Mouse.Up |= SDL_BUTTON(i);
         if( !(Mouse.Down & SDL_BUTTON(i)) && (Mouse.Button & SDL_BUTTON(i)) )
             Mouse.FirstDown |= SDL_BUTTON(i);
     }

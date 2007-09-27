@@ -73,7 +73,8 @@ enum {
 	og_ShowWormHealth,
 	og_ColorizeNicks,
 	og_AutoTyping,
-	og_Antialiasing
+	og_Antialiasing,
+	og_MouseAiming
 };
 
 enum {
@@ -356,6 +357,8 @@ int Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAntiAliasing),og_Antialiasing, 280, 330, 17,17);
 	//cOpt_Game.Add( new CLabel("AI Difficulty",tLX->clNormalLabel), Static, 40, 270, 0,0);
 	//cOpt_Game.Add( new CSlider(3), og_AIDifficulty,   175, 267, 100, 20);
+	cOpt_Game.Add( new CLabel("Use mouse for aiming (Player 1)",tLX->clNormalLabel), Static, 40, 360, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bMouseAiming),og_MouseAiming, 280, 360, 17,17);
 
 	// Set the values
 	cOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
@@ -559,6 +562,12 @@ void Menu_OptionsFrame(void)
 				case og_Antialiasing:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bAntiAliasing = cOpt_Game.SendMessage(og_Antialiasing, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+
+				// Mouse aiming
+				case og_MouseAiming:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bMouseAiming = cOpt_Game.SendMessage(og_MouseAiming, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 			}

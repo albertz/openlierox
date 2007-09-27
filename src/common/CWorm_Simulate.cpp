@@ -20,6 +20,7 @@
 #include "CWorm.h"
 #include "MathLib.h"
 #include "Entity.h"
+#include "CClient.h"
 
 
 ///////////////////
@@ -115,6 +116,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
     switch (iID) {
 
 	// If this is the first worm, let the user use the 1-5 keys for weapon shortcuts
+	// Also use mouse wheel to switch weapons and aim with mouse if this option is selected
 	case 0:  {
 			keyboard_t *kb = GetKeyboard();
 			for(int i = SDLK_1; i <= SDLK_5; i++ ) {
@@ -130,6 +132,45 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 			// Clamp the current weapon
 			iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
+			
+			mouse_t *ms = GetMouse();
+			if( ms->WheelScrollUp || ms->WheelScrollDown )
+			{
+				bForceWeapon_Name = true;
+				fForceWeapon_Time = tLX->fCurTime + 0.75f;
+				if( ms->WheelScrollUp ) 
+					iCurrentWeapon ++;
+				else 
+					iCurrentWeapon --;
+				if(iCurrentWeapon >= iNumWeaponSlots) 
+					iCurrentWeapon=0;
+				if(iCurrentWeapon < 0) 
+					iCurrentWeapon=iNumWeaponSlots-1;
+			};
+			
+			if( tLXOptions->bMouseAiming )
+			{
+				CViewport * vp = cClient->getViewports();
+				float dx = ms->X/2 - vPos.x + vp->GetWorldX() - vp->GetLeft()/2 ;
+				float dy = ms->Y/2 - vPos.y + vp->GetWorldY() - vp->GetTop()/2 ;
+				if( dx < 0 ) 
+				{
+					iStrafeDirection = DIR_LEFT;
+					dx = -dx;
+				}
+				else
+				{
+					iStrafeDirection = DIR_RIGHT;
+				};
+				fAngle = atan2f( dy, dx ) / M_PI * 180;
+				//printf( "dx %f dy %f fAngle %f vPos.x %f vPos.y %f vp->GetWorldX() %i vp->GetWorldY() %i\n", 
+				//		dx, dy, fAngle, vPos.x, vPos.y, vp->GetWorldX(), vp->GetWorldY() );
+			    if(fAngle>60)
+					fAngle = 60;
+			    if(fAngle<-90)
+					fAngle = -90;
+				//fAngleSpeed = 0;
+			};
 		}
 	break;
 
@@ -405,7 +446,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 		}
 	}
 
-	if(cStrafe.isDown())
+	if(cStrafe.isDown() || ( iID == 0 && tLXOptions->bMouseAiming ))
 		iDirection = iStrafeDirection;
 
 

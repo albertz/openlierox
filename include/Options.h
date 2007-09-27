@@ -185,6 +185,7 @@ public:
 	int		iAutoTyping;
 	std::string	sSkinPath;
 	bool	bAntiAliasing;
+	bool	bMouseAiming;
 
     // Advanced
     int     nMaxFPS;

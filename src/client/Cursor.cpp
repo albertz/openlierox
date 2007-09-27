@@ -28,7 +28,7 @@
 
 
 CCursor *tCurrentCursor = NULL;
-CCursor *tCursors[CURSOR_COUNT] = {NULL, NULL, NULL, NULL}; // TODO: any cursor_count independent way?
+CCursor *tCursors[CURSOR_COUNT] = {NULL, NULL, NULL, NULL, NULL}; // TODO: any cursor_count independent way?
 float fCursorFrameTime = 0.2f;
 
 int iMaxCursorWidth = 0;
@@ -45,6 +45,9 @@ bool InitializeCursors()
 	tCursors[CURSOR_HAND] = new CCursor("data/frontend/mouse_hand.png",CUR_ARROW);
 	tCursors[CURSOR_TEXT] = new CCursor("data/frontend/mouse_text.png",CUR_TEXT);
 	tCursors[CURSOR_RESIZE] = new CCursor("data/frontend/mouse_resize.png",CUR_SPLITTER);
+	tCursors[CURSOR_AIM] = new CCursor("data/frontend/mouse_aim.png",CUR_AIM); // TODO: draw new gfx
+	if( tCursors[CURSOR_AIM]->GetHeight() == 0 )
+		tCursors[CURSOR_AIM] = new CCursor("data/frontend/mouse.png",CUR_ARROW);
 
 	// Load the frame time from external config
 	ReadFloat("data/frontend/frontend.cfg","Cursors","FrameTime",&fCursorFrameTime,0.2f);

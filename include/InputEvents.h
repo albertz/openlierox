@@ -16,6 +16,7 @@
 
 
 #define     MAX_KEYQUEUE        32
+#define     MAX_MOUSEBUTTONS    8 // SDL_GetMouseState returns UInt8 bitmask
 
 
 class KeyboardEvent {
