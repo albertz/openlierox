@@ -16,6 +16,7 @@
 
 #include <stdarg.h>
 #include <vector>
+#include <sstream>
 
 #include "LieroX.h"
 #include "CClient.h"
@@ -31,6 +32,7 @@
 #ifdef DEBUG
 #include "MathLib.h"
 #endif
+#include "stun.h"
 
 
 
@@ -81,6 +83,7 @@ void GameServer::Clear(void)
 		tChallenges[i].fTime = 0;
 		tChallenges[i].iNum = 0;
 	}
+	ResetNetAddr( &tSTUNAddress );
 }
 
 
@@ -114,7 +117,60 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, tLX->debug_string);
 	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
-
+	
+	ResetNetAddr( &tSTUNAddress );
+	if( tLXOptions->sSTUNServer != "" && regserver )
+	{
+		try	// STUN server is not critical, so if it failed just proceed further
+		{
+			StunAtrString username;
+			StunAtrString password;
+			username.sizeValue = 0;
+			password.sizeValue = 0;
+			StunMessage req;
+			memset(&req, 0, sizeof(StunMessage));
+			stunBuildReqSimple( &req, username, false, false, 1 ); 
+			char buf[STUN_MAX_MESSAGE_SIZE];
+			int len = STUN_MAX_MESSAGE_SIZE;
+			len = stunEncodeMessage( req, buf, len, password, false );
+			ResetNetAddr( &addr );
+			std::string STUNServer = tLXOptions->sSTUNServer;
+			int STUNPort = STUN_PORT;
+			if( STUNServer.find(":") != std::string::npos )
+			{
+				STUNPort = atoi( STUNServer.substr( STUNServer.find(":")+1 ).c_str() );
+				STUNServer = STUNServer.substr( 0, STUNServer.find(":") );
+			};
+			if( !GetNetAddrFromName( STUNServer, &addr ) )	
+			{
+				throw std::string("Cannot resolve hostname ") + tLXOptions->sSTUNServer;
+			};
+			SetNetAddrPort( &addr, STUNPort );
+			SetRemoteNetAddr( tSocket, &addr );
+			WriteSocket( tSocket, buf, len );
+			int count = 20;	// 2 secs
+			while( ! isDataAvailable(tSocket) && --count > 0 )
+			{
+				SDL_Delay(100);
+				WriteSocket( tSocket, buf, len );
+			};
+			if( count <= 0 ) throw std::string("No responce from server");
+			len = ReadSocket( tSocket, buf, sizeof(buf) );
+			StunMessage resp;
+			memset(&resp, 0, sizeof(StunMessage));
+			if( ! stunParseMessage( buf, len, resp, false ) ) throw std::string("Wrong responce from server");
+			std::ostringstream os;
+			os << resp.mappedAddress.ipv4;
+			StringToNetAddr( os.str(), &tSTUNAddress );
+			std::string s;
+			NetAddrToString( &tSTUNAddress, s );
+			printf("HINT: STUN returned address: %s\n", s.c_str() );
+		}
+		catch( const std::string & s )
+		{
+			printf("HINT: STUN server failed: %s\n", s.c_str());
+		};
+	};
 
 	// Initialize the clients
 	cClients = new CClient[MAX_CLIENTS];
@@ -605,6 +661,11 @@ void GameServer::RegisterServer(void)
 	NetAddrToString(&addr, buf);
 
 	url = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	if( IsNetAddrValid( &tSTUNAddress ) )
+	{
+		NetAddrToString(&tSTUNAddress, buf);
+		url = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + buf;
+	};
 
     bServerRegistered = false;
 
@@ -698,6 +759,11 @@ bool GameServer::DeRegisterServer(void)
 	NetAddrToString(&addr, buf);
 
 	url = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	if( IsNetAddrValid( &tSTUNAddress ) )
+	{
+		NetAddrToString(&tSTUNAddress, buf);
+		url = std::string(LX_SVRDEREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + buf;
+	};
 
 	// Initialize the request
 	bServerRegistered = false;

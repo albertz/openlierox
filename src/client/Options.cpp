@@ -118,6 +118,7 @@ bool GameOptions::LoadFromDisc()
     ReadInteger(f, "Network", "Speed",      &iNetworkSpeed, NST_MODEM);
 	ReadKeyword(f, "Network", "UseIpToCountry", &bUseIpToCountry, true);
 	ReadKeyword(f, "Network", "LoadDbAtStartup", &bLoadDbAtStartup, false);
+    ReadString (f, "Network", "STUNServer", sSTUNServer, "stunserver.org");
 
     // Audio
     ReadKeyword(f, "Audio", "Enabled",      &iSoundOn, true);
@@ -264,6 +265,7 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "Speed = %d\n",     iNetworkSpeed);
 	fprintf(fp, "UseIpToCountry = %s\n",     bUseIpToCountry ? "true" : "false");
 	fprintf(fp, "LoadDbAtStartup = %s\n",    bLoadDbAtStartup ? "true" : "false");
+	fprintf(fp, "STUNServer = %s\n",    sSTUNServer.c_str() );
     fprintf(fp, "\n");
 
     fprintf(fp, "[Audio]\n");

@@ -198,7 +198,7 @@ int GetString(const std::string& filename, const std::string& section, const std
 	if(!config)
 		return false;
 
-	string="";
+	//string="";
 	curSection="";
 	temp="";
 	curKey="";

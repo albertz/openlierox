@@ -54,6 +54,7 @@ enum {
 	os_NetworkSpeed,
 	os_UseIpToCountry,
 	os_LoadDbAtStartup,
+	os_STUNServer,
 	os_ShowFPS,
 	os_OpenGL,
 	os_ShowPing,
@@ -243,17 +244,19 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
 	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->iSoundOn),   os_SoundOn, 170, 225, 17,17);
-	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 60, 245, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 165, 242, 110, 20);
+	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 225, 0,0);
+	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 222, 110, 20);
 
-	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 280, 0,0);
-	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 300, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 297, 100,tLX->cFont.GetHeight());
-	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,330, 0,0);
-	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 300, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,300,17,17);
-	cOpt_System.Add( new CLabel("Load Database at Startup",tLX->clNormalLabel),	Static, 330, 330, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bLoadDbAtStartup),  os_LoadDbAtStartup, 530,330,17,17);
+	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 260, 0,0);
+	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 280, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 277, 100,tLX->cFont.GetHeight());
+	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,310, 0,0);
+	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 280, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
+	cOpt_System.Add( new CLabel("Load Database at Startup",tLX->clNormalLabel),	Static, 330, 310, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bLoadDbAtStartup),  os_LoadDbAtStartup, 530,310,17,17);
+	cOpt_System.Add( new CLabel("STUN server",tLX->clNormalLabel),     Static, 60, 340, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_STUNServer, 170, 340, 130,tLX->cFont.GetHeight());
 
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
@@ -268,11 +271,12 @@ int Menu_OptionsInitialize(void)
 
 
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);
+	cOpt_System.SendMessage(os_STUNServer,TXM_SETMAX,256,0);
 
 	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
 
 	// Put the combo box after the other widgets to get around the problem with widget layering
-	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 327, 130,17);
+	cOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 307, 130,17);
 	cOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 383, 70,17);
 	cOpt_System.Add( new CCombobox(), os_ColourDepth, 275, 170, 145, 17); 
 
@@ -284,6 +288,8 @@ int Menu_OptionsInitialize(void)
 	t->setText( itoa(tLXOptions->iNetworkPort) );
 	t = (CTextbox *)(cOpt_System.getWidget(os_MaxFPS));
 	t->setText(itoa(tLXOptions->nMaxFPS));
+	t = (CTextbox *)cOpt_System.getWidget(os_STUNServer);
+	t->setText( tLXOptions->sSTUNServer.c_str() );
 
 	// Network speed
 	for(i=0; i<3; i++)
@@ -692,6 +698,8 @@ void Menu_OptionsFrame(void)
 		// Get the values
 		CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 		tLXOptions->iNetworkPort = atoi(t->getText());
+		t = (CTextbox *)cOpt_System.getWidget(os_STUNServer);
+		tLXOptions->sSTUNServer = t->getText();
 		t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
 		tLXOptions->nMaxFPS = MAX(1,atoi(t->getText()));
 

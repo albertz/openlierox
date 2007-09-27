@@ -151,6 +151,7 @@ private:
 	// Network
 	NetworkSocket	tSocket;
 	int				nPort;
+	NetworkAddr		tSTUNAddress;
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	game_lobby_t	tGameLobby;
 	CShootList		cShootList;

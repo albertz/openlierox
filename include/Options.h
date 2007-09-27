@@ -165,6 +165,7 @@ public:
 	float	fUpdatePeriod;
 	bool	bUseIpToCountry;
 	bool	bLoadDbAtStartup;
+	std::string	sSTUNServer;
 
 	// Audio
 	int		iSoundOn;

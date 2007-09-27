@@ -600,3 +600,31 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr* addr) {
 		return (nlGetAddrFromNameAsync(name.c_str(), NetworkAddrData(addr)) != NL_FALSE);
 	}
 }
+
+bool GetNetAddrFromName(const std::string& name, NetworkAddr* addr) {
+	if(addr == NULL)
+		return false;
+	else {
+		if(GetFromDnsCache( name, addr )) {
+			SetNetAddrValid( addr, true );
+			return true;
+		}
+		if( nlGetAddrFromName(name.c_str(), NetworkAddrData(addr)) != NL_FALSE )
+		{
+			AddToDnsCache( name, addr );
+			return true;
+		};
+		return false;
+	}
+}
+
+bool isDataAvailable(NetworkSocket sock)
+{
+	NLint group = nlGroupCreate();
+	nlGroupAddSocket( group, *NetworkSocketData(&sock) );
+	NLsocket sock_out[2];
+	int ret = nlPollGroup( group, NL_READ_STATUS, sock_out, 1, 0 );
+	nlGroupDestroy(group);
+	return ret > 0;
+};
+
