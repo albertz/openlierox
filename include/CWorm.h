@@ -192,6 +192,7 @@ private:
 	// Simulation
 	worm_state_t tState;
 	CVec		vPos;
+	CVec		vNextPos;
 	CVec		vOldPos;
 	CVec		vVelocity;
 	CVec		vLastPos;
@@ -204,6 +205,13 @@ private:
 	int			iKills;
 	int			iDeaths;
 	int			iSuicides;
+
+	int			iTotalWins;
+	int			iTotalLosses;
+	int			iTotalKills;
+	int			iTotalDeaths;
+	std::string	sAddressList;
+	std::string sAliasList;
 
 	// Game
 	float		fLoadingTime;
@@ -383,6 +391,8 @@ public:
 	int			GetMyPing(void);
 
 	void		setupLobby(void);
+	void		loadDetails(void);
+	void		saveDetails(void);
 
 
 	//
@@ -555,6 +565,9 @@ public:
 	inline CVec		getPos(void)				{ return vPos; }
 	inline void		setPos(CVec v)				{ vPos = v; }
 
+	inline CVec		getNextPos(void)				{ return vNextPos; }
+	inline void		setNextPos(CVec v)				{ vNextPos = v; }
+
 	inline CVec		*getVelocity(void)			{ return &vVelocity; }
 
 	inline worm_state_t *getWormState(void)		{ return &tState; }
@@ -630,6 +643,20 @@ public:
 	// TODO: the sense of this isn't clear; so make it clear
 	inline bool		getFlag(void)				{ return bFlag; }
 	inline void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
+
+	inline void		addTotalWins(int _w)		{ iTotalWins += _w; }
+	inline int		getTotalWins(void)			{ return iTotalWins; }
+	inline void		addTotalLosses(int _l)		{ iTotalLosses += _l; }
+	inline int		getTotalLosses(void)		{ return iTotalLosses; }
+	inline void		addTotalKills(int _k)		{ iTotalKills += _k; }
+	inline int		getTotalKills(void)			{ return iTotalKills; }
+	inline void		addTotalDeaths(int _d)		{ iTotalWins += _d; }
+	inline int		getTotalDeaths(void)		{ return iTotalDeaths; }
+
+	std::string		getAddresses(void)			{ return sAddressList; }
+	void			setAddresses(std::string _s){ sAddressList = _s; }
+	std::string		getAliases(void)			{ return sAliasList; }
+	void			setAliases(std::string _s)	{ sAliasList = _s; }
 };
 
 

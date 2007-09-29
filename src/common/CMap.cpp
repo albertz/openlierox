@@ -1035,6 +1035,9 @@ int CMap::CarveHole(int size, CVec pos)
 				calculateGridCell(i, j, true);
 	}
 
+	if(nNumDirt)
+		modified = true;
+
     return nNumDirt;
 }
 
@@ -1248,7 +1251,8 @@ int CMap::PlaceDirt(int size, CVec pos)
 		for(i = sx; i < sx + w + nGridWidth; i += nGridWidth)
 			calculateGridCell(i, j, false);
  
-
+	if(nDirtCount)
+		modified = true;
 
     return nDirtCount;
 }
@@ -1360,6 +1364,9 @@ int CMap::PlaceGreenDirt(CVec pos)
 			for(i = sx; i < sx + w + nGridWidth; i += nGridWidth)
 				calculateGridCell(i, j, false);
 	}
+
+	if(nGreenCount)
+		modified = true;
 
     return nGreenCount;
 }

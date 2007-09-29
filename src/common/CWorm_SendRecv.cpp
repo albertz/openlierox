@@ -90,9 +90,16 @@ void CWorm::readScore(CBytestream *bs)
 // Write a packet out
 void CWorm::writePacket(CBytestream *bs)
 {
-	short x = (short)vPos.x;
-	short y = (short)vPos.y;
-
+	short x, y;
+	// HINT: Using this position helps prevent shooting oneself under lag
+	if(iLocal) {
+		x = (short)vNextPos.x;
+		y = (short)vNextPos.y;
+	}
+	else {
+		x = (short)vPos.x;
+		y = (short)vPos.y;
+	}
 	// Note: This method of saving 1 byte in position, limits the map size to just under 4096x4096
 
 	// Position
@@ -145,6 +152,7 @@ void CWorm::updateCheckVariables()
 	tLastState = tState;
 	fLastAngle = fAngle;
 	fLastUpdateWritten = tLX->fCurTime;
+	iLastCurWeapon = iCurrentWeapon;
 	cNinjaRope.updateCheckVariables();
 }
 
@@ -177,6 +185,10 @@ bool CWorm::checkPacketNeeded()
 
 	// Flag
 	if(getFlag())
+		return true;
+
+	// Changed weapon
+	if(iLastCurWeapon != iCurrentWeapon)
 		return true;
 
 	// Rope

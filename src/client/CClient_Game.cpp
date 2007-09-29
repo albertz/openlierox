@@ -149,6 +149,12 @@ void CClient::Simulation(void)
 
 			// Simulate the worm
 			w->Simulate(cRemoteWorms, local, tLX->fDeltaTime);
+			
+			// Get the position the worm is likely to be in on the server
+			CVec oldpos = w->getPos();
+			w->Simulate(cRemoteWorms, local, iMyPing / 1000);
+			w->setNextPos(w->getPos());
+			w->setPos(oldpos);
 
 			if(iGameOver)
                 continue;
