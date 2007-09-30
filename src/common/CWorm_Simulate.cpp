@@ -162,7 +162,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				{
 					iStrafeDirection = DIR_RIGHT;
 				};
-				fAngle = atan2f( dy, dx ) / M_PI * 180;
+				fAngle = atan2f( dy, dx ) / PI * 180;
 				//printf( "dx %f dy %f fAngle %f vPos.x %f vPos.y %f vp->GetWorldX() %i vp->GetWorldY() %i\n", 
 				//		dx, dy, fAngle, vPos.x, vPos.y, vp->GetWorldX(), vp->GetWorldY() );
 			    if(fAngle>60)
