@@ -1084,6 +1084,9 @@ stunServerProcessMsg( char* buf,
                       bool verbose)
 {
     
+
+	int i = 0; // For some reason MSVC++6 doesn't want to compile if this is inside the for lop a bit down. 
+	// Complains on that it isn't initialized in "the default label"
    // set up information for default response 
 	
    memset( resp, 0 , sizeof(*resp) );
@@ -1205,7 +1208,7 @@ stunServerProcessMsg( char* buf,
 				
          // form the outgoing message
          resp->msgHdr.msgType = BindResponseMsg;
-         for ( int i=0; i<16; i++ )
+         for (i=0; i<16; i++ )
          {
             resp->msgHdr.id.octet[i] = req.msgHdr.id.octet[i];
          }

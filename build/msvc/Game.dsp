@@ -307,6 +307,14 @@ SOURCE=..\..\include\StringUtils.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\stun.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\stun.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\Timer.cpp
 # End Source File
 # Begin Source File
