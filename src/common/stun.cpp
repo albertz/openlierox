@@ -1084,10 +1084,6 @@ stunServerProcessMsg( char* buf,
                       bool verbose)
 {
     
-
-	int i = 0; // For some reason MSVC++6 doesn't want to compile if this is inside the for lop a bit down. 
-	// Complains on that it isn't initialized in "the default label"
-   // set up information for default response 
 	
    memset( resp, 0 , sizeof(*resp) );
 	
