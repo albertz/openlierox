@@ -1084,6 +1084,7 @@ stunServerProcessMsg( char* buf,
                       bool verbose)
 {
     
+   // set up information for default response 
 	
    memset( resp, 0 , sizeof(*resp) );
 	
