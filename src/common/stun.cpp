@@ -1208,10 +1208,11 @@ stunServerProcessMsg( char* buf,
 				
          // form the outgoing message
          resp->msgHdr.msgType = BindResponseMsg;
-         for (i=0; i<16; i++ )
-         {
-            resp->msgHdr.id.octet[i] = req.msgHdr.id.octet[i];
-         }
+         { 
+			for ( int i=0; i<16; i++ )	{
+				resp->msgHdr.id.octet[i] = req.msgHdr.id.octet[i];
+			}
+		 }
 		
          if ( req.xorOnly == false )
          {
