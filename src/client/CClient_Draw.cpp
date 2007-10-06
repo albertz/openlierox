@@ -1641,12 +1641,17 @@ void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fg
 // Draw the local chat
 void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 {
+	if (cChatbox.getNumLines() == 0)
+		return;
+
 	int y = tInterfaceSettings.LocalChatY;
-	lines_riterator it = cChatbox.RBegin();
+	lines_iterator it = cChatbox.End();
+	it--;
 
-	for(byte i = 0; i < 6 && it != cChatbox.REnd(); i++, it++) { } // Last 6 messages
+	for(byte i = 0; i < 6 && it != cChatbox.Begin(); i++, it++) { } // Last 6 messages
 
-	for (; it != cChatbox.RBegin(); it--)  {  // Draw in reverse order
+	// Draw the lines of text
+	for (; it != cChatbox.End(); it++)  {
 
 		// This chat times out after a few seconds
 		if(tLX->fCurTime - it->fTime < 3.0f) {

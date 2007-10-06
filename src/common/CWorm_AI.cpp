@@ -15,6 +15,8 @@
 // Dark Charlie
 // Albert Zeyer
 
+// TODO: cleanup!!!
+
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
 #endif
@@ -1046,7 +1048,6 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
             NEW_AI_MoveToTarget();
             break;
     }
-
 }
 
 
@@ -3068,21 +3069,28 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, float 
 ///////////////////
 // Trace a line from this worm to the target
 // Returns the distance the trace went
-int CWorm::traceLine(CVec target, float *fDist, int *nType, int divs)
+int CWorm::traceLine(CVec target, float *fDist, int *nType, int divs)  {
+	int res =  traceLine(target, vPos, nType, divs);
+	if (fDist && res) *fDist = (int)(vPos - target).GetLength() / res;
+	return res;
+}
+
+int CWorm::traceLine(CVec target, CVec start, int *nType, int divs, uchar checkflag)
 {
     assert( pcMap );
 
     // Trace a line from the worm to length or until it hits something
-	CVec    pos = vPos;
-	CVec    dir = target-pos;
-    int     nTotalLength = (int)NormalizeVector(&dir);
+	CVec pos = start;
+	CVec dir = target-pos;
+    int nTotalLength = (int)NormalizeVector(&dir);
 
 	int divisions = divs;			// How many pixels we go through each check (more = slower)
 
 	if( nTotalLength < divisions)
 		divisions = nTotalLength;
 
-    *nType = PX_EMPTY;
+	if (nType)
+		*nType = PX_EMPTY;
 
 	// Make sure we have at least 1 division
 	divisions = MAX(divisions,1);
@@ -3092,24 +3100,15 @@ int CWorm::traceLine(CVec target, float *fDist, int *nType, int divs)
 		uchar px = pcMap->GetPixelFlag( (int)pos.x, (int)pos.y );
 		//pcMap->PutImagePixel((int)pos.x, (int)pos.y, MakeColour(255,0,0));
 
-        if((px & PX_DIRT) || (px & PX_ROCK)) {
-        	if(nTotalLength != 0)
-            	*fDist = (float)i / (float)nTotalLength;
-            else
-            	*fDist = 0;
-            *nType = px;
+        if(!(px & checkflag)) {
+			if (nType)
+				*nType = px;
             return i;
         }
 
         pos = pos + dir * (float)divisions;
     }
 
-
-    // Full length
-	if(nTotalLength != 0)
-		*fDist = (float)i / (float)nTotalLength;
-	else
-		*fDist = 0;
     return nTotalLength;
 }
 
@@ -3525,6 +3524,8 @@ int CWorm::NEW_AI_CreatePath(bool force_break)
 {
 
 	CVec trg = AI_GetTargetPos();
+	if (psAITarget && nAITargetType == AIT_WORM)
+		trg = NEW_AI_FindShootingSpot();  // If our target is an enemy, go to the best spot for shooting
 
 	if(force_break) {
 		bPathFinished = false;
@@ -4633,6 +4634,78 @@ void CWorm::NEW_AI_MoveToTarget()
     }
 */
 
+}
+
+void drawpoint(SDL_Surface *debug_surf, CVec point)
+{
+	DrawRectFill(debug_surf, (int)point.x * 2, (int)point.y * 2, (int)point.x * 2 + 4, (int)point.y * 2 + 4, MakeColour(0, 255, 0));
+}
+
+///////////////////////
+// Returns coordinates of a point that is best for shooting the target
+CVec CWorm::NEW_AI_FindShootingSpot()
+{
+	if (psAITarget == NULL)
+		return CVec(0,0);
+
+	// If the worm is not on ground, we cannot hit him with a napalm-like weapon (napalm, blaster etc.)
+	bool have_straight = false;
+	bool have_falling = false;
+	bool have_flying = false;
+
+	// Check what weapons we have
+	for (int i=0; i < 5; i++)  {
+		if (tWeapons[i].Weapon->Projectile)  {
+			// Get the gravity
+			int gravity = 100;  // Default
+			if (tWeapons[i].Weapon->Projectile->UseCustomGravity)
+				gravity = tWeapons[i].Weapon->Projectile->Gravity;
+
+			// Change the flags according to the gravity
+			if (gravity >= 5)
+				have_falling = true;
+			else if (gravity >= -5)
+				have_straight = true;
+			else
+				have_flying = true;
+		}
+	}
+
+	float upper_bound = 0;
+	float lower_bound = 0;
+
+	// Falling projectiles, we have to get above a bit
+	if (have_falling || (have_straight && psAITarget->CheckOnGround()))  {
+		lower_bound = (float)PI/2;
+		upper_bound = 3 * (float)PI/2;
+
+	// Flying straight
+	} else if (have_straight)  {
+		lower_bound = 0;
+		upper_bound = 2 * (float)PI;
+
+	// Flying up
+	} else {
+		lower_bound = (float)-PI/2;
+		upper_bound = (float)PI/2;
+	}
+
+
+	// Check a best-distance upper half circle around the target
+	CVec possible_pos;
+	for (float j=lower_bound; j <= upper_bound; j += 0.3f)  {
+		possible_pos.x = (float) (40.0f * sin(j)) + psAITarget->getPos().x;
+		possible_pos.y = (float) (40.0f * cos(j)) + psAITarget->getPos().y;
+		//PutPixel(pcMap->GetDebugImage(), possible_pos.x * 2, possible_pos.y * 2, MakeColour(255, 0, 0));
+
+		if (NEW_AI_IsInAir(possible_pos, 1) && traceLine(possible_pos, psAITarget->getPos(), NULL) >= 40)  {
+			//drawpoint(pcMap->GetDebugImage(), possible_pos);
+			return possible_pos;
+		}
+	}
+
+	// Not found
+	return psAITarget->getPos();
 }
 
 NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n) {

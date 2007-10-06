@@ -486,6 +486,7 @@ public:
 
     CWorm       *findTarget(int gametype, int teamgame, int taggame);
     int         traceLine(CVec target, float *fDist, int *nType, int divs = 5);
+	int			traceLine(CVec target, CVec start, int *nType, int divs = 5, uchar checkflag = PX_EMPTY);
 	int			traceWeaponLine(CVec target, float *fDist, int *nType);
 	bool		weaponCanHit(int gravity,float speed, CVec cTrgPos);
 	bool		IsEmpty(int Cell);
@@ -499,8 +500,8 @@ public:
 	CVec		NEW_AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint);
 	int			NEW_AI_CreatePath(bool force_break = false);
 	void		NEW_AI_MoveToTarget();
-	void		NEW_AI_MoveToTargetDC();
 	CVec		NEW_AI_GetNearestRopeSpot(CVec trg);
+	CVec		NEW_AI_FindShootingSpot();
 #ifdef _AI_DEBUG
 	void		NEW_AI_DrawPath();
 #endif
