@@ -268,7 +268,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
 	int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
 	static const int WORM_CHECKSTEP = 2; // this is used for worm collisions
-	int len = (int)fSpeed;  // HINT: use default speed instead of current one - fast flying napalms etc. will not go through wall then
+	int len = (int)vVelocity.GetLength2();
+	
 	if (len < 14000)  {
 		MIN_CHECKSTEP = 1;
 		MAX_CHECKSTEP = 3;

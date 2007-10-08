@@ -1645,13 +1645,13 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 		return;
 
 	int y = tInterfaceSettings.LocalChatY;
-	lines_iterator it = cChatbox.End();
+	lines_riterator it = cChatbox.RBegin();
 	it--;
 
-	for(byte i = 0; i < 6 && it != cChatbox.Begin(); i++, it++) { } // Last 6 messages
+	for(byte i = 0; i < 6 && it != cChatbox.REnd(); i++, it++) { } // Last 6 messages
 
 	// Draw the lines of text
-	for (; it != cChatbox.End(); it++)  {
+	for (it--; it != cChatbox.RBegin(); it--)  {
 
 		// This chat times out after a few seconds
 		if(tLX->fCurTime - it->fTime < 3.0f) {
