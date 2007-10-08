@@ -151,8 +151,8 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			if( tLXOptions->bMouseAiming )
 			{
 				CViewport * vp = cClient->getViewports();
-				float dx = ms->X/2 - vPos.x + vp->GetWorldX() - vp->GetLeft()/2 ;
-				float dy = ms->Y/2 - vPos.y + vp->GetWorldY() - vp->GetTop()/2 ;
+				int dx = (int)(ms->X/2 - vPos.x + vp->GetWorldX() - vp->GetLeft()/2);	// Int because Laser Sight will tremble otherwise
+				int dy = (int)(ms->Y/2 - vPos.y + vp->GetWorldY() - vp->GetTop()/2);
 				if( dx < 0 ) 
 				{
 					iStrafeDirection = DIR_LEFT;
@@ -163,8 +163,66 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 					iStrafeDirection = DIR_RIGHT;
 				};
 				fAngle = atan2f( dy, dx ) / PI * 180;
-				//printf( "dx %f dy %f fAngle %f vPos.x %f vPos.y %f vp->GetWorldX() %i vp->GetWorldY() %i\n", 
-				//		dx, dy, fAngle, vPos.x, vPos.y, vp->GetWorldX(), vp->GetWorldY() );
+
+				// Tune down mouse aiming to shut up oldskoolerz - drunken hands tremble
+				// Tremble is finetuned by following values
+				const float fMouseTrembleAngleMax = 15;						// Degrees
+				const float fMouseTrembleAngleDecay = 0.6;					// Degrees/second
+				const float fMouseTrembleSpeedImpulse = 3.0;				// Degrees/second
+				const float fMouseTrembleSpeedAggression = 0.01;			// 1/Pixels (probably)
+				const float fMouseTrembleSpeedWormMoveAggression = 0.0005;	// 1/Pixels (probably)
+				const float fMouseTrembleSpeedDecay = 1.0;					// Degrees/second
+				const float fMouseTrembleTimeMax = 0.3;						// Seconds till next tremble
+				
+				float fCloseToWorm = 1.0;
+				if( fabs(dx) + fabs(dy) < 150 ) fCloseToWorm *= 1.4;
+				if( fabs(dx) + fabs(dy) < 100 ) fCloseToWorm *= 1.4;
+				if( fabs(dx) + fabs(dy) < 50 ) fCloseToWorm *= 1.4;
+				fMouseTrembleSpeed += ( fabs(ms->deltaX) + fabs(ms->deltaY) ) * fMouseTrembleSpeedAggression * fCloseToWorm;
+				fMouseTrembleSpeed += (fabs(vVelocity.x) + fabs(vVelocity.y)) * fMouseTrembleSpeedWormMoveAggression;
+				fMouseTrembleSpeed -= fMouseTrembleSpeedDecay * dt;
+				if( fMouseTrembleSpeed > 1.0 ) fMouseTrembleSpeed = 1.0;
+				if( fMouseTrembleSpeed < 0 ) fMouseTrembleSpeed = 0;
+				float curtime = GetMilliSeconds();
+				if( fabs(curtime - fMouseTrembleLastTime) > fMouseTrembleTimeMax || GetRandomNum() > 0.99 )
+				{
+					// Time to tremble
+					fMouseTrembleLastTime = curtime;
+					fMouseTrembleSpeedDirection = 1;
+					if( GetRandomNum() > 0 )	fMouseTrembleSpeedDirection = -1;
+				};
+				if( fabs(curtime - fMouseTrembleLastTime) < fMouseTrembleTimeMax / 5.0 )
+				{
+					// Tremble impulse
+					fMouseTrembleAngle += fMouseTrembleSpeedImpulse * fMouseTrembleSpeed * fMouseTrembleSpeedDirection;
+				}
+				else
+				{
+					// Tremble decay
+					if( fabs(fMouseTrembleAngle) > fMouseTrembleAngleDecay )
+					{
+						fMouseTrembleAngle -= fMouseTrembleAngleDecay * fMouseTrembleAngle / fabs(fMouseTrembleAngle) * 
+												( fabs(fMouseTrembleAngle) / fMouseTrembleAngleMax + 0.5 );
+					}
+					else
+					{
+						fMouseTrembleAngle = 0;
+					};
+				};
+				if( fabs(fMouseTrembleAngle) > fMouseTrembleAngleMax )
+				{ 
+					fMouseTrembleAngle = fMouseTrembleAngleMax * fMouseTrembleAngle / fabs(fMouseTrembleAngle);
+				};
+				
+				if( dx < 0 ) 
+				{
+					fAngle -= fMouseTrembleAngle;
+				}
+				else 
+				{
+					fAngle += fMouseTrembleAngle;
+				};
+
 			    if(fAngle>60)
 					fAngle = 60;
 			    if(fAngle<-90)
@@ -259,7 +317,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	// Calculate dir
 	dir.x=( (float)cos(fAngle * (PI/180)) );
 	dir.y=( (float)sin(fAngle * (PI/180)) );
-	if(iDirection==DIR_LEFT)
+	if( iStrafeDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
 		dir.x=(-dir.x);
 
 	int oldskool = tLXOptions->iOldSkoolRope;
