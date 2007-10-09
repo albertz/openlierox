@@ -117,7 +117,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, tLX->debug_string);
 	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
-	
+
 	ResetNetAddr( &tSTUNAddress );
 	if( tLXOptions->sSTUNServer != "" /* && regserver */ )
 	{
@@ -197,7 +197,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		return false;
 	}
 
-	// In zee lobby
+	// In the lobby
 	iState = SVS_LOBBY;
 
 	// Setup the register so it happens on the first frame
@@ -489,15 +489,14 @@ void GameServer::BeginMatch(void)
 
 	iLastVictim = -1;
 
-	for(i=0;i<4;i++)
-		iFlagHolder[i] = -1;
+	for(i=0;i<MAX_WORMS;i++) 
+		iFlagHolders[i] = -1;
 
 	// Setup the flag worms
 	for(i=0;i<MAX_WORMS;i++) {
 		if(!cWorms[i].getFlag())
 			continue;
-		CWorm *worm = cClient->getRemoteWorms() + cWorms[i].getID();
-		worm->setFlag(true);
+		(cClient->getRemoteWorms() + cWorms[i].getID())->setFlag(true);
 	}
 }
 
@@ -661,6 +660,7 @@ void GameServer::RegisterServer(void)
 	NetAddrToString(&addr, buf);
 
 	url = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	std::string url2 = std::string(LX_SVRREG) + "?port=" + itoa(23401) + "&addr=" + buf;
 	if( IsNetAddrValid( &tSTUNAddress ) )
 	{
 		NetAddrToString(&tSTUNAddress, buf);
@@ -683,6 +683,7 @@ void GameServer::RegisterServer(void)
 		TrimSpaces(buf);
 		if(buf != "") {
 			tHttp.RequestData(buf + url);
+//			tHttp.RequestData(buf + url2);
             break;
 		}
 	}
@@ -960,8 +961,9 @@ void GameServer::DropClient(CClient *cl, int reason, std::string sReason)
             // Kicked
             case CLL_KICK:
 				replacemax(networkTexts->sHasBeenKickedReason,"<player>", cl->getWorm(i)->getName(), buf, 1);
-				replacemax(buf,"<reason>", sReason, buf, 1);
-				replacemax(buf,"you", "they", buf, 1);
+				replacemax(buf,"<reason>", sReason, buf, 5);
+				replacemax(buf,"your", "their", buf, 5);
+				replacemax(buf,"you", "they", buf, 5);
                 replacemax(networkTexts->sKickedYouReason,"<reason>",sReason, cl_msg, 1);
                 break;
 

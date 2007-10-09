@@ -116,8 +116,8 @@ private:
 
 	bool		bTournament;
 
-	int			iFlagHolder [4]; // TODO: what is this for? what does the magic const 4 mean?
-	float		fLastFlagPoint; // TODO: what is this for? why isn't it a CVec?
+	int			iFlagHolders [MAX_WORMS];	// The ID of which worm holds each flag (an array for if Team CTF is made)
+	float		fLastCTFScore;				// The last time someone scored in CTF (for when the map doesn't have a base)
 
 	// Special messages
 	bool		bFirstBlood;	// True if no-one has been killed yet
@@ -190,6 +190,8 @@ public:
 	void		SpawnWorm(CWorm *Worm);
 	void		SpawnWorm(CWorm *Worm, CVec pos, CClient *cl);
 	void		SimulateGame(void);
+	// TODO: Give this a better name (I couldn't think of what to call it)
+	void		SimulateGameSpecial();
 	CVec		FindSpot(void);
 	void		SpawnBonus(void);
 	void		WormShoot(CWorm *w);
@@ -260,7 +262,7 @@ public:
 	void		ParseGetChallenge(void);
 	void		ParseConnect(CBytestream *bs);
 	void		ParsePing(void);
-	void		ParseQuery(CBytestream *bs);
+	void		ParseQuery(CBytestream *bs, const std::string& ip);
     void        ParseGetInfo(void);
 	void		ParseWantsJoin(CBytestream *bs, const std::string& ip);
 
@@ -281,8 +283,10 @@ public:
 	inline CHttp *getHttp()  { return &tHttp; }
 	
 	// TODO: change the name of these functions; the sense should be clear
-	inline int		getFlag(int team)			{ return iFlagHolder[team]; }
-	inline void		setFlag(int _f, int team)	{ iFlagHolder[team] = _f; }
+	inline int		getFlagHolder(int _w)			{ return iFlagHolders[_w]; }
+	inline void		setFlagHolder(int _f, int _w)	{ iFlagHolders[_w] = _f; }
+
+	inline int		getNumPlayers(void)			{ return iNumPlayers; }
 };
 
 extern	GameServer		*cServer;

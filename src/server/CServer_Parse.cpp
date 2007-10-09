@@ -22,6 +22,7 @@
 #include "StringUtils.h"
 #include "CWorm.h"
 #include "Protocol.h"
+#include "ConfigHandler.h"
 
 
 /*
@@ -345,9 +346,9 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	}
 
 	// If the flag was attached to the dead worm then release the flag
-	for(int j=0;j<2;j++)
-	if(getFlag(j) == victim && (iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
-		setFlag(-1, j);
+	for(int j=0;j<MAX_WORMS;j++)
+		if(getFlagHolder(j) == victim && (iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
+			setFlagHolder(-1, j);
 
 	// Log
 	if (log_vict)
@@ -775,7 +776,7 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& i
 	else if (cmd == "lx::ping")
 		ParsePing();
 	else if (cmd == "lx::query")
-		ParseQuery(bs);
+		ParseQuery(bs, ip);
 	else if (cmd == "lx::getinfo")
 		ParseGetInfo();
 	else if (cmd == "lx::wantsjoin")
@@ -1056,6 +1057,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];
 		int i;
+		int id;
 		for (i = 0;i < numworms;i++) {
 
 			w = cWorms;
@@ -1065,6 +1067,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 				*w = worms[i];
 				w->setID(p);
+				id = p;
 				w->setClient(newcl);
 				w->setUsed(true);
 				w->setupLobby();
@@ -1193,9 +1196,63 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				// Send the welcome message
 				SendGlobalText(OldLxCompatibleString(replacemax(buf, "<player>", worms[i].getName(), 1)),
 								TXT_NETWORK);
-			}
+			} 
 		}
 
+		// Address
+		static std::string str_addr;
+		NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
+		// Remove port
+		size_t pos = str_addr.rfind(':');
+		if (pos != std::string::npos)
+			str_addr.erase(pos);
+
+		// Load Player Details
+		std::string f = "netplay/" + str_addr + ".dat";
+		int aliascount = 0;
+		ReadInteger(f, "Player", "Nicks", &aliascount, 0);
+		// Setup the default settings if the player is new
+		if(aliascount == 0) {
+			FILE *fp = OpenGameFile(f, "wt");
+			fprintf(fp, "[Player]\n");
+			fprintf(fp, "Nicks = 1\n");
+			fprintf(fp, "Nick 0 = %s", worms[0].getName().c_str());
+			fclose(fp);
+		}
+		else {
+			bool newnick = true;
+			std::string curnick;
+			std::list<std::string> nicks;
+			std::list<std::string>::iterator nick_it;
+			for(i=0;i<aliascount;i++) {
+				ReadString(f, "Player", "Nick "+itoa(i), curnick, "");
+				if(!stringcasecmp(curnick, worms[0].getName()))
+					newnick = false;
+				nicks.push_back(curnick);
+			}
+			buf = replacemax("<player> is also known as: ", "<player>", worms[0].getName(), 1);
+			for(nick_it=nicks.begin();nick_it != nicks.end();nick_it++)
+				if(stringcasecmp(*nick_it, worms[0].getName()))
+					buf = buf + *nick_it + ", ";
+			buf.erase(buf.length()-2);
+			if(aliascount+newnick > 1 && stringcasecmp(str_addr, "127.0.0.1"))
+				SendGlobalText(OldLxCompatibleString(buf), TXT_NETWORK);
+			if(newnick) {
+				FILE *fp = OpenGameFile(f, "wt");
+				fprintf(fp, "[Player]\n");
+				fprintf(fp, "Nicks = %d\n", aliascount+1);
+				for(i=0,nick_it=nicks.begin();nick_it!=nicks.end(),i<aliascount;i++,nick_it++)
+					fprintf(fp, "Nick %d = %s\n", i, (*nick_it).c_str());
+				fprintf(fp, "Nick %d = %s\n", i, worms[0].getName().c_str());
+				fclose(fp);
+			}
+
+			// If the worm has more than 5 names, ban it
+			if(aliascount>5) {
+				banWorm(id);
+				SendGlobalText(worms[0].getName()+" had too many nicks", TXT_NETWORK);
+			}
+		}
 
 		// Tell the client the game lobby details
 		// Note: This sends a packet to ALL clients, not just the new client
@@ -1258,7 +1315,7 @@ void GameServer::ParseWantsJoin(CBytestream *bs, const std::string& ip) {
 
 ///////////////////
 // Parse a query packet
-void GameServer::ParseQuery(CBytestream *bs) {
+void GameServer::ParseQuery(CBytestream *bs, const std::string& ip) {
 	static CBytestream bytestr;
 
 	int num = bs->readByte();
@@ -1267,7 +1324,14 @@ void GameServer::ParseQuery(CBytestream *bs) {
 	bytestr.writeInt(-1, 4);
 	bytestr.writeString("lx::queryreturn");
 
-	bytestr.writeString(OldLxCompatibleString(sName));
+	// Get Port
+	size_t pos = ip.rfind(':');
+	if (pos != std::string::npos)
+		ip.substr(pos);
+	if(ip == "23401")
+		bytestr.writeString(OldLxCompatibleString(sName+" (private)"));
+	else
+		bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
 	bytestr.writeByte(iState);

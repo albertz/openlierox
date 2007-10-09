@@ -100,22 +100,6 @@ void CClient::Simulation(void)
 
 	// Generate the flag worms
 	w = cRemoteWorms;
-	CWorm *f[2];
-	int flags = 0;
-
-
-	if(tGameInfo.iGameType < GME_JOIN && cServer) {
-		f[0] = cServer->getWorms();
-
-		// WARNING: If there is more than 2 flags the game will crash
-		for(i=0;i<MAX_WORMS;i++,f[flags]++) 
-			if(f[flags]->isUsed() && f[flags]->getFlag()) {
-				flags++;
-				f[flags]=cServer->getWorms()+i;
-				if(flags==2)
-					break;
-			}
-	}
 
 	// Player simulation
 	w = cRemoteWorms;
@@ -209,24 +193,6 @@ void CClient::Simulation(void)
 		// In a game of tag, increment the tagged worms time
 		if(iGameType == GMT_TAG && w->getTagIT())
 			w->incrementTagTime(tLX->fDeltaTime);
-
-		// Check if in within 10 pixels of the flag, and attach the flag if it is not already attached to someone
-		if(tGameInfo.iGameType < GME_JOIN && cServer && w->getAlive() && !w->getFlag()) 
-			for(int j=0;j<flags;j++) {
-				CWorm *lw = &cRemoteWorms[f[j]->getID()];
-				if(CalculateDistance(w->getPos(),lw->getPos()) < 10 && cServer->getFlag(j) == -1) 
-					cServer->setFlag(w->getID(),j);
-			}
-
-		// Reposition the flag if it is attached to someone
-		if(tGameInfo.iGameType < GME_JOIN && cServer) 
-			for(int j=0;j<flags;j++) {
-				if(w->getID() == cServer->getFlag(j)) {
-				/*	f[j]->setPos(w->getPos());*/
-					CWorm *lw = cRemoteWorms + f[j]->getID();
-					lw->setPos(w->getPos());
-				}
-			}
 	}
 
 	// Entities
