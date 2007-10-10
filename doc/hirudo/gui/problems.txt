@@ -1,0 +1,3 @@
+Current problems:
+When one widget needs to be repainted, whole screen has to be updated, all widgets
+Too complicated event handling
