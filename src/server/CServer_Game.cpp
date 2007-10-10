@@ -981,7 +981,8 @@ void GameServer::SimulateGameSpecial()
 			std::list<CWorm*>::iterator flagworm;
 
 			// Get the flags
-			for(int i = 0; i < MAX_WORMS; i++, w++) {
+			int i = 0;
+			for(; i < MAX_WORMS; i++, w++) {
 				if(!w->isUsed())
 					continue;
 				if(!w->getFlag())
