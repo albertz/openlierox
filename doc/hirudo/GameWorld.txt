@@ -1,0 +1,8 @@
+The representation of the game-world including the map and all game-objects inside. Probably there are many independent representations of the world to have better performance for multi-threading. For example the physics-engine will have at least have its own presentation which it changes very often in a single frame.
+
+The presentation includes mainly the map and all the game-objects. There is also a static part of each game-object which will be seperated from the presentation (to avoid unnecessary double information which could be easily shared). These static parts are called the GameDescriptionObjects.
+
+These GameDescriptionObject describes how a special object acts like and what it is in generaly (for example a player, a particel or whatever). These GameDescriptionObjects are described for LX by the gamescript. In every case, these objects are static. Many modules will have references to them and read them at the same time (inside different threads).
+
+Then there are GameObjects. These will have a reference to the GameDescriptionObject which describes only the behavior of the object. These GameObjects also have in addition the dynamic information like location in the map and the special state and whatever (for example a player will also have properties for health and weapons etc.). These properties will change all the time.
+

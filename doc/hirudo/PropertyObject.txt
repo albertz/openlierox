@@ -1,0 +1,46 @@
+These objects are for saving any properties/settings of a (sub)module.
+For example the cfg/options.cfg is read and saved in this structure.
+
+Examples:
+	skin = "skins/bla.png"
+	( -> new PropertyObject with name "skin" and of type PO_TEXT )
+	mouse-aim = false
+	( -> new PropertyObject with name "mouse-aim" and of type PO_BOOLEAN )
+
+There are also links to other properties possible. Example:
+	server-dissalow-mouse-aim = mouse-aim
+	( -> that means, the value of this property is always the same as the property mouse-aim )
+
+
+
+// some pseudo-code
+
+enum PropertyObjectType {
+	PO_NULL, // if this==null
+	PO_INTEGER,
+	PO_FLOAT,
+	PO_BOOLEAN,
+	PO_TEXT, // string
+	PO_COLLECTION, // a collection of some objects (it will be a map with the name as the keywords)
+	PO_LINK, // this is a link to another object
+}
+
+class PropertyObject {
+protected:
+	PropertyObjectType type;
+	std::string name;
+public:
+	const std::string& getName();
+	PropertyObjectType getType();
+	PropertyObject* getRealObject(); // if it's a link, it returns the linked object, else this
+}
+
+class PropertyLink : protected PropertyObject {
+protected:
+	HObject* object;
+public:
+	HObject* getLinkedObject();
+}
+
+class PropertyFloat, PropertyInteger, ... // as you can imagine
+

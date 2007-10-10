@@ -1,0 +1,34 @@
+The message bus is for handling message streams from different inputs to different outputs. The idea is that each module sends messages to a message bus and other modules receives them. By this design you can easily add new modules on the fly and also replace one. For example you can have different physics-engines which can be replaced by each other (depending on the game-style). Or the same with graphics-engines. Or you even can run two graphics-engines at the same time. Or you could easily add a game-recorder. The same with different networking-systems. Another important and big advantage by this is that each module can be run in parallel (so you can use multi-threading). Or an even better advantage is that we have the choice later which modules should be run parallely and which serially.
+
+A message bus itself should also act like a module because it will also have a thread and have a similar interface to a module.
+
+In the end there will be some message busses at the same time. They functionality will also probably differ a bit.
+For example when the main message bus receives every 20ms an update by the physics-engine then this is perhaps to much information for the network. So you a buffer between, which collects the data (in a time-range of let's say 100ms) and compresses them (for example if a game-object moves several times, it can be saved as only one message describing only one move). Then it sends these compressed data with a frequency of 10Hz to the network engine (or perhaps other engines which don't need an update that often).
+You can also do it the other way around. For example the physics-engine will probably do many small steps in one frame. All the changes in this step can be collected and be compressed in the end.
+(A compression like this can be done very easily and very efficient.)
+
+
+
+Output-filters are also possible. (For example the sound-engine only wants to know about events which produces a sound.) These filters keeps the data-exchange on a low level (because it's not good when all engines would always get all messages by each other).
+
+
+
+{ Not so important, but when needed this could also be implemented:
+If wanted there can also be a register-method which connects a special message-type with a module. And if another module wants to register for this special message-type then t will be prevented from doing this.
+For example you would get some trouble if there are two physics-engines working at the same time and providing you with different modifications of the game-world. }
+
+
+
+Implementation of the interface (multi-threaded aware):
+
+Let A and B be a list and x and y a boolean. A and B contain the list of messages and x and y describe if the side is ready or not (ready for new data).
+	bus: A, x
+	i/o: B, y
+Each side (or in most cases it will be only one side) can check now if the other side is ready and in the case (A,x) can be swapped with (B,y):
+	bus: B, y
+	i/o: A, x
+While swapping, the ready-flag should be set to false again.
+
+A technic would be nice that the other thread can be awaken again after this swap. If this is possible then after the other side marked the flag that it is waiting for new messages it could fall into sleep.
+
+

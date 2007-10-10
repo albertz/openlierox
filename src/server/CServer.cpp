@@ -651,16 +651,13 @@ void GameServer::SendPackets(void)
 void GameServer::RegisterServer(void)
 {
 	// Create the url
-	static std::string url;
-	static std::string buf;
-
+	std::string buf;
 	NetworkAddr addr;
 
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
-	url = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
-	std::string url2 = std::string(LX_SVRREG) + "?port=" + itoa(23401) + "&addr=" + buf;
+	std::string url = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
 	if( IsNetAddrValid( &tSTUNAddress ) )
 	{
 		NetAddrToString(&tSTUNAddress, buf);
@@ -683,7 +680,6 @@ void GameServer::RegisterServer(void)
 		TrimSpaces(buf);
 		if(buf != "") {
 			tHttp.RequestData(buf + url);
-//			tHttp.RequestData(buf + url2);
             break;
 		}
 	}

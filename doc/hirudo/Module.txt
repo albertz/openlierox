@@ -1,0 +1,4 @@
+Each part of the game is packed in an own module. For example the graphics-engine, the game-logic and the physics-engine, the sound-system and the networking-system are all seperated modules which communicates over some common message busses (see for more information in MessageBus.txt).
+
+
+

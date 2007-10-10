@@ -1,0 +1,6 @@
+- How to load files likes the maps, gameobjects, etc.? Should this be a module and done via messages? Or better a seperate system for all gamedata?
+
+- Where to hold all configurations? A special SettingsModule? Or should each engine save them by its own? Or both?
+
+- A list of all kinds of messages needs to be done.
+

@@ -1,0 +1,4 @@
+The modules manager mainly manages all the modules and their interactions. It also manages the multiple threads. So you can define with the modules manager which modules should be run in parallel and which serial.
+
+It is itself a module and can receive control messages.
+

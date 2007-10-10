@@ -1,0 +1,51 @@
+Here is an overview over the main base modules and how they are connected to each other in a normal environment. (The arangenment for this is done by the ModulesManager.)
+
+
+Main engines (remember, there could be later similar engines like this with same functionality which can replace other engines or extend the whole system):
+
+gfx: graphics engine
+sdlevents: all events we get from SDL (keyboard, mouse, gamepad events, etc.)
+input: reads rawinput and prepares messages for the game logic (for example: move player N to left; player N shoots)
+sfx: sounds engine
+phy: physics engine (which calculates the movings and crashes etc.)
+logic: game logic (controls the player, for example changes their acceleration in a direction or creates a shoot or controls special behavoir of a GameObject described by a GameDescriptionObject)
+net: networking system
+
+
+Other:
+
+mdm: module manager
+phy_world: world representation for physic and logic
+
+Message Busses:
+
+main_bus: the main bus for gfx, logic, input, sfx, phy, net
+input_bus: bus for all rawinput-events
+phy_bus: special bus for physic events which will be compressed
+
+
+
+
+
+Connections:
+
+main_bus outputs: gfx, logic, sfx, phy, net, 
+main_bus inputs: input, phy_bus, net
+input_bus outputs: main_bus
+input_bus inputs: sdlevents
+phy_bus outputs: main_bus
+phy_bus inputs: logic, phy
+
+
+
+Threads:
+
+phy_thread: get, phy_world, logic, loop(phy, phy_bus)
+input_thread: sdlevents, input_bus, input
+net_thread: ...
+sfx_thread: ...
+gfx_thread: ...
+mainbus_thread: ...
+mdm_thread: ...
+
+
