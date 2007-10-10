@@ -1,5 +1,6 @@
 TODO
 
+[ ] Unify tLXOptions.tGameInfo & the other classes into one.
 [ ] register on all servers in the masterserverlist
 [ ] why were some of the default-levels changed in the repo? (!!)
 [ ] recode whole CTF code (!!)

@@ -138,18 +138,20 @@ public:
 	cb_item_t* getItem(int index);
 	int		getItemsCount();
 	cb_item_t* getItem(const std::string& name);
+	cb_item_t* getSIndexItem(const std::string& sIndex);
 	void	setCurItem(int index);
 	void	setCurItem(cb_item_t *it);
     void    setCurSIndexItem(const std::string& szString);
     void    setCurIndexItem(int nIndex);
 	void	setImage(SDL_Surface *img, int ItemIndex);
+	int		getSelectedIndex();
 	int		getDropped(void) { return iDropped; }
-	int		getSelectedIndex(void);
 	void	setSorted(bool _s)  { bSorted = _s; }
 	bool	getSorted()	{ return bSorted; }
 	void	setUnique(bool _u)  { bUnique = _u; }
 	bool	getUnique()			{ return bUnique; }
 	cb_item_t *getLastItem()	{ return tLastItem; }
+
 };
 
 

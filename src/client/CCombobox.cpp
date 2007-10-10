@@ -796,9 +796,10 @@ void CCombobox::setImage(SDL_Surface *img, int ItemIndex)
 ///////////////////
 // Clear the data
 void CCombobox::clear(void)
-{
+{	
     Destroy();
     Create();
+	
 }
 
 
@@ -829,10 +830,20 @@ cb_item_t* CCombobox::getItem(const std::string& name) {
 	return NULL;
 }
 
-////////////
-// Get index if the selected item
-int CCombobox::getSelectedIndex()  {
-	int result = 0;
-	for (cb_item_t *i = tItems; i && i != tSelected; i=i->tNext,result++) {};
-	return result;
+/////////////
+// Get the item based on its string index
+cb_item_t* CCombobox::getSIndexItem(const std::string& sIndex) {
+	for(cb_item_t* i = tItems; i; i = i->tNext) {
+		if(stringcasecmp(i->sIndex,sIndex) == 0)
+			return i;
+	}
+	return NULL;
 }
+
+int CCombobox::getSelectedIndex() 
+{ 
+	if (tSelected)
+		return tSelected->iIndex; 
+	return iItemCount; // Return the last itemID, just like we did before
+}
+

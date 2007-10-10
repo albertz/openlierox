@@ -523,6 +523,8 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.Shutdown();
 	cHostLobby.Initialize();
 
+	game_lobby_t *gl = cServer->getLobby();
+
 	cHostLobby.Add( new CButton(BUT_LEAVE, tMenu->bmpButtons),hl_Back,	15,  450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),hl_Start,	560, 450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);
@@ -553,16 +555,19 @@ void Menu_Net_HostLobbyCreateGui(void)
 
 	// Fill in the mod list
 	Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
+	CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
+	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
 
 	// Fill in the levels list
 	Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
+	CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
+	cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameinfo.sMapFilename));
 	Menu_HostShowMinimap();
 
     // Don't show chat box selection
     CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
     lv->setShowSelect(false);
 
-    game_lobby_t *gl = cServer->getLobby();
     cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &gl->szMapName, 0);
     cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURNAME, &gl->szModName, 0);
     cHostLobby.SendMessage(hl_ModName,	 CBS_GETCURSINDEX, &gl->szModDir, 0);
@@ -732,21 +737,23 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	if (bActivated)  {
 
 		// Get the mod name
-		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
+		CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
+		cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
 		if(it)
 			tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
+		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
+
+
 
 		// Fill in the levels list
 		cHostLobby.SendMessage(hl_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-		std::string oldmap = tLXOptions->tGameinfo.sMapFilename;
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 
-		// Redraw the minimap if the level has changed
-		if (stringcasecmp(oldmap, tLXOptions->tGameinfo.sMapFilename))
-			Menu_HostShowMinimap();
+		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
+		cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameinfo.sMapFilename));
 	}
 
 
