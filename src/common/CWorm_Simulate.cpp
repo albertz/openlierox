@@ -166,18 +166,18 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 				// Tune down mouse aiming to shut up oldskoolerz - drunken hands tremble
 				// Tremble is finetuned by following values
-				const float fMouseTrembleAngleMax = 15;						// Degrees
-				const float fMouseTrembleAngleDecay = 0.6;					// Degrees/second
-				const float fMouseTrembleSpeedImpulse = 3.0;				// Degrees/second
-				const float fMouseTrembleSpeedAggression = 0.01;			// 1/Pixels (probably)
-				const float fMouseTrembleSpeedWormMoveAggression = 0.0005;	// 1/Pixels (probably)
-				const float fMouseTrembleSpeedDecay = 1.0;					// Degrees/second
-				const float fMouseTrembleTimeMax = 0.3;						// Seconds till next tremble
+				const float fMouseTrembleAngleMax = 15.0f;					// Degrees
+				const float fMouseTrembleAngleDecay = 0.6f;					// Degrees/second
+				const float fMouseTrembleSpeedImpulse = 3.0f;				// Degrees/second
+				const float fMouseTrembleSpeedAggression = 0.01f;			// 1/Pixels (probably)
+				const float fMouseTrembleSpeedWormMoveAggression = 0.0005f;	// 1/Pixels (probably)
+				const float fMouseTrembleSpeedDecay = 1.0f;					// Degrees/second
+				const float fMouseTrembleTimeMax = 0.3f;					// Seconds till next tremble
 				
 				float fCloseToWorm = 1.0;
-				if( fabs(dx) + fabs(dy) < 150 ) fCloseToWorm *= 1.4;
-				if( fabs(dx) + fabs(dy) < 100 ) fCloseToWorm *= 1.4;
-				if( fabs(dx) + fabs(dy) < 50 ) fCloseToWorm *= 1.4;
+				if( fabs(dx) + fabs(dy) < 150 ) fCloseToWorm *= 1.4f;
+				if( fabs(dx) + fabs(dy) < 100 ) fCloseToWorm *= 1.4f;
+				if( fabs(dx) + fabs(dy) < 50 ) fCloseToWorm *= 1.4f;
 				fMouseTrembleSpeed += ( fabs(ms->deltaX) + fabs(ms->deltaY) ) * fMouseTrembleSpeedAggression * fCloseToWorm;
 				fMouseTrembleSpeed += (fabs(vVelocity.x) + fabs(vVelocity.y)) * fMouseTrembleSpeedWormMoveAggression;
 				fMouseTrembleSpeed -= fMouseTrembleSpeedDecay * dt;

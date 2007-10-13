@@ -363,10 +363,13 @@ const std::string& http_GetContent(void)
  * HawkNL Network wrapper
  *
  */
+bool bNetworkInited = false;
 
 /////////////////////
 // Initializes network
 bool InitNetworkSystem() {
+	bNetworkInited = false;
+
     if(!nlInit()) {
     	SystemError("nlInit failed");
     	return false;
@@ -377,6 +380,7 @@ bool InitNetworkSystem() {
 		return false;
     }
 	
+	bNetworkInited = true;
 	return true;
 }
 
@@ -384,6 +388,7 @@ bool InitNetworkSystem() {
 // Shutdowns the network system
 bool QuitNetworkSystem() {
 	nlShutdown();
+	bNetworkInited = false;
 	return true;
 }
 
@@ -487,6 +492,15 @@ const std::string GetSocketErrorStr(int errnr) {
 
 bool IsMessageEndSocketErrorNr(int errnr) {
 	return (errnr == NL_MESSAGE_END);
+}
+
+void ResetSocketError()  {
+	if (!bNetworkInited)
+		return;
+
+	// Init a new instance and then shut it down (a bit dirty but there's no other way to do it)
+	nlInit();
+	nlShutdown();
 }
 
 bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr) {

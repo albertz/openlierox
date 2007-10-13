@@ -620,7 +620,10 @@ void Menu_Net_NETUpdateList(void)
             // Parse the list if the request was successful
             if (http_result == HTTP_PROC_FINISHED) {
 		        Menu_Net_NETParseList(http);
-				break;
+
+				// Other master servers could have more server so we process them anyway
+				SentRequest = false;
+				CurServer++;
 			} else if (http_result == HTTP_PROC_ERROR || (tLX->fCurTime - senttime) >= 5.0f)  {
 				if (http.GetError().iError != HTTP_NO_ERROR)
             		printf("HTTP ERROR: " + http.GetError().sErrorMsg + "\n");

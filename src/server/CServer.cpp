@@ -84,6 +84,9 @@ void GameServer::Clear(void)
 		tChallenges[i].iNum = 0;
 	}
 	ResetNetAddr( &tSTUNAddress );
+
+	tMasterServers.clear();
+	tCurrentMasterServer = tMasterServers.begin();
 }
 
 
@@ -199,6 +202,24 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 	// In the lobby
 	iState = SVS_LOBBY;
+
+	// Load the master server list
+    FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
+    if( !fp )
+        return false;
+
+    // Parse the lines
+    while(!feof(fp)) {
+		std::string buf = ReadUntil(fp);
+        TrimSpaces(buf);
+        if(buf.size() > 0) {
+			tMasterServers.push_back(buf);
+        }
+    }
+	tCurrentMasterServer = tMasterServers.begin();
+
+	fclose(fp);
+
 
 	// Setup the register so it happens on the first frame
 	bServerRegistered = true;
@@ -650,6 +671,9 @@ void GameServer::SendPackets(void)
 // Register the server
 void GameServer::RegisterServer(void)
 {
+	if (tMasterServers.size() == 0)
+		return;
+
 	// Create the url
 	std::string buf;
 	NetworkAddr addr;
@@ -657,34 +681,19 @@ void GameServer::RegisterServer(void)
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
-	std::string url = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
 	if( IsNetAddrValid( &tSTUNAddress ) )
 	{
 		NetAddrToString(&tSTUNAddress, buf);
-		url = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + buf;
+		sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + buf;
 	};
 
     bServerRegistered = false;
 
-    // Get the first server from the master server list
-    FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
-    if( !fp ) {
-        bRegServer = false;
-        notifyLog("Could not register with master server: 'Could not open master server file'");
-        return;
-    }
-
-    // Find the first line
-	while( !feof(fp) ) {
-		buf = ReadUntil(fp);
-		TrimSpaces(buf);
-		if(buf != "") {
-			tHttp.RequestData(buf + url);
-            break;
-		}
-	}
-
-    fclose(fp);
+	// Start with the first server
+	printf("Registering server at " + *tCurrentMasterServer + "\n");
+	tCurrentMasterServer = tMasterServers.begin();
+	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
 }
 
 
@@ -694,7 +703,7 @@ void GameServer::ProcessRegister(void)
 {
     static std::string szError;
 
-	if(!bRegServer || bServerRegistered)
+	if(!bRegServer || bServerRegistered || tMasterServers.size() == 0)
 		return;
 
 	int result = tHttp.ProcessRequest();
@@ -706,16 +715,26 @@ void GameServer::ProcessRegister(void)
 
 	// Failed
 	case HTTP_PROC_ERROR:
-		bRegServer = false;
 		notifyLog("Could not register with master server: %s", tHttp.GetError().sErrorMsg.c_str());
     break;
 
 	// Completed ok
 	case HTTP_PROC_FINISHED:
-		bServerRegistered = true;
 		fLastRegister = tLX->fCurTime;
 	break;
 	}
+
+	// Server failed or finished, anyway, go on
+	tCurrentMasterServer++;
+	if (tCurrentMasterServer != tMasterServers.end())  {
+		printf("Registering server at " + *tCurrentMasterServer + "\n");
+		tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
+	} else {
+		// All servers are processed
+		bServerRegistered = true;
+		tCurrentMasterServer = tMasterServers.begin();
+	}
+
 }
 
 
@@ -743,11 +762,10 @@ void GameServer::CheckRegister(void)
 bool GameServer::DeRegisterServer(void)
 {
 	// If we aren't registered, or we didn't try to register, just leave
-	if( !bRegServer || !bServerRegistered )
+	if( !bRegServer || !bServerRegistered || tMasterServers.size() == 0)
 		return false;
 
 	// Create the url
-	static std::string url;
 	static std::string buf;
 
 	NetworkAddr addr;
@@ -755,32 +773,22 @@ bool GameServer::DeRegisterServer(void)
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, buf);
 
-	url = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	// Stun server
+	sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
 	if( IsNetAddrValid( &tSTUNAddress ) )
 	{
 		NetAddrToString(&tSTUNAddress, buf);
-		url = std::string(LX_SVRDEREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + buf;
-	};
+		sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + buf;
+	}
 
 	// Initialize the request
 	bServerRegistered = false;
 
-	// Get the first server from the master server list
-    FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
-    if( !fp )
-        return false;
+	// Start with the first server
+	printf("De-registering server at " + *tCurrentMasterServer + "\n");
+	tCurrentMasterServer = tMasterServers.begin();
+	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
 
-    // Find the first line
-    while( !feof(fp) ) {
-    	buf = ReadUntil(fp);
-        TrimSpaces(buf);
-        if(buf != "") {
-			tHttp.RequestData(buf + url);
-			break;
-        }
-    }
-
-    fclose(fp);
     return true;
 }
 
@@ -789,7 +797,21 @@ bool GameServer::DeRegisterServer(void)
 // Process the de-registering of the server
 bool GameServer::ProcessDeRegister(void)
 {
-	return tHttp.ProcessRequest() != 0;
+	if (tHttp.ProcessRequest() != HTTP_PROC_PROCESSING)  {
+
+		// Process the next server (if any)
+		tCurrentMasterServer++;
+		if (tCurrentMasterServer != tMasterServers.end())  {
+			printf("De-registering server at " + *tCurrentMasterServer + "\n");
+			tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl);
+			return false;
+		} else {
+			tCurrentMasterServer = tMasterServers.begin();
+			return true;  // No more servers, we finished
+		}
+	}
+
+	return false;
 }
 
 

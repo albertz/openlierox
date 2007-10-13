@@ -75,6 +75,7 @@ void	InvalidateSocketState(NetworkSocket& sock);
 int		GetSocketErrorNr();
 const std::string	GetSocketErrorStr(int errnr);
 bool	IsMessageEndSocketErrorNr(int errnr);
+void	ResetSocketError();
 
 bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr);
 bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr* addr);

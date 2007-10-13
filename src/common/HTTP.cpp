@@ -72,7 +72,8 @@ bool CChunkParser::ParseNext(char c)
 
 			// End?
 			if (iCurLength == 0)  {  // 0-length chunk = end of the chunk message
-				iNextState = CHPAR_SKIPBLANK; // Not needed, but if someone continued calling us, this is what we should do
+				iState = CHPAR_SKIPBLANK; // Not needed, but if someone continued calling us, this is what we should do
+				iNextState = CHPAR_FOOTERREAD;
 				return true;  // Finished!
 			}
 
@@ -108,6 +109,12 @@ bool CChunkParser::ParseNext(char c)
 			ParseNext(c);  // Parse the non-blank character
 		}
 	return false;  // Still processing
+
+	// Process the footer
+	case CHPAR_FOOTERREAD:
+		// We currently have no interest in footers
+		return false;
+
 	}
 
 	return false;  // Should not happen
@@ -177,6 +184,7 @@ void CHttp::Clear()
 	InvalidateSocketState(tSocket);
 	if (tChunkParser)
 		tChunkParser->Reset();
+	ResetSocketError();  // To prevent quitting when previous request failed
 }
 
 ///////////////
@@ -403,12 +411,14 @@ std::string CHttp::GetPropertyFromHeader(const std::string& prop)
 void CHttp::ParseChunks()
 {
 	// Parse the chunks
-	std::string::iterator chunk_it = sData.begin();
-	for (; chunk_it != sData.end(); chunk_it++)
-		if (tChunkParser->ParseNext(*chunk_it))  {
-			bTransferFinished = true;
-			break;  // Finished!
-		}
+	if (!bTransferFinished)  {
+		std::string::iterator chunk_it = sData.begin();
+		for (; chunk_it != sData.end(); chunk_it++)
+			if (tChunkParser->ParseNext(*chunk_it))  {
+				bTransferFinished = true;
+				break;  // Finished!
+			}
+	}
 
 	// Remove the parsed data
 	sData = "";
@@ -500,6 +510,13 @@ int CHttp::ProcessRequest()
 	if(!IsNetAddrValid(&tRemoteIP)) {
         float f = GetMilliSeconds();
 
+		// Error
+		if (GetSocketErrorNr() != 0)  {
+			SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
+			tError.sErrorMsg += " (" + GetSocketErrorStr(GetSocketErrorNr()) + ")";
+			return HTTP_PROC_ERROR;
+		}
+
         // Timed out?
         if(f - fResolveTime > DNS_TIMEOUT) {
             SetHttpError(HTTP_DNS_TIMEOUT);
@@ -561,8 +578,18 @@ int CHttp::ProcessRequest()
 
 	// Check if we have a response
 	int count = 0;
-	if (tBuffer != NULL)
-		count = ReadSocket(tSocket, tBuffer, sizeof(tBuffer));
+	if (tBuffer != NULL)  {
+		while (true)  {
+			count = ReadSocket(tSocket, tBuffer, sizeof(tBuffer));
+			if (count <= 0)
+				break;
+
+			// Got some data
+			sData.append(tBuffer, count);
+			iDataReceived += count;
+			ProcessData();
+		}
+	}
 	
 	// Error, or end of connection?
 	if(count < 0) {
@@ -578,13 +605,6 @@ int CHttp::ProcessRequest()
 			tError.sErrorMsg += GetSocketErrorStr(err);
 			return HTTP_PROC_ERROR;
 		}
-	}
-
-	// Got some data
-	if(count > 0)  {
-		sData.append(tBuffer, count);
-		iDataReceived += count;
-		ProcessData();
 	}
 
 	// Transfer fininshed (can get here if chunk message end happened)

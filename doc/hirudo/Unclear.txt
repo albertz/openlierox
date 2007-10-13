@@ -4,3 +4,5 @@
 
 - A list of all kinds of messages needs to be done.
 
+- Won't so many threads hit the performance? Won't it be hard to synchronize them?
+

@@ -163,6 +163,9 @@ private:
 	bool		bRegServer;	
 	int			bServerRegistered;
 	float		fLastRegister;
+	std::string sCurrentUrl;
+	std::list<std::string>::iterator	tCurrentMasterServer;
+	std::list<std::string>				tMasterServers;
 
 public:
 	// Methods
