@@ -1,4 +1,7 @@
 Each part of the game is packed in an own module. For example the graphics-engine, the game-logic and the physics-engine, the sound-system and the networking-system are all seperated modules which communicates over some common message busses (see for more information in MessageBus.txt).
 
+The loaded modules and their execution will be managed by the ModulesManager.
+
+Each module have an module-ID in the game (which describes in general what it does; for example if it is a gfx, sfx, ... or something other). Then it will have an unique ID which desribes exactly which engine is there behind (example: perhaps it will be necessary to check from another module if there is the default physic-engine running and if so then we can get some extra information by it). And the module also have a small description-text.
 
 

@@ -4,5 +4,12 @@
 
 - A list of all kinds of messages needs to be done.
 
-- Won't so many threads hit the performance? Won't it be hard to synchronize them?
+- Won't so many threads hit the performance?
+Imagine you have some completly seperated tasks A, B and C (which all have the same calc-time). In the worst scenario, a parallel execution of A, B and C will be exactly take the same calculation-time than a serial execution of them. In the best scenario, the whole calculation of all of them in parallel will only take the time like if you calculate only one of them.
+All current operating systems are very good in multi-tasking and the future development of the hardware will only be an increase of the amount of CPUs, not in the speed of the CPUs. At the moment already almost all newer PCs have more than one CPU or at least the CPU has some special technics to improve the execution of processes in parallel.
+Also, with this design and the ModulesManager, we can easily switch between the calculation in parallel and in serial. See ModulesManager.txt for further information.
+
+- Won't it be hard to synchronize the threads?
+All the communication via the threads is done over the message bus (or over different message busses). That is the onliest point where you need synchronisation. And this also can be done very fast. See MessageBus.txt for further information.
+
 

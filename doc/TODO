@@ -2,8 +2,17 @@ TODO
 
 [ ] Unify tLXOptions.tGameInfo & the other classes into one. (!!)
 [X] register on all servers in the masterserverlist
-[X] why were some of the default-levels changed in the repo? (!!)
-    - CTF enhancements
+[ ] why were some of the default-levels changed in the repo? (!!)
+	The changes were done for CTF enhancements, but why was a change
+	in the maps needed for a new game-type? I still don't know
+	what changes are made there. Are that the locations for the flags?
+	Or what else? Why is there no comment? And if it only include
+	the locations why not save them in seperate files?
+	( Perhaps same filename but with different file-extension. )
+	( See the problem which we have by this: Perhaps later with a better
+	network-engine we will check by a MD5-check of the map or so if the
+	maps are equal everywhere to prevent cheeting. So a change of the
+	map-file if it is still the same map should be avoided. )
 [ ] recode whole CTF code (!!)
 [ ] more options for the bots, for example restricted weapons or special behavior
 [ ] restrict weapon settings depending on worm character

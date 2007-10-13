@@ -2,5 +2,5 @@ Mostly every unit/engine of the game is encapsulated in an own module. Each modu
 
 Look at MessageBus.txt and Module.txt for further information.
 
-Some yet unclear things (or also some TODOs) are in Unclear.txt.
+Some unclear things, some TODOs and some general FAQs (with answers) are in Unclear.txt.
 

@@ -2,3 +2,17 @@ The modules manager mainly manages all the modules and their interactions. It al
 
 It is itself a module and can receive control messages.
 
+The threading-management:
+For example, if you have modules M1, M2, M3, M4, M5. You can now define how they are executed. For example you can say that you have 3 threads:
+	T1: M1, M3
+	T2: M2, M4
+	T3: M5
+Or with 2 threads like this:
+	T1: M1, M3, M4
+	T2: M2, M5
+Or only one thread:
+	T1: M1, M2, M3, M4, M5
+You also can define the order of the execution. For example with 2 threads, you can also define this:
+	T1: M3, M4, M1
+	T2: M5, M2
+

@@ -1,0 +1,7 @@
+Remember: Everything is abstract, so there can be different bots at the same time in the game. This only describes one possibility to implement bot (this will probably be the main implementation).
+
+There is a BotInfoManager (a module) which calculates some common information for the bots. For example, this module provides the necessary information for doing pathfinding. It also will probably provide one or more pathfinding-algorithms. It will calculate the needed information for the pathfinding (a graph of the map; this graph will be calculates by the current method of LX, that means with rectangles overlappings for the map) after the initialisation the module. { Perhaps it also will remember for some searchpoints the best ways (caching). But I am not sure if this is needed; it's probably already fast enough. }
+
+Then there are some bots in the game. These bots can access the BotInfoManager. Each bot will have its own module running. (It will of course also be possible that other implementation of the bots access this BotInfoManger.)
+
+
