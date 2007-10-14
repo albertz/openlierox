@@ -1,0 +1,6 @@
+The MapProvider is a module which loads a map from disk and sends it as a MapUpdate-message into the message bus.
+
+All other engines will receive then this message and even the network clients will receive it (what means that it is not necessary in general for the clients to have the maps on their local disk). Perhaps we can check before sending all this data with a filename and a MD5-check if the client already have the map on the disk (so we can save some network-traffic). And also in the case he don't have the map the client can save it on their disk for later use.
+
+{ I think a good compression format for the maps would be png. Perhaps the maps should be compressed with PNG before sending them over network. }
+

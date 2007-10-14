@@ -10,6 +10,7 @@ sfx: sounds engine
 phy: physics engine (which calculates the movings and crashes etc.)
 logic: game logic (controls the player, for example changes their acceleration in a direction or creates a shoot or controls special behavoir of a GameObject described by a GameDescriptionObject)
 net: networking system
+maps: map provider (which loads maps from disk and provide them to the game)
 
 
 Other:

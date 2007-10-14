@@ -1,6 +1,7 @@
 Mostly every unit/engine of the game is encapsulated in an own module. Each module are communicating with each other over some message busses.
 
 Look at MessageBus.txt and Module.txt for further information.
+Look also at ModulesOverview.txt for an overview over the main modules (that means, how they interact and how the whole game works).
 
 Some unclear things, some TODOs and some general FAQs (with answers) are in Unclear.txt.
 

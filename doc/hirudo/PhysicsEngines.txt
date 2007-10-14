@@ -1,0 +1,13 @@
+There will be 3 physic-implementation for now.
+1. LieroX
+2. old Liero
+3. new, more correct physic-emulation
+
+For LieroX, we should take the code of some of the older revisions because the current code is already a bit too diferent from the original LieroX code (because we have corrected something already there and later included some hacks to make it more like LX). We should take one of the first revisions and add there the patches for FPS-independend physic, but not more.
+
+For old Liero, this could be a realy good base for the implementation:
+OpenLiero - http://open.liero.be/ (a rewrite from scratch which aims to be exactly like the old Liero)
+
+For new physics I don't have made that much thoughts yet. We can look a bit around for other physic-engines but I thing they don't fit good into the game because they are probably always vector-based and not pixel-based. I think the easiest would be to implement a new one from scratch. Newton-physic isn't that complicated.
+
+

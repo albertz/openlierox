@@ -1,0 +1,7 @@
+I think OpenTNL would be a good choice for the new protocol.
+( -> http://opentnl.sourceforge.net/doxydocs/simpletutorial.html )
+
+We should also think about preventing sending unnecassary information. For example the clients will probably do also the physic-simulation theirself (which is needed to provide a smoother game-feeling for them). Then they could send sort of a checksum over the physics-world and if this is to different from the correct one they will get an update.
+
+After the game-start the network engine will inform the clients about the current configuration of the server (for example: which physic-engine is used).
+
