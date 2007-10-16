@@ -463,12 +463,6 @@ void CClient::Draw(SDL_Surface *bmpDest)
 					cLocalWorms[i]->writeWeapons(bytes);
 			}
 		}
-		
-		if( tLXOptions->bMouseAiming )
-		{
-			SetGameCursor( CURSOR_AIM );
-			DrawCursor( bmpDest );
-		};
 	}
 
 	// DEBUG

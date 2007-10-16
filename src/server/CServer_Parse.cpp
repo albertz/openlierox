@@ -1099,6 +1099,14 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.writeString("lx::openbeta4");
 		bytestr.Send(tSocket);
 
+		if (tLXOptions->bAllowMouseAiming)
+		{
+			bytestr.Clear();
+			bytestr.writeInt(-1, 4);
+			bytestr.writeString("lx:mouseAllowed");
+			bytestr.Send(tSocket);
+		}
+
 
 		newcl->getChannel()->Create(&adrFrom, Port, tSocket);
 		newcl->setLastReceived(tLX->fCurTime);

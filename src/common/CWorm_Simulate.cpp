@@ -39,7 +39,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	worm_state_t *ws = &tState;
 
 	// Temp thing
-	// TODO: Try out mouse input for a 3rd worm
+	// TODO: Try out mouse input for a 3rd worm. Not needed no more? We got mouse for player 1.
 	//getMouseInput();
 	//return;
 
@@ -50,33 +50,35 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	ws->iShoot = false;
 	ws->iJump = false;
 
-
-	// Up
-	if(cUp.isDown()) {
-        fAngleSpeed -= 500 * dt;
-		//fAngle -= wd->AngleSpeed * dt;
-    } else
-
-	// Down
-	if(cDown.isDown()) {
-        fAngleSpeed += 500 * dt;
-		//fAngle += wd->AngleSpeed * dt;
-    } else {
-        fAngleSpeed = MIN(fAngleSpeed,(float)100);
-        fAngleSpeed = MAX(fAngleSpeed,(float)-100);
-        if( fAngleSpeed > 0 )
-            fAngleSpeed -= 200*dt;
-        else if( fAngleSpeed < 0 )
-            fAngleSpeed += 200*dt;
-        if( fabs(fAngleSpeed) < 5 )
-            fAngleSpeed = 0;
-    }
-
-    fAngle += fAngleSpeed * dt;
-    if(fAngle>60)
-		fAngle = 60;
-    if(fAngle<-90)
-		fAngle = -90;
+	if (!tLXOptions->bMouseAiming || !cOwner->getHostAllowsMouse() )
+	{
+		// Up
+		if(cUp.isDown()) {
+			fAngleSpeed -= 500 * dt;
+			//fAngle -= wd->AngleSpeed * dt;
+		} else
+			
+			// Down
+			if(cDown.isDown()) {
+				fAngleSpeed += 500 * dt;
+				//fAngle += wd->AngleSpeed * dt;
+			} else {
+				fAngleSpeed = MIN(fAngleSpeed,(float)100);
+				fAngleSpeed = MAX(fAngleSpeed,(float)-100);
+				if( fAngleSpeed > 0 )
+					fAngleSpeed -= 200*dt;
+				else if( fAngleSpeed < 0 )
+					fAngleSpeed += 200*dt;
+				if( fabs(fAngleSpeed) < 5 )
+					fAngleSpeed = 0;
+			}
+			
+			fAngle += fAngleSpeed * dt;
+			if(fAngle>60)
+				fAngle = 60;
+			if(fAngle<-90)
+				fAngle = -90;
+	}
 
 	if(!cRight.isDown())
 		iCarving &= ~1;
@@ -148,10 +150,12 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 					iCurrentWeapon=iNumWeaponSlots-1;
 			};
 			
-			if( tLXOptions->bMouseAiming )
+			if( tLXOptions->bMouseAiming && cOwner->getHostAllowsMouse() )
 			{
+				int iAngleDifference = ms->Y - iLastMousePos;
+				// (ms->Y * 180/480 -90) - (int)fAngle
 				CViewport * vp = cClient->getViewports();
-				int dx = (int)(ms->X/2 - vPos.x + vp->GetWorldX() - vp->GetLeft()/2);	// Int because Laser Sight will tremble otherwise
+				int dx = (int)(ms->X/2 - vPos.x + vp->GetWorldX() - vp->GetLeft()/2);	// TODO: Is there any reason to remove the (int)?
 				int dy = (int)(ms->Y/2 - vPos.y + vp->GetWorldY() - vp->GetTop()/2);
 				if( dx < 0 ) 
 				{
@@ -162,66 +166,43 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				{
 					iStrafeDirection = DIR_RIGHT;
 				};
-				fAngle = atan2f( dy, dx ) / PI * 180;
 
-				// Tune down mouse aiming to shut up oldskoolerz - drunken hands tremble
-				// Tremble is finetuned by following values
-				const float fMouseTrembleAngleMax = 15.0f;					// Degrees
-				const float fMouseTrembleAngleDecay = 0.6f;					// Degrees/second
-				const float fMouseTrembleSpeedImpulse = 3.0f;				// Degrees/second
-				const float fMouseTrembleSpeedAggression = 0.01f;			// 1/Pixels (probably)
-				const float fMouseTrembleSpeedWormMoveAggression = 0.0005f;	// 1/Pixels (probably)
-				const float fMouseTrembleSpeedDecay = 1.0f;					// Degrees/second
-				const float fMouseTrembleTimeMax = 0.3f;					// Seconds till next tremble
-				
-				float fCloseToWorm = 1.0;
-				if( fabs(dx) + fabs(dy) < 150 ) fCloseToWorm *= 1.4f;
-				if( fabs(dx) + fabs(dy) < 100 ) fCloseToWorm *= 1.4f;
-				if( fabs(dx) + fabs(dy) < 50 ) fCloseToWorm *= 1.4f;
-				fMouseTrembleSpeed += ( fabs(ms->deltaX) + fabs(ms->deltaY) ) * fMouseTrembleSpeedAggression * fCloseToWorm;
-				fMouseTrembleSpeed += (fabs(vVelocity.x) + fabs(vVelocity.y)) * fMouseTrembleSpeedWormMoveAggression;
-				fMouseTrembleSpeed -= fMouseTrembleSpeedDecay * dt;
-				if( fMouseTrembleSpeed > 1.0 ) fMouseTrembleSpeed = 1.0;
-				if( fMouseTrembleSpeed < 0 ) fMouseTrembleSpeed = 0;
-				float curtime = GetMilliSeconds();
-				if( fabs(curtime - fMouseTrembleLastTime) > fMouseTrembleTimeMax || GetRandomNum() > 0.99 )
-				{
-					// Time to tremble
-					fMouseTrembleLastTime = curtime;
-					fMouseTrembleSpeedDirection = 1;
-					if( GetRandomNum() > 0 )	fMouseTrembleSpeedDirection = -1;
-				};
-				if( fabs(curtime - fMouseTrembleLastTime) < fMouseTrembleTimeMax / 5.0 )
-				{
-					// Tremble impulse
-					fMouseTrembleAngle += fMouseTrembleSpeedImpulse * fMouseTrembleSpeed * fMouseTrembleSpeedDirection;
-				}
+				//printf("Thing:%d\n",(dy * 180)/vp->GetVirtH());
+				//printf("Thing2:%d Thing3:%d Thing4:%f\n",ms->Y,dy,((float)ms->Y * 180/vp->GetVirtH()) -90);
+				//printf("fAngle:%f Angle:%d VirtH:%d\n",fAngle,(int)fAngle,vp->GetVirtH());
+
+				if (iAngleDifference > 0)
+					fAngleSpeed += 500 * dt;
+				else if (iAngleDifference < 0)
+					fAngleSpeed -= 500 * dt;
 				else
 				{
-					// Tremble decay
-					if( fabs(fMouseTrembleAngle) > fMouseTrembleAngleDecay )
+					if (floor((double)((ms->Y * 180)/vp->GetVirtH() -90) > floor((double)fAngle)))
+						fAngleSpeed += 300*dt;
+					else if (floor((double)((ms->Y * 180)/vp->GetVirtH() -90) < floor((double)fAngle)))
+						fAngleSpeed -= 300*dt;
+					fAngleSpeed = MIN(fAngleSpeed,(float)100);
+					fAngleSpeed = MAX(fAngleSpeed,(float)-100);
+					if( fAngleSpeed > 0 )
+						fAngleSpeed -= 200*dt;
+					else if( fAngleSpeed < 0 )
+						fAngleSpeed += 200*dt;
+					if( fabs(fAngleSpeed) < 5 )
 					{
-						fMouseTrembleAngle -= fMouseTrembleAngleDecay * fMouseTrembleAngle / fabs(fMouseTrembleAngle) * 
-												( fabs(fMouseTrembleAngle) / fMouseTrembleAngleMax + 0.5 );
+						fAngleSpeed = 0;
+						//printf("NO change!");
 					}
-					else
-					{
-						fMouseTrembleAngle = 0;
-					};
-				};
-				if( fabs(fMouseTrembleAngle) > fMouseTrembleAngleMax )
-				{ 
-					fMouseTrembleAngle = fMouseTrembleAngleMax * fMouseTrembleAngle / fabs(fMouseTrembleAngle);
-				};
-				
-				if( dx < 0 ) 
-				{
-					fAngle -= fMouseTrembleAngle;
 				}
-				else 
-				{
-					fAngle += fMouseTrembleAngle;
-				};
+				//fAngle = atan2f( dy, dx ) / PI * 180;
+				
+
+
+				//fRealAngle = (dy * 180/vp->GetTop()); // This should be 480 right?
+				fAngle += (fAngleSpeed * dt); 
+				iLastMousePos = ms->Y;
+
+				//fAngle += (fAngleSpeed * dt);
+				
 
 			    if(fAngle>60)
 					fAngle = 60;
@@ -504,7 +485,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 		}
 	}
 
-	if(cStrafe.isDown() || ( iID == 0 && tLXOptions->bMouseAiming ))
+	if(cStrafe.isDown() || ( iID == 0 && (tLXOptions->bMouseAiming && cOwner->getHostAllowsMouse()) ) )
 		iDirection = iStrafeDirection;
 
 

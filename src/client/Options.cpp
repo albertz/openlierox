@@ -164,6 +164,7 @@ bool GameOptions::LoadFromDisc()
 	ReadKeyword(f, "Game", "AutoTyping",	&iAutoTyping, true);
 	ReadKeyword(f, "Game", "Antialiasing",	&bAntiAliasing, false);
     ReadKeyword(f, "Game", "MouseAiming",   &bMouseAiming, false);
+	ReadKeyword(f, "Game", "AllowMouseAiming",   &bAllowMouseAiming, false);
 
 	// Widget states
 	ReadIntArray(f, "Widgets","InternetListCols",	&iInternetList[0],6);
@@ -309,6 +310,7 @@ void GameOptions::SaveToDisc()
 	fprintf(fp, "AutoTyping = %s\n", iAutoTyping ? "true" : "false");
 	fprintf(fp, "Antialiasing = %s\n", bAntiAliasing ? "true" : "false");
 	fprintf(fp, "MouseAiming = %s\n", bMouseAiming ? "true" : "false");
+	fprintf(fp, "AllowMouseAiming = %s\n", bAllowMouseAiming ? "true" : "false");
     fprintf(fp, "\n");
 
 	fprintf(fp, "[Widgets]\n");

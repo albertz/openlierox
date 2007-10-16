@@ -109,6 +109,7 @@ void CClient::Clear(void)
     }    
 
 	bHostOLXb4 = false;
+	bHostAllowsMouse = false;
 
 	bDownloadingMap = false;
 	cFileDownloader = NULL;

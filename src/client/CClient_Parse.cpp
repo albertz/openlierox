@@ -62,6 +62,9 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd == "lx::openbeta4")
 		bHostOLXb4 = true;
 
+	else if (cmd == "lx:mouseAllowed")
+		bHostAllowsMouse = true;
+
 	// Unknown
 	else  {
 		printf("CClient::ParseConnectionlessPacket: unknown command \"" + cmd + "\"\n");
@@ -150,6 +153,7 @@ void CClient::ParseConnected(CBytestream *bs)
 
 	bHostOLXb3 = false;
 	bHostOLXb4 = false;
+	bHostAllowsMouse = false;
 }
 
 //////////////////

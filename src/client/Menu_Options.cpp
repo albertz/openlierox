@@ -74,7 +74,8 @@ enum {
 	og_ColorizeNicks,
 	og_AutoTyping,
 	og_Antialiasing,
-	og_MouseAiming
+	og_MouseAiming,
+	og_AllowMouseAiming
 };
 
 enum {
@@ -360,6 +361,10 @@ int Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Use mouse for aiming (Player 1)",tLX->clNormalLabel), Static, 40, 360, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bMouseAiming),og_MouseAiming, 280, 360, 17,17);
 
+	cOpt_Game.Add( new CLabel("Allow mouse aiming (Server)",tLX->clNormalLabel), Static, 330, 360, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowMouseAiming),og_AllowMouseAiming, 550, 360, 17,17);
+	// TODO: Fix cSlider so it's value thing doesn't take up a square of 100x100 pixels.
+
 	// Set the values
 	cOpt_Game.SendMessage( og_BloodAmount,  SLM_SETVALUE, tLXOptions->iBloodAmount, 0);
 	//cOpt_Game.SendMessage( og_AIDifficulty, SLM_SETVALUE, tLXOptions->iAIDifficulty, 0);
@@ -568,6 +573,11 @@ void Menu_OptionsFrame(void)
 				case og_MouseAiming:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bMouseAiming = cOpt_Game.SendMessage(og_MouseAiming, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+
+				case og_AllowMouseAiming:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bAllowMouseAiming = cOpt_Game.SendMessage(og_AllowMouseAiming, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 			}

@@ -148,7 +148,7 @@ void CWorm::Clear(void)
 
 	bNoShooting = false;
 	bFlag = false;
-	fMouseTrembleAngle = fMouseTrembleSpeed = fMouseTrembleSpeedDirection = fMouseTrembleLastTime = 0;
+	iLastMousePos = 0;
 }
 
 

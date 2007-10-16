@@ -168,6 +168,9 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 		// Leave this connection screen & go to the lobby
 		Menu_Net_JoinConnectionShutdown();
 
+		if (tLXOptions->bMouseAiming && !cClient->getHostAllowsMouse())
+			Menu_MessageBox("Mouse Aiming","This host doesn't allow mouse aiming.\n Using keyboard controls.", LMB_OK);
+
 		if(!Menu_Net_JoinLobbyInitialize()) {
 			// Error
 			Menu_Net_MainInitialize();

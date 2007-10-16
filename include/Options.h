@@ -186,6 +186,7 @@ public:
 	std::string	sSkinPath;
 	bool	bAntiAliasing;
 	bool	bMouseAiming;
+	bool	bAllowMouseAiming;
 
     // Advanced
     int     nMaxFPS;

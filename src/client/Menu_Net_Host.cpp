@@ -438,6 +438,11 @@ int Menu_Net_HostLobbyInitialize(void)
     bHostWeaponRest = false;
     iSpeaking = -1;
 
+	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
+	// If put below the client connect. Either this or move the draw.
+	if (tLXOptions->bMouseAiming && !tLXOptions->bAllowMouseAiming)
+		Menu_MessageBox("Mouse Aiming","You are not allowing mouse aiming.\n Still you want to use it yourself?\n Using keyboard controls.", LMB_OK);
+
     // Draw the lobby
 	Menu_Net_HostLobbyDraw();
 
@@ -471,6 +476,7 @@ int Menu_Net_HostLobbyInitialize(void)
 	}
 
 	cClient->Connect("127.0.0.1");
+
 
 	cClient->getChatbox()->setWidth(590);
 

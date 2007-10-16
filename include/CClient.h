@@ -208,6 +208,7 @@ public:
 
 		bHostOLXb3 = false;
 		bHostOLXb4 = false;
+		bHostAllowsMouse = false;
 
 		bDownloadingMap = false;
 		cFileDownloader = NULL;
@@ -350,6 +351,7 @@ private:
 	ClientRights tRights;
 	bool		bHostOLXb3;
 	bool		bHostOLXb4;
+	bool		bHostAllowsMouse;
 
 	// Map downloading
 	bool		bDownloadingMap;
@@ -585,6 +587,9 @@ public:
 	bool getHostBeta3(void)				{ return bHostOLXb3; }
 	bool getHostBeta4(void)				{ return bHostOLXb4; }
 	void setHostBeta4(bool _b)			{ bHostOLXb4 = _b; }
+
+	bool getHostAllowsMouse(void)				{ return bHostAllowsMouse; }
+	void setHostAllowsMouse(bool _b)			{ bHostAllowsMouse = _b; }
 
 	bool		getGamePaused()					{ return (bViewportMgr || iGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
 

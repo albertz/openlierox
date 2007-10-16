@@ -188,8 +188,9 @@ private:
 				cShoot, cJump, cSelWeapon, cInpRope,
 				cStrafe;
 	bool		bUsesMouse;
-	// Tune down mouse aiming to shut up oldskoolerz - drunken hands tremble
-	float		fMouseTrembleAngle, fMouseTrembleSpeed, fMouseTrembleSpeedDirection, fMouseTrembleLastTime;
+
+	// Check if we've moved the mouse
+	int			iLastMousePos;
 
 	// Simulation
 	worm_state_t tState;
