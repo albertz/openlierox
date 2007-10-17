@@ -32,6 +32,8 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	int		weap = false;
 	int		RightOnce = false;
 	int		move = false;
+
+	mouse_t *ms = GetMouse();
 	
 	// Backup the direction so that the worm can strafe
 	iStrafeDirection = iDirection;
@@ -78,6 +80,52 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				fAngle = 60;
 			if(fAngle<-90)
 				fAngle = -90;
+	}
+
+	if(tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL) )
+	{
+		int iAngleDifference = ms->Y - iLastMousePos;
+		// (ms->Y * 180/480 -90) - (int)fAngle
+		CViewport * vp = cClient->getViewports();
+		
+		if (iAngleDifference > 0)
+			fAngleSpeed += 500 * dt;
+		else if (iAngleDifference < 0)
+			fAngleSpeed -= 500 * dt;
+		else
+		{
+			fAngleSpeed = MIN(fAngleSpeed,(float)100);
+			fAngleSpeed = MAX(fAngleSpeed,(float)-100);
+			if( fAngleSpeed > 0 )
+				fAngleSpeed -= 200*dt;
+			else if( fAngleSpeed < 0 )
+				fAngleSpeed += 200*dt;
+
+			if (floor((double)((ms->Y * 180)/vp->GetVirtH() -90) > floor((double)fAngle)))
+				fAngleSpeed += 300*dt;
+			else if (floor((double)((ms->Y * 180)/vp->GetVirtH() -90) < floor((double)fAngle)))
+				fAngleSpeed -= 300*dt;
+			if( fabs(fAngleSpeed) < 5 )
+			{
+				fAngleSpeed = 0;
+			}
+		}
+		//fAngle = atan2f( dy, dx ) / PI * 180;
+					
+					
+					
+		//fRealAngle = (dy * 180/vp->GetTop()); // This should be 480 right?
+		fAngle += (fAngleSpeed * dt); 
+		iLastMousePos = ms->Y;
+			
+		//fAngle += (fAngleSpeed * dt);
+					
+					
+		if(fAngle>60)
+			fAngle = 60;
+		if(fAngle<-90)
+			fAngle = -90;
+		//fAngleSpeed = 0;
 	}
 
 	if(!cRight.isDown())
@@ -135,7 +183,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			// Clamp the current weapon
 			iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
 			
-			mouse_t *ms = GetMouse();
+			
 			if( ms->WheelScrollUp || ms->WheelScrollDown )
 			{
 				bForceWeapon_Name = true;
@@ -148,68 +196,9 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 					iCurrentWeapon=0;
 				if(iCurrentWeapon < 0) 
 					iCurrentWeapon=iNumWeaponSlots-1;
-			};
+			}
 			
-			if( tLXOptions->bMouseAiming && cOwner->getHostAllowsMouse() )
-			{
-				int iAngleDifference = ms->Y - iLastMousePos;
-				// (ms->Y * 180/480 -90) - (int)fAngle
-				CViewport * vp = cClient->getViewports();
-				int dx = (int)(ms->X/2 - vPos.x + vp->GetWorldX() - vp->GetLeft()/2);	// TODO: Is there any reason to remove the (int)?
-				int dy = (int)(ms->Y/2 - vPos.y + vp->GetWorldY() - vp->GetTop()/2);
-				if( dx < 0 ) 
-				{
-					iStrafeDirection = DIR_LEFT;
-					dx = -dx;
-				}
-				else
-				{
-					iStrafeDirection = DIR_RIGHT;
-				};
 
-				//printf("Thing:%d\n",(dy * 180)/vp->GetVirtH());
-				//printf("Thing2:%d Thing3:%d Thing4:%f\n",ms->Y,dy,((float)ms->Y * 180/vp->GetVirtH()) -90);
-				//printf("fAngle:%f Angle:%d VirtH:%d\n",fAngle,(int)fAngle,vp->GetVirtH());
-
-				if (iAngleDifference > 0)
-					fAngleSpeed += 500 * dt;
-				else if (iAngleDifference < 0)
-					fAngleSpeed -= 500 * dt;
-				else
-				{
-					if (floor((double)((ms->Y * 180)/vp->GetVirtH() -90) > floor((double)fAngle)))
-						fAngleSpeed += 300*dt;
-					else if (floor((double)((ms->Y * 180)/vp->GetVirtH() -90) < floor((double)fAngle)))
-						fAngleSpeed -= 300*dt;
-					fAngleSpeed = MIN(fAngleSpeed,(float)100);
-					fAngleSpeed = MAX(fAngleSpeed,(float)-100);
-					if( fAngleSpeed > 0 )
-						fAngleSpeed -= 200*dt;
-					else if( fAngleSpeed < 0 )
-						fAngleSpeed += 200*dt;
-					if( fabs(fAngleSpeed) < 5 )
-					{
-						fAngleSpeed = 0;
-						//printf("NO change!");
-					}
-				}
-				//fAngle = atan2f( dy, dx ) / PI * 180;
-				
-
-
-				//fRealAngle = (dy * 180/vp->GetTop()); // This should be 480 right?
-				fAngle += (fAngleSpeed * dt); 
-				iLastMousePos = ms->Y;
-
-				//fAngle += (fAngleSpeed * dt);
-				
-
-			    if(fAngle>60)
-					fAngle = 60;
-			    if(fAngle<-90)
-					fAngle = -90;
-				//fAngleSpeed = 0;
-			};
 		}
 	break;
 
@@ -415,7 +404,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 		}
 	}
 
-	// If we're seriously dead (below 15% health) bleed
+	// If we're seriously injured (below 15% health) bleed
 	if(iHealth < 15) {
 		if(tLX->fCurTime - fLastBlood > 2) {
 			fLastBlood = tLX->fCurTime;
@@ -485,7 +474,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 		}
 	}
 
-	if(cStrafe.isDown() || ( iID == 0 && (tLXOptions->bMouseAiming && cOwner->getHostAllowsMouse()) ) )
+	if(cStrafe.isDown())
 		iDirection = iStrafeDirection;
 
 
