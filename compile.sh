@@ -96,8 +96,8 @@ echo "* the global search-path of the game will be $SYSTEM_DATA_DIR/OpenLieroX"
 	echo "* you will not see any debug-crap"
 echo "* $COMPILER will be used for compilation"
 [ "$ACTIVATE_GDB" == "1" ] && \
-	echo "* gdb-data will not been added to the bin, if they doesn't occurs here:" || \
-	echo "* gdb-data will be included in the bin"
+	echo "* debugging-data will be included in the bin" || \
+	echo "* debugging-data will not been added explicitly to the bin"
 [ "$CXXFLAGS" == "" ] && \
 	echo "* none additional compiler-flags will be used" || \
 	echo "* the following additional compiler-flags will be used: $CXXFLAGS"
@@ -133,7 +133,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
-	$( [ "$ACTIVATE_GDB" == "1" ] && echo -ggdb ) \
+	$( [ "$ACTIVATE_GDB" == "1" ] && echo -g ) \
 	$CXXFLAGS \
 	$LDFLAGS \
 	-o bin/openlierox

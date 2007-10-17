@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <string>
+#include <cassert>
 
 #include "FindFile.h" // for searchpathlist; TODO: extract this to an own file
 
@@ -75,10 +76,10 @@ class controls_t {
 private:
 	std::string ctrl[9];
 public:
-	std::string& operator[] (const short i) { return (i >= 0 && i < 9) ? ctrl[i] : ctrl[-9999]; }
-	const std::string& operator[] (const short i) const { return (i >= 0 && i < 9) ? ctrl[i] : ctrl[-9999]; }
+	std::string& operator[] (const short i) { assert(i >= 0 && i < 9); return ctrl[i]; }
+	const std::string& operator[] (const short i) const { assert(i >= 0 && i < 9); return ctrl[i]; }
 
-	inline unsigned short ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
+	unsigned short ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
 	// TODO: add specific functions
 };
 
