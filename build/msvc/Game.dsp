@@ -291,6 +291,14 @@ SOURCE=..\..\include\ReadWriteLock.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\SDLFont.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\SDLFont.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\sex.cpp
 # End Source File
 # Begin Source File
@@ -795,6 +803,10 @@ SOURCE=.\libs\lua5.1.lib
 # Begin Source File
 
 SOURCE=.\libs\dbghelp.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\libs\freetype2110MT.lib
 # End Source File
 # End Group
 # Begin Group "Resources"

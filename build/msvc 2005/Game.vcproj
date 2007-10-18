@@ -1019,6 +1019,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\stun.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\stun.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\Timer.cpp"
 				>
 				<FileConfiguration
@@ -3176,6 +3184,22 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Console.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\FileDownload.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\FileDownload.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\HTTP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\HTTP.h"
 				>
 			</File>
 			<File

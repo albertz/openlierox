@@ -71,7 +71,8 @@ enum  {
 	HTTP_ERROR_SENDING_REQ,
 	HTTP_NO_CONNECTION,
 	HTTP_NET_ERROR,
-	HTTP_FILE_NOT_FOUND
+	HTTP_FILE_NOT_FOUND = 404
+	// HINT: Add more if you need them
 };
 
 // HTTP processing results

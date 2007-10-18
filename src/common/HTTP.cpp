@@ -357,6 +357,10 @@ void CHttp::ProcessData()
 	// Process the header
 	ParseHeader();
 
+	// Error check
+	if (tError.iError != HTTP_NO_ERROR)
+		return;
+
 	// We could just receive the header and find out the data is chunked...
 	if (bChunkedTransfer)  {
 		ParseChunks();
@@ -457,11 +461,6 @@ void CHttp::ParseHeader()
 	
 	// Check the code
 	if (code[0] != '2') {  // 2XX = success
-		if (code == "440")  {  // Special error for us, file not found
-			SetHttpError(HTTP_FILE_NOT_FOUND);
-			return;
-		}
-
 		if (code == "100")  {  // 100 Continue - we should wait for a real header
 			bGotHttpHeader = false;
 			return;
@@ -590,6 +589,10 @@ int CHttp::ProcessRequest()
 			ProcessData();
 		}
 	}
+
+	// Some HTTP errors?
+	if (tError.iError != HTTP_NO_ERROR)
+		return HTTP_PROC_ERROR;
 	
 	// Error, or end of connection?
 	if(count < 0) {

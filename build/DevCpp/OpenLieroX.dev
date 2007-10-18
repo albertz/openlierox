@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=165
+UnitCount=169
 Type=1
 Ver=1
 ObjFiles=
@@ -1678,9 +1678,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit166]
-FileName=..\..\hawknl\src\crc.c
+FileName=..\..\include\FileDownload.h
 CompileCpp=1
-Folder=HawkNL
+Folder=Common
 Compile=1
 Link=1
 Priority=1000
@@ -1688,9 +1688,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit167]
-FileName=..\..\hawknl\src\err.c
+FileName=..\..\src\common\FileDownload.cpp
 CompileCpp=1
-Folder=HawkNL
+Folder=Common
 Compile=1
 Link=1
 Priority=1000
@@ -1698,9 +1698,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit168]
-FileName=..\..\hawknl\src\errorstr.c
+FileName=..\..\src\common\stun.cpp
 CompileCpp=1
-Folder=HawkNL
+Folder=System files
 Compile=1
 Link=1
 Priority=1000
@@ -1708,9 +1708,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit169]
-FileName=..\..\hawknl\src\group.c
+FileName=..\..\include\stun.h
 CompileCpp=1
-Folder=HawkNL
+Folder=System files
 Compile=1
 Link=1
 Priority=1000

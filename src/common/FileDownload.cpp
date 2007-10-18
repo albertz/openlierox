@@ -264,7 +264,7 @@ byte CFileDownload::GetProgress()
 	Lock();
 	byte res = 0;
 	if (tHttp.GetDataLength() != 0)
-		res = MIN(100, tHttp.GetReceivedDataLen() * 100 / tHttp.GetDataLength());
+		res = (byte)MIN(100, tHttp.GetReceivedDataLen() * 100 / tHttp.GetDataLength());
 	Unlock();
 
 	return res;
