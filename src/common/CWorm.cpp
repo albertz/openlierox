@@ -148,7 +148,9 @@ void CWorm::Clear(void)
 
 	bNoShooting = false;
 	bFlag = false;
-	iLastMousePos = 0;
+	lastMousePosX = 0;
+	lastMousePosY = 0;
+	lastMouseMoveTime = 0;
 }
 
 

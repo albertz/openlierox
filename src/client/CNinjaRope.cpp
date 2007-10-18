@@ -45,6 +45,7 @@ void CNinjaRope::Clear(void)
 
 ///////////////////
 // Release the ninja rope
+// TODO: there is a name-inconvesion between isReleased and Release
 void CNinjaRope::Release(void)
 {
 	// Un-hook the rope from the other worm

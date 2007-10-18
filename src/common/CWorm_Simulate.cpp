@@ -21,6 +21,7 @@
 #include "MathLib.h"
 #include "Entity.h"
 #include "CClient.h"
+#include "Utils.h"
 
 
 ///////////////////
@@ -52,7 +53,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	ws->iShoot = false;
 	ws->iJump = false;
 
-	if (!tLXOptions->bMouseAiming || !cOwner->getHostAllowsMouse() )
+	if (!tLXOptions->bMouseAiming || (tGameInfo.iGameType != GME_LOCAL && !cOwner->getHostAllowsMouse()) )
 	{
 		// Up
 		if(cUp.isDown()) {
@@ -75,58 +76,79 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 					fAngleSpeed = 0;
 			}
 			
-			fAngle += fAngleSpeed * dt;
-			if(fAngle>60)
-				fAngle = 60;
-			if(fAngle<-90)
-				fAngle = -90;
 	}
 
-	if(tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL) )
+	else //	if(tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL) )
 	{
-		int iAngleDifference = ms->Y - iLastMousePos;
-		// (ms->Y * 180/480 -90) - (int)fAngle
-		CViewport * vp = cClient->getViewports();
+		// TODO: btw, have you seen JasonBs CWorm::getMouseInput in this file?
 		
-		if (iAngleDifference > 0)
-			fAngleSpeed += 500 * dt;
-		else if (iAngleDifference < 0)
-			fAngleSpeed -= 500 * dt;
-		else
-		{
-			fAngleSpeed = MIN(fAngleSpeed,(float)100);
-			fAngleSpeed = MAX(fAngleSpeed,(float)-100);
-			if( fAngleSpeed > 0 )
-				fAngleSpeed -= 200*dt;
-			else if( fAngleSpeed < 0 )
-				fAngleSpeed += 200*dt;
-
-			if (floor((double)((ms->Y * 180)/vp->GetVirtH() -90) > floor((double)fAngle)))
-				fAngleSpeed += 300*dt;
-			else if (floor((double)((ms->Y * 180)/vp->GetVirtH() -90) < floor((double)fAngle)))
-				fAngleSpeed -= 300*dt;
-			if( fabs(fAngleSpeed) < 5 )
-			{
-				fAngleSpeed = 0;
-			}
-		}
-		//fAngle = atan2f( dy, dx ) / PI * 180;
-					
-					
-					
-		//fRealAngle = (dy * 180/vp->GetTop()); // This should be 480 right?
-		fAngle += (fAngleSpeed * dt); 
-		iLastMousePos = ms->Y;
+		/*
+		// HINT: this is another possibility which only count the mousemoving; but very confusing for fullscreen
+		float mdt = tLX->fCurTime - lastMouseMoveTime;
+		if(mdt > 0.0 && mdt < 0.3) { // else ignore it
+			float dy = (float)(ms->Y - lastMousePosY) / mdt;
+			fAngleSpeed += CLAMP(2.0 * dy, -500.0, 500.0) * mdt;
+		}*/
 			
-		//fAngle += (fAngleSpeed * dt);
-					
-					
-		if(fAngle>60)
-			fAngle = 60;
-		if(fAngle<-90)
-			fAngle = -90;
-		//fAngleSpeed = 0;
+		// this is better for fullscreen and also good for windowmode
+		// TODO: the windows-height is hardcoded here! that is bad
+		fAngleSpeed = CLAMP((ms->Y - 480/2) * 2.0f, -500.0f, 500.0f);
+		
+		// also moving via mouse
+		// TODO: carving is still missing for a mouse-only playing (like Jason wanted it)
+		if(abs(ms->X - 640/2) > 50) {
+			iDirection = (ms->X > 640/2) ? DIR_RIGHT : DIR_LEFT;
+			ws->iMove = true;
+			move = true;
+		} else {
+			ws->iMove = false;
+			move = false;
+		}
+		
+		// like Jason did it
+		ws->iShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
+		ws->iJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
+		if(ws->iJump) {
+			if(cNinjaRope.isReleased())
+				cNinjaRope.Release();
+		}
+		else if(ms->Down & SDL_BUTTON(2)) {
+			// TODO: this is bad. why isn't there a ws->iNinjaShoot ?
+			cNinjaRope.Shoot(vPos,dir);
+			PlaySoundSample(sfxGame.smpNinja);
+		}
+	
+		if( ms->WheelScrollUp || ms->WheelScrollDown ) {
+			bForceWeapon_Name = true;
+			fForceWeapon_Time = tLX->fCurTime + 0.75f;
+			if( ms->WheelScrollUp ) 
+				iCurrentWeapon ++;
+			else 
+				iCurrentWeapon --;
+			if(iCurrentWeapon >= iNumWeaponSlots) 
+				iCurrentWeapon=0;
+			if(iCurrentWeapon < 0) 
+				iCurrentWeapon=iNumWeaponSlots-1;
+		}
+	
 	}
+	
+	fAngle += fAngleSpeed * dt;
+	if(fAngle > 60) {
+		fAngle = 60;
+		fAngleSpeed = 0;
+	}
+	else if(fAngle < -90) {
+		fAngle = -90;
+		fAngleSpeed = 0;
+	}
+	
+	if(lastMousePosX != ms->X || lastMousePosY != ms->Y) {
+		lastMouseMoveTime = tLX->fCurTime;
+		lastMousePosX = ms->X;
+		lastMousePosY = ms->Y;
+	}
+
 
 	if(!cRight.isDown())
 		iCarving &= ~1;
@@ -179,28 +201,9 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 					fForceWeapon_Time = tLX->fCurTime + 0.75f;
 				}
 			}
-
-			// Clamp the current weapon
-			iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
 			
-			
-			if( ms->WheelScrollUp || ms->WheelScrollDown )
-			{
-				bForceWeapon_Name = true;
-				fForceWeapon_Time = tLX->fCurTime + 0.75f;
-				if( ms->WheelScrollUp ) 
-					iCurrentWeapon ++;
-				else 
-					iCurrentWeapon --;
-				if(iCurrentWeapon >= iNumWeaponSlots) 
-					iCurrentWeapon=0;
-				if(iCurrentWeapon < 0) 
-					iCurrentWeapon=iNumWeaponSlots-1;
-			}
-			
-
 		}
-	break;
+		break;
 
 	// If this is the second worm, let the user use the 6-0 keys for weapon shortcuts
 	case 1:  {
@@ -225,15 +228,15 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				fForceWeapon_Time = tLX->fCurTime + 0.75f;
 			}
 
-			// Clamp the current weapon
-			iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
 		}
-	break;
+		break;
 	}
 
+	// TODO: why is this needed?
+	// Clamp the current weapon
+	iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
 
 
-	ws->iShoot = false;
 	if(cShoot.isDown())  {
 		ws->iShoot = true;
 	}
@@ -296,7 +299,6 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 	// Jump
 	if(jumpdownonce) {
-
 		if( !(oldskool && cSelWeapon.isDown()) )  {
 			ws->iJump = true;
 
@@ -311,7 +313,6 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		// Change-weapon & jump
 
 		if(!cSelWeapon.isDown() || !cJump.isDown())  {
-
 			iRopeDown = false;
 		}
 

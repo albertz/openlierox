@@ -190,7 +190,9 @@ private:
 	bool		bUsesMouse;
 
 	// Check if we've moved the mouse
-	int			iLastMousePos;
+	int			lastMousePosX;
+	int			lastMousePosY;
+	float		lastMouseMoveTime;
 
 	// Simulation
 	worm_state_t tState;

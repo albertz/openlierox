@@ -675,17 +675,18 @@ void GameServer::RegisterServer(void)
 		return;
 
 	// Create the url
-	std::string buf;
+	std::string addr_name;
 	NetworkAddr addr;
 
 	GetLocalNetAddr(tSocket,&addr);
-	NetAddrToString(&addr, buf);
+	NetAddrToString(&addr, addr_name);
 
-	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
 	if( IsNetAddrValid( &tSTUNAddress ) )
 	{
-		NetAddrToString(&tSTUNAddress, buf);
-		sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + buf;
+		NetAddrToString(&tSTUNAddress, addr_name);
+		sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + addr_name;
+		printf("registering the URL %s\n", sCurrentUrl.c_str());
 	};
 
     bServerRegistered = false;
