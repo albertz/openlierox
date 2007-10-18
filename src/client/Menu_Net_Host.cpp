@@ -441,7 +441,7 @@ int Menu_Net_HostLobbyInitialize(void)
 	// Kinda sloppy, but else the background will look sloppy. (Map preview window & the others will be visible
 	// If put below the client connect. Either this or move the draw.
 	if (tLXOptions->bMouseAiming && !tLXOptions->bAllowMouseAiming)
-		Menu_MessageBox("Mouse Aiming","You are not allowing mouse aiming.\n Still you want to use it yourself?\n Using keyboard controls.", LMB_OK);
+		Menu_MessageBox("Mouse Aiming", "You are not allowing mouse aiming on your server.\nUsing keyboard controls for this game.", LMB_OK);
 
     // Draw the lobby
 	Menu_Net_HostLobbyDraw();

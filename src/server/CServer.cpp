@@ -163,11 +163,15 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 			memset(&resp, 0, sizeof(StunMessage));
 			if( ! stunParseMessage( buf, len, resp, false ) ) throw std::string("Wrong responce from server");
 			std::ostringstream os;
-			os << resp.mappedAddress.ipv4;
+			for(short i = 3; i >= 0; i--) {
+				os << (255 & (resp.mappedAddress.ipv4.addr >> i*8));
+				if(i != 0) os << ".";
+			}
+			os << ":" << resp.mappedAddress.ipv4.port;
 			StringToNetAddr( os.str(), &tSTUNAddress );
 			std::string s;
 			NetAddrToString( &tSTUNAddress, s );
-			printf("HINT: STUN returned address: %s\n", s.c_str() );
+			printf("HINT: STUN returned address: %s\n", s.c_str());
 		}
 		catch( const std::string & s )
 		{
@@ -686,7 +690,6 @@ void GameServer::RegisterServer(void)
 	{
 		NetAddrToString(&tSTUNAddress, addr_name);
 		sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + addr_name;
-		printf("registering the URL %s\n", sCurrentUrl.c_str());
 	};
 
     bServerRegistered = false;
@@ -767,19 +770,18 @@ bool GameServer::DeRegisterServer(void)
 		return false;
 
 	// Create the url
-	static std::string buf;
-
+	std::string addr_name;
 	NetworkAddr addr;
 
 	GetLocalNetAddr(tSocket,&addr);
-	NetAddrToString(&addr, buf);
+	NetAddrToString(&addr, addr_name);
 
 	// Stun server
-	sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + buf;
+	sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
 	if( IsNetAddrValid( &tSTUNAddress ) )
 	{
-		NetAddrToString(&tSTUNAddress, buf);
-		sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + buf;
+		NetAddrToString(&tSTUNAddress, addr_name);
+		sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + addr_name;
 	}
 
 	// Initialize the request
