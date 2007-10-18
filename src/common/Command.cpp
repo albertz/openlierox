@@ -72,7 +72,10 @@ void Cmd_ParseLine(const std::string& text)
 
 	std::string::const_iterator i = text.begin();
 	std::string::const_iterator i2 = i;
-	for(i2++; i != text.end(); i++, i2++) {
+	for(; i != text.end(); i++) {
+
+		if (i2 != text.end())
+			i2++;
 
 		// Check delimeters
 		if(*i == ' ' || *i == ',') {
