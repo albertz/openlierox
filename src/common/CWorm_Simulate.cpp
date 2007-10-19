@@ -53,8 +53,9 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	ws->iShoot = false;
 	ws->iJump = false;
 
-	if (!tLXOptions->bMouseAiming || (tGameInfo.iGameType != GME_LOCAL && !cOwner->getHostAllowsMouse()) )
-	{
+	bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL);
+
+	if (!mouseControl) {
 		// Up
 		if(cUp.isDown()) {
 			fAngleSpeed -= 500 * dt;
@@ -77,9 +78,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			}
 			
 	}
-
-	else //	if(tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL) )
-	{
+	else { //	if(mouseControl )	
 		// TODO: btw, have you seen JasonBs CWorm::getMouseInput in this file?
 		
 		/*
@@ -104,7 +103,26 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			ws->iMove = false;
 			move = false;
 		}
+				
+	}
 		
+	fAngle += fAngleSpeed * dt;
+	if(fAngle > 60) {
+		fAngle = 60;
+		fAngleSpeed = 0;
+	}
+	else if(fAngle < -90) {
+		fAngle = -90;
+		fAngleSpeed = 0;
+	}
+	
+	// Calculate dir
+	dir.x=( (float)cos(fAngle * (PI/180)) );
+	dir.y=( (float)sin(fAngle * (PI/180)) );
+	if( iStrafeDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
+		dir.x=(-dir.x);
+	
+	if(mouseControl) {
 		// like Jason did it
 		ws->iShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
 		ws->iJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
@@ -130,18 +148,9 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			if(iCurrentWeapon < 0) 
 				iCurrentWeapon=iNumWeaponSlots-1;
 		}
-	
 	}
 	
-	fAngle += fAngleSpeed * dt;
-	if(fAngle > 60) {
-		fAngle = 60;
-		fAngleSpeed = 0;
-	}
-	else if(fAngle < -90) {
-		fAngle = -90;
-		fAngleSpeed = 0;
-	}
+	
 	
 	if(lastMousePosX != ms->X || lastMousePosY != ms->Y) {
 		lastMouseMoveTime = tLX->fCurTime;
@@ -287,11 +296,6 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		move = true;
 	}
 
-	// Calculate dir
-	dir.x=( (float)cos(fAngle * (PI/180)) );
-	dir.y=( (float)sin(fAngle * (PI/180)) );
-	if( iStrafeDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
-		dir.x=(-dir.x);
 
 	int oldskool = tLXOptions->iOldSkoolRope;
 
