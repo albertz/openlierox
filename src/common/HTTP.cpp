@@ -176,6 +176,8 @@ void CChunkParser::Reset()
 // Constructor
 CHttp::CHttp()
 {
+	// TODO: why is this a char-array?
+	// TODO: why is this a hardcoded fixed length?
 	tBuffer = new char[4096];
 	tChunkParser = new CChunkParser(&sPureData, &iDataLength, &iDataReceived);
 	Clear();
@@ -286,15 +288,13 @@ void CHttp::ParseAddress(const std::string& addr)
     sHost = "";
     sUrl = "";
 
-    // All characters up to a / goes into the host
-    std::string::const_iterator it = addr.begin();
-    for(size_t i=0; it != addr.end(); i++, it++ ) {
-        if( *it == '/' ) {
-			sHost = addr.substr(0, i);
-			sUrl = addr.substr(i);
-            break;
-        }
-    }
+	size_t p = addr.find("/");
+	if(p == std::string::npos)
+		sHost = addr;
+	else {
+		sHost = addr.substr(0, p);
+		sUrl = addr.substr(p);
+	}
 }
 
 /////////////////
@@ -372,6 +372,10 @@ void CHttp::ProcessData()
 	size_t header_end = sData.find("\n\n");  // Two LFs...
 	if (header_end == std::string::npos)  {
 		header_end = sData.find("\r\n\r\n"); // ... or two CR/LFs
+		header_end_len = 4;
+	}
+	if (header_end == std::string::npos)  {
+		header_end = sData.find("\n\r\n\r"); // ... or two LF/CRs
 		header_end_len = 4;
 	}
 
