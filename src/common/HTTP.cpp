@@ -77,6 +77,41 @@ bool CChunkParser::ParseNext(char c)
 				return true;  // Finished!
 			}
 
+			// TODO: i got a segfault here:
+			/*
+			Program terminated with signal 11, Segmentation fault.
+#0  0x0817bbcf in CChunkParser::ParseNext (this=0x8b4f200, c=32 ' ')
+    at /home/az/Programmierung/openlierox/src/common/HTTP.cpp:80
+80                              (*iFinalLength) += iCurLength;
+
+Thread 1 (process 1273):
+#0  0x0817bbcf in CChunkParser::ParseNext (this=0x8b4f200, c=32 ' ')
+    at /home/az/Programmierung/openlierox/src/common/HTTP.cpp:80
+        failed = false
+#1  0x0817bd32 in CHttp::ParseChunks (this=0xbfbc6f7c)
+    at /home/az/Programmierung/openlierox/src/common/HTTP.cpp:421
+        chunk_it = {_M_current = 0x8c04c66 " "}
+#2  0x0817bf47 in CHttp::ProcessData (this=0xbfbc6f7c)
+    at /home/az/Programmierung/openlierox/src/common/HTTP.cpp:366
+        header_end_len = 4 '\004'
+        header_end = 289
+#3  0x0817c3ae in CHttp::ProcessRequest (this=0xbfbc6f7c)
+    at /home/az/Programmierung/openlierox/src/common/HTTP.cpp:589
+        count = 4
+#4  0x08095fc9 in Menu_Net_NETUpdateList ()
+    at /home/az/Programmierung/openlierox/src/client/Menu_Net_Internet.cpp:618
+        cListUpdate = {cWidgets = 0x8c02de8, tEvent = 0x8b4f078, 
+  cFocused = 0x0, cMouseOverWidget = 0x0, iID = -1, nMouseButtons = 0, 
+  fMouseNext = {-9999, -9999, -9999}, iCanFocus = 1}
+        ev = (gui_event_t *) 0x0
+        updateList = true
+        http_result = 0
+        SvrCount = 3
+        CurServer = 1
+        SentRequest = true
+        fp = (FILE *) 0x8c02308
+        http = {sHost = {static npos = 4294967295, ......
+			*/
 			(*iFinalLength) += iCurLength;
 
 			// Change the state
