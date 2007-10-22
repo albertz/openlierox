@@ -230,6 +230,7 @@ private:
 	int			iGotTarget;
 	float		fAngle;
     float       fAngleSpeed;
+    float		fMoveSpeedX;
 	int			iCarving;
 	float		fFrame;
 	CNinjaRope	cNinjaRope;

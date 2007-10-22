@@ -67,14 +67,9 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				fAngleSpeed += 500 * dt;
 				//fAngle += wd->AngleSpeed * dt;
 			} else {
-				fAngleSpeed = MIN(fAngleSpeed,(float)100);
-				fAngleSpeed = MAX(fAngleSpeed,(float)-100);
-				if( fAngleSpeed > 0 )
-					fAngleSpeed -= 200*dt;
-				else if( fAngleSpeed < 0 )
-					fAngleSpeed += 200*dt;
-				if( fabs(fAngleSpeed) < 5 )
-					fAngleSpeed = 0;
+				fAngleSpeed = CLAMP(fAngleSpeed, -100.0f, 100.0f);
+				REDUCE_CONST(fAngleSpeed, 200*dt);
+				RESET_SMALL(fAngleSpeed, 5.0f);
 			}
 			
 	}
@@ -90,31 +85,37 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		}*/
 			
 		// this is better for fullscreen and also good for windowmode
-		// TODO: the windows-height is hardcoded here! that is bad
-		fAngleSpeed = CLAMP((ms->Y - 480/2) * 2.0f, -500.0f, 500.0f);
+		// TODO: the windows-width/height is hardcoded here! that is bad
+		fAngleSpeed += (ms->Y - 480/2) * 2.0f;
+		fMoveSpeedX += (ms->X - 640/2);
+		
+		// TODO: here are again the hardcoded width/height of the window
+		SDL_WarpMouse(640/2, 480/2);
+		
+		REDUCE_CONST(fMoveSpeedX, 200*dt);
+		RESET_SMALL(fMoveSpeedX, 5.0f);
+		fMoveSpeedX = CLAMP(fMoveSpeedX, -500.0f, 500.0f);
+		
+		REDUCE_CONST(fAngleSpeed, 200*dt);
+		RESET_SMALL(fAngleSpeed, 5.0f);
+		fAngleSpeed = CLAMP(fAngleSpeed, -500.0f, 500.0f);
 		
 		// also moving via mouse
 		// TODO: carving is still missing for a mouse-only playing (like Jason wanted it)
-		if(abs(ms->X - 640/2) > 50) {
-			iDirection = (ms->X > 640/2) ? DIR_RIGHT : DIR_LEFT;
+		if(fabs(fMoveSpeedX) > 10) {
+			iDirection = (fMoveSpeedX > 0) ? DIR_RIGHT : DIR_LEFT;
 			ws->iMove = true;
 			move = true;
 		} else {
 			ws->iMove = false;
 			move = false;
 		}
-				
+
 	}
 		
 	fAngle += fAngleSpeed * dt;
-	if(fAngle > 60) {
-		fAngle = 60;
-		fAngleSpeed = 0;
-	}
-	else if(fAngle < -90) {
-		fAngle = -90;
-		fAngleSpeed = 0;
-	}
+	fAngle = CLAMP(fAngle, -90.0f, 60.0f);
+	if(fAngle == 60 || fAngle == -90) fAngleSpeed = 0;
 	
 	// Calculate dir
 	dir.x=( (float)cos(fAngle * (PI/180)) );

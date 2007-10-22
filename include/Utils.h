@@ -102,11 +102,15 @@ public:
 	some very basic math functions
 */
 
-template <typename T> inline T MIN(T a, T b) { return a<b?a:b; }
-template <typename T> inline T MAX(T a, T b) { return a>b?a:b; }
-inline unsigned long MIN(unsigned long a, unsigned int b) { return a<b?a:b; }
-template <typename T> inline T CLAMP(T num, T lower_bound, T upper_bound) { return num < lower_bound ? lower_bound : (num > upper_bound ? upper_bound : num); }
-
+template <typename T> T MIN(T a, T b) { return a < b ? a : b; }
+template <typename T> T MAX(T a, T b) { return a > b ? a : b; }
+inline unsigned long MIN(unsigned long a, unsigned int b) { return a < b ? a : b; }
+template <typename T> T CLAMP(T num, T lower_bound, T upper_bound) {
+	return num < lower_bound ? lower_bound : (num > upper_bound ? upper_bound : num); }
+template <typename T> void REDUCE_CONST(T& v, const T& red_const) {
+	if(v > 0) v -= red_const; else v += red_const; }
+template <typename T> void RESET_SMALL(T& v, const T& limit) {
+	if((v > 0 && v < limit) || (v < 0 && v > -limit)) v = 0; }
 
 
 // some basic functors

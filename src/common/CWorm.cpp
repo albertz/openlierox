@@ -53,6 +53,7 @@ void CWorm::Clear(void)
 	iDirection = DIR_RIGHT;
 	fAngle = 0;
     fAngleSpeed = 0;
+    fMoveSpeedX = 0;
 	iCarving = false;
 	fFrame = 0;
 	iDrawMuzzle = false;
@@ -268,6 +269,7 @@ void CWorm::Spawn(CVec position) {
 	bAlreadyKilled = false;
 	fAngle = 0;
     fAngleSpeed = 0;
+    fMoveSpeedX = 0;
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
 	vPos = position;
