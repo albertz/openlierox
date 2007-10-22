@@ -67,7 +67,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				fAngleSpeed += 500 * dt;
 				//fAngle += wd->AngleSpeed * dt;
 			} else {
-				fAngleSpeed = CLAMP(fAngleSpeed, -100.0f, 100.0f);
+				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
 				REDUCE_CONST(fAngleSpeed, 200*dt);
 				RESET_SMALL(fAngleSpeed, 5.0f);
 			}
@@ -86,23 +86,23 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			
 		// this is better for fullscreen and also good for windowmode
 		// TODO: the windows-width/height is hardcoded here! that is bad
-		fAngleSpeed += (ms->Y - 480/2) * 2.0f;
+		fAngleSpeed += (ms->Y - 480/2);
 		fMoveSpeedX += (ms->X - 640/2);
 		
 		// TODO: here are again the hardcoded width/height of the window
 		SDL_WarpMouse(640/2, 480/2);
 		
-		REDUCE_CONST(fMoveSpeedX, 200*dt);
+		REDUCE_CONST(fMoveSpeedX, 1000*dt);
 		RESET_SMALL(fMoveSpeedX, 5.0f);
-		fMoveSpeedX = CLAMP(fMoveSpeedX, -500.0f, 500.0f);
+		CLAMP_DIRECT(fMoveSpeedX, -500.0f, 500.0f);
 		
 		REDUCE_CONST(fAngleSpeed, 200*dt);
 		RESET_SMALL(fAngleSpeed, 5.0f);
-		fAngleSpeed = CLAMP(fAngleSpeed, -500.0f, 500.0f);
+		CLAMP_DIRECT(fAngleSpeed, -500.0f, 500.0f);
 		
 		// also moving via mouse
 		// TODO: carving is still missing for a mouse-only playing (like Jason wanted it)
-		if(fabs(fMoveSpeedX) > 10) {
+		if(fabs(fMoveSpeedX) > 50) {
 			iDirection = (fMoveSpeedX > 0) ? DIR_RIGHT : DIR_LEFT;
 			ws->iMove = true;
 			move = true;
@@ -114,8 +114,8 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	}
 		
 	fAngle += fAngleSpeed * dt;
-	fAngle = CLAMP(fAngle, -90.0f, 60.0f);
-	if(fAngle == 60 || fAngle == -90) fAngleSpeed = 0;
+	if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
+		fAngleSpeed = 0;
 	
 	// Calculate dir
 	dir.x=( (float)cos(fAngle * (PI/180)) );
@@ -131,7 +131,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			if(cNinjaRope.isReleased())
 				cNinjaRope.Release();
 		}
-		else if(ms->Down & SDL_BUTTON(2)) {
+		else if(ms->FirstDown & SDL_BUTTON(2)) {
 			// TODO: this is bad. why isn't there a ws->iNinjaShoot ?
 			cNinjaRope.Shoot(vPos,dir);
 			PlaySoundSample(sfxGame.smpNinja);
@@ -159,20 +159,25 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		lastMousePosY = ms->Y;
 	}
 
-
-	if(!cRight.isDown())
-		iCarving &= ~1;
-	if(!cLeft.isDown())
-		iCarving &= ~2;
-
-
-	// Carving hack
-	RightOnce = cRight.isDownOnce();
-	if(cLeft.isDown() && RightOnce && iDirection == DIR_LEFT)  {
-		iCarving |= 2;
+	if(!mouseControl) {
+		if(!cRight.isDown())
+			iCarving &= ~1;
+		if(!cLeft.isDown())
+			iCarving &= ~2;
+	
+	
+		// Carving hack
+		RightOnce = cRight.isDownOnce();
+		if(cLeft.isDown() && RightOnce && iDirection == DIR_LEFT)  {
+			iCarving |= 2;
+		}
 	}
-
-
+	else { // mouseControl
+		if(fabs(fMoveSpeedX) > 200) {
+			ws->iCarve = true;
+			iCarving |= (fMoveSpeedX > 0) ? 1 : 2;
+		}
+	}
 
     //
     // Weapon changing

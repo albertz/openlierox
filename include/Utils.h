@@ -105,8 +105,17 @@ public:
 template <typename T> T MIN(T a, T b) { return a < b ? a : b; }
 template <typename T> T MAX(T a, T b) { return a > b ? a : b; }
 inline unsigned long MIN(unsigned long a, unsigned int b) { return a < b ? a : b; }
-template <typename T> T CLAMP(T num, T lower_bound, T upper_bound) {
+template <typename T> T CLAMP(const T& num, const T& lower_bound, const T& upper_bound) {
 	return num < lower_bound ? lower_bound : (num > upper_bound ? upper_bound : num); }
+template <typename T> int CLAMP_DIRECT(T& num, const T& lower_bound, const T& upper_bound) {
+	if(num < lower_bound) {
+		num = lower_bound;
+		return -1;
+	} else if(num > upper_bound) {
+	 	num = upper_bound;
+	 	return 1;
+	} else return 0;
+}
 template <typename T> void REDUCE_CONST(T& v, const T& red_const) {
 	if(v > 0) v -= red_const; else v += red_const; }
 template <typename T> void RESET_SMALL(T& v, const T& limit) {
