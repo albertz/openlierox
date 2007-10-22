@@ -686,11 +686,10 @@ void GameServer::RegisterServer(void)
 	NetAddrToString(&addr, addr_name);
 
 	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
-	if( IsNetAddrValid( &tSTUNAddress ) )
-	{
+	if (IsNetAddrValid( &tSTUNAddress ))  {
 		NetAddrToString(&tSTUNAddress, addr_name);
 		sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + addr_name;
-	};
+	}
 
     bServerRegistered = false;
 

@@ -170,6 +170,7 @@ void Menu_LocalShutdown(void)
 
 	if (sLocalPlayers)
 		delete[] sLocalPlayers;
+	sLocalPlayers = NULL;
 
 	cLocalMenu.Shutdown();
 }

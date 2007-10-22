@@ -78,7 +78,7 @@ public:
 		iID(id)
 		{ tMutex = SDL_CreateMutex(); }
 
-	~CFileDownload()  { Stop();/* SDL_DestroyMutex(tMutex);*/ }
+	~CFileDownload()  { Stop(); SDL_DestroyMutex(tMutex); }
 
 private:
 	std::string		sFileName;
@@ -124,6 +124,7 @@ private:
 	std::vector<std::string>	tDownloadServers;
 	SDL_Thread					*tThread;
 	bool						bBreakThread;
+	SDL_mutex					*tMutex;
 
 public:
 	void						StartFileDownload(const std::string& filename, const std::string& dest_dir);
@@ -132,7 +133,9 @@ public:
 	DownloadError				FileDownloadError(const std::string& filename);
 	byte						GetFileProgress(const std::string& filename);
 	std::list<CFileDownload>	*GetDownloads()		{ return &tDownloads; }
-	bool						ShouldBreakThread()	{ return bBreakThread; }
+	bool						ShouldBreakThread();
+	void						Lock()		{ SDL_LockMutex(tMutex); }
+	void						Unlock()	{ SDL_UnlockMutex(tMutex); }
 };
 
 

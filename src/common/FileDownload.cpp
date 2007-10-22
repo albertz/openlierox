@@ -42,11 +42,15 @@ int DownloadThreadMain(void *param)
 		return -1;
 
 	CFileDownloader *owner = (CFileDownloader *)param;
+	owner->Lock();
 	std::list<CFileDownload> *downloads = owner->GetDownloads();
+	owner->Unlock();
 
 	bool downloading = false;
 	while (!owner->ShouldBreakThread())  {
 		downloading = false;
+
+		owner->Lock();
 
 		// Process the downloads
 		for (std::list<CFileDownload>::iterator i = downloads->begin(); i != downloads->end(); i++)  {
@@ -55,6 +59,8 @@ int DownloadThreadMain(void *param)
 				downloading = true;
 			}
 		}
+
+		owner->Unlock();
 
 		// Nothing to download, just sleep
 		if (!downloading)
@@ -317,6 +323,7 @@ CFileDownloader::CFileDownloader()
 	bBreakThread = false;
 
 	// Create the thread
+	tMutex = SDL_CreateMutex();
 	tThread = SDL_CreateThread(DownloadThreadMain, this);
 }
 
@@ -324,14 +331,20 @@ CFileDownloader::CFileDownloader()
 // Destructor
 CFileDownloader::~CFileDownloader()
 {
+	Lock();
 	bBreakThread = true;
+	Unlock();
+
 	SDL_WaitThread(tThread, NULL);
+	SDL_DestroyMutex(tMutex);
 }
 
 //////////////
 // Add and start a download
 void CFileDownloader::StartFileDownload(const std::string& filename, const std::string& dest_dir)
 {
+	Lock();
+
 	// Add the download
 	CFileDownload new_dl = CFileDownload(&tDownloadServers, tDownloads.size());
 
@@ -345,27 +358,39 @@ void CFileDownloader::StartFileDownload(const std::string& filename, const std::
 		}
 	}
 
+	Unlock();
+
 }
 
 /////////////
 // Cancel a download
 void CFileDownloader::CancelFileDownload(const std::string& filename)
 {
+	Lock();
+
 	// Find the download and remove it, the destructor will stop the download automatically
 	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
 		if (i->GetFileName() == filename)  {
 			tDownloads.erase(i);
 			break;
 		}
+
+	Unlock();
 }
 
 //////////////
 // Returns true if the file has been successfully downloaded
 bool CFileDownloader::IsFileDownloaded(const std::string& filename)
 {
+	Lock();
+
 	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if (i->GetFileName() == filename)
+		if (i->GetFileName() == filename)  {
+			Unlock();
 			return i->GetState() == FILEDL_FINISHED;
+		}
+
+	Unlock();
 
 	return false;
 }
@@ -374,9 +399,15 @@ bool CFileDownloader::IsFileDownloaded(const std::string& filename)
 // Returns the download error for the specified file
 DownloadError CFileDownloader::FileDownloadError(const std::string& filename)
 {
+	Lock();
+
 	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if (i->GetFileName() == filename)
+		if (i->GetFileName() == filename)  {
+			Unlock();
 			return i->GetError();
+		}
+
+	Unlock();
 
 	// Not found, create a default "no error"
 	DownloadError err;
@@ -391,11 +422,27 @@ DownloadError CFileDownloader::FileDownloadError(const std::string& filename)
 // Get the file download progress in percents
 byte CFileDownloader::GetFileProgress(const std::string& filename)
 {
+	Lock();
+
 	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if (i->GetFileName() == filename)
+		if (i->GetFileName() == filename)  {
+			Unlock();
 			return i->GetProgress();
+		}
+
+	Unlock();
 
 	return 0;
+}
+
+////////////////
+// Returns break thread signal
+bool CFileDownloader::ShouldBreakThread()
+{
+	Lock();
+	bool res = bBreakThread;
+	Unlock();
+	return res;
 }
 
 

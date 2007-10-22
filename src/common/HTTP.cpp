@@ -32,8 +32,7 @@ const std::string sHttpErrors[] = {
 	"DNS timeout",
 	"Error sending HTTP request",
 	"Could not connect to the server",
-	"Network error: ",
-	"File not found"
+	"Network error: "
 };
 
 
@@ -63,12 +62,14 @@ bool CChunkParser::ParseNext(char c)
 			// Get the length
 			bool failed = false;
 			iCurLength = from_string<size_t>(sChunkLenStr, std::hex, failed);
-			sChunkLenStr = "";  // Not needed anymore
 			if (failed)  {
-				printf("Failed: \"" + sChunkLenStr + "\", " + itoa((uint)c) + "\n");
+#ifdef DEBUG
+				printf("ParseChunks - atoi failed: \"" + sChunkLenStr + "\", " + itoa((uint)c) + "\n");
+#endif
 				iCurLength = 0;
 				return false;  // Still processing
 			}
+			sChunkLenStr = "";  // Not needed anymore
 
 			// End?
 			if (iCurLength == 0)  {  // 0-length chunk = end of the chunk message
@@ -176,8 +177,7 @@ void CChunkParser::Reset()
 // Constructor
 CHttp::CHttp()
 {
-	// TODO: why is this a char-array?
-	// TODO: why is this a hardcoded fixed length?
+	// Buffer for reading from socket, each instance has its own buffer (thread safety)
 	tBuffer = new char[4096];
 	tChunkParser = new CChunkParser(&sPureData, &iDataLength, &iDataReceived);
 	Clear();
