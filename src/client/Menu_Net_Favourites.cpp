@@ -382,6 +382,11 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 	}
 
+	// F5 updates the list
+	if (GetKeyboard()->KeyUp[SDLK_F5])  {
+		Menu_SvrList_RefreshList();
+		Menu_SvrList_FillList((CListview *) cFavourites.getWidget(mf_ServerList));
+	}
 
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);

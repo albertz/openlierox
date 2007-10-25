@@ -340,6 +340,12 @@ void Menu_Net_LANFrame(int mouse)
 
 	}
 
+	// F5 updates the list
+	if (GetKeyboard()->KeyUp[SDLK_F5])  {
+		Menu_SvrList_Clear();
+		Menu_SvrList_PingLAN();
+	}
+
 
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);

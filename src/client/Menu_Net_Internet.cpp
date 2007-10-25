@@ -382,6 +382,10 @@ void Menu_Net_NETFrame(int mouse)
 
 	}
 
+	// F5 updates the list
+	if (GetKeyboard()->KeyUp[SDLK_F5])
+		Menu_Net_NETUpdateList();
+
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);
 
