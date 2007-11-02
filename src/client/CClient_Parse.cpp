@@ -550,6 +550,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
     // Team games require changing worm colours to match the team colour
 	// Inefficient, but i'm not going to redesign stuff for a simple gametype
 	CWorm *w = cRemoteWorms;
+	int num_worms = 0;
 	for(i=0;i<MAX_WORMS;i++,w++) {
 		if(w->isUsed()) {
 			w->LoadGraphics(iGameType);
@@ -564,8 +565,13 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 			// Prepare for battle!
 			w->Prepare(cMap);
+
+			num_worms++;
 		}
 	}
+
+	// Start the game logging
+	StartLogging(num_worms);
 
 	UpdateScoreboard();
 	bShouldRepaintInfo = true;
@@ -898,6 +904,16 @@ void CClient::ParseTagUpdate(CBytestream *bs)
 	// Tag the worm
 	cRemoteWorms[id].setTagIT(true);
 	cRemoteWorms[id].setTagTime(time);
+
+	// Log it
+	log_worm_t *l = GetLogWorm(id);
+	if (l)  {
+		for (int i=0; i < tGameLog->iNumWorms; i++)
+			tGameLog->tWorms[i].bTagIT = false;
+
+		l->fTagTime = time;
+		l->bTagIT = true;
+	}
 }
 
 
@@ -1053,6 +1069,16 @@ void CClient::ParseClientLeft(CBytestream *bs)
 			w->setUsed(false);
 			w->setAlive(false);
 			w->getLobby()->iType = LBY_OPEN;
+
+			// Log this
+			if (tGameLog)  {
+				log_worm_t *l = GetLogWorm(id);
+				if (l)  {
+					l->bLeft = true;
+					l->fTimeLeft = tLX->fCurTime;
+				}
+			}
+
 		}
 	}
 
@@ -1290,13 +1316,49 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 	short oldnum = num;
 	num = (byte)MIN(num,MAX_PLAYERS);
 
+	// For death logging
+	int killer = -1;
+	int victim = -1;
+
 	short i;
 	for(i=0; i<num; i++)
 		if (getWorm(i))  {
 			if (getWorm(i)->getLocal())
 				bShouldRepaintInfo = true;
+
+			int old_lives = getWorm(i)->getLives();
+			int old_kills = getWorm(i)->getKills();
 			getWorm(i)->readStatUpdate(bs);
+
+			// Check if the stats changed
+			if (old_lives != getWorm(i)->getLives())
+				victim = i;
+			if (old_kills != getWorm(i)->getKills())
+				killer = i;
 		}
+
+	// Someone has been killed, log it
+	if (killer != -1 && victim != -1)  {
+		log_worm_t *l_vict = GetLogWorm(victim);
+		log_worm_t *l_kill = GetLogWorm(killer);
+
+		if (l_kill && l_vict)  {
+
+			l_vict->iLives = getWorm(victim)->getLives();
+			l_kill->iKills = getWorm(killer)->getKills();
+
+			// Suicide
+			if (killer == victim)  {
+				l_vict->iSuicides++;
+			}
+
+			// Teamkill
+			if (getWorm(killer)->getTeam() == getWorm(victim)->getTeam())  {
+				l_kill->iTeamKills++;
+				l_vict->iTeamDeaths++;
+			}
+		}
+	}
 
 	// Skip if there were some clamped worms
 	for (i=0;i<oldnum-num;i++)
@@ -1351,6 +1413,8 @@ void CClient::ParseGotoLobby(CBytestream *bs)
 		// Goto the join lobby
 		Menu_Net_GotoJoinLobby();
 	}
+
+	ShutdownLog();
 }
 
 

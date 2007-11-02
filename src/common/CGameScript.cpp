@@ -539,9 +539,11 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
         if(!proj->bmpImage)
             modLog("Could not open image '%s'",proj->ImgFilename.c_str());
 		
-		// Set the colour key
-		else
-			SetColorKey(proj->bmpImage);
+		// Set the colour key (if not set)
+		else  {
+			if (!(proj->bmpImage->flags & SDL_SRCCOLORKEY))
+				SetColorKey(proj->bmpImage);
+		}
 
 		fread(&proj->Rotating, sizeof(int), 1, fp);
 		EndianSwap(proj->Rotating);

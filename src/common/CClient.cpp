@@ -25,6 +25,7 @@
 #include "CWorm.h"
 #include "Error.h"
 #include "Protocol.h"
+#include "StringUtils.h"
 #ifdef DEBUG
 #include "MathLib.h"
 #endif
@@ -63,6 +64,7 @@ void CClient::Clear(void)
 	bUpdateScore = true;
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
+	tGameLog = NULL;
 
 	InvalidateSocketState(tSocket);
 
@@ -286,6 +288,54 @@ int CClient::Initialize(void)
 
 	
 	return true;
+}
+
+///////////////////
+// Initialize the logging
+void CClient::StartLogging(int num_players)
+{
+	// Shutdown any previous logs
+	ShutdownLog();
+
+	// Allocate the log
+	tGameLog = new game_log_t;
+	if (!tGameLog)  {
+		printf("Out of memory while allocating log\n");
+		return;
+	}
+	tGameLog->tWorms = NULL;
+	tGameLog->fGameStart = tLX->fCurTime;
+	tGameLog->iNumWorms = num_players;
+	tGameLog->sGameStart = GetTime();
+	tGameLog->sServerName = szServerName;
+	NetAddrToString(cNetChan.getAddress(), tGameLog->sServerIP);
+
+	// Allocate log worms
+	int i;
+	tGameLog->tWorms = new log_worm_t[num_players];
+	if (!tGameLog->tWorms)
+		return;
+
+	// Initialize the log worms
+	for (i=0; i < num_players; i++)  {
+		tGameLog->tWorms[i].bLeft = false;
+		tGameLog->tWorms[i].iID = cRemoteWorms[i].getID();
+		tGameLog->tWorms[i].sName = cRemoteWorms[i].getName();
+		tGameLog->tWorms[i].sSkin = cRemoteWorms[i].getSkin();
+		tGameLog->tWorms[i].iKills = 0;
+		tGameLog->tWorms[i].iLives = tGameInfo.iLives;
+		tGameLog->tWorms[i].iSuicides = 0;
+		tGameLog->tWorms[i].iTeamKills = 0;
+		tGameLog->tWorms[i].iTeamDeaths = 0;
+		tGameLog->tWorms[i].bTagIT = false;
+		if (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP)
+			tGameLog->tWorms[i].iTeam = cRemoteWorms[i].getTeam();
+		else
+			tGameLog->tWorms[i].iTeam = -1;
+		tGameLog->tWorms[i].fTagTime = 0.0f;
+		tGameLog->tWorms[i].fTimeLeft = 0.0f;
+		tGameLog->tWorms[i].iType = cRemoteWorms[i].getType();
+	}
 }
 
 /////////////////
@@ -710,6 +760,110 @@ void CClient::RemoveWorm(int id)
 			
 }
 
+/////////////////
+// Writes the log into the specified file
+void CClient::GetLogData(std::string& data)
+{
+	// Clear
+	data = "";
+
+	// Checks
+	if (!tGameLog)
+		return;
+
+	if (!tGameLog->tWorms)
+		return;
+
+	std::string levelfile, modfile, level, mod, player, skin;
+
+	// Fill in the details
+	levelfile = tGameInfo.sMapFile;
+	modfile = tGameInfo.sModDir;
+	level = cMap->getName();
+	mod = cGameScript.GetHeader()->ModName;
+	xmlEntities(levelfile);
+	xmlEntities(modfile);
+	xmlEntities(level);
+	xmlEntities(mod);
+
+	// Save the game info
+	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
+			"length=\"" + ftoa(fGameOverTime - tGameLog->fGameStart) + "\" " +
+			"loading=\"" + itoa(tGameInfo.iLoadingTimes) + "\" " +
+			"lives=\"" + itoa(tGameInfo.iLives) + "\" " + 
+			"maxkills=\"" + itoa(tGameInfo.iKillLimit) + "\" " + 
+			"bonuses=\"" + (tGameInfo.iBonusesOn ? "1" : "0") + "\" " + 
+			"bonusnames=\"" + (tGameInfo.iShowBonusName ? "1" : "0") + "\" " + 
+			"levelfile=\"" + levelfile + "\" " + 
+			"modfile=\"" + modfile + "\" " + 
+			"level=\"" + level + "\" " + 
+			"mod=\"" + mod + "\" " + 
+			"gamemode=\"" + itoa(tGameInfo.iGameMode) + "\">";
+
+	// Count the number of players
+	int num_players = 0;
+	{for (short i=0; i < MAX_WORMS; i++)
+		num_players += cRemoteWorms[i].isUsed() ? 1 : 0;
+	}
+
+	// Save the general players info
+	data += "<players startcount=\"" + itoa(tGameLog->iNumWorms) + "\" endcount=\"" + itoa(num_players) + "\">";
+
+	// Info for each player
+	for (short i=0; i < tGameLog->iNumWorms; i++)  {
+
+		// Replace the entities
+		player = tGameLog->tWorms[i].sName;
+		xmlEntities(player);
+
+		// Replace the entities
+		skin = tGameLog->tWorms[i].sSkin;
+		xmlEntities(skin);
+
+		// Write the info
+		data += "<player name=\"" + player + "\" " + 
+				"skin=\"" + skin + "\" " + 
+				"id=\"" + itoa(tGameLog->tWorms[i].iID) + "\" "
+				"kills=\"" + itoa(tGameLog->tWorms[i].iKills) + "\" " + 
+				"lives=\"" + itoa(tGameLog->tWorms[i].iLives) + "\" " + 
+				"suicides=\"" + itoa(tGameLog->tWorms[i].iSuicides) + "\" " + 
+				"teamkills=\"" + itoa(tGameLog->tWorms[i].iTeamKills) + "\" " + 
+				"teamdeaths=\"" + itoa(tGameLog->tWorms[i].iTeamDeaths) + "\" " + 
+				"team=\"" + itoa(tGameLog->tWorms[i].iTeam) + "\" " + 
+				"tag=\"" + (tGameLog->tWorms[i].bTagIT ? "1" : "0") + "\" " + 
+				"tagtime=\"" + ftoa(tGameLog->tWorms[i].fTagTime) + "\" " + 
+				"left=\"" + (tGameLog->tWorms[i].bLeft ? "1" : "0") + "\" " +
+				"timeleft=\"" + ftoa(MAX(0.0f, tGameLog->tWorms[i].fTimeLeft - tGameLog->fGameStart)) + "\" " +
+				"type=\"" + itoa(tGameLog->tWorms[i].iType) + "\"/>";
+	}
+
+	// End tags
+	data += "</players>";
+	data += "</game>";
+}
+
+
+//////////////////
+// Returns the log worm with the specified id
+log_worm_t *CClient::GetLogWorm(int id)
+{
+	// Check
+	if (!tGameLog)
+		return NULL;
+	if (!tGameLog->tWorms)
+		return NULL;
+
+	// Go through the worms, checking the IDs
+	log_worm_t *w = tGameLog->tWorms;
+	int i;
+	for(i=0;i<tGameLog->iNumWorms;i++,w++)
+		if (w->iID == id)
+			return w;
+
+	// Not found
+	return NULL;
+}
+
 
 ///////////////////
 // Setup the worms (server func)
@@ -752,6 +906,23 @@ void CClient::BotSelectWeapons(void)
 				cLocalWorms[i]->writeWeapons(bytes);
 		}
 	}
+}
+
+///////////////////
+// Shutdown the log structure
+void CClient::ShutdownLog(void)
+{
+	if (!tGameLog)
+		return;
+
+	// Free the worms
+	if (tGameLog->tWorms)
+		delete[] tGameLog->tWorms;
+
+	// Free the log structure
+	delete tGameLog;
+
+	tGameLog = NULL;
 }
 
 
@@ -846,6 +1017,9 @@ void CClient::Shutdown(void)
 
 	// Shutdown map downloads
 	ShutdownDownloads();
+
+	// Shutdown logging
+	ShutdownLog();
 
 	// Log this
 	if (tLXOptions->iLogConvos)  {

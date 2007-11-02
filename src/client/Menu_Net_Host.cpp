@@ -431,7 +431,6 @@ bool		bHost_Update = false;
 int Menu_Net_HostLobbyInitialize(void)
 {
 	tGameInfo.iGameType = GME_HOST;
-	tGameInfo.bTournament = tLXOptions->tGameinfo.bTournament;
 	iNetMode = net_host;
 	iHostType = 1;
 	bHostGameSettings = false;
@@ -488,7 +487,6 @@ int Menu_Net_HostLobbyInitialize(void)
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
     gl->nBonuses = tLXOptions->tGameinfo.iBonusesOn;
-	gl->bTournament = tLXOptions->tGameinfo.bTournament;
 
 
 	// Clear the saved chat text
@@ -629,7 +627,6 @@ void Menu_Net_HostGotoLobby(void)
 	tGameInfo.iBonusesOn = tLXOptions->tGameinfo.iBonusesOn;
 	tGameInfo.iShowBonusName = tLXOptions->tGameinfo.iShowBonusName;
     tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
-	tGameInfo.bTournament = tLXOptions->tGameinfo.bTournament;
 
 	cClient->getChatbox()->setWidth(590);
 
@@ -640,7 +637,6 @@ void Menu_Net_HostGotoLobby(void)
 	gl->nLives = tLXOptions->tGameinfo.iLives;
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
-	gl->bTournament = tLXOptions->tGameinfo.bTournament;
 
     // Create the GUI
     Menu_Net_HostLobbyCreateGui();
@@ -698,7 +694,6 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			cServer->getLobby()->nMaxKills = tGameInfo.iKillLimit;
 			cServer->getLobby()->nLoadingTime = tGameInfo.iLoadingTimes;
             cServer->getLobby()->nBonuses = tGameInfo.iBonusesOn;
-			cServer->getLobby()->bTournament = tGameInfo.bTournament;
 			cServer->UpdateGameLobby();
 		}
 		return;
@@ -989,7 +984,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
                     tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
 
 					// Get the map name
-					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapname, 0);
+					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
+					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
 					// Save the current level in the options
 					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
 					cHostLobby.Shutdown();

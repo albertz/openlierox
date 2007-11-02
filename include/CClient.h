@@ -62,6 +62,34 @@ class chat_line_t { public:
 	int		iType;
 };
 
+// Structure for logging worms
+class log_worm_t { public:
+	std::string	sName;
+	std::string	sSkin;
+	int			iLives;
+	int			iKills;
+	int			iID;
+	int			iSuicides;
+	int			iTeamKills;
+	int			iTeamDeaths;
+	int			iTeam;
+	bool		bTagIT;
+	float		fTagTime;
+	bool		bLeft;
+	float		fTimeLeft;
+	int			iType;
+};
+
+// Game log structure
+class game_log_t { public:
+	log_worm_t	*tWorms;
+	int			iNumWorms;
+	float		fGameStart;
+	std::string	sGameStart;
+	std::string sServerName;
+	std::string sServerIP;
+};
+
 
 class interface_sett { public:
 	int		ChatterX;
@@ -174,6 +202,7 @@ public:
 		cChatList = NULL;
 		bUpdateScore = true;
 		bShouldRepaintInfo = true;
+		tGameLog = NULL;
 
 		szServerName="";
 
@@ -237,6 +266,9 @@ private:
 
 	// Remote worms
 	CWorm		*cRemoteWorms;
+
+	// Logging
+	game_log_t	*tGameLog;
 
 	// Map
 	CMap		*cMap;
@@ -395,6 +427,12 @@ public:
 	int			Initialize(void);
 	void		Shutdown(void);
 	void		FinishGame(void);
+
+	// Logging
+	void		StartLogging(int num_players);
+	void		ShutdownLog();
+	log_worm_t	*GetLogWorm(int id);
+	void		GetLogData(std::string& data);
 
 	// Server editing of the client
 	void		SetupWorms(int numworms, CWorm *worms);

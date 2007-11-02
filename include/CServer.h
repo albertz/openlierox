@@ -50,32 +50,6 @@ enum {
 	CLL_BAN
 };
 
-// Structure for logging worms
-class log_worm_t { public:
-	std::string	sName;
-	std::string	sSkin;
-	int			iLives;
-	int			iKills;
-	int			iID;
-	int			iSuicides;
-	int			iTeam;
-	bool		bTagIT;
-	float		fTagTime;
-	bool		bLeft;
-	int			iLeavingReason;
-	float		fTimeLeft;
-	int			iType;
-	std::string	sIP;
-};
-
-// Game log structure
-class game_log_t { public:
-	log_worm_t	*tWorms;
-	int			iNumWorms;
-	float		fGameStart;
-	std::string	sGameStart;
-};
-
 class GameServer {
 public:
 	// Constructor
@@ -94,9 +68,6 @@ private:
 	// General
 	std::string	sName;
 	int			iState;
-
-	// Logging
-	game_log_t	*tGameLog;
 
 	// Game rules
 	int			iGameOver;
@@ -176,13 +147,6 @@ public:
 	void		Shutdown(void);	
 
     void        notifyLog(char *fmt, ...);
-
-	// Logging
-	void				ShutdownLog(void);
-	log_worm_t			*GetLogWorm(int id);
-	void				GetLogData(std::string& data);
-
-
 
 	// Game
 	void		Frame();

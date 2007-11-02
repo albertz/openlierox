@@ -262,8 +262,6 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 	CWorm *vict = &cWorms[victim];
 	CWorm *kill = &cWorms[killer];
-	log_worm_t *log_vict = GetLogWorm(vict->getID());
-	log_worm_t *log_kill = GetLogWorm(kill->getID());
 
 	if (tLXOptions->bServerSideHealth)  {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
@@ -336,23 +334,13 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			kill->addKillInRow();
 			kill->AddKill();
 			kill->setDeathsInRow(0);
-			if (log_kill)
-				log_kill->iKills++;
 		}
-	} else {
-		// Log the suicide
-		if (log_vict)
-			log_vict->iSuicides++;
 	}
 
 	// If the flag was attached to the dead worm then release the flag
 	for(int j=0;j<MAX_WORMS;j++)
 		if(getFlagHolder(j) == victim && (iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
 			setFlagHolder(-1, j);
-
-	// Log
-	if (log_vict)
-		log_vict->iLives--;
 
 	// Killing spree message
 	switch (kill->getKillsInRow())  {
@@ -1385,7 +1373,7 @@ void GameServer::ParseGetInfo(void) {
 	}
 	// Loading
 	else {
-		bs.writeString(tGameInfo.sMapname);
+		bs.writeString(tGameInfo.sMapFile);
 		bs.writeString(tGameInfo.sModName);
 		bs.writeByte(tGameInfo.iGameType);
 		bs.writeInt16(tGameInfo.iLives);

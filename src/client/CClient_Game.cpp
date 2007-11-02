@@ -191,8 +191,14 @@ void CClient::Simulation(void)
 
 
 		// In a game of tag, increment the tagged worms time
-		if(iGameType == GMT_TAG && w->getTagIT())
-			w->incrementTagTime(tLX->fDeltaTime);
+		if(iGameType == GMT_TAG && w->getTagIT())  {
+			w->incrementTagTime(tLX->fRealDeltaTime);
+
+			// Log
+			log_worm_t *l = GetLogWorm(w->getID());
+			if (l)
+				l->fTagTime += tLX->fRealDeltaTime;
+		}
 	}
 
 	// Entities

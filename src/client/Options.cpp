@@ -188,7 +188,7 @@ bool GameOptions::LoadFromDisc()
     ReadKeyword(f, "LastGame", "Bonuses",   &tGameinfo.iBonusesOn, true);
     ReadKeyword(f, "LastGame", "BonusNames",&tGameinfo.iShowBonusName, true);
     ReadInteger(f, "LastGame", "MaxPlayers",&tGameinfo.iMaxPlayers, 8);
-	ReadKeyword(f, "LastGame", "Tournament", &tGameinfo.bTournament, true);
+	ReadKeyword(f, "LastGame", "MatchLogging", &tGameinfo.bMatchLogging, true);
     ReadString (f, "LastGame", "ServerName",tGameinfo.sServerName, "LieroX Server");
 	ReadString (f, "LastGame", "WelcomeMessage",tGameinfo.sWelcomeMessage, "Welcome to <server>, <player>");
     ReadString (f, "LastGame", "LevelName", tGameinfo.sMapFilename, "");
@@ -345,7 +345,7 @@ void GameOptions::SaveToDisc()
     fprintf(fp, "Bonuses = %s\n",   tGameinfo.iBonusesOn ? "true" : "false");
     fprintf(fp, "BonusNames = %s\n",tGameinfo.iShowBonusName ? "true" : "false");
     fprintf(fp, "MaxPlayers = %d\n",tGameinfo.iMaxPlayers);
-	fprintf(fp, "Tournament = %s\n",tGameinfo.bTournament ? "true" : "false");
+	fprintf(fp, "MatchLogging = %s\n",tGameinfo.bMatchLogging ? "true" : "false");
     fprintf(fp, "ServerName = %s\n",tGameinfo.sServerName.c_str());
 	fprintf(fp, "WelcomeMessage = %s\n",tGameinfo.sWelcomeMessage.c_str());
     fprintf(fp, "LevelName = %s\n", tGameinfo.sMapFilename.c_str());

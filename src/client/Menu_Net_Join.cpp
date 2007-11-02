@@ -552,7 +552,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		const std::string gamemodes[] = {"Deathmatch","Team Deathmatch", "Tag", "Demolitions"};
 
-        tGameInfo.sMapname = gl->szMapName;
+        tGameInfo.sMapFile = gl->szMapName;
+		tGameInfo.sMapName = gl->szDecodedMapName;
         tGameInfo.sModName = gl->szModName;
         tGameInfo.sModDir = gl->szModDir;
 		tGameInfo.iBonusesOn = gl->nBonuses;

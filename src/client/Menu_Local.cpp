@@ -548,7 +548,8 @@ void Menu_LocalStartGame(void)
     int i;
 
 	// Level
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapname, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
 
 
 	//
@@ -725,7 +726,6 @@ enum {
 	gs_Bonuses,
 	gs_ShowBonusNames,
 	gs_MaxTime,
-	gs_Tournament
 };
 
 
@@ -768,10 +768,6 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 480, 260, 0, 0);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.iBonusesOn),	gs_Bonuses, 320,287,17,17);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.iShowBonusName),gs_ShowBonusNames, 320,317,17,17);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bTournament),gs_Tournament, 320,347,17,17);
-
-	if (tGameInfo.iGameType != GME_HOST)
-		cGameSettings.getWidget(gs_Tournament)->setEnabled(false);
 
 	cGameSettings.SendMessage(gs_Lives,TXM_SETMAX,6,0);
 	cGameSettings.SendMessage(gs_MaxKills,TXM_SETMAX,6,0);
@@ -863,7 +859,6 @@ void Menu_GameSettings_GrabInfo(void)
 	tGameInfo.iTagLimit = tLXOptions->tGameinfo.iTagLimit = -1;
 	tGameInfo.iBonusesOn = true;
 	tGameInfo.iShowBonusName = true;
-	tGameInfo.bTournament = false;
 
 
 	// Store the game info into the options structure as well
@@ -883,9 +878,6 @@ void Menu_GameSettings_GrabInfo(void)
 
 	tGameInfo.iShowBonusName = cGameSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, (DWORD)0, 0);
 	tLXOptions->tGameinfo.iShowBonusName = tGameInfo.iShowBonusName;
-
-	tGameInfo.bTournament = cGameSettings.SendMessage( gs_Tournament, CKM_GETCHECK, (DWORD)0, 0) != 0;
-	tLXOptions->tGameinfo.bTournament = tGameInfo.bTournament;
 }
 
 
@@ -900,7 +892,6 @@ void Menu_GameSettings_Default(void)
 
     cGameSettings.SendMessage(gs_Bonuses, CKM_SETCHECK, (DWORD)1, 0);
     cGameSettings.SendMessage(gs_ShowBonusNames, CKM_SETCHECK, (DWORD)1, 0);
-	cGameSettings.SendMessage(gs_Tournament, CKM_SETCHECK, (DWORD)0, 0);
 }
 
 

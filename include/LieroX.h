@@ -215,7 +215,8 @@ class game_t { public:
 	int			iGameType;		// Local, remote, etc
 	int			iGameMode;		// DM, team DM, etc
 	std::string		sModName;
-	std::string		sMapname;
+	std::string		sMapFile;
+	std::string		sMapName;
     std::string        sPassword;
 	std::string		sModDir;
     maprandom_t sMapRandom;
@@ -223,7 +224,6 @@ class game_t { public:
 	std::string		sServername;
 	std::string		sWelcomeMessage;
 	bool		bRegServer;
-	bool		bTournament;
 
 	int			iLives;
 	int			iKillLimit;
@@ -254,7 +254,6 @@ class game_lobby_t { public:
 	std::string	szModDir;
 	bool	bHaveMap;
 	bool	bHaveMod;
-	bool	bTournament;
 };
 
 

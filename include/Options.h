@@ -223,7 +223,7 @@ public:
 		int		iBonusesOn;
 		int		iShowBonusName;
 		int		iMaxPlayers;
-		bool	bTournament;
+		bool	bMatchLogging;
 		std::string	sServerName;
 		std::string	sWelcomeMessage;
 		std::string	sMapFilename;

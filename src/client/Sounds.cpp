@@ -290,13 +290,14 @@ void InitializeMusic(void)
 
 void PlayMusicAsync(const std::string& file)
 {
+	while (LoadingSong) SDL_Delay(5);  // If we're currently loading another song, wait
+
 	if (file == SongName && LoadedMusic)  {
 		if (!PlayingMusic())
 			PlayMusic(LoadedMusic, 1); // If stopped, play
 		return;  // Already loading this
 	}
 
-	while (LoadingSong) SDL_Delay(5);  // If we're currently loading another song, wait
 	SongName = file;
 	LoadingSong = true;
 }

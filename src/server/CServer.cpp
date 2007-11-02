@@ -68,7 +68,6 @@ void GameServer::Clear(void)
 	fLastRegister = 0;
 	nPort = LX_PORT;
 
-	tGameLog = NULL;
 	bTournament = false;
 
 	fLastUpdateSent = -9999;
@@ -265,53 +264,10 @@ int GameServer::StartGame(void)
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
 	iBonusesOn =	 tGameInfo.iBonusesOn;
 	iShowBonusName = tGameInfo.iShowBonusName;
-	bTournament =	 tGameInfo.bTournament;
-
-	//
-	// Start the logging
-	//
-	tGameLog = new game_log_t;
-	if (!tGameLog)  {
-		printf("Out of memory while allocating log\n");
-		return false;
-	}
-	tGameLog->tWorms = NULL;
-	tGameLog->fGameStart = tLX->fCurTime;
-	tGameLog->iNumWorms = iNumPlayers;
-	tGameLog->sGameStart = GetTime();
 
 	// Check
 	if (!cWorms)
 		return false;
-
-	// Allocate the log worms
-	int i;
-	tGameLog->tWorms = new log_worm_t[iNumPlayers];
-	if (!tGameLog->tWorms)
-		return false;
-
-	// Initialize the log worms
-	for (i=0;i<iNumPlayers;i++)  {
-		tGameLog->tWorms[i].bLeft = false;
-		tGameLog->tWorms[i].iID = cWorms[i].getID();
-		tGameLog->tWorms[i].sName = cWorms[i].getName();
-		tGameLog->tWorms[i].sSkin = cWorms[i].getSkin();
-		tGameLog->tWorms[i].iKills = 0;
-		tGameLog->tWorms[i].iLives = tGameInfo.iLives;
-		tGameLog->tWorms[i].iLeavingReason = -1;
-		tGameLog->tWorms[i].iSuicides = 0;
-		tGameLog->tWorms[i].bTagIT = false;
-		if (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP)
-			tGameLog->tWorms[i].iTeam = cWorms[i].getTeam();
-		else
-			tGameLog->tWorms[i].iTeam = -1;
-		tGameLog->tWorms[i].fTagTime = 0.0f;
-		tGameLog->tWorms[i].fTimeLeft = 0.0f;
-		tGameLog->tWorms[i].iType = cWorms[i].getType();
-		NetworkAddr *a = cWorms[i].getClient()->getChannel()->getAddress();
-		NetAddrToString(a,tGameLog->tWorms[i].sIP);
-	}
-
 
 
 	// Reset the first blood
@@ -333,7 +289,7 @@ int GameServer::StartGame(void)
 	}
 
 	iRandomMap = false;
-	if(stringcasecmp(tGameInfo.sMapname,"_random_") == 0)
+	if(stringcasecmp(tGameInfo.sMapFile,"_random_") == 0)
 		iRandomMap = true;
 
 	if(iRandomMap) {
@@ -348,7 +304,7 @@ int GameServer::StartGame(void)
 
 	} else {
 
-		sMapFilename = "levels/" + tGameInfo.sMapname;
+		sMapFilename = "levels/" + tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
 			printf("Error: Could not load the '%s' level\n",sMapFilename.c_str());
 			return false;
@@ -371,7 +327,7 @@ int GameServer::StartGame(void)
 	CBytestream bytestr;
 	bytestr.Clear();
 
-	for(i=0;i<MAX_WORMS;i++) {
+	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed())
 			continue;
 		if(flags) {
@@ -862,14 +818,6 @@ void GameServer::DropClient(CClient *cl, int reason)
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
 
-		// Log worm leaving
-		log_worm_t *logworm = GetLogWorm(cl->getWorm(i)->getID());
-		if (logworm)  {
-			logworm->bLeft = true;
-			logworm->iLeavingReason = reason;
-			logworm->fTimeLeft = tLX->fCurTime;
-		}
-
         switch(reason) {
 
             // Quit
@@ -955,14 +903,6 @@ void GameServer::DropClient(CClient *cl, int reason, std::string sReason)
 	int i;
 	for(i=0; i<cl->getNumWorms(); i++) {
 		bs.writeByte(cl->getWorm(i)->getID());
-
-		// Log worm leaving
-		log_worm_t *logworm = GetLogWorm(cl->getWorm(i)->getID());
-		if (logworm)  {
-			logworm->bLeft = true;
-			logworm->iLeavingReason = reason;
-			logworm->fTimeLeft = tLX->fCurTime;
-		}
 
         switch(reason) {
 
@@ -1507,104 +1447,6 @@ CClient *GameServer::getClient(int iWormID)
 }
 
 
-/////////////////
-// Writes the log into the specified file
-void GameServer::GetLogData(std::string& data)
-{
-	// Clear
-	data = "";
-
-	// Checks
-	if (!tGameLog)
-		return;
-
-	if (!tGameLog->tWorms)
-		return;
-
-	std::string levelfile, modfile, level, mod, player, skin;
-
-	// Fill in the details
-	levelfile = sMapFilename;
-	modfile = tGameInfo.sModDir;
-	level = cMap->getName();
-	mod = cGameScript.GetHeader()->ModName;
-	xmlEntities(levelfile);
-	xmlEntities(modfile);
-	xmlEntities(level);
-	xmlEntities(mod);
-
-	// Save the game info
-	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
-			"length=\"" + ftoa(fGameOverTime - tGameLog->fGameStart) + "\" " +
-			"loading=\"" + itoa(iLoadingTimes) + "\" " +
-			"lives=\"" + itoa(iLives) + "\" " + 
-			"maxkills=\"" + itoa(iMaxKills) + "\" " + 
-			"bonuses=\"" + (iBonusesOn ? "1" : "0") + "\" " + 
-			"bonusnames=\"" + (iShowBonusName ? "1" : "0") + "\" " + 
-			"levelfile=\"" + levelfile + "\" " + 
-			"modfile=\"" + modfile + "\" " + 
-			"level=\"" + level + "\" " + 
-			"mod=\"" + mod + "\" " + 
-			"gamemode=\"" + itoa(iGameType) + "\">";
-
-	// Save the general players info
-	data += "<players startcount=\"" + itoa(tGameLog->iNumWorms) + "\" endcount=\"" + itoa(iNumPlayers) + "\">";
-
-	// Info for each player
-	for (short i=0; i < tGameLog->iNumWorms; i++)  {
-
-		// Replace the entities
-		player = tGameLog->tWorms[i].sName;
-		xmlEntities(player);
-
-		// Replace the entities
-		skin = tGameLog->tWorms[i].sSkin;
-		xmlEntities(skin);
-
-		// Write the info
-		data += "<player name=\"" + player + "\" " + 
-				"skin=\"" + skin + "\" " + 
-				"id=\"" + itoa(tGameLog->tWorms[i].iID) + "\" "
-				"kills=\"" + itoa(tGameLog->tWorms[i].iKills) + "\" " + 
-				"lives=\"" + itoa(tGameLog->tWorms[i].iLives) + "\" " + 
-				"suicides=\"" + itoa(tGameLog->tWorms[i].iSuicides) + "\" " + 
-				"team=\"" + itoa(tGameLog->tWorms[i].iTeam) + "\" " + 
-				"tag=\"" + (tGameLog->tWorms[i].bTagIT ? "1" : "0") + "\" " + 
-				"tagtime=\"" + ftoa(tGameLog->tWorms[i].fTagTime) + "\" " + 
-				"left=\"" + (tGameLog->tWorms[i].bLeft ? "1" : "0") + "\" " +
-				"leavingreason=\"" + itoa(tGameLog->tWorms[i].iLeavingReason) + "\" " + 
-				"timeleft=\"" + ftoa(MAX(0.0f, tGameLog->tWorms[i].fTimeLeft - tGameLog->fGameStart)) + "\" " +
-				"type=\"" + itoa(tGameLog->tWorms[i].iType) + "\" " + 
-				"ip=\"" + tGameLog->tWorms[i].sIP + "\"/>";
-	}
-
-	// End tags
-	data += "</players>";
-	data += "</game>";
-}
-
-//////////////////
-// Returns the log worm with the specified id
-log_worm_t *GameServer::GetLogWorm(int id)
-{
-	// Check
-	if (!tGameLog)
-		return NULL;
-	if (!tGameLog->tWorms)
-		return NULL;
-
-	// Go through the worms, checking the IDs
-	log_worm_t *w = tGameLog->tWorms;
-	int i;
-	for(i=0;i<tGameLog->iNumWorms;i++,w++)
-		if (w->iID == id)
-			return w;
-
-	// Not found
-	return NULL;
-}
-
-
 ///////////////////
 // Get the download rate in bytes/s
 float GameServer::GetDownload()
@@ -1638,23 +1480,6 @@ float GameServer::GetUpload()
 }
 
 ///////////////////
-// Shutdown the log structure
-void GameServer::ShutdownLog(void)
-{
-	if (!tGameLog)
-		return;
-
-	// Free the worms
-	if (tGameLog->tWorms)
-		delete[] tGameLog->tWorms;
-
-	// Free the log structure
-	delete tGameLog;
-
-	tGameLog = NULL;
-}
-
-///////////////////
 // Shutdown the server
 void GameServer::Shutdown(void)
 {
@@ -1681,8 +1506,6 @@ void GameServer::Shutdown(void)
 		delete cMap;
 		cMap = NULL;
 	}
-
-	ShutdownLog();
 
 	cShootList.Shutdown();
 
