@@ -566,7 +566,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			InitializeGameMenu();
 
 			// If this is a tournament, take screenshot of the final screen
-			if (tLXOptions->tGameinfo.bMatchLogging && tGameInfo.iGameType != GME_LOCAL)  {
+			if (tLXOptions->tGameinfo.bMatchLogging /*&& tGameInfo.iGameType != GME_LOCAL*/)  {
 				screenshot_t scrn;
 				scrn.sDir = "tourny_scrshots";
 				GetLogData(scrn.sData);
@@ -1020,8 +1020,15 @@ void CClient::InitializeGameMenu()
 
 	cGameMenuLayout.Add(new CLabel("", tLX->clNormalLabel), gm_TopMessage, 440, 5, 0, 0);
 	if (iGameOver)  {
-		cGameMenuLayout.Add(new CLabel(cRemoteWorms[iMatchWinner].getName(), tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-		cGameMenuLayout.Add(new CImage(cRemoteWorms[iMatchWinner].getPicimg()), gm_TopSkin, 490, 5, 0, 0);
+		if (tGameInfo.iGameMode == GMT_TEAMDEATH)  {
+			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
+			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
+			cGameMenuLayout.Add(new CLabel(teamnames[iMatchWinner], tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
+			cGameMenuLayout.Add(new CImage(gfxGame.bmpTeamColours[iMatchWinner]), gm_TopSkin, 490, 5, 0, 0);
+		} else {
+			cGameMenuLayout.Add(new CLabel(cRemoteWorms[iMatchWinner].getName(), tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
+			cGameMenuLayout.Add(new CImage(cRemoteWorms[iMatchWinner].getPicimg()), gm_TopSkin, 490, 5, 0, 0);
+		}
 	}
 
 	cGameMenuLayout.SetGlobalProperty(PRP_REDRAWMENU, false);

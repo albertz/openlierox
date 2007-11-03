@@ -64,7 +64,10 @@ void CClient::Clear(void)
 	bUpdateScore = true;
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
+
 	tGameLog = NULL;
+	iLastVictim = -1;
+	iLastKiller = -1;
 
 	InvalidateSocketState(tSocket);
 
@@ -137,6 +140,9 @@ void CClient::MinorClear(void)
 
 	//fProjDrawTime = 0;
 	//fProjSimulateTime = 0;
+
+	iLastVictim = -1;
+	iLastKiller = -1;
 
 	iBadConnection = false;
 	iServerError = false;
@@ -306,6 +312,7 @@ void CClient::StartLogging(int num_players)
 	tGameLog->tWorms = NULL;
 	tGameLog->fGameStart = tLX->fCurTime;
 	tGameLog->iNumWorms = num_players;
+	tGameLog->iWinner = -1;
 	tGameLog->sGameStart = GetTime();
 	tGameLog->sServerName = szServerName;
 	NetAddrToString(cNetChan.getAddress(), tGameLog->sServerIP);
@@ -798,6 +805,7 @@ void CClient::GetLogData(std::string& data)
 			"modfile=\"" + modfile + "\" " + 
 			"level=\"" + level + "\" " + 
 			"mod=\"" + mod + "\" " + 
+			"winner=\"" + itoa(tGameLog->iWinner) + "\" " +
 			"gamemode=\"" + itoa(tGameInfo.iGameMode) + "\">";
 
 	// Count the number of players

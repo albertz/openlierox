@@ -789,9 +789,34 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 	short id = bs->readInt(1);
 
 	if(id >= 0 && id < MAX_WORMS)  {
+		log_worm_t *l = GetLogWorm(id);
+
+		// Update the score
 		cRemoteWorms[id].readScore(bs);
 		if (cRemoteWorms[id].getLocal())
 			bShouldRepaintInfo = true;
+
+		// Logging
+		if (l)  {
+			// Check if the stats changed
+			bool stats_changed = false;
+			if (l->iLives != cRemoteWorms[id].getLives())  {
+				l->iLives = cRemoteWorms[id].getLives();
+				iLastVictim = id;
+				stats_changed = true;
+			}
+
+			if (l->iKills != cRemoteWorms[id].getKills())  {
+				l->iKills = cRemoteWorms[id].getKills();
+				iLastKiller = id;
+				stats_changed = true;
+			}
+
+			// If the update was sent but no changes made -> this is a killer that made a teamkill
+			// See CServer::ParseDeathPacket for more info
+			if (!stats_changed)
+				iLastKiller = id;
+		}
 	}
 	else
 		// do this to get the right position in net stream
@@ -809,8 +834,34 @@ void CClient::ParseScoreUpdate(CBytestream *bs)
 void CClient::ParseGameOver(CBytestream *bs)
 {
 	iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
+
+	// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
+	if (tGameInfo.iGameMode == GMT_TEAMDEATH)  {
+		iMatchWinner = 0;
+
+		if (tGameInfo.iKillLimit != -1)  {
+			for (int i=0; i<MAX_WORMS; i++)  {
+				if (cRemoteWorms[i].getKills() >= tGameInfo.iKillLimit)  {
+					iMatchWinner = cRemoteWorms[i].getTeam();
+					break;
+				}
+			}
+		}
+
+		for (int i=0; i < MAX_WORMS; i++)  {
+			if (cRemoteWorms[i].getLives() >= 0)  {
+				iMatchWinner = cRemoteWorms[i].getTeam();
+				break;
+			}
+		}
+	}
+
+	// Game over
 	iGameOver = true;
 	fGameOverTime = tLX->fCurTime;
+
+	if (tGameLog)
+		tGameLog->iWinner = iMatchWinner;
 
     // Clear the projectiles
     for(int i=0; i<MAX_PROJECTILES; i++)
@@ -1241,6 +1292,34 @@ void CClient::ParseWormDown(CBytestream *bs)
 	} else {
 		printf("CClient::ParseWormDown: invalid worm ID ("+itoa(id)+")\n");
 	}
+
+	// Someone has been killed, log it
+	if (iLastVictim != -1)  {
+		log_worm_t *l_vict = GetLogWorm(iLastVictim);
+		log_worm_t *l_kill = l_vict;
+
+		// If we haven't received killer's update score, it has been a suicide
+		if (iLastKiller != -1)
+			l_kill = GetLogWorm(iLastKiller);
+
+		if (l_kill && l_vict)  {
+			// HINT: lives and kills are updated in ParseScoreUpdate
+
+			// Suicide
+			if (l_kill == l_vict)  {
+				l_vict->iSuicides++;
+			}
+
+			// Teamkill
+			else if (cRemoteWorms[iLastKiller].getTeam() == cRemoteWorms[iLastVictim].getTeam())  {
+				l_kill->iTeamKills++;
+				l_vict->iTeamDeaths++;
+			}
+		}
+	}
+
+	// Reset
+	iLastVictim = iLastKiller = -1;
 }
 
 
@@ -1326,39 +1405,8 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 			if (getWorm(i)->getLocal())
 				bShouldRepaintInfo = true;
 
-			int old_lives = getWorm(i)->getLives();
-			int old_kills = getWorm(i)->getKills();
 			getWorm(i)->readStatUpdate(bs);
-
-			// Check if the stats changed
-			if (old_lives != getWorm(i)->getLives())
-				victim = i;
-			if (old_kills != getWorm(i)->getKills())
-				killer = i;
 		}
-
-	// Someone has been killed, log it
-	if (killer != -1 && victim != -1)  {
-		log_worm_t *l_vict = GetLogWorm(victim);
-		log_worm_t *l_kill = GetLogWorm(killer);
-
-		if (l_kill && l_vict)  {
-
-			l_vict->iLives = getWorm(victim)->getLives();
-			l_kill->iKills = getWorm(killer)->getKills();
-
-			// Suicide
-			if (killer == victim)  {
-				l_vict->iSuicides++;
-			}
-
-			// Teamkill
-			if (getWorm(killer)->getTeam() == getWorm(victim)->getTeam())  {
-				l_kill->iTeamKills++;
-				l_vict->iTeamDeaths++;
-			}
-		}
-	}
 
 	// Skip if there were some clamped worms
 	for (i=0;i<oldnum-num;i++)

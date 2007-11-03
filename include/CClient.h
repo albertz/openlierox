@@ -84,6 +84,7 @@ class log_worm_t { public:
 class game_log_t { public:
 	log_worm_t	*tWorms;
 	int			iNumWorms;
+	int			iWinner;
 	float		fGameStart;
 	std::string	sGameStart;
 	std::string sServerName;
@@ -202,7 +203,10 @@ public:
 		cChatList = NULL;
 		bUpdateScore = true;
 		bShouldRepaintInfo = true;
+
 		tGameLog = NULL;
+		iLastVictim = -1;
+		iLastKiller = -1;
 
 		szServerName="";
 
@@ -269,6 +273,8 @@ private:
 
 	// Logging
 	game_log_t	*tGameLog;
+	int			iLastVictim;
+	int			iLastKiller;
 
 	// Map
 	CMap		*cMap;
