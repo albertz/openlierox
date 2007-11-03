@@ -61,8 +61,6 @@ int iGameType = GMT_DEATHMATCH;
 bool	bGameSettings = false;
 bool    bWeaponRest = false;
 
-CWorm *sLocalPlayers = NULL;
-
 
 ///////////////////
 // Initialize the local menu
@@ -71,15 +69,6 @@ void Menu_LocalInitialize(void)
 	tMenu->iMenuType = MNU_LOCAL;
 	iGameType = GMT_DEATHMATCH;
 	bGameSettings = false;
-
-	// Allocate the players
-	if (!sLocalPlayers)  {
-		sLocalPlayers = new CWorm[MAX_PLAYERS];
-		if (!sLocalPlayers)  {
-			Menu_MainInitialize();
-			return;
-		}
-	}
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
@@ -121,7 +110,6 @@ void Menu_LocalInitialize(void)
 	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "", 60);
 
 	cLocalMenu.SendMessage(ml_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
-	Menu_LocalAddProfiles();
 
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Deathmatch", GMT_DEATHMATCH);
 	cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, "Team Deathmatch", GMT_TEAMDEATH);
@@ -136,6 +124,9 @@ void Menu_LocalInitialize(void)
 
     cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, tLXOptions->tGameinfo.nGameType, 0);
     iGameType = tLXOptions->tGameinfo.nGameType;
+
+	// Add players to player/playing lists
+	Menu_LocalAddProfiles();
 
 	// Fill the level list
 	Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), true);
@@ -167,10 +158,6 @@ void Menu_LocalShutdown(void)
 		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
 		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.szModName, 0);
 	}
-
-	if (sLocalPlayers)
-		delete[] sLocalPlayers;
-	sLocalPlayers = NULL;
 
 	cLocalMenu.Shutdown();
 }
@@ -286,74 +273,14 @@ void Menu_LocalFrame(void)
 			// Player list
 			case ml_PlayerList:
 				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
-					// Add the item to the players list
-					lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
-					int index = lv->getCurIndex();
-
-					// Check if we have enough room for another player
-					if(Menu_LocalCheckPlaying(index)) {
-
-						// Remove the item from the list
-						lv->RemoveItem(index);
-
-						ply = FindProfile(index);
-
-						if(ply) {
-                            // Add a player onto the local players list
-							sLocalPlayers[index].setUsed(true);
-							sLocalPlayers[index].setHealth(0);
-							sLocalPlayers[index].setTeam(0);
-							sLocalPlayers[index].setProfile(ply);
-							sLocalPlayers[index].setSkin(ply->szSkin);
-							sLocalPlayers[index].setColour(ply->R, ply->G, ply->B);
-							sLocalPlayers[index].setDefaultColour(ply->R, ply->G, ply->B);
-							sLocalPlayers[index].LoadGraphics(iGameType);
-
-							// Add the item
-							CImage *img = new CImage(gfxGame.bmpTeamColours[0]);
-							if (img)  {
-								img->setID(index);
-								img->setRedrawMenu(false);
-							}
-							lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
-							lv->AddItem("",index,tLX->clListView);
-							lv->AddSubitem(LVS_IMAGE, "", sLocalPlayers[index].getPicimg(), NULL);
-							lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
-							lv->AddSubitem(LVS_WIDGET, "", NULL, img);
-
-							// If we're in deathmatch, make the team colour invisible
-							lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
-							if(sub) {
-								if(iGameType != GMT_TEAMDEATH && iGameType != GMT_VIP)
-									sub->iVisible = false;
-								sub->iExtra = 0;
-							}
-						}
-					}
+					Menu_LocalAddPlaying();
 				}
 				break;
 
 			// Playing list
 			case ml_Playing:
 				if(ev->iEventMsg == LV_DOUBLECLK || ev->iEventMsg == LV_RIGHTCLK) {
-
-					// Put the player back into the players list
-					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
-					int index = lv->getCurIndex();
-
-					// Remove the item from the list
-					lv->RemoveItem(index);
-					sLocalPlayers[index].setUsed(false);
-
-					ply = FindProfile(index);
-
-					// Add the player into the players list
-					if(ply) {
-						lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
-						lv->AddItem("", index, tLX->clListView);
-						lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
-						lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
-					}
+					Menu_LocalRemovePlaying();
 				}
 
 
@@ -375,14 +302,14 @@ void Menu_LocalFrame(void)
 							((CImage *)ev->cWidget)->Change(gfxGame.bmpTeamColours[sub->iExtra]);
 						}
 
-						sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
-						sLocalPlayers[ev->iControlID].getProfile()->iTeam = sub->iExtra;
-						sLocalPlayers[ev->iControlID].LoadGraphics(iGameType);
+						tMenu->sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
+						tMenu->sLocalPlayers[ev->iControlID].getProfile()->iTeam = sub->iExtra;
+						tMenu->sLocalPlayers[ev->iControlID].LoadGraphics(iGameType);
 
 						// Reload the skin
 						sub = lv->getSubItem(it, 0);
 						if (sub)  {
-							sub->bmpImage = sLocalPlayers[ev->iControlID].getPicimg();
+							sub->bmpImage = tMenu->sLocalPlayers[ev->iControlID].getPicimg();
 						}
 					}
 				}
@@ -407,8 +334,8 @@ void Menu_LocalFrame(void)
 						// Update the skin
 						sub = lv->getSubItem(it, 0);
 						if (sub)  {
-							sLocalPlayers[it->iIndex].LoadGraphics(iGameType);
-							sub->bmpImage = sLocalPlayers[it->iIndex].getPicimg();
+							tMenu->sLocalPlayers[it->iIndex].LoadGraphics(iGameType);
+							sub->bmpImage = tMenu->sLocalPlayers[it->iIndex].getPicimg();
 						}
 
 					}
@@ -459,6 +386,89 @@ void Menu_LocalFrame(void)
 	DrawCursor(tMenu->bmpScreen);
 }
 
+//////////////////
+// Move a worm from player list to playing list
+void Menu_LocalAddPlaying(int index)
+{
+	// Add the item to the players list
+	CListview *lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
+	if (index < 0)
+		index = lv->getCurIndex();
+
+	// Check if we have enough room for another player
+	if(!Menu_LocalCheckPlaying(index))
+		return;
+
+
+	// Remove the item from the list
+	lv->RemoveItem(index);
+
+	profile_t *ply = FindProfile(index);
+
+	if(!ply)
+		return;
+
+	// Add a player onto the local players list
+	if (!tMenu->sLocalPlayers[index].isUsed())  {  // If the players persists from previous game, don't reset its team
+											// and other game details
+		tMenu->sLocalPlayers[index].setUsed(true);
+		tMenu->sLocalPlayers[index].setHealth(0);
+		tMenu->sLocalPlayers[index].setTeam(0);
+	}
+
+	// Reload the graphics in case the gametype has changed
+	tMenu->sLocalPlayers[index].setProfile(ply);
+	tMenu->sLocalPlayers[index].setSkin(ply->szSkin);
+	tMenu->sLocalPlayers[index].setColour(ply->R, ply->G, ply->B);
+	tMenu->sLocalPlayers[index].setDefaultColour(ply->R, ply->G, ply->B);
+	tMenu->sLocalPlayers[index].LoadGraphics(iGameType);
+	
+
+	// Add the item
+	CImage *img = new CImage(gfxGame.bmpTeamColours[tMenu->sLocalPlayers[index].getTeam()]);
+	if (img)  {
+		img->setID(index);
+		img->setRedrawMenu(false);
+	}
+	lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
+	lv->AddItem("",index,tLX->clListView);
+	lv->AddSubitem(LVS_IMAGE, "", tMenu->sLocalPlayers[index].getPicimg(), NULL);
+	lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
+	lv->AddSubitem(LVS_WIDGET, "", NULL, img);
+
+	// If we're in deathmatch, make the team colour invisible
+	lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
+	if(sub) {
+		if(iGameType != GMT_TEAMDEATH && iGameType != GMT_VIP)
+			sub->iVisible = false;
+		sub->iExtra = 0;
+	}
+}
+
+//////////////////
+// Move a player from playing list back to player list
+void Menu_LocalRemovePlaying(int index)
+{
+	// Put the player back into the players list
+	CListview *lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
+	if (index < 0)
+		index = lv->getCurIndex();
+
+	// Remove the item from the list
+	lv->RemoveItem(index);
+	tMenu->sLocalPlayers[index].setUsed(false);
+
+	profile_t *ply = FindProfile(index);
+
+	// Add the player into the players list
+	if(ply) {
+		lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
+		lv->AddItem("", index, tLX->clListView);
+		lv->AddSubitem(LVS_IMAGE, "", ply->bmpWorm, NULL);
+		lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
+	}
+}
+
 
 ///////////////////
 // Add the profiles to the players list
@@ -471,6 +481,17 @@ void Menu_LocalAddProfiles(void)
 		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE);
 		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 	}
+
+	// Add players from previous game to playing list
+	if (tMenu->sLocalPlayers != NULL)  {
+		for (int i=0; i < MAX_PLAYERS; i++)  {
+			if (tMenu->sLocalPlayers[i].isUsed())  {
+				Menu_LocalAddPlaying(i);
+			}
+		}
+	}
+
+
 }
 
 
@@ -568,17 +589,17 @@ void Menu_LocalStartGame(void)
 
     // Add the human players onto the list
     for(i=0; i<MAX_PLAYERS; i++) {
-		if(sLocalPlayers[i].isUsed() && sLocalPlayers[i].getProfile() && sLocalPlayers[i].getProfile()->iType == PRF_HUMAN) {
-			sLocalPlayers[i].getProfile()->iTeam = sLocalPlayers[i].getTeam();
-			tGameInfo.cPlayers[count++] = sLocalPlayers[i].getProfile();
+		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN) {
+			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
+			tGameInfo.cPlayers[count++] = tMenu->sLocalPlayers[i].getProfile();
         }
     }
 
     // Add the unhuman players onto the list
     for(i=0; i<MAX_PLAYERS; i++) {
-		if(sLocalPlayers[i].isUsed() && sLocalPlayers[i].getProfile() && sLocalPlayers[i].getProfile()->iType != PRF_HUMAN) {
-			sLocalPlayers[i].getProfile()->iTeam = sLocalPlayers[i].getTeam();
-			tGameInfo.cPlayers[count++] = sLocalPlayers[i].getProfile();
+		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType != PRF_HUMAN) {
+			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
+			tGameInfo.cPlayers[count++] = tMenu->sLocalPlayers[i].getProfile();
         }
     }
 
@@ -631,16 +652,16 @@ int Menu_LocalCheckPlaying(int index)
 
     count = 0;
     for(i=0; i<MAX_PLAYERS; i++) {
-        if(sLocalPlayers[i].isUsed())
+        if(tMenu->sLocalPlayers[i].isUsed())
             count++;
     }
 
 	// Go through the playing list
 	for(i=0; i<MAX_PLAYERS; i++) {
-        if(!sLocalPlayers[i].isUsed())
+        if(!tMenu->sLocalPlayers[i].isUsed())
             continue;
 
-		if(sLocalPlayers[i].getProfile()->iType == PRF_HUMAN)
+		if(tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN)
 			hmncount++;
 		plycount++;
 	}

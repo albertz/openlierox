@@ -80,6 +80,6 @@ TODO
 [ ] remove all non-widget drawing from menu system (create new widgets or use current ones) (!)
 
 minor things:
-[ ] save selected player list in local play and return in this menu after playing (!)
+[X] save selected player list in local play and return in this menu after playing (!)
 [ ] treat ZIP-files in game-directory as virtual searchpaths
 [ ] add virtual filesystem for users who has inotify or who enabled it

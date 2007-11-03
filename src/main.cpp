@@ -616,6 +616,16 @@ void QuittoMenu(void)
 	cClient->Disconnect();
 }
 
+//////////////////
+// Go to local menu
+void GotoLocalMenu(void)
+{
+	tLX->iQuitEngine = true;
+	cClient->Disconnect();
+	Menu_SetSkipStart(true);
+	Menu_LocalInitialize();
+}
+
 ////////////////////
 // Initialize the loading screen
 void InitializeLoading()  {

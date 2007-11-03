@@ -279,7 +279,7 @@ void	StartGame(void);
 void	ShutdownLieroX(void);
 void	GameLoop(void);
 void	QuittoMenu(void);
-void	GotoLocalGameMenu(void);
+void	GotoLocalMenu(void);
 
 
 

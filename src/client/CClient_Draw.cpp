@@ -566,7 +566,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			InitializeGameMenu();
 
 			// If this is a tournament, take screenshot of the final screen
-			if (tLXOptions->tGameinfo.bMatchLogging /*&& tGameInfo.iGameType != GME_LOCAL*/)  {
+			if (tLXOptions->tGameinfo.bMatchLogging && tGameInfo.iGameType != GME_LOCAL)  {
 				screenshot_t scrn;
 				scrn.sDir = "tourny_scrshots";
 				GetLogData(scrn.sData);
@@ -1106,7 +1106,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 		// Ok
 		case gm_Ok:
 			if (ev->iEventMsg == BTN_MOUSEUP)  {
-				tLX->iQuitEngine = true;
+				GotoLocalMenu();
 			}
 			break;
 
@@ -1118,9 +1118,11 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 				// The host can only quit the game via the lobby
 				if(tGameInfo.iGameType == GME_HOST)
 					cServer->gotoLobby();
-				else
+				else  {
 					// Quit
-					QuittoMenu();
+					GotoLocalMenu();
+				}
+					
 			}
 			break;
 
@@ -1148,7 +1150,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 
 		if (Keyboard->KeyUp[SDLK_RETURN] || Keyboard->KeyUp[SDLK_KP_ENTER] || Keyboard->KeyUp[SDLK_ESCAPE])  {
 			if (tGameInfo.iGameType == GME_LOCAL && iGameOver)  {
-				tLX->iQuitEngine = true;
+				GotoLocalMenu();
 			} else if (!iGameOver)  {
 				iGameMenu = false;
 				bRepaintChatbox = true;

@@ -28,6 +28,7 @@
 #include "CBytestream.h"
 #include "CListview.h"
 #include "CWpnRest.h"
+#include "CClient.h" // for MAX_PLAYERS
 
 // Menu sockets
 #define		SCK_LAN		0
@@ -227,6 +228,7 @@ class menu_t { public:
 	int				iMenuType;
 	frontendinfo_t	tFrontendInfo;
 	std::string		sSavedChatText;
+	CWorm			sLocalPlayers[MAX_PLAYERS];
 
 	// Map Editor
 	int				iEditMode;
@@ -365,6 +367,8 @@ void	Menu_LocalStartGame(void);
 int		Menu_LocalCheckPlaying(int index);
 void	Menu_Local_FillModList( CCombobox *cb );
 void	Menu_LocalShowMinimap(bool bReload);
+void	Menu_LocalAddPlaying(int index = -1);
+void	Menu_LocalRemovePlaying(int index = -1);
 void	Menu_LocalShutdown(void);
 
 
