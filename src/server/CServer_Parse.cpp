@@ -1059,6 +1059,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				w->setClient(newcl);
 				w->setUsed(true);
 				w->setupLobby();
+				if (tGameInfo.iGameType == GME_HOST)
+					w->setTeam(0);
 				newcl->setWorm(i, w);
 				ids[i] = p;
 				break;

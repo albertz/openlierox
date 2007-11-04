@@ -522,7 +522,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
-#ifdef DEBUG
+/*#ifdef DEBUG
 	// Upload and download rates
 	float up = 0;
 	float down = 0;
@@ -558,7 +558,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 3, tLX->clWhite, sv);
 		}
 	}
-#endif
+#endif*/
 
 	// Game over
     if(iGameOver) {
@@ -1925,9 +1925,9 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
 
                 // Re-setup the viewports
                 if( !b_on) {
-                    SetupViewports(cLocalWorms[0], NULL, a_type, VW_FOLLOW);
+                    SetupViewports(&cRemoteWorms[v1_target], NULL, a_type, VW_FOLLOW);
                 } else {
-                    SetupViewports(cLocalWorms[0], cLocalWorms[1], a_type, b_type);
+                    SetupViewports(&cRemoteWorms[v1_target], &cRemoteWorms[v2_target], a_type, b_type);
                 }
 
 				// Set the worms to follow
