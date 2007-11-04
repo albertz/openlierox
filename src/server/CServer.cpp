@@ -349,7 +349,7 @@ int GameServer::StartGame(void)
 	SendGlobalPacket(&bytestr);
 
 	// Set some info on the worms
-	for(i=0;i<MAX_WORMS;i++) {
+	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(iLives);
             cWorms[i].setKills(0);
@@ -362,7 +362,7 @@ int GameServer::StartGame(void)
 	}
 
 	// Clear bonuses
-	for(i=0; i<MAX_BONUSES; i++)
+	for(int i=0; i<MAX_BONUSES; i++)
 		cBonuses[i].setUsed(false);
 
 	// Clear the shooting list
@@ -373,7 +373,7 @@ int GameServer::StartGame(void)
 	fLastBonusTime = tLX->fCurTime;
 
 	// Set all the clients to 'not ready'
-	for(i=0;i<MAX_CLIENTS;i++) {
+	for(int i=0;i<MAX_CLIENTS;i++) {
 		cClients[i].getShootList()->Clear();
 		cClients[i].setGameReady(false);
 	}
@@ -387,7 +387,7 @@ int GameServer::StartGame(void)
             CWorm *w = cWorms;
             CBytestream b;
 
-            for( i=0; i<MAX_WORMS; i++, w++ ) {
+            for(int i=0; i<MAX_WORMS; i++, w++ ) {
                 if( !w->isUsed() )
                     continue;
 

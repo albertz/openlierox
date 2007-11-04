@@ -101,7 +101,6 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		CLAMP_DIRECT(fAngleSpeed, -500.0f, 500.0f);
 		
 		// also moving via mouse
-		// TODO: carving is still missing for a mouse-only playing (like Jason wanted it)
 		if(fabs(fMoveSpeedX) > 50) {
 			iDirection = (fMoveSpeedX > 0) ? DIR_RIGHT : DIR_LEFT;
 			ws->iMove = true;

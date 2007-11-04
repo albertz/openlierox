@@ -170,7 +170,7 @@ void Menu_LocalFrame(void)
 	gui_event_t *ev = NULL;
 	mouse_t *Mouse = GetMouse();
 	CListview *lv;
-	profile_t *ply = NULL;
+//	profile_t *ply = NULL; // TODO: not used
 
     // Game Settings
 	if(bGameSettings) {

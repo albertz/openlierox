@@ -1396,8 +1396,9 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 	num = (byte)MIN(num,MAX_PLAYERS);
 
 	// For death logging
-	int killer = -1;
-	int victim = -1;
+	// TODO: not used
+//	int killer = -1;
+//	int victim = -1;
 
 	short i;
 	for(i=0; i<num; i++)
