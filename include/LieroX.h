@@ -280,6 +280,7 @@ void	ShutdownLieroX(void);
 void	GameLoop(void);
 void	QuittoMenu(void);
 void	GotoLocalMenu(void);
+void	GotoNetMenu(void);
 
 
 

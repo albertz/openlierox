@@ -70,7 +70,6 @@ int Menu_MapEdInitialize(void)
 
 	// Create a map
 	cMap.New(504,350,"dirt");
-	cMap.SetModifiedFlag();
 	cMapedView.Setup(22,148, 596,310,0);
 	cMapedView.SetWorldX(0);
 	cMapedView.SetWorldY(0);
@@ -589,7 +588,6 @@ void Menu_MapEd_New(void)
 							w <= 4000 && h <= 4000) {
 								quitloop = true;
 								cMap.New(w,h,theme);
-								cMap.SetModifiedFlag();
 						}
 					}
 					break;
@@ -776,7 +774,6 @@ void Menu_MapEd_LoadSave(int save)
 								// Load
 								buf = "levels/"; buf += t->getText();
 								cMap.Load(buf);
-								cMap.SetModifiedFlag();
 							}
 						}
 					}

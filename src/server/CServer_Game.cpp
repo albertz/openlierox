@@ -594,8 +594,7 @@ void GameServer::gotoLobby(void)
 	SendWormLobbyUpdate();
 
 
-	// Shutdown the game items
-	cGameScript.Shutdown();
+	// HINT: the gamescript is shut down by the cache
 }
 
 

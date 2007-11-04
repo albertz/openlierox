@@ -28,75 +28,42 @@
 #define		CCH_IMAGE		0
 #define		CCH_SOUND		1			// MP3's not included, coz they stream
 #define		CCH_TEXTURE		2
+#define		CCH_MAP			3
+#define		CCH_MOD			4
 
 // Incorperate Textures? Animations?
 
-// this forward-declaration is needed here
-// it will be declared in Sounds.h
+// these forward-declaration are needed here
+// they will be declared in Sounds.h, CMap.h and CGameScript.h
 struct SoundSample;
+class CMap;
+class CGameScript;
 
-// The item class (can be surface, sample)
-class CCache {
+
+class CCache  {
 public:
-	// Constructor
-	CCache() {
-		Type = CCH_IMAGE;
-		
-		Image = NULL;
-		Sample = NULL;
-	}
-
+	CCache() {}
+	~CCache();
 
 private:
-	// Attributes
-
-	int		Type;
-
-	std::string	Filename;
-
-	// Image
-	SDL_Surface*	Image;
-
-	// Sample
-	SoundSample*	Sample;
-
+	std::map<std::string, SDL_Surface *> ImageCache;
+	std::map<std::string, SoundSample *> SoundCache;
+	std::map<std::string, CMap *> MapCache;
+	std::map<std::string, CGameScript *> ModCache;
 
 public:
-	// Methods
+	SDL_Surface		*GetImage(const std::string& file);
+	SoundSample		*GetSound(const std::string& file);
+	CMap			*GetMap(const std::string& file);
+	CGameScript		*GetMod(const std::string& dir);
 
-	
-	// Loading
-	SDL_Surface*	LoadImgBPP(const std::string& _file, bool withalpha);
-	SoundSample*	LoadSample(const std::string& _file, int maxplaying);
-
-
-	// Shutdowning
-	void			Shutdown(void);
-
-
-	// Variables
-	int				getType(void)			{ return Type; }
-	std::string		getFilename(void)		{ return Filename; }
-
-	SDL_Surface		*GetImage(void)			{ return Image; }
-	SoundSample*	GetSample(void)			{ return Sample; }
+	void			SaveImage(const std::string& file, SDL_Surface *img);
+	void			SaveSound(const std::string& file, SoundSample *smp);
+	void			SaveMap(const std::string& file, CMap *map);
+	void			SaveMod(const std::string& dir, CGameScript *mod);
 };
 
-extern std::map<std::string, CCache> Cache;
-
-
-
-//////////////////////////////////////
-//			The cache system
-//////////////////////////////////////
-
-
-int		InitializeCache(void);
-void	ShutdownCache(void);
-
-
-
-
+extern CCache cCache;
 
 
 #endif  //  __CACHE_H__

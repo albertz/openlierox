@@ -99,10 +99,6 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	srand((unsigned int)time(NULL));
 
 
-	// Initialize the cache
-	if(!InitializeCache())
-		return false;
-
 	bmpIcon = LoadImage("data/icon.png", true);
 	if(bmpIcon)
 		SDL_WM_SetIcon(bmpIcon, NULL);
@@ -418,9 +414,6 @@ void ShutdownAuxLib(void)
 #ifdef WIN32
 	UnSubclassWindow();
 #endif
-
-	// Shutdown the cache
-	ShutdownCache();
 
 	// Shutdown the SDL system
 	// this is a (non-working) workaround to prevent the default segfault-routine

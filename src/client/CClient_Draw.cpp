@@ -364,7 +364,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		Menu_MessageBox("Connection error", strServerErrorMsg, LMB_OK);
 
-		QuittoMenu();
+		GotoNetMenu();
 		return;
 	}
 
@@ -1116,11 +1116,22 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 
 				// If this is a host, we go back to the lobby
 				// The host can only quit the game via the lobby
-				if(tGameInfo.iGameType == GME_HOST)
+				switch (tGameInfo.iGameType)  {
+				case GME_HOST:
 					cServer->gotoLobby();
-				else  {
-					// Quit
+					break;
+
+				case GME_JOIN:
+					GotoNetMenu();
+					break;
+
+				case GME_LOCAL:
 					GotoLocalMenu();
+					break;
+
+				// Should not happen
+				default:
+					QuittoMenu();
 				}
 					
 			}

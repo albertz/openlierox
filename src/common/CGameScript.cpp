@@ -302,6 +302,13 @@ int CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 // Load the game script from a file (game)
 int CGameScript::Load(const std::string& dir)
 {
+	// Try cache first
+	CGameScript *cached = cCache.GetMod(dir);
+	if (cached != NULL)  {
+		printf("HINT: reusing cached mod " + dir + "\n");
+		*this = *cached;
+		return true;
+	}
 	
 	FILE *fp;
 	int n;	
@@ -472,7 +479,8 @@ int CGameScript::Load(const std::string& dir)
 	fclose(fp);
 
 
-
+	// Save to cache
+	cCache.SaveMod(dir, this);
 
 
 	return GSE_OK;

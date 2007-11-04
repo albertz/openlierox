@@ -22,145 +22,134 @@
 #include "Cache.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
+#include "CGameScript.h"
+#include "CMap.h"
 
-std::map<std::string, CCache> Cache;
+CCache cCache;
 
-
-
-//////////////////////////////////////
-//	      The cache item class
-//////////////////////////////////////
-
-
-
-///////////////////
-// Loads an image, and converts it to the same colour depth as the screen (speed)
-SDL_Surface *CCache::LoadImgBPP(const std::string& _file, bool withalpha) {
-	Type = CCH_IMAGE;
-	Filename = _file;
-
-	// Load the image
-	std::string fullfname = GetFullFileName(_file);
-	if(fullfname.size() == 0)
-		return NULL;
-	SDL_Surface* img = IMG_Load(fullfname.c_str());
-
-	if(!img) {
-//		printf("CCache::LoadImgBPP: Error loading file: %s\n", Filename.c_str());
-		return NULL;
-	}
-
-	if(SDL_GetVideoSurface()) {
-		// Convert the image to the screen's colour depth
-		SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);
-		if (withalpha)  {
-			Image = gfxCreateSurfaceAlpha(img->w, img->h);
-			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
-		} else {
-			Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
-			// TODO: needed?
-			//ResetAlpha(Image);
-		}
-	
-		SDL_FreeSurface(img);
-	} else {
-		// we haven't initialized the screen yet
-		printf("WARNING: screen not initialized yet while loading image\n");
-		Image = img;
-	}
-	
-	if(!Image) {
-		printf("ERROR: LoadImgBPP: cannot create new surface\n");
-		return NULL;
-	}
-	
-	return Image;
+//////////////
+// Save an image to the cache
+void CCache::SaveImage(const std::string& file, SDL_Surface *img)
+{
+	if (img != NULL)
+		ImageCache[file] = img;
 }
 
-
-
-///////////////////
-// Load a sample
-SoundSample* CCache::LoadSample(const std::string& _file, int maxplaying)
+//////////////
+// Save a sound sample to the cache
+void CCache::SaveSound(const std::string& file, SoundSample *smp)
 {
-	Type = CCH_SOUND;
-	Filename = _file;
-	
-	std::string fullfname = GetFullFileName(Filename);
-	if(fullfname.size() == 0)
-	{
-//		SetError("Error loading sample %s: file not found", _file.c_str());
-		return NULL;
-	}
-	
-	// Load the sample
-	Sample = LoadSoundSample(fullfname, maxplaying);
-	
-//	if(Sample)
-//		Used = true;
-//	else
-//		SetError("Error loading sample: %s",_file.c_str());
-
-	return Sample;
+	if (smp != NULL)
+		SoundCache[file] = smp;
 }
 
-
-///////////////////
-// Shutdown the cache item
-void CCache::Shutdown(void)
+//////////////
+// Save a map to the cache
+void CCache::SaveMap(const std::string& file, CMap *map)
 {
-	//if(!Used)
-	//	return;
-
-	switch(Type) {
-
-		// Image
-		case CCH_IMAGE:
-			if(Image)
-				SDL_FreeSurface(Image);
-			Image = NULL;
-			break;
-
-		// Sample
-		case CCH_SOUND:
-			if(Sample)
-				FreeSoundSample(Sample);
-			Sample = NULL;
-			break;
-	}
-}
-
-
-
-
-//////////////////////////////////////
-//	      The cache system
-//////////////////////////////////////
-
-
-
-///////////////////
-// Initialize the cache
-int InitializeCache(void)
-{
-	// Allocate the cache
-	Cache.clear();
-
-	return true;
-}
-
-
-///////////////////
-// Shutdown the cache
-void ShutdownCache(void)
-{
-	if(Cache.empty())
+	if (map == NULL)
 		return;
 
+	// Copy the map to the cache (not just the pointer because map changes during the game)
+	CMap *cached_map = new CMap;
+	if (cached_map == NULL)
+		return;
 
-	for (std::map<std::string, CCache>::iterator it = Cache.begin(); it != Cache.end(); it++)  {
-		it->second.Shutdown();
+	if (!cached_map->NewFrom(map))
+		return;
+
+	MapCache[file] = cached_map;
+}
+
+//////////////
+// Save a mod to the cache
+void CCache::SaveMod(const std::string& file, CGameScript *mod)
+{
+	if (mod == NULL)
+		return;
+
+	CGameScript *cached_mod = new CGameScript;
+	if (!cached_mod)
+		return;
+
+	*cached_mod = *mod;
+
+	ModCache[file] = cached_mod;
+
+}
+
+//////////////
+// Get an image from the cache
+SDL_Surface *CCache::GetImage(const std::string& file)
+{
+	std::map<std::string, SDL_Surface *>::iterator item = ImageCache.find(file);
+	if(item != ImageCache.end())
+		return item->second;
+	else
+		return NULL;
+}
+
+//////////////
+// Get a sound sample from the cache
+SoundSample *CCache::GetSound(const std::string& file)
+{
+	std::map<std::string, SoundSample *>::iterator item = SoundCache.find(file);
+	if(item != SoundCache.end())
+		return item->second;
+	else
+		return NULL;
+}
+
+//////////////
+// Get a map from the cache
+CMap *CCache::GetMap(const std::string& file)
+{
+	std::map<std::string, CMap *>::iterator item = MapCache.find(file);
+	if(item != MapCache.end())
+		return item->second;
+	else
+		return NULL;
+}
+
+//////////////
+// Get a mod from the cache
+CGameScript *CCache::GetMod(const std::string& dir)
+{
+	std::map<std::string, CGameScript *>::iterator item = ModCache.find(dir);
+	if(item != ModCache.end())
+		return item->second;
+	else
+		return NULL;
+}
+
+//////////////
+// Free all allocated data
+CCache::~CCache()
+{
+	// Free all the images
+	std::map<std::string, SDL_Surface *>::iterator img = ImageCache.begin();
+	for (; img != ImageCache.end(); img++)
+		SDL_FreeSurface(img->second);
+
+	// Free all the samples
+	std::map<std::string, SoundSample *>::iterator snd = SoundCache.begin();
+	for (; snd != SoundCache.end(); snd++)
+		FreeSoundSample(snd->second);
+
+	// Free all the maps
+	std::map<std::string, CMap *>::iterator map = MapCache.begin();
+	for (; map != MapCache.end(); map++)  {
+		map->second->Shutdown();
+		delete map->second;
 	}
+
+	// Free all the mods
+	std::map<std::string, CGameScript *>::iterator mod = ModCache.begin();
+	for (; mod != ModCache.end(); mod++)  {
+		mod->second->Shutdown();
+		delete mod->second;
+	}
+
 }
 
 

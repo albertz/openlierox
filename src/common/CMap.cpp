@@ -33,10 +33,10 @@
 
 
 // after a shutdown, save the data here; perhaps we can reuse it
-CMap CachedMap;
+//CMap CachedMap;
 
 // reuse *this* map-data for the given map
-bool CMap::ReuseMapData(CMap* map) {
+/*bool CMap::ReuseMapData(CMap* map) {
 	if(Created && !modified && map != this) {
 		map->Shutdown();
 		
@@ -102,26 +102,93 @@ bool CMap::ReuseMapData(CMap* map) {
 	}
 	
 	return false;
-}
+}*/
 
-// HINT: call this from Shutdown and only there; ReuseMapData will invalidate this
-void CMap::SaveCachedMap() {
-	ReuseMapData(&CachedMap);
-}
+////////////////////
+// Copies all info from the given map to this map
+bool CMap::NewFrom(CMap* map) 
+{
+	if (map == NULL || !map->Created)
+		return false;
 
-bool CMap::LoadCachedMap() {
-	// TODO: should we allow case insensitive equality also?
-	if(CachedMap.Created && CachedMap.FileName == FileName) {
-		return CachedMap.ReuseMapData(this);
-	}
+	Name = map->Name;
+	FileName = map->FileName;
+	Type = map->Type;
+	Width = map->Width;
+	Height = map->Height;
+	MinimapWidth = map->MinimapWidth;
+	MinimapHeight = map->MinimapHeight;
+	Theme = map->Theme;
+	nTotalDirtCount = map->nTotalDirtCount;
+	nGridWidth = map->nGridWidth;
+	nGridHeight = map->nGridHeight;
+	nGridCols = map->nGridCols;
+	nGridRows = map->nGridRows;	
+	bMiniMapDirty = map->bMiniMapDirty;	
+	NumObjects = map->NumObjects;
+
+	// Create the map
+	if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
+		return false;
 	
-	return false;
+	// Copy the data
+	DrawImage(bmpImage, map->bmpImage, 0, 0);
+	DrawImage(bmpDrawImage, map->bmpDrawImage, 0, 0);
+	DrawImage(bmpBackImage, map->bmpBackImage, 0, 0);
+	DrawImage(bmpMiniMap, map->bmpMiniMap, 0, 0);
+	DrawImage(bmpGreenMask, map->bmpGreenMask, 0, 0);
+	memcpy(PixelFlags, map->PixelFlags, Width * Height);
+	DrawImage(bmpShadowMap, map->bmpShadowMap, 0, 0);
+#ifdef _AI_DEBUG
+	DrawImage(bmpDebugImage, map->bmpDebugImage, 0, 0);
+#endif
+	memcpy(GridFlags, map->GridFlags, nGridCols * nGridRows);
+	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
+	memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
+
+	sRandomLayout = map->sRandomLayout;
+	if (sRandomLayout.psObjects != NULL && sRandomLayout.nNumObjects > 0)  {
+		sRandomLayout.psObjects = new object_t[sRandomLayout.nNumObjects];
+		if (sRandomLayout.psObjects)  {
+			memcpy(sRandomLayout.psObjects, map->sRandomLayout.psObjects, sRandomLayout.nNumObjects * sizeof(object_t));
+		} else {
+			sRandomLayout.bUsed = false;
+		}
+	}
+
+	FlagSpawnX = map->FlagSpawnX;
+	FlagSpawnY = map->FlagSpawnY;
+	BaseStartX	= map->BaseStartX;
+	BaseStartY	= map->BaseStartY;
+	BaseEndX	= map->BaseEndX;
+	BaseEndY	= map->BaseEndY;
+
+	Created = true;
+
+	return true;
 }
 
+////////////////
+// Save this map to cache
+void CMap::SaveToCache() 
+{
+	cCache.SaveMap(FileName, this);
+}
+
+///////////////
+// Try to load the map from cache
+bool CMap::LoadFromCache() 
+{
+	CMap *cached = cCache.GetMap(FileName);
+	if (!cached)
+		return false;
+
+	return NewFrom(cached);
+}
 
 ///////////////////
-// Create a new map
-int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
+// Allocate a new map
+bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
 {
 	if(Created)
 		Shutdown();
@@ -130,9 +197,6 @@ int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minima
 	Height = _height;
 	MinimapWidth = _minimap_w;
 	MinimapHeight = _minimap_h;
-	NumObjects = 0;
-    nTotalDirtCount = 0;
-    sRandomLayout.bUsed = false;
 
 	Objects = new object_t[MAX_OBJECTS];
 	if(Objects == NULL)
@@ -169,6 +233,23 @@ int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minima
 		return false;
 	}
 
+	Created = true;
+
+	return true;
+}
+
+///////////////////
+// Create a new map
+bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
+{
+	NumObjects = 0;
+    nTotalDirtCount = 0;
+    sRandomLayout.bUsed = false;
+
+	// Create the map
+	if (!Create(_width, _height, _theme, _minimap_w, _minimap_h))
+		return false;
+
 	// Place default tiles
 	TileMap();
 
@@ -182,7 +263,6 @@ int CMap::New(uint _width, uint _height, const std::string& _theme, uint _minima
     calculateGrid();
 
 	Created = true;
-	modified = false;
 
 	return true;
 }
@@ -337,7 +417,7 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
 
 ///////////////////
 // Load the theme
-int CMap::LoadTheme(const std::string& _theme)
+bool CMap::LoadTheme(const std::string& _theme)
 {
 	// Already loaded
 	if (Theme.name == _theme && sRandomLayout.szTheme == _theme)
@@ -477,7 +557,7 @@ bool CMap::validateTheme(const std::string& name) {
 
 ///////////////////
 // Creates the level surface
-int CMap::CreateSurface(void)
+bool CMap::CreateSurface(void)
 {
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	if(screen == NULL)
@@ -638,7 +718,7 @@ void CMap::SetMinimapDimensions(uint _w, uint _h)
 
 ///////////////////
 // Creates the level pixel flags
-int CMap::CreatePixelFlags(void)
+bool CMap::CreatePixelFlags(void)
 {
 	lockFlags();
 	PixelFlags = new uchar[Width*Height];
@@ -1035,9 +1115,6 @@ int CMap::CarveHole(int size, CVec pos)
 				calculateGridCell(i, j, true);
 	}
 
-	if(nNumDirt)
-		modified = true;
-
     return nNumDirt;
 }
 
@@ -1250,9 +1327,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 	for(j = sy; j < sy + h + nGridHeight; j += nGridHeight)
 		for(i = sx; i < sx + w + nGridWidth; i += nGridWidth)
 			calculateGridCell(i, j, false);
- 
-	if(nDirtCount)
-		modified = true;
 
     return nDirtCount;
 }
@@ -1364,9 +1438,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 			for(i = sx; i < sx + w + nGridWidth; i += nGridWidth)
 				calculateGridCell(i, j, false);
 	}
-
-	if(nGreenCount)
-		modified = true;
 
     return nGreenCount;
 }
@@ -1842,7 +1913,7 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *wo
 
 ///////////////////
 // Load the map
-int CMap::Load(const std::string& filename)
+bool CMap::Load(const std::string& filename)
 {
 	// Weird
 	if (filename == "") {
@@ -1850,10 +1921,17 @@ int CMap::Load(const std::string& filename)
 		return true;
 	}
 
+	// Already loaded?
+	if (FileName == filename && Created)  {
+		printf("HINT: map " + filename + " is already loaded\n");
+		return true;
+	}
+
+
 	FileName = filename;
 
-	// try loading a previosly cached map
-	if(LoadCachedMap()) {
+	// try loading a previously cached map
+	if(LoadFromCache()) {
 		// everything is ok
 		printf("HINT: reusing cached map for %s\n", filename.c_str());
 		return true;
@@ -1917,23 +1995,29 @@ int CMap::Load(const std::string& filename)
 	printf("  numobj = %i\n", numobj);
 */
 
-	// Create the map
-	// TODO: This will also calculate GridCells and other stuff,
-	//	which is unneeded because we do it also later here.
-	//	So avoid this in some (clean) way.
+	// Load the images if in an image format
+	if(Type == MPT_IMAGE)
+	{
+		// Allocate the map
+		if(!Create(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
+			printf("CMap::Load (%s): ERROR: cannot allocate map\n", filename.c_str());
+			fclose(fp);
+			return false;
+		}		
+
+		// Load the image format
+		printf("CMap::Load (%s): HINT: level is in image format\n", filename.c_str());
+		return LoadImageFormat(fp);
+	}
+
+
+	
+	// Create a blank map
 	if(!New(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
 		printf("CMap::Load (%s): ERROR: cannot create map\n", filename.c_str());
 		fclose(fp);
 		return false;
 	}
-
-	// Load the images if in an image format
-	if(Type == MPT_IMAGE)
-	{
-		printf("CMap::Load (%s): HINT: level is in image format\n", filename.c_str());
-		return LoadImageFormat(fp);
-	}
-
 
 	// Lock the surfaces
 	if (SDL_MUSTLOCK(bmpImage))
@@ -2039,13 +2123,16 @@ int CMap::Load(const std::string& filename)
     // Calculate the grid
     calculateGrid();
 
+	// Save the map to cache
+	SaveToCache();
+
 	return true;
 }
 
 
 ///////////////////
 // Save the map
-int CMap::Save(const std::string& name, const std::string& filename)
+bool CMap::Save(const std::string& name, const std::string& filename)
 {
 	FILE *fp = OpenGameFile(filename,"wb");
 	if(fp == NULL)
@@ -2101,7 +2188,7 @@ int CMap::Save(const std::string& name, const std::string& filename)
 
 ///////////////////
 // Save the images
-int CMap::SaveImageFormat(FILE *fp)
+bool CMap::SaveImageFormat(FILE *fp)
 {
 	uint x,y,n,p;
 	Uint8 r,g,b,a;
@@ -2185,7 +2272,7 @@ int CMap::SaveImageFormat(FILE *fp)
 
 ///////////////////
 // Load the image format
-int CMap::LoadImageFormat(FILE *fp)
+bool CMap::LoadImageFormat(FILE *fp)
 {
 	// Load the details
 	Uint32 size, destsize;
@@ -2298,6 +2385,8 @@ int CMap::LoadImageFormat(FILE *fp)
 
 	fclose(fp);
 
+	Created = true;
+
     // Calculate the shadowmap
     CalculateShadowMap();
 
@@ -2312,13 +2401,16 @@ int CMap::LoadImageFormat(FILE *fp)
     // Calculate the grid
     calculateGrid();
 
+	// Save the map to cache
+	SaveToCache();
+
 	return true;
 }
 
 
 ///////////////////
 // Load an original version of a liero level
-int CMap::LoadOriginal(FILE *fp)
+bool CMap::LoadOriginal(FILE *fp)
 {
 	bool Powerlevel = false;
 	uchar *palette = NULL;
@@ -2463,6 +2555,9 @@ int CMap::LoadOriginal(FILE *fp)
     // Calculate the grid
     calculateGrid();
 
+	// Cache this map
+	SaveToCache();
+
 	return true;
 }
 
@@ -2567,8 +2662,6 @@ void CMap::Shutdown(void)
 	lockFlags();
 
 	if(Created) {
-
-		if(this != &CachedMap) SaveCachedMap();
 		
 		//printf("some created map is shutting down...\n");
 
@@ -2832,9 +2925,11 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 
 
 ///////////////////
-// Load the map
-int CMap::LoadCTF(const std::string& filename)
+// Load the CTF map
+bool CMap::LoadCTF(const std::string& filename)
 {
+	// TODO: redundant code!!!!
+
 	// Weird
 	if (filename == "") {
 		printf("WARNING: loading unnamed map, ignoring ...\n");	
@@ -2843,8 +2938,8 @@ int CMap::LoadCTF(const std::string& filename)
 
 	FileName = filename;
 
-	// try loading a previosly cached map
-	if(LoadCachedMap()) {
+	// try loading a previously cached map
+	if(LoadFromCache()) {
 		// everything is ok
 		printf("HINT: reusing cached map for %s\n", filename.c_str());
 		return true;
@@ -2885,150 +2980,151 @@ int CMap::LoadCTF(const std::string& filename)
 	fread(&numobj,		sizeof(int),	1,	fp);
 	EndianSwap(numobj);
 
-	// Create the map
-	// TODO: This will also calculate GridCells and other stuff,
-	//	which is unneeded because we do it also later here.
-	//	So avoid this in some (clean) way.
-	if(!New(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
+	// Allocate the map
+	if(!Create(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
 		printf("CMap::LoadCTF (%s): ERROR: cannot create map\n", filename.c_str());
 		fclose(fp);
 		return false;
 	}
 
-	if(Type == MPT_IMAGE)
-	{
-		// Load the details
-		Uint32 size, destsize;
-		uint x,y,n,p;
+	if(Type != MPT_IMAGE)
+		return false;
 
-		fread(&size, sizeof(Uint32), 1, fp);
-		EndianSwap(size);
-		fread(&destsize, sizeof(Uint32), 1, fp);
-		EndianSwap(destsize);
+	// Load the details
+	Uint32 size, destsize;
+	uint x,y,n,p;
 
-		// Allocate the memory
-		uchar *pSource = new uchar[size];
-		uchar *pDest = new uchar[destsize];
+	fread(&size, sizeof(Uint32), 1, fp);
+	EndianSwap(size);
+	fread(&destsize, sizeof(Uint32), 1, fp);
+	EndianSwap(destsize);
 
-		if(!pSource || !pDest) {
-			fclose(fp);
-			return false;
-		}
+	// Allocate the memory
+	uchar *pSource = new uchar[size];
+	uchar *pDest = new uchar[destsize];
 
-		fread(pSource, size*sizeof(uchar), 1, fp);
-
-		ulong lng_dsize = destsize;
-		if( uncompress( pDest, &lng_dsize, pSource, size ) != Z_OK ) {
-			printf("Failed decompression\n");
-			fclose(fp);
-			delete[] pSource;
-			delete[] pDest;
-			return false;
-		}
-		destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
-
-		delete[] pSource;  // not needed anymore
-
-		//
-		// Translate the data
-		//
-
-		// Lock surfaces
-		if (SDL_MUSTLOCK(bmpBackImage))
-			SDL_LockSurface(bmpBackImage);
-		if (SDL_MUSTLOCK(bmpImage))
-			SDL_LockSurface(bmpImage);
-
-		p=0;
-		Uint32 curcolor=0;
-		Uint8* curpixel = (Uint8*)bmpBackImage->pixels;
-		Uint8* PixelRow = curpixel;
-
-		// TODO: Check if pDest is big enough
-
-		// Load the back image
-		for (y = 0; y < Height; y++, PixelRow += bmpBackImage->pitch)  {
-			curpixel = PixelRow;
-			for (x = 0; x < Width; x++, curpixel += bmpBackImage->format->BytesPerPixel)  {
-				curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
-				p += 3;
-				PutPixelToAddr(curpixel, curcolor, bmpBackImage->format->BytesPerPixel);
-			}
-		}
-
-		// Load the front image
-		curpixel = (Uint8 *)bmpImage->pixels;
-		PixelRow = curpixel;
-		for (y = 0; y < Height; y++, PixelRow += bmpImage->pitch)  {
-			curpixel = PixelRow;
-			for (x = 0;x < Width; x++, curpixel += bmpImage->format->BytesPerPixel)  {
-				curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
-				p += 3;
-				PutPixelToAddr(curpixel, curcolor, bmpImage->format->BytesPerPixel);
-			}
-		}
-
-
-		// Load the pixel flags and calculate dirt count
-		n=0;
-		nTotalDirtCount = 0;
-
-		curpixel = (Uint8 *)bmpImage->pixels;
-		PixelRow = curpixel;
-		Uint8 *backpixel = (Uint8 *)bmpBackImage->pixels;
-		Uint8 *BackPixelRow = backpixel;
-
-		lockFlags();
-		
-		for(y=0; y<Height; y++,PixelRow+=bmpImage->pitch,BackPixelRow+=bmpBackImage->pitch) {
-			curpixel = PixelRow;
-			backpixel = BackPixelRow;
-			for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
-				PixelFlags[n] = pDest[p++];
-				if(PixelFlags[n] & PX_EMPTY)
-					memcpy(curpixel, backpixel, bmpImage->format->BytesPerPixel);
-				nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
-				n++;
-			}
-		}
-		unlockFlags();
-
-		// Unlock the surfaces
-		if (SDL_MUSTLOCK(bmpBackImage))
-			SDL_UnlockSurface(bmpBackImage);
-		if (SDL_MUSTLOCK(bmpImage))
-			SDL_UnlockSurface(bmpImage);
-
-	//	SDL_SaveBMP(pxf, "mat.bmp");
-
-		// Delete the data
-		delete[] pDest;
-
-		// Load the CTF gametype variables
-		fread(&FlagSpawnX	,sizeof(short),1,fp);
-		fread(&FlagSpawnY	,sizeof(short),1,fp);
-		fread(&BaseStartX	,sizeof(short),1,fp);
-		fread(&BaseStartY	,sizeof(short),1,fp);
-		fread(&BaseEndX		,sizeof(short),1,fp);
-		fread(&BaseEndY		,sizeof(short),1,fp);
-
+	if(!pSource || !pDest) {
 		fclose(fp);
-
-		// Calculate the shadowmap
-		CalculateShadowMap();
-
-		ApplyShadow(0,0,Width,Height);
-
-		// Update the draw image
-		UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
-
-		// Update the minimap
-		UpdateMiniMap(true);
-
-		// Calculate the grid
-		calculateGrid();
-
-		return true;
+		return false;
 	}
-	return false;
+
+	fread(pSource, size*sizeof(uchar), 1, fp);
+
+	ulong lng_dsize = destsize;
+	if( uncompress( pDest, &lng_dsize, pSource, size ) != Z_OK ) {
+		printf("Failed decompression\n");
+		fclose(fp);
+		delete[] pSource;
+		delete[] pDest;
+		return false;
+	}
+	destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
+
+	delete[] pSource;  // not needed anymore
+
+	//
+	// Translate the data
+	//
+
+	// Lock surfaces
+	if (SDL_MUSTLOCK(bmpBackImage))
+		SDL_LockSurface(bmpBackImage);
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_LockSurface(bmpImage);
+
+	p=0;
+	Uint32 curcolor=0;
+	Uint8* curpixel = (Uint8*)bmpBackImage->pixels;
+	Uint8* PixelRow = curpixel;
+
+	// TODO: Check if pDest is big enough
+
+	// Load the back image
+	for (y = 0; y < Height; y++, PixelRow += bmpBackImage->pitch)  {
+		curpixel = PixelRow;
+		for (x = 0; x < Width; x++, curpixel += bmpBackImage->format->BytesPerPixel)  {
+			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
+			p += 3;
+			PutPixelToAddr(curpixel, curcolor, bmpBackImage->format->BytesPerPixel);
+		}
+	}
+
+	// Load the front image
+	curpixel = (Uint8 *)bmpImage->pixels;
+	PixelRow = curpixel;
+	for (y = 0; y < Height; y++, PixelRow += bmpImage->pitch)  {
+		curpixel = PixelRow;
+		for (x = 0;x < Width; x++, curpixel += bmpImage->format->BytesPerPixel)  {
+			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
+			p += 3;
+			PutPixelToAddr(curpixel, curcolor, bmpImage->format->BytesPerPixel);
+		}
+	}
+
+
+	// Load the pixel flags and calculate dirt count
+	n=0;
+	nTotalDirtCount = 0;
+
+	curpixel = (Uint8 *)bmpImage->pixels;
+	PixelRow = curpixel;
+	Uint8 *backpixel = (Uint8 *)bmpBackImage->pixels;
+	Uint8 *BackPixelRow = backpixel;
+
+	lockFlags();
+	
+	for(y=0; y<Height; y++,PixelRow+=bmpImage->pitch,BackPixelRow+=bmpBackImage->pitch) {
+		curpixel = PixelRow;
+		backpixel = BackPixelRow;
+		for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
+			PixelFlags[n] = pDest[p++];
+			if(PixelFlags[n] & PX_EMPTY)
+				memcpy(curpixel, backpixel, bmpImage->format->BytesPerPixel);
+			nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
+			n++;
+		}
+	}
+	unlockFlags();
+
+	// Unlock the surfaces
+	if (SDL_MUSTLOCK(bmpBackImage))
+		SDL_UnlockSurface(bmpBackImage);
+	if (SDL_MUSTLOCK(bmpImage))
+		SDL_UnlockSurface(bmpImage);
+
+//	SDL_SaveBMP(pxf, "mat.bmp");
+
+	// Delete the data
+	delete[] pDest;
+
+	// Load the CTF gametype variables
+	fread(&FlagSpawnX	,sizeof(short),1,fp);
+	fread(&FlagSpawnY	,sizeof(short),1,fp);
+	fread(&BaseStartX	,sizeof(short),1,fp);
+	fread(&BaseStartY	,sizeof(short),1,fp);
+	fread(&BaseEndX		,sizeof(short),1,fp);
+	fread(&BaseEndY		,sizeof(short),1,fp);
+
+	fclose(fp);
+
+	Created = true;
+
+	// Calculate the shadowmap
+	CalculateShadowMap();
+
+	ApplyShadow(0,0,Width,Height);
+
+	// Update the draw image
+	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
+
+	// Update the minimap
+	UpdateMiniMap(true);
+
+	// Calculate the grid
+	calculateGrid();
+
+	// Cache it
+	SaveToCache();
+
+	return true;
 }

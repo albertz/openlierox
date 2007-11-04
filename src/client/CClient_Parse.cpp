@@ -345,7 +345,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
-	cGameScript.Shutdown();
+	// HINT: gamescript is ishut down by the cache
 
     //bs->Dump();
 
@@ -468,7 +468,6 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	int result = cGameScript.Load(sModName);
 
-	// TODO: what if we are host? We should probably grab the server's mod rather than loading it again
 	if(result != GSE_OK) {
 
 		// Show any error messages
@@ -479,7 +478,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
         iClientError = true;
 
 		// Go back to the menu
-		QuittoMenu();
+		GotoNetMenu();
 		iGameReady = false;
 
 		printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");

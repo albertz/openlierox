@@ -121,7 +121,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
 
 	ResetNetAddr( &tSTUNAddress );
-	if( tLXOptions->sSTUNServer != "" /* && regserver */ )
+	if( tLXOptions->sSTUNServer != "" && tGameInfo.iGameType != GME_LOCAL /* && regserver */ )
 	{
 		try	// STUN server is not critical, so if it failed just proceed further
 		{
@@ -312,7 +312,6 @@ int GameServer::StartGame(void)
 	}
 
 	// Load the game script
-	cGameScript.Shutdown();
 	if(!cGameScript.Load(tGameInfo.sModDir)) {
 		printf("Error: Could not load the '%s' game script\n",sModName.c_str());
 		return false;
@@ -327,7 +326,7 @@ int GameServer::StartGame(void)
 	CBytestream bytestr;
 	bytestr.Clear();
 
-	for(int i=0;i<MAX_WORMS;i++) {
+	{for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed())
 			continue;
 		if(flags) {
@@ -345,11 +344,11 @@ int GameServer::StartGame(void)
 			iNumPlayers++;
 			flags--;
 		}
-	}
+	}}
 	SendGlobalPacket(&bytestr);
 
 	// Set some info on the worms
-	for(int i=0;i<MAX_WORMS;i++) {
+	{for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(iLives);
             cWorms[i].setKills(0);
@@ -359,7 +358,7 @@ int GameServer::StartGame(void)
 			cWorms[i].setKillsInRow(0);
 			cWorms[i].setDeathsInRow(0);
 		}
-	}
+	}}
 
 	// Clear bonuses
 	for(int i=0; i<MAX_BONUSES; i++)
@@ -373,10 +372,10 @@ int GameServer::StartGame(void)
 	fLastBonusTime = tLX->fCurTime;
 
 	// Set all the clients to 'not ready'
-	for(int i=0;i<MAX_CLIENTS;i++) {
+	{for(int i=0;i<MAX_CLIENTS;i++) {
 		cClients[i].getShootList()->Clear();
 		cClients[i].setGameReady(false);
-	}
+	}}
 
 
     // If this is the host, and we have a team game: Send all the worm info back so the worms know what
@@ -438,8 +437,6 @@ int GameServer::StartGame(void)
 // Begin the match
 void GameServer::BeginMatch(void)
 {
-	cMap->SetModifiedFlag();
-	
 	int i;
 
 	iState = SVS_PLAYING;
@@ -1519,5 +1516,5 @@ void GameServer::Shutdown(void)
 
 	cBanList.Shutdown();
 
-	cGameScript.Shutdown();
+	// HINT: the gamescript is shut down by the cache
 }

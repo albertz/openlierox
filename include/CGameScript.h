@@ -195,6 +195,11 @@ private:
     // Mod log file
     FILE        *pModLog;
 
+private:
+	friend CCache::~CCache();  // Only cache can call Shutdown
+
+	void		Shutdown(void);
+	void		ShutdownProjectile(proj_t *prj);
 
 public:
 	// Methods
@@ -207,9 +212,6 @@ public:
 
     void        writeString(const std::string& szString, FILE *fp);
     std::string readString(FILE *fp);
-
-	void		Shutdown(void);
-	void		ShutdownProjectile(proj_t *prj);
 
 	std::string	getError(int code);
 

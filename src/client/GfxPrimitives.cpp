@@ -1126,20 +1126,52 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 ////////////////////////
 
 ///////////////////
-// Load an image
+// Loads an image, and converts it to the same colour depth as the screen (speed)
 SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 {
-	// Has this been already loaded?
-	std::map<std::string, CCache>::iterator item = Cache.find(_filename);
-	if(item != Cache.end())
-		return item->second.GetImage();
+	// Try cache first
+	SDL_Surface* Image = cCache.GetImage(_filename);
+	if (Image)
+		return Image;
 
-	// Didn't find one already loaded? Create a new one
-	CCache tmp;
-	SDL_Surface *result = tmp.LoadImgBPP(_filename, withalpha);
-	Cache[_filename] = tmp;
+	// Load the image
+	std::string fullfname = GetFullFileName(_filename);
+	if(fullfname.size() == 0)
+		return NULL;
 
-	return result;
+	SDL_Surface* img = IMG_Load(fullfname.c_str());
+
+	if(!img)
+		return NULL;
+
+	if(SDL_GetVideoSurface()) {
+		// Convert the image to the screen's colour depth
+		SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);
+		if (withalpha)  {
+			Image = gfxCreateSurfaceAlpha(img->w, img->h);
+			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
+		} else {
+			Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
+			// TODO: needed?
+			//ResetAlpha(Image);
+		}
+	
+		SDL_FreeSurface(img);
+	} else {
+		// we haven't initialized the screen yet
+		printf("WARNING: screen not initialized yet while loading image\n");
+		Image = img;
+	}
+	
+	if(!Image) {
+		printf("ERROR: LoadImgBPP: cannot create new surface\n");
+		return NULL;
+	}
+
+	// Save to cache
+	cCache.SaveImage(_filename, Image);
+	
+	return Image;
 }
 
 ///////////////////////

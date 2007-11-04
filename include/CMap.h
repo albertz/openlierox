@@ -25,6 +25,7 @@
 #include "types.h"
 #include "CViewport.h"
 #include "GfxPrimitives.h"
+#include "Cache.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -60,9 +61,6 @@
 
 
 class CWorm;
-
-
-
 
 
 
@@ -142,7 +140,6 @@ private:
     uint         nTotalDirtCount;
 
 	bool		Created;
-	bool		modified; // set, if map differs from FileName
 	
 	SDL_Surface	*bmpImage;
 	SDL_Surface	*bmpDrawImage;
@@ -186,20 +183,23 @@ private:
 	void		UpdateMiniMapRect(int x, int y, int w, int h);
 	void		UpdateArea(int x, int y, int w, int h, bool update_image = false);
 
-	bool		ReuseMapData(CMap* map);
-	void		SaveCachedMap();
-	bool		LoadCachedMap();
+	friend void CCache::SaveMap(const std::string& file, CMap *map);
+
+	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h);
+	bool		NewFrom(CMap *map);
+	void		SaveToCache();
+	bool		LoadFromCache();
 
 public:
 	// Methods
 
-	int			New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
-	int			Load(const std::string& filename);
-	int			LoadCTF(const std::string& filename);
-	int			LoadOriginal(FILE *fp);
-	int			Save(const std::string& name, const std::string& filename);
-	int			SaveImageFormat(FILE *fp);
-	int			LoadImageFormat(FILE *fp);	
+	bool		New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
+	bool		Load(const std::string& filename);
+	bool		LoadCTF(const std::string& filename);
+	bool		LoadOriginal(FILE *fp);
+	bool		Save(const std::string& name, const std::string& filename);
+	bool		SaveImageFormat(FILE *fp);
+	bool		LoadImageFormat(FILE *fp);	
 	void		Clear(void);
 
     void		ApplyRandom(void);
@@ -207,9 +207,9 @@ public:
 
 	void		Shutdown(void);
 
-	int			LoadTheme(const std::string& _theme);
-	int			CreateSurface(void);
-	int			CreatePixelFlags(void);
+	bool		LoadTheme(const std::string& _theme);
+	bool		CreateSurface(void);
+	bool		CreatePixelFlags(void);
     bool        createGrid(void);
     void        calculateGrid(void);
 private:
@@ -267,7 +267,6 @@ public:
 		return PixelFlags[y * Width + x];
 	}
 
-	void	SetModifiedFlag()		{ modified = true; }
 	uchar	*GetPixelFlags() const	{ return PixelFlags; }
 
 	SDL_Surface	*GetDrawImage()		{ return bmpDrawImage; }

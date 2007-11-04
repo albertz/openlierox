@@ -29,19 +29,22 @@
 // Load a sample
 SoundSample* LoadSample(const std::string& _filename, int maxplaying)
 {
-	std::string fname = _filename;
+	// Try cache first
+	SoundSample *Sample = cCache.GetSound(_filename);
+	if (Sample)
+		return Sample;
 
-	// Has this been already loaded?
-	std::map<std::string, CCache>::iterator item = Cache.find(fname);
-	if(item != Cache.end())
-		return item->second.GetSample();
+	std::string fullfname = GetFullFileName(_filename);
+	if(fullfname.size() == 0)
+		return NULL;
+	
+	// Load the sample
+	Sample = LoadSoundSample(fullfname, maxplaying);
+	
+	// Save to cache
+	cCache.SaveSound(_filename, Sample);
 
-	// Didn't find one already loaded? Load new one
-	CCache tmp;
-	SoundSample *result = tmp.LoadSample(fname, maxplaying);
-	Cache[fname] = tmp;
-
-	return result;
+	return Sample;
 }
 
 

@@ -102,8 +102,9 @@ void CClient::Clear(void)
 	// Clear the message sizes
 	memset(nMessageSizes, 0, sizeof(int)*RATE_NUMMSGS);
 
+	// HINT: gamescript is shut down by the cache
+
 	cShootList.Shutdown();
-	cGameScript.Shutdown();
 	cWeaponRestrictions.Shutdown();
 
     for(i=0; i<NUM_VIEWPORTS; i++) {
@@ -424,7 +425,7 @@ void CClient::ProcessMapDownloads()
 						// Weird
 						printf("Could not load the downloaded map!\n");
 						Disconnect();
-						QuittoMenu();
+						GotoNetMenu();
 					}
 				}
 			}
@@ -432,7 +433,7 @@ void CClient::ProcessMapDownloads()
 			printf("Cannot access the downloaded map!\n");
 			if (iNetStatus == NET_PLAYING)  {
 				Disconnect();
-				QuittoMenu();
+				GotoNetMenu();
 			}
 		}
 
@@ -1011,9 +1012,8 @@ void CClient::Shutdown(void)
 		delete (CListview *)cChatList;
 		cChatList = NULL;
 	}
-
-	// Gamescript
-	cGameScript.Shutdown();
+	
+	// HINT: GameScript is shut down by the cache
 
 	// Weapon restrictions
 	cWeaponRestrictions.Shutdown();

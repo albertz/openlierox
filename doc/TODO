@@ -21,15 +21,15 @@ TODO
 [ ] allow more than 5 weapons
 [ ] configureable blood
 [ ] own directory for mods -> better file management
-[ ] fix: map cache - carved dirt and blood stays in the map after reloading it from cache (maybe use CCache for caching maps?) (!!)
+[X] fix: map cache - carved dirt and blood stays in the map after reloading it from cache (maybe use CCache for caching maps?) (!!)
 [?] fix: sometimes you got into chat while playing online on some keys
 [X] fix: additional weapon selection keys for splitscreen for second player
 [ ] fix: delete key doesn't work on MacOSX (!!)
 [ ] don't overwrite the whole config-file at the end but only the known-parts (this makes it compatible with future versions and don't deletes part of it) (!!)
-[ ] multiple masterservers (and registration on each) (!!)
-[ ] use better interpolation for remote worms (simulate with ping), both server and client side (!!)
+[X] multiple masterservers (and registration on each) (!!)
+[X] use better interpolation for remote worms (simulate with ping), client side (server-side impossible) (!!)
 [x] fix CChanel wrong ping calculations and sending packets twice when not wanted (!!)
-[ ] same caching system for GameScript as for Map (!)
+[X] same caching system for GameScript as for Map (!)
 [ ] create crossbuilding-scripts: (using crossbuilding in GCC)
 	[ ] Mac OS X ( + Application Bundle)
 	[ ] Windows EXE ( + ZIP package)
@@ -43,7 +43,7 @@ TODO
 [?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
 [ ] bot: more effective use of ninjarope (use closer / more intelligent spots) (!)
 [X] bot: ninjarope is shot too fast (!!)
-[ ] bot: go one step away if too close (!!)
+[x] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
 [x] avoid unneeded multi loading of maps (!)
 [X] fix delta time (network synchronization) (!!)
