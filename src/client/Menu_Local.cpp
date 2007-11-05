@@ -776,8 +776,6 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("Loading Time", tLX->clNormalLabel),		    -1,	        150,260, 0, 0);
 	cGameSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),			    -1,	        150,290, 0, 0);
 	cGameSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,	        150,320, 0, 0);
-	if (tGameInfo.iGameType == GME_HOST)
-		cGameSettings.Add( new CLabel("Tournament mode", tLX->clNormalLabel),	    -1,	        150,350, 0, 0);
 	//cGameSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			-1,	   150,240, 0, 0);
 
 	cGameSettings.Add( new CTextbox(),							gs_Lives,		320,197, 100,tLX->cFont.GetHeight());
