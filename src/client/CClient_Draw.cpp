@@ -568,7 +568,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			// If this is a tournament, take screenshot of the final screen
 			if (tLXOptions->tGameinfo.bMatchLogging && tGameInfo.iGameType != GME_LOCAL)  {
 				screenshot_t scrn;
-				scrn.sDir = "tourny_scrshots";
+				scrn.sDir = "game_results";
 				GetLogData(scrn.sData);
 				tLX->tScreenshotQueue.push_back(scrn);
 			}
