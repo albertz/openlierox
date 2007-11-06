@@ -199,6 +199,8 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 
 	// Use keys 1-5 and 6-0 for fast weapon changing
+	// TODO: in network game iID == 0 only for server owner, so these keys won't work
+	if( tLXOptions->bUseNumericKeysToSwitchWeapons )
     switch (iID) {
 
 	// If this is the first worm, let the user use the 1-5 keys for weapon shortcuts

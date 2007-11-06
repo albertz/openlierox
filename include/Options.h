@@ -188,6 +188,7 @@ public:
 	bool	bAntiAliasing;
 	bool	bMouseAiming;
 	bool	bAllowMouseAiming;
+	bool	bUseNumericKeysToSwitchWeapons;
 
     // Advanced
     int     nMaxFPS;
