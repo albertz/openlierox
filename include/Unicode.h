@@ -17,6 +17,9 @@
 #include "Utils.h"
 
 typedef Uint32 UnicodeChar;
+typedef std::basic_string<UnicodeChar> UnicodeString;
+typedef Uint16 Utf16Char;
+typedef std::basic_string<Utf16Char> Utf16String;
 
 struct ConversionItem {
 	UnicodeChar Unicode;
@@ -146,6 +149,9 @@ char UnicodeCharToAsciiChar(UnicodeChar c);
 std::string OldLxCompatibleString(const std::string &Utf8String);
 std::string Utf8String(const std::string &OldLxString);
 std::string RemoveSpecialChars(const std::string &Utf8String);
-
+std::string Utf16ToUtf8(const Utf16String& str);
+Utf16String Utf8ToUtf16(const std::string& str);
+std::string UnicodeToUtf8(const UnicodeString& str);
+UnicodeString Utf8ToUnicode(const std::string& str);
 
 #endif

@@ -24,6 +24,7 @@
 #include <string>
 #include <list>
 #include <vector>
+#include "Unicode.h"
 
 #ifndef WIN32
 #	include <sys/dir.h>
@@ -39,8 +40,11 @@
 #	include <io.h>
 #	include <direct.h>
 	// wrappers to provide the standards
-	inline int mkdir(const char *path, int mode) { return _mkdir(path); }
+	inline int mkdir(const char *path, int mode) { return _wmkdir((wchar_t *)Utf8ToUtf16(path).c_str()); }
 #	define stat _stat
+#	define wstat _wstat
+#	define wfopen _wfopen
+#	define wremove _wremove
 #ifndef S_ISREG
 inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
 inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
@@ -135,7 +139,12 @@ inline bool GetExactFileName(const std::string& abs_searchname, std::string& fil
 			filename.erase(filename.length()-1);
 
 	struct stat finfo;
+
+#ifdef WIN32 // For win32 - wide char = UTF16
+	if(wstat((wchar_t *)Utf8ToUtf16(filename).c_str(), &finfo) != 0) {
+#else  // For linux, mac and others - UTF8 is natively supported
 	if(stat(filename.c_str(), &finfo) != 0) {
+#endif
 		// problems stating file
 		return false;
 	}
@@ -264,25 +273,26 @@ public:
 		if(!GetExactFileName(path + dir, abs_path)) return true;
 		bool ret = true;
 		
-#ifdef WIN32
-		struct _finddata_t fileinfo;
+#ifdef WIN32  // uses UTF16
+		struct _wfinddata_t fileinfo;
 		abs_path.append("/*");
-		intptr_t handle = _findfirst(abs_path.c_str(), &fileinfo);
+		intptr_t handle = _wfindfirst((wchar_t *)Utf8ToUtf16(abs_path).c_str(), &fileinfo);
 		while(handle > 0) {
 			//If file is not self-directory or parent-directory
-			if(fileinfo.name[0] != '.' || (fileinfo.name[1] != '\0' && (fileinfo.name[1] != '.' || fileinfo.name[2] != '\0'))) {
+			if(fileinfo.name[0] != L'.' || (fileinfo.name[1] != L'\0' && (fileinfo.name[1] != L'.' || fileinfo.name[2] != L'\0'))) {
 				if((!(fileinfo.attrib&_A_SUBDIR) && modefilter&FM_REG)
 				|| fileinfo.attrib&_A_SUBDIR && modefilter&FM_DIR)
-					if(!filehandler(dir + "/" + fileinfo.name)) {
+					if(!filehandler(dir + "/" + Utf16ToUtf8((Utf16Char *)(&fileinfo.name[0])))) {
 						ret = false;
 						break;
 					}
 			}
 
-			if(_findnext(handle,&fileinfo))
+			if(_wfindnext(handle,&fileinfo))
 				break;
 		}
 #else /* not WIN32 */
+
 		std::string filename;
 		dirent* entry;
 		struct stat s;
@@ -290,7 +300,7 @@ public:
 		if(!handle) return ret;
 		while((entry = readdir(handle)) != 0) {
 			//If file is not self-directory or parent-directory
-			if(entry->d_name[0] != '.' || (entry->d_name[1] != '\0' && (entry->d_name[1] != '.' || entry->d_name[2] != '\0'))) {
+			if(entry->d_name[0] != L'.' || (entry->d_name[1] != L'\0' && (entry->d_name[1] != L'.' || entry->d_name[2] != L'\0'))) {
 				filename = abs_path + "/" + entry->d_name;
 				if(stat(filename.c_str(), &s) == 0)
 					if((S_ISREG(s.st_mode) && modefilter&FM_REG)

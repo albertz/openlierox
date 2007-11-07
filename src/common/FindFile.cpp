@@ -74,7 +74,11 @@ bool IsFileAvailable(const std::string& f, bool absolute) {
 
 	// HINT: this should also work on WIN32, as we have _stat here
 	struct stat s;
+#ifdef WIN32  // uses UTF16
+	if(wstat((wchar_t *)Utf8ToUtf16(abs_f).c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
+#else // not win32
 	if(stat(abs_f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
+#endif
 		// it's not stat-able or not a reg file
 		return false;
 	}
@@ -154,13 +158,18 @@ bool IsPathStatable(const std::string& f) {
 
 	// HINT: this should also work on WIN32, as we have _stat here
 	struct stat s;
+#ifdef WIN32  // uses UTF16
+	return (wstat(Utf8ToUtf16(abs_f).c_str(), &s) == 0); // ...==0, if successfull
+#else // other systems
 	return (stat(abs_f.c_str(), &s) == 0); // ...==0, if successfull
+#endif
 }
 
 
 // used by unix-GetExactFileName
 // HINT: it only reads the first char of the seperators
 // it returns the start of the subdir (the pos _after_ the sep.)
+// HINT: it returns position in bytes, not in characters
 size_t GetNextName(const std::string& fullname, const char** seperators, std::string& nextname)
 {
 	std::string::const_iterator pos;
@@ -206,6 +215,8 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 		filename = "";
 		return true;
 	}
+
+	// TODO: unicode support!!
 
 	DIR* dirhandle = opendir((dir == "") ? "." : dir.c_str());
 	if(dirhandle == 0) return false;
@@ -445,6 +456,16 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 	if(path.size() == 0)
 		return NULL;
 
+#ifdef WIN32
+	// Convert the mode to wide char for wfopen
+	wchar_t wide_mode[32];
+	for (int i=0; i < strlen(mode) && i < sizeof(wide_mode)/sizeof(wchar_t)-1;)  {
+		wide_mode[i] = (wchar_t)mode[i];
+		wide_mode[++i] = 0;
+	}
+#endif
+
+
 	std::string fullfn = GetFullFileName(path);
 
 	bool write_mode = strchr(mode, 'w') != 0;
@@ -465,12 +486,20 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 			}
 		}
 		//printf("opening file for writing (mode %s): %s\n", mode, writefullname);
-		return fopen(writefullname.c_str(), mode);
+#ifdef WIN32 // uses UTF16
+		return wfopen((wchar_t *)Utf8ToUtf16(writefullname).c_str(), wide_mode);
+#else // other systems
+		return fopen(writefullname.c_str(), wide_mode);
+#endif
 	}
 
 	if(fullfn.size() != 0) {
 		//printf("open file for reading (mode %s): %s\n", mode, fullfn);
-		return fopen(fullfn.c_str(), mode);
+#ifdef WIN32 // uses UTF16
+		return wfopen((wchar_t *)Utf8ToUtf16(fullfn).c_str(), wide_mode);
+#else // uses Unicode
+		return fopen(fullfn.c_str(), wide_mode);
+#endif
 	}
 
 	return NULL;
@@ -479,6 +508,8 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 
 
 std::ifstream* OpenGameFileR(const std::string& path) {
+	// TODO: unicode support!
+
 	if(path.size() == 0)
 		return NULL;
 
@@ -531,6 +562,7 @@ bool FileListIncludesExact(const searchpathlist* l, const std::string& f) {
 
 std::string GetHomeDir() {
 #ifndef WIN32
+	// TODO: unicode support!
 	char* home = getenv("HOME");
 	if(home == NULL || home[0] == '\0') {
 		passwd* userinfo = getpwuid(getuid());
@@ -540,13 +572,13 @@ std::string GetHomeDir() {
 	}
 	return home;	
 #else
-	static char tmp[1024];
-	if (!SHGetSpecialFolderPathA(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
+	static wchar_t tmp[1024];
+	if (!SHGetSpecialFolderPathW(NULL,tmp,CSIDL_PERSONAL,FALSE))  {
 		// TODO: get dynamicaly another possible path
 		// the following is only a workaround!
 		return "C:\\OpenLieroX";
 	}
-	return tmp;
+	return Utf16ToUtf8((Utf16Char *)(&tmp[0]));
 #endif
 }
 
@@ -572,12 +604,12 @@ std::string GetTempDir() {
 #ifndef WIN32
 	return "/tmp"; // year, it's so simple :)
 #else
-	static char buf[256] = "";
-	if(buf[0] == '\0') { // only do this once
-		GetTempPath(sizeof(buf),buf);
+	static wchar_t buf[256] = L"";
+	if(buf[0] == L'\0') { // only do this once
+		GetTempPathW(sizeof(buf)/sizeof(wchar_t),buf);
 		fix_markend(buf);
 	}
-	return buf;
+	return Utf16ToUtf8((Utf16Char *)(&buf[0]));
 #endif
 }
 
@@ -598,12 +630,21 @@ bool FileCopy(const std::string& src, const std::string& dest) {
 	static char tmp[2048];
 
 	printf("FileCopy: %s -> %s\n", src.c_str(), dest.c_str());
+#ifdef WIN32 // uses UTF16
+	FILE* src_f = wfopen((wchar_t *)Utf8ToUtf16(src).c_str(), L"r");
+#else // other systems
 	FILE* src_f = fopen(src.c_str(), "r");
+#endif
 	if(!src_f) {
 		printf("FileCopy: ERROR: cannot open source\n");
 		return false;
 	}
-	FILE* dest_f = fopen(dest.c_str(), "w");
+
+#ifdef WIN32 // uses UTF16
+	FILE* dest_f = wfopen((wchar_t *)Utf8ToUtf16(dest).c_str(), L"w");
+#else // other systems
+	FILE* dest_f = fopen(dest.c_str(), L"w");
+#endif
 	if(!dest_f) {
 		fclose(src_f);
 		printf("  ERROR: cannot open destination\n");
@@ -637,10 +678,18 @@ bool FileCopy(const std::string& src, const std::string& dest) {
 bool CanWriteToDir(const std::string& dir) {
 	// TODO: we have to make this a lot better!
 	std::string fname = dir + "/.some_stupid_temp_file";
+#ifdef WIN32 // uses UTF16
+	FILE* fp = wfopen((wchar_t *)Utf8ToUtf16(fname).c_str(), L"w");
+#else // other systems
 	FILE* fp = fopen(fname.c_str(), "w");
+#endif
 	if(fp) {
 		fclose(fp);
+#ifdef WIN32 // uses UTF16
+		wremove((wchar_t *)Utf8ToUtf16(fname).c_str());
+#else // other systems
 		remove(fname.c_str());
+#endif
 		return true;
 	}
 	return false;
@@ -648,17 +697,17 @@ bool CanWriteToDir(const std::string& dir) {
 
 
 std::string GetAbsolutePath(const std::string& path) {
-	static char buf[1024];
+	static wchar_t buf[1024];
 #ifdef WIN32
 	static int len;
-	len = GetFullPathName(path.c_str(),sizeof(buf)/sizeof(char),buf,NULL);
+	len = GetFullPathNameW((wchar_t *)Utf8ToUtf16(path).c_str(),sizeof(buf)/sizeof(wchar_t),buf,NULL);
 	fix_markend(buf);
 	if (len)
-		return buf;
+		return Utf16ToUtf8((Utf16Char *)(&buf[0]));
 	else  // Failed
 		return path;
 #else
-	if(realpath(path.c_str(), buf) != NULL) {
+	if(wrealpath(Utf8ToUnicode(path).c_str(), buf) != NULL) {
 		fix_markend(buf);
 		return buf;
 	} else

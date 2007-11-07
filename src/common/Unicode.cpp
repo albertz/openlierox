@@ -9,6 +9,7 @@
 */
 
 #include "Unicode.h"
+#include "MathLib.h" // for SIGN
 
 
 // Table used for removing diacritics and other backward incompatible characters
@@ -902,6 +903,144 @@ std::string RemoveSpecialChars(const std::string &Utf8String)
 		}
 	
 	}
+
+	return result;
+}
+
+
+
+/*
+/* Functions for UTF conversions taken from enconding.c, created by W3C
+/* The license is available at the following address:
+/* http://dev.w3.org/cvsweb/~checkout~/XML/Copyright?rev=1.1&content-type=text/plain
+/* Original file: http://dev.w3.org/cvsweb/~checkout~/XML/encoding.c
+/*
+ */
+
+//////////////
+// Converts UTF16 to UTF8
+std::string Utf16ToUtf8(const Utf16String& str)
+{
+    Uint32 c, d;
+	std::string result;
+    int bits, iters;
+
+	for (Utf16String::const_iterator in = str.begin(); in != str.end();)  {
+		c = *in;
+		in++;
+		if ((c & 0xFC00) == 0xD800) { // surrogates
+			if ((in != str.end()) && (((d = (unsigned char)*in) & 0xFC00) == 0xDC00)) {
+				c &= 0x03FF;
+				c <<= 10;
+				c |= d & 0x03FF;
+				c += 0x10000;
+			} else {
+				return result;
+			}
+
+			in++;
+        }
+
+		// assertion: c is a single UTF-4 value
+
+		if (c < 0x80)  {
+			result += (char)c;
+			bits= 0;
+			iters = 0;
+		} else if (c < 0x800)  {
+			result += (char)((c >>  6) | 0xC0);
+			bits=  0;
+			iters = 1;
+		} else if (c < 0x10000)  {
+			result += (char)((c >> 12) | 0xE0);
+			bits=  6;
+			iters = 2;
+		} else {
+			result += (char)((c >> 18) | 0xF0);
+			bits= 12;
+			iters = 3;
+		}
+ 
+		for ( ; iters; --iters) {
+			result += (char)(((c >> bits) & 0x3F) | 0x80);
+		}
+	}
+
+	return result;
+}
+
+///////////////
+// Converts UTF8 to UTF16
+Utf16String Utf8ToUtf16(const std::string& str)
+{
+    Uint32 c, d, trailing;
+	Utf16String result;
+
+	for (std::string::const_iterator in = str.begin(); in != str.end();)  {
+		d = (unsigned char)*in;
+		in++;
+
+		if (d < 0x80)  {
+			c = d;
+			trailing = 0;
+		} else if (d < 0xC0)  {
+			return result; // trailing byte in leading position
+		} else if (d < 0xE0)  {
+			c = d & 0x1F;
+			trailing = 1;
+		} else if (d < 0xF0)  {
+			c = d & 0x0F;
+			trailing= 2;
+		} else if (d < 0xF8)  { 
+			c = d & 0x07;
+			trailing= 3;
+		} else  {
+			return result; // no chance for this in UTF-16
+		}
+
+      for ( ; trailing; trailing--) {
+          if (in == str.end())
+			  return result;
+		  if (((d = (unsigned char)*in++) & 0xC0) != 0x80)
+			  return result;
+          c <<= 6;
+          c |= d & 0x3F;
+      }
+
+      // assertion: c is a single UTF-4 value
+		if (c < 0x10000) {
+			result += (Utf16Char) c;
+		} else if (c < 0x110000)  {
+			c -= 0x10000;
+			result += 0xD800 | (c >> 10);
+			result += 0xDC00 | (c & 0x03FF);
+		} else {
+			return result;
+		}
+    }
+    return result;
+}
+
+
+//////////////////
+// Convert a Unicode string to UTF8
+std::string UnicodeToUtf8(const UnicodeString& str)
+{
+	std::string result;
+	for (UnicodeString::const_iterator i = str.begin(); i != str.end(); i++)  {
+		result += GetUtf8FromUnicode(*i);
+	}
+
+	return result;
+}
+
+//////////////////
+// Convert a UTF8 string to Unicode
+UnicodeString Utf8ToUnicode(const std::string& str)
+{
+	UnicodeString result;
+	for (std::string::const_iterator it = str.begin(); it != str.end();)
+		result += GetNextUnicodeFromUtf8(it, str.end());
 
 	return result;
 }
