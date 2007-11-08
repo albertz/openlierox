@@ -489,7 +489,7 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 #ifdef WIN32 // uses UTF16
 		return wfopen((wchar_t *)Utf8ToUtf16(writefullname).c_str(), wide_mode);
 #else // other systems
-		return fopen(writefullname.c_str(), wide_mode);
+		return fopen(writefullname.c_str(), mode);
 #endif
 	}
 
@@ -498,7 +498,7 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 #ifdef WIN32 // uses UTF16
 		return wfopen((wchar_t *)Utf8ToUtf16(fullfn).c_str(), wide_mode);
 #else // uses Unicode
-		return fopen(fullfn.c_str(), wide_mode);
+		return fopen(fullfn.c_str(), mode);
 #endif
 	}
 
@@ -643,7 +643,7 @@ bool FileCopy(const std::string& src, const std::string& dest) {
 #ifdef WIN32 // uses UTF16
 	FILE* dest_f = wfopen((wchar_t *)Utf8ToUtf16(dest).c_str(), L"w");
 #else // other systems
-	FILE* dest_f = fopen(dest.c_str(), L"w");
+	FILE* dest_f = fopen(dest.c_str(), "w");
 #endif
 	if(!dest_f) {
 		fclose(src_f);
@@ -697,8 +697,8 @@ bool CanWriteToDir(const std::string& dir) {
 
 
 std::string GetAbsolutePath(const std::string& path) {
-	static wchar_t buf[1024];
 #ifdef WIN32
+	static wchar_t buf[1024];
 	static int len;
 	len = GetFullPathNameW((wchar_t *)Utf8ToUtf16(path).c_str(),sizeof(buf)/sizeof(wchar_t),buf,NULL);
 	fix_markend(buf);
@@ -707,7 +707,8 @@ std::string GetAbsolutePath(const std::string& path) {
 	else  // Failed
 		return path;
 #else
-	if(wrealpath(Utf8ToUnicode(path).c_str(), buf) != NULL) {
+	static char buf[1024];
+	if(realpath(path.c_str(), buf) != NULL) {
 		fix_markend(buf);
 		return buf;
 	} else
@@ -728,3 +729,4 @@ bool PathListIncludes(const std::list<std::string>& pathlist, const std::string&
 	
 	return false;
 }
+

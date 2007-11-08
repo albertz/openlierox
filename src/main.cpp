@@ -116,29 +116,6 @@ void test_Unicode_UTF8_Conversion() {
 	std::string tmp = buf;
 	std::string::iterator i = tmp.begin();
 	IncUtf8StringIterator(i, tmp.end());*/
-
-	std::string test = "Testovan";
-	test += (char)0xC2;
-	test += (char)0xA9;
-	Utf16String u16 = Utf8ToUtf16(test);
-	UnicodeString unc = Utf8ToUnicode(test);
-	std::string rev = Utf16ToUtf8(u16);
-
-	UnicodeString::iterator i = unc.begin();
-	Utf16String::iterator j = u16.begin();
-	for (; i != unc.end(); i++, j++)
-		if (*i != *j)
-			_asm int 3;
-	
-	if (rev.size() != test.size())
-		_asm int 3;
-
-	std::string::iterator t,r;
-	t = test.begin();
-	r  = rev.begin();
-	for (; t!= test.end(); t++, r++)
-		if (*t != *r)
-			_asm int 3;
 }
 
 
