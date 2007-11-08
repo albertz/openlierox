@@ -240,6 +240,9 @@ public:
 		bool	bAllowNickChange;
 		float	fBonusFreq;
 		float	fBonusLife;
+		bool	bAllowConnectDuringGame;
+		int		iAllowConnectDuringGameLives;
+		int		iAllowConnectDuringGameLivesMin;
 	} tGameinfo;
 
 };

@@ -400,7 +400,12 @@ int GameServer::StartGame(void)
         }
     }
 
-
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
+	{
+		CBytestream b;
+		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
+		SendGlobalPacket(&b);
+	};
 
 	iState = SVS_GAME;		// In-game, waiting for players to load
 	iServerFrame = 0;
@@ -476,6 +481,13 @@ void GameServer::BeginMatch(void)
 			continue;
 		(cClient->getRemoteWorms() + cWorms[i].getID())->setFlag(true);
 	}
+
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )	// Set lives of zombies to 0 in scoreboard
+	{
+		CBytestream b;
+		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
+		SendGlobalPacket( &b );
+	};
 }
 
 
@@ -505,7 +517,12 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 	}
-
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
+	{
+		bs.Clear();
+		DropFakeZombieWormsToCleanUpLobby( &bs );
+		SendGlobalPacket( &bs );
+	};
 }
 
 ///////////////////
@@ -877,7 +894,12 @@ void GameServer::DropClient(CClient *cl, int reason)
 
     // Now that a player has left, re-check the game status
     RecheckGame();
-
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
+	{
+		CBytestream b;
+		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
+		SendGlobalPacket(&b);
+	};
     // If we're waiting for players to be ready, check again
     if(iState == SVS_GAME)
         CheckReadyClient();
@@ -966,7 +988,12 @@ void GameServer::DropClient(CClient *cl, int reason, std::string sReason)
 
     // Now that a player has left, re-check the game status
     RecheckGame();
-
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
+	{
+		CBytestream b;
+		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
+		SendGlobalPacket(&b);
+	};
     // If we're waiting for players to be ready, check again
     if(iState == SVS_GAME)
         CheckReadyClient();
@@ -1518,3 +1545,72 @@ void GameServer::Shutdown(void)
 
 	// HINT: the gamescript is shut down by the cache
 }
+
+// This code is used in two places, so made function from it
+bool GameServer::CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs )
+{
+	// Create zombie worms so clients will init their worm data structures
+	// When another client connects during game zombie worm becomes a new client
+	CWorm *w = cWorms;
+	int numplayers = 0;
+	int i, j;
+	for ( i = 0; i < MAX_WORMS; i++, w++ ) 
+	{
+		if (w->isUsed()) numplayers++;
+	};
+	if( iMaxWorms <= numplayers ) return false;
+	w = cWorms;
+	for( i = 0, j = 0 ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
+	{
+		if( w->isUsed() ) continue;	// Worm is playing now - clients know about that worm already
+		j++;	// Worm not used - init data structures (should do no harm since this worm isn't used anyway)
+		w->setID(i);
+		w->setupLobby();
+		w->setTeam(0);
+		// Copied from GameServer::StartGame()
+		w->setLives(WRM_OUT);
+		w->setKills(0);
+		w->setGameScript(&cGameScript);
+		w->setWpnRest(&cWeaponRestrictions);
+		w->setLoadingTime( (float)iLoadingTimes / 100.0f );
+		w->setKillsInRow(0);
+		w->setDeathsInRow(0);
+		// Copied from CWorm::readInfo()
+		w->setName( "Zombie" );
+		w->setType( PRF_HUMAN );
+		w->setTeam( 0 );
+	    w->setSkin( "Mad-Victim.png" );	// Zombie
+		w->setColour( MakeColour(0x22, 0x8B, 0x22) );	// Zombie green in RGB
+		w->setDefaultColour(w->getColour() );
+		
+		// Write out the info
+		bs->writeByte(S2C_WORMINFO);
+		bs->writeInt(w->getID(),1);
+		w->writeInfo(bs);
+		w->writeScore(bs);
+	};
+	return true;
+};
+
+bool GameServer::DropFakeZombieWormsToCleanUpLobby( CBytestream *bs )
+{
+	CWorm *w = cWorms;
+	int numplayers = 0;
+	int i, j;
+	for ( i = 0; i < MAX_WORMS; i++, w++ ) 
+	{
+		if (w->isUsed()) numplayers++;
+	};
+	if( iMaxWorms <= numplayers ) return false;
+	bs->writeByte(S2C_CLLEFT);
+	bs->writeByte( iMaxWorms - numplayers );
+	w = cWorms;
+	for( i = 0, j = 0 ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
+	{
+		if( w->isUsed() ) continue;	// Worm is playing now - clients know about that worm already
+		j++;	// Worm not used - init data structures (should do no harm since this worm isn't used anyway)
+		bs->writeByte(i);
+	};
+	return true;
+};
+

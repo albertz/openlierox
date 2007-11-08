@@ -199,6 +199,8 @@ public:
 	float		GetDownload();
 	float		GetUpload();
 	bool		ParseChatCommand(const std::string& message, CClient *cl);
+	bool		CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs );
+	bool		DropFakeZombieWormsToCleanUpLobby( CBytestream *bs );
 
 	// Sending
 	void		SendPacket(CBytestream *bs, CClient *cl);

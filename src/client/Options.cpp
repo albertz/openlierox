@@ -205,6 +205,9 @@ bool GameOptions::LoadFromDisc()
 	ReadKeyword(f, "LastGame", "AllowNickChange", &tGameinfo.bAllowNickChange, true);
 	ReadFloat(f, "LastGame", "BonusFrequency", &tGameinfo.fBonusFreq, 30);
 	ReadFloat(f, "LastGame", "BonusLife", &tGameinfo.fBonusLife, 60);
+	ReadKeyword(f, "LastGame", "AllowConnectDuringGame", &tGameinfo.bAllowConnectDuringGame, false);
+	ReadInteger(f, "LastGame", "AllowConnectDuringGameLives", &tGameinfo.iAllowConnectDuringGameLives, 80);
+	ReadInteger(f, "LastGame", "AllowConnectDuringGameLivesMin", &tGameinfo.iAllowConnectDuringGameLivesMin, 3);
 
     // Advanced
     ReadInteger(f, "Advanced", "MaxFPS",    &nMaxFPS, 95);
@@ -364,6 +367,9 @@ void GameOptions::SaveToDisc()
 	fprintf(fp, "AllowNickChange = %s\n",tGameinfo.bAllowNickChange ? "true" : "false");
 	fprintf(fp, "BonusFrequency = %f\n",tGameinfo.fBonusFreq);
 	fprintf(fp, "BonusLife = %f\n",tGameinfo.fBonusLife);
+	fprintf(fp, "AllowConnectDuringGame = %s\n",tGameinfo.bAllowConnectDuringGame ? "true" : "false");
+	fprintf(fp, "AllowConnectDuringGameLives = %i\n",tGameinfo.iAllowConnectDuringGameLives);
+	fprintf(fp, "AllowConnectDuringGameLivesMin = %i\n",tGameinfo.iAllowConnectDuringGameLivesMin);
     fprintf(fp, "\n");
 
     fprintf(fp, "[Advanced]\n");
