@@ -86,6 +86,7 @@ void GameServer::Clear(void)
 
 	tMasterServers.clear();
 	tCurrentMasterServer = tMasterServers.begin();
+	bDedicated = false;
 }
 
 
@@ -251,8 +252,10 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 ///////////////////
 // Start the game
-int GameServer::StartGame(void)
+int GameServer::StartGame( bool dedicated )
 {
+	bDedicated = dedicated;
+	
 	CBytestream bs;
 
 	iLives =		 tGameInfo.iLives;
@@ -432,7 +435,7 @@ int GameServer::StartGame(void)
     cWeaponRestrictions.sendList(&bs);
 
 	SendGlobalPacket(&bs);
-
+	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
 
 	return true;
 }
@@ -482,11 +485,33 @@ void GameServer::BeginMatch(void)
 		(cClient->getRemoteWorms() + cWorms[i].getID())->setFlag(true);
 	}
 
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )	// Set lives of zombies to 0 in scoreboard
+	if( bDedicated )
+	{
+		// Instantly kill local worm (leave the bots) - cannot do that in StartGame 'cause clients won't update lobby
+		CWorm * w = cWorms;
+		for( i=0; i<MAX_WORMS ; i++, w++ ) 
+		{
+			if( ! w->isUsed() )
+				continue;
+			std::string addr;
+			NetAddrToString( w->getClient()->getChannel()->getAddress(), addr );
+			if( addr.find("127.0.0.1") == 0 && w->getType() == PRF_HUMAN )
+			{
+				bs.Clear();
+				w->setLives(WRM_OUT);
+				w->writeScore(&bs);
+				bs.writeByte(S2C_WORMDOWN);
+				bs.writeByte(w->getID());
+				SendGlobalPacket(&bs);
+			}
+		}
+		RecheckGame();
+	}
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
 	{
 		CBytestream b;
-		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
-		SendGlobalPacket( &b );
+		DropFakeZombieWormsToCleanUpLobby( &b );
+		SendGlobalPacket(&b);
 	};
 }
 
@@ -517,12 +542,7 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 	}
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
-	{
-		bs.Clear();
-		DropFakeZombieWormsToCleanUpLobby( &bs );
-		SendGlobalPacket( &bs );
-	};
+	bDedicated = false;
 }
 
 ///////////////////

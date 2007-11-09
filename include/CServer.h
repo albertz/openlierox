@@ -137,7 +137,8 @@ private:
 	std::string sCurrentUrl;
 	std::list<std::string>::iterator	tCurrentMasterServer;
 	std::list<std::string>				tMasterServers;
-
+	bool		bDedicated;
+	
 public:
 	// Methods
 
@@ -150,7 +151,7 @@ public:
 
 	// Game
 	void		Frame();
-	int			StartGame();
+	int			StartGame( bool dedicated = false ); // In dedicated server don't spawn the first worm - it's local player
 	void		BeginMatch();
 	void		GameOver(int winner);
 
@@ -256,6 +257,7 @@ public:
 	inline void		setFlagHolder(int _f, int _w)	{ iFlagHolders[_w] = _f; }
 
 	inline int		getNumPlayers(void)			{ return iNumPlayers; }
+	inline bool		getDedicated(void)			{ return bDedicated; }
 };
 
 extern	GameServer		*cServer;

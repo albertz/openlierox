@@ -430,7 +430,10 @@ enum {
     hl_WeaponOptions,
     hl_PopupMenu,
 	hl_Banned,
-	hl_ServerSettings
+	hl_ServerSettings,
+	hl_StartDedicated,
+	hl_StartDedicatedSeconds,
+	hl_StartDedicatedMinPlayers,
 };
 
 bool		bHostGameSettings = false;
@@ -441,7 +444,10 @@ CGuiLayout	cHostLobby;
 int			iSpeaking = 0;
 int         g_nLobbyWorm = -1;
 bool		bHost_Update = false;
-
+bool		bStartDedicated = false;
+int			iStartDedicatedSeconds = 15;
+int			iStartDedicatedMinPlayers = 4;
+float		fStartDedicatedSecondsPassed = 0;
 
 ///////////////////
 // Initialize the hosting lobby
@@ -563,6 +569,19 @@ void Menu_Net_HostLobbyCreateGui(void)
     cHostLobby.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, 136, 0,   0);
     cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
 	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, 15, 325, 220);
+	cHostLobby.Add( new CCheckbox(bStartDedicated),	hl_StartDedicated,			15,  244, 17, 17);
+	cHostLobby.Add( new CLabel("Auto-start in",tLX->clNormalLabel),	-1,			40,  245, 0,   0);
+	cHostLobby.Add( new CTextbox(),					hl_StartDedicatedSeconds,	122, 245, 25, tLX->cFont.GetHeight());
+	cHostLobby.Add( new CLabel("seconds with min",tLX->clNormalLabel),	-1,		155, 245, 0,   0);
+	cHostLobby.Add( new CTextbox(),					hl_StartDedicatedMinPlayers,263, 245, 25, tLX->cFont.GetHeight());
+	cHostLobby.Add( new CLabel("players",tLX->clNormalLabel),	-1,				295, 245, 0,   0);
+
+	cHostLobby.SendMessage(hl_StartDedicatedSeconds,TXM_SETMAX,8,0);
+	cHostLobby.SendMessage(hl_StartDedicatedMinPlayers,TXM_SETMAX,8,0);
+	CTextbox *t = (CTextbox *)cHostLobby.getWidget(hl_StartDedicatedSeconds);
+	t->setText( itoa(iStartDedicatedSeconds) );
+	t = (CTextbox *)cHostLobby.getWidget(hl_StartDedicatedMinPlayers);
+	t->setText( itoa(iStartDedicatedMinPlayers) );
 
 	//cHostLobby.SendMessage(hl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 
@@ -608,6 +627,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 	}
 
 	iSpeaking = 0; // The first player always speaks
+	fStartDedicatedSecondsPassed = tLX->fCurTime;	// Reset timers
 }
 
 //////////////////////
@@ -814,7 +834,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		ev = cHostLobby.Process();
 	cHostLobby.Draw( tMenu->bmpScreen );
 
-
+	bool bStartPressed = false;
 
 	// Process any events
 	if(ev) {
@@ -983,43 +1003,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 			// Start the game
 			case hl_Start:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
-
-					// Save the chat text
-					cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
-
-					// Get the mod
-					cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
-                    if(it) {
-		                tGameInfo.sModName = it->sName;
-						tGameInfo.sModDir = it->sIndex;
-                        tLXOptions->tGameinfo.szModName = it->sIndex;
-                    }
-
-                    // Get the game type
-                    tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
-                    tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
-
-					// Get the map name
-					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
-					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
-					// Save the current level in the options
-					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-					cHostLobby.Shutdown();
-
-                    // Setup the client
-                    cClient->SetupViewports();
-
-					// Start the game
-					cServer->StartGame();
-
-					// Leave the frontend
-					*bGame = true;
-					tMenu->iMenuRunning = false;
-					tGameInfo.iGameType = GME_HOST;
-
-					return;
-				}
+				if(ev->iEventMsg == BTN_MOUSEUP)
+					bStartPressed = true;
 				break;
 
 			// Player list
@@ -1114,12 +1099,90 @@ void Menu_Net_HostLobbyFrame(int mouse)
                 cHostLobby.SendMessage( hl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
                 cHostLobby.removeWidget(hl_PopupMenu);
                 break;
+
+			case hl_StartDedicated:
+				if(ev->iEventMsg == CHK_CHANGED) {
+						CCheckbox *c = (CCheckbox *)cHostLobby.getWidget(hl_StartDedicated);
+						bStartDedicated = c->getValue();
+						if( bStartDedicated )
+							fStartDedicatedSecondsPassed = tLX->fCurTime;
+				}
+                break;
+
+			case hl_StartDedicatedSeconds:
+				{
+					CTextbox *t = (CTextbox *)cHostLobby.getWidget(hl_StartDedicatedSeconds);
+					iStartDedicatedSeconds = atoi(t->getText());
+				}
+                break;
+
+			case hl_StartDedicatedMinPlayers:
+				{
+					CTextbox *t = (CTextbox *)cHostLobby.getWidget(hl_StartDedicatedMinPlayers);
+					iStartDedicatedMinPlayers = atoi(t->getText());
+					iStartDedicatedMinPlayers = CLAMP( iStartDedicatedMinPlayers, 1, cServer->getMaxWorms() );
+				}
+                break;
 		}
 	}
 
-
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);
+
+	int secondsTillGameStart = iStartDedicatedSeconds - (int)( tLX->fCurTime - fStartDedicatedSecondsPassed );
+	static int secondsAnnounced = -1;
+	if( bStartDedicated && cServer->getNumPlayers() < iStartDedicatedMinPlayers )
+	{
+		if( tLX->fCurTime - fStartDedicatedSecondsPassed > 5 )
+		{
+			cClient->SendText( OldLxCompatibleString( "Game will start when " + 
+					itoa(iStartDedicatedMinPlayers) + " players connect" ) );
+			fStartDedicatedSecondsPassed = tLX->fCurTime;
+			secondsAnnounced = -1;
+		};
+	}
+	else if( bStartDedicated && secondsTillGameStart % 5 == 0 && secondsTillGameStart != secondsAnnounced )
+	{
+		cClient->SendText( OldLxCompatibleString( "Game will start in " + itoa( secondsTillGameStart ) + " seconds" ) );
+		secondsAnnounced = secondsTillGameStart;
+	};
+
+	if( bStartPressed || 
+		( bStartDedicated && cServer->getNumPlayers() >= iStartDedicatedMinPlayers && secondsTillGameStart <= 0 ) )
+	{
+		// Save the chat text
+		cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
+
+		// Get the mod
+		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
+		if(it) {
+			tGameInfo.sModName = it->sName;
+			tGameInfo.sModDir = it->sIndex;
+			tLXOptions->tGameinfo.szModName = it->sIndex;
+		}
+
+		// Get the game type
+		tGameInfo.iGameMode = cHostLobby.SendMessage(hl_Gametype, CBM_GETCURINDEX, (DWORD)0, 0);
+		tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
+
+		// Get the map name
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
+		// Save the current level in the options
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
+		cHostLobby.Shutdown();
+
+		// Setup the client
+		cClient->SetupViewports();
+
+		// Start the game
+		cServer->StartGame( ! bStartPressed );	// Dedicated if no start button pressed
+
+		// Leave the frontend
+		*bGame = true;
+		tMenu->iMenuRunning = false;
+		tGameInfo.iGameType = GME_HOST;
+	}
 }
 
 ////////////////////

@@ -555,6 +555,9 @@ void CWorm::InitWeaponSelection(void)
 		tWeapons[n].SlotNum = n;
 		tWeapons[n].LastFire = 0;
 	}
+	// Skip weapon selection dialog for dedicated server
+	if( cServer->getDedicated() && getClient()->getServerAddress() == "127.0.0.1" )
+		iWeaponsReady = true;
 }
 
 ///////////////////

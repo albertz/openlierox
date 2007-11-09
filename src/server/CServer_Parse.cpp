@@ -211,35 +211,53 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 				w->writeWeapons(&b);
 			};
 		};
+		DropFakeZombieWormsToCleanUpLobby(&b);
 		b.writeInt(S2C_STARTGAME,1);
 		SendPacket(&b, cl);
+		// Spawn worms already playing for this client (health bar will be wrong, cannot fix anyway)
 		b.Clear();
 		w = cWorms;
 		for ( i = 0; i < MAX_WORMS; i++, w++ )
 		{
-			if (w->isUsed())
+			if ( ! w->isUsed() )
+				continue;
+			if( w->getClient() == cl )
 			{
-				if( w->getClient() == cl )
+				SpawnWorm(w);
+				CBytestream b1;
+				w->writeScore( &b1 );
+				SendGlobalPacket( &b1 );
+			}
+			else
+			{
+				w->writeScore( &b );
+				if( w->getLives() != WRM_OUT )
 				{
-					SpawnWorm(w);
-					CBytestream b1;
-					w->writeScore( &b1 );
-					SendGlobalPacket( &b1 );
-				}
-				else
-				{
-					// Spawn worms already playing for this client (health bar will be wrong, cannot fix anyway)
 					// Copied from GameServer::SpawnWorm()
 					b.writeByte(S2C_SPAWNWORM);
 					b.writeInt(w->getID(), 1);
 					b.writeInt( (int)w->getPos().x, 2);
 					b.writeInt( (int)w->getPos().y, 2);
-					w->writeScore( &b );
-				};
+				}
 			};
 		};
-		// Set lives of zombies to 0 in scoreboard
-		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
+		SendPacket(&b, cl);
+		// Spawn existing bonuses
+		b.Clear();
+		CBonus * bn = cBonuses;
+		for( i = 0; i < MAX_BONUSES; i++, bn++ )
+		{
+			if( ! bn->getUsed() )
+				continue;
+			// Copied from GameServer::SpawnBonus()
+			b.writeByte(S2C_SPAWNBONUS);
+			b.writeInt( bn->getType(), 1 );
+			if( bn->getType() == BNS_WEAPON )
+				b.writeInt( bn->getWeapon(), 1 );
+			b.writeInt( i, 1 );
+			b.writeInt( (int)bn->getPosition().x, 2 );
+			b.writeInt( (int)bn->getPosition().y, 2 );
+		};
 		SendPacket(&b, cl);
 	}
 	else
@@ -995,7 +1013,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 	}
 
 	// Ran out of challenges
-	if (i == MAX_CHALLENGES - 1) {
+	if ( i >= MAX_CHALLENGES ) {
 		printf("No connection verification for client found\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
@@ -1089,18 +1107,25 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			if (w->isUsed())
 			{
 				numplayers++;
-				lives_total += w->getLives();
+				lives_total += ( w->getLives() != WRM_OUT ) ? w->getLives() : -1 ;
 			};
 		};
 		livesWormConnectedDuringGame = tLXOptions->tGameinfo.iAllowConnectDuringGameLives * lives_total / numplayers / 100;
-		if ( livesWormConnectedDuringGame > iLives ) livesWormConnectedDuringGame = iLives;
-		if ( livesWormConnectedDuringGame < tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin ) 
+		if( tLXOptions->tGameinfo.iAllowConnectDuringGameLives >= 999 ) 
+			livesWormConnectedDuringGame = iLives;	// Non-stop game, every new worm has full amount of lives
+		if ( livesWormConnectedDuringGame < 0 )
+			livesWormConnectedDuringGame = 0;
+		if ( livesWormConnectedDuringGame > iLives )
+			livesWormConnectedDuringGame = iLives;
+		if ( iLives == WRM_UNLIM )
+			livesWormConnectedDuringGame = WRM_UNLIM;
+		else if ( livesWormConnectedDuringGame < tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin )
 		{
 			printf("New worm will have %i lives when minimum is %i - denying\n", livesWormConnectedDuringGame, tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin );
 			bytestr.Clear();
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
-			bytestr.writeString(OldLxCompatibleString(networkTexts->sServerFull));
+			bytestr.writeString(OldLxCompatibleString(networkTexts->sGameInProgress));
 			bytestr.Send(tSocket);
 			return;
 		};
@@ -1361,13 +1386,15 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			// Skip lobby screen, tell client the game started already
 			CBytestream bs;
 			// Older connected during game clients won't crash if new one connects here
-			CreateFakeZombieWormsToAllowConnectDuringGame( &bs );	
+			CreateFakeZombieWormsToAllowConnectDuringGame( &bs );
+			SendPacket(&bs, newcl);
+			bs.Clear();
 			// Copied from GameServer::StartGame()
 			bs.writeByte(S2C_PREPAREGAME);
 			bs.writeInt(iRandomMap,1);
 			if(!iRandomMap)
 				bs.writeString(sMapFilename);
-
+			
 			// Game info
 			bs.writeInt(iGameType,1);
 			bs.writeInt16(iLives);
@@ -1383,6 +1410,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		    cWeaponRestrictions.sendList(&bs);
 
 			SendPacket(&bs, newcl);
+			// Beta3 client parses S2C_PREPAREGAME packet glitchly, so if anything will be added
+			// to the end of this packet client won't parse it at all (let's drop zombies in C2S_IMREADY)
 		}
 	}
 }
