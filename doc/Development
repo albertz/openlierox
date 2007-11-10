@@ -143,7 +143,9 @@ Some basic rules you should keep in every case:
 	http://www.sgi.com/tech/stl/table_of_contents.html
 - Produce abstract and general code!
 	(This is realy important because we soon want to change the base code and all code, which is not general enough has to be redone. Keep this in mind...)
-- Don't hack around. It's not good if you add some new features only with some small hacks to the code. The code becomes even more terrible by this. Also, almost every hacked-in feature isn't general enough to allow a simple reuse of it in a new codebase.
+- Don't hack around!
+	It's not good if you add some new features only with some small hacks to the code. The code becomes even more terrible by this. Also, almost every hacked-in feature isn't general enough to allow a simple reuse of it in a new codebase.
+	If you want to add kind of a hack for some backward-compatibility, think first about if you realy want this. Perhaps it's just better for this new feature to allow it only for new versions. Because you should not only think of the backward-compatibility. Also think of the forward-compatibility. Also, if you realy want to implement a hack, leave at least the code clean!
 - Format and indent the code correct! (Use tabs for indenting!)
 - Place spaces between each element which should be read seperated!
 	For example, this looks terrible:
