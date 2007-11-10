@@ -9,4 +9,6 @@ Also, I haven't set this up to work with OS' other than Windows so if you want t
 
 This version is old so I will be upgrading it soon.
 
+NOTE: The source code is written in java and will require the Java SDK to compile it. (http://java.sun.com)
+
 -Nick
