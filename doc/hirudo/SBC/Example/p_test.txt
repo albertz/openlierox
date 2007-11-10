@@ -1,0 +1,54 @@
+[General]
+Type = PRJ_PIXEL
+Colour1 = 123,123,123
+Trail = TRL_SMOKE
+
+[Hit]
+Type = Explode
+Damage = 4
+Projectiles = true
+Projectiles2 = true
+Shake = 2
+sound = exp2.ogg
+
+[PlayerHit]
+Type = Injure
+Damage = 4
+Projectiles3 = true
+Projectiles4 = true
+
+[Projectile]
+Angle = 0
+Amount = 10
+Speed = 50
+Spread = 360
+Xoffset = 0
+Yoffset = 0
+Projectile = p_greybits.txt
+
+[Projectile2]
+Angle = 0
+Amount = 10
+Speed = 100
+Spread = 360
+Xoffset = 0
+Yoffset = 0
+Projectile = p_greybits.txt
+
+[Projectile3]
+Angle = 0
+Amount = 10
+Speed = 150
+Spread = 360
+Xoffset = 0
+Yoffset = 0
+Projectile = p_greybits.txt
+
+[Projectile4]
+Angle = 0
+Amount = 10
+Speed = 200
+Spread = 360
+Xoffset = 0
+Yoffset = 0
+Projectile = p_greybits.txt

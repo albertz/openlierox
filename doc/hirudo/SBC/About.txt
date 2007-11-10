@@ -1,0 +1,12 @@
+About the SBC (Script basic compiler)
+
+Contained in these folders is the source code of the app that converts LieroX Scripts into lua.
+This is the version I made from when I was working on LXE so I wouldn't expect that Hirudo's lua scripts would be exactly the same.
+
+There are still functions that I haven't got working yet but I should have them done in the near future.
+Also, I haven't set this up to work with OS' other than Windows so if you want this source to work on any other OS you will need to change all the \'s with /'s (for file paths in the open() and saveLog() methods)
+
+
+This version is old so I will be upgrading it soon.
+
+-Nick

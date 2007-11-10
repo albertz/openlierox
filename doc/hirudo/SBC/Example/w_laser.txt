@@ -1,0 +1,15 @@
+[General]
+Name = Laser
+Class = WCL_BEAM
+Recoil = 5
+Recharge = 6
+Drain = 3
+ROF = 1
+
+[Beam]
+Damage = 1
+PlayerDamage = 3
+Colour = 255,0,0
+Length = 999999
+Xoffset = 0
+Yoffset = 0

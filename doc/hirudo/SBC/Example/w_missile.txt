@@ -1,0 +1,22 @@
+###################
+# Gun: MISSILE
+
+
+[General]
+Name = Missile
+Class = WCL_MISSILE
+Recoil = 10
+Recharge = 1
+Rounds = 1
+ROF = 400
+Sound = missile.wav
+ReloadSound = Missile Reload.ogg
+Playercontrolled = true
+
+[Projectile]
+Amount = 1
+Speed = 250
+Spread = 0
+Xoffset = 0
+Yoffset = 0
+Projectile = p_missile.txt

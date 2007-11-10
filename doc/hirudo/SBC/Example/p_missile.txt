@@ -1,0 +1,32 @@
+###################
+# Projectile: MISSILE
+
+
+[General]
+Type = PRJ_IMAGE
+Image = missile.png
+Trail = TRL_SMOKE
+UseAngle = true
+AngleImages = -1
+
+
+
+[Hit]
+Type = Explode
+Damage = 4
+Projectiles = true
+Shake = 2
+sound = exp2.ogg
+
+[PlayerHit]
+Type = Injure
+Damage = 8
+
+[Projectile]
+Angle = 0
+Amount = 10
+Speed = 50
+Spread = 360
+Xoffset = 0
+Yoffset = 0
+Projectile = p_greybits.txt

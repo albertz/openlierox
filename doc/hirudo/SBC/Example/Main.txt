@@ -1,0 +1,28 @@
+[General]
+ModName = LieroX Enhanced Test Mod
+Description = A sample mod
+Author = Nick Stones-Havas
+Contact = di.da.nick@gmail.com
+asdada
+
+
+[Weapons]
+NumWeapons = 3
+Weapon1 = w_missile.txt
+Weapon2 = w_laser.txt
+Weapon3 = w_test.txt
+
+
+[NinjaRope]
+RopeLength = 300
+RestLength = 27
+Strength = 4.5
+
+[Worm]
+AngleSpeed = 150
+GroundSpeed = 8
+AirSpeed = 4
+Gravity = 100
+JumpForce = -65
+AirFriction = 0
+GroundFriction = 0.4
