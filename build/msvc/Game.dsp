@@ -291,14 +291,6 @@ SOURCE=..\..\include\ReadWriteLock.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\src\common\SDLFont.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\SDLFont.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\src\common\sex.cpp
 # End Source File
 # Begin Source File

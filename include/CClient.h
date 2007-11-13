@@ -422,7 +422,7 @@ private:
 	// Logging variables
     bool		bInServer;
 	std::string	cIConnectedBuf;
-
+	bool		bConnectingDuringGame;
 
 
 public:
@@ -641,6 +641,9 @@ public:
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
 
 	CViewport * getViewports()					{ return cViewports; }
+	
+	bool		getConnectingDuringGame()		{ return bConnectingDuringGame; };
+	void		setConnectingDuringGame(bool b)	{ bConnectingDuringGame = b; };
 
 };
 

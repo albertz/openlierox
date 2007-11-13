@@ -457,6 +457,12 @@ void GameServer::BeginMatch(void)
 	fGameOverTime = -9999;
 	cShootList.Clear();
 
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
+	{
+		CBytestream b;
+		DropFakeZombieWormsToCleanUpLobby( &b );
+		SendGlobalPacket(&b);
+	};
 	// Send the connected clients a startgame message
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
@@ -507,12 +513,6 @@ void GameServer::BeginMatch(void)
 		}
 		RecheckGame();
 	}
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
-	{
-		CBytestream b;
-		DropFakeZombieWormsToCleanUpLobby( &b );
-		SendGlobalPacket(&b);
-	};
 }
 
 
@@ -614,7 +614,7 @@ void GameServer::ReadPackets(void)
             if(cl->getChannel()->Process(&bs)) {
 
                 // Only process the actual packet for playing clients
-                if( cl->getStatus() != NET_ZOMBIE )
+                if( cl->getStatus() != NET_ZOMBIE || cl->getConnectingDuringGame() )
 				    ParseClientPacket(cl,&bs);
             }
 		}
@@ -823,12 +823,13 @@ void GameServer::CheckTimeouts(void)
 			continue;
 
         // Check for a drop
-		if(cl->getLastReceived() < dropvalue && cl->getStatus() != NET_ZOMBIE && cl->getWorm(0)->getID() != 0) {
+		if( cl->getLastReceived() < dropvalue && cl->getWorm(0)->getID() != 0 &&
+			( cl->getStatus() != NET_ZOMBIE || ( cl->getStatus() == NET_ZOMBIE && cl->getConnectingDuringGame() ) ) ) {
 			DropClient(cl, CLL_TIMEOUT);
 		}
 
         // Is the client out of zombie state?
-        if(cl->getStatus() == NET_ZOMBIE && tLX->fCurTime > cl->getZombieTime() ) {
+        if(cl->getStatus() == NET_ZOMBIE && tLX->fCurTime > cl->getZombieTime() && !cl->getConnectingDuringGame() ) {
             cl->setStatus(NET_DISCONNECTED);
         }
 	}
@@ -894,6 +895,7 @@ void GameServer::DropClient(CClient *cl, int reason)
     // reliable data to the client
     cl->setStatus(NET_ZOMBIE);
     cl->setZombieTime(tLX->fCurTime + 3);
+	cl->setConnectingDuringGame(false);
 
 	SendGlobalPacket(&bs);
 
@@ -914,12 +916,7 @@ void GameServer::DropClient(CClient *cl, int reason)
 
     // Now that a player has left, re-check the game status
     RecheckGame();
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
-	{
-		CBytestream b;
-		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
-		SendGlobalPacket(&b);
-	};
+
     // If we're waiting for players to be ready, check again
     if(iState == SVS_GAME)
         CheckReadyClient();
@@ -988,6 +985,7 @@ void GameServer::DropClient(CClient *cl, int reason, std::string sReason)
     // reliable data to the client
     cl->setStatus(NET_ZOMBIE);
     cl->setZombieTime(tLX->fCurTime + 3);
+	cl->setConnectingDuringGame(false);
 
 	SendGlobalPacket(&bs);
 
@@ -1008,12 +1006,7 @@ void GameServer::DropClient(CClient *cl, int reason, std::string sReason)
 
     // Now that a player has left, re-check the game status
     RecheckGame();
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
-	{
-		CBytestream b;
-		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
-		SendGlobalPacket(&b);
-	};
+
     // If we're waiting for players to be ready, check again
     if(iState == SVS_GAME)
         CheckReadyClient();
@@ -1579,8 +1572,7 @@ bool GameServer::CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs 
 		if (w->isUsed()) numplayers++;
 	};
 	if( iMaxWorms <= numplayers ) return false;
-	w = cWorms;
-	for( i = 0, j = 0 ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
+	for( i = 0, j = 0, w = cWorms ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
 	{
 		if( w->isUsed() ) continue;	// Worm is playing now - clients know about that worm already
 		j++;	// Worm not used - init data structures (should do no harm since this worm isn't used anyway)
@@ -1597,11 +1589,12 @@ bool GameServer::CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs 
 		w->setDeathsInRow(0);
 		// Copied from CWorm::readInfo()
 		w->setName( "Zombie" );
-		w->setType( PRF_HUMAN );
+		w->setType( PRF_COMPUTER );
 		w->setTeam( 0 );
-	    w->setSkin( "Mad-Victim.png" );	// Zombie
+		w->setSkin( "Mad-Victim.png" );	// Zombie
 		w->setColour( MakeColour(0x22, 0x8B, 0x22) );	// Zombie green in RGB
 		w->setDefaultColour(w->getColour() );
+		w->GetRandomWeapons();
 		
 		// Write out the info
 		bs->writeByte(S2C_WORMINFO);
@@ -1622,13 +1615,20 @@ bool GameServer::DropFakeZombieWormsToCleanUpLobby( CBytestream *bs )
 		if (w->isUsed()) numplayers++;
 	};
 	if( iMaxWorms <= numplayers ) return false;
-	bs->writeByte(S2C_CLLEFT);
-	bs->writeByte( iMaxWorms - numplayers );
-	w = cWorms;
-	for( i = 0, j = 0 ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
+	for( i = 0, j = 0, w = cWorms ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
 	{
 		if( w->isUsed() ) continue;	// Worm is playing now - clients know about that worm already
 		j++;	// Worm not used - init data structures (should do no harm since this worm isn't used anyway)
+		bs->writeByte(S2C_CLREADY);
+		bs->writeByte(1);
+		w->writeWeapons(bs);
+	};
+	for( i = 0, j = 0, w = cWorms ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
+	{
+		if( w->isUsed() ) continue;	// Worm is playing now - clients know about that worm already
+		j++;	// Worm not used - init data structures (should do no harm since this worm isn't used anyway)
+		bs->writeByte(S2C_CLLEFT);
+		bs->writeByte(1);
 		bs->writeByte(i);
 	};
 	return true;

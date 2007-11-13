@@ -196,8 +196,10 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 		}
 	}
 
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() )
 	{
+		cl->setStatus(NET_CONNECTED);
+		cl->setConnectingDuringGame(false);
 		CBytestream b;
 		int i;
 		CWorm *w = cWorms;
@@ -671,7 +673,8 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 // Parse a 'update lobby' packet
 void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 	// Must be in lobby
-	if (iState != SVS_LOBBY)  {
+	if ( iState != SVS_LOBBY &&  
+		!( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() ) )  {
 		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
 
 		// Skip to get the right position
@@ -717,7 +720,37 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 			bytestr.Clear();
 		}
 	}
-}
+	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING && ready )
+	{
+		cl->setStatus(NET_CONNECTED);
+		bytestr.Clear();
+		CreateFakeZombieWormsToAllowConnectDuringGame( &bytestr );
+		SendPacket(&bytestr, cl);
+		bytestr.Clear();
+		// Copied from GameServer::StartGame()
+		bytestr.writeByte(S2C_PREPAREGAME);
+		bytestr.writeInt(iRandomMap,1);
+		if(!iRandomMap)
+			bytestr.writeString(sMapFilename);
+		
+		// Game info
+		bytestr.writeInt(iGameType,1);
+		bytestr.writeInt16(iLives);
+		bytestr.writeInt16(iMaxKills);
+		bytestr.writeInt16(iTimeLimit);
+		bytestr.writeInt16(iLoadingTimes);
+		bytestr.writeInt(iBonusesOn, 1);
+		bytestr.writeInt(iShowBonusName, 1);
+		if(iGameType == GMT_TAG)
+			bytestr.writeInt16(iTagLimit);
+		bytestr.writeString(tGameInfo.sModDir);
+		cWeaponRestrictions.sendList(&bytestr);
+		SendPacket(&bytestr, cl);
+		// Beta3 client parses S2C_PREPAREGAME packet glitchly, so if anything will be added
+		// to the end of this packet client won't parse it at all (let's drop zombies in C2S_IMREADY)
+		cl->setStatus(NET_ZOMBIE);
+	};
+};
 
 
 ///////////////////
@@ -1369,6 +1402,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		// Tell the client the game lobby details
 		// Note: This sends a packet to ALL clients, not just the new client
+		// TODO: if connecting during game update game lobby only for new client
 		UpdateGameLobby();
 		if (tGameInfo.iGameType != GME_LOCAL)
 			SendWormLobbyUpdate();
@@ -1383,35 +1417,9 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// Client spawns when the game starts
 		if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
 		{
-			// Skip lobby screen, tell client the game started already
-			CBytestream bs;
-			// Older connected during game clients won't crash if new one connects here
-			CreateFakeZombieWormsToAllowConnectDuringGame( &bs );
-			SendPacket(&bs, newcl);
-			bs.Clear();
-			// Copied from GameServer::StartGame()
-			bs.writeByte(S2C_PREPAREGAME);
-			bs.writeInt(iRandomMap,1);
-			if(!iRandomMap)
-				bs.writeString(sMapFilename);
-			
-			// Game info
-			bs.writeInt(iGameType,1);
-			bs.writeInt16(iLives);
-			bs.writeInt16(iMaxKills);
-			bs.writeInt16(iTimeLimit);
-			bs.writeInt16(iLoadingTimes);
-			bs.writeInt(iBonusesOn, 1);
-			bs.writeInt(iShowBonusName, 1);
-			if(iGameType == GMT_TAG)
-				bs.writeInt16(iTagLimit);
-			bs.writeString(tGameInfo.sModDir);
-
-		    cWeaponRestrictions.sendList(&bs);
-
-			SendPacket(&bs, newcl);
-			// Beta3 client parses S2C_PREPAREGAME packet glitchly, so if anything will be added
-			// to the end of this packet client won't parse it at all (let's drop zombies in C2S_IMREADY)
+			SendText( newcl, OldLxCompatibleString("Game in progress. Press \"Ready\" to connect."), TXT_NETWORK );
+			newcl->setStatus(NET_ZOMBIE);	// Do not send any worm updates to client
+			newcl->setConnectingDuringGame(true);
 		}
 	}
 }
