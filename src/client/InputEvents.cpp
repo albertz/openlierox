@@ -92,7 +92,7 @@ void ProcessEvents(void)
 
 
 		// Activation and deactivation
-		if(Event.type == SDL_ACTIVEEVENT)  {
+		if(Event.type == SDL_ACTIVEEVENT && !(Event.active.state & SDL_APPMOUSEFOCUS))  {
 				nFocus = Event.active.gain;
 				bActivated = nFocus != 0;
 
