@@ -488,7 +488,7 @@ void GameServer::BeginMatch(void)
 	for(i=0;i<MAX_WORMS;i++) {
 		if(!cWorms[i].getFlag())
 			continue;
-		(cClient->getRemoteWorms() + cWorms[i].getID())->setFlag(true);
+		cClient->getRemoteWorms()[cWorms[i].getID()].setFlag(true);
 	}
 
 	if( bDedicated )
@@ -840,8 +840,7 @@ void GameServer::CheckTimeouts(void)
 // Drop a client
 void GameServer::DropClient(CClient *cl, int reason)
 {
-    static std::string cl_msg;
-    cl_msg = "";
+    std::string cl_msg;
 
 	// Tell everyone that the client's worms have left both through the net & text
 	CBytestream bs;
@@ -925,10 +924,10 @@ void GameServer::DropClient(CClient *cl, int reason)
 
 ///////////////////
 // Drop a client
+// TODO: why is this function double? avoid double code
 void GameServer::DropClient(CClient *cl, int reason, std::string sReason)
 {
-    static std::string cl_msg;
-    cl_msg = "";
+    std::string cl_msg;
 
 	// Tell everyone that the client's worms have left both through the net & text
 	CBytestream bs;
@@ -1580,6 +1579,7 @@ bool GameServer::CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs 
 		w->setupLobby();
 		w->setTeam(0);
 		// Copied from GameServer::StartGame()
+		// TODO: never copy code; make a function instead
 		w->setLives(WRM_OUT);
 		w->setKills(0);
 		w->setGameScript(&cGameScript);
@@ -1588,6 +1588,7 @@ bool GameServer::CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs 
 		w->setKillsInRow(0);
 		w->setDeathsInRow(0);
 		// Copied from CWorm::readInfo()
+		// TODO: never copy code; make a function instead
 		w->setName( "Zombie" );
 		w->setType( PRF_COMPUTER );
 		w->setTeam( 0 );
@@ -1610,6 +1611,7 @@ bool GameServer::DropFakeZombieWormsToCleanUpLobby( CBytestream *bs )
 	CWorm *w = cWorms;
 	int numplayers = 0;
 	int i, j;
+	// TODO: why isn't iMaxWorms used here?
 	for ( i = 0; i < MAX_WORMS; i++, w++ ) 
 	{
 		if (w->isUsed()) numplayers++;
