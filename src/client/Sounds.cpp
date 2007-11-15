@@ -274,7 +274,8 @@ int PlayThreadMain(void *n)
 			//SDL_Delay(10); // No hurry...
 			LoadedMusic = LoadMusic(SongName);  // Load the new music
 			//SDL_Delay(10);
-			PlayMusic(LoadedMusic);  // Play the music
+			if (LoadedMusic)
+				PlayMusic(LoadedMusic);  // Play the music
 			LoadingSong = false;
 		}
 	}
@@ -314,7 +315,14 @@ SoundMusic *LoadMusic(const std::string& file)
 	if (!new_music)
 		return NULL;
 
+#ifndef WIN32  // linux, mac and others support UTF8 natively
 	new_music->sndMusic = Mix_LoadMUS(file.c_str());
+#else // WIN32
+	FILE *fp = _wfopen((wchar_t *)(Utf8ToUtf16(file).c_str()), L"r");
+	SDL_RWops *rw = SDL_RWFromFP(fp, true);
+	new_music->sndMusic = Mix_LoadMUS_RW(rw);
+#endif
+
 	if (!new_music->sndMusic)  {
 		delete new_music;
 		return NULL;

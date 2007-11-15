@@ -74,6 +74,18 @@ public:
 	// returns false, if there was a break
 	bool read() {
 		char nextch = '\0';
+
+		// Skip the UTF8 mark if present
+		static unsigned char utf8mark[] = {0xEF, 0xBB, 0xBF};
+		size_t orig_pos = stream->tellg();
+		for(int i=0; !stream->eof() && i != sizeof(utf8mark)/sizeof(char); ++i)  {
+			stream->get(nextch);
+			if (utf8mark[i] != nextch)  {  // invalid
+				stream->seekg(orig_pos, std::ios::beg);
+				break;
+			}
+		}
+
 		while(!stream->eof()) {
 			stream->get(nextch);			
 			switch(nextch) {

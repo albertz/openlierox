@@ -998,16 +998,16 @@ Utf16String Utf8ToUtf16(const std::string& str)
 			return result; // no chance for this in UTF-16
 		}
 
-      for ( ; trailing; trailing--) {
-          if (in == str.end())
-			  return result;
-		  if (((d = (unsigned char)*in++) & 0xC0) != 0x80)
-			  return result;
-          c <<= 6;
-          c |= d & 0x3F;
-      }
+		for ( ; trailing; trailing--) {
+			if (in == str.end())
+				return result;
+			if (((d = (unsigned char)*in++) & 0xC0) != 0x80)
+				return result;
+			c <<= 6;
+			c |= d & 0x3F;
+		}
 
-      // assertion: c is a single UTF-4 value
+		// assertion: c is a single UTF-4 value
 		if (c < 0x10000) {
 			result += (Utf16Char) c;
 		} else if (c < 0x110000)  {

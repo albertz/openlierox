@@ -1103,7 +1103,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			case hl_StartDedicated:
 				if(ev->iEventMsg == CHK_CHANGED) {
 						CCheckbox *c = (CCheckbox *)cHostLobby.getWidget(hl_StartDedicated);
-						bStartDedicated = c->getValue();
+						bStartDedicated = c->getValue() != 0;
 						if( bStartDedicated )
 							fStartDedicatedSecondsPassed = tLX->fCurTime;
 				}

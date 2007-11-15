@@ -1,7 +1,7 @@
 TODO
 
 [X] Make dual viewports work yet again. (!!)
-[ ] Fix the colour detection of pink for mods (255 0 255) which only works in 50% of the mods now. (!!)
+[X] Fix the colour detection of pink for mods (255 0 255) which only works in 50% of the mods now. (!!)
 [ ] Unify tLXOptions.tGameInfo & the other classes into one. (!!)
 [X] register on all servers in the masterserverlist
 [ ] why were some of the default-levels changed in the repo? (!!)

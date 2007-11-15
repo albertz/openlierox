@@ -70,8 +70,43 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 				PutPixelToAddr(px, colorkey, dst->format->BytesPerPixel);
 		}
 	}
+
+	// Set the colorkey value so we can later check if it was set or not and save some CPU time
+	dst->format->colorkey = colorkey;
 }
 
+
+///////////////////////
+// Set a pink color key
+void SetColorKey(SDL_Surface* dst)  {
+	// If there's already a colorkey set, don't set it again
+	if (dst->format->colorkey != 0)
+		return;
+
+	// Because some graphic editors (old Photoshop and GIMP and possibly more) contain a bug that rounds 255 to 254
+	// and some mods have such bugged images. To fix it we have to make a little hack here :(
+	Uint32 bugged_colorkey = SDL_MapRGB(dst->format, 254, 0, 254);
+	
+	// If one of the pixels in edges matches the bugged colorkey, we suppose whole image is bugged
+	// Not the best method, but it is fast and works for all cases I have discovered
+	bool bugged =	EqualRGB(GetPixel(dst, 0, 0), bugged_colorkey, dst->format) ||
+					EqualRGB(GetPixel(dst, dst->w - 1, 0), bugged_colorkey, dst->format) ||
+					EqualRGB(GetPixel(dst, 0, dst->h - 1), bugged_colorkey, dst->format) ||
+					EqualRGB(GetPixel(dst, dst->w - 1, dst->h - 1), bugged_colorkey, dst->format);
+
+
+	// Apply the colorkey
+	if (dst->flags & SDL_SRCALPHA)
+		if (bugged)
+			SetColorKeyAlpha(dst, 254, 0, 254);
+		else
+			SetColorKeyAlpha(dst, 255, 0, 255);
+	else
+		if (bugged)
+			SDL_SetColorKey(dst, SDL_SRCCOLORKEY, bugged_colorkey); 
+		else
+			SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
+}
 
 /////////////////////////
 //

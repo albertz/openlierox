@@ -605,12 +605,7 @@ void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
 //////////////////
 // Set's the game's default color key (pink) to the surface
 // Works for both alpha and nonalpha surfaces
-inline void SetColorKey(SDL_Surface* dst)  {
-	if (dst->flags & SDL_SRCALPHA)
-		SetColorKeyAlpha(dst, 255, 0, 255);
-	else
-		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
-}
+void SetColorKey(SDL_Surface* dst);
 
 //////////////////
 // Resets the alpha-channel and the colorkey
