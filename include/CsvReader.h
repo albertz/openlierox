@@ -77,7 +77,9 @@ public:
 
 		// Skip the UTF8 mark if present
 		// TODO: remove this here! CsvReader realy don't have to care about it and also should not care about it
-		const unsigned char utf8mark[] = {0xEF, 0xBB, 0xBF};
+		// TODO: also, UTF8 raw format information should never ever be in end-user-code (like this utf8mark)!
+		// TODO: also, this code now doesn't put utf8 chars into the token; but it should
+/*		const unsigned char utf8mark[] = {0xEF, 0xBB, 0xBF};
 		size_t orig_pos = stream->tellg();
 		for(int i=0; !stream->eof() && i != sizeof(utf8mark)/sizeof(char); ++i)  {
 			stream->get(nextch);
@@ -86,7 +88,7 @@ public:
 				break;
 			}
 		}
-
+*/
 		while(!stream->eof()) {
 			stream->get(nextch);			
 			switch(nextch) {
