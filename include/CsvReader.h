@@ -76,7 +76,8 @@ public:
 		char nextch = '\0';
 
 		// Skip the UTF8 mark if present
-		static unsigned char utf8mark[] = {0xEF, 0xBB, 0xBF};
+		// TODO: remove this here! CsvReader realy don't have to care about it and also should not care about it
+		const unsigned char utf8mark[] = {0xEF, 0xBB, 0xBF};
 		size_t orig_pos = stream->tellg();
 		for(int i=0; !stream->eof() && i != sizeof(utf8mark)/sizeof(char); ++i)  {
 			stream->get(nextch);

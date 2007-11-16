@@ -910,11 +910,11 @@ std::string RemoveSpecialChars(const std::string &Utf8String)
 
 
 /*
-/* Functions for UTF conversions taken from enconding.c, created by W3C
-/* The license is available at the following address:
-/* http://dev.w3.org/cvsweb/~checkout~/XML/Copyright?rev=1.1&content-type=text/plain
-/* Original file: http://dev.w3.org/cvsweb/~checkout~/XML/encoding.c
-/*
+ * Functions for UTF conversions taken from enconding.c, created by W3C
+ * The license is available at the following address:
+ * http://dev.w3.org/cvsweb/~checkout~/XML/Copyright?rev=1.1&content-type=text/plain
+ * Original file: http://dev.w3.org/cvsweb/~checkout~/XML/encoding.c
+ *
  */
 
 //////////////

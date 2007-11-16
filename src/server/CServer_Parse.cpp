@@ -159,8 +159,10 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 			}
 			cWorms[id].readWeapons(bs);
 			for (j = 0; j < 5; j++)
-				cWorms[id].getWeapon(j)->Enabled =	cWeaponRestrictions.isEnabled(cWorms[id].getWeapon(j)->Weapon->Name) ||
-													cWeaponRestrictions.isBonus(cWorms[id].getWeapon(j)->Weapon->Name);
+				cWorms[id].getWeapon(j)->Enabled =
+					cWeaponRestrictions.isEnabled(
+						cWorms[id].getWeapon(j)->Weapon->Name) ||
+						cWeaponRestrictions.isBonus(cWorms[id].getWeapon(j)->Weapon->Name);
 		} else { // Skip to get the right position
 			CWorm::skipWeapons(bs);
 		}
@@ -198,6 +200,8 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 
 	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() )
 	{
+		// TODO: documentation is missing how this whole thing works exactly!
+		
 		cl->setStatus(NET_CONNECTED);
 		cl->setConnectingDuringGame(false);
 		CBytestream b;
@@ -208,6 +212,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 			if (w->isUsed())
 			{
 				// Send weapon info of other worms - copied from above
+				// TODO: never every copy code!
 				b.writeByte(S2C_CLREADY);
 				b.writeByte(1);
 				w->writeWeapons(&b);
@@ -236,6 +241,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 				if( w->getLives() != WRM_OUT )
 				{
 					// Copied from GameServer::SpawnWorm()
+					// TODO: never every copy code!
 					b.writeByte(S2C_SPAWNWORM);
 					b.writeInt(w->getID(), 1);
 					b.writeInt( (int)w->getPos().x, 2);
