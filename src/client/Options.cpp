@@ -19,11 +19,16 @@
 #include "StringUtils.h"
 #include "Options.h"
 #include "ConfigHandler.h"
-
+#include "CGuiSkin.h"
 
 GameOptions	*tLXOptions = NULL;
 NetworkTexts	*networkTexts = NULL;
 
+const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe"};
+const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z"};
+const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/", "."};
+const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
+const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "F3"};
 
 bool GameOptions::Init() {
 	if(tLXOptions) {
@@ -37,7 +42,107 @@ bool GameOptions::Init() {
 		return false;
 	}
 	
-	return tLXOptions->LoadFromDisc();
+	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
+	
+	CGuiSkin::AddVars("GameOptions")	
+#ifdef WIN32
+		( tLXOptions->iFullscreen, "Video.Fullscreen", true )
+#else
+		( tLXOptions->iFullscreen, "Video.Fullscreen", false )
+#endif
+		( tLXOptions->iShowFPS, "Video.ShowFPS", false )
+		( tLXOptions->bOpenGL, "Video.OpenGL", false )
+		( tLXOptions->sResolution, "Video.Resolution", "" )
+#ifdef MACOSX	
+		( tLXOptions->iColourDepth, "Video.ColourDepth", 24 )
+#else
+		( tLXOptions->iColourDepth, "Video.ColourDepth", 16 )
+#endif
+		( tLXOptions->iNetworkPort, "Network.Port", LX_PORT )
+		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_MODEM )
+		( tLXOptions->fUpdatePeriod, "Advanced.NetworkUpdatePeriod", 0.05 )
+		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
+		( tLXOptions->bLoadDbAtStartup, "Network.LoadDbAtStartup", false )
+		( tLXOptions->sSTUNServer, "Network.STUNServer", "stunserver.org" )
+
+		( tLXOptions->iSoundOn, "Audio.Enabled", true )
+		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
+
+		( tLXOptions->iBloodAmount, "Game.Blood", 100 )
+		( tLXOptions->iShadows, "Game.Shadows", true )
+		( tLXOptions->iParticles, "Game.Particles", true )
+		( tLXOptions->iOldSkoolRope, "Game.OldSkoolRope", false )
+		( tLXOptions->iShowHealth, "Game.ShowWormHealth", false )
+		( tLXOptions->iColorizeNicks, "Game.ColorizeNicks", false )
+		( tLXOptions->iAutoTyping, "Game.AutoTyping", true )
+		( tLXOptions->sSkinPath, "Game.SkinPath", "" )
+		( tLXOptions->bAntiAliasing, "Game.Antialiasing", false )
+		( tLXOptions->bMouseAiming, "Game.MouseAiming", false )
+		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", false )
+		( tLXOptions->bUseNumericKeysToSwitchWeapons, "Game.UseNumericKeysToSwitchWeapons", true )
+		
+		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
+		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
+		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
+		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", true )
+
+		( tLXOptions->iLogConvos, "Misc.LogConversations", true )
+		( tLXOptions->iShowPing, "Misc.ShowPing", true )
+		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
+		
+		( tLXOptions->bRepeatPlaylist, "MediaPlayer.Repeat", true )
+		( tLXOptions->bShufflePlaylist, "MediaPlayer.Shuffle", false )
+		( tLXOptions->iMPlayerLeft, "MediaPlayer.Left", 350 )
+		( tLXOptions->iMPlayerTop, "MediaPlayer.Top", 240 )
+		( tLXOptions->iMusicVolume, "MediaPlayer.MusicVolume", 50 )
+		;
+
+	unsigned i;
+	for( i = 0; i < sizeof(ply_keys) / sizeof(ply_keys[0]) ; i ++ )
+	{
+		CGuiSkin::AddVars("GameOptions.Ply1Controls") ( tLXOptions->sPlayerControls[0][i], ply_keys[i], ply_def1[i].c_str() );
+		CGuiSkin::AddVars("GameOptions.Ply2Controls") ( tLXOptions->sPlayerControls[1][i], ply_keys[i], ply_def2[i].c_str() );
+	};
+	for( i = 0; i < sizeof(gen_keys) / sizeof(gen_keys[0]) ; i ++ )
+	{
+		// Hope memory allocation won't change (it won't probably)
+		CGuiSkin::AddVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
+	};
+
+	CGuiSkin::AddVars("GameOptions.LastGame")
+		( tLXOptions->tGameinfo.iLives, "Lives", 10 )
+		( tLXOptions->tGameinfo.iKillLimit, "KillLimit", -1 )
+		( tLXOptions->tGameinfo.iTimeLimit, "TimeLimit", -1 )
+		( tLXOptions->tGameinfo.iTagLimit, "TagLimit", 5 )
+		( tLXOptions->tGameinfo.iLoadingTime, "LoadingTime", 100 )
+		( tLXOptions->tGameinfo.iBonusesOn, "Bonuses", true )
+		( tLXOptions->tGameinfo.iShowBonusName, "BonusNames", true )
+		( tLXOptions->tGameinfo.iMaxPlayers, "MaxPlayers", 8 )
+		( tLXOptions->tGameinfo.bMatchLogging, "MatchLogging", true )
+		( tLXOptions->tGameinfo.sServerName, "ServerName", "LieroX Server" )
+		( tLXOptions->tGameinfo.sWelcomeMessage, "WelcomeMessage", "Welcome to <server>, <player>" )
+		( tLXOptions->tGameinfo.sMapFilename, "LevelName" )
+		( tLXOptions->tGameinfo.nGameType, "GameType", GMT_DEATHMATCH )
+		( tLXOptions->tGameinfo.szModName, "ModName", "Classic" )
+		( tLXOptions->tGameinfo.szPassword, "Password" )
+		( tLXOptions->tGameinfo.bRegServer, "RegisterServer", true )
+		( tLXOptions->tGameinfo.iLastSelectedPlayer, "LastSelectedPlayer", 0 )
+		( tLXOptions->tGameinfo.bAllowWantsJoinMsg, "AllowWantsJoinMsg", true )
+		( tLXOptions->tGameinfo.bWantsJoinBanned, "WantsToJoinFromBanned", true )
+		( tLXOptions->tGameinfo.bAllowRemoteBots, "AllowRemoteBots", true )
+		( tLXOptions->tGameinfo.bTopBarVisible, "TopBarVisible", true )
+		( tLXOptions->tGameinfo.bAllowNickChange, "AllowNickChange", true )
+		( tLXOptions->tGameinfo.fBonusFreq, "BonusFrequency", 30 )
+		( tLXOptions->tGameinfo.fBonusLife, "BonusLife", 60 )
+		( tLXOptions->tGameinfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false )
+		( tLXOptions->tGameinfo.iAllowConnectDuringGameLives, "AllowConnectDuringGameLives", 80 )
+		( tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin, "AllowConnectDuringGameLivesMin", 3 )
+		;
+
+	bool ret = tLXOptions->LoadFromDisc();
+
+	//printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
+	return ret;
 }
 
 
@@ -47,13 +152,6 @@ bool GameOptions::LoadFromDisc()
 {
 	printf("Loading options... \n");
 
-    const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe"};
-    const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z"};
-    const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/", "."};
-	const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
-    const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "F3"};
-	const int	 def_widths[] = {32,180,70,80,60,150};
-
     unsigned int     i;
 
 	static const std::string f = "cfg/options.cfg";
@@ -61,6 +159,7 @@ bool GameOptions::LoadFromDisc()
 	AddKeyword("true",true);
 	AddKeyword("false",false);
 
+	// Load all variables that should be treated specially
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
 	InitBaseSearchPaths();
@@ -89,132 +188,56 @@ bool GameOptions::LoadFromDisc()
 	}
 	printf(" And that's all.\n");
 
+	const int	 def_widths[] = {32,180,70,80,60,150};
+	
 	for (i=0;i<sizeof(iInternetList)/sizeof(int);i++)  {
 		iInternetList[i] = def_widths[i];
 		iLANList[i] = def_widths[i];
 		iFavouritesList[i] = def_widths[i];
 	}
 
-
-    // Video
-#ifdef WIN32
-    ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, true);
-#else
-	// non-windows users probably like this more
-    ReadKeyword(f, "Video", "Fullscreen",   &iFullscreen, false);
-#endif	
-    ReadKeyword(f, "Video", "ShowFPS",      &iShowFPS, false);
-    ReadKeyword(f, "Video", "OpenGL",       &bOpenGL, false);
-#ifdef MACOSX	
-	// this seems currently to be better for Mac OS X (16 bit looks crappy)
-	// TODO: also 24bit for others?
-	ReadInteger(f, "Video", "ColourDepth",	&iColourDepth, 24);
-#else
-	ReadInteger(f, "Video", "ColourDepth",	&iColourDepth, 16);
-#endif
-	
-    // Network
-    ReadInteger(f, "Network", "Port",       &iNetworkPort, LX_PORT);
-    ReadInteger(f, "Network", "Speed",      &iNetworkSpeed, NST_MODEM);
-	ReadKeyword(f, "Network", "UseIpToCountry", &bUseIpToCountry, true);
-	ReadKeyword(f, "Network", "LoadDbAtStartup", &bLoadDbAtStartup, false);
-    ReadString (f, "Network", "STUNServer", sSTUNServer, "stunserver.org");
-
-    // Audio
-    ReadKeyword(f, "Audio", "Enabled",      &iSoundOn, true);
-    ReadInteger(f, "Audio", "Volume",       &iSoundVolume, 70);
-
-	// Misc.
-	ReadKeyword(f, "Misc", "LogConversations", &iLogConvos, true);
-	ReadKeyword(f, "Misc", "ShowPing",		   &iShowPing, true);
-	ReadInteger(f, "Misc", "ScreenshotFormat", &iScreenshotFormat, FMT_PNG);
-
-    // Player controls
-    int j;
-    std::string def;
-    i = 0; j = 1;
-    while(true) {
-        item = "Ply"; item += itoa(j); item += "Controls";
-        if(j == 1) def = ply_def1[i];
-        else if(j == 2) def = ply_def2[i];
-        else def = "";
-        if(!ReadString(f, item, ply_keys[i], value, def) && i == 0 && j > 2)
-        	break;
-        if(i == 0)
-        	sPlayerControls.push_back(controls_t());
-        sPlayerControls[j-1][i] = value;
-
-        i++;
-        if(i >= 9) {
-        	i = 0; j++;
-        }
-    }
-
-    // General controls
-    for(i=0; i<9; i++)
-        ReadString(f, "GeneralControls", gen_keys[i], sGeneralControls[i], gen_def[i]);
-
-    // Game
-    ReadInteger(f, "Game", "Blood",         &iBloodAmount, 100);
-    ReadKeyword(f, "Game", "Shadows",       &iShadows, true);
-    ReadKeyword(f, "Game", "Particles",     &iParticles, true);
-    ReadKeyword(f, "Game", "OldSkoolRope",  &iOldSkoolRope, false);
-	ReadKeyword(f, "Game", "ShowWormHealth",&iShowHealth, false);
-	ReadKeyword(f, "Game", "ColorizeNicks", &iColorizeNicks, false);
-	ReadKeyword(f, "Game", "AutoTyping",	&iAutoTyping, true);
-	ReadKeyword(f, "Game", "Antialiasing",	&bAntiAliasing, false);
-    ReadKeyword(f, "Game", "MouseAiming",   &bMouseAiming, false);
-	ReadKeyword(f, "Game", "AllowMouseAiming",   &bAllowMouseAiming, false);
-	ReadKeyword(f, "Game", "UseNumericKeysToSwitchWeapons",   &bUseNumericKeysToSwitchWeapons, true);
-
 	// Widget states
 	ReadIntArray(f, "Widgets","InternetListCols",	&iInternetList[0],6);
 	ReadIntArray(f, "Widgets","LANListCols",		&iLANList[0],6);
 	ReadIntArray(f, "Widgets","FavouritesListCols",	&iFavouritesList[0],6);
-
-	// Media player
-	ReadKeyword(f, "MediaPlayer", "Repeat",		&bRepeatPlaylist, true);
-	ReadKeyword(f, "MediaPlayer", "Shuffle",	&bShufflePlaylist, false);
-	ReadInteger(f, "MediaPlayer", "Left",		&iMPlayerLeft, 350);
-	ReadInteger(f, "MediaPlayer", "Top",		&iMPlayerTop, 240);
-	ReadInteger(f, "MediaPlayer", "MusicVolume",&iMusicVolume, 50);
-
-
-    // Last Game
-    ReadInteger(f, "LastGame", "Lives",     &tGameinfo.iLives, 10);
-    ReadInteger(f, "LastGame", "KillLimit", &tGameinfo.iKillLimit, -1);
-    ReadInteger(f, "LastGame", "TimeLimit", &tGameinfo.iTimeLimit, -1);
-    ReadInteger(f, "LastGame", "TagLimit",  &tGameinfo.iTagLimit, 5);
-    ReadInteger(f, "LastGame", "LoadingTime",   &tGameinfo.iLoadingTime, 100);
-    ReadKeyword(f, "LastGame", "Bonuses",   &tGameinfo.iBonusesOn, true);
-    ReadKeyword(f, "LastGame", "BonusNames",&tGameinfo.iShowBonusName, true);
-    ReadInteger(f, "LastGame", "MaxPlayers",&tGameinfo.iMaxPlayers, 8);
-	ReadKeyword(f, "LastGame", "MatchLogging", &tGameinfo.bMatchLogging, true);
-    ReadString (f, "LastGame", "ServerName",tGameinfo.sServerName, "LieroX Server");
-	ReadString (f, "LastGame", "WelcomeMessage",tGameinfo.sWelcomeMessage, "Welcome to <server>, <player>");
-    ReadString (f, "LastGame", "LevelName", tGameinfo.sMapFilename, "");
-    ReadInteger(f, "LastGame", "GameType",  &tGameinfo.nGameType, GMT_DEATHMATCH);
-    ReadString (f, "LastGame", "ModName",   tGameinfo.szModName, "Classic");
-    ReadString (f, "LastGame", "Password",  tGameinfo.szPassword, "");
-    ReadKeyword(f, "LastGame", "RegisterServer",&tGameinfo.bRegServer, true);
-	ReadInteger(f, "LastGame", "LastSelectedPlayer",&tGameinfo.iLastSelectedPlayer, 0);
-	ReadKeyword(f, "LastGame", "AllowWantsJoinMsg",&tGameinfo.bAllowWantsJoinMsg, true);
-	ReadKeyword(f, "LastGame", "WantsToJoinFromBanned",&tGameinfo.bWantsJoinBanned, true);
-	ReadKeyword(f, "LastGame", "AllowRemoteBots", &tGameinfo.bAllowRemoteBots, true);
-	ReadKeyword(f, "LastGame", "TopBarVisible", &tGameinfo.bTopBarVisible, true);
-	ReadKeyword(f, "LastGame", "AllowNickChange", &tGameinfo.bAllowNickChange, true);
-	ReadFloat(f, "LastGame", "BonusFrequency", &tGameinfo.fBonusFreq, 30);
-	ReadFloat(f, "LastGame", "BonusLife", &tGameinfo.fBonusLife, 60);
-	ReadKeyword(f, "LastGame", "AllowConnectDuringGame", &tGameinfo.bAllowConnectDuringGame, false);
-	ReadInteger(f, "LastGame", "AllowConnectDuringGameLives", &tGameinfo.iAllowConnectDuringGameLives, 80);
-	ReadInteger(f, "LastGame", "AllowConnectDuringGameLivesMin", &tGameinfo.iAllowConnectDuringGameLivesMin, 3);
-
-    // Advanced
-    ReadInteger(f, "Advanced", "MaxFPS",    &nMaxFPS, 95);
-	ReadInteger(f, "Advanced", "JpegQuality", &iJpegQuality, 80);
-	ReadFloat  (f, "Advanced", "NetworkUpdatePeriod", &fUpdatePeriod,0.05f);
-	ReadKeyword(f, "Advanced", "CountTeamkills", &bCountTeamkills, false);
-	ReadKeyword(f, "Advanced", "ServerSideHealth", &bServerSideHealth, true);
+	
+	// Load variables registered with CGuiSkin
+	for( std::map< std::string, SkinVarPtr_t > :: iterator i = CGuiSkin::Vars().begin(); 
+			i != CGuiSkin::Vars().end(); i++ )
+	{
+		if( i->first.find("GameOptions.") == 0 )
+		{
+			int dot1 = i->first.find("."), dot2 = i->first.find( ".", dot1 + 1 );
+			std::string section = i->first.substr( dot1 + 1, dot2 - dot1 - 1 );	// Between two dots
+			std::string key = i->first.substr( dot2 + 1 );	// After last dot
+			if( i->second.type == VT_BOOL )	// Some bools are actually ints in config file
+			{
+				std::string s = "";
+				ReadString( f, section, key, s, "" );
+				if( s.find_first_of("0123456789") == 0 )
+				{
+					int ii = 0;
+					ReadInteger( f, section, key, &ii, i->second.bdef );
+					*(i->second.b) = ( ii != 0 );
+				}
+				else ReadKeyword( f, section, key, i->second.b, i->second.bdef );
+			}
+			else if( i->second.type == VT_INT )	// Some ints are actually bools in config file
+			{
+				std::string s = "";
+				ReadString( f, section, key, s, "" );
+				if( s.find_first_of("0123456789") == 0 )
+					ReadInteger( f, section, key, i->second.i, i->second.idef );
+				else
+					ReadKeyword( f, section, key, i->second.i, i->second.idef );
+			}
+			else if( i->second.type == VT_FLOAT )
+				ReadFloat( f, section, key, i->second.f, i->second.fdef );
+			else if( i->second.type == VT_STRING )
+				ReadString( f, section, key, *(i->second.s), i->second.sdef );
+			else printf("Invalid var type %i of \"%s\" when loading config!\n", i->second.type, i->first.c_str() );
+		};
+	};
 
 	// Clamp the Jpeg quality
 	if (iJpegQuality < 1)
@@ -247,77 +270,22 @@ void ShutdownOptions(void)
 // Save the options
 void GameOptions::SaveToDisc()
 {
-    const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe"};
-    const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings", "TakeScreenshot", "ViewportManager", "SwitchMode", "ToggleTopBar", "MediaPlayer"};
     int     i;
 
     FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
     if(fp == NULL)
         return;
 
-
 	fprintf(fp, "%c%c%c", 0xEF, 0xBB, 0xBF);  // mark that this file is UTF-8 encoded
     fprintf(fp, "# OpenLieroX Options File\n");
     fprintf(fp, "# Note: This file is automatically generated\n\n");
 
-    fprintf(fp, "[Video]\n");
-    fprintf(fp, "Fullscreen = %s\n",iFullscreen ? "true" : "false");
-    fprintf(fp, "ShowFPS = %s\n",iShowFPS ? "true" : "false");
-    fprintf(fp, "OpenGL = %s\n",bOpenGL ? "true" : "false");
-	fprintf(fp, "ColourDepth = %d\n",iColourDepth);
-    fprintf(fp, "\n");
-
-    fprintf(fp, "[Network]\n");
-    fprintf(fp, "Port = %d\n",      iNetworkPort);
-    fprintf(fp, "Speed = %d\n",     iNetworkSpeed);
-	fprintf(fp, "UseIpToCountry = %s\n",     bUseIpToCountry ? "true" : "false");
-	fprintf(fp, "LoadDbAtStartup = %s\n",    bLoadDbAtStartup ? "true" : "false");
-	fprintf(fp, "STUNServer = %s\n",    sSTUNServer.c_str() );
-    fprintf(fp, "\n");
-
-    fprintf(fp, "[Audio]\n");
-    fprintf(fp, "Enabled = %s\n",   iSoundOn ? "true" : "false");
-    fprintf(fp, "Volume = %d\n",    iSoundVolume);
-    fprintf(fp, "\n");
-
-	fprintf(fp,"[Misc]\n");
-	fprintf(fp,"LogConversations = %s\n",	iLogConvos ? "true" : "false");
-	fprintf(fp,"ShowPing = %s\n",			iShowPing ? "true" : "false");
-	fprintf(fp,"ScreenshotFormat = %d\n",	iScreenshotFormat);
-	fprintf(fp,"\n");
-
+	// Save all variables that should be treated specially
 	fprintf(fp, "[FileHandling]\n");
 	i=1;
 	for(searchpathlist::const_iterator p = tSearchPaths.begin(); p != tSearchPaths.end(); p++, i++)
     	fprintf(fp, "SearchPath%i = %s\n", i, p->c_str());
 	fprintf(fp,"\n");
-
-	uint j = 0;
-	for(;j<sPlayerControls.size();j++) {
-		fprintf(fp, "[Ply%iControls]\n", j+1);
-		for(i=0; i<9; i++)
-        	fprintf(fp, "%s = %s\n", ply_keys[i].c_str(), sPlayerControls[j][i].c_str());
-	    fprintf(fp, "\n");
-	}
-
-    fprintf(fp, "[GeneralControls]\n");
-    for(i=0; i<9; i++)
-        fprintf(fp, "%s = %s\n", gen_keys[i].c_str(), sGeneralControls[i].c_str());
-    fprintf(fp, "\n");
-
-    fprintf(fp, "[Game]\n");
-    fprintf(fp, "Blood = %d\n",     iBloodAmount);
-    fprintf(fp, "Shadows = %s\n",   iShadows ? "true" : "false");
-    fprintf(fp, "Particles = %s\n", iParticles ? "true" : "false");
-    fprintf(fp, "OldSkoolRope = %s\n", iOldSkoolRope ? "true" : "false");
-	fprintf(fp, "ShowWormHealth = %s\n", iShowHealth ? "true" : "false");
-	fprintf(fp, "ColorizeNicks = %s\n", iColorizeNicks ? "true" : "false");
-	fprintf(fp, "AutoTyping = %s\n", iAutoTyping ? "true" : "false");
-	fprintf(fp, "Antialiasing = %s\n", bAntiAliasing ? "true" : "false");
-	fprintf(fp, "MouseAiming = %s\n", bMouseAiming ? "true" : "false");
-	fprintf(fp, "AllowMouseAiming = %s\n", bAllowMouseAiming ? "true" : "false");
-	fprintf(fp, "UseNumericKeysToSwitchWeapons = %s\n", bUseNumericKeysToSwitchWeapons ? "true" : "false");
-    fprintf(fp, "\n");
 
 	fprintf(fp, "[Widgets]\n");
 	fprintf(fp, "InternetListCols = ");
@@ -332,52 +300,33 @@ void GameOptions::SaveToDisc()
 	for (i=0;i<5;i++)
 		fprintf(fp, "%i,",iFavouritesList[i]);
 	fprintf(fp, "%i\n",iFavouritesList[5]);
-	fprintf(fp, "\n");
 
-    fprintf(fp, "[MediaPlayer]\n");
-    fprintf(fp, "Repeat = %s\n",   bRepeatPlaylist ? "true" : "false");
-    fprintf(fp, "Shuffle = %s\n", bShufflePlaylist ? "true" : "false");
-    fprintf(fp, "Left = %d\n", iMPlayerLeft);
-    fprintf(fp, "Top = %d\n", iMPlayerTop);
-    fprintf(fp, "MusicVolume = %d\n", iMusicVolume);
-    fprintf(fp, "\n");
-
-    fprintf(fp, "[LastGame]\n");
-    fprintf(fp, "Lives = %d\n",     tGameinfo.iLives);
-    fprintf(fp, "KillLimit = %d\n", tGameinfo.iKillLimit);
-    fprintf(fp, "TimeLimit = %d\n", tGameinfo.iTimeLimit);
-    fprintf(fp, "TagLimit = %d\n",  tGameinfo.iTagLimit);
-    fprintf(fp, "LoadingTime = %d\n",tGameinfo.iLoadingTime);
-    fprintf(fp, "Bonuses = %s\n",   tGameinfo.iBonusesOn ? "true" : "false");
-    fprintf(fp, "BonusNames = %s\n",tGameinfo.iShowBonusName ? "true" : "false");
-    fprintf(fp, "MaxPlayers = %d\n",tGameinfo.iMaxPlayers);
-	fprintf(fp, "MatchLogging = %s\n",tGameinfo.bMatchLogging ? "true" : "false");
-    fprintf(fp, "ServerName = %s\n",tGameinfo.sServerName.c_str());
-	fprintf(fp, "WelcomeMessage = %s\n",tGameinfo.sWelcomeMessage.c_str());
-    fprintf(fp, "LevelName = %s\n", tGameinfo.sMapFilename.c_str());
-    fprintf(fp, "GameType = %d\n",  tGameinfo.nGameType);
-    fprintf(fp, "ModName = %s\n",   tGameinfo.szModName.c_str());
-    fprintf(fp, "Password = %s\n",  tGameinfo.szPassword.c_str());
-    fprintf(fp, "RegisterServer = %s\n",tGameinfo.bRegServer ? "true" : "false");
-	fprintf(fp, "LastSelectedPlayer = %d\n",tGameinfo.iLastSelectedPlayer);
-	fprintf(fp, "AllowWantsJoinMsg = %s\n",tGameinfo.bAllowWantsJoinMsg ? "true" : "false");
-	fprintf(fp, "WantsToJoinFromBanned = %s\n",tGameinfo.bWantsJoinBanned ? "true" : "false");
-	fprintf(fp, "AllowRemoteBots = %s\n",tGameinfo.bAllowRemoteBots ? "true" : "false");
-	fprintf(fp, "TopBarVisible = %s\n",tGameinfo.bTopBarVisible ? "true" : "false");
-	fprintf(fp, "AllowNickChange = %s\n",tGameinfo.bAllowNickChange ? "true" : "false");
-	fprintf(fp, "BonusFrequency = %f\n",tGameinfo.fBonusFreq);
-	fprintf(fp, "BonusLife = %f\n",tGameinfo.fBonusLife);
-	fprintf(fp, "AllowConnectDuringGame = %s\n",tGameinfo.bAllowConnectDuringGame ? "true" : "false");
-	fprintf(fp, "AllowConnectDuringGameLives = %i\n",tGameinfo.iAllowConnectDuringGameLives);
-	fprintf(fp, "AllowConnectDuringGameLivesMin = %i\n",tGameinfo.iAllowConnectDuringGameLivesMin);
-    fprintf(fp, "\n");
-
-    fprintf(fp, "[Advanced]\n");
-    fprintf(fp, "MaxFPS = %d\n",    nMaxFPS);
-	fprintf(fp, "JpegQuality = %d\n", iJpegQuality);
-	fprintf(fp, "NetworkUpdatePeriod = %f\n", fUpdatePeriod);
-	fprintf(fp, "CountTeamkills = %s\n", bCountTeamkills ? "true" : "false");
-	fprintf(fp, "ServerSideHealth = %s\n", bServerSideHealth ? "true" : "false");
+	// Save variables registered with CGuiSkin
+	std::string currentSection;
+	for( std::map< std::string, SkinVarPtr_t > :: iterator i = CGuiSkin::Vars().begin(); 
+			i != CGuiSkin::Vars().end(); i++ )
+	{
+		if( i->first.find("GameOptions.") == 0 )
+		{
+			int dot1 = i->first.find("."), dot2 = i->first.find( ".", dot1 + 1 );
+			std::string section = i->first.substr( dot1 + 1, dot2 - dot1 - 1 );	// Between two dots
+			std::string key = i->first.substr( dot2 + 1 );	// After last dot
+			if( currentSection != section )
+			{
+			    fprintf( fp, "\n[%s]\n", section.c_str() );
+				currentSection = section;
+			};
+			if( i->second.type == VT_BOOL )
+			    fprintf( fp, "%s = %s\n", key.c_str(), *(i->second.b) ? "true" : "false" );
+			else if( i->second.type == VT_INT )
+			    fprintf( fp, "%s = %d\n", key.c_str(), *(i->second.i) );
+			else if( i->second.type == VT_FLOAT )
+			    fprintf( fp, "%s = %f\n", key.c_str(), *(i->second.f) );
+			else if( i->second.type == VT_STRING )
+			    fprintf( fp, "%s = %s\n", key.c_str(), i->second.s->c_str() );
+			else printf("Invalid var type %i of \"%s\" when saving config!\n", i->second.type, i->first.c_str() );
+		};
+	};
 
     fclose(fp);
 }

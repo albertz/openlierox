@@ -32,6 +32,7 @@
 #include "CMenu.h"
 #include "CImage.h"
 #include "CMediaPlayer.h"
+#include "CGuiSkin.h"
 
 
 /*
@@ -448,6 +449,13 @@ bool		bStartDedicated = false;
 int			iStartDedicatedSeconds = 15;
 int			iStartDedicatedMinPlayers = 4;
 float		fStartDedicatedSecondsPassed = 0;
+
+static bool register_vars = CGuiSkin::AddVars("GameServer")
+			VARSTR( bStartDedicated )
+			VARSTR( iStartDedicatedSeconds )
+			VARSTR( iStartDedicatedMinPlayers )
+			VARSTR( fStartDedicatedSecondsPassed )
+			;
 
 ///////////////////
 // Initialize the hosting lobby
