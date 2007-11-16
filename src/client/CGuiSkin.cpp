@@ -53,11 +53,11 @@ std::string CGuiSkin::DumpVars()
 		ret << i->first + ": ";
 		switch( i->second.type )
 		{
-			case VT_BOOL: ret << "bool: " << *i->second.b; break;
-			case VT_INT: ret << "int: " << *i->second.i; break;
-			case VT_FLOAT: ret << "float: " << *i->second.f; break;
-			case VT_STRING: ret << "string: \"" << *i->second.s << "\""; break;
-			case VT_CALLBACK: ret << "callback: " << *i->second.c; break;
+			case SVT_BOOL: ret << "bool: " << *i->second.b; break;
+			case SVT_INT: ret << "int: " << *i->second.i; break;
+			case SVT_FLOAT: ret << "float: " << *i->second.f; break;
+			case SVT_STRING: ret << "string: \"" << *i->second.s << "\""; break;
+			case SVT_CALLBACK: ret << "callback: " << *i->second.c; break;
 		};
 		ret << "\n";
 	};

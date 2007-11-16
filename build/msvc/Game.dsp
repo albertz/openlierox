@@ -407,6 +407,14 @@ SOURCE=..\..\include\CGameScript.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\client\CGuiSkin.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\client\CGuiSkinnedLayout.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\CMap.cpp
 # End Source File
 # Begin Source File
@@ -795,10 +803,6 @@ SOURCE=.\libs\lua5.1.lib
 # Begin Source File
 
 SOURCE=.\libs\dbghelp.lib
-# End Source File
-# Begin Source File
-
-SOURCE=.\libs\freetype2110MT.lib
 # End Source File
 # End Group
 # Begin Group "Resources"

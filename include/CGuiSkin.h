@@ -19,11 +19,11 @@
 // What can we attach to GUI element - bool, int, float, string or function.
 enum SkinVarType_t
 {
-	VT_BOOL,
-	VT_INT,
-	VT_FLOAT,
-	VT_STRING,
-	VT_CALLBACK
+	SVT_BOOL,
+	SVT_INT,
+	SVT_FLOAT,
+	SVT_STRING,
+	SVT_CALLBACK
 };
 
 typedef void ( * SkinCallback_t ) ();
@@ -48,20 +48,27 @@ struct SkinVarPtr_t
 		// No default value for skin callback, 'cause it's not saved into cfg file
 	};
 	SkinVarPtr_t() {};
-	SkinVarPtr_t( bool * v, bool def = false ): type(VT_BOOL) { b = v; bdef = def; };
-	SkinVarPtr_t( int * v, int def = 0 ): type(VT_INT) { i = v; idef = def; };
-	SkinVarPtr_t( float * v, float def = 0.0 ): type(VT_FLOAT) { f = v; fdef = def; };
-	SkinVarPtr_t( std::string * v, const char * def = "" ): type(VT_STRING) { s = v; sdef = def; };
-	SkinVarPtr_t( SkinCallback_t * v ): type(VT_CALLBACK) { c = v; };
+	SkinVarPtr_t( bool * v, bool def = false ): type(SVT_BOOL) { b = v; bdef = def; };
+	SkinVarPtr_t( int * v, int def = 0 ): type(SVT_INT) { i = v; idef = def; };
+	SkinVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT) { f = v; fdef = def; };
+	SkinVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING) { s = v; sdef = def; };
+	SkinVarPtr_t( SkinCallback_t * v ): type(SVT_CALLBACK) { c = v; };
 };
 
 class CGuiSkin	// Singletone
 {
-	static CGuiSkin * m_instance;
-	std::map< std::string, SkinVarPtr_t > m_vars;	// All in-game variables and callbacks
+	
+	
 	std::map< std::string, CGuiSkinnedLayout * > m_guis;	// All loaded in-game GUI layouts
 
-	public:
+public:
+
+	// WORST FIX EVER. Pelya, please, fix your code. Also, COMPILE your code before uploading.
+	// One thing to have windows-only errors like your VT_ thingies
+	// But having restriction issues is not acceptable
+	// it should be used for iterators, not i, atleast it's used so far, might aswell make it standard
+	static CGuiSkin * m_instance;
+	std::map< std::string, SkinVarPtr_t > m_vars;	// All in-game variables and callbacks
 	
 	static CGuiSkin & Init()
 	{
