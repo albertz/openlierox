@@ -451,10 +451,10 @@ int			iStartDedicatedMinPlayers = 4;
 float		fStartDedicatedSecondsPassed = 0;
 
 static bool register_vars = CGuiSkin::AddVars("GameServer")
-			VARSTR( bStartDedicated )
-			VARSTR( iStartDedicatedSeconds )
-			VARSTR( iStartDedicatedMinPlayers )
-			VARSTR( fStartDedicatedSecondsPassed )
+			( bStartDedicated, "bStartDedicated" )
+			( iStartDedicatedSeconds, "iStartDedicatedSeconds" )
+			( iStartDedicatedMinPlayers, "iStartDedicatedMinPlayers" )
+			( fStartDedicatedSecondsPassed, "fStartDedicatedSecondsPassed" )
 			;
 
 ///////////////////

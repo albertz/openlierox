@@ -411,7 +411,15 @@ SOURCE=..\..\src\client\CGuiSkin.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\CGuiSkin.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\CGuiSkinnedLayout.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CGuiSkinnedLayout.h
 # End Source File
 # Begin Source File
 

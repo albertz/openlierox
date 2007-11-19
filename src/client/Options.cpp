@@ -202,7 +202,7 @@ bool GameOptions::LoadFromDisc()
 	ReadIntArray(f, "Widgets","FavouritesListCols",	&iFavouritesList[0],6);
 	
 	// Load variables registered with CGuiSkin
-	for( std::map< std::string, SkinVarPtr_t > :: iterator it = CGuiSkin::Vars().begin(); 
+	for( std::map< std::string, CGuiSkin::SkinVarPtr_t > :: iterator it = CGuiSkin::Vars().begin(); 
 			it != CGuiSkin::Vars().end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
@@ -210,7 +210,7 @@ bool GameOptions::LoadFromDisc()
 			int dot1 = it->first.find("."), dot2 = it->first.find( ".", dot1 + 1 );
 			std::string section = it->first.substr( dot1 + 1, dot2 - dot1 - 1 );	// Between two dots
 			std::string key = it->first.substr( dot2 + 1 );	// After last dot
-			if( it->second.type == VT_BOOL )	// Some bools are actually ints in config file
+			if( it->second.type == CGuiSkin::SVT_BOOL )	// Some bools are actually ints in config file
 			{
 				std::string s = "";
 				ReadString( f, section, key, s, "" );
@@ -222,7 +222,7 @@ bool GameOptions::LoadFromDisc()
 				}
 				else ReadKeyword( f, section, key, it->second.b, it->second.bdef );
 			}
-			else if( it->second.type == VT_INT )	// Some ints are actually bools in config file
+			else if( it->second.type == CGuiSkin::SVT_INT )	// Some ints are actually bools in config file
 			{
 				std::string s = "";
 				ReadString( f, section, key, s, "" );
@@ -231,9 +231,9 @@ bool GameOptions::LoadFromDisc()
 				else
 					ReadKeyword( f, section, key, it->second.i, it->second.idef );
 			}
-			else if( it->second.type == SVT_FLOAT )
+			else if( it->second.type == CGuiSkin::SVT_FLOAT )
 				ReadFloat( f, section, key, it->second.f, it->second.fdef );
-			else if( it->second.type == SVT_STRING )
+			else if( it->second.type == CGuiSkin::SVT_STRING )
 				ReadString( f, section, key, *(it->second.s), it->second.sdef );
 			else printf("Invalid var type %i of \"%s\" when loading config!\n", it->second.type, it->first.c_str() );
 		};
@@ -303,8 +303,8 @@ void GameOptions::SaveToDisc()
 
 	// Save variables registered with CGuiSkin
 	std::string currentSection;
-	for( std::map< std::string, SkinVarPtr_t > :: iterator it = CGuiSkin::Vars().begin(); 
-			it != CGuiSkin::Vars().end(); i++ )
+	for( std::map< std::string, CGuiSkin::SkinVarPtr_t > :: iterator it = CGuiSkin::Vars().begin(); 
+			it != CGuiSkin::Vars().end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
@@ -316,14 +316,14 @@ void GameOptions::SaveToDisc()
 			    fprintf( fp, "\n[%s]\n", section.c_str() );
 				currentSection = section;
 			};
-			if( it->second.type == SVT_BOOL )
+			if( it->second.type == CGuiSkin::SVT_BOOL )
 			    fprintf( fp, "%s = %s\n", key.c_str(), *(it->second.b) ? "true" : "false" );
-			else if( it->second.type == SVT_INT )
+			else if( it->second.type == CGuiSkin::SVT_INT )
 			    fprintf( fp, "%s = %d\n", key.c_str(), *(it->second.i) );
-			else if( it->second.type == SVT_FLOAT )
+			else if( it->second.type == CGuiSkin::SVT_FLOAT )
 			    fprintf( fp, "%s = %f\n", key.c_str(), *(it->second.f) );
-			else if( it->second.type == SVT_STRING )
-			    fprintf( fp, "%s = %s\n", key.c_str(), *(it->second.s->c_str()) );
+			else if( it->second.type == CGuiSkin::SVT_STRING )
+			    fprintf( fp, "%s = %s\n", key.c_str(), it->second.s->c_str() );
 			else printf("Invalid var type %i of \"%s\" when saving config!\n", it->second.type, it->first.c_str() );
 		};
 	};
