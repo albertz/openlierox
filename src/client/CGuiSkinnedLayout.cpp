@@ -48,7 +48,7 @@ void CGuiSkinnedLayout::Initialize()
 // Add a widget to the gui layout
 void CGuiSkinnedLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 {
-	widget->Setup(id, x, y, w, h);
+	widget->Setup(id, x + iOffsetX, y + iOffsetY, w, h);
 	widget->Create();
 	widget->setParent(this);
 
@@ -62,6 +62,18 @@ void CGuiSkinnedLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 	cWidgets = widget;
 }
 
+void CGuiSkinnedLayout::SetOffset( int x, int y )
+{
+	int diffX = x - iOffsetX;
+	int diffY = y - iOffsetY;
+	iOffsetX = x;
+	iOffsetY = y; 
+
+	for( CWidget * w=cWidgets ; w ; w=w->getNext() ) 
+	{
+		w->Setup( w->getID(), w->getX() + diffX, w->getY() + diffY, w->getWidth(), w->getHeight() );
+	};
+};
 
 ///////////////////
 // Remove a widget

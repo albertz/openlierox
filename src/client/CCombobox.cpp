@@ -847,3 +847,48 @@ int CCombobox::getSelectedIndex()
 	return iItemCount; // Return the last itemID, just like we did before
 }
 
+
+static bool CComboBox_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "combobox", & CCombobox::WidgetCreator )
+							( "items", CGuiSkin::WVT_STRING )
+							( "var", CGuiSkin::WVT_STRING )
+							( "click", CGuiSkin::WVT_STRING );
+
+CWidget * CCombobox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+{
+	CCombobox * w = new CCombobox();
+	w->sSkinTempInit = p[0].s;	// Hacky, yeah, doesn't work otherwise
+	w->iVar = CGuiSkin::GetVar( p[1].s, CGuiSkin::SVT_INT ).i;
+	w->cClick.Init( p[2].s );
+	return w;
+};
+
+void	CCombobox::ProcessGuiSkinEvent(int iEvent)
+{
+	if( iEvent == CGuiSkin::INIT_WIDGET )
+	{
+		std::vector<std::string> items = explode( sSkinTempInit, "," );
+		sSkinTempInit = "";
+		for( unsigned i = 0; i < items.size(); i++ )
+		{
+			std::string item = items[i];
+			int index = i;
+			if( item.find("#") != std::string::npos )
+			{
+				index = atoi( item.substr( item.find("#") + 1 ) );
+				item = item.substr( 0, item.find("#") );
+			};
+			TrimSpaces(item);
+			addItem( index, "", item );
+		};
+		if( iVar )
+			setCurIndexItem( *iVar );
+	};
+	if( iEvent == CMB_CHANGED )
+	{
+		if( iVar )
+			*iVar = getSelectedIndex();
+		cClick.Call();
+	};
+};
+

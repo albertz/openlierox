@@ -23,6 +23,7 @@
 #include "CTitleButton.h"
 #include "CButton.h"
 #include "CMediaPlayer.h"
+#include "CGuiSkin.h"
 
 
 CGuiLayout	cMainMenu;
@@ -35,7 +36,8 @@ enum {
 	mm_PlayerProfiles,
 	mm_LevelEditor,
 	mm_Options,
-	mm_Quit
+	mm_Quit,
+	mm_ShowSkin
 };
 
 
@@ -67,6 +69,7 @@ void Menu_MainInitialize(void)
 
 	// Quit
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
+	cMainMenu.Add( new CButton(BUT_NEW, tMenu->bmpButtons), mm_ShowSkin, 200,440, 50,15);
 }
 
 
@@ -168,6 +171,14 @@ void Menu_MainFrame(void)
 				    }
 				    return;
                 }
+                break;
+			case mm_ShowSkin:
+                if( ev->iEventMsg == BTN_MOUSEUP ) 
+				{
+                    PlaySoundSample(sfxGeneral.smpClick);
+				    cMainMenu.Shutdown();
+					Menu_CGuiSkinInitialize();
+				};
                 break;
 		}
 	}

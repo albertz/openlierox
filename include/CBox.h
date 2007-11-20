@@ -82,8 +82,22 @@ public:
 	void	Draw(SDL_Surface *bmpDest);
 
 	void	LoadStyle(void);
+	
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		return new CBox( p[0].i, p[1].i, p[2].c, p[3].c, p[4].c );
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
+static bool CBox_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "box", & CBox::WidgetCreator )
+							( "round", CGuiSkin::WVT_INT )
+							( "border", CGuiSkin::WVT_INT )
+							( "lightcolor", CGuiSkin::WVT_COLOR )
+							( "darkcolor", CGuiSkin::WVT_COLOR )
+							( "bgcolor", CGuiSkin::WVT_COLOR );
 
 #endif  //  __CBOX_H__
 

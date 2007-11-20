@@ -11,11 +11,16 @@
 #ifndef __CGUISKIN_H__
 #define __CGUISKIN_H__
 
-#include "CGuiSkinnedLayout.h"
-#include "CWidgetList.h"
+#include "GfxPrimitives.h"
+//#include "CGuiSkinnedLayout.h"
+//#include "CWidget.h"
+//#include "CWidgetList.h"
 #include <string>
 #include <map>
+#include <vector>
 
+class CWidget;
+class CGuiSkinnedLayout;
 
 class CGuiSkin	// Singletone
 {
@@ -43,17 +48,17 @@ public:
 	struct SkinVarPtr_t
 	{
 		SkinVarType_t type;
-		union	// Pointer to static var
+		union	// Is there any point in doing that union?
 		{
-			bool * b;
+			bool * b;	// Pointer to static var
 			int * i;
 			float * f;
 			std::string * s;
 			SkinCallback_t c;
 		};
-		union	// Default value for that var for config file loading / saving
+		union	// Is there any point in doing that union?
 		{
-			bool bdef;
+			bool bdef;	// Default value for that var for config file loading / saving
 			int idef;
 			float fdef;
 			const char * sdef;	// Not std::string to keep this structure plain-old-data
@@ -79,6 +84,8 @@ public:
 		Init();
 		return m_instance->m_vars;
 	};
+	
+	static SkinVarPtr_t GetVar( const std::string & name, SkinVarType_t type );	// Case-insensitive search
 
 	// Stolen from boost::program_options
 
@@ -113,23 +120,23 @@ public:
 
 		operator bool () { return true; };	// To be able to write static expressions
 
-		CGuiSkin_RegisterVarDarkMagic operator() ( bool & v, const std::string & c, bool def = false )
+		CGuiSkin_RegisterVarDarkMagic & operator() ( bool & v, const std::string & c, bool def = false )
 			{ m_vars[Name(c)] = SkinVarPtr_t( &v, def ); return *this; };
 
-		CGuiSkin_RegisterVarDarkMagic operator() ( int & v, const std::string & c, int def = 0 )
+		CGuiSkin_RegisterVarDarkMagic & operator() ( int & v, const std::string & c, int def = 0 )
 			{ m_vars[Name(c)] = SkinVarPtr_t( &v, def ); return *this; };
 
-		CGuiSkin_RegisterVarDarkMagic operator() ( float & v, const std::string & c, float def = 0.0 )
+		CGuiSkin_RegisterVarDarkMagic & operator() ( float & v, const std::string & c, float def = 0.0 )
 			{ m_vars[Name(c)] = SkinVarPtr_t( &v, def ); return *this; };
 
-		CGuiSkin_RegisterVarDarkMagic operator() ( std::string & v, const std::string & c, const char * def = "" )
+		CGuiSkin_RegisterVarDarkMagic & operator() ( std::string & v, const std::string & c, const char * def = "" )
 			{ m_vars[Name(c)] = SkinVarPtr_t( &v, def ); return *this; };
 
-		CGuiSkin_RegisterVarDarkMagic operator() ( SkinCallback_t v, const std::string & c )
+		CGuiSkin_RegisterVarDarkMagic & operator() ( SkinCallback_t v, const std::string & c )
 			{ m_vars[Name(c)] = SkinVarPtr_t( v ); return *this; };
 	};
 
-	static CGuiSkin_RegisterVarDarkMagic AddVars( const std::string & base = "" )
+	static CGuiSkin_RegisterVarDarkMagic RegisterVars( const std::string & base = "" )
 	{
 		Init();
 		return CGuiSkin_RegisterVarDarkMagic( m_instance, base );
@@ -145,17 +152,103 @@ public:
 	*/
 	static std::string DumpVars();	// For debug output
 	
-	static CGuiSkinnedLayout * GetLayout( const std::string & filename );	// Get GUI layout from cache or create it from disk
-	static void ClearLayouts();	// Clears layouts cache so they are re-loaded from disk
+	static bool InitLayouts( const std::string & filename = "main" );	// (Re-)Inits all layouts
+	
+	static void DrawLayouts(SDL_Surface *bmpDest);		// Draw all GUI layouts from bottom to top from "m_guisShowing" var
+	static bool ProcessLayouts();	// Process input for top GUI layout from "m_guisShowing" var
+	
+	// Registering widget types with CGuiSkin
+	
+	enum WidgetVarType_t	// Var types used to initialize widget in XML
+	{
+		WVT_BOOL,
+		WVT_INT,
+		WVT_FLOAT,
+		WVT_STRING,
+		WVT_COLOR
+	};
 
+	struct WidgetVar_t
+	{
+		WidgetVarType_t type;
+		// Cannot do union because of std::string
+		bool b;
+		int i;
+		float f;
+		std::string s;
+		Uint32 c;	// color
+		WidgetVar_t(): type(WVT_BOOL), b(false), i(0), f(0.0), s(""), c(0) { };
+		WidgetVar_t( bool v ): type(WVT_BOOL), b(v), i(0), f(0.0), s(""), c(0) { };
+		WidgetVar_t( int v ): type(WVT_INT), b(false), i(v), f(0.0), s(""), c(0) { };
+		WidgetVar_t( float v ): type(WVT_FLOAT), b(false), i(0), f(v), s(""), c(0) { };
+		WidgetVar_t( const std::string & v ): type(WVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
+		WidgetVar_t( Uint32 v ): type(WVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
+	};
+	
+	typedef std::vector< std::pair< std::string, WidgetVarType_t > > paramListVector_t;
+	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< WidgetVar_t > & params );
+	
+	class CGuiSkin_RegisterWidgetDarkMagic
+	{
+		friend class CGuiSkin;
+
+		paramListVector_t & m_params;	// Reference to CGuiSkin.m_vars
+
+		CGuiSkin_RegisterWidgetDarkMagic( paramListVector_t & params ): 
+			m_params( params ) {};
+		
+		public:
+		
+		operator bool () { return true; };	// To be able to write static expressions
+
+		CGuiSkin_RegisterWidgetDarkMagic & operator() ( const std::string & c, WidgetVarType_t vt )
+			{ m_params.push_back( std::pair< std::string, WidgetVarType_t >( c, vt ) ); return *this; };
+	};
+	
+	static CGuiSkin_RegisterWidgetDarkMagic RegisterWidget( const std::string & name, WidgetCreator_t creator )
+	{
+		Init();
+		m_instance->m_widgets[name] = std::pair< paramListVector_t, WidgetCreator_t > ( paramListVector_t(), creator );
+		return CGuiSkin_RegisterWidgetDarkMagic( m_instance->m_widgets[name].first );
+	};
+
+	static std::string DumpWidgets();	// For debug output
+	
+	// Helper class for callback info thst should be inserted into widget
+	class CallbackHandler
+	{
+		std::vector< std::pair< SkinCallback_t, std::string > > m_callbacks;
+		public:
+		
+		void Init( const std::string & s );
+		void Call();
+		CallbackHandler() {};
+		CallbackHandler( const std::string & s ) { Init(s); };
+	};
+	
+	// Special event for Widget::ProcessGuiSkinEvent() called after widget added to CGuiLayout
+	// Some widgets (textbox and combobox) require this
+	enum { INIT_WIDGET = -3 };	
 private:
 
+	static CGuiSkinnedLayout * GetLayout( const std::string & filename );	// Get GUI layout from cache or create it from disk
+
 	friend class CGuiSkin_RegisterVarDarkMagic;
+	friend class CGuiSkin_RegisterWidgetDarkMagic;
 
 	// Should be private, please use CGuiSkin::Vars() and other member functions to have access to them
 	static CGuiSkin * m_instance;
 	std::map< std::string, SkinVarPtr_t > m_vars;	// All in-game variables and callbacks
 	std::map< std::string, CGuiSkinnedLayout * > m_guis;	// All loaded in-game GUI layouts
+	std::vector< CGuiSkinnedLayout * > m_guisShowing;	// All GUI layouts currently on screen
+	std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > m_widgets;	// All widget classes
+
+public:
+
+	// Event handlers
+	static void ExitDialog( const std::string & param );	
+	static void ChildDialog( const std::string & param );	
+	static void SubstituteDialog( const std::string & param ); // Emulates Tab-Control widget
 
 };
 

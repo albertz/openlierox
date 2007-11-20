@@ -684,3 +684,57 @@ void CTextbox::CopyText(void)
 		return;
 	SetClipboardText(sSelectedText);
 }
+
+static bool CTextbox_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "textbox", & CTextbox::WidgetCreator )
+							( "var", CGuiSkin::WVT_STRING )
+							( "click", CGuiSkin::WVT_STRING );
+
+CWidget * CTextbox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+{
+	CTextbox * w = new CTextbox();
+	w->bVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_BOOL ).b;
+	w->iVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_INT ).i;
+	w->fVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_FLOAT ).f;
+	w->sVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_STRING ).s;
+	w->cClick.Init( p[1].s );
+	/*
+		if( w->bVar )
+			w->setText( itoa( *w->bVar ) );
+		if( w->iVar )
+			w->setText( itoa( *w->iVar ) );
+		if( w->fVar )
+			w->setText( ftoa( *w->fVar ) );
+		if( w->sVar )
+			w->setText( *w->sVar );
+	*/
+	return w;
+};
+
+void	CTextbox::ProcessGuiSkinEvent(int iEvent)
+{
+	if( iEvent == CGuiSkin::INIT_WIDGET )
+	{
+		if( bVar )
+			setText( itoa( *bVar ) );
+		if( iVar )
+			setText( itoa( *iVar ) );
+		if( fVar )
+			setText( ftoa( *fVar ) );
+		if( sVar )
+			setText( *sVar );
+	};
+	if( iEvent == TXT_CHANGE )
+	{
+		if( bVar )
+			*bVar = ( atoi( getText() ) != 0 );
+		if( iVar )
+			*iVar = atoi( getText() );
+		if( fVar )
+			*fVar = atof( getText() );
+		if( sVar )
+			*sVar = getText();
+		cClick.Call();
+	};
+};
+

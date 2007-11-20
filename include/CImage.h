@@ -58,6 +58,7 @@ private:
     // Attributes
 	SDL_Surface	*tImage;
 	std::string	sPath;
+	CGuiSkin::CallbackHandler cClick;
 
 public:
     // Methods
@@ -86,9 +87,24 @@ public:
 	void	Draw(SDL_Surface *bmpDest);
 
 	void	LoadStyle(void) {}
+
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CImage * w = new CImage( p[0].s );
+		w->cClick.Init( p[1].s );
+		return w;
+	};
+
+	void	ProcessGuiSkinEvent(int iEvent) 
+	{
+		if( iEvent == IMG_CLICK )
+			cClick.Call();
+	};
 };
 
+static bool CImage_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
+							( "file", CGuiSkin::WVT_STRING )
+							( "click", CGuiSkin::WVT_STRING );
 
 #endif  //  __CIMAGE_H__
-
-

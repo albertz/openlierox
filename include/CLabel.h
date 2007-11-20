@@ -85,8 +85,17 @@ public:
 
 	void	LoadStyle(void) {}
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		return new CLabel( p[0].s, p[1].c );
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
-
+static bool CLabel_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "label", & CLabel::WidgetCreator )
+							( "text", CGuiSkin::WVT_STRING )
+							( "color", CGuiSkin::WVT_COLOR );
 
 #endif  //  __CLABEL_H__

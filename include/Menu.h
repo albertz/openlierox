@@ -45,7 +45,8 @@ enum {
 	MNU_NETWORK,
 	MNU_PLAYER,
 	MNU_OPTIONS,
-	MNU_MAPED
+	MNU_MAPED,
+	MNU_GUISKIN
 };
 
 
@@ -511,5 +512,10 @@ void	Menu_Net_NETAddServer(void);
 void	Menu_Net_NETUpdateList(void);
 void	Menu_Net_NETParseList(class CHttp& http);
 void    Menu_Net_NETShowServer(const std::string& szAddress);
+
+// CGuiSkin menu - when GUI skinning system will be complete (hopefully) this will become the main menu
+int		Menu_CGuiSkinInitialize(void);
+void	Menu_CGuiSkinFrame(void);
+void	Menu_CGuiSkinShutdown(void);
 
 #endif  //  __MENU_H__

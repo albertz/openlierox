@@ -80,6 +80,7 @@ public:
 		iKeySelectedItem = -1;
 		bSorted = false;
 		bUnique = false;
+		iVar = NULL;
 	}
 
 
@@ -107,6 +108,9 @@ private:
 	// Scrollbar
 	CScrollbar		cScrollbar;
 
+	int				*iVar;
+	CGuiSkin::CallbackHandler cClick;
+	std::string		sSkinTempInit;	// Hack
 
 public:
 	// Methods
@@ -152,7 +156,8 @@ public:
 	bool	getUnique()			{ return bUnique; }
 	cb_item_t *getLastItem()	{ return tLastItem; }
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p );
+	void	ProcessGuiSkinEvent(int iEvent);
 };
-
 
 #endif  //  __CCOMBOBOX_H__

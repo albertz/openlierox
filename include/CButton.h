@@ -78,7 +78,8 @@ private:
 	int			iImageID;
     int         iGoodWidth;
 	int			iButtonType;
-
+	CGuiSkin::CallbackHandler cClick;
+	
 public:
 	// Methods
 
@@ -107,10 +108,36 @@ public:
 	int		getType()  { return iButtonType; }
 	void	setType(int _t)  { iButtonType = _t; }
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CButton * b = new CButton( p[0].i, tMenu->bmpButtons );
+		b->cClick.Init(p[1].s);
+		return b;
+	};
 
+	static CWidget * WidgetCreator1( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CButton * b = new CButton( p[0].s );
+		b->cClick.Init(p[1].s);
+		return b;
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) 
+	{
+		if( iEvent == BTN_MOUSEUP )
+			cClick.Call();
+	};
 };
 
+static bool CButton_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "button", & CButton::WidgetCreator )
+							( "textid", CGuiSkin::WVT_INT )
+							( "click", CGuiSkin::WVT_STRING );
 
+static bool CButton_WidgetRegistered1 = 
+	CGuiSkin::RegisterWidget( "imagebutton", & CButton::WidgetCreator1 )
+							( "file", CGuiSkin::WVT_STRING )
+							( "click", CGuiSkin::WVT_STRING );
 
 
 #endif  //  __CBUTTON_H__

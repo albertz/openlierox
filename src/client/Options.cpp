@@ -44,7 +44,7 @@ bool GameOptions::Init() {
 	
 	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
 	
-	CGuiSkin::AddVars("GameOptions")	
+	CGuiSkin::RegisterVars("GameOptions")	
 #ifdef WIN32
 		( tLXOptions->iFullscreen, "Video.Fullscreen", true )
 #else
@@ -100,16 +100,16 @@ bool GameOptions::Init() {
 	unsigned i;
 	for( i = 0; i < sizeof(ply_keys) / sizeof(ply_keys[0]) ; i ++ )
 	{
-		CGuiSkin::AddVars("GameOptions.Ply1Controls") ( tLXOptions->sPlayerControls[0][i], ply_keys[i], ply_def1[i].c_str() );
-		CGuiSkin::AddVars("GameOptions.Ply2Controls") ( tLXOptions->sPlayerControls[1][i], ply_keys[i], ply_def2[i].c_str() );
+		CGuiSkin::RegisterVars("GameOptions.Ply1Controls") ( tLXOptions->sPlayerControls[0][i], ply_keys[i], ply_def1[i].c_str() );
+		CGuiSkin::RegisterVars("GameOptions.Ply2Controls") ( tLXOptions->sPlayerControls[1][i], ply_keys[i], ply_def2[i].c_str() );
 	};
 	for( i = 0; i < sizeof(gen_keys) / sizeof(gen_keys[0]) ; i ++ )
 	{
 		// Hope memory allocation won't change (it won't probably)
-		CGuiSkin::AddVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
+		CGuiSkin::RegisterVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
 	};
 
-	CGuiSkin::AddVars("GameOptions.LastGame")
+	CGuiSkin::RegisterVars("GameOptions.LastGame")
 		( tLXOptions->tGameinfo.iLives, "Lives", 10 )
 		( tLXOptions->tGameinfo.iKillLimit, "KillLimit", -1 )
 		( tLXOptions->tGameinfo.iTimeLimit, "TimeLimit", -1 )
@@ -141,7 +141,8 @@ bool GameOptions::Init() {
 
 	bool ret = tLXOptions->LoadFromDisc();
 
-	//printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
+	printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
+	printf( "Skinnable widgets:\n%s", CGuiSkin::DumpWidgets().c_str() );
 	return ret;
 }
 

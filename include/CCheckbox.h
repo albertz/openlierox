@@ -41,6 +41,8 @@ public:
 		iValue = val;
         bmpImage = NULL;
 		iType = wid_Checkbox;
+		bVar = NULL;
+		iVar = NULL;
 	}
 
 
@@ -49,7 +51,9 @@ private:
 
 	int			iValue;
 	SDL_Surface	*bmpImage;
-
+	bool		*bVar;
+	int			*iVar;
+	CGuiSkin::CallbackHandler cClick;
 
 public:
 	// Methods
@@ -89,11 +93,37 @@ public:
 
 	void	LoadStyle(void);
 
-
 	int		getValue(void)						{ return iValue; }
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CCheckbox * w = new CCheckbox(0);
+		w->bVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_BOOL ).b;
+		w->iVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_INT ).i;
+		if( w->bVar )
+			w->iValue = *w->bVar;
+		if( w->iVar )
+			w->iValue = *w->iVar;
+		w->cClick.Init( p[1].s );
+		return w;
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) 
+	{
+		if( iEvent == CHK_CHANGED )
+		{
+			if( bVar )
+				*bVar = ( iValue != 0 );
+			if( iVar )
+				*iVar = iValue;
+			cClick.Call();
+		};
+	};
 };
 
-
+static bool CCheckBox_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "checkbox", & CCheckbox::WidgetCreator )
+							( "var", CGuiSkin::WVT_STRING )
+							( "click", CGuiSkin::WVT_STRING );
 
 #endif  //  __CCHECKBOX_H__

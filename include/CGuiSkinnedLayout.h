@@ -21,12 +21,14 @@ class CGuiSkinnedLayout
 {
 public:
 	// Constructor
-	CGuiSkinnedLayout() {
+	CGuiSkinnedLayout( int x = 0, int y = 0 ) {
 		tEvent = new gui_event_t;
 		cFocused = NULL;
 		cWidgets = NULL;
 		cMouseOverWidget = NULL;
 		iCanFocus = true;
+		iOffsetX = x;
+		iOffsetY = y;
 	}
 
 	// Destructor
@@ -53,6 +55,7 @@ private:
 	int			iCanFocus;
 	
 	CWidgetList	LayoutWidgets;
+	int			iOffsetX, iOffsetY;	// Top-left corner of layout (just offset, may be negative)
 
 public:
 	// Methods
@@ -64,6 +67,7 @@ public:
     void        removeWidget(int id);
 	int			GetIdByName(const std::string & name);
 	void		Error(int ErrorCode, const char *Format, ...);
+	void		SetOffset( int x, int y );
 
 	gui_event_t	*Process(void);
 	void		Draw(SDL_Surface *bmpDest);

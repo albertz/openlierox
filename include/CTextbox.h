@@ -101,6 +101,11 @@ private:
 	float	fBlinkTime;
 	int		iDrawCursor;
 
+	bool		*bVar;
+	int			*iVar;
+	float		*fVar;
+	std::string	*sVar;
+	CGuiSkin::CallbackHandler cClick;
 
 public:
 	// Methods
@@ -138,7 +143,8 @@ public:
     void    PasteText(void);
 	void	CopyText(void);
 
-
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p );
+	void	ProcessGuiSkinEvent(int iEvent);
 };
 
 

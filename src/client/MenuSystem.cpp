@@ -210,6 +210,10 @@ void Menu_Shutdown(void)
 			case MNU_OPTIONS:
 				Menu_OptionsShutdown();
 				break;
+
+			case MNU_GUISKIN:
+				Menu_CGuiSkinShutdown();
+				break;
 		}
 
 		// Manually free some items
@@ -335,6 +339,10 @@ void Menu_Loop(void)
 			// Options
 			case MNU_OPTIONS:
 				Menu_OptionsFrame();
+				break;
+
+			case MNU_GUISKIN:
+				Menu_CGuiSkinFrame();
 				break;
 		}
 

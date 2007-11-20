@@ -22,6 +22,7 @@
 #ifdef WIN32
 #include "windows.h"
 #endif //WIN32
+#include "CGuiSkin.h"
 
 
 // Widget messages
@@ -143,9 +144,9 @@ public:
 	virtual DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;
 	virtual DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param) = 0;
 	virtual DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param) = 0;
+	
+	virtual void	ProcessGuiSkinEvent(int iEvent) {};
 };
-
-
 
 
 #endif  //  __CWIDGET_H__
