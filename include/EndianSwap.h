@@ -10,7 +10,7 @@
 #ifndef __ENDIANSWAP_H__
 #define __ENDIANSWAP_H__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
 

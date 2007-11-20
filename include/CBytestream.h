@@ -20,7 +20,7 @@
 #ifndef __CBYTESTREAM_H__
 #define __CBYTESTREAM_H__
 
-#include <SDL/SDL.h> // for SInt16
+#include <SDL.h> // for SInt16
 #include <string>
 #include "types.h"
 #include "Networking.h"

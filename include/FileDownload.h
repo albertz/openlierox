@@ -24,8 +24,8 @@
 #include <vector>
 #include <string>
 #include <stdio.h>  // for FILE
-#include <SDL/SDL_thread.h>
-#include <SDL/SDL_mutex.h>
+#include <SDL_thread.h>
+#include <SDL_mutex.h>
 #include "HTTP.h"
 #include "types.h"
 

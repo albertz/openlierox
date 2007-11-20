@@ -27,9 +27,10 @@ ELSE (WIN32)
 ENDIF (WIN32)
 
 ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
+ADD_DEFINITIONS("`pkg-config --cflags sdl`")
 
 ADD_EXECUTABLE(bin/openlierox ${ALL_SRCS})
-TARGET_LINK_LIBRARIES(bin/openlierox SDL SDL_image SDL_mixer NL gd z xml2)
+TARGET_LINK_LIBRARIES(bin/openlierox SDL pthread SDL_image SDL_mixer NL gd z xml2)
 
 # needed for STLport
 #TARGET_LINK_LIBRARIES(bin/openlierox stlportstlg)

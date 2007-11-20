@@ -17,7 +17,7 @@
 // By Jason Boettcher
 
 #include <time.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL_syswm.h>
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "Error.h"

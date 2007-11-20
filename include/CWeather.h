@@ -17,7 +17,7 @@
 #ifndef __CWEATHER_H__
 #define __CWEATHER_H__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "CVec.h"
 #include "CMap.h"
 #include "CViewport.h"

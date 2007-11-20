@@ -17,7 +17,7 @@
 #ifndef __CVIEWPORT_H__
 #define	__CVIEWPORT_H__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "CInput.h"
 #include "CVec.h"

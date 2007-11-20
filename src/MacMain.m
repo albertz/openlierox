@@ -10,7 +10,7 @@ SDLMain.m - main entry point for our Cocoa-ized SDL app
 */
 
 
-#import <SDL/SDL.h>
+#import <SDL.h>
 #import <sys/param.h> /* for MAXPATHLEN */
 #import <unistd.h>
 

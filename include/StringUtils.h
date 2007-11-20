@@ -11,7 +11,7 @@
 #ifndef __STRINGUTILS_H__
 #define __STRINGUTILS_H__
 
-#include <SDL/SDL.h> // for Uint32
+#include <SDL.h> // for Uint32
 #include <stdio.h> // for FILE
 #include <string>
 #include <sstream>

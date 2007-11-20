@@ -20,8 +20,8 @@
 #ifndef __GFXPRIMITIVES_H__
 #define __GFXPRIMITIVES_H__
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <string>
 #include <assert.h>
 

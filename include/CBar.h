@@ -17,7 +17,7 @@
 #define __CBAR_H_
 
 #include "Utils.h"
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 // Bar directions
 enum {

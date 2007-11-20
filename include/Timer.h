@@ -21,7 +21,7 @@
 #define __TIMER_H__
 
 #include <string>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 ///////////////////
 // Get the number of milliseconds since SDL started the timer

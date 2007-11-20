@@ -1044,3 +1044,4 @@ UnicodeString Utf8ToUnicode(const std::string& str)
 
 	return result;
 }
+

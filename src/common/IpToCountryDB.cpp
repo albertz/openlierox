@@ -7,8 +7,8 @@
 	by Albert Zeyer and Dark Charlie
 */
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_thread.h>
+#include <SDL.h>
+#include <SDL_thread.h>
 #include <iostream>
 #include <map>
 

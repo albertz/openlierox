@@ -7,7 +7,7 @@
 */
 
 #include <iostream>
-#include <SDL/SDL_ttf.h>
+#include <SDL_ttf.h>
 #include <gd.h>
 
 #include "StringUtils.h"

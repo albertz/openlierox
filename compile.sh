@@ -38,19 +38,69 @@ function test_include_file() {
 	return -1
 }
 
+# check if executable is there
+function test_exec() {
+	which $1 1>/dev/null 2>/dev/null
+	return $?
+}
+
+# grep parameter $1 out of input-stream
+function grep_param() {
+	for p in $(xargs); do
+		echo "$p" | grep "${1/-/\-}" | sed -e "s/$1//"
+	done
+}
+
+# simply own sdl-config
+function own_sdl_config() {
+	[ "$1" == "--libs" ] && echo "-lSDL"
+	if [ "$1" == "--cflags" ]; then
+		for d in $INCLUDE_PATH; do
+			[ -d "$d/SDL" ] && echo -n "-I$d/SDL "
+		done
+		echo ""
+	fi
+}
+
+# simply own xml2-config
+function own_xml2_config() {
+	[ "$1" == "--libs" ] && echo "-lz -lxml2"
+	if [ "$1" == "--cflags" ]; then
+		for d in $INCLUDE_PATH; do
+			[ -d "$d/libxml2" ] && echo -n "-I$d/libxml2 "
+		done
+		echo ""
+	fi
+}
+
+# handle SDL specific compiler settings and get include-dirs
+sdlconfig=""
+test_exec pkg-config && pkg-config sdl && sdlconfig="pkg-config sdl"
+[ "$sdlconfig" == "" ] && test_exec sdl-config && sdlconfig="sdl-config"
+[ "$sdlconfig" == "" ] && sdlconfig="own_sdl_config"
+xmlconfig=""
+test_exec pkg-config && pkg-config libxml-2.0 && xmlconfig="pkg-config libxml-2.0"
+[ "$xmlconfig" == "" ] && test_exec xml2-config && xmlconfig="xml2-config"
+[ "$xmlconfig" == "" ] && xmlconfig="own_xml2_config"
+
+INCLUDE_PATH="$INCLUDE_PATH $($sdlconfig --cflags | grep_param -I)"
+LIB_PATH="$LIB_PATH $($sdlconfig --libs | grep_param -L)"
+INCLUDE_PATH="$INCLUDE_PATH $($xmlconfig --cflags | grep_param -I)"
+LIB_PATH="$LIB_PATH $($xmlconfig --libs | grep_param -L)"
+
 echo "--- OpenLieroX compile.sh ---"
 
 # do some simple checks
 ALL_FINE=1
 type $COMPILER 1>/dev/null 2>/dev/null || \
 	{ echo "ERROR: g++ not found" >&2; ALL_FINE=0; }
-test_include_file libxml2/libxml/parser.h || \
+test_include_file libxml/parser.h || \
 	{ echo "ERROR: libxml2 headers not found" >&2; ALL_FINE=0; }
-test_include_file SDL/SDL.h || \
+test_include_file SDL.h || \
 	{ echo "ERROR: SDL headers not found" >&2; ALL_FINE=0; }
-test_include_file SDL/SDL_image.h || \
+test_include_file SDL_image.h || \
 	{ echo "ERROR: SDL_image.h not found" >&2; ALL_FINE=0; }
-test_include_file SDL/SDL_mixer.h || \
+test_include_file SDL_mixer.h || \
 	{ echo "ERROR: SDL_mixer.h not found" >&2; ALL_FINE=0; }
 test_include_file zlib.h || \
 	{ echo "ERROR: zlib header not found" >&2; ALL_FINE=0; }
@@ -129,7 +179,11 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-I include \
 	$INCLUDE_STRING \
 	$LIB_STRING \
-	-lSDL -lSDL_image -lSDL_mixer -lz -lgd -lxml2 \
+	$($sdlconfig --cflags) \
+	$($sdlconfig --libs) \
+	$($xmlconfig --cflags) \
+	$($xmlconfig --libs) \
+	-lSDL_image -lSDL_mixer -lgd \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \

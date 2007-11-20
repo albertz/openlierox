@@ -8,7 +8,7 @@
 #ifndef __CSS_PARSER_H__
 #define __CSS_PARSER_H__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <string>
 
 struct property_t {

@@ -24,7 +24,7 @@ typedef unsigned char byte;
 #include "Timer.h"
 
 // we are using SDL_mixer at the moment
-#include <SDL/SDL_mixer.h>
+#include <SDL_mixer.h>
 
 #define MUSIC_REPEAT_INFINITE -1
 

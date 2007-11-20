@@ -17,7 +17,7 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <string>
 
 #include "CWidgetList.h"

@@ -1,6 +1,6 @@
 // Surface class
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 typedef unsigned char byte;
 typedef Uint32 Color;

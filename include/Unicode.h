@@ -11,7 +11,7 @@
 #ifndef __UNICODE_H__
 #define __UNICODE_H__
 
-#include <SDL/SDL.h> // for Uint32
+#include <SDL.h> // for Uint32
 #include <string>
 
 #include "Utils.h"
