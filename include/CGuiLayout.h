@@ -41,22 +41,6 @@ enum {
 };
 
 
-// Widget types
-enum {
-	wid_Button=0,
-	wid_Label,
-	wid_Listview,
-	wid_Scrollbar,
-	wid_Slider,
-	wid_Textbox,
-	wid_Titlebutton,
-	wid_Checkbox,
-	wid_Inputbox,
-	wid_Image,
-	wid_Frame,
-	wid_Animation
-};
-
 // Global properties
 enum {
 	PRP_REDRAWMENU,

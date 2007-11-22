@@ -111,14 +111,14 @@ public:
 	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
 	{
 		CButton * b = new CButton( p[0].i, tMenu->bmpButtons );
-		b->cClick.Init(p[1].s);
+		b->cClick.Init( p[1].s, b );
 		return b;
 	};
 
 	static CWidget * WidgetCreator1( const std::vector< CGuiSkin::WidgetVar_t > & p )
 	{
 		CButton * b = new CButton( p[0].s );
-		b->cClick.Init(p[1].s);
+		b->cClick.Init( p[1].s, b );
 		return b;
 	};
 	

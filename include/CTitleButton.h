@@ -48,7 +48,7 @@ private:
 	int			iMouseOver;
 	int			iImageID;
 	SDL_Surface *bmpImage;
-
+	CGuiSkin::CallbackHandler cClick;
 
 public:
 	// Methods
@@ -74,10 +74,24 @@ public:
 
 	void	LoadStyle(void) {}
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CTitleButton * b = new CTitleButton( p[0].i, tMenu->bmpMainTitles );
+		b->cClick.Init( p[1].s, b );
+		return b;
+	};
 
-
+	void	ProcessGuiSkinEvent(int iEvent) 
+	{
+		if( iEvent == TBT_MOUSEUP )
+			cClick.Call();
+	};
 };
 
+static bool CTitleButton_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "titlebutton", & CTitleButton::WidgetCreator )
+							( "textid", CGuiSkin::WVT_INT )
+							( "click", CGuiSkin::WVT_STRING );
 
 
 

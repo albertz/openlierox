@@ -104,7 +104,7 @@ public:
 			w->iValue = *w->bVar;
 		if( w->iVar )
 			w->iValue = *w->iVar;
-		w->cClick.Init( p[1].s );
+		w->cClick.Init( p[1].s, w );
 		return w;
 	};
 	

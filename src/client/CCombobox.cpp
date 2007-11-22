@@ -859,7 +859,7 @@ CWidget * CCombobox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > &
 	CCombobox * w = new CCombobox();
 	w->sSkinTempInit = p[0].s;	// Hacky, yeah, doesn't work otherwise
 	w->iVar = CGuiSkin::GetVar( p[1].s, CGuiSkin::SVT_INT ).i;
-	w->cClick.Init( p[2].s );
+	w->cClick.Init( p[2].s, w );
 	return w;
 };
 

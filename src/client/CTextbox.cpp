@@ -697,7 +697,7 @@ CWidget * CTextbox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & 
 	w->iVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_INT ).i;
 	w->fVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_FLOAT ).f;
 	w->sVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_STRING ).s;
-	w->cClick.Init( p[1].s );
+	w->cClick.Init( p[1].s, w );
 	/*
 		if( w->bVar )
 			w->setText( itoa( *w->bVar ) );

@@ -87,7 +87,19 @@ public:
 
 	void	LoadStyle(void) {}
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		return new CAnimation( p[0].s, p[1].f );
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) {};
+
 };
+
+static bool CAnimation_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "animation", & CAnimation::WidgetCreator )
+							( "file", CGuiSkin::WVT_STRING )
+							( "frametime", CGuiSkin::WVT_FLOAT );
 
 
 #endif  //  __CANIMATION_H__

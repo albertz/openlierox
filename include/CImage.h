@@ -91,7 +91,7 @@ public:
 	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
 	{
 		CImage * w = new CImage( p[0].s );
-		w->cClick.Init( p[1].s );
+		w->cClick.Init( p[1].s, w );
 		return w;
 	};
 

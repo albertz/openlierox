@@ -99,42 +99,13 @@ std::string CGuiSkin::DumpWidgets()
 	return ret.str();
 };
 
-bool CGuiSkin::InitLayouts( const std::string & filename )
+void CGuiSkin::ClearLayouts()
 {
 	Init();
+	for( std::map< std::string, CGuiSkinnedLayout * > :: iterator it = m_instance->m_guis.begin();
+		it != m_instance->m_guis.end(); it++ )
+				delete it->second;
 	m_instance->m_guis.clear();
-	m_instance->m_guisShowing.clear();
-	CGuiSkinnedLayout * ll = GetLayout( filename );
-	if( ll == NULL )
-		return false;
-	m_instance->m_guisShowing.push_back(ll);
-	return true;
-};
-
-void CGuiSkin::DrawLayouts( SDL_Surface *bmpDest )
-{
-	Init();
-	if( m_instance->m_guisShowing.size() == 0 ) 
-		return;
-	// TODO: if layout is covering all screen do not draw layouts below it
-	for( unsigned i=0; i<m_instance->m_guisShowing.size(); i++ )
-	{
-		m_instance->m_guisShowing[i]->Draw( bmpDest );
-	};
-	//m_instance->m_guisShowing[ m_instance->m_guisShowing.size()-1 ] -> Draw( bmpDest );
-};
-
-bool CGuiSkin::ProcessLayouts()
-{
-	Init();
-	if( m_instance->m_guisShowing.size() == 0 ) 
-		return false;
-	gui_event_t * ev = m_instance->m_guisShowing[ m_instance->m_guisShowing.size()-1 ] -> Process();
-	if( ev != NULL )
-	{
-		ev->cWidget->ProcessGuiSkinEvent(ev->iEventMsg);	// Loop event back to widget
-	};
-	return true;
 };
 
 static bool xmlGetBool(xmlNodePtr Node, const std::string& Name);
@@ -313,29 +284,36 @@ std::string xmlGetString(xmlNodePtr Node, const std::string& Name)
 	return ret;
 }
 
+CGuiSkinnedLayout * MainLayout = NULL;
 int		Menu_CGuiSkinInitialize(void)
 {
 	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
 	//DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
 	//Menu_DrawBox(tMenu->bmpBuffer, 0, 0, 640-1, 480-1,);
 	//DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-	CGuiSkin::InitLayouts();
+	//CGuiSkin::InitLayouts();
 	SetGameCursor(CURSOR_ARROW);
 	tMenu->iMenuType = MNU_GUISKIN;
 	//DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky
+	MainLayout = CGuiSkin::GetLayout( "main" );
+	if( MainLayout == NULL )
+	{
+		Menu_CGuiSkinShutdown();
+		return false;
+	};
 	return true;
 };
 
 void	Menu_CGuiSkinFrame(void)
 {
-	if( ! CGuiSkin::ProcessLayouts() )
+	if( ! MainLayout->Process() )
 	{
 		Menu_CGuiSkinShutdown();
-		Menu_MainInitialize();
-	};	
-	CGuiSkin::DrawLayouts(tMenu->bmpBuffer);
+		return;
+	};
+	MainLayout->Draw(tMenu->bmpBuffer);
 	DrawCursor(tMenu->bmpBuffer);
-	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky
+	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
 };
 
 void	Menu_CGuiSkinShutdown(void)
@@ -343,48 +321,16 @@ void	Menu_CGuiSkinShutdown(void)
 	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
 	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);
 	SetGameCursor(CURSOR_NONE);
+	MainLayout = NULL;
+	CGuiSkin::ClearLayouts();
+	Menu_MainInitialize();
 };
 
-void CGuiSkin::ExitDialog( const std::string & param )
-{
-	Init();
-	if( m_instance->m_guisShowing.size() == 0 )
-		return;
-	m_instance->m_guisShowing.pop_back();
-};
-
-void CGuiSkin::ChildDialog( const std::string & param )
-{
-	Init();
-	// Simple parsing of params
-	std::vector<std::string> v = explode(param, ",");
-	int x = 0, y = 0;
-	if( v.size() > 2 )
-	{
-		x = atoi( v[1] );
-		y = atoi( v[2] );
-	};
-	std::string file = v[0];
-	TrimSpaces(file);
-	CGuiSkinnedLayout * ll = GetLayout( file );
-	if( ll == NULL )
-		return;
-	ll->SetOffset(x,y);
-	m_instance->m_guisShowing.push_back(ll);
-};
-
-void CGuiSkin::SubstituteDialog( const std::string & param )
-{
-	Init();
-	if( m_instance->m_guisShowing.size() == 0 )
-		m_instance->m_guisShowing.pop_back();
-	m_instance->m_guisShowing.push_back( GetLayout( param ) );
-};
-
-void CGuiSkin::CallbackHandler::Init( const std::string & s1 )
+void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 {
 	// TODO: put LUA handler here, this handmade string parser works but the code is ugly
 	//printf( "CGuiSkin::CallbackHandler::Init(\"%s\"): ", s1.c_str() );
+	m_source = source;
 	m_callbacks.clear();
 	std::string s(s1);
 	TrimSpaces(s);
@@ -430,21 +376,13 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1 )
 void CGuiSkin::CallbackHandler::Call()
 {
 	for( unsigned f=0; f<m_callbacks.size(); f++ )
-		m_callbacks[f].first( m_callbacks[f].second );
+		m_callbacks[f].first( m_callbacks[f].second, m_source );
 };
 
-bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
-	( & CGuiSkin::ExitDialog, "ExitDialog" )
-	( & CGuiSkin::ChildDialog, "ChildDialog" )
-	( & CGuiSkin::SubstituteDialog, "SubstituteDialog" )
-	;
-
-void MakeSound( const std::string & param )	// For debug
+void MakeSound( const std::string & param, CWidget * source )
 {
 	if( param == "" || param == "click" )
 		PlaySoundSample(sfxGeneral.smpClick);
-	if( param == "chat" )
-		PlaySoundSample(sfxGeneral.smpChat);
 	if( param == "chat" )
 		PlaySoundSample(sfxGeneral.smpChat);
 	if( param == "ninja" )
@@ -461,6 +399,6 @@ void MakeSound( const std::string & param )	// For debug
 		PlaySoundSample(sfxGame.smpDeath[2]);
 };
 
-bool bRegisteredCallbacks1 = CGuiSkin::RegisterVars("GUI")
+static bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
 	( & MakeSound, "MakeSound" );
 

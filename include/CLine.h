@@ -63,8 +63,20 @@ public:
 
 	void	LoadStyle(void) {}
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		return new CLine( p[0].i, p[1].i, p[2].i, p[3].i, p[4].c  );
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
-
+static bool CLine_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "line", & CLine::WidgetCreator )
+							( "x", CGuiSkin::WVT_INT )
+							( "y", CGuiSkin::WVT_INT )
+							( "dx", CGuiSkin::WVT_INT )
+							( "dy", CGuiSkin::WVT_INT )
+							( "color", CGuiSkin::WVT_COLOR );
 
 #endif  //  __CLINE_H__

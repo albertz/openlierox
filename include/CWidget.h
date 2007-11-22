@@ -42,13 +42,32 @@ class generic_events_t { public:
 	char Events[NumEvents][128];
 };
 
+// Widget types - not needed actually, we may use RTTI
+enum WidgetType_t {
+	wid_None=-1,
+	wid_Button=0,
+	wid_Label,
+	wid_Listview,
+	wid_Scrollbar,
+	wid_Slider,
+	wid_Textbox,
+	wid_Titlebutton,
+	wid_Checkbox,
+	wid_Inputbox,
+	wid_Image,
+	wid_Frame,
+	wid_Animation,
+	wid_GuiLayout
+};
+
+
 class CWidget {
 public:
 	// Constructor
 	CWidget() {
 		iID = -1;
 
-		iType = -1;
+		iType = wid_None;
 		iX = iY = 0;
 		iWidth = iHeight = 1;
 		bFocused = false;
@@ -66,7 +85,7 @@ protected:
 	int		iX, iY;
 	int		iWidth, iHeight;
 	bool	bFocused;
-	int		iType;
+	WidgetType_t iType;
 	bool	bRedrawMenu;
 	bool	bCanLoseFocus;
 
@@ -99,7 +118,7 @@ public:
 
 	int				getID(void)						{ return iID; }
 	void			setID(int _i)					{ iID = _i; }
-	int				getType(void)					{ return iType; }
+	WidgetType_t	getType(void)					{ return iType; }
 
 	void			setFocused(bool _f)				{ bFocused = _f; }
 	bool			getFocused(void)				{ return bFocused; }
@@ -121,8 +140,8 @@ public:
 	bool			CanLoseFocus(void)				{ return bCanLoseFocus; }
 	void			setLoseFocus(bool _f)			{ bCanLoseFocus = _f; }
 
-	void			SetupEvents(generic_events_t *Events);
-	void			ProcessEvent(int Event);
+	void			SetupEvents(generic_events_t *Events);	// Not used anywhere, should be removed
+	void			ProcessEvent(int Event);	// Not used anywhere, should be removed
 
 
 	// Virtual functions
@@ -138,7 +157,7 @@ public:
 	virtual	int		KeyDown(UnicodeChar c, int keysym) = 0;
 	virtual	int		KeyUp(UnicodeChar c, int keysym) = 0;
 
-	virtual	void	LoadStyle(void) = 0;
+	virtual	void	LoadStyle(void) = 0;	// Not used anywhere
 	virtual	void	Draw(SDL_Surface *bmpDest) = 0;
 
 	virtual DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) = 0;

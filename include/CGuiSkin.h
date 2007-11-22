@@ -42,7 +42,7 @@ public:
 		SVT_CALLBACK
 	};
 
-	typedef void ( * SkinCallback_t ) ( const std::string & param );	
+	typedef void ( * SkinCallback_t ) ( const std::string & param, CWidget * source );
 	// param is ignored by now by all callbacks, but maybe in future it will be used
 
 	struct SkinVarPtr_t
@@ -152,10 +152,8 @@ public:
 	*/
 	static std::string DumpVars();	// For debug output
 	
-	static bool InitLayouts( const std::string & filename = "main" );	// (Re-)Inits all layouts
-	
-	static void DrawLayouts(SDL_Surface *bmpDest);		// Draw all GUI layouts from bottom to top from "m_guisShowing" var
-	static bool ProcessLayouts();	// Process input for top GUI layout from "m_guisShowing" var
+	static CGuiSkinnedLayout * GetLayout( const std::string & filename );	// Get GUI layout from cache or create it from disk
+	static void ClearLayouts();
 	
 	// Registering widget types with CGuiSkin
 	
@@ -218,20 +216,19 @@ public:
 	class CallbackHandler
 	{
 		std::vector< std::pair< SkinCallback_t, std::string > > m_callbacks;
+		CWidget * m_source;
 		public:
 		
-		void Init( const std::string & s );
+		void Init( const std::string & s, CWidget * source );
 		void Call();
-		CallbackHandler() {};
-		CallbackHandler( const std::string & s ) { Init(s); };
+		CallbackHandler(): m_source(NULL) { };
+		CallbackHandler( const std::string & s, CWidget * source ) { Init( s, source ); };
 	};
 	
 	// Special event for Widget::ProcessGuiSkinEvent() called after widget added to CGuiLayout
 	// Some widgets (textbox and combobox) require this
 	enum { INIT_WIDGET = -3 };	
 private:
-
-	static CGuiSkinnedLayout * GetLayout( const std::string & filename );	// Get GUI layout from cache or create it from disk
 
 	friend class CGuiSkin_RegisterVarDarkMagic;
 	friend class CGuiSkin_RegisterWidgetDarkMagic;
@@ -240,15 +237,8 @@ private:
 	static CGuiSkin * m_instance;
 	std::map< std::string, SkinVarPtr_t > m_vars;	// All in-game variables and callbacks
 	std::map< std::string, CGuiSkinnedLayout * > m_guis;	// All loaded in-game GUI layouts
-	std::vector< CGuiSkinnedLayout * > m_guisShowing;	// All GUI layouts currently on screen
+	//std::vector< CGuiSkinnedLayout * > m_guisShowing;	// All GUI layouts currently on screen
 	std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > m_widgets;	// All widget classes
-
-public:
-
-	// Event handlers
-	static void ExitDialog( const std::string & param );	
-	static void ChildDialog( const std::string & param );	
-	static void SubstituteDialog( const std::string & param ); // Emulates Tab-Control widget
 
 };
 

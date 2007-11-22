@@ -33,8 +33,9 @@ void CGuiSkinnedLayout::Initialize()
 	Shutdown();
 
 	cWidgets = NULL;
+	cWidgetsFromEnd = NULL;
 	cFocused = NULL;
-	cMouseOverWidget = NULL;
+	//cMouseOverWidget = NULL;
 
 	// Reset mouse repeats
 	nMouseButtons = 0;
@@ -60,6 +61,8 @@ void CGuiSkinnedLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 		cWidgets->setPrev(widget);
 
 	cWidgets = widget;
+	if( cWidgetsFromEnd == NULL ) 
+		cWidgetsFromEnd = widget;
 }
 
 void CGuiSkinnedLayout::SetOffset( int x, int y )
@@ -88,6 +91,13 @@ void CGuiSkinnedLayout::removeWidget(int id)
         if(w->getID() == cFocused->getID())
             cFocused = NULL;
     }
+	/*
+	if( cMouseOverWidget )
+	{
+        if( w->getID() == cMouseOverWidget->getID() )
+            cMouseOverWidget = NULL;
+    }
+	*/
 
     // Unlink the widget
     if( w->getPrev() )
@@ -97,6 +107,8 @@ void CGuiSkinnedLayout::removeWidget(int id)
 
     if( w->getNext() )
         w->getNext()->setPrev( w->getPrev() );
+	else
+		cWidgetsFromEnd = w->getPrev();
 
     // Free it
     w->Destroy();
@@ -120,11 +132,12 @@ void CGuiSkinnedLayout::Shutdown(void)
 			delete w;
 	}
 	cWidgets = NULL;
-
-	// tEvent is freed in destructor
+	cWidgetsFromEnd = NULL;
 
 	cFocused = NULL;
-	cMouseOverWidget = NULL;
+	//cMouseOverWidget = NULL;
+	setParent(NULL);
+	cChildLayout = NULL;
 }
 
 
@@ -132,69 +145,41 @@ void CGuiSkinnedLayout::Shutdown(void)
 // Draw the widgets
 void CGuiSkinnedLayout::Draw(SDL_Surface *bmpDest)
 {
-	CWidget *w, *end;
-
-	// Draw the widgets in reverse order
-	end = NULL;
-	for(w=cWidgets ; w ; w=w->getNext()) {
-		if(w->getNext() == NULL) {
-			end = w;
-			break;
-		}
-	}
-
-
-	for(w=end ; w ; w=w->getPrev()) {
-		if(w->getEnabled() && w)
+	CWidget *w;
+	
+	if( ! cChildLayout || ( cChildLayout && ! bChildLayoutFullscreen ) )
+	for( w = cWidgetsFromEnd ; w ; w = w->getPrev() ) 
+	{
+		if( w->getEnabled() )
 			w->Draw(bmpDest);
 	}
+	
+	if( cChildLayout )
+		cChildLayout->Draw(bmpDest);
 }
 
 
 ///////////////////
 // Process all the widgets
-gui_event_t *CGuiSkinnedLayout::Process(void)
+bool CGuiSkinnedLayout::Process(void)
 {
-	CWidget *w;
 	mouse_t *tMouse = GetMouse();
+	keyboard_t *Keyboard = GetKeyboard();
 	SDL_Event *Event = GetEvent();
 	int ev=-1;
-	int widget = false;
 
-	SetGameCursor(CURSOR_ARROW); // Reset the cursor here
+	//SetGameCursor(CURSOR_ARROW); // Reset the cursor here
 
-	if (!tEvent)  {
-		return NULL;
-	}
-
-	// Switch between window and fullscreen mode
-	keyboard_t *Keyboard = GetKeyboard();
 
 	// Put it here, so the mouse will never display
-	SDL_ShowCursor(SDL_DISABLE);
+	//SDL_ShowCursor(SDL_DISABLE);
 
-	// Parse keyboard events to the focused widget
-	// Make sure a key event happened
-	if(Event->type == SDL_KEYUP || Event->type == SDL_KEYDOWN) {
-
-		// If we don't have any focused widget, get the first textbox
-		if (!cFocused)  {
-			CWidget *txt = cWidgets;
-			for (;txt;txt=txt->getNext())  {
-				if (txt->getType() == wid_Textbox && txt->getEnabled()) {
-					cFocused = txt;
-					txt->setFocused(true);
-					break;
-				}
-			}
-		}
-
-
-		if (cFocused)  {
-			// Check the characters
-			if(Event->key.state == SDL_PRESSED || Event->key.state == SDL_RELEASED) {
-				tEvent->cWidget = cFocused;
-				tEvent->iControlID = cFocused->getID();
+	// Parse keyboard events
+	if( (Event->type == SDL_KEYUP || Event->type == SDL_KEYDOWN) && 
+		(Event->key.state == SDL_PRESSED || Event->key.state == SDL_RELEASED) )
+	{
+				//tEvent->cWidget = cFocused;
+				//tEvent->iControlID = cFocused->getID();
 
 				UnicodeChar input = Event->key.keysym.unicode;
 				if (input == 0)
@@ -230,242 +215,33 @@ gui_event_t *CGuiSkinnedLayout::Process(void)
 
 
 				if(Event->type == SDL_KEYUP || Event->key.state == SDL_RELEASED)
-					ev = cFocused->KeyUp(input, Event->key.keysym.sym);
+					ev = KeyUp(input, Event->key.keysym.sym);
 
 				// Handle more keys at once keydown
 				if (Keyboard->queueLength > 1) 
 					for(int i=0; i<Keyboard->queueLength; i++)
 						if(!Keyboard->keyQueue[i].down || Keyboard->keyQueue[i].ch != input)  {
-							ev = cFocused->KeyDown(Keyboard->keyQueue[i].ch, Keyboard->keyQueue[i].sym);
-							if (ev != -1)  {
-								tEvent->iEventMsg = ev;
-								return tEvent;
-							}
+							ev = KeyDown(Keyboard->keyQueue[i].ch, Keyboard->keyQueue[i].sym);
 						}
 
 				// Keydown
-				if(Event->type == SDL_KEYDOWN)  {
-					ev = cFocused->KeyDown(input, Event->key.keysym.sym);
+				if(Event->type == SDL_KEYDOWN)  
+				{
+					ev = KeyDown(input, Event->key.keysym.sym);
 				}
-
-				// Tab switches between widgets
-				/*if (Keyboard->KeyUp[SDLK_TAB])  {
-					if (cFocused)  {
-						// The current one is not focused anymore
-						cFocused->setFocused(false);
-
-						// Switch to next widget
-						if (cFocused->getNext())  {
-							cFocused = cFocused->getNext();
-							cFocused->setFocused(true);
-						// The current focused widget is the last one in the list
-						} else {
-							cFocused = cWidgets;
-							cFocused->setFocused(true);
-						}
-					} else {
-						cFocused = cWidgets;
-						cFocused->setFocused(true);
-					}
-
-					// Repeat the same thing until we find first enabled widget
-					while (!cFocused->getEnabled())  {
-						// The current one is not focused anymore
-						cFocused->setFocused(false);
-
-						if (cFocused->getNext())  {
-							cFocused = cFocused->getNext();
-							cFocused->setFocused(true);
-						// The current focused widget is the last one in the list
-						} else {
-							cFocused = cWidgets;
-							cFocused->setFocused(true);
-						}
-					}
-				}*/
-
-				if(ev >= 0) {
-					tEvent->iEventMsg = ev;
-					return tEvent;
-				}
-			}
-		}
 	}
 
-
-	// Go through all the widgets
-	for(w=cWidgets ; w ; w=w->getNext()) {
-		tEvent->cWidget = w;
-		tEvent->iControlID = w->getID();
-
-		// Don't process disabled widgets
-		if(!w->getEnabled())
-			continue;
-
-		// Special mouse button event first (for focused widgets)
-		if(tMouse->Down && cFocused == w && !iCanFocus && !w->InBox(tMouse->X,tMouse->Y)) {
-			widget = true;
-
-			// Process the skin-defined code
-			w->ProcessEvent(OnMouseDown);
-
-			if( (ev=w->MouseDown(tMouse, tMouse->Down)) >= 0) {
-				tEvent->iEventMsg = ev;
-				return tEvent;
-			}
-		}
-
-
-		if(w->InBox(tMouse->X,tMouse->Y)) {
-
-			// Mouse wheel up
-			if(tMouse->WheelScrollUp)  {
-				widget = true;
-				if(cFocused)
-					cFocused->setFocused(false);
-				w->setFocused(true);
-				cFocused = w;
-
-				if( (ev=w->MouseWheelUp(tMouse)) >= 0) {
-					tEvent->iEventMsg = ev;
-					return tEvent;
-				}
-			}
-
-			// Mouse wheel down
-			if(tMouse->WheelScrollDown)  {
-				widget = true;
-				if(cFocused)
-					cFocused->setFocused(false);
-				w->setFocused(true);
-				cFocused = w;
-
-				if( (ev=w->MouseWheelDown(tMouse)) >= 0) {
-					tEvent->iEventMsg = ev;
-					return tEvent;
-				}
-			}
-
-			// Mouse button event first
-			if(tMouse->Down) {
-
-				widget = true;
-				if (iCanFocus)  {
-					if(cFocused)  {
-						if (cFocused->CanLoseFocus())  {
-							cFocused->setFocused(false);
-							w->setFocused(true);
-							cFocused = w;
-							iCanFocus = false;
-						}
-					}
-					else  {
-						w->setFocused(true);
-						cFocused = w;
-						iCanFocus = false;
-					}
-
-				}
-
-				// Process the skin defined code
-				w->ProcessEvent(OnMouseDown);
-
-				if( (ev=w->MouseDown(tMouse, tMouse->Down)) >= 0) {
-					tEvent->iEventMsg = ev;
-					return tEvent;
-				}
-			}
-
-			// Mouse up event
-			if(tMouse->Up) {
-				iCanFocus = true;
-				widget = true;
-				if(cFocused)  {
-					if(cFocused->CanLoseFocus())  {
-						cFocused->setFocused(false);
-						w->setFocused(true);
-						cFocused = w;
-					}
-				}
-				else  {
-					w->setFocused(true);
-					cFocused = w;
-				}
-
-				// Process the skin defined code
-				w->ProcessEvent(OnClick);
-
-				if( (ev=w->MouseUp(tMouse, tMouse->Up)) >= 0) {
-					tEvent->iEventMsg = ev;
-					return tEvent;
-				}
-			}
-
-
-			// Mouse over
-			if (w != cMouseOverWidget)  {
-				w->ProcessEvent(OnMouseOver);
-
-				// For the current Mouse over widget this means a mouse out event
-				if(cMouseOverWidget)
-					cMouseOverWidget->ProcessEvent(OnMouseOut);
-
-				cMouseOverWidget = w;
-			}
-
-			if( (ev=w->MouseOver(tMouse)) >= 0) {
-				tEvent->iEventMsg = ev;
-				return tEvent;
-			}
-
-			// -2 - the widget says, that no event happened (various reasons)
-			if (ev != -2)
-				return NULL;
-		}
-	}
-
-	// If mouse is over empty space it means, it's not over any widget ;-)
-	if (cMouseOverWidget)  {
-		cMouseOverWidget->ProcessEvent(OnMouseOut);
-		cMouseOverWidget = NULL;
-	}
-
-	// If the mouse is clicked on empty space, take the focus of off the widget (if we can)
-	if(!widget && (tMouse->Up)) {
-		iCanFocus = true;
-		if(cFocused)  {
-			// Can we take the focus off?
-			if (cFocused->CanLoseFocus())  {
-				cFocused->setFocused(false);
-				cFocused = NULL;
-			}
-			else  {
-				cFocused->MouseUp(tMouse, tMouse->Up);
-				cFocused->setLoseFocus(true);
-			}
-		}
-		else  {
-			cFocused = NULL;
-		}
-
-	}
-
-	// Non-widget wheel up
-	if(tMouse->WheelScrollUp)  {
-		tEvent->iControlID = -9999;
-		tEvent->iEventMsg = SDL_BUTTON_WHEELUP;
-		return tEvent;
-	}
-
-	// Non-widget wheel down
-	if(tMouse->WheelScrollDown)  {
-		tEvent->iControlID = -9999;
-		tEvent->iEventMsg = SDL_BUTTON_WHEELDOWN;
-		return tEvent;
-	}
-
-
-	return NULL;
+	if( tMouse->Down )
+		MouseDown(tMouse, tMouse->Down);
+	if( tMouse->Up )
+		MouseUp(tMouse, tMouse->Up);
+	if( tMouse->WheelScrollDown )
+		MouseWheelDown(tMouse);
+	if( tMouse->WheelScrollUp )
+		MouseWheelUp(tMouse);
+	MouseOver(tMouse);
+	
+	return ! bExitCurrentDialog;
 }
 
 
@@ -564,3 +340,298 @@ DWORD CGuiSkinnedLayout::SendMessage(int iControl, int iMsg, std::string *sStr, 
 
 	return w->SendMessage(iMsg, sStr, Param);
 }
+
+int		CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
+{
+	if( cChildLayout )
+	{
+		cChildLayout->MouseOver(tMouse);
+		return -1;
+	};
+	SetGameCursor(CURSOR_ARROW); // Set default mouse cursor - widget will change it
+	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	{
+		if(!w->getEnabled())
+			continue;
+		if(w->InBox(tMouse->X,tMouse->Y))
+		{
+			int ev = w->MouseOver(tMouse);
+			if( ev >= 0 )
+				w->ProcessGuiSkinEvent( ev );
+			return -1;
+		};
+	};
+	return -1;
+};
+
+int		CGuiSkinnedLayout::MouseUp(mouse_t *tMouse, int nDown)
+{
+	if( cChildLayout )
+	{
+		cChildLayout->MouseUp(tMouse, tMouse->Up);
+		return -1;
+	};
+	if( cFocused ) if( ! cFocused->CanLoseFocus() )	// User finished selecting text in textbox - send message
+	{
+		int ev = cFocused->MouseUp(tMouse, tMouse->Down);
+		if( ev >= 0 )
+			cFocused->ProcessGuiSkinEvent( ev );
+		return -1;
+	};
+	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	{
+		if(!w->getEnabled())
+			continue;
+		if(w->InBox(tMouse->X,tMouse->Y))
+		{
+			FocusOnMouseClick( w );
+			int ev = w->MouseUp(tMouse, tMouse->Up);
+			if( ev >= 0 )
+				w->ProcessGuiSkinEvent( ev );
+			return -1;
+		};
+	};
+	FocusOnMouseClick( NULL );
+	return -1;
+};
+
+int		CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
+{
+	if( cChildLayout )
+	{
+		cChildLayout->MouseDown(tMouse, tMouse->Down);
+		return -1;
+	};
+	if( cFocused ) if( ! cFocused->CanLoseFocus() )	// User selects text in textbox - send message to it
+	{
+		int ev = cFocused->MouseDown(tMouse, tMouse->Down);
+		if( ev >= 0 )
+			cFocused->ProcessGuiSkinEvent( ev );
+		return -1;
+	};
+	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	{
+		if(!w->getEnabled())
+			continue;
+		if(w->InBox(tMouse->X,tMouse->Y))
+		{
+			FocusOnMouseClick( w );
+			int ev = w->MouseDown(tMouse, tMouse->Down);
+			if( ev >= 0 )
+				w->ProcessGuiSkinEvent( ev );
+			return -1;
+		};
+	};
+	// Click on empty space
+	FocusOnMouseClick( NULL );
+	return -1;
+};
+
+int		CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
+{
+	if( cChildLayout )
+	{
+		cChildLayout->MouseWheelDown(tMouse);
+		return -1;
+	};
+	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	{
+		if(!w->getEnabled())
+			continue;
+		if(w->InBox(tMouse->X,tMouse->Y))
+		{
+			int ev = w->MouseWheelDown(tMouse);
+			if( ev >= 0 )
+				w->ProcessGuiSkinEvent( ev );
+			return -1;
+		};
+	};
+	return -1;
+};
+
+int		CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
+{
+	if( cChildLayout )
+	{
+		cChildLayout->MouseWheelUp(tMouse);
+		return -1;
+	};
+	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
+	{
+		if(!w->getEnabled())
+			continue;
+		if(w->InBox(tMouse->X,tMouse->Y))
+		{
+			int ev = w->MouseWheelUp(tMouse);
+			if( ev >= 0 )
+				w->ProcessGuiSkinEvent( ev );
+			return -1;
+		};
+	};
+	return -1;
+};
+
+int		CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym)
+{
+	if( cChildLayout )
+	{
+		cChildLayout->KeyDown(c, keysym);
+		return -1;
+	};
+	FocusOnKeyPress(c, keysym, false);
+	if ( cFocused )
+	{
+		if(!cFocused->getEnabled())
+			return -1;
+		int ev = cFocused->KeyDown(c, keysym);
+		if( ev >= 0 )
+			cFocused->ProcessGuiSkinEvent( ev );
+	};
+	return -1;
+};
+
+int		CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym)
+{
+	if( cChildLayout )
+	{
+		cChildLayout->KeyUp(c, keysym);
+		return -1;
+	};
+	FocusOnKeyPress(c, keysym, true);
+	if ( cFocused )
+	{
+		if(!cFocused->getEnabled())
+			return -1;
+		int ev = cFocused->KeyUp(c, keysym);
+		if( ev >= 0 )
+			cFocused->ProcessGuiSkinEvent( ev );
+	};
+	return -1;
+};
+
+void CGuiSkinnedLayout::FocusOnMouseClick( CWidget * w )
+{
+		if( cFocused == w )
+			return;
+		if( cFocused )
+		{
+			// Can we take the focus off?
+			if (cFocused->CanLoseFocus())  
+			{
+				cFocused->setFocused(false);
+				cFocused = NULL;
+			}
+			else  
+			{
+				//cFocused->setLoseFocus(true);
+			};
+		};
+		if( w && cFocused == NULL )
+		{
+			w->setFocused(true);
+			cFocused = w;
+		};
+};
+
+void CGuiSkinnedLayout::FocusOnKeyPress(UnicodeChar c, int keysym, bool keyup)
+{
+		// If we don't have any focused widget, get the first textbox
+		if (!cFocused)  {
+			CWidget *txt = cWidgets;
+			for (;txt;txt=txt->getNext())  {
+				if (txt->getType() == wid_Textbox && txt->getEnabled()) {
+					cFocused = txt;
+					txt->setFocused(true);
+					break;
+				}
+			}
+		}
+				// Tab switches between widgets
+				/*if ( c == SDLK_TAB && keyup )  
+				{
+					if (cFocused)  
+					{
+						// The current one is not focused anymore
+						cFocused->setFocused(false);
+						
+						// Switch to next widget
+						if (cFocused->getNext())  {
+							cFocused = cFocused->getNext();
+							cFocused->setFocused(true);
+						// The current focused widget is the last one in the list
+						} else {
+							cFocused = cWidgets;
+							cFocused->setFocused(true);
+						}
+					} 
+					else 
+					{
+						cFocused = cWidgets;
+						cFocused->setFocused(true);
+					}
+					
+					// Repeat the same thing until we find first enabled widget
+					while (!cFocused->getEnabled())  
+					{
+						// The current one is not focused anymore
+						cFocused->setFocused(false);
+						
+						if (cFocused->getNext())  {
+							cFocused = cFocused->getNext();
+							cFocused->setFocused(true);
+						// The current focused widget is the last one in the list
+						} 
+						else 
+						{
+							cFocused = cWidgets;
+							cFocused->setFocused(true);
+						}
+					}
+				}*/
+};
+
+void CGuiSkinnedLayout::ExitDialog( const std::string & param, CWidget * source )
+{
+	CGuiSkinnedLayout * lp = (CGuiSkinnedLayout *) source->getParent();
+	lp->bExitCurrentDialog = true;
+	CGuiSkinnedLayout * ll = (CGuiSkinnedLayout *) lp->getParent();
+	if( ll != NULL )
+		ll->cChildLayout = NULL;
+	lp->setParent( NULL );
+};
+
+void CGuiSkinnedLayout::ChildDialog( const std::string & param, CWidget * source )
+{
+	CGuiSkinnedLayout * lp = (CGuiSkinnedLayout *) source->getParent();
+	if( lp->cChildLayout != NULL )
+		return;
+	// Simple parsing of params
+	std::vector<std::string> v = explode(param, ",");
+	for( unsigned i=0; i<v.size(); i++ )
+		TrimSpaces(v[i]);
+	int x = 0, y = 0;
+	bool fullscreen = false;
+	if( v.size() > 1 )
+		if( v[1] == "fullscreen" )
+			fullscreen = true;
+	if( v.size() > 2 )
+	{
+		x = atoi( v[1] );
+		y = atoi( v[2] );
+	};
+	std::string file = v[0];
+	CGuiSkinnedLayout * ll = CGuiSkin::GetLayout( file );
+	if( ll == NULL )
+		return;
+	ll->SetOffset(x,y);
+	ll->bExitCurrentDialog = false;
+	ll->setParent( lp );
+	lp->cChildLayout = ll;
+	lp->bChildLayoutFullscreen = fullscreen;
+};
+
+static bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
+	( & CGuiSkinnedLayout::ExitDialog, "ExitDialog" )
+	( & CGuiSkinnedLayout::ChildDialog, "ChildDialog" )
+	//( & CGuiSkinnedLayout::SubstituteDialog, "SubstituteDialog" )
+	;
