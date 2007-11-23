@@ -13,9 +13,10 @@
 // Created 30/3/03
 // Jason Boettcher
 
+#include "LieroX.h"
+
 #include <assert.h>
 
-#include "LieroX.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CWpnRest.h"

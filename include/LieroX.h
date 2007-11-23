@@ -13,16 +13,20 @@
 // Created 28/6/02
 // Jason Boettcher
 
+//Precompiled header - should be included as first header of each .cpp file
 
 #ifndef __LIEROX_H__
 #define __LIEROX_H__
 
+// Most often used headers
 
 #ifdef WIN32
 #include <windows.h>
 #endif
 
 #include <list>
+#include <vector>
+#include <string>
 
 
 // HINT: for AI debug define _AI_DEBUG in your IDE/compiler

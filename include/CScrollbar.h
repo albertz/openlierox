@@ -48,6 +48,7 @@ public:
 		iMax = 1;
 		iValue = 0;
 		iItemsperbox = 1;
+		iVar = NULL;
 	}
 
 
@@ -68,6 +69,9 @@ private:
 	int		nButtonsDown;
 	float	fMouseNext[3];
 
+	int		*iVar;
+	CGuiSkin::CallbackHandler cClick;
+	int		iTempMin, iTempMax, iTempItemsperbox;	// Hack for scrollbar init
 
 public:
 	// Methods
@@ -106,9 +110,43 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-
-
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CScrollbar * w = new CScrollbar();
+		w->iTempMin = p[0].i;	// Hacky hacky init
+		w->iTempMax = p[1].i;
+		w->iTempItemsperbox = p[2].i;
+		w->iVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_INT ).i;
+		w->cClick.Init( p[4].s, w );
+		return w;
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) 
+	{
+		if( iEvent == CGuiSkin::INIT_WIDGET )
+		{
+			setMin( iTempMin );
+			setMax( iTempMax );
+			setItemsperbox( iTempItemsperbox );
+			if( iVar )
+				setValue( *iVar );
+		};
+		if( iEvent == SCR_CHANGE )
+		{
+			if( iVar )
+				*iVar = iValue;
+			cClick.Call();
+		};
+	};
 };
+
+static bool CScrollbar_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "scrollbar", & CScrollbar::WidgetCreator )
+							( "min", CGuiSkin::WVT_INT )
+							( "max", CGuiSkin::WVT_INT )
+							( "itemsperbox", CGuiSkin::WVT_INT )
+							( "var", CGuiSkin::WVT_STRING )
+							( "click", CGuiSkin::WVT_STRING );
 
 
 #endif  //  __CSCROLLBAR_H__

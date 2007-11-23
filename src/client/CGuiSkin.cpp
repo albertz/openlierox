@@ -8,12 +8,13 @@
 //
 /////////////////////////////////////////
 
+#include "LieroX.h"
+
 #include "CGuiSkin.h"
 #include "CGuiSkinnedLayout.h"
 #include "CWidget.h"
 #include "CWidgetList.h"
 
-#include "LieroX.h"
 #include "AuxLib.h"
 #include "Menu.h"
 #include "StringUtils.h"
@@ -168,7 +169,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		bool disabled = xmlGetBool(Node,"disabled");	// By default all widgets are enabled and all bools are false
 
 		std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > :: iterator it;
-		if (CMP(Node->name,"text"))	// Some extra newline - skip it
+		if ( CMP(Node->name,"text") || CMP(Node->name,"comment") )	// Some extra newline or comment - skip it
 		{
 			//printf("XML text inside \"%s\": \"%s\"\n", Node->parent->name, Node->content );
 		}
@@ -402,3 +403,18 @@ void MakeSound( const std::string & param, CWidget * source )
 static bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
 	( & MakeSound, "MakeSound" );
 
+class CGuiSkin_Destroyer
+{
+	public:
+	CGuiSkin_Destroyer() { };
+	~CGuiSkin_Destroyer()
+	{
+		if( CGuiSkin::m_instance != NULL )
+		{
+			CGuiSkin::ClearLayouts();
+			delete CGuiSkin::m_instance;
+			CGuiSkin::m_instance = NULL;
+		};
+	};
+}
+CGuiSkin_Destroyer_instance;

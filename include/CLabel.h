@@ -19,7 +19,7 @@
 
 
 #include "InputEvents.h"
-
+#include "StringUtils.h"
 
 
 // Label events
@@ -41,6 +41,10 @@ public:
 		sText = text;
 		iColour = col;
 		iType = wid_Label;
+		bVar = NULL;
+		iVar = NULL;
+		fVar = NULL;
+		sVar = NULL;
 	}
 
 
@@ -50,6 +54,10 @@ private:
 	std::string	sText;
 	Uint32	iColour;
 
+	bool		*bVar;
+	int			*iVar;
+	float		*fVar;
+	std::string	*sVar;
 
 public:
 	// Methods
@@ -80,6 +88,17 @@ public:
 	inline void	Draw(SDL_Surface *bmpDest) {
 		if (bRedrawMenu)
 			redrawBuffer();
+		if( bVar )
+			if( *bVar )
+				sText = "yes";
+			else
+				sText = "no";
+		else if( iVar )
+			sText = itoa( *iVar );
+		else if( fVar )
+			sText = ftoa( *fVar );
+		else if( sVar )
+			sText = *sVar;
 		tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
 
@@ -87,7 +106,12 @@ public:
 
 	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
 	{
-		return new CLabel( p[0].s, p[1].c );
+		CLabel * w = new CLabel( p[0].s, p[1].c );
+		w->bVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_BOOL ).b;
+		w->iVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_INT ).i;
+		w->fVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_FLOAT ).f;
+		w->sVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_STRING ).s;
+		return w;
 	};
 	
 	void	ProcessGuiSkinEvent(int iEvent) {};
@@ -96,6 +120,7 @@ public:
 static bool CLabel_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "label", & CLabel::WidgetCreator )
 							( "text", CGuiSkin::WVT_STRING )
-							( "color", CGuiSkin::WVT_COLOR );
+							( "color", CGuiSkin::WVT_COLOR )
+							( "var", CGuiSkin::WVT_STRING );
 
 #endif  //  __CLABEL_H__

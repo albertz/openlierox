@@ -232,12 +232,12 @@ private:
 
 	friend class CGuiSkin_RegisterVarDarkMagic;
 	friend class CGuiSkin_RegisterWidgetDarkMagic;
+	friend class CGuiSkin_Destroyer;	// Deletes CGuiSkin instance on exit
 
 	// Should be private, please use CGuiSkin::Vars() and other member functions to have access to them
 	static CGuiSkin * m_instance;
 	std::map< std::string, SkinVarPtr_t > m_vars;	// All in-game variables and callbacks
 	std::map< std::string, CGuiSkinnedLayout * > m_guis;	// All loaded in-game GUI layouts
-	//std::vector< CGuiSkinnedLayout * > m_guisShowing;	// All GUI layouts currently on screen
 	std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > m_widgets;	// All widget classes
 
 };

@@ -13,9 +13,10 @@
 // Created 5/6/02
 // Jason Boettcher
 
+#include "LieroX.h"
+
 #include <assert.h>
 
-#include "LieroX.h"
 #include "AuxLib.h"
 #include "Menu.h"
 #include "StringUtils.h"

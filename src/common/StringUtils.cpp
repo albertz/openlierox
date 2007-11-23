@@ -12,10 +12,10 @@
 #pragma warning(disable: 4786)  // WARNING: identifier XXX was truncated to 255 characters in the debug info...
 #endif
 
+#include "LieroX.h"
 #include "StringUtils.h"
 #include "Utils.h"
 #include "GfxPrimitives.h" // for MakeColour
-#include "LieroX.h" // for tLX
 #include "CFont.h" // for CFont
 
 void StripQuotes(std::string& str)

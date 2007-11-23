@@ -6,10 +6,11 @@
 
 // code under LGPL
 
+#include "LieroX.h"
+
 #include <iostream>
 #include <assert.h>
 
-#include "LieroX.h"
 #include "AuxLib.h"
 #include "CClient.h"
 #include "CServer.h"

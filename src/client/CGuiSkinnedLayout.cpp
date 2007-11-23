@@ -8,9 +8,10 @@
 //
 /////////////////////////////////////////
 
+#include "LieroX.h"
+
 #include "CGuiSkinnedLayout.h"
 
-#include "LieroX.h"
 #include "AuxLib.h"
 #include "Menu.h"
 #include "StringUtils.h"

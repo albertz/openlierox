@@ -16,9 +16,10 @@
 // Created 12/11/01
 // By Jason Boettcher
 
+#include "LieroX.h"
+
 #include <stdarg.h>
 
-#include "LieroX.h"
 #include "AuxLib.h"
 #include "Error.h"
 #include "FindFile.h"

@@ -66,6 +66,10 @@ public:
 		fLastRepeat = -9999;
 		fLastClick = -9999;
 		fScrollTime = 0;  // We can scroll
+		bVar = NULL;
+		iVar = NULL;
+		fVar = NULL;
+		sVar = NULL;
 	}
 
 

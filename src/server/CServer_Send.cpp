@@ -13,8 +13,8 @@
 // Created 1/7/02
 // Jason Boettcher
 
-#include <vector>
 #include "LieroX.h"
+#include <vector>
 #include "StringUtils.h"
 #include "CServer.h"
 #include "CClient.h"

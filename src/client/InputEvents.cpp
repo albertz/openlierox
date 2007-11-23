@@ -8,12 +8,12 @@
 	by Albert Zeyer and Dark Charlie
 */
 
+#include "LieroX.h"
 #ifdef WIN32
 #include <SDL_syswm.h>
 #endif
 #include "InputEvents.h"
 #include "AuxLib.h"
-#include "LieroX.h"
 #include "Menu.h"
 
 

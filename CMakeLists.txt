@@ -1,7 +1,15 @@
+
+SET(CMAKE_BUILD_TYPE Debug)
+#SET(HAWKNL_BUILTIN Yes)
+
 PROJECT(openlierox)
+#SET(openlierox_BINARY_DIR bin)
 
 # TODO: don't hardcode libxml2 path
 INCLUDE_DIRECTORIES(include /usr/include/libxml2)
+IF (HAWKNL_BUILTIN)
+	INCLUDE_DIRECTORIES(hawknl/include)
+ENDIF (HAWKNL_BUILTIN)
 
 # STLport stuff begins here
 #INCLUDE_DIRECTORIES(/usr/include/stlport)
@@ -26,11 +34,26 @@ ELSE (WIN32)
 	ADD_DEFINITIONS(-ggdb -Wall)
 ENDIF (WIN32)
 
-ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+	ADD_DEFINITIONS(-DDEBUG=1)
+ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
+
 ADD_DEFINITIONS("`pkg-config --cflags sdl`")
 
-ADD_EXECUTABLE(bin/openlierox ${ALL_SRCS})
-TARGET_LINK_LIBRARIES(bin/openlierox SDL pthread SDL_image SDL_mixer NL gd z xml2)
+INCLUDE(PCHSupport.cmake)
+
+GET_NATIVE_PRECOMPILED_HEADER(openlierox include/LieroX.h)
+
+ADD_EXECUTABLE(openlierox ${ALL_SRCS})
+SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
+
+ADD_NATIVE_PRECOMPILED_HEADER(openlierox include/LieroX.h)
+
+TARGET_LINK_LIBRARIES(openlierox SDL pthread SDL_image SDL_mixer NL gd z xml2)
+IF (HAWKNL_BUILTIN)
+	TARGET_LINK_LIBRARIES(openlierox -Lhawknl/src)
+ENDIF (HAWKNL_BUILTIN)
+
 
 # needed for STLport
 #TARGET_LINK_LIBRARIES(bin/openlierox stlportstlg)

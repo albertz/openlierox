@@ -13,11 +13,11 @@
 // Created 22/6/07
 // Dark Charlie
 
+#include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "CBar.h"
 #include "StringUtils.h"
 #include "MathLib.h"
-#include "LieroX.h"
 
 
 //////////////

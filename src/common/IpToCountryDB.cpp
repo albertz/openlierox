@@ -7,6 +7,8 @@
 	by Albert Zeyer and Dark Charlie
 */
 
+#include "LieroX.h"
+
 #include <SDL.h>
 #include <SDL_thread.h>
 #include <iostream>

@@ -13,9 +13,9 @@
 // Created 21/7/02
 // Jason Boettcher
 
+#include "LieroX.h"
 #include "AuxLib.h"
 #include "MathLib.h"
-#include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "CBonus.h"

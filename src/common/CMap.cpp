@@ -13,6 +13,8 @@
 // Created 22/1/02
 // Jason Boettcher
 
+#include "LieroX.h"
+
 #include <assert.h>
 #include <zlib.h>
 #include <list>
@@ -22,7 +24,6 @@
 #include "MathLib.h"
 #include "Error.h"
 #include "ConfigHandler.h"
-#include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"

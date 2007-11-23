@@ -17,6 +17,8 @@
 // Jason Boettcher
 
 
+#include "LieroX.h"
+
 #include <time.h>
 #include "Timer.h"
 

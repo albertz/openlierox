@@ -13,9 +13,10 @@
 // Created 3/9/02
 // Jason Boettcher
 
+#include "LieroX.h"
+
 #include <assert.h>
 
-#include "LieroX.h"
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
@@ -867,6 +868,7 @@ void	CCombobox::ProcessGuiSkinEvent(int iEvent)
 {
 	if( iEvent == CGuiSkin::INIT_WIDGET )
 	{
+		// Items should be added to combobox AFTER the combobox is added to CGuiSkinnedLayout
 		std::vector<std::string> items = explode( sSkinTempInit, "," );
 		sSkinTempInit = "";
 		for( unsigned i = 0; i < items.size(); i++ )

@@ -13,9 +13,10 @@
 // Created 30/6/02
 // Jason Boettcher
 
+#include "LieroX.h"
+
 #include <assert.h>
 
-#include "LieroX.h"
 #include "AuxLib.h"
 #include "Graphics.h"
 #include "CClient.h"

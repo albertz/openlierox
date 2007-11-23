@@ -29,12 +29,14 @@ public:
 		cProgressBar = CBar(bmp, 0, 0, label_x, label_y, BAR_LEFTTORIGHT, numstates);
 		cProgressBar.SetLabelVisible(label_visible);
 		bRedrawMenu = true;
+		iVar = NULL;
 	}
 
 
 private:
 	// Attributes
 	CBar	cProgressBar;
+	int		*iVar;
 
 public:
 	// Methods
@@ -61,6 +63,8 @@ public:
 	inline void	Draw(SDL_Surface *bmpDest) {
 		if (bRedrawMenu)
 			redrawBuffer();
+		if( iVar )
+			SetPosition( *iVar );
 		cProgressBar.Draw( bmpDest );
 	}
 
@@ -68,8 +72,25 @@ public:
 
 	void	LoadStyle(void) {}
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CProgressBar * w = new CProgressBar( LoadImage( p[0].s, true ), p[1].i, p[2].i, p[3].b, p[4].i );
+		w->iVar = CGuiSkin::GetVar( p[5].s, CGuiSkin::SVT_INT ).i;
+		return w;
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) { };
 };
 
+static bool CProgressBar_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "progressbar", & CProgressBar::WidgetCreator )
+							( "file", CGuiSkin::WVT_STRING )
+							( "label_left", CGuiSkin::WVT_INT )
+							( "label_top", CGuiSkin::WVT_INT )
+							( "label_visible", CGuiSkin::WVT_BOOL )
+							( "numstates", CGuiSkin::WVT_INT )
+							( "var", CGuiSkin::WVT_STRING );
 
 
 #endif  //  __CPROGRESSBAR_H__
+

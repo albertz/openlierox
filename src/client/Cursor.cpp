@@ -13,13 +13,13 @@
 // Created 18/6/07
 // Dark Charlie
 
+#include "LieroX.h"
 #include "FindFile.h"
 #include "InputEvents.h"
 #include "GfxPrimitives.h"
 #include "ConfigHandler.h"
 #include "Cursor.h"
 #include "types.h"
-#include "LieroX.h"
 
 
 //

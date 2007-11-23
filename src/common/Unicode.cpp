@@ -8,6 +8,8 @@
 	by Albert Zeyer and Dark Charlie
 */
 
+#include "LieroX.h"
+
 #include "Unicode.h"
 #include "MathLib.h" // for SIGN
 

@@ -16,6 +16,8 @@
 // Created 13/10/07
 // By Karel Petranek, Albert Zeyer and Martin Griffin
 
+#include "LieroX.h"
+
 #include "StringUtils.h"
 #include "FindFile.h"
 #include "FileDownload.h"

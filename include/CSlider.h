@@ -44,6 +44,7 @@ public:
 		iMax = max;
 		iMin = min;
 		iType = wid_Slider;
+		iVar = NULL;
 	}
 
 
@@ -53,7 +54,8 @@ private:
 	int		iValue;
 	int		iMax;
 	int		iMin;
-
+	int		*iVar;
+	CGuiSkin::CallbackHandler cClick;
 
 public:
 	// Methods
@@ -83,8 +85,37 @@ public:
 
 	void	setMax(int _m)						{ iMax = _m; }
 	void	setMin(int _m)						{ iMin = _m; }
+
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CSlider * w = new CSlider( p[1].i, p[0].i );
+		w->iVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_INT ).i;
+		w->cClick.Init( p[3].s, w );
+		return w;
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) 
+	{
+		if( iEvent == CGuiSkin::INIT_WIDGET )
+		{
+			if( iVar )
+				setValue( *iVar );
+		};
+		if( iEvent == SLD_CHANGE )
+		{
+			if( iVar )
+				*iVar = iValue;
+			cClick.Call();
+		};
+	};
 };
 
+static bool CSlider_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "slider", & CSlider::WidgetCreator )
+							( "min", CGuiSkin::WVT_INT )
+							( "max", CGuiSkin::WVT_INT )
+							( "var", CGuiSkin::WVT_STRING )
+							( "click", CGuiSkin::WVT_STRING );
 
 
 #endif  //  __CSLIDER_H__

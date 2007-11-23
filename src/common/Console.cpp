@@ -15,8 +15,8 @@
 // Created 7/4/02
 // Jason Boettcher
 
-#include "AuxLib.h"
 #include "LieroX.h"
+#include "AuxLib.h"
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"

@@ -13,9 +13,11 @@
 // Created 1/7/02
 // Jason Boettcher
 
-#include <assert.h>
 
 #include "LieroX.h"
+
+#include <assert.h>
+
 #include "CClient.h"
 #include "CServer.h"
 #include "Menu.h"
@@ -28,6 +30,7 @@
 #include "Error.h"
 #include "Entity.h"
 #include "MathLib.h"
+
 
 ///////////////////
 // Parse a connectionless packet

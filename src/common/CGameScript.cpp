@@ -13,10 +13,11 @@
 // Created 7/2/02
 // Jason Boettcher
 
+#include "LieroX.h"
+
 #include <stdarg.h>
 
 #include "EndianSwap.h"
-#include "LieroX.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CGameScript.h"

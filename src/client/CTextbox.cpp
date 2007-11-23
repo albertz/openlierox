@@ -17,10 +17,11 @@
 	HINT: all string-positions used in this code are interpreted as the position if it were an Utf8 encoded string (and of course also the Draw-functions handle it like this)
 */
 
+#include "LieroX.h"
+
 #include <string>
 
 #include "AuxLib.h"
-#include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
@@ -698,16 +699,6 @@ CWidget * CTextbox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & 
 	w->fVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_FLOAT ).f;
 	w->sVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_STRING ).s;
 	w->cClick.Init( p[1].s, w );
-	/*
-		if( w->bVar )
-			w->setText( itoa( *w->bVar ) );
-		if( w->iVar )
-			w->setText( itoa( *w->iVar ) );
-		if( w->fVar )
-			w->setText( ftoa( *w->fVar ) );
-		if( w->sVar )
-			w->setText( *w->sVar );
-	*/
 	return w;
 };
 
@@ -715,6 +706,7 @@ void	CTextbox::ProcessGuiSkinEvent(int iEvent)
 {
 	if( iEvent == CGuiSkin::INIT_WIDGET )
 	{
+		// Text should be set in textbox AFTER the textbox is added to CGuiSkinnedLayout
 		if( bVar )
 			setText( itoa( *bVar ) );
 		if( iVar )
