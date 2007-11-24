@@ -407,7 +407,7 @@
 		EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.alt.png; path = ../../share/OpenLieroX.alt.png; sourceTree = SOURCE_ROOT; };
 		EAD6E4D10C47EF7500D6C836 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		EAD6E50B0C4819CF00D6C836 /* macosx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = macosx.icns; path = ../../share/macosx.icns; sourceTree = SOURCE_ROOT; };
-		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OpenLieroX-Info.plist"; sourceTree = "<group>"; };
 		EAE6E6F30C062D9400F6AFB4 /* CsvReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvReader.h; sourceTree = "<group>"; };
 		EAE766270C4793C800788523 /* CAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAnimation.h; sourceTree = "<group>"; };

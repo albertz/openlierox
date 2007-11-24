@@ -185,7 +185,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 
 
 	// Backspace
-	if(c == '\b') {
+	if(keysym == SDLK_BACKSPACE) {
 		Backspace();
 		return TXT_CHANGE;
 	}

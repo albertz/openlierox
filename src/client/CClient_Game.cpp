@@ -1680,7 +1680,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
     iChat_Lastchar = c;
 
     // Backspace
-    if(c == '\b') {
+    if(GetKeyboard()->KeyDown[SDLK_BACKSPACE]) {
 		if(iChat_Pos > 0)  {
 			Utf8Erase(sChat_Text, --iChat_Pos, 1);
 		}

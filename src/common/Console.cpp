@@ -193,8 +193,8 @@ void Con_Process(float dt)
 
 	// Handle more keys at once keydown
 	for(int i=0; i<kb->queueLength; i++)
-		if (kb->keyQueue[i].down && kb->keyQueue[i].ch != input)
-			Con_ProcessCharacter(kb->keyQueue[i].ch);
+		if (kb->keyQueue[i].down && kb->keyQueue[i].ch != input) // TODO: why only if input != ch?
+			Con_ProcessCharacter(kb->keyQueue[i].ch); // TODO: why is the transformation like above not done here?
 
 	// Key up
 	if(Ev->key.state == SDL_RELEASED && Ev->type == SDL_KEYUP)  {
@@ -266,7 +266,7 @@ void Con_ProcessCharacter(UnicodeChar input)
 
 
 	// Backspace
-	if(input == '\b') {
+	if(GetKeyboard()->KeyDown[SDLK_BACKSPACE]) {
 		if(Console->iCurpos > 0)  {
 			Utf8Erase(Console->Line[0].strText, --Console->iCurpos, 1);
 		}
