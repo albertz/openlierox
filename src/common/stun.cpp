@@ -733,7 +733,7 @@ stunRand()
 #elif defined(__MACH__) 
       int fd=open("/dev/random",O_RDONLY);
       read(fd,&tick,sizeof(tick));
-      closesocket(fd);
+      close(fd);
 #else
 #     error Need some way to seed the random number generator 
 #endif 

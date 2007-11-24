@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		235D28110CF7C10C0067BA4F /* CGuiSkin.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280C0CF7C10C0067BA4F /* CGuiSkin.h */; };
+		235D28120CF7C10C0067BA4F /* CGuiSkinnedLayout.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280D0CF7C10C0067BA4F /* CGuiSkinnedLayout.h */; };
+		235D28130CF7C10C0067BA4F /* FileDownload.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280E0CF7C10C0067BA4F /* FileDownload.h */; };
+		235D28140CF7C10C0067BA4F /* HTTP.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280F0CF7C10C0067BA4F /* HTTP.h */; };
+		235D28150CF7C10C0067BA4F /* stun.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D28100CF7C10C0067BA4F /* stun.h */; };
+		235D28180CF7C1230067BA4F /* CGuiSkin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D28160CF7C1230067BA4F /* CGuiSkin.cpp */; };
+		235D28190CF7C1230067BA4F /* CGuiSkinnedLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D28170CF7C1230067BA4F /* CGuiSkinnedLayout.cpp */; };
+		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
+		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
+		235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281C0CF7C13B0067BA4F /* stun.cpp */; };
 		EA38B0330C467928008ABAAE /* CAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0300C467928008ABAAE /* CAnimation.cpp */; };
 		EA38B0340C467928008ABAAE /* CBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0310C467928008ABAAE /* CBar.cpp */; };
 		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
@@ -170,6 +180,11 @@
 				EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */,
 				EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */,
 				EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */,
+				235D28110CF7C10C0067BA4F /* CGuiSkin.h in Copy Frameworks into .app */,
+				235D28120CF7C10C0067BA4F /* CGuiSkinnedLayout.h in Copy Frameworks into .app */,
+				235D28130CF7C10C0067BA4F /* FileDownload.h in Copy Frameworks into .app */,
+				235D28140CF7C10C0067BA4F /* HTTP.h in Copy Frameworks into .app */,
+				235D28150CF7C10C0067BA4F /* stun.h in Copy Frameworks into .app */,
 			);
 			name = "Copy Frameworks into .app";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -177,6 +192,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		235D280C0CF7C10C0067BA4F /* CGuiSkin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGuiSkin.h; sourceTree = "<group>"; };
+		235D280D0CF7C10C0067BA4F /* CGuiSkinnedLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGuiSkinnedLayout.h; sourceTree = "<group>"; };
+		235D280E0CF7C10C0067BA4F /* FileDownload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileDownload.h; sourceTree = "<group>"; };
+		235D280F0CF7C10C0067BA4F /* HTTP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTP.h; sourceTree = "<group>"; };
+		235D28100CF7C10C0067BA4F /* stun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stun.h; sourceTree = "<group>"; };
+		235D28160CF7C1230067BA4F /* CGuiSkin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGuiSkin.cpp; sourceTree = "<group>"; };
+		235D28170CF7C1230067BA4F /* CGuiSkinnedLayout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGuiSkinnedLayout.cpp; sourceTree = "<group>"; };
+		235D281A0CF7C13B0067BA4F /* FileDownload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileDownload.cpp; sourceTree = "<group>"; };
+		235D281B0CF7C13B0067BA4F /* HTTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTP.cpp; sourceTree = "<group>"; };
+		235D281C0CF7C13B0067BA4F /* stun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stun.cpp; sourceTree = "<group>"; };
 		EA38B0300C467928008ABAAE /* CAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAnimation.cpp; sourceTree = "<group>"; };
 		EA38B0310C467928008ABAAE /* CBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CBar.cpp; sourceTree = "<group>"; };
 		EA38B0320C467928008ABAAE /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cursor.cpp; sourceTree = "<group>"; };
@@ -477,6 +502,8 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				235D28160CF7C1230067BA4F /* CGuiSkin.cpp */,
+				235D28170CF7C1230067BA4F /* CGuiSkinnedLayout.cpp */,
 				EA38B0300C467928008ABAAE /* CAnimation.cpp */,
 				EA38B0310C467928008ABAAE /* CBar.cpp */,
 				EA38B0320C467928008ABAAE /* Cursor.cpp */,
@@ -538,6 +565,9 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				235D281A0CF7C13B0067BA4F /* FileDownload.cpp */,
+				235D281B0CF7C13B0067BA4F /* HTTP.cpp */,
+				235D281C0CF7C13B0067BA4F /* stun.cpp */,
 				EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */,
 				EA430C210BEFCEB400C6547E /* CBonus.cpp */,
 				EA430C220BEFCEB400C6547E /* CBytestream.cpp */,
@@ -587,6 +617,11 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				235D280C0CF7C10C0067BA4F /* CGuiSkin.h */,
+				235D280D0CF7C10C0067BA4F /* CGuiSkinnedLayout.h */,
+				235D280E0CF7C10C0067BA4F /* FileDownload.h */,
+				235D280F0CF7C10C0067BA4F /* HTTP.h */,
+				235D28100CF7C10C0067BA4F /* stun.h */,
 				EAE766270C4793C800788523 /* CAnimation.h */,
 				EAE766280C4793C800788523 /* CBar.h */,
 				EAE766290C4793C800788523 /* CProgressbar.h */,
@@ -958,6 +993,11 @@
 				EAD99FB90C063ECA003BE563 /* StringUtils.cpp in Sources */,
 				EAD99FBA0C063ECA003BE563 /* Timer.cpp in Sources */,
 				EAD99FBB0C063ECA003BE563 /* Unicode.cpp in Sources */,
+				235D28180CF7C1230067BA4F /* CGuiSkin.cpp in Sources */,
+				235D28190CF7C1230067BA4F /* CGuiSkinnedLayout.cpp in Sources */,
+				235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */,
+				235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */,
+				235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1090,6 +1130,14 @@
 				GCC_MODEL_TUNING = G4;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					../../hawknl/include,
+					/Library/Frameworks/SDL.framework/Headers,
+					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL_mixer.framework/Headers,
+					/Library/Frameworks/GD.framework/Headers,
+				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -1122,6 +1170,14 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G4;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					../../hawknl/include,
+					/Library/Frameworks/SDL.framework/Headers,
+					/Library/Frameworks/SDL_image.framework/Headers,
+					/Library/Frameworks/SDL_mixer.framework/Headers,
+					/Library/Frameworks/GD.framework/Headers,
+				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
