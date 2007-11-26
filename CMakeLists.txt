@@ -1,6 +1,6 @@
 
 SET(CMAKE_BUILD_TYPE Debug)
-#SET(HAWKNL_BUILTIN Yes)
+SET(HAWKNL_BUILTIN Yes)
 
 PROJECT(openlierox)
 #SET(openlierox_BINARY_DIR bin)
@@ -40,14 +40,14 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
 ADD_DEFINITIONS("`pkg-config --cflags sdl`")
 
-INCLUDE(PCHSupport.cmake)
+# INCLUDE(PCHSupport.cmake)
 
-GET_NATIVE_PRECOMPILED_HEADER(openlierox include/LieroX.h)
+# GET_NATIVE_PRECOMPILED_HEADER(openlierox include/LieroX.h)
 
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
-ADD_NATIVE_PRECOMPILED_HEADER(openlierox include/LieroX.h)
+# ADD_NATIVE_PRECOMPILED_HEADER(openlierox include/LieroX.h)
 
 TARGET_LINK_LIBRARIES(openlierox SDL pthread SDL_image SDL_mixer NL gd z xml2)
 IF (HAWKNL_BUILTIN)
