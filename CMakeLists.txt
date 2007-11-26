@@ -1,9 +1,8 @@
 
 SET(CMAKE_BUILD_TYPE Debug)
-SET(HAWKNL_BUILTIN Yes)
+#SET(HAWKNL_BUILTIN Yes)
 
 PROJECT(openlierox)
-#SET(openlierox_BINARY_DIR bin)
 
 # TODO: don't hardcode libxml2 path
 INCLUDE_DIRECTORIES(include /usr/include/libxml2)
