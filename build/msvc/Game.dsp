@@ -140,6 +140,7 @@ SOURCE=..\..\include\Cache.h
 # Begin Source File
 
 SOURCE=..\..\src\common\CBytestream.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 
@@ -220,6 +221,7 @@ SOURCE=..\..\include\Error.h
 # Begin Source File
 
 SOURCE=..\..\src\common\FileDownload.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 
@@ -228,6 +230,7 @@ SOURCE=..\..\include\FileDownload.h
 # Begin Source File
 
 SOURCE=..\..\src\common\FindFile.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 
@@ -268,6 +271,7 @@ SOURCE=..\..\include\InputEvents.h
 # Begin Source File
 
 SOURCE=..\..\src\common\IpToCountryDB.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 
@@ -276,6 +280,7 @@ SOURCE=..\..\include\IpToCountryDB.h
 # Begin Source File
 
 SOURCE=..\..\src\common\MathLib.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 
@@ -292,6 +297,7 @@ SOURCE=..\..\include\ReadWriteLock.h
 # Begin Source File
 
 SOURCE=..\..\src\common\sex.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 
@@ -308,6 +314,7 @@ SOURCE=..\..\include\StringUtils.h
 # Begin Source File
 
 SOURCE=..\..\src\common\stun.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 
@@ -316,6 +323,7 @@ SOURCE=..\..\include\stun.h
 # Begin Source File
 
 SOURCE=..\..\src\common\Timer.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 
@@ -332,6 +340,7 @@ SOURCE=..\..\include\UCString.h
 # Begin Source File
 
 SOURCE=..\..\src\common\Unicode.cpp
+# SUBTRACT CPP /YX
 # End Source File
 # Begin Source File
 

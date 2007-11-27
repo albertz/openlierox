@@ -16,7 +16,7 @@
 // Created 20/12/01
 // Jason Boettcher
 
-#include "LieroX.h"
+//#include "LieroX.h"
 #include <stdlib.h>
 #include <math.h>
 #include "Utils.h" // for MIN

@@ -12,8 +12,9 @@
  * Changed a little bit for OpenLieroX.
  */
 
-#include "LieroX.h"
+//#include "LieroX.h"
 #include "MathLib.h"
+#include "StringUtils.h"
 
 
 static char     *faster[] = {

@@ -53,7 +53,7 @@
 // many thanks to Pelya!
  
  
-#include "LieroX.h"	// Precompiled header file
+//#include "LieroX.h"	// Precompiled header file
 
 #include <cassert>
 #include <cstring>
@@ -62,7 +62,7 @@
 #include <errno.h>
 
 #ifdef WIN32
-//#include <winsock2.h>
+#include <winsock2.h>
 #include <stdlib.h>
 #include <io.h>
 #include <time.h>
