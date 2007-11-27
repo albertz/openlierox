@@ -49,6 +49,7 @@ enum {
 	SIN_VIEWPORTS,
 	SIN_SWITCHMODE,
 	SIN_TOGGLETOPBAR,
+	SIN_TEAMCHAT,
 #ifdef WITH_MEDIAPLAYER
 	SIN_MEDIAPLAYER
 #endif
@@ -74,10 +75,10 @@ enum {
 // input controls structure (for local players)
 class controls_t {
 private:
-	std::string ctrl[9];
+	std::string ctrl[10];
 public:
-	std::string& operator[] (const short i) { assert(i >= 0 && i < 9); return ctrl[i]; }
-	const std::string& operator[] (const short i) const { assert(i >= 0 && i < 9); return ctrl[i]; }
+	std::string& operator[] (const short i) { assert(i >= 0 && (unsigned)i < sizeof(ctrl)/sizeof(std::string) ); return ctrl[i]; }
+	const std::string& operator[] (const short i) const { assert(i >= 0 && (unsigned)i < sizeof(ctrl)/sizeof(std::string) ); return ctrl[i]; }
 
 	unsigned short ControlCount(void) const  { return sizeof(ctrl)/sizeof(std::string); }
 	// TODO: add specific functions

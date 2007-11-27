@@ -1568,7 +1568,7 @@ void CClient::processChatter(void)
 
 
 	// Check if we have hit the chat key and we're in a network game
-	if(cChat_Input.isUp() && tGameInfo.iGameType != GME_LOCAL) {
+	if( ( cChat_Input.isUp() || cTeamChat_Input.isUp() ) && tGameInfo.iGameType != GME_LOCAL) {
 
 		// Initialize the chatter
 		fChat_BlinkTime = 0;
@@ -1579,6 +1579,9 @@ void CClient::processChatter(void)
 		iChat_Lastchar = 0;
 		iChat_Holding = false;
 		fChat_TimePushed = -9999;
+		bTeamChat = false;
+		if( cTeamChat_Input.isUp() )
+			bTeamChat = true;
 
 		// Clear the input
 		for (uint j=0;j<iNumWorms;j++)
@@ -1728,15 +1731,17 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
         iChat_Typing = false;
 
         // Send chat message to the server
-        if(sChat_Text != "") {
-            std::string buf;
-			if(!strincludes(sChat_Text, "/me"))
+		if(sChat_Text != "") {
+			std::string buf;
+			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
+				buf = cLocalWorms[0]->getName() + ": /teamchat \"" + sChat_Text + "\"";
+			else if(!strincludes(sChat_Text, "/me"))
 				buf = cLocalWorms[0]->getName() + ": " + sChat_Text;
 			else
 				buf =  replacemax(sChat_Text,"/me",cLocalWorms[0]->getName(),buf,2);
 			buf = OldLxCompatibleString(buf);
-            SendText(buf);
-        }
+			SendText(buf);
+		}
 		sChat_Text = "";
         return;
     }

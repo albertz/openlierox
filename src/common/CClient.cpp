@@ -282,6 +282,7 @@ int CClient::Initialize(void)
 
 	// General key shortcuts
 	cChat_Input.Setup(tLXOptions->sGeneralControls[SIN_CHAT]);
+	cTeamChat_Input.Setup(tLXOptions->sGeneralControls[SIN_TEAMCHAT]);
     cShowScore.Setup(tLXOptions->sGeneralControls[SIN_SCORE]);
 	cShowHealth.Setup(tLXOptions->sGeneralControls[SIN_HEALTH]);
 	cShowSettings.Setup(tLXOptions->sGeneralControls[SIN_SETTINGS]);

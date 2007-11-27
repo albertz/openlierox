@@ -109,6 +109,7 @@ enum {
 	oc_Gen_ViewportManager,
 	oc_Gen_SwitchMode,
 	oc_Gen_ToggleTopBar,
+	oc_Gen_TeamChat,
 #ifdef WITH_MEDIAPLAYER
 	oc_Gen_MediaPlayer
 #endif
@@ -234,6 +235,10 @@ int Menu_OptionsInitialize(void)
 	cOpt_Controls.Add( new CInputbox(SIN_MEDIAPLAYER, tLXOptions->sGeneralControls[SIN_MEDIAPLAYER], tMenu->bmpInputbox, "Toggle Media Player"),
 						   oc_Gen_MediaPlayer, 515, 390, 50,17);
 #endif
+
+	cOpt_Controls.Add( new CLabel("Teamchat", tLX->clNormalLabel), Static, 380, 415, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_TEAMCHAT, tLXOptions->sGeneralControls[SIN_TEAMCHAT], tMenu->bmpInputbox, "Teamchat"),
+						   oc_Gen_TeamChat, 515, 415, 50,17);
 
 
 

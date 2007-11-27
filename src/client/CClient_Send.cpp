@@ -97,6 +97,7 @@ void CClient::SendText(const std::string& sText)
 	// However, there's no better possibility to detect the command :(
 	// TODO: remove this whole part if it is not possible to do it in another way
 	// Do not allow client to send / commands is the host in not on beta 3
+	bool TeamChat = false;
 	if (cLocalWorms[0]->getName().size() + 2 < sText.size())  {
 		std::string command_buf = sText;
 
@@ -108,6 +109,8 @@ void CClient::SendText(const std::string& sText)
 			cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3 can", tLX->clNotice, tLX->fCurTime);
 			return;
 		}
+		if( !stringcasecmp( command_buf.substr( 0, 9 ), "/teamchat" ) )
+			TeamChat = true;
 	}
 
 	// If the text is too long, split it in smaller pieces and then send (backward comaptibility)
@@ -115,7 +118,10 @@ void CClient::SendText(const std::string& sText)
 
 	for (std::vector<std::string>::const_iterator it=split.begin(); it != split.end(); it++)  {
 		bs->writeByte(C2S_CHATTEXT);
-		bs->writeString(*it);
+		if( TeamChat && it != split.begin() )	// First chunk of text already contain "/teamchat" string (we'll lose closing quote but server parses that)
+			bs->writeString( cLocalWorms[0]->getName() + ": /teamchat \"" + *it + "\"" );	// teamchat is supported only on new servers, so string size doesn't matter
+		else
+			bs->writeString(*it);
 	}
 }
 

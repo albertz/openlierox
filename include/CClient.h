@@ -216,6 +216,7 @@ public:
 		iBadConnection = false;
 		iServerError = false;
 		iChat_Typing = false;
+		bTeamChat = false;
 		fChat_BlinkTime = 0;
 		iChat_CursorVisible = true;
         iClientError = false;
@@ -349,6 +350,8 @@ private:
 	unsigned int	iChat_Pos;
 	float		fChat_TimePushed;
 	CInput		cChat_Input;
+	CInput		cTeamChat_Input;
+	bool		bTeamChat;
 	std::string	sChat_Text;
 	float		fChat_BlinkTime;
 	int			iChat_CursorVisible;
