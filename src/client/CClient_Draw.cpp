@@ -618,6 +618,8 @@ void CClient::DrawChatter(SDL_Surface *bmpDest)
 	int x = tInterfaceSettings.ChatterX;
 	int y = tInterfaceSettings.ChatterY;
 	std::string text = "Talk: " + sChat_Text;
+	if( bTeamChat )
+		text = "Team: " + sChat_Text;
 	const std::vector<std::string>& lines = splitstring(text, (size_t)-1, 640 - x, tLX->cOutlineFont);
 
 	y -= MAX(0, (int)lines.size() - 1) * tLX->cOutlineFont.GetHeight();
