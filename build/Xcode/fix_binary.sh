@@ -9,10 +9,10 @@ for rel in *; do
 		echo ">>> copying gamedir"
 		rsync -avP --exclude=gmon.out --exclude=.svn ../../../../share/gamedir OpenLieroX.app/Contents/Resources/
 
-		for framework in \
-			GD.framework/Versions/2.0/GD \
-			UnixImageIO.framework/Versions/A/UnixImageIO \
-			FreeType.framework/Versions/2.3/FreeType;
+		frameworks=$(otool -L OpenLieroX.app/Contents/MacOS/OpenLieroX | grep /Library/Frameworks/ | \
+				grep -v /System/Library/ | cut -d " " -f 1)
+		frameworks="${frameworks//\/Library\/Frameworks\//}"
+		for framework in $frameworks
 		do
 			echo ">>> fixing $framework"
 			install_name_tool -change /Library/Frameworks/$framework @executable_path/../Frameworks/$framework \
