@@ -631,6 +631,7 @@ void ReplaceFileVariables(std::string& filename) {
 	replace(filename, "${BIN}", GetBinaryDir());
 }
 
+// WARNING: not multithreading aware
 // returns true, if successfull
 bool FileCopy(const std::string& src, const std::string& dest) {
 	static char tmp[2048];

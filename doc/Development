@@ -161,7 +161,7 @@ Some basic rules you should keep in every case:
 		for(int i = 0;;) {}
 - Don't make any realy crazy optimisations. Produce clear, simple and short
   code.
-- Make small functions! If your function is to big, cut it into pieces.
+- Make small functions! If your function is too big, cut it into pieces.
 - Don't use too much local variables in a function.
 	1. It is slow.
 	2. You made something wrong. Generaly, you don't need this.
