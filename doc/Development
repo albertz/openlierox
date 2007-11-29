@@ -60,6 +60,12 @@ Download GD, FreeType, UnixImageIO: http://www.kyngchaos.com/staticpages/index.p
 
 You can use now the Xcode-projectfile under build/Xcode.
 
+Use the script build/Xcode/fix_binary.sh if you want to distribute your
+builded application-binary. This script fixes some hardcoded library linking
+paths in the binary to relative ones (linked to the frameworks inside the
+application-package).
+
+
 
 
 IDE : MSVC
