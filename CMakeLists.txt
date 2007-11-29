@@ -40,6 +40,7 @@ ENDIF (WIN32)
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
 	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
 ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
+ADD_DEFINITIONS("-DLX_VERSION=\\\"`cat VERSION`_r`head -n 4 .svn/entries | tail -n 1`\\\"")
 
 ADD_DEFINITIONS("`pkg-config --cflags sdl`")
 
