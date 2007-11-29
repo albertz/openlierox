@@ -35,7 +35,8 @@ I only had to download libgd manually. I did this here:
 	http://www.libgd.org/Downloads
 I downloaded the file:
 	gd-2.0.34-win32.zip
-And extracted all the contents simply directly to my Dev-C++ (so all includet files goes to the right subdirs).
+And extracted all the contents simply directly to my Dev-C++ (so all included
+files goes to the right subdirs).
 
 The provides Dev-C++ project-file (under build/DevCpp) should work now.
 
@@ -70,7 +71,11 @@ IDE : MSVC
 IDE : Linux
 ===========
 
-First of all, you should install all packages (like SDL) this game depends on. Take a look into the file DEPS for a list. Then, you should install also a compiler (I would prefer GCC) and CMake (we use CMake as our make-system; feel free to add other makefiles - but not automake :)). Now let's test if the game compiles fine for you; type:
+First of all, you should install all packages (like SDL) this game depends on.
+Take a look into the file DEPS for a list. Then, you should install also a
+compiler (I would prefer GCC) and CMake (we use CMake as our make-system;
+feel free to add other makefiles - but not automake :)). Now let's test if
+the game compiles fine for you; type:
 	
 	cmake .	# this will create you an ordinary Makefile
 			# you only have to do this once or when you added new code-files
@@ -80,7 +85,16 @@ Run the game with:
 	
 	./start.sh
 
-If everything works fine and you want to start coding now, I would recommend you to use an IDE. I myself use KDevelop and I think it's also fine for you. In KDevelop, you can very easily import this project. Simply select the "import project" option in the menu and select the directory of OpenLieroX. It will find all source-files automatically now. Because it will also find the Makefile you have created with CMake, the building of the project will also work directly. The onliest thing you still have to set is the path to the binary (it is bin/openlierox). But look also over other project settings or general settings in KDevelop, perhaps you find some other nice features which you can enable.
+If everything works fine and you want to start coding now, I would recommend
+you to use an IDE. I myself use KDevelop and I think it's also fine for you.
+In KDevelop, you can very easily import this project. Simply select the
+"import project" option in the menu and select the directory of OpenLieroX.
+It will find all source-files automatically now. Because it will also find the
+Makefile you have created with CMake, the building of the project will also
+work directly. The onliest thing you still have to set is the path to the
+binary (it is bin/openlierox). But look also over other project settings or
+general settings in KDevelop, perhaps you find some other nice features which
+you can enable.
 
 
 
@@ -91,11 +105,16 @@ Code : SVN
 Some basic rules for your work with SVN:
 - Ensure that the code is compiling and working before you commit it!
 - Please commit only good code. See the guidelines.
-- Write a comment to every commit! When watching the changes, it helps a lot if I can read within a comment what you changed.
-- Make small commits. A commit should only contain one new feature or one bugfix, not more. It is a lot more easier to watch the changes if the commits are small. Also it is easier to find a bug later on.
-- Before you want make a real important or huge change to something in SVN, please contact the other developers and discuss this first.
+- Write a comment to every commit! When watching the changes, it helps a lot
+  if I can read within a comment what you changed.
+- Make small commits. A commit should only contain one new feature or one
+  bugfix, not more. It is a lot more easier to watch the changes if the
+  commits are small. Also it is easier to find a bug later on.
+- Before you want make a real important or huge change to something in SVN,
+  please contact the other developers and discuss this first.
 - Always keep in mind that others don't like to get disturbed by you.
-- Take a short look at the commits of the others. Perhaps they have made some changes to your code or placed some important comment there.
+- Take a short look at the commits of the others. Perhaps they have made some
+  changes to your code or placed some important comment there.
 	Webinterface to our SVN:
 	http://openlierox.svn.sourceforge.net/viewvc/openlierox/
 
@@ -104,15 +123,19 @@ Some basic rules for your work with SVN:
 Code : Basic information
 ========================
 
-If you want to work with the code, read this paragraph (and perhaps this whole file).
+If you want to work with the code, read this paragraph (and perhaps this whole
+file).
 
 Some starting hints:
 - Read the code-overview.
 - Esp., look at doc/TODO to get a rough idea what currently needs some work.
 - Look also at the other files under doc/.
 - Configure your IDE. That will help you a lot on working on it.
-- Do a global search in the source-code for the string "TODO". It will give you a lot of results. If you are bored or so, simply start fixing these TODOs. :) This will also gives you some impressions of the code.
-- Make some cleanups. I marked the most terrible parts which have to be recoded but there are much more which don't look that nice.
+- Do a global search in the source-code for the string "TODO". It will give
+  you a lot of results. If you are bored or so, simply start fixing these
+  TODOs. :) This will also gives you some impressions of the code.
+- Make some cleanups. I marked the most terrible parts which have to be
+  recoded but there are much more which don't look that nice.
 - Talk to us.
 
 
@@ -130,22 +153,36 @@ Some basic rules you should keep in every case:
 	is *no* correct C++ code! But this is:
 		for(int i = 0;;) {}
 		for(int i = 0;;) {}
-- Don't make any realy crazy optimisations. Produce clear, simple and short code.
+- Don't make any realy crazy optimisations. Produce clear, simple and short
+  code.
 - Make small functions! If your function is to big, cut it into pieces.
 - Don't use too much local variables in a function.
 	1. It is slow.
 	2. You made something wrong. Generaly, you don't need this.
 	3. It looks terrible!
-- Don't ever use C-technics. That includes for example all strcpy and related functions and of course in general C-strings. Also don't use int if you mean bool. Things like these...
-- Use the STL and STL-like technics (for example, use std::string, std::list, ...).
+- Don't ever use C-technics. That includes for example all strcpy and related
+  functions and of course in general C-strings. Also don't use int if you
+  mean bool. Things like these...
+- Use the STL and STL-like technics (for example, use std::string, std::list,
+  ...).
 	Some good links:
 	http://www.cppreference.com/index.html
 	http://www.sgi.com/tech/stl/table_of_contents.html
 - Produce abstract and general code!
-	(This is realy important because we soon want to change the base code and all code, which is not general enough has to be redone. Keep this in mind...)
+	(This is realy important because we soon want to change the base code
+	 and all code, which is not general enough has to be redone. Keep this
+	 in mind...)
 - Don't hack around!
-	It's not good if you add some new features only with some small hacks to the code. The code becomes even more terrible by this. Also, almost every hacked-in feature isn't general enough to allow a simple reuse of it in a new codebase.
-	If you want to add kind of a hack for some backward-compatibility, think first about if you realy want this. Perhaps it's just better for this new feature to allow it only for new versions. Because you should not only think of the backward-compatibility. Also think of the forward-compatibility. Also, if you realy want to implement a hack, leave at least the code clean!
+	It's not good if you add some new features only with some small hacks to
+	the code. The code becomes even more terrible by this. Also, almost every
+	hacked-in feature isn't general enough to allow a simple reuse of it in a
+	new codebase.
+	If you want to add kind of a hack for some backward-compatibility, think
+	first about if you realy want this. Perhaps it's just better for this new
+	feature to allow it only for new versions. Because you should not only
+	think of the backward-compatibility. Also think of the
+	forward-compatibility. Also, if you realy want to implement a hack,
+	leave at least the code clean!
 - Format and indent the code correct! (Use tabs for indenting!)
 - Place spaces between each element which should be read seperated!
 	For example, this looks terrible:
@@ -156,7 +193,8 @@ Some basic rules you should keep in every case:
 		cout << v->x << v->y << endl;
 - Mark incomplete or temporary code with a TODO!
 - Comment your code where you made some strange, not selfexplaining stuff.
-- Don't upload any temporary testing-code into the code which produces for example some debug-files for you which is useless for the others.
+- Don't upload any temporary testing-code into the code which produces for
+  example some debug-files for you which is useless for the others.
 
 ...
 
@@ -166,17 +204,21 @@ Code : Overview of the code
 ===========================
 
 [TODO: this has to be extended a bit]
-[but don't extend it to much, it should only be an overview here that allows you withing an hour to get some basic ideas and impressions of the code :)]
-[also, don't explain every single code file here; if you want to know what each single code-file is for, look into them; they (should) contain this information themself]
+[but don't extend it to much, it should only be an overview here that allows
+ you withing an hour to get some basic ideas and impressions of the code :)]
+[also, don't explain every single code file here; if you want to know what
+ each single code-file is for, look into them; they (should) contain this
+ information themself]
 
 So, you are new to the code, so this will perhaps help you a bit:
 
 Files:
-src/main.cpp	; includes the main-entry point and the gameloop
-src/client/*	; mainly the menu and all client-related stuff
-src/common/*	; all more generaly stuff and also the main-structures (like worm, map, ..)
-src/server/*	; server-related stuff, also for example the game itself
-include/*		; header-files for all sources
+src/main.cpp	- includes the main-entry point and the gameloop
+src/client/*	- mainly the menu and all client-related stuff
+src/common/*	- all more generaly stuff and also the main-structures
+                  (like worm, map, ..)
+src/server/*	- server-related stuff, also for example the game itself
+include/*		- header-files for all sources
 
 Take also a look to the most important structures:
 CMap, CWorm, CServer, CClient, CGameScript, LieroX
