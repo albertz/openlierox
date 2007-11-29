@@ -14,10 +14,10 @@
 // Jason Boettcher
 
 
-#include "LieroX.h"
 
 #include <assert.h>
 
+#include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "Menu.h"

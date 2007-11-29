@@ -48,6 +48,7 @@ public:
 	struct SkinVarPtr_t
 	{
 		SkinVarType_t type;
+		// TODO: this is not possible to be an union. sizeof(SkinCallback_t) != sizeof(void*) in general
 		union	// Is there any point in doing that union?
 		{
 			bool * b;	// Pointer to static var

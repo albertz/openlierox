@@ -13,25 +13,8 @@
 // Created 28/6/02
 // Jason Boettcher
 
-//Precompiled header - should be included as first header of each .cpp file
-
 #ifndef __LIEROX_H__
 #define __LIEROX_H__
-
-// Most often used headers
-
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-#ifdef _MSC_VER
-#pragma warning(disable: 4786)  // WARNING: identifier XXX was truncated to 255 characters in the debug info
-#pragma warning(disable: 4503)  // WARNING: decorated name length exceeded, name was truncated
-#endif
-
-#include <list>
-#include <vector>
-#include <string>
 
 
 // HINT: for AI debug define _AI_DEBUG in your IDE/compiler
@@ -65,7 +48,8 @@ const float	R2D(5.729578e+1f); // radians to degrees
 #define DEG2RAD(a)  (a * D2R)
 #define RAD2DEG(a)  (a * R2D)
 
-
+#include <list>
+#include <string>
 #include "ProfileSystem.h"
 #include "CFont.h"
 #include "CVec.h"

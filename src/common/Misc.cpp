@@ -13,12 +13,12 @@
 // Created 18/8/02
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <stdarg.h>
 #include <iostream>
 #include <assert.h>
 
+#include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
 #include "StringUtils.h"

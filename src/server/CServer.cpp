@@ -14,12 +14,12 @@
 // Jason Boettcher
 
 
-#include "LieroX.h"
 
 #include <stdarg.h>
 #include <vector>
 #include <sstream>
 
+#include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "console.h"

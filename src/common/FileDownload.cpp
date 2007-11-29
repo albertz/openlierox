@@ -16,7 +16,6 @@
 // Created 13/10/07
 // By Karel Petranek, Albert Zeyer and Martin Griffin
 
-//#include "LieroX.h"
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)  // WARNING: identifier XXX was truncated to 255 characters in the debug info
 #pragma warning(disable: 4503)  // WARNING: decorated name length exceeded, name was truncated

@@ -72,6 +72,10 @@ void CCache::SaveMod(const std::string& file, CGameScript *mod)
 	if (!cached_mod)
 		return;
 
+	// TODO: again, this is dangerous and should not be used in this way
+	// at least there should be a self-defined operator= which makes this in a save way
+	// you should never assume that this can work in general and perhaps you
+	// forget later that you have assumed this here
 	*cached_mod = *mod;
 
 	ModCache[file] = cached_mod;
@@ -127,25 +131,25 @@ CGameScript *CCache::GetMod(const std::string& dir)
 CCache::~CCache()
 {
 	// Free all the images
-	std::map<std::string, SDL_Surface *>::iterator img = ImageCache.begin();
-	for (; img != ImageCache.end(); img++)
+	for (std::map<std::string, SDL_Surface *>::iterator img = ImageCache.begin();
+		img != ImageCache.end(); img++)
 		SDL_FreeSurface(img->second);
 
 	// Free all the samples
-	std::map<std::string, SoundSample *>::iterator snd = SoundCache.begin();
-	for (; snd != SoundCache.end(); snd++)
+	for (std::map<std::string, SoundSample *>::iterator snd = SoundCache.begin();
+		snd != SoundCache.end(); snd++)
 		FreeSoundSample(snd->second);
 
 	// Free all the maps
-	std::map<std::string, CMap *>::iterator map = MapCache.begin();
-	for (; map != MapCache.end(); map++)  {
+	for (std::map<std::string, CMap *>::iterator map = MapCache.begin();
+		map != MapCache.end(); map++)  {
 		map->second->Shutdown();
 		delete map->second;
 	}
 
 	// Free all the mods
-	std::map<std::string, CGameScript *>::iterator mod = ModCache.begin();
-	for (; mod != ModCache.end(); mod++)  {
+	for (std::map<std::string, CGameScript *>::iterator mod = ModCache.begin();
+		mod != ModCache.end(); mod++)  {
 		mod->second->Shutdown();
 		delete mod->second;
 	}

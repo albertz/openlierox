@@ -17,7 +17,6 @@
 
 // TODO: cleanup!!!
 
-#include "LieroX.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
@@ -26,6 +25,7 @@
 #include <assert.h>
 #include <set>
 
+#include "LieroX.h"
 #include "MathLib.h"
 #include "CClient.h"
 #include "CBonus.h"

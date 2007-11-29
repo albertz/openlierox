@@ -45,7 +45,7 @@ The provides Dev-C++ project-file (under build/DevCpp) should work now.
 IDE : Mac OS X
 ==============
 
-You need the following frameworks (directories) in /Libraries/Frameworks/:
+You need the following frameworks (directories) in /Library/Frameworks/:
 	SDL.framework
 	SDL_image.framework
 	SDL_mixer.framework

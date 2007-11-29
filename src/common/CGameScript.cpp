@@ -13,11 +13,11 @@
 // Created 7/2/02
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <stdarg.h>
 
 #include "EndianSwap.h"
+#include "LieroX.h"
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "CGameScript.h"
@@ -306,16 +306,19 @@ int CGameScript::Load(const std::string& dir)
 	// Try cache first
 	CGameScript *cached = cCache.GetMod(dir);
 	if (cached != NULL)  {
+		// HINT: this cannot work this way because there is no sensefull operator= defined
+		// WARNING: the standard op= would just copy everything which will mostly lead to very strange and hard findable memleaks!! you should *never* use it
+		// TODO: solve this somehow
+		/*
 		printf("HINT: reusing cached mod " + dir + "\n");
 		*this = *cached;
 		return true;
+		*/
 	}
 	
 	FILE *fp;
 	int n;	
-	static std::string filename;
-
-	filename = dir + "/script.lgs";
+	std::string filename = dir + "/script.lgs";
 	sDirectory = dir;
 
 	// Open it

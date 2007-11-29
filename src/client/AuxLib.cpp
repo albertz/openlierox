@@ -16,8 +16,6 @@
 // Created 12/11/01
 // By Jason Boettcher
 
-#include "LieroX.h"
-
 #include <time.h>
 #include <SDL_syswm.h>
 #include "AuxLib.h"

@@ -8,13 +8,13 @@
 //
 /////////////////////////////////////////
 
-#include "LieroX.h"
 
 #include "CGuiSkin.h"
 #include "CGuiSkinnedLayout.h"
 #include "CWidget.h"
 #include "CWidgetList.h"
 
+#include "LieroX.h"
 #include "AuxLib.h"
 #include "Menu.h"
 #include "StringUtils.h"

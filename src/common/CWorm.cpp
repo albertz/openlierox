@@ -13,10 +13,10 @@
 // Created 28/6/02
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <assert.h>
 
+#include "LieroX.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "Graphics.h"

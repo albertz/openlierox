@@ -13,10 +13,10 @@
 // Created 30/6/02
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <assert.h>
 
+#include "LieroX.h"
 #include "EndianSwap.h"
 #include "AuxLib.h"
 #include "Error.h"

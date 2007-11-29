@@ -16,11 +16,11 @@
 // Created 12/11/01
 // By Jason Boettcher
 
-#include "LieroX.h"
 
 #include <assert.h>
 #include <gd.h>
 
+#include "LieroX.h"
 #include "MathLib.h"
 #include "GfxPrimitives.h"
 #include "CServer.h"

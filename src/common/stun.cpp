@@ -52,8 +52,6 @@
 // added 27/09/2007
 // many thanks to Pelya!
  
- 
-//#include "LieroX.h"	// Precompiled header file
 
 #include <cassert>
 #include <cstring>

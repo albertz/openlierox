@@ -13,10 +13,10 @@
 // Created 13/8/02
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <assert.h>
 
+#include "LieroX.h"
 #include "EndianSwap.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"

@@ -16,7 +16,6 @@
 // Created 13/10/01
 // Jason Boettcher
 
-//#include "LieroX.h"
 
 #include <assert.h>
 #include <stdarg.h>

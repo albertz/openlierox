@@ -1,3 +1,6 @@
+# CMake file for development of OLX
+# this file is not intendent (yet) as a system for building final releases
+# use compile.sh instead
 
 SET(CMAKE_BUILD_TYPE Debug)
 #SET(HAWKNL_BUILTIN Yes)
@@ -27,30 +30,28 @@ AUX_SOURCE_DIRECTORY(src/common COMMON_SRCS)
 AUX_SOURCE_DIRECTORY(src/server SERVER_SRCS)
 SET(ALL_SRCS src/main.cpp ${CLIENT_SRCS} ${COMMON_SRCS} ${SERVER_SRCS})
 
+ADD_DEFINITIONS(-Wall)
 IF (WIN32)
-	# equivalent here?
+	ADD_DEFINITIONS(-g)
 ELSE (WIN32)
-	ADD_DEFINITIONS(-ggdb -Wall)
+	ADD_DEFINITIONS(-ggdb)
 ENDIF (WIN32)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
-	ADD_DEFINITIONS(-DDEBUG=1)
+	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
 ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
 ADD_DEFINITIONS("`pkg-config --cflags sdl`")
 
-# INCLUDE(PCHSupport.cmake)
-
-# GET_NATIVE_PRECOMPILED_HEADER(openlierox include/LieroX.h)
-
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
-# ADD_NATIVE_PRECOMPILED_HEADER(openlierox include/LieroX.h)
-
-TARGET_LINK_LIBRARIES(openlierox SDL pthread SDL_image SDL_mixer NL gd z xml2)
+TARGET_LINK_LIBRARIES(openlierox SDL pthread SDL_image SDL_mixer gd z xml2)
 IF (HAWKNL_BUILTIN)
-	TARGET_LINK_LIBRARIES(openlierox -Lhawknl/src)
+	# TODO: this HAWKNL_BUILTIN support here is incomplete yet!
+	TARGET_LINK_LIBRARIES(openlierox NL -Lhawknl/src)
+ELSE (HAWKNL_BUILTIN)
+	TARGET_LINK_LIBRARIES(openlierox NL)
 ENDIF (HAWKNL_BUILTIN)
 
 

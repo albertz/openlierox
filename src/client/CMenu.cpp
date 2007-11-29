@@ -13,10 +13,9 @@
 // Created 28/6/03
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <assert.h>
-
+#include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
 #include "CMenu.h"

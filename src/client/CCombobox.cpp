@@ -13,10 +13,10 @@
 // Created 3/9/02
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <assert.h>
 
+#include "LieroX.h"
 #include "Graphics.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"

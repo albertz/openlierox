@@ -16,9 +16,10 @@
 // Created 9/4/02
 // Jason Boettcher
 
-#include "LieroX.h"
 #include <iostream>
+
 #include "HTTP.h"
+#include "LieroX.h" // for LX_VERSION
 #include "Timer.h"
 #include "StringUtils.h"
 #include "types.h"

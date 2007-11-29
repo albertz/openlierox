@@ -13,7 +13,6 @@
 // Created 22/1/02
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <assert.h>
 #include <zlib.h>
@@ -21,6 +20,7 @@
 
 #include "CMap.h"
 #include "EndianSwap.h"
+#include "LieroX.h"
 #include "MathLib.h"
 #include "Error.h"
 #include "ConfigHandler.h"
@@ -424,7 +424,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 	if (Theme.name == _theme && sRandomLayout.szTheme == _theme)
 		return true;
 
-	static std::string thm,buf,cfg;
+	std::string thm,buf,cfg;
 	int n,x,y;
 
 	thm = "data/themes/" + _theme;
@@ -531,7 +531,7 @@ bool CMap::validateTheme(const std::string& name) {
     // Does simple checks to see if the main files exists
     // Ie 'backtile.png' 'fronttile.png' & 'theme.txt'
 
-    static std::string thm,buf;
+    std::string thm,buf;
 
 	thm = std::string("data/themes/") + name;
 
@@ -878,7 +878,8 @@ void CMap::CalculateDirtCount(void)
 	const uint size = Width * Height;
 
 	for (n = 0; n < size; n++)
-		nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
+		if(PixelFlags[n] & PX_DIRT)
+			nTotalDirtCount++;
 }
 
 
@@ -2365,7 +2366,8 @@ bool CMap::LoadImageFormat(FILE *fp)
 			PixelFlags[n] = pDest[p++];
 			if(PixelFlags[n] & PX_EMPTY)
 				memcpy(curpixel, backpixel, bmpImage->format->BytesPerPixel);
-			nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
+			if(PixelFlags[n] & PX_DIRT)
+				nTotalDirtCount++;
 			n++;
 		}
 	}
@@ -3073,15 +3075,15 @@ bool CMap::LoadCTF(const std::string& filename)
 	Uint8 *BackPixelRow = backpixel;
 
 	lockFlags();
-	
-	for(y=0; y<Height; y++,PixelRow+=bmpImage->pitch,BackPixelRow+=bmpBackImage->pitch) {
+	for(y=0; y<Height; y++, PixelRow += bmpImage->pitch, BackPixelRow += bmpBackImage->pitch) {
 		curpixel = PixelRow;
 		backpixel = BackPixelRow;
-		for(x=0; x<Width; x++,curpixel+=bmpImage->format->BytesPerPixel,backpixel+=bmpBackImage->format->BytesPerPixel) {
+		for(x=0; x<Width; x++, curpixel += bmpImage->format->BytesPerPixel, backpixel += bmpBackImage->format->BytesPerPixel) {
 			PixelFlags[n] = pDest[p++];
 			if(PixelFlags[n] & PX_EMPTY)
 				memcpy(curpixel, backpixel, bmpImage->format->BytesPerPixel);
-			nTotalDirtCount += (PixelFlags[n] & PX_DIRT) ? 1 : 0;
+			if(PixelFlags[n] & PX_DIRT)
+				nTotalDirtCount++;
 			n++;
 		}
 	}
@@ -3092,8 +3094,6 @@ bool CMap::LoadCTF(const std::string& filename)
 		SDL_UnlockSurface(bmpBackImage);
 	if (SDL_MUSTLOCK(bmpImage))
 		SDL_UnlockSurface(bmpImage);
-
-//	SDL_SaveBMP(pxf, "mat.bmp");
 
 	// Delete the data
 	delete[] pDest;

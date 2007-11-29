@@ -13,11 +13,11 @@
 // Created 20/12/02
 // Jason Boettcher
 
-#include "LieroX.h"
 
 #include <assert.h>
 
 #include "CShootList.h"
+#include "LieroX.h"
 #include "CWorm.h"
 #include "Protocol.h"
 #include "MathLib.h"

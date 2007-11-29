@@ -16,7 +16,6 @@
 // Created 30/9/01
 // By Jason Boettcher
 
-//#include "LieroX.h"
 
 #include <iostream>
 
