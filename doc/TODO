@@ -1,8 +1,10 @@
 TODO
 
+[?] crashes on MacOSX (!!)
 [X] Make dual viewports work yet again. (!!)
-[X] Fix the colour detection of pink for mods (255 0 255) which only works in 50% of the mods now. (!!)
-[ ] Unify tLXOptions.tGameInfo & the other classes into one. (!!)
+[X] Fix the colour detection of pink for mods (255 0 255) which only
+    works in 50% of the mods now. (!!)
+[ ] Unify tLXOptions.tGameInfo & the other classes into one. (!)
 [X] register on all servers in the masterserverlist
 [ ] why were some of the default-levels changed in the repo? (!!)
 	The changes were done for CTF enhancements, but why was a change
@@ -16,19 +18,25 @@ TODO
 	maps are equal everywhere to prevent cheeting. So a change of the
 	map-file if it is still the same map should be avoided. )
 [ ] recode whole CTF code (!!)
-[ ] more options for the bots, for example restricted weapons or special behavior
+[ ] more options for the bots, for example restricted weapons or special
+    behavior
 [ ] restrict weapon settings depending on worm character
 [ ] allow more than 5 weapons
 [ ] configureable blood
 [ ] own directory for mods -> better file management
-[X] fix: map cache - carved dirt and blood stays in the map after reloading it from cache (maybe use CCache for caching maps?) (!!)
+[X] fix: map cache - carved dirt and blood stays in the map after reloading
+    it from cache (maybe use CCache for caching maps?) (!!)
 [?] fix: sometimes you got into chat while playing online on some keys
 [X] fix: additional weapon selection keys for splitscreen for second player
-[ ] fix: delete key doesn't work on MacOSX (!!)
-[ ] don't overwrite the whole config-file at the end but only the known-parts (this makes it compatible with future versions and don't deletes part of it) (!!)
+[X] fix: delete key doesn't work on MacOSX (!!)
+[ ] don't overwrite the whole config-file at the end but only the
+    known-parts (this makes it compatible with future versions and don't
+    deletes part of it) (!)
 [X] multiple masterservers (and registration on each) (!!)
-[X] use better interpolation for remote worms (simulate with ping), client side (server-side impossible) (!!)
-[x] fix CChanel wrong ping calculations and sending packets twice when not wanted (!!)
+[X] use better interpolation for remote worms (simulate with ping), client
+    side (server-side impossible) (!)
+[x] fix CChanel wrong ping calculations and sending packets twice when not
+    wanted (!!)
 [X] same caching system for GameScript as for Map (!)
 [ ] create crossbuilding-scripts: (using crossbuilding in GCC)
 	[ ] Mac OS X ( + Application Bundle)
@@ -39,9 +47,10 @@ TODO
 		[ ] x86
 		[ ] others
 	[ ] Debian package
-[ ] fix: font isn't visible in OGL on MacOSX (!!)
+[?] fix: font isn't visible in OGL on MacOSX (!!)
 [?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
-[ ] bot: more effective use of ninjarope (use closer / more intelligent spots) (!)
+[ ] bot: more effective use of ninjarope (use closer / more intelligent
+    spots) (!)
 [X] bot: ninjarope is shot too fast (!!)
 [x] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
@@ -55,7 +64,7 @@ TODO
 [X] add macro-variable to {en/dis}able the mediaplayer
 [ ] standalone dedicated server (!)
 [ ] fill documentation (README) (!!)
-[ ] fill developer documentation (basic info about the code and hints) (!)
+[x] fill developer documentation (basic info about the code and hints) (!)
 [ ] select different key for ingame console
 [?] fix some segfaults (!!)
 [ ] fix lobby freeze (!)
@@ -63,23 +72,26 @@ TODO
 [?] increase FPS (and determit, why it is bad in beta2)
 [?] improve mediaplayer
 [?] improve player profile options (many skins need long load time)
-[ ] make physics more like original LX
+[ ] make physics more like original LX (!)
 [ ] better bot aiming (fast numerical pre-physics-calculations) (!)
 [ ] better bot behavior (!!)
-[ ] add option to save/load weapon selection
-[ ] add some help for weapon selection (cause not everybody understand it) (!)
+[ ] add option to save/load weapon selection for player
+[ ] add some help for weapon selection (cause not everybody understand
+    it) (!)
 [ ] allow more than 2 viewports (!)
-[ ] joystick-support (!)
+[ ] more general input-system (also with joystick-support) (!)
 [ ] possibility to switch bot control / user control of a worm
-[ ] allow more than one monitor (let user choose what viewports will be displayed on what screen)
+[ ] allow more than one monitor (let user choose what viewports will be
+    displayed on what screen)
 [ ] allow a higher resolution (reduce it while playing with LX56?) (!)
 [ ] join all viewports, if map is smaller than resolution (!)
 [ ] allow different sound settings (44k or 22k / mono or stereo / ...) (!)
 [ ] abstraction of the engines (network / physic / ...) (!)
 [ ] improve join lobby, merge host lobby and join lobby code (!)
-[ ] remove all non-widget drawing from menu system (create new widgets or use current ones) (!)
+[ ] remove all non-widget drawing from menu system (create new widgets
+    or use current ones) (!)
 
 minor things:
-[X] save selected player list in local play and return in this menu after playing (!)
+[X] save selected player list in local play and return in this menu after
+    playing (!)
 [ ] treat ZIP-files in game-directory as virtual searchpaths
-[ ] add virtual filesystem for users who has inotify or who enabled it
