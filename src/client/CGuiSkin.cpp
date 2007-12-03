@@ -477,12 +477,12 @@ void SkinCombobox_Init( const std::string & param, CWidget * source )
 {
 	if( source->getType() != wid_Combobox )
 		return;
-	CCombobox * cb = dynamic_cast< CCombobox * > (source);
+	//CCombobox * cb = dynamic_cast< CCombobox * > (source);	// MSVC 6 build crashes on this!
+	CCombobox * cb = ( CCombobox * ) (source);
 	cb->setUnique(true);
 	cb->clear();
 	cb->addItem( 0, "", "None" );
 	FindFiles(GUISkinAdder(cb), "data/frontend/skins", FM_DIR);
-	//cb->setCurItem(def);
 	cb->setCurSIndexItem( tLXOptions->sSkinPath );
 };
 
