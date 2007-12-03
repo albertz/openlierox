@@ -25,6 +25,8 @@
 #include "CButton.h"
 #include "CMediaPlayer.h"
 #include "CGuiSkin.h"
+#include "CLabel.h"
+#include "CCombobox.h"
 
 
 CGuiLayout	cMainMenu;
@@ -70,7 +72,17 @@ void Menu_MainInitialize(void)
 
 	// Quit
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
-	cMainMenu.Add( new CButton(BUT_NEW, tMenu->bmpButtons), mm_ShowSkin, 200,440, 50,15);
+
+	// GUI skin combobox
+	cMainMenu.Add( new CLabel("Skin",tLX->clNormalLabel), -1, 465,10,0,0);
+	std::vector< CGuiSkin::WidgetVar_t > GuiSkinInit;
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "" ) );	// List of items
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
+	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit);
+	cMainMenu.Add( GuiSkin, mm_ShowSkin, 500,8,130,17);
+	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );
+	c_init.Call();
 }
 
 
@@ -173,12 +185,13 @@ void Menu_MainFrame(void)
 				    return;
                 }
                 break;
+
+			// Select skin combobox
 			case mm_ShowSkin:
-                if( ev->iEventMsg == BTN_MOUSEUP ) 
+                if( ev->iEventMsg == CMB_CHANGED ) 
 				{
-                    PlaySoundSample(sfxGeneral.smpClick);
-				    cMainMenu.Shutdown();
-					Menu_CGuiSkinInitialize();
+					ev->cWidget->ProcessGuiSkinEvent(ev->iEventMsg);	// Shuts down Main Menu
+				    return;
 				};
                 break;
 		}

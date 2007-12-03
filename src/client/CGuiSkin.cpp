@@ -122,7 +122,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	Init();
 	std::string filepath;
 	std::string skinpath( tLXOptions->sSkinPath );
-	if( skinpath == "" ) skinpath = "default";
+	if( skinpath == "" )
+		return NULL;
 	skinpath += tLXOptions->sResolution;
 	if( ! GetExactFileName( "data/frontend/skins/" + skinpath + "/" + filename + ".xml", filepath ) )
 	{
@@ -157,8 +158,6 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		return NULL;
 	};
 	
-	int widgetID = 0;
-
 	Node = Node->xmlChildrenNode;
 	while (Node != NULL)  
 	{
@@ -167,7 +166,21 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		int width  = xmlGetInt(Node,"width");
 		int height = xmlGetInt(Node,"height");
 		bool disabled = xmlGetBool(Node,"disabled");	// By default all widgets are enabled and all bools are false
-
+		std::string s_id = xmlGetString(Node,"id");	// Widget ID (used for enable/disable it by func handlers)
+		std::string init = xmlGetString(Node,"init");	// OnInit handler - fills list or combobox etc
+		std::string s_pos = xmlGetString(Node,"pos");
+		if( s_pos != "" )
+		{
+			std::vector<std::string> pos = explode( s_pos, "," ); // "left,top,width,height" as single string
+			if( pos.size() > 0 )
+				left = atoi( pos[0] );
+			if( pos.size() > 1 )
+				top = atoi( pos[1] );
+			if( pos.size() > 2 )
+				width = atoi( pos[2] );
+			if( pos.size() > 3 )
+				height = atoi( pos[3] );
+		};
 		std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > :: iterator it;
 		if ( CMP(Node->name,"text") || CMP(Node->name,"comment") )	// Some extra newline or comment - skip it
 		{
@@ -196,9 +209,17 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 			};
 			
 			CWidget * widget = it->second.second( params );
-			widget->setEnabled( ! disabled );
-			gui->Add( widget, widgetID++, left, top, width, height );
+			int i_id = -1;
+			if( s_id != "" )
+				i_id = gui->GetIdByName( s_id );
+			gui->Add( widget, i_id, left, top, width, height );
 			widget->ProcessGuiSkinEvent(INIT_WIDGET);
+			if( init != "" )
+			{
+				CallbackHandler c_init( init, widget );
+				c_init.Call();
+			};
+			widget->setEnabled( ! disabled );
 
 			break;
 		};
@@ -300,6 +321,7 @@ int		Menu_CGuiSkinInitialize(void)
 	if( MainLayout == NULL )
 	{
 		Menu_CGuiSkinShutdown();
+		Menu_MainInitialize();
 		return false;
 	};
 	return true;
@@ -310,8 +332,11 @@ void	Menu_CGuiSkinFrame(void)
 	if( ! MainLayout->Process() )
 	{
 		Menu_CGuiSkinShutdown();
+		Menu_MainInitialize();
 		return;
 	};
+	if( MainLayout == NULL )
+		return;
 	MainLayout->Draw(tMenu->bmpBuffer);
 	DrawCursor(tMenu->bmpBuffer);
 	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
@@ -319,12 +344,13 @@ void	Menu_CGuiSkinFrame(void)
 
 void	Menu_CGuiSkinShutdown(void)
 {
+	if( MainLayout == NULL )
+		return;
 	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
 	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);
 	SetGameCursor(CURSOR_NONE);
 	MainLayout = NULL;
 	CGuiSkin::ClearLayouts();
-	Menu_MainInitialize();
 };
 
 void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
@@ -360,15 +386,21 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 		else
 			s = "";
 		TrimSpaces(s);
-
-		for( std::map< std::string, SkinVarPtr_t > :: iterator it = CGuiSkin::Vars().begin();
+		
+		std::map< std::string, SkinVarPtr_t > :: iterator it;
+		for( it = CGuiSkin::Vars().begin();
 				it != CGuiSkin::Vars().end(); it++ )
 		{
 			if( !stringcasecmp( it->first, func ) && it->second.type == SVT_CALLBACK )
 			{
 				m_callbacks.push_back( std::pair< SkinCallback_t, std::string > ( it->second.c, param ) );
 				//printf("%s(\"%s\") ", it->first.c_str(), param.c_str());
+				break;
 			};
+		};
+		if( it == CGuiSkin::Vars().end() )
+		{
+			printf("Cannot find GUI skin callback \"%s(%s)\"\n", func.c_str(), param.c_str());
 		};
 	};
 	//printf("\n");
@@ -376,9 +408,26 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 
 void CGuiSkin::CallbackHandler::Call()
 {
-	for( unsigned f=0; f<m_callbacks.size(); f++ )
-		m_callbacks[f].first( m_callbacks[f].second, m_source );
+	unsigned size = m_callbacks.size();	// Some callbacks may destroy *this, m_callbacks.size() call will crash
+	for( unsigned f=0; f<size; f++ )	// I know that's hacky, oh well...
+		m_callbacks[f].first( m_callbacks[f].second, m_source );	// Here *this may be destroyed
 };
+
+class CGuiSkin_Destroyer
+{
+	public:
+	CGuiSkin_Destroyer() { };
+	~CGuiSkin_Destroyer()
+	{
+		if( CGuiSkin::m_instance != NULL )
+		{
+			CGuiSkin::ClearLayouts();
+			delete CGuiSkin::m_instance;
+			CGuiSkin::m_instance = NULL;
+		};
+	};
+}
+CGuiSkin_Destroyer_instance;
 
 void MakeSound( const std::string & param, CWidget * source )
 {
@@ -400,21 +449,69 @@ void MakeSound( const std::string & param, CWidget * source )
 		PlaySoundSample(sfxGame.smpDeath[2]);
 };
 
-static bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
-	( & MakeSound, "MakeSound" );
-
-class CGuiSkin_Destroyer
-{
-	public:
-	CGuiSkin_Destroyer() { };
-	~CGuiSkin_Destroyer()
-	{
-		if( CGuiSkin::m_instance != NULL )
+	class GUISkinAdder 
+	{ 
+		public:
+	   	CCombobox* cb;
+	   	int index;
+		GUISkinAdder(CCombobox* cb_) : cb(cb_), index(1) {}
+		inline bool operator() (std::string dir) 
 		{
-			CGuiSkin::ClearLayouts();
-			delete CGuiSkin::m_instance;
-			CGuiSkin::m_instance = NULL;
+			size_t slash = findLastPathSep(dir);
+			if(slash != std::string::npos)
+				dir.erase(0, slash+1);
+
+			if( dir == ".svn" )
+				return true;
+
+			cb->addItem(index, dir, dir);
+			
+			index++;
+			return true;
 		};
 	};
-}
-CGuiSkin_Destroyer_instance;
+
+std::string sSkinCombobox_OldSkinPath;
+
+void SkinCombobox_Init( const std::string & param, CWidget * source )
+{
+	if( source->getType() != wid_Combobox )
+		return;
+	CCombobox * cb = dynamic_cast< CCombobox * > (source);
+	cb->setUnique(true);
+	cb->clear();
+	cb->addItem( 0, "", "None" );
+	FindFiles(GUISkinAdder(cb), "data/frontend/skins", FM_DIR);
+	//cb->setCurItem(def);
+	cb->setCurSIndexItem( tLXOptions->sSkinPath );
+};
+
+void SkinCombobox_Change( const std::string & param, CWidget * source )
+{
+	if( source->getType() != wid_Combobox )
+		return;
+	if( tLXOptions->sSkinPath == "" && sSkinCombobox_OldSkinPath != "" )	// Go to non-skinned menu from skinned menu
+	{
+		Menu_CGuiSkinShutdown();
+		Menu_MainInitialize();
+	}
+	else if( tLXOptions->sSkinPath != "" && sSkinCombobox_OldSkinPath == "" )	// Go to skinned menu from non-skinned menu
+	{
+		Menu_MainShutdown();
+		Menu_CGuiSkinInitialize();
+	}
+	else if( tLXOptions->sSkinPath != "" && sSkinCombobox_OldSkinPath != tLXOptions->sSkinPath )	// Load another skin
+	{
+		Menu_CGuiSkinShutdown();
+		Menu_MainInitialize();
+		Menu_MainShutdown();
+		Menu_CGuiSkinInitialize();
+	};
+	sSkinCombobox_OldSkinPath = tLXOptions->sSkinPath;
+};
+
+static bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
+	( & MakeSound, "MakeSound" )
+	( & SkinCombobox_Init, "SkinCombobox_Init" )
+	( & SkinCombobox_Change, "SkinCombobox_Change" );
+

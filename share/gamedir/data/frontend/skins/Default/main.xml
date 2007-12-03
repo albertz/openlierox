@@ -45,4 +45,7 @@
 <progressbar top='300' left='400' var="GameOptions.LastGame.LoadingTime" 
 	file="data/frontend/healthbar1.png" numstates="1" label_top="310" label_left="450" label_visible="true"/>
 
+<label pos='465,10' text="Skin" color="#ffffff"/>
+<combobox pos='500,8,130,17' var="GameOptions.Game.SkinPath" init="GUI.SkinCombobox_Init()" click="GUI.MakeSound() GUI.SkinCombobox_Change()" items="None#"/>
+
 </dialog>

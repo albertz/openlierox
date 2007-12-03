@@ -80,7 +80,9 @@ public:
 		iKeySelectedItem = -1;
 		bSorted = false;
 		bUnique = false;
+		iType = wid_Combobox;
 		iVar = NULL;
+		sVar = NULL;
 	}
 
 
@@ -109,6 +111,7 @@ private:
 	CScrollbar		cScrollbar;
 
 	int				*iVar;
+	std::string		*sVar;
 	CGuiSkin::CallbackHandler cClick;
 	std::string		sSkinTempInit;	// Hack
 

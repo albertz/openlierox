@@ -289,6 +289,7 @@ void	printf(const std::string& txt);
 
 // Thread functions
 #ifdef WIN32
+#include <windows.h>
 void	nameThread(const DWORD threadId, const char *name);
 #endif
 

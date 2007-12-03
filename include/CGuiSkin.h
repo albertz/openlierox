@@ -181,6 +181,7 @@ public:
 		WidgetVar_t( int v ): type(WVT_INT), b(false), i(v), f(0.0), s(""), c(0) { };
 		WidgetVar_t( float v ): type(WVT_FLOAT), b(false), i(0), f(v), s(""), c(0) { };
 		WidgetVar_t( const std::string & v ): type(WVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
+		WidgetVar_t( const char * v ): type(WVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
 		WidgetVar_t( Uint32 v ): type(WVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
 	};
 	
