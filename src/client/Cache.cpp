@@ -47,6 +47,12 @@ void CCache::SaveSound(const std::string& file, SoundSample *smp)
 // Save a map to the cache
 void CCache::SaveMap(const std::string& file, CMap *map)
 {
+	// TODO: the cache should only save up to ~5 maps, not more (saving mem is important)
+	// HINT: this is not as easy as it seems. there are additional checks needed if the
+	// map is currently used or not. and please don't add now isUsed vars everywhere, that
+	// is no good solutions and only leads to mistakes. this should be done somehow
+	// automatically. my current idea is to use smart pointers
+
 	if (map == NULL)
 		return;
 
@@ -65,6 +71,10 @@ void CCache::SaveMap(const std::string& file, CMap *map)
 // Save a mod to the cache
 void CCache::SaveMod(const std::string& file, CGameScript *mod)
 {
+	// TODO: see the further hint; disabled for now
+	// HINT: I get at least also already one bug if this is not here: mod.pModLog get freed twice
+	return;	
+	
 	if (mod == NULL)
 		return;
 
