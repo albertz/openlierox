@@ -52,6 +52,7 @@ enum WidgetType_t {
 	wid_Slider,
 	wid_Textbox,
 	wid_Titlebutton,
+	wid_Textbutton,
 	wid_Checkbox,
 	wid_Inputbox,
 	wid_Combobox,

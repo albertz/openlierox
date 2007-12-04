@@ -14,7 +14,7 @@
 
 <label top='100' left='20' width='50' height='50' color='#777777' name='Label1' text="Text text text text text text text here"> Text here just ignored </label>
 
-<button top='400' left='10' width='30' height='30' textid="5" click=" GUI.ExitDialog() GUI.MakeSound" />
+<textbutton top='400' left='10' text="Click me!" color="#ff7777" glowcolor="#ffff00" click="GUI.MakeSound(death3)"/>
 <button top='400' left='100' width='30' height='30' textid="6" click="GUI.ChildDialog(child) GUI.MakeSound(bump)"/>
 <button top='430' left='100' width='30' height='30' textid="9" click="GUI.ChildDialog( child , 30, -70 ) GUI.MakeSound(ninja)"/>
 
