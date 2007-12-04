@@ -6,7 +6,7 @@
 
 <box top='250' left='200' width='200' height='110' round='0' border='3' lightcolor='#00FF00' darkcolor='#FF0000' bgcolor='#0077FF'/>
 
-<label top='300' left='210' width='50' height='50' color='#000000' name='Label1' text="Yet Another text text text"> Text here just ignored </label>
+<label top='300' left='210' width='50' height='50' color='#000000' text="Yet Another text text text"> Text here just ignored </label>
 
 <button top='400' left='200' width='30' height='30' textid="5" click="GUI.ExitDialog GUI.MakeSound"/>
 

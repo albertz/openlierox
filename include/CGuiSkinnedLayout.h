@@ -110,6 +110,7 @@ public:
 	
 	static void ExitDialog( const std::string & param, CWidget * source );
 	static void ChildDialog( const std::string & param, CWidget * source );
+	static void SubstituteDialog( const std::string & param, CWidget * source );
 };
 
 #endif

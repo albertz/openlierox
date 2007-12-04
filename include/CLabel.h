@@ -37,10 +37,11 @@ public:
 	CLabel() {}
 
 	// Constructor
-	CLabel(const std::string& text, Uint32 col) {
+	CLabel(const std::string& text, Uint32 col, bool center = false) {
 		sText = text;
 		iColour = col;
 		iType = wid_Label;
+		bCenter = center;
 		bVar = NULL;
 		iVar = NULL;
 		fVar = NULL;
@@ -53,6 +54,7 @@ private:
 
 	std::string	sText;
 	Uint32	iColour;
+	bool		bCenter;
 
 	bool		*bVar;
 	int			*iVar;
@@ -62,7 +64,13 @@ private:
 public:
 	// Methods
 
-	void	Create(void) { iWidth = tLX->cFont.GetWidth(sText); iHeight = tLX->cFont.GetHeight(sText); }
+	void	Create(void) 
+	{ 
+		iWidth = tLX->cFont.GetWidth(sText); 
+		iHeight = tLX->cFont.GetHeight(sText);
+		if( bCenter ) 
+			iX -= iWidth / 2;
+	}
 	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1
@@ -99,6 +107,12 @@ public:
 			sText = ftoa( *fVar );
 		else if( sVar )
 			sText = *sVar;
+		if( bCenter )
+		{
+			int width = tLX->cFont.GetWidth(sText);
+			iX += ( iWidth - width ) / 2;
+			iWidth = width;
+		};
 		tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
 
@@ -106,11 +120,11 @@ public:
 
 	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
 	{
-		CLabel * w = new CLabel( p[0].s, p[1].c );
-		w->bVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_BOOL ).b;
-		w->iVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_INT ).i;
-		w->fVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_FLOAT ).f;
-		w->sVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_STRING ).s;
+		CLabel * w = new CLabel( p[0].s, p[1].c, p[2].b );
+		w->bVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_BOOL ).b;
+		w->iVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_INT ).i;
+		w->fVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_FLOAT ).f;
+		w->sVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_STRING ).s;
 		return w;
 	};
 	
@@ -121,6 +135,7 @@ static bool CLabel_WidgetRegistered =
 	CGuiSkin::RegisterWidget( "label", & CLabel::WidgetCreator )
 							( "text", CGuiSkin::WVT_STRING )
 							( "color", CGuiSkin::WVT_COLOR )
+							( "center", CGuiSkin::WVT_BOOL )
 							( "var", CGuiSkin::WVT_STRING );
 
 #endif  //  __CLABEL_H__

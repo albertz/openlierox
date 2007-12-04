@@ -18,6 +18,7 @@
 #define __CINPUTBOX_H__
 
 #include "InputEvents.h"
+#include "CGuiSkinnedLayout.h"
 
 
 // Inputbox events
@@ -45,6 +46,7 @@ public:
 		bmpImage = img;
 		iType = wid_Inputbox;
 		iMouseOver = false;
+		sVar = NULL;
 	}
 
 
@@ -57,6 +59,7 @@ private:
 	int			iMouseOver;
 	std::string	sName;
 
+	std::string		*sVar;
 
 public:
 	// Methods
@@ -104,8 +107,37 @@ public:
 	inline void	setText(const std::string& _t)		{ sText = _t; }
 	inline std::string	getName(void)				{ return sName; }
 
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p );
+	void	ProcessGuiSkinEvent(int iEvent);
+
+	static CInputbox * InputBoxSelected;
+	static std::string InputBoxLabel;	// "GUI.InputBoxLabel" skin string
+	friend class CInputboxInput;
 };
 
+class CInputboxInput: public CInputbox	// InputBoxDialog.xml should contain exactly one such control at the end
+{
+	private:
+	int		iSkipFirstFrame;
 
+	public:
+	CInputboxInput();
+	void	Create(void) 
+	{ 
+		iX = iY = 0;	// Fullscreen to capture MouseOver() event on every frame
+		iWidth = 640;
+		iHeight = 480;
+	};
+	void	Draw(SDL_Surface *bmpDest) {};
+	int		MouseOver(mouse_t *tMouse);
+
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CInputboxInput * w = new CInputboxInput();
+		return w;
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) { };
+};
 
 #endif  //  __CINPUTBOX_H__

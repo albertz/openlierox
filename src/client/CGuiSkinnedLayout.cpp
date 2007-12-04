@@ -631,8 +631,21 @@ void CGuiSkinnedLayout::ChildDialog( const std::string & param, CWidget * source
 	lp->bChildLayoutFullscreen = fullscreen;
 };
 
+void CGuiSkinnedLayout::SubstituteDialog( const std::string & param, CWidget * source )
+{
+	CGuiSkinnedLayout * lp = (CGuiSkinnedLayout *) source->getParent();
+	CGuiSkinnedLayout * ll = (CGuiSkinnedLayout *) lp->getParent();
+	if( ll != NULL )
+	{
+		ExitDialog( "", source );
+		CLabel dummy( "", tLX->clPink );
+		dummy.setParent(ll);
+		ChildDialog( param, &dummy );
+	};
+};
+
 static bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
 	( & CGuiSkinnedLayout::ExitDialog, "ExitDialog" )
 	( & CGuiSkinnedLayout::ChildDialog, "ChildDialog" )
-	//( & CGuiSkinnedLayout::SubstituteDialog, "SubstituteDialog" )
+	( & CGuiSkinnedLayout::SubstituteDialog, "SubstituteDialog" )	// Needed for tab-list emulation
 	;

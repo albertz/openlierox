@@ -36,7 +36,7 @@
 
 <label top='200' left='350' text="GameOptions.LastGame.Lives" color="#ffffff"/>
 <slider top='230' left='350' width='120' height='20' min="0" max="100" var="GameOptions.LastGame.Lives" click=""/>
-<label top='230' left='500' var="GameOptions.LastGame.Lives" color="#ffffff"/>
+<label top='230' left='500' var="GameOptions.LastGame.Lives" color="#ffffff" center="1" />
 
 <label top='260' left='350' text="GameOptions.LastGame.LoadingTime" color="#ffffff"/>
 <scrollbar top='290' left='350' width='14' height='100' min="0" max="100" itemsperbox="0" 
@@ -47,5 +47,11 @@
 
 <label pos='465,10' text="Skin" color="#ffffff"/>
 <combobox pos='500,8,130,17' var="GameOptions.Game.SkinPath" init="GUI.SkinCombobox_Init()" click="GUI.MakeSound() GUI.SkinCombobox_Change()" items="None#"/>
+
+<label pos='420,350' text="Teamchat" color="#ffffff"/>
+<inputbox pos='500,350,50,17' name="Teamchat key" var="GameOptions.GeneralControls.TeamChat"/>
+
+<label pos='420,370' text="Chat" color="#ffffff"/>
+<inputbox pos='500,370,50,17' name="Chat" var="GameOptions.GeneralControls.Chat"/>
 
 </dialog>
