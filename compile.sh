@@ -135,7 +135,7 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$($sdlconfig --libs) \
 	$($xmlconfig --cflags) \
 	$($xmlconfig --libs) \
-	-lSDL_image -lSDL_mixer -lgd \
+	-lSDL_image -lSDL_mixer -lgd -pthread \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
