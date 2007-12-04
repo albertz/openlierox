@@ -83,6 +83,13 @@ void Menu_MainInitialize(void)
 	cMainMenu.Add( GuiSkin, mm_ShowSkin, 500,8,130,17);
 	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );
 	c_init.Call();
+
+	// Check if skin should be loaded instead of main menu ( also when selecting different skin from skinned menu )
+	if( tLXOptions->sSkinPath != "" )
+	{
+		Menu_MainShutdown();
+		Menu_CGuiSkinInitialize();
+	};
 }
 
 

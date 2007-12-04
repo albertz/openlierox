@@ -138,7 +138,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	xmlNodePtr	Node;
 	CGuiSkinnedLayout * gui = new CGuiSkinnedLayout();
 
-	Doc = xmlParseFile(filepath.c_str());
+	//Doc = xmlParseFile(filepath.c_str());
+	Doc = xmlReadFile( filepath.c_str(), "UTF8", XML_PARSE_NOBLANKS | XML_PARSE_NONET | XML_PARSE_NOCDATA | XML_PARSE_COMPACT );
 	if (Doc == NULL)  
 	{
 		printf("Cannot parse GUI skin file %s\n", filepath.c_str() );
@@ -310,13 +311,8 @@ CGuiSkinnedLayout * MainLayout = NULL;
 int		Menu_CGuiSkinInitialize(void)
 {
 	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
-	//DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
-	//Menu_DrawBox(tMenu->bmpBuffer, 0, 0, 640-1, 480-1,);
-	//DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-	//CGuiSkin::InitLayouts();
 	SetGameCursor(CURSOR_ARROW);
 	tMenu->iMenuType = MNU_GUISKIN;
-	//DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky
 	MainLayout = CGuiSkin::GetLayout( "main" );
 	if( MainLayout == NULL )
 	{
@@ -335,8 +331,6 @@ void	Menu_CGuiSkinFrame(void)
 		Menu_MainInitialize();
 		return;
 	};
-	if( MainLayout == NULL )
-		return;
 	MainLayout->Draw(tMenu->bmpBuffer);
 	DrawCursor(tMenu->bmpBuffer);
 	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
@@ -344,8 +338,6 @@ void	Menu_CGuiSkinFrame(void)
 
 void	Menu_CGuiSkinShutdown(void)
 {
-	if( MainLayout == NULL )
-		return;
 	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
 	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);
 	SetGameCursor(CURSOR_NONE);
@@ -471,7 +463,7 @@ void MakeSound( const std::string & param, CWidget * source )
 		};
 	};
 
-std::string sSkinCombobox_OldSkinPath;
+std::string sSkinCombobox_OldSkinPath("");	// We're in non-skinned menu by default
 
 void SkinCombobox_Init( const std::string & param, CWidget * source )
 {
@@ -490,22 +482,14 @@ void SkinCombobox_Change( const std::string & param, CWidget * source )
 {
 	if( source->getType() != wid_Combobox )
 		return;
-	if( tLXOptions->sSkinPath == "" && sSkinCombobox_OldSkinPath != "" )	// Go to non-skinned menu from skinned menu
-	{
-		Menu_CGuiSkinShutdown();
-		Menu_MainInitialize();
-	}
-	else if( tLXOptions->sSkinPath != "" && sSkinCombobox_OldSkinPath == "" )	// Go to skinned menu from non-skinned menu
+	if( tLXOptions->sSkinPath != "" && sSkinCombobox_OldSkinPath == "" )	// Go to skinned menu from non-skinned menu
 	{
 		Menu_MainShutdown();
 		Menu_CGuiSkinInitialize();
 	}
-	else if( tLXOptions->sSkinPath != "" && sSkinCombobox_OldSkinPath != tLXOptions->sSkinPath )	// Load another skin
+	else	// Go from skinned menu to non-skinned menu or load another skin - handled in Menu_MainInitialize()
 	{
-		Menu_CGuiSkinShutdown();
-		Menu_MainInitialize();
-		Menu_MainShutdown();
-		Menu_CGuiSkinInitialize();
+		CGuiSkinnedLayout::ExitDialog( "", source );
 	};
 	sSkinCombobox_OldSkinPath = tLXOptions->sSkinPath;
 };
