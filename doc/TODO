@@ -1,5 +1,6 @@
 TODO
 
+[ ] finish mouse-aiming (!!)
 [?] crashes on MacOSX (!!)
 [X] Make dual viewports work yet again. (!!)
 [X] Fix the colour detection of pink for mods (255 0 255) which only
