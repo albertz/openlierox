@@ -15,63 +15,21 @@
 #						  set it manually and DEBUG==1 )
 #	HAWKNL_BUILTIN		- if set to 1, HawkNL will be builtin
 #	VERSION				- version number; like 0.57_beta2
-#						  if not set, the file VERSION will be read
-#						  if file VERSION does not exist, the default
-#						  (defined in LieroX.h) will be used
+#						  if not set, the function functions.sh:get_olx_version
+#                         generates the string automatically
+
+source functions.sh
 
 # check variables and set default values if unset
 [ "$SYSTEM_DATA_DIR" == "" ] && SYSTEM_DATA_DIR=/usr/share
 [ "$DEBUG" == "" ] && DEBUG=1
 [ "$COMPILER" == "" ] && COMPILER=g++
 [ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
-[ "$VERSION" == "" ] && [ -e VERSION ] && VERSION=$(cat VERSION)
+[ "$VERSION" == "" ] && VERSION=$(get_olx_version)
 
 # add standards to include path list
 INCLUDE_PATH="$INCLUDE_PATH /usr/include /usr/local/include /sw/include /opt/local/include"
 LIB_PATH="$LIB_PATH /sw/lib /opt/local/lib"
-
-# some simple existance-test-function
-function test_include_file() {
-	for p in $INCLUDE_PATH; do
-		[ -e $p/$1 ] && return 0
-	done
-	return -1
-}
-
-# check if executable is there
-function test_exec() {
-	which $1 1>/dev/null 2>/dev/null
-	return $?
-}
-
-# grep parameter $1 out of input-stream
-function grep_param() {
-	for p in $(xargs); do
-		echo "$p" | grep "${1/-/\-}" | sed -e "s/$1//"
-	done
-}
-
-# simply own sdl-config
-function own_sdl_config() {
-	[ "$1" == "--libs" ] && echo "-lSDL"
-	if [ "$1" == "--cflags" ]; then
-		for d in $INCLUDE_PATH; do
-			[ -d "$d/SDL" ] && echo -n "-I$d/SDL "
-		done
-		echo ""
-	fi
-}
-
-# simply own xml2-config
-function own_xml2_config() {
-	[ "$1" == "--libs" ] && echo "-lz -lxml2"
-	if [ "$1" == "--cflags" ]; then
-		for d in $INCLUDE_PATH; do
-			[ -d "$d/libxml2" ] && echo -n "-I$d/libxml2 "
-		done
-		echo ""
-	fi
-}
 
 # handle SDL specific compiler settings and get include-dirs
 sdlconfig=""
@@ -108,12 +66,6 @@ test_include_file gd.h || \
 	{ echo "ERROR: gd header not found" >&2; ALL_FINE=0; }
 
 if [ "$HAWKNL_BUILTIN" == "1" ]; then
-	if [ $ALL_FINE == 1 ]; then
-		cd hawknl
-		./install.sh || \
-			{ echo "ERROR: problems while installing HawkNL" >&2; exit -1; }
-		cd ..
-	fi
 	HAWKNL_GCC_PARAM="\
 		hawknl/src/crc.c \
 		hawknl/src/errorstr.c \
@@ -139,7 +91,7 @@ fi
 
 
 # report the used settings
-[ "$VERSION" != "" ] && echo "* version $(cat VERSION)"
+[ "$VERSION" != "" ] && echo "* version $VERSION"
 echo "* the global search-path of the game will be $SYSTEM_DATA_DIR/OpenLieroX"
 [ "$DEBUG" == "1" ] && \
 	echo "* debug-thingies in the game will be activated" || \
@@ -152,7 +104,7 @@ echo "* $COMPILER will be used for compilation"
 	echo "* none additional compiler-flags will be used" || \
 	echo "* the following additional compiler-flags will be used: $CXXFLAGS"
 [ "$HAWKNL_BUILTIN" == "1" ] && \
-	echo "* HawkNL support will be downloaded automaticaly and built into the binary" || \
+	echo "* HawkNL support will be built into the binary" || \
 	echo "* the binary will be linked dynamically against the HawkNL-lib"
 
 
