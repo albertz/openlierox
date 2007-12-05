@@ -17,6 +17,7 @@
 #include "Utils.h"
 #include "GfxPrimitives.h" // for MakeColour
 #include "CFont.h" // for CFont
+#include "ConfigHandler.h" // for getting color value from data/frontend/colours.cfg
 
 void StripQuotes(std::string& str)
 {
@@ -143,6 +144,12 @@ Uint32 StrToCol(const std::string& str) {
 	// Is the # character present?
 	if (temp[0] == '#') // str != "" here
 		temp.erase(0,1);
+	else	// Try searching color in data/frontend/colours.cfg
+	{
+		Uint32 col;
+		ReadColour( "data/frontend/colours.cfg", "Colours", temp, &col, tLX->clPink );
+		return col;
+	};
 
 	// Check
 	if (temp.length() < 6)
