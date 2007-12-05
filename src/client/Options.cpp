@@ -60,7 +60,7 @@ bool GameOptions::Init() {
 #endif
 		( tLXOptions->iNetworkPort, "Network.Port", LX_PORT )
 		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_MODEM )
-		( tLXOptions->fUpdatePeriod, "Advanced.NetworkUpdatePeriod", 0.05 )
+		( tLXOptions->fUpdatePeriod, "Advanced.NetworkUpdatePeriod", 0.05f )
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
 		( tLXOptions->bLoadDbAtStartup, "Network.LoadDbAtStartup", false )
 		( tLXOptions->sSTUNServer, "Network.STUNServer", "stunserver.org" )
