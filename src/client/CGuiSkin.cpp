@@ -132,7 +132,10 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	};
 
 	if( m_instance->m_guis.find( filepath ) != m_instance->m_guis.end() )
+	{
+		m_instance->m_guis[ filepath ]->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 		return m_instance->m_guis[ filepath ];
+	};
 
 	xmlDocPtr	Doc;
 	xmlNodePtr	Node;
@@ -214,7 +217,6 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 			if( s_id != "" )
 				i_id = gui->GetIdByName( s_id );
 			gui->Add( widget, i_id, left, top, width, height );
-			widget->ProcessGuiSkinEvent(INIT_WIDGET);
 			if( init != "" )
 			{
 				CallbackHandler c_init( init, widget );
@@ -234,6 +236,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 
 	xmlFree(Doc);
 	m_instance->m_guis[ filepath ] = gui;
+	gui->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
+	gui->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 	printf("GUI skin file %s loaded\n", filepath.c_str() );
 	return gui;
 };
@@ -403,6 +407,44 @@ void CGuiSkin::CallbackHandler::Call()
 	unsigned size = m_callbacks.size();	// Some callbacks may destroy *this, m_callbacks.size() call will crash
 	for( unsigned f=0; f<size; f++ )	// I know that's hacky, oh well...
 		m_callbacks[f].first( m_callbacks[f].second, m_source );	// Here *this may be destroyed
+};
+
+static bool bUpdateCallbackListChanged = false;
+
+void CGuiSkin::RegisterUpdateCallback( SkinCallback_t update, const std::string & param, CWidget * source )
+{
+	Init();
+	m_instance->m_updateCallbacks.push_back( UpdateList_t( source, update, param ) );
+	bUpdateCallbackListChanged = true;
+};
+
+void CGuiSkin::DeRegisterUpdateCallback( CWidget * source )
+{
+	Init();
+	for( std::list< UpdateList_t > ::iterator it = m_instance->m_updateCallbacks.begin(); 
+			it != m_instance->m_updateCallbacks.end(); )
+	{
+		if( it->source == source )
+			m_instance->m_updateCallbacks.erase( it++ );	// Erase from std::list do not invalidate iterators
+		else	
+			++it;
+	};
+	bUpdateCallbackListChanged = true;
+};
+
+void CGuiSkin::ProcessUpdateCallbacks()
+{
+	Init();
+	for( std::list< UpdateList_t > ::iterator it = m_instance->m_updateCallbacks.begin(); 
+			it != m_instance->m_updateCallbacks.end(); ++it )
+	{
+		it->update( it->param, it->source );
+		if( bUpdateCallbackListChanged )
+		{
+			bUpdateCallbackListChanged = false;
+			return;	// Will update other callbacks on the next frame
+		};
+	};
 };
 
 class CGuiSkin_Destroyer

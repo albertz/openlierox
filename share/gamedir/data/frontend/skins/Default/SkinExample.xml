@@ -60,4 +60,6 @@ http://lxalliance.net/smf/index.php/topic,6432.0.html
 
 <button top='440' left='10' width='30' height='30' textid="5" click="GUI.ExitDialog GUI.MakeSound"/>
 
+<listview pos="500,100,50,100"/>
+
 </dialog>

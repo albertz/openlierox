@@ -263,8 +263,22 @@ public:
 	inline bool	NeedsRepaint()  {return bNeedsRepaint; }
 	inline void	SetRepaint(bool _r)  { bNeedsRepaint = _r; }  // Explicitly set this listview needs to be repainted
 
+	// Read-only listview for skinning, more variants to come.
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	{
+		CListview * w = new CListview();
+		w->setOldStyle( p[0].b );
+		return w;
+	};
+	
+	void	ProcessGuiSkinEvent(int iEvent) 
+	{
+	};
 };
 
+static bool CListview_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "listview", & CListview::WidgetCreator )
+							( "oldstyle", CGuiSkin::WVT_BOOL );
 
 
 #endif  //  __CLISTVIEW_H__

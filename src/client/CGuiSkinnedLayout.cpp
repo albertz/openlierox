@@ -241,6 +241,7 @@ bool CGuiSkinnedLayout::Process(void)
 	if( tMouse->WheelScrollUp )
 		MouseWheelUp(tMouse);
 	MouseOver(tMouse);
+	CGuiSkin::ProcessUpdateCallbacks();
 	
 	return ! bExitCurrentDialog;
 }
@@ -341,6 +342,17 @@ DWORD CGuiSkinnedLayout::SendMessage(int iControl, int iMsg, std::string *sStr, 
 
 	return w->SendMessage(iMsg, sStr, Param);
 }
+
+void CGuiSkinnedLayout::ProcessGuiSkinEvent(int iEvent)
+{
+	if( iEvent < 0 )	// Global event - pass it to all children
+	{
+		for( CWidget * w = cWidgets ; w ; w = w->getNext() )
+			w->ProcessGuiSkinEvent( iEvent );
+		if( cChildLayout )
+			cChildLayout->ProcessGuiSkinEvent( iEvent );
+	};
+};
 
 int		CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 {

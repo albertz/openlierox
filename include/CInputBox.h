@@ -122,22 +122,15 @@ class CInputboxInput: public CInputbox	// InputBoxDialog.xml should contain exac
 
 	public:
 	CInputboxInput();
-	void	Create(void) 
-	{ 
-		iX = iY = 0;	// Fullscreen to capture MouseOver() event on every frame
-		iWidth = 640;
-		iHeight = 480;
-	};
-	void	Draw(SDL_Surface *bmpDest) {};
-	int		MouseOver(mouse_t *tMouse);
-
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
-	{
-		CInputboxInput * w = new CInputboxInput();
-		return w;
-	};
+	~CInputboxInput();
 	
-	void	ProcessGuiSkinEvent(int iEvent) { };
+	void	Draw(SDL_Surface *bmpDest) {};
+
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p );
+	
+	void	ProcessGuiSkinEvent(int iEvent);
+
+	static void UpdateCallback( const std::string & param, CWidget * source );
 };
 
 #endif  //  __CINPUTBOX_H__

@@ -69,31 +69,50 @@ void CInputbox::ProcessGuiSkinEvent(int iEvent)
 
 CInputboxInput::CInputboxInput(): CInputbox( 0, "", tMenu->bmpInputbox, "" )
 {
-	iSkipFirstFrame = 1;
 };
 
-int CInputboxInput::MouseOver(mouse_t *tMouse)
-{ 
-	if( iSkipFirstFrame )
-	{
-		iSkipFirstFrame = 0;
-		return INB_NONE;
-	};
-	CInput inp;
-	std::string s;
-	inp.Wait( s );
-	if( s != "" )
+CInputboxInput::~CInputboxInput()
+{
+	CGuiSkin::DeRegisterUpdateCallback( this );
+};
+
+void CInputboxInput::ProcessGuiSkinEvent(int iEvent)
+{
+	if( iEvent ==  CGuiSkin::SHOW_WIDGET )
 	{
 		iSkipFirstFrame = 1;
+		CGuiSkin::RegisterUpdateCallback( & UpdateCallback, "", this );
+	};
+};
+
+void CInputboxInput::UpdateCallback( const std::string & param, CWidget * source )
+{ 
+	CInputboxInput * in = (CInputboxInput *) source;
+	if( in->iSkipFirstFrame )
+	{
+		in->iSkipFirstFrame = 0;
+		return;
+	};
+	CInput input;
+	std::string s;
+	input.Wait( s );
+	if( s != "" )
+	{
+		in->iSkipFirstFrame = 1;
 		if( InputBoxSelected != NULL )
 			InputBoxSelected->setText(s);
 		CGuiSkin::CallbackHandler c;
-		c.Init( "GUI.ExitDialog()", this );
+		c.Init( "GUI.ExitDialog()", source );
 		c.Call();
+		CGuiSkin::DeRegisterUpdateCallback( source );
 	};
-	return INB_NONE; 
 };
 
+CWidget * CInputboxInput::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+{
+	CInputboxInput * w = new CInputboxInput();
+	return w;
+};
 
 static bool InputboxLabel_Registered = CGuiSkin::RegisterVars("GUI")
 		( CInputbox::InputBoxLabel, "InputBoxLabel" );

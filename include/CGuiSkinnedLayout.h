@@ -106,7 +106,7 @@ public:
 
 	void	LoadStyle(void) { };
 	
-	void	ProcessGuiSkinEvent(int iEvent) { };
+	void	ProcessGuiSkinEvent(int iEvent);
 	
 	static void ExitDialog( const std::string & param, CWidget * source );
 	static void ChildDialog( const std::string & param, CWidget * source );

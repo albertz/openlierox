@@ -18,6 +18,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <list>
 
 class CWidget;
 class CGuiSkinnedLayout;
@@ -221,15 +222,25 @@ public:
 		CWidget * m_source;
 		public:
 		
-		void Init( const std::string & s, CWidget * source );
+		void Init( const std::string & param, CWidget * source );
 		void Call();
 		CallbackHandler(): m_source(NULL) { };
-		CallbackHandler( const std::string & s, CWidget * source ) { Init( s, source ); };
+		CallbackHandler( const std::string & param, CWidget * source ) { Init( param, source ); };
 	};
 	
-	// Special event for Widget::ProcessGuiSkinEvent() called after widget added to CGuiLayout
-	// Some widgets (textbox and combobox) require this
-	enum { INIT_WIDGET = -3 };	
+	// Update will be called on each frame with following params
+	static void RegisterUpdateCallback( SkinCallback_t update, const std::string & param, CWidget * source );
+	// Remove widget from update list ( called from widget destructor )
+	static void DeRegisterUpdateCallback( CWidget * source );
+	// Called on each frame
+	static void ProcessUpdateCallbacks();
+	
+	// INIT_WIDGET is special event for Widget::ProcessGuiSkinEvent() which is called 
+	// after widget added to CGuiLayout - some widgets (textbox and combobox) require this.
+	// SHOW_WIDGET is special event for Widget::ProcessGuiSkinEvent() which is called
+	// when the dialog is shown - dialogs are cached into memory and may be shown or hidden.
+	// No need for HIDE_WIDGET yet.
+	enum { INIT_WIDGET = -3, SHOW_WIDGET = -4 };
 private:
 
 	friend class CGuiSkin_RegisterVarDarkMagic;
@@ -241,7 +252,15 @@ private:
 	std::map< std::string, SkinVarPtr_t > m_vars;	// All in-game variables and callbacks
 	std::map< std::string, CGuiSkinnedLayout * > m_guis;	// All loaded in-game GUI layouts
 	std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > m_widgets;	// All widget classes
-
+	struct UpdateList_t
+	{
+		UpdateList_t( CWidget * s, SkinCallback_t u, const std::string & p ): 
+			source( s ), update( u ), param( p ) { };
+		CWidget * source;
+		SkinCallback_t update;
+		const std::string & param;
+	};
+	std::list< UpdateList_t > m_updateCallbacks;
 };
 
 #endif
