@@ -124,6 +124,8 @@ void test_Unicode_UTF8_Conversion() {
 // Main entry point
 int main(int argc, char *argv[])
 {
+	printf("OpenLieroX " LX_VERSION " is starting ...\n");
+
 #ifdef _MSC_VER
 #ifdef _DEBUG
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -134,10 +136,6 @@ int main(int argc, char *argv[])
 #else
 	// TODO: same/similar for other systems
 #endif // _MSC_VER
-
-	//test_Unicode_UTF8_Conversion();
-
-	printf("OpenLieroX " LX_VERSION " is starting ...\n");
 
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
@@ -379,7 +377,7 @@ void ParseArguments(int argc, char *argv[])
 ///////////////////
 // Initialize the game
 int InitializeLieroX(void)
-{
+{	
 	printf("Hello there, I am initializing me now...\n");
 	
 	// Initialize the aux library

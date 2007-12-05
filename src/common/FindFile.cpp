@@ -514,7 +514,7 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 
 
 std::ifstream* OpenGameFileR(const std::string& path) {
-	// TODO: unicode support!
+	// TODO: unicode support! (?)
 
 	if(path.size() == 0)
 		return NULL;
@@ -546,16 +546,14 @@ void removeEndingSlashes(std::string& s)
 /////////////////
 // Returns true, if the list contains the path
 bool FileListIncludesExact(const searchpathlist* l, const std::string& f) {
-	static std::string tmp1;
-	static std::string tmp2;
-	tmp1 = f;
+	std::string tmp1 = f;
 	removeEndingSlashes(tmp1);
 	ReplaceFileVariables(tmp1);
 	replace(tmp1,"\\","/");
 	
 	// Go through the list, checking each item
 	for(searchpathlist::const_iterator i = l->begin(); i != l->end(); i++) {
-		tmp2 = *i;
+		std::string tmp2 = *i;
 		removeEndingSlashes(tmp2);
 		ReplaceFileVariables(tmp2);
 		replace(tmp2,"\\","/");
@@ -568,7 +566,6 @@ bool FileListIncludesExact(const searchpathlist* l, const std::string& f) {
 
 std::string GetHomeDir() {
 #ifndef WIN32
-	// TODO: unicode support!
 	char* home = getenv("HOME");
 	if(home == NULL || home[0] == '\0') {
 		passwd* userinfo = getpwuid(getuid());
