@@ -15,6 +15,7 @@
 
 
 #include <assert.h>
+#include <iostream>
 
 #include "LieroX.h"
 #include "AuxLib.h"
@@ -688,6 +689,7 @@ int Menu_LocalCheckPlaying(int index)
 		addMod(CCombobox* cb_) : combobox(cb_), i(0) {}
 		inline bool operator() (const std::string& f) {
 			size_t sep = findLastPathSep(f);
+			std::cout << "addMod: " << f << " (" << sep << ")" << std::endl;
 			if(sep != std::string::npos) {
 				std::string name;
 				if(CGameScript::CheckFile(f,name)) {
