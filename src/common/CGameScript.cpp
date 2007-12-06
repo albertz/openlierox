@@ -332,6 +332,9 @@ int CGameScript::Load(const std::string& dir)
 	// Header
 	fread(&Header,sizeof(gs_header_t),1,fp);
 	EndianSwap(Header.Version);
+	// for security
+	fix_markend(head.ID);
+	fix_markend(head.ModName);
 	
 	// Check ID
 	if(strcmp(Header.ID,"Liero Game Script") != 0) {
@@ -907,22 +910,23 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name)
 	
 	// Open it
 	FILE *fp = OpenGameFile(filename,"rb");
-	if(fp == NULL) {
-		if(dir.find("Powerstruck - Dawn") != std::string::npos)
-			std::cout << "GS:CheckFile: could not open " << filename << std::endl;
-		return false;
-	}
+	if(fp == NULL) return false;
 
 	// Header
 	gs_header_t head;
 	memset(&head,0,sizeof(gs_header_t));
 	fread(&head,sizeof(gs_header_t),1,fp);
-	EndianSwap(head.Version);
 	fclose(fp);
+	
+	EndianSwap(head.Version);
+	// for security
+	fix_markend(head.ID);
+	fix_markend(head.ModName);
 
 	// Check ID
 	if(strcmp(head.ID,"Liero Game Script") != 0) {
-		std::cout << "GS:CheckFile: WARNING: " << filename << " is not a Liero game script" << std::endl;	
+		std::cout << "GS:CheckFile: WARNING: " << filename << " is not a Liero game script";
+		std::cout << " (but \"" << head.ID << "\" instead)" << std::endl;
 		return false;
 	}
 

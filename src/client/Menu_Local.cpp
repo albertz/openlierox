@@ -15,7 +15,7 @@
 
 
 #include <assert.h>
-#include <iostream>
+#include <string>
 
 #include "LieroX.h"
 #include "AuxLib.h"
@@ -691,11 +691,7 @@ int Menu_LocalCheckPlaying(int index)
 			size_t sep = findLastPathSep(f);
 			if(sep != std::string::npos) {
 				std::string name;
-				if(f.find("Powerstruck - Dawn") != std::string::npos)
-					std::cout << "addMod: " << f << " (" << sep << ")" << std::endl;
 				if(CGameScript::CheckFile(f,name)) {
-					if(f.find("Powerstruck - Dawn") != std::string::npos)
-						std::cout << "  = " << name << std::endl;
 					if (combobox->addItem(i,f.substr(sep+1),name))  {
 
 						// Set the last used mod as default
