@@ -8,9 +8,10 @@
 	by Albert Zeyer and Dark Charlie
 */
 
-#ifdef WIN32
 #include <SDL_syswm.h>
-#endif
+#include <iostream>
+
+#include "Clipboard.h"
 #include "LieroX.h"
 #include "InputEvents.h"
 #include "AuxLib.h"
@@ -70,16 +71,18 @@ void ProcessEvents(void)
 
 	while(SDL_PollEvent(&Event)) {
 
+		switch(Event.type) {
+		
         // Quit event
-		if(Event.type == SDL_QUIT) {
+		case SDL_QUIT:
 			// Quit
 			tLX->iQuitGame = true;
 			tLX->iQuitEngine = true;
 			tMenu->iMenuRunning = false;
-		}
+			break;
 
 		// Mouse wheel scroll
-		if(Event.type == SDL_MOUSEBUTTONDOWN)  {
+		case SDL_MOUSEBUTTONDOWN:
 			switch(Event.button.button){
 				case SDL_BUTTON_WHEELUP:
 					Mouse.WheelScrollUp = true;
@@ -88,24 +91,24 @@ void ProcessEvents(void)
 					Mouse.WheelScrollDown  = true;
 					break;
 			}  // switch
-		 }  // if
-
+			break;
 
 		// Activation and deactivation
-		if(Event.type == SDL_ACTIVEEVENT && !(Event.active.state & SDL_APPMOUSEFOCUS))  {
-				nFocus = Event.active.gain;
-				bActivated = nFocus != 0;
-
-				// HINT: Reset the mouse state - this should avoid the mouse staying pressed
-				Mouse.Button = 0;
-				Mouse.Down = 0;
-				Mouse.FirstDown = 0;
-				Mouse.Up = 0;
-		}
-
+		case SDL_ACTIVEEVENT:
+			if(!(Event.active.state & SDL_APPMOUSEFOCUS))  {
+					nFocus = Event.active.gain;
+					bActivated = nFocus != 0;
+	
+					// HINT: Reset the mouse state - this should avoid the mouse staying pressed
+					Mouse.Button = 0;
+					Mouse.Down = 0;
+					Mouse.FirstDown = 0;
+					Mouse.Up = 0;
+			}
+			break;
 
         // Keyboard events
-		if(Event.type == SDL_KEYUP || Event.type == SDL_KEYDOWN) {
+		case SDL_KEYUP: case SDL_KEYDOWN:
 
 			// Check the characters
 			if(Event.key.state == SDL_PRESSED || Event.key.state == SDL_RELEASED) {
@@ -171,9 +174,18 @@ void ProcessEvents(void)
 				}
 
             }
-        }
+        	break;
+        	
+        case SDL_SYSWMEVENT:
+			handle_system_event(Event);
+        	break;
+        	
+        default:
+        	//std::cout << "WARNING: unhandled event " << Event.type << std::endl;
+        	break;
+		}
 	}
-
+	
 
     // If we don't have focus, don't update as often
     if(!nFocus)

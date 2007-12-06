@@ -31,14 +31,13 @@
 #define CLIPBOARD_HPP_INCLUDED
 
 #include <string>
-#include <SDL.h> // TODO: is it needed here?
+#include <SDL.h>
 
 void copy_to_clipboard(const std::string& text);
 std::string copy_from_clipboard();
 
-#if defined(X11CLIPBOARD) && !defined(__APPLE__)
+// on X11 we will get an SDL_SYSWMEVENT when another application requests our text in clipboard
 void handle_system_event(const SDL_Event& ev);
-#endif
 
 #endif
 
