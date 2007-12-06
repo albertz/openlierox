@@ -333,8 +333,8 @@ int CGameScript::Load(const std::string& dir)
 	fread(&Header,sizeof(gs_header_t),1,fp);
 	EndianSwap(Header.Version);
 	// for security
-	fix_markend(head.ID);
-	fix_markend(head.ModName);
+	fix_markend(Header.ID);
+	fix_markend(Header.ModName);
 	
 	// Check ID
 	if(strcmp(Header.ID,"Liero Game Script") != 0) {
