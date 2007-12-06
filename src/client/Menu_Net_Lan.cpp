@@ -14,6 +14,7 @@
 // Jason Boettcher
 
 
+#include "Clipboard.h"
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "Graphics.h"
@@ -318,7 +319,7 @@ void Menu_Net_LANFrame(int mouse)
 					// Copy the IP to clipboard
 					case MNU_USER+5:
 						{
-							SetClipboardText(szLanCurServer);
+							copy_to_clipboard(szLanCurServer);
 						}
 						break;
 

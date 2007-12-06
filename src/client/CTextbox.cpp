@@ -19,6 +19,8 @@
 
 
 #include <string>
+
+#include "Clipboard.h"
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "Menu.h"
@@ -669,7 +671,7 @@ void CTextbox::PasteText(void)
 	if(iSelLength)
 		Delete();
 
-    text = GetClipboardText();
+    text = copy_from_clipboard();
 
 	// Insert the text
 	for(std::string::const_iterator i = text.begin(); i != text.end(); )
@@ -682,7 +684,7 @@ void CTextbox::CopyText(void)
 {
 	if (!iSelLength)
 		return;
-	SetClipboardText(sSelectedText);
+	copy_to_clipboard(sSelectedText);
 }
 
 static bool CTextbox_WidgetRegistered = 

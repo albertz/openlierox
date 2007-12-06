@@ -13,6 +13,7 @@
 // Created 21/7/02
 // Jason Boettcher
 
+#include "Clipboard.h"
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "MathLib.h"
@@ -1755,7 +1756,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 			iChat_Pos = text_len;
 
 		// Get the text
-		std::string buf = GetClipboardText();
+		std::string buf = copy_from_clipboard();
 
 		// Paste
 		Utf8Insert(sChat_Text, iChat_Pos, buf);

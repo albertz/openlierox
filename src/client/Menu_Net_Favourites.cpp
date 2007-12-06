@@ -14,6 +14,7 @@
 // Jason Boettcher
 
 
+#include "Clipboard.h"
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "Graphics.h"
@@ -360,7 +361,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 					// Copy the IP to clipboard
 					case MNU_USER+5:
 						{
-							SetClipboardText(szFavouritesCurServer);
+							copy_to_clipboard(szFavouritesCurServer);
 						}
 						break;
 

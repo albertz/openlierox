@@ -52,9 +52,6 @@ std::string	GetGameName(void);
 
 std::string GetConfigFile(void);
 
-std::string GetClipboardText();
-int         SetClipboardText(const std::string& szText);
-
 void		ProcessScreenshots();
 void        TakeScreenshot(const std::string& scr_path, const std::string& additional_data);
 

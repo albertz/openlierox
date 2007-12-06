@@ -15,6 +15,7 @@
 // Created 7/4/02
 // Jason Boettcher
 
+#include "Clipboard.h"
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "console.h"
@@ -317,7 +318,7 @@ void Con_ProcessCharacter(UnicodeChar input)
 
 		// Get the text
 		std::string buf;
-		buf = GetClipboardText();
+		buf = copy_from_clipboard();
 
 		// Paste
 		Console->Line[0].Colour = CNC_NORMAL;
