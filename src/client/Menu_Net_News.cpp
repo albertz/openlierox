@@ -193,7 +193,6 @@ static void NewsListview_Update( const std::string & param, CWidget * source )
 					sNewsText += "---------- Last 20 changes from SourceForge.net:\n";
 					iNewsSourceforgeLastRevision = rev;
 				}
-				printf("Revision: %i\n", rev );
 				std::string author = "?";
 				if( data.find( "Author:\n" ) != std::string::npos )
 				{

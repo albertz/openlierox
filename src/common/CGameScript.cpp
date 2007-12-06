@@ -933,7 +933,7 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name)
 	// Check version
 	if(head.Version != GS_VERSION) {
 		std::cout << "GS:CheckFile: WARNING: " << filename << " has the wrong version";
-		std::cout << " (" << head.Version << ", required is " << GS_VERSION << ")" << std::endl;
+		std::cout << " (" << (unsigned)head.Version << ", required is " << GS_VERSION << ")" << std::endl;
 		return false;
 	}
 

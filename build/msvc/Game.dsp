@@ -687,6 +687,14 @@ SOURCE=..\..\include\CTextbox.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\client\CTextButton.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CTextButton.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\CTitleButton.cpp
 # End Source File
 # Begin Source File
