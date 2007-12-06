@@ -675,7 +675,7 @@ int Menu_LocalCheckPlaying(int index)
 
 	// Check if there is too many human players (MAX: 2)
 	if(p) {
-		if(p->iType == PRF_HUMAN && hmncount+1 > 2)
+		if(p->iType == PRF_HUMAN && hmncount >= 2)
 			return false;
 	}
 

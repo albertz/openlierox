@@ -15,6 +15,7 @@
 
 
 #include <stdarg.h>
+#include <iostream>
 
 #include "EndianSwap.h"
 #include "LieroX.h"
@@ -906,8 +907,11 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name)
 	
 	// Open it
 	FILE *fp = OpenGameFile(filename,"rb");
-	if(fp == NULL)
+	if(fp == NULL) {
+		if(dir.find("Powerstruck - Dawn") != std::string::npos)
+			std::cout << "GS:CheckFile: could not open " << filename << std::endl;
 		return false;
+	}
 
 	// Header
 	gs_header_t head;
@@ -917,12 +921,17 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name)
 	fclose(fp);
 
 	// Check ID
-	if(strcmp(head.ID,"Liero Game Script") != 0)
+	if(strcmp(head.ID,"Liero Game Script") != 0) {
+		std::cout << "GS:CheckFile: WARNING: " << filename << " is not a Liero game script" << std::endl;	
 		return false;
+	}
 
 	// Check version
-	if(head.Version != GS_VERSION)
+	if(head.Version != GS_VERSION) {
+		std::cout << "GS:CheckFile: WARNING: " << filename << " has the wrong version";
+		std::cout << " (" << head.Version << ", required is " << GS_VERSION << ")" << std::endl;
 		return false;
+	}
 
 	name = head.ModName;
 	return true;
