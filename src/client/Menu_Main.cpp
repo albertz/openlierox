@@ -73,7 +73,8 @@ void Menu_MainInitialize(void)
 	// Quit
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
 
-	// GUI skin combobox
+	// GUI skin combobox 
+	// TODO: hacky hacky, non-skinned code with skinned widgets, maybe move to different function
 	cMainMenu.Add( new CLabel("Skin",tLX->clNormalLabel), -1, 465,10,0,0);
 	std::vector< CGuiSkin::WidgetVar_t > GuiSkinInit;
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "" ) );	// List of items
@@ -83,6 +84,20 @@ void Menu_MainInitialize(void)
 	cMainMenu.Add( GuiSkin, mm_ShowSkin, 500,8,130,17);
 	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );
 	c_init.Call();
+	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
+	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
+	
+	// News box
+	GuiSkinInit.clear();
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Old style
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( true ) );	// Hide selection
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Hide border
+	GuiSkin = CListview::WidgetCreator(GuiSkinInit);
+	cMainMenu.Add( GuiSkin, -1, 300,110,330,270);
+	c_init.Init( "GUI.NewsListview_Init(#FFD700)", GuiSkin );	// TODO: better color?
+	c_init.Call();
+	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
+	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 
 	// Check if skin should be loaded instead of main menu ( also when selecting different skin from skinned menu )
 	if( tLXOptions->sSkinPath != "" )
@@ -203,6 +218,8 @@ void Menu_MainFrame(void)
                 break;
 		}
 	}
+
+	CGuiSkin::ProcessUpdateCallbacks();	// Process the news box (and other widgets like IRC chat which is not here yet)
 
 	if(mouseover) {
 		alpha += tLX->fDeltaTime*5;

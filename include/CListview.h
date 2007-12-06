@@ -142,6 +142,7 @@ public:
 		bAlwaysVisibleScrollbar = false;
 		tFocusedSubWidget = NULL;
 		tMouseOverSubWidget = NULL;
+		bTempOldStyle = bTempHideSelect = bTempHideBorder = false;
 	}
 
 	~CListview() {
@@ -186,6 +187,7 @@ private:
 	CWidget			*tFocusedSubWidget;
 	CWidget			*tMouseOverSubWidget;
 
+	bool			bTempOldStyle, bTempHideSelect, bTempHideBorder;	// For skinning
 
 public:
 	// Methods
@@ -267,18 +269,28 @@ public:
 	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
 	{
 		CListview * w = new CListview();
-		w->setOldStyle( p[0].b );
+		w->bTempOldStyle = p[0].b;
+		w->bTempHideSelect = p[1].b;
+		w->bTempHideBorder = p[2].b;
 		return w;
 	};
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
+		if( iEvent == CGuiSkin::INIT_WIDGET )
+		{
+			setOldStyle( bTempOldStyle );
+			setShowSelect( ! bTempHideSelect );
+			setDrawBorder( ! bTempHideBorder );
+		};
 	};
 };
 
 static bool CListview_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "listview", & CListview::WidgetCreator )
-							( "oldstyle", CGuiSkin::WVT_BOOL );
+							( "oldstyle", CGuiSkin::WVT_BOOL )
+							( "hideselection", CGuiSkin::WVT_BOOL )
+							( "hideborder", CGuiSkin::WVT_BOOL );
 
 
 #endif  //  __CLISTVIEW_H__

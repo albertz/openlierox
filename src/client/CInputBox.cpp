@@ -73,7 +73,7 @@ CInputboxInput::CInputboxInput(): CInputbox( 0, "", tMenu->bmpInputbox, "" )
 
 CInputboxInput::~CInputboxInput()
 {
-	CGuiSkin::DeRegisterUpdateCallback( this );
+	//CGuiSkin::DeRegisterUpdateCallback( this ); // Called in CWidget::~CWidget()
 };
 
 void CInputboxInput::ProcessGuiSkinEvent(int iEvent)

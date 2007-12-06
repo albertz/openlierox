@@ -18,6 +18,9 @@
 #include "GfxPrimitives.h" // for MakeColour
 #include "CFont.h" // for CFont
 #include "ConfigHandler.h" // for getting color value from data/frontend/colours.cfg
+// HTML parsing library for StripHtmlTags()
+#include <libxml/xmlmemory.h>
+#include <libxml/HTMLparser.h>
 
 void StripQuotes(std::string& str)
 {
@@ -454,3 +457,55 @@ size_t stringcaserfind(const std::string& text, const std::string& search_for)
 	return std::string::npos; // Not found
 }
 
+// StripHTMLTags() copied from http://sugarmaplesoftware.com/25/strip-html-tags/
+
+static void charactersParsed(void* context, const xmlChar* ch, int len)
+/*" Callback function for stringByStrippingHTML. "*/
+{
+	std::string* result = (std::string*) context;
+	*result += std::string( (const char *) ch, len );
+}
+
+/* GCS: custom error function to ignore errors */
+static void structuredError(void * userData, xmlErrorPtr error)
+{
+	/* ignore all errors */
+	(void)userData;
+	(void)error;
+}
+
+std::string StripHtmlTags( const std::string & src )
+/*" Interpretes the receiver as HTML, removes all tags and returns the plain text. "*/
+{
+	std::string str;
+	htmlSAXHandler handler;
+	memset(&handler, 0, sizeof(handler));
+	handler.characters = & charactersParsed;
+  
+	/* GCS: override structuredErrorFunc to mine so I can ignore errors */
+	xmlSetStructuredErrorFunc(xmlGenericErrorContext, &structuredError);
+  
+	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) src.c_str(), "utf-8", &handler, &str );
+  
+	xmlFree(doc);
+	
+	// Remove all "\r" and spaces at the beginning of the line
+	// TODO: use some faster method, like str.find_first_of(" \n\r\t")
+	std::string ret;
+	bool lineStart = true;
+	for( std::string::size_type f = 0; f < str.size(); f++ )
+	{
+		if( lineStart )
+		{
+			if( str[f] == ' ' || str[f] == '\t' )
+				continue;
+			else lineStart = false;
+		};
+		if( str[f] == '\n' )
+			lineStart = true;
+		if( str[f] != '\r' )
+			ret += str[f];
+	};
+  
+	return ret;
+}

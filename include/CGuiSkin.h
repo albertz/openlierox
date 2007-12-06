@@ -258,7 +258,7 @@ private:
 			source( s ), update( u ), param( p ) { };
 		CWidget * source;
 		SkinCallback_t update;
-		const std::string & param;
+		std::string param;
 	};
 	std::list< UpdateList_t > m_updateCallbacks;
 };

@@ -438,11 +438,12 @@ void CGuiSkin::ProcessUpdateCallbacks()
 	for( std::list< UpdateList_t > ::iterator it = m_instance->m_updateCallbacks.begin(); 
 			it != m_instance->m_updateCallbacks.end(); ++it )
 	{
-		it->update( it->param, it->source );
+		std::string param = it->param;	// This string may be destroyed if DeRegisterUpdateCallback() called from update
+		it->update( param, it->source );
 		if( bUpdateCallbackListChanged )
 		{
 			bUpdateCallbackListChanged = false;
-			return;	// Will update other callbacks on the next frame
+			return;	// Will update other callbacks next frame
 		};
 	};
 };
