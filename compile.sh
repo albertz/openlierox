@@ -14,6 +14,7 @@
 #						( it will automatically be activated, if you haven't
 #						  set it manually and DEBUG==1 )
 #	HAWKNL_BUILTIN		- if set to 1, HawkNL will be builtin
+#   X11CLIPBOARD        - if set to 1, X11 clipboard will be used (and linked against libX11)
 #	VERSION				- version number; like 0.57_beta2
 #						  if not set, the function functions.sh:get_olx_version
 #                         generates the string automatically
@@ -25,6 +26,7 @@ source functions.sh
 [ "$DEBUG" == "" ] && DEBUG=1
 [ "$COMPILER" == "" ] && COMPILER=g++
 [ "$ACTIVATE_GDB" == "" ] && [ "$DEBUG" == "1" ] && ACTIVATE_GDB=1
+[ "$X11CLIPBOARD" == "" ] && X11CLIPBOARD=1
 [ "$VERSION" == "" ] && VERSION=$(get_olx_version)
 
 # add standards to include path list
@@ -103,6 +105,9 @@ echo "* $COMPILER will be used for compilation"
 [ "$CXXFLAGS" == "" ] && \
 	echo "* none additional compiler-flags will be used" || \
 	echo "* the following additional compiler-flags will be used: $CXXFLAGS"
+[ "$X11CLIPBOARD" == "1" ] && \
+	echo "* X11 clipboard support is activated" || \
+	echo "* X11 clipboard support is not activated"
 [ "$HAWKNL_BUILTIN" == "1" ] && \
 	echo "* HawkNL support will be built into the binary" || \
 	echo "* the binary will be linked dynamically against the HawkNL-lib"
@@ -139,7 +144,8 @@ if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	-DDEBUG="$DEBUG" \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
-	$( [ "$ACTIVATE_GDB" == "1" ] && echo -g ) \
+	$( [ "$ACTIVATE_GDB" == "1" ] && echo "-g" ) \
+	$( [ "$X11CLIPBOARD" == "1" ] && echo "-DX11CLIPBOARD -lX11" ) \
 	$CXXFLAGS \
 	$LDFLAGS \
 	-o bin/openlierox
