@@ -28,6 +28,7 @@
 */
 
 #include <iostream>
+#include <algorithm>
 #include "Clipboard.h"
 
 #if defined(X11CLIPBOARD) && !defined(__APPLE__)
