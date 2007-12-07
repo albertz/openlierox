@@ -104,7 +104,6 @@ void Con_Hide(void)
 void Con_Process(float dt)
 {
 	keyboard_t *kb = GetKeyboard();
-	SDL_Event *Ev = GetEvent();
 
 	if(kb->KeyUp[SDLK_BACKQUOTE] || kb->KeyUp[SDLK_F1])
 		Con_Toggle();
@@ -133,118 +132,21 @@ void Con_Process(float dt)
 	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
 		return;
 
-
-	// Add text to the console
-	// TODO: why is this commented?
-	//ProcessEvents();
-	//SDL_Event *Ev = GetEvent();
-	// TODO: why is ProcessEvents() not used here?
-	
-	// Make sure a key event happened
-	if(Ev->type != SDL_KEYUP && Ev->type != SDL_KEYDOWN)
-		return;
-
-	UnicodeChar input = 0;
-
-	// Check the characters
-	if(Ev->key.state == SDL_PRESSED) {
-		input = Ev->key.keysym.unicode;
-
-		// TODO: why is this so complicated? isn't there an easier method?
-		// and why are there no comments on this code?
-		if (input == 0)  {
-			switch (Ev->key.keysym.sym) {
-					case SDLK_LEFT:
-					case SDLK_RIGHT:
-					case SDLK_HOME:
-					case SDLK_END:
-					case SDLK_DELETE:
-						input = Ev->key.keysym.sym;
-						break;
-					case SDLK_KP0:
-					case SDLK_KP1:
-					case SDLK_KP2:
-					case SDLK_KP3:
-					case SDLK_KP4:
-					case SDLK_KP5:
-					case SDLK_KP6:
-					case SDLK_KP7:
-					case SDLK_KP8:
-					case SDLK_KP9:
-					case SDLK_KP_MULTIPLY:
-					case SDLK_KP_MINUS:
-					case SDLK_KP_PLUS:
-					case SDLK_KP_EQUALS:
-						input = (uchar) (Ev->key.keysym.sym - 208);
-						break;
-					case SDLK_KP_PERIOD:
-					case SDLK_KP_DIVIDE:
-						input = (uchar) (Ev->key.keysym.sym - 220);
-						break;
-					case SDLK_KP_ENTER:
-						input = '\r';
-						break;
-                    default:
-                        break;
-			}  // switch
-		}
-
-		// Process the input
-		Con_ProcessCharacter(input);
+	// Process the input
+	for(int i = 0; i < kb->queueLength; i++) {
+		Con_ProcessCharacter(kb->keyQueue[i]);
 	}
 
-	// Handle more keys at once keydown
-	for(int i=0; i<kb->queueLength; i++)
-		if (kb->keyQueue[i].down && kb->keyQueue[i].ch != input) // TODO: why only if input != ch?
-			Con_ProcessCharacter(kb->keyQueue[i].ch); // TODO: why is the transformation like above not done here?
-
-	// Key up
-	if(Ev->key.state == SDL_RELEASED && Ev->type == SDL_KEYUP)  {
-		Console->iLastchar = '\0';
-		Console->bHolding = false;
-		Console->fTimePushed = -9999;
-		Console->fLastRepeat = -9999;
-	}
-
-	// Handle the history keys
-
-	// Up arrow
-	if(kb->KeyUp[SDLK_UP]) {
-		Console->icurHistory++;
-		Console->icurHistory = MIN(Console->icurHistory,Console->iNumHistory-1);
-
-		if(Console->icurHistory >= 0) {
-			Console->Line[0].Colour = CNC_NORMAL;
-			Console->Line[0].strText =  Console->History[Console->icurHistory].strText;
-			Console->iCurpos = Console->Line[0].strText.size();
-		}
-	}
-
-	// Down arrow
-	if(kb->KeyUp[SDLK_DOWN]) {
-		Console->icurHistory--;
-		if(Console->icurHistory >= 0) {
-			Console->Line[0].Colour = CNC_NORMAL;
-			Console->Line[0].strText = Console->History[Console->icurHistory].strText;
-		} else {
-			Console->Line[0].strText = "";
-		}
-
-		Console->icurHistory = MAX(Console->icurHistory,-1);
-	}
 }
 
 
 ///////////////////
 // Handles the character typed in the console
-void Con_ProcessCharacter(UnicodeChar input)
+void Con_ProcessCharacter(const KeyboardEvent& input)
 {
-	if (!input)
-		return;
-
 	// Key repeat handling
 	if (Console->bHolding)  {
-		if (Console->iLastchar != input)
+		if (Console->iLastchar != input.ch)
 			Console->bHolding = false;
 		else  {
 			if (tLX->fCurTime - Console->fTimePushed < 0.25f)
@@ -264,11 +166,11 @@ void Con_ProcessCharacter(UnicodeChar input)
 	// Handle the character
 	Console->iBlinkState = 1;
 	Console->fBlinkTime = 0;
-	Console->iLastchar = input;
+	Console->iLastchar = input.ch;
 
 
 	// Backspace
-	if(GetKeyboard()->KeyDown[SDLK_BACKSPACE]) {
+	if(input.sym == SDLK_BACKSPACE) {
 		if(Console->iCurpos > 0)  {
 			Utf8Erase(Console->Line[0].strText, --Console->iCurpos, 1);
 		}
@@ -277,7 +179,7 @@ void Con_ProcessCharacter(UnicodeChar input)
 	}
 
 	// Delete
-	if(input == SDLK_DELETE)  {
+	if(input.ch == SDLK_DELETE)  {
 		if(Utf8StringSize(Console->Line[0].strText) > 0 && Utf8StringSize(Console->Line[0].strText) > Console->iCurpos)  {
 			Utf8Erase(Console->Line[0].strText, Console->iCurpos, 1);
 		}
@@ -286,33 +188,33 @@ void Con_ProcessCharacter(UnicodeChar input)
 	}
 
 	// Left arrow
-	if(input == SDLK_LEFT)  {
+	if(input.ch == SDLK_LEFT)  {
 		if(Console->iCurpos > 0)
 			Console->iCurpos--;
 		return;
 	}
 
 	// Right arrow
-	if(input == SDLK_RIGHT)  {
+	if(input.ch == SDLK_RIGHT)  {
 		if(Console->iCurpos < Utf8StringSize(Console->Line[0].strText))
 			Console->iCurpos++;
 		return;
 	}
 
 	// Home
-	if(input == SDLK_HOME)  {
+	if(input.ch == SDLK_HOME)  {
 		Console->iCurpos = 0;
 		return;
 	}
 
 	// End
-	if(input == SDLK_END)  {
+	if(input.ch == SDLK_END)  {
 		Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
 		return;
 	}
 
 	// Paste
-	if(input == 22)  {
+	if(input.ch == 22)  {
 		// Safety
 		if (Console->iCurpos > Utf8StringSize(Console->Line[0].strText))
 			Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
@@ -332,7 +234,7 @@ void Con_ProcessCharacter(UnicodeChar input)
 
 
 	// Enter key
-	if(input == '\n' || input == '\r') {
+	if(input.ch == '\n' || input.ch == '\r') {
 
 		Con_Printf(CNC_NORMAL, "]" + Console->Line[0].strText);
 
@@ -348,7 +250,7 @@ void Con_ProcessCharacter(UnicodeChar input)
 	}
 
 	// Tab
-	if(input == '\t') {
+	if(input.ch == '\t') {
 		// Auto-complete
 		Cmd_AutoComplete(Console->Line[0].strText);
 		Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
@@ -357,15 +259,44 @@ void Con_ProcessCharacter(UnicodeChar input)
 	}
 
 	// Normal key
-	if(input > 31) {
+	if(input.ch > 31) {
 		// Safety
 		if (Console->iCurpos > Utf8StringSize(Console->Line[0].strText))
 			Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
 
 		Console->Line[0].Colour = CNC_NORMAL;
-		InsertUnicodeChar(Console->Line[0].strText, Console->iCurpos++, input);
+		InsertUnicodeChar(Console->Line[0].strText, Console->iCurpos++, input.ch);
 		Console->icurHistory = -1;
 	}
+	
+	
+	// Handle the history keys
+
+	// Up arrow
+	if(input.sym == SDLK_UP) {
+		Console->icurHistory++;
+		Console->icurHistory = MIN(Console->icurHistory,Console->iNumHistory-1);
+
+		if(Console->icurHistory >= 0) {
+			Console->Line[0].Colour = CNC_NORMAL;
+			Console->Line[0].strText =  Console->History[Console->icurHistory].strText;
+			Console->iCurpos = Console->Line[0].strText.size();
+		}
+	}
+
+	// Down arrow
+	if(input.sym == SDLK_DOWN) {
+		Console->icurHistory--;
+		if(Console->icurHistory >= 0) {
+			Console->Line[0].Colour = CNC_NORMAL;
+			Console->Line[0].strText = Console->History[Console->icurHistory].strText;
+		} else {
+			Console->Line[0].strText = "";
+		}
+
+		Console->icurHistory = MAX(Console->icurHistory,-1);
+	}
+	
 }
 
 

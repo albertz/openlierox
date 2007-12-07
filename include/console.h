@@ -21,7 +21,7 @@
 
 #include "con_cmd.h"
 #include "Unicode.h"
-
+#include "InputEvents.h"
 
 // Console states
 #define		CON_HIDDEN		0
@@ -80,7 +80,7 @@ int		Con_Initialize(void);
 void	Con_Shutdown(void);
 void	Con_Toggle(void);
 void	Con_Process(float dt);
-void	Con_ProcessCharacter(UnicodeChar input);
+void	Con_ProcessCharacter(const KeyboardEvent& input);
 void	Con_Hide(void);
 void	Con_Draw(SDL_Surface *bmpDest);
 
