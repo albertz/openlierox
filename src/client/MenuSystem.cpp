@@ -344,6 +344,8 @@ void Menu_Loop(void)
 	float oldtime = tLX->fCurTime;
 //	float fMaxFrameTime = 1.0f / (float)tLXOptions->nMaxFPS;
 
+	last_frame_was_because_of_an_event = ProcessEvents();
+	
 	while(tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 		tLX->fDeltaTime = tLX->fCurTime - oldtime;
