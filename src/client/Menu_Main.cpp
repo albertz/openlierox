@@ -106,7 +106,7 @@ void Menu_MainInitialize(void)
 	{
 		Menu_MainShutdown();
 		Menu_CGuiSkinInitialize();
-	};
+	}
 }
 
 

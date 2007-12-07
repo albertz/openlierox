@@ -93,8 +93,6 @@ int Menu_MapEdInitialize(void)
 	cMaped.Add( new CButton(BUT_QUIT, tMenu->bmpButtons),   map_quit,	 550,110, 50,15);
 
 
-
-
 	return true;
 }
 
@@ -547,7 +545,6 @@ void Menu_MapEd_New(void)
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop) {
 		Menu_RedrawMouse(false);
-		ProcessEvents();
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 210,170, 210,170, 220, 260);
 
@@ -605,6 +602,7 @@ void Menu_MapEd_New(void)
 		DrawCursor(tMenu->bmpScreen);
 
 		FlipScreen(tMenu->bmpScreen);
+		WaitForNextEvent();
 	}
 
 	// Redraw back to normal
@@ -730,7 +728,6 @@ void Menu_MapEd_LoadSave(int save)
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
-		ProcessEvents();
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
 
@@ -795,6 +792,7 @@ void Menu_MapEd_LoadSave(int save)
 		DrawCursor(tMenu->bmpScreen);
 
 		FlipScreen(tMenu->bmpScreen);
+		WaitForNextEvent();
 	}
 
 	// Redraw back to normal

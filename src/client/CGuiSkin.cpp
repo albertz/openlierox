@@ -324,6 +324,7 @@ int		Menu_CGuiSkinInitialize(void)
 		Menu_MainInitialize();
 		return false;
 	};
+	
 	return true;
 };
 

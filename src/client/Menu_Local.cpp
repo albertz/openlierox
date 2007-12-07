@@ -1205,11 +1205,10 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 
 
-	ProcessEvents(); // TODO: is this needed here?
+	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
-		ProcessEvents();
 
 		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
 		Menu_DrawBox(tMenu->bmpScreen, 170, 150, 470, 330);
@@ -1289,6 +1288,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 		// Display the dialog
 		FlipScreen(tMenu->bmpScreen);
+		
+		WaitForNextEvent();
 	}
 
 	// Redraw back to normal

@@ -115,17 +115,17 @@ int Menu_NetInitialize(void)
 	switch(tMenu->iReturnTo)  {
 	case net_internet:
 		Menu_Net_NETInitialize();
-	break;
+		break;
 	case net_lan:
 		Menu_Net_LANInitialize();
-	break;
+		break;
 	case net_favourites:
 		Menu_Net_FavouritesInitialize();
-	break;
+		break;
 	default:
 		Menu_Net_NETInitialize();
 	}
-
+	
 	return true;
 }
 
@@ -195,7 +195,7 @@ void Menu_Net_GotoJoinLobby(void)
 	Menu_Net_JoinGotoLobby();
 
 	tLX->iQuitEngine = true;
-	iSkipStart = true;
+	iSkipStart = true;	
 }
 
 

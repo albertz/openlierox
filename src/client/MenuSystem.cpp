@@ -281,78 +281,88 @@ void Menu_SetSkipStart(int s)
     iSkipStart = s;
 }
 
+void Menu_Frame() {
+	Menu_RedrawMouse(false);
+
+#ifdef WITH_MEDIAPLAYER
+	// Media player frame
+	cMediaPlayer.Frame();
+#endif
+		
+	switch(tMenu->iMenuType) {
+
+		// Main
+		case MNU_MAIN:
+			Menu_MainFrame();
+			break;
+
+		// Local
+		case MNU_LOCAL:
+			Menu_LocalFrame();
+			break;
+
+		// News
+		case MNU_NETWORK:
+			Menu_NetFrame();
+			break;
+
+		// Player
+		case MNU_PLAYER:
+			Menu_PlayerFrame();
+			break;
+
+		// Map editor
+		case MNU_MAPED:
+			Menu_MapEdFrame(tMenu->bmpScreen,true);
+			break;
+
+		// Options
+		case MNU_OPTIONS:
+			Menu_OptionsFrame();
+			break;
+
+		case MNU_GUISKIN:
+			Menu_CGuiSkinFrame();
+			break;
+	}
+		
+#ifdef WITH_MEDIAPLAYER
+	// At last draw the media player
+	cMediaPlayer.Draw(tMenu->bmpScreen);
+#endif
+
+	FlipScreen(tMenu->bmpScreen);
+}
+
 
 ///////////////////
 // Main menu loop
 void Menu_Loop(void)
 {
 	tLX->fCurTime = GetMilliSeconds();
+	bool last_frame_was_because_of_an_event = false;
 	float oldtime = tLX->fCurTime;
-	float fMaxFrameTime = 1.0f / (float)tLXOptions->nMaxFPS;
+//	float fMaxFrameTime = 1.0f / (float)tLXOptions->nMaxFPS;
 
 	while(tMenu->iMenuRunning) {
-
 		tLX->fCurTime = GetMilliSeconds();
 		tLX->fDeltaTime = tLX->fCurTime - oldtime;
-
-	        // Cap the FPS
+	
+// HINT: not needed here because we use WaitForNextEvent()
+/*			// Cap the FPS
 		if(tLX->fDeltaTime < fMaxFrameTime) {
 			SDL_Delay((int)((fMaxFrameTime - tLX->fDeltaTime)*1000));
-		        continue;
+				continue;
 		}
 		oldtime = tLX->fCurTime;
-
-		Menu_RedrawMouse(false);
-		ProcessEvents();
-
-#ifdef WITH_MEDIAPLAYER
-		// Media player frame
-		cMediaPlayer.Frame();
-#endif
-
-		switch(tMenu->iMenuType) {
-
-			// Main
-			case MNU_MAIN:
-				Menu_MainFrame();
-				break;
-
-			// Local
-			case MNU_LOCAL:
-				Menu_LocalFrame();
-				break;
-
-			// News
-			case MNU_NETWORK:
-				Menu_NetFrame();
-				break;
-
-			// Player
-			case MNU_PLAYER:
-				Menu_PlayerFrame();
-				break;
-
-			// Map editor
-			case MNU_MAPED:
-				Menu_MapEdFrame(tMenu->bmpScreen,true);
-				break;
-
-			// Options
-			case MNU_OPTIONS:
-				Menu_OptionsFrame();
-				break;
-
-			case MNU_GUISKIN:
-				Menu_CGuiSkinFrame();
-				break;
+*/		
+		Menu_Frame();
+		
+		if(last_frame_was_because_of_an_event) {
+			last_frame_was_because_of_an_event = ProcessEvents();
+		} else {
+			last_frame_was_because_of_an_event = WaitForNextEvent();
 		}
-
-#ifdef WITH_MEDIAPLAYER
-		// At last draw the media player
-		cMediaPlayer.Draw(tMenu->bmpScreen);
-#endif
-
-        FlipScreen(tMenu->bmpScreen);
 	}
 }
 
@@ -648,11 +658,10 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
     kb->KeyUp[SDLK_KP_ENTER] = false;
 
 
-	ProcessEvents(); // TODO: is this needed here?
+	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!kb->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning && ret == -1) {
+	while(true) {
 		Menu_RedrawMouse(true);
-		ProcessEvents();
 		
 		SetGameCursor(CURSOR_ARROW);
 
@@ -702,10 +711,13 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 			}
 
 
-
-		DrawCursor(tMenu->bmpScreen);
-
-		FlipScreen(tMenu->bmpScreen);
+		if(!kb->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning && ret == -1) {
+			DrawCursor(tMenu->bmpScreen);
+	
+			FlipScreen(tMenu->bmpScreen);
+			WaitForNextEvent();		
+		} else
+			break;
 	}
 
 	SetGameCursor(CURSOR_ARROW);
@@ -713,7 +725,8 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 	// Restore the old buffer
 	SDL_BlitSurface(tMenu->bmpMsgBuffer, NULL, tMenu->bmpBuffer, NULL);
-
+	//Menu_RedrawMouse(true);
+	//FlipScreen(tMenu->bmpScreen);
 
 	return ret;
 }

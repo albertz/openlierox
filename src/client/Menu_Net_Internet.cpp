@@ -467,7 +467,6 @@ void Menu_Net_NETAddServer(void)
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
-		ProcessEvents();
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list
@@ -517,6 +516,7 @@ void Menu_Net_NETAddServer(void)
 
 		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		WaitForNextEvent();
 	}
 
 

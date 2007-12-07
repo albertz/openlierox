@@ -58,7 +58,9 @@ class mouse_t { public:
 
 
 void 		InitEventSystem();
-void		ProcessEvents();
+bool		ProcessEvents(); // returns false if no new event
+bool		WaitForNextEvent(); // returns false if no new event
+
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();
 SDL_Event	*GetEvent();

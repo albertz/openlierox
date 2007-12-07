@@ -148,7 +148,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	if (!screen) return false;
 
-	ProcessEvents();
+	ProcessEvent();
 
 	mouse_t *mouse = GetMouse();
 	keyboard_t *kb = GetKeyboard();

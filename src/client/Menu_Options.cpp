@@ -383,9 +383,6 @@ int Menu_OptionsInitialize(void)
 	//cOpt_Game.SendMessage( og_AIDifficulty, SLM_SETVALUE, tLXOptions->iAIDifficulty, 0);
 
 
-
-
-
 	return true;
 }
 
@@ -818,11 +815,10 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 	Mouse->Up = 0;
 	Mouse->Down = 0;
 
-
+	ProcessEvents();
 	SetGameCursor(CURSOR_ARROW);
 	while(true) {
 		Menu_RedrawMouse(false);
-		ProcessEvents();
 
 		DrawCursor(tMenu->bmpScreen);
 
@@ -838,6 +834,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		}
 
 		FlipScreen(tMenu->bmpScreen);
+		WaitForNextEvent();
 	}
 
 	// Change the options
