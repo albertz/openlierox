@@ -32,6 +32,7 @@
 #include "CBar.h"
 #include "CGuiLayout.h"
 #include "CListview.h"
+#include "InputEvents.h"
 
 
 #define		MAX_CLIENTS		32
@@ -471,7 +472,7 @@ public:
     void        CheckDemolitionsGame(void);
 
 	void		processChatter(void);
-    void        processChatCharacter(UnicodeChar c, bool bDown);
+    void        processChatCharacter(const KeyboardEvent& input);
 
 
 	void		SimulateBonuses(float dt);

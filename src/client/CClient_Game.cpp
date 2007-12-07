@@ -1543,25 +1543,21 @@ void CClient::processChatter(void)
 		}
 
         // Escape
-        if(GetKeyboard()->keys[SDLK_ESCAPE] || GetKeyboard()->KeyUp[SDLK_ESCAPE]) {
+        if(kb->keys[SDLK_ESCAPE] || kb->KeyUp[SDLK_ESCAPE]) {
             // Stop typing
             iChat_Typing = false;
 			sChat_Text = "";
 
-            GetKeyboard()->keys[SDLK_ESCAPE] = false;
-            GetKeyboard()->KeyDown[SDLK_ESCAPE] = false;
-            GetKeyboard()->KeyUp[SDLK_ESCAPE] = false;
+            kb->keys[SDLK_ESCAPE] = false;
+            kb->KeyDown[SDLK_ESCAPE] = false;
+            kb->KeyUp[SDLK_ESCAPE] = false;
             return;
         }
 
         // Go through the keyboard queue
         for(short i=0; i<kb->queueLength; i++) {
-            UnicodeChar c = kb->keyQueue[i].ch;
-            bool down = kb->keyQueue[i].down;
-
 			iChat_CursorVisible = true;
-
-            processChatCharacter(c, down);
+            processChatCharacter(kb->keyQueue[i]);
         }
 
         return;
@@ -1597,41 +1593,35 @@ void CClient::processChatter(void)
 		return;
 
     for(short i=0; i<kb->queueLength; i++) {
-        UnicodeChar c = kb->keyQueue[i].ch;
-        bool down = kb->keyQueue[i].down;
+    	const KeyboardEvent& input = kb->keyQueue[i];
 
         // Was it an up keypress?
-        if(!down) {
-			return;
-        }
+        if(!input.down) continue;
 
 		if (!iChat_Typing)  {
 
-			if (c<32)  {
-				return;
-			}
+			if (input.ch<32) continue;
 
 			// Check, if we can start typing
-			int controls =
-				cChat_Input.isDown() + 
-				cShowScore.isDown() + 
-				cShowHealth.isDown() + 
-				cShowSettings.isDown() + 
-				cToggleTopBar.isDown() + 
+			bool controls =
+				cChat_Input.isDown() || 
+				cShowScore.isDown() || 
+				cShowHealth.isDown() || 
+				cShowSettings.isDown() || 
+				cToggleTopBar.isDown() || 
 #ifdef WITH_MEDIAPLAYER
-				cToggleMediaPlayer.isDown() + 
+				cToggleMediaPlayer.isDown() || 
 #endif
-				kb->KeyDown[SDLK_BACKQUOTE] + 
+				(input.sym == SDLK_BACKQUOTE) ||
 				cTakeScreenshot.isDown();
 
-			if (controls)
-				return;
+			if(controls) continue;
 
 			for(ushort j=0; j < iNumWorms; j++)  {
 				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
 					// Can we type?
 					if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())
-						return;
+						continue;
 
 					// Clear the input
 					cLocalWorms[j]->clearInput();
@@ -1649,18 +1639,18 @@ void CClient::processChatter(void)
 			fChat_TimePushed = -9999;
 		}
 
-        processChatCharacter(c, down);
+        processChatCharacter(input);
     }
 }
 
 
 ///////////////////
 // Process a single character chat
-void CClient::processChatCharacter(UnicodeChar c, bool bDown)
+void CClient::processChatCharacter(const KeyboardEvent& input)
 {
 
     // Up?
-    if(!bDown) {
+    if(!input.down) {
         iChat_Holding = false;
         return;
     }
@@ -1668,7 +1658,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
     // Must be down
 
     if(iChat_Holding) {
-        if(iChat_Lastchar != c)
+        if(iChat_Lastchar != input.ch)
             iChat_Holding = false;
         else {
             if(tLX->fCurTime - fChat_TimePushed < 0.4f)
@@ -1681,10 +1671,10 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
         fChat_TimePushed = tLX->fCurTime;
     }
 
-    iChat_Lastchar = c;
+    iChat_Lastchar = input.ch;
 
     // Backspace
-    if(GetKeyboard()->KeyDown[SDLK_BACKSPACE]) {
+    if(input.sym == SDLK_BACKSPACE) {
 		if(iChat_Pos > 0)  {
 			Utf8Erase(sChat_Text, --iChat_Pos, 1);
 		}
@@ -1692,25 +1682,25 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
     }
 
 	// Delete
-	if (GetKeyboard()->KeyDown[SDLK_DELETE])  {
+	if (input.sym == SDLK_DELETE)  {
 		Utf8Erase(sChat_Text, iChat_Pos, 1);
 		return;
 	}
 
 	// Home
-	if (GetKeyboard()->KeyDown[SDLK_HOME])  {
+	if (input.sym == SDLK_HOME)  {
 		iChat_Pos = 0;
 		return;
 	}
 
 	// End
-	if (GetKeyboard()->KeyDown[SDLK_END])  {
+	if (input.sym == SDLK_END)  {
 		iChat_Pos = Utf8StringSize(sChat_Text);
 		return;
 	}
 
 	// Left arrow
-	if (GetKeyboard()->KeyDown[SDLK_LEFT]) {
+	if (input.sym == SDLK_LEFT) {
 		if (iChat_Pos > 0)
 			iChat_Pos--;
 		else
@@ -1719,7 +1709,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 	}
 
 	// Right arrow
-	if (GetKeyboard()->KeyDown[SDLK_RIGHT]) {
+	if (input.sym == SDLK_RIGHT) {
 		if (iChat_Pos < Utf8StringSize(sChat_Text))
 			iChat_Pos++;
 		else
@@ -1728,7 +1718,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 	}
 
     // Enter
-    if(c == '\r') {
+    if(input.ch == '\r') {
         iChat_Typing = false;
 
         // Send chat message to the server
@@ -1748,7 +1738,7 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
     }
 
 	// Paste
-	if (c == 22)  {
+	if (input.ch == 22)  {
 		size_t text_len = Utf8StringSize(sChat_Text);
 
 		// Safety
@@ -1765,8 +1755,8 @@ void CClient::processChatCharacter(UnicodeChar c, bool bDown)
 	}
 
     // Normal key
-    if(tLX->cFont.CanDisplayCharacter(c) ) {
-    	InsertUnicodeChar(sChat_Text, iChat_Pos, c);
+    if(tLX->cFont.CanDisplayCharacter(input.ch) ) {
+    	InsertUnicodeChar(sChat_Text, iChat_Pos, input.ch);
 		iChat_Pos++;
     }
 }

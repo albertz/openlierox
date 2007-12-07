@@ -1270,23 +1270,19 @@ int CListview::KeyDown(UnicodeChar c, int keysym)
 			return LV_WIDGETEVENT;
 	}
 
-
-	if (c == iLastChar && c)
-		return LV_NONE;
+	// TODO: why is this here?
+//	if (c == iLastChar && c)
+//		return LV_NONE;
 
 	if (c >= 31)  {
 		// TODO: handle normal characters
 		return LV_NONE;
 	}
 
-	keyboard_t *kb = GetKeyboard();
-	if (kb->KeyDown[iLastChar])
-		return LV_NONE;
-
 	iLastChar = c;
 
 	// Up arrow
-	if (kb->KeyDown[SDLK_DOWN]) {
+	if (keysym == SDLK_DOWN) {
 		if (tSelected) {
 			if (tSelected->tNext)  {
 				tSelected->iSelected = false;
@@ -1305,7 +1301,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym)
 
 
 	// Down arrow
-	if (kb->KeyDown[SDLK_UP])  {
+	if (keysym == SDLK_UP)  {
 		lv_item_t *i = tItems;
 		for (;i->tNext;i=i->tNext)  {
 			if (i->tNext == tSelected) {
@@ -1323,7 +1319,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym)
 	}
 
 	// Home
-	if (kb->KeyDown[SDLK_HOME])  {
+	if (keysym == SDLK_HOME)  {
 		if (tItems)  {
 			if (tSelected)
 				tSelected->iSelected = false;
@@ -1335,7 +1331,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym)
 	}
 
 	// End
-	if (kb->KeyDown[SDLK_END])  {
+	if (keysym == SDLK_END)  {
 		if (tLastItem)  {
 			if (tSelected)
 				tSelected->iSelected = false;
@@ -1347,19 +1343,19 @@ int CListview::KeyDown(UnicodeChar c, int keysym)
 	}
 
 	// Delete
-	if (kb->KeyDown[SDLK_DELETE])  {
+	if (keysym == SDLK_DELETE)  {
 		iLastChar = SDLK_DELETE;
 		return LV_DELETE;
 	}
 
 	// Enter
-	if (kb->KeyDown[SDLK_RETURN])  {
+	if (keysym == SDLK_RETURN)  {
 		iLastChar = SDLK_RETURN;
 		return LV_ENTER;
 	}
 
 	// Enter (numeric)
-	if (kb->KeyDown[SDLK_KP_ENTER])  {
+	if (keysym == SDLK_KP_ENTER)  {
 		iLastChar = SDLK_KP_ENTER;
 		return LV_ENTER;
 	}

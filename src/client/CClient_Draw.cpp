@@ -1157,6 +1157,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 		}
 	}
 
+	// TODO: why is processing events in a draw-function? move it out here
 	// Process the keyboard
 	if (!iChat_Typing)  {
 		keyboard_t *Keyboard = GetKeyboard();

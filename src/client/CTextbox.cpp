@@ -157,9 +157,7 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 // Keydown event
 int CTextbox::KeyDown(UnicodeChar c, int keysym)
 {
-	keyboard_t *kb = GetKeyboard();
-
-	bool bShift = kb->KeyDown[SDLK_RSHIFT] || kb->KeyDown[SDLK_LSHIFT];
+	bool bShift = (keysym == SDLK_RSHIFT) || (keysym == SDLK_LSHIFT);
 
 	iDrawCursor = true;
 
@@ -280,7 +278,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 	}
 
 	// Select all
-	if ((kb->KeyDown[SDLK_LCTRL] || kb->KeyDown[SDLK_RCTRL]) && kb->KeyDown[SDLK_a]) {
+	if ((keysym == SDLK_LCTRL || keysym == SDLK_RCTRL) && c == SDLK_a) {
 		iCurpos = Utf8StringSize(sText);
 		iSelStart = 0;
 		iSelLength = -((int)Utf8StringSize(sText));

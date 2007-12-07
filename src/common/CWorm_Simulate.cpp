@@ -55,12 +55,12 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 	bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL);
 
-	if (!mouseControl) {
+	{	
 		// Up
 		if(cUp.isDown()) {
 			fAngleSpeed -= 500 * dt;
 			//fAngle -= wd->AngleSpeed * dt;
-		} else
+		} else {
 			
 			// Down
 			if(cDown.isDown()) {
@@ -71,58 +71,61 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				REDUCE_CONST(fAngleSpeed, 200*dt);
 				RESET_SMALL(fAngleSpeed, 5.0f);
 			}
-			
-	}
-	else { //	if(mouseControl )	
-		// TODO: btw, have you seen JasonBs CWorm::getMouseInput in this file?
-		
-		/*
-		// HINT: this is another possibility which only count the mousemoving; but very confusing for fullscreen
-		float mdt = tLX->fCurTime - lastMouseMoveTime;
-		if(mdt > 0.0 && mdt < 0.3) { // else ignore it
-			float dy = (float)(ms->Y - lastMousePosY) / mdt;
-			fAngleSpeed += CLAMP(2.0 * dy, -500.0, 500.0) * mdt;
-		}*/
-			
-		// this is better for fullscreen and also good for windowmode
-		// TODO: the windows-width/height is hardcoded here! that is bad
-		fAngleSpeed += (ms->Y - 480/2);
-		fMoveSpeedX += (ms->X - 640/2);
-		
-		// TODO: here are again the hardcoded width/height of the window
-		SDL_WarpMouse(640/2, 480/2);
-		
-		REDUCE_CONST(fMoveSpeedX, 1000*dt);
-		RESET_SMALL(fMoveSpeedX, 5.0f);
-		CLAMP_DIRECT(fMoveSpeedX, -500.0f, 500.0f);
-		
-		REDUCE_CONST(fAngleSpeed, 200*dt);
-		RESET_SMALL(fAngleSpeed, 5.0f);
-		CLAMP_DIRECT(fAngleSpeed, -500.0f, 500.0f);
-		
-		// also moving via mouse
-		if(fabs(fMoveSpeedX) > 50) {
-			iDirection = (fMoveSpeedX > 0) ? DIR_RIGHT : DIR_LEFT;
-			ws->iMove = true;
-			move = true;
-		} else {
-			ws->iMove = false;
-			move = false;
 		}
-
-	}
+			
+		if(mouseControl) {
+			// TODO: btw, have you seen JasonBs CWorm::getMouseInput in this file?
+			
+			/*
+			// HINT: this is another possibility which only count the mousemoving; but very confusing for fullscreen
+			float mdt = tLX->fCurTime - lastMouseMoveTime;
+			if(mdt > 0.0 && mdt < 0.3) { // else ignore it
+				float dy = (float)(ms->Y - lastMousePosY) / mdt;
+				fAngleSpeed += CLAMP(2.0 * dy, -500.0, 500.0) * mdt;
+			}*/
+				
+			// this is better for fullscreen and also good for windowmode
+			// TODO: the windows-width/height is hardcoded here! that is bad
+			fAngleSpeed += (ms->Y - 480/2);
+			fMoveSpeedX += (ms->X - 640/2);
+			
+			// TODO: here are again the hardcoded width/height of the window
+			SDL_WarpMouse(640/2, 480/2);
+			
+			REDUCE_CONST(fMoveSpeedX, 1000*dt);
+			//RESET_SMALL(fMoveSpeedX, 5.0f);
+			CLAMP_DIRECT(fMoveSpeedX, -500.0f, 500.0f);
+			
+			REDUCE_CONST(fAngleSpeed, 200*dt);
+			RESET_SMALL(fAngleSpeed, 5.0f);
+			CLAMP_DIRECT(fAngleSpeed, -500.0f, 500.0f);
+			
+			// also moving via mouse
+			if(fabs(fMoveSpeedX) > 50) {
+				iDirection = (fMoveSpeedX > 0) ? DIR_RIGHT : DIR_LEFT;
+				ws->iMove = true;
+				move = true;
+			} else {
+				ws->iMove = false;
+				move = false;
+			}
+	
+		}
+			
+		fAngle += fAngleSpeed * dt;
+		if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
+			fAngleSpeed = 0;
+	
 		
-	fAngle += fAngleSpeed * dt;
-	if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
-		fAngleSpeed = 0;
+		// Calculate dir
+		dir.x=( (float)cos(fAngle * (PI/180)) );
+		dir.y=( (float)sin(fAngle * (PI/180)) );
+		if( iStrafeDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
+			dir.x=(-dir.x);
+	}
 	
-	// Calculate dir
-	dir.x=( (float)cos(fAngle * (PI/180)) );
-	dir.y=( (float)sin(fAngle * (PI/180)) );
-	if( iStrafeDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
-		dir.x=(-dir.x);
 	
-	if(mouseControl) {
+	if(mouseControl) { // set shooting, ninja and jumping for mousecontrol
 		// like Jason did it
 		ws->iShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
 		ws->iJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
@@ -158,7 +161,8 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		lastMousePosY = ms->Y;
 	}
 
-	if(!mouseControl) {
+	{ // set moving
+	
 		if(!cRight.isDown())
 			iCarving &= ~1;
 		if(!cLeft.isDown())
@@ -170,14 +174,15 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		if(cLeft.isDown() && RightOnce && iDirection == DIR_LEFT)  {
 			iCarving |= 2;
 		}
-	}
-	else { // mouseControl
-		if(fabs(fMoveSpeedX) > 200) {
-			ws->iCarve = true;
-			iCarving |= (fMoveSpeedX > 0) ? 1 : 2;
+		
+		if(mouseControl) { // mouseControl
+			if(fabs(fMoveSpeedX) > 200) {
+				ws->iCarve = true;
+				iCarving |= (fMoveSpeedX > 0) ? 1 : 2;
+			}
 		}
 	}
-
+	
     //
     // Weapon changing
 	//
@@ -306,7 +311,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 	int oldskool = tLXOptions->iOldSkoolRope;
 
-	int jumpdownonce = cJump.isDownOnce();
+	bool jumpdownonce = cJump.isDownOnce();
 
 	// Jump
 	if(jumpdownonce) {

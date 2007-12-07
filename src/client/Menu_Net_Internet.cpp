@@ -143,7 +143,7 @@ void Menu_Net_NETShutdown(void)
 void Menu_Net_NETFrame(int mouse)
 {
 	gui_event_t *ev = NULL;
-	static std::string	addr;
+	std::string	addr;
 
 
 	// Process & Draw the gui

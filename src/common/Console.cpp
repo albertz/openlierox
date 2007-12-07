@@ -102,21 +102,37 @@ void Con_Hide(void)
 ///////////////////
 // Process the console
 void Con_Process(float dt)
-{
+{	
 	keyboard_t *kb = GetKeyboard();
 
-	if(kb->KeyUp[SDLK_BACKQUOTE] || kb->KeyUp[SDLK_F1])
+	// Process the input
+	for(int i = 0; i < kb->queueLength; i++) {
+		Con_ProcessCharacter(kb->keyQueue[i]);
+	}
+
+	switch(Console->iState) {
+	case CON_DROPPING:
+		Console->fPosition -= 3.0f*dt;
+		break;
+	case CON_HIDING:
+		Console->fPosition += 3.0f*dt;
+		break;
+	}
+
+}
+
+
+///////////////////
+// Handles the character typed in the console
+void Con_ProcessCharacter(const KeyboardEvent& input)
+{
+	if(input.sym == SDLK_BACKQUOTE || input.sym == SDLK_F1)
 		Con_Toggle();
 
-	if( kb->KeyUp[SDLK_ESCAPE] ) {
+	if( input.sym == SDLK_ESCAPE ) {
 		if (Console->iState != CON_HIDING && Console->iState != CON_HIDDEN)
 			Con_Toggle();
 	}
-
-	if(Console->iState == CON_DROPPING)
-		Console->fPosition -= 3.0f*dt;
-	if(Console->iState == CON_HIDING)
-		Console->fPosition += 3.0f*dt;
 
 	if(Console->fPosition < 0.0f) {
 		Console->iState = CON_DOWN;
@@ -131,19 +147,8 @@ void Con_Process(float dt)
 
 	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
 		return;
-
-	// Process the input
-	for(int i = 0; i < kb->queueLength; i++) {
-		Con_ProcessCharacter(kb->keyQueue[i]);
-	}
-
-}
-
-
-///////////////////
-// Handles the character typed in the console
-void Con_ProcessCharacter(const KeyboardEvent& input)
-{
+	
+	
 	// Key repeat handling
 	if (Console->bHolding)  {
 		if (Console->iLastchar != input.ch)
