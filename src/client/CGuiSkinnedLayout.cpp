@@ -164,13 +164,9 @@ void CGuiSkinnedLayout::Draw(SDL_Surface *bmpDest)
 // Process all the widgets
 bool CGuiSkinnedLayout::Process(void)
 {
-	// TODO: why is ProcessEvents() not used here?
-	// ProcessEvents() is called from toplevel Menu_Loop() function, we don't need it here.
-	
 	mouse_t *tMouse = GetMouse();
 	keyboard_t *Keyboard = GetKeyboard();
-	SDL_Event *Event = GetEvent();
-	int ev=-1;
+	int ev=-1; // TODO: in CGuiLayout, this is saved later in tEvent->iEventMsg; why not here?
 
 	//SetGameCursor(CURSOR_ARROW); // Reset the cursor here
 
@@ -179,61 +175,14 @@ bool CGuiSkinnedLayout::Process(void)
 	//SDL_ShowCursor(SDL_DISABLE);
 
 	// Parse keyboard events
-	if( (Event->type == SDL_KEYUP || Event->type == SDL_KEYDOWN) && 
-		(Event->key.state == SDL_PRESSED || Event->key.state == SDL_RELEASED) )
-	{
-				//tEvent->cWidget = cFocused;
-				//tEvent->iControlID = cFocused->getID();
-
-				UnicodeChar input = Event->key.keysym.unicode;
-				if (input == 0)
-					switch (Event->key.keysym.sym) {
-					case SDLK_KP0:
-					case SDLK_KP1:
-					case SDLK_KP2:
-					case SDLK_KP3:
-					case SDLK_KP4:
-					case SDLK_KP5:
-					case SDLK_KP6:
-					case SDLK_KP7:
-					case SDLK_KP8:
-					case SDLK_KP9:
-					case SDLK_KP_MULTIPLY:
-					case SDLK_KP_MINUS:
-					case SDLK_KP_PLUS:
-					case SDLK_KP_EQUALS:
-						input = (uchar) (Event->key.keysym.sym - 208);
-						break;
-					case SDLK_KP_PERIOD:
-					case SDLK_KP_DIVIDE:
-						input = (uchar) (Event->key.keysym.sym - 220);
-						break;
-					case SDLK_KP_ENTER:
-						input = '\r';
-						break;
-                    default:
-                        // TODO: much not handled keys; is this correct?
-                        break;
-
-				}  // switch
-
-
-				if(Event->type == SDL_KEYUP || Event->key.state == SDL_RELEASED)
-					ev = KeyUp(input, Event->key.keysym.sym);
-
-				// Handle more keys at once keydown
-				if (Keyboard->queueLength > 1) 
-					for(int i=0; i<Keyboard->queueLength; i++)
-						if(!Keyboard->keyQueue[i].down || Keyboard->keyQueue[i].ch != input)  {
-							ev = KeyDown(Keyboard->keyQueue[i].ch, Keyboard->keyQueue[i].sym);
-						}
-
-				// Keydown
-				if(Event->type == SDL_KEYDOWN)  
-				{
-					ev = KeyDown(input, Event->key.keysym.sym);
-				}
+	for(int i = 0; i < Keyboard->queueLength; i++) {
+		const KeyboardEvent& kbev = Keyboard->keyQueue[i];
+		if(kbev.down)
+			ev = KeyDown(kbev.ch, kbev.sym);
+		else
+			ev = KeyUp(kbev.ch, kbev.sym);
 	}
+
 
 	if( tMouse->Down )
 		MouseDown(tMouse, tMouse->Down);

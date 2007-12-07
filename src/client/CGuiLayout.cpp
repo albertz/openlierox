@@ -607,103 +607,20 @@ gui_event_t *CGuiLayout::Process(void)
 
 
 		if (cFocused)  {
+			
 			// Check the characters
-			if(Event->key.state == SDL_PRESSED || Event->key.state == SDL_RELEASED) {
-				tEvent->cWidget = cFocused;
-				tEvent->iControlID = cFocused->getID();
-
-				UnicodeChar input = Event->key.keysym.unicode;
-				if (input == 0)
-					switch (Event->key.keysym.sym) {
-					case SDLK_KP0:
-					case SDLK_KP1:
-					case SDLK_KP2:
-					case SDLK_KP3:
-					case SDLK_KP4:
-					case SDLK_KP5:
-					case SDLK_KP6:
-					case SDLK_KP7:
-					case SDLK_KP8:
-					case SDLK_KP9:
-					case SDLK_KP_MULTIPLY:
-					case SDLK_KP_MINUS:
-					case SDLK_KP_PLUS:
-					case SDLK_KP_EQUALS:
-						input = (uchar) (Event->key.keysym.sym - 208);
-						break;
-					case SDLK_KP_PERIOD:
-					case SDLK_KP_DIVIDE:
-						input = (uchar) (Event->key.keysym.sym - 220);
-						break;
-					case SDLK_KP_ENTER:
-						input = '\r';
-						break;
-                    default:
-                        // TODO: much not handled keys; is this correct?
-                        break;
-
-				}  // switch
+			for(int i = 0; i < Keyboard->queueLength; i++) {
+				const KeyboardEvent& kbev = Keyboard->keyQueue[i];
+				if(kbev.down)
+					ev = cFocused->KeyDown(kbev.ch, kbev.sym);
+				else
+					ev = cFocused->KeyUp(kbev.ch, kbev.sym);
+			}
 
 
-				if(Event->type == SDL_KEYUP || Event->key.state == SDL_RELEASED)
-					ev = cFocused->KeyUp(input, Event->key.keysym.sym);
-
-				// Handle more keys at once keydown
-				if (Keyboard->queueLength > 1) 
-					for(int i=0; i<Keyboard->queueLength; i++)
-						if(!Keyboard->keyQueue[i].down || Keyboard->keyQueue[i].ch != input)  {
-							ev = cFocused->KeyDown(Keyboard->keyQueue[i].ch, Keyboard->keyQueue[i].sym);
-							if (ev != -1)  {
-								tEvent->iEventMsg = ev;
-								return tEvent;
-							}
-						}
-
-				// Keydown
-				if(Event->type == SDL_KEYDOWN)  {
-					ev = cFocused->KeyDown(input, Event->key.keysym.sym);
-				}
-
-				// Tab switches between widgets
-				/*if (Keyboard->KeyUp[SDLK_TAB])  {
-					if (cFocused)  {
-						// The current one is not focused anymore
-						cFocused->setFocused(false);
-
-						// Switch to next widget
-						if (cFocused->getNext())  {
-							cFocused = cFocused->getNext();
-							cFocused->setFocused(true);
-						// The current focused widget is the last one in the list
-						} else {
-							cFocused = cWidgets;
-							cFocused->setFocused(true);
-						}
-					} else {
-						cFocused = cWidgets;
-						cFocused->setFocused(true);
-					}
-
-					// Repeat the same thing until we find first enabled widget
-					while (!cFocused->getEnabled())  {
-						// The current one is not focused anymore
-						cFocused->setFocused(false);
-
-						if (cFocused->getNext())  {
-							cFocused = cFocused->getNext();
-							cFocused->setFocused(true);
-						// The current focused widget is the last one in the list
-						} else {
-							cFocused = cWidgets;
-							cFocused->setFocused(true);
-						}
-					}
-				}*/
-
-				if(ev >= 0) {
-					tEvent->iEventMsg = ev;
-					return tEvent;
-				}
+			if(ev >= 0) {
+				tEvent->iEventMsg = ev;
+				return tEvent;
 			}
 		}
 	}
