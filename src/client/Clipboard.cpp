@@ -357,6 +357,7 @@ std::string copy_from_clipboard()
 #endif
 #ifdef WIN32
 #include <windows.h>
+#include "StringUtils.h"
 
 #define CLIPBOARD_FUNCS_DEFINED
 
@@ -373,18 +374,8 @@ void copy_to_clipboard(const std::string& text)
 
 	//convert newlines
 	std::string str;
-	str.reserve(text.size());
-	std::string::const_iterator first = text.begin();
-	std::string::const_iterator last = text.begin();
-	do {
-		if(*last != '\n') {
-			++last;
-			continue;
-		}
-		str.append(first, last);
-		str.append("\r\n");
-		first = ++last;
-	} while(last != text.end());
+	replace(text, "\n", "\r\n", str);
+	replace(str, "\r\r", "\r", str);
 
 	const HGLOBAL hglb = GlobalAlloc(GMEM_MOVEABLE, (str.size() + 1) * sizeof(TCHAR));
 	if(hglb == NULL) {
@@ -416,13 +407,9 @@ std::string copy_from_clipboard()
 		return "";
 	}
 
-	//convert newlines
-	std::string str(buffer);
-	str.erase(std::remove(str.begin(),str.end(),'\r'),str.end());
-
 	GlobalUnlock(hglb);
 	CloseClipboard();
-	return str;
+	return std::string(buffer);
 }
 
 #endif

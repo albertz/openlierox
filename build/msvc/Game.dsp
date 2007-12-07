@@ -172,6 +172,14 @@ SOURCE=..\..\include\CInput.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\client\Clipboard.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Clipboard.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\CMediaPlayer.cpp
 # End Source File
 # Begin Source File
