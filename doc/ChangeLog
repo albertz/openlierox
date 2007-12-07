@@ -1,3 +1,8 @@
+0.57_beta4
+==========
+- delete-key works now under MacOSX
+- copy&paste support for Linux
+
 0.57_beta3
 ==========
 - 16/24/32 bit graphic support and OpenGL support

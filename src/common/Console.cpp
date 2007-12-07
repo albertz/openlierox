@@ -138,7 +138,8 @@ void Con_Process(float dt)
 	// TODO: why is this commented?
 	//ProcessEvents();
 	//SDL_Event *Ev = GetEvent();
-
+	// TODO: why is ProcessEvents() not used here?
+	
 	// Make sure a key event happened
 	if(Ev->type != SDL_KEYUP && Ev->type != SDL_KEYDOWN)
 		return;

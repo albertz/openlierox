@@ -556,6 +556,8 @@ bool CGuiLayout::Build(void)
 // Process all the widgets
 gui_event_t *CGuiLayout::Process(void)
 {
+	// TODO: why is ProcessEvents() not used here?
+	
 	CWidget *w;
 	mouse_t *tMouse = GetMouse();
 	SDL_Event *Event = GetEvent();

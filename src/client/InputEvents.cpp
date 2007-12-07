@@ -178,11 +178,11 @@ void ProcessEvents(void)
         	
         case SDL_SYSWMEVENT:
 			handle_system_event(Event);
-        	break;
+			break;
         	
         default:
         	//std::cout << "WARNING: unhandled event " << Event.type << std::endl;
-        	break;
+			break;
 		}
 	}
 	
@@ -212,6 +212,8 @@ void ProcessEvents(void)
 	Mouse.Down = Mouse.Button;
 
     // SAFETY HACK: If we get any mouse presses, we must have focus
+    // TODO: why is this needed? this isn't true for all systems
+    // (under Linux it is possible to receive mouse-clicks without having the focus)
     if(Mouse.Down)  {
 		if (!nFocus)
 			bActivated = true;

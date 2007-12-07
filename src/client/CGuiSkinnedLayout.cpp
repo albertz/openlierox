@@ -164,6 +164,8 @@ void CGuiSkinnedLayout::Draw(SDL_Surface *bmpDest)
 // Process all the widgets
 bool CGuiSkinnedLayout::Process(void)
 {
+	// TODO: why is ProcessEvents() not used here?
+	
 	mouse_t *tMouse = GetMouse();
 	keyboard_t *Keyboard = GetKeyboard();
 	SDL_Event *Event = GetEvent();
