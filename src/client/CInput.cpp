@@ -160,7 +160,44 @@ joystick_t Joysticks[] = {
 	{ "joy2_but9",JOY_BUTTON,8},
 };
 
-SDL_Joystick *joy1,*joy2;
+SDL_Joystick *joy1 = NULL, *joy2 = NULL;
+
+bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
+	int val;
+	
+	// TODO: atm these limits are hardcoded; make them constants (or perhaps also configurable)
+	switch(flag) {
+		case JOY_UP:
+			val = SDL_JoystickGetAxis(joy,1);
+			if(val < -3200)
+				return true;
+			break;
+		case JOY_DOWN:
+			val = SDL_JoystickGetAxis(joy,1);
+			if(val > 3200)
+				return true;
+			break;
+		case JOY_LEFT:
+			val = SDL_JoystickGetAxis(joy,0);
+			if(val < -3200)
+				return true;
+			break;
+		case JOY_RIGHT:
+			val = SDL_JoystickGetAxis(joy,0);
+			if(val > 3200)
+				return true;
+			break;
+		case JOY_BUTTON:
+			if(SDL_JoystickGetButton(joy,extra))
+				return true;
+			break;
+			
+		default:
+			printf("WARNING: checkJoystickState: unknown flag\n");
+	}
+	
+	return false;
+}
 
 
 ///////////////////
@@ -207,7 +244,7 @@ int CInput::Wait(std::string& strText)
 
 	// Keyboard
 
-	// Other keys
+	// TODO: Other keys
 	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
 		if(kb->KeyUp[Keys[n].value]) {
 			strText = Keys[n].text;
@@ -215,7 +252,16 @@ int CInput::Wait(std::string& strText)
 		}
 	}
 
-
+	// joystick
+	// TODO: more joysticks
+	SDL_JoystickUpdate();
+	for(n = 0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
+		int i = Joysticks[n].text[3] - '0'; // at pos 3, there is the number ("joy1_...")
+		if(checkJoystickState(Joysticks[n].value, Joysticks[n].extra, (i == 1) ? joy1 : joy2)) {
+			strText = Joysticks[n].text;
+			return true;
+		}
+	}
 
 	return false;
 }
@@ -338,13 +384,15 @@ int CInput::isUp(void)
 
 		// Mouse
 		case INP_MOUSE:
-			// TOOD: Calculate mouse_up for ALL the buttons
+			// TODO: Calculate mouse_up for ALL the buttons
 			if(Mouse->Up)
 				return true;
 			break;
 
 		// Joystick
-		// TODO:
+		case INP_JOYSTICK1:
+		case INP_JOYSTICK2:
+			return !isDown();
 
 	}
 
@@ -358,8 +406,6 @@ int CInput::isDown(void)
 {
 	keyboard_t	*Keyb = GetKeyboard();
 	mouse_t		*Mouse = GetMouse();
-	SDL_Joystick *joy;
-	int val;
 
 	switch(Type) {
 
@@ -377,40 +423,11 @@ int CInput::isDown(void)
 
 		// Joystick
 		case INP_JOYSTICK1:
-		case INP_JOYSTICK2:
-			joy = joy1;
-			if(Type == INP_JOYSTICK2)
-				joy = joy2;
-
 			SDL_JoystickUpdate();
-
-			switch(Data) {
-				case JOY_UP:
-					val = SDL_JoystickGetAxis(joy,1);
-					if(val < -3200)
-						return true;
-					break;
-				case JOY_DOWN:
-					val = SDL_JoystickGetAxis(joy,1);
-					if(val > 3200)
-						return true;
-					break;
-				case JOY_LEFT:
-					val = SDL_JoystickGetAxis(joy,0);
-					if(val < -3200)
-						return true;
-					break;
-				case JOY_RIGHT:
-					val = SDL_JoystickGetAxis(joy,0);
-					if(val > 3200)
-						return true;
-					break;
-				case JOY_BUTTON:
-					if(SDL_JoystickGetButton(joy,Extra))
-						return true;
-					break;
-			}
-			break;
+			return checkJoystickState(Data, Extra, joy1);
+		case INP_JOYSTICK2:
+			SDL_JoystickUpdate();
+			return checkJoystickState(Data, Extra, joy2);
 
 	}
 
@@ -452,11 +469,14 @@ void CInput::ClearUpState(void)
 
 		// Mouse
 		case INP_MOUSE:
-			// TOOD: Calculate mouse_up for ALL the buttons
+			// TODO: Calculate mouse_up for ALL the buttons
 			Mouse->Up = false;
 			break;
 
 		// Joystick
-		// TODO:
+		case INP_JOYSTICK1:
+		case INP_JOYSTICK2:
+			// TODO: is this needed?
+			break;
 	}
 }

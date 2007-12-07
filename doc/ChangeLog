@@ -1,5 +1,6 @@
 0.57_beta4
 ==========
+- more intelligent event-handling (in some parts)
 - delete-key works now under MacOSX
 - copy&paste support for Linux
 
