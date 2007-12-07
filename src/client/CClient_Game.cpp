@@ -215,22 +215,6 @@ void CClient::Simulation(void)
 	SimulateBonuses(tLX->fDeltaTime);
 
 
-
-
-	// Debug test
-#ifdef DEBUG
-	/*keyboard_t *kb = GetKeyboard();
-	if( kb->keys[SDLK_1])
-		iDrawingViews[1] = 1;
-	if( kb->keys[SDLK_2])
-		iDrawingViews[1] = 2;
-	if( kb->keys[SDLK_3])
-		iDrawingViews[1] = 3;
-	if( kb->keys[SDLK_4])
-		iDrawingViews[1] = 4;
-
-	cRemoteWorms[iDrawingViews[1]].getViewport()->Setup(322,0,318,382);*/
-#endif  // DEBUG
 }
 
 

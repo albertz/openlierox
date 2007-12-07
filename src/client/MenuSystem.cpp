@@ -648,7 +648,8 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
     kb->KeyUp[SDLK_KP_ENTER] = false;
 
 
-	ProcessEvents();
+	ProcessEvents(); // TODO: is this needed here?
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!kb->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning && ret == -1) {
 		Menu_RedrawMouse(true);
 		ProcessEvents();

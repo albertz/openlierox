@@ -942,6 +942,7 @@ void CClient::SimulateHud(void)
 
 
 	// Game Menu
+	// TODO: make this event-based (don't check GetKeyboard() directly)
     if(GetKeyboard()->KeyUp[SDLK_ESCAPE] && !iChat_Typing && !con) {
         if( !bViewportMgr )
 			if (!iGameMenu)

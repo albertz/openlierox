@@ -104,15 +104,9 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
 
 	// Initialize the keyboard & mouse
-	ProcessEvents();
-	for(int k = 0;k<SDLK_LAST;k++)
-		GetKeyboard()->KeyUp[k] = false;
-
-	GetMouse()->Button = 0;
-	GetMouse()->Down = 0;
-	GetMouse()->FirstDown = 0;
-	GetMouse()->Up = 0;
-
+	InitEventSystem();
+	
+	
 	return true;
 }
 

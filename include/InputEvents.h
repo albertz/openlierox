@@ -57,11 +57,10 @@ class mouse_t { public:
 };
 
 
-
-
-void		ProcessEvents(void);
-keyboard_t	*GetKeyboard(void);
-mouse_t		*GetMouse(void);
-SDL_Event	*GetEvent(void);
+void 		InitEventSystem();
+void		ProcessEvents();
+keyboard_t	*GetKeyboard();
+mouse_t		*GetMouse();
+SDL_Event	*GetEvent();
 
 #endif

@@ -383,6 +383,7 @@ void Menu_MapEdFrame(SDL_Surface *bmpDest, int process)
 	// Keyboard arrows
 	keyboard_t *kb = GetKeyboard();
 	int Scroll = 250 * (int)tLX->fDeltaTime;
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	if(kb->keys[SDLK_UP])
 		cMapedView.SetWorldY( cMapedView.GetWorldY() - Scroll );
 	if(kb->keys[SDLK_DOWN])
@@ -543,6 +544,7 @@ void Menu_MapEd_New(void)
 
 
 	ProcessEvents();
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();
@@ -725,6 +727,7 @@ void Menu_MapEd_LoadSave(int save)
 
 
 	ProcessEvents();
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();

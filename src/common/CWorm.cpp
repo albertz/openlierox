@@ -1140,6 +1140,7 @@ int CWorm::GetMyPing(void)
 // Resturns true, if we can start typing
 bool CWorm::CanType(void)
 {
+	// TODO: why is this done with getData() and not just with isUp() ?
 	int c = GetKeyboard()->keyQueue[0].sym;
 	return	cUp.getData() != c &&
 			cDown.getData() != c &&

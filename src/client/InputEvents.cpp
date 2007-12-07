@@ -50,7 +50,16 @@ SDL_Event *GetEvent(void)
 }
 
 
+void InitEventSystem() {
+	ProcessEvents();
+	for(int k = 0;k<SDLK_LAST;k++)
+		GetKeyboard()->KeyUp[k] = false;
 
+	GetMouse()->Button = 0;
+	GetMouse()->Down = 0;
+	GetMouse()->FirstDown = 0;
+	GetMouse()->Up = 0;
+}
 
 ///////////////////
 // Process the events

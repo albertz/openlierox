@@ -384,6 +384,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 	}
 
 	// F5 updates the list
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	if (GetKeyboard()->KeyUp[SDLK_F5])  {
 		Menu_SvrList_RefreshList();
 		Menu_SvrList_FillList((CListview *) cFavourites.getWidget(mf_ServerList));
@@ -472,6 +473,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
 	DrawRectFillA(tMenu->bmpBuffer,200,400,350,420,tLX->clDialogBackground,230); // Dirty; because of button redrawing
 
+	// TODO: make this event-based (don't check GetKeyboard() directly)
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
@@ -565,7 +567,7 @@ void Menu_Net_RenameServer(std::string& szName)
 	cRename.SendMessage(2,TXM_SETMAX,30,0);
 	cRename.SendMessage(2,TXS_SETTEXT,szName,0); // Fill in the current server name
 
-
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && renameServerMsg && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();
@@ -665,7 +667,7 @@ void Menu_Net_FavouritesAddServer(void)
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
 	cAddSvr.SendMessage(3,TXM_SETMAX,32,0);
 
-
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();

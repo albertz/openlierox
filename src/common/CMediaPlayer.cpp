@@ -172,6 +172,7 @@ bool CPlayList::DrawLoadingProgress(void)
 		else 
 			btnCancel.MouseOver(mouse);
 	}
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	result = result || kb->KeyDown[SDLK_ESCAPE];
 
 	// Draw Player
@@ -901,6 +902,7 @@ void CMediaPlayer::Frame() {
 			iLastMouseY = 0;
 		}
 
+		// TODO: make this event-based (don't check GetKeyboard() directly)
 		// Hide on ESC
 		if (GetKeyboard()->KeyDown[SDLK_ESCAPE])  {
 			bDrawPlayer = false;

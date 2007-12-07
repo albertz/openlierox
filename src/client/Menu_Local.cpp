@@ -1205,7 +1205,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 
 
-	ProcessEvents();
+	ProcessEvents(); // TODO: is this needed here?
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();

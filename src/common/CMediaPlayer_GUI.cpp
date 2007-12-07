@@ -365,6 +365,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 		}
 
 		// Handle the keyboard
+		// TODO: make this event-based (don't check GetKeyboard() directly)
 		if (Keyboard->KeyDown[SDLK_ESCAPE])  {
 			done = true;
 			cancelled = true;

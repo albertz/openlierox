@@ -827,10 +827,11 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		DrawCursor(tMenu->bmpScreen);
 
 		// Escape quits the wait for user input
+		// TODO: make this event-based (don't check GetKeyboard() directly)
 		if(kb->KeyUp[SDLK_ESCAPE])
 			break;
 
-		static std::string tmp;
+		std::string tmp;
 		if(inp.Wait(tmp)) {
 			b->setText(tmp);
 			break;

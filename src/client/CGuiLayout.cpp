@@ -591,7 +591,7 @@ gui_event_t *CGuiLayout::Process(void)
 
 	// Parse keyboard events to the focused widget
 	// Make sure a key event happened
-	if(Event->type == SDL_KEYUP || Event->type == SDL_KEYDOWN) {
+	if(Keyboard->queueLength > 0) {
 
 		// If we don't have any focused widget, get the first textbox
 		if (!cFocused)  {

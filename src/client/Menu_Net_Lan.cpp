@@ -342,6 +342,7 @@ void Menu_Net_LANFrame(int mouse)
 	}
 
 	// F5 updates the list
+	// TODO: make this event-based (don't check GetKeyboard() directly)
 	if (GetKeyboard()->KeyUp[SDLK_F5])  {
 		Menu_SvrList_Clear();
 		Menu_SvrList_PingLAN();
@@ -423,6 +424,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 	nTries = 0;
 	fStart = -9999;
 
+	// TODO: make this event-based (don't check GetKeyboard() directly)
     while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
