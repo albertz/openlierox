@@ -88,6 +88,7 @@ void Menu_MainInitialize(void)
 	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 	
 	// News box
+	#if 0	// Vidar doesn't like it in main menu, so news are available only for skins
 	GuiSkinInit.clear();
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Old style
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( true ) );	// Hide selection
@@ -98,6 +99,7 @@ void Menu_MainInitialize(void)
 	c_init.Call();
 	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
 	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
+	#endif
 
 	// Check if skin should be loaded instead of main menu ( also when selecting different skin from skinned menu )
 	if( tLXOptions->sSkinPath != "" )
@@ -219,7 +221,8 @@ void Menu_MainFrame(void)
 		}
 	}
 
-	CGuiSkin::ProcessUpdateCallbacks();	// Process the news box (and other widgets like IRC chat which is not here yet)
+	// No needed here
+	//CGuiSkin::ProcessUpdateCallbacks();	// Process the news box (and other widgets like IRC chat which is not here yet)
 
 	if(mouseover) {
 		alpha += tLX->fDeltaTime*5;

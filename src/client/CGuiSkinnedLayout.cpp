@@ -165,6 +165,7 @@ void CGuiSkinnedLayout::Draw(SDL_Surface *bmpDest)
 bool CGuiSkinnedLayout::Process(void)
 {
 	// TODO: why is ProcessEvents() not used here?
+	// ProcessEvents() is called from toplevel Menu_Loop() function, we don't need it here.
 	
 	mouse_t *tMouse = GetMouse();
 	keyboard_t *Keyboard = GetKeyboard();
