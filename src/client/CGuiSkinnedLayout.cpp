@@ -8,10 +8,11 @@
 //
 /////////////////////////////////////////
 
-#include "LieroX.h"
+#include <assert.h>
+#include <stdarg.h>
 
 #include "CGuiSkinnedLayout.h"
-
+#include "LieroX.h"
 #include "AuxLib.h"
 #include "Menu.h"
 #include "StringUtils.h"
@@ -23,7 +24,6 @@
 #include "CSlider.h"
 #include "CTextbox.h"
 
-#include <assert.h>
 
 
 
