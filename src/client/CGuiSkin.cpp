@@ -142,7 +142,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	CGuiSkinnedLayout * gui = new CGuiSkinnedLayout();
 
 	//Doc = xmlParseFile(filepath.c_str());
-	Doc = xmlReadFile( filepath.c_str(), "UTF8", XML_PARSE_NOBLANKS | XML_PARSE_NONET | XML_PARSE_NOCDATA | XML_PARSE_COMPACT );
+	// TODO: XML_PARSE_COMPACT unknown on MacOSX
+	Doc = xmlReadFile( filepath.c_str(), "UTF8", XML_PARSE_NOBLANKS | XML_PARSE_NONET | XML_PARSE_NOCDATA /* | XML_PARSE_COMPACT */ );
 	if (Doc == NULL)  
 	{
 		printf("Cannot parse GUI skin file %s\n", filepath.c_str() );

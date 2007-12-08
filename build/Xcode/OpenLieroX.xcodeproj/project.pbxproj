@@ -17,6 +17,11 @@
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
 		235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281C0CF7C13B0067BA4F /* stun.cpp */; };
+		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
+		23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF690D0B038700920A5F /* CTextButton.cpp */; };
+		23CDBF6E0D0B039C00920A5F /* Clipboard.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 23CDBF6C0D0B039C00920A5F /* Clipboard.h */; };
+		23CDBF6F0D0B039C00920A5F /* CTextButton.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 23CDBF6D0D0B039C00920A5F /* CTextButton.h */; };
+		23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CDBF900D0B06FD00920A5F /* Carbon.framework */; };
 		EA38B0330C467928008ABAAE /* CAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0300C467928008ABAAE /* CAnimation.cpp */; };
 		EA38B0340C467928008ABAAE /* CBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0310C467928008ABAAE /* CBar.cpp */; };
 		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
@@ -185,6 +190,8 @@
 				235D28130CF7C10C0067BA4F /* FileDownload.h in Copy Frameworks into .app */,
 				235D28140CF7C10C0067BA4F /* HTTP.h in Copy Frameworks into .app */,
 				235D28150CF7C10C0067BA4F /* stun.h in Copy Frameworks into .app */,
+				23CDBF6E0D0B039C00920A5F /* Clipboard.h in Copy Frameworks into .app */,
+				23CDBF6F0D0B039C00920A5F /* CTextButton.h in Copy Frameworks into .app */,
 			);
 			name = "Copy Frameworks into .app";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -202,6 +209,11 @@
 		235D281A0CF7C13B0067BA4F /* FileDownload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileDownload.cpp; sourceTree = "<group>"; };
 		235D281B0CF7C13B0067BA4F /* HTTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTP.cpp; sourceTree = "<group>"; };
 		235D281C0CF7C13B0067BA4F /* stun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stun.cpp; sourceTree = "<group>"; };
+		23CDBF680D0B038700920A5F /* Clipboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cpp; sourceTree = "<group>"; };
+		23CDBF690D0B038700920A5F /* CTextButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTextButton.cpp; sourceTree = "<group>"; };
+		23CDBF6C0D0B039C00920A5F /* Clipboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clipboard.h; sourceTree = "<group>"; };
+		23CDBF6D0D0B039C00920A5F /* CTextButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTextButton.h; sourceTree = "<group>"; };
+		23CDBF900D0B06FD00920A5F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		EA38B0300C467928008ABAAE /* CAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAnimation.cpp; sourceTree = "<group>"; };
 		EA38B0310C467928008ABAAE /* CBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CBar.cpp; sourceTree = "<group>"; };
 		EA38B0320C467928008ABAAE /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cursor.cpp; sourceTree = "<group>"; };
@@ -407,7 +419,7 @@
 		EAD6E4C70C47EF5900D6C836 /* OpenLieroX.alt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = OpenLieroX.alt.png; path = ../../share/OpenLieroX.alt.png; sourceTree = SOURCE_ROOT; };
 		EAD6E4D10C47EF7500D6C836 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		EAD6E50B0C4819CF00D6C836 /* macosx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = macosx.icns; path = ../../share/macosx.icns; sourceTree = SOURCE_ROOT; };
-		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAD99F610C063CA6003BE563 /* OpenLieroX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenLieroX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "OpenLieroX-Info.plist"; sourceTree = "<group>"; };
 		EAE6E6F30C062D9400F6AFB4 /* CsvReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvReader.h; sourceTree = "<group>"; };
 		EAE766270C4793C800788523 /* CAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAnimation.h; sourceTree = "<group>"; };
@@ -430,6 +442,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */,
 				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
 				EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */,
 				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
@@ -502,6 +515,8 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				23CDBF680D0B038700920A5F /* Clipboard.cpp */,
+				23CDBF690D0B038700920A5F /* CTextButton.cpp */,
 				235D28160CF7C1230067BA4F /* CGuiSkin.cpp */,
 				235D28170CF7C1230067BA4F /* CGuiSkinnedLayout.cpp */,
 				EA38B0300C467928008ABAAE /* CAnimation.cpp */,
@@ -617,6 +632,8 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				23CDBF6C0D0B039C00920A5F /* Clipboard.h */,
+				23CDBF6D0D0B039C00920A5F /* CTextButton.h */,
 				235D280C0CF7C10C0067BA4F /* CGuiSkin.h */,
 				235D280D0CF7C10C0067BA4F /* CGuiSkinnedLayout.h */,
 				235D280E0CF7C10C0067BA4F /* FileDownload.h */,
@@ -761,6 +778,7 @@
 		EAD6E4BE0C47EF1F00D6C836 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				23CDBF900D0B06FD00920A5F /* Carbon.framework */,
 				EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */,
 				EABBC2C30C5AA00B003884A9 /* FreeType.framework */,
 				EABBC2A70C5A9DEE003884A9 /* GD.framework */,
@@ -998,6 +1016,8 @@
 				235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */,
 				235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */,
 				235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */,
+				23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */,
+				23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1042,7 +1062,10 @@
 					/sw/include/libxml2,
 					../../hawknl/include,
 				);
-				OTHER_CFLAGS = "-DMACOSX";
+				OTHER_CFLAGS = (
+					"-DMACOSX",
+					"-pthread",
+				);
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};
@@ -1078,7 +1101,10 @@
 					/sw/include/libxml2,
 					../../hawknl/include,
 				);
-				OTHER_CFLAGS = "-DMACOSX";
+				OTHER_CFLAGS = (
+					"-DMACOSX",
+					"-pthread",
+				);
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = ../include;
 			};
@@ -1098,7 +1124,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = HawkNL;
 				ZERO_LINK = YES;
@@ -1117,7 +1142,6 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = HawkNL;
 				ZERO_LINK = NO;
