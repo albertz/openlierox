@@ -69,10 +69,12 @@ void CInputbox::ProcessGuiSkinEvent(int iEvent)
 
 CInputboxInput::CInputboxInput(): CInputbox( 0, "", tMenu->bmpInputbox, "" )
 {
+	CInput::InitJoysticksTemp(); // for supporting joystick in CInput::Wait
 };
 
 CInputboxInput::~CInputboxInput()
 {
+	CInput::UnInitJoysticksTemp();
 	//CGuiSkin::DeRegisterUpdateCallback( this ); // Called in CWidget::~CWidget()
 };
 
@@ -93,9 +95,8 @@ void CInputboxInput::UpdateCallback( const std::string & param, CWidget * source
 		in->iSkipFirstFrame = 0;
 		return;
 	};
-	CInput input;
 	std::string s;
-	input.Wait( s );
+	CInput::Wait( s );
 	if( s != "" )
 	{
 		in->iSkipFirstFrame = 1;

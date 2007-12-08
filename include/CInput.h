@@ -62,8 +62,9 @@ public:
 
 	int		Load(const std::string& name, const std::string& section);
 	int		Setup(const std::string& text);
-	static int Wait(std::string& strText);
-	int		Wait();
+	static void InitJoysticksTemp(); // call this if CInput::Wait shall recognise joystick events
+	static void UnInitJoysticksTemp();
+	static int Wait(std::string& strText); // TODO: change this name. this function doesn't realy wait, it just checks the event-state
 	int		getData() { return Data; }
 	int		getType() { return Type; }
 	bool	isJoystick() { return Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2; }

@@ -810,13 +810,12 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 
 	Menu_RedrawMouse(true);
 
-	CInput inp;
-
 	Mouse->Up = 0;
 	Mouse->Down = 0;
 
 	ProcessEvents();
 	SetGameCursor(CURSOR_ARROW);
+	CInput::InitJoysticksTemp();
 	while(true) {
 		Menu_RedrawMouse(false);
 
@@ -828,7 +827,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 			break;
 
 		std::string tmp;
-		if(inp.Wait(tmp)) {
+		if(CInput::Wait(tmp)) {
 			b->setText(tmp);
 			break;
 		}
@@ -836,6 +835,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		FlipScreen(tMenu->bmpScreen);
 		WaitForNextEvent();
 	}
+	CInput::UnInitJoysticksTemp();
 
 	// Change the options
 	if(ply >= 0) {

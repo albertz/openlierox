@@ -16,6 +16,7 @@
 // Created 10/12/01
 // By Jason Boettcher
 
+#include <assert.h>
 
 #include "LieroX.h"
 #include "AuxLib.h"  // for GetConfig()
@@ -160,9 +161,11 @@ joystick_t Joysticks[] = {
 	{ "joy2_but9",JOY_BUTTON,8},
 };
 
-SDL_Joystick *joy1 = NULL, *joy2 = NULL;
+static SDL_Joystick* joys[2] = {NULL, NULL};
 
 bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
+	if(joy == NULL) return false;
+	
 	int val;
 	
 	// TODO: atm these limits are hardcoded; make them constants (or perhaps also configurable)
@@ -199,6 +202,46 @@ bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
 	return false;
 }
 
+static bool joysticks_inited_temp[2] = {false, false};
+
+void initJoystick(int i, bool isTemp) {
+	assert(i == 0 || i == 1);
+	
+	if(joys[i] == NULL && SDL_NumJoysticks() > i && !SDL_JoystickOpened(i)) {
+		printf("opening joystick %i", i);
+		printf(" (\"%s\")\n", SDL_JoystickName(i));
+		joys[i] = SDL_JoystickOpen(0);
+		if(joys[i]) {
+			printf("  Number of Axes: %d\n", SDL_JoystickNumAxes(joys[i]));
+			printf("  Number of Buttons: %d\n", SDL_JoystickNumButtons(joys[i]));
+			printf("  Number of Balls: %d\n", SDL_JoystickNumBalls(joys[i]));
+			if(isTemp) joysticks_inited_temp[i] = true;
+		} else
+			printf("WARNING: could not open joystick\n");
+	}
+
+	if(!isTemp) joysticks_inited_temp[i] = false;
+}
+
+void CInput::InitJoysticksTemp() {
+	printf("initing joysticks temporary...\n");
+	printf("amout of available joysticks: %i\n", SDL_NumJoysticks());
+	initJoystick(0, true);
+	initJoystick(1, true);
+}
+
+void uninitTempJoystick(int i) {
+	if(joysticks_inited_temp[i] && SDL_JoystickOpened(i)) {
+		SDL_JoystickClose(joys[i]);
+		joys[i] = NULL;
+		joysticks_inited_temp[i] = false;
+	}
+}
+
+void CInput::UnInitJoysticksTemp() {
+	uninitTempJoystick(0);
+	uninitTempJoystick(1);
+}
 
 ///////////////////
 // Load the input from a config file
@@ -214,11 +257,6 @@ int CInput::Load(const std::string& name, const std::string& section)
 	return Setup(string);
 }
 
-
-int CInput::Wait() {
-	static std::string tmp;
-	return Wait(tmp);
-}
 
 ///////////////////
 // Waits for any input (used in a loop)
@@ -254,10 +292,9 @@ int CInput::Wait(std::string& strText)
 
 	// joystick
 	// TODO: more joysticks
-	SDL_JoystickUpdate();
 	for(n = 0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
-		int i = Joysticks[n].text[3] - '0'; // at pos 3, there is the number ("joy1_...")
-		if(checkJoystickState(Joysticks[n].value, Joysticks[n].extra, (i == 1) ? joy1 : joy2)) {
+		int i = Joysticks[n].text[3] - '1'; // at pos 3, there is the number ("joy1_...")
+		if(joys[i] != NULL && checkJoystickState(Joysticks[n].value, Joysticks[n].extra, joys[i])) {
 			strText = Joysticks[n].text;
 			return true;
 		}
@@ -300,14 +337,7 @@ int CInput::Setup(const std::string& string)
 		}
 
 		// Open the joystick if it hasn't been already opened
-		if(!SDL_JoystickOpened(0)) {
-			joy1 = SDL_JoystickOpen(0);
-			if(!joy1) {
-				SetError("Could not open joystick1");
-				return false;
-			}
-		}
-
+		initJoystick(0, false);
 
 		// Go through the joystick list
 		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
@@ -329,14 +359,8 @@ int CInput::Setup(const std::string& string)
 			return false;
 
 		// Open the joystick if it hasn't been already opened
-		if(!SDL_JoystickOpened(1)) {
-			joy2 = SDL_JoystickOpen(1);
-			if(!joy1) {
-				SetError("Could not open joystick2");
-				return false;
-			}
-		}
-
+		initJoystick(1, false);
+		
 		// Go through the joystick list
 		for(n=0;n<sizeof(Joysticks) / sizeof(joystick_t);n++) {
 			if(Joysticks[n].text == string) {
@@ -422,11 +446,9 @@ int CInput::isDown(void)
 
 		// Joystick
 		case INP_JOYSTICK1:
-			SDL_JoystickUpdate();
-			return checkJoystickState(Data, Extra, joy1);
+			return checkJoystickState(Data, Extra, joys[0]);
 		case INP_JOYSTICK2:
-			SDL_JoystickUpdate();
-			return checkJoystickState(Data, Extra, joy2);
+			return checkJoystickState(Data, Extra, joys[1]);
 
 	}
 
