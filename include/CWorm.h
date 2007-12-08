@@ -189,10 +189,8 @@ private:
 				cStrafe;
 	bool		bUsesMouse;
 
-	// Check if we've moved the mouse
-	int			lastMousePosX;
-	int			lastMousePosY;
-	float		lastMouseMoveTime;
+	// last time we moved left or right
+	float		lastMoveTime;
 
 	// Simulation
 	worm_state_t tState;

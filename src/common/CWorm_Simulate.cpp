@@ -32,7 +32,6 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	CVec	dir;
 	int		weap = false;
 	int		RightOnce = false;
-	int		move = false;
 
 	mouse_t *ms = GetMouse();
 	
@@ -55,77 +54,92 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 	bool mouseControl = tLXOptions->bMouseAiming && ( cOwner->getHostAllowsMouse() || tGameInfo.iGameType == GME_LOCAL);
 
+	// TODO: here are width/height of the window hardcoded
+	int mouse_dx = ms->X - 640/2;
+	int mouse_dy = ms->Y - 480/2;
+	if(mouseControl) SDL_WarpMouse(640/2, 480/2);
+	
+	{
+/*		// only some debug output for checking the values		
+		if(mouseControl && (mouse_dx != 0 || mouse_dy != 0))
+			printf("mousepos changed: %i, %i\n", mouse_dx, mouse_dy),
+			printf("anglespeed: %f\n", fAngleSpeed),
+			printf("movespeed: %f\n", fMoveSpeedX),
+			printf("dt: %f\n", dt); */
+	}
+
+	// angle section
 	{	
 		// Up
 		if(cUp.isDown()) {
 			fAngleSpeed -= 500 * dt;
 			//fAngle -= wd->AngleSpeed * dt;
+		} else if(cDown.isDown()) { // Down
+			fAngleSpeed += 500 * dt;
+			//fAngle += wd->AngleSpeed * dt;
 		} else {
-			
-			// Down
-			if(cDown.isDown()) {
-				fAngleSpeed += 500 * dt;
-				//fAngle += wd->AngleSpeed * dt;
-			} else {
+			if(!mouseControl) {
+				// HINT: this is the original order (before mouse patch - rev 1007)
 				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
 				REDUCE_CONST(fAngleSpeed, 200*dt);
 				RESET_SMALL(fAngleSpeed, 5.0f);
-			}
-		}
 			
-		if(mouseControl) {
-			// TODO: btw, have you seen JasonBs CWorm::getMouseInput in this file?
-			
-			/*
-			// HINT: this is another possibility which only count the mousemoving; but very confusing for fullscreen
-			float mdt = tLX->fCurTime - lastMouseMoveTime;
-			if(mdt > 0.0 && mdt < 0.3) { // else ignore it
-				float dy = (float)(ms->Y - lastMousePosY) / mdt;
-				fAngleSpeed += CLAMP(2.0 * dy, -500.0, 500.0) * mdt;
-			}*/
+			} else { // mouseControl for angle
+				// TODO: the windows-width/height is hardcoded here! that is bad
+				static const float mult_Y = 4; // how sensitive is the mouse in Y-dir
+				fAngleSpeed += mouse_dy * mult_Y;
 				
-			// this is better for fullscreen and also good for windowmode
-			// TODO: the windows-width/height is hardcoded here! that is bad
-			fAngleSpeed += (ms->Y - 480/2);
-			fMoveSpeedX += (ms->X - 640/2);
-			
-			// TODO: here are again the hardcoded width/height of the window
-			SDL_WarpMouse(640/2, 480/2);
-			
-			REDUCE_CONST(fMoveSpeedX, 1000*dt);
-			//RESET_SMALL(fMoveSpeedX, 5.0f);
-			CLAMP_DIRECT(fMoveSpeedX, -500.0f, 500.0f);
-			
-			REDUCE_CONST(fAngleSpeed, 200*dt);
-			RESET_SMALL(fAngleSpeed, 5.0f);
-			CLAMP_DIRECT(fAngleSpeed, -500.0f, 500.0f);
-			
-			// also moving via mouse
-			if(fabs(fMoveSpeedX) > 50) {
-				iDirection = (fMoveSpeedX > 0) ? DIR_RIGHT : DIR_LEFT;
-				ws->iMove = true;
-				move = true;
-			} else {
-				ws->iMove = false;
-				move = false;
+				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
+				REDUCE_CONST(fAngleSpeed, 200*dt);
+				RESET_SMALL(fAngleSpeed, 5.0f);
+				
+/*				REDUCE_CONST(fAngleSpeed, 200*dt);
+				RESET_SMALL(fAngleSpeed, 5.0f);
+				CLAMP_DIRECT(fAngleSpeed, -500.0f, 500.0f); */
 			}
-	
 		}
-			
+
 		fAngle += fAngleSpeed * dt;
 		if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
 			fAngleSpeed = 0;
-	
-		
+
 		// Calculate dir
 		dir.x=( (float)cos(fAngle * (PI/180)) );
 		dir.y=( (float)sin(fAngle * (PI/180)) );
 		if( iStrafeDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
 			dir.x=(-dir.x);
+
+	} // end angle section
+		
+	
+	// basic mouse control (moving)
+	if(mouseControl) {
+						
+		static const float mult_X = 2; // how sensitive is the mouse in X-dir
+		fMoveSpeedX += mouse_dx * mult_X;		
+		
+		REDUCE_CONST(fMoveSpeedX, 1000*dt);
+		//RESET_SMALL(fMoveSpeedX, 5.0f);
+		CLAMP_DIRECT(fMoveSpeedX, -500.0f, 500.0f);
+				
+		if(fabs(fMoveSpeedX) > 50) {
+			if(fMoveSpeedX > 0) {
+				iDirection = DIR_RIGHT;
+				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
+			} else {
+				iDirection = DIR_LEFT;
+				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
+			}
+			ws->iMove = true;
+			
+		} else {
+			ws->iMove = false;
+		}
+					
 	}
 	
 	
-	if(mouseControl) { // set shooting, ninja and jumping for mousecontrol
+	if(mouseControl) { // set shooting, ninja and jumping, weapon selection for mousecontrol
 		// like Jason did it
 		ws->iShoot = (ms->Down & SDL_BUTTON(1)) ? true : false;
 		ws->iJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
@@ -152,16 +166,10 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 				iCurrentWeapon=iNumWeaponSlots-1;
 		}
 	}
-	
-	
-	
-	if(lastMousePosX != ms->X || lastMousePosY != ms->Y) {
-		lastMouseMoveTime = tLX->fCurTime;
-		lastMousePosX = ms->X;
-		lastMousePosY = ms->Y;
-	}
+		
 
-	{ // set moving
+
+	{ // set carving
 	
 		if(!cRight.isDown())
 			iCarving &= ~1;
@@ -175,10 +183,33 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			iCarving |= 2;
 		}
 		
+/*		// this is a bit unfair to keyboard players
 		if(mouseControl) { // mouseControl
 			if(fabs(fMoveSpeedX) > 200) {
 				ws->iCarve = true;
 				iCarving |= (fMoveSpeedX > 0) ? 1 : 2;
+			}
+		} */
+		
+		static const float movetimed_min = 0.05, movetimed_max = 0.2;
+		
+		if((mouseControl && ws->iMove && iDirection == DIR_LEFT)
+		|| (/*cLeft.isJoystick() &&*/ cLeft.isDown())) {
+			float movetimed = tLX->fCurTime - lastMoveTime;
+			//printf("movetimed: %f\n", movetimed);
+			if(movetimed_min < movetimed && movetimed < movetimed_max) {
+				ws->iCarve = true;
+				iCarving |= 2;
+			}
+		}
+	
+		if((mouseControl && ws->iMove && iDirection == DIR_RIGHT)
+		|| (/*cRight.isJoystick() &&*/ cRight.isDown())) {
+			float movetimed = tLX->fCurTime - lastMoveTime;
+			//printf("movetimed: %f\n", movetimed);
+			if(movetimed_min < movetimed && movetimed < movetimed_max) {
+				ws->iCarve = true;
+				iCarving |= 1;
 			}
 		}
 	}
@@ -279,11 +310,11 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 		if(!cLeft.isDown() || iDirection == DIR_RIGHT) {
 			iDirection = DIR_RIGHT;
 			ws->iMove = true;
-
+			lastMoveTime = tLX->fCurTime;
+			
 			//if(vVelocity.x<75)
 			//	vVelocity = vVelocity + CVec(speed,0);
 			//fFrame+=5*dt;
-			move = true;
 		}
 	}
 
@@ -301,11 +332,11 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 
 		iDirection = DIR_LEFT;
 		ws->iMove = true;
-
+		lastMoveTime = tLX->fCurTime;
+		
 		//if(vVelocity.x>-75)
 		//	vVelocity = vVelocity + CVec(-speed,0);
 		//fFrame+=5*dt;
-		move = true;
 	}
 
 
@@ -363,6 +394,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 	ws->iAngle = (int)fAngle;
 	ws->iX = (int)vPos.x;
 	ws->iY = (int)vPos.y;
+		
 
 }
 

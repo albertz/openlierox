@@ -51,7 +51,7 @@ public:
 private:
 	// Attributes
 
-	int		Type;
+	int		Type; // keyboard, mouse or joystick
 	int		Data;
 	int		Extra;
 	int		Down;
@@ -62,10 +62,12 @@ public:
 
 	int		Load(const std::string& name, const std::string& section);
 	int		Setup(const std::string& text);
-	int		Wait(std::string& strText);
+	static int Wait(std::string& strText);
 	int		Wait();
-	int		getData() { return Data; };
-
+	int		getData() { return Data; }
+	int		getType() { return Type; }
+	bool	isJoystick() { return Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2; }
+	
 	int		isUp(void);
 	int		isDown(void);
 	int		isDownOnce(void);

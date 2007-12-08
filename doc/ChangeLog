@@ -1,5 +1,7 @@
 0.57_beta4
 ==========
+- joystick support (for playing)
+- mouse support (for playing)
 - more intelligent event-handling (in some parts)
 - delete-key works now under MacOSX
 - copy&paste support for Linux

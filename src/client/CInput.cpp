@@ -229,8 +229,8 @@ int CInput::Wait(std::string& strText)
 	unsigned int n,i;
 
 	// First check the mouse
-	for(n=0;n<MAX_MOUSEBUTTONS;n++) {
-		i=n;
+	for(n = 0; n < MAX_MOUSEBUTTONS; n++) {
+		i = n;
 		if(Mouse->Up & SDL_BUTTON(n)) {
 			// Swap rmb id wih mmb (mouse buttons)
 			switch (n)  {
@@ -245,7 +245,7 @@ int CInput::Wait(std::string& strText)
 	// Keyboard
 
 	// TODO: Other keys
-	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
+	for(n = 0; n<sizeof(Keys) / sizeof(keys_t); n++) {
 		if(kb->KeyUp[Keys[n].value]) {
 			strText = Keys[n].text;
 			return true;
@@ -278,7 +278,6 @@ int CInput::Setup(const std::string& string)
 	Down = false;
 
 	// Check if it's a mouse
-	// TODO: allow more mouse buttons
 	if(string.substr(0,2) == "ms") {
 		Type = INP_MOUSE;
 		Data = atoi(string.substr(2).c_str());
