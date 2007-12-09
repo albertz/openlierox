@@ -125,7 +125,7 @@ public:
 	void				RequestData(const std::string& url);
 	int					ProcessRequest();
 	void				CancelProcessing();
-	HttpError			GetError()				{ return tError; }
+	const HttpError&	GetError()				{ return tError; }
 	const std::string&	GetData()				{ return sPureData; }
 	const std::string&	GetMimeType()			{ return sMimeType; }
 	size_t				GetDataLength()			{ return iDataLength; }

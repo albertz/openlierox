@@ -25,7 +25,7 @@
 #include "types.h"
 
 // List of errors, MUST match error IDs in HTTP.h
-const std::string sHttpErrors[] = {
+static const std::string sHttpErrors[] = {
 	"No error",
 	"Could not open HTTP socket",
 	"Could not resolve DNS",
@@ -178,7 +178,7 @@ void CChunkParser::Reset()
 // Constructor
 CHttp::CHttp()
 {
-	// Buffer for reading from socket, each instance has its own buffer (thread safety)
+	// Buffer for reading from socket
 	tBuffer = new char[4096];
 	tChunkParser = new CChunkParser(&sPureData, &iDataLength, &iDataReceived);
 	Clear();

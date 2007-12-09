@@ -28,7 +28,7 @@
 
 // Here goes old code not used anywhere passed down from JasonB
 
-CGuiLayout	cNews;
+static CGuiLayout	cNews;
 
 enum {
 	nw_Back = 0,
@@ -110,13 +110,16 @@ void Menu_Net_NewsFrame(int mouse)
 // CBrowser class passed down from JasonB isn't used anywhere and contains really old code.
 
 static std::string sNewsText = "Loading news...\n";	// Last newline required
-static CHttp cNewsDownload;
+static CHttp* cNewsDownload = NULL; // HINT: cannot use type here because constructor depends on uninited things (sHttpError)
 enum { NEWS_NONE=0, NEWS_LXALLIANCE, NEWS_SOURCEFORGE, NEWS_END = NEWS_SOURCEFORGE + 20 };
 static int iNewsDownloaded = NEWS_NONE;
 static int iNewsSourceforgeLastRevision = 0;
 
 static void NewsListview_Update( const std::string & param, CWidget * source )
 {
+	// TODO: init cNewsDownload somewhere and take care of uniniting
+	return;
+
 	if( iNewsDownloaded >= NEWS_END )
 	{
 		CGuiSkin::DeRegisterUpdateCallback( source );
@@ -124,20 +127,20 @@ static void NewsListview_Update( const std::string & param, CWidget * source )
 	else if( iNewsDownloaded == NEWS_NONE )
 	{
 		iNewsDownloaded = NEWS_LXALLIANCE;
-		cNewsDownload.RequestData( "http://lxalliance.net/smf/index.php?page=5" );
+		cNewsDownload->RequestData( "http://lxalliance.net/smf/index.php?page=5" );
 	}
 	else
 	{
-		if( cNewsDownload.ProcessRequest() == HTTP_PROC_PROCESSING )
+		if( cNewsDownload->ProcessRequest() == HTTP_PROC_PROCESSING )
 			return;	// No need to update listview
-		if( cNewsDownload.ProcessRequest() == HTTP_PROC_ERROR )
+		if( cNewsDownload->ProcessRequest() == HTTP_PROC_ERROR )
 		{
 			iNewsDownloaded = NEWS_END;
 			sNewsText += "Error loading news.\n";
 		};
-		if( cNewsDownload.ProcessRequest() == HTTP_PROC_FINISHED )
+		if( cNewsDownload->ProcessRequest() == HTTP_PROC_FINISHED )
 		{
-			std::string data = cNewsDownload.GetData();
+			std::string data = cNewsDownload->GetData();
 			if( iNewsDownloaded == NEWS_LXALLIANCE )
 			{
 				sNewsText = "---------- News from LXAlliance.net:\n";
@@ -179,7 +182,7 @@ static void NewsListview_Update( const std::string & param, CWidget * source )
 				};
 				
 				iNewsDownloaded = NEWS_SOURCEFORGE;
-				cNewsDownload.RequestData( "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev" );
+				cNewsDownload->RequestData( "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev" );
 			}
 			else if( iNewsDownloaded >= NEWS_SOURCEFORGE )
 			{
@@ -220,13 +223,13 @@ static void NewsListview_Update( const std::string & param, CWidget * source )
 				if( message != "" )
 					sNewsText += message + "\n";
 				iNewsSourceforgeLastRevision --;
-				cNewsDownload.RequestData( "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=" + 
+				cNewsDownload->RequestData( "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=" + 
 												itoa(iNewsSourceforgeLastRevision) );
 				iNewsDownloaded ++;
 			};
 			if( iNewsDownloaded >= NEWS_END )
 			{
-				cNewsDownload.CancelProcessing();
+				cNewsDownload->CancelProcessing();
 				printf( "News downloading finished\n" );
 				CGuiSkin::DeRegisterUpdateCallback( source );
 			};
@@ -252,7 +255,7 @@ static void NewsListview_Update( const std::string & param, CWidget * source )
 	news->RestoreScrollbarPos();
 };
 
-static void NewsListview_Init( const std::string & param, CWidget * source )
+void NewsListview_Init( const std::string & param, CWidget * source )
 {
 	if( source->getType() != wid_Listview )
 		return;
