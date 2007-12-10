@@ -347,11 +347,11 @@ public:
 	if the returned value is false, the loop will break
 */
 template<class _action>
-_action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _action checkflag_action) {
+void fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _action& checkflag_action) {
 	enum { X_DOM=-1, Y_DOM=1 } dom; // which is dominating?
 	CVec dir = target-start;
 	if(dir.x == 0 && dir.y == 0)
-		return checkflag_action;
+		return;
 		
 	float quot;
 	int s_x = (dir.x >= 0) ? 1 : -1;
@@ -372,7 +372,7 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 	const uchar* pxflags = pcMap->GetPixelFlags();
 	const uchar* gridflags = pcMap->getAbsoluteGridFlags();
 	if (!pxflags || !gridflags)  // map has been probably shut down in the meantime
-		return checkflag_action;
+		return;
 
 	int map_w = pcMap->GetWidth();
 	int map_h = pcMap->GetHeight();	
@@ -511,8 +511,6 @@ _action fastTraceLine(CVec target, CVec start, CMap *pcMap, uchar checkflag, _ac
 			y += s_y;
 		}
 	}
-	
-	return checkflag_action;
 }
 
 int		CheckCollision(CVec trg, CVec pos, uchar checkflags, CMap *map);

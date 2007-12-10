@@ -2823,7 +2823,7 @@ public:
 int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 {
 /*	set_col_and_break col_action;
-	col_action = fastTraceLine(trg, pos, map, checkflags, col_action);
+	fastTraceLine(trg, pos, map, checkflags, col_action);
 	if(col_action.hit) {
 
 	}*/

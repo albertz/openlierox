@@ -3378,7 +3378,7 @@ int traceWormLine(CVec target, CVec start, CMap *pcMap, CVec* collision)
 	set_col_and_break action = set_col_and_break(start - dir*(wormsize-1)/2, collision);
 	target -= dir*(wormsize-1)/2;
 	for(register unsigned short i = 0; i < wormsize; i++, action.start += dir, target += dir)
-		action = fastTraceLine(target, action.start, pcMap, (uchar)PX_ROCK, action);
+		fastTraceLine(target, action.start, pcMap, (uchar)PX_ROCK, action);
 
 	return !action.hit;
 
@@ -3949,8 +3949,17 @@ void CWorm::NEW_AI_DrawPath()
 
 class bestropespot_collision_action {
 public:
+	CWorm* worm;
+	CVec aimDir;
 	CVec target, best;
-	bestropespot_collision_action(CVec t) : target(t), best(-1,-1) {}
+	float best_value;
+	
+	bestropespot_collision_action(CWorm* w, CVec t) : worm(w), target(t), best_value(-1) {
+        aimDir.x=( (float)cos(worm->getAngle() * (PI/180)) );
+	    aimDir.y=( (float)sin(worm->getAngle() * (PI/180)) );
+	    if(worm->getDirection() == DIR_LEFT)
+		    aimDir.x=(-aimDir.x);
+	}
 
 #ifdef _AI_DEBUG
 	//CMap* pcMap;
@@ -3961,9 +3970,24 @@ public:
 		//DrawRectFill(pcMap->GetDebugImage(),x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(0,240,0));
 #endif
 
-		if(best.x < 0 || (CVec((float)x,(float)y)-target).GetLength2() < (best-target).GetLength2())
-			best = CVec((float)x,(float)y);
+		CVec suggestion((float)x, (float)y);
+		float trg_dist = (suggestion - target).GetLength2();
+		trg_dist = (trg_dist != 0) ? (1.0f / trg_dist) : 999999999999999.0f; // the closer we are the better it is
+		float angle_dif = (aimDir - suggestion / suggestion.GetLength()).GetLength2();
+		angle_dif = (angle_dif != 0) ? (1.0f / angle_dif) : 999999999999999.0f; // the closer the angle the better it is
+		float len = (worm->getPos() - suggestion).GetLength2();
+		len = -len * (len - 100.0f); // 0 is bad and everything behind 50.0f also
+		if(len < 0) len = 0.0f;
+		
+		// HINT: these constant multiplicators are the critical values in the calculation
+		float value = trg_dist * 100000.0f + angle_dif * 10000.0f + len * 0.001;
+		//printf("value: %f, %f, %f, %f\n", trg_dist, angle_dif, len, value);
 
+		if(best_value < value) {
+			best_value = value;
+			best = CVec((float)x, (float)y);
+		}
+		
 		return false;
 	}
 };
@@ -3973,22 +3997,22 @@ public:
 CVec CWorm::NEW_AI_GetBestRopeSpot(CVec trg)
 {
 	// Get the direction angle
-	CVec dir = trg-vPos;
-	dir = dir*cNinjaRope.getMaxLength()/dir.GetLength();
-	dir = CVec(-dir.y,dir.x); // rotate reverse-clockwise by 90 deg
+	CVec dir = trg - vPos;
+	dir *= cNinjaRope.getMaxLength() / dir.GetLength();
+	dir = CVec(-dir.y, dir.x); // rotate reverse-clockwise by 90 deg
 
 	// Variables
 	float step = 0.05f*(float)PI;
 	float ang = 0;
 
 	SquareMatrix<float> step_m = SquareMatrix<float>::RotateMatrix(-step);
-	bestropespot_collision_action action(trg+CVec(0,-50));
+	bestropespot_collision_action action(this, trg + CVec(0,-50));
 #ifdef _AI_DEBUG
 	//action.pcMap = pcMap;
 #endif
 
-	for(ang=0; ang<(float)PI; dir=step_m(dir),ang+=step) {
-		action = fastTraceLine(vPos+dir, vPos, pcMap, PX_ROCK|PX_DIRT, action);
+	for(ang=0; ang<(float)PI; dir=step_m(dir), ang+=step) {
+		fastTraceLine(vPos+dir, vPos, pcMap, PX_ROCK|PX_DIRT, action);
 	}
 
 	if(action.best.x < 0) // we don't find any spot
@@ -4513,9 +4537,8 @@ find_one_visible_node:
     	// set it to false, only if we pass the following checks, set it to true again
 		fireNinja = false;
 
-		// TODO: merge SetAim and GetBestRopeSpot
 		// there could be multiple good ropespot and if we already aim at one then we should use this
-		// or is GetBestRopeSpot taking care already of fAngle? in this case, add a hint here
+		// NEW_AI_GetBestRopeSpot takes care therefore also of fAngle
 		CVec ropespot = NEW_AI_GetBestRopeSpot(nodePos);
 
 		// Aim
