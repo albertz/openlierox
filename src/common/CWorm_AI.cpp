@@ -1009,7 +1009,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 
 	// Carve always; makes no problems and can only help
 	// Don't carve so fast!
-	if (tLX->fCurTime-fLastCarve > 0.2f)  {
+	if (tLX->fCurTime - fLastCarve > 0.2f)  {
 		fLastCarve = tLX->fCurTime;
 		ws->iCarve = true; // Carve
 	}
@@ -3956,6 +3956,8 @@ public:
 	float best_value;
 	
 	bestropespot_collision_action(CWorm* w, CVec t) : worm(w), target(t), best_value(-1) {
+        target.y -= 10.0f; // a bit higher is always better
+         
         aimDir.x=( (float)cos(worm->getAngle() * (PI/180)) );
 	    aimDir.y=( (float)sin(worm->getAngle() * (PI/180)) );
 	    if(worm->getDirection() == DIR_LEFT)
@@ -4167,7 +4169,6 @@ void CWorm::NEW_AI_MoveToTarget()
 	}
 
     // Clear the state
-	ws->iCarve = false;
 	ws->iMove = false;
 	ws->iShoot = false;
 	ws->iJump = false;
@@ -4179,8 +4180,10 @@ void CWorm::NEW_AI_MoveToTarget()
 		fRopeAttachedTime = 0;
 
 	// release the rope if we used it to long
-	if (fRopeAttachedTime > 5.0f)
+	if (fRopeAttachedTime > 5.0f) {
 		cNinjaRope.Release();
+		fRopeAttachedTime = 0;
+	}
 
 	if(cNinjaRope.isShooting() && !cNinjaRope.isAttached())
 		fRopeHookFallingTime += tLX->fDeltaTime;
@@ -4190,7 +4193,7 @@ void CWorm::NEW_AI_MoveToTarget()
 	if (fRopeHookFallingTime >= 2.0f)  {
 		// Release & walk
 		cNinjaRope.Release();
-        ws->iMove = true;
+//        ws->iMove = true;
 		fRopeHookFallingTime = 0;
 	}
 
@@ -4207,15 +4210,17 @@ void CWorm::NEW_AI_MoveToTarget()
     }
 */
 
+	// HINT: carving is handled already in AI_getInput
 	// HINT: carve always; bad hack, but it works good
 	// Don't carve so fast!
-	if (tLX->fCurTime-fLastCarve > 0.2f)  {
+/*	if (tLX->fCurTime-fLastCarve > 0.2f)  {
 		fLastCarve = tLX->fCurTime;
 		ws->iCarve = true; // Carve
 	}
 	else  {
 		ws->iCarve = false;
 	}
+*/
 
     // If we're stuck, just get out of wherever we are
     if(bStuck) {
@@ -4450,8 +4455,8 @@ find_one_visible_node:
 			// HINT: as we always carve, we don't need to do it here specially
 
 			// release rope, if it is atached and above
-			if(fRopeAttachedTime > 0.5f && cNinjaRope.getHookPos().y - 5.0f > nodePos.y)
-				cNinjaRope.Release();
+//			if(fRopeAttachedTime > 0.5f && cNinjaRope.getHookPos().y - 5.0f > nodePos.y)
+//				cNinjaRope.Release();
 
 			// Jump, if the node is above us
 			if (nodePos.y+10.0f < vPos.y)
@@ -4460,7 +4465,7 @@ find_one_visible_node:
 					fLastJump = tLX->fCurTime;
 				}
 
-			ws->iMove = true;
+//			ws->iMove = true;
 
 			// If the node is right above us, use a carving weapon
 			if (fabs(nodePos.x - vPos.x) <= 50)
@@ -4474,7 +4479,9 @@ find_one_visible_node:
 							ws->iMove = false;
 							ws->iJump = false;
 						}
-					} /* else
+					} else 
+						fireNinja = true; // we have no other option
+					/* else
 						AI_SimpleMove(pcMap,psAITarget != NULL); */ // no weapon found, so move around
 				}
 				
@@ -4517,10 +4524,11 @@ find_one_visible_node:
 */
 
 	// If we're above the node and the rope is hooked wrong, release the rope
-	if(CheckOnGround() && (vPos.y < nodePos.y)) {
+/*	if(CheckOnGround() && (vPos.y < nodePos.y)) {
 		cNinjaRope.Release();
 		fireNinja = false;
 	}
+*/
 	
 	// It has no sense to shoot the rope on short distances
 	// TODO: it make sense, only not for realy short distances; i try it first now completly without this check
@@ -4556,14 +4564,13 @@ find_one_visible_node:
             	fireNinja = true;
             else {
                 if(cNinjaRope.isAttached()) {
-					float restlen_sq = cNinjaRope.getRestLength(); restlen_sq *= restlen_sq;
-                    if((vPos-cNinjaRope.getHookPos()).GetLength2() < restlen_sq && vVelocity.y<-10)
+					//float restlen_sq = cNinjaRope.getRestLength(); restlen_sq *= restlen_sq;
+                    //if((vPos-cNinjaRope.getHookPos()).GetLength2() < restlen_sq && vVelocity.y<-10)
+                    if(fRopeAttachedTime > 0.2f)
                     	fireNinja = true;
                 }
             }
-            ws->iJump = true;
-			fRopeHookFallingTime = 0;
-			fRopeAttachedTime = 0;
+            ws->iJump = CheckOnGround() && (vPos.y - NEW_psCurrentNode->fY) < -5.0f;
         }
     }
 
@@ -4576,6 +4583,8 @@ find_one_visible_node:
 
     	// the final shoot of the rope...
     	cNinjaRope.Shoot(vPos, dir);
+		fRopeHookFallingTime = 0;
+		fRopeAttachedTime = 0;
 
     } else { // not fireNinja
 
@@ -4641,17 +4650,18 @@ find_one_visible_node:
             // TODO: should we do this in a more general way somewhere other?
             NEW_AI_CreatePath();
 
-            if(!NEW_psCurrentNode || !NEW_psPath)
-            	return;
+            return;
         }
     }
     else {
         bStuck = false;
         fStuckTime = 0;
         cStuckPos = vPos;
+    
     }
 
-	ws->iMove = true;
+	// only move if we are away from the next node
+	ws->iMove = fabs(vPos.x - NEW_psCurrentNode->fX) > 3.0f;
 
 
 /*
