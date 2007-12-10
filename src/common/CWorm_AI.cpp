@@ -2535,7 +2535,7 @@ bool CWorm::AI_Shoot()
 	//case PJ_CARVE:
 	case PJ_DIRT:
 	case PJ_GREENDIRT:
-		printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
+		//printf("hit_type is %i\n", weap->Projectile->PlyHit_Type);
 		// don't shoot this shit
 		break;
 	default:
@@ -3985,6 +3985,10 @@ public:
 		// HINT: these constant multiplicators are the critical values in the calculation
 		float value = trg_dist * 100000.0f + angle_dif * 10000.0f + len * 0.001;
 		//printf("value: %f, %f, %f, %f\n", trg_dist, angle_dif, len, value);
+		
+		// FIX: if we want to go up, then ignore angle and len
+		if(worm->getPos().y - target.y > 10.0f)
+			value = trg_dist;
 
 		if(best_value < value) {
 			best_value = value;
@@ -4381,8 +4385,10 @@ find_one_visible_node:
 
 
 	// release rope, if it forces us to the wrong direction
-	if(cNinjaRope.isAttached() && (cNinjaRope.GetForce(vPos).Normalize() + vPos - nodePos).GetLength2() > (vPos - nodePos).GetLength2())
+	if(cNinjaRope.isAttached() && (cNinjaRope.GetForce(vPos).Normalize() + vPos - nodePos).GetLength2() > (vPos - nodePos).GetLength2()) {
 		cNinjaRope.Release();
+		fRopeAttachedTime = 0;	
+	}
 
 
 #ifdef _AI_DEBUG
@@ -4566,11 +4572,11 @@ find_one_visible_node:
                 if(cNinjaRope.isAttached()) {
 					//float restlen_sq = cNinjaRope.getRestLength(); restlen_sq *= restlen_sq;
                     //if((vPos-cNinjaRope.getHookPos()).GetLength2() < restlen_sq && vVelocity.y<-10)
-                    if(fRopeAttachedTime > 0.2f)
+                    if(fRopeAttachedTime > 0.5f)
                     	fireNinja = true;
                 }
             }
-            ws->iJump = CheckOnGround() && (vPos.y - NEW_psCurrentNode->fY) < -5.0f;
+            ws->iJump = CheckOnGround() && (vPos.y - NEW_psCurrentNode->fY) > 5.0f;
         }
     }
 
@@ -4592,7 +4598,7 @@ find_one_visible_node:
 		if(!we_see_the_target) AI_SetAim(nodePos);
 
 		// If the node is above us by a little, jump
-		if((vPos.y-NEW_psCurrentNode->fY) <= 30 && (vPos.y-NEW_psCurrentNode->fY) > 0) {
+		if((vPos.y-NEW_psCurrentNode->fY) <= 30 && (vPos.y - NEW_psCurrentNode->fY) > 0) {
 			// Don't jump so often
 			if (tLX->fCurTime - fLastJump > 0.5f)  {
 				ws->iJump = true;
