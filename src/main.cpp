@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 		ProcessEvents();
 		tLX->iQuitEngine = false;
 		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
-		float fMaxFrameTime = 1.0f / (float)tLXOptions->nMaxFPS;
+		float fMaxFrameTime = (tLXOptions->nMaxFPS > 0) ? (1.0f / (float)tLXOptions->nMaxFPS) : 0;
 
         //
         // Main game loop

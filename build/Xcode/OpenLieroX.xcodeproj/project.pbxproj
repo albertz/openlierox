@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		235D28110CF7C10C0067BA4F /* CGuiSkin.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280C0CF7C10C0067BA4F /* CGuiSkin.h */; };
 		235D28120CF7C10C0067BA4F /* CGuiSkinnedLayout.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280D0CF7C10C0067BA4F /* CGuiSkinnedLayout.h */; };
 		235D28130CF7C10C0067BA4F /* FileDownload.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280E0CF7C10C0067BA4F /* FileDownload.h */; };
@@ -199,6 +200,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		235D280C0CF7C10C0067BA4F /* CGuiSkin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGuiSkin.h; sourceTree = "<group>"; };
 		235D280D0CF7C10C0067BA4F /* CGuiSkinnedLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGuiSkinnedLayout.h; sourceTree = "<group>"; };
 		235D280E0CF7C10C0067BA4F /* FileDownload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileDownload.h; sourceTree = "<group>"; };
@@ -442,6 +444,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */,
 				23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */,
 				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
 				EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */,
@@ -778,6 +781,7 @@
 		EAD6E4BE0C47EF1F00D6C836 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				233E2AB90D0DB10E00991914 /* OpenGL.framework */,
 				23CDBF900D0B06FD00920A5F /* Carbon.framework */,
 				EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */,
 				EABBC2C30C5AA00B003884A9 /* FreeType.framework */,
