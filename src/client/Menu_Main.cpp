@@ -27,6 +27,7 @@
 #include "CGuiSkin.h"
 #include "CLabel.h"
 #include "CCombobox.h"
+#include "CCheckbox.h"
 
 
 CGuiLayout	cMainMenu;
@@ -40,9 +41,13 @@ enum {
 	mm_LevelEditor,
 	mm_Options,
 	mm_Quit,
-	mm_ShowSkin
+	mm_ShowSkin,
+	mm_NewsBox,
+	mm_ShowNews
 };
 
+void Menu_Main_GuiSkinComboboxCreate();
+void Menu_Main_NewsBoxCreate();
 
 ///////////////////
 // Initialize the main menu
@@ -73,34 +78,14 @@ void Menu_MainInitialize(void)
 	// Quit
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
 
-	// GUI skin combobox 
-	// TODO: hacky hacky, non-skinned code with skinned widgets, maybe move to different function
-	cMainMenu.Add( new CLabel("Skin",tLX->clNormalLabel), -1, 465,10,0,0);
-	std::vector< CGuiSkin::WidgetVar_t > GuiSkinInit;
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "" ) );	// List of items
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
-	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit);
-	cMainMenu.Add( GuiSkin, mm_ShowSkin, 500,8,130,17);
-	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );
-	c_init.Call();
-	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
-	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
+	Menu_Main_GuiSkinComboboxCreate();	// Just moved ugly code to function so it won't stand out too much
 	
-	// News box
-	#if 0	// Vidar doesn't like it in main menu, so news are available only for skins
-	GuiSkinInit.clear();
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Old style
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( true ) );	// Hide selection
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Hide border
-	GuiSkin = CListview::WidgetCreator(GuiSkinInit);
-	cMainMenu.Add( GuiSkin, -1, 300,110,330,270);
-	c_init.Init( "GUI.NewsListview_Init(#FFD700)", GuiSkin );	// TODO: better color?
-	c_init.Call();
-	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
-	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
-	#endif
+	cMainMenu.Add( new CLabel("Show news",tLX->clNormalLabel), -1, 330,86,0,0);
+	cMainMenu.Add( new CCheckbox(tLXOptions->bShowNewsInMainMenu), mm_ShowNews, 300,84, 17,17);
 
+	if( tLXOptions->bShowNewsInMainMenu )
+		Menu_Main_NewsBoxCreate();
+	
 	// Check if skin should be loaded instead of main menu ( also when selecting different skin from skinned menu )
 	if( tLXOptions->sSkinPath != "" )
 	{
@@ -218,11 +203,23 @@ void Menu_MainFrame(void)
 				    return;
 				};
                 break;
+
+			// Show news checkbox
+			case mm_ShowNews:
+                if( ev->iEventMsg == CHK_CHANGED ) 
+				{
+					Menu_redrawBufferRect(300,110,330+5,270+5);	// TODO: position as constant, will fix in Hirudo :)
+					tLXOptions->bShowNewsInMainMenu = ev->cWidget->SendMessage( CKM_GETCHECK, (DWORD)0, (DWORD)0 );
+					if( tLXOptions->bShowNewsInMainMenu )
+						Menu_Main_NewsBoxCreate();
+					else
+						cMainMenu.removeWidget( mm_NewsBox );
+				};
+                break;
 		}
 	}
 
-	// No needed here
-	//CGuiSkin::ProcessUpdateCallbacks();	// Process the news box (and other widgets like IRC chat which is not here yet)
+	CGuiSkin::ProcessUpdateCallbacks();	// Process the news box
 
 	if(mouseover) {
 		alpha += tLX->fDeltaTime*5;
@@ -300,3 +297,36 @@ void Menu_MainShutdown(void)
 {
 	cMainMenu.Shutdown();
 }
+
+void Menu_Main_NewsBoxCreate()
+{
+	// News box
+	std::vector< CGuiSkin::WidgetVar_t > GuiSkinInit;
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Old style
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( true ) );	// Hide selection
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Hide border
+	CWidget * GuiSkin = CListview::WidgetCreator(GuiSkinInit);
+	cMainMenu.Add( GuiSkin, mm_NewsBox, 300,110,330,270); // TODO: position as constant, will fix in Hirudo :)
+	CGuiSkin::CallbackHandler c_init( "GUI.NewsListview_Init(#FFD700)", GuiSkin );	// TODO: better color?
+	c_init.Call();
+	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
+	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
+};
+
+void Menu_Main_GuiSkinComboboxCreate()
+{
+	// GUI skin combobox 
+	// TODO: hacky hacky, non-skinned code with skinned widgets, maybe move to different function
+	cMainMenu.Add( new CLabel("Skin",tLX->clNormalLabel), -1, 465,10,0,0);
+	std::vector< CGuiSkin::WidgetVar_t > GuiSkinInit;
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "None#" ) );	// List of items
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
+	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
+	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit);
+	cMainMenu.Add( GuiSkin, mm_ShowSkin, 500,8,130,17);
+	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );
+	c_init.Call();
+	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
+	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
+};
+

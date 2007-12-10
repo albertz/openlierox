@@ -190,12 +190,14 @@ public:
 	bool	bMouseAiming;
 	bool	bAllowMouseAiming;
 	bool	bUseNumericKeysToSwitchWeapons;
+	bool	bAntilagMovementPrediction;
 
     // Advanced
     int     nMaxFPS;
 	int		iJpegQuality;
 	bool	bCountTeamkills;
 	bool	bServerSideHealth;
+	bool	bShowNewsInMainMenu;
 
 	// Misc.
 	int     iLogConvos;

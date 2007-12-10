@@ -137,7 +137,7 @@ void CClient::Simulation(void)
 			
 			// Get the position the worm is likely to be in on the server
 			CVec oldpos = w->getPos();
-			w->Simulate(cRemoteWorms, local, iMyPing / 1000);
+			w->Simulate(cRemoteWorms, local, 1.5 * iMyPing / 1000); // I shoot myself regularly, so added some coef here 
 			w->setNextPos(w->getPos());
 			w->setPos(oldpos);
 

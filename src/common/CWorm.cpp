@@ -271,7 +271,7 @@ void CWorm::Spawn(CVec position) {
     fMoveSpeedX = 0;
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
-	vPos = position;
+	vPos = vLastPos = vNextPos = vOldPos = position;
 	vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
     nAIState = AI_THINK;
@@ -294,7 +294,7 @@ void CWorm::Spawn(CVec position) {
 		tWeapons[n].LastFire = 0;
 	}
 
-	fSpawnTime = tLX->fCurTime;
+	fSpawnTime = fLastPosUpdate = tLX->fCurTime;
 
     if(iType == PRF_COMPUTER && iLocal)
 		AI_Respawn();
@@ -304,7 +304,7 @@ void CWorm::Spawn(CVec position) {
 ///////////////////
 // Respawn this worm
 void CWorm::Respawn(CVec position) {
-	vPos = position;
+	vPos = vLastPos = vNextPos = vOldPos = position;
     nAIState = AI_THINK;
 	
 	iCarving = false;
@@ -312,10 +312,11 @@ void CWorm::Respawn(CVec position) {
 	iDrawMuzzle = false;
 	iHooked = false;
     bForceWeapon_Name = false;
+	vVelocity = CVec(0,0);
 
 	iOnGround = false;
 
-	fSpawnTime = tLX->fCurTime;
+	fSpawnTime = fLastPosUpdate = tLX->fCurTime;
 
     if(iType == PRF_COMPUTER && iLocal)
 		AI_Respawn();

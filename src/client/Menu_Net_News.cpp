@@ -117,8 +117,6 @@ static int iNewsSourceforgeLastRevision = 0;
 
 static void NewsListview_Update( const std::string & param, CWidget * source )
 {
-	// TODO: init cNewsDownload somewhere and take care of uniniting
-	return;
 
 	if( iNewsDownloaded >= NEWS_END )
 	{
@@ -259,9 +257,24 @@ void NewsListview_Init( const std::string & param, CWidget * source )
 {
 	if( source->getType() != wid_Listview )
 		return;
+	if( ! cNewsDownload )
+		cNewsDownload = new CHttp();
 	CGuiSkin::RegisterUpdateCallback( & NewsListview_Update, param, source );
 };
 
 static bool NewsListview_Registered = CGuiSkin::RegisterVars("GUI")
 		( & NewsListview_Init , "NewsListview_Init" );
+
+class t_cNewsDownload_delete
+{
+	public:
+	~t_cNewsDownload_delete()
+	{
+		if( cNewsDownload )
+			delete cNewsDownload;
+		cNewsDownload = NULL;
+	};
+};
+
+t_cNewsDownload_delete cNewsDownload_delete();
 

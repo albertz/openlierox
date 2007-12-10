@@ -410,7 +410,6 @@ void CWorm::clearInput(void)
 	tState.iJump  = false;
 }
 
-
 ///////////////////
 // Simulate the worm
 void CWorm::Simulate(CWorm *worms, int local, float dt)
@@ -425,7 +424,6 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 	float speed;
 	CVec dir;
-	bool jump = false;
 	gs_worm_t *wd = cGameScript->getWorm();
 
 	float	fFrameRate = 7.5f;
@@ -468,36 +466,11 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 		}
 	}
 
-
-
 	// Calculate dir
 	dir.x=( (float)cos(fAngle * (PI/180)) );
 	dir.y=( (float)sin(fAngle * (PI/180)) );
 	if(iDirection==DIR_LEFT)
 		dir.x=(-dir.x);
-
-	if(iOnGround)
-		speed = wd->GroundSpeed;
-	else
-		speed = wd->AirSpeed;
-
-
-	// Process the ninja rope
-	if(cNinjaRope.isReleased() && worms) {
-		cNinjaRope.Simulate(dt,pcMap,vPos,worms,iID);
-		vVelocity += cNinjaRope.GetForce(vPos)*dt;
-	}
-
-
-	// If we are hooked, we need to be pulled in the direction of the other worm
-	if(iHooked && pcHookWorm) {
-		// TODO: please be more precice: was is wrong here? and why is this not changed?
-		// RE: I didn't add it here, i thought it was you...
-		// FIXME: This isn't 'right'
-		//vVelocity = vVelocity + cNinjaRope.CalculateForce(vPos,pcHookWorm->getPos())*dt;
-	}
-
-
 
 	// Process the carving
 	if(ws->iCarve) {
@@ -505,76 +478,103 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 		//cClient->SendCarve(vPos + dir*4);
 	}
 
-
-	// Process the moving
-	if(ws->iMove) {
-		if(iDirection == DIR_RIGHT) {
-
-			// Right
-			if(vVelocity.x<30)
-				vVelocity.x += speed;
-			fFrame += fFrameRate * dt;
-		} else {
-
-			// Left
-			if(vVelocity.x>-30)
-				vVelocity.x -= speed;
-			fFrame += fFrameRate * dt;
-		}
-	}
-
-	if(cStrafe.isDown())
-		iDirection = iStrafeDirection;
-
-
-	// Process the jump
-	if(ws->iJump) {
-		if(CheckOnGround()) {
-			//vVelocity.x=(0);
-			vVelocity.y = wd->JumpForce;
-			iOnGround = false;
-			jump = true;
-		}
-	}
-
-
-	// Air drag (Mainly to dampen the ninja rope)
-	float Drag = wd->AirFriction;
-
-	if(!iOnGround)	{
-		vVelocity.x -= SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag * dt;
-		vVelocity.y += -SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag * dt;
-	}
-
+	if(ws->iMove)
+		fFrame += fFrameRate * dt;
 
 	if(fFrame>=3.0f || !ws->iMove)
 		fFrame=0;
 
+	// If this is remote worm and tLXOptions->bAntilagMovementPrediction is true
+	// don't do any physics - just stupid linear approximation of worm coords.
+	// This is done by setting vVelocity in CWorm::readPacketState() and don't changing it here :) .
+	// With physics remote worm does some crazy jumps across the screen on high net lag.
+	if( local || ! tLXOptions->bAntilagMovementPrediction ) 
+	{
 
-	// Gravity
-	vVelocity.y += wd->Gravity*dt;
+		if(iOnGround)
+			speed = wd->GroundSpeed;
+		else
+			speed = wd->AirSpeed;
 
+
+		// Process the ninja rope
+		if(cNinjaRope.isReleased() && worms) {
+			cNinjaRope.Simulate(dt,pcMap,vPos,worms,iID);
+			vVelocity += cNinjaRope.GetForce(vPos)*dt;
+		}
+
+
+		// If we are hooked, we need to be pulled in the direction of the other worm
+		if(iHooked && pcHookWorm) {
+			// TODO: please be more precice: was is wrong here? and why is this not changed?
+			// RE: I didn't add it here, i thought it was you...
+			// FIXME: This isn't 'right'
+			//vVelocity = vVelocity + cNinjaRope.CalculateForce(vPos,pcHookWorm->getPos())*dt;
+		}
+
+
+		// Process the moving
+		if(ws->iMove) {
+			if(iDirection == DIR_RIGHT) {
+				// Right
+				if(vVelocity.x<30)
+					vVelocity.x += speed;
+			} else {
+				// Left
+				if(vVelocity.x>-30)
+					vVelocity.x -= speed;
+			}
+		}
+
+		if(cStrafe.isDown())
+			iDirection = iStrafeDirection;
+
+
+		// Process the jump
+		if(ws->iJump) {
+			if(CheckOnGround()) {
+				//vVelocity.x=(0);
+				vVelocity.y = wd->JumpForce;
+				iOnGround = false;
+			}
+		}
+
+
+		// Air drag (Mainly to dampen the ninja rope)
+		float Drag = wd->AirFriction;
+
+		if(!iOnGround)	{
+			vVelocity.x -= SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag * dt;
+			vVelocity.y += -SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag * dt;
+		}
+
+
+		// Gravity
+		vVelocity.y += wd->Gravity*dt;
+
+
+		//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
+	}
 
 	// Check collisions
 
 	// TODO: Use a projectile style collision system based on velocity speed
 	vOldPos = vPos;
 	vPos += vVelocity * dt;
-
-	//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
-
-	CheckWormCollision( dt, vOldPos, &vVelocity, jump );
-
+	
+	CheckWormCollision( dt, vOldPos, &vVelocity, ws->iJump );
 
 
 	// Ultimate in friction
-	if(iOnGround) {
-		vVelocity.x *= 0.9f;
-		//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
+	if( local || ! tLXOptions->bAntilagMovementPrediction ) {
+		if(iOnGround) {
+			vVelocity.x *= 0.9f;
+			//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 
-		// Too slow, just stop
-		if(fabs(vVelocity.x) < 5 && !ws->iMove)
-			vVelocity.x = 0;
+			// Too slow, just stop
+			if(fabs(vVelocity.x) < 5 && !ws->iMove)
+				vVelocity.x = 0;
+		}
 	}
 
 

@@ -276,7 +276,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		vVelocity = CVec( (float)vx, (float)vy );
 	} else {  // We have to count the velocity by ourself
 		vVelocity = (vPos - vOldPos);
-		vVelocity = vVelocity / (tLX->fCurTime - fLastPosUpdate);
+		if( tLX->fCurTime - fLastPosUpdate > 0.0001 )	// Division by zero -> velocity = inf -> hangup
+			vVelocity = vVelocity / (tLX->fCurTime - fLastPosUpdate);
 		fLastPosUpdate = tLX->fCurTime;
 	}
 
@@ -375,6 +376,14 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
+	else if( tLXOptions->bAntilagMovementPrediction )
+	{
+		vVelocity = (vPos - vLastPos);
+		if( tLX->fCurTime - fLastPosUpdate > 0.0001 )	// Division by zero -> velocity = inf -> hangup
+			vVelocity = vVelocity / (tLX->fCurTime - fLastPosUpdate);
+		fLastPosUpdate = tLX->fCurTime;
+		vLastPos = vPos;
+	};
 }
 
 	

@@ -80,11 +80,13 @@ bool GameOptions::Init() {
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false )
 		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", false )
 		( tLXOptions->bUseNumericKeysToSwitchWeapons, "Game.UseNumericKeysToSwitchWeapons", true )
+		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
 		
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", true )
+		( tLXOptions->bShowNewsInMainMenu, "Advanced.ShowNewsInMainMenu", true )
 
 		( tLXOptions->iLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->iShowPing, "Misc.ShowPing", true )
