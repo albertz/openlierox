@@ -2429,6 +2429,7 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 
 ///////////////////
 // Shoot!
+// returns true if we want to do it or already doing it (also in the progress of aiming)
 bool CWorm::AI_Shoot()
 {
     // Make sure the target is a worm
@@ -2527,6 +2528,8 @@ bool CWorm::AI_Shoot()
 	gs_worm_t *wd = cGameScript->getWorm();
 	if (!wd)
 		return false;
+
+	bool bShoot = false;
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
 	weapon_t *weap = getCurWeapon()->Weapon;
@@ -2628,7 +2631,7 @@ bool CWorm::AI_Shoot()
 
 		// AI diff level
 		// Don't shoot so exactly on easier skill levels
-		int diff[4] = {13,8,3,0};
+		static const int diff[4] = {13,8,3,0};
 
 		if (tLX->fCurTime-fLastRandomChange >= 0.5f)  {
 			iRandomSpread = GetRandomInt(diff[iAiDiffLevel]) * SIGN(GetRandomNum());
@@ -2650,6 +2653,8 @@ bool CWorm::AI_Shoot()
 
 		if (!bAim)
 			break;
+
+		bShoot = true;
 
 		if (fabs(fAngle-alpha) > 5.0)  {
 			// Move the angle at the same speed humans are allowed to move the angle
@@ -2718,7 +2723,7 @@ bool CWorm::AI_Shoot()
 
 		fCanShootTime = 0;
 
-        return false;
+        return bShoot;
 	}
 
 	// Reflexes :)
