@@ -567,6 +567,7 @@ void Menu_Net_RenameServer(std::string& szName)
 	cRename.SendMessage(2,TXM_SETMAX,30,0);
 	cRename.SendMessage(2,TXS_SETTEXT,szName,0); // Fill in the current server name
 
+	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && renameServerMsg && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
@@ -667,6 +668,7 @@ void Menu_Net_FavouritesAddServer(void)
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
 	cAddSvr.SendMessage(3,TXM_SETMAX,32,0);
 
+	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);

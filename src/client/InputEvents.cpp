@@ -243,21 +243,14 @@ void HandleKeyboardState() {
 	}
 }
 
-// This function should not wait for events indefinitely - 
-// servers list won't be updated if user don't move the mouse.
-// TODO: any network activity should be considered an event,
-// use SDL_PushEvent( SDL_UserEvent( ... ) ) in net code for this - it's thread safe,
-// then you may write here SDL_WaitEvent() instead of SDL_PollEvent() / SDL_Delay() .
+// halt the current thread until there is a new event
 bool WaitForNextEvent() {
 	ResetCurrentEventStorage();
 	
 	bool ret = false;
-	if(SDL_PollEvent(&Event)) {
+	if(SDL_WaitEvent(&Event)) {
 		HandleNextEvent();		
 		ret = true;
-	}
-	else {
-		SDL_Delay(50);	// Give away CPU time for system, will add 50 ms to ping displayed in lobby.
 	}
 
 	HandleMouseState();

@@ -934,7 +934,8 @@ void do_some_tests_with_fastTraceLine(CMap *pcMap) {
 	target.x = (float)(rand() % pcMap->GetWidth());
 	target.y = (float)(rand() % pcMap->GetHeight());
 
-	fastTraceLine(target, start, pcMap, PX_ROCK,  debug_print_col(pcMap->GetDebugImage()));
+	debug_print_col printer(pcMap->GetDebugImage());
+	fastTraceLine(target, start, pcMap, PX_ROCK, printer);
 }
 #endif
 

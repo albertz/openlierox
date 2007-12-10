@@ -464,17 +464,19 @@ void Menu_Net_NETAddServer(void)
 
 	cAddSvr.SendMessage(2,TXM_SETMAX,21,0);
 
+	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
 	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->iMenuRunning) {
 		Menu_RedrawMouse(false);
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
+
+		ProcessEvents();
 
 		// Process the server list
 		if( Menu_SvrList_Process() ) {
 			// Add the servers to the listview
 			Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 		}
-
 
 		cAddSvr.Draw( tMenu->bmpScreen );
 		ev = cAddSvr.Process();
@@ -516,7 +518,6 @@ void Menu_Net_NETAddServer(void)
 
 		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
-		WaitForNextEvent();
 	}
 
 
