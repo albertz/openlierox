@@ -607,6 +607,7 @@ void CClient::ParseStartGame(CBytestream *bs)
 	// Re-initialize the ingame scoreboard
 	InitializeIngameScore(false);
 	bUpdateScore = true;
+	StopSendSdlEventWhenDataAvailable( tSocket );	// Do not eat CPU time with SDL event flooding
 }
 
 
@@ -872,6 +873,7 @@ void CClient::ParseGameOver(CBytestream *bs)
 
 	UpdateScoreboard();
 	bShouldRepaintInfo = true;
+	SendSdlEventWhenDataAvailable( tSocket );	// For updating lobby screen
 }
 
 
@@ -1348,6 +1350,7 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 		bInServer = false;
 		fclose(f);
 	}
+	SendSdlEventWhenDataAvailable( tSocket );	// For updating lobby screen
 }
 
 
@@ -1466,6 +1469,7 @@ void CClient::ParseGotoLobby(CBytestream *bs)
 	}
 
 	ShutdownLog();
+	SendSdlEventWhenDataAvailable( tSocket );	// For updating lobby screen
 }
 
 
@@ -1495,4 +1499,5 @@ void CClient::ParseDropped(CBytestream *bs)
 		bInServer = false;
 		fclose(f);
 	}
+	SendSdlEventWhenDataAvailable( tSocket );	// For updating lobby screen
 }

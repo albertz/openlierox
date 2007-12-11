@@ -166,7 +166,7 @@ bool CGuiSkinnedLayout::Process(void)
 {
 	mouse_t *tMouse = GetMouse();
 	keyboard_t *Keyboard = GetKeyboard();
-	int ev=-1; // TODO: in CGuiLayout, this is saved later in tEvent->iEventMsg; why not here?
+	// int ev=-1; // We don't have any event structure here, all events are just passed down to children.
 
 	//SetGameCursor(CURSOR_ARROW); // Reset the cursor here
 
@@ -178,9 +178,9 @@ bool CGuiSkinnedLayout::Process(void)
 	for(int i = 0; i < Keyboard->queueLength; i++) {
 		const KeyboardEvent& kbev = Keyboard->keyQueue[i];
 		if(kbev.down)
-			ev = KeyDown(kbev.ch, kbev.sym);
+			KeyDown(kbev.ch, kbev.sym);
 		else
-			ev = KeyUp(kbev.ch, kbev.sym);
+			KeyUp(kbev.ch, kbev.sym);
 	}
 
 
@@ -193,7 +193,7 @@ bool CGuiSkinnedLayout::Process(void)
 	if( tMouse->WheelScrollUp )
 		MouseWheelUp(tMouse);
 	MouseOver(tMouse);
-	CGuiSkin::ProcessUpdateCallbacks();
+	CGuiSkin::ProcessUpdateCallbacks();	// Update the news box (and IRC chat if I will ever make it)
 	
 	return ! bExitCurrentDialog;
 }

@@ -181,6 +181,7 @@ CHttp::CHttp()
 	// Buffer for reading from socket
 	tBuffer = new char[4096];
 	tChunkParser = new CChunkParser(&sPureData, &iDataLength, &iDataReceived);
+	InvalidateSocketState(tSocket);
 	Clear();
 }
 
@@ -219,6 +220,10 @@ void CHttp::Clear()
 	bChunkedTransfer = false;
 	fResolveTime = -9999;
 	ResetNetAddr(&tRemoteIP);
+	if( IsSocketStateValid(tSocket) ) {
+		StopSendSdlEventWhenDataAvailable( tSocket );
+		CloseSocket(tSocket);
+	};
 	InvalidateSocketState(tSocket);
 	if (tChunkParser)
 		tChunkParser->Reset();
@@ -230,6 +235,7 @@ void CHttp::Clear()
 void CHttp::CancelProcessing()
 {
 	if (bRequested && IsSocketStateValid(tSocket))  {
+		StopSendSdlEventWhenDataAvailable( tSocket );
 		CloseSocket(tSocket);
 		InvalidateSocketState(tSocket);
 	}
@@ -271,6 +277,7 @@ void CHttp::RequestData(const std::string& address)
 		return;
 	}
 
+	SendSdlEventWhenDataAvailable( tSocket );
 	// Resolve the address
 	// Reset the current adr; sometimes needed (hack? bug in hawknl?)
 	ResetNetAddr(&tRemoteIP);

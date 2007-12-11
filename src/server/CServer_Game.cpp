@@ -595,6 +595,8 @@ void GameServer::gotoLobby(void)
 
 
 	// HINT: the gamescript is shut down by the cache
+
+	SendSdlEventWhenDataAvailable( tSocket );	// For updating server lobby screen
 }
 
 
@@ -915,6 +917,8 @@ void GameServer::RecheckGame(void)
 
 				// Send the Game Over
 				SendGlobalPacket(&bs);
+
+				SendSdlEventWhenDataAvailable( tSocket );	// For updating server lobby screen
 			}
 		}
 	}

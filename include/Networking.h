@@ -93,5 +93,8 @@ void	AddToDnsCache(const std::string& name, const NetworkAddr* addr);
 bool	GetFromDnsCache(const std::string& name, NetworkAddr* addr);
 bool	GetNetAddrFromName(const std::string& name, NetworkAddr* addr);
 bool	isDataAvailable(NetworkSocket sock); // Slow!
+// Dunno if it correct to put these funcs here
+void	SendSdlEventWhenDataAvailable( NetworkSocket sock );
+void	StopSendSdlEventWhenDataAvailable( NetworkSocket sock );
 
 #endif  //  __NETWORKING_H__

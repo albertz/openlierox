@@ -18,6 +18,8 @@
 #include "Networking.h"
 #include "Utils.h"
 #include "StringUtils.h"
+#include <SDL_syswm.h>
+#include <SDL_thread.h>
 
 
 #ifdef _MSC_VER
@@ -640,4 +642,116 @@ bool isDataAvailable(NetworkSocket sock) {
 	nlGroupDestroy(group);
 	return ret > 0;
 };
+
+
+enum	{ SDL_USEREVENT_NET_ACTIVITY = SDL_USEREVENT + 1 };
+
+bool SdlNetEvent_Inited = false;
+SDL_mutex * SdlNetEventMutex = NULL;
+bool SdlNetEventThreadExit = false;
+SDL_Thread * SdlNetEventThread = NULL;
+NLint SdlNetEventGroup = 0;
+NetworkSocket SdlNetEventThreadUnblockDummySocketIn;
+NetworkSocket SdlNetEventThreadUnblockDummySocketOut;
+
+int SdlNetEventThreadMain( void * param )
+{
+	NLsocket sock_out;
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT_NET_ACTIVITY;
+	ev.user.code = 0;
+	ev.user.data1 = NULL;
+	ev.user.data2 = NULL;
+	int eventFlood = 0;
+	while( ! SdlNetEventThreadExit )
+	{
+		SDL_LockMutex( SdlNetEventMutex );
+		if( nlPollGroup( SdlNetEventGroup, NL_READ_STATUS, &sock_out, 1, 1000 ) > 0 )	// Wait 1 second
+		{
+			//printf("SdlNetEventThreadMain(): SDL_PushEvent()\n");
+			SDL_PushEvent( &ev );
+			if( sock_out == *NetworkSocketData(&SdlNetEventThreadUnblockDummySocketIn) )
+			{
+				char temp[256];
+				ReadSocket( SdlNetEventThreadUnblockDummySocketIn, temp, sizeof(temp) );
+			}
+			eventFlood ++;
+		}
+		else
+		{
+			eventFlood = 0;
+		}
+		SDL_UnlockMutex( SdlNetEventMutex );
+		if( eventFlood > 20 )	// Some socket with data but noone wants to read it
+			SDL_Delay(200);		// TODO: some better solution?
+		else
+			SDL_Delay(10);	// Allow other threads to run to add/remove sockets to group or to process the data.
+	};
+	return 0;
+};
+
+void SdlNetEvent_Init()
+{
+	if( SdlNetEvent_Inited )
+		return;
+	SdlNetEvent_Inited = true;
+	SdlNetEventMutex = SDL_CreateMutex();
+	SdlNetEventThread = SDL_CreateThread( &SdlNetEventThreadMain, NULL );
+	SdlNetEventGroup = nlGroupCreate();
+	SdlNetEventThreadUnblockDummySocketIn = OpenUnreliableSocket(0);
+	SdlNetEventThreadUnblockDummySocketOut = OpenUnreliableSocket(0);
+	NetworkAddr localAddr;
+	ResetNetAddr( &localAddr );
+	GetLocalNetAddr( SdlNetEventThreadUnblockDummySocketIn, &localAddr );
+	SetRemoteNetAddr( SdlNetEventThreadUnblockDummySocketOut, &localAddr );
+	nlGroupAddSocket( SdlNetEventGroup, *NetworkSocketData(&SdlNetEventThreadUnblockDummySocketIn) );
+	// If we send something into SdlNetEventThreadUnlockDummySocketOut the thread will unblock
+};
+
+void	SendSdlEventWhenDataAvailable( NetworkSocket sock )
+{
+	SdlNetEvent_Init();
+	WriteSocket( SdlNetEventThreadUnblockDummySocketOut, "1", 1 );
+	SDL_LockMutex( SdlNetEventMutex );
+	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
+	NLint len = NL_MAX_GROUP_SOCKETS;
+	nlGroupGetSockets( SdlNetEventGroup, sockets, &len );
+	for( int f = 0; f < len; f++ )
+		if( sockets[f] == *NetworkSocketData(&sock) )
+		{
+			SDL_UnlockMutex( SdlNetEventMutex );
+			return;
+		};
+	nlGroupAddSocket( SdlNetEventGroup, *NetworkSocketData(&sock) );
+	SDL_UnlockMutex( SdlNetEventMutex );
+};
+
+void	StopSendSdlEventWhenDataAvailable( NetworkSocket sock )
+{
+	SdlNetEvent_Init();
+	WriteSocket( SdlNetEventThreadUnblockDummySocketOut, "1", 1 );
+	SDL_LockMutex( SdlNetEventMutex );
+	nlGroupDeleteSocket( SdlNetEventGroup, *NetworkSocketData(&sock) );
+	SDL_UnlockMutex( SdlNetEventMutex );
+};
+
+class t_SdlNetEventMutexDelete
+{
+	public:
+	~t_SdlNetEventMutexDelete()
+	{
+		if( ! SdlNetEvent_Inited )
+			return;
+		SdlNetEventThreadExit = true;
+		int status = 0;
+		//WriteSocket( SdlNetEventThreadUnblockDummySocketOut, "1", 1 );// Cannot do that, network already shut down in main()
+		SDL_WaitThread( SdlNetEventThread, &status );
+		SDL_DestroyMutex( SdlNetEventMutex );
+		SdlNetEventMutex = NULL;
+		CloseSocket( SdlNetEventThreadUnblockDummySocketIn );
+		CloseSocket( SdlNetEventThreadUnblockDummySocketOut );
+		nlGroupDestroy(SdlNetEventGroup);
+	};
+};
+t_SdlNetEventMutexDelete SdlNetEventMutexDelete;
 
