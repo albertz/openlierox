@@ -87,9 +87,11 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		return new CAnimation( p[0].s, p[1].f );
+		CWidget * w = new CAnimation( p[0].s, p[1].f );
+		layout->Add( w, id, x, y, dx, dy );
+		return w;
 	};
 	
 	void	ProcessGuiSkinEvent(int iEvent) {};

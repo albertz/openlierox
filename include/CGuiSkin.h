@@ -12,15 +12,13 @@
 #define __CGUISKIN_H__
 
 #include "GfxPrimitives.h"
-//#include "CGuiSkinnedLayout.h"
-//#include "CWidget.h"
-//#include "CWidgetList.h"
 #include <string>
 #include <map>
 #include <vector>
 #include <list>
 
 class CWidget;
+class CGuiLayoutBase;
 class CGuiSkinnedLayout;
 
 class CGuiSkin	// Singletone
@@ -187,7 +185,8 @@ public:
 	};
 	
 	typedef std::vector< std::pair< std::string, WidgetVarType_t > > paramListVector_t;
-	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< WidgetVar_t > & params );
+	// WidgetCreator will create widget and add it to specified CGuiLayout (and init it a bit after that if necessary).
+	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< WidgetVar_t > & params, CGuiLayoutBase * layout, int id, int x, int y, int w, int h );
 	
 	class CGuiSkin_RegisterWidgetDarkMagic
 	{
@@ -240,7 +239,7 @@ public:
 	// SHOW_WIDGET is special event for Widget::ProcessGuiSkinEvent() which is called
 	// when the dialog is shown - dialogs are cached into memory and may be shown or hidden.
 	// No need for HIDE_WIDGET yet.
-	enum { INIT_WIDGET = -3, SHOW_WIDGET = -4 };
+	enum { SHOW_WIDGET = -4 };	// Removed INIT_WIDGET because of more intelligent WidgetCreator_t
 private:
 
 	friend class CGuiSkin_RegisterVarDarkMagic;

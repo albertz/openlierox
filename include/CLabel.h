@@ -118,13 +118,14 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CLabel * w = new CLabel( p[0].s, p[1].c, p[2].b );
 		w->bVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_BOOL ).b;
 		w->iVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_INT ).i;
 		w->fVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_FLOAT ).f;
 		w->sVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_STRING ).s;
+		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
 	

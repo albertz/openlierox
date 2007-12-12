@@ -86,21 +86,19 @@ public:
 	void	setMax(int _m)						{ iMax = _m; }
 	void	setMin(int _m)						{ iMin = _m; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CSlider * w = new CSlider( p[1].i, p[0].i );
+		layout->Add( w, id, x, y, dx, dy );
 		w->iVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_INT ).i;
+		if( w->iVar )
+			w->setValue( *w->iVar );
 		w->cClick.Init( p[3].s, w );
 		return w;
 	};
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
-		if( iEvent == CGuiSkin::INIT_WIDGET )
-		{
-			if( iVar )
-				setValue( *iVar );
-		};
 		if( iEvent == SLD_CHANGE )
 		{
 			if( iVar )

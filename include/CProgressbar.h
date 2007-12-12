@@ -72,10 +72,11 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CProgressBar * w = new CProgressBar( LoadImage( p[0].s, true ), p[1].i, p[2].i, p[3].b, p[4].i );
 		w->iVar = CGuiSkin::GetVar( p[5].s, CGuiSkin::SVT_INT ).i;
+		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
 	

@@ -147,7 +147,7 @@ public:
     void    PasteText(void);
 	void	CopyText(void);
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p );
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);
 };
 

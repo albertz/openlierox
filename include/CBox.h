@@ -83,9 +83,11 @@ public:
 
 	void	LoadStyle(void);
 	
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		return new CBox( p[0].i, p[1].i, p[2].c, p[3].c, p[4].c );
+		CWidget * w = new CBox( p[0].i, p[1].i, p[2].c, p[3].c, p[4].c );
+		layout->Add( w, id, x, y, dx, dy );
+		return w;
 	};
 	
 	void	ProcessGuiSkinEvent(int iEvent) {};

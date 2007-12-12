@@ -142,7 +142,6 @@ public:
 		bAlwaysVisibleScrollbar = false;
 		tFocusedSubWidget = NULL;
 		tMouseOverSubWidget = NULL;
-		bTempOldStyle = bTempHideSelect = bTempHideBorder = false;
 	}
 
 	~CListview() {
@@ -186,8 +185,6 @@ private:
 	gui_event_t		tLastWidgetEvent;
 	CWidget			*tFocusedSubWidget;
 	CWidget			*tMouseOverSubWidget;
-
-	bool			bTempOldStyle, bTempHideSelect, bTempHideBorder;	// For skinning
 
 public:
 	// Methods
@@ -265,24 +262,19 @@ public:
 	inline bool	NeedsRepaint()  {return bNeedsRepaint; }
 	inline void	SetRepaint(bool _r)  { bNeedsRepaint = _r; }  // Explicitly set this listview needs to be repainted
 
-	// Read-only listview for skinning, more variants to come.
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	// Read-only listview for skinning (typically text list), more variants to come.
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CListview * w = new CListview();
-		w->bTempOldStyle = p[0].b;
-		w->bTempHideSelect = p[1].b;
-		w->bTempHideBorder = p[2].b;
+		layout->Add( w, id, x, y, dx, dy );
+		w->setOldStyle( p[0].b );
+		w->setShowSelect( ! p[1].b );
+		w->setDrawBorder( ! p[2].b );
 		return w;
 	};
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
-		if( iEvent == CGuiSkin::INIT_WIDGET )
-		{
-			setOldStyle( bTempOldStyle );
-			setShowSelect( ! bTempHideSelect );
-			setDrawBorder( ! bTempHideBorder );
-		};
 	};
 };
 

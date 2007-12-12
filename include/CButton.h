@@ -108,18 +108,20 @@ public:
 	int		getType()  { return iButtonType; }
 	void	setType(int _t)  { iButtonType = _t; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CButton * b = new CButton( p[0].i, tMenu->bmpButtons );
-		b->cClick.Init( p[1].s, b );
-		return b;
+		CButton * w = new CButton( p[0].i, tMenu->bmpButtons );
+		w->cClick.Init( p[1].s, w );
+		layout->Add( w, id, x, y, dx, dy );
+		return w;
 	};
 
-	static CWidget * WidgetCreator1( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator1( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CButton * b = new CButton( p[0].s );
-		b->cClick.Init( p[1].s, b );
-		return b;
+		CButton * w = new CButton( p[0].s );
+		w->cClick.Init( p[1].s, w );
+		layout->Add( w, id, x, y, dx, dy );
+		return w;
 	};
 	
 	void	ProcessGuiSkinEvent(int iEvent) 

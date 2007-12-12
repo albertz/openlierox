@@ -71,7 +71,6 @@ private:
 
 	int		*iVar;
 	CGuiSkin::CallbackHandler cClick;
-	int		iTempMin, iTempMax, iTempItemsperbox;	// Hack for scrollbar init
 
 public:
 	// Methods
@@ -110,27 +109,23 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CScrollbar * w = new CScrollbar();
-		w->iTempMin = p[0].i;	// Hacky hacky init
-		w->iTempMax = p[1].i;
-		w->iTempItemsperbox = p[2].i;
-		w->iVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_INT ).i;
+		layout->Add( w, id, x, y, dx, dy );
+		// Should be set after scrollbar is added to layout
 		w->cClick.Init( p[4].s, w );
+		w->setMin( p[0].i );
+		w->setMax( p[1].i );
+		w->setItemsperbox( p[2].i );
+		w->iVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_INT ).i;
+		if( w->iVar )
+			w->setValue( *w->iVar );
 		return w;
 	};
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
-		if( iEvent == CGuiSkin::INIT_WIDGET )
-		{
-			setMin( iTempMin );
-			setMax( iTempMax );
-			setItemsperbox( iTempItemsperbox );
-			if( iVar )
-				setValue( *iVar );
-		};
 		if( iEvent == SCR_CHANGE )
 		{
 			if( iVar )

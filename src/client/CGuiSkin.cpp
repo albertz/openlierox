@@ -213,11 +213,10 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 				else params.push_back( WidgetVar_t( ) );	// Compile-time error here
 			};
 			
-			CWidget * widget = it->second.second( params );
 			int i_id = -1;
 			if( s_id != "" )
 				i_id = gui->GetIdByName( s_id );
-			gui->Add( widget, i_id, left, top, width, height );
+			CWidget * widget = it->second.second( params, gui, i_id, left, top, width, height );
 			if( init != "" )
 			{
 				CallbackHandler c_init( init, widget );
@@ -237,7 +236,6 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 
 	xmlFree(Doc);
 	m_instance->m_guis[ filepath ] = gui;
-	gui->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
 	gui->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 	printf("GUI skin file %s loaded\n", filepath.c_str() );
 	return gui;

@@ -60,10 +60,11 @@ public:
 
 	void	Draw(SDL_Surface *bmpDest);
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CTextButton * w = new CTextButton( p[0].s, p[1].c, p[2].c );
 		w->cClick.Init( p[3].s, w );
+		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
 	

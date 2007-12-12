@@ -305,11 +305,10 @@ void Menu_Main_NewsBoxCreate()
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Old style
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( true ) );	// Hide selection
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Hide border
-	CWidget * GuiSkin = CListview::WidgetCreator(GuiSkinInit);
-	cMainMenu.Add( GuiSkin, mm_NewsBox, 300,110,330,270); // TODO: position as constant, will fix in Hirudo :)
+	// TODO: position as constant, will remove this code when only skins will be left
+	CWidget * GuiSkin = CListview::WidgetCreator(GuiSkinInit, &cMainMenu, mm_NewsBox, 300,110,330,270);
 	CGuiSkin::CallbackHandler c_init( "GUI.NewsListview_Init(#FFD700)", GuiSkin );	// TODO: better color?
 	c_init.Call();
-	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
 	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 };
 
@@ -322,11 +321,10 @@ void Menu_Main_GuiSkinComboboxCreate()
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "None#" ) );	// List of items
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
 	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
-	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit);
-	cMainMenu.Add( GuiSkin, mm_ShowSkin, 500,8,130,17);
+	// TODO: position as constant, will remove this code when only skins will be left
+	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit, &cMainMenu, mm_ShowSkin, 500,8,130,17);
 	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );
 	c_init.Call();
-	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::INIT_WIDGET );
 	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 };
 

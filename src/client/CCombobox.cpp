@@ -855,57 +855,53 @@ static bool CComboBox_WidgetRegistered =
 							( "var", CGuiSkin::WVT_STRING )
 							( "click", CGuiSkin::WVT_STRING );
 
-CWidget * CCombobox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+CWidget * CCombobox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
 	CCombobox * w = new CCombobox();
-	w->sSkinTempInit = p[0].s;	// Hacky, yeah, doesn't work otherwise
-	w->iVar = CGuiSkin::GetVar( p[1].s, CGuiSkin::SVT_INT ).i;	// If combobox is int or string determined by attached var type
-	w->sVar = CGuiSkin::GetVar( p[1].s, CGuiSkin::SVT_STRING ).s;
 	w->cClick.Init( p[2].s, w );
+	layout->Add( w, id, x, y, dx, dy );
+	// Items should be added to combobox AFTER the combobox is added to CGuiSkinnedLayout
+	std::vector<std::string> items = explode( p[0].s, "," );
+	w->iVar = CGuiSkin::GetVar( p[1].s, CGuiSkin::SVT_INT ).i;	// If combobox is int or string determined by attached var type
+	if( w->iVar )
+	{
+		for( unsigned i = 0; i < items.size(); i++ )
+		{
+			std::string item = items[i];
+			int index = i;
+			if( item.find("#") != std::string::npos )
+			{
+				index = atoi( item.substr( item.find("#") + 1 ) );
+				item = item.substr( 0, item.find("#") );
+			};
+			TrimSpaces(item);
+			w->addItem( index, "", item );
+		};
+		w->setCurIndexItem( *w->iVar );
+	};
+	w->sVar = CGuiSkin::GetVar( p[1].s, CGuiSkin::SVT_STRING ).s;
+	if( w->sVar )
+	{
+		for( unsigned i = 0; i < items.size(); i++ )
+		{
+			std::string item = items[i];
+			std::string index = item;
+			if( item.find("#") != std::string::npos )
+			{
+				index = item.substr( item.find("#") + 1 );
+				TrimSpaces( index );
+				item = item.substr( 0, item.find("#") );
+			};
+			TrimSpaces(item);
+			w->addItem( i, index, item );
+		};
+		w->setCurSIndexItem( *w->sVar );
+	};
 	return w;
 };
 
 void	CCombobox::ProcessGuiSkinEvent(int iEvent)
 {
-	if( iEvent == CGuiSkin::INIT_WIDGET )
-	{
-		// Items should be added to combobox AFTER the combobox is added to CGuiSkinnedLayout
-		std::vector<std::string> items = explode( sSkinTempInit, "," );
-		sSkinTempInit = "";
-		if( iVar )
-		{
-			for( unsigned i = 0; i < items.size(); i++ )
-			{
-				std::string item = items[i];
-				int index = i;
-				if( item.find("#") != std::string::npos )
-				{
-					index = atoi( item.substr( item.find("#") + 1 ) );
-					item = item.substr( 0, item.find("#") );
-				};
-				TrimSpaces(item);
-				addItem( index, "", item );
-			};
-			setCurIndexItem( *iVar );
-		};
-		if( sVar )
-		{
-			for( unsigned i = 0; i < items.size(); i++ )
-			{
-				std::string item = items[i];
-				std::string index = item;
-				if( item.find("#") != std::string::npos )
-				{
-					index = item.substr( item.find("#") + 1 );
-					TrimSpaces( index );
-					item = item.substr( 0, item.find("#") );
-				};
-				TrimSpaces(item);
-				addItem( i, index, item );
-			};
-			setCurSIndexItem( *sVar );
-		};
-	};
 	if( iEvent == CMB_CHANGED )
 	{
 		if( iVar )

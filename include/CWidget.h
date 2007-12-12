@@ -62,6 +62,7 @@ enum WidgetType_t {
 	wid_GuiLayout
 };
 
+class CGuiLayoutBase;
 
 class CWidget {
 public:
@@ -100,7 +101,7 @@ private:
 	bool				bEnabled;
 
 	generic_events_t	tEvents;
-	void				*cParent;
+	CGuiLayoutBase		*cParent;
 
 	CWidget				*cNext;
 	CWidget				*cPrev;
@@ -139,8 +140,8 @@ public:
 	int				getWidth()						{ return iWidth; }
 	int				getHeight()						{ return iHeight; }
 
-	void			*getParent(void)				{ return cParent; }
-	void			setParent(void *l)				{ cParent = l; }
+	CGuiLayoutBase	*getParent(void)				{ return cParent; }
+	void			setParent(CGuiLayoutBase *l)	{ cParent = l; }
 
 	bool			CanLoseFocus(void)				{ return bCanLoseFocus; }
 	void			setLoseFocus(bool _f)			{ bCanLoseFocus = _f; }
@@ -172,5 +173,13 @@ public:
 	virtual void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
+// Base class for CGuiLayout and CGuiSkinnedLayout
+class CGuiLayoutBase
+{
+	public:
+	virtual ~CGuiLayoutBase() { };
+	virtual void		Add(CWidget *widget, int id, int x, int y, int w, int h) = 0;
+	// Add more functions here if needed
+};
 
 #endif  //  __CWIDGET_H__

@@ -88,10 +88,11 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CImage * w = new CImage( p[0].s );
 		w->cClick.Init( p[1].s, w );
+		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
 

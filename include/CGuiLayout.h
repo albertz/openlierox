@@ -50,7 +50,7 @@ enum {
 
 
 
-class CGuiLayout {
+class CGuiLayout: public CGuiLayoutBase {
 public:
 	// Constructor
 	CGuiLayout() {

@@ -18,7 +18,7 @@
 #include <map>
 
 // Almost exact copy of CGuiLayout but without references to global "LayoutWidgets" var and without global ID
-class CGuiSkinnedLayout: public CWidget
+class CGuiSkinnedLayout: public CWidget, public CGuiLayoutBase
 {
 public:
 	// Constructor

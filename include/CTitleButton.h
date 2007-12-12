@@ -74,11 +74,12 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CTitleButton * b = new CTitleButton( p[0].i, tMenu->bmpMainTitles );
-		b->cClick.Init( p[1].s, b );
-		return b;
+		CTitleButton * w = new CTitleButton( p[0].i, tMenu->bmpMainTitles );
+		w->cClick.Init( p[1].s, w );
+		layout->Add( w, id, x, y, dx, dy );
+		return w;
 	};
 
 	void	ProcessGuiSkinEvent(int iEvent) 

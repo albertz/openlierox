@@ -113,7 +113,6 @@ private:
 	int				*iVar;
 	std::string		*sVar;
 	CGuiSkin::CallbackHandler cClick;
-	std::string		sSkinTempInit;	// Hack
 
 public:
 	// Methods
@@ -159,7 +158,7 @@ public:
 	bool	getUnique()			{ return bUnique; }
 	cb_item_t *getLastItem()	{ return tLastItem; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p );
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);
 };
 

@@ -95,7 +95,7 @@ public:
 
 	int		getValue(void)						{ return iValue; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p )
+	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CCheckbox * w = new CCheckbox(0);
 		w->bVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_BOOL ).b;
@@ -105,6 +105,7 @@ public:
 		if( w->iVar )
 			w->iValue = *w->iVar;
 		w->cClick.Init( p[1].s, w );
+		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
 	
