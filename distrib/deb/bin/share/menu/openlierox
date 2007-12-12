@@ -1,0 +1,2 @@
+?package(openlierox):needs=X11 section=Games/Arcade title="OpenLieroX"\
+ command="/usr/games/openlierox" icon="/usr/share/pixmaps/OpenLieroX.svg"

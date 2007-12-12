@@ -1,0 +1,11 @@
+Package: openlierox-data
+Version: 0.01
+Section: games
+Priority: optional
+Architecture: all
+Depends: 
+Installed-Size: 100
+Maintainer: Albert Zeyer <albert.zeyer@rwth-aachen.de>
+Description: A real-time excessive Worms-clone with network support.
+ Remake of original Liero game with network support,
+ better graphics and a lot of maps and mods.
