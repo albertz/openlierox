@@ -8,12 +8,15 @@ if [ -e ../../share/gamedir/back.bmp ] ; then rm ../../share/gamedir/back.bmp ; 
 
 cp -r ../../share/gamedir pkg/usr/share/OpenLieroX
 find pkg/ -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
+find pkg/ -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
 
 find pkg/ -type "f" -exec md5sum {} \; | sed 's@ pkg/@ @' > md5sums
 
 mkdir pkg/DEBIAN
 mv md5sums pkg/DEBIAN
 find data -maxdepth 1 -type "f" -exec cp {} pkg/DEBIAN \;
+find pkg/ -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
+find pkg/ -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
 
 Version=`cat ../../VERSION | sed 's/_/./g'`
 Size=`du -k -s pkg | grep -o '[0-9]*'`
