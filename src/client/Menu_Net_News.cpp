@@ -26,9 +26,8 @@
 #include "StringUtils.h"
 
 
-#define NEWS_PAGE "http://humus.kvalitne.cz/test.html" // TODO: replace with real news :)
-
 static CGuiLayout	cNews;
+std::string strNewsPage;
 
 enum {
 	nw_Back = 0,
@@ -51,10 +50,18 @@ int Menu_Net_NewsInitialize(void)
 	cNews.Add( new CButton(BUT_REFRESH, tMenu->bmpButtons), nw_Refresh, 520,440, 50,15);
 	cNews.Add( new CBrowser(), nw_NewsBrowser, 50, 160, 540, 260);
 
+	// Get the news page
+	FILE *fp = OpenGameFile("cfg/newsserver.txt", "r");
+	if (fp)  {
+		strNewsPage = ReadUntil(fp, '\n');
+		fclose(fp);
+	} else {
+		strNewsPage = "http://openlierox.sourceforge.net/news.php"; // Default
+	}
 
 	// Load the news
 	CBrowser *b = (CBrowser *)cNews.getWidget(nw_NewsBrowser);
-	b->Load(NEWS_PAGE);
+	b->Load(strNewsPage);
  
 
 	return true;
@@ -113,7 +120,7 @@ void Menu_Net_NewsFrame(int mouse)
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
-					((CBrowser *)cNews.getWidget(nw_NewsBrowser))->Load(NEWS_PAGE);
+					((CBrowser *)cNews.getWidget(nw_NewsBrowser))->Load(strNewsPage);
 				}
 				break;
 		}
