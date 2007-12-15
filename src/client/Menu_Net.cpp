@@ -88,6 +88,7 @@ int Menu_NetInitialize(void)
 	// Setup the top buttons
 	int image_ids[] = {BUT_INTERNET, BUT_LAN, BUT_HOST, BUT_FAVOURITES, BUT_NEW/*S*/};
     for(size_t i=0; i <= sizeof(image_ids) / sizeof(int); ++i) {
+    	// TODO: this is not possible for a normal object unless you implement a sensefull copy-operator!
 		cNetButtons[i] = CButton(image_ids[i],	tMenu->bmpButtons);
         cNetButtons[i].Create();
     }
