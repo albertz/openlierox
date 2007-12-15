@@ -331,11 +331,11 @@ void CBrowser::Draw(SDL_Surface *bmpDest)
 // Renders the textual content
 void CBrowser::RenderContent(SDL_Surface *bmpDest)
 {
-	size_t curX = iX + BORDER_SIZE;
-	size_t curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
+	int curX = iX + BORDER_SIZE;
+	int curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
 	Uint32 curColor = tLX->clBlack;
 	std::stack<Uint32> color_stack;
-	size_t lines = 0;
+	int lines = 0;
 
 	// Setup the clipping
 	SDL_Rect clip = {iX + BORDER_SIZE, iY + BORDER_SIZE, iWidth - BORDER_SIZE, iHeight - BORDER_SIZE};
@@ -350,7 +350,7 @@ void CBrowser::RenderContent(SDL_Surface *bmpDest)
 	int expect_hard_breaks = 0;
 
 	// Render the text
-	for (size_t i = 0; it != tLines.end() && i <= cScrollbar.getItemsperbox(); ++i, it++)  {
+	for (int i = 0; it != tLines.end() && i <= cScrollbar.getItemsperbox(); ++i, ++it)  {
 		curX = iX + 2;
 
 		if (*it == "<line>")  {  // horizontal line
