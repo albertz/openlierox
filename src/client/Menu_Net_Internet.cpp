@@ -428,6 +428,7 @@ void Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sNam
 
 
 
+// TODO: remove this here!
 extern CButton	cNetButtons[5];
 
 ///////////////////

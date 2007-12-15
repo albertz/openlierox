@@ -129,6 +129,22 @@ public:
 		if( iEvent == BTN_MOUSEUP )
 			cClick.Call();
 	};
+
+	void setImageID(int theValue) {
+		iImageID = theValue;
+		// TODO: send Update event here
+	}
+	
+
+	int getImageID() const {
+		return iImageID;
+	}
+
+	void setImage(SDL_Surface* theValue) {
+		bmpImage = theValue;
+	}
+	
+	
 };
 
 static bool CButton_WidgetRegistered = 

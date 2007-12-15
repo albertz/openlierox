@@ -436,6 +436,7 @@ enum  {
 	fd_Join
 };
 
+// TODO: remove this here!
 extern CButton cNetButtons[5];
 
 ///////////////////

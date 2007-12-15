@@ -382,6 +382,7 @@ void Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sNam
 	Menu_Net_JoinInitialize(sAddress);
 }
 
+// TODO: remove this here!
 extern CButton	cNetButtons[5];
 
 enum {

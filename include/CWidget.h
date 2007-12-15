@@ -79,7 +79,6 @@ public:
 		bCanLoseFocus = true;
 	}
 
-    // what is it? what is it??? well yes, it's the destructor!!
     virtual ~CWidget() 
 	{
 		CGuiSkin::DeRegisterUpdateCallback( this );	// Remove any possible callbacks 'cause widget not exists anymore

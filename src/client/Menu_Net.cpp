@@ -33,6 +33,7 @@ enum {
 };
 
 
+// TODO: remove globals
 int		iNetMode = net_main;
 int		iHostType = 0;
 CButton	cNetButtons[5];
@@ -87,9 +88,9 @@ int Menu_NetInitialize(void)
 
 	// Setup the top buttons
 	int image_ids[] = {BUT_INTERNET, BUT_LAN, BUT_HOST, BUT_FAVOURITES, BUT_NEW/*S*/};
-    for(size_t i=0; i <= sizeof(image_ids) / sizeof(int); ++i) {
-    	// TODO: this is not possible for a normal object unless you implement a sensefull copy-operator!
-		cNetButtons[i] = CButton(image_ids[i],	tMenu->bmpButtons);
+    for(size_t i=0; i < sizeof(image_ids) / sizeof(int); ++i) {
+    	cNetButtons[i].setImage(tMenu->bmpButtons);
+    	cNetButtons[i].setImageID(image_ids[i]);
         cNetButtons[i].Create();
     }
 	
@@ -191,8 +192,10 @@ void Menu_Net_GotoJoinLobby(void)
 	Menu_RedrawMouse(true);
 
 	// Setup the top buttons
-	for(int i=0; i<5; i++)
-		cNetButtons[i] = CButton(BUT_MAIN+i,	tMenu->bmpButtons);
+	for(int i=0; i<5; i++) {
+		cNetButtons[i].setImage(tMenu->bmpButtons);
+		cNetButtons[i].setImageID(BUT_MAIN + i);
+	}
 	
 	cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
 	cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
@@ -225,14 +228,14 @@ void Menu_NetFrame(void)
 	   (iNetMode != net_join)) {
 
 		cNetButtons[iNetMode-1].MouseOver(Mouse);
-		for(int i=mn_Internet;i<=mn_News;i++) {
+		for(int i=mn_Internet; i<=mn_News; i++) {
 		
 			cNetButtons[i].Draw(tMenu->bmpScreen);
 
-			if(i==iNetMode-1)
+			if( i == iNetMode-1 )
 				continue;
 
-			if(cNetButtons[i].InBox(Mouse->X,Mouse->Y)) {
+			if( cNetButtons[i].InBox(Mouse->X, Mouse->Y) ) {
 				cNetButtons[i].MouseOver(Mouse);
 				mouse = 1;
 				if(Mouse->Up) {					
