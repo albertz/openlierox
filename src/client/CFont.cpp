@@ -395,6 +395,17 @@ int CFont::GetWidth(const std::string& buf) {
 	return length;
 }
 
+/////////////////
+// Get width of a single character
+int CFont::GetCharacterWidth(UnicodeChar c)
+{
+	int l = TranslateCharacter(c);
+	if (l != -1)
+		return FontWidth[l];
+	else
+		return 0;
+}
+
 ///////////////////
 // Draws the text in centre alignment
 void CFont::DrawCentre(SDL_Surface *dst, int x, int y, Uint32 col, const std::string& txt) {

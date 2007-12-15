@@ -90,7 +90,6 @@ bool GameOptions::Init() {
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", true )
-		( tLXOptions->bShowNewsInMainMenu, "Advanced.ShowNewsInMainMenu", true )
 
 		( tLXOptions->iLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->iShowPing, "Misc.ShowPing", true )
@@ -147,8 +146,8 @@ bool GameOptions::Init() {
 
 	bool ret = tLXOptions->LoadFromDisc();
 
-	printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
-	printf( "Skinnable widgets:\n%s", CGuiSkin::DumpWidgets().c_str() );
+	/*printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
+	printf( "Skinnable widgets:\n%s", CGuiSkin::DumpWidgets().c_str() );*/
 	return ret;
 }
 

@@ -509,3 +509,31 @@ std::string StripHtmlTags( const std::string & src )
   
 	return ret;
 }
+
+/////////////////
+// Get next word from a string
+std::string GetNextWord(std::string::const_iterator it, const std::string& str)
+{
+	// Check
+	if (str == "" || it == str.end())
+		return "";
+
+	// Skip any blanks at the beginning
+	while (isspace((uchar)*it) && it != str.end())
+		it++;
+
+	// Check
+	if (it == str.end())
+		return "";
+
+	// Get the word
+	std::string res;
+	while (it != str.end())  {
+		res += *it;
+		if (isspace((uchar)*it))
+			return res;
+		it++;
+	}
+
+	return res;
+}

@@ -14,6 +14,7 @@
 // Jason Boettcher
 
 
+#include <stack>
 #include "LieroX.h"
 #include "Menu.h"
 #include "GfxPrimitives.h"
@@ -21,332 +22,241 @@
 #include "StringUtils.h"
 #include "CBrowser.h"
 
+#define BORDER_SIZE 2
+#define CONTROL_CHARACTER_BEGIN (char)4
+#define CONTROL_CHARACTER_END (char)5
+#define CONTROL_COLOR 'c'
+#define CONTROL_UNDERLINE 'u'
+#define CONTROL_BOLD 'b'
+
+
 
 ///////////////////
 // The create event
 void CBrowser::Create(void)
 {
-	// Destroy any previous data
-	Destroy();
+	tLines.clear();
+	bUseScroll = false;
+	iClientWidth = iWidth - 2*BORDER_SIZE;
+	iClientHeight = iHeight - 2*BORDER_SIZE;
 
-	iLines = -1;
-	iUseScroll = false;
-
-	iProperties = 0;
-	iTextColour = tLX->clWhite;
-
-	tObjects = NULL;
-
-	iPos = iLength = 0;
-	sData = NULL;
-
-
+	// Setup the scrollbar
 	cScrollbar.Create();
 
-	cScrollbar.Setup(0, iX+iWidth-16, iY+2, 14, iHeight-3);
+	cScrollbar.Setup(0, iX+iWidth-15, iY+BORDER_SIZE, 14, iHeight-BORDER_SIZE);
 	cScrollbar.setMin(0);
 	cScrollbar.setValue(0);
 	cScrollbar.setItemsperbox(iHeight);
 	cScrollbar.setMax(0);
 }
 
-
-///////////////////
-// This widget is send a message
-DWORD CBrowser::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
-{
-	switch(iMsg) {
-
-		// Load a file
-		case BRM_LOAD:
-			return Load( (char *)Param1 );
-
-	}
-
-	return 0;
-}
-
-
 ///////////////////
 // Load the cmht file
-int CBrowser::Load(const std::string& sFilename)
+void CBrowser::Load(const std::string& url)
 {
-	FILE *fp;
-
-	// Open the file
-	fp = OpenGameFile(sFilename,"rb");
-	if(fp == NULL)
-		return false;
-
-	fseek(fp,0,SEEK_END);
-	iLength = ftell(fp);
-	fseek(fp,0,SEEK_SET);
-
-	// Allocate room for the data
-	sData = new char[iLength];
-	if(sData == NULL) {
-		fclose(fp);
-		return false;
-	}
-
-	// Load the data
-	fread(sData,sizeof(char),iLength,fp);
-	fclose(fp);
-
-
-	// Go through the file
-	iPos=0;
-	iLines=-1;
-	while(iPos<iLength) {
-		ReadObject();
-		iPos++;
-	}
-
-
-	// Free the data
-	if(sData) {
-		delete[] sData;
-		sData = NULL;
-	}
-
-	return true;
+	// Send the HTTP request
+	bFinished = false;
+	tLines.clear();
+	cHttp.RequestData(url);
 }
 
 
 ///////////////////
-// Destroy function
-void CBrowser::Destroy(void)
+// Process the HTTP downloading
+void CBrowser::ProcessHTTP()
 {
-	// Go through freeing each object
-	ht_object_t *obj = tObjects;
-	ht_object_t *o;
-
-	for(; obj ; obj=o) {
-		o = obj->tNext;
-
-		if(obj)
-			delete obj;
-	}
-
-	tObjects = NULL;
-}
-
-
-///////////////////
-// Read an object
-void CBrowser::ReadObject(void)
-{
-	// Check first character
-	char c = sData[iPos];
-
-	// Comment
-	if(c == '/' && sData[iPos+1] == '/') {
-		// Read until the end of the line
-		ReadNewline();
+	if (bFinished)
 		return;
-	}
 
-	// Tag
-	if(c == '<') {
-		ReadTag();
-		return;
-	}
-
-	// Newline
-	if(c == '\n' || c == '\r') {
-		return;
-	}
-
-	// Normal text
-	ReadText();
-}
-
-
-///////////////////
-// Set the position to the next line
-void CBrowser::ReadNewline(void)
-{
-	while(iPos < iLength) {
-		if(sData[iPos] == '\n') {
-			iPos--;
-			return;
-		}
-		iPos++;
+	int res = cHttp.ProcessRequest();
+	switch (res)  {
+	case HTTP_PROC_PROCESSING:
+		break;
+	case HTTP_PROC_ERROR:
+		tLines.push_back("An error occured while loading: " + cHttp.GetError().sErrorMsg);
+		break;
+	case HTTP_PROC_FINISHED:
+		Parse();
+		bFinished = true;
+		break;
 	}
 }
 
-
 ///////////////////
-// Read a tag
-void CBrowser::ReadTag(void)
+// Parses the HTTP data
+void CBrowser::Parse()
 {
-	// TODO: use std::string
-	static char sName[32];
-	static char sVal[32];
-	int i = 0;
-	int end = false;
+	// We take care only of 3 tags in HTML: font, br and hr, others are ignored
+	const std::string& data = cHttp.GetData();
+	std::string::const_iterator it = data.begin();
+	std::string::const_iterator last = data.end();
 
-	sName[0] = 0;
-	sVal[0] = 0;
+	std::string cur_line;
+	bool last_space = false;
+	bool last_tag = false;
 
-	// Tag list
-	char	*sTags[] = {"b","u","shadow","box","colour","tab","stab","nl","line"};
-	int		iNumTags = 9;
-
-	iPos++;
-
-	// Check if it's an end tag
-	if(sData[iPos] == '/') {
-		end=true;
-		iPos++;
-	}
-
-	// Read the tag name until a space or an arrow
-	while(iPos < iLength) {
-		if(sData[iPos] == ' ' || sData[iPos] == '>') {
-			sName[i] = '\0';
-			break;
+	while (it != last)  {
+		if (*it == '<')  {
+			ParseTag(it, last, cur_line);
+			last_tag = true;
+			continue;
 		}
 
-		sName[i++] = sData[iPos++];
+		// Check for blank characters (they're handled as spaces if they are not repeated)
+		if (isspace((uchar)*it))  {
+			if (!last_space && !((*it == '\r' || *it == '\n') && last_tag)) // Skip repeated
+				cur_line += ' '; // force a space
+
+			last_space = true;
+			it++;
+			continue;
+
+		} else {
+			last_space = false;
+		}
+
+		last_tag = false;
+
+		// Add it to the line
+		cur_line += *it;
+
+		it++;
 	}
 
+	// Add the last line
+	tLines.push_back(cur_line);
 
-	// Some tags contain a value (and not the end tags)
-	if(stricmp(sName,"tab") == 0 ||
-		stricmp(sName,"stab") == 0 ||
-	   stricmp(sName,"colour") == 0 ||
-	   stricmp(sName,"box") == 0 &&
-	   !end) {
+	// Setup the scrollbar
+	cScrollbar.setItemsperbox(iClientHeight / tLX->cFont.GetHeight());
+	cScrollbar.setMax(tLines.size());
+	cScrollbar.setValue(0);
 
-		iPos++;
-		i=0;
+}
 
-		// Read the value
-		while(iPos < iLength) {
-			if(sData[iPos] == ' ' || sData[iPos] == '>') {
-				sVal[i] = '\0';
-				break;
+////////////////
+// Parse a HTML tag
+void CBrowser::ParseTag(std::string::const_iterator& it, std::string::const_iterator& last, std::string& cur_line)
+{
+	// The iterator points at the opening bracket of the tag
+	it++; if (it == last) return;
+	std::string tag_name;
+	bool close_tag = false;
+
+	// Read the tag name
+	while (it != last)  {
+		if (!isalnum((uchar)*it) || *it == '>')  {
+			// Closing tag?
+			if (*it == '/')  {
+				it++;
+				close_tag = true;
+				continue;
 			}
 
-			sVal[i++] = sData[iPos++];
-		}
-	}
+			// Tag name has been read
+			stringlwr(tag_name);
+			if (tag_name == "br")  {
+				tLines.push_back(cur_line);
+				cur_line = "";
+			} else if (tag_name == "hr")  {
+				tLines.push_back(cur_line);
+				tLines.push_back("<line>");
+				cur_line = "";
+			} else if (tag_name == "u")  {
+				if (close_tag)
+					cur_line += CONTROL_CHARACTER_END;
+				else
+					cur_line += CONTROL_CHARACTER_BEGIN;
+				cur_line += CONTROL_UNDERLINE;
+			} else if (tag_name == "b")  {
+				if (close_tag)
+					cur_line += CONTROL_CHARACTER_END;
+				else
+					cur_line += CONTROL_CHARACTER_BEGIN;
+				cur_line += CONTROL_BOLD;
+			}
 
-	// Find the tag id
-	int id = -1;
-	for(i=0;i<iNumTags;i++) {
-		if(stricmp(sTags[i],sName) == 0) {
-			id = i+HTO_BOLD;
-			break;
-		}
-	}
-
-	if(id == -1) {
-		// Error
-		return;
-	}
-
-
-	// Add the object to the list
-	AddObject(sName,sVal,id,end);
-}
-
-
-///////////////////
-// Read text as an object
-void CBrowser::ReadText(void)
-{
-	char	sText[4096];
-	int i=0;
-
-	// Read the text until a tag, or a newline
-	while(iPos < iLength) {
-		if(sData[iPos] == '<' || sData[iPos] == '\n') {
-			iPos--;
 			break;
 		}
 
-		sText[i++] = sData[iPos++];
+		tag_name += *it;
 
-		if(i>=4095)
-			break;
-	}
-	sText[i] = '\0';
-
-	AddObject(sText,"",HTO_TEXT,0);
-}
-
-
-///////////////////
-// Add an object to the list
-void CBrowser::AddObject(const std::string& sText, const std::string& sVal, int iType, int iEnd)
-{
-	ht_object_t *obj;
-	int r,g,b;
-
-	// Allocate a new object
-	obj = new ht_object_t;
-	if(obj == NULL) {
-		// Out of memory
-		return;
+		it++;
 	}
 
-	// Set the properties
-	obj->strText = sText;
-	obj->iType = iType;
-	obj->iEnd = iEnd;
-	obj->tNext = NULL;
+	// Read the color parameter for font tag (if any)
+	if (tag_name == "font") {
+		if (close_tag)  {  // font tag got closed
+			cur_line += CONTROL_CHARACTER_END;  // remove any color settings
+			cur_line += CONTROL_COLOR;
 
-	// Values get translated differently for different types of objects
-	// End tags don't get translated
-	if(!iEnd) {
-		switch(iType) {
+		} else {  // Get the color parameter
 
-			// Normal integer
-			case HTO_TAB:
-			case HTO_STAB:
-				obj->iValue = from_string<int>(sVal);
-				break;
+			// Param name
+			while (it != last)  {
+				std::string param_name;
+				while (it != last)  {
+					// The '=' character divides param and value
+					if (*it == '=')  {
+						it++;
+						break;
+					}
 
-			// Triple value
-			case HTO_COLOUR:
-			case HTO_BOX:
-				const std::vector<std::string>& tok = explode(sVal,",");
-				if(tok.size() >= 3) {
-					r = from_string<int>(tok[0]);
-					g = from_string<int>(tok[1]);
-					b = from_string<int>(tok[2]);
-				} else {
-					r = 0; g = 0; b = 0;
+					if (isalnum((uchar)*it))
+						param_name += *it;
+
+					it++;
 				}
 
-				obj->iValue = MakeColour(r,g,b);
-				break;
+				// Look for 
+				if (stringcasecmp(param_name, "color") == 0)
+					break;
+			}
+
+			// Param value
+			std::string param_value;
+			while (it != last)  {
+				if (*it == '\"')  {
+					it++;
+					continue;
+				}
+
+				// End?
+				if (isspace((uchar)*it) || *it == '>')  {
+					// Convert the color
+					Uint32 color = StrToCol(param_value);
+					Uint8 r, g, b;
+					GetColour3(color, SDL_GetVideoSurface(), &r, &g, &b);
+
+					cur_line += CONTROL_CHARACTER_BEGIN;
+					cur_line += CONTROL_COLOR;
+					cur_line += (char)r;
+					cur_line += (char)g;
+					cur_line += (char)b;
+					break;
+				}
+
+				param_value += *it;
+
+				it++;
+			}
 		}
 	}
 
-
-	// Add this object to the list
-	if(tObjects) {
-		ht_object_t *o = tObjects;
-		for(;o; o = o->tNext) {
-			if(o->tNext == NULL) {
-				o->tNext = obj;
-				break;
-			}
+	// Skip the tag
+	while (it != last)  {
+		if (*it == '>')  {
+			it++;
+			break;
 		}
-	} else
-		tObjects = obj;
+		it++;
+	}
 }
-
-
 
 ///////////////////
 // Mouse down event
 int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 {
-	if(iUseScroll && tMouse->X > iX+iWidth-20)
+	if(bUseScroll && tMouse->X > iX+iWidth-20)
 		return cScrollbar.MouseDown(tMouse, nDown);
 
 	return BRW_NONE;
@@ -357,8 +267,42 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 // Mouse over event
 int CBrowser::MouseOver(mouse_t *tMouse)
 {
-	if(iUseScroll && tMouse->X > iX+iWidth-20)
+	if(bUseScroll && tMouse->X > iX+iWidth-20)
 		return cScrollbar.MouseOver(tMouse);
+
+	return BRW_NONE;
+}
+
+//////////////////
+// Mouse wheel down event
+int CBrowser::MouseWheelDown(mouse_t *tMouse)
+{
+	if(bUseScroll)
+		return cScrollbar.MouseWheelDown(tMouse);
+	return BRW_NONE;
+}
+
+//////////////////
+// Mouse wheel up event
+int CBrowser::MouseWheelUp(mouse_t *tMouse)
+{
+	if(bUseScroll)
+		return cScrollbar.MouseWheelUp(tMouse);
+	return BRW_NONE;
+}
+
+//////////////////
+// Mouse wheel down event
+int CBrowser::KeyDown(UnicodeChar c, int keysym)
+{
+	if (bUseScroll)  {
+		switch (keysym)  {
+		case SDLK_DOWN:
+			return cScrollbar.MouseWheelDown(GetMouse());
+		case SDLK_UP:
+			return cScrollbar.MouseWheelUp(GetMouse());
+		}
+	}
 
 	return BRW_NONE;
 }
@@ -368,183 +312,180 @@ int CBrowser::MouseOver(mouse_t *tMouse)
 // Render the browser
 void CBrowser::Draw(SDL_Surface *bmpDest)
 {
-	int x,y,s,p,w,c;
-	ht_object_t *obj = tObjects;
-	CFont *fnt = &tLX->cFont;
-	static std::string buf;
-	int lcount = 0;
+	// 3D Box
+	DrawRect(bmpDest, iX, iY, iX + iWidth, iY + iHeight, tLX->clBoxDark);
+	DrawRect(bmpDest, iX + 1, iY + 1, iX + iWidth - 1, iY + iHeight - 1, tLX->clBoxLight);
+	
+	// Background (white)
+	DrawRectFill(bmpDest, iX + BORDER_SIZE, iY + BORDER_SIZE, iX + iWidth, iY + iHeight, tLX->clWhite);
 
-	DrawRectFill(bmpDest, iX+1, iY+1, iX+iWidth-1, iY+iHeight-1, tLX->clWhite);
+	// Render the content
+	RenderContent(bmpDest);
 
-	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+iHeight);
-
-	// Setup the clipping rectangle
-	SDL_Rect r;
-	r.x = iX+2;
-	r.y = iY+2;
-	r.w = iWidth-3;
-	r.h = iHeight-3;
-	SDL_SetClipRect(bmpDest,&r);
-
-
-	// 10 pixel margin
-	int Margin = 6;
-	x=iX + Margin;
-	y=iY + Margin - cScrollbar.getValue();
-
-	int RightWidth = iX + iWidth - Margin;
-	if(iUseScroll)
-		RightWidth -= 14;
-
-
-	iProperties=0;
-	iTextColour = 0;
-
-	if(iUseScroll)
+	// Scrollbar
+	if (bUseScroll)
 		cScrollbar.Draw(bmpDest);
+}
 
-	// Go through rendering each object
-	for(;obj;obj=obj->tNext) {
+//////////////////
+// Renders the textual content
+void CBrowser::RenderContent(SDL_Surface *bmpDest)
+{
+	size_t curX = iX + BORDER_SIZE;
+	size_t curY = iY + BORDER_SIZE - cScrollbar.getValue() * tLX->cFont.GetHeight();
+	Uint32 curColor = tLX->clBlack;
+	std::stack<Uint32> color_stack;
+	size_t lines = 0;
 
-		if(y > iY+iHeight+Margin && iLines>=0)
-			break;
+	// Setup the clipping
+	SDL_Rect clip = {iX + BORDER_SIZE, iY + BORDER_SIZE, iWidth - BORDER_SIZE, iHeight - BORDER_SIZE};
+	SDL_SetClipRect(bmpDest, &clip);
 
-		switch(obj->iType) {
+	// Get the line from which we start drawing
+	std::list<std::string>::iterator it = tLines.begin();
 
-			// Property - Bold
-			case HTO_BOLD:
-				if(obj->iEnd)
-					iProperties &= ~PRP_BOLD;
-				else
-					iProperties |= PRP_BOLD;
-				break;
+	// Text style & wrapping
+	bool underline = false;
+	bool bold = false;
+	int expect_hard_breaks = 0;
 
-			// Property - Underline
-			case HTO_UNDERLINE:
-				if(obj->iEnd)
-					iProperties &= ~PRP_UNDERLINE;
-				else
-					iProperties |= PRP_UNDERLINE;
-				break;
+	// Render the text
+	for (size_t i = 0; it != tLines.end() && i <= cScrollbar.getItemsperbox(); ++i, it++)  {
+		curX = iX + 2;
 
-			// Property - Shadow
-			case HTO_SHADOW:
-				if(obj->iEnd)
-					iProperties &= ~PRP_SHADOW;
-				else
-					iProperties |= PRP_SHADOW;
-				break;
-
-			// Colour
-			case HTO_COLOUR:
-				iTextColour = obj->iValue;
-				break;
-
-			// Tab
-			case HTO_TAB:
-				s =	fnt->GetWidth(" ");
-				p = x + (obj->iValue*4)*s;
-				p/=4;
-				p*=4;
-				x = p;
-				break;
-
-			// Start line Tab
-			case HTO_STAB:
-				s =	fnt->GetWidth(" ");
-				p = (obj->iValue*4)*s;
-				p/=4;
-				p*=4;
-				x = iX+p;
-				break;
-
-			// Line
-			case HTO_LINE:
-				if(y > iY-fnt->GetHeight() && iLines>=0) {
-					DrawHLine(bmpDest,iX+Margin,RightWidth,y,MakeColour(28,36,47));
-					DrawHLine(bmpDest,iX+Margin,RightWidth,y+1,MakeColour(50,65,82));
-				}
-				break;
-
-			// Box
-			case HTO_BOX:
-				if(y > iY-fnt->GetHeight() && iLines>=0)
-					DrawRectFill(bmpDest,iX+Margin,y,RightWidth,y+fnt->GetHeight(),obj->iValue);
-				break;
-
-			// Newline
-			case HTO_NEWLINE:
-				x = iX + Margin;
-				y += fnt->GetHeight();
-				lcount++;
-				break;
-
-
-			// Text
-			case HTO_TEXT:
-
-				// Go through each word in the text
-				// If a word is going to be over the window border, move the word down a line and
-				// to the start
-
-				p=0;
-				s = obj->strText.size();
-				while(p<s) {
-
-					// Go through until a space
-					for(c=p;c<s;c++) { // TODO: use iterators
-						if(obj->strText[c] == ' ') {
-							c++;
-							break;
-						}
-					}
-					buf = obj->strText.substr(p);
-					buf.erase(c-p);
-					p=c;
-
-					w = fnt->GetWidth(buf);
-					if(x+w > RightWidth) {
-						// Drop down a line
-						x = iX+Margin;
-						y += fnt->GetHeight();
-						lcount++;
-					}
-
-					// Make sure it's within the window
-					if(y > iY-fnt->GetHeight() && iLines>=0) {
-
-						// Draw the properties
-						if(iProperties & PRP_SHADOW)
-							fnt->Draw(bmpDest,x+1,y+1,MakeColour(200,200,200),buf);
-						if(iProperties & PRP_BOLD)
-							fnt->Draw(bmpDest,x+1,y+1,iTextColour,buf);
-						if(iProperties & PRP_UNDERLINE)
-							DrawHLine(bmpDest,x,x+w,y+fnt->GetHeight()-1,iTextColour);
-
-						// Draw the text
-						fnt->Draw(bmpDest,x,y,iTextColour,buf);
-					}
-
-					x+=w;
-				}
-				break;
+		if (*it == "<line>")  {  // horizontal line
+			DrawHLine(bmpDest, curX, curX + iClientWidth, curY + tLX->cFont.GetHeight()/2, tLX->clBlack);
+			curY += tLX->cFont.GetHeight();
+			lines++;
+			continue;
 		}
+
+		std::string::iterator str_it = it->begin();
+
+		// Check if the new line will need a hard break
+		{
+			std::string next_word = GetNextWord(str_it, *it);
+			int width = tLX->cFont.GetWidth(next_word);
+			if (width >= iClientWidth)
+				expect_hard_breaks = width / iClientWidth;
+		}
+
+		while (str_it != it->end())  {
+
+			// Handle control characters
+			if (*str_it == CONTROL_CHARACTER_BEGIN)  {
+				str_it++; if (str_it == it->end()) break; // Skip the control character
+				switch (*str_it)  {
+				case CONTROL_COLOR:  {
+					str_it++; if (str_it == it->end()) break; // Skip the control character
+					Uint8 r = (Uint8)*str_it; str_it++; if (str_it == it->end()) break;
+					Uint8 g = (Uint8)*str_it; str_it++; if (str_it == it->end()) break;
+					Uint8 b = (Uint8)*str_it; str_it++; if (str_it == it->end()) break;
+					color_stack.push(curColor);  // save the current color
+					curColor = MakeColour(r, g, b);  // new color
+				} break;
+				case CONTROL_UNDERLINE:
+					str_it++; if (str_it == it->end()) break; // Skip the control character
+					underline = true;
+				break;
+				case CONTROL_BOLD:
+					str_it++; if (str_it == it->end()) break; // Skip the control character
+					bold = true;
+				break;
+				}
+
+				continue;
+
+			// End of control section
+			} else if (*str_it == CONTROL_CHARACTER_END) {
+				str_it++; if (str_it == it->end()) break;
+
+				switch (*str_it)  {
+				case CONTROL_COLOR:
+					// Restore the previous color
+					if (!color_stack.empty())  {  // Safety...
+						curColor = color_stack.top();
+						color_stack.pop();
+					}
+				break;
+				case CONTROL_UNDERLINE:
+					underline = false;
+				break;
+				case CONTROL_BOLD:
+					bold = false;
+				break;
+				}
+
+				str_it++; if (str_it == it->end()) break; // Skip the control character
+				continue;
+			}
+
+			// Get the character width
+			int ch_width = tLX->cFont.GetCharacterWidth((UnicodeChar)*str_it) + tLX->cFont.GetSpacing();
+			if (bold)
+				ch_width++;
+
+			// Check if it's an expected hard break time
+			if (expect_hard_breaks > 0 && curX + ch_width >= iX + BORDER_SIZE + iClientWidth)  {
+				curX = iX + BORDER_SIZE;
+				curY += tLX->cFont.GetHeight();
+				lines++;
+				expect_hard_breaks--;
+			}
+
+			// Draw the character
+			char buf[2]; buf[0] = *str_it; buf[1] = '\0';
+
+			// Bold
+			if (bold)  {
+				tLX->cFont.Draw(bmpDest, curX, curY, curColor, std::string(buf));
+				tLX->cFont.Draw(bmpDest, curX + 1, curY, curColor, std::string(buf));
+
+			// Normal
+			} else {
+				tLX->cFont.Draw(bmpDest, curX, curY, curColor, std::string(buf));
+			}
+
+			// Underline
+			if (underline)
+				DrawHLine(bmpDest, curX, curX + ch_width, curY + tLX->cFont.GetHeight() - 1, curColor);
+			
+			curX += ch_width;
+
+			// Space or newline, check for wrapping
+			if (*str_it == ' ')  {
+				// Get next word and check if it will fit in the window
+				// If not, make a break
+				std::string next_word = GetNextWord(str_it, *it);
+				int word_w = tLX->cFont.GetWidth(next_word);
+				if (curX + word_w >= iX + BORDER_SIZE + iClientWidth)  {
+					curY += tLX->cFont.GetHeight();  // Break
+					curX = iX + BORDER_SIZE;
+					lines++;
+					if (word_w >= iClientWidth)  // if the next word itself is bigger than the box, we should expect hard break(s)
+						expect_hard_breaks = word_w / iClientWidth;
+				}
+			}
+
+			str_it++;
+		}
+
+		curY += tLX->cFont.GetHeight();
+		lines++;
 	}
 
-
-	// If this is the first render, set the scrollbar to show the number of lines
-	if(iLines == -1) {
-		cScrollbar.setMax((lcount+1) * fnt->GetHeight() + Margin);
-		iLines = lcount;
-
-		if(cScrollbar.getMax() > iHeight)
-			iUseScroll = true;
-
-		//printl("Browser size: %d",iHeight);
-		//printl("Page size: %d",lcount * fnt->GetHeight());
+	// Setup the scrollbar if needed
+	if (lines > cScrollbar.getItemsperbox())  {
+		if (!bUseScroll)
+			iClientWidth -= cScrollbar.getWidth();
+		bUseScroll = true;
+		cScrollbar.setMax(lines);
+	} else {
+		if (bUseScroll)
+			iClientWidth += cScrollbar.getWidth();
+		bUseScroll = false;
 	}
 
-
-	// Reset the clipping rectangle to full size
-	SDL_SetClipRect(bmpDest,NULL);
+	// Restore clipping
+	SDL_SetClipRect(bmpDest, NULL);
 }

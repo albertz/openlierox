@@ -132,6 +132,7 @@ void			xmlEntities(std::string& text);
 size_t			stringcasefind(const std::string& text, const std::string& search_for);
 size_t			stringcaserfind(const std::string& text, const std::string& search_for);
 std::string		StripHtmlTags( const std::string & src );	// Also removes all "\r" and spaces at line beginning
+std::string		GetNextWord(std::string::const_iterator it, const std::string& str);
 
 ////////////////////
 // Read a fixed-length C-string from a file

@@ -28,6 +28,7 @@
 #include "CLabel.h"
 #include "CCombobox.h"
 #include "CCheckbox.h"
+#include "CBrowser.h"
 
 
 CGuiLayout	cMainMenu;
@@ -47,7 +48,6 @@ enum {
 };
 
 void Menu_Main_GuiSkinComboboxCreate();
-void Menu_Main_NewsBoxCreate();
 
 ///////////////////
 // Initialize the main menu
@@ -79,12 +79,6 @@ void Menu_MainInitialize(void)
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
 
 	Menu_Main_GuiSkinComboboxCreate();	// Just moved ugly code to function so it won't stand out too much
-	
-	cMainMenu.Add( new CLabel("Show news",tLX->clNormalLabel), -1, 330,86,0,0);
-	cMainMenu.Add( new CCheckbox(tLXOptions->bShowNewsInMainMenu), mm_ShowNews, 300,84, 17,17);
-
-	if( tLXOptions->bShowNewsInMainMenu )
-		Menu_Main_NewsBoxCreate();
 	
 	// Check if skin should be loaded instead of main menu ( also when selecting different skin from skinned menu )
 	if( tLXOptions->sSkinPath != "" )
@@ -203,19 +197,6 @@ void Menu_MainFrame(void)
 				    return;
 				};
                 break;
-
-			// Show news checkbox
-			case mm_ShowNews:
-                if( ev->iEventMsg == CHK_CHANGED ) 
-				{
-					Menu_redrawBufferRect(300,110,330+5,270+5);	// TODO: position as constant, will fix in Hirudo :)
-					tLXOptions->bShowNewsInMainMenu = ev->cWidget->SendMessage( CKM_GETCHECK, (DWORD)0, (DWORD)0 );
-					if( tLXOptions->bShowNewsInMainMenu )
-						Menu_Main_NewsBoxCreate();
-					else
-						cMainMenu.removeWidget( mm_NewsBox );
-				};
-                break;
 		}
 	}
 
@@ -297,20 +278,6 @@ void Menu_MainShutdown(void)
 {
 	cMainMenu.Shutdown();
 }
-
-void Menu_Main_NewsBoxCreate()
-{
-	// News box
-	std::vector< CGuiSkin::WidgetVar_t > GuiSkinInit;
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Old style
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( true ) );	// Hide selection
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( false ) );	// Hide border
-	// TODO: position as constant, will remove this code when only skins will be left
-	CWidget * GuiSkin = CListview::WidgetCreator(GuiSkinInit, &cMainMenu, mm_NewsBox, 300,110,330,270);
-	CGuiSkin::CallbackHandler c_init( "GUI.NewsListview_Init(#FFD700)", GuiSkin );	// TODO: better color?
-	c_init.Call();
-	GuiSkin->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
-};
 
 void Menu_Main_GuiSkinComboboxCreate()
 {

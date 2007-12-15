@@ -81,6 +81,7 @@ public:
 	}
 
 	int					GetWidth(const std::string& buf);
+	int					GetCharacterWidth(UnicodeChar c);
 	inline int			GetHeight(void)					{
 		return bmpFont->h + VSpacing;
 	}
@@ -90,7 +91,12 @@ public:
 	inline int			TranslateCharacter(std::string::const_iterator &it, const std::string::const_iterator& last)  {
 		UnicodeChar ch = GetNextUnicodeFromUtf8(it, last);
 		if (ch > FIRST_CHARACTER + NumCharacters - 1 || ch < FIRST_CHARACTER) return -1;
-		return ch -FIRST_CHARACTER;
+		return ch - FIRST_CHARACTER;
+	}
+
+	inline int			TranslateCharacter(UnicodeChar ch)  {
+		if (ch > FIRST_CHARACTER + NumCharacters - 1 || ch < FIRST_CHARACTER) return -1;
+		return ch - FIRST_CHARACTER;
 	}
 
 	inline bool			CanDisplayCharacter (UnicodeChar c)  { return (c < FIRST_CHARACTER + NumCharacters) && (c >= FIRST_CHARACTER); }

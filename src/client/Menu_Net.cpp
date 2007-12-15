@@ -28,7 +28,8 @@ enum {
 	mn_Internet=0,
 	mn_LAN,
 	mn_Host,
-	mn_Favourites
+	mn_Favourites,
+	mn_News,
 };
 
 
@@ -85,15 +86,17 @@ int Menu_NetInitialize(void)
 						 cIpToCountryProgress.getY() + cIpToCountryProgress.getHeight())) - tLoadingRect.y;
 
 	// Setup the top buttons
-    for(int i=mn_Internet; i<=mn_Favourites; i++) {
-		cNetButtons[i] = CButton(BUT_INTERNET+i,	tMenu->bmpButtons);
+	int image_ids[] = {BUT_INTERNET, BUT_LAN, BUT_HOST, BUT_FAVOURITES, BUT_NEW/*S*/};
+    for(int i=0; i <= sizeof(image_ids)/sizeof(int); i++) {
+		cNetButtons[i] = CButton(image_ids[i],	tMenu->bmpButtons);
         cNetButtons[i].Create();
     }
 	
-	cNetButtons[mn_Internet].Setup(mn_Internet, 145, 110, 95, 15);
-	cNetButtons[mn_LAN].Setup(mn_LAN, 260, 110, 40, 15);
-	cNetButtons[mn_Host].Setup(mn_Host, 325, 110, 50, 15);
-	cNetButtons[mn_Favourites].Setup(mn_Favourites, 400, 110, 105, 15);
+	cNetButtons[mn_Internet].Setup(mn_Internet, 95, 110, 95, 15);
+	cNetButtons[mn_LAN].Setup(mn_LAN, 210, 110, 40, 15);
+	cNetButtons[mn_Host].Setup(mn_Host, 275, 110, 50, 15);
+	cNetButtons[mn_Favourites].Setup(mn_Favourites, 350, 110, 105, 15);
+	cNetButtons[mn_News].Setup(mn_News, 480, 110, 105, 15);
 	//cNetButtons[4].Setup(4, 400, 110, 105, 15);
 
 
@@ -122,6 +125,9 @@ int Menu_NetInitialize(void)
 	case net_favourites:
 		Menu_Net_FavouritesInitialize();
 		break;
+	case net_news:
+		Menu_Net_NewsInitialize();
+		break;
 	default:
 		Menu_Net_NETInitialize();
 	}
@@ -147,13 +153,14 @@ void Menu_Net_GotoHostLobby(void)
 	Menu_RedrawMouse(true);
 
 	// Setup the top buttons
-	for(int i=mn_Internet; i<=mn_Favourites; i++)
+	for(int i=mn_Internet; i<=mn_News; i++)
 		cNetButtons[i] = CButton(BUT_MAIN+i,	tMenu->bmpButtons);
 	
-	cNetButtons[mn_Internet].Setup(0, 205, 110, 95, 15);
-	cNetButtons[mn_LAN].Setup(1, 320, 110, 40, 15);
-	cNetButtons[mn_Host].Setup(2, 385, 110, 50, 15);
-	cNetButtons[mn_Favourites].Setup(3, 460, 110, 50, 15);
+	cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
+	cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
+	cNetButtons[mn_Host].Setup(mn_Host, 385, 110, 50, 15);
+	cNetButtons[mn_Favourites].Setup(mn_Favourites, 460, 110, 50, 15);
+	cNetButtons[mn_News].Setup(mn_News, 460, 110, 50, 15);
 	//cNetButtons[4].Setup(4, 460, 110, 50, 15);
 
 	Menu_Net_HostGotoLobby();
@@ -217,7 +224,7 @@ void Menu_NetFrame(void)
 	   (iNetMode != net_join)) {
 
 		cNetButtons[iNetMode-1].MouseOver(Mouse);
-		for(int i=mn_Internet;i<=mn_Favourites;i++) {
+		for(int i=mn_Internet;i<=mn_News;i++) {
 		
 			cNetButtons[i].Draw(tMenu->bmpScreen);
 
@@ -236,6 +243,7 @@ void Menu_NetFrame(void)
 					Menu_Net_NETShutdown();
 					Menu_Net_HostShutdown();
 					Menu_Net_FavouritesShutdown();
+					Menu_Net_NewsShutdown();
 
                     iNetMode = i+1;
 
@@ -268,6 +276,11 @@ void Menu_NetFrame(void)
 						// Favourites
 						case 4:
 							Menu_Net_FavouritesInitialize();
+							break;
+
+						// News
+						case 5:
+							Menu_Net_NewsInitialize();
 							break;
 					}
 				}
@@ -326,6 +339,11 @@ void Menu_NetFrame(void)
 		case net_join:
 			Menu_Net_JoinFrame(mouse);
 			break;
+
+		// News
+		case net_news:
+			Menu_Net_NewsFrame(mouse);
+			break;
 	}
 }
 
@@ -363,6 +381,11 @@ void Menu_NetShutdown(void)
 		// Join
 		case net_join:
 			Menu_Net_JoinShutdown();
+			break;
+
+		// News
+		case net_news:
+			Menu_Net_NewsShutdown();
 			break;
 	}
 }

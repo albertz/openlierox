@@ -164,7 +164,8 @@ enum {
 	BUT_CLEAR,
 	BUT_SERVERSETTINGS,
 	BUT_FILTER,
-	BUT_ADDTOFAVOURITES
+	BUT_ADDTOFAVOURITES,
+	BUT_NEWS,
 };
 
 // Frontend info
@@ -253,6 +254,7 @@ enum {
 	net_lan,
 	net_host,
 	net_favourites,
+	net_news,
 	net_join
 };
 
@@ -485,6 +487,11 @@ void	Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 void	Menu_Net_FavouritesShowServer(const std::string& szAddress);
 void	Menu_Net_RenameServer(std::string& szName);
 void	Menu_Net_FavouritesAddServer(void);
+
+// Net::News menu
+int		Menu_Net_NewsInitialize(void);
+void	Menu_Net_NewsShutdown();
+void	Menu_Net_NewsFrame(int mouse);
 
 // deprecated
 //int	Menu_Net_JoinInitializePlayers(void);
