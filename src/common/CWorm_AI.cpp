@@ -56,9 +56,6 @@ static const unsigned short wormsize = 7;
 // WARNING: if the given point is not in the map, the returned
 // area is also not in the map (but it will handle it correctly)
 SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, CMap* pcMap, uchar checkflag) {
-	// yes I know, statics are not good style,
-	// but I will not recursivly use it and
-	// the whole game is singlethreaded
 	uint map_w = pcMap->GetWidth();
 	uint map_h = pcMap->GetHeight();
     uint grid_w = pcMap->getGridWidth();
@@ -192,6 +189,9 @@ NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 	return tmp;
 }
 
+NEW_ai_node_t* createNewAiNode(const VectorD2<int>& p) {
+	return createNewAiNode(p.x, p.y);
+}
 
 // returns true, if the given line is free or not
 // these function will either go parallel to the x-axe or parallel to the y-axe
@@ -246,19 +246,30 @@ public:
 // (we ensure in forEachChecklistItem, that it is not that bad)
 #define		BREAK_ON_FIRST	1
 
+	// this is one node in the map
 	class area_item {
 	public:
 
-		// needed for area_mset
-		class pseudoless {
+		// needed for area_set (for area search function getArea(p))
+		class area_v1__less {
 		public:
 			// this is a well-defined transitive ordering after the v1-vector of the matrix
-			inline bool operator()(const area_item* a, const area_item* b) const {
-				if(!a || !b) return false; // this isn't handled correctly, but this should never hapen
+			bool operator()(const area_item* a, const area_item* b) const {
+				if(!a || !b) return false; // this isn't handled correctly, but this should never happen
 				return a->area.v1 < b->area.v1;
 			}
 		};
 
+		// needed for area_set (for area search function getBestArea)
+		class expected_min_total_dist__less {
+		public:
+			// this is a well-defined transitive ordering after the v1-vector of the matrix
+			bool operator()(const area_item* a, const area_item* b) const {
+				if(!a || !b) return false; // this isn't handled correctly, but this should never happen
+				return a->expected_min_total_dist() < b->expected_min_total_dist();
+			}
+		};
+		
 		searchpath_base* base;
 
 		// this will save the state, if we still have to check a specific end
@@ -272,9 +283,9 @@ public:
 
 		SquareMatrix<int> area;
 		bool inUse; // indicates, that some recursive tree is using this area as a base
-		NEW_ai_node_t* bestNode; // the best way from here to the target
-		VectorD2<int> bestPosInside, bestPosOutside; // the start-pos of the best way
-
+		area_item* lastArea; // the area where we came from
+		double dist_from_source; // distance from startpoint
+		
 		void initChecklists() {
 			VectorD2<int> size = area.v2 - area.v1;
 			// ensure here, that the starts are not 0
@@ -284,10 +295,40 @@ public:
 			checklistRowStart = (size.y - (checklistRows-1)*checklistRowHeight) / 2;
 		}
 
-		inline VectorD2<int> getCenter() {
-			return (area.v1+area.v2)/2;
+		// expected minimum total distance from startpoint to destination
+		double expected_min_total_dist() const {
+			return dist_from_source + (area.getCenter() - base->target).GetLength();
 		}
 
+		double expected_min_total_dist(area_item* lastArea) const {
+			return lastArea->dist_from_source + getDistToArea(lastArea) + (area.getCenter() - base->target).GetLength();
+		}
+
+		void setLastArea(area_item* theValue) {
+			lastArea = theValue;
+			if(lastArea == NULL)
+				dist_from_source = 0;
+			else
+				dist_from_source = lastArea->dist_from_source + getDistToArea(lastArea);
+		}
+
+		VectorD2<int> getConnectorPointForArea(area_item* otherArea) const {
+			if(otherArea == NULL) return area.getCenter();
+			
+			VectorD2<int> otherCenter = otherArea->area.getCenter();
+			if(area.v1.x <= otherCenter.x && otherCenter.x <= area.v2.x)
+				return VectorD2<int>(otherCenter.x, area.getCenter().y);
+			else
+				return VectorD2<int>(area.getCenter().x, otherCenter.y);
+		}
+		
+		double getDistToArea(area_item* otherArea) const {
+			VectorD2<int> conPoint = getConnectorPointForArea(otherArea);
+			return
+				(otherArea->area.getCenter() - conPoint).GetLength() +
+				(area.getCenter() - conPoint).GetLength();
+		}
+		
 		area_item(searchpath_base* b) :
 			base(b),
 			checklistRows(0),
@@ -297,21 +338,23 @@ public:
 			checklistColStart(0),
 			checklistColWidth(5),
 			inUse(false),
-			bestNode(NULL) {}
+			lastArea(NULL),
+			dist_from_source(0) {}
 
 		// iterates over all checklist points
 		// calls given action with 2 parameters:
 		//    VectorD2<int> p, VectorD2<int> dist
-		// p is the point inside of the area, dist the change to the target
+		// p is the point inside of the area, dist the change to the target (p+dist is therefore the new position)
 		// if the returned value by the action is false, it will break
 		template<typename _action>
-		void forEachChecklistItem(_action action, VectorD2<int> start) {
-			register int i;
+		void forEachChecklistItem(_action action) {
+			int i;
 			VectorD2<int> p, dist;
-
-			typedef std::multiset< VectorD2<int>, VectorD2__absolute_less<int> > p_mset;
+			
+			// TODO: this sorting is not needed anymore here
+			typedef std::multiset< VectorD2<int>, VectorD2__absolute_less<int> > p_set;
 			// the set point here defines, where the 'best' point is (the sorting depends on it)
-			p_mset points(VectorD2__absolute_less<int>( base->target )); // + getCenter()*2 - start) / 2));
+			p_set points(VectorD2__absolute_less<int>( base->target )); // + getCenter()*2 - start) / 2));
 
 			// insert now the points to the list
 			// the list will sort itself
@@ -349,7 +392,7 @@ public:
 			}
 
 			// the list is sorted, the closest (to the target) comes first
-			for(p_mset::iterator it = points.begin(); it != points.end(); it++) {
+			for(p_set::iterator it = points.begin(); it != points.end(); it++) {
 				if(it->x == area.v1.x) { // left
 					dist.x = -checklistRowHeight; dist.y = 0;
 				} else if(it->x == area.v2.x) { // right
@@ -376,9 +419,9 @@ public:
 				bestNodeLen(-1) {}
 
 			// this will be called by forEachChecklistItem
-			// pt is the checkpoint and dist the change to the new target
+			// pt is the checkpoint and dist the change to the new target (it means we want from pt to pt+dist)
 			// it will search for the best node starting at the specific pos
-			inline bool operator() (VectorD2<int> pt, VectorD2<int> dist) {
+			bool operator() (VectorD2<int> pt, VectorD2<int> dist) {
 				bool trace = true;
 				VectorD2<int> dir, start;
 				unsigned short left, right;
@@ -405,30 +448,7 @@ public:
 
 				// is there enough space?
 				if(left+right >= wormsize) {
-					// we can start a new search from this point (targ)
-					NEW_ai_node_t* node = base->findPath(pt + dist);
-					if(node) {
-						// good, we find a new path
-						// check now, if it is better then the last found
-#if BREAK_ON_FIRST != 1
-						float node_len = get_ai_nodes_length(node);
-						if(bestNodeLen < 0 || node_len < bestNodeLen) {
-							// yes, it is better
-
-							// save the new info
-							bestNodeLen = node_len;
-#endif // BREAK_ON_FIRST
-							myArea->bestPosInside = pt;
-							myArea->bestPosOutside = pt + dist;
-							myArea->bestNode = node;
-
-#if BREAK_ON_FIRST == 1
-							// the result of this return is, that the algo will break with the first found path
-							return false;
-#else
-						} // better node check
-#endif
-					}
+					base->addAreaNode( pt + dist, myArea );
 				}
 
 				// continue the search
@@ -436,36 +456,24 @@ public:
 			}
 		}; // class check_checkpoint
 
-		NEW_ai_node_t* process(VectorD2<int> start) {
-			// search the best path
-			inUse = true;
-			forEachChecklistItem(check_checkpoint(base, this), start);
-			inUse = false;
-
-			// did we find any?
-			if(bestNode) {
-				// start at the pos inside of the area
-				bestNode = createNewAiNode((float)bestPosOutside.x, (float)bestPosOutside.y, bestNode);
-				base->nodes.insert(bestNode);
-				bestNode = createNewAiNode((float)bestPosInside.x, (float)bestPosInside.y, bestNode);
-				base->nodes.insert(bestNode);
-				return bestNode;
-			}
-
-			// nothing found
-			return NULL;
+		void process() {
+			// add all successor-nodes to areas_stack
+			forEachChecklistItem( check_checkpoint(base, this) );
 		}
 
 	}; // class area_item
 
-	typedef std::multiset< area_item*, area_item::pseudoless > area_mset;
+	typedef std::multiset< area_item*, area_item::area_v1__less > area_set;
+	typedef std::multiset< area_item*, area_item::expected_min_total_dist__less > area_stack_set;
 	typedef std::set< NEW_ai_node_t* > node_set;
 
 	// these neccessary attributes have to be set manually
 	CMap* pcMap;
-	area_mset areas;
-	node_set nodes;
+	area_set areas; // set of all created areas
+	node_set nodes; // set of all created nodes
 	VectorD2<int> start, target;
+
+	area_stack_set areas_stack; // set of areas used by the searching algorithm
 
 	searchpath_base() :
 		pcMap(NULL),
@@ -475,16 +483,13 @@ public:
 		break_thread_signal(0),
 		restart_thread_searching_signal(0) {
 		thread_mut = SDL_CreateMutex();
-		//printf("starting thread for %i ...\n", (long)this);
 		thread = SDL_CreateThread(threadSearch, this);
 	}
 
 	~searchpath_base() {
 		// thread cleaning up
-		//printf("breaking thread for %i ...\n", (long)this);
 		breakThreadSignal();
 		SDL_WaitThread(thread, NULL);
-		//printf("thread for %i finished\n", (long)this);
 		thread = NULL;
 		SDL_DestroyMutex(thread_mut);
 
@@ -503,7 +508,7 @@ private:
 	}
 
 	void clear_areas() {
-		for(area_mset::iterator it = areas.begin(); it != areas.end(); it++) {
+		for(area_set::iterator it = areas.begin(); it != areas.end(); it++) {
 			delete *it;
 		}
 		areas.clear();
@@ -519,10 +524,10 @@ private:
 	// searches for an overleading area and returns the first
 	// returns NULL, if none found
 	area_item* getArea(VectorD2<int> p) {
+		// TODO: area_v1__less is not used here
 		// (take a look at pseudoless)
-		for(area_mset::iterator it = areas.begin(); it != areas.end() && (*it)->area.v1 <= p; it++) {
-			if((*it)->area.v1.x <= p.x && (*it)->area.v1.y <= p.y
-			&& (*it)->area.v2.x >= p.x && (*it)->area.v2.y >= p.y)
+		for(area_set::iterator it = areas.begin(); it != areas.end() && (*it)->area.v1 <= p; it++) {
+			if((*it)->area.isInDefinedArea(p))
 				return *it;
 		}
 
@@ -530,7 +535,7 @@ private:
 /*		printf("getArea( %i, %i )\n", p.x, p.y);
 		printf("  don't find an underlying area\n");
 		printf("  areas = {\n");
-		for(area_mset::iterator it = areas.begin(); it != areas.end(); it++) {
+		for(area_set::iterator it = areas.begin(); it != areas.end(); it++) {
 			printf("		( %i, %i, %i, %i )%s,\n",
 				(*it)->area.v1.x, (*it)->area.v1.y,
 				(*it)->area.v2.x, (*it)->area.v2.y,
@@ -542,52 +547,95 @@ private:
 		return NULL;
 	}
 
-public:
-	// WARNING: you should never use this function directly;
-	//          it is called inside from our searcher-thread
+	area_item* getBestArea() {
+		area_stack_set::iterator it = areas_stack.lower_bound(0);
+		if(it == areas_stack.end()) return NULL;
+		return *it;
+	}
+	
+	NEW_ai_node_t* buildPath(area_item* lastArea) {		
+		NEW_ai_node_t* last_node = createNewAiNode(target);
+		nodes.insert(last_node);
+		area_item* a = lastArea;
+		
+		while(a != NULL) {
+			NEW_ai_node_t* node = createNewAiNode(a->area.getCenter());
+			node->psNext = last_node;
+			last_node->psPrev = node;
+			nodes.insert(node);			
+			last_node = node;
+			
+			node = createNewAiNode(a->getConnectorPointForArea(a->lastArea));
+			node->psNext = last_node;
+			last_node->psPrev = node;
+			nodes.insert(node);
+			last_node = node;
+			
+			a = a->lastArea;
+		}
+		
+		return last_node;
+	}
+	
 	// it searches for the path (recursive algo)
 	NEW_ai_node_t* findPath(VectorD2<int> start) {
-		// lower priority to this thread
-		SDL_Delay(1);
+		areas_stack.clear();		
+		addAreaNode(start, NULL);
+		
+		while(areas_stack.size() > 0) {
+			SDL_Delay(1); // lower priority to this thread
+			if(shouldBreakThread() || shouldRestartThread() || !pcMap->getCreated()) return NULL;
+			
+			area_item* a = getBestArea();
+			areas_stack.erase(a);
+			
+			// can we just finish with the search?
+			pcMap->lockFlags(false);
+			if(traceWormLine(target, a->area.getCenter(), pcMap)) {
+				pcMap->unlockFlags(false);
+				// yippieh!
+				return buildPath(a);
+			}
+			pcMap->unlockFlags(false);
+			
+			a->process();
+		}
+		
+		return NULL;
+	}
 
-		if(shouldBreakThread() || shouldRestartThread() || !pcMap->getCreated()) return NULL;
+	// add new area as a node to path
+	// start is location (so an area surrounding start is searched)
+	void addAreaNode(VectorD2<int> start, area_item* lastArea) {
 
 		// is the start inside of the map?
 		if(start.x < 0 || (uint)start.x >= pcMap->GetWidth()
 		|| start.y < 0 || (uint)start.y >= pcMap->GetHeight())
-			return NULL;
-
-		// can we just finish with the search?
-		pcMap->lockFlags(false);
-		if(traceWormLine(target, start, pcMap)) {
-			pcMap->unlockFlags(false);
-			// yippieh!
-			NEW_ai_node_t* ret = createNewAiNode((float)target.x, (float)target.y);
-			nodes.insert(ret);
-			return ret;
-		}
-		pcMap->unlockFlags(false);
+			return;
 
 		// look around for an existing area here
 		area_item* a = getArea(start);
 		if(a) { // we found an area which includes this point
-			// are we started somewhere from here?
-			if(a->inUse)
-				return NULL;
-
-			// we have already found out the best path from here
-			return a->bestNode;
+			if(a->expected_min_total_dist() > a->expected_min_total_dist(lastArea)) {
+				areas_stack.erase(a);
+				a->setLastArea(lastArea);
+				areas_stack.insert(a);
+			}
+			return;
 		}
 
 		// get the max area (rectangle) around us
 		pcMap->lockFlags(false);
 		SquareMatrix<int> area = getMaxFreeArea(start, pcMap, PX_ROCK);
 		pcMap->unlockFlags(false);
+		// add only if area is big enough
 		if(area.v2.x-area.v1.x >= wormsize && area.v2.y-area.v1.y >= wormsize) {
 			a = new area_item(this);
 			a->area = area;
 			a->initChecklists();
+			a->setLastArea(lastArea);
 			areas.insert(a);
+			areas_stack.insert(a);
 #ifdef _AI_DEBUG
 /*			printf("findPath( %i, %i )\n", start.x, start.y);
 			printf("   new area:\n");
@@ -598,13 +646,10 @@ public:
 			FlipScreen(Screen); */
 #endif
 			// and search
-			return a->process(start);
 		}
-
-		// the max area around us is to small
-		return NULL;
 	}
 
+public:	
 	// this function will start the search, if it was not started right now
 	// WARNING: the searcher-thread will clear all current saved nodes
 	void startThreadSearch() {

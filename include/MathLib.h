@@ -76,34 +76,44 @@ public:
 		return m;	
 	}
 	
-	inline CVec operator()(const VectorD2<_T> v) const {
+	CVec operator()(const VectorD2<_T>& v) const {
 		return CVec(v.x*v1.x + v.y*v2.x, v.x*v1.y + v.y*v2.y);
 	}
-	inline SquareMatrix operator*(const SquareMatrix m) const {
+	SquareMatrix operator*(const SquareMatrix& m) const {
 		return SquareMatrix((*this)(m.v1), (*this)(m.v2));
 	}
-	inline SquareMatrix operator*(const float m) const {
+	SquareMatrix operator*(const float m) const {
 		return SquareMatrix(v1*m, v2*m);
 	}
-	inline SquareMatrix operator*(const int m) const {
+	SquareMatrix operator*(const int m) const {
 		return SquareMatrix(v1*m, v2*m);
 	}
-	inline SquareMatrix operator/(const float m) const {
+	SquareMatrix operator/(const float m) const {
 		return SquareMatrix(v1/m, v2/m);
 	}
-	inline SquareMatrix operator/(const int m) const {
+	SquareMatrix operator/(const int m) const {
 		return SquareMatrix(v1/m, v2/m);
 	}
-	inline _T det() {
+	_T det() const {
 		return v1.x*v2.y - v1.y*v2.x;
 	}
-	inline SquareMatrix inverse() {
+	SquareMatrix inverse() const {
 		_T tdet = det();
 		if(tdet == 0)
 			return SquareMatrix();
 		else
 			return SquareMatrix(VectorD2<_T>(v2.y,-v1.y),VectorD2<_T>(-v2.x,v1.x))/tdet;
 	}
+	
+	// v1 is the upper-left, v2 the right-bottom
+	bool isInDefinedArea(const VectorD2<_T>& p) const {
+		return v1.x <= p.x && p.x <= v2.x && v1.y <= p.y && p.y <= v2.y;
+	}
+	
+	VectorD2<_T> getCenter() const {
+		return (v1 + v2) / 2;
+	}
+	
 };
 
 

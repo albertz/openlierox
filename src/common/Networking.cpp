@@ -461,7 +461,7 @@ int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 	// Error checking
 	if (ret == NL_INVALID)  {
 		if (nlGetError() == NL_SYSTEM_ERROR)
-			printf("ReadSocket: " + std::string(nlGetSystemErrorStr(nlGetSystemError())) + "\n");
+			printf("ReadSocket: SYSTEM: " + std::string(nlGetSystemErrorStr(nlGetSystemError())) + "\n");
 		else
 			printf("ReadSocket: " + std::string(nlGetErrorStr(nlGetError())) + "\n");
 
