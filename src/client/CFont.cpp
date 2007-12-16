@@ -325,8 +325,8 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 			clip_h = bottom - y;
 
 		short bpp = bmpFont->format->BytesPerPixel;
-		register Uint8 *src = (Uint8 *) bmpFont->pixels + a * bpp;
-		register Uint8 *px;
+		Uint8 *src = (Uint8 *) bmpFont->pixels + a * bpp;
+		Uint8 *px;
 
 		// Outline font
 		if (OutlineFont) {
