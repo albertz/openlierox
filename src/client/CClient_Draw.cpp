@@ -2145,8 +2145,8 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 
     int y = tInterfaceSettings.CurrentSettingsY;
     int x = tInterfaceSettings.CurrentSettingsX;
-	int w = 240;
-	int h = 132;
+//	int w = 240; // TODO: not used
+//	int h = 132;
 	if (cViewports[1].getUsed())  {
 		x = tInterfaceSettings.CurrentSettingsTwoPlayersX;
 		y = tInterfaceSettings.CurrentSettingsTwoPlayersY;

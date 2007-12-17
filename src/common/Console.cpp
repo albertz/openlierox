@@ -180,13 +180,13 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 	}
 
 	// Home
-	if(input.ch == SDLK_HOME)  {
+	if(input.sym == SDLK_HOME)  {
 		Console->iCurpos = 0;
 		return;
 	}
 
 	// End
-	if(input.ch == SDLK_END)  {
+	if(input.sym == SDLK_END)  {
 		Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
 		return;
 	}

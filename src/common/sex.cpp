@@ -1,7 +1,5 @@
 /*sex.cpp*/
 
-// TODO: let it use std::string
-
 /* Original author unknown.  Presumably this is public domain by now.
  * If you are the original author or know the original author, please
  * contact <freebsd@spatula.net>
@@ -246,38 +244,28 @@ TABLE   list[] = {
         {(char **)NULL,  (short)NULL},
 };
 
-static short    lwidth;
-
-const char* sex__cstring(short wraplen) {
-	static char sextmp[2048];
-   register TABLE  *ttp;
-   register char   *cp;
-   char* buffer = sextmp;
-   int pos, lastword;
-	lwidth = 0;
+std::string sex(short wraplen) {
+	TABLE  *ttp;
+	char *cp;
+	std::string buffer;
+	int pos = 0, lastword = 0;
+	short lwidth = 0;
 	
-   pos = lastword = 0;
-   for (ttp = list;ttp->item;++ttp,++lwidth) {
-      for (cp = ttp->len > 1 ? ttp->item[GetRandomInt(ttp->len-1)] :
-           *ttp->item;*cp;++cp,++lwidth) {
-	buffer[pos] = *cp;
-	if ((wraplen > 0) && (lwidth >= wraplen)) {
-	    buffer[lastword] = '\n';
-	    lwidth = pos - lastword;
-	}
-	if (isspace(*cp)) {
-	    lastword = pos;
-	} 
-	pos++;
+	for (ttp = list;ttp->item;++ttp,++lwidth) {
+       for (cp = ttp->len > 1 ? ttp->item[GetRandomInt(ttp->len-1)] : *ttp->item; *cp; ++cp,++lwidth) {
+			buffer += *cp;
+			if ((wraplen > 0) && (lwidth >= wraplen)) {
+				buffer[lastword] = '\n';
+				lwidth = pos - lastword;
+			}
+			if (isspace(*cp)) {
+				lastword = pos;
+			} 
+			pos++;
       }
-      buffer[pos] = ' ';
+      buffer += ' ';
       lastword = pos++;
    }
-   buffer[pos] = '\0';
 
    return buffer;
-}
-
-std::string sex(short wraplen) {
-	return sex__cstring(wraplen);
 }
