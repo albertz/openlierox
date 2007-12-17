@@ -651,6 +651,8 @@ SDL_mutex * SdlNetEventMutex = NULL;
 bool SdlNetEventThreadExit = false;
 SDL_Thread * SdlNetEventThread = NULL;
 NLint SdlNetEventGroup = 0;
+
+// TODO: remove this hack
 NetworkSocket SdlNetEventThreadUnblockDummySocketIn;
 NetworkSocket SdlNetEventThreadUnblockDummySocketOut;
 
@@ -696,7 +698,6 @@ void SdlNetEvent_Init()
 		return;
 	SdlNetEvent_Inited = true;
 	SdlNetEventMutex = SDL_CreateMutex();
-	SdlNetEventThread = SDL_CreateThread( &SdlNetEventThreadMain, NULL );
 	SdlNetEventGroup = nlGroupCreate();
 	SdlNetEventThreadUnblockDummySocketIn = OpenUnreliableSocket(0);
 	SdlNetEventThreadUnblockDummySocketOut = OpenUnreliableSocket(0);
@@ -706,6 +707,8 @@ void SdlNetEvent_Init()
 	SetRemoteNetAddr( SdlNetEventThreadUnblockDummySocketOut, &localAddr );
 	nlGroupAddSocket( SdlNetEventGroup, *NetworkSocketData(&SdlNetEventThreadUnblockDummySocketIn) );
 	// If we send something into SdlNetEventThreadUnlockDummySocketOut the thread will unblock
+
+	SdlNetEventThread = SDL_CreateThread( &SdlNetEventThreadMain, NULL );
 };
 
 void	SendSdlEventWhenDataAvailable( NetworkSocket sock )
@@ -735,6 +738,7 @@ void	StopSendSdlEventWhenDataAvailable( NetworkSocket sock )
 	SDL_UnlockMutex( SdlNetEventMutex );
 };
 
+// TODO: remove this hack
 class t_SdlNetEventMutexDelete
 {
 	public:
