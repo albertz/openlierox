@@ -1,18 +1,18 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=169
+UnitCount=176
 Type=1
 Ver=1
 ObjFiles=
-Includes=../../hawknl/include;../../include
+Includes=../../hawknl/include;../../include;C:\Dev-Cpp\include\SDL
 Libs=
 PrivateResource=OpenLieroX_private.rc
 ResourceIncludes=
 MakeIncludes=
 Compiler=_@@_
 CppCompiler=-WITH_MEDIAPLAYER_@@_
-Linker=-lmingw32_@@_-lSDLmain_@@_-lSDL_@@_-mwindows_@@_-lSDL_mixer_@@_-lSDL_image_@@_-lz_@@_libs/bgd.lib_@@_libs/libxml2.lib_@@_libs/hawknl.lib_@@_
+Linker=-lmingw32_@@_-lSDLmain_@@_-lSDL_@@_-mwindows_@@_-lSDL_mixer_@@_-lSDL_image_@@_-lz_@@_-lws2_32_@@_libs/bgd.lib_@@_libs/libxml2.lib_@@_libs/hawknl.lib_@@_
 IsCpp=1
 Icon=OpenLieroX.ico
 ExeOutput=..\..\distrib\win32\
@@ -1718,9 +1718,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit171]
-FileName=..\..\hawknl\src\ipx.h
+FileName=..\..\include\CGuiSkinnedLayout.h
 CompileCpp=1
-Folder=HawkNL
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
@@ -1728,9 +1728,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit172]
-FileName=..\..\hawknl\src\loopback.c
+FileName=..\..\src\client\Clipboard.cpp
 CompileCpp=1
-Folder=HawkNL
+Folder=System files
 Compile=1
 Link=1
 Priority=1000
@@ -1738,9 +1738,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit173]
-FileName=..\..\hawknl\src\loopback.h
+FileName=..\..\src\client\CGuiSkinnedLayout.cpp
 CompileCpp=1
-Folder=HawkNL
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
@@ -1748,9 +1748,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit174]
-FileName=..\..\hawknl\src\mutex.c
+FileName=..\..\include\Clipboard.h
 CompileCpp=1
-Folder=HawkNL
+Folder=System files
 Compile=1
 Link=1
 Priority=1000
@@ -1758,9 +1758,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit175]
-FileName=..\..\hawknl\src\nl.c
+FileName=..\..\include\CGuiSkin.h
 CompileCpp=1
-Folder=HawkNL
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
@@ -1768,9 +1768,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit176]
-FileName=..\..\hawknl\src\nlinternal.h
+FileName=..\..\src\client\CGuiSkin.cpp
 CompileCpp=1
-Folder=HawkNL
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
@@ -1788,9 +1788,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit170]
-FileName=..\..\hawknl\src\ipx.c
+FileName=..\..\include\RemoteHost.h
 CompileCpp=1
-Folder=HawkNL
+Folder=Server
 Compile=1
 Link=1
 Priority=1000
