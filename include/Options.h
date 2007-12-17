@@ -197,6 +197,7 @@ public:
 	int		iJpegQuality;
 	bool	bCountTeamkills;
 	bool	bServerSideHealth;
+	bool	bSendDirtUpdate;
 
 	// Misc.
 	int     iLogConvos;

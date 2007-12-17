@@ -3129,3 +3129,50 @@ bool CMap::LoadCTF(const std::string& filename)
 
 	return true;
 }
+
+// TODO: implement sending several smaller packets
+bool CMap::SendDirtUpdate(CBytestream *bs)
+{
+	lockFlags();
+	for( uint y = 0; y < Height; y++ )
+	for( uint x = 0; x < Width; x++ )
+	{
+		bs->writeBit( PixelFlags[ y*Width + x ] & PX_DIRT );
+	};
+	unlockFlags();
+	return true;
+};
+
+bool CMap::RecvDirtUpdate(CBytestream *bs)
+{
+	lockFlags();
+	if(SDL_MUSTLOCK(bmpImage))
+		SDL_LockSurface(bmpImage);
+	byte bpp = bmpImage->format->BytesPerPixel;
+	for( uint y = 0; y < Height; y++ )
+	for( uint x = 0; x < Width; x++ )
+	{
+		bool dirt = bs->readBit();
+		uchar * flag = & PixelFlags[ y*Width + x ];
+		if( bool( (*flag) & PX_DIRT ) != dirt )
+		{
+			if( dirt )
+			{
+				*flag &= ~ PX_EMPTY;	// Clear empty bit
+				*flag |= PX_DIRT;		// Set dirt bit
+				Uint8 * p2 = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch + x * bmpImage->format->BytesPerPixel;
+				PutPixelToAddr(p2, MakeColour(116,100,0), bpp);	// Green dirt color
+			}
+			else
+			{
+				*flag &= ~ PX_DIRT;		// Clear dirt bit
+				*flag |= PX_EMPTY;		// Set empty bit
+			};
+		};
+	};
+	if(SDL_MUSTLOCK(bmpImage))
+		SDL_UnlockSurface(bmpImage);
+	unlockFlags();
+	UpdateArea(0, 0, Width-1, Height-1, true);
+	return true;
+};

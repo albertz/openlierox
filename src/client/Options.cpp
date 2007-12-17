@@ -90,6 +90,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", true )
+		( tLXOptions->bSendDirtUpdate, "Advanced.SendDirtUpdate", false )
 
 		( tLXOptions->iLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->iShowPing, "Misc.ShowPing", true )

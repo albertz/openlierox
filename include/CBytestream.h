@@ -30,6 +30,7 @@ class CBytestream {
 public:
 	CBytestream()  {
 		pos = 0;
+		bitPos = 0;
 		Data = "";
 	}
 
@@ -42,6 +43,7 @@ public:
 private:
 	// Attributes
 	size_t pos;
+	size_t bitPos;
 	std::string Data;
 
 public:
@@ -52,7 +54,7 @@ public:
 
 
 	// Generic data
-	void		ResetPosToBegin()	{ pos = 0; }
+	void		ResetPosToBegin()	{ pos = 0; bitPos = 0; }
 	size_t		GetLength()			{ return Data.size(); }
 	size_t		GetPos() 			{ return pos; }
 	size_t		GetRestLen()		{ return Data.size() - pos; }
@@ -71,6 +73,8 @@ public:
 	bool		writeString(const std::string& value);
 	bool		write2Int12(short x, short y);
 	bool		write2Int4(short x, short y);
+	bool		writeBit(bool bit);
+	bool		writeData(const std::string& value);	// Do not append '\0' at the end
 	
 	// Reads
 	uchar		readByte(void);
@@ -82,6 +86,8 @@ public:
 	std::string readString(size_t maxlen);
 	void		read2Int12(short& x, short& y);
 	void		read2Int4(short& x, short& y);
+	bool		readBit();
+	std::string	readData( uint size = (uint)(-1) );
 
 	// Skips
 	// Folowing functions return true if we're at the end of stream after the skip

@@ -28,6 +28,7 @@
 #include <SDL_mutex.h>
 #include "HTTP.h"
 #include "types.h"
+#include "CBytestream.h"
 
 
 // File download states
@@ -136,6 +137,38 @@ public:
 	bool						ShouldBreakThread();
 	void						Lock()		{ SDL_LockMutex(tMutex); }
 	void						Unlock()	{ SDL_UnlockMutex(tMutex); }
+};
+
+// In-lobby or in-game file downloader over unreliable protocol - send packets of 256 bytes
+class CFileDownloaderInGame  {
+public:
+	CFileDownloaderInGame() { tState = FINISHED; iPos = 0; };
+	~CFileDownloaderInGame() { };
+
+	enum state_t 	{ SEND, RECEIVE, FINISHED, ERROR };
+
+private:
+	std::string		sFilename;
+	std::string		sData;
+	uint			iPos;
+
+	state_t			tState;
+	
+public:
+
+	const std::string & getFilename() { return sFilename; };
+	const std::string & getData() { return sData; };
+
+	bool		receive( CBytestream * bs );
+	bool		send( CBytestream * bs );
+
+	bool		errorOccured() { return (tState == ERROR); };
+	state_t		getState() { return tState; };
+
+	void		setFileToSend( const std::string & name, const std::string & data );
+	void		setFileToSend( const std::string & path );
+
+	void		reset() { iPos = 0; tState = FINISHED; sFilename = ""; sData = ""; };
 };
 
 

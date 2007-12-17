@@ -117,6 +117,7 @@ void CClient::Clear(void)
 
 	bHostOLXb4 = false;
 	bHostAllowsMouse = false;
+	bClientSupportsDirtUpdate = false;
 
 	bDownloadingMap = false;
 	cFileDownloader = NULL;
@@ -125,6 +126,7 @@ void CClient::Clear(void)
 	sMapDlError = "";
 	iMapDlProgress = 0;
 	bConnectingDuringGame = false;
+	fLastDirtUpdate = tLX->fCurTime;
 }
 
 
@@ -178,6 +180,7 @@ void CClient::MinorClear(void)
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
 	}
+	fLastDirtUpdate = tLX->fCurTime;
 }
 
 
@@ -606,6 +609,7 @@ void CClient::Connecting(void)
 	CBytestream bs;
 	bs.writeInt(-1,4);
 	bs.writeString("lx::getchallenge");
+	bs.writeString(LX_VERSION);
 	
 	SetRemoteNetAddr(tSocket,&addr);
 	bs.Send(tSocket);
@@ -1053,3 +1057,14 @@ void CClient::Shutdown(void)
 		fclose(f);
 	}
 }
+
+void CClient::setClientVersion(const std::string & _s)			
+{ 
+	printf("CClient::setClientVersion(): %s\n", _s.c_str() );
+	sClientVersion = _s;
+	bHostOLXb4 = true;
+	if( sClientVersion.find("_r") != std::string::npos )
+		bClientSupportsDirtUpdate = 
+			atoi( sClientVersion.substr( sClientVersion.find("_r") + 2 ) ) >= 1169;	// SVN revision where dirt packets implemented
+}
+

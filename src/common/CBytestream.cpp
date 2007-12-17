@@ -143,12 +143,56 @@ void CBytestream::Test()
 		std::cout << "NOT SAME!";
 	std::cout <<std::endl;
 	Clear();
+	
+	// Bits
+	writeBit(1); 
+	writeBit(1); 
+	writeBit(0); 
+	writeBit(1);
+	writeBit(1);
+	writeBit(1);
+	writeBit(0);
+	writeBit(0);
+	writeBit(0);
+	writeBit(1);
+	std::cout << "Bits: (" << (unsigned)Data[0] << ", " << (unsigned)Data[1] << ") ";
+	ResetPosToBegin();
+	if(	
+		readBit() != 1 ||
+		readBit() != 1 ||
+		readBit() != 0 ||
+		readBit() != 1 ||
+		readBit() != 1 ||
+		readBit() != 1 ||
+		readBit() != 0 ||
+		readBit() != 0 ||
+		readBit() != 0 ||
+		readBit() != 1
+		)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
+	std::string str1( "Lala\0_1\0!2345", 12 );
+	std::cout << "Data: " << str1.size() << " ";
+	writeData(str1);
+	//ResetPosToBegin();
+	readByte();
+	if( readData(1) != "a" )
+		std::cout << "NOT SAME!";
+	str2 = readData();
+	if( str2.size() <= 4 || str2[5] != 0 )
+		std::cout << "\"" << str2 << "\" size " << str2.size() << " NOT SAME!";
+	std::cout <<std::endl;
+	Clear();
+
 
 }
 
 void CBytestream::Clear() {
 	Data = "";
 	pos = 0;
+	bitPos = 0;
 }
 
 
@@ -278,6 +322,25 @@ bool CBytestream::write2Int4(short x, short y) {
 }
 
 
+bool CBytestream::writeBit(bool bit)
+{
+	if( bitPos == 0 )
+		writeByte( 0 );
+	uchar byte = Data[ Data.size() - 1 ];
+	byte = byte | ( ( bit ? 1 : 0 ) << bitPos );
+	Data[ Data.size() - 1 ] = byte;
+	bitPos ++;
+	if( bitPos >= 8 )
+		bitPos = 0;
+	return true;
+}
+
+bool CBytestream::writeData(const std::string& value)
+{
+	Data.append( value );
+	return true;
+};
+
 
 
 // Reads
@@ -398,6 +461,32 @@ void CBytestream::read2Int4(short& x, short& y) {
 	y = (short)((tmp & 0xf0) >> 4);
 }
 
+
+bool CBytestream::readBit()
+{
+	if( isPosAtEnd() )
+	{
+		printf("WARNING: reading from stream behind end\n");
+		return false;
+	}
+	bool ret = Data[pos] & ( 1 << bitPos );
+	bitPos ++;
+	if( bitPos >= 8 )
+	{
+		bitPos = 0;
+		pos ++;
+	};
+	return ret;
+};
+
+std::string CBytestream::readData( uint size )
+{
+	size = MIN( size, GetLength() - pos );
+	uint oldpos = pos;
+	pos += size;
+	return Data.substr( oldpos, size );
+};
+
 // Skips a string, including the terminating character
 // Returns true if we're at the end of the stream after the skip
 bool CBytestream::SkipString() {
@@ -443,3 +532,4 @@ size_t CBytestream::Read(NetworkSocket sock) {
 bool CBytestream::Send(NetworkSocket sock) {
 	return (size_t)WriteSocket(sock, Data.data(), Data.size()) == Data.size();
 }
+

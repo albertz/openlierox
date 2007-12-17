@@ -203,6 +203,8 @@ bool GameServer::SendUpdate()
 				}
 			}
 
+			SendDirtUpdate( cl );
+
 			{
 				// TODO: what is this good for?
 				// Add the length of the client's unreliable packet to the frame's message size
@@ -394,3 +396,25 @@ void GameServer::SendRandomPacket()
 	printf("A random packet has been sent to all clients\n");
 }
 #endif
+
+void GameServer::SendDirtUpdate( CClient * cl )
+{
+	if( ! tLXOptions->bSendDirtUpdate )
+		return;
+	if( ! cl->getClientSupportsDirtUpdate() )
+		return;
+	if( cl->getLastDirtUpdate() + 10 < tLX->fCurTime )
+	{
+		CBytestream bs;
+		cMap->SendDirtUpdate(&bs);
+		cl->getFileDownloaderInGame()->setFileToSend( "dirt", bs.readData() );
+	};
+	
+	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::SEND )
+		return;
+	CBytestream bs;
+	bs.writeByte( S2C_SENDFILE );
+	cl->getFileDownloaderInGame()->send( &bs );
+	SendPacket( &bs, cl );
+	cl->setLastDirtUpdate( tLX->fCurTime );
+}

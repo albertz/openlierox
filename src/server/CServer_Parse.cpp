@@ -107,6 +107,10 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			ParseGrabBonus(cl, bs);
 			break;
 
+		case C2S_SENDFILE:
+			ParseSendFile(cl, bs);
+			break;
+
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
 			// which leads to warnings here - we simply parse it here and avoid warnings
@@ -843,7 +847,20 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
 	}
 }
 
-
+void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
+{
+	if( cl->getFileDownloaderInGame()->receive(bs) )
+	{
+		if( cl->getFileDownloaderInGame()->errorOccured() )
+		{
+			cl->getFileDownloaderInGame()->reset();
+			return;
+		};
+		// Add here handlers for file downloading / saving
+		// The only thing server needs from client is the worm skin file
+		cl->getFileDownloaderInGame()->reset();
+	};
+};
 
 
 
@@ -864,7 +881,7 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& i
 	cmd = bs->readString(128);
 
 	if (cmd == "lx::getchallenge")
-		ParseGetChallenge();
+		ParseGetChallenge(bs);
 	else if (cmd == "lx::connect")
 		ParseConnect(bs);
 	else if (cmd == "lx::ping")
@@ -884,7 +901,7 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& i
 
 ///////////////////
 // Handle a "getchallenge" msg
-void GameServer::ParseGetChallenge(void) {
+void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	int			i;
 	NetworkAddr	adrFrom;
 	float		OldestTime = 99999;
@@ -922,12 +939,17 @@ void GameServer::ParseGetChallenge(void) {
 		}
 	}
 
+	std::string client_version;
+	if( ! bs_in->isPosAtEnd() )
+		client_version = bs_in->readString(128);
+	
 	if (ChallengeToSet >= 0) {
 
 		// overwrite the oldest
 		tChallenges[ChallengeToSet].iNum = (rand() << 16) ^ rand();
 		tChallenges[ChallengeToSet].Address = adrFrom;
 		tChallenges[ChallengeToSet].fTime = tLX->fCurTime;
+		tChallenges[ChallengeToSet].sClientVersion = client_version;
 
 		i = ChallengeToSet;
 	}
@@ -939,6 +961,8 @@ void GameServer::ParseGetChallenge(void) {
 	bs.writeInt(-1, 4);
 	bs.writeString("lx::challenge");
 	bs.writeInt(tChallenges[i].iNum, 4);
+	if( client_version != "" )
+		bs.writeString(LX_VERSION);
 	bs.Send(tSocket);
 }
 
@@ -1061,6 +1085,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bytestr.Send(tSocket);
 		return;
 	}
+	
+	const std::string & ClientVersion = tChallenges[i].sClientVersion;
 
 	// Check if this ip isn't already connected
 	/*cl = cClients;
@@ -1180,6 +1206,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// Set the worm info
 		newcl->setNumWorms(numworms);
 		//newcl->SetupWorms(numworms, worms);
+
+		newcl->setClientVersion( ClientVersion );
 
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];

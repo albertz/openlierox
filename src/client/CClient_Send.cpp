@@ -139,3 +139,4 @@ void CClient::SendRandomPacket()
 		bs->writeByte((uchar)GetRandomInt(255));
 }
 #endif
+

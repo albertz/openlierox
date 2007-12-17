@@ -24,6 +24,7 @@
 #include "CClient.h"
 #include "CBytestream.h"
 #include "HTTP.h"
+#include "FileDownload.h"
 
 #define		MAX_CHALLENGES		1024
 
@@ -33,6 +34,7 @@ class challenge_t { public:
 	NetworkAddr	Address;
 	float		fTime;
 	int			iNum;
+	std::string	sClientVersion;
 };
 
 // Server state
@@ -138,6 +140,7 @@ private:
 	std::list<std::string>::iterator	tCurrentMasterServer;
 	std::list<std::string>				tMasterServers;
 	bool		bDedicated;
+
 	
 public:
 	// Methods
@@ -215,6 +218,7 @@ public:
 #ifdef DEBUG
 	void		SendRandomPacket();
 #endif
+	void		SendDirtUpdate( CClient * cl );
 
 	// Parsing
 	void		ParseClientPacket(CClient *cl, CBytestream *bs);
@@ -227,9 +231,10 @@ public:
 	void		ParseDisconnect(CClient *cl);
 	void		ParseWeaponList(CClient *cl, CBytestream *bs);
 	void		ParseGrabBonus(CClient *cl, CBytestream *bs);
+	void		ParseSendFile(CClient *cl, CBytestream *bs);
 
 	void		ParseConnectionlessPacket(CBytestream *bs, const std::string& ip);
-	void		ParseGetChallenge(void);
+	void		ParseGetChallenge(CBytestream *bs);
 	void		ParseConnect(CBytestream *bs);
 	void		ParsePing(void);
 	void		ParseQuery(CBytestream *bs, const std::string& ip);

@@ -33,6 +33,7 @@
 #include "CGuiLayout.h"
 #include "CListview.h"
 #include "InputEvents.h"
+#include "FileDownload.h"
 
 
 #define		MAX_CLIENTS		32
@@ -245,6 +246,8 @@ public:
 		bHostOLXb3 = false;
 		bHostOLXb4 = false;
 		bHostAllowsMouse = false;
+		bClientSupportsDirtUpdate = false;
+		fLastDirtUpdate = tLX->fCurTime;
 
 		bDownloadingMap = false;
 		cFileDownloader = NULL;
@@ -396,6 +399,9 @@ private:
 	bool		bHostOLXb3;
 	bool		bHostOLXb4;
 	bool		bHostAllowsMouse;
+	std::string	sClientVersion;
+	std::string	sServerVersion;
+	bool		bClientSupportsDirtUpdate;
 
 	// Map downloading
 	bool		bDownloadingMap;
@@ -429,7 +435,9 @@ private:
     bool		bInServer;
 	std::string	cIConnectedBuf;
 	bool		bConnectingDuringGame;
-
+	
+	CFileDownloaderInGame	cFileDownloaderInGame;
+	float		fLastDirtUpdate;
 
 public:
 	// Methods
@@ -561,6 +569,7 @@ public:
 	void		ParseDestroyBonus(CBytestream *bs);
 	void		ParseGotoLobby(CBytestream *bs);
     void        ParseDropped(CBytestream *bs);
+    void        ParseSendFile(CBytestream *bs);
 
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);
@@ -637,6 +646,11 @@ public:
 	bool getHostBeta3(void)				{ return bHostOLXb3; }
 	bool getHostBeta4(void)				{ return bHostOLXb4; }
 	void setHostBeta4(bool _b)			{ bHostOLXb4 = _b; }
+	const std::string & getClientVersion()				{ return sClientVersion; }
+	void setClientVersion(const std::string & _s);
+	const std::string & getServerVersion()				{ return sServerVersion; }
+	void setServerVersion(const std::string & _s)			{ sServerVersion = _s; }
+	bool getClientSupportsDirtUpdate()	{ return bClientSupportsDirtUpdate; }
 
 	bool getHostAllowsMouse(void)				{ return bHostAllowsMouse; }
 	void setHostAllowsMouse(bool _b)			{ bHostAllowsMouse = _b; }
@@ -650,6 +664,10 @@ public:
 	
 	bool		getConnectingDuringGame()		{ return bConnectingDuringGame; };
 	void		setConnectingDuringGame(bool b)	{ bConnectingDuringGame = b; };
+
+	CFileDownloaderInGame * getFileDownloaderInGame() { return &cFileDownloaderInGame; };
+	float		getLastDirtUpdate()				{ return fLastDirtUpdate; };
+	void		setLastDirtUpdate( float _f )	{ fLastDirtUpdate = _f; };
 
 };
 

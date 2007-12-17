@@ -83,6 +83,8 @@ void CClient::ParseChallenge(CBytestream *bs)
 	CBytestream bytestr;
 	bytestr.Clear();
 	iChallenge = bs->readInt(4);
+	if( ! bs->isPosAtEnd() )
+		setServerVersion( bs->readString(128) );
 
 
 	// Tell the server we are connecting, and give the server our details
@@ -304,6 +306,10 @@ void CClient::ParsePacket(CBytestream *bs)
             // I have been dropped
             case S2C_DROPPED:
                 ParseDropped(bs);
+                break;
+
+            case S2C_SENDFILE:
+                ParseSendFile(bs);
                 break;
 
 			default:
@@ -1501,3 +1507,31 @@ void CClient::ParseDropped(CBytestream *bs)
 	}
 	SendSdlEventWhenDataAvailable( tSocket );	// For updating lobby screen
 }
+
+// Server sent us some file
+void CClient::ParseSendFile(CBytestream *bs)
+{
+	if( cFileDownloaderInGame.receive(bs) )
+	{
+		if( cFileDownloaderInGame.errorOccured() )
+		{
+			cFileDownloaderInGame.reset();
+			return;
+		};
+		if( tGameInfo.iGameType != GME_JOIN )
+		{
+			cFileDownloaderInGame.reset();
+			return;
+		};
+		if( cFileDownloaderInGame.getFilename() == "dirt" )	// Parse a dirt mask packet
+		{
+			CBytestream bs1;
+			bs1.writeData( cFileDownloaderInGame.getData() );
+			cMap->RecvDirtUpdate( &bs1 );
+		};
+		// Add here handlers for file downloading / saving
+		// Client can request maps and mod dirs from server
+		// If download fails retrying should be implemented here
+		cFileDownloaderInGame.reset();
+	};
+};

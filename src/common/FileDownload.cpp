@@ -451,3 +451,95 @@ bool CFileDownloader::ShouldBreakThread()
 }
 
 
+
+void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::string & data )
+{
+	tState = SEND;
+	iPos = 0;
+	sFilename = name;
+	Compress( sFilename + '\0' + data, &sData );
+	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
+};
+
+void CFileDownloaderInGame::setFileToSend( const std::string & path )
+{
+	tState = SEND;
+	iPos = 0;
+	sFilename = path;
+
+	FILE * ff = OpenGameFile( sFilename , "r" );
+	if( ff == NULL )
+	{
+		tState = ERROR;
+		return;
+	};
+	char buf[16384];
+	std::string data = "";
+	
+	while( ! feof( ff ) )
+	{
+		int readed = fread( buf, 1, sizeof(buf), ff );
+		data.append( buf, readed );
+	};
+	fclose( ff );
+
+	Compress( sFilename + '\0' + data, &sData );
+};
+
+bool CFileDownloaderInGame::receive( CBytestream * bs )
+{
+	if( tState == FINISHED )
+	{
+		tState = RECEIVE;
+		iPos = 0;
+		sFilename = "";
+		sData = "";
+	};
+	if( tState != RECEIVE )
+	{
+		tState = ERROR;
+		return true;	// Receive finished (due to error)
+	};
+	uint chunkSize = bs->readByte();
+	if( chunkSize == 0 )
+	{
+		tState = ERROR;
+		if( Decompress( sData, &sFilename ) )
+		{
+			tState = FINISHED;
+			std::string::size_type f = sFilename.find('\0');
+			if( f == std::string::npos )
+				tState = ERROR;
+			else
+			{
+				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
+				sFilename.resize( f );
+				printf("CFileDownloaderInGame::receive() filename %s sData.size() %i\n", sFilename.c_str(), sData.size());
+			};
+		};
+		return true;	// Receive finished
+	};
+	sData.append( bs->readData(chunkSize) );
+	return false;
+};
+
+bool CFileDownloaderInGame::send( CBytestream * bs )
+{
+	if( tState != SEND )
+	{
+		tState = ERROR;
+		return true;	// Send finished (due to error)
+	};
+	uint chunkSize = MIN( sData.size() - iPos, 255 );
+	bs->writeByte( chunkSize );
+	if( chunkSize == 0 )
+	{
+		tState = FINISHED;
+		return true;	// Send finished
+	};
+	bs->writeData( sData.substr( iPos, chunkSize ) );
+	iPos += chunkSize;
+	return false;
+};
+
+

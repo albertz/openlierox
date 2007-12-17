@@ -240,6 +240,9 @@ public:
     void        PutImagePixel(uint x, uint y, Uint32 colour);
 
 	void		Send(CBytestream *bs);
+	
+	bool		SendDirtUpdate(CBytestream *bs);
+	bool		RecvDirtUpdate(CBytestream *bs);
 
 	void		Draw(SDL_Surface *bmpDest, CViewport *view);
 	void        DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);

@@ -21,6 +21,7 @@
 // HTML parsing library for StripHtmlTags()
 #include <libxml/xmlmemory.h>
 #include <libxml/HTMLparser.h>
+#include <zlib.h>
 
 void StripQuotes(std::string& str)
 {
@@ -537,3 +538,74 @@ std::string GetNextWord(std::string::const_iterator it, const std::string& str)
 
 	return res;
 }
+
+bool Compress( const std::string & in, std::string * out )
+{
+	out->clear();
+	z_stream strm;
+	int ret;
+	/* allocate deflate state */
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	int compression = Z_BEST_COMPRESSION;
+	if( in.size() > 4 )
+		if( in.substr(0,4) == "\x89" "PNG" )
+			compression = Z_NO_COMPRESSION;	// PNG file - do not try to compress it
+	ret = deflateInit(&strm, compression);
+    if (ret != Z_OK)
+		return false;
+	strm.avail_in = in.size();
+	strm.next_in = (Bytef *) in.c_str();
+	char buf[16384];
+	do{
+		strm.avail_out = sizeof(buf);
+		strm.next_out = (Bytef *) buf;
+		ret = deflate(&strm, Z_FINISH);
+		if( ret != Z_OK && ret != Z_STREAM_END )
+		{
+			//printf("Compress() error\n");
+			deflateEnd(&strm);
+			return false;
+		};
+		out->append( buf, sizeof(buf) - strm.avail_out );
+	} while( ret != Z_STREAM_END );
+
+	deflateEnd(&strm);
+	return true;
+};
+
+bool Decompress( const std::string & in, std::string * out )
+{
+	out->clear();
+	z_stream strm;
+	int ret;
+	/* allocate inflate state */
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	strm.avail_in = 0;
+	strm.next_in = Z_NULL;
+	ret = inflateInit(&strm);
+	if (ret != Z_OK)
+		return false;
+		
+	strm.avail_in = in.size();
+	strm.next_in = (Bytef *) in.c_str();
+	char buf[16384];
+	do{
+		strm.avail_out = sizeof(buf);
+		strm.next_out = (Bytef *) buf;
+		ret = inflate(&strm, Z_NO_FLUSH);
+		if( ret != Z_OK && ret != Z_STREAM_END )
+		{
+			//printf("Decompress() error\n");
+			inflateEnd(&strm);
+			return false;
+		};
+		out->append( buf, sizeof(buf) - strm.avail_out );
+	} while( ret != Z_STREAM_END );
+	
+	inflateEnd(&strm);
+	return true;
+};

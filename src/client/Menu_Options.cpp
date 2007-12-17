@@ -78,7 +78,8 @@ enum {
 	og_AllowMouseAiming,
 	og_MatchLogging,
 	og_UseNumericKeysToSwitchWeapons,
-	og_AntilagMovementPrediction
+	og_AntilagMovementPrediction,
+	og_SendDirtUpdate
 };
 
 enum {
@@ -371,6 +372,9 @@ int Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->tGameinfo.bMatchLogging),og_MatchLogging, 280, 390, 17,17);
 
+	cOpt_Game.Add( new CLabel("Server sends destroyed dirt",tLX->clNormalLabel), Static, 330, 300, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bSendDirtUpdate),og_SendDirtUpdate, 550, 300, 17,17);
+
 	cOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 330, 330, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 550, 330, 17,17);
 
@@ -608,6 +612,11 @@ void Menu_OptionsFrame(void)
 				case og_AntilagMovementPrediction:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bAntilagMovementPrediction = cOpt_Game.SendMessage(og_AntilagMovementPrediction, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+
+				case og_SendDirtUpdate:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bSendDirtUpdate = cOpt_Game.SendMessage(og_SendDirtUpdate, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 			}
