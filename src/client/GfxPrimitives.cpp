@@ -1186,9 +1186,8 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 			Image = gfxCreateSurfaceAlpha(img->w, img->h);
 			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
 		} else {
+			img->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
 			Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
-			// TODO: needed?
-			//ResetAlpha(Image);
 		}
 	
 		SDL_FreeSurface(img);
