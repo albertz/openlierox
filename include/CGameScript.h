@@ -196,10 +196,11 @@ private:
     FILE        *pModLog;
 
 private:
-	friend CCache::~CCache();  // Only cache can call Shutdown
+	friend class CCache;  // Only cache can call Shutdown/CopyFrom (besides us of course)
 
 	void		Shutdown(void);
 	void		ShutdownProjectile(proj_t *prj);
+	void		CopyFrom(CGameScript *cg);
 
 public:
 	// Methods

@@ -307,14 +307,8 @@ int CGameScript::Load(const std::string& dir)
 	// Try cache first
 	CGameScript *cached = cCache.GetMod(dir);
 	if (cached != NULL)  {
-		// HINT: this cannot work this way because there is no sensefull operator= defined
-		// WARNING: the standard op= would just copy everything which will mostly lead to very strange and hard findable memleaks!! you should *never* use it
-		// TODO: solve this somehow
-		/*
-		printf("HINT: reusing cached mod " + dir + "\n");
-		*this = *cached;
-		return true;
-		*/
+		CopyFrom(cached);
+		return GSE_OK;
 	}
 	
 	FILE *fp;
@@ -994,4 +988,22 @@ void CGameScript::modLog(char *fmt, ...)
 	}
 	
 	fprintf(pModLog,"%s\n",buf);
+}
+
+///////////////////
+// Copies infor from anothe gamescript
+void CGameScript::CopyFrom(CGameScript *cg)
+{
+	sDirectory = cg->sDirectory;
+	Header = cg->Header;
+	NumWeapons = cg->NumWeapons;
+
+	// HINT: only a pointer is copied here, because the weapon info does not change
+	// so it would be wasting of memory if we copied the whole list
+	Weapons = cg->Weapons;
+
+	Worm = cg->Worm;
+	RopeLength = cg->RopeLength;
+	RestLength = cg->RestLength;
+	Strength = cg->Strength;
 }

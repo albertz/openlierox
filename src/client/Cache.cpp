@@ -71,10 +71,6 @@ void CCache::SaveMap(const std::string& file, CMap *map)
 // Save a mod to the cache
 void CCache::SaveMod(const std::string& file, CGameScript *mod)
 {
-	// TODO: see the further hint; disabled for now
-	// HINT: I get at least also already one bug if this is not here: mod.pModLog get freed twice
-	return;	
-	
 	if (mod == NULL)
 		return;
 
@@ -82,11 +78,7 @@ void CCache::SaveMod(const std::string& file, CGameScript *mod)
 	if (!cached_mod)
 		return;
 
-	// TODO: again, this is dangerous and should not be used in this way
-	// at least there should be a self-defined operator= which makes this in a save way
-	// you should never assume that this can work in general and perhaps you
-	// forget later that you have assumed this here
-	*cached_mod = *mod;
+	cached_mod->CopyFrom(mod);	
 
 	ModCache[file] = cached_mod;
 
