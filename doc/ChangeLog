@@ -2,7 +2,8 @@
 ==========
 - joystick support (for playing)
 - mouse support (for playing)
-- more intelligent event-handling (in some parts)
+- more intelligent event-handling (in some parts);
+  all pressed keys got recognised in chat/console
 - delete-key works now under MacOSX
 - copy&paste support for Linux
 

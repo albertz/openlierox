@@ -27,6 +27,8 @@ public:
 };
 
 // Keyboard structure
+// HINT: KeyDown is the state of the keyboard
+// KeyUp is like an event and will only be true once
 class keyboard_t { public:
 	Uint8	*keys;
 	UnicodeChar	KeyUp[SDLK_LAST];

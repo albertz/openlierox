@@ -79,13 +79,12 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			//fAngle += wd->AngleSpeed * dt;
 		} else {
 			if(!mouseControl) {
-				// HINT: this is the original order (before mouse patch - rev 1007)
+				// HINT: this is the original order and code (before mouse patch - rev 1007)
 				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
 				REDUCE_CONST(fAngleSpeed, 200*dt);
 				RESET_SMALL(fAngleSpeed, 5.0f);
 			
 			} else { // mouseControl for angle
-				// TODO: the windows-width/height is hardcoded here! that is bad
 				static const float mult_Y = 4; // how sensitive is the mouse in Y-dir
 				fAngleSpeed += mouse_dy * mult_Y;
 				

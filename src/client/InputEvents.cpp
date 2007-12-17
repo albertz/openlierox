@@ -230,6 +230,9 @@ void HandleMouseState() {
 }
 
 void HandleKeyboardState() {
+	// HINT: KeyDown is the state of the keyboard
+	// KeyUp is like an event and will only be true once
+	
 	// Keyboard
 	Keyboard.keys = SDL_GetKeyState(NULL);
 
