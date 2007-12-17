@@ -190,7 +190,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			}
 		} */
 		
-		static const float movetimed_min = 0.05, movetimed_max = 0.2;
+		static const float movetimed_min = 0.08, movetimed_max = 0.2;
 		
 		if((mouseControl && ws->iMove && iDirection == DIR_LEFT)
 		|| (/*cLeft.isJoystick() &&*/ cLeft.isDown())) {

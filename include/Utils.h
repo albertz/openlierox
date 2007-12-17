@@ -117,7 +117,7 @@ template <typename T> int CLAMP_DIRECT(T& num, const T& lower_bound, const T& up
 	} else return 0;
 }
 template <typename T> void REDUCE_CONST(T& v, const T& red_const) {
-	if(v > 0) v -= red_const; else if(v < 0) v += red_const; }
+	if(v > 0) v = MAX((T)0, v - red_const); else if(v < 0) v = MIN((T)0, v + red_const); }
 template <typename T> void RESET_SMALL(T& v, const T& limit) {
 	if((v > 0 && v < limit) || (v < 0 && v > -limit)) v = 0; }
 
