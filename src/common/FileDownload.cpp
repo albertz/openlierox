@@ -454,7 +454,7 @@ bool CFileDownloader::ShouldBreakThread()
 
 void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::string & data )
 {
-	tState = SEND;
+	tState = S_SEND;
 	iPos = 0;
 	sFilename = name;
 	Compress( sFilename + '\0' + data, &sData );
@@ -463,14 +463,14 @@ void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::
 
 void CFileDownloaderInGame::setFileToSend( const std::string & path )
 {
-	tState = SEND;
+	tState = S_SEND;
 	iPos = 0;
 	sFilename = path;
 
 	FILE * ff = OpenGameFile( sFilename , "r" );
 	if( ff == NULL )
 	{
-		tState = ERROR;
+		tState = S_ERROR;
 		return;
 	};
 	char buf[16384];
@@ -488,28 +488,28 @@ void CFileDownloaderInGame::setFileToSend( const std::string & path )
 
 bool CFileDownloaderInGame::receive( CBytestream * bs )
 {
-	if( tState == FINISHED )
+	if( tState == S_FINISHED )
 	{
-		tState = RECEIVE;
+		tState = S_RECEIVE;
 		iPos = 0;
 		sFilename = "";
 		sData = "";
 	};
-	if( tState != RECEIVE )
+	if( tState != S_RECEIVE )
 	{
-		tState = ERROR;
+		tState = S_ERROR;
 		return true;	// Receive finished (due to error)
 	};
 	uint chunkSize = bs->readByte();
 	if( chunkSize == 0 )
 	{
-		tState = ERROR;
+		tState = S_ERROR;
 		if( Decompress( sData, &sFilename ) )
 		{
-			tState = FINISHED;
+			tState = S_FINISHED;
 			std::string::size_type f = sFilename.find('\0');
 			if( f == std::string::npos )
-				tState = ERROR;
+				tState = S_ERROR;
 			else
 			{
 				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
@@ -525,16 +525,16 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 
 bool CFileDownloaderInGame::send( CBytestream * bs )
 {
-	if( tState != SEND )
+	if( tState != S_SEND )
 	{
-		tState = ERROR;
+		tState = S_ERROR;
 		return true;	// Send finished (due to error)
 	};
 	uint chunkSize = MIN( sData.size() - iPos, 255 );
 	bs->writeByte( chunkSize );
 	if( chunkSize == 0 )
 	{
-		tState = FINISHED;
+		tState = S_FINISHED;
 		return true;	// Send finished
 	};
 	bs->writeData( sData.substr( iPos, chunkSize ) );

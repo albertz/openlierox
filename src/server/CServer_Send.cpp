@@ -410,7 +410,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 		cl->getFileDownloaderInGame()->setFileToSend( "dirt", bs.readData() );
 	};
 	
-	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::SEND )
+	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
 		return;
 	CBytestream bs;
 	bs.writeByte( S2C_SENDFILE );

@@ -541,7 +541,7 @@ std::string GetNextWord(std::string::const_iterator it, const std::string& str)
 
 bool Compress( const std::string & in, std::string * out )
 {
-	out->clear();
+	*out = ""; //out->clear();
 	z_stream strm;
 	int ret;
 	/* allocate deflate state */
@@ -577,7 +577,7 @@ bool Compress( const std::string & in, std::string * out )
 
 bool Decompress( const std::string & in, std::string * out )
 {
-	out->clear();
+	*out = ""; //out->clear();
 	z_stream strm;
 	int ret;
 	/* allocate inflate state */
