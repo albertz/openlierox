@@ -604,6 +604,8 @@ private:
 		return NULL;
 	}
 
+public:	
+
 	// add new area as a node to path
 	// start is location (so an area surrounding start is searched)
 	void addAreaNode(VectorD2<int> start, area_item* lastArea) {
@@ -649,7 +651,6 @@ private:
 		}
 	}
 
-public:	
 	// this function will start the search, if it was not started right now
 	// WARNING: the searcher-thread will clear all current saved nodes
 	void startThreadSearch() {

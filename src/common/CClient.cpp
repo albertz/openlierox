@@ -64,6 +64,7 @@ void CClient::Clear(void)
 	bUpdateScore = true;
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
+	bCurrentSettings = false;
 
 	tGameLog = NULL;
 	iLastVictim = -1;
@@ -139,6 +140,7 @@ void CClient::MinorClear(void)
 	iGameMenu = false;
     bViewportMgr = false;
 	bUpdateScore = true;
+	bCurrentSettings = false;
 
 	//fProjDrawTime = 0;
 	//fProjSimulateTime = 0;

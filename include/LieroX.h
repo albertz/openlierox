@@ -32,7 +32,7 @@
 
 // Game types
 enum {
-	GMT_DEATHMATCH,
+	GMT_DEATHMATCH = 0,
 	GMT_TEAMDEATH,
 	GMT_TAG,
     GMT_DEMOLITION,

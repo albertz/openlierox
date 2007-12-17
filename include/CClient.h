@@ -204,6 +204,7 @@ public:
 		cChatList = NULL;
 		bUpdateScore = true;
 		bShouldRepaintInfo = true;
+		bCurrentSettings = false;
 
 		tGameLog = NULL;
 		iLastVictim = -1;
@@ -323,6 +324,7 @@ private:
 	SDL_Surface *bmpBoxRight;
 	CGuiLayout  cGameMenuLayout;
 	bool		bShouldRepaintInfo;
+	bool		bCurrentSettings;
 
     CWeather    cWeather;
 

@@ -375,7 +375,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
     // TODO: allow more viewports
     // Draw the borders
-	if (bShouldRepaintInfo || tLX->bVideoModeChanged)  {
+	if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
 		if (tGameInfo.iGameType == GME_LOCAL)  {
 			if (bgImage)  // Doesn't have to exist (backward compatibility)
 				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
@@ -476,7 +476,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	else
 		DrawRemoteChat(bmpDest);
 
-	bool bScoreAndSett = true;
+	bool bScoreboard = true;
 
 	// FPS
 	if(tLXOptions->iShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
@@ -578,21 +578,22 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// Game menu
 	if(iGameMenu)  {
-		bScoreAndSett = false;
+		bScoreboard = false;
 		DrawGameMenu(bmpDest);
 	}
 
     // Viewport manager
     if(bViewportMgr)  {
-		bScoreAndSett = false;
+		bScoreboard = false;
         DrawViewportManager(bmpDest);
 	}
 
-    // Scoreboard and Current settings
-	if(bScoreAndSett)  {
+    // Scoreboard
+	if(bScoreboard)
 		DrawScoreboard(bmpDest);
-		DrawCurrentSettings(bmpDest);
-	}
+
+	// Current Settings
+	DrawCurrentSettings(bmpDest);
 
 	// Chatter
 	if(iChat_Typing)  {
@@ -766,34 +767,37 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
     CWorm *worm = v->getTarget();
 
-	// Health
-	static const std::string health = "Health:";
-	tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel,health);
-	if (HealthBar)  {
-		HealthBar->SetPosition(worm->getHealth());
-		HealthBar->Draw(bmpDest);
-	}
-
-	// Weapon
-	wpnslot_t *Slot = worm->getCurWeapon();
-	static std::string weapon_name;
-	weapon_name = Slot->Weapon->Name;
-	stripdot(weapon_name, 100);
-	weapon_name += ":";
-	tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
-	
-	if (WeaponBar)  {
-		if(Slot->Reloading)  {
-			WeaponBar->SetForeColor(MakeColour(128,64,64));  // In case it's not loaded properly
-			WeaponBar->SetCurrentForeState(1);  // Loading state
-			WeaponBar->SetCurrentBgState(1);
-		} else {
-			WeaponBar->SetForeColor(MakeColour(64,64,255));
-			WeaponBar->SetCurrentForeState(0);  // "Shooting" state 
-			WeaponBar->SetCurrentBgState(0);
+	// Draw the details only when current settings is not displayed
+	if (!bCurrentSettings)  {
+		// Health
+		static const std::string health = "Health:";
+		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel,health);
+		if (HealthBar)  {
+			HealthBar->SetPosition(worm->getHealth());
+			HealthBar->Draw(bmpDest);
 		}
-		WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
-		WeaponBar->Draw( bmpDest );
+
+		// Weapon
+		wpnslot_t *Slot = worm->getCurWeapon();
+		static std::string weapon_name;
+		weapon_name = Slot->Weapon->Name;
+		stripdot(weapon_name, 100);
+		weapon_name += ":";
+		tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
+		
+		if (WeaponBar)  {
+			if(Slot->Reloading)  {
+				WeaponBar->SetForeColor(MakeColour(128,64,64));  // In case it's not loaded properly
+				WeaponBar->SetCurrentForeState(1);  // Loading state
+				WeaponBar->SetCurrentBgState(1);
+			} else {
+				WeaponBar->SetForeColor(MakeColour(64,64,255));
+				WeaponBar->SetCurrentForeState(0);  // "Shooting" state 
+				WeaponBar->SetCurrentBgState(0);
+			}
+			WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
+			WeaponBar->Draw( bmpDest );
+		}
 	}
 
 
@@ -2127,11 +2131,16 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 // Draw the current game settings
 void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 {
-    if(Con_IsUsed())
-        return;
+	bCurrentSettings = true;
 
     // Do checks on whether or not to show
-    if(iNetStatus != NET_CONNECTED && !cShowSettings.isDown())
+    if(iNetStatus != NET_CONNECTED && !cShowSettings.isDown() && !iGameOver)
+		bCurrentSettings = false;
+
+	if (iGameOver && iGameMenu)
+		bCurrentSettings = true;
+
+	if (!bCurrentSettings)
 		return;
 
     int y = tInterfaceSettings.CurrentSettingsY;
@@ -2143,57 +2152,41 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 		y = tInterfaceSettings.CurrentSettingsTwoPlayersY;
 	}
 
-    DrawRectFill(bmpDest, x+1, y, x+w-1, y+h-1, tLX->clCurrentSettingsBg);
-    Menu_DrawBox(bmpDest, x, y, x+w, y+h);
-
-    tLX->cFont.Draw(bmpDest, x+60, y+5, tLX->clNormalLabel, "Current settings");
-    DrawHLine(bmpDest, x+4, x+w-4, y+22, tLX->clLine);
-
+	int cur_y = y;
 	/*tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s","Level:");
 	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname.c_str());*/
-	tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel, "Mod:");
-	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel, tGameInfo.sModName);
-	tLX->cFont.Draw(bmpDest, x+5, y+43, tLX->clNormalLabel,"Game Type:");
-	switch (tGameInfo.iGameMode)  {
-	case GMT_DEATHMATCH:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Deathmatch");
-	  break;
-	case GMT_TAG:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Tag");
-	  break;
-	case GMT_TEAMDEATH:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Team Deathmatch");
-	  break;
-	case GMT_DEMOLITION:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Demolition");
-	  break;
-	case GMT_CTF:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Capture the Flag");
-	  break;
-	case GMT_TEAMCTF:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"Teams CTF");
-	  break;
-	case GMT_VIP:
-	  tLX->cFont.Draw(bmpDest, x+105, y+43, tLX->clNormalLabel,"VIP");
-	  break;
-	}  // switch
-	tLX->cFont.Draw(bmpDest, x+5, y+61, tLX->clNormalLabel,"Loading Time:");
-	tLX->cFont.Draw(bmpDest, x+105, y+61, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTimes) + "%");
-	tLX->cFont.Draw(bmpDest, x+5, y+79, tLX->clNormalLabel,"Lives:");
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel, "Mod:");
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, tGameInfo.sModName);
+	cur_y += tLX->cFont.GetHeight();
+
+	static const std::string gmt_names[] = {"Deathmatch", "Tag", "Team DM", "Demolition", "VIP", "CTF", "Teams CTF"};
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Type:");
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(tGameInfo.iGameMode, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
+	cur_y += tLX->cFont.GetHeight();
+
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading Time:");
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTimes) + "%");
+	cur_y += tLX->cFont.GetHeight();
+
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Lives:");
 	if (tGameInfo.iLives < 0)
-		DrawImage(bmpDest,gfxGame.bmpInfinite,x+105,y+88-gfxGame.bmpInfinite->h/2);
+		DrawImage(bmpDest,gfxGame.bmpInfinite, x+95, cur_y + (tLX->cFont.GetHeight() - gfxGame.bmpInfinite->h)/2);
 	else
-		tLX->cFont.Draw(bmpDest, x+105, y+79, tLX->clNormalLabel,itoa(tGameInfo.iLives));
-	tLX->cFont.Draw(bmpDest, x+5, y+97, tLX->clNormalLabel,"Max Kills:");
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLives));
+	cur_y += tLX->cFont.GetHeight();
+
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Max Kills:");
 	if (tGameInfo.iKillLimit < 0)
-		DrawImage(bmpDest,gfxGame.bmpInfinite,x+105,y+106-gfxGame.bmpInfinite->h/2);
+		DrawImage(bmpDest,gfxGame.bmpInfinite,x+95,cur_y + (tLX->cFont.GetHeight() - gfxGame.bmpInfinite->h)/2);
 	else
-		tLX->cFont.Draw(bmpDest, x+105, y+97, tLX->clNormalLabel,itoa(tGameInfo.iKillLimit));
-	tLX->cFont.Draw(bmpDest, x+5, y+115, tLX->clNormalLabel,"Bonuses:");
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iKillLimit));
+	cur_y += tLX->cFont.GetHeight();
+
+	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Bonuses:");
 	if (tGameInfo.iBonusesOn)
-		tLX->cFont.Draw(bmpDest, x+105, y+115, tLX->clNormalLabel,"On");
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,"On");
 	else
-		tLX->cFont.Draw(bmpDest, x+105, y+115, tLX->clNormalLabel,"Off");
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,"Off");
 
 }
 
