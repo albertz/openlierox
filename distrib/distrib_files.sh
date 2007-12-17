@@ -7,7 +7,7 @@ SYNC_CMD="rsync -avP --exclude .svn"
 $SYNC_CMD additions $DEST
 # $SYNC_CMD tarball $DEST
 $SYNC_CMD ebuild $DEST
-$SYNC_CMD deb $DEST
+# $SYNC_CMD deb $DEST
 
 # now, update the site itself
 $SYNC_CMD web/* $DEST
@@ -16,4 +16,4 @@ $SYNC_CMD web/* $DEST
 $SYNC_CMD --delete-after additions $DEST
 # $SYNC_CMD --delete-after tarball $DEST
 $SYNC_CMD --delete-after ebuild $DEST
-$SYNC_CMD --delete-after deb $DEST
+# $SYNC_CMD --delete-after deb $DEST

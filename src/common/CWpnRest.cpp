@@ -43,7 +43,7 @@ void CWpnRest::updateList(CGameScript *pcGameS)
 
     // Go through the weapons in the gamescript
     // If any weapon is not in our list, add it to the list
-    weapon_t *psWpn = pcGameS->GetWeapons();
+    const weapon_t *psWpn = pcGameS->GetWeapons();
     int count = pcGameS->GetNumWeapons();
     int i;
 

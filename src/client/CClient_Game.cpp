@@ -1344,7 +1344,7 @@ void CClient::ProcessShot(shoot_t *shot)
 		return;
 	}
 
-	weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
+	const weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
 
 	// Process beam weapons differently
 	if(wpn->Type == WPN_BEAM) {
@@ -1423,7 +1423,7 @@ void CClient::ProcessShot(shoot_t *shot)
 void CClient::ProcessShot_Beam(shoot_t *shot)
 {
 	CWorm *w = &cRemoteWorms[shot->nWormID];
-	weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
+	const weapon_t *wpn = cGameScript.GetWeapons() + shot->nWeapon;
 
 	// Trace a line from the worm to length or until it hits something
 	CVec dir;

@@ -793,7 +793,7 @@ SoundSample* CGameScript::LoadGSSample(const std::string& dir, const std::string
 
 ///////////////////
 // Find a weapon based on its name
-weapon_t *CGameScript::FindWeapon(const std::string& name)
+const weapon_t *CGameScript::FindWeapon(const std::string& name)
 {
 	int n;
 

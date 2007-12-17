@@ -2069,7 +2069,7 @@ bool CWorm::AI_SetAim(CVec cPos)
     CVec	tgPos = cPos;
 	CVec	tgDir = tgPos - vPos;
     bool    goodAim = false;
-    gs_worm_t *wd = cGameScript->getWorm();
+    const gs_worm_t *wd = cGameScript->getWorm();
 
 	NormalizeVector(&tgDir);
 
@@ -2308,7 +2308,7 @@ bool CWorm::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 	int max_x = (int)(to->x - from->x);
 
 	wpnslot_t* wpnslot = getWeapon(getCurrentWeapon());
-	weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
+	const weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
 	proj_t* wpnproj = wpn ? wpn->Projectile : NULL;
 	if(!wpnproj) {
 		printf("ERROR: cannot determinit wpnproj\n");
@@ -2570,14 +2570,14 @@ bool CWorm::AI_Shoot()
 
 	float alpha = 0;
 
-	gs_worm_t *wd = cGameScript->getWorm();
+	const gs_worm_t *wd = cGameScript->getWorm();
 	if (!wd)
 		return false;
 
 	bool bShoot = false;
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
-	weapon_t *weap = getCurWeapon()->Weapon;
+	const weapon_t *weap = getCurWeapon()->Weapon;
 	if(weap && weap->Projectile) switch (weap->Projectile->Hit_Type)  {
 	//case PJ_NOTHING:
 	//case PJ_CARVE:

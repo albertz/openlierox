@@ -424,7 +424,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 	float speed;
 	CVec dir;
-	gs_worm_t *wd = cGameScript->getWorm();
+	const gs_worm_t *wd = cGameScript->getWorm();
 
 	float	fFrameRate = 7.5f;
 

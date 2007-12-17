@@ -205,17 +205,18 @@ public:
 	// Methods
 
 	int			Load(const std::string& dir);
-	proj_t		*LoadProjectile(FILE *fp);
-	
 	int			Save(const std::string& filename);
-	int			SaveProjectile(proj_t *proj, FILE *fp);
-
+	
+private:	
+	proj_t		*LoadProjectile(FILE *fp);
+	int			SaveProjectile(proj_t *proj, FILE *fp);	
     void        writeString(const std::string& szString, FILE *fp);
     std::string readString(FILE *fp);
 
+public:
 	std::string	getError(int code);
 
-	weapon_t	*FindWeapon(const std::string& name);
+	const weapon_t	*FindWeapon(const std::string& name);
     bool        weaponExists(const std::string& szName);
 
 	static int	CheckFile(const std::string& dir, std::string& name);
@@ -228,25 +229,27 @@ public:
 #endif
 
 
-	inline gs_header_t	*GetHeader(void)				{ return &Header; }
+	const gs_header_t	*GetHeader(void)				{ return &Header; }
 
-	inline int			GetNumWeapons(void)				{ return NumWeapons; }
-	inline weapon_t	*GetWeapons(void)				{ return Weapons; }
+	int			GetNumWeapons(void)				{ return NumWeapons; }
+	const weapon_t	*GetWeapons(void)				{ return Weapons; }
 
-	inline void		SetNumWeapons(int _w)			{ NumWeapons = _w; }
-	inline void		SetWeapons(weapon_t *_w)		{ Weapons = _w; }
+private:
+	void		SetNumWeapons(int _w)			{ NumWeapons = _w; }
+	void		SetWeapons(weapon_t *_w)		{ Weapons = _w; }
 
 
 	// Ninja Rope settings
-	inline void		SetRopeLength(int _l)			{ RopeLength = _l; }
-	inline void		SetRestLength(int _l)			{ RestLength = _l; }
-	inline void		SetStrength(float _s)			{ Strength = _s; }
+	void		SetRopeLength(int _l)			{ RopeLength = _l; }
+	void		SetRestLength(int _l)			{ RestLength = _l; }
+	void		SetStrength(float _s)			{ Strength = _s; }
 
-	inline int			getRopeLength(void)				{ return RopeLength; }
-	inline int			getRestLength(void)				{ return RestLength; }
-	inline float		getStrength(void)				{ return Strength; }
+public:
+	int			getRopeLength(void)				{ return RopeLength; }
+	int			getRestLength(void)				{ return RestLength; }
+	float		getStrength(void)				{ return Strength; }
 
-	inline gs_worm_t	*getWorm(void)					{ return &Worm; }
+	const gs_worm_t	*getWorm(void)					{ return &Worm; }
 	
 
 };

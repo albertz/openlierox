@@ -60,7 +60,7 @@
 
 // Weapon slot structure
 struct wpnslot_t {
-	weapon_t	*Weapon;
+	const weapon_t	*Weapon;
 	int			SlotNum;
 	float		Charge;
 	int			Reloading;
