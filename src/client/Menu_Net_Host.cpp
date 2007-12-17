@@ -789,7 +789,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list
-		Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
+		Menu_Local_FillModList( cbMod );
 		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
 
 

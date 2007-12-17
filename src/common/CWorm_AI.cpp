@@ -32,12 +32,14 @@
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "CWorm.h"
+#include "AuxLib.h"
 
 
 // we need it here for some debugging...
 // we cannot define this globaly because some X11-header also defines this (which is not included here, so this works)
 extern	SDL_Surface		*Screen;
 
+// used by searchpath algo
 static const unsigned short wormsize = 7;
 
 
@@ -642,10 +644,11 @@ public:
 /*			printf("findPath( %i, %i )\n", start.x, start.y);
 			printf("   new area:\n");
 			printf("   ( %i, %i, %i, %i )\n", a->area.v1.x, a->area.v1.y, a->area.v2.x, a->area.v2.y); */
-/*
-			DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
+
+/*			DrawRectFill(pcMap->GetDebugImage(),a->area.v1.x*2,a->area.v1.y*2,a->area.v2.x*2,a->area.v2.y*2,MakeColour(150,150,0));
 			cClient->Draw(Screen); // dirty dirty...
-			FlipScreen(Screen); */
+			FlipScreen(Screen);
+			SDL_Delay(10); */
 #endif
 			// and search
 		}

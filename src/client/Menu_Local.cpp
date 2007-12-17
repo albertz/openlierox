@@ -131,11 +131,15 @@ void Menu_LocalInitialize(void)
 	Menu_LocalAddProfiles();
 
 	// Fill the level list
-	Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), true);
+	CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
+	Menu_FillLevelList( cbLevel, true);
+	cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameinfo.sMapFilename));
 	Menu_LocalShowMinimap(true);
 
 	// Fill in the mod list
-	Menu_Local_FillModList( (CCombobox *)cLocalMenu.getWidget(ml_ModName));
+	CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
+	Menu_Local_FillModList( cbMod );
+	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
 
 	// Fill in some game details
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
@@ -214,16 +218,19 @@ void Menu_LocalFrame(void)
 	// Do not reload when a dialog is open
 	if (bActivated)  {
 		// Get the mod name
-		cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0);
-		if(it)
-			tLXOptions->tGameinfo.szModName = it->sIndex;
+		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
+		cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
+		if(it) tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list
-		Menu_Local_FillModList( (CCombobox *)cLocalMenu.getWidget(ml_ModName));
+		Menu_Local_FillModList( cbMod );
+		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
 
 		// Fill in the levels list
-		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-		Menu_FillLevelList( (CCombobox *)cLocalMenu.getWidget(ml_LevelList), true);
+		CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
+		tLXOptions->tGameinfo.sMapFilename = cbLevel->getItem( cbLevel->getSelectedIndex() )->sIndex;
+		Menu_FillLevelList( cbLevel, true);
+		cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameinfo.sMapFilename));
 
 		// Reload the minimap
 		if (tLXOptions->tGameinfo.sMapFilename != "_random_")

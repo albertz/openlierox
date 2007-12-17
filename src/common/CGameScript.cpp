@@ -746,19 +746,16 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
 {
 	SDL_Surface *img = NULL;
-	static std::string buf;
 
 	// First, check the gfx directory in the mod dir
-	buf = dir + "/gfx/" + filename;
-	img = LoadImage(buf);
+	img = LoadImage(dir + "/gfx/" + filename);
 
 	if(img)  {
 		return img;
 	}
 
 	// Check the gfx directory in the data dir
-	buf = std::string("data/gfx/") + filename;
-	return LoadImage(buf);
+	return LoadImage("data/gfx/" + filename);
 }
 
 
@@ -767,18 +764,15 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 SoundSample* CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
 {
 	SoundSample* smp = NULL;
-	static std::string buf;
 
 	// First, check the sfx directory in the mod dir
-	buf = dir + "/sfx/" + filename;
-	smp = LoadSample(buf,10);
+	smp = LoadSample(dir + "/sfx/" + filename, 10);
 	
 	if(smp)
 		return smp;
 
 	// Check the sounds directory in the data dir
-	buf = "data/sounds/" + filename;
-	return LoadSample(buf,10);
+	return LoadSample("data/sounds/" + filename, 10);
 }
 
 #endif  //  _CONSOLE
