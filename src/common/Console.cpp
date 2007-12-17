@@ -119,21 +119,6 @@ void Con_Process(float dt)
 		break;
 	}
 
-}
-
-
-///////////////////
-// Handles the character typed in the console
-void Con_ProcessCharacter(const KeyboardEvent& input)
-{
-	if(input.sym == SDLK_BACKQUOTE || input.sym == SDLK_F1)
-		Con_Toggle();
-
-	if( input.sym == SDLK_ESCAPE ) {
-		if (Console->iState != CON_HIDING && Console->iState != CON_HIDDEN)
-			Con_Toggle();
-	}
-
 	if(Console->fPosition < 0.0f) {
 		Console->iState = CON_DOWN;
 		Console->fPosition = 0.0f;
@@ -145,19 +130,19 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 		Console->Line[0].strText = "";
 	}
 
-	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
-		return;
-	
-	
+}
+
+// returns true if we can continue
+bool Con_KeyRepeatHandling(const KeyboardEvent& input) {
 	// Key repeat handling
 	if (Console->bHolding)  {
 		if (Console->iLastchar != input.ch)
 			Console->bHolding = false;
 		else  {
 			if (tLX->fCurTime - Console->fTimePushed < 0.25f)
-				return;
+				return false;
 			if (tLX->fCurTime - Console->fLastRepeat < 0.03f)
-				return;
+				return false;
 			Console->fLastRepeat = tLX->fCurTime;
 		}
 	}
@@ -166,12 +151,35 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 		Console->bHolding = true;
 		Console->fTimePushed = tLX->fCurTime;
 	}
-
-
+	
 	// Handle the character
 	Console->iBlinkState = 1;
 	Console->fBlinkTime = 0;
 	Console->iLastchar = input.ch;
+	
+	return true;
+}
+
+///////////////////
+// Handles the character typed in the console
+void Con_ProcessCharacter(const KeyboardEvent& input)
+{
+	//if(!Con_KeyRepeatHandling(input)) return;
+	if(!input.down) return;
+	
+	if(input.sym == SDLK_BACKQUOTE || input.sym == SDLK_F1) {
+		printf("toggle, %i\n", input.sym);
+		Con_Toggle();	
+	}
+
+	if( input.sym == SDLK_ESCAPE ) {
+		if (Console->iState != CON_HIDING && Console->iState != CON_HIDDEN)
+			Con_Toggle();
+	}
+
+	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
+		return;
+	
 
 
 	// Backspace
@@ -311,6 +319,7 @@ void Con_Printf(int color, const std::string& txt) {
 
 ///////////////////
 // Add a string of text to the console
+// TODO: this function is ineffective because Console->Line is not a std::list
 void Con_AddText(int colour, const std::string& text)
 {
 	if (text == "")
@@ -320,15 +329,14 @@ void Con_AddText(int colour, const std::string& text)
 
 	// Move all the text up, losing the last line
 	int n;
-	for(n=MAX_CONLINES-lines.size()-1;n>=1;n--) {
-		// TODO: this seems wrong
-		Console->Line[n+lines.size()].strText = Console->Line[n].strText;
-		Console->Line[n+lines.size()].Colour = Console->Line[n].Colour;
+	for(n = MAX_CONLINES - lines.size() - 1; n >= 1; n--) {
+		Console->Line[n + lines.size()].strText = Console->Line[n].strText;
+		Console->Line[n + lines.size()].Colour = Console->Line[n].Colour;
 	}
 
 	// Add the lines
-	n=1;
-	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, n++)  {
+	n = lines.size();
+	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, n--)  {
 		Console->Line[n].strText = *it;
 		Console->Line[n].Colour = colour;
 	}
