@@ -45,10 +45,6 @@ int Con_Initialize(void)
 	Console->fBlinkTime = 0;
 	Console->iBlinkState = 1;
 
-	Console->fLastRepeat = -9999;
-	Console->fTimePushed = -9999;
-	Console->bHolding = false;
-
 	for(n=0;n<MAX_CONLINES;n++) {
 		Console->Line[n].strText = "";
 		Console->Line[n].Colour = CNC_NORMAL;
@@ -132,45 +128,14 @@ void Con_Process(float dt)
 
 }
 
-// returns true if we can continue
-bool Con_KeyRepeatHandling(const KeyboardEvent& input) {
-	// Key repeat handling
-	if (Console->bHolding)  {
-		if (Console->iLastchar != input.ch)
-			Console->bHolding = false;
-		else  {
-			if (tLX->fCurTime - Console->fTimePushed < 0.25f)
-				return false;
-			if (tLX->fCurTime - Console->fLastRepeat < 0.03f)
-				return false;
-			Console->fLastRepeat = tLX->fCurTime;
-		}
-	}
-
-	if (!Console->bHolding)  {
-		Console->bHolding = true;
-		Console->fTimePushed = tLX->fCurTime;
-	}
-	
-	// Handle the character
-	Console->iBlinkState = 1;
-	Console->fBlinkTime = 0;
-	Console->iLastchar = input.ch;
-	
-	return true;
-}
-
 ///////////////////
 // Handles the character typed in the console
 void Con_ProcessCharacter(const KeyboardEvent& input)
 {
-	//if(!Con_KeyRepeatHandling(input)) return;
 	if(!input.down) return;
 	
-	if(input.sym == SDLK_BACKQUOTE || input.sym == SDLK_F1) {
-		printf("toggle, %i\n", input.sym);
+	if(input.sym == SDLK_BACKQUOTE || input.sym == SDLK_F1)
 		Con_Toggle();	
-	}
 
 	if( input.sym == SDLK_ESCAPE ) {
 		if (Console->iState != CON_HIDING && Console->iState != CON_HIDDEN)
@@ -201,14 +166,14 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 	}
 
 	// Left arrow
-	if(input.ch == SDLK_LEFT)  {
+	if(input.sym == SDLK_LEFT)  {
 		if(Console->iCurpos > 0)
 			Console->iCurpos--;
 		return;
 	}
 
 	// Right arrow
-	if(input.ch == SDLK_RIGHT)  {
+	if(input.sym == SDLK_RIGHT)  {
 		if(Console->iCurpos < Utf8StringSize(Console->Line[0].strText))
 			Console->iCurpos++;
 		return;
@@ -394,7 +359,7 @@ void Con_Draw(SDL_Surface *bmpDest)
 			DrawVLine(
 				bmpDest,
 				texty, texty + tLX->cFont.GetHeight(),
-				17 + tLX->cFont.GetWidth(
+				16 + tLX->cFont.GetWidth(
 					Utf8SubStr(Console->Line[n].strText, 0, Console->iCurpos)),
 				tLX->clConsoleCursor);
 		}

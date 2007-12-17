@@ -65,10 +65,6 @@ class console_t { public:
 	int			iBlinkState; // 1 - displayed, 0 - hidden
 	float		fBlinkTime;  
 
-	float		fTimePushed;
-	float		fLastRepeat;
-	bool		bHolding;
-
     SDL_Surface *bmpConPic;
 
 };
