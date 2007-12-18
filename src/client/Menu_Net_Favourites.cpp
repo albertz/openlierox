@@ -65,16 +65,17 @@ int Menu_Net_FavouritesInitialize(void)
 
 
 	// Fill the players box
+	CCombobox* PlayerSelection = (CCombobox*) cFavourites.getWidget( mf_PlayerSelection );
 	profile_t *p = GetProfiles();
 	for(;p;p=p->tNext) {
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cFavourites.SendMessage( mf_PlayerSelection, CBS_ADDITEM, p->sName, p->iID);
-		cFavourites.SendMessage( mf_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
+		int index = PlayerSelection->addItem( 0, p->sName, p->sName );
+		PlayerSelection->setImage( p->bmpWorm, index );
 	}
 
-	cFavourites.SendMessage( mf_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.sLastSelectedPlayer, 0);
+	PlayerSelection->setCurSIndexItem( tLXOptions->tGameinfo.sLastSelectedPlayer );
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 

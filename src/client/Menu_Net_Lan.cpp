@@ -60,18 +60,18 @@ int Menu_Net_LANInitialize(void)
 	cLan.Add( new CCombobox(),								nl_PlayerSelection,		225,150, 170,  19);
 	//cLan.Add( new CLabel("Local Area Network", tLX->clHeading),	   -1,		   40, 140, 0,   0);
 
-
 	// Fill the players box
+	CCombobox* PlayerSelection = (CCombobox*) cLan.getWidget( nl_PlayerSelection );
 	profile_t *p = GetProfiles();
 	for(;p;p=p->tNext) {
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cLan.SendMessage( nl_PlayerSelection, CBS_ADDITEM, p->sName, p->iID);
-		cLan.SendMessage( nl_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
+		int index = PlayerSelection->addItem( 0, p->sName, p->sName );
+		PlayerSelection->setImage( p->bmpWorm, index );
 	}
 
-	cLan.SendMessage( nl_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.sLastSelectedPlayer, 0);
+	PlayerSelection->setCurSIndexItem( tLXOptions->tGameinfo.sLastSelectedPlayer );
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 
@@ -115,6 +115,9 @@ void Menu_Net_LANShutdown(void)
 			const cb_item_t* item = combo->getSelectedItem();
 			if (item)
 				tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
+			printf("Menu_Net_LANShutdown(): tLXOptions->tGameinfo.sLastSelectedPlayer %s index %i name %s sindex %s\n", 
+					tLXOptions->tGameinfo.sLastSelectedPlayer.c_str(), combo->getSelectedIndex(), 
+					combo->getSelectedItem()->sName.c_str(), combo->getSelectedItem()->sIndex.c_str() );
 		}
 
 		if (iNetMode == net_lan)  {
