@@ -616,6 +616,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	// List should be automatically sorted when adding
 	if (bSorted)  {
 		// TODO: do this faster
+		// (update also Menu_Player_FillSkinCombo after)
 		Sort(true);
 	}
 
@@ -713,6 +714,7 @@ const cb_item_t* CCombobox::getItem(const std::string& name) const {
 /////////////
 // Get the item based on its string index
 const cb_item_t* CCombobox::getSIndexItem(const std::string& sIndex) const {
+	// TODO: make it faster by using a sorted list (or map)
 	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
 		if(stringcasecmp(it->sIndex, sIndex) == 0)
 			return &*it;

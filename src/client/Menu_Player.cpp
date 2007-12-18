@@ -810,10 +810,8 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 
 	class SkinAdder { public:
 	   	CCombobox* cb;
-	   	int* def;
-	   	int index;
-		SkinAdder(CCombobox* cb_, int* d) : cb(cb_), def(d), index(0) {}
-		inline bool operator() (std::string file) {
+		SkinAdder(CCombobox* cb_) : cb(cb_) {}
+		bool operator() (std::string file) {
 			std::string ext = GetFileExtension(file);
 			if(stringcasecmp(ext, "tga")==0
 			|| stringcasecmp(ext, "png")==0
@@ -824,12 +822,7 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 					file.erase(0, slash+1);
 				
 				std::string name = file.substr(0, file.size()-4); // the size-calcing here is safe
-				cb->addItem(index, file, name);
-				
-				if(name.size() == 7 && stringcasecmp(name, "default")==0)
-					*def = index;
-				
-				index++;
+				cb->addItem(file, name);
 			}
 			return true;
 		}
@@ -842,13 +835,14 @@ void Menu_Player_FillSkinCombo(CCombobox *cb) {
     if( !cb )
         return;
 
-	cb->setSorted(true);
+	// TODO: unless we have not effective sorting in combobox.addItem, it's faster to sort at the end
+	//cb->setSorted(true);
 	cb->setUnique(true);
 	cb->clear();
-    int def = -1;
         
-    FindFiles(SkinAdder(cb, &def), "skins", FM_REG);
-
+    FindFiles(SkinAdder(cb), "skins", FM_REG);
+	cb->Sort(true);
+	
     // Select the default
-    cb->setCurItem(def);
+    cb->setCurSIndexItem("default");
 }
