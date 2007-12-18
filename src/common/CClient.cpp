@@ -1063,8 +1063,6 @@ void CClient::setClientVersion(const std::string & _s)
 	printf("CClient::setClientVersion(): %s\n", _s.c_str() );
 	sClientVersion = _s;
 	bHostOLXb4 = true;
-	if( sClientVersion.find("_r") != std::string::npos )
-		bClientSupportsDirtUpdate = 
-			atoi( sClientVersion.substr( sClientVersion.find("_r") + 2 ) ) >= 1169;	// SVN revision where dirt packets implemented
+	bClientSupportsDirtUpdate = bHostOLXb4;
 }
 
