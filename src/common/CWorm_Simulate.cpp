@@ -198,6 +198,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			//printf("movetimed: %f\n", movetimed);
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
 				ws->iCarve = true;
+				ws->iMove = true;
 				iCarving |= 2;
 			}
 		}
@@ -208,6 +209,7 @@ void CWorm::getInput(/*worm_state_t *ws*/)
 			//printf("movetimed: %f\n", movetimed);
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
 				ws->iCarve = true;
+				ws->iMove = true;
 				iCarving |= 1;
 			}
 		}

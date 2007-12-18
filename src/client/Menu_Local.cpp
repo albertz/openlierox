@@ -240,7 +240,9 @@ void Menu_LocalFrame(void)
 
     // Was the mouse clicked on the map section
     if( Mouse->Up & SDL_BUTTON(1) ) {
+    	// TODO: hardcoded sizes here
         if( MouseInRect(136,132,128,96) )
+	    	// TODO: why are we redrawing the minimap here?
             Menu_LocalShowMinimap(true);
     }
 

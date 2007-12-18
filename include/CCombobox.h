@@ -132,8 +132,8 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
     void    clear(void);
-	bool	addItem(const std::string& sindex, const std::string& name);
-	bool	addItem(int index, const std::string& sindex, const std::string& name);
+	int		addItem(const std::string& sindex, const std::string& name);
+	int		addItem(int index, const std::string& sindex, const std::string& name);
 	const std::list<cb_item_t>& getItems()	{ return tItems; }
 	const cb_item_t* getItem(int index) const;
 	int getItemIndex(const cb_item_t* item);	

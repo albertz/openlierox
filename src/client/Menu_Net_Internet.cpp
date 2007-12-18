@@ -86,11 +86,11 @@ int Menu_Net_NETInitialize(void)
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
-		cInternet.SendMessage( mi_PlayerSelection, CBS_ADDITEM, p->sName, p->iID);
-		cInternet.SendMessage( mi_PlayerSelection, CBM_SETIMAGE, (DWORD)p->iID, (DWORD)p->bmpWorm);
+		int i = ((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->addItem(p->sName, p->sName);
+		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->bmpWorm, i);
 	}
 
-	cInternet.SendMessage( mi_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.sLastSelectedPlayer, 0);
+	((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setCurSIndexItem( tLXOptions->tGameinfo.sLastSelectedPlayer );
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 
@@ -131,7 +131,6 @@ void Menu_Net_NETShutdown(void)
 		cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
 		if (item)
 			tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
-
 	}
 
 	cInternet.Shutdown();
@@ -341,7 +340,7 @@ void Menu_Net_NETFrame(int mouse)
                     case MNU_USER+4:
 						{
 							server_t *sv = Menu_SvrList_FindServerStr(szNetCurServer);
-							static std::string Nick;
+							std::string Nick;
 							cInternet.SendMessage(mi_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
 								Menu_SvrList_WantsJoin(Nick, sv);

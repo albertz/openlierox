@@ -573,14 +573,14 @@ DWORD CCombobox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 }
 
 
-bool CCombobox::addItem(const std::string& sindex, const std::string& name)
+int CCombobox::addItem(const std::string& sindex, const std::string& name)
 {
 	return addItem(-1, sindex, name);
 }
 
 ///////////////////
 // Add an item to the combo box
-bool CCombobox::addItem(int index, const std::string& sindex, const std::string& name)
+int CCombobox::addItem(int index, const std::string& sindex, const std::string& name)
 {
 	cb_item_t item;
 
@@ -589,7 +589,7 @@ bool CCombobox::addItem(int index, const std::string& sindex, const std::string&
 	item.sName = name;
 	item.tImage = NULL;
 
-	if(bUnique && getSIndexItem(sindex) != NULL) return false;
+	if(bUnique && getSIndexItem(sindex) != NULL) return -1;
 	
 	//
 	// Add it to the list
@@ -623,7 +623,7 @@ bool CCombobox::addItem(int index, const std::string& sindex, const std::string&
 	
 	iGotScrollbar = tItems.size() > 6;
 
-	return true;
+	return index;
 }
 
 
