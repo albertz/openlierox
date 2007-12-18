@@ -192,8 +192,8 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	iArrowDown = false;
 }
 
-class comboorder {
-public:
+class comboorder  {
+
 	bool ascending;
 	comboorder(bool asc) : ascending(asc) {}
 	
@@ -225,7 +225,7 @@ public:
 // Sorts te items in the combobox
 void CCombobox::Sort(bool ascending)
 {
-	tItems.sort(comboorder(ascending));
+	tItems.sort();
 }
 
 
