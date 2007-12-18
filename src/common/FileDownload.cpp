@@ -458,7 +458,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::
 	iPos = 0;
 	sFilename = name;
 	Compress( sFilename + '\0' + data, &sData );
-	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
+	//printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
 };
 
 void CFileDownloaderInGame::setFileToSend( const std::string & path )
@@ -486,6 +486,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & path )
 	Compress( sFilename + '\0' + data, &sData );
 };
 
+enum { MAX_DATA_CHUNK = 254 };	// UCHAR_MAX - 1, client and server should have this equal
 bool CFileDownloaderInGame::receive( CBytestream * bs )
 {
 	if( tState == S_FINISHED )
@@ -501,8 +502,18 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 		return true;	// Receive finished (due to error)
 	};
 	uint chunkSize = bs->readByte();
-	if( chunkSize == 0 )
+	//printf("CFileDownloaderInGame::receive() chunk %i\n", chunkSize);
+	bool Finished = false;
+	if( chunkSize != MAX_DATA_CHUNK )
 	{
+		Finished = true;
+		if( chunkSize > MAX_DATA_CHUNK )
+			chunkSize = MAX_DATA_CHUNK;
+	}
+	sData.append( bs->readData(chunkSize) );
+	if( Finished )
+	{
+		iPos = 0;
 		tState = S_ERROR;
 		if( Decompress( sData, &sFilename ) )
 		{
@@ -514,12 +525,11 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 			{
 				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
 				sFilename.resize( f );
-				printf("CFileDownloaderInGame::receive() filename %s sData.size() %i\n", sFilename.c_str(), sData.size());
+				//printf("CFileDownloaderInGame::receive() filename %s sData.size() %i\n", sFilename.c_str(), sData.size());
 			};
 		};
 		return true;	// Receive finished
 	};
-	sData.append( bs->readData(chunkSize) );
 	return false;
 };
 
@@ -530,16 +540,18 @@ bool CFileDownloaderInGame::send( CBytestream * bs )
 		tState = S_ERROR;
 		return true;	// Send finished (due to error)
 	};
-	uint chunkSize = MIN( sData.size() - iPos, 255 );
+	uint chunkSize = MIN( sData.size() - iPos, MAX_DATA_CHUNK );
+	if( sData.size() - iPos == MAX_DATA_CHUNK )
+		chunkSize++;
 	bs->writeByte( chunkSize );
-	if( chunkSize == 0 )
+	bs->writeData( sData.substr( iPos, MIN( chunkSize, MAX_DATA_CHUNK ) ) );
+	iPos += chunkSize;
+	if( chunkSize != MAX_DATA_CHUNK )
 	{
 		tState = S_FINISHED;
+		iPos = 0;
 		return true;	// Send finished
 	};
-	bs->writeData( sData.substr( iPos, chunkSize ) );
-	iPos += chunkSize;
 	return false;
 };
-
 

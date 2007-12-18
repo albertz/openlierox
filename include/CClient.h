@@ -246,7 +246,7 @@ public:
 		bHostOLXb3 = false;
 		bHostOLXb4 = false;
 		bHostAllowsMouse = false;
-		bClientSupportsDirtUpdate = false;
+		bClientOLXBeta4 = false;
 		fLastDirtUpdate = tLX->fCurTime;
 
 		bDownloadingMap = false;
@@ -401,7 +401,7 @@ private:
 	bool		bHostAllowsMouse;
 	std::string	sClientVersion;
 	std::string	sServerVersion;
-	bool		bClientSupportsDirtUpdate;
+	bool		bClientOLXBeta4;
 
 	// Map downloading
 	bool		bDownloadingMap;
@@ -650,7 +650,7 @@ public:
 	void setClientVersion(const std::string & _s);
 	const std::string & getServerVersion()				{ return sServerVersion; }
 	void setServerVersion(const std::string & _s)			{ sServerVersion = _s; }
-	bool getClientSupportsDirtUpdate()	{ return bClientSupportsDirtUpdate; }
+	bool getClientOLXBeta4()	{ return bClientOLXBeta4; }
 
 	bool getHostAllowsMouse(void)				{ return bHostAllowsMouse; }
 	void setHostAllowsMouse(bool _b)			{ bHostAllowsMouse = _b; }

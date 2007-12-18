@@ -117,7 +117,7 @@ void CClient::Clear(void)
 
 	bHostOLXb4 = false;
 	bHostAllowsMouse = false;
-	bClientSupportsDirtUpdate = false;
+	bClientOLXBeta4 = false;
 
 	bDownloadingMap = false;
 	cFileDownloader = NULL;
@@ -1060,9 +1060,9 @@ void CClient::Shutdown(void)
 
 void CClient::setClientVersion(const std::string & _s)			
 { 
-	printf("CClient::setClientVersion(): %s\n", _s.c_str() );
+	//printf("CClient::setClientVersion(): %s\n", _s.c_str() );
 	sClientVersion = _s;
 	bHostOLXb4 = true;
-	bClientSupportsDirtUpdate = bHostOLXb4;
+	bClientOLXBeta4 = true;
 }
 
