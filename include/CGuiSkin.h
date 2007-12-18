@@ -21,15 +21,11 @@ class CWidget;
 class CGuiLayoutBase;
 class CGuiSkinnedLayout;
 
+// TODO: rename this class and abstract non-Widget-related code
+// (for example this is also used for Options, though they are not at all related to widgets)
 class CGuiSkin	// Singletone
 {
 public:
-
-	// WORST FIX EVER. Pelya, please, fix your code. Also, COMPILE your code before uploading.
-	// One thing to have windows-only errors like your VT_ thingies
-	// But having restriction issues is not acceptable
-	// it should be used for iterators, not i, atleast it's used so far, might aswell make it standard
-	// --- Thanks for the input, SteelSide, there was enough to say "pelya go fix your code ****ing n**b" :-P
 
 	// What can we attach to GUI element - bool, int, float, string or function.
 	enum SkinVarType_t
@@ -47,8 +43,8 @@ public:
 	struct SkinVarPtr_t
 	{
 		SkinVarType_t type;
-		// TODO: this is not possible to be an union. sizeof(SkinCallback_t) != sizeof(void*) in general
-		union	// Is there any point in doing that union?
+		// we use union to save some memory
+		union
 		{
 			bool * b;	// Pointer to static var
 			int * i;
@@ -99,6 +95,7 @@ public:
 	#define STRINGIZE1( V ) #V
 	*/
 	
+	// TODO: rename this class
 	class CGuiSkin_RegisterVarDarkMagic
 	{
 		friend class CGuiSkin;
@@ -156,7 +153,7 @@ public:
 	static void ClearLayouts();
 	
 	// Registering widget types with CGuiSkin
-	
+	// TODO: avoid double types, merge with SkinVarType_t
 	enum WidgetVarType_t	// Var types used to initialize widget in XML
 	{
 		WVT_BOOL,
@@ -219,8 +216,8 @@ public:
 	{
 		std::vector< std::pair< SkinCallback_t, std::string > > m_callbacks;
 		CWidget * m_source;
-		public:
-		
+	
+	public:
 		void Init( const std::string & param, CWidget * source );
 		void Call();
 		CallbackHandler(): m_source(NULL) { };
@@ -240,8 +237,8 @@ public:
 	// when the dialog is shown - dialogs are cached into memory and may be shown or hidden.
 	// No need for HIDE_WIDGET yet.
 	enum { SHOW_WIDGET = -4 };	// Removed INIT_WIDGET because of more intelligent WidgetCreator_t
-private:
 
+private:
 	friend class CGuiSkin_RegisterVarDarkMagic;
 	friend class CGuiSkin_RegisterWidgetDarkMagic;
 	friend class CGuiSkin_Destroyer;	// Deletes CGuiSkin instance on exit

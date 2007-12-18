@@ -132,7 +132,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.szModName, "ModName", "Classic" )
 		( tLXOptions->tGameinfo.szPassword, "Password" )
 		( tLXOptions->tGameinfo.bRegServer, "RegisterServer", true )
-		( tLXOptions->tGameinfo.sLastSelectedPlayer, "LastSelectedPlayer", 0 )
+		( tLXOptions->tGameinfo.sLastSelectedPlayer, "LastSelectedPlayer", "" )
 		( tLXOptions->tGameinfo.bAllowWantsJoinMsg, "AllowWantsJoinMsg", true )
 		( tLXOptions->tGameinfo.bWantsJoinBanned, "WantsToJoinFromBanned", true )
 		( tLXOptions->tGameinfo.bAllowRemoteBots, "AllowRemoteBots", true )
