@@ -110,9 +110,12 @@ void Menu_Net_LANShutdown(void)
 
 		// Save the selected player
 		CCombobox* combo = (CCombobox *) cLan.getWidget(nl_PlayerSelection);
-		const cb_item_t* item = combo->getSelectedItem();
-		if (item)
-			tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
+		if( combo )
+		{
+			const cb_item_t* item = combo->getSelectedItem();
+			if (item)
+				tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
+		}
 
 		if (iNetMode == net_lan)  {
 			// Save the column widths

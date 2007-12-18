@@ -115,9 +115,12 @@ void Menu_Net_FavouritesShutdown(void)
 
 		// Save the selected player
 		CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
-		const cb_item_t* item = combo->getSelectedItem();
-		if (item)
-			tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
+		if( combo )
+		{
+			const cb_item_t* item = combo->getSelectedItem();
+			if (item)
+				tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
+		}
 
 		// Save the list
 		if (iNetMode == net_favourites)  {
