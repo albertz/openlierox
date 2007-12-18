@@ -284,7 +284,6 @@ public:
 		short checklistColWidth;
 
 		SquareMatrix<int> area;
-		bool inUse; // indicates, that some recursive tree is using this area as a base
 		area_item* lastArea; // the area where we came from
 		double dist_from_source; // distance from startpoint
 		
@@ -339,7 +338,6 @@ public:
 			checklistCols(0),
 			checklistColStart(0),
 			checklistColWidth(5),
-			inUse(false),
 			lastArea(NULL),
 			dist_from_source(0) {}
 
