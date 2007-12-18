@@ -17,6 +17,8 @@
 #ifndef __CCOMBOBOX_H__
 #define __CCOMBOBOX_H__
 
+#include <vector>
+
 #include "StringUtils.h"
 #include "InputEvents.h"
 #include "CScrollbar.h"
@@ -83,7 +85,7 @@ private:
 	// Attributes
 
 	// Items
-	std::list<cb_item_t> tItems;
+	std::vector<cb_item_t> tItems;
 	int 			iSelected;
 	int				iGotScrollbar;
 	int				iDropped;
@@ -135,7 +137,7 @@ public:
     void    clear(void);
 	int		addItem(const std::string& sindex, const std::string& name);
 	int		addItem(int index, const std::string& sindex, const std::string& name);
-	const std::list<cb_item_t>& getItems()	{ return tItems; }
+	const std::vector<cb_item_t>& getItems()	{ return tItems; }
 	const cb_item_t* getItem(int index) const;
 	int getItemIndex(const cb_item_t* item);	
 	int		getItemsCount();

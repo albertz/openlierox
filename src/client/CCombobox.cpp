@@ -94,7 +94,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 		}
 
 		int index = 0;
-		for(std::list<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, count++, index++) {
+		for(std::vector<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, count++, index++) {
 			if(count < cScrollbar.getValue())
 				continue;
 
@@ -225,7 +225,7 @@ public:
 // Sorts te items in the combobox
 void CCombobox::Sort(bool ascending)
 {
-	tItems.sort(comboorder(ascending));
+	std::sort(tItems.begin(), tItems.end(), comboorder(ascending));
 }
 
 
@@ -290,7 +290,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
             //
             if(!iDropped) {
                 int index = 0;
-                for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
+                for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
                     if(index == iSelected) {
                         // Setup the scroll bar so it shows this item in the middle
                         cScrollbar.setValue( index - cScrollbar.getItemsperbox() / 2 );
@@ -355,7 +355,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 		w-=16;
 
 	int index = 0;
-	for(std::list<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, index++) {
+	for(std::vector<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, index++) {
 		if(index < cScrollbar.getValue())
 			continue;
 
@@ -431,7 +431,7 @@ int CCombobox::findItem(UnicodeChar startLetter) {
 	int first = -1; // save first found index here
 	int index = 0; // current index for loop
 	startLetter = UnicodeToLower(startLetter);
-	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
+	for(std::vector<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
 		UnicodeChar c = GetUnicodeFromUtf8(it->sName, 0);
 		c = UnicodeToLower(c);
 		if(c == startLetter) {
@@ -596,7 +596,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	//
 	if(index >= 0 && (size_t)index < tItems.size()) {
 		int i = 0;
-		for(std::list<cb_item_t>::iterator it = tItems.begin(); it != tItems.end(); ++it, ++i) {
+		for(std::vector<cb_item_t>::iterator it = tItems.begin(); it != tItems.end(); ++it, ++i) {
 			if(i == index) {
 				tItems.insert(it, item);
 				break;
@@ -651,7 +651,7 @@ void CCombobox::setCurItem(const cb_item_t *it)
 void CCombobox::setCurSIndexItem(const std::string& szString)
 {
 	int index = 0;
-	for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
+	for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
         if( stringcasecmp(i->sIndex, szString) == 0 ) {
             iSelected = index;
             return;
@@ -682,7 +682,7 @@ void CCombobox::clear(void)
 const cb_item_t* CCombobox::getItem(int index) const
 {
 	if(index < 0 || (size_t)index >= tItems.size()) return NULL;
-	std::list<cb_item_t>::const_iterator it = tItems.begin();
+	std::vector<cb_item_t>::const_iterator it = tItems.begin();
 	for(int i = 0; i < index; i++, it++) {}
 	return &*it;
 }
@@ -690,7 +690,7 @@ const cb_item_t* CCombobox::getItem(int index) const
 cb_item_t* CCombobox::getItemRW(int index)
 {
 	if(index < 0 || (size_t)index >= tItems.size()) return NULL;
-	std::list<cb_item_t>::iterator it = tItems.begin();
+	std::vector<cb_item_t>::iterator it = tItems.begin();
 	for(int i = 0; i < index; i++, it++) {}
 	return &*it;
 }
@@ -704,7 +704,7 @@ int	CCombobox::getItemsCount() {
 /////////////
 // Get the item based on its displayed name
 const cb_item_t* CCombobox::getItem(const std::string& name) const {
-	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
+	for(std::vector<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
 		if(stringcasecmp(it->sName, name) == 0)
 			return &*it;
 	}
@@ -715,7 +715,7 @@ const cb_item_t* CCombobox::getItem(const std::string& name) const {
 // Get the item based on its string index
 const cb_item_t* CCombobox::getSIndexItem(const std::string& sIndex) const {
 	// TODO: make it faster by using a sorted list (or map)
-	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
+	for(std::vector<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
 		if(stringcasecmp(it->sIndex, sIndex) == 0)
 			return &*it;
 	}
@@ -804,7 +804,7 @@ const cb_item_t* CCombobox::getSelectedItem() {
 
 int CCombobox::getItemIndex(const cb_item_t* item) {
 	int index = 0;
-	for(std::list<cb_item_t>::iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
+	for(std::vector<cb_item_t>::iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
 		if(&*it == item)
 			return index;
 	}
