@@ -17,7 +17,7 @@
 #ifndef __CCOMBOBOX_H__
 #define __CCOMBOBOX_H__
 
-
+#include "StringUtils.h"
 #include "InputEvents.h"
 #include "CScrollbar.h"
 
@@ -47,18 +47,13 @@ enum {
 	CBM_SETUNIQUE
 };
 
-// Needed here, declared in StringUtils.h
-extern short stringcasecmp(const std::string& s1, const std::string& s2);
+
 
 // Item structure
 class cb_item_t { public:
 	std::string	sIndex;
 	std::string	sName;
 	SDL_Surface *tImage;
-
-	bool operator < (const cb_item_t& rp)  {
-		return stringcasecmp(sName, rp.sName) < 0;
-	}
 };
 
 
