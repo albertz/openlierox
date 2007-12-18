@@ -716,7 +716,7 @@ UnicodeChar	UnicodeToLower(UnicodeChar c)
 
 ////////////////////////
 // Like toupper() but for all international characters
-UnicodeChar	Utf8ToUpper(UnicodeChar c)
+UnicodeChar	UnicodeToUpper(UnicodeChar c)
 {
 	// ASCII
 	if (c < 0xC0)

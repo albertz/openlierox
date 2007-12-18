@@ -90,7 +90,7 @@ int Menu_Net_NETInitialize(void)
 		cInternet.SendMessage( mi_PlayerSelection, CBM_SETIMAGE, (DWORD)p->iID, (DWORD)p->bmpWorm);
 	}
 
-	cInternet.SendMessage( mi_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.iLastSelectedPlayer, 0);
+	cInternet.SendMessage( mi_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.sLastSelectedPlayer, 0);
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 
@@ -130,7 +130,7 @@ void Menu_Net_NETShutdown(void)
 		// Save the selected player
 		cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
 		if (item)
-			tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+			tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
 
 	}
 
@@ -400,18 +400,17 @@ void Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sNam
 	tGameInfo.iNumPlayers = 1;
 
 	// Fill in the game structure
-	cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+	CCombobox* combo = (CCombobox *) cInternet.getWidget(mi_PlayerSelection);
+	const cb_item_t* item = combo->getSelectedItem();
 
 	// Add the player to the list
 	if (item)  {
-		profile_t *ply = FindProfile(item->iIndex);
+		profile_t *ply = FindProfile(item->sIndex);
 		if(ply)
 			tGameInfo.cPlayers[0] = ply;
+		
+		tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
 	}
-
-	if(item->iIndex < 0)
-		item->iIndex = 0;
-	tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
 
 	cClient->setServerName(sName);
 

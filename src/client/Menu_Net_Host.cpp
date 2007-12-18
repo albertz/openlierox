@@ -604,12 +604,12 @@ void Menu_Net_HostLobbyCreateGui(void)
 	// Fill in the mod list
 	Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
 	CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
-	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
-
+	cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
+	
 	// Fill in the levels list
 	Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
 	CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
-	cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameinfo.sMapFilename));
+	cbLevel->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
 	Menu_HostShowMinimap();
 
     // Don't show chat box selection
@@ -784,22 +784,22 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
-		cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
-		if(it)
-			tLXOptions->tGameinfo.szModName = it->sIndex;
+		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
+		if(it) tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
-		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameinfo.szModName));
+		cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
 
 
 
 		// Fill in the levels list
-		cHostLobby.SendMessage(hl_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
-
 		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
-		cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameinfo.sMapFilename));
+		it = cbMod->getItem(cbLevel->getSelectedIndex());
+		if(it) tLXOptions->tGameinfo.sMapFilename = it->sIndex;
+		
+		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
+		cbLevel->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
 	}
 
 

@@ -219,7 +219,7 @@ void Menu_LocalFrame(void)
 	if (bActivated)  {
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
-		cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
+		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
 		if(it) tLXOptions->tGameinfo.szModName = it->sIndex;
 
 		// Fill in the mod list

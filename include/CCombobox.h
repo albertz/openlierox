@@ -50,14 +50,9 @@ enum {
 
 // Item structure
 class cb_item_t { public:
-	int			iIndex;
 	std::string	sIndex;
 	std::string	sName;
-	int			iSelected;
 	SDL_Surface *tImage;
-
-	cb_item_t	*tPrev;
-	cb_item_t	*tNext;
 };
 
 
@@ -66,10 +61,7 @@ class CCombobox : public CWidget {
 public:
 	// Constructor
 	CCombobox() {
-		tItems = NULL;
-		tLastItem = NULL;
-		tSelected = NULL;
-		iItemCount = 0;
+		iSelected = 0;
 		iGotScrollbar = false;
 		iDropped = false;
 		iArrowDown = false;
@@ -90,10 +82,8 @@ private:
 	// Attributes
 
 	// Items
-	cb_item_t		*tItems;
-	cb_item_t		*tLastItem;
-	cb_item_t		*tSelected;
-	int				iItemCount;
+	std::list<cb_item_t> tItems;
+	int 			iSelected;
 	int				iGotScrollbar;
 	int				iDropped;
 	int				iArrowDown;
@@ -113,6 +103,9 @@ private:
 	int				*iVar;
 	std::string		*sVar;
 	CGuiSkin::CallbackHandler cClick;
+
+private:
+	cb_item_t* getItemRW(int index);
 
 public:
 	// Methods
@@ -139,24 +132,31 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
     void    clear(void);
+	bool	addItem(const std::string& sindex, const std::string& name);
 	bool	addItem(int index, const std::string& sindex, const std::string& name);
-	inline cb_item_t* getItems()	{ return tItems; }
-	cb_item_t* getItem(int index);
+	const std::list<cb_item_t>& getItems()	{ return tItems; }
+	const cb_item_t* getItem(int index) const;
+	int getItemIndex(const cb_item_t* item);	
 	int		getItemsCount();
-	cb_item_t* getItem(const std::string& name);
-	cb_item_t* getSIndexItem(const std::string& sIndex);
+	const cb_item_t* getItem(const std::string& name) const;
+	const cb_item_t* getSIndexItem(const std::string& sIndex) const;
 	void	setCurItem(int index);
-	void	setCurItem(cb_item_t *it);
+	void	setCurItem(const cb_item_t* item);
     void    setCurSIndexItem(const std::string& szString);
-    void    setCurIndexItem(int nIndex);
+    bool	selectNext();
+    bool	selectPrev();
+    int		findItem(UnicodeChar startLetter);
 	void	setImage(SDL_Surface *img, int ItemIndex);
 	int		getSelectedIndex();
+	const cb_item_t* getSelectedItem();
 	int		getDropped(void) { return iDropped; }
 	void	setSorted(bool _s)  { bSorted = _s; }
 	bool	getSorted()	{ return bSorted; }
 	void	setUnique(bool _u)  { bUnique = _u; }
 	bool	getUnique()			{ return bUnique; }
-	cb_item_t *getLastItem()	{ return tLastItem; }
+	int getItemHeight();
+	
+	const cb_item_t* getLastItem();
 
 	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);

@@ -97,8 +97,13 @@ inline std::string::iterator Utf8PositionToIterator(std::string& str, size_t pos
 // Reads next unicode character from a UTF8 encoded string
 // the iterator shows at the next character after this operation
 UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last, size_t& num_skipped);
-inline UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator &it, const std::string::const_iterator& last)  {
+inline UnicodeChar GetNextUnicodeFromUtf8(std::string::const_iterator& it, const std::string::const_iterator& last)  {
 	size_t tmp;	return GetNextUnicodeFromUtf8(it, last, tmp); }
+
+inline UnicodeChar GetUnicodeFromUtf8(const std::string& str, size_t pos) {
+	std::string::const_iterator it = Utf8PositionToIterator(str, pos);
+	return GetNextUnicodeFromUtf8(it, str.end());
+}
 
 ////////////////////
 // Gets the UTF8 representation of the unicode character (can be more bytes)

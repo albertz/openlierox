@@ -235,7 +235,7 @@ public:
         std::string szModName;
         std::string szPassword;
 		bool	bRegServer;
-		int		iLastSelectedPlayer;
+		std::string	sLastSelectedPlayer;
 		bool	bAllowWantsJoinMsg;
 		bool	bWantsJoinBanned;
 		bool	bAllowRemoteBots;

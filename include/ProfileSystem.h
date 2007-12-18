@@ -68,6 +68,7 @@ int		LoadProfileGraphics(profile_t *p);
 
 profile_t *GetProfiles(void);
 profile_t *FindProfile(int id);
+profile_t *FindProfile(const std::string& name);
 
 // General function for all to use
 SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB);

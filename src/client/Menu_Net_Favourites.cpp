@@ -74,7 +74,7 @@ int Menu_Net_FavouritesInitialize(void)
 		cFavourites.SendMessage( mf_PlayerSelection, CBM_SETIMAGE, p->iID, (DWORD)p->bmpWorm);
 	}
 
-	cFavourites.SendMessage( mf_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.iLastSelectedPlayer, 0);
+	cFavourites.SendMessage( mf_PlayerSelection, CBM_SETCURINDEX, tLXOptions->tGameinfo.sLastSelectedPlayer, 0);
 
     Menu_redrawBufferRect(0, 0, 640, 480);
 
@@ -114,9 +114,10 @@ void Menu_Net_FavouritesShutdown(void)
 	if (tLXOptions)  {
 
 		// Save the selected player
-		cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+		CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
+		const cb_item_t* item = combo->getSelectedItem();
 		if (item)
-			tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+			tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
 
 		// Save the list
 		if (iNetMode == net_favourites)  {
@@ -164,9 +165,10 @@ void Menu_Net_FavouritesFrame(int mouse)
 			case mf_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
-					cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+					CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
+					const cb_item_t* item = combo->getSelectedItem();
 					if (item)
-						tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+						tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -401,18 +403,16 @@ void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 	tGameInfo.iNumPlayers = 1;
 
 	// Fill in the game structure
-	cb_item_t *item = (cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
+	const cb_item_t *item = (const cb_item_t *)cFavourites.SendMessage(mf_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0);
 
 	// Add the player to the list
 	if (item)  {
-		profile_t *ply = FindProfile(item->iIndex);
+		profile_t *ply = FindProfile(item->sIndex);
 		if(ply)
 			tGameInfo.cPlayers[0] = ply;
 	}
-
-	if(item->iIndex < 0)
-		item->iIndex = 0;
-	tLXOptions->tGameinfo.iLastSelectedPlayer = item->iIndex;
+	
+	tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
 
 	cClient->setServerName(sName);
 

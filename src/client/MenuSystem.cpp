@@ -1037,10 +1037,7 @@ void Menu_AddDefaultWidgets(void)
 
 			std::string mapName = Menu_GetLevelName(f);
 			if(mapName != "") {
-				if (cmb->addItem((*index), f, mapName))  {		
-					if(f == tLXOptions->tGameinfo.sMapFilename)
-						cmb->setCurItem(cmb->getLastItem());
-					
+				if (cmb->addItem((*index), f, mapName))  {					
 					(*index)++;
 				}
 			}
