@@ -835,9 +835,6 @@ void Menu_Player_FillSkinCombo(CCombobox *cb) {
     if( !cb )
         return;
 
-	// TODO: unless we don't have optimised sorted input, just sort at the end
-//	cb->setSorted(true);
-	cb->setUnique(true);
 	cb->clear();
         
     FindFiles(SkinAdder(cb), "skins", FM_REG);
