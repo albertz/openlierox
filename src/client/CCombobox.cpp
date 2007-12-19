@@ -472,6 +472,7 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym)
 		return CMB_CHANGED;
 	}
 
+	// TODO: this doesn't work as expected atm if the mouse is over
 	// Handle key up/down
 	if (iDropped)  {
 		if (keysym == SDLK_DOWN)  {
@@ -482,7 +483,9 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym)
 				iKeySelectedItem = iSelected;
 				return CMB_CHANGED;
 			}
-		} else if (keysym == SDLK_UP)  {
+		} else
+		
+		if (keysym == SDLK_UP)  {
 			if (selectPrev())  {
 				// Move the scrollbar if necessary
 				if (cScrollbar.getValue() > iSelected)
@@ -490,6 +493,10 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym)
 				iKeySelectedItem = iSelected;
 				return CMB_CHANGED;
 			}
+		} else
+		
+		if(keysym == SDLK_RETURN) {
+			iDropped = false;
 		}
 	}
 
