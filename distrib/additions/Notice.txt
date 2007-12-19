@@ -1,0 +1,5 @@
+I have updated the C&C version in this zip to the newest.
+C&C 1.0 tends to crash OLX.
+V1.2B is far more stable.
+
+-Nick
