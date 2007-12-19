@@ -129,7 +129,8 @@ public:
 	void	LoadStyle(void) {}
 
 	void	Sort(bool ascending);
-
+	void	Unique();
+	
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);

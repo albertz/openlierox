@@ -5,7 +5,7 @@
 - more intelligent event-handling (in some parts);
   all pressed keys got recognised in chat/console
 - delete-key works now under MacOSX
-- copy&paste support for Linux
+- copy&paste support for Linux and MacOSX
 
 0.57_beta3
 ==========

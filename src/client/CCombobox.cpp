@@ -192,42 +192,53 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	iArrowDown = false;
 }
 
-class comboorder  {
-public:
-	bool ascending;
-	comboorder(bool asc) : ascending(asc) {}
+static inline int compare_items(const cb_item_t& item1, const cb_item_t& item2) {
+	// Swap the two items?
+	bool failed1,failed2;
+	int nat_cmp1 = from_string<int>(item1.sName, failed1);
+	int nat_cmp2 = from_string<int>(item2.sName, failed2);
 	
-	// less operation, item1 < item2
-	bool less(const cb_item_t& item1, const cb_item_t& item2) {
-		// Swap the two items?
-		bool failed1,failed2;
-		int nat_cmp1 = from_string<int>(item1.sName, failed1);
-		int nat_cmp2 = from_string<int>(item2.sName, failed2);
-		
-		// First try, if we compare numbers
-		if (!failed1 && !failed2)  {
-			return nat_cmp1 < nat_cmp2;
-		// String comparison
-		} else {
-			return 0 > stringcasecmp(item1.sName, item2.sName);
-		}
-	}
-	
-	bool operator()(const cb_item_t& item1, const cb_item_t& item2) {
-		if(ascending)
-			return less(item1, item2);
+	// First try, if we compare numbers
+	if (!failed1 && !failed2)  {
+		if(nat_cmp1 < nat_cmp2)
+			return -1;
+		else if(nat_cmp1 == nat_cmp2)
+			return 0;
 		else
-			return less(item2, item1);
+			return 1;
+	// String comparison
+	} else {
+		return stringcasecmp(item1.sName, item2.sName);
 	}
-};
+}
+
+
+static inline bool less_items(const cb_item_t& item1, const cb_item_t& item2) {
+	return compare_items(item1, item2) < 0;
+}
+
+static inline bool greater_items(const cb_item_t& item1, const cb_item_t& item2) {
+	return compare_items(item1, item2) > 0;
+}
+
+inline bool equal_items(const cb_item_t& item1, const cb_item_t& item2) {
+	return compare_items(item1, item2) > 0;
+}
 
 //////////////////////
 // Sorts te items in the combobox
 void CCombobox::Sort(bool ascending)
 {
-	std::sort(tItems.begin(), tItems.end(), comboorder(ascending));
+	if(ascending)
+		std::sort(tItems.begin(), tItems.end(), less_items);
+	else
+		std::sort(tItems.begin(), tItems.end(), greater_items);
 }
 
+void CCombobox::Unique() {
+	 std::vector<cb_item_t>::iterator new_end = std::unique(tItems.begin(), tItems.end(), equal_items);
+	 tItems.erase(new_end, tItems.end());
+}
 
 ///////////////////
 // Create the combo box
