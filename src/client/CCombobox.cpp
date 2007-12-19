@@ -300,13 +300,9 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
             // If we aren't dropped, shift the scroll bar
             //
             if(!iDropped) {
-                int index = 0;
-                for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
-                    if(index == iSelected) {
-                        // Setup the scroll bar so it shows this item in the middle
-                        cScrollbar.setValue( index - cScrollbar.getItemsperbox() / 2 );
-                        break;
-                    }
+                if(iSelected >= 0 && (size_t)iSelected < tItems.size()) {
+					// Setup the scroll bar so it shows this item in the middle
+					cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
                 }
             }
 
@@ -366,6 +362,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 		w-=16;
 
 	int index = 0;
+	// TODO: this loop is just unneeded here, remove it
 	for(std::vector<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, index++) {
 		if(index < cScrollbar.getValue())
 			continue;
@@ -625,16 +622,11 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	// Add it to the list
 	//
 	if(index >= 0 && (size_t)index < tItems.size()) {
-		int i = 0;
-		for(std::vector<cb_item_t>::iterator it = tItems.begin(); it != tItems.end(); ++it, ++i) {
-			if(i == index) {
-				tItems.insert(it, item);
-				break;
-			}
-		}
+		std::vector<cb_item_t>::iterator it = tItems.begin() + index;
+		tItems.insert(it, item);
 	} else {
+		index = tItems.size();
 		tItems.push_back(item);
-		index = tItems.size() - 1;
 	}
 
 	// current selection invalid
@@ -744,8 +736,7 @@ const cb_item_t* CCombobox::getItem(int index) const
 cb_item_t* CCombobox::getItemRW(int index)
 {
 	if(index < 0 || (size_t)index >= tItems.size()) return NULL;
-	std::vector<cb_item_t>::iterator it = tItems.begin();
-	for(int i = 0; i < index; i++, it++) {}
+	std::vector<cb_item_t>::iterator it = tItems.begin() + index;
 	return &*it;
 }
 
