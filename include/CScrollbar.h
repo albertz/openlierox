@@ -109,7 +109,7 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CScrollbar * w = new CScrollbar();
 		layout->Add( w, id, x, y, dx, dy );
@@ -118,7 +118,7 @@ public:
 		w->setMin( p[0].i );
 		w->setMax( p[1].i );
 		w->setItemsperbox( p[2].i );
-		w->iVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_INT ).i;
+		w->iVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_INT ).i;
 		if( w->iVar )
 			w->setValue( *w->iVar );
 		return w;
@@ -142,11 +142,11 @@ public:
 
 static bool CScrollbar_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "scrollbar", & CScrollbar::WidgetCreator )
-							( "min", CGuiSkin::WVT_INT )
-							( "max", CGuiSkin::WVT_INT )
-							( "itemsperbox", CGuiSkin::WVT_INT )
-							( "var", CGuiSkin::WVT_STRING )
-							( "click", CGuiSkin::WVT_STRING );
+							( "min", CScriptableVars::SVT_INT )
+							( "max", CScriptableVars::SVT_INT )
+							( "itemsperbox", CScriptableVars::SVT_INT )
+							( "var", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );
 
 
 #endif  //  __CSCROLLBAR_H__

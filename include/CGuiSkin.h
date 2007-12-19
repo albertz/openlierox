@@ -21,28 +21,28 @@ class CWidget;
 class CGuiLayoutBase;
 class CGuiSkinnedLayout;
 
-// TODO: rename this class and abstract non-Widget-related code
-// (for example this is also used for Options, though they are not at all related to widgets)
-class CGuiSkin	// Singletone
+// Do not confuse this with game script - these vars mainly for GUI frontend and options
+class CScriptableVars	// Singletone
 {
 public:
 
+	typedef void ( * ScriptCallback_t ) ( const std::string & param, CWidget * source );
+	typedef Uint32 Color_t;
+
 	// What can we attach to GUI element - bool, int, float, string or function.
-	enum SkinVarType_t
+	enum ScriptVarType_t
 	{
 		SVT_BOOL,
 		SVT_INT,
 		SVT_FLOAT,
 		SVT_STRING,
-		SVT_CALLBACK
+		SVT_COLOR,		// uint32 actually, used only in XML files
+		SVT_CALLBACK	// Cannot be referenced from XML files directly, only as string
 	};
 
-	typedef void ( * SkinCallback_t ) ( const std::string & param, CWidget * source );
-	// param is ignored by now by all callbacks, but maybe in future it will be used
-
-	struct SkinVarPtr_t
+	struct ScriptVarPtr_t
 	{
-		SkinVarType_t type;
+		ScriptVarType_t type;
 		// we use union to save some memory
 		union
 		{
@@ -50,7 +50,8 @@ public:
 			int * i;
 			float * f;
 			std::string * s;
-			SkinCallback_t c;
+			Color_t * cl;
+			ScriptCallback_t cb;
 		};
 		union	// Is there any point in doing that union?
 		{
@@ -58,52 +59,66 @@ public:
 			int idef;
 			float fdef;
 			const char * sdef;	// Not std::string to keep this structure plain-old-data
+			Color_t cldef;
 			// No default value for skin callback, 'cause it's not saved into cfg file
 		};
-		SkinVarPtr_t() {};
-		SkinVarPtr_t( bool * v, bool def = false ): type(SVT_BOOL) { b = v; bdef = def; };
-		SkinVarPtr_t( int * v, int def = 0 ): type(SVT_INT) { i = v; idef = def; };
-		SkinVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT) { f = v; fdef = def; };
-		SkinVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING) { s = v; sdef = def; };
-		SkinVarPtr_t( SkinCallback_t v ): type(SVT_CALLBACK) { c = v; };
+		ScriptVarPtr_t() {};
+		ScriptVarPtr_t( bool * v, bool def = false ): type(SVT_BOOL) { b = v; bdef = def; };
+		ScriptVarPtr_t( int * v, int def = 0 ): type(SVT_INT) { i = v; idef = def; };
+		ScriptVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT) { f = v; fdef = def; };
+		ScriptVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING) { s = v; sdef = def; };
+		ScriptVarPtr_t( Color_t * v, Color_t def = MakeColour(255,0,255) ): type(SVT_COLOR) { cl = v; cldef = def; };
+		ScriptVarPtr_t( ScriptCallback_t v ): type(SVT_CALLBACK) { cb = v; };
 	};
 
-	static CGuiSkin & Init()
+	struct ScriptVar_t
+	{
+		ScriptVarType_t type;
+		// Cannot do union because of std::string
+		bool b;
+		int i;
+		float f;
+		std::string s;
+		Color_t c;	// color
+		// No callback here - we cannot assign callbacks to each other
+		ScriptVar_t(): type(SVT_BOOL), b(false), i(0), f(0.0), s(""), c(0) { };
+		ScriptVar_t( bool v ): type(SVT_BOOL), b(v), i(0), f(0.0), s(""), c(0) { };
+		ScriptVar_t( int v ): type(SVT_INT), b(false), i(v), f(0.0), s(""), c(0) { };
+		ScriptVar_t( float v ): type(SVT_FLOAT), b(false), i(0), f(v), s(""), c(0) { };
+		ScriptVar_t( const std::string & v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
+		ScriptVar_t( const char * v ): type(SVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
+		ScriptVar_t( Color_t v ): type(SVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
+	};
+
+	static CScriptableVars & Init()
 	{
 		if( m_instance == NULL )
-			m_instance = new CGuiSkin;
+			m_instance = new CScriptableVars;
 		return *m_instance;
 	};
 
-	static std::map< std::string, SkinVarPtr_t > & Vars()
+	static std::map< std::string, ScriptVarPtr_t > & Vars()
 	{
 		Init();
 		return m_instance->m_vars;
 	};
 	
-	static SkinVarPtr_t GetVar( const std::string & name, SkinVarType_t type );	// Case-insensitive search
+	static ScriptVarPtr_t GetVar( const std::string & name, ScriptVarType_t type );	// Case-insensitive search
+	static std::string DumpVars();	// For debug output
 
 	// Stolen from boost::program_options
 
 	// Convert "tLXOptions -> iNetworkPort " to "iNetworkPort"
 	static std::string StripClassName( const std::string & c );
 
-	/*
-	// Not used anywhere, don't want to make another #define
-	#define VARSTR( V ) ( V, CGuiSkin::StripClassName( STRINGIZE( V ) ) )
-	#define STRINGIZE( V ) STRINGIZE1( V )
-	#define STRINGIZE1( V ) #V
-	*/
-	
-	// TODO: rename this class
-	class CGuiSkin_RegisterVarDarkMagic
+	class VarRegisterHelper
 	{
-		friend class CGuiSkin;
+		friend class CScriptableVars;
 
-		std::map< std::string, SkinVarPtr_t > & m_vars;	// Reference to CGuiSkin.m_vars
+		std::map< std::string, ScriptVarPtr_t > & m_vars;	// Reference to CScriptableVars::m_vars
 		std::string m_prefix;
 
-		CGuiSkin_RegisterVarDarkMagic( CGuiSkin * parent, const std::string & prefix ): 
+		VarRegisterHelper( CScriptableVars * parent, const std::string & prefix ): 
 			m_vars( parent->m_vars ), m_prefix(prefix) {};
 
 		std::string Name( const std::string & c )
@@ -117,96 +132,80 @@ public:
 
 		operator bool () { return true; };	// To be able to write static expressions
 
-		CGuiSkin_RegisterVarDarkMagic & operator() ( bool & v, const std::string & c, bool def = false )
-			{ m_vars[Name(c)] = SkinVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( bool & v, const std::string & c, bool def = false )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
 
-		CGuiSkin_RegisterVarDarkMagic & operator() ( int & v, const std::string & c, int def = 0 )
-			{ m_vars[Name(c)] = SkinVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( int & v, const std::string & c, int def = 0 )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
 
-		CGuiSkin_RegisterVarDarkMagic & operator() ( float & v, const std::string & c, float def = 0.0 )
-			{ m_vars[Name(c)] = SkinVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( float & v, const std::string & c, float def = 0.0 )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
 
-		CGuiSkin_RegisterVarDarkMagic & operator() ( std::string & v, const std::string & c, const char * def = "" )
-			{ m_vars[Name(c)] = SkinVarPtr_t( &v, def ); return *this; };
+		VarRegisterHelper & operator() ( std::string & v, const std::string & c, const char * def = "" )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
 
-		CGuiSkin_RegisterVarDarkMagic & operator() ( SkinCallback_t v, const std::string & c )
-			{ m_vars[Name(c)] = SkinVarPtr_t( v ); return *this; };
+		VarRegisterHelper & operator() ( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255) )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( &v, def ); return *this; };
+
+		VarRegisterHelper & operator() ( ScriptCallback_t v, const std::string & c )
+			{ m_vars[Name(c)] = ScriptVarPtr_t( v ); return *this; };
 	};
 
-	static CGuiSkin_RegisterVarDarkMagic RegisterVars( const std::string & base = "" )
+	static VarRegisterHelper RegisterVars( const std::string & base = "" )
 	{
 		Init();
-		return CGuiSkin_RegisterVarDarkMagic( m_instance, base );
+		return VarRegisterHelper( m_instance, base );
 	};
-	/* 
-	Now we can write: 
-	static bool VarsAddedJustOnce = 
-		CGuiSkin::AddVars("Options") // Name of class or section
-			( tLXOptions->iNetworkPort, "iNetworkPort" ) // Variable reference and name
-			( tLXOptions->fUpdatePeriod, "fUpdatePeriod" ) 
-			( tLXOptions->bUseIpToCountry, "bUseIpToCountry" ); 
-	It doesn't hurt at all to add same var twice.
-	*/
-	static std::string DumpVars();	// For debug output
-	
+
+private:
+	friend class VarRegisterHelper;
+	friend class CGuiSkin_Destroyer;	// Deletes CGuiSkin instance on exit
+
+	static CScriptableVars * m_instance;
+	std::map< std::string, ScriptVarPtr_t > m_vars;	// All in-game variables and callbacks
+};
+
+
+class CGuiSkin	// Singletone
+{
+public:
+
+	static CGuiSkin & Init()
+	{
+		if( m_instance == NULL )
+			m_instance = new CGuiSkin;
+		return *m_instance;
+	};
+
 	static CGuiSkinnedLayout * GetLayout( const std::string & filename );	// Get GUI layout from cache or create it from disk
 	static void ClearLayouts();
 	
-	// Registering widget types with CGuiSkin
-	// TODO: avoid double types, merge with SkinVarType_t
-	enum WidgetVarType_t	// Var types used to initialize widget in XML
-	{
-		WVT_BOOL,
-		WVT_INT,
-		WVT_FLOAT,
-		WVT_STRING,
-		WVT_COLOR
-	};
-
-	struct WidgetVar_t
-	{
-		WidgetVarType_t type;
-		// Cannot do union because of std::string
-		bool b;
-		int i;
-		float f;
-		std::string s;
-		Uint32 c;	// color
-		WidgetVar_t(): type(WVT_BOOL), b(false), i(0), f(0.0), s(""), c(0) { };
-		WidgetVar_t( bool v ): type(WVT_BOOL), b(v), i(0), f(0.0), s(""), c(0) { };
-		WidgetVar_t( int v ): type(WVT_INT), b(false), i(v), f(0.0), s(""), c(0) { };
-		WidgetVar_t( float v ): type(WVT_FLOAT), b(false), i(0), f(v), s(""), c(0) { };
-		WidgetVar_t( const std::string & v ): type(WVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
-		WidgetVar_t( const char * v ): type(WVT_STRING), b(false), i(0), f(0.0), s(v), c(0) { };
-		WidgetVar_t( Uint32 v ): type(WVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
-	};
-	
-	typedef std::vector< std::pair< std::string, WidgetVarType_t > > paramListVector_t;
+	typedef std::vector< std::pair< std::string, CScriptableVars::ScriptVarType_t > > paramListVector_t;
 	// WidgetCreator will create widget and add it to specified CGuiLayout (and init it a bit after that if necessary).
-	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< WidgetVar_t > & params, CGuiLayoutBase * layout, int id, int x, int y, int w, int h );
+	typedef CWidget * ( * WidgetCreator_t ) ( const std::vector< CScriptableVars::ScriptVar_t > & params, CGuiLayoutBase * layout, int id, int x, int y, int w, int h );
 	
-	class CGuiSkin_RegisterWidgetDarkMagic
+	class WidgetRegisterHelper
 	{
 		friend class CGuiSkin;
 
 		paramListVector_t & m_params;	// Reference to CGuiSkin.m_vars
 
-		CGuiSkin_RegisterWidgetDarkMagic( paramListVector_t & params ): 
+		WidgetRegisterHelper( paramListVector_t & params ): 
 			m_params( params ) {};
 		
 		public:
 		
 		operator bool () { return true; };	// To be able to write static expressions
 
-		CGuiSkin_RegisterWidgetDarkMagic & operator() ( const std::string & c, WidgetVarType_t vt )
-			{ m_params.push_back( std::pair< std::string, WidgetVarType_t >( c, vt ) ); return *this; };
+		WidgetRegisterHelper & operator() ( const std::string & c, CScriptableVars::ScriptVarType_t vt )
+			{ m_params.push_back( std::pair< std::string, CScriptableVars::ScriptVarType_t >( c, vt ) ); return *this; };
 	};
 	
-	static CGuiSkin_RegisterWidgetDarkMagic RegisterWidget( const std::string & name, WidgetCreator_t creator )
+	static WidgetRegisterHelper RegisterWidget( const std::string & name, WidgetCreator_t creator )
 	{
 		Init();
 		m_instance->m_widgets[name] = std::pair< paramListVector_t, WidgetCreator_t > ( paramListVector_t(), creator );
-		return CGuiSkin_RegisterWidgetDarkMagic( m_instance->m_widgets[name].first );
+		return WidgetRegisterHelper( m_instance->m_widgets[name].first );
 	};
 
 	static std::string DumpWidgets();	// For debug output
@@ -214,7 +213,7 @@ public:
 	// Helper class for callback info thst should be inserted into widget
 	class CallbackHandler
 	{
-		std::vector< std::pair< SkinCallback_t, std::string > > m_callbacks;
+		std::vector< std::pair< CScriptableVars::ScriptCallback_t, std::string > > m_callbacks;
 		CWidget * m_source;
 	
 	public:
@@ -225,7 +224,7 @@ public:
 	};
 	
 	// Update will be called on each frame with following params
-	static void RegisterUpdateCallback( SkinCallback_t update, const std::string & param, CWidget * source );
+	static void RegisterUpdateCallback( CScriptableVars::ScriptCallback_t update, const std::string & param, CWidget * source );
 	// Remove widget from update list ( called from widget destructor )
 	static void DeRegisterUpdateCallback( CWidget * source );
 	// Called on each frame
@@ -239,21 +238,19 @@ public:
 	enum { SHOW_WIDGET = -4 };	// Removed INIT_WIDGET because of more intelligent WidgetCreator_t
 
 private:
-	friend class CGuiSkin_RegisterVarDarkMagic;
-	friend class CGuiSkin_RegisterWidgetDarkMagic;
+	friend class WidgetRegisterHelper;
 	friend class CGuiSkin_Destroyer;	// Deletes CGuiSkin instance on exit
 
 	// Should be private, please use CGuiSkin::Vars() and other member functions to have access to them
 	static CGuiSkin * m_instance;
-	std::map< std::string, SkinVarPtr_t > m_vars;	// All in-game variables and callbacks
 	std::map< std::string, CGuiSkinnedLayout * > m_guis;	// All loaded in-game GUI layouts
 	std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > m_widgets;	// All widget classes
 	struct UpdateList_t
 	{
-		UpdateList_t( CWidget * s, SkinCallback_t u, const std::string & p ): 
+		UpdateList_t( CWidget * s, CScriptableVars::ScriptCallback_t u, const std::string & p ): 
 			source( s ), update( u ), param( p ) { };
 		CWidget * source;
-		SkinCallback_t update;
+		CScriptableVars::ScriptCallback_t update;
 		std::string param;
 	};
 	std::list< UpdateList_t > m_updateCallbacks;

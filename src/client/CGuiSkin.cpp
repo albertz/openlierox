@@ -25,10 +25,10 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
-
+CScriptableVars * CScriptableVars::m_instance = NULL;
 CGuiSkin * CGuiSkin::m_instance = NULL;
 
-std::string CGuiSkin::StripClassName( const std::string & c )
+std::string CScriptableVars::StripClassName( const std::string & c )
 {
 	std::string ret(c);
 	if( ret.find(".") != std::string::npos )	// Leave only last part of name
@@ -40,24 +40,25 @@ std::string CGuiSkin::StripClassName( const std::string & c )
 	return ret;
 };
 
-CGuiSkin::SkinVarPtr_t CGuiSkin::GetVar( const std::string & name, CGuiSkin::SkinVarType_t type )
+CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name, CScriptableVars::ScriptVarType_t type )
 {
-	for( std::map< std::string, SkinVarPtr_t > :: iterator it = CGuiSkin::Vars().begin();
-			it != CGuiSkin::Vars().end(); it++ )
+	Init();
+	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
+			it != m_instance->m_vars.end(); it++ )
 	{
 		if( !stringcasecmp( it->first, name ) && it->second.type == type )
 		{
 			return it->second;
 		};
 	};
-	return CGuiSkin::SkinVarPtr_t( (bool *) NULL );
+	return ScriptVarPtr_t( (bool *) NULL );
 };
 
-std::string CGuiSkin::DumpVars()
+std::string CScriptableVars::DumpVars()
 {
 	Init();
 	std::ostringstream ret;
-	for( std::map< std::string, SkinVarPtr_t > :: iterator i = m_instance->m_vars.begin();
+	for( std::map< std::string, ScriptVarPtr_t > :: iterator i = m_instance->m_vars.begin();
 			i != m_instance->m_vars.end(); i++ )
 	{
 		ret << i->first + ": ";
@@ -67,6 +68,7 @@ std::string CGuiSkin::DumpVars()
 			case SVT_INT: ret << "int: " << *i->second.i; break;
 			case SVT_FLOAT: ret << "float: " << *i->second.f; break;
 			case SVT_STRING: ret << "string: \"" << *i->second.s << "\""; break;
+			case SVT_COLOR: ret << "color: " << *i->second.cl; break;
 			case SVT_CALLBACK: ret << "callback: "; break;
 		};
 		ret << "\n";
@@ -87,11 +89,12 @@ std::string CGuiSkin::DumpWidgets()
 			if( f != 0 ) ret << ", ";
 			switch( it->second.first[f].second )
 			{
-				case WVT_BOOL: ret << "bool"; break;
-				case WVT_INT: ret << "int"; break;
-				case WVT_FLOAT: ret << "float"; break;
-				case WVT_STRING: ret << "string"; break;
-				case WVT_COLOR: ret << "color"; break;
+				case CScriptableVars::SVT_BOOL: ret << "bool"; break;
+				case CScriptableVars::SVT_INT: ret << "int"; break;
+				case CScriptableVars::SVT_FLOAT: ret << "float"; break;
+				case CScriptableVars::SVT_STRING: ret << "string"; break;
+				case CScriptableVars::SVT_COLOR: ret << "color"; break;
+				case CScriptableVars::SVT_CALLBACK: ret << "callback"; break;
 			};
 			ret << " " << it->second.first[f].first;
 		};
@@ -197,20 +200,20 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 			if( stringcasecmp( it->first.c_str(), (const char *)Node->name ) )
 				continue;
 			
-			std::vector< WidgetVar_t > params;
+			std::vector< CScriptableVars::ScriptVar_t > params;
 			for( unsigned i = 0; i < it->second.first.size(); i++ )
 			{
-				if( it->second.first[i].second == WVT_BOOL )
-					params.push_back( WidgetVar_t( xmlGetBool( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == WVT_INT )
-					params.push_back( WidgetVar_t( xmlGetInt( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == WVT_FLOAT )
-					params.push_back( WidgetVar_t( xmlGetFloat( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == WVT_STRING )
-					params.push_back( WidgetVar_t( xmlGetString( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == WVT_COLOR )
-					params.push_back( WidgetVar_t( xmlGetColor( Node, it->second.first[i].first ) ) );
-				else params.push_back( WidgetVar_t( ) );	// Compile-time error here
+				if( it->second.first[i].second == CScriptableVars::SVT_BOOL )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetBool( Node, it->second.first[i].first ) ) );
+				else if( it->second.first[i].second == CScriptableVars::SVT_INT )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetInt( Node, it->second.first[i].first ) ) );
+				else if( it->second.first[i].second == CScriptableVars::SVT_FLOAT )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetFloat( Node, it->second.first[i].first ) ) );
+				else if( it->second.first[i].second == CScriptableVars::SVT_STRING )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetString( Node, it->second.first[i].first ) ) );
+				else if( it->second.first[i].second == CScriptableVars::SVT_COLOR )
+					params.push_back( CScriptableVars::ScriptVar_t( xmlGetColor( Node, it->second.first[i].first ) ) );
+				else params.push_back( CScriptableVars::ScriptVar_t( ) );	// Compile-time error here
 			};
 			
 			int i_id = -1;
@@ -384,18 +387,18 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 			s = "";
 		TrimSpaces(s);
 		
-		std::map< std::string, SkinVarPtr_t > :: iterator it;
-		for( it = CGuiSkin::Vars().begin();
-				it != CGuiSkin::Vars().end(); it++ )
+		std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it;
+		for( it = CScriptableVars::Vars().begin();
+				it != CScriptableVars::Vars().end(); it++ )
 		{
-			if( !stringcasecmp( it->first, func ) && it->second.type == SVT_CALLBACK )
+			if( !stringcasecmp( it->first, func ) && it->second.type == CScriptableVars::SVT_CALLBACK )
 			{
-				m_callbacks.push_back( std::pair< SkinCallback_t, std::string > ( it->second.c, param ) );
+				m_callbacks.push_back( std::pair< CScriptableVars::ScriptCallback_t, std::string > ( it->second.cb, param ) );
 				//printf("%s(\"%s\") ", it->first.c_str(), param.c_str());
 				break;
 			};
 		};
-		if( it == CGuiSkin::Vars().end() )
+		if( it == CScriptableVars::Vars().end() )
 		{
 			printf("Cannot find GUI skin callback \"%s(%s)\"\n", func.c_str(), param.c_str());
 		};
@@ -412,7 +415,7 @@ void CGuiSkin::CallbackHandler::Call()
 
 static bool bUpdateCallbackListChanged = false;
 
-void CGuiSkin::RegisterUpdateCallback( SkinCallback_t update, const std::string & param, CWidget * source )
+void CGuiSkin::RegisterUpdateCallback( CScriptableVars::ScriptCallback_t update, const std::string & param, CWidget * source )
 {
 	Init();
 	m_instance->m_updateCallbacks.push_back( UpdateList_t( source, update, param ) );
@@ -460,6 +463,11 @@ class CGuiSkin_Destroyer
 			CGuiSkin::ClearLayouts();
 			delete CGuiSkin::m_instance;
 			CGuiSkin::m_instance = NULL;
+		};
+		if( CScriptableVars::m_instance != NULL )
+		{
+			delete CScriptableVars::m_instance;
+			CScriptableVars::m_instance = NULL;
 		};
 	};
 }
@@ -538,7 +546,7 @@ void SkinCombobox_Change( const std::string & param, CWidget * source )
 	sSkinCombobox_OldSkinPath = tLXOptions->sSkinPath;
 };
 
-static bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
+static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & MakeSound, "MakeSound" )
 	( & SkinCombobox_Init, "SkinCombobox_Init" )
 	( & SkinCombobox_Change, "SkinCombobox_Change" );

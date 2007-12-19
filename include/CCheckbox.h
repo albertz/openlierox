@@ -95,11 +95,11 @@ public:
 
 	int		getValue(void)						{ return iValue; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CCheckbox * w = new CCheckbox(0);
-		w->bVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_BOOL ).b;
-		w->iVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_INT ).i;
+		w->bVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_BOOL ).b;
+		w->iVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_INT ).i;
 		if( w->bVar )
 			w->iValue = *w->bVar;
 		if( w->iVar )
@@ -131,7 +131,7 @@ public:
 
 static bool CCheckBox_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "checkbox", & CCheckbox::WidgetCreator )
-							( "var", CGuiSkin::WVT_STRING )
-							( "click", CGuiSkin::WVT_STRING );
+							( "var", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );
 
 #endif  //  __CCHECKBOX_H__

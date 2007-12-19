@@ -44,7 +44,7 @@ bool GameOptions::Init() {
 	
 	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
 	
-	CGuiSkin::RegisterVars("GameOptions")	
+	CScriptableVars::RegisterVars("GameOptions")	
 #ifdef WIN32
 		( tLXOptions->iFullscreen, "Video.Fullscreen", true )
 #else
@@ -106,16 +106,15 @@ bool GameOptions::Init() {
 	unsigned i;
 	for( i = 0; i < sizeof(ply_keys) / sizeof(ply_keys[0]) ; i ++ )
 	{
-		CGuiSkin::RegisterVars("GameOptions.Ply1Controls") ( tLXOptions->sPlayerControls[0][i], ply_keys[i], ply_def1[i].c_str() );
-		CGuiSkin::RegisterVars("GameOptions.Ply2Controls") ( tLXOptions->sPlayerControls[1][i], ply_keys[i], ply_def2[i].c_str() );
+		CScriptableVars::RegisterVars("GameOptions.Ply1Controls") ( tLXOptions->sPlayerControls[0][i], ply_keys[i], ply_def1[i].c_str() );
+		CScriptableVars::RegisterVars("GameOptions.Ply2Controls") ( tLXOptions->sPlayerControls[1][i], ply_keys[i], ply_def2[i].c_str() );
 	};
 	for( i = 0; i < sizeof(gen_keys) / sizeof(gen_keys[0]) ; i ++ )
 	{
-		// Hope memory allocation won't change (it won't probably)
-		CGuiSkin::RegisterVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
+		CScriptableVars::RegisterVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
 	};
 
-	CGuiSkin::RegisterVars("GameOptions.LastGame")
+	CScriptableVars::RegisterVars("GameOptions.LastGame")
 		( tLXOptions->tGameinfo.iLives, "Lives", 10 )
 		( tLXOptions->tGameinfo.iKillLimit, "KillLimit", -1 )
 		( tLXOptions->tGameinfo.iTimeLimit, "TimeLimit", -1 )
@@ -209,15 +208,15 @@ bool GameOptions::LoadFromDisc()
 	ReadIntArray(f, "Widgets","FavouritesListCols",	&iFavouritesList[0],6);
 	
 	// Load variables registered with CGuiSkin
-	for( std::map< std::string, CGuiSkin::SkinVarPtr_t > :: iterator it = CGuiSkin::Vars().begin(); 
-			it != CGuiSkin::Vars().end(); it++ )
+	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin(); 
+			it != CScriptableVars::Vars().end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
 			int dot1 = it->first.find("."), dot2 = it->first.find( ".", dot1 + 1 );
 			std::string section = it->first.substr( dot1 + 1, dot2 - dot1 - 1 );	// Between two dots
 			std::string key = it->first.substr( dot2 + 1 );	// After last dot
-			if( it->second.type == CGuiSkin::SVT_BOOL )	// Some bools are actually ints in config file
+			if( it->second.type == CScriptableVars::SVT_BOOL )	// Some bools are actually ints in config file
 			{
 				std::string s = "";
 				ReadString( f, section, key, s, "" );
@@ -229,7 +228,7 @@ bool GameOptions::LoadFromDisc()
 				}
 				else ReadKeyword( f, section, key, it->second.b, it->second.bdef );
 			}
-			else if( it->second.type == CGuiSkin::SVT_INT )	// Some ints are actually bools in config file
+			else if( it->second.type == CScriptableVars::SVT_INT )	// Some ints are actually bools in config file
 			{
 				std::string s = "";
 				ReadString( f, section, key, s, "" );
@@ -238,9 +237,9 @@ bool GameOptions::LoadFromDisc()
 				else
 					ReadKeyword( f, section, key, it->second.i, it->second.idef );
 			}
-			else if( it->second.type == CGuiSkin::SVT_FLOAT )
+			else if( it->second.type == CScriptableVars::SVT_FLOAT )
 				ReadFloat( f, section, key, it->second.f, it->second.fdef );
-			else if( it->second.type == CGuiSkin::SVT_STRING )
+			else if( it->second.type == CScriptableVars::SVT_STRING )
 				ReadString( f, section, key, *(it->second.s), it->second.sdef );
 			else printf("Invalid var type %i of \"%s\" when loading config!\n", it->second.type, it->first.c_str() );
 		};
@@ -311,8 +310,8 @@ void GameOptions::SaveToDisc()
 
 	// Save variables registered with CGuiSkin
 	std::string currentSection;
-	for( std::map< std::string, CGuiSkin::SkinVarPtr_t > :: iterator it = CGuiSkin::Vars().begin(); 
-			it != CGuiSkin::Vars().end(); it++ )
+	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin(); 
+			it != CScriptableVars::Vars().end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
@@ -324,13 +323,13 @@ void GameOptions::SaveToDisc()
 			    fprintf( fp, "\n[%s]\n", section.c_str() );
 				currentSection = section;
 			};
-			if( it->second.type == CGuiSkin::SVT_BOOL )
+			if( it->second.type == CScriptableVars::SVT_BOOL )
 			    fprintf( fp, "%s = %s\n", key.c_str(), *(it->second.b) ? "true" : "false" );
-			else if( it->second.type == CGuiSkin::SVT_INT )
+			else if( it->second.type == CScriptableVars::SVT_INT )
 			    fprintf( fp, "%s = %d\n", key.c_str(), *(it->second.i) );
-			else if( it->second.type == CGuiSkin::SVT_FLOAT )
+			else if( it->second.type == CScriptableVars::SVT_FLOAT )
 			    fprintf( fp, "%s = %f\n", key.c_str(), *(it->second.f) );
-			else if( it->second.type == CGuiSkin::SVT_STRING )
+			else if( it->second.type == CScriptableVars::SVT_STRING )
 			    fprintf( fp, "%s = %s\n", key.c_str(), it->second.s->c_str() );
 			else printf("Invalid var type %i of \"%s\" when saving config!\n", it->second.type, it->first.c_str() );
 		};

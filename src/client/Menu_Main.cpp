@@ -284,10 +284,10 @@ void Menu_Main_GuiSkinComboboxCreate()
 	// GUI skin combobox 
 	// TODO: hacky hacky, non-skinned code with skinned widgets, maybe move to different function
 	cMainMenu.Add( new CLabel("Skin",tLX->clNormalLabel), -1, 465,10,0,0);
-	std::vector< CGuiSkin::WidgetVar_t > GuiSkinInit;
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "None#" ) );	// List of items
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
-	GuiSkinInit.push_back( CGuiSkin::WidgetVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
+	std::vector< CScriptableVars::ScriptVar_t > GuiSkinInit;
+	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "None#" ) );	// List of items
+	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "GameOptions.Game.SkinPath" ) );	// Attached var
+	GuiSkinInit.push_back( CScriptableVars::ScriptVar_t ( "GUI.MakeSound() GUI.SkinCombobox_Change()" ) );	// OnClick handler
 	// TODO: position as constant, will remove this code when only skins will be left
 	CWidget * GuiSkin = CCombobox::WidgetCreator(GuiSkinInit, &cMainMenu, mm_ShowSkin, 500,8,130,17);
 	CGuiSkin::CallbackHandler c_init( "GUI.SkinCombobox_Init()", GuiSkin );

@@ -88,7 +88,7 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CImage * w = new CImage( p[0].s );
 		w->cClick.Init( p[1].s, w );
@@ -105,7 +105,7 @@ public:
 
 static bool CImage_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
-							( "file", CGuiSkin::WVT_STRING )
-							( "click", CGuiSkin::WVT_STRING );
+							( "file", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );
 
 #endif  //  __CIMAGE_H__

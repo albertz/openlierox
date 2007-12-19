@@ -72,10 +72,10 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CProgressBar * w = new CProgressBar( LoadImage( p[0].s, true ), p[1].i, p[2].i, p[3].b, p[4].i );
-		w->iVar = CGuiSkin::GetVar( p[5].s, CGuiSkin::SVT_INT ).i;
+		w->iVar = CScriptableVars::GetVar( p[5].s, CScriptableVars::SVT_INT ).i;
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
@@ -85,12 +85,12 @@ public:
 
 static bool CProgressBar_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "progressbar", & CProgressBar::WidgetCreator )
-							( "file", CGuiSkin::WVT_STRING )
-							( "label_left", CGuiSkin::WVT_INT )
-							( "label_top", CGuiSkin::WVT_INT )
-							( "label_visible", CGuiSkin::WVT_BOOL )
-							( "numstates", CGuiSkin::WVT_INT )
-							( "var", CGuiSkin::WVT_STRING );
+							( "file", CScriptableVars::SVT_STRING )
+							( "label_left", CScriptableVars::SVT_INT )
+							( "label_top", CScriptableVars::SVT_INT )
+							( "label_visible", CScriptableVars::SVT_BOOL )
+							( "numstates", CScriptableVars::SVT_INT )
+							( "var", CScriptableVars::SVT_STRING );
 
 
 #endif  //  __CPROGRESSBAR_H__

@@ -687,25 +687,25 @@ void CTextbox::CopyText(void)
 
 static bool CTextbox_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "textbox", & CTextbox::WidgetCreator )
-							( "var", CGuiSkin::WVT_STRING )
-							( "click", CGuiSkin::WVT_STRING );
+							( "var", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );
 
-CWidget * CTextbox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+CWidget * CTextbox::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
 	CTextbox * w = new CTextbox();
 	layout->Add( w, id, x, y, dx, dy );
 	// Text should be set in textbox AFTER the textbox is added to CGuiSkinnedLayout
 	w->cClick.Init( p[1].s, w );
-	w->bVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_BOOL ).b;
+	w->bVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_BOOL ).b;
 	if( w->bVar )
 		w->setText( itoa( *w->bVar ) );
-	w->iVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_INT ).i;
+	w->iVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_INT ).i;
 	if( w->iVar )
 		w->setText( itoa( *w->iVar ) );
-	w->fVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_FLOAT ).f;
+	w->fVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_FLOAT ).f;
 	if( w->fVar )
 		w->setText( ftoa( *w->fVar ) );
-	w->sVar = CGuiSkin::GetVar( p[0].s, CGuiSkin::SVT_STRING ).s;
+	w->sVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_STRING ).s;
 	if( w->sVar )
 		w->setText( *w->sVar );
 	return w;

@@ -108,7 +108,7 @@ public:
 	int		getType()  { return iButtonType; }
 	void	setType(int _t)  { iButtonType = _t; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CButton * w = new CButton( p[0].i, tMenu->bmpButtons );
 		w->cClick.Init( p[1].s, w );
@@ -116,7 +116,7 @@ public:
 		return w;
 	};
 
-	static CWidget * WidgetCreator1( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator1( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CButton * w = new CButton( p[0].s );
 		w->cClick.Init( p[1].s, w );
@@ -149,13 +149,13 @@ public:
 
 static bool CButton_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "button", & CButton::WidgetCreator )
-							( "textid", CGuiSkin::WVT_INT )
-							( "click", CGuiSkin::WVT_STRING );
+							( "textid", CScriptableVars::SVT_INT )
+							( "click", CScriptableVars::SVT_STRING );
 
 static bool CButton_WidgetRegistered1 = 
 	CGuiSkin::RegisterWidget( "imagebutton", & CButton::WidgetCreator1 )
-							( "file", CGuiSkin::WVT_STRING )
-							( "click", CGuiSkin::WVT_STRING );
+							( "file", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );
 
 
 #endif  //  __CBUTTON_H__

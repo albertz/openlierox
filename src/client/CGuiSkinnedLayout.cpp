@@ -608,7 +608,7 @@ void CGuiSkinnedLayout::SubstituteDialog( const std::string & param, CWidget * s
 	};
 };
 
-static bool bRegisteredCallbacks = CGuiSkin::RegisterVars("GUI")
+static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & CGuiSkinnedLayout::ExitDialog, "ExitDialog" )
 	( & CGuiSkinnedLayout::ChildDialog, "ChildDialog" )
 	( & CGuiSkinnedLayout::SubstituteDialog, "SubstituteDialog" )	// Needed for tab-list emulation

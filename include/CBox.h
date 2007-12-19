@@ -83,7 +83,7 @@ public:
 
 	void	LoadStyle(void);
 	
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CWidget * w = new CBox( p[0].i, p[1].i, p[2].c, p[3].c, p[4].c );
 		layout->Add( w, id, x, y, dx, dy );
@@ -95,11 +95,11 @@ public:
 
 static bool CBox_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "box", & CBox::WidgetCreator )
-							( "round", CGuiSkin::WVT_INT )
-							( "border", CGuiSkin::WVT_INT )
-							( "lightcolor", CGuiSkin::WVT_COLOR )
-							( "darkcolor", CGuiSkin::WVT_COLOR )
-							( "bgcolor", CGuiSkin::WVT_COLOR );
+							( "round", CScriptableVars::SVT_INT )
+							( "border", CScriptableVars::SVT_INT )
+							( "lightcolor", CScriptableVars::SVT_COLOR )
+							( "darkcolor", CScriptableVars::SVT_COLOR )
+							( "bgcolor", CScriptableVars::SVT_COLOR );
 
 #endif  //  __CBOX_H__
 

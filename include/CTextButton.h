@@ -60,7 +60,7 @@ public:
 
 	void	Draw(SDL_Surface *bmpDest);
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CTextButton * w = new CTextButton( p[0].s, p[1].c, p[2].c );
 		w->cClick.Init( p[3].s, w );
@@ -77,9 +77,9 @@ public:
 
 static bool CTextButton_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "textbutton", & CTextButton::WidgetCreator )
-							( "text", CGuiSkin::WVT_STRING )
-							( "color", CGuiSkin::WVT_COLOR )
-							( "glowcolor", CGuiSkin::WVT_COLOR )
-							( "click", CGuiSkin::WVT_STRING );
+							( "text", CScriptableVars::SVT_STRING )
+							( "color", CScriptableVars::SVT_COLOR )
+							( "glowcolor", CScriptableVars::SVT_COLOR )
+							( "click", CScriptableVars::SVT_STRING );
 
 #endif  //  __CTEXTBUTTON_H__

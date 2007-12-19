@@ -87,7 +87,7 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CWidget * w = new CAnimation( p[0].s, p[1].f );
 		layout->Add( w, id, x, y, dx, dy );
@@ -100,8 +100,8 @@ public:
 
 static bool CAnimation_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "animation", & CAnimation::WidgetCreator )
-							( "file", CGuiSkin::WVT_STRING )
-							( "frametime", CGuiSkin::WVT_FLOAT );
+							( "file", CScriptableVars::SVT_STRING )
+							( "frametime", CScriptableVars::SVT_FLOAT );
 
 
 #endif  //  __CANIMATION_H__

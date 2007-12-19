@@ -86,11 +86,11 @@ public:
 	void	setMax(int _m)						{ iMax = _m; }
 	void	setMin(int _m)						{ iMin = _m; }
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CSlider * w = new CSlider( p[1].i, p[0].i );
 		layout->Add( w, id, x, y, dx, dy );
-		w->iVar = CGuiSkin::GetVar( p[2].s, CGuiSkin::SVT_INT ).i;
+		w->iVar = CScriptableVars::GetVar( p[2].s, CScriptableVars::SVT_INT ).i;
 		if( w->iVar )
 			w->setValue( *w->iVar );
 		w->cClick.Init( p[3].s, w );
@@ -115,10 +115,10 @@ public:
 
 static bool CSlider_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "slider", & CSlider::WidgetCreator )
-							( "min", CGuiSkin::WVT_INT )
-							( "max", CGuiSkin::WVT_INT )
-							( "var", CGuiSkin::WVT_STRING )
-							( "click", CGuiSkin::WVT_STRING );
+							( "min", CScriptableVars::SVT_INT )
+							( "max", CScriptableVars::SVT_INT )
+							( "var", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );
 
 
 #endif  //  __CSLIDER_H__

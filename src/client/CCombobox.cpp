@@ -773,18 +773,18 @@ int CCombobox::getSelectedIndex()
 
 static bool CComboBox_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "combobox", & CCombobox::WidgetCreator )
-							( "items", CGuiSkin::WVT_STRING )
-							( "var", CGuiSkin::WVT_STRING )
-							( "click", CGuiSkin::WVT_STRING );
+							( "items", CScriptableVars::SVT_STRING )
+							( "var", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );
 
-CWidget * CCombobox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+CWidget * CCombobox::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
 	CCombobox * w = new CCombobox();
 	w->cClick.Init( p[2].s, w );
 	layout->Add( w, id, x, y, dx, dy );
 	// Items should be added to combobox AFTER the combobox is added to CGuiSkinnedLayout
 	std::vector<std::string> items = explode( p[0].s, "," );
-	w->iVar = CGuiSkin::GetVar( p[1].s, CGuiSkin::SVT_INT ).i;	// If combobox is int or string determined by attached var type
+	w->iVar = CScriptableVars::GetVar( p[1].s, CScriptableVars::SVT_INT ).i;	// If combobox is int or string determined by attached var type
 	if( w->iVar )
 	{
 		for( unsigned i = 0; i < items.size(); i++ )
@@ -801,7 +801,7 @@ CWidget * CCombobox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > &
 		};
 		w->setCurItem( *w->iVar );
 	};
-	w->sVar = CGuiSkin::GetVar( p[1].s, CGuiSkin::SVT_STRING ).s;
+	w->sVar = CScriptableVars::GetVar( p[1].s, CScriptableVars::SVT_STRING ).s;
 	if( w->sVar )
 	{
 		for( unsigned i = 0; i < items.size(); i++ )

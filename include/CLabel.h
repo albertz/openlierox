@@ -118,13 +118,13 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CLabel * w = new CLabel( p[0].s, p[1].c, p[2].b );
-		w->bVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_BOOL ).b;
-		w->iVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_INT ).i;
-		w->fVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_FLOAT ).f;
-		w->sVar = CGuiSkin::GetVar( p[3].s, CGuiSkin::SVT_STRING ).s;
+		w->bVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_BOOL ).b;
+		w->iVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_INT ).i;
+		w->fVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_FLOAT ).f;
+		w->sVar = CScriptableVars::GetVar( p[3].s, CScriptableVars::SVT_STRING ).s;
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
@@ -134,9 +134,9 @@ public:
 
 static bool CLabel_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "label", & CLabel::WidgetCreator )
-							( "text", CGuiSkin::WVT_STRING )
-							( "color", CGuiSkin::WVT_COLOR )
-							( "center", CGuiSkin::WVT_BOOL )
-							( "var", CGuiSkin::WVT_STRING );
+							( "text", CScriptableVars::SVT_STRING )
+							( "color", CScriptableVars::SVT_COLOR )
+							( "center", CScriptableVars::SVT_BOOL )
+							( "var", CScriptableVars::SVT_STRING );
 
 #endif  //  __CLABEL_H__
