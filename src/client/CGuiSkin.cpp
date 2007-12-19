@@ -68,7 +68,7 @@ std::string CScriptableVars::DumpVars()
 			case SVT_INT: ret << "int: " << *i->second.i; break;
 			case SVT_FLOAT: ret << "float: " << *i->second.f; break;
 			case SVT_STRING: ret << "string: \"" << *i->second.s << "\""; break;
-			case SVT_COLOR: ret << "color: " << *i->second.cl; break;
+			case SVT_COLOR: ret << "color: " << itoa(*i->second.cl); break;
 			case SVT_CALLBACK: ret << "callback: "; break;
 		};
 		ret << "\n";
