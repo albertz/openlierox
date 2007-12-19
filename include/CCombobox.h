@@ -143,9 +143,12 @@ public:
 	int		getItemsCount();
 	const cb_item_t* getItem(const std::string& name) const;
 	const cb_item_t* getSIndexItem(const std::string& sIndex) const;
+	int getIndexBySIndex(const std::string& szName);
+	int getIndexByName(const std::string& szName);
 	void	setCurItem(int index);
 	void	setCurItem(const cb_item_t* item);
     void    setCurSIndexItem(const std::string& szString);
+    void    setCurItemByName(const std::string& szString);
     bool	selectNext();
     bool	selectPrev();
     int		findItem(UnicodeChar startLetter);

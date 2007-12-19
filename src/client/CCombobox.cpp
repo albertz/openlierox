@@ -650,14 +650,38 @@ void CCombobox::setCurItem(const cb_item_t *it)
 // Set the current item based on string index
 void CCombobox::setCurSIndexItem(const std::string& szString)
 {
+	int index = getIndexBySIndex(szString);
+	if(index >= 0)
+		iSelected = index;
+}
+
+void CCombobox::setCurItemByName(const std::string& szString)
+{
+	int index = getIndexByName(szString);
+	if(index >= 0)
+		iSelected = index;
+}
+
+int CCombobox::getIndexByName(const std::string& szString) {
 	int index = 0;
 	for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
         if( stringcasecmp(i->sIndex, szString) == 0 ) {
-            iSelected = index;
-            return;
+            return index;
         }
     }
+    return -1;
 }
+
+int CCombobox::getIndexBySIndex(const std::string& szString) {
+	int index = 0;
+	for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
+        if( stringcasecmp(i->sName, szString) == 0 ) {
+            return index;
+        }
+    }
+    return -1;
+}
+
 
 ///////////////////
 // Set the image for the specified item
