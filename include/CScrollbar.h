@@ -126,6 +126,11 @@ public:
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
+		if( iEvent == CGuiSkin::SHOW_WIDGET )
+		{
+			if( iVar )
+				setValue( *iVar );
+		};
 		if( iEvent == SCR_CHANGE )
 		{
 			if( iVar )

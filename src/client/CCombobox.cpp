@@ -781,6 +781,13 @@ CWidget * CCombobox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > &
 
 void	CCombobox::ProcessGuiSkinEvent(int iEvent)
 {
+	if( iEvent == CGuiSkin::SHOW_WIDGET )
+	{
+		if( iVar )
+			setCurItem( *iVar );
+		if( sVar )
+			setCurSIndexItem( *sVar );
+	};
 	if( iEvent == CMB_CHANGED )
 	{
 		if( iVar )

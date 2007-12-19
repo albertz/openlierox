@@ -713,6 +713,17 @@ CWidget * CTextbox::WidgetCreator( const std::vector< CGuiSkin::WidgetVar_t > & 
 
 void	CTextbox::ProcessGuiSkinEvent(int iEvent)
 {
+	if( iEvent == CGuiSkin::SHOW_WIDGET )
+	{
+		if( bVar )
+			setText( itoa( *bVar ) );
+		if( iVar )
+			setText( itoa( *iVar ) );
+		if( fVar )
+			setText( ftoa( *fVar ) );
+		if( sVar )
+			setText( *sVar );
+	};
 	if( iEvent == TXT_CHANGE )
 	{
 		if( bVar )

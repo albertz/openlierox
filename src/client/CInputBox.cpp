@@ -55,6 +55,11 @@ static bool CInputbox_WidgetRegistered =
 	
 void CInputbox::ProcessGuiSkinEvent(int iEvent) 
 {
+	if( iEvent == CGuiSkin::SHOW_WIDGET )
+	{
+		if( sVar )
+			setText( *sVar );
+	};
 	if( iEvent == INB_MOUSEUP )
 	{
 		if( sVar )

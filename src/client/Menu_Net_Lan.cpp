@@ -115,9 +115,6 @@ void Menu_Net_LANShutdown(void)
 			const cb_item_t* item = combo->getSelectedItem();
 			if (item)
 				tLXOptions->tGameinfo.sLastSelectedPlayer = item->sIndex;
-			printf("Menu_Net_LANShutdown(): tLXOptions->tGameinfo.sLastSelectedPlayer %s index %i name %s sindex %s\n", 
-					tLXOptions->tGameinfo.sLastSelectedPlayer.c_str(), combo->getSelectedIndex(), 
-					combo->getSelectedItem()->sName.c_str(), combo->getSelectedItem()->sIndex.c_str() );
 		}
 
 		if (iNetMode == net_lan)  {

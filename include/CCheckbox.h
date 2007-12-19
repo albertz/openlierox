@@ -111,6 +111,13 @@ public:
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
+		if( iEvent == CGuiSkin::SHOW_WIDGET )
+		{
+			if( bVar )
+				iValue = *bVar;
+			if( iVar )
+				iValue = *iVar;
+		};
 		if( iEvent == CHK_CHANGED )
 		{
 			if( bVar )

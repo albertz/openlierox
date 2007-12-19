@@ -99,6 +99,11 @@ public:
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
+		if( iEvent == CGuiSkin::SHOW_WIDGET )
+		{
+			if( iVar )
+				setValue( *iVar );
+		};
 		if( iEvent == SLD_CHANGE )
 		{
 			if( iVar )
