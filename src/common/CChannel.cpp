@@ -19,8 +19,6 @@
 #include "CChannel.h"
 #include "StringUtils.h"
 
-// TODO: recode this after dropping the backward compatibility
-
 ///////////////////
 // Setup the channel
 void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
@@ -54,8 +52,6 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iLast_ReliableSequence = 0;
 	iOutgoingBytes = 0;
 	iIncomingBytes = 0;
-	bAckRequired = false;
-	iReceivedSinceLastSent = 1;
 }
 
 
@@ -64,94 +60,67 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 void CChannel::Transmit( CBytestream *bs )
 {
 	CBytestream outpack;
-	int SendReliable = 0;
-	bool SendPacket = false;
-	Uint32 r1,r2;	
+	Uint32 SendReliable = 0;
+	ulong r1,r2;	
 
 	outpack.Clear();
 
 	// If the remote side dropped the last reliable packet, re-send it
-	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
+	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)
 		SendReliable = 1;
-		SendPacket = true;
-	}
 
 
 	// If the reliable buffer is empty, copy the reliable message into it
-	if(Reliable.GetLength() == 0) {
-		bool got_reliable = false;
-
-		if (Message.GetLength() > 0)  {
-			Reliable = Message;
-			Message.Clear();
-			got_reliable = true;
-		}
-
-		if (tLX->fCurTime - fLastPingSent >= 1.5f)  { // Send the packet if needed for pinging and wait for ack
-			iPongSequence = iOutgoingSequence;
-			fLastPingSent = tLX->fCurTime;
-			got_reliable = true;
-		}
+	if(Reliable.GetLength() == 0 && Message.GetLength() > 0) {
+		Reliable = Message;
+		Message.Clear();
 		
 		// We got a reliable packet to send
-		if (got_reliable)  {
-			SendReliable = 1;
-			SendPacket = true;
+		SendReliable = 1;
 
-			// XOR the reliable sequence
-			iReliableSequence ^= 1;
-		}
+		// XOR the reliable sequence
+		iReliableSequence ^= 1;
 	}
 
-	iOutgoingSequence++;
 
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
 	r2 = iIncomingSequence | (iIncoming_ReliableSequence << 31);
 
+	iOutgoingSequence++;
+	
 	outpack.writeInt(r1,4);
 	outpack.writeInt(r2,4);
 
-
+	
 	// If were sending a reliable message, send it first
 	if(SendReliable) {
 		outpack.Append(&Reliable);
-		if (outpack.GetLength() > 4096) // Compatibility check
-			printf("WARNING: the current reliable packet could be ignored!");
 		iLast_ReliableSequence = iOutgoingSequence;
+
+		// If we are sending a reliable message, remember this time and use it for ping calculations
+		if (iPongSequence == -1)  {
+			iPongSequence = iOutgoingSequence;
+			fLastPingSent = tLX->fCurTime;
+		}
+
 	}
 
 	// And add on the un reliable data if room in the packet struct
-	if(bs)
-		if (bs->GetLength() + outpack.GetLength() <= 4096)  {  // Backward compatibility
+	if(bs) {
+		if(outpack.GetLength() + bs->GetLength() < 4096) // Backward compatibility
 			outpack.Append(bs);
-			SendPacket = SendPacket || bs->GetLength() > 0;
-		}
+	}
 	
 
 	// Send the packet
-	if (SendPacket || bAckRequired || tLX->fCurTime - fLastSent >= (float)(LX_CLTIMEOUT - 5))  {
-		if (iReceivedSinceLastSent <= 0)  {
+	SetRemoteNetAddr(Socket, &RemoteAddr);
+	outpack.Send(Socket);
 
-			// Deficite :)
-			iReceivedSinceLastSent--;
-
-			//printf("Deficite: " + itoa(-iReceivedSinceLastSent) + "\n");
-		}
-
-		SetRemoteNetAddr(Socket,&RemoteAddr);
-		if (outpack.Send(Socket))  {
-
-			// Update statistics
-			iOutgoingBytes += outpack.GetLength();
-			iCurrentOutgoingBytes += outpack.GetLength();
-			fLastSent = tLX->fCurTime;
-
-			iReceivedSinceLastSent = 0;
-
-			bAckRequired = false; // Ack sent
-		}
-	}
+	// Update statistics
+	iOutgoingBytes += outpack.GetLength();
+	iCurrentOutgoingBytes += outpack.GetLength();
+	fLastSent = tLX->fCurTime;
 
 	// Calculate the bytes per second
 	if (tLX->fCurTime - fOutgoingClearTime >= 2.0f)  {
@@ -164,10 +133,10 @@ void CChannel::Transmit( CBytestream *bs )
 
 ///////////////////
 // Process channel (after receiving data)
-int CChannel::Process(CBytestream *bs)
+bool CChannel::Process(CBytestream *bs)
 {
-	Uint32 Sequence, SequenceAck;
-	Uint32 ReliableAck, ReliableMessage;	
+	ulong Sequence, SequenceAck;
+	ulong ReliableAck, ReliableMessage;	
 	int drop;
 
 	// Start from the beginning of the packet
@@ -186,8 +155,8 @@ int CChannel::Process(CBytestream *bs)
 	Sequence &= ~(1<<31);	
 	SequenceAck &= ~(1<<31);
 
-
 	// Calculate the bytes per second
+	iIncomingBytes += bs->GetLength();
 	iCurrentIncomingBytes += bs->GetLength();
 	if (tLX->fCurTime - fIncomingClearTime >= 2.0f)  {
 		fIncomingRate = (float)iCurrentIncomingBytes/(tLX->fCurTime - fIncomingClearTime);
@@ -199,60 +168,41 @@ int CChannel::Process(CBytestream *bs)
 	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later
 	// It caused a delay when joining (especially on high-ping servers), this hack improves it
 	if((Sequence <= (Uint32)iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
-		printf("Warning: Packet dropped (Sequence: %i, IncomingSequence: %i)\n", Sequence, iIncomingSequence);
+		printf("Warning: Packet dropped\n");
 		bs->Dump();
-
-		// HINT: we can get here if our acknowledgement has been dropped
-		// To be sure, we simply send the ack once more. If we are wrong, the remote side will ignore it anyway
-		/*if (ReliableMessage)  { // Not needed, we (sadly) send packet every frame (backward compatibility)
-			printf("HINT: re-sending ACK\n");
-			bAckRequired = true;
-		}*/
-
 		return false;
 	}
 
-	iReceivedSinceLastSent++;
-
 	
 	// Check for dropped packets
-	drop = Sequence - (iIncomingSequence + 1);
-	if(drop > 0) {
+	drop = Sequence - (iIncomingSequence+1);
+	if(drop>0)
 		// Update statistics
 		iPacketsDropped++;
 
-		//printl("Packets Dropped: %d\n",PacketsDropped);
-	}
-
 
 	// If the outgoing reliable message has been acknowledged, clear it for more reliable messages
-	if(ReliableAck == (Uint32)iReliableSequence)
+	if(ReliableAck == (ulong)iReliableSequence)
 		Reliable.Clear();
+
+	// Check if pong has been acknowledged
+	if(SequenceAck >= iPongSequence)  {
+		iPongSequence = -1;  // Ready for new pinging
+		iPing = (int)((tLX->fCurTime - fLastPingSent) * 1000);
+	}
 
 
 	// If this packet contained a reliable message, update the sequences
 	iIncomingSequence = Sequence;
 	iIncomingAcknowledged = SequenceAck;
 	iIncoming_ReliableAcknowledged = ReliableAck;
-	if(ReliableMessage)  {
+	if(ReliableMessage)
 		iIncoming_ReliableSequence ^= 1;
-		
-		// Got a message that needs an acknowledgement
-		bAckRequired = true;
-	}
-
-	// Ping update
-	if ((Uint32)iPongSequence <= SequenceAck)  {
-		iPing = (int)((tLX->fCurTime - fLastPingSent) * 1000); 
-		iPongSequence = -1;
-	}
 
 
 	// Update the statistics
 	fLastPckRecvd = tLX->fCurTime;
 	iPacketsGood++;
-
-	iIncomingBytes += bs->GetLength();
 
 
 	return true;

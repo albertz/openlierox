@@ -35,14 +35,12 @@ public:
 		iOutgoingBytes = 0;
 		iIncomingBytes = 0;
 		fLastSent = -9999;
-		bAckRequired = false;
-		iReceivedSinceLastSent = 1;
 	}
 
 private:
 	// Attributes
-	NetworkAddr	RemoteAddr;
-	int			iPort;
+	NetworkAddr		RemoteAddr;
+	int				iPort;
 	NetworkSocket	Socket;
 
 	
@@ -57,15 +55,12 @@ private:
 	int			iIncomingSequence;
 	int			iIncomingAcknowledged;
 	int			iIncoming_ReliableAcknowledged;		// single bit
-	int			iReceivedSinceLastSent;
 
 	int			iIncoming_ReliableSequence;			// single bit, maintained local
 
 	int			iOutgoingSequence;
 	int			iReliableSequence;					// single bit
 	int			iLast_ReliableSequence;				// sequence number of last send
-
-	bool		bAckRequired;						// true if we should send an acknowledgement
 
 	// Packets
 	CBytestream	Message;							// Reliable message
@@ -97,7 +92,7 @@ public:
 	// Methods
 	void		Create(NetworkAddr *_adr, int _port, NetworkSocket _sock);
 	void		Transmit( CBytestream *bs );
-	int			Process(CBytestream *bs);
+	bool		Process(CBytestream *bs);
 	inline void		Clear(void)				{ fLastPckRecvd = 0;
 		iPort = LX_PORT; InvalidateSocketState(Socket);
 										  iPacketsDropped = 0; iPacketsGood = 0; }
@@ -115,7 +110,6 @@ public:
 	inline int	getOutSeq(void)			{ return iOutgoingSequence; }
 	inline void	setInSeq(int _s)		{ iIncomingSequence = _s; }
 	inline void	setOutSeq(int _s)		{ iOutgoingSequence = _s; }
-	inline int	getDeficite()			{ return iReceivedSinceLastSent < 0 ? -iReceivedSinceLastSent : 0; }
 
 	inline int	getInAck(void)			{ return iIncomingAcknowledged; }
 

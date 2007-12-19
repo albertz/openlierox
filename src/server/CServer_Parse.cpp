@@ -38,7 +38,7 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
 	CChannel *chan = cl->getChannel();
 
 	// Ensure the incoming sequence matchs the outgoing sequence
-	if (chan->getInSeq() >= chan->getOutSeq() + chan->getDeficite())  {
+	if (chan->getInSeq() >= chan->getOutSeq())  {
 		//if (chan->getInSeq() != chan->getOutSeq())
 		//	printf(cl->getWorm(0)->getName() + ": sequences not same (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
 		//else
