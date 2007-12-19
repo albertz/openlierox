@@ -835,14 +835,12 @@ void Menu_Player_FillSkinCombo(CCombobox *cb) {
     if( !cb )
         return;
 
-	// TODO: unless we have not effective sorting in combobox.addItem, it's faster to sort at the end
-	//cb->setSorted(true);
+	cb->setSorted(true);
 	cb->setUnique(true);
 	cb->clear();
         
     FindFiles(SkinAdder(cb), "skins", FM_REG);
-	cb->Sort(true);
 	
     // Select the default
-    cb->setCurSIndexItem("default");
+    cb->setCurItemByName("default");
 }

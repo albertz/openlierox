@@ -52,7 +52,13 @@ enum {
 
 
 // Item structure
-class cb_item_t { public:
+class cb_item_t { 
+private:
+	friend class CCombobox;
+	friend class comboorder;
+	int			iIndex;  // position in the vector
+
+public:
 	std::string	sIndex;
 	std::string	sName;
 	SDL_Surface *tImage;
@@ -85,7 +91,8 @@ private:
 	// Attributes
 
 	// Items
-	std::vector<cb_item_t> tItems;
+	std::vector<cb_item_t *> tItems;
+	std::map<std::string, cb_item_t *> tSortedItems;
 	int 			iSelected;
 	int				iGotScrollbar;
 	int				iDropped;
@@ -135,29 +142,30 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
     void    clear(void);
-	int		addItem(const std::string& sindex, const std::string& name);
+	int		addItem(const std::string& sindex, const std::string& name)  { return addItem(-1, sindex, name); }
 	int		addItem(int index, const std::string& sindex, const std::string& name);
-	const std::vector<cb_item_t>& getItems()	{ return tItems; }
-	const cb_item_t* getItem(int index) const;
-	int getItemIndex(const cb_item_t* item);	
-	int		getItemsCount();
+	const std::vector<cb_item_t *>& getItems()	{ return tItems; }
+	const cb_item_t* getItem(int index)			{ return getItemRW(index); }
+	int getItemIndex(const cb_item_t* item)		{ return item->iIndex; }	
+	int		getItemsCount()						{ return tItems.size(); }
 	const cb_item_t* getItem(const std::string& name) const;
 	const cb_item_t* getSIndexItem(const std::string& sIndex) const;
-	void	setCurItem(int index);
+	void	setCurItem(int index)				{ iSelected = CLAMP(index, (int)0, (int)tItems.size()); }
 	void	setCurItem(const cb_item_t* item);
     void    setCurSIndexItem(const std::string& szString);
+	void    setCurItemByName(const std::string& name);
     bool	selectNext();
     bool	selectPrev();
     int		findItem(UnicodeChar startLetter);
 	void	setImage(SDL_Surface *img, int ItemIndex);
-	int		getSelectedIndex();
-	const cb_item_t* getSelectedItem();
-	int		getDropped(void) { return iDropped; }
-	void	setSorted(bool _s)  { bSorted = _s; }
-	bool	getSorted()	{ return bSorted; }
-	void	setUnique(bool _u)  { bUnique = _u; }
-	bool	getUnique()			{ return bUnique; }
-	int getItemHeight();
+	int		getSelectedIndex()					{ return iSelected; }
+	const cb_item_t* getSelectedItem()			{ return getItem(iSelected); }
+	int		getDropped(void)					{ return iDropped; }
+	void	setSorted(bool _s)					{ bSorted = _s; }
+	bool	getSorted()							{ return bSorted; }
+	void	setUnique(bool _u)					{ bUnique = _u; }
+	bool	getUnique()							{ return bUnique; }
+	int		getItemHeight();
 	
 	const cb_item_t* getLastItem();
 
