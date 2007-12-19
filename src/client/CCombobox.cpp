@@ -464,7 +464,26 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym)
 		return CMB_CHANGED;
 	}
 
-	// TODO: handle up/down keys
+	// Handle key up/down
+	if (iDropped)  {
+		if (keysym == SDLK_DOWN)  {
+			if (selectNext())  {
+				// Move the scrollbar if necessary
+				if (cScrollbar.getValue() + cScrollbar.getItemsperbox() <= iSelected)
+					cScrollbar.setValue(cScrollbar.getValue() + 1);
+				iKeySelectedItem = iSelected;
+				return CMB_CHANGED;
+			}
+		} else if (keysym == SDLK_UP)  {
+			if (selectPrev())  {
+				// Move the scrollbar if necessary
+				if (cScrollbar.getValue() > iSelected)
+					cScrollbar.setValue(cScrollbar.getValue() - 1);
+				iKeySelectedItem = iSelected;
+				return CMB_CHANGED;
+			}
+		}
+	}
 
 	// Not found
 	return CMB_NONE;
