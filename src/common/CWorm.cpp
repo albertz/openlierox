@@ -1139,15 +1139,22 @@ int CWorm::GetMyPing(void)
 // Resturns true, if we can start typing
 bool CWorm::CanType(void)
 {
-	// TODO: why is this done with getData() and not just with isUp() ?
-	int c = GetKeyboard()->keyQueue[0].sym;
-	return	cUp.getData() != c &&
-			cDown.getData() != c &&
-			cLeft.getData() != c &&
-			cRight.getData() != c &&
-			cShoot.getData() != c &&
-			cJump.getData() != c &&
-			cSelWeapon.getData() != c &&
-			cInpRope.getData() != c &&
-			cStrafe.getData() != c;
+	// With isUp/isDown sometimes happened that the key was not registered
+	bool result = true;
+	for (int i=0; i < GetKeyboard()->queueLength; ++i)  {
+		int c = GetKeyboard()->keyQueue[0].sym;
+		result = cUp.getData() != c &&
+				 cDown.getData() != c &&
+				 cLeft.getData() != c &&
+				 cRight.getData() != c &&
+				 cShoot.getData() != c &&
+				 cJump.getData() != c &&
+				 cSelWeapon.getData() != c &&
+				 cInpRope.getData() != c &&
+				 cStrafe.getData() != c;
+		if (!result) // No need for further checks
+			return false;
+	}
+
+	return result;
 }

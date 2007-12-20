@@ -928,7 +928,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 
 		if (IsNetAddrValid(&tChallenges[i].Address)) {
 			if (AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
-				break;
+				continue;
 			if (ChallengeToSet < 0 || tChallenges[i].fTime < OldestTime) {
 				OldestTime = tChallenges[i].fTime;
 				ChallengeToSet = i;
@@ -1059,7 +1059,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 
 	// See if the challenge is valid
-	for (i = 0;i < MAX_CHALLENGES;i++) {
+	for (i = MAX_CHALLENGES-1; i >= 0; --i) {
 		if (IsNetAddrValid(&tChallenges[i].Address) && AreNetAddrEqual(&adrFrom, &tChallenges[i].Address)) {
 
 			if (ChallId == tChallenges[i].iNum)
@@ -1076,7 +1076,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 	}
 
 	// Ran out of challenges
-	if ( i >= MAX_CHALLENGES ) {
+	if ( i <= -1 ) {
 		printf("No connection verification for client found\n");
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);

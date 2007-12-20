@@ -1605,7 +1605,7 @@ void CClient::processChatter(void)
 				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
 					// Can we type?
 					if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed())
-						continue;
+						return;
 
 					// Clear the input
 					cLocalWorms[j]->clearInput();
