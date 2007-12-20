@@ -54,7 +54,8 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	std::string buf = "";
 	std::string text = sText;
 
-    Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
+	if (bRedrawMenu)
+		Menu_redrawBufferRect(iX,iY, iWidth,iHeight);
 	Menu_DrawBoxInset(bmpDest, iX, iY-2, iX+iWidth, iY+iHeight+2);
 
 	if(iFlags & TXF_PASSWORD) {
@@ -157,8 +158,10 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 // Keydown event
 int CTextbox::KeyDown(UnicodeChar c, int keysym)
 {
-	bool bShift = (keysym == SDLK_RSHIFT) || (keysym == SDLK_LSHIFT);
-	bool bCtrl = (keysym == SDLK_RCTRL) || (keysym == SDLK_LCTRL);
+	// Get the STATE of ctrl/alt
+	keyboard_t *kb = GetKeyboard();
+	bool bShift = (kb->KeyDown[SDLK_RSHIFT]) || (kb->KeyDown[SDLK_LSHIFT]);
+	bool bCtrl = (kb->KeyDown[SDLK_RCTRL]) || (kb->KeyDown[SDLK_LCTRL]);
 
 	iDrawCursor = true;
 
@@ -279,7 +282,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 	}
 
 	// Select all
-	if (bCtrl && c == SDLK_a) {
+	if (bCtrl && keysym == SDLK_a) {
 		iCurpos = Utf8StringSize(sText);
 		iSelStart = 0;
 		iSelLength = -((int)Utf8StringSize(sText));
@@ -299,19 +302,19 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 	}
 
     // Ctrl-v (paste)
-    if(c == 22 ) {
+    if(bCtrl && keysym == SDLK_v) {
         PasteText();
         return TXT_CHANGE;
     }
 
     // Ctrl-c (copy)
-    if(c == 3 ) {
+    if(bCtrl && keysym == SDLK_c) {
         CopyText();
         return TXT_NONE;
     }
 
     // Ctrl-x (cut)
-    if(c == 24 ) {
+    if(bCtrl && keysym == SDLK_x) {
         CopyText();
 		Delete();
         return TXT_CHANGE;
@@ -427,7 +430,8 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 			bCanLoseFocus = false;
 		}
 	}
-	else  {
+
+	if (tMouse->FirstDown)  {
 		// Remove any previous selection
 		iSelLength = 0;
 		iSelStart = 0;

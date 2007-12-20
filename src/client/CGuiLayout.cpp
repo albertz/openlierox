@@ -617,6 +617,8 @@ gui_event_t *CGuiLayout::Process(void)
 
 			if(ev >= 0) {
 				tEvent->iEventMsg = ev;
+				tEvent->iControlID = cFocused->getID();
+				tEvent->cWidget = cFocused;
 				return tEvent;
 			}
 		}
