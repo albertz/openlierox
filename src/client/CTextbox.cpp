@@ -157,9 +157,8 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 // Keydown event
 int CTextbox::KeyDown(UnicodeChar c, int keysym)
 {
-	keyboard_t *kb = GetKeyboard();
-	bool bShift = (kb->KeyDown[SDLK_RSHIFT]) || (kb->KeyDown[SDLK_LSHIFT]);
-	bool bCtrl = (kb->KeyDown[SDLK_RCTRL]) || (kb->KeyDown[SDLK_LCTRL]);
+	bool bShift = (keysym == SDLK_RSHIFT) || (keysym == SDLK_LSHIFT);
+	bool bCtrl = (keysym == SDLK_RCTRL) || (keysym == SDLK_LCTRL);
 
 	iDrawCursor = true;
 

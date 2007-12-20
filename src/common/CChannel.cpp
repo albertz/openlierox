@@ -135,8 +135,8 @@ void CChannel::Transmit( CBytestream *bs )
 // Process channel (after receiving data)
 bool CChannel::Process(CBytestream *bs)
 {
-	ulong Sequence, SequenceAck;
-	ulong ReliableAck, ReliableMessage;	
+	long Sequence, SequenceAck;
+	long ReliableAck, ReliableMessage;	
 	int drop;
 
 	// Start from the beginning of the packet
@@ -167,7 +167,7 @@ bool CChannel::Process(CBytestream *bs)
 	// Get rid of the old packets
 	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later
 	// It caused a delay when joining (especially on high-ping servers), this hack improves it
-	if((Sequence <= (Uint32)iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
+	if((Sequence <= iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
 		printf("Warning: Packet dropped\n");
 		bs->Dump();
 		return false;
@@ -182,7 +182,7 @@ bool CChannel::Process(CBytestream *bs)
 
 
 	// If the outgoing reliable message has been acknowledged, clear it for more reliable messages
-	if(ReliableAck == (ulong)iReliableSequence)
+	if(ReliableAck == iReliableSequence)
 		Reliable.Clear();
 
 	// Check if pong has been acknowledged
