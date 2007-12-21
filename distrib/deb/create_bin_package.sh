@@ -7,12 +7,17 @@
 # When we will increment number in ../../VERSION file new data package will be built.
 
 if [ $USER != root ] ; then echo This program should be run from root account - type \"sudo $0\" ; exit 1 ; fi
-echo Creating openlierox.deb - Make sure your bin/openlierox is a release version
-echo If you built openlierox not on i386 then edit "bin/control" and specify correct Architecture: field.
+echo Re-compiling openlierox with Debian options
+cd ../../
+if [ -e bin/openlierox ] ; then rm bin/openlierox ; fi
+env HAWKNL_BUILTIN=1 SYSTEM_DATA_DIR=/usr/share/games ACTIVATE_GDB=0 DEBUG=0 ./compile.sh # bin file is oned by root
+cd distrib/deb
+if [ \! -e ../../bin/openlierox ] ; then echo Compile failed ; exit 1 ; fi
+echo Creating openlierox.deb
 # Copying data
 if [ -e pkg ] ; then rm -rf pkg ; fi
 mkdir -p pkg/usr/games
-cp -r ../../bin/openlierox pkg/usr/games
+mv ../../bin/openlierox pkg/usr/games # We don't want file owned by root in user dir - we'll delete pkg/ at the end anyway
 strip pkg/usr/games/openlierox
 cp -r bin/share pkg/usr
 cp ../../share/OpenLieroX.svg pkg/usr/share/pixmaps
@@ -37,10 +42,14 @@ chown -R root pkg/
 Version=`cat ../../VERSION | sed 's/_/./g'`
 Revision=`svn info ../../ | grep '^Revision:' | sed 's/Revision: //'`
 Size=`du -k -s pkg | grep -o '[0-9]*'`
+Arch=`uname -m`
+# TODO: add more architecture types here
+if echo $Arch | grep '^i.86' > /dev/null ; then Arch=i386 ; fi
 cat bin/control | \
 sed "s/^Version:.*/Version: $Version.r$Revision/" | \
 sed "s/openlierox-data ([^)]*)/openlierox-data (>= $Version)/" | \
-sed "s/^Installed-Size:.*/Installed-Size: $Size/" \
+sed "s/^Installed-Size:.*/Installed-Size: $Size/" | \
+sed "s/^Architecture:.*/Architecture: $Arch/" \
 > pkg/DEBIAN/control
 
 dpkg -b pkg openlierox_$Version.r$Revision.deb
