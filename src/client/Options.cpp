@@ -91,6 +91,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", true )
 		( tLXOptions->bSendDirtUpdate, "Advanced.SendDirtUpdate", false )
+		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", true )
 
 		( tLXOptions->iLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->iShowPing, "Misc.ShowPing", true )

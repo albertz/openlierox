@@ -79,7 +79,8 @@ enum {
 	og_MatchLogging,
 	og_UseNumericKeysToSwitchWeapons,
 	og_AntilagMovementPrediction,
-	og_SendDirtUpdate
+	og_SendDirtUpdate,
+	og_AllowFileDownload
 };
 
 enum {
@@ -372,6 +373,9 @@ int Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->tGameinfo.bMatchLogging),og_MatchLogging, 280, 390, 17,17);
 
+	cOpt_Game.Add( new CLabel("Server allows file download",tLX->clNormalLabel), Static, 330, 270, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 270, 17,17);
+
 	cOpt_Game.Add( new CLabel("Server sends destroyed dirt",tLX->clNormalLabel), Static, 330, 300, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bSendDirtUpdate),og_SendDirtUpdate, 550, 300, 17,17);
 
@@ -617,6 +621,11 @@ void Menu_OptionsFrame(void)
 				case og_SendDirtUpdate:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bSendDirtUpdate = cOpt_Game.SendMessage(og_SendDirtUpdate, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+					
+				case og_AllowFileDownload:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bAllowFileDownload = cOpt_Game.SendMessage(og_AllowFileDownload, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 			}

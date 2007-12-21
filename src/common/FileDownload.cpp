@@ -484,6 +484,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & path )
 	fclose( ff );
 
 	Compress( sFilename + '\0' + data, &sData );
+	//printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
 };
 
 enum { MAX_DATA_CHUNK = 254 };	// UCHAR_MAX - 1, client and server should have this equal
@@ -528,6 +529,7 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 				//printf("CFileDownloaderInGame::receive() filename %s sData.size() %i\n", sFilename.c_str(), sData.size());
 			};
 		};
+		processFileRequests();
 		return true;	// Receive finished
 	};
 	return false;
@@ -553,5 +555,132 @@ bool CFileDownloaderInGame::send( CBytestream * bs )
 		return true;	// Send finished
 	};
 	return false;
+};
+
+void CFileDownloaderInGame::allowFileRequest( bool allow ) 
+{ 
+	bAllowFileRequest = allow;
+	if( ! bAllowFileRequest )
+		reset();	// Stop uploading any files
+};
+
+void CFileDownloaderInGame::requestFile( const std::string & path, bool retryIfFail )
+{
+	setFileToSend( "GET:", path );
+	if( retryIfFail )
+		tRequestedFiles.insert( path );
+};
+
+bool CFileDownloaderInGame::requestFilesPending()
+{
+	if( tRequestedFiles.empty() )
+		return false;
+	if( getState() == S_FINISHED || getState() ==  S_ERROR )
+		reset();
+	else
+		return true;	// Receiving or sending in progress
+		
+	requestFile( * tRequestedFiles.begin() );
+	return true;
+};
+
+void CFileDownloaderInGame::requestFileInfo( const std::string & path )
+{
+	setFileToSend( "STAT:", path );
+};
+
+void CFileDownloaderInGame::processFileRequests()
+{
+	// Process received files
+	if( tRequestedFiles.find( getFilename() ) != tRequestedFiles.end() )
+		tRequestedFiles.erase( getFilename() );
+	
+	// Process file sending requests
+	if( ! bAllowFileRequest )
+		return;
+	if( getFilename() == "GET:" )
+	{
+		if( ! isPathValid( getData() ) )
+		{
+			printf( "CFileDownloaderInGame::processFileRequests(): invalid filename \"%s\"\n", getData().c_str() );
+			return;
+		};
+		std::string fname;
+		GetExactFileName( getData(), fname );
+		struct stat st;
+		if( stat( fname.c_str(), &st ) != 0 )
+		{
+			printf( "CFileDownloaderInGame::processFileRequests(): cannot stat file \"%s\"\n", getData().c_str() );
+			return;
+		};
+		if( S_ISREG( st.st_mode ) )
+		{
+			setFileToSend( getData() );
+		};
+		if( S_ISDIR( st.st_mode ) )
+		{
+			printf( "CFileDownloaderInGame::processFileRequests(): cannot send dir \"%s\" - not implemented\n", getData().c_str() );
+			// TODO: Not implemented
+			return;
+		};
+	};
+	if( getFilename() == "STAT:" )
+	{
+		if( ! isPathValid( getData() ) )
+		{
+			printf( "CFileDownloaderInGame::processFileRequests(): invalid filename \"%s\"\n", getData().c_str() );
+			return;
+		};
+		printf( "CFileDownloaderInGame::processFileRequests(): cannot send file statistics \"%s\" - not implemented\n", getData().c_str() );
+		// TODO: Get file info - size and CRC32 or MD5 - not implemented yet
+		return;
+	};
+};
+
+// Valid filename symbols
+#define S_LETTER_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define S_LETTER_LOWER "abcdefghijklmnopqrstuvwxyz"
+#define S_LETTER S_LETTER_UPPER S_LETTER_LOWER
+#define S_NUMBER "0123456789"
+#define S_SYMBOL "/. -_&+"	// No "\\" symbol
+const char * invalid_file_names [] = { "CON", "PRN", "AUX", "NUL", 
+	"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", 
+	"LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+
+bool CFileDownloaderInGame::isPathValid( const std::string & path )
+{
+	if( path == "" )
+		return false;
+	if( path.find_first_not_of( S_LETTER S_NUMBER S_SYMBOL ) !=	std::string::npos )
+		return false;
+	if( path[0] == '/' || path[0] == ' ' )
+		return false;
+	if( path[path.size()-1] == ' ' )
+		return false;
+	if( path.find( ".." ) != std::string::npos ||
+		path.find( "//" ) != std::string::npos ||
+		path.find( "./" ) != std::string::npos ||
+		path.find( "/." ) != std::string::npos )	// Okay, "~/.OpenLieroX/" is valid path, fail it anyway
+		return false;
+	if( stringcasefind( path, "cfg/" ) == 0 )	// Config dir is forbidden - some passwords may be stored here
+		return false;
+	for( uint f=0; f < path.size(); )
+	{
+		uint f1 = path.find_first_of(S_SYMBOL, f);
+		if( f1 == std::string::npos )
+			f1 = path.size();
+		std::string word = path.substr( f, f1-f );
+		for( uint f2=0; f2<sizeof(invalid_file_names)/sizeof(invalid_file_names[0]); f2++ )
+		{
+			if( stringcasecmp( word, invalid_file_names[f2] ) == 0 )
+				return false;
+		};
+		if( f1 == path.size() )
+			break;
+		f = path.find_first_not_of(S_SYMBOL, f1);
+		if( f == std::string::npos )	// Filename cannot end with a dot
+			return false;
+	};
+	return true;
 };
 

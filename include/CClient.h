@@ -247,7 +247,7 @@ public:
 		bHostOLXb4 = false;
 		bHostAllowsMouse = false;
 		bClientOLXBeta4 = false;
-		fLastDirtUpdate = tLX->fCurTime;
+		fLastDirtUpdate = fLastFileRequest = tLX->fCurTime;
 
 		bDownloadingMap = false;
 		cFileDownloader = NULL;
@@ -438,6 +438,7 @@ private:
 	
 	CFileDownloaderInGame	cFileDownloaderInGame;
 	float		fLastDirtUpdate;
+	float		fLastFileRequest;
 
 public:
 	// Methods
@@ -668,6 +669,7 @@ public:
 	CFileDownloaderInGame * getFileDownloaderInGame() { return &cFileDownloaderInGame; };
 	float		getLastDirtUpdate()				{ return fLastDirtUpdate; };
 	void		setLastDirtUpdate( float _f )	{ fLastDirtUpdate = _f; };
+	void		processFileRequests();
 
 };
 

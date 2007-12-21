@@ -126,7 +126,7 @@ void CClient::Clear(void)
 	sMapDlError = "";
 	iMapDlProgress = 0;
 	bConnectingDuringGame = false;
-	fLastDirtUpdate = tLX->fCurTime;
+	fLastDirtUpdate = fLastFileRequest = tLX->fCurTime;
 }
 
 
@@ -180,7 +180,7 @@ void CClient::MinorClear(void)
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
 	}
-	fLastDirtUpdate = tLX->fCurTime;
+	fLastDirtUpdate = fLastFileRequest = tLX->fCurTime;
 }
 
 
@@ -225,6 +225,7 @@ int CClient::Initialize(void)
 		cRemoteWorms[i].setTagTime(0);
 		cRemoteWorms[i].setTeam(0);
 		cRemoteWorms[i].setFlag(false);
+		cRemoteWorms[i].setUsed(false);
 	}
 	
 
@@ -480,6 +481,8 @@ void CClient::Frame(void)
 		oldtime = tLX->fCurTime;*/
 
 	ProcessMapDownloads();
+	
+	processFileRequests();
 
 	ReadPackets();
 
@@ -1065,4 +1068,33 @@ void CClient::setClientVersion(const std::string & _s)
 	bHostOLXb4 = true;
 	bClientOLXBeta4 = true;
 }
+
+void CClient::processFileRequests()
+{
+	if( ! getHostBeta4() )
+		return;
+	if(iNetStatus != NET_CONNECTED)
+		return;
+	if( fLastFileRequest + 5 > tLX->fCurTime )
+		return;
+	if( getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_FINISHED )
+		return;
+	fLastFileRequest = tLX->fCurTime;
+	if( ! tGameLobby.bHaveMap )
+	{
+		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
+		return;
+	};
+	CWorm *w;
+	for( int i=0; i<MAX_WORMS; i++, w++ )
+	{
+		if( ! w->isUsed() )
+			continue;
+		if( ! IsFileAvailable("skins/" + w->getSkin()) )
+		{
+			getFileDownloaderInGame()->requestFile("skins/" + w->getSkin());
+			return;
+		};
+	};
+};
 

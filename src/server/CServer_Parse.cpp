@@ -856,12 +856,45 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 			cl->getFileDownloaderInGame()->reset();
 			return;
 		};
-		// Add here handlers for file downloading / saving
-		// The only thing server needs from client is the worm skin file
-		cl->getFileDownloaderInGame()->reset();
+		// The only file server needs from client is the worm skin file
+		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
+			cl->getFileDownloaderInGame()->getFilename() == "GET:" &&
+			cl->getFileDownloaderInGame()->getData().find("skins/") == 0 )
+		{
+			// If state is S_FINISHED not S_SEND that means we don't have requested worm skin file
+			std::string skin = cl->getFileDownloaderInGame()->getData().substr(strlen("skins/"));
+			CWorm *w = cWorms;
+			for ( int i = 0; i < MAX_WORMS; i++, w++ )  
+			{
+				if (!w->isUsed())
+					continue;
+				if( w->getSkin() == skin )
+				{
+					if( ! w->getClient()->getClientOLXBeta4() )
+						return;
+					w->getClient()->getFileDownloaderInGame()->requestFile( "skins/" + skin, false );
+					return;
+				};
+			};
+		}
+		else
+		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
+			CFileDownloaderInGame::isPathValid( cl->getFileDownloaderInGame()->getFilename() ) &&
+			! IsFileAvailable( cl->getFileDownloaderInGame()->getFilename() ) &&
+			cl->getFileDownloaderInGame()->getFilename().find("skins/") == 0 )
+		{
+			// Client sent us it's worm skin file we don't have - save it
+			FILE * ff=OpenGameFile( cl->getFileDownloaderInGame()->getFilename(), "w" );
+			if( ff == NULL )
+			{
+				printf("GameServer::ParseSendFile(): cannot write file %s\n", cl->getFileDownloaderInGame()->getFilename().c_str() );
+				return;
+			};
+			fwrite( cl->getFileDownloaderInGame()->getData().c_str(), 1, cl->getFileDownloaderInGame()->getData().size(), ff );
+			fclose(ff);
+		};
 	};
 };
-
 
 
 /*

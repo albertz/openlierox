@@ -198,6 +198,7 @@ public:
 	bool	bCountTeamkills;
 	bool	bServerSideHealth;
 	bool	bSendDirtUpdate;
+	bool	bAllowFileDownload;
 
 	// Misc.
 	int     iLogConvos;

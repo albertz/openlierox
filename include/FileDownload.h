@@ -23,6 +23,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <set>
 #include <stdio.h>  // for FILE
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
@@ -140,26 +141,25 @@ public:
 };
 
 // In-lobby or in-game file downloader over unreliable protocol - send packets of 256 bytes
-class CFileDownloaderInGame  {
+class CFileDownloaderInGame
+{
 public:
-	CFileDownloaderInGame() { tState = S_FINISHED; iPos = 0; };
+	CFileDownloaderInGame() { tState = S_FINISHED; iPos = 0; bAllowFileRequest = true; };
 	~CFileDownloaderInGame() { };
 
 	enum State_t 	{ S_SEND, S_RECEIVE, S_FINISHED, S_ERROR };
 
-private:
-	std::string		sFilename;
-	std::string		sData;
-	uint			iPos;
-
-	State_t			tState;
-	
-public:
-
+	// Basic functions for file download
+	// Contains garbage when download not finished yet, or when uploading a file
 	const std::string & getFilename() { return sFilename; };
 	const std::string & getData() { return sData; };
 
+	// Should be called when received S2C_SENDFILE or C2S_SENDFILE msg - read needed amount of bytes from bytestream
+	// Returns true if download finished or error occured
+	// If file request received automatically start sending requested file if bAllowFileRequest is true
 	bool		receive( CBytestream * bs );
+	// Should be called to append file data to S2C_SENDFILE or C2S_SENDFILE messages when sending in a loop
+	// Returns true if download finished or error occured
 	bool		send( CBytestream * bs );
 
 	bool		errorOccured() { return (tState == S_ERROR); };
@@ -169,7 +169,27 @@ public:
 	void		setFileToSend( const std::string & path );
 
 	void		reset() { iPos = 0; tState = S_FINISHED; sFilename = ""; sData = ""; };
-};
 
+	// Functions that will trigger remote CFileDownloaderInGame to do something like send some file or list some dir
+	void		allowFileRequest( bool allow );
+	void		requestFile( const std::string & path, bool retryIfFail = true ); // Same for dir
+	void		requestFileInfo( const std::string & path ); // Same for dir
+	bool		requestFilesPending(); // Re-send file request if downloading fails
+	static bool	isPathValid( const std::string & path );	// Check if someone tries to access /etc/shadow to get system passwords
+
+private:
+	std::string		sFilename;
+	std::string		sData;
+	uint			iPos;
+
+	State_t			tState;
+	
+	bool			bAllowFileRequest;
+	
+	std::set< std::string > tRequestedFiles;
+	
+	void			processFileRequests();
+
+};
 
 #endif // __FILEDOWNLOAD_H__

@@ -1513,25 +1513,63 @@ void CClient::ParseSendFile(CBytestream *bs)
 {
 	if( cFileDownloaderInGame.receive(bs) )
 	{
-		if( cFileDownloaderInGame.errorOccured() )
+		if( cFileDownloaderInGame.errorOccured() || tGameInfo.iGameType != GME_JOIN )
 		{
 			cFileDownloaderInGame.reset();
 			return;
 		};
-		if( tGameInfo.iGameType != GME_JOIN )
+		if( cFileDownloaderInGame.getFilename() == "dirt" )
 		{
-			cFileDownloaderInGame.reset();
-			return;
-		};
-		if( cFileDownloaderInGame.getFilename() == "dirt" )	// Parse a dirt mask packet
-		{
+			// Parse a dirt mask packet
 			CBytestream bs1;
 			bs1.writeData( cFileDownloaderInGame.getData() );
-			cMap->RecvDirtUpdate( &bs1 );
+			if( cMap )
+				cMap->RecvDirtUpdate( &bs1 );
+		}
+		else
+		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
+			CFileDownloaderInGame::isPathValid( getFileDownloaderInGame()->getFilename() ) &&
+			! IsFileAvailable( getFileDownloaderInGame()->getFilename() ) )
+		{
+			// Server sent us some file we don't have - okay, save it
+			FILE * ff=OpenGameFile( getFileDownloaderInGame()->getFilename(), "w" );
+			if( ff == NULL )
+			{
+				printf("CClient::ParseSendFile(): cannot write file %s\n", getFileDownloaderInGame()->getFilename().c_str() );
+				return;
+			};
+			fwrite( getFileDownloaderInGame()->getData().c_str(), 1, getFileDownloaderInGame()->getData().size(), ff );
+			fclose(ff);
+			if( getFileDownloaderInGame()->getFilename().find("levels/") == 0 && 
+					IsFileAvailable( "levels/" + tGameLobby.szMapName ) )
+			{
+				tGameLobby.bHaveMap = true;
+				tGameLobby.szDecodedMapName = Menu_GetLevelName(tGameLobby.szMapName);
+
+				if (cMap) delete cMap;
+
+				cMap = new CMap;
+				if (!cMap->Load("levels/" + tGameLobby.szMapName))  
+				{
+					printf("Could not load the downloaded map!\n");
+					Disconnect();
+					GotoNetMenu();
+				};
+			};
+			if( getFileDownloaderInGame()->getFilename().find("skins/") == 0 )
+			{
+				CWorm *w;
+				for( int i=0; i<MAX_WORMS; i++, w++ )
+				{
+					if( ! w->isUsed() )
+						continue;
+					if( getFileDownloaderInGame()->getFilename() == "skins/" + w->getSkin() )
+						w->LoadGraphics(getGameLobby()->nGameMode);
+				};
+			};
 		};
-		// Add here handlers for file downloading / saving
-		// Client can request maps and mod dirs from server
-		// If download fails retrying should be implemented here
-		cFileDownloaderInGame.reset();
+		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
+			getFileDownloaderInGame()->requestFilesPending();
 	};
 };
+

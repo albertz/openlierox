@@ -237,6 +237,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	// Initialize the clients
 	for(i=0;i<MAX_CLIENTS;i++) {
 		cClients[i].Clear();
+		cClients[i].getFileDownloaderInGame()->allowFileRequest(tLXOptions->bAllowFileDownload);
 
 		// Initialize the shooting list
 		if( !cClients[i].getShootList()->Initialize() ) {
@@ -381,6 +382,7 @@ int GameServer::StartGame( bool dedicated )
 	{for(int i=0;i<MAX_CLIENTS;i++) {
 		cClients[i].getShootList()->Clear();
 		cClients[i].setGameReady(false);
+		cClients[i].getFileDownloaderInGame()->allowFileRequest(false);
 	}}
 
 
@@ -540,7 +542,8 @@ void GameServer::GameOver(int winner)
 	// Reset the state of all the worms so they don't keep shooting/moving after the game is over
 	// HINT: next frame will send the update to all worms
 	CWorm *w = cWorms;
-	for (int i=0; i < MAX_WORMS; i++, w++)  {
+	int i;
+	for ( i=0; i < MAX_WORMS; i++, w++ )  {
 		if (!w->isUsed())
 			continue;
 
@@ -548,6 +551,9 @@ void GameServer::GameOver(int winner)
 	}
 	bDedicated = false;
 	
+	for( i=0; i<MAX_CLIENTS; i++ )
+		cClients[i].getFileDownloaderInGame()->allowFileRequest(tLXOptions->bAllowFileDownload);
+		
 	SendSdlEventWhenDataAvailable( tSocket );	// For updating server lobby screen
 }
 
@@ -658,6 +664,9 @@ void GameServer::SendPackets(void)
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
+		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND )
+			cl->getFileDownloaderInGame()->send(cl->getUnreliable());
+			
 		// Send out the packets if we haven't gone over the clients bandwidth
 		cl->getChannel()->Transmit(cl->getUnreliable());
 
