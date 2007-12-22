@@ -2093,6 +2093,15 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
 	bUpdateScore = false;
 }
 
+/*void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
+{
+	int x = 0;
+	int y = tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0;
+	int w = 256;
+	int h = getBottomBarTop() - y;
+	DrawRectFillA(x, y, w, h, tLX->clScoreBackground, 128);
+}*/
+
 ///////////////////
 // Draw the scoreboard
 void CClient::DrawScoreboard(SDL_Surface *bmpDest)
@@ -2145,8 +2154,6 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 
     int y = tInterfaceSettings.CurrentSettingsY;
     int x = tInterfaceSettings.CurrentSettingsX;
-//	int w = 240; // TODO: not used
-//	int h = 132;
 	if (cViewports[1].getUsed())  {
 		x = tInterfaceSettings.CurrentSettingsTwoPlayersX;
 		y = tInterfaceSettings.CurrentSettingsTwoPlayersY;
@@ -2156,7 +2163,9 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	/*tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s","Level:");
 	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname.c_str());*/
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel, "Mod:");
-	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, tGameInfo.sModName);
+	std::string mod = tGameInfo.sModName;
+	stripdot(mod, tInterfaceSettings.ChatBoxX - 105); // 10 - leave some space
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, mod);
 	cur_y += tLX->cFont.GetHeight();
 
 	static const std::string gmt_names[] = {"Deathmatch", "Tag", "Team DM", "Demolition", "VIP", "CTF", "Teams CTF"};

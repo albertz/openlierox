@@ -243,8 +243,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym)	{ return MP_WID_NONE; }
-	int		KeyUp(UnicodeChar c, int keysym)	{ return MP_WID_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 
@@ -278,8 +278,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym)	{ return MP_WID_NONE; }
-	int		KeyUp(UnicodeChar c, int keysym)	{ return MP_WID_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
 	inline int GetValue(void)  { return iValue; }
 	inline void SetValue(int _v) {iValue = _v; }
@@ -320,8 +320,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown) {return MP_WID_MOUSEDOWN; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym)	{ return MP_WID_NONE; }
-	int		KeyUp(UnicodeChar c, int keysym)	{ return MP_WID_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 
@@ -361,8 +361,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown) {return MP_WID_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return MP_WID_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return MP_WID_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym)	{ return MP_WID_NONE; }
-	int		KeyUp(UnicodeChar c, int keysym)	{ return MP_WID_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return MP_WID_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 

@@ -69,8 +69,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return SLD_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return SLD_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym)	{ return SLD_NONE; }
-	int		KeyUp(UnicodeChar c, int keysym)	{ return SLD_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return SLD_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return SLD_NONE; }
 
 	void	Draw(SDL_Surface *bmpDest);
 

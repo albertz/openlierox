@@ -30,7 +30,6 @@ class gui_event_t { public:
 	CWidget	*cWidget;
 };
 
-
 // Errors
 enum {
 	ERR_OUTOFMEMORY=0,
@@ -74,19 +73,20 @@ public:
 private:
 	// Attributes
 
-	CWidget		*cWidgets;
-	gui_event_t	*tEvent;
-	CWidget		*cFocused;
-	CWidget		*cMouseOverWidget;
+	CWidget			*cWidgets;
+	gui_event_t		*tEvent;
+	CWidget			*cFocused;
+	CWidget			*cMouseOverWidget;
+	ModifiersState	tModifiersState;
 
-	int			iID;
+	int				iID;
 
 	// Mouse button repeats
-	int			nMouseButtons;
-	float		fMouseNext[3];
+	int				nMouseButtons;
+	float			fMouseNext[3];
 
 	// Can we set focus to another widget?
-	int			iCanFocus;
+	int				iCanFocus;
 
 
 

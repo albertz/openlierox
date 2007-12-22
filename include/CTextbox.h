@@ -77,6 +77,7 @@ private:
 	// Attributes
 
 	std::string	sText;
+	std::string sAltKey;  // if user is pressing Alt + Numbers, we remember the numbers and insert unicode character
 
 	// these are related to the size of the string (sText.size()), NOT the displayed size
 	size_t	iScrollPos;
@@ -123,8 +124,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse)		{ return TXT_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return TXT_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym);
-	int		KeyUp(UnicodeChar c, int keysym);
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
 	void	Draw(SDL_Surface *bmpDest);
 

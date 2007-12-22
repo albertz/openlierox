@@ -76,8 +76,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return ANI_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)			{ return ANI_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)			{ return ANI_NONE; }
-	int		KeyDown(UnicodeChar c, int keysym)		{ return ANI_NONE; }
-	int		KeyUp(UnicodeChar c, int keysym)		{ return ANI_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)		{ return ANI_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)		{ return ANI_NONE; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2) { return 0; }
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }

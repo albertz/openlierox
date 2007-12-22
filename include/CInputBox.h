@@ -68,13 +68,13 @@ public:
 	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1
-	inline int		MouseOver(mouse_t *tMouse)			{ iMouseOver = true; return INB_NONE; }
-	inline int		MouseUp(mouse_t *tMouse, int nDown)		{ return INB_MOUSEUP; }
-	inline int		MouseDown(mouse_t *tMouse, int nDown)	{ return INB_NONE; }
-	inline int		MouseWheelDown(mouse_t *tMouse)		{ return INB_NONE; }
-	inline int		MouseWheelUp(mouse_t *tMouse)		{ return INB_NONE; }
-	inline int		KeyDown(UnicodeChar c, int keysym)	{ return INB_NONE; }
-	inline int		KeyUp(UnicodeChar c, int keysym)	{ return INB_NONE; }
+	int		MouseOver(mouse_t *tMouse)			{ iMouseOver = true; return INB_NONE; }
+	int		MouseUp(mouse_t *tMouse, int nDown)		{ return INB_MOUSEUP; }
+	int		MouseDown(mouse_t *tMouse, int nDown)	{ return INB_NONE; }
+	int		MouseWheelDown(mouse_t *tMouse)		{ return INB_NONE; }
+	int		MouseWheelUp(mouse_t *tMouse)		{ return INB_NONE; }
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return INB_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return INB_NONE; }
 
 
 	// Process a message sent

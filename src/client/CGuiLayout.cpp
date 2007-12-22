@@ -590,6 +590,23 @@ gui_event_t *CGuiLayout::Process(void)
 	// Make sure a key event happened
 	if(Keyboard->queueLength > 0) {
 
+		// Update the state of modifiers
+		for(int i = 0; i < Keyboard->queueLength; i++)  {
+			const KeyboardEvent& ev = Keyboard->keyQueue[i];
+			switch (ev.sym)  {
+			case SDLK_LALT: case SDLK_RALT:
+				tModifiersState.bAlt = ev.down;
+				break;
+			case SDLK_LCTRL: case SDLK_RCTRL:
+				tModifiersState.bCtrl = ev.down;
+				break;
+			case SDLK_LSHIFT: case SDLK_RSHIFT:
+				tModifiersState.bShift = ev.down;
+				break;
+			}
+		}
+
+
 		// If we don't have any focused widget, get the first textbox
 		if (!cFocused)  {
 			CWidget *txt = cWidgets;
@@ -609,9 +626,9 @@ gui_event_t *CGuiLayout::Process(void)
 			for(int i = 0; i < Keyboard->queueLength; i++) {
 				const KeyboardEvent& kbev = Keyboard->keyQueue[i];
 				if(kbev.down)
-					ev = cFocused->KeyDown(kbev.ch, kbev.sym);
+					ev = cFocused->KeyDown(kbev.ch, kbev.sym, tModifiersState);
 				else
-					ev = cFocused->KeyUp(kbev.ch, kbev.sym);
+					ev = cFocused->KeyUp(kbev.ch, kbev.sym, tModifiersState);
 			}
 
 

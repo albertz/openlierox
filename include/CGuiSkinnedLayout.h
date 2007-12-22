@@ -42,9 +42,10 @@ public:
 private:
 	// Attributes
 
-	CWidget		*cWidgets;
-	CWidget		*cWidgetsFromEnd;
-	CWidget		*cFocused;
+	CWidget			*cWidgets;
+	CWidget			*cWidgetsFromEnd;
+	CWidget			*cFocused;
+	ModifiersState	tModifiersState;
 	//CWidget		*cMouseOverWidget;	// Not used
 
 	bool		bExitCurrentDialog;	// Used to exit to MainMenu - remove when only skinned GUI will exist
@@ -96,8 +97,8 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
-	int		KeyDown(UnicodeChar c, int keysym);
-	int		KeyUp(UnicodeChar c, int keysym);
+	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
 	// Other functions are empty, because GUI layout don't do any actions itself
 	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2) { return 0; };

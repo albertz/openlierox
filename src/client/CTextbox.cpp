@@ -156,13 +156,8 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 ///////////////////
 // Keydown event
-int CTextbox::KeyDown(UnicodeChar c, int keysym)
+int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
-	// Get the STATE of ctrl/alt
-	keyboard_t *kb = GetKeyboard();
-	bool bShift = (kb->KeyDown[SDLK_RSHIFT]) || (kb->KeyDown[SDLK_LSHIFT]);
-	bool bCtrl = (kb->KeyDown[SDLK_RCTRL]) || (kb->KeyDown[SDLK_LCTRL]);
-
 	iDrawCursor = true;
 
 	// Handle holding keys
@@ -196,7 +191,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 
 	// Left arrow
 	if (keysym == SDLK_LEFT) {
-		if (bShift)  {
+		if (modstate.bShift)  {
 			if (iCurpos)
 				iSelLength++;
 		}
@@ -213,7 +208,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 	if(keysym == SDLK_RIGHT) {
 		size_t len = Utf8StringSize(sText);
 		if(iCurpos <= len)  {
-			if (bShift)  {
+			if (modstate.bShift)  {
 				if (iCurpos != len)
 					iSelLength--;
 			}
@@ -241,7 +236,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 	// Home
 	if(keysym == SDLK_HOME) {
 		// If the shift key is down, select the text
-		if(bShift)
+		if(modstate.bShift)
 			if(iSelLength > 0)
 				iSelLength += iCurpos;
 			else
@@ -260,8 +255,8 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 
 	// End
 	if(keysym == SDLK_END) {
-		if (bShift)
-			iSelLength = -(int)Utf8StringSize(sText) + iCurpos;
+		if (modstate.bShift)
+			iSelLength = -(int)Utf8StringSize(sText) + iCurpos + iSelLength;
 		else
 			iSelLength = 0;
 
@@ -282,7 +277,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 	}
 
 	// Select all
-	if (bCtrl && keysym == SDLK_a) {
+	if (modstate.bCtrl && keysym == SDLK_a) {
 		iCurpos = Utf8StringSize(sText);
 		iSelStart = 0;
 		iSelLength = -((int)Utf8StringSize(sText));
@@ -302,28 +297,36 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 	}
 
     // Ctrl-v (paste)
-    if(bCtrl && keysym == SDLK_v) {
+    if(modstate.bCtrl && keysym == SDLK_v) {
         PasteText();
         return TXT_CHANGE;
     }
 
     // Ctrl-c (copy)
-    if(bCtrl && keysym == SDLK_c) {
+    if(modstate.bCtrl && keysym == SDLK_c) {
         CopyText();
         return TXT_NONE;
     }
 
     // Ctrl-x (cut)
-    if(bCtrl && keysym == SDLK_x) {
+    if(modstate.bCtrl && keysym == SDLK_x) {
         CopyText();
 		Delete();
         return TXT_CHANGE;
     }
 
-	// No visible character
-	if (c == 0)  {
-		return TXT_NONE;
+	// Alt + numbers
+	if(modstate.bAlt)  {
+		if (c >= 0x30 && c <= 0x39)
+			sAltKey += (char)c;
+	} else {  // Alt not pressed
+		sAltKey = "";
 	}
+
+
+	// No visible character
+	if (c == 0 || modstate.bAlt || modstate.bCtrl || modstate.bShift)
+		return TXT_NONE;
 
 	// Insert character
 	Insert(c);
@@ -334,9 +337,28 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym)
 
 ///////////////////
 // Keyup event
-int CTextbox::KeyUp(UnicodeChar c, int keysym)
+int CTextbox::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	iHolding = false;
+
+	// Check if alt has been released and insert any character code that has been typed
+	if (keysym == SDLK_LALT || keysym == SDLK_RALT)
+		if (sAltKey.size() != 0)  {  // If there's some code saved, insert it
+
+			// Convert the code
+			bool fail = false;
+#if _MSC_VER <= 1200
+			UnicodeChar in = (UnicodeChar)from_string<int>(sAltKey, fail);  // MSVC cannot convert string to UnicodeChar
+#else
+			UnicodeChar in = from_string<UnicodeChar>(sAltKey, fail);
+#endif
+			// Insert
+			if (!fail)
+				Insert(in);
+
+			// Clear
+			sAltKey = "";
+		}
 
 	return TXT_NONE;
 }

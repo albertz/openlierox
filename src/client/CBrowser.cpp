@@ -293,7 +293,7 @@ int CBrowser::MouseWheelUp(mouse_t *tMouse)
 
 //////////////////
 // Mouse wheel down event
-int CBrowser::KeyDown(UnicodeChar c, int keysym)
+int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	if (bUseScroll)  {
 		switch (keysym)  {

@@ -178,9 +178,9 @@ bool CGuiSkinnedLayout::Process(void)
 	for(int i = 0; i < Keyboard->queueLength; i++) {
 		const KeyboardEvent& kbev = Keyboard->keyQueue[i];
 		if(kbev.down)
-			KeyDown(kbev.ch, kbev.sym);
+			KeyDown(kbev.ch, kbev.sym, tModifiersState);
 		else
-			KeyUp(kbev.ch, kbev.sym);
+			KeyUp(kbev.ch, kbev.sym, tModifiersState);
 	}
 
 
@@ -436,11 +436,11 @@ int		CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
 	return -1;
 };
 
-int		CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym)
+int		CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	if( cChildLayout )
 	{
-		cChildLayout->KeyDown(c, keysym);
+		cChildLayout->KeyDown(c, keysym, modstate);
 		return -1;
 	};
 	FocusOnKeyPress(c, keysym, false);
@@ -448,18 +448,18 @@ int		CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym)
 	{
 		if(!cFocused->getEnabled())
 			return -1;
-		int ev = cFocused->KeyDown(c, keysym);
+		int ev = cFocused->KeyDown(c, keysym, modstate);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 	};
 	return -1;
 };
 
-int		CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym)
+int		CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	if( cChildLayout )
 	{
-		cChildLayout->KeyUp(c, keysym);
+		cChildLayout->KeyUp(c, keysym, modstate);
 		return -1;
 	};
 	FocusOnKeyPress(c, keysym, true);
@@ -467,7 +467,7 @@ int		CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym)
 	{
 		if(!cFocused->getEnabled())
 			return -1;
-		int ev = cFocused->KeyUp(c, keysym);
+		int ev = cFocused->KeyUp(c, keysym, modstate);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 	};

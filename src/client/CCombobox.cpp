@@ -455,7 +455,7 @@ int CCombobox::findItem(UnicodeChar startLetter) {
 
 //////////////////
 // Key down event
-int CCombobox::KeyDown(UnicodeChar c, int keysym)
+int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	// Search for items by pressed key
 	if (!iCanSearch)

@@ -42,7 +42,18 @@ class generic_events_t { public:
 	char Events[NumEvents][128];
 };
 
-// Widget types - not needed actually, we may use RTTI
+// State of modifier keys (ctrl, alt and shift)
+class ModifiersState  { 
+public:
+	ModifiersState() { clear(); }
+	void clear()  { bShift = bCtrl = bAlt = false; }
+
+	bool bShift;
+	bool bCtrl;
+	bool bAlt;
+};
+
+// Widget types
 enum WidgetType_t {
 	wid_None=-1,
 	wid_Button=0,
@@ -159,8 +170,8 @@ public:
 	virtual	int		MouseDown(mouse_t *tMouse, int nDown) = 0;
 	virtual	int		MouseWheelUp(mouse_t *tMouse ) = 0;
 	virtual	int		MouseWheelDown(mouse_t *tMouse) = 0;
-	virtual	int		KeyDown(UnicodeChar c, int keysym) = 0;
-	virtual	int		KeyUp(UnicodeChar c, int keysym) = 0;
+	virtual	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate) = 0;
+	virtual	int		KeyUp(UnicodeChar c, int keysym,  const ModifiersState& modstate) = 0;
 
 	virtual	void	LoadStyle(void) = 0;	// Not used anywhere
 	virtual	void	Draw(SDL_Surface *bmpDest) = 0;
