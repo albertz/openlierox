@@ -66,8 +66,10 @@ void CChannel::Transmit( CBytestream *bs )
 	outpack.Clear();
 
 	// If the remote side dropped the last reliable packet, re-send it
-	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)
+	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
+		printf("Remote side dropped a reliable packet, resending...\n");
 		SendReliable = 1;
+	}
 
 
 	// If the reliable buffer is empty, copy the reliable message into it
@@ -81,7 +83,6 @@ void CChannel::Transmit( CBytestream *bs )
 		// XOR the reliable sequence
 		iReliableSequence ^= 1;
 	}
-
 
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
@@ -135,8 +136,8 @@ void CChannel::Transmit( CBytestream *bs )
 // Process channel (after receiving data)
 bool CChannel::Process(CBytestream *bs)
 {
-	long Sequence, SequenceAck;
-	long ReliableAck, ReliableMessage;	
+	Uint32 Sequence, SequenceAck;
+	Uint32 ReliableAck, ReliableMessage;	
 	int drop;
 
 	// Start from the beginning of the packet

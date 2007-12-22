@@ -52,15 +52,15 @@ private:
 
 	
 	// Sequencing
-	int			iIncomingSequence;
-	int			iIncomingAcknowledged;
-	int			iIncoming_ReliableAcknowledged;		// single bit
+	Uint32		iIncomingSequence;
+	Uint32		iIncomingAcknowledged;
+	Uint32		iIncoming_ReliableAcknowledged;		// single bit
 
-	int			iIncoming_ReliableSequence;			// single bit, maintained local
+	Uint32		iIncoming_ReliableSequence;			// single bit, maintained local
 
-	int			iOutgoingSequence;
-	int			iReliableSequence;					// single bit
-	int			iLast_ReliableSequence;				// sequence number of last send
+	Uint32		iOutgoingSequence;
+	Uint32		iReliableSequence;					// single bit
+	Uint32		iLast_ReliableSequence;				// sequence number of last send
 
 	// Packets
 	CBytestream	Message;							// Reliable message
