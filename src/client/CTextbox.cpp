@@ -325,7 +325,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 
 	// No visible character
-	if (c == 0 || modstate.bAlt || modstate.bCtrl || modstate.bShift)
+	if (c == 0 || modstate.bAlt || modstate.bCtrl)
 		return TXT_NONE;
 
 	// Insert character
