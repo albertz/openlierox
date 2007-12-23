@@ -1,5 +1,10 @@
 TODO
 
+[ ] class for SDL_AddTimer as an object which can also be used
+    in GUI. for example CTextbox needs it to redraw for blinking
+    of cursor. an instance of this class would get timer-events
+    and handle them somehow. but this timer could be also used
+    for many other things.
 [ ] Fix memory leaks (!!!)
 [ ] finish mouse-aiming (!!)
 [ ] bot: go one step away if too close (!!)
