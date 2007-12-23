@@ -22,6 +22,7 @@
 keyboard_t	Keyboard;
 mouse_t		Mouse;
 SDL_Event	Event;
+ModifiersState keyModifiersState;
 
 int         nFocus = true;
 bool		bActivated = false;
@@ -78,6 +79,7 @@ void ResetCurrentEventStorage() {
 	bActivated = false;
 }
 
+// main function for handling next event
 // HINT: we are using the global variable Event here atm
 // in both cases where we call this function this is correct
 // TODO: though the whole architecture has to be changed later
@@ -167,23 +169,42 @@ void HandleNextEvent() {
 				for(int i=0; i<Keyboard.queueLength-1; i++)
 					Keyboard.keyQueue[i] = Keyboard.keyQueue[i+1];
 				Keyboard.queueLength--;
+				printf("warning: keyboard queue full\n");
 			}
 
+			KeyboardEvent& kbev = Keyboard.keyQueue[Keyboard.queueLength];
+			
 			// Key down
-			if(Event.type == SDL_KEYDOWN) {
-				Keyboard.keyQueue[Keyboard.queueLength].down = true;
-				Keyboard.keyQueue[Keyboard.queueLength].ch = input;
-				Keyboard.keyQueue[Keyboard.queueLength].sym = Event.key.keysym.sym;
-				Keyboard.queueLength++;
-			}
+			if(Event.type == SDL_KEYDOWN)
+				kbev.down = true;
 
 			// Key up
-			if(Event.type == SDL_KEYUP || Event.key.state == SDL_RELEASED) {
-				Keyboard.keyQueue[Keyboard.queueLength].down = false;
-				Keyboard.keyQueue[Keyboard.queueLength].ch = input;
-				Keyboard.keyQueue[Keyboard.queueLength].sym = Event.key.keysym.sym;
-				Keyboard.queueLength++;
+			else if(Event.type == SDL_KEYUP || Event.key.state == SDL_RELEASED)
+				kbev.down = false;
+
+			else
+				break; // don't save and handle it
+			
+			// save info
+			kbev.ch = input;
+			kbev.sym = Event.key.keysym.sym;
+			Keyboard.queueLength++;
+			
+			// handle modifier state
+			switch (kbev.sym)  {
+			case SDLK_LALT: case SDLK_RALT:
+				keyModifiersState.bAlt = kbev.down;
+				break;
+			case SDLK_LCTRL: case SDLK_RCTRL:
+				keyModifiersState.bCtrl = kbev.down;
+				break;
+			case SDLK_LSHIFT: case SDLK_RSHIFT:
+				keyModifiersState.bShift = kbev.down;
+				break;
 			}
+			
+			// copy it
+			kbev.state = keyModifiersState;
 
 		}
 		break;

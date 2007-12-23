@@ -45,7 +45,6 @@ private:
 	CWidget			*cWidgets;
 	CWidget			*cWidgetsFromEnd;
 	CWidget			*cFocused;
-	ModifiersState	tModifiersState;
 	//CWidget		*cMouseOverWidget;	// Not used
 
 	bool		bExitCurrentDialog;	// Used to exit to MainMenu - remove when only skinned GUI will exist

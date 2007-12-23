@@ -42,16 +42,6 @@ class generic_events_t { public:
 	char Events[NumEvents][128];
 };
 
-// State of modifier keys (ctrl, alt and shift)
-class ModifiersState  { 
-public:
-	ModifiersState() { clear(); }
-	void clear()  { bShift = bCtrl = bAlt = false; }
-
-	bool bShift;
-	bool bCtrl;
-	bool bAlt;
-};
 
 // Widget types
 enum WidgetType_t {

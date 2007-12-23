@@ -178,9 +178,9 @@ bool CGuiSkinnedLayout::Process(void)
 	for(int i = 0; i < Keyboard->queueLength; i++) {
 		const KeyboardEvent& kbev = Keyboard->keyQueue[i];
 		if(kbev.down)
-			KeyDown(kbev.ch, kbev.sym, tModifiersState);
+			KeyDown(kbev.ch, kbev.sym, kbev.state);
 		else
-			KeyUp(kbev.ch, kbev.sym, tModifiersState);
+			KeyUp(kbev.ch, kbev.sym, kbev.state);
 	}
 
 

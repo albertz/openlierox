@@ -19,17 +19,27 @@
 #define     MAX_MOUSEBUTTONS    8 // SDL_GetMouseState returns UInt8 bitmask
 
 
-class KeyboardEvent {
-public:
+// State of modifier keys (ctrl, alt and shift)
+struct ModifiersState  { 
+	ModifiersState() { clear(); }
+	void clear()  { bShift = bCtrl = bAlt = false; }
+
+	bool bShift;
+	bool bCtrl;
+	bool bAlt;
+};
+
+struct KeyboardEvent {
 	int sym;
     UnicodeChar ch;
 	bool down;
+	ModifiersState state;
 };
 
 // Keyboard structure
 // HINT: KeyDown is the state of the keyboard
 // KeyUp is like an event and will only be true once
-class keyboard_t { public:
+struct keyboard_t {
 	Uint8	*keys;
 	UnicodeChar	KeyUp[SDLK_LAST];
 	UnicodeChar	KeyDown[SDLK_LAST];
@@ -39,7 +49,7 @@ class keyboard_t { public:
 
 
 // Mouse structure
-class mouse_t { public:
+struct mouse_t {
 	int		X,Y;
 	int		deltaX,deltaY;
 	int		Button;

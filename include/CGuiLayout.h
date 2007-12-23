@@ -77,7 +77,6 @@ private:
 	gui_event_t		*tEvent;
 	CWidget			*cFocused;
 	CWidget			*cMouseOverWidget;
-	ModifiersState	tModifiersState;
 
 	int				iID;
 
