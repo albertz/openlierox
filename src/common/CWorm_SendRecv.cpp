@@ -91,15 +91,10 @@ void CWorm::readScore(CBytestream *bs)
 void CWorm::writePacket(CBytestream *bs)
 {
 	short x, y;
-	// HINT: Using this position helps prevent shooting oneself under lag
-	if(iLocal) {
-		x = (short)vNextPos.x;
-		y = (short)vNextPos.y;
-	}
-	else {
-		x = (short)vPos.x;
-		y = (short)vPos.y;
-	}
+
+	x = (short)vPos.x;
+	y = (short)vPos.y;
+
 	// Note: This method of saving 1 byte in position, limits the map size to just under 4096x4096
 
 	// Position
@@ -175,12 +170,12 @@ bool CWorm::checkPacketNeeded()
 			return true;
 
 	// Angle
-	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.1f)
+	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.05f)
 		return true;
 
 	// Time
 	if (vVelocity.GetLength2())
-		if (tLX->fCurTime - fLastUpdateWritten >= MAX(3.0f/vVelocity.GetLength(), 1.0f/60.0f))
+		if (tLX->fCurTime - fLastUpdateWritten >= MAX(3.0f/vVelocity.GetLength(), 1.0f/80.0f))
 			return true;
 
 	// Flag
@@ -275,6 +270,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	} else {  // We have to count the velocity by ourself
+		// WARNING: this is inexact and sometimes it is far away from the truth
+		// don't use it for any exact calculations, only as a "guess"
 		vVelocity = (vPos - vOldPos);
 		vVelocity = vVelocity / MAX(0.0001f, tLX->fCurTime - fLastPosUpdate);
 		fLastPosUpdate = tLX->fCurTime;
@@ -374,14 +371,14 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
-	}
-	else if( tLXOptions->bAntilagMovementPrediction )
-	{
-		vVelocity = (vPos - vLastPos);
-		vVelocity = vVelocity / MAX(0.0001f, tLX->fCurTime - fLastPosUpdate);
+	} else { // Count the approximate velocity
+		// HINT: this is inexact, most probably doesn't match the reality, don't use
+		// it for any exact calculations!
+		//vVelocity = (vPos - vLastPos);
+		//vVelocity = vVelocity / MAX(0.0001f, tLX->fCurTime - fLastPosUpdate);
 		fLastPosUpdate = tLX->fCurTime;
 		vLastPos = vPos;
-	};
+	}
 }
 
 	
