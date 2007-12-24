@@ -195,8 +195,7 @@ private:
 	// Simulation
 	worm_state_t tState;
 	CVec		vPos;
-	CVec		vNextPos;
-	CVec		vOldPos;
+	CVec		vOldPosOfLastPaket;
 	CVec		vVelocity;
 	CVec		vLastPos;
 	int			iOnGround;
@@ -381,6 +380,7 @@ public:
 	bool		checkPacketNeeded();
 	void		writePacket(CBytestream *bs);
 	void		readPacket(CBytestream *bs, CWorm *worms);
+	void		net_updatePos(const CVec& newpos);
 	static bool	skipPacket(CBytestream *bs);
 	void		readPacketState(CBytestream *bs, CWorm *worms);
 	static inline bool	skipPacketState(CBytestream *bs)  {return skipPacket(bs); } // For skipping it's the same as skipPacket
@@ -442,7 +442,7 @@ public:
 	void		getGamepadInput(void);
 	void		Simulate(CWorm *worms, int local, float dt);
 	void		SimulateWeapon( float dt );
-	bool		CheckWormCollision( float dt, CVec pos, CVec *vel, int jump );
+	bool		MoveAndCheckWormCollision( float dt, CVec pos, CVec *vel, CVec vOldPos, int jump );
     int			CheckOnGround();
 
 
@@ -569,9 +569,6 @@ public:
 	
 	inline CVec		getPos(void)				{ return vPos; }
 	inline void		setPos(CVec v)				{ vPos = v; }
-
-	inline CVec		getNextPos(void)				{ return vNextPos; }
-	inline void		setNextPos(CVec v)				{ vNextPos = v; }
 
 	inline CVec		*getVelocity(void)			{ return &vVelocity; }
 

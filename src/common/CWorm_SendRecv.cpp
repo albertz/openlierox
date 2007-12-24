@@ -228,17 +228,30 @@ bool CWorm::checkPacketNeeded()
 		cNinjaRope.write(bs);
 }*/
 
+void CWorm::net_updatePos(const CVec& newpos) {
+	if(tLX->fCurTime - fLastPosUpdate > 0.1f) {
+		// HINT: this estimation is not that good because it ignores any acceleration (like gravity)
+		// though I am not sure if this is a reason for bad results
+		CVec estimatedVel = (newpos - vOldPosOfLastPaket) / MAX(0.0001f, tLX->fCurTime - fLastPosUpdate);
+		vVelocity = (vVelocity + estimatedVel) / 2;
+		//vVelocity = CVec(0,0); // temp hack
+		//vVelocity = estimatedVel;
+	
+		fLastPosUpdate = tLX->fCurTime;
+		vOldPosOfLastPaket = newpos;
+	}
+		
+	vPos = newpos;
+}
 
 ///////////////////
 // Read a packet (server side)
 void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 {
-	// Position
-	vOldPos = vPos;
+	// Position and velocity
 	short x, y;
 	bs->read2Int12( x, y );
-	vPos.x=( (float)x );
-	vPos.y=( (float)y );	
+	net_updatePos( CVec(x, y) );
 
 	// Angle
 	fAngle = (float)bs->readInt(1) - 90;
@@ -269,14 +282,9 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
-	} else {  // We have to count the velocity by ourself
-		// WARNING: this is inexact and sometimes it is far away from the truth
-		// don't use it for any exact calculations, only as a "guess"
-		vVelocity = (vPos - vOldPos);
-		vVelocity = vVelocity / MAX(0.0001f, tLX->fCurTime - fLastPosUpdate);
-		fLastPosUpdate = tLX->fCurTime;
 	}
-
+	else
+		printf("server: remote worm %i: v = %f\n", iID, vVelocity.GetLength());
 
 	CClient *cl = cServer->getClient(iID);
 	CWorm *w = cl->getWorm(0);
@@ -302,7 +310,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 			vPos=vLastPos;
 			cServer->SpawnWorm(w, vPos, cl);
 		}
-
+	
+		// TODO: isn't vLastPos intendent to be the same as vOldPos? if so, remove it
 		vLastPos = vPos;
 	}
 }
@@ -334,8 +343,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
-	vPos.x=( (float)x );
-	vPos.y=( (float)y );
+	net_updatePos( CVec(x, y) );
 
 	// Angle
 	tState.iAngle = bs->readInt(1) - 90;
@@ -371,14 +379,9 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
-	} else { // Count the approximate velocity
-		// HINT: this is inexact, most probably doesn't match the reality, don't use
-		// it for any exact calculations!
-		//vVelocity = (vPos - vLastPos);
-		//vVelocity = vVelocity / MAX(0.0001f, tLX->fCurTime - fLastPosUpdate);
-		fLastPosUpdate = tLX->fCurTime;
-		vLastPos = vPos;
-	}
+	} else
+		printf("client: remote worm %i: v = %f\n", iID, vVelocity.GetLength());
+	
 }
 
 	

@@ -525,13 +525,8 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 	//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
-	// Check collisions
-
-	// TODO: Use a projectile style collision system based on velocity speed
-	vOldPos = vPos;
-	vPos += vVelocity * dt;
-	
-	CheckWormCollision( dt, vOldPos, &vVelocity, ws->iJump );
+	// Check collisions and move
+	MoveAndCheckWormCollision( dt, vPos, &vVelocity, vPos, ws->iJump );
 
 
 	// Ultimate in friction
@@ -591,15 +586,15 @@ void CWorm::SimulateWeapon( float dt )
 ///////////////////
 // Check collisions with the level
 // HINT: it directly manipulates vPos!
-bool CWorm::CheckWormCollision( float dt, CVec pos, CVec *vel, int jump )
+bool CWorm::MoveAndCheckWormCollision( float dt, CVec pos, CVec *vel, CVec vOldPos, int jump )
 {
 	static const int maxspeed2 = 10;
-
+	
 	// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 	if( (*vel*dt).GetLength2() > maxspeed2) {
 		dt /= 2;
-		if(CheckWormCollision(dt,pos,vel,jump)) return true;
-		return CheckWormCollision(dt,vPos,vel,jump);
+		if(MoveAndCheckWormCollision(dt,pos,vel,vOldPos,jump)) return true;
+		return MoveAndCheckWormCollision(dt,vPos,vel,vOldPos,jump);
 	}
 
 	pos += *vel * dt;

@@ -271,7 +271,7 @@ void CWorm::Spawn(CVec position) {
     fMoveSpeedX = 0;
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
-	vPos = vLastPos = vNextPos = vOldPos = position;
+	vPos = vLastPos = vOldPosOfLastPaket = position;
 	vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
     nAIState = AI_THINK;
@@ -304,7 +304,7 @@ void CWorm::Spawn(CVec position) {
 ///////////////////
 // Respawn this worm
 void CWorm::Respawn(CVec position) {
-	vPos = vLastPos = vNextPos = vOldPos = position;
+	vPos = vLastPos = vOldPosOfLastPaket = position;
     nAIState = AI_THINK;
 	
 	iCarving = false;

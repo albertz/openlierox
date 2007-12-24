@@ -460,6 +460,7 @@ int InitializeLieroX(void)
         return false;
     }
 
+	// TODO: move to console
     // Add some console commands
     Cmd_AddCommand("kick", Cmd_Kick);
 	Cmd_AddCommand("ban", Cmd_Ban);

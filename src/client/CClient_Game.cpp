@@ -99,9 +99,6 @@ void CClient::Simulation(void)
 		tLXOptions->iShowHealth = !tLXOptions->iShowHealth;
 	}
 
-	// Generate the flag worms
-	w = cRemoteWorms;
-
 	// Player simulation
 	w = cRemoteWorms;
 	for(i = 0; i < MAX_WORMS; i++, w++) {
@@ -135,13 +132,6 @@ void CClient::Simulation(void)
 			// Simulate the worm
 			w->Simulate(cRemoteWorms, local, tLX->fDeltaTime);
 			
-			// Get the position the worm is likely to be in on the server
-			// TODO: does not work as expected
-			/*CVec oldpos = w->getPos();
-			w->Simulate(cRemoteWorms, local, (float)iMyPing / 1000);
-			w->setNextPos(w->getPos());
-			w->setPos(oldpos);*/
-
 			if(iGameOver)
                 continue;
 
