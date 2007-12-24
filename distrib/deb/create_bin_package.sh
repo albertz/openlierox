@@ -21,6 +21,7 @@ mv ../../bin/openlierox pkg/usr/games # We don't want file owned by root in user
 strip pkg/usr/games/openlierox
 cp -r bin/share pkg/usr
 cp ../../share/OpenLieroX.svg pkg/usr/share/pixmaps
+cp ../../share/OpenLieroX.xpm pkg/usr/share/pixmaps
 find ../../doc -maxdepth 1 -type "f"  -exec cp {} pkg/usr/share/doc/openlierox \;
 rm pkg/usr/share/doc/openlierox/ChangeLog
 gzip -c -9 ../../doc/ChangeLog > pkg/usr/share/doc/openlierox/changelog.gz
