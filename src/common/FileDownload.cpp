@@ -458,7 +458,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::
 	iPos = 0;
 	sFilename = name;
 	Compress( sFilename + '\0' + data, &sData );
-	//printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
+	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
 };
 
 void CFileDownloaderInGame::setFileToSend( const std::string & path )
@@ -484,12 +484,15 @@ void CFileDownloaderInGame::setFileToSend( const std::string & path )
 	fclose( ff );
 
 	Compress( sFilename + '\0' + data, &sData );
-	//printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
+	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
 };
 
 enum { MAX_DATA_CHUNK = 254 };	// UCHAR_MAX - 1, client and server should have this equal
 bool CFileDownloaderInGame::receive( CBytestream * bs )
 {
+	uint chunkSize = bs->readByte();
+	if( chunkSize == 0 )	// Ping packet with zero data - do not change downloader state
+		return false;
 	if( tState == S_FINISHED )
 	{
 		tState = S_RECEIVE;
@@ -502,7 +505,6 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 		tState = S_ERROR;
 		return true;	// Receive finished (due to error)
 	};
-	uint chunkSize = bs->readByte();
 	//printf("CFileDownloaderInGame::receive() chunk %i\n", chunkSize);
 	bool Finished = false;
 	if( chunkSize != MAX_DATA_CHUNK )
@@ -526,7 +528,7 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 			{
 				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
 				sFilename.resize( f );
-				//printf("CFileDownloaderInGame::receive() filename %s sData.size() %i\n", sFilename.c_str(), sData.size());
+				printf("CFileDownloaderInGame::receive() filename %s sData.size() %i\n", sFilename.c_str(), sData.size());
 			};
 		};
 		processFileRequests();
@@ -548,6 +550,7 @@ bool CFileDownloaderInGame::send( CBytestream * bs )
 	bs->writeByte( chunkSize );
 	bs->writeData( sData.substr( iPos, MIN( chunkSize, MAX_DATA_CHUNK ) ) );
 	iPos += chunkSize;
+	//printf("CFileDownloaderInGame::send() %i/%i\n", iPos, sData.size() );
 	if( chunkSize != MAX_DATA_CHUNK )
 	{
 		tState = S_FINISHED;
@@ -555,6 +558,11 @@ bool CFileDownloaderInGame::send( CBytestream * bs )
 		return true;	// Send finished
 	};
 	return false;
+};
+
+void CFileDownloaderInGame::sendPing( CBytestream * bs ) const
+{
+	bs->writeByte( 0 );
 };
 
 void CFileDownloaderInGame::allowFileRequest( bool allow ) 

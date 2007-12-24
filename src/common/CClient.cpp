@@ -1069,23 +1069,32 @@ void CClient::setClientVersion(const std::string & _s)
 	bClientOLXBeta4 = true;
 }
 
+void CClient::setServerVersion(const std::string & _s)			
+{ 
+	//printf("CClient::setServerVersion(): %s\n", _s.c_str() );
+	sServerVersion = _s;
+	bHostOLXb4 = true;
+	bClientOLXBeta4 = true;
+}
+
 void CClient::processFileRequests()
 {
-	if( ! getHostBeta4() )
+	//printf("CClient::processFileRequests() %i, %f > %f, %i \n", getHostBeta4(), fLastFileRequest + 5, tLX->fCurTime, getFileDownloaderInGame()->getState() );
+	if( ! getHostBeta4() || iNetStatus != NET_CONNECTED )
 		return;
-	if(iNetStatus != NET_CONNECTED)
-		return;
-	if( fLastFileRequest + 5 > tLX->fCurTime )
-		return;
-	if( getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_FINISHED )
-		return;
-	fLastFileRequest = tLX->fCurTime;
-	if( ! tGameLobby.bHaveMap )
+	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND )
 	{
-		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
+		cNetChan.getMessageBS()->writeByte(C2S_SENDFILE);
+		getFileDownloaderInGame()->send( cNetChan.getMessageBS() );
 		return;
 	};
-	CWorm *w;
+	if( fLastFileRequest >= tLX->fCurTime )	
+		return;
+	if( getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_FINISHED ) // Cannot happen, but just in case
+		return;
+	fLastFileRequest = tLX->fCurTime + 2.0; // Spam server with file requests once in 2 seconds
+
+	CWorm *w = cRemoteWorms;
 	for( int i=0; i<MAX_WORMS; i++, w++ )
 	{
 		if( ! w->isUsed() )
@@ -1095,6 +1104,12 @@ void CClient::processFileRequests()
 			getFileDownloaderInGame()->requestFile("skins/" + w->getSkin());
 			return;
 		};
+	};
+
+	if( ! tGameLobby.bHaveMap )
+	{
+		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
+		return;
 	};
 };
 

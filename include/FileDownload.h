@@ -151,8 +151,8 @@ public:
 
 	// Basic functions for file download
 	// Contains garbage when download not finished yet, or when uploading a file
-	const std::string & getFilename() { return sFilename; };
-	const std::string & getData() { return sData; };
+	const std::string & getFilename() const { return sFilename; };
+	const std::string & getData() const { return sData; } ;
 
 	// Should be called when received S2C_SENDFILE or C2S_SENDFILE msg - read needed amount of bytes from bytestream
 	// Returns true if download finished or error occured
@@ -162,8 +162,11 @@ public:
 	// Returns true if download finished or error occured
 	bool		send( CBytestream * bs );
 
-	bool		errorOccured() { return (tState == S_ERROR); };
-	State_t		getState() { return tState; };
+	// Does not change any variables, just pings server with zero-sized packet to un-freeze it, else download speed sucks
+	void		sendPing( CBytestream * bs ) const;	
+
+	bool		errorOccured() const { return (tState == S_ERROR); };
+	State_t		getState() const { return tState; };
 
 	void		setFileToSend( const std::string & name, const std::string & data );
 	void		setFileToSend( const std::string & path );

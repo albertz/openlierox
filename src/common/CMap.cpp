@@ -2380,8 +2380,8 @@ bool CMap::LoadImageFormat(FILE *fp)
 		SDL_UnlockSurface(bmpImage);
 
 //	SDL_SaveBMP(pxf, "mat.bmp");
-	SDL_SaveBMP(bmpImage, "front.bmp");
-	SDL_SaveBMP(bmpBackImage, "back.bmp");
+	//SDL_SaveBMP(bmpImage, "front.bmp");
+	//SDL_SaveBMP(bmpBackImage, "back.bmp");
 
 	// Delete the data
 	delete[] pDest;

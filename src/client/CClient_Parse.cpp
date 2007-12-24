@@ -156,8 +156,8 @@ void CClient::ParseConnected(CBytestream *bs)
 	bJoin_Update = true;
 	bHost_Update = true;
 
-	bHostOLXb3 = false;
-	bHostOLXb4 = false;
+	//bHostOLXb3 = false;
+	//bHostOLXb4 = false;
 	bHostAllowsMouse = false;
 }
 
@@ -1555,21 +1555,24 @@ void CClient::ParseSendFile(CBytestream *bs)
 					Disconnect();
 					GotoNetMenu();
 				};
+				bJoin_Update = true;
+				bHost_Update = true;
 			};
 			if( getFileDownloaderInGame()->getFilename().find("skins/") == 0 )
 			{
-				CWorm *w;
-				for( int i=0; i<MAX_WORMS; i++, w++ )
-				{
-					if( ! w->isUsed() )
-						continue;
-					if( getFileDownloaderInGame()->getFilename() == "skins/" + w->getSkin() )
-						w->LoadGraphics(getGameLobby()->nGameMode);
-				};
+				// Loads skin from disk automatically on next frame
+				bJoin_Update = true;
+				bHost_Update = true;
 			};
 		};
 		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
 			getFileDownloaderInGame()->requestFilesPending();
+	};
+	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
+	{
+		// Speed up download somewhat - TODO: does not work, seems that server makes long pauses anyway
+		cNetChan.getMessageBS()->writeByte(C2S_SENDFILE);
+		getFileDownloaderInGame()->sendPing( cNetChan.getMessageBS() );
 	};
 };
 

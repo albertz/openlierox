@@ -599,6 +599,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(tMenu->bmpScreen,     x2, y+120, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%");
         f->Draw(tMenu->bmpScreen,     x, y+140, tLX->clNormalLabel, "Bonuses:");
         f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, gl->nBonuses ? "On" : "Off");
+		if( cClient->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
+	        f->Draw(tMenu->bmpScreen,     x, y+180, tLX->clNormalLabel, "Downloading files from server...");
 	}
 
 
