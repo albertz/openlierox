@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=176
+UnitCount=178
 Type=1
 Ver=1
 ObjFiles=
@@ -1778,9 +1778,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit177]
-FileName=..\..\hawknl\src\nlinternal.h
+FileName=..\..\include\ChatCommand.h
 CompileCpp=1
-Folder=HawkNL
+Folder=Server
 Compile=1
 Link=1
 Priority=1000
@@ -1811,6 +1811,16 @@ BuildCmd=
 FileName=..\..\src\common\HTTP.cpp
 CompileCpp=1
 Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit178]
+FileName=..\..\src\server\ChatCommand.cpp
+CompileCpp=1
+Folder=Server
 Compile=1
 Link=1
 Priority=1000

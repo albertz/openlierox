@@ -440,6 +440,14 @@ SOURCE=..\..\include\CGuiSkinnedLayout.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\server\ChatCommand.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\ChatCommand.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\CMap.cpp
 # End Source File
 # Begin Source File

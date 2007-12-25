@@ -124,6 +124,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	NetAddrToString(&addr, tLX->debug_string);
 	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
 
+	// TODO: put this in a separate function
 	ResetNetAddr( &tSTUNAddress );
 	if( tLXOptions->sSTUNServer != "" && tGameInfo.iGameType != GME_LOCAL /* && regserver */ )
 	{
@@ -267,7 +268,7 @@ int GameServer::StartGame( bool dedicated )
 	iMaxKills =		 tGameInfo.iKillLimit;
 	iTimeLimit =	 tGameInfo.iTimeLimit;
 	iTagLimit =		 tGameInfo.iTagLimit;
-	sModName = tGameInfo.sModName;
+	sModName =		 tGameInfo.sModName;
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
 	iBonusesOn =	 tGameInfo.iBonusesOn;
 	iShowBonusName = tGameInfo.iShowBonusName;

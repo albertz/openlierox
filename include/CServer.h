@@ -256,6 +256,7 @@ public:
 	inline bool		getGameOver(void)	{ return iGameOver != 0; }
 	inline float		getGameOverTime(void) { return fGameOverTime; }
 	inline CHttp *getHttp()  { return &tHttp; }
+	CClient *getClients() { return cClients; }
 	
 	// TODO: change the name of these functions; the sense should be clear
 	inline int		getFlagHolder(int _w)			{ return iFlagHolders[_w]; }
