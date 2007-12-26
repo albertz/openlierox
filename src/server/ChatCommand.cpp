@@ -40,7 +40,7 @@ ChatCommand tKnownCommands[] = {
 // Get the command based on name
 ChatCommand *GetCommand(const std::string& name)
 {
-	for (int i=0; i < sizeof(tKnownCommands)/sizeof(ChatCommand); ++i)
+	for (uint i=0; i < sizeof(tKnownCommands)/sizeof(ChatCommand); ++i)
 		if (stringcasecmp(name, tKnownCommands[i].sName) == 0 ||
 			stringcasecmp(name, tKnownCommands[i].sAlias) == 0)
 			return &tKnownCommands[i];
@@ -51,10 +51,10 @@ ChatCommand *GetCommand(const std::string& name)
 
 /////////////////////
 // Get the command based on function
-ChatCommand *GetCommand(const void *func)
+ChatCommand *GetCommand(ChatCommand::tProcFunc_t func)
 {
-	for (int i=0; i < sizeof(tKnownCommands)/sizeof(ChatCommand); ++i)
-		if ((void *)tKnownCommands[i].tProcFunc == func)
+	for (uint i=0; i < sizeof(tKnownCommands)/sizeof(ChatCommand); ++i)
+		if (tKnownCommands[i].tProcFunc == func)
 			return &tKnownCommands[i];
 
 	// Not found
@@ -119,7 +119,7 @@ bool ConvertID(const std::string& str_id, /*out*/ int *id)
 
 ///////////////////
 // Common param check used in many cases
-std::string CheckIDParams(const std::vector<std::string>& params, const void *func, /*out*/ int *id)
+std::string CheckIDParams(const std::vector<std::string>& params, ChatCommand::tProcFunc_t func, /*out*/ int *id)
 {
 	*id = 0;
 

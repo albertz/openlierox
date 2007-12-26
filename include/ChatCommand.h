@@ -31,7 +31,8 @@ class ChatCommand { public:
 
 	size_t		iMinParamCount;
 	size_t		iMaxParamCount;  // -1 for unlimited
-	std::string	(*tProcFunc)(const std::vector<std::string>& params, int sender_id);
+	typedef		std::string	( * tProcFunc_t ) (const std::vector<std::string>& params, int sender_id);
+	tProcFunc_t	tProcFunc;
 };
 
 // Processing functions
