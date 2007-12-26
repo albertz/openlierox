@@ -19,6 +19,7 @@
 #include "CWorm.h"
 #include "Protocol.h"
 #include "CServer.h"
+#include "MathLib.h"
 
 
 ///////////////////
@@ -229,13 +230,40 @@ bool CWorm::checkPacketNeeded()
 }*/
 
 void CWorm::net_updatePos(const CVec& newpos) {
-	if(tLX->fCurTime - fLastPosUpdate > 0.1f) {
-		// HINT: this estimation is not that good because it ignores any acceleration (like gravity)
-		// though I am not sure if this is a reason for bad results
-		CVec estimatedVel = (newpos - vOldPosOfLastPaket) / MAX(0.0001f, tLX->fCurTime - fLastPosUpdate);
-		vVelocity = (vVelocity + estimatedVel) / 2;
+	if(tLX->fCurTime - fLastPosUpdate > 0.0001f) {
+		float t = tLX->fCurTime - fLastPosUpdate;
+		CVec dist = newpos - vOldPosOfLastPaket;
+		CVec a(0, 0);
+		{
+			const gs_worm_t *wd = cGameScript->getWorm();
+			
+			// Air drag (Mainly to dampen the ninja rope)
+			float Drag = wd->AirFriction;
+		
+			if(!iOnGround)	{
+				a.x -= SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag;
+				a.y += -SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag;
+			}
+		
+			// Gravity
+			a.y += wd->Gravity;
+		
+			// TODO: atm we are ignoring this:
+			/*
+			// Ultimate in friction
+			if(iOnGround) {
+				vVelocity.x *= 0.9f;
+		
+				// Too slow, just stop
+				if(fabs(vVelocity.x) < 5 && !ws->iMove)
+					vVelocity.x = 0;
+			} */
+		}
+		
+		CVec estimatedVel = (dist / t) + (a * t / 2);
+		//vVelocity = (vVelocity + estimatedVel) / 2;
 		//vVelocity = CVec(0,0); // temp hack
-		//vVelocity = estimatedVel;
+		vVelocity = estimatedVel;
 	
 		fLastPosUpdate = tLX->fCurTime;
 		vOldPosOfLastPaket = newpos;
