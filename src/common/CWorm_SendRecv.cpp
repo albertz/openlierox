@@ -232,9 +232,19 @@ bool CWorm::checkPacketNeeded()
 void CWorm::net_updatePos(const CVec& newpos) {
 	if(tLX->fCurTime - fLastPosUpdate > 0.0001f) {
 		float t = tLX->fCurTime - fLastPosUpdate;
-		CVec dist = newpos - vOldPosOfLastPaket;
-		CVec a(0, 0);
+		CVec estimatedVel;
+		
+		if( ! tLXOptions->bAntilagMovementPrediction )
 		{
+			// No approximation, sometimes it looks better than approximation on high net lag
+			estimatedVel = (newpos - vOldPosOfLastPaket) / t;
+		}
+		else
+		{
+			// Approximate with current velocity and add gravity
+			CVec dist = newpos - vOldPosOfLastPaket;
+			CVec a(0, 0);
+		
 			const gs_worm_t *wd = cGameScript->getWorm();
 			
 			// Air drag (Mainly to dampen the ninja rope)
@@ -258,9 +268,9 @@ void CWorm::net_updatePos(const CVec& newpos) {
 				if(fabs(vVelocity.x) < 5 && !ws->iMove)
 					vVelocity.x = 0;
 			} */
-		}
+			estimatedVel = (dist / t) + (a * t / 2);
+		};
 		
-		CVec estimatedVel = (dist / t) + (a * t / 2);
 		//vVelocity = (vVelocity + estimatedVel) / 2;
 		//vVelocity = CVec(0,0); // temp hack
 		vVelocity = estimatedVel;
