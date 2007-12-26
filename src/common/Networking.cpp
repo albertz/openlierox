@@ -51,9 +51,73 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readString
 
 
-DECLARE_INTERNDATA_CLASS(NetworkAddr, NLaddress);
-DECLARE_INTERNDATA_CLASS(NetworkSocket, NLsocket);
+class NetworkAddrIntern {
+public:
+	NLaddress addr;
+	
+	NetworkAddrIntern() {
+		memset(&addr, 0, sizeof(addr));
+	}
+};
 
+class NetworkSocketIntern {
+private:	
+	NLsocket* sock;
+	int* refCount;
+	
+	void init() {
+		if(!sock) {
+			sock = new NLsocket;
+			memset(sock, 0, sizeof(NLsocket));
+			refCount = new int;
+			*refCount = 1;
+		}
+	}
+
+	void uninitSocket() {
+		//nlClose(*sock);
+		delete sock; delete refCount;
+		sock = NULL; refCount = NULL;		
+	}
+
+	void reset() {
+		if(sock) {
+			(*refCount)--;
+			if(*refCount == 0) uninitSocket();
+		}
+	}
+	
+public:
+	NetworkSocketIntern() : sock(NULL) { init(); }
+	~NetworkSocketIntern() { reset(); }
+	
+	NetworkSocketIntern(const NetworkSocketIntern& nsock) { operator=(nsock); }
+	NetworkSocketIntern& operator=(const NetworkSocketIntern& nsock) {
+		reset();
+		sock = nsock.sock; refCount = nsock.refCount;
+		(*refCount)++;
+		return *this;
+	}
+	
+	NLsocket* getSocket() { init(); return sock; }
+};
+
+
+DECLARE_INTERNDATA_CLASS(NetworkAddr, NetworkAddrIntern);
+DECLARE_INTERNDATA_CLASS(NetworkSocket, NetworkSocketIntern);
+
+
+static NLsocket* getNLsocket(NetworkSocket* socket) {
+	return NetworkSocketData(socket)->getSocket();
+}
+
+static NLaddress* getNLaddr(NetworkAddr* addr) {
+	return &NetworkAddrData(addr)->addr;
+}
+
+static const NLaddress* getNLaddr(const NetworkAddr* addr) {
+	return &NetworkAddrData(addr)->addr;
+}
 
 
 
@@ -396,19 +460,19 @@ bool QuitNetworkSystem() {
 
 NetworkSocket OpenReliableSocket(unsigned short port) {
 	NetworkSocket ret;
-	*NetworkSocketData(&ret) = nlOpen(port, NL_RELIABLE);
+	*getNLsocket(&ret) = nlOpen(port, NL_RELIABLE);
 	return ret;
 }
 
 NetworkSocket OpenUnreliableSocket(unsigned short port) {
 	NetworkSocket ret;
-	*NetworkSocketData(&ret) = nlOpen(port, NL_UNRELIABLE);
+	*getNLsocket(&ret) = nlOpen(port, NL_UNRELIABLE);
 	return ret;
 }
 
 NetworkSocket OpenBroadcastSocket(unsigned short port) {
 	NetworkSocket ret;
-	*NetworkSocketData(&ret) = nlOpen(port, NL_BROADCAST);
+	*getNLsocket(&ret) = nlOpen(port, NL_BROADCAST);
 	return ret;
 }
 
@@ -416,20 +480,20 @@ bool ConnectSocket(NetworkSocket sock, const NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
 	else  {
-		return (nlConnect(*NetworkSocketData(&sock), NetworkAddrData(addr)) != NL_FALSE);
+		return (nlConnect(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 	}
 }
 
 bool ListenSocket(NetworkSocket sock) {
-	return (nlListen(*NetworkSocketData(&sock)) != NL_FALSE);
+	return (nlListen(*getNLsocket(&sock)) != NL_FALSE);
 }
 
 bool CloseSocket(NetworkSocket sock) {
-	return (nlClose(*NetworkSocketData(&sock)) != NL_FALSE);
+	return (nlClose(*getNLsocket(&sock)) != NL_FALSE);
 }
 
 int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
-	NLint ret = nlWrite(*NetworkSocketData(&sock), buffer, nbytes);
+	NLint ret = nlWrite(*getNLsocket(&sock), buffer, nbytes);
 
 #ifdef DEBUG
 	// Error checking
@@ -455,7 +519,7 @@ int	WriteSocket(NetworkSocket sock, const std::string& buffer) {
 }
 
 int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
-	NLint ret = nlRead(*NetworkSocketData(&sock), buffer, nbytes);
+	NLint ret = nlRead(*getNLsocket(&sock), buffer, nbytes);
 
 #ifdef DEBUG
 	// Error checking
@@ -473,15 +537,15 @@ int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 }
 
 bool IsSocketStateValid(NetworkSocket sock) {
-	return (*NetworkSocketData(&sock) != NL_INVALID);
+	return (*getNLsocket(&sock) != NL_INVALID);
 }
 
 bool IsSocketReady(NetworkSocket sock)  {
-	return nlWrite(*NetworkSocketData(&sock), (void *)"", 0) >= 0;
+	return nlWrite(*getNLsocket(&sock), (void *)"", 0) >= 0;
 }
 
 void InvalidateSocketState(NetworkSocket& sock) {
-	*NetworkSocketData(&sock) = NL_INVALID;
+	*getNLsocket(&sock) = NL_INVALID;
 }
 
 int GetSocketErrorNr() {
@@ -510,40 +574,40 @@ bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
 	else
-		return (nlGetLocalAddr(*NetworkSocketData(&sock), NetworkAddrData(addr)) != NL_FALSE);
+		return (nlGetLocalAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool GetRemoteNetAddr(NetworkSocket sock, NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
 	else
-		return (nlGetRemoteAddr(*NetworkSocketData(&sock), NetworkAddrData(addr)) != NL_FALSE);
+		return (nlGetRemoteAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
 	else
-		return (nlSetRemoteAddr(*NetworkSocketData(&sock), NetworkAddrData(addr)) != NL_FALSE);
+		return (nlSetRemoteAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool IsNetAddrValid(NetworkAddr* addr) {
 	if(addr)
-		return (NetworkAddrData(addr)->valid != NL_FALSE);
+		return (getNLaddr(addr)->valid != NL_FALSE);
 	else
 		return false;
 }
 
 bool SetNetAddrValid(NetworkAddr* addr, bool valid) {
 	if(!addr) return false;
-	NetworkAddrData(addr)->valid = valid ? NL_TRUE : NL_FALSE;
+	getNLaddr(addr)->valid = valid ? NL_TRUE : NL_FALSE;
 	return true;
 }
 
 void ResetNetAddr(NetworkAddr* addr) {
 	if(!addr) return;
 	// TODO: is this the best way?
-	memset(NetworkAddrData(addr), 0, sizeof(NLaddress));
+	memset(getNLaddr(addr), 0, sizeof(NLaddress));
 	SetNetAddrValid(addr, false);
 }
 
@@ -551,12 +615,12 @@ bool StringToNetAddr(const std::string& string, NetworkAddr* addr) {
 	if(addr == NULL) {
 		return false;
 	} else	
-		return (nlStringToAddr(string.c_str(), NetworkAddrData(addr)) != NL_FALSE);
+		return (nlStringToAddr(string.c_str(), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool NetAddrToString(const NetworkAddr* addr, std::string& string) {
 	static char buf[256];
-	NLchar* res = nlAddrToString(NetworkAddrData(addr), buf);
+	NLchar* res = nlAddrToString(getNLaddr(addr), buf);
 	if(res) {
 		fix_markend(buf);
 		string = buf;
@@ -569,14 +633,14 @@ unsigned short GetNetAddrPort(NetworkAddr* addr) {
 	if(addr == NULL)
 		return 0;
 	else
-		return nlGetPortFromAddr(NetworkAddrData(addr));
+		return nlGetPortFromAddr(getNLaddr(addr));
 }
 
 bool SetNetAddrPort(NetworkAddr* addr, unsigned short port) {
 	if(addr == NULL)
 		return false;
 	else
-		return (nlSetAddrPort(NetworkAddrData(addr), port) != NL_FALSE);
+		return (nlSetAddrPort(getNLaddr(addr), port) != NL_FALSE);
 }
 
 bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
@@ -586,7 +650,7 @@ bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
 		if(addr1 == NULL || addr2 == NULL)
 			return false;
 		else
-			return (nlAddrCompare(NetworkAddrData(addr1), NetworkAddrData(addr2)) != NL_FALSE);
+			return (nlAddrCompare(getNLaddr(addr1), getNLaddr(addr2)) != NL_FALSE);
 	}
 }
 
@@ -614,7 +678,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr* addr) {
 			SetNetAddrValid(addr, true);
 			return true;
 		}
-		return (nlGetAddrFromNameAsync(name.c_str(), NetworkAddrData(addr)) != NL_FALSE);
+		return (nlGetAddrFromNameAsync(name.c_str(), getNLaddr(addr)) != NL_FALSE);
 	}
 }
 
@@ -626,7 +690,7 @@ bool GetNetAddrFromName(const std::string& name, NetworkAddr* addr) {
 			SetNetAddrValid( addr, true );
 			return true;
 		}
-		if( nlGetAddrFromName(name.c_str(), NetworkAddrData(addr)) != NL_FALSE ) {
+		if( nlGetAddrFromName(name.c_str(), getNLaddr(addr)) != NL_FALSE ) {
 			AddToDnsCache( name, addr );
 			return true;
 		}
@@ -636,7 +700,7 @@ bool GetNetAddrFromName(const std::string& name, NetworkAddr* addr) {
 
 bool isDataAvailable(NetworkSocket sock) {
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket( group, *NetworkSocketData(&sock) );
+	nlGroupAddSocket( group, *getNLsocket(&sock) );
 	NLsocket sock_out[2];
 	int ret = nlPollGroup( group, NL_READ_STATUS, sock_out, 1, 0 );
 	nlGroupDestroy(group);
@@ -672,7 +736,7 @@ int SdlNetEventThreadMain( void * param )
 		{
 			//printf("SdlNetEventThreadMain(): SDL_PushEvent()\n");
 			SDL_PushEvent( &ev );
-			if( sock_out == *NetworkSocketData(&SdlNetEventThreadUnblockDummySocketIn) )
+			if( sock_out == *getNLsocket(&SdlNetEventThreadUnblockDummySocketIn) )
 			{
 				char temp[256];
 				ReadSocket( SdlNetEventThreadUnblockDummySocketIn, temp, sizeof(temp) );
@@ -705,7 +769,7 @@ void SdlNetEvent_Init()
 	ResetNetAddr( &localAddr );
 	GetLocalNetAddr( SdlNetEventThreadUnblockDummySocketIn, &localAddr );
 	SetRemoteNetAddr( SdlNetEventThreadUnblockDummySocketOut, &localAddr );
-	nlGroupAddSocket( SdlNetEventGroup, *NetworkSocketData(&SdlNetEventThreadUnblockDummySocketIn) );
+	nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&SdlNetEventThreadUnblockDummySocketIn) );
 	// If we send something into SdlNetEventThreadUnlockDummySocketOut the thread will unblock
 
 	SdlNetEventThread = SDL_CreateThread( &SdlNetEventThreadMain, NULL );
@@ -720,12 +784,12 @@ void	SendSdlEventWhenDataAvailable( NetworkSocket sock )
 	NLint len = NL_MAX_GROUP_SOCKETS;
 	nlGroupGetSockets( SdlNetEventGroup, sockets, &len );
 	for( int f = 0; f < len; f++ )
-		if( sockets[f] == *NetworkSocketData(&sock) )
+		if( sockets[f] == *getNLsocket(&sock) )
 		{
 			SDL_UnlockMutex( SdlNetEventMutex );
 			return;
 		};
-	nlGroupAddSocket( SdlNetEventGroup, *NetworkSocketData(&sock) );
+	nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
 	SDL_UnlockMutex( SdlNetEventMutex );
 };
 
@@ -734,7 +798,7 @@ void	StopSendSdlEventWhenDataAvailable( NetworkSocket sock )
 	SdlNetEvent_Init();
 	WriteSocket( SdlNetEventThreadUnblockDummySocketOut, "1", 1 );
 	SDL_LockMutex( SdlNetEventMutex );
-	nlGroupDeleteSocket( SdlNetEventGroup, *NetworkSocketData(&sock) );
+	nlGroupDeleteSocket( SdlNetEventGroup, *getNLsocket(&sock) );
 	SDL_UnlockMutex( SdlNetEventMutex );
 };
 

@@ -187,7 +187,7 @@ bool CChannel::Process(CBytestream *bs)
 		Reliable.Clear();
 
 	// Check if pong has been acknowledged
-	if(SequenceAck >= iPongSequence)  {
+	if(SequenceAck >= (size_t)iPongSequence)  {
 		iPongSequence = -1;  // Ready for new pinging
 		iPing = (int)((tLX->fCurTime - fLastPingSent) * 1000);
 	}

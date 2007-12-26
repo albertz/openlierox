@@ -80,11 +80,11 @@ public:
 	_classname::_classname(const _classname& b) { \
 		init(); \
 		if (intern_data) \
-			memcpy(intern_data,b.intern_data,sizeof(_datatype)); \
+			*(_datatype*)intern_data = *(const _datatype*)b.intern_data; \
 	} \
 	void _classname::operator=(const _classname& b) { \
 		if(&b == this || !intern_data) return; \
-		memcpy(intern_data,b.intern_data,sizeof(_datatype)); \
+		*(_datatype*)intern_data = *(const _datatype*)b.intern_data; \
 	} \
 	_datatype* _classname##Data(_classname* obj) { \
 		if(obj) return (_datatype*)obj->intern_data; \
