@@ -120,309 +120,88 @@ static const NLaddress* getNLaddr(const NetworkAddr* addr) {
 }
 
 
+// --------------------------------------------------------------------------
+// ------------- Net events
 
-/*
-=============================
+enum	{ SDL_USEREVENT_NET_ACTIVITY = SDL_USEREVENT + 1 };
 
-		HTTP functions
+bool SdlNetEvent_Inited = false;
+bool SdlNetEventThreadExit = false;
+SDL_Thread * SdlNetEventThread = NULL;
+NLint SdlNetEventGroup = 0;
 
-=============================
-*/
-
-/*
-
-NetworkAddr		http_RemoteAddress;
-NetworkSocket	http_Socket;
-bool			http_Connected;
-bool			http_Requested;
-bool			http_SocketReady;
-std::string		http_url;
-std::string		http_host;
-std::string		http_content;
-float           http_ResolveTime = -9999;
-
-
-
-void http_Init() {
-	InvalidateSocketState(http_Socket);
-}
-
-
-///////////////////
-// Initialize a HTTP get request
-bool http_InitializeRequest(const std::string& host, const std::string& url)
+static int SdlNetEventThreadMain( void * param )
 {
-	// Make the urls http friendly (get rid of spaces)
-	std::string friendly_url = url;
-	std::string friendly_host = host;
+	NLsocket sock_out;
+	SDL_Event ev;
+	ev.type = SDL_USEREVENT_NET_ACTIVITY;
+	ev.user.code = 0;
+	ev.user.data1 = NULL;
+	ev.user.data2 = NULL;
+	while( ! SdlNetEventThreadExit )
+	{
+		if( nlPollGroup( SdlNetEventGroup, NL_READ_STATUS, &sock_out, 1, 1000 ) > 0 )	// Wait 1 second
+		{
+			//printf("SdlNetEventThreadMain(): SDL_PushEvent()\n");
+			SDL_PushEvent( &ev );
+		}
+	};
+	return 0;
+};
 
-	http_ConvertUrl(friendly_url, url);
-	http_ConvertUrl(friendly_host, host);
-	
-    // Convert the host & url into a good set
-    // Ie, '/'s from host goes into url
-    http_CreateHostUrl(friendly_host, friendly_url);
-
-    printf("Sending HTTP request " + http_host + http_url + "\n");
-
-	http_content = "";
-
-	
-	// Open the socket
-	http_Socket = OpenReliableSocket(0);
-	if(!IsSocketStateValid(http_Socket))
+static bool SdlNetEvent_Init()
+{
+	if( SdlNetEvent_Inited )
 		return false;
+	SdlNetEvent_Inited = true;
+	
+	SdlNetEventGroup = nlGroupCreate();
+	SdlNetEventThread = SDL_CreateThread( &SdlNetEventThreadMain, NULL );
+	
+	return true;
+};
 
-	// Resolve the address
-	// reset the current adr; sometimes needed (hack? bug in hawknl?)
-	ResetNetAddr(&http_RemoteAddress);
-    http_ResolveTime = (float)SDL_GetTicks() * 0.001f;
-	if(!GetNetAddrFromNameAsync( http_host, &http_RemoteAddress )) {
-		printf("ERROR: cannot start resolving DNS: ");
-		printf(GetSocketErrorStr(GetSocketErrorNr()));
-		printf("\n");
-	}
+static void SdlNetEvent_UnInit() {
+	if( ! SdlNetEvent_Inited )
+		return;
+		
+	SdlNetEventThreadExit = true;
+	int status = 0;
+	SDL_WaitThread( SdlNetEventThread, &status );
+	nlGroupDestroy(SdlNetEventGroup);
+};
 
-	http_Connected = false;
-	http_Requested = false;
-	http_SocketReady = false;
-
+static bool isSocketInGroup(NLint group, NetworkSocket sock) {
+	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
+	NLint len = NL_MAX_GROUP_SOCKETS;
+	nlGroupGetSockets( group, sockets, &len );
+	for( int f = 0; f < len; f++ )
+		if( sockets[f] == *getNLsocket(&sock) )
+			return false;
+	
 	return true;
 }
 
-
-///////////////////
-// Process the HTTP get request
-// Returns:
-// -1 : failed
-// 0  : still processing
-// 1  : complete
-// HINT: it doesn't do http_Quit now
-int http_ProcessRequest(std::string* szError)
+static void AddSocketToNotifierGroup( NetworkSocket sock )
 {
-    if(szError)
-        *szError = "";
-
-	// Check if the address failed resolving in n seconds
-	if(!IsNetAddrValid(&http_RemoteAddress)) {
-        float f = (float)SDL_GetTicks() * 0.001f;
-        // Timed out?
-        if(f - http_ResolveTime > DNS_TIMEOUT) {
-            if(szError) {
-                *szError = "DNS-timeout, could not resolve the address: ";
-            }
-		    return -1;
-        }
-        // still waiting for dns resolution
-        return 0;
-	}
-
-    
-	// Make sure the socket is ready for writing
-	if( !http_SocketReady && http_Connected) {
-		if( IsSocketReady(http_Socket)) {
-			http_SocketReady = true;
-		}
-		else {
-			return 0;
-		}
-	}
-
-	// Send a request
-	if( http_SocketReady && http_Connected && !http_Requested) {
-		http_Requested = true;
-		if( !http_SendRequest() ) {
-            if(szError)
-                *szError = "Could not send the request";
-			return -1;
-		}
-	}
-
-
-	// Check if the address completed resolving
-	if( IsNetAddrValid(&http_RemoteAddress) ) {
-		
-		// Default http port (80)
-		SetNetAddrPort(&http_RemoteAddress, 80);
-
-		// Connect to the destination
-		if( !http_Connected ) {
-			// adr was resolved; save it
-			AddToDnsCache(http_host, &http_RemoteAddress);
-		
-			if(!ConnectSocket( http_Socket, &http_RemoteAddress )) {
-                if(szError)
-                    *szError = "Could not connect to the server";
-				return -1;
-			}
-
-			http_Connected = true;
-		}
-	} else {
-
-		// Haven't resolved the address yet, so leave but let the 
-		// caller of this function keep processing us
-		return 0;
-	}
-
+	SdlNetEvent_Init();
 	
-	// If we aren't ready yet, leave
-	if(!http_SocketReady || !http_Connected || !http_Requested)	 {
-		return 0;
-	}
+	if( !isSocketInGroup(SdlNetEventGroup, sock) )
+		nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
+};
 
-
-
-	// Check if we have a response
-	static char data[1024];
-	data[0] = 0;
-	int count = ReadSocket(http_Socket, data, 1023);
+static void RemoveSocketFromNotifierGroup( NetworkSocket sock )
+{
+	SdlNetEvent_Init();
 	
-	// Error, or end of connection?
-	if( count < 0 ) {
-		int err = GetSocketErrorNr();
-		if( IsMessageEndSocketErrorNr(err) ) {
-			// End of connection
-			// Complete!
-			return 1;
-		} else {
-			// Error
-			if(szError) {
-				*szError = "NetError \"";
-				*szError += GetSocketErrorStr(err);
-				*szError += "\"";
-			}
-			return -1;
-		}
-	}
+	nlGroupDeleteSocket( SdlNetEventGroup, *getNLsocket(&sock) );
+};
 
-	// Got some data
-	if(count > 0) {
-		http_content.append(data, count);
-	}
-
-	// Still processing
-	return 0;
-}
+// ------------------------------------------------------------------------
 
 
-///////////////////
-// Send a request
-bool http_SendRequest(void)
-{
-	static std::string request;
-
-	// Build the url
-	request = "GET " + http_url + " HTTP/1.0\n";
-	request += "Host: " + http_host + "\n\n";
-	int count = WriteSocket( http_Socket, request );
-
-	// Anything written?
-	return (count > 0);
-}
 
 
-///////////////////
-// Quit the http request
-void http_Quit(void)
-{
-	if( IsSocketStateValid(http_Socket) ) {
-		CloseSocket(http_Socket);
-		InvalidateSocketState(http_Socket);
-	}
-
-	http_RemoveHeader();
-	http_content = "";
-}
-
-
-///////////////////
-// Convert the url into a friendly url (no spaces)
-void http_ConvertUrl(std::string& dest, const std::string& url)
-{
-	dest = "";
-
-	const std::string dont_encode = "-_.!~*'()&?/="; // Characters that won't be encoded in any way
-
-	std::string::const_iterator url_it;
-	for( url_it = url.begin(); url_it != url.end(); url_it++) {	
-
-		if( isalnum(*url_it) || dont_encode.find(*url_it) != std::string::npos)
-			dest += *url_it;
-		else {
-			dest += '%';
-			if (*url_it <= 0xF)
-				dest += '0';
-
-			dest += itoa((int)*url_it, 16);
-		}
-	}
-
-	// Remove slashes at the end (looks nicer when printed to console :) )
-	if (*dest.rbegin() == '/')
-		dest.erase(dest.size()-1);
-}
-
-
-///////////////////
-// Create the host & url strings
-// host is the beginning of an URL, url is the end (to be appended)
-void http_CreateHostUrl(const std::string& host, const std::string& url)
-{
-    http_host = "";
-    http_url = "";
-
-    // All characters up to a / goes into the host
-	size_t i;
-    std::string::const_iterator it = host.begin();
-    for( i=0; it != host.end(); i++, it++ ) {
-        if( *it == '/' ) {
-			http_host = host.substr(0,i);
-			http_url = host.substr(i);
-            break;
-        }
-    }
-
-	http_url += url;
-}
-
-
-///////////////////
-// Remove the http header from content downloaded
-void http_RemoveHeader(void)
-{
-	ushort	lffound = 0;
-	ushort	crfound = 0;
-
-    size_t i=1;
-    std::string::const_iterator it = http_content.begin();
-	for(; it != http_content.end(); i++, it++) {
-
-		if( *it == 0x0D )
-			crfound++;
-		else {
-			if( *it == 0x0A )
-				lffound++;
-			else
-				crfound = lffound = 0;
-		}
-
-		// End of the header
-		if(lffound == 2) {
-			http_content.erase(0, i);
-			break;
-		}
-	}
-}
-
-
-///////////////////
-// Get the content buffer
-const std::string& http_GetContent(void)
-{
-	return http_content;
-}
-*/
 
 /*
  *
@@ -447,12 +226,19 @@ bool InitNetworkSystem() {
     }
 	
 	bNetworkInited = true;
+	
+	if(!SdlNetEvent_Init()) {
+		SystemError("SdlNetEvent_Init failed");
+		return false;
+	}
+	
 	return true;
 }
 
 //////////////////
 // Shutdowns the network system
 bool QuitNetworkSystem() {
+	SdlNetEvent_UnInit();
 	nlShutdown();
 	bNetworkInited = false;
 	return true;
@@ -461,18 +247,21 @@ bool QuitNetworkSystem() {
 NetworkSocket OpenReliableSocket(unsigned short port) {
 	NetworkSocket ret;
 	*getNLsocket(&ret) = nlOpen(port, NL_RELIABLE);
+	AddSocketToNotifierGroup(ret);
 	return ret;
 }
 
 NetworkSocket OpenUnreliableSocket(unsigned short port) {
 	NetworkSocket ret;
 	*getNLsocket(&ret) = nlOpen(port, NL_UNRELIABLE);
+	AddSocketToNotifierGroup(ret);
 	return ret;
 }
 
 NetworkSocket OpenBroadcastSocket(unsigned short port) {
 	NetworkSocket ret;
 	*getNLsocket(&ret) = nlOpen(port, NL_BROADCAST);
+	AddSocketToNotifierGroup(ret);
 	return ret;
 }
 
@@ -480,15 +269,18 @@ bool ConnectSocket(NetworkSocket sock, const NetworkAddr* addr) {
 	if(addr == NULL)
 		return false;
 	else  {
+		AddSocketToNotifierGroup(sock);
 		return (nlConnect(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 	}
 }
 
 bool ListenSocket(NetworkSocket sock) {
+	AddSocketToNotifierGroup(sock);
 	return (nlListen(*getNLsocket(&sock)) != NL_FALSE);
 }
 
 bool CloseSocket(NetworkSocket sock) {
+	RemoveSocketFromNotifierGroup(sock);
 	return (nlClose(*getNLsocket(&sock)) != NL_FALSE);
 }
 
@@ -708,118 +500,4 @@ bool isDataAvailable(NetworkSocket sock) {
 };
 
 
-enum	{ SDL_USEREVENT_NET_ACTIVITY = SDL_USEREVENT + 1 };
-
-bool SdlNetEvent_Inited = false;
-SDL_mutex * SdlNetEventMutex = NULL;
-bool SdlNetEventThreadExit = false;
-SDL_Thread * SdlNetEventThread = NULL;
-NLint SdlNetEventGroup = 0;
-
-// TODO: remove this hack
-NetworkSocket SdlNetEventThreadUnblockDummySocketIn;
-NetworkSocket SdlNetEventThreadUnblockDummySocketOut;
-
-int SdlNetEventThreadMain( void * param )
-{
-	NLsocket sock_out;
-	SDL_Event ev;
-	ev.type = SDL_USEREVENT_NET_ACTIVITY;
-	ev.user.code = 0;
-	ev.user.data1 = NULL;
-	ev.user.data2 = NULL;
-	int eventFlood = 0;
-	while( ! SdlNetEventThreadExit )
-	{
-		SDL_LockMutex( SdlNetEventMutex );
-		if( nlPollGroup( SdlNetEventGroup, NL_READ_STATUS, &sock_out, 1, 1000 ) > 0 )	// Wait 1 second
-		{
-			//printf("SdlNetEventThreadMain(): SDL_PushEvent()\n");
-			SDL_PushEvent( &ev );
-			if( sock_out == *getNLsocket(&SdlNetEventThreadUnblockDummySocketIn) )
-			{
-				char temp[256];
-				ReadSocket( SdlNetEventThreadUnblockDummySocketIn, temp, sizeof(temp) );
-			}
-			eventFlood ++;
-		}
-		else
-		{
-			eventFlood = 0;
-		}
-		SDL_UnlockMutex( SdlNetEventMutex );
-		if( eventFlood > 20 )	// Some socket with data but noone wants to read it
-			SDL_Delay(200);		// TODO: some better solution?
-		else
-			SDL_Delay(10);	// Allow other threads to run to add/remove sockets to group or to process the data.
-	};
-	return 0;
-};
-
-void SdlNetEvent_Init()
-{
-	if( SdlNetEvent_Inited )
-		return;
-	SdlNetEvent_Inited = true;
-	SdlNetEventMutex = SDL_CreateMutex();
-	SdlNetEventGroup = nlGroupCreate();
-	SdlNetEventThreadUnblockDummySocketIn = OpenUnreliableSocket(0);
-	SdlNetEventThreadUnblockDummySocketOut = OpenUnreliableSocket(0);
-	NetworkAddr localAddr;
-	ResetNetAddr( &localAddr );
-	GetLocalNetAddr( SdlNetEventThreadUnblockDummySocketIn, &localAddr );
-	SetRemoteNetAddr( SdlNetEventThreadUnblockDummySocketOut, &localAddr );
-	nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&SdlNetEventThreadUnblockDummySocketIn) );
-	// If we send something into SdlNetEventThreadUnlockDummySocketOut the thread will unblock
-
-	SdlNetEventThread = SDL_CreateThread( &SdlNetEventThreadMain, NULL );
-};
-
-void	SendSdlEventWhenDataAvailable( NetworkSocket sock )
-{
-	SdlNetEvent_Init();
-	WriteSocket( SdlNetEventThreadUnblockDummySocketOut, "1", 1 );
-	SDL_LockMutex( SdlNetEventMutex );
-	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
-	NLint len = NL_MAX_GROUP_SOCKETS;
-	nlGroupGetSockets( SdlNetEventGroup, sockets, &len );
-	for( int f = 0; f < len; f++ )
-		if( sockets[f] == *getNLsocket(&sock) )
-		{
-			SDL_UnlockMutex( SdlNetEventMutex );
-			return;
-		};
-	nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
-	SDL_UnlockMutex( SdlNetEventMutex );
-};
-
-void	StopSendSdlEventWhenDataAvailable( NetworkSocket sock )
-{
-	SdlNetEvent_Init();
-	WriteSocket( SdlNetEventThreadUnblockDummySocketOut, "1", 1 );
-	SDL_LockMutex( SdlNetEventMutex );
-	nlGroupDeleteSocket( SdlNetEventGroup, *getNLsocket(&sock) );
-	SDL_UnlockMutex( SdlNetEventMutex );
-};
-
-// TODO: remove this hack
-class t_SdlNetEventMutexDelete
-{
-	public:
-	~t_SdlNetEventMutexDelete()
-	{
-		if( ! SdlNetEvent_Inited )
-			return;
-		SdlNetEventThreadExit = true;
-		int status = 0;
-		//WriteSocket( SdlNetEventThreadUnblockDummySocketOut, "1", 1 );// Cannot do that, network already shut down in main()
-		SDL_WaitThread( SdlNetEventThread, &status );
-		SDL_DestroyMutex( SdlNetEventMutex );
-		SdlNetEventMutex = NULL;
-		CloseSocket( SdlNetEventThreadUnblockDummySocketIn );
-		CloseSocket( SdlNetEventThreadUnblockDummySocketOut );
-		nlGroupDestroy(SdlNetEventGroup);
-	};
-};
-t_SdlNetEventMutexDelete SdlNetEventMutexDelete;
 

@@ -117,8 +117,6 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		return false;
 	}
 
-	SendSdlEventWhenDataAvailable( tSocket );	// For updating server lobby screen
-
 	NetworkAddr addr;
 	GetLocalNetAddr(tSocket,&addr);
 	NetAddrToString(&addr, tLX->debug_string);
@@ -455,8 +453,6 @@ void GameServer::BeginMatch(void)
 
 	iState = SVS_PLAYING;
 
-	StopSendSdlEventWhenDataAvailable( tSocket );	// Don't eat CPU time with spawning SDL events
-
 	// Initialize some server settings
 	fServertime = 0;
 	iServerFrame = 0;
@@ -554,8 +550,6 @@ void GameServer::GameOver(int winner)
 	
 	for( i=0; i<MAX_CLIENTS; i++ )
 		cClients[i].getFileDownloaderInGame()->allowFileRequest(tLXOptions->bAllowFileDownload);
-		
-	SendSdlEventWhenDataAvailable( tSocket );	// For updating server lobby screen
 }
 
 ///////////////////
@@ -1542,7 +1536,6 @@ void GameServer::Shutdown(void)
 
 	if(IsSocketStateValid(tSocket))
 	{
-		StopSendSdlEventWhenDataAvailable( tSocket );
 		CloseSocket(tSocket);
 	};
 	InvalidateSocketState(tSocket);

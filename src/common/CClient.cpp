@@ -254,8 +254,6 @@ int CClient::Initialize(void)
 		SetError("Error: Could not open UDP socket!");
 		return false;
 	}
-
-	SendSdlEventWhenDataAvailable( tSocket );	// For updating lobby screen
 	
 	// Initialize the drawing
 	if(!InitializeDrawing())
@@ -650,7 +648,6 @@ void CClient::Disconnect(void)
 		bInServer = false;
 		fclose(f);
 	}
-	SendSdlEventWhenDataAvailable( tSocket );	// For updating lobby screen
 }
 
 
@@ -1034,7 +1031,6 @@ void CClient::Shutdown(void)
 	// Close the socket
 	if(IsSocketStateValid(tSocket))
 	{
-		StopSendSdlEventWhenDataAvailable( tSocket );
 		CloseSocket(tSocket);
 	}
 	InvalidateSocketState(tSocket);
