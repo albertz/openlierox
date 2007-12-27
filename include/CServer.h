@@ -219,6 +219,7 @@ public:
 	void		SendRandomPacket();
 #endif
 	void		SendDirtUpdate( CClient * cl );
+	void		SendFiles();
 
 	// Parsing
 	void		ParseClientPacket(CClient *cl, CBytestream *bs);

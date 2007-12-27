@@ -135,6 +135,9 @@ std::string		StripHtmlTags( const std::string & src );	// Also removes all "\r" 
 std::string		GetNextWord(std::string::const_iterator it, const std::string& str);
 bool 			Compress( const std::string & in, std::string * out );	// Compress given string using zlib
 bool 			Decompress( const std::string & in, std::string * out );	// Decompress, returns false if checksum fails
+uint			StringChecksum( const std::string & data );
+bool			FileChecksum( const std::string & path, uint * _checksum, uint * _filesize );
+
 
 ////////////////////
 // Read a fixed-length C-string from a file

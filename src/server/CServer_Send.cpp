@@ -418,3 +418,29 @@ void GameServer::SendDirtUpdate( CClient * cl )
 	SendPacket( &bs, cl );
 	cl->setLastDirtUpdate( tLX->fCurTime );
 }
+
+void GameServer::SendFiles()
+{
+	if(iState != SVS_LOBBY)
+		return;
+	
+	CClient *cl = cClients;
+
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++) 
+	{
+		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND &&
+			cl->getLastFileRequestPacketReceived() + 0.5 < tLX->fCurTime ) // Spam packets once in halfsecond
+		{
+			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
+			CBytestream bs;
+			for( int f=0; f < cl->getNetSpeed() + 1 && f < 3; f++ ) // Packets are 256 bytes - 4 packets = 1KB
+			{
+				if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
+					break;
+				bs.writeByte(S2C_SENDFILE);
+				cl->getFileDownloaderInGame()->send(&bs);
+			};
+			SendPacket( &bs, cl );
+		};
+	};
+};

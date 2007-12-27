@@ -364,6 +364,16 @@ void Menu_Loop(void)
 */		
 		Menu_Frame();
 		
+		// HACK: TODO: implement event system with network updates and timers and remove this hack
+		if( tMenu->iMenuType == MNU_NETWORK )	// Network have to be updated in real-time or we'll miss packets
+		{
+			//if(tLX->fDeltaTime < 0.05)	// Cap the FPS to 20 frames
+			//	SDL_Delay(int((0.05 - tLX->fDeltaTime)*1000));
+			SDL_Delay(20);
+			ProcessEvents();
+		}
+		else
+		// end HACK
 		if(last_frame_was_because_of_an_event) {
 			last_frame_was_because_of_an_event = ProcessEvents();
 		} else {

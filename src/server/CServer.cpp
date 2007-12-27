@@ -575,6 +575,8 @@ void GameServer::Frame(void)
 
 	CheckRegister();
 
+	SendFiles();
+	
 	SendPackets();
 }
 
@@ -659,12 +661,6 @@ void GameServer::SendPackets(void)
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
-		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND )
-		{
-			cl->getUnreliable()->writeByte(S2C_SENDFILE);
-			cl->getFileDownloaderInGame()->send(cl->getUnreliable());
-		}
-			
 		// Send out the packets if we haven't gone over the clients bandwidth
 		cl->getChannel()->Transmit(cl->getUnreliable());
 

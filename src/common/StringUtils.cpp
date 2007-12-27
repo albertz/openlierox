@@ -18,6 +18,7 @@
 #include "GfxPrimitives.h" // for MakeColour
 #include "CFont.h" // for CFont
 #include "ConfigHandler.h" // for getting color value from data/frontend/colours.cfg
+#include "FindFile.h"
 // HTML parsing library for StripHtmlTags()
 #include <libxml/xmlmemory.h>
 #include <libxml/HTMLparser.h>
@@ -609,3 +610,33 @@ bool Decompress( const std::string & in, std::string * out )
 	inflateEnd(&strm);
 	return true;
 };
+
+uint StringChecksum( const std::string & data )
+{
+	return adler32(0L, (const Bytef *)data.c_str(), data.size());
+};
+
+bool FileChecksum( const std::string & path, uint * _checksum, uint * _filesize )
+{
+	FILE * ff = OpenGameFile( path, "r" );
+	if( ff == NULL )
+		return false;
+	char buf[16384];
+	uint checksum = adler32(0L, Z_NULL, 0);
+	uint size = 0;
+	
+	while( ! feof( ff ) )
+	{
+		int readed = fread( buf, 1, sizeof(buf), ff );
+		checksum = adler32( checksum, (const Bytef *)buf, readed);
+		size += readed;
+	};
+	fclose( ff );
+	
+	if( _checksum )
+		*_checksum = checksum;
+	if( _filesize )
+		*_filesize = size;
+	return true;
+};
+

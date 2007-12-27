@@ -439,6 +439,7 @@ private:
 	CFileDownloaderInGame	cFileDownloaderInGame;
 	float		fLastDirtUpdate;
 	float		fLastFileRequest;
+	float		fLastFileRequestPacketReceived;
 
 public:
 	// Methods
@@ -576,6 +577,7 @@ public:
 	void		DownloadMap(const std::string& mapname);
 	void		ProcessMapDownloads();
 	void		ShutdownDownloads();
+	void		processFileRequests();
 
 
 	// Variables
@@ -669,7 +671,8 @@ public:
 	CFileDownloaderInGame * getFileDownloaderInGame() { return &cFileDownloaderInGame; };
 	float		getLastDirtUpdate()				{ return fLastDirtUpdate; };
 	void		setLastDirtUpdate( float _f )	{ fLastDirtUpdate = _f; };
-	void		processFileRequests();
+	float		getLastFileRequestPacketReceived() { return fLastFileRequestPacketReceived; };
+	void		setLastFileRequestPacketReceived( float _f ) { fLastFileRequestPacketReceived = _f; };
 
 };
 

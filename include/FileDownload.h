@@ -144,7 +144,7 @@ public:
 class CFileDownloaderInGame
 {
 public:
-	CFileDownloaderInGame() { tState = S_FINISHED; iPos = 0; bAllowFileRequest = true; };
+	CFileDownloaderInGame() { reset(); };
 	~CFileDownloaderInGame() { };
 
 	enum State_t 	{ S_SEND, S_RECEIVE, S_FINISHED, S_ERROR };
@@ -163,7 +163,7 @@ public:
 	bool		send( CBytestream * bs );
 
 	// Does not change any variables, just pings server with zero-sized packet to un-freeze it, else download speed sucks
-	void		sendPing( CBytestream * bs ) const;	
+	void		sendPing( CBytestream * bs ) const;
 
 	bool		errorOccured() const { return (tState == S_ERROR); };
 	State_t		getState() const { return tState; };
@@ -171,16 +171,32 @@ public:
 	void		setFileToSend( const std::string & name, const std::string & data );
 	void		setFileToSend( const std::string & path );
 
-	void		reset() { iPos = 0; tState = S_FINISHED; sFilename = ""; sData = ""; };
+	void		reset();
 
 	// Functions that will trigger remote CFileDownloaderInGame to do something like send some file or list some dir
 	void		allowFileRequest( bool allow );
 	void		requestFile( const std::string & path, bool retryIfFail = true ); // Same for dir
-	void		requestFileInfo( const std::string & path ); // Same for dir
 	bool		requestFilesPending(); // Re-send file request if downloading fails
 	static bool	isPathValid( const std::string & path );	// Check if someone tries to access /etc/shadow to get system passwords
+	
+	struct		StatInfo
+	{
+		std::string filename;
+		uint size;
+		uint compressedSize;	// Approximate! Use only for progressbars
+		uint checksum;
+		StatInfo( const std::string & _filename="", uint _size=0, uint _compressedSize=0, uint _checksum=0 ):
+			filename(_filename), size(_size), compressedSize(_compressedSize), checksum(_checksum) {};
+	};
+	
+	// For dir returns recursive list of all files in dir, clears previous file info
+	void		requestFileInfo( const std::string & path ); 
+	// File statistics from requestFileInfo() is saved in array returned by this func
+	const std::vector< StatInfo > & getFileInfo() const { return cStatInfo; };
 
 private:
+	void			processFileRequests();
+
 	std::string		sFilename;
 	std::string		sData;
 	uint			iPos;
@@ -191,8 +207,8 @@ private:
 	
 	std::set< std::string > tRequestedFiles;
 	
-	void			processFileRequests();
-
+	std::vector< StatInfo > cStatInfo;
+	
 };
 
 #endif // __FILEDOWNLOAD_H__

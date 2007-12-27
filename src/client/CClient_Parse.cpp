@@ -1506,25 +1506,28 @@ void CClient::ParseDropped(CBytestream *bs)
 // Server sent us some file
 void CClient::ParseSendFile(CBytestream *bs)
 {
+	fLastFileRequestPacketReceived = tLX->fCurTime;
 	if( cFileDownloaderInGame.receive(bs) )
 	{
-		if( cFileDownloaderInGame.errorOccured() || tGameInfo.iGameType != GME_JOIN )
+		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_ERROR )
 		{
-			cFileDownloaderInGame.reset();
+			if( ! getFileDownloaderInGame()->requestFilesPending() ) // More files to receive
+				cFileDownloaderInGame.reset();
 			return;
 		};
-		if( cFileDownloaderInGame.getFilename() == "dirt" )
+		if( getFileDownloaderInGame()->getFilename() == "dirt" &&
+			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
 		{
 			// Parse a dirt mask packet
 			CBytestream bs1;
-			bs1.writeData( cFileDownloaderInGame.getData() );
+			bs1.writeData( getFileDownloaderInGame()->getData() );
 			if( cMap )
 				cMap->RecvDirtUpdate( &bs1 );
 		}
 		else
-		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
-			CFileDownloaderInGame::isPathValid( getFileDownloaderInGame()->getFilename() ) &&
-			! IsFileAvailable( getFileDownloaderInGame()->getFilename() ) )
+		if( CFileDownloaderInGame::isPathValid( getFileDownloaderInGame()->getFilename() ) &&
+			! IsFileAvailable( getFileDownloaderInGame()->getFilename() ) &&
+			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
 		{
 			// Server sent us some file we don't have - okay, save it
 			FILE * ff=OpenGameFile( getFileDownloaderInGame()->getFilename(), "w" );
@@ -1535,6 +1538,12 @@ void CClient::ParseSendFile(CBytestream *bs)
 			};
 			fwrite( getFileDownloaderInGame()->getData().c_str(), 1, getFileDownloaderInGame()->getData().size(), ff );
 			fclose(ff);
+			// Put notice about downloaded file in chatbox
+			CBytestream bs;
+			bs.writeByte(TXT_NETWORK);
+			bs.writeString( "Downloaded file \"" + getFileDownloaderInGame()->getFilename() + 
+								"\" size " + itoa( getFileDownloaderInGame()->getData().size() ) );
+			ParseText( &bs );
 			if( getFileDownloaderInGame()->getFilename().find("levels/") == 0 && 
 					IsFileAvailable( "levels/" + tGameLobby.szMapName ) )
 			{
@@ -1559,13 +1568,39 @@ void CClient::ParseSendFile(CBytestream *bs)
 				bJoin_Update = true;
 				bHost_Update = true;
 			};
+			if( ! tGameLobby.bHaveMod &&
+				getFileDownloaderInGame()->getFilename().find( tGameLobby.szModDir ) == 0 )
+			{
+				tGameLobby.bHaveMod = true;
+			    FILE * fp = OpenGameFile(tGameLobby.szModDir + "/script.lgs", "rb");
+			    if(!fp)
+			        tGameLobby.bHaveMod = false;
+    			else
+			        fclose(fp);
+				bJoin_Update = true;
+				bHost_Update = true;
+			};
+		}
+		else
+		if( cFileDownloaderInGame.getFilename() == "STAT_ACK:" &&
+			cFileDownloaderInGame.getFileInfo().size() > 0 &&
+			! tGameLobby.bHaveMod &&
+			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
+		{
+			// Got filenames list of mod dir
+			for( uint f=0; f<cFileDownloaderInGame.getFileInfo().size(); f++ )
+			{
+				if( cFileDownloaderInGame.getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
+					! IsFileAvailable( cFileDownloaderInGame.getFileInfo()[f].filename ) )
+					cFileDownloaderInGame.requestFile( cFileDownloaderInGame.getFileInfo()[f].filename );
+			};
 		};
 		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
 			getFileDownloaderInGame()->requestFilesPending();
 	};
 	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
 	{
-		// Speed up download somewhat - TODO: does not work, seems that server makes long pauses anyway
+		// Speed up download - server will send next packet when receives ping, or once in 0.5 seconds
 		cNetChan.getMessageBS()->writeByte(C2S_SENDFILE);
 		getFileDownloaderInGame()->sendPing( cNetChan.getMessageBS() );
 	};

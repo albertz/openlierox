@@ -851,6 +851,7 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
 
 void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 {
+	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
 	if( cl->getFileDownloaderInGame()->receive(bs) )
 	{
 		if( cl->getFileDownloaderInGame()->errorOccured() )

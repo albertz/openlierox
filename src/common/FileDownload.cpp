@@ -23,6 +23,7 @@
 
 #include "StringUtils.h"
 #include "FindFile.h"
+#include "EndianSwap.h"
 #include "FileDownload.h"
 
 //
@@ -452,22 +453,32 @@ bool CFileDownloader::ShouldBreakThread()
 
 
 
+void CFileDownloaderInGame::reset()
+{
+	iPos = 0;
+	tState = S_FINISHED;
+	sFilename = "";
+	sData = "";
+	bAllowFileRequest = true;
+	tRequestedFiles.clear();
+	cStatInfo.clear();
+};
+
 void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::string & data )
 {
 	tState = S_SEND;
 	iPos = 0;
 	sFilename = name;
-	Compress( sFilename + '\0' + data, &sData );
+	std::string data1 = sFilename;
+	data1.push_back('\0');
+	data1.append(data);
+	Compress( data1, &sData );
 	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
 };
 
 void CFileDownloaderInGame::setFileToSend( const std::string & path )
 {
-	tState = S_SEND;
-	iPos = 0;
-	sFilename = path;
-
-	FILE * ff = OpenGameFile( sFilename , "r" );
+	FILE * ff = OpenGameFile( path, "r" );
 	if( ff == NULL )
 	{
 		tState = S_ERROR;
@@ -483,8 +494,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & path )
 	};
 	fclose( ff );
 
-	Compress( sFilename + '\0' + data, &sData );
-	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
+	setFileToSend( path, data );
 };
 
 enum { MAX_DATA_CHUNK = 254 };	// UCHAR_MAX - 1, client and server should have this equal
@@ -583,19 +593,21 @@ bool CFileDownloaderInGame::requestFilesPending()
 {
 	if( tRequestedFiles.empty() )
 		return false;
-	if( getState() == S_FINISHED || getState() ==  S_ERROR )
-		reset();
-	else
+	if( getState() != S_FINISHED )
 		return true;	// Receiving or sending in progress
-		
-	requestFile( * tRequestedFiles.begin() );
+	
+	requestFile( * tRequestedFiles.begin(), false ); // May modify tRequestedFiles array
 	return true;
 };
 
 void CFileDownloaderInGame::requestFileInfo( const std::string & path )
 {
+	cStatInfo.clear();
 	setFileToSend( "STAT:", path );
 };
+
+std::string getStatPacketOneFile( const std::string & path );
+std::string getStatPacketRecursive( const std::string & path );
 
 void CFileDownloaderInGame::processFileRequests()
 {
@@ -624,11 +636,11 @@ void CFileDownloaderInGame::processFileRequests()
 		if( S_ISREG( st.st_mode ) )
 		{
 			setFileToSend( getData() );
+			return;
 		};
 		if( S_ISDIR( st.st_mode ) )
 		{
-			printf( "CFileDownloaderInGame::processFileRequests(): cannot send dir \"%s\" - not implemented\n", getData().c_str() );
-			// TODO: Not implemented
+			printf( "CFileDownloaderInGame::processFileRequests(): cannot send dir \"%s\" - wrong request\n", getData().c_str() );
 			return;
 		};
 	};
@@ -639,9 +651,34 @@ void CFileDownloaderInGame::processFileRequests()
 			printf( "CFileDownloaderInGame::processFileRequests(): invalid filename \"%s\"\n", getData().c_str() );
 			return;
 		};
-		printf( "CFileDownloaderInGame::processFileRequests(): cannot send file statistics \"%s\" - not implemented\n", getData().c_str() );
-		// TODO: Get file info - size and CRC32 or MD5 - not implemented yet
+		setFileToSend( "STAT_ACK:", getStatPacketRecursive( getData() ) );
 		return;
+	};
+	if( getFilename() == "STAT_ACK:" )
+	{
+		for( std::string::size_type f = 0, f1 = 0; f < getData().size(); )
+		{
+			f1 = getData().find( '\0', f );
+			if( f1 == f || f1 == std::string::npos || getData().size() < f1 + 13 ) // '\0' + 3 * sizeof(uint)
+			{
+				tState = S_ERROR;
+				return;
+			};
+			std::string filename = getData().substr( f, f1 - f );
+			f1 ++;
+			uint size=0, compressedSize=0, checksum=0;
+			memcpy( &size, getData().c_str() + f1, 4 );
+			f1 += 4;
+			memcpy( &compressedSize, getData().c_str() + f1, 4 );
+			f1 += 4;
+			memcpy( &checksum, getData().c_str() + f1, 4 );
+			f1 += 4;
+			EndianSwap( checksum );
+			EndianSwap( size );
+			EndianSwap( compressedSize );
+			cStatInfo.push_back( StatInfo( filename, size, compressedSize, checksum ) );
+			f = f1;
+		};
 	};
 };
 
@@ -692,3 +729,77 @@ bool CFileDownloaderInGame::isPathValid( const std::string & path )
 	return true;
 };
 
+class StatFileList
+{ 
+	public:
+   	std::string *data;
+	const std::string & reqpath;	// Path as client requested it
+   	int index;
+	StatFileList( std::string *_data, const std::string & _reqpath ) : 
+		data(_data), reqpath(_reqpath) {}
+	inline bool operator() (std::string path)
+	{
+		size_t slash = findLastPathSep(path);
+		if(slash != std::string::npos)
+			path.erase(0, slash+1);
+		*data += getStatPacketOneFile( reqpath + "/" + path );
+		return true;
+	};
+};
+
+class StatDirList
+{ 
+	public:
+   	std::string *data;
+	const std::string & reqpath;	// Path as client requested it
+   	int index;
+	StatDirList( std::string *_data, const std::string & _reqpath ) : 
+		data(_data), reqpath(_reqpath) {}
+	inline bool operator() (std::string path)
+	{
+		size_t slash = findLastPathSep(path);
+		if(slash != std::string::npos)
+			path.erase(0, slash+1);
+		if( path == ".svn" )
+			return true;
+		*data += getStatPacketRecursive( reqpath + "/" + path );
+		return true;
+	};
+};
+
+std::string getStatPacketOneFile( const std::string & path )
+{
+	uint checksum, size;
+	if( ! FileChecksum( path, &checksum, &size ) )
+		return "";
+	EndianSwap( checksum );
+	EndianSwap( size );
+	return path + '\0' + 
+			std::string( (const char *) (&size), 4 ) + // Real file size
+			std::string( (const char *) (&size), 4 ) + // Zipped file size (used for download progressbar, so inexact for now)
+			std::string( (const char *) (&checksum), 4 );	// Checksum
+};
+
+std::string getStatPacketRecursive( const std::string & path )
+{
+		std::string fname;
+		GetExactFileName( path, fname );
+		struct stat st;
+		if( stat( fname.c_str(), &st ) != 0 )
+		{
+			printf( "getStatPacketFileOrDir(): cannot stat file \"%s\"\n", path.c_str() );
+			return "";
+		};
+		if( S_ISREG( st.st_mode ) )
+		{
+			return getStatPacketOneFile( path );
+		};
+		if( S_ISDIR( st.st_mode ) )
+		{
+			std::string data;
+			FindFiles( StatFileList( &data, path ), fname, FM_REG);
+			FindFiles( StatDirList( &data, path ), fname, FM_DIR);
+			return data;
+		};
+		return "";
+};
