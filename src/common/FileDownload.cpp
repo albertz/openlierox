@@ -470,7 +470,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::
 	iPos = 0;
 	sFilename = name;
 	std::string data1 = sFilename;
-	data1.push_back('\0');
+	data1.append( 1, '\0' );
 	data1.append(data);
 	Compress( data1, &sData );
 	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
