@@ -236,7 +236,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 		
 		if( ! tLXOptions->bAntilagMovementPrediction )
 		{
-			// No approximation, sometimes it looks better than approximation on high net lag
+			// ignoring acceleration in this case for estimation
 			estimatedVel = (newpos - vOldPosOfLastPaket) / t;
 		}
 		else
@@ -251,8 +251,10 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			float Drag = wd->AirFriction;
 		
 			if(!iOnGround)	{
-				a.x -= SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag;
-				a.y += -SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag;
+				// TODO: this is also not exact
+				CVec preEstimatedVel = (newpos - vOldPosOfLastPaket) / t;
+				a.x -= SQR(preEstimatedVel.x) * SIGN(preEstimatedVel.x) * Drag;
+				a.y -= SQR(preEstimatedVel.y) * SIGN(preEstimatedVel.y) * Drag;
 			}
 		
 			// Gravity
@@ -321,8 +323,6 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
-	else
-		printf("server: remote worm %i: v = %f\n", iID, vVelocity.GetLength());
 
 	CClient *cl = cServer->getClient(iID);
 	CWorm *w = cl->getWorm(0);
@@ -417,9 +417,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
-	} else
-		printf("client: remote worm %i: v = %f\n", iID, vVelocity.GetLength());
-	
+	}	
 }
 
 	
