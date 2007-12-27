@@ -177,9 +177,9 @@ static bool isSocketInGroup(NLint group, NetworkSocket sock) {
 	nlGroupGetSockets( group, sockets, &len );
 	for( int f = 0; f < len; f++ )
 		if( sockets[f] == *getNLsocket(&sock) )
-			return false;
+			return true;
 	
-	return true;
+	return false;
 }
 
 static void AddSocketToNotifierGroup( NetworkSocket sock )
