@@ -140,6 +140,7 @@ static int SdlNetEventThreadMain( void * param )
 		{
 			//printf("SdlNetEventThreadMain(): SDL_PushEvent()\n");
 			SDL_PushEvent( &ev );
+			SDL_Delay(10);
 		}
 	};
 	return 0;
