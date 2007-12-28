@@ -115,7 +115,7 @@ void CChannel::Transmit( CBytestream *bs )
 	
 
 	// Send the packet
-	SetRemoteNetAddr(Socket, &RemoteAddr);
+	SetRemoteNetAddr(Socket, RemoteAddr);
 	outpack.Send(Socket);
 
 	// Update statistics

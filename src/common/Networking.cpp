@@ -81,12 +81,12 @@ static NLsocket* getNLsocket(NetworkSocket* socket) {
 	return NetworkSocketData(socket)->get();
 }
 
-static NLaddress* getNLaddr(NetworkAddr* addr) {
-	return NetworkAddrData(addr)->get();
+static NLaddress* getNLaddr(NetworkAddr& addr) {
+	return NetworkAddrData(&addr)->get();
 }
 
-static const NLaddress* getNLaddr(const NetworkAddr* addr) {
-	return NetworkAddrData(addr)->get();
+static const NLaddress* getNLaddr(const NetworkAddr& addr) {
+	return NetworkAddrData(&addr)->get();
 }
 
 
@@ -225,7 +225,6 @@ bool InitNetworkSystem() {
 		return false;
 	}
 	
-	test_NetworkSmartPointer();
 	return true;
 }
 
@@ -259,13 +258,9 @@ NetworkSocket OpenBroadcastSocket(unsigned short port) {
 	return ret;
 }
 
-bool ConnectSocket(NetworkSocket sock, const NetworkAddr* addr) {
-	if(addr == NULL)
-		return false;
-	else  {
-		AddSocketToNotifierGroup(sock);
-		return (nlConnect(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
-	}
+bool ConnectSocket(NetworkSocket sock, const NetworkAddr& addr) {
+	AddSocketToNotifierGroup(sock);
+	return (nlConnect(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool ListenSocket(NetworkSocket sock) {
@@ -356,56 +351,57 @@ void ResetSocketError()  {
 	nlShutdown();
 }
 
-bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr* addr) {
-	if(addr == NULL)
+bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr addr) {
+	if(getNLaddr(addr) == NULL)
 		return false;
 	else
 		return (nlGetLocalAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 }
 
-bool GetRemoteNetAddr(NetworkSocket sock, NetworkAddr* addr) {
-	if(addr == NULL)
+bool GetRemoteNetAddr(NetworkSocket sock, NetworkAddr addr) {
+	if(getNLaddr(addr) == NULL)
 		return false;
 	else
 		return (nlGetRemoteAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 }
 
-bool SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr* addr) {
-	if(addr == NULL)
+bool SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr& addr) {
+	if(getNLaddr(addr) == NULL)
 		return false;
 	else
 		return (nlSetRemoteAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 }
 
-bool IsNetAddrValid(NetworkAddr* addr) {
-	if(addr)
+bool IsNetAddrValid(const NetworkAddr& addr) {
+	if(getNLaddr(addr))
 		return (getNLaddr(addr)->valid != NL_FALSE);
 	else
 		return false;
 }
 
-bool SetNetAddrValid(NetworkAddr* addr, bool valid) {
-	if(!addr) return false;
+bool SetNetAddrValid(NetworkAddr addr, bool valid) {
+	if(!getNLaddr(addr)) return false;
 	getNLaddr(addr)->valid = valid ? NL_TRUE : NL_FALSE;
 	return true;
 }
 
-void ResetNetAddr(NetworkAddr* addr) {
-	if(!addr) return;
+void ResetNetAddr(NetworkAddr addr) {
+	if(!getNLaddr(addr)) return;
 	// TODO: is this the best way?
 	memset(getNLaddr(addr), 0, sizeof(NLaddress));
 	SetNetAddrValid(addr, false);
 }
 
-bool StringToNetAddr(const std::string& string, NetworkAddr* addr) {
-	if(addr == NULL) {
+bool StringToNetAddr(const std::string& string, NetworkAddr addr) {
+	if(getNLaddr(addr) == NULL) {
 		return false;
 	} else	
 		return (nlStringToAddr(string.c_str(), getNLaddr(addr)) != NL_FALSE);
 }
 
-bool NetAddrToString(const NetworkAddr* addr, std::string& string) {
-	static char buf[256];
+bool NetAddrToString(const NetworkAddr& addr, std::string& string) {
+	// TODO: safty here for buffer
+	char buf[256];
 	NLchar* res = nlAddrToString(getNLaddr(addr), buf);
 	if(res) {
 		fix_markend(buf);
@@ -415,61 +411,92 @@ bool NetAddrToString(const NetworkAddr* addr, std::string& string) {
 		return false;
 }
 
-unsigned short GetNetAddrPort(NetworkAddr* addr) {
-	if(addr == NULL)
+unsigned short GetNetAddrPort(const NetworkAddr& addr) {
+	if(getNLaddr(addr) == NULL)
 		return 0;
 	else
 		return nlGetPortFromAddr(getNLaddr(addr));
 }
 
-bool SetNetAddrPort(NetworkAddr* addr, unsigned short port) {
-	if(addr == NULL)
+bool SetNetAddrPort(NetworkAddr addr, unsigned short port) {
+	if(getNLaddr(addr) == NULL)
 		return false;
 	else
 		return (nlSetAddrPort(getNLaddr(addr), port) != NL_FALSE);
 }
 
-bool AreNetAddrEqual(const NetworkAddr* addr1, const NetworkAddr* addr2) {
-	if(addr1 == addr2)
+bool AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2) {
+	if(getNLaddr(addr1) == getNLaddr(addr2))
 		return true;
 	else {
-		if(addr1 == NULL || addr2 == NULL)
-			return false;
-		else
-			return (nlAddrCompare(getNLaddr(addr1), getNLaddr(addr2)) != NL_FALSE);
+		return (nlAddrCompare(getNLaddr(addr1), getNLaddr(addr2)) != NL_FALSE);
 	}
 }
 
 typedef std::map<std::string, NetworkAddr> dnsCacheT; 
 dnsCacheT dnsCache;
 
-void AddToDnsCache(const std::string& name, const NetworkAddr* addr) {
-	dnsCache[name] = *addr;
+void AddToDnsCache(const std::string& name, const NetworkAddr& addr) {
+	dnsCache[name] = addr;
 }
 
-bool GetFromDnsCache(const std::string& name, NetworkAddr* addr) {
+bool GetFromDnsCache(const std::string& name, NetworkAddr addr) {
 	dnsCacheT::iterator it = dnsCache.find(name);
 	if(it != dnsCache.end()) {
-		*addr = it->second;
+		addr = it->second;
 		return true;
 	} else
 		return false;
 }
 
-bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr* addr) {
-	if(addr == NULL)
-		return false;
-	else {
-		if(GetFromDnsCache(name, addr)) {
-			SetNetAddrValid(addr, true);
-			return true;
-		}
-		return (nlGetAddrFromNameAsync(name.c_str(), getNLaddr(addr)) != NL_FALSE);
-	}
+
+struct NLaddress_ex_t {
+	std::string name;
+	NetAddrPtr address;
+};
+
+
+// copied from HawkNL sock.c and modified for usage of SmartPointer
+static int GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
+{
+    NLaddress_ex_t *address = (NLaddress_ex_t *)addr;
+    
+    nlGetAddrFromName(address->name.c_str(), address->address.get());
+    // TODO: handle failures here?
+    // TODO: add to dns cache? if so, this need to be made threadsafe
+    address->address.get()->valid = NL_TRUE;
+    delete address;
+
+    return 0;
 }
 
-bool GetNetAddrFromName(const std::string& name, NetworkAddr* addr) {
-	if(addr == NULL)
+bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr addr)
+{
+	if(getNLaddr(addr) == NULL)
+		return false;
+		
+	if(GetFromDnsCache(name, addr)) {
+		SetNetAddrValid(addr, true);
+		return true;
+	}
+
+    getNLaddr(addr)->valid = NL_FALSE;
+
+    NLaddress_ex_t  *addr_ex;
+    addr_ex = new NLaddress_ex_t;
+    if(addr_ex == NULL)
+        return false;
+    addr_ex->name = name;
+    addr_ex->address = *NetworkAddrData(&addr);
+
+    if(SDL_CreateThread(GetAddrFromNameAsyncInt, addr_ex) == NULL)
+        return false;
+    return true;
+}
+
+
+bool GetNetAddrFromName(const std::string& name, NetworkAddr addr) {
+	if(getNLaddr(addr) == NULL)
 		return false;
 	else {
 		if(GetFromDnsCache( name, addr )) {

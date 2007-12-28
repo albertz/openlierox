@@ -1156,15 +1156,15 @@ void Menu_SvrList_PingLAN(void)
 	bs.writeString("lx::ping");
 
 	NetworkAddr a;
-	StringToNetAddr("255.255.255.255",&a);
-	SetNetAddrPort(&a,tLXOptions->iNetworkPort);
-	SetRemoteNetAddr(tMenu->tSocket[SCK_LAN],&a);
+	StringToNetAddr("255.255.255.255", a);
+	SetNetAddrPort(a, tLXOptions->iNetworkPort);
+	SetRemoteNetAddr(tMenu->tSocket[SCK_LAN], a);
 
 	// Send the ping
 	bs.Send(tMenu->tSocket[SCK_LAN]);
 
 	// Try also the default LX port
-	SetNetAddrPort(&a,LX_PORT);
+	SetNetAddrPort(a, LX_PORT);
 
 	bs.Send(tMenu->tSocket[SCK_LAN]);
 }
@@ -1174,7 +1174,7 @@ void Menu_SvrList_PingLAN(void)
 // Ping a server
 void Menu_SvrList_PingServer(server_t *svr)
 {
-	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
+	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], svr->sAddress);
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1190,7 +1190,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 // Send Wants To Join message
 void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 {
-	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
+	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], svr->sAddress);
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1204,7 +1204,7 @@ void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 // Query a server
 void Menu_SvrList_QueryServer(server_t *svr)
 {
-	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &svr->sAddress);
+	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], svr->sAddress);
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1258,10 +1258,10 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
     NetworkAddr ad;
 	std::string tmp_address = address;
     TrimSpaces(tmp_address);
-    StringToNetAddr(tmp_address, &ad);
+    StringToNetAddr(tmp_address, ad);
 
     for(; sv; sv=sv->psNext) {
-        if( AreNetAddrEqual(&sv->sAddress, &ad) )
+        if( AreNetAddrEqual(sv->sAddress, ad) )
             return sv;
     }
 
@@ -1290,7 +1290,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 		svr->szAddress += ":"+itoa(LX_PORT,10);
 	}
 
-	StringToNetAddr(tmp_address, &svr->sAddress);
+	StringToNetAddr(tmp_address, svr->sAddress);
 
 
 	// Default game details
@@ -1302,8 +1302,8 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 
 
 	// If the address doesn't have a port number set, use the default lierox port number
-	if(GetNetAddrPort(&svr->sAddress) == 0)
-		SetNetAddrPort(&svr->sAddress, LX_PORT);
+	if(GetNetAddrPort(svr->sAddress) == 0)
+		SetNetAddrPort(svr->sAddress, LX_PORT);
 
 
 	// Link it in at the end of the list
@@ -1332,10 +1332,10 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
     NetworkAddr ad;
 	std::string tmp_address = address;
     TrimSpaces(tmp_address);
-    StringToNetAddr(tmp_address, &ad);
+    StringToNetAddr(tmp_address, ad);
 
     for(; sv; sv=sv->psNext) {
-        if( AreNetAddrEqual(&sv->sAddress, &ad) )
+        if( AreNetAddrEqual(sv->sAddress, ad) )
             return sv;
     }
 
@@ -1365,7 +1365,7 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 		svr->szAddress += ":"+itoa(LX_PORT,10);
 	}
 
-	StringToNetAddr(tmp_address, &svr->sAddress);
+	StringToNetAddr(tmp_address, svr->sAddress);
 
 
 	// Default game details
@@ -1376,8 +1376,8 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 
 
 	// If the address doesn't have a port number set, use the default lierox port number
-	if(GetNetAddrPort(&svr->sAddress) == 0)
-		SetNetAddrPort(&svr->sAddress, LX_PORT);
+	if(GetNetAddrPort(svr->sAddress) == 0)
+		SetNetAddrPort(svr->sAddress, LX_PORT);
 
 
 	// Link it in at the end of the list
@@ -1599,13 +1599,13 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 	if(bs->readInt(4) == -1) {
 		cmd = bs->readString();
 
-		GetRemoteNetAddr(sock,&adrFrom);
+		GetRemoteNetAddr(sock, adrFrom);
 
 		// Check for a pong
 		if(cmd == "lx::pong") {
 
 			// Look the the list and find which server returned the ping
-			server_t *svr = Menu_SvrList_FindServer(&adrFrom);
+			server_t *svr = Menu_SvrList_FindServer(adrFrom);
 			if( svr ) {
 
 				// It pinged, so fill in the ping info so it will now be queried
@@ -1616,7 +1616,7 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 				// If we didn't ping this server directly (eg, subnet), add the server to the list
 				// HINT: in favourites list, only user should add servers
 				if (iNetMode != net_favourites)  {
-					NetAddrToString( &adrFrom, buf );
+					NetAddrToString( adrFrom, buf );
 					svr = Menu_SvrList_AddServer(buf, false);
 
 					if( svr ) {
@@ -1637,7 +1637,7 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 		else if(cmd == "lx::queryreturn") {
 
 			// Look the the list and find which server returned the ping
-			server_t *svr = Menu_SvrList_FindServer(&adrFrom);
+			server_t *svr = Menu_SvrList_FindServer(adrFrom);
 			if( svr ) {
 
 				// Only update the list if this is the first query
@@ -1658,15 +1658,15 @@ int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 
 ///////////////////
 // Find a server from the list by address
-server_t *Menu_SvrList_FindServer(NetworkAddr *addr)
+server_t *Menu_SvrList_FindServer(const NetworkAddr& addr)
 {
 	server_t *s = psServerList;
 
 	for(; s; s=s->psNext) {
 
-		StringToNetAddr(s->szAddress, &s->sAddress);
+		StringToNetAddr(s->szAddress, s->sAddress);
 
-		if( AreNetAddrEqual( addr, &s->sAddress ) )
+		if( AreNetAddrEqual( addr, s->sAddress ) )
 			return s;
 	}
 
@@ -1823,7 +1823,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	        if(inbs.readInt(4) == -1) {
                 std::string cmd = inbs.readString();
 
-		        GetRemoteNetAddr(tMenu->tSocket[SCK_NET],&addr);
+		        GetRemoteNetAddr(tMenu->tSocket[SCK_NET], addr);
 
 		        // Check for server info
 		        if(cmd == "lx::serverinfo") {
@@ -1831,7 +1831,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 					// Get the IP info
 					std::string str_ip;
-					if (NetAddrToString(&addr, str_ip))
+					if (NetAddrToString(addr, str_ip))
 						tIpInfo = tIpToCountryDB->GetInfoAboutIP(str_ip);
 					else  {
 						tIpInfo.Country = "Hackerland";
@@ -1899,9 +1899,9 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
             // Send a getinfo request
 			std::string tmp_addr = szAddress;
             TrimSpaces(tmp_addr);
-            StringToNetAddr(tmp_addr, &addr);
+            StringToNetAddr(tmp_addr, addr);
 
-            SetRemoteNetAddr(tMenu->tSocket[SCK_NET], &addr);
+            SetRemoteNetAddr(tMenu->tSocket[SCK_NET], addr);
 
 	        CBytestream bs;
 	        bs.writeInt(-1,4);

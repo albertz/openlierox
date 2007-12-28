@@ -597,12 +597,12 @@ void CClient::Connecting(void)
 		return;
 	}
 
-	StringToNetAddr(strServerAddr,&addr);
-	if(GetNetAddrPort(&addr) == 0)  {
+	StringToNetAddr(strServerAddr, addr);
+	if(GetNetAddrPort(addr) == 0)  {
 		if (tGameInfo.iGameType == GME_JOIN) // Remote joining
-			SetNetAddrPort(&addr, LX_PORT);  // Try the default port if no port specified
+			SetNetAddrPort(addr, LX_PORT);  // Try the default port if no port specified
 		else // Host or local
-			SetNetAddrPort(&addr, tLXOptions->iNetworkPort);  // Use the port specified in options
+			SetNetAddrPort(addr, tLXOptions->iNetworkPort);  // Use the port specified in options
 	}
 
 	fConnectTime = tLX->fCurTime;
@@ -614,7 +614,7 @@ void CClient::Connecting(void)
 	bs.writeString("lx::getchallenge");
 	bs.writeString(LX_VERSION);
 	
-	SetRemoteNetAddr(tSocket,&addr);
+	SetRemoteNetAddr(tSocket, addr);
 	bs.Send(tSocket);
 
 	printf("HINT: sending challenge request to %s\n", strServerAddr.c_str());

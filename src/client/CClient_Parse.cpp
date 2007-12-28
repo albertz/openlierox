@@ -150,7 +150,7 @@ void CClient::ParseConnected(CBytestream *bs)
 		cLocalWorms[1]->SetupInputs( tLXOptions->sPlayerControls[1] );
 
 	// Create my channel
-	GetRemoteNetAddr(tSocket, &addr);
+	GetRemoteNetAddr(tSocket, addr);
 	cNetChan.Create(&addr,0,tSocket);
 
 	bJoin_Update = true;

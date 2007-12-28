@@ -945,7 +945,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	static CBytestream	bs;
 	bs.Clear();
 
-	GetRemoteNetAddr(tSocket, &adrFrom);
+	GetRemoteNetAddr(tSocket, adrFrom);
 
 	// If were in the game, deny challenges
 	if ( iState != SVS_LOBBY && !( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING ) ) {
@@ -962,8 +962,8 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	// see if we already have a challenge for this ip
 	for (i = 0;i < MAX_CHALLENGES;i++) {
 
-		if (IsNetAddrValid(&tChallenges[i].Address)) {
-			if (AreNetAddrEqual(&adrFrom, &tChallenges[i].Address))
+		if (IsNetAddrValid(tChallenges[i].Address)) {
+			if (AreNetAddrEqual(adrFrom, tChallenges[i].Address))
 				continue;
 			if (ChallengeToSet < 0 || tChallenges[i].fTime < OldestTime) {
 				OldestTime = tChallenges[i].fTime;
@@ -991,7 +991,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	}
 
 	// Send the challenge details back to the client
-	SetRemoteNetAddr(tSocket, &adrFrom);
+	SetRemoteNetAddr(tSocket, adrFrom);
 
 
 	bs.writeInt(-1, 4);
@@ -1030,7 +1030,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 	// User Info to get
 
-	GetRemoteNetAddr(tSocket, &adrFrom);
+	GetRemoteNetAddr(tSocket, adrFrom);
 
 	// Read packet
 	ProtocolVersion = bs->readInt(1);
@@ -1054,8 +1054,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		return;
 	}
 
-	static std::string szAddress;
-	NetAddrToString(&adrFrom, szAddress);
+	std::string szAddress;
+	NetAddrToString(adrFrom, szAddress);
 
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
@@ -1096,7 +1096,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 	// See if the challenge is valid
 	for (i = MAX_CHALLENGES-1; i >= 0; --i) {
-		if (IsNetAddrValid(&tChallenges[i].Address) && AreNetAddrEqual(&adrFrom, &tChallenges[i].Address)) {
+		if (IsNetAddrValid(tChallenges[i].Address) && AreNetAddrEqual(adrFrom, tChallenges[i].Address)) {
 
 			if (ChallId == tChallenges[i].iNum)
 				break;		// good
@@ -1498,11 +1498,11 @@ void GameServer::ParseConnect(CBytestream *bs) {
 ///////////////////
 // Parse a ping packet
 void GameServer::ParsePing(void) {
-	static NetworkAddr		adrFrom;
-	GetRemoteNetAddr(tSocket, &adrFrom);
+	NetworkAddr		adrFrom;
+	GetRemoteNetAddr(tSocket, adrFrom);
 
 	// Send the challenge details back to the client
-	SetRemoteNetAddr(tSocket, &adrFrom);
+	SetRemoteNetAddr(tSocket, adrFrom);
 
 	static CBytestream bs;
 

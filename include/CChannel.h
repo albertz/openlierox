@@ -101,7 +101,7 @@ public:
 	inline int			getPacketLoss(void)		{ return iPacketsDropped; }
 	inline float		getLastReceived(void)	{ return fLastPckRecvd; }
 	inline float		getLastSent(void)		{ return fLastSent; }
-	inline NetworkAddr	*getAddress(void)		{ return &RemoteAddr; }	
+	inline NetworkAddr	getAddress(void)		{ return RemoteAddr; }	
 
 	// Packets
 	inline CBytestream	*getMessageBS(void)		{ return &Message; }

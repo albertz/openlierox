@@ -341,7 +341,7 @@ server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress);
 void        Menu_SvrList_RemoveServer(const std::string& szAddress);
 bool		Menu_SvrList_Process(void);
 int			Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
-server_t	*Menu_SvrList_FindServer(NetworkAddr *addr);
+server_t	*Menu_SvrList_FindServer(const NetworkAddr& addr);
 void		Menu_SvrList_PingServer(server_t *svr);
 void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);

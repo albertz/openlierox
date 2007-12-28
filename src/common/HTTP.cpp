@@ -184,7 +184,7 @@ void CHttp::Clear()
 	bSocketReady = false;
 	bChunkedTransfer = false;
 	fResolveTime = -9999;
-	ResetNetAddr(&tRemoteIP);
+	ResetNetAddr(tRemoteIP);
 	if( IsSocketStateValid(tSocket) ) {
 		CloseSocket(tSocket);
 	};
@@ -242,9 +242,9 @@ void CHttp::RequestData(const std::string& address)
 
 	// Resolve the address
 	// Reset the current adr; sometimes needed (hack? bug in hawknl?)
-	ResetNetAddr(&tRemoteIP);
+	ResetNetAddr(tRemoteIP);
     fResolveTime = GetMilliSeconds();
-	if(!GetNetAddrFromNameAsync(sHost, &tRemoteIP)) {
+	if(!GetNetAddrFromNameAsync(sHost, tRemoteIP)) {
 		SetHttpError(HTTP_CANNOT_RESOLVE_DNS);
 		tError.sErrorMsg += GetSocketErrorStr(GetSocketErrorNr());
 		return;
@@ -515,7 +515,7 @@ int CHttp::ProcessRequest()
 		return HTTP_PROC_ERROR;
 
 	// Process DNS resolving
-	if(!IsNetAddrValid(&tRemoteIP)) {
+	if(!IsNetAddrValid(tRemoteIP)) {
         float f = GetMilliSeconds();
 
 		// Error
@@ -555,17 +555,17 @@ int CHttp::ProcessRequest()
 
 
 	// Check if the address completed resolving
-	if(IsNetAddrValid(&tRemoteIP)) {
+	if(IsNetAddrValid(tRemoteIP)) {
 		
 		// Default http port (80)
-		SetNetAddrPort(&tRemoteIP, 80);
+		SetNetAddrPort(tRemoteIP, 80);
 
 		// Connect to the destination
 		if(!bConnected) {
 			// Address was resolved; save it
-			AddToDnsCache(sHost, &tRemoteIP);
+			AddToDnsCache(sHost, tRemoteIP);
 		
-			if(!ConnectSocket(tSocket, &tRemoteIP)) {
+			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				SetHttpError(HTTP_NO_CONNECTION);
 				return HTTP_PROC_ERROR;
 			}

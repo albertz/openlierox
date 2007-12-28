@@ -79,11 +79,11 @@ void GameServer::Clear(void)
 	bFirstBlood = true;
 
 	for(i=0; i<MAX_CHALLENGES; i++) {
-		SetNetAddrValid(&tChallenges[i].Address, false);
+		SetNetAddrValid(tChallenges[i].Address, false);
 		tChallenges[i].fTime = 0;
 		tChallenges[i].iNum = 0;
 	}
-	ResetNetAddr( &tSTUNAddress );
+	ResetNetAddr( tSTUNAddress );
 
 	tMasterServers.clear();
 	tCurrentMasterServer = tMasterServers.begin();
@@ -118,12 +118,12 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	}
 
 	NetworkAddr addr;
-	GetLocalNetAddr(tSocket,&addr);
-	NetAddrToString(&addr, tLX->debug_string);
+	GetLocalNetAddr(tSocket, addr);
+	NetAddrToString(addr, tLX->debug_string);
 	printf("HINT: server started on %s\n", tLX->debug_string.c_str());
 
 	// TODO: put this in a separate function
-	ResetNetAddr( &tSTUNAddress );
+	ResetNetAddr( tSTUNAddress );
 	if( tLXOptions->sSTUNServer != "" && tGameInfo.iGameType != GME_LOCAL /* && regserver */ )
 	{
 		try	// STUN server is not critical, so if it failed just proceed further
@@ -138,7 +138,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 			char buf[STUN_MAX_MESSAGE_SIZE];
 			int len = STUN_MAX_MESSAGE_SIZE;
 			len = stunEncodeMessage( req, buf, len, password, false );
-			ResetNetAddr( &addr );
+			ResetNetAddr( addr );
 			std::string STUNServer = tLXOptions->sSTUNServer;
 			int STUNPort = STUN_PORT;
 			if( STUNServer.find(":") != std::string::npos )
@@ -147,12 +147,12 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 				STUNServer = STUNServer.substr( 0, STUNServer.find(":") );
 			};
 			// TODO: use async here
-			if( !GetNetAddrFromName( STUNServer, &addr ) )	
+			if( !GetNetAddrFromName( STUNServer, addr ) )	
 			{
 				throw std::string("Cannot resolve hostname ") + tLXOptions->sSTUNServer;
 			};
-			SetNetAddrPort( &addr, STUNPort );
-			SetRemoteNetAddr( tSocket, &addr );
+			SetNetAddrPort( addr, STUNPort );
+			SetRemoteNetAddr( tSocket, addr );
 			WriteSocket( tSocket, buf, len );
 			int count = 20;	// 2 secs
 			while( ! isDataAvailable(tSocket) && --count > 0 )
@@ -171,9 +171,9 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 				if(i != 0) os << ".";
 			}
 			os << ":" << resp.mappedAddress.ipv4.port;
-			StringToNetAddr( os.str(), &tSTUNAddress );
+			StringToNetAddr( os.str(), tSTUNAddress );
 			std::string s;
-			NetAddrToString( &tSTUNAddress, s );
+			NetAddrToString( tSTUNAddress, s );
 			printf("HINT: STUN returned address: %s\n", s.c_str());
 		}
 		catch( const std::string & s )
@@ -591,14 +591,14 @@ void GameServer::ReadPackets(void)
 	int c;
 
 	while(bs.Read(tSocket)) {
-
-		GetRemoteNetAddr(tSocket,&adrFrom);
-		SetRemoteNetAddr(tSocket,&adrFrom);
+		// TODO: comment this; is this still needed?
+		GetRemoteNetAddr(tSocket, adrFrom);
+		SetRemoteNetAddr(tSocket, adrFrom);
 
 		// Check for connectionless packets (four leading 0xff's)
 		if(bs.readInt(4) == -1) {
 			std::string address;
-			NetAddrToString(&adrFrom, address);
+			NetAddrToString(adrFrom, address);
 			ParseConnectionlessPacket(&bs, address);
 			continue;
 		}
@@ -613,11 +613,11 @@ void GameServer::ReadPackets(void)
 				continue;
 
 			// Check if the packet is from this player
-			if(!AreNetAddrEqual(&adrFrom,cl->getChannel()->getAddress()))
+			if(!AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress()))
 				continue;
 
 			// Check the port
-			if (GetNetAddrPort(&adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
+			if (GetNetAddrPort(adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
 				continue;
 
 			// Process the net channel
@@ -682,13 +682,13 @@ void GameServer::RegisterServer(void)
 	std::string addr_name;
 	NetworkAddr addr;
 
-	GetLocalNetAddr(tSocket,&addr);
-	NetAddrToString(&addr, addr_name);
+	GetLocalNetAddr(tSocket, addr);
+	NetAddrToString(addr, addr_name);
 
 	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
-	if (IsNetAddrValid( &tSTUNAddress ))  {
-		NetAddrToString(&tSTUNAddress, addr_name);
-		sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + addr_name;
+	if (IsNetAddrValid( tSTUNAddress ))  {
+		NetAddrToString(tSTUNAddress, addr_name);
+		sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( tSTUNAddress )) + "&addr=" + addr_name;
 	}
 
     bServerRegistered = false;
@@ -772,15 +772,15 @@ bool GameServer::DeRegisterServer(void)
 	std::string addr_name;
 	NetworkAddr addr;
 
-	GetLocalNetAddr(tSocket,&addr);
-	NetAddrToString(&addr, addr_name);
+	GetLocalNetAddr(tSocket, addr);
+	NetAddrToString(addr, addr_name);
 
 	// Stun server
 	sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
-	if( IsNetAddrValid( &tSTUNAddress ) )
+	if( IsNetAddrValid( tSTUNAddress ) )
 	{
-		NetAddrToString(&tSTUNAddress, addr_name);
-		sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(GetNetAddrPort( &tSTUNAddress )) + "&addr=" + addr_name;
+		NetAddrToString(tSTUNAddress, addr_name);
+		sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(GetNetAddrPort( tSTUNAddress )) + "&addr=" + addr_name;
 	}
 
 	// Initialize the request
