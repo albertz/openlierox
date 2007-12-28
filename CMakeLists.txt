@@ -47,6 +47,7 @@ IF(X11CLIPBOARD)
 ENDIF(X11CLIPBOARD)
 
 ADD_DEFINITIONS("`pkg-config --cflags sdl`")
+ADD_DEFINITIONS("-pthread")
 
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)

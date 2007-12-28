@@ -78,9 +78,9 @@ private:
 	}
 
 public:
-	SmartPointer() : obj(NULL), refCount(NULL), mutex(NULL) { 
+	SmartPointer() : obj(NULL), refCount(NULL), mutex(NULL) {
 		//printf("SmartPointer::construc(%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
-		init( _SpecificInitFunctor()(this) );
+		_SpecificInitFunctor()(this);
 	}
 	~SmartPointer() { 
 		//printf("SmartPointer::destruct(%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
@@ -89,8 +89,8 @@ public:
 	
 	// Default copy constructor and operator=
 	// If you specify any template<> params here these funcs will be silently ignored by compiler
-	SmartPointer(const SmartPointer & pt) : obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
-	SmartPointer& operator=(const SmartPointer & pt) {
+	SmartPointer(const SmartPointer& pt) : obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
+	SmartPointer& operator=(const SmartPointer& pt) {
 		//printf("SmartPointer::op=Ptr  (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
 		if(mutex == pt.mutex) return *this; // ignore this case
 		reset();
@@ -104,9 +104,8 @@ public:
 		return *this;
 	}
 	
-	// Bug: SmartPointer pt1; SmartPointer pt2( pt1.get() ); // Two pointers on same object with different refcounts 
-	// Just don't allow these functions
-	/*
+	// WARNING: Be carefull, don't assing a pointer to different SmartPointer objects,
+	// else they will get freed twice in the end. Always copy the SmartPointer itself.
 	SmartPointer(_Type* pt): obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
 	SmartPointer& operator=(_Type* pt) {
 		//printf("SmartPointer::op=Type (%10p %10p %10p %3i)\n", obj, refCount, mutex, refCount?*refCount:-99);
@@ -116,10 +115,10 @@ public:
 		init(pt);
 		return *this;
 	}
-	*/
 	
 	_Type* get() { return obj; }
 	const _Type* get() const { return obj; }
 };
 
 #endif
+

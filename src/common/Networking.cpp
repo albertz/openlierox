@@ -54,27 +54,27 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 class NetAddrIniter {
 public:
-	NLaddress * operator()(SmartPointer<NLaddress, NetAddrIniter>* addr) {
+	void operator()(SmartPointer<NLaddress, NetAddrIniter>* addr) {
 		NLaddress* addrPtr = new NLaddress;
 		memset(addrPtr, 0, sizeof(NLaddress));
-		return addrPtr;
+		*addr = addrPtr;
 	}
 };
 
 class NetSocketIniter {
 public:
-	NLsocket * operator()(SmartPointer<NLsocket, NetSocketIniter>* sock) {
+	void operator()(SmartPointer<NLsocket, NetSocketIniter>* sock) {
 		NLsocket* sockPtr = new NLsocket;
 		memset(sockPtr, 0, sizeof(NLsocket));
-		return sockPtr;
+		*sock = sockPtr;
 	}
 };
 
-typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrPtr;
 typedef SmartPointer<NLsocket, NetSocketIniter> NetSocketPtr;
+typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrPtr;
 
-DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrPtr );
 DECLARE_INTERNDATA_CLASS( NetworkSocket, NetSocketPtr );
+DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrPtr );
 
 
 static NLsocket* getNLsocket(NetworkSocket* socket) {
@@ -87,6 +87,29 @@ static NLaddress* getNLaddr(NetworkAddr* addr) {
 
 static const NLaddress* getNLaddr(const NetworkAddr* addr) {
 	return NetworkAddrData(addr)->get();
+}
+
+
+// TODO: perhaps move these test-functions somewhere else?
+// but it's good to keep them somewhere to easily test some code part
+void test_NetworkSmartPointer() {
+	for(int i = 0; i < 100; i++)
+	{
+		printf("creating SP\n");
+		NetSocketPtr sp;
+		printf("destroying SP\n");
+	}
+
+	
+	SDL_Delay(1000);
+	
+	printf("creating data-array\n");
+	char* tmp = new char[2048];
+
+	printf("freeing data-array\n");
+	delete tmp;
+	
+//	exit(-1);
 }
 
 
@@ -202,6 +225,7 @@ bool InitNetworkSystem() {
 		return false;
 	}
 	
+	test_NetworkSmartPointer();
 	return true;
 }
 
