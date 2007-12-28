@@ -15,6 +15,9 @@
 
 #include <SDL_syswm.h>
 #include <SDL_thread.h>
+#ifndef WIN32
+#include <signal.h>
+#endif
 
 #include "LieroX.h"
 #include "Error.h"
@@ -193,7 +196,12 @@ static void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 // ------------------------------------------------------------------------
 
 
-
+#ifndef WIN32
+static void sigpipe_handler(int i) {
+	printf("got SIGPIPE, ignoring...\n");
+	signal(SIGPIPE, sigpipe_handler);
+}
+#endif
 
 
 /*
@@ -224,6 +232,11 @@ bool InitNetworkSystem() {
 		SystemError("SdlNetEvent_Init failed");
 		return false;
 	}
+	
+#ifndef WIN32
+	//sigignore(SIGPIPE);
+	signal(SIGPIPE, sigpipe_handler);
+#endif	
 	
 	return true;
 }
