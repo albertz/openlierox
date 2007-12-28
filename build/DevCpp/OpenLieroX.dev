@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=178
+UnitCount=179
 Type=1
 Ver=1
 ObjFiles=
@@ -1821,6 +1821,16 @@ BuildCmd=
 FileName=..\..\src\server\ChatCommand.cpp
 CompileCpp=1
 Folder=Server
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit179]
+FileName=..\..\include\SmartPointer.h
+CompileCpp=1
+Folder=System files
 Compile=1
 Link=1
 Priority=1000

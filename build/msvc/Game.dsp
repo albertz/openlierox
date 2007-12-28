@@ -573,6 +573,10 @@ SOURCE=..\..\include\ProfileSystem.h
 
 SOURCE=..\..\include\Protocol.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\include\SmartPointer.h
+# End Source File
 # End Group
 # Begin Group "Frontend"
 
