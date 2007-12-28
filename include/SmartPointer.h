@@ -33,6 +33,7 @@ private:
 	SDL_mutex* mutex;
 
 	void init(_Type* newObj) {
+		//printf("SmartPointer::init    (%10p %10p %10p %10p %3i) newObj %10p\n", this, obj, refCount, mutex, refCount?*refCount:-99, newObj);
 		if(!mutex) {
 			mutex = SDL_CreateMutex();
 			lock();
@@ -43,18 +44,17 @@ private:
 		}
 	}
 	
-	void uninitObject() {
-		delete obj; delete refCount;
- 		SDL_DestroyMutex(mutex);
-	}
-
 	void reset() {
+		//printf("SmartPointer::reset   (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
 		if(mutex) {
 			lock();
 			(*refCount)--;
 			if(*refCount == 0) {
+				delete obj; delete refCount; // Yay, works!
+				obj = NULL;
+				refCount = NULL;
 				unlock();
-				uninitObject();
+				SDL_DestroyMutex(mutex);
 		 	} else
 		 		unlock();
 		}
@@ -68,18 +68,31 @@ private:
 		(*refCount)++;
 	}
 	
-	void lock() { SDL_mutexP(mutex); }
-	void unlock() { SDL_mutexV(mutex); }
+	void lock() { 
+		//printf("SmartPointer::lock    (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+		SDL_mutexP(mutex); 
+	}
+	void unlock() { 
+		//printf("SmartPointer::unlock  (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+		SDL_mutexV(mutex); 
+	}
 
 public:
-	SmartPointer() : obj(NULL), refCount(NULL), mutex(NULL) { _SpecificInitFunctor()(this); }
-	~SmartPointer() { reset(); }
+	SmartPointer() : obj(NULL), refCount(NULL), mutex(NULL) { 
+		//printf("SmartPointer::construc(%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+		init( _SpecificInitFunctor()(this) );
+	}
+	~SmartPointer() { 
+		//printf("SmartPointer::destruct(%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+		reset(); 
+	}
 	
-	template <typename _OtherSmartPointer>
-	SmartPointer(const _OtherSmartPointer& pt) { operator=(pt); }
-	template <typename _OtherSmartPointer>
-	SmartPointer& operator=(const _OtherSmartPointer& pt) {
-		if(mutex == pt.mutex) return; // ignore this case
+	// Default copy constructor and operator=
+	// If you specify any template<> params here these funcs will be silently ignored by compiler
+	SmartPointer(const SmartPointer & pt) : obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
+	SmartPointer& operator=(const SmartPointer & pt) {
+		//printf("SmartPointer::op=Ptr  (%10p %10p %10p %10p %3i)\n", this, obj, refCount, mutex, refCount?*refCount:-99);
+		if(mutex == pt.mutex) return *this; // ignore this case
 		reset();
 		mutex = pt.mutex;
 		if(mutex) {
@@ -91,15 +104,20 @@ public:
 		return *this;
 	}
 	
-	SmartPointer(_Type* pt) { operator=(pt); }
+	// Bug: SmartPointer pt1; SmartPointer pt2( pt1.get() ); // Two pointers on same object with different refcounts 
+	// Just don't allow these functions
+	/*
+	SmartPointer(_Type* pt): obj(NULL), refCount(NULL), mutex(NULL) { operator=(pt); }
 	SmartPointer& operator=(_Type* pt) {
+		//printf("SmartPointer::op=Type (%10p %10p %10p %3i)\n", obj, refCount, mutex, refCount?*refCount:-99);
 		assert(pt != NULL);
 		if(obj == pt) return *this; // ignore this case
 		reset();
 		init(pt);
 		return *this;
 	}
-
+	*/
+	
 	_Type* get() { return obj; }
 	const _Type* get() const { return obj; }
 };

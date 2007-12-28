@@ -42,7 +42,11 @@
 // include hash_set support
 #	ifndef STLPORT
 #		include <ext/hash_set>
-		using namespace __gnu_cxx;
+#		ifdef _GLIBCXX_DEBUG
+			using namespace __gnu_debug_def;
+#		else			
+			using namespace __gnu_cxx;
+#		endif		
 #	else // !STLPORT
 #		include <hash_set>
 		using std::hash_set;

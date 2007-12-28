@@ -54,19 +54,19 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 
 class NetAddrIniter {
 public:
-	void operator()(SmartPointer<NLaddress, NetAddrIniter>* addr) {
+	NLaddress * operator()(SmartPointer<NLaddress, NetAddrIniter>* addr) {
 		NLaddress* addrPtr = new NLaddress;
 		memset(addrPtr, 0, sizeof(NLaddress));
-		*addr = addrPtr;
+		return addrPtr;
 	}
 };
 
 class NetSocketIniter {
 public:
-	void operator()(SmartPointer<NLsocket, NetSocketIniter>* sock) {
+	NLsocket * operator()(SmartPointer<NLsocket, NetSocketIniter>* sock) {
 		NLsocket* sockPtr = new NLsocket;
 		memset(sockPtr, 0, sizeof(NLsocket));
-		*sock = sockPtr;
+		return sockPtr;
 	}
 };
 

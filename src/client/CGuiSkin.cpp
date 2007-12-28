@@ -25,9 +25,6 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
-CScriptableVars * CScriptableVars::m_instance = NULL;
-CGuiSkin * CGuiSkin::m_instance = NULL;
-
 std::string CScriptableVars::StripClassName( const std::string & c )
 {
 	std::string ret(c);
@@ -450,6 +447,23 @@ void CGuiSkin::ProcessUpdateCallbacks()
 			return;	// Will update other callbacks next frame
 		};
 	};
+};
+
+CScriptableVars * CScriptableVars::m_instance = NULL;
+CGuiSkin * CGuiSkin::m_instance = NULL;
+
+CScriptableVars & CScriptableVars::Init()
+{
+	if( m_instance == NULL )
+		m_instance = new CScriptableVars;
+	return *m_instance;
+};
+
+CGuiSkin & CGuiSkin::Init()
+{
+	if( m_instance == NULL )
+		m_instance = new CGuiSkin;
+	return *m_instance;
 };
 
 class CGuiSkin_Destroyer

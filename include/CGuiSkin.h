@@ -90,12 +90,7 @@ public:
 		ScriptVar_t( Color_t v ): type(SVT_COLOR), b(false), i(0), f(0.0), s(""), c(v) { };
 	};
 
-	static CScriptableVars & Init()
-	{
-		if( m_instance == NULL )
-			m_instance = new CScriptableVars;
-		return *m_instance;
-	};
+	static CScriptableVars & Init();
 
 	static std::map< std::string, ScriptVarPtr_t > & Vars()
 	{
@@ -170,13 +165,7 @@ class CGuiSkin	// Singletone
 {
 public:
 
-	static CGuiSkin & Init()
-	{
-		if( m_instance == NULL )
-			// TODO: this instance isn't freed anywhere
-			m_instance = new CGuiSkin;
-		return *m_instance;
-	};
+	static CGuiSkin & Init();
 
 	static CGuiSkinnedLayout * GetLayout( const std::string & filename );	// Get GUI layout from cache or create it from disk
 	static void ClearLayouts();
