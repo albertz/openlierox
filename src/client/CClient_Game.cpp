@@ -760,8 +760,11 @@ void CClient::PlayerShoot(CWorm *w)
 	if(Slot->LastFire>0)
 		return;
 
+	if(!Slot->Weapon) {
+		printf("ERROR: Slot->Weapon not set\n");		return;
+	}
+	
 	Slot->LastFire = Slot->Weapon->ROF;
-
 
 	// Special weapons get processed differently
 	if(Slot->Weapon->Type == WPN_SPECIAL) {
