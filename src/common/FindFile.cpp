@@ -282,8 +282,8 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 	std::string sname = abs_searchname;
 	ReplaceFileVariables(sname);
 	
-	static std::string nextname; nextname = "";
-	static std::string nextexactname; nextexactname = "";
+	std::string nextname = "";
+	std::string nextexactname = "";
 	size_t pos;
 
 	bool first_iter = true; // this is used in the bottom loop
@@ -404,7 +404,8 @@ std::string GetFirstSearchPath() {
 		std::string* result;
 		std::string* searchpath;
 		CheckSearchpathForFile(const std::string& f, std::string* r, std::string* s) : filename(f), result(r), searchpath(s) {}
-		inline bool operator() (const std::string& spath) {
+		
+		bool operator() (const std::string& spath) {
 			std::string tmp = spath + filename;
 			if(GetExactFileName(tmp, *result)) {
 				// we got here, if the file exists
@@ -418,23 +419,18 @@ std::string GetFirstSearchPath() {
 	};
 
 std::string GetFullFileName(const std::string& path, std::string* searchpath) {
-	static std::string fname;
-	static std::string tmp;
-
 	if(searchpath) *searchpath = "";
+	if(path == "") return GetFirstSearchPath();
 
-	if(path == "")
-		return GetFirstSearchPath();
-
-	fname = "";
+	std::string fname;
 	// this also do lastly a check for an absolute filename
 	ForEachSearchpath(CheckSearchpathForFile(path, &fname, searchpath));
 	return fname;
 }
 
 std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) {
-	static std::string tmp;
-	static std::string fname;
+	std::string tmp;
+	std::string fname;
 
 	// get the dir, where we should write into
 	if(tSearchPaths.size() == 0 && basesearchpaths.size() == 0) {

@@ -547,7 +547,7 @@ void Menu_Net_NETUpdateList(void)
     int SvrCount = 0;
     int CurServer = 0;
     bool SentRequest = false;
-    static std::string szLine;
+    std::string szLine;
     FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
     if( !fp )
         return;
@@ -669,7 +669,7 @@ void Menu_Net_NETUpdateList(void)
 	}
 
 	cListUpdate.Shutdown();
-
+	fclose(fp);
 
 	Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 

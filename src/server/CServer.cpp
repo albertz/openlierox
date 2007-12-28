@@ -146,6 +146,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 				STUNPort = atoi( STUNServer.substr( STUNServer.find(":")+1 ).c_str() );
 				STUNServer = STUNServer.substr( 0, STUNServer.find(":") );
 			};
+			// TODO: use async here
 			if( !GetNetAddrFromName( STUNServer, &addr ) )	
 			{
 				throw std::string("Cannot resolve hostname ") + tLXOptions->sSTUNServer;

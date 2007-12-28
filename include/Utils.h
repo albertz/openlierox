@@ -145,4 +145,10 @@ public:
 	
 };
 
+template <typename _ParamType>
+class NopFunctor {
+public:
+	void operator()(_ParamType param) {}	
+};
+
 #endif

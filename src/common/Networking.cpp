@@ -13,13 +13,15 @@
 // Created 18/12/02
 // Jason Boettcher
 
+#include <SDL_syswm.h>
+#include <SDL_thread.h>
+
 #include "LieroX.h"
 #include "Error.h"
 #include "Networking.h"
 #include "Utils.h"
 #include "StringUtils.h"
-#include <SDL_syswm.h>
-#include <SDL_thread.h>
+#include "SmartPointer.h"
 
 
 #ifdef _MSC_VER
@@ -50,73 +52,41 @@ inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef readFloat
 #undef readString
 
-
-class NetworkAddrIntern {
+class NetAddrIniter {
 public:
-	NLaddress addr;
-	
-	NetworkAddrIntern() {
-		memset(&addr, 0, sizeof(addr));
+	void operator()(SmartPointer<NLaddress, NetAddrIniter>* addr) {
+		NLaddress* addrPtr = new NLaddress;
+		memset(addrPtr, 0, sizeof(NLaddress));
+		*addr = addrPtr;
 	}
 };
 
-class NetworkSocketIntern {
-private:	
-	NLsocket* sock;
-	int* refCount;
-	
-	void init() {
-		if(!sock) {
-			sock = new NLsocket;
-			memset(sock, 0, sizeof(NLsocket));
-			refCount = new int;
-			*refCount = 1;
-		}
-	}
-
-	void uninitSocket() {
-		//nlClose(*sock);
-		delete sock; delete refCount;
-		sock = NULL; refCount = NULL;		
-	}
-
-	void reset() {
-		if(sock) {
-			(*refCount)--;
-			if(*refCount == 0) uninitSocket();
-		}
-	}
-	
+class NetSocketIniter {
 public:
-	NetworkSocketIntern() : sock(NULL) { init(); }
-	~NetworkSocketIntern() { reset(); }
-	
-	NetworkSocketIntern(const NetworkSocketIntern& nsock) { operator=(nsock); }
-	NetworkSocketIntern& operator=(const NetworkSocketIntern& nsock) {
-		reset();
-		sock = nsock.sock; refCount = nsock.refCount;
-		(*refCount)++;
-		return *this;
+	void operator()(SmartPointer<NLsocket, NetSocketIniter>* sock) {
+		NLsocket* sockPtr = new NLsocket;
+		memset(sockPtr, 0, sizeof(NLsocket));
+		*sock = sockPtr;
 	}
-	
-	NLsocket* getSocket() { init(); return sock; }
 };
 
+typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrPtr;
+typedef SmartPointer<NLsocket, NetSocketIniter> NetSocketPtr;
 
-DECLARE_INTERNDATA_CLASS(NetworkAddr, NetworkAddrIntern);
-DECLARE_INTERNDATA_CLASS(NetworkSocket, NetworkSocketIntern);
+DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrPtr );
+DECLARE_INTERNDATA_CLASS( NetworkSocket, NetSocketPtr );
 
 
 static NLsocket* getNLsocket(NetworkSocket* socket) {
-	return NetworkSocketData(socket)->getSocket();
+	return NetworkSocketData(socket)->get();
 }
 
 static NLaddress* getNLaddr(NetworkAddr* addr) {
-	return &NetworkAddrData(addr)->addr;
+	return NetworkAddrData(addr)->get();
 }
 
 static const NLaddress* getNLaddr(const NetworkAddr* addr) {
-	return &NetworkAddrData(addr)->addr;
+	return NetworkAddrData(addr)->get();
 }
 
 

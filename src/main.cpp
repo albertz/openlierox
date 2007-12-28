@@ -66,7 +66,8 @@ CVec		vGravity = CVec(0,4);
 //
 // Loading screen info and functions
 //
-class LoadingScreen  { public:
+class LoadingScreen  {
+public:
 	LoadingScreen() {
 		iBackgroundX = iBackgroundY = 0;
 		bmpBackground = NULL;
@@ -89,7 +90,7 @@ void DrawLoading(byte percentage, const std::string &text);
 void ShutdownLoading();
 
 
-
+// TODO: move this out here
 void print_binary_string(const std::string& txt) {
 	for(std::string::const_iterator it = txt.begin(); it != txt.end(); it++) {
 		std::cout << std::hex << (ushort)(uchar)(*it) << " ";

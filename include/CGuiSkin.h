@@ -173,6 +173,7 @@ public:
 	static CGuiSkin & Init()
 	{
 		if( m_instance == NULL )
+			// TODO: this instance isn't freed anywhere
 			m_instance = new CGuiSkin;
 		return *m_instance;
 	};
