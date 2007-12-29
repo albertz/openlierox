@@ -36,11 +36,9 @@ private:
 		//printf("SmartPointer::init    (%10p %10p %10p %10p %3i) newObj %10p\n", this, obj, refCount, mutex, refCount?*refCount:-99, newObj);
 		if(!mutex) {
 			mutex = SDL_CreateMutex();
-			lock();
 			obj = newObj;
 			refCount = new int;
 			*refCount = 1;
-			unlock();
 		}
 	}
 	
