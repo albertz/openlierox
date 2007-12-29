@@ -20,6 +20,7 @@
 #endif
 
 #include "LieroX.h"
+#include "Options.h"
 #include "Error.h"
 #include "Networking.h"
 #include "Utils.h"
@@ -124,13 +125,25 @@ static int SdlNetEventThreadMain( void * param )
 	ev.user.code = 0;
 	ev.user.data1 = NULL;
 	ev.user.data2 = NULL;
+
+	bool previous_was_event = false;
+	float max_frame_time = 1.0f/(float)tLXOptions->nMaxFPS;
 	while( ! SdlNetEventThreadExit )
 	{
 		if( nlPollGroup( SdlNetEventGroup, NL_READ_STATUS, &sock_out, 1, 1000 ) > 0 )	// Wait 1 second
 		{
 			//printf("SdlNetEventThreadMain(): SDL_PushEvent()\n");
 			SDL_PushEvent( &ev );
-			SDL_Delay(10);
+			if (previous_was_event)  {
+				if (tLX->fRealDeltaTime > max_frame_time)
+					SDL_Delay((int)(tLX->fRealDeltaTime * 1100));
+				else
+					SDL_Delay((int)(max_frame_time * 1000));
+			}
+
+			previous_was_event = true;
+		} else {
+			previous_was_event = false;
 		}
 	};
 	return 0;

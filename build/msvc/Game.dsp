@@ -313,6 +313,10 @@ SOURCE=..\..\include\sex.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\SmartPointer.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\StringUtils.cpp
 # End Source File
 # Begin Source File
@@ -572,10 +576,6 @@ SOURCE=..\..\include\ProfileSystem.h
 # Begin Source File
 
 SOURCE=..\..\include\Protocol.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\SmartPointer.h
 # End Source File
 # End Group
 # Begin Group "Frontend"

@@ -72,8 +72,10 @@ void CChannel::Transmit( CBytestream *bs )
 	}
 
 
-	// If the reliable buffer is empty, copy the reliable message into it
-	if(Reliable.GetLength() == 0 && Message.GetLength() > 0) {
+	// We send reliable message in these cases:
+	// 1. The reliable buffer is empty, we copy the reliable message into it and send it
+	// 2. We need to refresh ping
+	if(Reliable.GetLength() == 0 && (Message.GetLength() > 0 || (tLX->fCurTime - fLastPingSent >= 1.0f && iPongSequence == -1))) {
 		Reliable = Message;
 		Message.Clear();
 		
