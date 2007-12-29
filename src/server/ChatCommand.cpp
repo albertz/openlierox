@@ -26,6 +26,9 @@ ChatCommand tKnownCommands[] = {
 	/* command */	/* alias */	 /* MIN*//*MAX*/	/* repeat*/ /* processing function */
 	{"authorise",	"authorize",	2, 2,			(size_t)-1,	&ProcessAuthorise},
 	{"kick",		"kick",			2, (size_t)-1,	(size_t)-1,	&ProcessKick},
+	{"ban",			"ban",			2, (size_t)-1,	(size_t)-1,	&ProcessBan},
+	{"mute",		"mute",			2, 2,			(size_t)-1,	&ProcessMute},
+	{"unmute",		"unmute",		2, 2,			(size_t)-1,	&ProcessUnmute},
 	{"private",		"pm",			3, (size_t)-1,	2,			&ProcessPrivate},
 	{"teamchat",	"teampm",		1, (size_t)-1,	0,			&ProcessTeamChat},
 	{"setmyname",	"setmyname",	1, (size_t)-1,	(size_t)-1,	&ProcessSetMyName},
@@ -160,7 +163,16 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 	return "No corresponding client found";
 }
 
-std::string ProcessKick(const std::vector<std::string>& params, int sender_id)
+
+////////////////////
+// Kick or ban the client
+// The two functions were so similar that I merged them in one
+enum {
+	ACT_KICK,
+	ACT_BAN
+};
+
+std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_id, int action)
 {
 	int id;
 
@@ -170,7 +182,7 @@ std::string ProcessKick(const std::vector<std::string>& params, int sender_id)
 		return ch;
 
 	if (id == 0)
-		return "Cannot kick host";
+		return action == ACT_KICK ? "Cannot kick host" : "Cannot ban host";
 
 	// Get the reason if specified
 	std::string reason;
@@ -183,17 +195,71 @@ std::string ProcessKick(const std::vector<std::string>& params, int sender_id)
 		reason.erase(reason.size() - 1);  // Remove the last space
 	}
 
-	// Kick
+	// Kick/ban
 	CClient *remote_cl = cServer->getClient(sender_id);
 	if (remote_cl)  {
-		if (remote_cl->getRights()->Kick)
-			cServer->kickWorm(id, reason);
+		bool rights = action == ACT_KICK ? remote_cl->getRights()->Kick : remote_cl->getRights()->Ban;
+		if (rights)
+			if (action == ACT_KICK)
+				cServer->kickWorm(id, reason);
+			else
+				cServer->banWorm(id, reason);
 		else
-			return "You don't have privilges to kick the player";
+			if (action == ACT_KICK)
+				return "You don't have privilges to kick the player";
+			else
+				return "You don't have privilges to ban the player";
 	}
 
 	return "";
 }
+
+std::string ProcessKick(const std::vector<std::string>& params, int sender_id)
+{
+	return ProcessKickOrBan(params, sender_id, ACT_KICK);
+}
+
+std::string ProcessBan(const std::vector<std::string>& params, int sender_id)
+{
+	return ProcessKickOrBan(params, sender_id, ACT_BAN);
+}
+
+/////////////////////
+// Mute or unmute the worm (another merge of two similar functions)
+std::string ProcessMuteUnmute(const std::vector<std::string>& params, int sender_id, bool mute)
+{
+	int id;
+
+	// Param check
+	std::string ch = CheckIDParams(params, &ProcessKick, &id);
+	if (ch.size() != 0)
+		return ch;
+
+	// (un)mute
+	CClient *remote_cl = cServer->getClient(sender_id);
+	if (remote_cl)  {
+		if (remote_cl->getRights()->Mute)
+			if (mute)
+				cServer->muteWorm(id);
+			else
+				cServer->unmuteWorm(id);
+		else
+			return "You don't have privilges to mute the player";
+	}
+
+	return "";
+}
+
+std::string ProcessMute(const std::vector<std::string>& params, int sender_id)
+{
+	return ProcessMuteUnmute(params, sender_id, true);
+}
+
+std::string ProcessUnmute(const std::vector<std::string>& params, int sender_id)
+{
+	return ProcessMuteUnmute(params, sender_id, false);
+}
+
 
 std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id)
 {
@@ -353,7 +419,7 @@ std::string ProcessSetName(const std::vector<std::string>& params, int sender_id
 	}
 
 	// Set the name
-	std::string oldname = sender->getWorm(0)->getName();
+	std::string oldname = (cServer->getWorms() + p_id)->getName();
 	tw->setName(name);
 
 	// Send the update

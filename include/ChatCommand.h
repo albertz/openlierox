@@ -41,6 +41,9 @@ class ChatCommand { public:
 // These functions return error string (or blank string if no error)
 std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_id);
 std::string ProcessKick(const std::vector<std::string>& params, int sender_id);
+std::string ProcessBan(const std::vector<std::string>& params, int sender_id);
+std::string ProcessMute(const std::vector<std::string>& params, int sender_id);
+std::string ProcessUnmute(const std::vector<std::string>& params, int sender_id);
 std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id);
 std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_id);
 std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_id);
