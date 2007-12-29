@@ -1701,15 +1701,10 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
 
         // Send chat message to the server
 		if(sChat_Text != "") {
-			std::string buf;
 			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
-				buf = cLocalWorms[0]->getName() + ": /teamchat \"" + sChat_Text + "\"";
-			else if(!strincludes(sChat_Text, "/me"))
-				buf = cLocalWorms[0]->getName() + ": " + sChat_Text;
+				SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName());
 			else
-				buf =  replacemax(sChat_Text,"/me",cLocalWorms[0]->getName(),buf,2);
-			buf = OldLxCompatibleString(buf);
-			SendText(buf);
+				SendText(sChat_Text, cLocalWorms[0]->getName());
 		}
 		sChat_Text = "";
         return;

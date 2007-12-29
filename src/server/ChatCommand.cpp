@@ -23,17 +23,18 @@
 //////////////////
 // Known commands
 ChatCommand tKnownCommands[] = {
-	{"authorise",	"authorize",	2, 2,			&ProcessAuthorise},
-	{"kick",		"kick",			2, 2,			&ProcessKick},
-	{"private",		"pm",			3, (size_t)-1,	&ProcessPrivate},
-	{"teamchat",	"teamchat",		1, (size_t)-1,	&ProcessTeamChat},
-	{"setmyname",	"setmyname",	1, (size_t)-1,	&ProcessSetMyName},
-	{"setname",		"setname",		3, (size_t)-1,	&ProcessSetName},
-	{"setmyskin",	"setmyskin",	1, (size_t)-1,	&ProcessSetMySkin},
-	{"setskin",		"setskin",		3, (size_t)-1,	&ProcessSetSkin},
-	{"setmycolour",	"setmycolor",	3, 3,			&ProcessSetMyColour},
-	{"setcolour",	"setcolor",		5, 5,			&ProcessSetColour},
-	{"suicide",		"suicide",		0, 1,			&ProcessSuicide},
+	/* command */	/* alias */	 /* MIN*//*MAX*/	/* repeat*/ /* processing function */
+	{"authorise",	"authorize",	2, 2,			(size_t)-1,	&ProcessAuthorise},
+	{"kick",		"kick",			2, 2,			(size_t)-1,	&ProcessKick},
+	{"private",		"pm",			3, (size_t)-1,	2,			&ProcessPrivate},
+	{"teamchat",	"teampm",		1, (size_t)-1,	0,			&ProcessTeamChat},
+	{"setmyname",	"setmyname",	1, (size_t)-1,	(size_t)-1,	&ProcessSetMyName},
+	{"setname",		"setname",		3, (size_t)-1,	(size_t)-1,	&ProcessSetName},
+	{"setmyskin",	"setmyskin",	1, (size_t)-1,	(size_t)-1,	&ProcessSetMySkin},
+	{"setskin",		"setskin",		3, (size_t)-1,	(size_t)-1,	&ProcessSetSkin},
+	{"setmycolour",	"setmycolor",	3, 3,			(size_t)-1,	&ProcessSetMyColour},
+	{"setcolour",	"setcolor",		5, 5,			(size_t)-1,	&ProcessSetColour},
+	{"suicide",		"suicide",		0, 1,			(size_t)-1,	&ProcessSuicide},
 };
 
 /////////////////////

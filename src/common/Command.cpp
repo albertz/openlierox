@@ -672,12 +672,12 @@ void Cmd_SetName() {
 
 	// Check if the host is on beta 3
 	if(!cClient->getHostBeta3()) {
-		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3 servers");
+		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
 		return;
 	}
 
 	std::string name = Cmd_GetArg(1);
-	cClient->SendText(cClient->getWorm(0)->getName()+": /setname \""+name+"\"");
+	cClient->SendText("/setname \"" + name + "\"", cClient->getWorm(0)->getName());
 }
 
 
@@ -692,12 +692,12 @@ void Cmd_SetSkin() {
 
 	// Check if the host is on beta 3
 	if(!cClient->getHostBeta3()) {
-		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3 servers");
+		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
 		return;
 	}
 
 	std::string skin = Cmd_GetArg(1);
-	cClient->SendText(cClient->getWorm(0)->getName()+": /setskin \""+skin+"\"");
+	cClient->SendText("/setskin \"" + skin + "\"", cClient->getWorm(0)->getName());
 }
 
 
@@ -712,11 +712,11 @@ void Cmd_SetColour() {
 
 	// Check if the host is on beta 3
 	if(!cClient->getHostBeta3()) {
-		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3 servers");
+		Con_Printf(CNC_ERROR, "This command is only available on OpenLX beta 3+ servers");
 		return;
 	}
 
-	cClient->SendText(cClient->getWorm(0)->getName()+": /setcolour "+Cmd_GetArg(1)+" "+Cmd_GetArg(2)+" "+Cmd_GetArg(3));
+	cClient->SendText("/setcolour " + Cmd_GetArg(1) + " " + Cmd_GetArg(2) + " " + Cmd_GetArg(3), cClient->getWorm(0)->getName());
 }
 
 /////////////////

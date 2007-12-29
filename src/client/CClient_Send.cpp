@@ -22,6 +22,7 @@
 #ifdef DEBUG
 #include "MathLib.h"
 #endif
+#include "ChatCommand.h"
 
 
 ///////////////////
@@ -89,40 +90,120 @@ void CClient::SendDeath(int victim, int killer)
 
 ///////////////////
 // Send a string of text
-void CClient::SendText(const std::string& sText)
+void CClient::SendText(const std::string& sText, std::string sWormName)
 {
-	CBytestream *bs = cNetChan.getMessageBS();
+	bool chat_command = sText[0] == '/' && sText[1] != '/';
+	std::string message;
+	std::string command;  // this should be repeated before every chunk
+	bool cannot_split = false;
 
-	// HINT: this way is not good; it assumes, that the message is always of the format 'NICK: MSG'
-	// However, there's no better possibility to detect the command :(
-	// TODO: remove this whole part if it is not possible to do it in another way
-	// Do not allow client to send / commands is the host in not on beta 3
-	bool TeamChat = false;
-	if (cLocalWorms[0]->getName().size() + 2 < sText.size())  {
-		std::string command_buf = sText;
-
-		command_buf = Utf8String(sText.substr(cLocalWorms[0]->getName().size() + 2)); // get the message after "NICK: "
-		if(command_buf.size() == 0)
-			return;
-		
-		if(command_buf[0] == '/' && !bHostOLXb3) {
+	if (chat_command)  {
+		// Don't allow sending commands to servers that don't support it
+		if (!bHostOLXb3)  {
 			cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3 can", tLX->clNotice, tLX->fCurTime);
 			return;
 		}
-		if( !stringcasecmp( command_buf.substr( 0, 9 ), "/teamchat" ) )
-			TeamChat = true;
+
+		// Get the command
+		const std::vector<std::string>& cmd = ParseCommandMessage(sText, false);
+		if (cmd.size() == 0)  {  // Weird
+			SendTextInternal(OldLxCompatibleString(sText), sWormName);
+			return;
+		}
+
+		ChatCommand *chat_cmd = GetCommand(cmd[0]);
+		if (chat_cmd == NULL)  {
+			SendTextInternal(OldLxCompatibleString(sText), sWormName);
+			return;
+		}
+
+		// The message cannot be split
+		cannot_split = chat_cmd->iParamsToRepeat == (size_t)-1;
+
+		// Join all params that should be repeated before each part to the command
+		std::vector<std::string>::const_iterator it = cmd.begin();
+		if (cannot_split)  {  // Cannot split the message, nothing will be repeated
+			command = "/" + *it + ' ';  // Just add the command, and skip to parameters
+			it++;
+		} else {
+			command = "/";
+			for (int i=0; it != cmd.end() && i < chat_cmd->iParamsToRepeat + 1; it++, i++)  { // HINT: +1 - command itself
+				command += *it;
+				command += ' ';
+			}
+			// HINT: we keep the last space here, because we would have to add it later anyway
+		}
+
+		// Check for param count
+		if (it == cmd.end())  {
+			SendTextInternal(OldLxCompatibleString(sText), sWormName);
+			return;
+		}
+
+		// Join all params that should not be repeated into a message
+		for (; it != cmd.end(); it++)  {
+			message += *it;
+			message += ' ';
+		}
+		message.erase(message.size() - 1); // erase the last space
+
+	} else { // Not a command
+		// Allow /me for non-command messages
+		if (replace(sText, "/me", sWormName, message))
+			sWormName = "";  // No worm name if /me is present
+	}
+
+	// OLD LieroX compatibility (because of unicode)
+	message = OldLxCompatibleString(message);
+
+	// If we cannot split the message, truncate it and send
+	if (cannot_split)  {
+		if (message.size() > 63 - sWormName.size() - command.size() - 2)
+			message.erase(64 - sWormName.size() - command.size() - 2, std::string::npos);  // truncate
+		SendTextInternal(command + message, sWormName);
+		return;
+	}
+
+	// If the part we should repeat before each message is longer than the limit, just quit
+	// HINT: should not happen
+	if (command.size() + sWormName.size() >= 64)  {
+		cChatbox.AddText("Could not send the message.", tLX->clNotice, tLX->fCurTime);
+		return;
 	}
 
 	// If the text is too long, split it in smaller pieces and then send (backward comaptibility)
-	const std::vector<std::string>& split = splitstring(sText, 63, iNetStatus == NET_CONNECTED ? 600 : 300, tLX->cFont);
+	// HINT: in command messages the name has to be repeated for all chunks so we have to count with that here
+	int name_w = tLX->cFont.GetWidth(sWormName + ": ");
+	int repeat_length = command.size() ? (command.size() + sWormName.size()) : 0;  // length of repeated string
+	const std::vector<std::string>& split = splitstring(message, 63 - repeat_length,
+		iNetStatus == NET_CONNECTED ? 600 - (command.size() ? name_w : 0) : 
+		300 - (command.size() ? name_w : 0), tLX->cFont);
 
-	for (std::vector<std::string>::const_iterator it=split.begin(); it != split.end(); it++)  {
-		bs->writeByte(C2S_CHATTEXT);
-		if( TeamChat && it != split.begin() )	// First chunk of text already contain "/teamchat" string (we'll lose closing quote but server parses that)
-			bs->writeString( cLocalWorms[0]->getName() + ": /teamchat \"" + *it + "\"" );	// teamchat is supported only on new servers, so string size doesn't matter
-		else
-			bs->writeString(*it);
+	// Check
+	if (split.size() == 0)  {  // More than weird...
+		SendTextInternal(command + message, sWormName);
+		return;
 	}
+
+	// Send the first chunk
+	SendTextInternal(command + split[0], sWormName);
+
+	// Send the text
+	for (std::vector<std::string>::const_iterator it=split.begin() + 1; it != split.end(); it++)
+		SendTextInternal(command + (*it), command.size() ? sWormName : ""); // in command messages
+																			// the name has to be repeated for all chunks
+}
+
+/////////////////////
+// Internal function for text sending, does not do any checks or parsing
+void CClient::SendTextInternal(const std::string& sText, const std::string& sWormName)
+{
+	CBytestream *bs = cNetChan.getMessageBS();
+	bs->writeByte(C2S_CHATTEXT);
+	if (sWormName.size() == 0)
+		bs->writeString(sText);
+	else
+		bs->writeString(sWormName + ": " + sText);
 }
 
 #ifdef DEBUG

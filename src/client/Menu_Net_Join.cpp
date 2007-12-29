@@ -669,27 +669,18 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					// Send the msg to the server
 
 					// Get the text
-					static std::string buf;
-					cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 0);
+					std::string text;
+					cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &text, 0);
 
                     // Don't send empty messages
-                    if(buf == "")
+                    if(text.size() == 0)
                         break;
 
 					// Clear the text box
 					cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, "",0);
 
-					// Get name
-					std::string text;
-					CWorm *rw = cClient->getWorm(0); // The first worm is always speaking
-					if(!strincludes(buf,"/me"))
-						text = rw->getName() + ": " + buf;
-					else
-						text = replacemax(buf,"/me",rw->getName(),text,2);
-
-					text = OldLxCompatibleString(text);
-
-					cClient->SendText(text);
+					// Send
+					cClient->SendText(text, cClient->getWorm(0)->getName());
 				}
 				break;
 		}

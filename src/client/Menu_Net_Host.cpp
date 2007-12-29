@@ -873,28 +873,18 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Send the msg to the server
 
 					// Get the text
-					static std::string buf;
-					cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &buf, 0);
+					std::string text;
+					cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &text, 0);
 
                     // Don't send empty messages
-                    if(buf.length() == 0)
+                    if(text.size() == 0)
                         break;
 
 					// Clear the text box
 					cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, "", 0);
 
-					// Get name
-					std::string text;
-					CWorm *rw = cClient->getRemoteWorms() + iSpeaking;
-					if(!strincludes(buf,"/me"))
-						text = rw->getName() + ": " + buf;
-					else
-						text = replacemax(buf,"/me",rw->getName(),text,2);
-
-					text = OldLxCompatibleString(text);
-
-					// Allows host to use /setname etc in lobby
-					cClient->SendText(text);
+					// Send
+					cClient->SendText(text, cClient->getWorm(0)->getName());
 				}
 				break;
 
@@ -1144,14 +1134,14 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		if( tLX->fCurTime - fStartDedicatedSecondsPassed > 5 )
 		{
 			cClient->SendText( OldLxCompatibleString( "Game will start when " + 
-					itoa(iStartDedicatedMinPlayers) + " players connect" ) );
+					itoa(iStartDedicatedMinPlayers) + " players connect" ), "");
 			fStartDedicatedSecondsPassed = tLX->fCurTime;
 			secondsAnnounced = -1;
 		};
 	}
 	else if( bStartDedicated && secondsTillGameStart % 5 == 0 && secondsTillGameStart != secondsAnnounced )
 	{
-		cClient->SendText( OldLxCompatibleString( "Game will start in " + itoa( secondsTillGameStart ) + " seconds" ) );
+		cClient->SendText( OldLxCompatibleString( "Game will start in " + itoa( secondsTillGameStart ) + " seconds" ), "" );
 		secondsAnnounced = secondsTillGameStart;
 	};
 

@@ -31,6 +31,8 @@ class ChatCommand { public:
 
 	size_t		iMinParamCount;
 	size_t		iMaxParamCount;  // -1 for unlimited
+	size_t		iParamsToRepeat; // Number of parameters that should be put in front of every part of a split message
+								 // -1 if the message cannot be split
 	typedef		std::string	( * tProcFunc_t ) (const std::vector<std::string>& params, int sender_id);
 	tProcFunc_t	tProcFunc;
 };

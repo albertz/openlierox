@@ -441,6 +441,9 @@ private:
 	float		fLastFileRequest;
 	float		fLastFileRequestPacketReceived;
 
+private:
+	void CClient::SendTextInternal(const std::string& sText, const std::string& sWormName);
+
 public:
 	// Methods
 
@@ -532,7 +535,7 @@ public:
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	void		SendDeath(int victim, int killer);
-	void		SendText(const std::string& sText);
+	void		SendText(const std::string& sText, std::string sWormName);
 	void		Disconnect(void);
 	int			OwnsWorm(CWorm *w);
 

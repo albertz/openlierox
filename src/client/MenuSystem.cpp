@@ -335,6 +335,11 @@ void Menu_Frame() {
 	cMediaPlayer.Draw(tMenu->bmpScreen);
 #endif
 
+	// DEBUG: show FPS
+#ifdef DEBUG
+	Menu_redrawBufferRect(0, 0, 100, 20);
+	tLX->cFont.Draw(tMenu->bmpScreen, 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
+#endif
 	FlipScreen(tMenu->bmpScreen);
 }
 
@@ -359,9 +364,9 @@ void Menu_Loop(void)
 		if(tLX->fDeltaTime < fMaxFrameTime) {
 			SDL_Delay((int)((fMaxFrameTime - tLX->fDeltaTime)*1000));
 				continue;
-		}
+		}*/
 		oldtime = tLX->fCurTime;
-*/		
+		
 		Menu_Frame();
 		
 		if(last_frame_was_because_of_an_event) {
