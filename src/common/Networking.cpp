@@ -64,24 +64,14 @@ public:
 	}
 };
 
-class NetSocketIniter {
-public:
-	void operator()(SmartPointer<NLsocket, NetSocketIniter>* sock) {
-		NLsocket* sockPtr = new NLsocket;
-		memset(sockPtr, 0, sizeof(NLsocket));
-		*sock = sockPtr;
-	}
-};
-
-typedef SmartPointer<NLsocket, NetSocketIniter> NetSocketPtr;
 typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrPtr;
-
-DECLARE_INTERNDATA_CLASS( NetworkSocket, NetSocketPtr );
 DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrPtr );
+
+DECLARE_INTERNDATA_CLASS( NetworkSocket, NLsocket );
 
 
 static NLsocket* getNLsocket(NetworkSocket* socket) {
-	return NetworkSocketData(socket)->get();
+	return NetworkSocketData(socket);
 }
 
 static NLaddress* getNLaddr(NetworkAddr& addr) {
@@ -99,7 +89,7 @@ void test_NetworkSmartPointer() {
 	for(int i = 0; i < 100; i++)
 	{
 		printf("creating SP\n");
-		NetSocketPtr sp;
+		NetAddrPtr sp;
 		printf("destroying SP\n");
 	}
 
@@ -340,7 +330,7 @@ bool IsSocketReady(NetworkSocket sock)  {
 }
 
 void InvalidateSocketState(NetworkSocket& sock) {
-	*getNLsocket(&sock) = NL_INVALID;
+	*NetworkSocketData(&sock) = NL_INVALID;
 }
 
 int GetSocketErrorNr() {
@@ -365,14 +355,14 @@ void ResetSocketError()  {
 	nlShutdown();
 }
 
-bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr addr) {
+bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
 		return false;
 	else
 		return (nlGetLocalAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
 }
 
-bool GetRemoteNetAddr(NetworkSocket sock, NetworkAddr addr) {
+bool GetRemoteNetAddr(NetworkSocket sock, NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
 		return false;
 	else
@@ -393,20 +383,20 @@ bool IsNetAddrValid(const NetworkAddr& addr) {
 		return false;
 }
 
-bool SetNetAddrValid(NetworkAddr addr, bool valid) {
+bool SetNetAddrValid(NetworkAddr& addr, bool valid) {
 	if(!getNLaddr(addr)) return false;
 	getNLaddr(addr)->valid = valid ? NL_TRUE : NL_FALSE;
 	return true;
 }
 
-void ResetNetAddr(NetworkAddr addr) {
+void ResetNetAddr(NetworkAddr& addr) {
 	if(!getNLaddr(addr)) return;
 	// TODO: is this the best way?
 	memset(getNLaddr(addr), 0, sizeof(NLaddress));
 	SetNetAddrValid(addr, false);
 }
 
-bool StringToNetAddr(const std::string& string, NetworkAddr addr) {
+bool StringToNetAddr(const std::string& string, NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL) {
 		return false;
 	} else	
@@ -432,7 +422,7 @@ unsigned short GetNetAddrPort(const NetworkAddr& addr) {
 		return nlGetPortFromAddr(getNLaddr(addr));
 }
 
-bool SetNetAddrPort(NetworkAddr addr, unsigned short port) {
+bool SetNetAddrPort(NetworkAddr& addr, unsigned short port) {
 	if(getNLaddr(addr) == NULL)
 		return false;
 	else
@@ -454,7 +444,7 @@ void AddToDnsCache(const std::string& name, const NetworkAddr& addr) {
 	dnsCache[name] = addr;
 }
 
-bool GetFromDnsCache(const std::string& name, NetworkAddr addr) {
+bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 	dnsCacheT::iterator it = dnsCache.find(name);
 	if(it != dnsCache.end()) {
 		addr = it->second;
@@ -484,7 +474,7 @@ static int GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
     return 0;
 }
 
-bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr addr)
+bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 {
 	if(getNLaddr(addr) == NULL)
 		return false;
@@ -509,7 +499,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr addr)
 }
 
 
-bool GetNetAddrFromName(const std::string& name, NetworkAddr addr) {
+bool GetNetAddrFromName(const std::string& name, NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
 		return false;
 	else {

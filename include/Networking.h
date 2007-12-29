@@ -77,21 +77,21 @@ const std::string	GetSocketErrorStr(int errnr);
 bool	IsMessageEndSocketErrorNr(int errnr);
 void	ResetSocketError();
 
-bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr addr);
-bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr addr);
+bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr& addr);
+bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr& addr);
 bool	SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr& addr);
 bool	IsNetAddrValid(const NetworkAddr& addr);
-bool	SetNetAddrValid(NetworkAddr addr, bool valid);
-void	ResetNetAddr(NetworkAddr addr);
-bool	StringToNetAddr(const std::string& string, NetworkAddr addr);
+bool	SetNetAddrValid(NetworkAddr& addr, bool valid);
+void	ResetNetAddr(NetworkAddr& addr);
+bool	StringToNetAddr(const std::string& string, NetworkAddr& addr);
 bool	NetAddrToString(const NetworkAddr& addr, std::string& string);
 unsigned short GetNetAddrPort(const NetworkAddr& addr);
-bool	SetNetAddrPort(NetworkAddr addr, unsigned short port);
+bool	SetNetAddrPort(NetworkAddr& addr, unsigned short port);
 bool	AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2);
-bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr addr);
+bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr);
 void	AddToDnsCache(const std::string& name, const NetworkAddr& addr);
-bool	GetFromDnsCache(const std::string& name, NetworkAddr addr);
-bool	GetNetAddrFromName(const std::string& name, NetworkAddr addr);
+bool	GetFromDnsCache(const std::string& name, NetworkAddr& addr);
+bool	GetNetAddrFromName(const std::string& name, NetworkAddr& addr);
 bool	isDataAvailable(NetworkSocket sock); // Slow!
 
 #endif  //  __NETWORKING_H__
