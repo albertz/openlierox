@@ -366,13 +366,15 @@ bool NetworkTexts::LoadFromDisc()
 	ReadString (f, "NetworkTexts", "HasTimedOut",     sHasTimedOut,		"<player> has timed out");
 
 	ReadString (f, "NetworkTexts", "HasBeenKicked",   sHasBeenKicked,	"<player> has been kicked out");
-	ReadString (f, "NetworkTexts", "HasBeenKickedReason", sHasBeenKickedReason, "<player> has been kicked out because <reason>");
+	ReadString (f, "NetworkTexts", "HasBeenKickedReason",	sHasBeenKickedReason,	"<player> has been kicked out because <reason>");
 	ReadString (f, "NetworkTexts", "HasBeenBanned",   sHasBeenBanned,	"<player> has been banned");
+	ReadString (f, "NetworkTexts", "HasBeenBannedReason",   sHasBeenBannedReason,	"<player> has been banned because <reason>");
 	ReadString (f, "NetworkTexts", "HasBeenMuted",    sHasBeenMuted,	"<player> has been muted");
 	ReadString (f, "NetworkTexts", "HasBeenUnmuted",  sHasBeenUnmuted,	"<player> has been unmuted");
 	ReadString (f, "NetworkTexts", "KickedYou",		  sKickedYou,		"You have been kicked");
 	ReadString (f, "NetworkTexts", "KickedYouReason", sKickedYouReason, "You have been kicked because <reason>");
 	ReadString (f, "NetworkTexts", "BannedYou",		  sBannedYou,		"You have been banned");
+	ReadString (f, "NetworkTexts", "BannedYouReason", sBannedYouReason, "You have been banned because <reason>");
 	ReadString (f, "NetworkTexts", "YouQuit",		  sYouQuit,			"You have quit");
 	ReadString (f, "NetworkTexts", "YouTimed",		  sYouTimed,		"You timed out");
 

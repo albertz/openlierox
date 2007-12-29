@@ -25,7 +25,7 @@
 ChatCommand tKnownCommands[] = {
 	/* command */	/* alias */	 /* MIN*//*MAX*/	/* repeat*/ /* processing function */
 	{"authorise",	"authorize",	2, 2,			(size_t)-1,	&ProcessAuthorise},
-	{"kick",		"kick",			2, 2,			(size_t)-1,	&ProcessKick},
+	{"kick",		"kick",			2, (size_t)-1,	(size_t)-1,	&ProcessKick},
 	{"private",		"pm",			3, (size_t)-1,	2,			&ProcessPrivate},
 	{"teamchat",	"teampm",		1, (size_t)-1,	0,			&ProcessTeamChat},
 	{"setmyname",	"setmyname",	1, (size_t)-1,	(size_t)-1,	&ProcessSetMyName},
@@ -172,11 +172,22 @@ std::string ProcessKick(const std::vector<std::string>& params, int sender_id)
 	if (id == 0)
 		return "Cannot kick host";
 
+	// Get the reason if specified
+	std::string reason;
+	if (params.size() >= 3)  {
+		std::vector<std::string>::const_iterator it = params.begin() + 2;
+		for (; it != params.end(); it++)  {
+			reason += *it;
+			reason += ' ';
+		}
+		reason.erase(reason.size() - 1);  // Remove the last space
+	}
+
 	// Kick
 	CClient *remote_cl = cServer->getClient(sender_id);
 	if (remote_cl)  {
 		if (remote_cl->getRights()->Kick)
-			cServer->kickWorm(id);
+			cServer->kickWorm(id, reason);
 		else
 			return "You don't have privilges to kick the player";
 	}

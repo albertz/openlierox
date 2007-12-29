@@ -99,12 +99,14 @@ public:
 	std::string sHasBeenKicked ;
 	std::string sHasBeenKickedReason ;
 	std::string sHasBeenBanned ;
+	std::string sHasBeenBannedReason ;
 	std::string sHasBeenMuted ;
 	std::string sHasBeenUnmuted ;
 
 	std::string sKickedYou ;
 	std::string sKickedYouReason ;
 	std::string sBannedYou ;
+	std::string sBannedYouReason ;
 	std::string sYouTimed ;
 	std::string sYouQuit ;
 
