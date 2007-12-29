@@ -146,18 +146,29 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 				STUNPort = atoi( STUNServer.substr( STUNServer.find(":")+1 ).c_str() );
 				STUNServer = STUNServer.substr( 0, STUNServer.find(":") );
 			};
-			// TODO: use async here
-			if( !GetNetAddrFromName( STUNServer, addr ) )	
+			
+			// resolving hostname
+			int count = 20;	// 2 secs
+			if( !GetNetAddrFromNameAsync( STUNServer, addr ) )
 			{
-				throw std::string("Cannot resolve hostname ") + tLXOptions->sSTUNServer;
+				throw std::string("Error resolving hostname ") + tLXOptions->sSTUNServer;
 			};
+			while( !IsNetAddrValid(addr) && --count > 0 )
+			{
+				SDL_Delay(100);
+				// TODO: handle events here to response
+			};
+			if( count <= 0 ) throw std::string("Cannot resolve hostname ") + tLXOptions->sSTUNServer;
 			SetNetAddrPort( addr, STUNPort );
 			SetRemoteNetAddr( tSocket, addr );
+			
+			// sendinq request
 			WriteSocket( tSocket, buf, len );
-			int count = 20;	// 2 secs
+			count = 20;	// 2 secs
 			while( ! isDataAvailable(tSocket) && --count > 0 )
 			{
 				SDL_Delay(100);
+				// TODO: handle events here to response
 				WriteSocket( tSocket, buf, len );
 			};
 			if( count <= 0 ) throw std::string("No responce from server");

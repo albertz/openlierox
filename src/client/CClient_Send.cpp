@@ -127,7 +127,7 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 			it++;
 		} else {
 			command = "/";
-			for (int i=0; it != cmd.end() && i < chat_cmd->iParamsToRepeat + 1; it++, i++)  { // HINT: +1 - command itself
+			for (uint i=0; it != cmd.end() && i <= chat_cmd->iParamsToRepeat; it++, i++)  { // HINT: +1 - command itself
 				command += *it;
 				command += ' ';
 			}

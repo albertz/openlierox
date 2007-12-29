@@ -442,7 +442,7 @@ private:
 	float		fLastFileRequestPacketReceived;
 
 private:
-	void CClient::SendTextInternal(const std::string& sText, const std::string& sWormName);
+	void		SendTextInternal(const std::string& sText, const std::string& sWormName);
 
 public:
 	// Methods
