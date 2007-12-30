@@ -602,8 +602,8 @@ void Menu_Net_HostLobbyCreateGui(void)
 //	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Teams Capture the Flag", GMT_TEAMCTF);
 
 	// Fill in the mod list
-	Menu_Local_FillModList( (CCombobox *)cHostLobby.getWidget(hl_ModName));
 	CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
+	Menu_Local_FillModList( cbMod );
 	cbMod->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
 	
 	// Fill in the levels list

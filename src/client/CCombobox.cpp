@@ -694,7 +694,7 @@ void CCombobox::setCurItemByName(const std::string& szString)
 int CCombobox::getIndexByName(const std::string& szString) {
 	int index = 0;
 	for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
-        if( stringcasecmp(i->sIndex, szString) == 0 ) {
+        if( stringcasecmp(i->sName, szString) == 0 ) {
             return index;
         }
     }
@@ -704,7 +704,7 @@ int CCombobox::getIndexByName(const std::string& szString) {
 int CCombobox::getIndexBySIndex(const std::string& szString) {
 	int index = 0;
 	for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
-        if( stringcasecmp(i->sName, szString) == 0 ) {
+        if( stringcasecmp(i->sIndex, szString) == 0 ) {
             return index;
         }
     }
