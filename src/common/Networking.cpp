@@ -110,8 +110,6 @@ void test_NetworkSmartPointer() {
 // --------------------------------------------------------------------------
 // ------------- Net events
 
-enum	{ SDL_USEREVENT_NET_ACTIVITY = SDL_USEREVENT + 1 };
-
 bool SdlNetEvent_Inited = false;
 bool SdlNetEventThreadExit = false;
 SDL_Thread * SdlNetEventThread = NULL;

@@ -18,6 +18,7 @@
 #define __NETWORKING_H__
 
 #include <string>
+#include <SDL.h>
 
 #include "Utils.h"
 
@@ -49,6 +50,8 @@
 #define		LX_SVTIMEOUT	35
 #define		LX_CLTIMEOUT	30
 #define     DNS_TIMEOUT		10
+
+enum	{ SDL_USEREVENT_NET_ACTIVITY = SDL_USEREVENT + 1 };
 
 // socket address; this type will be given around as pointer
 DEFINE_INTERNDATA_CLASS(NetworkAddr);

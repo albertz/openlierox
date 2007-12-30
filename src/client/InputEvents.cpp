@@ -16,6 +16,7 @@
 #include "InputEvents.h"
 #include "AuxLib.h"
 #include "Menu.h"
+#include "Timer.h"
 
 
 // Keyboard, Mouse, & Event
@@ -211,6 +212,10 @@ void HandleNextEvent() {
 		
 	case SDL_SYSWMEVENT:
 		handle_system_event(Event);
+		break;
+	
+	case SDL_USEREVENT_TIMER:
+		Timer::handleEvent(Event);	
 		break;
 		
 	default:
