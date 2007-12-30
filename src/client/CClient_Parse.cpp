@@ -132,8 +132,8 @@ void CClient::ParseConnected(CBytestream *bs)
 		cLocalWorms[i] = &cRemoteWorms[id];
 		cLocalWorms[i]->setUsed(true);
 		cLocalWorms[i]->setClient(this);
-		//cLocalWorms[i]->setGameScript(&cGameScript);
-		//cLocalWorms[i]->setLoadingTime(fLoadingTime);
+		cLocalWorms[i]->setGameScript(&cGameScript); // TODO: why was this commented out?
+		//cLocalWorms[i]->setLoadingTime(fLoadingTime);  // TODO: why is this commented out?
 		cLocalWorms[i]->setProfile(tProfiles[i]);
 		cLocalWorms[i]->setTeam(tProfiles[i]->iTeam);
 		cLocalWorms[i]->setLocal(true);
