@@ -63,6 +63,7 @@ std::string GetTime()
 struct TimerThreadData {
 	Timer* timer;
 	Timer::OnTimerProc onTimer;
+	void* userData;
 	Uint32 interval;
 	bool once;
 	bool quit_signal;
@@ -86,7 +87,9 @@ static int TimerThread(void* data) {
 	return 0;
 }
 
-Timer::Timer() : interval(1000), once(false), m_running(false) {}
+Timer::Timer() : onTimer(NULL), userData(NULL), interval(1000), once(false), m_running(false) {}
+Timer::Timer(OnTimerProc ontim, void* dat, Uint32 t, bool o) :
+	onTimer(ontim), userData(dat), interval(t), once(o) {}
 Timer::~Timer() { stop(); }
 
 bool Timer::running() { return m_running; }
@@ -97,12 +100,13 @@ bool Timer::start() {
 	TimerThreadData* data = new TimerThreadData;
 	data->timer = this;
 	data->onTimer = onTimer;
+	data->userData = userData;
 	data->interval = interval;
 	data->once = once;
 	data->quit_signal = false;
 	last_thread_data = data;
 	
-	SDL_Thread* thread = SDL_CreateThread( &TimerThread, last_thread_data );
+	SDL_Thread* thread = SDL_CreateThread( &TimerThread, data );
 	if(thread != NULL) {
 		m_running = true;
 		return true;
@@ -110,8 +114,22 @@ bool Timer::start() {
 		return false;
 }
 
+bool Timer::startHeadless() {
+	TimerThreadData* data = new TimerThreadData;
+	data->timer = NULL;
+	data->onTimer = onTimer;
+	data->userData = userData;
+	data->interval = interval;
+	data->once = once;
+	data->quit_signal = false;
+	
+	SDL_Thread* thread = SDL_CreateThread( &TimerThread, data );
+	return thread != NULL;
+}
+
 void Timer::stop() {
 	if(!m_running) return;
+	m_running = false;
 	((TimerThreadData*)last_thread_data)->quit_signal = true;
 }
 
@@ -119,5 +137,7 @@ void Timer::handleEvent(SDL_Event& ev) {
 	TimerThreadData* timer = (TimerThreadData*)ev.user.data1;
 	if(timer->quit_signal) return; // it could happen that we get at the end still one more event
 	
-	timer->onTimer(*timer->timer);
+	if(!timer->onTimer(timer->timer, timer->userData)) {
+		timer->quit_signal = true;
+	}
 }

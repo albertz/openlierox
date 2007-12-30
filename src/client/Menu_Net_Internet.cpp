@@ -489,7 +489,7 @@ void Menu_Net_NETAddServer(void)
 				case na_Add:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
-						static std::string addr;
+						std::string addr;
 						cAddSvr.SendMessage(na_Address, TXS_GETTEXT, &addr, 0);
 
 						Menu_SvrList_AddServer(addr, true);
