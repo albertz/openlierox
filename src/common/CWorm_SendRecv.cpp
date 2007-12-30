@@ -259,18 +259,17 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Gravity
 			a.y += wd->Gravity;
 		
-			// TODO: atm we are ignoring this:
-			/*
+			estimatedVel = (dist / t) + (a * t / 2);
+
 			// Ultimate in friction
 			if(iOnGround) {
-				vVelocity.x *= 0.9f;
-		
-				// Too slow, just stop
-				if(fabs(vVelocity.x) < 5 && !ws->iMove)
-					vVelocity.x = 0;
-			} */
+				// HINT: also this isn't exact (it would be like it's only one frame)
+				estimatedVel.x *= pow(0.9f, t * 100.0f);
 
-			estimatedVel = (dist / t) + (a * t / 2);
+				// Too slow, just stop
+//				if(fabs(estimatedVel.x) < 5 && !ws->iMove)
+//					estimatedVel.x = 0;
+			}
 		};
 		
 		//vVelocity = (vVelocity + estimatedVel) / 2;
