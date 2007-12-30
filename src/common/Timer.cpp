@@ -89,7 +89,7 @@ static int TimerThread(void* data) {
 
 Timer::Timer() : onTimer(NULL), userData(NULL), interval(1000), once(false), m_running(false) {}
 Timer::Timer(OnTimerProc ontim, void* dat, Uint32 t, bool o) :
-	onTimer(ontim), userData(dat), interval(t), once(o) {}
+	onTimer(ontim), userData(dat), interval(t), once(o), m_running(false) {}
 Timer::~Timer() { stop(); }
 
 bool Timer::running() { return m_running; }
