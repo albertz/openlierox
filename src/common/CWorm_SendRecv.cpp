@@ -246,7 +246,6 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			CVec a(0, 0);
 		
 			const gs_worm_t *wd = cGameScript->getWorm();
-			
 			// Air drag (Mainly to dampen the ninja rope)
 			float Drag = wd->AirFriction;
 		
@@ -270,6 +269,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 				if(fabs(vVelocity.x) < 5 && !ws->iMove)
 					vVelocity.x = 0;
 			} */
+
 			estimatedVel = (dist / t) + (a * t / 2);
 		};
 		

@@ -127,7 +127,7 @@ static int SdlNetEventThreadMain( void * param )
 	ev.user.data2 = NULL;
 
 	bool previous_was_event = false;
-	float max_frame_time = 1.0f/(float)tLXOptions->nMaxFPS;
+	float max_frame_time = (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0;
 	while( ! SdlNetEventThreadExit )
 	{
 		if( nlPollGroup( SdlNetEventGroup, NL_READ_STATUS, &sock_out, 1, 1000 ) > 0 )	// Wait 1 second
@@ -142,9 +142,8 @@ static int SdlNetEventThreadMain( void * param )
 			}
 
 			previous_was_event = true;
-		} else {
+		} else
 			previous_was_event = false;
-		}
 	};
 	return 0;
 };
@@ -202,7 +201,7 @@ static void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 
 #ifndef WIN32
 static void sigpipe_handler(int i) {
-	printf("got SIGPIPE, ignoring...\n");
+	printf("WARNING: got SIGPIPE, ignoring...\n");
 	signal(SIGPIPE, sigpipe_handler);
 }
 #endif
@@ -338,8 +337,279 @@ bool IsSocketStateValid(NetworkSocket sock) {
 	return (*getNLsocket(&sock) != NL_INVALID);
 }
 
+
+// ---------------------------------------------------
+// ----------- for state checking -------------------
+
+// copied from sock.c from HawkNL
+
+#include <memory.h>
+#include <stdio.h>
+#include <string.h>
+
+#if defined (_WIN32_WCE)
+#define EAGAIN          11
+#define errno GetLastError()
+#else
+#include <errno.h>
+#endif
+
+#if defined WIN32 || defined WIN64 || defined (_WIN32_WCE)
+
+#include "wsock.h"
+
+#elif defined Macintosh
+
+#include <Types.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <sys/time.h>
+#include <LowMem.h>
+#define closesocket close
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define SOCKET int
+#define sockerrno errno
+
+/* define INADDR_NONE if not already */
+#ifndef INADDR_NONE
+#define INADDR_NONE ((unsigned long) -1)
+#endif
+
+#else
+
+/* Unix-style systems */
+#ifdef SOLARIS
+#include <sys/filio.h> /* for FIONBIO */
+#endif
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/ioctl.h>
+#define closesocket close
+#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
+#define SOCKET int
+#define sockerrno errno
+
+/* define INADDR_NONE if not already */
+#ifndef INADDR_NONE
+#define INADDR_NONE ((unsigned long) -1)
+#endif
+
+/* SGI do not include socklen_t */
+#if defined __sgi
+typedef int socklen_t;
+#endif
+
+#endif /* WINDOWS_APP*/
+
+
+// from nlinternal.h from HawkNL
+
+/* number of buckets for average bytes/second */
+#define NL_NUM_BUCKETS          8
+
+/* number of packets stored for NL_LOOP_BACK */
+#define NL_NUM_PACKETS          8
+#define NL_MAX_ACCEPT           10
+
+
+typedef struct
+{
+    NLlong      bytes;          /* bytes sent/received */
+    NLlong      packets;        /* packets sent/received */
+    NLlong      highest;        /* highest bytes/sec sent/received */
+    NLlong      average;        /* average bytes/sec sent/received */
+    time_t      stime;          /* the last time stats were updated */
+    NLint       lastbucket;     /* the last bucket that was used */
+    NLlong      curbytes;       /* current bytes sent/received */
+    NLlong      bucket[NL_NUM_BUCKETS];/* buckets for sent/received counts */
+    NLboolean   firstround;     /* is this the first round through the buckets? */
+} nl_stats_t;
+
+typedef struct
+{
+    /* info for NL_LOOP_BACK, NL_SERIAL, and NL_PARALLEL */
+    NLbyte      *outpacket[NL_NUM_PACKETS];/* temp storage for packet data */
+    NLbyte      *inpacket[NL_NUM_PACKETS];/* temp storage for packet data */
+    NLint       outlen[NL_NUM_PACKETS];/* the length of each packet */
+    NLint       inlen[NL_NUM_PACKETS];/* the length of each packet */
+    NLint       nextoutused;    /* the next used packet */
+    NLint       nextinused;     /* the next used packet */
+    NLint       nextoutfree;    /* the next free packet */
+    NLint       nextinfree;     /* the next free packet */
+    NLsocket    accept[NL_MAX_ACCEPT];/* pending connects */
+    NLsocket    consock;        /* the socket this socket is connected to */
+} nl_extra_t;
+
+
+/* the internal socket object */
+typedef struct
+{
+    /* the current status of the socket */
+    NLenum      driver;         /* the driver used with this socket */
+    NLenum      type;           /* type of socket */
+    NLboolean   inuse;          /* is in use */
+    NLboolean   connecting;     /* a non-blocking TCP or UDP connection is in process */
+    NLboolean   conerror;       /* an error occured on a UDP connect */
+    NLboolean   connected;      /* is connected */
+    NLboolean   reliable;       /* do we use reliable */
+    NLboolean   blocking;       /* is set to blocking */
+    NLboolean   listen;         /* can receive an incoming connection */
+    NLint       realsocket;     /* the real socket number */
+    NLushort    localport;      /* local port number */
+    NLushort    remoteport;     /* remote port number */
+    NLaddress   addressin;      /* address of remote system, same as the socket sockaddr_in structure */
+    NLaddress   addressout;     /* the multicast address set by nlConnect or the remote address for unconnected UDP */
+    NLmutex     readlock;       /* socket is locked to update data */
+    NLmutex     writelock;      /* socket is locked to update data */
+
+    /* the current read/write statistics for the socket */
+    nl_stats_t  instats;        /* stats for received */
+    nl_stats_t  outstats;       /* stats for sent */
+
+    /* NL_RELIABLE_PACKETS info and storage */
+    NLbyte      *outbuf;        /* temp storage for partially sent reliable packet data */
+    NLint       outbuflen;      /* the length of outbuf */
+    NLint       sendlen;        /* how much still needs to be sent */
+    NLbyte      *inbuf;         /* temp storage for partially received reliable packet data */
+    NLint       inbuflen;       /* the length of inbuf */
+    NLint       reclen;         /* how much of the reliable packet we have received */
+    NLboolean   readable;       /* a complete packet is in inbuf */
+    NLboolean   message_end;    /* a message end error ocured but was not yet reported */
+    NLboolean   packetsync;     /* is the reliable packet stream in sync */
+    /* pointer to extra info needed for NL_LOOP_BACK, NL_SERIAL, and NL_PARALLEL */
+    nl_extra_t   *ext;
+} nl_socket_t;
+
+typedef /*@only@*/ nl_socket_t *pnl_socket_t;
+
+// -------------------------------------
+// extern defs for HawkNL intern stuff
+extern pnl_socket_t *nlSockets;
+extern "C" {
+NL_EXP void NL_APIENTRY nlSetError(NLenum err);
+}
+
+
+// modified sock_Write of sock.c from HawkNL
+// returns true if socket is connected and data could be send
+static bool nlUpdateState(NLsocket socket)
+{
+    nl_socket_t *sock = nlSockets[socket];
+    NLint       count;
+    
+    if((sock->type == NL_RELIABLE) || (sock->type == NL_RELIABLE_PACKETS)) /* TCP */
+    {
+        if(sock->connecting == NL_TRUE)
+        {
+            fd_set          fdset;
+            struct timeval  t = {0,0};
+            int             serrval = -1;
+            socklen_t       serrsize = (socklen_t)sizeof(serrval);
+
+            
+            FD_ZERO(&fdset);
+            FD_SET((SOCKET)sock->realsocket, &fdset);
+            if(select(sock->realsocket + 1, NULL, &fdset, NULL, &t) == 1)
+            {
+                /* Check the socket status */
+                (void)getsockopt( sock->realsocket, SOL_SOCKET, SO_ERROR, (char *)&serrval, &serrsize );
+                if(serrval != 0)
+                {
+                    if(serrval == ECONNREFUSED)
+                    {
+                        nlSetError(NL_CON_REFUSED);
+                    }
+                    else if(serrval == EINPROGRESS || serrval == EWOULDBLOCK)
+                    {
+                        nlSetError(NL_CON_PENDING);
+                    }
+                    return false;
+                }
+                /* the connect has completed */
+                sock->connected = NL_TRUE;
+                sock->connecting = NL_FALSE;
+            }
+            else
+            {
+                /* check for a failed connect */
+                FD_ZERO(&fdset);
+                FD_SET((SOCKET)sock->realsocket, &fdset);
+                if(select(sock->realsocket + 1, NULL, NULL, &fdset, &t) == 1)
+                {
+                    nlSetError(NL_CON_REFUSED);
+                }
+                else
+                {
+                    nlSetError(NL_CON_PENDING);
+                }
+                return false;
+            }
+        }
+        /* check for reliable packets */
+        if(sock->type == NL_RELIABLE_PACKETS)
+        {
+            return true;
+        }
+		return true;
+	}
+    else /* unconnected UDP */
+    {
+        /* check for a non-blocking connection pending */
+        if(sock->connecting == NL_TRUE)
+        {
+            nlSetError(NL_CON_PENDING);
+            return false;
+        }
+        /* check for a connection error */
+        if(sock->conerror == NL_TRUE)
+        {
+            nlSetError(NL_CON_REFUSED);
+            return false;
+        }
+        if(sock->type == NL_BROADCAST)
+        {
+            ((struct sockaddr_in *)&sock->addressin)->sin_addr.s_addr = INADDR_BROADCAST;
+        }
+        if(sock->type == NL_UDP_MULTICAST)
+        {
+			return true;
+		}
+        else if(sock->connected == NL_TRUE)
+        {
+            return true;
+        }
+        else
+        {
+			return true;
+		}
+    }
+    if(count == SOCKET_ERROR)
+    {
+        return false;
+    }
+    return false;
+}
+
+
+
+
+
+
 bool IsSocketReady(NetworkSocket sock)  {
-	return nlWrite(*getNLsocket(&sock), (void *)"", 0) >= 0;
+	return IsSocketStateValid(sock) && nlUpdateState(*getNLsocket(&sock));
 }
 
 void InvalidateSocketState(NetworkSocket& sock) {
