@@ -114,8 +114,9 @@ int Menu_Net_NETInitialize(void)
     Menu_SvrList_LoadList("cfg/svrlist.dat");
     Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 	
-	// TODO: 700 is hardcoded atm, also in MenuSystem.cpp for the timeout; change this
-	Timer(&ServerTimeoutSignal, NULL, 700, true).startHeadless();
+	// TODO: 7000 is hardcoded atm, also in MenuSystem.cpp for the timeout; change this
+	// TODO: a timer like this also need to be at other places
+	Timer(&ServerTimeoutSignal, NULL, 7000, true).startHeadless();
 	
 	return true;
 }
