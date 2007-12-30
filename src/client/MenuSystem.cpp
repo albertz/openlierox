@@ -1473,12 +1473,15 @@ void Menu_SvrList_FillList(CListview *lv)
 		//GetRemoteNetAddr(tMenu->tSocket, &s->sAddress);
 		//NetAddrToString(&s->sAddress, addr);
 
-		// Remove the port from the address (save space)
+		// show port if special
 		addr = s->szAddress;
 		size_t p = addr.rfind(':');
-		if(p != std::string::npos)
+		if(p != std::string::npos) {
+			std::string sPort = addr.substr(p + 1);
 			addr.erase(p);
-
+			if(from_string<int>(sPort) != LX_PORT)
+				addr += " :" + sPort;
+		}
 
 		// State
 		int state = 0;
@@ -1496,19 +1499,20 @@ void Menu_SvrList_FillList(CListview *lv)
 		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num], NULL);
 		lv->AddSubitem(LVS_TEXT, s->szName, NULL, NULL);
         if(s->bProcessing)
-            lv->AddSubitem(LVS_TEXT, "querying", NULL, NULL);
+            lv->AddSubitem(LVS_TEXT, "Querying...", NULL, NULL);
         else if(num == 3)
-            lv->AddSubitem(LVS_TEXT, "down", NULL, NULL);
+            lv->AddSubitem(LVS_TEXT, "Down", NULL, NULL);
         else
 		    lv->AddSubitem(LVS_TEXT, states[state], NULL, NULL);
 
-        if(num == 3)
-            continue;
-
+		bool unknownData = s->bProcessing || num == 3;
+		
 		// Players
-		lv->AddSubitem(LVS_TEXT, itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10), NULL, NULL);
+		lv->AddSubitem(LVS_TEXT,
+					   unknownData ? "?" : (itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10)),
+					   NULL, NULL);
 
-		lv->AddSubitem(LVS_TEXT, itoa(s->nPing,10), NULL, NULL);
+		lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL);
 		lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
 	}
 
