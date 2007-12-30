@@ -112,7 +112,7 @@ void test_NetworkSmartPointer() {
 
 bool SdlNetEvent_Inited = false;
 bool SdlNetEventThreadExit = false;
-SDL_Thread * SdlNetEventThread = NULL;
+SDL_Thread* SdlNetEventThreads[3] = {NULL, NULL, NULL};
 NLint SdlNetEventGroup = 0;
 
 static int SdlNetEventThreadMain( void * param )
@@ -128,10 +128,13 @@ static int SdlNetEventThreadMain( void * param )
 	float max_frame_time = (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0;
 	while( ! SdlNetEventThreadExit )
 	{
-		if( nlPollGroup( SdlNetEventGroup, NL_READ_STATUS, &sock_out, 1, 1000 ) > 0 )	// Wait 1 second
+		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, &sock_out, 1, 1000 ) > 0 )	// Wait 1 second
 		{
 			//printf("SdlNetEventThreadMain(): SDL_PushEvent()\n");
-			SDL_PushEvent( &ev );
+			if(sock_out >= 0)
+				SDL_PushEvent( &ev );
+			else
+				printf("WARNING: net-event-system: invalid socket\n");
 			if (previous_was_event)  {
 				if (tLX->fRealDeltaTime > max_frame_time)
 					SDL_Delay((int)(tLX->fRealDeltaTime * 1100));
@@ -143,6 +146,8 @@ static int SdlNetEventThreadMain( void * param )
 		} else
 			previous_was_event = false;
 	};
+	
+	delete (uint*)param;
 	return 0;
 };
 
@@ -153,7 +158,9 @@ static bool SdlNetEvent_Init()
 	SdlNetEvent_Inited = true;
 	
 	SdlNetEventGroup = nlGroupCreate();
-	SdlNetEventThread = SDL_CreateThread( &SdlNetEventThreadMain, NULL );
+	SdlNetEventThreads[0] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_READ_STATUS) );
+	SdlNetEventThreads[1] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_WRITE_STATUS) );
+	SdlNetEventThreads[2] = SDL_CreateThread( &SdlNetEventThreadMain, new uint(NL_ERROR_STATUS) );
 	
 	return true;
 };
@@ -164,7 +171,9 @@ static void SdlNetEvent_UnInit() {
 		
 	SdlNetEventThreadExit = true;
 	int status = 0;
-	SDL_WaitThread( SdlNetEventThread, &status );
+	SDL_WaitThread( SdlNetEventThreads[0], &status );
+	SDL_WaitThread( SdlNetEventThreads[1], &status );
+	SDL_WaitThread( SdlNetEventThreads[2], &status );
 	nlGroupDestroy(SdlNetEventGroup);
 };
 

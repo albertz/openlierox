@@ -49,6 +49,12 @@ enum {
 };
 
 
+bool ServerTimeoutSignal(Timer* sender, void* userData) {
+	// we want to update the screen at this position
+	// as this event already implies this, we don't have to do anything here
+	return false;
+}
+
 ///////////////////
 // Initialize the Internet menu
 int Menu_Net_NETInitialize(void)
@@ -107,7 +113,10 @@ int Menu_Net_NETInitialize(void)
     // Load the list
     Menu_SvrList_LoadList("cfg/svrlist.dat");
     Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
-
+	
+	// TODO: 700 is hardcoded atm, also in MenuSystem.cpp for the timeout; change this
+	Timer(&ServerTimeoutSignal, NULL, 700, true).startHeadless();
+	
 	return true;
 }
 
