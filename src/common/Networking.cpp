@@ -720,17 +720,17 @@ bool AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2) {
 	}
 }
 
-typedef std::map<std::string, NetworkAddr> dnsCacheT; 
+typedef std::map<std::string, NLaddress> dnsCacheT; 
 dnsCacheT dnsCache;
 
 void AddToDnsCache(const std::string& name, const NetworkAddr& addr) {
-	dnsCache[name] = addr;
+	dnsCache[name] = *getNLaddr(addr);
 }
 
 bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 	dnsCacheT::iterator it = dnsCache.find(name);
 	if(it != dnsCache.end()) {
-		addr = it->second;
+		*getNLaddr(addr) = it->second;
 		return true;
 	} else
 		return false;

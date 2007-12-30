@@ -633,7 +633,8 @@ void Menu_Net_NETUpdateList(void)
 			} else if (http_result == HTTP_PROC_ERROR || (tLX->fCurTime - senttime) >= 5.0f)  {
 				if (http.GetError().iError != HTTP_NO_ERROR)
             		printf("HTTP ERROR: " + http.GetError().sErrorMsg + "\n");
-
+				else
+					printf("HTTP Timeout\n");
 				// Jump to next server
 				SentRequest = false;
 				CurServer++;

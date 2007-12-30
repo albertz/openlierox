@@ -548,7 +548,8 @@ private:
 	}
 
 	area_item* getBestArea() {
-		area_stack_set::iterator it = areas_stack.lower_bound(0);
+		// areas_stack is sorted and we have the best solution at the beginning
+		area_stack_set::iterator it = areas_stack.begin();
 		if(it == areas_stack.end()) return NULL;
 		return *it;
 	}
