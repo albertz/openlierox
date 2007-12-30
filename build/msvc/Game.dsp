@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /w /W0 /Gm /Gi /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "WITH_MEDIAPLAYER" /D "_AI_DEBUG" /D "DEBUG" /D for=if(true)for /FR /YX"LieroX.h" /FD /GZ /c
+# ADD CPP /nologo /MDd /w /W0 /Gm /Gi /GX /ZI /Od /I "../../include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "WITH_MEDIAPLAYER" /D "_AI_DEBUG" /D "DEBUG" /D for=if(1)for /FR /YX"LieroX.h" /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0xc09 /d "_DEBUG"
@@ -82,7 +82,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib advapi32.lib shell32.lib wsock32.lib /nologo /subsystem:console /pdb:"obj/debug/Game.pdb" /debug /machine:I386 /nodefaultlib:"LIBC" /nodefaultlib:"msvcrt.lib" /out:"../../distrib/win32/OpenLieroX_debug.exe" /MAPINFO:LINES /MAPINFO:EXPORTS
-# SUBTRACT LINK32 /pdb:none
+# SUBTRACT LINK32 /pdb:none /incremental:no
 
 !ELSEIF  "$(CFG)" == "Game - Win32 Profile"
 
@@ -835,10 +835,6 @@ SOURCE=.\libs\libxml2.lib
 # End Source File
 # Begin Source File
 
-SOURCE=.\libs\NLstatic.lib
-# End Source File
-# Begin Source File
-
 SOURCE=.\libs\SDL_mixer.lib
 # End Source File
 # Begin Source File
@@ -848,6 +844,10 @@ SOURCE=.\libs\lua5.1.lib
 # Begin Source File
 
 SOURCE=.\libs\dbghelp.lib
+# End Source File
+# Begin Source File
+
+SOURCE=.\libs\HawkNL.lib
 # End Source File
 # End Group
 # Begin Group "Resources"

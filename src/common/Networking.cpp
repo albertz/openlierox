@@ -143,8 +143,10 @@ static int SdlNetEventThreadMain( void * param )
 			}
 
 			previous_was_event = true;
-		} else
+		} else {
+			SDL_Delay((int)(max_frame_time * 1000));
 			previous_was_event = false;
+		}
 	};
 	
 	delete (uint*)param;
@@ -504,7 +506,14 @@ typedef /*@only@*/ nl_socket_t *pnl_socket_t;
 
 // -------------------------------------
 // extern defs for HawkNL intern stuff
+#ifdef _MSC_VER
+extern "C"  {
+__declspec(dllimport) pnl_socket_t *nlSockets;
+}
+#else
 extern pnl_socket_t *nlSockets;
+#endif
+
 extern "C" {
 NL_EXP void NL_APIENTRY nlSetError(NLenum err);
 }
