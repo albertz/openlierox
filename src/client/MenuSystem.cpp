@@ -1480,7 +1480,7 @@ void Menu_SvrList_FillList(CListview *lv)
 			std::string sPort = addr.substr(p + 1);
 			addr.erase(p);
 			if(from_string<int>(sPort) != LX_PORT)
-				addr += " :" + sPort;
+				addr += ":" + sPort;
 		}
 
 		// State
@@ -1513,7 +1513,14 @@ void Menu_SvrList_FillList(CListview *lv)
 					   NULL, NULL);
 
 		lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL);
-		lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
+		if (tLXOptions->bUseIpToCountry)  {
+			if (tIpToCountryDB->Loaded())  {
+				IpInfo inf = tIpToCountryDB->GetInfoAboutIP(addr);
+				lv->AddSubitem(LVS_TEXT, inf.Country, NULL, NULL);
+			} else
+				lv->AddSubitem(LVS_TEXT, "Loading...", NULL, NULL);
+		} else
+			lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
 	}
 
     lv->setSelectedID(curID);
@@ -1817,6 +1824,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
     int				nBonuses = 0;
     int				nNumPlayers = 0;
 	IpInfo			tIpInfo;
+	std::string		sIP;
     CWorm			cWorms[MAX_WORMS];
 	bool			bHaveLives = false;
 
@@ -1839,12 +1847,12 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
                     bGotDetails = true;
 
 					// Get the IP info
-					std::string str_ip;
-					if (NetAddrToString(addr, str_ip))
-						tIpInfo = tIpToCountryDB->GetInfoAboutIP(str_ip);
+					if (NetAddrToString(addr, sIP))
+						tIpInfo = tIpToCountryDB->GetInfoAboutIP(sIP);
 					else  {
 						tIpInfo.Country = "Hackerland";
 						tIpInfo.Continent = "Hackerland";
+						sIP = "x.x.x.x";
 					}
 						
 
@@ -1963,6 +1971,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			lvInfo.AddItem("country", ++index, tLX->clNormalLabel);
 			lvInfo.AddSubitem(LVS_TEXT, "Country:", NULL, NULL);
 			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", NULL, NULL);
+
+			// IP address
+			lvInfo.AddItem("ip", ++index, tLX->clNormalLabel);
+			lvInfo.AddSubitem(LVS_TEXT, "IP Address:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, sIP, NULL, NULL);
 
 			// Map name
 			lvInfo.AddItem("mapname", ++index, tLX->clNormalLabel);

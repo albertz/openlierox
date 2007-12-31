@@ -154,9 +154,6 @@ void Menu_Net_GotoHostLobby(void)
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
 
-	// Setup the top buttons
-	for(int i=mn_Internet; i<=mn_News; i++)
-		cNetButtons[i] = CButton(BUT_MAIN+i,	tMenu->bmpButtons);
 	
 	cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
 	cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
@@ -190,12 +187,6 @@ void Menu_Net_GotoJoinLobby(void)
 		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
 	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
 	Menu_RedrawMouse(true);
-
-	// Setup the top buttons
-	for(int i=0; i<5; i++) {
-		cNetButtons[i].setImage(tMenu->bmpButtons);
-		cNetButtons[i].setImageID(BUT_MAIN + i);
-	}
 	
 	cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
 	cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);

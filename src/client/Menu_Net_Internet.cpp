@@ -105,7 +105,10 @@ int Menu_Net_NETInitialize(void)
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "State", tLXOptions->iInternetList[2]);
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Players", tLXOptions->iInternetList[3]);
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Ping", tLXOptions->iInternetList[4]);
-	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[5]);
+	if (tLXOptions->bUseIpToCountry)
+		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Country", tLXOptions->iInternetList[5]);
+	else
+		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[5]);
 
 	// Clear the server list & grab an update
 	Menu_SvrList_Clear();
@@ -164,7 +167,7 @@ void Menu_Net_NETFrame(int mouse)
 
 
 	// Process the server list
-	if( Menu_SvrList_Process() ) {
+	if( Menu_SvrList_Process() || tIpToCountryDB->JustLoaded() ) {
 		// Add the servers to the listview
 		Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 	}
