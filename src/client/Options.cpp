@@ -92,6 +92,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", true )
 		( tLXOptions->bSendDirtUpdate, "Advanced.SendDirtUpdate", false )
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", true )
+		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 40 )
 
 		( tLXOptions->iLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->iShowPing, "Misc.ShowPing", true )

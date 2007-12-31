@@ -1119,6 +1119,8 @@ void CClient::processFileRequests()
 	{
 		if( ! w->isUsed() )
 			continue;
+		if( w->getSkin() == "" )
+			continue;
 		if( ! IsFileAvailable("skins/" + w->getSkin()) )
 		{
 			getFileDownloaderInGame()->requestFile("skins/" + w->getSkin());

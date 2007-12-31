@@ -140,6 +140,8 @@ private:
 	std::list<std::string>::iterator	tCurrentMasterServer;
 	std::list<std::string>				tMasterServers;
 	bool		bDedicated;
+	float		fWeaponSelectionTime;
+	int			iWeaponSelectionTime_Warning;
 
 	
 public:
@@ -187,6 +189,7 @@ public:
 	bool		DeRegisterServer(void);
 	bool		ProcessDeRegister(void);
 	void		CheckTimeouts(void);
+	void		CheckWeaponSelectionTime(void);
 	void		DropClient(CClient *cl, int reason, const std::string& sReason = "");
 	void		kickWorm(int wormID, const std::string& sReason = "");
     void        kickWorm(const std::string& szWormName, const std::string& sReason = "");

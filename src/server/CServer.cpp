@@ -388,6 +388,8 @@ int GameServer::StartGame( bool dedicated )
 
 
 	fLastBonusTime = tLX->fCurTime;
+	fWeaponSelectionTime = tLX->fCurTime;
+	iWeaponSelectionTime_Warning = 0;
 
 	// Set all the clients to 'not ready'
 	{for(int i=0;i<MAX_CLIENTS;i++) {
@@ -854,8 +856,41 @@ void GameServer::CheckTimeouts(void)
             cl->setStatus(NET_DISCONNECTED);
         }
 	}
+	CheckWeaponSelectionTime();	// This is kinda timeout too
 }
 
+void GameServer::CheckWeaponSelectionTime()
+{
+	if( iState != SVS_GAME || tGameInfo.iGameType != GME_HOST )
+		return;
+	// Issue some sort of warning to clients
+	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 5.2 && 
+		iWeaponSelectionTime_Warning < 2 )
+	{
+		iWeaponSelectionTime_Warning = 2;
+		SendGlobalText("You have 5 seconds to select your weapons, hurry or you'll be kicked.", TXT_NOTICE);
+	};
+	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 10.2 && 
+		iWeaponSelectionTime_Warning == 0 )
+	{
+		iWeaponSelectionTime_Warning = 1;
+		SendGlobalText("You have 10 seconds to select your weapons.", TXT_NOTICE);
+	};
+	//printf("GameServer::CheckWeaponSelectionTime() %f > %i\n", tLX->fCurTime - fWeaponSelectionTime, tLXOptions->iWeaponSelectionMaxTime);
+	if( tLX->fCurTime - fWeaponSelectionTime > tLXOptions->iWeaponSelectionMaxTime )
+	{
+		// Kick retards who still mess with their weapons, we'll start on next frame
+		CClient *cl = cClients;
+		for(int c = 1; c < MAX_CLIENTS; c++, cl++) // Do not kick local client - we may crash :) 
+		{
+			if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
+				continue;
+			if( cl->getGameReady() )
+				continue;
+			DropClient( cl, CLL_KICK, "selected weapons too long" );
+		};
+	};
+};
 
 ///////////////////
 // Drop a client

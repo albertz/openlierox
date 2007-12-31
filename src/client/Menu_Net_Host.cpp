@@ -1413,7 +1413,8 @@ enum {
 	ss_AllowRemoteBots,
 	ss_AllowNickChange,
 	ss_MaxPlayers,
-	ss_ServerSideHealth
+	ss_ServerSideHealth,
+	ss_WeaponSelectionMaxTime
 };
 
 
@@ -1424,15 +1425,15 @@ void Menu_ServerSettings(void)
 {
 	// Setup the buffer
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 120,130,120,130, 400,200);
-	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,415, tLX->clDialogBackground, 200);
-	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,415);
+	DrawRectFillA(tMenu->bmpBuffer, 120,130, 490,445, tLX->clDialogBackground, 200);
+	Menu_DrawBox(tMenu->bmpBuffer, 120,130, 490,445);
 
 	Menu_RedrawMouse(true);
 
 	cServerSettings.Initialize();
 	cServerSettings.Add( new CLabel("Server Settings", tLX->clNormalLabel),		  -1,        275,140,  0, 0);
-    cServerSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  ss_Ok,	 360,390,  60,15);
-	cServerSettings.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),  ss_Cancel, 220,390,  70,15);
+    cServerSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	  ss_Ok,	 360,420,  60,15);
+	cServerSettings.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),  ss_Cancel, 220,420,  70,15);
 	cServerSettings.Add( new CLabel("Server Name:", tLX->clNormalLabel),		  -1,        130,165,  0, 0);
 	cServerSettings.Add( new CLabel("Welcome Message:", tLX->clNormalLabel),	  -1,        130,193,  0, 0);
 	cServerSettings.Add( new CLabel("Max. Players:", tLX->clNormalLabel),		  -1,        130,218,  0, 0);
@@ -1449,9 +1450,12 @@ void Menu_ServerSettings(void)
 	cServerSettings.Add( new CCheckbox(0),		                    ss_AllowNickChange,	360,335,17, 17);
 	cServerSettings.Add( new CLabel("Server-side Health",				tLX->clNormalLabel),-1,	130, 365,0,  0);
 	cServerSettings.Add( new CCheckbox(0),		                    ss_ServerSideHealth,	360,365,17, 17);
+	cServerSettings.Add( new CLabel("Max weapon selection time:",	tLX->clNormalLabel),-1,	130, 395,0,  0);
+	cServerSettings.Add( new CTextbox(),							ss_WeaponSelectionMaxTime, 360,395,  30, tLX->cFont.GetHeight());
 
 	cServerSettings.SendMessage(ss_ServerName,TXM_SETMAX,32,0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXM_SETMAX,256,0);
+	cServerSettings.SendMessage(ss_WeaponSelectionMaxTime,TXM_SETMAX,10,0);
 
 	// Use the actual settings as default
 	cServerSettings.SendMessage(ss_AllowWantsJoin, CKM_SETCHECK, tLXOptions->tGameinfo.bAllowWantsJoinMsg, 0);
@@ -1462,6 +1466,7 @@ void Menu_ServerSettings(void)
 	cServerSettings.SendMessage(ss_ServerName,TXS_SETTEXT,tGameInfo.sServername, 0);
 	cServerSettings.SendMessage(ss_WelcomeMessage,TXS_SETTEXT,tGameInfo.sWelcomeMessage, 0);
 	cServerSettings.SendMessage(ss_MaxPlayers, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iMaxPlayers), 0);
+	cServerSettings.SendMessage(ss_WeaponSelectionMaxTime, TXS_SETTEXT, itoa(tLXOptions->iWeaponSelectionMaxTime), 0);
 }
 
 
@@ -1501,6 +1506,9 @@ bool Menu_ServerSettings_Frame(void)
 					// At least 2 players, and max MAX_PLAYERS
 					tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
 					tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
+
+					cServerSettings.SendMessage(ss_WeaponSelectionMaxTime, TXS_GETTEXT, &buf, 0);
+					tLXOptions->iWeaponSelectionMaxTime = MAX( 5, atoi(buf) );	// At least 5 seconds (hit Random - Done)
 
 					// Set up the server
 					if(cServer)  {
