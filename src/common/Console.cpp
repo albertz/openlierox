@@ -134,12 +134,15 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 {
 	if(!input.down) return;
 	
-	if(input.sym == SDLK_BACKQUOTE || input.sym == SDLK_F1)
+	if(input.sym == SDLK_BACKQUOTE || input.sym == SDLK_F1)  {
 		Con_Toggle();	
+		return;
+	}
 
 	if( input.sym == SDLK_ESCAPE ) {
 		if (Console->iState != CON_HIDING && Console->iState != CON_HIDDEN)
 			Con_Toggle();
+		return;
 	}
 
 	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
