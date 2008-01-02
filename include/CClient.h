@@ -440,7 +440,13 @@ private:
 	float		fLastDirtUpdate;
 	float		fLastFileRequest;
 	float		fLastFileRequestPacketReceived;
-
+	struct		cSpectatorViewportKeys_t { 
+				CInput Up, Down, Left, Right, V1Type, V2Type, V2Toggle;
+	} cSpectatorViewportKeys;
+	std::string	sSpectatorViewportMsg;
+	float		fSpectatorViewportMsgTimeout;
+	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
+	
 private:
 	void		SendTextInternal(const std::string& sText, const std::string& sWormName);
 
@@ -524,6 +530,8 @@ public:
 #endif
     void        InitializeViewportManager(void);
     void        DrawViewportManager(SDL_Surface *bmpDest);
+	void		InitializeSpectatorViewportKeys();
+	void		ProcessSpectatorViewportKeys();	// Fast camera mode switching when local worm is dead
 	void		SimulateHud(void);
 	int			getTopBarBottom();
 	int			getBottomBarTop();
@@ -676,6 +684,9 @@ public:
 	void		setLastDirtUpdate( float _f )	{ fLastDirtUpdate = _f; };
 	float		getLastFileRequestPacketReceived() { return fLastFileRequestPacketReceived; };
 	void		setLastFileRequestPacketReceived( float _f ) { fLastFileRequestPacketReceived = _f; };
+	
+	bool		getSpectate()					{ return bSpectate; };
+	void		setSpectate( bool _b )			{ bSpectate = _b; };
 
 };
 

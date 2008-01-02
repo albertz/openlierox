@@ -128,6 +128,9 @@ void CClient::Clear(void)
 	bConnectingDuringGame = false;
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	getFileDownloaderInGame()->reset();
+	fSpectatorViewportMsgTimeout = tLX->fCurTime;
+	sSpectatorViewportMsg = "";
+	bSpectate = false;
 }
 
 
@@ -183,6 +186,8 @@ void CClient::MinorClear(void)
 	}
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	getFileDownloaderInGame()->reset();
+	fSpectatorViewportMsgTimeout = tLX->fCurTime;
+	sSpectatorViewportMsg = "";
 }
 
 
@@ -302,6 +307,7 @@ int CClient::Initialize(void)
     // Initialize the weather
     //cWeather.Initialize(wth_snow);
 
+	InitializeSpectatorViewportKeys();
 	
 	return true;
 }

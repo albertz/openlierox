@@ -26,6 +26,8 @@
 #include "CTextbox.h"
 #include "CImage.h"
 #include "CMediaPlayer.h"
+#include "CCheckbox.h"
+#include "CLabel.h"
 
 
 /*
@@ -246,7 +248,8 @@ enum {
 	jl_ChatText,
 	jl_ChatList,
 	jl_Favourites,
-	jl_PlayerList
+	jl_PlayerList,
+	jl_Spectate
 };
 
 
@@ -319,7 +322,8 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( new CTextbox(),							  jl_ChatText, 15,  421, 610, tLX->cFont.GetHeight());
     cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  268, 610, 150);
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
-
+	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
+	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 ); 
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
 	if (player_list)  {
@@ -681,6 +685,11 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 					// Send
 					cClient->SendText(text, cClient->getWorm(0)->getName());
+				}
+				break;
+			case jl_Spectate:
+				if(ev->iEventMsg == CHK_CHANGED) {
+					cClient->setSpectate(((CCheckbox *)cJoinLobby.getWidget(jl_Spectate))->getValue());
 				}
 				break;
 		}

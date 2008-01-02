@@ -522,6 +522,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
+	if( sSpectatorViewportMsg != "" )
+		tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
 /*#ifdef DEBUG
 	// Upload and download rates
 	float up = 0;
@@ -958,6 +960,8 @@ void CClient::SimulateHud(void)
     // Viewport manager
     if(cViewportMgr.isDownOnce() && !iChat_Typing && !iGameMenu && !con)
         InitializeViewportManager();
+
+    ProcessSpectatorViewportKeys(); // If local worm is dead move viewport instead of worm
 
     // Process Chatter
     if(!con)
@@ -1969,6 +1973,153 @@ void CClient::DrawViewportManager(SDL_Surface *bmpDest)
             break;
     }
 }
+
+void CClient::InitializeSpectatorViewportKeys()
+{
+	cSpectatorViewportKeys.Up.Setup( tLXOptions->sPlayerControls[0][SIN_UP] );
+	cSpectatorViewportKeys.Down.Setup( tLXOptions->sPlayerControls[0][SIN_DOWN] );
+	cSpectatorViewportKeys.Left.Setup( tLXOptions->sPlayerControls[0][SIN_LEFT] );
+	cSpectatorViewportKeys.Right.Setup( tLXOptions->sPlayerControls[0][SIN_RIGHT] );
+	cSpectatorViewportKeys.V1Type.Setup( tLXOptions->sPlayerControls[0][SIN_SHOOT] );
+	cSpectatorViewportKeys.V2Type.Setup( tLXOptions->sPlayerControls[0][SIN_JUMP] );
+	cSpectatorViewportKeys.V2Toggle.Setup( tLXOptions->sPlayerControls[0][SIN_SELWEAP] );
+};
+
+void CClient::ProcessSpectatorViewportKeys()
+{
+	if( ! bSpectate )
+	{
+		// Only process keyboard input if all local human worms are dead
+		if( cLocalWorms[0]->getAlive() || cLocalWorms[0]->getLives() != WRM_OUT )
+			return;
+		if(cLocalWorms[1])
+			if( cLocalWorms[1]->getType() == PRF_HUMAN &&
+				( cLocalWorms[1]->getAlive() || cLocalWorms[0]->getLives() != WRM_OUT ) )
+				return;
+	};
+	
+	bool v2_on = cViewports[1].getUsed();
+	int v1_type = cViewports[0].getType();
+	int v2_type = cViewports[1].getType();
+	CWorm * v1_targetPtr = cViewports[0].getTarget();
+	CWorm * v2_targetPtr = cViewports[1].getTarget();
+	int v1_target = -1, v2_target = -1, v1_prev = -1, v2_prev = -1, v1_next = -1, v2_next = -1;
+
+    for(int i=0; i<MAX_WORMS; i++ ) 
+	{
+        if( ! cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT )
+			continue;
+		if( v1_target != -1 && v1_next == -1 )
+				v1_next = i;
+		if( v2_target != -1 && v2_next == -1 )
+				v2_next = i;
+		if( v1_targetPtr == &cRemoteWorms[i] )
+			v1_target = i;
+		if( v2_targetPtr == &cRemoteWorms[i] )
+			v2_target = i;
+		if( v1_target == -1 )
+			v1_prev = i;
+		if( v2_target == -1 )
+			v2_prev = i;
+    }
+
+	if( v1_target == -1 )
+		v1_target = v1_prev;
+	if( v2_target == -1 )
+		v2_target = v2_prev;
+	if( v1_next == -1 )
+		v1_next = v1_target;
+	if( v2_next == -1 )
+		v2_next = v2_target;
+	if( v1_prev == -1 )
+		v1_prev = v1_target;
+	if( v2_prev == -1 )
+		v2_prev = v2_target;
+
+	bool Changed = false;
+	if( v1_type != VW_FREELOOK )
+	{
+		if( cSpectatorViewportKeys.Left.isDownOnce() )
+		{
+			v1_target = v1_prev;
+			Changed = true;
+		}
+		if( cSpectatorViewportKeys.Right.isDownOnce() )
+		{
+			v1_target = v1_next;
+			Changed = true;
+		}
+		if( cSpectatorViewportKeys.Up.isDownOnce() )
+		{
+			v2_target = v2_prev;
+			Changed = true;
+		}
+		if( cSpectatorViewportKeys.Down.isDownOnce() )
+		{
+			v2_target = v2_next;
+			Changed = true;
+		}
+	};
+	
+	int iMsgType = -1, iViewportNum = -1;
+	if( cSpectatorViewportKeys.V2Toggle.isDownOnce() )
+	{
+		v2_on = ! v2_on;
+		iViewportNum = 1;
+		iMsgType = v1_type;
+		if( v2_on )
+		{
+			iViewportNum = 2;
+			iMsgType = v2_type;
+		};
+		Changed = true;
+	};
+
+	if( cSpectatorViewportKeys.V1Type.isDownOnce() )
+	{
+		v1_type ++;
+		if( v1_type > VW_ACTIONCAM )
+			v1_type = VW_FOLLOW;
+		iViewportNum = 1;
+		iMsgType = v1_type;
+		Changed = true;
+	};
+
+	if( cSpectatorViewportKeys.V2Type.isDownOnce() )
+	{
+		v2_type ++;
+		if( v2_type > VW_ACTIONCAM )
+			v2_type = VW_FOLLOW;
+		iViewportNum = 2;
+		iMsgType = v2_type;
+		Changed = true;
+	};
+
+	if( iMsgType != -1 && iViewportNum != -1 )
+	{
+		sSpectatorViewportMsg = "Viewport " + itoa(iViewportNum) + ": ";
+		if( iMsgType == VW_FOLLOW )
+			sSpectatorViewportMsg += "Follow";
+		if( iMsgType == VW_CYCLE )
+			sSpectatorViewportMsg += "Cycle";
+		if( iMsgType == VW_FREELOOK )
+			sSpectatorViewportMsg += "Free look";
+		if( iMsgType == VW_ACTIONCAM )
+			sSpectatorViewportMsg += "Action Cam";
+		fSpectatorViewportMsgTimeout = tLX->fCurTime;
+	};
+	
+	if( fSpectatorViewportMsgTimeout + 1.0 < tLX->fCurTime )
+		sSpectatorViewportMsg = "";
+
+	if( Changed )
+	{
+		if( !v2_on )
+			SetupViewports(&cRemoteWorms[v1_target], NULL, v1_type, v2_type);
+		else
+			SetupViewports(&cRemoteWorms[v1_target], &cRemoteWorms[v2_target], v1_type, v2_type);
+	};
+};
 
 /////////////////////
 // Initialize the scoreboard

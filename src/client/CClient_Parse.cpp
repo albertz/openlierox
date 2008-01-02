@@ -661,6 +661,11 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	UpdateScoreboard();
 	if (cRemoteWorms[id].getLocal())
 		bShouldRepaintInfo = true;
+	
+	if( bSpectate && cLocalWorms[0] == &cRemoteWorms[id] )
+	{
+		SendDeath( id, id ); // Suicide myself as long as I spawned
+	};
 }
 
 
