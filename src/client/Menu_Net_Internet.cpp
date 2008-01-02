@@ -167,9 +167,11 @@ void Menu_Net_NETFrame(int mouse)
 
 
 	// Process the server list
-	if( Menu_SvrList_Process() || tIpToCountryDB->JustLoaded() ) {
+	static bool wasLoadedBefore = false;
+	if( Menu_SvrList_Process() || (tIpToCountryDB->Loaded() && !wasLoadedBefore) ) {
 		// Add the servers to the listview
 		Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+		wasLoadedBefore = tIpToCountryDB->Loaded();
 	}
 
 

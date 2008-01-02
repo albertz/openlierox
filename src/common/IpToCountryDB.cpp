@@ -31,6 +31,8 @@ typedef unsigned int Ip;
 typedef Uint32 Ip;
 #endif
 
+enum { SDL_USEREVENT_IPDBLOADED = SDL_USEREVENT + 3 };
+
 struct DBEntry {
 	Ip			RangeFrom;
 	Ip			RangeTo;
@@ -159,18 +161,15 @@ class IpToCountryData {
 public:
 	std::string		filename;
 	DBData			data;
-	SDL_mutex*		mutex;
 	SDL_Thread*		loader;
 	size_t			fileSize;
 	TSVar<size_t>	filePos;
 	bool			dbReady; // false, if loaderThread is running
 	bool			loaderBreakSignal;
-	bool			justLoaded;
 	
-	IpToCountryData() : loader(NULL), fileSize(0), dbReady(true), loaderBreakSignal(false), justLoaded(false)
+	IpToCountryData() : loader(NULL), fileSize(0), dbReady(true), loaderBreakSignal(false)
 	{
 		filePos = 0;
-		mutex = SDL_CreateMutex();
 	}
 	
 	~IpToCountryData() {
@@ -195,7 +194,6 @@ public:
 		// Cleanup
 		loader = NULL;
 		dbReady = true;
-		justLoaded = false;
 		loaderBreakSignal = false;
 	}
 
@@ -209,7 +207,6 @@ public:
 		// Destroy any previous loading
 		breakLoaderThread();
 		dbReady = false;
-		justLoaded = false;
 		loaderBreakSignal = false;
 		
 		filename = fn;
@@ -248,9 +245,15 @@ public:
 		delete file;
 		
 		_this->dbReady = true;
-		SDL_LockMutex(_this->mutex);
-		_this->justLoaded = true;
-		SDL_UnlockMutex(_this->mutex);
+
+		// Notify that the DB has been loaded
+		SDL_Event ev;
+		ev.type = SDL_USEREVENT_IPDBLOADED;
+		ev.user.code = 0;
+		ev.user.data1 = NULL;
+		ev.user.data2 = NULL;
+		SDL_PushEvent(&ev);
+		
 		return 0;
 	}
 	
@@ -271,14 +274,6 @@ public:
 	inline int getProgress() {
 		if(fileSize == 0) return 100;
 		return (int)(((float)filePos / (float)fileSize) * 100.0f);
-	}
-
-	bool getJustLoaded()  {
-		SDL_LockMutex(mutex);
-		bool ret = justLoaded;
-		justLoaded = false;
-		SDL_UnlockMutex(mutex);
-		return ret;
 	}
 	
 };
@@ -346,8 +341,4 @@ int IpToCountryDB::GetProgress()  {
 
 bool IpToCountryDB::Loaded()  {
 	return IpToCountryDBData(this)->dbReady;
-}
-
-bool IpToCountryDB::JustLoaded()  {
-	return IpToCountryDBData(this)->getJustLoaded();
 }

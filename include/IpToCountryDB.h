@@ -26,7 +26,6 @@ public:
 	IpInfo GetInfoAboutIP(const std::string& Address);
 	int	GetProgress();
 	bool Loaded();
-	bool JustLoaded();
 INTERNDATA_CLASS_END
 
 #endif
