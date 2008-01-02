@@ -76,7 +76,8 @@ static int TimerThread(void* data) {
 	ev.type = SDL_USEREVENT_TIMER;
 	ev.user.code = 0;
 	ev.user.data1 = timer;
-	ev.user.data2 = false; // signal if event is last
+	ev.user.data2 = (void*)false; // signal if event is last
+	// HINT: ev.user.data2 is a void* by definition, but we use it as a bool here
 	
 	bool quit;
 	do {
