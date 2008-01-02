@@ -538,15 +538,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		bJoin_Update = false;
 	}
 
-	// Process & Draw the gui
-#ifdef WITH_MEDIAPLAYER
-	if (!cMediaPlayer.GetDrawPlayer())
-#endif
-		ev = cJoinLobby.Process();
-
-	cJoinLobby.Draw( tMenu->bmpScreen );
-
-
 	// Draw the game info
 	if(gl->nSet) {
 		CFont *f = &tLX->cFont;
@@ -607,8 +598,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	        f->Draw(tMenu->bmpScreen,     x, y+180, tLX->clNormalLabel, "Downloading files from server...");
 	}
 
+	// Process & Draw the gui
+#ifdef WITH_MEDIAPLAYER
+	if (!cMediaPlayer.GetDrawPlayer())
+#endif
+		ev = cJoinLobby.Process();
 
-
+	cJoinLobby.Draw( tMenu->bmpScreen );
 
 	// Process any events
 	if(ev) {
@@ -695,8 +691,16 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		}
 	}
 
-
-
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);
+
+	// If no event at all, sleep a bit
+	if (!ev && !cClient->getChannel()->gotNewReliablePacket())  {
+		if (tLXOptions->nMaxFPS != 0)  { 
+			int time_to_sleep = 1000/tLXOptions->nMaxFPS - (int)(tLX->fRealDeltaTime * 1000);
+			if (time_to_sleep > 0)
+				Sleep(time_to_sleep);
+		}
+		return;
+	}
 }

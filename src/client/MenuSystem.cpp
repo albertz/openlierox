@@ -358,6 +358,7 @@ void Menu_Loop(void)
 	while(tMenu->iMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 		tLX->fDeltaTime = tLX->fCurTime - oldtime;
+		tLX->fRealDeltaTime = tLX->fDeltaTime;
 	
 // HINT: not needed here because we use WaitForNextEvent()
 /*			// Cap the FPS

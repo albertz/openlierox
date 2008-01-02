@@ -221,6 +221,16 @@ void Menu_Net_HostPlyFrame(int mouse)
 		ev = cHostPly.Process();
 	cHostPly.Draw( tMenu->bmpScreen );
 
+	// If no event at all, sleep a bit
+	if (!ev && !cClient->getChannel()->gotNewReliablePacket())  {
+		if (tLXOptions->nMaxFPS != 0)  { 
+			int time_to_sleep = 1000/tLXOptions->nMaxFPS - (int)(tLX->fRealDeltaTime * 1000);
+			if (time_to_sleep > 0)
+				Sleep(time_to_sleep);
+		}
+		return;
+	}
+
 
 	// Process any events
 	if(ev) {

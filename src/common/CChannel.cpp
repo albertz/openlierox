@@ -41,6 +41,7 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	iCurrentOutgoingBytes = 0;
 	iPongSequence = -1;
 	iPing = 0;
+	bNewReliablePacket = false;
 
 	// Clear the sequences
 	iIncomingSequence = 0;
@@ -199,8 +200,11 @@ bool CChannel::Process(CBytestream *bs)
 	iIncomingSequence = Sequence;
 	iIncomingAcknowledged = SequenceAck;
 	iIncoming_ReliableAcknowledged = ReliableAck;
-	if(ReliableMessage)
+	if(ReliableMessage)  {
 		iIncoming_ReliableSequence ^= 1;
+		bNewReliablePacket = true;
+	} else
+		bNewReliablePacket = false;
 
 
 	// Update the statistics

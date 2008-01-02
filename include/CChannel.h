@@ -35,6 +35,7 @@ public:
 		iOutgoingBytes = 0;
 		iIncomingBytes = 0;
 		fLastSent = -9999;
+		bNewReliablePacket = false;
 	}
 
 private:
@@ -42,6 +43,7 @@ private:
 	NetworkAddr		RemoteAddr;
 	int				iPort;
 	NetworkSocket	Socket;
+	bool			bNewReliablePacket;
 
 	
 	// Bandwidth Estimation
@@ -93,34 +95,35 @@ public:
 	void		Create(NetworkAddr *_adr, int _port, NetworkSocket _sock);
 	void		Transmit( CBytestream *bs );
 	bool		Process(CBytestream *bs);
-	inline void		Clear(void)				{ fLastPckRecvd = 0;
-		iPort = LX_PORT; InvalidateSocketState(Socket);
-										  iPacketsDropped = 0; iPacketsGood = 0; }
+	void		Clear(void)				{ fLastPckRecvd = 0;
+										  iPort = LX_PORT; InvalidateSocketState(Socket);
+										  iPacketsDropped = 0; iPacketsGood = 0; bNewReliablePacket = false; }
 
 
-	inline int			getPacketLoss(void)		{ return iPacketsDropped; }
-	inline float		getLastReceived(void)	{ return fLastPckRecvd; }
-	inline float		getLastSent(void)		{ return fLastSent; }
-	inline NetworkAddr	getAddress(void)		{ return RemoteAddr; }	
+	int			getPacketLoss(void)		{ return iPacketsDropped; }
+	float		getLastReceived(void)	{ return fLastPckRecvd; }
+	float		getLastSent(void)		{ return fLastSent; }
+	NetworkAddr	getAddress(void)		{ return RemoteAddr; }
+	bool		gotNewReliablePacket()	{ return bNewReliablePacket; }
 
 	// Packets
-	inline CBytestream	*getMessageBS(void)		{ return &Message; }
+	CBytestream	*getMessageBS(void)		{ return &Message; }
 	
-	inline int	getInSeq(void)			{ return iIncomingSequence; }
-	inline int	getOutSeq(void)			{ return iOutgoingSequence; }
-	inline void	setInSeq(int _s)		{ iIncomingSequence = _s; }
-	inline void	setOutSeq(int _s)		{ iOutgoingSequence = _s; }
+	int		getInSeq(void)			{ return iIncomingSequence; }
+	int		getOutSeq(void)			{ return iOutgoingSequence; }
+	void	setInSeq(int _s)		{ iIncomingSequence = _s; }
+	void	setOutSeq(int _s)		{ iOutgoingSequence = _s; }
 
-	inline int	getInAck(void)			{ return iIncomingAcknowledged; }
+	int	getInAck(void)			{ return iIncomingAcknowledged; }
 
-	inline int	getOutoing(void)		{ return iOutgoingBytes; }
-	inline int	getIncoming(void)		{ return iIncomingBytes; }
+	int	getOutoing(void)		{ return iOutgoingBytes; }
+	int	getIncoming(void)		{ return iIncomingBytes; }
 
-	inline int	getPing()				{ return iPing; }
-	inline void	setPing(int _p)			{ iPing = _p; }
+	int		getPing()			{ return iPing; }
+	void	setPing(int _p)		{ iPing = _p; }
 
-	inline float getIncomingRate()		{ return fIncomingRate; }
-	inline float getOutgoingRate()		{ return fOutgoingRate; }
+	float getIncomingRate()		{ return fIncomingRate; }
+	float getOutgoingRate()		{ return fOutgoingRate; }
 
 	NetworkSocket	getSocket(void)			{ return Socket; }
 };
