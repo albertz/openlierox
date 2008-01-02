@@ -76,14 +76,16 @@ static int TimerThread(void* data) {
 	ev.type = SDL_USEREVENT_TIMER;
 	ev.user.code = 0;
 	ev.user.data1 = timer;
-	ev.user.data2 = NULL;
+	ev.user.data2 = false; // signal if event is last
 	
+	bool quit;
 	do {
 		SDL_Delay( timer->interval );
+		quit = timer->once || timer->quit_signal;
+		if(quit) ev.user.data2 = (void*)true;
 		SDL_PushEvent( &ev );
-	} while( !timer->once && !timer->quit_signal );
+	} while( !quit );
 
-	delete timer;
 	return 0;
 }
 
@@ -140,4 +142,7 @@ void Timer::handleEvent(SDL_Event& ev) {
 	if(!timer->onTimer(timer->timer, timer->userData)) {
 		timer->quit_signal = true;
 	}
+
+	if( ev.user.data2 ) // last-event signal
+		delete timer;
 }
