@@ -473,7 +473,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::
 	data1.append( 1, '\0' );
 	data1.append(data);
 	Compress( data1, &sData );
-	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %i compressed %i\n", sFilename.c_str(), data.size(), sData.size() );
+	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %lu compressed %lu\n", sFilename.c_str(), data.size(), sData.size() );
 };
 
 void CFileDownloaderInGame::setFileToSend( const std::string & path )
@@ -538,7 +538,7 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 			{
 				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
 				sFilename.resize( f );
-				printf("CFileDownloaderInGame::receive() filename %s sData.size() %i\n", sFilename.c_str(), sData.size());
+				printf("CFileDownloaderInGame::receive() filename %s sData.size() %lu\n", sFilename.c_str(), sData.size());
 			};
 		};
 		processFileRequests();

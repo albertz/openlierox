@@ -8,21 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
-		235D28110CF7C10C0067BA4F /* CGuiSkin.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280C0CF7C10C0067BA4F /* CGuiSkin.h */; };
-		235D28120CF7C10C0067BA4F /* CGuiSkinnedLayout.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280D0CF7C10C0067BA4F /* CGuiSkinnedLayout.h */; };
-		235D28130CF7C10C0067BA4F /* FileDownload.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280E0CF7C10C0067BA4F /* FileDownload.h */; };
-		235D28140CF7C10C0067BA4F /* HTTP.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D280F0CF7C10C0067BA4F /* HTTP.h */; };
-		235D28150CF7C10C0067BA4F /* stun.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 235D28100CF7C10C0067BA4F /* stun.h */; };
 		235D28180CF7C1230067BA4F /* CGuiSkin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D28160CF7C1230067BA4F /* CGuiSkin.cpp */; };
 		235D28190CF7C1230067BA4F /* CGuiSkinnedLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D28170CF7C1230067BA4F /* CGuiSkinnedLayout.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
 		235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281C0CF7C13B0067BA4F /* stun.cpp */; };
 		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
+		2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
+		2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF690D0B038700920A5F /* CTextButton.cpp */; };
-		23CDBF6E0D0B039C00920A5F /* Clipboard.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 23CDBF6C0D0B039C00920A5F /* Clipboard.h */; };
-		23CDBF6F0D0B039C00920A5F /* CTextButton.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 23CDBF6D0D0B039C00920A5F /* CTextButton.h */; };
 		23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CDBF900D0B06FD00920A5F /* Carbon.framework */; };
 		EA38B0330C467928008ABAAE /* CAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0300C467928008ABAAE /* CAnimation.cpp */; };
 		EA38B0340C467928008ABAAE /* CBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0310C467928008ABAAE /* CBar.cpp */; };
@@ -179,18 +174,12 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */,
 				EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */,
 				EABBC2B80C5A9E1D003884A9 /* GD.framework in Copy Frameworks into .app */,
 				EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */,
 				EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */,
 				EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */,
-				235D28110CF7C10C0067BA4F /* CGuiSkin.h in Copy Frameworks into .app */,
-				235D28120CF7C10C0067BA4F /* CGuiSkinnedLayout.h in Copy Frameworks into .app */,
-				235D28130CF7C10C0067BA4F /* FileDownload.h in Copy Frameworks into .app */,
-				235D28140CF7C10C0067BA4F /* HTTP.h in Copy Frameworks into .app */,
-				235D28150CF7C10C0067BA4F /* stun.h in Copy Frameworks into .app */,
-				23CDBF6E0D0B039C00920A5F /* Clipboard.h in Copy Frameworks into .app */,
-				23CDBF6F0D0B039C00920A5F /* CTextButton.h in Copy Frameworks into .app */,
 			);
 			name = "Copy Frameworks into .app";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -212,6 +201,7 @@
 		2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCommand.h; sourceTree = "<group>"; };
 		2389FB200D2D4D5E00358F27 /* SmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartPointer.h; sourceTree = "<group>"; };
 		2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatCommand.cpp; sourceTree = "<group>"; };
+		2389FB650D2D5A4700358F27 /* UnixImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UnixImageIO.framework; path = /Library/Frameworks/UnixImageIO.framework; sourceTree = "<absolute>"; };
 		23CDBF680D0B038700920A5F /* Clipboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cpp; sourceTree = "<group>"; };
 		23CDBF690D0B038700920A5F /* CTextButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTextButton.cpp; sourceTree = "<group>"; };
 		23CDBF6C0D0B039C00920A5F /* Clipboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clipboard.h; sourceTree = "<group>"; };
@@ -453,6 +443,7 @@
 				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
 				EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */,
 				EABBC24B0C5A0BA8003884A9 /* SDL_mixer.framework in Frameworks */,
+				2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -783,6 +774,7 @@
 		EAD6E4BE0C47EF1F00D6C836 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2389FB650D2D5A4700358F27 /* UnixImageIO.framework */,
 				233E2AB90D0DB10E00991914 /* OpenGL.framework */,
 				23CDBF900D0B06FD00920A5F /* Carbon.framework */,
 				EABBC2C30C5AA00B003884A9 /* FreeType.framework */,

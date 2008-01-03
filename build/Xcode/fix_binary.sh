@@ -32,8 +32,8 @@ for rel in *; do
 			do
 				echo "> fixing link $lib"
 				for file in $files; do
-					install_name_tool -change $lib ${lib/"\/Library\/Frameworks"/@executable_path/../Frameworks} \
-						${file/"\/Library\/Frameworks"/OpenLieroX.app/Contents/Frameworks}
+					install_name_tool -change $lib ${lib/\/Library\/Frameworks/@executable_path/../Frameworks} \
+						${file/\/Library\/Frameworks/OpenLieroX.app/Contents/Frameworks}
 				done
 			done
 		done

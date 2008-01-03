@@ -460,7 +460,7 @@ void copy_to_clipboard(const std::string& text)
 {
 	std::string new_str;
 	new_str.reserve(text.size());
-	for (int i = 0; i < text.size(); ++i)
+	for (size_t i = 0; i < text.size(); ++i)
 	{
 		if (text[i] == '\n')
 		{
@@ -492,7 +492,7 @@ std::string copy_from_clipboard()
 	str.resize(scrapsize);
 	err = GetScrapFlavorData(curscrap, kScrapFlavorTypeText, &scrapsize, const_cast<char*>(str.data()));
 	if (err != noErr) return "";
-	for (int i = 0; i < str.size(); ++i)
+	for (size_t i = 0; i < str.size(); ++i)
 	{
 		if (str[i] == '\r') str[i] = '\n';
 	}
