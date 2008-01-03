@@ -19,6 +19,7 @@
 
 #include <SDL_thread.h>
 #include <time.h>
+#include <assert.h>
 #include "Timer.h"
 
 int		Frames = 0;
@@ -58,9 +59,8 @@ std::string GetTime()
 
 
 // -----------------------------------
-// Timer class)
+// Timer class
 // HINT: the timer is not exact, do not use it for any exact timing, like ingame simulation
-// TODO: comments!
 
 struct TimerThreadData {
 	Timer* timer;
@@ -140,12 +140,12 @@ void Timer::stop() {
 
 void Timer::handleEvent(SDL_Event& ev) {
 	TimerThreadData* timer = (TimerThreadData*)ev.user.data1;
-	if (timer == NULL) return; //safety
-	if (timer->quit_signal) return; // it could happen that we get at the end still one more event
-	
-	if(!timer->onTimer(timer->timer, timer->userData)) {
-		timer->quit_signal = true;
-	}
+	assert(timer != NULL);
+	if(!timer->quit_signal) // it could happen that we get at the end still one more event
+		if(!timer->onTimer(timer->timer, timer->userData)) {
+			// we got false, so quit this timer
+			timer->quit_signal = true;
+		}
 
 	if( ev.user.data2 ) // last-event signal
 		delete timer;

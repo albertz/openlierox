@@ -67,20 +67,21 @@ public:
 	~Timer();	
 
 	OnTimerProc onTimer;
-	void* userData;
-	Uint32 interval;
-	bool once;
-	bool running();
+	void* userData; // forwarded to the event-function
+	Uint32 interval; // how often an event is pushed in the SDL queue
+	bool once; // the event is only pushed once and then it quits
+	bool running(); // this timer is currently running
 	
 	bool start();
-	bool startHeadless();
+	bool startHeadless(); // start independent timer
 	void stop();
 
+	// this is called by the main-loop in HandleNextEvent()
 	static void handleEvent(SDL_Event& ev);
 	
 private:
 	bool m_running;
-	void* last_thread_data;	
+	void* last_thread_data;	// it's TimerThreadData* intern
 };
 
 
