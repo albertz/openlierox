@@ -48,13 +48,6 @@ enum {
 	mi_PlayerSelection
 };
 
-
-bool ServerTimeoutSignal(Timer* sender, void* userData) {
-	// we want to update the screen at this position
-	// as this event already implies this, we don't have to do anything here
-	return false;
-}
-
 ///////////////////
 // Initialize the Internet menu
 int Menu_Net_NETInitialize(void)
@@ -117,9 +110,7 @@ int Menu_Net_NETInitialize(void)
     Menu_SvrList_LoadList("cfg/svrlist.dat");
     Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 	
-	// TODO: 7000 is hardcoded atm, also in MenuSystem.cpp for the timeout; change this
-	// TODO: a timer like this also need to be at other places
-	Timer(&ServerTimeoutSignal, NULL, 7000, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, SVRLIST_TIMEOUT, true).startHeadless();
 	
 	return true;
 }

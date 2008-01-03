@@ -34,6 +34,9 @@
 #define		SCK_LAN		0
 #define		SCK_NET		1
 
+// Serverlist timeout
+#define		SVRLIST_TIMEOUT		7000
+
 // Server info dialog dimensions
 #define		INFO_W		350
 #define		INFO_H		390
@@ -307,6 +310,9 @@ extern	bool		bGotDetails;
 extern	bool		bOldLxBug;
 extern	int			nTries;
 extern	float		fStart;
+
+// Misc
+bool	ServerTimeoutSignal(Timer* sender, void* userData);
 
 
 // Routines

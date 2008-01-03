@@ -1090,12 +1090,12 @@ void Menu_redrawBufferRect(int x, int y, int w, int h)
 server_t *psServerList = NULL;
 
 // Maximum number of pings/queries before we ignore the server
-int		MaxPings = 4;
-int		MaxQueries = MAX_QUERIES;
+static const int	MaxPings = 4;
+static const int	MaxQueries = MAX_QUERIES;
 
 // Time to wait before pinging/querying the server again (in seconds)
-float	PingWait = 1;
-float	QueryWait = 1;
+static const float	PingWait = 1;
+static const float	QueryWait = 1;
 
 
 
@@ -1190,6 +1190,8 @@ void Menu_SvrList_PingServer(server_t *svr)
 	svr->bProcessing = true;
 	svr->nPings++;
 	svr->fLastPing = tLX->fCurTime;
+
+	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 }
 
 ///////////////////
@@ -1222,6 +1224,8 @@ void Menu_SvrList_QueryServer(server_t *svr)
 	svr->bProcessing = true;
 	svr->nQueries++;
 	svr->fLastQuery = tLX->fCurTime;
+
+	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 }
 
 
@@ -1251,6 +1255,8 @@ void Menu_SvrList_RefreshServer(server_t *s)
 	s->nPings = 0;
 	s->nQueries = 0;
 	s->nPing = 0;
+
+	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 }
 
 
@@ -1325,6 +1331,9 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
     if( !psServerList )
         psServerList = svr;
 
+	// Set the timeout timer
+	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+
 	return svr;
 }
 
@@ -1398,6 +1407,9 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 
     if( !psServerList )
         psServerList = svr;
+
+	// Set the timeout timer
+	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 
 	return svr;
 }
@@ -2119,4 +2131,12 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 	// All ok, draw the details
 	lvInfo.Draw( tMenu->bmpScreen );
+}
+
+//////////////////
+// Server timeout timer handler
+bool ServerTimeoutSignal(Timer* sender, void* userData) {
+	// we want to update the screen at this position
+	// as this event already implies this, we don't have to do anything here
+	return false;
 }
