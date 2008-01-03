@@ -273,9 +273,9 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 
 	// Shake the viewport a bit
-	if(iShaking) {
+	if(bShaking) {
 		if(tLX->fCurTime - fShakestart > 0.2f) {
-			iShaking = false;
+			bShaking = false;
 			iShakeAmount = 0;
 		}
 		else {
@@ -393,7 +393,7 @@ SDL_Rect CViewport::getRect(void)
 void CViewport::Shake(int amount)
 {
 	fShakestart = tLX->fCurTime;
-	iShaking = true;
+	bShaking = true;
 	if(amount > iShakeAmount)
 		iShakeAmount = amount;
 }
@@ -401,7 +401,7 @@ void CViewport::Shake(int amount)
 
 ///////////////////
 // Check if a point is inside this viewport
-int CViewport::inView(CVec pos)
+bool CViewport::inView(CVec pos)
 {
 	return	(int)pos.x >= WorldX &&
 			(int)pos.y >= WorldY &&

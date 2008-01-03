@@ -57,7 +57,7 @@ public:
 		cFocused = NULL;
 		cWidgets = NULL;
 		cMouseOverWidget = NULL;
-		iCanFocus = true;
+		bCanFocus = true;
 		iID = -1;
 		//Initialize();
 	}
@@ -85,7 +85,7 @@ private:
 	float			fMouseNext[3];
 
 	// Can we set focus to another widget?
-	int				iCanFocus;
+	bool			bCanFocus;
 
 
 

@@ -35,7 +35,7 @@ enum {
 
 ///////////////////
 // Initialize the main net menu
-int Menu_Net_MainInitialize(void)
+bool Menu_Net_MainInitialize(void)
 {
 	iNetMode = net_main;
 

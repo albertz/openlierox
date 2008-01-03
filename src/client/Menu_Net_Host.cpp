@@ -81,7 +81,7 @@ int iHumanPlayers = 0;
 
 ///////////////////
 // Initialize the host menu
-int Menu_Net_HostInitialize(void)
+bool Menu_Net_HostInitialize(void)
 {
 	iNetMode = net_host;
 	iHostType = 0;
@@ -470,7 +470,7 @@ static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 
 ///////////////////
 // Initialize the hosting lobby
-int Menu_Net_HostLobbyInitialize(void)
+bool Menu_Net_HostLobbyInitialize(void)
 {
 	tGameInfo.iGameType = GME_HOST;
 	iNetMode = net_host;

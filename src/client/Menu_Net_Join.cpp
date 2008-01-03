@@ -50,7 +50,7 @@ std::string	sJoinAddress;
 
 ///////////////////
 // Join a server
-int Menu_Net_JoinInitialize(const std::string& sAddress)
+bool Menu_Net_JoinInitialize(const std::string& sAddress)
 {
 	iNetMode = net_join;
 	iJoinMenu = join_connecting;
@@ -115,7 +115,7 @@ enum {
 
 ///////////////////
 // Initialize the connection menu
-int Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
+bool Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 {
 	iJoinMenu = join_connecting;
 	tGameInfo.iGameType = GME_JOIN;
@@ -256,7 +256,7 @@ enum {
 
 ///////////////////
 // Initialize the joining lobby
-int Menu_Net_JoinLobbyInitialize(void)
+bool Menu_Net_JoinLobbyInitialize(void)
 {
     Menu_Net_JoinDrawLobby();
 

@@ -38,7 +38,7 @@ enum {
 
 ///////////////////
 // Initialize the news net menu
-int Menu_Net_NewsInitialize(void)
+bool Menu_Net_NewsInitialize(void)
 {
 	iNetMode = net_news;
 

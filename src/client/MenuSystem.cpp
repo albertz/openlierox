@@ -45,7 +45,7 @@ CCssParser	cWidgetStyles;
 
 ///////////////////
 // Initialize the menu system
-int Menu_Initialize(bool *game)
+bool Menu_Initialize(bool *game)
 {
 	bGame = game;
 	*bGame = false;
@@ -1618,7 +1618,7 @@ bool Menu_SvrList_Process(void)
 ///////////////////
 // Parse a packet
 // Returns true if we should update the list
-int Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
+bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 {
 	NetworkAddr		adrFrom;
 	int				update = false;

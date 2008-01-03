@@ -65,13 +65,13 @@ public:
 	// Constructor
 	CCombobox() {
 		iSelected = 0;
-		iGotScrollbar = false;
-		iDropped = false;
-		iArrowDown = false;
-        iLastDropped = false;
+		bGotScrollbar = false;
+		bDropped = false;
+		bArrowDown = false;
+        bLastDropped = false;
 		iDropTime = 0;
 		iNow = 0;
-		iCanSearch = true;
+		bCanSearch = true;
 		iKeySelectedItem = -1;
 		bSorted = false;
 		bUnique = false;
@@ -87,16 +87,16 @@ private:
 	// Items
 	std::vector<cb_item_t> tItems;
 	int 			iSelected;
-	int				iGotScrollbar;
-	int				iDropped;
-	int				iArrowDown;
-    int             iLastDropped;
+	bool			bGotScrollbar;
+	bool			bDropped;
+	bool			bArrowDown;
+    bool			bLastDropped;
 	int				iDropTime;
 	int				iNow;
 	int				iKeySelectedItem;
 
 	// Stuff
-	int				iCanSearch;
+	bool			bCanSearch;
 	bool			bSorted;
 	bool			bUnique;
 
@@ -122,7 +122,7 @@ public:
 	int		MouseDown(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
-	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ iCanSearch = true; return CMB_NONE; }
+	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ bCanSearch = true; return CMB_NONE; }
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 
 	void	Draw(SDL_Surface *bmpDest);
@@ -156,7 +156,7 @@ public:
 	void	setImage(SDL_Surface *img, int ItemIndex);
 	int		getSelectedIndex();
 	const cb_item_t* getSelectedItem();
-	int		getDropped(void) { return iDropped; }
+	bool	getDropped(void) { return bDropped; }
 	void	setSorted(bool _s)  { bSorted = _s; }
 	bool	getSorted()	{ return bSorted; }
 	void	setUnique(bool _u)  { bUnique = _u; }

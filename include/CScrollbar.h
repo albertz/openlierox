@@ -60,11 +60,11 @@ private:
 
 	int		iScrollPos;
 	int		iItemsperbox;
-	int		iSliderGrabbed;
+	bool	bSliderGrabbed;
 	int		iSliderGrabPos;
 
-	int		iTopButton;
-	int		iBotButton;
+	bool	bTopButton;
+	bool	bBotButton;
 
 	int		nButtonsDown;
 	float	fMouseNext[3];
@@ -103,7 +103,7 @@ public:
 
 	int		getValue(void)					{ return iValue; }
 	int		getMax(void)					{ return iMax; }
-	int		getGrabbed(void)				{ return iSliderGrabbed; }
+	bool	getGrabbed(void)				{ return bSliderGrabbed; }
 
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }

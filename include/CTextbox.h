@@ -54,12 +54,13 @@ public:
 		iType = wid_Textbox;
 		iFlags = 0;
 		fBlinkTime = 0;
-		iDrawCursor = 1;
+		bDrawCursor = true;
 		iScrollPos = 0;
 		iSelLength = 0;
 		iSelStart = 0;
 		sSelectedText = "";
-		iHoldingMouse = false;
+		bHolding = false;
+		bHoldingMouse = false;
 		iLastCurpos = 0;
 		fTimeHolding = 0;
 		iLastMouseX = 0;
@@ -90,12 +91,12 @@ private:
 
 	size_t	iMax;
 
-	int		iHolding;
+	bool	bHolding;
 	float	fTimePushed;
 	UnicodeChar		iLastchar;
 	int		iLastKeysym;
 
-	int		iHoldingMouse;
+	bool	bHoldingMouse;
 	float	fTimeHolding;
 	int		iLastCurpos;
 	int		iLastMouseX;
@@ -104,7 +105,7 @@ private:
 	float	fLastClick;
 
 	float	fBlinkTime;
-	int		iDrawCursor;
+	bool	bDrawCursor;
 
 	bool		*bVar;
 	int			*iVar;

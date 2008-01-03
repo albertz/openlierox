@@ -140,7 +140,7 @@ std::string NetworkSpeeds[] = {
 
 ///////////////////
 // Initialize the options
-int Menu_OptionsInitialize(void)
+bool Menu_OptionsInitialize(void)
 {
 	tMenu->iMenuType = MNU_OPTIONS;
 	OptionsMode = 0;

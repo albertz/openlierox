@@ -636,7 +636,7 @@ gui_event_t *CGuiLayout::Process(void)
 			continue;
 
 		// Special mouse button event first (for focused widgets)
-		if(tMouse->Down && cFocused == w && !iCanFocus && !w->InBox(tMouse->X,tMouse->Y)) {
+		if(tMouse->Down && cFocused == w && !bCanFocus && !w->InBox(tMouse->X,tMouse->Y)) {
 			widget = true;
 
 			// Process the skin-defined code
@@ -683,19 +683,19 @@ gui_event_t *CGuiLayout::Process(void)
 			if(tMouse->Down) {
 
 				widget = true;
-				if (iCanFocus)  {
+				if (bCanFocus)  {
 					if(cFocused)  {
 						if (cFocused->CanLoseFocus())  {
 							cFocused->setFocused(false);
 							w->setFocused(true);
 							cFocused = w;
-							iCanFocus = false;
+							bCanFocus = false;
 						}
 					}
 					else  {
 						w->setFocused(true);
 						cFocused = w;
-						iCanFocus = false;
+						bCanFocus = false;
 					}
 
 				}
@@ -711,7 +711,7 @@ gui_event_t *CGuiLayout::Process(void)
 
 			// Mouse up event
 			if(tMouse->Up) {
-				iCanFocus = true;
+				bCanFocus = true;
 				widget = true;
 				if(cFocused)  {
 					if(cFocused->CanLoseFocus())  {
@@ -765,7 +765,7 @@ gui_event_t *CGuiLayout::Process(void)
 
 	// If the mouse is clicked on empty space, take the focus of off the widget (if we can)
 	if(!widget && (tMouse->Up)) {
-		iCanFocus = true;
+		bCanFocus = true;
 		if(cFocused)  {
 			// Can we take the focus off?
 			if (cFocused->CanLoseFocus())  {

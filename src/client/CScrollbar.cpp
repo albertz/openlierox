@@ -29,10 +29,10 @@ void CScrollbar::Create(void)
 	iValue=0;
 	iItemsperbox = 1;
 	iScrollPos = 0;
-	iSliderGrabbed = false;
+	bSliderGrabbed = false;
 	iSliderGrabPos = 0;
-	iTopButton=false;
-	iBotButton=false;
+	bTopButton=false;
+	bBotButton=false;
 
 	nButtonsDown = 0;
 }
@@ -46,13 +46,13 @@ void CScrollbar::Draw(SDL_Surface *bmpDest)
 	int length;
     
 	// Top arrow
-	if(iTopButton)
+	if(bTopButton)
 		x=15;
 	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,0, iX,iY, 15,14);
 
 	// Bottom arrow
 	x=0;
-	if(iBotButton)
+	if(bBotButton)
 		x=15;
 	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,14, iX,iY+iHeight-14, 15,14);
 
@@ -84,8 +84,8 @@ void CScrollbar::Draw(SDL_Surface *bmpDest)
 
 	// Slight hack
 	if( !GetMouse()->Button ) {
-		iTopButton=false;
-		iBotButton=false;
+		bTopButton=false;
+		bBotButton=false;
 	}
 		
 }
@@ -95,9 +95,9 @@ void CScrollbar::Draw(SDL_Surface *bmpDest)
 // Mouse up
 int CScrollbar::MouseUp(mouse_t *tMouse, int nDown)
 {
-	iSliderGrabbed = false;
-	iTopButton=false;
-	iBotButton=false;
+	bSliderGrabbed = false;
+	bTopButton=false;
+	bBotButton=false;
 	nButtonsDown = 0;
 	return SCR_NONE;
 }
@@ -108,9 +108,9 @@ int CScrollbar::MouseUp(mouse_t *tMouse, int nDown)
 int CScrollbar::MouseOver(mouse_t *tMouse)
 {
 	if(!tMouse->Down) {
-		iSliderGrabbed = false;
-		iTopButton=false;
-		iBotButton=false;
+		bSliderGrabbed = false;
+		bTopButton=false;
+		bBotButton=false;
 		nButtonsDown = 0;
 	}
 	
@@ -122,7 +122,7 @@ int CScrollbar::MouseOver(mouse_t *tMouse)
 // Mouse down
 int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 {
-	if((tMouse->X < iX || tMouse->X > iX+iWidth) && !iSliderGrabbed)
+	if((tMouse->X < iX || tMouse->X > iX+iWidth) && !bSliderGrabbed)
 		return SCR_NONE;
 
 	int length = (int)((float)iItemsperbox/(float)iMax * iHeight-30);
@@ -133,8 +133,8 @@ int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 	
 	// Grab the slider
 	if(tMouse->Y > iY+15+iScrollPos && tMouse->Y < iY+15+iScrollPos+length) {		
-		if(!iSliderGrabbed) {
-			iSliderGrabbed = true;
+		if(!bSliderGrabbed) {
+			bSliderGrabbed = true;
 			iSliderGrabPos = tMouse->Y - (iY+15+iScrollPos);
 			nButtonsDown = 0;
 			return SCR_NONE;
@@ -142,7 +142,7 @@ int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 	}
 
 	// Move the slider
-	if(iSliderGrabbed) {
+	if(bSliderGrabbed) {
 		float dist = (float)tMouse->Y - (iY+15+iScrollPos + iSliderGrabPos);
 		float increment = iMax ? (float)iHeight/(float)iMax : 0;
 		if(increment)
@@ -178,7 +178,7 @@ int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 
 	// Top arrow
 	if(tMouse->Y > iY && tMouse->Y < iY+14) {
-		iTopButton = true;
+		bTopButton = true;
 
 		// Move up
 		iValue--;
@@ -188,7 +188,7 @@ int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 
 	// Bottom arrow
 	if(tMouse->Y > iY+iHeight-14 && tMouse->Y < iY+iHeight) {
-		iBotButton = true;
+		bBotButton = true;
 
 		// Move down
 		iValue++;

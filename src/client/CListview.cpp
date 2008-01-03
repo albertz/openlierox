@@ -90,7 +90,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 	// Right bound
 	int right_bound = iX+iWidth-2;
-	if(iGotScrollbar || bAlwaysVisibleScrollbar)
+	if(bGotScrollbar || bAlwaysVisibleScrollbar)
 		right_bound = MIN(cScrollbar.getX() - 2, iX + iWidth - 3);
 
 	int h=tLX->cFont.GetHeight();
@@ -114,7 +114,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 			break;
 
 		// Selected?
-		if(item->iSelected && bShowSelect) {
+		if(item->bSelected && bShowSelect) {
 			if(bFocused)
 				DrawRectFill(bmpDest,x-2,y,right_bound,y+h-2,tLX->clListviewSelected);
 			else
@@ -143,7 +143,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 
 			for(;sub;sub = sub->tNext) {
 
-				if(sub->iVisible) {
+				if(sub->bVisible) {
 					switch(sub->iType)  {
 					case LVS_TEXT:  {
 						// Get the colour
@@ -222,7 +222,7 @@ void CListview::Draw(SDL_Surface *bmpDest)
 	}
 
 	// Draw the scrollbar
-	if(iGotScrollbar || bAlwaysVisibleScrollbar)
+	if(bGotScrollbar || bAlwaysVisibleScrollbar)
 		cScrollbar.Draw(bmpDest);
 
     // Draw the rectangle last
@@ -318,7 +318,7 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 	item->sIndex = sIndex;
 	item->iIndex = iIndex;
 	item->tNext = NULL;
-	item->iSelected = false;
+	item->bSelected = false;
 	item->tSubitems = NULL;
 	item->iHeight = tLX->cFont.GetHeight();			// Text height
 	item->iColour = iColour;
@@ -337,7 +337,7 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 	else {
 		tItems = item;
 		tSelected = item;
-		tSelected->iSelected = true;
+		tSelected->bSelected = true;
 		//writeLog("Index: %d\n",tSelected->iIndex);
 	}
 
@@ -348,7 +348,7 @@ void CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
 
 	// Do we use a scrollbar?
 	//if(cScrollbar.getMax()*20 >= iHeight)
-	//	iGotScrollbar = true;
+	//	bGotScrollbar = true;
 
 	// Readjust the scrollbar
 	ReadjustScrollbar();
@@ -381,7 +381,7 @@ void CListview::AddSubitem(int iType, const std::string& sText, SDL_Surface *img
 	sub->bmpImage = NULL;
 	sub->tWidget = NULL;
 	sub->tNext = NULL;
-	sub->iVisible = true;
+	sub->bVisible = true;
 	sub->iExtra = 0;
 	sub->iValign = iVAlign;
 	if (iColour == tLX->clPink)
@@ -462,7 +462,7 @@ void CListview::ReadjustScrollbar(void)
 	if(count == 0) {
 		cScrollbar.setItemsperbox(0);
 		cScrollbar.setValue(0);
-		iGotScrollbar = false;
+		bGotScrollbar = false;
 
 		// Return to prevent a divide-by-zero
 		return;
@@ -477,7 +477,7 @@ void CListview::ReadjustScrollbar(void)
     cScrollbar.setMax(count);
     cScrollbar.setValue(0);
 
-	iGotScrollbar = count > h;
+	bGotScrollbar = count > h;
 }
 
 
@@ -549,16 +549,16 @@ void CListview::RemoveItem(int iIndex)
 
 	tSelected = tItems;
 	if(tSelected)
-		tSelected->iSelected = true;
+		tSelected->bSelected = true;
 
 	// Adjust the scrollbar
 	//cScrollbar.setMax( cScrollbar.getMax()-1 );
 
 	/*// Do we use a scrollbar?
 	if(cScrollbar.getMax()*20 >= iHeight)
-		iGotScrollbar = true;
+		bGotScrollbar = true;
 	else
-		iGotScrollbar = false;*/
+		bGotScrollbar = false;*/
 
 	// Readjust the scrollbar
 	ReadjustScrollbar();
@@ -745,7 +745,7 @@ void CListview::Clear(void)
 	cScrollbar.setValue(0);
 	iItemCount=0;
     iItemID = 0;
-	iGotScrollbar=false;
+	bGotScrollbar=false;
 	bNeedsRepaint = true; // Repaint required
 }
 
@@ -758,7 +758,7 @@ void CListview::Create(void)
 	Destroy();
 	iItemCount=0;
     iItemID = 0;
-	iGotScrollbar=false;
+	bGotScrollbar=false;
     bShowSelect = true;
 
 	cScrollbar.Create();
@@ -831,7 +831,7 @@ int CListview::getIndex(int count)
 // Mouse over event
 int	CListview::MouseOver(mouse_t *tMouse)
 {
-	if(tMouse->X > iX+iWidth-20 && tMouse->Y >= iY+20 && iGotScrollbar)
+	if(tMouse->X > iX+iWidth-20 && tMouse->Y >= iY+20 && bGotScrollbar)
 		cScrollbar.MouseOver(tMouse);
 
 	// Reset the cursor
@@ -888,7 +888,7 @@ int	CListview::MouseOver(mouse_t *tMouse)
 // Mouse down event
 int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 {
-	if(((tMouse->X > iX+iWidth-20) && iGotScrollbar) || cScrollbar.getGrabbed()) {
+	if(((tMouse->X > iX+iWidth-20) && bGotScrollbar) || cScrollbar.getGrabbed()) {
 		cScrollbar.MouseDown(tMouse, nDown);
 		return LV_NONE;
 	}
@@ -1005,7 +1005,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 			int i=0;
 			for(;sub;sub=sub->tNext,i++) {
 
-				if(sub->iVisible) {
+				if(sub->bVisible) {
 					if(col) {
 						if(tMouse->X > x && tMouse->X < x+col->iWidth)
 							iClickedSub = i;
@@ -1040,7 +1040,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 			}
 
             if(tSelected) {
-				tSelected->iSelected = false;
+				tSelected->bSelected = false;
 
                 // If we changed the selection, reset the mouseup var to avoid double clicks
                 // when changing items
@@ -1051,7 +1051,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 
 
 			tSelected = item;
-			tSelected->iSelected = true;
+			tSelected->bSelected = true;
 
 			return event;
 		}
@@ -1076,7 +1076,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 {
 	iLastMouseX = 0;
 
-	if((tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && iGotScrollbar)
+	if((tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && bGotScrollbar)
 		cScrollbar.MouseUp(tMouse, nDown);
 
 	if(tMouse->X < iX || tMouse->X > iX+iWidth-18) {
@@ -1154,7 +1154,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 			int i=0;
 			for(;sub;sub=sub->tNext,i++) {
 
-				if(sub->iVisible) {
+				if(sub->bVisible) {
 					if(col) {
 						if(tMouse->X > x && tMouse->X < x+col->iWidth)
 							iClickedSub = i;
@@ -1191,10 +1191,10 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 
 
 			if(tSelected)
-				tSelected->iSelected = false;
+				tSelected->bSelected = false;
 
 			tSelected = item;
-			tSelected->iSelected = true;
+			tSelected->bSelected = true;
 
 			if(event != LV_DOUBLECLK)
 				fLastMouseUp = tLX->fCurTime;
@@ -1228,7 +1228,7 @@ int	CListview::MouseWheelDown(mouse_t *tMouse)
 			return LV_WIDGETEVENT;
 	}
 
-	if(iGotScrollbar)  {
+	if(bGotScrollbar)  {
 		cScrollbar.MouseWheelDown(tMouse);
 		bNeedsRepaint = true; // Repaint required
 	}
@@ -1249,7 +1249,7 @@ int	CListview::MouseWheelUp(mouse_t *tMouse)
 			return LV_WIDGETEVENT;
 	}
 
-	if(iGotScrollbar)  {
+	if(bGotScrollbar)  {
 		cScrollbar.MouseWheelUp(tMouse);
 		bNeedsRepaint = true; // Repaint required
 	}
@@ -1285,11 +1285,11 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 	if (keysym == SDLK_DOWN) {
 		if (tSelected) {
 			if (tSelected->tNext)  {
-				tSelected->iSelected = false;
+				tSelected->bSelected = false;
 				tSelected = tSelected->tNext;
-				tSelected->iSelected = true;
+				tSelected->bSelected = true;
 				iLastChar = SDLK_DOWN;
-				if (iGotScrollbar)
+				if (bGotScrollbar)
 					if (tSelected->_iID >= (cScrollbar.getItemsperbox()-1 + cScrollbar.getValue()))
 						cScrollbar.setValue( cScrollbar.getValue()+1 );			
 				return LV_NONE;
@@ -1306,11 +1306,11 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 		for (;i->tNext;i=i->tNext)  {
 			if (i->tNext == tSelected) {
 				if (tSelected)
-					tSelected->iSelected = false;
+					tSelected->bSelected = false;
 				tSelected = i;
-				tSelected->iSelected = true;
+				tSelected->bSelected = true;
 				iLastChar = SDLK_UP;
-				if (iGotScrollbar)
+				if (bGotScrollbar)
 					if (cScrollbar.getValue() > tSelected->_iID)
 						cScrollbar.setValue( cScrollbar.getValue()-1 );	
 				return LV_NONE;
@@ -1322,10 +1322,10 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 	if (keysym == SDLK_HOME)  {
 		if (tItems)  {
 			if (tSelected)
-				tSelected->iSelected = false;
+				tSelected->bSelected = false;
 			tSelected = tItems;
-			tSelected->iSelected = true;
-			if (iGotScrollbar)
+			tSelected->bSelected = true;
+			if (bGotScrollbar)
 				cScrollbar.setValue(0);
 		}
 	}
@@ -1334,10 +1334,10 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 	if (keysym == SDLK_END)  {
 		if (tLastItem)  {
 			if (tSelected)
-				tSelected->iSelected = false;
+				tSelected->bSelected = false;
 			tSelected = tLastItem;
-			tSelected->iSelected = true;
-			if (iGotScrollbar)
+			tSelected->bSelected = true;
+			if (bGotScrollbar)
 				cScrollbar.setValue(tSelected->_iID);
 		}
 	}
@@ -1402,12 +1402,12 @@ void CListview::setSelectedID(int id)
 
         if(item->_iID == id) {
             if(tSelected)
-                tSelected->iSelected = false;
-            item->iSelected = true;
+                tSelected->bSelected = false;
+            item->bSelected = true;
             tSelected = item;
 
 			// Scroll to the item if needed
-			if (iGotScrollbar)  {
+			if (bGotScrollbar)  {
 				cScrollbar.setValue(tSelected->_iID);
 			}
 
@@ -1421,7 +1421,7 @@ void CListview::setSelectedID(int id)
 // Scroll to the last item
 void CListview::scrollLast(void)
 {
-	if (iGotScrollbar)  {
+	if (bGotScrollbar)  {
 		cScrollbar.setValue(cScrollbar.getMax());
 		cScrollbar.UpdatePos();
 		bNeedsRepaint = true; // Repaint required

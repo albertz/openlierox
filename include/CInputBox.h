@@ -45,7 +45,7 @@ public:
 
 		bmpImage = img;
 		iType = wid_Inputbox;
-		iMouseOver = false;
+		bMouseOver = false;
 		sVar = NULL;
 	}
 
@@ -56,7 +56,7 @@ private:
 	int			iKeyvalue;
 	std::string	sText;
 	SDL_Surface	*bmpImage;
-	int			iMouseOver;
+	bool		bMouseOver;
 	std::string	sName;
 
 	std::string		*sVar;
@@ -68,7 +68,7 @@ public:
 	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1
-	int		MouseOver(mouse_t *tMouse)			{ iMouseOver = true; return INB_NONE; }
+	int		MouseOver(mouse_t *tMouse)			{ bMouseOver = true; return INB_NONE; }
 	int		MouseUp(mouse_t *tMouse, int nDown)		{ return INB_MOUSEUP; }
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return INB_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return INB_NONE; }

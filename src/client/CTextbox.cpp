@@ -37,8 +37,8 @@ void CTextbox::Create(void)
 	iLastCurpos = 0;
 	sText = "";
 	iMax = (size_t) -1; // highest possible size_t value
-	iHolding = false;
-	iHoldingMouse = false;
+	bHolding = false;
+	bHoldingMouse = false;
 	fTimeHolding = 0;
 	fTimePushed = -9999;
 	fLastRepeat = -9999;
@@ -137,11 +137,11 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 	if(bFocused) {
 
 		if ((GetMilliSeconds()-fBlinkTime) > 0.5)  {
-			iDrawCursor = !iDrawCursor;
+			bDrawCursor = !bDrawCursor;
 			fBlinkTime = GetMilliSeconds();
 		}
 
-		if (iDrawCursor)  {
+		if (bDrawCursor)  {
 			// Determine the cursor position in pixels
 			int x = tLX->cFont.GetWidth(Utf8SubStr(text, 0, (unsigned int)cursorpos));
 
@@ -158,12 +158,12 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 // Keydown event
 int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
-	iDrawCursor = true;
+	bDrawCursor = true;
 
 	// Handle holding keys
-	if(iHolding) {
+	if(bHolding) {
 		if(iLastchar != c || iLastKeysym != keysym)
-			iHolding = false;
+			bHolding = false;
 		else {
 			if(tLX->fCurTime - fTimePushed < 0.25f)
 				return TXT_NONE;
@@ -173,8 +173,8 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		}
 	}
 
-	if(!iHolding) {
-		iHolding = true;
+	if(!bHolding) {
+		bHolding = true;
 		fTimePushed = tLX->fCurTime;
 	}
 
@@ -339,7 +339,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 // Keyup event
 int CTextbox::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
-	iHolding = false;
+	bHolding = false;
 
 	// Check if alt has been released and insert any character code that has been typed
 	if (keysym == SDLK_LALT || keysym == SDLK_RALT)
@@ -370,7 +370,7 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	SetGameCursor(CURSOR_TEXT);
 
 	int deltaX = tMouse->X - iX;
-	iDrawCursor = true;
+	bDrawCursor = true;
 
 	if (sText == "")
 		return TXT_MOUSEOVER;
@@ -436,14 +436,14 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 
 	// Holding the mouse
 	if (fTimeHolding > 0.25)
-		iHoldingMouse = true;
+		bHoldingMouse = true;
 
 	// Safety (must be *after* mouse scrolling)
 	if (iCurpos > Utf8StringSize(sText))  {
 		iCurpos = Utf8StringSize(sText);
 	}
 
-	if(iHoldingMouse)  {
+	if(bHoldingMouse)  {
 		if ((abs(tMouse->X - iLastMouseX) && (iCurpos - iLastCurpos)) || (scrolled))  {
 			if (scrolled)
 				scrolled = true;
@@ -466,8 +466,8 @@ int	CTextbox::MouseDown(mouse_t *tMouse, int nDown)
 	// Set up the variables for selection
 	//iLastCurpos = iCurpos;
 	iLastMouseX = tMouse->X;
-	if(!iHoldingMouse)
-		iHoldingMouse = true;
+	if(!bHoldingMouse)
+		bHoldingMouse = true;
 
 	return TXT_MOUSEOVER;
 
@@ -481,7 +481,7 @@ int	CTextbox::MouseUp(mouse_t *tMouse, int nDown)
 
 	fTimeHolding = 0;
 
-	iHoldingMouse = false;
+	bHoldingMouse = false;
 
 	iLastMouseX = 0;
 

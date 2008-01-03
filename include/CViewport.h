@@ -52,7 +52,7 @@ public:
 		VirtHeight = 480;
 		WorldX = WorldY = 0;
 
-		iShaking = false;
+		bShaking = false;
 		iShakeAmount = 0;
 
         pcTargetWorm = NULL;
@@ -75,7 +75,7 @@ private:
     CVec    curPos, tgtPos;
 
 	float	fShakestart;
-	int		iShaking;
+	bool	bShaking;
 	int		iShakeAmount;
 
     int     nType;
@@ -95,7 +95,7 @@ public:
 	void	Clamp(int MWidth, int MHeight);
 	void	ClampFiltered(int MWidth, int MHeight);
 
-	int		inView(CVec pos);	
+	bool	inView(CVec pos);	
 	void	Shake(int amount);
 
     void    setupInputs(const controls_t& Inputs);

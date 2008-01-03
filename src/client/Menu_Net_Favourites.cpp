@@ -48,7 +48,7 @@ enum {
 
 ///////////////////
 // Initialize the favourites menu
-int Menu_Net_FavouritesInitialize(void)
+bool Menu_Net_FavouritesInitialize(void)
 {
 	iNetMode = net_favourites;
 

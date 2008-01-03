@@ -311,7 +311,7 @@ std::string xmlGetString(xmlNodePtr Node, const std::string& Name)
 }
 
 CGuiSkinnedLayout * MainLayout = NULL;
-int		Menu_CGuiSkinInitialize(void)
+bool Menu_CGuiSkinInitialize(void)
 {
 	// TODO: don't hardcode window-size!
 	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);

@@ -64,10 +64,10 @@ public:
 	void			Destroy(void)		{  }
 	void			Parse();
 
-	inline std::string	getPath(void)		{ return sPath; }
-	inline SDL_Surface	*getSurface(void)	{ return tAnimation; }
-	inline float		getFrameTime()		{ return fFrameTime; }
-	inline void			setFrameTime(float t) { fFrameTime = t; }
+	std::string		getPath(void)		{ return sPath; }
+	SDL_Surface		*getSurface(void)	{ return tAnimation; }
+	float			getFrameTime()		{ return fFrameTime; }
+	void			setFrameTime(float t) { fFrameTime = t; }
 	void			Change(const std::string& Path, float frametime);
 
 	//These events return an event id, otherwise they return -1

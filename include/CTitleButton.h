@@ -38,14 +38,14 @@ public:
 	CTitleButton(int imgid, SDL_Surface *image) {
 		iImageID = imgid;
 		bmpImage = image;
-		iMouseOver = false;
+		bMouseOver = false;
 		iType = wid_Titlebutton;
 	}
 
 private:
 	// Attributes
 
-	int			iMouseOver;
+	bool		bMouseOver;
 	int			iImageID;
 	SDL_Surface *bmpImage;
 	CGuiSkin::CallbackHandler cClick;
@@ -57,9 +57,9 @@ public:
 	void	Destroy(void) { }
 
 	//These events return an event id, otherwise they return -1
-	int		MouseOver(mouse_t *tMouse)			{ iMouseOver=true; SetGameCursor(CURSOR_HAND); return TBT_MOUSEOVER; }
+	int		MouseOver(mouse_t *tMouse)			{ bMouseOver=true; SetGameCursor(CURSOR_HAND); return TBT_MOUSEOVER; }
 	int		MouseUp(mouse_t *tMouse, int nDown)		{ return TBT_MOUSEUP; }
-	int		MouseDown(mouse_t *tMouse, int nDown)	{ iMouseOver=true; return TBT_NONE; }
+	int		MouseDown(mouse_t *tMouse, int nDown)	{ bMouseOver=true; return TBT_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return TBT_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return TBT_NONE; }
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return TBT_NONE; }

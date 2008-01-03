@@ -45,7 +45,7 @@ int			grabWX, grabWY;
 
 ///////////////////
 // Initialize the map editor
-int Menu_MapEdInitialize(void)
+bool Menu_MapEdInitialize(void)
 {
 	tMenu->iMenuType = MNU_MAPED;
 
@@ -812,7 +812,7 @@ void Menu_MapEd_LoadSave(int save)
 
 ///////////////////
 // Check if there is a possible overwrite
-int Menu_MapEd_OkSave(const std::string& szFilename)
+bool Menu_MapEd_OkSave(const std::string& szFilename)
 {
 	std::string filename = szFilename;
 

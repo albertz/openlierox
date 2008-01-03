@@ -316,7 +316,7 @@ bool	ServerTimeoutSignal(Timer* sender, void* userData);
 
 
 // Routines
-int		Menu_Initialize(bool *game);
+bool	Menu_Initialize(bool *game);
 void	Menu_LoadFrontendInfo();
 void	Menu_Shutdown(void);
 void	Menu_Start(void);
@@ -329,7 +329,7 @@ void	Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
 void	Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type);
 void    Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2);
 void    Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool down);
-int		Menu_LoadWormGfx(profile_t *ply);
+bool	Menu_LoadWormGfx(profile_t *ply);
 int		Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type);
 void	Menu_AddDefaultWidgets(void);
 void	Menu_FillLevelList(CCombobox *cmb, int random);
@@ -346,7 +346,7 @@ server_t	*Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress);
 void        Menu_SvrList_RemoveServer(const std::string& szAddress);
 bool		Menu_SvrList_Process(void);
-int			Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
+bool		Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
 server_t	*Menu_SvrList_FindServer(const NetworkAddr& addr);
 void		Menu_SvrList_PingServer(server_t *svr);
 void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
@@ -373,7 +373,7 @@ void	Menu_LocalInitialize(void);
 void	Menu_LocalFrame(void);
 void	Menu_LocalAddProfiles(void);
 void	Menu_LocalStartGame(void);
-int		Menu_LocalCheckPlaying(int index);
+bool	Menu_LocalCheckPlaying(int index);
 void	Menu_Local_FillModList( CCombobox *cb );
 void	Menu_LocalShowMinimap(bool bReload);
 void	Menu_LocalAddPlaying(int index = -1);
@@ -395,11 +395,11 @@ void    Menu_Player_FillSkinCombo(CCombobox *cb);
 void	Menu_PlayerShutdown(void);
 
 // Map editor
-int		Menu_MapEdInitialize(void);
+bool	Menu_MapEdInitialize(void);
 void	Menu_MapEdFrame(SDL_Surface *bmpDest, int process);
 void	Menu_MapEd_New(void);
 void	Menu_MapEd_LoadSave(int save);
-int		Menu_MapEd_OkSave(const std::string& szFilename);
+bool	Menu_MapEd_OkSave(const std::string& szFilename);
 void	Menu_MapEdShutdown(void);
 
 // Game Settings
@@ -417,7 +417,7 @@ void	Menu_WeaponsRestrictionsShutdown(void);
 
 // Load/save dialog
 void	Menu_WeaponPresets(bool save, CWpnRest *gamescript);
-int		Menu_WeaponPresetsOkSave(const std::string& szFilename);
+bool	Menu_WeaponPresetsOkSave(const std::string& szFilename);
 void	Menu_WeaponPresetsShutdown(void);
 
 // Ban List
@@ -432,14 +432,14 @@ void	Menu_ServerSettingsShutdown(void);
 
 
 // Options
-int		Menu_OptionsInitialize(void);
+bool	Menu_OptionsInitialize(void);
 void	Menu_OptionsShutdown(void);
 void	Menu_OptionsFrame(void);
 void	Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b);
 
 
 // Main net
-int		Menu_NetInitialize(void);
+bool	Menu_NetInitialize(void);
 void	Menu_Net_GotoHostLobby(void);
 void	Menu_Net_GotoJoinLobby(void);
 void	Menu_NetFrame(void);
@@ -447,19 +447,19 @@ void	Menu_NetShutdown(void);
 
 
 // Net::Main menu
-int		Menu_Net_MainInitialize(void);
+bool	Menu_Net_MainInitialize(void);
 void	Menu_Net_MainFrame(int mouse);
 void	Menu_Net_MainShutdown(void);
 
 
 // Net::Host menu
-int		Menu_Net_HostInitialize(void);
+bool	Menu_Net_HostInitialize(void);
 void	Menu_Net_HostShutdown(void);
 void	Menu_Net_HostFrame(int mouse);
 void	Menu_Net_HostPlyFrame(int mouse);
 void	Menu_Net_HostPlyShutdown(void);
 
-int		Menu_Net_HostLobbyInitialize(void);
+bool	Menu_Net_HostLobbyInitialize(void);
 void    Menu_Net_HostLobbyDraw(void);
 void    Menu_Net_HostLobbyCreateGui(void);
 void	Menu_Net_HostGotoLobby(void);
@@ -472,7 +472,7 @@ void	Menu_Net_HostDeregister(void);
 
 
 // Net::LAN menu
-int		Menu_Net_LANInitialize(void);
+bool	Menu_Net_LANInitialize(void);
 void	Menu_Net_LANShutdown(void);
 void	Menu_Net_LANFrame(int mouse);
 void	Menu_Net_LANSendPing(void);
@@ -481,12 +481,12 @@ void    Menu_Net_LanShowServer(const std::string& szAddress);
 
 
 // Net::Joining menu
-int		Menu_Net_JoinInitialize(const std::string& sAddress);
+bool	Menu_Net_JoinInitialize(const std::string& sAddress);
 void	Menu_Net_JoinShutdown(void);
 void	Menu_Net_JoinFrame(int mouse);
 
 // Net::Favourites menu
-int		Menu_Net_FavouritesInitialize(void);
+bool	Menu_Net_FavouritesInitialize(void);
 void	Menu_Net_FavouritesShutdown(void);
 void	Menu_Net_FavouritesFrame(int mouse);
 void	Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::string& sName);
@@ -495,7 +495,7 @@ void	Menu_Net_RenameServer(std::string& szName);
 void	Menu_Net_FavouritesAddServer(void);
 
 // Net::News menu
-int		Menu_Net_NewsInitialize(void);
+bool	Menu_Net_NewsInitialize(void);
 void	Menu_Net_NewsShutdown();
 void	Menu_Net_NewsFrame(int mouse);
 
@@ -503,11 +503,11 @@ void	Menu_Net_NewsFrame(int mouse);
 //int	Menu_Net_JoinInitializePlayers(void);
 //void	Menu_Net_JoinPlayersFrame(int mouse);
 
-int		Menu_Net_JoinConnectionInitialize(const std::string& sAddress);
+bool	Menu_Net_JoinConnectionInitialize(const std::string& sAddress);
 void	Menu_Net_JoinConnectionFrame(int mouse);
 void	Menu_Net_JoinConnectionShutdown(void);
 
-int		Menu_Net_JoinLobbyInitialize(void);
+bool	Menu_Net_JoinLobbyInitialize(void);
 void    Menu_Net_JoinDrawLobby(void);
 void    Menu_Net_JoinLobbyCreateGui(void);
 void	Menu_Net_JoinGotoLobby(void);
@@ -517,7 +517,7 @@ void	Menu_Net_JoinLobbyShutdown(void);
 
 
 // Net::Internet menu
-int		Menu_Net_NETInitialize(void);
+bool	Menu_Net_NETInitialize(void);
 void	Menu_Net_NETShutdown(void);
 void	Menu_Net_NETFrame(int mouse);
 void	Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sName);
@@ -527,7 +527,7 @@ void	Menu_Net_NETParseList(class CHttp& http);
 void    Menu_Net_NETShowServer(const std::string& szAddress);
 
 // CGuiSkin menu - when GUI skinning system will be complete (hopefully) this will become the main menu
-int		Menu_CGuiSkinInitialize(void);
+bool	Menu_CGuiSkinInitialize(void);
 void	Menu_CGuiSkinFrame(void);
 void	Menu_CGuiSkinShutdown(void);
 

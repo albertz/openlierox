@@ -40,31 +40,31 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	
 	if (bRedrawMenu)
 		Menu_redrawBufferRect( iX,iY, iWidth+15,tLX->cFont.GetHeight()+4);
-    if( !iDropped && iLastDropped ) {
+    if( !bDropped && bLastDropped ) {
 		if (bRedrawMenu)
 			Menu_redrawBufferRect( iX,iY+tLX->cFont.GetHeight(), iWidth+15,iHeight);
-        iLastDropped = false;
+        bLastDropped = false;
     }
 
 	// Draw the background bit
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+mainbitheight+1);
 
-	if(iDropped) {
+	if(bDropped) {
 		// Dropped down
 		if(getItemRW(iSelected))  {
 			buf = getItemRW(iSelected)->sName;
 			if (getItemRW(iSelected)->tImage)  {
 				DrawImage(bmpDest,getItemRW(iSelected)->tImage,iX+3,iY+1);
-				stripdot(buf,iWidth-(6+getItemRW(iSelected)->tImage->w+iGotScrollbar*15));
+				stripdot(buf, iWidth - (6 + getItemRW(iSelected)->tImage->w + (bGotScrollbar ? 15 : 0)));
 				tLX->cFont.Draw(bmpDest, iX+6+getItemRW(iSelected)->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDisabled, buf);
 			}
 			else  {
-				stripdot(buf,iWidth-(3+iGotScrollbar*15));
+				stripdot(buf,iWidth-(3 + bGotScrollbar ? 15 : 0));
 				tLX->cFont.Draw(bmpDest, iX+3, iY+2, tLX->clDisabled,buf);
 			}
 		}
 
-        iLastDropped = true;
+        bLastDropped = true;
 
 		// Change the widget's height
 		iHeight = 0;
@@ -75,7 +75,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 		// Screen clipping
 		while (iHeight+iY > bmpDest->h)  {
 			display_count--;
-			iGotScrollbar = true;
+			bGotScrollbar = true;
 			iHeight = ItemHeight*(display_count+1)+5;
 		}
 		cScrollbar.Setup(0, iX+iWidth-16, iY+ItemHeight+4, 14, iHeight-tLX->cFont.GetHeight()-6);
@@ -88,7 +88,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 		int count=0;
 		int y = iY+ItemHeight+4;
 		int w = iX+iWidth-1;
-		if(iGotScrollbar)  {
+		if(bGotScrollbar)  {
 			w-=16;
 			cScrollbar.Draw(bmpDest);
 		}
@@ -119,7 +119,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 			if (item->tImage)  {
 				// Draw the image
 				DrawImage(bmpDest,item->tImage,iX+3,y);
-				stripped = stripdot(buf,iWidth-(6+getItemRW(iSelected)->tImage->w+iGotScrollbar*15));
+				stripped = stripdot(buf,iWidth - (6 + getItemRW(iSelected)->tImage->w + bGotScrollbar ? 15 : 0));
 				tLX->cFont.Draw(bmpDest, iX+6+item->tImage->w, y, tLX->clDropDownText,buf);
 				if (stripped && selected)  {
 					int x1 = iX+4+getItemRW(iSelected)->tImage->w;
@@ -137,7 +137,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 				}
 			}
 			else  {
-				stripped = stripdot(buf,iWidth-(3+iGotScrollbar*15));
+				stripped = stripdot(buf,iWidth - (3 + bGotScrollbar ? 15 : 0));
 				tLX->cFont.Draw(bmpDest, iX+3, y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
 				if (stripped && selected)  {
 					int x1 = iX+4;
@@ -166,11 +166,11 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 			buf = getItemRW(iSelected)->sName;
 			if (getItemRW(iSelected)->tImage)  {
 				DrawImage(bmpDest,getItemRW(iSelected)->tImage,iX+3,iY+1);
-				stripdot(buf,iWidth-(6+getItemRW(iSelected)->tImage->w+iGotScrollbar*15));
+				stripdot(buf,iWidth - (6 + getItemRW(iSelected)->tImage->w + bGotScrollbar ? 15 : 0));
 				tLX->cFont.Draw(bmpDest, iX+6+getItemRW(iSelected)->tImage->w, iY+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
 			}
 			else  {
-				stripdot(buf,iWidth-(3+iGotScrollbar*15));
+				stripdot(buf,iWidth - (3 + bGotScrollbar ? 15 : 0));
 				tLX->cFont.Draw(bmpDest, iX+3, iY+2, tLX->clDropDownText, buf);
 			}
 		}
@@ -180,16 +180,16 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 
 	// Button
 	int x=0;
-	if(iArrowDown)
-		x=15;
+	if(bArrowDown)
+		x = 15;
 	DrawImageAdv(bmpDest, gfxGUI.bmpScrollbar, x,14, iX+iWidth-16,iY+2, 15,14);
 
 	if(!bFocused)  {
-		iDropped = false;
+		bDropped = false;
 		iKeySelectedItem = -1;
 	}
 
-	iArrowDown = false;
+	bArrowDown = false;
 }
 
 static inline int compare_items(const cb_item_t& item1, const cb_item_t& item2) {
@@ -245,9 +245,9 @@ void CCombobox::Unique() {
 void CCombobox::Create(void)
 {
 	iSelected = 0;
-	iGotScrollbar = false;
-	iDropped = false;
-	iArrowDown = false;
+	bGotScrollbar = false;
+	bDropped = false;
+	bArrowDown = false;
 	iKeySelectedItem = -1;
 
 	cScrollbar.Create();
@@ -275,7 +275,7 @@ void CCombobox::Destroy(void)
 // Mouse over event
 int CCombobox::MouseOver(mouse_t *tMouse)
 {
-	if(tMouse->X >= iX+iWidth-16 && iGotScrollbar && iDropped)
+	if(tMouse->X >= iX+iWidth-16 && bGotScrollbar && bDropped)
 		cScrollbar.MouseOver(tMouse);
 
 	return CMB_NONE;
@@ -286,9 +286,9 @@ int CCombobox::MouseOver(mouse_t *tMouse)
 // Mouse down event
 int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 {
-	iArrowDown = false;
+	bArrowDown = false;
 
-	if((tMouse->X >= iX+iWidth-16 || cScrollbar.getGrabbed()) && iGotScrollbar && iDropped) {
+	if((tMouse->X >= iX+iWidth-16 || cScrollbar.getGrabbed()) && bGotScrollbar && bDropped) {
 		cScrollbar.MouseDown(tMouse, nDown);
 		return CMB_NONE;
 	}
@@ -299,7 +299,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
             //
             // If we aren't dropped, shift the scroll bar
             //
-            if(!iDropped) {
+            if(!bDropped) {
                 if(iSelected >= 0 && (size_t)iSelected < tItems.size()) {
 					// Setup the scroll bar so it shows this item in the middle
 					cScrollbar.setValue( iSelected - cScrollbar.getItemsperbox() / 2 );
@@ -310,21 +310,21 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
             // Drop or close it
 			iNow = (int)(GetMilliSeconds() * 1000);
 			if (tMouse->FirstDown)  {
-				if (!iDropped)  {  // Not dropped, drop it
-					iArrowDown = true;
-					iDropped = true;
+				if (!bDropped)  {  // Not dropped, drop it
+					bArrowDown = true;
+					bDropped = true;
 					iKeySelectedItem = -1;
 					iDropTime = iNow;
 				} else {
 					// If clicked the arrow or body again, close the combobox
 					int mainbitheight = MAX(tLX->cFont.GetHeight()+1, 16);
 					if (tMouse->Y < iY + mainbitheight)
-						iDropped = false;
+						bDropped = false;
 				}
 			}
 
 			if (iNow-iDropTime <= 20 && iDropTime != 0 && (tMouse->Y < iY+20))  // let the arrow pushed a bit longer
-				iArrowDown = true;
+				bArrowDown = true;
 
 
 		}
@@ -345,9 +345,9 @@ int CCombobox::getItemHeight() {
 // Mouse up event
 int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 {
-	iArrowDown = false;
+	bArrowDown = false;
 
-	if(tMouse->X >= iX+iWidth-16 && iGotScrollbar && iDropped) {
+	if(tMouse->X >= iX+iWidth-16 && bGotScrollbar && bDropped) {
 		cScrollbar.MouseUp(tMouse, nDown);
 		return CMB_NONE;
 	}
@@ -358,8 +358,8 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 	// Go through the items checking for a mouse click
 	int y = iY+tLX->cFont.GetHeight()+4;
 	int w = iX+iWidth-1;
-	if(iGotScrollbar)
-		w-=16;
+	if(bGotScrollbar)
+		w -= 16;
 
 	int index = 0;
 	// TODO: this loop is just unneeded here, remove it
@@ -371,7 +371,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 			if(tMouse->Y >= y && tMouse->Y < y + ItemHeight)
 				if(tMouse->Up & SDL_BUTTON(1)) {
 					iSelected = index;
-					iDropped = false;
+					bDropped = false;
 					return CMB_CHANGED;
 				}
 
@@ -405,10 +405,10 @@ bool CCombobox::selectPrev() {
 // Mouse wheel down event
 int CCombobox::MouseWheelDown(mouse_t *tMouse)
 {
-	if(iGotScrollbar && iDropped)
+	if(bGotScrollbar && bDropped)
 		cScrollbar.MouseWheelDown(tMouse);
 
-	if(!iDropped)  {
+	if(!bDropped)  {
 		if(selectNext())
 			return CMB_CHANGED;
 	}
@@ -421,10 +421,10 @@ int CCombobox::MouseWheelDown(mouse_t *tMouse)
 // Mouse wheel up event
 int CCombobox::MouseWheelUp(mouse_t *tMouse)
 {
-	if(iGotScrollbar && iDropped)
+	if(bGotScrollbar && bDropped)
 		cScrollbar.MouseWheelUp(tMouse);
 
-	if(!iDropped)  {
+	if(!bDropped)  {
 		if(selectPrev())
 			return CMB_CHANGED;
 	}
@@ -458,11 +458,11 @@ int CCombobox::findItem(UnicodeChar startLetter) {
 int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	// Search for items by pressed key
-	if (!iCanSearch)
+	if (!bCanSearch)
 		return CMB_NONE;
 
 	// TODO: why?
-	iCanSearch = false;
+	bCanSearch = false;
 
 	int index = findItem(c);
 	if(index >= 0) {
@@ -474,7 +474,7 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 
 	// TODO: this doesn't work as expected atm if the mouse is over
 	// Handle key up/down
-	if (iDropped)  {
+	if (bDropped)  {
 		if (keysym == SDLK_DOWN)  {
 			if (selectNext())  {
 				// Move the scrollbar if necessary
@@ -496,7 +496,7 @@ int CCombobox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 		} else
 		
 		if(keysym == SDLK_RETURN) {
-			iDropped = false;
+			bDropped = false;
 		}
 	}
 
@@ -538,7 +538,7 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Return true, if the combobox is dropped
 		case CBM_ISDROPPED:
-			return iDropped;
+			return (int)bDropped;
 			break;
 
 		// Set the sorted property
@@ -651,7 +651,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 
     cScrollbar.setMax( tItems.size() );
 	
-	iGotScrollbar = tItems.size() > 6;
+	bGotScrollbar = tItems.size() > 6;
 
 	return index;
 }

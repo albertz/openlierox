@@ -339,7 +339,7 @@ void Menu_LocalFrame(void)
 					for (; it; it = it->tNext)  {
 						sub = lv->getSubItem(it, 2);
 						if (sub)
-							sub->iVisible = teams_on;
+							sub->bVisible = teams_on;
 
 						// Update the skin
 						sub = lv->getSubItem(it, 0);
@@ -450,7 +450,7 @@ void Menu_LocalAddPlaying(int index)
 	lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
 	if(sub) {
 		if(iGameType != GMT_TEAMDEATH && iGameType != GMT_VIP)
-			sub->iVisible = false;
+			sub->bVisible = false;
 		sub->iExtra = 0;
 	}
 }
@@ -651,7 +651,7 @@ void Menu_LocalStartGame(void)
 
 ///////////////////
 // Check if we can add another player to the list
-int Menu_LocalCheckPlaying(int index)
+bool Menu_LocalCheckPlaying(int index)
 {
 	uint		plycount = 0;
 	uint		hmncount = 0;
@@ -1320,7 +1320,7 @@ void Menu_WeaponPresetsShutdown(void)
 
 ///////////////////
 // Check if there is a possible overwrite
-int Menu_WeaponPresetsOkSave(const std::string& szFilename)
+bool Menu_WeaponPresetsOkSave(const std::string& szFilename)
 {
 	std::string filename = szFilename;
 

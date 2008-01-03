@@ -89,7 +89,7 @@ class lv_subitem_t { public:
 	std::string	sText;
 	SDL_Surface	*bmpImage;
 	CWidget		*tWidget;
-	int			iVisible;
+	bool		bVisible;
 	int			iExtra;
 	int			iValign;
 	Uint32		iColour;
@@ -104,7 +104,7 @@ class lv_item_t { public:
 	std::string	sIndex;
 	int			iIndex;
     int         _iID;
-	int			iSelected;
+	bool		bSelected;
 	int			iHeight;
 	Uint32		iColour;
 
@@ -125,7 +125,7 @@ public:
 		tLastItem = NULL;
 		tSelected = NULL;
 		iItemCount=0;
-		iGotScrollbar=false;
+		bGotScrollbar = false;
 		iType = wid_Listview;
 		fLastMouseUp = -99999;
 		iContentHeight = 0;
@@ -169,7 +169,6 @@ private:
 	lv_item_t		*tSelected;
 	int				iItemCount;
     int             iItemID;
-	int				iGotScrollbar;
 	int				iContentHeight;
 
 	float			fLastMouseUp;
@@ -177,6 +176,7 @@ private:
 
 	// Scrollbar
 	CScrollbar		cScrollbar;
+	bool			bGotScrollbar;
 	int				iSavedScrollbarPos;
 
 	// Other

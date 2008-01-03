@@ -27,11 +27,9 @@ void CInputbox::Draw(SDL_Surface *bmpDest)
 	if (bRedrawMenu)
 		Menu_redrawBufferRect(iX,iY, bmpImage->w, MAX(bmpImage->h, tLX->cFont.GetHeight()));
 
-	int y=0;
-	if(iMouseOver)
-		y=17;
-	DrawImageAdv(bmpDest,bmpImage, 0,y, iX,iY, bmpImage->w,17);
-	iMouseOver = false;
+	int y = bMouseOver ? 17 : 0;
+	DrawImageAdv(bmpDest,bmpImage, 0, y, iX, iY, bmpImage->w, 17);
+	bMouseOver = false;
     tLX->cFont.DrawCentre(bmpDest, iX+25, iY+1, tLX->clWhite, sText);
 }
 

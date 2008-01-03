@@ -45,7 +45,7 @@ enum {
 
 ///////////////////
 // Initialize the LAN menu
-int Menu_Net_LANInitialize(void)
+bool Menu_Net_LANInitialize(void)
 {
 	iNetMode = net_lan;
 

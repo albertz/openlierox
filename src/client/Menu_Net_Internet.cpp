@@ -50,7 +50,7 @@ enum {
 
 ///////////////////
 // Initialize the Internet menu
-int Menu_Net_NETInitialize(void)
+bool Menu_Net_NETInitialize(void)
 {
 	iNetMode = net_internet;
     szNetCurServer = "";
