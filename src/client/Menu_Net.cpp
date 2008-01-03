@@ -143,7 +143,7 @@ int Menu_NetInitialize(void)
 void Menu_Net_GotoHostLobby(void)
 {
 	tMenu->iMenuType = MNU_NETWORK;
-	tMenu->iMenuRunning = true;
+	tMenu->bMenuRunning = true;
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 	iNetMode = net_host;
 
@@ -164,7 +164,7 @@ void Menu_Net_GotoHostLobby(void)
 
 	Menu_Net_HostGotoLobby();
 
-	tLX->iQuitEngine = true;
+	tLX->bQuitEngine = true;
 	iSkipStart = true;
 }
 
@@ -176,7 +176,7 @@ void Menu_Net_GotoJoinLobby(void)
     printf("Menu_Net_GotoJoinLobby()\n");
 
 	tMenu->bmpScreen = SDL_GetVideoSurface();
-	tMenu->iMenuRunning = true;
+	tMenu->bMenuRunning = true;
 
 	tMenu->iMenuType = MNU_NETWORK;
 	iNetMode = net_join;
@@ -196,7 +196,7 @@ void Menu_Net_GotoJoinLobby(void)
 
 	Menu_Net_JoinGotoLobby();
 
-	tLX->iQuitEngine = true;
+	tLX->bQuitEngine = true;
 	iSkipStart = true;	
 }
 

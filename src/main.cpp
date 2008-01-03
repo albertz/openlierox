@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 	// Everything loaded, this is not needed anymore
 	ShutdownLoading();
 
-	while(!tLX->iQuitGame) {
+	while(!tLX->bQuitGame) {
 
 		startgame = false;
 
@@ -275,14 +275,14 @@ int main(int argc, char *argv[])
 		ClearEntities();
 
 		ProcessEvents();
-		tLX->iQuitEngine = false;
+		tLX->bQuitEngine = false;
 		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
 		float fMaxFrameTime = (tLXOptions->nMaxFPS > 0) ? (1.0f / (float)tLXOptions->nMaxFPS) : 0;
 
         //
         // Main game loop
         //
-		while(!tLX->iQuitEngine) {
+		while(!tLX->bQuitEngine) {
 
             tLX->fCurTime = GetMilliSeconds();
 
@@ -394,7 +394,7 @@ int InitializeLieroX(void)
 		return false;
     }
 	tLX->bVideoModeChanged = false;
-	tLX->iQuitGame = false;
+	tLX->bQuitGame = false;
 	tLX->debug_string = "";
 	tLX->fCurTime = 0;
 	tLX->fDeltaTime = 0;
@@ -551,7 +551,7 @@ void StartGame(void)
 // Game loop
 void GameLoop(void)
 {
-    if(tLX->iQuitEngine)
+    if(tLX->bQuitEngine)
         return;
 
 #ifdef WITH_MEDIAPLAYER
@@ -613,7 +613,7 @@ void GameLoop(void)
 // Quit back to the menu
 void QuittoMenu(void)
 {
-	tLX->iQuitEngine = true;
+	tLX->bQuitEngine = true;
     Menu_SetSkipStart(false);
 	cClient->Disconnect();
 }
@@ -622,7 +622,7 @@ void QuittoMenu(void)
 // Go to local menu
 void GotoLocalMenu(void)
 {
-	tLX->iQuitEngine = true;
+	tLX->bQuitEngine = true;
 	cClient->Disconnect();
 	Menu_SetSkipStart(true);
 	Menu_LocalInitialize();
@@ -632,7 +632,7 @@ void GotoLocalMenu(void)
 // Go to local menu
 void GotoNetMenu(void)
 {
-	tLX->iQuitEngine = true;
+	tLX->bQuitEngine = true;
 	cClient->Disconnect();
 	Menu_SetSkipStart(true);
 	Menu_NetInitialize();

@@ -263,7 +263,7 @@ void Menu_Shutdown(void)
 // Start the menu
 void Menu_Start(void)
 {
-	tMenu->iMenuRunning = true;
+	tMenu->bMenuRunning = true;
 	// User can switch video mode while playing
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
@@ -355,7 +355,7 @@ void Menu_Loop(void)
 
 	last_frame_was_because_of_an_event = ProcessEvents();
 	
-	while(tMenu->iMenuRunning) {
+	while(tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 		tLX->fDeltaTime = tLX->fCurTime - oldtime;
 		tLX->fRealDeltaTime = tLX->fDeltaTime;
@@ -723,7 +723,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 			}
 
 
-		if(!kb->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning && ret == -1) {
+		if(!kb->KeyUp[SDLK_ESCAPE] && tMenu->bMenuRunning && ret == -1) {
 			DrawCursor(tMenu->bmpScreen);
 	
 			FlipScreen(tMenu->bmpScreen);

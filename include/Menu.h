@@ -226,7 +226,7 @@ class menu_t { public:
 	SDL_Surface		*bmpMapEdTool;
 
 	// Other
-	int				iMenuRunning;
+	bool			bMenuRunning;
 	int				iMenuType;
 	frontendinfo_t	tFrontendInfo;
 	std::string		sSavedChatText;

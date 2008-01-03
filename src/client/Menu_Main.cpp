@@ -55,7 +55,7 @@ void Menu_MainInitialize(void)
 {
 	int i;
 	assert(tMenu);
-	tMenu->iMenuRunning = true;
+	tMenu->bMenuRunning = true;
 	tMenu->iMenuType = MNU_MAIN;
 
 	// Create the buffer
@@ -174,7 +174,7 @@ void Menu_MainFrame(void)
                     cMainMenu.Draw(tMenu->bmpBuffer);
 
                     if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) {
-					    tMenu->iMenuRunning = false;
+					    tMenu->bMenuRunning = false;
 					    cMainMenu.Shutdown();
 				    } else {
 

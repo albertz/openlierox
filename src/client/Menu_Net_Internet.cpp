@@ -480,7 +480,7 @@ void Menu_Net_NETAddServer(void)
 
 	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->iMenuRunning) {
+	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && addServerMsg && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
@@ -601,7 +601,7 @@ void Menu_Net_NETUpdateList(void)
 	CHttp http;
 	float senttime = 0;
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->iMenuRunning) {
+	while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && updateList && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
 		Menu_RedrawMouse(false);
@@ -777,7 +777,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 	fStart = -9999;
 
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
+    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
 		Menu_RedrawMouse(false);

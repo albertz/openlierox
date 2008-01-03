@@ -653,7 +653,7 @@ void Menu_Net_HostLobbyCreateGui(void)
 // Get the content of the chatbox
 std::string Menu_Net_HostLobbyGetText(void)
 {
-	if (tMenu->iMenuRunning)  {
+	if (tMenu->bMenuRunning)  {
 		std::string buf;
 		cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &buf, 256);
 		return buf;
@@ -1189,7 +1189,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Leave the frontend
 		*bGame = true;
-		tMenu->iMenuRunning = false;
+		tMenu->bMenuRunning = false;
 		tGameInfo.iGameType = GME_HOST;
 	}
 }

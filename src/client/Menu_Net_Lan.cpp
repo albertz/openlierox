@@ -432,7 +432,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 	fStart = -9999;
 
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->iMenuRunning) {
+    while(!GetKeyboard()->KeyUp[SDLK_ESCAPE] && tMenu->bMenuRunning) {
 		tLX->fCurTime = GetMilliSeconds();
 
 		Menu_RedrawMouse(false);

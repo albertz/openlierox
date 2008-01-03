@@ -91,9 +91,9 @@ void HandleNextEvent() {
 	// Quit event
 	case SDL_QUIT:
 		// Quit
-		tLX->iQuitGame = true;
-		tLX->iQuitEngine = true;
-		tMenu->iMenuRunning = false;
+		tLX->bQuitGame = true;
+		tLX->bQuitEngine = true;
+		tMenu->bMenuRunning = false;
 		break;
 
 	// Mouse wheel scroll

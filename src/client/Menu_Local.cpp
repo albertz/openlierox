@@ -642,7 +642,7 @@ void Menu_LocalStartGame(void)
 	}
 
 	*bGame = true;
-	tMenu->iMenuRunning = false;
+	tMenu->bMenuRunning = false;
 	tGameInfo.iGameType = GME_LOCAL;
 
 	cLocalMenu.Shutdown();
@@ -1216,7 +1216,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
+	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 
 		//DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);

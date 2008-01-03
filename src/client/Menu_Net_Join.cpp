@@ -385,7 +385,7 @@ void Menu_Net_JoinGotoLobby(void)
 // Get the content of the chatbox
 std::string Menu_Net_JoinLobbyGetText(void)
 {
-	if (tMenu->iMenuRunning)  {
+	if (tMenu->bMenuRunning)  {
 		std::string buf;
 		cJoinLobby.SendMessage(jl_ChatText, TXS_GETTEXT, &buf, 256);
 		return buf;
@@ -425,7 +425,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 		// Leave the frontend
 		*bGame = true;
-		tMenu->iMenuRunning = false;
+		tMenu->bMenuRunning = false;
 		tGameInfo.iGameType = GME_JOIN;
 
 		// Save the chat text

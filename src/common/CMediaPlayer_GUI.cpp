@@ -372,7 +372,7 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 		}
 
 		// Should we quit?
-		if (tLX->iQuitGame)  {
+		if (tLX->bQuitGame)  {
 			done = true;
 			cancelled = true;
 		}

@@ -622,7 +622,7 @@ void Cmd_BadWord() {
 }
 
 void Cmd_Quit() {
-	tLX->iQuitEngine = true;
+	tLX->bQuitEngine = true;
 }
 
 ///////////////////

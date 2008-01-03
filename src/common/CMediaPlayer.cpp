@@ -195,7 +195,7 @@ bool CPlayList::DrawLoadingProgress(void)
 	FlipScreen(screen);
 
 	// Redraw the menu
-	if (tMenu->iMenuRunning)  {
+	if (tMenu->bMenuRunning)  {
 		Menu_redrawBufferRect(x,y,w+1,h+1);
 		Menu_redrawBufferRect(mouse->X,mouse->Y,GetCursorWidth(CURSOR_ARROW),GetCursorHeight(CURSOR_ARROW));
 	}
@@ -731,7 +731,7 @@ void CMediaPlayer::SetDrawPlayer(bool _d)
 	bDrawPlayer = _d;
 
 	// Redraw the menu if needed
-	if (!bDrawPlayer && tMenu->iMenuRunning)  {
+	if (!bDrawPlayer && tMenu->bMenuRunning)  {
 		Menu_redrawBufferRect(iX, iY, GetWidth(), GetHeight());
 	}
 }
@@ -887,7 +887,7 @@ void CMediaPlayer::Frame() {
 				}
 			} else {
 				// Clear the current position from the menu screen if needed
-				if (tMenu->iMenuRunning)
+				if (tMenu->bMenuRunning)
 					Menu_redrawBufferRect(iX, iY, GetWidth(), GetHeight());
 
 				SetX(iX + tMouse->X - iLastMouseX);
@@ -906,7 +906,7 @@ void CMediaPlayer::Frame() {
 		// Hide on ESC
 		if (GetKeyboard()->KeyDown[SDLK_ESCAPE])  {
 			bDrawPlayer = false;
-			if (tMenu->iMenuRunning)
+			if (tMenu->bMenuRunning)
 				Menu_redrawBufferRect(iX, iY, GetWidth(), GetHeight());
 		}
 	}

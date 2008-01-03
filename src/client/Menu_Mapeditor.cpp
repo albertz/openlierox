@@ -595,7 +595,7 @@ void Menu_MapEd_New(void)
 		}
 
 		// Game close
-		if (tLX->iQuitGame || !tMenu->iMenuRunning)
+		if (tLX->bQuitGame || !tMenu->bMenuRunning)
 			break;
 
 
@@ -726,7 +726,7 @@ void Menu_MapEd_LoadSave(int save)
 
 	ProcessEvents();
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->iMenuRunning) {
+	while(!kb->KeyUp[SDLK_ESCAPE] && !quitloop && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 
 		DrawImageAdv(tMenu->bmpScreen,tMenu->bmpBuffer, 170,150, 170,150, 300, 180);

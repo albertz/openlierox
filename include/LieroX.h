@@ -77,8 +77,8 @@ class lierox_t { public:
 
 	bool	bVideoModeChanged;
 
-	int		iQuitGame;
-	int		iQuitEngine;
+	bool	bQuitGame;
+	bool	bQuitEngine;
 
 	int		debug_int;
 	float	debug_float;

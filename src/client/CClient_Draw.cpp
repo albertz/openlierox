@@ -1151,7 +1151,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 		// Quit Game
 		case gm_QuitGame:
 			if (ev->iEventMsg == BTN_MOUSEUP)  {
-				tLX->iQuitEngine = true;
+				tLX->bQuitEngine = true;
 			}
 			break;
 
