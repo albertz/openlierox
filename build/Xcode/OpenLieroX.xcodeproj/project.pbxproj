@@ -46,7 +46,6 @@
 		EABBC2B50C5A9DEE003884A9 /* GD.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2A70C5A9DEE003884A9 /* GD.framework */; };
 		EABBC2B80C5A9E1D003884A9 /* GD.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2A70C5A9DEE003884A9 /* GD.framework */; };
 		EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2C30C5AA00B003884A9 /* FreeType.framework */; };
-		EABBC3230C5AA046003884A9 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
 		EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2C30C5AA00B003884A9 /* FreeType.framework */; };
 		EABBCCB40C5AA2D2003884A9 /* gamedir in Game files */ = {isa = PBXBuildFile; fileRef = EABBC3530C5AA2CE003884A9 /* gamedir */; };
 		EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */; };
@@ -62,7 +61,6 @@
 		EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
 		EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EAD6E4D10C47EF7500D6C836 /* SDL.framework */; };
 		EAD6E50C0C4819D200D6C836 /* macosx.icns in Resources */ = {isa = PBXBuildFile; fileRef = EAD6E50B0C4819CF00D6C836 /* macosx.icns */; };
-		EAD801000C5B6FFC00D033E7 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */; };
 		EAD99F670C063ECA003BE563 /* AuxLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEE0BEFCEB400C6547E /* AuxLib.cpp */; };
 		EAD99F680C063ECA003BE563 /* Cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430BEF0BEFCEB400C6547E /* Cache.cpp */; };
 		EAD99F690C063ECA003BE563 /* CBanList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3F0BEFCEB400C6547E /* CBanList.cpp */; };
@@ -181,7 +179,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				EABBC3230C5AA046003884A9 /* UnixImageIO.framework in Copy Frameworks into .app */,
 				EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */,
 				EABBC2B80C5A9E1D003884A9 /* GD.framework in Copy Frameworks into .app */,
 				EAD6E5000C47F50F00D6C836 /* SDL.framework in Copy Frameworks into .app */,
@@ -411,7 +408,6 @@
 		EABBC2900C5A89F5003884A9 /* Development */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Development; sourceTree = "<group>"; };
 		EABBC2A70C5A9DEE003884A9 /* GD.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GD.framework; path = /Library/Frameworks/GD.framework; sourceTree = "<absolute>"; };
 		EABBC2C30C5AA00B003884A9 /* FreeType.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FreeType.framework; path = /Library/Frameworks/FreeType.framework; sourceTree = "<absolute>"; };
-		EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UnixImageIO.framework; path = /Library/Frameworks/UnixImageIO.framework; sourceTree = "<absolute>"; };
 		EABBC3530C5AA2CE003884A9 /* gamedir */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gamedir; path = ../../share/gamedir; sourceTree = SOURCE_ROOT; };
 		EAD6E47C0C47EE0100D6C836 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		EAD6E4BF0C47EF5900D6C836 /* IfyouDontLikeItThenIWillEatYourSoul.16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IfyouDontLikeItThenIWillEatYourSoul.16.png; path = ../../share/IfyouDontLikeItThenIWillEatYourSoul.16.png; sourceTree = SOURCE_ROOT; };
@@ -453,7 +449,6 @@
 				EAD6E4FA0C47EF7500D6C836 /* SDL.framework in Frameworks */,
 				EABBC2F60C5AA00B003884A9 /* FreeType.framework in Frameworks */,
 				EAD99FC60C063F91003BE563 /* libHawkNL.a in Frameworks */,
-				EAD801000C5B6FFC00D033E7 /* UnixImageIO.framework in Frameworks */,
 				EABBC2B50C5A9DEE003884A9 /* GD.framework in Frameworks */,
 				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
 				EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */,
@@ -790,7 +785,6 @@
 			children = (
 				233E2AB90D0DB10E00991914 /* OpenGL.framework */,
 				23CDBF900D0B06FD00920A5F /* Carbon.framework */,
-				EABBC2F90C5AA02B003884A9 /* UnixImageIO.framework */,
 				EABBC2C30C5AA00B003884A9 /* FreeType.framework */,
 				EABBC2A70C5A9DEE003884A9 /* GD.framework */,
 				EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */,
@@ -1115,6 +1109,7 @@
 					/sw/include/libxml2,
 					../../hawknl/include,
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				OTHER_CFLAGS = (
 					"-DMACOSX",
 					"-pthread",
