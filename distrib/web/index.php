@@ -35,7 +35,7 @@
 	<h2>Downloads</h2>
 	<b>0.57_beta3</b> (released 2007-08-08)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=531327">
-	OpenLieroX downloads</a> (with Mac OS X Universal Binary now!)<br>
+	OpenLieroX main downloads</a> (with Mac OS X Universal Binary now!)<br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta3.ebuild">OpenLieroX Gentoo ebuild</a><br>
 	HINT: We already provide a Deb-package but this package is not conform to all the 
 	Debian-policies. If somebody here is familiar with deb-packages, take a look at the
@@ -88,7 +88,7 @@
 </p>
 <p>
 	<h2>Installation under Debian/Ubuntu</h2>
-	Erik Gustafsson has created now a Debain-package of Beta2 for you. (Download link is in the download section.) This package currently doesn't do the dependency check for you, so you have still to install all needed dependencies (libraries) manually.<br>
+	There is a deb-package of Beta3 for you. This package currently doesn't do the dependency check for you, so you have still to install all needed dependencies (libraries) manually.<br>
 	The following commands should install all needed dependencies on your system:
 	<pre>
 		sudo apt-get install build-essential
@@ -120,9 +120,16 @@
 <p>
 	<h2>Links</h2>
 	<a href="http://sourceforge.net/projects/openlierox/">SourceForge project-site</a><br>
-	<a href="http://lxalliance.net/smf/index.php/topic,3071.0.html">LXA forum thread for OpenLieroX</a><br>
+	<a href="http://sourceforge.net/tracker/?group_id=180059&atid=891648">Bug tracker</a> -
+	<a href="http://sourceforge.net/tracker/?group_id=180059&atid=891651">Feature request tracker</a> -
+	<a href="http://sourceforge.net/forum/?group_id=180059">Forum at SF</a><br>
+	<a href="http://sourceforge.net/mail/?group_id=180059">Mailing lists at SF</a><br>
+	<a href="http://83.98.146.8/~misery/smf//index.php/board,125.0.html">LXA forum for OpenLieroX</a><br>
 	<a href="http://lxalliance.net/lierox/">official LieroX site</a><br>
-	<a href="http://www.az2000.de/">Alberts homepage</a>
+	<a href="http://www.az2000.de/">Alberts homepage</a><br>
+	<a href="http://open.liero.be/">Open Liero</a><br>
+	<a href="http://gusanos.sourceforge.net/">Gusanos</a><br>
+	<a href="http://vermes.dubdot.com/">Vermes</a>
 </p>
 </body>
 </html>
