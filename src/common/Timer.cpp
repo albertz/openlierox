@@ -141,6 +141,7 @@ void Timer::stop() {
 void Timer::handleEvent(SDL_Event& ev) {
 	TimerThreadData* timer = (TimerThreadData*)ev.user.data1;
 	assert(timer != NULL);
+	
 	if(!timer->quit_signal) // it could happen that we get at the end still one more event
 		if(!timer->onTimer(timer->timer, timer->userData)) {
 			// we got false, so quit this timer

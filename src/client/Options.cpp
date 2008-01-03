@@ -48,7 +48,7 @@ bool GameOptions::Init() {
 #ifdef WIN32
 		( tLXOptions->bFullscreen, "Video.Fullscreen", true )
 #else
-		( tLXOptions->iFullscreen, "Video.Fullscreen", false )
+		( tLXOptions->bFullscreen, "Video.Fullscreen", false )
 #endif
 		( tLXOptions->bShowFPS, "Video.ShowFPS", false )
 #ifdef MACOSX	
