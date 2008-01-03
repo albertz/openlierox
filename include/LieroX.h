@@ -222,8 +222,8 @@ class game_t { public:
 	int			iKillLimit;
 	int			iTimeLimit;
 	int			iTagLimit;
-	int			iBonusesOn;
-	int			iShowBonusName;
+	bool		bBonusesOn;
+	bool		bShowBonusName;
 	
 	int			iNumPlayers;
 	profile_t	*cPlayers[MAX_WORMS];
@@ -233,14 +233,14 @@ class game_t { public:
 // TODO: move this somewhere else
 // Game lobby structure
 class game_lobby_t { public:
-	int		nSet;
+	bool	bSet;
 	int		nGameMode;
 	int		nLastGameMode;
 	int		nLives;
 	int		nMaxWorms;
 	int		nMaxKills;
 	int		nLoadingTime;
-	int		nBonuses;
+	bool	bBonuses;
 	std::string	szMapName;
 	std::string	szDecodedMapName;
 	std::string	szModName;

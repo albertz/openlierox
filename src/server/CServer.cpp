@@ -57,13 +57,13 @@ void GameServer::Clear(void)
 	iState = SVS_LOBBY;
 	iServerFrame=0;
 	iNumPlayers = 0;
-	iRandomMap = false;
+	bRandomMap = false;
 	iMaxWorms = MAX_PLAYERS;
-	iGameOver = false;
+	bGameOver = false;
 	iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
 	InvalidateSocketState(tSocket);
-	tGameLobby.nSet = false;
+	tGameLobby.bSet = false;
 	bRegServer = false;
 	bServerRegistered = false;
 	fLastRegister = 0;
@@ -280,8 +280,8 @@ int GameServer::StartGame( bool dedicated )
 	iTagLimit =		 tGameInfo.iTagLimit;
 	sModName =		 tGameInfo.sModName;
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
-	iBonusesOn =	 tGameInfo.iBonusesOn;
-	iShowBonusName = tGameInfo.iShowBonusName;
+	bBonusesOn =	 tGameInfo.bBonusesOn;
+	bShowBonusName = tGameInfo.bShowBonusName;
 
 	// Check
 	if (!cWorms)
@@ -306,11 +306,11 @@ int GameServer::StartGame( bool dedicated )
 		return false;
 	}
 
-	iRandomMap = false;
+	bRandomMap = false;
 	if(stringcasecmp(tGameInfo.sMapFile,"_random_") == 0)
-		iRandomMap = true;
+		bRandomMap = true;
 
-	if(iRandomMap) {
+	if(bRandomMap) {
         cMap->New(504,350,"dirt");
 		cMap->ApplyRandomLayout( &tGameInfo.sMapRandom );
 
@@ -430,12 +430,12 @@ int GameServer::StartGame( bool dedicated )
 
 	iState = SVS_GAME;		// In-game, waiting for players to load
 	iServerFrame = 0;
-    iGameOver = false;
+    bGameOver = false;
 
 	bs.Clear();
 	bs.writeByte(S2C_PREPAREGAME);
-	bs.writeInt(iRandomMap,1);
-	if(!iRandomMap)
+	bs.writeBool(bRandomMap);
+	if(!bRandomMap)
 		bs.writeString(sMapFilename);
 
 	// Game info
@@ -444,8 +444,8 @@ int GameServer::StartGame( bool dedicated )
 	bs.writeInt16(iMaxKills);
 	bs.writeInt16(iTimeLimit);
 	bs.writeInt16(iLoadingTimes);
-	bs.writeInt(iBonusesOn, 1);
-	bs.writeInt(iShowBonusName, 1);
+	bs.writeBool(bBonusesOn);
+	bs.writeBool(bShowBonusName);
 	if(iGameType == GMT_TAG)
 		bs.writeInt16(iTagLimit);
 	bs.writeString(tGameInfo.sModDir);
@@ -470,7 +470,7 @@ void GameServer::BeginMatch(void)
 	// Initialize some server settings
 	fServertime = 0;
 	iServerFrame = 0;
-    iGameOver = false;
+    bGameOver = false;
 	fGameOverTime = -9999;
 	cShootList.Clear();
 
@@ -538,10 +538,10 @@ void GameServer::BeginMatch(void)
 void GameServer::GameOver(int winner)
 {
 	// The game is already over
-	if (iGameOver)
+	if (bGameOver)
 		return;
 
-	iGameOver = true;
+	bGameOver = true;
 	fGameOverTime = tLX->fCurTime;
 
 	// Let everyone know that the game is over

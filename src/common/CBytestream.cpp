@@ -469,7 +469,7 @@ bool CBytestream::readBit()
 		printf("WARNING: reading from stream behind end\n");
 		return false;
 	}
-	bool ret = Data[pos] & ( 1 << bitPos );
+	bool ret = (Data[pos] & ( 1 << bitPos )) != 0;
 	bitPos ++;
 	if( bitPos >= 8 )
 	{

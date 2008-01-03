@@ -249,7 +249,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Air drag (Mainly to dampen the ninja rope)
 			float Drag = wd->AirFriction;
 		
-			if(!iOnGround)	{
+			if(!bOnGround)	{
 				// TODO: this is also not exact
 				CVec preEstimatedVel = (newpos - vOldPosOfLastPaket) / t;
 				a.x -= SQR(preEstimatedVel.x) * SIGN(preEstimatedVel.x) * Drag;
@@ -262,7 +262,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			estimatedVel = (dist / t) + (a * t / 2);
 
 			// Ultimate in friction
-			if(iOnGround) {
+			if(bOnGround) {
 				// HINT: also this isn't exact (it would be like it's only one frame)
 				estimatedVel.x *= pow(0.9f, t * 100.0f);
 

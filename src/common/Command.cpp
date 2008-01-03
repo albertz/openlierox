@@ -653,11 +653,11 @@ void Cmd_Sound()  {
 
 	if (!stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes"))  {
 		StartSoundSystem();
-		tLXOptions->iSoundOn = true;
+		tLXOptions->bSoundOn = true;
 	}
 	else  {
 		StopSoundSystem();
-		tLXOptions->iSoundOn = false;
+		tLXOptions->bSoundOn = false;
 	}
 }
 

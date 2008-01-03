@@ -355,7 +355,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 
 	// Check for any communication errors
-	if(iServerError) {
+	if(bServerError) {
 
 		// Show message box, shutdown and quit back to menu
 		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
@@ -404,7 +404,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
         DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
 
 	// Top bar
-	if (tLXOptions->tGameinfo.bTopBarVisible && !iGameMenu && bShouldRepaintInfo)  {
+	if (tLXOptions->tGameinfo.bTopBarVisible && !bGameMenu && bShouldRepaintInfo)  {
 		SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
 		if (top_bar)
 			DrawImage( bmpDest, top_bar, 0, 0);
@@ -414,7 +414,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 
 	// Draw the viewports
-	if((iNetStatus == NET_CONNECTED && iGameReady) || (iNetStatus == NET_PLAYING)) {
+	if((iNetStatus == NET_CONNECTED && bGameReady) || (iNetStatus == NET_PLAYING)) {
 
         // Draw the viewports
         for( i=0; i<NUM_VIEWPORTS; i++ ) {
@@ -452,8 +452,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			}
 
 			// If we're ready, let the server know
-			if(ready && !iReadySent && !bDownloadingMap) {
-				iReadySent = true;
+			if(ready && !bReadySent && !bDownloadingMap) {
+				bReadySent = true;
 				CBytestream *bytes = cNetChan.getMessageBS();
 				bytes->writeByte(C2S_IMREADY);
 				bytes->writeByte(iNumWorms);
@@ -479,7 +479,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	bool bScoreboard = true;
 
 	// FPS
-	if(tLXOptions->iShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
+	if(tLXOptions->bShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
 		// Get the string and its width
 		static std::string fps_str;
 		fps_str = "FPS: " + itoa(GetFPS());
@@ -494,7 +494,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	}
 
 	// Ping on the top right
-	if(tLXOptions->iShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
+	if(tLXOptions->bShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
 
 		// Draw the box around it
 		DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
@@ -563,8 +563,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 #endif*/
 
 	// Game over
-    if(iGameOver) {
-        if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !iGameMenu)  {
+    if(bGameOver) {
+        if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !bGameMenu)  {
 			InitializeGameMenu();
 
 			// If this is a tournament, take screenshot of the final screen
@@ -579,7 +579,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
     }
 
 	// Game menu
-	if(iGameMenu)  {
+	if(bGameMenu)  {
 		bScoreboard = false;
 		DrawGameMenu(bmpDest);
 	}
@@ -598,7 +598,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	DrawCurrentSettings(bmpDest);
 
 	// Chatter
-	if(iChat_Typing)  {
+	if(bChat_Typing)  {
 		DrawChatter(bmpDest);
 	}
 
@@ -633,7 +633,7 @@ void CClient::DrawChatter(SDL_Surface *bmpDest)
 	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, i++)  {
 		tLX->cOutlineFont.Draw(bmpDest, x, y, tLX->clGameChatter, *it);
 		drawn_size += (int)Utf8StringSize((*it));
-		if (drawn_size >= (int)iChat_Pos - i && iChat_CursorVisible)  {  // Draw the cursor
+		if (drawn_size >= (int)iChat_Pos - i && bChat_CursorVisible)  {  // Draw the cursor
 			int cursor_x = tLX->cOutlineFont.GetWidth(Utf8SubStr((*it), 0, iChat_Pos - (drawn_size - (int)Utf8StringSize((*it)))));
 			DrawVLine(bmpDest, y, MIN(381, y + tLX->cOutlineFont.GetHeight()), cursor_x, tLX->clGameChatCursor);
 		}
@@ -663,13 +663,13 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
     //cWeather.Draw(bmpDest, v);
 
 	// When game menu is visible, it covers all this anyway, so we won't bother to draw it)
-	if (!iGameMenu)  {
+	if (!bGameMenu)  {
 		if (cMap)
 			cMap->Draw(bmpDest, v);
 
 		// The following will be drawn only when playing
 		if (iNetStatus == NET_PLAYING)  {
-			if( tLXOptions->iShadows ) {
+			if( tLXOptions->bShadows ) {
 				// Draw the projectile shadows
 				DrawProjectileShadows(bmpDest, v);
 
@@ -925,7 +925,7 @@ void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 // Simulate the hud
 void CClient::SimulateHud(void)
 {
-    if(!iGameReady)
+    if(!bGameReady)
         return;
 	
 	float dt = tLX->fDeltaTime;
@@ -943,22 +943,22 @@ void CClient::SimulateHud(void)
 	}
 
     // Console
-    if(!iChat_Typing && !iGameMenu && !bViewportMgr)
+    if(!bChat_Typing && !bGameMenu && !bViewportMgr)
         Con_Process(tLX->fDeltaTime);
 
 
 	// Game Menu
 	// TODO: make this event-based (don't check GetKeyboard() directly)
-    if(GetKeyboard()->KeyUp[SDLK_ESCAPE] && !iChat_Typing && !con) {
+    if(GetKeyboard()->KeyUp[SDLK_ESCAPE] && !bChat_Typing && !con) {
         if( !bViewportMgr )
-			if (!iGameMenu)
+			if (!bGameMenu)
 				InitializeGameMenu();
         else
             bViewportMgr = false;
     }
 
     // Viewport manager
-    if(cViewportMgr.isDownOnce() && !iChat_Typing && !iGameMenu && !con)
+    if(cViewportMgr.isDownOnce() && !bChat_Typing && !bGameMenu && !con)
         InitializeViewportManager();
 
     ProcessSpectatorViewportKeys(); // If local worm is dead move viewport instead of worm
@@ -1001,7 +1001,7 @@ enum {
 
 void CClient::InitializeGameMenu()
 {
-	iGameMenu = true;
+	bGameMenu = true;
 	GetKeyboard()->KeyUp[SDLK_ESCAPE] = false;  // Prevents immediate closing of the scoreboard
 	SetGameCursor(CURSOR_HAND);
 
@@ -1010,14 +1010,14 @@ void CClient::InitializeGameMenu()
 	bUpdateScore = true;
 
 	if (tGameInfo.iGameType == GME_LOCAL)  {
-		if (iGameOver)
+		if (bGameOver)
 			cGameMenuLayout.Add(new CButton(BUT_OK, bmpMenuButtons), gm_Ok, 310, 360, 30, 20);
 		else  {
 			cGameMenuLayout.Add(new CButton(BUT_QUITGAME, bmpMenuButtons), gm_QuitGame, 25, 360, 100, 20);
 			cGameMenuLayout.Add(new CButton(BUT_RESUME, bmpMenuButtons), gm_Resume, 540, 360, 80, 20);
 		}
 	} else {  // Remote playing
-		if (iGameOver)  {
+		if (bGameOver)  {
 			std::string ReturningTo = "Returning to Lobby in ";
 			int ReturningToWidth = tLX->cFont.GetWidth(ReturningTo);
 			cGameMenuLayout.Add(new CButton(BUT_LEAVE, bmpMenuButtons), gm_Leave, 25, 360, 80, 20);
@@ -1030,7 +1030,7 @@ void CClient::InitializeGameMenu()
 	}
 
 	cGameMenuLayout.Add(new CLabel("", tLX->clNormalLabel), gm_TopMessage, 440, 5, 0, 0);
-	if (iGameOver)  {
+	if (bGameOver)  {
 		if (tGameInfo.iGameMode == GMT_TEAMDEATH)  {
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
 			iMatchWinner = CLAMP(iMatchWinner, 0, 4); // Safety
@@ -1069,7 +1069,7 @@ void CClient::InitializeGameMenu()
 void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 {
 	// Background
-	if (iGameOver)  {
+	if (bGameOver)  {
 		DrawImage(bmpDest, gfxGame.bmpGameover, 0, 0);
 	} else {
 		DrawImage(bmpDest, gfxGame.bmpScoreboard, 0, 0);
@@ -1079,7 +1079,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 		bShouldRepaintInfo = true;
 
 	// Update the coutdown
-	if (iGameOver)  {
+	if (bGameOver)  {
 		int sec = 5 + GAMEOVER_WAIT - (int)(tLX->fCurTime - fGameOverTime);
 		sec = MAX(0, sec); // Safety
 		cGameMenuLayout.SendMessage(gm_Coutdown, LBS_SETTEXT, itoa(sec), 0);
@@ -1095,7 +1095,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 		cGameMenuLayout.SendMessage(gm_TopMessage, LBS_SETTEXT, "Total: " + itoa(dirtcount), 0);
 	}
 
-	if (iGameOver)  {
+	if (bGameOver)  {
 		cGameMenuLayout.SendMessage(gm_TopMessage, LBS_SETTEXT, "Winner:", 0);
 	}
 
@@ -1158,7 +1158,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 		// Resume
 		case gm_Resume:
 			if (ev->iEventMsg == BTN_MOUSEUP)  {
-				iGameMenu = false;
+				bGameMenu = false;
 				bRepaintChatbox = true;
 				SetGameCursor(CURSOR_NONE);
 			}
@@ -1168,14 +1168,14 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 
 	// TODO: why is processing events in a draw-function? move it out here
 	// Process the keyboard
-	if (!iChat_Typing)  {
+	if (!bChat_Typing)  {
 		keyboard_t *Keyboard = GetKeyboard();
 
 		if (Keyboard->KeyUp[SDLK_RETURN] || Keyboard->KeyUp[SDLK_KP_ENTER] || Keyboard->KeyUp[SDLK_ESCAPE])  {
-			if (tGameInfo.iGameType == GME_LOCAL && iGameOver)  {
+			if (tGameInfo.iGameType == GME_LOCAL && bGameOver)  {
 				GotoLocalMenu();
-			} else if (!iGameOver)  {
-				iGameMenu = false;
+			} else if (!bGameOver)  {
+				bGameMenu = false;
 				bRepaintChatbox = true;
 				SetGameCursor(CURSOR_NONE);
 			}
@@ -1634,7 +1634,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 // Draw the bonuses
 void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 {
-	if(!tGameInfo.iBonusesOn)
+	if(!tGameInfo.bBonusesOn)
 		return;
 
 	CBonus *b = cBonuses;
@@ -1643,14 +1643,14 @@ void CClient::DrawBonuses(SDL_Surface *bmpDest, CViewport *v)
 		if(!b->getUsed())
 			continue;
 
-		b->Draw(bmpDest, v, iShowBonusName);
+		b->Draw(bmpDest, v, bShowBonusName);
 	}
 }
 
 
 ///////////////////
 // Draw text that is shadowed
-void CClient::DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, const std::string& buf)
+void CClient::DrawText(SDL_Surface *bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf)
 {
 	if(centre) {
 		//tLX->cOutlineFont.DrawCentre(bmpDest, x+1, y+1, 0,"%s", buf);
@@ -2193,7 +2193,7 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
         CWorm *p = &cRemoteWorms[iScoreboard[i]];
 
 		// Get colour
-		if (tLXOptions->iColorizeNicks && (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP || tGameInfo.iGameMode == GMT_TEAMCTF))
+		if (tLXOptions->bColorizeNicks && (tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP || tGameInfo.iGameMode == GMT_TEAMCTF))
 			iColor = tLX->clTeamColors[p->getTeam()];
 		else
 			iColor = tLX->clNormalLabel;
@@ -2263,9 +2263,9 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
     // Do checks on whether or not to show the scoreboard
     if(Con_IsUsed())
         return;
-    if(cShowScore.isDown() && !iChat_Typing)
+    if(cShowScore.isDown() && !bChat_Typing)
         bShowScore = true;
-    if(iNetStatus == NET_CONNECTED && iGameReady && tGameInfo.iGameType != GME_LOCAL) {
+    if(iNetStatus == NET_CONNECTED && bGameReady && tGameInfo.iGameType != GME_LOCAL) {
         bShowScore = true;
         bShowReady = true;
     }
@@ -2294,10 +2294,10 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	bCurrentSettings = true;
 
     // Do checks on whether or not to show
-    if(iNetStatus != NET_CONNECTED && !cShowSettings.isDown() && !iGameOver)
+    if(iNetStatus != NET_CONNECTED && !cShowSettings.isDown() && !bGameOver)
 		bCurrentSettings = false;
 
-	if (iGameOver && iGameMenu)
+	if (bGameOver && bGameMenu)
 		bCurrentSettings = true;
 
 	if (!bCurrentSettings)
@@ -2343,7 +2343,7 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	cur_y += tLX->cFont.GetHeight();
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Bonuses:");
-	if (tGameInfo.iBonusesOn)
+	if (tGameInfo.bBonusesOn)
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,"On");
 	else
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,"Off");

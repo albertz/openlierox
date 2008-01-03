@@ -491,8 +491,8 @@ int Menu_Net_HostLobbyInitialize(void)
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
-	tGameInfo.iBonusesOn = tLXOptions->tGameinfo.iBonusesOn;
-	tGameInfo.iShowBonusName = tLXOptions->tGameinfo.iShowBonusName;
+	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
+	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
     tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
 
 	cClient->Shutdown();
@@ -523,12 +523,12 @@ int Menu_Net_HostLobbyInitialize(void)
 
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();
-	gl->nSet = true;
+	gl->bSet = true;
 	gl->nGameMode = tLXOptions->tGameinfo.nGameType;
 	gl->nLives = tLXOptions->tGameinfo.iLives;
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
-    gl->nBonuses = tLXOptions->tGameinfo.iBonusesOn;
+    gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn;
 
 
 	// Clear the saved chat text
@@ -680,15 +680,15 @@ void Menu_Net_HostGotoLobby(void)
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
-	tGameInfo.iBonusesOn = tLXOptions->tGameinfo.iBonusesOn;
-	tGameInfo.iShowBonusName = tLXOptions->tGameinfo.iShowBonusName;
+	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
+	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
     tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
 
 	cClient->getChatbox()->setWidth(590);
 
 	// Set up the server's lobby details
 	game_lobby_t *gl = cServer->getLobby();
-	gl->nSet = true;
+	gl->bSet = true;
 	gl->nGameMode = tLXOptions->tGameinfo.nGameType;
 	gl->nLives = tLXOptions->tGameinfo.iLives;
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
@@ -749,7 +749,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			cServer->getLobby()->nLives = tGameInfo.iLives;
 			cServer->getLobby()->nMaxKills = tGameInfo.iKillLimit;
 			cServer->getLobby()->nLoadingTime = tGameInfo.iLoadingTimes;
-            cServer->getLobby()->nBonuses = tGameInfo.iBonusesOn;
+            cServer->getLobby()->bBonuses = tGameInfo.bBonusesOn;
 			cServer->UpdateGameLobby();
 		}
 		return;
@@ -1281,7 +1281,7 @@ void Menu_HostDrawLobby(SDL_Surface *bmpDest)
 		// Add the item
 		player_list->AddItem(w->getName(), i, tLX->clNormalLabel); 
 		player_list->AddSubitem(LVS_WIDGET, "", NULL, cmd_button);  // Command button
-		if (lobby_worm->iReady)  // Ready control
+		if (lobby_worm->bReady)  // Ready control
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
 		else
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);

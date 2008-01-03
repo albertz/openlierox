@@ -33,7 +33,7 @@ void CWorm::Clear(void)
 	bUsed = false;
 	iID = 0;
 	iTeam = 0;
-	iLocal = false;
+	bLocal = false;
 	iType = PRF_HUMAN;
 	iRanking = 0;
 	iClientID = 0;
@@ -50,16 +50,16 @@ void CWorm::Clear(void)
 
 	iHealth = 100;
 	iLives = 10;
-	iAlive = false;
+	bAlive = false;
 	iDirection = DIR_RIGHT;
 	fAngle = 0;
     fAngleSpeed = 0;
     fMoveSpeedX = 0;
-	iCarving = false;
+	iCarving = 0;
 	fFrame = 0;
-	iDrawMuzzle = false;
+	bDrawMuzzle = false;
 
-	iOnGround = false;
+	bOnGround = false;
 	vPos = CVec(0,0);
 	vVelocity = CVec(0,0);
 	vFollowPos = CVec(0,0);
@@ -72,19 +72,19 @@ void CWorm::Clear(void)
 
 	cNinjaRope.Clear();
 	fRopeTime = -9999;
-	iRopeDownOnce = false;
-	iRopeDown = false;
+	bRopeDownOnce = false;
+	bRopeDown = false;
 
-	iWeaponsReady = false;
+	bWeaponsReady = false;
 	iNumWeaponSlots = 2;
 	iCurrentWeapon = 0;
-	iGameReady = false;
+	bGameReady = false;
 
-	iGotTarget = false;
-	iHooked = false;
+	bGotTarget = false;
+	bHooked = false;
 	pcHookWorm = NULL;
 
-	iTagIT = false;
+	bTagIT = false;
 	fTagTime = 0;
 	fLastSparkle = -99999;
     iDirtCount = 0;
@@ -126,8 +126,8 @@ void CWorm::Clear(void)
     bmpShadowPic = NULL;
 
 	// Lobby
-	tLobbyState.iHost = false;
-	tLobbyState.iReady = false;
+	tLobbyState.bHost = false;
+	tLobbyState.bReady = false;
 	tLobbyState.iType = LBY_OPEN;
     tLobbyState.iTeam = 0;
 
@@ -170,7 +170,7 @@ void CWorm::Shutdown(void)
 	FreeGraphics();
 
     // Shutdown the AI
-    if(iType == PRF_COMPUTER && iLocal)
+    if(iType == PRF_COMPUTER && bLocal)
         AI_Shutdown();
 }
 
@@ -245,7 +245,7 @@ void CWorm::Prepare(CMap *pcMap)
 	iCurrentWeapon = 0;
 
     // If this is an AI worm, initialize the AI stuff
-    if(iType == PRF_COMPUTER && iLocal)
+    if(iType == PRF_COMPUTER && bLocal)
         AI_Initialize();
 }
 
@@ -254,9 +254,9 @@ void CWorm::Prepare(CMap *pcMap)
 // Setup the lobby details
 void CWorm::setupLobby(void)
 {
-	tLobbyState.iHost = false;
+	tLobbyState.bHost = false;
 	tLobbyState.iType = LBY_USED;
-	tLobbyState.iReady = false;
+	tLobbyState.bReady = false;
     tLobbyState.iTeam = 0;
 }
 
@@ -264,7 +264,7 @@ void CWorm::setupLobby(void)
 ///////////////////
 // Spawn this worm
 void CWorm::Spawn(CVec position) {
-    iAlive = true;
+    bAlive = true;
 	bAlreadyKilled = false;
 	fAngle = 0;
     fAngleSpeed = 0;
@@ -279,11 +279,11 @@ void CWorm::Spawn(CVec position) {
 	
 	iCarving = false;
 	fFrame = 0;
-	iDrawMuzzle = false;
-	iHooked = false;
+	bDrawMuzzle = false;
+	bHooked = false;
     bForceWeapon_Name = false;
 
-	iOnGround = false;
+	bOnGround = false;
     iNumWeaponSlots = 5;
 
 	// Reset the weapons
@@ -296,7 +296,7 @@ void CWorm::Spawn(CVec position) {
 
 	fSpawnTime = fLastPosUpdate = tLX->fCurTime;
 
-    if(iType == PRF_COMPUTER && iLocal)
+    if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
 }
 
@@ -307,25 +307,25 @@ void CWorm::Respawn(CVec position) {
 	vPos = vLastPos = vOldPosOfLastPaket = position;
     nAIState = AI_THINK;
 	
-	iCarving = false;
+	iCarving = 0;
 	fFrame = 0;
-	iDrawMuzzle = false;
-	iHooked = false;
+	bDrawMuzzle = false;
+	bHooked = false;
     bForceWeapon_Name = false;
 	vVelocity = CVec(0,0);
 
-	iOnGround = false;
+	bOnGround = false;
 
 	fSpawnTime = fLastPosUpdate = tLX->fCurTime;
 
-    if(iType == PRF_COMPUTER && iLocal)
+    if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
 }
 
 
 ///////////////////
 // Load the graphics
-int CWorm::LoadGraphics(int gametype)
+bool CWorm::LoadGraphics(int gametype)
 {
 	// TODO: create some good way to allow custom colors
 	
@@ -379,7 +379,8 @@ int CWorm::LoadGraphics(int gametype)
     bmpShadowPic = gfxCreateSurface(32,18);
     SetColorKey(bmpShadowPic);
 
-	return bmpWormRight && bmpWormLeft && bmpGibs && bmpPic && bmpShadowPic;
+	return bmpWormRight != NULL && bmpWormLeft != NULL && 
+			bmpGibs != NULL && bmpPic != NULL && bmpShadowPic != NULL;
 }
 
 ///////////////////
@@ -485,7 +486,7 @@ void CWorm::InitWeaponSelection(void)
 	// This is used for the menu screen as well
 	iCurrentWeapon = 0;
 
-	iWeaponsReady = false;
+	bWeaponsReady = false;
 	
 	iNumWeaponSlots = 5;
 
@@ -504,7 +505,7 @@ void CWorm::InitWeaponSelection(void)
 
 
 	// If this is an AI worm, lets give him a preset or random arsenal
-	if(iType == PRF_COMPUTER && iLocal) {
+	if(iType == PRF_COMPUTER && bLocal) {
 
 		bool bRandomWeaps = true;
 		// Combo (rifle)
@@ -560,7 +561,7 @@ void CWorm::InitWeaponSelection(void)
 		tGameInfo.iGameType == GME_HOST && 
 		getClient()->getServerAddress() == "127.0.0.1" ||
 		getClient()->getSpectate() )
-		iWeaponsReady = true;
+		bWeaponsReady = true;
 }
 
 ///////////////////
@@ -735,7 +736,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
 		// Fire on the done button?
 		if((cShoot.isUp()/* || GetKeyboard()->KeyUp[SDLK_RETURN]*/) && !iChat_Typing) {
-			iWeaponsReady = true;
+			bWeaponsReady = true;
 			iCurrentWeapon = 0;
 
 			// Set our profile to the weapons (so we can save it later)
@@ -747,8 +748,8 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     
 
 	// AI Worms select their weapons automatically
-	if(iType == PRF_COMPUTER && iLocal) {
-		iWeaponsReady = true;
+	if(iType == PRF_COMPUTER && bLocal) {
+		bWeaponsReady = true;
 		iCurrentWeapon = 0;
 	}
 
@@ -833,8 +834,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	int WormNameY = tLX->cFont.GetHeight()+12; // Font height + worm height/2 + some space
 
 
-	if (tLXOptions->iShowHealth)  {
-		if (!iLocal || iType != PRF_HUMAN)  {
+	if (tLXOptions->bShowHealth)  {
+		if (!bLocal || iType != PRF_HUMAN)  {
 			int hx = x + l;
 			int hy = y + t - 9; // -8 = worm height/2
 
@@ -899,13 +900,13 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
 	// Show a green crosshair if we have a target
 	x = 0;
-	if(iGotTarget) {
+	if (bGotTarget) {
 		x = 6;
-		iGotTarget = false;
+		bGotTarget = false;
 	}
 	
-	if(iLocal)
-		DrawImageAdv(bmpDest,gfxGame.bmpCrosshair,x,0,cx-2,cy-2,6,6);
+	if(bLocal)
+		DrawImageAdv(bmpDest, gfxGame.bmpCrosshair, x, 0, cx - 2, cy - 2, 6, 6);
 
 	//
 	// Draw the worm
@@ -953,7 +954,7 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	//
 	// Draw the muzzle flash
 	//
-	if (iDrawMuzzle)  {
+	if (bDrawMuzzle)  {
 		switch(iDirection) {
 
 		case DIR_RIGHT:
@@ -977,13 +978,13 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 
 		}  // switch
 	} // if
-	iDrawMuzzle = false;
+	bDrawMuzzle = false;
 	
 
 	wpnslot_t *Slot = &tWeapons[iCurrentWeapon];
 
 	// Draw the weapon name
-    if(iLocal && iType == PRF_HUMAN) {
+    if(bLocal && iType == PRF_HUMAN) {
         if(bForceWeapon_Name || cSelWeapon.isDown()) {
 		    tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
 
@@ -993,9 +994,9 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
     }
 
 	// Draw the worm's name
-	if(!iLocal || (iLocal && iType != PRF_HUMAN)) {
+	if(!bLocal || (bLocal && iType != PRF_HUMAN)) {
 		//tLX->cFont.DrawCentre(bmpDest,x+1,y-29,0,sName);
-		if ((tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && tLXOptions->iColorizeNicks)  {
+		if ((tGameInfo.iGameMode == GMT_TEAMDEATH || tGameInfo.iGameMode == GMT_VIP) && tLXOptions->bColorizeNicks)  {
 			Uint32 col = tLX->clTeamColors[iTeam];
 			tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,sName);
 		} // if
@@ -1009,14 +1010,14 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 // Draw the worm's shadow
 void CWorm::DrawShadow(SDL_Surface *bmpDest, CViewport *v)
 {
-    if( tLXOptions->iShadows && v )
+    if( tLXOptions->bShadows && v )
         pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
 
 ///////////////////
 // Quickly check if we are on the ground
-int CWorm::CheckOnGround()
+bool CWorm::CheckOnGround()
 {
 	int px = (int)vPos.x;
 	int py = (int)vPos.y;
@@ -1037,7 +1038,7 @@ int CWorm::CheckOnGround()
 ///////////////////
 // Injure me
 // Returns true if i was killed by this injury
-int CWorm::Injure(int damage)
+bool CWorm::Injure(int damage)
 {
 	if(tGameInfo.iGameType == GME_HOST && cServer) {
 	// If playing CTF and I am a flag don't injure me
@@ -1063,9 +1064,9 @@ int CWorm::Injure(int damage)
 ///////////////////
 // Kill me
 // Returns true if we are out of the game
-int CWorm::Kill(void)
+bool CWorm::Kill(void)
 {
-	iAlive = false;
+	bAlive = false;
 	fTimeofDeath = tLX->fCurTime;
 
 	// -2 means there is no lives starting value
@@ -1079,7 +1080,7 @@ int CWorm::Kill(void)
 
 ///////////////////
 // Check if we have collided with a bonus
-int CWorm::CheckBonusCollision(CBonus *b)
+bool CWorm::CheckBonusCollision(CBonus *b)
 {
 	CVec diff = vPos - b->getPosition();
 
@@ -1090,7 +1091,7 @@ int CWorm::CheckBonusCollision(CBonus *b)
 ///////////////////
 // Give me a bonus
 // Returns true if we picked it up
-int CWorm::GiveBonus(CBonus *b)
+bool CWorm::GiveBonus(CBonus *b)
 {
 	// Weapon
 	if(b->getType() == BNS_WEAPON) {

@@ -75,19 +75,19 @@ void CClient::Clear(void)
     cChatbox.setWidth(325);
 	cChatbox.Clear();
 
-	iLobbyReady = false;
-	iGameReady = false;
-	iReadySent = false;
-	iGameOver = false;
-	iGameMenu = false;
+	bLobbyReady = false;
+	bGameReady = false;
+	bReadySent = false;
+	bGameOver = false;
+	bGameMenu = false;
     bViewportMgr = false;
-	tGameLobby.nSet = false;
+	tGameLobby.bSet = false;
 	tGameLobby.nMaxWorms = MAX_PLAYERS;
 
-	iBadConnection = false;
-	iServerError = false;
-    iClientError = false;
-	iChat_Typing = false;
+	bBadConnection = false;
+	bServerError = false;
+    bClientError = false;
+	bChat_Typing = false;
 	fLastReceived = 99999;
 	fSendWait = 0;
 	fLastUpdateSent = -9999;
@@ -139,11 +139,11 @@ void CClient::Clear(void)
 void CClient::MinorClear(void)
 {
 	iNetStatus = NET_CONNECTED;
-	iLobbyReady = false;
-	iGameReady = false;
-	iReadySent = false;
-	iGameOver = false;
-	iGameMenu = false;
+	bLobbyReady = false;
+	bGameReady = false;
+	bReadySent = false;
+	bGameOver = false;
+	bGameMenu = false;
     bViewportMgr = false;
 	bUpdateScore = true;
 	bCurrentSettings = false;
@@ -154,10 +154,10 @@ void CClient::MinorClear(void)
 	iLastVictim = -1;
 	iLastKiller = -1;
 
-	iBadConnection = false;
-	iServerError = false;
-    iClientError = false;
-	iChat_Typing = false;
+	bBadConnection = false;
+	bServerError = false;
+    bClientError = false;
+	bChat_Typing = false;
 	fLastReceived = 99999;
 
 	fSendWait = 0;
@@ -531,7 +531,7 @@ void CClient::ReadPackets(void)
 	// Check if our connection with the server timed out
 	if(iNetStatus == NET_PLAYING && cNetChan.getLastReceived() < tLX->fCurTime - LX_CLTIMEOUT && tGameInfo.iGameType == GME_JOIN) {
 		// Time out
-		iServerError = true;
+		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
 		
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
@@ -576,7 +576,7 @@ void CClient::Connect(const std::string& address)
 	iNetStatus = NET_CONNECTING;
 	strServerAddr = address;
 	iNumConnects=0;
-	iBadConnection = false;
+	bBadConnection = false;
 
 	fConnectTime = -99999;		// This will force the connecting process to run straight away
 }
@@ -642,7 +642,7 @@ void CClient::Disconnect(void)
 	iNetStatus = NET_DISCONNECTED;
 
 
-	if (tLXOptions->iLogConvos)  {
+	if (tLXOptions->bLogConvos)  {
 		FILE *f;
 
 
@@ -818,8 +818,8 @@ void CClient::GetLogData(std::string& data)
 			"loading=\"" + itoa(tGameInfo.iLoadingTimes) + "\" " +
 			"lives=\"" + itoa(tGameInfo.iLives) + "\" " + 
 			"maxkills=\"" + itoa(tGameInfo.iKillLimit) + "\" " + 
-			"bonuses=\"" + (tGameInfo.iBonusesOn ? "1" : "0") + "\" " + 
-			"bonusnames=\"" + (tGameInfo.iShowBonusName ? "1" : "0") + "\" " + 
+			"bonuses=\"" + (tGameInfo.bBonusesOn ? "1" : "0") + "\" " + 
+			"bonusnames=\"" + (tGameInfo.bShowBonusName ? "1" : "0") + "\" " + 
 			"levelfile=\"" + levelfile + "\" " + 
 			"modfile=\"" + modfile + "\" " + 
 			"level=\"" + level + "\" " + 
@@ -911,7 +911,7 @@ void CClient::SetupWorms(int numworms, CWorm *worms)
 // Normally, this is done in CClient::Draw
 void CClient::BotSelectWeapons(void)
 {
-	if(iNetStatus == NET_CONNECTED && iGameReady)  {
+	if(iNetStatus == NET_CONNECTED && bGameReady)  {
 		uint i;
 		
 		// Go through and draw the first two worms select menus
@@ -922,8 +922,8 @@ void CClient::BotSelectWeapons(void)
 		}
 
 		// If we're ready, let the server know
-		if(!iReadySent) {
-			iReadySent = true;
+		if(!bReadySent) {
+			bReadySent = true;
 			CBytestream *bytes = cNetChan.getMessageBS();
 			bytes->writeByte(C2S_IMREADY);
 			bytes->writeByte(iNumWorms);
@@ -1050,7 +1050,7 @@ void CClient::Shutdown(void)
 	ShutdownLog();
 
 	// Log this
-	if (tLXOptions->iLogConvos)  {
+	if (tLXOptions->bLogConvos)  {
 		FILE *f;
 
 		if(!bInServer)

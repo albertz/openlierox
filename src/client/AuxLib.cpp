@@ -87,7 +87,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 		}
     }
 
-	if( tLXOptions->iSoundOn ) {
+	if( tLXOptions->bSoundOn ) {
 		StartSoundSystem();
 		SetSoundVolume( tLXOptions->iSoundVolume );
 	}
@@ -140,7 +140,7 @@ int SetVideoMode(void)
 	bool opengl = tLXOptions->bOpenGL;
 
 	// Initialize the video
-	if(tLXOptions->iFullscreen)  {
+	if(tLXOptions->bFullscreen)  {
 		vidflags |= SDL_FULLSCREEN;
 	}
 
@@ -166,7 +166,7 @@ int SetVideoMode(void)
 
 	if(HardwareAcceleration)  {
 		vidflags |= SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL;
-		if (tLXOptions->iFullscreen)
+		if (tLXOptions->bFullscreen)
 			iSurfaceFormat = SDL_HWSURFACE;
 	}
 	else  {
@@ -205,7 +205,7 @@ int SetVideoMode(void)
 	GetMouse()->FirstDown = 0;
 	GetMouse()->Up = 0;
 
-	if (!tLXOptions->iFullscreen)  {
+	if (!tLXOptions->bFullscreen)  {
 		SubclassWindow();
 	}
 #endif

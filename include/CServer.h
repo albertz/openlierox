@@ -72,7 +72,7 @@ private:
 	int			iState;
 
 	// Game rules
-	int			iGameOver;
+	bool		bGameOver;
 	float		fGameOverTime;
 	int			iGameType;
 	int			iLives;
@@ -80,8 +80,8 @@ private:
 	int			iTimeLimit;
 	int			iTagLimit;
 	int			iMaxWorms;
-	int			iBonusesOn;
-	int			iShowBonusName;
+	bool		bBonusesOn;
+	bool		bShowBonusName;
 	int			iLoadingTimes;
 	std::string	sModName;
 	CGameScript	cGameScript;
@@ -109,7 +109,7 @@ private:
 	CBonus		cBonuses[MAX_BONUSES];  // TODO: use std::list or vector
 
 	// Map
-	int			iRandomMap;		// TODO: what is this good for
+	bool		bRandomMap;		// TODO: what is this good for
 	std::string	sMapFilename;
 	CMap		*cMap;
 
@@ -134,7 +134,7 @@ private:
 	float		fLastUpdateSent;
 
 	bool		bRegServer;	
-	int			bServerRegistered;
+	bool		bServerRegistered;
 	float		fLastRegister;
 	std::string sCurrentUrl;
 	std::list<std::string>::iterator	tCurrentMasterServer;
@@ -244,27 +244,27 @@ public:
 
 
 	// Variables
-	inline int			getState(void)		{ return iState; }
-	inline CWorm		*getWorms(void)		{ return cWorms; }
-	inline game_lobby_t *getLobby(void)	{ return &tGameLobby; }
-	inline CMap		*getMap(void)		{ return cMap; }
-	inline CBanList	*getBanList(void)	{ return &cBanList; }
-	CClient		*getClient(int iWormID);
-	inline std::string   getName(void)		{ return sName; }
-	inline void	setName(const std::string& _name){ sName = _name; }
-	inline int	getMaxWorms(void)	{ return iMaxWorms; }
-	inline void	setMaxWorms(int _n) { iMaxWorms = _n; }
-	inline bool		getGameOver(void)	{ return iGameOver != 0; }
-	inline float		getGameOverTime(void) { return fGameOverTime; }
-	inline CHttp *getHttp()  { return &tHttp; }
+	int				getState(void)			{ return iState; }
+	CWorm			*getWorms(void)			{ return cWorms; }
+	game_lobby_t	*getLobby(void)			{ return &tGameLobby; }
+	CMap			*getMap(void)			{ return cMap; }
+	CBanList		*getBanList(void)		{ return &cBanList; }
+	CClient			*getClient(int iWormID);
+	std::string		getName(void)			{ return sName; }
+	void			setName(const std::string& _name){ sName = _name; }
+	int				getMaxWorms(void)		{ return iMaxWorms; }
+	void			setMaxWorms(int _n)		{ iMaxWorms = _n; }
+	bool			getGameOver(void)		{ return bGameOver; }
+	float			getGameOverTime(void)	{ return fGameOverTime; }
+	CHttp *getHttp()  { return &tHttp; }
 	CClient *getClients() { return cClients; }
 	
 	// TODO: change the name of these functions; the sense should be clear
-	inline int		getFlagHolder(int _w)			{ return iFlagHolders[_w]; }
-	inline void		setFlagHolder(int _f, int _w)	{ iFlagHolders[_w] = _f; }
+	int		getFlagHolder(int _w)			{ return iFlagHolders[_w]; }
+	void	setFlagHolder(int _f, int _w)	{ iFlagHolders[_w] = _f; }
 
-	inline int		getNumPlayers(void)			{ return iNumPlayers; }
-	inline bool		getDedicated(void)			{ return bDedicated; }
+	int		getNumPlayers(void)			{ return iNumPlayers; }
+	bool	getDedicated(void)			{ return bDedicated; }
 };
 
 extern	GameServer		*cServer;

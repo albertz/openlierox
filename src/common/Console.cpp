@@ -71,13 +71,13 @@ void Con_Toggle(void)
 
 	if(Console->iState == CON_HIDDEN || Console->iState == CON_HIDING) {
 		Console->iState = CON_DROPPING;
-        if(!tLXOptions->iFullscreen)
+        if(!tLXOptions->bFullscreen)
 		    SDL_ShowCursor(SDL_ENABLE);
 	}
 
 	else if(Console->iState == CON_DROPPING || Console->iState == CON_DOWN) {
 		Console->iState = CON_HIDING;
-        if(!tLXOptions->iFullscreen)
+        if(!tLXOptions->bFullscreen)
 		    SDL_ShowCursor(SDL_DISABLE);
 	}
 }

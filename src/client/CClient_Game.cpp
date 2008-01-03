@@ -36,7 +36,8 @@ CClient		*cClient = NULL;
 // Simulation
 void CClient::Simulation(void)
 {
-	short local,i;
+	short i;
+	bool local;
 	bool teamgame;
     CWorm *w;
     bool con = Con_IsUsed();
@@ -45,7 +46,7 @@ void CClient::Simulation(void)
 
 	// If we're in a menu & a local game, don't do simulation
 	if (tGameInfo.iGameType == GME_LOCAL)  {
-		if( iGameOver || (iGameMenu || bViewportMgr) ) {
+		if( bGameOver || bGameMenu || bViewportMgr ) {
 
 			// Clear the input of the local worms
 			w = cRemoteWorms;
@@ -60,9 +61,9 @@ void CClient::Simulation(void)
 	}
 
     // We stop a few seconds after the actual game over
-    if(iGameOver && tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)
+    if(bGameOver && tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)
         return;
-    if((iGameMenu || bViewportMgr) && tGameInfo.iGameType == GME_LOCAL)
+    if((bGameMenu || bViewportMgr) && tGameInfo.iGameType == GME_LOCAL)
         return;
 
 
@@ -71,7 +72,7 @@ void CClient::Simulation(void)
 	//
 	
 	// Top bar toggle
-	if (cToggleTopBar.isDownOnce() && !iChat_Typing)  {
+	if (cToggleTopBar.isDownOnce() && !bChat_Typing)  {
 		tLXOptions->tGameinfo.bTopBarVisible = !tLXOptions->tGameinfo.bTopBarVisible;
 
 		SDL_Surface *topbar = (tGameInfo.iGameType == GME_LOCAL) ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
@@ -95,8 +96,8 @@ void CClient::Simulation(void)
 	}
 
 	// Health bar toggle
-	if (cShowHealth.isDownOnce() && !iChat_Typing)  {
-		tLXOptions->iShowHealth = !tLXOptions->iShowHealth;
+	if (cShowHealth.isDownOnce() && !bChat_Typing)  {
+		tLXOptions->bShowHealth = !tLXOptions->bShowHealth;
 	}
 
 	// Player simulation
@@ -116,7 +117,7 @@ void CClient::Simulation(void)
 				3) We're not typing a message
 			*/
 
-			if(local && !iGameMenu && !iChat_Typing && !iGameOver && !con) {
+			if(local && !bGameMenu && !bChat_Typing && !bGameOver && !con) {
 				int old_weapon = w->getCurrentWeapon();
 
 				// TODO: use one getInput for both
@@ -132,14 +133,14 @@ void CClient::Simulation(void)
 			// Simulate the worm
 			w->Simulate(cRemoteWorms, local, tLX->fDeltaTime);
 			
-			if(iGameOver)
+			if(bGameOver)
                 continue;
 
 
 			// Check if this worm picked up a bonus
 
 			CBonus *b = cBonuses;
-			if (tGameInfo.iBonusesOn)  {
+			if (tGameInfo.bBonusesOn)  {
 				for(short n = 0; n < MAX_BONUSES; n++, b++) {
 					if(!b->getUsed())
 						continue;
@@ -161,7 +162,7 @@ void CClient::Simulation(void)
 			}
 		}
 
-        if(iGameOver)
+        if(bGameOver)
             continue;
 
 
@@ -573,9 +574,9 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 	}
 
 	// Go through bonuses. If any were next to an explosion, destroy the bonus explosivly
-	if (tGameInfo.iBonusesOn)  {
+	if (tGameInfo.bBonusesOn)  {
 		CBonus *b = cBonuses;
-		for(i=0;i<MAX_BONUSES;i++,b++) {
+		for(i=0; i < MAX_BONUSES; i++,b++) {
 			if(!b->getUsed())
 				continue;
 
@@ -761,7 +762,8 @@ void CClient::PlayerShoot(CWorm *w)
 		return;
 
 	if(!Slot->Weapon) {
-		printf("ERROR: Slot->Weapon not set\n");		return;
+		printf("ERROR: Slot->Weapon not set\n");
+		return;
 	}
 	
 	Slot->LastFire = Slot->Weapon->ROF;
@@ -1015,7 +1017,7 @@ void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_p
 void CClient::UpdateScoreboard(void)
 {
 	// Should be called ONLY in game
-	if(!iGameReady)
+	if(!bGameReady)
 		return;
 
 	bUpdateScore = true;
@@ -1165,12 +1167,12 @@ void CClient::UpdateScoreboard(void)
 // Simulate the bonuses
 void CClient::SimulateBonuses(float dt)
 {
-	if(!tGameInfo.iBonusesOn)
+	if(!tGameInfo.bBonusesOn)
 		return;
 
 	CBonus *b = cBonuses;
 
-	for(short i=0;i<MAX_BONUSES;i++,b++) {
+	for(short i=0; i < MAX_BONUSES; i++,b++) {
 		if(!b->getUsed())
 			continue;
 
@@ -1181,7 +1183,7 @@ void CClient::SimulateBonuses(float dt)
 
 ///////////////////
 // Destroy a bonus (not explosively)
-void CClient::DestroyBonus(int id, int local, int wormid)
+void CClient::DestroyBonus(int id, bool local, int wormid)
 {
 	cBonuses[id].setUsed(false);
 
@@ -1512,18 +1514,18 @@ void CClient::processChatter(void)
     keyboard_t *kb = GetKeyboard();
 
 	// If we're currently typing a message, add any keys to it
-	if(iChat_Typing) {
+	if(bChat_Typing) {
 
 		fChat_BlinkTime += tLX->fDeltaTime;
-		if (fChat_BlinkTime > 0.5)  {
-			iChat_CursorVisible = !iChat_CursorVisible;
+		if (fChat_BlinkTime > 0.5f)  {
+			bChat_CursorVisible = !bChat_CursorVisible;
 			fChat_BlinkTime = 0;
 		}
 
         // Escape
         if(kb->keys[SDLK_ESCAPE] || kb->KeyUp[SDLK_ESCAPE]) {
             // Stop typing
-            iChat_Typing = false;
+            bChat_Typing = false;
 			sChat_Text = "";
 
             kb->keys[SDLK_ESCAPE] = false;
@@ -1534,7 +1536,7 @@ void CClient::processChatter(void)
 
         // Go through the keyboard queue
         for(short i=0; i<kb->queueLength; i++) {
-			iChat_CursorVisible = true;
+			bChat_CursorVisible = true;
             processChatCharacter(kb->keyQueue[i]);
         }
 
@@ -1547,12 +1549,12 @@ void CClient::processChatter(void)
 
 		// Initialize the chatter
 		fChat_BlinkTime = 0;
-		iChat_CursorVisible = true;
-		iChat_Typing = true;
+		bChat_CursorVisible = true;
+		bChat_Typing = true;
 		iChat_Pos = 0;
 		sChat_Text = "";
 		iChat_Lastchar = 0;
-		iChat_Holding = false;
+		bChat_Holding = false;
 		fChat_TimePushed = -9999;
 		bTeamChat = false;
 		if( cTeamChat_Input.isUp() )
@@ -1567,7 +1569,7 @@ void CClient::processChatter(void)
 	}
 
     // Start typing on any keypress, if we can
-	if (!tLXOptions->iAutoTyping)
+	if (!tLXOptions->bAutoTyping)
 		return;
 
     for(short i=0; i<kb->queueLength; i++) {
@@ -1576,7 +1578,7 @@ void CClient::processChatter(void)
         // Was it an up keypress?
         if(!input.down) continue;
 
-		if (!iChat_Typing)  {
+		if (!bChat_Typing)  {
 
 			if (input.ch<32) continue;
 
@@ -1608,12 +1610,12 @@ void CClient::processChatter(void)
 
 			// Initialize the chatter
 			fChat_BlinkTime = 0;
-			iChat_CursorVisible = true;
-			iChat_Typing = true;
+			bChat_CursorVisible = true;
+			bChat_Typing = true;
 			iChat_Pos = 0;
 			sChat_Text = "";
 			iChat_Lastchar = 0;
-			iChat_Holding = false;
+			bChat_Holding = false;
 			fChat_TimePushed = -9999;
 		}
 
@@ -1629,23 +1631,23 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
 
     // Up?
     if(!input.down) {
-        iChat_Holding = false;
+        bChat_Holding = false;
         return;
     }
 
     // Must be down
 
-    if(iChat_Holding) {
+    if(bChat_Holding) {
         if(iChat_Lastchar != input.ch)
-            iChat_Holding = false;
+            bChat_Holding = false;
         else {
             if(tLX->fCurTime - fChat_TimePushed < 0.4f)
                 return;
         }
     }
 
-    if(!iChat_Holding) {
-        iChat_Holding = true;
+    if(!bChat_Holding) {
+        bChat_Holding = true;
         fChat_TimePushed = tLX->fCurTime;
     }
 
@@ -1697,7 +1699,7 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
 
     // Enter
     if(input.ch == '\r') {
-        iChat_Typing = false;
+        bChat_Typing = false;
 
         // Send chat message to the server
 		if(sChat_Text != "") {

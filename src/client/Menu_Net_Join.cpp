@@ -135,7 +135,7 @@ int Menu_Net_JoinConnectionInitialize(const std::string& sAddress)
 	}
 
 	game_lobby_t *gl = cClient->getGameLobby();
-	gl->nSet = false;
+	gl->bSet = false;
 
 	cClient->Connect(sJoinAddress);
 
@@ -512,7 +512,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			// Add the item
 			player_list->AddItem(w->getName(), i, tLX->clNormalLabel); 
-			if (lobby_worm->iReady)  // Ready control
+			if (lobby_worm->bReady)  // Ready control
 				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
 			else
 				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
@@ -539,7 +539,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	}
 
 	// Draw the game info
-	if(gl->nSet) {
+	if(gl->bSet) {
 		CFont *f = &tLX->cFont;
         int x = 360;
         int x2 = x+105;
@@ -551,7 +551,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		tGameInfo.sMapName = gl->szDecodedMapName;
         tGameInfo.sModName = gl->szModName;
         tGameInfo.sModDir = gl->szModDir;
-		tGameInfo.iBonusesOn = gl->nBonuses;
+		tGameInfo.bBonusesOn = gl->bBonuses;
 		tGameInfo.iGameMode = gl->nGameMode;
 		tGameInfo.iKillLimit = gl->nMaxKills;
 		tGameInfo.iLives = gl->nLives;
@@ -593,7 +593,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		f->Draw(tMenu->bmpScreen,     x, y+120, tLX->clNormalLabel, "Loading time:");
 		f->Draw(tMenu->bmpScreen,     x2, y+120, tLX->clNormalLabel, itoa(gl->nLoadingTime) + "%");
         f->Draw(tMenu->bmpScreen,     x, y+140, tLX->clNormalLabel, "Bonuses:");
-        f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, gl->nBonuses ? "On" : "Off");
+        f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
 		if( cClient->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
 	        f->Draw(tMenu->bmpScreen,     x, y+180, tLX->clNormalLabel, "Downloading files from server...");
 	}

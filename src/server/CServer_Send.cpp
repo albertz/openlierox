@@ -269,7 +269,7 @@ void GameServer::UpdateGameLobby(void)
 	game_lobby_t *gl = &tGameLobby;
 
 	// Check if the details have been set yet
-	if(!gl->nSet)
+	if(!gl->bSet)
 		return;
 
 	bs.writeByte(S2C_UPDATELOBBYGAME);
@@ -287,7 +287,7 @@ void GameServer::UpdateGameLobby(void)
 	bs.writeInt16(gl->nLives);
 	bs.writeInt16(gl->nMaxKills);
 	bs.writeInt16(gl->nLoadingTime);
-    bs.writeByte(gl->nBonuses);
+    bs.writeByte(gl->bBonuses);
 
 	SendGlobalPacket(&bs);
 }
@@ -307,11 +307,11 @@ void GameServer::SendWormLobbyUpdate(void)
             continue;
 			
         // Set the client worms lobby ready state
-        int ready = false;
-	    for(i=0; i<cl->getNumWorms(); i++) {
+        bool ready = false;
+	    for(i=0; i < cl->getNumWorms(); i++) {
 		    lobbyworm_t *l = cl->getWorm(i)->getLobby();
 		    if(l)
-			    ready = l->iReady;
+			    ready = l->bReady;
 	    }
 
 	    // Let all the worms know about the new lobby state	    

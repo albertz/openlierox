@@ -465,7 +465,7 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 #ifdef WIN32
 	// Convert the mode to wide char for wfopen
 	wchar_t wide_mode[32];
-	for (int i=0; i < strlen(mode) && i < sizeof(wide_mode)/sizeof(wchar_t)-1;)  {
+	for (int i=0; i < (int)strlen(mode) && i < sizeof(wide_mode)/sizeof(wchar_t)-1;)  {
 		wide_mode[i] = (wchar_t)mode[i];
 		wide_mode[++i] = 0;
 	}

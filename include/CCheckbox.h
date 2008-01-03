@@ -37,8 +37,8 @@ enum {
 class CCheckbox : public CWidget {
 public:
 	// Constructor
-	CCheckbox(int val) {
-		iValue = val;
+	CCheckbox(bool val) {
+		bValue = val;
         bmpImage = NULL;
 		iType = wid_Checkbox;
 		bVar = NULL;
@@ -49,7 +49,7 @@ public:
 private:
 	// Attributes
 
-	int			iValue;
+	bool		bValue;
 	SDL_Surface	*bmpImage;
 	bool		*bVar;
 	int			*iVar;
@@ -63,7 +63,7 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ return CHK_NONE; }
-	int		MouseUp(mouse_t *tMouse, int nDown)		{ iValue = !iValue;		return CHK_CHANGED; }
+	int		MouseUp(mouse_t *tMouse, int nDown)		{ bValue = !bValue;		return CHK_CHANGED; }
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ return CHK_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return CHK_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return CHK_NONE; }
@@ -76,10 +76,10 @@ public:
 
 				switch(iMsg) {
 					case CKM_SETCHECK:
-						iValue = Param1;
+						bValue = Param1 != 0;
 						return 0;
 					case CKM_GETCHECK:
-						return iValue;
+						return (int)bValue;
 				}
 
 				return 0;
@@ -93,7 +93,7 @@ public:
 
 	void	LoadStyle(void);
 
-	int		getValue(void)						{ return iValue; }
+	bool	getValue(void)						{ return bValue; }
 
 	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
@@ -101,9 +101,9 @@ public:
 		w->bVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_BOOL ).b;
 		w->iVar = CScriptableVars::GetVar( p[0].s, CScriptableVars::SVT_INT ).i;
 		if( w->bVar )
-			w->iValue = *w->bVar;
+			w->bValue = *w->bVar != 0;
 		if( w->iVar )
-			w->iValue = *w->iVar;
+			w->bValue = *w->iVar != 0;
 		w->cClick.Init( p[1].s, w );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
@@ -114,16 +114,16 @@ public:
 		if( iEvent == CGuiSkin::SHOW_WIDGET )
 		{
 			if( bVar )
-				iValue = *bVar;
+				bValue = *bVar;
 			if( iVar )
-				iValue = *iVar;
+				bValue = *iVar != 0;
 		};
 		if( iEvent == CHK_CHANGED )
 		{
 			if( bVar )
-				*bVar = ( iValue != 0 );
+				*bVar = bValue;
 			if( iVar )
-				*iVar = iValue;
+				*iVar = (int)bValue;
 			cClick.Call();
 		};
 	};

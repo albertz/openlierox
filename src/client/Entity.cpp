@@ -76,7 +76,7 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 	entity_t *ent = tEntities;
 
 	// If this is a particle type entity, and particles are switched off, just leave
-	if(!tLXOptions->iParticles) {
+	if(!tLXOptions->bParticles) {
 		if(type == ENT_PARTICLE ||
 		   type == ENT_BLOOD)
 			return;

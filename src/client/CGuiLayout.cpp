@@ -571,7 +571,7 @@ gui_event_t *CGuiLayout::Process(void)
 	keyboard_t *Keyboard = GetKeyboard();
 	if( cSwitchMode.isDown() )  {
 		// Set to fullscreen
-		tLXOptions->iFullscreen = !tLXOptions->iFullscreen;
+		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
 		// Set the new video mode
 		SetVideoMode();

@@ -145,8 +145,8 @@ void Menu_LocalInitialize(void)
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
-	tGameInfo.iBonusesOn = tLXOptions->tGameinfo.iBonusesOn;
-	tGameInfo.iShowBonusName = tLXOptions->tGameinfo.iShowBonusName;
+	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
+	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
 }
 
 //////////////
@@ -793,8 +793,8 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CTextbox(),							gs_MaxKills,	320,227, 100,tLX->cFont.GetHeight());
 	cGameSettings.Add( new CSlider(500),						gs_LoadingTime,315,257, 160,20);
 	cGameSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 480, 260, 0, 0);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.iBonusesOn),	gs_Bonuses, 320,287,17,17);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.iShowBonusName),gs_ShowBonusNames, 320,317,17,17);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bBonusesOn),	gs_Bonuses, 320,287,17,17);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bShowBonusName),gs_ShowBonusNames, 320,317,17,17);
 
 	cGameSettings.SendMessage(gs_Lives,TXM_SETMAX,6,0);
 	cGameSettings.SendMessage(gs_MaxKills,TXM_SETMAX,6,0);
@@ -884,8 +884,8 @@ void Menu_GameSettings_GrabInfo(void)
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit = -1;
 	tGameInfo.iTimeLimit = tLXOptions->tGameinfo.iTimeLimit = -1;
 	tGameInfo.iTagLimit = tLXOptions->tGameinfo.iTagLimit = -1;
-	tGameInfo.iBonusesOn = true;
-	tGameInfo.iShowBonusName = true;
+	tGameInfo.bBonusesOn = true;
+	tGameInfo.bShowBonusName = true;
 
 
 	// Store the game info into the options structure as well
@@ -900,11 +900,11 @@ void Menu_GameSettings_GrabInfo(void)
 		tGameInfo.iKillLimit = atoi(buf);
 	}
 
-	tGameInfo.iBonusesOn = cGameSettings.SendMessage( gs_Bonuses, CKM_GETCHECK, (DWORD)0, 0);
-	tLXOptions->tGameinfo.iBonusesOn = tGameInfo.iBonusesOn;
+	tGameInfo.bBonusesOn = cGameSettings.SendMessage( gs_Bonuses, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameinfo.bBonusesOn = tGameInfo.bBonusesOn;
 
-	tGameInfo.iShowBonusName = cGameSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, (DWORD)0, 0);
-	tLXOptions->tGameinfo.iShowBonusName = tGameInfo.iShowBonusName;
+	tGameInfo.bShowBonusName = cGameSettings.SendMessage( gs_ShowBonusNames, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	tLXOptions->tGameinfo.bShowBonusName = tGameInfo.bShowBonusName;
 }
 
 

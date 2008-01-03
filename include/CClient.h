@@ -199,7 +199,7 @@ public:
 		cWeaponBar1 = NULL;
 		cWeaponBar2 = NULL;
 		iGameType = GMT_DEATHMATCH;
-		iGameReady = false;
+		bGameReady = false;
         nTopProjectile = 0;
 		bMapGrabbed = false;
 		cChatList = NULL;
@@ -216,13 +216,13 @@ public:
 		cNetChan.Clear();
 		iNetStatus = NET_DISCONNECTED;
 		bsUnreliable.Clear();
-		iBadConnection = false;
-		iServerError = false;
-		iChat_Typing = false;
+		bBadConnection = false;
+		bServerError = false;
+		bChat_Typing = false;
 		bTeamChat = false;
 		fChat_BlinkTime = 0;
-		iChat_CursorVisible = true;
-        iClientError = false;
+		bChat_CursorVisible = true;
+        bClientError = false;
 		bInServer = false;
 		cIConnectedBuf = "";
 		iNetSpeed = 3;
@@ -302,8 +302,8 @@ private:
 	int			iTagLimit;
 	float		fLoadingTime;
 	std::string	sModName;
-	int			iBonusesOn;
-	int			iShowBonusName;
+	bool		bBonusesOn;
+	bool		bShowBonusName;
     CWpnRest    cWeaponRestrictions;
 
 	// Ping below FPS
@@ -350,9 +350,9 @@ private:
 	bool		bRepaintChatbox;
 
 	// Send chat
-	int			iChat_Typing;
+	bool		bChat_Typing;
 	UnicodeChar	iChat_Lastchar;
-	int			iChat_Holding;
+	bool		bChat_Holding;
 	unsigned int	iChat_Pos;
 	float		fChat_TimePushed;
 	CInput		cChat_Input;
@@ -360,7 +360,7 @@ private:
 	bool		bTeamChat;
 	std::string	sChat_Text;
 	float		fChat_BlinkTime;
-	int			iChat_CursorVisible;
+	bool		bChat_CursorVisible;
 
     CInput      cShowScore;
 	CInput		cShowHealth;
@@ -411,25 +411,25 @@ private:
 	std::string	sMapDlError;
 	byte		iMapDlProgress;
 
-	int			iReadySent;
+	bool		bReadySent;
 
-	int			iGameOver;
-	int			iGameMenu;
+	bool		bGameOver;
+	bool		bGameMenu;
 	int			iMatchWinner;
 	float		fGameOverTime;
 
-	int			iLobbyReady;
-	int			iGameReady;
+	bool		bLobbyReady;
+	bool		bGameReady;
 
 	game_lobby_t tGameLobby;
 
-	int			iBadConnection;
+	bool		bBadConnection;
 	std::string	strBadConnectMsg;
 
-	int			iServerError;
+	bool		bServerError;
 	std::string	strServerErrorMsg;
 
-    int         iClientError;
+    bool		bClientError;
 
 	// Logging variables
     bool		bInServer;
@@ -497,7 +497,7 @@ public:
 
 
 	void		SimulateBonuses(float dt);
-	void		DestroyBonus(int id, int local, int wormid);
+	void		DestroyBonus(int id, bool local, int wormid);
 
 	CVec		FindNearestSpot(CWorm *w);
 
@@ -520,7 +520,7 @@ public:
 	void		InitializeIngameScore(bool WaitForPlayers);
 	void		DrawTime(SDL_Surface *bmpDest, int x, int y, float t);
 	void		DrawReadyOverlay(SDL_Surface *bmpDest);
-	void		DrawText(SDL_Surface *bmpDest, int centre, int x, int y, Uint32 fgcol, const std::string& buf);
+	void		DrawText(SDL_Surface *bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf);
 	void		DrawLocalChat(SDL_Surface *bmpDest);
 	void		DrawRemoteChat(SDL_Surface *bmpDest);
     void        DrawScoreboard(SDL_Surface *bmpDest);
@@ -604,21 +604,21 @@ public:
 	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
 	CWorm		*getRemoteWorms(void)		{ return cRemoteWorms; }
-	int			getGameReady(void)			{ return iGameReady; }
-	void		setGameReady(int _g)		{ iGameReady = _g; }
+	bool		getGameReady(void)			{ return bGameReady; }
+	void		setGameReady(bool _g)		{ bGameReady = _g; }
 
     CChatBox    *getChatbox(void)           { return &cChatbox; }
 	void		setRepaintChatbox(bool _r)  { bRepaintChatbox = true; }
 
 	game_lobby_t *getGameLobby(void)		{ return &tGameLobby; }
 
-	int			getBadConnection(void)		{ return iBadConnection; }
-	inline std::string	getBadConnectionMsg(void)	{ return strBadConnectMsg; }
+	bool		getBadConnection(void)		{ return bBadConnection; }
+	std::string	getBadConnectionMsg(void)	{ return strBadConnectMsg; }
 
-	int			getServerError(void)		{ return iServerError; }
-	inline std::string	getServerErrorMsg(void)	{ return strServerErrorMsg; }
+	bool		getServerError(void)		{ return bServerError; }
+	std::string	getServerErrorMsg(void)		{ return strServerErrorMsg; }
 
-    int         getClientError(void)        { return iClientError; }
+    bool		getClientError(void)        { return bClientError; }
 
 	float		getLastReceived(void)		{ return fLastReceived; }
 	void		setLastReceived(float _l)	{ fLastReceived = _l; }
@@ -639,22 +639,22 @@ public:
 
 	int			getTeamScore(int team)		{ return iTeamScores[team]; }
 
-	int			isTyping(void)				{ return iChat_Typing; }
-	const std::string& getChatterText()			{ return sChat_Text; }
+	bool		isTyping(void)				{ return bChat_Typing; }
+	const std::string& getChatterText()		{ return sChat_Text; }
 
 	bool		getMuted(void)				{ return bMuted; }
 	void		setMuted(bool _m)			{ bMuted = _m; }
 
 	ClientRights *getRights()				{ return &tRights; }
 
-	int	getPing(void)				{ return cNetChan.getPing(); }
-	void setPing(int _p)				{ cNetChan.setPing(_p); }
+	int	getPing(void)						{ return cNetChan.getPing(); }
+	void setPing(int _p)					{ cNetChan.setPing(_p); }
 
 	void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
 	const std::string& getServerAddress(void)		{ return strServerAddr; }
 
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
-	const std::string& getServerName(void)		{ return szServerName; }
+	const std::string& getServerName(void)			{ return szServerName; }
 
 	// TODO: don't use bool for a number
 	bool getHostBeta3(void)				{ return bHostOLXb3; }
@@ -669,7 +669,7 @@ public:
 	bool getHostAllowsMouse(void)				{ return bHostAllowsMouse; }
 	void setHostAllowsMouse(bool _b)			{ bHostAllowsMouse = _b; }
 
-	bool		getGamePaused()					{ return (bViewportMgr || iGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
+	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tGameInfo.iGameType == GME_LOCAL; }
 
 	byte		getMapDlProgress()				{ return iMapDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
@@ -679,14 +679,14 @@ public:
 	bool		getConnectingDuringGame()		{ return bConnectingDuringGame; };
 	void		setConnectingDuringGame(bool b)	{ bConnectingDuringGame = b; };
 
-	CFileDownloaderInGame * getFileDownloaderInGame() { return &cFileDownloaderInGame; };
-	float		getLastDirtUpdate()				{ return fLastDirtUpdate; };
-	void		setLastDirtUpdate( float _f )	{ fLastDirtUpdate = _f; };
-	float		getLastFileRequestPacketReceived() { return fLastFileRequestPacketReceived; };
+	CFileDownloaderInGame * getFileDownloaderInGame()	{ return &cFileDownloaderInGame; };
+	float		getLastDirtUpdate()						{ return fLastDirtUpdate; };
+	void		setLastDirtUpdate( float _f )			{ fLastDirtUpdate = _f; };
+	float		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
 	void		setLastFileRequestPacketReceived( float _f ) { fLastFileRequestPacketReceived = _f; };
 	
-	bool		getSpectate()					{ return bSpectate; };
-	void		setSpectate( bool _b )			{ bSpectate = _b; };
+	bool		getSpectate()							{ return bSpectate; };
+	void		setSpectate( bool _b )					{ bSpectate = _b; };
 
 };
 

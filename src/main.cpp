@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 
 	// TODO: abstract the logging, make an uniform message system
 	// Log the game start
-	if (tLXOptions->iLogConvos)  {
+	if (tLXOptions->bLogConvos)  {
 		FILE *f;
 
 		f = OpenGameFile("Conversations.log","a");
@@ -342,19 +342,19 @@ void ParseArguments(int argc, char *argv[])
         // Turns off the sound
         if( stricmp(a, "-nosound") == 0 ) {
             nDisableSound = true;
-            tLXOptions->iSoundOn = false;
+            tLXOptions->bSoundOn = false;
         } else
 
         // -window
         // Turns fullscreen off
         if( stricmp(a, "-window") == 0 ) {
-            tLXOptions->iFullscreen = false;
+            tLXOptions->bFullscreen = false;
         } else
 
         // -fullscreen
         // Turns fullscreen on
         if( stricmp(a, "-fullscreen") == 0 ) {
-            tLXOptions->iFullscreen = true;
+            tLXOptions->bFullscreen = true;
         } else
         
 		// -help
@@ -594,7 +594,7 @@ void GameLoop(void)
 	// Switch between window and fullscreen mode
 	if( cSwitchMode.isDown() )  {
 		// Set to fullscreen
-		tLXOptions->iFullscreen = !tLXOptions->iFullscreen;
+		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
 		// Set the new video mode
 		SetVideoMode();
@@ -720,7 +720,7 @@ void ShutdownLieroX(void)
 	
 	tLXOptions->SaveToDisc();
 
-	if (tLXOptions->iLogConvos)  {
+	if (tLXOptions->bLogConvos)  {
 		FILE *f;
 
 		f = OpenGameFile("Conversations.log","a");

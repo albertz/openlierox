@@ -184,7 +184,7 @@ void CWorm::getInput()
 			}
 		} */
 		
-		static const float movetimed_min = 0.08, movetimed_max = 0.2;
+		static const float movetimed_min = 0.08f, movetimed_max = 0.2f;
 		
 		if((mouseControl && ws->iMove && iDirection == DIR_LEFT)
 		|| (/*cLeft.isJoystick() &&*/ cLeft.isDown())) {
@@ -334,7 +334,7 @@ void CWorm::getInput()
 	}
 
 
-	int oldskool = tLXOptions->iOldSkoolRope;
+	bool oldskool = tLXOptions->bOldSkoolRope;
 
 	bool jumpdownonce = cJump.isDownOnce();
 
@@ -354,18 +354,18 @@ void CWorm::getInput()
 		// Change-weapon & jump
 
 		if(!cSelWeapon.isDown() || !cJump.isDown())  {
-			iRopeDown = false;
+			bRopeDown = false;
 		}
 
-		if(cSelWeapon.isDown() && cJump.isDown() && !iRopeDown) {
+		if(cSelWeapon.isDown() && cJump.isDown() && !bRopeDown) {
 
-			iRopeDownOnce = true;
-			iRopeDown = true;
+			bRopeDownOnce = true;
+			bRopeDown = true;
 		}
 
 		// Down
-		if(iRopeDownOnce) {
-			iRopeDownOnce = false;
+		if(bRopeDownOnce) {
+			bRopeDownOnce = false;
 
 			cNinjaRope.Shoot(vPos,dir);
 
@@ -436,7 +436,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 
 	// If we're IT, spawn some sparkles
-	if(iTagIT && tGameInfo.iGameMode == GMT_TAG) {
+	if(bTagIT && tGameInfo.iGameMode == GMT_TAG) {
 		if(tLX->fCurTime - fLastSparkle > 0.15f) {
 			fLastSparkle = tLX->fCurTime;
 			CVec p = vPos + CVec(GetRandomNum()*3, GetRandomNum()*3);
@@ -478,7 +478,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 	if(fFrame >= 3.0f || !ws->iMove)
 		fFrame=0;
 
-	speed = iOnGround ? wd->GroundSpeed : wd->AirSpeed;
+	speed = bOnGround ? wd->GroundSpeed : wd->AirSpeed;
 
 	// Process the ninja rope
 	if(cNinjaRope.isReleased() && worms) {
@@ -506,14 +506,14 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 	// Process the jump
 	if(ws->iJump && CheckOnGround()) {
 		vVelocity.y = wd->JumpForce;
-		iOnGround = false;
+		bOnGround = false;
 	}
 
 
 	// Air drag (Mainly to dampen the ninja rope)
 	float Drag = wd->AirFriction;
 
-	if(!iOnGround)	{
+	if(!bOnGround)	{
 		vVelocity.x -= SQR(vVelocity.x) * SIGN(vVelocity.x) * Drag * dt;
 		vVelocity.y += -SQR(vVelocity.y) * SIGN(vVelocity.y) * Drag * dt;
 	}
@@ -530,7 +530,7 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 
 	// Ultimate in friction
-	if(iOnGround) {
+	if(bOnGround) {
 		vVelocity.x *= pow(0.9f, dt * 100.0f);
 		//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 
@@ -672,7 +672,7 @@ bool CWorm::MoveAndCheckWormCollision( float dt, CVec pos, CVec *vel, CVec vOldP
 		}
 	}
 
-	iOnGround = false;
+	bOnGround = false;
 
 	bool hit = false;
 	x = (int)pos.x;
@@ -696,7 +696,7 @@ bool CWorm::MoveAndCheckWormCollision( float dt, CVec pos, CVec *vel, CVec vOldP
 				vPos.y=( (float)pcMap->GetHeight() - 5 );
 				clip |= 0x08;
 				coll = true;
-                iOnGround = true;
+                bOnGround = true;
 				if(fabs(vel->y) > 40)
 					vel->y *= -0.4f;
 				else
@@ -716,7 +716,7 @@ bool CWorm::MoveAndCheckWormCollision( float dt, CVec pos, CVec *vel, CVec vOldP
                 }
 
 				hit = true;
-				iOnGround = true;
+				bOnGround = true;
 
 				if(y<0) {
 					clip |= 0x04;

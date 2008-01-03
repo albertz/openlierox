@@ -192,7 +192,7 @@ NEW_ai_node_t* createNewAiNode(NEW_ai_node_t* base) {
 }
 
 NEW_ai_node_t* createNewAiNode(const VectorD2<int>& p) {
-	return createNewAiNode(p.x, p.y);
+	return createNewAiNode((float)p.x, (float)p.y);
 }
 
 // returns true, if the given line is free or not
@@ -1141,7 +1141,7 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 			continue;
 
 		// If this is a game of tag, only target the worm it (unless it's me)
-		if(taggame && !w->getTagIT() && !iTagIT)
+		if(taggame && !w->getTagIT() && !bTagIT)
 			continue;
 
 		// If this is a VIP game target:
@@ -1302,7 +1302,7 @@ void CWorm::AI_Think(int gametype, int teamgame, int taggame)
 // Returns true if we found one
 bool CWorm::AI_FindHealth()
 {
-	if (!tGameInfo.iBonusesOn)
+	if (!tGameInfo.bBonusesOn)
 		return false;
 
     CBonus  *pcBonusList = cClient->getBonusList();
@@ -3128,7 +3128,7 @@ int CWorm::AI_GetBestWeapon(int nGameType, float fDistance, bool bDirect, float 
 // Returns the distance the trace went
 int CWorm::traceLine(CVec target, float *fDist, int *nType, int divs)  {
 	int res =  traceLine(target, vPos, nType, divs);
-	if (fDist && res) *fDist = (int)(vPos - target).GetLength() / res;
+	if (fDist && res) *fDist = (float)((int)(vPos - target).GetLength() / res);
 	return res;
 }
 
@@ -4036,7 +4036,7 @@ public:
 		if(len < 0) len = 0.0f;
 		
 		// HINT: these constant multiplicators are the critical values in the calculation
-		float value = trg_dist * 100000.0f + angle_dif * 10000.0f + len * 0.001;
+		float value = (float)(trg_dist * 100000.0f + angle_dif * 10000.0f + len * 0.001f);
 		//printf("value: %f, %f, %f, %f\n", trg_dist, angle_dif, len, value);
 		
 		// FIX: if we want to go up, then ignore angle and len

@@ -618,7 +618,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 	int i, j;
 
 	// When drawing shadows, we have to update a bigger area
-	int shadow_update = tLXOptions->iShadows ? SHADOW_DROP : 0;
+	int shadow_update = tLXOptions->bShadows ? SHADOW_DROP : 0;
 
 	x -= shadow_update;
 	y -= shadow_update;
@@ -1450,7 +1450,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 void CMap::ApplyShadow(int sx, int sy, int w, int h)
 {
 	// Draw shadows?
-	if(!tLXOptions->iShadows)
+	if(!tLXOptions->bShadows)
 		return;
 
 	int x, y, n;
@@ -3137,7 +3137,7 @@ bool CMap::SendDirtUpdate(CBytestream *bs)
 	for( uint y = 0; y < Height; y++ )
 	for( uint x = 0; x < Width; x++ )
 	{
-		bs->writeBit( PixelFlags[ y*Width + x ] & PX_DIRT );
+		bs->writeBit( (PixelFlags[ y*Width + x ] & PX_DIRT) != 0 );
 	};
 	unlockFlags();
 	return true;
@@ -3154,7 +3154,7 @@ bool CMap::RecvDirtUpdate(CBytestream *bs)
 	{
 		bool dirt = bs->readBit();
 		uchar * flag = & PixelFlags[ y*Width + x ];
-		if( bool( (*flag) & PX_DIRT ) != dirt )
+		if( (((*flag) & PX_DIRT) != 0) != dirt )
 		{
 			if( dirt )
 			{

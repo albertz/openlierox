@@ -324,7 +324,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	int TeamCount[4];
 
 	// If the game is already over, ignore this
-	if (iGameOver)  {
+	if (bGameOver)  {
 		printf("GameServer::ParseDeathPacket: Game is over, ignoring.\n");
 		return;
 	}
@@ -554,7 +554,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 		// If the game is still going and this is a teamgame, check if the team this worm was in still
 		// exists
-		if (!iGameOver && iGameType == GMT_TEAMDEATH) {
+		if (!bGameOver && iGameType == GMT_TEAMDEATH) {
 			int team = vict->getTeam();
 			int teamcount = 0;
 
@@ -600,7 +600,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				GameOver(team);
 			}
 		}
-		if (!iGameOver && (iGameType == GMT_VIP || iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
+		if (!bGameOver && (iGameType == GMT_VIP || iGameType == GMT_CTF || iGameType == GMT_TEAMCTF))
 			RecheckGame();
 	}
 
@@ -614,7 +614,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 
 	// If the worm killed is IT, then make the killer now IT
-	if (iGameType == GMT_TAG && !iGameOver)  {
+	if (iGameType == GMT_TAG && !bGameOver)  {
 		if (killer != victim) {
 			if (vict->getTagIT()) {
 				vict->setTagIT(false);
@@ -695,14 +695,14 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 		return;
 	}
 
-	int ready = bs->readByte();
+	bool ready = bs->readBool();
 	int i;
 
 	// Set the client worms lobby ready state
 	for (i = 0; i < cl->getNumWorms(); i++) {
 		lobbyworm_t *l = cl->getWorm(i)->getLobby();
 		if (l)
-			l->iReady = ready;
+			l->bReady = ready;
 	}
 
 	// Let all the worms know about the new lobby state
@@ -741,18 +741,18 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 		bytestr.Clear();
 		// Copied from GameServer::StartGame()
 		bytestr.writeByte(S2C_PREPAREGAME);
-		bytestr.writeInt(iRandomMap,1);
-		if(!iRandomMap)
+		bytestr.writeBool(bRandomMap);
+		if(!bRandomMap)
 			bytestr.writeString(sMapFilename);
 		
 		// Game info
-		bytestr.writeInt(iGameType,1);
+		bytestr.writeInt(iGameType, 1);
 		bytestr.writeInt16(iLives);
 		bytestr.writeInt16(iMaxKills);
 		bytestr.writeInt16(iTimeLimit);
 		bytestr.writeInt16(iLoadingTimes);
-		bytestr.writeInt(iBonusesOn, 1);
-		bytestr.writeInt(iShowBonusName, 1);
+		bytestr.writeBool(bBonusesOn);
+		bytestr.writeBool(bShowBonusName);
 		if(iGameType == GMT_TAG)
 			bytestr.writeInt16(iTagLimit);
 		bytestr.writeString(tGameInfo.sModDir);
@@ -1582,14 +1582,14 @@ void GameServer::ParseGetInfo(void) {
 	bs.writeByte(iState);
 
 	// If in lobby
-	if (iState == SVS_LOBBY && gl->nSet) {
+	if (iState == SVS_LOBBY && gl->bSet) {
 		bs.writeString(gl->szMapName);
 		bs.writeString(gl->szModName);
 		bs.writeByte(gl->nGameMode);
 		bs.writeInt16(gl->nLives);
 		bs.writeInt16(gl->nMaxKills);
 		bs.writeInt16(gl->nLoadingTime);
-		bs.writeByte(gl->nBonuses);
+		bs.writeBool(gl->bBonuses);
 	}
 	// If in game
 	else if (iState == SVS_PLAYING) {
@@ -1599,7 +1599,7 @@ void GameServer::ParseGetInfo(void) {
 		bs.writeInt16(iLives);
 		bs.writeInt16(iMaxKills);
 		bs.writeInt16(iLoadingTimes);
-		bs.writeByte(iBonusesOn);
+		bs.writeByte(bBonusesOn);
 	}
 	// Loading
 	else {
@@ -1609,7 +1609,7 @@ void GameServer::ParseGetInfo(void) {
 		bs.writeInt16(tGameInfo.iLives);
 		bs.writeInt16(tGameInfo.iKillLimit);
 		bs.writeInt16(tGameInfo.iLoadingTimes);
-		bs.writeByte(tGameInfo.iBonusesOn);
+		bs.writeBool(tGameInfo.bBonusesOn);
 	}
 
 

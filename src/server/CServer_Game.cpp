@@ -27,7 +27,7 @@
 // Spawn a worm
 void GameServer::SpawnWorm(CWorm *Worm)
 {
-	if (iGameOver)
+	if (bGameOver)
 		return;
 
 	CVec pos = FindSpot();
@@ -56,7 +56,7 @@ void GameServer::SpawnWorm(CWorm *Worm)
 // (Re)Spawn a worm
 void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 {
-	if (iGameOver)
+	if (bGameOver)
 		return;
 
 	Worm->Respawn(pos);
@@ -134,7 +134,7 @@ void GameServer::SimulateGame(void)
 
 	// If this is a remote game, and game over,
 	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
-	if(iGameOver && tLX->fCurTime - fGameOverTime > LX_ENDWAIT && iState != SVS_LOBBY && tGameInfo.iGameType == GME_HOST) {
+	if(bGameOver && tLX->fCurTime - fGameOverTime > LX_ENDWAIT && iState != SVS_LOBBY && tGameInfo.iGameType == GME_HOST) {
 		gotoLobby();
 		return;
 	}
@@ -221,7 +221,7 @@ void GameServer::SimulateGame(void)
 
 
 	// Check if any bonuses have been in for too long and need to be destroyed
-	if (iBonusesOn)  {
+	if (bBonusesOn)  {
 		for(i=0; i<MAX_BONUSES; i++) {
 			if(!cBonuses[i].getUsed())
 				continue;
@@ -242,7 +242,7 @@ void GameServer::SimulateGame(void)
 
 
 	// Check if we need to spawn a bonus
-	if(tLX->fCurTime - fLastBonusTime > tLXOptions->tGameinfo.fBonusFreq && iBonusesOn && !iGameOver) {
+	if(tLX->fCurTime - fLastBonusTime > tLXOptions->tGameinfo.fBonusFreq && bBonusesOn && !bGameOver) {
 
 		SpawnBonus();
 
@@ -418,7 +418,7 @@ void GameServer::TagRandomWorm(void)
 void GameServer::WormShoot(CWorm *w)
 {
 	// Don't shoot when the game is over
-	if (iGameOver)
+	if (bGameOver)
 		return;
 
 	// If the worm is a VIP and the gametype is VIP don't shoot
@@ -566,7 +566,7 @@ void GameServer::gotoLobby(void)
 	short i;
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
-			cWorms[i].getLobby()->iReady = false;
+			cWorms[i].getLobby()->bReady = false;
 			cWorms[i].setGameReady(false);
 			cWorms[i].setTagIT(false);
 			cWorms[i].setTagTime(0);
@@ -577,7 +577,7 @@ void GameServer::gotoLobby(void)
 			CBytestream bs;
 			bs.writeByte(S2C_CLLEFT);
 			bs.writeByte(1);
-			bs.writeByte(i);
+			bs.writeByte((uchar)i);
 			SendGlobalPacket(&bs);
 			iNumPlayers--;
 		}
@@ -610,7 +610,7 @@ void GameServer::DemolitionsGameOver(int winner)
 	bs.writeInt(winner,1);
 
 	// Game over
-	iGameOver = true;
+	bGameOver = true;
 	fGameOverTime = tLX->fCurTime;
 
     SendGlobalPacket(&bs);
@@ -647,7 +647,7 @@ void GameServer::RecheckGame(void)
     }
 
 	// Check how many worms are alive
-	if (getState() == SVS_PLAYING && !iGameOver)  {
+	if (getState() == SVS_PLAYING && !bGameOver)  {
 		CWorm *w = cWorms;
 		short wormcount = 0;
 		short wormid = 0;
@@ -657,7 +657,7 @@ void GameServer::RecheckGame(void)
 				wormid = i; // Save the worm id
 			}
 
-		if (!iGameOver)  {
+		if (!bGameOver)  {
 
 			//static char buf[256];
 			bool EndGame = false;
@@ -910,7 +910,7 @@ void GameServer::RecheckGame(void)
 				bs.writeByte(S2C_GAMEOVER);
 				bs.writeInt(wormid,1);
 
-				iGameOver = true;
+				bGameOver = true;
 				fGameOverTime = tLX->fCurTime;
 
 				// Send the Game Over

@@ -71,7 +71,7 @@ public:
 	
 	int		isUp(void);
 	int		isDown(void);
-	int		isDownOnce(void);
+	bool	isDownOnce(void);
 
 	void	ClearUpState(void); // TODO: why is this needed? and this should be removed as it does not good things (modifies things it should not modify)
 };

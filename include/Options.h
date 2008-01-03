@@ -157,8 +157,8 @@ public:
 	void SaveToDisc();
 	
 	// Video
-	int		iFullscreen;
-	int		iShowFPS;
+	bool	bFullscreen;
+	bool	bShowFPS;
 	bool	bOpenGL;
 	std::string	sResolution;
 	int		iColourDepth;
@@ -172,7 +172,7 @@ public:
 	std::string	sSTUNServer;
 
 	// Audio
-	int		iSoundOn;
+	bool	bSoundOn;
 	int		iSoundVolume;
 
 	// Controls
@@ -181,12 +181,12 @@ public:
 
 	// Game
 	int		iBloodAmount;
-	int		iShadows;
-	int		iParticles;
-	int		iOldSkoolRope;
-	int		iShowHealth;
-	int		iColorizeNicks;
-	int		iAutoTyping;
+	bool	bShadows;
+	bool	bParticles;
+	bool	bOldSkoolRope;
+	bool	bShowHealth;
+	bool	bColorizeNicks;
+	bool	bAutoTyping;
 	std::string	sSkinPath;
 	bool	bAntiAliasing;
 	bool	bMouseAiming;
@@ -204,8 +204,8 @@ public:
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 
 	// Misc.
-	int     iLogConvos;
-	int		iShowPing;
+	bool    bLogConvos;
+	bool	bShowPing;
 	int		iScreenshotFormat;
 	
 	// Widget states
@@ -228,8 +228,8 @@ public:
 		int		iTimeLimit;
 		int		iTagLimit;
 		int		iLoadingTime;
-		int		iBonusesOn;
-		int		iShowBonusName;
+		bool	bBonusesOn;
+		bool	bShowBonusName;
 		int		iMaxPlayers;
 		bool	bMatchLogging;
 		std::string	sServerName;

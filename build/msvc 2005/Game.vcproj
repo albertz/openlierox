@@ -47,7 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include"
+				AdditionalIncludeDirectories="../../include;../../hawknl/src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -522,6 +522,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\CInput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\Clipboard.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Clipboard.h"
 				>
 			</File>
 			<File
@@ -1444,6 +1452,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\server\ChatCommand.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\ChatCommand.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\CMap.cpp"
 				>
 				<FileConfiguration
@@ -2243,6 +2259,22 @@
 			</File>
 			<File
 				RelativePath="..\..\include\CGuiLayout.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\CGuiSkin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\CGuiSkin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\CGuiSkinnedLayout.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\CGuiSkinnedLayout.h"
 				>
 			</File>
 			<File
@@ -3059,15 +3091,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\msvc\libs\HawkNL.lib"
+				>
+			</File>
+			<File
 				RelativePath="..\msvc\libs\libxml2.lib"
 				>
 			</File>
 			<File
 				RelativePath="..\msvc\libs\lua5.1.lib"
-				>
-			</File>
-			<File
-				RelativePath="..\msvc\libs\NLstatic.lib"
 				>
 			</File>
 			<File

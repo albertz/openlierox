@@ -87,8 +87,8 @@ class CBonus;
 struct lobbyworm_t {
 	int			iType;
     int         iTeam;
-	int			iHost;
-	int			iReady;
+	bool		bHost;
+	bool		bReady;
 };
 
 
@@ -167,7 +167,7 @@ private:
 	bool		bUsed;
 	int			iID;
 	int			iType;
-	int			iLocal;
+	bool		bLocal;
 	int			iTeam;
 	std::string	sName;
     std::string szSkin;
@@ -198,7 +198,7 @@ private:
 	CVec		vOldPosOfLastPaket;
 	CVec		vVelocity;
 	CVec		vLastPos;
-	int			iOnGround;
+	bool		bOnGround;
 
 	CVec		vFollowPos;
 	bool		bFollowOverride;
@@ -217,14 +217,14 @@ private:
 
 	// Game
 	float		fLoadingTime;
-	int			iDrawMuzzle;
+	bool		bDrawMuzzle;
 	int			iHealth;
 	int			iLives;
-	int			iAlive;
+	bool		bAlive;
 	float		fTimeofDeath;
 	int			iDirection;
 	int			iStrafeDirection;
-	int			iGotTarget;
+	bool		bGotTarget;
 	float		fAngle;
     float       fAngleSpeed;
     float		fMoveSpeedX;
@@ -234,13 +234,13 @@ private:
 	profile_t	*tProfile;
 	float		fRopeTime;
 
-	int			iHooked;
+	bool		bHooked;
 	CWorm		*pcHookWorm;
 
-	int			iRopeDown;
-	int			iRopeDownOnce;
+	bool		bRopeDown;
+	bool		bRopeDownOnce;
 
-	int			iTagIT;
+	bool		bTagIT;
 	float		fTagTime;
 	float		fLastSparkle;
 
@@ -277,8 +277,8 @@ private:
 
 
 	// Arsenal
-	int			iWeaponsReady;
-	int			iGameReady;
+	bool		bWeaponsReady;
+	bool		bGameReady;
 	CGameScript	*cGameScript;
     CWpnRest    *cWeaponRest;
 	int			iNumWeaponSlots;
@@ -372,10 +372,10 @@ public:
 	//
 	void		writeInfo(CBytestream *bs);
 	void		readInfo(CBytestream *bs);
-	static inline bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
+	static bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
 	void		writeScore(CBytestream *bs);
 	void		readScore(CBytestream *bs);
-	static inline bool	skipScore(CBytestream *bs)  { return bs->Skip(3); }
+	static bool	skipScore(CBytestream *bs)  { return bs->Skip(3); }
 	void		updateCheckVariables();
 	bool		checkPacketNeeded();
 	void		writePacket(CBytestream *bs);
@@ -383,15 +383,15 @@ public:
 	void		net_updatePos(const CVec& newpos);
 	static bool	skipPacket(CBytestream *bs);
 	void		readPacketState(CBytestream *bs, CWorm *worms);
-	static inline bool	skipPacketState(CBytestream *bs)  {return skipPacket(bs); } // For skipping it's the same as skipPacket
+	static bool	skipPacketState(CBytestream *bs)  {return skipPacket(bs); } // For skipping it's the same as skipPacket
 	void		writeWeapons(CBytestream *bs);
 	void		readWeapons(CBytestream *bs);
-	static inline bool	skipWeapons(CBytestream *bs)  { return bs->Skip(5); } // 5 weapons 
+	static bool	skipWeapons(CBytestream *bs)  { return bs->Skip(5); } // 5 weapons 
 	void		writeStatUpdate(CBytestream *bs);
 	void		updateStatCheckVariables();
 	bool		checkStatePacketNeeded();
 	void		readStatUpdate(CBytestream *bs);
-	static inline bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
+	static bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
 	int			GetMyPing(void);
 
 	void		setupLobby(void);
@@ -411,7 +411,7 @@ public:
 	//
 	// Graphics
 	//
-	int			LoadGraphics(int gametype);
+	bool		LoadGraphics(int gametype);
 	void		LoadProfileGraphics();
 	void		DeactivateProfileGraphicsOnce() { ProfileGraphics = false; }
 	void		FreeGraphics(void);
@@ -426,10 +426,10 @@ public:
 	void		Prepare(CMap *pcMap);
 	void		Spawn(CVec position);
 	void		Respawn(CVec position);
-	int			Injure(int damage);
-	int			Kill(void);
-	int			CheckBonusCollision(CBonus *b);
-	int			GiveBonus(CBonus *b);
+	bool		Injure(int damage);
+	bool		Kill(void);
+	bool		CheckBonusCollision(CBonus *b);
+	bool		GiveBonus(CBonus *b);
 	
 
 
@@ -443,7 +443,7 @@ public:
 	void		Simulate(CWorm *worms, int local, float dt);
 	void		SimulateWeapon( float dt );
 	bool		MoveAndCheckWormCollision( float dt, CVec pos, CVec *vel, CVec vOldPos, int jump );
-    int			CheckOnGround();
+    bool		CheckOnGround();
 
 
 	//
@@ -523,137 +523,137 @@ public:
 	//
 	// Variables
 	//
-	inline bool		isUsed(void)				{ return bUsed; }
-	inline void		setUsed(bool _u)			{ bUsed = _u; }
+	bool		isUsed(void)				{ return bUsed; }
+	void		setUsed(bool _u)			{ bUsed = _u; }
 
-	inline std::string getName(void)			{ return sName; }
-	inline void		setName(const std::string& val) { sName = val; }
-	inline Uint32	getColour(void)				{ return iColour; }
-	inline void		setColour(Uint32 c)			{ iColour = c; }
-	inline void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColour = MakeColour(r,g,b); }
-	inline void		setDefaultColour(Uint32 c)			{ iOldColour = c; }
-	inline void		setDefaultColour(Uint8 r, Uint8 g, Uint8 b)  { iOldColour = MakeColour(r,g,b); }
+	std::string getName(void)			{ return sName; }
+	void		setName(const std::string& val) { sName = val; }
+	Uint32	getColour(void)				{ return iColour; }
+	void		setColour(Uint32 c)			{ iColour = c; }
+	void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColour = MakeColour(r,g,b); }
+	void		setDefaultColour(Uint32 c)			{ iOldColour = c; }
+	void		setDefaultColour(Uint8 r, Uint8 g, Uint8 b)  { iOldColour = MakeColour(r,g,b); }
 
-	inline void		setLocal(int _l)			{ iLocal = _l; }
-	inline int			getLocal(void)				{ return iLocal; }
+	void		setLocal(bool _l)			{ bLocal = _l; }
+	bool		getLocal(void)				{ return bLocal; }
 
-	inline int			getHealth(void)				{ return iHealth; }
-	inline void			setHealth(int _h)			{ iHealth = MIN(100, MAX(0, _h)); }
-	inline int			getLives(void)				{ return iLives; }
-	inline int			getKills(void)				{ return iKills; }
-	inline void		setLives(int l)				{ iLives = l; }
+	int			getHealth(void)				{ return iHealth; }
+	void		setHealth(int _h)			{ iHealth = CLAMP(_h, 0, 100); }
+	int			getLives(void)				{ return iLives; }
+	int			getKills(void)				{ return iKills; }
+	void		setLives(int l)				{ iLives = l; }
 
-	inline void		AddKill(void)				{ iKills++; }
-    inline void        setKills(int k)             { iKills = k; }
+	void		AddKill(void)				{ iKills++; }
+    void        setKills(int k)             { iKills = k; }
 
-	inline void		setID(int i)				{ iID = i; }
-	inline int			getID(void)					{ return iID; }
+	void		setID(int i)				{ iID = i; }
+	int			getID(void)					{ return iID; }
 
-	inline int			getType(void)				{ return iType; }
-    inline void        setType(int t)              { iType = t; }
+	int			getType(void)				{ return iType; }
+    void        setType(int t)              { iType = t; }
 
-	inline int			getAlive(void)				{ return iAlive; }
-	inline void		setAlive(int _a)			{ iAlive = _a; }
+	bool		getAlive(void)				{ return bAlive; }
+	void		setAlive(bool _a)			{ bAlive = _a; }
 
-	inline float		getTimeofDeath(void)		{ return fTimeofDeath; }
+	float		getTimeofDeath(void)		{ return fTimeofDeath; }
 
-	inline void		setHooked(int h, CWorm *w)	{ iHooked=h; pcHookWorm=w; }
-	inline void		setClient(CClient *cl)		{ cOwner = cl; }
-    inline CClient     *getClient(void)            { return cOwner; }
+	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
+	void		setClient(CClient *cl)		{ cOwner = cl; }
+    CClient     *getClient(void)            { return cOwner; }
 
-	inline CInput		*getShoot(void)				{ return &cShoot; }
+	CInput		*getShoot(void)				{ return &cShoot; }
 
-	inline CVec		getFollowPos(void)				{ return (bFollowOverride?vFollowPos:vPos); }
-	inline void		resetFollow(void)				{ bFollowOverride = false; }
-	inline void		doFollow(int x, int y)				{ bFollowOverride = true; vFollowPos.x = (float)x; vFollowPos.y = (float)y; }
+	CVec		getFollowPos(void)			{ return (bFollowOverride?vFollowPos:vPos); }
+	void		resetFollow(void)			{ bFollowOverride = false; }
+	void		doFollow(int x, int y)		{ bFollowOverride = true; vFollowPos.x = (float)x; vFollowPos.y = (float)y; }
 	
-	inline CVec		getPos(void)				{ return vPos; }
-	inline void		setPos(CVec v)				{ vPos = v; }
+	CVec		getPos(void)				{ return vPos; }
+	void		setPos(CVec v)				{ vPos = v; }
 
-	inline CVec		*getVelocity(void)			{ return &vVelocity; }
+	CVec		*getVelocity(void)			{ return &vVelocity; }
 
-	inline worm_state_t *getWormState(void)		{ return &tState; }
+	worm_state_t *getWormState(void)		{ return &tState; }
 
-	inline float		getAngle(void)				{ return fAngle; }
-	inline int			getDirection(void)			{ return iDirection; }
+	float		getAngle(void)				{ return fAngle; }
+	int			getDirection(void)			{ return iDirection; }
 
-	inline void		setLoadingTime(float l)		{ fLoadingTime = l; }
+	void		setLoadingTime(float l)		{ fLoadingTime = l; }
 
-	inline void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }
-    inline void        setWpnRest(CWpnRest *wr)    { cWeaponRest = wr; }
+	void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }
+    void        setWpnRest(CWpnRest *wr)    { cWeaponRest = wr; }
 
-	inline void		setDrawMuzzle(int _d)		{ iDrawMuzzle = _d; }
+	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 
-	inline int			getWeaponsReady(void)		{ return iWeaponsReady; }
-	inline void		setWeaponsReady(int _w)		{ iWeaponsReady = _w; }
-	inline wpnslot_t	*getCurWeapon(void)			{ return &tWeapons[MIN(4,iCurrentWeapon)]; }
-	inline int			getCurrentWeapon(void)		{ return MIN(4,iCurrentWeapon); }
-	inline void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
-	inline wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
+	bool		getWeaponsReady(void)		{ return bWeaponsReady; }
+	void		setWeaponsReady(bool _w)	{ bWeaponsReady = _w; }
+	wpnslot_t	*getCurWeapon(void)			{ return &tWeapons[MIN(4, iCurrentWeapon)]; }
+	int			getCurrentWeapon(void)		{ return MIN(4, iCurrentWeapon); }
+	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
+	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
 
-	inline void		setGameReady(int _g)		{ iGameReady = _g; }
-	inline int			getGameReady(void)			{ return iGameReady; }
+	void		setGameReady(bool _g)		{ bGameReady = _g; }
+	bool		getGameReady(void)			{ return bGameReady; }
 
-	inline void		setProfile(profile_t *p)	{ tProfile = p; }
-	inline profile_t *getProfile()				{ return tProfile; }
+	void		setProfile(profile_t *p)	{ tProfile = p; }
+	profile_t	*getProfile()				{ return tProfile; }
 
-	inline void		setTeam(int _t)				{ iTeam = _t; }
-	inline int			getTeam(void)				{ return iTeam; }
+	void		setTeam(int _t)				{ iTeam = _t; }
+	int			getTeam(void)				{ return iTeam; }
 
-	inline SDL_Surface	*getGibimg(void)			{ return bmpGibs; }
-	inline SDL_Surface	*getPicimg(void)			{ return bmpPic; }
+	SDL_Surface	*getGibimg(void)			{ return bmpGibs; }
+	SDL_Surface	*getPicimg(void)			{ return bmpPic; }
 
-	inline lobbyworm_t	*getLobby(void)				{ return &tLobbyState; }
+	lobbyworm_t	*getLobby(void)				{ return &tLobbyState; }
 
-	inline int			getTagIT(void)				{ return iTagIT; }
-	inline void		setTagIT(int _t)			{ iTagIT = _t; }
+	bool		getTagIT(void)				{ return bTagIT; }
+	void		setTagIT(bool _t)			{ bTagIT = _t; }
 
-    inline void        incrementDirtCount(int d)   { iDirtCount += d; }
-    inline int         getDirtCount(void)          { return iDirtCount; }
+    void        incrementDirtCount(int d)   { iDirtCount += d; }
+    int         getDirtCount(void)          { return iDirtCount; }
 
-	inline void		setTarget(int _t)			{ iGotTarget = _t; }
+	void		setTarget(bool _t)			{ bGotTarget = _t; }
 
-	inline float		getTagTime(void)			{ return fTagTime; }
-	inline void		setTagTime(float _t)		{ fTagTime = _t; }
-	inline void		incrementTagTime(float dt)	{ fTagTime+=dt; }
+	float		getTagTime(void)			{ return fTagTime; }
+	void		setTagTime(float _t)		{ fTagTime = _t; }
+	void		incrementTagTime(float dt)	{ fTagTime+=dt; }
 
-	inline std::string getSkin(void)				{ return szSkin; }
-	inline void		setSkin(const std::string& skin)	{ szSkin = skin; }
+	std::string getSkin(void)				{ return szSkin; }
+	void		setSkin(const std::string& skin)	{ szSkin = skin; }
 
-	inline void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
-	inline int		getKillsInRow(void)			{ return iKillsInRow; }
-	inline void		addKillInRow(void)			{ iKillsInRow++; }
+	void		setKillsInRow(int _k)		{ iKillsInRow = 0; }
+	int			getKillsInRow(void)			{ return iKillsInRow; }
+	void		addKillInRow(void)			{ iKillsInRow++; }
 
-	inline void		setDeathsInRow(int _k)		{ iDeathsInRow = 0; }
-	inline int		getDeathsInRow(void)		{ return iDeathsInRow; }
-	inline void		addDeathInRow(void)			{ iDeathsInRow++; }
+	void		setDeathsInRow(int _k)		{ iDeathsInRow = 0; }
+	int			getDeathsInRow(void)		{ return iDeathsInRow; }
+	void		addDeathInRow(void)			{ iDeathsInRow++; }
 
-	inline void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
-	inline CProjectile *getHeading(void)			{ return psHeadingProjectile; }
+	void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
+	CProjectile *getHeading(void)			{ return psHeadingProjectile; }
 
-	inline bool		getAlreadyKilled()			{ return bAlreadyKilled; }
-	inline void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }
+	bool		getAlreadyKilled()			{ return bAlreadyKilled; }
+	void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }
 
-	inline void		setProfileGraphics(bool _p)	{ ProfileGraphics = _p; }
+	void		setProfileGraphics(bool _p)	{ ProfileGraphics = _p; }
 
-	bool			isShooting()				{ return tState.iShoot != 0; }
-	bool			isWeaponReloading()			{ return getCurWeapon()->Reloading != 0; }
+	bool		isShooting()				{ return tState.iShoot != 0; }
+	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading != 0; }
 
-	inline bool		getVIP(void)				{ return bNoShooting; }
-	inline void		setVIP(bool _s)				{ bNoShooting = _s; }
+	bool		getVIP(void)				{ return bNoShooting; }
+	void		setVIP(bool _s)				{ bNoShooting = _s; }
 	
 	// TODO: the sense of this isn't clear; so make it clear
-	inline bool		getFlag(void)				{ return bFlag; }
-	inline void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
+	bool		getFlag(void)				{ return bFlag; }
+	void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
 
-	inline void		addTotalWins(int _w)		{ iTotalWins += _w; }
-	inline int		getTotalWins(void)			{ return iTotalWins; }
-	inline void		addTotalLosses(int _l)		{ iTotalLosses += _l; }
-	inline int		getTotalLosses(void)		{ return iTotalLosses; }
-	inline void		addTotalKills(int _k)		{ iTotalKills += _k; }
-	inline int		getTotalKills(void)			{ return iTotalKills; }
-	inline void		addTotalDeaths(int _d)		{ iTotalWins += _d; }
-	inline int		getTotalDeaths(void)		{ return iTotalDeaths; }
+	void	addTotalWins(int _w)			{ iTotalWins += _w; }
+	int		getTotalWins(void)				{ return iTotalWins; }
+	void	addTotalLosses(int _l)			{ iTotalLosses += _l; }
+	int		getTotalLosses(void)			{ return iTotalLosses; }
+	void	addTotalKills(int _k)			{ iTotalKills += _k; }
+	int		getTotalKills(void)				{ return iTotalKills; }
+	void	addTotalDeaths(int _d)			{ iTotalWins += _d; }
+	int		getTotalDeaths(void)			{ return iTotalDeaths; }
 
 	std::string		getAddresses(void)			{ return sAddressList; }
 	void			setAddresses(std::string _s){ sAddressList = _s; }

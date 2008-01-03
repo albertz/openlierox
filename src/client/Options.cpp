@@ -46,11 +46,11 @@ bool GameOptions::Init() {
 	
 	CScriptableVars::RegisterVars("GameOptions")	
 #ifdef WIN32
-		( tLXOptions->iFullscreen, "Video.Fullscreen", true )
+		( tLXOptions->bFullscreen, "Video.Fullscreen", true )
 #else
 		( tLXOptions->iFullscreen, "Video.Fullscreen", false )
 #endif
-		( tLXOptions->iShowFPS, "Video.ShowFPS", false )
+		( tLXOptions->bShowFPS, "Video.ShowFPS", false )
 #ifdef MACOSX	
 		( tLXOptions->bOpenGL, "Video.OpenGL", true )
 #else
@@ -69,16 +69,16 @@ bool GameOptions::Init() {
 		( tLXOptions->bLoadDbAtStartup, "Network.LoadDbAtStartup", false )
 		( tLXOptions->sSTUNServer, "Network.STUNServer", "stunserver.org" )
 
-		( tLXOptions->iSoundOn, "Audio.Enabled", true )
+		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
 
 		( tLXOptions->iBloodAmount, "Game.Blood", 100 )
-		( tLXOptions->iShadows, "Game.Shadows", true )
-		( tLXOptions->iParticles, "Game.Particles", true )
-		( tLXOptions->iOldSkoolRope, "Game.OldSkoolRope", false )
-		( tLXOptions->iShowHealth, "Game.ShowWormHealth", false )
-		( tLXOptions->iColorizeNicks, "Game.ColorizeNicks", false )
-		( tLXOptions->iAutoTyping, "Game.AutoTyping", true )
+		( tLXOptions->bShadows, "Game.Shadows", true )
+		( tLXOptions->bParticles, "Game.Particles", true )
+		( tLXOptions->bOldSkoolRope, "Game.OldSkoolRope", false )
+		( tLXOptions->bShowHealth, "Game.ShowWormHealth", false )
+		( tLXOptions->bColorizeNicks, "Game.ColorizeNicks", false )
+		( tLXOptions->bAutoTyping, "Game.AutoTyping", true )
 		( tLXOptions->sSkinPath, "Game.SkinPath", "" )
 		( tLXOptions->bAntiAliasing, "Game.Antialiasing", false )
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false )
@@ -94,8 +94,8 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", true )
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 40 )
 
-		( tLXOptions->iLogConvos, "Misc.LogConversations", true )
-		( tLXOptions->iShowPing, "Misc.ShowPing", true )
+		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
+		( tLXOptions->bShowPing, "Misc.ShowPing", true )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
 		
 		( tLXOptions->bRepeatPlaylist, "MediaPlayer.Repeat", true )
@@ -122,8 +122,8 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.iTimeLimit, "TimeLimit", -1 )
 		( tLXOptions->tGameinfo.iTagLimit, "TagLimit", 5 )
 		( tLXOptions->tGameinfo.iLoadingTime, "LoadingTime", 100 )
-		( tLXOptions->tGameinfo.iBonusesOn, "Bonuses", true )
-		( tLXOptions->tGameinfo.iShowBonusName, "BonusNames", true )
+		( tLXOptions->tGameinfo.bBonusesOn, "Bonuses", true )
+		( tLXOptions->tGameinfo.bShowBonusName, "BonusNames", true )
 		( tLXOptions->tGameinfo.iMaxPlayers, "MaxPlayers", 8 )
 		( tLXOptions->tGameinfo.bMatchLogging, "MatchLogging", true )
 		( tLXOptions->tGameinfo.sServerName, "ServerName", "LieroX Server" )

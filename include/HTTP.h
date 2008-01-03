@@ -120,6 +120,7 @@ private:
 	void				ParseHeader();
 	void				ParseChunks();
 	void				ParseAddress(const std::string& addr);
+	void				FinishTransfer();
 
 public:
 	void				RequestData(const std::string& url);

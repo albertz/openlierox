@@ -50,7 +50,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	// A Bad Connection
 	else if(cmd == "lx::badconnect") {
 		iNetStatus = NET_DISCONNECTED;
-		iBadConnection = true;
+		bBadConnection = true;
 		strBadConnectMsg = Utf8String(bs->readString(256));
 	}
 
@@ -328,7 +328,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	printf("Got ParsePrepareGame\n");
 
 	// We've already got this packet
-	if (iGameReady && iNetStatus != NET_CONNECTED)  {
+	if (bGameReady && iNetStatus != NET_CONNECTED)  {
 		printf("CClient::ParsePrepareGame: we already got this\n");
 		return false;
 	}
@@ -336,12 +336,12 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// If we're playing, the game has to be ready
 	if (iNetStatus == NET_PLAYING)  {
 		printf("CClient::ParsePrepareGame: playing, had to get this\n");
-		iGameReady = true;
+		bGameReady = true;
 		return false;
 	}
 
 
-	iGameReady = true;
+	bGameReady = true;
 
 	int random = bs->readInt(1);
 
@@ -368,7 +368,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 			Menu_MessageBox("Out of memory","Out of memory when allocating the map.",LMB_OK);
 
-			iGameReady = false;
+			bGameReady = false;
 
 			printf("CClient::ParsePrepareGame: out of memory when allocating map\n");
 
@@ -385,7 +385,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		if(tGameInfo.iGameType == GME_JOIN) {
 			if(!cMap->New(504,350,"dirt",tInterfaceSettings.MiniMapW,tInterfaceSettings.MiniMapH)) {
 				Disconnect();
-				iGameReady = false;
+				bGameReady = false;
 				printf("CClient::ParsePrepareGame: could not create random map\n");
 				return false;
 			}
@@ -396,7 +396,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 			cMap = cServer->getMap();
 			if (!cMap)  {  // Bad packet
-				iGameReady = false;
+				bGameReady = false;
 				return false;
 			} else {
 				cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
@@ -413,7 +413,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		// Invalid packet
 		if (buf == "")  {
 			printf("CClient::ParsePrepareGame: bad map name (none)\n");
-			iGameReady = false;
+			bGameReady = false;
 			return false;
 		}
 
@@ -427,11 +427,11 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 				err = std::string("Could not load the level'") + buf + "'\n" + LxGetLastError();
 
 				Menu_MessageBox("Loading Error",err, LMB_OK);
-                iClientError = true;
+                bClientError = true;
 
 				// Go back to the menu
 				QuittoMenu();
-				iGameReady = false;
+				bGameReady = false;
 
 				printf("CClient::ParsePrepareGame: could not load map "+buf+"\n");
 				return false;
@@ -442,7 +442,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
             // Grab the server's copy of the map
 			cMap = cServer->getMap();
 			if (!cMap)  {  // Bad packet
-				iGameReady = false;
+				bGameReady = false;
 				return false;
 			} else {
 				cMap->SetMinimapDimensions(tInterfaceSettings.MiniMapW, tInterfaceSettings.MiniMapH);
@@ -459,8 +459,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	iTimeLimit = bs->readInt16();
 	int l = bs->readInt16();
 	fLoadingTime = (float)l/100.0f;
-	iBonusesOn = bs->readInt(1);
-	iShowBonusName = bs->readInt(1);
+	bBonusesOn = bs->readBool();
+	bShowBonusName = bs->readBool();
 
 	if(iGameType == GMT_TAG)
 		iTagLimit = bs->readInt16();
@@ -471,7 +471,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// Bad packet
 	if (sModName == "")  {
 		printf("CClient::ParsePrepareGame: invalid mod name (none)\n");
-		iGameReady = false;
+		bGameReady = false;
 		return false;
 	}
 
@@ -480,15 +480,15 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	if(result != GSE_OK) {
 
 		// Show any error messages
-		FillSurface(tMenu->bmpBuffer,tLX->clBlack);
+		FillSurface(tMenu->bmpBuffer, tLX->clBlack);
 		std::string err("Error load game mod: ");
 		err += sModName + "\r\nError code: " + itoa(result);
-		Menu_MessageBox("Loading Error",err, LMB_OK);
-        iClientError = true;
+		Menu_MessageBox("Loading Error", err, LMB_OK);
+        bClientError = true;
 
 		// Go back to the menu
 		GotoNetMenu();
-		iGameReady = false;
+		bGameReady = false;
 
 		printf("CClient::ParsePrepareGame: error loading mod "+sModName+"\n");
         return false;
@@ -500,7 +500,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 
 	// TODO: Load any other stuff
-	iGameReady = true;
+	bGameReady = true;
 
 	
 	// Copy the chat text from lobby to ingame chatbox
@@ -514,8 +514,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	}
 
 	if (!sChat_Text.empty())  {
-		iChat_Typing = true;
-		iChat_CursorVisible = true;
+		bChat_Typing = true;
+		bChat_CursorVisible = true;
 		iChat_Pos = sChat_Text.size();
 	}
 
@@ -761,7 +761,7 @@ void CClient::ParseText(CBytestream *bs)
 
 
 	// Log the conversation
-	if (tLXOptions->iLogConvos)  {
+	if (tLXOptions->bLogConvos)  {
 		if(!bInServer)  {
 			cIConnectedBuf = buf;
 			return;
@@ -870,14 +870,14 @@ void CClient::ParseGameOver(CBytestream *bs)
 	}
 
 	// Game over
-	iGameOver = true;
+	bGameOver = true;
 	fGameOverTime = tLX->fCurTime;
 
 	if (tGameLog)
 		tGameLog->iWinner = iMatchWinner;
 
     // Clear the projectiles
-    for(int i=0; i<MAX_PROJECTILES; i++)
+    for(int i=0; i < MAX_PROJECTILES; i++)
 		cProjectiles[i].setUsed(false);
     nTopProjectile = 0;
 
@@ -1032,7 +1032,7 @@ void CClient::ParseCLReady(CBytestream *bs)
 void CClient::ParseUpdateLobby(CBytestream *bs)
 {
 	int numworms = bs->readByte();
-	int ready = bs->readByte();
+	bool ready = bs->readBool();
 
 	if (iNetStatus != NET_CONNECTED || numworms < 1 || numworms > MAX_WORMS)  {
 		if (iNetStatus != NET_CONNECTED)
@@ -1061,7 +1061,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 
 		w = &cRemoteWorms[id];
         if(w) {
-			w->getLobby()->iReady = ready;
+			w->getLobby()->bReady = ready;
             w->getLobby()->iTeam = team;
 			w->setTeam(team);
 			if(i==0)
@@ -1074,7 +1074,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 	bHost_Update = true;
 
 	// Log the conversation
-	if (tLXOptions->iLogConvos)  {
+	if (tLXOptions->bLogConvos)  {
 		if(bInServer)
 			return;
 
@@ -1224,7 +1224,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 		return;
 	}
 
-	gl->nSet = true;
+	gl->bSet = true;
 	gl->nMaxWorms = bs->readByte();
 	gl->szMapName = bs->readString();
     gl->szModName = bs->readString();
@@ -1233,7 +1233,7 @@ void CClient::ParseUpdateLobbyGame(CBytestream *bs)
 	gl->nLives = bs->readInt16();
 	gl->nMaxKills = bs->readInt16();
 	gl->nLoadingTime = bs->readInt16();
-    gl->nBonuses = bs->readByte();
+    gl->bBonuses = bs->readBool();
 
     // Check if we have the level & mod
     gl->bHaveMap = true;
@@ -1343,10 +1343,10 @@ void CClient::ParseServerLeaving(CBytestream *bs)
 	// Set the server error details
 
 	// Not so much an error, but rather a disconnection of communication between us & server
-	iServerError = true;
+	bServerError = true;
 	strServerErrorMsg = "Server has quit";
 
-	if (tLXOptions->iLogConvos)  {
+	if (tLXOptions->bLogConvos)  {
 		if(!bInServer)
 			return;
 
@@ -1487,10 +1487,10 @@ void CClient::ParseDropped(CBytestream *bs)
     // Set the server error details
 
 	// Not so much an error, but i message as to why i was dropped
-	iServerError = true;
+	bServerError = true;
 	strServerErrorMsg = Utf8String(bs->readString(256));
 
-	if (tLXOptions->iLogConvos)  {
+	if (tLXOptions->bLogConvos)  {
 		if(!bInServer)
 			return;
 

@@ -249,13 +249,13 @@ int Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, 150, 0,0);
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, 170, 0,0);
 	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, 170, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iFullscreen),os_Fullscreen, 140, 170, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, 170, 17,17);
 	cOpt_System.Add( new CLabel("Use OpenGL Rendering",tLX->clNormalLabel),Static, 440, 170, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, 170, 17,17);
 
 	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 205, 0,0);
 	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 225, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iSoundOn),   os_SoundOn, 170, 225, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, 225, 17,17);
 	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 225, 0,0);
 	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 222, 110, 20);
 
@@ -272,11 +272,11 @@ int Menu_OptionsInitialize(void)
 
 	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 365, 0,0);
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 385, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iShowFPS),   os_ShowFPS, 200, 385, 17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bShowFPS),   os_ShowFPS, 200, 385, 17,17);
 	cOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, 415, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iLogConvos), os_LogConvos, 200,415,17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bLogConvos), os_LogConvos, 200,415,17,17);
 	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 230, 415, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->iShowPing),  os_ShowPing, 365,415,17,17);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 365,415,17,17);
 	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,385, 0,0);
 	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,385, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,tLX->cFont.GetHeight());
@@ -353,17 +353,17 @@ int Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Blood Amount",tLX->clNormalLabel),       Static, 40, 150, 0,0);
 	cOpt_Game.Add( new CSlider(5000),                       og_BloodAmount, 175, 147, 210, 20);
 	cOpt_Game.Add( new CLabel("Shadows",tLX->clNormalLabel),            Static, 40, 180, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iShadows),     og_Shadows, 280, 180, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bShadows),     og_Shadows, 280, 180, 17,17);
 	cOpt_Game.Add( new CLabel("Particles",tLX->clNormalLabel),          Static, 40, 210, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iParticles),   og_Particles, 280, 210, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bParticles),   og_Particles, 280, 210, 17,17);
 	cOpt_Game.Add( new CLabel("Classic Rope throw",tLX->clNormalLabel), Static, 40, 240, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iOldSkoolRope),og_OldSkoolRope, 280, 240, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bOldSkoolRope),og_OldSkoolRope, 280, 240, 17,17);
 	//cOpt_Game.Add( new CLabel("Show worm's health",tLX->clNormalLabel), Static, 40, 270, 0,0);
-	//cOpt_Game.Add( new CCheckbox(tLXOptions->iShowHealth),  og_ShowWormHealth, 280, 270, 17,17);
+	//cOpt_Game.Add( new CCheckbox(tLXOptions->bShowHealth),  og_ShowWormHealth, 280, 270, 17,17);
 	cOpt_Game.Add( new CLabel("Colorize nicks by teams",tLX->clNormalLabel), Static, 40, 270, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iColorizeNicks),og_ColorizeNicks, 280, 270, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bColorizeNicks),og_ColorizeNicks, 280, 270, 17,17);
 	cOpt_Game.Add( new CLabel("Start typing after any key press",tLX->clNormalLabel), Static, 40, 300, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->iAutoTyping),og_AutoTyping, 280, 300, 17,17);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bAutoTyping),og_AutoTyping, 280, 300, 17,17);
 	cOpt_Game.Add( new CLabel("Use antialiasing (slow)",tLX->clNormalLabel), Static, 40, 330, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAntiAliasing),og_Antialiasing, 280, 330, 17,17);
 	//cOpt_Game.Add( new CLabel("AI Difficulty",tLX->clNormalLabel), Static, 40, 270, 0,0);
@@ -540,7 +540,7 @@ void Menu_OptionsFrame(void)
 				case og_Shadows:
 					if(ev->iEventMsg == CHK_CHANGED) {
 						c = (CCheckbox *)cOpt_Game.getWidget(og_Shadows);
-						tLXOptions->iShadows = c->getValue();
+						tLXOptions->bShadows = c->getValue();
 					}
 					break;
 
@@ -548,7 +548,7 @@ void Menu_OptionsFrame(void)
 				case og_Particles:
 					if(ev->iEventMsg == CHK_CHANGED) {
 						c = (CCheckbox *)cOpt_Game.getWidget(og_Particles);
-						tLXOptions->iParticles = c->getValue();
+						tLXOptions->bParticles = c->getValue();
 					}
 					break;
 
@@ -563,7 +563,7 @@ void Menu_OptionsFrame(void)
 				// Old skool rope throw
 				case og_OldSkoolRope:
 					if(ev->iEventMsg == CHK_CHANGED) {
-						tLXOptions->iOldSkoolRope = cOpt_Game.SendMessage(og_OldSkoolRope,CKM_GETCHECK,(DWORD)0,0);
+						tLXOptions->bOldSkoolRope = cOpt_Game.SendMessage(og_OldSkoolRope,CKM_GETCHECK,(DWORD)0,0) != 0;
 					}
 					break;
 
@@ -576,13 +576,13 @@ void Menu_OptionsFrame(void)
 				// TDM nick colorizing
 				case og_ColorizeNicks:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iColorizeNicks = cOpt_Game.SendMessage(og_ColorizeNicks, CKM_GETCHECK, (DWORD)0, 0);
+						tLXOptions->bColorizeNicks = cOpt_Game.SendMessage(og_ColorizeNicks, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 				// Auto typing
 				case og_AutoTyping:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iAutoTyping = cOpt_Game.SendMessage(og_AutoTyping, CKM_GETCHECK, (DWORD)0, 0);
+						tLXOptions->bAutoTyping = cOpt_Game.SendMessage(og_AutoTyping, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 				// Antialiasing
@@ -639,7 +639,7 @@ void Menu_OptionsFrame(void)
 
 		// Fullscreen value
 		c = (CCheckbox *)cOpt_System.getWidget(os_Fullscreen);
-		int fullscr = c->getValue();
+		bool fullscr = c->getValue();
 		// OpenGL accel value
 		c2 = (CCheckbox *)cOpt_System.getWidget(os_OpenGL);
 		bool opengl = c2->getValue () != 0;
@@ -674,7 +674,7 @@ void Menu_OptionsFrame(void)
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
 						// Set to fullscreen / OpenGL / change colour depth
-						tLXOptions->iFullscreen = fullscr;
+						tLXOptions->bFullscreen = fullscr;
 						tLXOptions->bOpenGL = opengl;
 						tLXOptions->iColourDepth = cdepth;
 						PlaySoundSample(sfxGeneral.smpClick);
@@ -692,13 +692,13 @@ void Menu_OptionsFrame(void)
 				case os_SoundOn:
 					if(ev->iEventMsg == CHK_CHANGED) {
 
-						int old = tLXOptions->iSoundOn;
+						bool old = tLXOptions->bSoundOn;
 
 						c = (CCheckbox *)cOpt_System.getWidget(os_SoundOn);
-						tLXOptions->iSoundOn = c->getValue();
+						tLXOptions->bSoundOn = c->getValue();
 
-						if(old != tLXOptions->iSoundOn) {
-							if(tLXOptions->iSoundOn)
+						if(old != tLXOptions->bSoundOn) {
+							if(tLXOptions->bSoundOn)
 								StartSoundSystem();
 							else
 								StopSoundSystem();
@@ -719,18 +719,18 @@ void Menu_OptionsFrame(void)
 				// Show FPS
 				case os_ShowFPS:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowFPS = cOpt_System.SendMessage(os_ShowFPS, CKM_GETCHECK, (DWORD)0, 0);
+						tLXOptions->bShowFPS = cOpt_System.SendMessage(os_ShowFPS, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 				// Logging
 				case os_LogConvos:
 					if(ev->iEventMsg == CHK_CHANGED)  {
-						tLXOptions->iLogConvos = cOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, (DWORD)0, 0);
+						tLXOptions->bLogConvos = cOpt_System.SendMessage(os_LogConvos, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						FILE *f;
 
 						f = OpenGameFile("Conversations.log","a");
 						if (f)  {
-							if (tLXOptions->iLogConvos)  {
+							if (tLXOptions->bLogConvos)  {
 								static std::string cTime = GetTime();
 								fprintf(f,"<game starttime=\"%s\">\r\n",cTime.c_str());
 							}
@@ -744,7 +744,7 @@ void Menu_OptionsFrame(void)
 				// Show ping
 				case os_ShowPing:
 					if(ev->iEventMsg == CHK_CHANGED)
-						tLXOptions->iShowPing = cOpt_System.SendMessage(os_ShowPing, CKM_GETCHECK, (DWORD)0, 0);
+						tLXOptions->bShowPing = cOpt_System.SendMessage(os_ShowPing, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
 				// Use Ip To Country
@@ -790,7 +790,7 @@ void Menu_OptionsFrame(void)
 		}
 
 
-		if(fullscr != tLXOptions->iFullscreen)
+		if(fullscr != tLXOptions->bFullscreen)
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
         else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
