@@ -18,6 +18,7 @@
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
 		235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281C0CF7C13B0067BA4F /* stun.cpp */; };
+		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF690D0B038700920A5F /* CTextButton.cpp */; };
 		23CDBF6E0D0B039C00920A5F /* Clipboard.h in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 23CDBF6C0D0B039C00920A5F /* Clipboard.h */; };
@@ -211,6 +212,9 @@
 		235D281A0CF7C13B0067BA4F /* FileDownload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileDownload.cpp; sourceTree = "<group>"; };
 		235D281B0CF7C13B0067BA4F /* HTTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTP.cpp; sourceTree = "<group>"; };
 		235D281C0CF7C13B0067BA4F /* stun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stun.cpp; sourceTree = "<group>"; };
+		2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCommand.h; sourceTree = "<group>"; };
+		2389FB200D2D4D5E00358F27 /* SmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartPointer.h; sourceTree = "<group>"; };
+		2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatCommand.cpp; sourceTree = "<group>"; };
 		23CDBF680D0B038700920A5F /* Clipboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cpp; sourceTree = "<group>"; };
 		23CDBF690D0B038700920A5F /* CTextButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTextButton.cpp; sourceTree = "<group>"; };
 		23CDBF6C0D0B039C00920A5F /* Clipboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clipboard.h; sourceTree = "<group>"; };
@@ -623,6 +627,7 @@
 		EA430C3E0BEFCEB400C6547E /* server */ = {
 			isa = PBXGroup;
 			children = (
+				2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */,
 				EA430C3F0BEFCEB400C6547E /* CBanList.cpp */,
 				EA430C400BEFCEB400C6547E /* CServer.cpp */,
 				EA430C410BEFCEB400C6547E /* CServer_Game.cpp */,
@@ -635,6 +640,8 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */,
+				2389FB200D2D4D5E00358F27 /* SmartPointer.h */,
 				23CDBF6C0D0B039C00920A5F /* Clipboard.h */,
 				23CDBF6D0D0B039C00920A5F /* CTextButton.h */,
 				235D280C0CF7C10C0067BA4F /* CGuiSkin.h */,
@@ -871,9 +878,11 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "OpenLieroX" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 08FB7794FE84155DC02AAC07 /* OpenLieroX */;
 			projectDirPath = "";
+			projectRoot = ../..;
 			targets = (
 				EA430DD10BEFEA8900C6547E /* HawkNL */,
 				EAD99F600C063CA6003BE563 /* OpenLieroX */,
@@ -1022,6 +1031,7 @@
 				235D281F0CF7C13B0067BA4F /* stun.cpp in Sources */,
 				23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */,
 				23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */,
+				2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

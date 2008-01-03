@@ -1,0 +1,581 @@
+--- jpc_qmfb.c	2004-02-08 19:34:00.000000000 -0600
++++ jpc_qmfb.c.new	2005-10-13 00:34:52.000000000 -0500
+@@ -67,6 +67,23 @@
+  * $Id$
+  */
+ 
++/*
++ * Original JasPer file modified 09/09/2005 by Kaspar Daugaard (kdaugaard@lionhead.com)
++ * Improved performance by making the code process larger chunks of data
++ * in a more cache efficient way. The speed-up depends on your platform
++ * and compiler, but typically the modified library is several times
++ * faster, while creating bit-for-bit identical files. 
++ * The size of a chunk (in 4 byte elements) is defined by JPC_BATCH_SIZE.
++ */
++ 
++/*
++ * Modified 12 Oct 2005 by Greg Coats (gregcoats@mac.com)
++ * Reordered two statements so code would compile with gcc 4
++ * Changed original JPC_BATCH_SIZE default from 8 to 128
++ * Testing with Intel Pentium 4 and Apple G5 CPUs shows that 128 is a good
++ * default value for JPC_BATCH_SIZE
++ */
++
+ /******************************************************************************\
+ * Includes.
+ \******************************************************************************/
+@@ -85,6 +102,8 @@
+ *
+ \******************************************************************************/
+ 
++#define JPC_BATCH_SIZE 128
++
+ static jpc_qmfb1d_t *jpc_qmfb1d_create(void);
+ 
+ static int jpc_ft_getnumchans(jpc_qmfb1d_t *qmfb);
+@@ -259,13 +278,135 @@
+ #endif
+ }
+ 
++#define QMFB_SPLITBUFSIZE_BATCH (8192/JPC_BATCH_SIZE)
++#define	QMFB_JOINBUFSIZE_BATCH (8192/JPC_BATCH_SIZE)
++
++typedef struct {
++	jpc_fix_t vec[JPC_BATCH_SIZE];
++} jpc_batch_t;
++
++static void jpc_qmfb1d_split_batch(jpc_fix_t *startptr, int startind, int endind,
++  register int step, jpc_fix_t *lstartptr, int lstartind, int lendind,
++  jpc_fix_t *hstartptr, int hstartind, int hendind)
++{
++	int bufsize = JPC_CEILDIVPOW2(endind - startind, 2);
++	jpc_batch_t splitbuf[QMFB_SPLITBUFSIZE_BATCH];
++	jpc_batch_t *buf = splitbuf;
++	int llen;
++	int hlen;
++	int twostep;
++	jpc_batch_t *tmpptr;
++	register jpc_fix_t *ptr;
++	register jpc_fix_t *hptr;
++	register jpc_fix_t *lptr;
++	register int n;
++	int state;
++
++	twostep = step << 1;
++	llen = lendind - lstartind;
++	hlen = hendind - hstartind;
++
++	/* Get a buffer. */
++	if (bufsize > QMFB_SPLITBUFSIZE_BATCH) {
++		if (!(buf = jas_malloc(bufsize * sizeof(jpc_batch_t)))) {
++			/* We have no choice but to commit suicide in this case. */
++			abort();
++		}
++	}
++
++	if (hstartind < lstartind) {
++		/* The first sample in the input signal is to appear
++		  in the highpass subband signal. */
++		/* Copy the appropriate samples into the lowpass subband
++		  signal, saving any samples destined for the highpass subband
++		  signal as they are overwritten. */
++		tmpptr = buf;
++		ptr = &startptr[step];
++		lptr = lstartptr;
++		n = llen;
++		state = 1;
++		while (n-- > 0) {
++			if (state) {
++				*tmpptr = *(jpc_batch_t*)lptr;
++				++tmpptr;
++			}
++			*(jpc_batch_t*)lptr = *(jpc_batch_t*)ptr;
++			ptr += twostep;
++			lptr += step;
++			state ^= 1;
++		}
++		/* Copy the appropriate samples into the highpass subband
++		  signal. */
++		/* Handle the nonoverwritten samples. */
++		hptr = &hstartptr[(hlen - 1) * step];
++		ptr = &startptr[(((llen + hlen - 1) >> 1) << 1) * step];
++		n = hlen - (tmpptr - buf);
++		while (n-- > 0) {
++			*(jpc_batch_t*)hptr = *(jpc_batch_t*)ptr;
++			hptr -= step;
++			ptr -= twostep;
++		}
++		/* Handle the overwritten samples. */
++		n = tmpptr - buf;
++		while (n-- > 0) {
++			--tmpptr;
++			*(jpc_batch_t*)hptr = *tmpptr;
++			hptr -= step;
++		}
++	} else {
++		/* The first sample in the input signal is to appear
++		  in the lowpass subband signal. */
++		/* Copy the appropriate samples into the lowpass subband
++		  signal, saving any samples for the highpass subband
++		  signal as they are overwritten. */
++		state = 0;
++		ptr = startptr;
++		lptr = lstartptr;
++		tmpptr = buf;
++		n = llen;
++		while (n-- > 0) {
++			if (state) {
++				*tmpptr = *(jpc_batch_t*)lptr;
++				++tmpptr;
++			}
++			*(jpc_batch_t*)lptr = *(jpc_batch_t*)ptr;
++			ptr += twostep;
++			lptr += step;
++			state ^= 1;
++		}
++		/* Copy the appropriate samples into the highpass subband
++		  signal. */
++		/* Handle the nonoverwritten samples. */
++		ptr = &startptr[((((llen + hlen) >> 1) << 1) - 1) * step];
++		hptr = &hstartptr[(hlen - 1) * step];
++		n = hlen - (tmpptr - buf);
++		while (n-- > 0) {
++			*(jpc_batch_t*)hptr = *(jpc_batch_t*)ptr;
++			ptr -= twostep;
++			hptr -= step;
++		}
++		/* Handle the overwritten samples. */
++		n = tmpptr - buf;
++		while (n-- > 0) {
++			--tmpptr;
++			*(jpc_batch_t*)hptr = *tmpptr;
++			hptr -= step;
++		}
++	}
++
++	/* If the split buffer was allocated on the heap, free this memory. */
++	if (buf != splitbuf) {
++		jas_free(buf);
++	}
++}
++
+ static void jpc_qmfb1d_join(jpc_fix_t *startptr, int startind, int endind,
+   register int step, jpc_fix_t *lstartptr, int lstartind, int lendind,
+   jpc_fix_t *hstartptr, int hstartind, int hendind)
+ {
+ 	int bufsize = JPC_CEILDIVPOW2(endind - startind, 2);
+-#if !defined(HAVE_VLA)
+ #define	QMFB_JOINBUFSIZE	4096
++#if !defined(HAVE_VLA)
+ 	jpc_fix_t joinbuf[QMFB_JOINBUFSIZE];
+ #else
+ 	jpc_fix_t joinbuf[bufsize];
+@@ -384,6 +525,122 @@
+ #endif
+ }
+ 
++static void jpc_qmfb1d_join_batch(jpc_fix_t *startptr, int startind, int endind,
++  register int step, jpc_fix_t *lstartptr, int lstartind, int lendind,
++  jpc_fix_t *hstartptr, int hstartind, int hendind)
++{
++	int bufsize = JPC_CEILDIVPOW2(endind - startind, 2);
++	jpc_batch_t joinbuf[QMFB_JOINBUFSIZE_BATCH];
++	jpc_batch_t *buf = joinbuf;
++	int llen;
++	int hlen;
++	int twostep;
++	jpc_batch_t *tmpptr;
++	register jpc_fix_t *ptr;
++	register jpc_fix_t *hptr;
++	register jpc_fix_t *lptr;
++	register int n;
++	int state;
++
++	/* Allocate memory for the join buffer from the heap. */
++if (bufsize > QMFB_JOINBUFSIZE_BATCH) {
++		if (!(buf = jas_malloc(bufsize * sizeof(jpc_batch_t)))) {
++			/* We have no choice but to commit suicide. */
++			abort();
++		}
++	}
++
++	twostep = step << 1;
++	llen = lendind - lstartind;
++	hlen = hendind - hstartind;
++
++	if (hstartind < lstartind) {
++		/* The first sample in the highpass subband signal is to
++		  appear first in the output signal. */
++		/* Copy the appropriate samples into the first phase of the
++		  output signal. */
++		tmpptr = buf;
++		hptr = hstartptr;
++		ptr = startptr;
++		n = (llen + 1) >> 1;
++		while (n-- > 0) {
++			*tmpptr = *(jpc_batch_t*)ptr;
++			*(jpc_batch_t*)ptr = *(jpc_batch_t*)hptr;
++			++tmpptr;
++			ptr += twostep;
++			hptr += step;
++		}
++		n = hlen - ((llen + 1) >> 1);
++		while (n-- > 0) {
++			*(jpc_batch_t*)ptr = *(jpc_batch_t*)hptr;
++			ptr += twostep;
++			hptr += step;
++		}
++		/* Copy the appropriate samples into the second phase of
++		  the output signal. */
++		ptr -= (lendind > hendind) ? (step) : (step + twostep);
++		state = !((llen - 1) & 1);
++		lptr = &lstartptr[(llen - 1) * step];
++		n = llen;
++		while (n-- > 0) {
++			if (state) {
++				--tmpptr;
++				*(jpc_batch_t*)ptr = *tmpptr;
++			} else {
++				*(jpc_batch_t*)ptr = *(jpc_batch_t*)lptr;
++			}
++			lptr -= step;
++			ptr -= twostep;
++			state ^= 1;
++		}
++	} else {
++		/* The first sample in the lowpass subband signal is to
++		  appear first in the output signal. */
++		/* Copy the appropriate samples into the first phase of the
++		  output signal (corresponding to even indexed samples). */
++		lptr = &lstartptr[(llen - 1) * step];
++		ptr = &startptr[((llen - 1) << 1) * step];
++		n = llen >> 1;
++		tmpptr = buf;
++		while (n-- > 0) {
++			*tmpptr = *(jpc_batch_t*)ptr;
++			*(jpc_batch_t*)ptr = *(jpc_batch_t*)lptr;
++			++tmpptr;
++			ptr -= twostep;
++			lptr -= step;
++		}
++		n = llen - (llen >> 1);
++		while (n-- > 0) {
++			*(jpc_batch_t*)ptr = *(jpc_batch_t*)lptr;
++			ptr -= twostep;
++			lptr -= step;
++		}
++		/* Copy the appropriate samples into the second phase of
++		  the output signal (corresponding to odd indexed
++		  samples). */
++		ptr = &startptr[step];
++		hptr = hstartptr;
++		state = !(llen & 1);
++		n = hlen;
++		while (n-- > 0) {
++			if (state) {
++				--tmpptr;
++				*(jpc_batch_t*)ptr = *tmpptr;
++			} else {
++				*(jpc_batch_t*)ptr = *(jpc_batch_t*)hptr;
++			}
++			hptr += step;
++			ptr += twostep;
++			state ^= 1;
++		}
++	}
++
++	/* If the join buffer was allocated on the heap, free this memory. */
++	if (buf != joinbuf) {
++		jas_free(buf);
++	}
++}
++
+ /******************************************************************************\
+ * Code for 5/3 transform.
+ \******************************************************************************/
+@@ -506,6 +763,66 @@
+ 	} \
+ }
+ 
++#define	NFT_LIFT0_BATCH(lstartptr, lstartind, lendind, hstartptr, hstartind, hendind, step, pluseq) \
++{ \
++	register jpc_fix_t *lptr = (lstartptr); \
++	register jpc_fix_t *hptr = (hstartptr); \
++	register int n = (hendind) - (hstartind); \
++	register int v; \
++	if ((hstartind) < (lstartind)) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			pluseq(hptr[v], lptr[v]); \
++		} \
++		hptr += (step); \
++		--n; \
++	} \
++	if ((hendind) >= (lendind)) { \
++		--n; \
++	} \
++	while (n-- > 0) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			pluseq(hptr[v], jpc_fix_asr(jpc_fix_add(lptr[v], lptr[(step)+v]), 1)); \
++		} \
++		hptr += (step); \
++		lptr += (step); \
++	} \
++	if ((hendind) >= (lendind)) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			pluseq(hptr[v], lptr[v]); \
++		} \
++	} \
++}
++
++#define	NFT_LIFT1_BATCH(lstartptr, lstartind, lendind, hstartptr, hstartind, hendind, step, pluseq) \
++{ \
++	register jpc_fix_t *lptr = (lstartptr); \
++	register jpc_fix_t *hptr = (hstartptr); \
++	register int n = (lendind) - (lstartind); \
++	register int v; \
++	if ((hstartind) >= (lstartind)) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			pluseq(lptr[v], hptr[v]); \
++		} \
++		lptr += (step); \
++		--n; \
++	} \
++	if ((lendind) > (hendind)) { \
++		--n; \
++	} \
++	while (n-- > 0) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			pluseq(lptr[v], jpc_fix_asr(jpc_fix_add(hptr[v], hptr[(step)+v]), 2)); \
++		} \
++		lptr += (step); \
++		hptr += (step); \
++	} \
++	if ((lendind) > (hendind)) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			pluseq(lptr[v], hptr[v]); \
++		} \
++	} \
++}
++
+ #define	RFT_LIFT0(lstartptr, lstartind, lendind, hstartptr, hstartind, hendind, step, pmeqop) \
+ { \
+ 	register jpc_fix_t *lptr = (lstartptr); \
+@@ -552,6 +869,90 @@
+ 	} \
+ }
+ 
++#define	RFT_LIFT0_BATCH(lstartptr, lstartind, lendind, hstartptr, hstartind, hendind, step, pmeqop) \
++{ \
++	register jpc_fix_t *lptr = (lstartptr); \
++	register jpc_fix_t *hptr = (hstartptr); \
++	register int n = (hendind) - (hstartind); \
++	register int v; \
++	if ((hstartind) < (lstartind)) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			hptr[v] pmeqop lptr[v]; \
++		} \
++		hptr += (step); \
++		--n; \
++	} \
++	if ((hendind) >= (lendind)) { \
++		--n; \
++	} \
++	while (n-- > 0) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			hptr[v] pmeqop (lptr[v] + lptr[(step)+v]) >> 1; \
++		} \
++		hptr += (step); \
++		lptr += (step); \
++	} \
++	if ((hendind) >= (lendind)) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			hptr[v] pmeqop lptr[v]; \
++		} \
++	} \
++}
++
++#define	RFT_LIFT1_BATCH(lstartptr, lstartind, lendind, hstartptr, hstartind, hendind, step, pmeqop) \
++{ \
++	register jpc_fix_t *lptr = (lstartptr); \
++	register jpc_fix_t *hptr = (hstartptr); \
++	register int n = (lendind) - (lstartind); \
++	register int v; \
++	if ((hstartind) >= (lstartind)) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			lptr[v] pmeqop ((hptr[v] << 1) + 2) >> 2; \
++		} \
++		lptr += (step); \
++		--n; \
++	} \
++	if ((lendind) > (hendind)) { \
++		--n; \
++	} \
++	while (n-- > 0) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			lptr[v] pmeqop ((hptr[v] + hptr[(step)+v]) + 2) >> 2; \
++		} \
++		lptr += (step); \
++		hptr += (step); \
++	} \
++	if ((lendind) > (hendind)) { \
++		for (v=0; v<JPC_BATCH_SIZE; v++) { \
++			lptr[v] pmeqop ((hptr[v] << 1) + 2) >> 2; \
++		} \
++	} \
++}
++
++#define JPC_BATCH_OP(ptr, op) \
++{ \
++	int v; \
++	for (v=0; v<JPC_BATCH_SIZE; v++) { \
++		(ptr)[v] op; \
++	} \
++}
++
++#define JPC_BATCH_FIX_AS1(ptr) \
++{ \
++	int v; \
++	for (v=0; v<JPC_BATCH_SIZE; v++) { \
++		(ptr)[v] = jpc_fix_asl((ptr)[v], 1); \
++	} \
++}
++
++#define JPC_BATCH_FIX_ASR(ptr, n) \
++{ \
++	int v; \
++	for (v=0; v<JPC_BATCH_SIZE; v++) { \
++		(ptr)[v] = jpc_fix_asr((ptr)[v], (n)); \
++	} \
++}
++
+ static void jpc_ft_analyze(jpc_qmfb1d_t *qmfb, int flags, jas_seq2d_t *x)
+ {
+ 	jpc_fix_t *startptr;
+@@ -588,6 +989,30 @@
+ 
+ 	startptr = jas_seq2d_getref(x, jas_seq2d_xstart(x), jas_seq2d_ystart(x));
+ 	if (flags & JPC_QMFB1D_RITIMODE) {
++		if (interstep==1) {
++			jpc_qmfb1d_setup(startptr, startind, endind, intrastep,
++			  &lstartptr, &lstartind, &lendind, &hstartptr,
++			  &hstartind, &hendind);
++			while (numseq >= JPC_BATCH_SIZE) {
++				if (endind - startind > 1) {
++					jpc_qmfb1d_split_batch(startptr, startind, endind,
++					  intrastep, lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind);
++					RFT_LIFT0_BATCH(lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind, intrastep, -=);
++					RFT_LIFT1_BATCH(lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind, intrastep, +=);
++				} else {
++					if (lstartind == lendind) {
++						JPC_BATCH_OP(startptr, <<= 1);
++					}
++				}
++				startptr += JPC_BATCH_SIZE;
++				lstartptr += JPC_BATCH_SIZE;
++				hstartptr += JPC_BATCH_SIZE;
++				numseq -= JPC_BATCH_SIZE;
++			}
++		}
+ 		while (numseq-- > 0) {
+ 			jpc_qmfb1d_setup(startptr, startind, endind, intrastep,
+ 			  &lstartptr, &lstartind, &lendind, &hstartptr,
+@@ -608,6 +1033,32 @@
+ 			startptr += interstep;
+ 		}
+ 	} else {
++		if (interstep==1) {
++			jpc_qmfb1d_setup(startptr, startind, endind, intrastep,
++			  &lstartptr, &lstartind, &lendind, &hstartptr,
++			  &hstartind, &hendind);
++			while (numseq >= JPC_BATCH_SIZE) {
++				if (endind - startind > 1) {
++					jpc_qmfb1d_split_batch(startptr, startind, endind,
++					  intrastep, lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind);
++					NFT_LIFT0_BATCH(lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind, intrastep,
++					  jpc_fix_minuseq);
++					NFT_LIFT1_BATCH(lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind, intrastep,
++					  jpc_fix_pluseq);
++				} else {
++					if (lstartind == lendind) {
++						JPC_BATCH_FIX_AS1(startptr);
++					}
++				}
++				startptr += JPC_BATCH_SIZE;
++				lstartptr += JPC_BATCH_SIZE;
++				hstartptr += JPC_BATCH_SIZE;
++				numseq -= JPC_BATCH_SIZE;
++			}
++		}
+ 		while (numseq-- > 0) {
+ 			jpc_qmfb1d_setup(startptr, startind, endind, intrastep,
+ 			  &lstartptr, &lstartind, &lendind, &hstartptr,
+@@ -668,6 +1119,30 @@
+ 
+ 	startptr = jas_seq2d_getref(x, jas_seq2d_xstart(x), jas_seq2d_ystart(x));
+ 	if (flags & JPC_QMFB1D_RITIMODE) {
++		if (interstep==1) {
++			jpc_qmfb1d_setup(startptr, startind, endind, intrastep,
++			  &lstartptr, &lstartind, &lendind, &hstartptr,
++			  &hstartind, &hendind);
++			while (numseq >= JPC_BATCH_SIZE) {
++				if (endind - startind > 1) {
++					RFT_LIFT1_BATCH(lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind, intrastep, -=);
++					RFT_LIFT0_BATCH(lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind, intrastep, +=);
++					jpc_qmfb1d_join_batch(startptr, startind, endind,
++					  intrastep, lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind);
++				} else {
++					if (lstartind == lendind) {
++						JPC_BATCH_OP(startptr, >>= 1);
++					}
++				}
++				startptr += JPC_BATCH_SIZE;
++				lstartptr += JPC_BATCH_SIZE;
++				hstartptr += JPC_BATCH_SIZE;
++				numseq -= JPC_BATCH_SIZE;
++			}
++		}
+ 		while (numseq-- > 0) {
+ 			jpc_qmfb1d_setup(startptr, startind, endind, intrastep,
+ 			  &lstartptr, &lstartind, &lendind, &hstartptr,
+@@ -688,6 +1163,32 @@
+ 			startptr += interstep;
+ 		}
+ 	} else {
++		if (interstep==1) {
++			jpc_qmfb1d_setup(startptr, startind, endind, intrastep,
++			  &lstartptr, &lstartind, &lendind, &hstartptr,
++			  &hstartind, &hendind);
++			while (numseq >= JPC_BATCH_SIZE) {
++				if (endind - startind > 1) {
++					NFT_LIFT1_BATCH(lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind, intrastep,
++					  jpc_fix_minuseq);
++					NFT_LIFT0_BATCH(lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind, intrastep,
++					  jpc_fix_pluseq);
++					jpc_qmfb1d_join_batch(startptr, startind, endind,
++					  intrastep, lstartptr, lstartind, lendind,
++					  hstartptr, hstartind, hendind);
++				} else {
++					if (lstartind == lendind) {
++						JPC_BATCH_FIX_ASR(startptr, 1);
++					}
++				}
++				startptr += JPC_BATCH_SIZE;
++				lstartptr += JPC_BATCH_SIZE;
++				hstartptr += JPC_BATCH_SIZE;
++				numseq -= JPC_BATCH_SIZE;
++			}
++		}
+ 		while (numseq-- > 0) {
+ 			jpc_qmfb1d_setup(startptr, startind, endind, intrastep,
+ 			  &lstartptr, &lstartind, &lendind, &hstartptr,

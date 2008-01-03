@@ -1237,13 +1237,13 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 
 ///////////////////////
 // Saves the surface into the specified file with the specified format
-bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, const std::string Data)
+bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, const std::string& Data)
 {
 	//
 	// BMP
 	//
 
-	// We use stadard SDL function for saving BMPs
+	// We use standard SDL function for saving BMPs
 	if (Format == FMT_BMP)  {
 
 		// Save the image
