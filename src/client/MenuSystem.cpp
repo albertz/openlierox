@@ -1191,7 +1191,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 	svr->nPings++;
 	svr->fLastPing = tLX->fCurTime;
 
-	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
 }
 
 ///////////////////
@@ -1225,7 +1225,7 @@ void Menu_SvrList_QueryServer(server_t *svr)
 	svr->nQueries++;
 	svr->fLastQuery = tLX->fCurTime;
 
-	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
 }
 
 
@@ -1256,7 +1256,7 @@ void Menu_SvrList_RefreshServer(server_t *s)
 	s->nQueries = 0;
 	s->nPing = 0;
 
-	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
 }
 
 
@@ -1332,7 +1332,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
         psServerList = svr;
 
 	// Set the timeout timer
-	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
 
 	return svr;
 }
@@ -1409,7 +1409,7 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
         psServerList = svr;
 
 	// Set the timeout timer
-	//Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
 
 	return svr;
 }
@@ -1525,14 +1525,16 @@ void Menu_SvrList_FillList(CListview *lv)
 					   unknownData ? "?" : (itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10)),
 					   NULL, NULL);
 
-		lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL);
-		if (tLXOptions->bUseIpToCountry)  {
+		lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL); // TODO: the infinity symbol isn't shown correctly
+		// as long as there isn't enough place to show both, the address is more important
+		// TODO: fix this later after we have a new menu implemented
+		/* if (tLXOptions->bUseIpToCountry)  {
 			if (tIpToCountryDB->Loaded())  {
 				IpInfo inf = tIpToCountryDB->GetInfoAboutIP(addr);
 				lv->AddSubitem(LVS_TEXT, inf.Country, NULL, NULL);
 			} else
 				lv->AddSubitem(LVS_TEXT, "Loading...", NULL, NULL);
-		} else
+		} else */
 			lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
 	}
 

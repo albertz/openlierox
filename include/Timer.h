@@ -57,6 +57,8 @@ enum	{ SDL_USEREVENT_TIMER = SDL_USEREVENT + 2 };
 	You can also use startHeadless() which will run independently from the
 	object. That means that stop() has no effect on the thread. The only
 	possibility to break the timer is to return false from within the callback.
+	
+	WARNING: don't set a too short interval because else the SDL event queue get flooded
 */
 class Timer {
 public:
