@@ -117,7 +117,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 int SetVideoMode(void)
 {
 	// TODO: Use DOUBLEBUF and hardware surfaces
-	bool HardwareAcceleration = false;
+	bool HardwareAcceleration = true; // false;
 	int DoubleBuf = false;
 	int vidflags = 0;
 
@@ -263,10 +263,10 @@ void FlipScreen(SDL_Surface *psScreen)
     // to all of them
     ProcessScreenshots();
 
+	SDL_Flip( psScreen );
+
 	if (tLXOptions->bOpenGL)
 		SDL_GL_SwapBuffers();
-
-    SDL_Flip( psScreen );
 }
 
 

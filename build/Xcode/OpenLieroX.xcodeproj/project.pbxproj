@@ -1181,6 +1181,12 @@
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/libs\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)/libs\"";
+				OTHER_CFLAGS = (
+					"-DMACOSX",
+					"-DDEBUG",
+					"-D_AI_DEBUG",
+					"-pthread",
+				);
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
