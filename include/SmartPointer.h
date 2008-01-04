@@ -132,6 +132,51 @@ public:
 			return; // Unlocks here
 		DoSomethingElse( SomeSmartPointer.get()->data )
 	} // Auto-unlocks after closing brace
+	
+	HINT: DON'T USE this, it's wrong. it just locks new copies of the SmartPointer,
+	but not the usage of the object itself somewhere else from another already made
+	copy of this SmartPointer.
+	
+	for example:
+	global:
+		SmartPointer<int> p1(new int(42));
+		SmartPointer<int> p2(p1);	
+	thread1:
+		{
+			ScopedLock lock(p1);
+			// ACTION1: do something with p1->get()
+		}
+	thread2:
+		{
+			ScopedLock lock(p2);
+			// ACTION2: do something with p2->get()
+		}
+
+	Both ACTION1 and ACTION2 will be run at the same time without any locking.
+	
+	Sadly, what you tried to implement here (generally a good idea) isn't that easy.
+	I think it's better if the object itself which is used is threadsafe if
+	someone needs this later and not to implement this on this base. Of course
+	it's possible to implemnt it directly into the SmartPointer but the SmartPointer
+	is intented to be very fast with very small overhead over a normal void*.
+	If you want to have something general, you could implement something like
+	a threadsafe access wrapper object. Like:
+	
+	template<typename _Type>
+	class ThreadsafeObject { // constructor locks accesser.mutex, destructor unlocks
+	public: _Type* get();
+	}
+	
+	template<typename _Type>
+	class ThreadsafeAccesser {
+	private: mutex
+	public: ThreadsafeObject<_Type> get();
+	}
+	
+	And then if you want to use it together with SmartPointer:
+	
+	SmartPointer< ThreadsafeAccesser<_Type> > pointer;
+	
 */
 class ScopedLock
 {
@@ -143,7 +188,12 @@ class ScopedLock
 
 	public:
 	ScopedLock( SDL_mutex* mutex ): data_mutex(mutex) {
-		SDL_mutexP(data_mutex); // It is safe to call SDL_mutexP()/SDL_mutexV() on a mutex several times
+		SDL_mutexP(data_mutex);
+		// It is safe to call SDL_mutexP()/SDL_mutexV() on a mutex several times
+		// HINT to the comment: it's not only safe, it's the meaning of it; in the case it is called twice,
+		// it locks until there is a SDL_mutexV. But *always* call SDL_mutexV from the same thread which has
+		// called SDL_mutexP before (else you get serious trouble). Also never call SDL_mutexV when there
+		// was no SDL_mutexP before.
 	};
 	
 	~ScopedLock() {
@@ -151,7 +201,10 @@ class ScopedLock
 	};
 	
 	template < typename _Type, typename _SpecificInitFunctor >
-	ScopedLock( SmartPointer< _Type, _SpecificInitFunctor > & pt ): data_mutex( pt.mutex )
+	ScopedLock( SmartPointer< _Type, _SpecificInitFunctor > & pt )
+		: data_mutex( pt.mutex ) // TODO: Don't use pt.mutex; it's the mutex for the reference counter, nothing else.
+								 // Copies from the SmartPointer can be allowed, there is no problem. Only the
+								 // access itself to ->get() should be synchronised.
 	{
 		SDL_mutexP(data_mutex); 
 	};
