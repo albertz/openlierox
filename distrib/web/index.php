@@ -108,8 +108,7 @@
 <p>
 	<h2>Details</h2>
 	The game uses case insensitive filenames (it will use the first found on case sensitive filesystems).<br>
-	Under Linux, the game searches the paths ~/.OpenLieroX, ./ and /usr/share/OpenLieroX
-	(or under Gentoo: /usr/share/games/OpenLieroX) for game-data (all path are relativ to this bases) (in this order). You can also add more searchpathes in cfg/options.cfg (you also can change the searchpath-order here). Own modified configs, screenshots and other stuff always will be stored in ~/.OpenLieroX.<br>
+	Under Linux, the game searches the paths <i>~/.OpenLieroX</i>, <i>./</i> and <i>/usr/share/OpenLieroX</i> (or under Gentoo: <i>/usr/share/games/OpenLieroX</i>) for game-data (all path are relativ to this bases) (in this order). You can also add more searchpathes in <i>cfg/options.cfg</i> (you also can change the searchpath-order here). Own modified configs, screenshots and other stuff always will be stored in <i>~/.OpenLieroX</i>.<br>
 	Look also into the files in the directory <i>doc/</i>, they may be usefull (also for developers).
 </p>
 <p>
@@ -125,11 +124,13 @@
 	<a href="http://sourceforge.net/forum/?group_id=180059">Forum at SF</a><br>
 	<a href="http://sourceforge.net/mail/?group_id=180059">Mailing lists at SF</a><br>
 	<a href="http://83.98.146.8/~misery/smf//index.php/board,125.0.html">LXA forum for OpenLieroX</a><br>
-	<a href="http://lxalliance.net/lierox/">official LieroX site</a><br>
-	<a href="http://www.az2000.de/">Alberts homepage</a><br>
+	<hr>
+	<a href="http://iworx5.webxtra.net/~lxallian/LXRS/">official LieroX site</a><br>
 	<a href="http://open.liero.be/">Open Liero</a><br>
 	<a href="http://gusanos.sourceforge.net/">Gusanos</a><br>
 	<a href="http://vermes.dubdot.com/">Vermes</a>
+	<hr>
+	<a href="http://www.az2000.de/">Alberts homepage</a><br>
 </p>
 </body>
 </html>
