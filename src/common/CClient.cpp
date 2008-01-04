@@ -1134,13 +1134,13 @@ void CClient::processFileRequests()
 		};
 	};
 
-	if( ! tGameLobby.bHaveMap )
+	if( ! tGameLobby.bHaveMap && tGameLobby.szMapName != "" )
 	{
 		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
 		return;
 	};
 
-	if( ! tGameLobby.bHaveMod )
+	if( ! tGameLobby.bHaveMod && tGameLobby.szModDir != "" )
 	{
 		getFileDownloaderInGame()->requestFileInfo(tGameLobby.szModDir);
 		return;

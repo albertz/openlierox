@@ -14,6 +14,7 @@
 
 template < typename _Type, typename _SpecificInitFunctor >
 class SmartPointer;
+class ScopedLock;
 
 /*
 	standard smartpointer based on simple refcounting
@@ -116,6 +117,46 @@ public:
 	
 	_Type* get() { return obj; }
 	const _Type* get() const { return obj; }
+
+	friend class ScopedLock;
+};
+
+/*
+	Locks the mutex inside SmartPointer, allowing only one thread to access the data.
+	Usage: 
+	void func( SmartPointer< SomeData > SomeSmartPointer )
+	{
+		DoSomething(); 
+		ScopedLock lock( SomeSmartPointer ); 
+		if( ! SomeSmartPointer.get()->data )
+			return; // Unlocks here
+		DoSomethingElse( SomeSmartPointer.get()->data )
+	} // Auto-unlocks after closing brace
+*/
+class ScopedLock
+{
+	private:
+	SDL_mutex* data_mutex;
+	// Non-copyable
+	ScopedLock( const ScopedLock & ) { assert(false); };
+	ScopedLock & operator= ( const ScopedLock & ) { assert(false); return *this; };
+
+	public:
+	ScopedLock( SDL_mutex* mutex ): data_mutex(mutex) {
+		SDL_mutexP(data_mutex); // It is safe to call SDL_mutexP()/SDL_mutexV() on a mutex several times
+	};
+	
+	~ScopedLock() {
+		SDL_mutexV(data_mutex); 
+	};
+	
+	template < typename _Type, typename _SpecificInitFunctor >
+	ScopedLock( SmartPointer< _Type, _SpecificInitFunctor > & pt ): data_mutex( pt.mutex )
+	{
+		SDL_mutexP(data_mutex); 
+	};
+	
+	SDL_mutex* getMutex() { return data_mutex; };	// For usage with SDL_CondWait()
 };
 
 #endif
