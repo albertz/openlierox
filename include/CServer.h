@@ -142,6 +142,7 @@ private:
 	bool		bDedicated;
 	float		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
+	float		fLastRespawnWaveTime;
 
 	
 public:
@@ -160,8 +161,9 @@ public:
 	void		BeginMatch();
 	void		GameOver(int winner);
 
-	void		SpawnWorm(CWorm *Worm);
+	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL);
 	void		SpawnWorm(CWorm *Worm, CVec pos, CClient *cl);
+	void		SpawnWave();	// Respawn all dead worms at once
 	void		SimulateGame(void);
 	// TODO: Give this a better name (I couldn't think of what to call it)
 	void		SimulateGameSpecial();

@@ -472,6 +472,7 @@ void GameServer::BeginMatch(void)
 	iServerFrame = 0;
     bGameOver = false;
 	fGameOverTime = -9999;
+	fLastRespawnWaveTime = 0;
 	cShootList.Clear();
 
 	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
@@ -493,8 +494,9 @@ void GameServer::BeginMatch(void)
 	// Spawn the worms
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed())
-			SpawnWorm(&cWorms[i]);
+			cWorms[i].setAlive(false);
 	}
+	SpawnWave();	// Group teams
 
 	iLastVictim = -1;
 

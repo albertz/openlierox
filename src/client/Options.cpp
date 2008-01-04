@@ -144,6 +144,9 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false )
 		( tLXOptions->tGameinfo.iAllowConnectDuringGameLives, "AllowConnectDuringGameLives", 80 )
 		( tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin, "AllowConnectDuringGameLivesMin", 3 )
+		( tLXOptions->tGameinfo.fRespawnTime, "RespawnTime", 2.5 )
+		( tLXOptions->tGameinfo.bRespawnInWaves, "RespawnInWaves", false )
+		( tLXOptions->tGameinfo.bRespawnGroupTeams, "RespawnGroupTeams", false )
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();

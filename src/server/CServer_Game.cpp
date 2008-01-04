@@ -25,12 +25,14 @@
 
 ///////////////////
 // Spawn a worm
-void GameServer::SpawnWorm(CWorm *Worm)
+void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 {
 	if (bGameOver)
 		return;
 
 	CVec pos = FindSpot();
+	if( _pos )
+		pos = *_pos;
 
 	// Spawn the worm in the flag position if possible
 	if(Worm->getFlag() && iGameType == GMT_CTF)
@@ -71,6 +73,30 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 	SendPacket(&bs, cl);
 }
 
+
+void GameServer::SpawnWave()	// Respawn all dead worms at once
+{
+	CVec TeamSpawnPoints[4];
+	for( int i=0; i<4; i++ )
+		TeamSpawnPoints[i] = FindSpot();
+
+	CWorm *w = cWorms;
+	int i ;
+
+	for(i=0;i<MAX_WORMS;i++,w++) {
+		if(!w->isUsed())
+			continue;
+		if(!w->getAlive() && w->getLives() != WRM_OUT) 
+		{
+			if( tLXOptions->tGameinfo.bRespawnGroupTeams &&
+				w->getTeam() >= 0 && w->getTeam() < 4 &&
+				( iGameType == GMT_TEAMDEATH || iGameType == GMT_TEAMCTF || iGameType == GMT_VIP ) )
+				SpawnWorm(w, & TeamSpawnPoints[w->getTeam()]);
+			else
+				SpawnWorm(w);
+		};
+	};
+};
 
 ///////////////////
 // Find a spot with no rock
@@ -152,8 +178,15 @@ void GameServer::SimulateGame(void)
 			continue;
 
 		if(!w->getAlive() && w->getLives() != WRM_OUT) {
+			if( tLXOptions->tGameinfo.bRespawnInWaves && 
+				fLastRespawnWaveTime + tLXOptions->tGameinfo.fRespawnTime < fServertime )
+			{
+				fLastRespawnWaveTime = fServertime;
+				SpawnWave();
+			}
+			else
 			// Check to see if they have been dead for longer then 2.5 seconds
-			if(tLX->fCurTime - w->getTimeofDeath() > 2.5)
+			if(tLX->fCurTime - w->getTimeofDeath() > tLXOptions->tGameinfo.fRespawnTime )
 				SpawnWorm(w);
 		}
 

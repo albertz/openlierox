@@ -250,6 +250,9 @@ public:
 		bool	bAllowConnectDuringGame;
 		int		iAllowConnectDuringGameLives;
 		int		iAllowConnectDuringGameLivesMin;
+		float	fRespawnTime;
+		bool	bRespawnInWaves;	// Respawn all worms at once after fRespawnTime passed after first death
+		bool	bRespawnGroupTeams;	// only if bRespawnInWaves is true - respawn all team in single spot
 	} tGameinfo;
 
 };
