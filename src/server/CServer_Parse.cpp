@@ -749,7 +749,7 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 		bytestr.writeInt(iGameType, 1);
 		bytestr.writeInt16(iLives);
 		bytestr.writeInt16(iMaxKills);
-		bytestr.writeInt16(iTimeLimit);
+		bytestr.writeInt16((int)fTimeLimit);
 		bytestr.writeInt16(iLoadingTimes);
 		bytestr.writeBool(bBonusesOn);
 		bytestr.writeBool(bShowBonusName);

@@ -276,7 +276,7 @@ int GameServer::StartGame( bool dedicated )
 	iLives =		 tGameInfo.iLives;
 	iGameType =		 tGameInfo.iGameMode;
 	iMaxKills =		 tGameInfo.iKillLimit;
-	iTimeLimit =	 tGameInfo.iTimeLimit;
+	fTimeLimit =	 tGameInfo.fTimeLimit;
 	iTagLimit =		 tGameInfo.iTagLimit;
 	sModName =		 tGameInfo.sModName;
 	iLoadingTimes =	 tGameInfo.iLoadingTimes;
@@ -442,7 +442,7 @@ int GameServer::StartGame( bool dedicated )
 	bs.writeInt(iGameType,1);
 	bs.writeInt16(iLives);
 	bs.writeInt16(iMaxKills);
-	bs.writeInt16(iTimeLimit);
+	bs.writeInt16((int)fTimeLimit);
 	bs.writeInt16(iLoadingTimes);
 	bs.writeBool(bBonusesOn);
 	bs.writeBool(bShowBonusName);

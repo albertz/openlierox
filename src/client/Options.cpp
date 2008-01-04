@@ -119,7 +119,7 @@ bool GameOptions::Init() {
 	CScriptableVars::RegisterVars("GameOptions.LastGame")
 		( tLXOptions->tGameinfo.iLives, "Lives", 10 )
 		( tLXOptions->tGameinfo.iKillLimit, "KillLimit", -1 )
-		( tLXOptions->tGameinfo.iTimeLimit, "TimeLimit", -1 )
+		( tLXOptions->tGameinfo.fTimeLimit, "TimeLimit", -1 )
 		( tLXOptions->tGameinfo.iTagLimit, "TagLimit", 5 )
 		( tLXOptions->tGameinfo.iLoadingTime, "LoadingTime", 100 )
 		( tLXOptions->tGameinfo.bBonusesOn, "Bonuses", true )

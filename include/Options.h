@@ -225,7 +225,7 @@ public:
 	public:
 		int		iLives;
 		int		iKillLimit;
-		int		iTimeLimit;
+		float	fTimeLimit; // Time limit in minutes
 		int		iTagLimit;
 		int		iLoadingTime;
 		bool	bBonusesOn;

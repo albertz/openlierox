@@ -252,6 +252,9 @@ void GameServer::SimulateGame(void)
 	// Simulate the 'special' gametype stuff
 	if(iGameType == GMT_CTF)
 		SimulateGameSpecial();
+		
+	if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 )
+		RecheckGame();
 }
 
 
@@ -903,18 +906,11 @@ void GameServer::RecheckGame(void)
 			
 			}
 
+			if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 )
+				EndGame = true;
 			// End the game
 			if (EndGame)  {
-				CBytestream bs;
-				bs.Clear();
-				bs.writeByte(S2C_GAMEOVER);
-				bs.writeInt(wormid,1);
-
-				bGameOver = true;
-				fGameOverTime = tLX->fCurTime;
-
-				// Send the Game Over
-				SendGlobalPacket(&bs);
+				GameOver(wormid);
 			}
 		}
 	}

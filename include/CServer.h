@@ -77,7 +77,7 @@ private:
 	int			iGameType;
 	int			iLives;
 	int			iMaxKills;
-	int			iTimeLimit;
+	float		fTimeLimit;
 	int			iTagLimit;
 	int			iMaxWorms;
 	bool		bBonusesOn;

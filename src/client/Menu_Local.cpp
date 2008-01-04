@@ -754,7 +754,7 @@ enum {
 	gs_LoadingTimeLabel,
 	gs_Bonuses,
 	gs_ShowBonusNames,
-	gs_MaxTime,
+	gs_TimeLimit
 };
 
 
@@ -787,7 +787,7 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("Loading Time", tLX->clNormalLabel),		    -1,	        150,260, 0, 0);
 	cGameSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),			    -1,	        150,290, 0, 0);
 	cGameSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,	        150,320, 0, 0);
-	//cGameSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			-1,	   150,240, 0, 0);
+	cGameSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        150,350, 0, 0);
 
 	cGameSettings.Add( new CTextbox(),							gs_Lives,		320,197, 100,tLX->cFont.GetHeight());
 	cGameSettings.Add( new CTextbox(),							gs_MaxKills,	320,227, 100,tLX->cFont.GetHeight());
@@ -795,9 +795,11 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 480, 260, 0, 0);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bBonusesOn),	gs_Bonuses, 320,287,17,17);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bShowBonusName),gs_ShowBonusNames, 320,317,17,17);
+	cGameSettings.Add( new CTextbox(),							gs_TimeLimit,	320,347, 100,tLX->cFont.GetHeight());
 
 	cGameSettings.SendMessage(gs_Lives,TXM_SETMAX,6,0);
 	cGameSettings.SendMessage(gs_MaxKills,TXM_SETMAX,6,0);
+	cGameSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,10,0);
 
 	cGameSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameinfo.iLoadingTime, 0);
 
@@ -805,8 +807,8 @@ void Menu_GameSettings(void)
 		cGameSettings.SendMessage(gs_Lives, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iLives), 0);
 	if(tLXOptions->tGameinfo.iKillLimit >= 0)
 		cGameSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iKillLimit), 0);
-	//if(tLXOptions->tGameinfo.iTimeLimit >= 0)
-	//	cLocalMenu.SendMessage(gs_TimeLimit, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iTimeLimit), 0);
+	if(tLXOptions->tGameinfo.fTimeLimit > 0)
+		cGameSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fTimeLimit), 0);
 	//if(tLXOptions->tGameinfo.iTagLimit >= 0)
 		//cLocalMenu.SendMessage(gs_TagLimitTxt, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iTagLimit), 0);
 }
@@ -882,7 +884,7 @@ void Menu_GameSettings_GrabInfo(void)
 	// Default to no setting
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives = -2;
 	tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit = -1;
-	tGameInfo.iTimeLimit = tLXOptions->tGameinfo.iTimeLimit = -1;
+	tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = -1;
 	tGameInfo.iTagLimit = tLXOptions->tGameinfo.iTagLimit = -1;
 	tGameInfo.bBonusesOn = true;
 	tGameInfo.bShowBonusName = true;
@@ -898,6 +900,10 @@ void Menu_GameSettings_GrabInfo(void)
 	if(buf != "") {
 		tLXOptions->tGameinfo.iKillLimit = atoi(buf);
 		tGameInfo.iKillLimit = atoi(buf);
+	}
+	cGameSettings.SendMessage(gs_TimeLimit, TXS_GETTEXT, &buf, 0);
+	if(buf != "") {
+		tLXOptions->tGameinfo.fTimeLimit = tGameInfo.fTimeLimit  = atof(buf);
 	}
 
 	tGameInfo.bBonusesOn = cGameSettings.SendMessage( gs_Bonuses, CKM_GETCHECK, (DWORD)0, 0) != 0;
@@ -916,6 +922,7 @@ void Menu_GameSettings_Default(void)
 
     cGameSettings.SendMessage(gs_Lives, TXS_SETTEXT, "10", 0);
 	cGameSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, "", 0);
+	cGameSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, "", 0);
 
     cGameSettings.SendMessage(gs_Bonuses, CKM_SETCHECK, (DWORD)1, 0);
     cGameSettings.SendMessage(gs_ShowBonusNames, CKM_SETCHECK, (DWORD)1, 0);

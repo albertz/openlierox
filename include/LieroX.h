@@ -220,7 +220,7 @@ class game_t { public:
 
 	int			iLives;
 	int			iKillLimit;
-	int			iTimeLimit;
+	float		fTimeLimit;	// Time limit in minutes (sent over net as int)
 	int			iTagLimit;
 	bool		bBonusesOn;
 	bool		bShowBonusName;
