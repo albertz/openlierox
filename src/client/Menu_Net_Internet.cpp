@@ -98,9 +98,10 @@ bool Menu_Net_NETInitialize(void)
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "State", tLXOptions->iInternetList[2]);
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Players", tLXOptions->iInternetList[3]);
 	cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Ping", tLXOptions->iInternetList[4]);
-	if (tLXOptions->bUseIpToCountry)
+	// TODO: change this later and add it as an additional column
+	/*if (tLXOptions->bUseIpToCountry)
 		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Country", tLXOptions->iInternetList[5]);
-	else
+	else */
 		cInternet.SendMessage( mi_ServerList, LVS_ADDCOLUMN, "Address", tLXOptions->iInternetList[5]);
 
 	// Clear the server list & grab an update

@@ -1276,7 +1276,9 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 
 	if (c >= 31)  {
 		// TODO: handle normal characters
-		return LV_NONE;
+		// share some code with dropdownbox here
+		//printf("normal keys are currently ignored for listview\n");
+		//return LV_NONE; // don't return here, else we would ignore SDLK_DOWN etc.
 	}
 
 	iLastChar = c;

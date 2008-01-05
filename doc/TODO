@@ -1,10 +1,5 @@
 TODO
 
-[ ] class for SDL_AddTimer as an object which can also be used
-    in GUI. for example CTextbox needs it to redraw for blinking
-    of cursor. an instance of this class would get timer-events
-    and handle them somehow. but this timer could be also used
-    for many other things.
 [ ] Fix memory leaks (!!!)
 [ ] finish mouse-aiming (!!)
 [ ] bot: go one step away if too close (!!)
@@ -12,6 +7,11 @@ TODO
 [ ] better bot behavior (!!)
 [ ] recode whole CTF code (!!)
 [ ] fill documentation (README) (!!)
+[ ] cut FPS also in menu (also with WaitForNextEvent); make a new
+	function CutFPS which relays perhaps on
+		GetMilliseconds() - tLX->fCurTime
+	and use this everywhere before WaitForNextEvent (but don't put
+	it in WaitForNextEvent as it is not intended to delay).
 
 [?] crashes on MacOSX (!!)
 [?] fix: font isn't visible in OGL on MacOSX (!!)
@@ -20,6 +20,8 @@ TODO
 [?] fix some segfaults (!!)
 [?] fix physics bugs (!!)
 [?] fix: sometimes you got into chat while playing online on some keys (!!)
+[?] Fix the colour detection of pink for mods (255 0 255) which only
+    works in 50% of the mods now. (!!)
 
 [ ] why were some of the default-levels changed in the repo? (!!)
 	The changes were done for CTF enhancements, but why was a change
@@ -33,9 +35,12 @@ TODO
 	maps are equal everywhere to prevent cheeting. So a change of the
 	map-file if it is still the same map should be avoided. )
 	
+[x] class for SDL_AddTimer as an object which can also be used
+    in GUI. for example CTextbox needs it to redraw for blinking
+    of cursor. an instance of this class would get timer-events
+    and handle them somehow. but this timer could be also used
+    for many other things.
 [X] Make dual viewports work yet again. (!!)
-[X] Fix the colour detection of pink for mods (255 0 255) which only
-    works in 50% of the mods now. (!!)
 [ ] Unify tLXOptions.tGameInfo & the other classes into one. (!)
 [X] register on all servers in the masterserverlist
 [ ] more options for the bots, for example restricted weapons or special
