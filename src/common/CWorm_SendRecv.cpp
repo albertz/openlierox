@@ -234,6 +234,9 @@ void CWorm::net_updatePos(const CVec& newpos) {
 		float t = tLX->fCurTime - fLastPosUpdate;
 		CVec estimatedVel;
 		
+		// TODO: Why is there an option for disabling this? There is no reason to disable, it
+		// should always be better with it activated. There is no magic behind, it's just
+		// a more correct estimation/calculation.
 		if( ! tLXOptions->bAntilagMovementPrediction )
 		{
 			// ignoring acceleration in this case for estimation

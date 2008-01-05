@@ -78,7 +78,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bOldSkoolRope, "Game.OldSkoolRope", false )
 		( tLXOptions->bShowHealth, "Game.ShowWormHealth", false )
 		( tLXOptions->bColorizeNicks, "Game.ColorizeNicks", false )
-		( tLXOptions->bAutoTyping, "Game.AutoTyping", true )
+		( tLXOptions->bAutoTyping, "Game.AutoTyping", false )
 		( tLXOptions->sSkinPath, "Game.SkinPath", "" )
 		( tLXOptions->bAntiAliasing, "Game.Antialiasing", false )
 		( tLXOptions->bMouseAiming, "Game.MouseAiming", false )
