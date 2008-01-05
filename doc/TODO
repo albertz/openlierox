@@ -1,19 +1,19 @@
 TODO
 
 [ ] Fix memory leaks (!!!)
-[ ] finish mouse-aiming (!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
 [ ] better bot behavior (!!)
 [ ] recode whole CTF code (!!)
 [ ] fill documentation (README) (!!)
-[ ] cut FPS also in menu (also with WaitForNextEvent); make a new
-	function CutFPS which relays perhaps on
+[ ] cap FPS also in menu (also with WaitForNextEvent); make a new
+	function CapFPS which relays perhaps on
 		GetMilliseconds() - tLX->fCurTime
 	and use this everywhere before WaitForNextEvent (but don't put
 	it in WaitForNextEvent as it is not intended to delay).
+[ ] fix: crashes on MacOSX (!!)
 
-[?] crashes on MacOSX (!!)
+[?] finish mouse-aiming (!!)
 [?] fix: font isn't visible in OGL on MacOSX (!!)
 [?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
 [?] are there new network errors? (!!)
