@@ -47,6 +47,7 @@ HWND		GetWindowHandle(void);
 #endif
 
 void        FlipScreen(SDL_Surface *psScreen);
+void		CapFPS();
 
 std::string	GetGameName(void);
 

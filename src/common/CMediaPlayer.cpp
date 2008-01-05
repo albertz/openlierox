@@ -193,7 +193,8 @@ bool CPlayList::DrawLoadingProgress(void)
 
 	// Flip the screen
 	FlipScreen(screen);
-
+	CapFPS();
+	
 	// Redraw the menu
 	if (tMenu->bMenuRunning)  {
 		Menu_redrawBufferRect(x,y,w+1,h+1);

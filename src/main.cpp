@@ -277,7 +277,6 @@ int main(int argc, char *argv[])
 		ProcessEvents();
 		tLX->bQuitEngine = false;
 		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
-		float fMaxFrameTime = (tLXOptions->nMaxFPS > 0) ? (1.0f / (float)tLXOptions->nMaxFPS) : 0;
 
         //
         // Main game loop
@@ -285,12 +284,6 @@ int main(int argc, char *argv[])
 		while(!tLX->bQuitEngine) {
 
             tLX->fCurTime = GetMilliSeconds();
-
-            // Cap the FPS
-            if(tLX->fCurTime - oldtime < fMaxFrameTime) {
-				SDL_Delay((int)((fMaxFrameTime - tLX->fCurTime + oldtime)*1000));
-                continue;
-			}
 
 			// Timing
 			tLX->fDeltaTime = tLX->fCurTime - oldtime;
@@ -303,9 +296,11 @@ int main(int argc, char *argv[])
 			ProcessEvents();
 
 			// Main frame
-			GameLoop();
+			GameLoopFrame();
 
 			FlipScreen(Screen);
+			
+			CapFPS();
 		}
 	}
 
@@ -549,7 +544,7 @@ void StartGame(void)
 
 ///////////////////
 // Game loop
-void GameLoop(void)
+void GameLoopFrame(void)
 {
     if(tLX->bQuitEngine)
         return;

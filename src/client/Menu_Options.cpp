@@ -860,6 +860,7 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		}
 
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
 		WaitForNextEvent();
 	}
 	CInput::UnInitJoysticksTemp();

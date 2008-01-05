@@ -1382,7 +1382,7 @@ void Menu_Net_HostDeregister(void)
 	float starttime = tLX->fCurTime;
 	SetGameCursor(CURSOR_ARROW);
 
-	while(1) {
+	while(true) {
 		Menu_RedrawMouse(false);
 		ProcessEvents();
 		tLX->fCurTime = GetMilliSeconds();
@@ -1400,6 +1400,7 @@ void Menu_Net_HostDeregister(void)
 
 		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
 	}
 }
 

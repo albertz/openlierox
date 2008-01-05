@@ -6,11 +6,6 @@ TODO
 [ ] better bot behavior (!!)
 [ ] recode whole CTF code (!!)
 [ ] fill documentation (README) (!!)
-[ ] cap FPS also in menu (also with WaitForNextEvent); make a new
-	function CapFPS which relays perhaps on
-		GetMilliseconds() - tLX->fCurTime
-	and use this everywhere before WaitForNextEvent (but don't put
-	it in WaitForNextEvent as it is not intended to delay).
 [ ] fix: crashes on MacOSX (!!)
 
 [?] finish mouse-aiming (!!)
@@ -35,6 +30,11 @@ TODO
 	maps are equal everywhere to prevent cheeting. So a change of the
 	map-file if it is still the same map should be avoided. )
 	
+[x] cap FPS also in menu (also with WaitForNextEvent); make a new
+	function CapFPS which relays perhaps on
+		GetMilliseconds() - tLX->fCurTime
+	and use this everywhere before WaitForNextEvent (but don't put
+	it in WaitForNextEvent as it is not intended to delay).
 [x] class for SDL_AddTimer as an object which can also be used
     in GUI. for example CTextbox needs it to redraw for blinking
     of cursor. an instance of this class would get timer-events

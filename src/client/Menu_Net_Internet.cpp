@@ -524,6 +524,7 @@ void Menu_Net_NETAddServer(void)
 
 		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
 	}
 
 
@@ -674,6 +675,7 @@ void Menu_Net_NETUpdateList(void)
 
 		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
 	}
 
 	cListUpdate.Shutdown();
@@ -819,6 +821,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 
         DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
     }
 
 	cDetails.Shutdown();

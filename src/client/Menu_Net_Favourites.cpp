@@ -527,6 +527,7 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 
         DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
     }
 
 	cDetails.Shutdown();
@@ -623,6 +624,7 @@ void Menu_Net_RenameServer(std::string& szName)
 
 		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
 		WaitForNextEvent();
 	}
 
@@ -727,6 +729,7 @@ void Menu_Net_FavouritesAddServer(void)
 
 		DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
 		WaitForNextEvent();
 	}
 

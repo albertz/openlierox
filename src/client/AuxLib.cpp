@@ -17,6 +17,7 @@
 // By Jason Boettcher
 
 #include <time.h>
+#include <SDL.h>
 #include <SDL_syswm.h>
 #include "AuxLib.h"
 #include "Error.h"
@@ -231,6 +232,16 @@ HWND GetWindowHandle(void)
 }
 #endif
 
+
+void CapFPS() {
+	const float fMaxFrameTime = (tLXOptions->nMaxFPS > 0) ? (1.0f / (float)tLXOptions->nMaxFPS) : 0;
+	const float fCurTime = GetMilliSeconds();
+	// tLX->fCurTime is old time
+	
+	// Cap the FPS
+	if(fCurTime - tLX->fCurTime < fMaxFrameTime)
+		SDL_Delay((int)((fMaxFrameTime - fCurTime + tLX->fCurTime)*1000));
+}
 
 ////////////////
 // Process any screenshots

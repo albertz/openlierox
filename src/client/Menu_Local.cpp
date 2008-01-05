@@ -1334,6 +1334,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		// Display the dialog
 		FlipScreen(tMenu->bmpScreen);
 		
+		CapFPS();
 		WaitForNextEvent();
 	}
 

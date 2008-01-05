@@ -480,6 +480,7 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
 
         DrawCursor(tMenu->bmpScreen);
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
     }
 
 	cDetails.Shutdown();

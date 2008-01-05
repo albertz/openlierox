@@ -600,8 +600,8 @@ void Menu_MapEd_New(void)
 
 
 		DrawCursor(tMenu->bmpScreen);
-
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
 		WaitForNextEvent();
 	}
 
@@ -790,8 +790,8 @@ void Menu_MapEd_LoadSave(int save)
 
 
 		DrawCursor(tMenu->bmpScreen);
-
 		FlipScreen(tMenu->bmpScreen);
+		CapFPS();
 		WaitForNextEvent();
 	}
 

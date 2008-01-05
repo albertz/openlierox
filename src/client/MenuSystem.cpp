@@ -337,8 +337,10 @@ void Menu_Frame() {
 
 	// DEBUG: show FPS
 #ifdef DEBUG
-	Menu_redrawBufferRect(0, 0, 100, 20);
-	tLX->cFont.Draw(tMenu->bmpScreen, 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
+	if(tLX->fDeltaTime != 0) {
+		Menu_redrawBufferRect(0, 0, 100, 20);
+		tLX->cFont.Draw(tMenu->bmpScreen, 0, 0, tLX->clWhite, "FPS: " + itoa((int)(1.0f/tLX->fDeltaTime)));
+	}
 #endif
 	FlipScreen(tMenu->bmpScreen);
 }
@@ -359,16 +361,10 @@ void Menu_Loop(void)
 		tLX->fCurTime = GetMilliSeconds();
 		tLX->fDeltaTime = tLX->fCurTime - oldtime;
 		tLX->fRealDeltaTime = tLX->fDeltaTime;
-	
-// HINT: not needed here because we use WaitForNextEvent()
-/*			// Cap the FPS
-		if(tLX->fDeltaTime < fMaxFrameTime) {
-			SDL_Delay((int)((fMaxFrameTime - tLX->fDeltaTime)*1000));
-				continue;
-		}*/
 		oldtime = tLX->fCurTime;
 		
 		Menu_Frame();
+		CapFPS();
 		
 		if(last_frame_was_because_of_an_event) {
 			last_frame_was_because_of_an_event = ProcessEvents();
@@ -724,9 +720,9 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 
 
 		if(!kb->KeyUp[SDLK_ESCAPE] && tMenu->bMenuRunning && ret == -1) {
-			DrawCursor(tMenu->bmpScreen);
-	
+			DrawCursor(tMenu->bmpScreen);	
 			FlipScreen(tMenu->bmpScreen);
+			CapFPS();
 			WaitForNextEvent();		
 		} else
 			break;
