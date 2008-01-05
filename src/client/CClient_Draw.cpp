@@ -412,6 +412,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
 	}
 
+	bool bScoreboard = true;
 
 	// Draw the viewports
 	if((iNetStatus == NET_CONNECTED && bGameReady) || (iNetStatus == NET_PLAYING)) {
@@ -448,6 +449,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				if(!cLocalWorms[i]->getWeaponsReady()) {
 					ready = false;
 					cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
+					bScoreboard = false;
 				}
 			}
 
@@ -475,8 +477,6 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		DrawLocalChat(bmpDest);
 	else
 		DrawRemoteChat(bmpDest);
-
-	bool bScoreboard = true;
 
 	// FPS
 	if(tLXOptions->bShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
