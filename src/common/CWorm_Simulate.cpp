@@ -531,7 +531,10 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 
 	// Ultimate in friction
 	if(bOnGround) {
-		vVelocity.x *= pow(0.9f, dt * 100.0f);
+//		vVelocity.x *= pow(0.9f, dt * 100.0f);
+		vVelocity.x *= 0.9f; // TODO: for some reason, this works a bit better then the above FPS independent code.
+		// i think it's probably a bit more complicated than i thought before. i'll think about it...
+
 		//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 
 		// Too slow, just stop

@@ -1,5 +1,9 @@
 TODO
 
+[ ] fix: sometimes, angle is exactly pointed to top
+    but you cannot hit down to move the angle;
+    also left/right (direction change) does not work
+    sometimes
 [ ] Fix memory leaks (!!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)

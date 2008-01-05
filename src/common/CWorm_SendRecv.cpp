@@ -267,7 +267,8 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Ultimate in friction
 			if(bOnGround) {
 				// HINT: also this isn't exact (it would be like it's only one frame)
-				estimatedVel.x *= pow(0.9f, t * 100.0f);
+				estimatedVel.x *= pow(0.9f, t * 100.0f); // TODO: for simulation, this is not so good for some reason.
+				// is it ok here? same issue in CWorm_Simulate.cpp:535
 
 				// Too slow, just stop
 //				if(fabs(estimatedVel.x) < 5 && !ws->iMove)
