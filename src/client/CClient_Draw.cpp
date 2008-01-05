@@ -480,17 +480,14 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 	// FPS
 	if(tLXOptions->bShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
-		// Get the string and its width
-		static std::string fps_str;
-		fps_str = "FPS: " + itoa(GetFPS());
-
 		DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
 		tLX->cFont.Draw( // Draw the text
 					bmpDest,
 					tInterfaceSettings.FpsX + 2,
 					tInterfaceSettings.FpsY,
 					tLX->clFPSLabel,
-					fps_str);
+					"FPS: " + itoa(GetFPS()) // Get the string and its width
+				);
 	}
 
 	// Ping on the top right
