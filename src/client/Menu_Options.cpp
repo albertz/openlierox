@@ -786,6 +786,7 @@ void Menu_OptionsFrame(void)
 		if ((cdepth != tLXOptions->iColourDepth) || (opengl != tLXOptions->bOpenGL))  {
 			Menu_MessageBox("Information","You need to restart LieroX for the changes to take effect",LMB_OK);
 			Menu_redrawBufferRect(0,0,640,480);
+			// TODO: after this, if the user changes some other gfx setting like fullscreen, there are mess ups of course!
 			tLXOptions->bOpenGL = opengl;
 		}
 

@@ -1147,10 +1147,9 @@ int CWorm::GetMyPing(void)
 bool CWorm::CanType(void)
 {
 	// With isUp/isDown sometimes happened that the key was not registered
-	bool result = true;
 	for (int i=0; i < GetKeyboard()->queueLength; ++i)  {
-		int c = GetKeyboard()->keyQueue[0].sym;
-		result = cUp.getData() != c &&
+		const int c = GetKeyboard()->keyQueue[i].sym;
+		const bool result = cUp.getData() != c &&
 				 cDown.getData() != c &&
 				 cLeft.getData() != c &&
 				 cRight.getData() != c &&
@@ -1163,5 +1162,5 @@ bool CWorm::CanType(void)
 			return false;
 	}
 
-	return result;
+	return true;
 }
