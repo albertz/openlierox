@@ -723,7 +723,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 			DrawCursor(tMenu->bmpScreen);	
 			FlipScreen(tMenu->bmpScreen);
 			CapFPS();
-			tLX->fCurTime = GetMilliSeconds();
+			tLX->fCurTime = GetMilliSeconds(); // we need this for CapFPS()
 			WaitForNextEvent();
 		} else
 			break;

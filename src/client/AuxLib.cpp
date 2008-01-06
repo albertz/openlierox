@@ -150,7 +150,7 @@ int SetVideoMode(void)
 		vidflags |= SDL_OPENGL;
 		vidflags |= SDL_OPENGLBLIT;
 
-#ifndef MACOSX
+//#ifndef MACOSX
 		short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
 		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
@@ -158,7 +158,7 @@ int SetVideoMode(void)
 		// TODO: why is this commented out?
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
-#endif
+//#endif
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
 		//SDL_GL_SetAttribute (SDL_GL_BUFFER_SIZE, 32);
@@ -295,11 +295,10 @@ void ShutdownAuxLib(void)
 #endif
 
 	// Shutdown the SDL system
-	// this is a (non-working) workaround to prevent the default segfault-routine
-	try { SDL_Quit(); }
-	catch(...) {
-		printf("WARNING: ERROR while shutting down SDL\n");
-	}
+	// HINT: Sometimes we get a segfault here. Because
+	// all important stuff is already closed and save here, it's not that
+	// important to do any more cleanup.
+	SDL_Quit();
 }
 
 
