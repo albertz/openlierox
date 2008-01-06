@@ -89,7 +89,7 @@ bool GameOptions::Init() {
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
-		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", true )
+		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
 		( tLXOptions->bSendDirtUpdate, "Advanced.SendDirtUpdate", false )
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", true )
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 40 )
