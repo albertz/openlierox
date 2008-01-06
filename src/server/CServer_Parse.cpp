@@ -47,7 +47,8 @@ void GameServer::ParseClientPacket(CClient *cl, CBytestream *bs) {
 		chan->setOutSeq(chan->getInSeq());
 	} else {
 		// Sequences have slipped
-		printf(cl->getWorm(0)->getName() + ": sequences have slipped (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
+		// Karel said: it's bullshit from JasonB, so we can ignore this warning :)
+		//printf(cl->getWorm(0)->getName() + ": sequences have slipped (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
 		// TODO: Set the player's send_data property to false
 	}
 
