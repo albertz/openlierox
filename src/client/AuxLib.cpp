@@ -118,7 +118,11 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 int SetVideoMode(void)
 {
 	// TODO: Use DOUBLEBUF and hardware surfaces
+#ifdef WIN32
+	bool HardwareAcceleration = false;
+#else
 	bool HardwareAcceleration = true; // false;
+#endif
 	int DoubleBuf = false;
 	int vidflags = 0;
 
