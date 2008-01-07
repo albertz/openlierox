@@ -1120,6 +1120,7 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 
 		// Leave
 		case gm_Leave:
+		case gm_QuitGame:
 			if (ev->iEventMsg == BTN_MOUSEUP)  {
 
 				// If this is a host, we go back to the lobby
@@ -1142,13 +1143,6 @@ void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 					QuittoMenu();
 				}
 					
-			}
-			break;
-
-		// Quit Game
-		case gm_QuitGame:
-			if (ev->iEventMsg == BTN_MOUSEUP)  {
-				tLX->bQuitEngine = true;
 			}
 			break;
 
@@ -1668,13 +1662,13 @@ void CClient::DrawLocalChat(SDL_Surface *bmpDest)
 		return;
 
 	int y = tInterfaceSettings.LocalChatY;
-	lines_riterator it = cChatbox.RBegin();
+	lines_iterator it = cChatbox.End();
 	it--;
 
-	for(byte i = 0; i < 6 && it != cChatbox.REnd(); i++, it++) { } // Last 6 messages
+	for(byte i = 0; i < 6 && it != cChatbox.End(); i++, it--) { } // Last 6 messages
 
 	// Draw the lines of text
-	for (it--; it != cChatbox.RBegin(); it--)  {
+	for (it++; it != cChatbox.End(); it++)  {
 
 		// This chat times out after a few seconds
 		if(tLX->fCurTime - it->fTime < 3.0f) {
