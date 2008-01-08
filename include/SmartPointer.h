@@ -14,7 +14,6 @@
 
 template < typename _Type, typename _SpecificInitFunctor >
 class SmartPointer;
-class ScopedLock;
 
 /*
 	standard smartpointer based on simple refcounting
@@ -122,62 +121,21 @@ public:
 };
 
 /*
-	Locks the mutex inside SmartPointer, allowing only one thread to access the data.
+	Locks the SDL mutex instance, allowing only one thread to access the data.
 	Usage: 
-	void func( SmartPointer< SomeData > SomeSmartPointer )
+	struct SomeData { int i; float f; SDL_Mutex * mutex };
+	void func( SomeData * data )
 	{
 		DoSomething(); 
-		ScopedLock lock( SomeSmartPointer ); 
-		if( ! SomeSmartPointer.get()->data )
+		ScopedLock lock( data->mutex ); // Access to data is tread-safe from now
+		if( data->i == 0 )
 			return; // Unlocks here
-		DoSomethingElse( SomeSmartPointer.get()->data )
+		data->f = 3.14;
 	} // Auto-unlocks after closing brace
 	
-	HINT: DON'T USE this, it's wrong. it just locks new copies of the SmartPointer,
-	but not the usage of the object itself somewhere else from another already made
-	copy of this SmartPointer.
-	
-	for example:
-	global:
-		SmartPointer<int> p1(new int(42));
-		SmartPointer<int> p2(p1);	
-	thread1:
-		{
-			ScopedLock lock(p1);
-			// ACTION1: do something with p1->get()
-		}
-	thread2:
-		{
-			ScopedLock lock(p2);
-			// ACTION2: do something with p2->get()
-		}
-
-	Both ACTION1 and ACTION2 will be run at the same time without any locking.
-	
-	Sadly, what you tried to implement here (generally a good idea) isn't that easy.
-	I think it's better if the object itself which is used is threadsafe if
-	someone needs this later and not to implement this on this base. Of course
-	it's possible to implemnt it directly into the SmartPointer but the SmartPointer
-	is intented to be very fast with very small overhead over a normal void*.
-	If you want to have something general, you could implement something like
-	a threadsafe access wrapper object. Like:
-	
-	template<typename _Type>
-	class ThreadsafeObject { // constructor locks accesser.mutex, destructor unlocks
-	public: _Type* get();
-	}
-	
-	template<typename _Type>
-	class ThreadsafeAccesser {
-	private: mutex
-	public: ThreadsafeObject<_Type> get();
-	}
-	
-	And then if you want to use it together with SmartPointer:
-	
-	SmartPointer< ThreadsafeAccesser<_Type> > pointer;
-	
+	// HINT: Design with SmartPointer ugly indeed, so removed SmartPoiner references.
 */
+
 class ScopedLock
 {
 	private:
@@ -200,16 +158,7 @@ class ScopedLock
 		SDL_mutexV(data_mutex); 
 	};
 	
-	template < typename _Type, typename _SpecificInitFunctor >
-	ScopedLock( SmartPointer< _Type, _SpecificInitFunctor > & pt )
-		: data_mutex( pt.mutex ) // TODO: Don't use pt.mutex; it's the mutex for the reference counter, nothing else.
-								 // Copies from the SmartPointer can be allowed, there is no problem. Only the
-								 // access itself to ->get() should be synchronised.
-	{
-		SDL_mutexP(data_mutex); 
-	};
-	
-	SDL_mutex* getMutex() { return data_mutex; };	// For usage with SDL_CondWait()
+	SDL_mutex* getMutex() { return data_mutex; };	// For usage with SDL_CondWait(), DON'T call SDL_mutexP( lock.getMutex() );
 };
 
 #endif

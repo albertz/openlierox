@@ -237,6 +237,10 @@ void CWorm::net_updatePos(const CVec& newpos) {
 		// TODO: Why is there an option for disabling this? There is no reason to disable, it
 		// should always be better with it activated. There is no magic behind, it's just
 		// a more correct estimation/calculation.
+		// HINT: Raziel told me about "jelly-jumping" remote worm behavior under lag in Beta3 
+		// and I believe it's because of an estimation - set net speed in options to "Modem" in client
+		// and hang on ninjarope - the server will see remote worm sliding down fuzzily each frame,
+		// linear approximation looks bit better for me. Raziel haven't confirmed it though.
 		if( ! tLXOptions->bAntilagMovementPrediction )
 		{
 			// ignoring acceleration in this case for estimation
