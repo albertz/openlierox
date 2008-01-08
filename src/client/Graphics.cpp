@@ -133,6 +133,7 @@ void InitializeColors()  {
 	tLX->clSliderLight = MakeColour(115,115,115);
 	tLX->clChatBoxBackground = tLX->clBlack;
 	tLX->clScoreBackground = tLX->clBlack;
+	tLX->clScoreHighlight = MakeColour(0, 0, 64);
 	tLX->clCurrentSettingsBg = tLX->clBlack;
 	tLX->clDialogCaption = MakeColour(0,0,64);
 	tLX->clPlayerDividingLine = MakeColour(64,64,64);
@@ -217,6 +218,7 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","ScrollbarShadow",		&tLX->clScrollbarShadow,	tLX->clScrollbarShadow);
 	ReadColour(colorfile,"Colours","ChatBoxBackground",		&tLX->clChatBoxBackground,	tLX->clChatBoxBackground);
 	ReadColour(colorfile,"Colours","ScoreBack",				&tLX->clScoreBackground,	tLX->clScoreBackground);
+	ReadColour(colorfile,"Colours","ScoreHighlight",		&tLX->clScoreHighlight,		tLX->clScoreHighlight);
 	ReadColour(colorfile,"Colours","CurrentSettBack",		&tLX->clCurrentSettingsBg,	tLX->clCurrentSettingsBg);
 	ReadColour(colorfile,"Colours","DialogCaption",			&tLX->clDialogCaption,		tLX->clDialogCaption);
 	ReadColour(colorfile,"Colours","SliderLight",			&tLX->clSliderLight,		tLX->clSliderLight);

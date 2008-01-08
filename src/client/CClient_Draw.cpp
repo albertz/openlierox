@@ -1207,6 +1207,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
 
+			// Add the player
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 
 			// Skin
@@ -1254,6 +1255,7 @@ void CClient::UpdateScore(CListview *Left, CListview *Right)
 
 			CWorm *p = &cRemoteWorms[iScoreboard[i]];
 
+			// Add the player
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 
 			// Skin
@@ -2189,11 +2191,13 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
 		else
 			iColor = tLX->clNormalLabel;
 
-        // If this player is local & human, highlight it
-        /*if(p->getType() == PRF_HUMAN && p->getLocal())
-            DrawRectFill(bmpDest, x+2,j-2, x+w-1, j+18, MakeColour(52,52,52));*/
-
+        // Add the player and if this player is local & human, highlight it
 		lv->AddItem(p->getName(), i, tLX->clNormalLabel);
+		if (p->getLocal() && (p->getType() != PRF_COMPUTER || tGameInfo.iGameType != GME_LOCAL))  {
+			lv_item_t *it = lv->getItem(i);
+			it->iBgAlpha = 64;
+			it->iBgColour = tLX->clScoreHighlight;
+		}
 
 		// ID
 		lv->AddSubitem(LVS_TEXT, itoa(p->getID()), NULL, NULL);

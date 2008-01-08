@@ -93,6 +93,8 @@ class lv_subitem_t { public:
 	int			iExtra;
 	int			iValign;
 	Uint32		iColour;
+	Uint32		iBgColour;
+	Uint8		iBgAlpha;
 
 	lv_subitem_t *tNext;
 
@@ -107,6 +109,8 @@ class lv_item_t { public:
 	bool		bSelected;
 	int			iHeight;
 	Uint32		iColour;
+	Uint32		iBgColour;
+	Uint8		iBgAlpha;
 
 	lv_subitem_t *tSubitems;
 
