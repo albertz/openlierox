@@ -49,7 +49,7 @@ void CTextbox::Create(void)
 		if (tTimer)  {
 			tTimer->interval = 500;
 			tTimer->once = false;
-			tTimer->onTimer = CTextbox::HandleTimerEvent;
+			tTimer->onTimer = &CTextbox::HandleTimerEvent;
 			tTimer->userData = (void *)this;
 			tTimer->start();
 		}

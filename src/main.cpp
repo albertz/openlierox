@@ -166,6 +166,8 @@ int main(int argc, char *argv[])
 	}
 
     // Parse the arguments
+	// do it after the loading of the options as this can
+	// overwrite the default options
     ParseArguments(argc, argv);
 
 	// Initialize LX
