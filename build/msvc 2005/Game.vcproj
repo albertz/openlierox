@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="OpenLieroX"
 	ProjectGUID="{EA0C2715-65F3-4238-AA7E-B3A92D706334}"
+	RootNamespace="OpenLieroX"
 	>
 	<Platforms>
 		<Platform
@@ -15,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\../../share/gamedir"
+			OutputDirectory=".\../../distrib/win32"
 			IntermediateDirectory=".\obj/Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -77,12 +78,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib"
-				OutputFile=".\../../share/gamedir/Game.exe"
+				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="obj/debug/Game.pdb"
+				ProgramDatabaseFile="obj/debug/OpenLieroX.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -115,7 +116,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\../../share/gamedir"
+			OutputDirectory=".\../../distrib/win32/"
 			IntermediateDirectory=".\obj/Release"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -176,12 +177,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib"
-				OutputFile="../../share/gamedir/LieroX.exe"
+				OutputFile="../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../../share/gamedir/LieroX.pdb"
+				ProgramDatabaseFile=".\../../distrib/win32/OpenLieroX.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -214,7 +215,7 @@
 		</Configuration>
 		<Configuration
 			Name="Profile|Win32"
-			OutputDirectory=".\obj/debug"
+			OutputDirectory="../../distrib/win32/"
 			IntermediateDirectory=".\obj/debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -272,7 +273,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="obj/Debug/LieroX.exe"
+				OutputFile="../../distrib/win32/OpenLieroX_profile.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC"

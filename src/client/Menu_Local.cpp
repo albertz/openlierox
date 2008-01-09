@@ -869,7 +869,7 @@ bool Menu_GameSettings_Frame(void)
                 break;
 
 			case gs_RespawnInWaves:
-				if( cGameSettings.SendMessage( gs_RespawnInWaves, CKM_GETCHECK, (DWORD)0, 0) == 0 );
+				if( cGameSettings.SendMessage( gs_RespawnInWaves, CKM_GETCHECK, (DWORD)0, 0) == 0 )
 					cGameSettings.SendMessage( gs_RespawnGroupTeams, CKM_SETCHECK, (DWORD)0, 0);
 				break;
 

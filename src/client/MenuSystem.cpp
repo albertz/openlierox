@@ -1620,7 +1620,7 @@ bool Menu_SvrList_Process(void)
 bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 {
 	NetworkAddr		adrFrom;
-	int				update = false;
+	bool			update = false;
 	static std::string cmd,buf;
 
 	// Check for connectionless packet header

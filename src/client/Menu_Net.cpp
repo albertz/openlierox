@@ -107,7 +107,7 @@ bool Menu_NetInitialize(void)
 		tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
 		if (!tIpToCountryDB)  {
 			SystemError("Could not allocate the IP to Country database.");
-			return -1;
+			return false;
 		}
 	}
 
