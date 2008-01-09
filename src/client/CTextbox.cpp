@@ -44,6 +44,37 @@ void CTextbox::Create(void)
 	fLastRepeat = -9999;
 	iLastchar = 0;
 	iLastKeysym = 0;
+	if (tTimer == NULL)  {
+		tTimer = new Timer;
+		if (tTimer)  {
+			tTimer->interval = 500;
+			tTimer->once = false;
+			tTimer->onTimer = CTextbox::HandleTimerEvent;
+			tTimer->userData = (void *)this;
+			tTimer->start();
+		}
+	}
+}
+
+/////////////////
+// Destroy the textbox
+void CTextbox::Destroy()
+{
+	if (tTimer)
+		delete tTimer;
+	tTimer = NULL;
+}
+
+//////////////////
+// Handles an event coming from the timer
+bool CTextbox::HandleTimerEvent(Timer* sender, void* userData)
+{
+	if (userData != NULL)  {
+		CTextbox *t = (CTextbox *)userData;
+		t->bDrawCursor = !t->bDrawCursor;
+	}
+
+	return true;
 }
 
 
@@ -135,11 +166,6 @@ void CTextbox::Draw(SDL_Surface *bmpDest)
 
 	// Draw cursor (only when focused)
 	if(bFocused) {
-
-		if ((GetMilliSeconds()-fBlinkTime) > 0.5)  {
-			bDrawCursor = !bDrawCursor;
-			fBlinkTime = GetMilliSeconds();
-		}
 
 		if (bDrawCursor)  {
 			// Determine the cursor position in pixels

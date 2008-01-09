@@ -83,6 +83,7 @@ class lv_column_t { public:
 
 // Sub item structure
 class lv_subitem_t { public:
+	lv_subitem_t() : tWidget(NULL) {} // safety
 	~lv_subitem_t()  { if (tWidget) delete tWidget; }
 
 	int			iType;

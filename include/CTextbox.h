@@ -20,6 +20,7 @@
 
 #include "InputEvents.h"
 #include "Cursor.h"
+#include "Timer.h"
 
 
 // Event types
@@ -50,10 +51,8 @@ class CTextbox : public CWidget {
 public:
 	// Constructor
 	CTextbox() {
-		Create();
 		iType = wid_Textbox;
 		iFlags = 0;
-		fBlinkTime = 0;
 		bDrawCursor = true;
 		iScrollPos = 0;
 		iSelLength = 0;
@@ -71,6 +70,8 @@ public:
 		iVar = NULL;
 		fVar = NULL;
 		sVar = NULL;
+		tTimer = NULL;
+		Create();
 	}
 
 
@@ -104,8 +105,9 @@ private:
 	float	fLastRepeat;
 	float	fLastClick;
 
-	float	fBlinkTime;
 	bool	bDrawCursor;
+
+	Timer	*tTimer;
 
 	bool		*bVar;
 	int			*iVar;
@@ -117,7 +119,7 @@ public:
 	// Methods
 
 	void	Create(void);
-	void	Destroy(void) { }
+	void	Destroy(void);
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ SetGameCursor(CURSOR_TEXT); return TXT_MOUSEOVER; }
@@ -132,9 +134,9 @@ public:
 
 	void	LoadStyle(void) {}
 
-	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
-	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
-	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
+	DWORD	SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD	SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD	SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
 	void	Backspace(void);
 	void	Delete(void);
@@ -143,11 +145,13 @@ public:
 
 	std::string	getText(void)						{ return sText; }
 	void	setText(const std::string& buf);
-	inline void setFlag(Uint32 flag) { iFlags |= flag; }
-	inline void unsetFlag(Uint32 flag) { iFlags &= ~flag; }
+	void	setFlag(Uint32 flag) { iFlags |= flag; }
+	void	unsetFlag(Uint32 flag) { iFlags &= ~flag; }
 
     void    PasteText(void);
 	void	CopyText(void);
+
+	static bool HandleTimerEvent(Timer* sender, void* userData);
 
 	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);
