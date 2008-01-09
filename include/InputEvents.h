@@ -13,6 +13,8 @@
 
 #include "Unicode.h"
 
+// application has focus
+extern	bool			bActivated;
 
 
 #define     MAX_KEYQUEUE        32
@@ -71,7 +73,7 @@ struct mouse_t {
 
 void 		InitEventSystem();
 bool		ProcessEvents(); // returns false if no new event
-bool		WaitForNextEvent(); // returns false if no new event
+bool		WaitForNextEvent(); // waits for next event and handles all of then; returns false if no new event
 
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();

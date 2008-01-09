@@ -20,12 +20,12 @@
 
 
 // Keyboard, Mouse, & Event
-keyboard_t	Keyboard;
-mouse_t		Mouse;
-SDL_Event	Event;
-ModifiersState keyModifiersState;
+static keyboard_t	Keyboard;
+static mouse_t		Mouse;
+static SDL_Event	Event;
+static ModifiersState keyModifiersState;
 
-int         nFocus = true;
+static int         nFocus = true;
 bool		bActivated = false;
 
 
@@ -65,7 +65,7 @@ void InitEventSystem() {
 	GetMouse()->Up = 0;
 }
 
-void ResetCurrentEventStorage() {
+static void ResetCurrentEventStorage() {
     // Clear the queue
     Keyboard.queueLength = 0;
 
@@ -85,7 +85,7 @@ void ResetCurrentEventStorage() {
 // in both cases where we call this function this is correct
 // TODO: though the whole architecture has to be changed later
 // but then also GetEvent() has to be changed or removed
-void HandleNextEvent() {
+static void HandleNextEvent() {
 	switch(Event.type) {
 	
 	// Quit event
@@ -224,7 +224,7 @@ void HandleNextEvent() {
 	}
 }
 
-void HandleMouseState() {
+static void HandleMouseState() {
 	{
 		// Mouse
 		int oldX = Mouse.X;
@@ -255,7 +255,7 @@ void HandleMouseState() {
 	}
 }
 
-void HandleKeyboardState() {
+static void HandleKeyboardState() {
 	// HINT: KeyDown is the state of the keyboard
 	// KeyUp is like an event and will only be true once
 	
@@ -281,6 +281,14 @@ bool WaitForNextEvent() {
 		HandleNextEvent();		
 		ret = true;
 	}
+	
+	// Perhaps there are more events in the queue.
+	// In this case, handle all of them. we want an empty
+	// queue after
+	while(SDL_PollEvent(&Event)) {
+		HandleNextEvent();
+		ret = true;
+	}
 
 	HandleMouseState();
 	HandleKeyboardState();
@@ -300,7 +308,7 @@ bool ProcessEvents()
 	while(SDL_PollEvent(&Event)) {
 		HandleNextEvent();
 		ret = true;
-	}	
+	}
 
     // If we don't have focus, don't update as often
     if(!nFocus)

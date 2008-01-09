@@ -259,7 +259,6 @@ extern	CVec			vGravity;
 extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern  int				nDisableSound;
-extern	bool			bActivated;
 #ifdef WITH_MEDIAPLAYER
 extern	CInput			cToggleMediaPlayer;
 #endif
