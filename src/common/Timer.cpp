@@ -33,9 +33,10 @@ int GetFPS(void)
 {
 	Frames++;
 
-	if(GetMilliSeconds() - OldFPSTime >= 1.0f) {
+	float dt = GetMilliSeconds() - OldFPSTime;
+	if(dt >= 1.0f) {
 		OldFPSTime = GetMilliSeconds();
-		Fps = Frames;
+		Fps = (int)( (float)Frames / dt );
 		Frames = 0;
 	}
 
@@ -145,12 +146,13 @@ void Timer::handleEvent(SDL_Event& ev) {
 	if(!timer->quit_signal) // it could happen that we get at the end still one more event
 		if(!timer->onTimer(timer->timer, timer->userData)) {
 			// we got false, so quit this timer
-			// TODO: Stop only headless timer here, or we may stop same timer twice - 
-			// when callback returns false we'll delete the TimerThreadData here, 
-			// and then call Timer::stop() where last_thread_data will point to deleted data.
-			timer->quit_signal = true;
+			if(timer->timer) // no headless timer => call stop() to handle intern state correctly
+				timer->timer->stop();
+			else
+				timer->quit_signal = true;
 		}
 
 	if( ev.user.data2 ) // last-event signal
+		// TODO: if CleanupCallback becomes implemented, this is the point where it has to be called
 		delete timer;
 }

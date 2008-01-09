@@ -48,8 +48,15 @@ enum	{ SDL_USEREVENT_TIMER = SDL_USEREVENT + 2 };
 	SDL event queue. It will use the settings at the time of starting the timer.
 	All later changes are ignored. If you hit start again, the current thread
 	will stop and a new one with the new settings will be started. stop() will
-	stop the timer. After stop() returns, no more events belonging to this thread
-	will be handled. The events itself will be handled in the main thread
+	stop the timer.
+	
+	After stop() returns, no more events belonging to this thread
+	will be handled (this is guaranteed). Though it's possible that there
+	is one last event handled exactly at the time of calling stop() when
+	calling it from another thread than the main thread. If you call stop()
+	from the main-thread, there will be no more timer-event for sure.
+	
+	The events itself will be handled in the main thread
 	(in the thread that calls ProcessEvents() or WaitForNextEvent()).
 
 	If the callback-functions returns false, the thread will also stop.
@@ -58,10 +65,15 @@ enum	{ SDL_USEREVENT_TIMER = SDL_USEREVENT + 2 };
 	object. That means that stop() has no effect on the thread. The only
 	possibility to break the timer is to return false from within the callback.
 	
+	userData can be used to point to some additional data. It's just a pointer,
+	the timer itself just forwards it but ignores the content behind. So you
+	have to care yourself about memory management.
+	
 	WARNING: don't set a too short interval because else the SDL event queue get flooded
-	WARNING: don't point userData to temporary variable, only to static or global one - 
-	the OnTimerProc callback function may be called once after stop() is called,
-	don't expect the timer to stop immediately.
+
+	TODO: a CleanupCallback could also be saved to be called at the very last time
+	after the last Timer-event to cleanup the userData for example.
+	if somebody needs this, feel free to implement
 */
 class Timer {
 public:
