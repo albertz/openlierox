@@ -59,6 +59,9 @@ enum	{ SDL_USEREVENT_TIMER = SDL_USEREVENT + 2 };
 	possibility to break the timer is to return false from within the callback.
 	
 	WARNING: don't set a too short interval because else the SDL event queue get flooded
+	WARNING: don't point userData to temporary variable, only to static or global one - 
+	the OnTimerProc callback function may be called once after stop() is called,
+	don't expect the timer to stop immediately.
 */
 class Timer {
 public:

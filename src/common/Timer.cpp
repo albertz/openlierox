@@ -145,6 +145,9 @@ void Timer::handleEvent(SDL_Event& ev) {
 	if(!timer->quit_signal) // it could happen that we get at the end still one more event
 		if(!timer->onTimer(timer->timer, timer->userData)) {
 			// we got false, so quit this timer
+			// TODO: Stop only headless timer here, or we may stop same timer twice - 
+			// when callback returns false we'll delete the TimerThreadData here, 
+			// and then call Timer::stop() where last_thread_data will point to deleted data.
 			timer->quit_signal = true;
 		}
 
