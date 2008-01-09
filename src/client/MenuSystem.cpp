@@ -1090,9 +1090,9 @@ server_t *psServerList = NULL;
 static const int	MaxPings = 4;
 static const int	MaxQueries = MAX_QUERIES;
 
-// Time to wait before pinging/querying the server again (in seconds)
-static const float	PingWait = 1;
-static const float	QueryWait = 1;
+// Time to wait before pinging/querying the server again (in milliseconds)
+static const Uint32	PingWait = 1000;
+static const Uint32	QueryWait = 1000;
 
 
 
@@ -1188,7 +1188,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 	svr->nPings++;
 	svr->fLastPing = tLX->fCurTime;
 
-	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 }
 
 ///////////////////
@@ -1222,7 +1222,7 @@ void Menu_SvrList_QueryServer(server_t *svr)
 	svr->nQueries++;
 	svr->fLastQuery = tLX->fCurTime;
 
-	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 }
 
 
@@ -1253,7 +1253,7 @@ void Menu_SvrList_RefreshServer(server_t *s)
 	s->nQueries = 0;
 	s->nPing = 0;
 
-	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 }
 
 
@@ -1329,7 +1329,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
         psServerList = svr;
 
 	// Set the timeout timer
-	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 
 	return svr;
 }
@@ -1406,7 +1406,7 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
         psServerList = svr;
 
 	// Set the timeout timer
-	Timer(&ServerTimeoutSignal, NULL, (Uint32)PingWait, true).startHeadless();
+	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
 
 	return svr;
 }
@@ -1576,7 +1576,7 @@ bool Menu_SvrList_Process(void)
 
 		// Need a pingin'?
 		if(!s->bgotPong) {
-			if(tLX->fCurTime - s->fLastPing > PingWait) {
+			if(tLX->fCurTime - s->fLastPing > (float)PingWait / 1000.0f) {
 
 				if(s->nPings >= MaxPings) {
 					s->bIgnore = true;
@@ -1590,7 +1590,7 @@ bool Menu_SvrList_Process(void)
 
 		// Need a querying?
 		if(s->bgotPong && !s->bgotQuery) {
-			if(tLX->fCurTime - s->fLastQuery > QueryWait) {
+			if(tLX->fCurTime - s->fLastQuery > (float)QueryWait / 1000.0f) {
 
 				if(s->nQueries >= MaxQueries) {
 					s->bIgnore = true;
