@@ -74,6 +74,10 @@ public:
 		Create();
 	}
 
+	~CTextbox()  {
+		Destroy();
+	}
+
 
 private:
 	// Attributes

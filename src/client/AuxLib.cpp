@@ -298,6 +298,9 @@ void ShutdownAuxLib(void)
 	UnSubclassWindow();
 #endif
 
+	// Process the last events (mainly because of timers that will free the allocated memory)
+	ProcessEvents();
+
 	// Shutdown the SDL system
 	// HINT: Sometimes we get a segfault here. Because
 	// all important stuff is already closed and save here, it's not that
