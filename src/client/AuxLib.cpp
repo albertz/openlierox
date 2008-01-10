@@ -55,7 +55,12 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 #endif
 
 	// Initialize SDL
-	int SDLflags = SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE;
+	int SDLflags = SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE;
+	if(!bDedicated) {
+		SDLflags |= SDL_INIT_VIDEO | SDL_INIT_JOYSTICK;
+	} else
+		printf("DEDICATED MODE\n");
+		
 	if(SDL_Init(SDLflags) == -1) {
 		SystemError("Failed to initialize the SDL system!\nErrorMsg: %s",SDL_GetError());
 #ifdef WIN32
