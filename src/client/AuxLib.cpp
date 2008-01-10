@@ -58,9 +58,11 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	int SDLflags = SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE;
 	if(!bDedicated) {
 		SDLflags |= SDL_INIT_VIDEO | SDL_INIT_JOYSTICK;
-	} else
+	} else {
 		printf("DEDICATED MODE\n");
-		
+		bDisableSound = true;
+	}
+	
 	if(SDL_Init(SDLflags) == -1) {
 		SystemError("Failed to initialize the SDL system!\nErrorMsg: %s",SDL_GetError());
 #ifdef WIN32
@@ -74,7 +76,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	}
 
 
-	if(!SetVideoMode())
+	if(!bDedicated && !SetVideoMode())
 		return false;
 
     // Enable the system events
@@ -90,9 +92,14 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 		//if(!InitSoundSystem(22050, 1, 512)) {
 		if(!InitSoundSystem(44100, 1, 512)) {
 		    printf("Warning: Failed the initialize the sound system\n");
+			bDisableSound = true;
 		}
-    }
-
+    } 	
+	if(bDisableSound) {
+		printf("soundsystem completly disabled\n");
+		tLXOptions->bSoundOn = false;
+	}
+	
 	if( tLXOptions->bSoundOn ) {
 		StartSoundSystem();
 		SetSoundVolume( tLXOptions->iSoundVolume );
@@ -104,11 +111,11 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	// Give a seed to the random number generator
 	srand((unsigned int)time(NULL));
 
-
-	bmpIcon = LoadImage("data/icon.png", true);
-	if(bmpIcon)
-		SDL_WM_SetIcon(bmpIcon, NULL);
-
+	if(!bDedicated) {
+		bmpIcon = LoadImage("data/icon.png", true);
+		if(bmpIcon)
+			SDL_WM_SetIcon(bmpIcon, NULL);
+	}
 
 	// Initialize the keyboard & mouse
 	InitEventSystem();

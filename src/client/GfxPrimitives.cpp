@@ -1193,7 +1193,8 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 		SDL_FreeSurface(img);
 	} else {
 		// we haven't initialized the screen yet
-		printf("WARNING: screen not initialized yet while loading image\n");
+		if(!bDedicated)
+			printf("WARNING: screen not initialized yet while loading image\n");
 		Image = img;
 	}
 	
