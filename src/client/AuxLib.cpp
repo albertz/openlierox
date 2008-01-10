@@ -316,6 +316,8 @@ void ProcessScreenshots()
 // Flip the screen
 void FlipScreen(SDL_Surface *psScreen)
 {
+	if(psScreen == NULL) return;
+	
     // Take a screenshot?
     // We do this here, because there are so many graphics loops, but this function is common
     // to all of them

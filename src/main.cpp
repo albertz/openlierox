@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 
 	kb = GetKeyboard();
 	Screen = SDL_GetVideoSurface();
-	if (!Screen) {
+	if (!bDedicated && !Screen) {
 		SystemError("Could not find screen.");
 		return -1;
 	}
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
 
 		// Pre-game initialization
 		Screen = SDL_GetVideoSurface();
-		FillSurface(Screen,tLX->clBlack);
+		if(!bDedicated) FillSurface(Screen, tLX->clBlack);
 		float oldtime = GetMilliSeconds();
 		
 		ClearEntities();
@@ -531,7 +531,8 @@ int InitializeLieroX(void)
 void StartGame(void)
 {
     // Clear the screen
-    FillSurface(SDL_GetVideoSurface(), tLX->clBlack);
+	if(!bDedicated)
+		FillSurface(SDL_GetVideoSurface(), tLX->clBlack);
 
 	// Local game
 	if(tGameInfo.iGameType == GME_LOCAL) {
@@ -654,6 +655,8 @@ void GotoNetMenu(void)
 ////////////////////
 // Initialize the loading screen
 void InitializeLoading()  {
+	if(bDedicated) return; // ignore this case
+	
 	FillSurface(SDL_GetVideoSurface(), MakeColour(0,0,0));
 
 	int bar_x, bar_y, bar_label_x, bar_label_y,bar_dir;
@@ -697,6 +700,11 @@ void InitializeLoading()  {
 /////////////////////
 // Draw the loading
 void DrawLoading(byte percentage, const std::string &text)  {
+	if(bDedicated) {
+		printf("Loading: "); printf(text); printf("\n");
+		return;
+	}
+	
 	// Update the repainted area
 	int x = MIN(cLoading.iBackgroundX, cLoading.cBar->GetX());
 	int y = MIN(cLoading.cBar->GetY(), cLoading.iBackgroundY);

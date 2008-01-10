@@ -563,7 +563,7 @@ bool CMap::CreateSurface(void)
 	SDL_Surface *screen = SDL_GetVideoSurface();
 	if(screen == NULL)
 		printf("CMap::CreateSurface: ERROR: screen is nothing\n");
-	SDL_PixelFormat *fmt = screen->format;
+	SDL_PixelFormat *fmt = getMainPixelFormat();
 	if(fmt == NULL)
 		printf("CMap::CreateSurface: ERROR: fmt is nothing\n");
 
