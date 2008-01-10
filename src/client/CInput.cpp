@@ -164,6 +164,7 @@ joystick_t Joysticks[] = {
 static SDL_Joystick* joys[2] = {NULL, NULL};
 
 bool checkJoystickState(int flag, int extra, SDL_Joystick* joy) {
+	if(!bJoystickSupport) return false;
 	if(joy == NULL) return false;
 	
 	int val;
@@ -206,6 +207,7 @@ static bool joysticks_inited_temp[2] = {false, false};
 
 void initJoystick(int i, bool isTemp) {
 	assert(i == 0 || i == 1);
+	if(!bJoystickSupport) return;
 	
 	if(joys[i] == NULL && SDL_NumJoysticks() > i && !SDL_JoystickOpened(i)) {
 		printf("opening joystick %i", i);
@@ -224,6 +226,7 @@ void initJoystick(int i, bool isTemp) {
 }
 
 void CInput::InitJoysticksTemp() {
+	if(!bJoystickSupport) return;
 	printf("initing joysticks temporary...\n");
 	printf("amout of available joysticks: %i\n", SDL_NumJoysticks());
 	initJoystick(0, true);

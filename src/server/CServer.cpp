@@ -87,7 +87,7 @@ void GameServer::Clear(void)
 
 	tMasterServers.clear();
 	tCurrentMasterServer = tMasterServers.begin();
-	bDedicated = false;
+	this->bDedicated = false;
 }
 
 
@@ -269,7 +269,7 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 // Start the game
 int GameServer::StartGame( bool dedicated )
 {
-	bDedicated = dedicated;
+	this->bDedicated = dedicated;
 	
 	CBytestream bs;
 
@@ -510,7 +510,7 @@ void GameServer::BeginMatch(void)
 		cClient->getRemoteWorms()[cWorms[i].getID()].setFlag(true);
 	}
 
-	if( bDedicated )
+	if( this->bDedicated )
 	{
 		// Instantly kill local worm (leave the bots) - cannot do that in StartGame 'cause clients won't update lobby
 		CWorm * w = cWorms;
@@ -562,7 +562,7 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 	}
-	bDedicated = false;
+	this->bDedicated = false;
 	
 	for( i=0; i<MAX_CLIENTS; i++ )
 		cClients[i].getFileDownloaderInGame()->allowFileRequest(tLXOptions->bAllowFileDownload);

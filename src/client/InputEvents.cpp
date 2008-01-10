@@ -292,7 +292,7 @@ bool WaitForNextEvent() {
 
 	HandleMouseState();
 	HandleKeyboardState();
-	SDL_JoystickUpdate();
+	if(bJoystickSupport) SDL_JoystickUpdate();
 
 	return ret;
 }
@@ -316,7 +316,7 @@ bool ProcessEvents()
 
 	HandleMouseState();
 	HandleKeyboardState();
-	SDL_JoystickUpdate();
+	if(bJoystickSupport) SDL_JoystickUpdate();
 	
 	return ret;
 }

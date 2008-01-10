@@ -57,8 +57,10 @@ CMediaPlayer cMediaPlayer;
 bool        bDisableSound = false;
 #ifdef DEDICATED_ONLY
 bool		bDedicated = true;
+bool		bJoystickSupport = false;
 #else
 bool		bDedicated = false;
+bool		bJoystickSupport = true;
 #endif
 
 keyboard_t	*kb = NULL;

@@ -57,10 +57,11 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	// Initialize SDL
 	int SDLflags = SDL_INIT_TIMER | SDL_INIT_NOPARACHUTE;
 	if(!bDedicated) {
-		SDLflags |= SDL_INIT_VIDEO | SDL_INIT_JOYSTICK;
+		SDLflags |= SDL_INIT_VIDEO;
 	} else {
 		printf("DEDICATED MODE\n");
 		bDisableSound = true;
+		bJoystickSupport = false;
 	}
 	
 	if(SDL_Init(SDLflags) == -1) {
@@ -75,6 +76,12 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 		return false;
 	}
 
+	if(bJoystickSupport) {
+		if(SDL_Init(SDL_INIT_JOYSTICK) != 0) {
+			printf("WARNING: couldn't init joystick subystem: %s\n", SDL_GetError());
+			bJoystickSupport = false;
+		}
+	}
 
 	if(!bDedicated && !SetVideoMode())
 		return false;

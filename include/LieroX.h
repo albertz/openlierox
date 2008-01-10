@@ -260,6 +260,7 @@ extern  CInput			cTakeScreenshot;
 extern  CInput			cSwitchMode;
 extern  bool			bDisableSound;
 extern	bool			bDedicated;
+extern  bool			bJoystickSupport;
 #ifdef WITH_MEDIAPLAYER
 extern	CInput			cToggleMediaPlayer;
 #endif
