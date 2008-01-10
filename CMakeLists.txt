@@ -2,14 +2,17 @@
 # this file is not intendent (yet) as a system for building final releases
 # use compile.sh instead
 
-SET(CMAKE_BUILD_TYPE Debug)
-#SET(HAWKNL_BUILTIN Yes)
-SET(X11CLIPBOARD Yes)
-#SET(STLPORT Yes)
-SET(DEDICATED_ONLY Yes)
+OPTION(CMAKE_BUILD_TYPE "build type" Debug)
+OPTION(HAWKNL_BUILTIN "HawkNL builtin support" No)
+OPTION(X11CLIPBOARD "X11 clipboard" Yes)
+OPTION(STLPORT "STLport support" No)
+OPTION(DEDICATED_ONLY "dedicated_only - without gfx and sound" No)
 
 IF (DEDICATED_ONLY)
+	MESSAGE( "DEDICATED_ONLY=1 : dedicated only" )
 	SET(X11CLIPBOARD No)
+ELSE (DEDICATED_ONLY)
+	MESSAGE( "DEDICATED_ONLY=0 : with gfx and sound" )
 ENDIF (DEDICATED_ONLY)
 
 PROJECT(openlierox)
