@@ -1,12 +1,9 @@
-// TODO: is this file used? if so, why are the headers missing here and also the checks for twice including?
+// example for Hirudo
 
 // Surface class
 
 #include <SDL.h>
 
-// TODO: remove this here!
-typedef unsigned char byte;
-typedef Uint32 Color;
 
 class CSurface  {
 public:
