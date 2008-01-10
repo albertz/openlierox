@@ -976,7 +976,7 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	}
 
 	Uint8 r,g,b;
-	GetColour3(colour,SDL_GetVideoSurface(),&r,&g,&b);
+	GetColour3(colour,getMainPixelFormat(),&r,&g,&b);
 	Uint32 friendly_col = SDLColourToNativeColour(
 		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
 
@@ -1010,7 +1010,7 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	}
 
 	Uint8 r,g,b;
-	GetColour3(colour, SDL_GetVideoSurface(), &r, &g, &b);
+	GetColour3(colour, getMainPixelFormat(), &r, &g, &b);
 	Uint32 friendly_col = SDLColourToNativeColour(
 		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
 

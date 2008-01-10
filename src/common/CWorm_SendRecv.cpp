@@ -32,7 +32,7 @@ void CWorm::writeInfo(CBytestream *bs)
     bs->writeString(szSkin);
 
 	Uint8 rgb[3];
-    GetColour3(iColour, SDL_GetVideoSurface(), &rgb[0], &rgb[1], &rgb[2]);
+    GetColour3(iColour, getMainPixelFormat(), &rgb[0], &rgb[1], &rgb[2]);
 
 	for(short i = 0; i < 3; i++)
 		bs->writeInt(rgb[i], 1);

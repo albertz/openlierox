@@ -40,6 +40,23 @@ std::string	ConfigFile;
 
 SDL_Surface *bmpIcon=NULL;
 
+
+SDL_PixelFormat defaultFallbackFormat = 
+	{
+         NULL, //SDL_Palette *palette;
+         32, //Uint8  BitsPerPixel;
+         4, //Uint8  BytesPerPixel;
+         0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
+         24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
+         0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
+         0, //Uint32 colorkey;
+         255 //Uint8  alpha;
+	};
+
+SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
+
+
+
 ///////////////////
 // Initialize the standard Auxiliary Library
 int InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags)
@@ -242,6 +259,8 @@ int SetVideoMode(void)
 	// Set the change mode flag
 	if (tLX)
 		tLX->bVideoModeChanged = true;
+
+	mainPixelFormat = SDL_GetVideoSurface()->format;
 
 	return true;
 }

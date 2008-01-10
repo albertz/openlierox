@@ -1870,7 +1870,7 @@ void CMap::DrawMiniMap(SDL_Surface *bmpDest, uint x, uint y, float dt, CWorm *wo
 		if(!w->getAlive() || !w->isUsed())
 			continue;
 
-		GetColour4(w->getColour(), bmpMiniMap, &r,&g,&b,&a);
+		GetColour4(w->getColour(), bmpMiniMap->format, &r,&g,&b,&a);
 
 		dr = ~r;
 		dg = ~g;
@@ -2218,7 +2218,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 	p=0;
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
-			GetColour4( GetPixel(bmpBackImage,x,y), bmpBackImage, &r, &g, &b ,&a );
+			GetColour4( GetPixel(bmpBackImage,x,y), bmpBackImage->format, &r, &g, &b ,&a );
 
 			pSource[p++] = r;
 			pSource[p++] = g;
@@ -2229,7 +2229,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 	// Save the front image
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
-			GetColour4( GetPixel(bmpImage,x,y), bmpImage, &r, &g, &b ,&a );
+			GetColour4( GetPixel(bmpImage,x,y), bmpImage->format, &r, &g, &b ,&a );
 			pSource[p++] = r;
 			pSource[p++] = g;
 			pSource[p++] = b;

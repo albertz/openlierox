@@ -225,7 +225,7 @@ void CBrowser::ParseTag(std::string::const_iterator& it, std::string::const_iter
 					// Convert the color
 					Uint32 color = StrToCol(param_value);
 					Uint8 r, g, b;
-					GetColour3(color, SDL_GetVideoSurface(), &r, &g, &b);
+					GetColour3(color, getMainPixelFormat(), &r, &g, &b);
 
 					cur_line += CONTROL_CHARACTER_BEGIN;
 					cur_line += CONTROL_COLOR;

@@ -422,14 +422,14 @@ inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a
 
 ////////////////
 // Extract 4 colour components from a packed int
-inline void GetColour4(Uint32 pixel, SDL_Surface* img, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a) {
-	SDL_GetRGBA(pixel, img->format, r, g, b, a);
+inline void GetColour4(Uint32 pixel, SDL_PixelFormat* format, Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a) {
+	SDL_GetRGBA(pixel, format, r, g, b, a);
 }
 
 ///////////////
 // Extract 3 colour components from a packed int
-inline void GetColour3(Uint32 pixel, SDL_Surface* img, Uint8 *r, Uint8 *g, Uint8 *b) {
-	SDL_GetRGB(pixel, img->format, r, g, b);
+inline void GetColour3(Uint32 pixel, SDL_PixelFormat* format, Uint8 *r, Uint8 *g, Uint8 *b) {
+	SDL_GetRGB(pixel, format, r, g, b);
 }
 
 ////////////////
@@ -513,7 +513,7 @@ inline void	DrawRect(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 
 inline void DrawRectFillA(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
 	SDL_Surface *tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
 	Uint8 r,g,b;
-	GetColour3(color,bmpDest,&r,&g,&b);
+	GetColour3(color,bmpDest->format,&r,&g,&b);
 	Uint32 friendly_col = SDL_MapRGBA(tmp->format,r,g,b,alpha);
 	if (tmp)  {
 		// TODO: optimise

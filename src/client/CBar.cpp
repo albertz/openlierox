@@ -100,7 +100,7 @@ void CBar::Draw(SDL_Surface *dst)  {
 
 		// bmpBar is an alpha surface so we need to convert the color from GetPixel
 		Uint8 r, g, b;
-		GetColour3(clLabel, bmpBar, &r, &g, &b);
+		GetColour3(clLabel, bmpBar->format, &r, &g, &b);
 		clLabel = MakeColour(r, g, b);
 
 		if (LabelVisible)

@@ -57,21 +57,10 @@ inline Uint8 GetA(Uint32 pixel, SDL_PixelFormat *fmt)  {
 			(((pixel & fmt->Amask) >> fmt->Ashift) >> (8 - (fmt->Aloss << 1)));
 }
 
+extern SDL_PixelFormat* mainPixelFormat;
+
 inline SDL_PixelFormat* getMainPixelFormat() {
-	static SDL_PixelFormat defaultFallbackFormat = 
-	{
-         NULL, //SDL_Palette *palette;
-         32, //Uint8  BitsPerPixel;
-         4, //Uint8  BytesPerPixel;
-         0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-         24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-         0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
-         0, //Uint32 colorkey;
-         255 //Uint8  alpha;
-	};
-	SDL_Surface* screen = SDL_GetVideoSurface();
-	if(screen) return screen->format;
-	else return &defaultFallbackFormat; 
+	return mainPixelFormat;
 }
 
 ///////////////

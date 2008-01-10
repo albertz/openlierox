@@ -499,8 +499,8 @@ void Menu_DrawBoxAdv(SDL_Surface *bmpDest, int x, int y, int x2, int y2, int bor
 	// Create gradient when needed
 	int r_step,g_step,b_step;
 	Uint8 r1,g1,b1,r2,g2,b2;
-	GetColour3(DarkColour,bmpDest,&r1,&g1,&b1);
-	GetColour3(LightColour,bmpDest,&r2,&g2,&b2);
+	GetColour3(DarkColour,bmpDest->format, &r1,&g1,&b1);
+	GetColour3(LightColour,bmpDest->format, &r2,&g2,&b2);
 
 	if (type != BX_SOLID)  {
 		r_step = (r2-r1)/border;

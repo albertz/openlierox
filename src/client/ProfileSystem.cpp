@@ -563,7 +563,7 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 
 			pixel = GetPixel(worm,x,y);
             mask = GetPixel(worm,x,y+18);
-			GetColour4(pixel,worm,&r,&g,&b,&a);
+			GetColour4(pixel,worm->format,&r,&g,&b,&a);
 
             //
             // Use the mask to check what colours to ignore

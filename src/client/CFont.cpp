@@ -154,14 +154,14 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 
 	Uint8 R, G, B, A;
 	Uint8 sr, sg, sb;
-	GetColour3(colour, SDL_GetVideoSurface(), &sr, &sg, &sb);
+	GetColour3(colour, getMainPixelFormat(), &sr, &sg, &sb);
 
 	// Outline font: replace white pixels with appropriate color, put black pixels
 	if (OutlineFont) {
 		for (y = 0; y < bmpSurf->h; y++) {
 			for (x = 0; x < bmpSurf->w; x++) {
 				pixel = GetPixel(bmpFont, x, y);
-				GetColour4(pixel, bmpFont, &R, &G, &B, &A);
+				GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
 
 				if (R == 255 && G == 255 && B == 255)    // White
 					PutPixel(bmpSurf, x, y,
@@ -176,7 +176,7 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 		for (y = 0; y < bmpSurf->h; y++) {
 			for (x = 0; x < bmpSurf->w; x++) {
 				pixel = GetPixel(bmpFont, x, y);
-				GetColour4(pixel, bmpFont, &R, &G, &B, &A);
+				GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
 
 				if (!R && !G && !B)   // Black
 					PutPixel(bmpSurf, x, y,
@@ -280,7 +280,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	short clip_x, clip_y, clip_w, clip_h;
 
 	// Adjust the color to the dest-suface format
-	GetColour3(col, SDL_GetVideoSurface(), &R, &G, &B);
+	GetColour3(col, getMainPixelFormat(), &R, &G, &B);
 	col = SDL_MapRGB(dst->format, R, G, B);
 
 	pos = 0;
@@ -335,7 +335,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 				for (i = a + clip_x, b = clip_x;b < clip_w;i++, b++, px += bpp) {
 
 					pixel = GetPixelFromAddr(px, bpp);
-					GetColour4(pixel, bmpFont, &R, &G, &B, &A);
+					GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
 
 					// Put black pixels and colorize white ones
 					if (R == 255 && G == 255 && B == 255)    // White
@@ -353,7 +353,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 				for (i = a + clip_x, b = clip_x; b < clip_w; i++, b++, px += bpp) {
 
 					pixel = GetPixelFromAddr(px, bpp);
-					GetColour4(pixel, bmpFont, &R, &G, &B, &A);
+					GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
 
 					// Put only black pixels
 					if (!R && !G && !B)

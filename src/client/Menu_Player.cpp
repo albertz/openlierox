@@ -762,7 +762,7 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 
 			pixel = GetPixel(tMenu->bmpWorm,x,y);
             mask = GetPixel(tMenu->bmpWorm,x,y+18);
-			GetColour4(pixel,tMenu->bmpWorm,&r,&g,&b,&a);
+			GetColour4(pixel,tMenu->bmpWorm->format,&r,&g,&b,&a);
 
             //
             // Use the mask to check what colours to ignore

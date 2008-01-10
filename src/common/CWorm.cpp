@@ -352,7 +352,7 @@ bool CWorm::LoadGraphics(int gametype)
 
     // Use the colours set on the network
     // Profile or team colours will override this
-	GetColour3(iColour, SDL_GetVideoSurface(), &r, &g, &b);
+	GetColour3(iColour, getMainPixelFormat(), &r, &g, &b);
 
     // Colourise the giblets
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
@@ -426,7 +426,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	if (team)
 		iColour = tLX->clTeamColors[iTeam];
 
-	GetColour3(iColour,SDL_GetVideoSurface(),&r,&g,&b);
+	GetColour3(iColour,getMainPixelFormat(),&r,&g,&b);
 
 	int ColR = r;
 	int ColG = g;
@@ -442,7 +442,7 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 		for(x = 0; x < img->w; x++) {
 
 			pixel = GetPixel(img,x,y);
-			GetColour3(pixel,img,&r,&g,&b);
+			GetColour3(pixel,img->format,&r,&g,&b);
 
 			// Ignore pink & gun colours
 			if(IsTransparent(img,pixel))

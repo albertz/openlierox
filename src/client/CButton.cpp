@@ -82,7 +82,7 @@ void CButton::Create(void)
         for( int x=0; x<bmpImage->w; x++ ) {
 
             Uint32 pixel = GetPixel(bmpImage, x,y);
-            GetColour4(pixel, bmpImage, &r,&g,&b,&a);
+            GetColour4(pixel, bmpImage->format, &r,&g,&b,&a);
             if( a != 0 )
                 iGoodWidth = MAX(iGoodWidth,x);
         }
