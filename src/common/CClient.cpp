@@ -1085,7 +1085,7 @@ const float fDownloadRetryTimeout = 5.0;	// 5 seconds
 
 void CClient::processFileRequests()
 {
-	if( ! getHostBeta4() || iNetStatus != NET_CONNECTED )
+	if( ! getHostBeta4() || iNetStatus != NET_CONNECTED || ! tLXOptions->bAllowFileDownload )
 		return;
 	
 	//printf("CClient::processFileRequests(): state %i\n", getFileDownloaderInGame()->getState() );

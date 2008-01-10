@@ -91,8 +91,9 @@ bool GameOptions::Init() {
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
 		( tLXOptions->bSendDirtUpdate, "Advanced.SendDirtUpdate", false )
-		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", true )
+		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", false )
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 40 )
+		( tLXOptions->bShowUnstableFeatures, "Advanced.ShowUnstableFeatures", false )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )

@@ -80,7 +80,8 @@ enum {
 	og_UseNumericKeysToSwitchWeapons,
 	og_AntilagMovementPrediction,
 	og_SendDirtUpdate,
-	og_AllowFileDownload
+	og_AllowFileDownload,
+	og_ShowUnstableFeatures
 };
 
 enum {
@@ -373,11 +374,14 @@ bool Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->tGameinfo.bMatchLogging),og_MatchLogging, 280, 390, 17,17);
 
-	cOpt_Game.Add( new CLabel("Server allows file download",tLX->clNormalLabel), Static, 330, 270, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 270, 17,17);
+	if( tLXOptions->bShowUnstableFeatures )
+	{
+		cOpt_Game.Add( new CLabel("Server allows file download",tLX->clNormalLabel), Static, 330, 270, 0,0);
+		cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 270, 17,17);
 
-	cOpt_Game.Add( new CLabel("Server sends destroyed dirt",tLX->clNormalLabel), Static, 330, 300, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->bSendDirtUpdate),og_SendDirtUpdate, 550, 300, 17,17);
+		cOpt_Game.Add( new CLabel("Server sends destroyed dirt",tLX->clNormalLabel), Static, 330, 300, 0,0);
+		cOpt_Game.Add( new CCheckbox(tLXOptions->bSendDirtUpdate),og_SendDirtUpdate, 550, 300, 17,17);
+	};
 
 	cOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 330, 330, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 550, 330, 17,17);
@@ -387,6 +391,9 @@ bool Menu_OptionsInitialize(void)
 
 	cOpt_Game.Add( new CLabel("Use 1-5 keys to switch weapons", tLX->clNormalLabel), Static, 330, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bUseNumericKeysToSwitchWeapons),og_UseNumericKeysToSwitchWeapons, 550, 390, 17,17);
+
+	cOpt_Game.Add( new CLabel("Show unstable or buggy options",tLX->clNormalLabel), Static, 330, 180, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bShowUnstableFeatures),og_ShowUnstableFeatures, 550, 180, 17,17);
 
 	// TODO: Fix cSlider so it's value thing doesn't take up a square of 100x100 pixels.
 
@@ -515,7 +522,7 @@ void Menu_OptionsFrame(void)
 
 		val = cOpt_Game.SendMessage(og_BloodAmount, SLM_GETVALUE, (DWORD)0, 0);
 		//s = (CSlider *)cOpt_Game.getWidget(og_BloodAmount);
-        DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 385,140, 385,140, 70,50);
+        DrawImageAdv(tMenu->bmpScreen, tMenu->bmpBuffer, 385,140, 385,140, 70,40);
 		tLX->cFont.Draw(tMenu->bmpScreen,385, 148, tLX->clNormalLabel, itoa(val)+"%");
 
 		//val = cOpt_Game.SendMessage(og_AIDifficulty, SLM_GETVALUE, 0, 0);
@@ -626,6 +633,15 @@ void Menu_OptionsFrame(void)
 				case og_AllowFileDownload:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bAllowFileDownload = cOpt_Game.SendMessage(og_AllowFileDownload, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+					
+				case og_ShowUnstableFeatures:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bShowUnstableFeatures = cOpt_Game.SendMessage(og_ShowUnstableFeatures, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					Menu_OptionsShutdown();
+					Menu_OptionsInitialize();
+					OptionsMode = 1;
+					return;
 					break;
 
 			}

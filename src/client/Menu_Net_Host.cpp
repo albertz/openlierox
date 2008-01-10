@@ -117,12 +117,15 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowNickChange,	270,385,17, 17);
 	cHostPly.Add( new CLabel("Server-side Health",			tLX->clNormalLabel),-1,	125, 418,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_ServerSideHealth,	270,415,17, 17);
-	cHostPly.Add( new CLabel("Allow connect during game",			tLX->clNormalLabel),-1,	360, 358,0,  0);
-	cHostPly.Add( new CCheckbox(0),		                    hs_AllowConnectDuringGame,	540, 355, 17, 17);
-	cHostPly.Add( new CLabel("Lives from average %",			tLX->clNormalLabel),-1,	360, 388,0,  0);
-	cHostPly.Add( new CTextbox(),							hs_AllowConnectDuringGameLives, 520,385,40,tLX->cFont.GetHeight());
-	cHostPly.Add( new CLabel("Min lives to connect",			tLX->clNormalLabel),-1,	360, 418,0,  0);
-	cHostPly.Add( new CTextbox(),							hs_AllowConnectDuringGameLivesMin, 520,415,40,tLX->cFont.GetHeight());
+	if( tLXOptions->bShowUnstableFeatures )
+	{
+		cHostPly.Add( new CLabel("Allow connect during game",			tLX->clNormalLabel),-1,	360, 358,0,  0);
+		cHostPly.Add( new CCheckbox(0),		                    hs_AllowConnectDuringGame,	540, 355, 17, 17);
+		cHostPly.Add( new CLabel("Lives from average %",			tLX->clNormalLabel),-1,	360, 388,0,  0);
+		cHostPly.Add( new CTextbox(),							hs_AllowConnectDuringGameLives, 520,385,40,tLX->cFont.GetHeight());
+		cHostPly.Add( new CLabel("Min lives to connect",			tLX->clNormalLabel),-1,	360, 418,0,  0);
+		cHostPly.Add( new CTextbox(),							hs_AllowConnectDuringGameLivesMin, 520,415,40,tLX->cFont.GetHeight());
+	};
 
 	cHostPly.SendMessage(hs_Playing,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 	cHostPly.SendMessage(hs_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
@@ -383,11 +386,14 @@ void Menu_Net_HostPlyFrame(int mouse)
 						tLXOptions->tGameinfo.bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->tGameinfo.bAllowNickChange = cHostPly.SendMessage( hs_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						tLXOptions->tGameinfo.bAllowConnectDuringGame = cHostPly.SendMessage( hs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						cHostPly.SendMessage( hs_AllowConnectDuringGameLives, TXS_GETTEXT, &buf, 0);
-						tLXOptions->tGameinfo.iAllowConnectDuringGameLives = atoi(buf);
-						cHostPly.SendMessage( hs_AllowConnectDuringGameLivesMin, TXS_GETTEXT, &buf, 0);
-						tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin = atoi(buf);
+						if( tLXOptions->bShowUnstableFeatures )
+						{
+							tLXOptions->tGameinfo.bAllowConnectDuringGame = cHostPly.SendMessage( hs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
+							cHostPly.SendMessage( hs_AllowConnectDuringGameLives, TXS_GETTEXT, &buf, 0);
+							tLXOptions->tGameinfo.iAllowConnectDuringGameLives = atoi(buf);
+							cHostPly.SendMessage( hs_AllowConnectDuringGameLivesMin, TXS_GETTEXT, &buf, 0);
+							tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin = atoi(buf);
+						};
 
 						cHostPly.Shutdown();
 
@@ -612,7 +618,8 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Demolition", GMT_DEMOLITION);	// If this item is removed the combobox indexes are screwed up
 	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
-	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
+	if( tLXOptions->bShowUnstableFeatures )
+		cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
 //	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Teams Capture the Flag", GMT_TEAMCTF);
 
 	// Fill in the mod list
