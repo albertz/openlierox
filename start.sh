@@ -21,5 +21,5 @@ get_backtrace() {
 cd share/gamedir
 ulimit -c unlimited
 rm core* 2>/dev/null
-../../bin/openlierox
+../../bin/openlierox "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
 [ -e core* ] && get_backtrace ../../bin/openlierox core* && mv core* ../../
