@@ -80,7 +80,7 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	SDL_EnableKeyRepeat(200,20);
 
 
-    if( !nDisableSound ) {
+    if( !bDisableSound ) {
 	    // Initialize sound
 		//if(!InitSoundSystem(22050, 1, 512)) {
 		if(!InitSoundSystem(44100, 1, 512)) {

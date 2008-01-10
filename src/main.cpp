@@ -54,7 +54,12 @@ CInput		cToggleMediaPlayer;
 CMediaPlayer cMediaPlayer;
 #endif
 
-int         nDisableSound = false;
+bool        bDisableSound = false;
+#ifdef DEDICATED_ONLY
+bool		bDedicated = true;
+#else
+bool		bDedicated = false;
+#endif
 
 keyboard_t	*kb = NULL;
 SDL_Surface	*Screen = NULL;
@@ -338,8 +343,16 @@ void ParseArguments(int argc, char *argv[])
         // -nosound
         // Turns off the sound
         if( stricmp(a, "-nosound") == 0 ) {
-            nDisableSound = true;
+            bDisableSound = true;
             tLXOptions->bSoundOn = false;
+        } else
+
+        // -dedicated
+        // Turns on dedicated mode (no gfx, no sound)
+        if( stricmp(a, "-dedicated") == 0 ) {
+            bDedicated = true;
+			bDisableSound = true;
+            tLXOptions->bSoundOn = false;			
         } else
 
         // -window
@@ -360,6 +373,7 @@ void ParseArguments(int argc, char *argv[])
         	printf("available parameters:\n");
      		printf("   -opengl       OpenLieroX will use OpenGL for drawing\n");   	
      		printf("   -noopengl     Explicitly disable using OpenGL\n");   	
+     		printf("   -dedicated    Dedicated mode\n");   	
      		printf("   -nosound      Disable sound\n");   	
      		printf("   -window       Run in window mode\n");   	
      		printf("   -fullscreen   Run in fullscreen mode\n");
