@@ -57,7 +57,7 @@ sfxgen_t	sfxGeneral;
 // Load a sample
 SoundSample* LoadSample(const std::string& _filename, int maxplaying) { return NULL; }
 
-bool InitSoundSystem(int rate, int channels, int buffers) { return NULL; }
+bool InitSoundSystem(int rate, int channels, int buffers) { return false; }
 bool StartSoundSystem() { return false; }
 bool StopSoundSystem() { return false; }
 bool SetSoundVolume(int vol) { return false; }
@@ -86,6 +86,16 @@ float GetCurrentMusicTime(void) { return 0; }
 void SetMusicVolume(byte vol) {}
 void MusicFinishedHook(void) {}
 void ShutdownMusic() {}
+void PauseMusic(void) {}
+void ResumeMusic(void) {}
+void RewindMusic(void) {}
+void SetMusicPosition(double pos) {}
+bool PlayingMusic(void) { return false; }
+bool PausedMusic(void) { return false; }
+int GetMusicType(SoundMusic *music) { return 0; }
+bool GetSongStopped(void) { return false; }
+bool GetSongFinished(void) { return false; }
+byte GetMusicVolume(void) { return 0; }
 
 #else
 
@@ -447,6 +457,21 @@ void ShutdownMusic(void)
 		SDL_WaitThread(PlayMusThread, NULL);
 	FreeMusic(LoadedMusic);
 }
+
+
+
+void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetMilliSeconds(); bSongStopped = false;}
+void		ResumeMusic(void) {Mix_ResumeMusic();fCurSongStart += GetMilliSeconds()-fTimePaused; fTimePaused = 0; bSongStopped = false;}
+void		RewindMusic(void) {Mix_RewindMusic();fCurSongStart = GetMilliSeconds();fTimePaused = 0;}
+void		SetMusicPosition(double pos)  {Mix_RewindMusic(); Mix_SetMusicPosition(pos); }
+bool		PlayingMusic(void) {return Mix_PlayingMusic() != 0; }
+bool		PausedMusic(void) {return Mix_PausedMusic() != 0; }
+int			GetMusicType(SoundMusic *music = NULL) {if (music) {return Mix_GetMusicType(music->sndMusic);} else {return Mix_GetMusicType(NULL);} }
+bool		GetSongStopped(void) {return bSongStopped; }
+bool		GetSongFinished(void) { bool tmp = bSongFinished; bSongFinished = false; return tmp; }
+byte		GetMusicVolume(void) { return iMusicVolume; }
+
+
 
 #endif
 

@@ -17,14 +17,17 @@
 #ifndef __SOUNDS_H__
 #define __SOUNDS_H__
 
+// TODO: remove this here! i wonder that we didn't get trouble because of this
 typedef unsigned char byte;
 
 #include "CViewport.h"
 #include "CMap.h"
 #include "Timer.h"
 
+#ifndef DEDICATED_ONLY
 // we are using SDL_mixer at the moment
 #include <SDL_mixer.h>
+#endif
 
 #define MUSIC_REPEAT_INFINITE -1
 
@@ -35,18 +38,24 @@ typedef unsigned char byte;
 #define SND_OGG MUS_OGG
 #define SND_MP3 MUS_MP3
 
+// TODO: use DECLARE_INTERN_DATA here to avoid SDL_mixer.h in this file
 // this typedef can be replaced if another sound system is wanted
 // also, all *Sound* functions need to be recoded then
 // for using this, handle with pointers of it
 struct SoundSample {
+#ifndef DEDICATED_ONLY	
 	Mix_Chunk* sample;
+#endif	
 	int maxsimulplays;
 // TODO: and other stuff
 };
 
+// TODO: use DECLARE_INTERN_DATA here to avoid SDL_mixer.h in this file
 // Music
 struct SoundMusic {
+#ifndef DEDICATED_ONLY	
 	Mix_Music *sndMusic;
+#endif
 };
 
 // General sounds
@@ -108,21 +117,21 @@ void			PlayMusicAsync(const std::string& file);
 bool			IsSongLoading();
 void			FreeMusic(SoundMusic *music);
 void			PlayMusic(SoundMusic *music, int number_of_repeats=1);
-inline void		PauseMusic(void) {Mix_PauseMusic(); fTimePaused = GetMilliSeconds(); bSongStopped = false;}
-inline void		ResumeMusic(void) {Mix_ResumeMusic();fCurSongStart += GetMilliSeconds()-fTimePaused; fTimePaused = 0; bSongStopped = false;}
-inline void		RewindMusic(void) {Mix_RewindMusic();fCurSongStart = GetMilliSeconds();fTimePaused = 0;}
-inline void		SetMusicPosition(double pos)  {Mix_RewindMusic(); Mix_SetMusicPosition(pos); }
+void			PauseMusic(void);
+void			ResumeMusic(void);
+void			RewindMusic(void);
+void			SetMusicPosition(double pos);
 void			StopMusic(void);
-inline bool		PlayingMusic(void) {return Mix_PlayingMusic() != 0; }
-inline bool		PausedMusic(void) {return Mix_PausedMusic() != 0; }
-inline int		GetMusicType(SoundMusic *music = NULL) {if (music) {return Mix_GetMusicType(music->sndMusic);} else {return Mix_GetMusicType(NULL);} }
+bool			PlayingMusic(void);
+bool			PausedMusic(void);
+int				GetMusicType(SoundMusic *music = NULL);
 float			GetCurrentMusicTime(void);
-inline bool		GetSongStopped(void) {return bSongStopped; }
-inline bool		GetSongFinished(void) { bool tmp = bSongFinished; bSongFinished = false; return tmp; }
+bool			GetSongStopped(void);
+bool			GetSongFinished(void);
 id3v1_t			GetMP3Info(const std::string& file);
 
 void			SetMusicVolume(byte vol);
-inline byte		GetMusicVolume(void) { return iMusicVolume; }
+byte			GetMusicVolume(void);
 
 void			InitializeMusic(void);
 void			ShutdownMusic(void);
