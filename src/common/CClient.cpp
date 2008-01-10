@@ -1129,7 +1129,7 @@ void CClient::processFileRequests()
 			continue;
 		if( ! IsFileAvailable("skins/" + w->getSkin()) )
 		{
-			getFileDownloaderInGame()->requestFile("skins/" + w->getSkin());
+			getFileDownloaderInGame()->requestFile("skins/" + w->getSkin()); // Small, no need for file info
 			return;
 		};
 	};
@@ -1137,6 +1137,7 @@ void CClient::processFileRequests()
 	if( ! tGameLobby.bHaveMap && tGameLobby.szMapName != "" )
 	{
 		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
+		getFileDownloaderInGame()->requestFileInfo("levels/" + tGameLobby.szMapName); // To get valid progressbar
 		return;
 	};
 

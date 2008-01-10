@@ -1592,11 +1592,20 @@ void CClient::ParseSendFile(CBytestream *bs)
 			! tGameLobby.bHaveMod &&
 			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
 		{
-			// Got filenames list of mod dir
-			for( uint f=0; f<cFileDownloaderInGame.getFileInfo().size(); f++ )
+			// Got filenames list of mod dir - push "script.lgs" to the end of list to download all other data before
+			uint f;
+			for( f=0; f<cFileDownloaderInGame.getFileInfo().size(); f++ )
 			{
 				if( cFileDownloaderInGame.getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
-					! IsFileAvailable( cFileDownloaderInGame.getFileInfo()[f].filename ) )
+					! IsFileAvailable( cFileDownloaderInGame.getFileInfo()[f].filename ) &&
+					stringcaserfind( cFileDownloaderInGame.getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
+					cFileDownloaderInGame.requestFile( cFileDownloaderInGame.getFileInfo()[f].filename );
+			};
+			for( f=0; f<cFileDownloaderInGame.getFileInfo().size(); f++ )
+			{
+				if( cFileDownloaderInGame.getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
+					! IsFileAvailable( cFileDownloaderInGame.getFileInfo()[f].filename ) &&
+					stringcaserfind( cFileDownloaderInGame.getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
 					cFileDownloaderInGame.requestFile( cFileDownloaderInGame.getFileInfo()[f].filename );
 			};
 		};
@@ -1608,6 +1617,10 @@ void CClient::ParseSendFile(CBytestream *bs)
 		// Speed up download - server will send next packet when receives ping, or once in 0.5 seconds
 		cNetChan.getMessageBS()->writeByte(C2S_SENDFILE);
 		getFileDownloaderInGame()->sendPing( cNetChan.getMessageBS() );
+	}
+	else
+	{
+		fLastFileRequestPacketReceived = tLX->fCurTime - 10.0;	// Set timeout in past so we'll check out other data immediately
 	};
 };
 

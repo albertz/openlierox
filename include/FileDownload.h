@@ -23,7 +23,7 @@
 #include <list>
 #include <vector>
 #include <string>
-#include <set>
+#include <map>
 #include <stdio.h>  // for FILE
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
@@ -168,7 +168,7 @@ public:
 	bool		errorOccured() const { return (tState == S_ERROR); };
 	State_t		getState() const { return tState; };
 
-	void		setFileToSend( const std::string & name, const std::string & data );
+	void		setDataToSend( const std::string & name, const std::string & data, bool noCompress = false );
 	void		setFileToSend( const std::string & path );
 
 	void		reset();
@@ -193,6 +193,11 @@ public:
 	void		requestFileInfo( const std::string & path ); 
 	// File statistics from requestFileInfo() is saved in array returned by this func
 	const std::vector< StatInfo > & getFileInfo() const { return cStatInfo; };
+	
+	// Additional functionality to show download progress - inexact, server may send any file and we should accept it,
+	// yet current implementation will send only files we will request
+	std::string getFileDownloading() const;
+	float getFileDownloadingProgress() const;
 
 private:
 	void			processFileRequests();
@@ -205,10 +210,14 @@ private:
 	
 	bool			bAllowFileRequest;
 	
-	std::set< std::string > tRequestedFiles;
+	std::vector< std::string > tRequestedFiles;
 	
 	std::vector< StatInfo > cStatInfo;
 	
+	// For progressbar and download percentage
+	std::map< std::string, StatInfo > cStatInfoCache;	// TODO: Never cleared
+	std::string sLastFileRequested;
+
 };
 
 #endif // __FILEDOWNLOAD_H__

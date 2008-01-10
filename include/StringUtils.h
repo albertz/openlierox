@@ -134,7 +134,7 @@ size_t			stringcasefind(const std::string& text, const std::string& search_for);
 size_t			stringcaserfind(const std::string& text, const std::string& search_for);
 std::string		StripHtmlTags( const std::string & src );	// Also removes all "\r" and spaces at line beginning
 std::string		GetNextWord(std::string::const_iterator it, const std::string& str);
-bool 			Compress( const std::string & in, std::string * out );	// Compress given string using zlib
+bool 			Compress( const std::string & in, std::string * out, bool noCompression = false );	// Compress given string using zlib, noCompression will just add zlib header and checksum
 bool 			Decompress( const std::string & in, std::string * out );	// Decompress, returns false if checksum fails
 uint			StringChecksum( const std::string & data );
 bool			FileChecksum( const std::string & path, uint * _checksum, uint * _filesize );

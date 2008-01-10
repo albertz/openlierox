@@ -464,7 +464,7 @@ void CFileDownloaderInGame::reset()
 	cStatInfo.clear();
 };
 
-void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::string & data )
+void CFileDownloaderInGame::setDataToSend( const std::string & name, const std::string & data, bool noCompress )
 {
 	tState = S_SEND;
 	iPos = 0;
@@ -472,7 +472,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & name, const std::
 	std::string data1 = sFilename;
 	data1.append( 1, '\0' );
 	data1.append(data);
-	Compress( data1, &sData );
+	Compress( data1, &sData, noCompress );
 	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %u compressed %u\n", sFilename.c_str(), data.size(), sData.size() );
 };
 
@@ -493,8 +493,14 @@ void CFileDownloaderInGame::setFileToSend( const std::string & path )
 		data.append( buf, readed );
 	};
 	fclose( ff );
-
-	setFileToSend( path, data );
+	
+	bool noCompress = false;
+	if( stringcaserfind( path, ".png" ) != std::string::npos ||
+		stringcaserfind( path, ".lxl" ) != std::string::npos || // LieroX levels are in .png format
+		stringcaserfind( path, ".ogg" ) != std::string::npos ||
+		stringcaserfind( path, ".mp3" ) != std::string::npos )
+		noCompress = true;
+	setDataToSend( path, data, noCompress );
 };
 
 enum { MAX_DATA_CHUNK = 254 };	// UCHAR_MAX - 1, client and server should have this equal
@@ -584,9 +590,15 @@ void CFileDownloaderInGame::allowFileRequest( bool allow )
 
 void CFileDownloaderInGame::requestFile( const std::string & path, bool retryIfFail )
 {
-	setFileToSend( "GET:", path );
+	setDataToSend( "GET:", path, false );
 	if( retryIfFail )
-		tRequestedFiles.insert( path );
+	{ 
+		if( tRequestedFiles.empty() )
+			tRequestedFiles.push_back( path );
+		else if( tRequestedFiles.back() != path )
+			tRequestedFiles.push_back( path );
+	};
+	sLastFileRequested = path;
 };
 
 bool CFileDownloaderInGame::requestFilesPending()
@@ -596,14 +608,15 @@ bool CFileDownloaderInGame::requestFilesPending()
 	if( getState() != S_FINISHED )
 		return true;	// Receiving or sending in progress
 	
-	requestFile( * tRequestedFiles.begin(), false ); // May modify tRequestedFiles array
+	requestFile( tRequestedFiles.back(), false ); // May modify tRequestedFiles array
 	return true;
 };
 
 void CFileDownloaderInGame::requestFileInfo( const std::string & path )
 {
 	cStatInfo.clear();
-	setFileToSend( "STAT:", path );
+	setDataToSend( "STAT:", path, false );
+	sLastFileRequested = path;
 };
 
 std::string getStatPacketOneFile( const std::string & path );
@@ -612,8 +625,15 @@ std::string getStatPacketRecursive( const std::string & path );
 void CFileDownloaderInGame::processFileRequests()
 {
 	// Process received files
-	if( tRequestedFiles.find( getFilename() ) != tRequestedFiles.end() )
-		tRequestedFiles.erase( getFilename() );
+	for( std::vector< std::string > :: iterator it = tRequestedFiles.begin(); 
+			it != tRequestedFiles.end(); it ++ )
+	{
+		if( * it == getFilename() )
+		{
+			tRequestedFiles.erase( it );
+			break;
+		};
+	};
 	
 	// Process file sending requests
 	if( ! bAllowFileRequest )
@@ -651,7 +671,7 @@ void CFileDownloaderInGame::processFileRequests()
 			printf( "CFileDownloaderInGame::processFileRequests(): invalid filename \"%s\"\n", getData().c_str() );
 			return;
 		};
-		setFileToSend( "STAT_ACK:", getStatPacketRecursive( getData() ) );
+		setDataToSend( "STAT_ACK:", getStatPacketRecursive( getData() ) );
 		return;
 	};
 	if( getFilename() == "STAT_ACK:" )
@@ -678,6 +698,10 @@ void CFileDownloaderInGame::processFileRequests()
 			EndianSwap( compressedSize );
 			cStatInfo.push_back( StatInfo( filename, size, compressedSize, checksum ) );
 			f = f1;
+		};
+		for( uint ff = 0; ff < cStatInfo.size(); ff++ )
+		{
+			cStatInfoCache[ cStatInfo[ff].filename ] = cStatInfo[ff];
 		};
 	};
 };
@@ -769,14 +793,16 @@ class StatDirList
 
 std::string getStatPacketOneFile( const std::string & path )
 {
-	uint checksum, size;
+	uint checksum, size, compressedSize;
 	if( ! FileChecksum( path, &checksum, &size ) )
 		return "";
+	compressedSize = size + path.size() + 24; // Most files from disk are compressed already, so guessing size
 	EndianSwap( checksum );
 	EndianSwap( size );
+	EndianSwap( compressedSize );
 	return path + '\0' + 
 			std::string( (const char *) (&size), 4 ) + // Real file size
-			std::string( (const char *) (&size), 4 ) + // Zipped file size (used for download progressbar, so inexact for now)
+			std::string( (const char *) (&compressedSize), 4 ) + // Zipped file size (used for download progressbar, so inexact for now)
 			std::string( (const char *) (&checksum), 4 );	// Checksum
 };
 
@@ -802,4 +828,27 @@ std::string getStatPacketRecursive( const std::string & path )
 			return data;
 		};
 		return "";
+};
+
+std::string CFileDownloaderInGame::getFileDownloading() const
+{
+	if( getState() != S_RECEIVE )
+		return "";
+	if( sLastFileRequested == "STAT:" )
+		return "directory info";
+	return sLastFileRequested;
+};
+
+float CFileDownloaderInGame::getFileDownloadingProgress() const
+{
+	if( getState() != S_RECEIVE )
+		return 0.0;
+	if( cStatInfoCache.find(sLastFileRequested) == cStatInfoCache.end() )
+		return 0.0;
+	float ret = float(sData.size()) / float(cStatInfoCache.find(sLastFileRequested)->second.compressedSize);
+	if( ret < 0.0 ) 
+		ret = 0.0;
+	if( ret > 1.0 ) 
+		ret = 1.0;
+	return ret;
 };

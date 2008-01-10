@@ -540,7 +540,7 @@ std::string GetNextWord(std::string::const_iterator it, const std::string& str)
 	return res;
 }
 
-bool Compress( const std::string & in, std::string * out )
+bool Compress( const std::string & in, std::string * out, bool noCompression )
 {
 	*out = ""; //out->clear();
 	z_stream strm;
@@ -550,9 +550,8 @@ bool Compress( const std::string & in, std::string * out )
 	strm.zfree = Z_NULL;
 	strm.opaque = Z_NULL;
 	int compression = Z_BEST_COMPRESSION;
-	if( in.size() > 4 )
-		if( in.substr(0,4) == "\x89" "PNG" )
-			compression = Z_NO_COMPRESSION;	// PNG file - do not try to compress it
+	if( noCompression )
+		compression = Z_NO_COMPRESSION;
 	ret = deflateInit(&strm, compression);
     if (ret != Z_OK)
 		return false;

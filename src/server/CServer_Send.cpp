@@ -407,7 +407,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 	{
 		CBytestream bs;
 		cMap->SendDirtUpdate(&bs);
-		cl->getFileDownloaderInGame()->setFileToSend( "dirt", bs.readData() );
+		cl->getFileDownloaderInGame()->setDataToSend( "dirt", bs.readData() );
 	};
 	
 	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
@@ -429,11 +429,11 @@ void GameServer::SendFiles()
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) 
 	{
 		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND &&
-			cl->getLastFileRequestPacketReceived() + 0.5 < tLX->fCurTime ) // Spam packets once in halfsecond
+			cl->getLastFileRequestPacketReceived() + 0.2 <= tLX->fCurTime ) // Spam 5 packets in second
 		{
 			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
 			CBytestream bs;
-			for( int f=0; f < cl->getNetSpeed() + 1 && f < 3; f++ ) // Packets are 256 bytes - 4 packets = 1KB
+			for( int f=0; f < cl->getNetSpeed() + 2 && f < 4; f++ ) // Packets are 256 bytes - 4 packets = 1KB
 			{
 				if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
 					break;
