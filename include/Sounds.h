@@ -94,6 +94,7 @@ int		LoadSounds(void);
 void	ShutdownSounds(void);
 void	StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me);
 
+// TODO: don't make them global
 extern float fCurSongStart;
 extern float fTimePaused;
 extern bool	 bSongStopped;
@@ -102,7 +103,6 @@ extern bool	 bSongFinished;
 
 
 // Music
-void			MusicFinishedHook(void);
 SoundMusic		*LoadMusic(const std::string& file);
 void			PlayMusicAsync(const std::string& file);
 bool			IsSongLoading();

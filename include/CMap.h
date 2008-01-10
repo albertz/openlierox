@@ -24,8 +24,8 @@
 #include "ReadWriteLock.h"
 #include "types.h"
 #include "CViewport.h"
-#include "GfxPrimitives.h"
 #include "Cache.h"
+#include "GfxPrimitives.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"

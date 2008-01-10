@@ -11,11 +11,12 @@
 #ifndef __CGUISKIN_H__
 #define __CGUISKIN_H__
 
-#include "GfxPrimitives.h"
 #include <string>
 #include <map>
 #include <vector>
 #include <list>
+
+#include "Color.h"
 
 class CWidget;
 class CGuiLayoutBase;

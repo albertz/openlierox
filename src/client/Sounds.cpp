@@ -25,6 +25,70 @@
 #include "MathLib.h"
 
 
+
+///////////////////
+// Load the sounds
+int LoadSounds(void)
+{
+	sfxGame.smpNinja = LoadSample("data/sounds/throw.wav",4);
+	sfxGame.smpPickup = LoadSample("data/sounds/pickup.wav",2);
+	sfxGame.smpBump = LoadSample("data/sounds/bump.wav", 2);
+	sfxGame.smpDeath[0] = LoadSample("data/sounds/death1.wav", 2);
+	sfxGame.smpDeath[1] = LoadSample("data/sounds/death2.wav", 2);
+	sfxGame.smpDeath[2] = LoadSample("data/sounds/death3.wav", 2);
+
+	//sfxGeneral.smpChat = LoadSample("data/sounds/chat.wav",2);
+	sfxGeneral.smpClick = LoadSample("data/sounds/click.wav",2);
+
+
+	return true;
+}
+
+
+sfxgame_t	sfxGame;
+sfxgen_t	sfxGeneral;
+
+
+
+#ifdef DEDICATED_ONLY
+
+
+///////////////////
+// Load a sample
+SoundSample* LoadSample(const std::string& _filename, int maxplaying) { return NULL; }
+
+bool InitSoundSystem(int rate, int channels, int buffers) { return NULL; }
+bool StartSoundSystem() { return false; }
+bool StopSoundSystem() { return false; }
+bool SetSoundVolume(int vol) { return false; }
+int GetSoundVolume(void) { return 0; }
+bool QuitSoundSystem() { return false; }
+SoundSample* LoadSoundSample(const std::string& filename, int maxsimulplays) { return NULL; }
+bool FreeSoundSample(SoundSample* sample) { return false; }
+bool PlaySoundSample(SoundSample* sample) { return false; }
+void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me) {}
+
+// TODO: remove these when they are not global anymore
+float fCurSongStart = 0;
+float fTimePaused = 0;
+bool  bSongStopped = false;
+byte  iMusicVolume = 50;
+bool  bSongFinished;
+
+bool IsSongLoading() { return false; }
+void InitializeMusic(void) {}
+void PlayMusicAsync(const std::string& file) {}
+SoundMusic *LoadMusic(const std::string& file) { return NULL; }
+void FreeMusic(SoundMusic *music) {}
+void PlayMusic(SoundMusic *music, int number_of_repeats) {}
+void StopMusic(void) {}
+float GetCurrentMusicTime(void) { return 0; }
+void SetMusicVolume(byte vol) {}
+void MusicFinishedHook(void) {}
+void ShutdownMusic() {}
+
+#else
+
 ///////////////////
 // Load a sample
 SoundSample* LoadSample(const std::string& _filename, int maxplaying)
@@ -181,24 +245,6 @@ bool PlaySoundSample(SoundSample* sample) {
 
 
 
-///////////////////
-// Load the sounds
-int LoadSounds(void)
-{
-	sfxGame.smpNinja = LoadSample("data/sounds/throw.wav",4);
-	sfxGame.smpPickup = LoadSample("data/sounds/pickup.wav",2);
-	sfxGame.smpBump = LoadSample("data/sounds/bump.wav", 2);
-	sfxGame.smpDeath[0] = LoadSample("data/sounds/death1.wav", 2);
-	sfxGame.smpDeath[1] = LoadSample("data/sounds/death2.wav", 2);
-	sfxGame.smpDeath[2] = LoadSample("data/sounds/death3.wav", 2);
-
-	//sfxGeneral.smpChat = LoadSample("data/sounds/chat.wav",2);
-	sfxGeneral.smpClick = LoadSample("data/sounds/click.wav",2);
-
-
-	return true;
-}
-
 
 ///////////////////
 // Play a sound in the viewport
@@ -258,13 +304,13 @@ byte  iMusicVolume = 50;
 bool  bSongFinished;
 
 // Loading thread
-SDL_Thread *PlayMusThread = NULL;
-bool		breakPlayThread = false;
-bool		LoadingSong = false;
-std::string SongName = "";
-SoundMusic *LoadedMusic;
+static SDL_Thread *PlayMusThread = NULL;
+static bool		breakPlayThread = false;
+static bool		LoadingSong = false;
+static std::string SongName = "";
+static SoundMusic *LoadedMusic;
 
-int PlayThreadMain(void *n)
+static int PlayThreadMain(void *n)
 {
 	while (!breakPlayThread)  {
 		if (!LoadingSong)
@@ -393,6 +439,18 @@ void MusicFinishedHook(void)
 	bSongFinished = !GetSongStopped();
 }
 
+void ShutdownMusic(void)
+{
+	breakPlayThread = true;
+	Mix_HookMusicFinished(NULL);
+	if (PlayMusThread)
+		SDL_WaitThread(PlayMusThread, NULL);
+	FreeMusic(LoadedMusic);
+}
+
+#endif
+
+
 id3v1_t GetMP3Info(const std::string& file)
 {
 	id3v1_t info;
@@ -435,13 +493,3 @@ id3v1_t GetMP3Info(const std::string& file)
 
 	return info;
 }
-
-void ShutdownMusic(void)
-{
-	breakPlayThread = true;
-	Mix_HookMusicFinished(NULL);
-	if (PlayMusThread)
-		SDL_WaitThread(PlayMusThread, NULL);
-	FreeMusic(LoadedMusic);
-}
-

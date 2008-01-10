@@ -70,9 +70,9 @@ ADD_DEFINITIONS("-pthread")
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
-TARGET_LINK_LIBRARIES(openlierox SDL pthread z xml2)
+TARGET_LINK_LIBRARIES(openlierox SDL SDL_image pthread z xml2)
 IF (NOT DEDICATED_ONLY)
-	TARGET_LINK_LIBRARIES(openlierox SDL_image SDL_mixer gd)
+	TARGET_LINK_LIBRARIES(openlierox SDL_mixer gd)
 ENDIF (NOT DEDICATED_ONLY)
 IF (HAWKNL_BUILTIN)
 	# TODO: this HAWKNL_BUILTIN support here is incomplete yet!

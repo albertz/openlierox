@@ -1208,9 +1208,10 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 	return Image;
 }
 
+#ifndef DEDICATED_ONLY 
 ///////////////////////
 // Converts the SDL_surface to gdImagePtr
-gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
+static gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 	gdImagePtr gd_image = gdImageCreateTrueColor(src->w,src->h);
 	if(!gd_image)
 		return NULL;
@@ -1234,6 +1235,7 @@ gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 	
 	return gd_image;
 }
+#endif
 
 ///////////////////////
 // Saves the surface into the specified file with the specified format
@@ -1264,7 +1266,11 @@ bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, co
 		return true;
 	}
 
-
+	#ifdef DEDICATED_ONLY
+	printf("WARNING: SaveSurface: cannot use something else than BMP in dedicated-only-mode\n");
+	return false;
+	#else
+	
 	//
 	// JPG, PNG, GIF
 	//
@@ -1322,4 +1328,5 @@ bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, co
 
 	// Close the file and quit
 	return fclose(out) == 0;
+	#endif
 }
