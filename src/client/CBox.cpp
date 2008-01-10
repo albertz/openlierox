@@ -30,7 +30,7 @@ void CBox::PreDraw(void)
 
 	// Create the buffer, if needed
 	if (!bmpBuffer)  {
-		SDL_PixelFormat *fmt = SDL_GetVideoSurface()->format;
+		SDL_PixelFormat *fmt = getMainPixelFormat();
 		if (fmt)
 			bmpBuffer = gfxCreateSurface(iWidth, iHeight);
 		else

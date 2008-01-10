@@ -1266,7 +1266,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 	uchar *px;
 	Uint8 *p2;
 
-	short screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
+	short screenbpp = getMainPixelFormat()->BytesPerPixel;
 
 	// Calculate clipping
 	int clip_y = MAX(sy, 0);
@@ -1382,7 +1382,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 	int green_clip_y = -MIN(sy,(int)0);
 	int green_clip_x = -MIN(sx,(int)0);
 
-	short screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
+	short screenbpp = getMainPixelFormat()->BytesPerPixel;
 
 	lockFlags();
 
@@ -1462,7 +1462,7 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	Uint8 *pixel,*src;
 
-	int screenbpp = SDL_GetVideoSurface()->format->BytesPerPixel;
+	int screenbpp = getMainPixelFormat()->BytesPerPixel;
 
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);

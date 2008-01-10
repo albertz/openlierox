@@ -213,7 +213,7 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
-	SDL_PixelFormat* fmt = SDL_GetVideoSurface()->format;
+	SDL_PixelFormat* fmt = getMainPixelFormat();
 
 	SDL_Surface* result = SDL_CreateRGBSurface(
 			iSurfaceFormat, width, height, 

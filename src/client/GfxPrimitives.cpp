@@ -1181,7 +1181,7 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 
 	if(SDL_GetVideoSurface()) {
 		// Convert the image to the screen's colour depth
-		SDL_PixelFormat fmt = *(SDL_GetVideoSurface()->format);
+		SDL_PixelFormat fmt = *(getMainPixelFormat());
 		if (withalpha)  {
 			Image = gfxCreateSurfaceAlpha(img->w, img->h);
 			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
