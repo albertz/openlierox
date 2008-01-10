@@ -117,14 +117,21 @@ void CFont::Parse(void) {
 		}
 
 		// Ignore any free pixel columns *after* the character
-		tmp_x = x - 1; // -1 : blue line
-		if (CurChar != ' ') {
-			while (IsColumnFree(tmp_x)) {
-				cur_w--;
-				tmp_x--;
+		if(cur_w > 0) {
+			tmp_x = x - 1; // -1 : blue line
+			if (CurChar != ' ') {
+				while (IsColumnFree(tmp_x)) {
+					cur_w--;
+					tmp_x--;
+					if(cur_w == 0) {
+						printf("WARNING: cur_w becomes 0\n");
+						break;
+					}
+				}
 			}
-		}
-
+		} else
+			printf("WARNING: cur_w is <= 0\n");
+		
 		// Blue pixel means end of the character
 		FontWidth.push_back(cur_w);
 		CharacterOffset.push_back(tmp_x - cur_w + 1);
