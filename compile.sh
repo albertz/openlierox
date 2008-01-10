@@ -133,7 +133,7 @@ done
 echo ">>> compiling now, this could take some time ..."
 if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$HAWKNL_GCC_PARAM \
-	-I include \
+	-I include -I pstreams \
 	$INCLUDE_STRING \
 	$LIB_STRING \
 	$($sdlconfig --cflags) \

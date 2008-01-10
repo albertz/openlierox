@@ -9,8 +9,11 @@ SET(STLPORT Yes)
 
 PROJECT(openlierox)
 
+# main includes
+INCLUDE_DIRECTORIES(include pstreams)
+
 # TODO: don't hardcode libxml2 path
-INCLUDE_DIRECTORIES(include /usr/include/libxml2)
+INCLUDE_DIRECTORIES(/usr/include/libxml2)
 IF (HAWKNL_BUILTIN)
 	INCLUDE_DIRECTORIES(hawknl/include)
 ENDIF (HAWKNL_BUILTIN)
