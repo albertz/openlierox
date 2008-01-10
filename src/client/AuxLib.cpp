@@ -122,6 +122,11 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 // Set the video mode
 int SetVideoMode(void)
 {
+	if(bDedicated) {
+		printf("SetVideoMode: dedicated mode, ignoring\n");
+		return true; // ignore this case
+	}
+	
 	// TODO: Use DOUBLEBUF and hardware surfaces
 #ifdef WIN32
 	bool HardwareAcceleration = false;
