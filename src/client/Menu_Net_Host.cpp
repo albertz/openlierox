@@ -224,20 +224,6 @@ void Menu_Net_HostPlyFrame(int mouse)
 		ev = cHostPly.Process();
 	cHostPly.Draw( tMenu->bmpScreen );
 
-	// If no event at all, sleep a bit
-	// TODO: remove this here, this is very hacky
-	// TODO: In player selection screen this is useless and prevents mouse cursor from showing up, commented out - you probably wanted to add this to Menu_Net_HostLobbyFrame()
-	/*
-	if (!ev && !cClient->getChannel()->gotNewReliablePacket())  {
-		if (tLXOptions->nMaxFPS != 0)  {
-			int time_to_sleep = 1000/tLXOptions->nMaxFPS - (int)(tLX->fRealDeltaTime * 1000);
-			if (time_to_sleep > 0)
-				SDL_Delay(time_to_sleep);
-		}
-		return;
-	}
-	*/
-
 	// Process any events
 	if(ev) {
 

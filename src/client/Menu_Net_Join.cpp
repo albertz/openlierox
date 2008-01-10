@@ -696,15 +696,4 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);
-
-	// If no event at all, sleep a bit
-	// TODO: remove this here, this is very hacky
-	if (!ev && !cClient->getChannel()->gotNewReliablePacket())  {
-		if (tLXOptions->nMaxFPS != 0)  { 
-			int time_to_sleep = 1000/tLXOptions->nMaxFPS - (int)(tLX->fRealDeltaTime * 1000);
-			if (time_to_sleep > 0)
-				SDL_Delay(time_to_sleep);
-		}
-		return;
-	}
 }

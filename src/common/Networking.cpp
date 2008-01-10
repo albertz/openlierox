@@ -26,6 +26,7 @@
 #include "Utils.h"
 #include "StringUtils.h"
 #include "SmartPointer.h"
+#include "Timer.h"
 
 
 #ifdef _MSC_VER
@@ -121,32 +122,28 @@ static int SdlNetEventThreadMain( void * param )
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT_NET_ACTIVITY;
 	ev.user.code = 0;
-	ev.user.data1 = NULL;
+	ev.user.data1 = (void*) *(uint*)param; // save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS)
 	ev.user.data2 = NULL;
 
-	bool previous_was_event = false;
 	float max_frame_time = (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0;
+	float lastTime = GetMilliSeconds();
 	while( ! SdlNetEventThreadExit )
 	{
-		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, &sock_out, 1, 1000 ) > 0 )	// Wait 1 second
+		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, &sock_out, 1, 100 ) > 0 )	// Wait 100 milisecond
 		{
-			//printf("SdlNetEventThreadMain(): SDL_PushEvent()\n");
-			if(sock_out >= 0)
+			if(sock_out >= 0) {
+				ev.user.data2 = (void*) sock_out; // save socket-nr to forward it later to the specific event-handler for this socket
 				SDL_PushEvent( &ev );
+			}
 			else
 				printf("WARNING: net-event-system: invalid socket\n");
-			if (previous_was_event)  {
-				if (tLX->fRealDeltaTime > max_frame_time)
-					SDL_Delay((int)(tLX->fRealDeltaTime * 1100));
-				else
-					SDL_Delay((int)(max_frame_time * 1000));
-			}
-
-			previous_was_event = true;
-		} else {
-			SDL_Delay((int)(max_frame_time * 1000));
-			previous_was_event = false;
 		}
+					
+		float curTime = GetMilliSeconds();
+		if(curTime - lastTime < max_frame_time) {
+			SDL_Delay( (int)( ( max_frame_time - curTime + lastTime ) * 1000 ) );
+		}
+		lastTime = curTime;
 	};
 	
 	delete (uint*)param;
