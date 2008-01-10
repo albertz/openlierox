@@ -286,6 +286,8 @@ void Menu_SetSkipStart(int s)
 }
 
 void Menu_Frame() {
+	if(bDedicated) return; // TODO: use PStreams + a script here for control
+	
 	Menu_RedrawMouse(false);
 
 #ifdef WITH_MEDIAPLAYER
