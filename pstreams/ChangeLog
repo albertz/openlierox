@@ -1,0 +1,1182 @@
+2005-06-11 11:06  redi
+
+	* mainpage.html: Fix typo.
+
+2005-06-11 10:59  redi
+
+	* README: Release notes for 0.5.2.
+
+2005-06-11 10:45  redi
+
+	* mainpage.html: Add note about performance.
+
+2005-06-11 10:38  redi
+
+	* Makefile: Update version and rename "packages" target to more
+	  conventional "dist".
+
+2005-06-11 10:36  redi
+
+	* mainpage.html: Update version number and use KBD.man_page style.
+
+2005-06-11 10:25  redi
+
+	* pstream.h: (pstreambuf::showmanyc()):  New function to make
+	  streambuf::in_avail() work when FIONREAD supported by ioctl().
+
+2005-06-11 10:20  redi
+
+	* test_pstreams.cc: Conditionally sleep depending on platform.
+
+2005-06-11 10:18  redi
+
+	* test_pstreams.cc: Add test for streambuf::in_avail().
+
+2005-06-11 10:17  redi
+
+	* Makefile: Use LDFLAGS when linking so it can be overridden on
+	  command line.
+
+2005-04-08 22:34  redi
+
+	* pstream.h: Use _popen() and _pclose() for win32 support. Only
+	  works with console apps.
+
+2005-04-07 10:30  francisandre
+
+	* pstream.h: update error_ in case of process spawn failure
+
+2005-04-06 17:11  francisandre
+
+	* pstream.h: Add include <pstreams/config.h>
+
+2005-04-06 17:10  francisandre
+
+	* config.h: Handle various OS/Plateforms/Compiler dependencies
+
+2005-04-06 16:36  francisandre
+
+	* .cvsignore: Add Debug & Release MSVC directories
+
+2005-04-06 16:32  francisandre
+
+	* pstream.h: Remove addArgument since there are now passed with the
+	  Process constructor
+
+2005-03-16 02:12  redi
+
+	* pstream.h: (pstreambuf::write()): Take pointer to const data.
+
+2004-12-09 21:15  redi
+
+	* test_pstreams.cc: Workarounds to make tests pass on Darwin (don't
+	  assume next fd is 3).
+
+2004-12-09 20:57  redi
+
+	* test_pstreams.cc: Workarounds to make tests pass on Solaris.
+
+2004-10-21 01:17  redi
+
+	* pstream.h: Doxygen comment corrections and formatting fixes.
+
+2004-10-21 00:43  redi
+
+	* Makefile: Added install target and INSTALL_PREFIX variable.
+
+2004-10-21 00:36  redi
+
+	* pstream.h: (pstreambuf::open): Use close-on-exec pipe to detect
+	  execvp() failure.
+
+2004-10-20 15:36  redi
+
+	* pstream.h: (close_fd_array): Use template argument deduction to
+	  find array length.  (close_fd): New helper to close single file
+	  descriptors.
+
+2004-10-20 01:42  redi
+
+	* test_pstreams.cc: Add tests for is_open() on bad commands.
+
+2004-10-18 10:49  redi
+
+	* pstream.h: Use constant for array length. Formatting fixes.
+
+2004-10-17 17:12  redi
+
+	* README: Fix URL of FAQ.
+
+2004-10-17 17:07  redi
+
+	* Makefile, README: Don't generate ChangeLog if no CVS/Root file.
+	  Note about version numbers.
+
+2004-10-17 16:46  redi
+
+	* Doxyfile: Update with "doxygen -u".
+
+2004-10-17 16:44  redi
+
+	* .cvsignore: Add MANIFEST.
+
+2004-10-17 16:43  redi
+
+	* Makefile, README, mainpage.html, pstream.h, test_pstreams.cc:
+	  Version to 0.5.0
+
+2004-10-17 16:36  redi
+
+	* Doxyfile: Add INLINE_INHERITED_MEMB.
+
+2004-10-03 06:01  redi
+
+	* pstream.h: Whitespace change to comments.
+
+2004-10-03 05:56  redi
+
+	* pstream.h: Tidy up docs, be more consistent and remove
+	  duplication.
+
+2004-10-03 05:15  redi
+
+	* pstream.h: Cast execlp() sentinel to avoid problems where
+	  sizeof(int) != sizeof(void*).  Use NULL instead of 0 where null
+	  pointer intended.
+
+2004-10-01 20:00  redi
+
+	* pstream.h: Ensure ipstreams always open for reading and opstreams
+	  always open for writing.  Inherit from pstreams and use pmode
+	  names not ios_base::openmode names.
+
+2004-10-01 08:02  francisandre
+
+	* pstream.h: Fix win32 include path.
+
+2004-10-01 07:12  francisandre
+
+	* pstream.h: replace autosense.h by REDI_OS_* macro remove usage of
+	  Program class clean
+
+2004-09-30 13:04  francisandre
+
+	* pstream.h: Test for commit authorization
+
+2004-09-29 09:29  redi
+
+	* test_pstreams.cc: POSIX sed doesn't support "-" to mean stdin,
+	  use "cat -" instead.
+
+2004-09-26 20:26  redi
+
+	* test_pstreams.cc: Use argv_type typedef.
+
+2004-09-26 20:25  redi
+
+	* pstream.h: (pstreams::argv_type): New typedef for argument
+	  vector.  (pstreams::fd_type,pstreams::fd_t): Rename fd_t to
+	  fd_type.
+
+2004-09-26 20:12  redi
+
+	* pstream.h: (pbsz,bufsz): Use enums for constants so no storage
+	  needed.
+
+2004-09-25 00:44  redi
+
+	* test_pstreams.cc: Test pstreambuf::exited() behaves sensibly.
+
+2004-09-25 00:38  redi
+
+	* pstream.h: (pstreambuf::exited): Return sensible values, bug
+	  #1014183.
+
+2004-09-25 00:11  redi
+
+	* test_pstreams.cc: Use "-" in tests, "/dev/stdin" may not be
+	  mounted (thanks to Jez Bromley).
+
+2004-09-21 00:41  redi
+
+	* pstream.h: (pstream_common::pmode): Remove unnecessary typedef.
+	  (pstreambuf::fopen): Surround assignments in parentheses.
+
+2004-09-20 23:53  redi
+
+	* test_pstreams.cc: Use /etc/hosts instead of /etc/motd, which may
+	  not exist.
+
+2004-06-11 09:36  redi
+
+	* pstream.h: Improve comment.
+
+2004-06-11 01:08  redi
+
+	* README: Add note about alpha compiler, thanks to Jez Bromley.
+
+2004-06-11 00:57  redi
+
+	* pstream.h: Qualify FILE and size_t with std:: namespace. Include
+	  stdio.h for FILE.
+
+2004-06-10 16:21  redi
+
+	* README, pstream.h: (pstreambuf::read_err()): use
+	  switch_read_buffer() to update stream position.
+	  (PSTREAMS_VERSION()): increment to 0.49, should make new release.
+
+2004-06-10 16:14  redi
+
+	* test_pstreams.cc: New test for read position.
+
+2004-06-10 15:18  redi
+
+	* test_pstreams.cc: Add extra testing that reading from terminated
+	  process fails.
+
+2004-06-10 15:16  redi
+
+	* test_pstreams.cc: Fix a test, add more tests for kill()/wait(),
+	  test for resource leaks.
+
+2004-06-10 15:15  redi
+
+	* pstream.h: (pstreambuf::wait()): Fix resource leaks when wait()
+	  called before close().  (pstreambuf::sync()): Use exited() to
+	  avoid writing to exited process.
+
+2004-06-10 12:32  redi
+
+	* pstream.h: Change formatting of comment.
+
+2004-05-21 14:44  redi
+
+	* test_pstreams.cc: Make some vars const.
+
+2004-05-21 14:30  redi
+
+	* test_pstreams.cc: Fix buggy test that raised SIGPIPE on FreeBSD:
+	  Stream was opened with all 3 pipes but process didn't read from
+	  stdin.  By the time sync() was called the process had exited and
+	  closed its stdin.
+
+2004-05-21 12:52  redi
+
+	* README, mainpage.html: Document that seeks will fail.
+
+2004-05-21 11:52  redi
+
+	* test_pstreams.cc: Clear stream state after reading to EOF.
+	  Include stack trace of FreeBSD failure.  Add tests to check that
+	  seeking fails.
+
+2004-04-30 20:30  redi
+
+	* README: More release notes.
+
+2004-04-30 20:13  redi
+
+	* README: Add release notes for 0.48.
+
+2004-04-30 19:39  redi
+
+	* mainpage.html, pstream.h, pstream_compat.h: Append "_SEEN" to
+	  include guard macros.  Version to 0.48.
+
+2004-04-30 19:38  redi
+
+	* test_minimum.cc: Add some TODOs.
+
+2004-04-30 19:37  redi
+
+	* README: Fix typo.
+
+2004-04-30 19:32  redi
+
+	* pstream.h: Qualify more dependent names, needed for Comeau
+	  compiler.
+
+2004-04-30 12:47  redi
+
+	* pstream.h: Fix punctuation in some comments, no code changes.
+
+2004-04-08 14:52  redi
+
+	* mainpage.html: Update version number.
+
+2004-04-08 14:48  redi
+
+	* pstream.h: (pstreambuf::read(char&)): Remove redundant function
+	  overload.  (pstreambuf::write(char&)): Remove redundant function
+	  overload.  (pstream_common::open()): Make non-virtual and rename
+	  to do_open().  (pstream_common): Make various functions and
+	  typedefs protected not public.  (rpstream): Define all functions
+	  in class body.  (PSTREAMS_VERSION): Increase to 0.47.
+
+2004-03-30 12:51  redi
+
+	* pstream_compat.h, test_compat.cc: Merge with old_popen-branch.
+
+2004-03-30 12:47  redi
+
+	* pstream_compat.h, test_compat.cc: Fix pstream_compat classes to
+	  prevent zombies, by storing original FILE*.  Add test_compat.cc
+	  to test compat files.
+
+2004-03-30 12:18  redi
+
+	* pstream_compat.h: Merge with trunk.
+
+2004-03-30 12:14  redi
+
+	* pstream_compat.h: Merge changes from old_popen-branch.
+
+2004-03-30 08:37  redi
+
+	* pstream_compat.h: Fix name of macro in error message. Add RCS
+	  $Id$ keyword.
+
+2004-03-28 14:27  redi
+
+	* Makefile, mainpage.html, pstream.h, test_minimum.cc: (peof()):
+	  Use dynamic_cast not static_cast.  Version to 0.46.
+
+2004-03-23 13:09  redi
+
+	* mainpage.html: Version to 0.45.
+
+2004-03-23 13:09  redi
+
+	* pstream.h: (pstreambuf::open()): Use ::_exit() instead of
+	  std::exit().	(pstreambuf::fill_buffer()): Use local vars instead
+	  of a cast and a temporary.  (peof()): Add missing inline keyword.
+	  Version to 0.45, reformat some long lines.
+
+2004-03-19 16:36  redi
+
+	* pstream.h: (pstreambuf:empty_buffer()): More type fixes, 64-bit
+	  pointer bigger than int.  Update copyright date, fix comments and
+	  version to 0.44.
+
+2004-03-19 15:56  redi
+
+	* pstream.h: (basic_pstreambuf::xsputn()): Qualify std::memcpy.
+	  (basic_pstreambuf::fill_buffer()): Fix problem with different
+	  sized types.
+
+2004-03-19 15:54  redi
+
+	* Makefile: (clean): New target to remove test binaries.
+
+2004-03-17 14:06  redi
+
+	* test_minimum.cc: Don't use typedef names for explicit
+	  instantiation.
+
+2004-02-04 22:56  redi
+
+	* test_pstreams.cc, pstream.h: (basic_pstreambuf): Default Traits
+	  to std::char_traits<CharT>.
+
+2004-01-25 03:21  redi
+
+	* Makefile: Add -W for extra warnings.
+
+2003-09-04 00:56  redi
+
+	* test_pstreams.cc: Don't use type-def names for explicit
+	  instantiations of templates.	(test_type()): Remove names of
+	  unused parameters.
+
+2003-09-04 00:53  redi
+
+	* pstream.h: Qualify basic_streambuf members with "this->".
+
+2003-07-18 00:45  redi
+
+	* pstream.h: More doxygen.
+
+2003-07-18 00:39  redi
+
+	* pstream.h: Minor doxygen improvements.
+
+2003-07-18 00:23  redi
+
+	* Doxyfile: Remove rpstream.h
+
+2003-04-28 11:57  redi
+
+	* pstream_compat.h: Fix call to base class ctor for bidirectional
+	  pstream.
+
+2003-04-20 14:29  redi
+
+	* Makefile, test_pstreams.cc: Compile test_pstreams with -pedantic
+	  and fix missing const qual.
+
+2003-03-14 16:19  redi
+
+	* pstream.h: Update copyright year.
+
+2003-03-11 02:03  redi
+
+	* pstream.h: Remove TODO comments, both features implemented on
+	  trunk.
+
+2003-03-11 01:59  redi
+
+	* pstream.h: Add required namespace qual. to std::ios_base.
+
+2003-03-11 01:55  redi
+
+	* INSTALL: Remove reference to old rpstream.h file.
+
+2003-03-11 01:28  redi
+
+	* test_pstreams.cc: Fix failing tests, eofbit is set when getline()
+	  reaches EOF.
+
+2003-03-10 18:02  redi
+
+	* test_pstreams.cc: Use more portable arguments to tr, works for
+	  Solaris now.
+
+2003-03-10 01:42  redi
+
+	* test_pstreams.cc, test_minimum.cc: Explicitly instantiate all
+	  template classes in both test programs.
+
+2003-03-10 01:34  redi
+
+	* test_minimum.cc: Don't #include rpstream.h, file removed.
+
+2003-03-10 01:31  redi
+
+	* Makefile, pstream.h, rpstream.h, test_pstreams.cc: Move rpstream
+	  definition into pstream.h and remove rpstream.h
+
+2003-03-10 01:13  redi
+
+	* pstream.h: (streambuf_type): remove unused typedef from concrete
+	  stream classes.
+
+2003-03-10 01:12  redi
+
+	* test_pstreams.cc: Remove TEST_RPSTREAM macro and always test
+	  rpstreams.
+
+2003-03-05 23:52  redi
+
+	* test_pstreams.cc: Fix typo in sed command.
+
+2003-03-05 23:49  redi
+
+	* pstream.h, rpstream.h: Qualify dependent names with "this->" to
+	  delay lookup.
+
+2003-02-27 17:51  redi
+
+	* rpstream.h: (rpstream::rpstream()): Remove redundant call to
+	  std::basic_ios::init().
+
+2003-02-27 17:35  redi
+
+	* pstream.h: (pstream_common::open()): Use "this->" to prevent
+	  lookup finding ::setstate.
+
+2003-02-27 17:29  redi
+
+	* pstream.h, rpstream.h: (pstream_common::buf_): Add using decls to
+	  access buf_ in derived class.  (rpstream::pmode): Make typedef
+	  public, matches other classes.
+
+2002-12-14 21:36  redi
+
+	* test_pstreams.cc: Solaris sh(1) exit status is 1 when command not
+	  found (POSIX says 127).
+
+2002-12-14 21:03  redi
+
+	* test_pstreams.cc: Improve regex so empty lines prefixed with
+	  STDIN.
+
+2002-12-14 20:55  redi
+
+	* test_pstreams.cc: Fix some bugs in the tests due to portability
+	  issues.
+
+2002-12-14 19:19  redi
+
+	* INSTALL, README: Mention that Makefile doesn't work on Solaris
+	  (bug #650887)
+
+2002-12-03 20:23  redi
+
+	* README: Document that I/O is buffered now.
+
+2002-11-13 01:40  redi
+
+	* test_pstreams.cc: Add tests for rpstream.
+
+2002-11-08 02:53  redi
+
+	* mainpage.html: Version 0.42, fully buffered now.
+
+2002-11-08 02:51  redi
+
+	* pstream.h: Version to 0.42, all I/O buffered.  Move static
+	  constants into common base.  Replace take_from_buf_ and char_buf_
+	  with wbuffer_ and two rbuffer_ arrays.  Remove take_from_buf(),
+	  char_buf(), uflow().	Add rbuffer(), switch_read_buffer(),
+	  fill_buffer(), create_buffers(), destroy_buffers().  read() and
+	  write() use multibyte strings now.
+
+2002-11-07 01:20  redi
+
+	* COPYING.LIB, COPYING: Rename COPYING to COPYING.LIB
+
+2002-10-23 00:23  redi
+
+	* pstream.h: Formatting changes: removed some braces, moved some
+	  functions.
+
+2002-10-23 00:10  redi
+
+	* pstream.h: (init_rbuffers()): New function called at construction
+	  to zero arrays.  Fix bad variable name from copy'n'paste error.
+
+2002-10-22 02:30  redi
+
+	* pstream.h, rpstream.h: Rename pstream_base class template to
+	  pstream_common.
+
+2002-10-22 02:03  redi
+
+	* mainpage.html: Increase version number to match CVS HEAD.
+
+2002-10-22 01:59  redi
+
+	* pstream.h: (pstreambuf::readerr(bool)): Use ternary op for
+	  conditional, easier to read.
+
+2002-10-22 01:56  redi
+
+	* pstream.h: Remove verbose "this->" from member function calls.
+
+2002-10-22 01:40  redi
+
+	* rpstream.h: Fix bad variable name from copy'n'paste error.
+
+2002-09-22 02:05  redi
+
+	* pstream.h: Add buffering for writes. Currently disabled.
+
+2002-09-22 00:49  redi
+
+	* README: Notes on new wait(), exited() and status() members.
+
+2002-09-22 00:27  redi
+
+	* test_pstreams.cc: Tidy up calls totest functions, use
+	  check_pass/check_fail where possible.  Remove block of old,
+	  unused code.
+
+2002-09-21 23:02  redi
+
+	* test_pstreams.cc: New wait()-related functions are standard on
+	  pstreambuf now.  Remove unnecessary static_casts.
+
+2002-09-21 22:53  redi
+
+	* pstream.h:
+	  (pstreambuf::wait(),pstreambuf::exited(),pstreambuf::status()):
+	  Use new functions.  Version to 0.40
+
+2002-09-21 22:44  redi
+
+	* rpstream.h: Fix typo in comment.
+
+2002-09-14 03:55  redi
+
+	* test_pstreams.cc: Test pstreambuf::wait(), fixes last failure.
+
+2002-09-14 03:54  redi
+
+	* pstream.h: (pstream_base::rdbuf()): Return pointer to stream
+	  buffer.  (pstreambuf::wait()): Experimental, -DPSTREAMS_WAIT.
+	  Wait for child exit.	(pstreambuf::exited()): Experimental,
+	  -DPSTREAMS_WAIT. Check for child exit.  Documentation
+	  improvements.
+
+2002-09-14 03:52  redi
+
+	* Makefile: New variables to make it easier to give extra options
+	  to g++
+
+2002-09-10 01:10  redi
+
+	* Makefile, test_minimum.cc: Fix test_minimum and run from Makefile
+	  again.
+
+2002-09-09 23:44  redi
+
+	* test_pstreams.cc: Give shell time to exit on bad command and
+	  don't write (causes SIGPIPE).
+
+2002-09-09 23:40  redi
+
+	* Makefile: Fix missing '$' in shell cmd.
+
+2002-09-09 01:28  redi
+
+	* test_pstreams.cc: Lots of new and improved tests.
+
+2002-09-09 01:27  redi
+
+	* mainpage.html: Mention kill() function.
+
+2002-09-09 01:26  redi
+
+	* pstream.h: (pstreambuf::fork()): Save errno instead of printing
+	  error message.  (pstreambuf::kill()): New function to send a
+	  signal to child.  (pstreambuf::error(),pstreambuf::error_):
+	  Report errno from system calls.
+	  (pstreambuf::status(),pstreambuf::status_): Report exit status of
+	  child process.  (pstreambuf::peof(),peof): New function and
+	  manipulator to close pstdin pipe.  (close_fd_array()): Make
+	  non-member.  (iostream,cstring): Remove unnecesssary headers.
+	  Version to 0.39
+
+2002-09-09 01:11  redi
+
+	* .cvsignore: Ignore lots of files I have in my sandbox.
+
+2002-09-08 23:39  redi
+
+	* Makefile: (docs): Automatically update version number in
+	  mainpage.html (OPTIM): New variable, can be overridden on command
+	  line.
+
+2002-08-30 17:46  redi
+
+	* test_minimum.cc, test_pstreams.cc: Move standard headers to
+	  ensure pstream.h #incudes everything it needs.
+
+2002-08-30 17:36  redi
+
+	* README: Document errno=ESPIPE side effect of pstreambuf::fopen().
+
+2002-08-30 17:27  redi
+
+	* pstream.h: (pstreambuf::fork(),pstreambuf::open()): Save errno
+	  instead of reporting to stderr.  (pstreambuf::error_,
+	  pstreambuf::error()): New member for errors from sys calls.
+	  (pstreambuf::open(string, vector)): Make copies of args.
+	  (pstreambuf::close()): Don't use WNOHANG, wait for child to
+	  finish.  (close_fd_array()): Make non-member, doesn't need
+	  special privileges.  (PSTREAMS_VERSION): Increment to 0.39
+
+2002-08-30 17:17  redi
+
+	* .cvsignore: Ignore test binaries
+
+2002-08-27 20:54  redi
+
+	* pstream.h: (pstreambuf::rpipe(which)): Unnecessary enum keyword
+	  confuses Doxygen
+
+2002-08-27 20:47  redi
+
+	* pstream.h: Version to 0.38 (tag RELEASE_0_38)
+
+2002-08-27 20:43  redi
+
+	* README, test_pstreams.cc: Revert pstreambuf::fopen() to using
+	  FILE* parameters. Test properly.
+
+2002-08-27 20:38  redi
+
+	* pstream.h: (pstreambuf::fopen()): Revert to using FILE*s - it
+	  works now  :-)
+
+2002-08-27 03:11  redi
+
+	* pstream.h: Version to 0.37
+
+2002-08-27 03:07  redi
+
+	* README, pstream.h, test_pstreams.cc: (pstreambuf::fopen()):
+	  Expose file descriptors, not FILE*s as fdopen() fails.
+
+2002-08-27 02:43  redi
+
+	* pstream.h: (out(),err()): Move from opstream to ipstream (were on
+	  wrong class!) (pstreambuf::fopen()): Fix stupid copy'n'paste
+	  error, used same variable 3 times
+
+2002-08-27 02:41  redi
+
+	* test_pstreams.cc: Use sed not cat for better test.
+
+2002-08-27 01:54  redi
+
+	* Doxyfile: Trivial change, move '/' char
+
+2002-08-27 01:20  redi
+
+	* COPYING, Makefile, pstream.h, pstreams.html: Relicense to LGPL
+	  (following MAIN branch)
+
+2002-08-27 00:49  redi
+
+	* Makefile: (CXXFLAGS): Remove invalid options.
+
+2002-08-27 00:48  redi
+
+	* pstream.h: (basic_pstreambuf): Add required typedefs for
+	  dependent types.
+
+2002-08-19 01:37  redi
+
+	* test_pstreams.cc: Add test for REDI_EVISCERATE_PSTREAMS mode.
+
+2002-08-19 01:36  redi
+
+	* pstream.h: (pstreambuf::fopen): Use size_t for return value, not
+	  pmode; (pstreambuf::rpipe): Add missing definition of overloaded
+	  function.
+
+2002-07-25 00:02  redi
+
+	* pstream.h: (pstream_base::streambuf_type): Make protected so
+	  subclasses can access.
+
+2002-07-25 00:00  redi
+
+	* Makefile: (distro): Remove target, didn't work right anyway.
+	  (MANIFEST): New target for list of files in releases.
+
+2002-07-24 22:06  redi
+
+	* COPYING, INSTALL, Makefile, README, mainpage.html, pstream.h,
+	  pstream_compat.h, rpstream.h, test_pstreams.cc:
+	  (basic_pstreambuf::fork): Close other ends of pipes after
+	  dup2'ing them.  Relicense under LGPL.  Write stuff in README and
+	  INSTALL.
+
+2002-05-15 02:27  redi
+
+	* pstream.h: (pstreambuf::fork()): Open all pipes when pmode
+	  specifies more than one.
+
+2002-04-30 00:44  redi
+
+	* pstream.h: (pstream_base::~pstream_base()): Make pure virtual so
+	  class is abstract.
+
+2002-04-30 00:03  redi
+
+	* pstream.h: Typo in comment.
+
+2002-04-29 23:58  redi
+
+	* pstream.h: (pstreambuf): make copy ctor and operator= private
+	  again (oops) Some more doxygen comments.
+
+2002-04-29 22:40  redi
+
+	* pstream.h: (REDI_EVISCERATE_PSTREAMS): Macro to activate evil
+	  member functions.  (pstreambuf::fopen()): Add evil function to
+	  expose FILE pointers.  (pstream_base::fopen()): Add function to
+	  call evil function on streambuf
+
+2002-04-29 22:27  redi
+
+	* pstream.h: (pstreambuf::buf_read_src): Give enum a name.
+	  (pstreambuf::rpipe()): Add overload of function.  (pstreambuf):
+	  Make private member functions protected.  #include <cstring> and
+	  add std:: to calls to strerror() Version to 0.35
+
+2002-04-27 15:58  redi
+
+	* pstream.h: (pstreambuf::fdclose()): Rename to close_fd_array(),
+	  describes purpose better
+
+2002-04-27 15:56  redi
+
+	* Makefile: Disable execution of test_minimum, doesn't work. Still
+	  compile it though.
+
+2002-04-27 05:24  redi
+
+	* mainpage.html: Add link to pstreams home page.
+
+2002-04-27 04:51  redi
+
+	* mainpage.html, pstream.h, pstreams.html: Replace pstreams.html
+	  with mainpage.html and remove lots of text that is more relevant
+	  to PStreams home page than to the API reference.
+
+2002-04-27 04:18  redi
+
+	* pstreams.html: Correct credit for ChildReader class.
+
+2002-04-26 02:48  redi
+
+	* pstreams.html: Add a space
+
+2002-04-26 02:39  redi
+
+	* pstreams.html: Link to archives of latest version and older
+	  (maybe more stable?) version.
+
+2002-04-26 02:25  redi
+
+	* README: brief README file (far too brief)
+
+2002-04-26 02:23  redi
+
+	* Makefile: Add rpstream.h to SOURCES
+
+2002-04-26 02:22  redi
+
+	* INSTALL: Mention "make docs"
+
+2002-04-26 02:17  redi
+
+	* Doxyfile: Add Id keyword
+
+2002-04-26 02:16  redi
+
+	* pstream.h: More stupid typos
+
+2002-04-26 02:01  redi
+
+	* Doxyfile: Make output path relative to build dir
+
+2002-04-25 03:12  redi
+
+	* pstream.h, pstreams.html, rpstream.h: (pstreambuf::fork()): Swap
+	  pstdin and pstdout AGAIN!
+
+2002-04-25 03:00  redi
+
+	* pstream.h, pstreams.html, rpstream.h, test_minimum.cc: Fix
+	  several stupid typos and copy&paste errors. Compiles now. Fails
+	  tests.
+
+2002-04-25 02:59  redi
+
+	* Makefile: Remove options that aren't available in g++ 3.1
+
+2002-04-25 00:23  redi
+
+	* Doxyfile, pstream.h, pstreams.html, rpstream.h: (pstream_base):
+	  New base class providing common functionality.  (rpstream): Move
+	  restricted pstream class to separate file, rpstream.h Up version
+	  to 0.32 and update docs.
+
+2002-04-24 23:00  redi
+
+	* INSTALL: New file giving installation instructions (such as they
+	  are)
+
+2002-04-21 02:40  redi
+
+	* pstream.h: (rpstream::pmode, rpstream::istream_type): Add
+	  required typename keyword.
+
+2002-04-20 21:33  redi
+
+	* .cvsignore, Makefile, pstream.h, pstreams.html, test_bidip.c,
+	  test_minimum.cc, test_pstreams.cc: Merge with
+	  replace_popen-branch
+
+2002-04-20 21:11  redi
+
+	* pstream.h: (basic_rpstream): Use private inheritance for istream
+	  instead of aggregation.  Version to 0.22
+
+2002-04-20 21:08  redi
+
+	* pstream.h: (rpstream::fork()): Swap stdout and pstdin to conform
+	  with r1.17.2.9
+
+2002-04-20 19:51  redi
+
+	* pstream.h: ( rpstream::out(), rpstream.err() ): Fix error in
+	  return type.	DO NOT USE. REVISION IS BROKEN.
+
+2002-04-20 19:38  redi
+
+	* test_pstreams.cc: Test vector versions of functions.	Define
+	  RPSTREAM=1 to check parsing of rpstream class.
+
+2002-04-20 16:15  redi
+
+	* pstream.h: Swap meaning of pstdout and pstdin (was wrong, correct
+	  now) DO NOT USE. REVISION IS BROKEN.
+
+2002-04-20 14:38  redi
+
+	* pstreams.html: Remove incorrect name of ChildReader author.
+
+2002-04-06 14:02  redi
+
+	* pstreams.html: Remove <html>, <head> and <body> tags for
+	  inclusion in doxygen pages.
+
+2002-01-28 02:43  redi
+
+	* Doxyfile: (OUTPUT_DIRECTORY): change absolute path to relative
+
+2002-01-28 02:42  redi
+
+	* pstream.h: Add required typename specifiers.
+
+2002-01-28 02:42  redi
+
+	* Doxyfile: (OUTPUT_DIRECTORY): replace absolute path with relative
+
+2002-01-28 02:41  redi
+
+	* pstream.h: Add required typename specifiers
+
+2002-01-27 20:58  redi
+
+	* pstream.h: (basic_pstreambuf::open): Add required const_cast<>()
+	  for arg strings
+
+2002-01-27 20:39  redi
+
+	* pstream.h: More comment changes
+
+2002-01-27 19:16  redi
+
+	* pstream.h: Comment change.  Copyright fix (comma-separated list,
+	  not range) Remove TODOs about using codecvt facet, not going to
+	  be done.
+
+2002-01-27 19:15  redi
+
+	* pstreams.html: Document behaviour as regards wide-characters.
+	  Update copyright
+
+2002-01-27 17:33  redi
+
+	* pstreams.html: Update to cover new version.  Add Credits section
+
+2002-01-27 16:40  redi
+
+	* pstream.h: Correct doxygen comment
+
+2002-01-27 16:38  redi
+
+	* pstream.h: (basic_pstreambuf::fork): Move call to ::fork() to
+	  separate function.  (open): New constructors and methods taking
+	  filename and argument vector.  (basic_pstreambuf::is_open): Check
+	  for positive PId, not non-zero Version to 0.21
+
+2002-01-27 13:33  redi
+
+	* pstream.h: Fix stupid typo in declaration of basic_rpstream
+
+2002-01-27 13:32  redi
+
+	* pstream.h: Large rewrite to replace popen with hand-rolled
+	  fork/exec code
+
+2002-01-27 13:28  redi
+
+	* Makefile: Remove message about testing bidirectional pipe
+
+2002-01-27 13:21  redi
+
+	* Makefile, test_bidip.c: Remove test for bidirectional popen()
+
+2002-01-27 13:20  redi
+
+	* test_minimum.cc: Different exit status for different failures.
+	  Test failed command
+
+2002-01-27 13:16  redi
+
+	* .cvsignore: New file
+
+2002-01-27 13:00  redi
+
+	* AUTHORS: New file
+
+2002-01-27 13:00  redi
+
+	* test_bidip.c, test_minimum.cc: New tests
+
+2002-01-27 12:36  redi
+
+	* pstreams.html: Use HTML entity for ampersands in URIs
+
+2002-01-27 12:35  redi
+
+	* test_pstreams.cc: Test writing to closed steam
+
+2002-01-27 12:33  redi
+
+	* Makefile: (test_bidip, test_minimum): Add new tests (distro): Use
+	  DISTFILES variable
+
+2002-01-13 05:01  redi
+
+	* pstream.h: (read(),write()): Fix stupid mistake where int_type
+	  used instead of char_type (read(),write()): Overloads for writing
+	  character sequences Version to 0.17
+
+2002-01-13 04:53  redi
+
+	* pstreams.html: Refer to doxygen docs in usage secion.  Note about
+	  upcoming version.
+
+2002-01-13 04:30  redi
+
+	* Doxyfile: New file.
+
+2002-01-09 03:39  redi
+
+	* pstreamconf.h: Removed file as it is not used anywhere.
+
+2002-01-09 03:28  redi
+
+	* pstream.h: (istream,ostream): Add required headers.
+	  (basic_pstreambuf::open): Fix typo.  Version to 0.16
+
+2002-01-08 11:53  redi
+
+	* pstream.h: (open,close): Add error checking.	Version to 0.15
+
+2002-01-08 03:41  redi
+
+	* pstream.h: Formatting changes, moved all function defs and docs
+	  out of class body.  Version to 0.14
+
+2002-01-08 01:35  redi
+
+	* pstream.h: (basic_pstream): Fix missing std:: qualifiers.
+
+2002-01-08 00:35  redi
+
+	* pstream.h: (openmode2str): Add inline keyword to prevent multiple
+	  definitions.
+
+2002-01-07 20:35  redi
+
+	* pstream.h, pstream_compat.h: (BACK_COMPAT): Move non-standard
+	  versions from pstream.h to pstream_compat.h
+
+2002-01-07 20:28  redi
+
+	* pstream.h: (pbackfail): Fix missing '!' in condition.
+	  (basic_pstream): Fix typos in ctor/dtor names.  (command_,buf_):
+	  Make protected member variables private in stream classes.
+	  (string,ios_base): remove typedefs and explicitly qualify each
+	  use with std:: (openmode2str): Make non-member function.
+	  (REDI_PSTREAMS_POPEN_USES_BIDIRECTIONAL_PIPE): only define if
+	  !defined Add comments for Doxygen.  Version to 0.12
+
+2002-01-07 11:43  redi
+
+	* pstream.h: Minor formatting change.
+
+2002-01-07 11:36  redi
+
+	* Makefile: (test): Slight changes to test targets.
+
+2002-01-07 11:35  redi
+
+	* test_pstreams.cc: New file.
+
+2002-01-07 11:33  redi
+
+	* pstream.h: (command(),command_): Moved members from streambuf
+	  class to stream classes.  (read(),write()): Check for null FILE*
+	  to prevent segfaults.
+
+2001-12-31 22:02  redi
+
+	* pstreams.html: Added description and keywords tags for search
+	  engines and a TODO.
+
+2001-12-31 21:57  redi
+
+	* pstream.h: (command): member function added to all classes.
+	  minor format and comment changes
+
+2001-12-15 19:50  redi
+
+	* Makefile: (ChangeLog) new target
+
+2001-12-15 19:36  redi
+
+	* Makefile: New file
+
+2001-12-15 19:05  redi
+
+	* pstreams.html: Correct version number to 0.11
+
+2001-12-15 19:03  redi
+
+	* pstream.h: (MODE_MASK) remove this constant, only used in one
+	  place.  (BACK_COMPAT GCC_BACK_COMPAT) #defines for backward
+	  compatible versions, standard conforming version now default.
+	  Update version to 0.11
+
+2001-12-15 18:53  redi
+
+	* pstreams.html: Updated to cover version 0.11 Validated HTML and
+	  CSS.
+
+2001-12-15 18:00  redi
+
+	* pstream.h: Updated version number to 0.10
+
+2001-12-15 17:44  redi
+
+	* pstream.h: Updated documentation.
+
+2001-12-15 17:37  redi
+
+	* pstream.h: Added standard-conforming versions of (i|o|)pstream
+	  classes.
+
+2001-12-13 03:27  redi
+
+	* pstreamconf.h: New file, currently unused.
+
+2001-12-13 03:27  redi
+
+	* pstreams.html: Update to describe v0.02 Add usage section.
+
+2001-12-13 03:23  redi
+
+	* pstream.h: Move functionality into class pstreambase.  Added
+	  pstream for bidirectional IO.
+
+2001-12-13 02:15  redi
+
+	* images/pstreams1.png: Added file back, with -kb option for binary
+	  file.
+
+2001-12-13 02:14  redi
+
+	* images/pstreams1.png: Removed file to re-add it with -kb binary
+	  option.
+
+2001-12-13 00:39  redi
+
+	* COPYING, pstream.h, pstreams.html, images/pstreams1.png: Initial
+	  import: pstream.h pstreams.html COPYING images/pstreams1.png
+
+2001-12-13 00:39  redi
+
+	* COPYING, pstream.h, pstreams.html, images/pstreams1.png: Initial
+	  revision
+
