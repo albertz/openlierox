@@ -10,7 +10,9 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#ifndef WIN32	// pstreams doesn't support Windows API (at least not now) - disabling it
 #include <pstream.h>
+#endif
 #include <SDL_thread.h>
 
 #include "DedicatedControl.h"
@@ -21,6 +23,34 @@
 #include "ProfileSystem.h"
 #include "CClient.h"
 #include "CServer.h"
+
+static DedicatedControl* dedicatedControlInstance = NULL;
+
+DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
+
+bool DedicatedControl::Init() {
+	dedicatedControlInstance = new DedicatedControl();
+	return dedicatedControlInstance->Init_priv();
+}
+
+void DedicatedControl::Uninit() {
+	delete dedicatedControlInstance;
+}
+
+#ifdef WIN32
+
+// Stubs - no dedicated server for Windows
+DedicatedControl::DedicatedControl() : internData(NULL) {}
+DedicatedControl::~DedicatedControl() {	}
+
+bool DedicatedControl::Init_priv() { }
+
+void DedicatedControl::GameLoopStart_Signal() {}
+void DedicatedControl::GameLoopEnd_Signal() {}
+void DedicatedControl::Menu_Frame() { }
+void DedicatedControl::GameLoop_Frame() {}
+
+#else
 
 using namespace std;
 using namespace redi;
@@ -45,10 +75,6 @@ static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
 		rest += c;
 	}
 }
-
-static DedicatedControl* dedicatedControlInstance = NULL;
-
-DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
 
 struct DedIntern {	
 	SDL_Thread* pipeThread;
@@ -265,16 +291,9 @@ bool DedicatedControl::Init_priv() {
 	return true;
 }
 
-bool DedicatedControl::Init() {
-	dedicatedControlInstance = new DedicatedControl();
-	return dedicatedControlInstance->Init_priv();
-}
-
-void DedicatedControl::Uninit() {
-	delete dedicatedControlInstance;
-}
-
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
 void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
 void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
+
+#endif
