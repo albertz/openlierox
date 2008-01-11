@@ -202,7 +202,36 @@ struct DedIntern {
 	}
 
 	void Cmd_StartGame() {
+/*		// Get the mod
+		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
+		if(it) {
+			tGameInfo.sModName = it->sName;
+			tGameInfo.sModDir = it->sIndex;
+			tLXOptions->tGameinfo.szModName = it->sIndex;
+		}
+*/
+		// Get the game type
+		tGameInfo.iGameMode = GMT_DEATHMATCH;
+		tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
+
+/*		// Get the map name
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
+		// Save the current level in the options
+		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
+		cHostLobby.Shutdown();
+*/
+
+		// Setup the client
+//		cClient->SetupViewports();
+
+		// Start the game
+		cServer->StartGame( true );	// start in dedicated mode
+
+		// Leave the frontend
 		*bGame = true;
+		tMenu->bMenuRunning = false;
+		tGameInfo.iGameType = GME_HOST;
 	}
 
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
