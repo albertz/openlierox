@@ -140,14 +140,15 @@ void CClient::ParseConnected(CBytestream *bs)
         cLocalWorms[i]->setType(tProfiles[i]->iType);
 	}
 
-
-	// Setup the viewports
-	SetupViewports();
-
-	// Setup the controls
-	cLocalWorms[0]->SetupInputs( tLXOptions->sPlayerControls[0] );
-	if(iNumWorms >= 2)
-		cLocalWorms[1]->SetupInputs( tLXOptions->sPlayerControls[1] );
+	if(!bDedicated) {
+		// Setup the viewports
+		SetupViewports();
+	
+		// Setup the controls
+		cLocalWorms[0]->SetupInputs( tLXOptions->sPlayerControls[0] );
+		if(iNumWorms >= 2)
+			cLocalWorms[1]->SetupInputs( tLXOptions->sPlayerControls[1] );
+	}
 
 	// Create my channel
 	GetRemoteNetAddr(tSocket, addr);
@@ -725,7 +726,7 @@ void CClient::ParseText(CBytestream *bs)
 	bs->readString(t->sText);*/
 
 	Uint32 col = tLX->clWhite;
-	int	t = cLocalWorms[0]->getTeam();
+	int	t = bDedicated ? 0 : cLocalWorms[0]->getTeam();
 	switch(type) {
 		// Chat
 		case TXT_CHAT:		col = tLX->clChatText;		break;
@@ -1033,17 +1034,19 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 	int numworms = bs->readByte();
 	bool ready = bs->readBool();
 
-	if (iNetStatus != NET_CONNECTED || numworms < 1 || numworms > MAX_WORMS)  {
+	if (iNetStatus != NET_CONNECTED || numworms < 0 || numworms > MAX_WORMS)  {
 		if (iNetStatus != NET_CONNECTED)
 			printf("CClient::ParseUpdateLobby: not in lobby - ignoring\n");
 		else
-			printf("CClient::ParseUpdateLobby: invalid numworms value ("+itoa(numworms)+")\n");
+			printf("CClient::ParseUpdateLobby: invalid strange numworms value ("+itoa(numworms)+")\n");
 
 		// Skip to get the right position in stream
 		bs->Skip(numworms);
 		return;
 	}
-
+	if(numworms == 0)
+		printf("CClient::ParseUpdateLobby: warning: numworms == 0\n");
+		
 	static std::string HostName;
 
 	byte id;

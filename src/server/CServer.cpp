@@ -843,8 +843,8 @@ void GameServer::CheckTimeouts(void)
 	// Cycle through clients
 	CClient *cl = cClients;
 	for(c = 0; c < MAX_CLIENTS; c++, cl++) {
-		// Client not connected
-		if(cl->getStatus() == NET_DISCONNECTED)
+		// Client not connected or no worms
+		if(cl->getStatus() == NET_DISCONNECTED || cl->getNumWorms() == 0)
 			continue;
 
         // Check for a drop

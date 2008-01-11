@@ -752,8 +752,9 @@ void ShutdownLoading()  {
 void ShutdownLieroX(void)
 {
 	printf("Shutting me down...\n");	
-	
-	tLXOptions->SaveToDisc();
+		
+	if(!bDedicated) // only save if not in dedicated mode
+		tLXOptions->SaveToDisc();
 
 	if (tLXOptions->bLogConvos)  {
 		FILE *f;

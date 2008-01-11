@@ -346,7 +346,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 	if (tLXOptions->bServerSideHealth)  {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
-		if (cl->getWorm(0)->getID() != 0)  {
+		if (cl->getNumWorms() > 0 && cl->getWorm(0)->getID() != 0)  {
 			if (cl->OwnsWorm(vict))  {  // He wants to die, let's fulfill his dream ;)
 				CWorm *w = cClient->getRemoteWorms() + vict->getID();
 				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
@@ -362,7 +362,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
 		// or if the client is host (host can kill anyone - /suicide command in chat)
-		if (!cl->OwnsWorm(vict) && cl->getWorm(0)->getID() != 0)  {
+		if (!cl->OwnsWorm(vict) && cl->getNumWorms() > 0 && cl->getWorm(0)->getID() != 0)  {
 			printf("GameServer::ParseDeathPacket: victim is not one of the client's worms.\n");
 			return;
 		}
@@ -652,6 +652,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 ///////////////////
 // Parse a chat text packet
 void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
+	if(cl->getNumWorms() == 0) return;
+	
 	std::string buf = bs->readString(256);
 
 	if (buf == "")  // Ignore empty messages
@@ -1482,7 +1484,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bHost_Update = true;
 
 		// Make host authorised
-		if(newcl->getWorm(0)->getID() == 0)  // ID 0 = host
+		if(newcl->getNumWorms() > 0 && newcl->getWorm(0)->getID() == 0)  // ID 0 = host
 			newcl->getRights()->Everything();
 
 		// Client spawns when the game starts
@@ -1672,7 +1674,7 @@ bool GameServer::ParseChatCommand(const std::string& message, CClient *cl)
 	std::vector<std::string> parameters = std::vector<std::string>(parsed.begin() + 1, parsed.end());
 
 	// Process the command
-	std::string error = cmd->tProcFunc(parameters, cl->getWorm(0)->getID());
+	std::string error = cmd->tProcFunc(parameters, (cl->getNumWorms() > 0) ? cl->getWorm(0)->getID() : 0); // TODO: is this handling for worm0 correct? fix if not
 	if (error.size() != 0)  {
 		SendText(cl, error, TXT_NETWORK);
 		return false;

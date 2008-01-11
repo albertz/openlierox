@@ -482,6 +482,11 @@ void Cmd_Crash(void)
 void Cmd_Suicide(void)
 {
 	if (cClient)  {
+		if(bDedicated) {
+			Con_Printf(CNC_NORMAL, "Cannot suicide in dedicated mode!");
+			return;
+		}
+		
 		if(cClient->getStatus() != NET_PLAYING)  {
 			Con_Printf(CNC_NORMAL, "Cannot suicide when not playing!");
 			return;
@@ -531,6 +536,11 @@ void Cmd_Unstuck(void)
 {
 
 	if (cClient)  {
+		if(bDedicated) {
+			Con_Printf(CNC_NORMAL, "Cannot unstuck in dedicated mode!");
+			return;
+		}
+		
 		// Not playing
 		if(cClient->getStatus() != NET_PLAYING)  {
 			Con_Printf(CNC_NORMAL, "Cannot unstuck when not playing!");
@@ -664,6 +674,11 @@ void Cmd_Sound()  {
 //////////////////
 // Change name (only if host in on beta 3)
 void Cmd_SetName() {
+	if(bDedicated) {
+		Con_Printf(CNC_NORMAL, "Cannot change name in dedicated mode!");
+		return;
+	}
+	
 	// Check arguments
 	if(Cmd_GetNumArgs() == 1) {
 		Con_Printf(CNC_NORMAL, "Usage: setname \"<name>\"");
@@ -684,6 +699,11 @@ void Cmd_SetName() {
 //////////////////
 // Change skin (only if host in on beta 3)
 void Cmd_SetSkin() {
+	if(bDedicated) {
+		Con_Printf(CNC_NORMAL, "Cannot change skin in dedicated mode!");
+		return;
+	}
+	
 	// Check arguments
 	if(Cmd_GetNumArgs() == 1) {
 		Con_Printf(CNC_NORMAL, "Usage: setskin \"<skin_filename>\"");
@@ -704,6 +724,11 @@ void Cmd_SetSkin() {
 //////////////////
 // Change colour (only if host in on beta 3)
 void Cmd_SetColour() {
+	if(bDedicated) {
+		Con_Printf(CNC_NORMAL, "Cannot change color in dedicated mode!");
+		return;
+	}
+	
 	// Check arguments
 	if(Cmd_GetNumArgs() < 4) {
 		Con_Printf(CNC_NORMAL, "Usage: setcolour <red> <green> <blue>");

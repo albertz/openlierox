@@ -349,6 +349,8 @@ void Menu_Net_HostPlyFrame(int mouse)
 							}
 						}
 
+						if(tGameInfo.iNumPlayers != count)
+							printf("WARNING: amount of added players is not as expected\n");
 
 						// Get the server name
 						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tGameInfo.sServername, 0);
@@ -467,6 +469,7 @@ static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 bool Menu_Net_HostLobbyInitialize(void)
 {
 	tGameInfo.iGameType = GME_HOST;
+	// TODO: please comment these vars
 	iNetMode = net_host;
 	iHostType = 1;
 	bHostGameSettings = false;

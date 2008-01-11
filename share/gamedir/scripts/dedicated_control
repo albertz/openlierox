@@ -1,0 +1,29 @@
+#!/bin/bash
+
+
+function startlobby() {
+	echo "startlobby"
+}
+
+function startgame() {
+	echo "startgame"
+}
+
+function msg() {
+	echo "msg $1"
+}
+
+function signal_handler() {
+	while read signal; do
+		[ "$signal" == "quit" ] && exit
+		msg "$signal"
+	done
+}
+
+echo "getcomputerwormlist"
+
+startlobby
+startgame
+
+signal_handler
+

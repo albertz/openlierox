@@ -16,6 +16,11 @@
 #include "DedicatedControl.h"
 #include "LieroX.h"
 #include "FindFile.h"
+#include "StringUtils.h"
+#include "Menu.h"
+#include "ProfileSystem.h"
+#include "CClient.h"
+#include "CServer.h"
 
 using namespace std;
 using namespace redi;
@@ -41,7 +46,6 @@ static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
 	}
 }
 
-
 static DedicatedControl* dedicatedControlInstance = NULL;
 
 DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
@@ -53,13 +57,14 @@ struct DedIntern {
 	stringstream pipeOutput;
 	
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
+	DedIntern() : state(S_NORMAL) {}
 	~DedIntern() {
-		pipe << peof;
+		Sig_Quit();
 		SDL_WaitThread(pipeThread, NULL);
 		SDL_DestroyMutex(pipeOutputMutex);
 	}
 	
-	// reading lines from pipe and put them to pipeOutput
+	// reading lines from pipe-out and put them to pipeOutput
 	static int pipeThreadFunc(void*) {
 		DedIntern* data = Get();
 		
@@ -68,19 +73,171 @@ struct DedIntern {
 			getline(data->pipe.out(), buf);
 			SDL_mutexP(data->pipeOutputMutex);
 			data->pipeOutput << buf << endl;
-			SDL_mutexV(data->pipeOutputMutex);
+	 		SDL_mutexV(data->pipeOutputMutex);
 		}
 		return 0;
 	}
 	
-	void BasicFrame() {
+	// -------------------------------
+	// ------- state -----------------
+	
+	enum State { S_NORMAL, S_LOBBY, S_PLAYING };
+	State state;
+	
+	// --------------------------------
+	// ---- commands ------------------
+	
+	void Cmd_Message(const std::string& msg) {
+		cout << "DedicatedControl: message: " << msg << endl;
+	}
+	
+	void Cmd_GetComputerWormList() {
+		profile_t *p = GetProfiles();
+		for(;p;p=p->tNext) {
+			if(p->iType == PRF_COMPUTER)
+				pipe << "worm " << p->iID << ", " << p->sName << endl;
+		}
+		pipe << "endwormlist" << endl;	
+	}
+
+	void Cmd_AddWorm() {
+	
+	}
+	
+	void Cmd_KickWorm() {
+	
+	}
+	
+	void Cmd_StartLobby() {
+		tGameInfo.iNumPlayers = 0; // for now...
+		//tGameInfo.cPlayers[count++] = FindProfile(wormid);
+		
+		tGameInfo.sServername = "dedicated server";
+		tGameInfo.sWelcomeMessage = "hello";
+	
+		tLXOptions->tGameinfo.iMaxPlayers = 8;
+		tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
+		tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
+		tLXOptions->tGameinfo.bRegServer = true;
+		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
+		tLXOptions->tGameinfo.bWantsJoinBanned = false;
+		tLXOptions->tGameinfo.bAllowRemoteBots = true;
+		tLXOptions->tGameinfo.bAllowNickChange = false;
+		tLXOptions->bServerSideHealth = false;
+	
+		tLXOptions->tGameinfo.bAllowConnectDuringGame = false;
+		tLXOptions->tGameinfo.iAllowConnectDuringGameLives = 10;
+		tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin = 10;
+	
+		tGameInfo.iGameType = GME_HOST;
+		
+		// Fill in some game details
+		tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
+		tGameInfo.iLives = tLXOptions->tGameinfo.iLives;
+		tGameInfo.iKillLimit = tLXOptions->tGameinfo.iKillLimit;
+		tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
+		tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
+		tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
+		
+		cClient->Shutdown();
+		cClient->Clear();
+		
+		// Start the server
+		if(!cServer->StartServer( tGameInfo.sServername, tLXOptions->iNetworkPort, tLXOptions->tGameinfo.iMaxPlayers, tLXOptions->tGameinfo.bRegServer )) {
+			// Crappy
+			printf("ERROR: Server wouldn't start\n");
+			Sig_ErrorStartLobby();
+			return;
+		}
+	
+		// Lets connect me to the server
+		if(!cClient->Initialize()) {
+			// Crappy
+			printf("ERROR: Client wouldn't initialize\n");
+			Sig_ErrorStartLobby();
+			return;
+		}
+	
+		cClient->Connect("127.0.0.1");
+	
+		// Set up the server's lobby details
+		game_lobby_t *gl = cServer->getLobby();
+		gl->bSet = true;
+		gl->nGameMode = tLXOptions->tGameinfo.nGameType;
+		gl->nLives = tLXOptions->tGameinfo.iLives;
+		gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
+		gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
+		gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn;
+		
+		Sig_LobbyStarted();
+	}
+
+	void Cmd_StartGame() {
+		*bGame = true;
+	}
+
+	void HandleCommand(const std::string& cmd_, const std::string& params) {
+		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
+		if(cmd == "") return;
+		
+#ifdef DEBUG
+		cout << "DedicatedControl: exec: " << cmd << " " << params << endl;		
+#endif
+		if(cmd == "msg")
+			Cmd_Message(params);
+		else if(cmd == "startlobby")
+			Cmd_StartLobby();
+		else if(cmd == "addworm")
+			Cmd_AddWorm();
+		else if(cmd == "kickworm")
+			Cmd_KickWorm();
+		else if(cmd == "startgame")
+			Cmd_StartGame();
+		else if(cmd == "getcomputerwormlist")
+			Cmd_GetComputerWormList();
+		else
+			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
+	}
+
+	// ----------------------------------
+	// ----------- signals --------------
+	
+	void Sig_GameLoopStart() { pipe << "gameloopstart" << endl; state = S_PLAYING; }
+	void Sig_GameLoopEnd() { pipe << "gameloopend" << endl; state = S_LOBBY; }
+	void Sig_ErrorStartLobby() { pipe << "errorstartlobby" << endl; state = S_NORMAL; }
+	void Sig_LobbyStarted() { pipe << "lobbystarted" << endl; state = S_LOBBY; }	
+	void Sig_Quit() { pipe << "quit" << peof; }
+	
+	// ----------------------------------
+	// ---------- frame handlers --------
+	
+	void Frame_Lobby() {
+		// Process the server & client frames
+		cServer->Frame();
+		cClient->Frame();
+	}
+	
+	void Frame_Playing() {
+	
+	}
+	
+	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
 		while(pipeOutput.rdbuf()->in_avail() > 0) {
 			string cmd, rest;
 			Ded_ParseCommand(pipeOutput, cmd, rest);
-			cout << "Ded: " << cmd << " :: " << rest << endl;
+			SDL_mutexV(pipeOutputMutex);
+			
+			HandleCommand(cmd, rest);
+			SDL_mutexP(pipeOutputMutex);
 		}
 		SDL_mutexV(pipeOutputMutex);
+		
+		switch(state) {
+		case S_LOBBY: Frame_Lobby(); break;
+		case S_PLAYING: Frame_Playing(); break;
+		default: break;
+		}
 	}
 };
 
@@ -88,7 +245,7 @@ DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)internData; internData = NULL; }
 
 bool DedicatedControl::Init_priv() {
-	const std::string scriptfn_rel = "scripts/dedicated_control.sh";
+	const std::string scriptfn_rel = "scripts/dedicated_control";
 
 	printf("DedicatedControl initing...\n");
 	std::string scriptfn = GetFullFileName(scriptfn_rel);
@@ -104,7 +261,7 @@ bool DedicatedControl::Init_priv() {
 	dedIntern->pipe << "hello world\n" << flush;
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
 	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
-            
+    
 	return true;
 }
 
@@ -117,7 +274,7 @@ void DedicatedControl::Uninit() {
 	delete dedicatedControlInstance;
 }
 
-void DedicatedControl::GameLoopStart_Signal() {}
-void DedicatedControl::GameLoopEnd_Signal() {}
-void DedicatedControl::Menu_Frame() { DedIntern::Get()->BasicFrame(); }
-void DedicatedControl::GameLoop_Frame() {}
+void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
+void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
+void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
+void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }

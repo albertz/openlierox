@@ -115,7 +115,6 @@ std::string		replacemax(const std::string& text, const std::string& what, const 
 std::string		strip(const std::string& text, int width);
 bool			stripdot(std::string& text, int width);
 void			ucfirst(std::string& text);
-void			stringtolower(std::string& text);
 std::string		ReadUntil(const std::string& text, char until_character = '\n');
 std::string		ReadUntil(FILE* fp, char until_character = '\n');
 Uint32			StrToCol(const std::string& str);
