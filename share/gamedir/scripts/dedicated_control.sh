@@ -5,7 +5,7 @@ while read signal; do
 
 	c=0
 	while [ $c -le 10 ]; do
-		sleep 1
+		sleep 0.1
 		echo "c = $c"
 		c=$(expr $c + 1)
 	done

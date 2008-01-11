@@ -20,6 +20,28 @@
 using namespace std;
 using namespace redi;
 
+static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
+	cmd = ""; rest = "";
+	
+	char c;
+	while( true ) {
+		c = s.get();
+		if(c > 32) {
+			cmd += c;
+		} else {
+			if(c == 13 || c == 10) return;
+			break;
+		}
+	}
+
+	while( true ) {
+		c = s.get();
+		if(c == 13 || c == 10) return;
+		rest += c;
+	}
+}
+
+
 static DedicatedControl* dedicatedControlInstance = NULL;
 
 DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
@@ -53,17 +75,10 @@ struct DedIntern {
 	
 	void BasicFrame() {
 		SDL_mutexP(pipeOutputMutex);
-		size_t n = 0;
 		while(pipeOutput.rdbuf()->in_avail() > 0) {
-			char c = ' ';
-			if(pipeOutput.read(&c, 1)) {
-				if(n == 0)
-					printf("STDOUT: ");
-				printf("%c", c);
-				n++;
-			}
-			else
-				break;
+			string cmd, rest;
+			Ded_ParseCommand(pipeOutput, cmd, rest);
+			cout << "Ded: " << cmd << " :: " << rest << endl;
 		}
 		SDL_mutexV(pipeOutputMutex);
 	}
