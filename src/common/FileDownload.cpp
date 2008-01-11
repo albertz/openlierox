@@ -462,10 +462,19 @@ void CFileDownloaderInGame::reset()
 	bAllowFileRequest = true;
 	tRequestedFiles.clear();
 	cStatInfo.clear();
+	cStatInfoCache.clear();
 };
 
 void CFileDownloaderInGame::setDataToSend( const std::string & name, const std::string & data, bool noCompress )
 {
+	if( name == "" )
+	{
+		iPos = 0;
+		tState = S_FINISHED;
+		sFilename = "";
+		sData = "";
+		return;
+	};
 	tState = S_SEND;
 	iPos = 0;
 	sFilename = name;
@@ -626,13 +635,15 @@ void CFileDownloaderInGame::processFileRequests()
 {
 	// Process received files
 	for( std::vector< std::string > :: iterator it = tRequestedFiles.begin(); 
-			it != tRequestedFiles.end(); it ++ )
+			it != tRequestedFiles.end(); )
 	{
 		if( * it == getFilename() )
 		{
 			tRequestedFiles.erase( it );
-			break;
-		};
+			it = tRequestedFiles.begin(); 
+		}
+		else
+			it ++ ;
 	};
 	
 	// Process file sending requests

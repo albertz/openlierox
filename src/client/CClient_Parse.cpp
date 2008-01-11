@@ -1510,6 +1510,11 @@ void CClient::ParseDropped(CBytestream *bs)
 	}
 }
 
+bool timerTickOnceCallback(Timer* sender, void* userData)
+{
+	return false;
+};
+
 // Server sent us some file
 void CClient::ParseSendFile(CBytestream *bs)
 {
@@ -1610,9 +1615,10 @@ void CClient::ParseSendFile(CBytestream *bs)
 					stringcaserfind( cFileDownloaderInGame.getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
 					cFileDownloaderInGame.requestFile( cFileDownloaderInGame.getFileInfo()[f].filename );
 			};
+			cFileDownloaderInGame.setDataToSend( "", "" );	// Delay file request - half-second pause added automatically
 		};
-		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
-			getFileDownloaderInGame()->requestFilesPending();
+		//if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
+		//	getFileDownloaderInGame()->requestFilesPending();	// Garbles channel with big amounts of data
 	};
 	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
 	{
@@ -1623,6 +1629,8 @@ void CClient::ParseSendFile(CBytestream *bs)
 	else
 	{
 		fLastFileRequestPacketReceived = tLX->fCurTime - 10.0f;	// Set timeout in past so we'll check out other data immediately
+		fLastFileRequest = tLX->fCurTime + 0.2f;	// Small pause so many small files won't come garbled
+		Timer(&timerTickOnceCallback, NULL, 300, true).startHeadless();	// Set timer so client will send the request
 	};
 };
 
