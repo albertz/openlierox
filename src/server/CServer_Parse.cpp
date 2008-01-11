@@ -958,7 +958,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 		bs.writeString("lx::badconnect");
 		bs.writeString(OldLxCompatibleString(networkTexts->sGameInProgress));
 		bs.Send(tSocket);
-		printf("GameServer::ParseGetChallenge: Cannot join, the game is in progress.");
+		printf("GameServer::ParseGetChallenge: Cannot join, the game is in progress.\n");
 		return;
 	}
 

@@ -629,7 +629,7 @@ void GameLoopFrame(void)
 
 		// Update both menu and game screens
 		Screen = SDL_GetVideoSurface();
-		tMenu->bmpScreen = SDL_GetVideoSurface();
+		tMenu->bmpScreen = Screen;
 	}
 
 	// We put it here, so the mouse never displays
