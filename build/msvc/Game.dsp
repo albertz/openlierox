@@ -559,6 +559,14 @@ SOURCE=..\..\include\CWpnRest.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\server\DedicatedControl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\DedicatedControl.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\Entity.cpp
 # End Source File
 # Begin Source File

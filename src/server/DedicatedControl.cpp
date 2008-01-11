@@ -43,7 +43,7 @@ void DedicatedControl::Uninit() {
 DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	}
 
-bool DedicatedControl::Init_priv() { }
+bool DedicatedControl::Init_priv() { return true; }
 
 void DedicatedControl::GameLoopStart_Signal() {}
 void DedicatedControl::GameLoopEnd_Signal() {}
