@@ -10,9 +10,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#ifndef WIN32	// pstreams doesn't support Windows API (at least not now) - disabling it
-#include <pstream.h>
-#endif
 #include <SDL_thread.h>
 
 #include "DedicatedControl.h"
@@ -39,6 +36,8 @@ void DedicatedControl::Uninit() {
 
 #ifdef WIN32
 
+// TODO: find alternative to PStreams for Windows
+
 // Stubs - no dedicated server for Windows
 DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	}
@@ -51,6 +50,8 @@ void DedicatedControl::Menu_Frame() { }
 void DedicatedControl::GameLoop_Frame() {}
 
 #else
+
+#include <pstream.h>
 
 using namespace std;
 using namespace redi;

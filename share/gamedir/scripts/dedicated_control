@@ -23,7 +23,7 @@ function signal_handler() {
 echo "getcomputerwormlist"
 
 startlobby
-startgame
 
 signal_handler
 
+#startgame
