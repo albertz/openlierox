@@ -347,6 +347,8 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 // Main drawing routines
 void CClient::Draw(SDL_Surface *bmpDest)
 {
+	if(bmpDest == NULL) return; // this can happen in case of bDedicated for example
+	
 	static ushort i,num;
 	float dt = tLX->fDeltaTime;
 
