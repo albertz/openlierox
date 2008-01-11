@@ -32,6 +32,7 @@ struct DedIntern {
 	
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 	~DedIntern() {
+		pipe << peof;
 		SDL_WaitThread(pipeThread, NULL);
 		SDL_DestroyMutex(pipeOutputMutex);
 	}
@@ -85,18 +86,9 @@ bool DedicatedControl::Init_priv() {
 	internData = dedIntern;
 	
 	dedIntern->pipe.open(scriptfn, pstreams::pstdin|pstreams::pstdout|pstreams::pstderr);
-	dedIntern->pipe << "hello world\n" ; // << peof;
-	dedIntern->pipe.flush();
+	dedIntern->pipe << "hello world\n" << flush;
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
 	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
-	
-/*	        string buf;
-        while (getline(dedIntern->pipe.out(), buf))
-            cout << "STDOUT: " << buf << endl;
-        dedIntern->pipe.clear();
-        while (getline(dedIntern->pipe.err(), buf))
-            cout << "STDERR: " << buf << endl;
-*/
             
 	return true;
 }
