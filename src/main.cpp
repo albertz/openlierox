@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
 
 	while(!tLX->bQuitGame) {
 
-		startgame = false;
+		startgame = false; // the menu has a reference to this variable
 
 		// Start the menu
 		Menu_Start();
