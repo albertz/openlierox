@@ -597,6 +597,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\include\Color.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\ConfigHandler.cpp"
 				>
 				<FileConfiguration
@@ -1956,6 +1960,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\CWpnRest.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\DedicatedControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DedicatedControl.h"
 				>
 			</File>
 			<File

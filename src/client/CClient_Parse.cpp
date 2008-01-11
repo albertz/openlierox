@@ -1622,7 +1622,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 	}
 	else
 	{
-		fLastFileRequestPacketReceived = tLX->fCurTime - 10.0;	// Set timeout in past so we'll check out other data immediately
+		fLastFileRequestPacketReceived = tLX->fCurTime - 10.0f;	// Set timeout in past so we'll check out other data immediately
 	};
 };
 
