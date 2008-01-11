@@ -24,6 +24,7 @@
 #include "Protocol.h"
 #include "ConfigHandler.h"
 #include "ChatCommand.h"
+#include "DedicatedControl.h"
 
 
 /*
@@ -1096,6 +1097,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		}
 	}
 
+	// TODO: what happenes if we ignore this challenge verification?
 
 	// See if the challenge is valid
 	for (i = MAX_CHALLENGES-1; i >= 0; --i) {
@@ -1259,7 +1261,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				if (w->isUsed())
 					continue;
 
-				*w = worms[i];
+				*w = worms[i]; // TODO: recode this, it's unsafe!
 				w->setID(p);
 				id = p;
 				w->setClient(newcl);
@@ -1273,6 +1275,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				{
 					// The new ID should be one of zombie worm ID's so clients won't crash (hopefully).
 					// Copied from GameServer::StartGame()
+					// TODO: don't copy code! avoid double code!
 					w->setLives(livesWormConnectedDuringGame);
     		        w->setKills(0);
 					w->setGameScript(&cGameScript);
@@ -1284,6 +1287,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 					w->setTeam(0);
 					iNumPlayers++;
 				};
+				
+				DedicatedControl::Get()->NewWorm_Signal(w);
 				break;
 			}
 		}

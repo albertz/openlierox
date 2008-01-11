@@ -10,6 +10,8 @@
 #ifndef __DEDICATEDCONTROL_H__
 #define __DEDICATEDCONTROL_H__
 
+class CWorm;
+
 class DedicatedControl {
 private:
 	DedicatedControl(); ~DedicatedControl();
@@ -22,6 +24,8 @@ public:
 	
 	void GameLoopStart_Signal();
 	void GameLoopEnd_Signal();
+	void NewWorm_Signal(CWorm* w);
+	
 	void Menu_Frame();
 	void GameLoop_Frame();
 };

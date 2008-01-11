@@ -20,6 +20,7 @@
 #include "ProfileSystem.h"
 #include "CClient.h"
 #include "CServer.h"
+#include "CWorm.h"
 
 static DedicatedControl* dedicatedControlInstance = NULL;
 
@@ -48,6 +49,7 @@ void DedicatedControl::GameLoopStart_Signal() {}
 void DedicatedControl::GameLoopEnd_Signal() {}
 void DedicatedControl::Menu_Frame() { }
 void DedicatedControl::GameLoop_Frame() {}
+void DedicatedControl::NewWorm_Signal(CWorm* w) {}
 
 #else
 
@@ -233,6 +235,7 @@ struct DedIntern {
 	void Sig_GameLoopEnd() { pipe << "gameloopend" << endl; state = S_LOBBY; }
 	void Sig_ErrorStartLobby() { pipe << "errorstartlobby" << endl; state = S_NORMAL; }
 	void Sig_LobbyStarted() { pipe << "lobbystarted" << endl; state = S_LOBBY; }	
+	void Sig_NewWorm(CWorm* w) { pipe << "newworm" << endl; }	
 	void Sig_Quit() { pipe << "quit" << peof; }
 	
 	// ----------------------------------
@@ -296,5 +299,6 @@ void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopSt
 void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
 void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
+void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
 
 #endif
