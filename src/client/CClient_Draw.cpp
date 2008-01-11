@@ -924,7 +924,7 @@ void CClient::DrawProjectileShadows(SDL_Surface *bmpDest, CViewport *v)
 // Simulate the hud
 void CClient::SimulateHud(void)
 {
-    if(!bGameReady)
+    if(bDedicated || !bGameReady)
         return;
 	
 	float dt = tLX->fDeltaTime;

@@ -204,7 +204,7 @@ struct DedIntern {
 
 	void Cmd_StartGame() {
 		tGameInfo.sModDir = "MW 1.0";
-		if(CGameScript::CheckFile(tGameInfo.sModDir, tGameInfo.sModName)) {
+		if(!CGameScript::CheckFile(tGameInfo.sModDir, tGameInfo.sModName)) {
 			cout << "ERROR: no mod for dedicated" << endl;
 			// TODO..
 		}
