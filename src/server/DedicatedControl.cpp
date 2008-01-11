@@ -9,7 +9,9 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <pstream.h>
+#include <SDL_thread.h>
 
 #include "DedicatedControl.h"
 #include "LieroX.h"
@@ -22,7 +24,52 @@ static DedicatedControl* dedicatedControlInstance = NULL;
 
 DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
 
-DedicatedControl::DedicatedControl() {}
+struct DedIntern {	
+	SDL_Thread* pipeThread;
+	pstream pipe;
+	SDL_mutex* pipeOutputMutex;
+	stringstream pipeOutput;
+	
+	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
+	~DedIntern() {
+		SDL_WaitThread(pipeThread, NULL);
+		SDL_DestroyMutex(pipeOutputMutex);
+	}
+	
+	// reading lines from pipe and put them to pipeOutput
+	static int pipeThreadFunc(void*) {
+		DedIntern* data = Get();
+		
+		while(!data->pipe.out().eof()) {
+			string buf;
+			getline(data->pipe.out(), buf);
+			SDL_mutexP(data->pipeOutputMutex);
+			data->pipeOutput << buf << endl;
+			SDL_mutexV(data->pipeOutputMutex);
+		}
+		return 0;
+	}
+	
+	void BasicFrame() {
+		SDL_mutexP(pipeOutputMutex);
+		size_t n = 0;
+		while(pipeOutput.rdbuf()->in_avail() > 0) {
+			char c = ' ';
+			if(pipeOutput.read(&c, 1)) {
+				if(n == 0)
+					printf("STDOUT: ");
+				printf("%c", c);
+				n++;
+			}
+			else
+				break;
+		}
+		SDL_mutexV(pipeOutputMutex);
+	}
+};
+
+DedicatedControl::DedicatedControl() : internData(NULL) {}
+DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)internData; internData = NULL; }
 
 bool DedicatedControl::Init_priv() {
 	const std::string scriptfn_rel = "scripts/dedicated_control.sh";
@@ -34,16 +81,22 @@ bool DedicatedControl::Init_priv() {
 		return false;		
 	}
 	
-	pstream ps(scriptfn, pstreams::pstdin|pstreams::pstdout|pstreams::pstderr);
-	ps << "hello world\n" ; // << peof;
-	ps.flush();
+	DedIntern* dedIntern = new DedIntern;
+	internData = dedIntern;
 	
-	        string buf;
-        while (getline(ps.out(), buf))
+	dedIntern->pipe.open(scriptfn, pstreams::pstdin|pstreams::pstdout|pstreams::pstderr);
+	dedIntern->pipe << "hello world\n" ; // << peof;
+	dedIntern->pipe.flush();
+	dedIntern->pipeOutputMutex = SDL_CreateMutex();
+	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
+	
+/*	        string buf;
+        while (getline(dedIntern->pipe.out(), buf))
             cout << "STDOUT: " << buf << endl;
-        ps.clear();
-        while (getline(ps.err(), buf))
+        dedIntern->pipe.clear();
+        while (getline(dedIntern->pipe.err(), buf))
             cout << "STDERR: " << buf << endl;
+*/
             
 	return true;
 }
@@ -59,5 +112,5 @@ void DedicatedControl::Uninit() {
 
 void DedicatedControl::GameLoopStart_Signal() {}
 void DedicatedControl::GameLoopEnd_Signal() {}
-void DedicatedControl::Menu_Frame() {}
+void DedicatedControl::Menu_Frame() { DedIntern::Get()->BasicFrame(); }
 void DedicatedControl::GameLoop_Frame() {}

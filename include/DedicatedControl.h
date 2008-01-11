@@ -12,9 +12,11 @@
 
 class DedicatedControl {
 private:
-	DedicatedControl();
+	DedicatedControl(); ~DedicatedControl();
 	bool Init_priv();
 public:
+	void* internData;
+	
 	static bool Init(); static void Uninit();
 	static DedicatedControl* Get();
 	
