@@ -1251,7 +1251,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// Find spots in our list for the worms
 		int ids[MAX_PLAYERS];
 		int i;
-		int id;
+		int id = 0;
 		for (i = 0;i < numworms;i++) {
 
 			w = cWorms;

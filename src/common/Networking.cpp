@@ -508,8 +508,15 @@ extern "C"  {
 __declspec(dllimport) pnl_socket_t *nlSockets;
 }
 #else
+#ifdef WIN32
+extern "C"  {
+       NL_EXP pnl_socket_t *nlSockets;
+}
+#else
 extern pnl_socket_t *nlSockets;
 #endif
+#endif
+
 
 extern "C" {
 NL_EXP void NL_APIENTRY nlSetError(NLenum err);

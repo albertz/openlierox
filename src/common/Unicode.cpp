@@ -926,7 +926,7 @@ std::string RemoveSpecialChars(const std::string &Utf8String)
 // Converts UTF16 to UTF8
 std::string Utf16ToUtf8(const Utf16String& str)
 {
-    Uint32 c, d;
+    Uint32 c, d = 0;
 	std::string result;
     int bits, iters;
 
