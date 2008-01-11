@@ -32,6 +32,7 @@
 #include "Cursor.h"
 #include "CButton.h"
 #include "CMediaPlayer.h"
+#include "DedicatedControl.h"
 
 
 menu_t	*tMenu = NULL;
@@ -286,7 +287,10 @@ void Menu_SetSkipStart(int s)
 }
 
 void Menu_Frame() {
-	if(bDedicated) return; // TODO: use PStreams + a script here for control
+	if(bDedicated) {
+		DedicatedControl::Get()->Menu_Frame();
+		return;
+	}
 	
 	Menu_RedrawMouse(false);
 

@@ -26,6 +26,7 @@
 #include "Entity.h"
 #include "Error.h"
 #include "CMediaPlayer.h"
+#include "DedicatedControl.h"
 
 
 #ifndef WIN32
@@ -272,8 +273,7 @@ int main(int argc, char *argv[])
 
 		} else {
 			// Quit
-			ShutdownLieroX();
-			return 0;
+			break;
 		}
 
 		// Pre-game initialization
@@ -287,6 +287,9 @@ int main(int argc, char *argv[])
 		tLX->bQuitEngine = false;
 		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
 
+		if(bDedicated)
+			DedicatedControl::Get()->GameLoopStart_Signal();
+			
         //
         // Main game loop
         //
@@ -311,8 +314,10 @@ int main(int argc, char *argv[])
 			
 			CapFPS();
 		}
+		
+		if(bDedicated)
+			DedicatedControl::Get()->GameLoopEnd_Signal();
 	}
-
 
 	ShutdownLieroX();
 
@@ -520,6 +525,12 @@ int InitializeLieroX(void)
 	tGameInfo.iNumPlayers = 0;
     tGameInfo.sMapRandom.psObjects = NULL;
 
+	if(bDedicated)
+		if(!DedicatedControl::Init()) {
+			printf("ERROR: couldn't init dedicated control\n");
+			return false;
+		}
+
 	printf("Initializing ready\n");
 
 	return true;
@@ -565,6 +576,9 @@ void StartGame(void)
 // Game loop
 void GameLoopFrame(void)
 {
+	if(bDedicated)
+		DedicatedControl::Get()->GameLoop_Frame();
+		
     if(tLX->bQuitEngine)
         return;
 
@@ -750,6 +764,9 @@ void ShutdownLieroX(void)
 			fclose(f);
 		}
 	}
+
+	if(bDedicated)
+		DedicatedControl::Uninit();
 
 	ShutdownMusic();
 #ifdef WITH_MEDIAPLAYER

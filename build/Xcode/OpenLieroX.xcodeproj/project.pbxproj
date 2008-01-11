@@ -19,6 +19,7 @@
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF690D0B038700920A5F /* CTextButton.cpp */; };
 		23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CDBF900D0B06FD00920A5F /* Carbon.framework */; };
+		23D07AB00D36E0F000313749 /* DedicatedControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */; };
 		EA38B0330C467928008ABAAE /* CAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0300C467928008ABAAE /* CAnimation.cpp */; };
 		EA38B0340C467928008ABAAE /* CBar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0310C467928008ABAAE /* CBar.cpp */; };
 		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
@@ -208,6 +209,8 @@
 		23CDBF6D0D0B039C00920A5F /* CTextButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTextButton.h; sourceTree = "<group>"; };
 		23CDBF900D0B06FD00920A5F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		23D07A450D36CC6200313749 /* Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
+		23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DedicatedControl.cpp; sourceTree = "<group>"; };
+		23D07AB30D36E16B00313749 /* DedicatedControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DedicatedControl.h; sourceTree = "<group>"; };
 		EA38B0300C467928008ABAAE /* CAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CAnimation.cpp; sourceTree = "<group>"; };
 		EA38B0310C467928008ABAAE /* CBar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CBar.cpp; sourceTree = "<group>"; };
 		EA38B0320C467928008ABAAE /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cursor.cpp; sourceTree = "<group>"; };
@@ -620,6 +623,7 @@
 				EA430C410BEFCEB400C6547E /* CServer_Game.cpp */,
 				EA430C420BEFCEB400C6547E /* CServer_Parse.cpp */,
 				EA430C430BEFCEB400C6547E /* CServer_Send.cpp */,
+				23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */,
 			);
 			path = server;
 			sourceTree = "<group>";
@@ -627,6 +631,7 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				23D07AB30D36E16B00313749 /* DedicatedControl.h */,
 				23D07A450D36CC6200313749 /* Color.h */,
 				2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */,
 				2389FB200D2D4D5E00358F27 /* SmartPointer.h */,
@@ -1020,6 +1025,7 @@
 				23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */,
 				23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */,
 				2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */,
+				23D07AB00D36E0F000313749 /* DedicatedControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1169,6 +1175,7 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
 					../../hawknl/include,
+					../../pstreams,
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
 					/Library/Frameworks/SDL_mixer.framework/Headers,
@@ -1217,6 +1224,7 @@
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
 					../../hawknl/include,
+					../../pstreams,
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
 					/Library/Frameworks/SDL_mixer.framework/Headers,
