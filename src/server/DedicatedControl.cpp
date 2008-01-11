@@ -21,6 +21,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "CWorm.h"
+#include "CGameScript.h"
 
 static DedicatedControl* dedicatedControlInstance = NULL;
 
@@ -202,28 +203,20 @@ struct DedIntern {
 	}
 
 	void Cmd_StartGame() {
-/*		// Get the mod
-		cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
-		if(it) {
-			tGameInfo.sModName = it->sName;
-			tGameInfo.sModDir = it->sIndex;
-			tLXOptions->tGameinfo.szModName = it->sIndex;
+		tGameInfo.sModDir = "MW 1.0";
+		if(CGameScript::CheckFile(tGameInfo.sModDir, tGameInfo.sModName)) {
+			cout << "ERROR: no mod for dedicated" << endl;
+			// TODO..
 		}
-*/
+		tLXOptions->tGameinfo.szModName = tGameInfo.sModDir;
+
 		// Get the game type
 		tGameInfo.iGameMode = GMT_DEATHMATCH;
 		tLXOptions->tGameinfo.nGameType = tGameInfo.iGameMode;
 
-/*		// Get the map name
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
-		// Save the current level in the options
-		cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameinfo.sMapFilename, 0);
-		cHostLobby.Shutdown();
-*/
-
-		// Setup the client
-//		cClient->SetupViewports();
+		tLXOptions->tGameinfo.sMapFilename = "CastleStrike.lxl";
+		tGameInfo.sMapFile = tLXOptions->tGameinfo.sMapFilename;
+		tGameInfo.sMapName = Menu_GetLevelName(tGameInfo.sMapFile);
 
 		// Start the game
 		cServer->StartGame( true );	// start in dedicated mode
