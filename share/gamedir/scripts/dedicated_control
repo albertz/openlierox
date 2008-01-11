@@ -24,6 +24,8 @@ echo "getcomputerwormlist"
 
 startlobby
 
+sleep 60
+startgame
+
 signal_handler
 
-#startgame
