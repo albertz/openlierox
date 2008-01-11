@@ -407,8 +407,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	} else {
 
 		// Load the map from a file
-		static std::string buf;
-		buf = bs->readString();
+		std::string buf = bs->readString();
 
 		// Invalid packet
 		if (buf == "")  {
