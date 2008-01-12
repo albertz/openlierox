@@ -664,6 +664,8 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 	if (buf.size() > cl->getWorm(0)->getName().size() + 2)
 		command_buf = Utf8String(buf.substr(cl->getWorm(0)->getName().size() + 2));  // Special buffer used for parsing special commands (begin with /)
 
+	printf("Chat: "); printf(buf); printf("\n");
+
 	// Check for special commands
 	if (command_buf.size() > 2)
 		if (command_buf[0] == '/' && command_buf[1] != '/')  {  // When two slashes at the beginning, parse as a normal message

@@ -673,7 +673,8 @@ void Menu_Net_HostGotoLobby(void)
     iSpeaking = 0;
 
     // Draw the lobby
-	Menu_Net_HostLobbyDraw();
+	if(!bDedicated)
+		Menu_Net_HostLobbyDraw();
 
 	// Fill in some game details
 	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
@@ -693,32 +694,33 @@ void Menu_Net_HostGotoLobby(void)
 	gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 	gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
 
-    // Create the GUI
-    Menu_Net_HostLobbyCreateGui();
+    if(!bDedicated) {
+	    // Create the GUI
+    	Menu_Net_HostLobbyCreateGui();
 
-	// Add the chat to the chatbox
-	CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
-	if (lv)  {
-		CChatBox *Chatbox = cClient->getChatbox();
-		lines_iterator it = Chatbox->At(Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
-		int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
-
-		// Copy the chat text
-		for (; it != Chatbox->End(); it++)  {
-			if (it->iColour == tLX->clChatText)  {  // Add only chat messages
-				lv->AddItem("", id, it->iColour);
-				lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
-				id++;
+		// Add the chat to the chatbox
+		CListview *lv = (CListview *)cHostLobby.getWidget(hl_ChatList);
+		if (lv)  {
+			CChatBox *Chatbox = cClient->getChatbox();
+			lines_iterator it = Chatbox->At(Chatbox->getNumLines()-256); // If there's more than 256 messages, we start not from beginning but from end()-256
+			int id = (lv->getLastItem() && lv->getItems()) ? lv->getLastItem()->iIndex + 1 : 0;
+	
+			// Copy the chat text
+			for (; it != Chatbox->End(); it++)  {
+				if (it->iColour == tLX->clChatText)  {  // Add only chat messages
+					lv->AddItem("", id, it->iColour);
+					lv->AddSubitem(LVS_TEXT, it->strLine, NULL, NULL);
+					id++;
+				}
 			}
+	
+			lv->scrollLast();
+			lv->setShowSelect(false);
 		}
-
-		lv->scrollLast();
-		lv->setShowSelect(false);
+	
+		// Add the ingame chatter text to lobby chatter
+		cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, cClient->getChatterText(), 0);
 	}
-
-	// Add the ingame chatter text to lobby chatter
-	cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, cClient->getChatterText(), 0);
-
 
 	cServer->UpdateGameLobby();
 	tMenu->sSavedChatText = "";

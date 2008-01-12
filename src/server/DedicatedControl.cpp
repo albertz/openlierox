@@ -22,6 +22,8 @@
 #include "CServer.h"
 #include "CWorm.h"
 #include "CGameScript.h"
+#include "Unicode.h"
+#include "Protocol.h"
 
 static DedicatedControl* dedicatedControlInstance = NULL;
 
@@ -227,6 +229,10 @@ struct DedIntern {
 		tGameInfo.iGameType = GME_HOST;
 	}
 
+	void Cmd_ChatMessage(const std::string& msg, int type = TXT_NOTICE) {
+		cServer->SendGlobalText(OldLxCompatibleString(msg), type);	
+	}
+
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
 		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
 		if(cmd == "") return;
@@ -236,6 +242,8 @@ struct DedIntern {
 #endif
 		if(cmd == "msg")
 			Cmd_Message(params);
+		else if(cmd == "chatmsg")
+			Cmd_ChatMessage(params);
 		else if(cmd == "startlobby")
 			Cmd_StartLobby();
 		else if(cmd == "addworm")
@@ -270,7 +278,8 @@ struct DedIntern {
 	}
 	
 	void Frame_Playing() {
-	
+		// we don't have to process server/client frames here as it is done already by the main loop
+		
 	}
 	
 	void Frame_Basic() {

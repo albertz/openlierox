@@ -147,20 +147,22 @@ void Menu_Net_GotoHostLobby(void)
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 	iNetMode = net_host;
 
-	// Create the buffer
-	DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
-	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
-	Menu_RedrawMouse(true);
-
+	if(!bDedicated) {
+		// Create the buffer
+		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_common,0,0);
+		if (tMenu->tFrontendInfo.bPageBoxes)
+			Menu_DrawBox(tMenu->bmpBuffer, 15,130, 625, 465);
+		Menu_DrawSubTitle(tMenu->bmpBuffer,SUB_NETWORK);
+		Menu_RedrawMouse(true);
 	
-	cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
-	cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
-	cNetButtons[mn_Host].Setup(mn_Host, 385, 110, 50, 15);
-	cNetButtons[mn_Favourites].Setup(mn_Favourites, 460, 110, 50, 15);
-	cNetButtons[mn_News].Setup(mn_News, 460, 110, 50, 15);
-	//cNetButtons[4].Setup(4, 460, 110, 50, 15);
+		
+		cNetButtons[mn_Internet].Setup(mn_Internet, 205, 110, 95, 15);
+		cNetButtons[mn_LAN].Setup(mn_LAN, 320, 110, 40, 15);
+		cNetButtons[mn_Host].Setup(mn_Host, 385, 110, 50, 15);
+		cNetButtons[mn_Favourites].Setup(mn_Favourites, 460, 110, 50, 15);
+		cNetButtons[mn_News].Setup(mn_News, 460, 110, 50, 15);
+		//cNetButtons[4].Setup(4, 460, 110, 50, 15);
+	}
 
 	Menu_Net_HostGotoLobby();
 
