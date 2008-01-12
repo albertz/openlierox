@@ -13,10 +13,42 @@ function msg() {
 	echo "msg $1"
 }
 
-function signal_handler() {
+function chatmsg() {
+	echo "chatmsg $1"
+}
+
+function start_with_countdown() {
+	c=20
+	while [ "$c" -ge 1 ]; do
+		[ "$c" -ge 10 ] && d=2 || d=1
+		msg "$c ..."
+		chatmsg "$c ..."
+		sleep $d
+		c=$(expr "$c" - $d)
+	done
+
+	startgame
+}
+
+function wait_for_gameloopend() {
+	local signal
 	while read signal; do
+		msg "gameloop: $signal"
+		[ "$signal" == "gameloopend" ] && {
+			sleep 1
+			chatmsg "back in lobby, waiting ..."
+			return
+		}
 		[ "$signal" == "quit" ] && exit
-		msg "$signal"
+	done
+}
+
+function signal_handler() {
+	local signal
+	while read signal; do
+		msg "lobby: $signal"
+		[ "$signal" == "quit" ] && exit
+		[ "$signal" == "gameloopstart" ] && wait_for_gameloopend && return
 	done
 }
 
@@ -24,8 +56,8 @@ echo "getcomputerwormlist"
 
 startlobby
 
-sleep 60
-startgame
-
-signal_handler
+while true; do
+	start_with_countdown
+	signal_handler
+done
 
