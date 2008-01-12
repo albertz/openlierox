@@ -599,13 +599,16 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		if(proj->Hit_UseSound) {
             proj->Hit_SndFilename = readString(fp);			
 			
-			// Load the sample
-			proj->smpSample = LoadGSSample(sDirectory,proj->Hit_SndFilename);
-			
-            if(proj->smpSample == 0) {
-				proj->Hit_UseSound = false;
-				modLog("Could not open sound '%s'",proj->Hit_SndFilename.c_str());
-            }
+			if(!bDedicated) {
+				// Load the sample
+				proj->smpSample = LoadGSSample(sDirectory,proj->Hit_SndFilename);
+				
+				if(proj->smpSample == 0) {
+					proj->Hit_UseSound = false;
+					modLog("Could not open sound '%s'",proj->Hit_SndFilename.c_str());
+				}
+			} else
+				proj->smpSample = NULL;
 		}
 	}
 

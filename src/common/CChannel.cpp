@@ -68,7 +68,7 @@ void CChannel::Transmit( CBytestream *bs )
 
 	// If the remote side dropped the last reliable packet, re-send it
 	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
-		printf("Remote side dropped a reliable packet, resending...\n");
+//		printf("Remote side dropped a reliable packet, resending...\n");
 		SendReliable = 1;
 	}
 
@@ -172,8 +172,8 @@ bool CChannel::Process(CBytestream *bs)
 	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later
 	// It caused a delay when joining (especially on high-ping servers), this hack improves it
 	if((Sequence <= iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
-		printf("Warning: Packet dropped\n");
-		bs->Dump();
+//		printf("Warning: Packet dropped\n");
+//		bs->Dump();
 		return false;
 	}
 
