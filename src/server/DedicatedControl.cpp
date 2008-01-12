@@ -46,7 +46,10 @@ void DedicatedControl::Uninit() {
 DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	}
 
-bool DedicatedControl::Init_priv() { return true; }
+bool DedicatedControl::Init_priv() {
+	printf("ERROR: DedicatedControl cannot work as we haven't found an alternative to PStreams for Windows yet\n");
+	return false;
+}
 
 void DedicatedControl::GameLoopStart_Signal() {}
 void DedicatedControl::GameLoopEnd_Signal() {}
