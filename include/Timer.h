@@ -83,6 +83,7 @@ public:
 	Timer(OnTimerProc ontim, void* dat = NULL, Uint32 t = 1000, bool o = false);
 	~Timer();	
 
+	SDL_TimerID timerID;
 	OnTimerProc onTimer;
 	void* userData; // forwarded to the event-function
 	Uint32 interval; // how often an event is pushed in the SDL queue
@@ -95,10 +96,13 @@ public:
 
 	// this is called by the main-loop in HandleNextEvent()
 	static void handleEvent(SDL_Event& ev);
+
+	// this is called by SDL
+	static Uint32 handleCallback(Uint32 interval, void *param);
 	
 private:
 	bool m_running;
-	void* last_thread_data;	// it's TimerThreadData* intern
+	void* m_lastData;	// it's TimerData* intern
 };
 
 
