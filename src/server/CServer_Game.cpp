@@ -21,6 +21,7 @@
 #include "Protocol.h"
 #include "CWorm.h"
 #include "MathLib.h"
+#include "DedicatedControl.h"
 
 
 ///////////////////
@@ -591,6 +592,8 @@ void GameServer::ShootBeam(CWorm *w)
 // Go back to the lobby
 void GameServer::gotoLobby(void)
 {
+	printf("gotoLobby\n");
+	
 	// Tell all the clients
 	CBytestream bs;
 	bs.writeByte(S2C_GOTOLOBBY);
@@ -629,6 +632,7 @@ void GameServer::gotoLobby(void)
 
 	SendWormLobbyUpdate();
 
+	DedicatedControl::Get()->BackToLobby_Signal();
 
 	// HINT: the gamescript is shut down by the cache
 }

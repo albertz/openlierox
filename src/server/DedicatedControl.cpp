@@ -170,6 +170,7 @@ struct DedIntern {
 		tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
 		tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
 		tGameInfo.iGameMode = tLXOptions->tGameinfo.nGameType;
+		tGameInfo.fTimeLimit = tLXOptions->tGameinfo.fTimeLimit = 10;
 		
 		cClient->Shutdown();
 		cClient->Clear();
@@ -262,7 +263,8 @@ struct DedIntern {
 	// ----------- signals --------------
 	
 	void Sig_GameLoopStart() { pipe << "gameloopstart" << endl; state = S_PLAYING; }
-	void Sig_GameLoopEnd() { pipe << "gameloopend" << endl; state = S_LOBBY; }
+	void Sig_BackToLobby() { pipe << "backtolobby" << endl; state = S_LOBBY; }
+	void Sig_GameLoopEnd() { pipe << "gameloopend" << endl; state = S_NORMAL; }
 	void Sig_ErrorStartLobby() { pipe << "errorstartlobby" << endl; state = S_NORMAL; }
 	void Sig_LobbyStarted() { pipe << "lobbystarted" << endl; state = S_LOBBY; }	
 	void Sig_NewWorm(CWorm* w) { pipe << "newworm" << endl; }	
@@ -326,6 +328,7 @@ bool DedicatedControl::Init_priv() {
 	return true;
 }
 
+void DedicatedControl::BackToLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
 void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
 void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
