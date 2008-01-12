@@ -51,6 +51,7 @@ bool DedicatedControl::Init_priv() {
 	return false;
 }
 
+void DedicatedControl::BackToLobby_Signal() {}
 void DedicatedControl::GameLoopStart_Signal() {}
 void DedicatedControl::GameLoopEnd_Signal() {}
 void DedicatedControl::Menu_Frame() { }
