@@ -964,7 +964,7 @@ void GameServer::CheckReadyClient(void)
 	bool allready = true;
 	CClient *client = cClients;
 	for(c=0; c<MAX_CLIENTS; c++, client++) {
-		if(client->getStatus() == NET_DISCONNECTED || client->getStatus() == NET_ZOMBIE)
+		if(client->getStatus() == NET_DISCONNECTED || client->getStatus() == NET_ZOMBIE || client->getNumWorms() == 0)
 			continue;
 
 		if(!client->getGameReady())
