@@ -697,7 +697,7 @@ void GameServer::RegisterServer(void)
 	std::string addr_name;
 	NetworkAddr addr;
 
-	GetLocalNetAddr(tSocket, addr);
+	GetRemoteNetAddr(tSocket, addr);
 	NetAddrToString(addr, addr_name);
 
 	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;

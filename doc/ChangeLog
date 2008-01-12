@@ -1,11 +1,13 @@
 0.57_beta4
 ==========
+- very basic dedicated server
 - joystick support (for playing)
 - mouse support (for playing)
 - more intelligent event-handling (in some parts);
   all pressed keys got recognised in chat/console
 - delete-key works now under MacOSX
 - copy&paste support for Linux and MacOSX
+
 
 0.57_beta3
 ==========
@@ -41,6 +43,7 @@
 - MaxFPS option under [Advanced] in ~/.OpenLieroX/cfg/options.cfg
 - fixed compile-issues on 64bit systems
 - no-clipping-issues with weapon-generated dirt are fixed
+
 
 0.57_beta1
 ==========
