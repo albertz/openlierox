@@ -1940,8 +1940,10 @@ bool CMap::Load(const std::string& filename)
 	}
 
 	FILE *fp = OpenGameFile(filename,"rb");
-	if(fp == NULL)
+	if(fp == NULL) {
+		printf("WARNING: level %s does not exist\n", filename.c_str());
 		return false;
+	}
 
 	bMiniMapDirty = true;
     sRandomLayout.bUsed = false;
@@ -1952,8 +1954,7 @@ bool CMap::Load(const std::string& filename)
 	}
 
 	// Header
-	static std::string id;
-	id = freadfixedcstr(fp, 32);
+	std::string id = freadfixedcstr(fp, 32);
 	int		version;
 	fread(&version,		sizeof(int),	1,	fp);
 	EndianSwap(version);
@@ -1966,7 +1967,7 @@ bool CMap::Load(const std::string& filename)
 
 	// Check to make sure it's a valid level file
 	if(id != "LieroX Level" || version != MAP_VERSION) {
-		printf("CMap::Load (%s): ERROR: not a valid level file or wrong version\n", filename.c_str());
+		printf("CMap::Load (%s): ERROR: not a valid level file (%s) or wrong version (%i)\n", filename.c_str(), id.c_str(), version);
 		fclose(fp);
 		return false;
 	}

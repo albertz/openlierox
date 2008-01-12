@@ -22,7 +22,7 @@ TODO
 [?] Fix the colour detection of pink for mods (255 0 255) which only
     works in 50% of the mods now. (!!)
 
-[ ] why were some of the default-levels changed in the repo? (!!)
+[x] why were some of the default-levels changed in the repo? (!!)
 	The changes were done for CTF enhancements, but why was a change
 	in the maps needed for a new game-type? I still don't know
 	what changes are made there. Are that the locations for the flags?
