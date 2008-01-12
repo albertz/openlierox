@@ -690,7 +690,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		w->setAlreadyKilled(true);
 
 		// Kill me
-		if(me || (cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+		if(me || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
 			w->setAlive(false);
 			w->Kill();
             w->clearInput();
