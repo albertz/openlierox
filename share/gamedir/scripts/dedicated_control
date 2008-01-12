@@ -30,11 +30,11 @@ function start_with_countdown() {
 	startgame
 }
 
-function wait_for_gameloopend() {
+function wait_for_gameend() {
 	local signal
 	while read signal; do
 		msg "gameloop: $signal"
-		[ "$signal" == "gameloopend" ] && {
+		[ "$signal" == "backtolobby" ] && {
 			sleep 1
 			chatmsg "back in lobby, waiting ..."
 			return
@@ -48,7 +48,7 @@ function signal_handler() {
 	while read signal; do
 		msg "lobby: $signal"
 		[ "$signal" == "quit" ] && exit
-		[ "$signal" == "gameloopstart" ] && wait_for_gameloopend && return
+		[ "$signal" == "gameloopstart" ] && wait_for_gameend && return
 	done
 }
 
