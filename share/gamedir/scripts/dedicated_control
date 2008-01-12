@@ -28,6 +28,7 @@ function start_with_countdown() {
 	done
 
 	startgame
+	wait_for_gameend
 }
 
 function wait_for_gameend() {
@@ -48,7 +49,6 @@ function signal_handler() {
 	while read signal; do
 		msg "lobby: $signal"
 		[ "$signal" == "quit" ] && exit
-		[ "$signal" == "gameloopstart" ] && wait_for_gameend && return
 	done
 }
 
@@ -58,6 +58,5 @@ startlobby
 
 while true; do
 	start_with_countdown
-	signal_handler
 done
 
