@@ -88,6 +88,7 @@ static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
 
 struct DedIntern {	
 	SDL_Thread* pipeThread;
+	SDL_Thread* stdinThread;
 	pstream pipe;
 	SDL_mutex* pipeOutputMutex;
 	stringstream pipeOutput;
@@ -96,8 +97,16 @@ struct DedIntern {
 	DedIntern() : state(S_NORMAL) {}
 	~DedIntern() {
 		Sig_Quit();
+		
+		printf("waiting for stdinThread ...\n");
+		cin.setstate( ios_base::eofbit | ios_base::failbit | ios_base::badbit );
+		SDL_WaitThread(stdinThread, NULL);
+		
+		printf("waiting for pipeThread ...\n");		
 		SDL_WaitThread(pipeThread, NULL);
+				
 		SDL_DestroyMutex(pipeOutputMutex);
+		printf("DedicatedControl destroyed\n");
 	}
 	
 	// reading lines from pipe-out and put them to pipeOutput
@@ -107,6 +116,23 @@ struct DedIntern {
 		while(!data->pipe.out().eof()) {
 			string buf;
 			getline(data->pipe.out(), buf);
+			
+			SDL_mutexP(data->pipeOutputMutex);
+			data->pipeOutput << buf << endl;
+	 		SDL_mutexV(data->pipeOutputMutex);
+		}
+		return 0;
+	}
+	
+	// reading lines from stdin and put them to pipeOutput
+	static int stdinThreadFunc(void*) {
+		DedIntern* data = Get();
+		
+		while(!cin.eof()) {
+			string buf;
+			// TODO: break immediatly if eof()
+			getline(cin, buf);
+			
 			SDL_mutexP(data->pipeOutputMutex);
 			data->pipeOutput << buf << endl;
 	 		SDL_mutexV(data->pipeOutputMutex);
@@ -122,6 +148,14 @@ struct DedIntern {
 	
 	// --------------------------------
 	// ---- commands ------------------
+	
+	void Cmd_Quit() {
+		*bGame = false; // this means if we were in menu => quit
+		tMenu->bMenuRunning = false; // if we were in menu, quit menu
+		
+		tLX->bQuitGame = true; // quit main-main-loop
+		tLX->bQuitEngine = true; // quit main-game-loop
+	}
 	
 	void Cmd_Message(const std::string& msg) {
 		cout << "DedicatedControl: message: " << msg << endl;
@@ -245,7 +279,9 @@ struct DedIntern {
 #ifdef DEBUG
 		cout << "DedicatedControl: exec: " << cmd << " " << params << endl;		
 #endif
-		if(cmd == "msg")
+		if(cmd == "quit")
+			Cmd_Quit();
+		else if(cmd == "msg")
 			Cmd_Message(params);
 		else if(cmd == "chatmsg")
 			Cmd_ChatMessage(params);
@@ -328,7 +364,8 @@ bool DedicatedControl::Init_priv() {
 	dedIntern->pipe << "hello world\n" << flush;
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
 	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
-    
+	dedIntern->stdinThread = SDL_CreateThread(&DedIntern::stdinThreadFunc, NULL);
+
 	return true;
 }
 
