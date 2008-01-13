@@ -179,8 +179,8 @@ struct DedIntern {
 	}
 	
 	void Cmd_StartLobby() {
-		tGameInfo.iNumPlayers = 0; // for now...
-		//tGameInfo.cPlayers[count++] = FindProfile(wormid);
+		tGameInfo.iNumPlayers = 1; // for now...
+		tGameInfo.cPlayers[0] = FindProfile(2); // TODO: this is just temporary (adds the first CPU-worm), make this later with Cmd_AddWorm
 		
 		tGameInfo.sServername = "dedicated server";
 		tGameInfo.sWelcomeMessage = "hello";
