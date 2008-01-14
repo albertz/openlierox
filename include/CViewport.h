@@ -58,6 +58,7 @@ public:
         pcTargetWorm = NULL;
         nType = VW_FOLLOW;
         fTimer = -1;
+		bSmooth = false;
 	}
 
 private:
@@ -84,6 +85,9 @@ private:
     float   fTimer;
 
     CInput  cUp, cRight, cDown, cLeft;
+	
+	bool	bSmooth;
+	CVec	cSmoothVel, cSmoothAccel;
 
 
 public:
@@ -105,7 +109,8 @@ public:
     CWorm   *findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAlive);
 
 	SDL_Rect getRect(void);
-
+	
+	void	setSmoothPosition( float X, float Y );
 
 	//
 	// Variables
@@ -136,6 +141,8 @@ public:
 	void	setType(int _t)		{ nType = _t; }
 
     void    setID(int id)       { nID = id; }
+
+    void    setSmooth(bool _b);
 
 };
 

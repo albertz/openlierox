@@ -85,6 +85,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", false )
 		( tLXOptions->bUseNumericKeysToSwitchWeapons, "Game.UseNumericKeysToSwitchWeapons", true )
 		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
+		( tLXOptions->bSpectatorSmoothViewport, "Game.SpectatorSmoothViewport", true )
 		
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )

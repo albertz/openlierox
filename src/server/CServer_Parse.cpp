@@ -1290,7 +1290,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 					iNumPlayers++;
 				};
 				
-				DedicatedControl::Get()->NewWorm_Signal(w);
+				if( DedicatedControl::Get() )
+					DedicatedControl::Get()->NewWorm_Signal(w);
 				break;
 			}
 		}

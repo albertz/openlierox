@@ -35,6 +35,7 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
 
     pcTargetWorm = NULL;
     nType = type;
+	bSmooth = false;
 }
 
 
@@ -120,8 +121,13 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
+				if( bSmooth )
+					setSmoothPosition( pcTargetWorm->getPos().x-hx, pcTargetWorm->getPos().y-hy );
+				else
+				{
 					WorldX = (int)(pcTargetWorm->getPos().x-hx);
 					WorldY = (int)(pcTargetWorm->getPos().y-hy);									
+				};
 
                 // Clear the timer
                 fTimer = -1;
@@ -169,8 +175,13 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         // Follow the worm
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
-				WorldX = (int)(pcTargetWorm->getPos().x-hx);
-				WorldY = (int)(pcTargetWorm->getPos().y-hy);
+				if( bSmooth )
+					setSmoothPosition( pcTargetWorm->getPos().x-hx, pcTargetWorm->getPos().y-hy );
+				else
+				{
+					WorldX = (int)(pcTargetWorm->getPos().x-hx);
+					WorldY = (int)(pcTargetWorm->getPos().y-hy);
+				};
 
                 // Clear the timer
                 fTimer = -1;
@@ -392,6 +403,8 @@ SDL_Rect CViewport::getRect(void)
 // Shake the viewport
 void CViewport::Shake(int amount)
 {
+	if( bSmooth )
+		return;	// Don't shake viewport if we're spectating - it's just hurting my eyes.
 	fShakestart = tLX->fCurTime;
 	bShaking = true;
 	if(amount > iShakeAmount)
@@ -408,3 +421,43 @@ bool CViewport::inView(CVec pos)
 			(int)pos.x <= WorldX+Width &&
 			(int)pos.y <= WorldY+Height;
 }
+
+void CViewport::setSmooth(bool _b)	
+{
+	bSmooth = _b; 
+	cSmoothVel = cSmoothAccel = CVec(0,0); 
+	curPos = CVec( WorldX, WorldY ); 
+}
+
+// Constants that control behavior of smoothed viewport
+/* // Nice smoothy settings
+const float fVelMax = 1200.0f, fAccelMax = 400.0f, 
+			fVelIncrease = 20.0f, fAccelIncrease = 70.0f,
+			fVelDecay = 10.0f, fAccelDecay = 30.0f;
+*/
+// Hard follow settings, only slightly smoothed
+const float fVelMax = 2000.0f, fAccelMax = 600.0f, 
+			fVelIncrease = 100.0f, fAccelIncrease = 200.0f,
+			fVelDecay = 20.0f, fAccelDecay = 50.0f;
+
+void CViewport::setSmoothPosition( float X, float Y )
+{
+	CVec Coords( X, Y );
+	CVec Diff = Coords - curPos;
+	
+	cSmoothAccel += Diff * ( fAccelIncrease * tLX->fDeltaTime );
+	cSmoothAccel -= cSmoothAccel * fAccelDecay * tLX->fDeltaTime;
+	if( cSmoothAccel.GetLength2() > fAccelMax*fAccelMax )
+		cSmoothAccel *= fAccelMax / cSmoothAccel.GetLength();
+	
+	cSmoothVel += cSmoothAccel * ( fVelIncrease * tLX->fDeltaTime );
+	cSmoothVel -= cSmoothVel * fVelDecay * tLX->fDeltaTime;
+	if( cSmoothVel.GetLength2() > fVelMax*fVelMax )
+		cSmoothVel *= fVelMax / cSmoothVel.GetLength();
+	
+	curPos += cSmoothVel * tLX->fDeltaTime;
+
+	WorldX = (int)curPos.x;
+	WorldY = (int)curPos.y;
+};
+

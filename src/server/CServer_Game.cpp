@@ -632,7 +632,8 @@ void GameServer::gotoLobby(void)
 
 	SendWormLobbyUpdate();
 
-	DedicatedControl::Get()->BackToLobby_Signal();
+	if( DedicatedControl::Get() )
+		DedicatedControl::Get()->BackToLobby_Signal();
 
 	// HINT: the gamescript is shut down by the cache
 }

@@ -193,6 +193,7 @@ public:
 	bool	bAllowMouseAiming;
 	bool	bUseNumericKeysToSwitchWeapons;
 	bool	bAntilagMovementPrediction;
+	bool	bSpectatorSmoothViewport;
 
     // Advanced
     int     nMaxFPS;
