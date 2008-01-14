@@ -442,22 +442,23 @@ const float fVelMax = 2000.0f, fAccelMax = 600.0f,
 
 void CViewport::setSmoothPosition( float X, float Y )
 {
+	float DeltaTime = MIN( 0.03f, tLX->fDeltaTime );
+
 	CVec Coords( X, Y );
 	CVec Diff = Coords - curPos;
-	
-	// TODO: ignore big acceleration for 1 or 2 frames - sometimes the packet are slipping
-	// and the screen is shaken when incorrect far away worm coords are passed down
-	cSmoothAccel += Diff * ( fAccelIncrease * tLX->fDeltaTime );
-	cSmoothAccel -= cSmoothAccel * fAccelDecay * tLX->fDeltaTime;
+
+	// TODO: these formulas work only for FPS > 50
+	cSmoothAccel += Diff * ( fAccelIncrease * DeltaTime );
+	cSmoothAccel -= cSmoothAccel * fAccelDecay * DeltaTime;
 	if( cSmoothAccel.GetLength2() > fAccelMax*fAccelMax )
 		cSmoothAccel *= fAccelMax / cSmoothAccel.GetLength();
 	
-	cSmoothVel += cSmoothAccel * ( fVelIncrease * tLX->fDeltaTime );
-	cSmoothVel -= cSmoothVel * fVelDecay * tLX->fDeltaTime;
+	cSmoothVel += cSmoothAccel * ( fVelIncrease * DeltaTime );
+	cSmoothVel -= cSmoothVel * fVelDecay * DeltaTime;
 	if( cSmoothVel.GetLength2() > fVelMax*fVelMax )
 		cSmoothVel *= fVelMax / cSmoothVel.GetLength();
 	
-	curPos += cSmoothVel * tLX->fDeltaTime;
+	curPos += cSmoothVel * DeltaTime;
 
 	WorldX = (int)curPos.x;
 	WorldY = (int)curPos.y;
