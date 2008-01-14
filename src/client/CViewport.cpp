@@ -445,6 +445,8 @@ void CViewport::setSmoothPosition( float X, float Y )
 	CVec Coords( X, Y );
 	CVec Diff = Coords - curPos;
 	
+	// TODO: ignore big acceleration for 1 or 2 frames - sometimes the packet are slipping
+	// and the screen is shaken when incorrect far away worm coords are passed down
 	cSmoothAccel += Diff * ( fAccelIncrease * tLX->fDeltaTime );
 	cSmoothAccel -= cSmoothAccel * fAccelDecay * tLX->fDeltaTime;
 	if( cSmoothAccel.GetLength2() > fAccelMax*fAccelMax )
