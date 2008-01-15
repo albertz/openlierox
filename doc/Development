@@ -38,7 +38,10 @@ I downloaded the file:
 And extracted all the contents simply directly to my Dev-C++ (so all included
 files goes to the right subdirs).
 
-The provides Dev-C++ project-file (under build/DevCpp) should work now.
+The provided Dev-C++ project-file (under build/DevCpp) should work now.
+
+If you have trouble with compiling, visit:
+http://lxalliance.net/forum/index.php?topic=6444.0
 
 
 
@@ -70,8 +73,23 @@ application-package).
 
 IDE : MSVC
 ==========
-[TODO]
+First you have to install the dependencies:
+- zlib (1.2.3) (www.zlib.net)
+- libiconv (1.9.1) (www.gnu.org/software/libiconv/)
+- Libxml (2.6.19) (www.libxml.org)
+- libjpeg (6b-4) (www.ijg.org)
+- libpng (1.2.8) (www.libpng.org)
+- libsdl (1.2.11) (www.libsdl.org)
+- libgd (2.0.35) (www.libgd.org)
+- SDL_image (1.2.4) (www.libsdl.org)
+- SDL_mixer (1.2.6) (www.libsdl.org)
 
+Then simply open the corresponding project in build directory
+(msvc 6 - VC++ 6 (1998), msvc 2005 - VC++ 8 (2005), msvc 2008 - VC++ 9 (2008))
+and press F5 or F7 to compile.
+
+If you have trouble with getting dependencies or compiling, visit
+http://lxalliance.net/forum/index.php?topic=6444.0
 
 
 IDE : Linux
@@ -201,6 +219,17 @@ Some basic rules you should keep in every case:
 - Comment your code where you made some strange, not selfexplaining stuff.
 - Don't upload any temporary testing-code into the code which produces for
   example some debug-files for you which is useless for the others.
+- Don't add options for every single change you made in the code. If you are
+  unsure if users will like it, discuss the problem with othrer devs or community
+  first. Too many weird options will only confuse the user.
+- Make sure that the code compiles before uploading
+- TEST your code before uploading (the deeper the better)
+  - Mark unstable parts with TODO
+- Brackets after if/for/while etc. statements are separated by two spaces, for example:
+  for (int i=0; i < 10, i++)  {
+    // some code here
+  }
+- Respect the style and conventions of the current code
 
 ...
 
