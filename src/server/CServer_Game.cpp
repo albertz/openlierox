@@ -52,6 +52,8 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 	bs.writeInt( (int)pos.x, 2);
 	bs.writeInt( (int)pos.y, 2);
 	SendGlobalPacket(&bs);
+	if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn )
+		sendEmptyWeaponsOnRespawn(Worm);
 }
 
 
@@ -72,6 +74,8 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 	bs.writeInt( (int)pos.x, 2);
 	bs.writeInt( (int)pos.y, 2);
 	SendPacket(&bs, cl);
+	if( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn && Worm->getClient() == cl )
+		sendEmptyWeaponsOnRespawn(Worm);
 }
 
 

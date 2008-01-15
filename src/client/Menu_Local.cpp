@@ -761,7 +761,8 @@ enum {
 	gs_RespawnInWaves,
 	gs_RespawnGroupTeams,
 	gs_SuicideDecreasesScore,
-	gs_GroupTeamScore
+	gs_GroupTeamScore,
+	gs_EmptyWeaponsOnRespawn
 };
 
 
@@ -789,6 +790,8 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("Bonus life time", tLX->clNormalLabel),	    -1,	        350,300, 0, 0);
 	cGameSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,330, 0, 0);
 	cGameSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,360, 0, 0);
+	cGameSettings.Add( new CLabel("Empty weapons", tLX->clNormalLabel),			-1,	        350,350, 0, 0);
+	cGameSettings.Add( new CLabel("when respawning", tLX->clNormalLabel),		-1,	        350,365, 0, 0);
 	cGameSettings.Add( new CLabel("Respawn in waves", tLX->clNormalLabel),		-1,	        140,390, 0, 0);
 	cGameSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,390, 0, 0);
 	cGameSettings.Add( new CLabel("Suicide decreases score", tLX->clNormalLabel),-1,        140,420, 0, 0);
@@ -804,6 +807,7 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CTextbox(),										gs_BonusLifeTime,	470,297, 30,tLX->cFont.GetHeight());
 	cGameSettings.Add( new CTextbox(),										gs_TimeLimit,	300,327, 30,tLX->cFont.GetHeight());
 	cGameSettings.Add( new CTextbox(),										gs_RespawnTime,	300,357, 30,tLX->cFont.GetHeight());
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn),	gs_EmptyWeaponsOnRespawn, 470,357,17,17);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnInWaves),	gs_RespawnInWaves,    300,387,17,17);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,387,17,17);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,417,17,17);
@@ -954,6 +958,8 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameinfo.bSuicideDecreasesScore = cGameSettings.SendMessage( gs_SuicideDecreasesScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameinfo.bGroupTeamScore = cGameSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	
+	tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn = cGameSettings.SendMessage( gs_EmptyWeaponsOnRespawn, CKM_GETCHECK, (DWORD)0, 0) != 0;
 }
 
 

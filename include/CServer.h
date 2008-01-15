@@ -222,6 +222,7 @@ public:
 #endif
 	void		SendDirtUpdate( CClient * cl );
 	void		SendFiles();
+	void		sendEmptyWeaponsOnRespawn( CWorm * Worm );
 
 	// Parsing
 	void		ParseClientPacket(CClient *cl, CBytestream *bs);

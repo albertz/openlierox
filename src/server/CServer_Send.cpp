@@ -444,3 +444,32 @@ void GameServer::SendFiles()
 		};
 	};
 };
+
+void GameServer::sendEmptyWeaponsOnRespawn( CWorm * Worm )
+{
+	CBytestream bs;
+	CClient * cl = Worm->getClient();
+	int i, j, curWeapon = Worm->getCurrentWeapon();
+	for( i = 0; i < 5; i++ )
+	{
+		Worm->getWeapon(i)->Charge=0;
+		Worm->getWeapon(i)->Reloading=1;
+	};
+	for( i=0; i<5; i++ )
+	{
+		if( i != curWeapon )
+		{
+			Worm->setCurrentWeapon(i);
+			bs.writeByte( S2C_UPDATESTATS );
+			bs.writeByte( cl->getNumWorms() );
+			for( j = 0; j < cl->getNumWorms(); j++ )
+				cl->getWorm(j)->writeStatUpdate(&bs);
+		};
+	};
+	Worm->setCurrentWeapon(curWeapon);
+	bs.writeByte( S2C_UPDATESTATS );
+	bs.writeByte( cl->getNumWorms() );
+	for( j = 0; j < cl->getNumWorms(); j++ )
+		cl->getWorm(j)->writeStatUpdate(&bs);
+	SendPacket(&bs, cl);
+};

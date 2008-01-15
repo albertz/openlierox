@@ -257,6 +257,7 @@ public:
 		bool	bRespawnGroupTeams;	// only if bRespawnInWaves is true - respawn all team in single spot
 		bool	bGroupTeamScore;	// All worms in team will have the same kill count (sum of each one kills)
 		bool	bSuicideDecreasesScore;	// When you suicide or made teamkill your killcount will decrease
+		bool	bEmptyWeaponsOnRespawn;	// When worm respawns it should wait until all weapons are reloaded
 	} tGameinfo;
 
 };
