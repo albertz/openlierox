@@ -229,7 +229,6 @@ Some basic rules you should keep in every case:
   for (int i=0; i < 10, i++)  {
     // some code here
   }
-- Respect the style and conventions of the current code
 
 ...
 
