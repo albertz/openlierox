@@ -325,8 +325,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
 	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
 	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 ); 
-	cJoinLobby.Add( new CCheckbox(tLXOptions->bSpectatorSmoothViewport),	  jl_SpectateSmooth, 200, 244, 17, 17 );
-	cJoinLobby.Add( new CLabel( "Smooth scrolling", tLX->clNormalLabel ), -1, 225, 245, 0, 0 ); 
+
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
 	if (player_list)  {
@@ -620,19 +619,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			// Back
 			case jl_Back:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
-					// Disconnect
-					/*cClient->Disconnect();
-
-					// Click!
-					PlaySoundSample(sfxGeneral.smpClick);
-
-					// Shutdown
-					cJoinLobby.Shutdown();
-
-					// Disconnect & shutdown
-					//cClient->Disconnect();
-					cClient->Shutdown();*/
-
 					// Click
 					PlaySoundSample(sfxGeneral.smpClick);
 
@@ -692,11 +678,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			case jl_Spectate:
 				if(ev->iEventMsg == CHK_CHANGED) {
 					cClient->setSpectate(((CCheckbox *)cJoinLobby.getWidget(jl_Spectate))->getValue());
-				}
-				break;
-			case jl_SpectateSmooth:
-				if(ev->iEventMsg == CHK_CHANGED) {
-					tLXOptions->bSpectatorSmoothViewport = ((CCheckbox *)cJoinLobby.getWidget(jl_SpectateSmooth))->getValue();
 				}
 				break;
 		}

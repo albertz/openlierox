@@ -85,7 +85,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowMouseAiming, "Game.AllowMouseAiming", false )
 		( tLXOptions->bUseNumericKeysToSwitchWeapons, "Game.UseNumericKeysToSwitchWeapons", true )
 		( tLXOptions->bAntilagMovementPrediction, "Game.AntilagMovementPrediction", true )
-		( tLXOptions->bSpectatorSmoothViewport, "Game.SpectatorSmoothViewport", true )
 		
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
@@ -94,6 +93,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bSendDirtUpdate, "Advanced.SendDirtUpdate", false )
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", false )
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 40 )
+		( tLXOptions->bSpectatorSmoothViewport, "Advanced.SpectatorSmoothViewport", true )
 		( tLXOptions->bShowUnstableFeatures, "Advanced.ShowUnstableFeatures", false )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
