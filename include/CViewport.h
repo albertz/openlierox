@@ -110,7 +110,7 @@ public:
 
 	SDL_Rect getRect(void);
 	
-	void	setSmoothPosition( float X, float Y );
+	void	setSmoothPosition( float X, float Y, float DeltaTime );
 
 	//
 	// Variables

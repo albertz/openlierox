@@ -122,7 +122,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
 				if( bSmooth )
-					setSmoothPosition( pcTargetWorm->getPos().x-hx, pcTargetWorm->getPos().y-hy );
+					setSmoothPosition( pcTargetWorm->getPos().x-hx, pcTargetWorm->getPos().y-hy, tLX->fDeltaTime );
 				else
 				{
 					WorldX = (int)(pcTargetWorm->getPos().x-hx);
@@ -176,7 +176,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         if( pcTargetWorm ) {
             if( pcTargetWorm->getAlive() ) {
 				if( bSmooth )
-					setSmoothPosition( pcTargetWorm->getPos().x-hx, pcTargetWorm->getPos().y-hy );
+					setSmoothPosition( pcTargetWorm->getPos().x-hx, pcTargetWorm->getPos().y-hy, tLX->fDeltaTime );
 				else
 				{
 					WorldX = (int)(pcTargetWorm->getPos().x-hx);
@@ -426,7 +426,7 @@ void CViewport::setSmooth(bool _b)
 {
 	bSmooth = _b; 
 	cSmoothVel = cSmoothAccel = CVec(0,0); 
-	curPos = CVec( WorldX, WorldY ); 
+	curPos = tgtPos = CVec( WorldX, WorldY ); 
 }
 
 // Constants that control behavior of smoothed viewport
@@ -440,14 +440,19 @@ const float fVelMax = 2000.0f, fAccelMax = 600.0f,
 			fVelIncrease = 100.0f, fAccelIncrease = 200.0f,
 			fVelDecay = 20.0f, fAccelDecay = 50.0f;
 
-void CViewport::setSmoothPosition( float X, float Y )
+void CViewport::setSmoothPosition( float X, float Y, float DeltaTime )
 {
-	float DeltaTime = MIN( 0.03f, tLX->fDeltaTime );
+	// TODO: these formulas work only for FPS > 50, so we'll run simulation twice on low FPS
+	if( DeltaTime > 0.015f )
+	{
+		setSmoothPosition( X, Y, 0.015f );
+		setSmoothPosition( X, Y, DeltaTime - 0.015f );
+		return;
+	};
 
 	CVec Coords( X, Y );
 	CVec Diff = Coords - curPos;
 
-	// TODO: these formulas work only for FPS > 50
 	cSmoothAccel += Diff * ( fAccelIncrease * DeltaTime );
 	cSmoothAccel -= cSmoothAccel * fAccelDecay * DeltaTime;
 	if( cSmoothAccel.GetLength2() > fAccelMax*fAccelMax )
