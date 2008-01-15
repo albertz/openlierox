@@ -455,6 +455,7 @@ bool CFileDownloader::ShouldBreakThread()
 // TODO: more comments please
 // TODO: rename the class, it's not only downloading but also uploading
 // It might be also used not only in game in the future
+// Valid name will be CFileDownloaderUdp, since it's packet oriented, comments will appear someday (I hope).
 
 void CFileDownloaderInGame::reset()
 {
@@ -570,6 +571,7 @@ bool CFileDownloaderInGame::send( CBytestream * bs )
 	// TODO: more safety here!
 	// The transferred file can be corrupted if some of the packets  gets lost,
 	// create some sequece checking here
+	// Don't worry about safety, we send everything zipped and it has checksum attached, missed packets -> wrong checksum.
 	if( tState != S_SEND )
 	{
 		tState = S_ERROR;
@@ -725,6 +727,8 @@ void CFileDownloaderInGame::processFileRequests()
 
 // Valid filename symbols
 // TODO: don't hardcode this, better check if the path exists/can be created
+// If path already exists is checked outside of this class, 
+// this func checks if someone tries to access things outside OLX dir or use forbidden symbols for some filesystems.
 #define S_LETTER_UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define S_LETTER_LOWER "abcdefghijklmnopqrstuvwxyz"
 #define S_LETTER S_LETTER_UPPER S_LETTER_LOWER

@@ -149,6 +149,8 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.fRespawnTime, "RespawnTime", 2.5 )
 		( tLXOptions->tGameinfo.bRespawnInWaves, "RespawnInWaves", false )
 		( tLXOptions->tGameinfo.bRespawnGroupTeams, "RespawnGroupTeams", false )
+		( tLXOptions->tGameinfo.bGroupTeamScore, "GroupTeamScore", false )
+		( tLXOptions->tGameinfo.bSuicideDecreasesScore, "SuicideDecreasesScore", false )
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();

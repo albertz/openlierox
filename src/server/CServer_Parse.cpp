@@ -418,6 +418,12 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			kill->setDeathsInRow(0);
 		}
 	}
+	
+	// Suicided or killed team member - decrease score if selected in options
+	if( tLXOptions->tGameinfo.bSuicideDecreasesScore && ( killer == victim ||
+		( (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) && vict->getTeam() == kill->getTeam() )))
+			if( kill->getKills() > 0 )
+				kill->setKills( kill->getKills() - 1 );
 
 	// If the flag was attached to the dead worm then release the flag
 	for(int j=0;j<MAX_WORMS;j++)
@@ -640,6 +646,17 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 	vict->writeScore(&byte);
 	if (killer != victim)
 		kill->writeScore(&byte);
+	if( tLXOptions->tGameinfo.bGroupTeamScore && (iGameType == GMT_TEAMDEATH || iGameType == GMT_VIP) )
+	{	// All worms in the same team will have same grouped kill count
+		CWorm *w = cWorms;
+		for( int f = 0; f < MAX_WORMS; f++, w++ )
+			if( w->isUsed() && f != killer )
+				if ( w->getLives() != WRM_OUT && w->getTeam() == kill->getTeam() )
+				{
+					w->setKills( kill->getKills() );
+					w->writeScore(&byte);
+				};
+	};
 
 	// Let everyone know that the worm is now dead
 	byte.writeByte(S2C_WORMDOWN);

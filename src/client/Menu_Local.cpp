@@ -759,7 +759,9 @@ enum {
 	gs_TimeLimit,
 	gs_RespawnTime,
 	gs_RespawnInWaves,
-	gs_RespawnGroupTeams
+	gs_RespawnGroupTeams,
+	gs_SuicideDecreasesScore,
+	gs_GroupTeamScore
 };
 
 
@@ -789,6 +791,8 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,360, 0, 0);
 	cGameSettings.Add( new CLabel("Respawn in waves", tLX->clNormalLabel),		-1,	        140,390, 0, 0);
 	cGameSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,390, 0, 0);
+	cGameSettings.Add( new CLabel("Suicide decreases score", tLX->clNormalLabel),-1,        140,420, 0, 0);
+	cGameSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,420, 0, 0);
 
 	cGameSettings.Add( new CTextbox(),										gs_Lives,		300,177, 30,tLX->cFont.GetHeight());
 	cGameSettings.Add( new CTextbox(),										gs_MaxKills,	300,207, 30,tLX->cFont.GetHeight());
@@ -802,6 +806,8 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CTextbox(),										gs_RespawnTime,	300,357, 30,tLX->cFont.GetHeight());
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnInWaves),	gs_RespawnInWaves,    300,387,17,17);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,387,17,17);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,417,17,17);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bGroupTeamScore),	gs_GroupTeamScore, 470,417,17,17);
 
 	cGameSettings.SendMessage(gs_Lives,TXM_SETMAX,6,0);
 	cGameSettings.SendMessage(gs_MaxKills,TXM_SETMAX,6,0);
@@ -944,6 +950,10 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameinfo.bRespawnInWaves = cGameSettings.SendMessage( gs_RespawnInWaves, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	tLXOptions->tGameinfo.bRespawnGroupTeams = cGameSettings.SendMessage( gs_RespawnGroupTeams, CKM_GETCHECK, (DWORD)0, 0) != 0;
+	
+	tLXOptions->tGameinfo.bSuicideDecreasesScore = cGameSettings.SendMessage( gs_SuicideDecreasesScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
+
+	tLXOptions->tGameinfo.bGroupTeamScore = cGameSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 }
 
 
