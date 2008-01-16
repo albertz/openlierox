@@ -152,6 +152,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.bGroupTeamScore, "GroupTeamScore", false )
 		( tLXOptions->tGameinfo.bSuicideDecreasesScore, "SuicideDecreasesScore", false )
 		( tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false )
+		( tLXOptions->tGameinfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f )
 		;
 
 	bool ret = tLXOptions->LoadFromDisc();

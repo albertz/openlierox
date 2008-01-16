@@ -762,7 +762,8 @@ enum {
 	gs_RespawnGroupTeams,
 	gs_SuicideDecreasesScore,
 	gs_GroupTeamScore,
-	gs_EmptyWeaponsOnRespawn
+	gs_EmptyWeaponsOnRespawn,
+	gs_HealthToWeaponChance
 };
 
 
@@ -781,55 +782,69 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("Game Settings", tLX->clNormalLabel),		    -1,	        280,145, 0, 0);
 	cGameSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    gs_Ok,      220,445, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, tMenu->bmpButtons), gs_Default, 350,445, 80,15);
+
 	cGameSettings.Add( new CLabel("Lives", tLX->clNormalLabel),				    -1,	        140,180, 0, 0);
-	cGameSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			    -1,	        140,210, 0, 0);
-	cGameSettings.Add( new CLabel("Loading Time", tLX->clNormalLabel),		    -1,	        140,240, 0, 0);
-	cGameSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),			    -1,	        140,270, 0, 0);
-	cGameSettings.Add( new CLabel("Bonus spawn time", tLX->clNormalLabel),		-1,	        350,270, 0, 0);
-	cGameSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,	        140,300, 0, 0);
-	cGameSettings.Add( new CLabel("Bonus life time", tLX->clNormalLabel),	    -1,	        350,300, 0, 0);
-	cGameSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,330, 0, 0);
-	cGameSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,360, 0, 0);
-	cGameSettings.Add( new CLabel("Empty weapons", tLX->clNormalLabel),			-1,	        350,350, 0, 0);
-	cGameSettings.Add( new CLabel("when respawning", tLX->clNormalLabel),		-1,	        350,365, 0, 0);
-	cGameSettings.Add( new CLabel("Respawn in waves", tLX->clNormalLabel),		-1,	        140,390, 0, 0);
-	cGameSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,390, 0, 0);
-	cGameSettings.Add( new CLabel("Suicide decreases score", tLX->clNormalLabel),-1,        140,420, 0, 0);
-	cGameSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,420, 0, 0);
-
 	cGameSettings.Add( new CTextbox(),										gs_Lives,		300,177, 30,tLX->cFont.GetHeight());
-	cGameSettings.Add( new CTextbox(),										gs_MaxKills,	300,207, 30,tLX->cFont.GetHeight());
-	cGameSettings.Add( new CSlider(500),									gs_LoadingTime,	295,237, 160,20);
-	cGameSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 470, 240, 0, 0);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bBonusesOn),		gs_Bonuses,		300,267,17,17);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bShowBonusName),	gs_ShowBonusNames, 300,297,17,17);
-	cGameSettings.Add( new CTextbox(),										gs_BonusSpawnTime,	470,267, 30,tLX->cFont.GetHeight());
-	cGameSettings.Add( new CTextbox(),										gs_BonusLifeTime,	470,297, 30,tLX->cFont.GetHeight());
-	cGameSettings.Add( new CTextbox(),										gs_TimeLimit,	300,327, 30,tLX->cFont.GetHeight());
-	cGameSettings.Add( new CTextbox(),										gs_RespawnTime,	300,357, 30,tLX->cFont.GetHeight());
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn),	gs_EmptyWeaponsOnRespawn, 470,357,17,17);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnInWaves),	gs_RespawnInWaves,    300,387,17,17);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,387,17,17);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,417,17,17);
-	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bGroupTeamScore),	gs_GroupTeamScore, 470,417,17,17);
-
 	cGameSettings.SendMessage(gs_Lives,TXM_SETMAX,6,0);
-	cGameSettings.SendMessage(gs_MaxKills,TXM_SETMAX,6,0);
-	cGameSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,10,0);
-
-	cGameSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameinfo.iLoadingTime, 0);
-
 	if(tLXOptions->tGameinfo.iLives >= 0)
 		cGameSettings.SendMessage(gs_Lives, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iLives), 0);
+
+	cGameSettings.Add( new CLabel("Max Kills", tLX->clNormalLabel),			    -1,	        140,210, 0, 0);
+	cGameSettings.Add( new CTextbox(),										gs_MaxKills,	300,207, 30,tLX->cFont.GetHeight());
+	cGameSettings.SendMessage(gs_MaxKills,TXM_SETMAX,6,0);
 	if(tLXOptions->tGameinfo.iKillLimit >= 0)
 		cGameSettings.SendMessage(gs_MaxKills, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iKillLimit), 0);
+
+	cGameSettings.Add( new CLabel("Loading Time", tLX->clNormalLabel),		    -1,	        140,240, 0, 0);
+	cGameSettings.Add( new CSlider(500),									gs_LoadingTime,	295,237, 160,20);
+	cGameSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 470, 240, 0, 0);
+	cGameSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameinfo.iLoadingTime, 0);
+
+	cGameSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),			    -1,	        140,270, 0, 0);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bBonusesOn),		gs_Bonuses,		300,267,17,17);
+
+	cGameSettings.Add( new CLabel("Bonus spawn time", tLX->clNormalLabel),		-1,	        350,270, 0, 0);
+	cGameSettings.Add( new CTextbox(),										gs_BonusSpawnTime,	470,267, 30,tLX->cFont.GetHeight());
+	cGameSettings.SendMessage(gs_BonusSpawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fBonusFreq), 0);
+
+	cGameSettings.Add( new CLabel("Show Bonus names", tLX->clNormalLabel),	    -1,	        140,300, 0, 0);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bShowBonusName),	gs_ShowBonusNames, 300,297,17,17);
+
+	cGameSettings.Add( new CLabel("Bonus life time", tLX->clNormalLabel),	    -1,	        350,300, 0, 0);
+	cGameSettings.Add( new CTextbox(),										gs_BonusLifeTime,	470,297, 30,tLX->cFont.GetHeight());
+	cGameSettings.SendMessage(gs_BonusLifeTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fBonusLife), 0);
+
+	cGameSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),    			-1,	        395,320, 0, 0);
+	cGameSettings.Add( new CLabel("Health", tLX->clNormalLabel),	    		-1,	        350,330, 0, 0);
+	cGameSettings.Add( new CLabel("Weapon", tLX->clNormalLabel),	    		-1,	        455,330, 0, 0);
+	cGameSettings.Add( new CSlider(100),									gs_HealthToWeaponChance,	390,335, 60,12);
+	cGameSettings.SendMessage(gs_HealthToWeaponChance, SLM_SETVALUE, int(tLXOptions->tGameinfo.fBonusHealthToWeaponChance*100.0f), 0);
+
+	cGameSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,330, 0, 0);
+	cGameSettings.Add( new CTextbox(),										gs_TimeLimit,	300,327, 30,tLX->cFont.GetHeight());
+	cGameSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,10,0);
 	if(tLXOptions->tGameinfo.fTimeLimit > 0)
 		cGameSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fTimeLimit), 0);
+
+	cGameSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,360, 0, 0);
+	cGameSettings.Add( new CTextbox(),										gs_RespawnTime,	300,357, 30,tLX->cFont.GetHeight());
 	cGameSettings.SendMessage(gs_RespawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fRespawnTime), 0);
-	cGameSettings.SendMessage(gs_BonusSpawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fBonusFreq), 0);
-	cGameSettings.SendMessage(gs_BonusLifeTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fBonusLife), 0);
-	//if(tLXOptions->tGameinfo.iTagLimit >= 0)
-		//cLocalMenu.SendMessage(gs_TagLimitTxt, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iTagLimit), 0);
+
+	cGameSettings.Add( new CLabel("Empty weapons", tLX->clNormalLabel),			-1,	        350,350, 0, 0);
+	cGameSettings.Add( new CLabel("when respawning", tLX->clNormalLabel),		-1,	        350,365, 0, 0);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn),	gs_EmptyWeaponsOnRespawn, 470,357,17,17);
+
+	cGameSettings.Add( new CLabel("Respawn in waves", tLX->clNormalLabel),		-1,	        140,390, 0, 0);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnInWaves),	gs_RespawnInWaves,    300,387,17,17);
+
+	cGameSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,390, 0, 0);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,387,17,17);
+
+	cGameSettings.Add( new CLabel("Suicide decreases score", tLX->clNormalLabel),-1,        140,420, 0, 0);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,417,17,17);
+
+	cGameSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,420, 0, 0);
+	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bGroupTeamScore),	gs_GroupTeamScore, 470,417,17,17);
 }
 
 /////////////
@@ -907,8 +922,7 @@ void Menu_GameSettings_GrabInfo(void)
 {
 	static std::string buf;
 
-	tLXOptions->tGameinfo.iLoadingTime = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
-	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime;
+	tGameInfo.iLoadingTimes = tLXOptions->tGameinfo.iLoadingTime = cGameSettings.SendMessage(gs_LoadingTime, SLM_GETVALUE, 100, 0);
 
 	// Default to no setting
 	tGameInfo.iLives = tLXOptions->tGameinfo.iLives = -2;
@@ -918,7 +932,6 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameinfo.fRespawnTime = 2.5;
 	tGameInfo.bBonusesOn = true;
 	tGameInfo.bShowBonusName = true;
-
 
 	// Store the game info into the options structure as well
 	cGameSettings.SendMessage(gs_Lives, TXS_GETTEXT, &buf, 0);
@@ -960,6 +973,8 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameinfo.bGroupTeamScore = cGameSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 	
 	tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn = cGameSettings.SendMessage( gs_EmptyWeaponsOnRespawn, CKM_GETCHECK, (DWORD)0, 0) != 0;
+
+	tLXOptions->tGameinfo.fBonusHealthToWeaponChance = float(cGameSettings.SendMessage(gs_HealthToWeaponChance, SLM_GETVALUE, 100, 0)) / 100.0f ;
 }
 
 

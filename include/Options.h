@@ -258,6 +258,7 @@ public:
 		bool	bGroupTeamScore;	// All worms in team will have the same kill count (sum of each one kills)
 		bool	bSuicideDecreasesScore;	// When you suicide or made teamkill your killcount will decrease
 		bool	bEmptyWeaponsOnRespawn;	// When worm respawns it should wait until all weapons are reloaded
+		float	fBonusHealthToWeaponChance;	// if 0.0f only health will be generated, if 1.0f - only weapons
 	} tGameinfo;
 
 };

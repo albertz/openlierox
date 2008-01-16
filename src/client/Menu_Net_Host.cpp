@@ -906,6 +906,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					Menu_HostShowMinimap();
 
 					cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &cServer->getLobby()->szMapName, 0);
+					tLXOptions->tGameinfo.sMapFilename = cServer->getLobby()->szMapName;
 					cServer->UpdateGameLobby();
 				}
 				break;

@@ -307,7 +307,7 @@ void GameServer::SpawnBonus(void)
 	//cMap->CarveHole(SPAWN_HOLESIZE,pos);
 
 	// NOTE: Increase to 2 when we want to use the fullcharge bonus
-	int type = GetRandomInt(1);
+	int type = GetRandomInt(999) >= tLXOptions->tGameinfo.fBonusHealthToWeaponChance * 1000.0f ? BNS_HEALTH : BNS_WEAPON;
 	int wpn = GetRandomInt(cGameScript.GetNumWeapons()-1);
 
 
