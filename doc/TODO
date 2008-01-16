@@ -1,5 +1,7 @@
 TODO
 
+[ ] gfx is wrong in some situation or makes problems, fix that (!!)
+[ ] local play menu (map selection etc.) should be faster (!)
 [ ] remove the SendMessage function from GUI part
     ( obj.SendMessage(..., GET, ...) or
       obj.SendMessage(..., SET, ...) is realy bad
