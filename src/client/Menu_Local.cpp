@@ -840,7 +840,8 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("Group teams", tLX->clNormalLabel),			-1,         350,390, 0, 0);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bRespawnGroupTeams),	gs_RespawnGroupTeams, 470,387,17,17);
 
-	cGameSettings.Add( new CLabel("Suicide decreases score", tLX->clNormalLabel),-1,        140,420, 0, 0);
+	cGameSettings.Add( new CLabel("Suicide or teamkill", tLX->clNormalLabel),	-1,         140,410, 0, 0);
+	cGameSettings.Add( new CLabel("decreases score", tLX->clNormalLabel),		-1,         140,425, 0, 0);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bSuicideDecreasesScore),	gs_SuicideDecreasesScore,    300,417,17,17);
 
 	cGameSettings.Add( new CLabel("Group team score", tLX->clNormalLabel),		-1,         350,420, 0, 0);
