@@ -435,47 +435,48 @@ void CClient::SimulateProjectiles(float dt)
            Worm Collision
         ===================
         */
-		if( (result & PJC_WORM) && wormid >= 0 && !explode && !timer) {
+		if( (result & PJC_WORM) && wormid >= 0 && !explode && !timer)
+			if( wormid != prj->GetOwner() || (int)(1000 * prj->getLife()) > iMyPing)  {
 
-			// Explode
-			if(pi->PlyHit_Type == PJ_EXPLODE)
-				explode = true;
+				// Explode
+				if(pi->PlyHit_Type == PJ_EXPLODE)
+					explode = true;
 
-			// Injure
-			if(pi->PlyHit_Type == PJ_INJURE) {
+				// Injure
+				if(pi->PlyHit_Type == PJ_INJURE) {
 
-				// Add damage to the worm
-				InjureWorm(&cRemoteWorms[wormid], pi->PlyHit_Damage, prj->GetOwner());
-				prj->setUsed(false);
+					// Add damage to the worm
+					InjureWorm(&cRemoteWorms[wormid], pi->PlyHit_Damage, prj->GetOwner());
+					prj->setUsed(false);
+				}
+
+				if(pi->PlyHit_Type != PJ_BOUNCE && pi->PlyHit_Type != PJ_NOTHING) {
+
+					// Push the worm back
+					CVec d = prj->GetVelocity();
+					NormalizeVector(&d);
+					CVec *v = cRemoteWorms[wormid].getVelocity();
+					*v = *v + (d*100)*dt;
+				}
+
+				// Bounce
+				if(pi->PlyHit_Type == PJ_BOUNCE)
+					prj->Bounce(pi->PlyHit_BounceCoeff);
+
+				if(pi->PlyHit_Projectiles)
+					spawnprojectiles = true;
+
+				// Dirt
+				if(pi->PlyHit_Type == PJ_DIRT) {
+					dirt = true;
+					damage = pi->PlyHit_Damage;
+				}
+
+				// Green Dirt
+				if(pi->Hit_Type == PJ_GREENDIRT) {
+					grndirt = true;
+				}
 			}
-
-			if(pi->PlyHit_Type != PJ_BOUNCE && pi->PlyHit_Type != PJ_NOTHING) {
-
-				// Push the worm back
-				CVec d = prj->GetVelocity();
-				NormalizeVector(&d);
-				CVec *v = cRemoteWorms[wormid].getVelocity();
-				*v = *v + (d*100)*dt;
-			}
-
-			// Bounce
-			if(pi->PlyHit_Type == PJ_BOUNCE)
-				prj->Bounce(pi->PlyHit_BounceCoeff);
-
-			if(pi->PlyHit_Projectiles)
-				spawnprojectiles = true;
-
-			// Dirt
-			if(pi->PlyHit_Type == PJ_DIRT) {
-				dirt = true;
-				damage = pi->PlyHit_Damage;
-			}
-
-            // Green Dirt
-            if(pi->Hit_Type == PJ_GREENDIRT) {
-                grndirt = true;
-            }
-		}
 
 
 		// Explode?
