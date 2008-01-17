@@ -67,7 +67,7 @@ TODO
     it from cache (maybe use CCache for caching maps?) (!!)
 [X] fix: additional weapon selection keys for splitscreen for second player
 [X] fix: delete key doesn't work on MacOSX (!!)
-[ ] don't overwrite the whole config-file at the end but only the
+[X] don't overwrite the whole config-file at the end but only the
     known-parts (this makes it compatible with future versions and don't
     deletes part of it) (!)
 [X] multiple masterservers (and registration on each) (!!)
