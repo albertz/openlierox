@@ -1,5 +1,14 @@
 TODO
 
+[ ] remove all unneeded ProcessEvents() from the code
+    (even net-messages through events now, so there should
+     be almost no part where it is still needed) (!!)
+[ ] sometimes the pathfinding returns a path through some walls
+    Though mostly in this cases it's easy to go around so it
+    doesn't make much trouble (mostly). But should be fixed though. (!)
+    (assigned to Albert)
+[ ] making general INI-parser class (!)
+    (assigned to Albert)
 [ ] fix for twice changing gfx options in menu (you get into trouble then) (!!)
 [ ] fix network interpolation (is currently not optimal) (!!)
 [ ] fix physics (behaves currently different depending on FPS) (!!)
@@ -11,7 +20,8 @@ TODO
 [ ] Fix memory leaks (!!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
-[ ] better bot behavior (!!)
+[ ] follow better/faster the way (!!)
+[ ] bot avoid projectiles (!!)
 [ ] recode whole CTF code (!!)
 [ ] fill documentation (README) (!!)
 [ ] fix: crashes on MacOSX (!!)
