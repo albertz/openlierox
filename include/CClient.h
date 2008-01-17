@@ -243,10 +243,8 @@ public:
 		for(ushort i=0; i<4; i++)
 			iTeamScores[i] = 0;
 
-		bHostOLXb3 = false;
-		bHostOLXb4 = false;
+		iHostOLXVer = 0;
 		bHostAllowsMouse = false;
-		bClientOLXBeta4 = false;
 		fLastDirtUpdate = fLastFileRequest = tLX->fCurTime;
 
 		bDownloadingMap = false;
@@ -396,12 +394,11 @@ private:
 	float		fLastUpdateSent;
 	std::string	szServerName;
 	ClientRights tRights;
-	bool		bHostOLXb3;
-	bool		bHostOLXb4;
+	int			iHostOLXVer;
 	bool		bHostAllowsMouse;
 	std::string	sClientVersion;
 	std::string	sServerVersion;
-	bool		bClientOLXBeta4;
+	int			iClientOLXVer;
 
 	// Map downloading
 	bool		bDownloadingMap;
@@ -656,15 +653,13 @@ public:
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
 	const std::string& getServerName(void)			{ return szServerName; }
 
-	// TODO: don't use bool for a number
-	bool getHostBeta3(void)				{ return bHostOLXb3; }
-	bool getHostBeta4(void)				{ return bHostOLXb4; }
-	void setHostBeta4(bool _b)			{ bHostOLXb4 = _b; }
+	int getHostVer(void)				{ return iHostOLXVer; }
+	void setHostVer(int _v)				{ iHostOLXVer = _v; }
 	const std::string & getClientVersion()				{ return sClientVersion; }
 	void setClientVersion(const std::string & _s);
 	const std::string & getServerVersion()				{ return sServerVersion; }
 	void setServerVersion(const std::string & _s);
-	bool getClientOLXBeta4()	{ return bClientOLXBeta4; }
+	bool getClientOLXBeta4()	{ return iClientOLXVer; }
 
 	bool getHostAllowsMouse(void)				{ return bHostAllowsMouse; }
 	void setHostAllowsMouse(bool _b)			{ bHostAllowsMouse = _b; }

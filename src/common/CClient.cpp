@@ -115,9 +115,8 @@ void CClient::Clear(void)
 		cViewports[i].SetWorldY(0);
     }    
 
-	bHostOLXb4 = false;
+	iHostOLXVer = 0;
 	bHostAllowsMouse = false;
-	bClientOLXBeta4 = false;
 
 	bDownloadingMap = false;
 	cFileDownloader = NULL;
@@ -577,6 +576,7 @@ void CClient::Connect(const std::string& address)
 	strServerAddr = address;
 	iNumConnects=0;
 	bBadConnection = false;
+	iHostOLXVer = 0;
 
 	fConnectTime = -99999;		// This will force the connecting process to run straight away
 }
@@ -1092,23 +1092,23 @@ void CClient::setClientVersion(const std::string & _s)
 { 
 	//printf("CClient::setClientVersion(): %s\n", _s.c_str() );
 	sClientVersion = _s;
-	bHostOLXb4 = true;
-	bClientOLXBeta4 = true;
+	iHostOLXVer = 4;
+	iClientOLXVer = 4;
 }
 
 void CClient::setServerVersion(const std::string & _s)			
 { 
 	//printf("CClient::setServerVersion(): %s\n", _s.c_str() );
 	sServerVersion = _s;
-	bHostOLXb4 = true;
-	bClientOLXBeta4 = true;
+	iHostOLXVer = 4;
+	iClientOLXVer = 4;
 }
 
 const float fDownloadRetryTimeout = 5.0;	// 5 seconds
 
 void CClient::processFileRequests()
 {
-	if( ! getHostBeta4() || iNetStatus != NET_CONNECTED || ! tLXOptions->bAllowFileDownload )
+	if( getHostVer() < 4 || iNetStatus != NET_CONNECTED || ! tLXOptions->bAllowFileDownload )
 		return;
 	
 	//printf("CClient::processFileRequests(): state %i\n", getFileDownloaderInGame()->getState() );

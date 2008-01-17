@@ -54,16 +54,13 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 		strBadConnectMsg = Utf8String(bs->readString(256));
 	}
 
-	// TODO: don't make it like this! detect any future version here!
-	// TODO: also, don't use seperate bools for each version
-	
-	// Host has OpenLX Beta 3
-	else if(cmd == "lx::openbeta3")
-		bHostOLXb3 = true;
-
-	// Host has OpenLX Beta 4
-	else if(cmd == "lx::openbeta4")
-		bHostOLXb4 = true;
+	// Host has OpenLX Beta 3+
+	else if(cmd.find_first_of("lx::openbeta") == 0)  {
+		if (cmd.size() > 12)  {
+			int ver = MAX(0, atoi(cmd.substr(12)));
+			iHostOLXVer = MAX(ver, iHostOLXVer);
+		}
+	}
 
 	else if (cmd == "lx:mouseAllowed")
 		bHostAllowsMouse = true;

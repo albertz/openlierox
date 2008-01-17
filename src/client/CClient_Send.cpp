@@ -99,8 +99,8 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 
 	if (chat_command)  {
 		// Don't allow sending commands to servers that don't support it
-		if (!bHostOLXb3)  {
-			cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3 can", tLX->clNotice, tLX->fCurTime);
+		if (!iHostOLXVer < 3)  {
+			cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, tLX->fCurTime);
 			return;
 		}
 
