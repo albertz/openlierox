@@ -60,6 +60,8 @@ class DownloadError  { public:
 };
 
 
+// TODO: what is the difference between CFileDownload and CFileDownloader
+
 
 // Single file download handling class
 class CFileDownload  {
@@ -202,6 +204,7 @@ public:
 private:
 	void			processFileRequests();
 
+	// TODO: should use intern-pointer here
 	std::string		sFilename;
 	std::string		sData;
 	uint			iPos;
