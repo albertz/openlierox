@@ -693,6 +693,12 @@ void Menu_OptionsFrame(void)
 						tLXOptions->bFullscreen = fullscr;
 						tLXOptions->bOpenGL = opengl;
 						tLXOptions->iColourDepth = cdepth;
+						bool fail = false;
+
+						CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
+						tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
+						tLXOptions->nMaxFPS = fail ? 1 : MAX(1, tLXOptions->nMaxFPS);
+						t->setText(itoa(tLXOptions->nMaxFPS));
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						// Set the new video mode
@@ -783,8 +789,6 @@ void Menu_OptionsFrame(void)
 		tLXOptions->iNetworkPort = atoi(t->getText());
 		t = (CTextbox *)cOpt_System.getWidget(os_STUNServer);
 		tLXOptions->sSTUNServer = t->getText();
-		t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
-		tLXOptions->nMaxFPS = MAX(1,atoi(t->getText()));
 
 		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
 
@@ -806,8 +810,10 @@ void Menu_OptionsFrame(void)
 			tLXOptions->bOpenGL = opengl;
 		}
 
+		// FPS and fullscreen
+		t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
 
-		if(fullscr != tLXOptions->bFullscreen)
+		if(fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS)
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
         else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
