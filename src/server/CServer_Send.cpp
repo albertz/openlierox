@@ -401,7 +401,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 {
 	if( ! tLXOptions->bSendDirtUpdate )
 		return;
-	if( ! cl->getClientOLXBeta4() )
+	if( cl->getClientOLXVer() < 4 )
 		return;
 	if( cl->getLastDirtUpdate() + 10 < tLX->fCurTime )
 	{

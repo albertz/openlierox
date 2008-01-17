@@ -426,7 +426,7 @@ void CViewport::setSmooth(bool _b)
 {
 	bSmooth = _b; 
 	cSmoothVel = cSmoothAccel = CVec(0,0); 
-	curPos = tgtPos = CVec( WorldX, WorldY ); 
+	curPos = tgtPos = CVec( (float)WorldX, (float)WorldY ); 
 }
 
 // Constants that control behavior of smoothed viewport

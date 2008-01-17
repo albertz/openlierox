@@ -896,7 +896,7 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 					continue;
 				if( w->getSkin() == skin )
 				{
-					if( ! w->getClient()->getClientOLXBeta4() )
+					if( w->getClient()->getClientOLXVer() < 4 )
 						return;
 					w->getClient()->getFileDownloaderInGame()->requestFile( "skins/" + skin, false );
 					return;

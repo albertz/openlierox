@@ -659,7 +659,7 @@ public:
 	void setClientVersion(const std::string & _s);
 	const std::string & getServerVersion()				{ return sServerVersion; }
 	void setServerVersion(const std::string & _s);
-	bool getClientOLXBeta4()	{ return iClientOLXVer; }
+	int getClientOLXVer()	{ return iClientOLXVer; }
 
 	bool getHostAllowsMouse(void)				{ return bHostAllowsMouse; }
 	void setHostAllowsMouse(bool _b)			{ bHostAllowsMouse = _b; }
