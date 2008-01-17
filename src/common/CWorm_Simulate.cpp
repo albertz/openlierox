@@ -532,13 +532,15 @@ void CWorm::Simulate(CWorm *worms, int local, float dt)
 	// Ultimate in friction
 	if(bOnGround) {
 //		vVelocity.x *= pow(0.9f, dt * 100.0f); // wrong
-		// HINT: this isn't exactly the way old lx did it (there it was exponential, here it's linear)
-		// The only advantage of this is that it is FPS independent
-		// TODO: if you manage to make it this way but exponential, it will be definitelly better
-		float old_x = vVelocity.x;
+
+		// TODO: if you manage to make it this way but exponential, it will be perfect :)
+		/*float old_x = vVelocity.x;
 		vVelocity.x -= SIGN(vVelocity.x) * 0.9f * (dt * 100.0f); // TODO: this is the bug described in
 		if (SIGN(old_x) != SIGN(vVelocity.x))  // Make sure we don't dampen to opposite direction
-			vVelocity.x = 0.0f;
+			vVelocity.x = 0.0f;*/
+
+		// Even though this is highly FPS dependent, it seems to work quite good (this is how old lx did it)
+		vVelocity.x *= 0.9f;
 
 		//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 

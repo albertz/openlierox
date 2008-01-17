@@ -270,6 +270,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static const int WORM_CHECKSTEP = 2; // this is used for worm collisions
 	int len = (int)vVelocity.GetLength2();
 	
+	// HINT: this prevents napalms and similar stuff from flying through walls (serious bug)
+	if (tProjInfo->Dampening <= 1) // This rule does not apply to "accelerating" projectiles
+		len = MIN(tProjInfo->ProjSpeed + tProjInfo->ProjSpeedVar * iRandom, len);
+
+	
 	if (len < 14000)  {
 		MIN_CHECKSTEP = 1;
 		MAX_CHECKSTEP = 3;
