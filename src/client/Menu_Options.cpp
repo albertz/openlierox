@@ -697,7 +697,7 @@ void Menu_OptionsFrame(void)
 
 						CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
 						tLXOptions->nMaxFPS = from_string<int>(t->getText(), fail);
-						tLXOptions->nMaxFPS = fail ? 1 : MAX(1, tLXOptions->nMaxFPS);
+						tLXOptions->nMaxFPS = fail ? 0 : MAX(0, tLXOptions->nMaxFPS);
 						t->setText(itoa(tLXOptions->nMaxFPS));
 						PlaySoundSample(sfxGeneral.smpClick);
 
