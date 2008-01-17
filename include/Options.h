@@ -17,6 +17,7 @@
 #ifndef __OPTIONS_H__
 #define __OPTIONS_H__
 
+#include <map>
 #include <vector>
 #include <string>
 #include <cassert>
@@ -261,6 +262,9 @@ public:
 		float	fBonusHealthToWeaponChance;	// if 0.0f only health will be generated, if 1.0f - only weapons
 	} tGameinfo;
 
+	// not specified options found in options-file
+	std::map< std::string, std::string > additionalOptions;
+	
 };
 
 

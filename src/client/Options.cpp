@@ -13,6 +13,8 @@
 // Created 21/7/02
 // Jason Boettcher
 
+#include <ctype.h> // isspace
+#include <iostream>
 
 #include "LieroX.h"
 #include "FindFile.h"
@@ -20,6 +22,8 @@
 #include "Options.h"
 #include "ConfigHandler.h"
 #include "CGuiSkin.h"
+
+using namespace std;
 
 GameOptions	*tLXOptions = NULL;
 NetworkTexts	*networkTexts = NULL;
@@ -44,6 +48,7 @@ bool GameOptions::Init() {
 		return false;
 	}
 	
+	// TODO: don't hardcode the size here
 	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
 	
 	CScriptableVars::RegisterVars("GameOptions")	
@@ -193,15 +198,78 @@ static void InitSearchPaths() {
 	printf(" And that's all.\n");
 }
 
+static void InitWidgetStates(GameOptions& opts) {
+	// this has to be done explicitly at the moment as scriptablevars doesn't support arrays
+	// TODO: add this feature
+	
+	const int	 def_widths[] = {32,180,70,80,60,150};
+	
+	for (size_t i=0; i<sizeof(opts.iInternetList)/sizeof(int); i++)  {
+		opts.iInternetList[i] = def_widths[i];
+		opts.iLANList[i] = def_widths[i];
+		opts.iFavouritesList[i] = def_widths[i];
+	}
+
+	// Widget states
+	ReadIntArray(OptionsFileName, "Widgets","InternetListCols",	&opts.iInternetList[0],6);
+	ReadIntArray(OptionsFileName, "Widgets","LANListCols",		&opts.iLANList[0],6);
+	ReadIntArray(OptionsFileName, "Widgets","FavouritesListCols",	&opts.iFavouritesList[0],6);
+}
+
+// TODO: perhaps move this out? or is this related esp to the format of the options.cfg?
+static void SetScriptableVarByString(CScriptableVars::ScriptVarPtr_t& var, const std::string& str) {
+	bool fail = false;
+	std::string scopy = str; TrimSpaces(scopy); stringlwr(scopy);
+	if( var.type == CScriptableVars::SVT_BOOL )
+	{
+		if( scopy.find_first_of("-0123456789") == 0 )
+			*var.b = from_string<int>(scopy, fail) != 0; // Some bools are actually ints in config file
+		else {
+			if(scopy == "true" || scopy == "yes")
+				*var.b = true;
+			else if(scopy == "false" || scopy == "no")
+				*var.b = false;
+			else
+				fail = true;
+		}
+	}
+	else if( var.type == CScriptableVars::SVT_INT )
+	{
+		if( scopy.find_first_of("-0123456789") == 0 )
+			*var.i = from_string<int>(scopy, fail);
+		else {
+			cout << "WARNING: " << str << " should be an integer in options.cfg but it isn't" << endl;
+			// HACK: because sometimes there is a bool instead of an int in the config
+			// TODO: is this still like this?
+			if(scopy == "true" || scopy == "yes")
+				*var.i = 1;
+			else if(scopy == "false" || scopy == "no")
+				*var.i = 0;
+			else
+				fail = true;
+		}
+	}
+	else if( var.type == CScriptableVars::SVT_FLOAT )
+		*var.f = from_string<float>(scopy, fail);
+	else if( var.type == CScriptableVars::SVT_STRING )
+		*var.s = str;
+	else
+		cout << "WARNING: Invalid var type " << var.type << " of \"" << str << "\" when loading config!" << endl;
+	
+	if(fail)
+		cout << "WARNING: failed to convert " << str << " into format " << var.type << endl;
+}
+ 
+
 ///////////////////
 // Load the options
 bool GameOptions::LoadFromDisc()
 {
 	printf("Loading options... \n");
 
-    unsigned int     i;
-
-
+	additionalOptions.clear();
+	
+	// TODO: is this still needed with the new parsing?
 	AddKeyword("true",true);
 	AddKeyword("false",false);
 
@@ -210,58 +278,111 @@ bool GameOptions::LoadFromDisc()
 	// File handling
 	// read this first, because perhaps we will have new searchpaths
 	InitSearchPaths();
-	
-	const int	 def_widths[] = {32,180,70,80,60,150};
-	
-	for (i=0;i<sizeof(iInternetList)/sizeof(int);i++)  {
-		iInternetList[i] = def_widths[i];
-		iLANList[i] = def_widths[i];
-		iFavouritesList[i] = def_widths[i];
-	}
 
-	// Widget states
-	ReadIntArray(OptionsFileName, "Widgets","InternetListCols",	&iInternetList[0],6);
-	ReadIntArray(OptionsFileName, "Widgets","LANListCols",		&iLANList[0],6);
-	ReadIntArray(OptionsFileName, "Widgets","FavouritesListCols",	&iFavouritesList[0],6);
+	// TODO: these use arrays which are not handled by scriptablevars
+	InitWidgetStates(*this);
 	
-	// Load variables registered with CGuiSkin
+	// first set the standards (else the vars would be undefined if not defined in options.cfg)
 	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin(); 
 			it != CScriptableVars::Vars().end(); it++ )
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
-			int dot1 = it->first.find("."), dot2 = it->first.find( ".", dot1 + 1 );
-			std::string section = it->first.substr( dot1 + 1, dot2 - dot1 - 1 );	// Between two dots
-			std::string key = it->first.substr( dot2 + 1 );	// After last dot
-			if( it->second.type == CScriptableVars::SVT_BOOL )	// Some bools are actually ints in config file
-			{
-				std::string s = "";
-				ReadString( OptionsFileName, section, key, s, "" );
-				if( s.find_first_of("0123456789") == 0 )
-				{
-					int ii = 0;
-					ReadInteger( OptionsFileName, section, key, &ii, it->second.bdef );
-					*(it->second.b) = ( ii != 0 );
-				}
-				else ReadKeyword( OptionsFileName, section, key, it->second.b, it->second.bdef );
-			}
-			else if( it->second.type == CScriptableVars::SVT_INT )	// Some ints are actually bools in config file
-			{
-				std::string s = "";
-				ReadString( OptionsFileName, section, key, s, "" );
-				if( s.find_first_of("0123456789") == 0 )
-					ReadInteger( OptionsFileName, section, key, it->second.i, it->second.idef );
-				else
-					ReadKeyword( OptionsFileName, section, key, it->second.i, it->second.idef );
-			}
+			if( it->second.type == CScriptableVars::SVT_BOOL )
+				*(it->second.b) = it->second.bdef;
+			else if( it->second.type == CScriptableVars::SVT_INT )
+				*(it->second.i) = it->second.idef;
 			else if( it->second.type == CScriptableVars::SVT_FLOAT )
-				ReadFloat( OptionsFileName, section, key, it->second.f, it->second.fdef );
+				*(it->second.f) = it->second.fdef;
 			else if( it->second.type == CScriptableVars::SVT_STRING )
-				ReadString( OptionsFileName, section, key, *(it->second.s), it->second.sdef );
-			else printf("Invalid var type %i of \"%s\" when loading config!\n", it->second.type, it->first.c_str() );
-		};
-	};
+				*(it->second.s) = it->second.sdef;
+			else printf("WARNING: Invalid var type %i of \"%s\" when setting default!\n", it->second.type, it->first.c_str() );	
+		}
+	}
+	
+	
+	// parse the file now
+	FILE* f = OpenGameFile("cfg/options.cfg", "r");
+	if(f == NULL) {
+		printf("HINT: cfg/options.cfg not found, will use standards\n");
+		return true;  // no hard error, so return true
+	}
+	
+	// TODO: this parsing could be exported to a general ini-parser class
+	enum ParseState {
+		S_DEFAULT, S_IGNORERESTLINE, S_PROPNAME, S_PROPVALUE, S_SECTION };
+	ParseState state = S_DEFAULT;
+	std::string propname;
+	std::string section;
+	std::string value;
+	
+	while(!feof(f)) {
+		unsigned char c;
+		fread(&c, 1, 1, f);
 
+		switch(state) {
+		case S_DEFAULT:
+			if(c >= 128) break; // just ignore unicode-stuff when we are in this state (UTF8 bytes at beginning are also handled by this)
+			else if(isspace(c)) break; // ignore spaces and newlines
+			else if(c == '#') { state = S_IGNORERESTLINE; /* this is a comment */ break; }
+			else if(c == '[') { state = S_SECTION; section = ""; break; }
+			else if(c == '=') {
+				cout << "WARNING: \"=\" is not allowed as the first character in a line of options.cfg" << endl;
+				break; /* ignore */ }
+			else { state = S_PROPNAME; propname = c; break; }
+
+		case S_SECTION:
+			if(c == ']') { state = S_DEFAULT; break; }
+			else if(c == '\n') {
+				cout << "WARNING: section-name \"" << section << "\" of options.cfg is not closed correctly" << endl;
+				state = S_DEFAULT; break; }
+			else if(isspace(c)) {
+				cout << "WARNING: section-name \"" << section << "\" of options.cfg contains a space" << endl;
+				break; /* ignore */ }
+			else { section += c; break; }
+			
+		case S_PROPNAME:
+			if(c == '\n') {
+				cout << "WARNING: property \"" << propname << "\" of options.cfg incomplete" << endl;
+				state = S_DEFAULT; break; }
+			else if(isspace(c)) break; // just ignore spaces
+			else if(c == '=') { state = S_PROPVALUE; value = ""; break; }
+			else { propname += c; break; }
+			
+		case S_PROPVALUE:
+			// TODO: should we handle "strings" specially? (and ignore '#' inside)
+			if(c == '\n' || c == '#') { 
+				// HINT: if this got generalised, here should the OnNewProperty-event be thrown
+				std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().find("GameOptions." + section + "." + propname);
+				// TODO: atm we search case-sensitive; should we change that? though it would be a bit more complicated here
+				if(it != CScriptableVars::Vars().end()) { // found entry
+					SetScriptableVarByString(it->second, value);
+				} else {
+					if( (section == "FileHandling" && propname.find("SearchPath") == 0)
+					 || (section == "Widgets") ) {
+						// ignore these atm
+					} else {
+						additionalOptions[section + "." + propname] = value;
+						cout << "WARNING: the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
+					}
+				}
+				if(c == '#') state = S_IGNORERESTLINE; else state = S_DEFAULT;
+				break; }
+			else if(isspace(c) && value == "") break; // ignore heading spaces
+			else { value += c; break; }
+		
+		case S_IGNORERESTLINE:
+			if(c == '\n') state = S_DEFAULT;
+			break; // ignore everything
+		}
+	}
+	
+	fclose(f);
+
+	if(additionalOptions.size() > 0) {
+		cout << "HINT: Unknown options were found. Perhaps you are using an old version of OpenLieroX." << endl;
+	}
+	
 	// Clamp the Jpeg quality
 	if (iJpegQuality < 1)
 		iJpegQuality = 1;
@@ -311,6 +432,7 @@ void GameOptions::SaveToDisc()
     	fprintf(fp, "SearchPath%i = %s\n", i, p->c_str());
 	fprintf(fp,"\n");
 
+	// TODO: same issue as in InitWidgetStates()
 	fprintf(fp, "[Widgets]\n");
 	fprintf(fp, "InternetListCols = ");
 	for (i=0;i<5;i++)
@@ -332,7 +454,7 @@ void GameOptions::SaveToDisc()
 	{
 		if( it->first.find("GameOptions.") == 0 )
 		{
-			int dot1 = it->first.find("."), dot2 = it->first.find( ".", dot1 + 1 );
+			size_t dot1 = it->first.find("."), dot2 = it->first.find( ".", dot1 + 1 );
 			std::string section = it->first.substr( dot1 + 1, dot2 - dot1 - 1 );	// Between two dots
 			std::string key = it->first.substr( dot2 + 1 );	// After last dot
 			if( currentSection != section )
@@ -351,7 +473,22 @@ void GameOptions::SaveToDisc()
 			else printf("Invalid var type %i of \"%s\" when saving config!\n", it->second.type, it->first.c_str() );
 		};
 	};
-
+	
+	// save additional options
+	// HINT: as this is done seperatly, some sections may be double; though the current parsing and therefore all future parsings handle this correctly
+	currentSection = "";
+	for( std::map< std::string, std::string > :: iterator it = additionalOptions.begin(); it != additionalOptions.end(); it++ ) {
+		size_t dot = it->first.find(".");
+		std::string section = it->first.substr( 0, dot ); // before the dot
+		std::string key = it->first.substr( dot + 1 ); // after the dot
+		if( currentSection != section )
+		{
+			fprintf( fp, "\n[%s]\n", section.c_str() );
+			currentSection = section;
+		};
+		fprintf( fp, "%s = %s\n", key.c_str(), it->second.c_str() );
+	};
+	
     fclose(fp);
 }
 
@@ -376,6 +513,7 @@ bool NetworkTexts::LoadFromDisc()
 {
 	printf("Loading network texts... ");
 	
+	// TODO: use the general INI-parser here
 	const std::string f = "cfg/network.txt";
 	ReadString (f, "NetworkTexts", "HasConnected",    sHasConnected,	"<player> has connected");
 	ReadString (f, "NetworkTexts", "HasLeft",	      sHasLeft,			"<player> has left");
