@@ -1,15 +1,13 @@
 TODO
 
+[ ] fix for twice changing gfx options in menu (you get into trouble then) (!!)
+[ ] fix network interpolation (is currently not optimal) (!!)
+[ ] fix physics (behaves currently different depending on FPS) (!!)
 [ ] gfx is wrong in some situation or makes problems, fix that (!!)
-[ ] local play menu (map selection etc.) should be faster (!)
-[ ] remove the SendMessage function from GUI part
-    ( obj.SendMessage(..., GET, ...) or
-      obj.SendMessage(..., SET, ...) is realy bad
-      style and should be replaced by the getter/setter functions )
 [ ] fix: sometimes, angle is exactly pointed to top
     but you cannot hit down to move the angle;
     also left/right (direction change) does not work
-    sometimes
+    sometimes (!!)
 [ ] Fix memory leaks (!!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
@@ -18,6 +16,8 @@ TODO
 [ ] fill documentation (README) (!!)
 [ ] fix: crashes on MacOSX (!!)
 
+[ ] fix dedicated server (it's often behaving a bit strange)
+[ ] close stdin / pipe stream correctly for dedicated server
 [?] finish mouse-aiming (!!)
 [?] fix: font isn't visible in OGL on MacOSX (!!)
 [?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
@@ -28,6 +28,11 @@ TODO
 [?] Fix the colour detection of pink for mods (255 0 255) which only
     works in 50% of the mods now. (!!)
 
+[ ] local play menu (map selection etc.) should be faster (!)
+[ ] remove the SendMessage function from GUI part
+    ( obj.SendMessage(..., GET, ...) or
+      obj.SendMessage(..., SET, ...) is realy bad
+      style and should be replaced by the getter/setter functions )
 [x] why were some of the default-levels changed in the repo? (!!)
 	The changes were done for CTF enhancements, but why was a change
 	in the maps needed for a new game-type? I still don't know
@@ -38,8 +43,7 @@ TODO
 	( See the problem which we have by this: Perhaps later with a better
 	network-engine we will check by a MD5-check of the map or so if the
 	maps are equal everywhere to prevent cheeting. So a change of the
-	map-file if it is still the same map should be avoided. )
-	
+	map-file if it is still the same map should be avoided. )	
 [x] cap FPS also in menu (also with WaitForNextEvent); make a new
 	function CapFPS which relays perhaps on
 		GetMilliseconds() - tLX->fCurTime

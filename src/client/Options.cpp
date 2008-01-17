@@ -24,6 +24,8 @@
 GameOptions	*tLXOptions = NULL;
 NetworkTexts	*networkTexts = NULL;
 
+static const std::string OptionsFileName = "cfg/options.cfg";
+
 const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe"};
 const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z"};
 const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/", "."};
@@ -162,36 +164,21 @@ bool GameOptions::Init() {
 	return ret;
 }
 
-
-///////////////////
-// Load the options
-bool GameOptions::LoadFromDisc()
-{
-	printf("Loading options... \n");
-
-    unsigned int     i;
-
-	static const std::string f = "cfg/options.cfg";
-
-	AddKeyword("true",true);
-	AddKeyword("false",false);
-
-	// Load all variables that should be treated specially
-	// File handling
-	// read this first, because perhaps we will have new searchpaths
+static void InitSearchPaths() {
+	// have to set to find the config at some of the default places
 	InitBaseSearchPaths();
+	
 	std::string value;
-	std::string item;
-	i = 1;
+	int i = 1;
 	while(true) {
-		item = "SearchPath"; item += itoa(i,10);
-		if(!ReadString(f, "FileHandling", item, value, ""))
+		if(!ReadString(OptionsFileName, "FileHandling", "SearchPath" + itoa(i,10), value, ""))
 			break;
 
 		AddToFileList(&tSearchPaths, value);
 		i++;
 	}
-
+	
+	// add the basesearchpaths to the searchpathlist as they should be saved in the end
 	for(searchpathlist::const_iterator p1 = basesearchpaths.begin(); p1 != basesearchpaths.end(); i++,p1++)  {
 		AddToFileList(&tSearchPaths, *p1);
 	}
@@ -204,7 +191,26 @@ bool GameOptions::LoadFromDisc()
 		printf("  %s\n", path.c_str());
 	}
 	printf(" And that's all.\n");
+}
 
+///////////////////
+// Load the options
+bool GameOptions::LoadFromDisc()
+{
+	printf("Loading options... \n");
+
+    unsigned int     i;
+
+
+	AddKeyword("true",true);
+	AddKeyword("false",false);
+
+	// Load all variables that should be treated specially
+
+	// File handling
+	// read this first, because perhaps we will have new searchpaths
+	InitSearchPaths();
+	
 	const int	 def_widths[] = {32,180,70,80,60,150};
 	
 	for (i=0;i<sizeof(iInternetList)/sizeof(int);i++)  {
@@ -214,9 +220,9 @@ bool GameOptions::LoadFromDisc()
 	}
 
 	// Widget states
-	ReadIntArray(f, "Widgets","InternetListCols",	&iInternetList[0],6);
-	ReadIntArray(f, "Widgets","LANListCols",		&iLANList[0],6);
-	ReadIntArray(f, "Widgets","FavouritesListCols",	&iFavouritesList[0],6);
+	ReadIntArray(OptionsFileName, "Widgets","InternetListCols",	&iInternetList[0],6);
+	ReadIntArray(OptionsFileName, "Widgets","LANListCols",		&iLANList[0],6);
+	ReadIntArray(OptionsFileName, "Widgets","FavouritesListCols",	&iFavouritesList[0],6);
 	
 	// Load variables registered with CGuiSkin
 	for( std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().begin(); 
@@ -230,28 +236,28 @@ bool GameOptions::LoadFromDisc()
 			if( it->second.type == CScriptableVars::SVT_BOOL )	// Some bools are actually ints in config file
 			{
 				std::string s = "";
-				ReadString( f, section, key, s, "" );
+				ReadString( OptionsFileName, section, key, s, "" );
 				if( s.find_first_of("0123456789") == 0 )
 				{
 					int ii = 0;
-					ReadInteger( f, section, key, &ii, it->second.bdef );
+					ReadInteger( OptionsFileName, section, key, &ii, it->second.bdef );
 					*(it->second.b) = ( ii != 0 );
 				}
-				else ReadKeyword( f, section, key, it->second.b, it->second.bdef );
+				else ReadKeyword( OptionsFileName, section, key, it->second.b, it->second.bdef );
 			}
 			else if( it->second.type == CScriptableVars::SVT_INT )	// Some ints are actually bools in config file
 			{
 				std::string s = "";
-				ReadString( f, section, key, s, "" );
+				ReadString( OptionsFileName, section, key, s, "" );
 				if( s.find_first_of("0123456789") == 0 )
-					ReadInteger( f, section, key, it->second.i, it->second.idef );
+					ReadInteger( OptionsFileName, section, key, it->second.i, it->second.idef );
 				else
-					ReadKeyword( f, section, key, it->second.i, it->second.idef );
+					ReadKeyword( OptionsFileName, section, key, it->second.i, it->second.idef );
 			}
 			else if( it->second.type == CScriptableVars::SVT_FLOAT )
-				ReadFloat( f, section, key, it->second.f, it->second.fdef );
+				ReadFloat( OptionsFileName, section, key, it->second.f, it->second.fdef );
 			else if( it->second.type == CScriptableVars::SVT_STRING )
-				ReadString( f, section, key, *(it->second.s), it->second.sdef );
+				ReadString( OptionsFileName, section, key, *(it->second.s), it->second.sdef );
 			else printf("Invalid var type %i of \"%s\" when loading config!\n", it->second.type, it->first.c_str() );
 		};
 	};
