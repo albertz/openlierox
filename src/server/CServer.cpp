@@ -176,20 +176,28 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 			StunMessage resp;
 			memset(&resp, 0, sizeof(StunMessage));
 			if( ! stunParseMessage( buf, len, resp, false ) ) throw std::string("Wrong responce from server");
-			std::ostringstream os;
-			for(short i = 3; i >= 0; i--) {
-				os << (255 & (resp.mappedAddress.ipv4.addr >> i*8));
-				if(i != 0) os << ".";
+			if( resp.hasMappedAddress )
+			{
+				std::ostringstream os;
+				for(short i = 3; i >= 0; i--) {
+					os << (255 & (resp.mappedAddress.ipv4.addr >> i*8));
+					if(i != 0) os << ".";
+				}
+				os << ":" << resp.mappedAddress.ipv4.port;
+				StringToNetAddr( os.str(), tSTUNAddress );
+				std::string s;
+				NetAddrToString( tSTUNAddress, s );
+				printf("HINT: STUN returned address: %s\n", s.c_str());
 			}
-			os << ":" << resp.mappedAddress.ipv4.port;
-			StringToNetAddr( os.str(), tSTUNAddress );
-			std::string s;
-			NetAddrToString( tSTUNAddress, s );
-			printf("HINT: STUN returned address: %s\n", s.c_str());
+			else
+			{
+				printf("HINT: STUN returned the same address, using default port number %i\n", port);
+				ResetNetAddr( tSTUNAddress );
+			};
 		}
 		catch( const std::string & s )
 		{
-			printf("HINT: STUN server failed: %s, will be used default port number %i\n", s.c_str(), port);
+			printf("HINT: STUN server failed: %s, using default port number %i\n", s.c_str(), port);
 			ResetNetAddr( tSTUNAddress );
 		};
 	};
