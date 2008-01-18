@@ -1,5 +1,7 @@
 TODO
 
+[ ] STUN seems to make trouble in some cases; fix that and enable it
+    by default in config again (!)
 [ ] remove all unneeded ProcessEvents() from the code
     (even net-messages through events now, so there should
      be almost no part where it is still needed) (!!)
