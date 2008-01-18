@@ -853,6 +853,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\IniReader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IniReader.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\InputEvents.cpp"
 				>
 				<FileConfiguration
