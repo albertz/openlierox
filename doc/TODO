@@ -7,8 +7,6 @@ TODO
     Though mostly in this cases it's easy to go around so it
     doesn't make much trouble (mostly). But should be fixed though. (!)
     (assigned to Albert)
-[ ] making general INI-parser class (!)
-    (assigned to Albert)
 [ ] fix for twice changing gfx options in menu (you get into trouble then) (!!)
 [ ] fix network interpolation (is currently not optimal) (!!)
 [ ] fix physics (behaves currently different depending on FPS) (!!)
@@ -39,10 +37,11 @@ TODO
     works in 50% of the mods now. (!!)
 
 [ ] local play menu (map selection etc.) should be faster (!)
-[ ] remove the SendMessage function from GUI part
+[ ] remove the SendMessage function from GUI part
     ( obj.SendMessage(..., GET, ...) or
       obj.SendMessage(..., SET, ...) is realy bad
       style and should be replaced by the getter/setter functions )
+[X] making general INI-parser class (!)
 [x] why were some of the default-levels changed in the repo? (!!)
 	The changes were done for CTF enhancements, but why was a change
 	in the maps needed for a new game-type? I still don't know
