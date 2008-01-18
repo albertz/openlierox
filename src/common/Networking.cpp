@@ -218,6 +218,7 @@ static void sigpipe_handler(int i) {
  * HawkNL Network wrapper
  *
  */
+std::list<SDL_Thread *> dnsThreads;
 bool bNetworkInited = false;
 
 /////////////////////
@@ -253,6 +254,11 @@ bool InitNetworkSystem() {
 //////////////////
 // Shutdowns the network system
 bool QuitNetworkSystem() {
+	// Destroy the DNS threads
+	for (std::list<SDL_Thread *>::iterator it = dnsThreads.begin(); it != dnsThreads.end(); it++)
+		SDL_WaitThread(*it, NULL);
+	dnsThreads.clear();
+
 	SdlNetEvent_UnInit();
 	nlShutdown();
 	bNetworkInited = false;
@@ -779,6 +785,7 @@ static int GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
 
 bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 {
+	// TODO: why not use nlGetAddrFromNameAsync?
 	if(getNLaddr(addr) == NULL)
 		return false;
 		
@@ -796,8 +803,10 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
     addr_ex->name = name;
     addr_ex->address = *NetworkAddrData(&addr);
 
-    if(SDL_CreateThread(GetAddrFromNameAsyncInt, addr_ex) == NULL)
+	SDL_Thread *thread = SDL_CreateThread(GetAddrFromNameAsyncInt, addr_ex);
+    if(thread == NULL)
         return false;
+	dnsThreads.push_back(thread);
     return true;
 }
 

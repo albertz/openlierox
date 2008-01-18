@@ -24,6 +24,8 @@
 #include "StringUtils.h"
 #include "types.h"
 
+#define BUFFER_LEN 4096
+
 // List of errors, MUST match error IDs in HTTP.h
 static const std::string sHttpErrors[] = {
 	"No error",
@@ -143,8 +145,7 @@ void CChunkParser::Reset()
 CHttp::CHttp()
 {
 	// Buffer for reading from socket
-	// TODO: don't use numbers directly, use constants
-	tBuffer = new char[4096];
+	tBuffer = new char[BUFFER_LEN];
 	tChunkParser = new CChunkParser(&sPureData, &iDataLength, &iDataReceived);
 	InvalidateSocketState(tSocket);
 	Clear();
@@ -187,7 +188,7 @@ void CHttp::Clear()
 	ResetNetAddr(tRemoteIP);
 	if( IsSocketStateValid(tSocket) ) {
 		CloseSocket(tSocket);
-	};
+	}
 	InvalidateSocketState(tSocket);
 	if (tChunkParser)
 		tChunkParser->Reset();
@@ -327,7 +328,7 @@ void CHttp::ProcessData()
 		if (bGotHttpHeader)  {  // We don't know if the data is chunked or not if we haven't parsed the header,
 								// don't do anything if we don't know what to do
 
-			sPureData += sData;  // No parsing, just add them
+			sPureData += sData;
 			sData = ""; // HINT: save memory, don't keep the data twice
 		}
 	}
@@ -588,7 +589,7 @@ int CHttp::ProcessRequest()
 	int count = 0;
 	if (tBuffer != NULL)  {
 		while (true)  {
-			count = ReadSocket(tSocket, tBuffer, sizeof(tBuffer));
+			count = ReadSocket(tSocket, tBuffer, BUFFER_LEN);
 			if (count <= 0)
 				break;
 

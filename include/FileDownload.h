@@ -71,18 +71,17 @@ public:
 		tFile(NULL),
 		tDownloadServers(NULL),
 		iState(FILEDL_NO_FILE),
-		iID(0),
-		tMutex(NULL)
-		{ tMutex = SDL_CreateMutex(); }
+		iID(0)
+		{ }
 
 	CFileDownload(std::vector<std::string> *download_servers, size_t id) :
 		tFile(NULL),
 		tDownloadServers(download_servers),
 		iState(FILEDL_NO_FILE),
 		iID(id)
-		{ tMutex = SDL_CreateMutex(); }
+		{ }
 
-	~CFileDownload()  { Stop(); SDL_DestroyMutex(tMutex); }
+	~CFileDownload()  { Stop();}
 
 private:
 	std::string		sFileName;
@@ -95,8 +94,6 @@ private:
 	CHttp			tHttp;
 	DownloadError	tError;
 
-	SDL_mutex		*tMutex;
-
 private:
 	void			SetHttpError(HttpError err);
 	void			SetDlError(int id);
@@ -105,15 +102,11 @@ public:
 	void				Start(const std::string& filename, const std::string& dest_dir);
 	void				Stop();
 	void				ProcessDownload();
-	std::string			GetFileName();
-	int					GetState();
+	std::string			GetFileName()	{ return sFileName; }
+	int					GetState()		{ return iState; }
 	size_t				GetID()			{ return iID; }
 	byte				GetProgress();
-	DownloadError		GetError();
-
-	// Thread safety
-	void				Lock()			{ SDL_LockMutex(tMutex); }
-	void				Unlock()		{ SDL_UnlockMutex(tMutex); }
+	DownloadError		GetError()		{ return tError; }
 };
 
 
@@ -126,20 +119,15 @@ public:
 private:
 	std::list<CFileDownload>	tDownloads;
 	std::vector<std::string>	tDownloadServers;
-	SDL_Thread					*tThread;
-	bool						bBreakThread;
-	SDL_mutex					*tMutex;
 
 public:
+	void						ProcessDownloads();
 	void						StartFileDownload(const std::string& filename, const std::string& dest_dir);
 	void						CancelFileDownload(const std::string& filename);
 	bool						IsFileDownloaded(const std::string& filename);
 	DownloadError				FileDownloadError(const std::string& filename);
 	byte						GetFileProgress(const std::string& filename);
 	std::list<CFileDownload>	*GetDownloads()		{ return &tDownloads; }
-	bool						ShouldBreakThread();
-	void						Lock()		{ SDL_LockMutex(tMutex); }
-	void						Unlock()	{ SDL_UnlockMutex(tMutex); }
 };
 
 // In-lobby or in-game file downloader over unreliable protocol - send packets of 256 bytes

@@ -414,6 +414,9 @@ void CClient::ProcessMapDownloads()
 	if (!bDownloadingMap || cFileDownloader == NULL)
 		return;
 
+	// Process
+	cFileDownloader->ProcessDownloads();
+
 	// Download finished
 	if (cFileDownloader->IsFileDownloaded(sMapDownloadName))  {
 		bDownloadingMap = false;
@@ -429,8 +432,8 @@ void CClient::ProcessMapDownloads()
 			// If playing, load the map
 			if (iNetStatus == NET_PLAYING)  {
 				if (cMap)  {
-					printf("WARNING: Finished map downloading but another map is already loaded. Deleting it.\n");
-					delete cMap;
+					printf("WARNING: Finished map downloading but another map is already loaded.\n");
+					return;
 				}
 
 				cMap = new CMap;
