@@ -1,14 +1,8 @@
 TODO
 
-[ ] STUN seems to make trouble in some cases; fix that and enable it
-    by default in config again (!)
 [ ] remove all unneeded ProcessEvents() from the code
     (even net-messages through events now, so there should
      be almost no part where it is still needed) (!!)
-[ ] sometimes the pathfinding returns a path through some walls
-    Though mostly in this cases it's easy to go around so it
-    doesn't make much trouble (mostly). But should be fixed though. (!)
-    (assigned to Albert)
 [ ] fix for twice changing gfx options in menu (you get into trouble then) (!!)
 [ ] fix network interpolation (is currently not optimal) (!!)
 [ ] fix physics (behaves currently different depending on FPS) (!!)
@@ -24,10 +18,26 @@ TODO
 [ ] bot avoid projectiles (!!)
 [ ] recode whole CTF code (!!)
 [ ] fill documentation (README) (!!)
-[ ] fix: crashes on MacOSX (!!)
 
-[ ] fix dedicated server (it's often behaving a bit strange)
-[ ] close stdin / pipe stream correctly for dedicated server
+[ ] sometimes the pathfinding returns a path through some walls
+    Though mostly in this cases it's easy to go around so it
+    doesn't make much trouble (mostly). But should be fixed though. (!)
+    (assigned to Albert)
+[ ] write general event-based HttpClient class which uses TcpClient (!) 
+    (assigned to Albert)
+[ ] write general TcpClient class which takes use of the general EventHandler (!)
+    (assigned to Albert)
+[ ] write general EventHandler (which could also be run in an own thread)
+    which has an own EventQueue and each event has an EventCallback which
+    is called then by the handler; this can be used for net-events to
+    be handled in an own thread but event-based (!)
+    (assigned to Albert)
+[ ] STUN seems to make trouble in some cases; fix that and enable it
+    by default in config again (!)
+[ ] fix dedicated server (it's often behaving a bit strange) (!)
+[ ] close stdin / pipe stream correctly for dedicated server (!)
+
+[?] fix: crashes on MacOSX (!!)
 [?] finish mouse-aiming (!!)
 [?] fix: font isn't visible in OGL on MacOSX (!!)
 [?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
