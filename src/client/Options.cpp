@@ -74,7 +74,7 @@ bool GameOptions::Init() {
 		( tLXOptions->fUpdatePeriod, "Advanced.NetworkUpdatePeriod", 0.05f )
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
 		( tLXOptions->bLoadDbAtStartup, "Network.LoadDbAtStartup", false )
-		( tLXOptions->sSTUNServer, "Network.STUNServer", "stunserver.org" )
+		( tLXOptions->sSTUNServer, "Network.STUNServer", "" )
 
 		( tLXOptions->bSoundOn, "Audio.Enabled", true )
 		( tLXOptions->iSoundVolume, "Audio.Volume", 70 )
@@ -135,7 +135,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.bShowBonusName, "BonusNames", true )
 		( tLXOptions->tGameinfo.iMaxPlayers, "MaxPlayers", 8 )
 		( tLXOptions->tGameinfo.bMatchLogging, "MatchLogging", true )
-		( tLXOptions->tGameinfo.sServerName, "ServerName", "LieroX Server" )
+		( tLXOptions->tGameinfo.sServerName, "ServerName", "OpenLieroX Server" )
 		( tLXOptions->tGameinfo.sWelcomeMessage, "WelcomeMessage", "Welcome to <server>, <player>" )
 		( tLXOptions->tGameinfo.sMapFilename, "LevelName" )
 		( tLXOptions->tGameinfo.nGameType, "GameType", GMT_DEATHMATCH )
