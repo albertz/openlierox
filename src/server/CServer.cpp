@@ -706,7 +706,8 @@ void GameServer::RegisterServer(void)
 	std::string addr_name;
 	NetworkAddr addr;
 
-	GetRemoteNetAddr(tSocket, addr);
+	if (!GetRemoteNetAddr(tSocket, addr))  // TODO: does not work! The server gets registered only because the master server finds out the IP by itself
+		printf("ERROR: Could not resolve the remote IP.\n");
 	NetAddrToString(addr, addr_name);
 
 	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
