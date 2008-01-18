@@ -189,7 +189,8 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 		}
 		catch( const std::string & s )
 		{
-			printf("HINT: STUN server failed: %s\n", s.c_str());
+			printf("HINT: STUN server failed: %s, will be used default port number %i\n", s.c_str(), port);
+			ResetNetAddr( tSTUNAddress );
 		};
 	};
 
