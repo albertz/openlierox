@@ -1,5 +1,6 @@
 TODO
 
+[?] nMaxFPS = 0 works correctly? (!!) 
 [ ] remove all unneeded ProcessEvents() from the code
     (even net-messages through events now, so there should
      be almost no part where it is still needed) (!!)
