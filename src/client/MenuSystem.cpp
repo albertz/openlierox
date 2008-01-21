@@ -727,7 +727,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 			}
 
 
-		if(!kb->KeyUp[SDLK_ESCAPE] && tMenu->bMenuRunning && ret == -1) {
+		if(!kb->KeyUp[SDLK_ESCAPE] && !tLX->bQuitGame && ret == -1) {
 			DrawCursor(tMenu->bmpScreen);	
 			FlipScreen(tMenu->bmpScreen);
 			CapFPS();

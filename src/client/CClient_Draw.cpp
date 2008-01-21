@@ -360,7 +360,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	if(bServerError) {
 
 		// Show message box, shutdown and quit back to menu
-		DrawImage(tMenu->bmpBuffer,tMenu->bmpMainBack_wob,0,0);
+		DrawImage(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 0, 0);
 		Menu_RedrawMouse(true);
         SDL_ShowCursor(SDL_DISABLE);
 
