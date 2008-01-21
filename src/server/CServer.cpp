@@ -880,7 +880,7 @@ void GameServer::CheckWeaponSelectionTime()
 	{
 		// Kick retards who still mess with their weapons, we'll start on next frame
 		CClient *cl = cClients;
-		for(int c = 1; c < MAX_CLIENTS; c++, cl++) // Do not kick local client - we may crash :) 
+		for(int c = 0; c < MAX_CLIENTS; c++, cl++) // Kicks the host too
 		{
 			if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
 				continue;

@@ -752,7 +752,6 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 	}
 	if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING && ready )
 	{
-		// TODO: auto-move worm into weapon selection screen after timeout, don't wait untill he presses "Ready" button.
 		cl->setStatus(NET_CONNECTED);
 		bytestr.Clear();
 		SendPacket(&bytestr, cl);
@@ -777,7 +776,7 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 		cWeaponRestrictions.sendList(&bytestr);
 		SendPacket(&bytestr, cl);
 		// Beta3 client parses S2C_PREPAREGAME packet glitchly, so if anything will be added
-		// to the end of this packet client won't parse it at all (let's drop zombies in C2S_IMREADY)
+		// to the end of this packet client won't parse it at all
 		cl->setStatus(NET_ZOMBIE);
 	};
 };
@@ -1019,6 +1018,17 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 		bs.writeString(LX_VERSION);
 	bs.Send(tSocket);
 }
+
+
+bool timerClientSendsReadyAutomatically(Timer* sender, void* userData)
+{
+	CClient * cl = (CClient *) userData;
+	CBytestream bs;
+	bs.writeBool(true);
+	cServer->ParseUpdateLobby( cl, &bs );
+	
+	return false;
+};
 
 
 ///////////////////
@@ -1491,6 +1501,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			//SendText( newcl, OldLxCompatibleString("Game in progress. Press \"Ready\" to connect."), TXT_NETWORK );
 			newcl->setStatus(NET_ZOMBIE);	// Do not send any worm updates to client
 			newcl->setConnectingDuringGame(true);
+			Timer( &timerClientSendsReadyAutomatically, newcl, 200, true ).startHeadless();
 		}
 	}
 }
