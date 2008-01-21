@@ -63,7 +63,7 @@ public:
 			Color_t cldef;
 			// No default value for skin callback, 'cause it's not saved into cfg file
 		};
-		ScriptVarPtr_t() {};
+		ScriptVarPtr_t(): type(SVT_CALLBACK) { b = NULL; }; // Invalid value initially (all pointer are NULL in union)
 		ScriptVarPtr_t( bool * v, bool def = false ): type(SVT_BOOL) { b = v; bdef = def; };
 		ScriptVarPtr_t( int * v, int def = 0 ): type(SVT_INT) { i = v; idef = def; };
 		ScriptVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT) { f = v; fdef = def; };
@@ -99,8 +99,11 @@ public:
 		return m_instance->m_vars;
 	};
 	
-	static ScriptVarPtr_t GetVar( const std::string & name, ScriptVarType_t type );	// Case-insensitive search
+	static ScriptVarPtr_t GetVar( const std::string & name );	// Case-insensitive search, returns NULL on fail
+	static ScriptVarPtr_t GetVar( const std::string & name, ScriptVarType_t type );	// Case-insensitive search, returns NULL on fail
 	static std::string DumpVars();	// For debug output
+	
+	static void SetVarByString(const CScriptableVars::ScriptVarPtr_t& var, const std::string& str);
 
 	// Stolen from boost::program_options
 

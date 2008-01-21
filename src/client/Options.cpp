@@ -215,50 +215,6 @@ static void InitWidgetStates(GameOptions& opts) {
 	ReadIntArray(OptionsFileName, "Widgets","FavouritesListCols",	&opts.iFavouritesList[0],6);
 }
 
-// TODO: perhaps move this out? or is this related esp to the format of the options.cfg?
-static void SetScriptableVarByString(CScriptableVars::ScriptVarPtr_t& var, const std::string& str) {
-	bool fail = false;
-	std::string scopy = str; TrimSpaces(scopy); stringlwr(scopy);
-	if( var.type == CScriptableVars::SVT_BOOL )
-	{
-		if( scopy.find_first_of("-0123456789") == 0 )
-			*var.b = from_string<int>(scopy, fail) != 0; // Some bools are actually ints in config file
-		else {
-			if(scopy == "true" || scopy == "yes")
-				*var.b = true;
-			else if(scopy == "false" || scopy == "no")
-				*var.b = false;
-			else
-				fail = true;
-		}
-	}
-	else if( var.type == CScriptableVars::SVT_INT )
-	{
-		if( scopy.find_first_of("-0123456789") == 0 )
-			*var.i = from_string<int>(scopy, fail);
-		else {
-			cout << "WARNING: " << str << " should be an integer in options.cfg but it isn't" << endl;
-			// HACK: because sometimes there is a bool instead of an int in the config
-			// TODO: is this still like this?
-			if(scopy == "true" || scopy == "yes")
-				*var.i = 1;
-			else if(scopy == "false" || scopy == "no")
-				*var.i = 0;
-			else
-				fail = true;
-		}
-	}
-	else if( var.type == CScriptableVars::SVT_FLOAT )
-		*var.f = from_string<float>(scopy, fail);
-	else if( var.type == CScriptableVars::SVT_STRING )
-		*var.s = str;
-	else
-		cout << "WARNING: Invalid var type " << var.type << " of \"" << str << "\" when loading config!" << endl;
-	
-	if(fail)
-		cout << "WARNING: failed to convert " << str << " into format " << var.type << endl;
-}
- 
 
 ///////////////////
 // Load the options
@@ -306,10 +262,9 @@ bool GameOptions::LoadFromDisc()
 		
 		bool OnNewSection(const std::string& section) { return true; /* ignored */ }
 		bool OnEntry(const std::string& section, const std::string& propname, const std::string& value) {
-			std::map< std::string, CScriptableVars::ScriptVarPtr_t > :: iterator it = CScriptableVars::Vars().find("GameOptions." + section + "." + propname);
-			// TODO: atm we search case-sensitive; should we change that? though it would be a bit more complicated here
-			if(it != CScriptableVars::Vars().end()) { // found entry
-				SetScriptableVarByString(it->second, value);
+			CScriptableVars::ScriptVarPtr_t var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
+			if( var.b !=  NULL ) { // found entry
+				CScriptableVars::SetVarByString(var, value);
 			} else {
 				if( (section == "FileHandling" && propname.find("SearchPath") == 0)
 				 || (section == "Widgets") ) {

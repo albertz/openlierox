@@ -24,6 +24,7 @@
 #include "CGameScript.h"
 #include "Unicode.h"
 #include "Protocol.h"
+#include "CGuiSkin.h"
 
 static DedicatedControl* dedicatedControlInstance = NULL;
 
@@ -177,6 +178,29 @@ struct DedIntern {
 	void Cmd_KickWorm() {
 	
 	}
+
+	// This command just fits here perfectly
+	void Cmd_SetVar(const std::string& params) {
+		if( params.find(" ") == std::string::npos )
+		{
+			cout << "DedicatedControl: SetVar: wrong params: " << params << endl;
+			return;
+		};
+		std::string var = params.substr( 0, params.find(" ") );
+		std::string value = params.substr( params.find(" ")+1 );
+		TrimSpaces( var );
+		TrimSpaces( value );
+		CScriptableVars::ScriptVarPtr_t varptr = CScriptableVars::GetVar(var);
+		if( varptr.b == NULL )
+		{
+			cout << "DedicatedControl: SetVar: no var with name " << var << endl;
+			return;
+		};
+		CScriptableVars::SetVarByString(varptr, value);
+		
+		cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
+	}
+
 	
 	void Cmd_StartLobby() {
 		tGameInfo.iNumPlayers = 1; // for now...
@@ -293,6 +317,8 @@ struct DedIntern {
 			Cmd_StartGame();
 		else if(cmd == "getcomputerwormlist")
 			Cmd_GetComputerWormList();
+		else if(cmd == "setvar")
+			Cmd_SetVar(params);
 		else
 			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}

@@ -20,6 +20,7 @@
 #include "StringUtils.h"
 #include "Cursor.h"
 
+#include <iostream>
 #include <sstream>
 // XML parsing library
 #include <libxml/xmlmemory.h>
@@ -37,6 +38,21 @@ std::string CScriptableVars::StripClassName( const std::string & c )
 	return ret;
 };
 
+CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name )
+{
+	Init();
+	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
+			it != m_instance->m_vars.end(); it++ )
+	{
+		if( !stringcasecmp( it->first, name ) )
+		{
+			return it->second;
+		};
+	};
+	return ScriptVarPtr_t();
+};
+
+
 CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name, CScriptableVars::ScriptVarType_t type )
 {
 	Init();
@@ -48,7 +64,7 @@ CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & nam
 			return it->second;
 		};
 	};
-	return ScriptVarPtr_t( (bool *) NULL );
+	return ScriptVarPtr_t();
 };
 
 std::string CScriptableVars::DumpVars()
@@ -72,6 +88,53 @@ std::string CScriptableVars::DumpVars()
 	};
 	return ret.str();
 };
+
+void CScriptableVars::SetVarByString(const CScriptableVars::ScriptVarPtr_t& var, const std::string& str) 
+{
+	bool fail = false;
+	if( var.b == NULL ) 
+		return;
+	std::string scopy = str; TrimSpaces(scopy); stringlwr(scopy);
+	if( var.type == CScriptableVars::SVT_BOOL )
+	{
+		if( scopy.find_first_of("-0123456789") == 0 )
+			*var.b = from_string<int>(scopy, fail) != 0; // Some bools are actually ints in config file
+		else {
+			if(scopy == "true" || scopy == "yes")
+				*var.b = true;
+			else if(scopy == "false" || scopy == "no")
+				*var.b = false;
+			else
+				fail = true;
+		}
+	}
+	else if( var.type == CScriptableVars::SVT_INT )
+	{
+		if( scopy.find_first_of("-0123456789") == 0 )
+			*var.i = from_string<int>(scopy, fail);
+		else {
+			std::cout << "WARNING: " << str << " should be an integer in options.cfg but it isn't" << std::endl;
+			// HACK: because sometimes there is a bool instead of an int in the config
+			// TODO: is this still like this?
+			if(scopy == "true" || scopy == "yes")
+				*var.i = 1;
+			else if(scopy == "false" || scopy == "no")
+				*var.i = 0;
+			else
+				fail = true;
+		}
+	}
+	else if( var.type == CScriptableVars::SVT_FLOAT )
+		*var.f = from_string<float>(scopy, fail);
+	else if( var.type == CScriptableVars::SVT_STRING )
+		*var.s = str;
+	else
+		std::cout << "WARNING: Invalid var type " << var.type << " of \"" << str << "\" when loading config!" << std::endl;
+	
+	if(fail)
+		std::cout << "WARNING: failed to convert " << str << " into format " << var.type << std::endl;
+}
+
 
 std::string CGuiSkin::DumpWidgets()
 {
