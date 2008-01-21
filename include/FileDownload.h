@@ -186,8 +186,9 @@ public:
 	
 	// Additional functionality to show download progress - inexact, server may send any file and we should accept it,
 	// yet current implementation will send only files we will request
-	std::string getFileDownloading() const;
-	float getFileDownloadingProgress() const;
+	std::string	getFileDownloading() const;
+	float		getFileDownloadingProgress() const;
+	uint		getFilesPendingAmount() const;
 
 private:
 	void			processFileRequests();
@@ -206,7 +207,7 @@ private:
 	std::vector< StatInfo > cStatInfo;
 	
 	// For progressbar and download percentage
-	std::map< std::string, StatInfo > cStatInfoCache;	// TODO: Never cleared
+	std::map< std::string, StatInfo > cStatInfoCache;
 	std::string sLastFileRequested;
 
 };

@@ -419,21 +419,34 @@ void GameServer::SendDirtUpdate( CClient * cl )
 	cl->setLastDirtUpdate( tLX->fCurTime );
 }
 
+bool timerTickCallback(Timer* sender, void* userData)
+{
+	return true;
+};
+
 void GameServer::SendFiles()
 {
 	if(iState != SVS_LOBBY)
 		return;
+
+	// Server will keep min rate of 2.5 kbytes/second - send each second 5 packets of 512 bytes each.
+	// If client sends ping packets server will send packets faster.
+
+	// The global timer is enabled if there's something to send
+	static Timer cTimer( timerTickCallback, NULL, 200, false );
+	bool stopTimer = true;
 	
 	CClient *cl = cClients;
 
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) 
 	{
 		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND &&
-			cl->getLastFileRequestPacketReceived() + 0.2 <= tLX->fCurTime ) // Spam 5 packets in second
+			cl->getLastFileRequestPacketReceived() + 0.2 <= tLX->fCurTime )
 		{
+			stopTimer = false;
 			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
 			CBytestream bs;
-			for( int f=0; f < cl->getNetSpeed() + 2 && f < 4; f++ ) // Packets are 256 bytes - 4 packets = 1KB
+			for( int f=0; f < 2; f++ ) // Packets are 256 bytes - send 512 bytes so 2 merged packets won't overflood the socket
 			{
 				if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
 					break;
@@ -443,6 +456,11 @@ void GameServer::SendFiles()
 			SendPacket( &bs, cl );
 		};
 	};
+
+	if( stopTimer )
+		cTimer.stop();
+	else if( ! cTimer.running() )
+		cTimer.start();
 };
 
 void GameServer::sendEmptyWeaponsOnRespawn( CWorm * Worm )

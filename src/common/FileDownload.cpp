@@ -469,9 +469,11 @@ void CFileDownloaderInGame::requestFile( const std::string & path, bool retryIfF
 	setDataToSend( "GET:", path, false );
 	if( retryIfFail )
 	{ 
-		if( tRequestedFiles.empty() )
-			tRequestedFiles.push_back( path );
-		else if( tRequestedFiles.back() != path )
+		bool exist = false;
+		for( uint f = 0; f < tRequestedFiles.size(); f++ )
+			if( tRequestedFiles[f] == path )
+				exist = true;
+		if( ! exist )
 			tRequestedFiles.push_back( path );
 	};
 	sLastFileRequested = path;
@@ -732,4 +734,9 @@ float CFileDownloaderInGame::getFileDownloadingProgress() const
 	if( ret > 1.0 ) 
 		ret = 1.0;
 	return ret;
+};
+
+uint CFileDownloaderInGame::getFilesPendingAmount() const
+{
+	return tRequestedFiles.size();
 };

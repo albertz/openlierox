@@ -602,6 +602,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         tLX->cFont.Draw(tMenu->bmpScreen,     360, 195, tLX->clNormalLabel, "Downloading " + 
 					itoa( int(cClient->getFileDownloaderInGame()->getFileDownloadingProgress()*100.0) ) + "%: " + 
 					cClient->getFileDownloaderInGame()->getFileDownloading() );
+	else if( cClient->getFileDownloaderInGame()->getFilesPendingAmount() > 0 )
+        tLX->cFont.Draw(tMenu->bmpScreen,     360, 195, tLX->clNormalLabel, "Downloading: " + 
+					itoa( cClient->getFileDownloaderInGame()->getFilesPendingAmount() ) + " files left" );
 
 	// Process & Draw the gui
 #ifdef WITH_MEDIAPLAYER

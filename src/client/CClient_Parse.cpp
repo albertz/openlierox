@@ -1626,7 +1626,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 	else
 	{
 		fLastFileRequestPacketReceived = tLX->fCurTime - 10.0f;	// Set timeout in past so we'll check out other data immediately
-		fLastFileRequest = tLX->fCurTime + 0.2f;	// Small pause so many small files won't come garbled
+		fLastFileRequest = tLX->fCurTime + 0.3f;	// Small pause so many small files won't come garbled
 		Timer(&timerTickOnceCallback, NULL, 300, true).startHeadless();	// Set timer so client will send the request
 	};
 };
