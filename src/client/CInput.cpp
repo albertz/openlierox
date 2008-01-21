@@ -24,6 +24,7 @@
 #include "ConfigHandler.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
+#include "CInput.h"
 
 
 keys_t Keys[] = {
@@ -105,9 +106,13 @@ keys_t Keys[] = {
 	{ "lctrl",SDLK_LCTRL },
 	{ "lshift",SDLK_LSHIFT },
 	{ "lalt",SDLK_LALT },
+	{ "lmeta",SDLK_LMETA },
+	{ "lsuper",SDLK_LSUPER },
 	{ "rctrl",SDLK_RCTRL },
 	{ "rshift",SDLK_RSHIFT },
 	{ "ralt",SDLK_RALT },
+	{ "rmeta",SDLK_RMETA },
+	{ "rsuper",SDLK_RSUPER },
 	{ "insert", SDLK_INSERT},
 	{ "home", SDLK_HOME},
 	{ "pg up", SDLK_PAGEUP},
@@ -250,7 +255,7 @@ void CInput::UnInitJoysticksTemp() {
 // Load the input from a config file
 int CInput::Load(const std::string& name, const std::string& section)
 {
-	static std::string string;
+	std::string string;
 
 	Down = false;
 
@@ -313,8 +318,7 @@ int CInput::Setup(const std::string& string)
 {
 	unsigned int n;
 
-
-
+	m_EventName = string;
 	Down = false;
 
 	// Check if it's a mouse

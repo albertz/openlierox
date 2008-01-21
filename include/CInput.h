@@ -20,6 +20,8 @@
 #ifndef __CINPUT_H__
 #define __CINPUT_H__
 
+#include <string>
+
 
 // Input variable types
 #define		INP_KEYBOARD		0
@@ -55,6 +57,7 @@ private:
 	int		Data;
 	int		Extra;
 	int		Down;
+	std::string m_EventName;
 
 
 public:
@@ -72,6 +75,8 @@ public:
 	int		isUp(void);
 	int		isDown(void);
 	bool	isDownOnce(void);
+
+	std::string getEventName() { return m_EventName; }
 
 	void	ClearUpState(void); // TODO: why is this needed? and this should be removed as it does not good things (modifies things it should not modify)
 };
