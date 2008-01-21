@@ -46,8 +46,6 @@
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=499780">
 	OpenLieroX downloads</a><br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta2.ebuild">OpenLieroX Gentoo ebuild</a><br>
-	<a href="deb/openlierox-0.57-beta2.deb">OpenLieroX deb-package</a>
-	(very much thanks to Erik Gustafsson!)<br>
 	<br>
 	<b>0.57_beta1</b> (released 2007-01-27)<br>
 	<a href="tarball/OpenLieroX_0.57_beta1.src.tar.bz">OpenLieroX Source tar.bz</a><br>	
