@@ -430,13 +430,6 @@ int GameServer::StartGame( bool dedicated )
         }
     }
 
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
-	{
-		CBytestream b;
-		CreateFakeZombieWormsToAllowConnectDuringGame( &b );
-		SendGlobalPacket(&b);
-	};
-
 	iState = SVS_GAME;		// In-game, waiting for players to load
 	iServerFrame = 0;
     bGameOver = false;
@@ -484,12 +477,6 @@ void GameServer::BeginMatch(void)
 	fLastRespawnWaveTime = 0;
 	cShootList.Clear();
 
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame )
-	{
-		CBytestream b;
-		DropFakeZombieWormsToCleanUpLobby( &b );
-		SendGlobalPacket(&b);
-	};
 	// Send the connected clients a startgame message
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
@@ -1460,81 +1447,4 @@ void GameServer::Shutdown(void)
 	// HINT: the gamescript is shut down by the cache
 }
 
-// This code is used in two places, so made function from it
-bool GameServer::CreateFakeZombieWormsToAllowConnectDuringGame( CBytestream *bs )
-{
-	// Create zombie worms so clients will init their worm data structures
-	// When another client connects during game zombie worm becomes a new client
-	CWorm *w = cWorms;
-	int numplayers = 0;
-	int i, j;
-	for ( i = 0; i < MAX_WORMS; i++, w++ ) 
-	{
-		if (w->isUsed()) numplayers++;
-	};
-	if( iMaxWorms <= numplayers ) return false;
-	for( i = 0, j = 0, w = cWorms ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
-	{
-		if( w->isUsed() ) continue;	// Worm is playing now - clients know about that worm already
-		j++;	// Worm not used - init data structures (should do no harm since this worm isn't used anyway)
-		w->setID(i);
-		w->setupLobby();
-		w->setTeam(0);
-		// Copied from GameServer::StartGame()
-		// TODO: never copy code; make a function instead
-		w->setLives(WRM_OUT);
-		w->setKills(0);
-		w->setGameScript(&cGameScript);
-		w->setWpnRest(&cWeaponRestrictions);
-		w->setLoadingTime( (float)iLoadingTimes / 100.0f );
-		w->setKillsInRow(0);
-		w->setDeathsInRow(0);
-		// Copied from CWorm::readInfo()
-		// TODO: never copy code; make a function instead
-		w->setName( "Zombie" );
-		w->setType( PRF_COMPUTER );
-		w->setTeam( 0 );
-		w->setSkin( "Mad-Victim.png" );	// Zombie
-		w->setColour( MakeColour(0x22, 0x8B, 0x22) );	// Zombie green in RGB
-		w->setDefaultColour(w->getColour() );
-		w->GetRandomWeapons();
-		
-		// Write out the info
-		bs->writeByte(S2C_WORMINFO);
-		bs->writeInt(w->getID(),1);
-		w->writeInfo(bs);
-		w->writeScore(bs);
-	};
-	return true;
-};
-
-bool GameServer::DropFakeZombieWormsToCleanUpLobby( CBytestream *bs )
-{
-	CWorm *w = cWorms;
-	int numplayers = 0;
-	int i, j;
-	// TODO: why isn't iMaxWorms used here?
-	for ( i = 0; i < MAX_WORMS; i++, w++ ) 
-	{
-		if (w->isUsed()) numplayers++;
-	};
-	if( iMaxWorms <= numplayers ) return false;
-	for( i = 0, j = 0, w = cWorms ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
-	{
-		if( w->isUsed() ) continue;	// Worm is playing now - clients know about that worm already
-		j++;	// Worm not used - init data structures (should do no harm since this worm isn't used anyway)
-		bs->writeByte(S2C_CLREADY);
-		bs->writeByte(1);
-		w->writeWeapons(bs);
-	};
-	for( i = 0, j = 0, w = cWorms ; i < MAX_WORMS && j < iMaxWorms - numplayers ; i++, w++ ) 
-	{
-		if( w->isUsed() ) continue;	// Worm is playing now - clients know about that worm already
-		j++;	// Worm not used - init data structures (should do no harm since this worm isn't used anyway)
-		bs->writeByte(S2C_CLLEFT);
-		bs->writeByte(1);
-		bs->writeByte(i);
-	};
-	return true;
-};
 

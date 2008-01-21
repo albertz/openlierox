@@ -195,9 +195,7 @@ struct DedIntern {
 		tLXOptions->tGameinfo.bAllowNickChange = false;
 		tLXOptions->bServerSideHealth = false;
 	
-		tLXOptions->tGameinfo.bAllowConnectDuringGame = false;
-		tLXOptions->tGameinfo.iAllowConnectDuringGameLives = 10;
-		tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin = 10;
+		tLXOptions->bAllowConnectDuringGame = false;
 	
 		tGameInfo.iGameType = GME_HOST;
 		

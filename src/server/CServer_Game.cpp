@@ -201,7 +201,8 @@ void GameServer::SimulateGame(void)
 		}
 
 		// Simulate the worm's weapons
-		w->SimulateWeapon( tLX->fRealDeltaTime );
+		if( w->getAlive() )
+			w->SimulateWeapon( tLX->fRealDeltaTime );
 /*
 		// If the flag has been held for 5 seconds and the map doesn't have a base give the worm a point
 		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag(0) && iGameType == GMT_CTF && cMap->getBaseStart().x == -1) {
@@ -597,6 +598,15 @@ void GameServer::ShootBeam(CWorm *w)
 void GameServer::gotoLobby(void)
 {
 	printf("gotoLobby\n");
+	short i;
+	for(i=0; i<MAX_CLIENTS; i++)
+	{	// Still some spectator clients that select their weapons
+		if( cClients[i].getConnectingDuringGame() && cClients[i].getStatus() == NET_ZOMBIE )
+		{
+			cClients[i].setConnectingDuringGame(false);
+			cClients[i].setStatus(NET_CONNECTED);
+		};
+	};
 	
 	// Tell all the clients
 	CBytestream bs;
@@ -606,7 +616,6 @@ void GameServer::gotoLobby(void)
 	// Clear the info
 	iState = SVS_LOBBY;
 
-	short i;
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].getLobby()->bReady = false;

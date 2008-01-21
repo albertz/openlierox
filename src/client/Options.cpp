@@ -103,6 +103,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 40 )
 		( tLXOptions->bSpectatorSmoothViewport, "Advanced.SpectatorSmoothViewport", true )
 		( tLXOptions->bShowUnstableFeatures, "Advanced.ShowUnstableFeatures", false )
+		( tLXOptions->bAllowConnectDuringGame, "Advanced.AllowConnectDuringGame", false )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )
@@ -151,9 +152,6 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameinfo.bAllowNickChange, "AllowNickChange", true )
 		( tLXOptions->tGameinfo.fBonusFreq, "BonusFrequency", 30 )
 		( tLXOptions->tGameinfo.fBonusLife, "BonusLife", 60 )
-		( tLXOptions->tGameinfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false )
-		( tLXOptions->tGameinfo.iAllowConnectDuringGameLives, "AllowConnectDuringGameLives", 80 )
-		( tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin, "AllowConnectDuringGameLivesMin", 3 )
 		( tLXOptions->tGameinfo.fRespawnTime, "RespawnTime", 2.5 )
 		( tLXOptions->tGameinfo.bRespawnInWaves, "RespawnInWaves", false )
 		( tLXOptions->tGameinfo.bRespawnGroupTeams, "RespawnGroupTeams", false )

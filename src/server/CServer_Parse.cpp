@@ -138,7 +138,7 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 ///////////////////
 // Parse a 'im ready' packet
 void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
-	if ( iState != SVS_GAME && !( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING ) )
+	if ( iState != SVS_GAME && !( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) )
 	{
 		printf("GameServer::ParseImReady: Not playing, packet is being ignored.\n");
 
@@ -205,7 +205,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 		}
 	}
 
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() )
+	if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() )
 	{
 		// TODO: documentation is missing how this whole thing works exactly!
 		
@@ -225,7 +225,6 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 				w->writeWeapons(&b);
 			};
 		};
-		DropFakeZombieWormsToCleanUpLobby(&b);
 		b.writeInt(S2C_STARTGAME,1);
 		SendPacket(&b, cl);
 		// Spawn worms already playing for this client (health bar will be wrong, cannot fix anyway)
@@ -237,10 +236,7 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 				continue;
 			if( w->getClient() == cl )
 			{
-				SpawnWorm(w);
-				CBytestream b1;
-				w->writeScore( &b1 );
-				SendGlobalPacket( &b1 );
+				w->writeScore( &b );
 			}
 			else
 			{
@@ -253,12 +249,11 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 					b.writeInt(w->getID(), 1);
 					b.writeInt( (int)w->getPos().x, 2);
 					b.writeInt( (int)w->getPos().y, 2);
+					w->writeScore( &b );
 				}
 			};
 		};
-		SendPacket(&b, cl);
 		// Spawn existing bonuses
-		b.Clear();
 		CBonus * bn = cBonuses;
 		for( i = 0; i < MAX_BONUSES; i++, bn++ )
 		{
@@ -709,7 +704,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 	// Must be in lobby
 	if ( iState != SVS_LOBBY &&  
-		!( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() ) )  {
+		!( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() ) )  {
 		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
 
 		// Skip to get the right position
@@ -755,11 +750,11 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 			bytestr.Clear();
 		}
 	}
-	if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING && ready )
+	if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING && ready )
 	{
+		// TODO: auto-move worm into weapon selection screen after timeout, don't wait untill he presses "Ready" button.
 		cl->setStatus(NET_CONNECTED);
 		bytestr.Clear();
-		CreateFakeZombieWormsToAllowConnectDuringGame( &bytestr );
 		SendPacket(&bytestr, cl);
 		bytestr.Clear();
 		// Copied from GameServer::StartGame()
@@ -971,7 +966,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	GetRemoteNetAddr(tSocket, adrFrom);
 
 	// If were in the game, deny challenges
-	if ( iState != SVS_LOBBY && !( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING ) ) {
+	if ( iState != SVS_LOBBY && !( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) ) {
 		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
@@ -1043,7 +1038,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
-	if ( iState != SVS_LOBBY && !( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING ) )  {
+	if ( iState != SVS_LOBBY && !( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) )  {
 //	if (iState == SVS_PLAYING) {
 		printf("GameServer::ParseConnect: In game, ignoring.");
 		return;
@@ -1222,39 +1217,6 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		return;
 	}
 
-	int livesWormConnectedDuringGame = 0;
-	if ( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
-	{
-		w = cWorms;
-		int lives_total=0, numplayers=0;
-		for (p = 0;p < MAX_WORMS;p++, w++)
-		{
-			if (w->isUsed())
-			{
-				numplayers++;
-				lives_total += ( w->getLives() != WRM_OUT ) ? w->getLives() : -1 ;
-			};
-		};
-		livesWormConnectedDuringGame = tLXOptions->tGameinfo.iAllowConnectDuringGameLives * lives_total / numplayers / 100;
-		if( tLXOptions->tGameinfo.iAllowConnectDuringGameLives >= 999 ) 
-			livesWormConnectedDuringGame = iLives;	// Non-stop game, every new worm has full amount of lives
-		if ( livesWormConnectedDuringGame < 0 )
-			livesWormConnectedDuringGame = 0;
-		if ( livesWormConnectedDuringGame > iLives )
-			livesWormConnectedDuringGame = iLives;
-		if ( iLives == WRM_UNLIM )
-			livesWormConnectedDuringGame = WRM_UNLIM;
-		else if ( livesWormConnectedDuringGame < tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin )
-		{
-			printf("New worm will have %i lives when minimum is %i - denying\n", livesWormConnectedDuringGame, tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin );
-			bytestr.Clear();
-			bytestr.writeInt(-1, 4);
-			bytestr.writeString("lx::badconnect");
-			bytestr.writeString(OldLxCompatibleString(networkTexts->sGameInProgress));
-			bytestr.Send(tSocket);
-			return;
-		};
-	};
 
 	// Connect
 	if (newcl) {
@@ -1290,19 +1252,17 @@ void GameServer::ParseConnect(CBytestream *bs) {
 					w->setTeam(0);
 				newcl->setWorm(i, w);
 				ids[i] = p;
-				if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
+				if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING )
 				{
-					// The new ID should be one of zombie worm ID's so clients won't crash (hopefully).
-					// Copied from GameServer::StartGame()
-					// TODO: don't copy code! avoid double code!
-					w->setLives(livesWormConnectedDuringGame);
+					// If worm won't spawn or shoot we won't get any crashes (hopefully)
+					w->setAlive(false);
+					w->setLives(WRM_OUT);
     		        w->setKills(0);
 					w->setGameScript(&cGameScript);
             		w->setWpnRest(&cWeaponRestrictions);
 					w->setLoadingTime( (float)iLoadingTimes / 100.0f );
 					w->setKillsInRow(0);
 					w->setDeathsInRow(0);
-					// TODO: assign valid team to worm
 					w->setTeam(0);
 					iNumPlayers++;
 				};
@@ -1377,8 +1337,20 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		}
 
 		SendGlobalPacket(&bytestr);
-
-
+		
+		if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING )
+		{
+			// Send new worm score to everyone, or we can get wrong final scoreboard screenshot
+			bytestr.Clear();
+			w = cWorms;
+			for( int p = 0; p < MAX_WORMS; p++, w++ )
+			{
+				if ( ! w->isUsed() || w->getClient() != newcl )
+					continue;
+				w->writeScore( &bytestr );
+			};
+			SendGlobalPacket(&bytestr);
+		};
 
 		// TODO: Set socket info
 		// TODO: This better
@@ -1513,9 +1485,10 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			newcl->getRights()->Everything();
 
 		// Client spawns when the game starts
-		if( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING )
+		if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING )
 		{
-			SendText( newcl, OldLxCompatibleString("Game in progress. Press \"Ready\" to connect."), TXT_NETWORK );
+			// SendText doesn't work here, dunno why - won't be needed when I'll send the STARTGAME on timeout
+			//SendText( newcl, OldLxCompatibleString("Game in progress. Press \"Ready\" to connect."), TXT_NETWORK );
 			newcl->setStatus(NET_ZOMBIE);	// Do not send any worm updates to client
 			newcl->setConnectingDuringGame(true);
 		}
@@ -1585,7 +1558,7 @@ void GameServer::ParseQuery(CBytestream *bs, const std::string& ip) {
 		bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
-	if ( tLXOptions->tGameinfo.bAllowConnectDuringGame && iState == SVS_PLAYING ) 
+	if ( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) 
 		bytestr.writeByte(SVS_LOBBY);	// Advertise myself as Open or n00bz won't ever connect here
 	else 
 		bytestr.writeByte(iState);

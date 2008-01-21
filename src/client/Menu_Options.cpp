@@ -81,6 +81,7 @@ enum {
 	og_AntilagMovementPrediction,
 	og_SendDirtUpdate,
 	og_AllowFileDownload,
+	og_AllowConnectDuringGame,
 	og_ShowUnstableFeatures
 };
 
@@ -376,6 +377,9 @@ bool Menu_OptionsInitialize(void)
 
 	if( tLXOptions->bShowUnstableFeatures )
 	{
+		cOpt_Game.Add( new CLabel("Server allows connect during game",tLX->clNormalLabel), Static, 330, 240, 0,0);
+		cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowConnectDuringGame),og_AllowConnectDuringGame, 550, 240, 17,17);
+
 		cOpt_Game.Add( new CLabel("Server allows file download",tLX->clNormalLabel), Static, 330, 270, 0,0);
 		cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 270, 17,17);
 
@@ -392,7 +396,7 @@ bool Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Use 1-5 keys to switch weapons", tLX->clNormalLabel), Static, 330, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bUseNumericKeysToSwitchWeapons),og_UseNumericKeysToSwitchWeapons, 550, 390, 17,17);
 
-	cOpt_Game.Add( new CLabel("Show unstable or buggy options",tLX->clNormalLabel), Static, 330, 180, 0,0);
+	cOpt_Game.Add( new CLabel("Show unstable features",tLX->clNormalLabel), Static, 330, 180, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bShowUnstableFeatures),og_ShowUnstableFeatures, 550, 180, 17,17);
 
 	// TODO: Fix cSlider so it's value thing doesn't take up a square of 100x100 pixels.
@@ -633,6 +637,11 @@ void Menu_OptionsFrame(void)
 				case og_AllowFileDownload:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bAllowFileDownload = cOpt_Game.SendMessage(og_AllowFileDownload, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+				
+				case og_AllowConnectDuringGame:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bAllowConnectDuringGame = cOpt_Game.SendMessage(og_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 					
 				case og_ShowUnstableFeatures:

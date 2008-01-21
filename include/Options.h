@@ -205,6 +205,7 @@ public:
 	bool	bAllowFileDownload;
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 	bool	bShowUnstableFeatures;
+	bool	bAllowConnectDuringGame;	// Connect as spectator
 
 	// Misc.
 	bool    bLogConvos;
@@ -250,9 +251,6 @@ public:
 		bool	bAllowNickChange;
 		float	fBonusFreq;
 		float	fBonusLife;
-		bool	bAllowConnectDuringGame;
-		int		iAllowConnectDuringGameLives;
-		int		iAllowConnectDuringGameLivesMin;
 		float	fRespawnTime;
 		bool	bRespawnInWaves;	// Respawn all worms at once after fRespawnTime passed after first death
 		bool	bRespawnGroupTeams;	// only if bRespawnInWaves is true - respawn all team in single spot

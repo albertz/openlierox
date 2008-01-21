@@ -70,10 +70,7 @@ enum {
 	hs_WantsJoinBanned,
 	hs_AllowRemoteBots,
 	hs_AllowNickChange,
-	hs_ServerSideHealth,
-	hs_AllowConnectDuringGame,
-	hs_AllowConnectDuringGameLives,
-	hs_AllowConnectDuringGameLivesMin
+	hs_ServerSideHealth
 };
 
 int iHumanPlayers = 0;
@@ -96,7 +93,7 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CButton(BUT_OK, tMenu->bmpButtons),   hs_Ok,			585,440,30, 15);
 
 	cHostPly.Add( new CListview(),							hs_PlayerList,	360,160,200,100);
-	cHostPly.Add( new CListview(),							hs_Playing,		360,270,200,70);
+	cHostPly.Add( new CListview(),							hs_Playing,		360,270,200,100);
 	cHostPly.Add( new CLabel("Server name",	tLX->clNormalLabel),		-1,			40, 178,0,  0);
 	cHostPly.Add( new CTextbox(),							hs_Servername,	175,175,140,tLX->cFont.GetHeight());
 	cHostPly.Add( new CLabel("Max Players",	tLX->clNormalLabel),		-1,			40,	208,0,  0);
@@ -117,15 +114,6 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.Add( new CCheckbox(0),		                    hs_AllowNickChange,	270,385,17, 17);
 	cHostPly.Add( new CLabel("Server-side Health",			tLX->clNormalLabel),-1,	125, 418,0,  0);
 	cHostPly.Add( new CCheckbox(0),		                    hs_ServerSideHealth,	270,415,17, 17);
-	if( tLXOptions->bShowUnstableFeatures )
-	{
-		cHostPly.Add( new CLabel("Allow connect during game",			tLX->clNormalLabel),-1,	360, 358,0,  0);
-		cHostPly.Add( new CCheckbox(0),		                    hs_AllowConnectDuringGame,	540, 355, 17, 17);
-		cHostPly.Add( new CLabel("Lives from average %",			tLX->clNormalLabel),-1,	360, 388,0,  0);
-		cHostPly.Add( new CTextbox(),							hs_AllowConnectDuringGameLives, 520,385,40,tLX->cFont.GetHeight());
-		cHostPly.Add( new CLabel("Min lives to connect",			tLX->clNormalLabel),-1,	360, 418,0,  0);
-		cHostPly.Add( new CTextbox(),							hs_AllowConnectDuringGameLivesMin, 520,415,40,tLX->cFont.GetHeight());
-	};
 
 	cHostPly.SendMessage(hs_Playing,		LVM_SETOLDSTYLE, (DWORD)0, 0);
 	cHostPly.SendMessage(hs_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
@@ -144,9 +132,6 @@ bool Menu_Net_HostInitialize(void)
 	cHostPly.SendMessage( hs_AllowRemoteBots,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowRemoteBots, 0);
 	cHostPly.SendMessage( hs_AllowNickChange,   CKM_SETCHECK, tLXOptions->tGameinfo.bAllowNickChange, 0);
 	cHostPly.SendMessage( hs_ServerSideHealth,  CKM_SETCHECK, tLXOptions->bServerSideHealth, 0);
-	cHostPly.SendMessage( hs_AllowConnectDuringGame,  CKM_SETCHECK, tLXOptions->tGameinfo.bAllowConnectDuringGame, 0);
-	cHostPly.SendMessage( hs_AllowConnectDuringGameLives, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iAllowConnectDuringGameLives), 0);
-	cHostPly.SendMessage( hs_AllowConnectDuringGameLivesMin, TXS_SETTEXT, itoa(tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin), 0);
     //cHostPly.SendMessage( hs_Password,   TXS_SETTEXT, tLXOptions->tGameinfo.szPassword, 0 );
 
 	// Add columns
@@ -374,14 +359,6 @@ void Menu_Net_HostPlyFrame(int mouse)
 						tLXOptions->tGameinfo.bAllowRemoteBots = cHostPly.SendMessage( hs_AllowRemoteBots, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->tGameinfo.bAllowNickChange = cHostPly.SendMessage( hs_AllowNickChange, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						tLXOptions->bServerSideHealth = cHostPly.SendMessage( hs_ServerSideHealth, CKM_GETCHECK, (DWORD)0, 0) != 0;
-						if( tLXOptions->bShowUnstableFeatures )
-						{
-							tLXOptions->tGameinfo.bAllowConnectDuringGame = cHostPly.SendMessage( hs_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
-							cHostPly.SendMessage( hs_AllowConnectDuringGameLives, TXS_GETTEXT, &buf, 0);
-							tLXOptions->tGameinfo.iAllowConnectDuringGameLives = atoi(buf);
-							cHostPly.SendMessage( hs_AllowConnectDuringGameLivesMin, TXS_GETTEXT, &buf, 0);
-							tLXOptions->tGameinfo.iAllowConnectDuringGameLivesMin = atoi(buf);
-						};
 
 						cHostPly.Shutdown();
 
