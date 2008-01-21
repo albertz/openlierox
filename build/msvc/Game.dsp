@@ -274,6 +274,14 @@ SOURCE=..\..\include\HTTP.H
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\IniReader.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IniReader.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\InputEvents.cpp
 # End Source File
 # Begin Source File

@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=182
+UnitCount=184
 Type=1
 Ver=1
 ObjFiles=
@@ -1859,6 +1859,26 @@ BuildCmd=
 
 [Unit182]
 FileName=..\..\include\Color.h
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit183]
+FileName=..\..\include\IniReader.h
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit184]
+FileName=..\..\src\common\IniReader.cpp
 CompileCpp=1
 Folder=System files
 Compile=1
