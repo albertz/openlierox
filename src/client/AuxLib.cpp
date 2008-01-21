@@ -162,13 +162,18 @@ int SetVideoMode(void)
 #ifdef WIN32
 	bool HardwareAcceleration = false;
 #else
-	bool HardwareAcceleration = true; // false;
+	// disabled for now to prevent possible errors
+	// (I don't know if it makes even any change)
+	bool HardwareAcceleration = false;
 #endif
 	int DoubleBuf = false;
 	int vidflags = 0;
 
+#if 0
+	// TODO: why only in this case?
 	// Use doublebuf when hardware accelerated
 	if (HardwareAcceleration)
+#endif
 		DoubleBuf = true;
 
 	// Check that the bpp is valid
@@ -323,7 +328,7 @@ void FlipScreen(SDL_Surface *psScreen)
     // to all of them
     ProcessScreenshots();
 
-	SDL_Flip( psScreen );
+	SDL_Flip( psScreen );	
 
 	if (tLXOptions->bOpenGL)
 		SDL_GL_SwapBuffers();

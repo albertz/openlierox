@@ -174,6 +174,8 @@ static void SdlNetEvent_UnInit() {
 	SDL_WaitThread( SdlNetEventThreads[1], &status );
 	SDL_WaitThread( SdlNetEventThreads[2], &status );
 	nlGroupDestroy(SdlNetEventGroup);
+	
+	SdlNetEvent_Inited = false;
 };
 
 static bool isSocketInGroup(NLint group, NetworkSocket sock) {

@@ -63,6 +63,10 @@ bool		bJoystickSupport = false;
 bool		bDedicated = false;
 bool		bJoystickSupport = true;
 #endif
+bool		bRestartGameAfterQuit = false;
+TStartFunction startFunction = NULL;
+void*		startFunctionData = NULL;
+
 
 keyboard_t	*kb = NULL;
 SDL_Surface	*Screen = NULL;
@@ -162,6 +166,8 @@ int main(int argc, char *argv[])
 	else
 		binary_dir = "."; // TODO get exact path of binary
 
+startpoint:
+
 	// Load options and other settings
 	if(!GameOptions::Init())  {
 		SystemError("Could not load options");
@@ -259,6 +265,17 @@ int main(int argc, char *argv[])
 	// Everything loaded, this is not needed anymore
 	ShutdownLoading();
 
+	if(startFunction != NULL) {
+		if(!startFunction(startFunctionData)) {
+			SystemError("ERROR: startfunction not successfull");
+			return -1;
+		}
+		// reset the data; the startfunction is intended to be called only once
+		startFunction = NULL;
+		startFunctionData = NULL;
+	}
+
+	tLX->bQuitGame = false;
 	while(!tLX->bQuitGame) {
 
 		startgame = false; // the menu has a reference to this variable
@@ -320,6 +337,12 @@ int main(int argc, char *argv[])
 	}
 
 	ShutdownLieroX();
+	
+	if(bRestartGameAfterQuit) {
+		bRestartGameAfterQuit = false;
+		printf("-- Restarting game --\n");
+		goto startpoint;
+	}
 
 	printf("Good Bye and enjoy your day...\n");
 	return 0;

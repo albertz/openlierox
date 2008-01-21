@@ -261,6 +261,12 @@ extern  CInput			cSwitchMode;
 extern  bool			bDisableSound;
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;
+extern  bool			bRestartGameAfterQuit;
+
+typedef bool (*TStartFunction) (void* data);
+extern  TStartFunction	startFunction;
+extern	void*			startFunctionData;
+
 #ifdef WITH_MEDIAPLAYER
 extern	CInput			cToggleMediaPlayer;
 #endif

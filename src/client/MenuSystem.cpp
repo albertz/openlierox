@@ -291,8 +291,9 @@ void Menu_Frame() {
 		DedicatedControl::Get()->Menu_Frame();
 		return;
 	}
-	
-	Menu_RedrawMouse(false);
+
+	// do a full redraw here because there could be old data in bmpScreen
+	Menu_RedrawMouse(true);
 
 #ifdef WITH_MEDIAPLAYER
 	// Media player frame
@@ -358,31 +359,35 @@ void Menu_Loop(void)
 {
 	tLX->fCurTime = GetMilliSeconds();
 	bool last_frame_was_because_of_an_event = false;
-	float oldtime = tLX->fCurTime;
-//	float fMaxFrameTime = 1.0f / (float)tLXOptions->nMaxFPS;
-
 	last_frame_was_because_of_an_event = ProcessEvents();
 	
 	while(tMenu->bMenuRunning) {
-		tLX->fCurTime = GetMilliSeconds();
-		tLX->fDeltaTime = tLX->fCurTime - oldtime;
-		tLX->fRealDeltaTime = tLX->fDeltaTime;
-		oldtime = tLX->fCurTime;
+		float oldtime = tLX->fCurTime;
 		
 		Menu_Frame();
 		CapFPS();
 		
 		if(last_frame_was_because_of_an_event) {
+			// Use ProcessEvents() here to handle other processes in queue.
+			// There aren't probably any but it has also the effect that
+			// we run the loop another time after an event which is sometimes
+			// because of the current code needed. Sometimes after an event,
+			// some new menu elements got initialised but not drawn.
 			last_frame_was_because_of_an_event = ProcessEvents();
 		} else {
 			last_frame_was_because_of_an_event = WaitForNextEvent();
 		}
+
+		tLX->fCurTime = GetMilliSeconds();
+		tLX->fDeltaTime = tLX->fCurTime - oldtime;
+		tLX->fRealDeltaTime = tLX->fDeltaTime;
 	}
 }
 
 
 ///////////////////
 // Redraw the rectangle under the mouse (total means a total buffer redraw)
+// TODO: rename this function (one would expect that it redraws the mouse)
 void Menu_RedrawMouse(int total)
 {
 	if(total) {
@@ -432,13 +437,10 @@ std::string Menu_GetLevelName(const std::string& filename)
 {
 	static char	id[32], name[128];
 	int		version;
-	static std::string	Path;
-
-	Path = "levels/"+filename;
 
 	// Liero Xtreme level
 	if( stringcasecmp(GetFileExtension(filename), "lxl") == 0 ) {
-		FILE *fp = OpenGameFile(Path,"rb");
+		FILE *fp = OpenGameFile("levels/" + filename, "rb");
 		if(fp) {
 			fread(id,		sizeof(char),	32,	fp);
 			fread(&version,	sizeof(int),	1,	fp);
@@ -461,7 +463,7 @@ std::string Menu_GetLevelName(const std::string& filename)
 
 	// Liero level
 	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 ) {
-		FILE *fp = OpenGameFile(Path,"rb");
+		FILE *fp = OpenGameFile("levels/" + filename, "rb");
 
 		if(fp) {
 

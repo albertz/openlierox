@@ -242,6 +242,8 @@ void Cmd_Free(void)
 		if(cmd)
 			delete cmd;
 	}
+	
+	Commands = NULL;
 }
 
 

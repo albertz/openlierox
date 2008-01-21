@@ -102,7 +102,6 @@ void CFont::Parse(void) {
 
 	Uint32 blue = SDL_MapRGB(bmpFont->format, 0, 0, 255);
 
-	cur_w = 0;
 	uint tmp_x = 0;
 	for (x = 0; x < bmpFont->w; x++) {
 		if (CurChar != ' ')
@@ -111,6 +110,7 @@ void CFont::Parse(void) {
 				x++;
 
 		// Read until a blue pixel or end of the image
+		cur_w = 0;
 		while (GetPixel(bmpFont, x, 0) != blue && x < bmpFont->w) {
 			x++;
 			cur_w++;
@@ -137,7 +137,6 @@ void CFont::Parse(void) {
 		CharacterOffset.push_back(tmp_x - cur_w + 1);
 		NumCharacters++;
 		CurChar++;
-		cur_w = 0;
 	}
 
 
@@ -265,12 +264,15 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	// Look in the precached fonts if there's some for this color
 	SDL_Surface *bmpCached = NULL;
 	if (Colorize) {
-		if (col == f_white)
+		// HINT: if we leave this disabled, the drawing will always be done manually
+		// this is a bit (not not much) slower but prevents from some errors
+		// TODO: should we completly remove the caches? how much speed improvements do they give?
+/*		if (col == f_white)
 			bmpCached = bmpWhite;
 		else if (col == tLX->clBlack)
 			bmpCached = bmpFont;
 		else if (col == f_green)
-			bmpCached = bmpGreen;
+			bmpCached = bmpGreen; */
 	}
 	// Not colourize, bmpFont itself should be blitted without any changes, so it's precached
 	else {
