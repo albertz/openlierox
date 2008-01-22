@@ -17,6 +17,7 @@
 // Jason Boettcher
 
 #include <iostream>
+#include <assert.h>
 
 #include "HTTP.h"
 #include "LieroX.h" // for LX_VERSION
@@ -211,6 +212,7 @@ void CHttp::CancelProcessing()
 // Set the HTTP error
 void CHttp::SetHttpError(int id)
 {
+	assert(id >= 0 && id < (int)(sizeof(sHttpErrors)/sizeof(std::string)));
 	tError.iError = id;
 	tError.sErrorMsg = sHttpErrors[id];
 }
