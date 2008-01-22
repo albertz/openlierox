@@ -313,6 +313,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 							if(ply != NULL && ply->iType == PRF_HUMAN)  {
 								// Max two humans
+								// TODO: extend this
 								if(i > 2)
 									break;
 

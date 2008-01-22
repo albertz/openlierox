@@ -28,6 +28,7 @@
 #include "FindFile.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
+#include "Sounds.h"
 
 
 // Game info
@@ -355,7 +356,12 @@ void ShutdownAuxLib(void)
 	// HINT: Sometimes we get a segfault here. Because
 	// all important stuff is already closed and save here, it's not that
 	// important to do any more cleanup.
-	SDL_Quit();
+#if SDLMIXER_WORKAROUND_RESTART == 1
+	if(bRestartGameAfterQuit)
+		SDL_QuitSubSystem( SDL_WasInit(0) & (~SDL_INIT_AUDIO) );
+	else
+#endif		
+		SDL_Quit();
 }
 
 

@@ -122,10 +122,10 @@ SoundSample* LoadSample(const std::string& _filename, int maxplaying)
 }
 
 
-
-bool SoundSystemAvailable = false;
+static bool SoundSystemAvailable = false;
 
 bool InitSoundSystem(int rate, int channels, int buffers) {
+	if(SoundSystemAvailable) return true;
 	SoundSystemAvailable = false;
 
 	// HINT: other SDL stuff is already inited, we don't care here
@@ -133,20 +133,20 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
 		return false;
 	}
-
+	
 	if(Mix_OpenAudio(rate, AUDIO_S16, channels, buffers)) {
 		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
-    	return false;
-	}
-
+		return false;
+	}		
+		
 	Mix_AllocateChannels(1000); // TODO: enough?
 
 	SoundSystemAvailable = true;
 	return true;
 }
 
-bool SoundSystemStarted = false;
-int SoundSystemVolume = 100;
+static bool SoundSystemStarted = false;
+static int SoundSystemVolume = 100;
 
 bool StartSoundSystem() {
 	if(!SoundSystemAvailable) return false;
@@ -196,8 +196,16 @@ int GetSoundVolume(void)  {
 }
 
 bool QuitSoundSystem() {
+#if SDLMIXER_WORKAROUND_RESTART == 1
+	if(bRestartGameAfterQuit) {
+		printf("WARNING: You are using an old version of SDL_mixer. You should at least use 1.2.8.\n");
+		printf("There is a known bug in 1.2.7, therefore we cannot restart the sound-system and we will leave it running at this point.\n");
+		// HINT: in ShutdownAuxLib, SDL_Quit will exclude the quitting of audio
+		return false;
+	}
+#endif
+	
 	if(!SoundSystemAvailable) return false;
-	SoundSystemAvailable = false;
 
 	Mix_CloseAudio();
 	return true;
