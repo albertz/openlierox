@@ -121,7 +121,7 @@
 	<a href="http://sourceforge.net/tracker/?group_id=180059&atid=891651">Feature request tracker</a> -
 	<a href="http://sourceforge.net/forum/?group_id=180059">Forum at SF</a><br>
 	<a href="http://sourceforge.net/mail/?group_id=180059">Mailing lists at SF</a><br>
-	<a href="http://83.98.146.8/~misery/smf//index.php/board,125.0.html">LXA forum for OpenLieroX</a><br>
+	<a href="http://lxalliance.net/forum/index.php?board=125.0">LXA forum for OpenLieroX</a><br>
 	<hr>
 	<a href="http://iworx5.webxtra.net/~lxallian/LXRS/">official LieroX site</a><br>
 	<a href="http://open.liero.be/">Open Liero</a><br>
