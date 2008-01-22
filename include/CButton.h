@@ -44,8 +44,9 @@ public:
 		bMouseOver = false;
 		bMouseDown = false;
 		iType = wid_Button;
-        iGoodWidth = 250;
+        iGoodWidth = iWidth = 250;
 		iButtonType = BUT_MENU;
+		iHeight = 18;
 	}
 
 	CButton(int imgid, SDL_Surface *image) {
@@ -54,8 +55,9 @@ public:
 		bMouseOver = false;
 		bMouseDown = false;
 		iType = wid_Button;
-        iGoodWidth = 250;
+        iGoodWidth = iWidth = 250;
 		iButtonType = BUT_MENU;
+		iHeight = image->h;
 	}
 
 	CButton(const std::string& path) {
@@ -64,8 +66,9 @@ public:
 		bMouseOver = false;
 		bMouseDown = false;
 		iType = wid_Button;
-        iGoodWidth = 250;
+        iGoodWidth = iWidth = 250;
 		iButtonType = BUT_TWOSTATES;
+		iHeight = bmpImage->h;
 	}
 
 
@@ -79,6 +82,14 @@ private:
     int         iGoodWidth;
 	int			iButtonType;
 	CGuiSkin::CallbackHandler cClick;
+	
+	void initWidthHeight() {
+		iWidth = iGoodWidth;
+		if (iButtonType == BUT_MENU)
+			iHeight = 18;
+		else
+			iHeight = bmpImage->h;    
+	}
 	
 public:
 	// Methods
@@ -142,6 +153,7 @@ public:
 
 	void setImage(SDL_Surface* theValue) {
 		bmpImage = theValue;
+		initWidthHeight();
 	}
 	
 	

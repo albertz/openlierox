@@ -71,6 +71,7 @@ void CButton::Draw2(SDL_Surface *bmpDest)
 
 ///////////////////
 // Create
+// TODO: what is this good for? the WidgetCreator for example never calls this
 void CButton::Create(void)
 {
     int y2 = 5+iImageID*40;
@@ -89,4 +90,6 @@ void CButton::Create(void)
     }
 
     iGoodWidth = MIN(iGoodWidth+1,bmpImage->w);
+    
+    initWidthHeight();
 }

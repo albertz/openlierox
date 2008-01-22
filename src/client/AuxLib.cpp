@@ -340,6 +340,10 @@ void FlipScreen(SDL_Surface *psScreen)
 // Shutdown the standard Auxiliary Library
 void ShutdownAuxLib(void)
 {
+	// free all cached stuff like surfaces and sounds
+	// HINT: we have to do it before we uninit the specific engines
+	cCache.Clear();
+	
 	QuitSoundSystem();
 
 	// Shutdown the error system

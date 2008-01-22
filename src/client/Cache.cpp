@@ -130,32 +130,35 @@ CGameScript *CCache::GetMod(const std::string& dir)
 
 //////////////
 // Free all allocated data
-CCache::~CCache()
+void CCache::Clear()
 {
 	// Free all the images
 	for (std::map<std::string, SDL_Surface *>::iterator img = ImageCache.begin();
 		img != ImageCache.end(); img++)
 		SDL_FreeSurface(img->second);
-
+	ImageCache.clear();
+	
 	// Free all the samples
 	for (std::map<std::string, SoundSample *>::iterator snd = SoundCache.begin();
 		snd != SoundCache.end(); snd++)
 		FreeSoundSample(snd->second);
-
+	SoundCache.clear();
+	
 	// Free all the maps
 	for (std::map<std::string, CMap *>::iterator map = MapCache.begin();
 		map != MapCache.end(); map++)  {
 		map->second->Shutdown();
 		delete map->second;
 	}
-
+	MapCache.clear();
+	
 	// Free all the mods
 	for (std::map<std::string, CGameScript *>::iterator mod = ModCache.begin();
 		mod != ModCache.end(); mod++)  {
 		mod->second->Shutdown();
 		delete mod->second;
 	}
-
+	ModCache.clear();
 }
 
 

@@ -43,9 +43,10 @@ class CGameScript;
 class CCache  {
 public:
 	CCache() {}
-	~CCache();
+	void Clear();
 
 private:
+	// TODO: use intern-data
 	std::map<std::string, SDL_Surface *> ImageCache;
 	std::map<std::string, SoundSample *> SoundCache;
 	std::map<std::string, CMap *> MapCache;

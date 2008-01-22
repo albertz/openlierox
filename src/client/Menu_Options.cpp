@@ -706,6 +706,8 @@ void Menu_OptionsFrame(void)
 				case os_Apply:
 					if(ev->iEventMsg == BTN_MOUSEUP) {
 
+						bool restart = (tLXOptions->bOpenGL != opengl) || (tLXOptions->iColourDepth != cdepth);
+						
 						// Set to fullscreen / OpenGL / change colour depth
 						tLXOptions->bFullscreen = fullscr;
 						tLXOptions->bOpenGL = opengl;
@@ -718,12 +720,23 @@ void Menu_OptionsFrame(void)
 						t->setText(itoa(tLXOptions->nMaxFPS));
 						PlaySoundSample(sfxGeneral.smpClick);
 
-						// Set the new video mode
-						SetVideoMode();
-
-						tMenu->bmpScreen = SDL_GetVideoSurface();
-						Menu_RedrawMouse(true);
-						SDL_ShowCursor(SDL_DISABLE);
+						if(restart) {
+							// HINT: after changing ogl or bpp, if the user changes some other gfx setting like fullscreen, there are mess ups of course
+							// to workaround the problems, we simply restart the game here
+							tMenu->bMenuRunning = false; // quit
+							Menu_OptionsShutdown(); // cleanup for this menu
+							bRestartGameAfterQuit = true; // set restart-flag
+							startFunction = &Menu_StartWithSysOptionsMenu; // set function which loads this menu after start
+							return;
+						
+						} else {
+							// Set the new video mode
+							SetVideoMode();
+	
+							tMenu->bmpScreen = SDL_GetVideoSurface();
+							Menu_RedrawMouse(true);
+							SDL_ShowCursor(SDL_DISABLE);
+						}
 					}
 					break;
 
@@ -811,6 +824,7 @@ void Menu_OptionsFrame(void)
 
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
 
+/*
 		tLXOptions->iColourDepth = cOpt_System.SendMessage(os_ColourDepth, CBM_GETCURINDEX,(DWORD)0,0); 
 		switch (tLXOptions->iColourDepth)  {
 		case 0: tLXOptions->iColourDepth = 0; break;
@@ -819,33 +833,17 @@ void Menu_OptionsFrame(void)
 		case 3: tLXOptions->iColourDepth = 32; break;
 		default: tLXOptions->iColourDepth = 16;
 		}
-
-		if ((cdepth != tLXOptions->iColourDepth) || (opengl != tLXOptions->bOpenGL))  {
-			// HINT: not needed to show the message as it should work directly
-			//Menu_MessageBox("Information","You need to restart LieroX for the changes to take effect",LMB_OK);
-			//Menu_redrawBufferRect(0,0,640,480); // TODO: w+h are hardcoded here
-			// HINT: after this, if the user changes some other gfx setting like fullscreen, there are mess ups of course
-			tLXOptions->bOpenGL = opengl;
-
-			// HINT: to workaround the problems, we simply restart the game here
-			tMenu->bMenuRunning = false; // quit
-			Menu_OptionsShutdown(); // cleanup for this menu
-			bRestartGameAfterQuit = true; // set restart-flag
-			startFunction = &Menu_StartWithSysOptionsMenu; // set function which loads this menu after start
-			return;
-		}
+*/
 
 		// FPS and fullscreen
 		t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
 
-		if(fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS)
+		if(cdepth != tLXOptions->iColourDepth || opengl != tLXOptions->bOpenGL || fullscr != tLXOptions->bFullscreen || atoi(t->getText()) != tLXOptions->nMaxFPS) {
 			cOpt_System.getWidget(os_Apply)->setEnabled(true);
-        else {
+			cOpt_System.getWidget(os_Apply)->Draw( tMenu->bmpScreen );
+        } else {
 			cOpt_System.getWidget(os_Apply)->setEnabled(false);
-
-            // Redraw the section around the apply button
-			if (!cOpt_System.SendMessage(os_ScreenshotFormat, CBM_ISDROPPED,(DWORD)0,0))
-				Menu_redrawBufferRect(550,435, 80,25);
+			cOpt_System.getWidget(os_Apply)->redrawBuffer();
         }
 	}
 
