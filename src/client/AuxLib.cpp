@@ -362,6 +362,7 @@ void ShutdownAuxLib(void)
 	// important to do any more cleanup.
 #if SDLMIXER_WORKAROUND_RESTART == 1
 	if(bRestartGameAfterQuit)
+		// quit everything but audio
 		SDL_QuitSubSystem( SDL_WasInit(0) & (~SDL_INIT_AUDIO) );
 	else
 #endif		

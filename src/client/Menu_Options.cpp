@@ -821,19 +821,7 @@ void Menu_OptionsFrame(void)
 		tLXOptions->sSTUNServer = t->getText();
 
 		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
-
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
-
-/*
-		tLXOptions->iColourDepth = cOpt_System.SendMessage(os_ColourDepth, CBM_GETCURINDEX,(DWORD)0,0); 
-		switch (tLXOptions->iColourDepth)  {
-		case 0: tLXOptions->iColourDepth = 0; break;
-		case 1: tLXOptions->iColourDepth = 16; break;
-		case 2: tLXOptions->iColourDepth = 24; break;
-		case 3: tLXOptions->iColourDepth = 32; break;
-		default: tLXOptions->iColourDepth = 16;
-		}
-*/
 
 		// FPS and fullscreen
 		t = (CTextbox *)cOpt_System.getWidget(os_MaxFPS);
