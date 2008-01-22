@@ -1,0 +1,12 @@
+The PHP files in this directory simplify working with (Open)LieroX data in PHP.
+Currently there are functions for the following tasks:
+Get level info and create level image or level thumbnail
+Get mod info and weapon list
+Convert skin to animated gif
+Extract one frame from a skin
+Get serverlist from masterservers
+Get server info about a (O)LX server
+Get a fast info about a (O)LX server
+Ping an (O)LX server
+
+The functions are defined in lxutils.php. For examples see test.php.
