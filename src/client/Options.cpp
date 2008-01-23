@@ -219,27 +219,6 @@ static void InitWidgetStates(GameOptions& opts) {
 	ReadIntArray(OptionsFileName, "Widgets","FavouritesListCols",	&opts.iFavouritesList[0],6);
 }
 
-//////////////////
-// Called every time the INI parser parses a new entry
-bool GameOptions::OnIniEntry(const std::string& section, const std::string& propname, const std::string& value, void *opt_ptr)
-{
-	CScriptableVars::ScriptVarPtr_t var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
-	GameOptions *opts = (GameOptions *)opt_ptr;
-	if( var.b !=  NULL ) { // found entry
-		CScriptableVars::SetVarByString(var, value);
-	} else {
-		if( (section == "FileHandling" && propname.find("SearchPath") == 0)
-		 || (section == "Widgets") ) {
-			// ignore these atm
-		} else {
-			opts->additionalOptions[section + "." + propname] = value;
-			cout << "WARNING: the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
-		}
-	}
-
-	return true;
-}
-
 
 ///////////////////
 // Load the options
@@ -280,8 +259,32 @@ bool GameOptions::LoadFromDisc()
 		}
 	}
 	
+	// define parser handler
+	class IniReaderCallback : _IniReaderCallback {
+	public:
+		GameOptions* opts; IniReaderCallback(GameOptions* o) : opts(o) {}
+		
+		bool OnNewSection(const std::string& section) { return true; /* ignored */ }
+		bool OnEntry(const std::string& section, const std::string& propname, const std::string& value) {
+			CScriptableVars::ScriptVarPtr_t var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
+			if( var.b !=  NULL ) { // found entry
+				CScriptableVars::SetVarByString(var, value);
+			} else {
+				if( (section == "FileHandling" && propname.find("SearchPath") == 0)
+				 || (section == "Widgets") ) {
+					// ignore these atm
+				} else {
+					opts->additionalOptions[section + "." + propname] = value;
+					cout << "WARNING: the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
+				}
+			}
+		
+			return true;
+		}
+	} iniCallback(this);
+	
 	// parse the file now
-	if( ! IniReader("cfg/options.cfg", &OnIniEntry, NULL).Parse(this) ) {
+	if( ! IniReader("cfg/options.cfg").Parse( (_IniReaderCallback&)iniCallback ) ) {
 		printf("HINT: cfg/options.cfg not found, will use standards\n");
 	}
 	

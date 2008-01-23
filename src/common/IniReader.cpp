@@ -14,18 +14,10 @@
 
 using namespace std;
 
-///////////////////
-// Constructor and destructor
-IniReader::IniReader(const std::string& filename, OnEntry newEntryCallback,  OnSection newSectionCallback) :
-	m_filename(filename),
-	onSection(newSectionCallback),
-	onEntry(newEntryCallback) {}
-
+IniReader::IniReader(const std::string& filename) : m_filename(filename) {}
 IniReader::~IniReader() {}
 
-///////////////////
-// Main parsing function, returns true if the file was parsed successfully
-bool IniReader::Parse(void *userData) {
+bool IniReader::Parse(IniReader::OnNewSection onNewSectionCallback, IniReader::OnEntry onEntryCallback, void* userData) {
 	FILE* f = OpenGameFile(m_filename, "r");
 	if(f == NULL)
 		return false;
@@ -54,8 +46,7 @@ bool IniReader::Parse(void *userData) {
 
 		case S_SECTION:
 			if(c == ']') {
-				if (onSection)
-					if( ! onSection(section, userData) ) goto parseCleanup;
+				if( ! onNewSectionCallback(userData, section) ) goto parseCleanup;
 				state = S_DEFAULT; break; }
 			else if(c == '\n') {
 				cout << "WARNING: section-name \"" << section << "\" of options.cfg is not closed correctly" << endl;
@@ -74,9 +65,8 @@ bool IniReader::Parse(void *userData) {
 			else { propname += c; break; }
 			
 		case S_PROPVALUE:
-			if(c == '\n' || c == '#') {
-				if (onEntry)
-					if( ! onEntry(section, propname, value, userData) ) goto parseCleanup;
+			if(c == '\n' || c == '#') { 
+				if( ! onEntryCallback(userData, section, propname, value) ) goto parseCleanup;
 				if(c == '#') state = S_IGNORERESTLINE; else state = S_DEFAULT;
 				break; }
 			else if(isspace(c) && value == "") break; // ignore heading spaces

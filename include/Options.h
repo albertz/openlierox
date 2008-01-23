@@ -156,7 +156,6 @@ public:
 	static bool Init();
 	bool LoadFromDisc();
 	void SaveToDisc();
-	static bool OnIniEntry(const std::string& section, const std::string& propname, const std::string& value, void *opt_ptr);
 	
 	// Video
 	bool	bFullscreen;
