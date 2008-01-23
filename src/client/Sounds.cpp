@@ -206,7 +206,8 @@ bool QuitSoundSystem() {
 #endif
 	
 	if(!SoundSystemAvailable) return false;
-
+	SoundSystemAvailable = false;
+	
 	Mix_CloseAudio();
 	return true;
 }
