@@ -95,15 +95,9 @@
     ANIMATED SKIN
     -->
     <h1>Skin Test</h1>
-    <?php
-    // Define some nice animation
-    // The numbers are frame numbers of the skin, counting starts from 1 (not 0)
-    $def = Array(5, 12, 19);
-    
-    // Create an animation from default.png, with our definition, frame
-    // delay 20, running infinite, not flipped and not colorized 
-    // (specify Array(r, g, b) instead of -1 if you want it colorized)
-    $animSkin = LXSkinToAnimGIFAdv("default.png", $def, 20, 0, false, -1);
+    <?php  
+    // Create an animation from default.png, with default color
+    $animSkin = LXSkinToAnimGIF("default.png");
     if ($animSkin === false) {
       echo "Could not create an animated GIF.<br>\n";
     } else {
@@ -119,6 +113,33 @@
         echo "Could not write out the animation.<br>\n";
       }
     }
+    
+    // Define some nice animation
+    // The numbers are frame numbers of the skin, counting starts from 1 (not 0)
+    $def = Array(
+    Array("frame" => 5, "flipped" => false, "color" => Array(255, 0, 0)),
+    Array("frame" => 12, "flipped" => false, "color" => Array(255, 255, 0)),
+    Array("frame" => 19, "flipped" => false, "color" => Array(0, 255, 0)),
+    Array("frame" => 5, "flipped" => true, "color" => Array(0, 255, 255)),
+    Array("frame" => 12, "flipped" => true, "color" => Array(0, 0, 255)),
+    Array("frame" => 19, "flipped" => true, "color" => -1));
+    
+    $animSkin2 = LXSkinToAnimGifAdv("default.png", $def, 20, 0);
+    if ($animSkin2 === false) {
+      echo "Could not create an advanced animated GIF.<br>\n";
+    } else {
+      // Save the animation to a file
+      $fp = fopen("default_advanimated.gif", "wb");
+      if ($fp) {
+        fwrite($fp, $animSkin2);
+        fclose($fp);
+        unset($animSkin2); // Cleanup
+        
+        echo "<img src=\"default_advanimated.gif\" alt=\"\"><br>\n"; // Display it
+      } else {
+        echo "Could not write out the advanced animation.<br>\n";
+      }
+    }    
     
     // Get the 10th frame from the skin, make it red + flipped and display it
     // HINT: now it returns GD image, not GIF data

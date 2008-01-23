@@ -404,15 +404,16 @@ function LXOriginalLevelInfo($level, $minimap_w = 128, $minimap_h = 96)
   return $returnValue;
 }
 
-/////////////////////////
-// Gets the server info for a server specified in $ip
+//////////////////////////
+// Private function, sends a packet to server
 // Parameters:
-// $ip - IP address and (optionally) port separated by :
-// $timeout - how long (in milliseconds) to wait for a reply
+// $ip - ip[:port]
+// $packet - packet data
+// $timeout - timeout in milliseconds
 // Return value:
-// false on error
-// ServerInfo structure on success
-function LXServerInfo($ip, $timeout = 2000)
+// false on failure
+// array, where array[0] is the response and array[1] ping
+function SendPacket($ip, $packet, $timeout)
 {
   // Adjust the address
   if (!strpos($ip, ":"))
@@ -421,14 +422,10 @@ function LXServerInfo($ip, $timeout = 2000)
   // Open the socket
   $fp = stream_socket_client("udp://" . $ip);
   if (!$fp)
-    return false;  
+    return false;
     
-  // Build the packet
-  $packet = chr(0xFF) . chr(0xFF) . chr(0xFF) . chr(0xFF);
-  $packet .= "lx::getinfo" . chr(0x00);
-  
   // Setup the sent time for ping calculation
-  $sent_time = CurrentTime();
+  $sent_time = CurrentTime(); 
   
   // Send the packet 
   fwrite($fp, $packet);
@@ -444,6 +441,30 @@ function LXServerInfo($ip, $timeout = 2000)
   
   // Close the connection
   fclose($fp);
+  
+  return Array($response, $ping);       
+}
+
+/////////////////////////
+// Gets the server info for a server specified in $ip
+// Parameters:
+// $ip - IP address and (optionally) port separated by :
+// $timeout - how long (in milliseconds) to wait for a reply
+// Return value:
+// false on error
+// ServerInfo structure on success
+function LXServerInfo($ip, $timeout = 2000)
+{
+  // Build the packet
+  $packet = chr(0xFF) . chr(0xFF) . chr(0xFF) . chr(0xFF);
+  $packet .= "lx::getinfo" . chr(0x00);
+  
+  // Send the packet
+  $res = SendPacket($ip, $packet, $timeout);
+  if (!$res)
+    return false;
+     
+  list($response, $ping) = $res;
   
   // Check the response  
   if (!$response)
@@ -584,36 +605,17 @@ function LXServerInfo($ip, $timeout = 2000)
 // FastServerInfo structure when success
 function LXFastInfo($ip, $timeout = 2000)
 {
-  // Adjust the address
-  if (!strpos($ip, ":"))
-    $ip .= ":23400"; // Append default LX port
-       
-  // Open the socket
-  $fp = stream_socket_client("udp://" . $ip);
-  if (!$fp)
-    return false;  
-    
+   
   // Build the packet
   $packet = chr(0xFF) . chr(0xFF) . chr(0xFF) . chr(0xFF);
   $packet .= "lx::query" . chr(0x00) . chr(0x00);
   
-  // Setup the sent time for ping calculation
-  $sent_time = CurrentTime();
-  
-  // Send the packet 
-  fwrite($fp, $packet);
-
-  // Set the timeout
-  stream_set_timeout($fp, 0, $timeout * 1000);  
-  
-  // Read the response
-  $response = fread($fp, 4096);
-  
-  // Calculate the ping
-  $ping = Round(CurrentTime() - $sent_time);
-  
-  // Close the connection
-  fclose($fp);
+  // Send the packet
+  $res = SendPacket($ip, $packet, $timeout);
+  if (!$res)
+    return false;
+    
+  list($response, $ping) = $res;
   
   // Check the response  
   if (!$response)
@@ -674,37 +676,17 @@ function LXFastInfo($ip, $timeout = 2000)
 // false when failed
 // ping in milliseconds when success
 function LXPingServer($ip, $timeout = 2000)
-{
-  // Adjust the address
-  if (!strpos($ip, ":"))
-    $ip .= ":23400"; // Append default LX port
-       
-  // Open the socket
-  $fp = stream_socket_client("udp://" . $ip);
-  if (!$fp)
-    return false;  
-    
+{  
   // Build the packet
   $packet = chr(0xFF) . chr(0xFF) . chr(0xFF) . chr(0xFF); // Header
   $packet .= "lx::ping" . chr(0x00);
-  
-  // Setup the sent time for ping calculation
-  $sent_time = CurrentTime();
-  
-  // Send the packet 
-  fwrite($fp, $packet);
 
-  // Set the timeout
-  stream_set_timeout($fp, 0, $timeout * 1000);  
-  
-  // Read the response
-  $response = fread($fp, 4096);
-  
-  // Calculate the ping
-  $ping = Round(CurrentTime() - $sent_time);
-  
-  // Close the connection
-  fclose($fp);
+  // Send the packet
+  $res = SendPacket($ip, $packet, $timeout);
+  if (!$res)
+    return false;
+    
+  list($response, $ping) = $res;  
   
   // Check the response  
   if (!$response)
@@ -1054,25 +1036,25 @@ function LXSkinToAnimGIF($lxskin, $color = -1)
 {
   // Simple animation
   $anim_def = Array();
-  for ($i = 0; $i < 21; $i++) // 21 is the common count of frames
-    $anim_def[$i] = $i;
+  for ($i = 0; $i < 21; $i++) { // 21 is the common count of frames
+    $anim_def[$i]["frame"] = $i;
+    $anim_def[$i]["flipped"] = false;
+    $anim_def[$i]["color"] = $color;
+  }
     
-  return LXSkinToAnimGIFAdv($lxskin, $anim_def, 1, false, $color);
+  return LXSkinToAnimGIFAdv($lxskin, $anim_def, 20, 0);
 }
 
 /////////////////////////////
 // Converts LieroX skin to an animated gif (advanced)
 // Parameters:
 // $lxskin - path to the LieroX skin
-// $anim_def - array of ints, where each int specifies a frame from skin
+// $anim_def - array which specifies info for each frame
 // $frame_delay - delay between two frames (use 1 if unsure)
 // $repeats - number of repeats (0 = infinite)
-// $flipped - set to true if you want it horizontally flipped
-// $color - color of the skin, Array(R, G, B) or -1 for default skin color
 // Return value:
 // gif file contents (NOT image handle) when successful, false otherwise
-function LXSkinToAnimGIFAdv($lxskin, $anim_def, $frame_delay, $repeats,
- $flipped, $color)
+function LXSkinToAnimGIFAdv($lxskin, $anim_def, $frame_delay, $repeats)
 {
   // Load the image
   $skin_image = LoadImage($lxskin);
@@ -1091,9 +1073,15 @@ function LXSkinToAnimGIFAdv($lxskin, $anim_def, $frame_delay, $repeats,
   $num_frames = floor(imagesx($skin_image) / 32);
   
   for ($i = 0; $i < count($anim_def);) {
-    $frame_image = GetSkinFrame($skin_image, 
-                   max(min($anim_def[$i], $num_frames), 1) - 1,
-                   $flipped, $color);
+    // Get the frame info
+    $frame_nr = max(min($anim_def[$i]["frame"], $num_frames), 1) - 1;
+    $frame_fl = $anim_def[$i]["flipped"];
+    $frame_cl = $anim_def[$i]["color"];
+    
+    // Render the frame
+    $frame_image = GetSkinFrame($skin_image, $frame_nr, $frame_fl, $frame_cl);
+    
+    // Get the gif data
     if ($frame_image) {
       // Get the gif data
       ob_start();
