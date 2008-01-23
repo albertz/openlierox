@@ -1,5 +1,8 @@
 <html>
-<head><title>OpenLieroX</title></head>
+<head>
+<title>OpenLieroX</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+</head>
 
 <?php
 	// read_from_file
@@ -7,7 +10,12 @@
 ?>
 
 <body>
-<p>This is the homepage of <b>OpenLieroX</b>.</p>
+<table width="100%" border="0" vspace="0" hspace="0">
+<tr><td>
+<img src="pics/olx.png" align="left">
+<h1><font color="green">This is the homepage of <i>OpenLieroX</i>.</font></h1>
+</td></tr></table>
+<hr height="1">
 <p>
 	<h2>Short Description</h2>
 	OpenLierox is an extremely addictive realtime worms shoot-em-up backed by an active gamers community.<br>
@@ -28,6 +36,7 @@
 </p>
 <p>
 	<h2>Screenshots</h2>
+	<img src="pics/Bild%2017.png"><br><br>
 	<img src="pics/lierox3.png"><br><br>
 	<img src="pics/lierox31.png">
 </p>
