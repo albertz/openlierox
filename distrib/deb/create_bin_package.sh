@@ -6,7 +6,6 @@
 # and you can update bin 0.57.beta4.r1148 with 0.57.beta4.r1149 without updating data package.
 # When we will increment number in ../../VERSION file new data package will be built.
 
-if [ $USER != root ] ; then echo This program should be run from root account - type \"sudo $0\" ; exit 1 ; fi
 echo Re-compiling openlierox with Debian options
 cd ../../
 if [ -e bin/openlierox ] ; then rm bin/openlierox ; fi
@@ -37,8 +36,9 @@ find bin -maxdepth 1 -type "f" -exec cp {} pkg/DEBIAN \;
 find pkg/DEBIAN -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
 find pkg/DEBIAN -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
 
-chgrp -R root pkg/
-chown -R root pkg/
+# TODO: this is a bad hack and has to be done somehow different
+#chgrp -R root pkg/
+#chown -R root pkg/
 
 Version=`cat ../../VERSION | sed 's/_/./g'`
 Revision=`svn info ../../ | grep '^Revision:' | sed 's/Revision: //'`

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-if [ $USER != root ] ; then echo This program should be run from root account - type \"sudo $0\" ; exit 1 ; fi
 echo Creating openlierox-data.deb
 if [ -e pkg ] ; then rm -rf pkg ; fi
 mkdir -p pkg/usr/share/games
@@ -19,8 +18,9 @@ mkdir pkg/DEBIAN
 mv md5sums pkg/DEBIAN
 find data -maxdepth 1 -type "f" -exec cp {} pkg/DEBIAN \;
 
-chgrp -R root pkg/
-chown -R root pkg/
+# TODO: this is a bad hack and has to be done somehow different
+#chgrp -R root pkg/
+#chown -R root pkg/
 
 Version=`cat ../../VERSION | sed 's/_/./g'`
 Size=`du -k -s pkg | grep -o '[0-9]*'`
