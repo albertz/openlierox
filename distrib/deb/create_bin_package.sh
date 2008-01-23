@@ -37,8 +37,10 @@ find pkg/DEBIAN -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
 find pkg/DEBIAN -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
 
 # TODO: this is a bad hack and has to be done somehow different
-#chgrp -R root pkg/
-#chown -R root pkg/
+# You should be member of "root" group to execute this, dunno how to fix that - dh_fixperms does exactly the same
+# Alternative ugly solution will be to extract data.tar.gz from package.deb with "ar x", 
+# unpack it and pack again with "tar -O root -G root ..." command and put back with "ar r".
+chown -R root:root pkg/
 
 Version=`cat ../../VERSION | sed 's/_/./g'`
 Revision=`svn info ../../ | grep '^Revision:' | sed 's/Revision: //'`

@@ -19,8 +19,8 @@ mv md5sums pkg/DEBIAN
 find data -maxdepth 1 -type "f" -exec cp {} pkg/DEBIAN \;
 
 # TODO: this is a bad hack and has to be done somehow different
-#chgrp -R root pkg/
-#chown -R root pkg/
+# You should be member of "root" group to execute this
+chown -R root:root pkg/
 
 Version=`cat ../../VERSION | sed 's/_/./g'`
 Size=`du -k -s pkg | grep -o '[0-9]*'`
