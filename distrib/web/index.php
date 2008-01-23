@@ -1,7 +1,11 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <title>OpenLieroX</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="author" content="Albert Zeyer, Karel Petránek, Martin Griffin, Pelya">
+<meta name="keywords" content="OpenLieroX,Liero,LieroX,LX,Worms,2D-Quake,Linux,Windows,MacOSX,Mac OS X,Mac,Albert Zeyer,Karel Petránek">
+<meta name="description" content="OpenLieroX - extremely addictive realtime worms shoot-em-up backed by an active gamers community - like Liero">
 </head>
 
 <?php
