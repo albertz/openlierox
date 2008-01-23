@@ -260,11 +260,11 @@ bool GameOptions::LoadFromDisc()
 	}
 	
 	// define parser handler
-	class IniReaderCallback : _IniReaderCallback {
+	class MyIniReader : public IniReader {
 	public:
-		GameOptions* opts; IniReaderCallback(GameOptions* o) : opts(o) {}
+		GameOptions* opts;
+		MyIniReader(const std::string& fn, GameOptions* o) : IniReader(fn), opts(o) {}
 		
-		bool OnNewSection(const std::string& section) { return true; /* ignored */ }
 		bool OnEntry(const std::string& section, const std::string& propname, const std::string& value) {
 			CScriptableVars::ScriptVarPtr_t var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
 			if( var.b !=  NULL ) { // found entry
@@ -281,10 +281,11 @@ bool GameOptions::LoadFromDisc()
 		
 			return true;
 		}
-	} iniCallback(this);
+	}
+	iniReader("cfg/options.cfg", this);
 	
 	// parse the file now
-	if( ! IniReader("cfg/options.cfg").Parse( (_IniReaderCallback&)iniCallback ) ) {
+	if( ! iniReader.Parse() ) {
 		printf("HINT: cfg/options.cfg not found, will use standards\n");
 	}
 	
