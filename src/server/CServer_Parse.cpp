@@ -1582,7 +1582,7 @@ void GameServer::ParseQuery(CBytestream *bs, const std::string& ip) {
 ///////////////////
 // Parse a get_info packet
 void GameServer::ParseGetInfo(void) {
-	static CBytestream     bs;
+	CBytestream     bs;
 	game_lobby_t    *gl = &tGameLobby;
 
 	bs.Clear();
@@ -1648,6 +1648,19 @@ void GameServer::ParseGetInfo(void) {
 	for (p = 0;p < MAX_WORMS;p++, w++) {
 		if (w->isUsed()) 
 			bs.writeInt(w->getLives(), 2);
+	}
+
+	// Write out IPs
+	w = cWorms;
+	for (p = 0; p < MAX_WORMS; p++, w++)  {
+		if (w->isUsed())  {
+			std::string addr;
+			NetAddrToString(w->getClient()->getChannel()->getAddress(), addr);
+			size_t pos = addr.find(':');
+			if (pos != std::string::npos)
+				addr.erase(pos, std::string::npos);
+			bs.writeString(addr);
+		}
 	}
 
 
