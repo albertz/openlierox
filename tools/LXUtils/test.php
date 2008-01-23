@@ -177,7 +177,7 @@
     <h1>Server Info Test</h1>
     <?php
     $randomServer = $servers[rand(0, count($servers) - 1)];
-    $serverInfo = LXServerInfo(/*$randomServer*/"127.0.0.1:23402");
+    $serverInfo = LXServerInfo($randomServer);
     if ($serverInfo === false)
       echo "Could not get the server info!<br>\n";
     else {
