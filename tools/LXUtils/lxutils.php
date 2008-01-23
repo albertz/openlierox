@@ -63,10 +63,12 @@ class MapInfo  {
 // $Name - name of the worm
 // $Lives - number of lives (only for OpenLieroX beta3+ servers)
 // $Kills - number of kills
+// $IP - IP address of the player
 class WormInfo  {
   var $Name;
   var $Lives;
   var $Kills;
+  var $IP;
 }
 
 ///////////////////////////
@@ -561,6 +563,7 @@ function LXServerInfo($ip, $timeout = 2000)
     $response = substr($response, 2);
     
     $worms[$i]->Lives = "&ndash;"; // We don't know the lives yet
+    $worms[$i]->IP = ""; // We don't know the IP yet
   }
   
   // Lives (only OLX beta 3+)
@@ -572,6 +575,14 @@ function LXServerInfo($ip, $timeout = 2000)
       if ($worms[$i]->Lives == 65534)
         $worms[$i]->Lives = "&ndash;";
       $response = substr($response, 2);    
+    }
+  }
+  
+  // IP addresses (only OLX beta 4+)
+  if (strlen($response))  {
+    for ($i = 0; $i < $num_players; $i++)  {
+      $worms[$i]->IP = BinToStr($response);
+      $response = substr($response, strlen($worms[$i]->IP) + 1);
     }
   }
   

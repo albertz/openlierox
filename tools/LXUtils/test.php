@@ -177,7 +177,7 @@
     <h1>Server Info Test</h1>
     <?php
     $randomServer = $servers[rand(0, count($servers) - 1)];
-    $serverInfo = LXServerInfo($randomServer);
+    $serverInfo = LXServerInfo(/*$randomServer*/"127.0.0.1:23402");
     if ($serverInfo === false)
       echo "Could not get the server info!<br>\n";
     else {
@@ -200,7 +200,10 @@
         if ($serverInfo->Worms[$i]->Lives == "out")
           echo "out of the game)<br>\n";
         else
-          echo $serverInfo->Worms[$i]->Lives . " lives)<br>\n";
+          echo $serverInfo->Worms[$i]->Lives . " lives)\n";
+          
+        $ip = $serverInfo->Worms[$i]->IP;
+        echo "[" . ($ip ? $ip : "unknown IP")  . "]<br>\n";
       }
     }
     ?> 
