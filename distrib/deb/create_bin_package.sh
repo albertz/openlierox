@@ -8,24 +8,26 @@
 
 echo Re-compiling openlierox with Debian options
 cd ../../
-if [ -e bin/openlierox ] ; then rm bin/openlierox ; fi
-env HAWKNL_BUILTIN=1 SYSTEM_DATA_DIR=/usr/share/games ACTIVATE_GDB=0 DEBUG=0 ./compile.sh # bin file is oned by root
+if [ "$1" '!=' "-n" ] ; then # No recompile (for testing this script)
+	if [ -e bin/openlierox ] ; then rm bin/openlierox ; fi
+	env HAWKNL_BUILTIN=1 SYSTEM_DATA_DIR=/usr/share/games ACTIVATE_GDB=0 DEBUG=0 ./compile.sh
+fi
 cd distrib/deb
 if [ \! -e ../../bin/openlierox ] ; then echo Compile failed ; exit 1 ; fi
 echo Creating openlierox.deb
 # Copying data
 if [ -e pkg ] ; then rm -rf pkg ; fi
 mkdir -p pkg/usr/games
-mv ../../bin/openlierox pkg/usr/games # We don't want file owned by root in user dir - we'll delete pkg/ at the end anyway
+cp ../../bin/openlierox pkg/usr/games
 strip pkg/usr/games/openlierox
-cp -r bin/share pkg/usr
+svn export bin/share pkg/usr/share
 cp ../../share/OpenLieroX.svg pkg/usr/share/pixmaps
 cp ../../share/OpenLieroX.xpm pkg/usr/share/pixmaps
-find ../../doc -maxdepth 1 -type "f"  -exec cp {} pkg/usr/share/doc/openlierox \;
+find ../../doc -maxdepth 1 -type "f" -exec cp {} pkg/usr/share/doc/openlierox \;
 rm pkg/usr/share/doc/openlierox/ChangeLog
 gzip -c -9 ../../doc/ChangeLog > pkg/usr/share/doc/openlierox/changelog.gz
-find pkg/ -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
-find pkg/ -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
+#find pkg/ -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
+#find pkg/ -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
 
 find pkg/ -type "f" -exec md5sum {} \; | sed 's@ pkg/@ @' > md5sums
 
@@ -33,14 +35,12 @@ find pkg/ -type "f" -exec md5sum {} \; | sed 's@ pkg/@ @' > md5sums
 mkdir pkg/DEBIAN > /dev/null 2>&1
 mv md5sums pkg/DEBIAN
 find bin -maxdepth 1 -type "f" -exec cp {} pkg/DEBIAN \;
-find pkg/DEBIAN -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
-find pkg/DEBIAN -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
+#find pkg/DEBIAN -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
+#find pkg/DEBIAN -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
 
-# TODO: this is a bad hack and has to be done somehow different
 # You should be member of "root" group to execute this, dunno how to fix that - dh_fixperms does exactly the same
-# Alternative ugly solution will be to extract data.tar.gz from package.deb with "ar x", 
-# unpack it and pack again with "tar -O root -G root ..." command and put back with "ar r".
-chown -R root:root pkg/
+# This is done later by ./fix_package_permissions.sh script
+#chown -R root:root pkg/
 
 Version=`cat ../../VERSION | sed 's/_/./g'`
 Revision=`svn info ../../ | grep '^Revision:' | sed 's/Revision: //'`
@@ -55,6 +55,9 @@ sed "s/^Installed-Size:.*/Installed-Size: $Size/" | \
 sed "s/^Architecture:.*/Architecture: $Arch/" \
 > pkg/DEBIAN/control
 
+if [ -e openlierox_$Version.r$Revision.deb ] ; then rm openlierox_$Version.r$Revision.deb ; fi
 dpkg -b pkg openlierox_$Version.r$Revision.deb
 
 rm -rf pkg
+
+./fix_package_permissions.sh "openlierox_$Version.r$Revision.deb"
