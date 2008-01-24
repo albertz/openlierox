@@ -795,8 +795,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 	// Draw the details only when current settings is not displayed
 	if (!bCurrentSettings)  {
 		// Health
-		static const std::string health = "Health:";
-		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel,health);
+		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
 		if (HealthBar)  {
 			HealthBar->SetPosition(worm->getHealth());
 			HealthBar->Draw(bmpDest);
@@ -804,25 +803,27 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
 		// Weapon
 		wpnslot_t *Slot = worm->getCurWeapon();
-		static std::string weapon_name;
-		weapon_name = Slot->Weapon->Name;
-		stripdot(weapon_name, 100);
-		weapon_name += ":";
-		tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
+		if(Slot->Weapon) {
+			std::string weapon_name = Slot->Weapon->Name;
+			stripdot(weapon_name, 100);
+			weapon_name += ":";
+			tLX->cFont.Draw(bmpDest, *WeaponLabelX, *WeaponLabelY, tLX->clWeaponLabel, weapon_name);
 		
-		if (WeaponBar)  {
-			if(Slot->Reloading)  {
-				WeaponBar->SetForeColor(MakeColour(128,64,64));  // In case it's not loaded properly
-				WeaponBar->SetCurrentForeState(1);  // Loading state
-				WeaponBar->SetCurrentBgState(1);
-			} else {
-				WeaponBar->SetForeColor(MakeColour(64,64,255));
-				WeaponBar->SetCurrentForeState(0);  // "Shooting" state 
-				WeaponBar->SetCurrentBgState(0);
+			if (WeaponBar)  {
+				if(Slot->Reloading)  {
+					WeaponBar->SetForeColor(MakeColour(128,64,64));  // In case it's not loaded properly
+					WeaponBar->SetCurrentForeState(1);  // Loading state
+					WeaponBar->SetCurrentBgState(1);
+				} else {
+					WeaponBar->SetForeColor(MakeColour(64,64,255));
+					WeaponBar->SetCurrentForeState(0);  // "Shooting" state 
+					WeaponBar->SetCurrentBgState(0);
+				}
+				WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
+				WeaponBar->Draw( bmpDest );
 			}
-			WeaponBar->SetPosition((int) ( Slot->Charge * 100.0f ));
-			WeaponBar->Draw( bmpDest );
 		}
+
 	}
 
 
