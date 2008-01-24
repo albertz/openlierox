@@ -368,7 +368,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 {
 	if(bmpDest == NULL) return; // this can happen in case of bDedicated for example
 	
-	static ushort i,num;
+	ushort i,num;
 	float dt = tLX->fDeltaTime;
 
 	// TODO: allow more worms
@@ -421,6 +421,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 	
+	// if 2 viewports, draw special
     if(cViewports[1].getUsed())
         DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
 
@@ -436,7 +437,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	bool bScoreboard = true;
 
 	// Draw the viewports
-	if((iNetStatus == NET_CONNECTED && bGameReady) || (iNetStatus == NET_PLAYING)) {
+	// TODO: are there problems if we draw this also when the game is not ready?
+	if((iNetStatus == NET_CONNECTED /* && bGameReady */) || (iNetStatus == NET_PLAYING)) {
 
         // Draw the viewports
         for( i=0; i<NUM_VIEWPORTS; i++ ) {
@@ -456,35 +458,37 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
 		}
 
-		//
-		// Players not yet ready
-		//
+	}
 
-		if (iNetStatus == NET_CONNECTED)  {
-			bool ready = true;
+	//
+	// Players not yet ready
+	//
+	if (iNetStatus == NET_CONNECTED && bGameReady)  {
+		bool ready = true;
 
-			// Go through and draw the first two worms select menus
-			for(i=0;i<num;i++) {
+		// Go through and draw the first two worms select menus
+		for(i=0;i<num;i++) {
 
-				// Select weapons
-				if(!cLocalWorms[i]->getWeaponsReady()) {
-					ready = false;
-					cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
-					bScoreboard = false;
-				}
+			// Select weapons
+			if(!cLocalWorms[i]->getWeaponsReady()) {
+				ready = false;
+				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
+				bScoreboard = false;
 			}
+		}
 
-			// If we're ready, let the server know
-			if(ready && !bReadySent && !bDownloadingMap) {
-				bReadySent = true;
-				CBytestream *bytes = cNetChan.getMessageBS();
-				bytes->writeByte(C2S_IMREADY);
-				bytes->writeByte(iNumWorms);
+		// If we're ready, let the server know
+		if(ready && !bReadySent && !bDownloadingMap) {
+			bReadySent = true;
+			
+			// TODO: move this out here
+			CBytestream *bytes = cNetChan.getMessageBS();
+			bytes->writeByte(C2S_IMREADY);
+			bytes->writeByte(iNumWorms);
 
-				// Send my worm's weapon details
-				for(i=0;i<iNumWorms;i++)
-					cLocalWorms[i]->writeWeapons(bytes);
-			}
+			// Send my worm's weapon details
+			for(i=0;i<iNumWorms;i++)
+				cLocalWorms[i]->writeWeapons(bytes);
 		}
 	}
 
@@ -529,6 +533,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		if (tLX->fCurTime - fMyPingRefreshed > 1) {
 			CBytestream ping;
 
+			// TODO: move this out here
 			ping.Clear();
 			ping.writeInt(-1,4);
 			ping.writeString("lx::ping");
@@ -2298,7 +2303,6 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 
 	// Hide the second list if there are no players
 	cScoreLayout.getWidget(sb_Right)->setEnabled(iNumWorms > 16);
-
 	
 	// Draw it!
 	cScoreLayout.Draw(bmpDest);

@@ -902,9 +902,9 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	//
 	// Draw the crosshair
 	//
-	static CVec forw;
+	CVec forw;
 	GetAngles(a, &forw, NULL);
-	forw = forw*16.0f;
+	forw *= 16.0f;
 
 	int cx = (int)forw.x + (int)vPos.x;
 	int cy = (int)forw.y + (int)vPos.y;
