@@ -683,10 +683,13 @@ void GotoLocalMenu(void)
 // Go to local menu
 void GotoNetMenu(void)
 {
+	std::cout << "GotoNetMenu" << std::endl;
 	tLX->bQuitEngine = true;
 	cClient->Disconnect();
-	Menu_SetSkipStart(true);
-	Menu_NetInitialize();
+	if(!bDedicated) {
+		Menu_SetSkipStart(true);
+		Menu_NetInitialize();
+	}
 }
 
 ////////////////////

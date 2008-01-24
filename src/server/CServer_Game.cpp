@@ -664,7 +664,6 @@ void GameServer::DemolitionsGameOver(int winner)
 	
     CBytestream bs;
 
-	GameOver(winner);
     // Let everyone know that the game is over
 	bs.writeByte(S2C_GAMEOVER);
 	bs.writeInt(winner,1);
