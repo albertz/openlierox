@@ -1,5 +1,6 @@
 TODO
 
+[ ] remove ReadInteger/ReadFloat/Read... from code and use IniParser instead (!)
 [ ] use ALSA as default if available (!!)
 [?] nMaxFPS = 0 works correctly? (!!) 
 [ ] remove all unneeded ProcessEvents() from the code
