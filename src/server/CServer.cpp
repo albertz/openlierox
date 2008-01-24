@@ -18,6 +18,7 @@
 #include <stdarg.h>
 #include <vector>
 #include <sstream>
+#include <iostream>
 
 #include "LieroX.h"
 #include "CClient.h"
@@ -35,6 +36,7 @@
 #endif
 #include "stun.h"
 
+using namespace std;
 
 
 GameServer	*cServer = NULL;
@@ -506,18 +508,28 @@ void GameServer::BeginMatch(void)
 		cClient->getRemoteWorms()[cWorms[i].getID()].setFlag(true);
 	}
 
-	if( this->bDedicated )
+	if( this->bDedicated && !bDedicated )
 	{
 		// Instantly kill local worm (leave the bots) - cannot do that in StartGame 'cause clients won't update lobby
+		// Don't do the killing if the game itself is in dedicated mode because in this case it could be that
+		// a local player has joined to his own dedicated server but from another instance of the game.
+		// HINT: It could also be that we are not in game dedicated mode but though are connection from another
+		// instance of the game (but doesn't make much sense). In this case we get wrongly kicked. I see atm no
+		// solution for this problem in a good server/client side architecture without any hacks. But if the whole
+		// code is once cleaned up, we don't need to kick the players anymore here at this time so it will also be
+		// solved then.
 		CWorm * w = cWorms;
 		for( i=0; i<MAX_WORMS ; i++, w++ ) 
 		{
 			if( ! w->isUsed() )
 				continue;
+			cout << "worm " << i << " is " << (w->getLocal() ? "" : "not ") << "local" << endl;
 			std::string addr;
 			NetAddrToString( w->getClient()->getChannel()->getAddress(), addr );
 			if( addr.find("127.0.0.1") == 0 && w->getType() == PRF_HUMAN )
-			{
+			{				
+				cout << "kill local worm " << i << endl;
+				// TODO: move this out here
 				bs.Clear();
 				w->setLives(WRM_OUT);
 				w->writeScore(&bs);
@@ -526,8 +538,10 @@ void GameServer::BeginMatch(void)
 				SendGlobalPacket(&bs);
 			}
 		}
-		RecheckGame();
 	}
+
+	// perhaps the state is already bad
+	RecheckGame();
 }
 
 
@@ -539,6 +553,7 @@ void GameServer::GameOver(int winner)
 	if (bGameOver)
 		return;
 
+	cout << "gameover, worm " << winner << " has won the match" << endl;
 	bGameOver = true;
 	fGameOverTime = tLX->fCurTime;
 
@@ -610,7 +625,15 @@ void GameServer::ReadPackets(void)
 		if(bs.readInt(4) == -1) {
 			std::string address;
 			NetAddrToString(adrFrom, address);
-			ParseConnectionlessPacket(&bs, address);
+			bs.ResetPosToBegin();
+			// parse all connectionless packets
+			// TODO: For example lx::openbeta* was sent in a way that 2 packages were sent at once.
+			// Was this done also with other things? Was the behaviour of previous version
+			// that it parsed only one package here or multiple until the end? I fixed that now
+			// since >rev1457 that it parses multiple packages here.
+			// Same thing in CClient.cpp in ReadPackets
+			while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
+				ParseConnectionlessPacket(&bs, address);
 			continue;
 		}
 		bs.ResetPosToBegin();
@@ -636,7 +659,7 @@ void GameServer::ReadPackets(void)
 
                 // Only process the actual packet for playing clients
                 if( cl->getStatus() != NET_ZOMBIE || cl->getConnectingDuringGame() )
-				    ParseClientPacket(cl,&bs);
+				    ParseClientPacket(cl, &bs);
             }
 		}
 	}

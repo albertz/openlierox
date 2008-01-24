@@ -13,6 +13,7 @@
 // Created 1/7/02
 // Jason Boettcher
 
+#include <iostream>
 
 #include "LieroX.h"
 #include "Menu.h"
@@ -25,7 +26,9 @@
 #include "ConfigHandler.h"
 #include "ChatCommand.h"
 #include "DedicatedControl.h"
+#include "AuxLib.h"
 
+using namespace std;
 
 /*
 =======================================
@@ -115,20 +118,6 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			break;
 
 		default:
-			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
-			// which leads to warnings here - we simply parse it here and avoid warnings
-
-			// Avoid "reading from stream behind end" warning if this is really a bad packet
-			// and print the bad command instead
-			if (cmd == 0xff && bs->GetRestLen() > 3)
-				if (bs->readInt(3) == 0xffffff) {
-					std::string address;
-					NetAddrToString(cl->getChannel()->getAddress(), address);
-					ParseConnectionlessPacket(bs, address);
-					break;
-				}
-
-			// Really a bad packet
 			printf("sv: Bad command in packet (" + itoa(cmd) + ")\n");
 		}
 	}
@@ -371,7 +360,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 		return;
 	}
 
-	static std::string buf;
+	std::string buf;
 
 	// Kill
 	if (networkTexts->sKilled != "<none>")  { // Take care of the <none> tag
@@ -515,7 +504,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 			}
 		}
 
-		if (wormsleft <= 1) { // There can be also 0 players left (you play alone and suicide)
+		if (wormsleft <= 1) { // There can be also 0 players left (you play alone and suicide)			
 			// Declare the winner
 			switch (iGameType)  {
 			case GMT_DEATHMATCH:
@@ -550,6 +539,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				// TEAM DEATHMATCH is handled below
 			}
 
+			cout << "only one player left" << endl;
 			GameOver(wormid);
 		}
 
@@ -600,6 +590,7 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 					SendGlobalText(OldLxCompatibleString(buf), TXT_NORMAL);
 				}
 
+				cout << "no other team left" << endl;
 				GameOver(team);
 			}
 		}
@@ -610,7 +601,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 
 	// Check if the max kills has been reached
 	if (iMaxKills != -1 && killer != victim && kill->getKills() == iMaxKills) {
-
+		cout << "max kills reached" << endl;
+		
 		// Game over (max kills reached)
 		GameOver(kill->getID());
 	}
@@ -929,9 +921,7 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 ///////////////////
 // Parses connectionless packets
 void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& ip) {
-	static std::string cmd;
-
-	cmd = bs->readString(128);
+	std::string cmd = bs->readString(128);
 
 	if (cmd == "lx::getchallenge")
 		ParseGetChallenge(bs);
@@ -946,7 +936,7 @@ void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& i
 	else if (cmd == "lx::wantsjoin")
 		ParseWantsJoin(bs, ip);
 	else  {
-		printf("GameServer::ParseConnectionlessPacket: unknown packet\n");
+		cout << "GameServer::ParseConnectionlessPacket: unknown packet \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
 	}
 }
@@ -1297,12 +1287,17 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		bytestr.Send(tSocket);
 
-		// Let them know they are on an OpenLX beta 4 server
+		// Let them know our version
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
+		// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
+		// TODO: or should we just drop compatibility with Beta3 and leave this out?
 		bytestr.writeString("lx::openbeta3");
+		
 		bytestr.writeInt(-1, 4);
-		bytestr.writeString("lx::openbeta4");
+		bytestr.writeString("lx::version");
+		bytestr.writeString(GetGameName() + "/" + LX_VERSION);
+		
 		bytestr.Send(tSocket);
 
 		if (tLXOptions->bAllowMouseAiming)

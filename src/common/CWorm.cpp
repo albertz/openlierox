@@ -507,6 +507,7 @@ void CWorm::InitWeaponSelection(void)
 	// If this is an AI worm, lets give him a preset or random arsenal
 	if(iType == PRF_COMPUTER && bLocal) {
 
+		// TODO: move this to CWorm_AI
 		bool bRandomWeaps = true;
 		// Combo (rifle)
 		if ((tGameInfo.iLoadingTimes > 15 && tGameInfo.iLoadingTimes < 26) && (tGameInfo.sModName.find("Classic") != std::string::npos || tGameInfo.sModName.find("Liero v1.0") != std::string::npos ))  {
@@ -547,6 +548,7 @@ void CWorm::InitWeaponSelection(void)
 			AI_SetGameType(GAM_OTHER);
 		}
 
+		setWeaponsReady(true);
 	}
 
 	
@@ -620,9 +622,12 @@ void CWorm::GetRandomWeapons(void)
 // Draw/Process the weapon selection screen
 void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 {
+	// TODO: this should also be used for selecting the weapons for the bot (but this in CWorm_AI then)
 	// TODO: reduce local variables in this function
 	// TODO: make this function shorter
 	// TODO: give better names to local variables
+	
+	if(bDedicated) return; // just for safty; atm this function only handles non-bot players
 	
 	int l = 0;
 	int t = 0;

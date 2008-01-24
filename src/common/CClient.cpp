@@ -513,10 +513,20 @@ void CClient::ReadPackets(void)
 	CBytestream		bs;
 
 	while(bs.Read(tSocket)) {
+		// each bs.Read reads the next UDP packet and resets the bs
+		// UDP is packet-based that means, we will only get single packages, no stream
 
 		// Check for connectionless packets (four leading 0xff's)
 		if(bs.readInt(4) == -1) {
-			ParseConnectionlessPacket(&bs);
+			bs.ResetPosToBegin();
+			// parse all connectionless packets (there can be multiple packages in one package)
+			// TODO: For example lx::openbeta* was sent in a way that 2 packages were sent at once.
+			// Was this done also with other things? Was the behaviour of previous version
+			// that it parsed only one package here or multiple until the end? I fixed that now
+			// since >rev1457 that it parses multiple packages here.
+			// Same thing in CServer.cpp in ReadPackets
+			while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
+				ParseConnectionlessPacket(&bs);
 			continue;
 		}
 		bs.ResetPosToBegin();
@@ -950,6 +960,7 @@ void CClient::BotSelectWeapons(void)
 		// If we're ready, let the server know
 		if(!bReadySent) {
 			bReadySent = true;
+			// TODO: move this out here
 			CBytestream *bytes = cNetChan.getMessageBS();
 			bytes->writeByte(C2S_IMREADY);
 			bytes->writeByte(iNumWorms);

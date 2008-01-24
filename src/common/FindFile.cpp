@@ -237,8 +237,9 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 			filename = direntry->d_name;
 			closedir(dirhandle);
 #ifdef DEBUG
-			if(filename != searchname)
-				cerr << "filename case mismatch: " << searchname << " <-> " << filename << endl;
+			// HINT: activate this warning temporarly when you want to fix some filenames
+			//if(filename != searchname)
+			//	cerr << "filename case mismatch: " << searchname << " <-> " << filename << endl;
 #endif
 			return true;
 		}

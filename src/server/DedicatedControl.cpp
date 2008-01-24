@@ -350,7 +350,8 @@ struct DedIntern {
 	
 	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
-		while(pipeOutput.rdbuf()->in_avail() > 0) {
+		// TODO: seems that stringstream behaves different under MacOSX; does it work under Linux now?
+		while(/*pipeOutput.rdbuf()->in_avail() > 0 ||*/ pipeOutput.str().size() > pipeOutput.tellg()) {
 			string cmd, rest;
 			Ded_ParseCommand(pipeOutput, cmd, rest);
 			SDL_mutexV(pipeOutputMutex);
@@ -376,7 +377,7 @@ bool DedicatedControl::Init_priv() {
 
 	printf("DedicatedControl initing...\n");
 	std::string scriptfn = GetFullFileName(scriptfn_rel);
-	if(!IsFileAvailable(scriptfn)) {
+	if(!IsFileAvailable(scriptfn, true)) {
 		printf("ERROR: %s not found\n", scriptfn_rel.c_str());
 		return false;		
 	}
@@ -384,7 +385,7 @@ bool DedicatedControl::Init_priv() {
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
 	
-	dedIntern->pipe.open(scriptfn, pstreams::pstdin|pstreams::pstdout|pstreams::pstderr);
+	dedIntern->pipe.open(scriptfn, pstreams::pstdin|pstreams::pstdout /*|pstreams::pstderr*/);
 	dedIntern->pipe << "hello world\n" << flush;
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
 	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);

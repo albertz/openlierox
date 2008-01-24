@@ -13,6 +13,7 @@
 // Created 11/7/02
 // Jason Boettcher
 
+#include <iostream>
 
 #include "LieroX.h"
 #include "CServer.h"
@@ -23,6 +24,7 @@
 #include "MathLib.h"
 #include "DedicatedControl.h"
 
+using namespace std;
 
 ///////////////////
 // Spawn a worm
@@ -657,8 +659,12 @@ void GameServer::gotoLobby(void)
 // Called by client (for local games only!)
 void GameServer::DemolitionsGameOver(int winner)
 {
+	// TODO: use GameOver function here; or why is this a seperate function?
+	cout << "demolition game over (deprecated)" << endl;
+	
     CBytestream bs;
 
+	GameOver(winner);
     // Let everyone know that the game is over
 	bs.writeByte(S2C_GAMEOVER);
 	bs.writeInt(winner,1);
@@ -705,11 +711,15 @@ void GameServer::RecheckGame(void)
 		CWorm *w = cWorms;
 		short wormcount = 0;
 		short wormid = 0;
-		for(i=0; i<MAX_WORMS; i++, w++)
+		for(i=0; i<MAX_WORMS; i++, w++) {
 			if (w->isUsed() && w->getLives() != WRM_OUT)  {
+				cout << "worm " << i << " has " << w->getLives() << " lives" << endl;
 				wormcount++;
 				wormid = i; // Save the worm id
 			}
+		}
+		
+		// TODO: there is a lot of double code in the following part; can't this be cleaned up?
 
 		if (!bGameOver)  {
 
@@ -751,6 +761,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
+					cout << "recheck: too less teams" << endl;
 					EndGame = true;
 				}
 			}
@@ -770,6 +781,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 										TXT_NORMAL);
 					}
+					cout << "recheck: too less worms" << endl;
 					EndGame = true;
 				}
 			}
@@ -800,7 +812,8 @@ void GameServer::RecheckGame(void)
 						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 										TXT_NORMAL);
 					}
-
+					
+					cout << "recheck: too less worms" << endl;
 					EndGame = true;
 				}
 			}
@@ -844,6 +857,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
+					cout << "recheck: not enough teams anymore" << endl;
 					EndGame = true;
 				}
 
@@ -853,6 +867,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
+					cout << "recheck: all the VIPs are out of the game" << endl;
 					EndGame = true;
 				}
 			}
@@ -891,6 +906,7 @@ void GameServer::RecheckGame(void)
 							}
 						}
 					}
+					cout << "recheck: wormcount < 3" << endl;
 					EndGame = true;
 				}
 				// If the max points has been reached
@@ -905,6 +921,7 @@ void GameServer::RecheckGame(void)
 								SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sPlayerHasWon,"<player>",w->getName(),1)),
 												TXT_NORMAL);
 							}
+							cout << "recheck: max kills for worm " << i << endl;
 							EndGame = true;
 						}
 					}
@@ -950,6 +967,7 @@ void GameServer::RecheckGame(void)
 						SendGlobalText(OldLxCompatibleString(replacemax(networkTexts->sTeamHasWon,"<team>",TeamNames[team],1)),
 										TXT_NORMAL);
 					}
+					cout << "recheck: no more teams left" << endl;
 					EndGame = true;
 				}
 			}
@@ -957,8 +975,10 @@ void GameServer::RecheckGame(void)
 			
 			}
 
-			if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 )
+			if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 ) {
+				cout << "recheck: time limit reached" << endl;
 				EndGame = true;
+			}
 			// End the game
 			if (EndGame)  {
 				GameOver(wormid);

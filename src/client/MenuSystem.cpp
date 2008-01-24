@@ -15,6 +15,7 @@
 
 
 #include <assert.h>
+#include <iostream>
 
 #include "LieroX.h"
 #include "EndianSwap.h"
@@ -34,6 +35,7 @@
 #include "CMediaPlayer.h"
 #include "DedicatedControl.h"
 
+using namespace std;
 
 menu_t	*tMenu = NULL;
 
@@ -598,6 +600,11 @@ void Menu_DrawWinButton(SDL_Surface *bmpDest, int x, int y, int w, int h, bool d
 // Show a message box
 int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int type)
 {
+	if(bDedicated) {
+		cout << "Menu_MessageBox: " << sTitle << ": " << sText << endl;
+		return 0;
+	}
+
 	int ret = -1;
 	keyboard_t *kb = GetKeyboard();
 	gui_event_t *ev = NULL;

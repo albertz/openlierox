@@ -13,6 +13,8 @@
 // Created 9/7/02
 // Jason Boettcher
 
+#include <iostream>
+
 #include "LieroX.h"
 #include "ConfigHandler.h"
 #include "CClient.h"
@@ -35,6 +37,7 @@
 #include "CCombobox.h"
 #include "CCheckbox.h"
 
+using namespace std;
 
 SDL_Surface		*bmpMenuButtons = NULL;
 float			fLagFlash;
@@ -366,8 +369,9 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 // Main drawing routines
 void CClient::Draw(SDL_Surface *bmpDest)
 {
-	if(bmpDest == NULL) return; // this can happen in case of bDedicated for example
-	
+	// TODO: clean this function up
+	// currently both the control structure and the drawing itself is in here
+
 	ushort i,num;
 	float dt = tLX->fDeltaTime;
 
@@ -378,90 +382,98 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	// Check for any communication errors
 	if(bServerError) {
 
-		// Show message box, shutdown and quit back to menu
-		DrawImage(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 0, 0);
-		Menu_RedrawMouse(true);
-        SDL_ShowCursor(SDL_DISABLE);
+		if(bDedicated) {
+			cout << "ERROR: servererror: " << strServerErrorMsg << endl;
+		} else {
+			// Show message box, shutdown and quit back to menu
+			DrawImage(tMenu->bmpBuffer, tMenu->bmpMainBack_common, 0, 0);
+			Menu_RedrawMouse(true);
+			SDL_ShowCursor(SDL_DISABLE);
 
-		Menu_MessageBox("Connection error", strServerErrorMsg, LMB_OK);
-
+			Menu_MessageBox("Connection error", strServerErrorMsg, LMB_OK);
+		}
+		
 		GotoNetMenu();
 		return;
 	}
 
-	// Local and network use different background images
-	SDL_Surface *bgImage = gfxGame.bmpGameNetBackground;
-	if (tGameInfo.iGameType == GME_LOCAL)
-		bgImage = gfxGame.bmpGameLocalBackground;
+	if(!bDedicated) {
+		// Local and network use different background images
+		SDL_Surface *bgImage = gfxGame.bmpGameNetBackground;
+		if (tGameInfo.iGameType == GME_LOCAL)
+			bgImage = gfxGame.bmpGameLocalBackground;
 
-    // TODO: allow more viewports
-    // Draw the borders
-	if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
-		if (tGameInfo.iGameType == GME_LOCAL)  {
-			if (bgImage)  // Doesn't have to exist (backward compatibility)
-				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
-			else
-				DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
-		} else {
-			if (bgImage)  { // Doesn't have to exist (backward compatibility)
-				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, tInterfaceSettings.ChatBoxX, bgImage->h);
-				DrawImageAdv(
-							bmpDest,
-							bgImage,
-							tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-							0,
-							tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-							480 - bgImage->h,
-							640 - tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
-							bgImage->h);
+		// TODO: allow more viewports
+		// Draw the borders
+		if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
+			if (tGameInfo.iGameType == GME_LOCAL)  {
+				if (bgImage)  // Doesn't have to exist (backward compatibility)
+					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
+				else
+					DrawRectFill(bmpDest,0,382,640,480,tLX->clGameBackground);
 			} else {
-				DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
-				DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
+				if (bgImage)  { // Doesn't have to exist (backward compatibility)
+					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, tInterfaceSettings.ChatBoxX, bgImage->h);
+					DrawImageAdv(
+								bmpDest,
+								bgImage,
+								tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+								0,
+								tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+								480 - bgImage->h,
+								640 - tInterfaceSettings.ChatBoxX+tInterfaceSettings.ChatBoxW,
+								bgImage->h);
+				} else {
+					DrawRectFill(bmpDest,0,382,165,480,tLX->clGameBackground);  // Health area
+					DrawRectFill(bmpDest,511,382,640,480,tLX->clGameBackground);  // Minimap area
+				}
 			}
 		}
-	}
 	
-	// if 2 viewports, draw special
-    if(cViewports[1].getUsed())
-        DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
+		// if 2 viewports, draw special
+		if(cViewports[1].getUsed())
+			DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
 
-	// Top bar
-	if (tLXOptions->tGameinfo.bTopBarVisible && !bGameMenu && bShouldRepaintInfo)  {
-		SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
-		if (top_bar)
-			DrawImage( bmpDest, top_bar, 0, 0);
-		else
-			DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
+		// Top bar
+		if (tLXOptions->tGameinfo.bTopBarVisible && !bGameMenu && bShouldRepaintInfo)  {
+			SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
+			if (top_bar)
+				DrawImage( bmpDest, top_bar, 0, 0);
+			else
+				DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
+		}
 	}
 
 	bool bScoreboard = true;
 
-	// Draw the viewports
-	// TODO: are there problems if we draw this also when the game is not ready?
-	if((iNetStatus == NET_CONNECTED /* && bGameReady */) || (iNetStatus == NET_PLAYING)) {
+	if(!bDedicated) {
+		// Draw the viewports
+		// TODO: are there problems if we draw this also when the game is not ready?
+		if((iNetStatus == NET_CONNECTED /* && bGameReady */) || (iNetStatus == NET_PLAYING)) {
 
-        // Draw the viewports
-        for( i=0; i<NUM_VIEWPORTS; i++ ) {
-            if( cViewports[i].getUsed() )  {
-				if (cMap != NULL)
-					cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
-                DrawViewport(bmpDest, (byte)i);
+			// Draw the viewports
+			for( i=0; i<NUM_VIEWPORTS; i++ ) {
+				if( cViewports[i].getUsed() )  {
+					if (cMap != NULL)
+						cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), iGameType);
+					DrawViewport(bmpDest, (byte)i);
+				}
 			}
-        }
-		bShouldRepaintInfo = false;  // Just repainted it
+			bShouldRepaintInfo = false;  // Just repainted it
 
-        // Mini-Map
-		if (cMap != NULL)  {
-			if (iNetStatus == NET_PLAYING)
-				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
-			else
-				DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+			// Mini-Map
+			if (cMap != NULL)  {
+				if (iNetStatus == NET_PLAYING)
+					cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms, iGameType );
+				else
+					DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+			}
+
 		}
-
 	}
-
+	
 	//
-	// Players not yet ready
+	// check if Players not yet ready
 	//
 	if (iNetStatus == NET_CONNECTED && bGameReady)  {
 		bool ready = true;
@@ -479,6 +491,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		// If we're ready, let the server know
 		if(ready && !bReadySent && !bDownloadingMap) {
+			cout << "our weapons were selected, the game can begin" << endl;
 			bReadySent = true;
 			
 			// TODO: move this out here
@@ -492,149 +505,151 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 
-	// DEBUG
-	//DrawRectFill(bmpDest,0,0,100,40,tLX->clBlack);
-	//tLX->cFont.Draw(bmpDest,0,0,tLX->clWhite,"iNetStatus = %i",iNetStatus);
-	//tLX->cFont.Draw(bmpDest,0,20,tLX->clWhite,"iGameReady = %i",iGameReady);
+	if(!bDedicated) {
+		// DEBUG
+		//DrawRectFill(bmpDest,0,0,100,40,tLX->clBlack);
+		//tLX->cFont.Draw(bmpDest,0,0,tLX->clWhite,"iNetStatus = %i",iNetStatus);
+		//tLX->cFont.Draw(bmpDest,0,20,tLX->clWhite,"iGameReady = %i",iGameReady);
 
-	// Draw the chatbox for either a local game, or remote game
-	if(tGameInfo.iGameType == GME_LOCAL)
-		DrawLocalChat(bmpDest);
-	else
-		DrawRemoteChat(bmpDest);
+		// Draw the chatbox for either a local game, or remote game
+		if(tGameInfo.iGameType == GME_LOCAL)
+			DrawLocalChat(bmpDest);
+		else
+			DrawRemoteChat(bmpDest);
 
-	// FPS
-	if(tLXOptions->bShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
-		DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
-		tLX->cFont.Draw( // Draw the text
-					bmpDest,
-					tInterfaceSettings.FpsX + 2,
-					tInterfaceSettings.FpsY,
-					tLX->clFPSLabel,
-					"FPS: " + itoa(GetFPS()) // Get the string and its width
-				);
-	}
-
-	// Ping on the top right
-	if(tLXOptions->bShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
-
-		// Draw the box around it
-		DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
-
-		tLX->cFont.Draw( // Draw the text
-					bmpDest,
-					tInterfaceSettings.PingX + 2,
-					tInterfaceSettings.PingY,
-					tLX->clPingLabel,
-					"Ping: " + itoa(iMyPing));
-
-		// Send every second
-		// TODO: move this somewhere else
-		if (tLX->fCurTime - fMyPingRefreshed > 1) {
-			CBytestream ping;
-
-			// TODO: move this out here
-			ping.Clear();
-			ping.writeInt(-1,4);
-			ping.writeString("lx::ping");
-
-			ping.Send(cClient->getChannel()->getSocket());
-
-			fMyPingSent = tLX->fCurTime;
-			fMyPingRefreshed = tLX->fCurTime;
+		// FPS
+		if(tLXOptions->bShowFPS && tLXOptions->tGameinfo.bTopBarVisible) {
+			DrawBox( bmpDest, tInterfaceSettings.FpsX, tInterfaceSettings.FpsY, tInterfaceSettings.FpsW);  // Draw the box around it
+			tLX->cFont.Draw( // Draw the text
+						bmpDest,
+						tInterfaceSettings.FpsX + 2,
+						tInterfaceSettings.FpsY,
+						tLX->clFPSLabel,
+						"FPS: " + itoa(GetFPS()) // Get the string and its width
+					);
 		}
-	}
 
-	if( sSpectatorViewportMsg != "" )
-		tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
-/*#ifdef DEBUG
-	// Upload and download rates
-	float up = 0;
-	float down = 0;
+		// Ping on the top right
+		if(tLXOptions->bShowPing && tGameInfo.iGameType == GME_JOIN && tLXOptions->tGameinfo.bTopBarVisible)  {
 
-	// Get the rates
-	switch (tGameInfo.iGameType)  {
-	case GME_JOIN:
-		down = cClient->getChannel()->getIncomingRate() / 1024.0f;
-		up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
-		break;
-	case GME_HOST:
-		down = cServer->GetDownload() / 1024.0f;
-		up = cServer->GetUpload() / 1024.0f;
-		break;
-	}
+			// Draw the box around it
+			DrawBox( bmpDest, tInterfaceSettings.PingX, tInterfaceSettings.PingY, tInterfaceSettings.PingW); 
 
-	tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
-	tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
+			tLX->cFont.Draw( // Draw the text
+						bmpDest,
+						tInterfaceSettings.PingX + 2,
+						tInterfaceSettings.PingY,
+						tLX->clPingLabel,
+						"Ping: " + itoa(iMyPing));
 
-	// Client and server velocity
-	if (tGameInfo.iGameType != GME_JOIN)  {
-		if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {
-			static std::string cl = "0.000";
-			static std::string sv = "0.000";
-			static float last_update = -9999;
-			if (tLX->fCurTime - last_update >= 0.5f)  {
-				cl = ftoa(cClient->getWorm(0)->getVelocity()->GetLength(), 3);
-				sv = ftoa(cServer->getClient(0)->getWorm(0)->getVelocity()->GetLength(), 3);
-				last_update = tLX->fCurTime;
+			// Send every second
+			// TODO: move this somewhere else
+			if (tLX->fCurTime - fMyPingRefreshed > 1) {
+				CBytestream ping;
+
+				// TODO: move this out here
+				ping.Clear();
+				ping.writeInt(-1,4);
+				ping.writeString("lx::ping");
+
+				ping.Send(cClient->getChannel()->getSocket());
+
+				fMyPingSent = tLX->fCurTime;
+				fMyPingRefreshed = tLX->fCurTime;
 			}
-
-			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 2, tLX->clWhite, cl);
-			tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 3, tLX->clWhite, sv);
 		}
-	}
-#endif*/
 
-	// Game over
-    if(bGameOver) {
-        if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !bGameMenu)  {
-			InitializeGameMenu();
+		if( sSpectatorViewportMsg != "" )
+			tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
+	/*#ifdef DEBUG
+		// Upload and download rates
+		float up = 0;
+		float down = 0;
 
-			// If this is a tournament, take screenshot of the final screen
-			if (tLXOptions->tGameinfo.bMatchLogging && tGameInfo.iGameType != GME_LOCAL)  {
-				screenshot_t scrn;
-				scrn.sDir = "game_results";
-				GetLogData(scrn.sData);
-				tLX->tScreenshotQueue.push_back(scrn);
+		// Get the rates
+		switch (tGameInfo.iGameType)  {
+		case GME_JOIN:
+			down = cClient->getChannel()->getIncomingRate() / 1024.0f;
+			up = cClient->getChannel()->getOutgoingRate() / 1024.0f;
+			break;
+		case GME_HOST:
+			down = cServer->GetDownload() / 1024.0f;
+			up = cServer->GetUpload() / 1024.0f;
+			break;
+		}
+
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20, tLX->clWhite, "Down: " + ftoa(down, 3) + " kB/s");
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Up: " + ftoa(up, 3) + " kB/s");
+
+		// Client and server velocity
+		if (tGameInfo.iGameType != GME_JOIN)  {
+			if (cClient->getWorm(0) && cServer->getClient(0)->getWorm(0))  {
+				static std::string cl = "0.000";
+				static std::string sv = "0.000";
+				static float last_update = -9999;
+				if (tLX->fCurTime - last_update >= 0.5f)  {
+					cl = ftoa(cClient->getWorm(0)->getVelocity()->GetLength(), 3);
+					sv = ftoa(cServer->getClient(0)->getWorm(0)->getVelocity()->GetLength(), 3);
+					last_update = tLX->fCurTime;
+				}
+
+				tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 2, tLX->clWhite, cl);
+				tLX->cOutlineFont.Draw(bmpDest, 550, 20 + tLX->cOutlineFont.GetHeight() * 3, tLX->clWhite, sv);
 			}
-		} else
-            tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
-    }
+		}
+	#endif*/
 
-	// Game menu
-	if(bGameMenu)  {
-		bScoreboard = false;
-		DrawGameMenu(bmpDest);
-	}
+		// Game over
+		if(bGameOver) {
+			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !bGameMenu)  {
+				InitializeGameMenu();
 
-    // Viewport manager
-    if(bViewportMgr)  {
-		bScoreboard = false;
-        DrawViewportManager(bmpDest);
-	}
+				// If this is a tournament, take screenshot of the final screen
+				if (tLXOptions->tGameinfo.bMatchLogging && tGameInfo.iGameType != GME_LOCAL)  {
+					screenshot_t scrn;
+					scrn.sDir = "game_results";
+					GetLogData(scrn.sData);
+					tLX->tScreenshotQueue.push_back(scrn);
+				}
+			} else
+				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
+		}
 
-    // Scoreboard
-	if(bScoreboard)
-		DrawScoreboard(bmpDest);
+		// Game menu
+		if(bGameMenu)  {
+			bScoreboard = false;
+			DrawGameMenu(bmpDest);
+		}
 
-	// Current Settings
-	DrawCurrentSettings(bmpDest);
+		// Viewport manager
+		if(bViewportMgr)  {
+			bScoreboard = false;
+			DrawViewportManager(bmpDest);
+		}
 
-	// Chatter
-	if(bChat_Typing)  {
-		DrawChatter(bmpDest);
-	}
+		// Scoreboard
+		if(bScoreboard)
+			DrawScoreboard(bmpDest);
+
+		// Current Settings
+		DrawCurrentSettings(bmpDest);
+
+		// Chatter
+		if(bChat_Typing)  {
+			DrawChatter(bmpDest);
+		}
 
 #ifdef WITH_MEDIAPLAYER
-	DrawMediaPlayer(bmpDest);
+		DrawMediaPlayer(bmpDest);
 #endif
 
-	// Console
-    Con_Draw(bmpDest);
+		// Console
+		Con_Draw(bmpDest);
 
 
-    //tLX->cOutlineFont.Draw(bmpDest, 4,20, tLX->clNormalText, "%s",tLX->debug_string);
-    //tLX->cOutlineFont.Draw(bmpDest, 4,40, tLX->clNormalText, "%f",tLX->debug_float);
+		//tLX->cOutlineFont.Draw(bmpDest, 4,20, tLX->clNormalText, "%s",tLX->debug_string);
+		//tLX->cOutlineFont.Draw(bmpDest, 4,40, tLX->clNormalText, "%f",tLX->debug_float);
+	}
 }
 
 ///////////////////

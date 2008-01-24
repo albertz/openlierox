@@ -424,14 +424,14 @@ float CBytestream::readFloat(void)
 
 
 std::string CBytestream::readString() {
-	static std::string result; result = "";
+	std::string result = "";
 	uchar b;
 	while((b = readByte()) != 0) result += (char)b;
 	return result;
 }
 
 std::string CBytestream::readString(size_t maxlen) {
-	static std::string result; result = "";
+	std::string result = "";
 	size_t i = 0;
 	uchar b = 0;
 	while(i < maxlen && (b = readByte()) != 0) {
@@ -445,7 +445,7 @@ std::string CBytestream::readString(size_t maxlen) {
 
 // cast 3 bytes to 2 int12
 void CBytestream::read2Int12(short& x, short& y) {
-	static ushort dat[3];
+	ushort dat[3];
 	dat[0] = readByte();
 	dat[1] = readByte();
 	dat[2] = readByte();

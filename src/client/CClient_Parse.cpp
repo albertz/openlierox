@@ -16,6 +16,7 @@
 
 
 #include <assert.h>
+#include <iostream>
 
 #include "LieroX.h"
 #include "CClient.h"
@@ -31,13 +32,14 @@
 #include "Entity.h"
 #include "MathLib.h"
 
+using namespace std;
 
 ///////////////////
 // Parse a connectionless packet
 void CClient::ParseConnectionlessPacket(CBytestream *bs)
 {
 	std::string cmd = bs->readString(128);
-
+	
 	if(cmd == "lx::challenge")
 		ParseChallenge(bs);
 
@@ -55,11 +57,20 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	}
 
 	// Host has OpenLX Beta 3+
-	else if(cmd.find_first_of("lx::openbeta") == 0)  {
+	else if(cmd.find("lx::openbeta") == 0)  {
+		cout << "HINT: host is at least using OLX Beta3" << endl;
 		if (cmd.size() > 12)  {
 			int ver = MAX(0, atoi(cmd.substr(12)));
 			iHostOLXVer = MAX(ver, iHostOLXVer);
 		}
+	}
+
+	else if(cmd == "lx::version")  {
+		cout << "HINT: Host is using " << bs->readString() << endl;
+		// TODO: we need a gamename interpreter here which parses the game name and read out the version (and other information)
+		// I would recommend to create a new class GameInfo or something which does this and which is then saved in CClient::hostGameVersionInfo
+		// we just set it to 4 now which is save also for future version because all servers which send this are at least OLX beta4
+		iHostOLXVer = 4;
 	}
 
 	else if (cmd == "lx:mouseAllowed")
@@ -67,7 +78,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 
 	// Unknown
 	else  {
-		printf("CClient::ParseConnectionlessPacket: unknown command \"" + cmd + "\"\n");
+		cout << "CClient::ParseConnectionlessPacket: unknown command \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
 	}
 }
@@ -126,7 +137,7 @@ void CClient::ParseConnected(CBytestream *bs)
 		id = bs->readInt(1);
 		if (id < 0 || id >= MAX_WORMS)
 			continue;
-		cLocalWorms[i] = &cRemoteWorms[id];
+		cLocalWorms[i] = &cRemoteWorms[id]; // TODO: this leads to errors, write a safe copy function
 		cLocalWorms[i]->setUsed(true);
 		cLocalWorms[i]->setClient(this);
 		cLocalWorms[i]->setGameScript(&cGameScript); // TODO: why was this commented out?
@@ -867,6 +878,7 @@ void CClient::ParseGameOver(CBytestream *bs)
 	}
 
 	// Game over
+	cout << "the game is over" << endl;
 	bGameOver = true;
 	fGameOverTime = tLX->fCurTime;
 
