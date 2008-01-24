@@ -163,18 +163,18 @@ int SetVideoMode(void)
 #ifdef WIN32
 	bool HardwareAcceleration = false;
 #else
-	// disabled for now to prevent possible errors
-	// (I don't know if it makes even any change)
-	bool HardwareAcceleration = false;
+	// in OpenGL mode, this is faster; in non-OGL, it's faster without
+	// TODO: why is this like this? I tested this here on my MacOSX
+	// play a bit around by yourself if you like
+	bool HardwareAcceleration = tLXOptions->bOpenGL;
 #endif
 	int DoubleBuf = false;
 	int vidflags = 0;
 
-#if 0
-	// TODO: why only in this case?
+	// it is faster with doublebuffering in hardware accelerated mode (TODO: but why?)
+	// also, it seems that it's possible that there are effects in hardware mode with double buf disabled (TODO: why?)
 	// Use doublebuf when hardware accelerated
 	if (HardwareAcceleration)
-#endif
 		DoubleBuf = true;
 
 	// Check that the bpp is valid
@@ -202,13 +202,12 @@ int SetVideoMode(void)
 		vidflags |= SDL_OPENGLBLIT;
 
 //#ifndef MACOSX
-		short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
-		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
-		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
-		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
-		// TODO: why is this commented out?
+		//short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
+		//SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
+		//SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
+		//SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
-		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
+		SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
 //#endif
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
@@ -218,7 +217,8 @@ int SetVideoMode(void)
 
 	if(HardwareAcceleration)  {
 		vidflags |= SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL;
-		if (tLXOptions->bFullscreen)
+		// TODO: why only in fullscreen?
+		//if (tLXOptions->bFullscreen)
 			iSurfaceFormat = SDL_HWSURFACE;
 	}
 	else  {
