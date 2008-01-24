@@ -19,7 +19,7 @@
 class IniReader {
 public:
 	IniReader(const std::string& filename);
-	~IniReader();
+	virtual ~IniReader();
 	
 	// returns false if there was an error
 	// if you break via the callbacks, this is also an error
