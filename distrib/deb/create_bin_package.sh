@@ -6,15 +6,15 @@
 # and you can update bin 0.57.beta4.r1148 with 0.57.beta4.r1149 without updating data package.
 # When we will increment number in ../../VERSION file new data package will be built.
 
-echo Re-compiling openlierox with Debian options
-cd ../../
 if [ "$1" '!=' "-n" ] ; then # No recompile (for testing this script)
+	echo Re-compiling openlierox with Debian options
+	cd ../../
 	if [ -e bin/openlierox ] ; then rm bin/openlierox ; fi
 	env HAWKNL_BUILTIN=1 SYSTEM_DATA_DIR=/usr/share/games ACTIVATE_GDB=0 DEBUG=0 ./compile.sh
+	cd distrib/deb
 fi
-cd distrib/deb
-if [ \! -e ../../bin/openlierox ] ; then echo Compile failed ; exit 1 ; fi
-echo Creating openlierox.deb
+if [ \! -e ../../bin/openlierox ] ; then echo Compile failed - no binary ../../bin/openlierox ; exit 1 ; fi
+echo Creating debian package
 # Copying data
 if [ -e pkg ] ; then rm -rf pkg ; fi
 mkdir -p pkg/usr/games
@@ -24,8 +24,10 @@ svn export bin/share pkg/usr/share
 cp ../../share/OpenLieroX.svg pkg/usr/share/pixmaps
 cp ../../share/OpenLieroX.xpm pkg/usr/share/pixmaps
 find ../../doc -maxdepth 1 -type "f" -exec cp {} pkg/usr/share/doc/openlierox \;
-rm pkg/usr/share/doc/openlierox/ChangeLog
-gzip -c -9 ../../doc/ChangeLog > pkg/usr/share/doc/openlierox/changelog.gz
+mv pkg/usr/share/doc/openlierox/ChangeLog pkg/usr/share/doc/openlierox/changelog
+gzip -9 pkg/usr/share/doc/openlierox/changelog
+gzip -9 pkg/usr/share/doc/openlierox/changelog.Debian
+gzip -9 pkg/usr/share/man/man6/openlierox.6
 #find pkg/ -name ".svn" -exec rm -rf {} \; >/dev/null 2>&1
 #find pkg/ -name "*~" -exec rm -rf {} \; >/dev/null 2>&1
 
