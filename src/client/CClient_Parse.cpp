@@ -1619,6 +1619,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 	};
 	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
 	{
+		// TODO: move this out here
 		// Speed up download - server will send next packet when receives ping, or once in 0.5 seconds
 		cNetChan.getMessageBS()->writeByte(C2S_SENDFILE);
 		getFileDownloaderInGame()->sendPing( cNetChan.getMessageBS() );

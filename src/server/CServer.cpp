@@ -970,6 +970,7 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 	SendGlobalPacket(&bs);
 
     // Send the client directly a dropped packet
+	// TODO: move this out here
     bs.Clear();
     bs.writeByte(S2C_DROPPED);
     bs.writeString(OldLxCompatibleString(cl_msg));

@@ -785,7 +785,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
-		it = cbMod->getItem(cbLevel->getSelectedIndex());
+		it = cbLevel->getItem(cbLevel->getSelectedIndex());
 		if(it) tLXOptions->tGameinfo.sMapFilename = it->sIndex;
 		
 		Menu_FillLevelList( (CCombobox *)cHostLobby.getWidget(hl_LevelList), false);
