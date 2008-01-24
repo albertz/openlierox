@@ -1,4 +1,5 @@
 TODO
+(remember also to look at the bugs on SF)
 
 [ ] remove ReadInteger/ReadFloat/Read... from code and use IniParser instead (!)
 [ ] use ALSA as default if available (!!)
