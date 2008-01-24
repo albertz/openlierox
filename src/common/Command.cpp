@@ -16,6 +16,7 @@
 // Created 9/4/02
 // Jason Boettcher
 
+#include <iostream>
 
 #include "LieroX.h"
 #include "CServer.h"
@@ -26,6 +27,7 @@
 #include "CWorm.h"
 #include "AuxLib.h"
 
+using namespace std;
 
 command_t	*Commands = NULL;
 
@@ -37,7 +39,10 @@ int		NumArgs;
 // Add an argument to the list
 void Cmd_AddArg(const std::string& text)
 {
-	Arguments[NumArgs++] = text;
+	if(NumArgs >= MAX_ARGS)
+		cout << "WARNING: too much arguments, ignoring: " << text << endl;
+	else
+		Arguments[NumArgs++] = text;
 }
 
 
