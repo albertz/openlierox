@@ -885,6 +885,8 @@ void CMap::CalculateDirtCount(void)
 // Draw the map
 void CMap::Draw(SDL_Surface *bmpDest, CViewport *view)
 {
+	if(!bmpDrawImage || !bmpDest) return; // safty
+	
 		//DEBUG_DrawPixelFlags();
 		DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
 #ifdef _AI_DEBUG

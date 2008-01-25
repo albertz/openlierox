@@ -63,7 +63,7 @@ public:
 	CountryCsvReaderHandler(_handler& h)
 		: handler(h), finished_entry(false) {}
 
-	inline bool operator()(int tindex, const std::string& token) {
+	bool operator()(int tindex, const std::string& token) {
 		switch(tindex) {
 		case 0:
 			entry.RangeFrom = from_string<Ip>(token);
@@ -114,7 +114,7 @@ public:
 		}
 	}
 	
-	inline bool operator()() {
+	bool operator()() {
 		if(finished_entry) {
 			if(!handler(entry)) return false;		
 			finished_entry = false;
@@ -151,7 +151,7 @@ public:
 	DBData& data;
 	AddEntrysToDBData(DBData& d) : data(d) {}
 	
-	inline bool operator()(const DBEntry& entry) {
+	bool operator()(const DBEntry& entry) {
 		data[entry.RangeTo] = entry;
 		return true;
 	}
@@ -172,7 +172,7 @@ public:
 		filePos = 0;
 	}
 	
-	~IpToCountryData() {
+	virtual ~IpToCountryData() {
 		breakLoaderThread();
 		data.clear();
 	}
@@ -200,7 +200,7 @@ public:
 	// HINT: this should only called from the mainthread
 	// (or at least from the same thread where this DB is used),
 	// because the handling of dbReady isn't threadsafe
-	inline void loadFile(const std::string& fn) {
+	void loadFile(const std::string& fn) {
 		if (filename == fn)
 			return;
 
@@ -257,7 +257,7 @@ public:
 		return 0;
 	}
 	
-	inline const DBEntry* getEntry(Ip ip) {
+	const DBEntry* getEntry(Ip ip) {
 		if(!dbReady) {
 			cout << "IpToCountryDB getEntry: " << filename << " is still loading ..." << endl;
 			while(!dbReady) { SDL_Delay(100); }

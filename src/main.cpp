@@ -815,13 +815,14 @@ void ShutdownLieroX(void)
 	ShutdownProfiles();
 
 	// Free the IP to Country DB
-	if (tIpToCountryDB)
+	if (tIpToCountryDB) {
 		delete tIpToCountryDB;
-
+		tIpToCountryDB = NULL;
+	}
+	
     // Free the game info structure
     if(tGameInfo.sMapRandom.psObjects)
         delete[] tGameInfo.sMapRandom.psObjects;
-
     tGameInfo.sMapRandom.psObjects = NULL;
 
 	// Free the client & server

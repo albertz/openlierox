@@ -76,11 +76,7 @@ void Cmd_ParseLine(const std::string& text)
 	NumArgs = 0;
 
 	std::string::const_iterator i = text.begin();
-	std::string::const_iterator i2 = i;
 	for(; i != text.end(); i++) {
-
-		if (i2 != text.end())
-			i2++;
 
 		// Check delimeters
 		if(*i == ' ' || *i == ',') {
@@ -92,6 +88,7 @@ void Cmd_ParseLine(const std::string& text)
 		}
 
 		// Check comments
+		std::string::const_iterator i2 = i; i2++;
 		if (i2 != text.end())  {
 			if(*i == '/' && *i2 == '/') {
 				if(!token.empty())
@@ -117,6 +114,7 @@ void Cmd_ParseLine(const std::string& text)
 
 				token += *i;
 			}
+			if(quote) break; // if we are still in the quote, break (else we would make an addition i++ => crash)
 			continue;
 		}
 
