@@ -38,7 +38,7 @@ define("TRL_PROJECTILE", 3);
 // $Width - map width
 // $Height - map height
 // $Name - map name
-// $Theme - theme name, should be always "dirt"
+// $Theme - theme name, should always be "dirt"
 // $MapImage - image of the map (not resized) 
 // $MinimapImage - gd image containing resized map image
 // Destroy - frees the images stored in the structure, call this when you

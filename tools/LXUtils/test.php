@@ -75,7 +75,6 @@
       $spamGrade = $modInfo->ProjectileCount / $modInfo->WeaponCount;
       $damageGrade = $modInfo->OverallDamage / $modInfo->WeaponCount;
       $spamGradeStr = $spamGrade >= 2 ? "spammy" : "not spammy";
-      $damageGradeStr = "balanced";
       if ($damageGrade >= 33)
         $damageGradeStr = "overpowered";
       else if ($damageGrade >= 10)

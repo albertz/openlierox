@@ -34,7 +34,7 @@ function BinToInt16LE($bin)
 }
 
 ////////////////////////////
-// Converts binary chunk to 16 bit Little Endian integer
+// Converts binary chunk to 16 bit Big Endian integer
 function BinToInt16BE($bin)
 {
   // Thank you, php.net :)
