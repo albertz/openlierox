@@ -27,6 +27,7 @@
 #include "StringUtils.h"
 #include "SmartPointer.h"
 #include "Timer.h"
+#include "Utils.h"
 
 
 #ifdef _MSC_VER
@@ -116,6 +117,25 @@ bool SdlNetEventThreadExit = false;
 SDL_Thread* SdlNetEventThreads[3] = {NULL, NULL, NULL};
 NLint SdlNetEventGroup = 0;
 
+static bool isSocketInGroup(NLint group, NetworkSocket sock) {
+	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
+	NLint len = NL_MAX_GROUP_SOCKETS;
+	nlGroupGetSockets( group, sockets, &len );
+	for( int f = 0; f < len; f++ )
+		if( sockets[f] == *getNLsocket(&sock) )
+			return true;
+	
+	return false;
+}
+
+static bool isSocketGroupEmpty(NLint group) {
+	NLsocket oneSocket;
+	NLint len = 1;
+	// because we set len=1 we will either get one or none sockets here
+	nlGroupGetSockets( group, &oneSocket, &len );
+	return len == 0;
+}
+
 static int SdlNetEventThreadMain( void * param )
 {
 	NLsocket sock_out;
@@ -125,11 +145,12 @@ static int SdlNetEventThreadMain( void * param )
 	ev.user.data1 = (void*) *(uint*)param; // save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS)
 	ev.user.data2 = NULL;
 
-	float max_frame_time = (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0;
+	float max_frame_time = MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0);
 	float lastTime = GetMilliSeconds();
 	while( ! SdlNetEventThreadExit )
 	{
-		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, &sock_out, 1, 100 ) > 0 )	// Wait 100 milisecond
+		if( ! isSocketGroupEmpty( SdlNetEventGroup ) ) // only when we have at least one socket
+		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, &sock_out, 1, max_frame_time * 1000.0f ) > 0 ) // Wait max_frame_time
 		{
 			if(sock_out >= 0) {
 				ev.user.data2 = (void*) sock_out; // save socket-nr to forward it later to the specific event-handler for this socket
@@ -138,10 +159,10 @@ static int SdlNetEventThreadMain( void * param )
 			else
 				printf("WARNING: net-event-system: invalid socket\n");
 		}
-					
+
 		float curTime = GetMilliSeconds();
 		if(curTime - lastTime < max_frame_time) {
-			SDL_Delay( (int)( ( max_frame_time - curTime + lastTime ) * 1000 ) );
+			SDL_Delay( (int)( ( max_frame_time - curTime + lastTime ) * 1000.0f ) );
 		}
 		lastTime = curTime;
 	};
@@ -178,18 +199,9 @@ static void SdlNetEvent_UnInit() {
 	SdlNetEvent_Inited = false;
 };
 
-static bool isSocketInGroup(NLint group, NetworkSocket sock) {
-	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
-	NLint len = NL_MAX_GROUP_SOCKETS;
-	nlGroupGetSockets( group, sockets, &len );
-	for( int f = 0; f < len; f++ )
-		if( sockets[f] == *getNLsocket(&sock) )
-			return true;
-	
-	return false;
-}
 
-static void AddSocketToNotifierGroup( NetworkSocket sock )
+
+void AddSocketToNotifierGroup( NetworkSocket sock )
 {
 	SdlNetEvent_Init();
 	
@@ -197,7 +209,7 @@ static void AddSocketToNotifierGroup( NetworkSocket sock )
 		nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
 };
 
-static void RemoveSocketFromNotifierGroup( NetworkSocket sock )
+void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 {
 	SdlNetEvent_Init();
 	
@@ -220,7 +232,6 @@ static void sigpipe_handler(int i) {
  * HawkNL Network wrapper
  *
  */
-std::list<SDL_Thread *> dnsThreads;
 bool bNetworkInited = false;
 
 /////////////////////
@@ -256,11 +267,6 @@ bool InitNetworkSystem() {
 //////////////////
 // Shutdowns the network system
 bool QuitNetworkSystem() {
-	// Destroy the DNS threads
-	for (std::list<SDL_Thread *>::iterator it = dnsThreads.begin(); it != dnsThreads.end(); it++)
-		SDL_WaitThread(*it, NULL);
-	dnsThreads.clear();
-
 	SdlNetEvent_UnInit();
 	nlShutdown();
 	bNetworkInited = false;
@@ -274,17 +280,17 @@ NetworkSocket OpenReliableSocket(unsigned short port) {
 	return ret;
 }
 
-NetworkSocket OpenUnreliableSocket(unsigned short port) {
+NetworkSocket OpenUnreliableSocket(unsigned short port, bool events) {
 	NetworkSocket ret;
 	*getNLsocket(&ret) = nlOpen(port, NL_UNRELIABLE);
-	AddSocketToNotifierGroup(ret);
+	if(events) AddSocketToNotifierGroup(ret);
 	return ret;
 }
 
-NetworkSocket OpenBroadcastSocket(unsigned short port) {
+NetworkSocket OpenBroadcastSocket(unsigned short port, bool events) {
 	NetworkSocket ret;
 	*getNLsocket(&ret) = nlOpen(port, NL_BROADCAST);
-	AddSocketToNotifierGroup(ret);
+	if(events) AddSocketToNotifierGroup(ret);
 	return ret;
 }
 
@@ -768,7 +774,7 @@ struct NLaddress_ex_t {
 
 
 // copied from HawkNL sock.c and modified for usage of SmartPointer
-static int GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
+static void* GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
 {
     NLaddress_ex_t *address = (NLaddress_ex_t *)addr;
     
@@ -801,10 +807,9 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
     addr_ex->name = name;
     addr_ex->address = *NetworkAddrData(&addr);
 
-	SDL_Thread *thread = SDL_CreateThread(GetAddrFromNameAsyncInt, addr_ex);
+	NLthreadID thread = nlThreadCreate(GetAddrFromNameAsyncInt, addr_ex, true);
     if(thread == NULL)
         return false;
-	dnsThreads.push_back(thread);
     return true;
 }
 

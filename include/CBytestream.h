@@ -37,6 +37,7 @@ public:
 	CBytestream& operator=(const CBytestream& bs) {
 		pos = bs.pos;
 		Data = bs.Data;
+		bitPos = bs.bitPos;
 		return *this;
 	}
 	
@@ -54,6 +55,7 @@ public:
 
 
 	// Generic data
+	void		ResetBitPos()		{ bitPos = 0; }
 	void		ResetPosToBegin()	{ pos = 0; bitPos = 0; }
 	size_t		GetLength()			{ return Data.size(); }
 	size_t		GetPos() 			{ return pos; }

@@ -3131,6 +3131,7 @@ bool CMap::LoadCTF(const std::string& filename)
 // TODO: implement sending several smaller packets
 bool CMap::SendDirtUpdate(CBytestream *bs)
 {
+	bs->ResetBitPos();
 	lockFlags();
 	for( uint y = 0; y < Height; y++ )
 	for( uint x = 0; x < Width; x++ )
@@ -3143,6 +3144,7 @@ bool CMap::SendDirtUpdate(CBytestream *bs)
 
 bool CMap::RecvDirtUpdate(CBytestream *bs)
 {
+	bs->ResetBitPos();
 	lockFlags();
 	if(SDL_MUSTLOCK(bmpImage))
 		SDL_LockSurface(bmpImage);

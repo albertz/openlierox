@@ -14,10 +14,13 @@
 // Created 16/6/01
 // Jason Boettcher
 
+#include <iostream>
 
 #include "LieroX.h"
 #include "CChannel.h"
 #include "StringUtils.h"
+
+using namespace std;
 
 ///////////////////
 // Setup the channel
@@ -64,8 +67,6 @@ void CChannel::Transmit( CBytestream *bs )
 	Uint32 SendReliable = 0;
 	ulong r1,r2;	
 
-	outpack.Clear();
-
 	// If the remote side dropped the last reliable packet, re-send it
 	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
 //		printf("Remote side dropped a reliable packet, resending...\n");
@@ -77,7 +78,7 @@ void CChannel::Transmit( CBytestream *bs )
 	// 1. The reliable buffer is empty, we copy the reliable message into it and send it
 	// 2. We need to refresh ping
 	if(Reliable.GetLength() == 0 && (Message.GetLength() > 0 || (tLX->fCurTime - fLastPingSent >= 1.0f && iPongSequence == -1))) {
-		Reliable = Message;
+		Reliable = Message; // TODO: this cannot be done this way!
 		Message.Clear();
 		
 		// We got a reliable packet to send
@@ -87,6 +88,12 @@ void CChannel::Transmit( CBytestream *bs )
 		iReliableSequence ^= 1;
 	}
 
+	if( (SendReliable ? Reliable.GetLength() : 0) + (bs ? bs->GetLength() : 0) == 0 ) {
+		if(tLX->fCurTime - fLastPingSent < 1.0f) { // but still send pings
+			return;
+		}
+	}
+	
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
 	r2 = iIncomingSequence | (iIncoming_ReliableSequence << 31);
@@ -160,8 +167,8 @@ bool CChannel::Process(CBytestream *bs)
 	SequenceAck &= ~(1<<31);
 
 	// Calculate the bytes per second
-	iIncomingBytes += bs->GetLength();
-	iCurrentIncomingBytes += bs->GetLength();
+	iIncomingBytes += bs->GetRestLen();
+	iCurrentIncomingBytes += bs->GetRestLen();
 	if (tLX->fCurTime - fIncomingClearTime >= 2.0f)  {
 		fIncomingRate = (float)iCurrentIncomingBytes/(tLX->fCurTime - fIncomingClearTime);
 		iCurrentIncomingBytes = 0;

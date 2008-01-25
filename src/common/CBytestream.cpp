@@ -329,9 +329,7 @@ bool CBytestream::writeBit(bool bit)
 	uchar byte = Data[ Data.size() - 1 ];
 	byte = byte | ( ( bit ? 1 : 0 ) << bitPos );
 	Data[ Data.size() - 1 ] = byte;
-	bitPos ++;
-	if( bitPos >= 8 )
-		bitPos = 0;
+	bitPos ++; bitPos %= 8;
 	return true;
 }
 

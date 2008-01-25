@@ -344,13 +344,11 @@ void GameServer::SendWormLobbyUpdate(void)
 // Tell all the clients that we're disconnecting
 void GameServer::SendDisconnect(void)
 {
-	static CBytestream bs;
-	bs.Clear();
-
 	CClient *cl = cClients;
 	if (!cl)
 		return;
 	
+	CBytestream bs;
 	bs.writeByte(S2C_LEAVING);
 
 	for(short c=0; c<MAX_CLIENTS; c++,cl++) {

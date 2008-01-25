@@ -749,6 +749,7 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 		SendPacket(&bytestr, cl);
 		bytestr.Clear();
 		// Copied from GameServer::StartGame()
+		// TODO: move this out here
 		bytestr.writeByte(S2C_PREPAREGAME);
 		bytestr.writeBool(bRandomMap);
 		if(!bRandomMap)
@@ -922,7 +923,7 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 // Parses connectionless packets
 void GameServer::ParseConnectionlessPacket(CBytestream *bs, const std::string& ip) {
 	std::string cmd = bs->readString(128);
-
+	
 	if (cmd == "lx::getchallenge")
 		ParseGetChallenge(bs);
 	else if (cmd == "lx::connect")

@@ -95,6 +95,7 @@ void CClient::ParseChallenge(CBytestream *bs)
 		setServerVersion( bs->readString(128) );
 
 
+	// TODO: move this out here
 	// Tell the server we are connecting, and give the server our details
 	bytestr.writeInt(-1,4);
 	bytestr.writeString("lx::connect");
@@ -109,6 +110,7 @@ void CClient::ParseChallenge(CBytestream *bs)
     //
 
 	for(uint i=0;i<iNumWorms;i++) {
+		// TODO: move this out here
 		bytestr.writeString(RemoveSpecialChars(tProfiles[i]->sName));
 		bytestr.writeInt(tProfiles[i]->iType,1);
 		bytestr.writeInt(tProfiles[i]->iTeam,1);
@@ -154,6 +156,7 @@ void CClient::ParseConnected(CBytestream *bs)
 	
 		// Setup the controls
 		cLocalWorms[0]->SetupInputs( tLXOptions->sPlayerControls[0] );
+		// TODO: setup also more viewports
 		if(iNumWorms >= 2)
 			cLocalWorms[1]->SetupInputs( tLXOptions->sPlayerControls[1] );
 	}
@@ -349,6 +352,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		return false;
 	}
 
+	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
+	RemoveSocketFromNotifierGroup( tSocket );
 
 	bGameReady = true;
 
@@ -1462,6 +1467,9 @@ void CClient::ParseDestroyBonus(CBytestream *bs)
 // Parse a 'goto lobby' packet
 void CClient::ParseGotoLobby(CBytestream *bs)
 {
+	// in lobby we need the events again
+	AddSocketToNotifierGroup( tSocket );
+
 	// Do a minor clean up
 	MinorClear();
 

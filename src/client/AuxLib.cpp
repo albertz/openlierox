@@ -340,6 +340,12 @@ void FlipScreen(SDL_Surface *psScreen)
 // Shutdown the standard Auxiliary Library
 void ShutdownAuxLib(void)
 {
+	bool oldFullscreenState = tLXOptions->bFullscreen; tLXOptions->bFullscreen = false;
+	// disable fullscreen for quitting
+	// if something goes wrong, we stay not in this annoying state with a fullscreen and a not responding app
+	SetVideoMode();
+	tLXOptions->bFullscreen = oldFullscreenState; // recover to save correct in options
+
 	// free all cached stuff like surfaces and sounds
 	// HINT: we have to do it before we uninit the specific engines
 	cCache.Clear();

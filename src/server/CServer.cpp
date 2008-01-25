@@ -280,6 +280,9 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 // Start the game
 int GameServer::StartGame( bool dedicated )
 {
+	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
+	RemoveSocketFromNotifierGroup( tSocket );
+
 	this->bDedicated = dedicated;
 	
 	CBytestream bs;
@@ -467,10 +470,11 @@ int GameServer::StartGame( bool dedicated )
 // Begin the match
 void GameServer::BeginMatch(void)
 {
+	cout << "BeginMatch" << endl;
 	int i;
 
 	iState = SVS_PLAYING;
-
+		
 	// Initialize some server settings
 	fServertime = 0;
 	iServerFrame = 0;

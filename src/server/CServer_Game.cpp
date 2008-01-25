@@ -598,8 +598,12 @@ void GameServer::ShootBeam(CWorm *w)
 ///////////////////
 // Go back to the lobby
 void GameServer::gotoLobby(void)
-{
+{	
 	printf("gotoLobby\n");
+
+	// in lobby we need the events again
+	AddSocketToNotifierGroup( tSocket );
+
 	short i;
 	for(i=0; i<MAX_CLIENTS; i++)
 	{	// Still some spectator clients that select their weapons
