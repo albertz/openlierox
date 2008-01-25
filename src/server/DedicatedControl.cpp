@@ -252,10 +252,7 @@ struct DedIntern {
 		tLXOptions->tGameinfo.iMaxPlayers = 8;
 		tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
 		tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
-		// TODO: CHttp crashes very often in Dev-Cpp builds, so cannot really register on masterserver until it's fixed.
-		// The problem seems to be with incorrect handling of nlSockets var or threading.
-		// I've commented that out just to show that my uberl33t d3dicat3d win32 server is stable enough :P .
-		tLXOptions->tGameinfo.bRegServer = false; // tLXOptions->tGameinfo.bRegServer = true; 
+		tLXOptions->tGameinfo.bRegServer = true; 
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
 		tLXOptions->tGameinfo.bWantsJoinBanned = false;
 		tLXOptions->tGameinfo.bAllowRemoteBots = true;

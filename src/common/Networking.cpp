@@ -522,16 +522,23 @@ extern "C"  {
 	__declspec(dllimport) pnl_socket_t *nlSockets;
 }
 #else
+#ifdef WIN32
+extern "C" pnl_socket_t *nlSockets;	// For Dev-Cpp
+#else
 extern "C"  {
 	NL_EXP pnl_socket_t *nlSockets;
 }
 #endif
+#endif
 
 
+#if defined(WIN32) && (! defined(_MSC_VER))
+extern "C" void NL_APIENTRY nlSetError(NLenum err); // For Dev-Cpp
+#else
 extern "C" {
 	NL_EXP void NL_APIENTRY nlSetError(NLenum err);
 }
-
+#endif
 
 // modified sock_Write of sock.c from HawkNL
 // returns true if socket is connected and data could be send
