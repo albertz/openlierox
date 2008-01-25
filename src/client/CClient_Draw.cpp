@@ -485,8 +485,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			if(!cLocalWorms[i]->getWeaponsReady()) {
 				ready = false;
 				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
-				//bScoreboard = false;
-				// Why did we stop rendering scoreboard? Atleast put in a replacement.
+				// don't show the scoreboard, it will probably hides the weapon selection
+				// it doesn't hurt to not see the scoreboard in the weapon selection screen
+				bScoreboard = false;
 			}
 		}
 

@@ -118,6 +118,30 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			break;
 
 		default:
+			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
+			// which leads to warnings here - we simply parse it here and avoid warnings
+
+			/*
+			It's a bug in LieroX Pro that sent the ping 
+			packet twice: once per CChannel - it looked like this:
+			(8 bytes of CChannel's sequence)(Connectionless header)(Packet itself)
+			and then the same packet normally (via CBytestream::Send)
+			(Connectionless header) (Packet itself)
+
+			The hack solved the first case which generated warning of unknown packet.
+			*/
+			
+			// Avoid "reading from stream behind end" warning if this is really a bad packet
+			// and print the bad command instead
+			if (cmd == 0xff && bs->GetRestLen() > 3)
+				if (bs->readInt(3) == 0xffffff) {
+					std::string address;
+					NetAddrToString(cl->getChannel()->getAddress(), address);
+					ParseConnectionlessPacket(bs, address);
+					break;
+				}
+
+			// Really a bad packet
 			printf("sv: Bad command in packet (" + itoa(cmd) + ")\n");
 		}
 	}

@@ -181,7 +181,10 @@ bool CChannel::Process(CBytestream *bs)
 	if((Sequence <= iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
 //		printf("Warning: Packet dropped\n");
 //		bs->Dump();
-		// TODO: is it good that we return with false here? this means that we will not parse any further packets
+		/*
+		If we didn't ignore it here, we would become it 
+		again (the remote side will resend it because it thinks we've dropped 
+		the packet) and then parse it again => doubled text etc */
 		// see GameServer::ReadPackets and CClient::ReadPackets
 		// or perhaps it's ok to return true here but we should change the behaviour in *::ReadPackets
 		return false;

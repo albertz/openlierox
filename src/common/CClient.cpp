@@ -520,10 +520,10 @@ void CClient::ReadPackets(void)
 		if(bs.readInt(4) == -1) {
 			bs.ResetPosToBegin();
 			// parse all connectionless packets (there can be multiple packages in one package)
-			// TODO: For example lx::openbeta* was sent in a way that 2 packages were sent at once.
-			// Was this done also with other things? Was the behaviour of previous version
-			// that it parsed only one package here or multiple until the end? I fixed that now
-			// since >rev1457 that it parses multiple packages here.
+			// For example lx::openbeta* was sent in a way that 2 packages were sent at once.
+			// <rev1457 (incl. Beta3) versions only will parse one package at a time.
+			// I fixed that now since >rev1457 that it parses multiple packages here
+			// (but only for new net-commands).
 			// Same thing in CServer.cpp in ReadPackets
 			while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
 				ParseConnectionlessPacket(&bs);

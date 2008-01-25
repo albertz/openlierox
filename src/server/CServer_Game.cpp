@@ -663,20 +663,7 @@ void GameServer::gotoLobby(void)
 // Called by client (for local games only!)
 void GameServer::DemolitionsGameOver(int winner)
 {
-	// TODO: use GameOver function here; or why is this a seperate function?
-	cout << "demolition game over (deprecated)" << endl;
-	
-    CBytestream bs;
-
-    // Let everyone know that the game is over
-	bs.writeByte(S2C_GAMEOVER);
-	bs.writeInt(winner,1);
-
-	// Game over
-	bGameOver = true;
-	fGameOverTime = tLX->fCurTime;
-
-    SendGlobalPacket(&bs);
+	GameOver(winner);
 }
 
 
