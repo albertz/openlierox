@@ -39,7 +39,7 @@ void DedicatedControl::Uninit() {
 	delete dedicatedControlInstance;
 }
 
-#if defined(WIN32) && defined(MSC_VER) && MSC_VER <= 1200
+#if defined(WIN32) && defined(_MSC_VER) && (_MSC_VER <= 1200)
 
 // Stubs - no dedicated server for Windows on MSVC6
 DedicatedControl::DedicatedControl() : internData(NULL) {}
