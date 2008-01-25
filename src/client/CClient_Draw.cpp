@@ -472,41 +472,6 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	}
 	
-	//
-	// check if Players not yet ready
-	//
-	if (iNetStatus == NET_CONNECTED && bGameReady)  {
-		bool ready = true;
-
-		// Go through and draw the first two worms select menus
-		for(i=0;i<num;i++) {
-
-			// Select weapons
-			if(!cLocalWorms[i]->getWeaponsReady()) {
-				ready = false;
-				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
-				// don't show the scoreboard, it will probably hides the weapon selection
-				// it doesn't hurt to not see the scoreboard in the weapon selection screen
-				bScoreboard = false;
-			}
-		}
-
-		// If we're ready, let the server know
-		if(ready && !bReadySent && !bDownloadingMap) {
-			cout << "our weapons were selected, the game can begin" << endl;
-			bReadySent = true;
-			
-			// TODO: move this out here
-			CBytestream *bytes = cNetChan.getMessageBS();
-			bytes->writeByte(C2S_IMREADY);
-			bytes->writeByte(iNumWorms);
-
-			// Send my worm's weapon details
-			for(i=0;i<iNumWorms;i++)
-				cLocalWorms[i]->writeWeapons(bytes);
-		}
-	}
-
 	if(!bDedicated) {
 		// DEBUG
 		//DrawRectFill(bmpDest,0,0,100,40,tLX->clBlack);
@@ -601,22 +566,6 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	#endif*/
 
-		// Game over
-		if(bGameOver) {
-			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !bGameMenu)  {
-				InitializeGameMenu();
-
-				// If this is a tournament, take screenshot of the final screen
-				if (tLXOptions->tGameinfo.bMatchLogging && tGameInfo.iGameType != GME_LOCAL)  {
-					screenshot_t scrn;
-					scrn.sDir = "game_results";
-					GetLogData(scrn.sData);
-					tLX->tScreenshotQueue.push_back(scrn);
-				}
-			} else
-				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
-		}
-
 		// Game menu
 		if(bGameMenu)  {
 			bScoreboard = false;
@@ -633,6 +582,56 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		if(bScoreboard)
 			DrawScoreboard(bmpDest);
 
+		// Game over
+		if(bGameOver) {
+			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !bGameMenu)  {
+				InitializeGameMenu();
+
+				// If this is a tournament, take screenshot of the final screen
+				if (tLXOptions->tGameinfo.bMatchLogging && tGameInfo.iGameType != GME_LOCAL)  {
+					screenshot_t scrn;
+					scrn.sDir = "game_results";
+					GetLogData(scrn.sData);
+					tLX->tScreenshotQueue.push_back(scrn);
+				}
+			} else
+				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
+		}
+	}
+
+	//
+	// check if Players not yet ready
+	//
+	if (iNetStatus == NET_CONNECTED && bGameReady)  {
+		bool ready = true;
+
+		// Go through and draw the first two worms select menus
+		for(i=0;i<num;i++) {
+
+			// Select weapons
+			if(!cLocalWorms[i]->getWeaponsReady()) {
+				ready = false;
+				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
+			}
+		}
+
+		// If we're ready, let the server know
+		if(ready && !bReadySent && !bDownloadingMap) {
+			cout << "our weapons were selected, the game can begin" << endl;
+			bReadySent = true;
+			
+			// TODO: move this out here
+			CBytestream *bytes = cNetChan.getMessageBS();
+			bytes->writeByte(C2S_IMREADY);
+			bytes->writeByte(iNumWorms);
+
+			// Send my worm's weapon details
+			for(i=0;i<iNumWorms;i++)
+				cLocalWorms[i]->writeWeapons(bytes);
+		}
+	}
+	
+	if(!bDedicated) {
 		// Current Settings
 		DrawCurrentSettings(bmpDest);
 
