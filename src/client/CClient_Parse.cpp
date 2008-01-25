@@ -139,7 +139,7 @@ void CClient::ParseConnected(CBytestream *bs)
 		id = bs->readInt(1);
 		if (id < 0 || id >= MAX_WORMS)
 			continue;
-		cLocalWorms[i] = &cRemoteWorms[id]; // TODO: this leads to errors, write a safe copy function
+		cLocalWorms[i] = &cRemoteWorms[id];
 		cLocalWorms[i]->setUsed(true);
 		cLocalWorms[i]->setClient(this);
 		cLocalWorms[i]->setGameScript(&cGameScript); // TODO: why was this commented out?
