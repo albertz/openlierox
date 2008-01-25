@@ -1,0 +1,98 @@
+Boost.Process
+Important information regarding this source tree
+
+Copyright (c) 2005, 2006, 2007 Julio M. Merino Vidal <jmmv84@gmail.com>
+
+
+Introduction
+============
+
+Boost.Process is a project that aims to develop a portable and free
+process management library for the C++ language.  It is being designed
+in a way that will permit the eventual integration into the Boost
+libraries.  See http://www.boost.org/ for more information.
+
+This directory contains Boost.Process' source code and documentation.
+The rest of this document describes how to build them.
+
+
+License
+=======
+
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt.)
+
+
+Acknowledgements
+================
+
+This project is possible thanks to the Google Summer of Code 2006
+program.
+
+This project is being developed under the guidance of Jeff Garland,
+who is mentor assigned to review the project under the terms of the
+Google Summer of Code 2006 program.
+
+
+Configuring the build system
+============================
+
+This section contains a quick overview on how to set up the Boost.Build
+build system.  It is NOT meant to replace the official documentation,
+which is much more complete than this and which you should read in case
+of doubt.
+
+WARNING: You should use a Boost source tree checked out from the CVS.
+A formal release may not work at all with this code.
+
+Before you can build Boost.Process, you must first configure your
+environment to meet the following requirements:
+
+1) Have an up-to-date bjam utility in your PATH.  As said above, this
+   needs to come from a CVS build.
+
+2) Set BOOST_ROOT to point to Boost's top-most source directory.
+   This is the root directory of a Boost source tree distribution and it
+   contains subdirectories such as 'boost', 'libs' and 'tools'.
+
+3) Set BOOST_BUILD_PATH to point to the directory containing the
+   Boost.Build v2 infrastructure files.  This can be found in the
+   'tools/build/v2' subdirectory of the Boost source tree distribution.
+
+You also need to configure Boost.Build v2 and BoostBook to be able to
+build the files in this distribution.  Please consult their respective
+documentation on how to do this.  As an example, consider this sample
+user-config.jam file, which can be placed in your home directory:
+
+----- cut here -----
+# Configure the toolset.
+import toolset : using ;
+using darwin ;
+
+# Configure BoostBook.
+using boostbook
+  : /usr/pkg/share/xsl/docbook
+  : /usr/pkg/share/xml/docbook/4.2
+  ;
+using xsltproc : /usr/pkg/bin/xsltproc ;
+
+# Use a prebuilt and safely-stored QuickBook binary.
+using quickbook : /Volumes/Projects/boost/local/bin/quickbook ;
+----- cut here -----
+
+
+Building
+========
+
+Once you have configured your build environment you can build the included
+examples, the test suite or the documentation.  To do so, just change into
+the appropriate directory within 'libs/process' and run 'bjam --v2'.
+
+Given that this library is completely source-based, you can use it in your
+own projects by simply telling the compiler to use the directory where
+this file lives as another 'include' directory.  Before doing so, though,
+be sure to run the test suite and see that there are no errors.
+
+If you have made your way until here, thanks for your interest in
+Boost.Process!

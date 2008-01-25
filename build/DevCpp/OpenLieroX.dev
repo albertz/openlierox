@@ -5,23 +5,23 @@ UnitCount=184
 Type=1
 Ver=1
 ObjFiles=
-Includes=../../hawknl/include;../../include;C:\Dev-Cpp\include\SDL;../../hawknl/src
+Includes=../../hawknl/include;../../include;C:\Dev-Cpp\include\SDL;../../hawknl/src;../../boost_process
 Libs=
 PrivateResource=OpenLieroX_private.rc
 ResourceIncludes=
 MakeIncludes=
 Compiler=_@@_
-CppCompiler=-WITH_MEDIAPLAYER_@@_
+CppCompiler=-DWITH_MEDIAPLAYER_@@_-DUSE_RWOPS_@@_
 Linker=-lmingw32_@@_-lSDLmain_@@_-lSDL_@@_-mwindows_@@_-lSDL_mixer_@@_-lSDL_image_@@_-lz_@@_-lws2_32_@@_libs/bgd.lib_@@_libs/libxml2.lib_@@_libs/hawknl.lib_@@_
 IsCpp=1
 Icon=OpenLieroX.ico
 ExeOutput=..\..\distrib\win32\
-ObjectOutput=
+ObjectOutput=objs
 OverrideOutput=0
 OverrideOutputName=OpenLieroX.exe
 HostApplication=
 Folders=Client,Common,Frontend,Frontend/Menu,Frontend/Widgets,"Game objects",Server,"System files"
-CommandLine=
+CommandLine=-dedicated
 UseCustomMakefile=0
 CustomMakefile=
 IncludeVersionInfo=1
@@ -32,7 +32,7 @@ CompilerSettings=0000001001001001000000
 [VersionInfo]
 Major=0
 Minor=57
-Release=3
+Release=4
 Build=1
 LanguageID=1033
 CharsetID=1252
@@ -44,7 +44,7 @@ LegalCopyright=
 LegalTrademarks=
 OriginalFilename=
 ProductName=OpenLieroX
-ProductVersion=0.57 Beta 3
+ProductVersion=0.57 Beta 4
 AutoIncBuildNr=0
 
 [Unit1]
@@ -1718,16 +1718,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit171]
-FileName=..\..\include\CGuiSkinnedLayout.h
-CompileCpp=1
-Folder=Frontend
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit172]
 FileName=..\..\src\client\Clipboard.cpp
 CompileCpp=1
 Folder=System files
@@ -1737,7 +1727,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit173]
+[Unit172]
 FileName=..\..\src\client\CGuiSkinnedLayout.cpp
 CompileCpp=1
 Folder=Frontend
@@ -1747,7 +1737,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit174]
+[Unit173]
 FileName=..\..\include\Clipboard.h
 CompileCpp=1
 Folder=System files
@@ -1757,7 +1747,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit175]
+[Unit174]
 FileName=..\..\include\CGuiSkin.h
 CompileCpp=1
 Folder=Frontend
@@ -1767,7 +1757,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit176]
+[Unit175]
 FileName=..\..\src\client\CGuiSkin.cpp
 CompileCpp=1
 Folder=Frontend
@@ -1777,7 +1767,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit177]
+[Unit176]
 FileName=..\..\include\ChatCommand.h
 CompileCpp=1
 Folder=Server
@@ -1787,10 +1777,20 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit170]
-FileName=..\..\include\RemoteHost.h
+[Unit177]
+FileName=..\..\src\server\ChatCommand.cpp
 CompileCpp=1
 Folder=Server
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit170]
+FileName=..\..\include\CGuiSkinnedLayout.h
+CompileCpp=1
+Folder=Frontend
 Compile=1
 Link=1
 Priority=1000
@@ -1818,16 +1818,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit178]
-FileName=..\..\src\server\ChatCommand.cpp
-CompileCpp=1
-Folder=Server
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit179]
 FileName=..\..\include\SmartPointer.h
 CompileCpp=1
 Folder=System files
@@ -1837,7 +1827,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit180]
+[Unit179]
 FileName=..\..\src\server\DedicatedControl.cpp
 CompileCpp=1
 Folder=Server
@@ -1847,7 +1837,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit181]
+[Unit180]
 FileName=..\..\include\DedicatedControl.h
 CompileCpp=1
 Folder=Server
@@ -1857,10 +1847,20 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit182]
+[Unit181]
 FileName=..\..\include\Color.h
 CompileCpp=1
 Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit182]
+FileName=..\..\include\IniReader.h
+CompileCpp=1
+Folder=Common
 Compile=1
 Link=1
 Priority=1000

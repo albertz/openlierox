@@ -39,11 +39,9 @@ void DedicatedControl::Uninit() {
 	delete dedicatedControlInstance;
 }
 
-#ifdef WIN32
+#if defined(WIN32) && defined(MSC_VER) && MSC_VER <= 1200
 
-// TODO: find alternative to PStreams for Windows
-
-// Stubs - no dedicated server for Windows
+// Stubs - no dedicated server for Windows on MSVC6
 DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	}
 
@@ -61,10 +59,52 @@ void DedicatedControl::NewWorm_Signal(CWorm* w) {}
 
 #else
 
+struct pstream_pipe_t; // popen-streamed-ibrary independent wrapper (kinda)
+
+#ifdef WIN32
+#include <boost/process.hpp> // This one header pulls turdy shitload of Boost headers
+struct pstream_pipe_t
+{
+	boost::process::child *p;
+	pstream_pipe_t(): p(NULL) {};
+	std::ostream & in(){ return p->get_stdin(); };
+	std::istream & out(){ return p->get_stdout(); };
+	std::istream & err(){ return p->get_stderr(); };
+	void close_in(){ p->get_stdin().close(); };
+	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
+	{
+		if(p) 
+			delete p;
+		if( params.size() == 0 )
+			params.push_back(cmd);
+		boost::process::context ctx;
+		ctx.m_stdin_behavior = boost::process::capture_stream(); // Pipe for win32
+		ctx.m_stdout_behavior = boost::process::capture_stream();
+		ctx.m_stderr_behavior = boost::process::capture_stream();
+		p = new boost::process::child(boost::process::launch(cmd, params, ctx));
+		return true;
+	};
+	~pstream_pipe_t(){ if(p) delete p; };
+};
+#else
 #include <pstream.h>
+struct pstream_pipe_t
+{
+	redi::pstream p;
+	std::ostream & in(){ return p; };
+	std::istream & out(){ return p.out(); };
+	std::istream & err(){ return p.err(); };
+	void close_in(){ p << redi::peof; };
+	void open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
+	{
+		if( params.size() == 0 )
+			params.push_back(cmd);
+		return p.open( cmd, params, redi::pstreams::pstdin|redi::pstreams::pstdout|redi::pstreams::pstderr );
+	};
+};
+#endif
 
 using namespace std;
-using namespace redi;
 
 static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
 	cmd = ""; rest = "";
@@ -90,7 +130,7 @@ static void Ded_ParseCommand(stringstream& s, string& cmd, string& rest) {
 struct DedIntern {	
 	SDL_Thread* pipeThread;
 	SDL_Thread* stdinThread;
-	pstream pipe;
+	pstream_pipe_t pipe;
 	SDL_mutex* pipeOutputMutex;
 	stringstream pipeOutput;
 	
@@ -166,9 +206,9 @@ struct DedIntern {
 		profile_t *p = GetProfiles();
 		for(;p;p=p->tNext) {
 			if(p->iType == PRF_COMPUTER)
-				pipe << "worm " << p->iID << ", " << p->sName << endl;
+				pipe.in() << "worm " << p->iID << ", " << p->sName << endl;
 		}
-		pipe << "endwormlist" << endl;	
+		pipe.in() << "endwormlist" << endl;	
 	}
 
 	void Cmd_AddWorm() {
@@ -212,7 +252,10 @@ struct DedIntern {
 		tLXOptions->tGameinfo.iMaxPlayers = 8;
 		tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
 		tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
-		tLXOptions->tGameinfo.bRegServer = true;
+		// TODO: CHttp crashes very often in Dev-Cpp builds, so cannot really register on masterserver until it's fixed.
+		// The problem seems to be with incorrect handling of nlSockets var or threading.
+		// I've commented that out just to show that my uberl33t d3dicat3d win32 server is stable enough :P .
+		tLXOptions->tGameinfo.bRegServer = false; // tLXOptions->tGameinfo.bRegServer = true; 
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
 		tLXOptions->tGameinfo.bWantsJoinBanned = false;
 		tLXOptions->tGameinfo.bAllowRemoteBots = true;
@@ -326,17 +369,17 @@ struct DedIntern {
 	// ----------------------------------
 	// ----------- signals --------------
 	
-	void Sig_GameLoopStart() { pipe << "gameloopstart" << endl; state = S_PLAYING; }
-	void Sig_BackToLobby() { pipe << "backtolobby" << endl; state = S_LOBBY; }
+	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_PLAYING; }
+	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
 	void Sig_GameLoopEnd() {
-		pipe << "gameloopend" << endl;
+		pipe.in() << "gameloopend" << endl;
 		if(state != S_LOBBY) // we don't get a BackToLobby-signal => game was stopped
 			state = S_NORMAL;
 	}
-	void Sig_ErrorStartLobby() { pipe << "errorstartlobby" << endl; state = S_NORMAL; }
-	void Sig_LobbyStarted() { pipe << "lobbystarted" << endl; state = S_LOBBY; }	
-	void Sig_NewWorm(CWorm* w) { pipe << "newworm" << endl; }	
-	void Sig_Quit() { pipe << "quit" << peof; }
+	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
+	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }	
+	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm" << endl; }	
+	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); }
 	
 	// ----------------------------------
 	// ---------- frame handlers --------
@@ -379,18 +422,29 @@ DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)intern
 bool DedicatedControl::Init_priv() {
 	const std::string scriptfn_rel = "scripts/dedicated_control";
 
-	printf("DedicatedControl initing...\n");
 	std::string scriptfn = GetFullFileName(scriptfn_rel);
 	if(!IsFileAvailable(scriptfn, true)) {
 		printf("ERROR: %s not found\n", scriptfn_rel.c_str());
 		return false;		
 	}
+	std::string command = scriptfn;
+	std::vector<std::string> commandArgs( 1, command );
 	
+	#ifdef WIN32
+	command = "scripts/msys/bin/bash.exe";
+	commandArgs.clear();
+	commandArgs.push_back(command);
+	commandArgs.push_back("-l");
+	commandArgs.push_back("-c");
+	commandArgs.push_back(scriptfn);
+	#endif
+		
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
+	printf("DedicatedControl::Init_priv(): starting\n"); fflush(stdout);
 	
-	dedIntern->pipe.open(scriptfn, pstreams::pstdin|pstreams::pstdout /*|pstreams::pstderr*/);
-	dedIntern->pipe << "hello world\n" << flush;
+	dedIntern->pipe.open(command, commandArgs);
+	dedIntern->pipe.in() << "hello world\n" << flush;
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
 	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
 	dedIntern->stdinThread = SDL_CreateThread(&DedIntern::stdinThreadFunc, NULL);
