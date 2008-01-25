@@ -88,11 +88,6 @@ void CChannel::Transmit( CBytestream *bs )
 		iReliableSequence ^= 1;
 	}
 
-	if( (SendReliable ? Reliable.GetLength() : 0) + (bs ? bs->GetLength() : 0) == 0 ) {
-		if(tLX->fCurTime - fLastPingSent < 1.0f) { // but still send pings
-			return;
-		}
-	}
 	
 	// Create the reliable packet header
 	r1 = iOutgoingSequence | (SendReliable << 31);
