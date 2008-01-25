@@ -1,6 +1,7 @@
 TODO
 (remember also to look at the bugs on SF)
 
+[ ] better default keys for player2 (!!)
 [ ] remove ReadInteger/ReadFloat/Read... from code and use IniParser instead (!)
 [ ] use ALSA as default if available (!!)
 [?] nMaxFPS = 0 works correctly? (!!) 
