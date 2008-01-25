@@ -13,6 +13,7 @@
 // Created 12/8/02
 // Jason Boettcher
 
+#include <iostream>
 
 #include "LieroX.h"
 #include "Error.h"
@@ -23,6 +24,7 @@
 #include "CProgressbar.h"
 #include "CLabel.h"
 
+using namespace std;
 
 enum {
 	mn_Internet=0,
@@ -142,6 +144,8 @@ bool Menu_NetInitialize(void)
 // Go to the host lobby
 void Menu_Net_GotoHostLobby(void)
 {
+	cout << "Menu_Net_GotoHostLobby" << endl;
+	
 	tMenu->iMenuType = MNU_NETWORK;
 	tMenu->bMenuRunning = true;
 	tMenu->bmpScreen = SDL_GetVideoSurface();
@@ -197,7 +201,7 @@ void Menu_Net_GotoJoinLobby(void)
 	//cNetButtons[4].Setup(4, 460, 110, 50, 15);
 
 	Menu_Net_JoinGotoLobby();
-
+	
 	tLX->bQuitEngine = true;
 	iSkipStart = true;	
 }

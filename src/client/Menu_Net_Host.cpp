@@ -641,6 +641,7 @@ std::string Menu_Net_HostLobbyGetText(void)
 
 ///////////////////
 // Go straight to the lobby, without clearing the server & client
+// TODO: describe the difference between Menu_Net_GotoHostLobby and Menu_Net_HostGotoLobby
 void Menu_Net_HostGotoLobby(void)
 {
 	tGameInfo.iGameType = GME_HOST;

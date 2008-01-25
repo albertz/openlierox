@@ -270,12 +270,14 @@ void Menu_Start(void)
 	// User can switch video mode while playing
 	tMenu->bmpScreen = SDL_GetVideoSurface();
 
-	if(!iSkipStart) {
-		tMenu->iMenuType = MNU_MAIN;
-		Menu_MainInitialize();
-    } else
-		Menu_RedrawMouse(true);
-
+	if(!bDedicated) {	
+		if(!iSkipStart) {
+			tMenu->iMenuType = MNU_MAIN;
+			Menu_MainInitialize();
+		} else
+			Menu_RedrawMouse(true);
+	}
+	
 	Menu_Loop();
 	iSkipStart = false;
 }

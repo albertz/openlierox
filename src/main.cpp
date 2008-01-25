@@ -101,6 +101,8 @@ void InitializeLoading();
 void DrawLoading(byte percentage, const std::string &text);
 void ShutdownLoading();
 
+using namespace std;
+
 
 // TODO: move this out here
 void print_binary_string(const std::string& txt) {
@@ -304,7 +306,8 @@ startpoint:
 		tLX->bQuitEngine = false;
 		printf("MaxFPS is %i\n", tLXOptions->nMaxFPS);
 
-		if(bDedicated)
+		cout << "GameLoopStart" << endl;
+		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
 			
         //
@@ -332,7 +335,8 @@ startpoint:
 			CapFPS();
 		}
 		
-		if(bDedicated)
+		cout << "GameLoopEnd" << endl;
+		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopEnd_Signal();
 	}
 

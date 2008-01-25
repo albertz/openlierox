@@ -328,7 +328,11 @@ struct DedIntern {
 	
 	void Sig_GameLoopStart() { pipe << "gameloopstart" << endl; state = S_PLAYING; }
 	void Sig_BackToLobby() { pipe << "backtolobby" << endl; state = S_LOBBY; }
-	void Sig_GameLoopEnd() { pipe << "gameloopend" << endl; state = S_NORMAL; }
+	void Sig_GameLoopEnd() {
+		pipe << "gameloopend" << endl;
+		if(state != S_LOBBY) // we don't get a BackToLobby-signal => game was stopped
+			state = S_NORMAL;
+	}
 	void Sig_ErrorStartLobby() { pipe << "errorstartlobby" << endl; state = S_NORMAL; }
 	void Sig_LobbyStarted() { pipe << "lobbystarted" << endl; state = S_LOBBY; }	
 	void Sig_NewWorm(CWorm* w) { pipe << "newworm" << endl; }	
