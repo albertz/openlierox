@@ -104,7 +104,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
 		( tLXOptions->bSendDirtUpdate, "Advanced.SendDirtUpdate", false )
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", false )
-		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 40 )
+		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
 		( tLXOptions->bSpectatorSmoothViewport, "Advanced.SpectatorSmoothViewport", true )
 		( tLXOptions->bShowUnstableFeatures, "Advanced.ShowUnstableFeatures", false )
 		( tLXOptions->bAllowConnectDuringGame, "Advanced.AllowConnectDuringGame", false )
