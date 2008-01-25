@@ -455,6 +455,7 @@ bool NetworkTexts::LoadFromDisc()
 	ReadString (f, "NetworkTexts", "TeamOut",		  sTeamOut,			"The <team> team is out of the game");
 	ReadString (f, "NetworkTexts", "PlayerHasWon",	  sPlayerHasWon,	"<player> has won the match");
 	ReadString (f, "NetworkTexts", "TeamHasWon",	  sTeamHasWon,		"The <team> team has won the match");
+	ReadString (f, "NetworkTexts", "TimeLimit",		  sTimeLimit,		"Timelimit has been reached");
 
 	ReadString (f, "NetworkTexts", "WormIsIt",		  sWormIsIt,		"<player> is IT!");
 

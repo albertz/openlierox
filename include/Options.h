@@ -121,7 +121,8 @@ public:
 	std::string sPlayerHasWon ;
 	std::string sTeamOut ;
 	std::string sTeamHasWon ;
-
+	std::string sTimeLimit ;
+	
 	std::string sWormIsIt ;
 
 	std::string sSpree1 ;

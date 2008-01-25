@@ -975,6 +975,8 @@ void GameServer::RecheckGame(void)
 			}
 
 			if( fTimeLimit > 0 && fServertime > fTimeLimit*60.0 ) {
+				if (networkTexts->sTimeLimit != "<none>")
+					SendGlobalText( OldLxCompatibleString(networkTexts->sTimeLimit), TXT_NORMAL);
 				cout << "recheck: time limit reached" << endl;
 				EndGame = true;
 			}
