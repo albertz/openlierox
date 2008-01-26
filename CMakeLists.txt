@@ -47,18 +47,18 @@ AUX_SOURCE_DIRECTORY(src/server SERVER_SRCS)
 SET(ALL_SRCS src/main.cpp ${CLIENT_SRCS} ${COMMON_SRCS} ${SERVER_SRCS})
 
 IF (HAWKNL_BUILTIN)
-	SET(ALL_SRCS ${ALL_SRCS} \
-        hawknl/src/crc.c \
-        hawknl/src/errorstr.c \
-        hawknl/src/nl.c \
-        hawknl/src/sock.c \
-        hawknl/src/group.c \
-        hawknl/src/loopback.c \
-        hawknl/src/err.c \
-        hawknl/src/thread.c \
-        hawknl/src/mutex.c \
-        hawknl/src/condition.c \
-        hawknl/src/nltime.c)
+	SET(ALL_SRCS ${ALL_SRCS} "
+        hawknl/src/crc.c
+        hawknl/src/errorstr.c
+        hawknl/src/nl.c
+        hawknl/src/sock.c
+        hawknl/src/group.c
+        hawknl/src/loopback.c
+        hawknl/src/err.c
+        hawknl/src/thread.c
+        hawknl/src/mutex.c
+        hawknl/src/condition.c
+        hawknl/src/nltime.c")
 ENDIF (HAWKNL_BUILTIN)
 
 ADD_DEFINITIONS(-Wall)
