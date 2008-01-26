@@ -46,6 +46,21 @@ AUX_SOURCE_DIRECTORY(src/common COMMON_SRCS)
 AUX_SOURCE_DIRECTORY(src/server SERVER_SRCS)
 SET(ALL_SRCS src/main.cpp ${CLIENT_SRCS} ${COMMON_SRCS} ${SERVER_SRCS})
 
+IF (HAWKNL_BUILTIN)
+	SET(ALL_SRCS ${ALL_SRCS} \
+        hawknl/src/crc.c \
+        hawknl/src/errorstr.c \
+        hawknl/src/nl.c \
+        hawknl/src/sock.c \
+        hawknl/src/group.c \
+        hawknl/src/loopback.c \
+        hawknl/src/err.c \
+        hawknl/src/thread.c \
+        hawknl/src/mutex.c \
+        hawknl/src/condition.c \
+        hawknl/src/nltime.c)
+ENDIF (HAWKNL_BUILTIN)
+
 ADD_DEFINITIONS(-Wall)
 IF (WIN32)
 	ADD_DEFINITIONS(-g)
@@ -71,20 +86,16 @@ ADD_EXECUTABLE(openlierox ${ALL_SRCS})
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
 TARGET_LINK_LIBRARIES(openlierox SDL SDL_image pthread z xml2)
+
 IF (NOT DEDICATED_ONLY)
 	TARGET_LINK_LIBRARIES(openlierox SDL_mixer gd)
 ENDIF (NOT DEDICATED_ONLY)
-IF (HAWKNL_BUILTIN)
-	# TODO: this HAWKNL_BUILTIN support here is incomplete yet!
-	TARGET_LINK_LIBRARIES(openlierox NL -Lhawknl/src)
-ELSE (HAWKNL_BUILTIN)
+IF (NOT HAWKNL_BUILTIN)
 	TARGET_LINK_LIBRARIES(openlierox NL)
 ENDIF (HAWKNL_BUILTIN)
 IF(X11CLIPBOARD)
 	TARGET_LINK_LIBRARIES(openlierox X11)
 ENDIF(X11CLIPBOARD)
-
-
 IF (STLPORT)
 	TARGET_LINK_LIBRARIES(openlierox stlportstlg)
 ENDIF (STLPORT)
