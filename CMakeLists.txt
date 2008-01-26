@@ -47,18 +47,17 @@ AUX_SOURCE_DIRECTORY(src/server SERVER_SRCS)
 SET(ALL_SRCS src/main.cpp ${CLIENT_SRCS} ${COMMON_SRCS} ${SERVER_SRCS})
 
 IF (HAWKNL_BUILTIN)
-	SET(ALL_SRCS ${ALL_SRCS} "
-        hawknl/src/crc.c
-        hawknl/src/errorstr.c
-        hawknl/src/nl.c
-        hawknl/src/sock.c
-        hawknl/src/group.c
-        hawknl/src/loopback.c
-        hawknl/src/err.c
-        hawknl/src/thread.c
-        hawknl/src/mutex.c
-        hawknl/src/condition.c
-        hawknl/src/nltime.c")
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/crc.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/errorstr.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/nl.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/sock.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/group.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/loopback.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/err.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/thread.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/mutex.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/condition.c)
+	SET(ALL_SRCS ${ALL_SRCS} hawknl/src/nltime.c)
 ENDIF (HAWKNL_BUILTIN)
 
 ADD_DEFINITIONS(-Wall)
