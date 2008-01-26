@@ -150,7 +150,7 @@ static int SdlNetEventThreadMain( void * param )
 	while( ! SdlNetEventThreadExit )
 	{
 		if( ! isSocketGroupEmpty( SdlNetEventGroup ) ) // only when we have at least one socket
-		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, &sock_out, 1, max_frame_time * 1000.0f ) > 0 ) // Wait max_frame_time
+		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, &sock_out, 1, (int)(max_frame_time * 1000.0f) ) > 0 ) // Wait max_frame_time
 		{
 			if(sock_out >= 0) {
 				ev.user.data2 = (void*) sock_out; // save socket-nr to forward it later to the specific event-handler for this socket
