@@ -1,6 +1,8 @@
 TODO
 (remember also to look at the bugs on SF)
 
+[ ] remove boost from SVN (doesn't belong there, too heavy, included in most systems) (!!)
+[ ] remove MSYS from SVN (doesn't belong there, win-only-anorm-fix, external independent application) (!!)
 [ ] better default keys for player2 (!!)
 [ ] remove ReadInteger/ReadFloat/Read... from code and use IniParser instead (!)
 [ ] use ALSA as default if available (!!)
