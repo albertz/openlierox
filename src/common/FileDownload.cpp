@@ -62,6 +62,11 @@ void CFileDownload::Start(const std::string& filename, const std::string& dest_d
 		return;
 	}
 
+	if (tDownloadServers->empty())  {
+		SetDlError(FILEDL_ERROR_NO_SERVER);
+		return;
+	}
+
 	// Stop & clear any previous download
 	Stop();
 

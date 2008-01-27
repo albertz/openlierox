@@ -39,7 +39,7 @@
 
 // Routines
 int			InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags);
-void		ShutdownAuxLib(void);
+void		ShutdownAuxLib(bool restarting);
 int			SetVideoMode(void);
 
 #ifdef WIN32

@@ -179,6 +179,7 @@ void CHttp::Clear()
 	SetHttpError(HTTP_NO_ERROR);
 	iDataLength = 0;
 	iDataReceived = 0;
+	bActive = false;
 	bTransferFinished = false;
 	bConnected = false;
 	bRequested = false;
@@ -200,10 +201,22 @@ void CHttp::Clear()
 // Cancel current request
 void CHttp::CancelProcessing()
 {
+	// Wait for reply from DNS server, else we could get in trouble with memory
+	if (bActive)  {
+		printf("HTTP Stop: Waiting for DNS reply...\n");
+		float start = GetMilliSeconds();
+		while (!IsSocketStateValid(tSocket) && (GetMilliSeconds() - start) <= 10) {
+			SDL_Delay(10);
+		}
+	}
+
+	// If we got DNS reply, just quit
 	if (bRequested && IsSocketStateValid(tSocket))  {
 		CloseSocket(tSocket);
 		InvalidateSocketState(tSocket);
 	}
+
+
 
 	Clear();
 }
@@ -252,6 +265,9 @@ void CHttp::RequestData(const std::string& address)
 		tError.sErrorMsg += GetSocketErrorStr(GetSocketErrorNr());
 		return;
 	}
+
+	// We're active now
+	bActive = true;
 }
 
 /////////////////
@@ -432,6 +448,7 @@ void CHttp::ParseChunks()
 		for (; chunk_it != sData.end(); chunk_it++)
 			if (tChunkParser->ParseNext(*chunk_it))  {
 				bTransferFinished = true;
+				bActive = false;
 				break;  // Finished!
 			}
 	}
@@ -613,6 +630,7 @@ int CHttp::ProcessRequest()
 			// End of connection
 			// Complete!
 			bTransferFinished = true;
+			bActive = false;
 			return HTTP_PROC_FINISHED;
 		} else {
 			// Error

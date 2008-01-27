@@ -145,6 +145,10 @@ static int SdlNetEventThreadMain( void * param )
 	ev.user.data1 = (void*) *(uint*)param; // save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS)
 	ev.user.data2 = NULL;
 
+	// When restarting, this can happen, we wait for options to initialize
+	while (tLXOptions == NULL && !SdlNetEventThreadExit)
+		SDL_Delay(20);
+
 	float max_frame_time = MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0);
 	float lastTime = GetMilliSeconds();
 	while( ! SdlNetEventThreadExit )

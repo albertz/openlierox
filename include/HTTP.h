@@ -101,6 +101,7 @@ private:
 
 	size_t			iDataLength;
 	size_t			iDataReceived;
+	bool			bActive;
 	bool			bTransferFinished;
 	bool			bConnected;
 	bool			bRequested;

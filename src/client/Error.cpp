@@ -107,7 +107,9 @@ void SystemError(char *fmt, ...)
 	printf("SystemError: %s\n", buf);
 
 	// It should work anytime
-	ShutdownLieroX();
+	// TODO: doesn't, with the new restarting functions it sometimes fails to set the video mode for window
+	// and calls this -> then it tries to shut it down again -> failure
+	//ShutdownLieroX();
 
 #ifdef WIN32
 	MessageBox(NULL,buf,GetGameName().c_str(),MB_OK | MB_ICONEXCLAMATION);

@@ -853,7 +853,7 @@ void ShutdownLieroX(void)
 	QuitNetworkSystem();
 	
 	// SDL, Cache and other small stuff
-	ShutdownAuxLib();
+	ShutdownAuxLib(bRestartGameAfterQuit);
 
 	// Save and clear options
 	ShutdownOptions();
