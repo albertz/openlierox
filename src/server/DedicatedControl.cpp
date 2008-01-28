@@ -268,7 +268,6 @@ struct DedIntern {
 	void Cmd_SendLobbyUpdate() {
 		cServer->UpdateGameLobby();
 	};
-
 	
 	void Cmd_StartLobby() {
 		tGameInfo.iNumPlayers = 1; // for now...
@@ -493,6 +492,8 @@ void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
 
+// TODO: these are probably intended to be used for the scripts. though there are not used there atm
+// should be fixed before release or we will have no forward-compatibility
 static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.GameInfo")
 	( tGameInfo.iGameMode, "iGameMode" )
 	( tGameInfo.sModName,  "sModName" )
