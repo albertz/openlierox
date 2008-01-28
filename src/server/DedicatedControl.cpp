@@ -7,11 +7,14 @@
  *
  */
 
+// define HAVE_BOOST if you want to compile dedicated server for Win32 and have Boost headers installed.
+
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <stdexcept>
 #include <SDL_thread.h>
+#include <unistd.h>
 
 #include "DedicatedControl.h"
 #include "LieroX.h"
@@ -26,8 +29,6 @@
 #include "Unicode.h"
 #include "Protocol.h"
 #include "CGuiSkin.h"
-
-//#define HAVE_BOOST // Uncomment this if you want to compile dedicated server for Win32 and have Boost headers installed.
 
 static DedicatedControl* dedicatedControlInstance = NULL;
 
@@ -76,6 +77,7 @@ struct pstream_pipe_t
 	std::istream & out(){ return p->get_stdout(); };
 	std::istream & err(){ return p->get_stderr(); };
 	void close_in(){ p->get_stdin().close(); };
+	void close() { close_in(); }
 	void open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
 		if(p) 
@@ -99,6 +101,10 @@ struct pstream_pipe_t
 	std::istream & out(){ return p.out(); };
 	std::istream & err(){ return p.err(); };
 	void close_in(){ p << redi::peof; };
+	void close() {
+		close_in();
+		// TODO: this should close the process that pipeThread will stop
+	}
 	void open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
 		if( params.size() == 0 )
@@ -137,17 +143,19 @@ struct DedIntern {
 	pstream_pipe_t pipe;
 	SDL_mutex* pipeOutputMutex;
 	stringstream pipeOutput;
+	bool quitSignal;
 	
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
-	DedIntern() : state(S_NORMAL) {}
+	DedIntern() : quitSignal(false), state(S_NORMAL) {}
 	~DedIntern() {
 		Sig_Quit();
+		quitSignal = true;
 		
 		printf("waiting for stdinThread ...\n");
-		cin.setstate( ios_base::eofbit | ios_base::failbit | ios_base::badbit );
 		SDL_WaitThread(stdinThread, NULL);
 		
-		printf("waiting for pipeThread ...\n");		
+		printf("waiting for pipeThread ...\n");
+		pipe.close();
 		SDL_WaitThread(pipeThread, NULL);
 				
 		SDL_DestroyMutex(pipeOutputMutex);
@@ -172,11 +180,22 @@ struct DedIntern {
 	// reading lines from stdin and put them to pipeOutput
 	static int stdinThreadFunc(void*) {
 		DedIntern* data = Get();
-		
-		while(!cin.eof()) {
+			
+		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
+			cout << "ERROR setting standard input into non-blocking mode" << endl;
+
+		while(true) {			
 			string buf;
-			// TODO: break immediatly if eof()
-			getline(cin, buf);
+			while(true) {
+				SDL_Delay(10); // TODO: maxfps here
+				if(data->quitSignal) return 0;
+				
+				char c;
+				if(read(0, &c, 1) >= 0) {
+					if(c == '\n') break;
+					buf += c;
+				}
+			}
 			
 			SDL_mutexP(data->pipeOutputMutex);
 			data->pipeOutput << buf << endl;
@@ -411,7 +430,7 @@ struct DedIntern {
 			string cmd, rest;
 			Ded_ParseCommand(pipeOutput, cmd, rest);
 			SDL_mutexV(pipeOutputMutex);
-			
+
 			HandleCommand(cmd, rest);
 			SDL_mutexP(pipeOutputMutex);
 		}
@@ -459,7 +478,7 @@ bool DedicatedControl::Init_priv() {
 		printf("ERROR: cannot start dedicated server - cannot run: %s\n", command.c_str()); 
 		fflush(stdout);
 	};
-	dedIntern->pipe.in() << "hello world\n" << flush;
+	dedIntern->pipe.in() << "hello world\n" << flush; // just a test
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
 	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
 	dedIntern->stdinThread = SDL_CreateThread(&DedIntern::stdinThreadFunc, NULL);
