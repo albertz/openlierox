@@ -149,7 +149,7 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 
 	int x,y;
 	int x2,y2;
-	int curcount, e;
+	uint curcount, e;
 		
 	for(e=0, curcount=0; e < MAX_ENTITIES; ent++, e++) {
 		if(ent->bUsed)  {
