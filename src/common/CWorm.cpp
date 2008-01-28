@@ -648,7 +648,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
 	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
 
-	bool iChat_Typing = cClient->isTyping() != 0;
+	bool iChat_Typing = cClient->isTyping();
 
 	int y = t + 100;
 	for(i=0;i<iNumWeaponSlots;i++) {

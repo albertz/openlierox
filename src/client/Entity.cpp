@@ -89,9 +89,8 @@ void SpawnEntity(int type, int type2, CVec pos, CVec vel, Uint32 colour, SDL_Sur
 	}
 
 	// Find a free entity
-	register ushort e;
 	bool found = false;
-	for(e=0;e<MAX_ENTITIES;e++,ent++) {
+	for(int e = 0; e < MAX_ENTITIES; e++, ent++) {
 		if(!ent->bUsed) {
 			found = true;
 			break;
@@ -139,8 +138,8 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 	if (!iEntityCount)
 		return;
 
-	register entity_t *ent = tEntities;
-	static CVec end;
+	entity_t *ent = tEntities;
+	CVec end;
 
 	int wx = v->GetWorldX();
 	int wy = v->GetWorldY();
@@ -148,16 +147,16 @@ void DrawEntities(SDL_Surface *bmpDest, CViewport *v)
 	int t = v->GetTop();
 
 
-	static int x,y;
-	static int x2,y2;
-	ushort curcount,e;
+	int x,y;
+	int x2,y2;
+	int curcount, e;
 		
-	for(e=0,curcount=0; e<MAX_ENTITIES; ent++,e++) {
+	for(e=0, curcount=0; e < MAX_ENTITIES; ent++, e++) {
 		if(ent->bUsed)  {
 			curcount++;
 
-			x=((int)ent->vPos.x-wx)*2+l;
-			y=((int)ent->vPos.y-wy)*2+t;
+			x=((int)ent->vPos.x - wx)*2 + l;
+			y=((int)ent->vPos.y - wy)*2 + t;
 
 			// Clipping
 			if(ent->iType != ENT_BEAM && ent->iType != ENT_LASERSIGHT) {
@@ -260,9 +259,9 @@ void SimulateEntities(float dt, CMap *map)
 	uint OriginalCount = iEntityCount;
 	uint curcount = 0;
 
-	register entity_t *ent = tEntities;
+	entity_t *ent = tEntities;
 
-	for(ushort e=0; e<MAX_ENTITIES; e++,ent++) {
+	for(int e=0; e < MAX_ENTITIES; e++, ent++) {
 		if(!ent->bUsed)
 			continue;
 
@@ -292,7 +291,7 @@ void SimulateEntities(float dt, CMap *map)
 				}
 
 				// Check if the particle has hit the map
-				uchar pf = map->GetPixelFlag((uint)ent->vPos.x,(uint)ent->vPos.y);
+				uchar pf = map->GetPixelFlag((uint)ent->vPos.x, (uint)ent->vPos.y);
 
 				if((pf & (PX_ROCK|PX_DIRT))) {
 					ent->bUsed = false;

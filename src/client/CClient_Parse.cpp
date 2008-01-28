@@ -356,6 +356,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	RemoveSocketFromNotifierGroup( tSocket );
 
 	bGameReady = true;
+	bForceWeaponsReady = false;
 
 	int random = bs->readInt(1);
 

@@ -612,6 +612,12 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			if(!cLocalWorms[i]->getWeaponsReady()) {
 				ready = false;
 				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
+
+				// Forced to finish weapon selection
+				if (bForceWeaponsReady)  {
+					cLocalWorms[i]->setWeaponsReady(true);
+					ready = true;
+				}
 			}
 		}
 

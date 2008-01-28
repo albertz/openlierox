@@ -65,6 +65,7 @@ void CClient::Clear(void)
 	cChatList = NULL;
 	bmpIngameScoreBg = NULL;
 	bCurrentSettings = false;
+	bForceWeaponsReady = false;
 
 	tGameLog = NULL;
 	iLastVictim = -1;
@@ -146,6 +147,7 @@ void CClient::MinorClear(void)
     bViewportMgr = false;
 	bUpdateScore = true;
 	bCurrentSettings = false;
+	bForceWeaponsReady = false;
 
 	//fProjDrawTime = 0;
 	//fProjSimulateTime = 0;

@@ -227,6 +227,7 @@ public:
 		cIConnectedBuf = "";
 		iNetSpeed = 3;
 		fLastUpdateSent = -9999;
+		bForceWeaponsReady = false;
 
 		iMyPing = 0;
 		fMyPingRefreshed = 0;
@@ -303,6 +304,7 @@ private:
 	bool		bBonusesOn;
 	bool		bShowBonusName;
     CWpnRest    cWeaponRestrictions;
+	bool		bForceWeaponsReady;
 
 	// Ping below FPS
 	float		fMyPingSent;
@@ -682,6 +684,9 @@ public:
 	
 	bool		getSpectate()							{ return bSpectate; };
 	void		setSpectate( bool _b )					{ bSpectate = _b; };
+
+	bool		getForceWeaponsReady()					{ return bForceWeaponsReady; }
+	void		setForceWeaponsReady(bool _r)			{ bForceWeaponsReady = _r; }
 
 };
 

@@ -907,12 +907,17 @@ void GameServer::CheckWeaponSelectionTime()
 	{
 		// Kick retards who still mess with their weapons, we'll start on next frame
 		CClient *cl = cClients;
-		for(int c = 0; c < MAX_CLIENTS; c++, cl++) // Kicks the host too
+		for(int c = 0; c < MAX_CLIENTS; c++, cl++)
 		{
 			if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
 				continue;
 			if( cl->getGameReady() )
 				continue;
+			if( cl->getWorm(0) )
+				if( cl->getWorm(0)->getID() == 0)  {
+					cClient->setForceWeaponsReady(true); // Instead of kicking, force the host to make weapons ready
+					continue;
+				}
 			DropClient( cl, CLL_KICK, "selected weapons too long" );
 		};
 	};
