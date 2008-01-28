@@ -512,25 +512,17 @@ void GameServer::BeginMatch(void)
 		cClient->getRemoteWorms()[cWorms[i].getID()].setFlag(true);
 	}
 
-	if( this->bDedicated && !bDedicated )
+	if( this->bDedicated || bDedicated )
 	{
 		// Instantly kill local worm (leave the bots) - cannot do that in StartGame 'cause clients won't update lobby
-		// Don't do the killing if the game itself is in dedicated mode because in this case it could be that
-		// a local player has joined to his own dedicated server but from another instance of the game.
-		// HINT: It could also be that we are not in game dedicated mode but though are connection from another
-		// instance of the game (but doesn't make much sense). In this case we get wrongly kicked. I see atm no
-		// solution for this problem in a good server/client side architecture without any hacks. But if the whole
-		// code is once cleaned up, we don't need to kick the players anymore here at this time so it will also be
-		// solved then.
 		CWorm * w = cWorms;
 		for( i=0; i<MAX_WORMS ; i++, w++ ) 
 		{
 			if( ! w->isUsed() )
 				continue;
-			cout << "worm " << i << " is " << (w->getLocal() ? "" : "not ") << "local" << endl;
-			std::string addr;
-			NetAddrToString( w->getClient()->getChannel()->getAddress(), addr );
-			if( addr.find("127.0.0.1") == 0 && w->getType() == PRF_HUMAN )
+			//cout << "worm " << i << " is " << (w->getLocal() ? "" : "not ") << "local" << endl;
+			// Assume we always have one local client connected as client #0
+			if( w->getClient() == & cClients[0] && w->getType() == PRF_HUMAN )
 			{				
 				cout << "kill local worm " << i << endl;
 				// TODO: move this out here
