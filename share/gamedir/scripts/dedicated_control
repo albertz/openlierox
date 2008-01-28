@@ -1,5 +1,9 @@
 #!/bin/bash
 
+IFS='
+'
+
+CURDIR="`pwd`/`dirname $0`"
 
 function startlobby() {
 	echo "startlobby"
@@ -15,6 +19,14 @@ function msg() {
 
 function chatmsg() {
 	echo "chatmsg $1"
+}
+
+function setvar() {
+	echo "setvar $1 $2"
+}
+
+function sendlobbyupdate() {
+	echo "sendlobbyupdate"
 }
 
 function start_with_countdown() {
@@ -52,11 +64,31 @@ function signal_handler() {
 	done
 }
 
+preset=0
+
+function select_next_preset() {
+	p=0
+	for f in $CURDIR/presets/* ; do
+		if [ $p == $preset ] ; then
+			msg "Preset `basename $f`"
+			chatmsg "Preset `basename $f`"
+			. "$f"
+		fi
+		p=`expr $p '+' 1`
+	done
+	preset=`expr $preset '+' 1`
+	if [ $preset -ge $p ]; then
+		preset=0
+	fi
+	sendlobbyupdate
+}
+
 echo "getcomputerwormlist"
 
 startlobby
 
 while true; do
+	select_next_preset
 	start_with_countdown
 done
 

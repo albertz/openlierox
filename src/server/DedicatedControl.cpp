@@ -238,12 +238,17 @@ struct DedIntern {
 		if( varptr.b == NULL )
 		{
 			cout << "DedicatedControl: SetVar: no var with name " << var << endl;
+			cout << "Available vars:\n" << CScriptableVars::DumpVars() << endl;
 			return;
 		};
 		CScriptableVars::SetVarByString(varptr, value);
 		
 		cout << "DedicatedControl: SetVar " << var << " = " << value << endl;
 	}
+	
+	void Cmd_SendLobbyUpdate() {
+		cServer->UpdateGameLobby();
+	};
 
 	
 	void Cmd_StartLobby() {
@@ -305,11 +310,7 @@ struct DedIntern {
 		gl->nMaxKills = tLXOptions->tGameinfo.iKillLimit;
 		gl->nLoadingTime = tLXOptions->tGameinfo.iLoadingTime;
 		gl->bBonuses = tLXOptions->tGameinfo.bBonusesOn;
-		
-		Sig_LobbyStarted();
-	}
 
-	void Cmd_StartGame() {
 		tGameInfo.sModDir = "MW 1.0";
 		if(!CGameScript::CheckFile(tGameInfo.sModDir, tGameInfo.sModName)) {
 			cout << "ERROR: no mod for dedicated" << endl;
@@ -324,6 +325,11 @@ struct DedIntern {
 		tLXOptions->tGameinfo.sMapFilename = "CastleStrike.lxl";
 		tGameInfo.sMapFile = tLXOptions->tGameinfo.sMapFilename;
 		tGameInfo.sMapName = Menu_GetLevelName(tGameInfo.sMapFile);
+		
+		Sig_LobbyStarted();
+	}
+
+	void Cmd_StartGame() {
 
 		// Start the game
 		cServer->StartGame( true );	// start in dedicated mode
@@ -363,6 +369,8 @@ struct DedIntern {
 			Cmd_GetComputerWormList();
 		else if(cmd == "setvar")
 			Cmd_SetVar(params);
+		else if(cmd == "sendlobbyupdate")
+			Cmd_SendLobbyUpdate();
 		else
 			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}
@@ -466,4 +474,37 @@ void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
 
+static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.GameInfo")
+	( tGameInfo.iGameMode, "iGameMode" )
+	( tGameInfo.sModName,  "sModName" )
+	( tGameInfo.sMapFile, "sMapFile" )
+	( tGameInfo.sMapName, "sMapName" )
+	( tGameInfo.sModDir, "sModDir" )
+	( tGameInfo.iLoadingTimes, "iLoadingTimes" )
+	( tGameInfo.sServername, "sServername" )
+	( tGameInfo.sWelcomeMessage, "sWelcomeMessage" )
+	( tGameInfo.iLives, "iLives" )
+	( tGameInfo.iKillLimit, "iKillLimit" )
+	( tGameInfo.fTimeLimit, "fTimeLimit" )
+	( tGameInfo.iTagLimit, "iTagLimit" )
+	( tGameInfo.bBonusesOn, "bBonusesOn" )
+	( tGameInfo.bShowBonusName, "bShowBonusName" )
+	;
+
+/*
+// Generates segfault - not static vars
+static bool register_gamelobby_vars = CScriptableVars::RegisterVars("GameServer.GameLobby")
+	( cServer->getLobby()->nGameMode, "nGameMode" )
+	( cServer->getLobby()->nLives, "nLives" )
+	( cServer->getLobby()->nMaxWorms, "nMaxWorms" )
+	( cServer->getLobby()->nMaxKills, "nMaxKills" )
+	( cServer->getLobby()->nLoadingTime, "nLoadingTime" )
+	( cServer->getLobby()->bBonuses, "bBonuses" )
+	( cServer->getLobby()->szMapName, "szMapName" )
+	( cServer->getLobby()->szDecodedMapName, "szDecodedMapName" )
+	( cServer->getLobby()->szModName, "szModName" )
+	( cServer->getLobby()->szModDir, "szModDir" )
+	;
+*/
+	
 #endif
