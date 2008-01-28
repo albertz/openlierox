@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <stdexcept>
 #include <SDL_thread.h>
 
 #include "DedicatedControl.h"
@@ -26,6 +27,8 @@
 #include "Protocol.h"
 #include "CGuiSkin.h"
 
+//#define HAVE_BOOST // Uncomment this if you want to compile dedicated server for Win32 and have Boost headers installed.
+
 static DedicatedControl* dedicatedControlInstance = NULL;
 
 DedicatedControl* DedicatedControl::Get() { return dedicatedControlInstance; }
@@ -39,7 +42,7 @@ void DedicatedControl::Uninit() {
 	delete dedicatedControlInstance;
 }
 
-#if defined(WIN32) && defined(_MSC_VER) && (_MSC_VER <= 1200)
+#if ! defined(HAVE_BOOST) && defined(WIN32) && defined(_MSC_VER) && (_MSC_VER <= 1200)
 
 // Stubs - no dedicated server for Windows on MSVC6
 DedicatedControl::DedicatedControl() : internData(NULL) {}
@@ -62,6 +65,8 @@ void DedicatedControl::NewWorm_Signal(CWorm* w) {}
 struct pstream_pipe_t; // popen-streamed-ibrary independent wrapper (kinda)
 
 #ifdef WIN32
+// Install Boost headers for your compiler and #define HAVE_BOOST to compile dedicated server for Win32
+// You don't need to link to any lib to compile it, just headers.
 #include <boost/process.hpp> // This one header pulls turdy shitload of Boost headers
 struct pstream_pipe_t
 {
@@ -71,7 +76,7 @@ struct pstream_pipe_t
 	std::istream & out(){ return p->get_stdout(); };
 	std::istream & err(){ return p->get_stderr(); };
 	void close_in(){ p->get_stdin().close(); };
-	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
+	void open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
 		if(p) 
 			delete p;
@@ -81,8 +86,7 @@ struct pstream_pipe_t
 		ctx.m_stdin_behavior = boost::process::capture_stream(); // Pipe for win32
 		ctx.m_stdout_behavior = boost::process::capture_stream();
 		ctx.m_stderr_behavior = boost::process::capture_stream();
-		p = new boost::process::child(boost::process::launch(cmd, params, ctx));
-		return true;
+		p = new boost::process::child(boost::process::launch(cmd, params, ctx)); // Throws exception on error
 	};
 	~pstream_pipe_t(){ if(p) delete p; };
 };
@@ -99,7 +103,9 @@ struct pstream_pipe_t
 	{
 		if( params.size() == 0 )
 			params.push_back(cmd);
-		return p.open( cmd, params, redi::pstreams::pstdin|redi::pstreams::pstdout|redi::pstreams::pstderr );
+		p.open( cmd, params, redi::pstreams::pstdin|redi::pstreams::pstdout|redi::pstreams::pstderr );
+		if( p.error() != 0 )
+			throw std::runtime_error("Cannot execute command: " + cmd);
 	};
 };
 #endif
@@ -428,7 +434,7 @@ bool DedicatedControl::Init_priv() {
 	std::vector<std::string> commandArgs( 1, command );
 	
 	#ifdef WIN32
-	command = "scripts/msys/bin/bash.exe";
+	command = "msys/bin/bash.exe";
 	commandArgs.clear();
 	commandArgs.push_back(command);
 	commandArgs.push_back("-l");
@@ -438,9 +444,14 @@ bool DedicatedControl::Init_priv() {
 		
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
-	printf("DedicatedControl::Init_priv(): starting\n"); fflush(stdout);
-	
-	dedIntern->pipe.open(command, commandArgs);
+	try{
+		dedIntern->pipe.open(command, commandArgs);
+	}
+	catch( const std::exception & e )
+	{
+		printf("ERROR: cannot start dedicated server - cannot run: %s\n", command.c_str()); 
+		fflush(stdout);
+	};
 	dedIntern->pipe.in() << "hello world\n" << flush;
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
 	dedIntern->pipeThread = SDL_CreateThread(&DedIntern::pipeThreadFunc, NULL);
