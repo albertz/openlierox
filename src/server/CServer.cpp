@@ -143,43 +143,44 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 			ResetNetAddr( addr );
 			std::string STUNServer = tLXOptions->sSTUNServer;
 			int STUNPort = STUN_PORT;
-			if( STUNServer.find(":") != std::string::npos )
-			{
+			if( STUNServer.find(":") != std::string::npos )	{
 				STUNPort = atoi( STUNServer.substr( STUNServer.find(":")+1 ).c_str() );
 				STUNServer = STUNServer.substr( 0, STUNServer.find(":") );
-			};
+			}
 			
 			// resolving hostname
-			int count = 20;	// 2 secs
+			int count = 100;	// 2 secs
 			if( !GetNetAddrFromNameAsync( STUNServer, addr ) )
-			{
 				throw std::string("Error resolving hostname ") + tLXOptions->sSTUNServer;
-			};
-			while( !IsNetAddrValid(addr) && --count > 0 )
-			{
-				SDL_Delay(100);
+
+			while( !IsNetAddrValid(addr) && --count > 0 )  {
+				SDL_Delay(20);
 				// TODO: handle events here to response
-			};
-			if( count <= 0 ) throw std::string("Cannot resolve hostname ") + tLXOptions->sSTUNServer;
+			}
+
+			if( count <= 0 )
+				throw std::string("Cannot resolve hostname ") + tLXOptions->sSTUNServer;
 			SetNetAddrPort( addr, STUNPort );
 			SetRemoteNetAddr( tSocket, addr );
 			
 			// sendinq request
 			WriteSocket( tSocket, buf, len );
-			count = 20;	// 2 secs
-			while( ! isDataAvailable(tSocket) && --count > 0 )
-			{
-				SDL_Delay(100);
+			count = 100;	// 2 secs
+			while( ! isDataAvailable(tSocket) && --count > 0 )  {
+				SDL_Delay(20);
 				// TODO: handle events here to response
 				WriteSocket( tSocket, buf, len );
-			};
-			if( count <= 0 ) throw std::string("No responce from server");
+			}
+
+			if( count <= 0 )
+				throw std::string("No response from server");
 			len = ReadSocket( tSocket, buf, sizeof(buf) );
 			StunMessage resp;
 			memset(&resp, 0, sizeof(StunMessage));
-			if( ! stunParseMessage( buf, len, resp, false ) ) throw std::string("Wrong responce from server");
-			if( resp.hasMappedAddress )
-			{
+			if( ! stunParseMessage( buf, len, resp, false ) )
+				throw std::string("Wrong response from server");
+
+			if( resp.hasMappedAddress )	{
 				std::ostringstream os;
 				for(short i = 3; i >= 0; i--) {
 					os << (255 & (resp.mappedAddress.ipv4.addr >> i*8));
@@ -187,22 +188,18 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 				}
 				os << ":" << resp.mappedAddress.ipv4.port;
 				StringToNetAddr( os.str(), tSTUNAddress );
-				std::string s;
-				NetAddrToString( tSTUNAddress, s );
-				printf("HINT: STUN returned address: %s\n", s.c_str());
-			}
-			else
-			{
-				printf("HINT: STUN returned the same address, using default port number %i\n", port);
+				printf("HINT: STUN returned address: " + os.str() + "\n");
+			} else {
+				printf("HINT: STUN returned the same address, using default port number " + itoa(port) + "\n");
 				ResetNetAddr( tSTUNAddress );
-			};
+			}
 		}
 		catch( const std::string & s )
 		{
 			printf("HINT: STUN server failed: %s, using default port number %i\n", s.c_str(), port);
 			ResetNetAddr( tSTUNAddress );
-		};
-	};
+		}
+	}
 
 	// Initialize the clients
 	cClients = new CClient[MAX_CLIENTS];
@@ -710,17 +707,26 @@ void GameServer::RegisterServer(void)
 
 	// Create the url
 	std::string addr_name;
-	NetworkAddr addr;
 
-	if (!GetRemoteNetAddr(tSocket, addr))  // TODO: does not work! The server gets registered only because the master server finds out the IP by itself
-		printf("ERROR: Could not resolve the remote IP.\n");
-	NetAddrToString(addr, addr_name);
-
-	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
 	if (IsNetAddrValid( tSTUNAddress ))  {
 		NetAddrToString(tSTUNAddress, addr_name);
-		sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(GetNetAddrPort( tSTUNAddress )) + "&addr=" + addr_name;
+	} else  {
+		// We don't know the external IP, just use the local one
+		// Doesn't matter what IP we use because the masterserver finds it out by itself anyways
+		NetworkAddr addr;
+		GetLocalNetAddr(tSocket, addr);
+		NetAddrToString(addr, addr_name);
 	}
+
+	// Remove port from IP
+	size_t pos = addr_name.rfind(':');
+	if (pos != std::string::npos)
+		addr_name.erase(pos, std::string::npos);
+
+	// HINT: we don't use the port returned by STUN because it works only for people with cone NAT
+	// It's a rare case and then even people that enabled the LX port couldn't host
+	
+	sCurrentUrl = std::string(LX_SVRREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
 
     bServerRegistered = false;
 
@@ -749,7 +755,7 @@ void GameServer::ProcessRegister(void)
 
 	// Failed
 	case HTTP_PROC_ERROR:
-		notifyLog("Could not register with master server: %s", tHttp.GetError().sErrorMsg.c_str());
+		notifyLog("Could not register with master server: " + tHttp.GetError().sErrorMsg);
     break;
 
 	// Completed ok
@@ -1356,22 +1362,14 @@ void GameServer::unmuteWorm(const std::string& szWormName)
 
 ///////////////////
 // Notify the host about stuff
-void GameServer::notifyLog(char *fmt, ...)
+void GameServer::notifyLog(const std::string& msg)
 {
-    static char buf[512];
-	va_list	va;
-
-	va_start(va,fmt);
-	vsnprintf(buf,sizeof(buf),fmt,va);
-	fix_markend(buf);
-	va_end(va);
-
     // Local hosting?
     // Add it to the clients chatbox
     if(cClient) {
         CChatBox *c = cClient->getChatbox();
         if(c)
-            c->AddText(buf, MakeColour(200,200,200), tLX->fCurTime);
+            c->AddText(msg, tLX->clNetworkText, tLX->fCurTime);
     }
 
 }

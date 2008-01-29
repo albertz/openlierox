@@ -153,7 +153,7 @@ public:
 	int			StartServer(const std::string& name, int port, int maxplayers, bool regserver);
 	void		Shutdown(void);	
 
-    void        notifyLog(char *fmt, ...);
+    void        notifyLog(const std::string& msg);
 
 	// Game
 	void		Frame();

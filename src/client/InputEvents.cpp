@@ -86,6 +86,9 @@ static void ResetCurrentEventStorage() {
 // TODO: though the whole architecture has to be changed later
 // but then also GetEvent() has to be changed or removed
 static void HandleNextEvent() {
+	if (tLX == NULL)
+		return;
+
 	switch(Event.type) {
 	
 	// Quit event
