@@ -124,7 +124,7 @@ struct pstream_pipe_t
 		if( params.size() == 0 )
 			params.push_back(cmd);
 		p.open( cmd, params, redi::pstreams::pstdin | redi::pstreams::pstdout ); // we don't grap the stderr, it should directly be forwarded to console
-		return p.error() != 0;
+		return p.rdbuf()->error() != 0;
 	};
 };
 #endif
