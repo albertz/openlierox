@@ -8,13 +8,17 @@
  */
 
 // define HAVE_BOOST if you want to compile dedicated server for Win32 and have Boost headers installed.
+//#define HAVE_BOOST
 
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <stdexcept>
 #include <SDL_thread.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
+
 
 #include "DedicatedControl.h"
 #include "LieroX.h"
@@ -43,14 +47,16 @@ void DedicatedControl::Uninit() {
 	delete dedicatedControlInstance;
 }
 
-#if ! defined(HAVE_BOOST) && defined(WIN32) && defined(_MSC_VER) && (_MSC_VER <= 1200)
+#if ( ! defined(HAVE_BOOST) && defined(WIN32) ) || ( defined(_MSC_VER) && (_MSC_VER <= 1200) )
 
 // Stubs - no dedicated server for Windows on MSVC6
 DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() {	}
 
 bool DedicatedControl::Init_priv() {
-	printf("ERROR: DedicatedControl cannot work as we haven't found an alternative to PStreams for Windows yet\n");
+	// TODO: maybe pop up messagebox here?
+	printf("ERROR: Dedicated server is not compiled into this version of OpenLieroX\n");
+	fflush(stdout);
 	return false;
 }
 
@@ -75,10 +81,10 @@ struct pstream_pipe_t
 	pstream_pipe_t(): p(NULL) {};
 	std::ostream & in(){ return p->get_stdin(); };
 	std::istream & out(){ return p->get_stdout(); };
-	std::istream & err(){ return p->get_stderr(); };
+	//std::istream & err(){ return p->get_stderr(); };
 	void close_in(){ p->get_stdin().close(); };
 	void close() { close_in(); }
-	void open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
+	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
 		if(p) 
 			delete p;
@@ -87,8 +93,16 @@ struct pstream_pipe_t
 		boost::process::context ctx;
 		ctx.m_stdin_behavior = boost::process::capture_stream(); // Pipe for win32
 		ctx.m_stdout_behavior = boost::process::capture_stream();
-		ctx.m_stderr_behavior = boost::process::capture_stream();
-		p = new boost::process::child(boost::process::launch(cmd, params, ctx)); // Throws exception on error
+		ctx.m_stderr_behavior = boost::process::close_stream(); // we don't grap the stderr, it should directly be forwarded to console
+		try
+		{
+			p = new boost::process::child(boost::process::launch(cmd, params, ctx)); // Throws exception on error
+		}
+		catch( const std::exception & e )
+		{
+			return false;
+		};
+		return true;
 	};
 	~pstream_pipe_t(){ if(p) delete p; };
 };
@@ -99,17 +113,18 @@ struct pstream_pipe_t
 	redi::pstream p;
 	std::ostream & in(){ return p; };
 	std::istream & out(){ return p.out(); };
-	std::istream & err(){ return p.err(); };
+	//std::istream & err(){ return p.err(); };
 	void close_in(){ p << redi::peof; };
 	void close() {
 		close_in();
 		// TODO: this should close the process that pipeThread will stop
 	}
-	void open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
+	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
 	{
 		if( params.size() == 0 )
 			params.push_back(cmd);
 		p.open( cmd, params, redi::pstreams::pstdin | redi::pstreams::pstdout ); // we don't grap the stderr, it should directly be forwarded to console
+		return p.error() != 0;
 	};
 };
 #endif
@@ -180,10 +195,12 @@ struct DedIntern {
 	// reading lines from stdin and put them to pipeOutput
 	static int stdinThreadFunc(void*) {
 		DedIntern* data = Get();
-			
+		
+		#ifndef WIN32	
 		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
 			cout << "ERROR setting standard input into non-blocking mode" << endl;
-
+		#endif
+		
 		while(true) {			
 			string buf;
 			while(true) {
@@ -459,6 +476,7 @@ bool DedicatedControl::Init_priv() {
 	
 	#ifdef WIN32
 	// TODO: does this also works if scriptfn is not a bash-script? I want to change it later to Python
+	// The intention was to execute correct program from bash script, Windows doesn't recognize ".py" files as executables.
 	command = "msys/bin/bash.exe";
 	commandArgs.clear();
 	commandArgs.push_back(command);
@@ -469,10 +487,7 @@ bool DedicatedControl::Init_priv() {
 		
 	DedIntern* dedIntern = new DedIntern;
 	internData = dedIntern;
-	try{
-		dedIntern->pipe.open(command, commandArgs);
-	}
-	catch( const std::exception & e )
+	if( ! dedIntern->pipe.open(command, commandArgs) )
 	{
 		printf("ERROR: cannot start dedicated server - cannot run: %s\n", command.c_str()); 
 		fflush(stdout);
