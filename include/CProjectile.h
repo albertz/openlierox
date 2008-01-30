@@ -146,7 +146,7 @@ public:
 		iSpawnPrjTrl = false;
 		iColour = 0;
 		iRandom = 0;
-		iRemote = false;
+		bRemote = false;
         nExplode = false;
         nTouched = false;
         fRotation = 0;
@@ -180,7 +180,7 @@ private:
 
 	// Network
 	int			iRandom;
-	int			iRemote;
+	bool		bRemote;
 	float		fRemoteFrameTime;
 
 	// Animation
@@ -206,7 +206,7 @@ public:
 	// Methods
 	
 
-	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, int _remote, float _remoteframe);	
+	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, bool _remote, float _remoteframe);	
 	int		Simulate(float dt, CMap *map, CWorm *worms, int *wormid);
 	int		Collision(uchar pf);
 
@@ -243,6 +243,8 @@ public:
 
     void    setExplode(float t, int _e)     { fExplodeTime = t; nExplode = _e; }
     void    setTouched(int _t)      { nTouched = _t; }
+
+	bool	isRemote()				{ return bRemote; }
 
 
 };

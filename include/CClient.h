@@ -482,7 +482,7 @@ public:
 
 	void		BotSelectWeapons(void);
 
-	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, int _remote, float remotetime);
+	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, bool _remote, float remotetime);
     void        disableProjectile(CProjectile *prj);
 	void		SimulateProjectiles(float dt);
 	void		Explosion(CVec pos, int damage, int shake, int owner);
@@ -648,6 +648,9 @@ public:
 
 	int	getPing(void)						{ return cNetChan.getPing(); }
 	void setPing(int _p)					{ cNetChan.setPing(_p); }
+
+	// Use only when iGameType == GME_JOIN
+	int getMyPing()							{ return iMyPing; }
 
 	void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
 	const std::string& getServerAddress(void)		{ return strServerAddr; }

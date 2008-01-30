@@ -301,7 +301,10 @@ void CClient::SimulateProjectiles(float dt)
 
 		// Simulate the projectile
         wormid = -1;
-        result = prj->Simulate(dt, cMap, cRemoteWorms, &wormid);
+		if (prj->isRemote()) // If this is a remote projectile, simulate the first frame with ping
+			result = prj->Simulate((float)iMyPing/1000.0f + dt, cMap, cRemoteWorms, &wormid);
+		else
+			result = prj->Simulate(dt, cMap, cRemoteWorms, &wormid);
 
         /*
         ===================
@@ -987,7 +990,7 @@ void CClient::DrawBeam(CWorm *w)
 
 ///////////////////
 // Spawn a projectile
-void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, int _remote, float remotetime)
+void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, bool _remote, float remotetime)
 {
 	CProjectile *proj = cProjectiles;
 	int p=0;

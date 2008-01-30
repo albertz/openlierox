@@ -230,7 +230,10 @@ bool CWorm::checkPacketNeeded()
 }*/
 
 void CWorm::net_updatePos(const CVec& newpos) {
-	if(tLX->fCurTime - fLastPosUpdate > 0.0001f) {
+	if (!cGameScript)
+		return;
+
+	if(tLX->fCurTime - fLastPosUpdate > 0.05f) {
 		float t = tLX->fCurTime - fLastPosUpdate;
 		CVec estimatedVel;
 		
@@ -248,6 +251,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 		}
 		else
 		{
+
 			// Approximate with current velocity and add gravity
 			CVec dist = newpos - vOldPosOfLastPaket;
 			CVec a(0, 0);
@@ -255,18 +259,25 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			const gs_worm_t *wd = cGameScript->getWorm();
 			// Air drag (Mainly to dampen the ninja rope)
 			float Drag = wd->AirFriction;
-		
+
+
 			if(!bOnGround)	{
 				// TODO: this is also not exact
 				CVec preEstimatedVel = (newpos - vOldPosOfLastPaket) / t;
 				a.x -= SQR(preEstimatedVel.x) * SIGN(preEstimatedVel.x) * Drag;
 				a.y -= SQR(preEstimatedVel.y) * SIGN(preEstimatedVel.y) * Drag;
 			}
+
+			if (cNinjaRope.isAttached())  {
+				a += cNinjaRope.GetForce(newpos);
+			}
 		
 			// Gravity
 			a.y += wd->Gravity;
 		
 			estimatedVel = (dist / t) + (a * t / 2);
+
+			bOnGround = CheckOnGround();
 
 			// Ultimate in friction
 			if(bOnGround) {
@@ -278,12 +289,27 @@ void CWorm::net_updatePos(const CVec& newpos) {
 //				if(fabs(estimatedVel.x) < 5 && !ws->iMove)
 //					estimatedVel.x = 0;
 			}
-		};
+
+			// Process the moving
+			float speed = bOnGround ? wd->GroundSpeed : wd->AirSpeed;
+			if(tState.iMove) {
+				if(iDirection == DIR_RIGHT) {
+					// Right
+					if(estimatedVel.x < 30)
+						estimatedVel.x += speed * 90.0f * t;
+				} else {
+					// Left
+					if(estimatedVel.x > -30)
+						estimatedVel.x -= speed * 90.0f * t;
+				}
+			}
+		}
 		
 		//vVelocity = (vVelocity + estimatedVel) / 2;
 		//vVelocity = CVec(0,0); // temp hack
 		vVelocity = estimatedVel;
-	
+			
+
 		fLastPosUpdate = tLX->fCurTime;
 		vOldPosOfLastPaket = newpos;
 	}
@@ -298,7 +324,6 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	// Position and velocity
 	short x, y;
 	bs->read2Int12( x, y );
-	net_updatePos( CVec(x, y) );
 
 	// Angle
 	fAngle = (float)bs->readInt(1) - 90;
@@ -338,6 +363,9 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap()) 
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
 			tState.iCarve = true;
+
+	// Interpolation
+	net_updatePos( CVec(x, y) );
 
 	// Prevent a wall hack
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())  {
@@ -388,7 +416,6 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
-	net_updatePos( CVec(x, y) );
 
 	// Angle
 	tState.iAngle = bs->readInt(1) - 90;
@@ -419,12 +446,15 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		iCurrentWeapon = 0;
 	}
 
+	// Update the position
+	net_updatePos( CVec(x, y) );
+
 	// Velocity
 	if(tState.iShoot) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
-	}	
+	}
 }
 
 	

@@ -26,7 +26,7 @@
 
 ///////////////////
 // Spawn the projectile
-void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, int _remote, float _remotetime)
+void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, bool _remote, float _remotetime)
 {
 	tProjInfo = _proj;
 	fLife = 0;
@@ -40,12 +40,12 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	iSpawnPrjTrl = false;
 	fLastTrailProj = -99999;
 	iRandom = _random;
-	iRemote = _remote;
+	bRemote = _remote;
     iFrameX = 0;
 
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 
-	if(iRemote)
+	if(bRemote)
 		fRemoteFrameTime = _remotetime;
 
 	// this produce a memory leak
@@ -92,17 +92,19 @@ int CProjectile::Simulate(float dt, CMap *map, CWorm *worms, int *wormid)
 	int res = PJC_NONE;
 
 	// If this is a remote projectile, the first frame is simulated with a longer delta time
-	if(iRemote) {
-		iRemote = false;
+	// HINT: replaced with ping simulation, see CClient_Game.cpp, line 304
+	/*if(bRemote) {
+		bRemote = false;
 
 		// Only do it for a positive delta time
 		if(fRemoteFrameTime>0) {
 			res = Simulate(fRemoteFrameTime, map,worms,wormid);
-            /*if( res != PJC_NONE )
-				return res;*/
+            //if( res != PJC_NONE )
+			//	return res;
 			return res;
 		}
-	}
+	}*/
+	bRemote = false;
 	
 	// Check for collisions
 	// ATENTION: dt will manipulated directly here!
@@ -270,13 +272,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	static const int WORM_CHECKSTEP = 2; // this is used for worm collisions
 	int len = (int)vVelocity.GetLength2();
 	
-	// HINT: this prevents napalms and similar stuff from flying through walls (serious bug)
+	// HINT: this prevents napalms and similar stuff from flying through walls (see TODO according to MIN_CHECKSTEP below)
 	if (tProjInfo->Dampening <= 1) // This rule does not apply to "accelerating" projectiles
 		len = MIN(tProjInfo->ProjSpeed + (int)(tProjInfo->ProjSpeedVar * iRandom), len);
 
 	
 	if (len < 14000)  {
-		MIN_CHECKSTEP = 1;
+		MIN_CHECKSTEP = 0;
 		MAX_CHECKSTEP = 3;
 		AVG_CHECKSTEP = 2;
 	} else if (len >= 14000 && len < 75000)  {
@@ -363,11 +365,16 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	}
 	
 	// if distance is to short to last check, just return here without a check
+	// TODO: this is not so good because if the projectile is flying quite slow
+	// and is already in wall, the collision check won't be made at all and the
+	// projectile will simply fly through
+	// I "fixed" this by setting MIN_CHECKSTEP to 0 for slow projectiles but it would
+	// be nicer to have it correct
 	if( (vOldPos-vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP )
 		return NONE_COL_RET;
 
 	CollisionSide = 0;
-	static short top,bottom,left,right;
+	short top,bottom,left,right;
 	top=bottom=left=right=0;
 
 	// Hit edges

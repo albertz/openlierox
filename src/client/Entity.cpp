@@ -255,6 +255,8 @@ void SimulateEntities(float dt, CMap *map)
 		printf("WARNING. SimulateEntities gots no map\n");
 		return;
 	}
+
+	float realdt = tLX->fRealDeltaTime;
 	
 	uint OriginalCount = iEntityCount;
 	uint curcount = 0;
@@ -272,7 +274,7 @@ void SimulateEntities(float dt, CMap *map)
 		switch(ent->iType) {
 
 			case ENT_GIB:			
-				ent->iRotation += (int) (ent->fAnglVel * dt);
+				ent->iRotation += (int) (ent->fAnglVel * realdt);
 				ent->iRotation %= 5;
 			
 			// Fallthrough
@@ -311,7 +313,7 @@ void SimulateEntities(float dt, CMap *map)
 
 						// Giblet
 						case ENT_GIB:
-							if(ent->vVel.GetLength2() > 25600)  {
+							if((int)ent->vVel.GetLength2() > 25600)  {
 								EntityBounce(ent);
 								ent->bUsed = true; // Still alive
 							}
@@ -335,7 +337,7 @@ void SimulateEntities(float dt, CMap *map)
 
 			// Explosion
 			case ENT_EXPLOSION:
-				ent->fFrame += dt*40;
+				ent->fFrame += realdt * 40;
 				if(ent->fFrame > 15) ent->bUsed = false;
 				break;
 
@@ -343,32 +345,32 @@ void SimulateEntities(float dt, CMap *map)
 			case ENT_SMOKE:
 				// Fallthrough
 			case ENT_CHEMSMOKE:
-				ent->fFrame += dt*15;
+				ent->fFrame += realdt * 15;
 				if((int)ent->fFrame > 4) ent->bUsed = false;
 				break;
 
 			// Doomsday
 			case ENT_DOOMSDAY:
-				ent->fFrame += dt*15;
+				ent->fFrame += realdt * 15;
 				if((int)ent->fFrame > 3) ent->bUsed = false;
 				break;
 
 			// Spawn
 			case ENT_SPAWN:
-				ent->fFrame += dt*15;
+				ent->fFrame += realdt * 15;
 				if((int)ent->fFrame > 5) ent->bUsed = false;
 				break;
 
 			// Sparkle
 			case ENT_SPARKLE:
-				ent->vPos = ent->vPos + CVec(0,5.0f*dt);
-				ent->fFrame += dt*5;
+				ent->vPos = ent->vPos + CVec(0, 5.0f * dt);
+				ent->fFrame += realdt * 5;
 				if((int)ent->fFrame > 2) ent->bUsed = false;
 				break;
 
 			// Jetpack Spray
 			case ENT_JETPACKSPRAY:
-				ent->fFrame += dt*200;
+				ent->fFrame += realdt * 200;
 				if((int)ent->fFrame > 150) ent->bUsed = false;
 				break;
 
