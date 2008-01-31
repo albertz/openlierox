@@ -277,8 +277,6 @@ void CWorm::net_updatePos(const CVec& newpos) {
 		
 			estimatedVel = (dist / t) + (a * t / 2);
 
-			bOnGround = CheckOnGround();
-
 			// Ultimate in friction
 			if(bOnGround) {
 				// HINT: also this isn't exact (it would be like it's only one frame)
