@@ -1521,7 +1521,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			//SendText( newcl, OldLxCompatibleString("Game in progress. Press \"Ready\" to connect."), TXT_NETWORK );
 			newcl->setStatus(NET_ZOMBIE);	// Do not send any worm updates to client
 			newcl->setConnectingDuringGame(true);
-			Timer( &timerClientSendsReadyAutomatically, newcl, 200, true ).startHeadless();
+			Timer( &timerClientSendsReadyAutomatically, newcl, 700, true ).startHeadless();
 		}
 	}
 }
