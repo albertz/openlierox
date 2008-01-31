@@ -31,6 +31,7 @@
 #include "Error.h"
 #include "Entity.h"
 #include "MathLib.h"
+#include "EndianSwap.h"
 
 using namespace std;
 
@@ -171,6 +172,36 @@ void CClient::ParseConnected(CBytestream *bs)
 	//bHostOLXb3 = false;
 	//bHostOLXb4 = false;
 	bHostAllowsMouse = false;
+	
+	if( tLXOptions->bRecordDemo && ! getDemoReplay() )
+	{
+		char curdate[200];
+		time_t t;
+		struct tm *t1;
+		t = time(NULL);
+		t1 = localtime(&t);
+		strftime(curdate, sizeof(curdate), "%y-%m-%d-%H-%M", t1);
+		std::string fname = "demos/d";
+		fname += curdate;
+		fname += "-";
+		std::string serverName = getServerName();
+		if( tGameInfo.iGameType == GME_HOST )
+			serverName = cServer->getName();
+		const char * validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz" "0123456789" ".- _&+";
+		for( uint f=0; f<serverName.size(); f++ )
+			if( serverName.find_first_of( validChars, f) != f )
+				serverName[f] = '-';
+		fname += serverName;
+		fname += ".OLXdemo";
+		cDemoRecordFile = OpenGameFile( fname, "w" );
+		if( ! cDemoRecordFile )
+		{
+			printf("Demofile error: cannot open for writing file %s\n", fname.c_str() );
+			return;
+		};
+		uchar iDemoFileVersion = 0;	// Will probably change in Hirudo
+		fwrite( &iDemoFileVersion, sizeof(iDemoFileVersion), 1, cDemoRecordFile );
+	};
 }
 
 //////////////////
@@ -201,6 +232,24 @@ void CClient::ParsePong(void)
 // Parse a packet
 void CClient::ParsePacket(CBytestream *bs)
 {
+	// Save packet to demofile
+	if( ! bDemoReplay && cDemoRecordFile )
+	{
+		uint pos = bs->GetPos();
+		float curtime = tLX->fCurTime;
+		Uint16 size = bs->GetRestLen(), size1=size;
+		if( size > 0 )
+		{
+			EndianSwap(curtime);
+			EndianSwap(size1);
+			fwrite( &curtime, sizeof(curtime), 1, cDemoRecordFile );
+			fwrite( &size1, sizeof(size1), 1, cDemoRecordFile );
+			fwrite( bs->readData(size).c_str(), size, 1, cDemoRecordFile );
+			bs->ResetPosToBegin();
+			bs->Skip(pos);
+		};
+	};
+	
 	uchar cmd;
 
 	while(!bs->isPosAtEnd()) {
@@ -627,6 +676,9 @@ void CClient::ParseStartGame(CBytestream *bs)
 	// Re-initialize the ingame scoreboard
 	InitializeIngameScore(false);
 	bUpdateScore = true;
+
+	if( bDemoReplay )	// Set local worm lives to WRM_OUT so we'll go to spectator mode automatically
+		cLocalWorms[0]->setLives(WRM_OUT);
 }
 
 
@@ -1424,6 +1476,9 @@ void CClient::ParseUpdateStats(CBytestream *bs)
 
 	short oldnum = num;
 	num = (byte)MIN(num,MAX_PLAYERS);
+
+	if( bDemoReplay )
+		num = 0;	// Just skip stats
 
 	// For death logging
 	// TODO: not used

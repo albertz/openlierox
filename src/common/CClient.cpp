@@ -29,6 +29,7 @@
 #ifdef DEBUG
 #include "MathLib.h"
 #endif
+#include "EndianSwap.h"
 
 
 ///////////////////
@@ -131,6 +132,10 @@ void CClient::Clear(void)
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
 	bSpectate = false;
+	if( cDemoRecordFile != NULL )
+		fclose( cDemoRecordFile );
+	cDemoRecordFile = NULL;
+	bDemoReplay = false;
 }
 
 
@@ -514,6 +519,59 @@ void CClient::ReadPackets(void)
 {
 	CBytestream		bs;
 
+	if( bDemoReplay && cDemoRecordFile )
+	{
+		if( fDemoReplayNextPacketTime <= tLX->fCurTime + fDemoReplayStartTime )
+		{
+			Uint16 size;
+			if( ! fread( &size, sizeof(size), 1, cDemoRecordFile ) )
+			{
+				printf("Error in demofile: unexpected end - no size\n");
+				Initialize();
+				tMenu->iMenuType = MNU_LOCAL;
+				Menu_LocalInitialize();
+				return;
+			};
+			EndianSwap(size);
+			enum { PACKET_MAX = 4096 };
+			char buf[PACKET_MAX];
+			if( size > PACKET_MAX )
+			{
+				printf("Error in demofile: packet size too big\n");
+				Initialize();
+				tMenu->iMenuType = MNU_LOCAL;
+				Menu_LocalInitialize();
+				return;
+			};
+			if( size > 0 )
+			{
+				if( ! fread( buf, size, 1, cDemoRecordFile ) )
+				{
+					printf("Error in demofile: unexpected end - no packet data\n");
+					Initialize();
+					tMenu->iMenuType = MNU_LOCAL;
+					Menu_LocalInitialize();
+					return;
+				};
+				bs.writeData( std::string( buf, size ) );
+			};
+		
+			if( ! fread( &fDemoReplayNextPacketTime, sizeof(fDemoReplayNextPacketTime), 1, cDemoRecordFile ) )
+			{
+				printf("Demofile end - replay finished\n");
+				Initialize();
+				tMenu->iMenuType = MNU_LOCAL;
+				Menu_LocalInitialize();
+				return;
+			};
+			EndianSwap(fDemoReplayNextPacketTime);
+			ParsePacket(&bs);
+			if( iNetStatus != NET_PLAYING || bGameOver )	// Skip lobby and gameover screen, goto instant action
+				fDemoReplayStartTime = fDemoReplayNextPacketTime - tLX->fCurTime;	// TODO: gameover screen not skipped
+		};
+		return;
+	};
+	
 	while(bs.Read(tSocket)) {
 		// each bs.Read reads the next UDP packet and resets the bs
 		// UDP is packet-based that means, we will only get single packages, no stream
@@ -558,6 +616,8 @@ void CClient::ReadPackets(void)
 void CClient::SendPackets(void)
 {
 
+	if( bDemoReplay )
+		return;
 	// So we don't flood packets out to server
 	/*fSendWait += tLX->fDeltaTime;
 	if(fSendWait < 0.5)  {
@@ -1187,3 +1247,45 @@ void CClient::processFileRequests()
 	};
 };
 
+void CClient::StartDemoReplay(const std::string & filename)
+{
+	Initialize();
+	bDemoReplay = true;
+	bSpectate = true;
+
+	cDemoRecordFile = OpenGameFile( filename, "r" );
+	if( cDemoRecordFile == NULL )
+	{
+		printf("Error in demofile: cannot open file %s\n", filename.c_str());
+		Initialize();
+		tMenu->iMenuType = MNU_LOCAL;
+		Menu_LocalInitialize();
+		return;
+	};
+	uchar iDemoFileVersion;
+	if( ! fread( &iDemoFileVersion, sizeof(iDemoFileVersion), 1, cDemoRecordFile ) ||
+		! fread( &fDemoReplayNextPacketTime, sizeof(fDemoReplayNextPacketTime), 1, cDemoRecordFile ) )
+	{
+		printf("Error in demofile: empty file %s\n", filename.c_str());
+		Initialize();
+		tMenu->iMenuType = MNU_LOCAL;
+		Menu_LocalInitialize();
+		return;
+	};
+	if( iDemoFileVersion != 0 )
+	{
+		printf("Error in demofile: wrong version %i should be 0\n", (uint)iDemoFileVersion);
+		Initialize();
+		tMenu->iMenuType = MNU_LOCAL;
+		Menu_LocalInitialize();
+		return;
+	};
+	EndianSwap(fDemoReplayNextPacketTime);
+	fDemoReplayStartTime = fDemoReplayNextPacketTime - tLX->fCurTime;
+
+	tProfiles[0] = tGameInfo.cPlayers[0] = FindProfile(0);	// Any valid profile
+	iNumWorms = 1;
+	CBytestream bs;
+	bs.writeByte(MAX_WORMS-1);	// TODO: if 32 worms are playing in demo the last one will be invisible
+	ParseConnected(&bs);
+};

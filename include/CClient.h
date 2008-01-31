@@ -254,6 +254,8 @@ public:
 		bMapDlError = false;
 		sMapDlError = "";
 		iMapDlProgress = 0;
+		cDemoRecordFile = NULL;
+		bDemoReplay = false;
 	}
 
 	~CClient()  {
@@ -445,6 +447,10 @@ private:
 	std::string	sSpectatorViewportMsg;
 	float		fSpectatorViewportMsgTimeout;
 	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
+	FILE *		cDemoRecordFile;
+	bool		bDemoReplay;
+	float		fDemoReplayStartTime;
+	float		fDemoReplayNextPacketTime;
 	
 private:
 	void		SendTextInternal(const std::string& sText, const std::string& sWormName);
@@ -545,6 +551,7 @@ public:
 	void		SendText(const std::string& sText, std::string sWormName);
 	void		Disconnect(void);
 	int			OwnsWorm(CWorm *w);
+	void		StartDemoReplay(const std::string& filename);
 
 	// Sending
 	void		SendWormDetails(void);
@@ -690,6 +697,9 @@ public:
 
 	bool		getForceWeaponsReady()					{ return bForceWeaponsReady; }
 	void		setForceWeaponsReady(bool _r)			{ bForceWeaponsReady = _r; }
+	
+	bool		getDemoReplay()							{ return bDemoReplay; };
+	void		setDemoReplay( bool _b )				{ bDemoReplay = _b; };
 
 };
 

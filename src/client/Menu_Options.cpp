@@ -82,6 +82,7 @@ enum {
 	og_SendDirtUpdate,
 	og_AllowFileDownload,
 	og_AllowConnectDuringGame,
+	og_RecordDemo,
 	og_ShowUnstableFeatures
 };
 
@@ -377,6 +378,9 @@ bool Menu_OptionsInitialize(void)
 
 	if( tLXOptions->bShowUnstableFeatures )
 	{
+		cOpt_Game.Add( new CLabel("Record demos of all games",tLX->clNormalLabel), Static, 330, 210, 0,0);
+		cOpt_Game.Add( new CCheckbox(tLXOptions->bRecordDemo),og_RecordDemo, 550, 210, 17,17);
+
 		cOpt_Game.Add( new CLabel("Server allows connect during game",tLX->clNormalLabel), Static, 330, 240, 0,0);
 		cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowConnectDuringGame),og_AllowConnectDuringGame, 550, 240, 17,17);
 
@@ -650,6 +654,11 @@ void Menu_OptionsFrame(void)
 				case og_AllowConnectDuringGame:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bAllowConnectDuringGame = cOpt_Game.SendMessage(og_AllowConnectDuringGame, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					break;
+				
+				case og_RecordDemo:
+					if(ev->iEventMsg == CHK_CHANGED)
+						tLXOptions->bRecordDemo = cOpt_Game.SendMessage(og_RecordDemo, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 					
 				case og_ShowUnstableFeatures:
