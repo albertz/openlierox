@@ -17,6 +17,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <time.h>
 
 #include "LieroX.h"
 #include "CClient.h"
