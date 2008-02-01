@@ -194,7 +194,7 @@ void CClient::ParseConnected(CBytestream *bs)
 				serverName[f] = '-';
 		fname += serverName;
 		fname += ".OLXdemo";
-		cDemoRecordFile = OpenGameFile( fname, "w" );
+		cDemoRecordFile = OpenGameFile( fname, "wb" );
 		if( ! cDemoRecordFile )
 		{
 			printf("Demofile error: cannot open for writing file %s\n", fname.c_str() );
