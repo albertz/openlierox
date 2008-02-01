@@ -17,10 +17,11 @@ if [ \! -e ../../bin/openlierox ] ; then echo Compile failed - no binary ../../b
 echo Creating debian package
 # Copying data
 if [ -e pkg ] ; then rm -rf pkg ; fi
+mkdir pkg
+svn export bin/usr pkg/usr
 mkdir -p pkg/usr/games
 cp ../../bin/openlierox pkg/usr/games
 strip pkg/usr/games/openlierox
-svn export bin/share pkg/usr/share
 cp ../../share/OpenLieroX.svg pkg/usr/share/pixmaps
 cp ../../share/OpenLieroX.xpm pkg/usr/share/pixmaps
 find ../../doc -maxdepth 1 -type "f" -exec cp {} pkg/usr/share/doc/openlierox \;

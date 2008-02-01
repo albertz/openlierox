@@ -74,6 +74,7 @@ IpToCountryDB *tIpToCountryDB = NULL;
 
 CVec		vGravity = CVec(0,4);
 
+std::string	sDemoFileFromCommandLine("");
 
 //
 // Loading screen info and functions
@@ -282,8 +283,7 @@ startpoint:
 
 		startgame = false; // the menu has a reference to this variable
 
-		// Start the menu
-		Menu_Start();
+		Menu_Start();	// Start the menu
 		
 		if(startgame) {
 			// Start the game
@@ -399,6 +399,11 @@ void ParseArguments(int argc, char *argv[])
         // Turns fullscreen on
         if( stricmp(a, "-fullscreen") == 0 ) {
             tLXOptions->bFullscreen = true;
+        } else
+
+		// Load demofile from commandline
+        if( strlen(a) > 8 && stringcaserfind(a, ".OLXdemo") == strlen(a)-8 ) {
+			sDemoFileFromCommandLine = a;
         } else
         
 		// -help

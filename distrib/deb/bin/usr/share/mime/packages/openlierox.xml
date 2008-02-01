@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-openlierox-demo">
+    <comment xml:lang="en">OpenLieroX game demo</comment>
+    <glob pattern="*.OLXdemo"/>
+  </mime-type>
+</mime-info>

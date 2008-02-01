@@ -20,6 +20,7 @@ and got OpenLieroX.
 
 .B openlierox
 .I [options]
+.I [demofile.OLXdemo]
 
 .SH OPTIONS
 
@@ -49,6 +50,9 @@ Disables sound output.
 Enables dedicated mode - no graphics or sound initialized, OpenLieroX runs as standalone console process. 
 The file 'scripts/dedicated_control' is executed by OpenLieroX - this file is CGI-like script which operates the OpenLieroX server. 
 It is located in default directory '/usr/share/games/OpenLieroX' , but may be overridden by user as '~/.OpenLieroX/scripts/dedicated_control'.
+.TP
+.B demofile.OLXdemo
+If specified demo file on command line OpenLieroX will immediately start playback after loading. File should have extension .OLXdemo to be recognized as demo file.
 .PP
 Configuration file name is '~/.OpenLieroX/cfg/options.cfg'.
 

@@ -681,8 +681,6 @@ void Menu_LocalStartGame(void)
 
 void Menu_LocalStartDemoReplay(const std::string & fname)
 {
-	//*bGame = true;
-	//tMenu->bMenuRunning = false;
 	tGameInfo.iGameType = GME_JOIN;
 	cClient->StartDemoReplay(fname);
 	cLocalMenu.Shutdown();

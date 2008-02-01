@@ -277,6 +277,12 @@ void Menu_Start(void)
 		} else
 			Menu_RedrawMouse(true);
 	}
+
+	if( sDemoFileFromCommandLine != "" )
+	{
+		Menu_LocalStartDemoReplay(sDemoFileFromCommandLine);
+		sDemoFileFromCommandLine = "";
+	};
 	
 	Menu_Loop();
 	iSkipStart = false;
