@@ -528,8 +528,7 @@ void CClient::ReadPackets(void)
 			{
 				printf("Error in demofile: unexpected end - no size\n");
 				Initialize();
-				tMenu->iMenuType = MNU_LOCAL;
-				Menu_LocalInitialize();
+				GotoLocalMenu();
 				return;
 			};
 			EndianSwap(size);
@@ -539,8 +538,7 @@ void CClient::ReadPackets(void)
 			{
 				printf("Error in demofile: packet size too big\n");
 				Initialize();
-				tMenu->iMenuType = MNU_LOCAL;
-				Menu_LocalInitialize();
+				GotoLocalMenu();
 				return;
 			};
 			if( size > 0 )
@@ -549,8 +547,7 @@ void CClient::ReadPackets(void)
 				{
 					printf("Error in demofile: unexpected end - no packet data\n");
 					Initialize();
-					tMenu->iMenuType = MNU_LOCAL;
-					Menu_LocalInitialize();
+					GotoLocalMenu();
 					return;
 				};
 				bs.writeData( std::string( buf, size ) );
@@ -560,8 +557,7 @@ void CClient::ReadPackets(void)
 			{
 				printf("Demofile end - replay finished\n");
 				Initialize();
-				tMenu->iMenuType = MNU_LOCAL;
-				Menu_LocalInitialize();
+				GotoLocalMenu();
 				return;
 			};
 			EndianSwap(fDemoReplayNextPacketTime);
@@ -1258,8 +1254,7 @@ void CClient::StartDemoReplay(const std::string & filename)
 	{
 		printf("Error in demofile: cannot open file %s\n", filename.c_str());
 		Initialize();
-		tMenu->iMenuType = MNU_LOCAL;
-		Menu_LocalInitialize();
+		GotoLocalMenu();
 		return;
 	};
 	uchar iDemoFileVersion;
@@ -1268,16 +1263,14 @@ void CClient::StartDemoReplay(const std::string & filename)
 	{
 		printf("Error in demofile: empty file %s\n", filename.c_str());
 		Initialize();
-		tMenu->iMenuType = MNU_LOCAL;
-		Menu_LocalInitialize();
+		GotoLocalMenu();
 		return;
 	};
 	if( iDemoFileVersion != 0 )
 	{
 		printf("Error in demofile: wrong version %i should be 0\n", (uint)iDemoFileVersion);
 		Initialize();
-		tMenu->iMenuType = MNU_LOCAL;
-		Menu_LocalInitialize();
+		GotoLocalMenu();
 		return;
 	};
 	EndianSwap(fDemoReplayNextPacketTime);
