@@ -63,13 +63,19 @@ bool Menu_Net_LANInitialize(void)
 	// Fill the players box
 	CCombobox* PlayerSelection = (CCombobox*) cLan.getWidget( nl_PlayerSelection );
 	profile_t *p = GetProfiles();
+	bool validName = false;
 	for(;p;p=p->tNext) {
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
 		int index = PlayerSelection->addItem( 0, p->sName, p->sName );
 		PlayerSelection->setImage( p->bmpWorm, index );
+		if( p->sName == tLXOptions->tGameinfo.sLastSelectedPlayer )
+			validName=true;
 	}
+
+	if( ! validName )
+		tLXOptions->tGameinfo.sLastSelectedPlayer = GetProfiles()->sName;
 
 	PlayerSelection->setCurSIndexItem( tLXOptions->tGameinfo.sLastSelectedPlayer );
 

@@ -1249,7 +1249,7 @@ void CClient::StartDemoReplay(const std::string & filename)
 	bDemoReplay = true;
 	bSpectate = true;
 
-	cDemoRecordFile = OpenGameFile( filename, "r" );
+	cDemoRecordFile = OpenGameFile( filename, "rb" );
 	if( cDemoRecordFile == NULL )
 	{
 		printf("Error in demofile: cannot open file %s\n", filename.c_str());

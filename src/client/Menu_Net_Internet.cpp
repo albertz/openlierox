@@ -81,13 +81,19 @@ bool Menu_Net_NETInitialize(void)
 
 	// Add players to the list
 	profile_t *p = GetProfiles();
+	bool validName = false;
 	for(;p;p=p->tNext) {
 		/*if(p->iType == PRF_COMPUTER)
 			continue;*/
 
 		int i = ((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->addItem(p->sName, p->sName);
 		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->bmpWorm, i);
+		if( p->sName == tLXOptions->tGameinfo.sLastSelectedPlayer )
+			validName=true;
 	}
+
+	if( ! validName )
+		tLXOptions->tGameinfo.sLastSelectedPlayer = GetProfiles()->sName;
 
 	((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setCurSIndexItem( tLXOptions->tGameinfo.sLastSelectedPlayer );
 
