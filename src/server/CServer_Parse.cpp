@@ -1493,11 +1493,14 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				fclose(fp);
 			}
 
+			/*
+			// It's really useless.
 			// If the worm has more than 5 names, ban it
 			if(aliascount>5) {
 				banWorm(id);
 				SendGlobalText(worms[0].getName()+" had too many nicks", TXT_NETWORK);
 			}
+			*/
 		}
 
 		// Tell the client the game lobby details

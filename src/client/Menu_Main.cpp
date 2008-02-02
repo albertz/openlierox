@@ -234,7 +234,8 @@ void Menu_MainFrame(void)
 	static const std::string credits2 = std::string(
 		"- Original code by Jason Boettcher\n"
 		"- Ported and enhanced by\n"
-		"  K. Petránek, Albert Zeyer & Martin Griffin\n"
+		"  K. Petránek, Albert Zeyer, Daniel Sjoholm,\n" // In order of joining
+		"  Martin Griffin, Pelya\n"
 		"- Supported by the [RIP] clan\n"
 		//"- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
 		)
