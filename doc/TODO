@@ -1,6 +1,15 @@
 TODO
 (remember also to look at the bugs on SF)
 
+[ ] fix: FPS (dropped to 60 from 120 here!)
+[ ] fix: keys are ignored in low FPS in game (CInput::isDown()), makes
+    it very hard to play on older computers
+[ ] fix CFileDownload via HTTP (you can test it by clicking at red
+    level name in lobby), crashes all the time, looks like a thread safety
+    problem or a memory corruption
+[ ] fix projectiles flying though walls when they
+    shouldn't (my fixes didn't work, it's somewhere deeper
+    in the collision checks) (!!)
 [ ] better default keys for player2 (!!)
 [ ] remove ReadInteger/ReadFloat/Read... from code and use IniParser instead (!)
 [ ] use ALSA as default if available (!!)
@@ -8,7 +17,7 @@ TODO
 [ ] remove all unneeded ProcessEvents() from the code
     (even net-messages through events now, so there should
      be almost no part where it is still needed) (!)
-[ ] fix network interpolation (is currently not optimal) (!!)
+[ ] fix network interpolation (is currently not optimal) (!)
 [ ] fix physics (behaves currently different depending on FPS) (!!)
 [?] gfx is wrong in some situation or makes problems, fix that (!!)
 [ ] fix: sometimes, angle is exactly pointed to top
