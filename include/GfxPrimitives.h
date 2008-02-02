@@ -129,6 +129,15 @@ public:
 	
 	template<typename _ClipRect>
 	bool clipWith(const _ClipRect& clip) {
+		// TODO: DOES NOT WORK!!!!!!!!!!!
+		// Try this (52, 120, 7, 14) and clip(52, 162, 558, 258), it changes
+		// the current rect to (52, 162, 7, 14), which is wrong, should return an empty rect instead
+		// The problem lies in assigning:
+		// this->y = MAX(this->y, clip.y) - returns 162
+		// this->y2 = MIN(this->y2 !!! wrong, is 176 instead of 134 !!!, clip.y2) - returns 176, which is wrong, should be 134
+		// I don't see any way except recoding it all, please fix it somehow and make it nice, this code
+		// took me 2 hours to debug because it makes debugger watches almost useless
+
 		// Horizontal
 		this->Rect::x() = MAX( (typename Rect::Type)this->Rect::x(), (typename Rect::Type)clip.x() );
 		this->Rect::x2() = MIN( (typename Rect::Type)this->Rect::x2(), (typename Rect::Type)clip.x2() );
@@ -157,6 +166,8 @@ bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
 	return ((SDLRect&)rect).clipWith(clip);
 }
 
+
+bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d);
 
 //
 // Image loading and saving

@@ -102,39 +102,41 @@ void CFont::Parse(void) {
 
 	Uint32 blue = SDL_MapRGB(bmpFont->format, 0, 0, 255);
 
-	uint tmp_x = 0;
+	uint char_start = 0;
 	for (x = 0; x < bmpFont->w; x++) {
-		if (CurChar != ' ')
-			// Ignore any free pixel columns before the character (but don't do this for spaces)
-			while (IsColumnFree(x) && x < bmpFont->w)
-				x++;
+		// Ignore any free pixel columns before the character
+		char_start = x;
+		while (IsColumnFree(x) && x < bmpFont->w)
+			++x;
 
-		// Read until a blue pixel or end of the image
-		cur_w = 0;
-		while (GetPixel(bmpFont, x, 0) != blue && x < bmpFont->w) {
-			x++;
-			cur_w++;
-		}
+		// If we stopped at next blue line/end, this must be a kind of space
+		if (GetPixel(bmpFont, x, 0) == blue || x == (bmpFont->w - 1))  {
+			cur_w = x - char_start;
 
-		// Ignore any free pixel columns *after* the character
-		if(cur_w > 0) {
-			tmp_x = x - 1; // -1 : blue line
-			if (CurChar != ' ') {
-				while (IsColumnFree(tmp_x)) {
-					cur_w--;
-					tmp_x--;
-					if(cur_w == 0) {
-						printf("WARNING: cur_w becomes 0\n");
-						break;
-					}
-				}
+		// Non-blank character
+		} else {
+			char_start = x;
+			++x;
+
+			// Read until a blue pixel or end of the image
+			cur_w = 1;
+			while (GetPixel(bmpFont, x, 0) != blue && x < bmpFont->w) {
+				++x;
+				++cur_w;
 			}
-		} else
-			printf("WARNING: cur_w is <= 0\n");
+
+			// Ignore any free pixel columns *after* the character
+			assert(cur_w >= 0);
+			uint tmp_x = x - 1; // -1 : blue line
+			while (IsColumnFree(tmp_x) && cur_w) {
+				--cur_w;
+				--tmp_x;
+			}
+		}
 		
-		// Blue pixel means end of the character
+		// Add the character
 		FontWidth.push_back(cur_w);
-		CharacterOffset.push_back(tmp_x - cur_w + 1);
+		CharacterOffset.push_back(char_start);
 		NumCharacters++;
 		CurChar++;
 	}
@@ -213,7 +215,7 @@ int CFont::GetHeight(const std::string& buf) {
 void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
 	// Set the special clipping rectangle and then draw the font
 
-	static SDL_Rect oldrect, newrect;
+	SDL_Rect oldrect, newrect;
 	SDL_GetClipRect(dst, &oldrect);  // Save the old rect
 
 	// Fill in the details
@@ -235,29 +237,21 @@ void CFont::DrawInRect(SDL_Surface *dst, int x, int y, int rectX, int rectY, int
 ///////////////////
 // Draw a font (advanced)
 void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
-	
-	// TODO: reduce the amount of local variables to 5
-	
-	int pos = 0; // Offset, x+pos is current character position in pixels
-	int l;
-	Uint32 pixel;
-	int i, j;
-	int w;
-	int a, b; // a = offset in bmpFont
+
+	if (txt.size() == 0)
+		return;
 
 	// Clipping rectangle
 	SDL_Rect oldrect = dst->clip_rect;
 	SDL_Rect newrect = dst->clip_rect;
 
-	int	top = oldrect.y;
-	int left = oldrect.x;
-	int right = MIN(oldrect.x + oldrect.w, x + max_w);
-	int bottom = oldrect.y + oldrect.h;
-	Uint8 R, G, B, A;
-
 	// Set the newrect width and use this newrect temporarily to draw the font
 	// We use this rect because of precached fonts which use SDL_Blit for drawing (and it takes care of cliprect)
-	newrect.w = right - left;
+	newrect.w = MIN(oldrect.w, max_w);
+	newrect.x = MAX((int)oldrect.x, x);
+	newrect.y = MAX((int)oldrect.y, y);
+	if (!ClipRefRectWith(newrect.x, newrect.y, newrect.w, newrect.h, (SDLRect&)oldrect))
+		return;
 	SDL_SetClipRect(dst, &newrect);
 
 
@@ -266,6 +260,7 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	if (Colorize) {
 		// HINT: if we leave this disabled, the drawing will always be done manually
 		// this is a bit (not not much) slower but prevents from some errors
+		// TODO: what errors? can't they be fixed anyhow?
 		// TODO: should we completly remove the caches? how much speed improvements do they give?
 /*		if (col == f_white)
 			bmpCached = bmpWhite;
@@ -286,93 +281,104 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	if (SDL_MUSTLOCK(bmpFont) && !bmpCached)       // If we use cached font, we do not access the pixels
 		SDL_LockSurface(bmpFont);
 
-	short clip_x, clip_y, clip_w, clip_h;
+	Uint8 R, G, B, A;
 
 	// Adjust the color to the dest-suface format
 	GetColour3(col, getMainPixelFormat(), &R, &G, &B);
 	col = SDL_MapRGB(dst->format, R, G, B);
 
-	pos = 0;
+	// Position at destination surface
+	int char_y = y;
+	int char_h = bmpFont->h;
+
+	// Vertical clipping
+	OneSideClip(char_y, char_h, newrect.y, newrect.h);
+
 	for (std::string::const_iterator p = txt.begin(); p != txt.end();) {
+
 		// Line break
 		if (*p == '\n') {
 			y += bmpFont->h + VSpacing;
-			pos = 0;
+			char_y = y;
+			x = newrect.x;
 			p++;
 
-			// If the text wouldn't be drawn, just stop
-			if (y > bottom)
+			// If any further text wouldn't be drawn, just stop
+			if (char_y >= (newrect.y + newrect.h))
 				break;
-			else
+			else  {
+				OneSideClip(char_y, char_h, newrect.y, newrect.h);
 				continue;
+			}
 		}
-		
-		
+	
 		// Translate and ignore unknown
-		l = TranslateCharacter(p, txt.end());
+		int l = TranslateCharacter(p, txt.end()); // HINT: increases the iterator
 		if (l == -1)
 			continue;
 
-		w = 0;
-		a = CharacterOffset[l];
+
+		// Check if the current line will be drawn, if not, just proceed
+		if (char_h == 0)
+			continue;
 
 		// Precached fonts
 		if (bmpCached) {
-			DrawImageAdv(dst, bmpCached, a, 0, x + pos, y, FontWidth[l], bmpFont->h);
-			pos += FontWidth[l] + Spacing;
+			DrawImageAdv(dst, bmpCached, CharacterOffset[l], 0, x, y, FontWidth[l], bmpFont->h);
+			x += FontWidth[l] + Spacing;
 			continue;
 		}
 
-		// Calculate clipping
-		clip_x = MAX(left - x - pos, 0);
-		clip_y = MAX(top - y, 0);
-		clip_w = FontWidth[l];
-		if (x + pos + clip_w >= right)
-			clip_w = right - x - pos;
-		clip_h = bmpFont->h;
-		if (y + clip_h >= bottom)
-			clip_h = bottom - y;
+		// Horizontal clipping
+		int char_x = x;
+		int char_w = FontWidth[l];
+		if (!OneSideClip(char_x, char_w, newrect.x, newrect.w))  {
+			x += FontWidth[l] + Spacing;
+			continue;
+		}
 
-		short bpp = bmpFont->format->BytesPerPixel;
-		Uint8 *src = (Uint8 *) bmpFont->pixels + a * bpp;
+
+		const short bpp = bmpFont->format->BytesPerPixel;
+		Uint8 *src = (Uint8 *) bmpFont->pixels + bmpFont->pitch * (char_y - y) + 
+						(CharacterOffset[l] + char_x - x) * bpp;
 		Uint8 *px;
 
 		// Outline font
 		if (OutlineFont) {
-			for (j = clip_y;j < clip_h;j++) {
+			for (int j = 0; j < char_h; ++j) {
 				px = src;
-				for (i = a + clip_x, b = clip_x;b < clip_w;i++, b++, px += bpp) {
+				for (int i = 0; i < char_w; ++i, px += bpp) {
 
-					pixel = GetPixelFromAddr(px, bpp);
+					Uint32 pixel = GetPixelFromAddr(px, bpp);
 					GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
 
 					// Put black pixels and colorize white ones
 					if (R == 255 && G == 255 && B == 255)    // White
-						PutPixelA(dst, x + pos + b, y + j, col, A);    // Put the pixel and blend it with background
+						PutPixelA(dst, char_x + i, char_y + j, col, A);    // Put the pixel and blend it with background
 					else if (!R && !G && !B)    // Black
-						PutPixelA(dst, x + pos + b, y + j, tLX->clBlack, A);
+						PutPixelA(dst, char_x + i, char_y + j, tLX->clBlack, A);
 				}
 				src += bmpFont->pitch;
 			}
 		}
 		// Not outline
 		else {
-			for (j = clip_y; j < clip_h; j++) {
+			for (int j = 0; j < char_h; ++j) {
 				px = src;
-				for (i = a + clip_x, b = clip_x; b < clip_w; i++, b++, px += bpp) {
+				for (int i = 0; i < char_w; ++i, px += bpp) {
 
-					pixel = GetPixelFromAddr(px, bpp);
+					Uint32 pixel = GetPixelFromAddr(px, bpp);
 					GetColour4(pixel, bmpFont->format, &R, &G, &B, &A);
 
 					// Put only black pixels
 					if (!R && !G && !B)
-						PutPixelA(dst, x + pos + b, y + j, col, A);
+						PutPixelA(dst, char_x + i, char_y + j, col, A);
 				}
 				src += bmpFont->pitch;
 			}
 		}
 
-		pos += FontWidth[l] + Spacing;
+		x += FontWidth[l] + Spacing;
 	}
 
 	// Restore the original clipping rect

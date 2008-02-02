@@ -217,6 +217,32 @@ bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 }
 
 
+/////////////////////////
+// Performs one side (horizontal or vertical) clip
+// c - x or y; d - width or height
+bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d)  {
+	if (c < clip_c)  {
+		d += c - clip_c;
+		c = clip_c;
+		if (d <= 0)  {
+			d = 0;
+			return false;
+		}
+	}
+
+	if (c + d >= clip_c + clip_d)  {
+		if (c >= clip_c + clip_d)  {
+			d = 0;
+			return false;
+		}
+
+		d = clip_c + clip_d - c;
+	}
+
+	return true;
+}
+
+
 //////////////////
 //
 // Blitting and drawing routines
