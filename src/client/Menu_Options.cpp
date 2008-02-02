@@ -285,7 +285,7 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 383, 50,tLX->cFont.GetHeight());
 
 
-	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,8,0);
+	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
 	cOpt_System.SendMessage(os_STUNServer,TXM_SETMAX,256,0);
 
 	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);

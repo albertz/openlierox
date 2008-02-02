@@ -784,6 +784,8 @@ void Menu_Local_FillModList( CCombobox *cb )
 
 
 CGuiLayout		cGameSettings;
+CGuiLayout		cGeneralSettings;
+CGuiLayout		cBonusSettings;
 
 // Game Settings
 enum {
@@ -819,11 +821,22 @@ void Menu_GameSettings(void)
 
 	Menu_RedrawMouse(true);
 
-	cGameSettings.Initialize();
+
+	// Shutdowns all 3 following instances
+	Menu_GameSettingsShutdown();
+
+	cGameSettings.Initialize();	
+	cGeneralSettings.Initialize();
+	cBonusSettings.Initialize();
+
+	// Change text and add for every tab
 	cGameSettings.Add( new CLabel("Game Settings", tLX->clNormalLabel),		    -1,	        280,145, 0, 0);
+
+	// Game settings, stuff on each pane.
 	cGameSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    gs_Ok,      220,445, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, tMenu->bmpButtons), gs_Default, 350,445, 80,15);
 
+	// General settings, general stuffies!
 	cGameSettings.Add( new CLabel("Lives", tLX->clNormalLabel),				    -1,	        140,180, 0, 0);
 	cGameSettings.Add( new CTextbox(),										gs_Lives,		300,177, 30,tLX->cFont.GetHeight());
 	cGameSettings.SendMessage(gs_Lives,TXM_SETMAX,6,0);
@@ -841,6 +854,7 @@ void Menu_GameSettings(void)
 	cGameSettings.Add( new CLabel("", tLX->clNormalLabel),					gs_LoadingTimeLabel, 470, 240, 0, 0);
 	cGameSettings.SendMessage(gs_LoadingTime, SLM_SETVALUE, tLXOptions->tGameinfo.iLoadingTime, 0);
 
+	// Bonus settings - Bonus stuffies!
 	cGameSettings.Add( new CLabel("Bonuses", tLX->clNormalLabel),			    -1,	        140,270, 0, 0);
 	cGameSettings.Add( new CCheckbox(tLXOptions->tGameinfo.bBonusesOn),		gs_Bonuses,		300,267,17,17);
 
@@ -863,13 +877,15 @@ void Menu_GameSettings(void)
 
 	cGameSettings.Add( new CLabel("Time limit, minutes", tLX->clNormalLabel),	-1,	        140,330, 0, 0);
 	cGameSettings.Add( new CTextbox(),										gs_TimeLimit,	300,327, 30,tLX->cFont.GetHeight());
-	cGameSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,10,0);
+	cGameSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,3,0);
 	if(tLXOptions->tGameinfo.fTimeLimit > 0)
 		cGameSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fTimeLimit), 0);
 
 	cGameSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,360, 0, 0);
 	cGameSettings.Add( new CTextbox(),										gs_RespawnTime,	300,357, 30,tLX->cFont.GetHeight());
+	cGameSettings.SendMessage(gs_RespawnTime,TXM_SETMAX,3,0);
 	cGameSettings.SendMessage(gs_RespawnTime, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fRespawnTime), 0);
+
 
 	cGameSettings.Add( new CLabel("Empty weapons", tLX->clNormalLabel),			-1,	        350,350, 0, 0);
 	cGameSettings.Add( new CLabel("when respawning", tLX->clNormalLabel),		-1,	        350,365, 0, 0);
@@ -894,6 +910,8 @@ void Menu_GameSettings(void)
 void Menu_GameSettingsShutdown(void)
 {
 	cGameSettings.Shutdown();
+	cGeneralSettings.Shutdown();
+	cBonusSettings.Shutdown();
 }
 
 

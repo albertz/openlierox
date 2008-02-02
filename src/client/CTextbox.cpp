@@ -621,7 +621,7 @@ void CTextbox::Insert(UnicodeChar c)
 	}
 
 	// Check for the max
-	if(Utf8StringSize(sText) >= iMax - 2)
+	if(Utf8StringSize(sText) >= iMax)
 		return;
 
 	// Check that the current font can display this character, if not, quit
