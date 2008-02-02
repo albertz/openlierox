@@ -566,22 +566,6 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 	#endif*/
 
-		// Game menu
-		if(bGameMenu)  {
-			bScoreboard = false;
-			DrawGameMenu(bmpDest);
-		}
-
-		// Viewport manager
-		if(bViewportMgr)  {
-			bScoreboard = false;
-			DrawViewportManager(bmpDest);
-		}
-
-		// Scoreboard
-		if(bScoreboard)
-			DrawScoreboard(bmpDest);
-
 		// Game over
 		if(bGameOver) {
 			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !bGameMenu)  {
@@ -597,6 +581,27 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			} else
 				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
 		}
+
+		// Game menu
+		if(bGameMenu)  {
+			bScoreboard = false;
+			DrawGameMenu(bmpDest);
+		}
+
+		// Viewport manager
+		if(bViewportMgr)  {
+			bScoreboard = false;
+			DrawViewportManager(bmpDest);
+		}
+
+		if(iNetStatus == NET_CONNECTED && !bReadySent)  {
+			bScoreboard = false;
+			DrawPlayerWaiting(bmpDest);
+		}
+
+		// Scoreboard
+		if(bScoreboard)
+			DrawScoreboard(bmpDest);
 	}
 
 	//
@@ -2289,14 +2294,75 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
 	bUpdateScore = false;
 }
 
-/*void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
+#define WAIT_COL_W 180
+
+////////////////////
+// Helper function for DrawPlayerWaiting
+void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, CWorm *start, int num)
+{
+	const int h = getBottomBarTop() - y;
+
+	SDL_Rect oldclip = bmpDest->clip_rect;
+	SDL_Rect newclip = {x, y, WAIT_COL_W, h};
+	SDL_SetClipRect(bmpDest, &newclip);
+
+	DrawRectFillA(bmpDest, x, y, x + WAIT_COL_W, y + h, tLX->clScoreBackground, 128);
+	
+	CWorm *wrm = start;
+	int cur_y = y + 5;
+	for (int i=0; i < num; ++i, ++wrm)  {
+		int cur_x = x + 5;
+
+		// Ready
+		if (wrm->getGameReady())
+			DrawImage(bmpDest, tMenu->bmpLobbyReady, cur_x, cur_y + (wrm->getPicimg()->h - tMenu->bmpLobbyReady->h) / 2);
+		else
+			DrawImage(bmpDest, tMenu->bmpLobbyNotReady, cur_x, cur_y + (wrm->getPicimg()->h - tMenu->bmpLobbyNotReady->h) / 2);
+		cur_x += tMenu->bmpLobbyReady->w;
+
+		// Skin
+		DrawImage(bmpDest, wrm->getPicimg(), cur_x, cur_y);
+		cur_x += wrm->getPicimg()->w + 5; // 5 - leave some space
+
+		// Name
+		tLX->cFont.Draw(bmpDest, cur_x, cur_y, tLX->clNormalLabel, wrm->getName());
+
+		cur_y += MAX(wrm->getPicimg()->h, tLX->cFont.GetHeight()) + 2;
+	}
+
+	SDL_SetClipRect(bmpDest, &oldclip);
+}
+
+///////////////////
+// Draws a simple scoreboard when waiting for players
+void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
 {
 	int x = 0;
 	int y = tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0;
-	int w = 256;
-	int h = getBottomBarTop() - y;
-	DrawRectFillA(x, y, w, h, tLX->clScoreBackground, 128);
-}*/
+
+	if (iNetStatus == NET_PLAYING)
+		return;
+
+	// Get the number of players
+	int num_players = 0;
+	CWorm *w = cRemoteWorms;
+	for (int i=0; i < MAX_WORMS; i++, w++)  {
+		if (w->isUsed())
+			num_players++;
+	}
+
+	// Two columns
+	if (num_players > 16)  {
+		DrawPlayerWaitingColumn(bmpDest, x, y, cRemoteWorms, 16);
+		DrawPlayerWaitingColumn(bmpDest, SDL_GetVideoSurface()->w - WAIT_COL_W, y, cRemoteWorms + 16, num_players - 16);
+
+	// One column
+	} else {
+		DrawPlayerWaitingColumn(bmpDest, x, y, cRemoteWorms, num_players);
+	}
+
+
+}
 
 ///////////////////
 // Draw the scoreboard

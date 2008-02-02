@@ -512,6 +512,8 @@ public:
 	// Drawing
 	bool		InitializeDrawing(void);
 	bool		InitializeBar(byte number);
+	void		DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, CWorm *start, int num);
+	void		DrawPlayerWaiting(SDL_Surface *bmpDest);
 	void		DrawBox(SDL_Surface *dst, int x, int y, int w);
 	void		Draw(SDL_Surface *bmpDest);
 	void		DrawViewport(SDL_Surface *bmpDest, byte viewport_index);
