@@ -2,22 +2,22 @@
 
 # this is the compile-script for a simple compilation of the game
 # the following variables will be used:
-#	SYSTEM_DATA_DIR		- the global data dir for the game; default=/usr/share
+#	SYSTEM_DATA_DIR	- the global data dir for the game; default=/usr/share
 #	COMPILER		- sets the compiler
 #	CXXFLAGS		- some other compiler flags
 #	LDFLAGS			- some other linker flags
-#	INCLUDE_PATH		- adds one or more include paths
+#	INCLUDE_PATH	- adds one or more include paths
 #	LIB_PATH		- adds one or more lib paths
 #	DEBUG			- if set to 1, the game will compiled with debug-info
-#				( activated by default )
-#	ACTIVATE_GDB		- sets the -ggdb flag
-#				( it will automatically be activated, if you haven't
-#				  set it manually and DEBUG==1 )
-#	HAWKNL_BUILTIN		- if set to 1, HawkNL will be builtin
-#	X11CLIPBOARD		- if set to 1, X11 clipboard will be used (and linked against libX11)
+#					( activated by default )
+#	ACTIVATE_GDB	- sets the -ggdb flag
+#					( it will automatically be activated, if you haven't
+#					  set it manually and DEBUG==1 )
+#	HAWKNL_BUILTIN	- if set to 1, HawkNL will be builtin
+#	X11CLIPBOARD	- if set to 1, X11 clipboard will be used (and linked against libX11)
 #	VERSION			- version number; like 0.57_beta2
-#				  if not set, the function functions.sh:get_olx_version
-#				  generates the string automatically
+#					  if not set, the function functions.sh:get_olx_version
+#					  generates the string automatically
 
 source functions.sh
 
@@ -84,7 +84,9 @@ if [ "$HAWKNL_BUILTIN" == "1" ]; then
 else
 	test_include_file nl.h || \
 	test_include_file hawknl/nl.h || \
-		{ echo "ERROR: HawkNL header not found" >&2; ALL_FINE=0; }
+		{	echo "ERROR: HawkNL header not found" >&2;
+			echo "try the following: export HAWKNL_BUILTIN=1";
+			ALL_FINE=0; }
 	HAWKNL_GCC_PARAM="-lNL"
 fi
 

@@ -48,7 +48,7 @@ TODO
 [ ] STUN seems to make trouble in some cases; fix that and enable it
     by default in config again (!)
 [ ] fix dedicated server (it's often behaving a bit strange) (!)
-[ ] close stdin / pipe stream correctly for dedicated server (!)
+[ ] close pipe stream correctly for dedicated server (!)
 
 [?] fix: crashes on MacOSX (!!)
 [?] finish mouse-aiming (!!)
