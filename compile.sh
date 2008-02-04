@@ -14,7 +14,9 @@
 #					( it will automatically be activated, if you haven't
 #					  set it manually and DEBUG==1 )
 #	HAWKNL_BUILTIN	- if set to 1, HawkNL will be builtin
+#					( disabled by default )
 #	X11CLIPBOARD	- if set to 1, X11 clipboard will be used (and linked against libX11)
+#					( activated by default )
 #	VERSION			- version number; like 0.57_beta2
 #					  if not set, the function functions.sh:get_olx_version
 #					  generates the string automatically
@@ -115,29 +117,14 @@ echo "* $COMPILER will be used for compilation"
 	echo "* the binary will be linked dynamically against the HawkNL-lib"
 
 
-mkdir -p bin
-
-# build full include path list
-INCLUDE_ADDITIONAL=". libxml2 hawknl"
-INCLUDE_STRING=""
-for p in $INCLUDE_PATH; do
-	for a in $INCLUDE_ADDITIONAL; do
-		INCLUDE_STRING="$INCLUDE_STRING -I $p/$a"
-	done
-done
-
-# build full lib path list
-LIB_STRING=""
-for p in $LIB_PATH; do
-	LIB_STRING="$LIB_STRING -L$p"
-done
 
 echo ">>> compiling now, this could take some time ..."
+mkdir -p bin
 if $COMPILER src/*.cpp src/client/*.cpp src/common/*.cpp src/server/*.cpp \
 	$HAWKNL_GCC_PARAM \
 	-I include -I pstreams \
-	$INCLUDE_STRING \
-	$LIB_STRING \
+	$(build_param_str -I "$INCLUDE_PATH" "/. /libxml2 /hawknl") \
+	$(build_param_str -L "$LIB_PATH") \
 	$($sdlconfig --cflags) \
 	$($sdlconfig --libs) \
 	$($xmlconfig --cflags) \
