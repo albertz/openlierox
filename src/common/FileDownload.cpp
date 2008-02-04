@@ -355,7 +355,7 @@ void CFileDownloaderInGame::setDataToSend( const std::string & name, const std::
 
 void CFileDownloaderInGame::setFileToSend( const std::string & path )
 {
-	FILE * ff = OpenGameFile( path, "r" );
+	FILE * ff = OpenGameFile( path, "rb" );
 	if( ff == NULL )
 	{
 		tState = S_ERROR;

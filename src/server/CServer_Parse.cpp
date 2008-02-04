@@ -921,7 +921,7 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 			cl->getFileDownloaderInGame()->getFilename().find("skins/") == 0 )
 		{
 			// Client sent us it's worm skin file we don't have - save it
-			FILE * ff=OpenGameFile( cl->getFileDownloaderInGame()->getFilename(), "w" );
+			FILE * ff=OpenGameFile( cl->getFileDownloaderInGame()->getFilename(), "wb" );
 			if( ff == NULL )
 			{
 				printf("GameServer::ParseSendFile(): cannot write file %s\n", cl->getFileDownloaderInGame()->getFilename().c_str() );

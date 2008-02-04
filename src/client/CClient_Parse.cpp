@@ -1616,7 +1616,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
 		{
 			// Server sent us some file we don't have - okay, save it
-			FILE * ff=OpenGameFile( getFileDownloaderInGame()->getFilename(), "w" );
+			FILE * ff=OpenGameFile( getFileDownloaderInGame()->getFilename(), "wb" );
 			if( ff == NULL )
 			{
 				printf("CClient::ParseSendFile(): cannot write file %s\n", getFileDownloaderInGame()->getFilename().c_str() );
