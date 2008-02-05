@@ -40,18 +40,18 @@
 // Routines
 int			InitializeAuxLib(const std::string& gname, const std::string& config, int bpp, int vidflags);
 void		ShutdownAuxLib();
-int			SetVideoMode(void);
+bool		SetVideoMode();
 
 #ifdef WIN32
-HWND		GetWindowHandle(void);
+HWND		GetWindowHandle();
 #endif
 
 void        FlipScreen(SDL_Surface *psScreen);
 void		CapFPS();
 
-std::string	GetGameName(void);
+std::string	GetGameName();
 
-std::string GetConfigFile(void);
+std::string GetConfigFile();
 
 void		ProcessScreenshots();
 void        TakeScreenshot(const std::string& scr_path, const std::string& additional_data);
@@ -59,8 +59,8 @@ void        TakeScreenshot(const std::string& scr_path, const std::string& addit
 // Subclass
 #ifdef WIN32
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void		SubclassWindow(void);
-void		UnSubclassWindow(void);
+void		SubclassWindow();
+void		UnSubclassWindow();
 #endif
 
 
