@@ -408,7 +408,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		// TODO: allow more viewports
 		// Draw the borders
 		if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
-			FillSurface(bmpDest, tLX->clBlack);
+			// Fill the viewport area with black
+			DrawRectFill(bmpDest, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0,
+				SDL_GetVideoSurface()->w, getBottomBarTop(), tLX->clBlack);
 
 			if (tGameInfo.iGameType == GME_LOCAL)  {
 				if (bgImage)  // Doesn't have to exist (backward compatibility)
@@ -2340,7 +2342,7 @@ void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
 	int x = 0;
 	int y = tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0;
 
-	if (iNetStatus == NET_PLAYING || tGameInfo.iGameType == GME_LOCAL)
+	if (iNetStatus == NET_PLAYING || tGameInfo.iGameType == GME_LOCAL || bGameMenu)
 		return;
 
 	// Get the number of players

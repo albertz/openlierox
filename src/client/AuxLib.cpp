@@ -163,9 +163,15 @@ int SetVideoMode(void)
 	if (SDL_GetVideoSurface())  {
 		// If running hardware accelereated, reset video system first else it could crash the game		
 		if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0) {
-			printf("resetting video engine\n");
+			// TODO: you would have to reset whole game, this is not enough!
+			// The problem is in all allocated surfaces - they are hardware and when you switch
+			// to window, you will most probably get software rendering
+			// Also, hardware surfaces are freed from the video memory when reseting video mode
+			// so you would first have to convert all surfaces to software and then perform this
+			/*printf("resetting video engine\n");
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);
-			SDL_InitSubSystem(SDL_INIT_VIDEO);
+			SDL_InitSubSystem(SDL_INIT_VIDEO);*/
+			return true;
 		}
 	}
 	
@@ -365,13 +371,17 @@ void ShutdownAuxLib()
 	// This is wrong! Better make sure that nothing goes wrong instead of adding such hacks
 	// Reasons why not to enable it:
 	// 1. When using hardware acceleration, any switching between fullscreen/window can lead to a crash
-	// -> this should be fixed instead removing this important function here
+	// -> this should be fixed instead removing this important function here 
+	// --> see the TODO above (you cannot change video mode without reseting all allocated surfaces in the game)
 	// 2. It fails every time on WIN32
 	// -> this should be fixed also
+	// --> it simply returns NULL, tell me how to fix it ;)
 	// 3. (Re)setting a video mode takes quite a lot time
 	// -> it's the end of the game so the user doesn't care, he can put it in the background
+	// --> not true, I care very much how long it takes before a program shuts down, I don't feel like waiting 10 secs after i click Quit
 	// 4. Looks awful for the user
 	// -> there is no difference for the user; if the resultion from fullscreen -> window is changed at the end or here, where is the difference?
+#ifndef WIN32
 	if(tLXOptions->bFullscreen && !bRestartGameAfterQuit) {
 		tLXOptions->bFullscreen = false;
 		// disable fullscreen for quitting
@@ -380,6 +390,7 @@ void ShutdownAuxLib()
 		SetVideoMode();
 		tLXOptions->bFullscreen = true; // recover to save correct in options
 	}
+#endif
 	
 	// free all cached stuff like surfaces and sounds
 	// HINT: we have to do it before we uninit the specific engines
