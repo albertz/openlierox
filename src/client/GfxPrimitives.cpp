@@ -17,6 +17,7 @@
 // By Jason Boettcher
 
 
+#include <iostream>
 #include <assert.h>
 #include <gd.h>
 
@@ -30,6 +31,7 @@
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
+using namespace std;
 
 /////////////////////////
 //
@@ -268,10 +270,11 @@ inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, 
 	}
 }
 
+
 ///////////////////////
 // Copies area from one image to another (not blitting so the alpha values are kept!)
 void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h)
-{
+{	
 	// Copying is a normal blit without colorkey and alpha
 	// If the surface has alpha or colorkey set, we have to remove them and then put them back
 
@@ -1356,4 +1359,14 @@ bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, co
 	// Close the file and quit
 	return fclose(out) == 0;
 	#endif
+}
+
+
+void test_Clipper() {
+	SDL_Rect r1 = {52, 120, 7, 14};
+	SDL_Rect r2 = {52, 162, 558, 258};
+	
+	ClipRefRectWith(r1, (SDLRect&)r2);
+	
+	cout << r1.x << "," << r1.y << "," << r1.w << "," << r1.h << endl;
 }

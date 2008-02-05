@@ -982,6 +982,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	// If were in the game, deny challenges
 	if ( iState != SVS_LOBBY && !( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) ) {
 		bs.Clear();
+		// TODO: move this out here
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
 		bs.writeString(OldLxCompatibleString(networkTexts->sGameInProgress));
