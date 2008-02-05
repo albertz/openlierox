@@ -470,7 +470,6 @@ bool DedicatedControl::Init_priv() {
 	
 	#ifdef WIN32
 	// TODO: does this also works if scriptfn is not a bash-script? I want to change it later to Python
-	// The intention was to execute correct program from bash script, Windows doesn't recognize ".py" files as executables.
 	command = "msys/bin/bash.exe";
 	commandArgs.clear();
 	commandArgs.push_back(command);
@@ -483,8 +482,9 @@ bool DedicatedControl::Init_priv() {
 	internData = dedIntern;
 	if( ! dedIntern->pipe.open(command, commandArgs) )
 	{
-		printf("ERROR: cannot start dedicated server - cannot run: %s\n", command.c_str()); 
-		fflush(stdout);
+		cout << "ERROR: cannot start dedicated server - cannot run: " << scriptfn << endl;
+		// TODO: print error msg (the reason) here
+		return false;
 	};
 	dedIntern->pipe.in() << "hello world\n" << flush; // just a test
 	dedIntern->pipeOutputMutex = SDL_CreateMutex();
