@@ -161,10 +161,12 @@ int SetVideoMode(void)
 
 	// Check if already running
 	if (SDL_GetVideoSurface())  {
-		// If running hardware accelereated, don't do nothing because it would most probably
-		// crash the game
-		if (SDL_GetVideoSurface()->flags & SDL_HWSURFACE)
-			return true;
+		// If running hardware accelereated, reset video system first else it could crash the game		
+		if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0) {
+			printf("resetting video engine\n");
+			SDL_QuitSubSystem(SDL_INIT_VIDEO);
+			SDL_InitSubSystem(SDL_INIT_VIDEO);
+		}
 	}
 	
 #ifdef WIN32
@@ -280,10 +282,12 @@ int SetVideoMode(void)
 	// Correct the surface format according to SDL
 	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
+		printf("using hardware surfaces\n");	
 	} else {
 		iSurfaceFormat = SDL_SWSURFACE;
 		if (HardwareAcceleration)
 			printf("HINT: Unable to use hardware surfaces, falling back to software.\n");
+		printf("using software surfaces\n");
 	}
 
 	return true;
