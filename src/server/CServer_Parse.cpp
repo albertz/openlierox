@@ -1518,7 +1518,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		bHost_Update = true;
 
 		// Make host authorised
-		if(newcl->getNumWorms() > 0 && newcl->getWorm(0)->getID() == 0)  // ID 0 = host
+		if(newcl->getNumWorms() == 0 || newcl->getWorm(0)->getID() == 0)  // ID 0 = host
 			newcl->getRights()->Everything();
 
 		// Client spawns when the game starts
