@@ -158,21 +158,28 @@ int SetVideoMode(void)
 		printf("SetVideoMode: dedicated mode, ignoring\n");
 		return true; // ignore this case
 	}
+
+	// Check if already running
+	if (SDL_GetVideoSurface())  {
+		// If running hardware accelereated, don't do nothing because it would most probably
+		// crash the game
+		if (SDL_GetVideoSurface() & SDL_HWSURFACE)
+			return true;
+	}
 	
-	// TODO: Use DOUBLEBUF and hardware surfaces
 #ifdef WIN32
 	bool HardwareAcceleration = false;
 #else
 	// in OpenGL mode, this is faster; in non-OGL, it's faster without
-	// TODO: why is this like this? I tested this here on my MacOSX
-	// play a bit around by yourself if you like
+	// HINT: this has probably nothing to do with hardware acceleration itself because
+	// on UNIX systems only root user can run hardware accelerated applications
 	bool HardwareAcceleration = tLXOptions->bOpenGL;
 #endif
 	int DoubleBuf = false;
 	int vidflags = 0;
 
-	// it is faster with doublebuffering in hardware accelerated mode (TODO: but why?)
-	// also, it seems that it's possible that there are effects in hardware mode with double buf disabled (TODO: why?)
+	// it is faster with doublebuffering in hardware accelerated mode
+	// also, it seems that it's possible that there are effects in hardware mode with double buf disabled
 	// Use doublebuf when hardware accelerated
 	if (HardwareAcceleration)
 		DoubleBuf = true;
@@ -217,9 +224,11 @@ int SetVideoMode(void)
 
 	if(HardwareAcceleration)  {
 		vidflags |= SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL;
-		// TODO: why only in fullscreen?
-		//if (tLXOptions->bFullscreen)
-			iSurfaceFormat = SDL_HWSURFACE;
+		// Most (perhaps all) systems use software drawing for their stuff (windows etc.)
+		// Because of that we cannot have hardware accelerated support in window - OS screen
+		// is software surface. How would you make the window hardware, if it's on the screen?
+		// Anyway, SDL takes care of this by istelf and disables the flag when needed
+		iSurfaceFormat = SDL_HWSURFACE;
 	}
 	else  {
 		vidflags |= SDL_SWSURFACE;
@@ -267,6 +276,15 @@ int SetVideoMode(void)
 		tLX->bVideoModeChanged = true;
 
 	mainPixelFormat = SDL_GetVideoSurface()->format;
+
+	// Correct the surface format according to SDL
+	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
+		iSurfaceFormat = SDL_HWSURFACE;
+	} else {
+		iSurfaceFormat = SDL_SWSURFACE;
+		if (HardwareAcceleration)
+			printf("HINT: Unable to use hardware surfaces, falling back to software.\n");
+	}
 
 	return true;
 }
@@ -340,13 +358,19 @@ void FlipScreen(SDL_Surface *psScreen)
 // Shutdown the standard Auxiliary Library
 void ShutdownAuxLib()
 {
-	if(tLXOptions->bFullscreen && !bRestartGameAfterQuit) {
+	// This is wrong! Better make sure that nothing goes wrong instead of adding such hacks
+	// Reasons why not to enable it:
+	// 1. When using hardware acceleration, any switching between fullscreen/window can lead to a crash
+	// 2. It fails every time on WIN32
+	// 3. (Re)setting a video mode takes quite a lot time
+	// 4. Looks awful for the user
+	/*if(tLXOptions->bFullscreen && !bRestartGameAfterQuit) {
 		bool oldFullscreenState = tLXOptions->bFullscreen; tLXOptions->bFullscreen = false;
 		// disable fullscreen for quitting
 		// if something goes wrong, we stay not in this annoying state with a fullscreen and a not responding app
 		SetVideoMode();
 		tLXOptions->bFullscreen = oldFullscreenState; // recover to save correct in options
-	}
+	}*/
 	
 	// free all cached stuff like surfaces and sounds
 	// HINT: we have to do it before we uninit the specific engines

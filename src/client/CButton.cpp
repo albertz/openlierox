@@ -78,6 +78,7 @@ void CButton::Create(void)
     Uint8 r,g,b,a;
 
     // Find the smallest width
+	LockSurface(bmpImage);
     iGoodWidth = 0;
     for( int y=y2; y<=y2+38 && y<bmpImage->h; y++) {
         for( int x=0; x<bmpImage->w; x++ ) {
@@ -88,6 +89,7 @@ void CButton::Create(void)
                 iGoodWidth = MAX(iGoodWidth,x);
         }
     }
+	UnlockSurface(bmpImage);
 
     iGoodWidth = MIN(iGoodWidth+1,bmpImage->w);
     

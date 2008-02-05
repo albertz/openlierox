@@ -172,6 +172,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 	if(!PlayerAttached)
 		HookAttached = false;
 
+	LockSurface(map->GetImage());
 	uchar px = map->GetPixelFlag((int)HookPos.x,(int)HookPos.y);
 	if((px & PX_ROCK || px & PX_DIRT || outsideMap) && !PlayerAttached) {
 		HookShooting = false;
@@ -185,6 +186,7 @@ void CNinjaRope::Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int
 			    SpawnEntity(ENT_PARTICLE,0,HookPos+CVec(0,2),CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 		}
 	}
+	UnlockSurface(map->GetImage());
 
 
 	// Check if the hook has hit another worm

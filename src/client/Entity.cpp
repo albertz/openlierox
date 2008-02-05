@@ -286,8 +286,7 @@ void SimulateEntities(float dt, CMap *map)
 				ent->vPos += ent->vVel * dt;
 	
 				// Clipping
-				if(ent->vPos.x < 0 || ent->vPos.y < 0 ||
-					(uint)ent->vPos.x >= (uint)map->GetWidth() || (uint)ent->vPos.y >= (uint)map->GetHeight()) {
+				if((uint)ent->vPos.x >= (uint)map->GetWidth() || (uint)ent->vPos.y >= (uint)map->GetHeight()) {
 					ent->bUsed = false;
 					break;
 				}
@@ -301,15 +300,17 @@ void SimulateEntities(float dt, CMap *map)
 					switch(ent->iType) {
 
 						// Blood
-						case ENT_BLOOD:
-							PutPixel(map->GetImage(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
+						case ENT_BLOOD:  {
+								int x = (int)ent->vPos.x;
+								int y = (int)ent->vPos.y;
+								LockSurface(map->GetImage());
+								PutPixel(map->GetImage(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
+								UnlockSurface(map->GetImage());
 
-							// TODO: create a wrapper-function for stuff like this
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2, (int)ent->vPos.y*2,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2+1, (int)ent->vPos.y*2,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2, (int)ent->vPos.y*2+1,ent->iColour);
-							PutPixel(map->GetDrawImage(),(int)ent->vPos.x*2+1, (int)ent->vPos.y*2+1,ent->iColour);
-							break;
+								x *= 2;
+								y *= 2;
+								DrawRectFill(map->GetDrawImage(), x, y, x + 2, y + 2, ent->iColour);
+							} break;
 
 						// Giblet
 						case ENT_GIB:

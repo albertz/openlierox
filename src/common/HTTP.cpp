@@ -202,7 +202,7 @@ void CHttp::Clear()
 void CHttp::CancelProcessing()
 {
 	// Wait for reply from DNS server, else we could get in trouble with memory
-	if (bActive)  {
+	if (bActive && !IsSocketStateValid(tSocket))  {
 		printf("HTTP Stop: Waiting for DNS reply...\n");
 		float start = GetMilliSeconds();
 		while (!IsSocketStateValid(tSocket) && (GetMilliSeconds() - start) <= 10) {

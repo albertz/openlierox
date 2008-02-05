@@ -397,6 +397,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		return;
 	}
 
+	bool bScoreboard = true;
+
 	if(!bDedicated) {
 		// Local and network use different background images
 		SDL_Surface *bgImage = gfxGame.bmpGameNetBackground;
@@ -406,6 +408,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		// TODO: allow more viewports
 		// Draw the borders
 		if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
+			FillSurface(bmpDest, tLX->clBlack);
+
 			if (tGameInfo.iGameType == GME_LOCAL)  {
 				if (bgImage)  // Doesn't have to exist (backward compatibility)
 					DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage->h, 640, bgImage->h);
@@ -435,18 +439,14 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			DrawRectFill(bmpDest,318,0,322, bgImage ? (480-bgImage->h) : (384), tLX->clViewportSplit);
 
 		// Top bar
-		if (tLXOptions->tGameinfo.bTopBarVisible && !bGameMenu && bShouldRepaintInfo)  {
+		if (tLXOptions->tGameinfo.bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
 			SDL_Surface *top_bar = tGameInfo.iGameType == GME_LOCAL ? gfxGame.bmpGameLocalTopBar : gfxGame.bmpGameNetTopBar;
 			if (top_bar)
 				DrawImage( bmpDest, top_bar, 0, 0);
 			else
 				DrawRectFill( bmpDest, 0, 0, 640, tLX->cFont.GetHeight() + 4, tLX->clGameBackground ); // Backward compatibility
 		}
-	}
 
-	bool bScoreboard = true;
-
-	if(!bDedicated) {
 		// Draw the viewports
 		// TODO: are there problems if we draw this also when the game is not ready?
 		if((iNetStatus == NET_CONNECTED /* && bGameReady */) || (iNetStatus == NET_PLAYING)) {
@@ -470,9 +470,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			}
 
 		}
-	}
-	
-	if(!bDedicated) {
+
 		// DEBUG
 		//DrawRectFill(bmpDest,0,0,100,40,tLX->clBlack);
 		//tLX->cFont.Draw(bmpDest,0,0,tLX->clWhite,"iNetStatus = %i",iNetStatus);
@@ -2302,7 +2300,8 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, CWorm 
 {
 	const int h = getBottomBarTop() - y;
 
-	SDL_Rect oldclip = bmpDest->clip_rect;
+	SDL_Rect oldclip;
+	SDL_GetClipRect(bmpDest, &oldclip);
 	SDL_Rect newclip = {x, y, WAIT_COL_W, h};
 	SDL_SetClipRect(bmpDest, &newclip);
 
@@ -2310,7 +2309,12 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, CWorm 
 	
 	CWorm *wrm = start;
 	int cur_y = y + 5;
-	for (int i=0; i < num; ++i, ++wrm)  {
+	for (int i=0; i < num; )  {
+		if (!wrm->isUsed())  {
+			wrm++;
+			continue;
+		}
+
 		int cur_x = x + 5;
 
 		// Ready
@@ -2328,6 +2332,9 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, CWorm 
 		tLX->cFont.Draw(bmpDest, cur_x, cur_y, tLX->clNormalLabel, wrm->getName());
 
 		cur_y += MAX(wrm->getPicimg()->h, tLX->cFont.GetHeight()) + 2;
+
+		i++;
+		wrm++;
 	}
 
 	SDL_SetClipRect(bmpDest, &oldclip);
@@ -2340,7 +2347,7 @@ void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
 	int x = 0;
 	int y = tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0;
 
-	if (iNetStatus == NET_PLAYING)
+	if (iNetStatus == NET_PLAYING || tGameInfo.iGameType == GME_LOCAL)
 		return;
 
 	// Get the number of players
@@ -2429,7 +2436,7 @@ void CClient::DrawCurrentSettings(SDL_Surface *bmpDest)
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, mod);
 	cur_y += tLX->cFont.GetHeight();
 
-	static const std::string gmt_names[] = {"Deathmatch", "Tag", "Team DM", "Demolition", "VIP", "CTF", "Teams CTF"};
+	static const std::string gmt_names[] = {"Deathmatch", "Team DM", "Tag", "Demolition", "VIP", "CTF", "Teams CTF"};
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Type:");
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(tGameInfo.iGameMode, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
 	cur_y += tLX->cFont.GetHeight();

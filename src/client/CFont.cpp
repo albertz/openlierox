@@ -79,6 +79,7 @@ void CFont::Shutdown(void) {
 //////////////////
 // Helper function for CalculateWidth
 // Checks, whether a vertical line is free
+// NOTE: bmpFont must be locked before calling this
 bool CFont::IsColumnFree(int x) {
 	// it's only completelly see through
 	for (int y = 0; y < bmpFont->h; y++) {
@@ -97,8 +98,7 @@ void CFont::Parse(void) {
 	int cur_w;
 
 	// Lock the surface
-	if (SDL_MUSTLOCK(bmpFont))
-		SDL_LockSurface(bmpFont);
+	LockSurface(bmpFont);
 
 	Uint32 blue = SDL_MapRGB(bmpFont->format, 0, 0, 255);
 
@@ -150,8 +150,7 @@ void CFont::Parse(void) {
 
 
 	// Unlock the surface
-	if (SDL_MUSTLOCK(bmpFont))
-		SDL_UnlockSurface(bmpFont);
+	UnlockSurface(bmpFont);
 }
 
 ///////////////////
@@ -162,9 +161,9 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 
 	FillSurface(bmpSurf, SDL_MapRGBA(bmpSurf->format, 255, 0, 255, 0));
 
-	// Lock the surface
-	if (SDL_MUSTLOCK(bmpSurf))
-		SDL_LockSurface(bmpSurf);
+	// Lock the surfaces
+	LockSurface(bmpSurf);
+	LockSurface(bmpFont);
 
 	Uint8 R, G, B, A;
 	Uint8 sr, sg, sb;
@@ -200,9 +199,9 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 	}
 
 
-	// Unlock the surface
-	if (SDL_MUSTLOCK(bmpSurf))
-		SDL_UnlockSurface(bmpSurf);
+	// Unlock the surfaces
+	UnlockSurface(bmpSurf);
+	UnlockSurface(bmpFont);
 }
 
 
@@ -282,10 +281,11 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 
 	// Lock the surfaces
-	if (SDL_MUSTLOCK(dst))
-		SDL_LockSurface(dst);
-	if (SDL_MUSTLOCK(bmpFont) && !bmpCached)       // If we use cached font, we do not access the pixels
-		SDL_LockSurface(bmpFont);
+	// If we use cached font, we do not access the pixels
+	if (!bmpCached)  {
+		LockSurface(dst);
+		LockSurface(bmpFont);
+	}
 
 	Uint8 R, G, B, A;
 
@@ -392,11 +392,10 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 
 	// Unlock the surfaces
-	if (SDL_MUSTLOCK(dst))
-		SDL_UnlockSurface(dst);
-	if (SDL_MUSTLOCK(bmpFont))
-		SDL_UnlockSurface(bmpFont);
-
+	if (!bmpCached)  {
+		UnlockSurface(dst);
+		UnlockSurface(bmpFont);
+	}
 }
 
 

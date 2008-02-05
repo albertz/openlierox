@@ -68,7 +68,9 @@ void CBar::Draw(SDL_Surface *dst)  {
 			DrawImageAdv(dst, bmpBar, 0, bar_h * (NumForeStates + CurrentBgState), X, Y, bmpBar->w, bar_h);
 
 			DrawImageAdv(dst, bmpBar, 0,  bar_h * CurrentForeState, X, Y, (bmpBar->w * pos) / 100, bar_h);  // Progress
+			LockSurface(bmpBar);
 			clLabel = GetPixel(bmpBar, MAX(0, (bmpBar->w*pos)/100 - 1), bmpBar->h - NumForeStates + CurrentForeState);
+			UnlockSurface(bmpBar);
 			break;
 		case BAR_RIGHTTOLEFT:
 			// Background
@@ -76,14 +78,18 @@ void CBar::Draw(SDL_Surface *dst)  {
 
 			w = (bmpBar->w * pos) / 100;
 			DrawImageAdv(dst, bmpBar, bmpBar->w - w,  bar_h * CurrentForeState, X + bmpBar->w - w, Y, w, bar_h);  // Progress
+			LockSurface(bmpBar);
 			clLabel = GetPixel(bmpBar, MIN(bmpBar->w - 1, bmpBar->w - w + 1), bmpBar->h - NumForeStates + CurrentForeState);
+			UnlockSurface(bmpBar);
 			break;
 		case BAR_TOPTOBOTTOM: 
 			// Background
 			DrawImageAdv(dst, bmpBar, bar_w * (NumForeStates + CurrentBgState), 0, X, Y, bar_w, bmpBar->h); // The last image is the empty one
 
 			DrawImageAdv(dst, bmpBar, bar_w * CurrentForeState, 0, X, Y, bar_w, (bmpBar->h / 100) * pos); // Progress
+			LockSurface(bmpBar);
 			clLabel = GetPixel(bmpBar, bmpBar->w - NumForeStates + CurrentForeState, MAX(0, (bmpBar->h * pos)/100 - 1));
+			UnlockSurface(bmpBar);
 			break;
 		case BAR_BOTTOMTOTOP:
 			// Background
@@ -91,7 +97,9 @@ void CBar::Draw(SDL_Surface *dst)  {
 
 			h = (bmpBar->w * pos) / 100;
 			DrawImageAdv(dst, bmpBar,  bar_w * CurrentForeState, bmpBar->h - h, X, Y + bmpBar->h - h, bar_w, h);  // Progress
+			LockSurface(bmpBar);
 			clLabel = GetPixel(bmpBar, bmpBar->w - NumForeStates + CurrentForeState, MIN(bmpBar->h- 1, bmpBar->h - h - 1));
+			UnlockSurface(bmpBar);
 			break;
 		default:
 			printf("Bad bar type in CBar::Draw");

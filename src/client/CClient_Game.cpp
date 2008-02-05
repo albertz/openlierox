@@ -565,6 +565,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 	px = (uint)pos.x;
 
+	LockSurface(cMap->GetImage());
 	for(x=px-2; x<px+2; x++) {
 		// Clipping
 		if(x < 0)	continue;
@@ -576,6 +577,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 			break;
 		}
 	}
+	UnlockSurface(cMap->GetImage());
 
 	// Go through bonuses. If any were next to an explosion, destroy the bonus explosivly
 	if (tGameInfo.bBonusesOn)  {
@@ -732,6 +734,7 @@ void CClient::SendCarve(CVec pos)
 	y = MAX(y,0);
 	px = (int)pos.x;
 
+	LockSurface(cMap->GetImage());
 	for(x=px-2; x<=px+2; x++) {
 		// Clipping
 		if(x<0)	continue;
@@ -744,6 +747,7 @@ void CClient::SendCarve(CVec pos)
 			break;
 		}
 	}
+	UnlockSurface(cMap->GetImage());
 
 	/*for(x=0;x<3;x++)
 		SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour);*/

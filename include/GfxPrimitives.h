@@ -41,6 +41,19 @@ extern	int		iSurfaceFormat;
 #define ALPHASURFACE_BMASK 0x000000ff
 #define ALPHASURFACE_AMASK 0xff000000
 
+/////////////////////
+// Locking and unlocking routines, must be called before doing anything with pixels
+inline bool LockSurface(SDL_Surface *bmp)  {
+	if (SDL_MUSTLOCK(bmp))
+		return SDL_LockSurface(bmp) != -1;
+	return true;
+}
+
+inline void UnlockSurface(SDL_Surface *bmp)  {
+	if (SDL_MUSTLOCK(bmp))
+		SDL_UnlockSurface(bmp);
+}
+
 
 //
 // Clipping routines
@@ -266,7 +279,7 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 ///////////////
 // Simply draw the image
 inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
-	static SDL_Rect	rDest;
+	SDL_Rect	rDest;
 	rDest.x = x; rDest.y = y;
 	SDL_BlitSurface(bmpSrc,NULL,bmpDest,&rDest);
 }
@@ -274,7 +287,7 @@ inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
 ///////////////
 // Draw the image, with more options
 inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h) {
-	static SDL_Rect	rDest, rSrc;
+	SDL_Rect	rDest, rSrc;
 	rDest.x = x; rDest.y = y;
 	rSrc.x = 0; rSrc.y = 0;
 	rSrc.w = w; rSrc.h = h;
@@ -284,7 +297,7 @@ inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y,
 //////////////
 // Draw the image with a huge amount of options
 inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
-	static SDL_Rect	rDest, rSrc;
+	SDL_Rect	rDest, rSrc;
 	rDest.x = dx; rDest.y = dy;
 	rSrc.x = sx; rSrc.y = sy;
 	rSrc.w = w; rSrc.h = h;
@@ -355,6 +368,7 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx,
 /////////////////
 // Put pixel to a specified address
 // WARNING: passing an invalid adress will cause a segfault
+// NOTE: destination surface must be locked before calling this
 inline void PutPixelToAddr(Uint8* p, Uint32 color, short bpp) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	memcpy(p, (Uint8*)&color + 4 - bpp, bpp);
@@ -366,6 +380,7 @@ inline void PutPixelToAddr(Uint8* p, Uint32 color, short bpp) {
 //////////////
 // Pixel drawing
 // WARNING: passing invalid coordinates will cause a segfault
+// NOTE: bmpDest must be locked before calling this
 inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 color) {
 	PutPixelToAddr(
 			(Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel,
@@ -376,6 +391,7 @@ inline void PutPixel(SDL_Surface *bmpDest, int x, int y, Uint32 color) {
 ////////////////
 // Get a pixel from an 8bit address
 // WARNING: passing invalid adress will cause a segfault
+// NOTE: the surface must be locked before calling this
 inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 	Uint32 result;
 	result = 0;
@@ -390,6 +406,7 @@ inline Uint32 GetPixelFromAddr(Uint8* p, short bpp) {
 ////////////////
 // Get a pixel from the surface
 // WARNING: passing invalid coordinates will cause a segfault
+// NOTE: bmpSrc must be locked before calling this
 inline Uint32 GetPixel(SDL_Surface* bmpSrc, int x, int y) {
 	return GetPixelFromAddr(
 			(Uint8*)bmpSrc->pixels + y * bmpSrc->pitch + x * bmpSrc->format->BytesPerPixel,
@@ -399,6 +416,7 @@ inline Uint32 GetPixel(SDL_Surface* bmpSrc, int x, int y) {
 ////////////////
 // Copy pixel from one surface to another, both surfaces must have same format
 // WARNING: doesn't do clipping
+// NOTE: dst must be locked before calling this
 inline void CopyPixel_SameFormat(
 	SDL_Surface* dst, SDL_Surface* src,
 	int dx, int dy, int sx, int sy) {
@@ -412,6 +430,7 @@ inline void CopyPixel_SameFormat(
 // Copy pixel from one surface to another, the coordinate on both surfaces is the same
 // WARNING: doesn't do clipping
 // WARNING: surfaces must have same format
+// NOTE: dst must be locked before calling his
 inline void CopyPixel_SameFormat(
 	SDL_Surface* dst, SDL_Surface* src, int x, int y) {
 	CopyPixel_SameFormat(dst, src, x, y, x, y);
@@ -421,6 +440,7 @@ inline void CopyPixel_SameFormat(
 ////////////////
 // Put pixel alpha blended with the background
 // WARNING: passing invalid coordinates will cause a segfault
+// NOTE: dst must be locked before calling this
 void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a);
 
 inline void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, Uint8 a) {
@@ -479,9 +499,8 @@ void	AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 
 /////////////////////
 // Draws a filled rectangle
-// WARNING: not threadsafe
 inline void	DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Uint32 color) {
-	static SDL_Rect r;
+	SDL_Rect r;
 	r.x = x;
 	r.y = y;
 	r.w = x2-x;
@@ -568,11 +587,15 @@ void SetColorKey(SDL_Surface* dst);
 inline void ResetAlpha(SDL_Surface* dst) {
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
 	SDL_SetAlpha(dst, 0, 0); // Remove the alpha
+
+	LockSurface(dst);
 	
 	int x, y;
 	for(y = 0; y < dst->h; y++)
 		for(x = 0; x < dst->w; x++)
 			PutPixel(dst, x, y, GetPixel(dst, x, y) | dst->format->Amask);
+
+	UnlockSurface(dst);
 }
 
 #endif  //  __GFXPRIMITIVES_H__

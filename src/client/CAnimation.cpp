@@ -37,8 +37,7 @@ void CAnimation::Parse()
 	tFrameOffsets.clear();
 	tFrameWidths.clear();
 
-	if (SDL_MUSTLOCK(tAnimation))
-		SDL_LockSurface(tAnimation);
+	LockSurface(tAnimation);
 
 	tFrameOffsets.push_back(0);
 
@@ -58,6 +57,8 @@ void CAnimation::Parse()
 			last_x = x;
 		}
 	}
+
+	UnlockSurface(tAnimation);
 
 	// Last frame
 	iNumFrames++;

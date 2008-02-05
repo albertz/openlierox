@@ -457,8 +457,11 @@ bool CMap::LoadTheme(const std::string& _theme)
 	}
 
 	// Calculate the default colour from a non-pink, non-black colour in the hole image
+	LockSurface(Theme.bmpFronttile);
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
+	UnlockSurface(Theme.bmpFronttile);
 	SDL_Surface *hole = Theme.bmpHoles[0];
+	LockSurface(hole);
 	Uint32 pixel = 0;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
@@ -471,6 +474,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 			}
 		}
 	}
+	UnlockSurface(hole);
 
 
 	// Misc
@@ -933,6 +937,11 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	w = MIN(w, shadowmap_real_w * 2);
 	h = MIN(h, shadowmap_real_h * 2);
 
+	// Lock the surfaces
+	LockSurface(bmpDest);
+	LockSurface(bmpObj);
+	LockSurface(bmpShadowMap);
+
 	// Pixels
 	byte bpp = bmpDest->format->BytesPerPixel;
 	Uint8 *dest_px, *obj_px, *shadowmap_px;
@@ -951,14 +960,6 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 
 	// Loop variables
 	int loop_x, loop_y;
-
-	// Lock the surfaces
-	if (SDL_MUSTLOCK(bmpDest))
-		SDL_LockSurface(bmpDest);
-	if (SDL_MUSTLOCK(bmpObj))
-		SDL_LockSurface(bmpObj);
-	if (SDL_MUSTLOCK(bmpShadowMap))
-		SDL_LockSurface(bmpShadowMap);
 
 	// Draw the shadow
 	for (loop_y = h; loop_y; --loop_y)  {
@@ -989,12 +990,9 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	}
 
 	// Unlock the surfaces
-	if (SDL_MUSTLOCK(bmpDest))
-		SDL_UnlockSurface(bmpDest);
-	if (SDL_MUSTLOCK(bmpObj))
-		SDL_UnlockSurface(bmpObj);
-	if (SDL_MUSTLOCK(bmpShadowMap))
-		SDL_UnlockSurface(bmpShadowMap);		  
+	UnlockSurface(bmpDest);
+	UnlockSurface(bmpObj);
+	UnlockSurface(bmpShadowMap);		  
 }
 
 
@@ -1049,6 +1047,10 @@ int CMap::CarveHole(int size, CVec pos)
 	byte bpp = bmpImage->format->BytesPerPixel;
 	Uint32 CurrentPixel;
 
+
+	LockSurface(hole);
+	LockSurface(bmpImage);
+
 	hole_px = (Uint8 *)hole->pixels;
 	mapimage_px = (Uint8 *)bmpImage->pixels + map_y * bmpImage->pitch + map_x * bpp;
 	PixelFlag = PixelFlags + map_y * Width + map_x;
@@ -1061,11 +1063,6 @@ int CMap::CarveHole(int size, CVec pos)
 
 	// Lock
 	lockFlags();
-	
-	if(SDL_MUSTLOCK(hole))
-		SDL_LockSurface(hole);
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
 	
 	for(hy = h; hy; --hy)  {
 		for(hx = w; hx; --hx) {		
@@ -1101,10 +1098,8 @@ int CMap::CarveHole(int size, CVec pos)
 
 	unlockFlags();
 
-	if(SDL_MUSTLOCK(hole))
-		SDL_UnlockSurface(hole);
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
+	UnlockSurface(hole);
+	UnlockSurface(bmpImage);
 
 	if(nNumDirt)  { // Update only when something has been carved
 		UpdateArea(map_x, map_y, w, h, true);
@@ -1258,8 +1253,9 @@ int CMap::PlaceDirt(int size, CVec pos)
 	sy = (int)pos.y-(hole->h>>1);
 
 
-	if(SDL_MUSTLOCK(hole))
-		SDL_LockSurface(hole);
+	LockSurface(hole);
+	LockSurface(bmpImage);
+	LockSurface(Theme.bmpFronttile);
 
 	Uint8 *p;
 	uchar *px;
@@ -1318,8 +1314,9 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	unlockFlags();
 
-	if(SDL_MUSTLOCK(hole))
-		SDL_UnlockSurface(hole);
+	UnlockSurface(hole);
+	UnlockSurface(bmpImage);
+	UnlockSurface(Theme.bmpFronttile);
 
 	UpdateArea(sx, sy, w, h);
 
@@ -1364,8 +1361,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 	sy = (int)pos.y-(h>>1);
 
 
-	if(SDL_MUSTLOCK(bmpGreenMask))
-		SDL_LockSurface(bmpGreenMask);
+	LockSurface(bmpGreenMask);
+	LockSurface(bmpImage);
 
 
 	Uint8 *p;
@@ -1426,8 +1423,8 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 	unlockFlags();
 
-	if(SDL_MUSTLOCK(bmpGreenMask))
-		SDL_UnlockSurface(bmpGreenMask);
+	UnlockSurface(bmpGreenMask);
+	UnlockSurface(bmpImage);
 
 	// Nothing placed, no need to update
 	if (nGreenCount)  {
@@ -1463,8 +1460,8 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	int screenbpp = getMainPixelFormat()->BytesPerPixel;
 
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
+	LockSurface(bmpImage);
+	LockSurface(bmpShadowMap);
 
 	lockFlags();
 
@@ -1515,8 +1512,8 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	unlockFlags();
 
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
+	UnlockSurface(bmpShadowMap);
+	UnlockSurface(bmpImage);
 
 	bMiniMapDirty = true;
 }
@@ -1569,8 +1566,7 @@ void CMap::PlaceStone(int size, CVec pos)
 	// Blit the stone to the surface
 	DrawImage(bmpImage, stone, sx, sy);
 
-	if(SDL_MUSTLOCK(stone))
-		SDL_LockSurface(stone);
+	LockSurface(stone);
 
 	lockFlags();
 
@@ -1611,8 +1607,7 @@ void CMap::PlaceStone(int size, CVec pos)
 
 	unlockFlags();
 
-	if(SDL_MUSTLOCK(stone))
-		SDL_UnlockSurface(stone);
+	UnlockSurface(stone);
 
 	UpdateArea(sx, sy, w, h);
 
@@ -1656,8 +1651,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 	sy = (int)pos.y-(misc->h>>1);
 
 
-	if(SDL_MUSTLOCK(misc))
-		SDL_LockSurface(misc);
+	LockSurface(misc);
+	LockSurface(bmpImage);
 
 	lockFlags();
 
@@ -1701,8 +1696,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 
 	unlockFlags();
 
-	if(SDL_MUSTLOCK(misc))
-		SDL_UnlockSurface(misc);
+	UnlockSurface(bmpImage);
+	UnlockSurface(misc);
 
 	// Update the draw image
 	UpdateDrawImage(sx, sy, clip_w, clip_h);
@@ -1774,11 +1769,11 @@ void CMap::PutImagePixel(uint x, uint y, Uint32 colour)
 	if(x >= Width || y >= Height)
 		return;
 
-    PutPixel(bmpImage, x,y, colour);
-	PutPixel(bmpDrawImage, x*2,y*2, colour);
-	PutPixel(bmpDrawImage, x*2+1,y*2, colour);
-	PutPixel(bmpDrawImage, x*2,y*2+1, colour);
-	PutPixel(bmpDrawImage, x*2+1,y*2+1, colour);
+    DrawRectFill(bmpDrawImage, x, y, x + 1, y + 1, colour);
+
+	x *= 2;
+	y *= 2;
+	DrawRectFill(bmpDrawImage, x, y, x + 2, y + 2, colour);
 }
 
 
@@ -2022,10 +2017,8 @@ bool CMap::Load(const std::string& filename)
 	}
 
 	// Lock the surfaces
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
-	if (SDL_MUSTLOCK(bmpBackImage))
-		SDL_LockSurface(bmpBackImage);
+	LockSurface(bmpImage);
+	LockSurface(bmpBackImage);
 
 	// Dirt map
 	size_t n,i,j,x=0;
@@ -2078,10 +2071,8 @@ bool CMap::Load(const std::string& filename)
 	delete[] bitmask;
 
 	// Unlock the surfaces
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
-	if (SDL_MUSTLOCK(bmpBackImage))
-		SDL_UnlockSurface(bmpBackImage);
+	UnlockSurface(bmpImage);
+	UnlockSurface(bmpBackImage);
 
 	// Objects
 	object_t o;
@@ -2159,6 +2150,8 @@ bool CMap::Save(const std::string& name, const std::string& filename)
 	if(Type == MPT_IMAGE)
 		return SaveImageFormat(fp);
 
+	lockFlags();
+
 	// Dirt map
 	uint n;
 	for(n=0;n<Width*Height;) {
@@ -2172,6 +2165,8 @@ bool CMap::Save(const std::string& name, const std::string& filename)
 
 		fwrite(&t,	sizeof(uchar),	1,	fp);
 	}
+
+	unlockFlags();
 
 	// Objects
 	object_t *o = Objects;
@@ -2214,8 +2209,10 @@ bool CMap::SaveImageFormat(FILE *fp)
 		return false;
 	}
 
+
 	// Save the back image
 	p=0;
+	LockSurface(bmpBackImage);
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
 			GetColour4( GetPixel(bmpBackImage,x,y), bmpBackImage->format, &r, &g, &b ,&a );
@@ -2225,8 +2222,11 @@ bool CMap::SaveImageFormat(FILE *fp)
 			pSource[p++] = b;
 		}
 	}
+	UnlockSurface(bmpBackImage);
+
 
 	// Save the front image
+	LockSurface(bmpImage);
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
 			GetColour4( GetPixel(bmpImage,x,y), bmpImage->format, &r, &g, &b ,&a );
@@ -2235,8 +2235,10 @@ bool CMap::SaveImageFormat(FILE *fp)
 			pSource[p++] = b;
 		}
 	}
+	UnlockSurface(bmpImage);
 
 	// Save the pixel flags
+	lockFlags();
 	for(n=0;n<Width*Height;n++) {
 		uchar t = PX_EMPTY;
 
@@ -2247,6 +2249,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 
 		pSource[p++] = t;
 	}
+	unlockFlags();
 
 	// Compress it
 	ulong lng_dsize = destsize;
@@ -2313,10 +2316,8 @@ bool CMap::LoadImageFormat(FILE *fp)
 	//
 
 	// Lock surfaces
-	if (SDL_MUSTLOCK(bmpBackImage))
-		SDL_LockSurface(bmpBackImage);
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
+	LockSurface(bmpBackImage);
+	LockSurface(bmpImage);
 
 	p=0;
 	Uint32 curcolor=0;
@@ -2374,10 +2375,8 @@ bool CMap::LoadImageFormat(FILE *fp)
 	unlockFlags();
 
 	// Unlock the surfaces
-	if (SDL_MUSTLOCK(bmpBackImage))
-		SDL_UnlockSurface(bmpBackImage);
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
+	UnlockSurface(bmpBackImage);
+	UnlockSurface(bmpImage);
 
 //	SDL_SaveBMP(pxf, "mat.bmp");
 	//SDL_SaveBMP(bmpImage, "front.bmp");
@@ -2477,7 +2476,7 @@ bool CMap::LoadOriginal(FILE *fp)
 
 	// Load the palette from the same file if it's a powerlevel
 	if(Powerlevel) {
-		static char id[11];
+		char id[11];
 		// Load id
 		fread(id,sizeof(uchar),10,fp);
 		id[10] = '\0';
@@ -2499,6 +2498,8 @@ bool CMap::LoadOriginal(FILE *fp)
 	}
 
 	// Set the image
+	LockSurface(bmpBackImage);
+	LockSurface(bmpImage);
 	lockFlags();
 	n=0;
 	for(y=0;y<Height;y++) {
@@ -2534,6 +2535,8 @@ bool CMap::LoadOriginal(FILE *fp)
 		}
 	}
 	unlockFlags();
+	UnlockSurface(bmpImage);
+	UnlockSurface(bmpBackImage);
 
 	delete[] palette;
 	delete[] bytearr;
@@ -2772,6 +2775,7 @@ int CarveHole(CMap *cMap, CVec pos)
 	// Go through until we find dirt to throw around
 	y = MAX(MIN((int)pos.y, (int)cMap->GetHeight() - 1), 0);
 
+	LockSurface(cMap->GetImage());
 	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
 		// Clipping
 		if(x < 0) continue;
@@ -2784,6 +2788,7 @@ int CarveHole(CMap *cMap, CVec pos)
 			break;
 		}
 	}
+	UnlockSurface(cMap->GetImage());
 
 	// Just carve a hole for the moment
 	return cMap->CarveHole(3,pos);
@@ -3030,10 +3035,8 @@ bool CMap::LoadCTF(const std::string& filename)
 	//
 
 	// Lock surfaces
-	if (SDL_MUSTLOCK(bmpBackImage))
-		SDL_LockSurface(bmpBackImage);
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
+	LockSurface(bmpBackImage);
+	LockSurface(bmpImage);
 
 	p=0;
 	Uint32 curcolor=0;
@@ -3090,10 +3093,8 @@ bool CMap::LoadCTF(const std::string& filename)
 	unlockFlags();
 
 	// Unlock the surfaces
-	if (SDL_MUSTLOCK(bmpBackImage))
-		SDL_UnlockSurface(bmpBackImage);
-	if (SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
+	UnlockSurface(bmpBackImage);
+	UnlockSurface(bmpImage);
 
 	// Delete the data
 	delete[] pDest;
@@ -3148,8 +3149,7 @@ bool CMap::RecvDirtUpdate(CBytestream *bs)
 {
 	bs->ResetBitPos();
 	lockFlags();
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
+	LockSurface(bmpImage);
 	byte bpp = bmpImage->format->BytesPerPixel;
 	for( uint y = 0; y < Height; y++ )
 	for( uint x = 0; x < Width; x++ )
@@ -3172,8 +3172,7 @@ bool CMap::RecvDirtUpdate(CBytestream *bs)
 			};
 		};
 	};
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
+	UnlockSurface(bmpImage);
 	unlockFlags();
 	UpdateArea(0, 0, Width-1, Height-1, true);
 	return true;

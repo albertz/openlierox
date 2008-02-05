@@ -750,6 +750,9 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
     if( !tMenu->bmpWorm )
         return;
 
+	LockSurface(bmpDest);
+	LockSurface(tMenu->bmpWorm);
+
     // Set the colour of the worm
 	int x,y,sx;
 	Uint8 r,g,b,a;
@@ -804,6 +807,9 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 			PutPixelA(bmpDest,sx+dx,y+dy, MakeColour((int)r2, (int)g2, (int)b2), a);
 		}
 	}
+
+	UnlockSurface(bmpDest);
+	UnlockSurface(tMenu->bmpWorm);
 }
 
 

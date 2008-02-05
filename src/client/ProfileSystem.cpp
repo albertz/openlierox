@@ -550,6 +550,9 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
     SetColorKey(skin);
     FillSurfaceTransparent(skin);
 
+	LockSurface(skin);
+	LockSurface(worm);
+
 
     // Set the colour of the worm
 	int x,y;
@@ -605,6 +608,9 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
 			PutPixel(skin,x,y, SDL_MapRGBA(skin->format, (int)r2, (int)g2, (int)b2, a));
 		}
 	}
+
+	UnlockSurface(worm);
+	UnlockSurface(skin);
 
     return skin;
 }

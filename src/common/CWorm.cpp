@@ -438,6 +438,8 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	const Uint32 gun2 = MakeColour(180,180,180);
 	const Uint32 gun3 = MakeColour(144,144,144);
 
+	LockSurface(img);
+
 	for(y = 0; y < img->h; y++) {
 		for(x = 0; x < img->w; x++) {
 
@@ -475,6 +477,8 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 			PutPixel(img,x,y, MakeColour((int)r2, (int)g2, (int)b2));
 		}
 	}
+
+	UnlockSurface(img);
 
 	return img;
 }
