@@ -102,15 +102,19 @@ void CFont::Parse(void) {
 
 	Uint32 blue = SDL_MapRGB(bmpFont->format, 0, 0, 255);
 
+	// a blue pixel always indicates a new char exept for the first
+	
 	uint char_start = 0;
 	for (x = 0; x < bmpFont->w; x++) {
+		// x is always one pixel behind a blue line or x==0
+	
 		// Ignore any free pixel columns before the character
 		char_start = x;
 		while (IsColumnFree(x) && x < bmpFont->w)
 			++x;
 
 		// If we stopped at next blue line/end, this must be a kind of space
-		if (GetPixel(bmpFont, x, 0) == blue || x == (bmpFont->w - 1))  {
+		if (GetPixel(bmpFont, x, 0) == blue || x == bmpFont->w)  {
 			cur_w = x - char_start;
 
 		// Non-blank character
@@ -126,12 +130,14 @@ void CFont::Parse(void) {
 			}
 
 			// Ignore any free pixel columns *after* the character
-			assert(cur_w >= 0);
-			uint tmp_x = x - 1; // -1 : blue line
+			uint tmp_x = x - 1; // last line before blue line or end
 			while (IsColumnFree(tmp_x) && cur_w) {
 				--cur_w;
 				--tmp_x;
 			}
+			
+			if(cur_w == 0)
+				printf("WARNING: cur_w == 0\n");
 		}
 		
 		// Add the character
