@@ -373,12 +373,12 @@ void ShutdownAuxLib()
 	// 4. Looks awful for the user
 	// -> there is no difference for the user; if the resultion from fullscreen -> window is changed at the end or here, where is the difference?
 	if(tLXOptions->bFullscreen && !bRestartGameAfterQuit) {
-		bool oldFullscreenState = tLXOptions->bFullscreen; tLXOptions->bFullscreen = false;
+		tLXOptions->bFullscreen = false;
 		// disable fullscreen for quitting
 		// if something goes wrong, we stay not in this annoying state with a fullscreen and a not responding app
 		// HINT: this is really important; a crashed system is much worse than a crashed game
 		SetVideoMode();
-		tLXOptions->bFullscreen = oldFullscreenState; // recover to save correct in options
+		tLXOptions->bFullscreen = true; // recover to save correct in options
 	}
 	
 	// free all cached stuff like surfaces and sounds
