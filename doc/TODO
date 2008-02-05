@@ -25,6 +25,7 @@ TODO
 [ ] recode whole CTF code (!!)
 [ ] fill documentation (README) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
+[ ] fix STUN (!!)
 
 [?] nMaxFPS = 0 works correctly? (!!)
 [?] fix: crashes on MacOSX (!!)
