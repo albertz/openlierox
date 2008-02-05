@@ -32,10 +32,11 @@ NetworkTexts	*networkTexts = NULL;
 static const std::string OptionsFileName = "cfg/options.cfg";
 
 const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe"};
+const std::string    ply_def1[] =
 #ifdef MACOSX
-const std::string    ply_def1[] = {"up", "down", "left", "right", "lalt", "lmeta", "space", "x", "c"};
+	{"up", "down", "left", "right", "lalt", "lmeta", "space", "x", "c"};
 #else
-const std::string    ply_def1[] = {"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z"};
+	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z"};
 #endif
 const std::string    ply_def2[] = {"r",  "f",    "d",    "g",     "rctrl", "ralt", "rshift", "/", "."};
 const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "TeamChat",	"MediaPlayer"};
@@ -57,22 +58,25 @@ bool GameOptions::Init() {
 	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
 	
 	CScriptableVars::RegisterVars("GameOptions")	
+		( tLXOptions->bFullscreen, "Video.Fullscreen",
 #ifdef WIN32
-		( tLXOptions->bFullscreen, "Video.Fullscreen", true )
+			true )
 #else
-		( tLXOptions->bFullscreen, "Video.Fullscreen", false )
+			false )
 #endif
 		( tLXOptions->bShowFPS, "Video.ShowFPS", false )
-#ifdef MACOSX	
-		( tLXOptions->bOpenGL, "Video.OpenGL", true )
+		( tLXOptions->bOpenGL, "Video.OpenGL",
+#ifdef MACOSX
+			true )
 #else
-		( tLXOptions->bOpenGL, "Video.OpenGL", false )
+			false )
 #endif
 		( tLXOptions->sResolution, "Video.Resolution", "" )
+		( tLXOptions->iColourDepth, "Video.ColourDepth",
 #ifdef MACOSX	
-		( tLXOptions->iColourDepth, "Video.ColourDepth", 24 )
+			24 )
 #else
-		( tLXOptions->iColourDepth, "Video.ColourDepth", 16 )
+			16 )
 #endif
 		( tLXOptions->iNetworkPort, "Network.Port", LX_PORT )
 		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_MODEM )
@@ -193,7 +197,7 @@ static void InitSearchPaths() {
 	}
 
 	// print the searchpaths, this may be very usefull for the user
-	printf("I have now the following searchpaths (in this direction):\n");
+	printf("I have now the following searchpaths (in this order):\n");
 	for(searchpathlist::const_iterator p2 = tSearchPaths.begin(); p2 != tSearchPaths.end(); p2++) {
 		std::string path = *p2;
 		ReplaceFileVariables(path);

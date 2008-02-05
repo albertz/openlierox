@@ -1445,8 +1445,13 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			} 
 		}
 
+		// it doesn't make sense to save the nicks permanently on a IP-base
+		// also it's very annoying to get my olx-config-dir spammed with hundreds of files
+		// TODO: remove this or do it in another way
+		// why do we need this at all? where is it used? what is the sense to have multiple nicks?
+		/*
 		// Address
-		static std::string str_addr;
+		std::string str_addr;
 		NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 		// Remove port
 		size_t pos = str_addr.rfind(':');
@@ -1493,16 +1498,15 @@ void GameServer::ParseConnect(CBytestream *bs) {
 				fclose(fp);
 			}
 
-			/*
 			// It's really useless.
 			// If the worm has more than 5 names, ban it
-			if(aliascount>5) {
-				banWorm(id);
-				SendGlobalText(worms[0].getName()+" had too many nicks", TXT_NETWORK);
-			}
-			*/
+			//if(aliascount>5) {
+			//	banWorm(id);
+			//	SendGlobalText(worms[0].getName()+" had too many nicks", TXT_NETWORK);
+			//}
 		}
-
+		*/
+		
 		// Tell the client the game lobby details
 		// Note: This sends a packet to ALL clients, not just the new client
 		// TODO: if connecting during game update game lobby only for new client
