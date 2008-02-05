@@ -2296,7 +2296,7 @@ void CClient::UpdateIngameScore(CListview *Left, CListview *Right, bool WaitForP
 
 ////////////////////
 // Helper function for DrawPlayerWaiting
-void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, CWorm *start, int num)
+void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, std::list<CWorm *>::iterator& it, const std::list<CWorm *>::iterator& last, int num)
 {
 	const int h = getBottomBarTop() - y;
 
@@ -2307,13 +2307,9 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, CWorm 
 
 	DrawRectFillA(bmpDest, x, y, x + WAIT_COL_W, y + h, tLX->clScoreBackground, 128);
 	
-	CWorm *wrm = start;
 	int cur_y = y + 5;
-	for (int i=0; i < num; )  {
-		if (!wrm->isUsed())  {
-			wrm++;
-			continue;
-		}
+	for (int i=0; i < num && (it != last); i++, it++)  {
+		CWorm *wrm = *it;
 
 		int cur_x = x + 5;
 
@@ -2332,9 +2328,6 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface *bmpDest, int x, int y, CWorm 
 		tLX->cFont.Draw(bmpDest, cur_x, cur_y, tLX->clNormalLabel, wrm->getName());
 
 		cur_y += MAX(wrm->getPicimg()->h, tLX->cFont.GetHeight()) + 2;
-
-		i++;
-		wrm++;
 	}
 
 	SDL_SetClipRect(bmpDest, &oldclip);
@@ -2351,21 +2344,23 @@ void CClient::DrawPlayerWaiting(SDL_Surface *bmpDest)
 		return;
 
 	// Get the number of players
-	int num_players = 0;
+	std::list<CWorm *> worms;
 	CWorm *w = cRemoteWorms;
 	for (int i=0; i < MAX_WORMS; i++, w++)  {
 		if (w->isUsed())
-			num_players++;
+			worms.push_back(w);
 	}
 
+	std::list<CWorm *>::iterator it = worms.begin();
+
 	// Two columns
-	if (num_players > 16)  {
-		DrawPlayerWaitingColumn(bmpDest, x, y, cRemoteWorms, 16);
-		DrawPlayerWaitingColumn(bmpDest, SDL_GetVideoSurface()->w - WAIT_COL_W, y, cRemoteWorms + 16, num_players - 16);
+	if (worms.size() > 16)  {
+		DrawPlayerWaitingColumn(bmpDest, x, y, it, worms.end(), 16);
+		DrawPlayerWaitingColumn(bmpDest, SDL_GetVideoSurface()->w - WAIT_COL_W, y, it, worms.end(), worms.size() - 16);
 
 	// One column
 	} else {
-		DrawPlayerWaitingColumn(bmpDest, x, y, cRemoteWorms, num_players);
+		DrawPlayerWaitingColumn(bmpDest, x, y, it, worms.end(), worms.size());
 	}
 
 
