@@ -369,19 +369,17 @@ void FlipScreen(SDL_Surface *psScreen)
 // Shutdown the standard Auxiliary Library
 void ShutdownAuxLib()
 {
-	if(tLXOptions->bFullscreen && !bRestartGameAfterQuit) {
-		tLXOptions->bFullscreen = false;
-		// disable fullscreen for quitting
-		// if something goes wrong, we stay not in this annoying state with a fullscreen and a not responding app
-		// HINT: this is really important; a crashed system is much worse than a crashed game
-		SetVideoMode();
-		tLXOptions->bFullscreen = true; // recover to save correct in options
-	}
+	// Process the last events (mainly because of timers that will free the allocated memory)
+	ProcessEvents();
 	
 	// free all cached stuff like surfaces and sounds
 	// HINT: we have to do it before we uninit the specific engines
 	cCache.Clear();
 	
+	// quit video at this point to not get stuck in a fullscreen not responding game in case that it crashes in further quitting
+	// in the case it wasn't inited at this point, this also doesn't hurt
+	SDL_QuitSubSystem( SDL_INIT_VIDEO );
+
 	QuitSoundSystem();
 
 	// Shutdown the error system
@@ -390,9 +388,6 @@ void ShutdownAuxLib()
 #ifdef WIN32
 	UnSubclassWindow();
 #endif
-
-	// Process the last events (mainly because of timers that will free the allocated memory)
-	ProcessEvents();
 
 	// Shutdown the SDL system
 	// HINT: Sometimes we get a segfault here. Because
