@@ -302,8 +302,6 @@ struct DedIntern {
 		tLXOptions->tGameinfo.bAllowNickChange = false;
 		tLXOptions->bServerSideHealth = false;
 	
-		tLXOptions->bAllowConnectDuringGame = false;
-	
 		tGameInfo.iGameType = GME_HOST;
 		
 		// Fill in some game details

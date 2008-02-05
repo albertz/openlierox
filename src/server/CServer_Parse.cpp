@@ -151,7 +151,7 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 ///////////////////
 // Parse a 'im ready' packet
 void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
-	if ( iState != SVS_GAME && !( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) )
+	if ( iState != SVS_GAME )
 	{
 		printf("GameServer::ParseImReady: Not playing, packet is being ignored.\n");
 
@@ -218,76 +218,8 @@ void GameServer::ParseImReady(CClient *cl, CBytestream *bs) {
 		}
 	}
 
-	if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() )
-	{
-		// TODO: documentation is missing how this whole thing works exactly!
-		
-		cl->setStatus(NET_CONNECTED);
-		cl->setConnectingDuringGame(false);
-		CBytestream b;
-		int i;
-		CWorm *w = cWorms;
-		for ( i = 0; i < MAX_WORMS; i++, w++ )
-		{
-			if (w->isUsed())
-			{
-				// Send weapon info of other worms - copied from above
-				// TODO: never every copy code!
-				b.writeByte(S2C_CLREADY);
-				b.writeByte(1);
-				w->writeWeapons(&b);
-			};
-		};
-		b.writeInt(S2C_STARTGAME,1);
-		SendPacket(&b, cl);
-		// Spawn worms already playing for this client (health bar will be wrong, cannot fix anyway)
-		b.Clear();
-		w = cWorms;
-		for ( i = 0; i < MAX_WORMS; i++, w++ )
-		{
-			if ( ! w->isUsed() )
-				continue;
-			if( w->getClient() == cl )
-			{
-				w->writeScore( &b );
-			}
-			else
-			{
-				w->writeScore( &b );
-				if( w->getLives() != WRM_OUT )
-				{
-					// Copied from GameServer::SpawnWorm()
-					// TODO: never every copy code!
-					b.writeByte(S2C_SPAWNWORM);
-					b.writeInt(w->getID(), 1);
-					b.writeInt( (int)w->getPos().x, 2);
-					b.writeInt( (int)w->getPos().y, 2);
-					w->writeScore( &b );
-				}
-			};
-		};
-		// Spawn existing bonuses
-		CBonus * bn = cBonuses;
-		for( i = 0; i < MAX_BONUSES; i++, bn++ )
-		{
-			if( ! bn->getUsed() )
-				continue;
-			// Copied from GameServer::SpawnBonus()
-			b.writeByte(S2C_SPAWNBONUS);
-			b.writeInt( bn->getType(), 1 );
-			if( bn->getType() == BNS_WEAPON )
-				b.writeInt( bn->getWeapon(), 1 );
-			b.writeInt( i, 1 );
-			b.writeInt( (int)bn->getPosition().x, 2 );
-			b.writeInt( (int)bn->getPosition().y, 2 );
-		};
-		SendPacket(&b, cl);
-	}
-	else
-	{
-		// Check if all the clients are ready
-		CheckReadyClient();
-	}
+	// Check if all the clients are ready
+	CheckReadyClient();
 }
 
 
@@ -719,8 +651,7 @@ void GameServer::ParseChatText(CClient *cl, CBytestream *bs) {
 // Parse a 'update lobby' packet
 void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 	// Must be in lobby
-	if ( iState != SVS_LOBBY &&  
-		!( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING && cl->getConnectingDuringGame() ) )  {
+	if ( iState != SVS_LOBBY )  {
 		printf("GameServer::ParseUpdateLobby: Not in lobby.\n");
 
 		// Skip to get the right position
@@ -766,36 +697,6 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 			bytestr.Clear();
 		}
 	}
-	if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING && ready )
-	{
-		cl->setStatus(NET_CONNECTED);
-		bytestr.Clear();
-		SendPacket(&bytestr, cl);
-		bytestr.Clear();
-		// Copied from GameServer::StartGame()
-		// TODO: move this out here
-		bytestr.writeByte(S2C_PREPAREGAME);
-		bytestr.writeBool(bRandomMap);
-		if(!bRandomMap)
-			bytestr.writeString(sMapFilename);
-		
-		// Game info
-		bytestr.writeInt(iGameType, 1);
-		bytestr.writeInt16(iLives);
-		bytestr.writeInt16(iMaxKills);
-		bytestr.writeInt16((int)fTimeLimit);
-		bytestr.writeInt16(iLoadingTimes);
-		bytestr.writeBool(bBonusesOn);
-		bytestr.writeBool(bShowBonusName);
-		if(iGameType == GMT_TAG)
-			bytestr.writeInt16(iTagLimit);
-		bytestr.writeString(tGameInfo.sModDir);
-		cWeaponRestrictions.sendList(&bytestr);
-		SendPacket(&bytestr, cl);
-		// Beta3 client parses S2C_PREPAREGAME packet glitchly, so if anything will be added
-		// to the end of this packet client won't parse it at all
-		cl->setStatus(NET_ZOMBIE);
-	};
 };
 
 
@@ -980,7 +881,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	GetRemoteNetAddr(tSocket, adrFrom);
 
 	// If were in the game, deny challenges
-	if ( iState != SVS_LOBBY && !( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) ) {
+	if ( iState != SVS_LOBBY ) {
 		bs.Clear();
 		// TODO: move this out here
 		bs.writeInt(-1, 4);
@@ -1037,19 +938,6 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 }
 
 
-bool timerClientSendsReadyAutomatically(Timer* sender, void* userData)
-{
-	CClient * cl = (CClient *) userData;
-	
-	// TODO: hack, please make it better
-	CBytestream bs;
-	bs.writeBool(true);
-	cServer->ParseUpdateLobby( cl, &bs );
-	
-	return false;
-};
-
-
 ///////////////////
 // Handle a 'connect' message
 void GameServer::ParseConnect(CBytestream *bs) {
@@ -1067,7 +955,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 
 	// Ignore if we are playing (the challenge should have denied the client with a msg)
-	if ( iState != SVS_LOBBY && !( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) )  {
+	if ( iState != SVS_LOBBY )  {
 //	if (iState == SVS_PLAYING) {
 		printf("GameServer::ParseConnect: In game, ignoring.");
 		return;
@@ -1281,20 +1169,6 @@ void GameServer::ParseConnect(CBytestream *bs) {
 					w->setTeam(0);
 				newcl->setWorm(i, w);
 				ids[i] = p;
-				if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING )
-				{
-					// If worm won't spawn or shoot we won't get any crashes (hopefully)
-					w->setAlive(false);
-					w->setLives(WRM_OUT);
-    		        w->setKills(0);
-					w->setGameScript(&cGameScript);
-            		w->setWpnRest(&cWeaponRestrictions);
-					w->setLoadingTime( (float)iLoadingTimes / 100.0f );
-					w->setKillsInRow(0);
-					w->setDeathsInRow(0);
-					w->setTeam(0);
-					iNumPlayers++;
-				};
 				
 				if( DedicatedControl::Get() )
 					DedicatedControl::Get()->NewWorm_Signal(w);
@@ -1372,23 +1246,6 @@ void GameServer::ParseConnect(CBytestream *bs) {
 
 		SendGlobalPacket(&bytestr);
 		
-		if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING )
-		{
-			// Send new worm score to everyone, or we can get wrong final scoreboard screenshot
-			bytestr.Clear();
-			w = cWorms;
-			for( int p = 0; p < MAX_WORMS; p++, w++ )
-			{
-				if ( ! w->isUsed() || w->getClient() != newcl )
-					continue;
-				w->writeScore( &bytestr );
-			};
-			SendGlobalPacket(&bytestr);
-		};
-
-		// TODO: Set socket info
-		// TODO: This better
-
 
 		std::string buf;
 		// "Has connected" message
@@ -1524,17 +1381,6 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// Make host authorised
 		if(newcl->getNumWorms() == 0 || newcl->getWorm(0)->getID() == 0)  // ID 0 = host
 			newcl->getRights()->Everything();
-
-		// Client spawns when the game starts
-		if( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING )
-		{
-			// SendText doesn't work here, dunno why - won't be needed when I'll send the STARTGAME on timeout
-			//SendText( newcl, OldLxCompatibleString("Game in progress. Press \"Ready\" to connect."), TXT_NETWORK );
-			newcl->setStatus(NET_ZOMBIE);	// Do not send any worm updates to client
-			newcl->setConnectingDuringGame(true);
-			// TODO: this is a really ugly hack. why isn't ParseUpdateLobby called directly here?
-			Timer( &timerClientSendsReadyAutomatically, newcl, 200, true ).startHeadless();
-		}
 	}
 }
 
@@ -1601,10 +1447,7 @@ void GameServer::ParseQuery(CBytestream *bs, const std::string& ip) {
 		bytestr.writeString(OldLxCompatibleString(sName));
 	bytestr.writeByte(iNumPlayers);
 	bytestr.writeByte(iMaxWorms);
-	if ( tLXOptions->bAllowConnectDuringGame && iState == SVS_PLAYING ) 
-		bytestr.writeByte(SVS_LOBBY);	// Advertise myself as Open or n00bz won't ever connect here
-	else 
-		bytestr.writeByte(iState);
+	bytestr.writeByte(iState);
 	bytestr.writeByte(num);
 
 	bytestr.Send(tSocket);

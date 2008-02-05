@@ -625,7 +625,7 @@ void GameServer::ReadPackets(void)
             if(cl->getChannel()->Process(&bs)) {
 
                 // Only process the actual packet for playing clients
-                if( cl->getStatus() != NET_ZOMBIE || cl->getConnectingDuringGame() )
+                if( cl->getStatus() != NET_ZOMBIE )
 				    ParseClientPacket(cl, &bs);
             }
 		}
@@ -844,13 +844,12 @@ void GameServer::CheckTimeouts(void)
 			continue;
 
         // Check for a drop
-		if( cl->getLastReceived() < dropvalue && cl->getWorm(0)->getID() != 0 &&
-			( cl->getStatus() != NET_ZOMBIE || ( cl->getStatus() == NET_ZOMBIE && cl->getConnectingDuringGame() ) ) ) {
+		if( cl->getLastReceived() < dropvalue && cl->getWorm(0)->getID() != 0 && ( cl->getStatus() != NET_ZOMBIE ) ) {
 			DropClient(cl, CLL_TIMEOUT);
 		}
 
         // Is the client out of zombie state?
-        if(cl->getStatus() == NET_ZOMBIE && tLX->fCurTime > cl->getZombieTime() && !cl->getConnectingDuringGame() ) {
+        if(cl->getStatus() == NET_ZOMBIE && tLX->fCurTime > cl->getZombieTime() ) {
             cl->setStatus(NET_DISCONNECTED);
         }
 	}
@@ -969,7 +968,6 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
     // reliable data to the client
     cl->setStatus(NET_ZOMBIE);
     cl->setZombieTime(tLX->fCurTime + 3);
-	cl->setConnectingDuringGame(false);
 
 	SendGlobalPacket(&bs);
 

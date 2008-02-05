@@ -605,14 +605,6 @@ void GameServer::gotoLobby(void)
 	AddSocketToNotifierGroup( tSocket );
 
 	short i;
-	for(i=0; i<MAX_CLIENTS; i++)
-	{	// Still some spectator clients that select their weapons
-		if( cClients[i].getConnectingDuringGame() && cClients[i].getStatus() == NET_ZOMBIE )
-		{
-			cClients[i].setConnectingDuringGame(false);
-			cClients[i].setStatus(NET_CONNECTED);
-		};
-	};
 	
 	// Tell all the clients
 	CBytestream bs;

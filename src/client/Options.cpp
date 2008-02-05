@@ -111,7 +111,6 @@ bool GameOptions::Init() {
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
 		( tLXOptions->bSpectatorSmoothViewport, "Advanced.SpectatorSmoothViewport", true )
 		( tLXOptions->bShowUnstableFeatures, "Advanced.ShowUnstableFeatures", false )
-		( tLXOptions->bAllowConnectDuringGame, "Advanced.AllowConnectDuringGame", false )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )

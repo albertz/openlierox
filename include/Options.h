@@ -206,7 +206,6 @@ public:
 	bool	bAllowFileDownload;
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 	bool	bShowUnstableFeatures;
-	bool	bAllowConnectDuringGame;	// Connect as spectator
 
 	// Misc.
 	bool    bLogConvos;

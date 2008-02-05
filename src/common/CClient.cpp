@@ -126,7 +126,6 @@ void CClient::Clear(void)
 	bMapDlError = false;
 	sMapDlError = "";
 	iMapDlProgress = 0;
-	bConnectingDuringGame = false;
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	getFileDownloaderInGame()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;

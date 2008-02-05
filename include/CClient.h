@@ -433,7 +433,6 @@ private:
 	// Logging variables
     bool		bInServer;
 	std::string	cIConnectedBuf;
-	bool		bConnectingDuringGame;
 	
 	CFileDownloaderInGame	cFileDownloaderInGame;
 	float		fLastDirtUpdate;
@@ -679,9 +678,6 @@ public:
 
 	CViewport * getViewports()					{ return cViewports; }
 	
-	bool		getConnectingDuringGame()		{ return bConnectingDuringGame; };
-	void		setConnectingDuringGame(bool b)	{ bConnectingDuringGame = b; };
-
 	CFileDownloaderInGame * getFileDownloaderInGame()	{ return &cFileDownloaderInGame; };
 	float		getLastDirtUpdate()						{ return fLastDirtUpdate; };
 	void		setLastDirtUpdate( float _f )			{ fLastDirtUpdate = _f; };
