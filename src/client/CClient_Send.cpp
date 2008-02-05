@@ -74,27 +74,6 @@ void CClient::SendWormDetails(void)
 		w->writePacket(&bs);
 
 	bsUnreliable.Append(&bs);
-
-	if( ! bDemoReplay && cDemoRecordFile )
-	{
-		// Save packet to demofile (convert C2S_UPDATE to S2C_UPDATEWORMS)
-		bs.Clear();
-		bs.writeByte(S2C_UPDATEWORMS);
-		bs.writeByte(iNumWorms);
-		w = cLocalWorms[0];
-		for(i = 0; i < iNumWorms; i++, w++)
-		{
-			bs.writeByte(w->getID());
-			w->writePacket(&bs);
-		};
-		float curtime = tLX->fCurTime;
-		Uint16 size = bs.GetRestLen(), size1=size;
-		EndianSwap(curtime);
-		EndianSwap(size1);
-		fwrite( &curtime, sizeof(curtime), 1, cDemoRecordFile );
-		fwrite( &size1, sizeof(size1), 1, cDemoRecordFile );
-		fwrite( bs.readData(size).c_str(), size, 1, cDemoRecordFile );
-	};
 }
 
 

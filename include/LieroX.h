@@ -262,7 +262,6 @@ extern  bool			bDisableSound;
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;
 extern  bool			bRestartGameAfterQuit;
-extern	std::string		sDemoFileFromCommandLine;
 
 
 typedef bool (*TStartFunction) (void* data);

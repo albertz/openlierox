@@ -112,7 +112,6 @@ bool GameOptions::Init() {
 		( tLXOptions->bSpectatorSmoothViewport, "Advanced.SpectatorSmoothViewport", true )
 		( tLXOptions->bShowUnstableFeatures, "Advanced.ShowUnstableFeatures", false )
 		( tLXOptions->bAllowConnectDuringGame, "Advanced.AllowConnectDuringGame", false )
-		( tLXOptions->bRecordDemo, "Advanced.RecordDemo", false )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )

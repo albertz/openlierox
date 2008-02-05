@@ -207,7 +207,6 @@ public:
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 	bool	bShowUnstableFeatures;
 	bool	bAllowConnectDuringGame;	// Connect as spectator
-	bool	bRecordDemo;
 
 	// Misc.
 	bool    bLogConvos;

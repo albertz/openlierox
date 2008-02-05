@@ -373,7 +373,6 @@ void	Menu_LocalInitialize(void);
 void	Menu_LocalFrame(void);
 void	Menu_LocalAddProfiles(void);
 void	Menu_LocalStartGame(void);
-void	Menu_LocalStartDemoReplay(const std::string & fname);
 bool	Menu_LocalCheckPlaying(int index);
 void	Menu_Local_FillModList( CCombobox *cb );
 void	Menu_LocalShowMinimap(bool bReload);

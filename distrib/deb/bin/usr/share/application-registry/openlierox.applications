@@ -1,7 +1,0 @@
-openlierox
-	command=openlierox
-	name=OpenLieroX
-	can_open_multiple_files=false
-	expects_uris=false
-	requires_terminal=false
-	mime_types=application/x-openlierox-demo

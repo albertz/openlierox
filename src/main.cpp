@@ -74,8 +74,6 @@ IpToCountryDB *tIpToCountryDB = NULL;
 
 CVec		vGravity = CVec(0,4);
 
-std::string	sDemoFileFromCommandLine("");
-
 //
 // Loading screen info and functions
 //
@@ -401,11 +399,6 @@ void ParseArguments(int argc, char *argv[])
             tLXOptions->bFullscreen = true;
         } else
 
-		// Load demofile from commandline
-        if( strlen(a) > 8 && stringcaserfind(a, ".OLXdemo") == strlen(a)-8 ) {
-			sDemoFileFromCommandLine = a;
-        } else
-        
 		// -help
 		// Displays help and quits
         if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") || !stricmp(a, "/?")) {

@@ -7,6 +7,5 @@ StartupNotify=false
 Terminal=false
 Type=Application
 Categories=Game;ArcadeGame;
-MimeType=application/x-openlierox-demo;
 Comment=A real-time excessive Worms-clone with network support
 Comment[ru]=Клон Worms в реальном времени с поддержкой игры по сети

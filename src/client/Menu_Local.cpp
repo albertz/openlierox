@@ -47,35 +47,13 @@ enum {
 	ml_Gametype,
 	ml_ModName,
 	ml_GameSettings,
-    ml_WeaponOptions,
-	ml_DemosList,
-	ml_PlayDemo
-
+    ml_WeaponOptions
 };
 
 int iGameType = GMT_DEATHMATCH;
 
 bool	bGameSettings = false;
 bool    bWeaponRest = false;
-
-class DemoFilesAdder
-{ 
-	public:
-   	CCombobox* cb;
-   	int index;
-	DemoFilesAdder(CCombobox* cb_) : cb(cb_), index(1) {}
-	inline bool operator() (std::string file)
-	{
-		size_t slash = findLastPathSep(file);
-		if(slash != std::string::npos)
-			file.erase(0, slash+1);
-		std::string name = file.substr(0, file.rfind("."));
-		cb->addItem(index, file, name);
-		
-		index++;
-		return true;
-	};
-};
 
 
 ///////////////////
@@ -108,9 +86,6 @@ void Menu_LocalInitialize(void)
 
 	cLocalMenu.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), ml_GameSettings, 27, 310, 170,15);
     cLocalMenu.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), ml_WeaponOptions,27, 335, 185,15);
-
-	cLocalMenu.Add( new CButton(BUT_LOAD, tMenu->bmpButtons), ml_PlayDemo, 27, 390, 170,15);
-	cLocalMenu.Add( new CCombobox(),				ml_DemosList,    30, 365, 260, 17);
 
 	cLocalMenu.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         30,  284, 0,   0);
 	cLocalMenu.Add( new CCombobox(),				ml_ModName,    120, 283, 170, 17);
@@ -165,9 +140,6 @@ void Menu_LocalInitialize(void)
 	tGameInfo.bBonusesOn = tLXOptions->tGameinfo.bBonusesOn;
 	tGameInfo.bShowBonusName = tLXOptions->tGameinfo.bShowBonusName;
 	
-	CCombobox * demosList = (CCombobox *)cLocalMenu.getWidget(ml_DemosList);
-	FindFiles(DemoFilesAdder(demosList), "demos", FM_REG);
-	demosList->Sort(false);
 }
 
 //////////////
@@ -410,16 +382,6 @@ void Menu_LocalFrame(void)
                 }
                 break;
 				
-			case ml_PlayDemo:
-                if( ev->iEventMsg == BTN_MOUSEUP ) {
-					CCombobox * demosList = (CCombobox *)cLocalMenu.getWidget(ml_DemosList);
-					PlaySoundSample(sfxGeneral.smpClick);
-					if( demosList->getSelectedItem() != NULL )
-						Menu_LocalStartDemoReplay("demos/"+demosList->getSelectedItem()->sIndex);
-				}
-				break;
-				
-
 		}
 	}
 
@@ -678,17 +640,6 @@ void Menu_LocalStartGame(void)
 
 	cLocalMenu.Shutdown();
 }
-
-void Menu_LocalStartDemoReplay(const std::string & fname)
-{
-	tGameInfo.iGameType = GME_JOIN;
-	cClient->StartDemoReplay(fname);
-	cLocalMenu.Shutdown();
-	tMenu->iMenuType = MNU_NETWORK;
-	Menu_Net_JoinLobbyInitialize();
-	bJoin_Update = true;
-	bHost_Update = true;
-};
 
 ///////////////////
 // Check if we can add another player to the list
