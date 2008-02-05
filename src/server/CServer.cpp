@@ -89,7 +89,6 @@ void GameServer::Clear(void)
 
 	tMasterServers.clear();
 	tCurrentMasterServer = tMasterServers.begin();
-	this->bDedicated = false;
 }
 
 
@@ -275,13 +274,11 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 ///////////////////
 // Start the game
-int GameServer::StartGame( bool dedicated )
+int GameServer::StartGame()
 {
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	RemoveSocketFromNotifierGroup( tSocket );
 
-	this->bDedicated = dedicated;
-	
 	CBytestream bs;
 
 	iLives =		 tGameInfo.iLives;
@@ -509,30 +506,8 @@ void GameServer::BeginMatch(void)
 		cClient->getRemoteWorms()[cWorms[i].getID()].setFlag(true);
 	}
 
-	if( this->bDedicated || bDedicated )
-	{
-		// Instantly kill local worm (leave the bots) - cannot do that in StartGame 'cause clients won't update lobby
-		CWorm * w = cWorms;
-		for( i=0; i<MAX_WORMS ; i++, w++ ) 
-		{
-			if( ! w->isUsed() )
-				continue;
-			//cout << "worm " << i << " is " << (w->getLocal() ? "" : "not ") << "local" << endl;
-			// Assume we always have one local client connected as client #0
-			if( w->getClient() == & cClients[0] && w->getType() == PRF_HUMAN )
-			{				
-				cout << "kill local worm " << i << endl;
-				// TODO: move this out here
-				bs.Clear();
-				w->setLives(WRM_OUT);
-				w->writeScore(&bs);
-				bs.writeByte(S2C_WORMDOWN);
-				bs.writeByte(w->getID());
-				SendGlobalPacket(&bs);
-			}
-		}
-	}
-
+	// No need to kill local worms for dedicated server - they will suicide by themselves
+	
 	// perhaps the state is already bad
 	RecheckGame();
 }
@@ -566,7 +541,6 @@ void GameServer::GameOver(int winner)
 
 		w->clearInput();
 	}
-	this->bDedicated = false;
 	
 	for( i=0; i<MAX_CLIENTS; i++ )
 		cClients[i].getFileDownloaderInGame()->allowFileRequest(tLXOptions->bAllowFileDownload);

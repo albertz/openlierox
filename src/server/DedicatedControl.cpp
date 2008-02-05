@@ -366,7 +366,8 @@ struct DedIntern {
 	void Cmd_StartGame() {
 
 		// Start the game
-		cServer->StartGame( true );	// start in dedicated mode
+		cClient->setSpectate(true);
+		cServer->StartGame();	// start in dedicated mode
 
 		// Leave the frontend
 		*bGame = true;

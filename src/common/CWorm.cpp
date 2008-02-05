@@ -558,11 +558,8 @@ void CWorm::InitWeaponSelection(void)
 		tWeapons[n].SlotNum = n;
 		tWeapons[n].LastFire = 0;
 	}
-	// Skip weapon selection dialog for dedicated server or if we're spectating
-	if( cServer->getDedicated() && 
-		tGameInfo.iGameType == GME_HOST && 
-		getClient()->getServerAddress() == "127.0.0.1" ||
-		getClient()->getSpectate() )
+	// Skip weapon selection dialog if we're spectating
+	if( getClient()->getSpectate() )
 		bWeaponsReady = true;
 }
 

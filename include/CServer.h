@@ -139,7 +139,6 @@ private:
 	std::string sCurrentUrl;
 	std::list<std::string>::iterator	tCurrentMasterServer;
 	std::list<std::string>				tMasterServers;
-	bool		bDedicated;
 	float		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
 	float		fLastRespawnWaveTime;
@@ -157,7 +156,7 @@ public:
 
 	// Game
 	void		Frame();
-	int			StartGame( bool dedicated = false ); // In dedicated server don't spawn the first worm - it's local player
+	int			StartGame();
 	void		BeginMatch();
 	void		GameOver(int winner);
 
@@ -267,7 +266,6 @@ public:
 	void	setFlagHolder(int _f, int _w)	{ iFlagHolders[_w] = _f; }
 
 	int		getNumPlayers(void)			{ return iNumPlayers; }
-	bool	getDedicated(void)			{ return bDedicated; }
 };
 
 extern	GameServer		*cServer;

@@ -1164,9 +1164,13 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Setup the client
 		cClient->SetupViewports();
+		if( ! bStartPressed )	
+			cClient->setSpectate(true);		// Local client will spectate (auto-select weapons)
+		else
+			cClient->setSpectate(false);	// Clear state from previous game
 
 		// Start the game
-		cServer->StartGame( ! bStartPressed );	// Dedicated if no start button pressed
+		cServer->StartGame();	// Dedicated if no start button pressed
 
 		// Leave the frontend
 		*bGame = true;
