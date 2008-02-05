@@ -8,7 +8,6 @@
  */
 
 // define HAVE_BOOST if you want to compile dedicated server for Win32 and have Boost headers installed.
-//#define HAVE_BOOST
 
 #include <iostream>
 #include <string>
@@ -527,6 +526,9 @@ static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.G
 	;
 
 /*
+// TODO: what is the sense of the following?
+// TODO: why does it generates segfaults?
+// TODO: why is it not used?
 // Generates segfault - not static vars
 static bool register_gamelobby_vars = CScriptableVars::RegisterVars("GameServer.GameLobby")
 	( cServer->getLobby()->nGameMode, "nGameMode" )
@@ -541,5 +543,5 @@ static bool register_gamelobby_vars = CScriptableVars::RegisterVars("GameServer.
 	( cServer->getLobby()->szModDir, "szModDir" )
 	;
 */
-	
+
 #endif
