@@ -713,7 +713,6 @@ void GameServer::RecheckGame(void)
 
 		if (!bGameOver)  {
 
-			//static char buf[256];
 			bool EndGame = false;
 
 			//
@@ -762,7 +761,8 @@ void GameServer::RecheckGame(void)
 			//
 			case GMT_DEATHMATCH:  {
 				// Only one worm left, end the game
-				if (wormcount < 2)  {
+				// though, in a local game it's sometimes nice to check also a map alone
+				if (tGameInfo.iGameType != GME_LOCAL && wormcount < 2)  {
 					// Get the worm that is still alive and declare him as winner
 					w = cWorms + wormid;
 

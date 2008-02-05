@@ -1386,7 +1386,7 @@ void GameServer::ParseConnect(CBytestream *bs) {
 		// TODO: This better
 
 
-		static std::string buf;
+		std::string buf;
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>")  {
 			for (i = 0;i < numworms;i++) {
@@ -1543,7 +1543,7 @@ void GameServer::ParsePing(void) {
 	// Send the challenge details back to the client
 	SetRemoteNetAddr(tSocket, adrFrom);
 
-	static CBytestream bs;
+	CBytestream bs;
 
 	bs.Clear();
 	bs.writeInt(-1, 4);
