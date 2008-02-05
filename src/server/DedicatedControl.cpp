@@ -14,9 +14,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <SDL_thread.h>
-#ifndef WIN32
-#include <unistd.h>
-#endif
+#include <fcntl.h>
 
 
 #include "DedicatedControl.h"
@@ -195,10 +193,8 @@ struct DedIntern {
 	static int stdinThreadFunc(void*) {
 		DedIntern* data = Get();
 		
-		#ifndef WIN32	
 		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
 			cout << "ERROR setting standard input into non-blocking mode" << endl;
-		#endif
 		
 		while(true) {			
 			string buf;
