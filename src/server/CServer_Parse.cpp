@@ -113,10 +113,6 @@ void GameServer::ParsePacket(CClient *cl, CBytestream *bs) {
 			ParseGrabBonus(cl, bs);
 			break;
 
-		case C2S_SENDFILE:
-			ParseSendFile(cl, bs);
-			break;
-
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
 			// which leads to warnings here - we simply parse it here and avoid warnings
@@ -783,56 +779,6 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
 		printf("GameServer::ParseGrabBonus: invalid worm ID\n");
 	}
 }
-
-void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
-{
-	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
-	if( cl->getFileDownloaderInGame()->receive(bs) )
-	{
-		if( cl->getFileDownloaderInGame()->errorOccured() )
-		{
-			cl->getFileDownloaderInGame()->reset();
-			return;
-		};
-		// The only file server needs from client is the worm skin file
-		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
-			cl->getFileDownloaderInGame()->getFilename() == "GET:" &&
-			cl->getFileDownloaderInGame()->getData().find("skins/") == 0 )
-		{
-			// If state is S_FINISHED not S_SEND that means we don't have requested worm skin file
-			std::string skin = cl->getFileDownloaderInGame()->getData().substr(strlen("skins/"));
-			CWorm *w = cWorms;
-			for ( int i = 0; i < MAX_WORMS; i++, w++ )  
-			{
-				if (!w->isUsed())
-					continue;
-				if( w->getSkin() == skin )
-				{
-					if( w->getClient()->getClientOLXVer() < 4 )
-						return;
-					w->getClient()->getFileDownloaderInGame()->requestFile( "skins/" + skin, false );
-					return;
-				};
-			};
-		}
-		else
-		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
-			CFileDownloaderInGame::isPathValid( cl->getFileDownloaderInGame()->getFilename() ) &&
-			! IsFileAvailable( cl->getFileDownloaderInGame()->getFilename() ) &&
-			cl->getFileDownloaderInGame()->getFilename().find("skins/") == 0 )
-		{
-			// Client sent us it's worm skin file we don't have - save it
-			FILE * ff=OpenGameFile( cl->getFileDownloaderInGame()->getFilename(), "wb" );
-			if( ff == NULL )
-			{
-				printf("GameServer::ParseSendFile(): cannot write file %s\n", cl->getFileDownloaderInGame()->getFilename().c_str() );
-				return;
-			};
-			fwrite( cl->getFileDownloaderInGame()->getData().c_str(), 1, cl->getFileDownloaderInGame()->getData().size(), ff );
-			fclose(ff);
-		};
-	};
-};
 
 
 /*

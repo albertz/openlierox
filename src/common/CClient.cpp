@@ -126,8 +126,6 @@ void CClient::Clear(void)
 	bMapDlError = false;
 	sMapDlError = "";
 	iMapDlProgress = 0;
-	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
-	getFileDownloaderInGame()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
 	bSpectate = false;
@@ -185,8 +183,6 @@ void CClient::MinorClear(void)
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
 	}
-	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
-	getFileDownloaderInGame()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
 }
@@ -498,8 +494,6 @@ void CClient::Frame(void)
 
 	if(iNetStatus == NET_PLAYING)
 		Simulation();
-
-	processFileRequests();
 
 	SendPackets();
 
@@ -1118,71 +1112,4 @@ void CClient::setServerVersion(const std::string & _s)
 	iHostOLXVer = 4;
 	iClientOLXVer = 4;
 }
-
-const float fDownloadRetryTimeout = 5.0;	// 5 seconds
-
-void CClient::processFileRequests()
-{
-	if( getHostVer() < 4 || iNetStatus != NET_CONNECTED || ! tLXOptions->bAllowFileDownload )
-		return;
-	
-	//printf("CClient::processFileRequests(): state %i\n", getFileDownloaderInGame()->getState() );
-	
-	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND )
-	{
-		cNetChan.getMessageBS()->writeByte(C2S_SENDFILE);
-		getFileDownloaderInGame()->send( cNetChan.getMessageBS() );
-		fLastFileRequestPacketReceived = tLX->fCurTime;
-		return;
-	};
-
-	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
-	{
-		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) // Server stopped sending file in the middle
-			if( ! getFileDownloaderInGame()->requestFilesPending() ) // More files to receive
-				getFileDownloaderInGame()->reset();
-	};
-
-	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_ERROR )
-		getFileDownloaderInGame()->reset();
-
-	if( getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_FINISHED )
-		return;
-
-	if( fLastFileRequest >= tLX->fCurTime )	
-		return;
-		
-	fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout; // Spam server with file requests once in 5 seconds
-	fLastFileRequestPacketReceived = tLX->fCurTime;
-	
-	if( getFileDownloaderInGame()->requestFilesPending() ) // More files to receive
-		return;
-
-	CWorm *w = cRemoteWorms;
-	for( int i=0; i<MAX_WORMS; i++, w++ )
-	{
-		if( ! w->isUsed() )
-			continue;
-		if( w->getSkin() == "" )
-			continue;
-		if( ! IsFileAvailable("skins/" + w->getSkin()) )
-		{
-			getFileDownloaderInGame()->requestFile("skins/" + w->getSkin()); // Small, no need for file info
-			return;
-		};
-	};
-
-	if( ! tGameLobby.bHaveMap && tGameLobby.szMapName != "" )
-	{
-		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
-		getFileDownloaderInGame()->requestFileInfo("levels/" + tGameLobby.szMapName); // To get valid progressbar
-		return;
-	};
-
-	if( ! tGameLobby.bHaveMod && tGameLobby.szModDir != "" )
-	{
-		getFileDownloaderInGame()->requestFileInfo(tGameLobby.szModDir);
-		return;
-	};
-};
 

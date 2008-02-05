@@ -43,7 +43,6 @@
 #define		C2S_UPDATELOBBY		6
 #define		C2S_DISCONNECT		7
 #define		C2S_GRABBONUS		8
-#define     C2S_SENDFILE        9
 
 
 // Server->Client
@@ -69,7 +68,6 @@
 #define		S2C_GOTOLOBBY		19
 #define		S2C_DESTROYBONUS	20
 #define     S2C_DROPPED         21
-#define     S2C_SENDFILE        22
 
 
 #endif  //  __PROTOCOL_H__

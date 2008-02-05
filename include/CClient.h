@@ -434,7 +434,6 @@ private:
     bool		bInServer;
 	std::string	cIConnectedBuf;
 	
-	CFileDownloaderInGame	cFileDownloaderInGame;
 	float		fLastDirtUpdate;
 	float		fLastFileRequest;
 	float		fLastFileRequestPacketReceived;
@@ -583,13 +582,11 @@ public:
 	void		ParseDestroyBonus(CBytestream *bs);
 	void		ParseGotoLobby(CBytestream *bs);
     void        ParseDropped(CBytestream *bs);
-    void        ParseSendFile(CBytestream *bs);
 
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);
 	void		ProcessMapDownloads();
 	void		ShutdownDownloads();
-	void		processFileRequests();
 
 
 	// Variables
@@ -677,12 +674,6 @@ public:
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
 
 	CViewport * getViewports()					{ return cViewports; }
-	
-	CFileDownloaderInGame * getFileDownloaderInGame()	{ return &cFileDownloaderInGame; };
-	float		getLastDirtUpdate()						{ return fLastDirtUpdate; };
-	void		setLastDirtUpdate( float _f )			{ fLastDirtUpdate = _f; };
-	float		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
-	void		setLastFileRequestPacketReceived( float _f ) { fLastFileRequestPacketReceived = _f; };
 	
 	bool		getSpectate()							{ return bSpectate; };
 	void		setSpectate( bool _b )					{ bSpectate = _b; };

@@ -78,8 +78,9 @@ void Menu_MainInitialize(void)
 	// Quit
 	cMainMenu.Add( new CButton(BUT_QUIT, tMenu->bmpButtons), mm_Quit, 25,440, 50,15);
 
-	if( tLXOptions->bShowUnstableFeatures )
-		Menu_Main_GuiSkinComboboxCreate();	// Just moved ugly code to function so it won't stand out too much
+	#ifdef DEBUG
+	Menu_Main_GuiSkinComboboxCreate();	// Just moved ugly code to function so it won't stand out too much
+	#endif
 	
 	// Check if skin should be loaded instead of main menu ( also when selecting different skin from skinned menu )
 	if( tLXOptions->sSkinPath != "" )

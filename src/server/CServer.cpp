@@ -255,7 +255,6 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	// Initialize the clients
 	for(i=0;i<MAX_CLIENTS;i++) {
 		cClients[i].Clear();
-		cClients[i].getFileDownloaderInGame()->allowFileRequest(tLXOptions->bAllowFileDownload);
 
 		// Initialize the shooting list
 		if( !cClients[i].getShootList()->Initialize() ) {
@@ -403,7 +402,6 @@ int GameServer::StartGame()
 	{for(int i=0;i<MAX_CLIENTS;i++) {
 		cClients[i].getShootList()->Clear();
 		cClients[i].setGameReady(false);
-		cClients[i].getFileDownloaderInGame()->allowFileRequest(false);
 	}}
 
 
@@ -542,8 +540,6 @@ void GameServer::GameOver(int winner)
 		w->clearInput();
 	}
 	
-	for( i=0; i<MAX_CLIENTS; i++ )
-		cClients[i].getFileDownloaderInGame()->allowFileRequest(tLXOptions->bAllowFileDownload);
 }
 
 ///////////////////
@@ -569,8 +565,6 @@ void GameServer::Frame(void)
 
 	CheckRegister();
 
-	SendFiles();
-	
 	SendPackets();
 }
 
