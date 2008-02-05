@@ -1026,6 +1026,7 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 	SetRemoteNetAddr(tSocket, adrFrom);
 
 
+	// TODO: move this out here
 	bs.writeInt(-1, 4);
 	bs.writeString("lx::challenge");
 	bs.writeInt(tChallenges[i].iNum, 4);
@@ -1038,6 +1039,8 @@ void GameServer::ParseGetChallenge(CBytestream *bs_in) {
 bool timerClientSendsReadyAutomatically(Timer* sender, void* userData)
 {
 	CClient * cl = (CClient *) userData;
+	
+	// TODO: hack, please make it better
 	CBytestream bs;
 	bs.writeBool(true);
 	cServer->ParseUpdateLobby( cl, &bs );
@@ -1528,7 +1531,8 @@ void GameServer::ParseConnect(CBytestream *bs) {
 			//SendText( newcl, OldLxCompatibleString("Game in progress. Press \"Ready\" to connect."), TXT_NETWORK );
 			newcl->setStatus(NET_ZOMBIE);	// Do not send any worm updates to client
 			newcl->setConnectingDuringGame(true);
-			Timer( &timerClientSendsReadyAutomatically, newcl, 700, true ).startHeadless();
+			// TODO: this is a really ugly hack. why isn't ParseUpdateLobby called directly here?
+			Timer( &timerClientSendsReadyAutomatically, newcl, 200, true ).startHeadless();
 		}
 	}
 }
