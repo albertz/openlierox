@@ -163,7 +163,7 @@ int SetVideoMode(void)
 	if (SDL_GetVideoSurface())  {
 		// If running hardware accelereated, don't do nothing because it would most probably
 		// crash the game
-		if (SDL_GetVideoSurface() & SDL_HWSURFACE)
+		if (SDL_GetVideoSurface()->flags & SDL_HWSURFACE)
 			return true;
 	}
 	
