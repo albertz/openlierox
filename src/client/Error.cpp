@@ -106,10 +106,7 @@ void SystemError(char *fmt, ...)
 	// TODO: uniform message system
 	printf("SystemError: %s\n", buf);
 
-	// It should work anytime
-	// TODO: doesn't, with the new restarting functions it sometimes fails to set the video mode for window
-	// and calls this -> then it tries to shut it down again -> failure
-	//ShutdownLieroX();
+	// we cannot call ShutdownLieroX here as it probably produces further errors
 
 #ifdef WIN32
 	MessageBox(NULL,buf,GetGameName().c_str(),MB_OK | MB_ICONEXCLAMATION);
@@ -117,7 +114,7 @@ void SystemError(char *fmt, ...)
 
 
 	// Shutdown the game
-	exit(1);
+	exit(-1);
 }
 
 // List of GUI errors & warnings
