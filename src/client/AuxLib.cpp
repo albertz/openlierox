@@ -365,16 +365,21 @@ void ShutdownAuxLib()
 	// This is wrong! Better make sure that nothing goes wrong instead of adding such hacks
 	// Reasons why not to enable it:
 	// 1. When using hardware acceleration, any switching between fullscreen/window can lead to a crash
+	// -> this should be fixed instead removing this important function here
 	// 2. It fails every time on WIN32
+	// -> this should be fixed also
 	// 3. (Re)setting a video mode takes quite a lot time
+	// -> it's the end of the game so the user doesn't care, he can put it in the background
 	// 4. Looks awful for the user
-	/*if(tLXOptions->bFullscreen && !bRestartGameAfterQuit) {
+	// -> there is no difference for the user; if the resultion from fullscreen -> window is changed at the end or here, where is the difference?
+	if(tLXOptions->bFullscreen && !bRestartGameAfterQuit) {
 		bool oldFullscreenState = tLXOptions->bFullscreen; tLXOptions->bFullscreen = false;
 		// disable fullscreen for quitting
 		// if something goes wrong, we stay not in this annoying state with a fullscreen and a not responding app
+		// HINT: this is really important; a crashed system is much worse than a crashed game
 		SetVideoMode();
 		tLXOptions->bFullscreen = oldFullscreenState; // recover to save correct in options
-	}*/
+	}
 	
 	// free all cached stuff like surfaces and sounds
 	// HINT: we have to do it before we uninit the specific engines
