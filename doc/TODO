@@ -8,7 +8,6 @@ TODO
     shouldn't (my fixes didn't work, it's somewhere deeper
     in the collision checks) (!!)
 [ ] better default keys for player2 (!!)
-[ ] use ALSA as default if available (!!)
 [ ] fix network interpolation (is currently not optimal) (!!)
 [ ] fix physics (behaves currently different depending on FPS) (!!)
 [ ] gfx is wrong in some situation or makes problems, fix that (!!)
@@ -16,16 +15,15 @@ TODO
     but you cannot hit down to move the angle;
     also left/right (direction change) does not work
     sometimes (!!)
-[ ] Fix memory leaks (!!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
 [ ] follow better/faster the way (!!)
 [ ] bot avoid projectiles (!!)
-[ ] recode whole CTF code (!!)
 [ ] fill documentation (README) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
 [ ] fix STUN (!!)
 
+[?] Fix memory leaks / segfaults (!!!)
 [?] nMaxFPS = 0 works correctly? (!!)
 [?] fix: crashes on MacOSX (!!)
 [?] finish mouse-aiming (!!)
@@ -69,6 +67,8 @@ TODO
     ( obj.SendMessage(..., GET, ...) or
       obj.SendMessage(..., SET, ...) is realy bad
       style and should be replaced by the getter/setter functions )
+[ ] recode whole CTF code (!)
+[X] use ALSA as default if available (!!)
 [X] remove boost from SVN (doesn't belong there, too heavy, included in most systems) (!!)
 [X] remove MSYS from SVN (doesn't belong there, win-only-anorm-fix, external independent application) (!!)
 [X] fix for twice changing gfx options in menu (you get into trouble then) (!!)
