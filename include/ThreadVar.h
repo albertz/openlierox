@@ -16,6 +16,11 @@ template< typename _T >
 class ThreadVar {
 
 private:
+// Dirty workaround for MSVC 6 bug
+#if _MSC_VER == 1200  
+public:
+#endif
+
 	_T data;
 	ReadWriteLock locker;
 

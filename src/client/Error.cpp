@@ -106,7 +106,10 @@ void SystemError(char *fmt, ...)
 	// TODO: uniform message system
 	printf("SystemError: %s\n", buf);
 
-	// we cannot call ShutdownLieroX here as it probably produces further errors
+	// Shudown only when not already shutting down
+	if (tLX)
+		if (!tLX->bQuitGame)
+			ShutdownLieroX();
 
 #ifdef WIN32
 	MessageBox(NULL,buf,GetGameName().c_str(),MB_OK | MB_ICONEXCLAMATION);
