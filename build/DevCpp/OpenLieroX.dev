@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=184
+UnitCount=186
 Type=1
 Ver=1
 ObjFiles=
@@ -1881,6 +1881,26 @@ BuildCmd=
 FileName=..\..\src\common\IniReader.cpp
 CompileCpp=1
 Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit185]
+FileName=..\..\src\common\CScriptableVars.cpp
+CompileCpp=1
+Folder=Common
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit186]
+FileName=..\..\include\CScriptableVars.h
+CompileCpp=1
+Folder=Common
 Compile=1
 Link=1
 Priority=1000

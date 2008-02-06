@@ -200,6 +200,14 @@ SOURCE=..\..\src\common\ConfigHandler.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\CScriptableVars.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\CScriptableVars.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\CssParser.cpp
 # End Source File
 # Begin Source File
