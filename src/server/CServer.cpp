@@ -104,6 +104,8 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 	iMaxWorms = maxplayers;
 	bRegServer = regserver;
 	nPort = port;
+	// Is this the right place for this?
+	sWeaponRestFile = "cfg/wpnrest.dat";
 
 
 
@@ -343,7 +345,7 @@ int GameServer::StartGame()
 	}
 
     // Load & update the weapon restrictions
-    cWeaponRestrictions.loadList("cfg/wpnrest.dat");
+    cWeaponRestrictions.loadList(sWeaponRestFile);
     cWeaponRestrictions.updateList(&cGameScript);
 
 	// Setup the flags

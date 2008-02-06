@@ -66,7 +66,7 @@ void DedicatedControl::NewWorm_Signal(CWorm* w) {}
 
 #else
 
-struct pstream_pipe_t; // popen-streamed-ibrary independent wrapper (kinda)
+struct pstream_pipe_t; // popen-streamed-library independent wrapper (kinda)
 
 #ifdef WIN32
 // Install Boost headers for your compiler and #define HAVE_BOOST to compile dedicated server for Win32
@@ -385,6 +385,18 @@ struct DedIntern {
 		cServer->SendGlobalText(OldLxCompatibleString(msg), type);	
 	}
 
+	void Cmd_SetWeaponRest(const std::string file)
+	{
+		if(!IsFileAvailable(file, true)) 
+		{
+			std::cout << "DedicatedControl: WeaponRestrictions: " << file << "not found" << std::endl;
+			// Safety? Standard file, has been used all along so far - working
+			cServer->setWeaponRest("cfg/wpnrest.dat");
+			return;		
+		}
+		cServer->setWeaponRest(file);
+	}
+
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
 		std::string cmd = cmd_; stringlwr(cmd); TrimSpaces(cmd);
 		if(cmd == "") return;
@@ -412,6 +424,8 @@ struct DedIntern {
 			Cmd_SetVar(params);
 		else if(cmd == "sendlobbyupdate")
 			Cmd_SendLobbyUpdate();
+		else if(cmd == "setweaponrest")
+			Cmd_SetWeaponRest(params);
 		else
 			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}
