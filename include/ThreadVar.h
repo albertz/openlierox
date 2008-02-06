@@ -3,6 +3,18 @@
 	
 	threadsafe variable
 	
+usage sample:
+	define somewhere:
+		ThreadVar<CMap> map; // includes a full instance of CMap
+	some reader access:
+		{	ThreadVar<CMap>::Reader mapR( map );
+			mapR.get().irgendwas();
+		} // mapR will go out of scope here and release the map automatically
+	some writer access:
+		{	ThreadVar<CMap>::Writer mapW( map );
+			mapW.get().irgendwas();
+		} // mapW will go out of scope here and release the map automatically
+		
 	code under LGPL
 	by Albert Zeyer
 */
