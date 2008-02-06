@@ -25,13 +25,11 @@ TODO
 
 [?] Fix memory leaks / segfaults (!!!)
 [?] nMaxFPS = 0 works correctly? (!!)
+[?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
 [?] fix: crashes on MacOSX (!!)
 [?] finish mouse-aiming (!!)
 [?] fix: font isn't visible in OGL on MacOSX (!!)
-[?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
 [?] are there new network errors? (!!)
-[?] fix some segfaults (!!)
-[?] fix physics bugs (!!)
 [?] fix: sometimes you got into chat while playing online on some keys (!!)
 [?] Fix the colour detection of pink for mods (255 0 255) which only
     works in 50% of the mods now. (!!)
