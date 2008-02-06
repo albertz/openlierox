@@ -668,7 +668,6 @@ void GameServer::ParseUpdateLobby(CClient *cl, CBytestream *bs) {
 
 	// Let all the worms know about the new lobby state
 	CBytestream bytestr;
-	bytestr.Clear();
 	if (cl->getNumWorms() <= 2)  {
 		bytestr.writeByte(S2C_UPDATELOBBY);
 		bytestr.writeByte(cl->getNumWorms());

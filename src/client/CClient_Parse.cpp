@@ -1061,7 +1061,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 	if(numworms == 0)
 		printf("CClient::ParseUpdateLobby: warning: numworms == 0\n");
 		
-	static std::string HostName;
+	std::string HostName;
 
 	byte id;
 	CWorm *w;
