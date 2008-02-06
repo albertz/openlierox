@@ -21,7 +21,7 @@
 #include "StringUtils.h"
 #include "Options.h"
 #include "ConfigHandler.h"
-#include "CGuiSkin.h"
+#include "CScriptableVars.h"
 #include "IniReader.h"
 
 using namespace std;

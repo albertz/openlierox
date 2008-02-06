@@ -807,6 +807,8 @@ void ShutdownLieroX(void)
 
 	ShutdownLoading();  // In case we're called when an error occured
 
+	CGuiSkin::DeInit();
+
 	ShutdownGraphics();
 
 	Menu_Shutdown();
@@ -855,6 +857,8 @@ void ShutdownLieroX(void)
 
 	// Save and clear options
 	ShutdownOptions();
+
+	CScriptableVars::DeInit();
 
 	printf("Everything was shut down\n");
 }

@@ -2,11 +2,18 @@
 # this file is not intendent (yet) as a system for building final releases
 # use compile.sh instead
 
-OPTION(CMAKE_BUILD_TYPE "build type" Debug)
+OPTION(DEBUG "enable debug build" Yes)
 OPTION(DEDICATED_ONLY "dedicated_only - without gfx and sound" No)
 OPTION(X11CLIPBOARD "X11 clipboard" Yes)
 OPTION(HAWKNL_BUILTIN "HawkNL builtin support" No)
 OPTION(STLPORT "STLport support" No)
+
+IF (DEBUG)
+	SET(CMAKE_BUILD_TYPE Debug)
+ELSE (DEBUG)
+	SET(CMAKE_BUILD_TYPE Release)
+ENDIF (DEBUG)
+
 
 IF (DEDICATED_ONLY)
 	SET(X11CLIPBOARD No)
@@ -66,10 +73,11 @@ IF (WIN32)
 ELSE (WIN32)
 	ADD_DEFINITIONS(-ggdb)
 ENDIF (WIN32)
-ADD_DEFINITIONS(-O0)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
-	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
+	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG -O0)
+ELSE(CMAKE_BUILD_TYPE MATCHES Debug)
+	ADD_DEFINITIONS(-O2)
 ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 ADD_DEFINITIONS("-DLX_VERSION=\\\"`cat VERSION`_r`head -n 4 .svn/entries | tail -n 1`\\\"")
 IF(X11CLIPBOARD)

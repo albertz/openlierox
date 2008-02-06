@@ -29,7 +29,7 @@
 #include "CGameScript.h"
 #include "Unicode.h"
 #include "Protocol.h"
-#include "CGuiSkin.h"
+#include "CScriptableVars.h"
 
 static DedicatedControl* dedicatedControlInstance = NULL;
 

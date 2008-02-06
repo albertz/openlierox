@@ -26,115 +26,25 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 
-std::string CScriptableVars::StripClassName( const std::string & c )
+CGuiSkin * CGuiSkin::m_instance = NULL;
+
+CGuiSkin & CGuiSkin::Init()
 {
-	std::string ret(c);
-	if( ret.find(".") != std::string::npos )	// Leave only last part of name
-		ret = ret.substr( ret.find(".") + 1 );
-	if( ret.find("->") != std::string::npos )
-		ret = ret.substr( ret.find("->") + 2 );
-	ret = ret.substr( ret.find_first_not_of(" \t") );	// Strip spaces
-	ret = ret.substr( 0, ret.find_last_not_of(" \t") + 1 );
-	return ret;
+	if( m_instance == NULL )
+		m_instance = new CGuiSkin;
+	return *m_instance;
 };
 
-CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name )
+void CGuiSkin::DeInit()
 {
-	Init();
-	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
-			it != m_instance->m_vars.end(); it++ )
+
+	if( CGuiSkin::m_instance != NULL )
 	{
-		if( !stringcasecmp( it->first, name ) )
-		{
-			return it->second;
-		};
+		CGuiSkin::ClearLayouts();
+		delete CGuiSkin::m_instance;
+		CGuiSkin::m_instance = NULL;
 	};
-	return ScriptVarPtr_t();
 };
-
-
-CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & name, CScriptableVars::ScriptVarType_t type )
-{
-	Init();
-	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
-			it != m_instance->m_vars.end(); it++ )
-	{
-		if( !stringcasecmp( it->first, name ) && it->second.type == type )
-		{
-			return it->second;
-		};
-	};
-	return ScriptVarPtr_t();
-};
-
-std::string CScriptableVars::DumpVars()
-{
-	Init();
-	std::ostringstream ret;
-	for( std::map< std::string, ScriptVarPtr_t > :: iterator i = m_instance->m_vars.begin();
-			i != m_instance->m_vars.end(); i++ )
-	{
-		ret << i->first + ": ";
-		switch( i->second.type )
-		{
-			case SVT_BOOL: ret << "bool: " << *i->second.b; break;
-			case SVT_INT: ret << "int: " << *i->second.i; break;
-			case SVT_FLOAT: ret << "float: " << *i->second.f; break;
-			case SVT_STRING: ret << "string: \"" << *i->second.s << "\""; break;
-			case SVT_COLOR: ret << "color: " << itoa(*i->second.cl); break;
-			case SVT_CALLBACK: ret << "callback: "; break;
-		};
-		ret << "\n";
-	};
-	return ret.str();
-};
-
-void CScriptableVars::SetVarByString(const CScriptableVars::ScriptVarPtr_t& var, const std::string& str) 
-{
-	bool fail = false;
-	if( var.b == NULL ) 
-		return;
-	std::string scopy = str; TrimSpaces(scopy); stringlwr(scopy);
-	if( var.type == CScriptableVars::SVT_BOOL )
-	{
-		if( scopy.find_first_of("-0123456789") == 0 )
-			*var.b = from_string<int>(scopy, fail) != 0; // Some bools are actually ints in config file
-		else {
-			if(scopy == "true" || scopy == "yes")
-				*var.b = true;
-			else if(scopy == "false" || scopy == "no")
-				*var.b = false;
-			else
-				fail = true;
-		}
-	}
-	else if( var.type == CScriptableVars::SVT_INT )
-	{
-		if( scopy.find_first_of("-0123456789") == 0 )
-			*var.i = from_string<int>(scopy, fail);
-		else {
-			std::cout << "WARNING: " << str << " should be an integer in options.cfg but it isn't" << std::endl;
-			// HACK: because sometimes there is a bool instead of an int in the config
-			// TODO: is this still like this?
-			if(scopy == "true" || scopy == "yes")
-				*var.i = 1;
-			else if(scopy == "false" || scopy == "no")
-				*var.i = 0;
-			else
-				fail = true;
-		}
-	}
-	else if( var.type == CScriptableVars::SVT_FLOAT )
-		*var.f = from_string<float>(scopy, fail);
-	else if( var.type == CScriptableVars::SVT_STRING )
-		*var.s = str;
-	else
-		std::cout << "WARNING: Invalid var type " << var.type << " of \"" << str << "\" when loading config!" << std::endl;
-	
-	if(fail)
-		std::cout << "WARNING: failed to convert " << str << " into format " << var.type << std::endl;
-}
-
 
 std::string CGuiSkin::DumpWidgets()
 {
@@ -177,7 +87,6 @@ static int xmlGetInt(xmlNodePtr Node, const std::string& Name);
 static float xmlGetFloat(xmlNodePtr Node, const std::string& Name);
 static Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name);
 static std::string xmlGetString(xmlNodePtr Node, const std::string& Name);
-#define		CMP(str1,str2)  (!xmlStrcmp((const xmlChar *)str1,(const xmlChar *)str2))
 
 
 CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
@@ -250,7 +159,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 				height = atoi( pos[3] );
 		};
 		std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > :: iterator it;
-		if ( CMP(Node->name,"text") || CMP(Node->name,"comment") )	// Some extra newline or comment - skip it
+		if( (!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"text")) || 
+			(!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"comment")) )	// Some extra newline or comment - skip it
 		{
 			//printf("XML text inside \"%s\": \"%s\"\n", Node->parent->name, Node->content );
 		}
@@ -373,46 +283,6 @@ std::string xmlGetString(xmlNodePtr Node, const std::string& Name)
 	return ret;
 }
 
-CGuiSkinnedLayout * MainLayout = NULL;
-bool Menu_CGuiSkinInitialize(void)
-{
-	// TODO: don't hardcode window-size!
-	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
-	SetGameCursor(CURSOR_ARROW);
-	tMenu->iMenuType = MNU_GUISKIN;
-	MainLayout = CGuiSkin::GetLayout( "main" );
-	if( MainLayout == NULL )
-	{
-		Menu_CGuiSkinShutdown();
-		Menu_MainInitialize();
-		return false;
-	};
-	
-	return true;
-};
-
-void	Menu_CGuiSkinFrame(void)
-{
-	if( ! MainLayout->Process() )
-	{
-		Menu_CGuiSkinShutdown();
-		Menu_MainInitialize();
-		return;
-	};
-	MainLayout->Draw(tMenu->bmpBuffer);
-	DrawCursor(tMenu->bmpBuffer);
-	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
-};
-
-void	Menu_CGuiSkinShutdown(void)
-{
-	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
-	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);
-	SetGameCursor(CURSOR_NONE);
-	MainLayout = NULL;
-	CGuiSkin::ClearLayouts();
-};
-
 void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 {
 	// TODO: put LUA handler here, this handmade string parser works but the code is ugly
@@ -512,44 +382,48 @@ void CGuiSkin::ProcessUpdateCallbacks()
 	};
 };
 
-CScriptableVars * CScriptableVars::m_instance = NULL;
-CGuiSkin * CGuiSkin::m_instance = NULL;
-
-CScriptableVars & CScriptableVars::Init()
+// Old OLX menu system hooks
+CGuiSkinnedLayout * MainLayout = NULL;
+bool Menu_CGuiSkinInitialize(void)
 {
-	if( m_instance == NULL )
-		m_instance = new CScriptableVars;
-	return *m_instance;
-};
-
-CGuiSkin & CGuiSkin::Init()
-{
-	if( m_instance == NULL )
-		m_instance = new CGuiSkin;
-	return *m_instance;
-};
-
-class CGuiSkin_Destroyer
-{
-	public:
-	CGuiSkin_Destroyer() { };
-	~CGuiSkin_Destroyer()
+	// TODO: don't hardcode window-size!
+	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
+	SetGameCursor(CURSOR_ARROW);
+	tMenu->iMenuType = MNU_GUISKIN;
+	MainLayout = CGuiSkin::GetLayout( "main" );
+	if( MainLayout == NULL )
 	{
-		if( CGuiSkin::m_instance != NULL )
-		{
-			CGuiSkin::ClearLayouts();
-			delete CGuiSkin::m_instance;
-			CGuiSkin::m_instance = NULL;
-		};
-		if( CScriptableVars::m_instance != NULL )
-		{
-			delete CScriptableVars::m_instance;
-			CScriptableVars::m_instance = NULL;
-		};
+		Menu_CGuiSkinShutdown();
+		Menu_MainInitialize();
+		return false;
 	};
-}
-CGuiSkin_Destroyer_instance;
+	
+	return true;
+};
 
+void Menu_CGuiSkinFrame(void)
+{
+	if( ! MainLayout->Process() )
+	{
+		Menu_CGuiSkinShutdown();
+		Menu_MainInitialize();
+		return;
+	};
+	MainLayout->Draw(tMenu->bmpBuffer);
+	DrawCursor(tMenu->bmpBuffer);
+	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);	// TODO: hacky hacky, high CPU load
+};
+
+void Menu_CGuiSkinShutdown(void)
+{
+	DrawRectFill(tMenu->bmpBuffer, 0, 0, 640-1, 480-1, tLX->clBlack);
+	DrawImage(tMenu->bmpScreen, tMenu->bmpBuffer, 0, 0);
+	SetGameCursor(CURSOR_NONE);
+	MainLayout = NULL;
+	CGuiSkin::ClearLayouts();
+};
+
+// Some handy callbacks
 void MakeSound( const std::string & param, CWidget * source )
 {
 	if( param == "" || param == "click" )

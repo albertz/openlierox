@@ -3,16 +3,11 @@
 setvar GameOptions.LastGame.LevelName			"LamdaBunker.lxl"
 setvar GameServer.GameInfo.sMapFile				"LamdaBunker.lxl"
 setvar GameServer.GameInfo.sMapName				"LamdaBunker"
-#setvar GameServer.GameLobby.szMapName			"LamdaBunker.lxl"
-#setvar GameServer.GameLobby.szDecodedMapName	"LamdaBunker"
 
 setvar GameOptions.LastGame.ModName				"Liero v2.0"
 setvar GameServer.GameInfo.sModDir				"Liero v2.0"
 setvar GameServer.GameInfo.sModName				"Liero v2.0"
-#setvar GameServer.GameLobby.szModName			"Liero v2.0"
-#setvar GameServer.GameLobby.szModDir			"Liero v2.0"
 
 setvar GameOptions.LastGame.LoadingTime			"100"
 setvar GameServer.GameInfo.iLoadingTimes		"100"
-#setvar GameServer.GameLobby.nLoadingTime		"100"
 
