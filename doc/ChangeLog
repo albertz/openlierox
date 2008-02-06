@@ -5,8 +5,24 @@
 - mouse support (for playing)
 - more intelligent event-handling (in some parts);
   all pressed keys got recognised in chat/console
+- FPS limit is also valid for menu
+- menu takes less resources
 - delete-key works now under MacOSX
+- more keys got recognised
+  (super and meta keys, that includes also the
+  Apple-key on a Mac)
 - copy&paste support for Linux and MacOSX
+- config file got parsed completly and unknown options
+  are kept, therefore forward-compatible
+- better forward-compatibility for net-protocol
+- support for multiple masterservers
+- fixed changing of graphic settings
+- Worm AI improvements
+- usage of ALSA on Linux by default
+- better multithreading handling of network
+- cache for map and gamescript
+- Developer documentation
+- and a lot of other fixes / cleanups
 
 
 0.57_beta3
