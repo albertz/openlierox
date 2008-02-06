@@ -737,7 +737,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 enum
 {
 	gs_Ok,
-    gs_Default,
+	gs_Default,
 	gs_btnGenTab,
 	gs_btnBonusTab
 };
@@ -797,18 +797,9 @@ void Menu_GameSettings(void)
 	cGameSettings.Initialize();	
 	cGeneralSettings.Initialize();
 	cBonusSettings.Initialize();
-/*
-	cMainMenu.Add( 
-		new CTitleButton(i, tMenu->bmpMainTitles), i, 
-		tMenu->tFrontendInfo.iMainTitlesLeft, 
-		tMenu->tFrontendInfo.iMainTitlesTop+i*(titleheight+tMenu->tFrontendInfo.iMainTitlesSpacing), 
-		tMenu->bmpMainTitles->w, titleheight);
-		*/
 
 	// Keep text, it's the window text - the rest you can easily figure out by yourself.
 	cGameSettings.Add( new CLabel("Game Settings", tLX->clNormalLabel),		    -1,	        280,145, 0, 0);
-
-
 
 	// Game settings, stuff on each pane.
 
