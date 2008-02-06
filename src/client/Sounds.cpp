@@ -128,6 +128,10 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 	if(SoundSystemAvailable) return true;
 	SoundSystemAvailable = false;
 
+#if !defined(WIN32) && !defined(MACOSX)
+	SDL_putenv("SDL_AUDIODRIVER=alsa");
+#endif
+
 	// HINT: other SDL stuff is already inited, we don't care here
 	if( SDL_Init(SDL_INIT_AUDIO) != 0 ) {
 		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
