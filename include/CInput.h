@@ -75,7 +75,8 @@ public:
 	int		isUp(void);
 	int		isDown(void);
 	bool	isDownOnce(void);
-
+	int		wasDown(); // checks if there was such an event in the queue; returns the count of presses (down-events)
+	
 	std::string getEventName() { return m_EventName; }
 
 	void	ClearUpState(void); // TODO: why is this needed? and this should be removed as it does not good things (modifies things it should not modify)

@@ -465,6 +465,7 @@ int CInput::isDown(void)
 
 ///////////////////
 // Returns if the input was pushed down once
+// if wasDown() was used before, it returns always false
 bool CInput::isDownOnce(void)
 {
 	if(isDown()) {
@@ -477,6 +478,34 @@ bool CInput::isDownOnce(void)
 		Down = false;
 
 	return false;
+}
+
+// goes through the event-signals and searches for the event
+int CInput::wasDown() {
+	int counter = 0;
+	Down = false;
+	
+	switch(Type) {
+	case INP_KEYBOARD:
+		for(short i = 0; i < GetKeyboard()->queueLength; i++) {
+			if(GetKeyboard()->keyQueue[i].down && GetKeyboard()->keyQueue[i].sym == Data)
+				counter++;
+		}
+		return counter;
+	
+	case INP_MOUSE:
+		// TODO: to make this possible, we need to go extend HandleNextEvent to save the mouse events
+		counter = isDown() ? 1 : 0; // no other way at the moment
+		
+	case INP_JOYSTICK1:
+	case INP_JOYSTICK2:
+		counter = isDown() ? 1 : 0; // no other way at the moment
+	}
+	
+	if(counter)
+		Down = true; // set this because we want return isDownOnce() always false after this
+	
+	return 0;
 }
 
 

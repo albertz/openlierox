@@ -121,6 +121,7 @@ template <typename T> void REDUCE_CONST(T& v, const T& red_const) {
 template <typename T> void RESET_SMALL(T& v, const T& limit) {
 	if((v > 0 && v < limit) || (v < 0 && v > -limit)) v = 0; }
 
+template <typename T> void MOD(T& a, const T& b) { a %= b; if(a < 0) a += b; }
 
 // some basic functors
 // TODO: perhaps move them elsewhere?

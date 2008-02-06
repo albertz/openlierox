@@ -213,19 +213,13 @@ void CWorm::getInput()
     // Weapon changing
 	//
 	if(cSelWeapon.isDown()) {
-
+		// TODO: was is the intention of this var? if weapon change, then it's wrong
+		// if cSelWeapon.isDown(), then we don't need it
 		weap = true;
 
-		if(RightOnce) {
-			iCurrentWeapon++;
-			if(iCurrentWeapon >= iNumWeaponSlots)
-				iCurrentWeapon=0;
-		}
-		if(cLeft.isDownOnce()) {
-			iCurrentWeapon--;
-			if(iCurrentWeapon < 0)
-				iCurrentWeapon=iNumWeaponSlots-1;
-		}
+		int change = cRight.wasDown() - cLeft.wasDown();
+		iCurrentWeapon += change;
+		MOD(iCurrentWeapon, iNumWeaponSlots);
 	}
 
 

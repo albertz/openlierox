@@ -83,7 +83,8 @@ void CClient::Simulation(void)
 			toph = -toph;
 			top = 0;
 		}
-
+		
+		// TODO: allow more viewports
 		// Setup the viewports
 		cViewports[0].SetTop(top);
 		cViewports[0].SetVirtHeight(cViewports[0].GetVirtH() - toph);
@@ -115,9 +116,10 @@ void CClient::Simulation(void)
 				1) This worm is a local worm (ie, owned by me)
 				2) We're not in a game menu
 				3) We're not typing a message
+				4) weapons selected
 			*/
 
-			if(local && !bGameMenu && !bChat_Typing && !bGameOver && !con) {
+			if(local && !bGameMenu && !bChat_Typing && !bGameOver && !con && w->getWeaponsReady()) {
 				int old_weapon = w->getCurrentWeapon();
 
 				// TODO: use one getInput for both
@@ -1530,21 +1532,22 @@ void CClient::processChatter(void)
 			bChat_CursorVisible = !bChat_CursorVisible;
 			fChat_BlinkTime = 0;
 		}
-
-        // Escape
-        if(kb->keys[SDLK_ESCAPE] || kb->KeyUp[SDLK_ESCAPE]) {
-            // Stop typing
-            bChat_Typing = false;
-			sChat_Text = "";
-
-            kb->keys[SDLK_ESCAPE] = false;
-            kb->KeyDown[SDLK_ESCAPE] = false;
-            kb->KeyUp[SDLK_ESCAPE] = false;
-            return;
-        }
-
+        
         // Go through the keyboard queue
         for(short i=0; i<kb->queueLength; i++) {
+			
+			if(kb->keyQueue[i].down && kb->keyQueue[i].sym == SDLK_ESCAPE) {
+				// Stop typing
+				bChat_Typing = false;
+				sChat_Text = "";
+
+				kb->keys[SDLK_ESCAPE] = false;
+				kb->KeyDown[SDLK_ESCAPE] = false;
+				kb->KeyUp[SDLK_ESCAPE] = false;
+				
+				break;
+			}
+			
 			bChat_CursorVisible = true;
             processChatCharacter(kb->keyQueue[i]);
         }
@@ -1554,7 +1557,7 @@ void CClient::processChatter(void)
 
 
 	// Check if we have hit the chat key and we're in a network game
-	if( ( cChat_Input.isUp() || cTeamChat_Input.isUp() ) && tGameInfo.iGameType != GME_LOCAL) {
+	if( ( cChat_Input.wasDown() || cTeamChat_Input.wasDown() ) && tGameInfo.iGameType != GME_LOCAL) {
 
 		// Initialize the chatter
 		fChat_BlinkTime = 0;
@@ -1566,7 +1569,7 @@ void CClient::processChatter(void)
 		bChat_Holding = false;
 		fChat_TimePushed = -9999;
 		bTeamChat = false;
-		if( cTeamChat_Input.isUp() )
+		if( cTeamChat_Input.wasDown() )
 			bTeamChat = true;
 
 		// Clear the input

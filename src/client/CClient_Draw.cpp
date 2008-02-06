@@ -36,6 +36,8 @@
 #include "CLine.h"
 #include "CCombobox.h"
 #include "CCheckbox.h"
+#include "InputEvents.h"
+
 
 using namespace std;
 
@@ -632,13 +634,12 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			bReadySent = true;
 			
 			// TODO: move this out here
-			CBytestream *bytes = cNetChan.getMessageBS();
-			bytes->writeByte(C2S_IMREADY);
-			bytes->writeByte(iNumWorms);
+			cNetChan.getMessageBS()->writeByte(C2S_IMREADY);
+			cNetChan.getMessageBS()->writeByte(iNumWorms);
 
 			// Send my worm's weapon details
 			for(i=0;i<iNumWorms;i++)
-				cLocalWorms[i]->writeWeapons(bytes);
+				cLocalWorms[i]->writeWeapons( cNetChan.getMessageBS() );
 		}
 	}
 	

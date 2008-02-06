@@ -632,7 +632,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	
 	int l = 0;
 	int t = 0;
-	short i,id;
+	short i;
 	int centrex = 320;
 
     if( v ) {
@@ -666,64 +666,27 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 		}
 
 		// Changing weapon
-		if(cRight.isUp() && iCurrentWeapon == i) {
-			int orig = tWeapons[i].Weapon->ID;
-            id = orig;
-
-            // If select is held down, we will advance by 5 weapons at a time
-            if(cSelWeapon.isDown())
-                id += 5;
-            
-            // Check if this weapon is enabled. If not, go to the next weapon in the list and check. and so on
-            while(true) {
-                id++;
-                if(id >= cGameScript->GetNumWeapons())
-				    id=0;
-                tWeapons[i].Weapon = cGameScript->GetWeapons()+id;
-
-                // Check the weapon
-                if( cWeaponRest->isEnabled(tWeapons[i].Weapon->Name) )
-                    break;
-
-                // If we are back to the original weapon (ie, all disabled/bonus)
-                // then just choose the first weapon
-                if( id == orig ) {
-                    tWeapons[i].Weapon = cGameScript->GetWeapons();
-                    break;
-                }
-            }
-						
-		}
-
-		if(cLeft.isUp() && iCurrentWeapon == i) {
-            int orig = tWeapons[i].Weapon->ID;
-            id = orig;
-
-            // If select is held down, we will go back by 5 weapons at a time
-            if(cSelWeapon.isDown())
-                id-=5;
-            
-            // Check if this weapon is enabled. If not, go to the next weapon in the list and check. and so on
-            while(true) {
-                id--;
-                if(id < 0)
-				    id = cGameScript->GetNumWeapons()-1;
-                tWeapons[i].Weapon = cGameScript->GetWeapons()+id;
-
-                // Check the weapon
-                if( cWeaponRest->isEnabled(tWeapons[i].Weapon->Name) )
-                    break;
-
-                // If we are back to the original weapon (ie, all disabled/bonus)
-                // then just choose the first weapon
-                if( id == orig ) {
-                    tWeapons[i].Weapon = cGameScript->GetWeapons();
-                    break;
-                }
-            }
+		if(iCurrentWeapon == i && !iChat_Typing) {
+			int change = cRight.wasDown() - cLeft.wasDown();
+			if(cSelWeapon.isDown()) change *= 6; // jump with multiple speed if selWeapon is pressed
+			int id = tWeapons[i].Weapon->ID;
+			if(change > 0) while(change) {
+				id++; MOD(id, cGameScript->GetNumWeapons());
+				if( cWeaponRest->isEnabled( cGameScript->GetWeapons()[id].Name ) )
+					change--;
+				if(id == tWeapons[i].Weapon->ID) // back where we were before
+					break;
+			} else
+			if(change < 0) while(change) {
+				id--; MOD(id, cGameScript->GetNumWeapons());
+				if( cWeaponRest->isEnabled( cGameScript->GetWeapons()[id].Name ) )
+					change++;
+				if(id == tWeapons[i].Weapon->ID) // back where we were before
+					break;
+			}
+			tWeapons[i].Weapon = &cGameScript->GetWeapons()[id];
 		}
 		
-
 		y += 18;
 	}
 
@@ -734,7 +697,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     if(iCurrentWeapon == iNumWeaponSlots) {
 
 		// Fire on the random button?
-		if((cShoot.isUp()/* || GetKeyboard()->KeyDown[SDLK_RETURN]*/) && !iChat_Typing) {
+		if((cShoot.wasDown()) && !iChat_Typing) {
 			GetRandomWeapons();
 		}
 	}
@@ -744,7 +707,8 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	if(iCurrentWeapon == iNumWeaponSlots+1) {
 
 		// Fire on the done button?
-		if((cShoot.isUp()/* || GetKeyboard()->KeyUp[SDLK_RETURN]*/) && !iChat_Typing) {
+		// we have to check isUp() here because if we continue while it is still down, we will fire after in the game
+		if((cShoot.isUp()) && !iChat_Typing) {
 			bWeaponsReady = true;
 			iCurrentWeapon = 0;
 
@@ -789,24 +753,14 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "select weapon: " + cSelWeapon.getEventName());
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "strafe: " + cStrafe.getEventName());
 
-
-
-	if(iChat_Typing)
-		return;
-
-	if(cUp.isUp()) {
-		iCurrentWeapon--;
-		if(iCurrentWeapon<0)
-			iCurrentWeapon = iNumWeaponSlots+1;
-	}
-
-	if(cDown.isUp()) {
-		iCurrentWeapon++;
-		if(iCurrentWeapon > iNumWeaponSlots+1)
-			iCurrentWeapon = 0;
-	}
-	
-	
+		
+	if(!iChat_Typing) {
+		// move selection up or down
+		int change = cDown.wasDown() - cUp.wasDown();
+		iCurrentWeapon += change;
+		iCurrentWeapon %= iNumWeaponSlots + 2;
+		if(iCurrentWeapon < 0) iCurrentWeapon += iNumWeaponSlots + 2;
+	}	
 }
 
 
@@ -1168,21 +1122,14 @@ int CWorm::GetMyPing(void)
 // Resturns true, if we can start typing
 bool CWorm::CanType(void)
 {
-	// With isUp/isDown sometimes happened that the key was not registered
-	for (int i=0; i < GetKeyboard()->queueLength; ++i)  {
-		const int c = GetKeyboard()->keyQueue[i].sym;
-		const bool result = cUp.getData() != c &&
-				 cDown.getData() != c &&
-				 cLeft.getData() != c &&
-				 cRight.getData() != c &&
-				 cShoot.getData() != c &&
-				 cJump.getData() != c &&
-				 cSelWeapon.getData() != c &&
-				 cInpRope.getData() != c &&
-				 cStrafe.getData() != c;
-		if (!result) // No need for further checks
-			return false;
-	}
-
-	return true;
+	return
+		!cUp.wasDown() &&
+		!cDown.wasDown() &&
+		!cLeft.wasDown() &&
+		!cRight.wasDown() &&
+		!cShoot.wasDown() &&
+		!cJump.wasDown() &&
+		!cSelWeapon.wasDown() &&
+		!cInpRope.wasDown() &&
+		!cStrafe.wasDown();
 }
