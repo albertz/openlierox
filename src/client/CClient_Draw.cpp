@@ -634,12 +634,15 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			bReadySent = true;
 			
 			// TODO: move this out here
-			cNetChan.getMessageBS()->writeByte(C2S_IMREADY);
-			cNetChan.getMessageBS()->writeByte(iNumWorms);
+			CBytestream bs;
+			bs.writeByte(C2S_IMREADY);
+			bs.writeByte(iNumWorms);
 
 			// Send my worm's weapon details
 			for(i=0;i<iNumWorms;i++)
-				cLocalWorms[i]->writeWeapons( cNetChan.getMessageBS() );
+				cLocalWorms[i]->writeWeapons( &bs );
+
+			cNetChan.AddReliablePacketToSend(bs);
 		}
 	}
 	

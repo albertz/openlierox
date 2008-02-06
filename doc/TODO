@@ -1,7 +1,7 @@
 TODO
 (remember also to look at the bugs on SF)
 
-[ ] CChannel should split too big packets (!!)
+[X] CChannel should split too big packets (!!)
 [ ] fix: FPS (dropped to 60 from 120 here!) (!!)
 [ ] fix: keys are ignored in low FPS in game (CInput::isDown()), makes
     it very hard to play on older computers (!!)
@@ -23,8 +23,10 @@ TODO
 [ ] fill documentation (README) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
 [ ] fix STUN (!!)
+[ ] Fix memory leaks / segfaults (!!!)
+[ ] Fix server crashing when starting game for second time (!!)
+[ ] CChannel calculates wrong pings (too high) (!)
 
-[?] Fix memory leaks / segfaults (!!!)
 [?] nMaxFPS = 0 works correctly? (!!)
 [?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
 [?] fix: crashes on MacOSX (!!)

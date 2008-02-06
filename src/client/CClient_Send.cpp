@@ -81,11 +81,13 @@ void CClient::SendWormDetails(void)
 // Send a death
 void CClient::SendDeath(int victim, int killer)
 {
-	CBytestream *bs = cNetChan.getMessageBS();
+	CBytestream bs;
 
-	bs->writeByte(C2S_DEATH);
-	bs->writeInt(victim,1);
-	bs->writeInt(killer,1);
+	bs.writeByte(C2S_DEATH);
+	bs.writeInt(victim,1);
+	bs.writeInt(killer,1);
+
+	cNetChan.AddReliablePacketToSend(bs);
 }
 
 
@@ -199,12 +201,14 @@ void CClient::SendText(const std::string& sText, std::string sWormName)
 // Internal function for text sending, does not do any checks or parsing
 void CClient::SendTextInternal(const std::string& sText, const std::string& sWormName)
 {
-	CBytestream *bs = cNetChan.getMessageBS();
-	bs->writeByte(C2S_CHATTEXT);
+	CBytestream bs;
+	bs.writeByte(C2S_CHATTEXT);
 	if (sWormName.size() == 0)
-		bs->writeString(sText);
+		bs.writeString(sText);
 	else
-		bs->writeString(sWormName + ": " + sText);
+		bs.writeString(sWormName + ": " + sText);
+
+	cNetChan.AddReliablePacketToSend(bs);
 }
 
 #ifdef DEBUG
@@ -214,11 +218,13 @@ void CClient::SendRandomPacket()
 {
 	printf("Sending a random packet to server\n");
 
-	CBytestream *bs = cNetChan.getMessageBS();
+	CBytestream bs;
 
 	int random_length = GetRandomInt(50);
 	for (int i=0; i < random_length; i++)
-		bs->writeByte((uchar)GetRandomInt(255));
+		bs.writeByte((uchar)GetRandomInt(255));
+
+	cNetChan.AddReliablePacketToSend(bs);
 }
 #endif
 

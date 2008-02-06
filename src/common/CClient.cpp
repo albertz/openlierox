@@ -956,13 +956,15 @@ void CClient::BotSelectWeapons(void)
 		if(!bReadySent) {
 			bReadySent = true;
 			// TODO: move this out here
-			CBytestream *bytes = cNetChan.getMessageBS();
-			bytes->writeByte(C2S_IMREADY);
-			bytes->writeByte(iNumWorms);
+			CBytestream bytes;
+			bytes.writeByte(C2S_IMREADY);
+			bytes.writeByte(iNumWorms);
 
 			// Send my worm's weapon details
 			for(i=0;i<iNumWorms;i++)
-				cLocalWorms[i]->writeWeapons(bytes);
+				cLocalWorms[i]->writeWeapons(&bytes);
+
+			cNetChan.AddReliablePacketToSend(bytes);
 		}
 	}
 }

@@ -1207,7 +1207,7 @@ void CClient::DestroyBonus(int id, bool local, int wormid)
 		bs.writeByte(wormid);
 		bs.writeByte(cRemoteWorms[wormid].getCurrentWeapon());
 
-		cNetChan.getMessageBS()->Append(&bs);
+		cNetChan.AddReliablePacketToSend(bs);
 	}
 }
 

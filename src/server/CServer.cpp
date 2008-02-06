@@ -972,7 +972,7 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
     bs.Clear();
     bs.writeByte(S2C_DROPPED);
     bs.writeString(OldLxCompatibleString(cl_msg));
-    cl->getChannel()->getMessageBS()->Append(&bs);
+    cl->getChannel()->AddReliablePacketToSend(bs);
 
 
 	// Re-Calculate number of players

@@ -1488,7 +1488,7 @@ void CClient::ParseGotoLobby(CBytestream *bs)
 		bs.Clear();
 		bs.writeByte(C2S_UPDATELOBBY);
 		bs.writeByte(0);
-		cNetChan.getMessageBS()->Append(&bs);
+		cNetChan.AddReliablePacketToSend(bs);
 
 
 		// Goto the join lobby

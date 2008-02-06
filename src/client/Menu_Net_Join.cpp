@@ -633,7 +633,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					bs.Clear();
 					bs.writeByte(C2S_UPDATELOBBY);
 					bs.writeByte(1);
-					cClient->getChannel()->getMessageBS()->Append(&bs);
+					cClient->getChannel()->AddReliablePacketToSend(bs);
 
 
 					// Hide the ready button

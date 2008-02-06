@@ -34,7 +34,7 @@ void GameServer::SendPacket(CBytestream *bs, CClient *cl)
 	if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 		return;
 
-	cl->getChannel()->getMessageBS()->Append(bs);
+	cl->getChannel()->AddReliablePacketToSend(*bs);
 }
 
 ///////////////////
@@ -48,7 +48,7 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
-		cl->getChannel()->getMessageBS()->Append(bs);
+		cl->getChannel()->AddReliablePacketToSend(*bs);
 	}
 }
 
@@ -56,8 +56,7 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 ///////////////////
 // Send all the clients a string of text
 void GameServer::SendGlobalText(const std::string& text, int type) {
-	static CBytestream bs;
-	bs.Clear();
+	CBytestream bs;
 
 	// HINT: if the message is longer than 64 characters, we split it in more messages
 	// (else we could exploit old clients... :( )
@@ -75,7 +74,7 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
-		cl->getChannel()->getMessageBS()->Append(&bs);
+		cl->getChannel()->AddReliablePacketToSend(bs);
 	}
 }
 
@@ -84,13 +83,12 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 // Send a client a string of text
 void GameServer::SendText(CClient *cl, const std::string& text, int type) {
 	CBytestream bs;
-	bs.Clear();
 
 	bs.writeByte(S2C_TEXT);
 	bs.writeInt(type,1);
 	bs.writeString(text);
 
-	cl->getChannel()->getMessageBS()->Append(&bs);
+	cl->getChannel()->AddReliablePacketToSend(bs);
 }
 
 ///////////////////
@@ -196,10 +194,13 @@ bool GameServer::SendUpdate()
 				float delay = shootDelay[cl->getNetSpeed()];
 		
 				if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
+					CBytestream shoot;
 			
 					// Send the shootlist
-					if( sh->writePacket( cl->getChannel()->getMessageBS() ) )
+					if( sh->writePacket(&shoot) )
 						sh->Clear();
+
+					cl->getChannel()->AddReliablePacketToSend(shoot);
 				}
 			}
 

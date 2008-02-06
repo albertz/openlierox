@@ -22,6 +22,8 @@
 
 using namespace std;
 
+#define MAX_PACKET_SIZE 4096
+
 ///////////////////
 // Setup the channel
 void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
@@ -31,7 +33,7 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 	fLastPckRecvd = tLX->fCurTime;
 	Socket = _sock;
 	Reliable.Clear();
-	Message.Clear();
+	Messages.clear();
 	iPacketsDropped=0;
 	iPacketsGood=0;
 	fLastSent = tLX->fCurTime-1;
@@ -59,6 +61,29 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 }
 
 
+////////////////////
+// Adds a packet to reliable queue
+void CChannel::AddReliablePacketToSend(CBytestream& bs)
+{
+	if (bs.GetLength() > MAX_PACKET_SIZE)  {
+		printf("ERROR: trying to send a reliable packet bigger than MAX_PACKET_SIZE, packet won't be sent at all!\n");
+		return;
+	}
+
+	// If no messages at all, add the first one
+	if (Messages.size() == 0)  {
+		Messages.push_back(bs);
+		return;
+	}
+
+	// Some reliable messages already in queue, see if we should already split the packet
+	if (bs.GetLength() + (Messages[Messages.size() - 1].GetLength()) > MAX_PACKET_SIZE)
+		Messages.push_back(bs);
+	else
+		Messages[Messages.size() - 1].Append(&bs);
+}
+
+
 ///////////////////
 // Transmitt data, as well as handling reliable packets
 void CChannel::Transmit( CBytestream *bs )
@@ -77,9 +102,11 @@ void CChannel::Transmit( CBytestream *bs )
 	// We send reliable message in these cases:
 	// 1. The reliable buffer is empty, we copy the reliable message into it and send it
 	// 2. We need to refresh ping
-	if(Reliable.GetLength() == 0 && (Message.GetLength() > 0 || (tLX->fCurTime - fLastPingSent >= 1.0f && iPongSequence == -1))) {
-		Reliable = Message; // TODO: this cannot be done this way!
-		Message.Clear();
+	if(Reliable.GetLength() == 0 && (Messages.size() > 0 || (tLX->fCurTime - fLastPingSent >= 1.0f && iPongSequence == -1))) {
+		if (Messages.size() > 0)  {
+			Reliable = Messages[0];
+			Messages.erase(Messages.begin());
+		}
 		
 		// We got a reliable packet to send
 		SendReliable = 1;
@@ -114,7 +141,7 @@ void CChannel::Transmit( CBytestream *bs )
 
 	// And add on the un reliable data if room in the packet struct
 	if(bs) {
-		if(outpack.GetLength() + bs->GetLength() < 4096) // Backward compatibility
+		if(outpack.GetLength() + bs->GetLength() < MAX_PACKET_SIZE) // Backward compatibility
 			outpack.Append(bs);
 	}
 	

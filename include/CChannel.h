@@ -18,6 +18,7 @@
 #define __CCHANNEL_H__
 
 #include "CBytestream.h"
+#include <vector>
 
 // NOTE: in no part of the whole code is the Socket set 
 
@@ -65,7 +66,7 @@ private:
 	Uint32		iLast_ReliableSequence;				// sequence number of last send
 
 	// Packets
-	CBytestream	Message;							// Reliable message
+	std::vector<CBytestream>	Messages;							// Reliable message
 	
 	CBytestream	Reliable;							// Reliable message waiting to be acknowledged
 
@@ -107,7 +108,7 @@ public:
 	bool		gotNewReliablePacket()	{ return bNewReliablePacket; }
 
 	// Packets
-	CBytestream	*getMessageBS(void)		{ return &Message; }
+	void	AddReliablePacketToSend(CBytestream& bs);
 	
 	int		getInSeq(void)			{ return iIncomingSequence; }
 	int		getOutSeq(void)			{ return iOutgoingSequence; }
