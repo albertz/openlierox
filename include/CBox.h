@@ -93,14 +93,4 @@ public:
 	void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
-static bool CBox_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "box", & CBox::WidgetCreator )
-							( "round", CScriptableVars::SVT_INT )
-							( "border", CScriptableVars::SVT_INT )
-							( "lightcolor", CScriptableVars::SVT_COLOR )
-							( "darkcolor", CScriptableVars::SVT_COLOR )
-							( "bgcolor", CScriptableVars::SVT_COLOR );
-
 #endif  //  __CBOX_H__
-
-

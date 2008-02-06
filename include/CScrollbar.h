@@ -140,13 +140,4 @@ public:
 	};
 };
 
-static bool CScrollbar_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "scrollbar", & CScrollbar::WidgetCreator )
-							( "min", CScriptableVars::SVT_INT )
-							( "max", CScriptableVars::SVT_INT )
-							( "itemsperbox", CScriptableVars::SVT_INT )
-							( "var", CScriptableVars::SVT_STRING )
-							( "click", CScriptableVars::SVT_STRING );
-
-
 #endif  //  __CSCROLLBAR_H__

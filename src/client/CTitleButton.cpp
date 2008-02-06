@@ -33,3 +33,8 @@ void CTitleButton::Draw(SDL_Surface *bmpDest)
 	DrawImageAdv(bmpDest,bmpImage, 10,y, iX,iY, bmpImage->w, 39);
 	bMouseOver = false;
 }
+
+static bool CTitleButton_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "titlebutton", & CTitleButton::WidgetCreator )
+							( "textid", CScriptableVars::SVT_INT )
+							( "click", CScriptableVars::SVT_STRING );

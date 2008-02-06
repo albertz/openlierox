@@ -95,3 +95,13 @@ void CButton::Create(void)
     
     initWidthHeight();
 }
+
+static bool CButton_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "button", & CButton::WidgetCreator )
+							( "textid", CScriptableVars::SVT_INT )
+							( "click", CScriptableVars::SVT_STRING );
+
+static bool CImageButton_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "imagebutton", & CButton::WidgetCreator_Image )
+							( "file", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );

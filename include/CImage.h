@@ -103,9 +103,4 @@ public:
 	};
 };
 
-static bool CImage_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
-							( "file", CScriptableVars::SVT_STRING )
-							( "click", CScriptableVars::SVT_STRING );
-
 #endif  //  __CIMAGE_H__

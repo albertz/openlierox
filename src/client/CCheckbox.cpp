@@ -71,3 +71,8 @@ void CCheckbox::LoadStyle(void/*node_t *cssNode*/)
 		}
 	}
 }
+
+static bool CCheckBox_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "checkbox", & CCheckbox::WidgetCreator )
+							( "var", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );

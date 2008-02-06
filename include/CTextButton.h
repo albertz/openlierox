@@ -12,6 +12,7 @@
 // The CTextButton (clickable label) - the current buttons are using images only, 
 // this is not very handy when writing skins.
 // TODO: Add large font to OLX graphics and add option to use large font for labels and CTextButton.
+// TODO: Merge with CButton
 
 #ifndef __CTEXTBUTTON_H__
 #define __CTEXTBUTTON_H__
@@ -31,7 +32,7 @@ public:
 	{
 		iColNormal = colNormal;
 		iColGlow = colGlow;
-		iGlowCoef = 0;
+		bMouseOver = false;
 		iType = wid_Textbutton;
 	}
 
@@ -40,7 +41,7 @@ private:
 
 	Uint32	iColNormal;
 	Uint32	iColGlow;
-	int		iGlowCoef;
+	bool	bMouseOver;
 	CGuiSkin::CallbackHandler cClick;
 
 public:
@@ -74,12 +75,5 @@ public:
 			cClick.Call();
 	};
 };
-
-static bool CTextButton_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "textbutton", & CTextButton::WidgetCreator )
-							( "text", CScriptableVars::SVT_STRING )
-							( "color", CScriptableVars::SVT_COLOR )
-							( "glowcolor", CScriptableVars::SVT_COLOR )
-							( "click", CScriptableVars::SVT_STRING );
 
 #endif  //  __CTEXTBUTTON_H__

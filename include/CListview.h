@@ -283,11 +283,4 @@ public:
 	};
 };
 
-static bool CListview_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "listview", & CListview::WidgetCreator )
-							( "oldstyle", CScriptableVars::SVT_BOOL )
-							( "hideselection", CScriptableVars::SVT_BOOL )
-							( "hideborder", CScriptableVars::SVT_BOOL );
-
-
 #endif  //  __CLISTVIEW_H__

@@ -73,8 +73,4 @@ public:
 	void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
-static bool CLine_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "line", & CLine::WidgetCreator )
-							( "color", CScriptableVars::SVT_COLOR );
-
 #endif  //  __CLINE_H__

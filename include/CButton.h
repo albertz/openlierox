@@ -127,7 +127,7 @@ public:
 		return w;
 	};
 
-	static CWidget * WidgetCreator1( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+	static CWidget * WidgetCreator_Image( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CButton * w = new CButton( p[0].s );
 		w->cClick.Init( p[1].s, w );
@@ -156,18 +156,6 @@ public:
 		initWidthHeight();
 	}
 	
-	
 };
-
-static bool CButton_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "button", & CButton::WidgetCreator )
-							( "textid", CScriptableVars::SVT_INT )
-							( "click", CScriptableVars::SVT_STRING );
-
-static bool CButton_WidgetRegistered1 = 
-	CGuiSkin::RegisterWidget( "imagebutton", & CButton::WidgetCreator1 )
-							( "file", CScriptableVars::SVT_STRING )
-							( "click", CScriptableVars::SVT_STRING );
-
 
 #endif  //  __CBUTTON_H__

@@ -84,3 +84,10 @@ DWORD CSlider::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 	return 0;
 }
+
+static bool CSlider_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "slider", & CSlider::WidgetCreator )
+							( "min", CScriptableVars::SVT_INT )
+							( "max", CScriptableVars::SVT_INT )
+							( "var", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );

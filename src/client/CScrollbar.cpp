@@ -303,3 +303,12 @@ DWORD CScrollbar::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
     return 0;
 }
+
+static bool CScrollbar_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "scrollbar", & CScrollbar::WidgetCreator )
+							( "min", CScriptableVars::SVT_INT )
+							( "max", CScriptableVars::SVT_INT )
+							( "itemsperbox", CScriptableVars::SVT_INT )
+							( "var", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );
+

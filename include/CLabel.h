@@ -132,11 +132,4 @@ public:
 	void	ProcessGuiSkinEvent(int iEvent) {};
 };
 
-static bool CLabel_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "label", & CLabel::WidgetCreator )
-							( "text", CScriptableVars::SVT_STRING )
-							( "color", CScriptableVars::SVT_COLOR )
-							( "center", CScriptableVars::SVT_BOOL )
-							( "var", CScriptableVars::SVT_STRING );
-
 #endif  //  __CLABEL_H__

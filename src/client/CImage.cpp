@@ -72,3 +72,8 @@ DWORD CImage::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 {
 	return 0;
 }
+
+static bool CImage_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
+							( "file", CScriptableVars::SVT_STRING )
+							( "click", CScriptableVars::SVT_STRING );

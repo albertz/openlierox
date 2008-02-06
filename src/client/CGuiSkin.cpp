@@ -502,3 +502,48 @@ static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & SkinCombobox_Init, "SkinCombobox_Init" )
 	( & SkinCombobox_Change, "SkinCombobox_Change" );
 
+// Register here some widgets that don't have their own .CPP files
+// TODO: create different files for all of them
+
+#include "CAnimation.h"
+
+static bool CAnimation_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "animation", & CAnimation::WidgetCreator )
+							( "file", CScriptableVars::SVT_STRING )
+							( "frametime", CScriptableVars::SVT_FLOAT );
+
+#include "CBox.h"
+
+static bool CBox_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "box", & CBox::WidgetCreator )
+							( "round", CScriptableVars::SVT_INT )
+							( "border", CScriptableVars::SVT_INT )
+							( "lightcolor", CScriptableVars::SVT_COLOR )
+							( "darkcolor", CScriptableVars::SVT_COLOR )
+							( "bgcolor", CScriptableVars::SVT_COLOR );
+
+#include "CLabel.h"
+
+static bool CLabel_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "label", & CLabel::WidgetCreator )
+							( "text", CScriptableVars::SVT_STRING )
+							( "color", CScriptableVars::SVT_COLOR )
+							( "center", CScriptableVars::SVT_BOOL )
+							( "var", CScriptableVars::SVT_STRING );
+
+#include "CLine.h"
+
+static bool CLine_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "line", & CLine::WidgetCreator )
+							( "color", CScriptableVars::SVT_COLOR );
+
+#include "CProgressbar.h"
+
+static bool CProgressBar_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "progressbar", & CProgressBar::WidgetCreator )
+							( "file", CScriptableVars::SVT_STRING )
+							( "label_left", CScriptableVars::SVT_INT )
+							( "label_top", CScriptableVars::SVT_INT )
+							( "label_visible", CScriptableVars::SVT_BOOL )
+							( "numstates", CScriptableVars::SVT_INT )
+							( "var", CScriptableVars::SVT_STRING );

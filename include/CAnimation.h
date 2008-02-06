@@ -98,12 +98,6 @@ public:
 
 };
 
-static bool CAnimation_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "animation", & CAnimation::WidgetCreator )
-							( "file", CScriptableVars::SVT_STRING )
-							( "frametime", CScriptableVars::SVT_FLOAT );
-
-
 #endif  //  __CANIMATION_H__
 
 

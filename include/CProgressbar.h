@@ -83,15 +83,4 @@ public:
 	void	ProcessGuiSkinEvent(int iEvent) { };
 };
 
-static bool CProgressBar_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "progressbar", & CProgressBar::WidgetCreator )
-							( "file", CScriptableVars::SVT_STRING )
-							( "label_left", CScriptableVars::SVT_INT )
-							( "label_top", CScriptableVars::SVT_INT )
-							( "label_visible", CScriptableVars::SVT_BOOL )
-							( "numstates", CScriptableVars::SVT_INT )
-							( "var", CScriptableVars::SVT_STRING );
-
-
 #endif  //  __CPROGRESSBAR_H__
-

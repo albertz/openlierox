@@ -89,11 +89,4 @@ public:
 	};
 };
 
-static bool CTitleButton_WidgetRegistered = 
-	CGuiSkin::RegisterWidget( "titlebutton", & CTitleButton::WidgetCreator )
-							( "textid", CScriptableVars::SVT_INT )
-							( "click", CScriptableVars::SVT_STRING );
-
-
-
 #endif  //  __CTITLEBUTTON_H__
