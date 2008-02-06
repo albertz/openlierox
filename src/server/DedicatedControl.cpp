@@ -278,6 +278,18 @@ struct DedIntern {
 	}
 	
 	void Cmd_SendLobbyUpdate() {
+		// TODO: Temporary hack, we should move game_t and game_lobby_t into GameOptions.
+		cServer->getLobby()->nGameMode = tGameInfo.iGameMode;
+		cServer->getLobby()->nLives = tGameInfo.iLives;
+		cServer->getLobby()->nMaxWorms = tLXOptions->tGameinfo.iMaxPlayers;
+		cServer->getLobby()->nMaxKills = tGameInfo.iKillLimit;
+		cServer->getLobby()->nLoadingTime = tGameInfo.iLoadingTimes;
+		cServer->getLobby()->bBonuses = tGameInfo.bBonusesOn;
+		cServer->getLobby()->szMapName = tGameInfo.sMapFile;
+		cServer->getLobby()->szDecodedMapName = tGameInfo.sMapName;
+		cServer->getLobby()->szModName = tGameInfo.sModName;
+		cServer->getLobby()->szModDir = tGameInfo.sModDir;
+
 		cServer->UpdateGameLobby();
 	};
 	
@@ -518,25 +530,7 @@ static bool register_gameinfo_vars = CScriptableVars::RegisterVars("GameServer.G
 	( tGameInfo.iTagLimit, "iTagLimit" )
 	( tGameInfo.bBonusesOn, "bBonusesOn" )
 	( tGameInfo.bShowBonusName, "bShowBonusName" )
+	( tGameInfo.iNumPlayers, "iNumPlayers" )
 	;
-
-/*
-// TODO: what is the sense of the following?
-// TODO: why does it generates segfaults?
-// TODO: why is it not used?
-// Generates segfault - not static vars
-static bool register_gamelobby_vars = CScriptableVars::RegisterVars("GameServer.GameLobby")
-	( cServer->getLobby()->nGameMode, "nGameMode" )
-	( cServer->getLobby()->nLives, "nLives" )
-	( cServer->getLobby()->nMaxWorms, "nMaxWorms" )
-	( cServer->getLobby()->nMaxKills, "nMaxKills" )
-	( cServer->getLobby()->nLoadingTime, "nLoadingTime" )
-	( cServer->getLobby()->bBonuses, "bBonuses" )
-	( cServer->getLobby()->szMapName, "szMapName" )
-	( cServer->getLobby()->szDecodedMapName, "szDecodedMapName" )
-	( cServer->getLobby()->szModName, "szModName" )
-	( cServer->getLobby()->szModDir, "szModDir" )
-	;
-*/
 
 #endif
