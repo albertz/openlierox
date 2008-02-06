@@ -29,7 +29,7 @@ public:
 		SDL_DestroyMutex(mutex);
 	}
 
-	inline void startReadAccess() {
+	void startReadAccess() {
 		SDL_mutexP(mutex);
 
 		// wait for any writer in the queue
@@ -43,13 +43,13 @@ public:
 		SDL_mutexV(mutex);
 	}
 
-	inline void endReadAccess() {
+	void endReadAccess() {
 		SDL_mutexP(mutex);
 		readCounter--;
 		SDL_mutexV(mutex);
 	}
 
-	inline void startWriteAccess() {
+	void startWriteAccess() {
 		SDL_mutexP(mutex);
 		// wait for other writers
 		while(writerWaitingFlag) {
@@ -67,7 +67,7 @@ public:
         }
 	}
 
-	inline void endWriteAccess() {
+	void endWriteAccess() {
         writerWaitingFlag = 0;
 		SDL_mutexV(mutex);
 	}

@@ -28,6 +28,7 @@
 #include "SmartPointer.h"
 #include "Timer.h"
 #include "Utils.h"
+#include "ThreadVar.h"
 
 
 #ifdef _MSC_VER
@@ -236,6 +237,34 @@ static void sigpipe_handler(int i) {
  * HawkNL Network wrapper
  *
  */
+
+
+
+typedef std::map<std::string, NLaddress> dnsCacheT;
+ThreadVar<dnsCacheT>* dnsCache = NULL;
+
+void AddToDnsCache(const std::string& name, const NetworkAddr& addr) {
+	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
+	dns.get()[name] = *getNLaddr(addr);
+}
+
+static void AddToDnsCache(const std::string& name, const NLaddress& addr) {
+	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
+	dns.get()[name] = addr;
+}
+
+bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
+	ThreadVar<dnsCacheT>::Reader dns( *dnsCache );
+	dnsCacheT::const_iterator it = dns.get().find(name);
+	if(it != dns.get().end()) {
+		*getNLaddr(addr) = it->second;
+		return true;
+	} else
+		return false;
+}
+
+
+
 bool bNetworkInited = false;
 
 /////////////////////
@@ -260,11 +289,13 @@ bool InitNetworkSystem() {
 		return false;
 	}
 	
+	dnsCache = new ThreadVar<dnsCacheT>();
+	
 #ifndef WIN32
 	//sigignore(SIGPIPE);
 	signal(SIGPIPE, sigpipe_handler);
 #endif	
-	
+
 	return true;
 }
 
@@ -274,6 +305,7 @@ bool QuitNetworkSystem() {
 	SdlNetEvent_UnInit();
 	nlShutdown();
 	bNetworkInited = false;
+	delete dnsCache; dnsCache = NULL;
 	return true;
 }
 
@@ -761,22 +793,6 @@ bool AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2) {
 	}
 }
 
-typedef std::map<std::string, NLaddress> dnsCacheT; 
-dnsCacheT dnsCache;
-
-void AddToDnsCache(const std::string& name, const NetworkAddr& addr) {
-	dnsCache[name] = *getNLaddr(addr);
-}
-
-bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
-	dnsCacheT::iterator it = dnsCache.find(name);
-	if(it != dnsCache.end()) {
-		*getNLaddr(addr) = it->second;
-		return true;
-	} else
-		return false;
-}
-
 
 struct NLaddress_ex_t {
 	std::string name;
@@ -790,17 +806,21 @@ static void* GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
     NLaddress_ex_t *address = (NLaddress_ex_t *)addr;
     
     nlGetAddrFromName(address->name.c_str(), address->address.get());
-    // TODO: handle failures here?
-    // TODO: add to dns cache? if so, this need to be made threadsafe
+    // TODO: handle failures here? there should be, but we only have the valid field;
+    // if we leave it at false, noone will recognise that we are ready
     address->address.get()->valid = NL_TRUE;
+    AddToDnsCache(address->name, *address->address.get());
+    
     delete address;
-
     return 0;
 }
 
 bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 {
-	// TODO: why not use nlGetAddrFromNameAsync?
+	// We don't use nlGetAddrFromNameAsync here because we have to use SmartPointers
+	// The problem is, if you call this and then delete the memory of the network address
+	// while the thread isn't ready, it will write after to deleted memory.
+	
 	if(getNLaddr(addr) == NULL)
 		return false;
 		
