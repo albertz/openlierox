@@ -145,7 +145,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		bool disabled = xmlGetBool(Node,"disabled");	// By default all widgets are enabled and all bools are false
 		std::string s_id = xmlGetString(Node,"id");	// Widget ID (used for enable/disable it by func handlers)
 		std::string init = xmlGetString(Node,"init");	// OnInit handler - fills list or combobox etc
-		std::string s_pos = xmlGetString(Node,"pos");
+		std::string s_pos = xmlGetString(Node,"rect");
 		if( s_pos != "" )
 		{
 			std::vector<std::string> pos = explode( s_pos, "," ); // "left,top,width,height" as single string

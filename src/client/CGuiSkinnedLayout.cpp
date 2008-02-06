@@ -36,13 +36,7 @@ void CGuiSkinnedLayout::Initialize()
 	cWidgets = NULL;
 	cWidgetsFromEnd = NULL;
 	cFocused = NULL;
-	//cMouseOverWidget = NULL;
-
-	// Reset mouse repeats
-	nMouseButtons = 0;
-	for(int i=0; i<3; i++)
-		fMouseNext[i] = -9999;
-
+	bFocusSticked = false;
 }
 
 
@@ -303,10 +297,14 @@ void CGuiSkinnedLayout::ProcessGuiSkinEvent(int iEvent)
 			w->ProcessGuiSkinEvent( iEvent );
 		if( cChildLayout )
 			cChildLayout->ProcessGuiSkinEvent( iEvent );
+		if( cFocused )
+			cFocused->setFocused(false);
+		cFocused = NULL;
+		bFocusSticked = false;
 	};
 };
 
-int		CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
+int CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 {
 	if( cChildLayout )
 	{
@@ -314,6 +312,13 @@ int		CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 		return -1;
 	};
 	SetGameCursor(CURSOR_ARROW); // Set default mouse cursor - widget will change it
+	if( cFocused && bFocusSticked )
+	{
+		int ev = cFocused->MouseOver(tMouse);
+		if( ev >= 0 )
+			cFocused->ProcessGuiSkinEvent( ev );
+		return -1;
+	};
 	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
 	{
 		if(!w->getEnabled())
@@ -329,47 +334,36 @@ int		CGuiSkinnedLayout::MouseOver(mouse_t *tMouse)
 	return -1;
 };
 
-int		CGuiSkinnedLayout::MouseUp(mouse_t *tMouse, int nDown)
+int CGuiSkinnedLayout::MouseUp(mouse_t *tMouse, int nDown)
 {
 	if( cChildLayout )
 	{
 		cChildLayout->MouseUp(tMouse, tMouse->Up);
 		return -1;
 	};
-	if( cFocused ) if( ! cFocused->CanLoseFocus() )	// User finished selecting text in textbox - send message
+	bool bFocusStickedOld = bFocusSticked;
+	if( tMouse->Down == 0 )
+		bFocusSticked = false;
+	if( cFocused && bFocusStickedOld )
 	{
-		int ev = cFocused->MouseUp(tMouse, tMouse->Down);
+		int ev = cFocused->MouseUp(tMouse, nDown);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
 	};
-	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
-	{
-		if(!w->getEnabled())
-			continue;
-		if(w->InBox(tMouse->X,tMouse->Y))
-		{
-			FocusOnMouseClick( w );
-			int ev = w->MouseUp(tMouse, tMouse->Up);
-			if( ev >= 0 )
-				w->ProcessGuiSkinEvent( ev );
-			return -1;
-		};
-	};
-	FocusOnMouseClick( NULL );
 	return -1;
 };
 
-int		CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
+int CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
 {
 	if( cChildLayout )
 	{
-		cChildLayout->MouseDown(tMouse, tMouse->Down);
+		cChildLayout->MouseDown(tMouse, nDown);
 		return -1;
 	};
-	if( cFocused ) if( ! cFocused->CanLoseFocus() )	// User selects text in textbox - send message to it
+	if( cFocused && bFocusSticked )
 	{
-		int ev = cFocused->MouseDown(tMouse, tMouse->Down);
+		int ev = cFocused->MouseDown(tMouse, nDown);
 		if( ev >= 0 )
 			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
@@ -381,9 +375,11 @@ int		CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
 		if(w->InBox(tMouse->X,tMouse->Y))
 		{
 			FocusOnMouseClick( w );
-			int ev = w->MouseDown(tMouse, tMouse->Down);
+			int ev = w->MouseDown(tMouse, nDown);
 			if( ev >= 0 )
 				w->ProcessGuiSkinEvent( ev );
+			if( cFocused )
+				bFocusSticked = true;
 			return -1;
 		};
 	};
@@ -397,6 +393,13 @@ int		CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
 	if( cChildLayout )
 	{
 		cChildLayout->MouseWheelDown(tMouse);
+		return -1;
+	};
+	if( cFocused && bFocusSticked )
+	{
+		int ev = cFocused->MouseWheelDown(tMouse);
+		if( ev >= 0 )
+			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
 	};
 	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
@@ -419,6 +422,13 @@ int		CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
 	if( cChildLayout )
 	{
 		cChildLayout->MouseWheelUp(tMouse);
+		return -1;
+	};
+	if( cFocused && bFocusSticked )
+	{
+		int ev = cFocused->MouseWheelUp(tMouse);
+		if( ev >= 0 )
+			cFocused->ProcessGuiSkinEvent( ev );
 		return -1;
 	};
 	for( CWidget * w = cWidgets ; w ; w = w->getNext() ) 
@@ -480,16 +490,8 @@ void CGuiSkinnedLayout::FocusOnMouseClick( CWidget * w )
 			return;
 		if( cFocused )
 		{
-			// Can we take the focus off?
-			if (cFocused->CanLoseFocus())  
-			{
-				cFocused->setFocused(false);
-				cFocused = NULL;
-			}
-			else  
-			{
-				//cFocused->setLoseFocus(true);
-			};
+			cFocused->setFocused(false);
+			cFocused = NULL;
 		};
 		if( w && cFocused == NULL )
 		{

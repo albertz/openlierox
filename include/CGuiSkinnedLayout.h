@@ -24,6 +24,7 @@ public:
 	// Constructor
 	CGuiSkinnedLayout( int x = 0, int y = 0 ) {
 		cFocused = NULL;
+		bFocusSticked = false;
 		cWidgets = NULL;
 		cWidgetsFromEnd = NULL;
 		//cMouseOverWidget = NULL;
@@ -45,19 +46,12 @@ private:
 	CWidget			*cWidgets;
 	CWidget			*cWidgetsFromEnd;
 	CWidget			*cFocused;
-	//CWidget		*cMouseOverWidget;	// Not used
+	bool			bFocusSticked;	// if user hold mouse button over some widget the focus sticks to that widget, analog to CGuiLayout::iCanFocus which is never used
 
 	bool		bExitCurrentDialog;	// Used to exit to MainMenu - remove when only skinned GUI will exist
 	CGuiSkinnedLayout	*cChildLayout;
 	bool		bChildLayoutFullscreen;	// Do not redraw itself if child is fullscreen
 
-	// Mouse button repeats
-	int			nMouseButtons;
-	float		fMouseNext[3];
-
-	// Can we set focus to another widget?
-	//int			iCanFocus;	// Not used
-	
 	CWidgetList	LayoutWidgets;
 	int			iOffsetX, iOffsetY;	// Top-left corner of layout (just offset, may be negative)
 

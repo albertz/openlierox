@@ -15,9 +15,7 @@
 
 <textbutton top='440' left='10' text="Skin example" color="#ff7777" glowcolor="#ffff22" click="GUI.ChildDialog( SkinExample , fullscreen ) GUI.MakeSound"/>
 
-<label pos='465,10' text="Skin" color="#ffffff"/>
-<combobox pos='500,8,130,17' var="GameOptions.Game.SkinPath" init="GUI.SkinCombobox_Init()" click="GUI.MakeSound() GUI.SkinCombobox_Change()" items="None#"/>
-
-<listview pos="300,110,330,270" init="GUI.NewsListview_Init(Gold)" hideselection="1"/>
+<label rect='465,10' text="Skin" color="#ffffff"/>
+<combobox rect='500,8,130,17' var="GameOptions.Game.SkinPath" init="GUI.SkinCombobox_Init()" click="GUI.MakeSound() GUI.SkinCombobox_Change()" items="None#"/>
 
 </dialog>

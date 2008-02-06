@@ -52,14 +52,14 @@ http://lxalliance.net/smf/index.php/topic,6432.0.html
 <progressbar top='300' left='400' var="GameOptions.LastGame.LoadingTime" 
 	file="data/frontend/healthbar1.png" numstates="1" label_top="310" label_left="450" label_visible="true"/>
 
-<label pos='420,350' text="Teamchat" color="#ffffff"/>
-<inputbox pos='500,350,50,17' name="Teamchat key" var="GameOptions.GeneralControls.TeamChat"/>
+<label rect='420,350' text="Teamchat" color="#ffffff"/>
+<inputbox rect='500,350,50,17' name="Teamchat key" var="GameOptions.GeneralControls.TeamChat"/>
 
-<label pos='420,370' text="Chat" color="#ffffff"/>
-<inputbox pos='500,370,50,17' name="Chat" var="GameOptions.GeneralControls.Chat"/>
+<label rect='420,370' text="Chat" color="#ffffff"/>
+<inputbox rect='500,370,50,17' name="Chat" var="GameOptions.GeneralControls.Chat"/>
 
 <button top='440' left='10' width='30' height='30' textid="5" click="GUI.ExitDialog GUI.MakeSound"/>
 
-<listview pos="500,100,50,100"/>
+<listview rect="500,100,50,100"/>
 
 </dialog>
