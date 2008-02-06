@@ -1045,6 +1045,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\include\ThreadVar.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\Timer.cpp"
 				>
 				<FileConfiguration
@@ -3234,6 +3238,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Console.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\CScriptableVars.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\CScriptableVars.h"
 				>
 			</File>
 			<File
