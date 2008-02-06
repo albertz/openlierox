@@ -32,8 +32,6 @@ private:
 	ReadWriteLock locker;
 
 public:
-	friend class Reader;
-	friend class Writer;
 	
 	class Reader {
 	private:
@@ -53,6 +51,11 @@ public:
 		_T& get() { return tvar.data; }
 		const _T& get() const { return tvar.data; }
 	};
+
+	friend class ::ThreadVar<typename _T>::Reader;
+	friend class ::ThreadVar<typename _T>::Writer;
+
+
 	
 };
 

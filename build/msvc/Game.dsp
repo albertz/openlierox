@@ -354,6 +354,10 @@ SOURCE=..\..\include\stun.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\ThreadVar.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\common\Timer.cpp
 # SUBTRACT CPP /YX
 # End Source File
