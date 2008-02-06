@@ -3,8 +3,6 @@
 - very basic dedicated server
 - joystick support (for playing)
 - mouse support (for playing)
-- more intelligent event-handling (in some parts);
-  all pressed keys got recognised in chat/console
 - FPS limit is also valid for menu
 - menu takes less resources
 - delete-key works now under MacOSX
@@ -16,6 +14,9 @@
   are kept, therefore forward-compatible
 - better forward-compatibility for net-protocol
 - support for multiple masterservers
+- more intelligent event-handling (in some parts);
+  all pressed keys got recognised in chat/console
+- events for network sockets
 - fixed changing of graphic settings
 - Worm AI improvements
 - usage of ALSA on Linux by default
