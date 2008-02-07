@@ -315,18 +315,21 @@ bool SetVideoMode()
 
 	mainPixelFormat = SDL_GetVideoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
-	if(DoubleBuf) cout << "using doublebuffering" << endl;
+	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
+		cout << "using doublebuffering" << endl;
 	
 	// Correct the surface format according to SDL
 	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
-		printf("using hardware surfaces\n");	
+		printf("using hardware surfaces\n");
 	} else {
 		iSurfaceFormat = SDL_SWSURFACE; // HINT: under MacOSX, it doesn't seem to make any difference in performance
 		if (HardwareAcceleration)
 			printf("HINT: Unable to use hardware surfaces, falling back to software.\n");
 		printf("using software surfaces\n");
 	}
+
+	FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));
 
 	cout << "video mode was set successfully" << endl;
 	return true;

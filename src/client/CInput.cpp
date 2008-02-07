@@ -289,11 +289,28 @@ int CInput::Wait(std::string& strText)
 	}
 
 	// Keyboard
+	if (kb->queueLength > 0)  {
+		for(n = 0; n<sizeof(Keys) / sizeof(keys_t); n++) {
+			if(kb->keyQueue[0].sym == Keys[n].value) {
+#ifdef WIN32
+				// Workaround for right alt key which is reported as LCTRL + RALT on windib driver
+				if (kb->queueLength > 1 && kb->keyQueue[0].sym == SDLK_LCTRL)  {
+					if (kb->keyQueue[1].sym == SDLK_RALT)  {
+						strText = "ralt";
+						return true;
+					}
+				}
+#endif
 
-	// TODO: Other keys
-	for(n = 0; n<sizeof(Keys) / sizeof(keys_t); n++) {
-		if(kb->KeyUp[Keys[n].value]) {
-			strText = Keys[n].text;
+				strText = Keys[n].text;
+				return true;
+			}
+		}
+
+		// Our description is not enough, let's call SDL for help
+		// TODO: perhaps use SDL for everything?
+		if (kb->keyQueue[0].sym != SDLK_ESCAPE)  {
+			strText = SDL_GetKeyName((SDLKey)kb->keyQueue[0].sym);
 			return true;
 		}
 	}
@@ -408,6 +425,13 @@ int CInput::isUp(void)
 
 		// Keyboard
 		case INP_KEYBOARD:
+#ifdef WIN32
+			// Workaround for right alt key which is reported as LCTRL + RALT on windib driver
+			if (Keyb->queueLength > 1 && Data == SDLK_RALT)
+				if (Keyb->keyQueue[0].sym == SDLK_LCTRL && Keyb->keyQueue[1].sym == SDLK_RALT && !Keyb->keyQueue[1].down)
+					return true;
+#endif
+
 			if(Keyb->KeyUp[Data])
 				return true;
 			break;
@@ -441,6 +465,13 @@ int CInput::isDown(void)
 
 		// Keyboard
 		case INP_KEYBOARD:
+#ifdef WIN32
+			// Workaround for right alt key which is reported as LCTRL + RALT on windib driver
+			if (Keyb->queueLength > 1 && Data == SDLK_RALT)
+				if (Keyb->keyQueue[0].sym == SDLK_LCTRL && Keyb->keyQueue[1].sym == SDLK_RALT && Keyb->keyQueue[1].down)
+					return true;
+#endif
+
 			if(Keyb->keys[Data])
 				return true;
 			break;
