@@ -267,12 +267,12 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 		// this is a bit (not not much) slower but prevents from some errors
 		// TODO: what errors? can't they be fixed anyhow?
 		// TODO: should we completly remove the caches? how much speed improvements do they give?
-/*		if (col == f_white)
+		if (col == f_white)
 			bmpCached = bmpWhite;
 		else if (col == tLX->clBlack)
 			bmpCached = bmpFont;
 		else if (col == f_green)
-			bmpCached = bmpGreen; */
+			bmpCached = bmpGreen;
 	}
 	// Not colourize, bmpFont itself should be blitted without any changes, so it's precached
 	else {

@@ -184,7 +184,9 @@ bool SetVideoMode()
 	// Check if already running
 	if (SDL_GetVideoSurface())  {
 		printf("resetting video mode\n");
-		
+
+		// seems to be a win-only problem, it works without problems here under MacOSX
+#ifdef WIN32
 		// using hw surfaces?
 		if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0) {
 			printf("WARNING: cannot change video mode because current mode uses hardware surfaces\n");
@@ -196,6 +198,7 @@ bool SetVideoMode()
 			// TODO: in menu_options, restart the game also for fullscreen-change if hw surfaces are currently used
 			return false;
 		}
+#endif
 	}
 	
 #ifdef WIN32
@@ -239,13 +242,17 @@ bool SetVideoMode()
 		vidflags |= SDL_OPENGL;
 		vidflags |= SDL_OPENGLBLIT;
 
+		// HINT: it seems that with OGL activated, SDL_SetVideoMode will already set the OGL depth size
+		// though this main pixel format of the screen surface was always 32 bit for me in OGL under MacOSX
 //#ifndef MACOSX
-		//short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
-		//SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
-		//SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
-		//SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
-		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
+/*
+		short colorbitsize = (tLXOptions->iColourDepth==16) ? 5 : 8;
+		SDL_GL_SetAttribute (SDL_GL_RED_SIZE,   colorbitsize);
+		SDL_GL_SetAttribute (SDL_GL_GREEN_SIZE, colorbitsize);
+		SDL_GL_SetAttribute (SDL_GL_BLUE_SIZE,  colorbitsize);
+		SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE, colorbitsize);
 		SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, tLXOptions->iColourDepth);
+*/
 //#endif
 		//SDL_GL_SetAttribute (SDL_GL_ALPHA_SIZE,  8);
 		//SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 24);
@@ -282,7 +289,7 @@ bool SetVideoMode()
 	}
 #endif
 
-	if( SDL_SetVideoMode(640,480, tLXOptions->iColourDepth,vidflags) == NULL) {
+	if( SDL_SetVideoMode(640, 480, tLXOptions->iColourDepth, vidflags) == NULL) {
 		SystemError("Failed to set the video mode %dx%dx%d\nErrorMsg: %s", 640, 480, tLXOptions->iColourDepth,SDL_GetError());
 		return false;
 	}
@@ -315,7 +322,7 @@ bool SetVideoMode()
 		iSurfaceFormat = SDL_HWSURFACE;
 		printf("using hardware surfaces\n");	
 	} else {
-		iSurfaceFormat = SDL_SWSURFACE;
+		iSurfaceFormat = SDL_SWSURFACE; // HINT: under MacOSX, it doesn't seem to make any difference in performance
 		if (HardwareAcceleration)
 			printf("HINT: Unable to use hardware surfaces, falling back to software.\n");
 		printf("using software surfaces\n");
