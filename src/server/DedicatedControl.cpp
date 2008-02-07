@@ -219,7 +219,7 @@ struct DedIntern {
 	// -------------------------------
 	// ------- state -----------------
 	
-	enum State { S_NORMAL, S_LOBBY, S_PLAYING };
+	enum State { S_NORMAL, S_LOBBY, S_WEAPONS, S_PLAYING };
 	State state;
 	
 	// --------------------------------
@@ -252,6 +252,11 @@ struct DedIntern {
 	
 	void Cmd_KickWorm() {
 	
+	}
+
+	void Cmd_BanWorm()
+	{
+
 	}
 
 	// This command just fits here perfectly
@@ -385,16 +390,17 @@ struct DedIntern {
 		cServer->SendGlobalText(OldLxCompatibleString(msg), type);	
 	}
 
-	void Cmd_SetWeaponRest(const std::string file)
-	{
-		if(!IsFileAvailable(file, true)) 
+	void Cmd_GetWormList()
+	{;
+		cWorm *w = cServer->getWorms();
+		for(int i=0; i < MAX_WORMS; i++, w++) 
 		{
-			std::cout << "DedicatedControl: WeaponRestrictions: " << file << "not found" << std::endl;
-			// Safety? Standard file, has been used all along so far - working
-			cServer->setWeaponRest("cfg/wpnrest.dat");
-			return;		
+			if(!w->isUsed())
+				continue;
+
+			Sig_WormInfo(w->getID(),w->getName());
+			
 		}
-		cServer->setWeaponRest(file);
 	}
 
 	void HandleCommand(const std::string& cmd_, const std::string& params) {
@@ -406,26 +412,31 @@ struct DedIntern {
 #endif
 		if(cmd == "quit")
 			Cmd_Quit();
+		else if(cmd == "setvar")
+			Cmd_SetVar(params);
 		else if(cmd == "msg")
 			Cmd_Message(params);
 		else if(cmd == "chatmsg")
 			Cmd_ChatMessage(params);
-		else if(cmd == "startlobby")
-			Cmd_StartLobby();
-		else if(cmd == "addworm")
-			Cmd_AddWorm();
-		else if(cmd == "kickworm")
-			Cmd_KickWorm();
-		else if(cmd == "startgame")
-			Cmd_StartGame();
-		else if(cmd == "getcomputerwormlist")
-			Cmd_GetComputerWormList();
-		else if(cmd == "setvar")
-			Cmd_SetVar(params);
 		else if(cmd == "sendlobbyupdate")
 			Cmd_SendLobbyUpdate();
-		else if(cmd == "setweaponrest")
-			Cmd_SetWeaponRest(params);
+		else if(cmd == "startlobby")
+			Cmd_StartLobby();
+		else if(cmd == "startgame")
+			Cmd_StartGame();
+
+		else if(cmd == "addworm")
+			Cmd_AddWorm();
+
+		else if(cmd == "kickworm")
+			Cmd_KickWorm(params);
+		else if(cmd == "banworm")
+			Cmd_BanWorm(params);
+
+		else if(cmd =="getwormlist")
+			Cmd_GetWormList();
+		else if(cmd == "getcomputerwormlist")
+			Cmd_GetComputerWormList();
 		else
 			cout << "DedicatedControl: unknown command: " << cmd << " " << params << endl;
 	}
@@ -433,17 +444,26 @@ struct DedIntern {
 	// ----------------------------------
 	// ----------- signals --------------
 	
-	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_PLAYING; }
-	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
+	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_NORMAL; }
 	void Sig_GameLoopEnd() {
 		pipe.in() << "gameloopend" << endl;
 		if(state != S_LOBBY) // we don't get a BackToLobby-signal => game was stopped
 			state = S_NORMAL;
 	}
+	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
 	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }	
+
+	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_WEAPONS;}
+	void Sig_GameStarted { pipe.in() << "gamestarted" << endl; state = S_PLAYING;}
+
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm" << endl; }	
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); }
+
+	void Sig_WormInfo(int iID, std::string name)
+	{
+		pipe.in() << "wormlistinfo:" << iID << ":" << name << endl;
+	}
 	
 	// ----------------------------------
 	// ---------- frame handlers --------
@@ -519,10 +539,14 @@ bool DedicatedControl::Init_priv() {
 
 	return true;
 }
-
-void DedicatedControl::BackToLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
+// This is the main game loop, as in "we are alive!"
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
 void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
+// 
+void DedicatedControl::BackToLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
+void DedicatedControl::WeaponSelections_Signal() { DedIntern::Get()->Sig_WeaponSelections(); }
+void DedicatedCotnrol::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
+
 void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }

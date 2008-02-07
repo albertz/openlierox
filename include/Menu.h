@@ -169,6 +169,8 @@ enum {
 	BUT_FILTER,
 	BUT_ADDTOFAVOURITES,
 	BUT_NEWS,
+	BUT_GENERAL,
+	BUT_BONUSES,
 };
 
 // Frontend info

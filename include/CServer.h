@@ -261,7 +261,6 @@ public:
 	float			getGameOverTime(void)	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
 	CClient *getClients() { return cClients; }
-	void			setWeaponRest(std::string str)	{ sWeaponRestFile = str; }
 	
 	// TODO: change the name of these functions; the sense should be clear
 	int		getFlagHolder(int _w)			{ return iFlagHolders[_w]; }
