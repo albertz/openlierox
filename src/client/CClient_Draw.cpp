@@ -72,8 +72,8 @@ bool CClient::InitializeDrawing(void)
 		if (!bmpIngameScoreBg)
 			return false;
 
-		SDL_SetAlpha(bmpIngameScoreBg, SDL_SRCALPHA, 128);  // Make it semi-transparent
 		FillSurface(bmpIngameScoreBg, tLX->clScoreBackground);
+		SetPerSurfaceAlpha(bmpIngameScoreBg, 128);
 	}
 	InitializeIngameScore(true);
 
@@ -1120,7 +1120,7 @@ void CClient::InitializeGameMenu()
 
 
 ///////////////////
-// Draw the game menu/game over screen
+// Draw the game menu/game over screen (the scoreboard)
 void CClient::DrawGameMenu(SDL_Surface *bmpDest)
 {
 	// Background
@@ -2394,7 +2394,7 @@ void CClient::DrawScoreboard(SDL_Surface *bmpDest)
 	// Background
 	DrawImageAdv(bmpDest, bmpIngameScoreBg, 0, tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, 0,
 				tLXOptions->tGameinfo.bTopBarVisible ? getTopBarBottom() : 0, bmpIngameScoreBg->w, bmpIngameScoreBg->h);
-
+	
 	if (bUpdateScore)
 		UpdateIngameScore(((CListview *)cScoreLayout.getWidget(sb_Left)), ((CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
 

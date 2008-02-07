@@ -453,7 +453,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 	for(n=0;n<5;n++) {
 		buf = thm + "/Hole" + itoa(n+1) + ".png";
 		LOAD_IMAGE(Theme.bmpHoles[n],buf);
-		SDL_SetColorKey(Theme.bmpHoles[n], SDL_SRCCOLORKEY, tLX->clBlack);
+		SetColorKey(Theme.bmpHoles[n], 0, 0, 0); // use black as colorkey
 	}
 
 	// Calculate the default colour from a non-pink, non-black colour in the hole image

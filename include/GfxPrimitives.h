@@ -249,15 +249,25 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 
 
 ///////////////////
-// Creates an ARGB 32bit surface
+// Creates an ARGB 32bit surface if screen supports no alpha or a surface like screen
 inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
-	SDL_Surface* result = SDL_CreateRGBSurface(
-			SDL_SWSURFACE | SDL_SRCALPHA,
-			width, height, 32,
-			ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
+	SDL_Surface* result;
+	SDL_PixelFormat* fmt = getMainPixelFormat();	
+
+	if(fmt->Amask != 0) // the main pixel format supports alpha blending
+		result = SDL_CreateRGBSurface(
+				iSurfaceFormat | SDL_SRCALPHA,
+				width, height,
+				fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+	
+	else // no native alpha blending, so create a software alpha blended surface
+		result = SDL_CreateRGBSurface(
+				SDL_SWSURFACE | SDL_SRCALPHA,
+				width, height, 32,
+				ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
 
 	if (result)
 		// OpenGL strictly requires the surface to be cleared
@@ -517,10 +527,11 @@ inline void FillSurface(SDL_Surface* dst, Uint32 colour) {
 ////////////////////
 // Fills the whole surface with a transparent color
 inline void FillSurfaceTransparent(SDL_Surface *dst)  {
-	if (dst->flags & SDL_SRCCOLORKEY)
-		FillSurface(dst, COLORKEY(dst));
-	else if (dst->flags & SDL_SRCALPHA)
+	// check alpha first as it has priority (if set, colorkey is ignored)
+	if (dst->flags & SDL_SRCALPHA)
 		FillSurface(dst, SDL_MapRGBA(dst->format, 255, 0, 255, SDL_ALPHA_TRANSPARENT));
+	else if (dst->flags & SDL_SRCCOLORKEY)
+		FillSurface(dst, COLORKEY(dst));
 	else
 		printf("Warning: There's no possibility to make this surface transparent!\n");
 }
@@ -573,9 +584,15 @@ void	DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 // Colorkey handling
 //
 
-/////////////////
-// Set colorkey for an alpha blended surface
-void SetColorKeyAlpha(SDL_Surface *dst, Uint8 r, Uint8 g, Uint8 b);
+// sets alpha in a safe way for both non-alpha-surfaces and alpha-surfaces
+// for non-alpha surfaces, it uses SDL_SetAlpha
+// for real alphablended surfaces, that means this multiplies a/255 to each a-value
+void SetPerSurfaceAlpha(SDL_Surface *dst, Uint8 a);
+
+// set colorkey for both alpha-blended and non-alpha surfaces
+// for non-alpha surfaces, SDL_SetAlpha is used
+// for alpha surfaces, it applies to every pixel
+void SetColorKey(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b);
 
 //////////////////
 // Set's the game's default color key (pink) to the surface
@@ -586,7 +603,7 @@ void SetColorKey(SDL_Surface* dst);
 // Resets the alpha-channel and the colorkey
 inline void ResetAlpha(SDL_Surface* dst) {
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
-	SDL_SetAlpha(dst, 0, 0); // Remove the alpha
+	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
 
 	LockSurface(dst);
 	

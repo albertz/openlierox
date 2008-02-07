@@ -16,9 +16,12 @@
 // Created 12/11/01
 // By Jason Boettcher
 
+#include <iostream>
+#include <iomanip>
 #include <time.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
+
 #include "AuxLib.h"
 #include "Error.h"
 #include "CServer.h"
@@ -56,6 +59,7 @@ SDL_PixelFormat defaultFallbackFormat =
 
 SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
 
+using namespace std;
 
 
 ///////////////////
@@ -149,6 +153,24 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	return true;
 }
 
+
+static void DumpPixelFormat(const SDL_PixelFormat* format) {
+	cout << "PixelFormat:" << endl
+		<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
+		<< "  BytesPerPixel: " << (int)format->BytesPerPixel << endl
+		<< "  R/G/B/A mask: " << hex
+			<< (Uint32)format->Rmask << "/"
+			<< (Uint32)format->Gmask << "/"
+			<< (Uint32)format->Bmask << "/"
+			<< (Uint32)format->Amask << endl
+		<< "  R/G/B/A loss: "
+			<< (Uint32)format->Rloss << "/"
+			<< (Uint32)format->Gloss << "/"
+			<< (Uint32)format->Bloss << "/"
+			<< (Uint32)format->Aloss << endl << dec
+		<< "  Colorkey: " << format->colorkey << ","
+		<< "  Alpha: " << (int)format->alpha << endl;
+}
 
 ///////////////////
 // Set the video mode
@@ -285,7 +307,12 @@ bool SetVideoMode()
 		tLX->bVideoModeChanged = true;
 
 	mainPixelFormat = SDL_GetVideoSurface()->format;
-
+	DumpPixelFormat(mainPixelFormat);
+	if(iSurfaceFormat == SDL_HWSURFACE) cout << "using SDL_HWSURFACE" << endl;
+	if(DoubleBuf) cout << "using doublebuffering" << endl;
+	if(HardwareAcceleration) cout << "using hardware acceleration" << endl;
+	
+	cout << "video mode was set successfully" << endl;
 	// Correct the surface format according to SDL
 	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;

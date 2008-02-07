@@ -54,9 +54,46 @@ void PutPixelA(SDL_Surface *bmpDest, int x, int y, Uint32 colour, float a)  {
 }
 
 
+static inline Uint32 GetReducedAlphaBlendedPixel(SDL_Surface* bmpDest, Uint8* px, float a) {
+	Uint8 R1, G1, B1, A1; 	 
+	SDL_GetRGBA(GetPixelFromAddr(px, bmpDest->format->BytesPerPixel), bmpDest->format, &R1, &G1, &B1, &A1);
+	return SDL_MapRGBA(bmpDest->format, R1, G1, B1, (Uint8)(a * (float)A1));
+}
+
+
+// for alpha surfaces
+// it multiplies each alpha-value per point with a
+static void SetPerSurface_Alpha(SDL_Surface *dst, float a) {
+	// Just set transparent alpha to pixels that match the color key
+	Uint8* pxr = (Uint8*)dst->pixels;
+	Uint8* px;
+	int x, y;
+
+	if(SDL_MUSTLOCK(dst))
+		SDL_LockSurface(dst);
+
+	for(y = 0; y < dst->h; y++, pxr += dst->pitch)  {
+		px = pxr;
+		for(x = 0; x < dst->w; x++, px += dst->format->BytesPerPixel)  {
+			PutPixelToAddr(px, GetReducedAlphaBlendedPixel(dst, px, a), dst->format->BytesPerPixel);
+		}
+	}
+
+	if(SDL_MUSTLOCK(dst))
+		SDL_UnlockSurface(dst);
+}
+
+void SetPerSurfaceAlpha(SDL_Surface *dst, Uint8 a) {
+	if(dst->flags & SDL_SRCALPHA)
+		SetPerSurface_Alpha( dst, (float)a / 255.0f );
+	else
+		SDL_SetAlpha(dst, SDL_SRCALPHA, a);
+}
+
+
 //////////////////////
 // Set a color key for alpha surface (SDL_SetColorKey does not work for alpha surfaces)
-void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
+static void SetColorKey_Alpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 	LockSurface(dst);
 
 	// Just set transparent alpha to pixels that match the color key
@@ -64,6 +101,10 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 	Uint8* px;
 	int x, y;
 	Uint32 colorkey = SDL_MapRGBA(dst->format, r, g, b, 0);
+
+	if(SDL_MUSTLOCK(dst))
+		SDL_LockSurface(dst);
+
 	for(y = 0; y < dst->h; y++, pxr += dst->pitch)  {
 		px = pxr;
 		for(x = 0; x < dst->w; x++, px += dst->format->BytesPerPixel)  {
@@ -74,9 +115,6 @@ void SetColorKeyAlpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 				PutPixelToAddr(px, colorkey, dst->format->BytesPerPixel);
 		}
 	}
-
-	// Set the colorkey value so we can later check if it was set or not and save some CPU time
-	dst->format->colorkey = colorkey;
 
 	UnlockSurface(dst);
 }
@@ -104,17 +142,33 @@ void SetColorKey(SDL_Surface* dst)  {
 
 
 	// Apply the colorkey
-	if (dst->flags & SDL_SRCALPHA)
+	if (dst->flags & SDL_SRCALPHA) {
 		if (bugged)
-			SetColorKeyAlpha(dst, 254, 0, 254);
+			SetColorKey_Alpha(dst, 254, 0, 254);
 		else
-			SetColorKeyAlpha(dst, 255, 0, 255);
+			SetColorKey_Alpha(dst, 255, 0, 255);
+	}
+	
+	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
+	if (bugged)
+		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, bugged_colorkey); 
 	else
-		if (bugged)
-			SDL_SetColorKey(dst, SDL_SRCCOLORKEY, bugged_colorkey); 
-		else
-			SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
+		SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, 255, 0, 255)); 
 }
+
+void SetColorKey(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
+	if(r == 255 && g == 0 && b == 255) { // pink
+		SetColorKey(dst); // use this function as it has a workaround included for some old broken mods
+		return;
+	}
+	
+	if (dst->flags & SDL_SRCALPHA)
+		SetColorKey_Alpha(dst, r, g, b);
+		
+	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
+	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, r, g, b));
+}
+
 
 /////////////////////////
 //
@@ -258,6 +312,7 @@ bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d)  {
 //////////////////
 
 
+// TODO: not used, remove?
 inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h) {
 	LockSurface(dst);
 	LockSurface(src);
