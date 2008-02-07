@@ -34,6 +34,10 @@ public:
 		Data = "";
 	}
 
+	CBytestream(const CBytestream& bs) {
+		operator=(bs);
+	}
+	
 	CBytestream& operator=(const CBytestream& bs) {
 		pos = bs.pos;
 		Data = bs.Data;

@@ -22,7 +22,9 @@
 
 using namespace std;
 
-#define MAX_PACKET_SIZE 4096
+// default max size for UDP packets for windows is 1280
+// only a size of 512 is guaranteed
+#define MAX_PACKET_SIZE 512
 
 ///////////////////
 // Setup the channel
@@ -77,10 +79,10 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 	}
 
 	// Some reliable messages already in queue, see if we should already split the packet
-	if (bs.GetLength() + (Messages[Messages.size() - 1].GetLength()) > MAX_PACKET_SIZE)
+	if (bs.GetLength() + (Messages.rbegin()->GetLength()) > MAX_PACKET_SIZE)
 		Messages.push_back(bs);
 	else
-		Messages[Messages.size() - 1].Append(&bs);
+		Messages.rbegin()->Append(&bs);
 }
 
 
@@ -104,7 +106,7 @@ void CChannel::Transmit( CBytestream *bs )
 	// 2. We need to refresh ping
 	if(Reliable.GetLength() == 0 && (Messages.size() > 0 || (tLX->fCurTime - fLastPingSent >= 1.0f && iPongSequence == -1))) {
 		if (Messages.size() > 0)  {
-			Reliable = Messages[0];
+			Reliable = *Messages.begin();
 			Messages.erase(Messages.begin());
 		}
 		
