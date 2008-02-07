@@ -219,7 +219,13 @@ struct DedIntern {
 	// -------------------------------
 	// ------- state -----------------
 	
-	enum State { S_NORMAL, S_LOBBY, S_WEAPONS, S_PLAYING };
+	enum State {
+		S_NORMAL, // server was not started
+		S_LOBBY, // in lobby
+		S_PREPARING, // in game: just started, will go to S_WEAPONS
+		S_WEAPONS, // in game: in weapon selection
+		S_PLAYING // in game: playing
+		};
 	State state;
 	
 	// --------------------------------
@@ -448,17 +454,22 @@ struct DedIntern {
 	// ----------- signals --------------
 	
 	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }	
-	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_NORMAL; }
+	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_PREPARING; }
 	void Sig_GameLoopEnd() {
 		pipe.in() << "gameloopend" << endl;
 		if(state != S_LOBBY) // we don't get a BackToLobby-signal => game was stopped
+							 // this is because of the current game logic, it will end the game
+							 // loop and then return to the lobby but only in the case if we got a
+							 // BackToLobby-signal before; if we didn't get such a signal and
+							 // the gameloop was ended, that means that the game was stopped
+							 // completely
 			state = S_NORMAL;
 	}
 	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_WEAPONS; }
 	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = S_PLAYING; }
 	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
-	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); }
+	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
 
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm" << endl; }	
 	void Sig_WormList(int iID, const std::string& name)	{ pipe.in() << "wormlistinfo:" << iID << ":" << name << endl; }
@@ -476,7 +487,6 @@ struct DedIntern {
 	
 	void Frame_Playing() {
 		// we don't have to process server/client frames here as it is done already by the main loop
-		
 	}
 	
 	void Frame_Basic() {
@@ -538,10 +548,10 @@ bool DedicatedControl::Init_priv() {
 
 	return true;
 }
-// This is the main game loop, as in "we are alive!"
+
+// This is the main game loop, the one that do all the simulation etc.
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
 void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
-//
 void DedicatedControl::BackToLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
 void DedicatedControl::WeaponSelections_Signal() { DedIntern::Get()->Sig_WeaponSelections(); }
 void DedicatedControl::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
