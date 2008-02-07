@@ -56,16 +56,9 @@ enum {
 class GameServer {
 public:
 	// Constructor
-	GameServer() {
-		Clear();
-		CScriptableVars::RegisterVars("GameServer")
-			( sWeaponRestFile, "WeaponRestrictionsFile" );
-	}
+	GameServer();
 
-	~GameServer()  {
-		CScriptableVars::DeRegisterVars("GameServer");
-	}
-
+	~GameServer();
 
 private:
 	// Attributes

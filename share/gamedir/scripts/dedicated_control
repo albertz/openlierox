@@ -30,7 +30,7 @@ function sendlobbyupdate() {
 }
 
 function start_with_countdown() {
-	c=10
+	c=20
 	while [ "$c" -ge 1 ]; do
 		[ "$c" -ge 10 ] && d=2 || d=1
 		msg "$c ..."
@@ -84,6 +84,8 @@ function select_next_preset() {
 }
 
 echo "getcomputerwormlist"
+
+setvar GameServer.ServerName "Dedicated multimod"
 
 startlobby
 

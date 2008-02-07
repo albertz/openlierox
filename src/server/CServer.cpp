@@ -47,6 +47,18 @@ GameServer	*cServer = NULL;
 CClient *cBots = NULL;
 
 
+GameServer::GameServer() {
+	Clear();
+	CScriptableVars::RegisterVars("GameServer")
+		( sWeaponRestFile, "WeaponRestrictionsFile" )
+		( sName, "ServerName" )
+		;
+}
+
+GameServer::~GameServer()  {
+	CScriptableVars::DeRegisterVars("GameServer");
+}
+
 ///////////////////
 // Clear the server
 void GameServer::Clear(void)

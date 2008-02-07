@@ -13,3 +13,5 @@ setvar GameServer.GameInfo.iLoadingTimes        "100"
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/100 LT.wps"
 
+setvar GameServer.ServerName "Dedicated multimod - Lamda_Classic"
+

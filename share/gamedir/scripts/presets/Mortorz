@@ -13,3 +13,5 @@ setvar GameServer.GameInfo.iLoadingTimes        "20"
 
 setvar GameServer.WeaponRestrictionsFile        "cfg/presets/Mortar Only.wps"
 
+setvar GameServer.ServerName "Dedicated multimod - Mortorz"
+
