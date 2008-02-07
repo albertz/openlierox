@@ -159,16 +159,16 @@ static void DumpPixelFormat(const SDL_PixelFormat* format) {
 		<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
 		<< "  BytesPerPixel: " << (int)format->BytesPerPixel << endl
 		<< "  R/G/B/A mask: " << hex
-			<< (Uint32)format->Rmask << "/"
-			<< (Uint32)format->Gmask << "/"
-			<< (Uint32)format->Bmask << "/"
-			<< (Uint32)format->Amask << endl
+			<< (uint)format->Rmask << "/"
+			<< (uint)format->Gmask << "/"
+			<< (uint)format->Bmask << "/"
+			<< (uint)format->Amask << endl
 		<< "  R/G/B/A loss: "
-			<< (Uint32)format->Rloss << "/"
-			<< (Uint32)format->Gloss << "/"
-			<< (Uint32)format->Bloss << "/"
-			<< (Uint32)format->Aloss << endl << dec
-		<< "  Colorkey: " << format->colorkey << ","
+			<< (uint)format->Rloss << "/"
+			<< (uint)format->Gloss << "/"
+			<< (uint)format->Bloss << "/"
+			<< (uint)format->Aloss << endl << dec
+		<< "  Colorkey: " << (uint)format->colorkey << ","
 		<< "  Alpha: " << (int)format->alpha << endl;
 }
 
