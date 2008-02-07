@@ -344,31 +344,30 @@ void CWpnRest::sortList(void)
 
 ///////////////////
 // Send the list
-void CWpnRest::sendList(CBytestream *psByteS)
+void CWpnRest::sendList(CBytestream *psByteS, CGameScript *pcGameS)
 {
     wpnrest_t *psWpn = NULL;
 
-    // Count the number of weapons that are _not_ enabled
+	std::list<wpnrest_t *> rest_to_send;
+
+    // Add only weapons that are _not_ enabled
     int nCount = 0;
     psWpn = m_psWeaponList;
     for(; psWpn; psWpn = psWpn->psNext ) {
-        if( psWpn->nState != wpr_enabled )
-            nCount++;
+        if(psWpn->nState != wpr_enabled && pcGameS->FindWeapon(psWpn->szName))
+			rest_to_send.push_back(psWpn); 
     }
 
 
     // Write the header
-    psByteS->writeInt(nCount,2);
+    psByteS->writeInt(rest_to_send.size(), 2);
 
-    // Go through the list writing out weapons that are _not_ enabled
-    psWpn = m_psWeaponList;
-    for(; psWpn; psWpn = psWpn->psNext ) {
-        if( psWpn->nState != wpr_enabled ) {
-            
-            psByteS->writeString(psWpn->szName);
-            psByteS->writeByte(psWpn->nState);
-        }
-    }
+    // Write the restrictions
+	for (std::list<wpnrest_t *>::iterator it = rest_to_send.begin();
+	it != rest_to_send.end(); it++)  {
+		psByteS->writeString((*it)->szName);
+		psByteS->writeByte((*it)->nState);
+	}
 }
 
 
@@ -376,7 +375,7 @@ void CWpnRest::sendList(CBytestream *psByteS)
 // Receive the list
 void CWpnRest::readList(CBytestream *psByteS)
 {
-    static std::string szName;
+    std::string szName;
     int nState;
     wpnrest_t *psWpn = NULL;
 

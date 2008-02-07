@@ -70,7 +70,7 @@ public:
     void        randomizeVisible(CGameScript *pcGameS);
 	void		cycleVisible(CGameScript *pcGameS);
 
-    void        sendList(CBytestream *psByteS);
+    void        sendList(CBytestream *psByteS, CGameScript *pcGameS);
     void        readList(CBytestream *psByteS);
 
     bool        isEnabled(const std::string& szName);

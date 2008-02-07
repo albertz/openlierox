@@ -451,7 +451,7 @@ int GameServer::StartGame()
 		bs.writeInt16(iTagLimit);
 	bs.writeString(tGameInfo.sModDir);
 
-    cWeaponRestrictions.sendList(&bs);
+    cWeaponRestrictions.sendList(&bs, &cGameScript);
 
 	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
