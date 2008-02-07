@@ -30,7 +30,7 @@ function sendlobbyupdate() {
 }
 
 function start_with_countdown() {
-	c=20
+	c=10
 	while [ "$c" -ge 1 ]; do
 		[ "$c" -ge 10 ] && d=2 || d=1
 		msg "$c ..."

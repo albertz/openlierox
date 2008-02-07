@@ -156,6 +156,8 @@ public:
 		return VarRegisterHelper( m_instance, base );
 	};
 
+	static void DeRegisterVars( const std::string & base );
+
 private:
 	friend class VarRegisterHelper;
 

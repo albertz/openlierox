@@ -73,6 +73,35 @@ CScriptableVars::ScriptVarPtr_t CScriptableVars::GetVar( const std::string & nam
 	return ScriptVarPtr_t();
 };
 
+void CScriptableVars::DeRegisterVars( const std::string & base )
+{
+	if( ! m_instance )
+	{
+		printf("CScriptableVars::DeRegisterVars() - error, deregistering vars \"%s\" after CScriptableVars were destroyed\n", base.c_str() );
+		return;
+	};
+	Init();
+	for( std::map< std::string, ScriptVarPtr_t > :: iterator it = m_instance->m_vars.begin();
+			it != m_instance->m_vars.end();  )
+	{
+		bool remove = false;
+		if( !stringcasecmp( it->first, base ) )
+			remove = true;
+		if( stringcasefind( it->first, base ) == 0 && it->first.size() > base.size() )
+			if( it->first[base.size()] == '.' )
+				remove = true;
+		if( remove )
+		{
+			m_instance->m_vars.erase( it );
+			it = m_instance->m_vars.begin();
+		}
+		else
+		{
+			it++;
+		};
+	};
+};
+
 std::string CScriptableVars::DumpVars()
 {
 	Init();

@@ -25,6 +25,7 @@
 #include "CBytestream.h"
 #include "HTTP.h"
 #include "FileDownload.h"
+#include "CScriptableVars.h"
 
 #define		MAX_CHALLENGES		1024
 
@@ -57,10 +58,12 @@ public:
 	// Constructor
 	GameServer() {
 		Clear();
+		CScriptableVars::RegisterVars("GameServer")
+			( sWeaponRestFile, "WeaponRestrictionsFile" );
 	}
 
 	~GameServer()  {
-
+		CScriptableVars::DeRegisterVars("GameServer");
 	}
 
 
