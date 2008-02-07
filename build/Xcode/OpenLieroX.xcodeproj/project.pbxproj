@@ -17,6 +17,7 @@
 		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
 		2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
 		2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
+		23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF6B0D0B038700920A5F /* CTextButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF690D0B038700920A5F /* CTextButton.cpp */; };
 		23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CDBF900D0B06FD00920A5F /* Carbon.framework */; };
@@ -206,6 +207,9 @@
 		2389FB200D2D4D5E00358F27 /* SmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartPointer.h; sourceTree = "<group>"; };
 		2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatCommand.cpp; sourceTree = "<group>"; };
 		2389FB650D2D5A4700358F27 /* UnixImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UnixImageIO.framework; path = /Library/Frameworks/UnixImageIO.framework; sourceTree = "<absolute>"; };
+		23A0CDB40D5B0A31002A33A4 /* CScriptableVars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CScriptableVars.h; sourceTree = "<group>"; };
+		23A0CDB50D5B0A3F002A33A4 /* ThreadVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadVar.h; sourceTree = "<group>"; };
+		23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CScriptableVars.cpp; sourceTree = "<group>"; };
 		23CDBF680D0B038700920A5F /* Clipboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cpp; sourceTree = "<group>"; };
 		23CDBF690D0B038700920A5F /* CTextButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTextButton.cpp; sourceTree = "<group>"; };
 		23CDBF6C0D0B039C00920A5F /* Clipboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clipboard.h; sourceTree = "<group>"; };
@@ -580,6 +584,7 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */,
 				230668380D40B44D005B4451 /* IniReader.cpp */,
 				235D281A0CF7C13B0067BA4F /* FileDownload.cpp */,
 				235D281B0CF7C13B0067BA4F /* HTTP.cpp */,
@@ -635,6 +640,8 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				23A0CDB50D5B0A3F002A33A4 /* ThreadVar.h */,
+				23A0CDB40D5B0A31002A33A4 /* CScriptableVars.h */,
 				230668360D40B434005B4451 /* IniReader.h */,
 				23D07AB30D36E16B00313749 /* DedicatedControl.h */,
 				23D07A450D36CC6200313749 /* Color.h */,
@@ -1032,6 +1039,7 @@
 				2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */,
 				23D07AB00D36E0F000313749 /* DedicatedControl.cpp in Sources */,
 				230668390D40B44D005B4451 /* IniReader.cpp in Sources */,
+				23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

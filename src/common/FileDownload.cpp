@@ -17,14 +17,18 @@
 // By Karel Petranek, Albert Zeyer and Martin Griffin
 
 #ifdef _MSC_VER
+// TODO: can't you put this into your IDE settings? it does not belong here
 #pragma warning(disable: 4786)  // WARNING: identifier XXX was truncated to 255 characters in the debug info
 #pragma warning(disable: 4503)  // WARNING: decorated name length exceeded, name was truncated
 #endif
 
+#include <iostream>
 #include "StringUtils.h"
 #include "FindFile.h"
 #include "EndianSwap.h"
 #include "FileDownload.h"
+
+using namespace std;
 
 //
 // Download error strings
@@ -350,7 +354,7 @@ void CFileDownloaderInGame::setDataToSend( const std::string & name, const std::
 	data1.append( 1, '\0' );
 	data1.append(data);
 	Compress( data1, &sData, noCompress );
-	printf("CFileDownloaderInGame::setFileToSend() filename %s data.size() %u compressed %u\n", sFilename.c_str(), data.size(), sData.size() );
+	cout << "CFileDownloaderInGame::setFileToSend() filename " << sFilename << " data.size() " << data.size() << " compressed " << sData.size() << endl;
 };
 
 void CFileDownloaderInGame::setFileToSend( const std::string & path )
@@ -421,7 +425,7 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 			{
 				sData.assign( sFilename, f+1, sFilename.size() - (f+1) );
 				sFilename.resize( f );
-				printf("CFileDownloaderInGame::receive() filename %s sData.size() %u\n", sFilename.c_str(), sData.size());
+				cout << "CFileDownloaderInGame::receive() filename " << sFilename << " sData.size() " << sData.size() << endl;
 			};
 		};
 		processFileRequests();

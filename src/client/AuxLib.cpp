@@ -308,11 +308,8 @@ bool SetVideoMode()
 
 	mainPixelFormat = SDL_GetVideoSurface()->format;
 	DumpPixelFormat(mainPixelFormat);
-	if(iSurfaceFormat == SDL_HWSURFACE) cout << "using SDL_HWSURFACE" << endl;
 	if(DoubleBuf) cout << "using doublebuffering" << endl;
-	if(HardwareAcceleration) cout << "using hardware acceleration" << endl;
 	
-	cout << "video mode was set successfully" << endl;
 	// Correct the surface format according to SDL
 	if ((SDL_GetVideoSurface()->flags & SDL_HWSURFACE) != 0)  {
 		iSurfaceFormat = SDL_HWSURFACE;
@@ -324,6 +321,7 @@ bool SetVideoMode()
 		printf("using software surfaces\n");
 	}
 
+	cout << "video mode was set successfully" << endl;
 	return true;
 }
 
