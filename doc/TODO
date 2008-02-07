@@ -23,8 +23,12 @@ TODO
 [ ] fill documentation (README) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
 [ ] fix STUN (!!)
-[ ] Fix memory leaks / segfaults (!!!)
+[ ] Fix memory leaks (!!)
+	[ ] TODO: where? (remember, some hacks by Pelya got recognised as memleaks)
+[ ] Fix segfaults (!!!)
+	[ ] TODO: where?
 [ ] Fix server crashing when starting game for second time (!!)
+	TODO: what exactly crashes?
 [ ] CChannel calculates wrong pings (too high) (!)
 
 [?] nMaxFPS = 0 works correctly? (!!)
