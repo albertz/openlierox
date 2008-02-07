@@ -19,12 +19,14 @@
 #include "LieroX.h"
 #include "CChannel.h"
 #include "StringUtils.h"
+#include "Timer.h"
 
 using namespace std;
 
 // default max size for UDP packets for windows is 1280
 // only a size of 512 is guaranteed
 #define MAX_PACKET_SIZE 512
+#define RELIABLE_HEADER_LEN 8
 
 ///////////////////
 // Setup the channel
@@ -67,9 +69,10 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 // Adds a packet to reliable queue
 void CChannel::AddReliablePacketToSend(CBytestream& bs)
 {
-	if (bs.GetLength() > MAX_PACKET_SIZE)  {
+	if (bs.GetLength() > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)  {
 		printf("ERROR: trying to send a reliable packet of size " + itoa(bs.GetLength()) + 
-			" which is bigger than MAX_PACKET_SIZE (" + itoa(MAX_PACKET_SIZE) + "), packet might not be sent at all!\n");
+			" which is bigger than allowed size (" + itoa(MAX_PACKET_SIZE - RELIABLE_HEADER_LEN) + 
+			"), packet might not be sent at all!\n");
 		Messages.push_back(bs); // Try to send it anyway, perhaps we're lucky...
 		return;
 	}
@@ -138,7 +141,7 @@ void CChannel::Transmit( CBytestream *bs )
 		// If we are sending a reliable message, remember this time and use it for ping calculations
 		if (iPongSequence == -1)  {
 			iPongSequence = iOutgoingSequence;
-			fLastPingSent = tLX->fCurTime;
+			fLastPingSent = GetMilliSeconds();
 		}
 
 	}
@@ -161,9 +164,9 @@ void CChannel::Transmit( CBytestream *bs )
 
 	// Calculate the bytes per second
 	if (tLX->fCurTime - fOutgoingClearTime >= 2.0f)  {
-		fOutgoingRate = (float)iCurrentOutgoingBytes/(tLX->fCurTime - fOutgoingClearTime);
+		fOutgoingRate = (float)iCurrentOutgoingBytes/(GetMilliSeconds() - fOutgoingClearTime);
 		iCurrentOutgoingBytes = 0;
-		fOutgoingClearTime = tLX->fCurTime;
+		fOutgoingClearTime = GetMilliSeconds();
 	}
 }
 
@@ -196,9 +199,9 @@ bool CChannel::Process(CBytestream *bs)
 	iIncomingBytes += bs->GetRestLen();
 	iCurrentIncomingBytes += bs->GetRestLen();
 	if (tLX->fCurTime - fIncomingClearTime >= 2.0f)  {
-		fIncomingRate = (float)iCurrentIncomingBytes/(tLX->fCurTime - fIncomingClearTime);
+		fIncomingRate = (float)iCurrentIncomingBytes/(GetMilliSeconds() - fIncomingClearTime);
 		iCurrentIncomingBytes = 0;
-		fIncomingClearTime = tLX->fCurTime;
+		fIncomingClearTime = GetMilliSeconds();
 	}
 
 	// Get rid of the old packets
@@ -231,7 +234,7 @@ bool CChannel::Process(CBytestream *bs)
 	// Check if pong has been acknowledged
 	if(SequenceAck >= (size_t)iPongSequence)  {
 		iPongSequence = -1;  // Ready for new pinging
-		iPing = (int)((tLX->fCurTime - fLastPingSent) * 1000);
+		iPing = MAX(0, (int)((tLX->fCurTime - fLastPingSent) * 1000));
 	}
 
 
@@ -247,7 +250,7 @@ bool CChannel::Process(CBytestream *bs)
 
 
 	// Update the statistics
-	fLastPckRecvd = tLX->fCurTime;
+	fLastPckRecvd = GetMilliSeconds();
 	iPacketsGood++;
 
 
