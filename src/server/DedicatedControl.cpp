@@ -31,6 +31,10 @@
 #include "Protocol.h"
 #include "CScriptableVars.h"
 
+#ifdef WIN32
+#undef S_NORMAL // TODO: This is a reserved constant under WIN32, rename the constant(s) in this file
+#endif
+
 using namespace std;
 
 struct pstream_pipe_t; // popen-streamed-library independent wrapper (kinda)
@@ -191,7 +195,10 @@ struct DedIntern {
 	static int stdinThreadFunc(void*) {
 		DedIntern* data = Get();
 		
+#ifndef WIN32
+		// TODO: there's no fcntl for Windows!
 		if(fcntl(0, F_SETFL, O_NONBLOCK) == -1)
+#endif
 			cout << "ERROR setting standard input into non-blocking mode" << endl;
 		
 		while(true) {			
@@ -216,6 +223,7 @@ struct DedIntern {
 	
 	// -------------------------------
 	// ------- state -----------------
+
 	
 	enum State {
 		S_NORMAL, // server was not started
