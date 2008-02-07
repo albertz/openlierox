@@ -26,6 +26,8 @@ public:
 	void GameLoopStart_Signal();
 	void GameLoopEnd_Signal();
 	void NewWorm_Signal(CWorm* w);
+	void WeaponSelections_Signal() {}
+	void GameStarted_Signal() {}
 	
 	void Menu_Frame();
 	void GameLoop_Frame();

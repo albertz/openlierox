@@ -170,7 +170,7 @@ enum {
 	BUT_ADDTOFAVOURITES,
 	BUT_NEWS,
 	BUT_GENERAL,
-	BUT_BONUSES,
+	BUT_BONUS,
 };
 
 // Frontend info

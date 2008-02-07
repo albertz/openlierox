@@ -35,6 +35,7 @@
 #include "MathLib.h"
 #endif
 #include "stun.h"
+#include "DedicatedControl.h"
 
 using namespace std;
 
@@ -268,7 +269,6 @@ int GameServer::StartServer(const std::string& name, int port, int maxplayers, b
 
 	bFirstBlood = true;
 
-
 	return true;
 }
 
@@ -456,6 +456,9 @@ int GameServer::StartGame()
 	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
 
+	if( DedicatedControl::Get() )
+		DedicatedControl::Get()->WeaponSelections_Signal();
+
 	return true;
 }
 
@@ -468,6 +471,9 @@ void GameServer::BeginMatch(void)
 	int i;
 
 	iState = SVS_PLAYING;
+
+	if( DedicatedControl::Get() )
+		DedicatedControl::Get()->GameStarted_Signal();
 		
 	// Initialize some server settings
 	fServertime = 0;

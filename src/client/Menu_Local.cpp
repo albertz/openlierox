@@ -803,13 +803,8 @@ void Menu_GameSettings(void)
 
 	// Game settings, stuff on each pane.
 
-	// TODO: Replace this crap with buttons from Raziel.
-	/*
-	cGameSettings.Add( new CTextButton("General", tLX->clWhite, tLX->clBoxLight), gs_btnGenTab, 260, 165, 0, 0);
-	cGameSettings.Add( new CTextButton("Bonuses", tLX->clWhite, tLX->clBoxLight), gs_btnBonusTab, 340, 165, 0, 0);
-	*/
 	cGameSettings.Add( new CButton(BUT_GENERAL, tMenu->bmpButtons),	gs_btnGenTab, 240, 165, 0, 0);
-	cGameSettings.Add( new CButton(BUT_BONUSES, tMenu->bmpButtons),	gs_btnBonusTab, 340, 165, 0, 0);
+	cGameSettings.Add( new CButton(BUT_BONUS, tMenu->bmpButtons),	gs_btnBonusTab, 340, 165, 0, 0);
 	cGameSettings.Add( new CButton(BUT_OK, tMenu->bmpButtons),	    gs_Ok,      220,445, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, tMenu->bmpButtons), gs_Default, 350,445, 80,15);
 

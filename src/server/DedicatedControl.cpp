@@ -391,14 +391,14 @@ struct DedIntern {
 	}
 
 	void Cmd_GetWormList()
-	{;
+	{
 		cWorm *w = cServer->getWorms();
 		for(int i=0; i < MAX_WORMS; i++, w++) 
 		{
 			if(!w->isUsed())
 				continue;
 
-			Sig_WormInfo(w->getID(),w->getName());
+			Sig_WormList(w->getID(),w->getName());
 			
 		}
 	}
@@ -460,7 +460,7 @@ struct DedIntern {
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm" << endl; }	
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); }
 
-	void Sig_WormInfo(int iID, std::string name)
+	void Sig_WormList(int iID, std::string name)
 	{
 		pipe.in() << "wormlistinfo:" << iID << ":" << name << endl;
 	}
@@ -542,7 +542,7 @@ bool DedicatedControl::Init_priv() {
 // This is the main game loop, as in "we are alive!"
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
 void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
-// 
+//
 void DedicatedControl::BackToLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
 void DedicatedControl::WeaponSelections_Signal() { DedIntern::Get()->Sig_WeaponSelections(); }
 void DedicatedCotnrol::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
