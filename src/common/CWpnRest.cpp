@@ -351,8 +351,7 @@ void CWpnRest::sendList(CBytestream *psByteS, CGameScript *pcGameS)
 	std::list<wpnrest_t *> rest_to_send;
 
     // Add only weapons that are _not_ enabled
-    int nCount = 0;
-    psWpn = m_psWeaponList;
+	psWpn = m_psWeaponList;
     for(; psWpn; psWpn = psWpn->psNext ) {
         if(psWpn->nState != wpr_enabled && pcGameS->FindWeapon(psWpn->szName))
 			rest_to_send.push_back(psWpn); 

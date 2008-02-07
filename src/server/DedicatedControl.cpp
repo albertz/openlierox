@@ -392,7 +392,7 @@ struct DedIntern {
 
 	void Cmd_GetWormList()
 	{
-		cWorm *w = cServer->getWorms();
+		CWorm *w = cServer->getWorms();
 		for(int i=0; i < MAX_WORMS; i++, w++) 
 		{
 			if(!w->isUsed())
@@ -428,10 +428,13 @@ struct DedIntern {
 		else if(cmd == "addworm")
 			Cmd_AddWorm();
 
+/*
+		// TODO ...
 		else if(cmd == "kickworm")
 			Cmd_KickWorm(params);
 		else if(cmd == "banworm")
 			Cmd_BanWorm(params);
+*/
 
 		else if(cmd =="getwormlist")
 			Cmd_GetWormList();
@@ -444,26 +447,23 @@ struct DedIntern {
 	// ----------------------------------
 	// ----------- signals --------------
 	
+	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }	
 	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_NORMAL; }
 	void Sig_GameLoopEnd() {
 		pipe.in() << "gameloopend" << endl;
 		if(state != S_LOBBY) // we don't get a BackToLobby-signal => game was stopped
 			state = S_NORMAL;
 	}
+	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_WEAPONS; }
+	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = S_PLAYING; }
 	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
-	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }	
-
-	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_WEAPONS;}
-	void Sig_GameStarted { pipe.in() << "gamestarted" << endl; state = S_PLAYING;}
-
-	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm" << endl; }	
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); }
 
-	void Sig_WormList(int iID, std::string name)
-	{
-		pipe.in() << "wormlistinfo:" << iID << ":" << name << endl;
-	}
+	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm" << endl; }	
+	void Sig_WormList(int iID, const std::string& name)	{ pipe.in() << "wormlistinfo:" << iID << ":" << name << endl; }
+
+
 	
 	// ----------------------------------
 	// ---------- frame handlers --------
@@ -481,8 +481,7 @@ struct DedIntern {
 	
 	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
-		// TODO: seems that stringstream behaves different under MacOSX; does it work under Linux now?
-		while(/*pipeOutput.rdbuf()->in_avail() > 0 ||*/ pipeOutput.str().size() > pipeOutput.tellg()) {
+		while(pipeOutput.str().size() > pipeOutput.tellg()) {
 			string cmd, rest;
 			Ded_ParseCommand(pipeOutput, cmd, rest);
 			SDL_mutexV(pipeOutputMutex);
@@ -545,7 +544,7 @@ void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(
 //
 void DedicatedControl::BackToLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
 void DedicatedControl::WeaponSelections_Signal() { DedIntern::Get()->Sig_WeaponSelections(); }
-void DedicatedCotnrol::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
+void DedicatedControl::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
 
 void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
