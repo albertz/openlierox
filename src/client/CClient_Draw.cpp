@@ -452,7 +452,8 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 
 		// Draw the viewports
-		// TODO: are there problems if we draw this also when the game is not ready?
+		// HINT: before we get packet with map info and load the map, cMap is undefined
+		// bGameReady says if the game (including cMap) has been initialized
 		if((iNetStatus == NET_CONNECTED  && bGameReady ) || (iNetStatus == NET_PLAYING)) {
 
 			// Draw the viewports
@@ -474,6 +475,49 @@ void CClient::Draw(SDL_Surface *bmpDest)
 			}
 
 		}
+	}
+
+	//
+	// check if Players not yet ready
+	//
+	if (iNetStatus == NET_CONNECTED && bGameReady)  {
+		bool ready = true;
+
+		// Go through and draw the first two worms select menus
+		for(i=0;i<num;i++) {
+
+			// Select weapons
+			if(!cLocalWorms[i]->getWeaponsReady()) {
+				ready = false;
+				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
+
+				// Forced to finish weapon selection
+				if (bForceWeaponsReady)  {
+					cLocalWorms[i]->setWeaponsReady(true);
+					ready = true;
+				}
+			}
+		}
+
+		// If we're ready, let the server know
+		if(ready && !bReadySent && !bDownloadingMap) {
+			cout << "our weapons were selected, the game can begin" << endl;
+			bReadySent = true;
+			
+			// TODO: move this out here
+			CBytestream bs;
+			bs.writeByte(C2S_IMREADY);
+			bs.writeByte(iNumWorms);
+
+			// Send my worm's weapon details
+			for(i=0;i<iNumWorms;i++)
+				cLocalWorms[i]->writeWeapons( &bs );
+
+			cNetChan.AddReliablePacketToSend(bs);
+		}
+	}
+
+	if (!bDedicated)  {
 
 		// DEBUG
 		//DrawRectFill(bmpDest,0,0,100,40,tLX->clBlack);
@@ -570,7 +614,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		// Game over
 		if(bGameOver) {
-			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !bGameMenu)  {
+			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)  {
 				InitializeGameMenu();
 
 				// If this is a tournament, take screenshot of the final screen
@@ -582,12 +626,6 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				}
 			} else
 				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
-		}
-
-		// Game menu
-		if(bGameMenu)  {
-			bScoreboard = false;
-			DrawGameMenu(bmpDest);
 		}
 
 		// Viewport manager
@@ -602,53 +640,15 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		}
 
 		// Scoreboard
-		if(bScoreboard)
+		if(bScoreboard && !bGameMenu)
 			DrawScoreboard(bmpDest);
-	}
 
-	//
-	// check if Players not yet ready
-	//
-	if (iNetStatus == NET_CONNECTED && bGameReady)  {
-		bool ready = true;
-
-		// Go through and draw the first two worms select menus
-		for(i=0;i<num;i++) {
-
-			// Select weapons
-			if(!cLocalWorms[i]->getWeaponsReady()) {
-				ready = false;
-				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
-
-				// Forced to finish weapon selection
-				if (bForceWeaponsReady)  {
-					cLocalWorms[i]->setWeaponsReady(true);
-					ready = true;
-				}
-			}
-		}
-
-		// If we're ready, let the server know
-		if(ready && !bReadySent && !bDownloadingMap) {
-			cout << "our weapons were selected, the game can begin" << endl;
-			bReadySent = true;
-			
-			// TODO: move this out here
-			CBytestream bs;
-			bs.writeByte(C2S_IMREADY);
-			bs.writeByte(iNumWorms);
-
-			// Send my worm's weapon details
-			for(i=0;i<iNumWorms;i++)
-				cLocalWorms[i]->writeWeapons( &bs );
-
-			cNetChan.AddReliablePacketToSend(bs);
-		}
-	}
-	
-	if(!bDedicated) {
 		// Current Settings
 		DrawCurrentSettings(bmpDest);
+
+		// Game menu
+		if(bGameMenu)
+			DrawGameMenu(bmpDest);
 
 		// Chatter
 		if(bChat_Typing)  {

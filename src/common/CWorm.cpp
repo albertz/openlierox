@@ -643,11 +643,6 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
         }
     }
 	
-	// HACK: move weapon selection a bit to the right that it doesn't overlap with scorebox
-	// only do it when there is only one viewport as we have to less space else
-	if(centrex == 320)  // this is when we only have one viewport; // TODO: hardcoded width here
-		centrex = 460;
-	
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "~ Weapons Selection ~");
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "(Use up/down and left/right for selection.)");
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+66, tLX->clWeaponSelectionTitle, "(Go to 'Done' and press shoot then.)");
