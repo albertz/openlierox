@@ -453,7 +453,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		// Draw the viewports
 		// TODO: are there problems if we draw this also when the game is not ready?
-		if((iNetStatus == NET_CONNECTED /* && bGameReady */) || (iNetStatus == NET_PLAYING)) {
+		if((iNetStatus == NET_CONNECTED  && bGameReady ) || (iNetStatus == NET_PLAYING)) {
 
 			// Draw the viewports
 			for( i=0; i<NUM_VIEWPORTS; i++ ) {
