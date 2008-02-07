@@ -43,7 +43,6 @@ struct pstream_pipe_t	// Stub
 	pstream_pipe_t(): dummy(0) {};
 	std::ostream & in(){ return cout; };
 	std::istream & out(){ return cin; };
-	//std::istream & err(){ return p->get_stderr(); };
 	void close_in() {  };
 	void close() {  }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
@@ -53,10 +52,6 @@ struct pstream_pipe_t	// Stub
 		return false;
 	};
 };
-
-#define fcntl(X,Y,Z) (0)
-#define F_SETFL 0
-#define O_NONBLOCK 0
 
 #else
 
@@ -70,7 +65,6 @@ struct pstream_pipe_t
 	pstream_pipe_t(): p(NULL) {};
 	std::ostream & in(){ return p->get_stdin(); };
 	std::istream & out(){ return p->get_stdout(); };
-	//std::istream & err(){ return p->get_stderr(); };
 	void close_in(){ p->get_stdin().close(); };
 	void close() { close_in(); }
 	bool open( const std::string & cmd, std::vector< std::string > params = std::vector< std::string > () )
@@ -96,10 +90,6 @@ struct pstream_pipe_t
 	~pstream_pipe_t(){ if(p) delete p; };
 };
 
-#define fcntl(X,Y,Z) (0)
-#define F_SETFL 0
-#define O_NONBLOCK 0
-
 #else
 #include <pstream.h>
 struct pstream_pipe_t
@@ -107,7 +97,6 @@ struct pstream_pipe_t
 	redi::pstream p;
 	std::ostream & in(){ return p; };
 	std::istream & out(){ return p.out(); };
-	//std::istream & err(){ return p.err(); };
 	void close_in(){ p << redi::peof; };
 	void close() {
 		close_in();
@@ -167,7 +156,7 @@ struct DedIntern {
 	bool quitSignal;
 	
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
-	DedIntern() : quitSignal(false), state(STATE_NORMAL) {}
+	DedIntern() : quitSignal(false), state(S_NORMAL) {}
 	~DedIntern() {
 		Sig_Quit();
 		quitSignal = true;
@@ -228,7 +217,13 @@ struct DedIntern {
 	// -------------------------------
 	// ------- state -----------------
 	
-	enum State { STATE_NORMAL, STATE_LOBBY, STATE_WEAPONS, STATE_PLAYING };
+	enum State {
+		S_NORMAL, // server was not started
+		S_LOBBY, // in lobby
+		S_PREPARING, // in game: just started, will go to S_WEAPONS
+		S_WEAPONS, // in game: in weapon selection
+		S_PLAYING // in game: playing
+		};
 	State state;
 	
 	// --------------------------------
@@ -453,26 +448,25 @@ struct DedIntern {
 	// ----------------------------------
 	// ----------- signals --------------
 	
-	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = STATE_NORMAL; }
+	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }
+	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_PREPARING; }
 	void Sig_GameLoopEnd() {
 		pipe.in() << "gameloopend" << endl;
-		if(state != STATE_LOBBY) // we don't get a BackToLobby-signal => game was stopped
-			state = STATE_NORMAL;
+		if(state != S_LOBBY) // this is because of the current game logic, it will end the game
+								 // loop and then return to the lobby but only in the case if we got a
+								 // BackToLobby-signal before; if we didn't get such a signal and
+								 // the gameloop was ended, that means that the game was stopped
+								 // completely
+			state = S_NORMAL;
 	}
-	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = STATE_LOBBY; }
-	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = STATE_NORMAL; }
-	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = STATE_LOBBY; }
-
-	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = STATE_WEAPONS;}
-	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = STATE_PLAYING;}
+	void Sig_WeaponSelections() { pipe.in() << "weaponselections" << endl; state = S_WEAPONS; }
+	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = S_PLAYING; }
+	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
+	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
+	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
 
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm" << endl; }	
-	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); }
-
-	void Sig_WormList(int iID, std::string name)
-	{
-		pipe.in() << "wormlistinfo:" << iID << ":" << name << endl;
-	}
+	void Sig_WormList(int iID, std::string name) { pipe.in() << "wormlistinfo:" << iID << ":" << name << endl; }
 	
 	// ----------------------------------
 	// ---------- frame handlers --------
@@ -485,13 +479,11 @@ struct DedIntern {
 	
 	void Frame_Playing() {
 		// we don't have to process server/client frames here as it is done already by the main loop
-		
 	}
 	
 	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
-		// TODO: seems that stringstream behaves different under MacOSX; does it work under Linux now?
-		while(/*pipeOutput.rdbuf()->in_avail() > 0 ||*/ pipeOutput.str().size() > pipeOutput.tellg()) {
+		while(pipeOutput.str().size() > pipeOutput.tellg()) {
 			string cmd, rest;
 			Ded_ParseCommand(pipeOutput, cmd, rest);
 			SDL_mutexV(pipeOutputMutex);
@@ -502,8 +494,8 @@ struct DedIntern {
 		SDL_mutexV(pipeOutputMutex);
 		
 		switch(state) {
-		case STATE_LOBBY: Frame_Lobby(); break;
-		case STATE_PLAYING: Frame_Playing(); break;
+		case S_LOBBY: Frame_Lobby(); break;
+		case S_PLAYING: Frame_Playing(); break;
 		default: break;
 		}
 	}
@@ -548,10 +540,10 @@ bool DedicatedControl::Init_priv() {
 
 	return true;
 }
-// This is the main game loop, as in "we are alive!"
+
+// This is the main game loop, the one that do all the simulation etc.
 void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
 void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
-//
 void DedicatedControl::BackToLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
 void DedicatedControl::WeaponSelections_Signal() { DedIntern::Get()->Sig_WeaponSelections(); }
 void DedicatedControl::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
