@@ -216,8 +216,9 @@ void CWorm::getInput()
 		// TODO: was is the intention of this var? if weapon change, then it's wrong
 		// if cSelWeapon.isDown(), then we don't need it
 		weap = true;
-
-		int change = cRight.wasDown() - cLeft.wasDown();
+		
+		// we don't want keyrepeats here, so only count the first down-event
+		int change = (RightOnce ? 1 : 0) - (cLeft.isDownOnce() ? 1 : 0);		
 		iCurrentWeapon += change;
 		MOD(iCurrentWeapon, iNumWeaponSlots);
 	}
