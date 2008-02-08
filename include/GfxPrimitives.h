@@ -185,7 +185,7 @@ bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d);
 
 //////////////////
 // Load an image
-SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
+SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false, bool withcolorkey = false);
 
 /////////////////
 // Loads an image and quits with error if could not load
@@ -290,14 +290,16 @@ void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int
 
 //////////////
 // Draw the image with a huge amount of options
-inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, SDL_Rect rDest, SDL_Rect rSrc) {
+inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc) {
 	SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
 }
 
 //////////////
 // Draw the image with a huge amount of options
 inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
-	DrawImageAdv( bmpDest, bmpSrc, (SDL_Rect) { dx, dy, 0, 0 }, (SDL_Rect) { sx, sy, w, h } ); 
+	SDL_Rect r1 = { dx, dy, 0, 0 };
+	SDL_Rect r2 = { sx, sy, w, h };
+	DrawImageAdv( bmpDest, bmpSrc, r1, r2); 
 }
 
 
@@ -309,14 +311,15 @@ inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y,
 
 ///////////////
 // Simply draw the image
-inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, SDL_Rect rDest) {
+inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, SDL_Rect& rDest) {
 	SDL_BlitSurface(bmpSrc, NULL, bmpDest, &rDest);
 }
 
 ///////////////
 // Simply draw the image
 inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
-	DrawImage( bmpDest, bmpSrc, (SDL_Rect) { x, y, 0, 0 } );
+	SDL_Rect r = { x, y, 0, 0 };
+	DrawImage( bmpDest, bmpSrc, r);
 }
 
 
