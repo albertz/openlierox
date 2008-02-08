@@ -480,7 +480,6 @@ int CGameScript::Load(const std::string& dir)
 
 	fclose(fp);
 
-
 	// Save to cache
 	cCache.SaveMod(dir, this);
 
@@ -548,10 +547,6 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
         if(!proj->bmpImage)
             modLog("Could not open image '%s'",proj->ImgFilename.c_str());
-		
-		// Set the colour key
-		else 
-			SetColorKey(proj->bmpImage);
 
 		fread(&proj->Rotating, sizeof(int), 1, fp);
 		EndianSwap(proj->Rotating);
@@ -751,14 +746,14 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 	SDL_Surface *img = NULL;
 
 	// First, check the gfx directory in the mod dir
-	img = LoadImage(dir + "/gfx/" + filename);
+	img = LoadImage(dir + "/gfx/" + filename, true, true);
 
 	if(img)  {
 		return img;
 	}
 
 	// Check the gfx directory in the data dir
-	return LoadImage("data/gfx/" + filename);
+	return LoadImage("data/gfx/" + filename, true, true);
 }
 
 

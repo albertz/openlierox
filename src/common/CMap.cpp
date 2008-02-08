@@ -1179,23 +1179,17 @@ int CMap::CarveHole(int size, CVec pos)
 	
 	lockFlags();
 	
-	if(SDL_MUSTLOCK(hole))
-		SDL_LockSurface(hole);
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_LockSurface(bmpImage);
-	if(SDL_MUSTLOCK(bmpBackImage))
-		SDL_LockSurface(bmpBackImage);
+	LockSurface(hole);
+	LockSurface(bmpImage);
+	LockSurface(bmpBackImage);
 	
 	walkPixels(ClipRect<int>(&map_left, &map_top, &hole->w, &hole->h), CarveHole_PixelWalker(this, hole, nNumDirt, map_left, map_top));
 	
 	unlockFlags();
 
-	if(SDL_MUSTLOCK(hole))
-		SDL_UnlockSurface(hole);
-	if(SDL_MUSTLOCK(bmpImage))
-		SDL_UnlockSurface(bmpImage);
-	if(SDL_MUSTLOCK(bmpBackImage))
-		SDL_UnlockSurface(bmpBackImage);
+	UnlockSurface(hole);
+	UnlockSurface(bmpImage);
+	UnlockSurface(bmpBackImage);
 
 	if(!nNumDirt)
 		return 0;
