@@ -186,9 +186,9 @@ enum {
 // Object structure (for maprandom_t)
 // HINT: DON'T change the variable types because they are saved directly to the file (CMap.cpp)
 class object_t { public:
-	int		Type;
-	int		Size;
-	int     X, Y;
+	Sint32		Type;
+	Sint32		Size;
+	Sint32     X, Y;
 };
 
 

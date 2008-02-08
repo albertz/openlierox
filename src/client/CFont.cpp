@@ -264,9 +264,10 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	SDL_Surface *bmpCached = NULL;
 	if (Colorize) {
 		// HINT: if we leave this disabled, the drawing will always be done manually
-		// this is a bit (not not much) slower but prevents from some errors
-		// TODO: what errors? can't they be fixed anyhow?
+		// this is a bit (not not much) slower but prevents from the usual errors with CFont (wrong color, invisible, so on)
 		// TODO: should we completly remove the caches? how much speed improvements do they give?
+		// under MacOSX, it doesn't seem to give any performance improvement at all, at least no change in FPS
+		// I have activated it again now as it seem to work at the moment (perhabps because of my change in gfxCreateSurfaceAlpha)
 		if (col == f_white)
 			bmpCached = bmpWhite;
 		else if (col == tLX->clBlack)

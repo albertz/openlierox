@@ -575,12 +575,12 @@ void CFileDownloaderInGame::processFileRequests()
 			};
 			std::string filename = getData().substr( f, f1 - f );
 			f1 ++;
-			uint size=0, compressedSize=0, checksum=0;
-			memcpy( &size, getData().c_str() + f1, 4 );
+			Uint32 size=0, compressedSize=0, checksum=0;
+			memcpy( &size, getData().data() + f1, 4 );
 			f1 += 4;
-			memcpy( &compressedSize, getData().c_str() + f1, 4 );
+			memcpy( &compressedSize, getData().data() + f1, 4 );
 			f1 += 4;
-			memcpy( &checksum, getData().c_str() + f1, 4 );
+			memcpy( &checksum, getData().data() + f1, 4 );
 			f1 += 4;
 			EndianSwap( checksum );
 			EndianSwap( size );

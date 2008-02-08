@@ -440,14 +440,14 @@ void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
 std::string Menu_GetLevelName(const std::string& filename)
 {
 	static char	id[32], name[128];
-	int		version;
+	Sint32		version;
 
 	// Liero Xtreme level
 	if( stringcasecmp(GetFileExtension(filename), "lxl") == 0 ) {
 		FILE *fp = OpenGameFile("levels/" + filename, "rb");
 		if(fp) {
 			fread(id,		sizeof(char),	32,	fp);
-			fread(&version,	sizeof(int),	1,	fp);
+			fread(&version,	sizeof(version),	1,	fp);
 			EndianSwap(version);
 			fread(name,		sizeof(char),	64,	fp);
 			fix_markend(id); fix_markend(name);

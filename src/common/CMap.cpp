@@ -636,10 +636,8 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 	// Update the bmpImage according to pixel flags
 	if (update_image)  {
-		if (SDL_MUSTLOCK(bmpImage))
-			SDL_LockSurface(bmpImage);
-		if (SDL_MUSTLOCK(bmpBackImage))
-			SDL_LockSurface(bmpBackImage);
+		LockSurface(bmpImage);
+		LockSurface(bmpBackImage);
 
 		// Init the variables
 		Uint8 *img_pixel, *back_pixel;
@@ -671,10 +669,8 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 			pf += FlagsRowStep;
 		}
 
-		if (SDL_MUSTLOCK(bmpImage))
-			SDL_UnlockSurface(bmpImage);
-		if (SDL_MUSTLOCK(bmpBackImage))
-			SDL_UnlockSurface(bmpBackImage);
+		UnlockSurface(bmpImage);
+		UnlockSurface(bmpBackImage);
 	}
 
 	unlockFlags();

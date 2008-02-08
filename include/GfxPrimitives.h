@@ -237,7 +237,8 @@ inline SDL_Surface* gfxCreateSurface(int width, int height, bool forceSoftware =
 	SDL_PixelFormat* fmt = getMainPixelFormat();
 
 	SDL_Surface* result = SDL_CreateRGBSurface(
-			iSurfaceFormat, width, height, 
+			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
+			width, height, 
 			fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
 	if (result)
@@ -257,13 +258,13 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height, bool forceSoftw
 	SDL_Surface* result;
 	SDL_PixelFormat* fmt = getMainPixelFormat();	
 
-	if(fmt->Amask != 0) // the main pixel format supports alpha blending
+	if(!forceSoftware && fmt->Amask != 0) // the main pixel format supports alpha blending
 		result = SDL_CreateRGBSurface(
 				iSurfaceFormat | SDL_SRCALPHA,
 				width, height,
 				fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 	
-	else // no native alpha blending, so create a software alpha blended surface
+	else // no native alpha blending or forced software, so create a software alpha blended surface
 		result = SDL_CreateRGBSurface(
 				SDL_SWSURFACE | SDL_SRCALPHA,
 				width, height, 32,
