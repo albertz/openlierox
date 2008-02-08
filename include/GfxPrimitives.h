@@ -185,7 +185,7 @@ bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d);
 
 //////////////////
 // Load an image
-SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false, bool withcolorkey = false);
+SDL_Surface*	LoadImage(const std::string& _filename, bool withalpha = false);
 
 /////////////////
 // Loads an image and quits with error if could not load
