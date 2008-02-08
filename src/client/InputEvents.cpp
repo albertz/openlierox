@@ -63,6 +63,7 @@ void InitEventSystem() {
 	GetMouse()->Down = 0;
 	GetMouse()->FirstDown = 0;
 	GetMouse()->Up = 0;
+	GetMouse()->mouseQueue.reserve(32); // just make space to avoid always reallocation
 }
 
 static void ResetCurrentEventStorage() {
@@ -72,7 +73,8 @@ static void ResetCurrentEventStorage() {
 	// Reset mouse wheel
 	Mouse.WheelScrollUp = false;
 	Mouse.WheelScrollDown = false;
-
+	Mouse.mouseQueue.clear();
+	
 	// Reset the video mode changed flag here
 	if (tLX)
 		tLX->bVideoModeChanged = false;
@@ -101,7 +103,7 @@ static void HandleNextEvent() {
 
 	// Mouse wheel scroll
 	case SDL_MOUSEBUTTONDOWN:
-		switch(Event.button.button){
+		switch(Event.button.button) {
 			case SDL_BUTTON_WHEELUP:
 				Mouse.WheelScrollUp = true;
 				break;
@@ -109,6 +111,12 @@ static void HandleNextEvent() {
 				Mouse.WheelScrollDown  = true;
 				break;
 		}  // switch
+
+		Mouse.mouseQueue.push_back( (MouseEvent) { Event.button.x, Event.button.y, Event.button.button, true } );
+		break;
+		
+	case SDL_MOUSEBUTTONUP:
+		Mouse.mouseQueue.push_back( (MouseEvent) { Event.button.x, Event.button.y, Event.button.button, false } );
 		break;
 
 	// Activation and deactivation
@@ -209,7 +217,6 @@ static void HandleNextEvent() {
 			
 			// copy it
 			kbev.state = keyModifiersState;
-
 		}
 		break;
 		
@@ -258,7 +265,7 @@ static void HandleMouseState() {
 	}
 }
 
-static void HandleKeyboardState() {
+static void HandleKeyboardState() {	
 	// HINT: KeyDown is the state of the keyboard
 	// KeyUp is like an event and will only be true once
 	
@@ -269,7 +276,7 @@ static void HandleKeyboardState() {
 	for(int k=0;k<SDLK_LAST;k++) {
 		Keyboard.KeyUp[k] = false;
 
-		if(!Keyboard.keys[k] && Keyboard.KeyDown[k])
+		if(!Keyboard.keys[k] && Keyboard.KeyDown[k]) // it is up now but it was down previously
 			Keyboard.KeyUp[k] = true;
 		Keyboard.KeyDown[k] = Keyboard.keys[k];
 	}

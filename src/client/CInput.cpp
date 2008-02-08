@@ -465,14 +465,19 @@ int CInput::isDown(void)
 
 		// Keyboard
 		case INP_KEYBOARD:
+			if(wasDown()) return true; // in this case, we want to return true here to get it recognised at least once
 #ifdef WIN32
+			// TODO: please remove this hack here
 			// Workaround for right alt key which is reported as LCTRL + RALT on windib driver
 			if (Keyb->queueLength > 1 && Data == SDLK_RALT)
+				// TODO: why are only the first and second key-events checked? what if they are later
+				// what if first event was in previous frame?
+				// what if first event is a keyup-event?
 				if (Keyb->keyQueue[0].sym == SDLK_LCTRL && Keyb->keyQueue[1].sym == SDLK_RALT && Keyb->keyQueue[1].down)
 					return true;
 #endif
 
-			if(Keyb->keys[Data])
+			if(Keyb->KeyDown[Data])
 				return true;
 			break;
 
@@ -514,7 +519,6 @@ bool CInput::isDownOnce(void)
 // goes through the event-signals and searches for the event
 int CInput::wasDown() {
 	int counter = 0;
-	Down = false;
 	
 	switch(Type) {
 	case INP_KEYBOARD:
@@ -532,10 +536,7 @@ int CInput::wasDown() {
 	case INP_JOYSTICK2:
 		counter = isDown() ? 1 : 0; // no other way at the moment
 	}
-	
-	if(counter)
-		Down = true; // set this because we want return isDownOnce() always false after this
-	
+		
 	return 0;
 }
 

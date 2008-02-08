@@ -11,6 +11,7 @@
 #ifndef __INPUTEVENTS_H__
 #define __INPUTEVENTS_H__
 
+#include <vector>
 #include "Unicode.h"
 
 // application has focus
@@ -36,6 +37,12 @@ struct KeyboardEvent {
     UnicodeChar ch;
 	bool down;
 	ModifiersState state;
+};
+
+struct MouseEvent {
+	int x, y;
+	int button;
+	bool down;
 };
 
 // Keyboard structure
@@ -68,6 +75,8 @@ struct mouse_t {
 	bool	WheelDown;
 	bool	WheelScrollUp;
 	bool	WheelScrollDown;
+	
+	std::vector<MouseEvent> mouseQueue;
 };
 
 
