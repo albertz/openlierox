@@ -10,16 +10,23 @@ get_backtrace() {
         --core ${core} \
         --batch \
         --quiet \
+		-ex "set width 0" \
+		-ex "set height 0" \
         -ex "thread apply all bt full" \
         -ex "quit"
 
 	echo "HINT: Please send the above output to openlierox@az2000.de."
-	echo "	Perhaps we could also need the file '$core' later on,"
-	echo "	so it would be nice if you can keep it for now."
 }
 
 cd share/gamedir
-ulimit -c unlimited
-rm core* 2>/dev/null
-../../bin/openlierox "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
+ulimit -c unlimited		# activate core-files
+rm core* 2>/dev/null	# remove old core-files
+
+bin=bin/openlierox
+[ -x ../../$bin ] || bin=build/Xcode/build/Debug/OpenLieroX.app/Contents/MacOS/OpenLieroX
+[ -x ../../$bin ] || bin=build/Xcode/build/Release/OpenLieroX.app/Contents/MacOS/OpenLieroX
+../../$bin "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9"
+
+# game was exited, check for core-files (if crashed)
 [ -e core* ] && get_backtrace ../../bin/openlierox core* && mv core* ../../
+rm core* 2>/dev/null
