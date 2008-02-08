@@ -70,9 +70,10 @@ void CChannel::Create(NetworkAddr *_adr, int _port, NetworkSocket _sock)
 void CChannel::AddReliablePacketToSend(CBytestream& bs)
 {
 	if (bs.GetLength() > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)  {
-		printf("ERROR: trying to send a reliable packet of size " + itoa(bs.GetLength()) + 
-			" which is bigger than allowed size (" + itoa(MAX_PACKET_SIZE - RELIABLE_HEADER_LEN) + 
-			"), packet might not be sent at all!\n");
+		cout
+			<< "ERROR: trying to send a reliable packet of size " << bs.GetLength() 
+			<< " which is bigger than allowed size (" << (MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)
+			<< "), packet might not be sent at all!" << endl;
 		Messages.push_back(bs); // Try to send it anyway, perhaps we're lucky...
 		return;
 	}
