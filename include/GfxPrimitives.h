@@ -230,7 +230,7 @@ bool SaveSurface(SDL_Surface *image, const std::string& FileName, int Format, co
 
 //////////////////
 // Creates a buffer with the same details as the screen
-inline SDL_Surface* gfxCreateSurface(int width, int height) {
+inline SDL_Surface* gfxCreateSurface(int width, int height, bool forceSoftware = false) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
@@ -250,7 +250,7 @@ inline SDL_Surface* gfxCreateSurface(int width, int height) {
 
 ///////////////////
 // Creates an ARGB 32bit surface if screen supports no alpha or a surface like screen
-inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
+inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware = false) {
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
@@ -286,32 +286,36 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height) {
 // Copies one surface to another (not blitting, so the alpha values are kept!)
 void CopySurface(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h);
 
-///////////////
-// Simply draw the image
-inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
-	SDL_Rect	rDest;
-	rDest.x = x; rDest.y = y;
-	SDL_BlitSurface(bmpSrc,NULL,bmpDest,&rDest);
-}
 
-///////////////
-// Draw the image, with more options
-inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h) {
-	SDL_Rect	rDest, rSrc;
-	rDest.x = x; rDest.y = y;
-	rSrc.x = 0; rSrc.y = 0;
-	rSrc.w = w; rSrc.h = h;
-	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
+//////////////
+// Draw the image with a huge amount of options
+inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, SDL_Rect rDest, SDL_Rect rSrc) {
+	SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
 }
 
 //////////////
 // Draw the image with a huge amount of options
 inline void DrawImageAdv(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int dx, int dy, int w, int h) {
-	SDL_Rect	rDest, rSrc;
-	rDest.x = dx; rDest.y = dy;
-	rSrc.x = sx; rSrc.y = sy;
-	rSrc.w = w; rSrc.h = h;
-	SDL_BlitSurface(bmpSrc,&rSrc,bmpDest,&rDest);
+	DrawImageAdv( bmpDest, bmpSrc, (SDL_Rect) { dx, dy, 0, 0 }, (SDL_Rect) { sx, sy, w, h } ); 
+}
+
+
+///////////////
+// Draw the image, with more options
+inline void DrawImageEx(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y, int w, int h) {
+	DrawImageAdv(bmpDest, bmpSrc, 0, 0, x, y, w, h);
+}
+
+///////////////
+// Simply draw the image
+inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, SDL_Rect rDest) {
+	SDL_BlitSurface(bmpSrc, NULL, bmpDest, &rDest);
+}
+
+///////////////
+// Simply draw the image
+inline void DrawImage(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int x, int y) {
+	DrawImage( bmpDest, bmpSrc, (SDL_Rect) { x, y, 0, 0 } );
 }
 
 
