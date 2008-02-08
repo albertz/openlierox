@@ -124,6 +124,8 @@ static void SetColorKey_Alpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 // Set a pink color key
 void SetColorKey(SDL_Surface* dst)  {
 	// If there's already a colorkey set, don't set it again
+	// TODO: is this really safe? perhaps we want to set it to some other value
+	// or dst->format->colorkey is just uninitialised
 	if (dst->format->colorkey != 0)
 		return;
 
@@ -143,6 +145,7 @@ void SetColorKey(SDL_Surface* dst)  {
 
 	// Apply the colorkey
 	if (dst->flags & SDL_SRCALPHA) {
+		// see comment in other SetColorKey; the behaviour with SDL_SRCALPHA is different
 		if (bugged)
 			SetColorKey_Alpha(dst, 254, 0, 254);
 		else
@@ -163,6 +166,9 @@ void SetColorKey(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
 	}
 	
 	if (dst->flags & SDL_SRCALPHA)
+		// HINT: The behaviour with SDL_SRCALPHA is different
+		// and not as you would expect it. The problem is that while blitting to a surface with RGBA,
+		// the alpha channel of the destination is untouched (see manpage to SDL_SetAlpha).
 		SetColorKey_Alpha(dst, r, g, b);
 		
 	// set in both cases the colorkey (for alpha-surfaces just as a info, it's ignored there)
@@ -1271,7 +1277,9 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
 		} else {
 			img->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
+			img->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
 			Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
+			Image->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
 		}
 	
 		SDL_FreeSurface(img);
@@ -1310,7 +1318,7 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 		return NULL;
 
 	// convert it to the new format (32 bpp)
-	DrawImageEx(formated, src, 0, 0, src->w, src->h);
+	CopySurface(formated, src, 0, 0, 0, 0, src->w, src->h);
 	
 	LockSurface(formated);
 

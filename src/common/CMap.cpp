@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <zlib.h>
 #include <list>
+#include <iostream>
 
 #include "CMap.h"
 #include "EndianSwap.h"
@@ -31,6 +32,9 @@
 #include "CWorm.h"
 #include "Entity.h"
 #include "CServer.h"
+
+
+using namespace std;
 
 
 // after a shutdown, save the data here; perhaps we can reuse it
@@ -421,10 +425,12 @@ void CMap::ApplyRandomLayout(maprandom_t *psRandom)
 bool CMap::LoadTheme(const std::string& _theme)
 {
 	// Already loaded
-	if (Theme.name == _theme && sRandomLayout.szTheme == _theme)
+	if (Theme.name == _theme && sRandomLayout.szTheme == _theme) {
+		cout << "LoadTheme: Theme " << _theme << " already loaded" << endl;
 		return true;
-
-	std::string thm,buf,cfg;
+	}
+	
+	std::string thm,buf;
 	int n,x,y;
 
 	thm = "data/themes/" + _theme;
@@ -439,8 +445,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 
 
 	// Stones
-	cfg = thm + "/theme.txt";
-	ReadInteger(cfg,"General","NumStones",&Theme.NumStones,0);
+	ReadInteger(thm + "/theme.txt", "General", "NumStones", &Theme.NumStones, 0);
 
 	for(n=0;n<Theme.NumStones;n++) {
 		buf = thm + "/Stone" + itoa(n+1) + ".png";
@@ -478,8 +483,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 
 
 	// Misc
-	cfg = thm + "/theme.txt";
-	ReadInteger(cfg,"General","NumMisc",&Theme.NumMisc,0);
+	ReadInteger(thm + "/theme.txt", "General", "NumMisc", &Theme.NumMisc, 0);
 	for(n=0;n<Theme.NumMisc;n++) {
 		buf = thm + "/misc" + itoa(n+1) + ".png";
 		LOAD_IMAGE(Theme.bmpMisc[n],buf);

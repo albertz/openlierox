@@ -504,9 +504,8 @@ void Menu_LocalAddProfiles(void)
 void Menu_LocalShowMinimap(bool bReload)
 {
 	// TODO: optimize or recode this!
-	static CMap map;
-	static std::string buf;
-	static std::string blah;
+	CMap map;
+	std::string buf;
 
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
@@ -516,7 +515,6 @@ void Menu_LocalShowMinimap(bool bReload)
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 126,132,126,132,128,96);
 
 	// Load the map
-	blah = "levels/"+buf;
     if( bReload ) {
 
         // Create a random map
@@ -550,7 +548,7 @@ void Menu_LocalShowMinimap(bool bReload)
 
         } else {
             // Load the file
-            if(map.Load(blah)) {
+            if(map.Load("levels/" + buf)) {
 
 		        // Draw the minimap
 		        DrawImage(tMenu->bmpMiniMapBuffer, map.GetMiniMap(), 0,0);
