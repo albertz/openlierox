@@ -754,13 +754,13 @@ void Cmd_SetColour() {
 void Cmd_ServerSideHealth()  {
 	// Check arguments
 	if (Cmd_GetNumArgs() == 1)  {
-		Con_Printf(CNC_NORMAL, "Usage: sound <on/off>");
+		Con_Printf(CNC_NORMAL, "Usage: ssh <on/off>");
+	} else {
+		std::string arg = Cmd_GetArg(1);
+
+		// Set the ssh
+		tLXOptions->bServerSideHealth =  !stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes");
 	}
-
-	std::string arg = Cmd_GetArg(1);
-
-	// Set the ssh
-	tLXOptions->bServerSideHealth =  !stringcasecmp(arg,"on") || !stringcasecmp(arg,"true") || !stringcasecmp(arg,"1") || !stringcasecmp(arg,"yes");
 
 	Con_Printf(CNC_NORMAL, std::string("Server-side health is now ") + (tLXOptions->bServerSideHealth ? std::string("enabled.") : std::string("disabled.")));
 }
