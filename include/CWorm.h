@@ -440,7 +440,6 @@ public:
 	void		getMouseInput(void);
     void        clearInput(void);
 	void		getGamepadInput(void);
-	bool		MoveAndCheckWormCollision( float dt, CVec pos, CVec *vel, CVec vOldPos, int jump );
     bool		CheckOnGround();
 
 

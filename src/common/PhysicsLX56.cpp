@@ -36,6 +36,179 @@ public:
 // -----------------------------
 // ------ worm -----------------
 
+	// Check collisions with the level
+	// HINT: it directly manipulates vPos!
+	bool moveAndCheckWormCollision(float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
+		static const int maxspeed2 = 10;
+		
+		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
+		if( (*vel*dt).GetLength2() > maxspeed2) {
+			dt /= 2;
+			if(moveAndCheckWormCollision(dt,worm,pos,vel,vOldPos,jump)) return true;
+			return moveAndCheckWormCollision(dt,worm,worm->getPos(),vel,vOldPos,jump);
+		}
+
+		pos += *vel * dt;
+		worm->pos() = pos;
+
+
+		int x,y;
+		x = (int)pos.x;
+		y = (int)pos.y;
+		short clip = 0; // 0x1=left, 0x2=right, 0x4=top, 0x8=bottom
+		bool coll = false;
+		bool check_needed = false;
+
+		const uchar* gridflags = map->getAbsoluteGridFlags();
+		uint grid_w = map->getGridWidth();
+		uint grid_h = map->getGridHeight();
+		uint grid_cols = map->getGridCols();
+		if(y-4 < 0 || (uint)y+5 > map->GetHeight()-1
+		|| x-3 < 0 || (uint)x+3 > map->GetWidth()-1)
+			check_needed = true; // we will check later, what to do here
+		else if(grid_w < 7 || grid_h < 10 // this ensures, that this check is safe
+		|| (gridflags[((y-4)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT))
+		|| (gridflags[((y+5)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT))
+		|| (gridflags[((y-4)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT))
+		|| (gridflags[((y+5)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT)))
+			check_needed = true;
+
+		if(check_needed && y >= 0 && (uint)y < map->GetHeight()) {
+			for(x=-3;x<4;x++) {
+				// Optimize: pixelflag++
+
+				// Left side clipping
+				if(pos.x+x <= 2) {
+					clip |= 0x01;
+					worm->pos().x=( 5 );
+					coll = true;
+					if(fabs(vel->x) > 40)
+						vel->x *=  -0.4f;
+					else
+						vel->x=(0);
+					continue;
+				}
+
+				// Right side clipping
+				if(pos.x+x >= map->GetWidth()) {
+					worm->pos().x=( (float)map->GetWidth() - 5 );
+					coll = true;
+					clip |= 0x02;
+					if(fabs(vel->x) > 40)
+						vel->x *= -0.4f;
+					else
+						vel->x=(0);
+					continue;
+				}
+
+
+				if(!(map->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
+					coll = true;
+					
+					if(x<0) {
+						clip |= 0x01;
+						worm->pos().x=( pos.x+x+4 );
+					}
+					else {
+						clip |= 0x02;
+						worm->pos().x=( pos.x+x-4 );
+					}
+
+					// Bounce
+					if(fabs(vel->x) > 30)
+						vel->x *= -0.4f;
+					else
+						vel->x=(0);
+				}
+			}
+		}
+
+		worm->setOnGround( false );
+
+		bool hit = false;
+		x = (int)pos.x;
+
+		if(check_needed && (uint)x < map->GetWidth()) {
+			for(y=5;y>-5;y--) {
+				// Optimize: pixelflag + Width
+
+				// Top side clipping
+				if(pos.y+y <= 1) {
+					worm->pos().y=( 6 );
+					coll = true;
+					clip |= 0x04;
+					if(fabs(vel->y) > 40)
+						vel->y *= -0.4f;
+					continue;
+				}
+
+				// Bottom side clipping
+				if(pos.y+y >= map->GetHeight()) {
+					worm->pos().y=( (float)map->GetHeight() - 5 );
+					clip |= 0x08;
+					coll = true;
+					worm->setOnGround( true );
+					if(fabs(vel->y) > 40)
+						vel->y *= -0.4f;
+					else
+						vel->y=(0);
+					continue;
+				}
+
+
+				if(!(map->GetPixelFlag(x,(int)pos.y+y) & PX_EMPTY)) {
+					coll = true;
+
+					if(!hit && !jump) {
+						if(fabs(vel->y) > 40 && ((vel->y > 0 && y>0) || (vel->y < 0 && y<0)))
+							vel->y *= -0.4f;
+						else
+							vel->y=(0);
+					}
+
+					hit = true;
+					worm->setOnGround( true );
+
+					if(y<0) {
+						clip |= 0x04;
+						worm->pos().y=( pos.y+y+5 );
+					}
+					else {
+						clip |= 0x08;
+						worm->pos().y=( pos.y+y-5 );
+					}
+
+					//if(y>3 && !jump) {
+						//vVelocity.y=(-10);
+						//Velocity.y=(0);
+					//	break;
+					//}
+				}
+			}
+		}
+
+		// If we are stuck in left & right or top & bottom, just don't move in that direction
+		if ((clip & 0x01) && (clip & 0x02))
+			worm->pos().x = vOldPos.x;
+
+		// HINT: when stucked horizontal we move slower - it's more like original LX
+		if ((clip & 0x04) && (clip & 0x08))  {
+			worm->pos().y = vOldPos.y;
+			worm->pos().x -= (worm->pos().x - vOldPos.x) / 2;
+		}
+
+		// If we collided with the ground and we were going pretty fast, make a bump sound
+		if(coll) {
+			if( fabs(vel->x) > 30 && (clip & 0x01 || clip & 0x02) )
+				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm );
+			else if( fabs(vel->y) > 30 && (clip & 0x04 || clip & 0x08) )
+				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm );
+		}
+
+		return coll;
+	}
+
+
 	virtual void simulateWorm(float dt, CWorm* worm, CWorm *worms, int local) {
 		// If the delta time is too big, divide it and run the simulation twice
 		if( dt > 0.25f ) {
@@ -157,7 +330,7 @@ public:
 
 		// Check collisions and move
 		// TODO: move this in here
-		worm->MoveAndCheckWormCollision( dt, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->iJump );
+		moveAndCheckWormCollision( dt, worm, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->iJump );
 
 
 		// Ultimate in friction
