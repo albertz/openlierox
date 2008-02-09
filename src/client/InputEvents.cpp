@@ -217,13 +217,13 @@ static void HandleNextEvent() {
 				break;
 			}
 			
-			
+			/*
 			if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
 				// I don't want to track keyrepeats here; but works only for special keys
 				cout << tLX->fCurTime << ": pressed key " << kbev.sym << endl; 
 			else if(!kbev.down)
 				cout << tLX->fCurTime << ": released key " << kbev.sym << endl;
-			
+			*/
 				
 			// copy it
 			kbev.state = keyModifiersState;
