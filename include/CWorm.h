@@ -521,7 +521,7 @@ public:
 	// Variables
 	//
 	bool		isUsed(void)				{ return bUsed; }
-	void		setUsed(bool _u)			{ bUsed = _u; }
+	void		setUsed(bool _u)			{ bUsed = _u; if(_u) fLastSimulationTime = tLX->fCurTime; }
 
 	CMap*		getMap()					{ return pcMap; }
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
@@ -676,6 +676,12 @@ public:
 	void			setAliases(std::string _s)	{ sAliasList = _s; }
 	
 	float&		frame()						{ return fFrame; }
+	
+	// HINT: saves the current time of the simulation
+	// TODO: should be moved later to PhysicsEngine
+	// but it's not possible in a clean way until we have no simulateWorms()
+	// there which simulates all worms together
+	float	fLastSimulationTime;
 };
 
 

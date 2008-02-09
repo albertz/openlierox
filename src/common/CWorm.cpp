@@ -151,6 +151,8 @@ void CWorm::Clear(void)
 	bNoShooting = false;
 	bFlag = false;
 	lastMoveTime = 0;
+	
+	fLastSimulationTime = tLX->fCurTime;
 }
 
 

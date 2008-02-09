@@ -17,7 +17,7 @@
 #ifndef __CBONUS_H__
 #define __CBONUS_H__
 
-
+#include "LieroX.h"
 #include "CGameScript.h"
 
 
@@ -39,6 +39,7 @@ public:
 	// Constructor
 	CBonus() {
 		bUsed = false;
+		fLastSimulationTime = -9999;
 	}
 
 
@@ -69,7 +70,7 @@ public:
 
 	// variables
 	bool	getUsed(void)		{ return bUsed; }
-	void	setUsed(bool _u)		{ bUsed = _u; }
+	void	setUsed(bool _u)		{ bUsed = _u; if(_u) fLastSimulationTime = tLX->fCurTime; }
 
 	int		getType(void)		{ return iType; }
 	int		getWeapon(void)		{ return iWeapon; }
@@ -82,6 +83,12 @@ public:
 	CVec&	velocity()			{ return vVelocity; }
 	float&	life()				{ return fLife; }
 	float&	flashTime()			{ return fFlashTime; }
+
+	// HINT: saves the current time of the simulation
+	// TODO: should be moved later to PhysicsEngine
+	// but it's not possible in a clean way until we have no simulateBonuses()
+	// there which simulates all bonuses together
+	float	fLastSimulationTime;
 
 };
 

@@ -142,7 +142,8 @@ void CClient::Simulation(void)
             }
 
 			// Simulate the worm
-			PhysicsEngine::Get()->simulateWorm( tLX->fDeltaTime, w, cRemoteWorms, local );
+			// TODO: move this to a simulateWorms() in PhysicsEngine
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, local );
 			
 			if(bGameOver)
 				// TODO: why continue and not break?
@@ -220,9 +221,7 @@ void CClient::Simulation(void)
 	SimulateProjectiles(tLX->fDeltaTime);
 
 	// Bonuses
-	// TODO: move this function to PhyicsEngine
-	SimulateBonuses(tLX->fDeltaTime);
-
+	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);
 
 }
 
@@ -318,10 +317,12 @@ void CClient::SimulateProjectiles(float dt)
 
 		// Simulate the projectile
         wormid = -1;
-		PhysicsEngine::Get()->simulateProjectile(
-			// If this is a remote projectile, simulate the first frame with ping
-			dt + (prj->isRemote() ? (float)iMyPing/1000.0f : 0), // TODO: any reason for doing this?
-			prj, cRemoteWorms, &wormid, &result );
+		// HINT: previously, it was done like this:
+		// If this is a remote projectile, simulate the first frame with ping:
+		// dt + (prj->isRemote() ? (float)iMyPing/1000.0f : 0), // TODO: any reason for doing this?
+		// HINT: now, we only take care about tLX->fCurTime and no dt
+		// TODO: is there any difference now?
+		PhysicsEngine::Get()->simulateProjectile( prj, cRemoteWorms, &wormid, &result );
 
         /*
         ===================
@@ -1185,24 +1186,6 @@ void CClient::UpdateScoreboard(void)
 	}
 
 	bUpdateScore = true;
-}
-
-
-///////////////////
-// Simulate the bonuses
-void CClient::SimulateBonuses(float dt)
-{
-	if(!tGameInfo.bBonusesOn)
-		return;
-
-	CBonus *b = cBonuses;
-
-	for(short i=0; i < MAX_BONUSES; i++,b++) {
-		if(!b->getUsed())
-			continue;
-
-		PhysicsEngine::Get()->simulateBonus(dt, b);
-	}
 }
 
 

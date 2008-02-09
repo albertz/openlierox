@@ -205,6 +205,8 @@ void GameServer::SimulateGame(void)
 		}
 
 		// Simulate the worm's weapons
+		// TODO: why are we doing this? we are not simulating the worm but why the weapon?
+		// please try to remove this here and then remove also the dt parameter in PhysicsEngine
 		if( w->getAlive() )
 			PhysicsEngine::Get()->simulateWormWeapon(tLX->fRealDeltaTime, w);
 /*
@@ -1028,8 +1030,7 @@ void GameServer::SimulateGameSpecial()
 			// HINT: The flag is simulated with a high delta time but it doesn't really matter
 			for(flagworm = flagworms.begin(); flagworm != flagworms.end(); flagworm++) {
 				// TODO: please, do not use simulateWorm for this; use a simulateFlag and don't use CWorm at all!!
-				PhysicsEngine::Get()->simulateWorm(
-					tLX->fDeltaTime,
+				PhysicsEngine::Get()->simulateWorm(					
 					cClient->getRemoteWorms() + (*flagworm)->getID(),
 					cClient->getRemoteWorms(), false);
 				(*flagworm)->setPos((cClient->getRemoteWorms() + (*flagworm)->getID())->getPos());

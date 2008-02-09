@@ -42,7 +42,8 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	iRandom = _random;
 	bRemote = _remote;
     iFrameX = 0;
-
+	fLastSimulationTime = tLX->fCurTime;
+	
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 
 	if(bRemote)

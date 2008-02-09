@@ -42,6 +42,8 @@ public:
 		static const int maxspeed2 = 10;
 		
 		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
+		// TODO: is this still needed? we call this function with a fixed dt
+		// though perhaps it is as with higher speed the way we have to check is longer
 		if( (*vel*dt).GetLength2() > maxspeed2) {
 			dt /= 2;
 			if(moveAndCheckWormCollision(dt,worm,pos,vel,vOldPos,jump)) return true;
@@ -209,15 +211,13 @@ public:
 	}
 
 
-	virtual void simulateWorm(float dt, CWorm* worm, CWorm *worms, int local) {
-		// If the delta time is too big, divide it and run the simulation twice
-		if( dt > 0.25f ) {
-			dt /= 2;
-			simulateWorm(dt, worm, worms,local);
-			simulateWorm(dt, worm, worms,local);
-			return;
-		}
-
+	virtual void simulateWorm(CWorm* worm, CWorm *worms, int local) {
+		const static float dt = 0.01;
+		
+	simulateWormStart:
+		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
+		worm->fLastSimulationTime += dt;
+	
 		float speed;
 		CVec dir;
 		const gs_worm_t *wd = worm->getGameScript()->getWorm();
@@ -284,7 +284,7 @@ public:
 
 		// Process the ninja rope
 		if(worm->getNinjaRope()->isReleased() && worms) {
-			simulateNinjarope( dt, worm->getNinjaRope(), worm->getPos(), worms, worm->getID() );
+			simulateNinjarope( dt, worm, worms );
 			// TODO: move 'getForce' here?
 			worm->velocity() += worm->getNinjaRope()->GetForce(worm->getPos()) * dt;
 		}
@@ -329,21 +329,11 @@ public:
 		//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 		// Check collisions and move
-		// TODO: move this in here
 		moveAndCheckWormCollision( dt, worm, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->iJump );
 
 
 		// Ultimate in friction
 		if(worm->isOnGround()) {
-	//		vVelocity.x *= pow(0.9f, dt * 100.0f); // wrong
-
-			// TODO: if you manage to make it this way but exponential, it will be perfect :)
-			/*float old_x = vVelocity.x;
-			vVelocity.x -= SIGN(vVelocity.x) * 0.9f * (dt * 100.0f); // TODO: this is the bug described in
-			if (SIGN(old_x) != SIGN(vVelocity.x))  // Make sure we don't dampen to opposite direction
-				vVelocity.x = 0.0f;*/
-
-			// Even though this is highly FPS dependent, it seems to work quite good (this is how old lx did it)
 			worm->velocity().x *= 0.9f;
 
 			//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
@@ -363,7 +353,8 @@ public:
 			ws->iX = (int)worm->getPos().x;
 			ws->iY = (int)worm->getPos().y;
 		}
-
+	
+		goto simulateWormStart;
 	}
 
 	virtual void simulateWormWeapon(float dt, CWorm* worm) {
@@ -392,7 +383,14 @@ public:
 		}	
 	}
 	
-	virtual void simulateProjectile(float dt, CProjectile* proj, CWorm *worms, int *wormid, int* result) {
+	virtual void simulateProjectile(CProjectile* proj, CWorm *worms, int *wormid, int* result) {
+		const static float fixed_dt = 0.01f;
+		*result = PJC_NONE;
+		
+		// HINT: this is a bit hacky here because there is a CheckCollision used which manipulates dt
+	simulateProjectileStart:
+		if(proj->fLastSimulationTime + fixed_dt > tLX->fCurTime) return;
+		
 		int res = PJC_NONE;
 
 		// If this is a remote projectile, the first frame is simulated with a longer delta time
@@ -413,6 +411,7 @@ public:
 		// Check for collisions
 		// ATENTION: dt will manipulated directly here!
 		// TODO: use a more general CheckCollision here
+		float dt = fixed_dt;
 		int colret = proj->CheckCollision(dt, map, worms, &dt);
 		if(colret == -1)
 			res |= PJC_TERRAIN;
@@ -420,6 +419,7 @@ public:
 			*wormid = colret;
 			res |= PJC_WORM;
 		}
+		proj->fLastSimulationTime += dt;
 		
 		// HINT: in original LX, we have this simulate code with lower dt
 		//		(this is now the work of CheckCollision)
@@ -557,13 +557,19 @@ public:
 		}
 
 	*/
-
-		*result = res;
-		//return res;
-	
+		if(res != PJC_NONE) {
+			*result = res;
+			//return res;
+			return;
+		}
+		
+		goto simulateProjectileStart;	
 	}
 	
-	virtual void simulateNinjarope(float dt, CNinjaRope* rope, CVec playerpos, CWorm *worms, int owner) {
+	void simulateNinjarope(float dt, CWorm* owner, CWorm *worms) {
+		CNinjaRope* rope = owner->getNinjaRope();
+		CVec playerpos = owner->getPos();
+		
 		rope->updateOldHookPos();
 
 		if(!rope->isReleased())
@@ -580,9 +586,11 @@ public:
 			force = CVec(0,150);
 
 		// TODO: does this need more improvement/optimisation ?
+		// TODO: is this still needed? we get in any case a fixed dt here
+		// though perhaps it is if the rope is very fast?
 		if((rope->getHookVel() + force*dt).GetLength2() * dt * dt > 5) {
-			simulateNinjarope( dt/2, rope, playerpos, worms, owner );
-			simulateNinjarope( dt/2, rope, playerpos, worms, owner );
+			simulateNinjarope( dt/2, owner, worms );
+			simulateNinjarope( dt/2, owner, worms );
 			return;
 		}
 
@@ -673,7 +681,7 @@ public:
 					continue;
 				if(!worms[i].getAlive())
 					continue;
-				if(worms[i].getID() == owner)
+				if(worms[i].getID() == owner->getID())
 					continue;
 				if(worms[i].getFlag())
 					continue;
@@ -682,7 +690,7 @@ public:
 					rope->setAttached( true );
 					rope->setPlayerAttached( true );
 					rope->setAttachedPlayer( &worms[i] );
-					rope->getAttachedPlayer()->setHooked(true, &worms[owner]);
+					rope->getAttachedPlayer()->setHooked(true, owner);
 					break;
 				}
 			}
@@ -716,7 +724,13 @@ public:
 		bonus->pos().y = (float)y - 2;	
 	}
 
-	virtual void simulateBonus(float dt, CBonus* bonus) {
+	virtual void simulateBonus(CBonus* bonus) {
+		const static float dt = 0.01f;
+		
+	simulateBonusStart:
+		if(bonus->fLastSimulationTime + dt > tLX->fCurTime) return;
+		bonus->fLastSimulationTime += dt;
+		
 		int x,  y;
 		int mw, mh;
 		int px, py;
@@ -786,8 +800,22 @@ public:
 			}
 		}
 		
+		goto simulateBonusStart;
 	}
 
+	virtual void simulateBonuses(CBonus* bonuses, size_t count) {
+		if(!tGameInfo.bBonusesOn)
+			return;
+
+		CBonus *b = bonuses;
+
+		for(size_t i=0; i < count; i++,b++) {
+			if(!b->getUsed())
+				continue;
+
+			simulateBonus(b);
+		}		
+	}
 	
 };
 

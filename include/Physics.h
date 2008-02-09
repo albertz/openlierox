@@ -41,11 +41,11 @@ public:
 	virtual void uninitGame() = 0; // gives just a hint to the engine that the game isn't runnign anymore
 	
 	// TODO: later, we should have a class World and all objects and the map are included there
-	virtual void simulateWorm(float dt, CWorm* worm, CWorm *worms, int local) = 0;
+	virtual void simulateWorm(CWorm* worm, CWorm *worms, int local) = 0;
 	virtual void simulateWormWeapon(float dt, CWorm* worm) = 0;
-	virtual void simulateProjectile(float dt, CProjectile* worm, CWorm *worms, int *wormid, int* result) = 0;
-	virtual void simulateNinjarope(float dt, CNinjaRope* rope, CVec playerpos, CWorm *worms, int owner) = 0;
-	virtual void simulateBonus(float dt, CBonus* bonus) = 0;
+	virtual void simulateProjectile(CProjectile* proj, CWorm *worms, int *wormid, int* result) = 0;
+	virtual void simulateBonuses(CBonus* bonuses, size_t count) = 0;
+	virtual void simulateBonus(CBonus* bonus) = 0;
 };
 
 #endif

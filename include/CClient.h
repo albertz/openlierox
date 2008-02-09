@@ -492,8 +492,6 @@ public:
 	void		processChatter(void);
     void        processChatCharacter(const KeyboardEvent& input);
 
-
-	void		SimulateBonuses(float dt);
 	void		DestroyBonus(int id, bool local, int wormid);
 
 	CVec		FindNearestSpot(CWorm *w);

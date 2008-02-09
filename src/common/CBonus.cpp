@@ -25,6 +25,7 @@
 void CBonus::Spawn(CVec pos, int type, int weapon, CGameScript *gs)
 {
 	bUsed = true;
+	fLastSimulationTime = tLX->fCurTime;
 	vPos = pos;
 	vVelocity = CVec(0,0);
 	iType = type;
