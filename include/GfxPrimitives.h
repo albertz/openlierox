@@ -256,9 +256,12 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height, bool forceSoftw
 		return NULL;
 
 	SDL_Surface* result;
-	SDL_PixelFormat* fmt = getMainPixelFormat();	
-
-	if(!forceSoftware && fmt->Amask != 0) // the main pixel format supports alpha blending
+	SDL_PixelFormat* fmt = getMainPixelFormat();
+	
+	// HINT: in 32bit mode with software surfaces, we have to use the predefined masks because they are hardcoded in SDL
+	// (else the blitting is wrong)
+	// it seems that for other BPP this is not the case
+	if(!forceSoftware && (iSurfaceFormat == SDL_HWSURFACE || fmt->BitsPerPixel != 32) && fmt->Amask != 0) // the main pixel format supports alpha blending
 		result = SDL_CreateRGBSurface(
 				iSurfaceFormat | SDL_SRCALPHA,
 				width, height,

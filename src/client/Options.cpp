@@ -73,8 +73,8 @@ bool GameOptions::Init() {
 #endif
 		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->iColourDepth, "Video.ColourDepth",
-#ifdef MACOSX	
-			24 )
+#ifndef WIN32	
+			32 )
 #else
 			16 )
 #endif
