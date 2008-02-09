@@ -65,9 +65,6 @@ public:
 	void	Spawn(CVec pos, int type, int weapon, CGameScript *gs);
 	
 	void	Draw(SDL_Surface *bmpDest, CViewport *v, int showname);
-	void	Simulate(CMap *map, float dt);
-	void	Collide(int x, int y);
-
 
 
 	// variables
@@ -81,8 +78,10 @@ public:
 
 	CVec	getPosition(void)	{ return vPos; }
 
-
-
+	CVec&	pos()				{ return vPos; }
+	CVec&	velocity()			{ return vVelocity; }
+	float&	life()				{ return fLife; }
+	float&	flashTime()			{ return fFlashTime; }
 
 };
 

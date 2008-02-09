@@ -23,6 +23,8 @@
 #include "CWorm.h"
 #include "MathLib.h"
 #include "DedicatedControl.h"
+#include "Physics.h"
+
 
 using namespace std;
 
@@ -204,7 +206,7 @@ void GameServer::SimulateGame(void)
 
 		// Simulate the worm's weapons
 		if( w->getAlive() )
-			w->SimulateWeapon( tLX->fRealDeltaTime );
+			PhysicsEngine::Get()->simulateWormWeapon(tLX->fRealDeltaTime, w);
 /*
 		// If the flag has been held for 5 seconds and the map doesn't have a base give the worm a point
 		if(tLX->fCurTime - fLastFlagPoint > 5 && w->getID() == getFlag(0) && iGameType == GMT_CTF && cMap->getBaseStart().x == -1) {
@@ -269,10 +271,11 @@ void GameServer::SimulateGame(void)
 
 			// If it's been here too long, destroy it
 			if( tLX->fCurTime - cBonuses[i].getSpawnTime() > tLXOptions->tGameinfo.fBonusLife ) {
-				static CBytestream bs;
+				CBytestream bs;
 				bs.Clear();
 				cBonuses[i].setUsed(false);
 
+				// TODO: move this out here
 				bs.writeByte(S2C_DESTROYBONUS);
 				bs.writeByte((byte)i);
 				SendGlobalPacket(&bs);
@@ -1024,7 +1027,11 @@ void GameServer::SimulateGameSpecial()
 			// Simulate the flags
 			// HINT: The flag is simulated with a high delta time but it doesn't really matter
 			for(flagworm = flagworms.begin(); flagworm != flagworms.end(); flagworm++) {
-				(cClient->getRemoteWorms() + (*flagworm)->getID())->Simulate(cClient->getRemoteWorms(), false, tLX->fDeltaTime);
+				// TODO: please, do not use simulateWorm for this; use a simulateFlag and don't use CWorm at all!!
+				PhysicsEngine::Get()->simulateWorm(
+					tLX->fDeltaTime,
+					cClient->getRemoteWorms() + (*flagworm)->getID(),
+					cClient->getRemoteWorms(), false);
 				(*flagworm)->setPos((cClient->getRemoteWorms() + (*flagworm)->getID())->getPos());
 			}
 

@@ -27,6 +27,7 @@
 #include "Error.h"
 #include "CMediaPlayer.h"
 #include "DedicatedControl.h"
+#include "Physics.h"
 
 
 #ifndef WIN32
@@ -307,7 +308,9 @@ startpoint:
 		cout << "GameLoopStart" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
-			
+		
+		PhysicsEngine::Init();
+		
         //
         // Main game loop
         //
@@ -332,6 +335,8 @@ startpoint:
 			
 			CapFPS();
 		}
+
+		PhysicsEngine::UnInit();
 		
 		cout << "GameLoopEnd" << endl;
 		if( DedicatedControl::Get() )

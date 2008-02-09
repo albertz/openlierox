@@ -440,8 +440,6 @@ public:
 	void		getMouseInput(void);
     void        clearInput(void);
 	void		getGamepadInput(void);
-	void		Simulate(CWorm *worms, int local, float dt);
-	void		SimulateWeapon( float dt );
 	bool		MoveAndCheckWormCollision( float dt, CVec pos, CVec *vel, CVec vOldPos, int jump );
     bool		CheckOnGround();
 
@@ -526,6 +524,10 @@ public:
 	bool		isUsed(void)				{ return bUsed; }
 	void		setUsed(bool _u)			{ bUsed = _u; }
 
+	CMap*		getMap()					{ return pcMap; }
+	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
+	CInput*		getStrafeInput()			{ return &cStrafe; }
+	
 	std::string getName(void)			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
 	Uint32	getColour(void)				{ return iColour; }
@@ -569,16 +571,25 @@ public:
 	
 	CVec		getPos(void)				{ return vPos; }
 	void		setPos(CVec v)				{ vPos = v; }
-
+	CVec&		pos()						{ return vPos; }
+	bool		isOnGround()				{ return bOnGround; }
+	void		setOnGround(bool g)			{ bOnGround = g; }
+	
 	CVec		*getVelocity(void)			{ return &vVelocity; }
-
+	CVec&		velocity()					{ return vVelocity; }
+	
 	worm_state_t *getWormState(void)		{ return &tState; }
 
 	float		getAngle(void)				{ return fAngle; }
+	void		setAngle(float a)			{ fAngle = a; }
 	int			getDirection(void)			{ return iDirection; }
-
+	void		setDirection(int d)			{ iDirection = d; }
+	int			getStrafeDirection()		{ return iStrafeDirection; }
+	
 	void		setLoadingTime(float l)		{ fLoadingTime = l; }
-
+	float		getLoadingTime()			{ return fLoadingTime; }
+	
+	CGameScript* getGameScript()			{ return cGameScript; }
 	void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }
     void        setWpnRest(CWpnRest *wr)    { cWeaponRest = wr; }
 
@@ -607,6 +618,11 @@ public:
 
 	bool		getTagIT(void)				{ return bTagIT; }
 	void		setTagIT(bool _t)			{ bTagIT = _t; }
+
+	float		getLastSparkle()			{ return fLastSparkle; }
+	void		setLastSparkle(float s)		{ fLastSparkle = s; }
+	float		getLastBlood()				{ return fLastBlood; }
+	void		setLastBlood(float b)		{ fLastBlood = b; }
 
     void        incrementDirtCount(int d)   { iDirtCount += d; }
     int         getDirtCount(void)          { return iDirtCount; }
@@ -659,6 +675,8 @@ public:
 	void			setAddresses(std::string _s){ sAddressList = _s; }
 	std::string		getAliases(void)			{ return sAliasList; }
 	void			setAliases(std::string _s)	{ sAliasList = _s; }
+	
+	float&		frame()						{ return fFrame; }
 };
 
 

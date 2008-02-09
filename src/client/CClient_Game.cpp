@@ -27,6 +27,7 @@
 #include "CWorm.h"
 #include "Entity.h"
 #include "Protocol.h"
+#include "Physics.h"
 
 
 CClient		*cClient = NULL;
@@ -133,14 +134,14 @@ void CClient::Simulation(void)
             }
 
 			// Simulate the worm
-			w->Simulate(cRemoteWorms, local, tLX->fDeltaTime);
+			PhysicsEngine::Get()->simulateWorm( tLX->fDeltaTime, w, cRemoteWorms, local );
 			
 			if(bGameOver)
                 continue;
 
 
 			// Check if this worm picked up a bonus
-
+			
 			CBonus *b = cBonuses;
 			if (tGameInfo.bBonusesOn)  {
 				for(short n = 0; n < MAX_BONUSES; n++, b++) {
@@ -197,6 +198,7 @@ void CClient::Simulation(void)
 	}
 
 	// Entities
+	// only some gfx effects
 	SimulateEntities(tLX->fDeltaTime,cMap);
 
 	// Weather
@@ -303,10 +305,10 @@ void CClient::SimulateProjectiles(float dt)
 
 		// Simulate the projectile
         wormid = -1;
-		if (prj->isRemote()) // If this is a remote projectile, simulate the first frame with ping
-			result = prj->Simulate((float)iMyPing/1000.0f + dt, cMap, cRemoteWorms, &wormid);
-		else
-			result = prj->Simulate(dt, cMap, cRemoteWorms, &wormid);
+		PhysicsEngine::Get()->simulateProjectile(
+			// If this is a remote projectile, simulate the first frame with ping
+			dt + (prj->isRemote() ? (float)iMyPing/1000.0f : 0), // TODO: any reason for doing this?
+			prj, cMap, cRemoteWorms, &wormid, &result );
 
         /*
         ===================
@@ -1186,7 +1188,7 @@ void CClient::SimulateBonuses(float dt)
 		if(!b->getUsed())
 			continue;
 
-		b->Simulate(cMap, dt);
+		PhysicsEngine::Get()->simulateBonus(dt, b, cMap);
 	}
 }
 

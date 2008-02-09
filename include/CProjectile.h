@@ -207,7 +207,6 @@ public:
 	
 
 	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, bool _remote, float _remoteframe);	
-	int		Simulate(float dt, CMap *map, CWorm *worms, int *wormid);
 	int		Collision(uchar pf);
 
     void	Draw(SDL_Surface *bmpDest, CViewport *view);
@@ -224,7 +223,20 @@ public:
 	void	setUsed(bool u)			{ bUsed = u; }
 
 	float	getLife(void)			{ return fLife; }
-
+	float&	life()					{ return fLife; }
+	
+	float&	extra()					{ return fExtra; }
+	int&	explode()				{ return nExplode; }
+	float&	explodeTime()			{ return fExplodeTime; }
+	int&	touched()				{ return nTouched; }
+	void	setRemote(bool r)		{ bRemote = r; }
+	proj_t* getProjInfo()			{ return tProjInfo; }
+	float&	rotation()				{ return fRotation; }
+	void	setFrameDelta(int d)	{ iFrameDelta = d; }
+	int		getFrameDelta()			{ return iFrameDelta; }
+	float&	frame()					{ return fFrame; }
+	float&	lastTrailProj()			{ return fLastTrailProj; }
+	
 	int		getSpawnPrjTrl(void)	{ return iSpawnPrjTrl; }
 	void	setSpawnPrjTrl(int p)	{ iSpawnPrjTrl = p; }
 

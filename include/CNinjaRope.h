@@ -71,8 +71,6 @@ public:
 	void		Draw(SDL_Surface *bmpDest, CViewport *view, CVec ppos);
 	void		Shoot(CVec pos, CVec dir);
 
-	void		Simulate(float dt, CMap *map, CVec playerpos, CWorm *worms, int owner);
-
 	CVec		GetForce(CVec playerpos);
 	CVec		CalculateForce(CVec playerpos, CVec hookpos);
     
@@ -87,18 +85,26 @@ public:
 	void		write(CBytestream *bs);
 	void		read(CBytestream *bs, CWorm *worms, int owner);
 
-    inline CVec getHookPos(void) const       { return HookPos; }
-    inline int   isAttached(void) const       { return HookAttached; }
-    inline int   isShooting(void)  const      { return HookShooting; }
-    inline float getRestLength(void) const    { return RestLength; }
-	inline float getMaxLength(void)	const	{ return RopeLength; }
+    CVec getHookPos(void) const       { return HookPos; }
+    bool   isAttached(void) const       { return HookAttached; }
+    bool   isShooting(void)  const      { return HookShooting; }
+	void	setShooting(bool s)			{ HookShooting = s; }
+	void	setAttached(bool a)			{ HookAttached = a; }
+    float getRestLength(void) const    { return RestLength; }
+	float getMaxLength(void)	const	{ return RopeLength; }
 
+	void		updateOldHookPos()		{ OldHookPos = HookPos; }
 
-
-
-
-
-
+	const CVec&	getHookVel() const		{ return HookVelocity; }
+	CVec&		hookVelocity()			{ return HookVelocity; }
+	CVec&		hookPos()				{ return HookPos; }
+	
+	bool		isPlayerAttached()		{ return PlayerAttached; }
+	void		setPlayerAttached(bool a)		{ PlayerAttached = a; }
+	// TODO: remove PlayerAttached and just use Worm (and if Worm==NULL => no player attached)
+	void		setAttachedPlayer(CWorm* w)	{ Worm = w; }
+	CWorm*		getAttachedPlayer()		{ return Worm; }
+	
 };
 
 
