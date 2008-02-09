@@ -308,7 +308,7 @@ void CClient::SimulateProjectiles(float dt)
 		PhysicsEngine::Get()->simulateProjectile(
 			// If this is a remote projectile, simulate the first frame with ping
 			dt + (prj->isRemote() ? (float)iMyPing/1000.0f : 0), // TODO: any reason for doing this?
-			prj, cMap, cRemoteWorms, &wormid, &result );
+			prj, cRemoteWorms, &wormid, &result );
 
         /*
         ===================
@@ -1188,7 +1188,7 @@ void CClient::SimulateBonuses(float dt)
 		if(!b->getUsed())
 			continue;
 
-		PhysicsEngine::Get()->simulateBonus(dt, b, cMap);
+		PhysicsEngine::Get()->simulateBonus(dt, b);
 	}
 }
 

@@ -262,6 +262,9 @@ startpoint:
 			SDL_Delay(50);
 	}
 
+	DrawLoading(99, "Loading Physics Engine");
+	PhysicsEngine::Init();
+
 	DrawLoading(100, "Done! Starting menu");
 
 	// Everything loaded, this is not needed anymore
@@ -309,9 +312,7 @@ startpoint:
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
 		
-		PhysicsEngine::Init();
-		
-        //
+		//
         // Main game loop
         //
 		while(!tLX->bQuitEngine) {
@@ -335,13 +336,15 @@ startpoint:
 			
 			CapFPS();
 		}
-
-		PhysicsEngine::UnInit();
+		
+		PhysicsEngine::Get()->uninitGame();
 		
 		cout << "GameLoopEnd" << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopEnd_Signal();
 	}
+
+	PhysicsEngine::UnInit();
 
 	ShutdownLieroX();
 	
@@ -650,7 +653,7 @@ void GameLoopFrame(void)
 	} // SWITCH
 
 	// Switch between window and fullscreen mode
-	if( cSwitchMode.isDown() )  {
+	if( cSwitchMode.isDownOnce() )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 

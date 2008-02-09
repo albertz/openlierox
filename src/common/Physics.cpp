@@ -13,7 +13,7 @@
 
 using namespace std;
 
-static PhysicsEngine* engine;
+static PhysicsEngine* engine = NULL;
 PhysicsEngine* PhysicsEngine::Get() { return engine; }
 void PhysicsEngine::Set(PhysicsEngine* e) { engine = e; }
 

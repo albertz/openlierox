@@ -595,6 +595,8 @@ public:
 	void		setStatus(int _s)			{ iNetStatus = _s; }
 	CBytestream	*getUnreliable(void)		{ return &bsUnreliable; }
 
+	CMap*		getMap()					{ return cMap; }
+
 	int			getNumWorms(void)			{ return iNumWorms; }
 	void		setNumWorms(int _w)			{ iNumWorms = _w; }
 

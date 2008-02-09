@@ -20,10 +20,18 @@
 
 
 class PhysicsLX56 : public PhysicsEngine {
+public:
+	CMap* map;
+
+// ---------
+	PhysicsLX56() : map(NULL) {}
 	virtual ~PhysicsLX56() {}
 	
 	virtual std::string name() { return "LX56 physics"; }
 
+	virtual void initGame( CMap* m ) { map = m; }
+	virtual void uninitGame() { map = NULL; }
+	
 // -----------------------------
 // ------ worm -----------------
 
@@ -102,7 +110,7 @@ class PhysicsLX56 : public PhysicsEngine {
 
 		// Process the ninja rope
 		if(worm->getNinjaRope()->isReleased() && worms) {
-			simulateNinjarope( dt, worm->getNinjaRope(), worm->getMap(), worm->getPos(), worms, worm->getID() );
+			simulateNinjarope( dt, worm->getNinjaRope(), worm->getPos(), worms, worm->getID() );
 			// TODO: move 'getForce' here?
 			worm->velocity() += worm->getNinjaRope()->GetForce(worm->getPos()) * dt;
 		}
@@ -147,6 +155,7 @@ class PhysicsLX56 : public PhysicsEngine {
 		//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 		// Check collisions and move
+		// TODO: move this in here
 		worm->MoveAndCheckWormCollision( dt, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->iJump );
 
 
@@ -209,7 +218,7 @@ class PhysicsLX56 : public PhysicsEngine {
 		}	
 	}
 	
-	virtual void simulateProjectile(float dt, CProjectile* proj, CMap *map, CWorm *worms, int *wormid, int* result) {
+	virtual void simulateProjectile(float dt, CProjectile* proj, CWorm *worms, int *wormid, int* result) {
 		int res = PJC_NONE;
 
 		// If this is a remote projectile, the first frame is simulated with a longer delta time
@@ -380,7 +389,7 @@ class PhysicsLX56 : public PhysicsEngine {
 	
 	}
 	
-	virtual void simulateNinjarope(float dt, CNinjaRope* rope, CMap *map, CVec playerpos, CWorm *worms, int owner) {
+	virtual void simulateNinjarope(float dt, CNinjaRope* rope, CVec playerpos, CWorm *worms, int owner) {
 		rope->updateOldHookPos();
 
 		if(!rope->isReleased())
@@ -398,8 +407,8 @@ class PhysicsLX56 : public PhysicsEngine {
 
 		// TODO: does this need more improvement/optimisation ?
 		if((rope->getHookVel() + force*dt).GetLength2() * dt * dt > 5) {
-			simulateNinjarope( dt/2, rope, map, playerpos, worms, owner );
-			simulateNinjarope( dt/2, rope, map, playerpos, worms, owner );
+			simulateNinjarope( dt/2, rope, playerpos, worms, owner );
+			simulateNinjarope( dt/2, rope, playerpos, worms, owner );
 			return;
 		}
 
@@ -533,7 +542,7 @@ class PhysicsLX56 : public PhysicsEngine {
 		bonus->pos().y = (float)y - 2;	
 	}
 
-	virtual void simulateBonus(float dt, CBonus* bonus, CMap* map) {
+	virtual void simulateBonus(float dt, CBonus* bonus) {
 		int x,  y;
 		int mw, mh;
 		int px, py;

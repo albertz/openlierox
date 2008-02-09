@@ -31,11 +31,11 @@
 #include "CWorm.h"
 #include "Protocol.h"
 #include "Error.h"
-#ifdef DEBUG
 #include "MathLib.h"
-#endif
 #include "stun.h"
 #include "DedicatedControl.h"
+#include "Physics.h"
+
 
 using namespace std;
 
@@ -467,6 +467,8 @@ int GameServer::StartGame()
 
 	SendGlobalPacket(&bs);
 	// Cannot send anything after S2C_PREPAREGAME because of bug in old clients
+
+	PhysicsEngine::Get()->initGame( cMap );
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();

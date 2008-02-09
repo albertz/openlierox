@@ -20,7 +20,7 @@ class CNinjaRope;
 class CMap;
 
 // HINT: I call this class PhysicsEngine, though it doesn't matches the meaning
-// of engine completely as I intented it for Hirudo. But it can probably easily
+// of engine completely as I intented it for Hirudo. But it can probably easily be
 // reused later.
 
 class PhysicsEngine {
@@ -36,13 +36,16 @@ public:
 	virtual ~PhysicsEngine() {}
 	
 	virtual std::string name() = 0; // get a name of the implementation
-
+	
+	virtual void initGame( CMap* map ) = 0; // init a new game (sets map etc.)
+	virtual void uninitGame() = 0; // gives just a hint to the engine that the game isn't runnign anymore
+	
 	// TODO: later, we should have a class World and all objects and the map are included there
 	virtual void simulateWorm(float dt, CWorm* worm, CWorm *worms, int local) = 0;
 	virtual void simulateWormWeapon(float dt, CWorm* worm) = 0;
-	virtual void simulateProjectile(float dt, CProjectile* worm, CMap *map, CWorm *worms, int *wormid, int* result) = 0;
-	virtual void simulateNinjarope(float dt, CNinjaRope* rope, CMap *map, CVec playerpos, CWorm *worms, int owner) = 0;
-	virtual void simulateBonus(float dt, CBonus* bonus, CMap* map) = 0;
+	virtual void simulateProjectile(float dt, CProjectile* worm, CWorm *worms, int *wormid, int* result) = 0;
+	virtual void simulateNinjarope(float dt, CNinjaRope* rope, CVec playerpos, CWorm *worms, int owner) = 0;
+	virtual void simulateBonus(float dt, CBonus* bonus) = 0;
 };
 
 #endif
