@@ -2,6 +2,8 @@
 //
 //             OpenLieroX
 //
+//    Worm class - input handling
+//
 // code under LGPL, based on JasonBs work,
 // enhanced by Dark Charlie and Albert Zeyer
 //
@@ -9,7 +11,8 @@
 /////////////////////////////////////////
 
 
-// Worm class - Simulation
+// TODO: rename this file (only input handling here)
+
 // Created 2/8/02
 // Jason Boettcher
 
@@ -187,7 +190,7 @@ void CWorm::getInput()
 		static const float movetimed_min = 0.08f, movetimed_max = 0.2f;
 		
 		if((mouseControl && ws->iMove && iDirection == DIR_LEFT)
-		|| (/*cLeft.isJoystick() &&*/ cLeft.isDown())) {
+		|| (cLeft.isJoystick() && cLeft.isDown())) {
 			float movetimed = tLX->fCurTime - lastMoveTime;
 			//printf("movetimed: %f\n", movetimed);
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
@@ -198,7 +201,7 @@ void CWorm::getInput()
 		}
 	
 		if((mouseControl && ws->iMove && iDirection == DIR_RIGHT)
-		|| (/*cRight.isJoystick() &&*/ cRight.isDown())) {
+		|| (cRight.isJoystick() && cRight.isDown())) {
 			float movetimed = tLX->fCurTime - lastMoveTime;
 			//printf("movetimed: %f\n", movetimed);
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
