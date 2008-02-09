@@ -167,17 +167,18 @@ void CWorm::getInput()
 
 	{ // set carving
 	
+	/*
 		if(!cRight.isDown())
-			iCarving &= ~1;
+			iCarving &= ~1; // disable right carving
 		if(!cLeft.isDown())
-			iCarving &= ~2;
-	
+			iCarving &= ~2; // disable left carving
 	
 		// Carving hack
 		RightOnce = cRight.isDownOnce();
 		if(cLeft.isDown() && RightOnce && iDirection == DIR_LEFT)  {
-			iCarving |= 2;
+			iCarving |= 2; // carve left
 		}
+	*/
 		
 /*		// this is a bit unfair to keyboard players
 		if(mouseControl) { // mouseControl
@@ -196,7 +197,7 @@ void CWorm::getInput()
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
 				ws->iCarve = true;
 				ws->iMove = true;
-				iCarving |= 2;
+				iCarving |= 2; // carve left
 			}
 		}
 	
@@ -207,7 +208,7 @@ void CWorm::getInput()
 			if(movetimed_min < movetimed && movetimed < movetimed_max) {
 				ws->iCarve = true;
 				ws->iMove = true;
-				iCarving |= 1;
+				iCarving |= 1; // carve right
 			}
 		}
 	}
@@ -285,7 +286,34 @@ void CWorm::getInput()
 		ws->iShoot = true;
 	}
 
+	if(cLeft.isDown()) {
+		ws->iMove = true;
+		
+		if(!cRight.isDown()) {
+			iDirection = DIR_LEFT;
+		}
+		
+		if(cRight.isDownOnce()) {
+			ws->iCarve = true;
+			iCarving |= 2; // carve left
+		}
+	}
+	
+	if(cRight.isDown()) {
+		ws->iMove = true;
+		
+		if(!cLeft.isDown()) {
+			iDirection = DIR_RIGHT;
+		}
+		
+		if(cLeft.isDownOnce()) {
+			ws->iCarve = true;
+			iCarving |= 1; // carve right
+		}
+	}
+	
 
+/*
 
 	// Right
 	if((cRight.isDown() && !(iCarving & 2) && !weap)  || (iType == PRF_COMPUTER && !(iCarving & 2))) {
@@ -293,9 +321,6 @@ void CWorm::getInput()
 		// Check if we dig a small hole
 		if(cLeft.isDownOnce() && iDirection == DIR_RIGHT) {
 			ws->iCarve = true;
-
-			//cClient->SendCarve(vPos + dir*4);
-			//map->CarveHole(3,Pos + dir*4);
 			iCarving |= 1;
 		}
 
@@ -303,10 +328,6 @@ void CWorm::getInput()
 			iDirection = DIR_RIGHT;
 			ws->iMove = true;
 			lastMoveTime = tLX->fCurTime;
-			
-			//if(vVelocity.x<75)
-			//	vVelocity = vVelocity + CVec(speed,0);
-			//fFrame+=5*dt;
 		}
 	}
 
@@ -316,21 +337,15 @@ void CWorm::getInput()
 		// Check if we dig a small hole
 		if(RightOnce && iDirection == DIR_LEFT) {
 			ws->iCarve = true;
-
-			//cClient->SendCarve(vPos + dir*4);
-			//map->CarveHole(3,Pos + dir*4);
 			iCarving |= 2;
 		}
 
 		iDirection = DIR_LEFT;
 		ws->iMove = true;
 		lastMoveTime = tLX->fCurTime;
-		
-		//if(vVelocity.x>-75)
-		//	vVelocity = vVelocity + CVec(-speed,0);
-		//fFrame+=5*dt;
 	}
 
+*/
 
 	bool oldskool = tLXOptions->bOldSkoolRope;
 
