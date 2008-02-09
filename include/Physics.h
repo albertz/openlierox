@@ -41,6 +41,7 @@ public:
 	virtual void uninitGame() = 0; // gives just a hint to the engine that the game isn't runnign anymore
 	
 	// TODO: later, we should have a class World and all objects and the map are included there
+	// in the end, I want to have one single simulate(CWorld* world);
 	virtual void simulateWorm(CWorm* worm, CWorm *worms, int local) = 0;
 	virtual void simulateWormWeapon(float dt, CWorm* worm) = 0;
 	virtual void simulateProjectile(CProjectile* proj, CWorm *worms, int *wormid, int* result) = 0;
