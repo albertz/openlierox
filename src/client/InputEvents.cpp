@@ -18,6 +18,8 @@
 #include "Menu.h"
 #include "Timer.h"
 
+using namespace std;
+
 
 // Keyboard, Mouse, & Event
 static keyboard_t	Keyboard;
@@ -215,6 +217,11 @@ static void HandleNextEvent() {
 				break;
 			}
 			
+			if(kbev.down)
+				cout << tLX->fCurTime << ": pressed key " << kbev.sym << endl; 
+			else
+				cout << tLX->fCurTime << ": released key " << kbev.sym << endl;
+				
 			// copy it
 			kbev.state = keyModifiersState;
 		}

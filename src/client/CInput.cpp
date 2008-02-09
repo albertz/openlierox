@@ -501,17 +501,27 @@ int CInput::isDown(void)
 
 ///////////////////
 // Returns if the input was pushed down once
-// if wasDown() was used before, it returns always false
 bool CInput::isDownOnce(void)
 {
-	if(isDown()) {
+	// HINT: It's possible that wasDown() > 0 and !isDown().
+	// That is the case when we press a key and release it directly after (in one frame).
+	// Though wasDown() > 0 doesn't mean directly isDownOnce because it also counts keypresses.
+	// HINT: It's also possible that wasDown() == 0 and isDown().
+	// That is the case when we have pressed the key in a previous frame and we still hold it.
+	if(wasDown() || isDown()) {
+		// wasUp() > 0 always means that it was down once (though it is not down anymore).
+		if(wasUp()) {
+			Down = false; // it's currently not down
+			return true;
+		}
+		// !Down means that we haven't recognised yet that it is down.
 		if(!Down) {
-			Down = true;
+			Down = true; // it's currently down
 			return true;
 		}
 	}
 	else
-		Down = false;
+		Down = false; // it's currently up
 
 	return false;
 }
@@ -539,6 +549,31 @@ int CInput::wasDown() {
 		
 	return 0;
 }
+
+// goes through the event-signals and searches for the event
+int CInput::wasUp() {
+	int counter = 0;
+	
+	switch(Type) {
+	case INP_KEYBOARD:
+		for(short i = 0; i < GetKeyboard()->queueLength; i++) {
+			if(!GetKeyboard()->keyQueue[i].down && GetKeyboard()->keyQueue[i].sym == Data)
+				counter++;
+		}
+		return counter;
+	
+	case INP_MOUSE:
+		// TODO: to make this possible, we need to go extend HandleNextEvent to save the mouse events
+		counter = isUp() ? 1 : 0; // no other way at the moment
+		
+	case INP_JOYSTICK1:
+	case INP_JOYSTICK2:
+		counter = isUp() ? 1 : 0; // no other way at the moment
+	}
+		
+	return 0;
+}
+
 
 
 ///////////////////

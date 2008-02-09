@@ -1247,7 +1247,7 @@ void DrawLaserSight(SDL_Surface *bmp, int x1, int y1, int x2, int y2, Uint32 col
 
 ///////////////////
 // Loads an image, and converts it to the same colour depth as the screen (speed)
-SDL_Surface *LoadImage(const std::string& _filename, bool withalpha, bool withcolorkey)
+SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 {
 	// Try cache first
 	SDL_Surface* Image = cCache.GetImage(_filename);
@@ -1267,20 +1267,11 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha, bool withco
 	if(SDL_GetVideoSurface()) {
 		// Convert the image to the screen's colour depth
 		if (withalpha)  {
-			if (withcolorkey)  {
-				img->flags &= ~SDL_SRCALPHA;
-				SetColorKey(img);
-				img->flags |= SDL_SRCALPHA; // For per-pixel alpha to be kept
-				Image = SDL_DisplayFormatAlpha(img);
-			} else {
-				Image = gfxCreateSurfaceAlpha(img->w, img->h);
-				CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
-			}
+			Image = gfxCreateSurfaceAlpha(img->w, img->h);
+			CopySurface(Image, img, 0, 0, 0, 0, img->w, img->h);
 		} else {
 			SDL_PixelFormat fmt = *(getMainPixelFormat());
 			img->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
-			if (withcolorkey)
-				SetColorKey(img);
 			img->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
 			Image = SDL_ConvertSurface(img, &fmt, iSurfaceFormat);
 			Image->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it

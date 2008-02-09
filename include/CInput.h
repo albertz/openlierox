@@ -76,6 +76,7 @@ public:
 	int		isDown(void);
 	bool	isDownOnce(void);
 	int		wasDown(); // checks if there was such an event in the queue; returns the count of presses (down-events)
+	int		wasUp(); // checks if there was an keyup-event; returns the count of up-events
 	
 	std::string getEventName() { return m_EventName; }
 

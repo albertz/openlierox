@@ -746,14 +746,16 @@ SDL_Surface *CGameScript::LoadGSImage(const std::string& dir, const std::string&
 	SDL_Surface *img = NULL;
 
 	// First, check the gfx directory in the mod dir
-	img = LoadImage(dir + "/gfx/" + filename, true, true);
-
+	img = LoadImage(dir + "/gfx/" + filename, true);	
 	if(img)  {
+		SetColorKey(img);
 		return img;
 	}
 
 	// Check the gfx directory in the data dir
-	return LoadImage("data/gfx/" + filename, true, true);
+	img = LoadImage("data/gfx/" + filename, true);
+	if(img) SetColorKey(img);
+	return img;
 }
 
 
