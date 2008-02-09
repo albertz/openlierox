@@ -13,6 +13,7 @@
 #include <string>
 #include "CVec.h"
 
+class CClient;
 class CWorm;
 class CProjectile;
 class CBonus;
@@ -42,7 +43,7 @@ public:
 	
 	// TODO: later, we should have a class World and all objects and the map are included there
 	// in the end, I want to have one single simulate(CWorld* world);
-	virtual void simulateWorm(CWorm* worm, CWorm *worms, int local) = 0;
+	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, int local) = 0;
 	virtual void simulateWormWeapon(float dt, CWorm* worm) = 0;
 	virtual void simulateProjectile(CProjectile* proj, CWorm *worms, int *wormid, int* result) = 0;
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) = 0;

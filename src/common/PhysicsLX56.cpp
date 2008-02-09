@@ -18,6 +18,8 @@
 #include "CWorm.h"
 #include "Entity.h"
 #include "CBonus.h"
+#include "CClient.h"
+#include "console.h"
 
 
 class PhysicsLX56 : public PhysicsEngine {
@@ -211,8 +213,32 @@ public:
 	}
 
 
-	virtual void simulateWorm(CWorm* worm, CWorm *worms, int local) {
+	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, int local) {
 		const static float dt = 0.01;
+		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
+		
+		// get input max once a frame (and not at all if we don't simulate this frame)
+		
+			/*
+				Only get input for this worm on certain conditions:
+				1) This worm is a local worm (ie, owned by me)
+				2) We're not in a game menu
+				3) We're not typing a message
+				4) weapons selected
+			*/
+		
+		if(client && local && !client->isGameMenu() && !client->isChatTyping() && !client->isGameOver() && !Con_IsUsed() && worm->getWeaponsReady()) {
+			int old_weapon = worm->getCurrentWeapon();
+
+			// TODO: use one getInput for both
+			if(worm->getType() == PRF_HUMAN)
+				worm->getInput();
+			else
+				worm->AI_GetInput(tGameInfo.iGameType, tGameInfo.iGameType == GMT_TEAMDEATH, tGameInfo.iGameType == GMT_TAG, tGameInfo.iGameType == GMT_VIP, tGameInfo.iGameType == GMT_CTF, tGameInfo.iGameType == GMT_TEAMCTF);
+
+			if (worm->isShooting() || old_weapon != worm->getCurrentWeapon())  // The weapon bar is changing
+				client->shouldRepaintInfo() = true;
+		}
 		
 	simulateWormStart:
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
@@ -270,7 +296,6 @@ public:
 
 		// Process the carving
 		if(ws->iCarve) {
-			printf("carve\n"); fflush(0);
 			worm->incrementDirtCount( CarveHole(worm->getMap(), worm->getPos() + dir*4) );
 			//cClient->SendCarve(vPos + dir*4);
 		}

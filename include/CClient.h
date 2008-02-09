@@ -681,6 +681,11 @@ public:
 	bool		getForceWeaponsReady()					{ return bForceWeaponsReady; }
 	void		setForceWeaponsReady(bool _r)			{ bForceWeaponsReady = _r; }
 	
+	bool		isGameMenu()			{ return bGameMenu; }
+	bool		isChatTyping()			{ return bChat_Typing; }
+	bool		isGameOver()			{ return bGameOver; }
+	bool&		shouldRepaintInfo()		{ return bShouldRepaintInfo; }
+	
 };
 
 extern	CClient			*cClient;

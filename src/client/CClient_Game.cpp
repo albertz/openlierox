@@ -39,11 +39,9 @@ void CClient::Simulation(void)
 {
 	short i;
 	bool local;
-	bool teamgame;
     CWorm *w;
-    bool con = Con_IsUsed();
+    //bool con = Con_IsUsed();
 
-	teamgame = iGameType == GMT_TEAMDEATH;
 
 	// If we're in a menu & a local game, don't do simulation
 	if (tGameInfo.iGameType == GME_LOCAL)  {
@@ -103,10 +101,9 @@ void CClient::Simulation(void)
 	}
 
 	// TODO: does it work also, if we
-	// 1. handle all inputs of all worms
-	// 2. simulate all worms
-	// 3. check collisions with bonuses
-	// (at the moment, we are doing all 3 things at once in the loop, I want to have 3 loops)
+	// 1. simulate all worms
+	// 2. check collisions with bonuses
+	// (at the moment, we are doing these 2 things at once in the loop, I want to have 2 loops)
 	// TODO: make it working
 	// TODO: create a function simulateWorms() in PhysicsEngine which does all worms-simulation
 	
@@ -120,30 +117,9 @@ void CClient::Simulation(void)
 
 		if(w->getAlive()) {
 
-			/*
-				Only get input for this worm on certain conditions:
-				1) This worm is a local worm (ie, owned by me)
-				2) We're not in a game menu
-				3) We're not typing a message
-				4) weapons selected
-			*/
-
-			if(local && !bGameMenu && !bChat_Typing && !bGameOver && !con && w->getWeaponsReady()) {
-				int old_weapon = w->getCurrentWeapon();
-
-				// TODO: use one getInput for both
-				if(w->getType() == PRF_HUMAN)
-					w->getInput();
-				else
-					w->AI_GetInput(iGameType, teamgame, iGameType == GMT_TAG, iGameType == GMT_VIP, iGameType == GMT_CTF, iGameType == GMT_TEAMCTF);
-
-				if (w->isShooting() || old_weapon != w->getCurrentWeapon())  // The weapon bar is changing
-					bShouldRepaintInfo = true;
-            }
-
 			// Simulate the worm
 			// TODO: move this to a simulateWorms() in PhysicsEngine
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, local );
+			PhysicsEngine::Get()->simulateWorm( w, this, cRemoteWorms, local );
 			
 			if(bGameOver)
 				// TODO: why continue and not break?

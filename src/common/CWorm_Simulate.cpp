@@ -37,7 +37,9 @@ void CWorm::getInput()
 {
 	// TODO: it seems that iCarving isn't used at all. if this is the case, please remove. else, something has to be fixed
 
-	float	dt = tLX->fDeltaTime;
+	// HINT: we are calling this from simulateWorm and we use this fixed dt there
+	const static float	dt = 0.01f;
+	
 	CVec	dir;
 	int		weap = false;
 	int		RightOnce = false;
