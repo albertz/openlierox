@@ -102,6 +102,14 @@ void CClient::Simulation(void)
 		tLXOptions->bShowHealth = !tLXOptions->bShowHealth;
 	}
 
+	// TODO: does it work also, if we
+	// 1. handle all inputs of all worms
+	// 2. simulate all worms
+	// 3. check collisions with bonuses
+	// (at the moment, we are doing all 3 things at once in the loop, I want to have 3 loops)
+	// TODO: make it working
+	// TODO: create a function simulateWorms() in PhysicsEngine which does all worms-simulation
+	
 	// Player simulation
 	w = cRemoteWorms;
 	for(i = 0; i < MAX_WORMS; i++, w++) {
@@ -137,6 +145,7 @@ void CClient::Simulation(void)
 			PhysicsEngine::Get()->simulateWorm( tLX->fDeltaTime, w, cRemoteWorms, local );
 			
 			if(bGameOver)
+				// TODO: why continue and not break?
                 continue;
 
 
@@ -166,6 +175,7 @@ void CClient::Simulation(void)
 		}
 
         if(bGameOver)
+			// TODO: why continue and not break?
             continue;
 
 
@@ -198,16 +208,19 @@ void CClient::Simulation(void)
 	}
 
 	// Entities
-	// only some gfx effects
+	// only some gfx effects, therefore it doesn't belong to PhysicsEngine
 	SimulateEntities(tLX->fDeltaTime,cMap);
 
 	// Weather
+	// TODO: if this will be implemented once, this should be moved to the PhysicsEngine
 	//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
+	// TODO: move this function to PhysicsEngine
 	SimulateProjectiles(tLX->fDeltaTime);
 
 	// Bonuses
+	// TODO: move this function to PhyicsEngine
 	SimulateBonuses(tLX->fDeltaTime);
 
 
@@ -425,7 +438,7 @@ void CClient::SimulateProjectiles(float dt)
 				if(pi->PrjTrl_UsePrjVelocity) {
 					sprd = prj->GetVelocity();
 					float l = NormalizeVector(&sprd);
-					sprd = sprd * (l*0.3f);		// Slow it down a bit.
+					sprd *= (l*0.3f);		// Slow it down a bit.
 													// It can be sped up by the speed variable in the script
 				} else
 					GetAngles((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);

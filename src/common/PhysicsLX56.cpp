@@ -9,7 +9,8 @@
 
 #include "Physics.h"
 
-// TODO: perhaps split this file into the different simulations?
+// TODO: clean up this code!
+
 
 #include "CGameScript.h"
 #include "Frame.h"
