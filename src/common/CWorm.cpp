@@ -279,7 +279,7 @@ void CWorm::Spawn(CVec position) {
     nAIState = AI_THINK;
 	fLastShoot = 0;
 	
-	iCarving = false;
+	iCarving = 0;
 	fFrame = 0;
 	bDrawMuzzle = false;
 	bHooked = false;

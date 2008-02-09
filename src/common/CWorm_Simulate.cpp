@@ -31,6 +31,8 @@
 // Get the input from a human worm
 void CWorm::getInput()
 {
+	// TODO: it seems that iCarving isn't used at all. if this is the case, please remove. else, something has to be fixed
+
 	float	dt = tLX->fDeltaTime;
 	CVec	dir;
 	int		weap = false;
