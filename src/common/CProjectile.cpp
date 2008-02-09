@@ -90,6 +90,11 @@ float CProjectile::getRandomFloat(void)
 // -1 if some collision
 // -1000 if none
 // >=0 is collision with worm (the return-value is the ID) 
+// TODO: we need one single CheckCollision which is used everywhere in the code
+// atm we have 2 CProj::CC, Map:CC and ProjWormColl and fastTraceLine
+// we should complete the function in CMap.cpp in a general way by using fastTraceLine
+// also dt shouldn't be a parameter, you should specify a start- and an endpoint
+// (for example CWorm_AI also uses this to check some possible cases)
 int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 {
 	static const int NONE_COL_RET = -1000;

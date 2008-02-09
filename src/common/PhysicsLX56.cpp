@@ -412,7 +412,7 @@ public:
 		
 		// Check for collisions
 		// ATENTION: dt will manipulated directly here!
-		// TODO: move CheckCollision in here
+		// TODO: use a more general CheckCollision here
 		int colret = proj->CheckCollision(dt, map, worms, &dt);
 		if(colret == -1)
 			res |= PJC_TERRAIN;
