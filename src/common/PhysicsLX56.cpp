@@ -270,6 +270,7 @@ public:
 
 		// Process the carving
 		if(ws->iCarve) {
+			printf("carve\n"); fflush(0);
 			worm->incrementDirtCount( CarveHole(worm->getMap(), worm->getPos() + dir*4) );
 			//cClient->SendCarve(vPos + dir*4);
 		}

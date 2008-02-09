@@ -302,7 +302,6 @@ void CWorm::getInput()
 		if(!cRight.isDown()) iDirection = DIR_LEFT;
 		
 		if(rightOnce) {
-			cout << "carve left" << endl;
 			ws->iCarve = true;
 			iCarving |= 2; // carve left
 		}
@@ -314,7 +313,6 @@ void CWorm::getInput()
 		if(!cLeft.isDown()) iDirection = DIR_RIGHT;
 		
 		if(leftOnce) {
-			cout << "carve right" << endl;
 			ws->iCarve = true;
 			iCarving |= 1; // carve right
 		}
