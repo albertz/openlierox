@@ -34,7 +34,6 @@
 #include "CServer.h"
 
 
-using namespace std;
 
 
 // after a shutdown, save the data here; perhaps we can reuse it
@@ -172,6 +171,7 @@ bool CMap::NewFrom(CMap* map)
 
 	return true;
 }
+
 
 ////////////////
 // Save this map to cache
@@ -426,7 +426,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 {
 	// Already loaded
 	if (Theme.name == _theme && sRandomLayout.szTheme == _theme) {
-		cout << "LoadTheme: Theme " << _theme << " already loaded" << endl;
+		std::cout << "LoadTheme: Theme " << _theme << " already loaded" << std::endl;
 		return true;
 	}
 	

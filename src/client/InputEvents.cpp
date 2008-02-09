@@ -114,11 +114,11 @@ static void HandleNextEvent() {
 				break;
 		}  // switch
 
-		Mouse.mouseQueue.push_back( (MouseEvent) { Event.button.x, Event.button.y, Event.button.button, true } );
+		Mouse.mouseQueue.push_back( ((const MouseEvent) { Event.button.x, Event.button.y, Event.button.button, true }) );
 		break;
 		
 	case SDL_MOUSEBUTTONUP:
-		Mouse.mouseQueue.push_back( (MouseEvent) { Event.button.x, Event.button.y, Event.button.button, false } );
+		Mouse.mouseQueue.push_back( ((const MouseEvent) { Event.button.x, Event.button.y, Event.button.button, false }) );
 		break;
 
 	// Activation and deactivation
