@@ -288,14 +288,16 @@ void CWorm::getInput()
 		ws->iShoot = true;
 	}
 
+	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
+	bool leftOnce = cLeft.isDownOnce();
+	bool rightOnce = cRight.isDownOnce();
+	
 	if(cLeft.isDown()) {
 		ws->iMove = true;
 		
-		if(!cRight.isDown()) {
-			iDirection = DIR_LEFT;
-		}
+		if(!cRight.isDown()) iDirection = DIR_LEFT;
 		
-		if(cRight.isDownOnce()) {
+		if(rightOnce) {
 			ws->iCarve = true;
 			iCarving |= 2; // carve left
 		}
@@ -304,11 +306,9 @@ void CWorm::getInput()
 	if(cRight.isDown()) {
 		ws->iMove = true;
 		
-		if(!cLeft.isDown()) {
-			iDirection = DIR_RIGHT;
-		}
+		if(!cLeft.isDown()) iDirection = DIR_RIGHT;
 		
-		if(cLeft.isDownOnce()) {
+		if(leftOnce) {
 			ws->iCarve = true;
 			iCarving |= 1; // carve right
 		}

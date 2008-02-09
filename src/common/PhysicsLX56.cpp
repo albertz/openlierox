@@ -302,6 +302,7 @@ public:
 			}
 		}
 
+		// TODO: move this to CWorm::getInput() ?
 		if(worm->getStrafeInput()->isDown())
 			worm->setDirection( worm->getStrafeDirection() );
 

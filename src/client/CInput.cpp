@@ -17,6 +17,7 @@
 // By Jason Boettcher
 
 #include <assert.h>
+#include <iostream>
 
 #include "LieroX.h"
 #include "AuxLib.h"  // for GetConfig()
@@ -25,6 +26,9 @@
 #include "InputEvents.h"
 #include "StringUtils.h"
 #include "CInput.h"
+
+
+using namespace std;
 
 
 keys_t Keys[] = {
@@ -503,6 +507,10 @@ int CInput::isDown(void)
 // Returns if the input was pushed down once
 bool CInput::isDownOnce(void)
 {
+	// HINT: It is possible that wasUp() and !Down (a case which is not covered in further code)
+	if(wasUp() && !Down)
+		return true;
+	
 	// HINT: It's possible that wasDown() > 0 and !isDown().
 	// That is the case when we press a key and release it directly after (in one frame).
 	// Though wasDown() > 0 doesn't mean directly isDownOnce because it also counts keypresses.
@@ -523,10 +531,6 @@ bool CInput::isDownOnce(void)
 	}
 	else
 		Down = false;
-
-	// HINT: It is even possible that wasUp() and !Down
-	if(wasUp() && !Down)
-		return true;
 
 	return false;
 }
