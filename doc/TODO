@@ -10,8 +10,8 @@ TODO
     in the collision checks) (!!)
 [ ] better default keys for player2 (!!)
 [ ] fix network interpolation (is currently not optimal) (!!)
-[ ] fix physics (behaves currently different depending on FPS) (!!)
-[ ] gfx is wrong in some situation or makes problems, fix that (!!)
+[?] fix physics (behaves currently different depending on FPS) (!!)
+[?] gfx is wrong in some situation or makes problems, fix that (!!)
 [ ] fix: sometimes, angle is exactly pointed to top
     but you cannot hit down to move the angle;
     also left/right (direction change) does not work
