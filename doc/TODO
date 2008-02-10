@@ -3,8 +3,6 @@ TODO
 
 [X] CChannel should split too big packets (!!)
 [ ] fix: FPS (dropped to 60 from 120 here!) (!!)
-[?] fix: keys are ignored in low FPS in game (CInput::isDown()), makes
-    it very hard to play on older computers (!!)
 [ ] fix projectiles flying though walls when they
     shouldn't (my fixes didn't work, it's somewhere deeper
     in the collision checks) (!!)
@@ -12,10 +10,6 @@ TODO
 [ ] fix network interpolation (is currently not optimal) (!!)
 [?] fix physics (behaves currently different depending on FPS) (!!)
 [?] gfx is wrong in some situation or makes problems, fix that (!!)
-[ ] fix: sometimes, angle is exactly pointed to top
-    but you cannot hit down to move the angle;
-    also left/right (direction change) does not work
-    sometimes (!!)
 [ ] bot: go one step away if too close (!!)
 [ ] bot: don't move too close if shooting is possible (!!)
 [ ] follow better/faster the way (!!)
@@ -41,6 +35,13 @@ TODO
 [?] Fix the colour detection of pink for mods (255 0 255) which only
     works in 50% of the mods now. (!!)
 
+[X] fix: keys are ignored in low FPS in game (CInput::isDown()), makes
+    it very hard to play on older computers (!!)
+[X] fix: sometimes, angle is exactly pointed to top
+    but you cannot hit down to move the angle;
+    also left/right (direction change) does not work
+    sometimes (!!)
+    (It's a bug in either SDL or Xorg or Linux kernel but not in OLX.)
 [ ] remove *_WidgetRegistered and CGuiSkin_Destroyer hacks (!)
 [ ] merge CButton and CImageButton
 [ ] fix CFileDownload via HTTP (you can test it by clicking at red
