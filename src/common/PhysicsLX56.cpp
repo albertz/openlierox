@@ -266,7 +266,7 @@ public:
 		// If we're IT, spawn some sparkles
 		if(worm->getTagIT() && tGameInfo.iGameMode == GMT_TAG) {
 			if(tLX->fCurTime - worm->getLastSparkle() > 0.15f) {
-				worm->setLastSparkle( tLX->fCurTime );
+				worm->setLastSparkle( tLX->fLastSimulationTime );
 				CVec p = worm->getPos() + CVec(GetRandomNum()*3, GetRandomNum()*3);
 
 				SpawnEntity(ENT_SPARKLE,0,p, CVec(0,0), 0,NULL);
@@ -276,7 +276,7 @@ public:
 		// If we're seriously injured (below 15% health) bleed
 		if(worm->getHealth() < 15) {
 			if(tLX->fCurTime - worm->getLastBlood() > 2) {
-				worm->setLastBlood( tLX->fCurTime );
+				worm->setLastBlood( tLX->fLastSimulationTime );
 
 				float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
 				CVec v;
