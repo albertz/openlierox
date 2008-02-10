@@ -2,7 +2,7 @@ TODO
 (remember also to look at the bugs on SF)
 
 [X] CChannel should split too big packets (!!)
-[ ] fix: FPS (dropped to 60 from 120 here!) (!!)
+[?] fix: FPS (dropped to 60 from 120 here!) (!!)
 [ ] fix projectiles flying though walls when they
     shouldn't (my fixes didn't work, it's somewhere deeper
     in the collision checks) (!!)
@@ -17,12 +17,12 @@ TODO
 [ ] fill documentation (README) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
 [ ] fix STUN (!!)
-[ ] Fix memory leaks (!!)
-	[ ] TODO: where? (remember, some hacks by Pelya got recognised as memleaks)
+[?] Fix memory leaks (!!)
 [ ] Fix segfaults (!!!)
-	[ ] TODO: where?
-[ ] Fix server crashing when starting game for second time (!!)
-	TODO: what exactly crashes?
+	[ ] Crash/memory corruption in HTTP class when downloading bigger amount of data (i,e. levels)
+      TODO: Perhaps just disable level downloading for beta 4? But it's just a workaround anyway...
+	[ ] Various segfaults in hardware mode caused by wrong surface locking
+[X] Fix server crashing when starting game for second time (!!)
 [ ] CChannel calculates wrong pings (too high) (!)
 
 [?] nMaxFPS = 0 works correctly? (!!)
@@ -43,7 +43,7 @@ TODO
     sometimes (!!)
     (It's a bug in either SDL or Xorg or Linux kernel but not in OLX.)
 [ ] remove *_WidgetRegistered and CGuiSkin_Destroyer hacks (!)
-[ ] merge CButton and CImageButton
+[ ] merge CButton and CTextButton
 [ ] fix CFileDownload via HTTP (you can test it by clicking at red
     level name in lobby), crashes all the time, looks like a thread safety
     problem or a memory corruption
@@ -97,7 +97,7 @@ TODO
 [ ] uniform warning/notification/error system (!)
 [ ] standalone dedicated server (!)
 [ ] select different key for ingame console
-[ ] fix lobby freeze (!)
+[?] fix lobby freeze (!)
 [?] make network more stable (!)
 [?] increase FPS (and determit, why it is bad in beta2)
 [?] improve mediaplayer
@@ -105,10 +105,10 @@ TODO
 [ ] make physics more like original LX (!)
 [ ] better bot aiming (fast numerical pre-physics-calculations) (!)
 [ ] add option to save/load weapon selection for player
-[ ] add some help for weapon selection (cause not everybody understand
+[X] add some help for weapon selection (cause not everybody understand
     it) (!)
 [ ] allow more than 2 viewports (!)
-[ ] more general input-system (also with joystick-support) (!)
+[?] more general input-system (also with joystick-support) (!)
 [ ] possibility to switch bot control / user control of a worm
 [ ] allow more than one monitor (let user choose what viewports will be
     displayed on what screen)
