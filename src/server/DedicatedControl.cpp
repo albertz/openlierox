@@ -208,7 +208,7 @@ struct DedIntern {
 				if(data->quitSignal) return 0;
 				
 				char c;
-				if(read(0, &c, 1) >= 0) {
+				if(_read(0, &c, 1) >= 0) {
 					if(c == '\n') break;
 					buf += c;
 				}
@@ -491,7 +491,7 @@ struct DedIntern {
 	
 	void Frame_Basic() {
 		SDL_mutexP(pipeOutputMutex);
-		while(pipeOutput.str().size() > pipeOutput.tellg()) {
+		while(pipeOutput.str().size() > (size_t)pipeOutput.tellg()) {
 			string cmd, rest;
 			Ded_ParseCommand(pipeOutput, cmd, rest);
 			SDL_mutexV(pipeOutputMutex);

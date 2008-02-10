@@ -218,7 +218,7 @@ public:
 
 
 	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, int local) {
-		const static float dt = 0.01;
+		const static float dt = 0.01f;
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
 		
 		// get input max once a frame (and not at all if we don't simulate this frame)

@@ -2022,6 +2022,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\Physics.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Physics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\PhysicsLX56.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\PhysicsLX56.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\ProfileSystem.cpp"
 				>
 				<FileConfiguration

@@ -252,9 +252,9 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 
 	// Set the newrect width and use this newrect temporarily to draw the font
 	// We use this rect because of precached fonts which use SDL_Blit for drawing (and it takes care of cliprect)
-	newrect.w = MIN(oldrect.w, max_w);
-	newrect.x = MAX((int)oldrect.x, x);
-	newrect.y = MAX((int)oldrect.y, y);
+	newrect.w = MIN(oldrect.w, (Uint16)max_w);
+	newrect.x = MAX(oldrect.x, (Sint16)x);
+	newrect.y = MAX(oldrect.y, (Sint16)y);
 	if (!ClipRefRectWith(newrect.x, newrect.y, newrect.w, newrect.h, (SDLRect&)oldrect))
 		return;
 	SDL_SetClipRect(dst, &newrect);
