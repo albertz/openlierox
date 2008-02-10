@@ -35,6 +35,11 @@
 #undef S_NORMAL // TODO: This is a reserved constant under WIN32, rename the constant(s) in this file
 #endif
 
+#if defined(_MSC_VER)
+// because MSVC is just crap:
+#define read _read
+#endif
+
 using namespace std;
 
 struct pstream_pipe_t; // popen-streamed-library independent wrapper (kinda)
@@ -208,7 +213,7 @@ struct DedIntern {
 				if(data->quitSignal) return 0;
 				
 				char c;
-				if(_read(0, &c, 1) >= 0) {
+				if(read(0, &c, 1) >= 0) {
 					if(c == '\n') break;
 					buf += c;
 				}
