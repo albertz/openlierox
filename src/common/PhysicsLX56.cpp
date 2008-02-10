@@ -42,6 +42,10 @@ public:
 	// HINT: it directly manipulates vPos!
 	bool moveAndCheckWormCollision(float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
 		static const int maxspeed2 = 10;
+
+		// Can happen when starting a game
+		if (!map)
+			return false;
 		
 		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 		// TODO: is this still needed? we call this function with a fixed dt

@@ -599,6 +599,22 @@ SOURCE=..\..\include\Entity.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\src\common\Physics.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Physics.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\common\PhysicsLX56.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\PhysicsLX56.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\src\client\ProfileSystem.cpp
 # End Source File
 # Begin Source File

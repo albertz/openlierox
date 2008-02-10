@@ -33,6 +33,7 @@
 #include "Entity.h"
 #include "MathLib.h"
 #include "EndianSwap.h"
+#include "Physics.h"
 
 using namespace std;
 
@@ -464,6 +465,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		}
 
 	}
+
+	PhysicsEngine::Get()->initGame(cMap);
 
 	// Other game details
 	iGameType = bs->readInt(1);

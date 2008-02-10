@@ -2035,21 +2035,24 @@ void CClient::InitializeSpectatorViewportKeys()
 	cSpectatorViewportKeys.V1Type.Setup( tLXOptions->sPlayerControls[0][SIN_SHOOT] );
 	cSpectatorViewportKeys.V2Type.Setup( tLXOptions->sPlayerControls[0][SIN_JUMP] );
 	cSpectatorViewportKeys.V2Toggle.Setup( tLXOptions->sPlayerControls[0][SIN_SELWEAP] );
-};
+}
 
 void CClient::ProcessSpectatorViewportKeys()
 {
-	if( ! bSpectate )
+	if( ! bSpectate)
 	{
-		// Only process keyboard input if all local human worms are dead
-		if( cLocalWorms[0]->getAlive() || cLocalWorms[0]->getLives() != WRM_OUT )
+		// Only process keyboard input if all local human worms are dead at least 3 seconds
+		if( cLocalWorms[0]->getAlive() || cLocalWorms[0]->getLives() != WRM_OUT ||
+			(tLX->fCurTime - cLocalWorms[0]->getTimeofDeath() <= 3.0f))
 			return;
 		if(cLocalWorms[1])
 			if( cLocalWorms[1]->getType() == PRF_HUMAN &&
-				( cLocalWorms[1]->getAlive() || cLocalWorms[0]->getLives() != WRM_OUT ) )
+				( cLocalWorms[1]->getAlive() || cLocalWorms[0]->getLives() != WRM_OUT ||
+				(tLX->fCurTime - cLocalWorms[0]->getTimeofDeath() <= 3.0f)) )
 				return;
 	}
 
+	// Don't process when typing a message
 	if (bChat_Typing)
 		return;
 	
@@ -2114,7 +2117,7 @@ void CClient::ProcessSpectatorViewportKeys()
 			v2_target = v2_next;
 			Changed = true;
 		}
-	};
+	}
 	
 	int iMsgType = -1, iViewportNum = -1;
 	if( cSpectatorViewportKeys.V2Toggle.isDownOnce() )
@@ -2128,7 +2131,7 @@ void CClient::ProcessSpectatorViewportKeys()
 			iMsgType = v2_type;
 		};
 		Changed = true;
-	};
+	}
 
 	if( cSpectatorViewportKeys.V1Type.isDownOnce() )
 	{
@@ -2138,7 +2141,7 @@ void CClient::ProcessSpectatorViewportKeys()
 		iViewportNum = 1;
 		iMsgType = v1_type;
 		Changed = true;
-	};
+	}
 
 	if( cSpectatorViewportKeys.V2Type.isDownOnce() )
 	{
@@ -2148,7 +2151,7 @@ void CClient::ProcessSpectatorViewportKeys()
 		iViewportNum = 2;
 		iMsgType = v2_type;
 		Changed = true;
-	};
+	}
 
 	if( iMsgType != -1 && iViewportNum != -1 )
 	{
@@ -2162,7 +2165,7 @@ void CClient::ProcessSpectatorViewportKeys()
 		if( iMsgType == VW_ACTIONCAM )
 			sSpectatorViewportMsg += "Action Cam";
 		fSpectatorViewportMsgTimeout = tLX->fCurTime;
-	};
+	}
 	
 	if( fSpectatorViewportMsgTimeout + 1.0 < tLX->fCurTime )
 		sSpectatorViewportMsg = "";
@@ -2173,8 +2176,8 @@ void CClient::ProcessSpectatorViewportKeys()
 			SetupViewports(&cRemoteWorms[v1_target], NULL, v1_type, v2_type);
 		else
 			SetupViewports(&cRemoteWorms[v1_target], &cRemoteWorms[v2_target], v1_type, v2_type);
-	};
-};
+	}
+}
 
 /////////////////////
 // Initialize the scoreboard
