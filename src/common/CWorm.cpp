@@ -651,7 +651,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
 	//tLX->cOutlineFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "Weapons Selection");
 
-	bool iChat_Typing = cClient->isTyping();
+	bool bChat_Typing = cClient->isTyping();
 
 	int y = t + 100;
 	for(i=0;i<iNumWeaponSlots;i++) {
@@ -662,13 +662,13 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 		else
 			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionDefault,  tWeapons[i].Weapon->Name);
 
-		if (iChat_Typing)  {
+		if (bChat_Typing)  {
 			y += 18;
 			continue;
 		}
 
 		// Changing weapon
-		if(iCurrentWeapon == i && !iChat_Typing) {
+		if(iCurrentWeapon == i && !bChat_Typing) {
 			int change = cRight.wasDown() - cLeft.wasDown();
 			if(cSelWeapon.isDown()) change *= 6; // jump with multiple speed if selWeapon is pressed
 			int id = tWeapons[i].Weapon->ID;
@@ -699,7 +699,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
     if(iCurrentWeapon == iNumWeaponSlots) {
 
 		// Fire on the random button?
-		if((cShoot.wasDown()) && !iChat_Typing) {
+		if((cShoot.wasDown()) && !bChat_Typing) {
 			GetRandomWeapons();
 		}
 	}
@@ -710,7 +710,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 
 		// Fire on the done button?
 		// we have to check isUp() here because if we continue while it is still down, we will fire after in the game
-		if((cShoot.isUp()) && !iChat_Typing) {
+		if((cShoot.isUp()) && !bChat_Typing) {
 			bWeaponsReady = true;
 			iCurrentWeapon = 0;
 
@@ -756,7 +756,7 @@ void CWorm::SelectWeapons(SDL_Surface *bmpDest, CViewport *v)
 	tLX->cFont.Draw(bmpDest, centrex, y += 15, tLX->clWeaponSelectionTitle, "strafe: " + cStrafe.getEventName());
 
 		
-	if(!iChat_Typing) {
+	if(!bChat_Typing) {
 		// move selection up or down
 		int change = cDown.wasDown() - cUp.wasDown();
 		iCurrentWeapon += change;

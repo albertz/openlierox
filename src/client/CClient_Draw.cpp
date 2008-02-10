@@ -2048,7 +2048,10 @@ void CClient::ProcessSpectatorViewportKeys()
 			if( cLocalWorms[1]->getType() == PRF_HUMAN &&
 				( cLocalWorms[1]->getAlive() || cLocalWorms[0]->getLives() != WRM_OUT ) )
 				return;
-	};
+	}
+
+	if (bChat_Typing)
+		return;
 	
 	bool v2_on = cViewports[1].getUsed();
 	int v1_type = cViewports[0].getType();
