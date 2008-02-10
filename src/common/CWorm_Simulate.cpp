@@ -37,14 +37,17 @@ void CWorm::getInput()
 {
 	// TODO: it seems that iCarving isn't used at all. if this is the case, please remove. else, something has to be fixed
 
-	// HINT: we are calling this from simulateWorm and we use this fixed dt there
-	const static float	dt = 0.01f;
+	// HINT: we are calling this from simulateWorm
+	const float	dt = tLX->fCurTime - this->fLastSimulationTime;
 	
 	CVec	dir;
 	int		weap = false;
-	int		RightOnce = false;
 
 	mouse_t *ms = GetMouse();
+	
+	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
+	bool leftOnce = cLeft.isDownOnce();
+	bool rightOnce = cRight.isDownOnce();
 	
 	// Backup the direction so that the worm can strafe
 	iStrafeDirection = iDirection;
@@ -230,7 +233,7 @@ void CWorm::getInput()
 		weap = true;
 		
 		// we don't want keyrepeats here, so only count the first down-event
-		int change = (RightOnce ? 1 : 0) - (cLeft.isDownOnce() ? 1 : 0);		
+		int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);		
 		iCurrentWeapon += change;
 		MOD(iCurrentWeapon, iNumWeaponSlots);
 	}
@@ -293,31 +296,29 @@ void CWorm::getInput()
 	if(cShoot.isDown())  {
 		ws->iShoot = true;
 	}
-
-	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
-	bool leftOnce = cLeft.isDownOnce();
-	bool rightOnce = cRight.isDownOnce();
 	
-	if(cLeft.isDown()) {
-		ws->iMove = true;
-		
-		if(!cRight.isDown()) iDirection = DIR_LEFT;
-		
-		if(rightOnce) {
-			ws->iCarve = true;
-			iCarving |= 2; // carve left
+	if(!cSelWeapon.isDown()) {
+		if(cLeft.isDown()) {
+			ws->iMove = true;
+			
+			if(!cRight.isDown()) iDirection = DIR_LEFT;
+			
+			if(rightOnce) {
+				ws->iCarve = true;
+				iCarving |= 2; // carve left
+			}
 		}
-	}
-	
-	if(cRight.isDown()) {
-		ws->iMove = true;
 		
-		if(!cLeft.isDown()) iDirection = DIR_RIGHT;
-		
-		if(leftOnce) {
-			ws->iCarve = true;
-			iCarving |= 1; // carve right
-		}
+		if(cRight.isDown()) {
+			ws->iMove = true;
+			
+			if(!cLeft.isDown()) iDirection = DIR_RIGHT;
+			
+			if(leftOnce) {
+				ws->iCarve = true;
+				iCarving |= 1; // carve right
+			}
+		}	
 	}
 	
 

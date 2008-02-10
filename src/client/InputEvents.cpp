@@ -81,6 +81,10 @@ static void ResetCurrentEventStorage() {
 	if (tLX)
 		tLX->bVideoModeChanged = false;
 
+//	for(int k=0;k<SDLK_LAST;k++) {
+//		Keyboard.KeyUp[k] = false;
+//	}
+
 	bActivated = false;
 }
 
@@ -222,7 +226,10 @@ static void HandleNextEvent() {
 				keyModifiersState.bShift = kbev.down;
 				break;
 			}
-			
+						
+			// copy it
+			kbev.state = keyModifiersState;
+		
 			/*
 			if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
 				// I don't want to track keyrepeats here; but works only for special keys
@@ -230,10 +237,9 @@ static void HandleNextEvent() {
 			else if(!kbev.down)
 				cout << tLX->fCurTime << ": released key " << kbev.sym << endl;
 			*/
-				
-			// copy it
-			kbev.state = keyModifiersState;
-		}
+		
+		} else
+			printf("strange Event.key.state = %i\n", Event.key.state);
 		break;
 		
 	case SDL_SYSWMEVENT:
