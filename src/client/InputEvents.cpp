@@ -113,12 +113,18 @@ static void HandleNextEvent() {
 				Mouse.WheelScrollDown  = true;
 				break;
 		}  // switch
-
-		Mouse.mouseQueue.push_back( ((const MouseEvent) { Event.button.x, Event.button.y, Event.button.button, true }) );
+	
+		{
+			MouseEvent mev = { Event.button.x, Event.button.y, Event.button.button, true };
+			Mouse.mouseQueue.push_back( mev );
+		}
 		break;
 		
 	case SDL_MOUSEBUTTONUP:
-		Mouse.mouseQueue.push_back( ((const MouseEvent) { Event.button.x, Event.button.y, Event.button.button, false }) );
+		{
+			MouseEvent mev = { Event.button.x, Event.button.y, Event.button.button, false };
+			Mouse.mouseQueue.push_back( mev );
+		}
 		break;
 
 	// Activation and deactivation
