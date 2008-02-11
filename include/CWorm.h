@@ -526,6 +526,7 @@ public:
 	CMap*		getMap()					{ return pcMap; }
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
 	CInput*		getStrafeInput()			{ return &cStrafe; }
+	CInput*		getShootInput()				{ return &cShoot; }
 	
 	std::string getName(void)			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }

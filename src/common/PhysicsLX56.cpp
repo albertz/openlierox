@@ -221,6 +221,20 @@ public:
 		const static float dt = 0.01f;
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
 		
+		// TODO: Later, we should have a message bus for input-events which is filled
+		// by goleft/goright/stopleft/stopright/shoot/etc signals. These signals are handled in here.
+		// Though the key/mouse event handling (what CWorm::getInput() is doing atm)
+		// is then handled in the InputEngine and not called from here because
+		// the PhysicEngine should not care about when the key/mouse events are handled.
+
+		// TODO: count the amount of shootings
+		// The problem is that we eventually count one shoot-press twice or also the
+		// other way around, twice shoot-presses only once.
+		// To solve this in a clean way, we really need this message bus. A dirty way
+		// to solve it would be to send wormstate-updates more often if needed
+		// with some checks here. (In the end, also the clean way would result in more
+		// worm updates.)
+		
 		// get input max once a frame (and not at all if we don't simulate this frame)
 		
 			/*
@@ -243,29 +257,24 @@ public:
 			if (worm->isShooting() || old_weapon != worm->getCurrentWeapon())  // The weapon bar is changing
 				client->shouldRepaintInfo() = true;
 		}
-		
+
+		const gs_worm_t *wd = worm->getGameScript()->getWorm();
+		worm_state_t *ws = worm->getWormState();
+
+		// TODO: move out here, doesn't belong here; should be done when we parse an update-packet
+		// Special things for remote worms
+		if(!local) {
+			worm->setAngle( (float)ws->iAngle );
+			worm->setDirection( ws->iDirection );
+		}
+				
 	simulateWormStart:
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
 		worm->fLastSimulationTime += dt;
 	
 		float speed;
 		CVec dir;
-		const gs_worm_t *wd = worm->getGameScript()->getWorm();
-
 		float	fFrameRate = 7.5f;
-
-		worm_state_t *ws = worm->getWormState();
-
-		// Simulate the viewport
-		//cViewport.Process(vPos,map->GetWidth(),map->GetHeight());
-
-
-		// Special things for remote worms
-		if(!local) {
-			worm->setAngle( (float)ws->iAngle );
-			worm->setDirection( ws->iDirection );
-		}
-
 
 		// If we're IT, spawn some sparkles
 		if(worm->getTagIT() && tGameInfo.iGameMode == GMT_TAG) {
@@ -376,7 +385,7 @@ public:
 
 		simulateWormWeapon(dt, worm);
 		
-
+		
 		// Fill in the info for sending
 		if(local) {
 			ws->iAngle = (int)worm->getAngle();
@@ -397,17 +406,17 @@ public:
 
 		wpnslot_t *Slot = worm->getWeapon(worm->getCurrentWeapon());
 
-		if(Slot->LastFire>0)
-			Slot->LastFire-=dt;
+		if(Slot->LastFire > 0)
+			Slot->LastFire -= dt;
 
 		if(Slot->Reloading) {
 
-			// Prevent a div by zero error
 			if(worm->getLoadingTime() == 0)
-				worm->setLoadingTime( 0.00001f );
+				Slot->Charge = 1;
+			else
+				Slot->Charge += dt * (Slot->Weapon->Recharge * (1.0f/worm->getLoadingTime()));
 
-			Slot->Charge += dt * (Slot->Weapon->Recharge * (1.0f/worm->getLoadingTime()));
-			if(Slot->Charge > 1) {
+			if(Slot->Charge >= 1) {
 				Slot->Charge = 1;
 				Slot->Reloading = false;
 			}

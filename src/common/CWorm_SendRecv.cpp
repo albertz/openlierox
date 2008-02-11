@@ -174,6 +174,8 @@ bool CWorm::checkPacketNeeded()
 	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.05f)
 		return true;
 
+	// TODO: don't check velocity here but the pos-change instead
+	// (which is not the same because we have independent physics-simulation)
 	// Time
 	if (vVelocity.GetLength2())
 		if (tLX->fCurTime - fLastUpdateWritten >= MAX(3.0f/vVelocity.GetLength(), 1.0f/80.0f))

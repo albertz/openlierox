@@ -501,11 +501,16 @@ void GameServer::WormShoot(CWorm *w)
 		return;
 	}
 
+	// TODO: what is the effect of this?
 	Slot->LastFire = Slot->Weapon->ROF;
 
 
 	// Beam weapons get processed differently
 	if(Slot->Weapon->Type == WPN_BEAM) {
+		// TODO: in which way is this different?
+		// Is the only difference the speed-param?
+		// In this case, just remove this function and
+		// merge it here. Avoid double code.
 		ShootBeam(w);
 		return;
 	}
@@ -519,19 +524,11 @@ void GameServer::WormShoot(CWorm *w)
 	if(w->getDirection() == DIR_LEFT)
 		Angle=180-Angle;
 
-	static CVec sprd;
-
-
-	static CVec dir;
-	GetAngles((int)Angle,&dir,NULL);
-	CVec pos = w->getPos();// + dir*6;
+	CVec pos = w->getPos();
 
 	// Add the shot to the shooting list
-	dir = *w->getVelocity();
-	float speed = NormalizeVector( &dir );
-	//Angle = (float)-atan2(dir.x,dir.y) * (180.0f/PI);
-	//Angle += GetRandomNum() * (float)Slot->Weapon->ProjSpread;
-
+	CVec vel = *w->getVelocity();
+	float speed = NormalizeVector( &vel );
 
 	if(Angle < 0)
 		Angle+=360;
@@ -553,6 +550,8 @@ void GameServer::WormShoot(CWorm *w)
 	//
 	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
 	//
+
+	// TODO:  What is ROF?
 
 	// Drain the Weapon charge
 	Slot->Charge -= Slot->Weapon->Drain / 100;

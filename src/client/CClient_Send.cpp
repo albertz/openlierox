@@ -32,16 +32,14 @@ void CClient::SendWormDetails(void)
 {
 	// Don't flood packets so often
 	if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
-		if (tGameInfo.iGameType != GME_LOCAL)  {
-			fLastUpdateSent = tLX->fCurTime;
+		if (tGameInfo.iGameType != GME_LOCAL)
 			return;
-		}
 
 	CBytestream bs;
 	CWorm *w;
 	uint i;
 
-	// If all me worms are not alive, don't send
+	// If all my worms are dead, don't send
 	bool Alive = false;
 	for(i=0;i<iNumWorms;i++) {
 		if(cLocalWorms[i]->getAlive()) {
@@ -65,6 +63,8 @@ void CClient::SendWormDetails(void)
 	// No update, just quit
 	if (!update)
 		return;
+
+	fLastUpdateSent = tLX->fCurTime;
 
 	// Write the update
 	bs.writeByte(C2S_UPDATE);

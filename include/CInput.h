@@ -59,6 +59,8 @@ private:
 	int		Down;
 	std::string m_EventName;
 
+private:
+	int		wasDown_withoutRepeats();
 
 public:
 	// Methods
@@ -75,6 +77,10 @@ public:
 	int		isUp(void);
 	int		isDown(void);
 	bool	isDownOnce(void);
+	int wasDown(bool withRepeats) {
+		if(withRepeats) return wasDown();
+		else return wasDown_withoutRepeats();
+	}
 	int		wasDown(); // checks if there was such an event in the queue; returns the count of presses (down-events)
 	int		wasUp(); // checks if there was an keyup-event; returns the count of up-events
 	

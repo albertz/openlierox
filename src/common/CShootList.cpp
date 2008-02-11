@@ -30,6 +30,7 @@ bool CShootList::Initialize(void)
 	m_nNumShootings = 0;
 	m_fStartTime = -1;
 
+	// TODO: use std::queue or std::list
 	m_psShoot = new shoot_t[MAX_SHOOTINGS];
 	if( m_psShoot == NULL )
 		return false;
@@ -482,7 +483,7 @@ void CShootList::readMulti( CBytestream *bs )
 	psShot->nWormID = MIN(bs->readByte(), MAX_WORMS); // Used for indexing
 	psShot->fTime = bs->readFloat();
 	psShot->nWeapon = bs->readByte();
-	num = bs->readByte();
+	num = MIN(bs->readByte(), MAX_SHOOTINGS - 1);
 	bs->read2Int12( x, y );
 	vx = bs->readInt16();
 	vy = bs->readInt16();

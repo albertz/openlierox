@@ -229,7 +229,7 @@ void GameServer::ParseUpdate(CClient *cl, CBytestream *bs) {
 
 		// If the worm is shooting, handle it
 		if (w->getWormState()->iShoot && w->getAlive() && iState == SVS_PLAYING)
-			WormShoot(w);
+			WormShoot(w); // add to shootlist to send it later to the clients
 	}
 }
 

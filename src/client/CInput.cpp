@@ -535,6 +535,26 @@ bool CInput::isDownOnce(void)
 	return false;
 }
 
+int CInput::wasDown_withoutRepeats() {
+	int count = 0;
+	bool down = false;
+	for(short i = 0; i < GetKeyboard()->queueLength; i++) {
+		if(GetKeyboard()->keyQueue[i].sym == Data) {
+			if(GetKeyboard()->keyQueue[i].down) {
+				if(!down) {
+					count++;
+					down = true;
+				}
+			}
+			else {
+				down = false;
+			}
+		}
+	}
+
+	return count;
+}
+
 // goes through the event-signals and searches for the event
 int CInput::wasDown() {
 	int counter = 0;

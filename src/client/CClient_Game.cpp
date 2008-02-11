@@ -157,11 +157,14 @@ void CClient::Simulation(void)
 
 
 		// Is this worm shooting?
-		if(/*local && */w->getAlive()) {
+		if(w->getAlive()) {
 
 			// Shoot
 			if(w->getWormState()->iShoot) {
 				// This is only for client-side weapons, like jetpack and for beam drawing
+				// It doesn't process the shot itself.
+				// The shot-info will be sent to the server which sends it back and
+				// we handle it in CClient::ProcessShot in the end.
 				PlayerShoot(w);
 			}
 
@@ -299,6 +302,8 @@ void CClient::SimulateProjectiles(float dt)
 		// HINT: now, we only take care about tLX->fCurTime and no dt
 		// TODO: is there any difference now?
 		PhysicsEngine::Get()->simulateProjectile( prj, cRemoteWorms, &wormid, &result );
+
+		// TODO: move all following code to PhysicsEngine (or at least related parts)
 
         /*
         ===================
@@ -768,6 +773,7 @@ void CClient::PlayerShoot(CWorm *w)
 		return;
 	}
 	
+	// TODO: what is the effect of this?
 	Slot->LastFire = Slot->Weapon->ROF;
 
 	// Special weapons get processed differently
@@ -783,73 +789,10 @@ void CClient::PlayerShoot(CWorm *w)
 	}
 
 
-	// Shots are now handled by the server
+	// Shots are now handled by the server.
+	// See CClient::ProcessShot().
 	return;
 
-
-
-
-	// Play the weapon's sound
-	//if(Slot->Weapon->UseSound)
-	//	StartSound(Slot->Weapon->smpSample, w->getPos(), w->getLocal(), 100, cLocalWorms[0]);
-
-	/*CVec dir;
-	GetAngles(Angle,&dir,NULL);
-	CVec pos = w->getPos() + dir*8;
-
-	pos.x=( (int)pos.x - (int)pos.x % 2 );
-	pos.y=( (int)pos.y - (int)pos.y % 2 );
-
-	int rot = 0;
-
-	// Spawn the projectiles
-	for(int n=0;n<Slot->Weapon->ProjAmount;n++) {
-		rot = 0;
-
-		// Spread
-		a = Angle + GetRandomNum()*(float)Slot->Weapon->ProjSpread;
-
-		if(a < 0)
-			a+=360;
-		if(a>360)
-			a-=360;
-
-		GetAngles(a,&sprd,NULL);
-
-		// Calculate a random starting angle for the projectile rotation (if used)
-		if(Slot->Weapon->Projectile) {
-			if(Slot->Weapon->Projectile->Rotating)
-			   rot = GetRandomInt( 360 / Slot->Weapon->Projectile->RotIncrement ) * Slot->Weapon->Projectile->RotIncrement;
-		}
-
-		float speed = Slot->Weapon->ProjSpeed + Slot->Weapon->ProjSpeedVar*GetRandomNum();
-
-		CVec p = sprd*speed + *w->getVelocity();
-		//d_printf("Projectile vector = %f, %f\n", p.x, p.y );
-		//d_printf("Worm vector = %f, %f\n", w->getVelocity()->x, w->getVelocity()->y );
-
-		SpawnProjectile(pos, sprd*speed + *w->getVelocity(), rot, w->getID(), Slot->Weapon->Projectile);
-	}
-
-	//
-	// Note: Drain does NOT have to use a delta time, because shoot timing is controlled by the ROF
-	//
-
-	// Drain the Weapon charge
-	Slot->Charge -= Slot->Weapon->Drain / 100;
-	if(Slot->Charge < 0) {
-		Slot->Charge = 0;
-		Slot->Reloading = true;
-	}*/
-
-	// Add the recoil
-	/*CVec *vel = w->getVelocity();
-	GetAngles(Angle,&sprd,NULL);
-
-	*vel = *vel + -sprd*(float)Slot->Weapon->Recoil;
-
-	// Draw the muzzle flash
-	w->setDrawMuzzle(true);*/
 }
 
 
@@ -1474,7 +1417,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 		if(stopbeam)
 			break;
 
-		pos = pos + dir*(float)divisions;
+		pos += dir*(float)divisions;
 	}
 
 	// Spawn a beam entity and don't draw 255,0,255 (pink) beams
