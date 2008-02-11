@@ -267,9 +267,7 @@ struct DedIntern {
 	
 	// Kick and ban will both function using ID
 	// It's up to the control-program to supply the ID 
-	// - if it sends a string itoa will fail at converting it to something sensible
-
-	// I hope this works, uploading for a test on my linux machine.
+	// - if it sends a string atoi will fail at converting it to something sensible
 	void Cmd_KickWorm(const std::string & params) 
 	{
 		std::string reason = "";
@@ -314,6 +312,41 @@ struct DedIntern {
 
 	void Cmd_BanWorm(const std::string & params)
 	{
+		std::string reason = "";
+		int id = 0;
+		std::vector<std::string> sSplit = explode(params," ");
+
+		if (sSplit.size() == 1)
+			id = atoi(params);
+		else if (sSplit.size() >= 2)
+		{
+			id = atoi(sSplit[0]);
+			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++)
+			{
+				reason += *it;
+				if (it+1 != sSplit.end())
+					reason += " ";
+			}
+		}
+		else
+		{
+			std::cout << "DedicatedControl: BanWorm: Wrong syntax" << std::endl;
+			return;
+		}
+
+		if(id <0 || id >= MAX_WORMS)
+		{
+			std::cout << "DedicatedControl: BanWorm: Faulty ID" << std::endl;
+			return;
+		}
+		CWorm *w = cServer->getWorms() + id;
+		if(!w->isUsed())
+		{
+			std::cout << "DedicatedControl: BanWorm: ID not in use" << std::endl;
+			return;
+		}
+
+		cServer->banWorm(id,reason);
 
 	}
 
