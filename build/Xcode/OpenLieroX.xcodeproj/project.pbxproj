@@ -212,6 +212,7 @@
 		2389FB200D2D4D5E00358F27 /* SmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartPointer.h; sourceTree = "<group>"; };
 		2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatCommand.cpp; sourceTree = "<group>"; };
 		2389FB650D2D5A4700358F27 /* UnixImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UnixImageIO.framework; path = /Library/Frameworks/UnixImageIO.framework; sourceTree = "<absolute>"; };
+		238E1F390D60DC500008FDC5 /* nl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nl.h; path = ../../hawknl/include/nl.h; sourceTree = SOURCE_ROOT; };
 		23A0CDB40D5B0A31002A33A4 /* CScriptableVars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CScriptableVars.h; sourceTree = "<group>"; };
 		23A0CDB50D5B0A3F002A33A4 /* ThreadVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadVar.h; sourceTree = "<group>"; };
 		23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CScriptableVars.cpp; sourceTree = "<group>"; };
@@ -391,7 +392,6 @@
 		EA430CA70BEFCFD300C6547E /* create_archives.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = create_archives.sh; path = ../../distrib/create_archives.sh; sourceTree = SOURCE_ROOT; };
 		EA430CA80BEFCFD300C6547E /* create_snapshot.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = create_snapshot.sh; path = ../../distrib/create_snapshot.sh; sourceTree = SOURCE_ROOT; };
 		EA430CA90BEFCFD300C6547E /* distrib_files.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = distrib_files.sh; path = ../../distrib/distrib_files.sh; sourceTree = SOURCE_ROOT; };
-		EA430CAA0BEFCFD300C6547E /* receive_files.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = receive_files.sh; path = ../../distrib/receive_files.sh; sourceTree = SOURCE_ROOT; };
 		EA430DD20BEFEA8900C6547E /* libHawkNL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHawkNL.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA430DD90BEFEB1000C6547E /* condition.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = condition.c; path = ../../hawknl/src/condition.c; sourceTree = SOURCE_ROOT; };
 		EA430DDA0BEFEB1000C6547E /* crc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crc.c; path = ../../hawknl/src/crc.c; sourceTree = SOURCE_ROOT; };
@@ -772,7 +772,6 @@
 				EA430CA70BEFCFD300C6547E /* create_archives.sh */,
 				EA430CA80BEFCFD300C6547E /* create_snapshot.sh */,
 				EA430CA90BEFCFD300C6547E /* distrib_files.sh */,
-				EA430CAA0BEFCFD300C6547E /* receive_files.sh */,
 			);
 			name = distrib;
 			sourceTree = "<group>";
@@ -780,6 +779,7 @@
 		EA430DEF0BEFEB1A00C6547E /* HawkNL source */ = {
 			isa = PBXGroup;
 			children = (
+				238E1F390D60DC500008FDC5 /* nl.h */,
 				EA430DD90BEFEB1000C6547E /* condition.c */,
 				EA430DDA0BEFEB1000C6547E /* crc.c */,
 				EA430DDB0BEFEB1100C6547E /* err.c */,

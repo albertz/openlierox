@@ -117,7 +117,7 @@ bool Menu_Net_NETInitialize(void)
     Menu_SvrList_LoadList("cfg/svrlist.dat");
     Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
 	
-	Timer(&ServerTimeoutSignal, NULL, SVRLIST_TIMEOUT, true).startHeadless();
+	Timer(&Timer::DummyHandler, NULL, SVRLIST_TIMEOUT, true).startHeadless();
 	
 	return true;
 }

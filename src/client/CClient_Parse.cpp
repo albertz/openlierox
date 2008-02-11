@@ -56,7 +56,7 @@ void CClient::ParseConnectionlessPacket(CBytestream *bs)
 	else if(cmd == "lx::badconnect") {
 		iNetStatus = NET_DISCONNECTED;
 		bBadConnection = true;
-		strBadConnectMsg = Utf8String(bs->readString(256));
+		strBadConnectMsg = "Server message: " + Utf8String(bs->readString(256));
 	}
 
 	// Host has OpenLX Beta 3+

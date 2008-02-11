@@ -20,6 +20,7 @@
 #include "CBonus.h"
 #include "CClient.h"
 #include "console.h"
+#include "LieroX.h"
 
 
 class PhysicsLX56 : public PhysicsEngine {
@@ -217,7 +218,7 @@ public:
 	}
 
 
-	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, int local) {
+	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, bool local) {
 		const static float dt = 0.01f;
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
 		
@@ -563,40 +564,6 @@ public:
 			}
 		}
 
-	/*
-		// Check worm collisions
-		int w = CheckWormCollision(worms);
-		if( w >= 0 ) {
-			*wormid = w;
-			res |= PJC_WORM;
-		}
-	*/
-
-	/*
-		// Hack!!!
-		if(tProjInfo->Hit_Type == PJ_EXPLODE && tProjInfo->Type == PRJ_PIXEL) {
-			int px = (int)vPosition.x;
-			int py = (int)vPosition.y;
-
-			// Edge checks
-			if(px<=0 || py<=0 || px>=map->GetWidth()-1 || py>=map->GetHeight()-1) {
-				// Clamp the position			
-				px = MAX(px,0); // not needed
-				py = MAX(py,0);
-				px = MIN(map->GetWidth()-1,px);
-				py = MIN(map->GetHeight()-1,py);
-				res |= PJC_TERRAIN;
-				return res;
-			}
-
-			uchar pf = map->GetPixelFlag(px, py);
-			if(pf & PX_DIRT || pf & PX_ROCK)
-				res |= PJC_TERRAIN;
-
-			return res;
-		}
-
-	*/
 		if(res != PJC_NONE) {
 			*result = res;
 			//return res;
@@ -764,7 +731,7 @@ public:
 		bonus->pos().y = (float)y - 2;	
 	}
 
-	virtual void simulateBonus(CBonus* bonus) {
+	void simulateBonus(CBonus* bonus) {
 		const static float dt = 0.01f;
 		
 	simulateBonusStart:

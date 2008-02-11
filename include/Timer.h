@@ -96,6 +96,11 @@ public:
 	// this is called by the main-loop in HandleNextEvent()
 	static void handleEvent(SDL_Event& ev);
 	
+	// this handler just does nothing and returns false
+	// This is usefull if you want to push an SDL-event later
+	// to wake up the game.
+	static bool DummyHandler(Timer* sender, void* userData);
+
 private:
 	bool m_running;
 	void* m_lastData;	// it's TimerData* intern

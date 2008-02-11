@@ -1211,7 +1211,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 	svr->nPings++;
 	svr->fLastPing = tLX->fCurTime;
 
-	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
 }
 
 ///////////////////
@@ -1245,7 +1245,7 @@ void Menu_SvrList_QueryServer(server_t *svr)
 	svr->nQueries++;
 	svr->fLastQuery = tLX->fCurTime;
 
-	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
 }
 
 
@@ -1276,7 +1276,7 @@ void Menu_SvrList_RefreshServer(server_t *s)
 	s->nQueries = 0;
 	s->nPing = 0;
 
-	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
 }
 
 
@@ -1352,7 +1352,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
         psServerList = svr;
 
 	// Set the timeout timer
-	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
 
 	return svr;
 }
@@ -1429,7 +1429,7 @@ server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::str
         psServerList = svr;
 
 	// Set the timeout timer
-	Timer(&ServerTimeoutSignal, NULL, PingWait, true).startHeadless();
+	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
 
 	return svr;
 }
@@ -2153,12 +2153,4 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 	// All ok, draw the details
 	lvInfo.Draw( tMenu->bmpScreen );
-}
-
-//////////////////
-// Server timeout timer handler
-bool ServerTimeoutSignal(Timer* sender, void* userData) {
-	// we want to update the screen at this position
-	// as this event already implies this, we don't have to do anything here
-	return false;
 }

@@ -752,6 +752,7 @@ void ResetNetAddr(NetworkAddr& addr) {
 	SetNetAddrValid(addr, false);
 }
 
+// accepts "%i.%i.%i.%i[:%l]" as input
 bool StringToNetAddr(const std::string& string, NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL) {
 		return false;
@@ -805,12 +806,23 @@ static void* GetAddrFromNameAsyncInt(void /*@owned@*/ *addr)
 {
     NLaddress_ex_t *address = (NLaddress_ex_t *)addr;
     
-    nlGetAddrFromName(address->name.c_str(), address->address.get());
-    // TODO: handle failures here? there should be, but we only have the valid field;
-    // if we leave it at false, noone will recognise that we are ready
-    address->address.get()->valid = NL_TRUE;
-    AddToDnsCache(address->name, *address->address.get());
-    
+    if(nlGetAddrFromName(address->name.c_str(), address->address.get())) {
+		address->address.get()->valid = NL_TRUE;
+		AddToDnsCache(address->name, *address->address.get());
+	}
+		// TODO: handle failures here? there should be, but we only have the valid field
+		// For now, we leave it at false, so the timeout handling will just occur. 
+	
+	if(SdlNetEvent_Inited) {
+		// push a net event
+		SDL_Event ev;
+		ev.type = SDL_USEREVENT_NET_ACTIVITY;
+		ev.user.code = 0;
+		ev.user.data1 = NULL;
+		ev.user.data2 = NULL;
+		SDL_PushEvent( &ev );
+    }
+	
     delete address;
     return 0;
 }

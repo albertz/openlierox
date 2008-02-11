@@ -228,7 +228,9 @@ public:
 		iNetSpeed = 3;
 		fLastUpdateSent = -9999;
 		bForceWeaponsReady = false;
-
+		SetNetAddrValid( cServerAddr, false );
+		InvalidateSocketState(tSocket);
+		
 		iMyPing = 0;
 		fMyPingRefreshed = 0;
 		fMyPingSent = 0;
@@ -382,6 +384,8 @@ private:
 	int			iNetSpeed;
 	int			iNetStatus;
 	std::string	strServerAddr;
+	std::string	strServerAddr_HumanReadable;
+	NetworkAddr	cServerAddr;
 	int			iNumConnects;
 	float		fConnectTime;
 	int			iChallenge;
@@ -536,7 +540,7 @@ public:
 
 	// Network
 	void		Connect(const std::string& address);
-	void		Connecting(void);
+	void		Connecting(bool force = false);
 	void		ReadPackets(void);
 	void		SendPackets(void);
 	void		SendDeath(int victim, int killer);
@@ -651,9 +655,9 @@ public:
 	// Use only when iGameType == GME_JOIN
 	int getMyPing()							{ return iMyPing; }
 
-	void	setServerAddress(const std::string& _a)	{ strServerAddr = _a; }
 	const std::string& getServerAddress(void)		{ return strServerAddr; }
-
+	std::string getServerAddr_HumanReadable()		{ return strServerAddr_HumanReadable; }
+	
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
 	const std::string& getServerName(void)			{ return szServerName; }
 

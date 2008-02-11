@@ -73,6 +73,7 @@ void CClient::Clear(void)
 	iLastKiller = -1;
 
 	InvalidateSocketState(tSocket);
+	SetNetAddrValid( cServerAddr, false );
 
     cChatbox.setWidth(325);
 	cChatbox.Clear();
@@ -574,42 +575,71 @@ void CClient::SendPackets(void)
 void CClient::Connect(const std::string& address)
 {
 	iNetStatus = NET_CONNECTING;
-	strServerAddr = address;
-	iNumConnects=0;
+	strServerAddr_HumanReadable = strServerAddr = address;
+	iNumConnects = 0;
 	bBadConnection = false;
 	iHostOLXVer = 0;
+	fConnectTime = tLX->fCurTime;
+	
+	if(!StringToNetAddr(address, cServerAddr)) {
+		
+		strServerAddr_HumanReadable = strServerAddr + " (...)";
+		Timer(&Timer::DummyHandler, NULL, DNS_TIMEOUT * 1000.0f, true).startHeadless();
 
-	fConnectTime = -99999;		// This will force the connecting process to run straight away
+		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
+			iNetStatus = NET_DISCONNECTED;
+			bBadConnection = true;
+			strBadConnectMsg = "Unknown error while resolving address";
+		}
+	}
+
+	// send a challenge packet immediatly (if possible)
+	Connecting(true);
 }
 
 
 ///////////////////
 // Connecting process
-void CClient::Connecting(void)
+void CClient::Connecting(bool force)
 {
-	NetworkAddr addr;
-
 	// Check if we are connecting
 	if(iNetStatus != NET_CONNECTING)
 		return;
 
 	// Try every 3 seconds
-	if(tLX->fCurTime - fConnectTime < 3)
+	if(!force && (tLX->fCurTime - fConnectTime < 3))
 		return;
 
 
 	// If we have tried 10 times (10*3 = 30secs) just quit trying
 	if(iNumConnects >= 10) {
 		iNetStatus = NET_DISCONNECTED;
+		bBadConnection = true;
+		strBadConnectMsg = "Server timeout after 10 tries";
 		return;
 	}
 
-	StringToNetAddr(strServerAddr, addr);
-	if(GetNetAddrPort(addr) == 0)  {
+	if(!IsNetAddrValid(cServerAddr)) {
+		if(tLX->fCurTime - fConnectTime >= DNS_TIMEOUT) { // timeout
+			iNetStatus = NET_DISCONNECTED;
+			bBadConnection = true;
+			strBadConnectMsg = "Domain could not be resolved after " + itoa(DNS_TIMEOUT) + " seconds";
+		}
+		return;
+	}
+	
+	if(GetNetAddrPort(cServerAddr) == 0)  {
 		if (tGameInfo.iGameType == GME_JOIN) // Remote joining
-			SetNetAddrPort(addr, LX_PORT);  // Try the default port if no port specified
+			SetNetAddrPort(cServerAddr, LX_PORT);  // Try the default port if no port specified
 		else // Host or local
-			SetNetAddrPort(addr, tLXOptions->iNetworkPort);  // Use the port specified in options
+			SetNetAddrPort(cServerAddr, tLXOptions->iNetworkPort);  // Use the port specified in options
+	}
+	
+	{
+		std::string rawServerAddr;
+		NetAddrToString( cServerAddr, rawServerAddr );
+		if( rawServerAddr != strServerAddr )
+			strServerAddr_HumanReadable = strServerAddr + " (" + rawServerAddr + ")";
 	}
 
 	fConnectTime = tLX->fCurTime;
@@ -621,8 +651,12 @@ void CClient::Connecting(void)
 	bs.writeString("lx::getchallenge");
 	bs.writeString(LX_VERSION);
 	
-	SetRemoteNetAddr(tSocket, addr);
+	// As we use this tSocket both for sending and receiving,
+	// it's saver to reset the address here.
+	SetRemoteNetAddr(tSocket, cServerAddr);
 	bs.Send(tSocket);
+	
+	Timer(&Timer::DummyHandler, NULL, 3000, true).startHeadless();
 
 	printf("HINT: sending challenge request to %s\n", strServerAddr.c_str());
 }

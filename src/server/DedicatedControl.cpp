@@ -399,7 +399,7 @@ struct DedIntern {
 		tLXOptions->tGameinfo.iMaxPlayers = 8;
 		tLXOptions->tGameinfo.iMaxPlayers = MAX(tLXOptions->tGameinfo.iMaxPlayers,2);
 		tLXOptions->tGameinfo.iMaxPlayers = MIN(tLXOptions->tGameinfo.iMaxPlayers,MAX_PLAYERS);
-		tLXOptions->tGameinfo.bRegServer = true; 
+		//tLXOptions->tGameinfo.bRegServer = false; 
 		tLXOptions->tGameinfo.bAllowWantsJoinMsg = true;
 		tLXOptions->tGameinfo.bWantsJoinBanned = false;
 		tLXOptions->tGameinfo.bAllowRemoteBots = true;

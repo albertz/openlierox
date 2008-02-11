@@ -313,9 +313,6 @@ extern	bool		bOldLxBug;
 extern	int			nTries;
 extern	float		fStart;
 
-// Misc
-bool	ServerTimeoutSignal(Timer* sender, void* userData);
-
 
 // Routines
 bool	Menu_Initialize(bool *game);

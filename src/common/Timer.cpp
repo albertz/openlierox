@@ -226,3 +226,7 @@ void Timer::handleEvent(SDL_Event& ev)
 		delete timer_data;
 	}
 }
+
+bool Timer::DummyHandler(Timer* sender, void* userData) {
+	return false;
+}

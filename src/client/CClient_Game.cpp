@@ -28,6 +28,7 @@
 #include "Entity.h"
 #include "Protocol.h"
 #include "Physics.h"
+#include "CClient.h"
 
 
 CClient		*cClient = NULL;
@@ -38,7 +39,6 @@ CClient		*cClient = NULL;
 void CClient::Simulation(void)
 {
 	short i;
-	bool local;
     CWorm *w;
     //bool con = Con_IsUsed();
 
@@ -113,13 +113,11 @@ void CClient::Simulation(void)
 		if(!w->isUsed())
 			continue;
 
-		local = w->getLocal();
-
 		if(w->getAlive()) {
 
 			// Simulate the worm
 			// TODO: move this to a simulateWorms() in PhysicsEngine
-			PhysicsEngine::Get()->simulateWorm( w, this, cRemoteWorms, local );
+			PhysicsEngine::Get()->simulateWorm( w, this, cRemoteWorms, w->getLocal() );
 			
 			if(bGameOver)
 				// TODO: why continue and not break?
@@ -135,13 +133,13 @@ void CClient::Simulation(void)
 						continue;
 
 					if(w->CheckBonusCollision(b)) {
-						if(local || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+						if(w->getLocal() || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
 							if( w->GiveBonus(b) ) {
 
 								// Pickup noise
 								PlaySoundSample(sfxGame.smpPickup);
 
-								DestroyBonus(n, local, w->getID());
+								DestroyBonus(n, w->getLocal(), w->getID());
 
 								bShouldRepaintInfo = true;
 							}
