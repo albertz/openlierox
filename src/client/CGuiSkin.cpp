@@ -394,6 +394,7 @@ bool Menu_CGuiSkinInitialize(void)
 	if( MainLayout == NULL )
 	{
 		Menu_CGuiSkinShutdown();
+		tLXOptions->sSkinPath = "";
 		Menu_MainInitialize();
 		return false;
 	};
