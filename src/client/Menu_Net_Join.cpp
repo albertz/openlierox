@@ -14,6 +14,8 @@
 // Jason Boettcher
 
 
+#include <iostream>
+
 #include "LieroX.h"
 #include "CClient.h"
 #include "Graphics.h"
@@ -28,6 +30,8 @@
 #include "CMediaPlayer.h"
 #include "CCheckbox.h"
 #include "CLabel.h"
+
+using namespace std;
 
 
 /*
@@ -182,8 +186,9 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 	// Check for a bad connection
 	if(cClient->getBadConnection()) {
-		Menu_MessageBox("Connection Error",cClient->getBadConnectionMsg(), LMB_OK);
-
+		cout << "Bad connection: " << cClient->getBadConnectionMsg() << endl;
+		Menu_MessageBox("Connection Error", cClient->getBadConnectionMsg(), LMB_OK);
+		
 		cClient->Shutdown();
 
 		// Shutdown

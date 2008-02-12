@@ -1211,7 +1211,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 	svr->nPings++;
 	svr->fLastPing = tLX->fCurTime;
 
-	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
+	Timer(&Timer::DummyHandler, NULL, PingWait + 100, true).startHeadless();
 }
 
 ///////////////////
@@ -1273,10 +1273,23 @@ void Menu_SvrList_RefreshServer(server_t *s)
 	s->fLastPing = -9999;
 	s->fLastQuery = -9999;
 	s->nPings = 0;
+	s->fInitTime = tLX->fCurTime;
 	s->nQueries = 0;
 	s->nPing = 0;
-
-	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
+	s->bAddrReady = false;
+	
+	if(!IsNetAddrValid(s->sAddress) && !StringToNetAddr(s->szAddress, s->sAddress)) {
+		int oldPort = GetNetAddrPort(s->sAddress);
+		s->sAddress = NetworkAddr(); // assign new addr (needed to avoid problems with possible other still running thread)
+		SetNetAddrPort(s->sAddress, oldPort);
+		
+		SetNetAddrValid(s->sAddress, false);
+		size_t f = s->szAddress.find(":");
+		GetNetAddrFromNameAsync(s->szAddress.substr(0, f), s->sAddress);
+	} else {
+		s->bAddrReady = true;
+		Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
+	}
 }
 
 
@@ -1288,15 +1301,16 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
     // If it is, don't bother adding it
     server_t *sv = psServerList;
     NetworkAddr ad;
+
 	std::string tmp_address = address;
     TrimSpaces(tmp_address);
-    StringToNetAddr(tmp_address, ad);
-
-    for(; sv; sv=sv->psNext) {
-        if( AreNetAddrEqual(sv->sAddress, ad) )
-            return sv;
-    }
-
+    if(StringToNetAddr(tmp_address, ad)) {
+		for(; sv; sv=sv->psNext) {
+			if( AreNetAddrEqual(sv->sAddress, ad) )
+				return sv;
+		}
+	}
+	
     // Didn't find one, so create it
 	server_t *svr = new server_t;
 	if(svr == NULL)
@@ -1304,25 +1318,18 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 
 
 	// Fill in the details
-    svr->bManual = bManual;
-	svr->bProcessing = true;
-	svr->bgotPong = false;
-	svr->bgotQuery = false;
-	svr->bIgnore = false;
-	svr->fLastPing = -9999;
-	svr->fLastQuery = -9999;
-	svr->nPings = 0;
-	svr->nQueries = 0;
     svr->psNext = NULL;
     svr->psPrev = NULL;
+    svr->bManual = bManual;
 	svr->szAddress = tmp_address;
+	
+	size_t f = tmp_address.find(":");
+	if(f != std::string::npos) {
+		SetNetAddrPort(svr->sAddress, from_string<int>(tmp_address.substr(f + 1)));
+	} else
+		SetNetAddrPort(svr->sAddress, LX_PORT);
 
-	// If the address doesn't have a port number, use the default lierox port number
-	if( svr->szAddress.rfind(':') == std::string::npos) {
-		svr->szAddress += ":"+itoa(LX_PORT,10);
-	}
-
-	StringToNetAddr(tmp_address, svr->sAddress);
+	Menu_SvrList_RefreshServer(svr);
 
 
 	// Default game details
@@ -1330,7 +1337,6 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 	svr->nMaxPlayers = 0;
 	svr->nNumPlayers = 0;
 	svr->nState = 0;
-	svr->nPing = 0;
 
 
 	// If the address doesn't have a port number set, use the default lierox port number
@@ -1350,9 +1356,6 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 
     if( !psServerList )
         psServerList = svr;
-
-	// Set the timeout timer
-	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
 
 	return svr;
 }
@@ -1361,76 +1364,8 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 // Add a server onto the list and specify the name
 server_t *Menu_SvrList_AddNamedServer(const std::string& address, const std::string& name)
 {
-    // Check if the server is already in the list
-    // If it is, don't bother adding it
-    server_t *sv = psServerList;
-    NetworkAddr ad;
-	std::string tmp_address = address;
-    TrimSpaces(tmp_address);
-    StringToNetAddr(tmp_address, ad);
-
-    for(; sv; sv=sv->psNext) {
-        if( AreNetAddrEqual(sv->sAddress, ad) )
-            return sv;
-    }
-
-    // Didn't find one, so create it
-	server_t *svr = new server_t;
-	if(svr == NULL)
-		return NULL;
-
-
-	// Fill in the details
-    svr->bManual = true;
-	svr->bProcessing = true;
-	svr->bgotPong = false;
-	svr->bgotQuery = false;
-	svr->bIgnore = false;
-	svr->fLastPing = -9999;
-	svr->fLastQuery = -9999;
-	svr->nPings = 0;
-	svr->nQueries = 0;
-    svr->psNext = NULL;
-    svr->psPrev = NULL;
-	svr->szName = name;
-	svr->szAddress = tmp_address;
-
-	// If the address doesn't have a port number, use the default lierox port number
-	if( svr->szAddress.rfind(':') == std::string::npos) {
-		svr->szAddress += ":"+itoa(LX_PORT,10);
-	}
-
-	StringToNetAddr(tmp_address, svr->sAddress);
-
-
-	// Default game details
-	svr->nMaxPlayers = 0;
-	svr->nNumPlayers = 0;
-	svr->nState = 0;
-	svr->nPing = 0;
-
-
-	// If the address doesn't have a port number set, use the default lierox port number
-	if(GetNetAddrPort(svr->sAddress) == 0)
-		SetNetAddrPort(svr->sAddress, LX_PORT);
-
-
-	// Link it in at the end of the list
-    sv = psServerList;
-    for(; sv; sv=sv->psNext) {
-        if( sv->psNext == NULL ) {
-            sv->psNext = svr;
-            svr->psPrev = sv;
-            break;
-        }
-    }
-
-    if( !psServerList )
-        psServerList = svr;
-
-	// Set the timeout timer
-	Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
-
+	server_t* svr = Menu_SvrList_AddServer(address, true);
+	if(svr)	svr->szName = name;
 	return svr;
 }
 
@@ -1531,9 +1466,12 @@ void Menu_SvrList_FillList(CListview *lv)
 		lv->AddItem(s->szAddress, 0, colour);
 		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num], NULL);
 		lv->AddSubitem(LVS_TEXT, s->szName, NULL, NULL);
-        if(s->bProcessing)
-            lv->AddSubitem(LVS_TEXT, "Querying...", NULL, NULL);
-        else if(num == 3)
+        if(s->bProcessing) {
+			if(s->bAddrReady)
+				lv->AddSubitem(LVS_TEXT, "Querying...", NULL, NULL);
+			else
+				lv->AddSubitem(LVS_TEXT, "Lookup...", NULL, NULL);			
+        } else if(num == 3)
             lv->AddSubitem(LVS_TEXT, "Down", NULL, NULL);
         else
 		    lv->AddSubitem(LVS_TEXT, states[state], NULL, NULL);
@@ -1597,6 +1535,19 @@ bool Menu_SvrList_Process(void)
 		if(s->bIgnore)
 			continue;
 
+		if(!IsNetAddrValid(s->sAddress)) {
+			if(tLX->fCurTime - s->fInitTime >= DNS_TIMEOUT) {
+				s->bIgnore = true; // timeout
+				update = true;	
+			}
+			continue;
+		} else {
+			if(!s->bAddrReady) {
+				s->bAddrReady = true;
+				update = true;
+			}
+		}
+		
 		// Need a pingin'?
 		if(!s->bgotPong) {
 			if(tLX->fCurTime - s->fLastPing > (float)PingWait / 1000.0f) {

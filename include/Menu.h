@@ -269,6 +269,10 @@ enum {
 
 // Server structure
 class server_t { public:
+	server_t() {
+		SetNetAddrValid(sAddress, false);
+	}
+	
 	bool	bIgnore;
 	bool	bProcessing;
     bool    bManual;
@@ -276,6 +280,8 @@ class server_t { public:
 	int		nQueries;
 	bool	bgotPong;
 	bool	bgotQuery;
+	float	fInitTime;
+	bool	bAddrReady;
 	float	fLastPing;
 	float	fLastQuery;
     float   fQueryTimes[MAX_QUERIES+1];

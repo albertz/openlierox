@@ -584,7 +584,7 @@ void CClient::Connect(const std::string& address)
 	if(!StringToNetAddr(address, cServerAddr)) {
 		
 		strServerAddr_HumanReadable = strServerAddr + " (...)";
-		Timer(&Timer::DummyHandler, NULL, DNS_TIMEOUT * 1000.0f, true).startHeadless();
+		Timer(&Timer::DummyHandler, NULL, DNS_TIMEOUT * 1000, true).startHeadless();
 
 		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
 			iNetStatus = NET_DISCONNECTED;
