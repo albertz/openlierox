@@ -405,10 +405,17 @@ int CInput::Setup(const std::string& string)
 	Data = 0;
 
 	// Go through the key list checking with piece of text it was
-	// TODO: allow other unknown keys
 	for(n=0;n<sizeof(Keys) / sizeof(keys_t);n++) {
 		if(Keys[n].text == string) {
 			Data = Keys[n].value;
+			return true;
+		}
+	}
+
+	// Try if SDL knows the key
+	for(n=0; n < SDLK_LAST; n++)  {
+		if (string == SDL_GetKeyName((SDLKey)n))  {
+			Data = n;
 			return true;
 		}
 	}
