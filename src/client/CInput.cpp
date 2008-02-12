@@ -515,8 +515,9 @@ int CInput::isDown(void)
 bool CInput::isDownOnce(void)
 {
 	// HINT: It is possible that wasUp() and !Down (a case which is not covered in further code)
-	if(wasUp() && !Down)
+	if(wasUp() && !Down) {
 		return true;
+	}
 	
 	// HINT: It's possible that wasDown() > 0 and !isDown().
 	// That is the case when we press a key and release it directly after (in one frame).
@@ -526,9 +527,10 @@ bool CInput::isDownOnce(void)
 	// and the keyrepeat-interval is bigger than FPS. (Rare case.)
 	if(wasDown() || isDown()) {
 		// wasUp() > 0 always means that it was down once (though it is not down anymore).
+		// Though they released key in wasUp() > 0 was probably already recognised before
 		if(wasUp()) {
-			Down = false;
-			return true;
+			Down = isDown();
+			return Down; // if it is again down, there is another new press
 		}
 		// !Down means that we haven't recognised yet that it is down.
 		if(!Down) {

@@ -568,8 +568,7 @@ gui_event_t *CGuiLayout::Process(void)
 	}
 
 	// Switch between window and fullscreen mode
-	keyboard_t *Keyboard = GetKeyboard();
-	if( cSwitchMode.wasDown() )  {
+	if( cSwitchMode.wasDown(false) )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
@@ -588,6 +587,7 @@ gui_event_t *CGuiLayout::Process(void)
 
 	// Parse keyboard events to the focused widget
 	// Make sure a key event happened
+	keyboard_t *Keyboard = GetKeyboard();
 	if(Keyboard->queueLength > 0) {
 
 

@@ -656,7 +656,7 @@ void GameLoopFrame(void)
 	} // SWITCH
 
 	// Switch between window and fullscreen mode
-	if( cSwitchMode.wasDown() )  {
+	if( cSwitchMode.wasDown(false) )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
