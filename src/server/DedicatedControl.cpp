@@ -586,9 +586,12 @@ struct DedIntern {
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
 
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }	
-	// TODO: Make wormlist send more info. newworm will tell the control program the id and name anyway.
-	// Suggesting IP, country (if turned on?) and more non-game/lobby specific.
 	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << endl; }
+	
+	// TODO: Make other commands for requesting more infos to a worm. Don't spam wormlist.
+	// Suggesting IP, country (if turned on?) and more non-game/lobby specific.
+
+
 	
 	// ----------------------------------
 	// ---------- frame handlers --------
