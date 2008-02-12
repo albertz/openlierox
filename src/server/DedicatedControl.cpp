@@ -468,7 +468,7 @@ struct DedIntern {
 	void Cmd_StartGame() {
 
 		// Start the game
-		cClient->setSpectate(true);
+		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
 		cServer->StartGame();	// start in dedicated mode
 
 		// Leave the frontend
