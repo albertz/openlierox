@@ -1323,11 +1323,6 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
     svr->bManual = bManual;
 	svr->szAddress = tmp_address;
 	
-	size_t f = tmp_address.find(":");
-	if(f != std::string::npos) {
-		SetNetAddrPort(svr->sAddress, from_string<int>(tmp_address.substr(f + 1)));
-	} else
-		SetNetAddrPort(svr->sAddress, LX_PORT);
 
 	Menu_SvrList_RefreshServer(svr);
 
@@ -1337,11 +1332,6 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 	svr->nMaxPlayers = 0;
 	svr->nNumPlayers = 0;
 	svr->nState = 0;
-
-
-	// If the address doesn't have a port number set, use the default lierox port number
-	if(GetNetAddrPort(svr->sAddress) == 0)
-		SetNetAddrPort(svr->sAddress, LX_PORT);
 
 
 	// Link it in at the end of the list
@@ -1467,7 +1457,7 @@ void Menu_SvrList_FillList(CListview *lv)
 		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num], NULL);
 		lv->AddSubitem(LVS_TEXT, s->szName, NULL, NULL);
         if(s->bProcessing) {
-			if(s->bAddrReady)
+			if(IsNetAddrValid(s->sAddress))
 				lv->AddSubitem(LVS_TEXT, "Querying...", NULL, NULL);
 			else
 				lv->AddSubitem(LVS_TEXT, "Lookup...", NULL, NULL);			
@@ -1545,6 +1535,13 @@ bool Menu_SvrList_Process(void)
 			if(!s->bAddrReady) {
 				s->bAddrReady = true;
 				update = true;
+				
+				size_t f = s->szAddress.find(":");
+				if(f != std::string::npos) {
+					SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
+				} else
+					SetNetAddrPort(s->sAddress, LX_PORT);
+				
 			}
 		}
 		
@@ -1665,9 +1662,6 @@ server_t *Menu_SvrList_FindServer(const NetworkAddr& addr)
 	server_t *s = psServerList;
 
 	for(; s; s=s->psNext) {
-
-		StringToNetAddr(s->szAddress, s->sAddress);
-
 		if( AreNetAddrEqual( addr, s->sAddress ) )
 			return s;
 	}
@@ -1682,8 +1676,7 @@ server_t *Menu_SvrList_FindServer(const NetworkAddr& addr)
 void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 {
 	// Don't update the name in favourites
-	static std::string buf;
-	buf = Utf8String(bs->readString());
+	std::string buf = Utf8String(bs->readString());
 	if(iNetMode != net_favourites)
 		svr->szName = buf;
 	svr->nNumPlayers = bs->readByte();
@@ -1745,12 +1738,10 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
     FILE *fp = OpenGameFile(szFilename,"rt");
     if( !fp )
         return;
-
-    static std::string szLine = "";
-
+ 
     // Go through every line
     while( !feof(fp) ) {
-		szLine = ReadUntil(fp);
+		std::string szLine = ReadUntil(fp);
         if( szLine == "" )
             continue;
 
@@ -1789,13 +1780,35 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 {
 	int y = tMenu->bmpBuffer->h/2 - h/2;
 	int x = tMenu->bmpBuffer->w/2 - w/2;
-
+	
 	Menu_redrawBufferRect(x,y,w,h);
 
     Menu_DrawBox(tMenu->bmpScreen, x,y, x+w, y+h);
 	DrawRectFillA(tMenu->bmpScreen, x+2,y+2, x+w-2, y+h-2, tLX->clDialogBackground, 230);
     tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2, y+5, tLX->clNormalLabel, "Server Details");
-
+	
+	
+	
+	NetworkAddr origAddr;
+	server_t* svr = Menu_SvrList_FindServerStr(szAddress);
+	if(svr) {
+		if(IsNetAddrValid(svr->sAddress))
+			origAddr = svr->sAddress;
+		else {
+			tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2, y+h/2-8, tLX->clNormalLabel,  "Resolving domain ...");
+			return;
+		}
+	} else {
+		std::string tmp_addr = szAddress;
+		TrimSpaces(tmp_addr);
+		if(!StringToNetAddr(tmp_addr, origAddr)) {
+			// TODO: this happens also, if the server is not in the serverlist
+			// we should do the domain resolving also here by ourselfs
+			tLX->cFont.DrawCentre(tMenu->bmpScreen, x+w/2,y+tLX->cFont.GetHeight()+10, tLX->clError, "DNS not resolved");
+			return;		
+		}
+	}		
+	
 
     // Get the server details
     std::string		szName;
@@ -1900,11 +1913,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			bOldLxBug = false;
 
             // Send a getinfo request
-			std::string tmp_addr = szAddress;
-            TrimSpaces(tmp_addr);
-            StringToNetAddr(tmp_addr, addr);
-
-            SetRemoteNetAddr(tMenu->tSocket[SCK_NET], addr);
+            SetRemoteNetAddr(tMenu->tSocket[SCK_NET], origAddr);
 
 	        CBytestream bs;
 	        bs.writeInt(-1,4);
