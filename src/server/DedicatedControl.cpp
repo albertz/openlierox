@@ -261,9 +261,9 @@ struct DedIntern {
 		pipe.in() << "endwormlist" << endl;	
 	}
 
-	// TODO: What is this supposed to do? Leave some info please :)
+	// adds a worm to the game
 	void Cmd_AddWorm(const std::string & params) {
-	
+		// TODO ...
 	}
 	
 	// Kick and ban will both function using ID
