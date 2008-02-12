@@ -131,7 +131,6 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 	
 	if( tLXOptions->bSoundOn ) {
 		StartSoundSystem();
-		SetSoundVolume( tLXOptions->iSoundVolume );
 	}
 	else
 		StopSoundSystem();

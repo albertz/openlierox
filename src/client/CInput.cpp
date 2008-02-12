@@ -527,7 +527,7 @@ bool CInput::isDownOnce(void)
 	// and the keyrepeat-interval is bigger than FPS. (Rare case.)
 	if(wasDown() || isDown()) {
 		// wasUp() > 0 always means that it was down once (though it is not down anymore).
-		// Though they released key in wasUp() > 0 was probably already recognised before
+		// Though the released key in wasUp() > 0 was probably already recognised before.
 		if(wasUp()) {
 			Down = isDown();
 			return Down; // if it is again down, there is another new press

@@ -157,6 +157,7 @@ bool StartSoundSystem() {
 
 	// TODO: this is only a workaround
 	SoundSystemStarted = true;
+	SetSoundVolume( tLXOptions->iSoundVolume );
 	return true;
 }
 
@@ -165,32 +166,25 @@ bool StopSoundSystem() {
 
 	// TODO: this is only a workaround
 	SoundSystemStarted = false;
-	SetSoundVolume(0);
+	Mix_Volume(-1, 0);
 	return true;
 }
 
 bool SetSoundVolume(int vol) {
+	tLXOptions->iSoundVolume = vol;
 	if(!SoundSystemAvailable) return false;
 
 	if(SoundSystemStarted) {
 		SoundSystemVolume = vol;
 
 		// The volume to use from 0 to MIX_MAX_VOLUME(128).
-		//vol *= Round((float)MIX_MAX_VOLUME/100.0f);
 		float tmp = (float)MIX_MAX_VOLUME*(float)vol/100.0f;
-		tLXOptions->iSoundVolume = Round(tmp);
-		Mix_Volume(-1, tLXOptions->iSoundVolume);
+		Mix_Volume(-1, Round(tmp));
 
 		return true;
-
-	} else { // not SoundSystemStarted
-		if(vol == 0) {
-			Mix_Volume(-1, 0);
-			return true;
-		} else
-			return false;
-
 	}
+	
+	return false;
 }
 
 int GetSoundVolume(void)  {
