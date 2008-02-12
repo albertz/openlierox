@@ -8,10 +8,8 @@
 //
 /////////////////////////////////////////
 
-#include <assert.h>
-#include <stdarg.h>
-
 #include "CGuiSkinnedLayout.h"
+#include "CGuiSkin.h"
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "Menu.h"
@@ -23,21 +21,6 @@
 #include "CLabel.h"
 #include "CSlider.h"
 #include "CTextbox.h"
-
-
-
-
-///////////////////
-// Initialize the layout
-void CGuiSkinnedLayout::Initialize()
-{
-	Shutdown();
-
-	cWidgets = NULL;
-	cWidgetsFromEnd = NULL;
-	cFocused = NULL;
-	bFocusSticked = false;
-}
 
 
 ///////////////////
@@ -86,13 +69,6 @@ void CGuiSkinnedLayout::removeWidget(int id)
         if(w->getID() == cFocused->getID())
             cFocused = NULL;
     }
-	/*
-	if( cMouseOverWidget )
-	{
-        if( w->getID() == cMouseOverWidget->getID() )
-            cMouseOverWidget = NULL;
-    }
-	*/
 
     // Unlink the widget
     if( w->getPrev() )
@@ -130,7 +106,7 @@ void CGuiSkinnedLayout::Shutdown(void)
 	cWidgetsFromEnd = NULL;
 
 	cFocused = NULL;
-	//cMouseOverWidget = NULL;
+	bFocusSticked = false;
 	setParent(NULL);
 	cChildLayout = NULL;
 }
@@ -388,7 +364,7 @@ int CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
 	return -1;
 };
 
-int		CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
+int CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
 {
 	if( cChildLayout )
 	{
@@ -417,7 +393,7 @@ int		CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
 	return -1;
 };
 
-int		CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
+int CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
 {
 	if( cChildLayout )
 	{
@@ -446,7 +422,7 @@ int		CGuiSkinnedLayout::MouseWheelUp(mouse_t *tMouse)
 	return -1;
 };
 
-int		CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
+int CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	if( cChildLayout )
 	{
@@ -465,7 +441,7 @@ int		CGuiSkinnedLayout::KeyDown(UnicodeChar c, int keysym, const ModifiersState&
 	return -1;
 };
 
-int		CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
+int CGuiSkinnedLayout::KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)
 {
 	if( cChildLayout )
 	{
@@ -502,68 +478,49 @@ void CGuiSkinnedLayout::FocusOnMouseClick( CWidget * w )
 
 void CGuiSkinnedLayout::FocusOnKeyPress(UnicodeChar c, int keysym, bool keyup)
 {
-		// If we don't have any focused widget, get the first textbox
-		if (!cFocused)  {
-			CWidget *txt = cWidgets;
-			for (;txt;txt=txt->getNext())  {
-				if (txt->getType() == wid_Textbox && txt->getEnabled()) {
-					cFocused = txt;
-					txt->setFocused(true);
-					break;
-				}
+	// If we don't have any focused widget, get the first textbox
+	if (!cFocused)  {
+		CWidget *txt = cWidgets;
+		for (;txt;txt=txt->getNext())  {
+			if (txt->getType() == wid_Textbox && txt->getEnabled()) {
+				cFocused = txt;
+				txt->setFocused(true);
+				break;
 			}
 		}
-				// Tab switches between widgets
-				/*if ( c == SDLK_TAB && keyup )  
-				{
-					if (cFocused)  
-					{
-						// The current one is not focused anymore
-						cFocused->setFocused(false);
-						
-						// Switch to next widget
-						if (cFocused->getNext())  {
-							cFocused = cFocused->getNext();
-							cFocused->setFocused(true);
-						// The current focused widget is the last one in the list
-						} else {
-							cFocused = cWidgets;
-							cFocused->setFocused(true);
-						}
-					} 
-					else 
-					{
-						cFocused = cWidgets;
-						cFocused->setFocused(true);
-					}
-					
-					// Repeat the same thing until we find first enabled widget
-					while (!cFocused->getEnabled())  
-					{
-						// The current one is not focused anymore
-						cFocused->setFocused(false);
-						
-						if (cFocused->getNext())  {
-							cFocused = cFocused->getNext();
-							cFocused->setFocused(true);
-						// The current focused widget is the last one in the list
-						} 
-						else 
-						{
-							cFocused = cWidgets;
-							cFocused->setFocused(true);
-						}
-					}
-				}*/
+	}
 };
+
+CWidget * CGuiSkinnedLayout::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+{
+	// Create new CGuiSkinnedLayout and put it's cChildLayout to actual layout from XML
+	// so when it's destroyed the layout from XML not destroyed.
+	CGuiSkinnedLayout * w = new CGuiSkinnedLayout();
+	w->cChildLayout = CGuiSkin::GetLayout( p[0].s );
+	if( w->cChildLayout )
+	{
+		w->cChildLayout->SetOffset( p[1].i, p[2].i );
+		w->cChildLayout->setParent( w );
+	};
+	layout->Add( w, id, x, y, dx, dy );
+	return w;
+};
+
+static bool CGuiSkinnedLayout_WidgetRegistered = 
+	CGuiSkin::RegisterWidget( "tab", & CGuiSkinnedLayout::WidgetCreator )
+							( "file", CScriptableVars::SVT_STRING )
+							( "offset_left", CScriptableVars::SVT_INT )
+							( "offset_top", CScriptableVars::SVT_INT )
+							;
+
 
 void CGuiSkinnedLayout::ExitDialog( const std::string & param, CWidget * source )
 {
 	CGuiSkinnedLayout * lp = (CGuiSkinnedLayout *) source->getParent();
 	lp->bExitCurrentDialog = true;
-	CGuiSkinnedLayout * ll = (CGuiSkinnedLayout *) lp->getParent();
-	if( ll != NULL )
-		ll->cChildLayout = NULL;
+	CGuiSkinnedLayout * lpp = (CGuiSkinnedLayout *) lp->getParent();
+	if( lpp != NULL )
+		lpp->cChildLayout = NULL;
 	lp->setParent( NULL );
 };
 
@@ -573,45 +530,59 @@ void CGuiSkinnedLayout::ChildDialog( const std::string & param, CWidget * source
 	if( lp->cChildLayout != NULL )
 		return;
 	// Simple parsing of params
-	std::vector<std::string> v = explode(param, ",");
-	for( unsigned i=0; i<v.size(); i++ )
-		TrimSpaces(v[i]);
+	std::vector<std::string> params = explode(param, ",");
+	for( unsigned i=0; i<params.size(); i++ )
+		TrimSpaces(params[i]);
 	int x = 0, y = 0;
 	bool fullscreen = false;
-	if( v.size() > 1 )
-		if( v[1] == "fullscreen" )
+	if( params.size() > 1 )
+		if( params[1] == "fullscreen" )
 			fullscreen = true;
-	if( v.size() > 2 )
+	if( params.size() > 2 )
 	{
-		x = atoi( v[1] );
-		y = atoi( v[2] );
+		x = atoi( params[1] );
+		y = atoi( params[2] );
 	};
-	std::string file = v[0];
-	CGuiSkinnedLayout * ll = CGuiSkin::GetLayout( file );
-	if( ll == NULL )
+	std::string file = params[0];
+	CGuiSkinnedLayout * lc = CGuiSkin::GetLayout( file );
+	if( lc == NULL )
 		return;
-	ll->SetOffset(x,y);
-	ll->bExitCurrentDialog = false;
-	ll->setParent( lp );
-	lp->cChildLayout = ll;
+	lc->SetOffset(x,y);
+	lc->bExitCurrentDialog = false;
+	lc->setParent( lp );
+	lp->cChildLayout = lc;
 	lp->bChildLayoutFullscreen = fullscreen;
+	lc->ProcessGuiSkinEvent(CGuiSkin::SHOW_WIDGET);
 };
 
-void CGuiSkinnedLayout::SubstituteDialog( const std::string & param, CWidget * source )
+void CGuiSkinnedLayout::SetTab( const std::string & param, CWidget * source )
 {
 	CGuiSkinnedLayout * lp = (CGuiSkinnedLayout *) source->getParent();
-	CGuiSkinnedLayout * ll = (CGuiSkinnedLayout *) lp->getParent();
-	if( ll != NULL )
-	{
-		ExitDialog( "", source );
-		CLabel dummy( "", tLX->clPink );
-		dummy.setParent(ll);
-		ChildDialog( param, &dummy );
-	};
+	std::vector<std::string> params = explode(param, ",");
+	for( unsigned i=0; i<params.size(); i++ )
+		TrimSpaces(params[i]);
+	if( params.size() < 2 )
+		return;
+	CWidget * ltw = lp->getWidget( lp->GetIdByName( params[0] ) );
+	if( ltw == NULL )
+		return;
+	if( ltw->getType() != wid_GuiLayout )
+		return;
+	CGuiSkinnedLayout * lt = (CGuiSkinnedLayout *) ltw;
+	CGuiSkinnedLayout * lc = CGuiSkin::GetLayout( params[1] );
+	if( lc == NULL )
+		return;
+	if( lt->cChildLayout )
+		lt->cChildLayout->setParent(NULL);
+	lt->cChildLayout = lc;
+	lc->setParent(lt);
+	if( params.size() >= 4 )
+		lc->SetOffset( atoi(params[2]), atoi(params[3]) );
+	lc->ProcessGuiSkinEvent(CGuiSkin::SHOW_WIDGET);
 };
 
 static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & CGuiSkinnedLayout::ExitDialog, "ExitDialog" )
 	( & CGuiSkinnedLayout::ChildDialog, "ChildDialog" )
-	( & CGuiSkinnedLayout::SubstituteDialog, "SubstituteDialog" )	// Needed for tab-list emulation
+	( & CGuiSkinnedLayout::SetTab, "SetTab" )	// For tab-list
 	;

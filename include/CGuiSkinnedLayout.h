@@ -38,7 +38,7 @@ public:
 	}
 
 	// Destructor
-	~CGuiSkinnedLayout() { }
+	~CGuiSkinnedLayout() { Shutdown(); }
 
 private:
 	// Attributes
@@ -61,8 +61,6 @@ private:
 public:
 	// Methods
 
-	void		Initialize();
-
 	void		Add(CWidget *widget, int id, int x, int y, int w, int h);
 	CWidget		*getWidget(int id);
     void        removeWidget(int id);
@@ -81,7 +79,7 @@ public:
 	DWORD		SendMessage(int iControl, int iMsg, std::string *sStr, DWORD Param);
 
 	void	Create(void) { };
-	void	Destroy(void) { }
+	void	Destroy(void) { Shutdown(); }
 
 	// CWidget functions
 	// These event handlers will route events to children event handlers
@@ -102,9 +100,11 @@ public:
 	
 	void	ProcessGuiSkinEvent(int iEvent);
 	
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
+
 	static void ExitDialog( const std::string & param, CWidget * source );
 	static void ChildDialog( const std::string & param, CWidget * source );
-	static void SubstituteDialog( const std::string & param, CWidget * source );
+	static void SetTab( const std::string & param, CWidget * source );
 };
 
 #endif

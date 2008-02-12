@@ -17,6 +17,7 @@
 #ifndef __CWIDGETLIST_H__
 #define __CWIDGETLIST_H__
 
+// TODO: remove this and substitute with std::list
 
 // Widget list item structure
 class widget_item_t { public:
