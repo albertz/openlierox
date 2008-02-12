@@ -261,6 +261,7 @@ struct DedIntern {
 		pipe.in() << "endwormlist" << endl;	
 	}
 
+	// TODO: What is this supposed to do? Leave some info please :)
 	void Cmd_AddWorm(const std::string & params) {
 	
 	}
@@ -348,6 +349,27 @@ struct DedIntern {
 
 		cServer->banWorm(id,reason);
 
+	}
+
+	// TODO: Add name muting, if wanted.
+	void Cmd_MuteWorm(const std::string & params)
+	{
+		int id = 0;
+		id = atoi(params);
+
+		if(id <0 || id >= MAX_WORMS)
+		{
+			std::cout << "DedicatedControl: MuteWorm: Faulty ID" << std::endl;
+			return;
+		}
+		CWorm *w = cServer->getWorms() + id;
+		if(!w->isUsed())
+		{
+			std::cout << "DedicatedControl: MuteWorm: ID not in use" << std::endl;
+			return;
+		}
+
+		cServer->muteWorm(id);
 	}
 
 	// This command just fits here perfectly
@@ -481,15 +503,23 @@ struct DedIntern {
 		cServer->SendGlobalText(OldLxCompatibleString(msg), type);	
 	}
 
-	void Cmd_GetWormList()
+	// TODO: make it send more info.
+	void Cmd_GetWormList(const std::string& params)
 	{
+		int id = -1;
+		if (!params.empty()) // ID specified
+			id = atoi(params);
+
 		CWorm *w = cServer->getWorms();
 		for(int i=0; i < MAX_WORMS; i++, w++) 
 		{
 			if(!w->isUsed())
 				continue;
 
-			Sig_WormList(w->getID(),w->getName());
+			if (id == -1)
+				Sig_WormList(w);
+			else if (w->getID() == id)
+				Sig_WormList(w);
 			
 		}
 	}
@@ -523,9 +553,11 @@ struct DedIntern {
 			Cmd_KickWorm(params);
 		else if(cmd == "banworm")
 			Cmd_BanWorm(params);
+		else if(cmd == "muteworm")
+			Cmd_MuteWorm(params);
 
 		else if(cmd =="getwormlist")
-			Cmd_GetWormList();
+			Cmd_GetWormList(params);
 		else if(cmd == "getcomputerwormlist")
 			Cmd_GetComputerWormList();
 		else
@@ -535,6 +567,7 @@ struct DedIntern {
 	// ----------------------------------
 	// ----------- signals --------------
 	
+	// Keep up with how THIS recieves signals - "params" are split by space, use same when sending.
 	void Sig_LobbyStarted() { pipe.in() << "lobbystarted" << endl; state = S_LOBBY; }
 	void Sig_GameLoopStart() { pipe.in() << "gameloopstart" << endl; state = S_PREPARING; }
 	void Sig_GameLoopEnd() {
@@ -552,8 +585,10 @@ struct DedIntern {
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
 
-	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm" << endl; }	
-	void Sig_WormList(int iID, std::string name) { pipe.in() << "wormlistinfo:" << iID << ":" << name << endl; }
+	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }	
+	// TODO: Make wormlist send more info. newworm will tell the control program the id and name anyway.
+	// Suggesting IP, country (if turned on?) and more non-game/lobby specific.
+	void Sig_WormList(CWorm* w) { pipe.in() << "wormlistinfo " << w->getID() << " " << w->getName() << endl; }
 	
 	// ----------------------------------
 	// ---------- frame handlers --------
