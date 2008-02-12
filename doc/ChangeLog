@@ -18,6 +18,7 @@
   all pressed keys got recognised in chat/console
 - events for network sockets
 - fixed changing of graphic settings
+- DNS support for serverlist
 - Worm AI improvements
 - usage of ALSA on Linux by default
 - better multithreading handling of network

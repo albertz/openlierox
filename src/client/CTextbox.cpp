@@ -303,7 +303,7 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	}
 
 	// Select all
-	if (modstate.bCtrl && keysym == SDLK_a) {
+	if ((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_a) {
 		iCurpos = Utf8StringSize(sText);
 		iSelStart = 0;
 		iSelLength = -((int)Utf8StringSize(sText));
@@ -322,20 +322,20 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		return TXT_ENTER;
 	}
 
-    // Ctrl-v (paste)
-    if(modstate.bCtrl && keysym == SDLK_v) {
+    // Ctrl-v or Super-v (paste)
+    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_v) {
         PasteText();
         return TXT_CHANGE;
     }
 
-    // Ctrl-c (copy)
-    if(modstate.bCtrl && keysym == SDLK_c) {
+    // Ctrl-c or Super-c (copy)
+    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_c) {
         CopyText();
         return TXT_NONE;
     }
 
-    // Ctrl-x (cut)
-    if(modstate.bCtrl && keysym == SDLK_x) {
+    // Ctrl-x or Super-x (cut)
+    if((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_x) {
         CopyText();
 		Delete();
         return TXT_CHANGE;

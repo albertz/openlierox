@@ -225,8 +225,11 @@ static void HandleNextEvent() {
 			case SDLK_LSHIFT: case SDLK_RSHIFT:
 				keyModifiersState.bShift = kbev.down;
 				break;
+			case SDLK_LSUPER: case SDLK_RSUPER:
+				keyModifiersState.bSuper = kbev.down;
+				break;
 			}
-						
+			
 			// copy it
 			kbev.state = keyModifiersState;
 		
