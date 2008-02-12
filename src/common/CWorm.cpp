@@ -296,7 +296,7 @@ void CWorm::Spawn(CVec position) {
 		tWeapons[n].LastFire = 0;
 	}
 
-	fSpawnTime = fLastPosUpdate = tLX->fCurTime;
+	fSpawnTime = fLastPosUpdate = fLastSimulationTime = tLX->fCurTime;
 
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
