@@ -49,7 +49,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos)
 	Worm->Spawn(pos);
 
 	// Send a spawn packet to everyone
-	static CBytestream bs;
+	CBytestream bs;
 	bs.Clear();
 	bs.writeByte(S2C_SPAWNWORM);
 	bs.writeInt(Worm->getID(), 1);
@@ -71,7 +71,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec pos, CClient *cl)
 	Worm->Respawn(pos);
 
 	// Send a spawn packet to everyone
-	static CBytestream bs;
+	CBytestream bs;
 	bs.Clear();
 	bs.writeByte(S2C_SPAWNWORM);
 	bs.writeInt(Worm->getID(), 1);

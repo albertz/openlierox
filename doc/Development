@@ -68,6 +68,9 @@ builded application-binary. This script fixes some hardcoded library linking
 paths in the binary to relative ones (linked to the frameworks inside the
 application-package).
 
+The script build/Xcode/make_tmp_build.sh creates a ZIP-archiv for
+you under distrib/tmpbuild.
+
 
 
 
@@ -92,14 +95,15 @@ If you have trouble with getting dependencies or compiling, visit
 http://lxalliance.net/forum/index.php?topic=6444.0
 
 
+
+
 IDE : Linux
 ===========
 
 First of all, you should install all packages (like SDL) this game depends on.
 Take a look into the file DEPS for a list. Then, you should install also a
-compiler (I would prefer GCC) and CMake (we use CMake as our make-system;
-feel free to add other makefiles - but not automake :)). Now let's test if
-the game compiles fine for you; type:
+compiler (I would prefer GCC) and CMake (we use CMake as our make-system).
+Now let's test if the game compiles fine for you; type:
 	
 	cmake .	# this will create you an ordinary Makefile
 			# you only have to do this once or when you added new code-files
@@ -119,6 +123,17 @@ work directly. The onliest thing you still have to set is the path to the
 binary (it is bin/openlierox). But look also over other project settings or
 general settings in KDevelop, perhaps you find some other nice features which
 you can enable.
+
+We support also multiple configurations for your build via CMake. When you run
+'cmake .' firstly, you will get a list of available variables and their values.
+
+For example, to enable HawkNL-builtin support, type this:
+
+	cmake -D HAWKNL_BUILTIN=Yes .
+
+The provided compile.sh script is intended only for end-user who want to
+compile the game only once. It is also used from within other Linux
+distribution packages like the Gentoo-ebuild.
 
 
 
