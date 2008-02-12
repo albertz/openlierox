@@ -87,21 +87,18 @@ static int xmlGetInt(xmlNodePtr Node, const std::string& Name);
 static float xmlGetFloat(xmlNodePtr Node, const std::string& Name);
 static Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name);
 static std::string xmlGetString(xmlNodePtr Node, const std::string& Name);
+// Get the text inside element, like "<label rect="..."> Label text </label>"
+static std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node); 
 
 
 CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 {
 	Init();
-	std::string filepath;
 	std::string skinpath( tLXOptions->sSkinPath );
 	if( skinpath == "" )
 		return NULL;
 	skinpath += tLXOptions->sResolution;
-	if( ! GetExactFileName( "data/frontend/skins/" + skinpath + "/" + filename + ".xml", filepath ) )
-	{
-		printf("Cannot read GUI skin file %s\n", ("data/frontend/skins/" + skinpath + "/" + filename + ".xml").c_str() );
-		return NULL;
-	};
+	std::string filepath = "data/frontend/skins/" + skinpath + "/" + filename + ".xml";
 
 	if( m_instance->m_guis.find( filepath ) != m_instance->m_guis.end() )
 	{
@@ -109,18 +106,38 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		return m_instance->m_guis[ filepath ];
 	};
 
+	FILE * file = OpenGameFile( filepath, "r" );
+	if( ! file )
+	{
+		printf("Cannot read GUI skin file %s\n", filepath.c_str() );
+		return NULL;
+	};
+
+	std::string filedata;
+	char buf[4096];
+	while( ! feof(file) )
+	{
+		int readed = fread( buf, 1, sizeof(buf), file );
+		filedata.append(buf, readed);
+	};
+	fclose(file);
+
 	xmlDocPtr	Doc;
 	xmlNodePtr	Node;
 	CGuiSkinnedLayout * gui = new CGuiSkinnedLayout();
+	
+	Doc = xmlReadDoc( (const xmlChar *)filedata.c_str(), filepath.c_str(), NULL, XML_PARSE_NOBLANKS | XML_PARSE_NONET | XML_PARSE_NOCDATA );
 
-	//Doc = xmlParseFile(filepath.c_str());
-	// TODO: XML_PARSE_COMPACT unknown on MacOSX
-	Doc = xmlReadFile( filepath.c_str(), "UTF8", XML_PARSE_NOBLANKS | XML_PARSE_NONET | XML_PARSE_NOCDATA /* | XML_PARSE_COMPACT */ );
 	if (Doc == NULL)  
 	{
 		printf("Cannot parse GUI skin file %s\n", filepath.c_str() );
 		return NULL;
 	};
+
+	class InlineDataDeallocator{ public: xmlDocPtr m_doc;
+			InlineDataDeallocator(xmlDocPtr doc): m_doc(doc) {};
+			~InlineDataDeallocator() { xmlFreeDoc(m_doc); };
+	} inlineDataDeallocator( Doc );
 	
 	Node = xmlDocGetRootElement(Doc);
 	if (Node == NULL)
@@ -135,9 +152,11 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		return NULL;
 	};
 	
-	Node = Node->xmlChildrenNode;
-	while (Node != NULL)  
+	for ( Node = Node->children; Node != NULL; Node = Node->next )
 	{
+		if ( Node->type != XML_ELEMENT_NODE )
+			continue;
+			
 		int left   = xmlGetInt(Node,"left");
 		int top    = xmlGetInt(Node,"top");
 		int width  = xmlGetInt(Node,"width");
@@ -160,8 +179,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		};
 		std::map< std::string, std::pair< paramListVector_t, WidgetCreator_t > > :: iterator it;
 		if( (!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"text")) || 
-			(!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"comment")) )	// Some extra newline or comment - skip it
-		{
+			(!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"comment")) )	
+		{	// Some extra newline or comment - skip it
 			//printf("XML text inside \"%s\": \"%s\"\n", Node->parent->name, Node->content );
 		}
 		else
@@ -179,10 +198,15 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 					params.push_back( CScriptableVars::ScriptVar_t( xmlGetInt( Node, it->second.first[i].first ) ) );
 				else if( it->second.first[i].second == CScriptableVars::SVT_FLOAT )
 					params.push_back( CScriptableVars::ScriptVar_t( xmlGetFloat( Node, it->second.first[i].first ) ) );
-				else if( it->second.first[i].second == CScriptableVars::SVT_STRING )
-					params.push_back( CScriptableVars::ScriptVar_t( xmlGetString( Node, it->second.first[i].first ) ) );
 				else if( it->second.first[i].second == CScriptableVars::SVT_COLOR )
 					params.push_back( CScriptableVars::ScriptVar_t( xmlGetColor( Node, it->second.first[i].first ) ) );
+				else if( it->second.first[i].second == CScriptableVars::SVT_STRING )
+				{	// "<label text="lalala"/>" and "<label>lalala</label>" are equal
+					std::string text = xmlGetString( Node, it->second.first[i].first );
+					if( text == "" && it->second.first[i].first == "text" )
+						text = xmlGetText( Doc, Node );
+					params.push_back( CScriptableVars::ScriptVar_t( text ) );
+				}
 				else params.push_back( CScriptableVars::ScriptVar_t( ) );	// Compile-time error here
 			};
 			
@@ -203,11 +227,8 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		{
 			printf("GUI skin file %s is invalid: invalid item \"%s\"\n", filepath.c_str(), Node->name );
 		};
-
-		Node = Node->next;
 	};
 
-	xmlFree(Doc);
 	m_instance->m_guis[ filepath ] = gui;
 	gui->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 	printf("GUI skin file %s loaded\n", filepath.c_str() );
@@ -219,8 +240,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 // Get a bool from the specified property
 bool xmlGetBool(xmlNodePtr Node, const std::string& Name)
 {
-	xmlChar *sValue;
-	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
+	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if(!sValue)
 		return false;
 	bool result = false;
@@ -237,8 +257,7 @@ bool xmlGetBool(xmlNodePtr Node, const std::string& Name)
 // Get an integer from the specified property
 int xmlGetInt(xmlNodePtr Node, const std::string& Name)
 {
-	xmlChar *sValue;
-	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
+	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if(!sValue)
 		return 0;
 	int result = atoi((const char *)sValue);
@@ -262,10 +281,7 @@ float xmlGetFloat(xmlNodePtr Node, const std::string& Name)
 // Get a colour from the specified property
 Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name)
 {
-	xmlChar *sValue;
-
-	// Get the value
-	sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
+	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if (!sValue)
 		return tLX->clPink;
 	Uint32 result = StrToCol((char*)sValue);
@@ -282,6 +298,17 @@ std::string xmlGetString(xmlNodePtr Node, const std::string& Name)
 	xmlFree(sValue);
 	return ret;
 }
+
+// Get the text inside element, like "<label rect="..."> Label text </label>"
+std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node)
+{
+	xmlChar *sValue = xmlNodeListGetString(Doc, Node->children, 1);
+	if (!sValue)
+		return "";
+	std::string ret = (const char *)sValue;
+	xmlFree(sValue);
+	return ret;
+};
 
 void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 {
@@ -548,3 +575,4 @@ static bool CProgressBar_WidgetRegistered =
 							( "label_visible", CScriptableVars::SVT_BOOL )
 							( "numstates", CScriptableVars::SVT_INT )
 							( "var", CScriptableVars::SVT_STRING );
+

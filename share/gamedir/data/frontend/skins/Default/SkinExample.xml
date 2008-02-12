@@ -62,4 +62,9 @@ http://lxalliance.net/smf/index.php/topic,6432.0.html
 
 <listview rect="500,100,50,100"/>
 
+<!-- Usage of "&quot;", "&apos;", "&lt;", "&gt;" -->
+<label rect='350,22' color="#ffffff" text="&quot;&lt;&apos;text&apos;&gt;&quot;"></label>
+<!-- Instead of "text" attribute you may write right inside label -->
+<label rect='420,22' color="#ffffff">&lt;inside&gt;</label>
+
 </dialog>

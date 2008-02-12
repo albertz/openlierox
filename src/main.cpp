@@ -43,6 +43,7 @@
 #include <crtdbg.h>
 #endif // _DEBUG
 #endif // _MSC_VER
+#include <libxml/parser.h>
 
 // TODO: i hate globals ...
 // we have to create a basic class Game or something
@@ -431,6 +432,8 @@ void ParseArguments(int argc, char *argv[])
 int InitializeLieroX(void)
 {	
 	printf("Hello there, I am initializing me now...\n");
+	
+	LIBXML_TEST_VERSION;
 	
 	// Initialize the aux library
 	if(!InitializeAuxLib("OpenLieroX","config.cfg",16,0)) {
@@ -867,6 +870,8 @@ void ShutdownLieroX(void)
 	ShutdownOptions();
 
 	CScriptableVars::DeInit();
-
+	
+	xmlCleanupParser();
+	
 	printf("Everything was shut down\n");
 }
