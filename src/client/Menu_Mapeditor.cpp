@@ -653,7 +653,7 @@ enum  {
 
 					if((strcmp(id,"LieroX Level") == 0 || strcmp(id,"LieroX CTF Level") == 0) && version == MAP_VERSION) {
 
-						if(!lv->getItem(name)) {
+						if(!lv->getItem(f)) {
 							lv->AddItem(f,0,tLX->clListView);
 							lv->AddSubitem(LVS_TEXT, name, NULL, NULL);
 						}
@@ -721,7 +721,7 @@ void Menu_MapEd_LoadSave(int save)
 	lv->AddColumn("Levels",60);
 
 	FindFiles(LevelListFiller(lv), "levels", FM_REG);
-
+	lv->SortBy( 0, true );
 
 
 	ProcessEvents();
@@ -758,12 +758,17 @@ void Menu_MapEd_LoadSave(int save)
 						if(t->getText().length() > 0) {
 
 							quitloop = true;
-							static std::string buf;
+							std::string buf;
 							if(save) {
 
 								// Save
-								buf = std::string("levels/") + t->getText();
-
+								buf = t->getText();
+								stringlwr(buf);
+								if(buf.find(".lxl") == std::string::npos)
+									buf = "levels/" + t->getText() + ".lxl";
+								else
+									buf = "levels/" + t->getText();
+								
 								// Check if it exists already. If so, ask user if they wanna overwrite
 								if(Menu_MapEd_OkSave(buf))
 									cMap.Save(t->getText(),buf);
@@ -773,6 +778,9 @@ void Menu_MapEd_LoadSave(int save)
 
 								// Load
 								buf = "levels/"; buf += t->getText();
+								stringlwr(buf);
+								if(buf.find(".lxl") == std::string::npos)
+									buf += ".lxl";
 								cMap.Load(buf);
 							}
 						}
