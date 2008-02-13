@@ -1,9 +1,6 @@
 #!/bin/bash
 
-IFS='
-'
-
-CURDIR="`pwd`/`dirname $0`"
+CURDIR="`dirname $0`"
 
 function startlobby() {
 	echo "startlobby"
@@ -40,7 +37,23 @@ function start_with_countdown() {
 	done
 
 	startgame
-	wait_for_gameend
+	if wait_for_gamestart; then
+		wait_for_gameend
+		return 0
+	fi
+	return 1
+}
+
+function wait_for_gamestart() {
+	local signal
+	while read signal; do
+		[ "$signal" == "gameloopstart" ] && {
+			chatmsg "prepare!"
+			return 0
+		}
+		[ "$signal" == "errorstartgame" ] && return 1
+		[ "$signal" == "quit" ] && exit
+	done
 }
 
 function wait_for_gameend() {
@@ -91,6 +104,5 @@ startlobby
 
 while true; do
 	select_next_preset
-	start_with_countdown
+	until start_with_countdown; do sleep 1; done
 done
-
