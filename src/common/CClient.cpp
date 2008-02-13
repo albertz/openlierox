@@ -773,18 +773,12 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         cViewports[0].Setup(0, top, 318, h, type1);
         cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
-		if( tLXOptions->bSpectatorSmoothViewport ) 
-			cViewports[0].setSmooth( !OwnsWorm(w1) );
-		else
-			cViewports[0].setSmooth( false );
+		cViewports[0].setSmooth( !OwnsWorm(w1) );
 		
 		cViewports[1].Setup(322, top, 318, h, type2);
         cViewports[1].setTarget(w2);
 		cViewports[1].setUsed(true);
-		if( tLXOptions->bSpectatorSmoothViewport ) 
-			cViewports[1].setSmooth( !OwnsWorm(w2) );
-		else
-			cViewports[1].setSmooth(false);
+		cViewports[1].setSmooth( !OwnsWorm(w2) );
 	}
 }
 
