@@ -266,9 +266,6 @@ startpoint:
 	DrawLoading(99, "Loading Physics Engine");
 	PhysicsEngine::Init();
 
-	SDL_Surface *test = gfxCreateSurface(10, 20);
-	gfxFreeSurface(test);
-
 	DrawLoading(100, "Done! Starting menu");
 
 	// Everything loaded, this is not needed anymore
