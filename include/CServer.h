@@ -216,6 +216,8 @@ public:
 #ifdef DEBUG
 	void		SendRandomPacket();
 #endif
+	void		SendDirtUpdate( CClient * cl );
+	void		SendFiles();
 	void		sendEmptyWeaponsOnRespawn( CWorm * Worm );
 
 	// Parsing
@@ -229,6 +231,7 @@ public:
 	void		ParseDisconnect(CClient *cl);
 	void		ParseWeaponList(CClient *cl, CBytestream *bs);
 	void		ParseGrabBonus(CClient *cl, CBytestream *bs);
+	void		ParseSendFile(CClient *cl, CBytestream *bs);
 
 	void		ParseConnectionlessPacket(CBytestream *bs, const std::string& ip);
 	void		ParseGetChallenge(CBytestream *bs);

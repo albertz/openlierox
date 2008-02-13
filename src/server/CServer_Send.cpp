@@ -204,6 +204,8 @@ bool GameServer::SendUpdate()
 				}
 			}
 
+			SendDirtUpdate( cl );
+
 			{
 				// TODO: what is this good for?
 				// Add the length of the client's unreliable packet to the frame's message size
@@ -393,6 +395,72 @@ void GameServer::SendRandomPacket()
 	printf("A random packet has been sent to all clients\n");
 }
 #endif
+
+void GameServer::SendDirtUpdate( CClient * cl )
+{
+	if( ! tLXOptions->bSendDirtUpdate )
+		return;
+	if( cl->getClientOLXVer() < 4 )
+		return;
+	if( cl->getLastDirtUpdate() + 10 < tLX->fCurTime )
+	{
+		CBytestream bs;
+		cMap->SendDirtUpdate(&bs);
+		cl->getFileDownloaderInGame()->setDataToSend( "dirt", bs.readData() );
+	};
+	
+	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
+		return;
+	CBytestream bs;
+	bs.writeByte( S2C_SENDFILE );
+	cl->getFileDownloaderInGame()->send( &bs );
+	SendPacket( &bs, cl );
+	cl->setLastDirtUpdate( tLX->fCurTime );
+}
+
+bool timerTickCallback(Timer* sender, void* userData)
+{
+	return true;
+};
+
+void GameServer::SendFiles()
+{
+	if(iState != SVS_LOBBY)
+		return;
+
+	// Server will keep min rate of 1 kbyte/second - send each second 5 packets of 512 bytes each.
+	// If client sends ping packets server will send packets faster.
+
+	// The global timer is enabled if there's something to send
+	static Timer cTimer( timerTickCallback, NULL, 250, false );
+	bool stopTimer = true;
+	
+	CClient *cl = cClients;
+
+	for(int c = 0; c < MAX_CLIENTS; c++, cl++) 
+	{
+		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND &&
+			cl->getLastFileRequestPacketReceived() + 0.2 <= tLX->fCurTime )
+		{
+			stopTimer = false;
+			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
+			CBytestream bs;
+			for( int f=0; f < 1; f++ ) // Send just 1 packet
+			{
+				if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
+					break;
+				bs.writeByte(S2C_SENDFILE);
+				cl->getFileDownloaderInGame()->send(&bs);
+			};
+			SendPacket( &bs, cl );
+		};
+	};
+
+	if( stopTimer )
+		cTimer.stop();
+	else if( ! cTimer.running() )
+		cTimer.start();
+};
 
 void GameServer::sendEmptyWeaponsOnRespawn( CWorm * Worm )
 {
