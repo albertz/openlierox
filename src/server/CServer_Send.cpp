@@ -398,6 +398,12 @@ void GameServer::SendRandomPacket()
 
 void GameServer::SendDirtUpdate( CClient * cl )
 {
+	// TODO: ...
+	// for now just return; several reasons:
+	// 1. lags a lot while sending, esp if the connection is bad
+	// 2. doesn't work correct (at least seems so)
+	return;
+	
 	if( cl->getClientOLXVer() < 4 )
 		return;
 	if( cl->getLastDirtUpdate() + 10 < tLX->fCurTime )
@@ -416,6 +422,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 	cl->setLastDirtUpdate( tLX->fCurTime );
 }
 
+// TODO: what is this for?
 bool timerTickCallback(Timer* sender, void* userData)
 {
 	return true;
@@ -423,6 +430,10 @@ bool timerTickCallback(Timer* sender, void* userData)
 
 void GameServer::SendFiles()
 {
+	// TODO: remove this when all TODOs are done in here
+	// also ensures that it is stable
+	return;
+	
 	if(iState != SVS_LOBBY)
 		return;
 
@@ -430,6 +441,7 @@ void GameServer::SendFiles()
 	// If client sends ping packets server will send packets faster.
 
 	// The global timer is enabled if there's something to send
+	// TODO: don't use static here!!
 	static Timer cTimer( timerTickCallback, NULL, 250, false );
 	bool stopTimer = true;
 	
