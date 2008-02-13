@@ -69,7 +69,7 @@ static void SetPerSurface_Alpha(SDL_Surface *dst, float a) {
 	Uint8* px;
 	int x, y;
 
-	LockSurface(dst);
+	LOCK_OR_QUIT(dst);
 
 	for(y = 0; y < dst->h; y++, pxr += dst->pitch)  {
 		px = pxr;
@@ -92,7 +92,7 @@ void SetPerSurfaceAlpha(SDL_Surface *dst, Uint8 a) {
 //////////////////////
 // Set a color key for alpha surface (SDL_SetColorKey does not work for alpha surfaces)
 static void SetColorKey_Alpha(SDL_Surface* dst, Uint8 r, Uint8 g, Uint8 b) {
-	LockSurface(dst);
+	LOCK_OR_QUIT(dst);
 
 	// Just set transparent alpha to pixels that match the color key
 	Uint8* pxr = (Uint8*)dst->pixels;
@@ -130,7 +130,7 @@ void SetColorKey(SDL_Surface* dst)  {
 	
 	// If one of the pixels in edges matches the bugged colorkey, we suppose whole image is bugged
 	// Not the best method, but it is fast and works for all cases I have discovered
-	LockSurface(dst);
+	LOCK_OR_QUIT(dst);
 	bool bugged =	EqualRGB(GetPixel(dst, 0, 0), bugged_colorkey, dst->format) ||
 					EqualRGB(GetPixel(dst, dst->w - 1, 0), bugged_colorkey, dst->format) ||
 					EqualRGB(GetPixel(dst, 0, dst->h - 1), bugged_colorkey, dst->format) ||
@@ -315,8 +315,8 @@ bool OneSideClip(int& c, int& d, const int clip_c, const int clip_d)  {
 
 // TODO: not used, remove?
 inline void CopySurfaceFast(SDL_Surface* dst, SDL_Surface* src, int sx, int sy, int dx, int dy, int w, int h) {
-	LockSurface(dst);
-	LockSurface(src);
+	LOCK_OR_QUIT(dst);
+	LOCK_OR_QUIT(src);
 
 	// Initialize
 	size_t byte_bound = w * src->format->BytesPerPixel;
@@ -393,8 +393,8 @@ void DrawImageAdv_Mirror(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int 
 	int x,y;
 
 	// Lock the surfaces
-	LockSurface(bmpDest);
-	LockSurface(bmpSrc);
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
 
 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
@@ -437,8 +437,8 @@ void DrawImageStretch2(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy
 	int dh = h * 2;
 
 	// Lock the surfaces
-	LockSurface(bmpDest);
-	LockSurface(bmpSrc);
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
 
 	// Source clipping
 	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))
@@ -513,8 +513,8 @@ void DrawImageStretch2Key(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int
 
 
 	// Lock the surfaces
-	LockSurface(bmpDest);
-	LockSurface(bmpSrc);
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
 	Uint8 *SrcPix = (Uint8 *)bmpSrc->pixels +  sy*bmpSrc->pitch + sx*bmpSrc->format->BytesPerPixel;
@@ -586,8 +586,8 @@ void DrawImageStretchMirrorKey(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx
 
 
 	// Lock the surfaces
-	LockSurface(bmpDest);
-	LockSurface(bmpSrc);
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
 
 
 	Uint8 *TrgPix = (Uint8 *)bmpDest->pixels + dy*bmpDest->pitch + dx*bmpDest->format->BytesPerPixel;
@@ -667,8 +667,8 @@ void DrawImageResizedAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx, f
 	int dest_y2 = dy + dh;  // Bottom bound
 
 	// Lock the surfaces
-	LockSurface(bmpSrc);
-	LockSurface(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+	LOCK_OR_QUIT(bmpDest);
 
 	// Pixels
 	Uint8 *src_px = NULL;
@@ -750,8 +750,8 @@ void DrawImageResampledAdv( SDL_Surface *bmpDest, SDL_Surface *bmpSrc, float sx,
 	float avg_divide = 5.0f + blur - 1;// To make the loop a bit faster, we precalculate this value, 5 = number of neighbor pixels + current pixel
 
 	// Lock the surfaces
-	LockSurface(bmpSrc);
-	LockSurface(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+	LOCK_OR_QUIT(bmpDest);
 
 	// Pixels
 	Uint8 *src_px = NULL;
@@ -940,7 +940,7 @@ inline void perform_line(SDL_Surface *bmp, int x1, int y1, int x2, int y2, int d
    int x, y;
    int dd;
 
-   LockSurface(bmp);
+   LOCK_OR_QUIT(bmp);
 
    /* worker macro */
    #define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)     \
@@ -1056,7 +1056,7 @@ void DrawHLine(SDL_Surface *bmpDest, int x, int x2, int y, Uint32 colour) {
 	Uint32 friendly_col = SDLColourToNativeColour(
 		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
 
-	LockSurface(bmpDest);
+	LOCK_OR_QUIT(bmpDest);
 	byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	uchar *px2 = (uchar *)bmpDest->pixels+bmpDest->pitch*y+bpp*x2;
 	
@@ -1095,7 +1095,7 @@ void DrawVLine(SDL_Surface *bmpDest, int y, int y2, int x, Uint32 colour) {
 	Uint32 friendly_col = SDLColourToNativeColour(
 		SDL_MapRGB(bmpDest->format, r, g, b), bmpDest->format->BytesPerPixel);
 
-	LockSurface(bmpDest);
+	LOCK_OR_QUIT(bmpDest);
 	ushort pitch = (ushort)bmpDest->pitch;
 	byte bpp = (byte)bmpDest->format->BytesPerPixel;
 	uchar *px2 = (uchar *)bmpDest->pixels+pitch*y2+bpp*x;
@@ -1122,7 +1122,7 @@ void AntiAliasedLine(SDL_Surface * dst, int x1, int y1, int x2, int y2, Uint32 c
 	int k;
 	int distance;
 
-	LockSurface(dst);
+	LOCK_OR_QUIT(dst);
 
 	// Set start pixel
 	proc(dst, x1, y1, color, 255);
@@ -1315,7 +1315,8 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 	// convert it to the new format (32 bpp)
 	CopySurface(formated, src, 0, 0, 0, 0, src->w, src->h);
 	
-	LockSurface(formated);
+	if (!LockSurface(formated))
+		return NULL;
 
 	for(int y = 0; y < src->h; y++) {
 		memcpy(gd_image->tpixels[y], (uchar*)formated->pixels + y*formated->pitch, formated->pitch);	

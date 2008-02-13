@@ -440,7 +440,8 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	const Uint32 gun2 = MakeColour(180,180,180);
 	const Uint32 gun3 = MakeColour(144,144,144);
 
-	LockSurface(img);
+	if (!LockSurface(img))
+		return img;
 
 	for(y = 0; y < img->h; y++) {
 		for(x = 0; x < img->w; x++) {

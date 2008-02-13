@@ -750,8 +750,8 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
     if( !tMenu->bmpWorm )
         return;
 
-	LockSurface(bmpDest);
-	LockSurface(tMenu->bmpWorm);
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(tMenu->bmpWorm);
 
     // Set the colour of the worm
 	int x,y,sx;

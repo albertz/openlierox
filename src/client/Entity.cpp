@@ -303,7 +303,7 @@ void SimulateEntities(float dt, CMap *map)
 						case ENT_BLOOD:  {
 								int x = (int)ent->vPos.x;
 								int y = (int)ent->vPos.y;
-								LockSurface(map->GetImage());
+								LOCK_OR_QUIT(map->GetImage());
 								PutPixel(map->GetImage(),(int)ent->vPos.x, (int)ent->vPos.y,ent->iColour);
 								UnlockSurface(map->GetImage());
 

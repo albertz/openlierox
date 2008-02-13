@@ -22,7 +22,7 @@ TODO
 [ ] Fix segfaults (!!!)
 	[ ] Crash/memory corruption in HTTP class when downloading bigger amount of data (i,e. levels)
       TODO: Perhaps just disable level downloading for beta 4? But it's just a workaround anyway...
-	[ ] Various segfaults in hardware mode caused by wrong surface locking
+	[?] Various segfaults in hardware mode caused by wrong surface locking
 [X] Fix server crashing when starting game for second time (!!)
 [ ] CChannel calculates wrong pings (too high) (!)
 

@@ -54,6 +54,9 @@ inline void UnlockSurface(SDL_Surface *bmp)  {
 		SDL_UnlockSurface(bmp);
 }
 
+#define LOCK_OR_QUIT(bmp)	{ if(!LockSurface(bmp)) return; }
+#define LOCK_OR_FAIL(bmp)	{ if(!LockSurface(bmp)) return false; }
+
 
 //
 // Clipping routines
@@ -616,7 +619,7 @@ inline void ResetAlpha(SDL_Surface* dst) {
 	SDL_SetColorKey(dst, 0, 0); // Remove the colorkey
 	SDL_SetAlpha(dst, 0, 0); // Remove the persurface-alpha
 
-	LockSurface(dst);
+	LOCK_OR_QUIT(dst);
 	
 	int x, y;
 	for(y = 0; y < dst->h; y++)

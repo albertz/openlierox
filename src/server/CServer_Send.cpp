@@ -398,8 +398,6 @@ void GameServer::SendRandomPacket()
 
 void GameServer::SendDirtUpdate( CClient * cl )
 {
-	if( ! tLXOptions->bSendDirtUpdate )
-		return;
 	if( cl->getClientOLXVer() < 4 )
 		return;
 	if( cl->getLastDirtUpdate() + 10 < tLX->fCurTime )
@@ -407,7 +405,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 		CBytestream bs;
 		cMap->SendDirtUpdate(&bs);
 		cl->getFileDownloaderInGame()->setDataToSend( "dirt", bs.readData() );
-	};
+	}
 	
 	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
 		return;

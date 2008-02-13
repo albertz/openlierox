@@ -462,11 +462,11 @@ bool CMap::LoadTheme(const std::string& _theme)
 	}
 
 	// Calculate the default colour from a non-pink, non-black colour in the hole image
-	LockSurface(Theme.bmpFronttile);
+	LOCK_OR_FAIL(Theme.bmpFronttile);
 	Theme.iDefaultColour = GetPixel(Theme.bmpFronttile,0,0);
 	UnlockSurface(Theme.bmpFronttile);
 	SDL_Surface *hole = Theme.bmpHoles[0];
-	LockSurface(hole);
+	LOCK_OR_FAIL(hole);
 	Uint32 pixel = 0;
 	if(hole) {
 		for(y=0; y<hole->h; y++) {
@@ -640,8 +640,8 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 	// Update the bmpImage according to pixel flags
 	if (update_image)  {
-		LockSurface(bmpImage);
-		LockSurface(bmpBackImage);
+		LOCK_OR_QUIT(bmpImage);
+		LOCK_OR_QUIT(bmpBackImage);
 
 		// Init the variables
 		Uint8 *img_pixel, *back_pixel;
@@ -938,9 +938,9 @@ void CMap::DrawObjectShadow(SDL_Surface *bmpDest, SDL_Surface *bmpObj, int sx, i
 	h = MIN(h, shadowmap_real_h * 2);
 
 	// Lock the surfaces
-	LockSurface(bmpDest);
-	LockSurface(bmpObj);
-	LockSurface(bmpShadowMap);
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpObj);
+	LOCK_OR_QUIT(bmpShadowMap);
 
 	// Pixels
 	byte bpp = bmpDest->format->BytesPerPixel;
@@ -1048,8 +1048,10 @@ int CMap::CarveHole(int size, CVec pos)
 	Uint32 CurrentPixel;
 
 
-	LockSurface(hole);
-	LockSurface(bmpImage);
+	if (!LockSurface(hole))
+		return 0;
+	if (!LockSurface(bmpImage))
+		return 0;
 
 	hole_px = (Uint8 *)hole->pixels;
 	mapimage_px = (Uint8 *)bmpImage->pixels + map_y * bmpImage->pitch + map_x * bpp;
@@ -1179,9 +1181,12 @@ int CMap::CarveHole(int size, CVec pos)
 	
 	lockFlags();
 	
-	LockSurface(hole);
-	LockSurface(bmpImage);
-	LockSurface(bmpBackImage);
+	if (!LockSurface(hole))
+		return 0;
+	if (!LockSurface(bmpImage))
+		return 0;
+	if (!LockSurface(bmpBackImage))
+		return 0;
 	
 	walkPixels(ClipRect<int>(&map_left, &map_top, &hole->w, &hole->h), CarveHole_PixelWalker(this, hole, nNumDirt, map_left, map_top));
 	
@@ -1247,9 +1252,12 @@ int CMap::PlaceDirt(int size, CVec pos)
 	sy = (int)pos.y-(hole->h>>1);
 
 
-	LockSurface(hole);
-	LockSurface(bmpImage);
-	LockSurface(Theme.bmpFronttile);
+	if (!LockSurface(hole))
+		return 0;
+	if (!LockSurface(bmpImage))
+		return 0;
+	if (!LockSurface(Theme.bmpFronttile))
+		return 0;
 
 	Uint8 *p;
 	uchar *px;
@@ -1355,8 +1363,10 @@ int CMap::PlaceGreenDirt(CVec pos)
 	sy = (int)pos.y-(h>>1);
 
 
-	LockSurface(bmpGreenMask);
-	LockSurface(bmpImage);
+	if (!LockSurface(bmpGreenMask))
+		return 0;
+	if (!LockSurface(bmpImage))
+		return 0;
 
 
 	Uint8 *p;
@@ -1454,8 +1464,8 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	int screenbpp = getMainPixelFormat()->BytesPerPixel;
 
-	LockSurface(bmpImage);
-	LockSurface(bmpShadowMap);
+	LOCK_OR_QUIT(bmpImage);
+	LOCK_OR_QUIT(bmpShadowMap);
 
 	lockFlags();
 
@@ -1560,7 +1570,7 @@ void CMap::PlaceStone(int size, CVec pos)
 	// Blit the stone to the surface
 	DrawImage(bmpImage, stone, sx, sy);
 
-	LockSurface(stone);
+	LOCK_OR_QUIT(stone);
 
 	lockFlags();
 
@@ -1645,8 +1655,8 @@ void CMap::PlaceMisc(int id, CVec pos)
 	sy = (int)pos.y-(misc->h>>1);
 
 
-	LockSurface(misc);
-	LockSurface(bmpImage);
+	LOCK_OR_QUIT(misc);
+	LOCK_OR_QUIT(bmpImage);
 
 	lockFlags();
 
@@ -2011,8 +2021,8 @@ bool CMap::Load(const std::string& filename)
 	}
 
 	// Lock the surfaces
-	LockSurface(bmpImage);
-	LockSurface(bmpBackImage);
+	LOCK_OR_FAIL(bmpImage);
+	LOCK_OR_FAIL(bmpBackImage);
 
 	// Dirt map
 	size_t n,i,j,x=0;
@@ -2206,7 +2216,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 
 	// Save the back image
 	p=0;
-	LockSurface(bmpBackImage);
+	LOCK_OR_FAIL(bmpBackImage);
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
 			GetColour4( GetPixel(bmpBackImage,x,y), bmpBackImage->format, &r, &g, &b ,&a );
@@ -2220,7 +2230,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 
 
 	// Save the front image
-	LockSurface(bmpImage);
+	LOCK_OR_FAIL(bmpImage);
 	for(y=0; y<Height; y++) {
 		for(x=0; x<Width; x++) {
 			GetColour4( GetPixel(bmpImage,x,y), bmpImage->format, &r, &g, &b ,&a );
@@ -2310,8 +2320,8 @@ bool CMap::LoadImageFormat(FILE *fp)
 	//
 
 	// Lock surfaces
-	LockSurface(bmpBackImage);
-	LockSurface(bmpImage);
+	LOCK_OR_FAIL(bmpBackImage);
+	LOCK_OR_FAIL(bmpImage);
 
 	p=0;
 	Uint32 curcolor=0;
@@ -2492,8 +2502,8 @@ bool CMap::LoadOriginal(FILE *fp)
 	}
 
 	// Set the image
-	LockSurface(bmpBackImage);
-	LockSurface(bmpImage);
+	LOCK_OR_FAIL(bmpBackImage);
+	LOCK_OR_FAIL(bmpImage);
 	lockFlags();
 	n=0;
 	for(y=0;y<Height;y++) {
@@ -2769,7 +2779,8 @@ int CarveHole(CMap *cMap, CVec pos)
 	// Go through until we find dirt to throw around
 	y = MAX(MIN((int)pos.y, (int)cMap->GetHeight() - 1), 0);
 
-	LockSurface(cMap->GetImage());
+	if (!LockSurface(cMap->GetImage()))
+		return 0;
 	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
 		// Clipping
 		if(x < 0) continue;
@@ -3029,8 +3040,8 @@ bool CMap::LoadCTF(const std::string& filename)
 	//
 
 	// Lock surfaces
-	LockSurface(bmpBackImage);
-	LockSurface(bmpImage);
+	LOCK_OR_FAIL(bmpBackImage);
+	LOCK_OR_FAIL(bmpImage);
 
 	p=0;
 	Uint32 curcolor=0;
@@ -3143,7 +3154,7 @@ bool CMap::RecvDirtUpdate(CBytestream *bs)
 {
 	bs->ResetBitPos();
 	lockFlags();
-	LockSurface(bmpImage);
+	LOCK_OR_FAIL(bmpImage);
 	byte bpp = bmpImage->format->BytesPerPixel;
 	for( uint y = 0; y < Height; y++ )
 	for( uint x = 0; x < Width; x++ )

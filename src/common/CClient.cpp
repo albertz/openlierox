@@ -762,10 +762,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         cViewports[0].Setup(0, top, 640, h, type1);
         cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
-		if( tLXOptions->bSpectatorSmoothViewport ) 
-			cViewports[0].setSmooth(true);
-		else
-			cViewports[0].setSmooth(false);
+		cViewports[0].setSmooth(true);
 		for( f=0; f<iNumWorms; f++ )	// No smooth for local worm
 			if( cLocalWorms[f] == w1 )
 				cViewports[0].setSmooth(false);
@@ -776,10 +773,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         cViewports[0].Setup(0, top, 318, h, type1);
         cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
-		if( tLXOptions->bSpectatorSmoothViewport ) 
-			cViewports[0].setSmooth(true);
-		else
-			cViewports[0].setSmooth(false);
+		cViewports[0].setSmooth(true);
 		for( f=0; f<iNumWorms; f++ )	// No smooth for local worm
 			if( cLocalWorms[f] == w1 )
 				cViewports[0].setSmooth(false);
@@ -788,10 +782,6 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         cViewports[1].setTarget(w2);
 		cViewports[1].setUsed(true);
 		cViewports[1].setSmooth(true);
-		if( tLXOptions->bSpectatorSmoothViewport ) 
-			cViewports[1].setSmooth(true);
-		else
-			cViewports[1].setSmooth(false);
 		for( f=0; f<iNumWorms; f++ )	// No smooth for local worm
 			if( cLocalWorms[f] == w2 )
 				cViewports[1].setSmooth(false);

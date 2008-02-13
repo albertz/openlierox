@@ -550,8 +550,10 @@ SDL_Surface *LoadSkin(const std::string& szSkin, int colR, int colG, int colB)
     SetColorKey(skin);
     FillSurfaceTransparent(skin);
 
-	LockSurface(skin);
-	LockSurface(worm);
+	if (!LockSurface(skin))
+		return NULL;
+	if (!LockSurface(worm))
+		return NULL;
 
 
     // Set the colour of the worm

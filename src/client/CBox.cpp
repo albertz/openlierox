@@ -121,7 +121,7 @@ void CBox::PreDraw(void)
 	// Step for circle drawing
 	float step = (float)(1/(PI*(iRound+0.00000001)*(iBorder+0.000000001)));
 
-	LockSurface(bmpBuffer);
+	LOCK_OR_QUIT(bmpBuffer);
 
 	// Top left
 	// (PI,3/2*PI)
@@ -268,7 +268,8 @@ int	CBox::CheckEvent(void)
 	// Mouse in the buffer
 	if (x < iWidth && y < iHeight)  {
 		// Mouse over transparent pixel? No event
-		LockSurface(bmpBuffer);
+		if (!LockSurface(bmpBuffer))
+			return BOX_NONE;
 		if(GetPixel(bmpBuffer,x,y) == tLX->clPink)  {
 			UnlockSurface(bmpBuffer);
 			return BOX_NOEVENT;

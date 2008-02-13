@@ -98,7 +98,7 @@ void CFont::Parse(void) {
 	int cur_w;
 
 	// Lock the surface
-	LockSurface(bmpFont);
+	LOCK_OR_QUIT(bmpFont);
 
 	Uint32 blue = SDL_MapRGB(bmpFont->format, 0, 0, 255);
 
@@ -162,8 +162,8 @@ void CFont::PreCalculate(SDL_Surface *bmpSurf, Uint32 colour) {
 	FillSurface(bmpSurf, SDL_MapRGBA(bmpSurf->format, 255, 0, 255, 0));
 
 	// Lock the surfaces
-	LockSurface(bmpSurf);
-	LockSurface(bmpFont);
+	LOCK_OR_QUIT(bmpSurf);
+	LOCK_OR_QUIT(bmpFont);
 
 	Uint8 R, G, B, A;
 	Uint8 sr, sg, sb;
@@ -284,8 +284,8 @@ void CFont::DrawAdv(SDL_Surface *dst, int x, int y, int max_w, Uint32 col, const
 	// Lock the surfaces
 	// If we use cached font, we do not access the pixels
 	if (!bmpCached)  {
-		LockSurface(dst);
-		LockSurface(bmpFont);
+		LOCK_OR_QUIT(dst);
+		LOCK_OR_QUIT(bmpFont);
 	}
 
 	Uint8 R, G, B, A;

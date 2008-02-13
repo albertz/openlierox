@@ -661,7 +661,7 @@ public:
 		if(!rope->isPlayerAttached())
 			rope->setAttached( false );
 
-		LockSurface(map->GetImage());
+		LOCK_OR_QUIT(map->GetImage());
 		uchar px = map->GetPixelFlag((int)rope->hookPos().x, (int)rope->hookPos().y);
 		if((px & PX_ROCK || px & PX_DIRT || outsideMap) && !rope->isPlayerAttached()) {
 			rope->setShooting( false );

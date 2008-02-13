@@ -37,7 +37,7 @@ void CAnimation::Parse()
 	tFrameOffsets.clear();
 	tFrameWidths.clear();
 
-	LockSurface(tAnimation);
+	LOCK_OR_QUIT(tAnimation);
 
 	tFrameOffsets.push_back(0);
 

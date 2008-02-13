@@ -106,11 +106,8 @@ bool GameOptions::Init() {
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
-		( tLXOptions->bSendDirtUpdate, "Advanced.SendDirtUpdate", false )
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", false )
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
-		( tLXOptions->bSpectatorSmoothViewport, "Advanced.SpectatorSmoothViewport", true )
-		( tLXOptions->bShowUnstableFeatures, "Advanced.ShowUnstableFeatures", false )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )

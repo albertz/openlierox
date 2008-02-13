@@ -195,17 +195,14 @@ public:
 	bool	bAllowMouseAiming;
 	bool	bUseNumericKeysToSwitchWeapons;
 	bool	bAntilagMovementPrediction;
-	bool	bSpectatorSmoothViewport;
 
     // Advanced
     int     nMaxFPS;
 	int		iJpegQuality;
 	bool	bCountTeamkills;
 	bool	bServerSideHealth;
-	bool	bSendDirtUpdate;
 	bool	bAllowFileDownload;
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
-	bool	bShowUnstableFeatures;
 
 	// Misc.
 	bool    bLogConvos;

@@ -545,7 +545,7 @@ void Menu_DrawBox(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 	DrawVLine(bmpDest,y+2, y2-1,x,  dark);
 	DrawVLine(bmpDest,y+2, y2-1,x2, dark);
 
-	LockSurface(bmpDest);
+	LOCK_OR_QUIT(bmpDest);
 	PutPixel( bmpDest,x+1, y+1,     dark);
 	PutPixel( bmpDest,x2-1,y+1,     dark);
 	PutPixel( bmpDest,x+1, y2-1,    dark);
@@ -574,7 +574,7 @@ void Menu_DrawBoxInset(SDL_Surface *bmpDest, int x, int y, int x2, int y2)
 	DrawVLine(bmpDest,y+2, y2-1,x,  light);
 	DrawVLine(bmpDest,y+2, y2-1,x2, light);
 
-	LockSurface(bmpDest);
+	LOCK_OR_QUIT(bmpDest);
 	PutPixel( bmpDest,x+1, y+1,     light);
 	PutPixel( bmpDest,x2-1,y+1,     light);
 	PutPixel( bmpDest,x+1, y2-1,    light);

@@ -562,7 +562,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 	px = (uint)pos.x;
 
-	LockSurface(cMap->GetImage());
+	LOCK_OR_QUIT(cMap->GetImage());
 	for(x=px-2; x<px+2; x++) {
 		// Clipping
 		if(x < 0)	continue;
@@ -731,7 +731,7 @@ void CClient::SendCarve(CVec pos)
 	y = MAX(y,0);
 	px = (int)pos.x;
 
-	LockSurface(cMap->GetImage());
+	LOCK_OR_QUIT(cMap->GetImage());
 	for(x=px-2; x<=px+2; x++) {
 		// Clipping
 		if(x<0)	continue;

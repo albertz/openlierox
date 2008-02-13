@@ -585,8 +585,8 @@ void Menu_Net_HostLobbyCreateGui(void)
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Tag", GMT_TAG);
 	cHostLobby.SendMessage(hl_Gametype,    CBS_ADDITEM, "Demolition", GMT_DEMOLITION);	// If this item is removed the combobox indexes are screwed up
 	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "VIP", GMT_VIP);
-	if( tLXOptions->bShowUnstableFeatures )
-		cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
+	//if( tLXOptions->bShowUnstableFeatures )
+	//	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Capture the Flag", GMT_CTF);
 //	cHostLobby.SendMessage(hl_Gametype,	   CBS_ADDITEM, "Teams Capture the Flag", GMT_TEAMCTF);
 
 	// Fill in the mod list
