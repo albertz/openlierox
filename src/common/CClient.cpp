@@ -753,7 +753,6 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 
 	int h = bottombar ? (480 - bottombar->h - top) : (382 - top); // Height of the viewports
 
-	uint f;
 	// One worm
 	if(w2 == NULL) {
         // HACK HACK: FOR AI TESTING
@@ -762,10 +761,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         cViewports[0].Setup(0, top, 640, h, type1);
         cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
-		cViewports[0].setSmooth(true);
-		for( f=0; f<iNumWorms; f++ )	// No smooth for local worm
-			if( cLocalWorms[f] == w1 )
-				cViewports[0].setSmooth(false);
+		cViewports[0].setSmooth( !OwnsWorm(w1) );
 	}
 
 	// Two wormsize
