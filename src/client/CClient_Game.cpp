@@ -1499,6 +1499,8 @@ void CClient::processChatter(void)
 	if (!tLXOptions->bAutoTyping)
 		return;
 
+	bTeamChat = false;
+
     for(short i=0; i<kb->queueLength; i++) {
     	const KeyboardEvent& input = kb->keyQueue[i];
 
