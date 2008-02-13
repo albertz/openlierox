@@ -221,20 +221,15 @@ void Menu_Shutdown(void)
 		}
 
 		// Manually free some items
-		if(tMenu->bmpBuffer)
-			SDL_FreeSurface(tMenu->bmpBuffer);
+		gfxFreeSurface(tMenu->bmpBuffer);
 
-		if(tMenu->bmpMsgBuffer)
-			SDL_FreeSurface(tMenu->bmpMsgBuffer);
+		gfxFreeSurface(tMenu->bmpMsgBuffer);
 
-        if(tMenu->bmpMiniMapBuffer)
-			SDL_FreeSurface(tMenu->bmpMiniMapBuffer);
+        gfxFreeSurface(tMenu->bmpMiniMapBuffer);
 
-		if(tMenu->bmpLobbyReady)
-			SDL_FreeSurface(tMenu->bmpLobbyReady);
+		gfxFreeSurface(tMenu->bmpLobbyReady);
 
-		if(tMenu->bmpLobbyNotReady)
-			SDL_FreeSurface(tMenu->bmpLobbyNotReady);
+		gfxFreeSurface(tMenu->bmpLobbyNotReady);
 
 		if(IsSocketStateValid(tMenu->tSocket[SCK_LAN]))
 		{

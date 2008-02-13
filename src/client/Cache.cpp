@@ -135,7 +135,7 @@ void CCache::Clear()
 	// Free all the images
 	for (std::map<std::string, SDL_Surface *>::iterator img = ImageCache.begin();
 			img != ImageCache.end(); img++)
-		SDL_FreeSurface(img->second);
+		gfxFreeSurface(img->second);
 	ImageCache.clear();
 	
 	// Free all the samples

@@ -1277,7 +1277,7 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 			Image->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
 		}
 	
-		SDL_FreeSurface(img);
+		gfxFreeSurface(img);
 	} else {
 		// we haven't initialized the screen yet
 		if(!bDedicated)
@@ -1324,7 +1324,7 @@ static gdImagePtr SDLSurface2GDImage(SDL_Surface* src) {
 
 	UnlockSurface(formated);
 	
-	SDL_FreeSurface(formated);
+	gfxFreeSurface(formated);
 	
 	return gd_image;
 }

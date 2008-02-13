@@ -65,14 +65,8 @@ int CFont::Load(const std::string& fontname, bool _colour) {
 ///////////////////
 // Shutdown the font
 void CFont::Shutdown(void) {
-	if (bmpWhite) {
-		SDL_FreeSurface(bmpWhite);
-		bmpWhite = NULL;
-	}
-	if (bmpGreen) {
-		SDL_FreeSurface(bmpGreen);
-		bmpGreen = NULL;
-	}
+	gfxFreeSurface(bmpWhite);
+	gfxFreeSurface(bmpGreen);
 }
 
 

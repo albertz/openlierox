@@ -181,30 +181,20 @@ void CWorm::Shutdown(void)
 // Free the graphics
 void CWorm::FreeGraphics(void)
 {
-	if(bmpWormLeft) {
-		SDL_FreeSurface(bmpWormLeft);
-		bmpWormLeft = NULL;
-	}
+	gfxFreeSurface(bmpWormLeft);
+	bmpWormLeft = NULL;
 
-	if(bmpWormRight) {
-		SDL_FreeSurface(bmpWormRight);
-		bmpWormRight = NULL;
-	}
+	gfxFreeSurface(bmpWormRight);
+	bmpWormRight = NULL;
 	
-	if(bmpPic) {
-		SDL_FreeSurface(bmpPic);
-		bmpPic = NULL;
-	}
+	gfxFreeSurface(bmpPic);
+	bmpPic = NULL;
 
-    if(bmpShadowPic) {
-        SDL_FreeSurface(bmpShadowPic);
-        bmpShadowPic = NULL;
-    }
+    gfxFreeSurface(bmpShadowPic);
+    bmpShadowPic = NULL;
 
-	if(bmpGibs)  {
-		SDL_FreeSurface(bmpGibs);
-		bmpGibs = NULL;
-	}
+	gfxFreeSurface(bmpGibs);
+	bmpGibs = NULL;
 }
 
 

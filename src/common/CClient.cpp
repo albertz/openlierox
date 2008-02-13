@@ -1041,16 +1041,12 @@ void CClient::Shutdown(void)
 	}
 
 	// Box buffer
-	if (bmpBoxBuffer)  {
-		SDL_FreeSurface(bmpBoxBuffer);
-		bmpBoxBuffer = NULL;
-	}
+	gfxFreeSurface(bmpBoxBuffer);
+	bmpBoxBuffer = NULL;
 
 	// Ingame score background
-	if (bmpIngameScoreBg)  {
-		SDL_FreeSurface(bmpIngameScoreBg);
-		bmpIngameScoreBg = NULL;
-	}
+	gfxFreeSurface(bmpIngameScoreBg);
+	bmpIngameScoreBg = NULL;
 
 	// Bars
 	if (cHealthBar1)

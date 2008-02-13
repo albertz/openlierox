@@ -23,7 +23,7 @@ void CBox::PreDraw(void)
 	// If the width or height of the box has changed, create new buffer
 	if (bmpBuffer)  {
 		if (iWidth != bmpBuffer->w || iHeight != bmpBuffer->h)  {
-			SDL_FreeSurface(bmpBuffer);
+			gfxFreeSurface(bmpBuffer);
 			bmpBuffer = NULL;
 		}
 	}
@@ -245,10 +245,8 @@ void CBox::Draw(SDL_Surface *bmpDest)
 // Free the widget
 void CBox::Destroy(void)
 {
-	if(bmpBuffer) { 
-		SDL_FreeSurface(bmpBuffer); 
-		bmpBuffer = NULL;
-	}
+	gfxFreeSurface(bmpBuffer); 
+	bmpBuffer = NULL;
 }
 
 //////////////////

@@ -283,6 +283,15 @@ inline SDL_Surface* gfxCreateSurfaceAlpha(int width, int height, bool forceSoftw
 	return result;
 }
 
+////////////////////
+// Destroys a surface
+inline void gfxFreeSurface(SDL_Surface *& surf)  {
+	if (surf == NULL)
+		return;
+
+	SDL_FreeSurface(surf);
+	surf = NULL;
+}
 
 
 //

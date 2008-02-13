@@ -213,8 +213,7 @@ void ShutdownProfiles(void)
 		SaveProfile(fp, p);
 
 		// Free the surface
-		if(p->bmpWorm)
-			SDL_FreeSurface(p->bmpWorm);
+		gfxFreeSurface(p->bmpWorm);
 		p->bmpWorm = NULL;
 
 		// Free the actual profile
@@ -333,8 +332,7 @@ void DeleteProfile(int id)
 				tProfiles = p->tNext;
 
 			// Free me image
-			if(p->bmpWorm)
-				SDL_FreeSurface(p->bmpWorm);
+			gfxFreeSurface(p->bmpWorm);
 
 			// Free me
 			delete p;
@@ -494,8 +492,7 @@ profile_t *FindProfile(const std::string& name) {
 int LoadProfileGraphics(profile_t *p)
 {
     // Free the old surface
-    if(p->bmpWorm)
-		SDL_FreeSurface(p->bmpWorm);
+    gfxFreeSurface(p->bmpWorm);
 
 	p->bmpWorm = gfxCreateSurfaceAlpha(18,16);
 	if(p->bmpWorm == NULL) {
@@ -509,7 +506,7 @@ int LoadProfileGraphics(profile_t *p)
     SDL_Surface *w = LoadSkin(p->szSkin, p->R, p->G, p->B);
     if(w) {
         CopySurface(p->bmpWorm, w, 134,2,0,0, 18,16);
-        SDL_FreeSurface(w);
+        gfxFreeSurface(w);
     }
 	
 	// Apply a little cpu pic on the worm pic on ai players

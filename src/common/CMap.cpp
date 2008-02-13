@@ -705,7 +705,7 @@ void CMap::SetMinimapDimensions(uint _w, uint _h)
 {
 	// If already created, reallocate
 	if (bmpMiniMap)  {
-		SDL_FreeSurface(bmpMiniMap);
+		gfxFreeSurface(bmpMiniMap);
 		bmpMiniMap = gfxCreateSurface(_w, _h);
 		MinimapWidth = _w;
 		MinimapHeight = _h;
@@ -2675,30 +2675,24 @@ void CMap::Shutdown(void)
 		
 		//printf("some created map is shutting down...\n");
 
-		if(bmpImage)
-			SDL_FreeSurface(bmpImage);
+		gfxFreeSurface(bmpImage);
 		bmpImage = NULL;
 
-		if(bmpDrawImage)
-			SDL_FreeSurface(bmpDrawImage);
+		gfxFreeSurface(bmpDrawImage);
 		bmpDrawImage = NULL;
 
 #ifdef _AI_DEBUG
-		if (bmpDebugImage)
-			SDL_FreeSurface(bmpDebugImage);
+		gfxFreeSurface(bmpDebugImage);
 		bmpDebugImage = NULL;
 #endif
 
-		if(bmpBackImage)
-			SDL_FreeSurface(bmpBackImage);
+		gfxFreeSurface(bmpBackImage);
 		bmpBackImage = NULL;
 
-        if(bmpShadowMap)
-			SDL_FreeSurface(bmpShadowMap);
+        gfxFreeSurface(bmpShadowMap);
 		bmpShadowMap = NULL;
 
-		if(bmpMiniMap)
-			SDL_FreeSurface(bmpMiniMap);
+		gfxFreeSurface(bmpMiniMap);
 		bmpMiniMap = NULL;
 
 		if(PixelFlags)
