@@ -42,16 +42,20 @@ public:
 	// Check collisions with the level
 	// HINT: it directly manipulates vPos!
 	bool moveAndCheckWormCollision(float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
-		static const int maxspeed2 = 10;
+		static const int maxspeed2 = 10; // this should not be too high as we could run out of the map without checking else
 
 		// Can happen when starting a game
 		if (!map)
 			return false;
 		
+		// check if the vel is really too high (or infinity), in this case just ignore
+		if( (*vel*dt).GetLength2() > (float)map->GetWidth() * (float)map->GetHeight() )
+			return true;
+		
 		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 		// TODO: is this still needed? we call this function with a fixed dt
 		// though perhaps it is as with higher speed the way we have to check is longer
-		if( (*vel*dt).GetLength2() > maxspeed2) {
+		if( (*vel*dt).GetLength2() > maxspeed2 && dt > 0.001f ) {
 			dt /= 2;
 			if(moveAndCheckWormCollision(dt,worm,pos,vel,vOldPos,jump)) return true;
 			return moveAndCheckWormCollision(dt,worm,worm->getPos(),vel,vOldPos,jump);
@@ -72,8 +76,8 @@ public:
 		uint grid_w = map->getGridWidth();
 		uint grid_h = map->getGridHeight();
 		uint grid_cols = map->getGridCols();
-		if(y-4 < 0 || (uint)y+5 > map->GetHeight()-1
-		|| x-3 < 0 || (uint)x+3 > map->GetWidth()-1)
+		if(y-4 < 0 || (uint)y+5 >= map->GetHeight()
+		|| x-3 < 0 || (uint)x+3 >= map->GetWidth())
 			check_needed = true; // we will check later, what to do here
 		else if(grid_w < 7 || grid_h < 10 // this ensures, that this check is safe
 		|| (gridflags[((y-4)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT))
@@ -137,7 +141,7 @@ public:
 		bool hit = false;
 		x = (int)pos.x;
 
-		if(check_needed && (uint)x < map->GetWidth()) {
+		if(check_needed && x >= 0 && (uint)x < map->GetWidth()) {
 			for(y=5;y>-5;y--) {
 				// Optimize: pixelflag + Width
 
@@ -253,7 +257,13 @@ public:
 			if(worm->getType() == PRF_HUMAN)
 				worm->getInput();
 			else
-				worm->AI_GetInput(tGameInfo.iGameType, tGameInfo.iGameType == GMT_TEAMDEATH, tGameInfo.iGameType == GMT_TAG, tGameInfo.iGameType == GMT_VIP, tGameInfo.iGameType == GMT_CTF, tGameInfo.iGameType == GMT_TEAMCTF);
+				// TODO: why is the first parameter not enough?
+				worm->AI_GetInput(client->getGameType(),
+					client->getGameType() == GMT_TEAMDEATH,
+					client->getGameType() == GMT_TAG,
+					client->getGameType() == GMT_VIP,
+					client->getGameType() == GMT_CTF,
+					client->getGameType() == GMT_TEAMCTF);
 
 			if (worm->isShooting() || old_weapon != worm->getCurrentWeapon())  // The weapon bar is changing
 				client->shouldRepaintInfo() = true;

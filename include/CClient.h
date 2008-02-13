@@ -664,6 +664,8 @@ public:
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
 	const std::string& getServerName(void)			{ return szServerName; }
 
+	int getGameType()					{ return iGameType; }
+
 	int getHostVer(void)				{ return iHostOLXVer; }
 	void setHostVer(int _v)				{ iHostOLXVer = _v; }
 	const std::string & getClientVersion()				{ return sClientVersion; }

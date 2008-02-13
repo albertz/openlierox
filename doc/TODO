@@ -1,7 +1,6 @@
 TODO
 (remember also to look at the bugs on SF)
 
-[?] fix net-lagging (!!)
 [X] CChannel should split too big packets (!!)
 [?] fix: FPS (dropped to 60 from 120 here!) (!!)
 [ ] fix projectiles flying though walls when they

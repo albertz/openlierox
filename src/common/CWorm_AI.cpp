@@ -1119,7 +1119,6 @@ CWorm *CWorm::findTarget(int gametype, int teamgame, int taggame)
 		if (cClient->getTeamScore(i) > -1)
 			NumTeams++;
 
-
     //
 	// Just find the closest worm
 	//
@@ -4167,6 +4166,9 @@ CVec CWorm::NEW_AI_GetNearestRopeSpot(CVec trg)
 // TODO: isn't this the opposite of CheckOnGround? and why not?
 bool CWorm::NEW_AI_IsInAir(CVec pos, int area_a)
 {
+	if(pos.x < 0 || pos.y < 0 || pos.x >= pcMap->GetWidth() || pos.y >= pcMap->GetHeight())
+		return false;
+
 	// Get the current cell
 	uchar tmp_pf = PX_ROCK;
 	int startX = (int) (pos.x)/pcMap->getGridWidth()-(int)floor((double)area_a/2);

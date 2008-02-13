@@ -13,12 +13,15 @@
 // Created 22/1/02
 // Jason Boettcher
 
+#include <iostream>
 
 #include "LieroX.h"
 #include "CClient.h"
 #include "Options.h" // for controls_t
 #include "CWorm.h"
 #include "MathLib.h"
+
+using namespace std;
 
 
 ///////////////////
@@ -65,6 +68,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
         // If we have no target at all, find one
         if( !pcTargetWorm ) {
+			cout << "find new worm for viewport because we have currently none" << endl;
+            
             // Try and find a living worm first
             CWorm *t = findTarget(pcWormList, pcViewList, true);
 
@@ -94,7 +99,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
                 // Time up? Change targets
                 if( tLX->fCurTime > fTimer ) {
-
+					cout << "find new worm for viewport because current is out of the game" << endl;
+					
                     // Try and find a living worm first
                     CWorm *t = findTarget(pcWormList, pcViewList, true);
 
@@ -131,7 +137,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
                 // Clear the timer
                 fTimer = -1;
-            }
+            } /*else
+            	cout << "viewport: our worm is dead" << endl; */
         }
     }
 	break; // VW_FOLLOW
@@ -143,6 +150,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         // Check if the target is out of the game or has died
         if( pcTargetWorm ) {
             if( pcTargetWorm->getLives() == WRM_OUT || !pcTargetWorm->getAlive() ) {
+				cout << "find new worm for viewport because current is out of game" << endl;
+                
                 // Setup the timer to wait 0.5 seconds before changing targets
                 if( fTimer == -1 )
                     fTimer = tLX->fCurTime + 0.5f;

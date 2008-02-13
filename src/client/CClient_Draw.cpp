@@ -372,7 +372,7 @@ void CClient::DrawBox(SDL_Surface *dst, int x, int y, int w)
 void CClient::Draw(SDL_Surface *bmpDest)
 {
 	// TODO: clean this function up
-	// currently both the control structure and the drawing itself is in here
+	// currently both control structure and the drawing itself is in here
 
 	ushort i,num;
 	float dt = tLX->fDeltaTime;
@@ -771,6 +771,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 	if (!bShouldRepaintInfo && !tLX->bVideoModeChanged)
 		return;
 
+	// TODO: allow more viewports
 	if (viewport_index == 0)  {  // Viewport 1
 		HealthLabelX = &tInterfaceSettings.HealthLabel1X;	HealthLabelY = &tInterfaceSettings.HealthLabel1Y;
 		WeaponLabelX = &tInterfaceSettings.WeaponLabel1X;	WeaponLabelY = &tInterfaceSettings.WeaponLabel1Y;

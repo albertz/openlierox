@@ -277,6 +277,8 @@ public:
 	SDL_Surface* GetBackImage()		{ return bmpBackImage; }
 	SDL_Surface	*GetMiniMap()		{ return bmpMiniMap; }
 #ifdef _AI_DEBUG
+	// TODO: the debug image is also usefull for other debugging things, not for AI
+	// so make it also available if DEBUG is defined
 	SDL_Surface *GetDebugImage()	{ return bmpDebugImage; }
 
 	void		ClearDebugImage();

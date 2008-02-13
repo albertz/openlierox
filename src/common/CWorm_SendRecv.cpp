@@ -13,6 +13,7 @@
 // Created 24/12/02
 // Jason Boettcher
 
+#include <iostream>
 
 #include "LieroX.h"
 #include "GfxPrimitives.h"
@@ -20,6 +21,8 @@
 #include "Protocol.h"
 #include "CServer.h"
 #include "MathLib.h"
+
+using namespace std;
 
 
 ///////////////////
@@ -234,11 +237,39 @@ bool CWorm::checkPacketNeeded()
 // this is used to update the position on the client-side in CWorm::readPacketState
 // it also updates frequently the velocity by estimation
 void CWorm::net_updatePos(const CVec& newpos) {
+	float t = tLX->fCurTime - fLastPosUpdate;
+		
+	// TODO: the following just draws the pos received in packet for debugging
+	// atm we only have the debugimage available if _AI_DEBUG is set
+	// this should be changed to DEBUG
+#ifdef _AI_DEBUG	
+	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+	if (bmpDest) {
+		int node_x = (int)newpos.x*2, node_y = (int)newpos.y*2;
+		int onode_x = (int)vPos.x*2, onode_y = (int)vPos.y*2;
+		
+		if(node_x-4 >= 0 && node_y-4 >= 0 && node_x+4 < bmpDest->w && node_y+4 < bmpDest->h
+		&& onode_x-4 >= 0 && onode_y-4 >= 0 && onode_x+4 < bmpDest->w && onode_y+4 < bmpDest->h) {
+			// a line between both
+			DrawLine(bmpDest, node_x, node_y, onode_x, onode_y, tLX->clWhite);
+			
+			// Draw the old pos
+			DrawRectFill(bmpDest,onode_x-3,onode_y-3,onode_x+3,onode_y+3, MakeColour(122,122,255));	
+			
+			// Draw the new pos
+			DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4, (t == 0) ? MakeColour(0,0,0) : MakeColour(122,122,0));			
+		}
+	}
+#endif	
+	
+	vPos = newpos;
+	bOnGround = CheckOnGround(); // update bOnGround; will perhaps be updated later in simulation
+	
 	if (!cGameScript)
 		return;
-
-	if(tLX->fCurTime - fLastPosUpdate > 0.05f) {
-		float t = tLX->fCurTime - fLastPosUpdate;
+		
+	if(t > 0.0f) {
+		CVec dist = newpos - vOldPosOfLastPaket;
 		CVec estimatedVel;
 		
 		// TODO: Why is there an option for disabling this? There is no reason to disable, it
@@ -251,23 +282,21 @@ void CWorm::net_updatePos(const CVec& newpos) {
 		if( ! tLXOptions->bAntilagMovementPrediction )
 		{
 			// ignoring acceleration in this case for estimation
-			estimatedVel = (newpos - vOldPosOfLastPaket) / t;
+			estimatedVel = dist / t;
 		}
 		else
 		{
-
-			// Approximate with current velocity and add gravity
-			CVec dist = newpos - vOldPosOfLastPaket;
+			// Approximate with velocity and acceleration (including gravity)
 			CVec a(0, 0);
 		
 			const gs_worm_t *wd = cGameScript->getWorm();
 			// Air drag (Mainly to dampen the ninja rope)
 			float Drag = wd->AirFriction;
-
+	
 
 			if(!bOnGround)	{
 				// TODO: this is also not exact
-				CVec preEstimatedVel = (newpos - vOldPosOfLastPaket) / t;
+				CVec preEstimatedVel = dist / t;
 				a.x -= SQR(preEstimatedVel.x) * SIGN(preEstimatedVel.x) * Drag;
 				a.y -= SQR(preEstimatedVel.y) * SIGN(preEstimatedVel.y) * Drag;
 			}
@@ -280,42 +309,53 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			a.y += wd->Gravity;
 		
 			estimatedVel = (dist / t) + (a * t / 2);
-
+/*
 			// Ultimate in friction
 			if(bOnGround) {
 				// HINT: also this isn't exact (it would be like it's only one frame)
-				estimatedVel.x *= pow(0.9f, t * 100.0f); // TODO: for simulation, this is not so good for some reason.
+				estimatedVel.x *= 0.9f;
 				// is it ok here?
 
 				// Too slow, just stop
 //				if(fabs(estimatedVel.x) < 5 && !ws->iMove)
 //					estimatedVel.x = 0;
 			}
-
+*/
+			// we don't know anything of the moving in between, so we ignore this here
+			// this is already calculated in simulation
+			
+			/*
 			// Process the moving
+			const static float DT = 0.01f;
 			float speed = bOnGround ? wd->GroundSpeed : wd->AirSpeed;
 			if(tState.iMove) {
-				if(iDirection == DIR_RIGHT) {
+				if(tState.iDirection == DIR_RIGHT) {
 					// Right
 					if(estimatedVel.x < 30)
-						estimatedVel.x += speed * 90.0f * t;
+						estimatedVel.x += speed * 90.0f * DT;
 				} else {
 					// Left
 					if(estimatedVel.x > -30)
-						estimatedVel.x -= speed * 90.0f * t;
+						estimatedVel.x -= speed * 90.0f * DT;
 				}
+				
+				tState.iMove = false; // don't simulate the moving anymore
 			}
+			*/
 		}
 		
 		//vVelocity = (vVelocity + estimatedVel) / 2;
 		//vVelocity = CVec(0,0); // temp hack
-		vVelocity = estimatedVel * 0.5f; // just don't be to fast, unwanted jumps else
+		vVelocity = estimatedVel; //* 0.5f; // just don't be to fast, unwanted jumps else
 		
 		fLastPosUpdate = tLX->fCurTime;
-		vOldPosOfLastPaket = newpos;
-	}
 	
-	vPos = newpos;
+	} else { // t == 0 (this can happen if we got multiple worminfo in one frame)
+		// leave velocity as it is, we cannot make any new estimation
+	}
+
+	vOldPosOfLastPaket = newpos;
+
 }
 
 ///////////////////
@@ -358,8 +398,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
 
-	CClient *cl = cServer->getClient(iID);
-	CWorm *w = cl->getWorm(0);
+	CClient *cl = cServer->getClient(iID); // TODO: why not this->getClient() ?
+	CWorm *w = cl->getWorm(0); // TODO: why not this ?
 
 	// If the worm is inside dirt then it is probably carving
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap()) 
@@ -413,6 +453,12 @@ bool CWorm::skipPacket(CBytestream *bs)
 // Read a packet (client side)
 void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 {
+	if(cClient->OwnsWorm(this)) {
+		cout << "ERROR: get worminfo packet from server for our own worm" << endl;
+		skipPacketState(bs);
+		return;
+	}
+	
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
@@ -424,11 +470,11 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	uchar bits = bs->readByte();
 	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 	
-	tState.iDirection = DIR_LEFT;
+	iDirection = tState.iDirection = DIR_LEFT;
 
 	tState.iCarve = (bits & 0x01);
 	if(bits & 0x02)
-		tState.iDirection = DIR_RIGHT;
+		iDirection = tState.iDirection = DIR_RIGHT;
 	tState.iMove = (bits & 0x04);
 	tState.iJump = (bits & 0x08);
 	tState.iShoot = (bits & 0x20);
