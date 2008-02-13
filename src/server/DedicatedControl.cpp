@@ -488,7 +488,12 @@ struct DedIntern {
 	}
 
 	void Cmd_StartGame() {
-
+		if(cServer->getNumPlayers() <= 1) {
+			cout << "DedControl: cannot start game, too less players" << endl;
+			Sig_ErrorStartGame();
+			return;
+		}
+		
 		// Start the game
 		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
 		cServer->StartGame();	// start in dedicated mode
@@ -583,6 +588,7 @@ struct DedIntern {
 	void Sig_GameStarted() { pipe.in() << "gamestarted" << endl; state = S_PLAYING; }
 	void Sig_BackToLobby() { pipe.in() << "backtolobby" << endl; state = S_LOBBY; }
 	void Sig_ErrorStartLobby() { pipe.in() << "errorstartlobby" << endl; state = S_NORMAL; }
+	void Sig_ErrorStartGame() { pipe.in() << "errorstartgame" << endl; }
 	void Sig_Quit() { pipe.in() << "quit" << endl; pipe.close_in(); state = S_NORMAL; }
 
 	void Sig_NewWorm(CWorm* w) { pipe.in() << "newworm " << w->getID() << " " << w->getName() << endl; }	

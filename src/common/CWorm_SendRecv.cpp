@@ -231,6 +231,8 @@ bool CWorm::checkPacketNeeded()
 		cNinjaRope.write(bs);
 }*/
 
+// this is used to update the position on the client-side in CWorm::readPacketState
+// it also updates frequently the velocity by estimation
 void CWorm::net_updatePos(const CVec& newpos) {
 	if (!cGameScript)
 		return;
@@ -307,13 +309,12 @@ void CWorm::net_updatePos(const CVec& newpos) {
 		
 		//vVelocity = (vVelocity + estimatedVel) / 2;
 		//vVelocity = CVec(0,0); // temp hack
-		vVelocity = estimatedVel;
-			
-
+		vVelocity = estimatedVel * 0.5f; // just don't be to fast, unwanted jumps else
+		
 		fLastPosUpdate = tLX->fCurTime;
 		vOldPosOfLastPaket = newpos;
 	}
-		
+	
 	vPos = newpos;
 }
 
@@ -324,6 +325,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	// Position and velocity
 	short x, y;
 	bs->read2Int12( x, y );
+	vPos = CVec((float)x, (float)y);
 
 	// Angle
 	fAngle = (float)bs->readInt(1) - 90;
@@ -364,8 +366,6 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
 			tState.iCarve = true;
 
-	// Interpolation
-	net_updatePos( CVec(x, y) );
 
 	// Prevent a wall hack
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())  {
@@ -446,7 +446,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		iCurrentWeapon = 0;
 	}
 
-	// Update the position
+	// Update the position (estimation, sets also velocity)
 	net_updatePos( CVec(x, y) );
 
 	// Velocity
@@ -455,6 +455,8 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		Sint16 vy = bs->readInt16();
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
+	
+	this->fLastSimulationTime = tLX->fCurTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
 }
 
 	

@@ -169,7 +169,10 @@ void GameServer::SimulateGame(void)
 
 	// If this is a remote game, and game over,
 	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
-	if(bGameOver && tLX->fCurTime - fGameOverTime > LX_ENDWAIT && iState != SVS_LOBBY && tGameInfo.iGameType == GME_HOST) {
+	if(bGameOver 
+	&& (tLX->fCurTime - fGameOverTime > LX_ENDWAIT || bDedicated) // dedicated server should go to lobby immediatly
+	&& iState != SVS_LOBBY
+	&& tGameInfo.iGameType == GME_HOST) {
 		gotoLobby();
 		return;
 	}

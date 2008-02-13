@@ -268,7 +268,7 @@ public:
 			worm->setAngle( (float)ws->iAngle );
 			worm->setDirection( ws->iDirection );
 		}
-				
+		
 	simulateWormStart:
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
 		worm->fLastSimulationTime += dt;
