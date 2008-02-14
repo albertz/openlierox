@@ -456,7 +456,7 @@ void CClient::SimulateProjectiles(float dt)
 					CVec d = prj->GetVelocity();
 					NormalizeVector(&d);
 					CVec *v = cRemoteWorms[wormid].getVelocity();
-					*v = *v + (d*100)*dt;
+					*v += (d*100)*dt;
 				}
 
 				// Bounce

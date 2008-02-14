@@ -441,6 +441,7 @@ public:
 		// HINT: this is a bit hacky here because there is a CheckCollision used which manipulates dt
 	simulateProjectileStart:
 		if(proj->fLastSimulationTime + fixed_dt > tLX->fCurTime) return;
+		proj->fLastSimulationTime += fixed_dt;
 		
 		int res = PJC_NONE;
 
@@ -470,7 +471,7 @@ public:
 			*wormid = colret;
 			res |= PJC_WORM;
 		}
-		proj->fLastSimulationTime += dt;
+		
 		
 		// HINT: in original LX, we have this simulate code with lower dt
 		//		(this is now the work of CheckCollision)
@@ -575,6 +576,9 @@ public:
 		}
 
 		if(res != PJC_NONE) {
+			// TODO: this is a HACK to avoid to much simulating here
+			// the only solution is if we move the whole SimulateProjectiles() here and do the fLastSimulationTime handling there
+			proj->fLastSimulationTime = tLX->fCurTime;
 			*result = res;
 			//return res;
 			return;
