@@ -110,7 +110,8 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
     // Enable the system events
     SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-
+	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
+	
 	// Enable unicode and key repeat
 	SDL_EnableUNICODE(1);
 	SDL_EnableKeyRepeat(200,20);

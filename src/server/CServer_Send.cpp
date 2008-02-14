@@ -264,8 +264,7 @@ bool GameServer::checkBandwidth(CClient *cl)
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby(void)
 {
-	static CBytestream bs;
-	bs.Clear();
+	CBytestream bs;
 
 	game_lobby_t *gl = &tGameLobby;
 
