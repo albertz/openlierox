@@ -22,6 +22,8 @@
 #define __MATHLIB_H__
 
 #include "CVec.h"
+#include "Utils.h"
+
 
 // Constants
 #define PI		3.14159265358979323846
@@ -112,6 +114,13 @@ public:
 	
 	VectorD2<_T> getCenter() const {
 		return (v1 + v2) / 2;
+	}
+	
+	SquareMatrix getInsersectionWithArea(const SquareMatrix& a) const {
+		return SquareMatrix(
+			VectorD2<_T>( MAX(a.v1.x, v1.x), MAX(a.v1.y, v1.y) ),
+			VectorD2<_T>( MIN(a.v2.x, v2.x), MIN(a.v2.y, v2.y) )
+			);
 	}
 	
 };
