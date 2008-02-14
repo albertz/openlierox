@@ -723,12 +723,19 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
 		// The following will be drawn only when playing
 		if (iNetStatus == NET_PLAYING)  {
+			// update the drawing position
+			CWorm *w = cRemoteWorms;
+			for(short i=0;i<MAX_WORMS;i++,w++) {
+				if(w->isUsed() && w->getAlive())
+					w->UpdateDrawPos();
+			}
+
 			if( tLXOptions->bShadows ) {
 				// Draw the projectile shadows
 				DrawProjectileShadows(bmpDest, v);
 
 				// Draw the worm shadows
-				CWorm *w = cRemoteWorms;
+				w = cRemoteWorms;
 				for(short i=0;i<MAX_WORMS;i++,w++) {
 					if(w->isUsed() && w->getAlive())
 						w->DrawShadow(bmpDest, v);
@@ -746,7 +753,7 @@ void CClient::DrawViewport(SDL_Surface *bmpDest, byte viewport_index)
 
 			// Draw all the worms in the game
 			ushort i;
-			CWorm *w = cRemoteWorms;
+			w = cRemoteWorms;
 			for(i=0;i<MAX_WORMS;i++,w++) {
 				if(w->isUsed() && w->getAlive())
 					w->Draw(bmpDest, v);

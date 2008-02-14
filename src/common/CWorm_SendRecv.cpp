@@ -243,7 +243,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	// atm we only have the debugimage available if _AI_DEBUG is set
 	// this should be changed to DEBUG
 #ifdef _AI_DEBUG	
-	SDL_Surface *bmpDest = pcMap->GetDebugImage();
+/*	SDL_Surface *bmpDest = pcMap->GetDebugImage();
 	if (bmpDest) {
 		int node_x = (int)newpos.x*2, node_y = (int)newpos.y*2;
 		int onode_x = (int)vPos.x*2, onode_y = (int)vPos.y*2;
@@ -259,7 +259,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Draw the new pos
 			DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4, (t == 0) ? MakeColour(0,0,0) : MakeColour(122,122,0));			
 		}
-	}
+	} */
 #endif	
 	
 	vPos = newpos;

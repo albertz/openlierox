@@ -198,6 +198,7 @@ private:
 	CVec		vOldPosOfLastPaket;
 	CVec		vVelocity;
 	CVec		vLastPos;
+	CVec		vDrawPos;
 	bool		bOnGround;
 
 	CVec		vFollowPos;
@@ -418,7 +419,7 @@ public:
 	SDL_Surface	*ChangeGraphics(const std::string& filename, int team);
 	void		Draw(SDL_Surface *bmpDest, CViewport *v);
     void        DrawShadow(SDL_Surface *bmpDest, CViewport *v);
-
+	void		UpdateDrawPos();
 
 	//
 	// Game
@@ -571,6 +572,7 @@ public:
 	
 	CVec		getPos(void)				{ return vPos; }
 	void		setPos(CVec v)				{ vPos = v; }
+	
 	CVec&		pos()						{ return vPos; }
 	bool		isOnGround()				{ return bOnGround; }
 	void		setOnGround(bool g)			{ bOnGround = g; }

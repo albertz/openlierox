@@ -367,10 +367,8 @@ void GameServer::SendDisconnect(void)
 // Update the worm names, skins, colours etc
 void GameServer::UpdateWorms(void)
 {
-	static CBytestream bytestr;
-	bytestr.Clear();
-	CWorm* w;
-	w = cWorms;
+	CBytestream bytestr;
+	CWorm* w = cWorms;
 	for(int i = 0; i < MAX_WORMS; i++, w++) {
 		if(!w->isUsed())
 			continue;

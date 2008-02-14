@@ -263,7 +263,7 @@ void CWorm::Spawn(CVec position) {
     fMoveSpeedX = 0;
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
-	vPos = vLastPos = vOldPosOfLastPaket = position;
+	vPos = vDrawPos = vLastPos = vOldPosOfLastPaket = position;
 	vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
     nAIState = AI_THINK;
@@ -295,8 +295,9 @@ void CWorm::Spawn(CVec position) {
 
 ///////////////////
 // Respawn this worm
+// TODO: what is the difference between Respawn and Spawn?
 void CWorm::Respawn(CVec position) {
-	vPos = vLastPos = vOldPosOfLastPaket = position;
+	vPos = vDrawPos = vLastPos = vOldPosOfLastPaket = position;
     nAIState = AI_THINK;
 	
 	iCarving = 0;
@@ -308,7 +309,7 @@ void CWorm::Respawn(CVec position) {
 
 	bOnGround = false;
 
-	fSpawnTime = fLastPosUpdate = tLX->fCurTime;
+	fLastSimulationTime = fSpawnTime = fLastPosUpdate = tLX->fCurTime;
 
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
@@ -766,36 +767,67 @@ void DrawWormName(SDL_Surface* dest, const std::string& name, Uint32 x, Uint32 y
 }
 
 
+void CWorm::UpdateDrawPos() {
+	if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) ) {
+		// update drawing position
+		CVec vDif = vPos - vDrawPos;
+		float dif = vDif.GetLength();
+		if(dif > 0) {
+			if(dif < 1)
+				vDrawPos = vPos;
+			else
+				vDrawPos += vDif * (1/dif)
+					* MAX(10.0f, MIN(dif * dif * (1.0f / 100.0f) * 40.0f, 200.0f)) * tLX->fDeltaTime;
+		}
+		
+	
+#ifdef _AI_DEBUG
+/*		SDL_Surface *bmpDestDebug = pcMap->GetDebugImage();
+		if (bmpDestDebug) {
+			int node_x = (int)vPos.x*2, node_y = (int)vPos.y*2;
+			
+			if(node_x-4 >= 0 && node_y-4 >= 0 && node_x+4 < bmpDestDebug->w && node_y+4 < bmpDestDebug->h) {
+				// Draw the new pos
+				DrawRectFill(bmpDestDebug,node_x-4,node_y-4,node_x+4,node_y+4, MakeColour(0,255,0));
+			}
+		} */
+#endif	
+	
+	} else {
+		// no antilag movement prediction
+		vDrawPos = vPos;
+	}
+}
+
+
 ///////////////////
 // Draw the worm
 void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 {
     if( !v )
         return;
-	
+			
 	//
 	// Draw the ninja rope
 	//		
 	if(cNinjaRope.isReleased())
-		cNinjaRope.Draw(bmpDest,v,vPos);
+		cNinjaRope.Draw(bmpDest,v,vDrawPos);
 
 
 	int x,y,f,ang;
 	int l = v->GetLeft();
 	int t = v->GetTop();
 
-	// Are we inside the viewport?
-	x = (int)vPos.x - v->GetWorldX();
-	y = (int)vPos.y - v->GetWorldY();
+	x = (int)vDrawPos.x - v->GetWorldX();
+	y = (int)vDrawPos.y - v->GetWorldY();
 	x*=2;
 	y*=2;
 
-	if(x+l+10 < l || x-10 > v->GetVirtW())
+	// Are we inside the viewport?
+	if(x+l+10 < l || x-10 > v->GetVirtW()
+	|| y+t+10 < t || y-10 > v->GetVirtH()) {
 		return;
-	if(y+t+10 < t || y-10 > v->GetVirtH())
-		return;
-
-
+	}
 
 
 	int a = (int)fAngle;
@@ -860,8 +892,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	GetAngles(a, &forw, NULL);
 	forw *= 16.0f;
 
-	int cx = (int)forw.x + (int)vPos.x;
-	int cy = (int)forw.y + (int)vPos.y;
+	int cx = (int)forw.x + (int)vDrawPos.x;
+	int cy = (int)forw.y + (int)vDrawPos.y;
 
 	cx = (cx - v->GetWorldX()) * 2 + l;
 	cy = (cy - v->GetWorldY()) * 2 + t;
@@ -883,8 +915,8 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 	//
 	// Draw the worm
 	//
-	x = (int) ( (vPos.x - v->GetWorldX()) * 2 + l );
-	y = (int) ( (vPos.y - v->GetWorldY()) * 2 + t );
+	x = (int) ( (vDrawPos.x - v->GetWorldX()) * 2 + l );
+	y = (int) ( (vDrawPos.y - v->GetWorldY()) * 2 + t );
 
 	// Find the right pic
 	f = ((int)fFrame*7)*32;
@@ -983,6 +1015,10 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 void CWorm::DrawShadow(SDL_Surface *bmpDest, CViewport *v)
 {
     if( tLXOptions->bShadows && v )
+    	// HINT: we don't use vDrawPos but vPos here to give a hint where the player is really atm (if interpolation is too slow)
+    	// TODO: is it good like this? should we perhaps use the real coordinates and not the moved (-9,-5) ones?
+    	// or perhaps an average between vPos and vDrawPos?
+    	// TODO: if we just use vDrawPos here, we also have to fix the drawing of rifle and perhaps also of other ninjaropes
         pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
