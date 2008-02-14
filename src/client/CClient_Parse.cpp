@@ -605,6 +605,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bShouldRepaintInfo = true;
 
 	bJoin_Update = true;
+	
+	getFileDownloaderInGame()->reset();
 
     return true;
 }

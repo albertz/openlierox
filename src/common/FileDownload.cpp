@@ -468,9 +468,9 @@ void CFileDownloaderInGame::sendPing( CBytestream * bs ) const
 
 void CFileDownloaderInGame::allowFileRequest( bool allow ) 
 { 
-	bAllowFileRequest = allow;
 	if( ! bAllowFileRequest )
 		reset();	// Stop uploading any files
+	bAllowFileRequest = allow;
 };
 
 void CFileDownloaderInGame::requestFile( const std::string & path, bool retryIfFail )

@@ -396,77 +396,64 @@ void GameServer::SendRandomPacket()
 
 void GameServer::SendDirtUpdate( CClient * cl )
 {
-	// TODO: ...
-	// for now just return; several reasons:
-	// 1. lags a lot while sending, esp if the connection is bad
-	// 2. doesn't work correct (at least seems so)
-	return;
-	
-	if( cl->getClientOLXVer() < 4 )
+	if( ! tLXOptions->bServerSendsDirtUpdates || cl->getClientOLXVer() < 4 )
 		return;
-	if( cl->getLastDirtUpdate() + 10 < tLX->fCurTime )
+
+	if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND )
 	{
+		// If client is laggy send packets very rarely
+		if( cl->getLastDirtUpdate() + cl->getPing()*2.5f/1000.0f > tLX->fCurTime )
+			return;	
+		CBytestream bs;
+		bs.writeByte( S2C_SENDFILE );
+		cl->getFileDownloaderInGame()->send( &bs );
+		SendPacket( &bs, cl );
+		cl->setLastDirtUpdate( tLX->fCurTime );
+	}
+	else
+	{
+		// Send dirt update once in 10 seconds (I believe that's not too often)
+		if( cl->getLastDirtUpdate() + 10.0f > tLX->fCurTime )
+			return;
 		CBytestream bs;
 		cMap->SendDirtUpdate(&bs);
 		cl->getFileDownloaderInGame()->setDataToSend( "dirt", bs.readData() );
 	}
-	
-	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
-		return;
-	CBytestream bs;
-	bs.writeByte( S2C_SENDFILE );
-	cl->getFileDownloaderInGame()->send( &bs );
-	SendPacket( &bs, cl );
-	cl->setLastDirtUpdate( tLX->fCurTime );
 }
-
-// TODO: what is this for?
-bool timerTickCallback(Timer* sender, void* userData)
-{
-	return true;
-};
 
 void GameServer::SendFiles()
 {
-	// TODO: remove this when all TODOs are done in here
-	// also ensures that it is stable
-	return;
 	
 	if(iState != SVS_LOBBY)
 		return;
 
-	// Server will keep min rate of 1 kbyte/second - send each second 5 packets of 512 bytes each.
+	// Server will keep min rate of 1 kbyte/second - send each second 4 packets of 256 bytes each.
 	// If client sends ping packets server will send packets faster.
+	const float MaxPacketDelay = 0.25; // Modify this to get higher packet rate, though it may overflood laggy clients
 
-	// The global timer is enabled if there's something to send
-	// TODO: don't use static here!!
-	static Timer cTimer( timerTickCallback, NULL, 250, false );
-	bool stopTimer = true;
+	Timer cTimer( Timer::DummyHandler, NULL, int(MaxPacketDelay*1000.0), true );
+	bool startTimer = false;
 	
 	CClient *cl = cClients;
 
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) 
 	{
+		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+			continue;
+
 		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND &&
-			cl->getLastFileRequestPacketReceived() + 0.2 <= tLX->fCurTime )
+			cl->getLastFileRequestPacketReceived() + MaxPacketDelay <= tLX->fCurTime )
 		{
-			stopTimer = false;
+			startTimer = true;
 			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
 			CBytestream bs;
-			for( int f=0; f < 1; f++ ) // Send just 1 packet
-			{
-				if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
-					break;
-				bs.writeByte(S2C_SENDFILE);
-				cl->getFileDownloaderInGame()->send(&bs);
-			};
+			bs.writeByte(S2C_SENDFILE);
+			cl->getFileDownloaderInGame()->send(&bs);
 			SendPacket( &bs, cl );
 		};
 	};
 
-	if( stopTimer )
-		cTimer.stop();
-	else if( ! cTimer.running() )
+	if( startTimer )
 		cTimer.start();
 };
 

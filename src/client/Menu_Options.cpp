@@ -80,6 +80,7 @@ enum {
 	og_UseNumericKeysToSwitchWeapons,
 	og_AntilagMovementPrediction,
 	og_AllowFileDownload,
+	og_SendDirtUpdate,
 };
 
 enum {
@@ -372,8 +373,8 @@ bool Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->tGameinfo.bMatchLogging),og_MatchLogging, 280, 390, 17,17);
 
-	cOpt_Game.Add( new CLabel("Server allows file download",tLX->clNormalLabel), Static, 330, 270, 0,0);
-	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 270, 17,17);
+	cOpt_Game.Add( new CLabel("Allow file download",tLX->clNormalLabel), Static, 330, 300, 0,0);
+	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 300, 17,17);
 
 	cOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 330, 330, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 550, 330, 17,17);

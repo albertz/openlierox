@@ -202,6 +202,7 @@ public:
 	bool	bCountTeamkills;
 	bool	bServerSideHealth;
 	bool	bAllowFileDownload;
+	bool	bServerSendsDirtUpdates;
 	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 
 	// Misc.

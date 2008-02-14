@@ -617,7 +617,7 @@ uint StringChecksum( const std::string & data )
 
 bool FileChecksum( const std::string & path, uint * _checksum, uint * _filesize )
 {
-	FILE * ff = OpenGameFile( path, "r" );
+	FILE * ff = OpenGameFile( path, "rb" );
 	if( ff == NULL )
 		return false;
 	char buf[16384];
