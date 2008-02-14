@@ -1,33 +1,34 @@
 TODO
 (remember also to look at the bugs on SF)
 
-[X] CChannel should split too big packets (!!)
-[?] fix: FPS (dropped to 60 from 120 here!) (!)
 [ ] fix projectiles flying though walls when they
     shouldn't (my fixes didn't work, it's somewhere deeper
     in the collision checks) (!!)
 [ ] better default keys for player2 (!!)
-[?] fix network interpolation (is currently not optimal) (!!)
-[ ] fix physics (behaves currently different depending on FPS) (!!)
-[?] gfx is wrong in some situation or makes problems, fix that (!!)
 [ ] fix: if FPS is too high, some events will get lost
     as getInput() isn't called every frame
+[ ] fix physics (behaves currently different depending on FPS) (!!)
+[ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
+[X] CChannel should split too big packets (!!)
+[X] Fix server crashing when starting game for second time (!!)
+
 [ ] bot: go one step away if too close (!)
 [ ] bot: don't move too close if shooting is possible (!)
 [ ] follow better/faster the way (!)
 [ ] bot avoid projectiles (!)
 [ ] fill documentation (README) (!)
-[ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
 [ ] fix STUN (!)
-[?] Fix memory leaks (!!)
 [ ] Fix segfaults
 	[ ] Crash/memory corruption in HTTP class when downloading bigger amount of data (i,e. levels) (!)
       TODO: Perhaps just disable level downloading for beta 4? But it's just a workaround anyway...
 	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
 	[?] others (!!)
-[X] Fix server crashing when starting game for second time (!!)
 [ ] CChannel calculates wrong pings (too high) (!)
 
+[?] fix: FPS (dropped to 60 from 120 here!) (!)
+[?] fix network interpolation (is currently not optimal) (!!)
+[?] gfx is wrong in some situation or makes problems, fix that (!!)
+[?] Fix memory leaks (!!)
 [?] nMaxFPS = 0 works correctly? (!!)
 [?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
 [?] fix: crashes on MacOSX (!!)
