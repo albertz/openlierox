@@ -128,6 +128,8 @@ void CClient::Clear(void)
 	sMapDlError = "";
 	iMapDlProgress = 0;
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
+	iPartialDirtUpdateCount = 0;
+	cPreviousDirtMap.Clear();
 	getFileDownloaderInGame()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
@@ -187,6 +189,8 @@ void CClient::MinorClear(void)
 		cViewports[i].SetWorldY(0);
 	}
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
+	iPartialDirtUpdateCount = 0;
+	cPreviousDirtMap.Clear();
 	getFileDownloaderInGame()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";

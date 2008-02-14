@@ -398,6 +398,30 @@ void GameServer::SendDirtUpdate( CClient * cl )
 	if( ! tLXOptions->bServerSendsDirtUpdates || cl->getClientOLXVer() < 4 )
 		return;
 
+	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
+	{
+		// Send dirt update once in 7 seconds (I believe that's not too often)
+		if( cl->getLastDirtUpdate() + 7.0f > tLX->fCurTime )
+			return;
+		if( cl->getPartialDirtUpdateCount() >= 10 || cl->getPreviousDirtMap()->GetLength() == 0 )
+		{
+			cl->setPartialDirtUpdateCount(0);
+			cl->getPreviousDirtMap()->Clear();
+			cMap->SendDirtUpdate(cl->getPreviousDirtMap());
+			cl->getFileDownloaderInGame()->setDataToSend( "dirt", cl->getPreviousDirtMap()->readData() );
+		}
+		else
+		{
+			CBytestream bs, bsDiff;
+			cMap->SendDirtUpdate(&bs);
+			cl->getPreviousDirtMap()->ResetPosToBegin();
+			while( !bs.isPosAtEnd() )
+				bsDiff.writeBit( bs.readBit() != cl->getPreviousDirtMap()->readBit() );
+			* cl->getPreviousDirtMap() = bs;
+			cl->getFileDownloaderInGame()->setDataToSend( "dirt:" + itoa(cl->getPartialDirtUpdateCount()), bsDiff.readData() );
+			cl->setPartialDirtUpdateCount( cl->getPartialDirtUpdateCount() + 1 );
+		};
+	};
 	if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND )
 	{
 		// If client is laggy send packets very rarely
@@ -408,16 +432,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 		cl->getFileDownloaderInGame()->send( &bs );
 		SendPacket( &bs, cl );
 		cl->setLastDirtUpdate( tLX->fCurTime );
-	}
-	else
-	{
-		// Send dirt update once in 10 seconds (I believe that's not too often)
-		if( cl->getLastDirtUpdate() + 10.0f > tLX->fCurTime )
-			return;
-		CBytestream bs;
-		cMap->SendDirtUpdate(&bs);
-		cl->getFileDownloaderInGame()->setDataToSend( "dirt", bs.readData() );
-	}
+	};
 }
 
 void GameServer::SendFiles()

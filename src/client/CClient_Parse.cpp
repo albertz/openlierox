@@ -1555,12 +1555,32 @@ void CClient::ParseSendFile(CBytestream *bs)
 		};
 		if( getFileDownloaderInGame()->getFilename() == "dirt" &&
 			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
-		{
-			// Parse a dirt mask packet
-			CBytestream bs1;
-			bs1.writeData( getFileDownloaderInGame()->getData() );
+		{	// Parse a dirt mask packet
+			setPartialDirtUpdateCount(0);
+			getPreviousDirtMap()->Clear();
+			getPreviousDirtMap()->writeData( getFileDownloaderInGame()->getData() );
+			getPreviousDirtMap()->ResetPosToBegin();
 			if( cMap )
-				cMap->RecvDirtUpdate( &bs1 );
+				cMap->RecvDirtUpdate( getPreviousDirtMap() );
+		}
+		else
+		if( getFileDownloaderInGame()->getFilename().find( "dirt:" ) == 0 &&
+			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
+		{	// Parse a partial dirt mask packet
+			int updateCount = atoi(getFileDownloaderInGame()->getFilename().substr(strlen("dirt:")));
+			if( updateCount != getPartialDirtUpdateCount() )
+				return;
+			setPartialDirtUpdateCount( getPartialDirtUpdateCount() + 1 );
+			CBytestream bsDiff, bsNew;
+			bsDiff.writeData( getFileDownloaderInGame()->getData() );
+			bsDiff.ResetPosToBegin();
+			getPreviousDirtMap()->ResetPosToBegin();
+			while( ! bsDiff.isPosAtEnd() )
+				bsNew.writeBit( getPreviousDirtMap()->readBit() ^ bsDiff.readBit() );
+			* getPreviousDirtMap() = bsNew;
+			getPreviousDirtMap()->ResetPosToBegin();
+			if( cMap )
+				cMap->RecvDirtUpdate( getPreviousDirtMap() );
 		}
 		else
 		if( CFileDownloaderInGame::isPathValid( getFileDownloaderInGame()->getFilename() ) &&
