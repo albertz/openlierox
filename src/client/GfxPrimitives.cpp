@@ -1259,7 +1259,15 @@ SDL_Surface *LoadImage(const std::string& _filename, bool withalpha)
 	if(fullfname.size() == 0)
 		return NULL;
 
+#ifdef WIN32
+	FILE *fp = _wfopen((wchar_t *)(Utf8ToUtf16(fullfname).c_str()), L"rb");
+	if (!fp)
+		return NULL;
+	SDL_RWops *rw = RWopsFromFP(fp, true);
+	SDL_Surface* img = IMG_Load_RW(rw, false);
+#else
 	SDL_Surface* img = IMG_Load(fullfname.c_str());
+#endif
 
 	if(!img)
 		return NULL;

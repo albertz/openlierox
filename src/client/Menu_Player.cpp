@@ -649,7 +649,8 @@ void Menu_Player_ViewPlayers(int mouse)
                         static std::string buf;
                         buf = "skins/" + p->szSkin;
                         tMenu->bmpWorm = LoadImage(buf, true);
-						SetColorKey(tMenu->bmpWorm);
+						if (tMenu->bmpWorm)
+							SetColorKey(tMenu->bmpWorm);
 
                         // Hide the AI stuff if it is a human type of player
                         cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER);

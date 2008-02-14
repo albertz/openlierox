@@ -385,8 +385,12 @@ SoundMusic *LoadMusic(const std::string& file)
 #ifndef WIN32  // linux, mac and others support UTF8 natively
 	new_music->sndMusic = Mix_LoadMUS(file.c_str());
 #else // WIN32
-	FILE *fp = _wfopen((wchar_t *)(Utf8ToUtf16(file).c_str()), L"r");
-	SDL_RWops *rw = SDL_RWFromFP(fp, true);
+	FILE *fp = _wfopen((wchar_t *)(Utf8ToUtf16(file).c_str()), L"rb");
+	if (!fp)  {
+		delete new_music;
+		return NULL;
+	}
+	SDL_RWops *rw = RWopsFromFP(fp, true);
 	new_music->sndMusic = Mix_LoadMUS_RW(rw);
 #endif
 

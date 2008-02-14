@@ -620,6 +620,12 @@ void CClient::Connecting(bool force)
 	if(!force && (tLX->fCurTime - fConnectTime < 3))
 		return;
 
+	// For local play/hosting: don't send the challenge more times
+	// On slower machines the loading can be pretty slow and take more than 3 seconds
+	// That doesn't mean that the packet is not delivered
+	if (tGameInfo.iGameType != GME_JOIN && iNumConnects > 0)
+		return;
+
 
 	// If we have tried 10 times (10*3 = 30secs) just quit trying
 	if(iNumConnects >= 10) {

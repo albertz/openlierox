@@ -334,4 +334,8 @@ void FindFiles(
 }
 
 
+// File pointer to SDL RWops conversion
+SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose);
+
+
 #endif  //  __FINDFILE_H__

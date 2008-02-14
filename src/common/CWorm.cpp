@@ -1019,6 +1019,7 @@ void CWorm::DrawShadow(SDL_Surface *bmpDest, CViewport *v)
     	// TODO: is it good like this? should we perhaps use the real coordinates and not the moved (-9,-5) ones?
     	// or perhaps an average between vPos and vDrawPos?
     	// TODO: if we just use vDrawPos here, we also have to fix the drawing of rifle and perhaps also of other ninjaropes
+		// FIXME: just tested it, I was on a high-ping server and it was horrible! The shadow should be always synced with the worm image!
         pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
