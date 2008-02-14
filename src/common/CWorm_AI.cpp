@@ -316,11 +316,14 @@ public:
 		VectorD2<int> getConnectorPointForArea(area_item* otherArea) const {
 			if(otherArea == NULL) return area.getCenter();
 			
+			SquareMatrix<int> intersection = area.getInsersectionWithArea(otherArea->area);
+			return intersection.getCenter();
+			/*
 			VectorD2<int> otherCenter = otherArea->area.getCenter();
 			if(area.v1.x <= otherCenter.x && otherCenter.x <= area.v2.x)
 				return VectorD2<int>(otherCenter.x, area.getCenter().y);
 			else
-				return VectorD2<int>(area.getCenter().x, otherCenter.y);
+				return VectorD2<int>(area.getCenter().x, otherCenter.y); */
 		}
 		
 		double getDistToArea(area_item* otherArea) const {
