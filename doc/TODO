@@ -5,12 +5,8 @@ TODO
     shouldn't (my fixes didn't work, it's somewhere deeper
     in the collision checks) (!!)
 [ ] better default keys for player2 (!!)
-[ ] fix: if FPS is too high, some events will get lost
-    as getInput() isn't called every frame
 [ ] fix physics (behaves currently different depending on FPS) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
-[X] CChannel should split too big packets (!!)
-[X] Fix server crashing when starting game for second time (!!)
 
 [ ] bot: fix building path (there is one rare case where the
     path is going through an obstacle whereby there is 
@@ -42,8 +38,12 @@ TODO
 [?] Fix the colour detection of pink for mods (255 0 255) which only
     works in 50% of the mods now. (!!)
 
+[X] fix: if FPS is too high, some events will get lost
+    as getInput() isn't called every frame
 [X] fix: keys are ignored in low FPS in game (CInput::isDown()), makes
     it very hard to play on older computers (!!)
+[X] CChannel should split too big packets (!!)
+[X] Fix server crashing when starting game for second time (!!)
 [X] fix: sometimes, angle is exactly pointed to top
     but you cannot hit down to move the angle;
     also left/right (direction change) does not work
