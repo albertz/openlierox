@@ -692,6 +692,8 @@ public:
 	int			getPartialDirtUpdateCount()				{ return iPartialDirtUpdateCount; };
 	void		setPartialDirtUpdateCount( int _i )		{ iPartialDirtUpdateCount = _i; };
 	CBytestream * getPreviousDirtMap()					{ return &cPreviousDirtMap; };
+	float		getLastFileRequest()					{ return fLastFileRequest; };
+	void		setLastFileRequest( float _f ) 			{ fLastFileRequest = _f; };
 	float		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
 	void		setLastFileRequestPacketReceived( float _f ) { fLastFileRequestPacketReceived = _f; };
 	

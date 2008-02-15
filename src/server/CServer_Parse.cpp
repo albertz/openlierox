@@ -815,6 +815,14 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 			};
 		}
 		else
+		if(	cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
+			cl->getFileDownloaderInGame()->getFilename() == "dirt:" )
+		{
+			cl->setPartialDirtUpdateCount(0);
+			cl->getPreviousDirtMap()->Clear();
+			cl->setLastDirtUpdate(tLX->fCurTime - 20.0f);	// Re-send dirt immediately
+		}
+		else
 		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
 			CFileDownloaderInGame::isPathValid( cl->getFileDownloaderInGame()->getFilename() ) &&
 			! IsFileAvailable( cl->getFileDownloaderInGame()->getFilename() ) &&

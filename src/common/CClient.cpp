@@ -1175,6 +1175,18 @@ void CClient::processFileRequests()
 	if( getFileDownloaderInGame()->requestFilesPending() ) // More files to receive
 		return;
 
+	// The last requested file will be downloaded first, so putting these in reverse order
+	if( ! tGameLobby.bHaveMod && tGameLobby.szModDir != "" )
+	{
+		getFileDownloaderInGame()->requestFileInfo(tGameLobby.szModDir);
+	};
+
+	if( ! tGameLobby.bHaveMap && tGameLobby.szMapName != "" )
+	{
+		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
+		getFileDownloaderInGame()->requestFileInfo("levels/" + tGameLobby.szMapName); // To get valid progressbar
+	};
+
 	CWorm *w = cRemoteWorms;
 	for( int i=0; i<MAX_WORMS; i++, w++ )
 	{
@@ -1185,21 +1197,7 @@ void CClient::processFileRequests()
 		if( ! IsFileAvailable("skins/" + w->getSkin()) )
 		{
 			getFileDownloaderInGame()->requestFile("skins/" + w->getSkin()); // Small, no need for file info
-			return;
 		};
-	};
-
-	if( ! tGameLobby.bHaveMap && tGameLobby.szMapName != "" )
-	{
-		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
-		getFileDownloaderInGame()->requestFileInfo("levels/" + tGameLobby.szMapName); // To get valid progressbar
-		return;
-	};
-
-	if( ! tGameLobby.bHaveMod && tGameLobby.szModDir != "" )
-	{
-		getFileDownloaderInGame()->requestFileInfo(tGameLobby.szModDir);
-		return;
 	};
 };
 

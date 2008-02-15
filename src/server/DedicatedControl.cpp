@@ -410,7 +410,7 @@ struct DedIntern {
 	
 	void Cmd_StartLobby() {
 		tGameInfo.iNumPlayers = 1; // for now...
-		tGameInfo.cPlayers[0] = FindProfile(2); // TODO: this is just temporary (adds the first CPU-worm), make this later with Cmd_AddWorm
+		tGameInfo.cPlayers[0] = FindProfile("[CPU] Kamikazee!"); // TODO: this is just temporary (adds the first CPU-worm), make this later with Cmd_AddWorm
 		
 		tGameInfo.sServername = "dedicated server";
 		tGameInfo.sWelcomeMessage = "hello";
@@ -492,7 +492,8 @@ struct DedIntern {
 		}
 		
 		// Start the game
-		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
+		//cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
+		cClient->setSpectate(true); // Spectate - bots won't suicide, and it's required if you add human player
 		cServer->StartGame();	// start in dedicated mode
 
 		// Leave the frontend

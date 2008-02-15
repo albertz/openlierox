@@ -418,6 +418,9 @@ int GameServer::StartGame()
 		cClients[i].getShootList()->Clear();
 		cClients[i].setGameReady(false);
 		cClients[i].getFileDownloaderInGame()->allowFileRequest(false);
+		cClients[i].setPartialDirtUpdateCount(0);
+		cClients[i].getPreviousDirtMap()->Clear();
+		cMap->SendDirtUpdate(cClients[i].getPreviousDirtMap());
 	}}
 
 

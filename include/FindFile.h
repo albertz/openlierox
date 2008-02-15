@@ -337,5 +337,20 @@ void FindFiles(
 // File pointer to SDL RWops conversion
 SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose);
 
+// Platform-independent stat() - use S_ISREG( st.st_mode ) and S_ISDIR( st.st_mode ) on stat struct
+inline bool StatFile( const std::string & file, struct stat * st )
+{
+	std::string fname;
+	if( ! GetExactFileName( file, fname ) ) 
+		return false;
+	#ifdef WIN32 // For win32 - wide char = UTF16
+	if( wstat( (wchar_t *)Utf8ToUtf16(fname).c_str(), st) != 0 )
+		return false;
+	#else  // For linux, mac and others - UTF8 is natively supported
+	if( stat( fname.c_str(), st ) != 0 )
+		return false;
+	#endif
+	return true;
+};
 
 #endif  //  __FINDFILE_H__

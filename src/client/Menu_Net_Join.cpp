@@ -30,6 +30,7 @@
 #include "CMediaPlayer.h"
 #include "CCheckbox.h"
 #include "CLabel.h"
+#include "CTextButton.h"
 
 using namespace std;
 
@@ -255,7 +256,8 @@ enum {
 	jl_Favourites,
 	jl_PlayerList,
 	jl_Spectate,
-	jl_SpectateSmooth
+	jl_SpectateSmooth,
+	jl_AbortFileDownload
 };
 
 
@@ -329,7 +331,7 @@ void Menu_Net_JoinLobbyCreateGui(void)
     cJoinLobby.Add( new CListview(),                          jl_ChatList, 15,  268, 610, 150);
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
 	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
-	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 ); 
+	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 );
 
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
@@ -612,6 +614,18 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         tLX->cFont.Draw(tMenu->bmpScreen,     360, 195, tLX->clNormalLabel, "Downloading: " + 
 					itoa( cClient->getFileDownloaderInGame()->getFilesPendingAmount() ) + " files left" );
 
+	if( cClient->getFileDownloaderInGame()->getFileDownloading() != "" || 
+		cClient->getFileDownloaderInGame()->getFilesPendingAmount() > 0 )
+	{
+		if( cJoinLobby.getWidget(jl_AbortFileDownload) == NULL )
+			cJoinLobby.Add( new CTextButton( "Abort", tLX->clError, tLX->clNormalLabel), jl_AbortFileDownload, 560, 220, 100, 20 );
+	}
+	else
+	{
+		if( cJoinLobby.getWidget(jl_AbortFileDownload) != NULL )
+			cJoinLobby.removeWidget(jl_AbortFileDownload);
+	};
+
 	// Process & Draw the gui
 #ifdef WITH_MEDIAPLAYER
 	if (!cMediaPlayer.GetDrawPlayer())
@@ -684,9 +698,22 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cClient->SendText(text, cClient->getWorm(0)->getName());
 				}
 				break;
+
 			case jl_Spectate:
 				if(ev->iEventMsg == CHK_CHANGED) {
 					cClient->setSpectate(((CCheckbox *)cJoinLobby.getWidget(jl_Spectate))->getValue());
+				}
+				break;
+
+			case jl_AbortFileDownload:
+				if(ev->iEventMsg == TXB_MOUSEUP) {
+					cClient->setSpectate(((CCheckbox *)cJoinLobby.getWidget(jl_Spectate))->getValue());
+					cClient->getFileDownloaderInGame()->abortDownload();
+					CBytestream bs;
+					bs.writeByte(C2S_SENDFILE);
+					cClient->getFileDownloaderInGame()->send(&bs);
+					cClient->getChannel()->AddReliablePacketToSend(bs);
+					cClient->setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
 				}
 				break;
 		}

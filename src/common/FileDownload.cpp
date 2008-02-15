@@ -331,6 +331,7 @@ void CFileDownloaderInGame::reset()
 	tState = S_FINISHED;
 	sFilename = "";
 	sData = "";
+	sLastFileRequested = "";
 	bAllowFileRequest = true;
 	tRequestedFiles.clear();
 	cStatInfo.clear();
@@ -397,12 +398,6 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 		sFilename = "";
 		sData = "";
 	};
-	if( tState != S_RECEIVE )
-	{
-		tState = S_ERROR;
-		return true;	// Receive finished (due to error)
-	};
-	//printf("CFileDownloaderInGame::receive() chunk %i\n", chunkSize);
 	bool Finished = false;
 	if( chunkSize != MAX_DATA_CHUNK )
 	{
@@ -410,6 +405,20 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 		if( chunkSize > MAX_DATA_CHUNK )
 			chunkSize = MAX_DATA_CHUNK;
 	}
+	if( tState != S_RECEIVE )
+	{
+		std::string data, unpacked;
+		data.append( bs->readData(chunkSize) );
+		tState = S_ERROR;
+		if( Decompress( data, &unpacked ) )
+			if( unpacked.find( "ABORT:" ) == 0 )
+			{
+				printf("CFileDownloaderInGame::receive() - abort received\n");
+				reset();
+			};
+		return true;	// Receive finished (due to error)
+	};
+	//printf("CFileDownloaderInGame::receive() chunk %i\n", chunkSize);
 	sData.append( bs->readData(chunkSize) );
 	if( Finished )
 	{
@@ -502,8 +511,14 @@ bool CFileDownloaderInGame::requestFilesPending()
 void CFileDownloaderInGame::requestFileInfo( const std::string & path )
 {
 	cStatInfo.clear();
-	setDataToSend( "STAT:", path, false );
+	setDataToSend( "STAT:", path );
 	sLastFileRequested = path;
+};
+
+void CFileDownloaderInGame::abortDownload()
+{
+	reset();
+	setDataToSend( "ABORT:", "" );
 };
 
 std::string getStatPacketOneFile( const std::string & path );
@@ -532,14 +547,14 @@ void CFileDownloaderInGame::processFileRequests()
 		if( ! isPathValid( getData() ) )
 		{
 			printf( "CFileDownloaderInGame::processFileRequests(): invalid filename \"%s\"\n", getData().c_str() );
+			abortDownload();
 			return;
 		};
-		std::string fname;
-		GetExactFileName( getData(), fname );
 		struct stat st;
-		if( stat( fname.c_str(), &st ) != 0 )
+		if( ! StatFile( getData(), &st ) )
 		{
 			printf( "CFileDownloaderInGame::processFileRequests(): cannot stat file \"%s\"\n", getData().c_str() );
+			abortDownload();
 			return;
 		};
 		if( S_ISREG( st.st_mode ) )
@@ -550,6 +565,7 @@ void CFileDownloaderInGame::processFileRequests()
 		if( S_ISDIR( st.st_mode ) )
 		{
 			printf( "CFileDownloaderInGame::processFileRequests(): cannot send dir \"%s\" - wrong request\n", getData().c_str() );
+			abortDownload();
 			return;
 		};
 	};
@@ -558,6 +574,7 @@ void CFileDownloaderInGame::processFileRequests()
 		if( ! isPathValid( getData() ) )
 		{
 			printf( "CFileDownloaderInGame::processFileRequests(): invalid filename \"%s\"\n", getData().c_str() );
+			abortDownload();
 			return;
 		};
 		setDataToSend( "STAT_ACK:", getStatPacketRecursive( getData() ) );
@@ -592,6 +609,11 @@ void CFileDownloaderInGame::processFileRequests()
 		{
 			cStatInfoCache[ cStatInfo[ff].filename ] = cStatInfo[ff];
 		};
+	};
+	if( getFilename() == "ABORT:" )
+	{
+		printf("CFileDownloaderInGame::processFileRequests() - abort received\n");
+		reset();
 	};
 };
 
@@ -702,10 +724,8 @@ std::string getStatPacketOneFile( const std::string & path )
 
 std::string getStatPacketRecursive( const std::string & path )
 {
-		std::string fname;
-		GetExactFileName( path, fname );
 		struct stat st;
-		if( stat( fname.c_str(), &st ) != 0 )
+		if( ! StatFile( path, &st ) )
 		{
 			printf( "getStatPacketFileOrDir(): cannot stat file \"%s\"\n", path.c_str() );
 			return "";
@@ -717,8 +737,8 @@ std::string getStatPacketRecursive( const std::string & path )
 		if( S_ISDIR( st.st_mode ) )
 		{
 			std::string data;
-			FindFiles( StatFileList( &data, path ), fname, FM_REG);
-			FindFiles( StatDirList( &data, path ), fname, FM_DIR);
+			FindFiles( StatFileList( &data, path ), path, FM_REG);
+			FindFiles( StatDirList( &data, path ), path, FM_DIR);
 			return data;
 		};
 		return "";

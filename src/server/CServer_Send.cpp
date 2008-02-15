@@ -395,7 +395,9 @@ void GameServer::SendRandomPacket()
 
 void GameServer::SendDirtUpdate( CClient * cl )
 {
-	if( ! tLXOptions->bServerSendsDirtUpdates || cl->getClientOLXVer() < 4 )
+	if( ! tLXOptions->bServerSendsDirtUpdates || 
+		cl->getClientOLXVer() < 4 ||
+		cl == & cClients[0] )	// Do not update dirt for local client
 		return;
 
 	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
@@ -403,12 +405,12 @@ void GameServer::SendDirtUpdate( CClient * cl )
 		// Send dirt update once in 7 seconds (I believe that's not too often)
 		if( cl->getLastDirtUpdate() + 7.0f > tLX->fCurTime )
 			return;
-		if( cl->getPartialDirtUpdateCount() >= 10 || cl->getPreviousDirtMap()->GetLength() == 0 )
+		if( cl->getPreviousDirtMap()->GetLength() == 0 )
 		{
 			cl->setPartialDirtUpdateCount(0);
 			cl->getPreviousDirtMap()->Clear();
 			cMap->SendDirtUpdate(cl->getPreviousDirtMap());
-			cl->getFileDownloaderInGame()->setDataToSend( "dirt", cl->getPreviousDirtMap()->readData() );
+			cl->getFileDownloaderInGame()->setDataToSend( "dirt:", cl->getPreviousDirtMap()->readData() );
 		}
 		else
 		{
@@ -445,7 +447,6 @@ void GameServer::SendFiles()
 	// If client sends ping packets server will send packets faster.
 	const float MaxPacketDelay = 0.25; // Modify this to get higher packet rate, though it may overflood laggy clients
 
-	Timer cTimer( Timer::DummyHandler, NULL, int(MaxPacketDelay*1000.0), true );
 	bool startTimer = false;
 	
 	CClient *cl = cClients;
@@ -468,7 +469,7 @@ void GameServer::SendFiles()
 	};
 
 	if( startTimer )
-		cTimer.start();
+		Timer( &Timer::DummyHandler, NULL, int(MaxPacketDelay*1000.0), true ).startHeadless();
 };
 
 void GameServer::sendEmptyWeaponsOnRespawn( CWorm * Worm )

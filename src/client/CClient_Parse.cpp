@@ -605,6 +605,10 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bJoin_Update = true;
 	
 	getFileDownloaderInGame()->reset();
+	getPreviousDirtMap()->Clear();
+	if( cMap )
+		cMap->SendDirtUpdate( getPreviousDirtMap() );
+	setPartialDirtUpdateCount( 0 );
 
     return true;
 }
@@ -682,7 +686,7 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	if (cRemoteWorms[id].getLocal())
 		bShouldRepaintInfo = true;
 	
-	if( bSpectate && iNumWorms > 0 && cLocalWorms[0] == &cRemoteWorms[id] )
+	if( bSpectate && iNumWorms > 0 && cLocalWorms[0] == &cRemoteWorms[id] && cLocalWorms[0]->getType() == PRF_HUMAN )
 	{
 		SendDeath( id, id ); // Suicide myself as long as I spawned
 	};
@@ -1542,9 +1546,9 @@ void CClient::ParseSendFile(CBytestream *bs)
 				cFileDownloaderInGame.reset();
 			return;
 		};
-		if( getFileDownloaderInGame()->getFilename() == "dirt" &&
+		if( getFileDownloaderInGame()->getFilename() == "dirt:" &&
 			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
-		{	// Parse a dirt mask packet
+		{	// Parse a full dirt mask
 			setPartialDirtUpdateCount(0);
 			getPreviousDirtMap()->Clear();
 			getPreviousDirtMap()->writeData( getFileDownloaderInGame()->getData() );
@@ -1555,10 +1559,17 @@ void CClient::ParseSendFile(CBytestream *bs)
 		else
 		if( getFileDownloaderInGame()->getFilename().find( "dirt:" ) == 0 &&
 			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
-		{	// Parse a partial dirt mask packet
+		{	// Parse a partial dirt mask
 			int updateCount = atoi(getFileDownloaderInGame()->getFilename().substr(strlen("dirt:")));
 			if( updateCount != getPartialDirtUpdateCount() )
+			{	// Request full dirt mask
+				getFileDownloaderInGame()->setDataToSend("dirt:", "");
+				CBytestream bs;
+				bs.writeByte(C2S_SENDFILE);
+				getFileDownloaderInGame()->send( &bs );	// Single packet
+				cNetChan.AddReliablePacketToSend(bs);
 				return;
+			};
 			setPartialDirtUpdateCount( getPartialDirtUpdateCount() + 1 );
 			CBytestream bsDiff, bsNew;
 			bsDiff.writeData( getFileDownloaderInGame()->getData() );
@@ -1652,8 +1663,6 @@ void CClient::ParseSendFile(CBytestream *bs)
 			};
 			cFileDownloaderInGame.setDataToSend( "", "" );	// Delay file request - half-second pause added automatically
 		};
-		//if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
-		//	getFileDownloaderInGame()->requestFilesPending();	// Garbles channel with big amounts of data
 	};
 	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
 	{

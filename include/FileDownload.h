@@ -162,6 +162,8 @@ public:
 	void		setFileToSend( const std::string & path );
 
 	void		reset();
+	
+	void		abortDownload();	// Aborts both downloading and uploading, data to send is in one packet less than 256 bytes
 
 	// Functions that will trigger remote CFileDownloaderInGame to do something like send some file or list some dir
 	void		allowFileRequest( bool allow );
