@@ -171,8 +171,6 @@ void CClient::ParseConnected(CBytestream *bs)
 	bJoin_Update = true;
 	bHost_Update = true;
 
-	//bHostOLXb3 = false;
-	//bHostOLXb4 = false;
 	bHostAllowsMouse = false;
 	
 }
@@ -1112,7 +1110,7 @@ void CClient::ParseUpdateLobby(CBytestream *bs)
 			return;
 		fputs("  <server hostname=\"",f);
 		fputs(HostName.c_str(),f);
-		static std::string cTime = GetTime();
+		std::string cTime = GetTime();
 		fprintf(f,"\" jointime=\"%s\">\r\n",cTime.c_str());
 		if(cIConnectedBuf != "")  {
 			fputs("    <message type=\"NETWORK\" text=\"",f);
@@ -1474,7 +1472,7 @@ void CClient::ParseDestroyBonus(CBytestream *bs)
 
 ///////////////////
 // Parse a 'goto lobby' packet
-void CClient::ParseGotoLobby(CBytestream *bs)
+void CClient::ParseGotoLobby(CBytestream *)
 {
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );
@@ -1485,11 +1483,7 @@ void CClient::ParseGotoLobby(CBytestream *bs)
 	// Hide the console
 	Con_Hide();
 
-	if(tGameInfo.iGameType == GME_HOST) {
-		// Goto the host lobby
-		Menu_Net_GotoHostLobby();
 
-	} else
 	if(tGameInfo.iGameType == GME_JOIN) {
 
 		// Tell server my worms aren't ready
@@ -1535,11 +1529,6 @@ void CClient::ParseDropped(CBytestream *bs)
 		fclose(f);
 	}
 }
-
-bool timerTickOnceCallback(Timer* sender, void* userData)
-{
-	return false;
-};
 
 // Server sent us some file
 void CClient::ParseSendFile(CBytestream *bs)
@@ -1679,7 +1668,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 	{
 		fLastFileRequestPacketReceived = tLX->fCurTime - 10.0f;	// Set timeout in past so we'll check out other data immediately
 		fLastFileRequest = tLX->fCurTime + 0.3f;	// Small pause so many small files won't come garbled
-		Timer(&timerTickOnceCallback, NULL, 300, true).startHeadless();	// Set timer so client will send the request
+		Timer(&Timer::DummyHandler, NULL, 300, true).startHeadless();	// Set timer so client will send the request
 	};
 };
 

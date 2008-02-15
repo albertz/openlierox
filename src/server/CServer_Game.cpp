@@ -24,6 +24,7 @@
 #include "MathLib.h"
 #include "DedicatedControl.h"
 #include "Physics.h"
+#include "Menu.h"
 
 
 using namespace std;
@@ -652,6 +653,9 @@ void GameServer::gotoLobby(void)
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->BackToLobby_Signal();
+
+	// Goto the host lobby
+	Menu_Net_GotoHostLobby();
 
 	// HINT: the gamescript is shut down by the cache
 }
