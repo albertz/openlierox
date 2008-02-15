@@ -15,6 +15,8 @@
 // Created 7/4/02
 // Jason Boettcher
 
+#include <iostream>
+
 #include "Clipboard.h"
 #include "LieroX.h"
 #include "AuxLib.h"
@@ -25,6 +27,8 @@
 #include "Options.h"
 
 console_t	*Console = NULL;
+
+using namespace std;
 
 
 ///////////////////
@@ -307,6 +311,18 @@ void Con_AddText(int colour, const std::string& text)
 	for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++, n--)  {
 		Console->Line[n].strText = *it;
 		Console->Line[n].Colour = colour;
+		
+		cout << "Ingame console: ";
+		switch(colour) {
+		case CNC_NORMAL: break;
+		case CNC_NOTIFY: cout << "NOTIFY: "; break;
+		case CNC_ERROR: cout << "ERROR: "; break;
+		case CNC_WARNING: cout << "WARNING: "; break;
+		case CNC_DEV: cout << "DEV: "; break;
+		case CNC_CHAT: cout << "CHAT: "; break;
+		default: cout << "UNKNOWN: ";
+		}
+		cout << *it << endl;		
 	}
 }
 

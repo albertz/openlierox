@@ -1023,8 +1023,7 @@ void GameServer::DropClient(CClient *cl, int reason, const std::string& sReason)
 void GameServer::kickWorm(int wormID, const std::string& sReason)
 {
     if( wormID < 0 || wormID >= MAX_PLAYERS )  {
-		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
+		Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
 		return;
 	}
 
@@ -1036,20 +1035,20 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
     // Get the worm
     CWorm *w = cWorms + wormID;
     if( !w->isUsed() )  {
-		if (Con_IsUsed())
-			Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
+		Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
 
     // Get the client
     CClient *cl = w->getClient();
-    if( !cl )
+    if( !cl ) {
+    	Con_Printf(CNC_ERROR, "This worm cannot be kicked, the client is unknown");
         return;
-
+	}
+	
 	// Local worms are handled another way
 	if (cClient)  {
 		if (cClient->OwnsWorm(w))  {
-
 			// Delete the worm from client and server
 			cClient->RemoveWorm(w->getID());
 			w->setAlive(false);

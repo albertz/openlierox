@@ -696,13 +696,16 @@ void GotoLocalMenu(void)
 // Go to local menu
 void GotoNetMenu(void)
 {
+	if(tGameInfo.iGameType == GME_HOST) {
+		printf("Warning: called GotoLocalMenu as host, ignoring...\n");
+		return;
+	}
+	
 	std::cout << "GotoNetMenu" << std::endl;
 	tLX->bQuitEngine = true;
 	cClient->Disconnect();
-	if(!bDedicated) {
-		Menu_SetSkipStart(true);
-		Menu_NetInitialize();
-	}
+	Menu_SetSkipStart(true);
+	Menu_NetInitialize();
 }
 
 ////////////////////

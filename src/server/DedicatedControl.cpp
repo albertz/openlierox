@@ -305,10 +305,7 @@ struct DedIntern {
 			return;
 		}
 
-		cServer->kickWorm(id,reason);
-
-
-	
+		cServer->kickWorm(id,reason);	
 	}
 
 	void Cmd_BanWorm(const std::string & params)
