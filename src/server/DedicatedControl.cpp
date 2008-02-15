@@ -264,6 +264,7 @@ struct DedIntern {
 	// adds a worm to the game
 	void Cmd_AddWorm(const std::string & params) {
 		// TODO ...
+		// also ensure here that we don't add human players
 	}
 	
 	// Kick and ban will both function using ID
@@ -492,8 +493,7 @@ struct DedIntern {
 		}
 		
 		// Start the game
-		//cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
-		cClient->setSpectate(true); // Spectate - bots won't suicide, and it's required if you add human player
+		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
 		cServer->StartGame();	// start in dedicated mode
 
 		// Leave the frontend
