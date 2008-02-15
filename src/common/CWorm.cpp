@@ -1015,13 +1015,14 @@ void CWorm::Draw(SDL_Surface *bmpDest, CViewport *v)
 void CWorm::DrawShadow(SDL_Surface *bmpDest, CViewport *v)
 {
     if( tLXOptions->bShadows && v )
+    	// HINT: the move by (-9,-5) is needed as it seems that the shadowpic has the worm on this position
+    	// TODO: is the above hint correct?
     	// HINT: we don't use vDrawPos but vPos here to give a hint where the player is really atm (if interpolation is too slow)
-    	// TODO: is it good like this? should we perhaps use the real coordinates and not the moved (-9,-5) ones?
-    	// or perhaps an average between vPos and vDrawPos?
     	// TODO: if we just use vDrawPos here, we also have to fix the drawing of rifle and perhaps also of other ninjaropes
 		// FIXME: just tested it, I was on a high-ping server and it was horrible! The shadow should be always synced with the worm image!
         if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) )
-			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x,(int) vPos.y);
+			// just don't draw it as a real shadow but show the real position instead (not the interpolated)
+			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9 - SHADOW_DROP, (int) vPos.y-5 - SHADOW_DROP);
         else
 			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
