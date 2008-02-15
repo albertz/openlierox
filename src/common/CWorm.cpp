@@ -777,7 +777,7 @@ void CWorm::UpdateDrawPos() {
 				vDrawPos = vPos;
 			else
 				vDrawPos += vDif * (1/dif)
-					* MAX(10.0f, MIN(dif * dif * (1.0f / 100.0f) * 40.0f, 200.0f)) * tLX->fDeltaTime;
+					* MAX(10.0f, MIN(dif * dif * (1.0f / 50.0f) * 40.0f, 200.0f)) * tLX->fDeltaTime;
 		}
 		
 	
@@ -1020,7 +1020,10 @@ void CWorm::DrawShadow(SDL_Surface *bmpDest, CViewport *v)
     	// or perhaps an average between vPos and vDrawPos?
     	// TODO: if we just use vDrawPos here, we also have to fix the drawing of rifle and perhaps also of other ninjaropes
 		// FIXME: just tested it, I was on a high-ping server and it was horrible! The shadow should be always synced with the worm image!
-        pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
+        if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) )
+			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x,(int) vPos.y);
+        else
+			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
 
