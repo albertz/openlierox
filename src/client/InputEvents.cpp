@@ -10,6 +10,7 @@
 
 #include <SDL_syswm.h>
 #include <iostream>
+#include <set>
 
 #include "Clipboard.h"
 #include "LieroX.h"
@@ -17,6 +18,8 @@
 #include "AuxLib.h"
 #include "Menu.h"
 #include "Timer.h"
+#include "CInput.h"
+
 
 using namespace std;
 
@@ -68,7 +71,78 @@ void InitEventSystem() {
 	GetMouse()->mouseQueue.reserve(32); // just make space to avoid always reallocation
 }
 
+static std::set<CInput*> cInputs;
+
+void RegisterCInput(CInput* input) {
+	cInputs.insert(input);
+}
+
+void UnregisterCInput(CInput* input) {
+	cInputs.erase(input);
+}
+
+static void ResetCInputs() {
+	for(std::set<CInput*>::iterator it = cInputs.begin(); it != cInputs.end(); it++) {
+		if((*it)->getResetEachFrame())
+			(*it)->reset();
+	}
+}
+
+void HandleCInputs_KeyEvent(KeyboardEvent& ev) {
+	for(std::set<CInput*>::iterator it = cInputs.begin(); it != cInputs.end(); it++)
+		if((*it)->isKeyboard() && (*it)->getData() == ev.sym) {
+			if(ev.down) {
+				(*it)->nDown++;
+				if(!(*it)->bDown) {
+					(*it)->nDownOnce++;
+					(*it)->bDown = true;
+				}
+			} else {
+				(*it)->bDown = false;
+				(*it)->nUp++;
+			}
+		}
+}
+
+void HandleCInputs_UpdateDownOnceForNonKeyboard() {
+	for(std::set<CInput*>::iterator it = cInputs.begin(); it != cInputs.end(); it++)
+		if((*it)->isUsed() && !(*it)->isKeyboard()) {
+			// HINT: It is possible that wasUp() and !Down (a case which is not covered in further code)
+			if((*it)->wasUp() && !(*it)->bDown) {
+				(*it)->nDownOnce++;
+				continue;
+			}
+			
+			// HINT: It's possible that wasDown() > 0 and !isDown().
+			// That is the case when we press a key and release it directly after (in one frame).
+			// Though wasDown() > 0 doesn't mean directly isDownOnce because it also counts keypresses.
+			// HINT: It's also possible that wasDown() == 0 and isDown().
+			// That is the case when we have pressed the key in a previous frame and we still hold it
+			// and the keyrepeat-interval is bigger than FPS. (Rare case.)
+			if((*it)->wasDown() || (*it)->isDown()) {
+				// wasUp() > 0 always means that it was down once (though it is not down anymore).
+				// Though the released key in wasUp() > 0 was probably already recognised before.
+				if((*it)->wasUp()) {
+					(*it)->bDown = (*it)->isDown();
+					if((*it)->bDown) // if it is again down, there is another new press
+						(*it)->nDownOnce++;
+					continue;
+				}
+				// !Down means that we haven't recognised yet that it is down.
+				if(!(*it)->bDown) {
+					(*it)->bDown = (*it)->isDown();
+					(*it)->nDownOnce++;
+					continue;
+				}
+			}
+			else
+				(*it)->bDown = false;
+		}
+}
+
 static void ResetCurrentEventStorage() {
+	ResetCInputs();
+
     // Clear the queue
     Keyboard.queueLength = 0;
 
@@ -93,7 +167,7 @@ static void ResetCurrentEventStorage() {
 // in both cases where we call this function this is correct
 // TODO: though the whole architecture has to be changed later
 // but then also GetEvent() has to be changed or removed
-static void HandleNextEvent() {
+void HandleNextEvent() {
 	if (tLX == NULL)
 		return;
 
@@ -233,6 +307,8 @@ static void HandleNextEvent() {
 			// copy it
 			kbev.state = keyModifiersState;
 		
+			HandleCInputs_KeyEvent(kbev);
+			
 			/*
 			if(Event.key.state == SDL_PRESSED && Event.key.type == SDL_KEYDOWN)
 				// I don't want to track keyrepeats here; but works only for special keys
@@ -328,7 +404,8 @@ bool WaitForNextEvent() {
 	HandleMouseState();
 	HandleKeyboardState();
 	if(bJoystickSupport) SDL_JoystickUpdate();
-
+	HandleCInputs_UpdateDownOnceForNonKeyboard();
+	
 	return ret;
 }
 
@@ -352,6 +429,8 @@ bool ProcessEvents()
 	HandleMouseState();
 	HandleKeyboardState();
 	if(bJoystickSupport) SDL_JoystickUpdate();
+	HandleCInputs_UpdateDownOnceForNonKeyboard();
 	
 	return ret;
 }
+

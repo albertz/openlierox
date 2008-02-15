@@ -410,8 +410,17 @@ void CWorm::getInput()
 	ws->iAngle = (int)fAngle;
 	ws->iX = (int)vPos.x;
 	ws->iY = (int)vPos.y;
-		
-
+	
+	
+	cUp.reset();
+	cDown.reset();
+	cLeft.reset();
+	cRight.reset();
+	cShoot.reset();
+	cJump.reset();
+	cSelWeapon.reset();
+	cInpRope.reset();
+	cStrafe.reset();	
 }
 
 
@@ -595,4 +604,56 @@ void CWorm::getMouseInput(void)
 	ws->iAngle = (int)fAngle;
 	ws->iX = (int)vPos.x;
 	ws->iY = (int)vPos.y;
+}
+
+
+
+
+///////////////////
+// Setup the inputs
+void CWorm::SetupInputs(const controls_t& Inputs)
+{
+	bUsesMouse = false;
+	for (byte i=0;i<Inputs.ControlCount(); i++)
+		if (Inputs[i].find("ms"))  {
+			bUsesMouse = true;
+			break;
+		}
+
+	cUp.Setup(		Inputs[SIN_UP] );
+	cDown.Setup(	Inputs[SIN_DOWN] );
+	cLeft.Setup(	Inputs[SIN_LEFT] );
+	cRight.Setup(	Inputs[SIN_RIGHT] );
+
+	cShoot.Setup(	Inputs[SIN_SHOOT] );
+	cJump.Setup(	Inputs[SIN_JUMP] );
+	cSelWeapon.Setup(Inputs[SIN_SELWEAP] );
+	cInpRope.Setup(	Inputs[SIN_ROPE] );
+
+	cStrafe.Setup( Inputs[SIN_STRAFE] );
+}
+
+
+void CWorm::InitInputSystem() {
+	cUp.setResetEachFrame( false );
+	cDown.setResetEachFrame( false );
+	cLeft.setResetEachFrame( false );
+	cRight.setResetEachFrame( false );
+	cShoot.setResetEachFrame( false );
+	cJump.setResetEachFrame( false );
+	cSelWeapon.setResetEachFrame( false );
+	cInpRope.setResetEachFrame( false );
+	cStrafe.setResetEachFrame( false );
+}
+
+void CWorm::StopInputSystem() {
+	cUp.setResetEachFrame( true );
+	cDown.setResetEachFrame( true );
+	cLeft.setResetEachFrame( true );
+	cRight.setResetEachFrame( true );
+	cShoot.setResetEachFrame( true );
+	cJump.setResetEachFrame( true );
+	cSelWeapon.setResetEachFrame( true );
+	cInpRope.setResetEachFrame( true );
+	cStrafe.setResetEachFrame( true );
 }

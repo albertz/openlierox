@@ -503,7 +503,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 		if(ready && !bReadySent && !bDownloadingMap) {
 			cout << "our weapons were selected, the game can begin" << endl;
 			bReadySent = true;
-			
+						
 			// TODO: move this out here
 			CBytestream bs;
 			bs.writeByte(C2S_IMREADY);

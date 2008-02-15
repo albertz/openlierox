@@ -407,6 +407,8 @@ public:
 	void		InitWeaponSelection(void);
 	void		GetRandomWeapons(void);
 	void		SelectWeapons(SDL_Surface *bmpDest, CViewport *v);
+	void		InitInputSystem();
+	void		StopInputSystem();
 
 
 	//
@@ -425,6 +427,7 @@ public:
 	// Game
 	//
 	void		Prepare(CMap *pcMap);
+	void		StartGame();
 	void		Spawn(CVec position);
 	void		Respawn(CVec position);
 	bool		Injure(int damage);

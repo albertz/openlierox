@@ -22,7 +22,7 @@
 #include "CInput.h"
 #include "CVec.h"
 #include "Options.h" // for control_t
-
+#include "SmartPointer.h"
 
 
 // Viewport types
@@ -58,7 +58,7 @@ public:
         pcTargetWorm = NULL;
         nType = VW_FOLLOW;
         fTimer = -1;
-		bSmooth = false;
+		bSmooth = false;		
 	}
 
 private:
@@ -84,7 +84,8 @@ private:
 
     float   fTimer;
 
-    CInput  cUp, cRight, cDown, cLeft;
+	// HINT: we have to use pointers here as we have CViewport in a global variable
+    SmartPointer<CInput>  cUp, cRight, cDown, cLeft;
 	
 	bool	bSmooth;
 	CVec	cSmoothVel, cSmoothAccel;

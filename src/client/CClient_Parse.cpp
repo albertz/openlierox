@@ -637,6 +637,12 @@ void CClient::ParseStartGame(CBytestream *bs)
 	// Re-initialize the ingame scoreboard
 	InitializeIngameScore(false);
 	bUpdateScore = true;
+
+
+	// let our worms know that the game starts know
+	for(uint i=0;i<iNumWorms;i++) {
+		cLocalWorms[i]->StartGame();
+	}	
 }
 
 

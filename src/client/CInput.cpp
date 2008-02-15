@@ -255,13 +255,32 @@ void CInput::UnInitJoysticksTemp() {
 	uninitTempJoystick(1);
 }
 
+
+
+
+
+
+
+CInput::CInput() {
+	Type = INP_NOTUSED;
+	Data = 0;
+	Extra = 0;
+	resetEachFrame = true;	
+	bDown = false;
+	
+	RegisterCInput(this);
+}
+
+CInput::~CInput() {
+	UnregisterCInput(this);
+}
+
+
 ///////////////////
 // Load the input from a config file
 int CInput::Load(const std::string& name, const std::string& section)
 {
 	std::string string;
-
-	Down = false;
 
 	if(!ReadString(GetConfigFile(),section,name,string,""))
 		return false;
@@ -341,8 +360,8 @@ int CInput::Setup(const std::string& string)
 	unsigned int n;
 
 	m_EventName = string;
-	Down = false;
-
+	resetEachFrame = true;
+	
 	// Check if it's a mouse
 	if(string.substr(0,2) == "ms") {
 		Type = INP_MOUSE;
@@ -429,29 +448,19 @@ int CInput::Setup(const std::string& string)
 // Returns if the input has just been released
 int CInput::isUp(void)
 {
-	keyboard_t	*Keyb = GetKeyboard();
-	mouse_t		*Mouse = GetMouse();
-
 
 	switch(Type) {
 
 		// Keyboard
 		case INP_KEYBOARD:
-#ifdef WIN32
-			// Workaround for right alt key which is reported as LCTRL + RALT on windib driver
-			if (Keyb->queueLength > 1 && Data == SDLK_RALT)
-				if (Keyb->keyQueue[0].sym == SDLK_LCTRL && Keyb->keyQueue[1].sym == SDLK_RALT && !Keyb->keyQueue[1].down)
-					return true;
-#endif
-
-			if(Keyb->KeyUp[Data])
+			if(nUp > 0)
 				return true;
 			break;
 
 		// Mouse
 		case INP_MOUSE:
-			// TODO: Calculate mouse_up for ALL the buttons
-			if(Mouse->Up)
+			// TODO: fix: this calculates mouse_up for ALL the buttons
+			if(GetMouse()->Up)
 				return true;
 			break;
 
@@ -470,32 +479,16 @@ int CInput::isUp(void)
 // Returns if the input is down
 int CInput::isDown(void)
 {
-	keyboard_t	*Keyb = GetKeyboard();
-	mouse_t		*Mouse = GetMouse();
-
 	switch(Type) {
 
 		// Keyboard
 		case INP_KEYBOARD:
 			if(wasDown()) return true; // in this case, we want to return true here to get it recognised at least once
-#ifdef WIN32
-			// TODO: please remove this hack here
-			// Workaround for right alt key which is reported as LCTRL + RALT on windib driver
-			if (Keyb->queueLength > 1 && Data == SDLK_RALT)
-				// TODO: why are only the first and second key-events checked? what if they are later
-				// what if first event was in previous frame?
-				// what if first event is a keyup-event?
-				if (Keyb->keyQueue[0].sym == SDLK_LCTRL && Keyb->keyQueue[1].sym == SDLK_RALT && Keyb->keyQueue[1].down)
-					return true;
-#endif
-
-			if(Keyb->KeyDown[Data])
-				return true;
-			break;
+			return bDown;
 
 		// Mouse
 		case INP_MOUSE:
-			if(Mouse->Button & SDL_BUTTON(Data))
+			if(GetMouse()->Button & SDL_BUTTON(Data))
 				return true;
 			break;
 
@@ -515,54 +508,11 @@ int CInput::isDown(void)
 // Returns if the input was pushed down once
 bool CInput::isDownOnce(void)
 {
-	// HINT: It is possible that wasUp() and !Down (a case which is not covered in further code)
-	if(wasUp() && !Down) {
-		return true;
-	}
-	
-	// HINT: It's possible that wasDown() > 0 and !isDown().
-	// That is the case when we press a key and release it directly after (in one frame).
-	// Though wasDown() > 0 doesn't mean directly isDownOnce because it also counts keypresses.
-	// HINT: It's also possible that wasDown() == 0 and isDown().
-	// That is the case when we have pressed the key in a previous frame and we still hold it
-	// and the keyrepeat-interval is bigger than FPS. (Rare case.)
-	if(wasDown() || isDown()) {
-		// wasUp() > 0 always means that it was down once (though it is not down anymore).
-		// Though the released key in wasUp() > 0 was probably already recognised before.
-		if(wasUp()) {
-			Down = isDown();
-			return Down; // if it is again down, there is another new press
-		}
-		// !Down means that we haven't recognised yet that it is down.
-		if(!Down) {
-			Down = isDown();
-			return true;
-		}
-	}
-	else
-		Down = false;
-
-	return false;
+	return nDownOnce;
 }
 
 int CInput::wasDown_withoutRepeats() {
-	int count = 0;
-	bool down = false;
-	for(short i = 0; i < GetKeyboard()->queueLength; i++) {
-		if(GetKeyboard()->keyQueue[i].sym == Data) {
-			if(GetKeyboard()->keyQueue[i].down) {
-				if(!down) {
-					count++;
-					down = true;
-				}
-			}
-			else {
-				down = false;
-			}
-		}
-	}
-
-	return count;
+	return nDownOnce;
 }
 
 // goes through the event-signals and searches for the event
@@ -571,22 +521,26 @@ int CInput::wasDown() {
 	
 	switch(Type) {
 	case INP_KEYBOARD:
-		for(short i = 0; i < GetKeyboard()->queueLength; i++) {
-			if(GetKeyboard()->keyQueue[i].down && GetKeyboard()->keyQueue[i].sym == Data)
-				counter++;
-		}
-		return counter;
-	
+		counter = nDown;
+		break;
+			
 	case INP_MOUSE:
 		// TODO: to make this possible, we need to go extend HandleNextEvent to save the mouse events
 		counter = isDown() ? 1 : 0; // no other way at the moment
+		break;
 		
 	case INP_JOYSTICK1:
 	case INP_JOYSTICK2:
 		counter = isDown() ? 1 : 0; // no other way at the moment
+		break;
 	}
-		
-	return 0;
+	
+	// this is currently possible because nDownOnce is updated each frame and
+	// we have perhaps not reset this CInput
+	if(nDownOnce > counter)
+		counter = nDownOnce;
+
+	return counter;
 }
 
 // goes through the event-signals and searches for the event
@@ -595,51 +549,23 @@ int CInput::wasUp() {
 	
 	switch(Type) {
 	case INP_KEYBOARD:
-		for(short i = 0; i < GetKeyboard()->queueLength; i++) {
-			if(!GetKeyboard()->keyQueue[i].down && GetKeyboard()->keyQueue[i].sym == Data)
-				counter++;
-		}
-		return counter;
+		counter = nDown;
+		break;
 	
 	case INP_MOUSE:
 		// TODO: to make this possible, we need to go extend HandleNextEvent to save the mouse events
 		counter = isUp() ? 1 : 0; // no other way at the moment
+		break;
 		
 	case INP_JOYSTICK1:
 	case INP_JOYSTICK2:
 		counter = isUp() ? 1 : 0; // no other way at the moment
+		break;
 	}
-		
-	return 0;
+	
+	return counter;
 }
 
-
-
-///////////////////
-// Clear the up state of the input device
-void CInput::ClearUpState(void)
-{
-	keyboard_t	*Keyb = GetKeyboard();
-	mouse_t		*Mouse = GetMouse();
-
-
-	switch(Type) {
-
-		// Keyboard
-		case INP_KEYBOARD:
-			Keyb->KeyUp[Data] = false;
-			break;
-
-		// Mouse
-		case INP_MOUSE:
-			// TODO: Calculate mouse_up for ALL the buttons
-			Mouse->Up = false;
-			break;
-
-		// Joystick
-		case INP_JOYSTICK1:
-		case INP_JOYSTICK2:
-			// TODO: is this needed?
-			break;
-	}
+void CInput::reset() {
+	nDown = nDownOnce = nUp = 0;	
 }

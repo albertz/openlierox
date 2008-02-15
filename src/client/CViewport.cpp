@@ -46,10 +46,15 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
 // Setup the keyboard inputs for freelook
 void CViewport::setupInputs(const controls_t& Inputs)
 {
-    cUp.Setup(		Inputs[SIN_UP] );
-	cDown.Setup(	Inputs[SIN_DOWN] );
-	cLeft.Setup(	Inputs[SIN_LEFT] );
-	cRight.Setup(	Inputs[SIN_RIGHT] );
+	cUp = new CInput();
+	cDown = new CInput();
+	cLeft = new CInput();
+	cRight = new CInput();
+    
+    cUp.get()->Setup(		Inputs[SIN_UP] );
+	cDown.get()->Setup(	Inputs[SIN_DOWN] );
+	cLeft.get()->Setup(	Inputs[SIN_LEFT] );
+	cRight.get()->Setup(	Inputs[SIN_RIGHT] );
 }
 
 
@@ -269,13 +274,13 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         float scrollSpeed = 300.0f*tLX->fDeltaTime;
 
         // Uses the players keys to scroll around
-        if( cUp.isDown() )
+        if( cUp.get()->isDown() )
             curPos -= CVec(0,scrollSpeed);
-        else if( cDown.isDown() )
+        else if( cDown.get()->isDown() )
             curPos += CVec(0,scrollSpeed);
-        if( cLeft.isDown() )
+        if( cLeft.get()->isDown() )
             curPos -= CVec(scrollSpeed,0);
-        else if( cRight.isDown() )
+        else if( cRight.get()->isDown() )
             curPos += CVec(scrollSpeed,0);
 
         // Clamp our movement

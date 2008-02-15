@@ -198,29 +198,6 @@ void CWorm::FreeGraphics(void)
 }
 
 
-///////////////////
-// Setup the inputs
-void CWorm::SetupInputs(const controls_t& Inputs)
-{
-	bUsesMouse = false;
-	for (byte i=0;i<Inputs.ControlCount(); i++)
-		if (Inputs[i].find("ms"))  {
-			bUsesMouse = true;
-			break;
-		}
-
-	cUp.Setup(		Inputs[SIN_UP] );
-	cDown.Setup(	Inputs[SIN_DOWN] );
-	cLeft.Setup(	Inputs[SIN_LEFT] );
-	cRight.Setup(	Inputs[SIN_RIGHT] );
-
-	cShoot.Setup(	Inputs[SIN_SHOOT] );
-	cJump.Setup(	Inputs[SIN_JUMP] );
-	cSelWeapon.Setup(Inputs[SIN_SELWEAP] );
-	cInpRope.Setup(	Inputs[SIN_ROPE] );
-
-	cStrafe.Setup( Inputs[SIN_STRAFE] );
-}
 
 
 ///////////////////
@@ -239,6 +216,14 @@ void CWorm::Prepare(CMap *pcMap)
     // If this is an AI worm, initialize the AI stuff
     if(iType == PRF_COMPUTER && bLocal)
         AI_Initialize();
+       
+    // we use the normal init system first after the weapons are selected and we are ready
+	StopInputSystem();
+}
+
+
+void CWorm::StartGame() {
+	InitInputSystem();
 }
 
 

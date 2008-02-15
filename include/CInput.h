@@ -24,6 +24,7 @@
 
 
 // Input variable types
+#define		INP_NOTUSED			-1
 #define		INP_KEYBOARD		0
 #define		INP_MOUSE			1
 #define		INP_JOYSTICK1		2
@@ -37,18 +38,16 @@
 #define		JOY_RIGHT			3
 #define		JOY_BUTTON			4
 
+class KeyboardEvent;
 
 class CInput {
+	friend void HandleNextEvent();
+	friend void HandleCInputs_UpdateDownOnceForNonKeyboard();
+	friend void HandleCInputs_KeyEvent(KeyboardEvent& ev);
+	
 public:
-	// Constructor
-	CInput() {
-		Type = INP_KEYBOARD;
-		Data = 0;
-		Extra = 0;
-		Down = false;
-
-	}
-
+	CInput();
+	~CInput();
 
 private:
 	// Attributes
@@ -56,12 +55,19 @@ private:
 	int		Type; // keyboard, mouse or joystick
 	int		Data;
 	int		Extra;
-	int		Down;
 	std::string m_EventName;
-
+	bool	resetEachFrame;
+	
+	// HINT: currently these are only used for keyboard exept nDownOnce
+	// TODO: change this in HandleNextEvent() and here
+	int		nDown;
+	int		nDownOnce; // this is also updated for non-keyboards with currently the old code
+	int		nUp;
+	bool	bDown;
+		
 private:
 	int		wasDown_withoutRepeats();
-
+		
 public:
 	// Methods
 
@@ -70,9 +76,13 @@ public:
 	static void InitJoysticksTemp(); // call this if CInput::Wait shall recognise joystick events
 	static void UnInitJoysticksTemp();
 	static int Wait(std::string& strText); // TODO: change this name. this function doesn't realy wait, it just checks the event-state
+	bool	isUsed() { return Type >= 0; }
 	int		getData() { return Data; }
 	int		getType() { return Type; }
 	bool	isJoystick() { return Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2; }
+	bool	isKeyboard() { return Type == INP_KEYBOARD; }
+	void	setResetEachFrame(bool r)	{ resetEachFrame = r; }
+	bool	getResetEachFrame()			{ return resetEachFrame; }
 	
 	int		isUp(void);
 	int		isDown(void);
@@ -86,7 +96,9 @@ public:
 	
 	std::string getEventName() { return m_EventName; }
 
-	void	ClearUpState(void); // TODO: why is this needed? and this should be removed as it does not good things (modifies things it should not modify)
+	// resets the current state
+	// this is called automatically if resetEachFrame
+	void	reset();
 };
 
 
