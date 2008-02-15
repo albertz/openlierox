@@ -1038,13 +1038,6 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		Con_Printf(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
         return;
 	}
-
-    // Get the client
-    CClient *cl = w->getClient();
-    if( !cl ) {
-    	Con_Printf(CNC_ERROR, "This worm cannot be kicked, the client is unknown");
-        return;
-	}
 	
 	// Local worms are handled another way
 	if (cClient)  {
@@ -1059,7 +1052,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			// Update the number of players on server/client
 			iNumPlayers--;
 			tGameInfo.iNumPlayers--;
-			cl->RemoveWorm(w->getID());
+			cClient->RemoveWorm(w->getID());
 
 			// Tell everyone that the client's worms have left both through the net & text
 			CBytestream bs;
@@ -1088,6 +1081,12 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		}
 	}
 
+    // Get the client
+    CClient *cl = w->getClient();
+    if( !cl ) {
+    	Con_Printf(CNC_ERROR, "This worm cannot be kicked, the client is unknown");
+        return;
+	}
 
     // Drop the client
     DropClient(cl, CLL_KICK, sReason);
