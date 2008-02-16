@@ -466,7 +466,7 @@ void CClient::ShootSpecial(CWorm *w)
 		// Jetpack
 		case SPC_JETPACK:
 			CVec *v = w->getVelocity();
-			*v = *v + CVec(0,-50) * ((float)Slot->Weapon->tSpecial.Thrust * dt);
+			*v += CVec(0,-50) * ((float)Slot->Weapon->tSpecial.Thrust * dt);
 
 			Uint32 blue = MakeColour(80,150,200);
 			CVec s = CVec(15,0) * GetRandomNum();
@@ -947,10 +947,9 @@ void CClient::ProcessShot(shoot_t *shot)
 	// Draw the muzzle flash
 	w->setDrawMuzzle(true);
 
-
-	// This is assuming that the client time is greater than the projectile time
-	float time = fServerTime - shot->fTime;
-
+	// fServerTime is the time we calculated for the server,
+	// shot->fTime was the fServerTime given by the other client when it produced the shot
+	float fSpawnTime = tLX->fCurTime - (fServerTime - shot->fTime);
 	CVec sprd;
 
 	for(int i=0; i<wpn->ProjAmount; i++) {
@@ -988,7 +987,7 @@ void CClient::ProcessShot(shoot_t *shot)
 
         CVec v = sprd*speed + shot->cWormVel;
 
-		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, time);
+		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, fSpawnTime);
 
 		shot->nRandom++;
 		shot->nRandom %= 255;

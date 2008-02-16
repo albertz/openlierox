@@ -488,20 +488,26 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 			// Select weapons
 			if(!cLocalWorms[i]->getWeaponsReady()) {
-				ready = false;
 				cLocalWorms[i]->SelectWeapons(bmpDest, &cViewports[i]);
 
 				// Forced to finish weapon selection
 				if (bForceWeaponsReady)  {
 					cLocalWorms[i]->setWeaponsReady(true);
-					ready = true;
 				}
+				
+				if(cLocalWorms[i]->getWeaponsReady()) {
+					cout << "Client: our weapons were selected" << endl;
+					if(bDownloadingMap)
+						cout << "but we still have to wait for the download process" << endl;
+				}
+				
+				ready = ready && cLocalWorms[i]->getWeaponsReady();
 			}
 		}
 
 		// If we're ready, let the server know
 		if(ready && !bReadySent && !bDownloadingMap) {
-			cout << "our weapons were selected, the game can begin" << endl;
+			cout << "Client: we are ready" << endl;
 			bReadySent = true;
 						
 			// TODO: move this out here

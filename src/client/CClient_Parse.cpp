@@ -1486,6 +1486,8 @@ void CClient::ParseDestroyBonus(CBytestream *bs)
 // Parse a 'goto lobby' packet
 void CClient::ParseGotoLobby(CBytestream *)
 {
+	printf("Client: received gotoLobby signal\n");
+	
 	// in lobby we need the events again
 	AddSocketToNotifierGroup( tSocket );
 

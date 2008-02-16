@@ -7,6 +7,8 @@
 	created on 9/2/2008
 */
 
+#include <iostream>
+
 #include "Physics.h"
 
 // TODO: clean up this code!
@@ -547,7 +549,7 @@ public:
 		case TRL_PROJECTILE: // Projectile trail
 			if(fCurTime > proj->lastTrailProj()) {
 				proj->lastTrailProj() = fCurTime + proj->getProjInfo()->PrjTrl_Delay;
-
+				
 				// Set the spawning to true so the upper layers of code (client) will spawn the projectiles
 				// TODO: why is boolean used for an integer here?
 				proj->setSpawnPrjTrl( true );
@@ -563,6 +565,7 @@ public:
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 		
 	simulateProjectileStart:
+		if(!prj->isUsed()) return;
 		if(prj->fLastSimulationTime + dt > fCurTime) return;
 		prj->fLastSimulationTime += dt;
 	
@@ -579,7 +582,7 @@ public:
 		int wormid = -1;	
 	
 		bool spawnprojectiles = false;
-		proj_t *pi;
+		const proj_t *pi;
 		float f;
 	
 
@@ -637,7 +640,7 @@ public:
 
 		// Simulate the projectile
 		wormid = -1;
-		result = simulateProjectile_LowLevel( fCurTime, dt, prj, client->getRemoteWorms(), &wormid );
+		result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, client->getRemoteWorms(), &wormid );
 
 		/*
 		===================
@@ -747,8 +750,7 @@ public:
 		if(prj->getSpawnPrjTrl()) {
 			prj->setSpawnPrjTrl(false);
 
-			CVec v;
-			for(i=0;i<pi->PrjTrl_Amount;i++) {
+			for(i=0; i < pi->PrjTrl_Amount; i++) {
 				sprd = CVec(0,0);
 
 				if(pi->PrjTrl_UsePrjVelocity) {
@@ -759,9 +761,10 @@ public:
 				} else
 					GetAngles((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
 
-				v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
+				CVec v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
 
-				client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, fCurTime);
+				// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
+				client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, prj->fLastSimulationTime);
 			}
 		}
 
@@ -869,13 +872,14 @@ public:
 					heading-=360;
 			}
 
-			float speed;
 			for(i=0;i<pi->ProjAmount;i++) {
 				a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
 				GetAngles(a,&sprd,NULL);
 
-				speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
+				float speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
 
+				// we use fCurTime (= the simulation time of the client) to simulate the spawing at this time
+				// because the spawing is caused probably by conditions of the environment like collision with worm/map
 				client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fCurTime);
 			}
 		}
@@ -895,9 +899,6 @@ public:
 		
 		CProjectile *prj = projs;				
 		for(int p = 0; p < count; p++, prj++) {
-			if(!prj->isUsed())
-				continue;
-			
 			simulateProjectile( client->fLastSimulationTime, prj, client );
 		}
 		

@@ -45,6 +45,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 	fLastSimulationTime = time;
 	
+	// TODO: is this comment up-to-date??
 	// this produce a memory leak
 	fSpeed = _vel.GetLength();
 
@@ -70,6 +71,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 
 ///////////////////
 // Gets a random float from a special list
+// TODO: how does this belong to projectiles? move it perhaps out here
 float CProjectile::getRandomFloat(void)
 {
 	float r = GetFixedRandomNum(iRandom++);
@@ -140,6 +142,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	else
 		w=h=2;
 
+	CVec vOldVel = vVelocity;
 	CVec newvel = vVelocity;
 	// Gravity
 	if(tProjInfo->UseCustomGravity)
@@ -233,6 +236,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		//vPosition.x = (float)px;
 		//vPosition.y = (float)py;
 		vPosition = vOldPos;
+		vVelocity = vOldVel;
 		return SOME_COL_RET;
 	}
 
@@ -251,11 +255,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		if(y<0)	{
 			CollisionSide |= COL_TOP;
 			vPosition = vOldPos;
+			vVelocity = vOldVel;
 			return SOME_COL_RET;
 		}
 		if(y>=mh) {
 			CollisionSide |= COL_BOTTOM;
 			vPosition = vOldPos;
+			vVelocity = vOldVel;
 			return SOME_COL_RET;
 		}
 
@@ -268,11 +274,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			if(x<0) {
 				CollisionSide |= COL_LEFT;
 				vPosition = vOldPos;
+				vVelocity = vOldVel;
 				return SOME_COL_RET;
 			}
 			if(x>=mw) {
 				CollisionSide |= COL_RIGHT;
 				vPosition = vOldPos;
+				vVelocity = vOldVel;
 				return SOME_COL_RET;
 			}
 
@@ -316,9 +324,11 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		} else if ( tProjInfo->Hit_Type == PJ_NOTHING )  {  // PJ_NOTHING projectiles go through walls (but a bit slower)
 			vPosition -= (vVelocity*dt)*0.8f;				// Note: the speed in walls could be moddable
 			vOldPos = vPosition;
-		} else
+		} else {
 			vPosition = vOldPos;
-							
+			vVelocity = vOldVel;
+		}
+					
 		// Find the collision side
 		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
 			if(bounce)
