@@ -26,7 +26,7 @@
 
 ///////////////////
 // Spawn the projectile
-void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, bool _remote, float _remotetime)
+void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time)
 {
 	tProjInfo = _proj;
 	fLife = 0;
@@ -40,14 +40,11 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	iSpawnPrjTrl = false;
 	fLastTrailProj = -99999;
 	iRandom = _random;
-	bRemote = _remote;
     iFrameX = 0;
 	
     fTimeVarRandom = GetFixedRandomNum(iRandom);
-
-	if(bRemote)
-		fRemoteFrameTime = _remotetime;
-
+	fLastSimulationTime = time;
+	
 	// this produce a memory leak
 	fSpeed = _vel.GetLength();
 

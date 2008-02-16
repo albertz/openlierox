@@ -454,8 +454,11 @@ private:
 public:	
 	// HINT: saves the current time of the simulation
 	// TODO: should be moved later to PhysicsEngine
-	// but it's not possible in a clean way until we have no simulateBonuses()
-	// there which simulates all bonuses together
+	// but it's not possible in a clean way until we have no simulateWorld()
+	// there which simulates everything together
+	// HINT: this is currently used for simulating the projectiles
+	// if you are going to use this also for something else,
+	// then be sure that is is run together with simulateProjectiles() !
 	float	fLastSimulationTime;
 	
 	
@@ -495,7 +498,7 @@ public:
 
 	void		BotSelectWeapons(void);
 
-	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, bool _remote, float remotetime);
+	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float time);
     void        disableProjectile(CProjectile *prj);
 	void		Explosion(CVec pos, int damage, int shake, int owner);
 	void		InjureWorm(CWorm *w, int damage, int owner);

@@ -486,7 +486,7 @@ int GameServer::StartGame()
 // Begin the match
 void GameServer::BeginMatch(void)
 {
-	cout << "BeginMatch" << endl;
+	cout << "Server: BeginMatch" << endl;
 	int i;
 
 	iState = SVS_PLAYING;

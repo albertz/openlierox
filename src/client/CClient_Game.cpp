@@ -585,7 +585,7 @@ void CClient::DrawBeam(CWorm *w)
 
 ///////////////////
 // Spawn a projectile
-void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, bool _remote, float remotetime)
+void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, float remotetime)
 {
 	CProjectile *proj = cProjectiles;
 	int p=0;
@@ -607,7 +607,7 @@ void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_p
     // Safety
     _random %= 255;
 
-	proj->Spawn(_proj,pos,vel,rot,owner,_random,_remote,remotetime);
+	proj->Spawn(_proj,pos,vel,rot,owner,_random,remotetime);
 }
 
 
@@ -988,7 +988,7 @@ void CClient::ProcessShot(shoot_t *shot)
 
         CVec v = sprd*speed + shot->cWormVel;
 
-		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, true, time);
+		SpawnProjectile(pos, v, rot, w->getID(), wpn->Projectile, shot->nRandom, time);
 
 		shot->nRandom++;
 		shot->nRandom %= 255;

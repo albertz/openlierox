@@ -911,7 +911,7 @@ void CClient::ParseGameOver(CBytestream *bs)
 
     // Clear the projectiles
     for(int i=0; i < MAX_PROJECTILES; i++)
-		cProjectiles[i].setUsed(false);
+		cProjectiles[i].setUnused();
     nTopProjectile = 0;
 
 	UpdateScoreboard();

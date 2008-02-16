@@ -21,6 +21,7 @@
 #include "Sounds.h"
 #include "GfxPrimitives.h"
 
+
 #define		MAX_PROJECTILES	3000
 
 #define		COL_TOP		    0x01
@@ -35,7 +36,6 @@
 #define     PJC_WORM        0x02
 #define     PJC_EXPLODE     0x04
 #define     PJC_TOUCH       0x08
-
 
 
 
@@ -146,7 +146,6 @@ public:
 		iSpawnPrjTrl = false;
 		iColour = 0;
 		iRandom = 0;
-		bRemote = false;
         nExplode = false;
         nTouched = false;
         fRotation = 0;
@@ -180,8 +179,7 @@ private:
 
 	// Network
 	int			iRandom;
-	bool		bRemote;
-	float		fRemoteFrameTime;
+
 
 	// Animation
 	int			iFrameDelta;
@@ -206,7 +204,7 @@ public:
 	// Methods
 	
 
-	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, bool _remote, float _remoteframe);	
+	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time);	
 	int		Collision(uchar pf);
 
     void	Draw(SDL_Surface *bmpDest, CViewport *view);
@@ -220,7 +218,7 @@ public:
 	void	Bounce(float fCoeff);
 
 	bool	isUsed(void)			{ return bUsed; }
-	void	setUsed(bool u)			{ bUsed = u; }
+	void	setUnused()				{ bUsed = false; }
 
 	float	getLife(void)			{ return fLife; }
 	float&	life()					{ return fLife; }
@@ -229,7 +227,6 @@ public:
 	int&	explode()				{ return nExplode; }
 	float&	explodeTime()			{ return fExplodeTime; }
 	int&	touched()				{ return nTouched; }
-	void	setRemote(bool r)		{ bRemote = r; }
 	proj_t* getProjInfo()			{ return tProjInfo; }
 	float&	rotation()				{ return fRotation; }
 	void	setFrameDelta(int d)	{ iFrameDelta = d; }
@@ -256,7 +253,11 @@ public:
     void    setExplode(float t, int _e)     { fExplodeTime = t; nExplode = _e; }
     void    setTouched(int _t)      { nTouched = _t; }
 
-	bool	isRemote()				{ return bRemote; }
+
+	// HINT: saves the current time of the simulation
+	// we need to save this also per projectile as they can have different
+	// simulation times (different times of spawning or remote projectiles)
+	float	fLastSimulationTime;
 
 };
 
