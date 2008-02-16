@@ -1,0 +1,12 @@
+Source: openlierox
+Section: unknown
+Priority: extra
+Maintainer: root <root@linuxvm.az2000.de>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: openlierox
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
