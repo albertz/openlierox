@@ -1,3 +1,4 @@
-CMakeCache.txt
-CMakeLists.txt
-dump.txt
+doc
+doc/README
+doc/Development
+
