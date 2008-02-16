@@ -22,4 +22,4 @@ $SYNC_CMD --delete-after web/* $DEST
 
 # and lastly, clean up old files
 $SYNC_CMD --delete-after ebuild $DEST
-$SYNC_CMD --delete-after tmpbuild $DEST
+# $SYNC_CMD --delete-after tmpbuild $DEST

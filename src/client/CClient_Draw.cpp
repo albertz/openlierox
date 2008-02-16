@@ -496,7 +496,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				}
 				
 				if(cLocalWorms[i]->getWeaponsReady()) {
-					cout << "Client: our weapons were selected" << endl;
+					cout << "Client: worm " << i << "is ready with weapon-selection" << endl;
 					if(bDownloadingMap)
 						cout << "but we still have to wait for the download process" << endl;
 				}
@@ -507,9 +507,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 
 		// If we're ready, let the server know
 		if(ready && !bReadySent && !bDownloadingMap) {
-			cout << "Client: we are ready" << endl;
+			cout << "Client: we are ready, waiting now for start game signal" << endl;
 			bReadySent = true;
-						
+			
 			// TODO: move this out here
 			CBytestream bs;
 			bs.writeByte(C2S_IMREADY);

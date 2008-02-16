@@ -124,7 +124,11 @@
 </p>
 <p>
 	<h2>Contact</h2>
-	If you like to write any comments, bug reports or anything else, use the following mail-adress for now:<br>
+	Use the bug-tracker if you want to report a bug. Use the feature request
+	tracker if you miss something in the game. Use the forum at LXA or SF
+	to meet the community and ask general questions. Register on the
+	mailing list if you are interested in the internal development.<br>
+	For other things, just write a mail to:
 	<i>openlierox [at] az2000 [dot] de</i>
 </p>
 <p>

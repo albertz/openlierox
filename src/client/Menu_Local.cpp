@@ -566,8 +566,6 @@ void Menu_LocalShowMinimap(bool bReload)
 // Start a local game
 void Menu_LocalStartGame(void)
 {
-    int i;
-
 	// Level
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tGameInfo.sMapFile, 0);
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &tGameInfo.sMapName, 0);
@@ -586,9 +584,10 @@ void Menu_LocalStartGame(void)
 		return;
 
     int count = 0;
-
+    
     // Add the human players onto the list
-    for(i=0; i<MAX_PLAYERS; i++) {
+    for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
+    	int i = item->iIndex;
 		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN) {
 			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
 			tGameInfo.cPlayers[count++] = tMenu->sLocalPlayers[i].getProfile();
@@ -596,7 +595,8 @@ void Menu_LocalStartGame(void)
     }
 
     // Add the unhuman players onto the list
-    for(i=0; i<MAX_PLAYERS; i++) {
+    for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
+    	int i = item->iIndex;
 		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType != PRF_HUMAN) {
 			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
 			tGameInfo.cPlayers[count++] = tMenu->sLocalPlayers[i].getProfile();
@@ -646,17 +646,13 @@ bool Menu_LocalCheckPlaying(int index)
 {
 	uint		plycount = 0;
 	uint		hmncount = 0;
-	uint		i, count;
 	profile_t	*p;
+	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
 
-    count = 0;
-    for(i=0; i<MAX_PLAYERS; i++) {
-        if(tMenu->sLocalPlayers[i].isUsed())
-            count++;
-    }
 
 	// Go through the playing list
-	for(i=0; i<MAX_PLAYERS; i++) {
+    for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
+    	int i = item->iIndex;
         if(!tMenu->sLocalPlayers[i].isUsed())
             continue;
 

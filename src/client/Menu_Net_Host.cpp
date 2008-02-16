@@ -344,7 +344,7 @@ void Menu_Net_HostPlyFrame(int mouse)
                         //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tGameInfo.sPassword, 0);
 
 						// Save the info
-						static std::string buf;
+						std::string buf;
 						cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->tGameinfo.sServerName, 0);
 						cHostPly.SendMessage( hs_WelcomeMessage, TXS_GETTEXT, &tLXOptions->tGameinfo.sWelcomeMessage, 0);
                         //cHostPly.SendMessage( hs_Password, TXS_GETTEXT, &tLXOptions->tGameinfo.szPassword, 0);
