@@ -186,6 +186,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			ret = ProjWormColl(curpos,worms);
 			if (ret >= 0)  {
 				if (enddt) *enddt = time;
+				vOldPos = vPosition; // save the new position
 				return ret;
 			}
 			curpos += vVelocity*checkstep;
