@@ -116,7 +116,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		MAX_CHECKSTEP = 3;
 		AVG_CHECKSTEP = 2;
 	} else if (len >= 14000 && len < 75000)  {
-		MIN_CHECKSTEP = 1;
+		MIN_CHECKSTEP = 0;
 		MAX_CHECKSTEP = 4;
 		AVG_CHECKSTEP = 2;
 	} else if (len >= 75000 && len < 250000)  {
@@ -212,7 +212,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	top=bottom=left=right=0;
 	int px=(int)(vPosition.x);
 	int py=(int)(vPosition.y);
-
+	bool collisionWasOnlyDirt = true;
+	
 	// Hit edges
 	if(vPosition.x - w < 0 || vPosition.y - h < 0 || vPosition.x + w >= mw || vPosition.y + h >= mh) {
 
@@ -233,6 +234,8 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			py = mh-h;
 			CollisionSide |= COL_BOTTOM;
 		}
+
+		collisionWasOnlyDirt = false;
 
 		//vPosition.x = (float)px;
 		//vPosition.y = (float)py;
@@ -255,12 +258,14 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		// Clipping means that it has collided
 		if(y<0)	{
 			CollisionSide |= COL_TOP;
+			collisionWasOnlyDirt = false;
 			vPosition = vOldPos;
 			vVelocity = vOldVel;
 			return SOME_COL_RET;
 		}
 		if(y>=mh) {
 			CollisionSide |= COL_BOTTOM;
+			collisionWasOnlyDirt = false;
 			vPosition = vOldPos;
 			vVelocity = vOldVel;
 			return SOME_COL_RET;
@@ -274,12 +279,14 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			// Clipping
 			if(x<0) {
 				CollisionSide |= COL_LEFT;
+				collisionWasOnlyDirt = false;
 				vPosition = vOldPos;
 				vVelocity = vOldVel;
 				return SOME_COL_RET;
 			}
 			if(x>=mw) {
 				CollisionSide |= COL_RIGHT;
+				collisionWasOnlyDirt = false;
 				vPosition = vOldPos;
 				vVelocity = vOldVel;
 				return SOME_COL_RET;
@@ -294,18 +301,20 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 					left++;
 				else if(x>px)
 					right++;
+				
+				if(*pf & PX_ROCK)
+					collisionWasOnlyDirt = false;
 			}
 
 			pf++;
 		}
 	}
 
-
 	// Check for a collision
 	if(top || bottom || left || right) {
 		CollisionSide = 0;
 
-		if(tProjInfo->Hit_Type == PJ_EXPLODE) {
+		if(tProjInfo->Hit_Type == PJ_EXPLODE && collisionWasOnlyDirt) {
 			// HINT: don't reset vPosition here, because we want
 			//		the explosion near (inside) the object
 			//		this behavior is the same as in original LX
@@ -323,6 +332,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			//		depending on the collisionside
 			bounce = true;
 		} else if ( tProjInfo->Hit_Type == PJ_NOTHING )  {  // PJ_NOTHING projectiles go through walls (but a bit slower)
+			//printf("this projectile can go through walls\n");
 			vPosition -= (vVelocity*dt)*0.8f;				// Note: the speed in walls could be moddable
 			vOldPos = vPosition;
 		} else {

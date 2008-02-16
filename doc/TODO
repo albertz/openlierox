@@ -1,7 +1,7 @@
 TODO
 (remember also to look at the bugs on SF)
 
-[ ] fix projectiles flying though walls when they
+[?] fix projectiles flying though walls when they
     shouldn't (my fixes didn't work, it's somewhere deeper
     in the collision checks) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
