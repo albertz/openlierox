@@ -434,7 +434,7 @@ public:
 		}	
 	}
 	
-	int simulateProjectile_LowLevel(float dt, CProjectile* proj, CWorm *worms, int *wormid) {
+	int simulateProjectile_LowLevel(float fCurTime, float dt, CProjectile* proj, CWorm *worms, int *wormid) {
 		int res = PJC_NONE;
 
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
@@ -463,7 +463,7 @@ public:
 		proj->extra() += dt;
 
 		// If any of the events have been triggered, add that onto the flags
-		if( proj->explode() && tLX->fCurTime > proj->explodeTime()) {
+		if( proj->explode() && fCurTime > proj->explodeTime()) {
 			res |= PJC_EXPLODE;
 			proj->explode() = false;
 		}
@@ -545,8 +545,8 @@ public:
 			}
 			break;
 		case TRL_PROJECTILE: // Projectile trail
-			if(tLX->fCurTime > proj->lastTrailProj()) {
-				proj->lastTrailProj() = tLX->fCurTime + proj->getProjInfo()->PrjTrl_Delay;
+			if(fCurTime > proj->lastTrailProj()) {
+				proj->lastTrailProj() = fCurTime + proj->getProjInfo()->PrjTrl_Delay;
 
 				// Set the spawning to true so the upper layers of code (client) will spawn the projectiles
 				// TODO: why is boolean used for an integer here?
@@ -557,14 +557,15 @@ public:
 		return res;
 	}
 	
-	void simulateProjectile(float fEndTime, CProjectile* prj, CClient* client) {
+	void simulateProjectile(const float fCurTime, CProjectile* const prj, CClient* const client) {
 		const static float dt = 0.01f;
 		
 		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
 		
 	simulateProjectileStart:
-		if(prj->fLastSimulationTime + dt > fEndTime) return;
+		if(prj->fLastSimulationTime + dt > fCurTime) return;
 		prj->fLastSimulationTime += dt;
+	
 	
 		int a,i;
 		CVec sprd;
@@ -577,16 +578,10 @@ public:
 		int result = 0;
 		int wormid = -1;	
 	
-		bool spawnprojectiles;
+		bool spawnprojectiles = false;
 		proj_t *pi;
 		float f;
 	
-		explode = false;
-		timer = false;
-		dirt = false;
-		grndirt = false;
-		shake = 0;
-		spawnprojectiles = false;
 
 		// Check if the timer is up
 		pi = prj->GetProjInfo();
@@ -642,14 +637,7 @@ public:
 
 		// Simulate the projectile
 		wormid = -1;
-		// HINT: previously, it was done like this:
-		// If this is a remote projectile, simulate the first frame with ping:
-		// dt + (prj->isRemote() ? (float)iMyPing/1000.0f : 0), // TODO: any reason for doing this?
-		// HINT: now, we only take care about tLX->fCurTime and no dt
-		// TODO: is there any difference now?
-		result = simulateProjectile_LowLevel( dt, prj, client->getRemoteWorms(), &wormid );
-
-		// TODO: move all following code to PhysicsEngine (or at least related parts)
+		result = simulateProjectile_LowLevel( fCurTime, dt, prj, client->getRemoteWorms(), &wormid );
 
 		/*
 		===================
@@ -773,7 +761,7 @@ public:
 
 				v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
 
-				client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, prj->fLastSimulationTime);
+				client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, fCurTime);
 			}
 		}
 
@@ -888,7 +876,7 @@ public:
 
 				speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
 
-				client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, prj->fLastSimulationTime);
+				client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, fCurTime);
 			}
 		}
 	
@@ -904,7 +892,7 @@ public:
 	simulateProjectilesStart:
 		if(client->fLastSimulationTime + dt > tLX->fCurTime) return;
 		client->fLastSimulationTime += dt;
-				
+		
 		CProjectile *prj = projs;				
 		for(int p = 0; p < count; p++, prj++) {
 			if(!prj->isUsed())
