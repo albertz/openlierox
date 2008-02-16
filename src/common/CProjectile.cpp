@@ -133,7 +133,6 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
-	int px,py,x,y;
 	int ret;
 	
 	if(tProjInfo->Type == PRJ_PIXEL)
@@ -174,8 +173,6 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	vVelocity = newvel;
 	if(enddt) *enddt = dt;
 	vPosition += vVelocity*dt;
-	px=(int)(vPosition.x);
-	py=(int)(vPosition.y);
 
 	// got we any worm?
 	if((checkstep*dt*dt > WORM_CHECKSTEP*WORM_CHECKSTEP))  {
@@ -193,6 +190,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 
 	ret = ProjWormColl(vPosition, worms);
 	if(ret >= 0) {
+		vOldPos = vPosition; // save the new position
 		return ret;
 	}
 	
@@ -208,24 +206,26 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	CollisionSide = 0;
 	short top,bottom,left,right;
 	top=bottom=left=right=0;
+	int px=(int)(vPosition.x);
+	int py=(int)(vPosition.y);
 
 	// Hit edges
-	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh) {
+	if(vPosition.x - w < 0 || vPosition.y - h < 0 || vPosition.x + w >= mw || vPosition.y + h >= mh) {
 
 		// Check the collision side
-		if(px-w<0) {
+		if(vPosition.x - w < 0) {
 			px = w;
 			CollisionSide |= COL_LEFT;
 		}
-		if(py-h<0) {
+		if(vPosition.y - h < 0) {
 			py = h;
 			CollisionSide |= COL_TOP;
 		}
-		if(px+w>=mw) {
+		if(vPosition.x + w >= mw) {
 			px = mw-w;
 			CollisionSide |= COL_RIGHT;
 		}
-		if(py+h>=mh) {
+		if(vPosition.y + h >= mh) {
 			py = mh-h;
 			CollisionSide |= COL_BOTTOM;
 		}
@@ -245,7 +245,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	|| gridflags[((py+h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
 	|| gridflags[((py-h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT)
 	|| gridflags[((py+h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT))
-	for(y=py-h;y<=py+h;y++) {
+	for(int y = py-h; y <= py+h; y++) {
 
 		// Clipping means that it has collided
 		if(y<0)	{
@@ -262,7 +262,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 
 		const uchar *pf = map->GetPixelFlags() + y*mw + px-w;
 
-		for(x=px-w;x<=px+w;x++) {
+		for(int x = px-w; x <= px+w; x++) {
 
 			// Clipping
 			if(x<0) {
