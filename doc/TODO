@@ -1,13 +1,8 @@
 TODO
 (remember also to look at the bugs on SF)
 
-[?] fix projectiles flying though walls when they
-    shouldn't (my fixes didn't work, it's somewhere deeper
-    in the collision checks) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
-[ ] fix: registering is not done on all masterservers (!!)
-[ ] optimise bUnique handling in CList, is currently too slow and
-    seems to make trouble with big lists (>500 entries) (!!)
+[?] fix: registering is not done on all masterservers (!!)
 
 [ ] bot: fix building path (there is one rare case where the
     path is going through an obstacle whereby there is 
@@ -24,6 +19,8 @@ TODO
 	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
 	[?] others (!!)
 [ ] CChannel calculates wrong pings (too high) (!)
+[ ] optimise bUnique handling in CList, is currently too slow and
+    seems to make trouble with big lists (>500 entries) (!)
 
 [?] better default keys for player2 (!)
 [?] fix: FPS (dropped to 60 from 120 here!) (!)
@@ -40,6 +37,7 @@ TODO
 [?] Fix the colour detection of pink for mods (255 0 255) which only
     works in 50% of the mods now. (!!)
 
+[X] fix projectiles flying though walls when they shouldn't (!!)
 [X] fix physics (behaves currently different depending on FPS) (!!)
 [X] fix: if FPS is too high, some events will get lost
     as getInput() isn't called every frame
