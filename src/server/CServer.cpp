@@ -740,8 +740,6 @@ void GameServer::RegisterServer(void)
 // Process the registering of the server
 void GameServer::ProcessRegister(void)
 {
-    std::string szError;
-
 	if(!bRegServer || bServerRegistered || tMasterServers.size() == 0)
 		return;
 
