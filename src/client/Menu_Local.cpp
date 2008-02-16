@@ -487,6 +487,8 @@ void Menu_LocalAddProfiles(void)
 	}
 
 	// Add players from previous game to playing list
+	// TODO: add the players in the same order as last time
+	// it's a bit annoying if you add 2 human players and they switch always after a game the role
 	if (tMenu->sLocalPlayers != NULL)  {
 		for (int i=0; i < MAX_PLAYERS; i++)  {
 			if (tMenu->sLocalPlayers[i].isUsed())  {
