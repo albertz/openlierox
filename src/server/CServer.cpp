@@ -1455,11 +1455,6 @@ void GameServer::Shutdown(void)
 
     cWeaponRestrictions.Shutdown();
 
-	/*
-	if(cProjectiles) {
-		delete[] cProjectiles;
-		cProjectiles = NULL;
-	}*/
 
 	cBanList.Shutdown();
 

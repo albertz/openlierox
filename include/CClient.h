@@ -451,6 +451,14 @@ private:
 	float		fSpectatorViewportMsgTimeout;
 	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
 	
+public:	
+	// HINT: saves the current time of the simulation
+	// TODO: should be moved later to PhysicsEngine
+	// but it's not possible in a clean way until we have no simulateBonuses()
+	// there which simulates all bonuses together
+	float	fLastSimulationTime;
+	
+	
 private:
 	void		SendTextInternal(const std::string& sText, const std::string& sWormName);
 
@@ -489,7 +497,6 @@ public:
 
 	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, bool _remote, float remotetime);
     void        disableProjectile(CProjectile *prj);
-	void		SimulateProjectiles(float dt);
 	void		Explosion(CVec pos, int damage, int shake, int owner);
 	void		InjureWorm(CWorm *w, int damage, int owner);
 	void		UpdateScoreboard(void);

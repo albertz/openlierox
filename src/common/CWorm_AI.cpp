@@ -4317,8 +4317,11 @@ void CWorm::NEW_AI_MoveToTarget()
 		Prevent injuries! If any of the projectiles around is heading to us, try to get away from it
 	*/
 	// TODO: this doesn't work that good atm; so it's better to ignore it at all than to go away in a situation where shooting would be better
-	if (false /*psHeadingProjectile*/)  {
+	if (false)  {
 		// TODO: improve this
+		
+		// just temp here as I removed it globally, we should try to get a collection of projectiles here automatically (not only one)
+		CProjectile* psHeadingProjectile = NULL; 
 
 		// Go away from the projectile
 		if (tLX->fCurTime-fLastFace >= 0.5f)  {

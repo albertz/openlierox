@@ -323,7 +323,6 @@ private:
 	int			iAiCTF;
 	int			iAiTeamCTF;
 	int			iAiDiffLevel;
-	CProjectile *psHeadingProjectile;
 	int			iRandomSpread;
 
 	float		fLastShoot;
@@ -648,9 +647,6 @@ public:
 	void		setDeathsInRow(int _k)		{ iDeathsInRow = 0; }
 	int			getDeathsInRow(void)		{ return iDeathsInRow; }
 	void		addDeathInRow(void)			{ iDeathsInRow++; }
-
-	void		setHeading(CProjectile *_p) { psHeadingProjectile = _p; }
-	CProjectile *getHeading(void)			{ return psHeadingProjectile; }
 
 	bool		getAlreadyKilled()			{ return bAlreadyKilled; }
 	void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }

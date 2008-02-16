@@ -45,7 +45,7 @@ public:
 	// in the end, I want to have one single simulate(CWorld* world);
 	virtual void simulateWorm(CWorm* worm, CClient* client, CWorm *worms, bool local) = 0;
 	virtual void simulateWormWeapon(float dt, CWorm* worm) = 0;
-	virtual void simulateProjectile(CProjectile* proj, CWorm *worms, int *wormid, int* result) = 0;
+	virtual void simulateProjectiles(CProjectile* projs, const int& count, CClient* client) = 0; // count as ref here as it can change while spawning new projs
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) = 0;
 };
 

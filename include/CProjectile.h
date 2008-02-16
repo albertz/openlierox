@@ -150,8 +150,6 @@ public:
         nExplode = false;
         nTouched = false;
         fRotation = 0;
-		
-		fLastSimulationTime = -9999;
 	}
 
 
@@ -222,7 +220,7 @@ public:
 	void	Bounce(float fCoeff);
 
 	bool	isUsed(void)			{ return bUsed; }
-	void	setUsed(bool u)			{ bUsed = u; if(u) fLastSimulationTime = tLX->fCurTime; }
+	void	setUsed(bool u)			{ bUsed = u; }
 
 	float	getLife(void)			{ return fLife; }
 	float&	life()					{ return fLife; }
@@ -259,12 +257,6 @@ public:
     void    setTouched(int _t)      { nTouched = _t; }
 
 	bool	isRemote()				{ return bRemote; }
-
-	// HINT: saves the current time of the simulation
-	// TODO: should be moved later to PhysicsEngine
-	// but it's not possible in a clean way until we have no simulateProjectiles()
-	// there which simulates all projectiles together
-	float	fLastSimulationTime;
 
 };
 

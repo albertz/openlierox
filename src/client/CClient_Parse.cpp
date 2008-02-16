@@ -623,7 +623,9 @@ void CClient::ParseStartGame(CBytestream *bs)
 		printf("CClient::ParseStartGame: already playing - ignoring\n");
 		return;
 	}
-
+	
+	printf("Client: get start game signal\n");
+	fLastSimulationTime = tLX->fCurTime;
 	iNetStatus = NET_PLAYING;
 
 	// Set the local players to dead so we wait until the server spawns us

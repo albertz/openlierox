@@ -434,15 +434,7 @@ public:
 		}	
 	}
 	
-	virtual void simulateProjectile(CProjectile* proj, CWorm *worms, int *wormid, int* result) {
-		const static float fixed_dt = 0.01f;
-		*result = PJC_NONE;
-		
-		// HINT: this is a bit hacky here because there is a CheckCollision used which manipulates dt
-	simulateProjectileStart:
-		if(proj->fLastSimulationTime + fixed_dt > tLX->fCurTime) return;
-		proj->fLastSimulationTime += fixed_dt;
-		
+	int simulateProjectile(float dt, CProjectile* proj, CWorm *worms, int *wormid) {
 		int res = PJC_NONE;
 
 		// If this is a remote projectile, the first frame is simulated with a longer delta time
@@ -463,7 +455,6 @@ public:
 		// Check for collisions
 		// ATENTION: dt will manipulated directly here!
 		// TODO: use a more general CheckCollision here
-		float dt = fixed_dt;
 		int colret = proj->CheckCollision(dt, map, worms, &dt);
 		if(colret == -1)
 			res |= PJC_TERRAIN;
@@ -574,19 +565,353 @@ public:
 				proj->setSpawnPrjTrl( true );
 			}
 		}
-
-		if(res != PJC_NONE) {
-			// TODO: this is a HACK to avoid to much simulating here
-			// the only solution is if we move the whole SimulateProjectiles() here and do the fLastSimulationTime handling there
-			proj->fLastSimulationTime = tLX->fCurTime;
-			*result = res;
-			//return res;
-			return;
-		}
-		
-		goto simulateProjectileStart;	
+	
+		return res;
 	}
 	
+	virtual void simulateProjectiles(CProjectile* projs, const int& count, CClient* client) {
+		const static float dt = 0.01f;
+		
+	simulateProjectilesStart:
+		if(client->fLastSimulationTime + dt > tLX->fCurTime) return;
+		client->fLastSimulationTime += dt;
+		
+		
+		CProjectile *prj = projs;
+		int a,i;
+		CVec sprd;
+		int explode = false;
+		int timer = false;
+		int shake = 0;
+		int dirt = false;
+		int grndirt = false;
+		int damage = 0;
+		int result = 0;
+		int wormid = -1;
+	
+	
+		bool spawnprojectiles;
+		proj_t *pi;
+		float f;
+		for(int p = 0; p < count; p++, prj++) {
+			if(!prj->isUsed())
+				continue;
+				
+			explode = false;
+			timer = false;
+			dirt = false;
+			grndirt = false;
+			shake = 0;
+			spawnprojectiles = false;
+	
+			// Check if the timer is up
+			pi = prj->GetProjInfo();
+			f = prj->getTimeVarRandom();
+			if(pi->Timer_Time > 0 && (pi->Timer_Time+pi->Timer_TimeVar*f) < prj->getLife()) {
+	
+				// Run the end timer function
+				if(pi->Timer_Type == PJ_EXPLODE) {
+					explode = true;
+					timer = true;
+	
+					if(pi->Timer_Projectiles)
+						spawnprojectiles = true;
+					if(pi->Timer_Shake > shake)
+						shake = pi->Timer_Shake;
+				}
+	
+				// Create some dirt
+				if(pi->Timer_Type == PJ_DIRT) {
+					dirt = true;
+					if(pi->Timer_Projectiles)
+						spawnprojectiles = true;
+					if(pi->Timer_Shake > shake)
+						shake = pi->Timer_Shake;
+					damage = pi->Timer_Damage;
+				}
+	
+				// Create some green dirt
+				if(pi->Timer_Type == PJ_GREENDIRT) {
+					grndirt = true;
+					if(pi->Timer_Projectiles)
+						spawnprojectiles = true;
+					if(pi->Timer_Shake > shake)
+						shake = pi->Timer_Shake;
+					damage = pi->Timer_Damage;
+				}
+	
+				// Carve
+				if(pi->Timer_Type == PJ_CARVE) {
+					int d = map->CarveHole(
+						pi->Timer_Damage, prj->GetPosition());
+					prj->setUsed(false);
+	
+					if(pi->Timer_Projectiles)
+						spawnprojectiles = true;
+	
+					// Increment the dirt count
+					client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+	
+					client->CheckDemolitionsGame();
+				}
+			}
+	
+			// Simulate the projectile
+			wormid = -1;
+			// HINT: previously, it was done like this:
+			// If this is a remote projectile, simulate the first frame with ping:
+			// dt + (prj->isRemote() ? (float)iMyPing/1000.0f : 0), // TODO: any reason for doing this?
+			// HINT: now, we only take care about tLX->fCurTime and no dt
+			// TODO: is there any difference now?
+			result = simulateProjectile( dt, prj, client->getRemoteWorms(), &wormid );
+	
+			// TODO: move all following code to PhysicsEngine (or at least related parts)
+	
+			/*
+			===================
+			Terrain Collision
+			===================
+			*/
+			if( result & PJC_TERRAIN ) {
+	
+				// Explosion
+				if(pi->Hit_Type == PJ_EXPLODE) {
+					explode = true;
+	
+					if(pi->Hit_Shake > shake)
+						shake = pi->Hit_Shake;
+	
+					// Play the hit sound
+					if(pi->Hit_UseSound)
+						PlaySoundSample(pi->smpSample);
+				}
+	
+				// Bounce
+				if(pi->Hit_Type == PJ_BOUNCE) {
+					prj->Bounce(pi->Hit_BounceCoeff);
+	
+					// Do we do a bounce-explosion (bouncy larpa uses this)
+					if(pi->Hit_BounceExplode > 0)
+						client->Explosion(prj->GetPosition(), pi->Hit_BounceExplode, false, prj->GetOwner());
+				}
+	
+				// Carve
+				if(pi->Hit_Type == PJ_CARVE) {
+					int d = map->CarveHole(
+						pi->Hit_Damage, prj->GetPosition());
+					prj->setUsed(false);
+	
+					// Increment the dirt count
+					client->getRemoteWorms()[MIN(prj->GetOwner(),MAX_WORMS)].incrementDirtCount( d );
+	
+					client->CheckDemolitionsGame();
+				}
+	
+				// Dirt
+				if(pi->Hit_Type == PJ_DIRT) {
+					dirt = true;
+					damage = pi->Hit_Damage;
+				}
+	
+				// Green Dirt
+				if(pi->Hit_Type == PJ_GREENDIRT) {
+					grndirt = true;
+				}
+	
+	
+				if(pi->Hit_Projectiles)
+					spawnprojectiles = true;
+			}
+	
+	
+			/*
+			===================
+			Explosion Event
+			===================
+			*/
+			/*if( result & PJC_EXPLODE ) {
+	
+				// Explosion
+				if(pi->Exp_Type == PJ_EXPLODE) {
+					explode = true;
+	
+					if(pi->Exp_Shake > shake)
+						shake = pi->Exp_Shake;
+	
+					// Play the Explode sound
+					if(pi->Exp_UseSound)
+						PlaySoundSample(pi->smpSample);
+				}
+	
+				// Carve
+				if(pi->Exp_Type == PJ_CARVE) {
+					int d = cMap->CarveHole(pi->Exp_Damage,prj->GetPosition());
+					prj->setUsed(false);
+	
+					// Increment the dirt count
+					cRemoteWorms[prj->GetOwner()].incrementDirtCount( d );
+	
+					CheckDemolitionsGame();
+				}
+	
+				// Dirt
+				if(pi->Exp_Type == PJ_DIRT) {
+					dirt = true;
+					damage = pi->Exp_Damage;
+				}
+	
+				// Green Dirt
+				if(pi->Exp_Type == PJ_GREENDIRT) {
+					grndirt = true;
+				}
+	
+				// Spawn projectiles?
+				if(pi->Exp_Projectiles)
+					spawnprojectiles = true;
+			}*/
+	
+	
+			// Check if we need to spawn any trail projectiles
+			if(prj->getSpawnPrjTrl()) {
+				prj->setSpawnPrjTrl(false);
+	
+				CVec v;
+				for(i=0;i<pi->PrjTrl_Amount;i++) {
+					sprd = CVec(0,0);
+	
+					if(pi->PrjTrl_UsePrjVelocity) {
+						sprd = prj->GetVelocity();
+						float l = NormalizeVector(&sprd);
+						sprd *= (l*0.3f);		// Slow it down a bit.
+														// It can be sped up by the speed variable in the script
+					} else
+						GetAngles((int)((float)pi->PrjTrl_Spread * prj->getRandomFloat()),&sprd,NULL);
+	
+					v = sprd*(float)pi->PrjTrl_Speed + CVec(1,1)*(float)pi->PrjTrl_SpeedVar*prj->getRandomFloat();
+	
+					client->SpawnProjectile(prj->GetPosition(), v, 0, prj->GetOwner(), pi->PrjTrl_Proj, prj->getRandomIndex()+1, false,0);
+				}
+			}
+	
+	
+			/*
+			===================
+			Worm Collision
+			===================
+			*/
+			if( (result & PJC_WORM) && wormid >= 0 && !explode && !timer)
+				if( wormid != prj->GetOwner() || (int)(1000 * prj->getLife()) > client->getMyPing())  {
+	
+					// Explode
+					if(pi->PlyHit_Type == PJ_EXPLODE)
+						explode = true;
+	
+					// Injure
+					if(pi->PlyHit_Type == PJ_INJURE) {
+	
+						// Add damage to the worm
+						client->InjureWorm(&client->getRemoteWorms()[wormid], pi->PlyHit_Damage, prj->GetOwner());
+						prj->setUsed(false);
+					}
+	
+					if(pi->PlyHit_Type != PJ_BOUNCE && pi->PlyHit_Type != PJ_NOTHING) {
+	
+						// Push the worm back
+						CVec d = prj->GetVelocity();
+						NormalizeVector(&d);
+						CVec *v = client->getRemoteWorms()[wormid].getVelocity();
+						*v += (d*100)*dt;
+					}
+	
+					// Bounce
+					if(pi->PlyHit_Type == PJ_BOUNCE)
+						prj->Bounce(pi->PlyHit_BounceCoeff);
+	
+					if(pi->PlyHit_Projectiles)
+						spawnprojectiles = true;
+	
+					// Dirt
+					if(pi->PlyHit_Type == PJ_DIRT) {
+						dirt = true;
+						damage = pi->PlyHit_Damage;
+					}
+	
+					// Green Dirt
+					if(pi->Hit_Type == PJ_GREENDIRT) {
+						grndirt = true;
+					}
+				}
+	
+	
+			// Explode?
+			if(explode) {
+	
+				// Explosion
+				damage = pi->Hit_Damage;
+				if(timer)
+					damage = pi->Timer_Damage;
+				if(pi->PlyHit_Type == PJ_EXPLODE)
+					damage = pi->PlyHit_Damage;
+	
+				if(damage != -1)
+					client->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+				prj->setUsed(false);
+			}
+	
+			// Dirt
+			if(dirt) {
+				damage = 5;
+				int d = 0;
+				d += map->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
+				d += map->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
+				d += map->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
+	
+				// Remove the dirt count on the worm
+				client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+				prj->setUsed(false);
+			}
+	
+			// Green dirt
+			if(grndirt) {
+				int d = map->PlaceGreenDirt(prj->GetPosition());
+	
+				// Remove the dirt count on the worm
+				client->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+				prj->setUsed(false);
+			}
+	
+			// Spawn any projectiles?
+			if(spawnprojectiles) {
+	
+				CVec v = prj->GetVelocity();
+				NormalizeVector(&v);
+	
+				// Calculate the angle of the direction the projectile is heading
+				float heading = 0;
+				if(pi->ProjUseangle) {
+					heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
+					heading+=90;
+					if(heading < 0)
+						heading+=360;
+					else if(heading >= 360)
+						heading-=360;
+				}
+	
+				float speed;
+				for(i=0;i<pi->ProjAmount;i++) {
+					a = (int)( (float)pi->ProjAngle + heading + prj->getRandomFloat()*(float)pi->ProjSpread );
+					GetAngles(a,&sprd,NULL);
+	
+					speed = (float)pi->ProjSpeed + (float)pi->ProjSpeedVar*prj->getRandomFloat();
+	
+					client->SpawnProjectile(prj->GetPosition(), sprd*speed, 0, prj->GetOwner(), pi->Projectile, prj->getRandomIndex()+1, false,0);
+				}
+			}
+		}
+		
+		goto simulateProjectilesStart;
+	}
+
 	void simulateNinjarope(float dt, CWorm* owner, CWorm *worms) {
 		CNinjaRope* rope = owner->getNinjaRope();
 		CVec playerpos = owner->getPos();

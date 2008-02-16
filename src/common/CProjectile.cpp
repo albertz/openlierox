@@ -42,7 +42,6 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	iRandom = _random;
 	bRemote = _remote;
     iFrameX = 0;
-	fLastSimulationTime = tLX->fCurTime;
 	
     fTimeVarRandom = GetFixedRandomNum(iRandom);
 
@@ -692,18 +691,6 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 			else if (len < 90)
 				dist = 50.0f;
 
-			float real_dist2 = (vPosition - w->getPos()).GetLength2();
-			if (real_dist2 <= dist*dist) {
-				// If any projectile is already heading to the worm and is closer than we, don't set us as heading
-				if (w->getHeading())  {
-					if ((w->getPos() - w->getHeading()->GetPosition()).GetLength2() >= dist*dist)
-						w->setHeading(this);
-				}
-				// No projectile heading to the worm
-				else
-					w->setHeading(this);
-			}
-
 		}
 	}
 
@@ -715,6 +702,7 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 
 ///////////////////
 // Lower level projectile-worm collision test
+// TODO: move to physics?
 int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 {
 	int px = (int)pos.x;
