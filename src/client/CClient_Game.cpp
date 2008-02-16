@@ -1110,6 +1110,7 @@ void CClient::processChatter(void)
 				// Stop typing
 				bChat_Typing = false;
 				sChat_Text = "";
+				cLocalWorms[0]->clearInput();
 
 				kb->keys[SDLK_ESCAPE] = false;
 				kb->KeyDown[SDLK_ESCAPE] = false;
@@ -1284,7 +1285,8 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
     // Enter
     if(input.ch == '\r') {
         bChat_Typing = false;
-
+		cLocalWorms[0]->clearInput();
+		
         // Send chat message to the server
 		if(sChat_Text != "") {
 			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
