@@ -420,7 +420,7 @@ void CWorm::getInput()
 	cJump.reset();
 	cSelWeapon.reset();
 	cInpRope.reset();
-	cStrafe.reset();	
+	cStrafe.reset();
 }
 
 
@@ -433,6 +433,17 @@ void CWorm::clearInput(void)
 	tState.iMove  = false;
 	tState.iShoot = false;
 	tState.iJump  = false;
+	
+	// clear inputs
+	cUp.reset();
+	cDown.reset();
+	cLeft.reset();
+	cRight.reset();
+	cShoot.reset();
+	cJump.reset();
+	cSelWeapon.reset();
+	cInpRope.reset();
+	cStrafe.reset();	
 }
 
 
