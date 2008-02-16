@@ -1069,8 +1069,6 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 {
 	int		index = 0;
 
-	cmb->setSorted(true);
-	cmb->setUnique(true);
 	cmb->clear();
 
 	// If random is true, we add the 'random' level to the list
@@ -1080,6 +1078,9 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 				cmb->setCurItem(cmb->getLastItem());
 
 	FindFiles(LevelComboFiller(cmb, &index), "levels", FM_REG);
+
+	cmb->Sort(true);
+	cmb->Unique();
 }
 
 

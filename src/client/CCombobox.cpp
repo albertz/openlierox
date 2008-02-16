@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <algorithm>
 
+#include "CCombobox.h"
 #include "LieroX.h"
 #include "Graphics.h"
 #include "Menu.h"
@@ -192,6 +193,15 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	bArrowDown = false;
 }
 
+
+
+
+
+
+
+
+
+
 static inline int compare_items(const cb_item_t& item1, const cb_item_t& item2) {
 	// Swap the two items?
 	bool failed1,failed2;
@@ -221,9 +231,10 @@ static inline bool greater_items(const cb_item_t& item1, const cb_item_t& item2)
 	return compare_items(item1, item2) > 0;
 }
 
-inline bool equal_items(const cb_item_t& item1, const cb_item_t& item2) {
-	return compare_items(item1, item2) > 0;
+static inline bool equal_items(const cb_item_t& item1, const cb_item_t& item2) {
+	return compare_items(item1, item2) == 0;
 }
+
 
 //////////////////////
 // Sorts te items in the combobox
@@ -236,8 +247,11 @@ void CCombobox::Sort(bool ascending)
 }
 
 void CCombobox::Unique() {
-	 std::vector<cb_item_t>::iterator new_end = std::unique(tItems.begin(), tItems.end(), equal_items);
-	 tItems.erase(new_end, tItems.end());
+	std::vector<cb_item_t>::iterator new_end = std::unique(tItems.begin(), tItems.end(), equal_items);
+	tItems.erase(new_end, tItems.end());
+
+    cScrollbar.setMax( tItems.size() );	
+	bGotScrollbar = tItems.size() > 6;
 }
 
 ///////////////////
@@ -649,8 +663,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 		Sort(true);
 	}
 
-    cScrollbar.setMax( tItems.size() );
-	
+    cScrollbar.setMax( tItems.size() );	
 	bGotScrollbar = tItems.size() > 6;
 
 	return index;

@@ -712,11 +712,10 @@ bool Menu_LocalCheckPlaying(int index)
 void Menu_Local_FillModList( CCombobox *cb )
 {
 	// Find all directories in the the lierox
-	cb->setSorted(true);
-	cb->setUnique(true);
 	cb->clear();
-
 	FindFiles(addMod(cb),".",FM_DIR);
+	cb->Sort(true);
+	cb->Unique();
 }
 
 
