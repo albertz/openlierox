@@ -140,6 +140,7 @@
 	<a href="http://sourceforge.net/mail/?group_id=180059">Mailing lists at SF</a><br>
 	<a href="http://lxalliance.net/forum/index.php?board=125.0">LXA forum for OpenLieroX</a><br>
 	<hr>
+	<a href="http://iworx5.webxtra.net/~lxallian/filebase/file.php?fball=all">FileBase with levels, mods and skins</a><br>
 	<a href="http://iworx5.webxtra.net/~lxallian/LXRS/">official LieroX site</a><br>
 	<a href="http://open.liero.be/">Open Liero</a><br>
 	<a href="http://gusanos.sourceforge.net/">Gusanos</a><br>
