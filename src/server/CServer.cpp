@@ -885,6 +885,7 @@ void GameServer::CheckWeaponSelectionTime()
 {
 	if( iState != SVS_GAME || tGameInfo.iGameType != GME_HOST )
 		return;
+	
 	// Issue some sort of warning to clients
 	if( tLXOptions->iWeaponSelectionMaxTime - ( tLX->fCurTime - fWeaponSelectionTime ) < 5.2 && 
 		iWeaponSelectionTime_Warning < 2 )
@@ -909,11 +910,11 @@ void GameServer::CheckWeaponSelectionTime()
 				continue;
 			if( cl->getGameReady() )
 				continue;
-			if( cl->getWorm(0) )
-				if( cl->getWorm(0)->getID() == 0)  {
-					cClient->setForceWeaponsReady(true); // Instead of kicking, force the host to make weapons ready
-					continue;
-				}
+			if( cl == cClient ) {
+				printf("forcing end of weapon selection for own client\n");
+				cClient->setForceWeaponsReady(true); // Instead of kicking, force the host to make weapons ready
+				continue;
+			}
 			DropClient( cl, CLL_KICK, "selected weapons too long" );
 		};
 	};
