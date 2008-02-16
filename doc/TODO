@@ -4,9 +4,10 @@ TODO
 [ ] fix projectiles flying though walls when they
     shouldn't (my fixes didn't work, it's somewhere deeper
     in the collision checks) (!!)
-[ ] better default keys for player2 (!!)
-[ ] fix physics (behaves currently different depending on FPS) (!!)
 [ ] make correct Debian packages with dh_make and dpkg-buildpackage (!!)
+[ ] fix: registering is not done on all masterservers (!!)
+[ ] optimise bUnique handling in CList, is currently too slow and
+    seems to make trouble with big lists (>500 entries) (!!)
 
 [ ] bot: fix building path (there is one rare case where the
     path is going through an obstacle whereby there is 
@@ -24,6 +25,7 @@ TODO
 	[?] others (!!)
 [ ] CChannel calculates wrong pings (too high) (!)
 
+[?] better default keys for player2 (!)
 [?] fix: FPS (dropped to 60 from 120 here!) (!)
 [?] fix network interpolation (is currently not optimal) (!!)
 [?] gfx is wrong in some situation or makes problems, fix that (!!)
@@ -38,6 +40,7 @@ TODO
 [?] Fix the colour detection of pink for mods (255 0 255) which only
     works in 50% of the mods now. (!!)
 
+[X] fix physics (behaves currently different depending on FPS) (!!)
 [X] fix: if FPS is too high, some events will get lost
     as getInput() isn't called every frame
 [X] fix: keys are ignored in low FPS in game (CInput::isDown()), makes

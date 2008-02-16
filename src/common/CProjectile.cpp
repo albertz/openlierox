@@ -26,6 +26,7 @@
 
 ///////////////////
 // Spawn the projectile
+// this function is called by CClient::SpawnProjectile()
 void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, float time)
 {
 	tProjInfo = _proj;
@@ -84,7 +85,7 @@ float CProjectile::getRandomFloat(void)
 
 
 ///////////////////
-// Check for a collision
+// Check for a collision, updates velocity and position
 // Returns:
 // -1 if some collision
 // -1000 if none
