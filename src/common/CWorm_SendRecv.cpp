@@ -152,6 +152,7 @@ void CWorm::updateCheckVariables()
 	fLastUpdateWritten = tLX->fCurTime;
 	iLastCurWeapon = iCurrentWeapon;
 	cNinjaRope.updateCheckVariables();
+	vLastUpdatedPos = vPos;
 }
 
 ////////////////////
@@ -172,25 +173,24 @@ bool CWorm::checkPacketNeeded()
 		(tLastState.iShoot != tState.iShoot))
 			return true;
 
-	// Angle
-	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.05f)
-		return true;
-
-	// TODO: don't check velocity here but the pos-change instead
-	// (which is not the same because we have independent physics-simulation)
-	// Time
-	if (vVelocity.GetLength2())
-		if (tLX->fCurTime - fLastUpdateWritten >= MAX(3.0f/vVelocity.GetLength(), 1.0f/80.0f))
-			return true;
-
-	// Flag
-	if(getFlag())
-		return true;
-
 	// Changed weapon
 	if(iLastCurWeapon != iCurrentWeapon)
 		return true;
 
+	// Angle
+	if (fabs(fLastAngle - fAngle) > 0.00001 && tLX->fCurTime - fLastUpdateWritten > 0.05f)
+		return true;
+	
+	// position change
+	CVec vPosDif = vLastUpdatedPos - vPos;
+	if (vPosDif.GetLength2())
+		if (tLX->fCurTime - fLastUpdateWritten >= MAX(1.0f/vPosDif.GetLength(), 1.0f/80.0f))
+			return true;
+			
+	// Flag
+	if(getFlag())
+		return true;
+	
 	// Rope
 	return cNinjaRope.writeNeeded();
 }
@@ -375,7 +375,6 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 	iDirection = DIR_LEFT;
 		
-
 	tState.iCarve = (bits & 0x01);
 	if(bits & 0x02)
 		iDirection = DIR_RIGHT;
@@ -501,6 +500,18 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
 	
+	// do carving also here as the simulation is only done in next frame and with an updated position
+	if(tState.iCarve) {
+		// Calculate dir
+		CVec dir;
+		dir.x=( (float)cos((float)tState.iAngle * (PI/180)) );
+		dir.y=( (float)sin((float)tState.iAngle * (PI/180)) );
+		if(tState.iDirection==DIR_LEFT)
+			dir.x=(-dir.x);
+		
+		incrementDirtCount( CarveHole(getMap(), getPos() + dir*4) );
+	}
+
 	this->fLastSimulationTime = tLX->fCurTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
 }
 

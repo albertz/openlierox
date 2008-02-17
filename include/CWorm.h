@@ -263,7 +263,7 @@ private:
 	float		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
 	byte		iLastCharge;
 	byte		iLastCurWeapon;
-
+	CVec		vLastUpdatedPos;
 
 
 	// Graphics
