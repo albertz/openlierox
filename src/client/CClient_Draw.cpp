@@ -619,6 +619,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	#endif*/
 
 		// Game over
+		// TODO: remove this static here; it is a back hack and doesn't work in all cases
 		static bool was_gameovermenu = false;
 		if(bGameOver) {
 			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {
