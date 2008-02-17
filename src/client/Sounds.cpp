@@ -18,7 +18,7 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include <SDL_stdinc.h>
+#include <SDL.h>
 
 #include "LieroX.h"
 #include "Cache.h"
