@@ -31,10 +31,11 @@
 void CClient::SendWormDetails(void)
 {
 	// Don't flood packets so often
-	if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
+	// we are checking in w->checkPacketNeeded() if we need to send an update
+/*	if ((tLX->fCurTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
 		if (tGameInfo.iGameType != GME_LOCAL)
 			return;
-
+*/
 	CBytestream bs;
 	CWorm *w;
 	uint i;

@@ -664,13 +664,6 @@ void GameServer::SendPackets(void)
 {
 	int c;
 	CClient *cl = cClients;
-	static float oldtime =0;
-
-	if(tLX->fCurTime - oldtime < 1.0/72.0)
-		return;		// So we don't flood packets out to the clients
-	else
-		oldtime = tLX->fCurTime;
-
 
 	// If we are playing, send update to the clients
 	if (iState == SVS_PLAYING)

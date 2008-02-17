@@ -114,6 +114,7 @@ bool GameServer::SendUpdate()
 			++j;
 
 			CBytestream bytes;
+			// w is an own server-side copy of the worm-structure
 			if (w->checkPacketNeeded()) {
 				bytes.writeByte(w->getID());
 				w->writePacket(&bytes);
