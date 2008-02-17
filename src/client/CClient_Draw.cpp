@@ -619,8 +619,9 @@ void CClient::Draw(SDL_Surface *bmpDest)
 	#endif*/
 
 		// Game over
+		static bool was_gameovermenu = false;
 		if(bGameOver) {
-			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT)  {
+			if(tLX->fCurTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {
 				InitializeGameMenu();
 
 				// If this is a tournament, take screenshot of the final screen
@@ -630,9 +631,12 @@ void CClient::Draw(SDL_Surface *bmpDest)
 					GetLogData(scrn.sData);
 					tLX->tScreenshotQueue.push_back(scrn);
 				}
+
+				was_gameovermenu = true;
 			} else
 				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
-		}
+		} else
+			was_gameovermenu = false;
 
 		// Viewport manager
 		if(bViewportMgr)  {
