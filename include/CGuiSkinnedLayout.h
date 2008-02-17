@@ -65,7 +65,7 @@ public:
 	CWidget		*getWidget(int id);
     void        removeWidget(int id);
 	int			GetIdByName(const std::string & name);
-	void		Error(int ErrorCode, const char *Format, ...);
+	void		Error(int ErrorCode, const std::string& desc);
 	void		SetOffset( int x, int y );
 
 	bool		Process(void);	// Called only for main layout -dispatches messages to children, returns false on exit layout

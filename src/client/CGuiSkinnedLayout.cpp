@@ -8,6 +8,8 @@
 //
 /////////////////////////////////////////
 
+#include <iostream>
+
 #include "CGuiSkinnedLayout.h"
 #include "CGuiSkin.h"
 #include "LieroX.h"
@@ -199,18 +201,9 @@ int	CGuiSkinnedLayout::GetIdByName(const std::string & Name)
 
 ////////////////////
 // Notifies about the error that occured
-void CGuiSkinnedLayout::Error(int ErrorCode, const char *Format, ...)
+void CGuiSkinnedLayout::Error(int ErrorCode, const std::string& desc)
 {
-	static char buf[512];
-	va_list	va;
-
-	va_start(va,Format);
-	vsnprintf(buf,sizeof(buf),Format,va);
-	fix_markend(buf);
-	va_end(va);
-
-	// TODO: this better
-	printf("%i: %s",ErrorCode,buf);
+	std::cout << "GUI skin error: " << ErrorCode << " " << desc << std::endl;
 }
 
 ///////////////////
