@@ -67,7 +67,12 @@ void CWorm::writeScore(CBytestream *bs)
 	bs->writeByte(S2C_SCOREUPDATE);
 	bs->writeInt(iID, 1);
 	bs->writeInt16(iLives);
-	bs->writeInt(iKills, 1);
+
+	// Overflow hack
+	if (iKills > 255)
+		bs->writeInt(255, 1);
+	else
+		bs->writeInt(iKills, 1);
 }
 
 
