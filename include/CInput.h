@@ -38,7 +38,7 @@
 #define		JOY_RIGHT			3
 #define		JOY_BUTTON			4
 
-class KeyboardEvent;
+struct KeyboardEvent;
 
 class CInput {
 	friend void HandleNextEvent();
@@ -84,8 +84,8 @@ public:
 	void	setResetEachFrame(bool r)	{ resetEachFrame = r; }
 	bool	getResetEachFrame()			{ return resetEachFrame; }
 	
-	int		isUp(void);
-	int		isDown(void);
+	bool	isUp(void);
+	bool	isDown(void);
 	bool	isDownOnce(void);
 	int wasDown(bool withRepeats) {
 		if(withRepeats) return wasDown();

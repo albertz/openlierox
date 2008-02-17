@@ -446,7 +446,7 @@ int CInput::Setup(const std::string& string)
 
 ///////////////////
 // Returns if the input has just been released
-int CInput::isUp(void)
+bool CInput::isUp(void)
 {
 
 	switch(Type) {
@@ -477,7 +477,7 @@ int CInput::isUp(void)
 
 ///////////////////
 // Returns if the input is down
-int CInput::isDown(void)
+bool CInput::isDown(void)
 {
 	switch(Type) {
 
@@ -508,7 +508,7 @@ int CInput::isDown(void)
 // Returns if the input was pushed down once
 bool CInput::isDownOnce(void)
 {
-	return nDownOnce;
+	return nDownOnce != 0;
 }
 
 int CInput::wasDown_withoutRepeats() {

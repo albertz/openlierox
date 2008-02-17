@@ -35,6 +35,10 @@
 #undef S_NORMAL // TODO: This is a reserved constant under WIN32, rename the constant(s) in this file
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4996)
+#endif
+
 using namespace std;
 
 struct pstream_pipe_t; // popen-streamed-library independent wrapper (kinda)
@@ -208,9 +212,7 @@ struct DedIntern {
 				if(data->quitSignal) return 0;
 				
 				char c;
-				// TODO: this generates a warning under MSVC 2005+ because this is a non-standard 
-				// posix function, _read is the standard name for it
-				// Please use some workaround for your non-standard compiler instead of blaming MSVC
+
 				if(read(0, &c, 1) >= 0) {
 					if(c == '\n') break;
 					buf += c;

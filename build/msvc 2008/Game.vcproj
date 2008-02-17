@@ -2573,6 +2573,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\client\CTextButton.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\CTextButton.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\CTitleButton.cpp"
 				>
 				<FileConfiguration
