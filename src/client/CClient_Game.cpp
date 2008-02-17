@@ -154,12 +154,13 @@ void CClient::Simulation(void)
             continue;
 
 
+		// TODO: move this to physics as it should also be FPS independent
 		// Is this worm shooting?
 		if(w->getAlive()) {
 
 			// Shoot
 			if(w->getWormState()->iShoot) {
-				// This is only for client-side weapons, like jetpack and for beam drawing
+				// This handles only client-side weapons, like jetpack and for beam drawing
 				// It doesn't process the shot itself.
 				// The shot-info will be sent to the server which sends it back and
 				// we handle it in CClient::ProcessShot in the end.

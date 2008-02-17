@@ -295,19 +295,19 @@ void CWorm::net_updatePos(const CVec& newpos) {
 
 			if(!bOnGround)	{
 				// TODO: this is also not exact
-				CVec preEstimatedVel = dist / t;
+				CVec preEstimatedVel = vVelocity; //dist / t;
 				a.x -= SQR(preEstimatedVel.x) * SIGN(preEstimatedVel.x) * Drag;
 				a.y -= SQR(preEstimatedVel.y) * SIGN(preEstimatedVel.y) * Drag;
 			}
 
 			if (cNinjaRope.isAttached())  {
-				a += cNinjaRope.GetForce(newpos);
+				a += cNinjaRope.GetForce(vOldPosOfLastPaket);
 			}
 		
 			// Gravity
 			a.y += wd->Gravity;
 		
-			estimatedVel = (dist / t) + (a * t / 2);
+			estimatedVel = (dist / t) + (a * t / 2.0f);
 /*
 			// Ultimate in friction
 			if(bOnGround) {
@@ -323,7 +323,6 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// we don't know anything of the moving in between, so we ignore this here
 			// this is already calculated in simulation
 			
-			/*
 			// Process the moving
 			const static float DT = 0.01f;
 			float speed = bOnGround ? wd->GroundSpeed : wd->AirSpeed;
@@ -337,10 +336,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 					if(estimatedVel.x > -30)
 						estimatedVel.x -= speed * 90.0f * DT;
 				}
-				
-				tState.iMove = false; // don't simulate the moving anymore
 			}
-			*/
 		}
 		
 		//vVelocity = (vVelocity + estimatedVel) / 2;
@@ -396,9 +392,6 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 		vVelocity = CVec( (float)vx, (float)vy );
 	}
 
-	CClient *cl = cServer->getClient(iID); // TODO: why not this->getClient() ?
-	CWorm *w = cl->getWorm(0); // TODO: why not this ?
-
 	// If the worm is inside dirt then it is probably carving
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap()) 
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
@@ -407,6 +400,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 
 	// Prevent a wall hack
 	if (tGameInfo.iGameType == GME_HOST && cServer->getMap())  {
+		CClient *cl = cServer->getClient(iID); // TODO: why not this->getClient() ?
+		CWorm *w = cl->getWorm(0); // TODO: why not this ?
 
 		// Out of map
 		if(x > (short)cServer->getMap()->GetWidth() || y > (short)cServer->getMap()->GetHeight())
@@ -491,6 +486,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 
 	// Update the position (estimation, sets also velocity)
+	CVec oldPos = vPos;
 	net_updatePos( CVec(x, y) );
 
 	// Velocity
@@ -502,16 +498,30 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	
 	// do carving also here as the simulation is only done in next frame and with an updated position
 	if(tState.iCarve) {
-		// Calculate dir
-		CVec dir;
-		dir.x=( (float)cos((float)tState.iAngle * (PI/180)) );
-		dir.y=( (float)sin((float)tState.iAngle * (PI/180)) );
-		if(tState.iDirection==DIR_LEFT)
-			dir.x=(-dir.x);
+		// carve the whole way from old pos to new pos
+		{
+			CVec dir = vPos - oldPos;
+			float len = NormalizeVector( &dir );
+			for(float w = 0.0f; w <= len; w += 3.0f) {
+				CVec p = oldPos + dir * w;
+				incrementDirtCount( CarveHole(getMap(), p) );
+			}
+		}
 		
-		incrementDirtCount( CarveHole(getMap(), getPos() + dir*4) );
+		// carve a bit further were we are heading to (same as in simulation)
+		{
+			// Calculate dir
+			CVec dir;
+			dir.x=( (float)cos((float)tState.iAngle * (PI/180)) );
+			dir.y=( (float)sin((float)tState.iAngle * (PI/180)) );
+			if(tState.iDirection==DIR_LEFT)
+				dir.x=(-dir.x);
+			
+			incrementDirtCount( CarveHole(getMap(), getPos() + dir*4) );		
+		}
 	}
 
+	fLastUpdateReceived = tLX->fCurTime;
 	this->fLastSimulationTime = tLX->fCurTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
 }
 

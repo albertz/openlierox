@@ -358,6 +358,9 @@ void CapFPS() {
 	// Cap the FPS
 	if(fCurTime - tLX->fCurTime < fMaxFrameTime)
 		SDL_Delay((int)((fMaxFrameTime - fCurTime + tLX->fCurTime)*1000));
+	else
+		// do at least one small break, else it's possible that we never receive signals from our OS
+		SDL_Delay(1);
 }
 
 ////////////////

@@ -285,6 +285,7 @@ public:
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
 		worm->fLastSimulationTime += dt;
 	
+		
 		float speed;
 		CVec dir;
 		float	fFrameRate = 7.5f;

@@ -260,10 +260,11 @@ private:
 	worm_state_t tLastState; // Used for checking if we need to send the packet
 	float		fLastAngle;
 	float		fLastUpdateWritten;
+	CVec		vLastUpdatedPos; // last pos we have send to client
 	float		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
 	byte		iLastCharge;
 	byte		iLastCurWeapon;
-	CVec		vLastUpdatedPos;
+	float		fLastUpdateReceived;
 
 
 	// Graphics

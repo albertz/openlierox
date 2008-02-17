@@ -755,15 +755,21 @@ void DrawWormName(SDL_Surface* dest, const std::string& name, Uint32 x, Uint32 y
 
 void CWorm::UpdateDrawPos() {
 	if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) ) {
+		//if(fLastUpdateReceived > tLX->fCurTime) return; // something is wrong, we probably have not gotten any update yet
+
+		// tmp hack
+		vDrawPos = vPos;
+ 
 		// update drawing position
 		CVec vDif = vPos - vDrawPos;
 		float dif = vDif.GetLength();
 		if(dif > 0) {
-			if(dif < 1)
+/*			if(dif < 1)
 				vDrawPos = vPos;
 			else
 				vDrawPos += vDif * (1/dif)
 					* MAX(10.0f, MIN(dif * dif * (1.0f / 50.0f) * 40.0f, 200.0f)) * tLX->fDeltaTime;
+*/		
 		}
 		
 	
