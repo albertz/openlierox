@@ -424,7 +424,6 @@ void Menu_LocalAddPlaying(int index)
 	tMenu->sLocalPlayers[index].setProfile(ply);
 	tMenu->sLocalPlayers[index].setSkin(ply->szSkin);
 	tMenu->sLocalPlayers[index].setColour(ply->R, ply->G, ply->B);
-	tMenu->sLocalPlayers[index].setDefaultColour(ply->R, ply->G, ply->B);
 	tMenu->sLocalPlayers[index].LoadGraphics(iGameType);
 	
 

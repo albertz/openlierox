@@ -503,9 +503,8 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		player_list->SaveScrollbarPos();
 		player_list->Clear();  // Clear first
 
-		CWorm *w = cClient->getRemoteWorms() + 1;
+		CWorm *w = cClient->getRemoteWorms();
 		lobbyworm_t *lobby_worm = NULL;
-		w = cClient->getRemoteWorms();
 		CImage *team_img = NULL;
 
 		for (i=0; i < MAX_PLAYERS; i++, w++)  {
@@ -515,10 +514,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			lobby_worm = w->getLobby();
 
 			// Reload the worm graphics
-			if(gl->nLastGameMode == GMT_TEAMDEATH)
-				w->setProfileGraphics(true);
+			w->setProfileGraphics(false);
 			w->setTeam(lobby_worm->iTeam);
-			w->LoadGraphics(cClient->getGameLobby()->nGameMode);
+			w->LoadGraphics(gl->nGameMode);
 
 			// Add the item
 			player_list->AddItem(w->getName(), i, tLX->clNormalLabel); 

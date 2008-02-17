@@ -172,7 +172,6 @@ private:
 	std::string	sName;
     std::string szSkin;
 	Uint32		iColour;
-	Uint32		iOldColour;
 	bool		ProfileGraphics;
 	int			iRanking;
 	int			iKillsInRow;
@@ -533,11 +532,18 @@ public:
 	
 	std::string getName(void)			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
-	Uint32	getColour(void)				{ return iColour; }
+	Uint32		getGameColour(void)			{
+		switch(tGameInfo.iGameMode) {
+		case GMT_TEAMDEATH:
+		case GMT_VIP:
+		case GMT_TEAMCTF:
+			return tLX->clTeamColors[iTeam];
+		default:
+			return iColour;
+		}		
+	}
 	void		setColour(Uint32 c)			{ iColour = c; }
 	void		setColour(Uint8 r, Uint8 g, Uint8 b) { iColour = MakeColour(r,g,b); }
-	void		setDefaultColour(Uint32 c)			{ iOldColour = c; }
-	void		setDefaultColour(Uint8 r, Uint8 g, Uint8 b)  { iOldColour = MakeColour(r,g,b); }
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal(void)				{ return bLocal; }

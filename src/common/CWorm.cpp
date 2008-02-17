@@ -321,18 +321,16 @@ bool CWorm::LoadGraphics(int gametype)
 		ProfileGraphics = false;
 	}
 		
+	Uint32 colour = iColour;
 	// If we are in a team game, use the team colours
     if(gametype == GMT_TEAMDEATH || gametype == GMT_VIP) {
 		team = true;
-		iOldColour = iColour;
-		iColour = tLX->clTeamColors[iTeam];
+		colour = tLX->clTeamColors[iTeam];
 	}
-	else
-		iColour = iOldColour;
 
     // Use the colours set on the network
     // Profile or team colours will override this
-	GetColour3(iColour, getMainPixelFormat(), &r, &g, &b);
+	GetColour3(colour, getMainPixelFormat(), &r, &g, &b);
 
     // Colourise the giblets
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
@@ -403,10 +401,11 @@ SDL_Surface *CWorm::ChangeGraphics(const std::string& filename, int team)
 	Uint8 r,g,b;
 	Uint32 pixel;
 	
+	Uint32 colour = iColour;
 	if (team)
-		iColour = tLX->clTeamColors[iTeam];
+		colour = tLX->clTeamColors[iTeam];
 
-	GetColour3(iColour,getMainPixelFormat(),&r,&g,&b);
+	GetColour3(colour,getMainPixelFormat(),&r,&g,&b);
 
 	int ColR = r;
 	int ColG = g;

@@ -57,7 +57,6 @@ void CWorm::readInfo(CBytestream *bs)
 	Uint8 b = bs->readByte();
 	
 	iColour = MakeColour(r, g, b);
-	iOldColour = iColour;
 }
 
 
