@@ -251,7 +251,7 @@ public:
 		fLastDirtUpdate = fLastFileRequest = tLX->fCurTime;
 
 		bDownloadingMap = false;
-		cFileDownloader = NULL;
+		cHttpDownloader = NULL;
 		sMapDownloadName = "";
 		bMapDlError = false;
 		sMapDlError = "";
@@ -408,7 +408,7 @@ private:
 
 	// Map downloading
 	bool		bDownloadingMap;
-	CFileDownloader *cFileDownloader;
+	CHttpDownloadManager *cHttpDownloader;
 	std::string	sMapDownloadName;
 	bool		bMapDlError;
 	std::string	sMapDlError;

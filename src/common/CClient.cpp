@@ -122,7 +122,7 @@ void CClient::Clear(void)
 	bHostAllowsMouse = false;
 
 	bDownloadingMap = false;
-	cFileDownloader = NULL;
+	cHttpDownloader = NULL;
 	sMapDownloadName = "";
 	bMapDlError = false;
 	sMapDlError = "";
@@ -371,8 +371,8 @@ void CClient::StartLogging(int num_players)
 // Initialize map downloading
 void CClient::InitializeDownloads()
 {
-	if (!cFileDownloader)
-		cFileDownloader = new CFileDownloader();
+	if (!cHttpDownloader)
+		cHttpDownloader = new CHttpDownloadManager();
 	bDownloadingMap = false;
 	bMapDlError = false;
 	iMapDlProgress = 0;
@@ -384,9 +384,9 @@ void CClient::InitializeDownloads()
 // Shutdown map downloading
 void CClient::ShutdownDownloads()
 {
-	if (cFileDownloader)
-		delete cFileDownloader;
-	cFileDownloader = NULL;
+	if (cHttpDownloader)
+		delete cHttpDownloader;
+	cHttpDownloader = NULL;
 	bDownloadingMap = false;
 	bMapDlError = false;
 	iMapDlProgress = 0;
@@ -402,13 +402,13 @@ void CClient::DownloadMap(const std::string& mapname)
 	InitializeDownloads();
 
 	// Check
-	if (!cFileDownloader)  {
+	if (!cHttpDownloader)  {
 		sMapDlError = "Could not initialize the downloader";
 		bMapDlError = true;
 		return;
 	}
 
-	cFileDownloader->StartFileDownload(mapname, "levels");
+	cHttpDownloader->StartFileDownload(mapname, "levels");
 	sMapDownloadName = mapname;
 	bDownloadingMap = true;
 }
@@ -418,14 +418,14 @@ void CClient::DownloadMap(const std::string& mapname)
 void CClient::ProcessMapDownloads()
 {
 	// Nothing to process
-	if (!bDownloadingMap || cFileDownloader == NULL)
+	if (!bDownloadingMap || cHttpDownloader == NULL)
 		return;
 
 	// Process
-	cFileDownloader->ProcessDownloads();
+	cHttpDownloader->ProcessDownloads();
 
 	// Download finished
-	if (cFileDownloader->IsFileDownloaded(sMapDownloadName))  {
+	if (cHttpDownloader->IsFileDownloaded(sMapDownloadName))  {
 		bDownloadingMap = false;
 		bMapDlError = false;
 		sMapDlError = "";
@@ -467,7 +467,7 @@ void CClient::ProcessMapDownloads()
 	}
 
 	// Error check
-	DownloadError error = cFileDownloader->FileDownloadError(sMapDownloadName);
+	DownloadError error = cHttpDownloader->FileDownloadError(sMapDownloadName);
 	if (error.iError != FILEDL_ERROR_NO_ERROR)  {
 		bDownloadingMap = false;
 		sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
@@ -476,7 +476,7 @@ void CClient::ProcessMapDownloads()
 	}
 
 	// Get the progress
-	iMapDlProgress = cFileDownloader->GetFileProgress(sMapDownloadName);
+	iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
 }
 
 ///////////////////

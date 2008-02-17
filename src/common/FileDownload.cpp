@@ -48,7 +48,7 @@ const std::string sDownloadErrors[] =  {
 
 //////////////////
 // Start the transfer
-void CFileDownload::Start(const std::string& filename, const std::string& dest_dir)
+void CHttpDownloader::Start(const std::string& filename, const std::string& dest_dir)
 {
 	// Checks
 	if (filename.size() == 0)  {
@@ -98,7 +98,7 @@ void CFileDownload::Start(const std::string& filename, const std::string& dest_d
 
 /////////////////
 // Stop the transfer and clear everything
-void CFileDownload::Stop()
+void CHttpDownloader::Stop()
 {
 	// Cancel the transfer
 	if (tHttp.RequestedData())
@@ -120,7 +120,7 @@ void CFileDownload::Stop()
 
 /////////////////
 // Process the downloading
-void CFileDownload::ProcessDownload()
+void CHttpDownloader::ProcessDownload()
 {
 	// Check that there has been no error yet
 	if (tError.iError != FILEDL_ERROR_NO_ERROR)  {
@@ -173,7 +173,7 @@ void CFileDownload::ProcessDownload()
 
 /////////////////
 // Set downloading error
-void CFileDownload::SetDlError(int id)
+void CHttpDownloader::SetDlError(int id)
 {
 	tError.iError = id;
 	tError.sErrorMsg = sDownloadErrors[id];
@@ -182,7 +182,7 @@ void CFileDownload::SetDlError(int id)
 
 /////////////////
 // Set downloading error (HTTP problem)
-void CFileDownload::SetHttpError(HttpError err)
+void CHttpDownloader::SetHttpError(HttpError err)
 {
 	tError.iError = FILEDL_ERROR_HTTP;
 	tError.sErrorMsg = "HTTP Error: " + err.sErrorMsg;
@@ -191,7 +191,7 @@ void CFileDownload::SetHttpError(HttpError err)
 
 ////////////////
 // Get the file downloading progress
-byte CFileDownload::GetProgress()
+byte CHttpDownloader::GetProgress()
 {
 	byte res = 0;
 	if (tHttp.GetDataLength() != 0)
@@ -206,7 +206,7 @@ byte CFileDownload::GetProgress()
 
 /////////////////
 // Constructor
-CFileDownloader::CFileDownloader()
+CHttpDownloadManager::CHttpDownloadManager()
 {
 	// Load the list of available servers
 	FILE *fp = OpenGameFile("cfg/downloadservers.txt", "r");
@@ -234,38 +234,35 @@ CFileDownloader::CFileDownloader()
 
 ///////////////
 // Destructor
-CFileDownloader::~CFileDownloader()
+CHttpDownloadManager::~CHttpDownloadManager()
 {
 	// Stop the downloads
-	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		i->Stop();
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
+		(*i)->Stop();
+		delete (*i);
+	}
 }
 
 //////////////
 // Add and start a download
-void CFileDownloader::StartFileDownload(const std::string& filename, const std::string& dest_dir)
+void CHttpDownloadManager::StartFileDownload(const std::string& filename, const std::string& dest_dir)
 {
-	// Add the download
-	CFileDownload new_dl = CFileDownload(&tDownloadServers, tDownloads.size());
+	// Add and start the download
+	CHttpDownloader *new_dl = new CHttpDownloader(&tDownloadServers, tDownloads.size());
+	new_dl->Start(filename, dest_dir);
 
 	tDownloads.push_back(new_dl);
-
-	// Find the newly added download and start it
-	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
-		if (i->GetID() == tDownloads.size()-1)  {
-			i->Start(filename, dest_dir);
-			break;
-		}
-	}
 }
 
 /////////////
 // Cancel a download
-void CFileDownloader::CancelFileDownload(const std::string& filename)
+void CHttpDownloadManager::CancelFileDownload(const std::string& filename)
 {
 	// Find the download and remove it, the destructor will stop the download automatically
-	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if (i->GetFileName() == filename)  {
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
+		if ((*i)->GetFileName() == filename)  {
+			(*i)->Stop();
+			delete (*i);
 			tDownloads.erase(i);
 			break;
 		}
@@ -273,22 +270,22 @@ void CFileDownloader::CancelFileDownload(const std::string& filename)
 
 //////////////
 // Returns true if the file has been successfully downloaded
-bool CFileDownloader::IsFileDownloaded(const std::string& filename)
+bool CHttpDownloadManager::IsFileDownloaded(const std::string& filename)
 {
-	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if (i->GetFileName() == filename)
-			return i->GetState() == FILEDL_FINISHED;
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
+		if ((*i)->GetFileName() == filename)
+			return (*i)->GetState() == FILEDL_FINISHED;
 
 	return false;
 }
 
 //////////////
 // Returns the download error for the specified file
-DownloadError CFileDownloader::FileDownloadError(const std::string& filename)
+DownloadError CHttpDownloadManager::FileDownloadError(const std::string& filename)
 {
-	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if (i->GetFileName() == filename)
-			return i->GetError();
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
+		if ((*i)->GetFileName() == filename)
+			return (*i)->GetError();
 
 	// Not found, create a default "no error"
 	DownloadError err;
@@ -301,21 +298,21 @@ DownloadError CFileDownloader::FileDownloadError(const std::string& filename)
 
 ///////////////
 // Get the file download progress in percents
-byte CFileDownloader::GetFileProgress(const std::string& filename)
+byte CHttpDownloadManager::GetFileProgress(const std::string& filename)
 {
-	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
-		if (i->GetFileName() == filename)
-			return i->GetProgress();
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)
+		if ((*i)->GetFileName() == filename)
+			return (*i)->GetProgress();
 
 	return 0;
 }
 
-void CFileDownloader::ProcessDownloads()
+void CHttpDownloadManager::ProcessDownloads()
 {
 	// Process the downloads
-	for (std::list<CFileDownload>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
-		if (i->GetState() == FILEDL_INITIALIZING || i->GetState() == FILEDL_RECEIVING)
-			i->ProcessDownload();
+	for (std::list<CHttpDownloader *>::iterator i = tDownloads.begin(); i != tDownloads.end(); i++)  {
+		if ((*i)->GetState() == FILEDL_INITIALIZING || (*i)->GetState() == FILEDL_RECEIVING)
+			(*i)->ProcessDownload();
 	}
 }
 

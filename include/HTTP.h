@@ -23,6 +23,7 @@
 
 // Some basic defines
 #define		HTTP_TIMEOUT	10
+#define		BUFFER_LEN		4096
 
 // HTTP Chunk parsing states
 enum  {
@@ -36,6 +37,16 @@ enum  {
 class CChunkParser  {
 public:
 	CChunkParser(std::string *pure_data, size_t *final_length, size_t *received); 
+
+	CChunkParser& operator=(const CChunkParser& chunk)  {
+		iState = chunk.iState;
+		iNextState = chunk.iNextState;
+		sChunkLenStr = chunk.sChunkLenStr;
+		iCurRead = chunk.iCurRead;
+		iCurLength = chunk.iCurLength;
+
+		return *this;
+	}
 
 private:
 	std::string *sPureData;
@@ -87,6 +98,37 @@ class CHttp  {
 public:
 	CHttp();
 	~CHttp();
+
+	CHttp& operator=(const CHttp& http)  {
+		sHost = http.sHost;
+		sUrl = http.sUrl;
+		sRemoteAddress = http.sRemoteAddress;
+		sData = http.sData;
+		sPureData = http.sPureData;
+		sHeader = http.sHeader;
+		sMimeType = http.sMimeType;
+		tError.sErrorMsg = http.tError.sErrorMsg;
+		tError.iError = http.tError.iError;
+		if (http.tBuffer && tBuffer)
+			memcpy(tBuffer, http.tBuffer, BUFFER_LEN);
+		if (http.tChunkParser && tChunkParser)
+			(*tChunkParser) = (*http.tChunkParser); // HINT: CChunkParser has a copy operator defined
+		
+		iDataLength = http.iDataLength;
+		iDataReceived = http.iDataReceived;
+		bActive = http.bActive;
+		bTransferFinished = http.bTransferFinished;
+		bConnected = http.bConnected;
+		bRequested = http.bRequested;
+		bSocketReady = http.bSocketReady;
+		bGotHttpHeader = http.bGotHttpHeader;
+		bChunkedTransfer = http.bChunkedTransfer;
+		fResolveTime = http.fResolveTime;
+		tSocket = http.tSocket;
+		tRemoteIP = http.tRemoteIP;
+
+		return *this;
+	}
 private:
 	std::string		sHost;
 	std::string		sUrl;

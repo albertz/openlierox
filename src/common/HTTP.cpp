@@ -25,8 +25,6 @@
 #include "StringUtils.h"
 #include "types.h"
 
-#define BUFFER_LEN 4096
-
 // List of errors, MUST match error IDs in HTTP.h
 static const std::string sHttpErrors[] = {
 	"No error",

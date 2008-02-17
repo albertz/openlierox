@@ -60,28 +60,41 @@ class DownloadError  { public:
 };
 
 
-// TODO: what is the difference between CFileDownload and CFileDownloader
-
-
 // Single file download handling class
-class CFileDownload  {
+class CHttpDownloader  {
 public:
 	// Constructors and destructors
-	CFileDownload() : 
+	CHttpDownloader() : 
 		tFile(NULL),
 		tDownloadServers(NULL),
 		iState(FILEDL_NO_FILE),
 		iID(0)
 		{ }
 
-	CFileDownload(std::vector<std::string> *download_servers, size_t id) :
+	CHttpDownloader(std::vector<std::string> *download_servers, size_t id) :
 		tFile(NULL),
 		tDownloadServers(download_servers),
 		iState(FILEDL_NO_FILE),
 		iID(id)
 		{ }
 
-	~CFileDownload()  { Stop();}
+	~CHttpDownloader()  { Stop();}
+
+	CHttpDownloader& operator=(const CHttpDownloader& dl) {
+		sFileName = dl.sFileName;
+		sDestPath = dl.sDestPath;
+		tFile = dl.tFile;
+		tDownloadServers = dl.tDownloadServers; // HINT: this is a pointer
+		iCurrentServer = dl.iCurrentServer;
+		iState = dl.iState;
+		iID = dl.iID;
+		tHttp = dl.tHttp; // HINT: safe, CHttp has a copy operator defined
+		tError.sErrorMsg = dl.tError.sErrorMsg;
+		tError.iError = dl.tError.iError;
+		tError.tHttpError.sErrorMsg = dl.tError.tHttpError.sErrorMsg;
+		tError.tHttpError.iError = dl.tError.tHttpError.iError;
+		return *this;
+	}
 
 private:
 	std::string		sFileName;
@@ -110,15 +123,15 @@ public:
 };
 
 
-// File downloader class
-class CFileDownloader  {
+// File downloader class (multiple downloads at once, a set of CFileDownload)
+class CHttpDownloadManager  {
 public:
-	CFileDownloader();
-	~CFileDownloader();
+	CHttpDownloadManager();
+	~CHttpDownloadManager();
 
 private:
-	std::list<CFileDownload>	tDownloads;
-	std::vector<std::string>	tDownloadServers;
+	std::list<CHttpDownloader *> tDownloads;
+	std::vector<std::string>	 tDownloadServers;
 
 public:
 	void						ProcessDownloads();
@@ -127,7 +140,7 @@ public:
 	bool						IsFileDownloaded(const std::string& filename);
 	DownloadError				FileDownloadError(const std::string& filename);
 	byte						GetFileProgress(const std::string& filename);
-	std::list<CFileDownload>	*GetDownloads()		{ return &tDownloads; }
+	std::list<CHttpDownloader *> *GetDownloads()		{ return &tDownloads; }
 };
 
 // In-lobby or in-game file downloader over unreliable protocol - send packets of 256 bytes

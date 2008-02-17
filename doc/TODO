@@ -14,7 +14,7 @@ TODO
 [ ] fill documentation (README) (!)
 [ ] fix STUN (!)
 [ ] Fix segfaults
-	[ ] Crash/memory corruption in HTTP class when downloading bigger amount of data (i,e. levels) (!)
+	[X] Crash/memory corruption in HTTP class when downloading bigger amount of data (i,e. levels) (!)
       TODO: Perhaps just disable level downloading for beta 4? But it's just a workaround anyway...
 	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
 	[?] others (!!)
@@ -52,7 +52,7 @@ TODO
     (It's a bug in either SDL or Xorg or Linux kernel but not in OLX.)
 [ ] remove *_WidgetRegistered and CGuiSkin_Destroyer hacks (!)
 [ ] merge CButton and CTextButton
-[ ] fix CFileDownload via HTTP (you can test it by clicking at red
+[X] fix CFileDownload via HTTP (you can test it by clicking at red
     level name in lobby), crashes all the time, looks like a thread safety
     problem or a memory corruption
 [ ] remove ReadInteger/ReadFloat/Read... from code and use IniParser instead (!)
