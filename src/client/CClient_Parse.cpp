@@ -882,21 +882,27 @@ void CClient::ParseGameOver(CBytestream *bs)
 
 	// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
 	if (tGameInfo.iGameMode == GMT_TEAMDEATH)  {
-		iMatchWinner = 0;
 
 		if (tGameInfo.iKillLimit != -1)  {
-			for (int i=0; i<MAX_WORMS; i++)  {
-				if (cRemoteWorms[i].getKills() >= tGameInfo.iKillLimit)  {
+			iMatchWinner = cRemoteWorms[iMatchWinner].getTeam();
+		} else if (tGameInfo.iLives != -2)  {
+			for (int i=0; i < MAX_WORMS; i++)  {
+				if (cRemoteWorms[i].getLives() >= 0)  {
 					iMatchWinner = cRemoteWorms[i].getTeam();
 					break;
 				}
 			}
 		}
+	}
+
+	// Older servers send wrong info about tag winner, better if we count it ourself
+	if (tGameInfo.iGameMode == GMT_TAG)  {
+		float max = 0;
 
 		for (int i=0; i < MAX_WORMS; i++)  {
-			if (cRemoteWorms[i].getLives() >= 0)  {
-				iMatchWinner = cRemoteWorms[i].getTeam();
-				break;
+			if (cRemoteWorms[i].isUsed() && cRemoteWorms[i].getTagTime() > max)  {
+				max = cRemoteWorms[i].getTagTime();
+				iMatchWinner = i;
 			}
 		}
 	}

@@ -598,8 +598,8 @@ void GameServer::ParseDeathPacket(CClient *cl, CBytestream *bs) {
 				{
 					w->setKills( kill->getKills() );
 					w->writeScore(&byte);
-				};
-	};
+				}
+	}
 
 	// Let everyone know that the worm is now dead
 	byte.writeByte(S2C_WORMDOWN);
