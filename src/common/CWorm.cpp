@@ -13,7 +13,7 @@
 // Created 28/6/02
 // Jason Boettcher
 
-
+#include <iostream>
 #include <assert.h>
 
 #include "LieroX.h"
@@ -1012,10 +1012,10 @@ void CWorm::DrawShadow(SDL_Surface *bmpDest, CViewport *v)
     	// HINT: we don't use vDrawPos but vPos here to give a hint where the player is really atm (if interpolation is too slow)
     	// TODO: if we just use vDrawPos here, we also have to fix the drawing of rifle and perhaps also of other ninjaropes
 		// FIXME: just tested it, I was on a high-ping server and it was horrible! The shadow should be always synced with the worm image!
-        if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) )
+/*        if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) )
 			// just don't draw it as a real shadow but show the real position instead (not the interpolated)
-			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9 - SHADOW_DROP, (int) vPos.y-5 - SHADOW_DROP);
-        else
+			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vOldPosOfLastPaket.x-9 - SHADOW_DROP, (int) vOldPosOfLastPaket.y-5 - SHADOW_DROP);
+        else */
 			pcMap->DrawObjectShadow(bmpDest, bmpShadowPic, 0,0, 32,18, v, (int) vPos.x-9,(int) vPos.y-5);
 }
 
@@ -1071,6 +1071,8 @@ bool CWorm::Injure(int damage)
 // Returns true if we are out of the game
 bool CWorm::Kill(void)
 {
+	std::cout << "our worm " << iID << " died" << std::endl;
+	
 	bAlive = false;
 	fTimeofDeath = tLX->fCurTime;
 

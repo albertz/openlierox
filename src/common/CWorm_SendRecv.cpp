@@ -265,10 +265,10 @@ void CWorm::net_updatePos(const CVec& newpos) {
 		}
 	} */
 #endif	
-	
+		
 	vPos = newpos;
 	bOnGround = CheckOnGround(); // update bOnGround; will perhaps be updated later in simulation
-	
+		
 	if (!cGameScript)
 		return;
 		
@@ -306,7 +306,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			}
 
 			if (cNinjaRope.isAttached())  {
-				a += cNinjaRope.GetForce(vOldPosOfLastPaket);
+				a += cNinjaRope.GetForce(newpos);
 			}
 		
 			// Gravity
@@ -328,20 +328,8 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// we don't know anything of the moving in between, so we ignore this here
 			// this is already calculated in simulation
 			
-			// Process the moving
-			const static float DT = 0.01f;
-			float speed = bOnGround ? wd->GroundSpeed : wd->AirSpeed;
-			if(tState.iMove) {
-				if(tState.iDirection == DIR_RIGHT) {
-					// Right
-					if(estimatedVel.x < 30)
-						estimatedVel.x += speed * 90.0f * DT;
-				} else {
-					// Left
-					if(estimatedVel.x > -30)
-						estimatedVel.x -= speed * 90.0f * DT;
-				}
-			}
+			// HINT: Don't process the moving as it is already included in the linear part of the calculation
+			
 		}
 		
 		//vVelocity = (vVelocity + estimatedVel) / 2;
