@@ -31,6 +31,8 @@
 #endif
 #include "EndianSwap.h"
 
+const float fDownloadRetryTimeout = 5.0;	// 5 seconds
+
 
 ///////////////////
 // Clear the client details
@@ -411,6 +413,7 @@ void CClient::DownloadMap(const std::string& mapname)
 	cHttpDownloader->StartFileDownload(mapname, "levels");
 	sMapDownloadName = mapname;
 	bDownloadingMap = true;
+	iDownloadMethod = DL_HTTP; // We start with HTTP
 }
 
 /////////////////
@@ -418,65 +421,128 @@ void CClient::DownloadMap(const std::string& mapname)
 void CClient::ProcessMapDownloads()
 {
 	// Nothing to process
-	if (!bDownloadingMap || cHttpDownloader == NULL)
+	if (!bDownloadingMap)
 		return;
 
-	// Process
-	cHttpDownloader->ProcessDownloads();
+	switch (iDownloadMethod)  {
 
-	// Download finished
-	if (cHttpDownloader->IsFileDownloaded(sMapDownloadName))  {
-		bDownloadingMap = false;
-		bMapDlError = false;
-		sMapDlError = "";
-		iMapDlProgress = 100;
-		
-		// Check that the file exists (it should!)
-		if (IsFileAvailable("levels/" + sMapDownloadName, false))  {
-			tGameLobby.bHaveMap = true;
-			tGameLobby.szDecodedMapName = Menu_GetLevelName(sMapDownloadName);
+	//
+	// HTTP
+	//
+	case DL_HTTP:  {
+		if (!cHttpDownloader)
+			break;
 
-			// If playing, load the map
-			if (iNetStatus == NET_PLAYING)  {
-				if (cMap)  {
-					printf("WARNING: Finished map downloading but another map is already loaded.\n");
-					return;
-				}
+		// Process
+		cHttpDownloader->ProcessDownloads();
 
-				cMap = new CMap;
-				if (cMap)  {
-					if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
-						// Weird
-						printf("Could not load the downloaded map!\n");
-						Disconnect();
-						GotoNetMenu();
+		// Download finished
+		if (cHttpDownloader->IsFileDownloaded(sMapDownloadName))  {
+			bDownloadingMap = false;
+			bMapDlError = false;
+			sMapDlError = "";
+			iMapDlProgress = 100;
+			
+			// Check that the file exists (it should!)
+			if (IsFileAvailable("levels/" + sMapDownloadName, false))  {
+				tGameLobby.bHaveMap = true;
+				tGameLobby.szDecodedMapName = Menu_GetLevelName(sMapDownloadName);
+
+				// If playing, load the map
+				if (iNetStatus == NET_PLAYING)  {
+					if (cMap)  {
+						printf("WARNING: Finished map downloading but another map is already loaded.\n");
+						return;
+					}
+
+					cMap = new CMap;
+					if (cMap)  {
+						if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
+							// Weird
+							printf("Could not load the downloaded map!\n");
+							Disconnect();
+							GotoNetMenu();
+						}
 					}
 				}
+			} else {  // Inaccessible
+				printf("Cannot access the downloaded map!\n");
+				if (iNetStatus == NET_PLAYING)  {
+					Disconnect();
+					GotoNetMenu();
+				}
 			}
-		} else {  // Inaccessible
-			printf("Cannot access the downloaded map!\n");
-			if (iNetStatus == NET_PLAYING)  {
-				Disconnect();
-				GotoNetMenu();
-			}
+
+			sMapDownloadName = "";
+
+			return;
 		}
 
-		sMapDownloadName = "";
+		// Error check
+		DownloadError error = cHttpDownloader->FileDownloadError(sMapDownloadName);
+		if (error.iError != FILEDL_ERROR_NO_ERROR)  {
+			sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
 
-		return;
+			// HTTP failed, let's try UDP
+			printf("Could not download the map via HTTP, trying UDP...\n");
+			getFileDownloaderInGame()->requestFile("levels/" + sMapDownloadName, false);
+			getFileDownloaderInGame()->requestFileInfo("levels/" + sMapDownloadName); // To get valid progressbar
+			iDownloadMethod = DL_UDP;
+		}
+
+		// Get the progress
+		iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
+	} break;
+
+
+	//
+	// UDP
+	//
+	case DL_UDP:  {
+
+		if( getHostVer() < 4 || iNetStatus == NET_DISCONNECTED )  {
+			bDownloadingMap = false;
+			bMapDlError = true;
+			return;
+		}
+
+		iMapDlProgress = (int)(getFileDownloaderInGame()->getFileDownloadingProgress() * 100.0f);
+		
+		//printf("CClient::processFileRequests(): state %i\n", getFileDownloaderInGame()->getState() );
+		
+		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )	 {
+			if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) // Server stopped sending file in the middle
+				if( ! getFileDownloaderInGame()->requestFilesPending() )  { // More files to receive
+					getFileDownloaderInGame()->reset();
+					bMapDlError = true;
+					bDownloadingMap = false;
+				}
+		}
+
+		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_ERROR )  {
+			getFileDownloaderInGame()->reset();
+			bMapDlError = true;
+			bDownloadingMap = false;
+		}
+
+		if( getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_FINISHED )
+			return;
+
+		// Finished
+		if( fLastFileRequest >= tLX->fCurTime )	
+			return;
+			
+		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout; // Spam server with file requests once in 5 seconds
+		fLastFileRequestPacketReceived = tLX->fCurTime;
+		
+		if( !getFileDownloaderInGame()->requestFilesPending() )  { // More files to receive?
+			bDownloadingMap = false;
+		}
+	}
+	break;
+
 	}
 
-	// Error check
-	DownloadError error = cHttpDownloader->FileDownloadError(sMapDownloadName);
-	if (error.iError != FILEDL_ERROR_NO_ERROR)  {
-		bDownloadingMap = false;
-		sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
-		sMapDownloadName = "";
-		bMapDlError = true;
-	}
-
-	// Get the progress
-	iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
 }
 
 ///////////////////
@@ -485,7 +551,7 @@ void CClient::Frame(void)
 {
 	if(iNetStatus == NET_PLAYING) {
 		iServerFrame++;
-		fServerTime += tLX->fDeltaTime;
+		fServerTime += tLX->fRealDeltaTime;
 	}
 
 	ProcessMapDownloads();
@@ -496,8 +562,6 @@ void CClient::Frame(void)
 
 	if(iNetStatus == NET_PLAYING)
 		Simulation();
-
-	processFileRequests();
 
 	SendPackets();
 
@@ -545,6 +609,11 @@ void CClient::ReadPackets(void)
 		// Time out
 		bServerError = true;
 		strServerErrorMsg = "Connection with server timed out";
+
+		// Stop any file downloads
+		if (bDownloadingMap && cHttpDownloader)
+			cHttpDownloader->CancelFileDownload(sMapDownloadName);
+		getFileDownloaderInGame()->reset();
 		
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
 	}
@@ -691,6 +760,10 @@ void CClient::Disconnect(void)
 		cNetChan.Transmit(&bs);
 
 	iNetStatus = NET_DISCONNECTED;
+
+	if (bDownloadingMap)
+		cHttpDownloader->CancelFileDownload(sMapDownloadName);
+	getFileDownloaderInGame()->reset();
 
 
 	if (tLXOptions->bLogConvos)  {
@@ -1133,71 +1206,4 @@ void CClient::setServerVersion(const std::string & _s)
 	iHostOLXVer = 4;
 	iClientOLXVer = 4;
 }
-
-const float fDownloadRetryTimeout = 5.0;	// 5 seconds
-
-void CClient::processFileRequests()
-{
-	if( getHostVer() < 4 || iNetStatus != NET_CONNECTED || ! tLXOptions->bAllowFileDownload )
-		return;
-	
-	//printf("CClient::processFileRequests(): state %i\n", getFileDownloaderInGame()->getState() );
-	
-	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND )
-	{
-		CBytestream bs;
-		bs.writeByte(C2S_SENDFILE);
-		getFileDownloaderInGame()->send( &bs );
-		cNetChan.AddReliablePacketToSend(bs);
-		fLastFileRequestPacketReceived = tLX->fCurTime;
-		return;
-	};
-
-	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
-	{
-		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) // Server stopped sending file in the middle
-			if( ! getFileDownloaderInGame()->requestFilesPending() ) // More files to receive
-				getFileDownloaderInGame()->reset();
-	};
-
-	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_ERROR )
-		getFileDownloaderInGame()->reset();
-
-	if( getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_FINISHED )
-		return;
-
-	if( fLastFileRequest >= tLX->fCurTime )	
-		return;
-		
-	fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout; // Spam server with file requests once in 5 seconds
-	fLastFileRequestPacketReceived = tLX->fCurTime;
-	
-	if( getFileDownloaderInGame()->requestFilesPending() ) // More files to receive
-		return;
-
-	// The last requested file will be downloaded first, so putting these in reverse order
-	if( ! tGameLobby.bHaveMod && tGameLobby.szModDir != "" )
-	{
-		getFileDownloaderInGame()->requestFileInfo(tGameLobby.szModDir);
-	};
-
-	if( ! tGameLobby.bHaveMap && tGameLobby.szMapName != "" )
-	{
-		getFileDownloaderInGame()->requestFile("levels/" + tGameLobby.szMapName);
-		getFileDownloaderInGame()->requestFileInfo("levels/" + tGameLobby.szMapName); // To get valid progressbar
-	};
-
-	CWorm *w = cRemoteWorms;
-	for( int i=0; i<MAX_WORMS; i++, w++ )
-	{
-		if( ! w->isUsed() )
-			continue;
-		if( w->getSkin() == "" )
-			continue;
-		if( ! IsFileAvailable("skins/" + w->getSkin()) )
-		{
-			getFileDownloaderInGame()->requestFile("skins/" + w->getSkin()); // Small, no need for file info
-		};
-	};
-};
 

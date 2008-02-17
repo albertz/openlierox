@@ -150,6 +150,13 @@ void CHttpDownloader::ProcessDownload()
 
 		SetHttpError(tHttp.GetError());
 		iState = FILEDL_ERROR;
+
+		// Delete the file
+		if (tFile)  {
+			fclose(tFile);
+			remove(GetFullFileName(sDestPath).c_str());
+		}
+
 		break;
 
 	// Finished
@@ -158,7 +165,7 @@ void CHttpDownloader::ProcessDownload()
 
 		// Save the data in the file
 		if (tFile)  {
-			if (fwrite(tHttp.GetData().data(), tHttp.GetData().size(), 1, tFile) != tHttp.GetData().size())
+			if (fwrite(tHttp.GetData().data(), tHttp.GetData().size(), 1, tFile) != 1)
 				SetDlError(FILEDL_ERROR_SAVING);
 			fclose(tFile);
 			tFile = NULL;
@@ -178,6 +185,9 @@ void CHttpDownloader::SetDlError(int id)
 	tError.iError = id;
 	tError.sErrorMsg = sDownloadErrors[id];
 	tError.tHttpError = tHttp.GetError();
+
+	if (id != FILEDL_ERROR_NO_ERROR)
+		std::cout << "HTTP Download Error: " << tError.sErrorMsg << std::endl;
 }
 
 /////////////////
@@ -186,7 +196,11 @@ void CHttpDownloader::SetHttpError(HttpError err)
 {
 	tError.iError = FILEDL_ERROR_HTTP;
 	tError.sErrorMsg = "HTTP Error: " + err.sErrorMsg;
-	tError.tHttpError = err;
+	tError.tHttpError.iError = err.iError;
+	tError.tHttpError.sErrorMsg = err.sErrorMsg;
+
+	if (err.iError != HTTP_NO_ERROR)
+		std::cout << "HTTP Download Error: " << tError.sErrorMsg << std::endl;
 }
 
 ////////////////

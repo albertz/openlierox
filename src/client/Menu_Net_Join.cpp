@@ -604,13 +604,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
 	}
 
-	if( cClient->getFileDownloaderInGame()->getFileDownloading() != "" )
-        tLX->cFont.Draw(tMenu->bmpScreen,     360, 195, tLX->clNormalLabel, "Downloading " + 
-					itoa( int(cClient->getFileDownloaderInGame()->getFileDownloadingProgress()*100.0) ) + "%: " + 
-					cClient->getFileDownloaderInGame()->getFileDownloading() );
-	else if( cClient->getFileDownloaderInGame()->getFilesPendingAmount() > 0 )
-        tLX->cFont.Draw(tMenu->bmpScreen,     360, 195, tLX->clNormalLabel, "Downloading: " + 
-					itoa( cClient->getFileDownloaderInGame()->getFilesPendingAmount() ) + " files left" );
+/*
 
 	if( cClient->getFileDownloaderInGame()->getFileDownloading() != "" || 
 		cClient->getFileDownloaderInGame()->getFilesPendingAmount() > 0 )
@@ -622,7 +616,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	{
 		if( cJoinLobby.getWidget(jl_AbortFileDownload) != NULL )
 			cJoinLobby.removeWidget(jl_AbortFileDownload);
-	};
+	};*/
 
 	// Process & Draw the gui
 #ifdef WITH_MEDIAPLAYER

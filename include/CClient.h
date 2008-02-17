@@ -181,6 +181,11 @@ class ClientRights { public:
 	bool Override;
 };
 
+enum {
+	DL_HTTP = 0,
+	DL_UDP
+};
+
 
 class CClient {
 public:
@@ -413,6 +418,7 @@ private:
 	bool		bMapDlError;
 	std::string	sMapDlError;
 	byte		iMapDlProgress;
+	int			iDownloadMethod;  // HTTP or UDP
 
 	bool		bReadySent;
 
@@ -603,7 +609,6 @@ public:
 	void		DownloadMap(const std::string& mapname);
 	void		ProcessMapDownloads();
 	void		ShutdownDownloads();
-	void		processFileRequests();
 
 
 	// Variables

@@ -1538,6 +1538,11 @@ void CClient::ParseDropped(CBytestream *bs)
 	bServerError = true;
 	strServerErrorMsg = Utf8String(bs->readString(256));
 
+	// Stop any file downloads
+	if (bDownloadingMap && cHttpDownloader)
+		cHttpDownloader->CancelFileDownload(sMapDownloadName);
+	getFileDownloaderInGame()->reset();
+
 	if (tLXOptions->bLogConvos)  {
 		if(!bInServer)
 			return;
