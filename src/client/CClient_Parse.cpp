@@ -341,6 +341,11 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 {
 	printf("Got ParsePrepareGame\n");
 
+	if(tLX->bQuitEngine) {
+		printf("HINT: some previous action tried to quit the GameLoop; we are ignoring this now\n");
+		tLX->bQuitEngine = false;
+	}
+	
 	// We've already got this packet
 	if (bGameReady && iNetStatus != NET_CONNECTED)  {
 		printf("CClient::ParsePrepareGame: we already got this\n");
@@ -353,6 +358,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 		bGameReady = true;
 		return false;
 	}
+
 
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	RemoveSocketFromNotifierGroup( tSocket );

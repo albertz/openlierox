@@ -1146,6 +1146,8 @@ public:
 		if(!tGameInfo.bBonusesOn)
 			return;
 
+		if(!map) return;
+		
 		CBonus *b = bonuses;
 
 		for(size_t i=0; i < count; i++,b++) {

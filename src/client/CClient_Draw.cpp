@@ -496,7 +496,7 @@ void CClient::Draw(SDL_Surface *bmpDest)
 				}
 				
 				if(cLocalWorms[i]->getWeaponsReady()) {
-					cout << "Client: worm " << i << "is ready with weapon-selection" << endl;
+					cout << "Client: worm " << i << " is ready with weapon-selection" << endl;
 					if(bDownloadingMap)
 						cout << "but we still have to wait for the download process" << endl;
 				}
