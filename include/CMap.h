@@ -195,11 +195,10 @@ public:
 
 	bool		New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		Load(const std::string& filename);
-	bool		LoadCTF(const std::string& filename);
 	bool		LoadOriginal(FILE *fp);
 	bool		Save(const std::string& name, const std::string& filename);
 	bool		SaveImageFormat(FILE *fp);
-	bool		LoadImageFormat(FILE *fp);	
+	bool		LoadImageFormat(FILE *fp, bool ctf);	
 	void		Clear(void);
 
     void		ApplyRandom(void);

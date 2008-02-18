@@ -1957,18 +1957,15 @@ bool CMap::Load(const std::string& filename)
 	fread(&version,		sizeof(int),	1,	fp);
 	EndianSwap(version);
 
-	// Check if the map is a LieroX +CTF map
-	if(id == "LieroX CTF Level") {
-		printf("CMap::Load (%s): HINT: level is a +CTF map\n", filename.c_str());
-		return LoadCTF(filename);
-	}
-
 	// Check to make sure it's a valid level file
-	if(id != "LieroX Level" || version != MAP_VERSION) {
+	if((id != "LieroX Level" && id != "LieroX CTF Level") || version != MAP_VERSION) {
 		printf("CMap::Load (%s): ERROR: not a valid level file (%s) or wrong version (%i)\n", filename.c_str(), id.c_str(), version);
 		fclose(fp);
 		return false;
 	}
+
+	// CTF map?
+	bool ctf = (id == "LieroX CTF Level");
 
 	Name = freadfixedcstr(fp, 64);
 
@@ -1978,7 +1975,7 @@ bool CMap::Load(const std::string& filename)
 	EndianSwap(Height);
 	fread(&Type,		sizeof(int),	1,	fp);
 	EndianSwap(Type);
-	static std::string Theme_Name;
+	std::string Theme_Name;
 	Theme_Name = freadfixedcstr(fp, 32);
 	int		numobj;
 	fread(&numobj,		sizeof(int),	1,	fp);
@@ -2008,7 +2005,10 @@ bool CMap::Load(const std::string& filename)
 
 		// Load the image format
 		printf("CMap::Load (%s): HINT: level is in image format\n", filename.c_str());
-		return LoadImageFormat(fp);
+		return LoadImageFormat(fp, ctf);
+	} else if (ctf)  {
+		printf("ERROR: pixmap format is not supported for CTF levels\n");
+		return false;
 	}
 
 
@@ -2281,7 +2281,7 @@ bool CMap::SaveImageFormat(FILE *fp)
 
 ///////////////////
 // Load the image format
-bool CMap::LoadImageFormat(FILE *fp)
+bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 {
 	// Load the details
 	Uint32 size, destsize;
@@ -2381,6 +2381,16 @@ bool CMap::LoadImageFormat(FILE *fp)
 	// Unlock the surfaces
 	UnlockSurface(bmpBackImage);
 	UnlockSurface(bmpImage);
+
+	// Load the CTF gametype variables
+	if (ctf)  {
+		fread(&FlagSpawnX	,sizeof(short),1,fp);
+		fread(&FlagSpawnY	,sizeof(short),1,fp);
+		fread(&BaseStartX	,sizeof(short),1,fp);
+		fread(&BaseStartY	,sizeof(short),1,fp);
+		fread(&BaseEndX		,sizeof(short),1,fp);
+		fread(&BaseEndY		,sizeof(short),1,fp);
+	}
 
 //	SDL_SaveBMP(pxf, "mat.bmp");
 	//SDL_SaveBMP(bmpImage, "front.bmp");
@@ -2928,206 +2938,6 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 
 
 	return CollisionSide; */
-}
-
-
-///////////////////
-// Load the CTF map
-bool CMap::LoadCTF(const std::string& filename)
-{
-	// TODO: redundant code!!!!
-
-	// Weird
-	if (filename == "") {
-		printf("WARNING: loading unnamed map, ignoring ...\n");	
-		return true;
-	}
-
-	FileName = filename;
-
-	// try loading a previously cached map
-	if(LoadFromCache()) {
-		// everything is ok
-		printf("HINT: reusing cached map for %s\n", filename.c_str());
-		return true;
-	}
-
-	FILE *fp = OpenGameFile(filename,"rb");
-	if(fp == NULL)
-		return false;
-
-	bMiniMapDirty = true;
-    sRandomLayout.bUsed = false;
-
-	// Header
-	static std::string id;
-	id = freadfixedcstr(fp, 32);
-	int		version;
-	fread(&version,		sizeof(int),	1,	fp);
-	EndianSwap(version);
-
-	// Check to make sure it's a valid level file
-	if(id != "LieroX CTF Level" || version != MAP_VERSION) {
-		printf("CMap::LoadCTF (%s): ERROR: not a valid level file or wrong version\n", filename.c_str());
-		fclose(fp);
-		return false;
-	}
-
-	Name = freadfixedcstr(fp, 64);
-
-	fread(&Width,		sizeof(int),	1,	fp);
-	EndianSwap(Width);
-	fread(&Height,		sizeof(int),	1,	fp);
-	EndianSwap(Height);
-	fread(&Type,		sizeof(int),	1,	fp);
-	EndianSwap(Type);
-	static std::string Theme_Name;
-	Theme_Name = freadfixedcstr(fp, 32);
-	int		numobj;
-	fread(&numobj,		sizeof(int),	1,	fp);
-	EndianSwap(numobj);
-
-	// Allocate the map
-	if(!Create(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
-		printf("CMap::LoadCTF (%s): ERROR: cannot create map\n", filename.c_str());
-		fclose(fp);
-		return false;
-	}
-
-	if(Type != MPT_IMAGE)
-		return false;
-
-	// Load the details
-	Uint32 size, destsize;
-	uint x,y,n,p;
-
-	fread(&size, sizeof(Uint32), 1, fp);
-	EndianSwap(size);
-	fread(&destsize, sizeof(Uint32), 1, fp);
-	EndianSwap(destsize);
-
-	// Allocate the memory
-	uchar *pSource = new uchar[size];
-	uchar *pDest = new uchar[destsize];
-
-	if(!pSource || !pDest) {
-		fclose(fp);
-		return false;
-	}
-
-	fread(pSource, size*sizeof(uchar), 1, fp);
-
-	ulong lng_dsize = destsize;
-	if( uncompress( pDest, &lng_dsize, pSource, size ) != Z_OK ) {
-		printf("Failed decompression\n");
-		fclose(fp);
-		delete[] pSource;
-		delete[] pDest;
-		return false;
-	}
-	destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
-
-	delete[] pSource;  // not needed anymore
-
-	//
-	// Translate the data
-	//
-
-	// Lock surfaces
-	LOCK_OR_FAIL(bmpBackImage);
-	LOCK_OR_FAIL(bmpImage);
-
-	p=0;
-	Uint32 curcolor=0;
-	Uint8* curpixel = (Uint8*)bmpBackImage->pixels;
-	Uint8* PixelRow = curpixel;
-
-	// TODO: Check if pDest is big enough
-
-	// Load the back image
-	for (y = 0; y < Height; y++, PixelRow += bmpBackImage->pitch)  {
-		curpixel = PixelRow;
-		for (x = 0; x < Width; x++, curpixel += bmpBackImage->format->BytesPerPixel)  {
-			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
-			p += 3;
-			PutPixelToAddr(curpixel, curcolor, bmpBackImage->format->BytesPerPixel);
-		}
-	}
-
-	// Load the front image
-	curpixel = (Uint8 *)bmpImage->pixels;
-	PixelRow = curpixel;
-	for (y = 0; y < Height; y++, PixelRow += bmpImage->pitch)  {
-		curpixel = PixelRow;
-		for (x = 0;x < Width; x++, curpixel += bmpImage->format->BytesPerPixel)  {
-			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
-			p += 3;
-			PutPixelToAddr(curpixel, curcolor, bmpImage->format->BytesPerPixel);
-		}
-	}
-
-
-	// Load the pixel flags and calculate dirt count
-	n=0;
-	nTotalDirtCount = 0;
-
-	curpixel = (Uint8 *)bmpImage->pixels;
-	PixelRow = curpixel;
-	Uint8 *backpixel = (Uint8 *)bmpBackImage->pixels;
-	Uint8 *BackPixelRow = backpixel;
-
-	lockFlags();
-	for(y=0; y<Height; y++, PixelRow += bmpImage->pitch, BackPixelRow += bmpBackImage->pitch) {
-		curpixel = PixelRow;
-		backpixel = BackPixelRow;
-		for(x=0; x<Width; x++, curpixel += bmpImage->format->BytesPerPixel, backpixel += bmpBackImage->format->BytesPerPixel) {
-			PixelFlags[n] = pDest[p++];
-			if(PixelFlags[n] & PX_EMPTY)
-				memcpy(curpixel, backpixel, bmpImage->format->BytesPerPixel);
-			if(PixelFlags[n] & PX_DIRT)
-				nTotalDirtCount++;
-			n++;
-		}
-	}
-	unlockFlags();
-
-	// Unlock the surfaces
-	UnlockSurface(bmpBackImage);
-	UnlockSurface(bmpImage);
-
-	// Delete the data
-	delete[] pDest;
-
-	// Load the CTF gametype variables
-	fread(&FlagSpawnX	,sizeof(short),1,fp);
-	fread(&FlagSpawnY	,sizeof(short),1,fp);
-	fread(&BaseStartX	,sizeof(short),1,fp);
-	fread(&BaseStartY	,sizeof(short),1,fp);
-	fread(&BaseEndX		,sizeof(short),1,fp);
-	fread(&BaseEndY		,sizeof(short),1,fp);
-
-	fclose(fp);
-
-	Created = true;
-
-	// Calculate the shadowmap
-	CalculateShadowMap();
-
-	ApplyShadow(0,0,Width,Height);
-
-	// Update the draw image
-	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
-
-	// Update the minimap
-	UpdateMiniMap(true);
-
-	// Calculate the grid
-	calculateGrid();
-
-	// Cache it
-	SaveToCache();
-
-	return true;
 }
 
 // TODO: implement sending several smaller packets
