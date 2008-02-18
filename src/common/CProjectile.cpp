@@ -484,7 +484,7 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 	if((y<t || y>t+view->GetVirtH()))
 		return;
 
-    switch (tProjInfo->Type == PRJ_PIXEL) {
+    switch (tProjInfo->Type) {
 	case PRJ_PIXEL:
 		DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,iColour);
         return;

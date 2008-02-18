@@ -1129,7 +1129,7 @@ void CClient::processChatter(void)
 
 
 	// Check if we have hit the chat key and we're in a network game
-	if( ( cChat_Input.wasDown() || cTeamChat_Input.wasDown() ) && tGameInfo.iGameType != GME_LOCAL) {
+	if( cChat_Input.wasDown() || cTeamChat_Input.wasDown() ) {
 
 		// Initialize the chatter
 		fChat_BlinkTime = 0;
