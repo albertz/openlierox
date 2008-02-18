@@ -179,7 +179,9 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	vPosition += vVelocity*dt;
 
 	// got we any worm?
-	{
+	// HINT: Only check for collisions when there's some action
+	// HINT: This behavior is according to the modding guide at LieroX.net, it also behaves like old LX
+	if (tProjInfo->PlyHit_Type != PJ_NOTHING)  {
 		CVec dif = vPosition - vFrameOldPos;
 		float len = NormalizeVector( &dif );
 		
@@ -249,6 +251,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	for(int y = py-h; y <= py+h; y++) {
 
 		// Clipping means that it has collided
+		// TODO: needed? should be covered in the "Hit edges" condition
 		if(y<0)	{
 			CollisionSide |= COL_TOP;
 			collisionWasOnlyDirt = false;
@@ -424,6 +427,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CMap *map, CVec pos
 	for(y=py-h;y<=py+h;y++) {
 
 		// Clipping means that it has collided
+		// TODO: needed? should be covered in the "Hit edges" condition
 		if(y<0 || y>=mh)	{
 			return true;
 		}
@@ -480,11 +484,13 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 	if((y<t || y>t+view->GetVirtH()))
 		return;
 
-    if(tProjInfo->Type == PRJ_PIXEL) {
+    switch (tProjInfo->Type == PRJ_PIXEL) {
+	case PRJ_PIXEL:
 		DrawRectFill(bmpDest,x-1,y-1,x+1,y+1,iColour);
         return;
-    }
-	else if(tProjInfo->Type == PRJ_IMAGE) {
+
+	case PRJ_IMAGE:  {
+
 		if(tProjInfo->bmpImage == NULL)
 			return;
 
@@ -550,6 +556,8 @@ void CProjectile::Draw(SDL_Surface *bmpDest, CViewport *view)
 
 		DrawImageAdv(bmpDest, tProjInfo->bmpImage, (int)framestep*size, 0, x-half, y-half, size,size);
 	}
+	return;
+	}
 }
 
 
@@ -571,18 +579,24 @@ void CProjectile::DrawShadow(SDL_Surface *bmpDest, CViewport *view, CMap *map)
 	if((y<t || y>t+view->GetVirtH()))
 		return;
 
+	switch (tProjInfo->Type)  {
+
 	// Pixel
-	if(tProjInfo->Type == PRJ_PIXEL)
+	case PRJ_PIXEL:
 		map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
+		break;
 
 	// Image
-	else if(tProjInfo->Type == PRJ_IMAGE) {
-		if(tProjInfo->bmpImage == NULL)
-			return;
+	case PRJ_IMAGE:  {
 
-	int size = tProjInfo->bmpImage->h;
-	int half = size/2;
-	map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
+			if(tProjInfo->bmpImage == NULL)
+				return;
+
+			int size = tProjInfo->bmpImage->h;
+			int half = size/2;
+			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
+		}
+		break;
     }
 }
 
@@ -722,9 +736,7 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 
 	CWorm *w = worms;
 	for(short i=0;i<MAX_WORMS;i++,w++) {
-		if(!w->isUsed() || !w->getAlive())
-			continue;
-		if(w->getFlag())
+		if(!w->isUsed() || !w->getAlive() || w->getFlag())
 			continue;
 
 		wx = (int)w->getPos().x;
