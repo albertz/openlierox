@@ -105,12 +105,12 @@ void CHttpDownloader::Stop()
 		tHttp.CancelProcessing();
 
 	// Clear
-	sFileName = "";
-	sDestPath = "";
 	if (tFile)  {
 		fclose(tFile);
 		remove(GetFullFileName(sDestPath).c_str());
 	}
+	sFileName = "";
+	sDestPath = "";
 	tFile = NULL;
 	iCurrentServer = 0;
 	iState = FILEDL_NO_FILE;
