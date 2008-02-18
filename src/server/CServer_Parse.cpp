@@ -788,6 +788,14 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
 	if( cl->getUdpFileDownloader()->receive(bs) )
 	{
+		if( ! tLXOptions->bAllowFileDownload )
+		{
+			cl->getUdpFileDownloader()->abortDownload();
+			CBytestream bs;
+			bs.writeByte(S2C_SENDFILE);
+			cl->getUdpFileDownloader()->send(&bs);
+			SendPacket( &bs, cl );
+		};
 		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_ERROR )
 		{
 			cl->getUdpFileDownloader()->reset();
