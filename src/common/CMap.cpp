@@ -146,6 +146,7 @@ bool CMap::NewFrom(CMap* map)
 #ifdef _AI_DEBUG
 	DrawImage(bmpDebugImage, map->bmpDebugImage, 0, 0);
 #endif
+	DrawImage(bmpDirtImage, map->bmpDirtImage, 0, 0);
 	memcpy(GridFlags, map->GridFlags, nGridCols * nGridRows);
 	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
 	memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
@@ -610,6 +611,12 @@ bool CMap::CreateSurface(void)
     bmpShadowMap = gfxCreateSurface(Width, Height);
 	if(bmpShadowMap == NULL) {
 		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
+		return false;
+	}
+	
+	bmpDirtImage = gfxCreateSurface(Width, Height);
+	if(bmpDirtImage == NULL) {
+		SetError("CMap::CreateSurface(): bmpDirtImage creation failed, perhaps out of memory");
 		return false;
 	}
 
@@ -2382,6 +2389,29 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	UnlockSurface(bmpBackImage);
 	UnlockSurface(bmpImage);
 
+	// Fill in dirt image
+	DrawImage(bmpDirtImage, bmpImage, 0, 0);
+	LOCK_OR_FAIL(bmpDirtImage);
+	lockFlags();
+	curpixel = (Uint8 *)bmpDirtImage->pixels;
+	PixelRow = curpixel;
+	n=0;
+	for(y=0; y<Height; y++, PixelRow+=bmpDirtImage->pitch)
+	{
+		for(x=0; x<Width; x++, curpixel+=bmpDirtImage->format->BytesPerPixel)
+		{
+			if( PixelFlags[n] & PX_EMPTY )
+			{
+				PutPixelToAddr(curpixel, Theme.iDefaultColour, bmpDirtImage->format->BytesPerPixel);	// Dirt color
+			};
+			n++;
+		};
+	};
+	
+	unlockFlags();
+	UnlockSurface(bmpDirtImage);
+
+
 	// Load the CTF gametype variables
 	if (ctf)  {
 		fread(&FlagSpawnX	,sizeof(short),1,fp);
@@ -2959,7 +2989,7 @@ bool CMap::RecvDirtUpdate(CBytestream *bs)
 	bs->ResetBitPos();
 	lockFlags();
 	LOCK_OR_FAIL(bmpImage);
-	byte bpp = bmpImage->format->BytesPerPixel;
+	LOCK_OR_FAIL(bmpDirtImage);
 	for( uint y = 0; y < Height; y++ )
 	for( uint x = 0; x < Width; x++ )
 	{
@@ -2971,8 +3001,9 @@ bool CMap::RecvDirtUpdate(CBytestream *bs)
 			{
 				*flag &= ~ PX_EMPTY;	// Clear empty bit
 				*flag |= PX_DIRT;		// Set dirt bit
-				Uint8 * p2 = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch + x * bmpImage->format->BytesPerPixel;
-				PutPixelToAddr(p2, Theme.iDefaultColour, bpp);	// Green dirt color
+				Uint8 * p1 = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch + x * bmpImage->format->BytesPerPixel;
+				Uint8 * p2 = (Uint8 *)bmpDirtImage->pixels + y * bmpDirtImage->pitch + x * bmpDirtImage->format->BytesPerPixel;
+				memcpy(p1, p2, bmpImage->format->BytesPerPixel);
 			}
 			else
 			{
@@ -2981,6 +3012,7 @@ bool CMap::RecvDirtUpdate(CBytestream *bs)
 			};
 		};
 	};
+	UnlockSurface(bmpDirtImage);
 	UnlockSurface(bmpImage);
 	unlockFlags();
 	UpdateArea(0, 0, Width-1, Height-1, true);

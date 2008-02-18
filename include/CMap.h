@@ -105,6 +105,7 @@ public:
 		PixelFlags = NULL;
         bmpGreenMask = NULL;
         bmpShadowMap = NULL;
+		bmpDirtImage = NULL;
         GridFlags = NULL;
 		AbsoluteGridFlags = NULL;
 		
@@ -151,6 +152,7 @@ private:
 #ifdef _AI_DEBUG
 	SDL_Surface *bmpDebugImage;
 #endif
+	SDL_Surface	*bmpDirtImage; // Save dirt image to restore some pixels correctly on dirt update
 
     // AI Grid
     int         nGridWidth, nGridHeight;
