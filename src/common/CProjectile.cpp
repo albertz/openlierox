@@ -103,7 +103,6 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
 	int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
 	int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
-	static const int WORM_CHECKSTEP = 2; // this is used for worm collisions
 	int len = (int)vVelocity.GetLength2();
 	
 	// HINT: this prevents napalms and similar stuff from flying through walls (see TODO according to MIN_CHECKSTEP below)
@@ -176,35 +175,28 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 
 	vVelocity = newvel;
 	if(enddt) *enddt = dt;
+	CVec vFrameOldPos = vPosition;
 	vPosition += vVelocity*dt;
 
 	// got we any worm?
-	if((checkstep*dt*dt > WORM_CHECKSTEP*WORM_CHECKSTEP))  {
-		checkstep = WORM_CHECKSTEP / sqrt(checkstep);
-		CVec curpos = vOldPos;
-		for (float time=0; time < dt; time += checkstep)  {
-			ret = ProjWormColl(curpos,worms);
+	{
+		CVec dif = vPosition - vFrameOldPos;
+		float len = NormalizeVector( &dif );
+		
+		// the worm has a size of 4*4 in ProjWormColl, so it's save to check every second pixel here
+		for (float p = 0.0f; p < len; p += 2.0f) {
+			CVec curpos = vFrameOldPos + dif * p;
+		
+			ret = ProjWormColl(curpos, worms);
 			if (ret >= 0)  {
-				if (enddt) *enddt = time;
-				vOldPos = vPosition; // save the new position
+				if (enddt) *enddt = dt * p / len;
+				vOldPos = vPosition = curpos; // save the new position at the first collision
 				return ret;
 			}
-			curpos += vVelocity*checkstep;
 		}
 	}
-
-	ret = ProjWormColl(vPosition, worms);
-	if(ret >= 0) {
-		vOldPos = vPosition; // save the new position
-		return ret;
-	}
-	
+		
 	// if distance is to short to last check, just return here without a check
-	// TODO: this is not so good because if the projectile is flying quite slow
-	// and is already in wall, the collision check won't be made at all and the
-	// projectile will simply fly through
-	// I "fixed" this by setting MIN_CHECKSTEP to 0 for slow projectiles but it would
-	// be nicer to have it correct
 	if( (vOldPos-vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP )
 		return NONE_COL_RET;
 
@@ -321,10 +313,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			//		this behavior is the same as in original LX
 			return SOME_COL_RET;
 		}
-
-		// HINT: this calcs only the last step, not vOldPos
-		//		it's more like the original LX if we do this
-		CVec pos = vPosition - vVelocity*dt; // old pos
+		
 		bool bounce = false;
 		
 		// Bit of a hack
@@ -344,25 +333,25 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		// Find the collision side
 		if( (left>right || left>2) && left>1 && vVelocity.x < 0) {
 			if(bounce)
-				vPosition.x=( pos.x );
+				vPosition.x=( vFrameOldPos.x );
 			CollisionSide |= COL_LEFT;
 		}
 
 		if( (right>left || right>2) && right>1 && vVelocity.x > 0) {
 			if(bounce)
-				vPosition.x=( pos.x );
+				vPosition.x=( vFrameOldPos.x );
 			CollisionSide |= COL_RIGHT;
 		}
 
 		if(top>1 && vVelocity.y < 0) {
 			if(bounce)
-				vPosition.y=( pos.y );
+				vPosition.y=( vFrameOldPos.y );
 			CollisionSide |= COL_TOP;
 		}
 
 		if(bottom>1 && vVelocity.y > 0) {
 			if(bounce)
-				vPosition.y=( pos.y );
+				vPosition.y=( vFrameOldPos.y );
 			CollisionSide |= COL_BOTTOM;
 		}
 
@@ -371,12 +360,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			vVelocity.x=0;
 		if(fabs(vVelocity.y) < 2)
 			vVelocity.y=0;
-						
+		
 		return SOME_COL_RET;
 	}
 	
 	// the move was save, so save the position
 	vOldPos = vPosition;
+	
 	return NONE_COL_RET;
 }
 
