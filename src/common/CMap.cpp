@@ -2940,7 +2940,7 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 	return CollisionSide; */
 }
 
-// TODO: implement sending several smaller packets
+// TODO: Faster routine (maybe make some functions inline in CBytestream)
 bool CMap::SendDirtUpdate(CBytestream *bs)
 {
 	bs->ResetBitPos();
@@ -2972,7 +2972,7 @@ bool CMap::RecvDirtUpdate(CBytestream *bs)
 				*flag &= ~ PX_EMPTY;	// Clear empty bit
 				*flag |= PX_DIRT;		// Set dirt bit
 				Uint8 * p2 = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch + x * bmpImage->format->BytesPerPixel;
-				PutPixelToAddr(p2, MakeColour(116,100,0), bpp);	// Green dirt color
+				PutPixelToAddr(p2, Theme.iDefaultColour, bpp);	// Green dirt color
 			}
 			else
 			{
