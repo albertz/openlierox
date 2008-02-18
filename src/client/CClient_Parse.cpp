@@ -610,7 +610,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 
 	bJoin_Update = true;
 	
-	getFileDownloaderInGame()->reset();
+	getUdpFileDownloader()->reset();
 	getPreviousDirtMap()->Clear();
 	if( cMap )
 		cMap->SendDirtUpdate( getPreviousDirtMap() );
@@ -1541,7 +1541,7 @@ void CClient::ParseDropped(CBytestream *bs)
 	// Stop any file downloads
 	if (bDownloadingMap && cHttpDownloader)
 		cHttpDownloader->CancelFileDownload(sMapDownloadName);
-	getFileDownloaderInGame()->reset();
+	getUdpFileDownloader()->reset();
 
 	if (tLXOptions->bLogConvos)  {
 		if(!bInServer)
@@ -1565,41 +1565,41 @@ void CClient::ParseDropped(CBytestream *bs)
 void CClient::ParseSendFile(CBytestream *bs)
 {
 	fLastFileRequestPacketReceived = tLX->fCurTime;
-	if( cFileDownloaderInGame.receive(bs) )
+	if( getUdpFileDownloader()->receive(bs) )
 	{
-		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_ERROR )
+		if( getUdpFileDownloader()->getState() == CUdpFileDownloader::S_ERROR )
 		{
-			if( ! getFileDownloaderInGame()->requestFilesPending() ) // More files to receive
-				cFileDownloaderInGame.reset();
+			if( ! getUdpFileDownloader()->requestFilesPending() ) // More files to receive
+				getUdpFileDownloader()->reset();
 			return;
 		};
-		if( getFileDownloaderInGame()->getFilename() == "dirt:" &&
-			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
+		if( getUdpFileDownloader()->getFilename() == "dirt:" &&
+			getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED )
 		{	// Parse a full dirt mask
 			setPartialDirtUpdateCount(0);
 			getPreviousDirtMap()->Clear();
-			getPreviousDirtMap()->writeData( getFileDownloaderInGame()->getData() );
+			getPreviousDirtMap()->writeData( getUdpFileDownloader()->getData() );
 			getPreviousDirtMap()->ResetPosToBegin();
 			if( cMap )
 				cMap->RecvDirtUpdate( getPreviousDirtMap() );
 		}
 		else
-		if( getFileDownloaderInGame()->getFilename().find( "dirt:" ) == 0 &&
-			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
+		if( getUdpFileDownloader()->getFilename().find( "dirt:" ) == 0 &&
+			getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED )
 		{	// Parse a partial dirt mask
-			int updateCount = atoi(getFileDownloaderInGame()->getFilename().substr(strlen("dirt:")));
+			int updateCount = atoi(getUdpFileDownloader()->getFilename().substr(strlen("dirt:")));
 			if( updateCount != getPartialDirtUpdateCount() )
 			{	// Request full dirt mask
-				getFileDownloaderInGame()->setDataToSend("dirt:", "");
+				getUdpFileDownloader()->setDataToSend("dirt:", "");
 				CBytestream bs;
 				bs.writeByte(C2S_SENDFILE);
-				getFileDownloaderInGame()->send( &bs );	// Single packet
+				getUdpFileDownloader()->send( &bs );	// Single packet
 				cNetChan.AddReliablePacketToSend(bs);
 				return;
 			};
 			setPartialDirtUpdateCount( getPartialDirtUpdateCount() + 1 );
 			CBytestream bsDiff, bsNew;
-			bsDiff.writeData( getFileDownloaderInGame()->getData() );
+			bsDiff.writeData( getUdpFileDownloader()->getData() );
 			bsDiff.ResetPosToBegin();
 			getPreviousDirtMap()->ResetPosToBegin();
 			while( ! bsDiff.isPosAtEnd() )
@@ -1610,26 +1610,26 @@ void CClient::ParseSendFile(CBytestream *bs)
 				cMap->RecvDirtUpdate( getPreviousDirtMap() );
 		}
 		else
-		if( CFileDownloaderInGame::isPathValid( getFileDownloaderInGame()->getFilename() ) &&
-			! IsFileAvailable( getFileDownloaderInGame()->getFilename() ) &&
-			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
+		if( CUdpFileDownloader::isPathValid( getUdpFileDownloader()->getFilename() ) &&
+			! IsFileAvailable( getUdpFileDownloader()->getFilename() ) &&
+			getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED )
 		{
 			// Server sent us some file we don't have - okay, save it
-			FILE * ff=OpenGameFile( getFileDownloaderInGame()->getFilename(), "wb" );
+			FILE * ff=OpenGameFile( getUdpFileDownloader()->getFilename(), "wb" );
 			if( ff == NULL )
 			{
-				printf("CClient::ParseSendFile(): cannot write file %s\n", getFileDownloaderInGame()->getFilename().c_str() );
+				printf("CClient::ParseSendFile(): cannot write file %s\n", getUdpFileDownloader()->getFilename().c_str() );
 				return;
 			};
-			fwrite( getFileDownloaderInGame()->getData().c_str(), 1, getFileDownloaderInGame()->getData().size(), ff );
+			fwrite( getUdpFileDownloader()->getData().c_str(), 1, getUdpFileDownloader()->getData().size(), ff );
 			fclose(ff);
 			// Put notice about downloaded file in chatbox
 			CBytestream bs;
 			bs.writeByte(TXT_NETWORK);
-			bs.writeString( "Downloaded file \"" + getFileDownloaderInGame()->getFilename() + 
-								"\" size " + itoa( getFileDownloaderInGame()->getData().size() ) );
+			bs.writeString( "Downloaded file \"" + getUdpFileDownloader()->getFilename() + 
+								"\" size " + itoa( getUdpFileDownloader()->getData().size() ) );
 			ParseText( &bs );
-			if( getFileDownloaderInGame()->getFilename().find("levels/") == 0 && 
+			if( getUdpFileDownloader()->getFilename().find("levels/") == 0 && 
 					IsFileAvailable( "levels/" + tGameLobby.szMapName ) )
 			{
 				tGameLobby.bHaveMap = true;
@@ -1647,14 +1647,14 @@ void CClient::ParseSendFile(CBytestream *bs)
 				bJoin_Update = true;
 				bHost_Update = true;
 			};
-			if( getFileDownloaderInGame()->getFilename().find("skins/") == 0 )
+			if( getUdpFileDownloader()->getFilename().find("skins/") == 0 )
 			{
 				// Loads skin from disk automatically on next frame
 				bJoin_Update = true;
 				bHost_Update = true;
 			};
 			if( ! tGameLobby.bHaveMod &&
-				getFileDownloaderInGame()->getFilename().find( tGameLobby.szModDir ) == 0 )
+				getUdpFileDownloader()->getFilename().find( tGameLobby.szModDir ) == 0 )
 			{
 				tGameLobby.bHaveMod = true;
 			    FILE * fp = OpenGameFile(tGameLobby.szModDir + "/script.lgs", "rb");
@@ -1667,37 +1667,37 @@ void CClient::ParseSendFile(CBytestream *bs)
 			};
 		}
 		else
-		if( cFileDownloaderInGame.getFilename() == "STAT_ACK:" &&
-			cFileDownloaderInGame.getFileInfo().size() > 0 &&
+		if( getUdpFileDownloader()->getFilename() == "STAT_ACK:" &&
+			getUdpFileDownloader()->getFileInfo().size() > 0 &&
 			! tGameLobby.bHaveMod &&
-			getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED )
+			getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED )
 		{
 			// Got filenames list of mod dir - push "script.lgs" to the end of list to download all other data before
 			uint f;
-			for( f=0; f<cFileDownloaderInGame.getFileInfo().size(); f++ )
+			for( f=0; f<getUdpFileDownloader()->getFileInfo().size(); f++ )
 			{
-				if( cFileDownloaderInGame.getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
-					! IsFileAvailable( cFileDownloaderInGame.getFileInfo()[f].filename ) &&
-					stringcaserfind( cFileDownloaderInGame.getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
-					cFileDownloaderInGame.requestFile( cFileDownloaderInGame.getFileInfo()[f].filename );
+				if( getUdpFileDownloader()->getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
+					! IsFileAvailable( getUdpFileDownloader()->getFileInfo()[f].filename ) &&
+					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) != std::string::npos )
+					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
 			};
-			for( f=0; f<cFileDownloaderInGame.getFileInfo().size(); f++ )
+			for( f=0; f<getUdpFileDownloader()->getFileInfo().size(); f++ )
 			{
-				if( cFileDownloaderInGame.getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
-					! IsFileAvailable( cFileDownloaderInGame.getFileInfo()[f].filename ) &&
-					stringcaserfind( cFileDownloaderInGame.getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
-					cFileDownloaderInGame.requestFile( cFileDownloaderInGame.getFileInfo()[f].filename );
+				if( getUdpFileDownloader()->getFileInfo()[f].filename.find( tGameLobby.szModDir ) == 0 &&
+					! IsFileAvailable( getUdpFileDownloader()->getFileInfo()[f].filename ) &&
+					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
+					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
 			};
-			cFileDownloaderInGame.setDataToSend( "", "" );	// Delay file request - half-second pause added automatically
+			getUdpFileDownloader()->setDataToSend( "", "" );	// Delay file request - half-second pause added automatically
 		};
 	};
-	if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )
+	if( getUdpFileDownloader()->getState() == CUdpFileDownloader::S_RECEIVE )
 	{
 		// TODO: move this out here
 		// Speed up download - server will send next packet when receives ping, or once in 0.5 seconds
 		CBytestream bs;
 		bs.writeByte(C2S_SENDFILE);
-		getFileDownloaderInGame()->sendPing( &bs );
+		getUdpFileDownloader()->sendPing( &bs );
 		cNetChan.AddReliablePacketToSend(bs);
 	}
 	else

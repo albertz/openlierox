@@ -256,8 +256,7 @@ enum {
 	jl_Favourites,
 	jl_PlayerList,
 	jl_Spectate,
-	jl_SpectateSmooth,
-	jl_AbortFileDownload
+	jl_StartStopUdpFileDownload
 };
 
 
@@ -332,7 +331,9 @@ void Menu_Net_JoinLobbyCreateGui(void)
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
 	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
 	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 );
-
+	// The button will pop up when some file is not available, disabled by default
+	if( cClient->getHostVer() >= 4 )
+		cJoinLobby.Add( new CTextButton( "", tLX->clError, tLX->clNormalLabel), jl_StartStopUdpFileDownload, 360, 195, 0, 0 );
 	// Setup the player list
 	CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
 	if (player_list)  {
@@ -604,19 +605,44 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
 	}
 
-/*
-
-	if( cClient->getFileDownloaderInGame()->getFileDownloading() != "" || 
-		cClient->getFileDownloaderInGame()->getFilesPendingAmount() > 0 )
+	#ifdef DEBUG	// DC told me that's bad, so hide our l77t feature from common mortals
+	if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
+		tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel, 
+		itoa( int(cClient->getUdpFileDownloader()->getFileDownloadingProgress()*100.0) ) + "%: " +
+		cClient->getUdpFileDownloader()->getFileDownloading() );
+	else if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
+		tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
+		itoa( cClient->getUdpFileDownloader()->getFilesPendingAmount() ) + " files left" );
+	
+	CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
+	if( dlButton )
 	{
-		if( cJoinLobby.getWidget(jl_AbortFileDownload) == NULL )
-			cJoinLobby.Add( new CTextButton( "Abort", tLX->clError, tLX->clNormalLabel), jl_AbortFileDownload, 560, 220, 100, 20 );
-	}
-	else
-	{
-		if( cJoinLobby.getWidget(jl_AbortFileDownload) != NULL )
-			cJoinLobby.removeWidget(jl_AbortFileDownload);
-	};*/
+		bool bNeedDownloadButton = false;
+		if( ! cClient->getGameLobby()->bHaveMod || ! cClient->getGameLobby()->bHaveMap )
+			bNeedDownloadButton = true;
+		CWorm *w = cClient->getRemoteWorms();
+		for( int i=0; i<MAX_WORMS; i++, w++ )
+		{
+			if( ! w->isUsed() )
+				continue;
+			if( w->getSkin() == "" )
+				continue;
+			if( ! IsFileAvailable("skins/" + w->getSkin()) )
+				bNeedDownloadButton = true;
+		};
+		if( bNeedDownloadButton )
+		{
+			if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
+				dlButton->SendMessage( LBS_SETTEXT, "Abort", 0 );
+			else
+				dlButton->SendMessage( LBS_SETTEXT, "Download files from host", 0 );
+		}
+		else
+		{
+			dlButton->SendMessage( LBS_SETTEXT, "", 0 );
+		};
+	};
+	#endif
 
 	// Process & Draw the gui
 #ifdef WITH_MEDIAPLAYER
@@ -697,15 +723,45 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				}
 				break;
 
-			case jl_AbortFileDownload:
+			case jl_StartStopUdpFileDownload:
 				if(ev->iEventMsg == TXB_MOUSEUP) {
-					cClient->setSpectate(((CCheckbox *)cJoinLobby.getWidget(jl_Spectate))->getValue());
-					cClient->getFileDownloaderInGame()->abortDownload();
-					CBytestream bs;
-					bs.writeByte(C2S_SENDFILE);
-					cClient->getFileDownloaderInGame()->send(&bs);
-					cClient->getChannel()->AddReliablePacketToSend(bs);
-					cClient->setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
+					if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
+					{
+						cClient->getUdpFileDownloader()->abortDownload();
+						CBytestream bs;
+						bs.writeByte(C2S_SENDFILE);
+						cClient->getUdpFileDownloader()->send(&bs);
+						cClient->getChannel()->AddReliablePacketToSend(bs);
+						cClient->setLastFileRequest( tLX->fCurTime + 10000.0f ); // Disable file download for current session
+					}
+					else
+					{
+						// The last requested file will be downloaded first, so putting these in reverse order
+						if( ! cClient->getGameLobby()->bHaveMod && cClient->getGameLobby()->szModDir != "" )
+							cClient->getUdpFileDownloader()->requestFileInfo(cClient->getGameLobby()->szModDir, true);
+						
+						// Do not request map if already downloading with HTTP
+						if( ! cClient->getGameLobby()->bHaveMap && cClient->getGameLobby()->szMapName != "" && 
+							( ! cClient->getDownloadingMap() || 
+							( cClient->getDownloadingMap() && cClient->getDownloadMethod() == DL_UDP ) ) )
+						{
+							cClient->getUdpFileDownloader()->requestFile("levels/" + cClient->getGameLobby()->szMapName, true);
+							cClient->getUdpFileDownloader()->requestFileInfo("levels/" + cClient->getGameLobby()->szMapName, true); // To get valid progressbar
+						};
+						
+						CWorm *w = cClient->getRemoteWorms();
+						for( int i=0; i<MAX_WORMS; i++, w++ )
+						{
+							if( ! w->isUsed() )
+								continue;
+							if( w->getSkin() == "" )
+								continue;
+							if( ! IsFileAvailable("skins/" + w->getSkin()) )
+							{
+								cClient->getUdpFileDownloader()->requestFile("skins/" + w->getSkin(), true); // Small, no need for file info
+							};
+						};
+					}
 				}
 				break;
 		}

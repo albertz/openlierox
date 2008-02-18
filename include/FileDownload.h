@@ -144,11 +144,14 @@ public:
 };
 
 // In-lobby or in-game file downloader over unreliable protocol - send packets of 256 bytes
-class CFileDownloaderInGame
+// Actually we're using reliable CChannel to send packets so this downloader
+// doesn't contain any checks on packet lost / received in wrong order, 
+// only Adler32 checksum which is calculated by zlib.
+class CUdpFileDownloader
 {
 public:
-	CFileDownloaderInGame() { reset(); };
-	~CFileDownloaderInGame() { };
+	CUdpFileDownloader() { reset(); };
+	~CUdpFileDownloader() { };
 
 	enum State_t 	{ S_SEND, S_RECEIVE, S_FINISHED, S_ERROR };
 
@@ -168,7 +171,6 @@ public:
 	// Does not change any variables, just pings server with zero-sized packet to un-freeze it, else download speed sucks
 	void		sendPing( CBytestream * bs ) const;
 
-	bool		errorOccured() const { return (tState == S_ERROR); };
 	State_t		getState() const { return tState; };
 
 	void		setDataToSend( const std::string & name, const std::string & data, bool noCompress = false );
@@ -180,7 +182,7 @@ public:
 
 	// Functions that will trigger remote CFileDownloaderInGame to do something like send some file or list some dir
 	void		allowFileRequest( bool allow );
-	void		requestFile( const std::string & path, bool retryIfFail = true ); // Same for dir
+	void		requestFile( const std::string & path, bool retryIfFail );
 	bool		requestFilesPending(); // Re-send file request if downloading fails
 	static bool	isPathValid( const std::string & path );	// Check if someone tries to access /etc/shadow to get system passwords
 	
@@ -195,7 +197,7 @@ public:
 	};
 	
 	// For dir returns recursive list of all files in dir, clears previous file info
-	void		requestFileInfo( const std::string & path ); 
+	void		requestFileInfo( const std::string & path, bool retryIfFail ); 
 	// File statistics from requestFileInfo() is saved in array returned by this func
 	const std::vector< StatInfo > & getFileInfo() const { return cStatInfo; };
 	

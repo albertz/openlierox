@@ -132,7 +132,7 @@ void CClient::Clear(void)
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	iPartialDirtUpdateCount = 0;
 	cPreviousDirtMap.Clear();
-	getFileDownloaderInGame()->reset();
+	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
 	bSpectate = false;
@@ -193,7 +193,7 @@ void CClient::MinorClear(void)
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	iPartialDirtUpdateCount = 0;
 	cPreviousDirtMap.Clear();
-	getFileDownloaderInGame()->reset();
+	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
 }
@@ -420,18 +420,8 @@ void CClient::DownloadMap(const std::string& mapname)
 // Process map downloading
 void CClient::ProcessMapDownloads()
 {
-	// Nothing to process
-	if (!bDownloadingMap)
-		return;
 
-	switch (iDownloadMethod)  {
-
-	//
-	// HTTP
-	//
-	case DL_HTTP:  {
-		if (!cHttpDownloader)
-			break;
+	if( bDownloadingMap && iDownloadMethod == DL_HTTP && cHttpDownloader )  {
 
 		// Process
 		cHttpDownloader->ProcessDownloads();
@@ -484,63 +474,68 @@ void CClient::ProcessMapDownloads()
 			sMapDlError = sMapDownloadName + " downloading error: " + error.sErrorMsg;
 
 			// HTTP failed, let's try UDP
-			printf("Could not download the map via HTTP, trying UDP...\n");
-			getFileDownloaderInGame()->requestFile("levels/" + sMapDownloadName, false);
-			getFileDownloaderInGame()->requestFileInfo("levels/" + sMapDownloadName); // To get valid progressbar
-			iDownloadMethod = DL_UDP;
+			if( getHostVer() > 4 )
+			{
+				printf("Could not download the map via HTTP, trying UDP...\n");
+				getUdpFileDownloader()->requestFile("levels/" + sMapDownloadName, true);
+				getUdpFileDownloader()->requestFileInfo("levels/" + sMapDownloadName, true); // To get valid progressbar
+				iDownloadMethod = DL_UDP;
+			};
 		}
 
 		// Get the progress
 		iMapDlProgress = cHttpDownloader->GetFileProgress(sMapDownloadName);
-	} break;
+	};
 
 
-	//
-	// UDP
-	//
-	case DL_UDP:  {
 
-		if( getHostVer() < 4 || iNetStatus == NET_DISCONNECTED )  {
-			bDownloadingMap = false;
-			bMapDlError = true;
-			return;
-		}
+  	// UDP file download used for maps, mods and worm skins - we can download map via HTTP and mod via UDP from host
+	if( getHostVer() < 4 || iNetStatus == NET_DISCONNECTED )
+		return;
 
-		iMapDlProgress = (int)(getFileDownloaderInGame()->getFileDownloadingProgress() * 100.0f);
 		
-		//printf("CClient::processFileRequests(): state %i\n", getFileDownloaderInGame()->getState() );
+	//printf("CClient::processFileRequests(): state %i\n", getFileDownloaderInGame()->getState() );
 		
-		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_RECEIVE )	 {
-			if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) // Server stopped sending file in the middle
-				if( ! getFileDownloaderInGame()->requestFilesPending() )  { // More files to receive
-					getFileDownloaderInGame()->reset();
-					bMapDlError = true;
-					bDownloadingMap = false;
-				}
-		}
 
-		if( getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_ERROR )  {
-			getFileDownloaderInGame()->reset();
-			bMapDlError = true;
-			bDownloadingMap = false;
-		}
-
-		if( getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_FINISHED )
-			return;
-
-		// Finished
-		if( fLastFileRequest >= tLX->fCurTime )	
-			return;
-			
-		fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout; // Spam server with file requests once in 5 seconds
+	// Server requested some file (wormskin) or we're sending file request
+	if( getUdpFileDownloader()->getState() == CUdpFileDownloader::S_SEND )	 {
+		CBytestream bs;
+		bs.writeByte(C2S_SENDFILE);
+		getUdpFileDownloader()->send(&bs);
+		cNetChan.AddReliablePacketToSend(bs);
 		fLastFileRequestPacketReceived = tLX->fCurTime;
-		
-		if( !getFileDownloaderInGame()->requestFilesPending() )  { // More files to receive?
-			bDownloadingMap = false;
-		}
+		return;
 	}
-	break;
 
+	if( getUdpFileDownloader()->getState() == CUdpFileDownloader::S_RECEIVE )	 {
+		if( bDownloadingMap && iDownloadMethod == DL_UDP )
+			iMapDlProgress = (int)(getUdpFileDownloader()->getFileDownloadingProgress() * 100.0f);
+		if( fLastFileRequestPacketReceived + fDownloadRetryTimeout < tLX->fCurTime ) // Server stopped sending file in the middle
+			if( ! getUdpFileDownloader()->requestFilesPending() )  { // More files to receive
+				getUdpFileDownloader()->reset();
+				bMapDlError = true;
+				bDownloadingMap = false;
+			}
+	}
+
+	if( getUdpFileDownloader()->getState() == CUdpFileDownloader::S_ERROR )  {
+		getUdpFileDownloader()->reset();
+		bMapDlError = true;
+		bDownloadingMap = false;
+	}
+
+	if( getUdpFileDownloader()->getState() != CUdpFileDownloader::S_FINISHED )
+		return;
+
+	// Finished
+	if( fLastFileRequest >= tLX->fCurTime )	
+		return;
+		
+	fLastFileRequest = tLX->fCurTime + fDownloadRetryTimeout; // Spam server with file requests once in 5 seconds
+	fLastFileRequestPacketReceived = tLX->fCurTime;
+	
+	if( !getUdpFileDownloader()->requestFilesPending() )  { // More files to receive?
+		bDownloadingMap = false;
 	}
 
 }
@@ -613,7 +608,7 @@ void CClient::ReadPackets(void)
 		// Stop any file downloads
 		if (bDownloadingMap && cHttpDownloader)
 			cHttpDownloader->CancelFileDownload(sMapDownloadName);
-		getFileDownloaderInGame()->reset();
+		getUdpFileDownloader()->reset();
 		
 		// The next frame will pickup the server error flag set & handle the msgbox, disconnecting & quiting
 	}
@@ -763,7 +758,7 @@ void CClient::Disconnect(void)
 
 	if (bDownloadingMap)
 		cHttpDownloader->CancelFileDownload(sMapDownloadName);
-	getFileDownloaderInGame()->reset();
+	getUdpFileDownloader()->reset();
 
 
 	if (tLXOptions->bLogConvos)  {

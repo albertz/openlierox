@@ -786,20 +786,19 @@ void GameServer::ParseGrabBonus(CClient *cl, CBytestream *bs) {
 void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 {
 	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
-	if( cl->getFileDownloaderInGame()->receive(bs) )
+	if( cl->getUdpFileDownloader()->receive(bs) )
 	{
-		if( cl->getFileDownloaderInGame()->errorOccured() )
+		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_ERROR )
 		{
-			cl->getFileDownloaderInGame()->reset();
+			cl->getUdpFileDownloader()->reset();
 			return;
 		};
 		// The only file server needs from client is the worm skin file
-		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
-			cl->getFileDownloaderInGame()->getFilename() == "GET:" &&
-			cl->getFileDownloaderInGame()->getData().find("skins/") == 0 )
-		{
-			// If state is S_FINISHED not S_SEND that means we don't have requested worm skin file
-			std::string skin = cl->getFileDownloaderInGame()->getData().substr(strlen("skins/"));
+		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED &&
+			cl->getUdpFileDownloader()->getFilename() == "GET:" &&
+			cl->getUdpFileDownloader()->getData().find("skins/") == 0 )
+		{	// If state is S_FINISHED not S_SEND that means we don't have requested worm skin file
+			std::string skin = cl->getUdpFileDownloader()->getData().substr(strlen("skins/"));
 			CWorm *w = cWorms;
 			for ( int i = 0; i < MAX_WORMS; i++, w++ )  
 			{
@@ -808,34 +807,40 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 				if( w->getSkin() == skin )
 				{
 					if( w->getClient()->getClientOLXVer() < 4 )
-						return;
-					w->getClient()->getFileDownloaderInGame()->requestFile( "skins/" + skin, false );
+						cl->getUdpFileDownloader()->abortDownload();	// We can't provide that file
+					w->getClient()->getUdpFileDownloader()->requestFile( "skins/" + skin, false );
 					return;
 				};
 			};
 		}
 		else
-		if(	cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
-			cl->getFileDownloaderInGame()->getFilename() == "dirt:" )
+		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED &&
+			( cl->getUdpFileDownloader()->getFilename() == "GET:" || cl->getUdpFileDownloader()->getFilename() == "STAT:" ) )
+		{
+			cl->getUdpFileDownloader()->abortDownload();	// We can't provide that file or statistics on it
+		}
+		else
+		if(	cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED &&
+			cl->getUdpFileDownloader()->getFilename() == "dirt:" )
 		{
 			cl->setPartialDirtUpdateCount(0);
 			cl->getPreviousDirtMap()->Clear();
 			cl->setLastDirtUpdate(tLX->fCurTime - 20.0f);	// Re-send dirt immediately
 		}
 		else
-		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_FINISHED &&
-			CFileDownloaderInGame::isPathValid( cl->getFileDownloaderInGame()->getFilename() ) &&
-			! IsFileAvailable( cl->getFileDownloaderInGame()->getFilename() ) &&
-			cl->getFileDownloaderInGame()->getFilename().find("skins/") == 0 )
+		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED &&
+			CUdpFileDownloader::isPathValid( cl->getUdpFileDownloader()->getFilename() ) &&
+			! IsFileAvailable( cl->getUdpFileDownloader()->getFilename() ) &&
+			cl->getUdpFileDownloader()->getFilename().find("skins/") == 0 )
 		{
 			// Client sent us it's worm skin file we don't have - save it
-			FILE * ff=OpenGameFile( cl->getFileDownloaderInGame()->getFilename(), "wb" );
+			FILE * ff=OpenGameFile( cl->getUdpFileDownloader()->getFilename(), "wb" );
 			if( ff == NULL )
 			{
-				printf("GameServer::ParseSendFile(): cannot write file %s\n", cl->getFileDownloaderInGame()->getFilename().c_str() );
+				printf("GameServer::ParseSendFile(): cannot write file %s\n", cl->getUdpFileDownloader()->getFilename().c_str() );
 				return;
 			};
-			fwrite( cl->getFileDownloaderInGame()->getData().c_str(), 1, cl->getFileDownloaderInGame()->getData().size(), ff );
+			fwrite( cl->getUdpFileDownloader()->getData().c_str(), 1, cl->getUdpFileDownloader()->getData().size(), ff );
 			fclose(ff);
 		};
 	};

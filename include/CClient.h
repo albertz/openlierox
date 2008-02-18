@@ -444,7 +444,7 @@ private:
     bool		bInServer;
 	std::string	cIConnectedBuf;
 	
-	CFileDownloaderInGame	cFileDownloaderInGame;
+	CUdpFileDownloader	cUdpFileDownloader;
 	float		fLastDirtUpdate;
 	int			iPartialDirtUpdateCount;
 	CBytestream	cPreviousDirtMap;
@@ -698,10 +698,11 @@ public:
 
 	byte		getMapDlProgress()				{ return iMapDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
+	bool		getDownloadMethod()				{ return iDownloadMethod; }
 
 	CViewport * getViewports()					{ return cViewports; }
 	
-	CFileDownloaderInGame * getFileDownloaderInGame()	{ return &cFileDownloaderInGame; };
+	CUdpFileDownloader * getUdpFileDownloader()	{ return &cUdpFileDownloader; };
 	float		getLastDirtUpdate()						{ return fLastDirtUpdate; };
 	void		setLastDirtUpdate( float _f )			{ fLastDirtUpdate = _f; };
 	int			getPartialDirtUpdateCount()				{ return iPartialDirtUpdateCount; };

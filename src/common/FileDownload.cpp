@@ -336,7 +336,7 @@ void CHttpDownloadManager::ProcessDownloads()
 // It might be also used not only in game in the future
 // Valid name will be CFileDownloaderUdp, since it's packet oriented, comments will appear someday (I hope).
 
-void CFileDownloaderInGame::reset()
+void CUdpFileDownloader::reset()
 {
 	iPos = 0;
 	tState = S_FINISHED;
@@ -349,7 +349,7 @@ void CFileDownloaderInGame::reset()
 	cStatInfoCache.clear();
 };
 
-void CFileDownloaderInGame::setDataToSend( const std::string & name, const std::string & data, bool noCompress )
+void CUdpFileDownloader::setDataToSend( const std::string & name, const std::string & data, bool noCompress )
 {
 	if( name == "" )
 	{
@@ -369,7 +369,7 @@ void CFileDownloaderInGame::setDataToSend( const std::string & name, const std::
 	cout << "CFileDownloaderInGame::setFileToSend() filename " << sFilename << " data.size() " << data.size() << " compressed " << sData.size() << endl;
 };
 
-void CFileDownloaderInGame::setFileToSend( const std::string & path )
+void CUdpFileDownloader::setFileToSend( const std::string & path )
 {
 	FILE * ff = OpenGameFile( path, "rb" );
 	if( ff == NULL )
@@ -397,7 +397,7 @@ void CFileDownloaderInGame::setFileToSend( const std::string & path )
 };
 
 enum { MAX_DATA_CHUNK = 254 };	// UCHAR_MAX - 1, client and server should have this equal
-bool CFileDownloaderInGame::receive( CBytestream * bs )
+bool CUdpFileDownloader::receive( CBytestream * bs )
 {
 	uint chunkSize = bs->readByte();
 	if( chunkSize == 0 )	// Ping packet with zero data - do not change downloader state
@@ -425,6 +425,7 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 			if( unpacked.find( "ABORT:" ) == 0 )
 			{
 				printf("CFileDownloaderInGame::receive() - abort received\n");
+				// Client sent us ABORT, clean up
 				reset();
 			};
 		return true;	// Receive finished (due to error)
@@ -454,7 +455,7 @@ bool CFileDownloaderInGame::receive( CBytestream * bs )
 	return false;
 };
 
-bool CFileDownloaderInGame::send( CBytestream * bs )
+bool CUdpFileDownloader::send( CBytestream * bs )
 {
 	// TODO: more safety here!
 	// The transferred file can be corrupted if some of the packets  gets lost,
@@ -481,19 +482,19 @@ bool CFileDownloaderInGame::send( CBytestream * bs )
 	return false;
 };
 
-void CFileDownloaderInGame::sendPing( CBytestream * bs ) const
+void CUdpFileDownloader::sendPing( CBytestream * bs ) const
 {
 	bs->writeByte( 0 );
 };
 
-void CFileDownloaderInGame::allowFileRequest( bool allow ) 
+void CUdpFileDownloader::allowFileRequest( bool allow ) 
 { 
 	if( ! bAllowFileRequest )
 		reset();	// Stop uploading any files
 	bAllowFileRequest = allow;
 };
 
-void CFileDownloaderInGame::requestFile( const std::string & path, bool retryIfFail )
+void CUdpFileDownloader::requestFile( const std::string & path, bool retryIfFail )
 {
 	setDataToSend( "GET:", path, false );
 	if( retryIfFail )
@@ -508,25 +509,37 @@ void CFileDownloaderInGame::requestFile( const std::string & path, bool retryIfF
 	sLastFileRequested = path;
 };
 
-bool CFileDownloaderInGame::requestFilesPending()
+bool CUdpFileDownloader::requestFilesPending()
 {
 	if( tRequestedFiles.empty() )
 		return false;
 	if( getState() != S_FINISHED )
 		return true;	// Receiving or sending in progress
 	
-	requestFile( tRequestedFiles.back(), false ); // May modify tRequestedFiles array
+	if( tRequestedFiles.back().find("STAT:") == 0 )
+		requestFileInfo( tRequestedFiles.back().substr( strlen("STAT:") ), false );
+	else
+		requestFile( tRequestedFiles.back(), false ); // May modify tRequestedFiles array
 	return true;
 };
 
-void CFileDownloaderInGame::requestFileInfo( const std::string & path )
+void CUdpFileDownloader::requestFileInfo( const std::string & path, bool retryIfFail )
 {
 	cStatInfo.clear();
 	setDataToSend( "STAT:", path );
+	if( retryIfFail )
+	{ 
+		bool exist = false;
+		for( uint f = 0; f < tRequestedFiles.size(); f++ )
+			if( tRequestedFiles[f] == "STAT:" + path )
+				exist = true;
+		if( ! exist )
+			tRequestedFiles.push_back( "STAT:" + path );
+	};
 	sLastFileRequested = path;
 };
 
-void CFileDownloaderInGame::abortDownload()
+void CUdpFileDownloader::abortDownload()
 {
 	reset();
 	setDataToSend( "ABORT:", "" );
@@ -535,18 +548,26 @@ void CFileDownloaderInGame::abortDownload()
 std::string getStatPacketOneFile( const std::string & path );
 std::string getStatPacketRecursive( const std::string & path );
 
-void CFileDownloaderInGame::processFileRequests()
+void CUdpFileDownloader::processFileRequests()
 {
 	// Process received files
 	for( std::vector< std::string > :: iterator it = tRequestedFiles.begin(); 
 			it != tRequestedFiles.end(); )
 	{
+		bool erase = false;
 		if( * it == getFilename() )
+			erase = true;
+		if( it->find("STAT:") == 0 && getFilename() == "STAT_ACK:" )
+		{
+			if( getData().find( it->substr(strlen("STAT:")) ) == 0 )
+				erase = true;
+		}
+		if( erase )
 		{
 			tRequestedFiles.erase( it );
 			it = tRequestedFiles.begin(); 
 		}
-		else
+ 		else
 			it ++ ;
 	};
 	
@@ -558,14 +579,12 @@ void CFileDownloaderInGame::processFileRequests()
 		if( ! isPathValid( getData() ) )
 		{
 			printf( "CFileDownloaderInGame::processFileRequests(): invalid filename \"%s\"\n", getData().c_str() );
-			abortDownload();
 			return;
 		};
 		struct stat st;
 		if( ! StatFile( getData(), &st ) )
 		{
 			printf( "CFileDownloaderInGame::processFileRequests(): cannot stat file \"%s\"\n", getData().c_str() );
-			abortDownload();
 			return;
 		};
 		if( S_ISREG( st.st_mode ) )
@@ -576,7 +595,6 @@ void CFileDownloaderInGame::processFileRequests()
 		if( S_ISDIR( st.st_mode ) )
 		{
 			printf( "CFileDownloaderInGame::processFileRequests(): cannot send dir \"%s\" - wrong request\n", getData().c_str() );
-			abortDownload();
 			return;
 		};
 	};
@@ -585,7 +603,6 @@ void CFileDownloaderInGame::processFileRequests()
 		if( ! isPathValid( getData() ) )
 		{
 			printf( "CFileDownloaderInGame::processFileRequests(): invalid filename \"%s\"\n", getData().c_str() );
-			abortDownload();
 			return;
 		};
 		setDataToSend( "STAT_ACK:", getStatPacketRecursive( getData() ) );
@@ -624,7 +641,14 @@ void CFileDownloaderInGame::processFileRequests()
 	if( getFilename() == "ABORT:" )
 	{
 		printf("CFileDownloaderInGame::processFileRequests() - abort received\n");
-		reset();
+		// Server sent us ABORT instead of file - abort only failed request (the last one), leave other requests
+		if( ! tRequestedFiles.empty() )
+			tRequestedFiles.pop_back();
+		iPos = 0;
+		tState = S_FINISHED;
+		sFilename = "";
+		sData = "";
+		sLastFileRequested = "";
 	};
 };
 
@@ -643,7 +667,7 @@ const char * invalid_file_names [] = { "CON", "PRN", "AUX", "NUL",
 	"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", 
 	"LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
 
-bool CFileDownloaderInGame::isPathValid( const std::string & path )
+bool CUdpFileDownloader::isPathValid( const std::string & path )
 {
 	if( path == "" )
 		return false;
@@ -755,7 +779,7 @@ std::string getStatPacketRecursive( const std::string & path )
 		return "";
 };
 
-std::string CFileDownloaderInGame::getFileDownloading() const
+std::string CUdpFileDownloader::getFileDownloading() const
 {
 	if( getState() != S_RECEIVE )
 		return "";
@@ -764,7 +788,7 @@ std::string CFileDownloaderInGame::getFileDownloading() const
 	return sLastFileRequested;
 };
 
-float CFileDownloaderInGame::getFileDownloadingProgress() const
+float CUdpFileDownloader::getFileDownloadingProgress() const
 {
 	if( getState() != S_RECEIVE )
 		return 0.0;
@@ -778,7 +802,7 @@ float CFileDownloaderInGame::getFileDownloadingProgress() const
 	return ret;
 };
 
-uint CFileDownloaderInGame::getFilesPendingAmount() const
+uint CUdpFileDownloader::getFilesPendingAmount() const
 {
 	return tRequestedFiles.size();
 };

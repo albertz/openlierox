@@ -401,7 +401,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 		cl == & cClients[0] )	// Do not update dirt for local client
 		return;
 
-	if( cl->getFileDownloaderInGame()->getState() != CFileDownloaderInGame::S_SEND )
+	if( cl->getUdpFileDownloader()->getState() != CUdpFileDownloader::S_SEND )
 	{
 		// Send dirt update once in 7 seconds (I believe that's not too often)
 		if( cl->getLastDirtUpdate() + 7.0f > tLX->fCurTime )
@@ -411,7 +411,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 			cl->setPartialDirtUpdateCount(0);
 			cl->getPreviousDirtMap()->Clear();
 			cMap->SendDirtUpdate(cl->getPreviousDirtMap());
-			cl->getFileDownloaderInGame()->setDataToSend( "dirt:", cl->getPreviousDirtMap()->readData() );
+			cl->getUdpFileDownloader()->setDataToSend( "dirt:", cl->getPreviousDirtMap()->readData() );
 		}
 		else
 		{
@@ -421,18 +421,18 @@ void GameServer::SendDirtUpdate( CClient * cl )
 			while( !bs.isPosAtEnd() )
 				bsDiff.writeBit( bs.readBit() != cl->getPreviousDirtMap()->readBit() );
 			* cl->getPreviousDirtMap() = bs;
-			cl->getFileDownloaderInGame()->setDataToSend( "dirt:" + itoa(cl->getPartialDirtUpdateCount()), bsDiff.readData() );
+			cl->getUdpFileDownloader()->setDataToSend( "dirt:" + itoa(cl->getPartialDirtUpdateCount()), bsDiff.readData() );
 			cl->setPartialDirtUpdateCount( cl->getPartialDirtUpdateCount() + 1 );
 		};
 	};
-	if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND )
+	if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_SEND )
 	{
 		// If client is laggy send packets very rarely
 		if( cl->getLastDirtUpdate() + cl->getPing()*2.5f/1000.0f > tLX->fCurTime )
 			return;	
 		CBytestream bs;
 		bs.writeByte( S2C_SENDFILE );
-		cl->getFileDownloaderInGame()->send( &bs );
+		cl->getUdpFileDownloader()->send( &bs );
 		SendPacket( &bs, cl );
 		cl->setLastDirtUpdate( tLX->fCurTime );
 	};
@@ -457,14 +457,14 @@ void GameServer::SendFiles()
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
-		if( cl->getFileDownloaderInGame()->getState() == CFileDownloaderInGame::S_SEND &&
+		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_SEND &&
 			cl->getLastFileRequestPacketReceived() + MaxPacketDelay <= tLX->fCurTime )
 		{
 			startTimer = true;
 			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
 			CBytestream bs;
 			bs.writeByte(S2C_SENDFILE);
-			cl->getFileDownloaderInGame()->send(&bs);
+			cl->getUdpFileDownloader()->send(&bs);
 			SendPacket( &bs, cl );
 		};
 	};
