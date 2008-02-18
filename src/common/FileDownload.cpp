@@ -134,6 +134,12 @@ void CHttpDownloader::ProcessDownload()
 	// Still processing
 	case HTTP_PROC_PROCESSING:
 		iState = FILEDL_RECEIVING;
+
+		// If we already received something, put it in the file
+		if (tHttp.GetData().length() > 0 && tFile)  {
+			if (fwrite(tHttp.GetData().data(), tHttp.GetData().length(), 1, tFile) == 1)
+				tHttp.ClearReceivedData(); // Save memory
+		}
 		break;
 
 	// Error

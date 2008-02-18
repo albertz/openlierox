@@ -23,7 +23,7 @@
 
 // Some basic defines
 #define		HTTP_TIMEOUT	10
-#define		BUFFER_LEN		4096
+#define		BUFFER_LEN		8192
 
 // HTTP Chunk parsing states
 enum  {
@@ -169,6 +169,7 @@ public:
 	void				RequestData(const std::string& url);
 	int					ProcessRequest();
 	void				CancelProcessing();
+	void				ClearReceivedData()		{ sPureData = ""; }
 	const HttpError&	GetError()				{ return tError; }
 	const std::string&	GetData()				{ return sPureData; }
 	const std::string&	GetMimeType()			{ return sMimeType; }

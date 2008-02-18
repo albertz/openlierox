@@ -1,1 +1,2 @@
 http://iworx5.webxtra.net/~lxallian/filebase/mods/
+http://openlierox.svn.sourceforge.net/viewvc/*checkout*/openlierox/share/gamedir/levels/
