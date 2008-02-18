@@ -253,7 +253,9 @@ public:
     void    setExplode(float t, int _e)     { fExplodeTime = t; nExplode = _e; }
     void    setTouched(int _t)      { nTouched = _t; }
 
-
+	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
+	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }
+	
 	// HINT: saves the current time of the simulation
 	// we need to save this also per projectile as they can have different
 	// simulation times (different times of spawning or remote projectiles)

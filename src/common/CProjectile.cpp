@@ -83,6 +83,28 @@ float CProjectile::getRandomFloat(void)
 }
 
 
+int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, int curResult) {
+	// do we get any worm?
+	if(proj->GetProjInfo()->PlyHit_Type != PJ_NOTHING) {
+		CVec dif = proj->GetPosition() - vFrameOldPos;
+		float len = NormalizeVector( &dif );
+		
+		// the worm has a size of 4*4 in ProjWormColl, so it's save to check every second pixel here
+		for (float p = 0.0f; p < len; p += 2.0f) {
+			CVec curpos = vFrameOldPos + dif * p;
+		
+			int ret = proj->ProjWormColl(curpos, worms);
+			if (ret >= 0)  {
+				if (enddt) *enddt = dt * p / len;
+				proj->setNewPosition( curpos ); // save the new position at the first collision
+				proj->setNewVel( vFrameOldVel ); // don't get faster
+				return ret;
+			}
+		}
+	}
+
+	return curResult;
+}
 
 ///////////////////
 // Check for a collision, updates velocity and position
@@ -177,30 +199,10 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	if(enddt) *enddt = dt;
 	CVec vFrameOldPos = vPosition;
 	vPosition += vVelocity*dt;
-
-	// got we any worm?
-	// HINT: Only check for collisions when there's some action
-	// HINT: This behavior is according to the modding guide at LieroX.net, it also behaves like old LX
-	if (tProjInfo->PlyHit_Type != PJ_NOTHING)  {
-		CVec dif = vPosition - vFrameOldPos;
-		float len = NormalizeVector( &dif );
-		
-		// the worm has a size of 4*4 in ProjWormColl, so it's save to check every second pixel here
-		for (float p = 0.0f; p < len; p += 2.0f) {
-			CVec curpos = vFrameOldPos + dif * p;
-		
-			ret = ProjWormColl(curpos, worms);
-			if (ret >= 0)  {
-				if (enddt) *enddt = dt * p / len;
-				vOldPos = vPosition = curpos; // save the new position at the first collision
-				return ret;
-			}
-		}
-	}
-		
+	
 	// if distance is to short to last check, just return here without a check
 	if( (vOldPos-vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP )
-		return NONE_COL_RET;
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
 
 	CollisionSide = 0;
 	short top,bottom,left,right;
@@ -236,7 +238,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		//vPosition.y = (float)py;
 		vPosition = vOldPos;
 		vVelocity = vOldVel;
-		return SOME_COL_RET;
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 	}
 
 	const uchar* gridflags = map->getAbsoluteGridFlags();
@@ -257,14 +259,14 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			collisionWasOnlyDirt = false;
 			vPosition = vOldPos;
 			vVelocity = vOldVel;
-			return SOME_COL_RET;
+			return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 		}
 		if(y>=mh) {
 			CollisionSide |= COL_BOTTOM;
 			collisionWasOnlyDirt = false;
 			vPosition = vOldPos;
 			vVelocity = vOldVel;
-			return SOME_COL_RET;
+			return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 		}
 
 
@@ -278,14 +280,14 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 				collisionWasOnlyDirt = false;
 				vPosition = vOldPos;
 				vVelocity = vOldVel;
-				return SOME_COL_RET;
+				return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 			}
 			if(x>=mw) {
 				CollisionSide |= COL_RIGHT;
 				collisionWasOnlyDirt = false;
 				vPosition = vOldPos;
 				vVelocity = vOldVel;
-				return SOME_COL_RET;
+				return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 			}
 
 			if(*pf & PX_DIRT || *pf & PX_ROCK) {
@@ -314,7 +316,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			// HINT: don't reset vPosition here, because we want
 			//		the explosion near (inside) the object
 			//		this behavior is the same as in original LX
-			return SOME_COL_RET;
+			return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 		}
 		
 		bool bounce = false;
@@ -364,13 +366,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 		if(fabs(vVelocity.y) < 2)
 			vVelocity.y=0;
 		
-		return SOME_COL_RET;
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, SOME_COL_RET);
 	}
 	
 	// the move was save, so save the position
 	vOldPos = vPosition;
 	
-	return NONE_COL_RET;
+	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
 }
 
 ///////////////////
