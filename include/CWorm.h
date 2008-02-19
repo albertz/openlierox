@@ -194,7 +194,6 @@ private:
 	// Simulation
 	worm_state_t tState;
 	CVec		vPos;
-	CVec		vOldPosOfLastPaket;
 	CVec		vVelocity;
 	CVec		vLastPos;
 	CVec		vDrawPos;
@@ -257,15 +256,20 @@ private:
 	// Network
 	float		fFrameTimes[NUM_FRAMES];
 	lobbyworm_t tLobbyState;
+		// server
 	worm_state_t tLastState; // Used for checking if we need to send the packet
 	float		fLastAngle;
 	float		fLastUpdateWritten;
 	CVec		vLastUpdatedPos; // last pos we have send to client
+		// client
 	float		fLastPosUpdate;  // Used for velocity calculations (client does not send velocity)
+	CVec		vOldPosOfLastPaket;
+	CVec		vPreOldPosOfLastPaket;
+	float		fPreLastPosUpdate;
+	CVec		vLastEstimatedVel;
+	CVec		vPreLastEstimatedVel;
 	byte		iLastCharge;
 	byte		iLastCurWeapon;
-	float		fLastUpdateReceived;
-
 
 	// Graphics
 	SDL_Surface	*bmpWormRight;

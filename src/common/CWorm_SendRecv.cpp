@@ -272,24 +272,38 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	if (!cGameScript)
 		return;
 		
-	if(t > 0.0f) {
-		CVec dist = newpos - vOldPosOfLastPaket;
-		CVec estimatedVel;
-		
-		// TODO: Why is there an option for disabling this? There is no reason to disable, it
-		// should always be better with it activated. There is no magic behind, it's just
-		// a more correct estimation/calculation.
-		// HINT: Raziel told me about "jelly-jumping" remote worm behavior under lag in Beta3 
-		// and I believe it's because of an estimation - set net speed in options to "Modem" in client
-		// and hang on ninjarope - the server will see remote worm sliding down fuzzily each frame,
-		// linear approximation looks bit better for me. Raziel haven't confirmed it though.
-		if( ! tLXOptions->bAntilagMovementPrediction )
-		{
-			// ignoring acceleration in this case for estimation
-			estimatedVel = dist / t;
+	CVec dist = newpos - vOldPosOfLastPaket;
+	
+	// TODO: Why is there an option for disabling this? There is no reason to disable, it
+	// should always be better with it activated. There is no magic behind, it's just
+	// a more correct estimation/calculation.
+	// HINT: Raziel told me about "jelly-jumping" remote worm behavior under lag in Beta3 
+	// and I believe it's because of an estimation - set net speed in options to "Modem" in client
+	// and hang on ninjarope - the server will see remote worm sliding down fuzzily each frame,
+	// linear approximation looks bit better for me. Raziel haven't confirmed it though.
+	if( ! tLXOptions->bAntilagMovementPrediction )
+	{
+		// ignoring acceleration in this case for estimation
+		if(t > 0.0f)
+			vVelocity = dist / t;
+	}
+	else
+	{
+		if(t == 0.0f) { // this means we got 2 update packets in one frame
+			// We want to ignore the last calculation, so use the pre-values to update the last values.
+			// Restore them also to save them later again as the pre-values as we want to keep
+			// there always some values with t>0 which we can use.
+			vOldPosOfLastPaket = vPreOldPosOfLastPaket;
+			vLastEstimatedVel = vPreLastEstimatedVel;
+			fLastPosUpdate = fPreLastPosUpdate;
+			t = tLX->fCurTime - fLastPosUpdate;
+			dist = newpos - vOldPosOfLastPaket;
 		}
-		else
-		{
+	
+		if(t == 0.0f) { // if it is still =0 after the update, it means that we don't have previous data
+			// we can't do anything here, just accept the situation
+			
+		} else {
 			// Approximate with velocity and acceleration (including gravity)
 			CVec a(0, 0);
 		
@@ -297,14 +311,14 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Air drag (Mainly to dampen the ninja rope)
 			float Drag = wd->AirFriction;
 	
-
+	
 			if(!bOnGround)	{
 				// TODO: this is also not exact
 				CVec preEstimatedVel = vVelocity; //dist / t;
 				a.x -= SQR(preEstimatedVel.x) * SIGN(preEstimatedVel.x) * Drag;
 				a.y -= SQR(preEstimatedVel.y) * SIGN(preEstimatedVel.y) * Drag;
 			}
-
+	
 			if (cNinjaRope.isAttached())  {
 				a += cNinjaRope.GetForce(newpos);
 			}
@@ -312,37 +326,45 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Gravity
 			a.y += wd->Gravity;
 		
-			estimatedVel = (dist / t) - (a * t / 2.0f);
-/*
+			// this estimates the vel of fLastPosUpdate
+			// it do a better estimation as we had last time, so believe this more
+			CVec estimatedVel = (dist / t) - (a * t / 2.0f);
+			
+			// in fLastPosUpdate, we have old vLastEstimatedVel and new estimatedVel
+			// add the dif of them to our current vel
+			vVelocity += estimatedVel - vLastEstimatedVel;
+			
+			// or just use this estimation
+			//vVelocity = estimatedVel;
+			
+			// update the estimated vel for next time
+			vLastEstimatedVel = vVelocity;
+	/*
 			// Ultimate in friction
 			if(bOnGround) {
 				// HINT: also this isn't exact (it would be like it's only one frame)
 				estimatedVel.x *= 0.9f;
 				// is it ok here?
-
+	
 				// Too slow, just stop
-//				if(fabs(estimatedVel.x) < 5 && !ws->iMove)
-//					estimatedVel.x = 0;
+	//			if(fabs(estimatedVel.x) < 5 && !ws->iMove)
+	//				estimatedVel.x = 0;
 			}
-*/
+	*/
 			// we don't know anything of the moving in between, so we ignore this here
 			// this is already calculated in simulation
 			
-			// HINT: Don't process the moving as it is already included in the linear part of the calculation
-			
+			// HINT: Don't process the moving as it is already included in the linear part of the calculation		
 		}
 		
-		//vVelocity = (vVelocity + estimatedVel) / 2;
-		//vVelocity = CVec(0,0); // temp hack
-		vVelocity = estimatedVel; //* 0.5f; // just don't be to fast, unwanted jumps else
-		
-		fLastPosUpdate = tLX->fCurTime;
-	
-	} else { // t == 0 (this can happen if we got multiple worminfo in one frame)
-		// leave velocity as it is, we cannot make any new estimation
 	}
+	
+	vPreOldPosOfLastPaket = vOldPosOfLastPaket;
+	vPreLastEstimatedVel = vLastEstimatedVel;
+	fPreLastPosUpdate = fLastPosUpdate;
 
-	vOldPosOfLastPaket = newpos;
+	vOldPosOfLastPaket = newpos;		
+	fLastPosUpdate = tLX->fCurTime;
 
 }
 
@@ -486,7 +508,9 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	if(tState.iShoot) {
 		Sint16 vx = bs->readInt16();
 		Sint16 vy = bs->readInt16();
-		vVelocity = CVec( (float)vx, (float)vy );
+		vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec( (float)vx, (float)vy );
+		fPreLastPosUpdate = fLastPosUpdate = tLX->fCurTime; // update time to get sure that we don't use old data
+		vPreOldPosOfLastPaket = vOldPosOfLastPaket = vPos; // same with pos
 	}
 	
 	// do carving also here as the simulation is only done in next frame and with an updated position
@@ -514,7 +538,6 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		}
 	}
 
-	fLastUpdateReceived = tLX->fCurTime;
 	this->fLastSimulationTime = tLX->fCurTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
 }
 

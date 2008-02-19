@@ -702,7 +702,9 @@ void CClient::ParseSpawnWorm(CBytestream *bs)
 	
 	if( bSpectate && iNumWorms > 0 && cLocalWorms[0] == &cRemoteWorms[id] && cLocalWorms[0]->getType() == PRF_HUMAN )
 	{
-		SendDeath( id, id ); // Suicide myself as long as I spawned
+		// Suicide myself as long as I spawned
+		// we do this to get my own worm out of the game because we want only spectate the game
+		SendDeath( id, id );
 	};
 }
 

@@ -91,7 +91,7 @@ void CWorm::Clear(void)
 
 	fLastBlood = -9999;
 
-	fLastPosUpdate = -9999;
+	fPreLastPosUpdate = fLastPosUpdate = -9999;
 
 	bUsesMouse = false;
 
@@ -246,8 +246,8 @@ void CWorm::Spawn(CVec position) {
     fMoveSpeedX = 0;
 	iHealth = 100;
 	iDirection = DIR_RIGHT;
-	vPos = vDrawPos = vLastPos = vOldPosOfLastPaket = position;
-	vVelocity = CVec(0,0);
+	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
+	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
     nAIState = AI_THINK;
 	fLastShoot = 0;
@@ -269,7 +269,7 @@ void CWorm::Spawn(CVec position) {
 		tWeapons[n].LastFire = 0;
 	}
 
-	fSpawnTime = fLastPosUpdate = fLastSimulationTime = tLX->fCurTime;
+	fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = fLastSimulationTime = tLX->fCurTime;
 
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
@@ -282,7 +282,7 @@ void CWorm::Spawn(CVec position) {
 // Respawn this worm
 // TODO: what is the difference between Respawn and Spawn?
 void CWorm::Respawn(CVec position) {
-	vPos = vDrawPos = vLastPos = vOldPosOfLastPaket = position;
+	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
     nAIState = AI_THINK;
 	
 	iCarving = 0;
@@ -290,11 +290,11 @@ void CWorm::Respawn(CVec position) {
 	bDrawMuzzle = false;
 	bHooked = false;
     bForceWeapon_Name = false;
-	vVelocity = CVec(0,0);
+	vPreLastEstimatedVel =vLastEstimatedVel = vVelocity = CVec(0,0);
 
 	bOnGround = false;
 
-	fLastSimulationTime = fSpawnTime = fLastPosUpdate = tLX->fCurTime;
+	fLastSimulationTime = fSpawnTime = fPreLastPosUpdate = fLastPosUpdate = tLX->fCurTime;
 
     if(iType == PRF_COMPUTER && bLocal)
 		AI_Respawn();
@@ -755,7 +755,7 @@ void DrawWormName(SDL_Surface* dest, const std::string& name, Uint32 x, Uint32 y
 
 void CWorm::UpdateDrawPos() {
 	if( tLXOptions->bAntilagMovementPrediction && !cClient->OwnsWorm(this) ) {
-		//if(fLastUpdateReceived > tLX->fCurTime) return; // something is wrong, we probably have not gotten any update yet
+		//if(fLastPosUpdate > tLX->fCurTime) return; // something is wrong, we probably have not gotten any update yet
 
 		// tmp hack
 		vDrawPos = vPos;
