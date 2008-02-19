@@ -38,7 +38,7 @@ const std::string    ply_def1[] =
 #else
 	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z"};
 #endif
-const std::string    ply_def2[] = {"kp 8",  "kp 5",    "kp 4",    "kp 6",     "i", "u", "f", "y", "o"};
+const std::string    ply_def2[] = {"kp 8",  "kp 5",    "kp 4",    "kp 6",     "kp +", "kp -", "kp *", "kp /", "kp ."};
 const std::string    gen_keys[] = {"Chat", "ShowScore", "ShowHealth", "ShowSettings",  "TakeScreenshot",  "ViewportManager", "SwitchMode", "ToggleTopBar", "TeamChat",	"MediaPlayer"};
 const std::string    gen_def[]  = {"i",    "tab",		"h",		  "space",	       "F12",			  "F2",				 "F5",		   "F8",		   "o",			"F3"};
 
