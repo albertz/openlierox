@@ -195,13 +195,13 @@ bool GameServer::SendUpdate()
 				float delay = shootDelay[cl->getNetSpeed()];
 		
 				if(tLX->fCurTime - sh->getStartTime() > delay && sh->getNumShots() > 0) {
-					CBytestream shoot;
+					CBytestream shootBs;
 			
 					// Send the shootlist
-					if( sh->writePacket(&shoot) )
+					if( sh->writePacket(&shootBs) )
 						sh->Clear();
 
-					cl->getChannel()->AddReliablePacketToSend(shoot);
+					cl->getChannel()->AddReliablePacketToSend(shootBs);
 				}
 			}
 

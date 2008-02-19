@@ -950,7 +950,11 @@ void CClient::ProcessShot(shoot_t *shot)
 
 	// fServerTime is the time we calculated for the server,
 	// shot->fTime was the fServerTime given by the other client when it produced the shot
-	float fSpawnTime = tLX->fCurTime - (fServerTime - shot->fTime);
+	// HINT: Though we are not using these ase these times are not synchronised and sometimes
+	// shot->fTime > fServerTime.
+	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
+	// the time of both ways (ping+pong).
+	float fSpawnTime = tLX->fCurTime - ((float)iMyPing / 1000.0f) / 2.0f;
 	CVec sprd;
 
 	for(int i=0; i<wpn->ProjAmount; i++) {

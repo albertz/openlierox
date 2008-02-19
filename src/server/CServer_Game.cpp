@@ -198,9 +198,9 @@ void GameServer::SimulateGame(void)
 				SpawnWave();
 			}
 			else
-			// Check to see if they have been dead for longer then 2.5 seconds
-			if(tLX->fCurTime - w->getTimeofDeath() > tLXOptions->tGameinfo.fRespawnTime )
-				SpawnWorm(w);
+				// Check to see if they have been dead for longer then 2.5 seconds
+				if(tLX->fCurTime - w->getTimeofDeath() > tLXOptions->tGameinfo.fRespawnTime )
+					SpawnWorm(w);
 		}
 
 		// Add their time in a game of tag
