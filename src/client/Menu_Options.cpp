@@ -373,7 +373,7 @@ bool Menu_OptionsInitialize(void)
 	cOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->tGameinfo.bMatchLogging),og_MatchLogging, 280, 390, 17,17);
 
-	cOpt_Game.Add( new CLabel("Allow file download",tLX->clNormalLabel), Static, 330, 300, 0,0);
+	cOpt_Game.Add( new CLabel("Allow file download from server",tLX->clNormalLabel), Static, 330, 300, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 300, 17,17);
 
 	cOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 330, 330, 0,0);

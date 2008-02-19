@@ -150,10 +150,10 @@ public:
 class CUdpFileDownloader
 {
 public:
-	CUdpFileDownloader() { reset(); };
+	CUdpFileDownloader() { reset(); bAllowFileRequest = true; };
 	~CUdpFileDownloader() { };
 
-	enum State_t 	{ S_SEND, S_RECEIVE, S_FINISHED, S_ERROR };
+	enum State_t 	{ S_SEND, S_RECEIVE, S_FINISHED };
 
 	// Basic functions for file download
 	// Contains garbage when download not finished yet, or when uploading a file
@@ -172,6 +172,16 @@ public:
 	void		sendPing( CBytestream * bs ) const;
 
 	State_t		getState() const { return tState; };
+
+	bool		isSending() { return tState == S_SEND; };
+	bool		isReceiving() { return tState == S_RECEIVE; };
+	bool		isFinished() { return tState == S_FINISHED; };
+
+	bool		wasError() const { return bWasError; };
+	void		clearError() { bWasError = false; };
+
+	bool		wasAborted() const { return bWasAborted; };
+	void		clearAborted() { bWasAborted = false; };
 
 	void		setDataToSend( const std::string & name, const std::string & data, bool noCompress = false );
 	void		setFileToSend( const std::string & path );
@@ -216,6 +226,8 @@ private:
 	uint			iPos;
 
 	State_t			tState;
+	bool			bWasError;
+	bool			bWasAborted;
 	
 	bool			bAllowFileRequest;
 	

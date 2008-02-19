@@ -736,6 +736,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					}
 					else
 					{
+						cClient->setLastFileRequest( tLX->fCurTime - 10.0f ); // Re-enable file requests
 						// The last requested file will be downloaded first, so putting these in reverse order
 						if( ! cClient->getGameLobby()->bHaveMod && cClient->getGameLobby()->szModDir != "" )
 							cClient->getUdpFileDownloader()->requestFileInfo(cClient->getGameLobby()->szModDir, true);

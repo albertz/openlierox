@@ -401,7 +401,7 @@ void GameServer::SendDirtUpdate( CClient * cl )
 		cl == & cClients[0] )	// Do not update dirt for local client
 		return;
 
-	if( cl->getUdpFileDownloader()->getState() != CUdpFileDownloader::S_SEND )
+	if( ! cl->getUdpFileDownloader()->isSending() )
 	{
 		// Send dirt update once in 7 seconds (I believe that's not too often)
 		if( cl->getLastDirtUpdate() + 7.0f > tLX->fCurTime )
@@ -425,10 +425,10 @@ void GameServer::SendDirtUpdate( CClient * cl )
 			cl->setPartialDirtUpdateCount( cl->getPartialDirtUpdateCount() + 1 );
 		};
 	};
-	if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_SEND )
+	if( cl->getUdpFileDownloader()->isSending() )
 	{
-		// If client is laggy send packets very rarely
-		if( cl->getLastDirtUpdate() + cl->getPing()*2.5f/1000.0f > tLX->fCurTime )
+		// If client is laggy send packets rarely - this coefficient is some random value, change if packet overflood occurs
+		if( cl->getLastDirtUpdate() + cl->getPing()*1.2f/1000.0f > tLX->fCurTime )
 			return;	
 		CBytestream bs;
 		bs.writeByte( S2C_SENDFILE );
@@ -457,7 +457,7 @@ void GameServer::SendFiles()
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 			continue;
 
-		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_SEND &&
+		if( cl->getUdpFileDownloader()->isSending() &&
 			cl->getLastFileRequestPacketReceived() + MaxPacketDelay <= tLX->fCurTime )
 		{
 			startTimer = true;

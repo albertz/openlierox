@@ -788,21 +788,24 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 	cl->setLastFileRequestPacketReceived( tLX->fCurTime - 10 ); // Set time in the past to force sending next packet
 	if( cl->getUdpFileDownloader()->receive(bs) )
 	{
+		if(	cl->getUdpFileDownloader()->isFinished() &&
+			cl->getUdpFileDownloader()->getFilename() == "dirt:" )
+		{	// Dirt comes first - it is processed even if server disabled file downloading
+			cl->setPartialDirtUpdateCount(0);
+			cl->getPreviousDirtMap()->Clear();
+			cl->setLastDirtUpdate(tLX->fCurTime - 20.0f);	// Re-send dirt immediately
+		}
+		else
 		if( ! tLXOptions->bAllowFileDownload )
-		{
+		{	// Server disabled file downloading - send ABORT on each client request
 			cl->getUdpFileDownloader()->abortDownload();
 			CBytestream bs;
 			bs.writeByte(S2C_SENDFILE);
 			cl->getUdpFileDownloader()->send(&bs);
 			SendPacket( &bs, cl );
-		};
-		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_ERROR )
-		{
-			cl->getUdpFileDownloader()->reset();
-			return;
-		};
-		// The only file server needs from client is the worm skin file
-		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED &&
+		}
+		else	// The only file server needs from client is the worm skin file
+		if( cl->getUdpFileDownloader()->isFinished() &&
 			cl->getUdpFileDownloader()->getFilename() == "GET:" &&
 			cl->getUdpFileDownloader()->getData().find("skins/") == 0 )
 		{	// If state is S_FINISHED not S_SEND that means we don't have requested worm skin file
@@ -816,27 +819,20 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 				{
 					if( w->getClient()->getClientOLXVer() < 4 )
 						cl->getUdpFileDownloader()->abortDownload();	// We can't provide that file
-					w->getClient()->getUdpFileDownloader()->requestFile( "skins/" + skin, false );
-					return;
+					else
+						w->getClient()->getUdpFileDownloader()->requestFile( "skins/" + skin, false );
+					break;
 				};
 			};
 		}
 		else
-		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED &&
+		if( cl->getUdpFileDownloader()->isFinished() &&
 			( cl->getUdpFileDownloader()->getFilename() == "GET:" || cl->getUdpFileDownloader()->getFilename() == "STAT:" ) )
 		{
 			cl->getUdpFileDownloader()->abortDownload();	// We can't provide that file or statistics on it
 		}
 		else
-		if(	cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED &&
-			cl->getUdpFileDownloader()->getFilename() == "dirt:" )
-		{
-			cl->setPartialDirtUpdateCount(0);
-			cl->getPreviousDirtMap()->Clear();
-			cl->setLastDirtUpdate(tLX->fCurTime - 20.0f);	// Re-send dirt immediately
-		}
-		else
-		if( cl->getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED &&
+		if( cl->getUdpFileDownloader()->isFinished() &&
 			CUdpFileDownloader::isPathValid( cl->getUdpFileDownloader()->getFilename() ) &&
 			! IsFileAvailable( cl->getUdpFileDownloader()->getFilename() ) &&
 			cl->getUdpFileDownloader()->getFilename().find("skins/") == 0 )

@@ -1571,14 +1571,8 @@ void CClient::ParseSendFile(CBytestream *bs)
 	fLastFileRequestPacketReceived = tLX->fCurTime;
 	if( getUdpFileDownloader()->receive(bs) )
 	{
-		if( getUdpFileDownloader()->getState() == CUdpFileDownloader::S_ERROR )
-		{
-			if( ! getUdpFileDownloader()->requestFilesPending() ) // More files to receive
-				getUdpFileDownloader()->reset();
-			return;
-		};
 		if( getUdpFileDownloader()->getFilename() == "dirt:" &&
-			getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED )
+			getUdpFileDownloader()->isFinished() )
 		{	// Parse a full dirt mask
 			setPartialDirtUpdateCount(0);
 			getPreviousDirtMap()->Clear();
@@ -1589,7 +1583,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 		}
 		else
 		if( getUdpFileDownloader()->getFilename().find( "dirt:" ) == 0 &&
-			getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED )
+			getUdpFileDownloader()->isFinished() )
 		{	// Parse a partial dirt mask
 			int updateCount = atoi(getUdpFileDownloader()->getFilename().substr(strlen("dirt:")));
 			if( updateCount != getPartialDirtUpdateCount() )
@@ -1616,7 +1610,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 		else
 		if( CUdpFileDownloader::isPathValid( getUdpFileDownloader()->getFilename() ) &&
 			! IsFileAvailable( getUdpFileDownloader()->getFilename() ) &&
-			getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED )
+			getUdpFileDownloader()->isFinished() )
 		{
 			// Server sent us some file we don't have - okay, save it
 			FILE * ff=OpenGameFile( getUdpFileDownloader()->getFilename(), "wb" );
@@ -1674,7 +1668,7 @@ void CClient::ParseSendFile(CBytestream *bs)
 		if( getUdpFileDownloader()->getFilename() == "STAT_ACK:" &&
 			getUdpFileDownloader()->getFileInfo().size() > 0 &&
 			! tGameLobby.bHaveMod &&
-			getUdpFileDownloader()->getState() == CUdpFileDownloader::S_FINISHED )
+			getUdpFileDownloader()->isFinished() )
 		{
 			// Got filenames list of mod dir - push "script.lgs" to the end of list to download all other data before
 			uint f;
@@ -1692,10 +1686,9 @@ void CClient::ParseSendFile(CBytestream *bs)
 					stringcaserfind( getUdpFileDownloader()->getFileInfo()[f].filename, "/script.lgs" ) == std::string::npos )
 					getUdpFileDownloader()->requestFile( getUdpFileDownloader()->getFileInfo()[f].filename, true );
 			};
-			getUdpFileDownloader()->setDataToSend( "", "" );	// Delay file request - half-second pause added automatically
 		};
 	};
-	if( getUdpFileDownloader()->getState() == CUdpFileDownloader::S_RECEIVE )
+	if( getUdpFileDownloader()->isReceiving() )
 	{
 		// TODO: move this out here
 		// Speed up download - server will send next packet when receives ping, or once in 0.5 seconds
@@ -1703,12 +1696,6 @@ void CClient::ParseSendFile(CBytestream *bs)
 		bs.writeByte(C2S_SENDFILE);
 		getUdpFileDownloader()->sendPing( &bs );
 		cNetChan.AddReliablePacketToSend(bs);
-	}
-	else
-	{
-		fLastFileRequestPacketReceived = tLX->fCurTime - 10.0f;	// Set timeout in past so we'll check out other data immediately
-		fLastFileRequest = tLX->fCurTime + 0.3f;	// Small pause so many small files won't come garbled
-		Timer(&Timer::DummyHandler, NULL, 300, true).startHeadless();	// Set timer so client will send the request
 	};
 };
 
