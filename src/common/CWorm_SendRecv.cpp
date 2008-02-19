@@ -312,7 +312,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Gravity
 			a.y += wd->Gravity;
 		
-			estimatedVel = (dist / t) + (a * t / 2.0f);
+			estimatedVel = (dist / t) - (a * t / 2.0f);
 /*
 			// Ultimate in friction
 			if(bOnGround) {
