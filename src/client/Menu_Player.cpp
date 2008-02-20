@@ -820,9 +820,9 @@ void Menu_Player_DrawWormImage(SDL_Surface *bmpDest, int Frame, int dx, int dy, 
 		SkinAdder(CCombobox* cb_) : cb(cb_) {}
 		bool operator() (std::string file) {
 			std::string ext = GetFileExtension(file);
-			if(stringcasecmp(ext, "tga")==0
-			|| stringcasecmp(ext, "png")==0
+			if(stringcasecmp(ext, "png")==0
 			|| stringcasecmp(ext, "bmp")==0
+			|| stringcasecmp(ext, "tga")==0
 			|| stringcasecmp(ext, "pcx")==0) {
 				size_t slash = findLastPathSep(file);
 				if(slash != std::string::npos)

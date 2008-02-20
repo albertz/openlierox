@@ -682,19 +682,18 @@ int CCombobox::addItem(const std::string& sindex, const std::string& name)
 
 ////////////////////////
 // Returns the lower bound iterator for the item
-// WARNING: will cause segfault when tItems are blank!
 std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int *index, bool *equal)
 {
+	if (tItems.size() == 0) return tItems.end();
+
 	size_t n = tItems.size();
 	std::list<cb_item_t>::iterator result = tItems.begin();
 	*equal = false;
 	*index = 0;
 
-	if(tItems.size() == 0) return tItems.end();
-
 	// HINT: check if we're lucky and the last item is the lower bound (this is surprisingly pretty often when adding items)
 	{
-		int res = compare_items(*tItems.rbegin(), item);
+		const int res = compare_items(*tItems.rbegin(), item);
 		if (res <= 0)  {
 			result = tItems.end();
 			*index = tItems.size();
@@ -708,7 +707,7 @@ std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int 
 		size_t mid = n / 2;
 		std::list<cb_item_t>::iterator mid_value = result;
 		std::advance(mid_value, mid);
-		int res = compare_items(*mid_value, item);
+		const int res = compare_items(*mid_value, item);
 		if (res < 0)  {
 			result = ++mid_value;
 			++mid;
@@ -728,9 +727,10 @@ std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int 
 
 ////////////////////////
 // Returns the upper bound iterator for the item
-// WARNING: will cause segfault when tItems are blank!
 std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int *index, bool *equal)
 { 
+	if (tItems.size() == 0) return tItems.end();
+
 	size_t n = tItems.size();
 	std::list<cb_item_t>::iterator result = tItems.begin();
 	*equal = false;
@@ -738,7 +738,7 @@ std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int 
 
 	// HINT: check if we're lucky and the first item is the upper bound (this is surprisingly pretty often when adding items)
 	{
-		int res = compare_items(*tItems.begin(), item);
+		const int res = compare_items(*tItems.begin(), item);
 		if (res <= 0)  {
 			result = tItems.begin();
 			*index = 0;
@@ -752,7 +752,7 @@ std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int 
 		size_t mid = n / 2;
 		std::list<cb_item_t>::iterator mid_value = result;
 		std::advance(mid_value, mid);
-		int res = compare_items(*mid_value, item);
+		const int res = compare_items(*mid_value, item);
 		if (res > 0)  {
 			result = ++mid_value;
 			++mid;
@@ -819,7 +819,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 			if (getItem(item.sName))
 				return 0;
 	
-		if(index >= 0 && (size_t)index < tItems.size()) {
+		if((size_t)index < tItems.size()) {
 			std::list<cb_item_t>::iterator it = tItems.begin();
 			std::advance(it, index);
 			tItems.insert(it, item);
@@ -830,7 +830,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	}
 
 	// current selection invalid
-	if (iSelected < 0 || (size_t)iSelected >= tItems.size())  {
+	if ((size_t)iSelected >= tItems.size())  {
 		// select this item
 		iSelected = index;
 	}
