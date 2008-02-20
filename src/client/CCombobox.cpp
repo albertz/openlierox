@@ -32,7 +32,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 	mouse_t *tMouse = GetMouse();
 
 	// Strip text buffer
-	static std::string buf;
+	std::string buf;
 
 	int mainbitheight = MAX(tLX->cFont.GetHeight()+1, 16);  // 16 - arrow height
 
@@ -671,16 +671,18 @@ std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int 
 	*equal = false;
 	*index = 0;
 
+	if(tItems.size() == 0) return tItems.end();
+
 	// HINT: check if we're lucky and the last item is the lower bound (this is surprisingly pretty often when adding items)
 	{
-	int res = compare_items(*tItems.rbegin(), item);
-	if (res <= 0)  {
-		result = tItems.end();
-		--result;
-		*index = tItems.size();
-		*equal = (res == 0);
-		return result;
-	}
+		int res = compare_items(*tItems.rbegin(), item);
+		if (res <= 0)  {
+			result = tItems.end();
+			//--result; //wrong
+			*index = tItems.size();
+			*equal = (res == 0);
+			return result;
+		}
 	}
 
 	// Binary search
@@ -718,13 +720,13 @@ std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int 
 
 	// HINT: check if we're lucky and the first item is the upper bound (this is surprisingly pretty often when adding items)
 	{
-	int res = compare_items(*tItems.begin(), item);
-	if (res <= 0)  {
-		result = tItems.begin();
-		*index = 0;
-		*equal = (res == 0);
-		return result;
-	}
+		int res = compare_items(*tItems.begin(), item);
+		if (res <= 0)  {
+			result = tItems.begin();
+			*index = 0;
+			*equal = (res == 0);
+			return result;
+		}
 	}
 
 	// Binary search

@@ -17,7 +17,7 @@
 #ifndef __CCOMBOBOX_H__
 #define __CCOMBOBOX_H__
 
-#include <vector>
+#include <list>
 
 #include "StringUtils.h"
 #include "InputEvents.h"
