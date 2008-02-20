@@ -819,7 +819,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 			if (getItem(item.sName))
 				return 0;
 	
-		if((size_t)index < tItems.size()) {
+		if(index >= 0 && (size_t)index < tItems.size()) {
 			std::list<cb_item_t>::iterator it = tItems.begin();
 			std::advance(it, index);
 			tItems.insert(it, item);
@@ -830,7 +830,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	}
 
 	// current selection invalid
-	if ((size_t)iSelected >= tItems.size())  {
+	if (iSelected < 0 || (size_t)iSelected >= tItems.size())  {
 		// select this item
 		iSelected = index;
 	}
