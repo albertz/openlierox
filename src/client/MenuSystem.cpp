@@ -1045,8 +1045,11 @@ void Menu_AddDefaultWidgets(void)
 		LevelComboFiller(CCombobox* c) : cmb(c) {}
 		bool operator() (const std::string& filename) {
 			std::string mapName = Menu_GetLevelName(filename, true);
-			if(mapName != "")
-				cmb->addItem(GetBaseFilename(filename), mapName);
+			if(mapName != "")  {
+				int index = cmb->addItem(GetBaseFilename(filename), mapName);
+				if (stringcasecmp(filename, tLXOptions->tGameinfo.sMapFilename) == 0)
+					cmb->setCurItem(index);
+			}
 
 			return true;
 		}

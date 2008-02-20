@@ -682,20 +682,17 @@ bool Menu_LocalCheckPlaying(int index)
 
 	class addMod { public:
 		CCombobox* combobox;
-		int i;
-		addMod(CCombobox* cb_) : combobox(cb_), i(0) {}
+		addMod(CCombobox* cb_) : combobox(cb_) {}
 		bool operator() (const std::string& abs_filename) {
 			size_t sep = findLastPathSep(abs_filename);
 			if(sep != std::string::npos) {
 				std::string name;
 				if(CGameScript::CheckFile(abs_filename, name, true)) {
-					if (combobox->addItem(i, abs_filename.substr(sep+1), name))  {
+					int index = combobox->addItem(abs_filename.substr(sep+1), name);
 
-						// Set the last used mod as default
-						if(stringcasecmp(abs_filename.substr(sep+1),tLXOptions->tGameinfo.szModName) == 0)
-							combobox->setCurItem(combobox->getLastItem());
-						i++;
-					}
+					// Set the last used mod as default
+					if(stringcasecmp(abs_filename.substr(sep+1), tLXOptions->tGameinfo.szModName) == 0)
+						combobox->setCurItem(index);
 				}
 			}
 
