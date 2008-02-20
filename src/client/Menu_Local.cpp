@@ -760,7 +760,6 @@ enum {
 	gs_SuicideDecreasesScore,
 	gs_GroupTeamScore,
 	gs_EmptyWeaponsOnRespawn,
-	gs_ServerSendsDirtUpdates,
 
 	gs_Bonuses,
 	gs_ShowBonusNames,
@@ -830,10 +829,6 @@ void Menu_GameSettings(void)
 	cGeneralSettings.SendMessage(gs_TimeLimit,TXM_SETMAX,3,0);
 	if(tLXOptions->tGameinfo.fTimeLimit > 0)
 		cGeneralSettings.SendMessage(gs_TimeLimit, TXS_SETTEXT, ftoa(tLXOptions->tGameinfo.fTimeLimit), 0);
-
-	cGeneralSettings.Add( new CLabel("Send destroyed", tLX->clNormalLabel),			-1,	        350,290, 0, 0);
-	cGeneralSettings.Add( new CLabel("dirt to clients", tLX->clNormalLabel),		-1,	        350,305, 0, 0);
-	cGeneralSettings.Add( new CCheckbox(tLXOptions->bServerSendsDirtUpdates),  gs_ServerSendsDirtUpdates,     470,297,17,17);
 
 	cGeneralSettings.Add( new CLabel("Respawn time, seconds", tLX->clNormalLabel),	-1,	        140,340, 0, 0);
 	cGeneralSettings.Add( new CTextbox(),										gs_RespawnTime,	300,337, 30,tLX->cFont.GetHeight());
@@ -1073,8 +1068,6 @@ void Menu_GameSettings_GrabInfo(void)
 	tLXOptions->tGameinfo.bGroupTeamScore = cGeneralSettings.SendMessage( gs_GroupTeamScore, CKM_GETCHECK, (DWORD)0, 0) != 0;
 	
 	tLXOptions->tGameinfo.bEmptyWeaponsOnRespawn = cGeneralSettings.SendMessage( gs_EmptyWeaponsOnRespawn, CKM_GETCHECK, (DWORD)0, 0) != 0;
-
-	tLXOptions->bServerSendsDirtUpdates = cGeneralSettings.SendMessage( gs_ServerSendsDirtUpdates, CKM_GETCHECK, (DWORD)0, 0) != 0;
 
 	// Bonus
 	cBonusSettings.SendMessage(gs_BonusSpawnTime, TXS_GETTEXT, &buf, 0);

@@ -1572,7 +1572,8 @@ void CClient::ParseSendFile(CBytestream *bs)
 	if( getUdpFileDownloader()->receive(bs) )
 	{
 		if( getUdpFileDownloader()->getFilename() == "dirt:" &&
-			getUdpFileDownloader()->isFinished() )
+			getUdpFileDownloader()->isFinished() &&
+			tLXOptions->bAllowDirtUpdates )
 		{	// Parse a full dirt mask
 			setPartialDirtUpdateCount(0);
 			getPreviousDirtMap()->Clear();
@@ -1583,7 +1584,8 @@ void CClient::ParseSendFile(CBytestream *bs)
 		}
 		else
 		if( getUdpFileDownloader()->getFilename().find( "dirt:" ) == 0 &&
-			getUdpFileDownloader()->isFinished() )
+			getUdpFileDownloader()->isFinished() &&
+			tLXOptions->bAllowDirtUpdates )
 		{	// Parse a partial dirt mask
 			int updateCount = atoi(getUdpFileDownloader()->getFilename().substr(strlen("dirt:")));
 			if( updateCount != getPartialDirtUpdateCount() )

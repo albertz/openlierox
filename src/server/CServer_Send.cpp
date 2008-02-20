@@ -396,7 +396,7 @@ void GameServer::SendRandomPacket()
 
 void GameServer::SendDirtUpdate( CClient * cl )
 {
-	if( ! tLXOptions->bServerSendsDirtUpdates || 
+	if( ! tLXOptions->bAllowDirtUpdates ||
 		cl->getClientOLXVer() < 4 ||
 		cl == & cClients[0] )	// Do not update dirt for local client
 		return;

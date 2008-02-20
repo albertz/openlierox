@@ -107,7 +107,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bCountTeamkills, "Advanced.CountTeamkills", false )
 		( tLXOptions->bServerSideHealth, "Advanced.ServerSideHealth", false )
 		( tLXOptions->bAllowFileDownload, "Advanced.AllowFileDownload", false )
-		( tLXOptions->bServerSendsDirtUpdates, "Advanced.SendDirtUpdate", false )
+		( tLXOptions->bAllowDirtUpdates, "Advanced.AllowDirtUpdates", false )
 		( tLXOptions->iWeaponSelectionMaxTime, "Advanced.WeaponSelectionMaxTime", 360 )
 
 		( tLXOptions->bLogConvos, "Misc.LogConversations", true )
