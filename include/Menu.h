@@ -339,7 +339,7 @@ int		Menu_MessageBox(const std::string& sTitle, const std::string& sText, int ty
 void	Menu_AddDefaultWidgets(void);
 void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
-std::string	Menu_GetLevelName(const std::string& filename); // TODO: move this from Menu to CMap
+std::string	Menu_GetLevelName(const std::string& filename, bool abs_filename = false); // TODO: move this from Menu to CMap
 
 // Server list
 void		Menu_SvrList_Clear(void);

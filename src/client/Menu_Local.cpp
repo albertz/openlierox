@@ -684,15 +684,15 @@ bool Menu_LocalCheckPlaying(int index)
 		CCombobox* combobox;
 		int i;
 		addMod(CCombobox* cb_) : combobox(cb_), i(0) {}
-		inline bool operator() (const std::string& f) {
-			size_t sep = findLastPathSep(f);
+		bool operator() (const std::string& abs_filename) {
+			size_t sep = findLastPathSep(abs_filename);
 			if(sep != std::string::npos) {
 				std::string name;
-				if(CGameScript::CheckFile(f,name)) {
-					if (combobox->addItem(i,f.substr(sep+1),name))  {
+				if(CGameScript::CheckFile(abs_filename, name, true)) {
+					if (combobox->addItem(i, abs_filename.substr(sep+1), name))  {
 
 						// Set the last used mod as default
-						if(stringcasecmp(f.substr(sep+1),tLXOptions->tGameinfo.szModName) == 0)
+						if(stringcasecmp(abs_filename.substr(sep+1),tLXOptions->tGameinfo.szModName) == 0)
 							combobox->setCurItem(combobox->getLastItem());
 						i++;
 					}
@@ -706,6 +706,8 @@ bool Menu_LocalCheckPlaying(int index)
 
 ///////////////////
 // Fill in the mod list
+// HINT: also used by Menu_Net_Host
+// TODO: move to MenuSystem
 void Menu_Local_FillModList( CCombobox *cb )
 {
 	// Find all directories in the the lierox

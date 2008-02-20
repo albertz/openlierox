@@ -220,7 +220,7 @@ public:
 	const weapon_t	*FindWeapon(const std::string& name);
     bool        weaponExists(const std::string& szName);
 
-	static int	CheckFile(const std::string& dir, std::string& name);
+	static int	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false);
 
     void        modLog(char *fmt, ...);
 

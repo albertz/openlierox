@@ -891,13 +891,17 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 
 ///////////////////
 // Check if a file is a valid liero game script
-int CGameScript::CheckFile(const std::string& dir, std::string& name)
+int CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_filename)
 {
 	name = "";
 	std::string filename = dir + "/script.lgs";
 	
-	// Open it
-	FILE *fp = OpenGameFile(filename,"rb");
+	// Open it		
+	FILE *fp;
+	if(abs_filename)
+	 	fp = fopen(filename.c_str(), "rb");
+	else
+		fp = OpenGameFile(filename, "rb");
 	if(fp == NULL) return false;
 
 	// Header

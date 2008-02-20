@@ -432,52 +432,49 @@ void Menu_DrawSubTitleAdv(SDL_Surface *bmpDest, int id, int y)
 ///////////////////
 // Get the level name from specified file
 // TODO: move this to CMap
-std::string Menu_GetLevelName(const std::string& filename)
+std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 {
 	static char	id[32], name[128];
 	Sint32		version;
+		
+	FILE *fp;
+	if(abs_filename)
+		fp = fopen(filename.c_str(), "rb");
+	else
+		fp = OpenGameFile("levels/" + filename, "rb");
 
+	if(!fp) return "";
+	
 	// Liero Xtreme level
 	if( stringcasecmp(GetFileExtension(filename), "lxl") == 0 ) {
-		FILE *fp = OpenGameFile("levels/" + filename, "rb");
-		if(fp) {
-			fread(id,		sizeof(char),	32,	fp);
-			fread(&version,	sizeof(version),	1,	fp);
-			EndianSwap(version);
-			fread(name,		sizeof(char),	64,	fp);
-			fix_markend(id); fix_markend(name);
+		
+		fread(id,		sizeof(char),	32,	fp);
+		fread(&version,	sizeof(version),	1,	fp);
+		EndianSwap(version);
+		fread(name,		sizeof(char),	64,	fp);
+		fix_markend(id); fix_markend(name);
 
-			if((strcmp(id,"LieroX Level") == 0 || strcmp(id,"LieroX CTF Level") == 0) && version == MAP_VERSION) {
-				fclose(fp);
-				return name;
-			}
+		if((strcmp(id,"LieroX Level") == 0 || strcmp(id,"LieroX CTF Level") == 0) && version == MAP_VERSION) {
 			fclose(fp);
+			return name;
 		}
-		size_t dotpos = filename.rfind('.');
-		if (dotpos == std::string::npos)
-			return filename;
-		else
-			return filename.substr(0, dotpos);
 	}
 
 	// Liero level
 	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 ) {
-		FILE *fp = OpenGameFile("levels/" + filename, "rb");
 
-		if(fp) {
-
-			// Make sure it's the right size to be a liero level
-			fseek(fp,0,SEEK_END);
-			// 176400 is liero maps
-			// 176402 is worm hole maps (same, but 2 bytes bigger)
-			// 177178 is a powerlevel
-			if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-				fclose(fp);
-				return filename;
-			}
+		// Make sure it's the right size to be a liero level
+		fseek(fp,0,SEEK_END);
+		// 176400 is liero maps
+		// 176402 is worm hole maps (same, but 2 bytes bigger)
+		// 177178 is a powerlevel
+		if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
 			fclose(fp);
-		} // if(fp)
+			return GetBaseFilename(filename);
+		}
 	}
+	
+	fclose(fp);
 	
 	// no level
 	return "";
@@ -1045,18 +1042,11 @@ void Menu_AddDefaultWidgets(void)
 	// Load the level list
 	class LevelComboFiller { public:
 		CCombobox* cmb;
-		int* index;
-		LevelComboFiller(CCombobox* c, int* i) : cmb(c), index(i) {}
-		inline bool operator() (const std::string& filename) {
-			size_t pos = findLastPathSep(filename);
-			std::string f = filename.substr(pos+1);
-
-			std::string mapName = Menu_GetLevelName(f);
-			if(mapName != "") {
-				if (cmb->addItem((*index), f, mapName))  {					
-					(*index)++;
-				}
-			}
+		LevelComboFiller(CCombobox* c) : cmb(c) {}
+		bool operator() (const std::string& filename) {
+			std::string mapName = Menu_GetLevelName(filename, true);
+			if(mapName != "")
+				cmb->addItem(GetBaseFilename(filename), mapName);
 
 			return true;
 		}
@@ -1067,19 +1057,17 @@ void Menu_AddDefaultWidgets(void)
 // Fill a listbox with the levels
 void Menu_FillLevelList(CCombobox *cmb, int random)
 {
-	int		index = 0;
-
 	cmb->clear();
 	cmb->setSorted(SORT_ASC);
 	cmb->setUnique(true);
 
 	// If random is true, we add the 'random' level to the list
 	if(random)
-		if (cmb->addItem(index++, "_random_", "- Random level -"))
+		if (cmb->addItem(0, "_random_", "- Random level -"))
 			if( tLXOptions->tGameinfo.sMapFilename == "_random_" )
 				cmb->setCurItem(cmb->getLastItem());
 
-	FindFiles(LevelComboFiller(cmb, &index), "levels", FM_REG);
+	FindFiles(LevelComboFiller(cmb), "levels", FM_REG);
 }
 
 

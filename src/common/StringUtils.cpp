@@ -271,6 +271,13 @@ std::string GetFileExtension(const std::string& filename) {
 	return filename.substr(p+1);
 }
 
+std::string GetBaseFilename(const std::string& filename) {
+	size_t p = findLastPathSep(filename);
+	if(p == std::string::npos) return filename;
+	return filename.substr(p+1);
+}
+
+
 std::string strip(const std::string& buf, int width)
 {
 	// TODO: this width depends on tLX->cFont; this is no solution, fix it
