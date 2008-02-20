@@ -132,8 +132,10 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	int len = (int)vVelocity.GetLength2();
 	
 	// HINT: this prevents napalms and similar stuff from flying through walls (see TODO according to MIN_CHECKSTEP below)
-	if (tProjInfo->Dampening <= 1) // This rule does not apply to "accelerating" projectiles
+	if (tProjInfo->Dampening <= 1)  { // This rule does not apply to "accelerating" projectiles
 		len = MIN(tProjInfo->ProjSpeed + (int)(tProjInfo->ProjSpeedVar * iRandom), len);
+		len *= len; // we need a power
+	}
 
 	
 	if (len < 14000)  {
