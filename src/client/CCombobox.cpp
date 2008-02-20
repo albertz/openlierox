@@ -262,7 +262,26 @@ void CCombobox::Sort(bool ascending)
 // Removes duplicate entries (based on sName)
 // HINT: private
 void CCombobox::Unique() {
-	std::list<cb_item_t>::iterator new_end = std::unique(tItems.begin(), tItems.end(), equal_items);
+	if (tItems.size() < 2)
+		return;
+
+	std::list<cb_item_t>::iterator new_end;
+	if (iSortDirection == SORT_NONE)  {
+		new_end = std::unique(tItems.begin(), tItems.end(), equal_items);
+	} else {
+		std::list<cb_item_t>::iterator cur, next;
+		next = new_end = cur = tItems.begin();
+		next++;
+		while (next != tItems.end())  {
+			if (!equal_items(*cur, *next))  {
+				*new_end = *cur;
+				new_end++;
+			}
+
+			cur = next;
+			next++;
+		}
+	}
 	tItems.erase(new_end, tItems.end());
 
     cScrollbar.setMax( tItems.size() );	
@@ -678,7 +697,6 @@ std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int 
 		int res = compare_items(*tItems.rbegin(), item);
 		if (res <= 0)  {
 			result = tItems.end();
-			//--result; //wrong
 			*index = tItems.size();
 			*equal = (res == 0);
 			return result;
@@ -860,11 +878,19 @@ void CCombobox::setCurItemByName(const std::string& szString)
 
 int CCombobox::getIndexByName(const std::string& szString) {
 	int index = 0;
-	for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
-        if( stringcasecmp(i->sName, szString) == 0 ) {
-            return index;
-        }
-    }
+	if (iSortDirection == SORT_NONE)  {
+		for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
+			if( stringcasecmp(i->sName, szString) == 0 ) {
+				return index;
+			}
+		}
+	} else {
+		cb_item_t tmp = {"", szString, NULL};
+		int index;
+		bool found;
+		std::list<cb_item_t>::const_iterator i = lowerBound(tmp, &index, &found);
+		return found ? index : -1;
+	}
     return -1;
 }
 

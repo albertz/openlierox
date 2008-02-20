@@ -698,7 +698,7 @@ public:
 
 	byte		getMapDlProgress()				{ return iMapDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }
-	bool		getDownloadMethod()				{ return iDownloadMethod; }
+	int			getDownloadMethod()				{ return iDownloadMethod; }
 
 	CViewport * getViewports()					{ return cViewports; }
 	
