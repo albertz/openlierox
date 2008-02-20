@@ -95,7 +95,11 @@ int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const C
 		
 			int ret = proj->ProjWormColl(curpos, worms);
 			if (ret >= 0)  {
-				if (enddt) *enddt = dt * p / len;
+				if (enddt)
+					if (len != 0)
+						*enddt = dt * p / len;
+					else
+						*enddt = dt;
 				proj->setNewPosition( curpos ); // save the new position at the first collision
 				proj->setNewVel( vFrameOldVel ); // don't get faster
 				return ret;
