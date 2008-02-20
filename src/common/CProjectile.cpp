@@ -90,7 +90,7 @@ int FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const C
 		float len = NormalizeVector( &dif );
 		
 		// the worm has a size of 4*4 in ProjWormColl, so it's save to check every second pixel here
-		for (float p = 0.0f; p < len; p += 2.0f) {
+		for (float p = 0.0f; p <= len; p += 2.0f) {
 			CVec curpos = vFrameOldPos + dif * p;
 		
 			int ret = proj->ProjWormColl(curpos, worms);
