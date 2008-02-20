@@ -420,6 +420,8 @@ public:
 
 		wpnslot_t *Slot = worm->getWeapon(worm->getCurrentWeapon());
 
+		if(!Slot->Weapon) return;
+		
 		if(Slot->LastFire > 0)
 			Slot->LastFire -= dt;
 
