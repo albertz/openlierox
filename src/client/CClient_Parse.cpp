@@ -526,6 +526,8 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	// TODO: Load any other stuff
 	bGameReady = true;
 
+	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
+	InitializeIngameScore(true);
 	
 	// Copy the chat text from lobby to ingame chatbox
 	switch (tGameInfo.iGameType)  {

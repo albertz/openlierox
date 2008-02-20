@@ -210,6 +210,9 @@ bool CClient::InitializeDrawing(void)
 		if (!InitializeBar(i))
 			return false;
 
+	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
+	InitializeIngameScore(true);
+
 
 	return true;
 }
@@ -2235,8 +2238,8 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 	Left->AddColumn("Player", 140, tLX->clHeading);  // Player
 	Right->AddColumn("Player", 140, tLX->clHeading);
 	if (WaitForPlayers)  {
-		Left->AddColumn("", 80, tLX->clHeading);
-		Right->AddColumn("", 80, tLX->clHeading);
+		Left->AddColumn("", 70, tLX->clHeading);
+		Right->AddColumn("", 70, tLX->clHeading);
 	} else {
 		Left->AddColumn("L", 40, tLX->clHeading);  // Lives
 		Right->AddColumn("L", 40, tLX->clHeading);
@@ -2245,8 +2248,8 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 	}
 
 	if (tGameInfo.iGameType == GME_HOST)  {
-		Left->AddColumn("P", 40, tLX->clHeading);  // Ping
-		Right->AddColumn("P", 40, tLX->clHeading);
+		Left->AddColumn("P", 50, tLX->clHeading);  // Ping
+		Right->AddColumn("P", 50, tLX->clHeading);
 	}
 
 }
