@@ -131,7 +131,7 @@ void CClient::Clear(void)
 	iMapDlProgress = 0;
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	iPartialDirtUpdateCount = 0;
-	cPreviousDirtMap.Clear();
+	cPreviousDirtMap.clear();
 	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";
@@ -192,7 +192,7 @@ void CClient::MinorClear(void)
 	}
 	fLastDirtUpdate = fLastFileRequest = fLastFileRequestPacketReceived = tLX->fCurTime;
 	iPartialDirtUpdateCount = 0;
-	cPreviousDirtMap.Clear();
+	cPreviousDirtMap.clear();
 	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->fCurTime;
 	sSpectatorViewportMsg = "";

@@ -186,6 +186,35 @@ void CBytestream::Test()
 	std::cout <<std::endl;
 	Clear();
 
+	// Bit iterator
+	char bitData[10];
+	CBytestreamBitIterator bitIter(bitData);
+	bitIter.setBit(); ++bitIter;
+	bitIter.setBit(); ++bitIter;
+	++bitIter;
+	bitIter.setBit(); ++bitIter;
+	bitIter.setBit(); ++bitIter;
+	bitIter.setBit(); ++bitIter;
+	++bitIter;
+	++bitIter;
+	++bitIter;
+	bitIter.setBit(); ++bitIter;
+	bitIter.resetPos();
+	std::cout << "Bits iterator: (" << (unsigned)bitData[0] << ", " << (unsigned)bitData[1] << ") ";
+	if(	
+		bitIter.readBit() != 1 ||
+		bitIter.readBit() != 1 ||
+		bitIter.readBit() != 0 ||
+		bitIter.readBit() != 1 ||
+		bitIter.readBit() != 1 ||
+		bitIter.readBit() != 1 ||
+		bitIter.readBit() != 0 ||
+		bitIter.readBit() != 0 ||
+		bitIter.readBit() != 0 ||
+		bitIter.readBit() != 1
+		)
+		std::cout << "NOT SAME!";
+	std::cout <<std::endl;
 
 }
 

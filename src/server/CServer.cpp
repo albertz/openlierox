@@ -419,7 +419,7 @@ int GameServer::StartGame()
 		cClients[i].setGameReady(false);
 		cClients[i].getUdpFileDownloader()->allowFileRequest(false);
 		cClients[i].setPartialDirtUpdateCount(0);
-		cClients[i].getPreviousDirtMap()->Clear();
+		cClients[i].getPreviousDirtMap()->clear();
 		cMap->SendDirtUpdate(cClients[i].getPreviousDirtMap());
 	}}
 

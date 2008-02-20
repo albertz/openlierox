@@ -611,7 +611,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bJoin_Update = true;
 	
 	getUdpFileDownloader()->reset();
-	getPreviousDirtMap()->Clear();
+	getPreviousDirtMap()->clear();
 	if( cMap )
 		cMap->SendDirtUpdate( getPreviousDirtMap() );
 	setPartialDirtUpdateCount( 0 );
@@ -1576,11 +1576,9 @@ void CClient::ParseSendFile(CBytestream *bs)
 			tLXOptions->bAllowDirtUpdates )
 		{	// Parse a full dirt mask
 			setPartialDirtUpdateCount(0);
-			getPreviousDirtMap()->Clear();
-			getPreviousDirtMap()->writeData( getUdpFileDownloader()->getData() );
-			getPreviousDirtMap()->ResetPosToBegin();
+			*getPreviousDirtMap() = getUdpFileDownloader()->getData();
 			if( cMap )
-				cMap->RecvDirtUpdate( getPreviousDirtMap() );
+				cMap->RecvDirtUpdate( *getPreviousDirtMap() );
 		}
 		else
 		if( getUdpFileDownloader()->getFilename().find( "dirt:" ) == 0 &&
@@ -1598,16 +1596,8 @@ void CClient::ParseSendFile(CBytestream *bs)
 				return;
 			};
 			setPartialDirtUpdateCount( getPartialDirtUpdateCount() + 1 );
-			CBytestream bsDiff, bsNew;
-			bsDiff.writeData( getUdpFileDownloader()->getData() );
-			bsDiff.ResetPosToBegin();
-			getPreviousDirtMap()->ResetPosToBegin();
-			while( ! bsDiff.isPosAtEnd() )
-				bsNew.writeBit( getPreviousDirtMap()->readBit() ^ bsDiff.readBit() );
-			* getPreviousDirtMap() = bsNew;
-			getPreviousDirtMap()->ResetPosToBegin();
 			if( cMap )
-				cMap->RecvDirtUpdate( getPreviousDirtMap() );
+				cMap->RecvPartialDirtUpdate( getUdpFileDownloader()->getData(), getPreviousDirtMap() );
 		}
 		else
 		if( CUdpFileDownloader::isPathValid( getUdpFileDownloader()->getFilename() ) &&

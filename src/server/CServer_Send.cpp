@@ -406,22 +406,17 @@ void GameServer::SendDirtUpdate( CClient * cl )
 		// Send dirt update once in 7 seconds (I believe that's not too often)
 		if( cl->getLastDirtUpdate() + 7.0f > tLX->fCurTime )
 			return;
-		if( cl->getPreviousDirtMap()->GetLength() == 0 )
+		if( cl->getPreviousDirtMap()->size() == 0 )
 		{
 			cl->setPartialDirtUpdateCount(0);
-			cl->getPreviousDirtMap()->Clear();
 			cMap->SendDirtUpdate(cl->getPreviousDirtMap());
-			cl->getUdpFileDownloader()->setDataToSend( "dirt:", cl->getPreviousDirtMap()->readData() );
+			cl->getUdpFileDownloader()->setDataToSend( "dirt:", *cl->getPreviousDirtMap() );
 		}
 		else
 		{
-			CBytestream bs, bsDiff;
-			cMap->SendDirtUpdate(&bs);
-			cl->getPreviousDirtMap()->ResetPosToBegin();
-			while( !bs.isPosAtEnd() )
-				bsDiff.writeBit( bs.readBit() != cl->getPreviousDirtMap()->readBit() );
-			* cl->getPreviousDirtMap() = bs;
-			cl->getUdpFileDownloader()->setDataToSend( "dirt:" + itoa(cl->getPartialDirtUpdateCount()), bsDiff.readData() );
+			std::string partial;
+			cMap->SendPartialDirtUpdate(&partial, cl->getPreviousDirtMap());
+			cl->getUdpFileDownloader()->setDataToSend( "dirt:" + itoa(cl->getPartialDirtUpdateCount()), partial );
 			cl->setPartialDirtUpdateCount( cl->getPartialDirtUpdateCount() + 1 );
 		};
 	};

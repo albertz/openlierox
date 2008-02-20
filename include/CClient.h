@@ -447,7 +447,7 @@ private:
 	CUdpFileDownloader	cUdpFileDownloader;
 	float		fLastDirtUpdate;
 	int			iPartialDirtUpdateCount;
-	CBytestream	cPreviousDirtMap;
+	std::string	cPreviousDirtMap;
 	float		fLastFileRequest;
 	float		fLastFileRequestPacketReceived;
 	struct		cSpectatorViewportKeys_t { 
@@ -707,7 +707,7 @@ public:
 	void		setLastDirtUpdate( float _f )			{ fLastDirtUpdate = _f; };
 	int			getPartialDirtUpdateCount()				{ return iPartialDirtUpdateCount; };
 	void		setPartialDirtUpdateCount( int _i )		{ iPartialDirtUpdateCount = _i; };
-	CBytestream * getPreviousDirtMap()					{ return &cPreviousDirtMap; };
+	std::string * getPreviousDirtMap()					{ return &cPreviousDirtMap; };
 	float		getLastFileRequest()					{ return fLastFileRequest; };
 	void		setLastFileRequest( float _f ) 			{ fLastFileRequest = _f; };
 	float		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };

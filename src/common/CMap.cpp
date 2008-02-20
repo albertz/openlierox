@@ -2971,50 +2971,112 @@ int CheckCollision(float dt, CVec pos, CVec vel, uchar checkflags, CMap *map)
 }
 
 // TODO: Faster routine (maybe make some functions inline in CBytestream)
-bool CMap::SendDirtUpdate(CBytestream *bs)
+bool CMap::SendDirtUpdate(std::string *ss)
 {
-	bs->ResetBitPos();
+	ss->resize(CBytestreamBitIterator::getSizeInBytes( Width*Height ));
+	ss->assign(ss->size(), 0);
+	CBytestreamBitIterator bits((char *)ss->data());
 	lockFlags();
 	for( uint y = 0; y < Height; y++ )
 	for( uint x = 0; x < Width; x++ )
 	{
-		bs->writeBit( (PixelFlags[ y*Width + x ] & PX_DIRT) != 0 );
+		if( PixelFlags[ y*Width + x ] & PX_DIRT )
+			bits.setBit();
+		++bits;
 	};
 	unlockFlags();
 	return true;
 };
 
-bool CMap::RecvDirtUpdate(CBytestream *bs)
+bool CMap::RecvDirtUpdate(const std::string &ss)
 {
-	bs->ResetBitPos();
+	if( CBytestreamBitIterator::getSizeInBytes( Width*Height ) != ss.size() )
+		return false;
+	CBytestreamBitIterator bits((char *)ss.data());
 	lockFlags();
 	LOCK_OR_FAIL(bmpImage);
+	LOCK_OR_FAIL(bmpBackImage);
 	LOCK_OR_FAIL(bmpDirtImage);
-	for( uint y = 0; y < Height; y++ )
-	for( uint x = 0; x < Width; x++ )
+	Uint8 bpp = bmpImage->format->BytesPerPixel;
+	Uint8 * p1 = (Uint8 *)bmpImage->pixels;
+	Uint8 * p2 = (Uint8 *)bmpDirtImage->pixels;
+	Uint8 * p3 = (Uint8 *)bmpBackImage->pixels;
+	Uint8 * flag = PixelFlags;
+	
+	for( uint y = 0; y < Height; y++, 
+			p1 = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch,
+			p2 = (Uint8 *)bmpDirtImage->pixels + y * bmpDirtImage->pitch,
+			p3 = (Uint8 *)bmpBackImage->pixels + y * bmpBackImage->pitch,
+			flag = PixelFlags + y*Width )
+	for( uint x = 0; x < Width; x++, p1 += bpp, p2 += bpp, p3+= bpp, flag++ )
 	{
-		bool dirt = bs->readBit();
-		uchar * flag = & PixelFlags[ y*Width + x ];
+		bool dirt = bits.getBit();
 		if( (((*flag) & PX_DIRT) != 0) != dirt )
 		{
 			if( dirt )
 			{
 				*flag &= ~ PX_EMPTY;	// Clear empty bit
 				*flag |= PX_DIRT;		// Set dirt bit
-				Uint8 * p1 = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch + x * bmpImage->format->BytesPerPixel;
-				Uint8 * p2 = (Uint8 *)bmpDirtImage->pixels + y * bmpDirtImage->pitch + x * bmpDirtImage->format->BytesPerPixel;
-				memcpy(p1, p2, bmpImage->format->BytesPerPixel);
+				memcpy(p1, p2, bpp);	// Dirt pixel
 			}
 			else
 			{
 				*flag &= ~ PX_DIRT;		// Clear dirt bit
 				*flag |= PX_EMPTY;		// Set empty bit
+				memcpy(p1, p3, bpp);	// Empty pixel
 			};
 		};
+		++bits;
 	};
 	UnlockSurface(bmpDirtImage);
+	UnlockSurface(bmpBackImage);
 	UnlockSurface(bmpImage);
 	unlockFlags();
-	UpdateArea(0, 0, Width-1, Height-1, true);
+	UpdateArea(0, 0, Width, Height, true);
+	return true;
+};
+
+bool CMap::SendPartialDirtUpdate(std::string *ss, std::string *old)
+{
+	// TODO: faster inline implementation maybe
+	SendDirtUpdate(ss);
+	if( old->size() == 0 )
+		old->resize( ss->size(), 0 );
+	if( ss->size() != old->size() )
+	{
+		printf("CMap::SendPartialDirtUpdate() - wrong sizes\n");
+		return false;
+	};
+	std::string prevMap = *ss;
+	/*
+	char * oldData = (char *)old->data();
+	char * ssData = (char *)ss->data();
+	for( size_t f=0, ssSize = ss->size(); f<ssSize; f++ )
+		ssData[f] ^= ~oldData[f];
+	*/
+	for( size_t f=0, ssSize = ss->size(); f<ssSize; f++ )
+		(*ss)[f] ^= ~((*old)[f]);
+	*old = prevMap;
+	return true;
+};
+
+bool CMap::RecvPartialDirtUpdate(const std::string &ss, std::string *old)
+{
+	// TODO: faster inline implementation maybe
+	if( ss.size() != old->size() )
+	{
+		printf("CMap::RecvPartialDirtUpdate() - wrong sizes\n");
+		return false;
+	};
+	/*
+	char * oldData = (char *)old->data();
+	const char * ssData = (const char *)ss.data();
+	for( size_t f=0, ssSize = ss.size(); f<ssSize; f++ )
+		oldData[f] ^= ~ssData[f];
+	*/
+	for( size_t f=0, ssSize = ss.size(); f<ssSize; f++ )
+		(*old)[f] ^= ~(ss[f]);
+	
+	RecvDirtUpdate(*old);
 	return true;
 };

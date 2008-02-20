@@ -112,10 +112,82 @@ public:
 
 };
 
+// Inline class to operate with bits for dirt updates, hopefully optimized by compiler
+// No bound-checking is made, be sure your data is large enough
+class CBytestreamBitIterator
+{
+	char * data;
+	size_t pos;
+	Uint8 bitMask;
 
+	public:
 
+	CBytestreamBitIterator(char * Data): data(Data) 
+	{ 
+		resetPos();
+	};
 
+	size_t getPos() const
+	{
+		return pos;
+	};
+	void resetPos()
+	{
+		pos = 0;
+		bitMask = 1;
+	};
 
+	void operator ++()
+	{
+		if( bitMask >= 128 )
+		{
+			bitMask = 1;
+			pos ++;
+		}
+		else
+			bitMask <<= 1;	// bitMask *= 2;
+	};
 
+	bool getBit() const
+	{
+		return ( data[pos] & bitMask ) != 0;
+	};
+	void setBit()
+	{
+		data[pos] |= bitMask;
+	};
+	void clearBit()
+	{
+		data[pos] &= ~ bitMask;
+	};
+	void xorBit()
+	{
+		data[pos] ^= bitMask;
+	};
+
+	// Slower functions
+	bool readBit()
+	{
+		bool ret = getBit();
+		++(*this);
+		return ret;
+	};
+	void writeBit( bool bit )
+	{
+		if( bit )
+			setBit();
+		else
+			clearBit();
+		++(*this);
+	};
+	
+	static size_t getSizeInBytes( size_t bits )
+	{
+		size_t bytes = bits / 8;
+		if( bits % 8 )
+			bytes++;
+		return bytes;
+	};
+};
 
 #endif  //  __CBITSTREAM_H__
