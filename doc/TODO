@@ -19,7 +19,7 @@ TODO
 	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
 	[?] others (!!)
 [ ] CChannel calculates wrong pings (too high) (!)
-[ ] optimise bUnique handling in CList, is currently too slow and
+[X] optimise bUnique handling in CList, is currently too slow and
     seems to make trouble with big lists (>500 entries) (!)
 
 [?] better default keys for player2 (!)

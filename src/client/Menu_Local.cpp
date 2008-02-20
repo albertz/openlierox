@@ -710,9 +710,9 @@ void Menu_Local_FillModList( CCombobox *cb )
 {
 	// Find all directories in the the lierox
 	cb->clear();
+	cb->setSorted(SORT_ASC);
+	cb->setUnique(true);
 	FindFiles(addMod(cb),".",FM_DIR);
-	cb->Sort(true);
-	cb->Unique();
 }
 
 

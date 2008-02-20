@@ -49,6 +49,12 @@ enum {
 	CBM_SETUNIQUE
 };
 
+// Sorting directions
+enum  {
+	SORT_DESC = -1,
+	SORT_NONE = 0,
+	SORT_ASC = 1
+};
 
 
 // Item structure
@@ -73,7 +79,7 @@ public:
 		iNow = 0;
 		bCanSearch = true;
 		iKeySelectedItem = -1;
-		bSorted = false;
+		iSortDirection = SORT_NONE;
 		bUnique = false;
 		iType = wid_Combobox;
 		iVar = NULL;
@@ -85,7 +91,7 @@ private:
 	// Attributes
 
 	// Items
-	std::vector<cb_item_t> tItems;
+	std::list<cb_item_t> tItems;
 	int 			iSelected;
 	bool			bGotScrollbar;
 	bool			bDropped;
@@ -97,7 +103,7 @@ private:
 
 	// Stuff
 	bool			bCanSearch;
-	bool			bSorted;
+	int				iSortDirection;
 	bool			bUnique;
 
 	// Scrollbar
@@ -109,6 +115,10 @@ private:
 
 private:
 	cb_item_t* getItemRW(int index);
+	void	Sort(bool ascending);
+	void	Unique();
+	std::list<cb_item_t>::iterator lowerBound(const cb_item_t& item, int *index, bool *equal);
+	std::list<cb_item_t>::iterator upperBound(const cb_item_t& item, int *index, bool *equal);
 
 public:
 	// Methods
@@ -127,9 +137,6 @@ public:
 
 	void	Draw(SDL_Surface *bmpDest);
 	void	LoadStyle(void) {}
-
-	void	Sort(bool ascending);
-	void	Unique();
 	
 	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
@@ -138,7 +145,7 @@ public:
     void    clear(void);
 	int		addItem(const std::string& sindex, const std::string& name);
 	int		addItem(int index, const std::string& sindex, const std::string& name);
-	const std::vector<cb_item_t>& getItems()	{ return tItems; }
+	const std::list<cb_item_t>& getItems()	{ return tItems; }
 	const cb_item_t* getItem(int index) const;
 	int getItemIndex(const cb_item_t* item);	
 	int		getItemsCount();
@@ -157,10 +164,10 @@ public:
 	int		getSelectedIndex();
 	const cb_item_t* getSelectedItem();
 	bool	getDropped(void) { return bDropped; }
-	void	setSorted(bool _s)  { bSorted = _s; }
-	bool	getSorted()	{ return bSorted; }
-	void	setUnique(bool _u)  { bUnique = _u; }
-	bool	getUnique()			{ return bUnique; }
+	void	setSorted(int sort_direction);
+	int		getSorted();
+	void	setUnique(bool _u);
+	bool	getUnique();
 	int getItemHeight();
 	
 	const cb_item_t* getLastItem();

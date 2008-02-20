@@ -1,7 +1,7 @@
 [Project]
 FileName=OpenLieroX.dev
 Name=OpenLieroX
-UnitCount=186
+UnitCount=191
 Type=1
 Ver=1
 ObjFiles=
@@ -21,7 +21,7 @@ OverrideOutput=0
 OverrideOutputName=OpenLieroX.exe
 HostApplication=
 Folders=Client,Common,Frontend,Frontend/Menu,Frontend/Widgets,"Game objects",Server,"System files"
-CommandLine=-dedicated
+CommandLine=
 UseCustomMakefile=0
 CustomMakefile=
 IncludeVersionInfo=1
@@ -398,16 +398,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit36]
-FileName=..\..\include\CSimulation.h
-CompileCpp=1
-Folder=Common
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit37]
 FileName=..\..\include\CSlider.h
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -417,7 +407,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit38]
+[Unit37]
 FileName=..\..\include\CssParser.h
 CompileCpp=1
 Folder=System files
@@ -427,7 +417,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit39]
+[Unit38]
 FileName=..\..\include\CTextbox.h
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -437,7 +427,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit40]
+[Unit39]
 FileName=..\..\include\CTitleButton.h
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -447,7 +437,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit41]
+[Unit40]
 FileName=..\..\include\CVec.h
 CompileCpp=1
 Folder=System files
@@ -457,7 +447,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit42]
+[Unit41]
 FileName=..\..\include\CViewport.h
 CompileCpp=1
 Folder=Game objects
@@ -467,7 +457,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit43]
+[Unit42]
 FileName=..\..\include\CWeather.h
 CompileCpp=1
 Folder=Game objects
@@ -477,7 +467,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit44]
+[Unit43]
 FileName=..\..\include\CWidget.h
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -487,7 +477,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit45]
+[Unit44]
 FileName=..\..\include\CWidgetList.h
 CompileCpp=1
 Folder=Frontend
@@ -497,7 +487,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit46]
+[Unit45]
 FileName=..\..\include\CWorm.h
 CompileCpp=1
 Folder=Game objects
@@ -507,7 +497,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit47]
+[Unit46]
 FileName=..\..\include\CWpnRest.h
 CompileCpp=1
 Folder=Common
@@ -517,7 +507,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit48]
+[Unit47]
 FileName=..\..\include\Entity.h
 CompileCpp=1
 Folder=Game objects
@@ -527,7 +517,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit49]
+[Unit48]
 FileName=..\..\include\Error.h
 CompileCpp=1
 Folder=System files
@@ -537,7 +527,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit50]
+[Unit49]
 FileName=..\..\include\FindFile.h
 CompileCpp=1
 Folder=System files
@@ -547,7 +537,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit51]
+[Unit50]
 FileName=..\..\include\Frame.h
 CompileCpp=1
 Folder=System files
@@ -557,7 +547,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit52]
+[Unit51]
 FileName=..\..\include\GfxPrimitives.h
 CompileCpp=1
 Folder=System files
@@ -567,7 +557,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit53]
+[Unit52]
 FileName=..\..\include\Graphics.h
 CompileCpp=1
 Folder=Common
@@ -577,7 +567,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit54]
+[Unit53]
 FileName=..\..\include\InputEvents.h
 CompileCpp=1
 Folder=System files
@@ -587,7 +577,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit55]
+[Unit54]
 FileName=..\..\include\LieroX.h
 CompileCpp=1
 Folder=Common
@@ -597,7 +587,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit56]
+[Unit55]
 FileName=..\..\include\MathLib.h
 CompileCpp=1
 Folder=System files
@@ -607,7 +597,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit57]
+[Unit56]
 FileName=..\..\include\Menu.h
 CompileCpp=1
 Folder=Frontend/Menu
@@ -617,7 +607,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit58]
+[Unit57]
 FileName=..\..\include\Networking.h
 CompileCpp=1
 Folder=System files
@@ -627,7 +617,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit59]
+[Unit58]
 FileName=..\..\include\Options.h
 CompileCpp=1
 Folder=Common
@@ -637,7 +627,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit60]
+[Unit59]
 FileName=..\..\include\ProfileSystem.h
 CompileCpp=1
 Folder=Common
@@ -647,7 +637,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit61]
+[Unit60]
 FileName=..\..\include\Protocol.h
 CompileCpp=1
 Folder=Common
@@ -657,7 +647,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit62]
+[Unit61]
 FileName=..\..\include\RandomNumberList.h
 CompileCpp=1
 Folder=System files
@@ -667,7 +657,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit63]
+[Unit62]
 FileName=..\..\include\ReadWriteLock.h
 CompileCpp=1
 Folder=System files
@@ -677,7 +667,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit64]
+[Unit63]
 FileName=..\..\include\sex.h
 CompileCpp=1
 Folder=System files
@@ -687,7 +677,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit65]
+[Unit64]
 FileName=..\..\include\Sounds.h
 CompileCpp=1
 Folder=System files
@@ -697,7 +687,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit66]
+[Unit65]
 FileName=..\..\include\StringUtils.h
 CompileCpp=1
 Folder=System files
@@ -707,7 +697,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit67]
+[Unit66]
 FileName=..\..\include\Timer.h
 CompileCpp=1
 Folder=System files
@@ -717,7 +707,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit68]
+[Unit67]
 FileName=..\..\include\types.h
 CompileCpp=1
 Folder=System files
@@ -727,7 +717,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit69]
+[Unit68]
 FileName=..\..\include\UCString.h
 CompileCpp=1
 Folder=System files
@@ -737,7 +727,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit70]
+[Unit69]
 FileName=..\..\include\Unicode.h
 CompileCpp=1
 Folder=System files
@@ -747,7 +737,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit71]
+[Unit70]
 FileName=..\..\src\main.cpp
 CompileCpp=1
 Folder=Common
@@ -757,7 +747,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit72]
+[Unit71]
 FileName=..\..\src\common\Unicode.cpp
 CompileCpp=1
 Folder=System files
@@ -767,7 +757,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit73]
+[Unit72]
 FileName=..\..\src\common\CBonus.cpp
 CompileCpp=1
 Folder=Game objects
@@ -777,7 +767,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit74]
+[Unit73]
 FileName=..\..\src\common\CBytestream.cpp
 CompileCpp=1
 Folder=Common
@@ -787,7 +777,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit75]
+[Unit74]
 FileName=..\..\src\common\CClient.cpp
 CompileCpp=1
 Folder=Client
@@ -797,7 +787,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit76]
+[Unit75]
 FileName=..\..\src\common\CGameScript.cpp
 CompileCpp=1
 Folder=Game objects
@@ -807,7 +797,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit77]
+[Unit76]
 FileName=..\..\src\common\CChannel.cpp
 CompileCpp=1
 Folder=Common
@@ -817,7 +807,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit78]
+[Unit77]
 FileName=..\..\src\common\CMap.cpp
 CompileCpp=1
 Folder=Game objects
@@ -827,7 +817,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit79]
+[Unit78]
 FileName=..\..\src\common\CMediaPlayer.cpp
 CompileCpp=1
 Folder=Common
@@ -837,7 +827,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit80]
+[Unit79]
 FileName=..\..\src\common\CMediaPlayer_GUI.cpp
 CompileCpp=1
 Folder=Common
@@ -847,7 +837,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit81]
+[Unit80]
 FileName=..\..\src\common\Command.cpp
 CompileCpp=1
 Folder=Common
@@ -857,7 +847,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit82]
+[Unit81]
 FileName=..\..\src\common\ConfigHandler.cpp
 CompileCpp=1
 Folder=System files
@@ -867,7 +857,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit83]
+[Unit82]
 FileName=..\..\src\common\Console.cpp
 CompileCpp=1
 Folder=Common
@@ -877,7 +867,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit84]
+[Unit83]
 FileName=..\..\src\common\CProjectile.cpp
 CompileCpp=1
 Folder=Game objects
@@ -887,7 +877,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit85]
+[Unit84]
 FileName=..\..\src\common\CShootList.cpp
 CompileCpp=1
 Folder=Game objects
@@ -897,17 +887,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit86]
-FileName=..\..\src\common\CSimulation.cpp
-CompileCpp=1
-Folder=Common
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit87]
+[Unit85]
 FileName=..\..\src\common\CssParser.cpp
 CompileCpp=1
 Folder=System files
@@ -917,7 +897,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit88]
+[Unit86]
 FileName=..\..\src\common\CWorm.cpp
 CompileCpp=1
 Folder=Game objects
@@ -927,7 +907,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit89]
+[Unit87]
 FileName=..\..\src\common\CWorm_AI.cpp
 CompileCpp=1
 Folder=Game objects
@@ -937,7 +917,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit90]
+[Unit88]
 FileName=..\..\src\common\CWorm_SendRecv.cpp
 CompileCpp=1
 Folder=Game objects
@@ -947,7 +927,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit91]
+[Unit89]
 FileName=..\..\src\common\CWorm_Simulate.cpp
 CompileCpp=1
 Folder=Game objects
@@ -957,7 +937,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit92]
+[Unit90]
 FileName=..\..\src\common\CWpnRest.cpp
 CompileCpp=1
 Folder=Common
@@ -967,7 +947,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit93]
+[Unit91]
 FileName=..\..\src\common\FindFile.cpp
 CompileCpp=1
 Folder=System files
@@ -977,7 +957,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit94]
+[Unit92]
 FileName=..\..\src\common\MathLib.cpp
 CompileCpp=1
 Folder=System files
@@ -987,7 +967,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit95]
+[Unit93]
 FileName=..\..\src\common\Misc.cpp
 CompileCpp=1
 Folder=System files
@@ -997,7 +977,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit96]
+[Unit94]
 FileName=..\..\src\common\Networking.cpp
 CompileCpp=1
 Folder=System files
@@ -1007,7 +987,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit97]
+[Unit95]
 FileName=..\..\src\common\sex.cpp
 CompileCpp=1
 Folder=System files
@@ -1017,7 +997,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit98]
+[Unit96]
 FileName=..\..\src\common\StringUtils.cpp
 CompileCpp=1
 Folder=System files
@@ -1027,7 +1007,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit99]
+[Unit97]
 FileName=..\..\src\common\Timer.cpp
 CompileCpp=1
 Folder=System files
@@ -1037,7 +1017,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit100]
+[Unit98]
 FileName=..\..\src\client\Sounds.cpp
 CompileCpp=1
 Folder=System files
@@ -1047,7 +1027,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit101]
+[Unit99]
 FileName=..\..\src\client\AuxLib.cpp
 CompileCpp=1
 Folder=System files
@@ -1057,7 +1037,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit102]
+[Unit100]
 FileName=..\..\src\client\Cache.cpp
 CompileCpp=1
 Folder=System files
@@ -1067,7 +1047,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit103]
+[Unit101]
 FileName=..\..\src\client\CBox.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1077,7 +1057,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit104]
+[Unit102]
 FileName=..\..\src\client\CBrowser.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1087,7 +1067,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit105]
+[Unit103]
 FileName=..\..\src\client\CButton.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1097,7 +1077,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit106]
+[Unit104]
 FileName=..\..\src\client\CClient_Draw.cpp
 CompileCpp=1
 Folder=Client
@@ -1107,7 +1087,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit107]
+[Unit105]
 FileName=..\..\src\client\CClient_Game.cpp
 CompileCpp=1
 Folder=Client
@@ -1117,7 +1097,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit108]
+[Unit106]
 FileName=..\..\src\client\CClient_Parse.cpp
 CompileCpp=1
 Folder=Client
@@ -1127,7 +1107,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit109]
+[Unit107]
 FileName=..\..\src\client\CClient_Send.cpp
 CompileCpp=1
 Folder=Client
@@ -1137,7 +1117,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit110]
+[Unit108]
 FileName=..\..\src\client\CCombobox.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1147,7 +1127,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit111]
+[Unit109]
 FileName=..\..\src\client\CFont.cpp
 CompileCpp=1
 Folder=Common
@@ -1157,7 +1137,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit112]
+[Unit110]
 FileName=..\..\src\client\CGuiLayout.cpp
 CompileCpp=1
 Folder=Frontend
@@ -1167,7 +1147,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit113]
+[Unit111]
 FileName=..\..\src\client\CChatBox.cpp
 CompileCpp=1
 Folder=Common
@@ -1177,7 +1157,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit114]
+[Unit112]
 FileName=..\..\src\client\CCheckbox.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1187,7 +1167,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit115]
+[Unit113]
 FileName=..\..\src\client\CImage.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1197,7 +1177,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit116]
+[Unit114]
 FileName=..\..\src\client\CInput.cpp
 CompileCpp=1
 Folder=Common
@@ -1207,7 +1187,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit117]
+[Unit115]
 FileName=..\..\src\client\CInputBox.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1217,7 +1197,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit118]
+[Unit116]
 FileName=..\..\src\client\CListview.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1227,7 +1207,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit119]
+[Unit117]
 FileName=..\..\src\client\CMenu.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1237,7 +1217,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit120]
+[Unit118]
 FileName=..\..\src\client\CNinjaRope.cpp
 CompileCpp=1
 Folder=Game objects
@@ -1247,7 +1227,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit121]
+[Unit119]
 FileName=..\..\src\client\CScrollbar.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1257,7 +1237,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit122]
+[Unit120]
 FileName=..\..\src\client\CSlider.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1267,7 +1247,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit123]
+[Unit121]
 FileName=..\..\src\client\CTextbox.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1277,7 +1257,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit124]
+[Unit122]
 FileName=..\..\src\client\CTitleButton.cpp
 CompileCpp=1
 Folder=Frontend/Widgets
@@ -1287,7 +1267,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit125]
+[Unit123]
 FileName=..\..\src\client\CViewport.cpp
 CompileCpp=1
 Folder=Game objects
@@ -1297,7 +1277,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit126]
+[Unit124]
 FileName=..\..\src\client\CWeather.cpp
 CompileCpp=1
 Folder=Game objects
@@ -1307,7 +1287,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit127]
+[Unit125]
 FileName=..\..\src\client\CWidget.cpp
 CompileCpp=1
 Folder=Frontend
@@ -1317,7 +1297,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit128]
+[Unit126]
 FileName=..\..\src\client\CWidgetList.cpp
 CompileCpp=1
 Folder=Frontend
@@ -1327,7 +1307,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit129]
+[Unit127]
 FileName=..\..\src\client\Entity.cpp
 CompileCpp=1
 Folder=Game objects
@@ -1337,7 +1317,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit130]
+[Unit128]
 FileName=..\..\src\client\Error.cpp
 CompileCpp=1
 Folder=System files
@@ -1347,7 +1327,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit131]
+[Unit129]
 FileName=..\..\src\client\GfxPrimitives.cpp
 CompileCpp=1
 Folder=System files
@@ -1357,7 +1337,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit132]
+[Unit130]
 FileName=..\..\src\client\Graphics.cpp
 CompileCpp=1
 Folder=System files
@@ -1367,7 +1347,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit133]
+[Unit131]
 FileName=..\..\src\client\InputEvents.cpp
 CompileCpp=1
 Folder=System files
@@ -1377,7 +1357,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit134]
+[Unit132]
 FileName=..\..\src\client\Menu_Local.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1387,7 +1367,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit135]
+[Unit133]
 FileName=..\..\src\client\Menu_Main.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1397,7 +1377,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit136]
+[Unit134]
 FileName=..\..\src\client\Menu_Mapeditor.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1407,7 +1387,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit137]
+[Unit135]
 FileName=..\..\src\client\Menu_Net.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1417,7 +1397,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit138]
+[Unit136]
 FileName=..\..\src\client\Menu_Net_Favourites.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1427,7 +1407,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit139]
+[Unit137]
 FileName=..\..\src\client\Menu_Net_Host.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1437,7 +1417,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit140]
+[Unit138]
 FileName=..\..\src\client\Menu_Net_Internet.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1447,7 +1427,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit141]
+[Unit139]
 FileName=..\..\src\client\Menu_Net_Join.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1457,7 +1437,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit142]
+[Unit140]
 FileName=..\..\src\client\Menu_Net_Lan.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1467,7 +1447,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit143]
+[Unit141]
 FileName=..\..\src\client\Menu_Net_Main.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1477,7 +1457,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit144]
+[Unit142]
 FileName=..\..\src\client\Menu_Net_News.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1487,7 +1467,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit145]
+[Unit143]
 FileName=..\..\src\client\Menu_Options.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1497,7 +1477,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit146]
+[Unit144]
 FileName=..\..\src\client\Menu_Player.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1507,7 +1487,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit147]
+[Unit145]
 FileName=..\..\src\client\MenuSystem.cpp
 CompileCpp=1
 Folder=Frontend/Menu
@@ -1517,7 +1497,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit148]
+[Unit146]
 FileName=..\..\src\client\Options.cpp
 CompileCpp=1
 Folder=System files
@@ -1527,7 +1507,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit149]
+[Unit147]
 FileName=..\..\src\client\ProfileSystem.cpp
 CompileCpp=1
 Folder=System files
@@ -1537,7 +1517,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit150]
+[Unit148]
 FileName=..\..\src\server\CServer_Send.cpp
 CompileCpp=1
 Folder=Server
@@ -1547,7 +1527,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit151]
+[Unit149]
 FileName=..\..\src\server\CBanList.cpp
 CompileCpp=1
 Folder=Server
@@ -1557,7 +1537,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit152]
+[Unit150]
 FileName=..\..\src\server\CServer.cpp
 CompileCpp=1
 Folder=Server
@@ -1567,7 +1547,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit153]
+[Unit151]
 FileName=..\..\src\server\CServer_Game.cpp
 CompileCpp=1
 Folder=Server
@@ -1577,7 +1557,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit154]
+[Unit152]
 FileName=..\..\src\server\CServer_Parse.cpp
 CompileCpp=1
 Folder=Server
@@ -1587,7 +1567,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit155]
+[Unit153]
 FileName=..\..\src\common\IpToCountryDB.cpp
 CompileCpp=1
 Folder=Common
@@ -1597,7 +1577,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit156]
+[Unit154]
 FileName=..\..\include\IpToCountryDB.h
 CompileCpp=1
 Folder=Common
@@ -1607,7 +1587,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit157]
+[Unit155]
 FileName=..\..\include\CBar.h
 CompileCpp=1
 Folder=Frontend
@@ -1617,187 +1597,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit159]
-FileName=..\..\src\client\Cursor.cpp
-CompileCpp=1
-Folder=Frontend
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit160]
-FileName=..\..\src\client\CBar.cpp
-CompileCpp=1
-Folder=Frontend
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit161]
-FileName=..\..\include\CAnimation.h
-CompileCpp=1
-Folder=Frontend/Widgets
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit162]
-FileName=..\..\src\client\CAnimation.cpp
-CompileCpp=1
-Folder=Frontend/Widgets
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit163]
-FileName=..\..\include\CProgressbar.h
-CompileCpp=1
-Folder=Frontend/Widgets
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit164]
-FileName=..\..\include\HTTP.h
-CompileCpp=1
-Folder=System files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit166]
-FileName=..\..\include\FileDownload.h
-CompileCpp=1
-Folder=Common
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit167]
-FileName=..\..\src\common\FileDownload.cpp
-CompileCpp=1
-Folder=Common
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit168]
-FileName=..\..\src\common\stun.cpp
-CompileCpp=1
-Folder=System files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit169]
-FileName=..\..\include\stun.h
-CompileCpp=1
-Folder=System files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit171]
-FileName=..\..\src\client\Clipboard.cpp
-CompileCpp=1
-Folder=System files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit172]
-FileName=..\..\src\client\CGuiSkinnedLayout.cpp
-CompileCpp=1
-Folder=Frontend
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit173]
-FileName=..\..\include\Clipboard.h
-CompileCpp=1
-Folder=System files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit174]
-FileName=..\..\include\CGuiSkin.h
-CompileCpp=1
-Folder=Frontend
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit175]
-FileName=..\..\src\client\CGuiSkin.cpp
-CompileCpp=1
-Folder=Frontend
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit176]
-FileName=..\..\include\ChatCommand.h
-CompileCpp=1
-Folder=Server
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit177]
-FileName=..\..\src\server\ChatCommand.cpp
-CompileCpp=1
-Folder=Server
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit170]
-FileName=..\..\include\CGuiSkinnedLayout.h
-CompileCpp=1
-Folder=Frontend
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit158]
+[Unit156]
 FileName=..\..\include\Cursor.h
 CompileCpp=1
 Folder=Frontend
@@ -1807,7 +1607,57 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit165]
+[Unit157]
+FileName=..\..\src\client\Cursor.cpp
+CompileCpp=1
+Folder=Frontend
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit159]
+FileName=..\..\include\CAnimation.h
+CompileCpp=1
+Folder=Frontend/Widgets
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit160]
+FileName=..\..\src\client\CAnimation.cpp
+CompileCpp=1
+Folder=Frontend/Widgets
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit161]
+FileName=..\..\include\CProgressbar.h
+CompileCpp=1
+Folder=Frontend/Widgets
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit162]
+FileName=..\..\include\HTTP.h
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit163]
 FileName=..\..\src\common\HTTP.cpp
 CompileCpp=1
 Folder=System files
@@ -1817,7 +1667,107 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit178]
+[Unit164]
+FileName=..\..\include\FileDownload.h
+CompileCpp=1
+Folder=Common
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit166]
+FileName=..\..\src\common\stun.cpp
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit167]
+FileName=..\..\include\stun.h
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit168]
+FileName=..\..\include\CGuiSkinnedLayout.h
+CompileCpp=1
+Folder=Frontend
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit169]
+FileName=..\..\src\client\Clipboard.cpp
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit171]
+FileName=..\..\include\Clipboard.h
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit172]
+FileName=..\..\include\CGuiSkin.h
+CompileCpp=1
+Folder=Frontend
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit173]
+FileName=..\..\src\client\CGuiSkin.cpp
+CompileCpp=1
+Folder=Frontend
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit174]
+FileName=..\..\include\ChatCommand.h
+CompileCpp=1
+Folder=Server
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit175]
+FileName=..\..\src\server\ChatCommand.cpp
+CompileCpp=1
+Folder=Server
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit176]
 FileName=..\..\include\SmartPointer.h
 CompileCpp=1
 Folder=System files
@@ -1827,7 +1777,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit179]
+[Unit177]
 FileName=..\..\src\server\DedicatedControl.cpp
 CompileCpp=1
 Folder=Server
@@ -1837,7 +1787,37 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit180]
+[Unit170]
+FileName=..\..\src\client\CGuiSkinnedLayout.cpp
+CompileCpp=1
+Folder=Frontend
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit158]
+FileName=..\..\src\client\CBar.cpp
+CompileCpp=1
+Folder=Frontend
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit165]
+FileName=..\..\src\common\FileDownload.cpp
+CompileCpp=1
+Folder=Common
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit178]
 FileName=..\..\include\DedicatedControl.h
 CompileCpp=1
 Folder=Server
@@ -1847,7 +1827,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit181]
+[Unit179]
 FileName=..\..\include\Color.h
 CompileCpp=1
 Folder=System files
@@ -1857,7 +1837,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit182]
+[Unit180]
 FileName=..\..\include\IniReader.h
 CompileCpp=1
 Folder=Common
@@ -1867,7 +1847,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit183]
+[Unit181]
 FileName=..\..\include\IniReader.h
 CompileCpp=1
 Folder=System files
@@ -1877,7 +1857,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit184]
+[Unit182]
 FileName=..\..\src\common\IniReader.cpp
 CompileCpp=1
 Folder=System files
@@ -1887,7 +1867,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit185]
+[Unit183]
 FileName=..\..\src\common\CScriptableVars.cpp
 CompileCpp=1
 Folder=Common
@@ -1897,10 +1877,80 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit186]
+[Unit184]
 FileName=..\..\include\CScriptableVars.h
 CompileCpp=1
 Folder=Common
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit185]
+FileName=..\..\include\Physics.h
+CompileCpp=1
+Folder=Game objects
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit186]
+FileName=..\..\include\PhysicsLX56.h
+CompileCpp=1
+Folder=Game objects
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit187]
+FileName=..\..\include\ThreadVar.h
+CompileCpp=1
+Folder=System files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit188]
+FileName=..\..\src\common\PhysicsLX56.cpp
+CompileCpp=1
+Folder=Game objects
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit189]
+FileName=..\..\src\common\Physics.cpp
+CompileCpp=1
+Folder=Game objects
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit190]
+FileName=..\..\src\client\CTextButton.cpp
+CompileCpp=1
+Folder=Frontend/Widgets
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit191]
+FileName=..\..\include\CTextButton.h
+CompileCpp=1
+Folder=Frontend/Widgets
 Compile=1
 Link=1
 Priority=1000

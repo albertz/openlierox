@@ -95,7 +95,7 @@ void CCombobox::Draw(SDL_Surface *bmpDest)
 		}
 
 		int index = 0;
-		for(std::vector<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, count++, index++) {
+		for(std::list<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, count++, index++) {
 			if(count < cScrollbar.getValue())
 				continue;
 
@@ -223,11 +223,12 @@ static inline int compare_items(const cb_item_t& item1, const cb_item_t& item2) 
 }
 
 
-static inline bool less_items(const cb_item_t& item1, const cb_item_t& item2) {
+static inline bool less_items(const cb_item_t& item1, const cb_item_t& item2)  {
 	return compare_items(item1, item2) < 0;
 }
 
-static inline bool greater_items(const cb_item_t& item1, const cb_item_t& item2) {
+
+static inline bool greater_items(const cb_item_t& item1, const cb_item_t& item2)  {
 	return compare_items(item1, item2) > 0;
 }
 
@@ -235,23 +236,57 @@ static inline bool equal_items(const cb_item_t& item1, const cb_item_t& item2) {
 	return compare_items(item1, item2) == 0;
 }
 
+bool operator<(const cb_item_t& item1, const cb_item_t& item2) { return less_items(item1, item2); }
+bool operator>(const cb_item_t& item1, const cb_item_t& item2) { return greater_items(item1, item2); };
 
 //////////////////////
 // Sorts te items in the combobox
+// HINT: private
 void CCombobox::Sort(bool ascending)
 {
-	if(ascending)
-		std::sort(tItems.begin(), tItems.end(), less_items);
+#if !defined(_MSC_VER) || _MSC_VER > 1200
+	if (ascending)
+		tItems.sort(less_items);
 	else
-		std::sort(tItems.begin(), tItems.end(), greater_items);
+		tItems.sort(greater_items);
+#else
+	// A very dirty workaround for msvc 6
+	tItems.sort();
+	if (!ascending)
+		tItems.reverse();
+
+#endif
 }
 
+///////////////////////
+// Removes duplicate entries (based on sName)
+// HINT: private
 void CCombobox::Unique() {
-	std::vector<cb_item_t>::iterator new_end = std::unique(tItems.begin(), tItems.end(), equal_items);
+	std::list<cb_item_t>::iterator new_end = std::unique(tItems.begin(), tItems.end(), equal_items);
 	tItems.erase(new_end, tItems.end());
 
     cScrollbar.setMax( tItems.size() );	
 	bGotScrollbar = tItems.size() > 6;
+}
+
+////////////////////////
+// Enables/disables duplicate removing
+// Affects both existing and future items
+void CCombobox::setUnique(bool _u)
+{
+	if (!bUnique && _u)
+		Unique();
+	bUnique = _u;
+}
+
+////////////////////////
+// Enables/disables combobox sorting
+// Affects both existing and future items
+void CCombobox::setSorted(int sort_direction)
+{
+	if (iSortDirection != sort_direction && sort_direction != SORT_NONE)
+		Sort(sort_direction == SORT_ASC);
+	iSortDirection = sort_direction;
 }
 
 ///////////////////
@@ -377,7 +412,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 
 	int index = 0;
 	// TODO: this loop is just unneeded here, remove it
-	for(std::vector<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, index++) {
+	for(std::list<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, index++) {
 		if(index < cScrollbar.getValue())
 			continue;
 
@@ -453,7 +488,7 @@ int CCombobox::findItem(UnicodeChar startLetter) {
 	int first = -1; // save first found index here
 	int index = 0; // current index for loop
 	startLetter = UnicodeToLower(startLetter);
-	for(std::vector<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
+	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
 		UnicodeChar c = GetUnicodeFromUtf8(it->sName, 0);
 		c = UnicodeToLower(c);
 		if(c == startLetter) {
@@ -557,12 +592,12 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 		// Set the sorted property
 		case CBM_SETSORTED:
-			bSorted = Param1 != 0;
+			setSorted(Param1);
 			break;
 
 		// Set the unique property
 		case CBM_SETUNIQUE:
-			bUnique = Param1 != 0;
+			setUnique(Param1 != 0);
 			break;
 	}
 
@@ -626,6 +661,95 @@ int CCombobox::addItem(const std::string& sindex, const std::string& name)
 	return addItem(-1, sindex, name);
 }
 
+////////////////////////
+// Returns the lower bound iterator for the item
+// WARNING: will cause segfault when tItems are blank!
+std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int *index, bool *equal)
+{
+	size_t n = tItems.size();
+	std::list<cb_item_t>::iterator result = tItems.begin();
+	*equal = false;
+	*index = 0;
+
+	// HINT: check if we're lucky and the last item is the lower bound (this is surprisingly pretty often when adding items)
+	{
+	int res = compare_items(*tItems.rbegin(), item);
+	if (res <= 0)  {
+		result = tItems.end();
+		--result;
+		*index = tItems.size();
+		*equal = (res == 0);
+		return result;
+	}
+	}
+
+	// Binary search
+	while (n)  {
+		size_t mid = n / 2;
+		std::list<cb_item_t>::iterator mid_value = result;
+		std::advance(mid_value, mid);
+		int res = compare_items(*mid_value, item);
+		if (res < 0)  {
+			result = ++mid_value;
+			++mid;
+			n -= mid;
+			*index += mid;
+		} else if (res > 0)
+			n = mid;
+		else  { // Exact match
+			*index += mid;
+			*equal = true;
+			return mid_value;
+		}
+	}
+
+	return result;
+}
+
+////////////////////////
+// Returns the upper bound iterator for the item
+// WARNING: will cause segfault when tItems are blank!
+std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int *index, bool *equal)
+{ 
+	size_t n = tItems.size();
+	std::list<cb_item_t>::iterator result = tItems.begin();
+	*equal = false;
+	*index = 0;
+
+	// HINT: check if we're lucky and the first item is the upper bound (this is surprisingly pretty often when adding items)
+	{
+	int res = compare_items(*tItems.begin(), item);
+	if (res <= 0)  {
+		result = tItems.begin();
+		*index = 0;
+		*equal = (res == 0);
+		return result;
+	}
+	}
+
+	// Binary search
+	while (n)  {
+		size_t mid = n / 2;
+		std::list<cb_item_t>::iterator mid_value = result;
+		std::advance(mid_value, mid);
+		int res = compare_items(*mid_value, item);
+		if (res > 0)  {
+			result = ++mid_value;
+			++mid;
+			n -= mid;
+			*index += mid;
+		} else if (res < 0)
+			n = mid;
+		else  { // Exact match
+			*index += mid;
+			*equal = true;
+			return mid_value;
+		}
+	}
+
+	return result;
+}
+
 ///////////////////
 // Add an item to the combo box
 int CCombobox::addItem(int index, const std::string& sindex, const std::string& name)
@@ -637,30 +761,58 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	item.sName = name;
 	item.tImage = NULL;
 
-	if(bUnique && getSIndexItem(sindex) != NULL) return -1;
-	
 	//
 	// Add it to the list
 	//
-	if(index >= 0 && (size_t)index < tItems.size()) {
-		std::vector<cb_item_t>::iterator it = tItems.begin() + index;
-		tItems.insert(it, item);
-	} else {
-		index = tItems.size();
+
+	// First item
+	if (tItems.size() == 0)  {
 		tItems.push_back(item);
+		index = 0;
+
+	// Not first item
+	} else switch (iSortDirection)  {
+
+	// Ascending sorting
+	case SORT_ASC:  {
+		bool equal;
+		std::list<cb_item_t>::iterator it = lowerBound(item, &index, &equal);
+
+		if (!bUnique || !equal)
+			tItems.insert(it, item);
+	} break;
+
+	// Descending sorting
+	case SORT_DESC:  {
+		bool equal;
+		std::list<cb_item_t>::iterator it = upperBound(item, &index, &equal);
+
+		if (!bUnique || !equal)  {
+			tItems.insert(it, item);
+		}
+	} break;
+
+
+	// Not sorted
+	default:
+		if (bUnique)
+			if (getItem(item.sName))
+				return 0;
+	
+		if(index >= 0 && (size_t)index < tItems.size()) {
+			std::list<cb_item_t>::iterator it = tItems.begin();
+			std::advance(it, index);
+			tItems.insert(it, item);
+		} else {
+			index = tItems.size();
+			tItems.push_back(item);
+		}
 	}
 
 	// current selection invalid
 	if (iSelected < 0 || (size_t)iSelected >= tItems.size())  {
 		// select this item
 		iSelected = index;
-	}
-
-	// List should be automatically sorted when adding
-	if (bSorted)  {
-		// TODO: do this faster
-		// (update also Menu_Player_FillSkinCombo after)
-		Sort(true);
 	}
 
     cScrollbar.setMax( tItems.size() );	
@@ -706,7 +858,7 @@ void CCombobox::setCurItemByName(const std::string& szString)
 
 int CCombobox::getIndexByName(const std::string& szString) {
 	int index = 0;
-	for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
+	for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
         if( stringcasecmp(i->sName, szString) == 0 ) {
             return index;
         }
@@ -716,7 +868,7 @@ int CCombobox::getIndexByName(const std::string& szString) {
 
 int CCombobox::getIndexBySIndex(const std::string& szString) {
 	int index = 0;
-	for(std::vector<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
+	for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
         if( stringcasecmp(i->sIndex, szString) == 0 ) {
             return index;
         }
@@ -748,15 +900,16 @@ void CCombobox::clear(void)
 const cb_item_t* CCombobox::getItem(int index) const
 {
 	if(index < 0 || (size_t)index >= tItems.size()) return NULL;
-	std::vector<cb_item_t>::const_iterator it = tItems.begin();
-	for(int i = 0; i < index; i++, it++) {}
+	std::list<cb_item_t>::const_iterator it = tItems.begin();
+	std::advance(it, index);
 	return &*it;
 }
 
 cb_item_t* CCombobox::getItemRW(int index)
 {
 	if(index < 0 || (size_t)index >= tItems.size()) return NULL;
-	std::vector<cb_item_t>::iterator it = tItems.begin() + index;
+	std::list<cb_item_t>::iterator it = tItems.begin();
+	std::advance(it, index);
 	return &*it;
 }
 
@@ -769,10 +922,11 @@ int	CCombobox::getItemsCount() {
 /////////////
 // Get the item based on its displayed name
 const cb_item_t* CCombobox::getItem(const std::string& name) const {
-	for(std::vector<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
+	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
 		if(stringcasecmp(it->sName, name) == 0)
 			return &*it;
 	}
+
 	return NULL;
 }
 
@@ -780,7 +934,7 @@ const cb_item_t* CCombobox::getItem(const std::string& name) const {
 // Get the item based on its string index
 const cb_item_t* CCombobox::getSIndexItem(const std::string& sIndex) const {
 	// TODO: make it faster by using a sorted list (or map)
-	for(std::vector<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
+	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
 		if(stringcasecmp(it->sIndex, sIndex) == 0)
 			return &*it;
 	}
@@ -869,7 +1023,7 @@ const cb_item_t* CCombobox::getSelectedItem() {
 
 int CCombobox::getItemIndex(const cb_item_t* item) {
 	int index = 0;
-	for(std::vector<cb_item_t>::iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
+	for(std::list<cb_item_t>::iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
 		if(&*it == item)
 			return index;
 	}
