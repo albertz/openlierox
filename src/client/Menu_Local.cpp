@@ -693,8 +693,7 @@ bool Menu_LocalCheckPlaying(int index)
 					// Set the last used mod as default
 					if(stringcasecmp(abs_filename.substr(sep+1), tLXOptions->tGameinfo.szModName) == 0)
 						combobox->setCurItem(index);
-				} else
-					printf(abs_filename + " is not  ");
+				}
 			}
 
 			return true;
