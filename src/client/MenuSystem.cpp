@@ -1274,6 +1274,11 @@ void Menu_SvrList_RefreshServer(server_t *s)
 		GetNetAddrFromNameAsync(s->szAddress.substr(0, f), s->sAddress);
 	} else {
 		s->bAddrReady = true;
+		size_t f = s->szAddress.find(":");
+		if(f != std::string::npos) {
+			SetNetAddrPort(s->sAddress, from_string<int>(s->szAddress.substr(f + 1)));
+		} else
+			SetNetAddrPort(s->sAddress, LX_PORT);
 		Timer(&Timer::DummyHandler, NULL, PingWait, true).startHeadless();
 	}
 }
