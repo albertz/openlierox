@@ -130,14 +130,24 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
 	int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
 	int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
-	int len = (int)vVelocity.GetLength2();
+	int len;
 	
 	// HINT: this prevents napalms and similar stuff from flying through walls (see TODO according to MIN_CHECKSTEP below)
-	if (tProjInfo->Dampening <= 1)  { // This rule does not apply to "accelerating" projectiles
-		len = MIN(tProjInfo->ProjSpeed + (int)(tProjInfo->ProjSpeedVar * iRandom), len);
+	// TODO: please comment and fix or remove
+	/* if (tProjInfo->Dampening <= 1)  { // This rule does not apply to "accelerating" projectiles
+		printf("projspeed = %i , ", tProjInfo->ProjSpeed);
+		printf("projspeedvar = %f , ", tProjInfo->ProjSpeedVar);
+		printf("rnd = %i\n", iRandom);
+		// I don't get the sense of this. This calcs the speed of a newly created projectile, not this one!
+		// Also, it's only set if there can be a possible newly created projectile.
+		// See CGameScript:
+		//	if(proj->Timer_Projectiles || proj->Hit_Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles || proj->Tch_Projectiles) {
+		// only in this case it is set
+		len = tProjInfo->ProjSpeed + (int)(tProjInfo->ProjSpeedVar * iRandom);
 		len *= len; // we need a power
-	}
-
+		len = MIN(len, (int)vVelocity.GetLength2());
+	} else */
+		len = (int)vVelocity.GetLength2();
 	
 	if (len < 14000)  {
 		MIN_CHECKSTEP = 0;
@@ -208,8 +218,13 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	vPosition += vVelocity*dt;
 	
 	// if distance is to short to last check, just return here without a check
-	if( (vOldPos-vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP )
+	if( (vOldPos - vPosition).GetLength2() < MIN_CHECKSTEP*MIN_CHECKSTEP ) {
+/*		printf("pos dif = %f , ", (vOldPos - vPosition).GetLength());
+		printf("len = %f , ", sqrt(len));		
+		printf("vel = %f , ", vVelocity.GetLength());
+		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
 		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, NONE_COL_RET);
+	}
 
 	CollisionSide = 0;
 	short top,bottom,left,right;
