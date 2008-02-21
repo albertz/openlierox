@@ -103,6 +103,9 @@ void	ReplaceFileVariables(std::string& filename);
 
 drive_list GetDrives(void);
 
+// This function converts relative paths to absolute paths
+std::string GetAbsolutePath(const std::string& path);
+
 #ifndef WIN32
 
 // mostly all system but Windows use case sensitive file systems
@@ -113,9 +116,6 @@ drive_list GetDrives(void);
 bool GetExactFileName(const std::string& abs_searchname, std::string& filename);
 
 #else // WIN32
-
-// This function converts relative paths to absolute paths
-std::string GetAbsolutePath(const std::string& path);
 
 // we don't have case sensitive file systems under windows
 // but we still need to replace ${var} in the searchname
