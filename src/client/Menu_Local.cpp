@@ -687,13 +687,8 @@ bool Menu_LocalCheckPlaying(int index)
 			size_t sep = findLastPathSep(abs_filename);
 			if(sep != std::string::npos) {
 				std::string name;
-				if(CGameScript::CheckFile(abs_filename, name, true)) {
-					int index = combobox->addItem(abs_filename.substr(sep+1), name);
-
-					// Set the last used mod as default
-					if(stringcasecmp(abs_filename.substr(sep+1), tLXOptions->tGameinfo.szModName) == 0)
-						combobox->setCurItem(index);
-				}
+				if(CGameScript::CheckFile(abs_filename, name, true))
+					combobox->addItem(abs_filename.substr(sep+1), name);
 			}
 
 			return true;
@@ -712,6 +707,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 	cb->setSorted(SORT_ASC);
 	cb->setUnique(true);
 	FindFiles(addMod(cb),".",FM_DIR);
+	cb->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
 }
 
 

@@ -195,6 +195,21 @@ short stringcasecmp(const std::string& s1, const std::string& s2) {
 	}
 }
 
+bool stringcaseequal(const std::string& s1, const std::string& s2) {
+	if (s1.size() != s2.size())
+		return false;
+
+	std::string::const_iterator p1, p2;
+	p1 = s1.begin();
+	p2 = s2.begin();
+	for(; p1 != s1.end(); p1++, p2++) {
+		if (tolower((uchar)*p1) != tolower((uchar)*p2))
+			return false;
+	}
+
+	return true;
+}
+
 // HINT: it returns a reference
 // TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
 const std::vector<std::string>& explode(const std::string& str, const std::string& delim) {

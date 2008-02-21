@@ -446,7 +446,7 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 	if(!fp) return "";
 	
 	// Liero Xtreme level
-	if( stringcasecmp(GetFileExtension(filename), "lxl") == 0 ) {
+	if( stringcaseequal(GetFileExtension(filename), "lxl") ) {
 		
 		fread(id,		sizeof(char),	32,	fp);
 		fread(&version,	sizeof(version),	1,	fp);
@@ -461,7 +461,7 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 	}
 
 	// Liero level
-	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 ) {
+	else if( stringcaseequal(GetFileExtension(filename), "lev") ) {
 
 		// Make sure it's the right size to be a liero level
 		fseek(fp,0,SEEK_END);
@@ -1045,11 +1045,8 @@ void Menu_AddDefaultWidgets(void)
 		LevelComboFiller(CCombobox* c) : cmb(c) {}
 		bool operator() (const std::string& filename) {
 			std::string mapName = Menu_GetLevelName(filename, true);
-			if(mapName != "")  {
-				int index = cmb->addItem(GetBaseFilename(filename), mapName);
-				if (stringcasecmp(filename, tLXOptions->tGameinfo.sMapFilename) == 0)
-					cmb->setCurItem(index);
-			}
+			if(mapName.size() != 0)
+				cmb->addItem(GetBaseFilename(filename), mapName);
 
 			return true;
 		}
@@ -1064,13 +1061,14 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	cmb->setSorted(SORT_ASC);
 	cmb->setUnique(true);
 
-	// If random is true, we add the 'random' level to the list
-	if(random)
-		if (cmb->addItem(0, "_random_", "- Random level -"))
-			if( tLXOptions->tGameinfo.sMapFilename == "_random_" )
-				cmb->setCurItem(cmb->getLastItem());
-
 	FindFiles(LevelComboFiller(cmb), "levels", FM_REG);
+
+	// Disable sorting and add the random level at the beginning
+	cmb->setSorted(SORT_NONE);
+	if(random) // If random is true, we add the 'random' level to the list
+		cmb->addItem(0, "_random_", "- Random level -");
+
+	cmb->setCurSIndexItem(tLXOptions->tGameinfo.sMapFilename);
 }
 
 

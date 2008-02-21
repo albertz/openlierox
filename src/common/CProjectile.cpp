@@ -130,24 +130,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 	int MIN_CHECKSTEP = 4; // only after a step of this, the check for a collision will be made
 	int MAX_CHECKSTEP = 6; // if step is wider than this, it will be intersected
 	int AVG_CHECKSTEP = 4; // this is used for the intersection, if the step is to wide
-	int len;
-	
-	// HINT: this prevents napalms and similar stuff from flying through walls (see TODO according to MIN_CHECKSTEP below)
-	// TODO: please comment and fix or remove
-	/* if (tProjInfo->Dampening <= 1)  { // This rule does not apply to "accelerating" projectiles
-		printf("projspeed = %i , ", tProjInfo->ProjSpeed);
-		printf("projspeedvar = %f , ", tProjInfo->ProjSpeedVar);
-		printf("rnd = %i\n", iRandom);
-		// I don't get the sense of this. This calcs the speed of a newly created projectile, not this one!
-		// Also, it's only set if there can be a possible newly created projectile.
-		// See CGameScript:
-		//	if(proj->Timer_Projectiles || proj->Hit_Projectiles || proj->PlyHit_Projectiles || proj->Exp_Projectiles || proj->Tch_Projectiles) {
-		// only in this case it is set
-		len = tProjInfo->ProjSpeed + (int)(tProjInfo->ProjSpeedVar * iRandom);
-		len *= len; // we need a power
-		len = MIN(len, (int)vVelocity.GetLength2());
-	} else */
-		len = (int)vVelocity.GetLength2();
+	int len = (int)vVelocity.GetLength2();
 	
 	if (len < 14000)  {
 		MIN_CHECKSTEP = 0;

@@ -149,7 +149,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../include,blast"
+				AdditionalIncludeDirectories="../../include,blast,../../hawknl/src/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER"
 				StringPooling="true"
 				RuntimeLibrary="2"
