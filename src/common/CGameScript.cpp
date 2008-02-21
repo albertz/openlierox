@@ -894,14 +894,16 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 int CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_filename)
 {
 	name = "";
-	std::string filename = dir + "/script.lgs";
 	
 	// Open it		
-	FILE *fp;
-	if(abs_filename)
-	 	fp = fopen(filename.c_str(), "rb");
-	else
-		fp = OpenGameFile(filename, "rb");
+	FILE *fp = NULL;
+	if(abs_filename) {
+		std::string filename;
+		// we still need to add "/script.lgs" and then do an exact filename search
+		if(GetExactFileName(dir + "/script.lgs", filename))
+	 		fp = fopen(filename.c_str(), "rb");
+	} else
+		fp = OpenGameFile(dir + "/script.lgs", "rb");
 	if(fp == NULL) return false;
 
 	// Header
@@ -917,14 +919,14 @@ int CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_f
 
 	// Check ID
 	if(strcmp(head.ID,"Liero Game Script") != 0) {
-		std::cout << "GS:CheckFile: WARNING: " << filename << " is not a Liero game script";
+		std::cout << "GS:CheckFile: WARNING: " << dir << "/script.lgs is not a Liero game script";
 		std::cout << " (but \"" << head.ID << "\" instead)" << std::endl;
 		return false;
 	}
 
 	// Check version
 	if(head.Version != GS_VERSION) {
-		std::cout << "GS:CheckFile: WARNING: " << filename << " has the wrong version";
+		std::cout << "GS:CheckFile: WARNING: " << dir << "/script.lgs has the wrong version";
 		std::cout << " (" << (unsigned)head.Version << ", required is " << GS_VERSION << ")" << std::endl;
 		return false;
 	}
