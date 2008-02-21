@@ -30,7 +30,7 @@ PROJECT(openlierox)
 # main includes
 INCLUDE_DIRECTORIES(include pstreams)
 
-# TODO: don't hardcode libxml2 path
+# TODO: don't hardcode path here
 INCLUDE_DIRECTORIES(/usr/include/libxml2)
 IF (HAWKNL_BUILTIN)
 	INCLUDE_DIRECTORIES(hawknl/include)
@@ -88,7 +88,7 @@ IF(DEDICATED_ONLY)
 	ADD_DEFINITIONS("-DDEDICATED_ONLY")
 ENDIF(DEDICATED_ONLY)
 
-ADD_DEFINITIONS("`pkg-config --cflags sdl`")
+ADD_DEFINITIONS("`sdl-config --cflags`")
 ADD_DEFINITIONS("-pthread")
 
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})

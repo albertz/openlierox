@@ -1,3 +1,7 @@
+-- general stuff
+Gentoo: gcc
+Debian: build-essential
+
 -- libsdl
 Gentoo: media-libs/libsdl
 Debian: libsdl1.2-dev
