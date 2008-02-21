@@ -149,7 +149,7 @@ void CChannel::Transmit( CBytestream *bs )
 
 	// And add on the un reliable data if room in the packet struct
 	if(bs) {
-		if(outpack.GetLength() + bs->GetLength() < MAX_PACKET_SIZE) // Backward compatibility
+		if(outpack.GetLength() + bs->GetLength() < 4096) // Backward compatibility, the old bytestream has a fixed buffer of 4096 bytes
 			outpack.Append(bs);
 	}
 	
