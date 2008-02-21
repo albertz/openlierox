@@ -792,7 +792,7 @@ void GameServer::ParseSendFile(CClient *cl, CBytestream *bs)
 			cl->getUdpFileDownloader()->getFilename() == "dirt:" )
 		{	// Dirt comes first - it is processed even if server disabled file downloading
 			cl->setPartialDirtUpdateCount(0);
-			cl->getPreviousDirtMap()->clear();
+			*cl->getPreviousDirtMap() = "";
 			cl->setLastDirtUpdate(tLX->fCurTime - 20.0f);	// Re-send dirt immediately
 		}
 		else

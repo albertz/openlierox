@@ -613,7 +613,7 @@ bool CClient::ParsePrepareGame(CBytestream *bs)
 	bJoin_Update = true;
 	
 	getUdpFileDownloader()->reset();
-	getPreviousDirtMap()->clear();
+	*getPreviousDirtMap() = "";
 	if( cMap )
 		cMap->SendDirtUpdate( getPreviousDirtMap() );
 	setPartialDirtUpdateCount( 0 );

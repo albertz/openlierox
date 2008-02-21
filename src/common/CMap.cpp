@@ -3001,13 +3001,13 @@ bool CMap::RecvDirtUpdate(const std::string &ss)
 	Uint8 * p1 = (Uint8 *)bmpImage->pixels;
 	Uint8 * p2 = (Uint8 *)bmpDirtImage->pixels;
 	Uint8 * p3 = (Uint8 *)bmpBackImage->pixels;
-	Uint8 * flag = PixelFlags;
+	Uint8 * flag = (Uint8 *)PixelFlags;
 	
 	for( uint y = 0; y < Height; y++, 
 			p1 = (Uint8 *)bmpImage->pixels + y * bmpImage->pitch,
 			p2 = (Uint8 *)bmpDirtImage->pixels + y * bmpDirtImage->pitch,
 			p3 = (Uint8 *)bmpBackImage->pixels + y * bmpBackImage->pitch,
-			flag = PixelFlags + y*Width )
+			flag = (Uint8 *)PixelFlags + y*Width )
 	for( uint x = 0; x < Width; x++, p1 += bpp, p2 += bpp, p3+= bpp, flag++ )
 	{
 		bool dirt = bits.getBit();
