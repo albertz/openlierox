@@ -376,10 +376,10 @@ bool Menu_OptionsInitialize(void)
 	#ifdef DEBUG
 	cOpt_Game.Add( new CLabel("Allow dirt updates from server",tLX->clNormalLabel), Static, 330, 270, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowDirtUpdates),og_AllowDirtUpdates, 550, 270, 17,17);
-	#endif
 
 	cOpt_Game.Add( new CLabel("Allow file download from server",tLX->clNormalLabel), Static, 330, 300, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAllowFileDownload),og_AllowFileDownload, 550, 300, 17,17);
+	#endif
 
 	cOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 330, 330, 0,0);
 	cOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 550, 330, 17,17);
