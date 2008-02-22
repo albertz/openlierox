@@ -144,10 +144,11 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
 		return false;
 	}		
-		
+	
 	Mix_AllocateChannels(1000); // TODO: enough?
 
 	SoundSystemAvailable = true;
+	printf("SoundSystem initialised\n");
 	return true;
 }
 
