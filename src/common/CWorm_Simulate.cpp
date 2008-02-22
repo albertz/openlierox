@@ -93,13 +93,18 @@ void CWorm::getInput()
 				RESET_SMALL(fAngleSpeed, 5.0f);
 			
 			} else { // mouseControl for angle
-				static const float mult_Y = 4; // how sensitive is the mouse in Y-dir
-				fAngleSpeed += mouse_dy * mult_Y;
+				static const float mult_Y = 40; // how sensitive is the mouse in Y-dir
+				// HINT: to behave more like keyboard, we should use CLAMP(..500) here
+				float diff = mouse_dy * mult_Y * dt;
+				fAngleSpeed += diff;
 				
-				CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
-				REDUCE_CONST(fAngleSpeed, 200*dt);
-				RESET_SMALL(fAngleSpeed, 5.0f);
-				
+				// this tries to be like keyboard, this code is only applied if up/down is not pressed
+				if(abs(mouse_dy) < 5) {
+					CLAMP_DIRECT(fAngleSpeed, -100.0f, 100.0f);
+					REDUCE_CONST(fAngleSpeed, 200*dt);
+					RESET_SMALL(fAngleSpeed, 5.0f);
+				}
+
 /*				REDUCE_CONST(fAngleSpeed, 200*dt);
 				RESET_SMALL(fAngleSpeed, 5.0f);
 				CLAMP_DIRECT(fAngleSpeed, -500.0f, 500.0f); */
