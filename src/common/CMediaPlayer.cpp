@@ -226,7 +226,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	//
 	// Load the files
 	//
-	FindFiles(SongListFiller(this), dir, true, FM_REG);
+	FindFiles(SongListFiller(this), dir, false, FM_REG);
 
 	//
 	//	Subdirectories
@@ -234,7 +234,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	if (!include_subdirs)
 		return;
 
-	FindFiles(PlaylistLoader(this), dir, true, FM_DIR);*/
+	FindFiles(PlaylistLoader(this), dir, false, FM_DIR);*/
 
 	// Clear me first
 	if (!add_to_current_pl)  {
@@ -245,7 +245,7 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	cStack.Clear();
 
 	if(!include_subdirs)  {
-		FindFiles(SongListFiller(this), dir, true, FM_REG);
+		FindFiles(SongListFiller(this), dir, false, FM_REG);
 		return;
 	}
 
@@ -253,8 +253,8 @@ void CPlayList::Load(const std::string& dir, bool include_subdirs, bool add_to_c
 	cStack.Push(current_dir);
 	while(DrawLoadingProgress() && cStack.Pop(current_dir)) {
 		// TODO: merge SongListFiller with PlaylistLoader to speed it up
-		FindFiles(SongListFiller(this), current_dir, true, FM_REG);
-		FindFiles(PlaylistLoader(this), current_dir, true, FM_DIR);
+		FindFiles(SongListFiller(this), current_dir, false, FM_REG);
+		FindFiles(PlaylistLoader(this), current_dir, false, FM_DIR);
 	}
 }
 
