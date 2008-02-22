@@ -846,7 +846,7 @@ void Menu_Player_FillSkinCombo(CCombobox *cb) {
 	cb->setSorted(SORT_ASC);
 	cb->setUnique(true);
         
-    FindFiles(SkinAdder(cb), "skins", FM_REG);
+    FindFiles(SkinAdder(cb), "skins", false, FM_REG);
 	
     // Select the default
     cb->setCurItemByName("default");

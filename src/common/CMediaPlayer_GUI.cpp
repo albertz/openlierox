@@ -472,7 +472,7 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 
 		int selected = 0;
 
-		FindFiles(addDirToList(lv, &index, &selected, absolute_path), absolute_path, FM_DIR);
+		FindFiles(addDirToList(lv, &index, &selected, absolute_path), absolute_path, true, FM_DIR);
 		if(selected) lv->setSelectedID(selected);
 	}
 

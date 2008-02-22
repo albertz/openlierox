@@ -526,7 +526,7 @@ void Menu_MapEd_New(void)
 	int dirtindex = -1;
 
 	// Find directories in the theme dir
-	FindFiles(ComboboxFiller(&cg, 4, &dirtindex), "data/themes", FM_DIR);
+	FindFiles(ComboboxFiller(&cg, 4, &dirtindex), "data/themes", false, FM_DIR);
 
 	if(dirtindex != -1)
 		cg.SendMessage(4,CBM_SETCURSEL,dirtindex,0);
@@ -720,7 +720,7 @@ void Menu_MapEd_LoadSave(int save)
 	CListview *lv = (CListview *)cg.getWidget(2);
 	lv->AddColumn("Levels",60);
 
-	FindFiles(LevelListFiller(lv), "levels", FM_REG);
+	FindFiles(LevelListFiller(lv), "levels", false, FM_REG);
 	lv->SortBy( 0, true );
 
 

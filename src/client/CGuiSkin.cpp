@@ -502,7 +502,7 @@ void SkinCombobox_Init( const std::string & param, CWidget * source )
 	cb->setUnique(true);
 	cb->clear();
 	cb->addItem( 0, "", "None" );
-	FindFiles(GUISkinAdder(cb), "data/frontend/skins", FM_DIR);
+	FindFiles(GUISkinAdder(cb), "data/frontend/skins", false, FM_DIR);
 	cb->setCurSIndexItem( tLXOptions->sSkinPath );
 };
 

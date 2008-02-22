@@ -1061,7 +1061,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	cmb->setSorted(SORT_ASC);
 	cmb->setUnique(true);
 
-	FindFiles(LevelComboFiller(cmb), "levels", FM_REG);
+	FindFiles(LevelComboFiller(cmb), "levels", false, FM_REG);
 
 	// Disable sorting and add the random level at the beginning
 	cmb->setSorted(SORT_NONE);

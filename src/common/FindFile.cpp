@@ -251,8 +251,6 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 		return true;
 	}
 
-	// TODO: unicode support!!
-
 	DIR* dirhandle = opendir((dir == "") ? "." : dir.c_str());
 	if(dirhandle == 0) return false;
 

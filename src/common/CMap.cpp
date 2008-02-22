@@ -519,7 +519,7 @@ std::string CMap::findRandomTheme() {
 	themelist themes;
 
     // Count the number of themes
-	FindFiles(ThemesCounter(&themes), "data/themes", FM_DIR);
+	FindFiles(ThemesCounter(&themes), "data/themes", false, FM_DIR);
 
 	if(themes.size() == 0) {
 		// If we get here, then default to dirt

@@ -786,8 +786,8 @@ std::string getStatPacketRecursive( const std::string & path )
 		if( S_ISDIR( st.st_mode ) )
 		{
 			std::string data;
-			FindFiles( StatFileList( &data, path ), path, FM_REG);
-			FindFiles( StatDirList( &data, path ), path, FM_DIR);
+			FindFiles( StatFileList( &data, path ), path, false, FM_REG);
+			FindFiles( StatDirList( &data, path ), path, false, FM_DIR);
 			return data;
 		};
 		return "";

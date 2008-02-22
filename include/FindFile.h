@@ -243,11 +243,6 @@ void ForEachSearchpath(_handler handler = _handler()) {
 			}
 		}
 	}
-
-	path = "";
-	if(!PathListIncludes(handled_dirs, path)) {
-		handler(path);
-	}
 }
 
 
@@ -328,12 +323,16 @@ template<typename _handler>
 void FindFiles(
 	_handler handler,
 	const std::string& dir,
+	bool absolutePath = false,
 	const filemodes_t modefilter = -1,
 	const std::string& namefilter = ""
 ) {
 	if(namefilter != "*" && namefilter != "")
 		printf("FindFiles: WARNING: filter %s isn't handled yet\n", namefilter.c_str());
-	ForEachSearchpath(FindFilesHandler<_handler>(dir, namefilter, modefilter, handler));
+	if(absolutePath)
+		FindFilesHandler<_handler>(dir, namefilter, modefilter, handler) ("");
+	else
+		ForEachSearchpath(FindFilesHandler<_handler>(dir, namefilter, modefilter, handler));
 }
 
 

@@ -706,7 +706,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 	cb->clear();
 	cb->setSorted(SORT_ASC);
 	cb->setUnique(true);
-	FindFiles(addMod(cb),".",FM_DIR);
+	FindFiles(addMod(cb),".",false,FM_DIR);
 	cb->setCurSIndexItem(tLXOptions->tGameinfo.szModName);
 }
 
@@ -1388,7 +1388,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	CListview *lv = (CListview *)cWpnPresets.getWidget(wp_PresetList);
 	lv->AddColumn("Weapon presets",60);
 
-	FindFiles(addWeaponPresets(lv),"cfg/presets/",FM_REG);
+	FindFiles(addWeaponPresets(lv),"cfg/presets/",false,FM_REG);
 
 
 
