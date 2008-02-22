@@ -145,10 +145,10 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 		return false;
 	}		
 	
-	Mix_AllocateChannels(1000); // TODO: enough?
-
+	int allocChanNum = Mix_AllocateChannels(1000); // TODO: enough?
+	
 	SoundSystemAvailable = true;
-	printf("SoundSystem initialised\n");
+	printf("SoundSystem initialised, %i channels allocated\n", allocChanNum);
 	return true;
 }
 
