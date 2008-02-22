@@ -19,6 +19,7 @@
 #endif
 
 #include <SDL.h>
+#include <stdlib.h>
 
 #include "LieroX.h"
 #include "Cache.h"
@@ -130,8 +131,8 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 	if(SoundSystemAvailable) return true;
 	SoundSystemAvailable = false;
 
-#if !defined(WIN32) && !defined(MACOSX) && defined(_SDL_stdinc_h)
-	SDL_putenv("SDL_AUDIODRIVER=alsa");
+#if !defined(WIN32) && !defined(MACOSX)
+	putenv("SDL_AUDIODRIVER=alsa");
 #endif
 
 	// HINT: other SDL stuff is already inited, we don't care here
