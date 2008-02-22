@@ -1044,7 +1044,6 @@ void Menu_AddDefaultWidgets(void)
 		CCombobox* cmb;
 		LevelComboFiller(CCombobox* c) : cmb(c) {}
 		bool operator() (const std::string& filename) {
-			printf(filename + "\n");
 			std::string mapName = Menu_GetLevelName(filename, true);
 			if(mapName.size() != 0)
 				cmb->addItem(GetBaseFilename(filename), mapName);

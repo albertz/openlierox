@@ -67,7 +67,7 @@ searchpathlist tSearchPaths;
 using namespace std;
 
 bool IsFileAvailable(const std::string& f, bool absolute) {
-	static std::string abs_f;
+	std::string abs_f;
 	if(absolute) {
 		abs_f = f;
 	} else
@@ -655,25 +655,28 @@ void ReplaceFileVariables(std::string& filename) {
 }
 
 // WARNING: not multithreading aware
+// HINT: uses absolute paths
 // returns true, if successfull
 bool FileCopy(const std::string& src, const std::string& dest) {
 	static char tmp[2048];
 
 	printf("FileCopy: %s -> %s\n", src.c_str(), dest.c_str());
+	// TODO: remove this #if here and create a common function
 #ifdef WIN32 // uses UTF16
-	FILE* src_f = wfopen((wchar_t *)Utf8ToUtf16(src).c_str(), L"r");
+	FILE* src_f = wfopen((wchar_t *)Utf8ToUtf16(src).c_str(), L"rb");
 #else // other systems
-	FILE* src_f = fopen(src.c_str(), "r");
+	FILE* src_f = fopen(src.c_str(), "rb");
 #endif
 	if(!src_f) {
 		printf("FileCopy: ERROR: cannot open source\n");
 		return false;
 	}
 
+	// TODO: remove this #if here and create a common function
 #ifdef WIN32 // uses UTF16
-	FILE* dest_f = wfopen((wchar_t *)Utf8ToUtf16(dest).c_str(), L"w");
+	FILE* dest_f = wfopen((wchar_t *)Utf8ToUtf16(dest).c_str(), L"wb");
 #else // other systems
-	FILE* dest_f = fopen(dest.c_str(), "w");
+	FILE* dest_f = fopen(dest.c_str(), "wb");
 #endif
 	if(!dest_f) {
 		fclose(src_f);
@@ -708,6 +711,7 @@ bool FileCopy(const std::string& src, const std::string& dest) {
 bool CanWriteToDir(const std::string& dir) {
 	// TODO: we have to make this a lot better!
 	std::string fname = dir + "/.some_stupid_temp_file";
+	// TODO: remove this #if here and create a common function
 #ifdef WIN32 // uses UTF16
 	FILE* fp = wfopen((wchar_t *)Utf8ToUtf16(fname).c_str(), L"w");
 #else // other systems

@@ -215,6 +215,7 @@ bool PathListIncludes(const std::list<std::string>& list, const std::string& pat
 // bool op() ( const std::string& path )
 // ending pathsep is ensured if needed
 // if return is false, it will break
+// HINT: it does no GetExactFileName with the paths
 template<typename _handler>
 void ForEachSearchpath(_handler handler = _handler()) {
 	std::list<std::string> handled_dirs;
@@ -224,7 +225,7 @@ void ForEachSearchpath(_handler handler = _handler()) {
 	for(
 			i = tSearchPaths.begin();
 			i != tSearchPaths.end(); i++) {
-		if(!GetExactFileName(*i, path)) continue;
+		path = *i;
 		if(!PathListIncludes(handled_dirs, path)) {
 			if(!handler(path + "/")) return;
 			handled_dirs.push_back(path);
@@ -235,7 +236,7 @@ void ForEachSearchpath(_handler handler = _handler()) {
 			i = basesearchpaths.begin();
 			i != basesearchpaths.end(); i++) {
 		if(!FileListIncludesExact(&tSearchPaths, *i)) {
-			if(!GetExactFileName(*i, path)) continue;
+			path = *i;
 			if(!PathListIncludes(handled_dirs, path)) {
 				if(!handler(path + "/")) return;
 				handled_dirs.push_back(path);
@@ -258,27 +259,19 @@ public:
 	const std::string& dir;
 	const std::string& namefilter;
 	const filemodes_t modefilter;
-	bool absolutePath;
 	_filehandler& filehandler;
 	
 	FindFilesHandler(
-		const std::string& dir_,
-		const std::string& namefilter_,
-		const filemodes_t modefilter_,
-		_filehandler& filehandler_) :
+			const std::string& dir_,
+			const std::string& namefilter_,
+			const filemodes_t modefilter_,
+			_filehandler& filehandler_) :
 		dir(dir_),
 		namefilter(namefilter_),
 		modefilter(modefilter_),
-		filehandler(filehandler_) {
-			absolutePath = EqualPaths(GetAbsolutePath(dir_), dir_);
-		}
+		filehandler(filehandler_) {}
 	
-	inline bool operator() (const std::string& path) {
-		if (absolutePath && path.size() != 0) // If our directory is an absolute path, don't waste time on searching in searchpaths
-			return true;
-		if (!absolutePath && path.size() == 0) // Our directory is relative, ignore absolute path searching
-			return true;
-
+	bool operator() (const std::string& path) {
 		std::string abs_path = path;
 		if(!GetExactFileName(path + dir, abs_path)) return true;
 		bool ret = true;
@@ -310,12 +303,12 @@ public:
 		if(!handle) return ret;
 		while((entry = readdir(handle)) != 0) {
 			//If file is not self-directory or parent-directory
-			if(entry->d_name[0] != L'.' || (entry->d_name[1] != L'\0' && (entry->d_name[1] != L'.' || entry->d_name[2] != L'\0'))) {
+			if(entry->d_name[0] != '.' || (entry->d_name[1] != '\0' && (entry->d_name[1] != '.' || entry->d_name[2] != '\0'))) {
 				filename = abs_path + "/" + entry->d_name;
 				if(stat(filename.c_str(), &s) == 0)
 					if((S_ISREG(s.st_mode) && modefilter&FM_REG)
 					|| (S_ISDIR(s.st_mode) && modefilter&FM_DIR))
-						if(!filehandler(dir + "/" + entry->d_name)) {
+						if(!filehandler(filename)) {
 							ret = false;
 							break;
 						}
