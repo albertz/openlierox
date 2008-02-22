@@ -131,24 +131,36 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 	if(SoundSystemAvailable) return true;
 	SoundSystemAvailable = false;
 
-#if !defined(WIN32) && !defined(MACOSX)
 	if(getenv("SDL_AUDIODRIVER"))
 		printf("SDL_AUDIODRIVER=%s\n", getenv("SDL_AUDIODRIVER"));
-	else {
+#if !defined(WIN32) && !defined(MACOSX)
+	if(!getenv("SDL_AUDIODRIVER")) {
 		printf("SDL_AUDIODRIVER not set, setting to ALSA\n");
 		putenv("SDL_AUDIODRIVER=alsa");	
 	}
 #endif
 
+initSoundSystem:
+
 	// HINT: other SDL stuff is already inited, we don't care here
-	if( SDL_Init(SDL_INIT_AUDIO) != 0 ) {
+	if( SDL_InitSubSystem(SDL_INIT_AUDIO) != 0 ) {
 		printf("InitSoundSystem: Unable to initialize SDL-sound: %s\n", SDL_GetError());
-		return false;
+		if(getenv("SDL_AUDIODRIVER")) {
+			printf("trying again with SDL_AUDIODRIVER unset\n");
+			unsetenv("SDL_AUDIODRIVER");
+			goto initSoundSystem;
+		} else
+			return false;
 	}
 	
 	if(Mix_OpenAudio(rate, AUDIO_S16, channels, buffers)) {
 		printf("InitSoundSystem: Unable to open audio (SDL_mixer): %s\n", Mix_GetError());
-		return false;
+		if(getenv("SDL_AUDIODRIVER")) {
+			printf("trying again with SDL_AUDIODRIVER unset\n");
+			unsetenv("SDL_AUDIODRIVER");
+			goto initSoundSystem;
+		} else
+			return false;
 	}		
 	
 	int allocChanNum = Mix_AllocateChannels(1000); // TODO: enough?

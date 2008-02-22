@@ -72,17 +72,15 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 
 	ConfigFile=config;
 
+	if(getenv("SDL_VIDEODRIVER"))
+		printf("SDL_VIDEODRIVER=%s\n", getenv("SDL_VIDEODRIVER"));
+	
 	// Solves problem with FPS in fullscreen
 #ifdef WIN32
-	if(getenv("SDL_VIDEODRIVER")) {
-		printf("SDL_VIDEODRIVER=%s\n", getenv("SDL_VIDEODRIVER"));
-	} else {
+	if(!getenv("SDL_VIDEODRIVER")) {
 		printf("SDL_VIDEODRIVER not set, setting to directx\n");
 		putenv("SDL_VIDEODRIVER=directx");
 	}
-#else
-	if(getenv("SDL_VIDEODRIVER"))
-		printf("SDL_VIDEODRIVER=%s\n", getenv("SDL_VIDEODRIVER"));
 #endif
 
 	// Initialize SDL
@@ -99,16 +97,16 @@ int InitializeAuxLib(const std::string& gname, const std::string& config, int bp
 		SystemError("Failed to initialize the SDL system!\nErrorMsg: %s",SDL_GetError());
 #ifdef WIN32
 		// retry it with any available video driver	
-		putenv("SDL_VIDEODRIVER=");
+		unsetenv("SDL_VIDEODRIVER");
 		if(SDL_Init(SDLflags) != -1)
-			printf("... but we still have success with the any driver\n");
+			printf("... but we have success with the any driver\n");
 		else
 #endif		
 		return false;
 	}
 
 	if(bJoystickSupport) {
-		if(SDL_Init(SDL_INIT_JOYSTICK) != 0) {
+		if(SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0) {
 			printf("WARNING: couldn't init joystick subystem: %s\n", SDL_GetError());
 			bJoystickSupport = false;
 		}
