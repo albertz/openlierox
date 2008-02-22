@@ -19,42 +19,19 @@ TODO
 	[?] Various segfaults in hardware mode caused by wrong surface locking (!)
 	[?] others (!!)
 [ ] CChannel calculates wrong pings (too high) (!)
-[X] optimise bUnique handling in CList, is currently too slow and
-    seems to make trouble with big lists (>500 entries) (!)
 
-[?] better default keys for player2 (!)
 [?] fix: FPS (dropped to 60 from 120 here!) (!)
 [?] fix network interpolation (is currently not optimal) (!!)
 [?] gfx is wrong in some situation or makes problems, fix that (!!)
 [?] Fix memory leaks (!!)
 [?] nMaxFPS = 0 works correctly? (!!)
-[?] 24/32 bit doesn't work in OpenGL mode (Mac OS X only?) (!!)
-[?] fix: crashes on MacOSX (!!)
 [?] finish mouse-aiming (!!)
-[?] fix: font isn't visible in OGL on MacOSX (!!)
 [?] are there new network errors? (!!)
 [?] fix: sometimes you got into chat while playing online on some keys (!!)
-[?] Fix the colour detection of pink for mods (255 0 255) which only
-    works in 50% of the mods now. (!!)
 
-[X] fix projectiles flying though walls when they shouldn't (!!)
-[X] fix physics (behaves currently different depending on FPS) (!!)
-[X] fix: if FPS is too high, some events will get lost
-    as getInput() isn't called every frame
-[X] fix: keys are ignored in low FPS in game (CInput::isDown()), makes
-    it very hard to play on older computers (!!)
-[X] CChannel should split too big packets (!!)
-[X] Fix server crashing when starting game for second time (!!)
-[X] fix: sometimes, angle is exactly pointed to top
-    but you cannot hit down to move the angle;
-    also left/right (direction change) does not work
-    sometimes (!!)
-    (It's a bug in either SDL or Xorg or Linux kernel but not in OLX.)
 [ ] remove *_WidgetRegistered and CGuiSkin_Destroyer hacks (!)
 [ ] merge CButton and CTextButton
-[X] fix CFileDownload via HTTP (you can test it by clicking at red
-    level name in lobby), crashes all the time, looks like a thread safety
-    problem or a memory corruption
+[ ] fix file downloading (!)
 [ ] remove ReadInteger/ReadFloat/Read... from code and use IniParser instead (!)
 [ ] remove all unneeded ProcessEvents() from the code
     (even net-messages through events now, so there should
@@ -113,8 +90,6 @@ TODO
 [ ] make physics more like original LX (!)
 [ ] better bot aiming (fast numerical pre-physics-calculations) (!)
 [ ] add option to save/load weapon selection for player
-[X] add some help for weapon selection (cause not everybody understand
-    it) (!)
 [ ] allow more than 2 viewports (!)
 [?] more general input-system (also with joystick-support) (!)
 [ ] possibility to switch bot control / user control of a worm

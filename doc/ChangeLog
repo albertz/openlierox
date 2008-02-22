@@ -3,27 +3,33 @@
 - very basic dedicated server
 - joystick support (for playing)
 - mouse support (for playing)
-- FPS limit is also valid for menu
-- menu takes less resources
-- delete-key works now under MacOSX
-- more keys got recognised
-  (super and meta keys, that includes also the
-  Apple-key on a Mac)
 - copy&paste support for Linux and MacOSX
 - config file got parsed completly and unknown options
   are kept, therefore forward-compatible
 - better forward-compatibility for net-protocol
+- FPS independent physics
+- more correct projectile simulation
+- delete-key works now under MacOSX
+- more keys got recognised
+  (super and meta keys, that includes also the
+  Apple-key on a Mac)
 - support for multiple masterservers
 - more intelligent event-handling (in some parts);
   all pressed keys got recognised in chat/console
+  and you can also play on very low FPS
 - events for network sockets
 - fixed changing of graphic settings
 - DNS support for serverlist
 - Worm AI improvements
 - usage of ALSA on Linux by default
 - better multithreading handling of network
+- network improved
 - cache for map and gamescript
 - Developer documentation
+- optimised sorting in combobox
+- FPS limit is also valid for menu
+- menu takes less resources
+- help for weapon selection
 - and a lot of other fixes / cleanups
 
 
