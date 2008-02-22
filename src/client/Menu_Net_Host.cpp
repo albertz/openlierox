@@ -434,12 +434,14 @@ bool		bStartDedicated = false;
 int			iStartDedicatedSeconds = 15;
 int			iStartDedicatedMinPlayers = 4;
 float		fStartDedicatedSecondsPassed = 0;
+int			iStartDedicatedServerSpamsSomeInfoTimeout = 15;
 
 static bool register_vars = CScriptableVars::RegisterVars("GameServer")
 			( bStartDedicated, "bStartDedicated" )
 			( iStartDedicatedSeconds, "iStartDedicatedSeconds" )
 			( iStartDedicatedMinPlayers, "iStartDedicatedMinPlayers" )
 			( fStartDedicatedSecondsPassed, "fStartDedicatedSecondsPassed" )
+			( iStartDedicatedServerSpamsSomeInfoTimeout, "iStartDedicatedServerSpamsSomeInfoTimeout" )
 			;
 
 ///////////////////
@@ -1122,11 +1124,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);
 
-	int secondsTillGameStart = iStartDedicatedSeconds - (int)( tLX->fCurTime - fStartDedicatedSecondsPassed );
+	int secondsTillGameStart = iStartDedicatedSeconds - (int)round( tLX->fCurTime - fStartDedicatedSecondsPassed );
 	static int secondsAnnounced = -1;
 	if( bStartDedicated && cServer->getNumPlayers() < iStartDedicatedMinPlayers )
 	{
-		if( tLX->fCurTime - fStartDedicatedSecondsPassed > 5 )
+		if( tLX->fCurTime - fStartDedicatedSecondsPassed > iStartDedicatedServerSpamsSomeInfoTimeout )
 		{
 			cClient->SendText( OldLxCompatibleString( "Game will start when " + 
 					itoa(iStartDedicatedMinPlayers) + " players connect" ), "");
@@ -1134,15 +1136,20 @@ void Menu_Net_HostLobbyFrame(int mouse)
 			secondsAnnounced = -1;
 		};
 	}
-	else if( bStartDedicated && secondsTillGameStart % 5 == 0 && secondsTillGameStart != secondsAnnounced )
+	else if( bStartDedicated && 
+			( ( secondsTillGameStart % iStartDedicatedServerSpamsSomeInfoTimeout == 0 &&
+				secondsTillGameStart != secondsAnnounced ) || 
+				secondsAnnounced == -1 ) )
 	{
-		cClient->SendText( OldLxCompatibleString( "Game will start in " + itoa( secondsTillGameStart ) + " seconds" ), "" );
+		if( secondsTillGameStart > 0 )
+			cClient->SendText( OldLxCompatibleString( "Game will start in " + itoa( secondsTillGameStart ) + " seconds" ), "" );
 		secondsAnnounced = secondsTillGameStart;
 	};
 
 	if( bStartPressed || 
 		( bStartDedicated && cServer->getNumPlayers() >= iStartDedicatedMinPlayers && secondsTillGameStart <= 0 ) )
 	{
+		secondsAnnounced = -1;
 		// Save the chat text
 		cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
 
