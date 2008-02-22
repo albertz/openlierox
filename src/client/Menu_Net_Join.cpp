@@ -605,44 +605,45 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         f->Draw(tMenu->bmpScreen,     x2, y+140, tLX->clNormalLabel, gl->bBonuses ? "On" : "Off");
 	}
 
-	#ifdef DEBUG	// DC told me that's bad, so hide our l77t feature from common mortals
-	if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
-		tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel, 
-		itoa( int(cClient->getUdpFileDownloader()->getFileDownloadingProgress()*100.0) ) + "%: " +
-		cClient->getUdpFileDownloader()->getFileDownloading() );
-	else if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
-		tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
-		itoa( cClient->getUdpFileDownloader()->getFilesPendingAmount() ) + " files left" );
-	
-	CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
-	if( dlButton )
+	if( tLXOptions->bAllowFileDownload )
 	{
-		bool bNeedDownloadButton = false;
-		if( ! cClient->getGameLobby()->bHaveMod || ! cClient->getGameLobby()->bHaveMap )
-			bNeedDownloadButton = true;
-		CWorm *w = cClient->getRemoteWorms();
-		for( int i=0; i<MAX_WORMS; i++, w++ )
+		if( cClient->getUdpFileDownloader()->getFileDownloading() != "" )
+			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel, 
+			itoa( int(cClient->getUdpFileDownloader()->getFileDownloadingProgress()*100.0) ) + "%: " +
+			cClient->getUdpFileDownloader()->getFileDownloading() );
+		else if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
+			tLX->cFont.Draw(tMenu->bmpScreen,     410, 195, tLX->clNormalLabel,
+			itoa( cClient->getUdpFileDownloader()->getFilesPendingAmount() ) + " files left" );
+	
+		CTextButton * dlButton = (CTextButton *)cJoinLobby.getWidget(jl_StartStopUdpFileDownload);
+		if( dlButton )
 		{
-			if( ! w->isUsed() )
-				continue;
-			if( w->getSkin() == "" )
-				continue;
-			if( ! IsFileAvailable("skins/" + w->getSkin()) )
+			bool bNeedDownloadButton = false;
+			if( ! cClient->getGameLobby()->bHaveMod || ! cClient->getGameLobby()->bHaveMap )
 				bNeedDownloadButton = true;
-		};
-		if( bNeedDownloadButton )
-		{
-			if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
-				dlButton->SendMessage( LBS_SETTEXT, "Abort", 0 );
+			CWorm *w = cClient->getRemoteWorms();
+			for( int i=0; i<MAX_WORMS; i++, w++ )
+			{
+				if( ! w->isUsed() )
+					continue;
+				if( w->getSkin() == "" )
+					continue;
+				if( ! IsFileAvailable("skins/" + w->getSkin()) )
+					bNeedDownloadButton = true;
+			};
+			if( bNeedDownloadButton )
+			{
+				if( cClient->getUdpFileDownloader()->getFilesPendingAmount() > 0 )
+					dlButton->SendMessage( LBS_SETTEXT, "Abort", 0 );
+				else
+					dlButton->SendMessage( LBS_SETTEXT, "Download files from host", 0 );
+			}
 			else
-				dlButton->SendMessage( LBS_SETTEXT, "Download files from host", 0 );
-		}
-		else
-		{
-			dlButton->SendMessage( LBS_SETTEXT, "", 0 );
+			{
+				dlButton->SendMessage( LBS_SETTEXT, "", 0 );
+			};
 		};
 	};
-	#endif
 
 	// Process & Draw the gui
 #ifdef WITH_MEDIAPLAYER
