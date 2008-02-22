@@ -132,7 +132,12 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 	SoundSystemAvailable = false;
 
 #if !defined(WIN32) && !defined(MACOSX)
-	putenv("SDL_AUDIODRIVER=alsa");
+	if(getenv("SDL_AUDIODRIVER"))
+		printf("SDL_AUDIODRIVER=%s\n", getenv("SDL_AUDIODRIVER"));
+	else {
+		printf("SDL_AUDIODRIVER not set, setting to ALSA\n");
+		putenv("SDL_AUDIODRIVER=alsa");	
+	}
 #endif
 
 	// HINT: other SDL stuff is already inited, we don't care here
