@@ -183,6 +183,8 @@ bool IsFileAvailable(const std::string& f, bool absolute = false);
 // IMPORTANT: filename is absolute; no game-path!
 void	CreateRecDir(const std::string& abs_filename, bool last_is_dir = true);
 
+bool	EqualPaths(const std::string& path1, const std::string& path2);
+
 // copy the src-file to the dest
 // it will simply fopen(src, "r"), fopen(dest, "w") and write all the stuff
 // IMPORTANT: filenames are absolute; no game-path!
@@ -256,6 +258,7 @@ public:
 	const std::string& dir;
 	const std::string& namefilter;
 	const filemodes_t modefilter;
+	bool absolutePath;
 	_filehandler& filehandler;
 	
 	FindFilesHandler(
@@ -266,23 +269,30 @@ public:
 		dir(dir_),
 		namefilter(namefilter_),
 		modefilter(modefilter_),
-		filehandler(filehandler_) {}
+		filehandler(filehandler_) {
+			absolutePath = EqualPaths(GetAbsolutePath(dir_), dir_);
+		}
 	
 	inline bool operator() (const std::string& path) {
+		if (absolutePath && path.size() != 0) // If our directory is an absolute path, don't waste time on searching in searchpaths
+			return true;
+		if (!absolutePath && path.size() == 0) // Our directory is relative, ignore absolute path searching
+			return true;
+
 		std::string abs_path = path;
 		if(!GetExactFileName(path + dir, abs_path)) return true;
 		bool ret = true;
 		
 #ifdef WIN32  // uses UTF16
 		struct _wfinddata_t fileinfo;
-		abs_path.append("/*");
-		intptr_t handle = _wfindfirst((wchar_t *)Utf8ToUtf16(abs_path).c_str(), &fileinfo);
+		abs_path.append("/");
+		intptr_t handle = _wfindfirst((wchar_t *)Utf8ToUtf16(abs_path + "*").c_str(), &fileinfo);
 		while(handle > 0) {
 			//If file is not self-directory or parent-directory
 			if(fileinfo.name[0] != L'.' || (fileinfo.name[1] != L'\0' && (fileinfo.name[1] != L'.' || fileinfo.name[2] != L'\0'))) {
 				if((!(fileinfo.attrib&_A_SUBDIR) && modefilter&FM_REG)
 				|| fileinfo.attrib&_A_SUBDIR && modefilter&FM_DIR)
-					if(!filehandler(dir + "/" + Utf16ToUtf8((Utf16Char *)(&fileinfo.name[0])))) {
+					if(!filehandler(abs_path + Utf16ToUtf8((Utf16Char *)(&fileinfo.name[0])))) {
 						ret = false;
 						break;
 					}

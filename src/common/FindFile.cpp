@@ -99,6 +99,31 @@ bool IsFileAvailable(const std::string& f, bool absolute) {
 
 
 
+//////////////////////
+// Replaces backward slashes with forward slashes (windows only)
+// Used when comparing two paths
+static void ReplaceSlashes(std::string& path)  {
+#ifdef WIN32
+	for (std::string::iterator it = path.begin(); it != path.end(); it++)
+		if (*it == '\\') *it = '/';
+#endif
+}
+
+bool EqualPaths(const std::string& path1, const std::string& path2)  {
+	std::string p1 = path1;
+	std::string p2 = path2;
+
+	ReplaceSlashes(p1);
+	ReplaceSlashes(p2);
+
+	if (*p1.rbegin() != '/')
+		p1 += '/';
+	if (*p2.rbegin() != '/')
+		p2 += '/';
+
+	return stringcaseequal(p1, p2);
+}
+
 /*
 
 	Drives
@@ -252,7 +277,7 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 class strcasecomparer {
 public:
 	inline bool operator()(const std::string& str1, const std::string& str2) const {
-		return stringcasecmp(str1, str2) == 0;
+		return stringcaseequal(str1, str2);
 	}
 };
 
@@ -558,7 +583,7 @@ bool FileListIncludesExact(const searchpathlist* l, const std::string& f) {
 		removeEndingSlashes(tmp2);
 		ReplaceFileVariables(tmp2);
 		replace(tmp2,"\\","/");
-		if(stringcasecmp(tmp1, tmp2) == 0)
+		if(stringcaseequal(tmp1, tmp2))
 			return true;
 	}
 	
@@ -722,7 +747,7 @@ std::string GetAbsolutePath(const std::string& path) {
 }
 
 bool PathListIncludes(const std::list<std::string>& pathlist, const std::string& path) {
-	static std::string abs_path;
+	std::string abs_path;
 	abs_path = GetAbsolutePath(path);
 	
 	// Go through the list, checking each item

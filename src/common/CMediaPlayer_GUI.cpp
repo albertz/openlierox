@@ -304,21 +304,11 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
-					if (lv->getCurSIndex() == "")
-						break;
-
-
-					// Check that this is not the parent or current directory
-					// TODO !
-					size_t dir_name_pos = findLastPathSep(lv->getCurSIndex());
-					if (dir_name_pos == std::string::npos)
-						break;
-
-					if(lv->getCurSIndex().substr(dir_name_pos+1) == ".." || lv->getCurSIndex().substr(dir_name_pos+1) == ".")
+					if (lv->getCurSIndex().size() == 0)
 						break;
 
 					// Copy the directory
-					szDir = lv->getCurSIndex();
+					szDir = GetAbsolutePath(lv->getCurSIndex());
 
 					// We're done
 					done = true;
@@ -405,51 +395,22 @@ std::string COpenAddDir::Execute(const std::string& default_dir)
 // Checks if the given directory is the root directory
 bool COpenAddDir::IsRoot(const std::string& dir)
 {
-	// TODO: what is the sense of this?
-
-
-	if (dir == "")
+	if (dir.size() == 0)
 		return true;
 
-	std::string tmp;
-	tmp = dir;
+#ifdef WIN32
+	if (dir.size() >= 6)
+		return dir.substr(1, std::string::npos) == ":\\/..";
+	else
+		return false;
+#else
+	return GetAbsolutePath(dir) == "/";
+#endif
 
-	// Adjust
-	replace(tmp,"//","/",tmp);
-	replace(tmp,"\\/","/",tmp);
-
-	size_t len = tmp.size();
-
-	// Remove the ending slash
-	if (tmp[len-1] == '\\' || tmp[len-1] == '/')
-		tmp.erase(len-1);
-
-	// If we can't find another slash, this must be the parent directory
-	size_t slash = findLastPathSep(tmp);
-	if(slash == std::string::npos)
-		return true;
-
-	// If there's a slash and this is the link to the parent directory, check, if there's another slash
-	if(tmp.compare(slash+1,std::string::npos,"..") == 0) {
-		tmp.erase(slash);
-		slash = findLastPathSep(tmp);
-		// Not another slash, this is a root directory
-		if (slash == std::string::npos)
-			return true;
-
-	}
-
-	// Not a root directory
-	return false;
 }
 
 
 
-
-
-
-		// TODO: this won't get even called!!!!!! Fix it!
-		// TODO: is the comment realy up-to-date?
 		class addDirToList { public:
 			CListview* lv;
 			int* index;
@@ -477,60 +438,19 @@ bool COpenAddDir::IsRoot(const std::string& dir)
 // Fills the list with the subdirectories of the "dir"
 void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 {
-	if (dir == "")
-		return;
-
-	std::string directory;
-	std::string tmp_dir;
-	std::string parent_dir;
-	size_t dir_name_pos;
-	int index=0;
-	size_t len = 0;
-	bool isroot = false;  // True if we're in root directory of the current drive
-	bool goto_drive_list = false;  // True if we're going to go in the drive list
-
-	tmp_dir = dir;
-	len = dir.size();
-
-	// Add the slash if needed
-	if (tmp_dir[len-1] != '\\' && tmp_dir[len-1] != '/')  {
-		tmp_dir += "/";
-		len++;
-	}
-
-	parent_dir = "";  // Clear the parent directory
-
-	// TODO: i don't completly understand the sense of this
-	// (and i am realy sure that it is wrong in some cases)
-	isroot = IsRoot(tmp_dir);
-	if(!isroot || (isroot && ((dir_name_pos = tmp_dir.find("../")) == std::string::npos))) {
-		// Handle the parent directory
-		if((dir_name_pos = tmp_dir.find("../")) != std::string::npos) {
-			tmp_dir.erase(dir_name_pos-1);
-			dir_name_pos = findLastPathSep(tmp_dir);
-			if(dir_name_pos != std::string::npos)  {
-				parent_dir = tmp_dir.substr(dir_name_pos+1);
-				tmp_dir.erase(dir_name_pos+1);
-			}
-			// Check again
-			isroot = IsRoot(tmp_dir);
-		}
-	// Root directory and we want to go up
-	} else {
-		goto_drive_list = true;
-	}
+	std::string absolute_path = GetAbsolutePath(dir);
 
 	// Clear the listview
 	lv->Clear();
 
-	// Going up when this is a root directory is handled in other way than the rest of the browsing
-	if (goto_drive_list)  {
+	// If the target is root directory (i.e. C:\ on windows or / on unix)
+	if (IsRoot(dir))  {
 		int index = 0;
 		drive_list drives = GetDrives();
-		char cur_drive = tmp_dir[0];
-		for (drive_list::const_iterator i=drives.begin(); i != drives.end();i++)  {
+		char cur_drive = *absolute_path.begin();
+		for (drive_list::const_iterator i=drives.begin(); i != drives.end(); i++)  {
 #ifdef WIN32
-			if (i->type != DRV_CDROM)  {
+			if (i->type == DRV_FIXED)  {
 #endif
 				lv->AddItem(i->name,index,tLX->clListView);
 				lv->AddSubitem(LVS_TEXT, i->name, NULL, NULL);
@@ -544,18 +464,15 @@ void COpenAddDir::ReFillList(CListview *lv, const std::string& dir)
 
 	// The directory list
 	} else  {
-
-		// Fill in the first directory
-		directory = tmp_dir +"..";
-
+		int index = 0;
 
 		// Add the parent directory
-		lv->AddItem(directory,index++,tLX->clListView);
+		lv->AddItem(absolute_path + "/..", index++, tLX->clListView);
 		lv->AddSubitem(LVS_TEXT, "..", NULL, NULL);
 
 		int selected = 0;
 
-		FindFiles(addDirToList(lv, &index, &selected, parent_dir), tmp_dir, FM_DIR);
+		FindFiles(addDirToList(lv, &index, &selected, absolute_path), absolute_path, FM_DIR);
 		if(selected) lv->setSelectedID(selected);
 	}
 
