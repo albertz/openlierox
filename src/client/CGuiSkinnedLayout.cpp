@@ -206,58 +206,6 @@ void CGuiSkinnedLayout::Error(int ErrorCode, const std::string& desc)
 	std::cout << "GUI skin error: " << ErrorCode << " " << desc << std::endl;
 }
 
-///////////////////
-// Send a message to a widget
-DWORD CGuiSkinnedLayout::SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2)
-{
-	CWidget *w = getWidget(iControl);
-
-	// Couldn't find widget
-	if(w == NULL)
-		return 0;
-
-	// Check if it's a widget message
-	if(iMsg < 0) {
-		switch( iMsg ) {
-
-			// Set the enabled state of the widget
-			case WDM_SETENABLE:
-				w->setEnabled(Param1 != 0);
-				break;
-		}
-		return 0;
-	}
-
-	return w->SendMessage(iMsg, Param1, Param2);
-}
-
-DWORD CGuiSkinnedLayout::SendMessage(int iControl, int iMsg, const std::string& sStr, DWORD Param)
-{
-	CWidget *w = getWidget(iControl);
-
-	// Couldn't find widget
-	if(w == NULL)
-		return 0;
-
-	return w->SendMessage(iMsg, sStr, Param);
-
-}
-
-DWORD CGuiSkinnedLayout::SendMessage(int iControl, int iMsg, std::string *sStr, DWORD Param)
-{
-	// Check the string
-	if (!sStr)
-		return 0;
-
-	CWidget *w = getWidget(iControl);
-
-	// Couldn't find widget
-	if(w == NULL)
-		return 0;
-
-	return w->SendMessage(iMsg, sStr, Param);
-}
-
 void CGuiSkinnedLayout::ProcessGuiSkinEvent(int iEvent)
 {
 	if( iEvent < 0 )	// Global event - pass it to all children

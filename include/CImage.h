@@ -32,15 +32,30 @@ enum {
 class CImage : public CWidget {
 public:
 	// Constructor
-	CImage(const std::string& Path) {
+	CImage(const std::string& Path, int _cropX=0, int _cropY=0, int _cropW=0, int _cropH=0):
+			cropX(_cropX), cropY(_cropY), cropW(_cropW), cropH(_cropH) {
 		iType = wid_Image;
 		sPath = Path;
 		tImage = NULL;
 		if (Path != "")  {
 			tImage = LoadImage(Path);
 
-			iWidth = tImage->w;
-			iHeight = tImage->h;
+			if( cropW == 0 && cropX > 0 )
+				cropW = tImage->w - cropX;
+			if( cropH == 0 && cropY > 0 )
+				cropH = tImage->h - cropY;
+			if( cropW > tImage->w )
+				cropW = tImage->w;
+			if( cropH > tImage->h )
+				cropH = tImage->h;
+
+			iWidth = cropW > 0 ? cropW : tImage->w;
+			iHeight = cropH > 0 ? cropH : tImage->h;
+
+			if( cropX > tImage->w - iWidth )
+				cropX = tImage->w - iWidth;
+			if( cropY > tImage->h - iHeight )
+				cropY = tImage->h - iHeight;
 		}
 	}
 
@@ -58,6 +73,7 @@ private:
     // Attributes
 	SDL_Surface	*tImage;
 	std::string	sPath;
+	int cropX, cropY, cropW, cropH;
 	CGuiSkin::CallbackHandler cClick;
 
 public:
@@ -88,13 +104,7 @@ public:
 
 	void	LoadStyle(void) {}
 
-	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CImage * w = new CImage( p[0].s );
-		w->cClick.Init( p[1].s, w );
-		layout->Add( w, id, x, y, dx, dy );
-		return w;
-	};
+	static CWidget * WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{

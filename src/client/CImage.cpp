@@ -36,7 +36,7 @@ void CImage::Draw(SDL_Surface *bmpDest)
 		iY=0;
 
 	// Draw the image
-	DrawImage(bmpDest,tImage,iX,iY);
+	DrawImageAdv(bmpDest,tImage,cropX,cropY,iX,iY,iWidth,iHeight);
 }
 
 ///////////////////
@@ -73,7 +73,23 @@ DWORD CImage::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 	return 0;
 }
 
+CWidget * CImage::WidgetCreator( const std::vector< CScriptableVars::ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
+{
+	CImage * w = new CImage( p[0].s, p[1].i, p[2].i, p[3].i, p[4].i );
+	w->cClick.Init( p[5].s, w );
+	if( dx == 0 )
+		dx = w->iWidth;
+	if( dy == 0 )
+		dy = w->iHeight;
+	layout->Add( w, id, x, y, dx, dy );
+	return w;
+};
+
 static bool CImage_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
 							( "file", CScriptableVars::SVT_STRING )
+							( "crop_x", CScriptableVars::SVT_INT )
+							( "crop_y", CScriptableVars::SVT_INT )
+							( "crop_w", CScriptableVars::SVT_INT )
+							( "crop_h", CScriptableVars::SVT_INT )
 							( "click", CScriptableVars::SVT_STRING );

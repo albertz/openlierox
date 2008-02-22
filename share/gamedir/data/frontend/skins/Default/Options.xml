@@ -2,17 +2,32 @@
 
 <dialog>
 
-<image top='0' left='0' width='640' height='480' file='data/frontend/background_common.png'/>
-<!-- Emulation of tab control -->
-<button top='60' left='100' width='100' height='30' textid="18" click="GUI.SetTab(OptionsTab,child,-100,-40) GUI.MakeSound"/>
-<button top='60' left='300' width='100' height='30' textid="19" click="GUI.SetTab(OptionsTab,child2,-100,-40) GUI.MakeSound"/>
+<image rect='0,0' file='data/frontend/background_common.png'/>
 
-<label top='100' left='20' width='50' height='50' color='#ffffff' text="Key bindings: Nothing here yet"/>
+<image rect='110,30' crop_y='280' crop_h='65' file='data/frontend/subtitles.png'/>
 
-<button top='440' left='10' width='30' height='30' textid="5" click="GUI.ExitDialog GUI.MakeSound"/>
+<button rect="180, 110, 100, 15" textid="18" id="ButtonControls" init="GUI.DisableWidget(ButtonControls)"
+	click="GUI.MakeSound GUI.SetTab(OptionsTab,OptionsControls) 
+	GUI.DisableWidget(ButtonControls) GUI.EnableWidget(ButtonGame) GUI.EnableWidget(ButtonSystem)
+	GUI.EnableWidget(DisabledButtonControls) GUI.DisableWidget(DisabledButtonGame) GUI.DisableWidget(DisabledButtonSystem)"/>
+<button rect="310, 110, 50,  15" textid="19" id="ButtonGame"
+	click="GUI.MakeSound GUI.SetTab(OptionsTab,OptionsGame) 
+	GUI.EnableWidget(ButtonControls) GUI.DisableWidget(ButtonGame) GUI.EnableWidget(ButtonSystem)
+	GUI.DisableWidget(DisabledButtonControls) GUI.EnableWidget(DisabledButtonGame) GUI.DisableWidget(DisabledButtonSystem)"/>
+<button rect="390, 110, 70,  15" textid="20" id="ButtonSystem"
+	click="GUI.MakeSound GUI.SetTab(OptionsTab,OptionsSystem) 
+	GUI.EnableWidget(ButtonControls) GUI.EnableWidget(ButtonGame) GUI.DisableWidget(ButtonSystem)
+	GUI.DisableWidget(DisabledButtonControls) GUI.DisableWidget(DisabledButtonGame) GUI.EnableWidget(DisabledButtonSystem)"/>
 
-<box rect="45,155,310,260" border='1' lightcolor='#00FFFF' darkcolor='#FF0000' bgcolor='#0000FF'/>
+<image rect="180, 110, 100" crop_x="5" crop_y="745" crop_h="20" id="DisabledButtonControls" file="data/frontend/buttons.png"/>
+<image rect="310, 110, 50"  crop_x="5" crop_y="785" crop_h="20" id="DisabledButtonGame" init="GUI.DisableWidget(DisabledButtonGame)" file="data/frontend/buttons.png"/>
+<image rect="390, 110, 80"  crop_x="5" crop_y="825" crop_h="20" id="DisabledButtonSystem" init="GUI.DisableWidget(DisabledButtonSystem)" file="data/frontend/buttons.png"/>
 
-<tab id="OptionsTab" rect="50,160,300,250" file="child" offset_left="-100" offset_top="-40"/>
+<tab id="OptionsTab" rect="0,130,640,310" file="OptionsControls"/>
+<!-- <box rect="0,130,640,310" bgcolor='#0000FF'/> -->
+
+<button rect='25,440, 50,15' textid="5" click="GUI.MakeSound GUI.ExitDialog"/>
+
+<button rect="555,440,60,15" textid="21" id="OptionsApply" init="GUI.DisableWidget(OptionsApply)" click="GUI.MakeSound"/>
 
 </dialog>

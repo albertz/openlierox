@@ -161,7 +161,6 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		int top    = xmlGetInt(Node,"top");
 		int width  = xmlGetInt(Node,"width");
 		int height = xmlGetInt(Node,"height");
-		bool disabled = xmlGetBool(Node,"disabled");	// By default all widgets are enabled and all bools are false
 		std::string s_id = xmlGetString(Node,"id");	// Widget ID (used for enable/disable it by func handlers)
 		std::string init = xmlGetString(Node,"init");	// OnInit handler - fills list or combobox etc
 		std::string s_pos = xmlGetString(Node,"rect");
@@ -219,8 +218,6 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 				CallbackHandler c_init( init, widget );
 				c_init.Call();
 			};
-			widget->setEnabled( ! disabled );
-
 			break;
 		};
 		if( it == m_instance->m_widgets.end() )
@@ -246,7 +243,7 @@ bool xmlGetBool(xmlNodePtr Node, const std::string& Name)
 	bool result = false;
 	if( !stringcasecmp( "true", (const char *)sValue ) )
 		result = true;
-	if( !stringcasecmp( "1", (const char *)sValue ) )
+	if( atoi((const char *)sValue) != 0 )
 		result = true;
 	xmlFree(sValue);
 	return result;
@@ -525,10 +522,52 @@ void SkinCombobox_Change( const std::string & param, CWidget * source )
 	sSkinCombobox_OldSkinPath = tLXOptions->sSkinPath;
 };
 
+void ExitApplication( const std::string & param, CWidget * source )
+{
+	if( Menu_MessageBox(GetGameName(),"Quit OpenLieroX?", LMB_YESNO) == MBR_YES ) 
+	{
+		tMenu->bMenuRunning = false;
+		Menu_MainShutdown();
+	};
+};
+
+void EnableWidget( const std::string & param, CWidget * source )
+{
+	CGuiSkinnedLayout * l = (CGuiSkinnedLayout *)source->getParent();
+	if( !l )
+		return;
+	std::string trimmed(param);
+	TrimSpaces(trimmed);
+	CWidget * w = l->getWidget(trimmed);
+	if( !w )
+		return;
+	w->setEnabled(true);
+};
+
+void DisableWidget( const std::string & param, CWidget * source )
+{
+	CGuiSkinnedLayout * l = (CGuiSkinnedLayout *)source->getParent();
+	if( !l )
+		return;
+	std::string trimmed(param);
+	TrimSpaces(trimmed);
+	CWidget * w = l->getWidget(trimmed);
+	if( !w )
+		return;
+	w->setEnabled(false);
+};
+
+std::string lx_version_string = LX_VERSION;
+
 static bool bRegisteredCallbacks = CScriptableVars::RegisterVars("GUI")
 	( & MakeSound, "MakeSound" )
 	( & SkinCombobox_Init, "SkinCombobox_Init" )
-	( & SkinCombobox_Change, "SkinCombobox_Change" );
+	( & SkinCombobox_Change, "SkinCombobox_Change" )
+	( & ExitApplication, "ExitApplication" )
+	( lx_version_string, "ApplicationVersion" )
+	( & EnableWidget, "EnableWidget" )
+	( & DisableWidget, "DisableWidget" )
+	;
 
 // Register here some widgets that don't have their own .CPP files
 // TODO: create different files for all of them

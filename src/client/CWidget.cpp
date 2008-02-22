@@ -28,7 +28,7 @@ void CWidget::Setup(int id, int x, int y, int w, int h)
 	iY = y;
 	iWidth = w;
 	iHeight = h;
-	bEnabled = true;
+	//bEnabled = true;	// For CGuiSkinnedLayout
 
 	// Reset the events
 	int i;

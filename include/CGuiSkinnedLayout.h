@@ -63,6 +63,7 @@ public:
 
 	void		Add(CWidget *widget, int id, int x, int y, int w, int h);
 	CWidget		*getWidget(int id);
+	CWidget		*getWidget(const std::string & name){ return getWidget(GetIdByName(name)); };
     void        removeWidget(int id);
 	int			GetIdByName(const std::string & name);
 	void		Error(int ErrorCode, const std::string& desc);
@@ -72,11 +73,6 @@ public:
 	void		Draw(SDL_Surface *bmpDest);
 
 	void		Shutdown(void);
-
-	// Messaging
-	DWORD		SendMessage(int iControl, int iMsg, DWORD Param1, DWORD Param2);
-	DWORD		SendMessage(int iControl, int iMsg, const std::string& sStr, DWORD Param);
-	DWORD		SendMessage(int iControl, int iMsg, std::string *sStr, DWORD Param);
 
 	void	Create(void) { };
 	void	Destroy(void) { Shutdown(); }
