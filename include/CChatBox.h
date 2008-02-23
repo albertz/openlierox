@@ -63,15 +63,14 @@ public:
 	void    AddText(const std::string& txt, int colour, float time);
 
     // Variables
-	line_t *GetLine(int n);
-	inline lines_iterator Begin()  { return WrappedLines.begin(); }
-	inline lines_iterator End()  { return WrappedLines.end(); }
+	lines_iterator Begin()  { return WrappedLines.begin(); }
+	lines_iterator End()  { return WrappedLines.end(); }
 	lines_iterator At(int i);
-	inline lines_riterator RBegin()  { return WrappedLines.rbegin(); }
-	inline lines_riterator REnd()  { return WrappedLines.rend(); }
+	lines_riterator RBegin()  { return WrappedLines.rbegin(); }
+	lines_riterator REnd()  { return WrappedLines.rend(); }
 	line_t *GetNewLine(void);
     void    setWidth(int w);
-	inline size_t		getNumLines(void)	{ return WrappedLines.size(); }
+	size_t		getNumLines(void)	{ return WrappedLines.size(); }
 };
 
 

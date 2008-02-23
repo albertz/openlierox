@@ -13,11 +13,14 @@
 // Created 26/8/03
 // Jason Boettcher
 
+// TODO: why is everything here so complicated? make it simpler! use one single list and not 3!
+
 
 #include "LieroX.h"
 #include "StringUtils.h"
 #include "CChatBox.h"
 
+#define MAX_LINES 200
 
 ///////////////////
 // Clear the chatbox
@@ -48,6 +51,9 @@ void CChatBox::AddText(const std::string& txt, int colour, float time)
 	// Add to lines
 	Lines.push_back(newline);
 
+	while(Lines.size() > MAX_LINES)
+		Lines.pop_front();
+
 	// Add to wrapped lines
 	AddWrapped(txt,colour,time,WrappedLines,true);
 }
@@ -73,6 +79,11 @@ void CChatBox::AddWrapped(const std::string& txt, Uint32 colour, float time, ct_
 		if (mark_as_new)
 			NewLines.push_back(newline);
 	}
+
+	while(lines.size() > MAX_LINES)
+		lines.pop_front();
+	while(NewLines.size() > MAX_LINES)
+		NewLines.pop_front();
 }
 
 ///////////////////
@@ -99,26 +110,6 @@ void CChatBox::setWidth(int w)
 	}
 }
 
-///////////////////
-// Get a line from chatbox
-line_t *CChatBox::GetLine(int n)
-{
-	lines_iterator it = WrappedLines.begin();
-	for (int i = 0 ; i <= n && it != WrappedLines.end(); it++, i++) {}
-
-	if (it == WrappedLines.end())
-		return NULL;
-
-	// Remove from new lines
-	lines_iterator it2 = NewLines.begin();
-	for (; it2 != NewLines.end(); it2++)
-		if (it2->iID == it->iID)  {
-			NewLines.erase(it2);
-			break;
-		}
-
-	return &(*it);
-}
 
 /////////////////////
 // Get a new line from the chatbox
@@ -128,6 +119,7 @@ line_t *CChatBox::GetNewLine(void)
 	if (NewLines.empty())
 		return NULL;
 
+	// TODO: change it!!!
 	static line_t result; // We're giving a pointer to it, must always exist
 	result = *NewLines.begin();
 	NewLines.erase(NewLines.begin());
