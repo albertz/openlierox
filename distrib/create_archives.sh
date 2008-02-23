@@ -6,13 +6,14 @@ echo ">>> preparing $VERSION archives ..."
 cd ..
 echo $VERSION > VERSION
 
-SRC_FILES="src/*.cpp src/common/*.cpp src/client/*.cpp src/server/*.cpp include/*.h"
-STD_FILES="VERSION CMakeLists.txt compile.sh install.sh start.sh hawknl/install.sh hawknl/download.sh"
+#SRC_FILES="src/*.cpp src/*.m src/common/*.cpp src/client/*.cpp src/server/*.cpp include/*.h"
+SRC_FILES="src include hawknl pstreams"
+STD_FILES="VERSION CMakeLists.txt *.sh *.bat build/Xcode"
 DOC_FILES="COPYING.LIB DEPS doc"
 DAT_FILES="share/gamedir share/*.png share/*.icns share/*.ico share/*.svg"
 
 export SRC_RELEASE="$SRC_FILES $STD_FILES $DOC_FILES $DAT_FILES"
-export WIN32_RELEASE="doc/* COPYING.LIB share/gamedir/* distrib/win32/*"
+export WIN32_RELEASE="doc COPYING.LIB share/gamedir/* distrib/win32/*"
 
 export ARCHIVE_PREFIX="distrib/tarball/OpenLieroX_${VERSION}"
 export SRC_PREFIX="${ARCHIVE_PREFIX}.src"
@@ -23,12 +24,17 @@ if [ "$ISCURRELEASE" == "1" ]; then
 	rm distrib/tarball/OpenLieroX_0.57_cur*
 fi
 
+# cleaning up
+rm -rf distrib/OpenLieroX 2>/dev/null
+rm ${SRC_PREFIX}.tar* 2>/dev/null
+rm ${WIN32_PREFIX}.zip 2>/dev/null
+
 echo ">>> creating source tar.bz ..."
 ln -s .. distrib/OpenLieroX
 for FILE in $SRC_RELEASE; do
 	[ -e ${SRC_PREFIX}.tar ] && MOD_FLAG=-r || MOD_FLAG=-c
 	cd distrib
-	tar --exclude=.svn $MOD_FLAG -hf \
+	tar --exclude=.svn --exclude=*~ $MOD_FLAG -hf \
 		../${SRC_PREFIX}.tar \
 		OpenLieroX/$FILE
 	cd ..

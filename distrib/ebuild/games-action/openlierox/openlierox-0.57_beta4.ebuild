@@ -56,6 +56,7 @@ src_install() {
 	echo ">>> installing doc ..."
 	dodoc doc/README
 	dodoc doc/ChangeLog
+	dodoc doc/Development
 	dodoc doc/TODO
 	insinto "/usr/share/doc/${PF}"
 	doins -r doc/original_lx_docs
