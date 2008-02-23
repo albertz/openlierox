@@ -9,6 +9,7 @@
 - better forward-compatibility for net-protocol
 - FPS independent physics
 - more correct projectile simulation
+- experimental file transfer support
 - delete-key works now under MacOSX
 - more keys got recognised
   (super and meta keys, that includes also the
