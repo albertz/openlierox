@@ -572,11 +572,6 @@ int unsetenv(const char *name)
       return -1;
     }
 
-  char tmp[1024];
-  strcpy(tmp, name);
-  strcat(tmp, "=");
-  putenv(tmp);
-
   len = strlen (name);
 
   ep = _environ;
