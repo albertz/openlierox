@@ -333,7 +333,7 @@ int CProjectile::CheckCollision(float dt, CMap *map, CWorm* worms, float* enddt)
 			bounce = true;
 		} else if ( tProjInfo->Hit_Type == PJ_NOTHING )  {  // PJ_NOTHING projectiles go through walls (but a bit slower)
 			//printf("this projectile can go through walls\n");
-			vPosition -= (vVelocity*dt)*0.8f;				// Note: the speed in walls could be moddable
+			vPosition -= (vVelocity*dt)*0.5f;				// Note: the speed in walls could be moddable
 			vOldPos = vPosition;
 		} else {
 			vPosition = vOldPos;
