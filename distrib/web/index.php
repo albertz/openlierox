@@ -46,14 +46,20 @@
 </p>
 <p>
 	<h2>Downloads</h2>
+	<b>0.57_beta4</b> (released 2008-02-23)<br>
+	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=578993">
+	OpenLieroX main downloads</a> (Source/Linux, Windows, Mac OS X)<br>
+	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta4.ebuild">OpenLieroX Gentoo ebuild</a><br>
+	If somebody here is familiar with deb-packages, take a look at the
+	RFP-bugtracker-entry here: <a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=445850">
+	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=445850</a><br>
+	<br>
 	<b>0.57_beta3</b> (released 2007-08-08)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=531327">
 	OpenLieroX main downloads</a> (with Mac OS X Universal Binary now!)<br>
 	<a href="ebuild/games-action/openlierox/openlierox-0.57_beta3.ebuild">OpenLieroX Gentoo ebuild</a><br>
 	HINT: We already provide a Deb-package but this package is not conform to all the 
-	Debian-policies. If somebody here is familiar with deb-packages, take a look at the
-	RFP-bugtracker-entry here: <a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=445850">
-	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=445850</a><br>
+	Debian-policies.<br>
 	<br>
 	<b>0.57_beta2</b> (released 2007-04-09)<br>
 	<a href="http://sourceforge.net/project/showfiles.php?group_id=180059&package_id=208133&release_id=499780">
