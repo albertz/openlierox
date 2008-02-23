@@ -13,7 +13,6 @@
 // Created 12/8/02
 // Jason Boettcher
 
-
 #include "LieroX.h"
 #include "Graphics.h"
 #include "CClient.h"
@@ -33,6 +32,7 @@
 #include "CImage.h"
 #include "CMediaPlayer.h"
 #include "CGuiSkin.h"
+#include "MathLib.h"
 
 
 /*
@@ -1124,7 +1124,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	// Draw the mouse
 	DrawCursor(tMenu->bmpScreen);
 
-	int secondsTillGameStart = iStartDedicatedSeconds - (int)round( tLX->fCurTime - fStartDedicatedSecondsPassed );
+	int secondsTillGameStart = iStartDedicatedSeconds - Round( tLX->fCurTime - fStartDedicatedSecondsPassed );
 	static int secondsAnnounced = -1;
 	if( bStartDedicated && cServer->getNumPlayers() < iStartDedicatedMinPlayers )
 	{

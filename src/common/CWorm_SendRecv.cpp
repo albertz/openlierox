@@ -472,7 +472,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	bs->read2Int12( x, y );
 
 	// Angle
-	fAngle = tState.iAngle = bs->readInt(1) - 90;
+	fAngle = tState.iAngle = (float)(bs->readInt(1) - 90);
 	
 	// Flags
 	uchar bits = bs->readByte();
