@@ -18,12 +18,9 @@
 - more intelligent event-handling (in some parts);
   all pressed keys got recognised in chat/console
   and you can also play on very low FPS
-- events for network sockets
-- fixed changing of graphic settings
 - DNS support for serverlist
 - Worm AI improvements
 - usage of ALSA on Linux by default
-- better multithreading handling of network
 - network improved
 - cache for map and gamescript
 - Developer documentation
@@ -32,6 +29,7 @@
 - FPS limit is also valid for menu
 - menu takes less resources
 - help for weapon selection
+- fixed changing of graphic settings
 - and a lot of other fixes / cleanups
 
 
