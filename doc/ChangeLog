@@ -26,6 +26,7 @@
 - network improved
 - cache for map and gamescript
 - Developer documentation
+- strafing
 - optimised sorting in combobox
 - FPS limit is also valid for menu
 - menu takes less resources

@@ -281,7 +281,6 @@ public:
 	
 		
 		float speed;
-		CVec dir;
 		float	fFrameRate = 7.5f;
 
 		// If we're IT, spawn some sparkles
@@ -309,14 +308,16 @@ public:
 			}
 		}
 
-		// Calculate dir
-		dir.x=( (float)cos(worm->getAngle() * (PI/180)) );
-		dir.y=( (float)sin(worm->getAngle() * (PI/180)) );
-		if(worm->getDirection()==DIR_LEFT)
-			dir.x=(-dir.x);
 
 		// Process the carving
 		if(ws->iCarve) {
+			// Calculate dir
+			CVec dir;
+			dir.x=( (float)cos(worm->getAngle() * (PI/180)) );
+			dir.y=( (float)sin(worm->getAngle() * (PI/180)) );
+			if(worm->getMoveDirection()==DIR_LEFT)
+				dir.x=(-dir.x);
+			
 			worm->incrementDirtCount( CarveHole(worm->getMap(), worm->getPos() + dir*4) );
 			//cClient->SendCarve(vPos + dir*4);
 		}
