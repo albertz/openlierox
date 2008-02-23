@@ -134,7 +134,7 @@ void CWorm::getInput()
 		if(fabs(fMoveSpeedX) > 50) {
 			if(fMoveSpeedX > 0) {
 				iMoveDirection = DIR_RIGHT;
-				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
+				if(mouse_dx < 0) lastMoveTime = tLX->fCurTime;
 			} else {
 				iMoveDirection = DIR_LEFT;
 				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
@@ -202,9 +202,10 @@ void CWorm::getInput()
 			}
 		} */
 		
-		static const float movetimed_min = 0.08f, movetimed_max = 0.2f;
+		const float movetimed_min = 0.08f;
+		const float movetimed_max = CLAMP(dt * 10.0f, 0.2f, 1.0f);
 		
-		if((mouseControl && ws->iMove && iDirection == DIR_LEFT)
+		if((mouseControl && ws->iMove && iMoveDirection == DIR_LEFT)
 		|| (cLeft.isJoystick() && cLeft.isDown())) {
 			float movetimed = tLX->fCurTime - lastMoveTime;
 			//printf("movetimed: %f\n", movetimed);
@@ -215,7 +216,7 @@ void CWorm::getInput()
 			}
 		}
 	
-		if((mouseControl && ws->iMove && iDirection == DIR_RIGHT)
+		if((mouseControl && ws->iMove && iMoveDirection == DIR_RIGHT)
 		|| (cRight.isJoystick() && cRight.isDown())) {
 			float movetimed = tLX->fCurTime - lastMoveTime;
 			//printf("movetimed: %f\n", movetimed);
