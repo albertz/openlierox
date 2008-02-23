@@ -1029,6 +1029,7 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
 	return; */
 #endif
 
+	// TODO: move this out here
 	// If the worm is a flag don't let it move
 	if(flaggame && getFlag())
 		return;
@@ -1081,28 +1082,29 @@ void CWorm::AI_GetInput(int gametype, int teamgame, int taggame, int VIPgame, in
    		if(CheckOnGround() && fRopeAttachedTime >= 0.3f && !NEW_AI_IsInAir(vPos))
    			cNinjaRope.Release();
 
-    	return;
-
     } else {
 
 		// Reload weapons when we can't shoot
 		AI_ReloadWeapons();
 
+		// Process depending on our current state
+		switch(nAIState) {
+	
+			// Think; We spawn in this state
+			case AI_THINK:
+				AI_Think(gametype, teamgame, taggame);
+				break;
+	
+			// Moving towards a target
+			case AI_MOVINGTOTARGET:
+				NEW_AI_MoveToTarget();
+				break;
+		}
+    
     }
-
-    // Process depending on our current state
-    switch(nAIState) {
-
-        // Think; We spawn in this state
-        case AI_THINK:
-            AI_Think(gametype, teamgame, taggame);
-            break;
-
-        // Moving towards a target
-        case AI_MOVINGTOTARGET:
-            NEW_AI_MoveToTarget();
-            break;
-    }
+    
+    // we have no strafing for bots at the moment
+    iMoveDirection = iDirection;
 }
 
 
