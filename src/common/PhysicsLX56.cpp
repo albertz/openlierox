@@ -273,13 +273,7 @@ public:
 
 		const gs_worm_t *wd = worm->getGameScript()->getWorm();
 		worm_state_t *ws = worm->getWormState();
-
-		// TODO: move out here, doesn't belong here; should be done when we parse an update-packet
-		// Special things for remote worms
-		if(!local) {
-			worm->setAngle( (float)ws->iAngle );
-			worm->setDirection( ws->iDirection );
-		}
+		
 		
 	simulateWormStart:
 		if(worm->fLastSimulationTime + dt > tLX->fCurTime) return;
@@ -344,7 +338,7 @@ public:
 
 		// Process the moving
 		if(ws->iMove) {
-			if(worm->getDirection() == DIR_RIGHT) {
+			if(worm->getMoveDirection() == DIR_RIGHT) {
 				// Right
 				if(worm->getVelocity()->x < 30)
 					worm->getVelocity()->x += speed * dt * 90.0f;
@@ -354,10 +348,6 @@ public:
 					worm->getVelocity()->x -= speed * dt * 90.0f;
 			}
 		}
-
-		// TODO: move this to CWorm::getInput() ?
-		if(worm->getStrafeInput()->isDown())
-			worm->setDirection( worm->getStrafeDirection() );
 
 
 		// Process the jump

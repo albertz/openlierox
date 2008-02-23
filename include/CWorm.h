@@ -222,7 +222,7 @@ private:
 	bool		bAlive;
 	float		fTimeofDeath;
 	int			iDirection;
-	int			iStrafeDirection;
+	int			iMoveDirection;
 	bool		bGotTarget;
 	float		fAngle;
     float       fAngleSpeed;
@@ -599,7 +599,7 @@ public:
 	void		setAngle(float a)			{ fAngle = a; }
 	int			getDirection(void)			{ return iDirection; }
 	void		setDirection(int d)			{ iDirection = d; }
-	int			getStrafeDirection()		{ return iStrafeDirection; }
+	int			getMoveDirection()		{ return iMoveDirection; }
 	
 	void		setLoadingTime(float l)		{ fLoadingTime = l; }
 	float		getLoadingTime()			{ return fLoadingTime; }

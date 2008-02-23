@@ -152,7 +152,7 @@ void CWorm::writePacket(CBytestream *bs)
 // Synchronizes the variables used for check below
 void CWorm::updateCheckVariables()
 {
-	tLastState = tState;
+	tLastState = tState; tLastState.iDirection = iDirection;
 	fLastAngle = fAngle;
 	fLastUpdateWritten = tLX->fCurTime;
 	iLastCurWeapon = iCurrentWeapon;
@@ -172,7 +172,7 @@ bool CWorm::checkPacketNeeded()
 
 	if (
 		(tLastState.iCarve != tState.iCarve) ||
-		(tLastState.iDirection != tState.iDirection)  ||
+		(tLastState.iDirection != iDirection)  ||
 		(tLastState.iMove != tState.iMove) ||
 		(tLastState.iJump != tState.iJump) ||
 		(tLastState.iShoot != tState.iShoot))
@@ -384,11 +384,11 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	uchar bits = bs->readByte();
 	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 
-	iDirection = DIR_LEFT;
+	iMoveDirection = iDirection = DIR_LEFT;
 		
 	tState.iCarve = (bits & 0x01);
 	if(bits & 0x02)
-		iDirection = DIR_RIGHT;
+		iMoveDirection = iDirection = DIR_RIGHT;
 	tState.iMove = (bits & 0x04);
 	tState.iJump = (bits & 0x08);
 	tState.iShoot = (bits & 0x20);
@@ -472,17 +472,17 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	bs->read2Int12( x, y );
 
 	// Angle
-	tState.iAngle = bs->readInt(1) - 90;
-
+	fAngle = tState.iAngle = bs->readInt(1) - 90;
+	
 	// Flags
 	uchar bits = bs->readByte();
 	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 	
-	iDirection = tState.iDirection = DIR_LEFT;
+	iMoveDirection = iDirection = tState.iDirection = DIR_LEFT;
 
 	tState.iCarve = (bits & 0x01);
 	if(bits & 0x02)
-		iDirection = tState.iDirection = DIR_RIGHT;
+		iMoveDirection = iDirection = tState.iDirection = DIR_RIGHT;
 	tState.iMove = (bits & 0x04);
 	tState.iJump = (bits & 0x08);
 	tState.iShoot = (bits & 0x20);

@@ -49,9 +49,6 @@ void CWorm::getInput()
 	bool leftOnce = cLeft.isDownOnce();
 	bool rightOnce = cRight.isDownOnce();
 	
-	// Backup the direction so that the worm can strafe
-	iStrafeDirection = iDirection;
-
 	worm_state_t *ws = &tState;
 
 	// Init the ws
@@ -118,7 +115,7 @@ void CWorm::getInput()
 		// Calculate dir
 		dir.x=( (float)cos(fAngle * (PI/180)) );
 		dir.y=( (float)sin(fAngle * (PI/180)) );
-		if( iStrafeDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
+		if( iMoveDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
 			dir.x=(-dir.x);
 
 	} // end angle section
@@ -136,14 +133,15 @@ void CWorm::getInput()
 				
 		if(fabs(fMoveSpeedX) > 50) {
 			if(fMoveSpeedX > 0) {
-				iDirection = DIR_RIGHT;
+				iMoveDirection = DIR_RIGHT;
 				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
 			} else {
-				iDirection = DIR_LEFT;
+				iMoveDirection = DIR_LEFT;
 				if(mouse_dx > 0) lastMoveTime = tLX->fCurTime;
 			}
 			ws->iMove = true;
-			
+			if(!cStrafe.isDown()) iDirection = iMoveDirection;
+		
 		} else {
 			ws->iMove = false;
 		}
@@ -306,7 +304,10 @@ void CWorm::getInput()
 		if(cLeft.isDown()) {
 			ws->iMove = true;
 			
-			if(!cRight.isDown()) iDirection = DIR_LEFT;
+			if(!cRight.isDown()) {
+				if(!cStrafe.isDown()) iDirection = DIR_LEFT;
+				iMoveDirection = DIR_LEFT;
+			}
 			
 			if(rightOnce) {
 				ws->iCarve = true;
@@ -317,7 +318,10 @@ void CWorm::getInput()
 		if(cRight.isDown()) {
 			ws->iMove = true;
 			
-			if(!cLeft.isDown()) iDirection = DIR_RIGHT;
+			if(!cLeft.isDown()) {
+				if(!cStrafe.isDown()) iDirection = DIR_RIGHT;
+				iMoveDirection = DIR_RIGHT;
+			}
 			
 			if(leftOnce) {
 				ws->iCarve = true;
@@ -326,40 +330,6 @@ void CWorm::getInput()
 		}	
 	}
 	
-
-/*
-
-	// Right
-	if((cRight.isDown() && !(iCarving & 2) && !weap)  || (iType == PRF_COMPUTER && !(iCarving & 2))) {
-
-		// Check if we dig a small hole
-		if(cLeft.isDownOnce() && iDirection == DIR_RIGHT) {
-			ws->iCarve = true;
-			iCarving |= 1;
-		}
-
-		if(!cLeft.isDown() || iDirection == DIR_RIGHT) {
-			iDirection = DIR_RIGHT;
-			ws->iMove = true;
-			lastMoveTime = tLX->fCurTime;
-		}
-	}
-
-	// Left
-	if((cLeft.isDown() && !(iCarving & 1) && !weap) || (iType == PRF_COMPUTER && !(iCarving & 1))) {
-
-		// Check if we dig a small hole
-		if(RightOnce && iDirection == DIR_LEFT) {
-			ws->iCarve = true;
-			iCarving |= 2;
-		}
-
-		iDirection = DIR_LEFT;
-		ws->iMove = true;
-		lastMoveTime = tLX->fCurTime;
-	}
-
-*/
 
 	bool oldskool = tLXOptions->bOldSkoolRope;
 
